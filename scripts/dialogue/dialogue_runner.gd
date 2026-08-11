@@ -1,17 +1,16 @@
 class_name DialogueRunner
 extends Node
 
-const PresenterScript := preload("res://scripts/dialogue/dialogue_presenter.gd")
-const EntryResolverScript := preload("res://scripts/dialogue/dialogue_entry_resolver.gd")
-const TextFormatterScript := preload("res://scripts/dialogue/dialogue_text_formatter.gd")
-const LocalizationScript := preload("res://scripts/dialogue/dialogue_localization.gd")
-
 ## Authored offline dialogue playback: branching choices, conditions, effects,
 ## once-only nodes, and phase bark resolution. UI is delegated to DialoguePresenter.
 
 signal started(dialogue_id: StringName)
 signal finished(dialogue_id: StringName)
 
+const PresenterScript := preload("res://scripts/dialogue/dialogue_presenter.gd")
+const EntryResolverScript := preload("res://scripts/dialogue/dialogue_entry_resolver.gd")
+const TextFormatterScript := preload("res://scripts/dialogue/dialogue_text_formatter.gd")
+const LocalizationScript := preload("res://scripts/dialogue/dialogue_localization.gd")
 const CONTINUE_ACTIONS: Array[StringName] = [
 	&"interact",
 	&"ui_accept",
@@ -29,7 +28,6 @@ var _waiting_for_choice := false
 var _pending_choices: Array = []
 var _input_enabled := false
 var _localization: RefCounted
-
 
 func _init() -> void:
 	_localization = LocalizationScript.new()
@@ -170,9 +168,7 @@ func advance_for_test() -> void:
 
 
 func resolve_bark(
-	bark_pool_id: StringName,
-	phase_id: StringName = &"",
-	location_id: StringName = &""
+	bark_pool_id: StringName, phase_id: StringName = &"", location_id: StringName = &""
 ) -> Dictionary:
 	if _content_db == null or _state == null:
 		return {}
@@ -190,10 +186,11 @@ func resolve_bark(
 
 	var entries: Array = pool.get("entries", [])
 	var ranked := entries.duplicate()
-	ranked.sort_custom(func(a: Variant, b: Variant) -> bool:
-		var priority_a := int((a as Dictionary).get("priority", 0)) if a is Dictionary else 0
-		var priority_b := int((b as Dictionary).get("priority", 0)) if b is Dictionary else 0
-		return priority_a > priority_b
+	ranked.sort_custom(
+		func(a: Variant, b: Variant) -> bool:
+			var priority_a := int((a as Dictionary).get("priority", 0)) if a is Dictionary else 0
+			var priority_b := int((b as Dictionary).get("priority", 0)) if b is Dictionary else 0
+			return priority_a > priority_b
 	)
 
 	for entry_value: Variant in ranked:
@@ -201,7 +198,10 @@ func resolve_bark(
 			continue
 		var entry: Dictionary = entry_value
 		var conditions: Array = entry.get("conditions", [])
-		if not conditions.is_empty() and not _evaluator.evaluate_conditions(_runtime_rules(conditions), _state):
+		if (
+			not conditions.is_empty()
+			and not _evaluator.evaluate_conditions(_runtime_rules(conditions), _state)
+		):
 			continue
 		return {
 			"bark_pool_id": bark_pool_id,
@@ -264,12 +264,7 @@ func _enter_node(node_id: String, depth: int = 0) -> bool:
 	var choices := _resolve_choices(node)
 	var speaker_id := StringName(String(node.get("speaker_id", "")))
 	if not text.is_empty():
-		_presenter.present_line(
-			speaker_id,
-			_speaker_name(speaker_id),
-			text,
-			node_id
-		)
+		_presenter.present_line(speaker_id, _speaker_name(speaker_id), text, node_id)
 		if not choices.is_empty():
 			_pending_choices = choices
 		return true
@@ -288,9 +283,11 @@ func _enter_node(node_id: String, depth: int = 0) -> bool:
 
 
 func _node_once_seen(dialogue_id: StringName, node: Dictionary) -> bool:
-	return bool(node.get("once", false)) \
-		and _state != null \
+	return (
+		bool(node.get("once", false))
+		and _state != null
 		and _state.has_dialogue_node_seen(dialogue_id, String(node.get("id", "")))
+	)
 
 
 func _node_conditions_met(node: Dictionary) -> bool:

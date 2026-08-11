@@ -56,17 +56,13 @@ func sync(rain_suppressed: bool, rain_intensity: float, delta: float = 0.0) -> v
 
 
 static func should_play_roof_audio(
-	rain_suppressed: bool,
-	rain_intensity: float,
-	audio_enabled: bool = true
+	rain_suppressed: bool, rain_intensity: float, audio_enabled: bool = true
 ) -> bool:
 	return audio_enabled and rain_suppressed and rain_intensity > RAIN_AUDIBLE_THRESHOLD
 
 
 static func target_linear_volume(
-	rain_suppressed: bool,
-	rain_intensity: float,
-	audio_enabled: bool = true
+	rain_suppressed: bool, rain_intensity: float, audio_enabled: bool = true
 ) -> float:
 	if not should_play_roof_audio(rain_suppressed, rain_intensity, audio_enabled):
 		return 0.0
@@ -74,11 +70,7 @@ static func target_linear_volume(
 
 
 func roof_audio_active() -> bool:
-	return (
-		_player != null
-		and _player.playing
-		and _player.volume_db > SILENCE_DB + 1.0
-	)
+	return _player != null and _player.playing and _player.volume_db > SILENCE_DB + 1.0
 
 
 func roof_audio_linear_volume() -> float:

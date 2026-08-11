@@ -1,17 +1,15 @@
 class_name MapViewMaterialPatterns
 extends RefCounted
 
-## Procedural grayscale detail textures multiplied with palette albedo tints.
-
-
-static var _cache: Dictionary = {}
-
 ## The 4 m world-space terrain tile carries the same 5 x 7 stones per metre as
 ## the former first-person MultiMesh, but all stones are baked into two textures.
 ## Even counts preserve running-bond parity at both wrapping edges.
 const COBBLE_STONES_X := 20
 const COBBLE_STONES_Y := 28
 
+## Procedural grayscale detail textures multiplied with palette albedo tints.
+
+static var _cache: Dictionary = {}
 
 static func reset() -> void:
 	_cache.clear()
@@ -62,10 +60,26 @@ static func _paint_door_wood(image: Image, noise_seed: int) -> void:
 	var knot_y := int((0.22 + _hash01(5, 11, noise_seed) * 0.56) * float(height))
 	for y in height:
 		for x in width:
-			var slow_warp := (_lattice(float(x) / 18.0, float(y) / 42.0, maxi(floori(float(width) / 18.0), 2), noise_seed + 17) - 0.5) * 13.0
+			var slow_warp := (
+				(
+					_lattice(
+						float(x) / 18.0,
+						float(y) / 42.0,
+						maxi(floori(float(width) / 18.0), 2),
+						noise_seed + 17
+					)
+					- 0.5
+				)
+				* 13.0
+			)
 			var fiber := sin((float(x) + slow_warp) * 0.23)
 			var fine := sin((float(x) + slow_warp * 0.45) * 0.71 + float(y) * 0.014)
-			var broad := _lattice(float(x) / 24.0, float(y) / 48.0, maxi(floori(float(width) / 24.0), 2), noise_seed + 43)
+			var broad := _lattice(
+				float(x) / 24.0,
+				float(y) / 48.0,
+				maxi(floori(float(width) / 24.0), 2),
+				noise_seed + 43
+			)
 			var value := 0.70 + fiber * 0.055 + fine * 0.022 + (broad - 0.5) * 0.13
 			var knot_delta := Vector2(float(x - knot_x) * 0.72, float(y - knot_y))
 			var knot_distance := knot_delta.length()
@@ -81,7 +95,9 @@ static func _paint_door_wood(image: Image, noise_seed: int) -> void:
 			_fill_value(image, x, y, value)
 
 
-static func pattern_texture_at_size(pattern: StringName, noise_seed: int, texture_size: int) -> ImageTexture:
+static func pattern_texture_at_size(
+	pattern: StringName, noise_seed: int, texture_size: int
+) -> ImageTexture:
 	return _pattern_texture_at_size(pattern, noise_seed, texture_size)
 
 
@@ -93,7 +109,9 @@ static func pattern_texture_weathered(
 	weathering: StringName,
 	texture_size: int = MapViewMaterials.TEXTURE_SIZE
 ) -> ImageTexture:
-	var key := "pattern:%s:%d:%s:%d" % [String(pattern), noise_seed, String(weathering), texture_size]
+	var key := (
+		"pattern:%s:%d:%s:%d" % [String(pattern), noise_seed, String(weathering), texture_size]
+	)
 	if _cache.has(key):
 		return _cache[key]
 	var image := _pattern_image_at_size(pattern, noise_seed, texture_size)
@@ -104,7 +122,9 @@ static func pattern_texture_weathered(
 	return texture
 
 
-static func _pattern_texture_at_size(pattern: StringName, noise_seed: int, texture_size: int) -> ImageTexture:
+static func _pattern_texture_at_size(
+	pattern: StringName, noise_seed: int, texture_size: int
+) -> ImageTexture:
 	var key := "pattern:%s:%d:%d" % [String(pattern), noise_seed, texture_size]
 	if _cache.has(key):
 		return _cache[key]
@@ -115,7 +135,9 @@ static func _pattern_texture_at_size(pattern: StringName, noise_seed: int, textu
 	return texture
 
 
-static func _pattern_image_at_size(pattern: StringName, noise_seed: int, texture_size: int) -> Image:
+static func _pattern_image_at_size(
+	pattern: StringName, noise_seed: int, texture_size: int
+) -> Image:
 	var image := Image.create(texture_size, texture_size, false, Image.FORMAT_RGB8)
 	match pattern:
 		MapViewMaterials.PATTERN_COBBLE:
@@ -157,7 +179,9 @@ static func _pattern_image_at_size(pattern: StringName, noise_seed: int, texture
 
 ## Post-process a painted grayscale pattern with deterministic wear, damp,
 ## repair, or fresh treatments. Keeps palette-led tinting in MapViewMaterials.
-static func _apply_surface_weathering(image: Image, weathering: StringName, noise_seed: int) -> void:
+static func _apply_surface_weathering(
+	image: Image, weathering: StringName, noise_seed: int
+) -> void:
 	if weathering == MapViewMaterials.WEATHER_FRESH:
 		return
 	var size := image.get_width()
@@ -171,10 +195,16 @@ static func _apply_surface_weathering(image: Image, weathering: StringName, nois
 						value += 0.07
 				MapViewMaterials.WEATHER_DAMP:
 					value *= 0.9
-					if _hash01(floori(float(x) / 7.0), floori(float(y) / 9.0), noise_seed + 503) > 0.58:
+					if (
+						_hash01(floori(float(x) / 7.0), floori(float(y) / 9.0), noise_seed + 503)
+						> 0.58
+					):
 						value -= 0.07
 				MapViewMaterials.WEATHER_REPAIRED:
-					if _hash01(floori(float(x) / 11.0), floori(float(y) / 9.0), noise_seed + 607) > 0.78:
+					if (
+						_hash01(floori(float(x) / 11.0), floori(float(y) / 9.0), noise_seed + 607)
+						> 0.78
+					):
 						value = lerpf(value, 0.94, 0.62)
 				_:
 					pass
@@ -215,9 +245,15 @@ static func _paint_grass(image: Image, noise_seed: int) -> void:
 	var size := image.get_width()
 	for y in size:
 		for x in size:
-			var broad := _lattice(float(x) / 16.0, float(y) / 16.0, floori(float(size) / 16.0), noise_seed)
-			var fine := _lattice(float(x) / 5.0, float(y) / 5.0, floori(float(size) / 5.0), noise_seed + 51)
-			var streak := _lattice(float(x) / 3.0, float(y) / 11.0, floori(float(size) / 3.0), noise_seed + 907)
+			var broad := _lattice(
+				float(x) / 16.0, float(y) / 16.0, floori(float(size) / 16.0), noise_seed
+			)
+			var fine := _lattice(
+				float(x) / 5.0, float(y) / 5.0, floori(float(size) / 5.0), noise_seed + 51
+			)
+			var streak := _lattice(
+				float(x) / 3.0, float(y) / 11.0, floori(float(size) / 3.0), noise_seed + 907
+			)
 			var value := 0.82 + broad * 0.16 + fine * 0.10
 			if streak > 0.78:
 				value += 0.07
@@ -231,9 +267,15 @@ static func _paint_mud(image: Image, noise_seed: int) -> void:
 	var size := image.get_width()
 	for y in size:
 		for x in size:
-			var broad := _lattice(float(x) / 14.0, float(y) / 14.0, floori(float(size) / 14.0), noise_seed)
-			var clump := _lattice(float(x) / 5.0, float(y) / 5.0, floori(float(size) / 5.0), noise_seed + 61)
-			var trough := _lattice(float(x) / 9.0, float(y) / 11.0, floori(float(size) / 9.0), noise_seed + 907)
+			var broad := _lattice(
+				float(x) / 14.0, float(y) / 14.0, floori(float(size) / 14.0), noise_seed
+			)
+			var clump := _lattice(
+				float(x) / 5.0, float(y) / 5.0, floori(float(size) / 5.0), noise_seed + 61
+			)
+			var trough := _lattice(
+				float(x) / 9.0, float(y) / 11.0, floori(float(size) / 9.0), noise_seed + 907
+			)
 			var value := 0.68 + broad * 0.12 + clump * 0.10
 			if trough > 0.72:
 				value -= 0.14
@@ -246,7 +288,9 @@ static func _paint_speckle(image: Image, noise_seed: int) -> void:
 	var size := image.get_width()
 	for y in size:
 		for x in size:
-			var broad := _lattice(float(x) / 20.0, float(y) / 20.0, floori(float(size) / 20.0), noise_seed)
+			var broad := _lattice(
+				float(x) / 20.0, float(y) / 20.0, floori(float(size) / 20.0), noise_seed
+			)
 			var fine := _hash01(x, y, noise_seed + 3)
 			var value := 0.84 + broad * 0.14 + (fine - 0.5) * 0.08
 			if fine > 0.965:
@@ -261,8 +305,25 @@ static func _paint_bark(image: Image, noise_seed: int) -> void:
 	var size := image.get_width()
 	for y in size:
 		for x in size:
-			var furrow := absf(sin(float(x) * 0.31 + _lattice(float(x) / 7.0, float(y) / 19.0, maxi(floori(float(size) / 7.0), 2), noise_seed) * 3.0))
-			var grain := _lattice(float(x) / 5.0, float(y) / 24.0, maxi(floori(float(size) / 5.0), 2), noise_seed + 41)
+			var furrow := absf(
+				sin(
+					(
+						float(x) * 0.31
+						+ (
+							_lattice(
+								float(x) / 7.0,
+								float(y) / 19.0,
+								maxi(floori(float(size) / 7.0), 2),
+								noise_seed
+							)
+							* 3.0
+						)
+					)
+				)
+			)
+			var grain := _lattice(
+				float(x) / 5.0, float(y) / 24.0, maxi(floori(float(size) / 5.0), 2), noise_seed + 41
+			)
 			_fill_value(image, x, y, 0.62 + furrow * 0.27 + grain * 0.09)
 
 
@@ -271,9 +332,25 @@ static func _paint_birch_bark(image: Image, noise_seed: int) -> void:
 	var size := image.get_width()
 	for y in size:
 		for x in size:
-			var paper := 0.88 + _lattice(float(x) / 18.0, float(y) / 22.0, maxi(floori(float(size) / 18.0), 2), noise_seed) * 0.10
-			var band_row := posmod(y + int(_hash01(floori(float(y) / 5.0), 3, noise_seed) * 7.0), 17)
-			var lenticel := band_row < 2 and _hash01(floori(float(x) / 7.0), floori(float(y) / 17.0), noise_seed + 83) > 0.43
+			var paper := (
+				0.88
+				+ (
+					_lattice(
+						float(x) / 18.0,
+						float(y) / 22.0,
+						maxi(floori(float(size) / 18.0), 2),
+						noise_seed
+					)
+					* 0.10
+				)
+			)
+			var band_row := posmod(
+				y + int(_hash01(floori(float(y) / 5.0), 3, noise_seed) * 7.0), 17
+			)
+			var lenticel := (
+				band_row < 2
+				and _hash01(floori(float(x) / 7.0), floori(float(y) / 17.0), noise_seed + 83) > 0.43
+			)
 			if lenticel:
 				paper *= 0.30 + _hash01(x, y, noise_seed + 97) * 0.20
 			_fill_value(image, x, y, paper)
@@ -284,8 +361,22 @@ static func _paint_cherry_bark(image: Image, noise_seed: int) -> void:
 	var size := image.get_width()
 	for y in size:
 		for x in size:
-			var smooth := 0.72 + _lattice(float(x) / 24.0, float(y) / 16.0, maxi(floori(float(size) / 24.0), 2), noise_seed) * 0.20
-			if posmod(y + int(_hash01(floori(float(y) / 9.0), 4, noise_seed) * 5.0), 13) == 0 and _hash01(floori(float(x) / 5.0), y, noise_seed + 109) > 0.34:
+			var smooth := (
+				0.72
+				+ (
+					_lattice(
+						float(x) / 24.0,
+						float(y) / 16.0,
+						maxi(floori(float(size) / 24.0), 2),
+						noise_seed
+					)
+					* 0.20
+				)
+			)
+			if (
+				posmod(y + int(_hash01(floori(float(y) / 9.0), 4, noise_seed) * 5.0), 13) == 0
+				and _hash01(floori(float(x) / 5.0), y, noise_seed + 109) > 0.34
+			):
 				smooth += 0.16
 			_fill_value(image, x, y, smooth)
 
@@ -294,8 +385,12 @@ static func _paint_plaster(image: Image, noise_seed: int) -> void:
 	var size := image.get_width()
 	for y in size:
 		for x in size:
-			var broad := _lattice(float(x) / 24.0, float(y) / 24.0, floori(float(size) / 24.0), noise_seed)
-			var fine := _lattice(float(x) / 6.0, float(y) / 6.0, floori(float(size) / 6.0), noise_seed + 77)
+			var broad := _lattice(
+				float(x) / 24.0, float(y) / 24.0, floori(float(size) / 24.0), noise_seed
+			)
+			var fine := _lattice(
+				float(x) / 6.0, float(y) / 6.0, floori(float(size) / 6.0), noise_seed + 77
+			)
 			_fill_value(image, x, y, 0.88 + broad * 0.09 + fine * 0.05)
 
 
@@ -311,8 +406,15 @@ static func _paint_cobble(image: Image, noise_seed: int) -> void:
 			var height := sample.r
 			var joint := sample.g
 			var stone_tone := sample.a
-			var broad := _lattice(float(x) / 41.0, float(y) / 47.0, maxi(floori(float(size) / 47.0), 2), noise_seed + 47)
-			var fine := _lattice(float(x) / 5.0, float(y) / 5.0, maxi(floori(float(size) / 5.0), 2), noise_seed + 83)
+			var broad := _lattice(
+				float(x) / 41.0,
+				float(y) / 47.0,
+				maxi(floori(float(size) / 47.0), 2),
+				noise_seed + 47
+			)
+			var fine := _lattice(
+				float(x) / 5.0, float(y) / 5.0, maxi(floori(float(size) / 5.0), 2), noise_seed + 83
+			)
 			# Earth-filled joints stay darker than stone faces so the shader dirt
 			# veil reads as compacted mud, not bright sand between clean tiles.
 			var stone := 0.58 + stone_tone * 0.14 + height * 0.08
@@ -341,12 +443,9 @@ static func cobble_surface_texture(noise_seed: int) -> ImageTexture:
 			# A restrained slope keeps the stones pressed into the road. The old real
 			# mesh rose 7 cm; this reads closer to a worn 1-2 cm shoulder.
 			var normal := Vector3((left - right) * 0.28, (up - down) * 0.28, 1.0).normalized()
-			image.set_pixel(x, y, Color(
-				normal.x * 0.5 + 0.5,
-				normal.y * 0.5 + 0.5,
-				sample.g,
-				sample.b
-			))
+			image.set_pixel(
+				x, y, Color(normal.x * 0.5 + 0.5, normal.y * 0.5 + 0.5, sample.g, sample.b)
+			)
 	image.generate_mipmaps()
 	var texture := ImageTexture.create_from_image(image)
 	_cache[key] = texture
@@ -371,10 +470,13 @@ static func _cobble_surface_sample(x: int, y: int, size: int, noise_seed: int) -
 	var wrapped_row := posmod(row, COBBLE_STONES_Y)
 	var length_scale := 0.97 + _hash01(wrapped_column, wrapped_row, noise_seed + 11) * 0.04
 	var width_scale := 0.95 + _hash01(wrapped_column, wrapped_row, noise_seed + 17) * 0.04
-	var jitter := Vector2(
-		_hash01(wrapped_column, wrapped_row, noise_seed + 23) - 0.5,
-		_hash01(wrapped_column, wrapped_row, noise_seed + 29) - 0.5
-	) * 0.045
+	var jitter := (
+		Vector2(
+			_hash01(wrapped_column, wrapped_row, noise_seed + 23) - 0.5,
+			_hash01(wrapped_column, wrapped_row, noise_seed + 29) - 0.5
+		)
+		* 0.045
+	)
 	local -= jitter
 	local.x /= length_scale
 	local.y /= width_scale
@@ -387,7 +489,9 @@ static func _cobble_surface_sample(x: int, y: int, size: int, noise_seed: int) -
 	# the high, pillow-like profile that made the previous geometry look too new.
 	var height := smoothstep(-0.02, 0.24, signed_edge)
 	height = lerpf(0.28, 0.78, height) * joint
-	var chips := _hash01(floori(float(wrapped_x) / 3.0), floori(float(wrapped_y) / 3.0), noise_seed + 43)
+	var chips := _hash01(
+		floori(float(wrapped_x) / 3.0), floori(float(wrapped_y) / 3.0), noise_seed + 43
+	)
 	if chips < 0.08 and signed_edge < 0.14:
 		height *= 0.72
 	var palette := _hash01(wrapped_column, wrapped_row, noise_seed + 53)
@@ -411,7 +515,10 @@ static func _paint_brick(image: Image, noise_seed: int) -> void:
 			var in_brick := (x + offset) % brick_w
 			var tone := _hash01(column, row, noise_seed)
 			var value := 0.82 + (tone - 0.5) * 0.16
-			value += _lattice(float(x) / 7.0, float(y) / 7.0, floori(float(size) / 7.0), noise_seed + 5) * 0.06
+			value += (
+				_lattice(float(x) / 7.0, float(y) / 7.0, floori(float(size) / 7.0), noise_seed + 5)
+				* 0.06
+			)
 			if in_course < 1 or in_brick < 1:
 				value = 0.62 + _hash01(x, y, noise_seed + 9) * 0.06
 			_fill_value(image, x, y, value)
@@ -424,7 +531,9 @@ static func _paint_plank(image: Image, noise_seed: int) -> void:
 		var row := floori(float(y) / float(plank))
 		var in_plank := y % plank
 		for x in size:
-			var grain := _lattice(float(x) / 4.0, float(y) / 18.0, floori(float(size) / 4.0), noise_seed + row * 131)
+			var grain := _lattice(
+				float(x) / 4.0, float(y) / 18.0, floori(float(size) / 4.0), noise_seed + row * 131
+			)
 			var value := 0.80 + grain * 0.18
 			value += sin(float(x) * 0.35 + float(row) * 2.1) * 0.02
 			if in_plank < 1:
@@ -443,9 +552,15 @@ static func _paint_rock(image: Image, noise_seed: int) -> void:
 	var size := image.get_width()
 	for y in size:
 		for x in size:
-			var broad := _lattice(float(x) / 18.0, float(y) / 18.0, floori(float(size) / 18.0), noise_seed)
-			var medium := _lattice(float(x) / 7.0, float(y) / 7.0, floori(float(size) / 7.0), noise_seed + 31)
-			var fine := _lattice(float(x) / 2.5, float(y) / 2.5, floori(float(size) / 3.0), noise_seed + 67)
+			var broad := _lattice(
+				float(x) / 18.0, float(y) / 18.0, floori(float(size) / 18.0), noise_seed
+			)
+			var medium := _lattice(
+				float(x) / 7.0, float(y) / 7.0, floori(float(size) / 7.0), noise_seed + 31
+			)
+			var fine := _lattice(
+				float(x) / 2.5, float(y) / 2.5, floori(float(size) / 3.0), noise_seed + 67
+			)
 			var speckle := _hash01(x, y, noise_seed + 11)
 			var value := 0.70 + broad * 0.14 + medium * 0.10 + fine * 0.06
 			value += (speckle - 0.5) * 0.08
@@ -453,7 +568,9 @@ static func _paint_rock(image: Image, noise_seed: int) -> void:
 				value += 0.10
 			elif speckle < 0.04:
 				value -= 0.12
-			var fissure := _lattice(float(x + y) / 5.0, float(x - y) / 8.0, floori(float(size) / 5.0), noise_seed + 103)
+			var fissure := _lattice(
+				float(x + y) / 5.0, float(x - y) / 8.0, floori(float(size) / 5.0), noise_seed + 103
+			)
 			if fissure > 0.88:
 				value -= 0.14
 			_fill_value(image, x, y, value)
@@ -475,7 +592,10 @@ static func _paint_limestone(image: Image, noise_seed: int) -> void:
 			var in_block := (x + offset) % width
 			var tone := _hash01(column, row, noise_seed + 17)
 			var value := 0.80 + (tone - 0.5) * 0.18
-			value += _lattice(float(x) / 9.0, float(y) / 9.0, floori(float(size) / 9.0), noise_seed + 23) * 0.08
+			value += (
+				_lattice(float(x) / 9.0, float(y) / 9.0, floori(float(size) / 9.0), noise_seed + 23)
+				* 0.08
+			)
 			if in_course < 1 or in_block < 1:
 				value = 0.58 + _hash01(x, y, noise_seed + 31) * 0.05
 			_fill_value(image, x, y, value)
@@ -509,8 +629,12 @@ static func _paint_straw(image: Image, noise_seed: int) -> void:
 	var size := image.get_width()
 	for y in size:
 		for x in size:
-			var strand := _lattice(float(x) / 2.0, float(y) / 14.0, floori(float(size) / 2.0), noise_seed)
-			var broad := _lattice(float(x) / 20.0, float(y) / 20.0, floori(float(size) / 20.0), noise_seed + 41)
+			var strand := _lattice(
+				float(x) / 2.0, float(y) / 14.0, floori(float(size) / 2.0), noise_seed
+			)
+			var broad := _lattice(
+				float(x) / 20.0, float(y) / 20.0, floori(float(size) / 20.0), noise_seed + 41
+			)
 			_fill_value(image, x, y, 0.74 + strand * 0.20 + broad * 0.08)
 
 
@@ -529,8 +653,12 @@ static func _paint_thatch(image: Image, noise_seed: int) -> void:
 		for x in size:
 			var tone := _hash01(floori(float(x) / 5.0), row, noise_seed)
 			# Tight vertical reed strands within each course.
-			var strand := _lattice(float(x) / 1.6, float(y) / 10.0, floori(float(size) / 2.0), noise_seed + 7)
-			var clump := _lattice(float(x) / 7.0, float(row), maxi(floori(float(size) / 7.0), 1), noise_seed + 29)
+			var strand := _lattice(
+				float(x) / 1.6, float(y) / 10.0, floori(float(size) / 2.0), noise_seed + 7
+			)
+			var clump := _lattice(
+				float(x) / 7.0, float(row), maxi(floori(float(size) / 7.0), 1), noise_seed + 29
+			)
 			var value := 0.68 + strand * 0.24 + (tone - 0.5) * 0.12 + clump * 0.06
 			# Overlap shadow where the course above hangs over this one.
 			var drip := clampf(1.0 - float(local_y) / 4.5, 0.0, 1.0)
@@ -560,7 +688,10 @@ static func _paint_shingle(image: Image, noise_seed: int) -> void:
 			var tone := _hash01(column, row, noise_seed)
 			# Weathered wood: gentle vertical grain per shingle.
 			var value := 0.78 + (tone - 0.5) * 0.22
-			value += _lattice(float(x) / 3.0, float(y) / 9.0, floori(float(size) / 3.0), noise_seed + 19) * 0.06
+			value += (
+				_lattice(float(x) / 3.0, float(y) / 9.0, floori(float(size) / 3.0), noise_seed + 19)
+				* 0.06
+			)
 			# Overlap shadow at the bottom edge of each course.
 			value -= clampf(1.0 - float(in_course) / 3.0, 0.0, 1.0) * 0.18
 			if in_shingle < 1:
@@ -580,7 +711,15 @@ static func _paint_log(image: Image, noise_seed: int) -> void:
 			# Rounded log profile: brightest at the course center.
 			var profile := sin(float(in_course) / float(course) * PI)
 			var value := 0.62 + profile * 0.30
-			value += _lattice(float(x) / 5.0, float(y) / 16.0, floori(float(size) / 5.0), noise_seed + row * 57) * 0.10
+			value += (
+				_lattice(
+					float(x) / 5.0,
+					float(y) / 16.0,
+					floori(float(size) / 5.0),
+					noise_seed + row * 57
+				)
+				* 0.10
+			)
 			# Dark seam between logs.
 			if in_course < 1:
 				value = 0.38 + _hash01(x, row, noise_seed + 7) * 0.06

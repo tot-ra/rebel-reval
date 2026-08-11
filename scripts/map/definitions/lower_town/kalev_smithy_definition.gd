@@ -4,7 +4,6 @@ extends RefCounted
 ## Production interior for Kalev's forge (P2-018).
 ## WHY: gameplay scenes keep a MapDefinition entry point while authoring lives in .rrmap.
 
-
 const RRMAP_PATH := "res://content/maps/kalev_smithy.rrmap"
 
 

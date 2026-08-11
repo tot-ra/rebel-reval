@@ -4,7 +4,9 @@ extends RefCounted
 ## Builds player-facing commission snapshots from authored content and GameState.
 
 const EVALUATOR_SCRIPT := preload("res://scripts/state/state_rule_evaluator.gd")
-const CommissionDeadlineModelScript := preload("res://scripts/commission/commission_deadline_model.gd")
+const CommissionDeadlineModelScript := preload(
+	"res://scripts/commission/commission_deadline_model.gd"
+)
 const TradePriceModelScript := preload("res://scripts/economy/trade_price_model.gd")
 
 const MATERIAL_LABELS := {
@@ -34,7 +36,9 @@ static func build_snapshot(
 	var item := content_db.get_item(object_item_id)
 	var location_id := StringName(String(commission.get("location_id", "")))
 	var material_grade := String(item.get("material_grade", "common"))
-	var material_cost := TradePriceModelScript.material_cost_pfennigs(material_grade, location_id, state)
+	var material_cost := TradePriceModelScript.material_cost_pfennigs(
+		material_grade, location_id, state
+	)
 
 	return {
 		"commission_id": commission_id,
@@ -152,9 +156,7 @@ static func _discovered_leverage(commission: Dictionary, state: GameState) -> Ar
 
 
 static func _resolve_forging_options(
-	commission: Dictionary,
-	state: GameState,
-	evaluator: StateRuleEvaluator
+	commission: Dictionary, state: GameState, evaluator: StateRuleEvaluator
 ) -> Array:
 	var resolved: Array = []
 	for option_value in commission.get("forging_options", []) as Array:
@@ -171,19 +173,22 @@ static func _resolve_forging_options(
 			enabled = evaluator.evaluate_conditions(_runtime_rules(requires), state)
 			if not enabled:
 				disabled_reason = _locked_reason(requires, state, evaluator)
-		resolved.append({
-			"id": option_id,
-			"label": String(option.get("label", option_id)),
-			"enabled": enabled,
-			"disabled_reason": disabled_reason,
-		})
+		(
+			resolved
+			. append(
+				{
+					"id": option_id,
+					"label": String(option.get("label", option_id)),
+					"enabled": enabled,
+					"disabled_reason": disabled_reason,
+				}
+			)
+		)
 	return resolved
 
 
 static func _locked_reason(
-	requires: Array,
-	state: GameState,
-	evaluator: StateRuleEvaluator
+	requires: Array, state: GameState, evaluator: StateRuleEvaluator
 ) -> String:
 	for condition_value in requires:
 		if typeof(condition_value) != TYPE_DICTIONARY:

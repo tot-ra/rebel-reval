@@ -1,26 +1,40 @@
 class_name MapViewMeshBuilderPropModels
 extends RefCounted
 
-const DistrictLifeProps := preload("res://scripts/map/view3d/map_view_mesh_builder_district_life_props.gd")
-const RuralLifeProps := preload("res://scripts/map/view3d/map_view_mesh_builder_rural_life_props.gd")
+const DistrictLifeProps := preload(
+	"res://scripts/map/view3d/map_view_mesh_builder_district_life_props.gd"
+)
+const RuralLifeProps := preload(
+	"res://scripts/map/view3d/map_view_mesh_builder_rural_life_props.gd"
+)
 const BushMeshes := preload("res://scripts/map/view3d/map_view_bush_meshes.gd")
 const BushSpecies := preload("res://scripts/map/view3d/map_view_bush_species.gd")
 const FishingBoatBuilder := preload("res://scripts/map/view3d/map_view_fishing_boat_builder.gd")
 const MerchantBoatBuilder := preload("res://scripts/map/view3d/map_view_merchant_boat_builder.gd")
-const WallWalkAccessBuilder := preload("res://scripts/map/view3d/map_view_wall_walk_access_builder.gd")
+const WallWalkAccessBuilder := preload(
+	"res://scripts/map/view3d/map_view_wall_walk_access_builder.gd"
+)
 const AnvilMeshes := preload("res://scripts/map/view3d/map_view_anvil_meshes.gd")
 const HayMeshes := preload("res://scripts/map/view3d/map_view_hay_meshes.gd")
 const MedievalAnimalModels := preload("res://scripts/map/view3d/map_view_medieval_animal_models.gd")
 const MarketStallModels := preload("res://scripts/map/view3d/map_view_market_stall_models.gd")
 const TableModels := preload("res://scripts/map/view3d/map_view_table_models.gd")
-const MedievalLightingModels := preload("res://scripts/map/view3d/map_view_medieval_lighting_models.gd")
+const MedievalLightingModels := preload(
+	"res://scripts/map/view3d/map_view_medieval_lighting_models.gd"
+)
 const DomesticHearthModels := preload("res://scripts/map/view3d/map_view_domestic_hearth_models.gd")
 const KitchenwareModels := preload("res://scripts/map/view3d/map_view_kitchenware_models.gd")
-const HouseholdClutterModels := preload("res://scripts/map/view3d/map_view_household_clutter_models.gd")
+const HouseholdClutterModels := preload(
+	"res://scripts/map/view3d/map_view_household_clutter_models.gd"
+)
 const ChestModels := preload("res://scripts/map/view3d/map_view_chest_models.gd")
 const WellModels := preload("res://scripts/map/view3d/map_view_well_models.gd")
-const StorageFurnitureModels := preload("res://scripts/map/view3d/map_view_storage_furniture_models.gd")
-const MedievalHandToolModels := preload("res://scripts/map/view3d/map_view_medieval_hand_tool_models.gd")
+const StorageFurnitureModels := preload(
+	"res://scripts/map/view3d/map_view_storage_furniture_models.gd"
+)
+const MedievalHandToolModels := preload(
+	"res://scripts/map/view3d/map_view_medieval_hand_tool_models.gd"
+)
 const MammalSpecies := preload("res://scripts/map/view3d/map_view_mammal_species.gd")
 # Runtime loading avoids a clean-clone bootstrap cycle where GDScript parses
 # before Godot has registered the first GLB import.
@@ -46,8 +60,8 @@ const SMITHY_BED_SCENE_PATH := "res://assets/props/furniture/smithy_bed.glb"
 const CartModels := preload("res://scripts/map/view3d/map_view_cart_models.gd")
 const TradeGoodsModels := preload("res://scripts/map/view3d/map_view_trade_goods_models.gd")
 const SMITHY_BED_PROP_ID := &"bed"
+# gdlint: ignore=max-line-length
 const SACRED_GROVE_ANCIENT_OAK_SCENE_PATH := "res://assets/props/environment/sacred_grove_ancient_oak.glb"
-
 ## Individual authored prop meshes.
 
 const BARREL_HEIGHT := 0.72
@@ -65,7 +79,7 @@ const BARREL_HOOP_PROFILE: Array[Vector2] = [
 	Vector2(0.78, 0.965),
 	Vector2(0.94, 0.88),
 ]
-
+const ANCIENT_TREE_PRIMITIVE := &"ancient_tree"
 
 static func _add_barrel(parent: Node3D, node_name: String, position: Vector3, yaw: float) -> Node3D:
 	var barrel := Node3D.new()
@@ -89,7 +103,9 @@ static func _add_barrel(parent: Node3D, node_name: String, position: Vector3, ya
 	]:
 		var head := MeshInstance3D.new()
 		head.name = head_spec["name"]
-		head.mesh = MapViewMeshBuilderPrimitives.barrel_head_mesh(BARREL_HEAD_RADIUS, BARREL_HEAD_THICKNESS)
+		head.mesh = MapViewMeshBuilderPrimitives.barrel_head_mesh(
+			BARREL_HEAD_RADIUS, BARREL_HEAD_THICKNESS
+		)
 		head.position = Vector3(0.0, float(head_spec["y"]), 0.0)
 		head.material_override = MapViewMeshBuilderPrimitives.role_material(&"wood")
 		barrel.add_child(head)
@@ -107,7 +123,10 @@ static func _add_barrel(parent: Node3D, node_name: String, position: Vector3, ya
 		barrel.add_child(hoop)
 	return barrel
 
-static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefinition = null) -> Node3D:
+
+static func build_prop(
+	prop: Dictionary, cell_size: int, definition: MapDefinition = null
+) -> Node3D:
 	var root := Node3D.new()
 	root.name = "Prop_%s" % String(prop["id"])
 	root.position = MapViewBridge.logic_to_world(prop["position"], cell_size)
@@ -118,7 +137,9 @@ static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefiniti
 		root.position.y -= offset.y * scale
 	if prop["kind"] in MapTypes.BOAT_PROP_KINDS and _has_tall_footprint(prop):
 		root.rotation.y = PI * 0.5
-		root.position.y = -MapViewMeshBuilderConfig.WATER_RECESS + MapViewMeshBuilderConfig.WATER_SURFACE_LIFT
+		root.position.y = (
+			-MapViewMeshBuilderConfig.WATER_RECESS + MapViewMeshBuilderConfig.WATER_SURFACE_LIFT
+		)
 	if MapWallWalkAccess.is_access_prop(prop) or MapWallWalkAccess.is_platform_prop(prop):
 		WallWalkAccessBuilder.add_to(root, prop, cell_size, definition)
 		return root
@@ -137,12 +158,7 @@ static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefiniti
 			# hand-built contour, so map edits never reshuffle nearby stack heights.
 			var hay_size: StringName = prop.get("style_variant", HayMeshes.DEFAULT_SIZE)
 			HayMeshes.add_rick(
-				root,
-				"HayRick",
-				int(String(prop["id"]).hash()),
-				Vector3.ZERO,
-				Vector3.ONE,
-				hay_size
+				root, "HayRick", int(String(prop["id"]).hash()), Vector3.ZERO, Vector3.ONE, hay_size
 			)
 		MapTypes.PROP_KIND_CART:
 			CartModels.add_model(root)
@@ -161,11 +177,16 @@ static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefiniti
 				_add_smithy_bellows(root)
 			else:
 				_add_bellows_fallback(root)
+		# gdlint: ignore=max-line-length
 		MapTypes.PROP_KIND_BLACKSMITH_TONGS, MapTypes.PROP_KIND_BLACKSMITH_HAMMER, MapTypes.PROP_KIND_BLACKSMITH_PUNCH, MapTypes.PROP_KIND_PITCHFORK, MapTypes.PROP_KIND_SCYTHE, MapTypes.PROP_KIND_SICKLE, MapTypes.PROP_KIND_RAKE, MapTypes.PROP_KIND_WOODEN_SHOVEL:
 			MedievalHandToolModels.add_model(root, prop["kind"])
 		MapTypes.PROP_KIND_LEDGER:
-			MapViewMeshBuilderPrimitives.box(root, "Stand", Vector3(0.16, 0.9, 0.16), Vector3(0.0, 0.45, 0.0), &"wood")
-			MapViewMeshBuilderPrimitives.box(root, "Book", Vector3(0.52, 0.08, 0.42), Vector3(0.0, 0.95, 0.0), &"plaster")
+			MapViewMeshBuilderPrimitives.box(
+				root, "Stand", Vector3(0.16, 0.9, 0.16), Vector3(0.0, 0.45, 0.0), &"wood"
+			)
+			MapViewMeshBuilderPrimitives.box(
+				root, "Book", Vector3(0.52, 0.08, 0.42), Vector3(0.0, 0.95, 0.0), &"plaster"
+			)
 		MapTypes.PROP_KIND_BED:
 			if prop.get("id", &"") == SMITHY_BED_PROP_ID:
 				_add_smithy_bed(root)
@@ -234,7 +255,9 @@ static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefiniti
 			elif prop["kind"] in MapTypes.RURAL_LIFE_PROP_KINDS:
 				RuralLifeProps.add_to(root, prop["kind"])
 			else:
-				MapViewMeshBuilderPrimitives.box(root, "Marker", Vector3(0.5, 0.5, 0.5), Vector3(0.0, 0.25, 0.0), &"ink")
+				MapViewMeshBuilderPrimitives.box(
+					root, "Marker", Vector3(0.5, 0.5, 0.5), Vector3(0.0, 0.25, 0.0), &"ink"
+				)
 	return root
 
 
@@ -251,9 +274,15 @@ static func _add_smithy_bed(root: Node3D) -> void:
 static func _add_bed_fallback(root: Node3D) -> void:
 	# Other maps can continue using the lightweight neutral bed until they receive
 	# authored furniture matched to their location and status.
-	MapViewMeshBuilderPrimitives.box(root, "Frame", Vector3(2.4, 0.38, 1.35), Vector3(0.0, 0.19, 0.0), &"wood")
-	MapViewMeshBuilderPrimitives.box(root, "Mattress", Vector3(2.2, 0.16, 1.2), Vector3(0.0, 0.46, 0.0), &"plaster")
-	MapViewMeshBuilderPrimitives.box(root, "Pillow", Vector3(0.42, 0.14, 0.72), Vector3(-0.82, 0.58, 0.0), &"hay")
+	MapViewMeshBuilderPrimitives.box(
+		root, "Frame", Vector3(2.4, 0.38, 1.35), Vector3(0.0, 0.19, 0.0), &"wood"
+	)
+	MapViewMeshBuilderPrimitives.box(
+		root, "Mattress", Vector3(2.2, 0.16, 1.2), Vector3(0.0, 0.46, 0.0), &"plaster"
+	)
+	MapViewMeshBuilderPrimitives.box(
+		root, "Pillow", Vector3(0.42, 0.14, 0.72), Vector3(-0.82, 0.58, 0.0), &"hay"
+	)
 
 
 static func _add_smithy_chair(root: Node3D) -> void:
@@ -261,7 +290,9 @@ static func _add_smithy_chair(root: Node3D) -> void:
 	# dedicated GLB gives it readable joinery while collision/navigation remain on
 	# the immutable 2D map definition, just like every other view-only prop.
 	var chair_scene := load(SMITHY_CHAIR_SCENE_PATH) as PackedScene
-	assert(chair_scene != null, "Smithy chair GLB must be imported before the map view is assembled")
+	assert(
+		chair_scene != null, "Smithy chair GLB must be imported before the map view is assembled"
+	)
 	var chair := chair_scene.instantiate() as Node3D
 	chair.name = "SmithyChairModel"
 	root.add_child(chair)
@@ -270,10 +301,18 @@ static func _add_smithy_chair(root: Node3D) -> void:
 static func _add_chair_fallback(root: Node3D) -> void:
 	# Town Hall chairs share the generic map kind but need a separate high-status
 	# model later, so they deliberately keep the neutral procedural fallback.
-	MapViewMeshBuilderPrimitives.box(root, "Seat", Vector3(0.5, 0.08, 0.45), Vector3(0.0, 0.42, 0.0), &"wood")
-	MapViewMeshBuilderPrimitives.box(root, "Back", Vector3(0.48, 0.5, 0.06), Vector3(0.0, 0.72, -0.18), &"timber")
-	MapViewMeshBuilderPrimitives.box(root, "LegFL", Vector3(0.06, 0.4, 0.06), Vector3(-0.18, 0.2, 0.14), &"timber")
-	MapViewMeshBuilderPrimitives.box(root, "LegFR", Vector3(0.06, 0.4, 0.06), Vector3(0.18, 0.2, 0.14), &"timber")
+	MapViewMeshBuilderPrimitives.box(
+		root, "Seat", Vector3(0.5, 0.08, 0.45), Vector3(0.0, 0.42, 0.0), &"wood"
+	)
+	MapViewMeshBuilderPrimitives.box(
+		root, "Back", Vector3(0.48, 0.5, 0.06), Vector3(0.0, 0.72, -0.18), &"timber"
+	)
+	MapViewMeshBuilderPrimitives.box(
+		root, "LegFL", Vector3(0.06, 0.4, 0.06), Vector3(-0.18, 0.2, 0.14), &"timber"
+	)
+	MapViewMeshBuilderPrimitives.box(
+		root, "LegFR", Vector3(0.06, 0.4, 0.06), Vector3(0.18, 0.2, 0.14), &"timber"
+	)
 
 
 static func _add_smithy_anvil(root: Node3D) -> void:
@@ -281,7 +320,9 @@ static func _add_smithy_anvil(root: Node3D) -> void:
 	# authored GLB improves silhouette and materials while the immutable rrmap
 	# footprint remains the sole collision/navigation authority.
 	var anvil_scene := load(SMITHY_ANVIL_SCENE_PATH) as PackedScene
-	assert(anvil_scene != null, "Smithy anvil GLB must be imported before the map view is assembled")
+	assert(
+		anvil_scene != null, "Smithy anvil GLB must be imported before the map view is assembled"
+	)
 	var anvil := anvil_scene.instantiate() as Node3D
 	anvil.name = "SmithyAnvilModel"
 	root.add_child(anvil)
@@ -290,8 +331,12 @@ static func _add_smithy_anvil(root: Node3D) -> void:
 static func _add_anvil_fallback(root: Node3D) -> void:
 	# Outdoor and future anvils keep the lightweight procedural model until they
 	# receive location-specific art; this prevents smithy wear from leaking out.
-	MapViewMeshBuilderPrimitives.cylinder(root, "Stump", 0.28, 0.42, Vector3(0.0, 0.21, 0.0), &"wood")
-	MapViewMeshBuilderPrimitives.cylinder(root, "StumpBand", 0.295, 0.045, Vector3(0.0, 0.34, 0.0), &"metal")
+	MapViewMeshBuilderPrimitives.cylinder(
+		root, "Stump", 0.28, 0.42, Vector3(0.0, 0.21, 0.0), &"wood"
+	)
+	MapViewMeshBuilderPrimitives.cylinder(
+		root, "StumpBand", 0.295, 0.045, Vector3(0.0, 0.34, 0.0), &"metal"
+	)
 	var body := MeshInstance3D.new()
 	body.name = "Body"
 	body.mesh = AnvilMeshes.body_mesh()
@@ -306,7 +351,10 @@ static func _add_smithy_furnace(root: Node3D) -> void:
 	# the sole collision/navigation authority. The GLB replaces only the masonry;
 	# live embers, particles, and day/night fire lighting remain engine-driven.
 	var furnace_scene := load(SMITHY_FURNACE_SCENE_PATH) as PackedScene
-	assert(furnace_scene != null, "Smithy furnace GLB must be imported before the map view is assembled")
+	assert(
+		furnace_scene != null,
+		"Smithy furnace GLB must be imported before the map view is assembled"
+	)
 	var furnace := furnace_scene.instantiate() as Node3D
 	furnace.name = "SmithyFurnaceModel"
 	root.add_child(furnace)
@@ -327,14 +375,28 @@ static func _add_smithy_furnace(root: Node3D) -> void:
 static func _add_furnace_fallback(root: Node3D) -> void:
 	# Open-mouth masonry forge: rear bulk + cheeks + lintel leave a real cavity
 	# so red coal and flame read from the working bay (not a solid black box).
-	MapViewMeshBuilderPrimitives.box(root, "Mass", Vector3(2.4, 1.55, 1.35), Vector3(0.0, 0.78, -0.22), &"stone")
-	MapViewMeshBuilderPrimitives.box(root, "LeftCheek", Vector3(0.38, 1.05, 1.05), Vector3(-0.92, 0.62, 0.52), &"stone")
-	MapViewMeshBuilderPrimitives.box(root, "RightCheek", Vector3(0.38, 1.05, 1.05), Vector3(0.92, 0.62, 0.52), &"stone")
-	MapViewMeshBuilderPrimitives.box(root, "Lintel", Vector3(1.55, 0.32, 1.05), Vector3(0.0, 1.3, 0.52), &"stone")
-	MapViewMeshBuilderPrimitives.box(root, "HearthShelf", Vector3(1.55, 0.18, 1.0), Vector3(0.0, 0.16, 0.58), &"stone")
-	MapViewMeshBuilderPrimitives.box(root, "Breast", Vector3(2.1, 0.5, 0.7), Vector3(0.0, 1.7, 0.18), &"stone")
+	MapViewMeshBuilderPrimitives.box(
+		root, "Mass", Vector3(2.4, 1.55, 1.35), Vector3(0.0, 0.78, -0.22), &"stone"
+	)
+	MapViewMeshBuilderPrimitives.box(
+		root, "LeftCheek", Vector3(0.38, 1.05, 1.05), Vector3(-0.92, 0.62, 0.52), &"stone"
+	)
+	MapViewMeshBuilderPrimitives.box(
+		root, "RightCheek", Vector3(0.38, 1.05, 1.05), Vector3(0.92, 0.62, 0.52), &"stone"
+	)
+	MapViewMeshBuilderPrimitives.box(
+		root, "Lintel", Vector3(1.55, 0.32, 1.05), Vector3(0.0, 1.3, 0.52), &"stone"
+	)
+	MapViewMeshBuilderPrimitives.box(
+		root, "HearthShelf", Vector3(1.55, 0.18, 1.0), Vector3(0.0, 0.16, 0.58), &"stone"
+	)
+	MapViewMeshBuilderPrimitives.box(
+		root, "Breast", Vector3(2.1, 0.5, 0.7), Vector3(0.0, 1.7, 0.18), &"stone"
+	)
 	# Sooted cavity back sits deep inside the mouth, not as a front-facing plug.
-	MapViewMeshBuilderPrimitives.box(root, "Firebox", Vector3(1.35, 0.85, 0.14), Vector3(0.0, 0.72, 0.05), &"ink")
+	MapViewMeshBuilderPrimitives.box(
+		root, "Firebox", Vector3(1.35, 0.85, 0.14), Vector3(0.0, 0.72, 0.05), &"ink"
+	)
 	# Bright ember bed fills the hearth floor so the mouth always shows heat.
 	_add_furnace_ember_bed(root)
 	_add_furnace_coal_bed(root)
@@ -344,7 +406,9 @@ static func _add_furnace_fallback(root: Node3D) -> void:
 	# Tuyere stub on the left cheek - bellows nozzle aims here (axis along X).
 	_add_axis_cylinder(root, "Tuyere", 0.06, 0.42, Vector3(-1.15, 0.48, 0.55), &"metal")
 	# Flue seats into the breast and clears the interior ceiling plane.
-	MapViewMeshBuilderPrimitives.add_chimney_stack(root, "Chimney", 0.58, 2.35, Vector3(0.0, 1.85, -0.35))
+	MapViewMeshBuilderPrimitives.add_chimney_stack(
+		root, "Chimney", 0.58, 2.35, Vector3(0.0, 1.85, -0.35)
+	)
 
 	var forge_light := OmniLight3D.new()
 	forge_light.name = "Omni"
@@ -359,7 +423,10 @@ static func _add_smithy_bellows(root: Node3D) -> void:
 	# The authored mechanism supplies readable leather folds, joinery, tacks, and
 	# a tapered nozzle without changing the declarative smithy prop footprint.
 	var bellows_scene := load(SMITHY_BELLOWS_SCENE_PATH) as PackedScene
-	assert(bellows_scene != null, "Smithy bellows GLB must be imported before the map view is assembled")
+	assert(
+		bellows_scene != null,
+		"Smithy bellows GLB must be imported before the map view is assembled"
+	)
 	var bellows := bellows_scene.instantiate() as Node3D
 	bellows.name = "SmithyBellowsModel"
 	root.add_child(bellows)
@@ -367,9 +434,15 @@ static func _add_smithy_bellows(root: Node3D) -> void:
 
 static func _add_bellows_fallback(root: Node3D) -> void:
 	# Double-board leather bellows aimed +X toward the forge tuyere.
-	MapViewMeshBuilderPrimitives.box(root, "Stand", Vector3(0.55, 0.12, 0.7), Vector3(0.0, 0.06, 0.0), &"timber")
-	MapViewMeshBuilderPrimitives.box(root, "BoardBottom", Vector3(0.85, 0.06, 0.48), Vector3(0.05, 0.28, 0.0), &"wood")
-	MapViewMeshBuilderPrimitives.box(root, "BoardTop", Vector3(0.78, 0.06, 0.42), Vector3(-0.02, 0.72, 0.0), &"wood")
+	MapViewMeshBuilderPrimitives.box(
+		root, "Stand", Vector3(0.55, 0.12, 0.7), Vector3(0.0, 0.06, 0.0), &"timber"
+	)
+	MapViewMeshBuilderPrimitives.box(
+		root, "BoardBottom", Vector3(0.85, 0.06, 0.48), Vector3(0.05, 0.28, 0.0), &"wood"
+	)
+	MapViewMeshBuilderPrimitives.box(
+		root, "BoardTop", Vector3(0.78, 0.06, 0.42), Vector3(-0.02, 0.72, 0.0), &"wood"
+	)
 	# Accordion leather folds between the boards.
 	for index in 4:
 		var t := float(index) / 3.0
@@ -388,14 +461,24 @@ static func _add_bellows_fallback(root: Node3D) -> void:
 	_add_axis_cylinder(root, "Nozzle", 0.055, 0.55, Vector3(0.55, 0.42, 0.0), &"metal")
 	_add_axis_cylinder(root, "NozzleTip", 0.04, 0.18, Vector3(0.88, 0.42, 0.0), &"metal")
 	# Pump lever on the top board.
-	MapViewMeshBuilderPrimitives.box(root, "Lever", Vector3(0.08, 0.55, 0.08), Vector3(-0.28, 1.0, 0.0), &"timber")
-	MapViewMeshBuilderPrimitives.box(root, "Handle", Vector3(0.28, 0.06, 0.08), Vector3(-0.38, 1.28, 0.0), &"wood")
-	MapViewMeshBuilderPrimitives.cylinder(root, "Hinge", 0.04, 0.5, Vector3(-0.4, 0.5, 0.0), &"metal")
+	MapViewMeshBuilderPrimitives.box(
+		root, "Lever", Vector3(0.08, 0.55, 0.08), Vector3(-0.28, 1.0, 0.0), &"timber"
+	)
+	MapViewMeshBuilderPrimitives.box(
+		root, "Handle", Vector3(0.28, 0.06, 0.08), Vector3(-0.38, 1.28, 0.0), &"wood"
+	)
+	MapViewMeshBuilderPrimitives.cylinder(
+		root, "Hinge", 0.04, 0.5, Vector3(-0.4, 0.5, 0.0), &"metal"
+	)
 
 
 static func _add_quench_fallback(root: Node3D) -> void:
-	MapViewMeshBuilderPrimitives.cylinder(root, "Bucket", 0.3, 0.46, Vector3(0.0, 0.23, 0.0), &"wood")
-	MapViewMeshBuilderPrimitives.cylinder(root, "Water", 0.24, 0.05, Vector3(0.0, 0.44, 0.0), &"water_highlight")
+	MapViewMeshBuilderPrimitives.cylinder(
+		root, "Bucket", 0.3, 0.46, Vector3(0.0, 0.23, 0.0), &"wood"
+	)
+	MapViewMeshBuilderPrimitives.cylinder(
+		root, "Water", 0.24, 0.05, Vector3(0.0, 0.44, 0.0), &"water_highlight"
+	)
 
 
 static func _add_smithy_quench_bucket(root: Node3D) -> void:
@@ -403,7 +486,10 @@ static func _add_smithy_quench_bucket(root: Node3D) -> void:
 	# vessel, while generic map buckets retain the cheap procedural fallback.
 	# The rrmap footprint remains the sole collision/navigation authority.
 	var bucket_scene := load(SMITHY_QUENCH_SCENE_PATH) as PackedScene
-	assert(bucket_scene != null, "Smithy quench bucket GLB must be imported before the map view is assembled")
+	assert(
+		bucket_scene != null,
+		"Smithy quench bucket GLB must be imported before the map view is assembled"
+	)
 	var bucket := bucket_scene.instantiate() as Node3D
 	bucket.name = "SmithyQuenchBucketModel"
 	root.add_child(bucket)
@@ -453,14 +539,62 @@ static func _add_furnace_coal_bed(root: Node3D) -> void:
 	var cold := MapViewMaterials.charcoal()
 	var hot := MapViewMaterials.hot_coal()
 	for spec in [
-		{"name": "CoalA", "radius": 0.17, "pos": Vector3(-0.28, 0.36, 0.68), "scale": Vector3(1.35, 0.55, 1.15), "hot": true},
-		{"name": "CoalB", "radius": 0.15, "pos": Vector3(0.24, 0.34, 0.72), "scale": Vector3(1.25, 0.52, 1.1), "hot": true},
-		{"name": "CoalC", "radius": 0.14, "pos": Vector3(-0.02, 0.38, 0.55), "scale": Vector3(1.4, 0.5, 1.2), "hot": true},
-		{"name": "CoalD", "radius": 0.12, "pos": Vector3(0.36, 0.32, 0.52), "scale": Vector3(1.15, 0.45, 1.0), "hot": false},
-		{"name": "CoalE", "radius": 0.11, "pos": Vector3(-0.4, 0.32, 0.5), "scale": Vector3(1.1, 0.42, 0.95), "hot": false},
-		{"name": "CoalF", "radius": 0.10, "pos": Vector3(0.08, 0.42, 0.7), "scale": Vector3(1.1, 0.42, 1.05), "hot": true},
-		{"name": "CoalG", "radius": 0.09, "pos": Vector3(-0.14, 0.4, 0.74), "scale": Vector3(1.05, 0.38, 1.0), "hot": true},
-		{"name": "CoalH", "radius": 0.08, "pos": Vector3(0.18, 0.4, 0.48), "scale": Vector3(1.0, 0.36, 0.95), "hot": true},
+		{
+			"name": "CoalA",
+			"radius": 0.17,
+			"pos": Vector3(-0.28, 0.36, 0.68),
+			"scale": Vector3(1.35, 0.55, 1.15),
+			"hot": true
+		},
+		{
+			"name": "CoalB",
+			"radius": 0.15,
+			"pos": Vector3(0.24, 0.34, 0.72),
+			"scale": Vector3(1.25, 0.52, 1.1),
+			"hot": true
+		},
+		{
+			"name": "CoalC",
+			"radius": 0.14,
+			"pos": Vector3(-0.02, 0.38, 0.55),
+			"scale": Vector3(1.4, 0.5, 1.2),
+			"hot": true
+		},
+		{
+			"name": "CoalD",
+			"radius": 0.12,
+			"pos": Vector3(0.36, 0.32, 0.52),
+			"scale": Vector3(1.15, 0.45, 1.0),
+			"hot": false
+		},
+		{
+			"name": "CoalE",
+			"radius": 0.11,
+			"pos": Vector3(-0.4, 0.32, 0.5),
+			"scale": Vector3(1.1, 0.42, 0.95),
+			"hot": false
+		},
+		{
+			"name": "CoalF",
+			"radius": 0.10,
+			"pos": Vector3(0.08, 0.42, 0.7),
+			"scale": Vector3(1.1, 0.42, 1.05),
+			"hot": true
+		},
+		{
+			"name": "CoalG",
+			"radius": 0.09,
+			"pos": Vector3(-0.14, 0.4, 0.74),
+			"scale": Vector3(1.05, 0.38, 1.0),
+			"hot": true
+		},
+		{
+			"name": "CoalH",
+			"radius": 0.08,
+			"pos": Vector3(0.18, 0.4, 0.48),
+			"scale": Vector3(1.0, 0.36, 0.95),
+			"hot": true
+		},
 	]:
 		var lump := MeshInstance3D.new()
 		lump.name = spec["name"]
@@ -698,9 +832,23 @@ static func _add_crate(root: Node3D, node_name: String, size: Vector3, position:
 	root.add_child(crate)
 	MapViewMeshBuilderPrimitives.box(crate, "Boards", size, Vector3.ZERO, &"wood")
 	var brace_depth := size.z + 0.012
-	MapViewMeshBuilderPrimitives.box(crate, "BraceTop", Vector3(size.x + 0.035, 0.075, brace_depth), Vector3(0.0, size.y * 0.33, 0.0), &"timber")
-	MapViewMeshBuilderPrimitives.box(crate, "BraceBottom", Vector3(size.x + 0.035, 0.075, brace_depth), Vector3(0.0, -size.y * 0.33, 0.0), &"timber")
-	MapViewMeshBuilderPrimitives.box(crate, "BraceVertical", Vector3(0.075, size.y, brace_depth), Vector3.ZERO, &"timber")
+	MapViewMeshBuilderPrimitives.box(
+		crate,
+		"BraceTop",
+		Vector3(size.x + 0.035, 0.075, brace_depth),
+		Vector3(0.0, size.y * 0.33, 0.0),
+		&"timber"
+	)
+	MapViewMeshBuilderPrimitives.box(
+		crate,
+		"BraceBottom",
+		Vector3(size.x + 0.035, 0.075, brace_depth),
+		Vector3(0.0, -size.y * 0.33, 0.0),
+		&"timber"
+	)
+	MapViewMeshBuilderPrimitives.box(
+		crate, "BraceVertical", Vector3(0.075, size.y, brace_depth), Vector3.ZERO, &"timber"
+	)
 
 
 static func _add_trade_goods(root: Node3D, prop: Dictionary) -> void:
@@ -710,7 +858,9 @@ static func _add_trade_goods(root: Node3D, prop: Dictionary) -> void:
 
 
 static func _add_timber_fence(root: Node3D, prop: Dictionary, cell_size: int) -> void:
-	var footprint: Rect2 = prop.get("footprint", Rect2(Vector2.ZERO, Vector2(cell_size * 3, cell_size)))
+	var footprint: Rect2 = prop.get(
+		"footprint", Rect2(Vector2.ZERO, Vector2(cell_size * 3, cell_size))
+	)
 	var scale := MapViewBridge.world_scale(cell_size)
 	var horizontal := footprint.size.x >= footprint.size.y
 	var length := maxf(maxf(footprint.size.x, footprint.size.y) * scale - 0.25, 0.75)
@@ -718,11 +868,15 @@ static func _add_timber_fence(root: Node3D, prop: Dictionary, cell_size: int) ->
 	for index in post_count:
 		var along := lerpf(-length * 0.5, length * 0.5, float(index) / float(post_count - 1))
 		var position := Vector3(along, 0.48, 0.0) if horizontal else Vector3(0.0, 0.48, along)
-		MapViewMeshBuilderPrimitives.box(root, "Post%d" % index, Vector3(0.12, 0.96, 0.12), position, &"timber")
+		MapViewMeshBuilderPrimitives.box(
+			root, "Post%d" % index, Vector3(0.12, 0.96, 0.12), position, &"timber"
+		)
 	for rail_index in 2:
 		var rail_y := 0.32 + float(rail_index) * 0.34
 		var rail_size := Vector3(length, 0.1, 0.1) if horizontal else Vector3(0.1, 0.1, length)
-		MapViewMeshBuilderPrimitives.box(root, "Rail%d" % rail_index, rail_size, Vector3(0.0, rail_y, 0.0), &"wood")
+		MapViewMeshBuilderPrimitives.box(
+			root, "Rail%d" % rail_index, rail_size, Vector3(0.0, rail_y, 0.0), &"wood"
+		)
 
 
 static func _add_cattle(root: Node3D) -> void:
@@ -740,10 +894,6 @@ static func _add_horse(root: Node3D) -> void:
 ## Layered decorative vegetation and ground clutter. Textured ground cover carries
 ## most of the grass; sparse small/large tufts, shrubs, and trees add silhouette
 ## variation without turning every green cell into an object field.
-
-const ANCIENT_TREE_PRIMITIVE := &"ancient_tree"
-
-
 static func _add_authored_tree(root: Node3D, prop: Dictionary) -> void:
 	# Sacred Grove hingepuu and any other ancient_tree prop use the landmark mesh.
 	if prop.get("primitive", &"") == ANCIENT_TREE_PRIMITIVE:
@@ -775,7 +925,9 @@ static func _add_authored_tree(root: Node3D, prop: Dictionary) -> void:
 	canopy.name = "Canopy"
 	canopy.mesh = MapViewMeshBuilderPrimitives.tree_canopy_mesh(species)
 	canopy.scale = scale
-	canopy.material_override = MapViewMaterials.canopy(MapViewTreeSpecies.canopy_material_kind(species))
+	canopy.material_override = MapViewMaterials.canopy(
+		MapViewTreeSpecies.canopy_material_kind(species)
+	)
 	root.add_child(canopy)
 
 	var fruit_mesh := MapViewMeshBuilderPrimitives.tree_fruit_mesh(species)
@@ -797,8 +949,7 @@ static func _add_authored_bush(root: Node3D, prop: Dictionary) -> void:
 		variant = TerrainVegetation.VARIANT_BUSH_SCRUB
 	var parsed: Dictionary = BushSpecies.parse_variant(variant)
 	var species: StringName = parsed.get(
-		"species",
-		BushSpecies.pick_species(BushSpecies.weights_for_variant(variant), 0.41)
+		"species", BushSpecies.pick_species(BushSpecies.weights_for_variant(variant), 0.41)
 	)
 	var scale_range := BushSpecies.scale_range(species)
 	var uniform := lerpf(scale_range.x, scale_range.y, 0.5)
@@ -822,7 +973,10 @@ static func _add_ancient_oak(root: Node3D) -> void:
 	# continuous tapered boughs, buttress roots, shaped leaves, bark relief, and
 	# weathering. Collision/navigation remain owned by the unchanged rrmap.
 	var oak_scene := load(SACRED_GROVE_ANCIENT_OAK_SCENE_PATH) as PackedScene
-	assert(oak_scene != null, "Sacred Grove ancient oak GLB must be imported before the map view is assembled")
+	assert(
+		oak_scene != null,
+		"Sacred Grove ancient oak GLB must be imported before the map view is assembled"
+	)
 	var oak := oak_scene.instantiate() as Node3D
 	oak.name = "SacredGroveAncientOakModel"
 	root.add_child(oak)

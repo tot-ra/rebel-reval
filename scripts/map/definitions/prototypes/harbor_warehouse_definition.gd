@@ -30,16 +30,40 @@ static func create() -> MapDefinition:
 		Rect2i(17, 21, 6, 1),
 		Rect2i(17, 2, 6, 1)
 	)
-	InteriorMapFactory.add_prop_at_cell(definition, &"cargo_crates", MapTypes.PROP_KIND_BARRELS, Rect2i(8, 10, 3, 2))
-	InteriorMapFactory.add_prop_at_cell(definition, &"cargo_crates_b", MapTypes.PROP_KIND_BARRELS, Rect2i(26, 10, 3, 2))
-	InteriorMapFactory.add_prop_at_cell(definition, &"loading_cart", MapTypes.PROP_KIND_CART, Rect2i(16, 14, 3, 2))
-	InteriorMapFactory.add_prop_at_cell(definition, &"quay_stairs", MapTypes.PROP_KIND_STAIRS, Rect2i(18, 18, 4, 2))
+	InteriorMapFactory.add_prop_at_cell(
+		definition, &"cargo_crates", MapTypes.PROP_KIND_BARRELS, Rect2i(8, 10, 3, 2)
+	)
+	InteriorMapFactory.add_prop_at_cell(
+		definition, &"cargo_crates_b", MapTypes.PROP_KIND_BARRELS, Rect2i(26, 10, 3, 2)
+	)
+	InteriorMapFactory.add_prop_at_cell(
+		definition, &"loading_cart", MapTypes.PROP_KIND_CART, Rect2i(16, 14, 3, 2)
+	)
+	InteriorMapFactory.add_prop_at_cell(
+		definition, &"quay_stairs", MapTypes.PROP_KIND_STAIRS, Rect2i(18, 18, 4, 2)
+	)
 	InteriorMapFactory.add_interaction_anchor(definition, &"inspection_spawn", Rect2i(18, 12, 2, 2))
 	InteriorMapFactory.add_interaction_anchor(definition, &"loading_bay", Rect2i(16, 14, 3, 2))
 
 	definition.view_landmarks = [
-		{"id": &"street_entry_arch", "kind": &"gate_arch", "rect": definition.cell_rect_to_world_rect(Rect2i(17, 2, 6, 1)), "wall_color": Color(0.46, 0.42, 0.38), "top_px": 120.0, "passage_axis": &"x", "door_material": &"wood"},
-		{"id": &"quay_entry_arch", "kind": &"gate_arch", "rect": definition.cell_rect_to_world_rect(Rect2i(17, 21, 6, 1)), "wall_color": Color(0.46, 0.42, 0.38), "top_px": 120.0, "passage_axis": &"x", "door_material": &"wood"},
+		{
+			"id": &"street_entry_arch",
+			"kind": &"gate_arch",
+			"rect": definition.cell_rect_to_world_rect(Rect2i(17, 2, 6, 1)),
+			"wall_color": Color(0.46, 0.42, 0.38),
+			"top_px": 120.0,
+			"passage_axis": &"x",
+			"door_material": &"wood"
+		},
+		{
+			"id": &"quay_entry_arch",
+			"kind": &"gate_arch",
+			"rect": definition.cell_rect_to_world_rect(Rect2i(17, 21, 6, 1)),
+			"wall_color": Color(0.46, 0.42, 0.38),
+			"top_px": 120.0,
+			"passage_axis": &"x",
+			"door_material": &"wood"
+		},
 	]
 
 	InteriorMapFactory.add_transition(
@@ -65,11 +89,14 @@ static func create() -> MapDefinition:
 		&"quay_entry_arch"
 	)
 	InteriorMapFactory.add_fade_volume(definition, Rect2i(12, 4, 16, 3))
-	InteriorMapFactory.add_source_references(
-		definition,
-		[
-			"scenes/harbor/warehouses.md",
-			"scenes/harbor/harbor.md",
-		]
+	(
+		InteriorMapFactory
+		. add_source_references(
+			definition,
+			[
+				"scenes/harbor/warehouses.md",
+				"scenes/harbor/harbor.md",
+			]
+		)
 	)
 	return definition

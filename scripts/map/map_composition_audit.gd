@@ -81,27 +81,33 @@ static func audit(
 	if not stone_band.is_empty():
 		var stone_pct := float(surface.get("stone_pct", 0.0))
 		if stone_pct < float(stone_band[0]) or stone_pct > float(stone_band[1]):
-			violations.append(
-				_violation(
-					VIOLATION_SURFACE_SHARE,
-					map_id,
-					"stone_pct",
-					stone_pct,
-					stone_band,
-					source_refs,
+			(
+				violations
+				. append(
+					_violation(
+						VIOLATION_SURFACE_SHARE,
+						map_id,
+						"stone_pct",
+						stone_pct,
+						stone_band,
+						source_refs,
+					)
 				)
 			)
 		var cobble_cap: float = float(thresholds.get("max_cobblestone_pct", stone_band[1]))
 		var cobble_pct := float(surface.get("cobblestone_pct", 0.0))
 		if cobble_pct > cobble_cap:
-			violations.append(
-				_violation(
-					VIOLATION_EXCESS_COBBLE,
-					map_id,
-					"cobblestone_pct",
-					cobble_pct,
-					[0.0, cobble_cap],
-					source_refs,
+			(
+				violations
+				. append(
+					_violation(
+						VIOLATION_EXCESS_COBBLE,
+						map_id,
+						"cobblestone_pct",
+						cobble_pct,
+						[0.0, cobble_cap],
+						source_refs,
+					)
 				)
 			)
 
@@ -111,14 +117,17 @@ static func audit(
 			continue
 		var measured := float(surface.get(band_key, 0.0))
 		if measured < float(band[0]) or measured > float(band[1]):
-			violations.append(
-				_violation(
-					VIOLATION_SURFACE_SHARE,
-					map_id,
-					band_key,
-					measured,
-					band,
-					source_refs,
+			(
+				violations
+				. append(
+					_violation(
+						VIOLATION_SURFACE_SHARE,
+						map_id,
+						band_key,
+						measured,
+						band,
+						source_refs,
+					)
 				)
 			)
 
@@ -126,40 +135,49 @@ static func audit(
 	if not density_band.is_empty():
 		var built_pct := float(metrics.get("built_density_pct", 0.0))
 		if built_pct < float(density_band[0]) or built_pct > float(density_band[1]):
-			violations.append(
-				_violation(
-					VIOLATION_DENSITY,
-					map_id,
-					"built_density_pct",
-					built_pct,
-					density_band,
-					source_refs,
+			(
+				violations
+				. append(
+					_violation(
+						VIOLATION_DENSITY,
+						map_id,
+						"built_density_pct",
+						built_pct,
+						density_band,
+						source_refs,
+					)
 				)
 			)
 
 	var max_style_share: float = float(thresholds.get("max_style_share_pct", 100.0))
 	if float(metrics.get("max_style_share_pct", 0.0)) > max_style_share:
-		violations.append(
-			_violation(
-				VIOLATION_REPEATED_STYLE,
-				map_id,
-				"max_style_share_pct",
-				float(metrics["max_style_share_pct"]),
-				[0.0, max_style_share],
-				source_refs,
+		(
+			violations
+			. append(
+				_violation(
+					VIOLATION_REPEATED_STYLE,
+					map_id,
+					"max_style_share_pct",
+					float(metrics["max_style_share_pct"]),
+					[0.0, max_style_share],
+					source_refs,
+				)
 			)
 		)
 
 	var max_empty: int = int(thresholds.get("max_empty_region_cells", 1_000_000))
 	if int(metrics.get("largest_empty_region_cells", 0)) > max_empty:
-		violations.append(
-			_violation(
-				VIOLATION_EMPTY_REGION,
-				map_id,
-				"largest_empty_region_cells",
-				float(metrics["largest_empty_region_cells"]),
-				[0.0, float(max_empty)],
-				source_refs,
+		(
+			violations
+			. append(
+				_violation(
+					VIOLATION_EMPTY_REGION,
+					map_id,
+					"largest_empty_region_cells",
+					float(metrics["largest_empty_region_cells"]),
+					[0.0, float(max_empty)],
+					source_refs,
+				)
 			)
 		)
 
@@ -167,41 +185,53 @@ static func audit(
 	if elevation_min > 0.0:
 		var elevation_range: float = float(metrics.get("elevation_range", 0.0))
 		if elevation_range < elevation_min:
-			violations.append(
-				_violation(
-					VIOLATION_ELEVATION_FLAT,
-					map_id,
-					"elevation_range",
-					elevation_range,
-					[elevation_min, 999.0],
-					source_refs,
+			(
+				violations
+				. append(
+					_violation(
+						VIOLATION_ELEVATION_FLAT,
+						map_id,
+						"elevation_range",
+						elevation_range,
+						[elevation_min, 999.0],
+						source_refs,
+					)
 				)
 			)
 
 	for landmark_id in thresholds.get("required_landmark_building_ids", []):
 		if not _has_building_id(definition, StringName(String(landmark_id))):
-			violations.append({
-				"code": VIOLATION_MISSING_LANDMARK,
-				"map_id": map_id,
-				"metric": "required_landmark_building_ids",
-				"measured": landmark_id,
-				"expected": "present",
-				"source_refs": source_refs,
-				"message": "%s missing required landmark building `%s`" % [map_id, landmark_id],
-			})
+			(
+				violations
+				. append(
+					{
+						"code": VIOLATION_MISSING_LANDMARK,
+						"map_id": map_id,
+						"metric": "required_landmark_building_ids",
+						"measured": landmark_id,
+						"expected": "present",
+						"source_refs": source_refs,
+						"message":
+						"%s missing required landmark building `%s`" % [map_id, landmark_id],
+					}
+				)
+			)
 
 	return violations
 
 
 static func format_violation(violation: Dictionary) -> String:
-	return "ERROR[%s] (map=%s, metric=%s): measured %s, expected %s; sources=%s" % [
-		String(violation.get("code", &"")),
-		String(violation.get("map_id", "")),
-		String(violation.get("metric", "")),
-		str(violation.get("measured", "")),
-		str(violation.get("expected", "")),
-		", ".join(violation.get("source_refs", [])),
-	]
+	return (
+		"ERROR[%s] (map=%s, metric=%s): measured %s, expected %s; sources=%s"
+		% [
+			String(violation.get("code", &"")),
+			String(violation.get("map_id", "")),
+			String(violation.get("metric", "")),
+			str(violation.get("measured", "")),
+			str(violation.get("expected", "")),
+			", ".join(violation.get("source_refs", [])),
+		]
+	)
 
 
 static func _audit_interior(
@@ -219,41 +249,53 @@ static func _audit_interior(
 			continue
 		var measured := float(surface.get(band_name, 0.0))
 		if measured < float(band[0]) or measured > float(band[1]):
-			violations.append(
-				_violation(
-					VIOLATION_SURFACE_SHARE,
-					map_id,
-					band_name,
-					measured,
-					band,
-					source_refs,
+			(
+				violations
+				. append(
+					_violation(
+						VIOLATION_SURFACE_SHARE,
+						map_id,
+						band_name,
+						measured,
+						band,
+						source_refs,
+					)
 				)
 			)
 	var open_band: Array = thresholds.get("open_floor_pct", [])
 	if not open_band.is_empty():
 		var open_pct := 100.0 - float(metrics.get("built_density_pct", 100.0))
 		if open_pct < float(open_band[0]) or open_pct > float(open_band[1]):
-			violations.append(
-				_violation(
-					VIOLATION_DENSITY,
-					map_id,
-					"open_floor_pct",
-					open_pct,
-					open_band,
-					source_refs,
+			(
+				violations
+				. append(
+					_violation(
+						VIOLATION_DENSITY,
+						map_id,
+						"open_floor_pct",
+						open_pct,
+						open_band,
+						source_refs,
+					)
 				)
 			)
 	for landmark_id in thresholds.get("required_landmark_building_ids", []):
 		if not _has_building_id(definition, StringName(String(landmark_id))):
-			violations.append({
-				"code": VIOLATION_MISSING_LANDMARK,
-				"map_id": map_id,
-				"metric": "required_landmark_building_ids",
-				"measured": landmark_id,
-				"expected": "present",
-				"source_refs": source_refs,
-				"message": "%s missing required landmark building `%s`" % [map_id, landmark_id],
-			})
+			(
+				violations
+				. append(
+					{
+						"code": VIOLATION_MISSING_LANDMARK,
+						"map_id": map_id,
+						"metric": "required_landmark_building_ids",
+						"measured": landmark_id,
+						"expected": "present",
+						"source_refs": source_refs,
+						"message":
+						"%s missing required landmark building `%s`" % [map_id, landmark_id],
+					}
+				)
+			)
 	return violations
 
 
@@ -272,11 +314,17 @@ static func _violation(
 		"measured": measured,
 		"expected": "%s-%s" % [expected_band[0], expected_band[1]],
 		"source_refs": source_refs,
-		"message": "%s %s measured %s outside %s-%s" % [map_id, metric, measured, expected_band[0], expected_band[1]],
+		"message":
+		(
+			"%s %s measured %s outside %s-%s"
+			% [map_id, metric, measured, expected_band[0], expected_band[1]]
+		),
 	}
 
 
-static func _build_occupancy(definition: MapDefinition, grid: MapTerrainGrid, interior: bool) -> Dictionary:
+static func _build_occupancy(
+	definition: MapDefinition, grid: MapTerrainGrid, interior: bool
+) -> Dictionary:
 	var built_cells: Dictionary = {}
 	var developable_cells := 0
 	var water_cells := 0
@@ -439,7 +487,9 @@ static func _elevation_range(definition: MapDefinition, grid: MapTerrainGrid) ->
 		for x in range(0, grid.size_cells.x, step):
 			if MapTypes.WATER_TERRAINS.has(grid.get_terrain(Vector2i(x, y))):
 				continue
-			var height := TerrainBuilder.field_height(field, Vector2(float(x) + 0.5, float(y) + 0.5))
+			var height := TerrainBuilder.field_height(
+				field, Vector2(float(x) + 0.5, float(y) + 0.5)
+			)
 			min_height = minf(min_height, height)
 			max_height = maxf(max_height, height)
 	if not is_finite(min_height) or not is_finite(max_height):
@@ -450,10 +500,12 @@ static func _elevation_range(definition: MapDefinition, grid: MapTerrainGrid) ->
 static func _counts_toward_density(building: Dictionary, interior: bool) -> bool:
 	var kind: StringName = building.get("kind", MapTypes.BUILDING_KIND_HOUSE)
 	if interior:
-		return kind == MapTypes.BUILDING_KIND_HOUSE \
-			or kind == MapTypes.BUILDING_KIND_INTERIOR_BLOCK \
-			or kind == MapTypes.BUILDING_KIND_INTERIOR_WALL \
+		return (
+			kind == MapTypes.BUILDING_KIND_HOUSE
+			or kind == MapTypes.BUILDING_KIND_INTERIOR_BLOCK
+			or kind == MapTypes.BUILDING_KIND_INTERIOR_WALL
 			or kind == MapTypes.BUILDING_KIND_WALL
+		)
 	return kind == MapTypes.BUILDING_KIND_HOUSE or kind == MapTypes.BUILDING_KIND_INTERIOR_BLOCK
 
 

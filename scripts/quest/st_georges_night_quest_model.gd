@@ -59,22 +59,28 @@ static func is_gate_choice_active(state: GameState) -> bool:
 static func can_choose_seal(state: GameState) -> bool:
 	if state == null:
 		return false
-	return state.get_flag(FLAG_SEAL_BIAS) \
+	return (
+		state.get_flag(FLAG_SEAL_BIAS)
 		or state.get_faction_standing(FactionLedger.LIVONIAN_ORDER) >= FACTION_STANDING_FALLBACK
+	)
 
 
 static func can_choose_break(state: GameState) -> bool:
 	if state == null:
 		return false
-	return state.get_flag(FLAG_BREAK_BIAS) \
+	return (
+		state.get_flag(FLAG_BREAK_BIAS)
 		or state.get_faction_standing(FactionLedger.HARJU_KINGS) >= FACTION_STANDING_FALLBACK
+	)
 
 
 static func can_choose_open(state: GameState) -> bool:
 	if state == null:
 		return false
-	return state.get_flag(FLAG_OPEN_BIAS) \
+	return (
+		state.get_flag(FLAG_OPEN_BIAS)
 		or state.get_faction_standing(FactionLedger.BLACK_CLOAKS) >= FACTION_STANDING_FALLBACK
+	)
 
 
 static func transition_for_choice(choice: StringName) -> StringName:

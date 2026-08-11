@@ -5,7 +5,6 @@ extends RefCounted
 ## descends to the shore here; the west-edge seam continues into Kalamaja's fishing
 ## shore while the east side remains open Tallinn Bay.
 
-
 const RRMAP_PATH := "res://content/maps/reval_harbor_north.rrmap"
 
 

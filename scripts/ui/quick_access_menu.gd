@@ -18,6 +18,7 @@ const ControlsOverlayScript := preload("res://scripts/ui/controls_overlay.gd")
 ## in the Controls screen and docs/CONTROLS.md.
 const HELP_TEXT := (
 	"WASD or arrows - move | Click - attack / use ahead (top-down: travel) | E - interact | "
+	# gdlint: ignore=max-line-length
 	+ "C - camera | Right - guard, drag to look | N - minimap | M - map | I - inventory | J - journal | K - controls | Esc - settings | Debug"
 )
 
@@ -60,12 +61,18 @@ func _ready() -> void:
 	_refresh_availability()
 	_refresh_technique_button()
 	_refresh_binding_hints()
-	if has_node("/root/UserSettings") and not UserSettings.input_bindings_changed.is_connected(_on_input_bindings_changed):
+	if (
+		has_node("/root/UserSettings")
+		and not UserSettings.input_bindings_changed.is_connected(_on_input_bindings_changed)
+	):
 		UserSettings.input_bindings_changed.connect(_on_input_bindings_changed)
 
 
 func _exit_tree() -> void:
-	if has_node("/root/UserSettings") and UserSettings.input_bindings_changed.is_connected(_on_input_bindings_changed):
+	if (
+		has_node("/root/UserSettings")
+		and UserSettings.input_bindings_changed.is_connected(_on_input_bindings_changed)
+	):
 		UserSettings.input_bindings_changed.disconnect(_on_input_bindings_changed)
 
 
@@ -137,35 +144,35 @@ func _build_ui() -> void:
 	actions.add_child(_journal_button)
 
 	_reflection_button = _create_action_button(
-		"ReflectionButton",
-		"Reflect",
-		"Open the Hingepuu reflection when the soul-tree calls"
+		"ReflectionButton", "Reflect", "Open the Hingepuu reflection when the soul-tree calls"
 	)
 	_reflection_button.pressed.connect(_on_reflection_pressed)
 	actions.add_child(_reflection_button)
 
 	# WHY: map mode must be mouse-reachable; M alone is not enough.
 	_world_map_button = _create_action_button(
-		"WorldMapButton",
-		"Map [M]",
-		"Open the local map and fast-travel options"
+		"WorldMapButton", "Map [M]", "Open the local map and fast-travel options"
 	)
 	_world_map_button.pressed.connect(_on_world_map_pressed)
 	actions.add_child(_world_map_button)
 
-	_camera_button = _create_action_button("CameraButton", "Camera [C]", "Cycle third-person, first-person, and top-down views; right-drag to look around")
+	_camera_button = _create_action_button(
+		"CameraButton",
+		"Camera [C]",
+		"Cycle third-person, first-person, and top-down views; right-drag to look around"
+	)
 	_camera_button.pressed.connect(_on_camera_pressed)
 	actions.add_child(_camera_button)
 
-	_controls_button = _create_action_button("ControlsButton", "Controls [K]", "Remap keyboard, mouse, and gamepad controls")
+	_controls_button = _create_action_button(
+		"ControlsButton", "Controls [K]", "Remap keyboard, mouse, and gamepad controls"
+	)
 	_controls_button.pressed.connect(_on_controls_pressed)
 	actions.add_child(_controls_button)
 
 	# WHY (P1-024e): forge techniques must be mouse-reachable; a hotkey alone is not enough.
 	_technique_button = _create_action_button(
-		"IronTechniqueButton",
-		"Iron",
-		"Equip or clear the Iron forge technique"
+		"IronTechniqueButton", "Iron", "Equip or clear the Iron forge technique"
 	)
 	_technique_button.pressed.connect(_on_technique_pressed)
 	actions.add_child(_technique_button)
@@ -174,7 +181,9 @@ func _build_ui() -> void:
 	_save_button.pressed.connect(_on_save_pressed)
 	actions.add_child(_save_button)
 
-	_debug_button = _create_action_button("DebugButton", "Debug", "Toggle debug overlay (FPS, audio, time controls)")
+	_debug_button = _create_action_button(
+		"DebugButton", "Debug", "Toggle debug overlay (FPS, audio, time controls)"
+	)
 	_debug_button.pressed.connect(_on_debug_pressed)
 	actions.add_child(_debug_button)
 
@@ -205,13 +214,19 @@ func _create_action_button(node_name: String, label: String, tooltip: String) ->
 func _resolve_dependencies() -> void:
 	var owner_node := get_parent()
 	if _inventory_controller == null:
-		_inventory_controller = owner_node.get_node_or_null("InventoryController") as InventoryController
+		_inventory_controller = (
+			owner_node.get_node_or_null("InventoryController") as InventoryController
+		)
 	if _journal_controller == null:
 		_journal_controller = owner_node.get_node_or_null("JournalController") as JournalController
 	if _world_map_controller == null:
-		_world_map_controller = owner_node.get_node_or_null("WorldMapController") as WorldMapController
+		_world_map_controller = (
+			owner_node.get_node_or_null("WorldMapController") as WorldMapController
+		)
 	if _reflection_controller == null:
-		_reflection_controller = owner_node.get_node_or_null("ReflectionController") as ReflectionController
+		_reflection_controller = (
+			owner_node.get_node_or_null("ReflectionController") as ReflectionController
+		)
 	if not _save_callback.is_valid() and has_node("/root/SessionState"):
 		_save_callback = Callable(SessionState, "save_game")
 
@@ -227,7 +242,9 @@ func _refresh_availability() -> void:
 		return
 	_inventory_button.disabled = _inventory_controller == null
 	_journal_button.disabled = _journal_controller == null
-	_reflection_button.disabled = _reflection_controller == null or not _reflection_controller.is_available()
+	_reflection_button.disabled = (
+		_reflection_controller == null or not _reflection_controller.is_available()
+	)
 	_world_map_button.disabled = _world_map_controller == null
 	_camera_button.disabled = _find_map_view_runtime() == null
 	_controls_button.disabled = not has_node("/root/UserSettings")
@@ -340,15 +357,25 @@ func _refresh_binding_hints() -> void:
 		return
 	var bindings = UserSettings.input_bindings
 	if _inventory_button != null:
-		_inventory_button.text = "Inventory [%s]" % bindings.binding_text(&"toggle_inventory", &"keyboard_mouse")
+		_inventory_button.text = (
+			"Inventory [%s]" % bindings.binding_text(&"toggle_inventory", &"keyboard_mouse")
+		)
 	if _journal_button != null:
-		_journal_button.text = "Journal [%s]" % bindings.binding_text(&"toggle_journal", &"keyboard_mouse")
+		_journal_button.text = (
+			"Journal [%s]" % bindings.binding_text(&"toggle_journal", &"keyboard_mouse")
+		)
 	if _world_map_button != null:
-		_world_map_button.text = "Map [%s]" % bindings.binding_text(&"toggle_world_map", &"keyboard_mouse")
+		_world_map_button.text = (
+			"Map [%s]" % bindings.binding_text(&"toggle_world_map", &"keyboard_mouse")
+		)
 	if _camera_button != null:
-		_camera_button.text = "Camera [%s]" % bindings.binding_text(&"toggle_camera_view", &"keyboard_mouse")
+		_camera_button.text = (
+			"Camera [%s]" % bindings.binding_text(&"toggle_camera_view", &"keyboard_mouse")
+		)
 	if _controls_button != null:
-		_controls_button.text = "Controls [%s]" % bindings.binding_text(&"toggle_controls", &"keyboard_mouse")
+		_controls_button.text = (
+			"Controls [%s]" % bindings.binding_text(&"toggle_controls", &"keyboard_mouse")
+		)
 
 
 func _on_technique_pressed() -> void:

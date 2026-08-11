@@ -109,8 +109,9 @@ func subtitle() -> String:
 	if _current_scene_id.is_empty():
 		return "Current scene is outside the active transition registry."
 	if _travelable.is_empty():
-		return "You are here: %s (no travelable destinations)" % LocationHud.display_name_for_scene(
-			_current_scene_id
+		return (
+			"You are here: %s (no travelable destinations)"
+			% LocationHud.display_name_for_scene(_current_scene_id)
 		)
 	if WorldMapGraph.allow_all_active_travel():
 		return (
@@ -184,8 +185,7 @@ func _place_node(button: Button, scene_id: StringName) -> void:
 	if area.x < 8.0 or area.y < 8.0:
 		area = Vector2(PANEL_SIZE.x - 40.0, 400.0)
 	button.position = Vector2(
-		normalized.x * area.x - NODE_SIZE.x * 0.5,
-		normalized.y * area.y - NODE_SIZE.y * 0.5
+		normalized.x * area.x - NODE_SIZE.x * 0.5, normalized.y * area.y - NODE_SIZE.y * 0.5
 	)
 	button.size = NODE_SIZE
 
@@ -197,17 +197,20 @@ func _wire_focus_neighbors(buttons: Array[Button]) -> void:
 		return
 	for button in buttons:
 		var origin := button.position + button.size * 0.5
-		button.focus_neighbor_left = _nearest_focus_path(button, buttons, origin, Vector2(-1.0, 0.0))
-		button.focus_neighbor_right = _nearest_focus_path(button, buttons, origin, Vector2(1.0, 0.0))
+		button.focus_neighbor_left = _nearest_focus_path(
+			button, buttons, origin, Vector2(-1.0, 0.0)
+		)
+		button.focus_neighbor_right = _nearest_focus_path(
+			button, buttons, origin, Vector2(1.0, 0.0)
+		)
 		button.focus_neighbor_top = _nearest_focus_path(button, buttons, origin, Vector2(0.0, -1.0))
-		button.focus_neighbor_bottom = _nearest_focus_path(button, buttons, origin, Vector2(0.0, 1.0))
+		button.focus_neighbor_bottom = _nearest_focus_path(
+			button, buttons, origin, Vector2(0.0, 1.0)
+		)
 
 
 func _nearest_focus_path(
-	from_button: Button,
-	candidates: Array[Button],
-	origin: Vector2,
-	direction: Vector2
+	from_button: Button, candidates: Array[Button], origin: Vector2, direction: Vector2
 ) -> NodePath:
 	var best: Button = null
 	var best_score := INF

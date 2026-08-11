@@ -16,10 +16,7 @@ const RIVET_RADIUS := 0.018
 
 
 static func facade_transform(
-	along: float,
-	side: StringName,
-	face_offset: float,
-	leaf_depth: float
+	along: float, side: StringName, face_offset: float, leaf_depth: float
 ) -> Transform3D:
 	var out := face_offset + leaf_depth * 0.5 - MapViewMeshBuilderConfig.FACADE_RELIEF + 0.06
 	match side:
@@ -79,7 +76,9 @@ static func add_leaf(
 
 	_add_hardware(parent, part_prefix, width, height, depth, assembly_transform)
 	if add_rear_braces:
-		_add_rear_battens(parent, part_prefix, width, height, depth, material_seed, assembly_transform)
+		_add_rear_battens(
+			parent, part_prefix, width, height, depth, material_seed, assembly_transform
+		)
 
 
 static func add_frame(
@@ -159,7 +158,9 @@ static func _add_hardware(
 			parent,
 			_part_name(prefix, "Strap%dTip" % index),
 			STRAP_HEIGHT * 0.56,
-			Vector3(-width * 0.5 + strap_width + HINGE_RADIUS * 0.35, y, face_z + STRAP_DEPTH * 0.35),
+			Vector3(
+				-width * 0.5 + strap_width + HINGE_RADIUS * 0.35, y, face_z + STRAP_DEPTH * 0.35
+			),
 			Vector3(1.35, 1.0, 0.45),
 			iron,
 			assembly_transform
@@ -174,7 +175,9 @@ static func _add_hardware(
 			assembly_transform
 		)
 		for rivet_index in 3:
-			var rivet_x := lerpf(-width * 0.34, width * (0.20 if index == 0 else 0.14), float(rivet_index) * 0.5)
+			var rivet_x := lerpf(
+				-width * 0.34, width * (0.20 if index == 0 else 0.14), float(rivet_index) * 0.5
+			)
 			_add_sphere(
 				parent,
 				_part_name(prefix, "Strap%dRivet%d" % [index, rivet_index]),

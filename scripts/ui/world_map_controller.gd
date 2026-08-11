@@ -7,10 +7,10 @@ extends Node
 
 const TOGGLE_ACTION := &"toggle_world_map"
 
-var _overlay: WorldMapOverlay
 ## Last planned go_to_scene args for headless verification (scene_id + spawn_id).
 var last_travel_request: Dictionary = {}
 
+var _overlay: WorldMapOverlay
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS

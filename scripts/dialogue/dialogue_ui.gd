@@ -1,6 +1,10 @@
 class_name DialogueUI
 extends CanvasLayer
 
+signal choice_selected(choice_id: String)
+signal continue_requested
+signal skip_requested
+
 const TextScaleScript := preload("res://scripts/dialogue/dialogue_text_scale.gd")
 const PortraitResolverScript := preload("res://scripts/dialogue/dialogue_portrait_resolver.gd")
 const DialogueSettingsScript := preload("res://scripts/settings/dialogue_settings.gd")
@@ -11,11 +15,6 @@ const DialogueUiTheme := preload("res://scripts/dialogue/dialogue_ui_theme.gd")
 const DialogueUiInput := preload("res://scripts/dialogue/dialogue_ui_input.gd")
 const DialogueUiReveal := preload("res://scripts/dialogue/dialogue_ui_reveal.gd")
 const DialogueUiChoices := preload("res://scripts/dialogue/dialogue_ui_choices.gd")
-
-signal choice_selected(choice_id: String)
-signal continue_requested()
-signal skip_requested()
-
 const FONT_PATH := "res://assets/fonts/NotoSans-Regular.ttf"
 const PORTRAIT_SIZE := 96
 
@@ -33,7 +32,6 @@ var _full_line_text := ""
 var _revealed_char_count := 0
 var _reveal_complete := true
 var _reveal_accumulator := 0.0
-
 var _root: Control
 var _panel: PanelContainer
 var _backlog_panel: PanelContainer
@@ -49,7 +47,6 @@ var _continue_hint: Label
 var _disabled_reason_label: Label
 var _skip_button: Button
 var _backlog_button: Button
-
 
 func _ready() -> void:
 	layer = 45
@@ -165,7 +162,9 @@ func get_speaker_label_text() -> String:
 	return _speaker_label.text
 
 
-func present_line(speaker_id: StringName, speaker_name: String, text: String, _node_id: String) -> void:
+func present_line(
+	speaker_id: StringName, speaker_name: String, text: String, _node_id: String
+) -> void:
 	var display_speaker := localize_text_for_display(speaker_name)
 	var display_text := localize_text_for_display(text)
 	_append_backlog_entry(display_speaker, display_text)
@@ -238,10 +237,15 @@ func _show_overlay() -> void:
 func _append_backlog_entry(speaker_name: String, text: String) -> void:
 	if speaker_name.is_empty() and text.is_empty():
 		return
-	_backlog_entries.append({
-		"speaker_name": speaker_name,
-		"text": text,
-	})
+	(
+		_backlog_entries
+		. append(
+			{
+				"speaker_name": speaker_name,
+				"text": text,
+			}
+		)
+	)
 	_rebuild_backlog()
 
 
@@ -365,22 +369,32 @@ func _apply_visual_theme() -> void:
 
 
 func _apply_text_scale() -> void:
-	_speaker_label.add_theme_font_size_override("font_size", TextScaleScript.speaker_size(_text_scale))
+	_speaker_label.add_theme_font_size_override(
+		"font_size", TextScaleScript.speaker_size(_text_scale)
+	)
 	_text_label.add_theme_font_size_override("font_size", TextScaleScript.body_size(_text_scale))
 	_continue_hint.add_theme_font_size_override("font_size", TextScaleScript.hint_size(_text_scale))
-	_disabled_reason_label.add_theme_font_size_override("font_size", TextScaleScript.hint_size(_text_scale))
-	_portrait_fallback.add_theme_font_size_override("font_size", TextScaleScript.speaker_size(_text_scale))
+	_disabled_reason_label.add_theme_font_size_override(
+		"font_size", TextScaleScript.hint_size(_text_scale)
+	)
+	_portrait_fallback.add_theme_font_size_override(
+		"font_size", TextScaleScript.speaker_size(_text_scale)
+	)
 	for button in _choice_buttons:
 		button.add_theme_font_size_override("font_size", TextScaleScript.choice_size(_text_scale))
 	_rebuild_backlog()
 
 
 func _build_ui() -> void:
-	var nodes := DialogueUiBuilderScript.build(self, _font, {
-		"toggle_backlog": _toggle_backlog,
-		"skip_requested": func() -> void: skip_requested.emit(),
-		"sync_text_label_width": _sync_text_label_width,
-	})
+	var nodes := DialogueUiBuilderScript.build(
+		self,
+		_font,
+		{
+			"toggle_backlog": _toggle_backlog,
+			"skip_requested": func() -> void: skip_requested.emit(),
+			"sync_text_label_width": _sync_text_label_width,
+		}
+	)
 	_root = nodes["root"]
 	_panel = nodes["panel"]
 	_backlog_panel = nodes["backlog_panel"]

@@ -25,7 +25,6 @@ const ORATORY_PRIMITIVE := &"timber_oratory_1343"
 ## the house reads as a row of heated cottages.
 const UNHEATED_RANGE_PRIMITIVE := &"unheated_timber_range_1343"
 const CLOISTER_WALK_KIND := &"cloister_walk"
-
 const POST_SECTION := 0.17
 const POST_SPACING := 1.75
 const POST_HEIGHT := 2.45
@@ -34,7 +33,8 @@ const SILL_HEIGHT := 0.36
 const ROOF_THICKNESS := 0.12
 const RANGE_EAVES_LIFT := 0.85
 const BRACE_LENGTH := 0.55
-
+const PORTAL_WIDTH := 1.18
+const PORTAL_HEIGHT := 2.25
 
 static func is_oratory(building: Dictionary) -> bool:
 	return StringName(building.get("primitive", &"")) == ORATORY_PRIMITIVE
@@ -48,11 +48,7 @@ static func is_unheated_range(building: Dictionary) -> bool:
 ## direction and `interior_side` names the range side, which is the high eaves
 ## side of the lean-to. Both are authored landmark keys, so the same model
 ## serves all four walks without a per-side primitive.
-static func add_cloister_walk(
-	root: Node3D,
-	landmark: Dictionary,
-	size: Vector2
-) -> void:
+static func add_cloister_walk(root: Node3D, landmark: Dictionary, size: Vector2) -> void:
 	var axis_x := _walk_runs_along_x(landmark, size)
 	var run := size.x if axis_x else size.y
 	var depth := maxf(size.y if axis_x else size.x, 1.0)
@@ -137,19 +133,11 @@ static func add_cloister_walk(
 		roof.rotation.z = high_sign * slope_angle
 	root.add_child(roof)
 
-
-const PORTAL_WIDTH := 1.18
-const PORTAL_HEIGHT := 2.25
-
-
 ## The oratory authors its own openings. The generic house pass would otherwise
 ## add shuttered domestic windows to a church, which is the single detail that
 ## made the earlier Padise oratory read as a hall.
 static func add_oratory_facade(
-	root: Node3D,
-	building: Dictionary,
-	size: Vector2,
-	height: float
+	root: Node3D, building: Dictionary, size: Vector2, height: float
 ) -> void:
 	var side := StringName(String(building.get("door_side", "west")))
 	if side == &"none":
@@ -158,10 +146,7 @@ static func add_oratory_facade(
 	var face_offset := (size.y if along_x else size.x) * 0.5
 	var door_height := minf(PORTAL_HEIGHT, height - 0.2)
 	var transform := MapViewDoorBuilder.facade_transform(
-		0.0,
-		side,
-		face_offset,
-		MapViewMeshBuilderConfig.DOOR_THICKNESS
+		0.0, side, face_offset, MapViewMeshBuilderConfig.DOOR_THICKNESS
 	)
 	var seed := String(building.get("id", &"oratory")).hash()
 	MapViewDoorBuilder.add_leaf(
@@ -190,15 +175,11 @@ static func add_oratory_facade(
 ## Aisle-less timber oratory dressing: paired lancet lights on both long walls,
 ## a west bellcote, and an east gable cross.
 static func add_oratory_details(
-	root: Node3D,
-	building: Dictionary,
-	size: Vector2,
-	height: float,
-	along_ridge_x: bool
+	root: Node3D, _building: Dictionary, size: Vector2, height: float, along_ridge_x: bool
 ) -> void:
-	var long_face := size.y * 0.5 if along_ridge_x else size.x * 0.5
-	var run := size.x if along_ridge_x else size.y
-	var narrow_half := (size.y * 0.5 if along_ridge_x else size.x * 0.5) + MapViewMeshBuilderConfig.ROOF_OVERHANG
+	var narrow_half := (
+		(size.y * 0.5 if along_ridge_x else size.x * 0.5) + MapViewMeshBuilderConfig.ROOF_OVERHANG
+	)
 	var apex := height + narrow_half * MapViewMeshBuilderConfig.ROOF_PITCH
 
 	var light_count := clampi(int(run / 3.2), 3, 7)
@@ -224,17 +205,29 @@ static func add_oratory_details(
 				root,
 				"OratoryLightFrame%02d%s" % [index, "N" if side < 0.0 else "S"],
 				Vector3(maxf(frame.x, 0.06), frame.y, maxf(frame.z, 0.06)),
-				(position + Vector3(0.0, 0.0, -side * 0.03)) if along_ridge_x else (position + Vector3(-side * 0.03, 0.0, 0.0)),
+				(
+					(position + Vector3(0.0, 0.0, -side * 0.03))
+					if along_ridge_x
+					else (position + Vector3(-side * 0.03, 0.0, 0.0))
+				),
 				&"timber"
 			)
 
 	# Cistercian statutes barred stone bell towers on ordinary houses; a framed
 	# west bellcote for the single office bell is the modest permitted form.
 	var gable_offset := run * 0.5
-	var west := Vector3(-gable_offset + 0.35, 0.0, 0.0) if along_ridge_x else Vector3(0.0, 0.0, -gable_offset + 0.35)
+	var west := (
+		Vector3(-gable_offset + 0.35, 0.0, 0.0)
+		if along_ridge_x
+		else Vector3(0.0, 0.0, -gable_offset + 0.35)
+	)
 	var post_span := 0.62
 	for side: float in [-1.0, 1.0]:
-		var lateral := Vector3(0.0, 0.0, side * post_span * 0.5) if along_ridge_x else Vector3(side * post_span * 0.5, 0.0, 0.0)
+		var lateral := (
+			Vector3(0.0, 0.0, side * post_span * 0.5)
+			if along_ridge_x
+			else Vector3(side * post_span * 0.5, 0.0, 0.0)
+		)
 		MapViewMeshBuilderPrimitives.box(
 			root,
 			"BellcotePost%s" % ("A" if side < 0.0 else "B"),
@@ -245,7 +238,11 @@ static func add_oratory_details(
 	MapViewMeshBuilderPrimitives.box(
 		root,
 		"BellcoteHead",
-		Vector3(0.16, 0.14, post_span + 0.3) if along_ridge_x else Vector3(post_span + 0.3, 0.14, 0.16),
+		(
+			Vector3(0.16, 0.14, post_span + 0.3)
+			if along_ridge_x
+			else Vector3(post_span + 0.3, 0.14, 0.16)
+		),
 		west + Vector3(0.0, apex + 1.2, 0.0),
 		&"timber"
 	)
@@ -273,7 +270,11 @@ static func add_oratory_details(
 	bell.material_override = MapViewMaterials.role(&"metal")
 	root.add_child(bell)
 
-	var east := Vector3(gable_offset - 0.2, 0.0, 0.0) if along_ridge_x else Vector3(0.0, 0.0, gable_offset - 0.2)
+	var east := (
+		Vector3(gable_offset - 0.2, 0.0, 0.0)
+		if along_ridge_x
+		else Vector3(0.0, 0.0, gable_offset - 0.2)
+	)
 	MapViewMeshBuilderPrimitives.box(
 		root,
 		"OratoryCrossStem",

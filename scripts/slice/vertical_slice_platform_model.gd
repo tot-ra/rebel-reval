@@ -67,7 +67,10 @@ static func manifest_matches_model() -> bool:
 		return false
 	if String(manifest.get("packaged_smoke_user_argument", "")) != PACKAGED_SMOKE_USER_ARGUMENT:
 		return false
-	if String(manifest.get("packaged_smoke_script", "")) != PACKAGED_SMOKE_SCRIPT.trim_prefix("res://"):
+	if (
+		String(manifest.get("packaged_smoke_script", ""))
+		!= PACKAGED_SMOKE_SCRIPT.trim_prefix("res://")
+	):
 		return false
 	if String(manifest.get("verify_script", "")) != VERIFY_SCRIPT_PATH:
 		return false
@@ -82,7 +85,9 @@ static func manifest_matches_model() -> bool:
 
 
 static func export_preset_contract_paths() -> PackedStringArray:
-	return PackedStringArray([
-		"res://export_presets.cfg",
-		"res://.godot-version",
-	])
+	return PackedStringArray(
+		[
+			"res://export_presets.cfg",
+			"res://.godot-version",
+		]
+	)

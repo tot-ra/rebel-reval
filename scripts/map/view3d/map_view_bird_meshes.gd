@@ -42,8 +42,12 @@ static func mesh_for(species: StringName, pose: StringName = &"") -> ArrayMesh:
 
 static func uses_authored_mesh(species: StringName, pose: StringName = &"") -> bool:
 	var resolved_pose := BirdSpecies.default_pose(species) if pose.is_empty() else pose
-	return BirdAssets.has_authored_pose(species, resolved_pose) or (
-		resolved_pose == BirdSpecies.POSE_GLIDING and BirdAssets.has_complete_flap_cycle(species)
+	return (
+		BirdAssets.has_authored_pose(species, resolved_pose)
+		or (
+			resolved_pose == BirdSpecies.POSE_GLIDING
+			and BirdAssets.has_complete_flap_cycle(species)
+		)
 	)
 
 
@@ -126,7 +130,9 @@ static func _split_flap_mesh(mesh: ArrayMesh) -> Dictionary:
 		var first_index := triangle_indices[triangle_start]
 		var second_index := triangle_indices[triangle_start + 1]
 		var third_index := triangle_indices[triangle_start + 2]
-		var centroid := (vertices[first_index] + vertices[second_index] + vertices[third_index]) / 3.0
+		var centroid := (
+			(vertices[first_index] + vertices[second_index] + vertices[third_index]) / 3.0
+		)
 		var abs_x := absf(centroid.x)
 		var bucket := 0
 		if abs_x > body_limit:
@@ -169,7 +175,9 @@ static func _split_flap_mesh(mesh: ArrayMesh) -> Dictionary:
 	}
 
 
-static func _mesh_from_vertex_indices(mesh: ArrayMesh, arrays: Array, indices: Array, local_origin: Vector3) -> ArrayMesh:
+static func _mesh_from_vertex_indices(
+	mesh: ArrayMesh, arrays: Array, indices: Array, local_origin: Vector3
+) -> ArrayMesh:
 	if indices.is_empty():
 		return ArrayMesh.new()
 	var surface := SurfaceTool.new()
@@ -204,11 +212,19 @@ static func _merge_part_bounds(first: ArrayMesh, second: ArrayMesh) -> AABB:
 
 
 static func _wing_anchor(bounds: AABB, side: float, body_limit: float) -> Vector3:
-	return Vector3(side * body_limit, bounds.position.y + bounds.size.y * 0.52, bounds.position.z + bounds.size.z * 0.52)
+	return Vector3(
+		side * body_limit,
+		bounds.position.y + bounds.size.y * 0.52,
+		bounds.position.z + bounds.size.z * 0.52
+	)
 
 
 static func _wing_elbow(bounds: AABB, side: float, body_limit: float, max_x: float) -> Vector3:
-	return Vector3(side * lerpf(body_limit, max_x, 0.50), bounds.position.y + bounds.size.y * 0.50, bounds.position.z + bounds.size.z * 0.50)
+	return Vector3(
+		side * lerpf(body_limit, max_x, 0.50),
+		bounds.position.y + bounds.size.y * 0.50,
+		bounds.position.z + bounds.size.z * 0.50
+	)
 
 
 static func geometry_stats(species: StringName, pose: StringName = &"") -> Dictionary:
@@ -227,10 +243,7 @@ static func geometry_stats(species: StringName, pose: StringName = &"") -> Dicti
 
 
 static func _build_mesh(
-	species: StringName,
-	pose: StringName,
-	wing_lift: float = 0.0,
-	wing_sweep: float = 0.0
+	species: StringName, pose: StringName, wing_lift: float = 0.0, wing_sweep: float = 0.0
 ) -> ArrayMesh:
 	var geometry := BirdSpecies.geometry_for(species)
 	var colors := BirdSpecies.colors_for(species)
@@ -293,7 +306,16 @@ static func _build_mesh(
 		_append_facial_disc(surface, head_center, head_radius, colors[2])
 
 	if pose == BirdSpecies.POSE_GLIDING:
-		_append_extended_wings(surface, body_center, body_radius, wing_span, wing_chord, colors[1], wing_lift, wing_sweep)
+		_append_extended_wings(
+			surface,
+			body_center,
+			body_radius,
+			wing_span,
+			wing_chord,
+			colors[1],
+			wing_lift,
+			wing_sweep
+		)
 	else:
 		_append_folded_wings(surface, body_center, body_radius, wing_chord, colors[1])
 
@@ -334,21 +356,55 @@ static func _append_extended_wings(
 	var lift_offset := wing_lift * body_radius.y * 1.8
 	var sweep_offset := wing_sweep * half_span * 0.28
 	for side_sign in [-1.0, 1.0]:
-		var shoulder := body_center + Vector3(side_sign * body_radius.x * 0.58, body_radius.y * 0.32 + lift_offset, -body_radius.z * 0.08)
+		var shoulder := (
+			body_center
+			+ Vector3(
+				side_sign * body_radius.x * 0.58,
+				body_radius.y * 0.32 + lift_offset,
+				-body_radius.z * 0.08
+			)
+		)
 		# Elbow and wrist lift progressively more than the shoulder for a
 		# natural bending curve during the flap stroke.
 		var elbow_lift := lift_offset * 1.15
 		var wrist_lift := lift_offset * 1.30
 		var tip_lift := lift_offset * 1.40
-		var elbow := shoulder + Vector3(side_sign * half_span * 0.30, half_span * 0.03 + (elbow_lift - lift_offset) - sweep_offset * 0.25, -wing_chord * 0.03 + sweep_offset * 0.20)
-		var wrist := shoulder + Vector3(side_sign * half_span * 0.62, half_span * 0.07 + (wrist_lift - lift_offset) - sweep_offset * 0.62, wing_chord * 0.05 + sweep_offset * 0.46)
-		var tip := shoulder + Vector3(side_sign * half_span, half_span * 0.10 + (tip_lift - lift_offset) - sweep_offset, wing_chord * 0.14 + sweep_offset * 0.72)
+		var elbow := (
+			shoulder
+			+ Vector3(
+				side_sign * half_span * 0.30,
+				half_span * 0.03 + (elbow_lift - lift_offset) - sweep_offset * 0.25,
+				-wing_chord * 0.03 + sweep_offset * 0.20
+			)
+		)
+		var wrist := (
+			shoulder
+			+ Vector3(
+				side_sign * half_span * 0.62,
+				half_span * 0.07 + (wrist_lift - lift_offset) - sweep_offset * 0.62,
+				wing_chord * 0.05 + sweep_offset * 0.46
+			)
+		)
+		var tip := (
+			shoulder
+			+ Vector3(
+				side_sign * half_span,
+				half_span * 0.10 + (tip_lift - lift_offset) - sweep_offset,
+				wing_chord * 0.14 + sweep_offset * 0.72
+			)
+		)
 		# Trailing edge points mirror the leading edge so each arm/hand panel
 		# keeps a believable chord instead of collapsing into a flat ribbon.
 		var rear_shoulder := shoulder + Vector3(0.0, -half_span * 0.015, body_radius.z * 0.82)
-		var rear_elbow := elbow + Vector3(-side_sign * half_span * 0.03, -half_span * 0.02, wing_chord * 0.66)
-		var rear_wrist := wrist + Vector3(-side_sign * half_span * 0.05, -half_span * 0.03, wing_chord * 0.52)
-		var rear_tip := tip + Vector3(-side_sign * half_span * 0.10, -half_span * 0.035, wing_chord * 0.30)
+		var rear_elbow := (
+			elbow + Vector3(-side_sign * half_span * 0.03, -half_span * 0.02, wing_chord * 0.66)
+		)
+		var rear_wrist := (
+			wrist + Vector3(-side_sign * half_span * 0.05, -half_span * 0.03, wing_chord * 0.52)
+		)
+		var rear_tip := (
+			tip + Vector3(-side_sign * half_span * 0.10, -half_span * 0.035, wing_chord * 0.30)
+		)
 		_append_quad(surface, shoulder, elbow, rear_elbow, rear_shoulder, color.lightened(0.04))
 		_append_quad(surface, elbow, wrist, rear_wrist, rear_elbow, color)
 		_append_quad(surface, wrist, tip, rear_tip, rear_wrist, color.darkened(0.05))
@@ -358,10 +414,13 @@ static func _append_extended_wings(
 			var feather_t := float(feather_index) / 5.0
 			var anchor := wrist.lerp(tip, 0.15 + feather_t * 0.55)
 			var rear_anchor := rear_wrist.lerp(rear_tip, 0.15 + feather_t * 0.55)
-			var feather_tip := tip + Vector3(
-				-side_sign * half_span * feather_t * 0.10,
-				-half_span * feather_t * 0.02,
-				wing_chord * (0.16 + feather_t * 0.22)
+			var feather_tip := (
+				tip
+				+ Vector3(
+					-side_sign * half_span * feather_t * 0.10,
+					-half_span * feather_t * 0.02,
+					wing_chord * (0.16 + feather_t * 0.22)
+				)
 			)
 			var width := maxf(wing_chord * (0.11 - feather_t * 0.03), 0.010)
 			_append_feather(
@@ -382,20 +441,40 @@ static func _append_folded_wings(
 ) -> void:
 	var wing_length := maxf(body_radius.z * 1.48, wing_chord * 0.88)
 	for side_sign in [-1.0, 1.0]:
-		var shoulder := body_center + Vector3(side_sign * body_radius.x * 0.82, body_radius.y * 0.20, -body_radius.z * 0.34)
+		var shoulder := (
+			body_center
+			+ Vector3(side_sign * body_radius.x * 0.82, body_radius.y * 0.20, -body_radius.z * 0.34)
+		)
 		var top := shoulder + Vector3(0.0, body_radius.y * 0.22, wing_length * 0.22)
-		var tip := shoulder + Vector3(-side_sign * body_radius.x * 0.10, -body_radius.y * 0.32, wing_length)
+		var tip := (
+			shoulder
+			+ Vector3(-side_sign * body_radius.x * 0.10, -body_radius.y * 0.32, wing_length)
+		)
 		var lower := shoulder + Vector3(0.0, -body_radius.y * 0.45, wing_length * 0.34)
 		# Layered coverts plus separated folded flight feathers replace the old
 		# two-triangle slab so perched and standing birds show a real wing shape.
 		_append_colored_triangle(surface, shoulder, top, tip, color.lightened(0.03))
 		_append_colored_triangle(surface, shoulder, tip, lower, color.darkened(0.06))
-		var inner_top := shoulder + Vector3(-side_sign * body_radius.x * 0.16, body_radius.y * 0.10, wing_length * 0.30)
-		var inner_tip := shoulder + Vector3(-side_sign * body_radius.x * 0.22, -body_radius.y * 0.26, wing_length * 0.92)
-		var inner_lower := shoulder + Vector3(-side_sign * body_radius.x * 0.06, -body_radius.y * 0.38, wing_length * 0.40)
+		var inner_top := (
+			shoulder
+			+ Vector3(-side_sign * body_radius.x * 0.16, body_radius.y * 0.10, wing_length * 0.30)
+		)
+		var inner_tip := (
+			shoulder
+			+ Vector3(-side_sign * body_radius.x * 0.22, -body_radius.y * 0.26, wing_length * 0.92)
+		)
+		var inner_lower := (
+			shoulder
+			+ Vector3(-side_sign * body_radius.x * 0.06, -body_radius.y * 0.38, wing_length * 0.40)
+		)
 		_append_colored_triangle(surface, inner_top, inner_tip, inner_lower, color.darkened(0.12))
-		var primary_tip := shoulder + Vector3(-side_sign * body_radius.x * 0.05, -body_radius.y * 0.30, wing_length * 1.04)
-		_append_feather(surface, lower, primary_tip, maxf(body_radius.x * 0.20, 0.010), color.darkened(0.16))
+		var primary_tip := (
+			shoulder
+			+ Vector3(-side_sign * body_radius.x * 0.05, -body_radius.y * 0.30, wing_length * 1.04)
+		)
+		_append_feather(
+			surface, lower, primary_tip, maxf(body_radius.x * 0.20, 0.010), color.darkened(0.16)
+		)
 
 
 static func _append_tail(
@@ -411,7 +490,10 @@ static func _append_tail(
 	if forked:
 		for side_sign in [-1.0, 1.0]:
 			var feather_root := root + Vector3(side_sign * half_width * 0.25, 0.0, 0.0)
-			var tip := feather_root + Vector3(side_sign * half_width * 0.74, -body_radius.y * 0.16, tail_length)
+			var tip := (
+				feather_root
+				+ Vector3(side_sign * half_width * 0.74, -body_radius.y * 0.16, tail_length)
+			)
 			_append_feather(surface, feather_root, tip, maxf(half_width * 0.38, 0.012), color)
 	else:
 		var end := root + Vector3(0.0, -body_radius.y * 0.12, tail_length)
@@ -441,37 +523,45 @@ static func _append_legs(
 		return
 	var top_y := body_center.y - body_radius.y * 0.56
 	for side_sign in [-1.0, 1.0]:
-		var top := Vector3(side_sign * body_radius.x * 0.31, top_y, body_center.z + body_radius.z * 0.08)
+		var top := Vector3(
+			side_sign * body_radius.x * 0.31, top_y, body_center.z + body_radius.z * 0.08
+		)
 		var backward := leg_length * 0.18 if pose == BirdSpecies.POSE_PERCHED else 0.0
 		var bottom := top + Vector3(0.0, -leg_length, backward)
-		_append_tapered_tube(surface, top, bottom, maxf(leg_length * 0.035, 0.006), maxf(leg_length * 0.028, 0.004), color, 5)
+		_append_tapered_tube(
+			surface,
+			top,
+			bottom,
+			maxf(leg_length * 0.035, 0.006),
+			maxf(leg_length * 0.028, 0.004),
+			color,
+			5
+		)
 		for toe_index in 3:
 			var spread := float(toe_index - 1) * leg_length * 0.16
 			var toe_end := bottom + Vector3(spread, -leg_length * 0.02, -leg_length * 0.22)
-			_append_tapered_tube(surface, bottom, toe_end, maxf(leg_length * 0.018, 0.003), 0.002, color.darkened(0.08), 4)
+			_append_tapered_tube(
+				surface,
+				bottom,
+				toe_end,
+				maxf(leg_length * 0.018, 0.003),
+				0.002,
+				color.darkened(0.08),
+				4
+			)
 		# Rear hallux toe keeps perched birds from standing on tripod stilts.
 		var heel := bottom + Vector3(0.0, -leg_length * 0.015, leg_length * 0.16)
-		_append_tapered_tube(surface, bottom, heel, maxf(leg_length * 0.016, 0.003), 0.002, color.darkened(0.08), 4)
+		_append_tapered_tube(
+			surface, bottom, heel, maxf(leg_length * 0.016, 0.003), 0.002, color.darkened(0.08), 4
+		)
 
 
 static func _append_beak(
-	surface: SurfaceTool,
-	head_center: Vector3,
-	head_radius: float,
-	beak_length: float,
-	color: Color
+	surface: SurfaceTool, head_center: Vector3, head_radius: float, beak_length: float, color: Color
 ) -> void:
 	var root := head_center + Vector3(0.0, -head_radius * 0.04, -head_radius * 0.76)
 	var tip := root + Vector3(0.0, -beak_length * 0.08, -beak_length)
-	_append_tapered_tube(
-		surface,
-		root,
-		tip,
-		maxf(head_radius * 0.28, 0.008),
-		0.001,
-		color,
-		5
-	)
+	_append_tapered_tube(surface, root, tip, maxf(head_radius * 0.28, 0.008), 0.001, color, 5)
 	# Separate lower mandible reads as a real beak silhouette in profile.
 	var lower_root := root + Vector3(0.0, -head_radius * 0.10, head_radius * 0.06)
 	var lower_tip := root + Vector3(0.0, -beak_length * 0.16, -beak_length * 0.84)
@@ -486,14 +576,18 @@ static func _append_beak(
 	)
 
 
-static func _append_crest(surface: SurfaceTool, head_center: Vector3, head_radius: float, color: Color) -> void:
+static func _append_crest(
+	surface: SurfaceTool, head_center: Vector3, head_radius: float, color: Color
+) -> void:
 	# Thin swept-back crest feather (northern lapwing) anchored on the crown.
 	var root := head_center + Vector3(0.0, head_radius * 0.86, head_radius * 0.10)
 	var tip := root + Vector3(0.0, head_radius * 0.55, head_radius * 1.35)
 	_append_feather(surface, root, tip, maxf(head_radius * 0.09, 0.004), color.darkened(0.06))
 
 
-static func _append_facial_disc(surface: SurfaceTool, head_center: Vector3, head_radius: float, color: Color) -> void:
+static func _append_facial_disc(
+	surface: SurfaceTool, head_center: Vector3, head_radius: float, color: Color
+) -> void:
 	# Flattened pale disc sells the owl face without modelling individual feathers.
 	# It must sit proud of the head ellipsoid front (z radius 0.92) to stay visible.
 	var disc_center := head_center + Vector3(0.0, head_radius * 0.05, -head_radius * 0.84)
@@ -509,8 +603,13 @@ static func _append_facial_disc(surface: SurfaceTool, head_center: Vector3, head
 
 static func _append_eyes(surface: SurfaceTool, head_center: Vector3, head_radius: float) -> void:
 	for side_sign in [-1.0, 1.0]:
-		var center := head_center + Vector3(side_sign * head_radius * 0.74, head_radius * 0.18, -head_radius * 0.36)
-		_append_ellipsoid(surface, center, Vector3.ONE * maxf(head_radius * 0.075, 0.004), Color("151719"), 5, 3)
+		var center := (
+			head_center
+			+ Vector3(side_sign * head_radius * 0.74, head_radius * 0.18, -head_radius * 0.36)
+		)
+		_append_ellipsoid(
+			surface, center, Vector3.ONE * maxf(head_radius * 0.075, 0.004), Color("151719"), 5, 3
+		)
 
 
 static func _append_ellipsoid(
@@ -586,11 +685,7 @@ static func _append_tapered_tube(
 
 
 static func _append_feather(
-	surface: SurfaceTool,
-	root: Vector3,
-	tip: Vector3,
-	half_width: float,
-	color: Color
+	surface: SurfaceTool, root: Vector3, tip: Vector3, half_width: float, color: Color
 ) -> void:
 	var axis := (tip - root).normalized()
 	var side := axis.cross(Vector3.UP)
@@ -603,23 +698,14 @@ static func _append_feather(
 
 
 static func _append_quad(
-	surface: SurfaceTool,
-	a: Vector3,
-	b: Vector3,
-	c: Vector3,
-	d: Vector3,
-	color: Color
+	surface: SurfaceTool, a: Vector3, b: Vector3, c: Vector3, d: Vector3, color: Color
 ) -> void:
 	_append_colored_triangle(surface, a, b, c, color)
 	_append_colored_triangle(surface, a, c, d, color.darkened(0.025))
 
 
 static func _append_colored_triangle(
-	surface: SurfaceTool,
-	a: Vector3,
-	b: Vector3,
-	c: Vector3,
-	color: Color
+	surface: SurfaceTool, a: Vector3, b: Vector3, c: Vector3, color: Color
 ) -> void:
 	for vertex in [a, b, c]:
 		surface.set_color(color)

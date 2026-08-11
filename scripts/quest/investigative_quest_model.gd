@@ -71,9 +71,7 @@ static func confrontation_tier(state: GameState, quest: Dictionary) -> StringNam
 
 
 static func resolve_outcome_id(
-	state: GameState,
-	quest: Dictionary,
-	accused_suspect_id: StringName
+	state: GameState, quest: Dictionary, accused_suspect_id: StringName
 ) -> StringName:
 	if accused_suspect_id.is_empty():
 		return OUTCOME_MISACCUSED
@@ -103,11 +101,16 @@ static func journal_clue_entries(state: GameState, quest: Dictionary) -> Array[D
 		var fact_id := StringName(String(entry.get("fact_id", "")))
 		if fact_id.is_empty() or not state.get_fact(fact_id):
 			continue
-		entries.append({
-			"fact_id": fact_id,
-			"text": String(entry.get("text", "")),
-			"quest_id": StringName(String(quest.get("id", ""))),
-		})
+		(
+			entries
+			. append(
+				{
+					"fact_id": fact_id,
+					"text": String(entry.get("text", "")),
+					"quest_id": StringName(String(quest.get("id", ""))),
+				}
+			)
+		)
 	return entries
 
 

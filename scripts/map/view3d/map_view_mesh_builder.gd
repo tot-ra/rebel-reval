@@ -13,7 +13,9 @@ extends RefCounted
 const _Config := preload("res://scripts/map/view3d/map_view_mesh_builder_config.gd")
 const _Terrain := preload("res://scripts/map/view3d/map_view_mesh_builder_terrain.gd")
 const _Buildings := preload("res://scripts/map/view3d/map_view_mesh_builder_buildings.gd")
-const _BuildingRegistry := preload("res://scripts/map/view3d/map_view_mesh_builder_building_registry.gd")
+const _BuildingRegistry := preload(
+	"res://scripts/map/view3d/map_view_mesh_builder_building_registry.gd"
+)
 const _Landmarks := preload("res://scripts/map/view3d/map_view_mesh_builder_landmarks.gd")
 const _Props := preload("res://scripts/map/view3d/map_view_mesh_builder_props.gd")
 const _Surroundings := preload("res://scripts/map/view3d/map_view_mesh_builder_surroundings.gd")
@@ -67,14 +69,14 @@ static func interior_shell_wall_height_world(definition: MapDefinition) -> float
 
 
 static func build_landmark(
-	landmark: Dictionary,
-	cell_size: int,
-	wall_height_world: float = -1.0
+	landmark: Dictionary, cell_size: int, wall_height_world: float = -1.0
 ) -> Node3D:
 	return _Landmarks.build_landmark(landmark, cell_size, wall_height_world)
 
 
-static func transition_uses_landmark_visual(definition: MapDefinition, transition: Dictionary) -> bool:
+static func transition_uses_landmark_visual(
+	definition: MapDefinition, transition: Dictionary
+) -> bool:
 	return _Landmarks.transition_uses_landmark_visual(definition, transition)
 
 
@@ -92,9 +94,7 @@ static func build_transition_marker(transition: Dictionary, cell_size: int) -> N
 
 
 static func build_prop(
-	prop: Dictionary,
-	cell_size: int,
-	definition: MapDefinition = null
+	prop: Dictionary, cell_size: int, definition: MapDefinition = null
 ) -> Node3D:
 	return _Props.build_prop(prop, cell_size, definition)
 

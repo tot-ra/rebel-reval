@@ -63,14 +63,28 @@ static func _build_round(surface: SurfaceTool, profile: Dictionary) -> void:
 	var leaf: Color = profile["color"]
 	var accent: Color = profile["accent"]
 	for cluster_index in cluster_count:
-		var yaw := TAU * float(cluster_index) / float(cluster_count) + MeshMath.hash01(cluster_index, 11, 4103) * 0.8
+		var yaw := (
+			TAU * float(cluster_index) / float(cluster_count)
+			+ MeshMath.hash01(cluster_index, 11, 4103) * 0.8
+		)
 		var radial := Vector3(cos(yaw), 0.0, sin(yaw))
 		var center := radial * spread * lerpf(0.08, 0.34, MeshMath.hash01(cluster_index, 17, 4117))
 		var radius := spread * lerpf(0.16, 0.28, MeshMath.hash01(cluster_index, 23, 4129))
 		var cluster_height := height * lerpf(0.78, 1.08, MeshMath.hash01(cluster_index, 29, 4139))
-		_append_ellipsoid(surface, center + Vector3.UP * cluster_height * 0.42, Vector3(radius, cluster_height * 0.5, radius * 0.92), leaf)
+		_append_ellipsoid(
+			surface,
+			center + Vector3.UP * cluster_height * 0.42,
+			Vector3(radius, cluster_height * 0.5, radius * 0.92),
+			leaf
+		)
 		if cluster_index % 2 == 0:
-			_append_berry(surface, center + Vector3.UP * cluster_height * 0.62, radius * 0.18, accent, cluster_index)
+			_append_berry(
+				surface,
+				center + Vector3.UP * cluster_height * 0.62,
+				radius * 0.18,
+				accent,
+				cluster_index
+			)
 
 
 static func _build_spread(surface: SurfaceTool, profile: Dictionary) -> void:
@@ -84,9 +98,17 @@ static func _build_spread(surface: SurfaceTool, profile: Dictionary) -> void:
 		var radial := Vector3(cos(yaw), 0.0, sin(yaw))
 		var center := radial * spread * lerpf(0.04, 0.28, MeshMath.hash01(cluster_index, 31, 4151))
 		var patch_radius := spread * lerpf(0.10, 0.18, MeshMath.hash01(cluster_index, 37, 4163))
-		_append_disc(surface, center + Vector3.UP * height * 0.22, patch_radius, leaf.darkened(0.04))
+		_append_disc(
+			surface, center + Vector3.UP * height * 0.22, patch_radius, leaf.darkened(0.04)
+		)
 		if cluster_index % 3 == 0:
-			_append_berry(surface, center + Vector3.UP * height * 0.34, patch_radius * 0.35, accent, cluster_index)
+			_append_berry(
+				surface,
+				center + Vector3.UP * height * 0.34,
+				patch_radius * 0.35,
+				accent,
+				cluster_index
+			)
 
 
 static func _build_upright(surface: SurfaceTool, profile: Dictionary) -> void:
@@ -96,7 +118,10 @@ static func _build_upright(surface: SurfaceTool, profile: Dictionary) -> void:
 	var leaf: Color = profile["color"]
 	var accent: Color = profile["accent"]
 	for stem_index in stem_count:
-		var yaw := TAU * float(stem_index) / float(stem_count) + MeshMath.hash01(stem_index, 41, 4177) * 0.5
+		var yaw := (
+			TAU * float(stem_index) / float(stem_count)
+			+ MeshMath.hash01(stem_index, 41, 4177) * 0.5
+		)
 		var radial := Vector3(cos(yaw), 0.0, sin(yaw))
 		var root := radial * spread * lerpf(0.06, 0.22, MeshMath.hash01(stem_index, 43, 4187))
 		var stem_height := height * lerpf(0.82, 1.06, MeshMath.hash01(stem_index, 47, 4199))
@@ -111,7 +136,9 @@ static func _build_upright(surface: SurfaceTool, profile: Dictionary) -> void:
 			leaf
 		)
 		if stem_index % 2 == 0:
-			_append_berry(surface, top + Vector3.UP * spread * 0.12, spread * 0.08, accent, stem_index)
+			_append_berry(
+				surface, top + Vector3.UP * spread * 0.12, spread * 0.08, accent, stem_index
+			)
 
 
 static func _build_coastal(surface: SurfaceTool, profile: Dictionary) -> void:
@@ -128,9 +155,13 @@ static func _build_coastal(surface: SurfaceTool, profile: Dictionary) -> void:
 		var tip := branch + radial * spread * 0.18 + Vector3.UP * height * 0.42
 		_append_tube(surface, center, branch, spread * 0.04, leaf.darkened(0.08))
 		_append_tube(surface, branch, tip, spread * 0.03, leaf)
-		_append_ellipsoid(surface, tip, Vector3(spread * 0.16, spread * 0.12, spread * 0.14), leaf.lightened(0.04))
+		_append_ellipsoid(
+			surface, tip, Vector3(spread * 0.16, spread * 0.12, spread * 0.14), leaf.lightened(0.04)
+		)
 		if cluster_index % 2 == 0:
-			_append_berry(surface, tip + Vector3.UP * spread * 0.06, spread * 0.07, accent, cluster_index)
+			_append_berry(
+				surface, tip + Vector3.UP * spread * 0.06, spread * 0.07, accent, cluster_index
+			)
 
 
 static func _build_wetland(surface: SurfaceTool, profile: Dictionary) -> void:
@@ -155,14 +186,23 @@ static func _build_bog(surface: SurfaceTool, profile: Dictionary) -> void:
 	var spread := float(profile.get("spread", 0.5))
 	var leaf: Color = profile["color"]
 	var accent: Color = profile["accent"]
-	_append_disc(surface, Vector3.ZERO + Vector3.UP * height * 0.18, spread * 0.34, leaf.darkened(0.06))
+	_append_disc(
+		surface, Vector3.ZERO + Vector3.UP * height * 0.18, spread * 0.34, leaf.darkened(0.06)
+	)
 	for cluster_index in cluster_count:
 		var yaw := TAU * float(cluster_index) / float(cluster_count)
 		var radial := Vector3(cos(yaw), 0.0, sin(yaw))
 		var center := radial * spread * lerpf(0.08, 0.26, MeshMath.hash01(cluster_index, 59, 4229))
-		_append_ellipsoid(surface, center + Vector3.UP * height * 0.42, Vector3(spread * 0.12, height * 0.55, spread * 0.11), leaf)
+		_append_ellipsoid(
+			surface,
+			center + Vector3.UP * height * 0.42,
+			Vector3(spread * 0.12, height * 0.55, spread * 0.11),
+			leaf
+		)
 		if cluster_index % 2 == 0:
-			_append_berry(surface, center + Vector3.UP * height * 0.62, spread * 0.06, accent, cluster_index)
+			_append_berry(
+				surface, center + Vector3.UP * height * 0.62, spread * 0.06, accent, cluster_index
+			)
 
 
 static func _build_conifer(surface: SurfaceTool, profile: Dictionary) -> void:
@@ -179,7 +219,9 @@ static func _build_conifer(surface: SurfaceTool, profile: Dictionary) -> void:
 		_append_cone(surface, tip, spread * 0.22, height * 0.42, leaf)
 
 
-static func _append_ellipsoid(surface: SurfaceTool, center: Vector3, radii: Vector3, color: Color) -> void:
+static func _append_ellipsoid(
+	surface: SurfaceTool, center: Vector3, radii: Vector3, color: Color
+) -> void:
 	var segments := 6
 	var rings := 4
 	for ring in range(rings):
@@ -192,10 +234,30 @@ static func _append_ellipsoid(surface: SurfaceTool, center: Vector3, radii: Vect
 		for segment in range(segments):
 			var u0 := TAU * float(segment) / float(segments)
 			var u1 := TAU * float(segment + 1) / float(segments)
-			var p00 := center + Vector3(cos(u0) * r0, y0 - center.y, sin(u0) * radii.z * (r0 / maxf(radii.x, 0.001)))
-			var p01 := center + Vector3(cos(u1) * r0, y0 - center.y, sin(u1) * radii.z * (r0 / maxf(radii.x, 0.001)))
-			var p10 := center + Vector3(cos(u0) * r1, y1 - center.y, sin(u0) * radii.z * (r1 / maxf(radii.x, 0.001)))
-			var p11 := center + Vector3(cos(u1) * r1, y1 - center.y, sin(u1) * radii.z * (r1 / maxf(radii.x, 0.001)))
+			var p00 := (
+				center
+				+ Vector3(
+					cos(u0) * r0, y0 - center.y, sin(u0) * radii.z * (r0 / maxf(radii.x, 0.001))
+				)
+			)
+			var p01 := (
+				center
+				+ Vector3(
+					cos(u1) * r0, y0 - center.y, sin(u1) * radii.z * (r0 / maxf(radii.x, 0.001))
+				)
+			)
+			var p10 := (
+				center
+				+ Vector3(
+					cos(u0) * r1, y1 - center.y, sin(u0) * radii.z * (r1 / maxf(radii.x, 0.001))
+				)
+			)
+			var p11 := (
+				center
+				+ Vector3(
+					cos(u1) * r1, y1 - center.y, sin(u1) * radii.z * (r1 / maxf(radii.x, 0.001))
+				)
+			)
 			surface.set_color(color)
 			surface.add_vertex(p00)
 			surface.set_color(color)
@@ -210,7 +272,9 @@ static func _append_ellipsoid(surface: SurfaceTool, center: Vector3, radii: Vect
 			surface.add_vertex(p01)
 
 
-static func _append_disc(surface: SurfaceTool, center: Vector3, radius: float, color: Color) -> void:
+static func _append_disc(
+	surface: SurfaceTool, center: Vector3, radius: float, color: Color
+) -> void:
 	var segments := 8
 	for segment in range(segments):
 		var a0 := TAU * float(segment) / float(segments)
@@ -225,7 +289,9 @@ static func _append_disc(surface: SurfaceTool, center: Vector3, radius: float, c
 		surface.add_vertex(p1)
 
 
-static func _append_tube(surface: SurfaceTool, base: Vector3, tip: Vector3, radius: float, color: Color) -> void:
+static func _append_tube(
+	surface: SurfaceTool, base: Vector3, tip: Vector3, radius: float, color: Color
+) -> void:
 	var axis := (tip - base).normalized()
 	var side := axis.cross(Vector3.UP)
 	if side.length_squared() < 0.001:
@@ -251,7 +317,9 @@ static func _append_tube(surface: SurfaceTool, base: Vector3, tip: Vector3, radi
 		surface.add_vertex(base + next_offset)
 
 
-static func _append_cone(surface: SurfaceTool, tip: Vector3, radius: float, height: float, color: Color) -> void:
+static func _append_cone(
+	surface: SurfaceTool, tip: Vector3, radius: float, height: float, color: Color
+) -> void:
 	var base_center := tip - Vector3.UP * height
 	var segments := 6
 	for segment in range(segments):
@@ -267,10 +335,19 @@ static func _append_cone(surface: SurfaceTool, tip: Vector3, radius: float, heig
 		surface.add_vertex(p1)
 
 
-static func _append_berry(surface: SurfaceTool, center: Vector3, radius: float, color: Color, seed: int) -> void:
+static func _append_berry(
+	surface: SurfaceTool, center: Vector3, radius: float, color: Color, seed: int
+) -> void:
 	_append_ellipsoid(
 		surface,
-		center + Vector3(MeshMath.hash01(seed, 3, 4243) * radius, 0.0, MeshMath.hash01(seed, 7, 4253) * radius),
+		(
+			center
+			+ Vector3(
+				MeshMath.hash01(seed, 3, 4243) * radius,
+				0.0,
+				MeshMath.hash01(seed, 7, 4253) * radius
+			)
+		),
 		Vector3(radius, radius * 0.92, radius * 0.88),
 		color
 	)

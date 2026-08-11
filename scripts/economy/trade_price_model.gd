@@ -26,7 +26,8 @@ const MATERIAL_GRADE_MULTIPLIER: Dictionary = {
 }
 
 const GOODS: Dictionary = {
-	TRADE_IRON: {
+	TRADE_IRON:
+	{
 		"label": "iron bar",
 		"base_pfennigs": 24,
 		"supply_faction": FactionLedger.LIVONIAN_ORDER,
@@ -34,7 +35,8 @@ const GOODS: Dictionary = {
 		"friendly_multiplier": 0.9,
 		"restriction_flag_suffix": &"iron_restricted",
 	},
-	TRADE_BREAD: {
+	TRADE_BREAD:
+	{
 		"label": "loaf",
 		"base_pfennigs": 4,
 		"supply_faction": FactionLedger.HARJU_KINGS,
@@ -75,14 +77,14 @@ static func resolve(good_id: StringName, district_id: StringName, state: GameSta
 	}
 
 
-static func resolve_for_location(good_id: StringName, location_id: StringName, state: GameState) -> Dictionary:
+static func resolve_for_location(
+	good_id: StringName, location_id: StringName, state: GameState
+) -> Dictionary:
 	return resolve(good_id, DistrictPressureModelScript.district_for_location(location_id), state)
 
 
 static func material_cost_pfennigs(
-	material_grade: String,
-	location_id: StringName,
-	state: GameState
+	material_grade: String, location_id: StringName, state: GameState
 ) -> int:
 	var grade_multiplier := float(MATERIAL_GRADE_MULTIPLIER.get(material_grade, 1.0))
 	var iron_quote := resolve_for_location(TRADE_IRON, location_id, state)
@@ -104,10 +106,7 @@ static func is_valid_good_id(good_id: StringName) -> bool:
 
 
 static func _good_supply_multiplier(
-	good_id: StringName,
-	profile: Dictionary,
-	district_id: StringName,
-	state: GameState
+	good_id: StringName, profile: Dictionary, district_id: StringName, state: GameState
 ) -> float:
 	var multiplier := 1.0
 	var supply_faction := profile.get("supply_faction", &"") as StringName
@@ -120,7 +119,9 @@ static func _good_supply_multiplier(
 
 	var restriction_suffix := profile.get("restriction_flag_suffix", &"") as StringName
 	if not restriction_suffix.is_empty():
-		if state.get_flag(DistrictPressureModelScript.district_flag(district_id, restriction_suffix)):
+		if state.get_flag(
+			DistrictPressureModelScript.district_flag(district_id, restriction_suffix)
+		):
 			multiplier *= float(profile.get("hostile_multiplier", 1.0))
 
 	var relief_suffix := profile.get("relief_flag_suffix", &"") as StringName

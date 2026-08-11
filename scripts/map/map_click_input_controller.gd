@@ -130,7 +130,11 @@ func try_handle_primary_release(event: InputEvent) -> bool:
 	if not _attack_charge_active:
 		return false
 	var mouse_button := event as InputEventMouseButton
-	if mouse_button == null or mouse_button.button_index != MOUSE_BUTTON_LEFT or mouse_button.pressed:
+	if (
+		mouse_button == null
+		or mouse_button.button_index != MOUSE_BUTTON_LEFT
+		or mouse_button.pressed
+	):
 		return false
 	_attack_charge_active = false
 	var hold_sec := float(Time.get_ticks_msec() - _attack_charge_started_msec) / 1000.0

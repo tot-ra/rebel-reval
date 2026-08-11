@@ -1,18 +1,19 @@
 extends Node
 
+signal profile_applied(profile: Dictionary, phase_id: StringName)
+
 ## Applies authored slice phase profiles when GameState.phase changes.
 ## Owns phase-boundary autosave and global presentation hooks (music, lighting).
 
 const PhaseProfileModelScript := preload("res://scripts/phase/phase_profile_model.gd")
-const CommissionDeadlineModelScript := preload("res://scripts/commission/commission_deadline_model.gd")
-
-signal profile_applied(profile: Dictionary, phase_id: StringName)
+const CommissionDeadlineModelScript := preload(
+	"res://scripts/commission/commission_deadline_model.gd"
+)
 
 var _connected_state: GameState
 ## Presentation (sun angle / music night bias) snaps only when the phase id
 ## changes. Re-entering Workers' District must not rewind the shared clock.
 var _presentation_phase_id: StringName = &""
-
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -56,7 +57,9 @@ func apply_profile_for_phase(phase_id: StringName) -> void:
 func advance_to_next_phase() -> bool:
 	if SessionState.state == null:
 		return false
-	var next := PhaseProfileModelScript.next_phase_id(SessionState.state.get_phase(), SessionState.content_db)
+	var next := PhaseProfileModelScript.next_phase_id(
+		SessionState.state.get_phase(), SessionState.content_db
+	)
 	if next.is_empty():
 		return false
 	SessionState.state.set_phase(next)
@@ -87,10 +90,7 @@ func _unbind_state() -> void:
 
 func _on_phase_changed(previous: StringName, next: StringName) -> void:
 	CommissionDeadlineModelScript.sync_on_phase_change(
-		SessionState.state,
-		SessionState.content_db,
-		previous,
-		next
+		SessionState.state, SessionState.content_db, previous, next
 	)
 	if not SessionState.save_game():
 		push_warning("Phase-boundary autosave failed for phase %s" % String(next))

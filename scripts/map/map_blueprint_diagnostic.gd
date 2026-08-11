@@ -62,7 +62,9 @@ func to_dict() -> Dictionary:
 	}
 
 
-static func from_compiler_error(message_value: String, map_id_value: StringName = &"") -> MapBlueprintDiagnostic:
+static func from_compiler_error(
+	message_value: String, map_id_value: StringName = &""
+) -> MapBlueprintDiagnostic:
 	var code_value := _classify_compiler_error(message_value)
 	return MapBlueprintDiagnostic.new(
 		code_value,
@@ -78,17 +80,30 @@ static func _classify_compiler_error(message_value: String) -> StringName:
 	var text := message_value.to_lower()
 	if "duplicate" in text and (" id" in text or "stable id" in text or "source id" in text):
 		return &"MAP_ID_DUPLICATE"
-	if "invalid stable id" in text or "reserved namespace separator" in text or (".id" in text and "is required" in text):
+	if (
+		"invalid stable id" in text
+		or "reserved namespace separator" in text
+		or (".id" in text and "is required" in text)
+	):
 		return &"MAP_ID_UNSTABLE"
 	if "unknown style" in text or "unknown parent style" in text:
 		return &"MAP_STYLE_UNKNOWN"
-	if "terrain is unknown" in text or "base_terrain is unknown" in text or "unknown base_terrain" in text:
+	if (
+		"terrain is unknown" in text
+		or "base_terrain is unknown" in text
+		or "unknown base_terrain" in text
+	):
 		return &"MAP_TERRAIN_UNKNOWN"
 	if "kind is unknown" in text or "unknown building kind" in text or "unknown prop kind" in text:
 		return &"MAP_KIND_UNKNOWN"
 	if "outside map bounds" in text or "outside world bounds" in text:
 		return &"MAP_GEOMETRY_OUT_OF_BOUNDS"
-	if "positive size" in text or "size_cells must be positive" in text or "cell_size must be positive" in text or "thickness must be positive" in text:
+	if (
+		"positive size" in text
+		or "size_cells must be positive" in text
+		or "cell_size must be positive" in text
+		or "thickness must be positive" in text
+	):
 		return &"MAP_SIZE_INVALID"
 	if "recursive prefab" in text or "maximum prefab nesting depth" in text:
 		return &"MAP_PREFAB_RECURSION"
@@ -110,6 +125,8 @@ static func _extract_subject(message_value: String) -> StringName:
 	for marker in ["stable id: ", "source id: ", "unknown object: ", "unknown prefab object: "]:
 		var offset := message_value.find(marker)
 		if offset >= 0:
-			var value := message_value.substr(offset + marker.length()).get_slice(" ", 0).trim_suffix(",")
+			var value := (
+				message_value.substr(offset + marker.length()).get_slice(" ", 0).trim_suffix(",")
+			)
 			return StringName(value)
 	return &""

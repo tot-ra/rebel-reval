@@ -1,35 +1,6 @@
 class_name GameState
 extends RefCounted
 
-const _PersistenceScript := preload("res://scripts/state/game_state_persistence.gd")
-const _RelationshipMemoryScript := preload("res://scripts/relationship/relationship_memory.gd")
-
-const COMMISSION_DEADLINE_ACTIVE := &"active"
-const CURRENT_VERSION := 2
-
-const PHASE_PROLOGUE_DAY := &"phase.prologue_day"
-const PHASE_INVESTIGATION_MORNING := &"phase.investigation_morning"
-const PHASE_INVESTIGATION_NIGHT := &"phase.investigation_night"
-const PHASE_CONSEQUENCE_NIGHT := &"phase.consequence_night"
-const PHASE_REFLECTION_MORNING := &"phase.reflection_morning"
-
-const SLICE_PHASES: Array[StringName] = [
-	PHASE_PROLOGUE_DAY,
-	PHASE_INVESTIGATION_MORNING,
-	PHASE_INVESTIGATION_NIGHT,
-	PHASE_CONSEQUENCE_NIGHT,
-	PHASE_REFLECTION_MORNING,
-]
-
-const PRESSURE_SUSPICION := &"pressure.suspicion"
-const PRESSURE_SOLIDARITY := &"pressure.solidarity"
-const PRESSURE_SCARCITY := &"pressure.scarcity"
-
-const RELATIONSHIP_MIN := -3
-const RELATIONSHIP_MAX := 3
-const PRESSURE_MIN := 0
-const PRESSURE_MAX := 3
-
 ## Fired after a slot's contents change so the 3D view can mirror the state.
 signal equipment_changed(slot: StringName)
 ## Fired when quest ownership flags change.
@@ -40,6 +11,30 @@ signal forged_record_added(record_id: StringName)
 signal faction_event_recorded(event_id: StringName, faction_id: StringName)
 ## Fired when the campaign phase changes; SessionState autosaves on this boundary.
 signal phase_changed(previous: StringName, next: StringName)
+
+const _PersistenceScript := preload("res://scripts/state/game_state_persistence.gd")
+const _RelationshipMemoryScript := preload("res://scripts/relationship/relationship_memory.gd")
+const COMMISSION_DEADLINE_ACTIVE := &"active"
+const CURRENT_VERSION := 2
+const PHASE_PROLOGUE_DAY := &"phase.prologue_day"
+const PHASE_INVESTIGATION_MORNING := &"phase.investigation_morning"
+const PHASE_INVESTIGATION_NIGHT := &"phase.investigation_night"
+const PHASE_CONSEQUENCE_NIGHT := &"phase.consequence_night"
+const PHASE_REFLECTION_MORNING := &"phase.reflection_morning"
+const SLICE_PHASES: Array[StringName] = [
+	PHASE_PROLOGUE_DAY,
+	PHASE_INVESTIGATION_MORNING,
+	PHASE_INVESTIGATION_NIGHT,
+	PHASE_CONSEQUENCE_NIGHT,
+	PHASE_REFLECTION_MORNING,
+]
+const PRESSURE_SUSPICION := &"pressure.suspicion"
+const PRESSURE_SOLIDARITY := &"pressure.solidarity"
+const PRESSURE_SCARCITY := &"pressure.scarcity"
+const RELATIONSHIP_MIN := -3
+const RELATIONSHIP_MAX := 3
+const PRESSURE_MIN := 0
+const PRESSURE_MAX := 3
 
 var version: int = CURRENT_VERSION
 var phase: StringName = PHASE_PROLOGUE_DAY
@@ -66,7 +61,6 @@ var _world_defaults_seeded: Dictionary = {}
 var _equipped_forge_technique: StringName = &""
 ## Frozen Act 1 transition envelope written at St. George's Night (P4-009).
 var _act1_transition: Dictionary = {}
-
 
 func _init() -> void:
 	_pressures[PRESSURE_SUSPICION] = 0
@@ -202,7 +196,6 @@ func equip_from_bag(slot: StringName, item_id: StringName) -> bool:
 
 	# Take one unit out of the grid before attempting the swap-back so the
 	# previous occupant can use the freed cells.
-	var _restore_origin := Vector2i(placement.grid_x, placement.grid_y)
 	if placement.quantity > 1:
 		placement.quantity -= 1
 	else:

@@ -82,10 +82,7 @@ func crowd_active_count() -> int:
 
 
 func sync_for_test(
-	phase_id: StringName,
-	elapsed_days: int,
-	market_day: bool = false,
-	replay_seed: int = -1
+	phase_id: StringName, elapsed_days: int, market_day: bool = false, replay_seed: int = -1
 ) -> void:
 	if _state != null:
 		_state.set_phase(phase_id)
@@ -140,13 +137,16 @@ func _sync_population() -> void:
 	var phase_id := _current_phase_id()
 	var date := _current_date(phase_id)
 	var context := _profile_context()
-	var next_key := "%s|%s|%s|%s|%d" % [
-		String(phase_id),
-		GameCalendar.format_date(date),
-		str(_market_day_active),
-		str(context),
-		_replay_seed,
-	]
+	var next_key := (
+		"%s|%s|%s|%s|%d"
+		% [
+			String(phase_id),
+			GameCalendar.format_date(date),
+			str(_market_day_active),
+			str(context),
+			_replay_seed,
+		]
+	)
 	if next_key == _sync_key:
 		return
 	_sync_key = next_key
@@ -167,8 +167,7 @@ func _apply_profile_to_renderer(profile: Dictionary) -> void:
 		var logic_position: Vector2 = placement["position"]
 		var world_position: Vector3 = _view_runtime.view.world_position(logic_position)
 		var ground_y := MeshBuilderScript.ground_height(
-			_definition,
-			Vector2(world_position.x, world_position.z)
+			_definition, Vector2(world_position.x, world_position.z)
 		)
 		renderer.set_actor_position(
 			int(placement["actor_index"]),

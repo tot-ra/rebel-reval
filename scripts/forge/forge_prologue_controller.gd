@@ -61,22 +61,15 @@ var _wake_up_played := false
 
 
 func setup(
-	scene_root: Node2D,
-	definition: MapDefinition,
-	player: Player,
-	commission_anchor: ForgeCommissionAnchor,
-	rest_anchor: PhaseRestAnchor,
-	dialogue_encounter: ForgeDialogueEncounter,
-	henning: SmithyHenning,
+	_scene_root: Node2D,
+	_definition: MapDefinition,
+	_player: Player,
+	_commission_anchor: ForgeCommissionAnchor,
+	_rest_anchor: PhaseRestAnchor,
+	_dialogue_encounter: ForgeDialogueEncounter,
+	_henning: SmithyHenning,
 	interaction_controller: InteractionController
 ) -> void:
-	_scene_root = scene_root
-	_definition = definition
-	_player = player
-	_commission_controller = player.get_node_or_null("ForgeCommissionController") as ForgeCommissionController
-	_rest_anchor = rest_anchor
-	_dialogue_encounter = dialogue_encounter
-	_henning = henning
 	_interaction_controller = interaction_controller
 
 	_quest_manager = QuestManager.new(SessionState.content_db, SessionState.state)
@@ -150,7 +143,7 @@ func _on_dialogue_finished(dialogue_id: StringName) -> void:
 		if dialogue_id == DIALOGUE_HENNING:
 			_henning.resume_after_dialogue()
 	if dialogue_id == DIALOGUE_WAKE_UP:
-			_play_wake_up_bark()
+		_play_wake_up_bark()
 	if not _is_prologue_active():
 		return
 	match dialogue_id:
@@ -237,8 +230,9 @@ func _start_branching_dialogue(dialogue_id: StringName) -> void:
 	if _runner.is_active():
 		return
 	_runner.configure(SessionState.content_db, SessionState.state, _presenter)
-	if dialogue_id == DIALOGUE_LEDGER and not _dialogue_ui.choice_selected.is_connected(
-		_on_ledger_choice_picked
+	if (
+		dialogue_id == DIALOGUE_LEDGER
+		and not _dialogue_ui.choice_selected.is_connected(_on_ledger_choice_picked)
 	):
 		_dialogue_ui.choice_selected.connect(_on_ledger_choice_picked)
 	if _henning != null and _player != null and dialogue_id == DIALOGUE_HENNING:
@@ -395,10 +389,11 @@ func _sync_rest_enabled(allow_rest: bool) -> void:
 	var interactable := _rest_anchor.get_interactable()
 	if interactable == null:
 		return
-	var has_next_phase := not PhaseProfileModelScript.next_phase_id(
-		SessionState.state.get_phase(),
-		SessionState.content_db
-	).is_empty()
+	var has_next_phase := not (
+		PhaseProfileModelScript
+		. next_phase_id(SessionState.state.get_phase(), SessionState.content_db)
+		. is_empty()
+	)
 	interactable.enabled = allow_rest and has_next_phase
 
 

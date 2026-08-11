@@ -20,7 +20,9 @@ const NAVIGATION_OUTLINE_EPSILON := 0.01
 ## make_polygons_from_outlines fails its convex partition.
 
 
-static func create_navigation_region(definition: MapDefinition, grid: MapTerrainGrid) -> NavigationRegion2D:
+static func create_navigation_region(
+	definition: MapDefinition, grid: MapTerrainGrid
+) -> NavigationRegion2D:
 	var region := NavigationRegion2D.new()
 	region.name = "NavigationRegion2D"
 
@@ -33,8 +35,7 @@ static func create_navigation_region(definition: MapDefinition, grid: MapTerrain
 		_source_add_obstruction(source, definition.cell_rect_to_world_rect(rect))
 	var water_rects := GridRegionMergerScript.merge_matching_cells(
 		definition.size_cells,
-		func(cell: Vector2i) -> bool:
-			return MapTypes.WATER_TERRAINS.has(grid.get_terrain(cell))
+		func(cell: Vector2i) -> bool: return MapTypes.WATER_TERRAINS.has(grid.get_terrain(cell))
 	)
 	for rect in water_rects:
 		_source_add_obstruction(source, definition.cell_rect_to_world_rect(rect))
@@ -48,7 +49,9 @@ static func create_navigation_region(definition: MapDefinition, grid: MapTerrain
 	return region
 
 
-static func _source_add_obstruction(source: NavigationMeshSourceGeometryData2D, rect: Rect2) -> void:
+static func _source_add_obstruction(
+	source: NavigationMeshSourceGeometryData2D, rect: Rect2
+) -> void:
 	source.add_obstruction_outline(_rect_outline(rect.grow(NAVIGATION_OUTLINE_EPSILON)))
 
 

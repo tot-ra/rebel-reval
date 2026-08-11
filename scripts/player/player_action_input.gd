@@ -23,7 +23,10 @@ static func read_pressed_actions() -> Array[PlayerActionKind.Kind]:
 
 
 static func read_attack_just_pressed() -> bool:
-	return Input.is_action_just_pressed(PlayerActionKind.ACTION_ATTACK) and not _is_left_mouse_pressed()
+	return (
+		Input.is_action_just_pressed(PlayerActionKind.ACTION_ATTACK)
+		and not _is_left_mouse_pressed()
+	)
 
 
 static func read_attack_just_released() -> bool:

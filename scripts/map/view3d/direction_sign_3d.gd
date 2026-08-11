@@ -5,7 +5,9 @@ extends RefCounted
 ## The map definition owns placement, label, and the outgoing ground-plane
 ## direction; this builder only turns those declarative values into 3D geometry.
 
-const MeshBuilderPrimitives := preload("res://scripts/map/view3d/map_view_mesh_builder_primitives.gd")
+const MeshBuilderPrimitives := preload(
+	"res://scripts/map/view3d/map_view_mesh_builder_primitives.gd"
+)
 
 # Halved from the original footprint so signs read as hand-built waymarks, not
 # highway signage at the fixed dimetric camera distance.
@@ -85,12 +87,11 @@ static func _add_arrow_board(root: Node3D, board_length: float, sign_seed: int) 
 
 
 static func _add_body_planks(
-	parent: Node3D,
-	board_length: float,
-	metal: StandardMaterial3D,
-	sign_seed: int
+	parent: Node3D, board_length: float, metal: StandardMaterial3D, sign_seed: int
 ) -> void:
-	var plank_width := (board_length - PLANK_GAP * float(BODY_PLANK_COUNT - 1)) / float(BODY_PLANK_COUNT)
+	var plank_width := (
+		(board_length - PLANK_GAP * float(BODY_PLANK_COUNT - 1)) / float(BODY_PLANK_COUNT)
+	)
 	var x_start := -board_length * 0.5 + plank_width * 0.5
 	var half_thickness := BOARD_THICKNESS * 0.5
 
@@ -101,7 +102,9 @@ static func _add_body_planks(
 		var plank := MeshInstance3D.new()
 		plank.name = "Plank%d" % plank_index
 		var mesh := BoxMesh.new()
-		mesh.size = Vector3(plank_width * (0.97 + absf(variation) * 0.04), plank_height, plank_depth)
+		mesh.size = Vector3(
+			plank_width * (0.97 + absf(variation) * 0.04), plank_height, plank_depth
+		)
 		plank.mesh = mesh
 		var x := x_start + float(plank_index) * (plank_width + PLANK_GAP)
 		plank.position = Vector3(x, variation * 0.01, variation * 0.003)
@@ -114,17 +117,17 @@ static func _add_body_planks(
 				_add_nail_head(
 					parent,
 					"NailBody%d_%d_%d" % [plank_index, int(y_sign > 0.0), int(z_sign > 0.0)],
-					Vector3(x, y_sign * plank_height * 0.38, z_sign * (half_thickness + NAIL_HEAD_THICKNESS * 0.45)),
+					Vector3(
+						x,
+						y_sign * plank_height * 0.38,
+						z_sign * (half_thickness + NAIL_HEAD_THICKNESS * 0.45)
+					),
 					z_sign,
 					metal
 				)
 
 
-static func _add_head_planks(
-	parent: Node3D,
-	metal: StandardMaterial3D,
-	sign_seed: int
-) -> void:
+static func _add_head_planks(parent: Node3D, metal: StandardMaterial3D, sign_seed: int) -> void:
 	var half_height := ARROW_HEAD_HEIGHT * 0.5
 	var head_length := ARROW_HEAD_LENGTH
 	var slope_length := sqrt(head_length * head_length + half_height * half_height)
@@ -154,7 +157,11 @@ static func _add_head_planks(
 		_add_nail_head(
 			parent,
 			"NailHead%d" % side_index,
-			Vector3(0.02, side * half_height * 0.22, side * (BOARD_THICKNESS * 0.5 + NAIL_HEAD_THICKNESS * 0.45)),
+			Vector3(
+				0.02,
+				side * half_height * 0.22,
+				side * (BOARD_THICKNESS * 0.5 + NAIL_HEAD_THICKNESS * 0.45)
+			),
 			side,
 			metal
 		)
@@ -196,7 +203,11 @@ static func _add_text(root: Node3D, text: String, back: bool, board_length: floa
 	label.outline_size = TEXT_OUTLINE_SIZE
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.position = Vector3(TEXT_OFFSET_X, BOARD_HEIGHT_FROM_GROUND, -BOARD_THICKNESS * 0.5 - 0.008 if back else BOARD_THICKNESS * 0.5 + 0.008)
+	label.position = Vector3(
+		TEXT_OFFSET_X,
+		BOARD_HEIGHT_FROM_GROUND,
+		-BOARD_THICKNESS * 0.5 - 0.008 if back else BOARD_THICKNESS * 0.5 + 0.008
+	)
 	if back:
 		label.rotation.y = PI
 	root.add_child(label)
@@ -206,7 +217,11 @@ static func _add_text(root: Node3D, text: String, back: bool, board_length: floa
 ## map label. Long text is scaled only enough to fit the capped board width.
 static func _board_length_for_text(text: String) -> float:
 	return clampf(
-		_text_width_pixels(text) * TEXT_PIXEL_SIZE + BOARD_TEXT_PADDING * 2.0 + absf(TEXT_OFFSET_X) * 2.0,
+		(
+			_text_width_pixels(text) * TEXT_PIXEL_SIZE
+			+ BOARD_TEXT_PADDING * 2.0
+			+ absf(TEXT_OFFSET_X) * 2.0
+		),
 		BOARD_MIN_BODY_LENGTH,
 		BOARD_MAX_BODY_LENGTH
 	)
@@ -220,12 +235,12 @@ static func _text_pixel_size(text: String, board_length: float) -> float:
 static func _text_width_pixels(text: String) -> float:
 	return maxf(
 		1.0,
-		ThemeDB.fallback_font.get_string_size(
-			text,
-			HORIZONTAL_ALIGNMENT_LEFT,
-			-1.0,
-			TEXT_FONT_SIZE
-		).x
+		(
+			ThemeDB
+			. fallback_font
+			. get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, TEXT_FONT_SIZE)
+			. x
+		)
 	)
 
 

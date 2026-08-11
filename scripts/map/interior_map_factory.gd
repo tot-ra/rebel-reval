@@ -28,7 +28,9 @@ static func init_definition(
 	definition.active = active
 	definition.palette = palette
 	definition.fingerprint = fingerprint
-	definition.camera_bounds = definition.cell_rect_to_world_rect(Rect2i(0, 0, size_cells.x, size_cells.y))
+	definition.camera_bounds = definition.cell_rect_to_world_rect(
+		Rect2i(0, 0, size_cells.x, size_cells.y)
+	)
 	return definition
 
 
@@ -53,10 +55,30 @@ static func add_perimeter_walls(
 		inner.size.y + thickness * 2
 	)
 
-	_add_wall_segment(definition, &"wall_north", _north_wall_rect(outer, thickness), wall_height, wall_color, north_doorway_gap, true)
-	_add_wall_segment(definition, &"wall_south", _south_wall_rect(outer, thickness), wall_height, wall_color, south_doorway_gap, true)
-	_add_wall_segment(definition, &"wall_west", _west_wall_rect(outer, thickness), wall_height, wall_color)
-	_add_wall_segment(definition, &"wall_east", _east_wall_rect(outer, thickness), wall_height, wall_color)
+	_add_wall_segment(
+		definition,
+		&"wall_north",
+		_north_wall_rect(outer, thickness),
+		wall_height,
+		wall_color,
+		north_doorway_gap,
+		true
+	)
+	_add_wall_segment(
+		definition,
+		&"wall_south",
+		_south_wall_rect(outer, thickness),
+		wall_height,
+		wall_color,
+		south_doorway_gap,
+		true
+	)
+	_add_wall_segment(
+		definition, &"wall_west", _west_wall_rect(outer, thickness), wall_height, wall_color
+	)
+	_add_wall_segment(
+		definition, &"wall_east", _east_wall_rect(outer, thickness), wall_height, wall_color
+	)
 
 
 static func add_interior_block(
@@ -66,18 +88,24 @@ static func add_interior_block(
 	wall_height: float = 48.0,
 	wall_color: Color = Color(0.38, 0.34, 0.30)
 ) -> void:
-	definition.buildings.append(
-		{
-			"id": block_id,
-			"kind": MapTypes.BUILDING_KIND_INTERIOR_BLOCK,
-			"footprint": definition.cell_rect_to_world_rect(cell_rect),
-			"wall_height": wall_height,
-			"wall_color": wall_color,
-		}
+	(
+		definition
+		. buildings
+		. append(
+			{
+				"id": block_id,
+				"kind": MapTypes.BUILDING_KIND_INTERIOR_BLOCK,
+				"footprint": definition.cell_rect_to_world_rect(cell_rect),
+				"wall_height": wall_height,
+				"wall_color": wall_color,
+			}
+		)
 	)
 
 
-static func add_interaction_anchor(definition: MapDefinition, anchor_id: StringName, cell_rect: Rect2i) -> void:
+static func add_interaction_anchor(
+	definition: MapDefinition, anchor_id: StringName, cell_rect: Rect2i
+) -> void:
 	definition.interaction_anchors.append(
 		{"id": anchor_id, "position": definition.cell_rect_center(cell_rect)}
 	)
@@ -120,7 +148,9 @@ static func add_fade_volume(definition: MapDefinition, cell_rect: Rect2i) -> voi
 	definition.fade_volumes.append({"rect": definition.cell_rect_to_world_rect(cell_rect)})
 
 
-static func add_prop_at_cell(definition: MapDefinition, prop_id: StringName, kind: StringName, cell_rect: Rect2i) -> void:
+static func add_prop_at_cell(
+	definition: MapDefinition, prop_id: StringName, kind: StringName, cell_rect: Rect2i
+) -> void:
 	definition.props.append(
 		{"id": prop_id, "kind": kind, "position": definition.cell_rect_center(cell_rect)}
 	)
@@ -148,14 +178,33 @@ static func _add_wall_segment(
 			var gap_end := doorway_gap.end.x
 			if segment.end.x > gap_start and segment.position.x < gap_end:
 				if segment.position.x < gap_start:
-					var left := Rect2i(segment.position.x, segment.position.y, gap_start - segment.position.x, segment.size.y)
+					var left := Rect2i(
+						segment.position.x,
+						segment.position.y,
+						gap_start - segment.position.x,
+						segment.size.y
+					)
 					if left.size.x > 0:
-						_append_wall(definition, StringName("%s_%d" % [String(wall_id), index]), left, wall_height, wall_color)
+						_append_wall(
+							definition,
+							StringName("%s_%d" % [String(wall_id), index]),
+							left,
+							wall_height,
+							wall_color
+						)
 						index += 1
 				if segment.end.x > gap_end:
-					var right := Rect2i(gap_end, segment.position.y, segment.end.x - gap_end, segment.size.y)
+					var right := Rect2i(
+						gap_end, segment.position.y, segment.end.x - gap_end, segment.size.y
+					)
 					if right.size.x > 0:
-						_append_wall(definition, StringName("%s_%d" % [String(wall_id), index]), right, wall_height, wall_color)
+						_append_wall(
+							definition,
+							StringName("%s_%d" % [String(wall_id), index]),
+							right,
+							wall_height,
+							wall_color
+						)
 						index += 1
 				continue
 		if not is_horizontal and doorway_gap.size.y > 0:
@@ -163,17 +212,42 @@ static func _add_wall_segment(
 			var gap_end_y := doorway_gap.end.y
 			if segment.end.y > gap_start_y and segment.position.y < gap_end_y:
 				if segment.position.y < gap_start_y:
-					var top := Rect2i(segment.position.x, segment.position.y, segment.size.x, gap_start_y - segment.position.y)
+					var top := Rect2i(
+						segment.position.x,
+						segment.position.y,
+						segment.size.x,
+						gap_start_y - segment.position.y
+					)
 					if top.size.y > 0:
-						_append_wall(definition, StringName("%s_%d" % [String(wall_id), index]), top, wall_height, wall_color)
+						_append_wall(
+							definition,
+							StringName("%s_%d" % [String(wall_id), index]),
+							top,
+							wall_height,
+							wall_color
+						)
 						index += 1
 				if segment.end.y > gap_end_y:
-					var bottom := Rect2i(segment.position.x, gap_end_y, segment.size.x, segment.end.y - gap_end_y)
+					var bottom := Rect2i(
+						segment.position.x, gap_end_y, segment.size.x, segment.end.y - gap_end_y
+					)
 					if bottom.size.y > 0:
-						_append_wall(definition, StringName("%s_%d" % [String(wall_id), index]), bottom, wall_height, wall_color)
+						_append_wall(
+							definition,
+							StringName("%s_%d" % [String(wall_id), index]),
+							bottom,
+							wall_height,
+							wall_color
+						)
 						index += 1
 				continue
-		_append_wall(definition, StringName("%s_%d" % [String(wall_id), index]), segment, wall_height, wall_color)
+		_append_wall(
+			definition,
+			StringName("%s_%d" % [String(wall_id), index]),
+			segment,
+			wall_height,
+			wall_color
+		)
 		index += 1
 
 
@@ -184,14 +258,18 @@ static func _append_wall(
 	wall_height: float,
 	wall_color: Color
 ) -> void:
-	definition.buildings.append(
-		{
-			"id": wall_id,
-			"kind": MapTypes.BUILDING_KIND_INTERIOR_WALL,
-			"footprint": definition.cell_rect_to_world_rect(cell_rect),
-			"wall_height": wall_height,
-			"wall_color": wall_color,
-		}
+	(
+		definition
+		. buildings
+		. append(
+			{
+				"id": wall_id,
+				"kind": MapTypes.BUILDING_KIND_INTERIOR_WALL,
+				"footprint": definition.cell_rect_to_world_rect(cell_rect),
+				"wall_height": wall_height,
+				"wall_color": wall_color,
+			}
+		)
 	)
 
 
@@ -204,8 +282,19 @@ static func _south_wall_rect(outer: Rect2i, thickness: int) -> Array[Rect2i]:
 
 
 static func _west_wall_rect(outer: Rect2i, thickness: int) -> Array[Rect2i]:
-	return [Rect2i(outer.position.x, outer.position.y + thickness, thickness, outer.size.y - thickness * 2)]
+	return [
+		Rect2i(
+			outer.position.x, outer.position.y + thickness, thickness, outer.size.y - thickness * 2
+		)
+	]
 
 
 static func _east_wall_rect(outer: Rect2i, thickness: int) -> Array[Rect2i]:
-	return [Rect2i(outer.end.x - thickness, outer.position.y + thickness, thickness, outer.size.y - thickness * 2)]
+	return [
+		Rect2i(
+			outer.end.x - thickness,
+			outer.position.y + thickness,
+			thickness,
+			outer.size.y - thickness * 2
+		)
+	]

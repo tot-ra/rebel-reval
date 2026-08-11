@@ -3,7 +3,6 @@ extends RefCounted
 
 ## Loads Kalev's forge from the reviewed .rrmap source (P2-018).
 
-
 const RRMAP_PATH := "res://content/maps/kalev_smithy.rrmap"
 
 

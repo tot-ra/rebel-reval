@@ -6,9 +6,7 @@ extends RefCounted
 
 
 static func transform_primitive(
-	primitive: Dictionary,
-	transform: MapTransform,
-	origin: Vector2i
+	primitive: Dictionary, transform: MapTransform, origin: Vector2i
 ) -> Dictionary:
 	var result := primitive.duplicate(true)
 	var kind: StringName = result.get("primitive", &"")
@@ -39,16 +37,16 @@ static func compose(outer: MapTransform, inner: MapTransform) -> MapTransform:
 		for mirror_y in [false, true]:
 			for rotation in [0, 90, 180, 270]:
 				var candidate := MapTransform.new(rotation, mirror_x, mirror_y)
-				if candidate.transform_cell(Vector2i.RIGHT) == target_x and candidate.transform_cell(Vector2i.DOWN) == target_y:
+				if (
+					candidate.transform_cell(Vector2i.RIGHT) == target_x
+					and candidate.transform_cell(Vector2i.DOWN) == target_y
+				):
 					return candidate
 	return MapTransform.new()
 
 
 static func _transform_dictionary(
-	values: Dictionary,
-	transform: MapTransform,
-	origin: Vector2i,
-	translate: bool
+	values: Dictionary, transform: MapTransform, origin: Vector2i, translate: bool
 ) -> void:
 	for key_value in values.keys():
 		var key := StringName(key_value)
@@ -56,21 +54,43 @@ static func _transform_dictionary(
 		match key:
 			&"rect":
 				if value is Rect2i:
-					values[key_value] = _translated_rect(transform.transform_rect(value), origin if translate else Vector2i.ZERO)
+					values[key_value] = _translated_rect(
+						transform.transform_rect(value), origin if translate else Vector2i.ZERO
+					)
 			&"rects", &"openings":
 				if value is Array:
 					var rects: Array = []
 					for rect in value:
-						rects.append(_translated_rect(transform.transform_rect(rect), origin if translate else Vector2i.ZERO) if rect is Rect2i else rect)
+						rects.append(
+							(
+								_translated_rect(
+									transform.transform_rect(rect),
+									origin if translate else Vector2i.ZERO
+								)
+								if rect is Rect2i
+								else rect
+							)
+						)
 					values[key_value] = rects
 			&"cell", &"start", &"end", &"origin":
 				if value is Vector2i:
-					values[key_value] = transform.transform_cell(value) + (origin if translate else Vector2i.ZERO)
+					values[key_value] = (
+						transform.transform_cell(value) + (origin if translate else Vector2i.ZERO)
+					)
 			&"points":
 				if value is Array:
 					var points: Array = []
 					for point in value:
-						points.append(transform.transform_cell(point) + (origin if translate else Vector2i.ZERO) if point is Vector2i else point)
+						points.append(
+							(
+								(
+									transform.transform_cell(point)
+									+ (origin if translate else Vector2i.ZERO)
+								)
+								if point is Vector2i
+								else point
+							)
+						)
 					values[key_value] = points
 			&"direction", &"step":
 				if value is Vector2i:
@@ -89,9 +109,7 @@ static func _transform_dictionary(
 
 
 static func _transform_row_data(
-	data: Dictionary,
-	transform: MapTransform,
-	origin: Vector2i
+	data: Dictionary, transform: MapTransform, origin: Vector2i
 ) -> void:
 	var local_origin: Variant = data.get("origin")
 	var size: Variant = data.get("footprint_size", Vector2i.ONE)
@@ -104,9 +122,7 @@ static func _transform_row_data(
 
 
 static func _transform_wall_data(
-	data: Dictionary,
-	transform: MapTransform,
-	origin: Vector2i
+	data: Dictionary, transform: MapTransform, origin: Vector2i
 ) -> void:
 	var start: Variant = data.get("start")
 	var finish: Variant = data.get("end")
@@ -133,14 +149,18 @@ static func _transform_wall_data(
 		data["thickness"] = transformed.size.x
 	var openings: Array = []
 	for opening in data.get("openings", []):
-		openings.append(_translated_rect(transform.transform_rect(opening), origin) if opening is Rect2i else opening)
+		openings.append(
+			(
+				_translated_rect(transform.transform_rect(opening), origin)
+				if opening is Rect2i
+				else opening
+			)
+		)
 	data["openings"] = openings
 
 
 static func _normalize_terrain_stroke(
-	result: Dictionary,
-	transform: MapTransform,
-	origin: Vector2i
+	result: Dictionary, transform: MapTransform, origin: Vector2i
 ) -> void:
 	var data: Dictionary = result.get("data", {})
 	var points: Variant = data.get("points")
@@ -151,7 +171,11 @@ static func _normalize_terrain_stroke(
 	for index in points.size() - 1:
 		var start: Variant = points[index]
 		var finish: Variant = points[index + 1]
-		if not start is Vector2i or not finish is Vector2i or (start.x != finish.x and start.y != finish.y):
+		if (
+			not start is Vector2i
+			or not finish is Vector2i
+			or (start.x != finish.x and start.y != finish.y)
+		):
 			continue
 		var rect := Rect2i(
 			mini(start.x, finish.x) if start.y == finish.y else start.x,

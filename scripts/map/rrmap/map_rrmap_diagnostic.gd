@@ -28,4 +28,7 @@ func _init(
 
 
 func format() -> String:
-	return "%s:%d:%d: %s[%s]: %s" % [source_path, line, column, String(severity), String(code), message]
+	return (
+		"%s:%d:%d: %s[%s]: %s"
+		% [source_path, line, column, String(severity), String(code), message]
+	)

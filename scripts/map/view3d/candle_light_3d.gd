@@ -43,10 +43,12 @@ func _process(delta: float) -> void:
 	_time += delta
 	if _light == null:
 		return
-	var flicker := 1.0 \
-		+ 0.075 * sin(_time * 8.7 + _phase) \
-		+ 0.045 * sin(_time * 15.9 + _phase * 1.8) \
+	var flicker := (
+		1.0
+		+ 0.075 * sin(_time * 8.7 + _phase)
+		+ 0.045 * sin(_time * 15.9 + _phase * 1.8)
 		+ 0.025 * sin(_time * 27.3 + 0.7)
+	)
 	_light.light_energy = _base_energy * flicker
 	if _flame != null:
 		# A slight lateral sway complements particle drift without moving the wick

@@ -62,4 +62,6 @@ func _unbind_state(state: GameState) -> void:
 func _refresh(_unused: Variant = null) -> void:
 	if _hud == null:
 		return
-	_hud.refresh(QuestPouchModelScript.visible_item_ids(SessionState.state, SessionState.content_db))
+	_hud.refresh(
+		QuestPouchModelScript.visible_item_ids(SessionState.state, SessionState.content_db)
+	)

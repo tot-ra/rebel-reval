@@ -17,7 +17,9 @@ static func puddle_surface() -> ShaderMaterial:
 	if _cache.has(key):
 		return _cache[key]
 	var material := ShaderMaterial.new()
-	material.shader = MapViewMaterialShaders.shader("puddle", MapViewMaterialShaders.PUDDLE_SHADER_CODE)
+	material.shader = MapViewMaterialShaders.shader(
+		"puddle", MapViewMaterialShaders.PUDDLE_SHADER_CODE
+	)
 	material.set_shader_parameter("wet_tint", Vector3(0.78, 0.82, 0.86))
 	material.set_shader_parameter("sheen_tint", Vector3(0.94, 0.96, 0.98))
 	material.set_shader_parameter("refraction_strength", 0.032)
@@ -30,23 +32,25 @@ static func puddle_surface() -> ShaderMaterial:
 ## Base wave heights are scaled at runtime by apply_sea_weather() so storms
 ## raise both the water mesh and floating hulls together.
 
+
 static func water_surface(terrain_id: StringName, wave_profiles: Dictionary) -> ShaderMaterial:
 	var key := "water_surface:%s" % String(terrain_id)
 	if _cache.has(key):
 		return _cache[key]
 	var base := OutdoorTerrainPalette.color(terrain_id)
 	var material := ShaderMaterial.new()
-	material.shader = MapViewMaterialShaders.shader("water", MapViewMaterialShaders.WATER_SHADER_CODE)
+	material.shader = MapViewMaterialShaders.shader(
+		"water", MapViewMaterialShaders.WATER_SHADER_CODE
+	)
 	material.set_shader_parameter("shallow_color", base.lightened(0.18))
 	material.set_shader_parameter("deep_color", base.darkened(0.42))
 	# ART_BIBLE highlight #65B1C4 blended toward the terrain palette entry.
 	material.set_shader_parameter("highlight_color", base.lerp(Color8(101, 177, 196), 0.55))
 	# Keep foam close to the water tint so the shoreline does not flash white.
 	material.set_shader_parameter("foam_color", base.lerp(Color8(188, 208, 206), 0.48))
-	var wave: Dictionary = wave_profiles.get(
-		terrain_id,
-		wave_profiles[MapTypes.TERRAIN_WATER]
-	) as Dictionary
+	var wave: Dictionary = (
+		wave_profiles.get(terrain_id, wave_profiles[MapTypes.TERRAIN_WATER]) as Dictionary
+	)
 	material.set_shader_parameter("depth_absorption", float(wave["absorption"]))
 	material.set_shader_parameter("wave_height", float(wave["height"]))
 	material.set_shader_parameter("wave_chaos", float(wave["chaos"]))
@@ -89,12 +93,16 @@ static func apply_sea_weather(wind: float, rain: float, wave_profiles: Dictionar
 		material.set_shader_parameter("wave_chaos", float(wave["chaos"]) * chaos_mul)
 		material.set_shader_parameter("wave_speed", speed)
 		material.set_shader_parameter("breaker_intensity", float(wave["breakers"]) * breaker_mul)
-		material.set_shader_parameter("foam_intensity", float(wave["foam"]) * lerpf(0.9, 1.35, rain_state))
+		material.set_shader_parameter(
+			"foam_intensity", float(wave["foam"]) * lerpf(0.9, 1.35, rain_state)
+		)
 
 
 ## Pushes sky sun-disk visibility and day/night blend into cached water
 ## materials so specular sun glints die with the visible sun.
-static func apply_water_lighting(sun_visibility: float, day_blend: float, wave_profiles: Dictionary) -> void:
+static func apply_water_lighting(
+	sun_visibility: float, day_blend: float, wave_profiles: Dictionary
+) -> void:
 	var visibility := clampf(sun_visibility, 0.0, 1.0)
 	var blend := clampf(day_blend, 0.0, 1.0)
 	for terrain_id in wave_profiles.keys():
@@ -110,8 +118,7 @@ static func apply_coastal_tide(level: float, wave_profiles: Dictionary) -> void:
 	var normalized_level := clampf(level, -1.0, 1.0)
 	for terrain_id in wave_profiles.keys():
 		water_surface(terrain_id as StringName, wave_profiles).set_shader_parameter(
-			"tide_level",
-			normalized_level
+			"tide_level", normalized_level
 		)
 
 
@@ -141,5 +148,3 @@ static func apply_water_sky_reflection(
 		material.set_shader_parameter("observer_latitude", observer_latitude)
 		material.set_shader_parameter("sidereal_angle", sidereal_angle)
 		material.set_shader_parameter("sun_reflection_color", sun_color)
-
-

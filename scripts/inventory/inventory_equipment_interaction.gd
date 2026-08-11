@@ -70,7 +70,11 @@ func can_drop_on_slot(slot: StringName, data: Dictionary) -> bool:
 	if kind == DRAG_KIND_EQUIPPED:
 		var from_slot: StringName = data.get("slot", &"")
 		var item_id: StringName = data.get("item_id", &"")
-		return from_slot != slot and not String(item_id).is_empty() and slot_accepts_item(slot, item_id)
+		return (
+			from_slot != slot
+			and not String(item_id).is_empty()
+			and slot_accepts_item(slot, item_id)
+		)
 	return false
 
 
@@ -98,8 +102,12 @@ func drop_on_slot(slot: StringName, data: Dictionary) -> int:
 
 
 func try_equip_selected(slot: StringName, selected: InventoryPlacement) -> bool:
-	return selected != null and slot_accepts_item(slot, selected.item_id) \
-		and _state != null and _state.equip_from_bag(slot, selected.item_id)
+	return (
+		selected != null
+		and slot_accepts_item(slot, selected.item_id)
+		and _state != null
+		and _state.equip_from_bag(slot, selected.item_id)
+	)
 
 
 func has_equipped_item(slot: StringName) -> bool:
@@ -129,8 +137,10 @@ func equip_info(item_id: StringName) -> Dictionary:
 
 func slot_accepts_item(slot: StringName, item_id: StringName) -> bool:
 	var item_equip_info := equip_info(item_id)
-	return not item_equip_info.is_empty() \
+	return (
+		not item_equip_info.is_empty()
 		and StringName(String(item_equip_info.get("slot", ""))) == slot
+	)
 
 
 func equipped_item_label(item_id: StringName) -> String:

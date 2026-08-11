@@ -36,12 +36,15 @@ static func display_name(state: State) -> String:
 
 
 static func is_combat_engaged(state: State) -> bool:
-	return state in [
-		State.DETECT,
-		State.TELEGRAPH,
-		State.ATTACK,
-		State.REACT,
-	]
+	return (
+		state
+		in [
+			State.DETECT,
+			State.TELEGRAPH,
+			State.ATTACK,
+			State.REACT,
+		]
+	)
 
 
 static func allows_patrol_motion(state: State) -> bool:

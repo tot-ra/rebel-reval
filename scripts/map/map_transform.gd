@@ -8,7 +8,9 @@ var mirror_x: bool
 var mirror_y: bool
 
 
-func _init(rotation_degrees_value: int = 0, mirror_x_value: bool = false, mirror_y_value: bool = false) -> void:
+func _init(
+	rotation_degrees_value: int = 0, mirror_x_value: bool = false, mirror_y_value: bool = false
+) -> void:
 	rotation_degrees = rotation_degrees_value
 	mirror_x = mirror_x_value
 	mirror_y = mirror_y_value
@@ -35,7 +37,9 @@ func transform_cell(cell: Vector2i) -> Vector2i:
 
 
 func transform_vector(vector: Vector2) -> Vector2:
-	var transformed := Vector2(-vector.x if mirror_x else vector.x, -vector.y if mirror_y else vector.y)
+	var transformed := Vector2(
+		-vector.x if mirror_x else vector.x, -vector.y if mirror_y else vector.y
+	)
 	match quarter_turns():
 		1:
 			return Vector2(-transformed.y, transformed.x)

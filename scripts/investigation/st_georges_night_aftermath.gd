@@ -14,10 +14,7 @@ var _patrol_bark: Node
 
 
 func setup(
-	scene_root: Node2D,
-	player: Player,
-	patrol_controller: MapPatrolController,
-	climax: Node
+	scene_root: Node2D, player: Player, patrol_controller: MapPatrolController, climax: Node
 ) -> void:
 	_scene_root = scene_root
 	_player = player
@@ -30,13 +27,19 @@ func setup(
 
 	if not SessionState.state_replaced.is_connected(_on_state_replaced):
 		SessionState.state_replaced.connect(_on_state_replaced)
-	if SessionState.state != null and not SessionState.state.phase_changed.is_connected(_on_phase_changed):
+	if (
+		SessionState.state != null
+		and not SessionState.state.phase_changed.is_connected(_on_phase_changed)
+	):
 		SessionState.state.phase_changed.connect(_on_phase_changed)
 	_sync_aftermath()
 
 
 func _exit_tree() -> void:
-	if SessionState.state != null and SessionState.state.phase_changed.is_connected(_on_phase_changed):
+	if (
+		SessionState.state != null
+		and SessionState.state.phase_changed.is_connected(_on_phase_changed)
+	):
 		SessionState.state.phase_changed.disconnect(_on_phase_changed)
 	if SessionState.state_replaced.is_connected(_on_state_replaced):
 		SessionState.state_replaced.disconnect(_on_state_replaced)
@@ -57,9 +60,7 @@ func _on_phase_changed(_previous: StringName, _next: StringName) -> void:
 
 
 func _spawn_patrol_bark(
-	scene_root: Node2D,
-	player: Player,
-	patrol_controller: MapPatrolController
+	scene_root: Node2D, player: Player, patrol_controller: MapPatrolController
 ) -> void:
 	_patrol_bark = PATROL_BARK_SCRIPT.new()
 	_patrol_bark.name = "StGeorgesNightPatrolBark"

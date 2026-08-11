@@ -3,7 +3,6 @@ extends RefCounted
 
 ## Blueprint factory for the north-quarter .rrmap source.
 
-
 const RRMAP_PATH := "res://content/maps/north_quarter.rrmap"
 
 

@@ -3,7 +3,6 @@ extends "res://scripts/forge/forge_commission_presenter.gd"
 
 ## Bridges ForgeCommissionRunner to ForgeCommissionOverlay and ForgeFeedbackOverlay.
 
-
 var _overlay: Node
 var _feedback_overlay: ForgeFeedbackOverlay
 var _runner: Node

@@ -43,7 +43,10 @@ static func stand_height(prop: Dictionary) -> float:
 		MapTypes.PROP_KIND_HAY_STACK:
 			# The broad shoulder, not the loose crown tip, is the believable footing.
 			var size_variant := StringName(prop.get("style_variant", _HayMeshes.DEFAULT_SIZE))
-			return STAND_HEIGHT_BY_KIND[MapTypes.PROP_KIND_HAY_STACK] * _HayMeshes.size_scale(size_variant).y
+			return (
+				STAND_HEIGHT_BY_KIND[MapTypes.PROP_KIND_HAY_STACK]
+				* _HayMeshes.size_scale(size_variant).y
+			)
 	return float(STAND_HEIGHT_BY_KIND[prop["kind"]])
 
 

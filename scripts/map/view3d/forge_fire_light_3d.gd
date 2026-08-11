@@ -21,10 +21,7 @@ var _time := 0.0
 
 
 func configure(
-	light: OmniLight3D,
-	flames: Node3D,
-	sparks: GPUParticles3D,
-	smoke: GPUParticles3D = null
+	light: OmniLight3D, flames: Node3D, sparks: GPUParticles3D, smoke: GPUParticles3D = null
 ) -> void:
 	name = "ForgeFireLight"
 	_light = light
@@ -41,10 +38,12 @@ func _process(delta: float) -> void:
 	if _light == null:
 		return
 	# Uneven flicker so the open mouth reads as living fire, not a lamp.
-	var flicker := 1.0 \
-		+ 0.12 * sin(_time * 11.3) \
-		+ 0.08 * sin(_time * 17.7 + 1.3) \
+	var flicker := (
+		1.0
+		+ 0.12 * sin(_time * 11.3)
+		+ 0.08 * sin(_time * 17.7 + 1.3)
 		+ 0.05 * sin(_time * 29.1 + 0.4)
+	)
 	_light.light_energy = _base_energy * flicker
 	if _flames != null:
 		# Flame tongues breathe with the light: emission and playback speed

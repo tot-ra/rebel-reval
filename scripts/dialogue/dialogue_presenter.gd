@@ -5,15 +5,12 @@ extends RefCounted
 
 
 func present_line(
-	speaker_id: StringName,
-	speaker_name: String,
-	text: String,
-	node_id: String
+	_speaker_id: StringName, _speaker_name: String, _text: String, _node_id: String
 ) -> void:
 	pass
 
 
-func present_choices(choices: Array) -> void:
+func present_choices(_choices: Array) -> void:
 	pass
 
 

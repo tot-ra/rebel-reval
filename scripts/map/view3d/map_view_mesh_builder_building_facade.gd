@@ -24,7 +24,8 @@ static func opposite_side(side: StringName) -> StringName:
 	return &"east"
 
 
-## Places a box flush against the given facade, protruding MapViewMeshBuilderConfig.FACADE_RELIEF so it
+## Places a box flush against the given facade, protruding MapViewMeshBuilderConfig.FACADE_RELIEF so
+## it
 ## reads in the dimetric light.
 static func facade_box(
 	root: Node3D,
@@ -65,25 +66,31 @@ static func add_house_facade(
 	var side := declared if declared != &"none" else &"south"
 	var entrance_along: Array[float] = []
 	for transition in entrances:
-		entrance_along.append(MapBuildingEntrance.facade_along_world(building, transition, cell_size))
+		entrance_along.append(
+			MapBuildingEntrance.facade_along_world(building, transition, cell_size)
+		)
 	var along_x := side == &"north" or side == &"south"
 	var facade_length := size.x if along_x else size.y
 	var face_offset := (size.y if along_x else size.x) * 0.5
 	var id_hash := String(building["id"]).hash()
-	var masonry := MapViewMeshBuilderBuildingHouses.house_style(building) in [
-		MapViewMeshBuilderConfig.HOUSE_STYLE_STONE,
-		MapViewMeshBuilderConfig.HOUSE_STYLE_BRICK,
-	]
+	var masonry := (
+		MapViewMeshBuilderBuildingHouses.house_style(building)
+		in [
+			MapViewMeshBuilderConfig.HOUSE_STYLE_STONE,
+			MapViewMeshBuilderConfig.HOUSE_STYLE_BRICK,
+		]
+	)
 
 	var door_height := minf(MapViewMeshBuilderConfig.HOUSE_DOOR_HEIGHT, height - 0.2)
-	var door_along := (float(id_hash % 100) / 99.0 - 0.5) * maxf(facade_length - MapViewMeshBuilderConfig.HOUSE_DOOR_WIDTH - 1.2, 0.0) * 0.5
+	var door_along := (
+		(float(id_hash % 100) / 99.0 - 0.5)
+		* maxf(facade_length - MapViewMeshBuilderConfig.HOUSE_DOOR_WIDTH - 1.2, 0.0)
+		* 0.5
+	)
 	if declared != &"none" and entrance_along.is_empty():
 		var door_seed := int(building["id"].hash())
 		var door_transform := MapViewDoorBuilder.facade_transform(
-			door_along,
-			side,
-			face_offset,
-			MapViewMeshBuilderConfig.DOOR_THICKNESS
+			door_along, side, face_offset, MapViewMeshBuilderConfig.DOOR_THICKNESS
 		)
 		MapViewDoorBuilder.add_leaf(
 			root,
@@ -106,17 +113,44 @@ static func add_house_facade(
 			door_seed,
 			masonry
 		)
-		facade_box(root, "DoorStep", Vector3(MapViewMeshBuilderConfig.HOUSE_DOOR_WIDTH + 0.2, 0.09, 0.34), door_along, 0.045, side, face_offset, &"stone")
+		facade_box(
+			root,
+			"DoorStep",
+			Vector3(MapViewMeshBuilderConfig.HOUSE_DOOR_WIDTH + 0.2, 0.09, 0.34),
+			door_along,
+			0.045,
+			side,
+			face_offset,
+			&"stone"
+		)
 
-	var window_count := clampi(int(facade_length / MapViewMeshBuilderConfig.HOUSE_WINDOW_SPACING), 1, 3)
-	var window_sill := minf(MapViewMeshBuilderConfig.HOUSE_WINDOW_SILL, height - MapViewMeshBuilderConfig.HOUSE_WINDOW_SIZE.y - 0.15)
+	var window_count := clampi(
+		int(facade_length / MapViewMeshBuilderConfig.HOUSE_WINDOW_SPACING), 1, 3
+	)
+	var window_sill := minf(
+		MapViewMeshBuilderConfig.HOUSE_WINDOW_SILL,
+		height - MapViewMeshBuilderConfig.HOUSE_WINDOW_SIZE.y - 0.15
+	)
 	var index := 0
 	var faces: Array[StringName] = [side, opposite_side(side)]
 	for face in faces:
 		for window in window_count:
 			var along := (float(window + 1) / float(window_count + 1) - 0.5) * facade_length
 			if face == side:
-				if declared != &"none" and entrance_along.is_empty() and absf(along - door_along) < (MapViewMeshBuilderConfig.HOUSE_DOOR_WIDTH + MapViewMeshBuilderConfig.HOUSE_WINDOW_SIZE.x) * 0.62:
+				if (
+					declared != &"none"
+					and entrance_along.is_empty()
+					and (
+						absf(along - door_along)
+						< (
+							(
+								MapViewMeshBuilderConfig.HOUSE_DOOR_WIDTH
+								+ MapViewMeshBuilderConfig.HOUSE_WINDOW_SIZE.x
+							)
+							* 0.62
+						)
+					)
+				):
 					continue
 				if _overlaps_entrance(along, entrance_along):
 					continue
@@ -126,7 +160,13 @@ static func add_house_facade(
 
 static func _overlaps_entrance(along: float, entrances: Array[float]) -> bool:
 	for entrance_along in entrances:
-		if absf(along - entrance_along) < (MapViewMeshBuilderConfig.DOOR_WIDTH + MapViewMeshBuilderConfig.HOUSE_WINDOW_SIZE.x) * 0.62:
+		if (
+			absf(along - entrance_along)
+			< (
+				(MapViewMeshBuilderConfig.DOOR_WIDTH + MapViewMeshBuilderConfig.HOUSE_WINDOW_SIZE.x)
+				* 0.62
+			)
+		):
 			return true
 	return false
 
@@ -149,25 +189,109 @@ static func add_house_window(
 	var frame_role: StringName = &"stone" if masonry else &"timber"
 	var trim_role: StringName = &"stone" if masonry else &"timber"
 
-	facade_box(root, "WindowFrameL%d" % index, Vector3(fw, h, MapViewMeshBuilderConfig.HOUSE_WINDOW_OUTER_DEPTH), along - w * 0.5 + fw * 0.5, cy, face, face_offset, frame_role)
-	facade_box(root, "WindowFrameR%d" % index, Vector3(fw, h, MapViewMeshBuilderConfig.HOUSE_WINDOW_OUTER_DEPTH), along + w * 0.5 - fw * 0.5, cy, face, face_offset, frame_role)
-	facade_box(root, "WindowFrameT%d" % index, Vector3(w, fw, MapViewMeshBuilderConfig.HOUSE_WINDOW_OUTER_DEPTH), along, window_sill + h - fw * 0.5, face, face_offset, frame_role)
-	facade_box(root, "WindowFrameB%d" % index, Vector3(w, fw, MapViewMeshBuilderConfig.HOUSE_WINDOW_OUTER_DEPTH), along, window_sill + fw * 0.5, face, face_offset, frame_role)
-	facade_box(root, "Window%d" % index, Vector3(glass_w, glass_h, MapViewMeshBuilderConfig.HOUSE_WINDOW_GLASS_DEPTH), along, cy, face, face_offset, &"window")
-	facade_box(root, "WindowMullionV%d" % index, Vector3(MapViewMeshBuilderConfig.HOUSE_WINDOW_MULLION, glass_h, MapViewMeshBuilderConfig.HOUSE_WINDOW_MULLION_DEPTH), along, cy, face, face_offset, &"wood")
-	facade_box(root, "WindowMullionH%d" % index, Vector3(glass_w, MapViewMeshBuilderConfig.HOUSE_WINDOW_MULLION, MapViewMeshBuilderConfig.HOUSE_WINDOW_MULLION_DEPTH), along, cy, face, face_offset, &"wood")
-	facade_box(root, "WindowLintel%d" % index, Vector3(w + 0.18, 0.1, 0.09), along, window_sill + h + 0.05, face, face_offset, trim_role)
-	facade_box(root, "WindowSill%d" % index, Vector3(w + 0.18, 0.08, 0.12), along, window_sill - 0.04, face, face_offset, trim_role)
+	facade_box(
+		root,
+		"WindowFrameL%d" % index,
+		Vector3(fw, h, MapViewMeshBuilderConfig.HOUSE_WINDOW_OUTER_DEPTH),
+		along - w * 0.5 + fw * 0.5,
+		cy,
+		face,
+		face_offset,
+		frame_role
+	)
+	facade_box(
+		root,
+		"WindowFrameR%d" % index,
+		Vector3(fw, h, MapViewMeshBuilderConfig.HOUSE_WINDOW_OUTER_DEPTH),
+		along + w * 0.5 - fw * 0.5,
+		cy,
+		face,
+		face_offset,
+		frame_role
+	)
+	facade_box(
+		root,
+		"WindowFrameT%d" % index,
+		Vector3(w, fw, MapViewMeshBuilderConfig.HOUSE_WINDOW_OUTER_DEPTH),
+		along,
+		window_sill + h - fw * 0.5,
+		face,
+		face_offset,
+		frame_role
+	)
+	facade_box(
+		root,
+		"WindowFrameB%d" % index,
+		Vector3(w, fw, MapViewMeshBuilderConfig.HOUSE_WINDOW_OUTER_DEPTH),
+		along,
+		window_sill + fw * 0.5,
+		face,
+		face_offset,
+		frame_role
+	)
+	facade_box(
+		root,
+		"Window%d" % index,
+		Vector3(glass_w, glass_h, MapViewMeshBuilderConfig.HOUSE_WINDOW_GLASS_DEPTH),
+		along,
+		cy,
+		face,
+		face_offset,
+		&"window"
+	)
+	facade_box(
+		root,
+		"WindowMullionV%d" % index,
+		Vector3(
+			MapViewMeshBuilderConfig.HOUSE_WINDOW_MULLION,
+			glass_h,
+			MapViewMeshBuilderConfig.HOUSE_WINDOW_MULLION_DEPTH
+		),
+		along,
+		cy,
+		face,
+		face_offset,
+		&"wood"
+	)
+	facade_box(
+		root,
+		"WindowMullionH%d" % index,
+		Vector3(
+			glass_w,
+			MapViewMeshBuilderConfig.HOUSE_WINDOW_MULLION,
+			MapViewMeshBuilderConfig.HOUSE_WINDOW_MULLION_DEPTH
+		),
+		along,
+		cy,
+		face,
+		face_offset,
+		&"wood"
+	)
+	facade_box(
+		root,
+		"WindowLintel%d" % index,
+		Vector3(w + 0.18, 0.1, 0.09),
+		along,
+		window_sill + h + 0.05,
+		face,
+		face_offset,
+		trim_role
+	)
+	facade_box(
+		root,
+		"WindowSill%d" % index,
+		Vector3(w + 0.18, 0.08, 0.12),
+		along,
+		window_sill - 0.04,
+		face,
+		face_offset,
+		trim_role
+	)
 	_add_house_shutters(root, index, along, window_sill, face, face_offset)
 
 
 static func _add_house_shutters(
-	root: Node3D,
-	index: int,
-	along: float,
-	window_sill: float,
-	face: StringName,
-	face_offset: float
+	root: Node3D, index: int, along: float, window_sill: float, face: StringName, face_offset: float
 ) -> void:
 	# Config promises shuttered windows; park open leaves beside the frame so
 	# glass stays readable in daylight while the timber boards sell 1343 habit.

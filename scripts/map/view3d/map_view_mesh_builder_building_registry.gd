@@ -39,7 +39,10 @@ const EXCEPTIONAL_PRIMITIVES := {
 static func exceptional_category(building: Dictionary) -> StringName:
 	# Only house records cross this boundary. Wall records may have similar
 	# historical names, but they must retain the fortification renderer.
-	if StringName(String(building.get("kind", MapTypes.BUILDING_KIND_HOUSE))) != MapTypes.BUILDING_KIND_HOUSE:
+	if (
+		StringName(String(building.get("kind", MapTypes.BUILDING_KIND_HOUSE)))
+		!= MapTypes.BUILDING_KIND_HOUSE
+	):
 		return &""
 	var building_id := StringName(String(building.get("id", "")))
 	if EXCEPTIONAL_IDS.has(building_id):

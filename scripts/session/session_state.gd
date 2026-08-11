@@ -1,5 +1,10 @@
 extends Node
 
+## Emitted exactly once after the canonical state and its bag ContentDB binding
+## are installed. Long-lived consumers must disconnect from `previous` and bind
+## to `current` before this ordered notification returns.
+signal state_replaced(previous: GameState, current: GameState, reason: StringName)
+
 ## Session-scoped GameState holder. Inventory and quest flags survive map transitions
 ## within one play session and across manual save/load via SaveService (P1-007).
 
@@ -13,10 +18,8 @@ const DEMO_CONTENT_DIRS: Array[String] = [
 	"res://content/examples/valid",
 	"res://content/packages/bell_and_chain/content",
 ]
-
 const DebugStatePresetsScript := preload("res://scripts/debug/debug_state_presets.gd")
 const DebugStateInspectorScript := preload("res://scripts/debug/debug_state_inspector.gd")
-
 const STATE_REPLACE_REASON_MANUAL_LOAD := &"manual_load"
 const STATE_REPLACE_REASON_DEBUG_PRESET := &"debug_preset"
 
@@ -25,14 +28,8 @@ var content_db: ContentDB = ContentDB.new()
 var save_service: SaveService = SaveService.new()
 var debug_presets = DebugStatePresetsScript.new()
 
-## Emitted exactly once after the canonical state and its bag ContentDB binding
-## are installed. Long-lived consumers must disconnect from `previous` and bind
-## to `current` before this ordered notification returns.
-signal state_replaced(previous: GameState, current: GameState, reason: StringName)
-
 var _demo_seeded := false
 var _inspector: CanvasLayer
-
 
 func _ready() -> void:
 	content_db.load_from_directories(DEMO_CONTENT_DIRS)
@@ -46,9 +43,7 @@ func _ready() -> void:
 func apply_debug_preset(preset_id: String) -> bool:
 	var result: Dictionary = debug_presets.apply_preset(preset_id)
 	if not bool(result.get("ok", false)):
-		push_warning(
-			"Debug preset %s failed: %s" % [preset_id, String(result.get("error", ""))]
-		)
+		push_warning("Debug preset %s failed: %s" % [preset_id, String(result.get("error", ""))])
 		return false
 	_demo_seeded = true
 	replace_state(result["state"] as GameState, STATE_REPLACE_REASON_DEBUG_PRESET)

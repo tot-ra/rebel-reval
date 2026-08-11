@@ -69,7 +69,9 @@ func _draw_stable_ids() -> void:
 	for anchor in _definition.interaction_anchors:
 		_draw_label(anchor["position"] + Vector2(0.0, -12.0), String(anchor["id"]), ANCHOR_COLOR)
 	for transition in _definition.transitions:
-		_draw_label(transition["rect"].get_center(), String(transition["id"]), Color(1.0, 0.45, 0.25))
+		_draw_label(
+			transition["rect"].get_center(), String(transition["id"]), Color(1.0, 0.45, 0.25)
+		)
 
 
 func _draw_navigation() -> void:
@@ -108,13 +110,24 @@ func _draw_chunk_bounds_placeholder() -> void:
 	var world_size := _definition.world_size()
 	var x := 0.0
 	while x <= world_size.x:
-		draw_dashed_line(Vector2(x, 0.0), Vector2(x, world_size.y), CHUNK_PLACEHOLDER_COLOR, 2.0, 12.0)
+		draw_dashed_line(
+			Vector2(x, 0.0), Vector2(x, world_size.y), CHUNK_PLACEHOLDER_COLOR, 2.0, 12.0
+		)
 		x += chunk_px
 	var y := 0.0
 	while y <= world_size.y:
-		draw_dashed_line(Vector2(0.0, y), Vector2(world_size.x, y), CHUNK_PLACEHOLDER_COLOR, 2.0, 12.0)
+		draw_dashed_line(
+			Vector2(0.0, y), Vector2(world_size.x, y), CHUNK_PLACEHOLDER_COLOR, 2.0, 12.0
+		)
 		y += chunk_px
-	_draw_label(Vector2(8.0, 20.0), "CHUNK BOUNDS PLACEHOLDER (%dx%d cells)" % [CHUNK_PLACEHOLDER_CELLS, CHUNK_PLACEHOLDER_CELLS], CHUNK_PLACEHOLDER_COLOR)
+	_draw_label(
+		Vector2(8.0, 20.0),
+		(
+			"CHUNK BOUNDS PLACEHOLDER (%dx%d cells)"
+			% [CHUNK_PLACEHOLDER_CELLS, CHUNK_PLACEHOLDER_CELLS]
+		),
+		CHUNK_PLACEHOLDER_COLOR
+	)
 
 
 func _draw_label(position: Vector2, text: String, color: Color) -> void:
@@ -122,5 +135,9 @@ func _draw_label(position: Vector2, text: String, color: Color) -> void:
 	var font_size := 14
 	var size := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size)
 	var origin := position + Vector2(-size.x * 0.5, -4.0)
-	draw_rect(Rect2(origin - Vector2(3.0, float(font_size)), size + Vector2(6.0, 5.0)), Color(0.03, 0.03, 0.04, 0.82), true)
+	draw_rect(
+		Rect2(origin - Vector2(3.0, float(font_size)), size + Vector2(6.0, 5.0)),
+		Color(0.03, 0.03, 0.04, 0.82),
+		true
+	)
 	draw_string(font, origin, text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size, color)

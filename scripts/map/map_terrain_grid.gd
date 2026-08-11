@@ -18,7 +18,12 @@ var chunk_size_cells: int = DEFAULT_CHUNK_SIZE_CELLS
 var chunks: Dictionary = {}
 
 
-func initialize_chunks(size: Vector2i, terrain_cell_size: int, terrain_seed: int, size_per_chunk: int = DEFAULT_CHUNK_SIZE_CELLS) -> void:
+func initialize_chunks(
+	size: Vector2i,
+	terrain_cell_size: int,
+	terrain_seed: int,
+	size_per_chunk: int = DEFAULT_CHUNK_SIZE_CELLS
+) -> void:
 	assert(size_per_chunk > 0)
 	size_cells = size
 	cell_size = terrain_cell_size
@@ -121,10 +126,13 @@ func chunk_bounds(coordinates: Vector2i) -> Rect2i:
 	var origin := coordinates * chunk_size_cells
 	if origin.x < 0 or origin.y < 0 or origin.x >= size_cells.x or origin.y >= size_cells.y:
 		return Rect2i(origin, Vector2i.ZERO)
-	return Rect2i(origin, Vector2i(
-		mini(chunk_size_cells, size_cells.x - origin.x),
-		mini(chunk_size_cells, size_cells.y - origin.y)
-	))
+	return Rect2i(
+		origin,
+		Vector2i(
+			mini(chunk_size_cells, size_cells.x - origin.x),
+			mini(chunk_size_cells, size_cells.y - origin.y)
+		)
+	)
 
 
 func chunk_world_bounds(coordinates: Vector2i) -> Rect2:
@@ -139,8 +147,9 @@ func get_chunk(coordinates: Vector2i) -> MapTerrainChunk:
 func chunk_coordinates() -> Array[Vector2i]:
 	var result: Array[Vector2i] = []
 	result.assign(chunks.keys())
-	result.sort_custom(func(left: Vector2i, right: Vector2i) -> bool:
-		return left.y < right.y or (left.y == right.y and left.x < right.x)
+	result.sort_custom(
+		func(left: Vector2i, right: Vector2i) -> bool:
+			return left.y < right.y or (left.y == right.y and left.x < right.x)
 	)
 	return result
 
@@ -150,16 +159,19 @@ func chunk_cache_key(coordinates: Vector2i) -> String:
 	if chunk == null:
 		return ""
 	# The key is content-derived and independent of runtime load order or node identity.
-	return "terrain-v1:%d:%d:%d:%d:%d:%d:%s:%s" % [
-		seed,
-		chunk_size_cells,
-		coordinates.x,
-		coordinates.y,
-		chunk.bounds_cells.size.x,
-		chunk.bounds_cells.size.y,
-		"|".join(PackedStringArray(index_to_terrain)),
-		chunk.cells.hex_encode(),
-	]
+	return (
+		"terrain-v1:%d:%d:%d:%d:%d:%d:%s:%s"
+		% [
+			seed,
+			chunk_size_cells,
+			coordinates.x,
+			coordinates.y,
+			chunk.bounds_cells.size.x,
+			chunk.bounds_cells.size.y,
+			"|".join(PackedStringArray(index_to_terrain)),
+			chunk.cells.hex_encode(),
+		]
+	)
 
 
 func fingerprint() -> String:

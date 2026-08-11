@@ -5,9 +5,7 @@ extends RefCounted
 
 
 static func speed_multiplier_at(
-	definition: MapDefinition,
-	grid: MapTerrainGrid,
-	world_position: Vector2
+	definition: MapDefinition, grid: MapTerrainGrid, world_position: Vector2
 ) -> float:
 	if definition == null or grid == null:
 		return 1.0

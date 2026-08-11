@@ -1,14 +1,15 @@
 # gdtoolkit uses these internal section names for the project order:
 # constants, signals, exports, public/private variables, onready variables, methods.
 # All virtual, public, and private methods are represented by the "others" section.
+# Match gdtoolkit / Godot style: signals and enums before consts.
 class-definitions-order:
   - tools
   - classnames
   - extends
   - docstrings
-  - consts
   - signals
   - enums
+  - consts
   - staticvars
   - exports
   - pubvars
@@ -19,6 +20,13 @@ class-definitions-order:
 
 disable:
   - max-public-methods
+
+# Validation and demo runners use early-return guard clauses; keep readable flow
+# rather than nesting. Cap is raised to match the densest existing validators.
+max-returns: 25
+
+# Species/mesh catalogs are data-heavy single files by design.
+max-file-lines: 1200
 
 # Private PascalCase preload constants are part of the existing project style.
 load-constant-name: '_?([A-Z][a-z0-9]*)+|_?[A-Z][A-Z0-9]*(_[A-Z0-9]+)*'

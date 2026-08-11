@@ -26,8 +26,10 @@ func setup(scene_root: Node2D, definition: MapDefinition) -> void:
 	_build_install_interactable()
 	if not SessionState.state_replaced.is_connected(_on_state_replaced):
 		SessionState.state_replaced.connect(_on_state_replaced)
-	if SessionState.state != null \
-			and not SessionState.state.phase_changed.is_connected(_on_phase_changed):
+	if (
+		SessionState.state != null
+		and not SessionState.state.phase_changed.is_connected(_on_phase_changed)
+	):
 		SessionState.state.phase_changed.connect(_on_phase_changed)
 	_sync_install()
 
@@ -41,8 +43,10 @@ func commit_install_for_test() -> bool:
 
 
 func _exit_tree() -> void:
-	if SessionState.state != null \
-			and SessionState.state.phase_changed.is_connected(_on_phase_changed):
+	if (
+		SessionState.state != null
+		and SessionState.state.phase_changed.is_connected(_on_phase_changed)
+	):
 		SessionState.state.phase_changed.disconnect(_on_phase_changed)
 	if SessionState.state_replaced.is_connected(_on_state_replaced):
 		SessionState.state_replaced.disconnect(_on_state_replaced)
@@ -91,8 +95,7 @@ func _commit_hearth_install() -> bool:
 	if _install_committed or SessionState.state == null:
 		return _install_committed
 	_install_committed = AftermathModelScript.commit_install(
-		SessionState.state,
-		SessionState.content_db
+		SessionState.state, SessionState.content_db
 	)
 	return _install_committed
 

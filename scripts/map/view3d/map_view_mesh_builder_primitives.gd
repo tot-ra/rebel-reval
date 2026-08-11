@@ -13,6 +13,7 @@ const MeshMath := preload("res://scripts/map/view3d/map_view_mesh_builder_math.g
 
 static var _mesh_cache: Dictionary = {}
 
+
 static func hash01(x: int, y: int, noise_seed: int) -> float:
 	return MeshMath.hash01(x, y, noise_seed)
 
@@ -42,8 +43,6 @@ static func multi_mesh(
 	return instance
 
 
-
-
 static func building_cell_rects(definition: MapDefinition) -> Array[Rect2]:
 	var rects: Array[Rect2] = []
 	var scale := MapViewBridge.world_scale(definition.cell_size)
@@ -51,8 +50,6 @@ static func building_cell_rects(definition: MapDefinition) -> Array[Rect2]:
 		var footprint: Rect2 = building["footprint"]
 		rects.append(Rect2(footprint.position * scale, footprint.size * scale))
 	return rects
-
-
 
 
 static func cell_blocked(cell: Vector2i, rects: Array[Rect2]) -> bool:
@@ -75,15 +72,17 @@ static func unit_roof_prism() -> ArrayMesh:
 	var d := Vector3(-0.5, 0.0, 0.5)
 	var r0 := Vector3(-0.5, 1.0, 0.0)
 	var r1 := Vector3(0.5, 1.0, 0.0)
-	MapViewMeshBuilderPrimitives.add_roof_quad(surface, a, b, r1, r0, Vector3(0.0, 0.5, -1.0).normalized())
-	MapViewMeshBuilderPrimitives.add_roof_quad(surface, r0, r1, c, d, Vector3(0.0, 0.5, 1.0).normalized())
+	MapViewMeshBuilderPrimitives.add_roof_quad(
+		surface, a, b, r1, r0, Vector3(0.0, 0.5, -1.0).normalized()
+	)
+	MapViewMeshBuilderPrimitives.add_roof_quad(
+		surface, r0, r1, c, d, Vector3(0.0, 0.5, 1.0).normalized()
+	)
 	MapViewMeshBuilderPrimitives.add_roof_triangle(surface, a, r0, d, Vector3.LEFT)
 	MapViewMeshBuilderPrimitives.add_roof_triangle(surface, b, c, r1, Vector3.RIGHT)
 	var mesh := surface.commit()
 	_mesh_cache[CACHE_KEY] = mesh
 	return mesh
-
-
 
 
 static func placed(spot: Vector2, scale: float, lift: Vector3, yaw: float) -> Transform3D:
@@ -129,7 +128,9 @@ static func tree_geometry_stats(species: StringName) -> Dictionary:
 	return TreeMeshes.geometry_stats(species)
 
 
-static func add_chimney_stack(parent: Node3D, node_name: String, outer_size: float, height: float, position: Vector3) -> Node3D:
+static func add_chimney_stack(
+	parent: Node3D, node_name: String, outer_size: float, height: float, position: Vector3
+) -> Node3D:
 	var chimney := Node3D.new()
 	chimney.name = node_name
 	chimney.position = position
@@ -142,10 +143,26 @@ static func add_chimney_stack(parent: Node3D, node_name: String, outer_size: flo
 	var stone := MapViewMaterials.role(&"stone")
 
 	for side in [
-		{"name": "WallN", "size": Vector3(outer_size, height, wall), "pos": Vector3(0.0, center_y, half_outer - wall * 0.5)},
-		{"name": "WallS", "size": Vector3(outer_size, height, wall), "pos": Vector3(0.0, center_y, -(half_outer - wall * 0.5))},
-		{"name": "WallE", "size": Vector3(wall, height, inner), "pos": Vector3(half_outer - wall * 0.5, center_y, 0.0)},
-		{"name": "WallW", "size": Vector3(wall, height, inner), "pos": Vector3(-(half_outer - wall * 0.5), center_y, 0.0)},
+		{
+			"name": "WallN",
+			"size": Vector3(outer_size, height, wall),
+			"pos": Vector3(0.0, center_y, half_outer - wall * 0.5)
+		},
+		{
+			"name": "WallS",
+			"size": Vector3(outer_size, height, wall),
+			"pos": Vector3(0.0, center_y, -(half_outer - wall * 0.5))
+		},
+		{
+			"name": "WallE",
+			"size": Vector3(wall, height, inner),
+			"pos": Vector3(half_outer - wall * 0.5, center_y, 0.0)
+		},
+		{
+			"name": "WallW",
+			"size": Vector3(wall, height, inner),
+			"pos": Vector3(-(half_outer - wall * 0.5), center_y, 0.0)
+		},
 	]:
 		var segment := MeshInstance3D.new()
 		segment.name = side["name"]
@@ -185,7 +202,9 @@ static func gabled_roof_mesh(
 		overhang = MapViewMeshBuilderConfig.ROOF_OVERHANG
 	if pitch < 0.0:
 		pitch = MapViewMeshBuilderConfig.ROOF_PITCH
-	var cache_key := "gabled_roof:%s:%s:%.3f:%s:%.3f" % [base, ridge_along_x, overhang, close_gables, pitch]
+	var cache_key := (
+		"gabled_roof:%s:%s:%.3f:%s:%.3f" % [base, ridge_along_x, overhang, close_gables, pitch]
+	)
 	if _mesh_cache.has(cache_key):
 		return _mesh_cache[cache_key]
 	var half_w := base.x * 0.5 + overhang
@@ -210,14 +229,28 @@ static func gabled_roof_mesh(
 		# (slope_length). Reed/shingle patterns therefore follow water runoff rather
 		# than the arbitrary world-Y projection used by the former mapping.
 		MapViewMeshBuilderPrimitives.add_roof_quad_uv(
-			surface, a, b, r1, r0, north,
-			Vector2(-ridge_half, slope_length), Vector2(ridge_half, slope_length),
-			Vector2(ridge_half, 0.0), Vector2(-ridge_half, 0.0)
+			surface,
+			a,
+			b,
+			r1,
+			r0,
+			north,
+			Vector2(-ridge_half, slope_length),
+			Vector2(ridge_half, slope_length),
+			Vector2(ridge_half, 0.0),
+			Vector2(-ridge_half, 0.0)
 		)
 		MapViewMeshBuilderPrimitives.add_roof_quad_uv(
-			surface, r0, r1, c, d, south,
-			Vector2(-ridge_half, 0.0), Vector2(ridge_half, 0.0),
-			Vector2(ridge_half, slope_length), Vector2(-ridge_half, slope_length)
+			surface,
+			r0,
+			r1,
+			c,
+			d,
+			south,
+			Vector2(-ridge_half, 0.0),
+			Vector2(ridge_half, 0.0),
+			Vector2(ridge_half, slope_length),
+			Vector2(-ridge_half, slope_length)
 		)
 		if close_gables:
 			MapViewMeshBuilderPrimitives.add_roof_triangle(surface, a, r0, d, Vector3.LEFT)
@@ -232,14 +265,28 @@ static func gabled_roof_mesh(
 		var west := Vector3(-rise, half_w, 0.0).normalized()
 		var east := Vector3(rise, half_w, 0.0).normalized()
 		MapViewMeshBuilderPrimitives.add_roof_quad_uv(
-			surface, a, r0, r1, d, west,
-			Vector2(-ridge_half, slope_length), Vector2(-ridge_half, 0.0),
-			Vector2(ridge_half, 0.0), Vector2(ridge_half, slope_length)
+			surface,
+			a,
+			r0,
+			r1,
+			d,
+			west,
+			Vector2(-ridge_half, slope_length),
+			Vector2(-ridge_half, 0.0),
+			Vector2(ridge_half, 0.0),
+			Vector2(ridge_half, slope_length)
 		)
 		MapViewMeshBuilderPrimitives.add_roof_quad_uv(
-			surface, r0, b, c, r1, east,
-			Vector2(-ridge_half, 0.0), Vector2(-ridge_half, slope_length),
-			Vector2(ridge_half, slope_length), Vector2(ridge_half, 0.0)
+			surface,
+			r0,
+			b,
+			c,
+			r1,
+			east,
+			Vector2(-ridge_half, 0.0),
+			Vector2(-ridge_half, slope_length),
+			Vector2(ridge_half, slope_length),
+			Vector2(ridge_half, 0.0)
 		)
 		if close_gables:
 			MapViewMeshBuilderPrimitives.add_roof_triangle(surface, a, b, r0, Vector3.FORWARD)
@@ -269,18 +316,18 @@ static func add_roof_quad_uv(
 		surface.add_vertex(vertices[index])
 
 
-
-
-static func add_roof_quad(surface: SurfaceTool, a: Vector3, b: Vector3, c: Vector3, d: Vector3, normal: Vector3) -> void:
+static func add_roof_quad(
+	surface: SurfaceTool, a: Vector3, b: Vector3, c: Vector3, d: Vector3, normal: Vector3
+) -> void:
 	for vertex in [a, b, c, a, c, d]:
 		surface.set_normal(normal)
 		surface.set_uv(Vector2(vertex.x + vertex.z, vertex.y))
 		surface.add_vertex(vertex)
 
 
-
-
-static func add_roof_triangle(surface: SurfaceTool, a: Vector3, b: Vector3, c: Vector3, normal: Vector3) -> void:
+static func add_roof_triangle(
+	surface: SurfaceTool, a: Vector3, b: Vector3, c: Vector3, normal: Vector3
+) -> void:
 	for vertex in [a, b, c]:
 		surface.set_normal(normal)
 		surface.set_uv(Vector2(vertex.x + vertex.z, vertex.y))
@@ -290,15 +337,14 @@ static func add_roof_triangle(surface: SurfaceTool, a: Vector3, b: Vector3, c: V
 ## Filled round-headed opening used by civic arcades and portals. The mesh has
 ## two faces because facade relief can be seen from either side in editor orbit.
 static func arched_panel_mesh(
-	width: float,
-	height: float,
-	depth: float = 0.06,
-	segments: int = 12
+	width: float, height: float, depth: float = 0.06, segments: int = 12
 ) -> ArrayMesh:
 	var safe_width := maxf(width, 0.2)
 	var safe_height := maxf(height, safe_width * 0.55)
 	var safe_segments := maxi(segments, 4)
-	var cache_key := "arched_panel:%.3f:%.3f:%.3f:%d" % [safe_width, safe_height, depth, safe_segments]
+	var cache_key := (
+		"arched_panel:%.3f:%.3f:%.3f:%d" % [safe_width, safe_height, depth, safe_segments]
+	)
 	if _mesh_cache.has(cache_key):
 		return _mesh_cache[cache_key]
 
@@ -314,7 +360,9 @@ static func arched_panel_mesh(
 	var center := Vector2(0.0, safe_height * 0.42)
 	for index in points.size():
 		var next := (index + 1) % points.size()
-		_add_flat_triangle(surface, center, points[next], points[index], -depth * 0.5, Vector3.FORWARD)
+		_add_flat_triangle(
+			surface, center, points[next], points[index], -depth * 0.5, Vector3.FORWARD
+		)
 		_add_flat_triangle(surface, center, points[index], points[next], depth * 0.5, Vector3.BACK)
 	var mesh := surface.commit()
 	_mesh_cache[cache_key] = mesh
@@ -324,15 +372,14 @@ static func arched_panel_mesh(
 ## Semicircular masonry band. Straight jambs are authored separately so one
 ## band can top a window-sized arcade bay or a wider functional door portal.
 static func arch_band_mesh(
-	outer_radius: float,
-	thickness: float,
-	depth: float = 0.12,
-	segments: int = 12
+	outer_radius: float, thickness: float, depth: float = 0.12, segments: int = 12
 ) -> ArrayMesh:
 	var safe_outer := maxf(outer_radius, 0.2)
 	var safe_thickness := clampf(thickness, 0.05, safe_outer * 0.72)
 	var safe_segments := maxi(segments, 4)
-	var cache_key := "arch_band:%.3f:%.3f:%.3f:%d" % [safe_outer, safe_thickness, depth, safe_segments]
+	var cache_key := (
+		"arch_band:%.3f:%.3f:%.3f:%d" % [safe_outer, safe_thickness, depth, safe_segments]
+	)
 	if _mesh_cache.has(cache_key):
 		return _mesh_cache[cache_key]
 
@@ -361,18 +408,16 @@ static func arch_band_mesh(
 ## `facade_z + thickness * 0.5` without rotating it.
 ## `openings` entries: {"x": center, "half_width": radius, "spring_y": impost}.
 static func arcade_wall_mesh(
-	width: float,
-	height: float,
-	thickness: float,
-	openings: Array,
-	segments: int = 10
+	width: float, height: float, thickness: float, openings: Array, segments: int = 10
 ) -> ArrayMesh:
 	var half_w := width * 0.5
 	var out_z := -thickness * 0.5
 	var in_z := thickness * 0.5
 	var safe_segments := maxi(segments, 4)
 	var sorted := openings.duplicate()
-	sorted.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return float(a["x"]) < float(b["x"]))
+	sorted.sort_custom(
+		func(a: Dictionary, b: Dictionary) -> bool: return float(a["x"]) < float(b["x"])
+	)
 
 	var surface := SurfaceTool.new()
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
@@ -400,7 +445,12 @@ static func arcade_wall_mesh(
 			var angle_b := PI * float(index + 1) / float(safe_segments)
 			var a := Vector2(center_x + cos(angle_a) * radius, spring_y + sin(angle_a) * radius)
 			var b := Vector2(center_x + cos(angle_b) * radius, spring_y + sin(angle_b) * radius)
-			var soffit_normal := Vector3(-(cos(angle_a) + cos(angle_b)) * 0.5, -(sin(angle_a) + sin(angle_b)) * 0.5, 0.0).normalized()
+			var soffit_normal := (
+				Vector3(
+					-(cos(angle_a) + cos(angle_b)) * 0.5, -(sin(angle_a) + sin(angle_b)) * 0.5, 0.0
+				)
+				. normalized()
+			)
 			_add_oriented_quad(
 				surface,
 				Vector3(a.x, a.y, out_z),
@@ -522,12 +572,7 @@ static func _add_oriented_quad(
 
 
 static func _add_flat_triangle(
-	surface: SurfaceTool,
-	a: Vector2,
-	b: Vector2,
-	c: Vector2,
-	z: float,
-	normal: Vector3
+	surface: SurfaceTool, a: Vector2, b: Vector2, c: Vector2, z: float, normal: Vector3
 ) -> void:
 	for point in [a, b, c]:
 		surface.set_normal(normal)
@@ -536,19 +581,15 @@ static func _add_flat_triangle(
 
 
 static func _add_flat_quad(
-	surface: SurfaceTool,
-	a: Vector2,
-	b: Vector2,
-	c: Vector2,
-	d: Vector2,
-	z: float,
-	normal: Vector3
+	surface: SurfaceTool, a: Vector2, b: Vector2, c: Vector2, d: Vector2, z: float, normal: Vector3
 ) -> void:
 	_add_flat_triangle(surface, a, b, c, z, normal)
 	_add_flat_triangle(surface, a, c, d, z, normal)
 
 
-static func box(parent: Node3D, name: String, size: Vector3, position: Vector3, role: StringName) -> void:
+static func box(
+	parent: Node3D, name: String, size: Vector3, position: Vector3, role: StringName
+) -> void:
 	var instance := MeshInstance3D.new()
 	instance.name = name
 	var mesh := BoxMesh.new()
@@ -596,8 +637,6 @@ static func cylinder(
 	parent.add_child(instance)
 
 
-
-
 static func sphere(
 	parent: Node3D,
 	name: String,
@@ -618,12 +657,14 @@ static func sphere(
 	parent.add_child(instance)
 
 
-
-
 static func role_material(role: StringName) -> StandardMaterial3D:
 	match role:
 		&"roof":
-			return MapViewMaterials.roof(MapVisualStyle.role_color(&"roof", MapVisualStyle.TARGET_CLEAN_PAINTED, MapVisualStyle.TIME_DAY))
+			return MapViewMaterials.roof(
+				MapVisualStyle.role_color(
+					&"roof", MapVisualStyle.TARGET_CLEAN_PAINTED, MapVisualStyle.TIME_DAY
+				)
+			)
 		_:
 			return MapViewMaterials.role(role)
 

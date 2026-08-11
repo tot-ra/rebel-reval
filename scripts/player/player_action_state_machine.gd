@@ -159,12 +159,15 @@ func _consume_buffered_action_or_move() -> void:
 func _can_buffer(kind: PlayerActionKind.Kind) -> bool:
 	if kind == PlayerActionKind.Kind.NONE:
 		return false
-	return state in [
-		PlayerActionState.State.ATTACK,
-		PlayerActionState.State.DODGE,
-		PlayerActionState.State.HIT,
-		PlayerActionState.State.RECOVERY,
-	]
+	return (
+		state
+		in [
+			PlayerActionState.State.ATTACK,
+			PlayerActionState.State.DODGE,
+			PlayerActionState.State.HIT,
+			PlayerActionState.State.RECOVERY,
+		]
+	)
 
 
 func _set_state(next: PlayerActionState.State) -> void:

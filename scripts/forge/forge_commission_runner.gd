@@ -1,8 +1,6 @@
 class_name ForgeCommissionRunner
 extends Node
 
-const CommissionDeadlineModelScript := preload("res://scripts/commission/commission_deadline_model.gd")
-
 ## Content-driven forge commission flow: snapshot display and forging-option resolution.
 
 signal started(commission_id: StringName)
@@ -20,6 +18,10 @@ enum Result {
 	EFFECTS_REJECTED,
 }
 
+const CommissionDeadlineModelScript := preload(
+	"res://scripts/commission/commission_deadline_model.gd"
+)
+
 var _content_db: ContentDB
 var _state: GameState
 var _evaluator: StateRuleEvaluator
@@ -30,7 +32,6 @@ var _active := false
 var _pending_option_id := ""
 var _last_result := Result.OK
 var _last_error := ""
-
 
 func configure(
 	content_db: ContentDB,
@@ -67,11 +68,16 @@ func get_last_error() -> String:
 func open(commission_id: StringName) -> bool:
 	_reset_result()
 	if _content_db == null or _state == null or _presenter == null:
-		return _fail(Result.INVALID_DEPENDENCIES, "ForgeCommissionRunner requires ContentDB, GameState, and presenter")
+		return _fail(
+			Result.INVALID_DEPENDENCIES,
+			"ForgeCommissionRunner requires ContentDB, GameState, and presenter"
+		)
 
 	var commission := _content_db.get_commission(commission_id)
 	if commission.is_empty():
-		return _fail(Result.UNKNOWN_COMMISSION, "commission record was not found: %s" % commission_id)
+		return _fail(
+			Result.UNKNOWN_COMMISSION, "commission record was not found: %s" % commission_id
+		)
 
 	_snapshot = ForgeCommissionModel.build_snapshot(commission_id, _state, _content_db, _evaluator)
 	if _snapshot.is_empty() or String(_snapshot.get("title", "")).is_empty():
@@ -103,9 +109,7 @@ func select_option(option_id: String) -> bool:
 	forging_started.emit(_commission_id, option_id)
 	if _presenter != null:
 		_presenter.begin_forging(
-			option_id,
-			_snapshot,
-			Callable(self, "_on_forging_feedback_complete")
+			option_id, _snapshot, Callable(self, "_on_forging_feedback_complete")
 		)
 	else:
 		return complete_pending_option()
@@ -144,9 +148,14 @@ func _validate_option(option_id: String) -> Dictionary:
 		return {}
 
 	var requires: Array = selected.get("requires", [])
-	if not requires.is_empty() \
-			and not _evaluator.evaluate_conditions(_runtime_rules(requires), _state):
-		_fail(Result.OPTION_LOCKED, "option %s is locked for commission %s" % [option_id, _commission_id])
+	if (
+		not requires.is_empty()
+		and not _evaluator.evaluate_conditions(_runtime_rules(requires), _state)
+	):
+		_fail(
+			Result.OPTION_LOCKED,
+			"option %s is locked for commission %s" % [option_id, _commission_id]
+		)
 		return {}
 
 	return selected
@@ -156,7 +165,9 @@ func _commit_option(option_id: String) -> bool:
 	var commission := _content_db.get_commission(_commission_id)
 	var selected := _find_forging_option(commission, option_id)
 	if selected.is_empty():
-		return _fail(Result.UNKNOWN_OPTION, "commission %s has no option %s" % [_commission_id, option_id])
+		return _fail(
+			Result.UNKNOWN_OPTION, "commission %s has no option %s" % [_commission_id, option_id]
+		)
 
 	CommissionDeadlineModelScript.mark_commission_met_if_timely(_state, _commission_id, _content_db)
 
@@ -172,7 +183,10 @@ func _commit_option(option_id: String) -> bool:
 		StringName(option_id)
 	)
 	if not _state.add_forged_record(record):
-		return _fail(Result.ALREADY_RESOLVED, "forged record already exists for commission %s" % _commission_id)
+		return _fail(
+			Result.ALREADY_RESOLVED,
+			"forged record already exists for commission %s" % _commission_id
+		)
 
 	CommissionDeadlineModelScript.mark_commission_met(_state, _commission_id, _content_db)
 

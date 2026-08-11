@@ -22,7 +22,9 @@ func _draw() -> void:
 	var dark := InventoryUiThemeScene.PANEL_BORDER.darkened(0.34)
 	_draw_chamfered_border(Rect2(Vector2(7, 7), size - Vector2(14, 14)), 18.0, dark, 5.0)
 	_draw_chamfered_border(Rect2(Vector2(10, 10), size - Vector2(20, 20)), 15.0, brass, 1.5)
-	_draw_chamfered_border(Rect2(Vector2(17, 17), size - Vector2(34, 34)), 10.0, Color(brass, 0.42), 1.0)
+	_draw_chamfered_border(
+		Rect2(Vector2(17, 17), size - Vector2(34, 34)), 10.0, Color(brass, 0.42), 1.0
+	)
 
 	_draw_corner_fitting(Vector2(13, 13), Vector2(1, 1), bright)
 	_draw_corner_fitting(Vector2(size.x - 13, 13), Vector2(-1, 1), bright)
@@ -36,30 +38,34 @@ func _draw() -> void:
 
 
 func _draw_chamfered_border(rect: Rect2, cut: float, color: Color, width: float) -> void:
-	var points := PackedVector2Array([
-		Vector2(rect.position.x + cut, rect.position.y),
-		Vector2(rect.end.x - cut, rect.position.y),
-		Vector2(rect.end.x, rect.position.y + cut),
-		Vector2(rect.end.x, rect.end.y - cut),
-		Vector2(rect.end.x - cut, rect.end.y),
-		Vector2(rect.position.x + cut, rect.end.y),
-		Vector2(rect.position.x, rect.end.y - cut),
-		Vector2(rect.position.x, rect.position.y + cut),
-		Vector2(rect.position.x + cut, rect.position.y),
-	])
+	var points := PackedVector2Array(
+		[
+			Vector2(rect.position.x + cut, rect.position.y),
+			Vector2(rect.end.x - cut, rect.position.y),
+			Vector2(rect.end.x, rect.position.y + cut),
+			Vector2(rect.end.x, rect.end.y - cut),
+			Vector2(rect.end.x - cut, rect.end.y),
+			Vector2(rect.position.x + cut, rect.end.y),
+			Vector2(rect.position.x, rect.end.y - cut),
+			Vector2(rect.position.x, rect.position.y + cut),
+			Vector2(rect.position.x + cut, rect.position.y),
+		]
+	)
 	draw_polyline(points, color, width, true)
 
 
 func _draw_corner_fitting(origin: Vector2, direction: Vector2, color: Color) -> void:
-	var plate := PackedVector2Array([
-		origin,
-		origin + Vector2(31.0 * direction.x, 0),
-		origin + Vector2(23.0 * direction.x, 7.0 * direction.y),
-		origin + Vector2(12.0 * direction.x, 7.0 * direction.y),
-		origin + Vector2(7.0 * direction.x, 12.0 * direction.y),
-		origin + Vector2(7.0 * direction.x, 23.0 * direction.y),
-		origin + Vector2(0, 31.0 * direction.y),
-	])
+	var plate := PackedVector2Array(
+		[
+			origin,
+			origin + Vector2(31.0 * direction.x, 0),
+			origin + Vector2(23.0 * direction.x, 7.0 * direction.y),
+			origin + Vector2(12.0 * direction.x, 7.0 * direction.y),
+			origin + Vector2(7.0 * direction.x, 12.0 * direction.y),
+			origin + Vector2(7.0 * direction.x, 23.0 * direction.y),
+			origin + Vector2(0, 31.0 * direction.y),
+		]
+	)
 	draw_colored_polygon(plate, Color(color, 0.24))
 	var outline := PackedVector2Array(plate)
 	outline.append(plate[0])
@@ -70,12 +76,14 @@ func _draw_corner_fitting(origin: Vector2, direction: Vector2, color: Color) -> 
 
 
 func _draw_medallion(center: Vector2, color: Color) -> void:
-	var diamond := PackedVector2Array([
-		center + Vector2(0, -7),
-		center + Vector2(10, 0),
-		center + Vector2(0, 7),
-		center + Vector2(-10, 0),
-	])
+	var diamond := PackedVector2Array(
+		[
+			center + Vector2(0, -7),
+			center + Vector2(10, 0),
+			center + Vector2(0, 7),
+			center + Vector2(-10, 0),
+		]
+	)
 	draw_colored_polygon(diamond, InventoryUiThemeScene.PANEL_BG.lightened(0.08))
 	var outline := PackedVector2Array(diamond)
 	outline.append(diamond[0])
@@ -86,12 +94,14 @@ func _draw_medallion(center: Vector2, color: Color) -> void:
 
 
 func _draw_side_clasp(center: Vector2, inward: float, color: Color) -> void:
-	var diamond := PackedVector2Array([
-		center + Vector2(0, -8),
-		center + Vector2(6 * inward, 0),
-		center + Vector2(0, 8),
-		center + Vector2(-3 * inward, 0),
-	])
+	var diamond := PackedVector2Array(
+		[
+			center + Vector2(0, -8),
+			center + Vector2(6 * inward, 0),
+			center + Vector2(0, 8),
+			center + Vector2(-3 * inward, 0),
+		]
+	)
 	draw_colored_polygon(diamond, Color(color, 0.30))
 	var outline := PackedVector2Array(diamond)
 	outline.append(diamond[0])
@@ -99,14 +109,16 @@ func _draw_side_clasp(center: Vector2, inward: float, color: Color) -> void:
 
 
 func _draw_bottom_flourish(center: Vector2, color: Color) -> void:
-	var flourish := PackedVector2Array([
-		center + Vector2(-34, 0),
-		center + Vector2(-20, -4),
-		center + Vector2(-9, 0),
-		center + Vector2(0, -5),
-		center + Vector2(9, 0),
-		center + Vector2(20, -4),
-		center + Vector2(34, 0),
-	])
+	var flourish := PackedVector2Array(
+		[
+			center + Vector2(-34, 0),
+			center + Vector2(-20, -4),
+			center + Vector2(-9, 0),
+			center + Vector2(0, -5),
+			center + Vector2(9, 0),
+			center + Vector2(20, -4),
+			center + Vector2(34, 0),
+		]
+	)
 	draw_polyline(flourish, Color(color, 0.72), 1.3, true)
 	draw_circle(center + Vector2(0, -5), 2.0, color)

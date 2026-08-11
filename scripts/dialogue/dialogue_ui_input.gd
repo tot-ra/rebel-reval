@@ -89,4 +89,8 @@ static func is_mouse_continue_event(event: InputEvent) -> bool:
 
 
 static func is_key_pressed(event: InputEvent, keycode: Key) -> bool:
-	return event is InputEventKey and (event as InputEventKey).pressed and (event as InputEventKey).keycode == keycode
+	return (
+		event is InputEventKey
+		and (event as InputEventKey).pressed
+		and (event as InputEventKey).keycode == keycode
+	)

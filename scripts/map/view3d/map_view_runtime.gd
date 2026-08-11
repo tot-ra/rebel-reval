@@ -1,6 +1,11 @@
 class_name MapViewRuntime
 extends Node3D
 
+## Emitted whenever the time controls change, so a HUD can show the current
+## speed or a paused indicator. Carries the effective multiplier (0 while paused)
+## and the paused flag.
+signal time_flow_changed(speed: float, paused: bool)
+
 ## D-001 gameplay presentation: upgrades a bootstrapped 2D map scene to the
 ## ADR 0007 3D orthographic view. The 2D logic plane keeps running collision,
 ## navigation, doors, and spawns; this node only hides the flat 2D drawing,
@@ -28,7 +33,6 @@ const InsectAmbientAudio := preload("res://scripts/map/view3d/map_view_insect_am
 const InsectContext := preload("res://scripts/map/view3d/map_view_insect_context.gd")
 const MapMusicZoneBinder := preload("res://scripts/map/map_music_zone_binder.gd")
 const CrowdRenderer := preload("res://scripts/map/view3d/map_view_crowd_renderer.gd")
-
 ## Compatibility aliases keep the runtime's public locomotion thresholds stable.
 const WALK_ANIMATION_MIN_SPEED := RuntimeActors.WALK_ANIMATION_MIN_SPEED
 const RUN_ANIMATION_MIN_SPEED := RuntimeActors.RUN_ANIMATION_MIN_SPEED
@@ -60,25 +64,18 @@ const FIRST_PERSON_MAX_PITCH_DEGREES := RuntimeCamera.FIRST_PERSON_MAX_PITCH_DEG
 const FIRST_PERSON_FOV_DEGREES := RuntimeCamera.FIRST_PERSON_FOV_DEGREES
 const FIRST_PERSON_NEAR := RuntimeCamera.FIRST_PERSON_NEAR
 const OCCLUSION_PROBE_HEIGHTS := RuntimeCamera.OCCLUSION_PROBE_HEIGHTS
-
-## Emitted whenever the time controls change, so a HUD can show the current
-## speed or a paused indicator. Carries the effective multiplier (0 while paused)
-## and the paused flag.
-signal time_flow_changed(speed: float, paused: bool)
-
-var view: MapView3D
-
-## Dev pacing: one in-game day every DayNightCycle.CYCLE_DURATION_SECONDS.
-var cycle_enabled := true
-var cycle_progress := DayNightCycle.DEFAULT_PROGRESS
-var cycle_elapsed_days := 0
-
 ## Shared time controls for the day/night clock and the sky (sun, clouds, weather,
 ## lightning). `time_speed` is the chosen multiplier; `time_paused` freezes flow
 ## without losing the chosen speed. The ladder gives predictable slow-mo and
 ## fast-forward steps; 1.0 must stay on it as the neutral default.
 const TIME_SPEED_LADDER: Array[float] = [0.1, 0.25, 0.5, 1.0, 2.0, 4.0, 8.0, 20.0]
 const TIME_SPEED_DEFAULT := 1.0
+
+var view: MapView3D
+## Dev pacing: one in-game day every DayNightCycle.CYCLE_DURATION_SECONDS.
+var cycle_enabled := true
+var cycle_progress := DayNightCycle.DEFAULT_PROGRESS
+var cycle_elapsed_days := 0
 var time_speed := TIME_SPEED_DEFAULT
 var time_paused := false
 
@@ -107,8 +104,9 @@ var _music_zone_binder
 var _crowd_renderer: MapViewCrowdRenderer
 var _crowd_enabled := true
 
-
-static func install(scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasItem, player: CharacterBody2D) -> MapViewRuntime:
+static func install(
+	scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasItem, player: CharacterBody2D
+) -> MapViewRuntime:
 	var runtime := MapViewRuntime.new()
 	runtime.name = "MapViewRuntime"
 	runtime._definition = bootstrap["definition"]
@@ -128,7 +126,9 @@ static func install(scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasI
 
 	runtime._camera = runtime.view.view_camera()
 	runtime._camera.size = CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE
-	runtime._camera_controller.configure(runtime._camera, runtime._player_rig, runtime.view, runtime._player)
+	runtime._camera_controller.configure(
+		runtime._camera, runtime._player_rig, runtime.view, runtime._player
+	)
 	runtime._actor_controller.configure(
 		runtime,
 		runtime._definition,
@@ -591,7 +591,10 @@ func _apply_view_rotation(delta: float) -> void:
 	_camera_controller.apply_view_rotation(delta)
 	# Perspective modes keep movement and authored facing tied to camera yaw;
 	# top-down only re-projects screen-relative movement after an actual orbit.
-	if _camera_controller.character_follows_camera() or not is_equal_approx(_camera.rotation_degrees.y, yaw_before):
+	if (
+		_camera_controller.character_follows_camera()
+		or not is_equal_approx(_camera.rotation_degrees.y, yaw_before)
+	):
 		_configure_screen_relative_movement()
 
 
@@ -623,7 +626,10 @@ func _restore_cycle_from_music_director() -> void:
 	var music_director := _music_director()
 	if music_director == null:
 		return
-	if music_director.has_method(&"is_cycle_active") and not bool(music_director.call(&"is_cycle_active")):
+	if (
+		music_director.has_method(&"is_cycle_active")
+		and not bool(music_director.call(&"is_cycle_active"))
+	):
 		return
 	if not music_director.has_method(&"get_cycle_progress"):
 		return
@@ -703,7 +709,10 @@ func _sync_player(snap: bool, delta: float = 0.0) -> void:
 ## equipment is only a default for showcase scenes. Mirror the state now and
 ## on every equipment change.
 func _exit_tree() -> void:
-	if _session_state != null and _session_state.is_connected(&"state_replaced", _on_state_replaced):
+	if (
+		_session_state != null
+		and _session_state.is_connected(&"state_replaced", _on_state_replaced)
+	):
 		_session_state.disconnect(&"state_replaced", _on_state_replaced)
 	_disconnect_equipment_state()
 	# Actor rigs and the map view share ShaderMaterials; strip before free so the
@@ -770,8 +779,12 @@ func _configure_screen_relative_movement() -> void:
 	var viewport_size := _camera.get_viewport().get_visible_rect().size
 	var center := viewport_size * 0.5
 	var center_logic := logic_position_at_screen(center)
-	var logic_right := logic_position_at_screen(center + Vector2(INPUT_PROJECTION_SAMPLE_PX, 0.0)) - center_logic
-	var logic_down := logic_position_at_screen(center + Vector2(0.0, INPUT_PROJECTION_SAMPLE_PX)) - center_logic
+	var logic_right := (
+		logic_position_at_screen(center + Vector2(INPUT_PROJECTION_SAMPLE_PX, 0.0)) - center_logic
+	)
+	var logic_down := (
+		logic_position_at_screen(center + Vector2(0.0, INPUT_PROJECTION_SAMPLE_PX)) - center_logic
+	)
 	_player.call("set_screen_movement_basis", logic_right, logic_down)
 
 

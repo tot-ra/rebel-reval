@@ -62,7 +62,9 @@ func _process(_delta: float) -> void:
 	var local_wind := _rest_basis.inverse() * Vector3(wind_dir.x, 0.0, wind_dir.y)
 	roll += local_wind.z * WIND_HEEL_RAD * wind * _motion_scale
 	pitch += local_wind.x * WIND_HEEL_RAD * 0.45 * wind * _motion_scale
-	var surge := Vector3(wind_dir.x, 0.0, wind_dir.y) * (sin(time * 0.55 + _phase) * SURGE_METERS * sea)
+	var surge := (
+		Vector3(wind_dir.x, 0.0, wind_dir.y) * (sin(time * 0.55 + _phase) * SURGE_METERS * sea)
+	)
 	# Convert world surge into the parent's local space (parent is usually Props).
 	var parent_node := _host.get_parent() as Node3D
 	if parent_node != null and parent_node.is_inside_tree():
@@ -74,14 +76,25 @@ func _process(_delta: float) -> void:
 ## Matches the water shader's primary wave trains so hulls crest with the surface
 ## instead of bobbing on an unrelated sine. Returns height plus X/Z slopes.
 static func sample_wave(position: Vector2, time: float) -> Vector3:
-	var warp := Vector2(
-		_noise(position * 0.115 + Vector2(time * 0.035, -time * 0.021) + Vector2(17.2, -8.4)),
-		_noise(position * 0.115 * 0.83 + Vector2(time * 0.035, -time * 0.021) + Vector2(-11.7, 23.9))
-	) - Vector2(0.5, 0.5)
+	var warp := (
+		Vector2(
+			_noise(position * 0.115 + Vector2(time * 0.035, -time * 0.021) + Vector2(17.2, -8.4)),
+			_noise(
+				(
+					position * 0.115 * 0.83
+					+ Vector2(time * 0.035, -time * 0.021)
+					+ Vector2(-11.7, 23.9)
+				)
+			)
+		)
+		- Vector2(0.5, 0.5)
+	)
 	warp *= 2.8
 	var shape := _wave(position, Vector2(1.0, 0.28), 0.97, 0.68, 0.46, time, warp, 0.3)
 	shape += _wave(position, Vector2(0.36, 1.0), 2.11, 1.03, 0.23, time, warp * 0.72, 2.1)
-	var amplitude_noise := _noise(position * 0.16 + Vector2(time * 0.035, -time * 0.021) * 1.7 + Vector2(5.3, 41.2))
+	var amplitude_noise := _noise(
+		position * 0.16 + Vector2(time * 0.035, -time * 0.021) * 1.7 + Vector2(5.3, 41.2)
+	)
 	return shape * lerpf(0.72, 1.22, amplitude_noise)
 
 

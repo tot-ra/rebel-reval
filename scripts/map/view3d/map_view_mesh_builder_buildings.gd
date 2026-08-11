@@ -30,25 +30,35 @@ static func build_building(
 	var footprint: Rect2 = building["footprint"]
 	var size := footprint.size * scale
 	var kind: StringName = building.get("kind", MapTypes.BUILDING_KIND_HOUSE)
-	var authored_height_px := float(building.get("wall_height", MapViewMeshBuilderConfig.DEFAULT_WALL_HEIGHT_PX.get(kind, 64.0)))
+	var authored_height_px := float(
+		building.get("wall_height", MapViewMeshBuilderConfig.DEFAULT_WALL_HEIGHT_PX.get(kind, 64.0))
+	)
 	var render_height_px := MapTypes.resolved_wall_height_px(building)
 	var height := render_height_px * scale
 	var center := footprint.get_center() * scale
 	root.position = Vector3(center.x, 0.0, center.y)
 
 	var wall_color := Color(building.get("wall_color", MapViewMeshBuilderConfig.DEFAULT_WALL_COLOR))
-	var fortification := kind == MapTypes.BUILDING_KIND_WALL and authored_height_px >= MapViewMeshBuilderConfig.BATTLEMENT_MIN_HEIGHT_PX
+	var fortification := (
+		kind == MapTypes.BUILDING_KIND_WALL
+		and authored_height_px >= MapViewMeshBuilderConfig.BATTLEMENT_MIN_HEIGHT_PX
+	)
 	var footprint_aspect := minf(size.x, size.y) / maxf(size.x, size.y)
 	var explicitly_completed_tower := bool(building.get("tower", false))
 	var explicitly_round_tower := bool(building.get("round_tower", false))
-	var inferred_tower := not building.has("tower") and not building.has("round_tower") \
-		and size.x <= MapViewMeshBuilderConfig.TOWER_MAX_FOOTPRINT \
-		and size.y <= MapViewMeshBuilderConfig.TOWER_MAX_FOOTPRINT \
+	var inferred_tower := (
+		not building.has("tower")
+		and not building.has("round_tower")
+		and size.x <= MapViewMeshBuilderConfig.TOWER_MAX_FOOTPRINT
+		and size.y <= MapViewMeshBuilderConfig.TOWER_MAX_FOOTPRINT
 		and footprint_aspect >= MapViewMeshBuilderConfig.TOWER_MIN_ASPECT
+	)
 	# WHY: tower tracks completion in the 1343 historical snapshot (door, slits,
 	# fighting stage). round_tower keeps the Tallinn circular drum and always
 	# wears the conical red-tile roof silhouette; incomplete stubs stay doorless.
-	var round_tower := fortification and (explicitly_completed_tower or explicitly_round_tower or inferred_tower)
+	var round_tower := (
+		fortification and (explicitly_completed_tower or explicitly_round_tower or inferred_tower)
+	)
 
 	var walls := MeshInstance3D.new()
 	walls.name = "Walls"
@@ -57,10 +67,7 @@ static func build_building(
 		drum.top_radius = minf(size.x, size.y) * MapViewMeshBuilderConfig.TOWER_RADIUS_FACTOR
 		drum.bottom_radius = drum.top_radius * 1.06
 		var tower_passage := MapWallWalkAccess.has_tower_passage(building)
-		var passage_floor_y := minf(
-			height,
-			MapViewMeshBuilderConfig.WALL_WALK_PASSAGE_FLOOR_HEIGHT
-		)
+		var passage_floor_y := minf(height, MapViewMeshBuilderConfig.WALL_WALK_PASSAGE_FLOOR_HEIGHT)
 		drum.height = passage_floor_y if tower_passage else height
 		drum.radial_segments = 24
 		walls.mesh = drum
@@ -88,19 +95,24 @@ static func build_building(
 		# solid box. The mass is pulled back from the facade and the strip it
 		# vacates is rebuilt as arcade wall, end walls, and vault by the
 		# primitive's own detail pass.
-		var gallery_inset := MapViewMeshBuilderBuildingHouses.town_hall_gallery_inset(building, size)
+		var gallery_inset := MapViewMeshBuilderBuildingHouses.town_hall_gallery_inset(
+			building, size
+		)
 		mesh_size.z -= gallery_inset
 		wall_mesh.size = mesh_size
 		walls.mesh = wall_mesh
 		if kind == MapTypes.BUILDING_KIND_HOUSE:
-			walls.material_override = MapViewMeshBuilderBuildingHouses.house_wall_material(building, wall_color, wall_mesh.size)
+			walls.material_override = MapViewMeshBuilderBuildingHouses.house_wall_material(
+				building, wall_color, wall_mesh.size
+			)
 		elif kind == MapTypes.BUILDING_KIND_WALL:
-			walls.material_override = MapViewMaterials.wall_surface_triplanar(&"limestone", wall_color)
+			walls.material_override = MapViewMaterials.wall_surface_triplanar(
+				&"limestone", wall_color
+			)
 		elif kind == MapTypes.BUILDING_KIND_INTERIOR_WALL:
-			walls.material_override = MapViewMeshBuilderBuildingInteriorWalls.interior_wall_material(
-				building,
-				wall_color,
-				wall_mesh.size
+			walls.material_override = (
+				MapViewMeshBuilderBuildingInteriorWalls
+				. interior_wall_material(building, wall_color, wall_mesh.size)
 			)
 		else:
 			walls.material_override = MapViewMaterials.wall_for_size(wall_color, wall_mesh.size)
@@ -128,22 +140,23 @@ static func build_building(
 		roof.material_override = MapViewMeshBuilderBuildingHouses.house_roof_material(building)
 		root.add_child(roof)
 		MapViewMeshBuilderBuildingHouses.add_chimney(root, building, size, height, along_ridge_x)
-		MapViewMeshBuilderBuildingHouses.add_house_structure(root, building, size, height, along_ridge_x)
+		MapViewMeshBuilderBuildingHouses.add_house_structure(
+			root, building, size, height, along_ridge_x
+		)
 		if not MapViewMeshBuilderBuildingHouses.authors_own_facade(building):
 			MapViewMeshBuilderBuildingFacade.add_house_facade(
-				root,
-				building,
-				size,
-				height,
-				cell_size,
-				entrances
+				root, building, size, height, cell_size, entrances
 			)
 		else:
 			MapViewMeshBuilderBuildingHouses.add_authored_facade(root, building, size, height)
-		MapViewMeshBuilderBuildingHouses.add_historic_building_details(root, building, size, height, along_ridge_x)
+		MapViewMeshBuilderBuildingHouses.add_historic_building_details(
+			root, building, size, height, along_ridge_x
+		)
 		MapViewMeshBuilderBuildingHouses.add_window_lights(root, building)
 	elif kind == MapTypes.BUILDING_KIND_INTERIOR_WALL:
-		MapViewMeshBuilderBuildingInteriorWalls.add_interior_wall_structure(root, building, size, height)
+		MapViewMeshBuilderBuildingInteriorWalls.add_interior_wall_structure(
+			root, building, size, height
+		)
 	elif round_tower:
 		var radius := minf(size.x, size.y) * MapViewMeshBuilderConfig.TOWER_RADIUS_FACTOR
 		var cap := MeshInstance3D.new()
@@ -166,10 +179,7 @@ static func build_building(
 		MapViewMeshBuilderBuildingFortification.add_tower_roof(root, radius, height, building)
 		if explicitly_completed_tower:
 			MapViewMeshBuilderBuildingFortification.add_tower_door(
-				root,
-				radius,
-				height,
-				StringName(building.get("door_side", &""))
+				root, radius, height, StringName(building.get("door_side", &""))
 			)
 			if authored_height_px >= MapViewMeshBuilderConfig.TOWER_MIN_HEIGHT_PX:
 				MapViewMeshBuilderBuildingFortification.add_tower_slits(root, radius, height)
@@ -177,7 +187,11 @@ static func build_building(
 		var cap := MeshInstance3D.new()
 		cap.name = "Cap"
 		var cap_mesh := BoxMesh.new()
-		cap_mesh.size = Vector3(size.x + MapViewMeshBuilderConfig.CAP_OVERHANG * 2.0, MapViewMeshBuilderConfig.CAP_HEIGHT, size.y + MapViewMeshBuilderConfig.CAP_OVERHANG * 2.0)
+		cap_mesh.size = Vector3(
+			size.x + MapViewMeshBuilderConfig.CAP_OVERHANG * 2.0,
+			MapViewMeshBuilderConfig.CAP_HEIGHT,
+			size.y + MapViewMeshBuilderConfig.CAP_OVERHANG * 2.0
+		)
 		cap.mesh = cap_mesh
 		cap.position = Vector3(0.0, height + MapViewMeshBuilderConfig.CAP_HEIGHT * 0.5, 0.0)
 		if fortification:
@@ -194,7 +208,9 @@ static func build_building(
 			)
 		root.add_child(cap)
 		if fortification:
-			MapViewMeshBuilderBuildingFortification.add_base_arcades(root, building, size, map_bounds)
+			MapViewMeshBuilderBuildingFortification.add_base_arcades(
+				root, building, size, map_bounds
+			)
 			MapViewMeshBuilderBuildingFortification.add_battlements(root, building, size, height)
 			MapViewMeshBuilderBuildingFortification.add_wall_walk_roof(root, size, height)
 	return root
@@ -205,8 +221,8 @@ static func build_building(
 static func build_exceptional_building(
 	building: Dictionary,
 	cell_size: int,
-	entrances: Array[Dictionary] = [],
-	map_bounds: Rect2 = Rect2()
+	_entrances: Array[Dictionary] = [],
+	_map_bounds: Rect2 = Rect2()
 ) -> Node3D:
 	var category := _Registry.exceptional_category(building)
 	var root := Node3D.new()
@@ -216,7 +232,12 @@ static func build_exceptional_building(
 	var scale := MapViewBridge.world_scale(cell_size)
 	var footprint: Rect2 = building["footprint"]
 	var size := footprint.size * scale
-	var authored_height_px := float(building.get("wall_height", MapViewMeshBuilderConfig.DEFAULT_WALL_HEIGHT_PX[MapTypes.BUILDING_KIND_HOUSE]))
+	var authored_height_px := float(
+		building.get(
+			"wall_height",
+			MapViewMeshBuilderConfig.DEFAULT_WALL_HEIGHT_PX[MapTypes.BUILDING_KIND_HOUSE]
+		)
+	)
 	var height := MapTypes.resolved_wall_height_px(building) * scale
 	var center := footprint.get_center() * scale
 	root.position = Vector3(center.x, 0.0, center.y)
@@ -229,29 +250,29 @@ static func build_exceptional_building(
 	walls.mesh = wall_mesh
 	walls.position = Vector3(0.0, height * 0.5, gallery_inset * 0.5)
 	walls.material_override = MapViewMeshBuilderBuildingHouses.house_wall_material(
-		building,
-		wall_color,
-		wall_mesh.size
+		building, wall_color, wall_mesh.size
 	)
 	root.add_child(walls)
 
 	# Existing primitive detail passes remain the source of truth for period-specific
 	# church and civic features, but they are now downstream of this boundary.
 	MapViewMeshBuilderBuildingHouses.add_historic_building_details(
-		root,
-		building,
-		size,
-		height,
-		MapViewMeshBuilderBuildingFacade.ridge_along_x(building, size)
+		root, building, size, height, MapViewMeshBuilderBuildingFacade.ridge_along_x(building, size)
 	)
 	if category == &"gatehouse":
 		var cap := MeshInstance3D.new()
 		cap.name = "LandmarkCap"
 		var cap_mesh := BoxMesh.new()
-		cap_mesh.size = Vector3(size.x + MapViewMeshBuilderConfig.CAP_OVERHANG * 2.0, MapViewMeshBuilderConfig.CAP_HEIGHT, size.y + MapViewMeshBuilderConfig.CAP_OVERHANG * 2.0)
+		cap_mesh.size = Vector3(
+			size.x + MapViewMeshBuilderConfig.CAP_OVERHANG * 2.0,
+			MapViewMeshBuilderConfig.CAP_HEIGHT,
+			size.y + MapViewMeshBuilderConfig.CAP_OVERHANG * 2.0
+		)
 		cap.mesh = cap_mesh
 		cap.position = Vector3(0.0, height + MapViewMeshBuilderConfig.CAP_HEIGHT * 0.5, 0.0)
-		cap.material_override = MapViewMaterials.wall_surface_for_size(&"limestone", wall_color.lightened(0.12), cap_mesh.size)
+		cap.material_override = MapViewMaterials.wall_surface_for_size(
+			&"limestone", wall_color.lightened(0.12), cap_mesh.size
+		)
 		root.add_child(cap)
 	else:
 		var roof := MeshInstance3D.new()
@@ -290,8 +311,12 @@ static func _build_tree_line(building: Dictionary, cell_size: int) -> Node3D:
 	var count := maxi(2, int(round(length / spacing)) + 1)
 	var wood_mesh := MapViewMeshBuilderPrimitives.tree_wood_mesh(MapViewTreeSpecies.SPECIES_OAK)
 	var canopy_mesh := MapViewMeshBuilderPrimitives.tree_canopy_mesh(MapViewTreeSpecies.SPECIES_OAK)
-	var bark := MapViewMaterials.bark(MapViewTreeSpecies.bark_kind_for(MapViewTreeSpecies.SPECIES_OAK))
-	var canopy_mat := MapViewMaterials.canopy(MapViewTreeSpecies.canopy_material_kind(MapViewTreeSpecies.SPECIES_OAK))
+	var bark := MapViewMaterials.bark(
+		MapViewTreeSpecies.bark_kind_for(MapViewTreeSpecies.SPECIES_OAK)
+	)
+	var canopy_mat := MapViewMaterials.canopy(
+		MapViewTreeSpecies.canopy_material_kind(MapViewTreeSpecies.SPECIES_OAK)
+	)
 	for index in count:
 		var t := float(index) / float(count - 1)
 		var along := lerpf(-length * 0.5, length * 0.5, t)
@@ -300,7 +325,9 @@ static func _build_tree_line(building: Dictionary, cell_size: int) -> Node3D:
 		tree.position = Vector3(along, 0.0, 0.0) if along_x else Vector3(0.0, 0.0, along)
 		# Deterministic size mix so the ring feels planted rather than cloned.
 		var size_roll := MapViewMeshBuilderMath.hash01(index, String(building["id"]).hash(), 7741)
-		var tree_scale := MapViewTreeSpecies.instance_scale(MapViewTreeSpecies.SIZE_LARGE, size_roll)
+		var tree_scale := MapViewTreeSpecies.instance_scale(
+			MapViewTreeSpecies.SIZE_LARGE, size_roll
+		)
 		tree.rotation.y = size_roll * TAU
 		root.add_child(tree)
 
@@ -332,10 +359,14 @@ static func facade_box(
 	face_offset: float,
 	role: StringName
 ) -> void:
-	MapViewMeshBuilderBuildingFacade.facade_box(root, name, box_size, along, center_y, side, face_offset, role)
+	MapViewMeshBuilderBuildingFacade.facade_box(
+		root, name, box_size, along, center_y, side, face_offset, role
+	)
 
 
-static func add_battlements(root: Node3D, building: Dictionary, size: Vector2, height: float) -> void:
+static func add_battlements(
+	root: Node3D, building: Dictionary, size: Vector2, height: float
+) -> void:
 	MapViewMeshBuilderBuildingFortification.add_battlements(root, building, size, height)
 
 

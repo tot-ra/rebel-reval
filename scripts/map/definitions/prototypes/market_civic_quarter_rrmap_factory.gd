@@ -3,7 +3,6 @@ extends RefCounted
 
 ## Blueprint factory for the market-civic-quarter .rrmap source.
 
-
 const RRMAP_PATH := "res://content/maps/market_civic_quarter.rrmap"
 
 

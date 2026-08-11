@@ -31,12 +31,12 @@ const METER_FILL_HEAVY := Color(0.64, 0.25, 0.13, 0.98)
 
 ## Period dye / metal tones instead of neon UI hues.
 const CATEGORY_COLORS := {
-	"weapon": Color(0.62, 0.34, 0.22, 0.95), # madder / forge iron
-	"evidence": Color(0.42, 0.48, 0.58, 0.95), # woad-stained cloth
-	"commission_object": Color(0.72, 0.58, 0.28, 0.95), # brass
-	"material": Color(0.38, 0.46, 0.30, 0.95), # oak gall / verdigris mix
-	"supply": Color(0.40, 0.48, 0.42, 0.95), # linen green-gray
-	"quest_tool": Color(0.52, 0.36, 0.48, 0.95), # berry dye
+	"weapon": Color(0.62, 0.34, 0.22, 0.95),  # madder / forge iron
+	"evidence": Color(0.42, 0.48, 0.58, 0.95),  # woad-stained cloth
+	"commission_object": Color(0.72, 0.58, 0.28, 0.95),  # brass
+	"material": Color(0.38, 0.46, 0.30, 0.95),  # oak gall / verdigris mix
+	"supply": Color(0.40, 0.48, 0.42, 0.95),  # linen green-gray
+	"quest_tool": Color(0.52, 0.36, 0.48, 0.95),  # berry dye
 }
 
 
@@ -206,10 +206,7 @@ static func set_meter_fill_color(bar: ProgressBar, heavy: bool) -> void:
 
 
 static func cell_style(
-	bg: Color,
-	focused: bool = false,
-	selected: bool = false,
-	accent: Color = Color(0, 0, 0, 0)
+	bg: Color, focused: bool = false, selected: bool = false, accent: Color = Color(0, 0, 0, 0)
 ) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = bg
@@ -223,7 +220,9 @@ static func cell_style(
 	elif focused:
 		border = BRASS_BRIGHT.lerp(border, 0.35)
 	style.border_color = UiFocusThemeScript.focus_border_color(border) if focused else border
-	style.set_border_width_all(UiFocusThemeScript.focus_border_width() if focused else (2 if selected else 1))
+	style.set_border_width_all(
+		UiFocusThemeScript.focus_border_width() if focused else (2 if selected else 1)
+	)
 	style.set_corner_radius_all(3)
 	style.corner_radius_top_left = 7
 	style.corner_radius_bottom_right = 7
@@ -238,11 +237,7 @@ static func cell_style(
 
 
 static func apply_cell_button(
-	button: Button,
-	bg: Color,
-	focused: bool,
-	selected: bool,
-	accent: Color = Color(0, 0, 0, 0)
+	button: Button, bg: Color, focused: bool, selected: bool, accent: Color = Color(0, 0, 0, 0)
 ) -> void:
 	var style := cell_style(bg, focused, selected, accent)
 	button.add_theme_stylebox_override("normal", style)
@@ -264,11 +259,13 @@ static func apply_cell_button(
 static func make_brass_rule() -> TextureRect:
 	var gradient := Gradient.new()
 	gradient.offsets = PackedFloat32Array([0.0, 0.5, 1.0])
-	gradient.colors = PackedColorArray([
-		Color(BRASS.r, BRASS.g, BRASS.b, 0.0),
-		Color(BRASS_BRIGHT.r, BRASS_BRIGHT.g, BRASS_BRIGHT.b, 0.75),
-		Color(BRASS.r, BRASS.g, BRASS.b, 0.0),
-	])
+	gradient.colors = PackedColorArray(
+		[
+			Color(BRASS.r, BRASS.g, BRASS.b, 0.0),
+			Color(BRASS_BRIGHT.r, BRASS_BRIGHT.g, BRASS_BRIGHT.b, 0.75),
+			Color(BRASS.r, BRASS.g, BRASS.b, 0.0),
+		]
+	)
 	var texture := GradientTexture2D.new()
 	texture.gradient = gradient
 	texture.width = 256

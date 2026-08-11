@@ -1,14 +1,6 @@
 class_name InventoryBag
 extends RefCounted
 
-## Kalev's worn travel bag: rectangular grid plus a separate weight budget.
-## Volume is expressed as occupied cells; weight slows movement when the bag is heavy.
-
-const GRID_WIDTH := 8
-const GRID_HEIGHT := 5
-const MAX_WEIGHT_KG := 28.0
-const MIN_SPEED_MULTIPLIER := 0.65
-
 enum AddResult {
 	OK,
 	UNKNOWN_ITEM,
@@ -17,12 +9,21 @@ enum AddResult {
 	STACK_FULL,
 }
 
+## Kalev's worn travel bag: rectangular grid plus a separate weight budget.
+## Volume is expressed as occupied cells; weight slows movement when the bag is heavy.
+
+const GRID_WIDTH := 8
+const GRID_HEIGHT := 5
+const MAX_WEIGHT_KG := 28.0
+const MIN_SPEED_MULTIPLIER := 0.65
+
 var placements: Array[InventoryPlacement] = []
 ## Weight carried outside the grid (equipped items); counts toward the cap
 ## and encumbrance. Maintained by GameState equipment placement.
 var reserved_weight_kg := 0.0
-var _occupied: PackedByteArray = PackedByteArray()
 
+var _occupied: PackedByteArray = PackedByteArray()
+var _content_db: ContentDB = null
 
 func _init() -> void:
 	_reset_occupancy()
@@ -80,11 +81,7 @@ func get_placement_at_cell(cell_x: int, cell_y: int) -> InventoryPlacement:
 
 
 func can_place_at(
-	cell_x: int,
-	cell_y: int,
-	width: int,
-	height: int,
-	ignore: InventoryPlacement = null
+	cell_x: int, cell_y: int, width: int, height: int, ignore: InventoryPlacement = null
 ) -> bool:
 	if width < 1 or height < 1:
 		return false
@@ -195,10 +192,6 @@ func find_placement(item_id: StringName) -> InventoryPlacement:
 			return placement
 	return null
 
-
-var _content_db: ContentDB = null
-
-
 func _profile_for(item_id: StringName) -> ItemCarryProfile:
 	if _content_db != null and _content_db.is_loaded():
 		var record: Dictionary = _content_db.get_item(item_id)
@@ -239,12 +232,7 @@ func _cell_index(cell_x: int, cell_y: int) -> int:
 
 
 static func _rect_contains(
-	rect_x: int,
-	rect_y: int,
-	rect_w: int,
-	rect_h: int,
-	cell_x: int,
-	cell_y: int
+	rect_x: int, rect_y: int, rect_w: int, rect_h: int, cell_x: int, cell_y: int
 ) -> bool:
 	return (
 		cell_x >= rect_x

@@ -44,10 +44,24 @@ const TIME_DUSK_NIGHT := &"dusk_night"
 
 ## Relative authoring weights per group and context (not probabilities).
 const GROUP_SPAWN_WEIGHTS: Dictionary = {
-	GROUP_GRASSHOPPER: {CONTEXT_MEADOW: 1.0, CONTEXT_GARDEN: 0.35, CONTEXT_WETLAND: 0.40, CONTEXT_WOODLAND_EDGE: 0.25},
-	GROUP_BUSH_CRICKET: {CONTEXT_MEADOW: 0.80, CONTEXT_GARDEN: 0.70, CONTEXT_WETLAND: 0.50, CONTEXT_WOODLAND_EDGE: 0.90},
-	GROUP_CRICKET: {CONTEXT_MEADOW: 0.30, CONTEXT_GARDEN: 0.90, CONTEXT_WETLAND: 0.20, CONTEXT_WOODLAND_EDGE: 0.30},
-	GROUP_MOLE_CRICKET: {CONTEXT_MEADOW: 0.20, CONTEXT_GARDEN: 0.50, CONTEXT_WETLAND: 1.0, CONTEXT_WOODLAND_EDGE: 0.20},
+	GROUP_GRASSHOPPER:
+	{CONTEXT_MEADOW: 1.0, CONTEXT_GARDEN: 0.35, CONTEXT_WETLAND: 0.40, CONTEXT_WOODLAND_EDGE: 0.25},
+	GROUP_BUSH_CRICKET:
+	{
+		CONTEXT_MEADOW: 0.80,
+		CONTEXT_GARDEN: 0.70,
+		CONTEXT_WETLAND: 0.50,
+		CONTEXT_WOODLAND_EDGE: 0.90
+	},
+	GROUP_CRICKET:
+	{
+		CONTEXT_MEADOW: 0.30,
+		CONTEXT_GARDEN: 0.90,
+		CONTEXT_WETLAND: 0.20,
+		CONTEXT_WOODLAND_EDGE: 0.30
+	},
+	GROUP_MOLE_CRICKET:
+	{CONTEXT_MEADOW: 0.20, CONTEXT_GARDEN: 0.50, CONTEXT_WETLAND: 1.0, CONTEXT_WOODLAND_EDGE: 0.20},
 }
 
 ## species id -> {group, time, abundance}. `abundance` scales the group weight so
@@ -56,47 +70,83 @@ const PROFILES: Dictionary = {
 	# Short-grass grasshoppers (Acrididae): warm daytime meadow carpet.
 	&"acrididae": {"group": GROUP_GRASSHOPPER, "time": TIME_WARM_DAY, "abundance": 0.70},
 	&"orthoptera": {"group": GROUP_GRASSHOPPER, "time": TIME_WARM_DAY, "abundance": 0.55},
-	&"chorthippus_albomarginatus": {"group": GROUP_GRASSHOPPER, "time": TIME_WARM_DAY, "abundance": 0.85},
-	&"chorthippus_apricarius": {"group": GROUP_GRASSHOPPER, "time": TIME_WARM_DAY, "abundance": 0.80},
-	&"chorthippus_biguttulus": {"group": GROUP_GRASSHOPPER, "time": TIME_WARM_DAY, "abundance": 1.0},
+	&"chorthippus_albomarginatus":
+	{"group": GROUP_GRASSHOPPER, "time": TIME_WARM_DAY, "abundance": 0.85},
+	&"chorthippus_apricarius":
+	{"group": GROUP_GRASSHOPPER, "time": TIME_WARM_DAY, "abundance": 0.80},
+	&"chorthippus_biguttulus":
+	{"group": GROUP_GRASSHOPPER, "time": TIME_WARM_DAY, "abundance": 1.0},
 	&"chorthippus_brunneus": {"group": GROUP_GRASSHOPPER, "time": TIME_WARM_DAY, "abundance": 0.95},
 	&"chorthippus_dorsatus": {"group": GROUP_GRASSHOPPER, "time": TIME_WARM_DAY, "abundance": 0.75},
 	&"chorthippus_mollis": {"group": GROUP_GRASSHOPPER, "time": TIME_WARM_DAY, "abundance": 0.70},
-	&"pseudochorthippus_montanus": {"group": GROUP_GRASSHOPPER, "time": TIME_WARM_DAY, "abundance": 0.60},
-	&"pseudochorthippus_parallelus": {"group": GROUP_GRASSHOPPER, "time": TIME_WARM_DAY, "abundance": 0.90},
-	&"stenobothrus_lineatus": {"group": GROUP_GRASSHOPPER, "time": TIME_WARM_DAY, "abundance": 0.65},
-	&"myrmeleotettix_maculatus": {"group": GROUP_GRASSHOPPER, "time": TIME_WARM_DAY, "abundance": 0.60},
+	&"pseudochorthippus_montanus":
+	{"group": GROUP_GRASSHOPPER, "time": TIME_WARM_DAY, "abundance": 0.60},
+	&"pseudochorthippus_parallelus":
+	{"group": GROUP_GRASSHOPPER, "time": TIME_WARM_DAY, "abundance": 0.90},
+	&"stenobothrus_lineatus":
+	{"group": GROUP_GRASSHOPPER, "time": TIME_WARM_DAY, "abundance": 0.65},
+	&"myrmeleotettix_maculatus":
+	{"group": GROUP_GRASSHOPPER, "time": TIME_WARM_DAY, "abundance": 0.60},
 	&"omocestus_viridulus": {"group": GROUP_GRASSHOPPER, "time": TIME_WARM_DAY, "abundance": 0.70},
-	&"euthystira_brachyptera": {"group": GROUP_GRASSHOPPER, "time": TIME_WARM_DAY, "abundance": 0.55},
+	&"euthystira_brachyptera":
+	{"group": GROUP_GRASSHOPPER, "time": TIME_WARM_DAY, "abundance": 0.55},
 	&"chrysochraon_dispar": {"group": GROUP_GRASSHOPPER, "time": TIME_WARM_DAY, "abundance": 0.60},
 	# Bush-crickets (Tettigoniidae): afternoon into the night.
-	&"tettigonia_viridissima": {"group": GROUP_BUSH_CRICKET, "time": TIME_DAY_DUSK_NIGHT, "abundance": 1.0},
-	&"tettigonia_cantans": {"group": GROUP_BUSH_CRICKET, "time": TIME_DAY_DUSK_NIGHT, "abundance": 0.90},
-	&"metrioptera_brachyptera": {"group": GROUP_BUSH_CRICKET, "time": TIME_DAY_DUSK_NIGHT, "abundance": 0.70},
-	&"roeseliana_roeselii": {"group": GROUP_BUSH_CRICKET, "time": TIME_DAY_DUSK_NIGHT, "abundance": 0.85},
-	&"bicolorana_bicolor": {"group": GROUP_BUSH_CRICKET, "time": TIME_DAY_DUSK_NIGHT, "abundance": 0.65},
-	&"conocephalus_dorsalis": {"group": GROUP_BUSH_CRICKET, "time": TIME_DAY_DUSK_NIGHT, "abundance": 0.70},
-	&"conocephalus_fuscus": {"group": GROUP_BUSH_CRICKET, "time": TIME_DAY_DUSK_NIGHT, "abundance": 0.75},
-	&"decticus_verrucivorus": {"group": GROUP_BUSH_CRICKET, "time": TIME_DAY_DUSK_NIGHT, "abundance": 0.60},
-	&"pholidoptera_griseoaptera": {"group": GROUP_BUSH_CRICKET, "time": TIME_DAY_DUSK_NIGHT, "abundance": 0.80},
-	&"barbitistes_constrictus": {"group": GROUP_BUSH_CRICKET, "time": TIME_DAY_DUSK_NIGHT, "abundance": 0.55},
+	&"tettigonia_viridissima":
+	{"group": GROUP_BUSH_CRICKET, "time": TIME_DAY_DUSK_NIGHT, "abundance": 1.0},
+	&"tettigonia_cantans":
+	{"group": GROUP_BUSH_CRICKET, "time": TIME_DAY_DUSK_NIGHT, "abundance": 0.90},
+	&"metrioptera_brachyptera":
+	{"group": GROUP_BUSH_CRICKET, "time": TIME_DAY_DUSK_NIGHT, "abundance": 0.70},
+	&"roeseliana_roeselii":
+	{"group": GROUP_BUSH_CRICKET, "time": TIME_DAY_DUSK_NIGHT, "abundance": 0.85},
+	&"bicolorana_bicolor":
+	{"group": GROUP_BUSH_CRICKET, "time": TIME_DAY_DUSK_NIGHT, "abundance": 0.65},
+	&"conocephalus_dorsalis":
+	{"group": GROUP_BUSH_CRICKET, "time": TIME_DAY_DUSK_NIGHT, "abundance": 0.70},
+	&"conocephalus_fuscus":
+	{"group": GROUP_BUSH_CRICKET, "time": TIME_DAY_DUSK_NIGHT, "abundance": 0.75},
+	&"decticus_verrucivorus":
+	{"group": GROUP_BUSH_CRICKET, "time": TIME_DAY_DUSK_NIGHT, "abundance": 0.60},
+	&"pholidoptera_griseoaptera":
+	{"group": GROUP_BUSH_CRICKET, "time": TIME_DAY_DUSK_NIGHT, "abundance": 0.80},
+	&"barbitistes_constrictus":
+	{"group": GROUP_BUSH_CRICKET, "time": TIME_DAY_DUSK_NIGHT, "abundance": 0.55},
 	# True cricket: warm garden, dusk into night.
 	&"acheta_domestica": {"group": GROUP_CRICKET, "time": TIME_DUSK_NIGHT, "abundance": 0.80},
 	# Mole cricket: damp ground, spring/summer dusk churr.
-	&"gryllotalpa_gryllotalpa": {"group": GROUP_MOLE_CRICKET, "time": TIME_DUSK_NIGHT, "abundance": 0.65},
+	&"gryllotalpa_gryllotalpa":
+	{"group": GROUP_MOLE_CRICKET, "time": TIME_DUSK_NIGHT, "abundance": 0.65},
 }
 
 const ALL_SPECIES: Array[StringName] = [
-	&"acrididae", &"orthoptera",
-	&"chorthippus_albomarginatus", &"chorthippus_apricarius", &"chorthippus_biguttulus",
-	&"chorthippus_brunneus", &"chorthippus_dorsatus", &"chorthippus_mollis",
-	&"pseudochorthippus_montanus", &"pseudochorthippus_parallelus",
-	&"stenobothrus_lineatus", &"myrmeleotettix_maculatus", &"omocestus_viridulus",
-	&"euthystira_brachyptera", &"chrysochraon_dispar",
-	&"tettigonia_viridissima", &"tettigonia_cantans", &"metrioptera_brachyptera",
-	&"roeseliana_roeselii", &"bicolorana_bicolor", &"conocephalus_dorsalis",
-	&"conocephalus_fuscus", &"decticus_verrucivorus", &"pholidoptera_griseoaptera",
-	&"barbitistes_constrictus", &"acheta_domestica", &"gryllotalpa_gryllotalpa",
+	&"acrididae",
+	&"orthoptera",
+	&"chorthippus_albomarginatus",
+	&"chorthippus_apricarius",
+	&"chorthippus_biguttulus",
+	&"chorthippus_brunneus",
+	&"chorthippus_dorsatus",
+	&"chorthippus_mollis",
+	&"pseudochorthippus_montanus",
+	&"pseudochorthippus_parallelus",
+	&"stenobothrus_lineatus",
+	&"myrmeleotettix_maculatus",
+	&"omocestus_viridulus",
+	&"euthystira_brachyptera",
+	&"chrysochraon_dispar",
+	&"tettigonia_viridissima",
+	&"tettigonia_cantans",
+	&"metrioptera_brachyptera",
+	&"roeseliana_roeselii",
+	&"bicolorana_bicolor",
+	&"conocephalus_dorsalis",
+	&"conocephalus_fuscus",
+	&"decticus_verrucivorus",
+	&"pholidoptera_griseoaptera",
+	&"barbitistes_constrictus",
+	&"acheta_domestica",
+	&"gryllotalpa_gryllotalpa",
 ]
 
 

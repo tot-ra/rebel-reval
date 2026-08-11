@@ -36,75 +36,93 @@ var _bindings: Dictionary = {}
 static func default_settings() -> InputBindingSettings:
 	var settings := SelfScript.new() as InputBindingSettings
 	settings._bindings = {
-		"ui_up": {
+		"ui_up":
+		{
 			DEVICE_KEYBOARD_MOUSE: [_key(KEY_UP), _key(KEY_W)],
 			DEVICE_GAMEPAD: [_joy_motion(JOY_AXIS_LEFT_Y, -1.0)],
 		},
-		"ui_down": {
+		"ui_down":
+		{
 			DEVICE_KEYBOARD_MOUSE: [_key(KEY_DOWN), _key(KEY_S)],
 			DEVICE_GAMEPAD: [_joy_motion(JOY_AXIS_LEFT_Y, 1.0)],
 		},
-		"ui_left": {
+		"ui_left":
+		{
 			DEVICE_KEYBOARD_MOUSE: [_key(KEY_LEFT), _key(KEY_A)],
 			DEVICE_GAMEPAD: [_joy_motion(JOY_AXIS_LEFT_X, -1.0)],
 		},
-		"ui_right": {
+		"ui_right":
+		{
 			DEVICE_KEYBOARD_MOUSE: [_key(KEY_RIGHT), _key(KEY_D)],
 			DEVICE_GAMEPAD: [_joy_motion(JOY_AXIS_LEFT_X, 1.0)],
 		},
-		"ui_shift": {
+		"ui_shift":
+		{
 			DEVICE_KEYBOARD_MOUSE: [_key(KEY_SHIFT)],
 			DEVICE_GAMEPAD: [_joy_button(JOY_BUTTON_LEFT_STICK)],
 		},
-		"interact": {
+		"interact":
+		{
 			DEVICE_KEYBOARD_MOUSE: [_key(KEY_E), _key(KEY_ENTER), _key(KEY_KP_ENTER)],
 			DEVICE_GAMEPAD: [_joy_button(JOY_BUTTON_A)],
 		},
-		"ui_accept": {
+		"ui_accept":
+		{
 			DEVICE_KEYBOARD_MOUSE: [_key(KEY_ENTER), _key(KEY_KP_ENTER), _key(KEY_SPACE)],
 			DEVICE_GAMEPAD: [_joy_button(JOY_BUTTON_A)],
 		},
-		"ui_cancel": {
+		"ui_cancel":
+		{
 			DEVICE_KEYBOARD_MOUSE: [_key(KEY_ESCAPE)],
 			DEVICE_GAMEPAD: [_joy_button(JOY_BUTTON_B)],
 		},
-		"ui_page_up": {
+		"ui_page_up":
+		{
 			DEVICE_KEYBOARD_MOUSE: [_key(KEY_TAB), _key(KEY_PAGEUP)],
 			DEVICE_GAMEPAD: [_joy_button(JOY_BUTTON_DPAD_LEFT)],
 		},
-		"player_attack": {
+		"player_attack":
+		{
 			DEVICE_KEYBOARD_MOUSE: [_key(KEY_SPACE)],
 			DEVICE_GAMEPAD: [_joy_button(JOY_BUTTON_X)],
 		},
-		"player_guard": {
+		"player_guard":
+		{
 			DEVICE_KEYBOARD_MOUSE: [_key(KEY_F), _mouse_button(MOUSE_BUTTON_RIGHT)],
 			DEVICE_GAMEPAD: [_joy_button(JOY_BUTTON_LEFT_SHOULDER)],
 		},
-		"player_dodge": {
+		"player_dodge":
+		{
 			DEVICE_KEYBOARD_MOUSE: [_key(KEY_Q)],
 			DEVICE_GAMEPAD: [_joy_button(JOY_BUTTON_RIGHT_SHOULDER)],
 		},
-		"toggle_inventory": {
+		"toggle_inventory":
+		{
 			DEVICE_KEYBOARD_MOUSE: [_key(KEY_I)],
 			DEVICE_GAMEPAD: [_joy_button(JOY_BUTTON_Y)],
 		},
-		"toggle_journal": {
+		"toggle_journal":
+		{
 			DEVICE_KEYBOARD_MOUSE: [_key(KEY_J)],
 			DEVICE_GAMEPAD: [_joy_button(JOY_BUTTON_BACK)],
 		},
-		"toggle_camera_view": {
+		"toggle_camera_view":
+		{
 			DEVICE_KEYBOARD_MOUSE: [_key(KEY_C)],
 			DEVICE_GAMEPAD: [_joy_button(JOY_BUTTON_RIGHT_STICK)],
 		},
-		"toggle_minimap": {
+		"toggle_minimap":
+		{
 			DEVICE_KEYBOARD_MOUSE: [_key(KEY_N)],
 			DEVICE_GAMEPAD: [_joy_button(JOY_BUTTON_DPAD_UP)],
 		},
-		"toggle_world_map": {
+		"toggle_world_map":
+		{
 			DEVICE_KEYBOARD_MOUSE: [_key(KEY_M)],
 			DEVICE_GAMEPAD: [_joy_button(JOY_BUTTON_DPAD_DOWN)],
 		},
-		"toggle_controls": {
+		"toggle_controls":
+		{
 			DEVICE_KEYBOARD_MOUSE: [_key(KEY_K)],
 			DEVICE_GAMEPAD: [_joy_button(JOY_BUTTON_START)],
 		},
@@ -212,14 +230,20 @@ static func is_supported_event(event: InputEvent, device: StringName) -> bool:
 	if event == null:
 		return false
 	if device == DEVICE_KEYBOARD_MOUSE:
-		return event is InputEventKey or (
-			event is InputEventMouseButton
-			and not _is_wheel_button((event as InputEventMouseButton).button_index)
+		return (
+			event is InputEventKey
+			or (
+				event is InputEventMouseButton
+				and not _is_wheel_button((event as InputEventMouseButton).button_index)
+			)
 		)
 	if device == DEVICE_GAMEPAD:
-		return event is InputEventJoypadButton or (
-			event is InputEventJoypadMotion
-			and absf((event as InputEventJoypadMotion).axis_value) >= 0.5
+		return (
+			event is InputEventJoypadButton
+			or (
+				event is InputEventJoypadMotion
+				and absf((event as InputEventJoypadMotion).axis_value) >= 0.5
+			)
 		)
 	return false
 
@@ -360,9 +384,12 @@ static func _joy_button_text(button: JoyButton) -> String:
 
 
 static func _is_wheel_button(button: MouseButton) -> bool:
-	return button in [
-		MOUSE_BUTTON_WHEEL_UP,
-		MOUSE_BUTTON_WHEEL_DOWN,
-		MOUSE_BUTTON_WHEEL_LEFT,
-		MOUSE_BUTTON_WHEEL_RIGHT,
-	]
+	return (
+		button
+		in [
+			MOUSE_BUTTON_WHEEL_UP,
+			MOUSE_BUTTON_WHEEL_DOWN,
+			MOUSE_BUTTON_WHEEL_LEFT,
+			MOUSE_BUTTON_WHEEL_RIGHT,
+		]
+	)

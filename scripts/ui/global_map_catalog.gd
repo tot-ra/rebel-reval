@@ -10,14 +10,16 @@ const REVAL_HUB_ID := &"reval"
 ## Positions are normalized against the Estonia basemap. A gate identifies a
 ## direct Reval connection; neighbors identify roads/ferries between mockups.
 const LOCATIONS: Dictionary = {
-	REVAL_HUB_ID: {
+	REVAL_HUB_ID:
+	{
 		"display_name": "Reval",
 		"position": Vector2(0.30, 0.16),
 		"is_hub": true,
 		"neighbors": [&"world_sacred_grove", &"world_harju", &"world_padise", &"world_saaremaa"],
 		"blurb": "Walled town and campaign hub",
 	},
-	&"world_sacred_grove": {
+	&"world_sacred_grove":
+	{
 		"display_name": "Sacred Grove",
 		"position": Vector2(0.34, 0.40),
 		"gate_scene_id": &"reval_south",
@@ -26,16 +28,25 @@ const LOCATIONS: Dictionary = {
 		"neighbors": [REVAL_HUB_ID, &"world_harju"],
 		"blurb": "Harju hiis via Karja Gate and the village road",
 	},
-	&"world_harju": {
+	&"world_harju":
+	{
 		"display_name": "Harju Village",
 		"position": Vector2(0.40, 0.27),
 		"gate_scene_id": &"viru_gate_foreland",
 		"gate_spawn_id": &"from_world_harju",
 		"arrival_spawn_id": &"from_reval_east",
-		"neighbors": [REVAL_HUB_ID, &"world_sacred_grove", &"world_rebel_kings", &"world_kanavere", &"world_sojamae"],
+		"neighbors":
+		[
+			REVAL_HUB_ID,
+			&"world_sacred_grove",
+			&"world_rebel_kings",
+			&"world_kanavere",
+			&"world_sojamae"
+		],
 		"blurb": "Harju farmstead and road junction east of Reval",
 	},
-	&"world_padise": {
+	&"world_padise":
+	{
 		"display_name": "Padise Monastery",
 		"position": Vector2(0.13, 0.27),
 		"gate_scene_id": &"reval_toompea",
@@ -44,7 +55,8 @@ const LOCATIONS: Dictionary = {
 		"neighbors": [REVAL_HUB_ID, &"world_parnu"],
 		"blurb": "Western monastery road between Reval and Pärnu",
 	},
-	&"world_saaremaa": {
+	&"world_saaremaa":
+	{
 		"display_name": "Saaremaa",
 		"position": Vector2(0.08, 0.50),
 		"gate_scene_id": &"reval_harbor_north",
@@ -53,37 +65,43 @@ const LOCATIONS: Dictionary = {
 		"neighbors": [REVAL_HUB_ID, &"world_parnu", &"world_poide"],
 		"blurb": "Island campaign hub reached by coastal ferry",
 	},
-	&"world_rebel_kings": {
+	&"world_rebel_kings":
+	{
 		"display_name": "Rebel Kings' Camp",
 		"position": Vector2(0.59, 0.29),
 		"neighbors": [&"world_harju", &"world_kanavere"],
 		"blurb": "Mobile Harju command camp on the uprising road",
 	},
-	&"world_kanavere": {
+	&"world_kanavere":
+	{
 		"display_name": "Kanavere Bog",
 		"position": Vector2(0.56, 0.44),
 		"neighbors": [&"world_harju", &"world_rebel_kings", &"world_paide"],
 		"blurb": "May 11 battlefield mockup and bog causeway",
 	},
-	&"world_sojamae": {
+	&"world_sojamae":
+	{
 		"display_name": "Sõjamäe",
 		"position": Vector2(0.50, 0.15),
 		"neighbors": [&"world_harju", &"world_paide"],
 		"blurb": "May 14 battlefield mockup near Ülemiste",
 	},
-	&"world_paide": {
+	&"world_paide":
+	{
 		"display_name": "Paide Castle",
 		"position": Vector2(0.68, 0.62),
 		"neighbors": [&"world_kanavere", &"world_sojamae", &"world_parnu"],
 		"blurb": "Order stronghold and Four Kings finale mockup",
 	},
-	&"world_parnu": {
+	&"world_parnu":
+	{
 		"display_name": "Pärnu",
 		"position": Vector2(0.38, 0.74),
 		"neighbors": [&"world_padise", &"world_paide", &"world_saaremaa"],
 		"blurb": "Southern campaign town and coastal ferry junction",
 	},
-	&"world_poide": {
+	&"world_poide":
+	{
 		"display_name": "Pöide Castle",
 		"position": Vector2(0.21, 0.62),
 		"neighbors": [&"world_saaremaa"],

@@ -40,21 +40,46 @@ static func pattern_color(
 
 	match terrain_id:
 		MapTypes.TERRAIN_GRASS:
-			if style_variant == TerrainVegetation.VARIANT_GRASS_FLOWERS and (hash + int(local.x) + int(local.y * 2.0)) % 11 == 0:
+			if (
+				style_variant == TerrainVegetation.VARIANT_GRASS_FLOWERS
+				and (hash + int(local.x) + int(local.y * 2.0)) % 11 == 0
+			):
 				return base.lerp(Color8(196, 118, 142), 0.42)
-			return base.lightened(strength) if (hash + int(local.x * 3.0) + int(local.y)) % 5 == 0 else base.darkened(strength * 0.35)
+			return (
+				base.lightened(strength)
+				if (hash + int(local.x * 3.0) + int(local.y)) % 5 == 0
+				else base.darkened(strength * 0.35)
+			)
 		MapTypes.TERRAIN_SAND:
-			return base.lightened(strength * 0.75) if (hash + int(local.x + local.y * 2.0)) % 4 == 0 else base.darkened(strength * 0.20)
+			return (
+				base.lightened(strength * 0.75)
+				if (hash + int(local.x + local.y * 2.0)) % 4 == 0
+				else base.darkened(strength * 0.20)
+			)
 		MapTypes.TERRAIN_HAY:
-			return base.lightened(strength) if (int(local.y) + hash) % 3 == 0 else base.darkened(strength * 0.40)
+			return (
+				base.lightened(strength)
+				if (int(local.y) + hash) % 3 == 0
+				else base.darkened(strength * 0.40)
+			)
 		MapTypes.TERRAIN_DIRT:
-			return base.lightened(strength * 0.40) if hash % 7 < 2 else base.darkened(strength * 0.35)
+			return (
+				base.lightened(strength * 0.40) if hash % 7 < 2 else base.darkened(strength * 0.35)
+			)
 		MapTypes.TERRAIN_COBBLESTONE:
 			var phase := (hash + int(local.x / 4.0) * 3 + int(local.y / 4.0) * 5) % 7
 			return base.lightened(strength * 0.60) if phase < 2 else base.darkened(strength * 0.35)
 		MapTypes.TERRAIN_WATER, MapTypes.TERRAIN_RIVER_WATER:
-			return base.lightened(strength) if (int(local.y) + hash) % 5 < 2 else base.darkened(strength * 0.25)
+			return (
+				base.lightened(strength)
+				if (int(local.y) + hash) % 5 < 2
+				else base.darkened(strength * 0.25)
+			)
 		MapTypes.TERRAIN_STONE:
-			return base.darkened(strength * 0.70) if (int(local.x + local.y) + hash) % 6 == 0 else base.lightened(strength * 0.20)
+			return (
+				base.darkened(strength * 0.70)
+				if (int(local.x + local.y) + hash) % 6 == 0
+				else base.lightened(strength * 0.20)
+			)
 		_:
 			return base

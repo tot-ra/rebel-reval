@@ -1,6 +1,5 @@
-extends Node2D
-
 class_name CombatRoomEnemy
+extends Node2D
 
 ## Scene host for EnemyCombatStateMachine in the P1-024 combat room (P1-025a)
 ## and the P1-025b night-encounter stub. Why: P1-025 proved the shared AI in
@@ -25,6 +24,7 @@ var max_stamina := DEFAULT_STAMINA
 var hit_count := 0
 var last_result: CombatHitResult
 var display_name := "Enemy"
+
 var _body: ColorRect
 var _pauldron_left: ColorRect
 var _pauldron_right: ColorRect
@@ -33,6 +33,7 @@ var _label: Label
 var _target: Node2D
 var _swing_counter := 9000
 var _signals_wired := false
+
 ## MapViewRuntime mirrors combat actors through the same shared rigs as the player.
 ## The scene is selected from the archetype so watchmen and sergeants retain their
 ## authored silhouette, equipment, and animation overrides in the 3D map.
@@ -238,9 +239,7 @@ func _refresh_label() -> void:
 	_label.text = "%s [%s]" % [display_name, EnemyCombatState.display_name(machine.state)]
 
 
-func _on_state_changed(
-	_previous: EnemyCombatState.State, current: EnemyCombatState.State
-) -> void:
+func _on_state_changed(_previous: EnemyCombatState.State, current: EnemyCombatState.State) -> void:
 	_refresh_label()
 	# Dedicated phase signals cover detect/telegraph/disengage; react has none.
 	if current == EnemyCombatState.State.REACT:
@@ -269,17 +268,10 @@ func _on_attack_impact() -> void:
 		_swing_counter += 1
 		dealt = float(
 			_target.call(
-				"take_damage",
-				profile.damage,
-				self,
-				profile.damage_type,
-				_swing_counter,
-				false
+				"take_damage", profile.damage, self, profile.damage_type, _swing_counter, false
 			)
 		)
-	feedback_event.emit(
-		"%s: attack dmg=%.0f dealt=%.0f" % [display_name, profile.damage, dealt]
-	)
+	feedback_event.emit("%s: attack dmg=%.0f dealt=%.0f" % [display_name, profile.damage, dealt])
 
 
 func _on_disengaged() -> void:

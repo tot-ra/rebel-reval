@@ -3,7 +3,6 @@ extends RefCounted
 
 ## Blueprint factory for the Toompea-quarter .rrmap source.
 
-
 const RRMAP_PATH := "res://content/maps/toompea_quarter.rrmap"
 
 

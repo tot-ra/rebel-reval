@@ -11,9 +11,7 @@ const FLAG_RECORDED := &"flag.act_transition.act1_recorded"
 const ENVELOPE_VERSION := 1
 
 const BitterBrewModel := preload("res://scripts/investigation/bitter_brew_aftermath_model.gd")
-const PriceOfANameModel := preload(
-	"res://scripts/investigation/price_of_a_name_aftermath_model.gd"
-)
+const PriceOfANameModel := preload("res://scripts/investigation/price_of_a_name_aftermath_model.gd")
 const BreadAndIronModel := preload("res://scripts/investigation/bread_and_iron_aftermath_model.gd")
 const BellAndChainModel := preload("res://scripts/investigation/bell_and_chain_aftermath_model.gd")
 const RootAndEmberModel := preload("res://scripts/investigation/root_and_ember_aftermath_model.gd")
@@ -121,7 +119,8 @@ static func build_envelope(state: GameState) -> Dictionary:
 		"version": ENVELOPE_VERSION,
 		"recorded_at_phase": String(state.get_phase()),
 		"act_boundary": String(_resolve_act_boundary(state)),
-		"characters": {
+		"characters":
+		{
 			CHAR_MART: _resolve_mart(state),
 			CHAR_AITA: _resolve_aita(state),
 			CHAR_KAJA: _resolve_kaja(state),
@@ -183,10 +182,7 @@ static func validate_envelope(envelope: Dictionary) -> Dictionary:
 		errors.append("forge must be a dictionary")
 	else:
 		_assert_allowed(
-			String((forge as Dictionary).get("ledger", "")),
-			LEDGER_STATES,
-			"forge.ledger",
-			errors
+			String((forge as Dictionary).get("ledger", "")), LEDGER_STATES, "forge.ledger", errors
 		)
 		_assert_allowed(
 			String((forge as Dictionary).get("conviction", "")),
@@ -396,20 +392,14 @@ static func _validate_mutual_exclusion(envelope: Dictionary) -> Array[String]:
 
 
 static func _assert_allowed(
-	value: String,
-	allowed: Array,
-	label: String,
-	errors: Array[String]
+	value: String, allowed: Array, label: String, errors: Array[String]
 ) -> void:
 	if value.is_empty() or not value in allowed:
 		errors.append("%s has invalid value %s" % [label, value])
 
 
 static func _collect_forbidden_keys(
-	value: Variant,
-	forbidden_key: String,
-	path: String,
-	errors: Array[String]
+	value: Variant, forbidden_key: String, path: String, errors: Array[String]
 ) -> void:
 	if value is Dictionary:
 		for key in (value as Dictionary).keys():

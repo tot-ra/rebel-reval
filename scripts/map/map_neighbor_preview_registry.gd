@@ -6,16 +6,36 @@ extends RefCounted
 ## while reading the real definitions means edits to either district immediately
 ## update the reciprocal backdrop without copied facade data.
 
-const LowerTownSlice := preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd")
-const MarketCivicQuarter := preload("res://scripts/map/definitions/prototypes/market_civic_quarter_definition.gd")
-const NorthQuarter := preload("res://scripts/map/definitions/prototypes/north_quarter_definition.gd")
-const MonasteryQuarter := preload("res://scripts/map/definitions/prototypes/monastery_quarter_definition.gd")
-const ArchbishopsGarden := preload("res://scripts/map/definitions/prototypes/archbishops_garden_definition.gd")
-const ToompeaQuarter := preload("res://scripts/map/definitions/prototypes/toompea_quarter_definition.gd")
-const SouthQuarter := preload("res://scripts/map/definitions/prototypes/south_quarter_definition.gd")
-const ViruGateForeland := preload("res://scripts/map/definitions/outdoor/viru_gate_foreland_definition.gd")
-const RevalHarborNorth := preload("res://scripts/map/definitions/outdoor/reval_harbor_north_definition.gd")
-const RevalHarborEast := preload("res://scripts/map/definitions/outdoor/reval_harbor_east_definition.gd")
+const LowerTownSlice := preload(
+	"res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd"
+)
+const MarketCivicQuarter := preload(
+	"res://scripts/map/definitions/prototypes/market_civic_quarter_definition.gd"
+)
+const NorthQuarter := preload(
+	"res://scripts/map/definitions/prototypes/north_quarter_definition.gd"
+)
+const MonasteryQuarter := preload(
+	"res://scripts/map/definitions/prototypes/monastery_quarter_definition.gd"
+)
+const ArchbishopsGarden := preload(
+	"res://scripts/map/definitions/prototypes/archbishops_garden_definition.gd"
+)
+const ToompeaQuarter := preload(
+	"res://scripts/map/definitions/prototypes/toompea_quarter_definition.gd"
+)
+const SouthQuarter := preload(
+	"res://scripts/map/definitions/prototypes/south_quarter_definition.gd"
+)
+const ViruGateForeland := preload(
+	"res://scripts/map/definitions/outdoor/viru_gate_foreland_definition.gd"
+)
+const RevalHarborNorth := preload(
+	"res://scripts/map/definitions/outdoor/reval_harbor_north_definition.gd"
+)
+const RevalHarborEast := preload(
+	"res://scripts/map/definitions/outdoor/reval_harbor_east_definition.gd"
+)
 
 const DEFINITION_FACTORIES: Dictionary = {
 	&"reval_east": LowerTownSlice,

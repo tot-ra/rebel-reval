@@ -10,11 +10,14 @@ enum State {
 	RECOVERY,
 }
 
+
 static func allows_movement(state: State) -> bool:
 	return state == State.MOVE
 
+
 static func is_action_locked(state: State) -> bool:
 	return state != State.MOVE
+
 
 static func display_name(state: State) -> String:
 	match state:

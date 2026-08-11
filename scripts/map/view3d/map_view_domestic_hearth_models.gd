@@ -16,7 +16,8 @@ const VARIANT_ROOT_NAMES: Dictionary = {
 }
 
 const STATE_PROFILES: Dictionary = {
-	MapTypes.HEARTH_STATE_LIT: {
+	MapTypes.HEARTH_STATE_LIT:
+	{
 		"flame_size": 2.35,
 		"flame_particles": 11,
 		"day_energy": 0.42,
@@ -25,7 +26,8 @@ const STATE_PROFILES: Dictionary = {
 		"smoke_amount": 18,
 		"ember_energy": 3.2,
 	},
-	MapTypes.HEARTH_STATE_EMBERS: {
+	MapTypes.HEARTH_STATE_EMBERS:
+	{
 		"flame_size": 0.0,
 		"flame_particles": 0,
 		"day_energy": 0.08,
@@ -34,7 +36,8 @@ const STATE_PROFILES: Dictionary = {
 		"smoke_amount": 8,
 		"ember_energy": 1.6,
 	},
-	MapTypes.HEARTH_STATE_COLD: {
+	MapTypes.HEARTH_STATE_COLD:
+	{
 		"flame_size": 0.0,
 		"flame_particles": 0,
 		"day_energy": 0.0,

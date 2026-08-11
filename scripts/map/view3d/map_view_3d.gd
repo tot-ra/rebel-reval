@@ -6,7 +6,6 @@ const DayNightCycle := preload("res://scripts/global/day_night_cycle.gd")
 const Lighting := preload("res://scripts/map/view3d/map_view_lighting.gd")
 const SkyWeather3D := preload("res://scripts/map/view3d/sky_weather_3d.gd")
 const TerrainDetails := preload("res://scripts/map/view3d/map_view_terrain_details.gd")
-
 ## P0-052 3D orthographic view layer (ADR 0007). Assembles terrain, building,
 ## and prop geometry from an immutable MapDefinition, framed by a fixed
 ## dimetric orthographic camera under a deterministic day/night sun.
@@ -23,7 +22,6 @@ const StaticBatcher := preload("res://scripts/map/view3d/map_view_static_batcher
 const SMOKE_CULL_INTERVAL := 0.25
 const SMOKE_CULL_MARGIN := 12.0
 const ALL_TIMES: Array[StringName] = [TIME_DAY, TIME_NIGHT]
-
 ## Classic isometric framing per ADR 0007; final values freeze in ART_BIBLE v2 (P0-040).
 const CAMERA_PITCH_DEGREES := -30.0
 const CAMERA_YAW_DEGREES := 45.0
@@ -37,7 +35,6 @@ const CAMERA_FAR := 800.0
 ## especially on wide viewports and at maximum zoom-out. Keep one extra ring
 ## resident so authored district frontages never disappear inside the viewport.
 const VIEW_LOAD_RADIUS_CHUNKS := MapTerrainRenderer.DEFAULT_LOAD_RADIUS_CHUNKS + 1
-
 ## Compatibility aliases keep MapView3D's public lighting constants stable while
 ## the focused lighting module owns their implementation.
 const SUN_DAY_COLOR := Lighting.SUN_DAY_COLOR
@@ -79,13 +76,10 @@ const GLOW_INTENSITY_NIGHT := Lighting.GLOW_INTENSITY_NIGHT
 const GLOW_BLOOM := Lighting.GLOW_BLOOM
 const GLOW_STRENGTH := Lighting.GLOW_STRENGTH
 const GLOW_MIX := Lighting.GLOW_MIX
-
 ## Shadow cascades only need the max-zoom gameplay frustum, not the authored map
 ## or the camera far plane. Tighter distance concentrates shadow-map texels on
 ## the slice the player actually sees.
-const SUN_SHADOW_MAX_DISTANCE := (
-	MapViewRuntime.ZOOM_MAX_ORTHOGRAPHIC_SIZE * 1.35 + 8.0
-)
+const SUN_SHADOW_MAX_DISTANCE := MapViewRuntime.ZOOM_MAX_ORTHOGRAPHIC_SIZE * 1.35 + 8.0
 const SUN_SHADOW_SPLIT_1 := 0.08
 const SUN_SHADOW_SPLIT_2 := 0.22
 const SUN_SHADOW_SPLIT_3 := 0.48
@@ -113,12 +107,10 @@ var _active_chunks: Array[Vector2i] = []
 var _last_puddle_visible := false
 var _first_person_terrain_detail := false
 var _terrain_detail_focus_cell := Vector2i(2147483647, 2147483647)
-
+var _decals_node: Node3D
 
 static func create(
-	map_definition: MapDefinition,
-	built_grid: MapTerrainGrid,
-	initial_time: StringName = TIME_DAY
+	map_definition: MapDefinition, built_grid: MapTerrainGrid, initial_time: StringName = TIME_DAY
 ) -> MapView3D:
 	var view := MapView3D.new()
 	view.name = "MapView3D_%s" % String(map_definition.map_id)
@@ -204,7 +196,9 @@ func _sync_sea_weather() -> void:
 	MapViewMaterials.apply_sea_weather(_sky_weather.wind_strength(), _sky_weather.rain_intensity())
 	# Vegetation, sails, and tower pennants share the same weather wind field as
 	# floating hulls so a storm leans the whole harbor one way.
-	MapViewMaterials.apply_world_wind(_sky_weather.wind_direction_xz(), _sky_weather.wind_strength())
+	MapViewMaterials.apply_world_wind(
+		_sky_weather.wind_direction_xz(), _sky_weather.wind_strength()
+	)
 
 
 ## Puddle geometry remains prebuilt with each scatter chunk, but a fresh map is
@@ -302,10 +296,10 @@ func sync_actor(actor: Node3D, logic_position: Vector2) -> void:
 		MapWallWalkAccess.elevation_at(definition, logic_position),
 		MapClimbableProps.elevation_at(definition, logic_position)
 	)
-	actor.position.y = MapViewMeshBuilder.ground_height(
-		definition,
-		Vector2(actor.position.x, actor.position.z)
-	) + surface_elevation
+	actor.position.y = (
+		MapViewMeshBuilder.ground_height(definition, Vector2(actor.position.x, actor.position.z))
+		+ surface_elevation
+	)
 
 
 func anchor_world_position(anchor_id: StringName) -> Vector3:
@@ -449,17 +443,17 @@ func update_active_chunks_from_logic_positions(logic_positions: Array[Vector2]) 
 		)
 		var center := grid.chunk_for_cell(cell)
 		for y in range(center.y - VIEW_LOAD_RADIUS_CHUNKS, center.y + VIEW_LOAD_RADIUS_CHUNKS + 1):
-			for x in range(center.x - VIEW_LOAD_RADIUS_CHUNKS, center.x + VIEW_LOAD_RADIUS_CHUNKS + 1):
+			for x in range(
+				center.x - VIEW_LOAD_RADIUS_CHUNKS, center.x + VIEW_LOAD_RADIUS_CHUNKS + 1
+			):
 				var coordinates := Vector2i(x, y)
 				if grid.get_chunk(coordinates) != null and not chunks.has(coordinates):
 					chunks.append(coordinates)
-	chunks.sort_custom(func(left: Vector2i, right: Vector2i) -> bool:
-		return left.y < right.y or (left.y == right.y and left.x < right.x)
+	chunks.sort_custom(
+		func(left: Vector2i, right: Vector2i) -> bool:
+			return left.y < right.y or (left.y == right.y and left.x < right.x)
 	)
 	_update_active_chunks(chunks)
-
-
-var _decals_node: Node3D
 
 ## Headless tests and editor preview need every streamed object and scatter
 ## chunk resident; gameplay keeps the spawn-radius window from _initial_active_chunks.
@@ -502,12 +496,19 @@ func _assemble() -> void:
 	_object_streamer = MapObjectChunkStreamer.new()
 	_object_streamer.name = "ObjectStreamer"
 	add_child(_object_streamer)
-	_object_streamer.configure(_object_index, _create_streamed_object, {
-		&"building": buildings,
-		&"landmark": landmarks,
-		&"prop": props,
-		&"direction_sign": direction_signs,
-	})
+	(
+		_object_streamer
+		. configure(
+			_object_index,
+			_create_streamed_object,
+			{
+				&"building": buildings,
+				&"landmark": landmarks,
+				&"prop": props,
+				&"direction_sign": direction_signs,
+			}
+		)
+	)
 	_update_active_chunks(_initial_active_chunks())
 
 	var transition_markers := Node3D.new()
@@ -518,20 +519,27 @@ func _assemble() -> void:
 	add_child(doors)
 	for transition in definition.transitions:
 		if bool(transition.get("highlight_area", false)):
-			transition_markers.add_child(MapViewMeshBuilder.build_transition_marker(transition, definition.cell_size))
-		if not String(transition.get("destination_scene_id", "")).is_empty() \
-				and transition.get("transition_visual", MapTypes.TRANSITION_VISUAL_DOOR) == MapTypes.TRANSITION_VISUAL_DOOR \
-				and not MapViewMeshBuilder.transition_uses_landmark_visual(definition, transition):
+			transition_markers.add_child(
+				MapViewMeshBuilder.build_transition_marker(transition, definition.cell_size)
+			)
+		if (
+			not String(transition.get("destination_scene_id", "")).is_empty()
+			and (
+				transition.get("transition_visual", MapTypes.TRANSITION_VISUAL_DOOR)
+				== MapTypes.TRANSITION_VISUAL_DOOR
+			)
+			and not MapViewMeshBuilder.transition_uses_landmark_visual(definition, transition)
+		):
 			var attached_building := MapBuildingEntrance.find_building(definition, transition)
 			var wall_height := MapViewMeshBuilder.interior_shell_wall_height_world(definition)
 			if not attached_building.is_empty():
-				wall_height = MapTypes.resolved_wall_height_px(attached_building) * MapViewBridge.world_scale(definition.cell_size)
+				wall_height = (
+					MapTypes.resolved_wall_height_px(attached_building)
+					* MapViewBridge.world_scale(definition.cell_size)
+				)
 			doors.add_child(
 				MapViewMeshBuilder.build_transition_door(
-					transition,
-					definition.cell_size,
-					wall_height,
-					attached_building
+					transition, definition.cell_size, wall_height, attached_building
 				)
 			)
 
@@ -571,7 +579,9 @@ func _assemble() -> void:
 	# Enclosed room shells (roofed interiors like the Kalev smithy) must not rain
 	# indoors. The weather cycle keeps running for lighting and wind; only the
 	# visible rain particles are gated; roof-drum audio follows the same flag.
-	_sky_weather.rain_suppressed = definition != null and definition.suppresses_exterior_surroundings()
+	_sky_weather.rain_suppressed = (
+		definition != null and definition.suppresses_exterior_surroundings()
+	)
 	_sync_puddle_visibility(true)
 
 	# Headless uses the dummy renderer, which cannot provide the screen texture
@@ -608,8 +618,7 @@ func _build_streamed_object(record: Dictionary) -> Node:
 				Rect2(Vector2.ZERO, definition.world_size())
 			)
 			building_node.position.y = MapViewMeshBuilder.ground_height(
-				definition,
-				Vector2(building_node.position.x, building_node.position.z)
+				definition, Vector2(building_node.position.x, building_node.position.z)
 			)
 			return building_node
 		&"landmark":
@@ -622,8 +631,7 @@ func _build_streamed_object(record: Dictionary) -> Node:
 				MapViewMeshBuilder.interior_shell_wall_height_world(definition)
 			)
 			landmark_node.position.y = MapViewMeshBuilder.ground_height(
-				definition,
-				Vector2(landmark_node.position.x, landmark_node.position.z)
+				definition, Vector2(landmark_node.position.x, landmark_node.position.z)
 			)
 			return landmark_node
 		&"prop":
@@ -631,16 +639,17 @@ func _build_streamed_object(record: Dictionary) -> Node:
 			# build_prop applies visual_offset_px in world space; keep that lift when
 			# snapping the prop root to sampled terrain height.
 			var visual_elevation := prop_node.position.y
-			prop_node.position.y = MapViewMeshBuilder.ground_height(
-				definition,
-				Vector2(prop_node.position.x, prop_node.position.z)
-			) + visual_elevation
+			prop_node.position.y = (
+				MapViewMeshBuilder.ground_height(
+					definition, Vector2(prop_node.position.x, prop_node.position.z)
+				)
+				+ visual_elevation
+			)
 			return prop_node
 		&"direction_sign":
 			var sign_node := DirectionSignBuilder.build(source, definition.cell_size)
 			sign_node.position.y = MapViewMeshBuilder.ground_height(
-				definition,
-				Vector2(sign_node.position.x, sign_node.position.z)
+				definition, Vector2(sign_node.position.x, sign_node.position.z)
 			)
 			return sign_node
 	return null
@@ -684,7 +693,9 @@ func _update_scatter_chunks(chunks: Array[Vector2i]) -> void:
 	for coordinates in chunks:
 		if _loaded_scatter_chunks.has(coordinates):
 			continue
-		var scatter := MapViewMeshBuilder.build_scatter(definition, grid, grid.chunk_bounds(coordinates))
+		var scatter := MapViewMeshBuilder.build_scatter(
+			definition, grid, grid.chunk_bounds(coordinates)
+		)
 		scatter.name = "Chunk_%d_%d" % [coordinates.x, coordinates.y]
 		_scatter_root.add_child(scatter)
 		_loaded_scatter_chunks[coordinates] = scatter
@@ -743,7 +754,9 @@ static func _configure_sun_shadows(sun: DirectionalLight3D) -> void:
 	sun.light_angular_distance = 0.0
 
 
-static func _append_mesh_bounds(node: Node3D, accumulated: Transform3D, bounds: Array[AABB]) -> void:
+static func _append_mesh_bounds(
+	node: Node3D, accumulated: Transform3D, bounds: Array[AABB]
+) -> void:
 	if node is MeshInstance3D:
 		bounds.append(accumulated * (node as MeshInstance3D).get_aabb())
 	for child in node.get_children():
@@ -760,7 +773,9 @@ func _create_camera() -> Camera3D:
 	# Vertical extent of the ground diagonal under the fixed pitch, plus
 	# headroom for building mass; the final size freezes in ART_BIBLE v2.
 	var diagonal := (world_units.x + world_units.y) / sqrt(2.0)
-	camera.size = diagonal * absf(sin(deg_to_rad(CAMERA_PITCH_DEGREES))) * CAMERA_MARGIN + CAMERA_HEADROOM
+	camera.size = (
+		diagonal * absf(sin(deg_to_rad(CAMERA_PITCH_DEGREES))) * CAMERA_MARGIN + CAMERA_HEADROOM
+	)
 	camera.far = CAMERA_FAR
 	var center := Vector3(world_units.x * 0.5, 0.0, world_units.y * 0.5)
 	camera.position = center + camera.transform.basis.z * CAMERA_DISTANCE

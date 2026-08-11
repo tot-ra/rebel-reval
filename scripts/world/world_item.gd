@@ -7,21 +7,20 @@ extends Area2D
 signal picked_up(item_id: StringName)
 signal dropped(item_id: StringName)
 
-@export var world_object_id: StringName = &""
-@export var item_id: StringName = &""
-@export var location_id: StringName = &""
-@export var pickup_radius: float = 28.0
-
 const OUTLINE_COLOR_IDLE := Color(0.95, 0.82, 0.35, 0.9)
 const OUTLINE_COLOR_HOVER := Color(1.0, 0.93, 0.5, 1.0)
 const OUTLINE_WIDTH_IDLE := 1.0
 const OUTLINE_WIDTH_HOVER := 2.0
 
+@export var world_object_id: StringName = &""
+@export var item_id: StringName = &""
+@export var location_id: StringName = &""
+@export var pickup_radius: float = 28.0
+
 var _hovered := false
 var _suppress_flat_outline := false
 
 @onready var _outline: Line2D = $FocusOutline
-
 
 func _ready() -> void:
 	add_to_group(&"world_item")

@@ -3,7 +3,6 @@ extends RefCounted
 
 ## Blueprint factory for editor preview of the northern harbour .rrmap source.
 
-
 const RRMAP_PATH := "res://content/maps/reval_harbor_north.rrmap"
 
 

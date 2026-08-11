@@ -5,7 +5,6 @@ extends RefCounted
 ## WHY: the hilltop district keeps a MapDefinition entry point while layout and
 ## reciprocal Lühike Jalg edges remain reviewable as compact map data.
 
-
 const RRMAP_PATH := "res://content/maps/toompea_quarter.rrmap"
 
 

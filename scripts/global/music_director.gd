@@ -1,13 +1,14 @@
 extends Node
 
+signal cycle_progress_changed(progress: float)
+signal calendar_date_changed(date: Dictionary)
+
 const AudioBusService := preload("res://scripts/settings/audio_bus_service.gd")
 const DayNightCycle := preload("res://scripts/global/day_night_cycle.gd")
 const GameCalendarScript := preload("res://scripts/global/game_calendar.gd")
-
 const DEFAULT_VOLUME_DB := -8.0
 ## At full night the theme plays at 50% linear amplitude (about -6 dB).
 const NIGHT_VOLUME_LINEAR := 0.5
-
 const SCENE_THEME_ROUTES: Dictionary = {
 	"res://scenes/menu/main_menu.tscn": &"menu",
 	"res://scenes/reval_east/forge/forge.tscn": &"forge",
@@ -25,18 +26,14 @@ const SCENE_THEME_ROUTES: Dictionary = {
 	"res://scenes/reval_toompea/reval_toompea.tscn": &"toompea",
 	"res://scenes/reval_south/reval_south.tscn": &"south",
 }
-
 const MENU_TRACK := "res://music/menu/Menu.mp3"
-
 const FORGE_TRACKS: Array[String] = [
 	"res://music/forge/Fireside Tale.mp3",
 ]
-
 const TOWN_TRACKS: Array[String] = [
 	"res://music/revel_east/Apothecary (8).mp3",
 	"res://music/revel_east/Apothecary.mp3",
 ]
-
 const THEME_DAY_DIRS: Dictionary = {
 	&"center": "res://music/revel_center/",
 	&"raekoda": "res://music/revel_center/raekoda/",
@@ -49,16 +46,12 @@ const THEME_DAY_DIRS: Dictionary = {
 	&"garden": "res://music/garden/day/",
 	&"south": "res://music/revel_south/",
 }
-
 const THEME_NIGHT_DIRS: Dictionary = {
 	&"forge": "res://music/forge/night/",
 	&"town": "res://music/revel_east/night/",
 	&"toompea": "res://music/domberg/night/",
 	&"garden": "res://music/garden/night/",
 }
-
-signal cycle_progress_changed(progress: float)
-signal calendar_date_changed(date: Dictionary)
 
 var _player: AudioStreamPlayer
 var _active_scene: Node
@@ -70,7 +63,6 @@ var _cycle_active := false
 var _cycle_progress := DayNightCycle.DEFAULT_PROGRESS
 var _cycle_elapsed_days := 0
 var _stream_cache: Dictionary = {}
-
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -166,7 +158,10 @@ static func volume_linear_for_day_blend(day_blend: float) -> float:
 
 
 static func volume_db_for_cycle_progress(progress: float) -> float:
-	return DEFAULT_VOLUME_DB + linear_to_db(volume_linear_for_day_blend(DayNightCycle.day_blend(progress)))
+	return (
+		DEFAULT_VOLUME_DB
+		+ linear_to_db(volume_linear_for_day_blend(DayNightCycle.day_blend(progress)))
+	)
 
 
 static func is_night_period(progress: float) -> bool:
@@ -277,7 +272,11 @@ func _maybe_switch_night_tracks() -> void:
 
 
 func _wants_night_tracks(theme_id: StringName) -> bool:
-	return _cycle_active and is_night_period(_cycle_progress) and not night_track_paths_for_theme(theme_id).is_empty()
+	return (
+		_cycle_active
+		and is_night_period(_cycle_progress)
+		and not night_track_paths_for_theme(theme_id).is_empty()
+	)
 
 
 func _update_volume_from_cycle() -> void:

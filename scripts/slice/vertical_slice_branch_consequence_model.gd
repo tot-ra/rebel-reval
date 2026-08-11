@@ -18,24 +18,28 @@ const GROUP_REFLECTION_CONVICTION := "reflection.conviction"
 const CHOICE_GROUPS: Array[Dictionary] = [
 	{
 		"id": "makers_mark.ledger",
-		"choices": [
+		"choices":
+		[
 			{
 				"id": "preserve_ledger",
-				"signature": [
+				"signature":
+				[
 					"flag:flag.forge_ledger_preserved",
 					"rel:rel.henning_trust:+1",
 				],
 			},
 			{
 				"id": "alter_ledger",
-				"signature": [
+				"signature":
+				[
 					"flag:flag.forge_ledger_altered",
 					"rel:rel.mart_trust:+1",
 				],
 			},
 			{
 				"id": "destroy_ledger",
-				"signature": [
+				"signature":
+				[
 					"flag:flag.forge_ledger_destroyed",
 					"pressure:pressure.suspicion:+1",
 				],
@@ -44,21 +48,24 @@ const CHOICE_GROUPS: Array[Dictionary] = [
 	},
 	{
 		"id": "watch_buckle.forge",
-		"choices": [
+		"choices":
+		[
 			{
 				"id": "honest_work",
 				"signature": ["forged:forged.watch_buckle_repair.honest_work"],
 			},
 			{
 				"id": "subtle_defect",
-				"signature": [
+				"signature":
+				[
 					"forged:forged.watch_buckle_repair.subtle_defect",
 					"flag:flag.watch_buckle_weakened",
 				],
 			},
 			{
 				"id": "secret_feature",
-				"signature": [
+				"signature":
+				[
 					"forged:forged.watch_buckle_repair.secret_feature",
 					"flag:flag.watch_buckle_hidden_release",
 				],
@@ -67,10 +74,12 @@ const CHOICE_GROUPS: Array[Dictionary] = [
 	},
 	{
 		"id": "bitter_brew.forge",
-		"choices": [
+		"choices":
+		[
 			{
 				"id": "honest_work",
-				"signature": [
+				"signature":
+				[
 					"forged:forged.bitter_brew.honest_work",
 					"night:night_surrendered",
 					"aftermath:exonerated",
@@ -78,7 +87,8 @@ const CHOICE_GROUPS: Array[Dictionary] = [
 			},
 			{
 				"id": "subtle_defect",
-				"signature": [
+				"signature":
+				[
 					"forged:forged.bitter_brew.subtle_defect",
 					"night:night_bypassed",
 					"aftermath:monopolized",
@@ -86,7 +96,8 @@ const CHOICE_GROUPS: Array[Dictionary] = [
 			},
 			{
 				"id": "secret_feature",
-				"signature": [
+				"signature":
+				[
 					"forged:forged.bitter_brew.secret_feature",
 					"night:night_escaped",
 					"aftermath:escaped",
@@ -96,24 +107,28 @@ const CHOICE_GROUPS: Array[Dictionary] = [
 	},
 	{
 		"id": "reflection.conviction",
-		"choices": [
+		"choices":
+		[
 			{
 				"id": "duty",
-				"signature": [
+				"signature":
+				[
 					"flag:flag.reflection.duty",
 					"rel:rel.henning_trust:+1",
 				],
 			},
 			{
 				"id": "fury",
-				"signature": [
+				"signature":
+				[
 					"flag:flag.reflection.fury",
 					"pressure:pressure.solidarity:+1",
 				],
 			},
 			{
 				"id": "mercy",
-				"signature": [
+				"signature":
+				[
 					"flag:flag.reflection.mercy",
 					"pressure:pressure.suspicion:-1",
 				],
@@ -148,8 +163,10 @@ static func validate_choice_groups() -> Dictionary:
 			var key := "|".join(signature)
 			if seen.has(key):
 				errors.append(
-					"%s: choices %s and %s share consequence signature %s"
-					% [String(group["id"]), String(seen[key]), choice_id, key]
+					(
+						"%s: choices %s and %s share consequence signature %s"
+						% [String(group["id"]), String(seen[key]), choice_id, key]
+					)
 				)
 			else:
 				seen[key] = choice_id

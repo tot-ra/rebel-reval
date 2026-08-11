@@ -124,10 +124,7 @@ static func apply_cycle_progress(
 	var sun_direction := SkyWeather3D.solar_direction(progress, sky_weather.calendar_date)
 	var day_blend := SkyWeather3D.daylight_blend(progress, sky_weather.calendar_date)
 	var moon_direction := SkyWeather3D.lunar_direction(progress, sky_weather.calendar_date)
-	var sun_elevation := SkyWeather3D.solar_elevation_degrees(
-		progress,
-		sky_weather.calendar_date
-	)
+	var sun_elevation := SkyWeather3D.solar_elevation_degrees(progress, sky_weather.calendar_date)
 	# DirectionalLight3D emits along local -Z. Twilight therefore hands the light
 	# direction smoothly from the date-driven moon to the moving sun.
 	var sun_light_weight := smoothstep(-6.0, 0.0, sun_elevation)
@@ -165,8 +162,7 @@ static func apply_cycle_progress(
 	# Water specular follows the visible sun disk rather than civil-twilight light,
 	# preventing a sun glint after the disk has set.
 	MapViewMaterials.apply_water_lighting(
-		SkyWeather3D.sun_disk_visibility(sun_direction),
-		day_blend
+		SkyWeather3D.sun_disk_visibility(sun_direction), day_blend
 	)
 	MapViewMaterials.apply_coastal_tide(
 		SkyWeather3D.tide_level(progress, sky_weather.calendar_date)
@@ -204,10 +200,7 @@ static func sync_background(environment: Environment, interior_top_down: bool) -
 ## in enclosed interiors (any camera mode under a roofed room shell). The
 ## date-based potential keeps fog occasional rather than universal outdoors.
 static func apply_ground_mist(
-	environment: Environment,
-	sky_weather: SkyWeather3D,
-	progress: float,
-	enclosed_interior: bool
+	environment: Environment, sky_weather: SkyWeather3D, progress: float, enclosed_interior: bool
 ) -> void:
 	if environment == null:
 		return

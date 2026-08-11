@@ -46,18 +46,22 @@ static func assemble(
 		match record["kind"] as StringName:
 			&"building":
 				return MapBuildingRenderer.create_building(
-					source,
-					visual_target,
-					time_of_day,
-					definition
+					source, visual_target, time_of_day, definition
 				)
 			&"prop":
 				return MapPropRenderer.create_prop(source, visual_target, time_of_day)
 		return null
-	streamer.configure(index, factory, {
-		&"building": buildings_root,
-		&"prop": props_root,
-	})
+	(
+		streamer
+		. configure(
+			index,
+			factory,
+			{
+				&"building": buildings_root,
+				&"prop": props_root,
+			}
+		)
+	)
 	streamer.update_active_chunks(terrain.loaded_chunk_coordinates())
 	terrain.active_chunks_changed.connect(streamer.update_active_chunks)
 	var building_nodes: Array[StaticBody2D] = []

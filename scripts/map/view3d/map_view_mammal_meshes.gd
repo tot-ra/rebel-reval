@@ -23,7 +23,10 @@ static var _mesh_cache: Dictionary = {}
 
 static func mesh_for(species: StringName, pose: StringName = &"") -> ArrayMesh:
 	var resolved_pose := MammalSpecies.default_pose(species) if pose.is_empty() else pose
-	if not MammalSpecies.is_known_species(species) or not MammalSpecies.is_known_pose(resolved_pose):
+	if (
+		not MammalSpecies.is_known_species(species)
+		or not MammalSpecies.is_known_pose(resolved_pose)
+	):
 		return null
 	var cache_key := "%s:%s" % [species, resolved_pose]
 	if _mesh_cache.has(cache_key):
@@ -108,10 +111,13 @@ static func _build_mesh(species: StringName, pose: StringName) -> ArrayMesh:
 			)
 
 	var neck_start := body_center + Vector3(0.0, body_radius.y * 0.18, -body_radius.z * 0.72)
-	var neck_end := neck_start + Vector3(
-		0.0,
-		neck_length * 0.42 - head_drop,
-		-neck_length * 0.86 - body_radius.z * 0.18 - body_radius.z * body_pitch
+	var neck_end := (
+		neck_start
+		+ Vector3(
+			0.0,
+			neck_length * 0.42 - head_drop,
+			-neck_length * 0.86 - body_radius.z * 0.18 - body_radius.z * body_pitch
+		)
 	)
 	if neck_length > 0.01:
 		_append_tapered_tube(
@@ -147,9 +153,21 @@ static func _build_mesh(species: StringName, pose: StringName) -> ArrayMesh:
 	# Cat and rat limbs are furred, not bone-white: the accent colour is reserved
 	# for their paws.
 	var leg_color := colors[0].darkened(0.14) if detailed else colors[2]
-	_append_quadruped_legs(surface, body_center, body_radius, leg_length * leg_scale, leg_color, pose, species, false, colors[2])
+	_append_quadruped_legs(
+		surface,
+		body_center,
+		body_radius,
+		leg_length * leg_scale,
+		leg_color,
+		pose,
+		species,
+		false,
+		colors[2]
+	)
 	if tail_length > 0.01:
-		_append_tail(surface, body_center, body_radius, tail_length, colors[1], group, pose, species)
+		_append_tail(
+			surface, body_center, body_radius, tail_length, colors[1], group, pose, species
+		)
 
 	return _commit_mesh(surface, species)
 
@@ -163,7 +181,6 @@ static func _commit_mesh(surface: SurfaceTool, species: StringName) -> ArrayMesh
 
 static func _build_bat_mesh(species: StringName, pose: StringName) -> ArrayMesh:
 	var geometry := MammalSpecies.geometry_for(species)
-
 
 	var colors := MammalSpecies.colors_for(species)
 	var scale_factor := MammalSpecies.scale_m(species) / maxf(float(geometry["body"].x), 0.01)
@@ -179,8 +196,12 @@ static func _build_bat_mesh(species: StringName, pose: StringName) -> ArrayMesh:
 	_append_ellipsoid(surface, head_center, Vector3.ONE * body_radius.x * 0.72, colors[1], 5, 3)
 	for side_sign in [-1.0, 1.0]:
 		var shoulder := center + Vector3(side_sign * body_radius.x * 0.4, 0.0, 0.0)
-		var tip := shoulder + Vector3(side_sign * wing_span * 0.5, -wing_span * 0.08, wing_span * 0.12)
-		var rear := shoulder + Vector3(-side_sign * wing_span * 0.08, -wing_span * 0.04, -wing_span * 0.18)
+		var tip := (
+			shoulder + Vector3(side_sign * wing_span * 0.5, -wing_span * 0.08, wing_span * 0.12)
+		)
+		var rear := (
+			shoulder + Vector3(-side_sign * wing_span * 0.08, -wing_span * 0.04, -wing_span * 0.18)
+		)
 		_append_quad(surface, shoulder, tip, rear, center, colors[1])
 	if pose == MammalSpecies.POSE_RESTING:
 		center.y -= body_radius.y * 0.35
@@ -203,14 +224,35 @@ static func _build_seal_mesh(species: StringName, pose: StringName) -> ArrayMesh
 	var center := Vector3(0.0, center_y, 0.0)
 	_append_ellipsoid(surface, center, body_radius, colors[0], BODY_SEGMENTS, BODY_RINGS)
 	var head_center := center + Vector3(0.0, body_radius.y * 0.08, -body_radius.z * 0.92)
-	_append_ellipsoid(surface, head_center, Vector3(body_radius.x * 0.42, body_radius.y * 0.36, body_radius.z * 0.38), colors[1], 6, 4)
+	_append_ellipsoid(
+		surface,
+		head_center,
+		Vector3(body_radius.x * 0.42, body_radius.y * 0.36, body_radius.z * 0.38),
+		colors[1],
+		6,
+		4
+	)
 	for side_sign in [-1.0, 1.0]:
-		var root := center + Vector3(side_sign * body_radius.x * 0.72, -body_radius.y * 0.18, body_radius.z * 0.12)
-		var tip := root + Vector3(side_sign * flipper_length * 0.42, -flipper_length * 0.08, flipper_length * 0.62)
-		_append_tapered_tube(surface, root, tip, flipper_length * 0.08, flipper_length * 0.04, colors[2], 5)
+		var root := (
+			center
+			+ Vector3(side_sign * body_radius.x * 0.72, -body_radius.y * 0.18, body_radius.z * 0.12)
+		)
+		var tip := (
+			root
+			+ Vector3(
+				side_sign * flipper_length * 0.42, -flipper_length * 0.08, flipper_length * 0.62
+			)
+		)
+		_append_tapered_tube(
+			surface, root, tip, flipper_length * 0.08, flipper_length * 0.04, colors[2], 5
+		)
 	var tail_root := center + Vector3(0.0, 0.0, body_radius.z * 0.82)
-	var tail_tip := tail_root + Vector3(0.0, -body_radius.y * 0.12, float(geometry["tail"]) * scale_factor)
-	_append_tapered_tube(surface, tail_root, tail_tip, body_radius.x * 0.22, body_radius.x * 0.08, colors[1], 5)
+	var tail_tip := (
+		tail_root + Vector3(0.0, -body_radius.y * 0.12, float(geometry["tail"]) * scale_factor)
+	)
+	_append_tapered_tube(
+		surface, tail_root, tail_tip, body_radius.x * 0.22, body_radius.x * 0.08, colors[1], 5
+	)
 	return _commit_mesh(surface, species)
 
 
@@ -229,13 +271,21 @@ static func _build_fowl_mesh(species: StringName, pose: StringName) -> ArrayMesh
 	var grazing_drop := head_radius * 0.42 if pose == MammalSpecies.POSE_GRAZING else 0.0
 	var body_center := Vector3(0.0, leg_length + body_radius.y * 0.88, 0.0)
 	_append_ellipsoid(surface, body_center, body_radius, colors[0], BODY_SEGMENTS, BODY_RINGS)
-	var neck_start := body_center + Vector3(0.0, body_radius.y * 0.22 - grazing_drop, -body_radius.z * 0.62)
-	var neck_end := neck_start + Vector3(0.0, neck_length * 0.42 - grazing_drop, -neck_length * 0.72)
-	_append_tapered_tube(surface, neck_start, neck_end, body_radius.x * 0.22, head_radius * 0.55, colors[0], 5)
+	var neck_start := (
+		body_center + Vector3(0.0, body_radius.y * 0.22 - grazing_drop, -body_radius.z * 0.62)
+	)
+	var neck_end := (
+		neck_start + Vector3(0.0, neck_length * 0.42 - grazing_drop, -neck_length * 0.72)
+	)
+	_append_tapered_tube(
+		surface, neck_start, neck_end, body_radius.x * 0.22, head_radius * 0.55, colors[0], 5
+	)
 	var head_center := neck_end + Vector3(0.0, head_radius * 0.28, -head_radius * 0.72)
 	_append_ellipsoid(surface, head_center, Vector3.ONE * head_radius, colors[1], 6, 4)
 	_append_beak(surface, head_center, head_radius, colors[2])
-	_append_quadruped_legs(surface, body_center, body_radius, leg_length, colors[2], pose, &"", true)
+	_append_quadruped_legs(
+		surface, body_center, body_radius, leg_length, colors[2], pose, &"", true
+	)
 	return _commit_mesh(surface, species)
 
 
@@ -245,7 +295,7 @@ static func _append_snout(
 	head_radius: float,
 	color: Color,
 	group: StringName,
-	species: StringName = &""
+	_species: StringName = &""
 ) -> void:
 	var length := head_radius * (0.42 if group == MammalSpecies.GROUP_SWINE else 0.28)
 	if group == MammalSpecies.GROUP_RODENT:
@@ -259,7 +309,9 @@ static func _append_snout(
 	_append_tapered_tube(surface, root, tip, start_radius, end_radius, color, 6)
 
 
-static func _append_beak(surface: SurfaceTool, head_center: Vector3, head_radius: float, color: Color) -> void:
+static func _append_beak(
+	surface: SurfaceTool, head_center: Vector3, head_radius: float, color: Color
+) -> void:
 	var root := head_center + Vector3(0.0, -head_radius * 0.04, -head_radius * 0.78)
 	var tip := root + Vector3(0.0, -head_radius * 0.08, -head_radius * 0.62)
 	_append_tapered_tube(surface, root, tip, head_radius * 0.16, 0.002, color, 4)
@@ -275,7 +327,10 @@ static func _append_ears(
 	species: StringName = &""
 ) -> void:
 	for side_sign in [-1.0, 1.0]:
-		var base := head_center + Vector3(side_sign * head_radius * 0.62, head_radius * 0.42, -head_radius * 0.12)
+		var base := (
+			head_center
+			+ Vector3(side_sign * head_radius * 0.62, head_radius * 0.42, -head_radius * 0.12)
+		)
 		if group == MammalSpecies.GROUP_LAGOMORPH:
 			var tip := base + Vector3(side_sign * ear_size * 0.08, ear_size, -ear_size * 0.12)
 			_append_tapered_tube(surface, base, tip, ear_size * 0.10, ear_size * 0.04, color, 5)
@@ -303,8 +358,12 @@ static func _append_ears(
 			# A flat triangle disappears when the animal is viewed from the side, so
 			# the ear is a small closed pyramid with a pink inner face. Dog ears are
 			# the same pricked spitz shape, only with a darker inner face.
-			var inner_color := Color("c38f83") if species == MammalSpecies.SPECIES_CAT else Color("8a5a48")
-			var apex := base + Vector3(side_sign * ear_size * 0.22, ear_size * 1.05, -ear_size * 0.06)
+			var inner_color := (
+				Color("c38f83") if species == MammalSpecies.SPECIES_CAT else Color("8a5a48")
+			)
+			var apex := (
+				base + Vector3(side_sign * ear_size * 0.22, ear_size * 1.05, -ear_size * 0.06)
+			)
 			var front := base + Vector3(side_sign * ear_size * 0.10, 0.0, -ear_size * 0.34)
 			var back := base + Vector3(side_sign * ear_size * 0.10, 0.0, ear_size * 0.30)
 			var outer := base + Vector3(side_sign * ear_size * 0.46, ear_size * 0.10, 0.0)
@@ -313,7 +372,9 @@ static func _append_ears(
 			_append_colored_triangle(surface, back, front, apex, inner_color)
 			_append_colored_triangle(surface, front, back, outer, color.darkened(0.08))
 		else:
-			var tip := base + Vector3(side_sign * ear_size * 0.22, ear_size * 0.72, -ear_size * 0.08)
+			var tip := (
+				base + Vector3(side_sign * ear_size * 0.22, ear_size * 0.72, -ear_size * 0.08)
+			)
 			_append_tapered_tube(surface, base, tip, ear_size * 0.14, ear_size * 0.06, color, 5)
 
 
@@ -332,10 +393,8 @@ static func _append_face_details(
 	var nose_z := head_radius * 1.14
 	var nose_drop := head_radius * 0.12
 	for side_sign in [-1.0, 1.0]:
-		var muzzle_center := head_center + Vector3(
-			side_sign * head_radius * 0.18,
-			-head_radius * 0.16,
-			-muzzle_z
+		var muzzle_center := (
+			head_center + Vector3(side_sign * head_radius * 0.18, -head_radius * 0.16, -muzzle_z)
 		)
 		_append_ellipsoid(
 			surface,
@@ -345,10 +404,9 @@ static func _append_face_details(
 			4,
 			2
 		)
-		var eye_center := head_center + Vector3(
-			side_sign * head_radius * 0.48,
-			head_radius * 0.16,
-			-head_radius * 0.72
+		var eye_center := (
+			head_center
+			+ Vector3(side_sign * head_radius * 0.48, head_radius * 0.16, -head_radius * 0.72)
 		)
 		# Cats get the amber iris; rats keep the small black bead.
 		_append_ellipsoid(
@@ -381,15 +439,17 @@ static func _append_face_details(
 	for side_sign in [-1.0, 1.0]:
 		for whisker_index in 2:
 			var vertical_spread := (float(whisker_index) - 0.5) * head_radius * 0.16
-			var whisker_root := nose_center + Vector3(
-				side_sign * head_radius * 0.11,
-				vertical_spread,
-				head_radius * 0.015
+			var whisker_root := (
+				nose_center
+				+ Vector3(side_sign * head_radius * 0.11, vertical_spread, head_radius * 0.015)
 			)
-			var whisker_tip := whisker_root + Vector3(
-				side_sign * head_radius * (0.42 + whisker_index * 0.06),
-				vertical_spread * 0.25,
-				-head_radius * (0.02 + whisker_index * 0.04)
+			var whisker_tip := (
+				whisker_root
+				+ Vector3(
+					side_sign * head_radius * (0.42 + whisker_index * 0.06),
+					vertical_spread * 0.25,
+					-head_radius * (0.02 + whisker_index * 0.04)
+				)
 			)
 			_append_tapered_tube(
 				surface,
@@ -403,10 +463,7 @@ static func _append_face_details(
 
 
 static func _append_chest_patch(
-	surface: SurfaceTool,
-	body_center: Vector3,
-	body_radius: Vector3,
-	color: Color
+	surface: SurfaceTool, body_center: Vector3, body_radius: Vector3, color: Color
 ) -> void:
 	_append_ellipsoid(
 		surface,
@@ -419,14 +476,13 @@ static func _append_chest_patch(
 
 
 static func _append_horns(
-	surface: SurfaceTool,
-	head_center: Vector3,
-	head_radius: float,
-	horn_length: float,
-	color: Color
+	surface: SurfaceTool, head_center: Vector3, head_radius: float, horn_length: float, color: Color
 ) -> void:
 	for side_sign in [-1.0, 1.0]:
-		var base := head_center + Vector3(side_sign * head_radius * 0.34, head_radius * 0.62, -head_radius * 0.18)
+		var base := (
+			head_center
+			+ Vector3(side_sign * head_radius * 0.34, head_radius * 0.62, -head_radius * 0.18)
+		)
 		var tip := base + Vector3(side_sign * horn_length * 0.18, horn_length, horn_length * 0.08)
 		_append_tapered_tube(surface, base, tip, horn_length * 0.05, horn_length * 0.02, color, 4)
 
@@ -456,13 +512,21 @@ static func _append_quadruped_legs(
 		var bottom: Vector3 = top + Vector3(0.0, -leg_length + bend, bend * 0.4)
 		# Short-legged animals need the body width as a floor for limb thickness,
 		# otherwise the legs render as bare threads.
-		var upper_radius := maxf(leg_length * 0.09, body_radius.x * 0.24) if species in DETAILED_SPECIES else leg_length * 0.06
+		var upper_radius := (
+			maxf(leg_length * 0.09, body_radius.x * 0.24)
+			if species in DETAILED_SPECIES
+			else leg_length * 0.06
+		)
 		_append_tapered_tube(surface, top, bottom, upper_radius, upper_radius * 0.68, color, 5)
 		if bird_like:
 			for toe_index in 3:
 				var spread := float(toe_index - 1) * leg_length * 0.12
-				var toe_end: Vector3 = bottom + Vector3(spread, -leg_length * 0.02, -leg_length * 0.16)
-				_append_tapered_tube(surface, bottom, toe_end, leg_length * 0.016, 0.002, color.darkened(0.06), 4)
+				var toe_end: Vector3 = (
+					bottom + Vector3(spread, -leg_length * 0.02, -leg_length * 0.16)
+				)
+				_append_tapered_tube(
+					surface, bottom, toe_end, leg_length * 0.016, 0.002, color.darkened(0.06), 4
+				)
 		elif species in [MammalSpecies.SPECIES_CAT, MammalSpecies.SPECIES_RAT]:
 			var paw_length := maxf(leg_length * 0.30, body_radius.x * 0.62)
 			var paw_center := bottom + Vector3(0.0, -upper_radius * 0.35, -paw_length * 0.28)
@@ -494,22 +558,62 @@ static func _append_tail(
 		var first := root + Vector3(bend_side * 0.34, -body_radius.y * 0.38, tail_length * 0.34)
 		var second := root + Vector3(bend_side, -body_radius.y * 0.50, tail_length * 0.70)
 		var tip := root + Vector3(bend_side * 0.70, -body_radius.y * 0.52, tail_length)
-		_append_tapered_tube(surface, root, first, body_radius.x * 0.30, body_radius.x * 0.21, color, 6)
-		_append_tapered_tube(surface, first, second, body_radius.x * 0.21, body_radius.x * 0.13, color.lightened(0.05), 6)
-		_append_tapered_tube(surface, second, tip, body_radius.x * 0.13, body_radius.x * 0.05, color.lightened(0.10), 6)
+		_append_tapered_tube(
+			surface, root, first, body_radius.x * 0.30, body_radius.x * 0.21, color, 6
+		)
+		_append_tapered_tube(
+			surface,
+			first,
+			second,
+			body_radius.x * 0.21,
+			body_radius.x * 0.13,
+			color.lightened(0.05),
+			6
+		)
+		_append_tapered_tube(
+			surface,
+			second,
+			tip,
+			body_radius.x * 0.13,
+			body_radius.x * 0.05,
+			color.lightened(0.10),
+			6
+		)
 		return
 	if species == MammalSpecies.SPECIES_CAT:
 		var resting_drop := -body_radius.y * 0.52 if pose == MammalSpecies.POSE_RESTING else 0.0
-		var first := root + Vector3(body_radius.x * 0.58, body_radius.y * 0.18 + resting_drop, tail_length * 0.34)
-		var second := root + Vector3(body_radius.x * 0.86, body_radius.y * 0.58 + resting_drop, tail_length * 0.70)
-		var tip := root + Vector3(body_radius.x * 0.54, body_radius.y * 0.92 + resting_drop, tail_length)
-		_append_tapered_tube(surface, root, first, body_radius.x * 0.34, body_radius.x * 0.30, color, 6)
-		_append_tapered_tube(surface, first, second, body_radius.x * 0.30, body_radius.x * 0.24, color, 6)
-		_append_tapered_tube(surface, second, tip, body_radius.x * 0.24, body_radius.x * 0.14, color.lightened(0.04), 6)
+		var first := (
+			root
+			+ Vector3(body_radius.x * 0.58, body_radius.y * 0.18 + resting_drop, tail_length * 0.34)
+		)
+		var second := (
+			root
+			+ Vector3(body_radius.x * 0.86, body_radius.y * 0.58 + resting_drop, tail_length * 0.70)
+		)
+		var tip := (
+			root + Vector3(body_radius.x * 0.54, body_radius.y * 0.92 + resting_drop, tail_length)
+		)
+		_append_tapered_tube(
+			surface, root, first, body_radius.x * 0.34, body_radius.x * 0.30, color, 6
+		)
+		_append_tapered_tube(
+			surface, first, second, body_radius.x * 0.30, body_radius.x * 0.24, color, 6
+		)
+		_append_tapered_tube(
+			surface,
+			second,
+			tip,
+			body_radius.x * 0.24,
+			body_radius.x * 0.14,
+			color.lightened(0.04),
+			6
+		)
 		return
 	var tip := root + Vector3(0.0, body_radius.y * 0.08, tail_length)
 	if group == MammalSpecies.GROUP_MUSTELID:
-		_append_tapered_tube(surface, root, tip, body_radius.x * 0.12, body_radius.x * 0.04, color, 5)
+		_append_tapered_tube(
+			surface, root, tip, body_radius.x * 0.12, body_radius.x * 0.04, color, 5
+		)
 	else:
 		_append_quad(
 			surface,
@@ -522,12 +626,7 @@ static func _append_tail(
 
 
 static func _append_ellipsoid(
-	surface: SurfaceTool,
-	center: Vector3,
-	radius: Vector3,
-	color: Color,
-	segments: int,
-	rings: int
+	surface: SurfaceTool, center: Vector3, radius: Vector3, color: Color, segments: int, rings: int
 ) -> void:
 	for ring_index in rings:
 		var latitude_a := -PI * 0.5 + PI * float(ring_index) / float(rings)
@@ -584,23 +683,14 @@ static func _append_tapered_tube(
 
 
 static func _append_quad(
-	surface: SurfaceTool,
-	a: Vector3,
-	b: Vector3,
-	c: Vector3,
-	d: Vector3,
-	color: Color
+	surface: SurfaceTool, a: Vector3, b: Vector3, c: Vector3, d: Vector3, color: Color
 ) -> void:
 	_append_colored_triangle(surface, a, b, c, color)
 	_append_colored_triangle(surface, a, c, d, color.darkened(0.025))
 
 
 static func _append_colored_triangle(
-	surface: SurfaceTool,
-	a: Vector3,
-	b: Vector3,
-	c: Vector3,
-	color: Color
+	surface: SurfaceTool, a: Vector3, b: Vector3, c: Vector3, color: Color
 ) -> void:
 	for vertex in [a, b, c]:
 		surface.set_color(color)

@@ -10,14 +10,16 @@ const ALL_SPECIES: Array[StringName] = [SPECIES_HERRING, SPECIES_COD]
 const RADIAL_SEGMENTS := 8
 
 const _PROFILES := {
-	SPECIES_HERRING: {
+	SPECIES_HERRING:
+	{
 		"length": 0.38,
 		"depth": 0.075,
 		"thickness": 0.028,
 		"body_color": Color8(154, 151, 132),
 		"belly_color": Color8(188, 178, 148),
 	},
-	SPECIES_COD: {
+	SPECIES_COD:
+	{
 		"length": 0.46,
 		"depth": 0.105,
 		"thickness": 0.04,
@@ -140,20 +142,14 @@ static func _build_mesh(species: StringName) -> ArrayMesh:
 
 
 static func _profile_vertex(
-	ring: Vector3,
-	angle: float,
-	length: float,
-	depth: float,
-	thickness: float
+	ring: Vector3, angle: float, length: float, depth: float, thickness: float
 ) -> Vector3:
-	return Vector3(
-		cos(angle) * depth * ring.y,
-		-length * ring.x,
-		sin(angle) * thickness * ring.z
-	)
+	return Vector3(cos(angle) * depth * ring.y, -length * ring.x, sin(angle) * thickness * ring.z)
 
 
-static func _append_tail(surface: SurfaceTool, depth: float, thickness: float, color: Color) -> void:
+static func _append_tail(
+	surface: SurfaceTool, depth: float, thickness: float, color: Color
+) -> void:
 	var base := Vector3(0.0, -0.025, 0.0)
 	for z_sign_value in [-1, 1]:
 		var z_sign := float(z_sign_value)
@@ -203,18 +199,34 @@ static func _append_fins(
 		)
 
 
-static func _append_eyes(surface: SurfaceTool, length: float, depth: float, thickness: float) -> void:
+static func _append_eyes(
+	surface: SurfaceTool, length: float, depth: float, thickness: float
+) -> void:
 	var center := Vector3(-depth * 0.19, -length * 0.88, 0.0)
 	var radius := maxf(depth * 0.075, 0.005)
 	for z_sign_value in [-1, 1]:
 		var z_sign := float(z_sign_value)
 		var z: float = z_sign * thickness * 0.96
 		var eye_center := center + Vector3(0.0, 0.0, z)
-		_add_triangle(surface, eye_center + Vector3(-radius, 0.0, 0.0), eye_center + Vector3(0.0, radius, 0.0), eye_center + Vector3(radius, 0.0, 0.0), Color("211f1b"))
-		_add_triangle(surface, eye_center + Vector3(-radius, 0.0, 0.0), eye_center + Vector3(radius, 0.0, 0.0), eye_center + Vector3(0.0, -radius, 0.0), Color("211f1b"))
+		_add_triangle(
+			surface,
+			eye_center + Vector3(-radius, 0.0, 0.0),
+			eye_center + Vector3(0.0, radius, 0.0),
+			eye_center + Vector3(radius, 0.0, 0.0),
+			Color("211f1b")
+		)
+		_add_triangle(
+			surface,
+			eye_center + Vector3(-radius, 0.0, 0.0),
+			eye_center + Vector3(radius, 0.0, 0.0),
+			eye_center + Vector3(0.0, -radius, 0.0),
+			Color("211f1b")
+		)
 
 
-static func _add_triangle(surface: SurfaceTool, a: Vector3, b: Vector3, c: Vector3, color: Color) -> void:
+static func _add_triangle(
+	surface: SurfaceTool, a: Vector3, b: Vector3, c: Vector3, color: Color
+) -> void:
 	for vertex in [a, b, c]:
 		surface.set_color(color)
 		surface.add_vertex(vertex)

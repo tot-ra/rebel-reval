@@ -5,7 +5,10 @@ extends RefCounted
 ## every provision item, household tool, and grouped routine-state module as a
 ## separate root so maps can swap closed, in-use, depleted, and cleared layouts.
 
-const HOUSEHOLD_CLUTTER_KIT_SCENE_PATH := "res://assets/props/domestic/household/smithy_household_clutter_kit.glb"
+const HOUSEHOLD_CLUTTER_KIT_SCENE_PATH := (
+	"res://assets/props/domestic/household/"
+	+ "smithy_household_clutter_kit.glb"
+)
 
 const VARIANT_ROOT_NAMES: Dictionary = {
 	MapTypes.PROVISION_RYE_BREAD_LOAF: &"ProvisionRyeBreadLoaf",
@@ -39,7 +42,10 @@ static func add_model(parent: Node3D, prop: Dictionary) -> Node3D:
 
 	var selected_name: StringName = VARIANT_ROOT_NAMES[variant]
 	var selected := model.find_child(String(selected_name), true, false) as Node3D
-	assert(selected != null, "Smithy household clutter variant root is missing: %s" % String(selected_name))
+	assert(
+		selected != null,
+		"Smithy household clutter variant root is missing: %s" % String(selected_name)
+	)
 	for root_name in VARIANT_ROOT_NAMES.values():
 		if root_name == selected_name:
 			continue

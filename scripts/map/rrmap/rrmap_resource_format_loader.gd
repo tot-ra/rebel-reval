@@ -18,10 +18,7 @@ func _get_resource_type(path: String) -> String:
 
 
 func _load(
-	path: String,
-	_original_path: String,
-	_use_sub_threads: bool,
-	_cache_mode: int
+	path: String, _original_path: String, _use_sub_threads: bool, _cache_mode: int
 ) -> Variant:
 	var parsed := MapRrmapParser.parse_file(path)
 	if not parsed.is_ok():

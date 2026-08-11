@@ -39,9 +39,7 @@ static func build_snapshot(
 
 
 static func _resolve_response(
-	mechanism: Dictionary,
-	state: GameState,
-	evaluator: StateRuleEvaluator
+	mechanism: Dictionary, state: GameState, evaluator: StateRuleEvaluator
 ) -> Dictionary:
 	for response_value in mechanism.get("responses", []) as Array:
 		if typeof(response_value) != TYPE_DICTIONARY:

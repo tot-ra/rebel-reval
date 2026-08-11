@@ -1,6 +1,5 @@
-extends Node2D
-
 class_name CombatTestDummy
+extends Node2D
 
 ## Shared combat actor for headless tests and the P1-024 combat room.
 ## Uses CombatVitals so guard/parry/dodge/death match the player contracts.
@@ -19,7 +18,6 @@ var combat_vitals := CombatVitals.new()
 var defense_pose := CombatDefensePose.open()
 var display_name := "Dummy"
 
-
 func _ready() -> void:
 	add_to_group(&"combat_damageable")
 	combat_vitals.configure(health, max_health, stamina, max_stamina)
@@ -32,10 +30,7 @@ func _process(delta: float) -> void:
 
 
 func configure_resources(
-	current_health: float,
-	health_cap: float,
-	current_stamina: float,
-	stamina_cap: float
+	current_health: float, health_cap: float, current_stamina: float, stamina_cap: float
 ) -> void:
 	health = current_health
 	max_health = health_cap

@@ -1,16 +1,19 @@
+class_name Player
 extends CharacterBody2D
 
-class_name Player
+signal melee_attack_resolved(targets: Array[Node2D], profile: AttackProfile)
+signal health_changed(current: float, maximum: float)
+signal died
 
 const MeleeAttackResolverScript := preload("res://scripts/combat/melee_attack_resolver.gd")
 const AttackProfileScript := preload("res://scripts/combat/attack_profile.gd")
 const AttackProfileResolverScript := preload("res://scripts/combat/attack_profile_resolver.gd")
 const NpcPushScript := preload("res://scripts/physics/npc_push.gd")
 const DEATH_SCREEN_PATH := "res://scenes/death/death_screen.tscn"
-
-signal melee_attack_resolved(targets: Array[Node2D], profile: AttackProfile)
-signal health_changed(current: float, maximum: float)
-signal died
+const STAMINA_DRAIN_RATE := 10.0  # per second
+const DODGE_STAMINA_COST := 18.0
+const DODGE_DISTANCE_PX := 80.0
+const DODGE_DEFAULT_SIDE := Vector2.RIGHT
 
 # Logic px/s (32 px = 1 world unit): a readable walk and a believable sprint.
 # MapViewRuntime.RUN_ANIMATION_MIN_SPEED sits midway between these.
@@ -18,27 +21,17 @@ signal died
 @export var run_speed = 240
 @export var combat_input_enabled := true
 
-@onready var animation_player: AnimatedSprite2D = get_node_or_null("AnimatedSprite2D")
-# Optional so headless unit tests can construct Player.new() without the full scene.
-@onready var navigation_agent: NavigationAgent2D = get_node_or_null("NavigationAgent2D")
-@onready var health_ring: CharacterHealthRing = get_node_or_null("HealthRing")
-@onready var stamina_bar: ProgressBar = get_node_or_null("StaminaBar")
-
 var health: float = 100.0
 var max_health: float = 100.0
 var stamina: float = 100.0
 var max_stamina: float = 100.0
-const STAMINA_DRAIN_RATE := 10.0 # per second
-const DODGE_STAMINA_COST := 18.0
-const DODGE_DISTANCE_PX := 80.0
-const DODGE_DEFAULT_SIDE := Vector2.RIGHT
+var action_state_machine := PlayerActionStateMachine.new()
+var combat_vitals := CombatVitals.new()
 
 var _screen_right_in_logic := Vector2.RIGHT
 var _screen_down_in_logic := Vector2.DOWN
 var _facing_direction := Vector2.DOWN
 var _camera_facing_direction := Vector2.ZERO
-var action_state_machine := PlayerActionStateMachine.new()
-var combat_vitals := CombatVitals.new()
 var _active_attack_profile: AttackProfile = AttackProfile.unarmed()
 var _attack_charge_sec: float = 0.0
 var _attack_charge_active: bool = false
@@ -50,6 +43,14 @@ var _dodge_facing := Vector2.ZERO
 var _dodge_animation: StringName = &"dodge_right"
 var _dodge_distance_remaining := 0.0
 var _death_transition_started := false
+var _map_definition: MapDefinition
+var _map_grid: MapTerrainGrid
+
+@onready var animation_player: AnimatedSprite2D = get_node_or_null("AnimatedSprite2D")
+# Optional so headless unit tests can construct Player.new() without the full scene.
+@onready var navigation_agent: NavigationAgent2D = get_node_or_null("NavigationAgent2D")
+@onready var health_ring: CharacterHealthRing = get_node_or_null("HealthRing")
+@onready var stamina_bar: ProgressBar = get_node_or_null("StaminaBar")
 
 func _ready() -> void:
 	CollisionLayers.apply_player(self)
@@ -67,15 +68,12 @@ func _ready() -> void:
 	if navigation_agent != null:
 		navigation_agent.velocity_computed.connect(Callable(self, "_on_velocity_computed"))
 
+
 func _on_spawn(position: Vector2, direction: String):
-	global_position=position
+	global_position = position
 	if animation_player != null:
-		animation_player.play("walk_"+direction)
+		animation_player.play("walk_" + direction)
 		animation_player.stop()
-
-var _map_definition: MapDefinition
-var _map_grid: MapTerrainGrid
-
 
 func configure_map_movement(definition: MapDefinition, grid: MapTerrainGrid) -> void:
 	_map_definition = definition
@@ -91,7 +89,10 @@ func _physics_process(_delta):
 	if was_dodging:
 		dodge_motion_sec = minf(
 			_delta,
-			maxf(0.0, action_state_machine.dodge_duration_sec - action_state_machine.state_elapsed_sec)
+			maxf(
+				0.0,
+				action_state_machine.dodge_duration_sec - action_state_machine.state_elapsed_sec
+			)
 		)
 	action_state_machine.tick(_delta)
 	combat_vitals.tick(_delta)
@@ -122,33 +123,38 @@ func _physics_process(_delta):
 	var screen_direction := ScreenDirectionInput.read_axis()
 	var movement_direction := movement_direction_for_screen_input(screen_direction)
 	var new_animation = "idle"
-	
+
 	if not movement_direction.is_zero_approx():
 		if _camera_facing_direction.is_zero_approx():
 			_facing_direction = movement_direction.normalized()
 		var encumbrance := _get_encumbrance_speed_multiplier()
 		var terrain_speed := _get_terrain_speed_multiplier()
 		var current_speed = run_speed * encumbrance * terrain_speed
-		
+
 		if Input.is_action_pressed("ui_shift"):
 			new_animation = "walk"
 			current_speed = walk_speed * encumbrance * terrain_speed
 		else:
 			new_animation = "run"
-		
+
 		if navigation_agent != null:
 			navigation_agent.set_target_position(global_position)
 		velocity = movement_direction * current_speed
-		
+
 	else:
 		if navigation_agent != null and not navigation_agent.is_navigation_finished():
 			var current_agent_position: Vector2 = global_position
 			var next_path_position: Vector2 = navigation_agent.get_next_path_position()
 
-			velocity = run_speed * _get_encumbrance_speed_multiplier() * _get_terrain_speed_multiplier() * (next_path_position - current_agent_position).normalized()
+			velocity = (
+				run_speed
+				* _get_encumbrance_speed_multiplier()
+				* _get_terrain_speed_multiplier()
+				* (next_path_position - current_agent_position).normalized()
+			)
 			if not velocity.is_zero_approx() and _camera_facing_direction.is_zero_approx():
 				_facing_direction = velocity.normalized()
-			
+
 			navigation_agent.set_velocity(velocity)
 			new_animation = "run"
 		else:
@@ -160,6 +166,7 @@ func _physics_process(_delta):
 	move_and_slide()
 	_apply_npc_pushes(movement_velocity, _delta)
 	update_animation(_combat_or_locomotion_animation(new_animation))
+
 
 func _process_action_input(delta: float) -> void:
 	if not combat_input_enabled or _movement_blocked():
@@ -236,9 +243,10 @@ func _on_action_started(kind: PlayerActionKind.Kind) -> void:
 
 static func dodge_animation_for_direction(direction: Vector2, facing: Vector2) -> StringName:
 	var normalized_facing := facing.normalized() if not facing.is_zero_approx() else Vector2.DOWN
-	var normalized_direction := direction.normalized() if not direction.is_zero_approx() else Vector2(
-		normalized_facing.y,
-		-normalized_facing.x
+	var normalized_direction := (
+		direction.normalized()
+		if not direction.is_zero_approx()
+		else Vector2(normalized_facing.y, -normalized_facing.x)
 	)
 	var right := Vector2(normalized_facing.y, -normalized_facing.x)
 	var forward_amount := normalized_direction.dot(normalized_facing)
@@ -346,15 +354,13 @@ func _reset_attack_charge() -> void:
 
 func _supports_charged_attack() -> bool:
 	return AttackProfileResolverScript.state_supports_charged_attack(
-		SessionState.state,
-		SessionState.content_db
+		SessionState.state, SessionState.content_db
 	)
 
 
 func _charge_threshold_sec() -> float:
 	return AttackProfileResolverScript.charge_threshold_sec_for_state(
-		SessionState.state,
-		SessionState.content_db
+		SessionState.state, SessionState.content_db
 	)
 
 
@@ -372,8 +378,7 @@ func take_damage(
 ) -> float:
 	_sync_vitals_from_fields()
 	var pose := CombatDefensePose.from_action_machine(
-		action_state_machine,
-		combat_vitals.parry_window_sec
+		action_state_machine, combat_vitals.parry_window_sec
 	)
 	# Dodge invulnerability remains owned by the action machine; vitals also
 	# tracks post-hit i-frames so both player and combat actors share one rule.
@@ -401,7 +406,10 @@ func is_combat_dead() -> bool:
 
 
 func view_facing() -> Vector2:
-	if action_state_machine.state == PlayerActionState.State.DODGE and not _dodge_facing.is_zero_approx():
+	if (
+		action_state_machine.state == PlayerActionState.State.DODGE
+		and not _dodge_facing.is_zero_approx()
+	):
 		return _dodge_facing
 	return _facing_direction
 
@@ -413,7 +421,9 @@ func set_view_facing(direction: Vector2) -> void:
 
 
 func set_camera_facing(direction: Vector2) -> void:
-	_camera_facing_direction = direction.normalized() if not direction.is_zero_approx() else Vector2.ZERO
+	_camera_facing_direction = (
+		direction.normalized() if not direction.is_zero_approx() else Vector2.ZERO
+	)
 	if not _camera_facing_direction.is_zero_approx():
 		_facing_direction = _camera_facing_direction
 
@@ -458,23 +468,21 @@ func _current_locomotion_animation() -> String:
 func _on_attack_impact() -> void:
 	var profile := _active_attack_profile
 	var targets: Array[Node2D] = MeleeAttackResolverScript.strike_with_profile(
-		self,
-		_facing_direction,
-		profile
+		self, _facing_direction, profile
 	)
 	melee_attack_resolved.emit(targets, profile)
 
 
-func _on_action_state_changed(_previous: PlayerActionState.State, current: PlayerActionState.State) -> void:
+func _on_action_state_changed(
+	_previous: PlayerActionState.State, current: PlayerActionState.State
+) -> void:
 	if current != PlayerActionState.State.ATTACK:
 		_active_attack_profile = _resolve_attack_profile()
 
 
 func _resolve_attack_profile(use_charged: bool = false) -> AttackProfile:
 	return AttackProfileResolverScript.resolve_for_state(
-		SessionState.state,
-		SessionState.content_db,
-		use_charged
+		SessionState.state, SessionState.content_db, use_charged
 	)
 
 
@@ -552,6 +560,7 @@ func _combat_or_locomotion_animation(locomotion_animation: String) -> String:
 		return action_state_machine.get_animation_base()
 	return locomotion_animation
 
+
 func set_screen_movement_basis(logic_right: Vector2, logic_down: Vector2) -> void:
 	if logic_right.is_zero_approx() or logic_down.is_zero_approx():
 		push_warning("Screen movement basis must contain two non-zero directions")
@@ -561,12 +570,13 @@ func set_screen_movement_basis(logic_right: Vector2, logic_down: Vector2) -> voi
 	_screen_right_in_logic = logic_right
 	_screen_down_in_logic = logic_down
 
+
 func movement_direction_for_screen_input(screen_direction: Vector2) -> Vector2:
 	var logic_direction := (
-		_screen_right_in_logic * screen_direction.x
-		+ _screen_down_in_logic * screen_direction.y
+		_screen_right_in_logic * screen_direction.x + _screen_down_in_logic * screen_direction.y
 	)
 	return logic_direction.normalized() if not logic_direction.is_zero_approx() else Vector2.ZERO
+
 
 func is_movement_input_blocked() -> bool:
 	return _movement_blocked()
@@ -628,6 +638,7 @@ func _update_movement_resources(delta: float, is_moving: bool) -> void:
 	if is_moving:
 		stamina = maxf(0.0, stamina - delta * STAMINA_DRAIN_RATE)
 
+
 func _sync_resource_bars() -> void:
 	if health_ring != null:
 		health_ring.set_health(health, max_health)
@@ -635,8 +646,10 @@ func _sync_resource_bars() -> void:
 		stamina_bar.max_value = max_stamina
 		stamina_bar.value = stamina
 
+
 func _on_velocity_computed(safe_velocity: Vector2) -> void:
 	velocity = safe_velocity
+
 
 func _get_animation_direction(direction_vector: Vector2) -> String:
 	var direction_suffix = ""
@@ -646,19 +659,20 @@ func _get_animation_direction(direction_vector: Vector2) -> String:
 			direction_suffix += "_north"
 		else:
 			direction_suffix += "_south"
-		
+
 		if direction_vector.x > 0:
 			direction_suffix += "_east"
 		if direction_vector.x < 0:
 			direction_suffix += "_west"
-			
+
 	return direction_suffix
+
 
 func update_animation(base_animation: String):
 	if animation_player == null:
 		return
 	var final_animation = ""
-	
+
 	if base_animation == "run" or base_animation == "walk":
 		# Player is moving based on input
 		final_animation = base_animation + _get_animation_direction(velocity)
@@ -666,7 +680,7 @@ func update_animation(base_animation: String):
 		# Player is idle, face the mouse
 		var mouse_pos = get_global_mouse_position()
 		var direction_to_mouse = mouse_pos - global_position
-		final_animation = "idle_south" # + _get_animation_direction(direction_to_mouse)
+		final_animation = "idle_south"  # + _get_animation_direction(direction_to_mouse)
 
 	# Only change the animation if the state has changed
 	if animation_player.animation != final_animation and final_animation != "":

@@ -65,17 +65,28 @@ static func from_content_record(record: Dictionary) -> EncounterOutcomeDefinitio
 ## Load encounter.watch_checkpoint (or another id) through ContentDB.
 ## Falls back to the typed smoke mirror when content is unavailable.
 static func from_content_db(
-	content_db: ContentDB,
-	encounter_id: StringName = WATCH_CHECKPOINT_ID
+	content_db: ContentDB, encounter_id: StringName = WATCH_CHECKPOINT_ID
 ) -> EncounterOutcomeDefinition:
 	if content_db == null or not content_db.is_loaded():
-		return watch_checkpoint() if encounter_id == WATCH_CHECKPOINT_ID else EncounterOutcomeDefinition.new()
+		return (
+			watch_checkpoint()
+			if encounter_id == WATCH_CHECKPOINT_ID
+			else EncounterOutcomeDefinition.new()
+		)
 	var record := content_db.get_encounter(encounter_id)
 	if record.is_empty():
-		return watch_checkpoint() if encounter_id == WATCH_CHECKPOINT_ID else EncounterOutcomeDefinition.new()
+		return (
+			watch_checkpoint()
+			if encounter_id == WATCH_CHECKPOINT_ID
+			else EncounterOutcomeDefinition.new()
+		)
 	var loaded := from_content_record(record)
 	if loaded.encounter_id.is_empty() or loaded.quest_states.is_empty():
-		return watch_checkpoint() if encounter_id == WATCH_CHECKPOINT_ID else EncounterOutcomeDefinition.new()
+		return (
+			watch_checkpoint()
+			if encounter_id == WATCH_CHECKPOINT_ID
+			else EncounterOutcomeDefinition.new()
+		)
 	return loaded
 
 

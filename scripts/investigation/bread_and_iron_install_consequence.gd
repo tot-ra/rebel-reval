@@ -7,23 +7,15 @@ const ModelScript := preload("res://scripts/quest/bread_and_iron_quest_model.gd"
 const AftermathModelScript := preload(
 	"res://scripts/investigation/bread_and_iron_aftermath_model.gd"
 )
-
 const ENCOUNTER_ID := &"encounter.watch_checkpoint"
 const INTERACTABLE_ID := &"interact.bread_and_iron.scale_install"
 const INSTALL_ANCHOR := &"checkpoint_east"
 const SERGEANT_ANCHOR := &"mart_street"
-
 const RECORD_HONEST := &"forged.bread_and_iron.honest_work"
 const RECORD_SUBTLE := &"forged.bread_and_iron.subtle_defect"
 const RECORD_SECRET := &"forged.bread_and_iron.secret_feature"
-
 const ENEMY_SCRIPT := preload("res://scripts/combat/combat_room_enemy.gd")
 const INTERACTABLE_SCENE := preload("res://scenes/interaction/interactable.tscn")
-
-var _scene_root: Node2D
-var _definition: MapDefinition
-var _player: Player
-var _actors: Node2D
 
 var watchman: CombatRoomEnemy
 var sergeant: CombatRoomEnemy
@@ -31,6 +23,10 @@ var encounter_definition: EncounterOutcomeDefinition = EncounterOutcomeDefinitio
 var encounter_resolver := EncounterOutcomeResolver.new()
 var encounter_checkpoint := EncounterCheckpoint.new()
 
+var _scene_root: Node2D
+var _definition: MapDefinition
+var _player: Player
+var _actors: Node2D
 var _install_interactable: Interactable
 var _actions_layer: CanvasLayer
 var _surrender_button: Button
@@ -40,13 +36,7 @@ var _encounter_armed := false
 var _encounter_resolved := false
 var _install_committed := false
 
-
-func setup(
-	scene_root: Node2D,
-	definition: MapDefinition,
-	player: Player,
-	actors: Node2D
-) -> void:
+func setup(scene_root: Node2D, definition: MapDefinition, player: Player, actors: Node2D) -> void:
 	_scene_root = scene_root
 	_definition = definition
 	_player = player
@@ -56,8 +46,10 @@ func setup(
 	_build_outcome_ui()
 	if not SessionState.state_replaced.is_connected(_on_state_replaced):
 		SessionState.state_replaced.connect(_on_state_replaced)
-	if SessionState.state != null \
-			and not SessionState.state.phase_changed.is_connected(_on_phase_changed):
+	if (
+		SessionState.state != null
+		and not SessionState.state.phase_changed.is_connected(_on_phase_changed)
+	):
 		SessionState.state.phase_changed.connect(_on_phase_changed)
 	_sync_encounter()
 
@@ -84,9 +76,7 @@ func resolve_encounter_outcome(kind: StringName) -> bool:
 		enemies.append(watchman)
 	if sergeant != null:
 		enemies.append(sergeant)
-	var ok := encounter_resolver.resolve(
-		SessionState.state, encounter_definition, kind, enemies
-	)
+	var ok := encounter_resolver.resolve(SessionState.state, encounter_definition, kind, enemies)
 	if ok:
 		_on_encounter_resolved()
 	return ok
@@ -105,8 +95,10 @@ func commit_install_for_test() -> bool:
 
 
 func _exit_tree() -> void:
-	if SessionState.state != null \
-			and SessionState.state.phase_changed.is_connected(_on_phase_changed):
+	if (
+		SessionState.state != null
+		and SessionState.state.phase_changed.is_connected(_on_phase_changed)
+	):
 		SessionState.state.phase_changed.disconnect(_on_phase_changed)
 	if SessionState.state_replaced.is_connected(_on_state_replaced):
 		SessionState.state_replaced.disconnect(_on_state_replaced)
@@ -136,7 +128,9 @@ func _sync_encounter() -> void:
 	_ensure_content()
 	var should_offer := ModelScript.is_install_active(SessionState.state) and not _install_committed
 	if _install_interactable != null:
-		_install_interactable.enabled = should_offer and not _encounter_armed and not _encounter_resolved
+		_install_interactable.enabled = (
+			should_offer and not _encounter_armed and not _encounter_resolved
+		)
 	if should_offer and not _encounter_armed and not _encounter_resolved:
 		_teardown_combat_actors()
 		_set_outcome_ui_visible(false)
@@ -172,8 +166,7 @@ func _commit_scale_install() -> bool:
 	if _install_committed or SessionState.state == null:
 		return _install_committed
 	_install_committed = AftermathModelScript.commit_install(
-		SessionState.state,
-		SessionState.content_db
+		SessionState.state, SessionState.content_db
 	)
 	return _install_committed
 

@@ -46,7 +46,9 @@ func _is_actor_input_blocked() -> bool:
 		return false
 	if _is_dialogue_active():
 		return true
-	var commission := actor.get_node_or_null("ForgeCommissionController") as ForgeCommissionController
+	var commission := (
+		actor.get_node_or_null("ForgeCommissionController") as ForgeCommissionController
+	)
 	return commission != null and commission.is_open()
 
 

@@ -57,12 +57,17 @@ func list_saves() -> Array[Dictionary]:
 		var location_id := ""
 		if player is Dictionary:
 			location_id = String((player as Dictionary).get("location_id", ""))
-		entries.append({
-			"slot": slot,
-			"saved_at_unix": int(envelope.get("saved_at_unix", 0)),
-			"phase": String(gs.get("phase", "")),
-			"location_id": location_id,
-		})
+		(
+			entries
+			. append(
+				{
+					"slot": slot,
+					"saved_at_unix": int(envelope.get("saved_at_unix", 0)),
+					"phase": String(gs.get("phase", "")),
+					"location_id": location_id,
+				}
+			)
+		)
 	entries.sort_custom(func(a, b): return a["saved_at_unix"] > b["saved_at_unix"])
 	return entries
 

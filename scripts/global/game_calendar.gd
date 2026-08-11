@@ -38,11 +38,7 @@ static func days_in_month(month: int, year: int) -> int:
 static func weekday_index(date: Dictionary) -> int:
 	var year := int(date.get("year", DEFAULT_DATE["year"]))
 	var month := clampi(int(date.get("month", DEFAULT_DATE["month"])), 1, 12)
-	var day := clampi(
-		int(date.get("day", DEFAULT_DATE["day"])),
-		1,
-		days_in_month(month, year)
-	)
+	var day := clampi(int(date.get("day", DEFAULT_DATE["day"])), 1, days_in_month(month, year))
 	var y := year
 	var m := month
 	if m < 3:
@@ -58,11 +54,7 @@ static func weekday_index(date: Dictionary) -> int:
 static func day_of_year(date: Dictionary) -> int:
 	var year := int(date.get("year", DEFAULT_DATE["year"]))
 	var month := clampi(int(date.get("month", DEFAULT_DATE["month"])), 1, 12)
-	var day := clampi(
-		int(date.get("day", DEFAULT_DATE["day"])),
-		1,
-		days_in_month(month, year)
-	)
+	var day := clampi(int(date.get("day", DEFAULT_DATE["day"])), 1, days_in_month(month, year))
 	var ordinal := day
 	for preceding_month in range(1, month):
 		ordinal += days_in_month(preceding_month, year)
@@ -80,11 +72,7 @@ static func date_for_phase(phase_id: StringName) -> Dictionary:
 static func add_days(date: Dictionary, day_offset: int) -> Dictionary:
 	var year := int(date.get("year", DEFAULT_DATE["year"]))
 	var month := clampi(int(date.get("month", DEFAULT_DATE["month"])), 1, 12)
-	var day := clampi(
-		int(date.get("day", DEFAULT_DATE["day"])),
-		1,
-		days_in_month(month, year)
-	)
+	var day := clampi(int(date.get("day", DEFAULT_DATE["day"])), 1, days_in_month(month, year))
 
 	if day_offset > 0:
 		for _step in day_offset:
@@ -115,11 +103,14 @@ static func date_for_phase_and_elapsed_days(phase_id: StringName, elapsed_days: 
 
 
 static func format_date(date: Dictionary) -> String:
-	return "%02d.%02d.%04d" % [
-		int(date.get("day", DEFAULT_DATE["day"])),
-		int(date.get("month", DEFAULT_DATE["month"])),
-		int(date.get("year", DEFAULT_DATE["year"])),
-	]
+	return (
+		"%02d.%02d.%04d"
+		% [
+			int(date.get("day", DEFAULT_DATE["day"])),
+			int(date.get("month", DEFAULT_DATE["month"])),
+			int(date.get("year", DEFAULT_DATE["year"])),
+		]
+	)
 
 
 ## Campaign date plus the accelerated local solar clock. Callers pass the date

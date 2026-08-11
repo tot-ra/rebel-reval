@@ -9,7 +9,12 @@ const KEY_PREFIX := "memory."
 
 static func is_valid_key(key: StringName) -> bool:
 	var parts := String(key).split(".")
-	return parts.size() >= 3 and parts[0] == "memory" and not parts[1].is_empty() and not parts[2].is_empty()
+	return (
+		parts.size() >= 3
+		and parts[0] == "memory"
+		and not parts[1].is_empty()
+		and not parts[2].is_empty()
+	)
 
 
 static func character_id_for_key(key: StringName) -> StringName:

@@ -7,18 +7,47 @@ const PropStyleVariants := preload("res://scripts/map/map_prop_style_variants.gd
 ## statement dispatcher stays readable and tokenizer tests can load less code.
 
 const STYLE_NAME_KEYS: Array[String] = [
-	"door_side", "ridge_axis", "wall_walk_axis", "interior_side", "primitive", "style_variant", "destination_scene_id",
-	"destination_spawn_id", "spawn_id", "building_id", "transition_visual", "view_landmark_id", "alignment", "kind", "door_material", "gate_variant", "grille_variant", "passage_axis",
-	"wall_material", "roof_material", "house_tier", "vehicle_class", "shore_confidence", "faction", "display_goods", "table_items",
+	"door_side",
+	"ridge_axis",
+	"wall_walk_axis",
+	"interior_side",
+	"primitive",
+	"style_variant",
+	"destination_scene_id",
+	"destination_spawn_id",
+	"spawn_id",
+	"building_id",
+	"transition_visual",
+	"view_landmark_id",
+	"alignment",
+	"kind",
+	"door_material",
+	"gate_variant",
+	"grille_variant",
+	"passage_axis",
+	"wall_material",
+	"roof_material",
+	"house_tier",
+	"vehicle_class",
+	"shore_confidence",
+	"faction",
+	"display_goods",
+	"table_items",
 ]
-const STYLE_FLOAT_KEYS: Array[String] = ["wall_height", "wall_height_scale", "top_px", "movement_speed_multiplier"]
+const STYLE_FLOAT_KEYS: Array[String] = [
+	"wall_height", "wall_height_scale", "top_px", "movement_speed_multiplier"
+]
 const STYLE_COLOR_KEYS: Array[String] = ["wall_color", "roof_color"]
 const STYLE_VECTOR_KEYS: Array[String] = ["visual_offset_px", "spawn_offset_px"]
 const STYLE_CARDINAL_VECTOR_KEYS: Array[String] = ["facing", "direction"]
 const STYLE_RECT_KEYS: Array[String] = ["rect", "cell"]
-const STYLE_BOOL_KEYS: Array[String] = ["enabled", "tower", "round_tower", "highlight_area", "persistent"]
+const STYLE_BOOL_KEYS: Array[String] = [
+	"enabled", "tower", "round_tower", "highlight_area", "persistent"
+]
 
 var _parser
+
+
 func _init(parser) -> void:
 	_parser = parser
 
@@ -33,12 +62,12 @@ func tokenize_line(line_text: String, line: int) -> Array[Dictionary]:
 			break
 		var column := index + 1
 		var value := ""
-		if line_text[index] == "\"":
+		if line_text[index] == '"':
 			index += 1
 			var closed := false
 			while index < line_text.length():
 				var ch := line_text[index]
-				if ch == "\"":
+				if ch == '"':
 					closed = true
 					index += 1
 					break
@@ -49,10 +78,15 @@ func tokenize_line(line_text: String, line: int) -> Array[Dictionary]:
 					var escaped := line_text[index]
 					if escaped == "n":
 						value += "\n"
-					elif escaped in ["\"", "\\", "#"]:
+					elif escaped in ['"', "\\", "#"]:
 						value += escaped
 					else:
-						_parser._error(line, index, &"invalid_escape", "supported escapes are \\n, \\\", \\\\, and \\#")
+						_parser._error(
+							line,
+							index,
+							&"invalid_escape",
+							'supported escapes are \\n, \\", \\\\, and \\#'
+						)
 						value += escaped
 					index += 1
 				else:
@@ -61,7 +95,12 @@ func tokenize_line(line_text: String, line: int) -> Array[Dictionary]:
 			if not closed:
 				_parser._error(line, column, &"unterminated_string", "quoted string is not closed")
 			if index < line_text.length() and line_text[index] not in [" ", "\t", "\r", "#"]:
-				_parser._error(line, index + 1, &"missing_whitespace", "quoted strings must be separated by whitespace")
+				_parser._error(
+					line,
+					index + 1,
+					&"missing_whitespace",
+					"quoted strings must be separated by whitespace"
+				)
 		else:
 			while index < line_text.length() and line_text[index] not in [" ", "\t", "\r", "#"]:
 				value += line_text[index]
@@ -80,7 +119,9 @@ func raw_options(tokens: Array[Dictionary], line: int, start: int) -> Variant:
 			continue
 		var key := text.left(equals)
 		if values.has(key):
-			_parser._error(line, token["column"], &"duplicate_option", "option '%s' may appear only once" % key)
+			_parser._error(
+				line, token["column"], &"duplicate_option", "option '%s' may appear only once" % key
+			)
 		else:
 			values[key] = text.substr(equals + 1)
 	return null if _parser._line_has_errors(line) else values
@@ -138,12 +179,19 @@ func typed_field(key: String, text: String, line: int, column: int) -> Variant:
 	if key == "gate_variant":
 		var gate_variant := StringName(text)
 		if not PropStyleVariants.is_known_gate_variant(gate_variant):
-			_parser._error(line, column, &"unknown_gate_variant", "gate_variant is unknown: %s" % text)
+			_parser._error(
+				line, column, &"unknown_gate_variant", "gate_variant is unknown: %s" % text
+			)
 			return null
 		return gate_variant
 	if key == "shore_confidence":
 		if text not in ["attested", "reconstructed"]:
-			_parser._error(line, column, &"unknown_shore_confidence", "shore_confidence is unknown: %s; expected attested or reconstructed" % text)
+			_parser._error(
+				line,
+				column,
+				&"unknown_shore_confidence",
+				"shore_confidence is unknown: %s; expected attested or reconstructed" % text
+			)
 			return null
 		return StringName(text)
 	if key in STYLE_NAME_KEYS:
@@ -163,7 +211,9 @@ func typed_field(key: String, text: String, line: int, column: int) -> Variant:
 		return csv_rect(text, line, column)
 	if key in STYLE_BOOL_KEYS:
 		return bool_value(text, line, column)
-	_parser._error(line, column, &"unknown_typed_field", "field '%s' is not in the rrmap v1 allowlist" % key)
+	_parser._error(
+		line, column, &"unknown_typed_field", "field '%s' is not in the rrmap v1 allowlist" % key
+	)
 	return null
 
 
@@ -183,7 +233,9 @@ func literal(text: String, line: int, column: int) -> Variant:
 
 func vector_from_tokens(tokens: Array[Dictionary], line: int, start: int) -> Variant:
 	if tokens.size() <= start + 1:
-		_parser._error(line, tokens[0]["column"], &"missing_value", "expected two integer coordinates")
+		_parser._error(
+			line, tokens[0]["column"], &"missing_value", "expected two integer coordinates"
+		)
 		return null
 	var x = int_value(tokens[start]["text"], line, tokens[start]["column"])
 	var y = int_value(tokens[start + 1]["text"], line, tokens[start + 1]["column"])
@@ -305,7 +357,9 @@ func cardinal(text: String, line: int, column: int) -> Variant:
 	return null
 
 
-func int_option(options: Dictionary, key: String, fallback: int, tokens: Array[Dictionary], line: int) -> int:
+func int_option(
+	options: Dictionary, key: String, fallback: int, tokens: Array[Dictionary], line: int
+) -> int:
 	if not options.has(key):
 		return fallback
 	var value = int_value(options[key], line, option_column(tokens, key))
@@ -314,12 +368,19 @@ func int_option(options: Dictionary, key: String, fallback: int, tokens: Array[D
 
 func shore_confidence_value(text: String, line: int, column: int) -> Variant:
 	if text not in ["attested", "reconstructed"]:
-		_parser._error(line, column, &"unknown_shore_confidence", "shore_confidence is unknown: %s; expected attested or reconstructed" % text)
+		_parser._error(
+			line,
+			column,
+			&"unknown_shore_confidence",
+			"shore_confidence is unknown: %s; expected attested or reconstructed" % text
+		)
 		return null
 	return StringName(text)
 
 
-func take_int(raw: Dictionary, key: String, fallback: int, line: int, tokens: Array[Dictionary]) -> int:
+func take_int(
+	raw: Dictionary, key: String, fallback: int, line: int, tokens: Array[Dictionary]
+) -> int:
 	if not raw.has(key):
 		return fallback
 	var value = int_value(raw[key], line, option_column(tokens, key))
@@ -327,7 +388,9 @@ func take_int(raw: Dictionary, key: String, fallback: int, line: int, tokens: Ar
 	return fallback if value == null else value
 
 
-func take_bool(raw: Dictionary, key: String, fallback: bool, line: int, tokens: Array[Dictionary]) -> bool:
+func take_bool(
+	raw: Dictionary, key: String, fallback: bool, line: int, tokens: Array[Dictionary]
+) -> bool:
 	if not raw.has(key):
 		return fallback
 	var value = bool_value(raw[key], line, option_column(tokens, key))

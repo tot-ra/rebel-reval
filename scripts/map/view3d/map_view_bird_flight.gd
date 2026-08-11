@@ -96,10 +96,7 @@ func active_bird_count() -> int:
 
 
 static func pick_species(
-	seed_key: StringName,
-	context: StringName,
-	cycle_progress: float,
-	spawn_tick: int
+	seed_key: StringName, context: StringName, cycle_progress: float, spawn_tick: int
 ) -> StringName:
 	var candidates := weighted_flight_candidates(context, cycle_progress)
 	if candidates.is_empty():
@@ -139,10 +136,7 @@ static func weighted_flight_candidates(context: StringName, cycle_progress: floa
 
 
 static func distinct_species_for_context(
-	seed_key: StringName,
-	context: StringName,
-	cycle_progress: float,
-	sample_count: int
+	seed_key: StringName, context: StringName, cycle_progress: float, sample_count: int
 ) -> Array[StringName]:
 	var species_list: Array[StringName] = []
 	var seen: Dictionary = {}
@@ -163,7 +157,9 @@ func _advance_active_birds(delta: float) -> void:
 	for bird in _birds:
 		if not bird.visible:
 			continue
-		var traveled := float(bird.get_meta(&"traveled", 0.0)) + float(bird.get_meta(&"speed", 0.0)) * delta
+		var traveled := (
+			float(bird.get_meta(&"traveled", 0.0)) + float(bird.get_meta(&"speed", 0.0)) * delta
+		)
 		var path_length := float(bird.get_meta(&"path_length", 1.0))
 		if traveled >= path_length:
 			bird.visible = false
@@ -198,10 +194,14 @@ func _install_modular_rig(bird: Node3D, frame: Dictionary, procedural_material: 
 	left_elbow.name = "WingElbowL"
 	left_elbow.position = frame["left_elbow"] - frame["left_shoulder"]
 	left_shoulder.add_child(left_elbow)
-	var left_upper := _make_mesh_node("WingUpperL", frame["left_upper"] as ArrayMesh, procedural_material)
+	var left_upper := _make_mesh_node(
+		"WingUpperL", frame["left_upper"] as ArrayMesh, procedural_material
+	)
 	left_upper.position = Vector3.ZERO
 	left_shoulder.add_child(left_upper)
-	var left_primary := _make_mesh_node("WingPrimaryL", frame["left_primary"] as ArrayMesh, procedural_material)
+	var left_primary := _make_mesh_node(
+		"WingPrimaryL", frame["left_primary"] as ArrayMesh, procedural_material
+	)
 	left_primary.position = Vector3.ZERO
 	left_elbow.add_child(left_primary)
 	var right_shoulder := Node3D.new()
@@ -212,17 +212,23 @@ func _install_modular_rig(bird: Node3D, frame: Dictionary, procedural_material: 
 	right_elbow.name = "WingElbowR"
 	right_elbow.position = frame["right_elbow"] - frame["right_shoulder"]
 	right_shoulder.add_child(right_elbow)
-	var right_upper := _make_mesh_node("WingUpperR", frame["right_upper"] as ArrayMesh, procedural_material)
+	var right_upper := _make_mesh_node(
+		"WingUpperR", frame["right_upper"] as ArrayMesh, procedural_material
+	)
 	right_upper.position = Vector3.ZERO
 	right_shoulder.add_child(right_upper)
-	var right_primary := _make_mesh_node("WingPrimaryR", frame["right_primary"] as ArrayMesh, procedural_material)
+	var right_primary := _make_mesh_node(
+		"WingPrimaryR", frame["right_primary"] as ArrayMesh, procedural_material
+	)
 	right_primary.position = Vector3.ZERO
 	right_elbow.add_child(right_primary)
 	bird.set_meta(&"wing_rig_frame", frame)
 	return true
 
 
-func _make_mesh_node(node_name: String, mesh: ArrayMesh, procedural_material: bool) -> MeshInstance3D:
+func _make_mesh_node(
+	node_name: String, mesh: ArrayMesh, procedural_material: bool
+) -> MeshInstance3D:
 	var model := MeshInstance3D.new()
 	model.name = node_name
 	model.mesh = mesh
@@ -291,7 +297,12 @@ func _flight_position(bird: Node3D, t: float) -> Vector3:
 	var base := start.lerp(end, eased_t)
 	var envelope := sin(eased_t * PI)
 	var lateral := sin(eased_t * TAU * sway_frequency + sway_phase) * sway_amplitude * envelope
-	lateral += sin(eased_t * TAU * sway_frequency * 0.47 + sway_phase * 1.7) * sway_amplitude * 0.32 * envelope
+	lateral += (
+		sin(eased_t * TAU * sway_frequency * 0.47 + sway_phase * 1.7)
+		* sway_amplitude
+		* 0.32
+		* envelope
+	)
 	var vertical := sin(eased_t * PI + sway_phase * 0.61) * sway_amplitude * 0.34 * envelope
 	return base + side * lateral + up * vertical
 
@@ -310,7 +321,11 @@ func _spawn_bird() -> void:
 	var modular_cycle := BirdMeshes.modular_flap_cycle(species)
 	if modular_cycle.is_empty():
 		return
-	if not _install_modular_rig(bird, modular_cycle[mini(2, modular_cycle.size() - 1)], not BirdMeshes.uses_authored_mesh(species, BirdSpecies.POSE_GLIDING)):
+	if not _install_modular_rig(
+		bird,
+		modular_cycle[mini(2, modular_cycle.size() - 1)],
+		not BirdMeshes.uses_authored_mesh(species, BirdSpecies.POSE_GLIDING)
+	):
 		return
 	var start: Vector3 = path["start"]
 	var end: Vector3 = path["end"]
@@ -346,16 +361,24 @@ func _random_path(seed_key: StringName, spawn_tick: int) -> Dictionary:
 	match side:
 		0:
 			start = Vector3(min_axis, height, _rng.randf_range(min_axis, max_z))
-			end = Vector3(max_x, height + _rng.randf_range(-0.35, 0.35), _rng.randf_range(min_axis, max_z))
+			end = Vector3(
+				max_x, height + _rng.randf_range(-0.35, 0.35), _rng.randf_range(min_axis, max_z)
+			)
 		1:
 			start = Vector3(max_x, height, _rng.randf_range(min_axis, max_z))
-			end = Vector3(min_axis, height + _rng.randf_range(-0.35, 0.35), _rng.randf_range(min_axis, max_z))
+			end = Vector3(
+				min_axis, height + _rng.randf_range(-0.35, 0.35), _rng.randf_range(min_axis, max_z)
+			)
 		2:
 			start = Vector3(_rng.randf_range(min_axis, max_x), height, min_axis)
-			end = Vector3(_rng.randf_range(min_axis, max_x), height + _rng.randf_range(-0.35, 0.35), max_z)
+			end = Vector3(
+				_rng.randf_range(min_axis, max_x), height + _rng.randf_range(-0.35, 0.35), max_z
+			)
 		_:
 			start = Vector3(_rng.randf_range(min_axis, max_x), height, max_z)
-			end = Vector3(_rng.randf_range(min_axis, max_x), height + _rng.randf_range(-0.35, 0.35), min_axis)
+			end = Vector3(
+				_rng.randf_range(min_axis, max_x), height + _rng.randf_range(-0.35, 0.35), min_axis
+			)
 	return {
 		"start": start,
 		"end": end,
@@ -387,7 +410,9 @@ func _advance_flap(bird: Node3D, delta: float) -> void:
 	var phase := float(bird.get_meta(&"flap_phase", 2.0)) + delta / FLAP_INTERVAL_S
 	if phase >= 10.0:
 		phase = 2.0
-		bird.set_meta(&"flap_pause", float(bird.get_meta(&"glide_skip", GLIDE_SKIP_DEFAULT)) * FLAP_INTERVAL_S)
+		bird.set_meta(
+			&"flap_pause", float(bird.get_meta(&"glide_skip", GLIDE_SKIP_DEFAULT)) * FLAP_INTERVAL_S
+		)
 	bird.set_meta(&"flap_phase", phase)
 	_apply_wing_pose(bird, phase)
 

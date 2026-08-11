@@ -6,16 +6,12 @@ extends RefCounted
 ## manifest exactly; edges only keep destinations that are also active.
 
 const KalevSmithy := preload("res://scripts/map/definitions/lower_town/kalev_smithy_definition.gd")
-const StOlafsGuildHall := preload("res://scripts/map/definitions/prototypes/st_olafs_guild_hall_definition.gd")
+const StOlafsGuildHall := preload(
+	"res://scripts/map/definitions/prototypes/st_olafs_guild_hall_definition.gd"
+)
 const DistantLocationDefinitions := preload(
 	"res://scripts/map/definitions/outdoor/distant_location_definitions.gd"
 )
-
-## WHY: temporary debug unlock so designers can jump to any active district without
-## walking adjacency. Release builds keep authored-neighbor travel only.
-static func allow_all_active_travel() -> bool:
-	return OS.is_debug_build()
-
 
 ## Geographic-ish normalized positions so the overlay reads as Reval districts.
 ## Unknown active scenes fall back to a bottom row so nothing is silently dropped.
@@ -35,6 +31,12 @@ const LAYOUT_BY_SCENE: Dictionary = {
 	&"forge": Vector2(0.88, 0.58),
 	&"reval_south": Vector2(0.46, 0.78),
 }
+
+
+## WHY: temporary debug unlock so designers can jump to any active district without
+## walking adjacency. Release builds keep authored-neighbor travel only.
+static func allow_all_active_travel() -> bool:
+	return OS.is_debug_build()
 
 
 static func active_scene_ids() -> Array[StringName]:
@@ -79,10 +81,15 @@ static func connections() -> Array[Dictionary]:
 			if seen.has(key):
 				continue
 			seen[key] = true
-			edges.append({
-				"from": scene_id,
-				"to": destination,
-			})
+			(
+				edges
+				. append(
+					{
+						"from": scene_id,
+						"to": destination,
+					}
+				)
+			)
 	return edges
 
 

@@ -7,25 +7,57 @@ extends RefCounted
 ## Primitive expansion and MapDefinition assembly live in focused modules;
 ## this class keeps validation helpers and the public compile entry points.
 
-
 const COMPILER_VERSION := 9
 const ID_PATTERN := "^[a-z0-9_.-]+$"
 
 const COMMON_STYLE_KEYS: Array[StringName] = [&"enabled"]
-const TERRAIN_KEYS: Array[StringName] = [&"terrain", &"style_variant", &"movement_speed_multiplier", &"shore_confidence"]
+const TERRAIN_KEYS: Array[StringName] = [
+	&"terrain", &"style_variant", &"movement_speed_multiplier", &"shore_confidence"
+]
 const BUILDING_OVERRIDE_KEYS: Array[StringName] = [
-	&"rect", &"wall_height", &"wall_height_scale", &"wall_color", &"roof_color",
-	&"door_side", &"ridge_axis", &"wall_walk_axis", &"interior_side", &"primitive", &"tower", &"round_tower", &"wall_material", &"roof_material",
-	&"house_tier", &"faction", &"persistent",
+	&"rect",
+	&"wall_height",
+	&"wall_height_scale",
+	&"wall_color",
+	&"roof_color",
+	&"door_side",
+	&"ridge_axis",
+	&"wall_walk_axis",
+	&"interior_side",
+	&"primitive",
+	&"tower",
+	&"round_tower",
+	&"wall_material",
+	&"roof_material",
+	&"house_tier",
+	&"faction",
+	&"persistent",
 ]
 const PROP_OVERRIDE_KEYS: Array[StringName] = [
-	&"cell", &"rect", &"facing", &"style_variant", &"visual_offset_px", &"primitive",
-	&"movement_speed_multiplier", &"vehicle_class", &"faction", &"display_goods", &"table_items",
+	&"cell",
+	&"rect",
+	&"facing",
+	&"style_variant",
+	&"visual_offset_px",
+	&"primitive",
+	&"movement_speed_multiplier",
+	&"vehicle_class",
+	&"faction",
+	&"display_goods",
+	&"table_items",
 ]
 const SPAWN_KEYS: Array[StringName] = [&"cell", &"rect"]
 const TRANSITION_KEYS: Array[StringName] = [
-	&"rect", &"destination_scene_id", &"destination_spawn_id", &"spawn_id", &"building_id",
-		&"spawn_offset_px", &"highlight_area", &"transition_visual", &"view_landmark_id", &"alignment",
+	&"rect",
+	&"destination_scene_id",
+	&"destination_spawn_id",
+	&"spawn_id",
+	&"building_id",
+	&"spawn_offset_px",
+	&"highlight_area",
+	&"transition_visual",
+	&"view_landmark_id",
+	&"alignment",
 ]
 const ANCHOR_KEYS: Array[StringName] = [&"cell", &"rect", &"kind"]
 const PATROL_KEYS: Array[StringName] = [&"points", &"point_rects"]
@@ -35,17 +67,66 @@ const SIGN_KEYS: Array[StringName] = [&"text", &"cell", &"rect", &"direction"]
 const LANDMARK_OVERRIDE_KEYS: Array[StringName] = [
 	# interior_side names the range side of a cloister walk, which is the high
 	# eaves side of its lean-to roof. Gate arches ignore it.
-	&"rect", &"wall_color", &"top_px", &"door_material", &"gate_variant", &"grille_variant", &"passage_axis",
+	&"rect",
+	&"wall_color",
+	&"top_px",
+	&"door_material",
+	&"gate_variant",
+	&"grille_variant",
+	&"passage_axis",
 	&"interior_side",
 ]
 const ALL_STYLE_KEYS: Array[StringName] = [
-	&"enabled", &"terrain", &"rect", &"wall_height", &"wall_height_scale", &"wall_color",
-	&"roof_color", &"door_side", &"ridge_axis", &"wall_walk_axis", &"interior_side", &"primitive", &"cell", &"facing",
-	&"style_variant", &"visual_offset_px", &"destination_scene_id", &"destination_spawn_id",
-	&"spawn_id", &"building_id", &"spawn_offset_px", &"highlight_area", &"transition_visual", &"view_landmark_id", &"alignment", &"kind",
-	&"points", &"point_rects", &"text", &"direction", &"top_px", &"door_material", &"gate_variant", &"grille_variant", &"passage_axis",
-	&"movement_speed_multiplier", &"tower", &"round_tower", &"persistent", &"wall_material", &"roof_material", &"house_tier", &"vehicle_class", &"shore_confidence", &"faction", &"display_goods", &"table_items",
-	&"radius", &"rotation", &"tint",
+	&"enabled",
+	&"terrain",
+	&"rect",
+	&"wall_height",
+	&"wall_height_scale",
+	&"wall_color",
+	&"roof_color",
+	&"door_side",
+	&"ridge_axis",
+	&"wall_walk_axis",
+	&"interior_side",
+	&"primitive",
+	&"cell",
+	&"facing",
+	&"style_variant",
+	&"visual_offset_px",
+	&"destination_scene_id",
+	&"destination_spawn_id",
+	&"spawn_id",
+	&"building_id",
+	&"spawn_offset_px",
+	&"highlight_area",
+	&"transition_visual",
+	&"view_landmark_id",
+	&"alignment",
+	&"kind",
+	&"points",
+	&"point_rects",
+	&"text",
+	&"direction",
+	&"top_px",
+	&"door_material",
+	&"gate_variant",
+	&"grille_variant",
+	&"passage_axis",
+	&"movement_speed_multiplier",
+	&"tower",
+	&"round_tower",
+	&"persistent",
+	&"wall_material",
+	&"roof_material",
+	&"house_tier",
+	&"vehicle_class",
+	&"shore_confidence",
+	&"faction",
+	&"display_goods",
+	&"table_items",
+	&"radius",
+	&"rotation",
+	&"tint",
 ]
 
 
@@ -74,11 +155,15 @@ static func compile_with_diagnostics(
 	_validate_deterministic_value(prefab_expansion["primitives"], "expanded_prefabs", result.errors)
 	var resolved_styles := _resolve_styles(blueprint, result.errors)
 	var global_overrides := _index_global_overrides(blueprint, result.errors)
-	var expanded := MapBlueprintCompilerExpand.expand_primitives(blueprint, resolved_styles, global_overrides, result.errors, prefab_expansion)
+	var expanded := MapBlueprintCompilerExpand.expand_primitives(
+		blueprint, resolved_styles, global_overrides, result.errors, prefab_expansion
+	)
 	_validate_unused_overrides(global_overrides, expanded["resolved_ids"], result.errors)
 	var spawn_count: int = expanded["spawns"].size()
 	if spawn_count != 1:
-		result.errors.append("blueprint must define exactly one enabled player_spawn; found %d" % spawn_count)
+		result.errors.append(
+			"blueprint must define exactly one enabled player_spawn; found %d" % spawn_count
+		)
 	if not result.errors.is_empty():
 		result.import_legacy_errors(blueprint.map_id)
 		return result
@@ -92,7 +177,9 @@ static func compile_with_diagnostics(
 		return result
 
 	result.definition = definition
-	for diagnostic in MapBlueprintSemanticValidator.validate(definition, required_anchor_ids, transition_registry):
+	for diagnostic in MapBlueprintSemanticValidator.validate(
+		definition, required_anchor_ids, transition_registry
+	):
 		result.add_diagnostic(diagnostic)
 	result.import_legacy_errors(blueprint.map_id)
 	return result
@@ -112,7 +199,11 @@ static func _validate_metadata(blueprint: MapBlueprint, errors: Array[String]) -
 		errors.append("map.size_cells must be positive")
 	if blueprint.cell_size <= 0:
 		errors.append("map.cell_size must be positive")
-	if not is_finite(blueprint.ground_elevation) or blueprint.ground_elevation < 0.0 or blueprint.ground_elevation > 8.0:
+	if (
+		not is_finite(blueprint.ground_elevation)
+		or blueprint.ground_elevation < 0.0
+		or blueprint.ground_elevation > 8.0
+	):
 		errors.append("map.ground_elevation must be finite and between 0 and 8 world units")
 	if not MapTypes.ALL_TERRAINS.has(blueprint.base_terrain):
 		errors.append("map.base_terrain is unknown: %s" % String(blueprint.base_terrain))
@@ -153,7 +244,9 @@ static func _validate_metadata(blueprint: MapBlueprint, errors: Array[String]) -
 		elif not sides.has(side):
 			errors.append("surroundings town side missing kind entry: %s" % String(side))
 	if blueprint.has_authored_camera_bounds:
-		_validate_rect(blueprint.authored_camera_bounds, "camera_bounds", blueprint.size_cells, errors)
+		_validate_rect(
+			blueprint.authored_camera_bounds, "camera_bounds", blueprint.size_cells, errors
+		)
 
 
 static func _resolve_styles(blueprint: MapBlueprint, errors: Array[String]) -> Dictionary:
@@ -213,7 +306,10 @@ static func _resolve_style(
 	var next_chain := chain.duplicate()
 	next_chain.append(String(style_id))
 	if not parent.is_empty():
-		values = _resolve_style(parent, declarations, resolved, visiting, errors, next_chain).duplicate(true)
+		values = (
+			_resolve_style(parent, declarations, resolved, visiting, errors, next_chain)
+			. duplicate(true)
+		)
 	var own_values: Variant = declaration.get("values", {})
 	if own_values is Dictionary:
 		_merge(values, own_values)
@@ -240,7 +336,9 @@ static func _index_global_overrides(blueprint: MapBlueprint, errors: Array[Strin
 	return indexed
 
 
-static func _validate_unused_overrides(global: Dictionary, resolved_ids: Dictionary, errors: Array[String]) -> void:
+static func _validate_unused_overrides(
+	global: Dictionary, resolved_ids: Dictionary, errors: Array[String]
+) -> void:
 	var targets := global.keys()
 	targets.sort_custom(_compare_string_values)
 	for target in targets:
@@ -248,7 +346,9 @@ static func _validate_unused_overrides(global: Dictionary, resolved_ids: Diction
 			errors.append("override targets unknown object: %s" % String(target))
 
 
-static func _validate_id(value: StringName, path: String, allow_namespace: bool, errors: Array[String]) -> void:
+static func _validate_id(
+	value: StringName, path: String, allow_namespace: bool, errors: Array[String]
+) -> void:
 	var text := String(value)
 	if text.is_empty():
 		errors.append("%s is required" % path)
@@ -259,7 +359,12 @@ static func _validate_id(value: StringName, path: String, allow_namespace: bool,
 		return
 	for segment in segments:
 		if segment.is_empty() or not _matches_id_pattern(segment):
-			errors.append("%s has invalid stable id '%s'; use lowercase ASCII letters, digits, _, . or -" % [path, text])
+			errors.append(
+				(
+					"%s has invalid stable id '%s'; use lowercase ASCII letters, digits, _, . or -"
+					% [path, text]
+				)
+			)
 			return
 
 
@@ -269,20 +374,29 @@ static func _matches_id_pattern(value: String) -> bool:
 	return regex.search(value) != null
 
 
-static func _validate_rect(rect: Rect2i, path: String, bounds: Vector2i, errors: Array[String]) -> void:
+static func _validate_rect(
+	rect: Rect2i, path: String, bounds: Vector2i, errors: Array[String]
+) -> void:
 	if rect.size.x <= 0 or rect.size.y <= 0:
 		errors.append("%s must have positive size" % path)
-	elif rect.position.x < 0 or rect.position.y < 0 or rect.end.x > bounds.x or rect.end.y > bounds.y:
+	elif (
+		rect.position.x < 0 or rect.position.y < 0 or rect.end.x > bounds.x or rect.end.y > bounds.y
+	):
 		errors.append("%s is outside map bounds %s: %s" % [path, bounds, rect])
 
 
-static func _validate_cell(cell: Vector2i, path: String, bounds: Vector2i, errors: Array[String]) -> void:
+static func _validate_cell(
+	cell: Vector2i, path: String, bounds: Vector2i, errors: Array[String]
+) -> void:
 	if cell.x < 0 or cell.y < 0 or cell.x >= bounds.x or cell.y >= bounds.y:
 		errors.append("%s is outside map bounds %s: %s" % [path, bounds, cell])
 
 
-static func _validate_deterministic_value(value: Variant, path: String, errors: Array[String]) -> void:
+static func _validate_deterministic_value(
+	value: Variant, path: String, errors: Array[String]
+) -> void:
 	match typeof(value):
+		# gdlint: ignore=max-line-length
 		TYPE_NIL, TYPE_BOOL, TYPE_INT, TYPE_STRING, TYPE_STRING_NAME, TYPE_VECTOR2, TYPE_VECTOR2I, TYPE_RECT2, TYPE_RECT2I, TYPE_COLOR:
 			return
 		TYPE_FLOAT:
@@ -297,7 +411,9 @@ static func _validate_deterministic_value(value: Variant, path: String, errors: 
 					errors.append("%s contains non-string dictionary key: %s" % [path, str(key)])
 				_validate_deterministic_value(value[key], "%s.%s" % [path, String(key)], errors)
 		_:
-			errors.append("%s contains unsupported non-deterministic value type %d" % [path, typeof(value)])
+			errors.append(
+				"%s contains unsupported non-deterministic value type %d" % [path, typeof(value)]
+			)
 
 
 static func _merge(target: Dictionary, source: Dictionary) -> void:
@@ -311,8 +427,7 @@ static func _cell_center(cell: Vector2i, cell_size: int) -> Vector2:
 
 static func _rect_center(cell_rect: Rect2i, cell_size: int) -> Vector2:
 	var world_rect := Rect2(
-		Vector2(cell_rect.position) * float(cell_size),
-		Vector2(cell_rect.size) * float(cell_size)
+		Vector2(cell_rect.position) * float(cell_size), Vector2(cell_rect.size) * float(cell_size)
 	)
 	return world_rect.position + world_rect.size * 0.5
 
@@ -337,7 +452,10 @@ static func _compare_rects(left: Variant, right: Variant) -> bool:
 		return str(left) < str(right)
 	var left_rect: Rect2i = left
 	var right_rect: Rect2i = right
-	return [left_rect.position.y, left_rect.position.x, left_rect.size.y, left_rect.size.x] < [right_rect.position.y, right_rect.position.x, right_rect.size.y, right_rect.size.x]
+	return (
+		[left_rect.position.y, left_rect.position.x, left_rect.size.y, left_rect.size.x]
+		< [right_rect.position.y, right_rect.position.x, right_rect.size.y, right_rect.size.x]
+	)
 
 
 static func _compare_vector2i(left: Vector2i, right: Vector2i) -> bool:
@@ -345,6 +463,10 @@ static func _compare_vector2i(left: Vector2i, right: Vector2i) -> bool:
 
 
 static func _compare_terrain(left: Dictionary, right: Dictionary) -> bool:
-	var left_key := [int(left["layer"]), int(left["order"]), String(left["source_id"]), int(left["fragment"])]
-	var right_key := [int(right["layer"]), int(right["order"]), String(right["source_id"]), int(right["fragment"])]
+	var left_key := [
+		int(left["layer"]), int(left["order"]), String(left["source_id"]), int(left["fragment"])
+	]
+	var right_key := [
+		int(right["layer"]), int(right["order"]), String(right["source_id"]), int(right["fragment"])
+	]
 	return left_key < right_key

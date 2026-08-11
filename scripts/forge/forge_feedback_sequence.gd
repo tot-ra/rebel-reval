@@ -31,17 +31,32 @@ const PHASE_BODY: Dictionary = {
 }
 
 const OPTION_OBJECT_REVEAL: Dictionary = {
-	"honest_work": {
-		"commission.bitter_brew": "Heavy iron bands gleam at the anvil, built to brace Aita's vats against seizure.",
-		"commission.watch_buckle_repair": "The repaired buckle sits square and honest, ready for Henning's inspection.",
+	"honest_work":
+	{
+		"commission.bitter_brew":
+		"Heavy iron bands gleam at the anvil, built to brace Aita's vats against seizure.",
+		"commission.watch_buckle_repair":
+		"The repaired buckle sits square and honest, ready for Henning's inspection.",
 	},
-	"subtle_defect": {
-		"commission.bitter_brew": "A watch inspection seal cools with the wrong crest depth - convincing at a glance, brittle under scrutiny.",
-		"commission.watch_buckle_repair": "A hairline weakness hides along the buckle's inner lip, waiting for strain.",
+	"subtle_defect":
+	{
+		"commission.bitter_brew":
+		(
+			"A watch inspection seal cools with the wrong crest depth - "
+			+ "convincing at a glance, brittle under scrutiny."
+		),
+		"commission.watch_buckle_repair":
+		"A hairline weakness hides along the buckle's inner lip, waiting for strain.",
 	},
-	"secret_feature": {
-		"commission.bitter_brew": "The detention-cart lock looks regulation-tight, but its hidden catch will yield to a firm twist.",
-		"commission.watch_buckle_repair": "A concealed catch nestles beneath the buckle tongue, ready for a quick release.",
+	"secret_feature":
+	{
+		"commission.bitter_brew":
+		(
+			"The detention-cart lock looks regulation-tight, "
+			+ "but its hidden catch will yield to a firm twist."
+		),
+		"commission.watch_buckle_repair":
+		"A concealed catch nestles beneath the buckle tongue, ready for a quick release.",
 	},
 }
 

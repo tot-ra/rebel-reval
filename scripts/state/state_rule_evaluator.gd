@@ -2,7 +2,9 @@ class_name StateRuleEvaluator
 extends RefCounted
 
 const DistrictPressureModelScript := preload("res://scripts/faction/district_pressure_model.gd")
-const CommissionDeadlineModelScript := preload("res://scripts/commission/commission_deadline_model.gd")
+const CommissionDeadlineModelScript := preload(
+	"res://scripts/commission/commission_deadline_model.gd"
+)
 
 ## Runtime counterpart to the allowlists in schemas/common.schema.json.
 ## Operation dictionaries are data only: no value is ever evaluated as GDScript.
@@ -72,7 +74,10 @@ func evaluate_condition(condition: Dictionary, state: GameState) -> bool:
 		"relationship_at_least":
 			return state.get_relationship(key) >= int(condition["amount"])
 		"faction_standing_at_least":
-			return state.get_faction_standing(FactionLedger.faction_id_from_key(key)) >= int(condition["amount"])
+			return (
+				state.get_faction_standing(FactionLedger.faction_id_from_key(key))
+				>= int(condition["amount"])
+			)
 		"district_pressure_at_least":
 			return (
 				DistrictPressureModelScript.resolve(key, state).get(
@@ -252,10 +257,13 @@ func _validate_faction_standing(condition: Dictionary) -> String:
 		return "faction_standing_at_least amount must be an integer"
 	var amount := int(condition["amount"])
 	if amount < FactionLedger.STANDING_MIN or amount > FactionLedger.STANDING_MAX:
-		return "faction_standing_at_least amount must be between %d and %d" % [
-			FactionLedger.STANDING_MIN,
-			FactionLedger.STANDING_MAX,
-		]
+		return (
+			"faction_standing_at_least amount must be between %d and %d"
+			% [
+				FactionLedger.STANDING_MIN,
+				FactionLedger.STANDING_MAX,
+			]
+		)
 	var standing_faction := FactionLedger.faction_id_from_key(StringName(String(condition["key"])))
 	if not FactionCandidateSeats.is_recordable_faction(standing_faction):
 		return "faction_standing_at_least key must name a launch or candidate faction"
@@ -272,12 +280,18 @@ func _validate_district_tier(condition: Dictionary) -> String:
 	if typeof(condition["amount"]) != TYPE_INT:
 		return "%s amount must be an integer" % String(condition["op"])
 	var amount := int(condition["amount"])
-	if amount < DistrictPressureModelScript.TIER_RELAXED or amount > DistrictPressureModelScript.TIER_CRACKDOWN:
-		return "%s amount must be between %d and %d" % [
-			String(condition["op"]),
-			DistrictPressureModelScript.TIER_RELAXED,
-			DistrictPressureModelScript.TIER_CRACKDOWN,
-		]
+	if (
+		amount < DistrictPressureModelScript.TIER_RELAXED
+		or amount > DistrictPressureModelScript.TIER_CRACKDOWN
+	):
+		return (
+			"%s amount must be between %d and %d"
+			% [
+				String(condition["op"]),
+				DistrictPressureModelScript.TIER_RELAXED,
+				DistrictPressureModelScript.TIER_CRACKDOWN,
+			]
+		)
 	var district_id := StringName(String(condition["key"]))
 	if not DistrictPressureModelScript.DISTRICT_PROFILES.has(district_id):
 		return "%s key must name a supported district" % String(condition["op"])
@@ -293,7 +307,10 @@ func _validate_record_faction_event(effect: Dictionary) -> String:
 	var key_error := _validate_key(effect, "ledger.")
 	if not key_error.is_empty():
 		return key_error
-	if typeof(effect["value"]) != TYPE_STRING or not String(effect["value"]).begins_with("faction."):
+	if (
+		typeof(effect["value"]) != TYPE_STRING
+		or not String(effect["value"]).begins_with("faction.")
+	):
 		return "record_faction_event value must use the faction. namespace"
 	var faction_id := FactionLedger.faction_id_from_key(StringName(String(effect["value"])))
 	if not FactionCandidateSeats.is_recordable_faction(faction_id):
@@ -302,10 +319,13 @@ func _validate_record_faction_event(effect: Dictionary) -> String:
 		return "record_faction_event amount must be an integer"
 	var amount := int(effect["amount"])
 	if amount < FactionLedger.STANDING_MIN or amount > FactionLedger.STANDING_MAX:
-		return "record_faction_event amount must be between %d and %d" % [
-			FactionLedger.STANDING_MIN,
-			FactionLedger.STANDING_MAX,
-		]
+		return (
+			"record_faction_event amount must be between %d and %d"
+			% [
+				FactionLedger.STANDING_MIN,
+				FactionLedger.STANDING_MAX,
+			]
+		)
 	if effect.has("summary") and typeof(effect["summary"]) != TYPE_STRING:
 		return "record_faction_event summary must be a string"
 	return ""
@@ -377,10 +397,7 @@ func _validate_key_value(operation: Dictionary, prefix: String, value_type: int)
 
 
 func _validate_key_amount(
-	operation: Dictionary,
-	prefix: String,
-	minimum: int,
-	maximum: int
+	operation: Dictionary, prefix: String, minimum: int, maximum: int
 ) -> String:
 	var shape_error := _require_shape(operation, ["op", "key", "amount"])
 	if not shape_error.is_empty():
@@ -407,7 +424,9 @@ func _validate_key(operation: Dictionary, prefix: String) -> String:
 
 func _require_shape(operation: Dictionary, required_keys: Array[String]) -> String:
 	if operation.size() != required_keys.size():
-		return "%s contains missing or unsupported fields" % String(operation.get("op", "operation"))
+		return (
+			"%s contains missing or unsupported fields" % String(operation.get("op", "operation"))
+		)
 	for key in required_keys:
 		if not operation.has(key):
 			return "%s requires %s" % [String(operation.get("op", "operation")), key]
@@ -415,4 +434,6 @@ func _require_shape(operation: Dictionary, required_keys: Array[String]) -> Stri
 
 
 func _has_string(value: Dictionary, key: String) -> bool:
-	return value.has(key) and typeof(value[key]) == TYPE_STRING and not String(value[key]).is_empty()
+	return (
+		value.has(key) and typeof(value[key]) == TYPE_STRING and not String(value[key]).is_empty()
+	)

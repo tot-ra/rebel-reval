@@ -28,9 +28,7 @@ static func build_snapshot(state: GameState) -> Dictionary:
 	var marks := _build_marks(state)
 	return {
 		"title": "Hingepuu",
-		"intro": (
-			"Kalev wakes beneath the soul-tree. The night's work still hangs in the branches."
-		),
+		"intro": "Kalev wakes beneath the soul-tree. The night's work still hangs in the branches.",
 		"recap_lines": _build_recap_lines(state),
 		"marks": marks,
 		"plain_summary": _build_plain_summary(state, marks),
@@ -38,7 +36,9 @@ static func build_snapshot(state: GameState) -> Dictionary:
 	}
 
 
-static func apply_conviction(state: GameState, option_id: String, evaluator: StateRuleEvaluator) -> bool:
+static func apply_conviction(
+	state: GameState, option_id: String, evaluator: StateRuleEvaluator
+) -> bool:
 	if state == null or evaluator == null:
 		return false
 	for option: Dictionary in _build_options():
@@ -63,13 +63,18 @@ static func apply_conviction(state: GameState, option_id: String, evaluator: Sta
 
 static func _build_recap_lines(state: GameState) -> Array[String]:
 	var lines: Array[String] = []
-	lines.append(
-		"Suspicion %d, solidarity %d, scarcity %d."
-		% [
-			state.get_pressure(GameState.PRESSURE_SUSPICION),
-			state.get_pressure(GameState.PRESSURE_SOLIDARITY),
-			state.get_pressure(GameState.PRESSURE_SCARCITY),
-		]
+	(
+		lines
+		. append(
+			(
+				"Suspicion %d, solidarity %d, scarcity %d."
+				% [
+					state.get_pressure(GameState.PRESSURE_SUSPICION),
+					state.get_pressure(GameState.PRESSURE_SOLIDARITY),
+					state.get_pressure(GameState.PRESSURE_SCARCITY),
+				]
+			)
+		)
 	)
 	if state.has_forged_modification(COMMISSION_WATCH_BUCKLE, &"honest_work"):
 		lines.append("The watch buckle was repaired cleanly.")
@@ -80,10 +85,7 @@ static func _build_recap_lines(state: GameState) -> Array[String]:
 	else:
 		lines.append("No forged commission record weighs on the tree yet.")
 	if state.get_relationship(&"rel.henning_trust") != 0:
-		lines.append(
-			"Henning's trust sits at %+d."
-			% state.get_relationship(&"rel.henning_trust")
-		)
+		lines.append("Henning's trust sits at %+d." % state.get_relationship(&"rel.henning_trust"))
 	return lines
 
 
@@ -129,7 +131,8 @@ static func _build_options() -> Array[Dictionary]:
 			"title": CONVICTION_DUTY,
 			"summary": "Answer for the work and keep Henning's trust.",
 			"plain_text": "Duty strengthens Henning's trust by one step.",
-			"effects": [
+			"effects":
+			[
 				{"op": "adjust_relationship", "key": "rel.henning_trust", "amount": 1},
 			],
 		},
@@ -139,7 +142,8 @@ static func _build_options() -> Array[Dictionary]:
 			"title": CONVICTION_FURY,
 			"summary": "Let the anger feed the bonds that keep Reval standing together.",
 			"plain_text": "Fury raises solidarity pressure by one step.",
-			"effects": [
+			"effects":
+			[
 				{"op": "adjust_pressure", "key": "pressure.solidarity", "amount": 1},
 			],
 		},
@@ -149,7 +153,8 @@ static func _build_options() -> Array[Dictionary]:
 			"title": CONVICTION_MERCY,
 			"summary": "Ease the watchful doubt that followed the night's work.",
 			"plain_text": "Mercy lowers suspicion pressure by one step.",
-			"effects": [
+			"effects":
+			[
 				{"op": "adjust_pressure", "key": "pressure.suspicion", "amount": -1},
 			],
 		},

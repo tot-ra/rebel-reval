@@ -93,3 +93,4 @@ This file contains only cross-role operating lessons. Domain lessons belong to t
 - A pipeline filter stage rejects `start_line: -1` / `end_line: -1`; omit optional line bounds when filtering the complete previous tool output.
 - After an exact replacement that adds a regression test, re-read the surrounding test class and confirm existing coverage was preserved before running the suite.
 - The tasks board resolves dependencies by registered task refs, not prose labels; when creating dependent tasks, create them sequentially and verify each returned ref before using it in a later dependency list. Parallel creation can race and leave valid task bodies uncreated.
+- `gdlint -d` writes a non-dot `gdlintrc` in the current directory; that file shadows tracked `.gdlintrc` and silently drops project disables/regexes. Dump defaults only outside the repo (for example `/tmp`) and delete any accidental root `gdlintrc` before linting.

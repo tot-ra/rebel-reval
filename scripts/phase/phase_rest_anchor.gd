@@ -47,7 +47,10 @@ func _on_phase_changed(_previous: StringName, _next: StringName) -> void:
 func _bind_phase_signal(current: GameState) -> void:
 	_unbind_phase_signal()
 	_connected_state = current
-	if _connected_state != null and not _connected_state.phase_changed.is_connected(_on_phase_changed):
+	if (
+		_connected_state != null
+		and not _connected_state.phase_changed.is_connected(_on_phase_changed)
+	):
 		_connected_state.phase_changed.connect(_on_phase_changed)
 
 
@@ -74,8 +77,7 @@ func _rest_prompt() -> String:
 	if not has_node("/root/SessionState") or SessionState.state == null:
 		return "Rest"
 	var next := PhaseProfileModelScript.next_phase_id(
-		SessionState.state.get_phase(),
-		SessionState.content_db
+		SessionState.state.get_phase(), SessionState.content_db
 	)
 	if next.is_empty():
 		return "Rest"
@@ -99,10 +101,11 @@ func _sync_enabled() -> void:
 func _should_enable() -> bool:
 	if not has_node("/root/SessionState") or SessionState.state == null:
 		return false
-	return not PhaseProfileModelScript.next_phase_id(
-		SessionState.state.get_phase(),
-		SessionState.content_db
-	).is_empty()
+	return not (
+		PhaseProfileModelScript
+		. next_phase_id(SessionState.state.get_phase(), SessionState.content_db)
+		. is_empty()
+	)
 
 
 func _on_interact(_actor: Node) -> void:

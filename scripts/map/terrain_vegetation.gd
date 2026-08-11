@@ -252,7 +252,12 @@ static func scatter_profile(variant: StringName) -> Dictionary:
 		}
 	match variant:
 		VARIANT_GRASS_SHORT:
-			return {"small_chance_scale": 1.0, "small_height_min": 0.3, "small_height_max": 0.55, "large_chance": 0.01}
+			return {
+				"small_chance_scale": 1.0,
+				"small_height_min": 0.3,
+				"small_height_max": 0.55,
+				"large_chance": 0.01
+			}
 		VARIANT_GRASS_TALL:
 			# Sparse pasture trees outside town: saplings along meadow edges.
 			return {
@@ -266,20 +271,75 @@ static func scatter_profile(variant: StringName) -> Dictionary:
 				"tree_variant": VARIANT_TREE_MIXED,
 			}
 		VARIANT_GRASS_FLOWERS:
-			return {"small_chance_scale": 0.85, "small_height_min": 0.38, "small_height_max": 0.68, "large_chance": 0.07, "large_height_min": 0.72, "large_height_max": 1.05, "flower_chance": 0.12}
+			return {
+				"small_chance_scale": 0.85,
+				"small_height_min": 0.38,
+				"small_height_max": 0.68,
+				"large_chance": 0.07,
+				"large_height_min": 0.72,
+				"large_height_max": 1.05,
+				"flower_chance": 0.12
+			}
 		VARIANT_GRASS_DRY:
-			return {"small_chance_scale": 0.7, "small_height_min": 0.34, "small_height_max": 0.62, "large_chance": 0.05, "large_height_min": 0.68, "large_height_max": 0.95}
+			return {
+				"small_chance_scale": 0.7,
+				"small_height_min": 0.34,
+				"small_height_max": 0.62,
+				"large_chance": 0.05,
+				"large_height_min": 0.68,
+				"large_height_max": 0.95
+			}
 		VARIANT_GRASS_MOSSY:
-			return {"small_chance_scale": 0.45, "small_height_min": 0.28, "small_height_max": 0.5, "large_chance": 0.015}
+			return {
+				"small_chance_scale": 0.45,
+				"small_height_min": 0.28,
+				"small_height_max": 0.5,
+				"large_chance": 0.015
+			}
 		VARIANT_GRASS_CLOVER:
-			return {"small_chance_scale": 0.3, "small_height_min": 0.25, "small_height_max": 0.45, "large_chance": 0.01, "clover_chance": 0.28}
+			return {
+				"small_chance_scale": 0.3,
+				"small_height_min": 0.25,
+				"small_height_max": 0.45,
+				"large_chance": 0.01,
+				"clover_chance": 0.28
+			}
 		VARIANT_GRASS_FERN:
-			return {"small_chance_scale": 0.35, "small_height_min": 0.32, "small_height_max": 0.56, "large_chance": 0.025, "fern_chance": 0.24}
+			return {
+				"small_chance_scale": 0.35,
+				"small_height_min": 0.32,
+				"small_height_max": 0.56,
+				"large_chance": 0.025,
+				"fern_chance": 0.24
+			}
 		VARIANT_REED_SHORE:
-			return {"small_chance_scale": 0.2, "small_height_min": 0.3, "small_height_max": 0.55, "large_chance": 0.0, "reed_chance": 0.34}
+			return {
+				"small_chance_scale": 0.2,
+				"small_height_min": 0.3,
+				"small_height_max": 0.55,
+				"large_chance": 0.0,
+				"reed_chance": 0.34
+			}
 		VARIANT_BUSH_DENSE:
-			return {"small_chance_scale": 0.18, "large_chance": 0.02, "bush_chance": 0.32, "bush_variant": VARIANT_BUSH_DENSE}
+			return {
+				"small_chance_scale": 0.18,
+				"large_chance": 0.02,
+				"bush_chance": 0.32,
+				"bush_variant": VARIANT_BUSH_DENSE
+			}
 		VARIANT_BUSH_SCRUB:
-			return {"small_chance_scale": 0.28, "large_chance": 0.03, "bush_chance": 0.24, "bush_variant": VARIANT_BUSH_SCRUB}
+			return {
+				"small_chance_scale": 0.28,
+				"large_chance": 0.03,
+				"bush_chance": 0.24,
+				"bush_variant": VARIANT_BUSH_SCRUB
+			}
 		_:
-			return {"small_chance_scale": 1.0, "small_height_min": 0.34, "small_height_max": 0.62, "large_chance": 0.025, "large_height_min": 0.75, "large_height_max": 1.05}
+			return {
+				"small_chance_scale": 1.0,
+				"small_height_min": 0.34,
+				"small_height_max": 0.62,
+				"large_chance": 0.025,
+				"large_height_min": 0.75,
+				"large_height_max": 1.05
+			}

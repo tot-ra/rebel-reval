@@ -45,15 +45,7 @@ static func barrel_stave_mesh(radius: float, height: float) -> ArrayMesh:
 			var lower := profile[profile_index]
 			var upper := profile[profile_index + 1]
 			_barrel_profile_quad(
-				surface,
-				face_start,
-				face_end,
-				lower,
-				upper,
-				radius,
-				height,
-				1.0,
-				stave_color
+				surface, face_start, face_end, lower, upper, radius, height, 1.0, stave_color
 			)
 			_barrel_profile_quad(
 				surface,
@@ -66,24 +58,8 @@ static func barrel_stave_mesh(radius: float, height: float) -> ArrayMesh:
 				SEAM_RECESS,
 				Color(0.38, 0.34, 0.30)
 			)
-			_barrel_seam_bevel(
-				surface,
-				seam_start,
-				lower,
-				upper,
-				radius,
-				height,
-				false
-			)
-			_barrel_seam_bevel(
-				surface,
-				seam_end,
-				lower,
-				upper,
-				radius,
-				height,
-				true
-			)
+			_barrel_seam_bevel(surface, seam_start, lower, upper, radius, height, false)
+			_barrel_seam_bevel(surface, seam_end, lower, upper, radius, height, true)
 	var mesh := surface.commit()
 	_mesh_cache[cache_key] = mesh
 	return mesh
@@ -178,11 +154,7 @@ static func _barrel_seam_bevel(
 
 
 static func _barrel_quad(
-	surface: SurfaceTool,
-	vertices: Array,
-	uvs: Array,
-	normal: Vector3,
-	color: Color
+	surface: SurfaceTool, vertices: Array, uvs: Array, normal: Vector3, color: Color
 ) -> void:
 	for index in [0, 1, 2, 0, 2, 3]:
 		surface.set_color(color)

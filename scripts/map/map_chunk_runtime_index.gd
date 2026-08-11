@@ -100,9 +100,13 @@ func _index_definition(definition: MapDefinition) -> void:
 	# of decorative residency. Their 3D view decorations can still be streamed by
 	# a renderer without changing these authoritative records.
 	for transition in definition.transitions:
-		_add_area_record(&"transition", transition, transition.get("rect", Rect2()), RESIDENCY_PERSISTENT)
+		_add_area_record(
+			&"transition", transition, transition.get("rect", Rect2()), RESIDENCY_PERSISTENT
+		)
 	for anchor in definition.interaction_anchors:
-		_add_point_record(&"anchor", anchor, anchor.get("position", Vector2.ZERO), RESIDENCY_PERSISTENT)
+		_add_point_record(
+			&"anchor", anchor, anchor.get("position", Vector2.ZERO), RESIDENCY_PERSISTENT
+		)
 	for landmark in definition.view_landmarks:
 		_add_area_record(&"landmark", landmark, landmark.get("rect", Rect2()))
 	for sign_index in definition.direction_signs.size():
@@ -121,11 +125,18 @@ func _add_point_record(
 	var object_id := StringName(String(source.get("id", "")))
 	if object_id.is_empty():
 		return
-	var owner := chunk_for_global_cell(Vector2i(
-		floori(position.x / float(cell_size)),
-		floori(position.y / float(cell_size))
-	))
-	_add_record(kind, object_id, owner, [owner], source, Rect2(position, Vector2.ZERO), _residency(source, default_residency))
+	var owner := chunk_for_global_cell(
+		Vector2i(floori(position.x / float(cell_size)), floori(position.y / float(cell_size)))
+	)
+	_add_record(
+		kind,
+		object_id,
+		owner,
+		[owner],
+		source,
+		Rect2(position, Vector2.ZERO),
+		_residency(source, default_residency)
+	)
 
 
 func _add_area_record(
@@ -139,12 +150,24 @@ func _add_area_record(
 		return
 	var consumers := chunks_intersecting(bounds)
 	if consumers.is_empty():
-		consumers.append(chunk_for_global_cell(Vector2i(
-			floori(bounds.position.x / float(cell_size)),
-			floori(bounds.position.y / float(cell_size))
-		)))
+		consumers.append(
+			chunk_for_global_cell(
+				Vector2i(
+					floori(bounds.position.x / float(cell_size)),
+					floori(bounds.position.y / float(cell_size))
+				)
+			)
+		)
 	consumers.sort_custom(_chunk_less)
-	_add_record(kind, object_id, consumers[0], consumers, source, bounds, _residency(source, default_residency))
+	_add_record(
+		kind,
+		object_id,
+		consumers[0],
+		consumers,
+		source,
+		bounds,
+		_residency(source, default_residency)
+	)
 
 
 func _add_record(
@@ -185,13 +208,11 @@ func chunks_intersecting(bounds: Rect2) -> Array[Vector2i]:
 		return chunks
 	var epsilon := minf(float(cell_size) * 0.0001, 0.001)
 	var first_cell := Vector2i(
-		floori(bounds.position.x / float(cell_size)),
-		floori(bounds.position.y / float(cell_size))
+		floori(bounds.position.x / float(cell_size)), floori(bounds.position.y / float(cell_size))
 	)
 	var last_position := bounds.end - Vector2(epsilon, epsilon)
 	var last_cell := Vector2i(
-		floori(last_position.x / float(cell_size)),
-		floori(last_position.y / float(cell_size))
+		floori(last_position.x / float(cell_size)), floori(last_position.y / float(cell_size))
 	)
 	var first := chunk_for_global_cell(first_cell)
 	var last := chunk_for_global_cell(last_cell)
@@ -204,7 +225,9 @@ func chunks_intersecting(bounds: Rect2) -> Array[Vector2i]:
 func _residency(source: Dictionary, fallback: StringName) -> StringName:
 	if bool(source.get("persistent", false)) or bool(source.get("gameplay_critical", false)):
 		return RESIDENCY_PERSISTENT
-	var declared := StringName(String(source.get("residency", source.get("streaming_policy", fallback))))
+	var declared := StringName(
+		String(source.get("residency", source.get("streaming_policy", fallback)))
+	)
 	return RESIDENCY_PERSISTENT if declared == RESIDENCY_PERSISTENT else RESIDENCY_STREAMED
 
 

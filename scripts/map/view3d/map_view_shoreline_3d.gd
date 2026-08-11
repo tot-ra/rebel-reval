@@ -50,7 +50,10 @@ static func add_to(
 			if MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 23003) > ROCK_KEEP_RATIO:
 				continue
 			_add_rock(transforms, colors, cell, water_offset, definition.seed, 0)
-			if MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 23131) < ROCK_CLUSTER_CHANCE:
+			if (
+				MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 23131)
+				< ROCK_CLUSTER_CHANCE
+			):
 				_add_rock(transforms, colors, cell, water_offset, definition.seed, 1)
 	if transforms.is_empty():
 		return
@@ -60,14 +63,11 @@ static func add_to(
 	mesh.height = 0.68
 	mesh.radial_segments = 7
 	mesh.rings = 4
-	root.add_child(MapViewMeshBuilderPrimitives.multi_mesh(
-		"CoastalRocks",
-		mesh,
-		transforms,
-		colors,
-		MapViewMaterials.natural_rock(),
-		Vector3.ZERO
-	))
+	root.add_child(
+		MapViewMeshBuilderPrimitives.multi_mesh(
+			"CoastalRocks", mesh, transforms, colors, MapViewMaterials.natural_rock(), Vector3.ZERO
+		)
+	)
 
 
 static func _water_neighbor(grid: MapTerrainGrid, cell: Vector2i, seed: int) -> Vector2i:
@@ -77,7 +77,9 @@ static func _water_neighbor(grid: MapTerrainGrid, cell: Vector2i, seed: int) -> 
 			candidates.append(offset)
 	if candidates.is_empty():
 		return Vector2i.ZERO
-	var pick := floori(MapViewMeshBuilderPrimitives.hash01(cell.x, cell.y, seed + 22807) * candidates.size())
+	var pick := floori(
+		MapViewMeshBuilderPrimitives.hash01(cell.x, cell.y, seed + 22807) * candidates.size()
+	)
 	return candidates[mini(pick, candidates.size() - 1)]
 
 
@@ -91,27 +93,56 @@ static func _add_rock(
 ) -> void:
 	var salt := cluster_index * 977
 	var along := Vector2(-water_offset.y, water_offset.x)
-	var side_jitter := MapViewMeshBuilderPrimitives.hash01(cell.x, cell.y, seed + 23321 + salt) - 0.5
-	var water_jitter := MapViewMeshBuilderPrimitives.hash01(cell.x, cell.y, seed + 23447 + salt) * 0.18
+	var side_jitter := (
+		MapViewMeshBuilderPrimitives.hash01(cell.x, cell.y, seed + 23321 + salt) - 0.5
+	)
+	var water_jitter := (
+		MapViewMeshBuilderPrimitives.hash01(cell.x, cell.y, seed + 23447 + salt) * 0.18
+	)
 	var spot := (
-		Vector2(cell) + Vector2(0.5, 0.5)
+		Vector2(cell)
+		+ Vector2(0.5, 0.5)
 		+ Vector2(water_offset) * (ROCK_INSET + water_jitter)
 		+ along * side_jitter * 0.72
 	)
-	var size := 0.48 + MapViewMeshBuilderPrimitives.hash01(cell.x, cell.y, seed + 23561 + salt) * 0.82
+	var size := (
+		0.48 + MapViewMeshBuilderPrimitives.hash01(cell.x, cell.y, seed + 23561 + salt) * 0.82
+	)
 	if cluster_index > 0:
 		size *= 0.58
 	var stretch := Vector3(
-		size * (0.82 + MapViewMeshBuilderPrimitives.hash01(cell.x, cell.y, seed + 23663 + salt) * 0.42),
-		size * (0.72 + MapViewMeshBuilderPrimitives.hash01(cell.x, cell.y, seed + 23767 + salt) * 0.48),
-		size * (0.78 + MapViewMeshBuilderPrimitives.hash01(cell.x, cell.y, seed + 23869 + salt) * 0.46)
+		(
+			size
+			* (
+				0.82
+				+ MapViewMeshBuilderPrimitives.hash01(cell.x, cell.y, seed + 23663 + salt) * 0.42
+			)
+		),
+		(
+			size
+			* (
+				0.72
+				+ MapViewMeshBuilderPrimitives.hash01(cell.x, cell.y, seed + 23767 + salt) * 0.48
+			)
+		),
+		(
+			size
+			* (
+				0.78
+				+ MapViewMeshBuilderPrimitives.hash01(cell.x, cell.y, seed + 23869 + salt) * 0.46
+			)
+		)
 	)
 	var yaw := MapViewMeshBuilderPrimitives.hash01(cell.x, cell.y, seed + 23971 + salt) * TAU
 	var basis := Basis(Vector3.UP, yaw).scaled(stretch)
-	var water_y := -MapViewMeshBuilderConfig.WATER_RECESS + MapViewMeshBuilderConfig.WATER_SURFACE_LIFT
+	var water_y := (
+		-MapViewMeshBuilderConfig.WATER_RECESS + MapViewMeshBuilderConfig.WATER_SURFACE_LIFT
+	)
 	# Sink the lower half so these read as wave-washed natural rocks, not pebbles
 	# balanced on top of the water plane.
 	var origin := Vector3(spot.x, water_y + 0.13 * stretch.y, spot.y)
 	transforms.append(Transform3D(basis, origin))
-	var tone := 0.72 + MapViewMeshBuilderPrimitives.hash01(cell.x, cell.y, seed + 24077 + salt) * 0.28
+	var tone := (
+		0.72 + MapViewMeshBuilderPrimitives.hash01(cell.x, cell.y, seed + 24077 + salt) * 0.28
+	)
 	colors.append(Color(tone * 0.90, tone * 0.94, tone))

@@ -4,7 +4,7 @@ extends RefCounted
 ## Inline shader sources for animated MapViewMaterials surfaces.
 
 
-const WATER_SHADER_CODE := "
+const WATER_SHADER_CODE := """
 shader_type spatial;
 render_mode blend_mix, depth_draw_always, cull_disabled, diffuse_burley, specular_schlick_ggx;
 
@@ -134,7 +134,9 @@ vec4 _seabed_layers(vec2 position, float water_depth) {
 	float deep_weight = smoothstep(0.20, 0.34, water_depth);
 	float shallow_weight = 1.0 - deep_weight;
 	float stone_weight = smoothstep(0.56, 0.78, broken * 0.72 + detail * 0.28) * shallow_weight;
+	# gdlint: ignore=max-line-length
 	float algae_depth = smoothstep(0.06, 0.16, water_depth) * (1.0 - smoothstep(0.30, 0.46, water_depth));
+	# gdlint: ignore=max-line-length
 	float algae_weight = smoothstep(0.48, 0.72, broad * 0.68 + broken * 0.32) * algae_depth * bed_vegetation;
 	float sand_weight = max(shallow_weight - stone_weight - algae_weight, 0.08 * shallow_weight);
 	float shallow_total = max(sand_weight + stone_weight + algae_weight, 0.0001);
@@ -303,6 +305,7 @@ void fragment() {
 	// Low sun elongates the glitter path; keep a warm dawn cue without a racing
 	// sparkle highway while the disk skims the horizon on a compressed day cycle.
 	float low_sun_glitter = smoothstep(-0.02, 0.22, sun_direction.y);
+	# gdlint: ignore=max-line-length
 	float sun_glint = pow(sun_alignment, 220.0) * sun_reflection_visibility * mix(0.2, 1.0, low_sun_glitter);
 	float moon_alignment = max(dot(reflected_sky_ray, normalize(moon_direction)), 0.0);
 	float moon_glint = pow(moon_alignment, 320.0) * moon_visibility;
@@ -314,6 +317,7 @@ void fragment() {
 	// at the bank. This reads as surf arriving at shore rather than static edge foam.
 	float shore = 1.0 - smoothstep(0.0, 0.88, shore_factor);
 	float breaker_phase = shore_factor * 18.0 + TIME * (1.45 * wave_speed);
+	# gdlint: ignore=max-line-length
 	float breaker_warp = (_noise(water_world_position.xz * 0.42 + vec2(TIME * 0.08, -TIME * 0.04)) - 0.5) * 3.4;
 	float breaker_a = pow(max(sin(breaker_phase + breaker_warp), 0.0), 5.0);
 	float breaker_b = pow(max(sin(breaker_phase * 0.62 + breaker_warp * 0.7 + 2.4), 0.0), 7.0);
@@ -353,12 +357,11 @@ void fragment() {
 	// Godot maps SPECULAR to dielectric F0; 0.25 is approximately water's 0.02.
 	SPECULAR = mix(0.05, 0.25, sun_visibility);
 }
-"
-
+"""
 ## Grass blades: instance color carries the tint, UV.y runs root(0) to tip(1).
 ## World wind (direction + strength from SkyWeather) leans tips downwind; a
 ## lighter cross-flutter keeps the field alive even in a steady breeze.
-const GRASS_SHADER_CODE := "
+const GRASS_SHADER_CODE := """
 shader_type spatial;
 // depth_draw_opaque keeps stacked blade layers sorted; cull_disabled shows both
 // faces. Wind stays in vertex(), but grass must not cast shadows: animated
@@ -394,11 +397,10 @@ void fragment() {
 	ALBEDO = base_color * COLOR.rgb * mix(0.5, 1.1, UV.y);
 	ROUGHNESS = 0.95;
 }
-"
-
+"""
 ## Tree canopies: same world-wind field as grass, far gentler, weighted by height
 ## above the canopy base so trunks stay planted.
-const CANOPY_SHADER_CODE := "
+const CANOPY_SHADER_CODE := """
 shader_type spatial;
 render_mode cull_disabled;
 
@@ -429,12 +431,11 @@ void fragment() {
 	ALBEDO = base_color * COLOR.rgb * shade;
 	ROUGHNESS = 0.95;
 }
-"
-
+"""
 ## Soft cloth for square sails and tower pennants. free_edge selects which UV
 ## axis is free (sail hangs from the yard via UV.y; flags fly from the hoist via
 ## UV.x). COLOR keeps sail panel striping without a dedicated texture.
-const CLOTH_SHADER_CODE := "
+const CLOTH_SHADER_CODE := """
 shader_type spatial;
 render_mode cull_disabled, depth_draw_opaque;
 
@@ -471,12 +472,11 @@ void fragment() {
 	ALBEDO = base_color * COLOR.rgb;
 	ROUGHNESS = 0.92;
 }
-"
-
+"""
 ## Indoor / courtyard wall hangings: pinned along the top rod (UV.y free toward
 ## the hem). Optional albedo replaces vertex COLOR so embroidered faction plates
 ## stay sharp; outdoor hoist pennants keep CLOTH_SHADER_CODE instead.
-const HANGING_BANNER_CLOTH_SHADER_CODE := "
+const HANGING_BANNER_CLOTH_SHADER_CODE := """
 shader_type spatial;
 render_mode cull_disabled, depth_draw_opaque;
 
@@ -515,13 +515,12 @@ void fragment() {
 	ALBEDO = mix(vertex_tint, tex, clamp(use_albedo_texture, 0.0, 1.0));
 	ROUGHNESS = 0.94;
 }
-"
-
+"""
 ## Hanging fishing net: the upper rope is fixed to the oak rail while the free
 ## lower half follows the shared harbor wind. Height-based pinning works for the
 ## diamond net, outline rope, cork floats, and sinkers without CPU cloth bodies.
 ## World-space phasing prevents all six authored racks from moving in lockstep.
-const FISHING_NET_WIND_SHADER_CODE := "
+const FISHING_NET_WIND_SHADER_CODE := """
 shader_type spatial;
 render_mode cull_disabled, depth_draw_opaque, diffuse_burley, shadows_disabled;
 
@@ -570,15 +569,13 @@ void fragment() {
 	ROUGHNESS = surface_roughness;
 	SPECULAR = 0.18;
 }
-"
-
-static var _cache: Dictionary = {}
+"""
 
 
 ## Ground splat: two terrain pattern layers blended per vertex. CUSTOM0 carries
 ## pattern indices (x, y), blend weight (z), and brightness tone (w). COLOR.rgb
 ## is the palette tint lerp between the two terrain families.
-const TERRAIN_BLEND_SHADER_CODE := "
+const TERRAIN_BLEND_SHADER_CODE := """
 shader_type spatial;
 render_mode cull_disabled, diffuse_burley;
 
@@ -764,12 +761,11 @@ void fragment() {
 	// High roughness kills the linoleum sheen on dry medieval paving.
 	ROUGHNESS = mix(0.96, mix(0.99, 0.93, stone), cobble_weight);
 }
-"
-
+"""
 ## Thin rainwater decals. The opaque scene supplies the transmitted ground while
 ## physically narrow specular, Fresnel transmission, and procedural normal ripples
 ## make the plane read as water instead of a translucent painted ellipse.
-const PUDDLE_SHADER_CODE := "
+const PUDDLE_SHADER_CODE := """
 shader_type spatial;
 render_mode blend_mix, depth_draw_never, cull_disabled, diffuse_burley, specular_schlick_ggx;
 
@@ -883,11 +879,10 @@ void fragment() {
 	// In Godot, 0.25 maps to roughly the F0 of water rather than a metallic mirror.
 	SPECULAR = mix(0.10, 0.25, water_mask);
 }
-"
-
+"""
 ## P0-157 wear/grime/blood projected decals. Soft radial falloff times an authored
 ## alpha mask keeps GL Compatibility free of Decal3D while avoiding hard quad edges.
-const WEAR_DECAL_SHADER_CODE := "
+const WEAR_DECAL_SHADER_CODE := """
 shader_type spatial;
 render_mode blend_mix, depth_draw_never, cull_disabled, unshaded, shadows_disabled;
 
@@ -905,7 +900,9 @@ void fragment() {
 	ALBEDO = tint_color.rgb;
 	ALPHA = alpha;
 }
-"
+"""
+
+static var _cache: Dictionary = {}
 
 
 static func reset() -> void:

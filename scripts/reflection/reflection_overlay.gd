@@ -1,7 +1,7 @@
 class_name ReflectionOverlay
 extends CanvasLayer
 
-signal closed()
+signal closed
 signal conviction_chosen(option_id: String)
 
 var _panel: PanelContainer
@@ -195,13 +195,13 @@ func _refresh_options(options: Array) -> void:
 		var option := option_variant as Dictionary
 		var button := Button.new()
 		button.focus_mode = Control.FOCUS_ALL
-		button.text = "%s - %s" % [String(option.get("title", "")), String(option.get("summary", ""))]
+		button.text = (
+			"%s - %s" % [String(option.get("title", "")), String(option.get("summary", ""))]
+		)
 		button.tooltip_text = String(option.get("plain_text", ""))
 		var option_id := String(option.get("id", ""))
 		button.set_meta(&"option_id", option_id)
-		button.pressed.connect(func() -> void:
-			conviction_chosen.emit(option_id)
-		)
+		button.pressed.connect(func() -> void: conviction_chosen.emit(option_id))
 		_options_box.add_child(button)
 	_wire_option_focus_neighbors()
 

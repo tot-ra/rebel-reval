@@ -24,10 +24,7 @@ func configure(ui: Node, runner: Node) -> void:
 
 
 func present_line(
-	speaker_id: StringName,
-	speaker_name: String,
-	text: String,
-	node_id: String
+	speaker_id: StringName, speaker_name: String, text: String, node_id: String
 ) -> void:
 	if _ui != null:
 		_ui.present_line(speaker_id, speaker_name, text, node_id)

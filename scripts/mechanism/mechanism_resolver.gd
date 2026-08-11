@@ -1,10 +1,6 @@
 class_name MechanismResolver
 extends RefCounted
 
-## Resolves authored mechanism responses from forged records and applies their effects.
-
-const MODEL_SCRIPT := preload("res://scripts/mechanism/mechanism_model.gd")
-
 enum Result {
 	OK,
 	INVALID_DEPENDENCIES,
@@ -13,17 +9,18 @@ enum Result {
 	EFFECTS_REJECTED,
 }
 
+## Resolves authored mechanism responses from forged records and applies their effects.
+
+const MODEL_SCRIPT := preload("res://scripts/mechanism/mechanism_model.gd")
+
 var _content_db: ContentDB
 var _state: GameState
 var _evaluator: StateRuleEvaluator
 var _last_result := Result.OK
 var _last_error := ""
 
-
 func _init(
-	content_db: ContentDB = null,
-	state: GameState = null,
-	evaluator: StateRuleEvaluator = null
+	content_db: ContentDB = null, state: GameState = null, evaluator: StateRuleEvaluator = null
 ) -> void:
 	_content_db = content_db
 	_state = state
@@ -66,7 +63,10 @@ func trigger(mechanism_id: StringName) -> bool:
 
 func _load_valid_mechanism(mechanism_id: StringName) -> Dictionary:
 	if _content_db == null or _state == null or _evaluator == null:
-		_fail(Result.INVALID_DEPENDENCIES, "MechanismResolver requires ContentDB, GameState, and StateRuleEvaluator")
+		_fail(
+			Result.INVALID_DEPENDENCIES,
+			"MechanismResolver requires ContentDB, GameState, and StateRuleEvaluator"
+		)
 		return {}
 	if not _content_db.is_loaded():
 		return _fail(Result.INVALID_DEPENDENCIES, "ContentDB is not loaded")
@@ -74,10 +74,18 @@ func _load_valid_mechanism(mechanism_id: StringName) -> Dictionary:
 	if mechanism.is_empty():
 		return _fail(Result.UNKNOWN_MECHANISM, "unknown mechanism %s" % mechanism_id)
 	if mechanism.get("responses", []).is_empty():
-		return _fail(Result.INVALID_MECHANISM_RECORD, "mechanism %s has no responses" % mechanism_id)
+		return _fail(
+			Result.INVALID_MECHANISM_RECORD, "mechanism %s has no responses" % mechanism_id
+		)
 	var default_response: Variant = mechanism.get("default_response", {})
-	if typeof(default_response) != TYPE_DICTIONARY or String((default_response as Dictionary).get("id", "")).is_empty():
-		return _fail(Result.INVALID_MECHANISM_RECORD, "mechanism %s is missing default_response" % mechanism_id)
+	if (
+		typeof(default_response) != TYPE_DICTIONARY
+		or String((default_response as Dictionary).get("id", "")).is_empty()
+	):
+		return _fail(
+			Result.INVALID_MECHANISM_RECORD,
+			"mechanism %s is missing default_response" % mechanism_id
+		)
 	return mechanism
 
 

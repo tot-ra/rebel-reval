@@ -5,7 +5,6 @@ extends RefCounted
 ## WHY: the southern lower-town prototype keeps a MapDefinition entry point while
 ## Rataskaev and Karja Gate adjacency remain reviewable as compact map data.
 
-
 const RRMAP_PATH := "res://content/maps/south_quarter.rrmap"
 
 

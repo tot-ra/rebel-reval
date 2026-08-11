@@ -92,7 +92,10 @@ func subtitle() -> String:
 
 
 func help_text() -> String:
-	return "Your live position is marked in red. Choose Fast travel for connected districts. Press M or Escape to close."
+	return (
+		"Your live position is marked in red. Choose Fast travel for "
+		+ "connected districts. Press M or Escape to close."
+	)
 
 
 func get_marker() -> Control:

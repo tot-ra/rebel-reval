@@ -18,8 +18,7 @@ static func open() -> CombatDefensePose:
 
 
 static func from_action_machine(
-	machine: PlayerActionStateMachine,
-	parry_window: float = DEFAULT_PARRY_WINDOW_SEC
+	machine: PlayerActionStateMachine, parry_window: float = DEFAULT_PARRY_WINDOW_SEC
 ) -> CombatDefensePose:
 	var pose := CombatDefensePose.new()
 	pose.parry_window_sec = maxf(0.0, parry_window)

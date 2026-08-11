@@ -31,10 +31,7 @@ var _resolved_swing_ids: Dictionary = {}
 
 
 func configure(
-	current_health: float,
-	health_cap: float,
-	current_stamina: float,
-	stamina_cap: float
+	current_health: float, health_cap: float, current_stamina: float, stamina_cap: float
 ) -> void:
 	max_health = maxf(0.0, health_cap)
 	max_stamina = maxf(0.0, stamina_cap)
@@ -64,25 +61,32 @@ func reset_swing_tracking() -> void:
 
 
 func resolve_hit(
-	amount: float,
-	pose: CombatDefensePose = null,
-	swing_id: int = 0,
-	pierces_guard: bool = false
+	amount: float, pose: CombatDefensePose = null, swing_id: int = 0, pierces_guard: bool = false
 ) -> CombatHitResult:
 	var defense := pose if pose != null else CombatDefensePose.open()
 	if amount <= 0.0:
-		return _finish(CombatHitResult.make(CombatHitResult.OUTCOME_IGNORED, amount, 0.0, 0.0, false, swing_id))
+		return _finish(
+			CombatHitResult.make(CombatHitResult.OUTCOME_IGNORED, amount, 0.0, 0.0, false, swing_id)
+		)
 	# External health restores (tests/debug) may raise health after death; trust the
 	# live health value rather than a sticky dead flag alone.
 	if health <= 0.0:
 		_dead = true
-		return _finish(CombatHitResult.make(CombatHitResult.OUTCOME_IGNORED, amount, 0.0, 0.0, true, swing_id))
+		return _finish(
+			CombatHitResult.make(CombatHitResult.OUTCOME_IGNORED, amount, 0.0, 0.0, true, swing_id)
+		)
 	_dead = false
 	if swing_id > 0 and _resolved_swing_ids.has(swing_id):
-		return _finish(CombatHitResult.make(CombatHitResult.OUTCOME_IGNORED, amount, 0.0, 0.0, false, swing_id))
+		return _finish(
+			CombatHitResult.make(CombatHitResult.OUTCOME_IGNORED, amount, 0.0, 0.0, false, swing_id)
+		)
 	if defense.is_action_invulnerable or is_hit_invulnerable():
 		_mark_swing(swing_id)
-		return _finish(CombatHitResult.make(CombatHitResult.OUTCOME_INVULNERABLE, amount, 0.0, 0.0, false, swing_id))
+		return _finish(
+			CombatHitResult.make(
+				CombatHitResult.OUTCOME_INVULNERABLE, amount, 0.0, 0.0, false, swing_id
+			)
+		)
 
 	if defense.is_parry_window():
 		var parry_stamina := minf(stamina, maxf(0.0, parry_stamina_cost))
@@ -90,14 +94,11 @@ func resolve_hit(
 		_mark_swing(swing_id)
 		_begin_hit_invulnerability()
 		stamina_changed.emit(stamina, max_stamina)
-		return _finish(CombatHitResult.make(
-			CombatHitResult.OUTCOME_PARRIED,
-			amount,
-			0.0,
-			parry_stamina,
-			false,
-			swing_id
-		))
+		return _finish(
+			CombatHitResult.make(
+				CombatHitResult.OUTCOME_PARRIED, amount, 0.0, parry_stamina, false, swing_id
+			)
+		)
 
 	# Iron (and future jam techniques): a braced guard outside the parry window
 	# is forced open. Timed parries above still beat the jam.
@@ -128,17 +129,21 @@ func _resolve_guarded(amount: float, swing_id: int) -> CombatHitResult:
 	_mark_swing(swing_id)
 	_begin_hit_invulnerability()
 	stamina_changed.emit(stamina, max_stamina)
-	return _finish(CombatHitResult.make(
-		CombatHitResult.OUTCOME_GUARDED,
-		amount,
-		health_taken,
-		stamina_taken,
-		became_dead,
-		swing_id
-	))
+	return _finish(
+		CombatHitResult.make(
+			CombatHitResult.OUTCOME_GUARDED,
+			amount,
+			health_taken,
+			stamina_taken,
+			became_dead,
+			swing_id
+		)
+	)
 
 
-func _resolve_open_hit(amount: float, swing_id: int, pierced_guard: bool = false) -> CombatHitResult:
+func _resolve_open_hit(
+	amount: float, swing_id: int, pierced_guard: bool = false
+) -> CombatHitResult:
 	var previous_health := health
 	health = clampf(health - amount, 0.0, max_health)
 	var health_taken := previous_health - health
@@ -146,15 +151,17 @@ func _resolve_open_hit(amount: float, swing_id: int, pierced_guard: bool = false
 	_mark_swing(swing_id)
 	_begin_hit_invulnerability()
 	health_changed.emit(health, max_health)
-	return _finish(CombatHitResult.make(
-		CombatHitResult.OUTCOME_HIT,
-		amount,
-		health_taken,
-		0.0,
-		became_dead,
-		swing_id,
-		pierced_guard
-	))
+	return _finish(
+		CombatHitResult.make(
+			CombatHitResult.OUTCOME_HIT,
+			amount,
+			health_taken,
+			0.0,
+			became_dead,
+			swing_id,
+			pierced_guard
+		)
+	)
 
 
 func _check_death() -> bool:

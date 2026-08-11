@@ -31,10 +31,7 @@ func spawn_mart(actors: Node2D, definition: MapDefinition) -> DemoMartNpc:
 
 
 func wire(
-	scene_root: Node,
-	definition: MapDefinition,
-	player: Player,
-	view_runtime: MapViewRuntime = null
+	scene_root: Node, definition: MapDefinition, player: Player, view_runtime: MapViewRuntime = null
 ) -> void:
 	_player = player
 	if _mart != null and player != null:
@@ -47,10 +44,7 @@ func wire(
 	_dialogue_runner.name = "DemoDialogueRunner"
 	add_child(_dialogue_runner)
 	_dialogue_runner.configure(
-		SessionState.content_db,
-		SessionState.state,
-		_dialogue_box,
-		_interaction_controller
+		SessionState.content_db, SessionState.state, _dialogue_box, _interaction_controller
 	)
 	if not SessionState.state_replaced.is_connected(_on_state_replaced):
 		SessionState.state_replaced.connect(_on_state_replaced)
@@ -69,10 +63,7 @@ func _on_state_replaced(_previous: GameState, current: GameState, _reason: Strin
 	if _dialogue_runner.is_active():
 		_dialogue_runner.cancel()
 	_dialogue_runner.configure(
-		SessionState.content_db,
-		current,
-		_dialogue_box,
-		_interaction_controller
+		SessionState.content_db, current, _dialogue_box, _interaction_controller
 	)
 
 
@@ -84,7 +75,7 @@ func get_interactable() -> Interactable:
 	return _interactable
 
 
-func register_phase_binder(binder: MapPhaseBinder, definition: MapDefinition) -> void:
+func register_phase_binder(binder: MapPhaseBinder, _definition: MapDefinition) -> void:
 	if _mart == null:
 		return
 	binder.register_npc(&"mart", _mart, &"mart_street")

@@ -202,7 +202,9 @@ const WALL_WALK_PASSAGE_WIDTH := 1.6
 const WALL_WALK_PASSAGE_WIDTH_PX := WALL_WALK_PASSAGE_WIDTH * float(MapTypes.DEFAULT_CELL_SIZE)
 ## World-unit floor of the upper portal. Matches an authored 192 px curtain top
 ## after FORTIFICATION_HEIGHT_SCALE so round-tower tunnels align with the wall walk.
-const WALL_WALK_PASSAGE_FLOOR_HEIGHT := 192.0 * MapTypes.FORTIFICATION_HEIGHT_SCALE / float(MapTypes.DEFAULT_CELL_SIZE)
+const WALL_WALK_PASSAGE_FLOOR_HEIGHT := (
+	192.0 * MapTypes.FORTIFICATION_HEIGHT_SCALE / float(MapTypes.DEFAULT_CELL_SIZE)
+)
 ## The boolean cut starts below the timber deck so a 2.0-unit actor keeps full
 ## headroom beneath the tower cap even where the tower barely clears the curtain.
 const WALL_WALK_PASSAGE_CUT_DROP := 0.55
@@ -233,7 +235,9 @@ const CHIMNEY_STACK_EMBED := 0.45
 const CHIMNEY_RIDGE_CLEARANCE := 0.06
 const CHIMNEY_SMOKE_SCRIPT := preload("res://scripts/map/view3d/chimney_smoke_3d.gd")
 const WINDOW_LIGHTS_SCRIPT := preload("res://scripts/map/view3d/building_window_lights_3d.gd")
-const INTERIOR_WINDOW_LIGHTS_SCRIPT := preload("res://scripts/map/view3d/interior_window_lights_3d.gd")
+const INTERIOR_WINDOW_LIGHTS_SCRIPT := preload(
+	"res://scripts/map/view3d/interior_window_lights_3d.gd"
+)
 const CANDLE_LIGHT_SCRIPT := preload("res://scripts/map/view3d/candle_light_3d.gd")
 const FORGE_FLAME_SCRIPT := preload("res://scripts/map/view3d/forge_flame_3d.gd")
 const FORGE_FIRE_LIGHT_SCRIPT := preload("res://scripts/map/view3d/forge_fire_light_3d.gd")
@@ -339,7 +343,9 @@ const SURROUNDINGS_SIZE_WORLD := 512.0
 const SURROUNDINGS_CONTINUATION_DEPTH := 192.0
 const SURROUNDINGS_COLOR := Color8(74, 88, 60)
 const SURROUNDINGS_WATER_SHALLOW_DEPTH := 10.0
-const SURROUNDINGS_WATER_DEEP_DEPTH := SURROUNDINGS_CONTINUATION_DEPTH - SURROUNDINGS_WATER_SHALLOW_DEPTH
+const SURROUNDINGS_WATER_DEEP_DEPTH := (
+	SURROUNDINGS_CONTINUATION_DEPTH - SURROUNDINGS_WATER_SHALLOW_DEPTH
+)
 const SURROUNDINGS_WOODLAND_DEPTH := SURROUNDINGS_CONTINUATION_DEPTH
 const TREE_BAND_INNER := 1.5
 const TREE_BAND_OUTER := 18.0

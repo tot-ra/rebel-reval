@@ -1,14 +1,14 @@
 class_name InventoryOverlay
 extends CanvasLayer
 
-const InventoryEquipmentInteractionScene := preload("res://scripts/inventory/inventory_equipment_interaction.gd")
+signal closed
+
+const InventoryEquipmentInteractionScene := preload(
+	"res://scripts/inventory/inventory_equipment_interaction.gd"
+)
 const InventoryOverlayBuilder := preload("res://scripts/inventory/inventory_overlay_builder.gd")
 const InventoryUiThemeScene := preload("res://scripts/inventory/inventory_ui_theme.gd")
-
-signal closed()
-
 const CELL_SIZE := 60
-
 const DRAG_KIND_BAG := &"bag"
 const DRAG_KIND_EQUIPPED := &"equipped"
 
@@ -18,7 +18,6 @@ var _state: GameState
 var _equipment_interaction := InventoryEquipmentInteractionScene.new()
 var _selected: InventoryPlacement = null
 var _focus_cell := Vector2i.ZERO
-
 var _panel: PanelContainer
 var _grid: GridContainer
 var _silhouette: Control
@@ -31,7 +30,6 @@ var _detail_title: Label
 var _detail_label: Label
 var _equip_button: Button
 var _cell_buttons: Array[Button] = []
-
 
 func configure(bag: InventoryBag, content_db: ContentDB) -> void:
 	_bag = bag
@@ -205,8 +203,7 @@ func _refresh() -> void:
 	_weight_bar.value = carried
 	_weight_value.text = "%.2f / %.0f kg" % [carried, InventoryBag.MAX_WEIGHT_KG]
 	InventoryUiThemeScene.set_meter_fill_color(
-		_weight_bar,
-		carried >= InventoryBag.MAX_WEIGHT_KG * 0.75
+		_weight_bar, carried >= InventoryBag.MAX_WEIGHT_KG * 0.75
 	)
 
 	var used_cells := _bag.get_used_cells()
@@ -215,8 +212,7 @@ func _refresh() -> void:
 	_volume_bar.value = float(used_cells)
 	_volume_value.text = "%d / %d cells" % [used_cells, total_cells]
 	InventoryUiThemeScene.set_meter_fill_color(
-		_volume_bar,
-		used_cells >= int(ceil(float(total_cells) * 0.75))
+		_volume_bar, used_cells >= int(ceil(float(total_cells) * 0.75))
 	)
 
 	var speed_percent := int(round(_bag.get_speed_multiplier() * 100.0))
@@ -232,6 +228,8 @@ func _refresh() -> void:
 
 	_update_detail_label()
 	_refresh_equipment_ui()
+
+
 func _refresh_equipment_ui() -> void:
 	_equipment_interaction.refresh(_silhouette, _equip_button, _selected)
 
@@ -295,17 +293,10 @@ func _equip_info(item_id: StringName) -> Dictionary:
 
 
 func _style_cell_button(
-	button: Button,
-	placement: InventoryPlacement,
-	cell_x: int,
-	cell_y: int
+	button: Button, placement: InventoryPlacement, cell_x: int, cell_y: int
 ) -> void:
 	var focused := Vector2i(cell_x, cell_y) == _focus_cell
-	var is_origin := (
-		placement != null
-		and placement.grid_x == cell_x
-		and placement.grid_y == cell_y
-	)
+	var is_origin := placement != null and placement.grid_x == cell_x and placement.grid_y == cell_y
 
 	if placement == null:
 		button.text = ""
@@ -315,7 +306,9 @@ func _style_cell_button(
 		var empty_bg := InventoryUiThemeScene.LEATHER_EMPTY
 		if _selected != null:
 			var profile := _profile_for(_selected.item_id)
-			if _bag.can_place_at(cell_x, cell_y, profile.grid_width, profile.grid_height, _selected):
+			if _bag.can_place_at(
+				cell_x, cell_y, profile.grid_width, profile.grid_height, _selected
+			):
 				empty_bg = InventoryUiThemeScene.LEATHER_VALID
 				button.tooltip_text = "Valid drop"
 		InventoryUiThemeScene.apply_cell_button(button, empty_bg, focused, false)
@@ -325,8 +318,7 @@ func _style_cell_button(
 	var record := _item_record(placement.item_id)
 	var category := String(record.get("category", "supply"))
 	var accent: Color = InventoryUiThemeScene.CATEGORY_COLORS.get(
-		category,
-		InventoryUiThemeScene.CATEGORY_COLORS["supply"]
+		category, InventoryUiThemeScene.CATEGORY_COLORS["supply"]
 	)
 	var selected := placement == _selected
 	var icon_tex := _icon_for(record)
@@ -409,8 +401,7 @@ func _update_detail_label() -> void:
 			)
 			return
 		_set_detail(
-			"Nothing in hand",
-			"Choose a good to inspect, then click a free cell or gear slot."
+			"Nothing in hand", "Choose a good to inspect, then click a free cell or gear slot."
 		)
 		return
 
@@ -430,10 +421,12 @@ func _set_detail(title: String, body: String) -> void:
 ## Stats line without the item name, which the detail card shows as its title.
 func _item_stats_text(record: Dictionary, placement: InventoryPlacement) -> String:
 	var profile := _profile_for(placement.item_id)
-	var parts := PackedStringArray([
-		"%.2f kg" % profile.weight_kg,
-		"%dx%d cells" % [profile.grid_width, profile.grid_height],
-	])
+	var parts := PackedStringArray(
+		[
+			"%.2f kg" % profile.weight_kg,
+			"%dx%d cells" % [profile.grid_width, profile.grid_height],
+		]
+	)
 	var category := String(record.get("category", "")).replace("_", " ")
 	if not category.is_empty():
 		parts.append(category)

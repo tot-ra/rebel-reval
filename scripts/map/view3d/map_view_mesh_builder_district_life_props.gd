@@ -8,11 +8,15 @@ extends RefCounted
 const _Primitives := preload("res://scripts/map/view3d/map_view_mesh_builder_primitives.gd")
 const _PropStyleVariants := preload("res://scripts/map/map_prop_style_variants.gd")
 const _FishingNetModels := preload("res://scripts/map/view3d/map_view_fishing_net_models.gd")
-const _FishDryingRackModels := preload("res://scripts/map/view3d/map_view_fish_drying_rack_models.gd")
+const _FishDryingRackModels := preload(
+	"res://scripts/map/view3d/map_view_fish_drying_rack_models.gd"
+)
 const _DriedFishMeshes := preload("res://scripts/map/view3d/map_view_dried_fish_meshes.gd")
 const _RopeCoilModels := preload("res://scripts/map/view3d/map_view_rope_coil_models.gd")
 const _MaltSackPileModels := preload("res://scripts/map/view3d/map_view_malt_sack_pile_models.gd")
-const _SmithyCharcoalStorageModels := preload("res://scripts/map/view3d/map_view_smithy_charcoal_storage_models.gd")
+const _SmithyCharcoalStorageModels := preload(
+	"res://scripts/map/view3d/map_view_smithy_charcoal_storage_models.gd"
+)
 const _FirewoodStackModels := preload("res://scripts/map/view3d/map_view_firewood_stack_models.gd")
 const _SaltPileModels := preload("res://scripts/map/view3d/map_view_salt_pile_models.gd")
 const _TanningFrameModels := preload("res://scripts/map/view3d/map_view_tanning_frame_models.gd")
@@ -87,9 +91,13 @@ static func _add_fish_drying_rack(root: Node3D, prop: Dictionary) -> void:
 	var catch_specs := _catch_specs_for_variant(variant)
 	for fish_index in catch_specs.size():
 		var spec: Dictionary = catch_specs[fish_index]
-		var attachment := _FishDryingRackModels.attachment_point(float(spec["x"]), bool(spec["back_row"]))
+		var attachment := _FishDryingRackModels.attachment_point(
+			float(spec["x"]), bool(spec["back_row"])
+		)
 		var cord_length := float(spec["cord_length"])
-		_FishDryingRackModels.add_hanging_cord(catch_root, "Cord%d" % fish_index, attachment, cord_length)
+		_FishDryingRackModels.add_hanging_cord(
+			catch_root, "Cord%d" % fish_index, attachment, cord_length
+		)
 		_DriedFishMeshes.add_hanging_fish(
 			catch_root,
 			"Fish%d" % fish_index,
@@ -103,17 +111,80 @@ static func _add_fish_drying_rack(root: Node3D, prop: Dictionary) -> void:
 static func _catch_specs_for_variant(variant: StringName) -> Array[Dictionary]:
 	if variant == _PropStyleVariants.FISH_RACK_HERRING:
 		return [
-			{"x": -0.5, "back_row": false, "cord_length": 0.08, "yaw": -0.12, "scale": 0.88, "species": _DriedFishMeshes.SPECIES_HERRING},
-			{"x": -0.25, "back_row": true, "cord_length": 0.13, "yaw": 0.08, "scale": 0.94, "species": _DriedFishMeshes.SPECIES_HERRING},
-			{"x": 0.0, "back_row": false, "cord_length": 0.1, "yaw": 0.1, "scale": 0.9, "species": _DriedFishMeshes.SPECIES_HERRING},
-			{"x": 0.25, "back_row": true, "cord_length": 0.14, "yaw": -0.08, "scale": 0.92, "species": _DriedFishMeshes.SPECIES_HERRING},
-			{"x": 0.5, "back_row": false, "cord_length": 0.11, "yaw": 0.14, "scale": 0.86, "species": _DriedFishMeshes.SPECIES_HERRING},
+			{
+				"x": -0.5,
+				"back_row": false,
+				"cord_length": 0.08,
+				"yaw": -0.12,
+				"scale": 0.88,
+				"species": _DriedFishMeshes.SPECIES_HERRING
+			},
+			{
+				"x": -0.25,
+				"back_row": true,
+				"cord_length": 0.13,
+				"yaw": 0.08,
+				"scale": 0.94,
+				"species": _DriedFishMeshes.SPECIES_HERRING
+			},
+			{
+				"x": 0.0,
+				"back_row": false,
+				"cord_length": 0.1,
+				"yaw": 0.1,
+				"scale": 0.9,
+				"species": _DriedFishMeshes.SPECIES_HERRING
+			},
+			{
+				"x": 0.25,
+				"back_row": true,
+				"cord_length": 0.14,
+				"yaw": -0.08,
+				"scale": 0.92,
+				"species": _DriedFishMeshes.SPECIES_HERRING
+			},
+			{
+				"x": 0.5,
+				"back_row": false,
+				"cord_length": 0.11,
+				"yaw": 0.14,
+				"scale": 0.86,
+				"species": _DriedFishMeshes.SPECIES_HERRING
+			},
 		]
 	return [
-		{"x": -0.48, "back_row": false, "cord_length": 0.08, "yaw": -0.1, "scale": 0.92, "species": _DriedFishMeshes.SPECIES_HERRING},
-		{"x": -0.18, "back_row": true, "cord_length": 0.12, "yaw": 0.09, "scale": 0.82, "species": _DriedFishMeshes.SPECIES_COD},
-		{"x": 0.12, "back_row": false, "cord_length": 0.1, "yaw": 0.08, "scale": 0.96, "species": _DriedFishMeshes.SPECIES_HERRING},
-		{"x": 0.43, "back_row": true, "cord_length": 0.14, "yaw": -0.1, "scale": 0.78, "species": _DriedFishMeshes.SPECIES_COD},
+		{
+			"x": -0.48,
+			"back_row": false,
+			"cord_length": 0.08,
+			"yaw": -0.1,
+			"scale": 0.92,
+			"species": _DriedFishMeshes.SPECIES_HERRING
+		},
+		{
+			"x": -0.18,
+			"back_row": true,
+			"cord_length": 0.12,
+			"yaw": 0.09,
+			"scale": 0.82,
+			"species": _DriedFishMeshes.SPECIES_COD
+		},
+		{
+			"x": 0.12,
+			"back_row": false,
+			"cord_length": 0.1,
+			"yaw": 0.08,
+			"scale": 0.96,
+			"species": _DriedFishMeshes.SPECIES_HERRING
+		},
+		{
+			"x": 0.43,
+			"back_row": true,
+			"cord_length": 0.14,
+			"yaw": -0.1,
+			"scale": 0.78,
+			"species": _DriedFishMeshes.SPECIES_COD
+		},
 	]
 
 
@@ -219,11 +290,36 @@ static func _add_charcoal_pile(root: Node3D) -> void:
 	# Charcoal must stay near-black with organic mottling and chunky lumps.
 	var charcoal := MapViewMaterials.charcoal()
 	for spec in [
-		{"name": "ChunkA", "radius": 0.28, "pos": Vector3(-0.18, 0.16, 0.06), "scale": Vector3(1.35, 0.7, 1.1)},
-		{"name": "ChunkB", "radius": 0.22, "pos": Vector3(0.16, 0.14, -0.12), "scale": Vector3(1.2, 0.65, 1.05)},
-		{"name": "ChunkC", "radius": 0.18, "pos": Vector3(0.02, 0.22, 0.14), "scale": Vector3(1.1, 0.72, 0.95)},
-		{"name": "ChunkD", "radius": 0.14, "pos": Vector3(-0.32, 0.1, -0.1), "scale": Vector3(1.25, 0.6, 1.15)},
-		{"name": "ChunkE", "radius": 0.12, "pos": Vector3(0.34, 0.1, 0.08), "scale": Vector3(1.15, 0.55, 1.05)},
+		{
+			"name": "ChunkA",
+			"radius": 0.28,
+			"pos": Vector3(-0.18, 0.16, 0.06),
+			"scale": Vector3(1.35, 0.7, 1.1)
+		},
+		{
+			"name": "ChunkB",
+			"radius": 0.22,
+			"pos": Vector3(0.16, 0.14, -0.12),
+			"scale": Vector3(1.2, 0.65, 1.05)
+		},
+		{
+			"name": "ChunkC",
+			"radius": 0.18,
+			"pos": Vector3(0.02, 0.22, 0.14),
+			"scale": Vector3(1.1, 0.72, 0.95)
+		},
+		{
+			"name": "ChunkD",
+			"radius": 0.14,
+			"pos": Vector3(-0.32, 0.1, -0.1),
+			"scale": Vector3(1.25, 0.6, 1.15)
+		},
+		{
+			"name": "ChunkE",
+			"radius": 0.12,
+			"pos": Vector3(0.34, 0.1, 0.08),
+			"scale": Vector3(1.15, 0.55, 1.05)
+		},
 	]:
 		var chunk := MeshInstance3D.new()
 		chunk.name = spec["name"]
@@ -244,34 +340,69 @@ static func _add_iron_scrap_pile(root: Node3D) -> void:
 	_Primitives.box(root, "PlateA", Vector3(0.42, 0.08, 0.34), Vector3(-0.18, 0.12, 0.06), &"metal")
 	_Primitives.box(root, "PlateB", Vector3(0.36, 0.1, 0.28), Vector3(0.16, 0.18, -0.08), &"metal")
 	_Primitives.box(root, "Rod", Vector3(0.08, 0.62, 0.08), Vector3(0.02, 0.31, 0.18), &"metal")
-	_Primitives.sphere(root, "Chunk", 0.16, Vector3(0.28, 0.14, 0.12), &"metal", Vector3(1.0, 0.7, 0.9))
+	_Primitives.sphere(
+		root, "Chunk", 0.16, Vector3(0.28, 0.14, 0.12), &"metal", Vector3(1.0, 0.7, 0.9)
+	)
 
 
 static func _add_weapon_rack(root: Node3D) -> void:
 	_Primitives.box(root, "Back", Vector3(0.12, 1.2, 0.92), Vector3(0.0, 0.6, 0.0), &"wood")
 	for index in 3:
 		var along := lerpf(-0.3, 0.3, float(index) / 2.0)
-		_Primitives.box(root, "Peg%d" % index, Vector3(0.08, 0.08, 0.08), Vector3(0.08, 0.45 + 0.28 * index, along), &"timber")
-		_Primitives.box(root, "Haft%d" % index, Vector3(0.05, 0.72, 0.05), Vector3(0.12, 0.86, along), &"wood")
-		_Primitives.box(root, "Blade%d" % index, Vector3(0.16, 0.05, 0.05), Vector3(0.12, 1.18, along), &"metal")
+		_Primitives.box(
+			root,
+			"Peg%d" % index,
+			Vector3(0.08, 0.08, 0.08),
+			Vector3(0.08, 0.45 + 0.28 * index, along),
+			&"timber"
+		)
+		_Primitives.box(
+			root, "Haft%d" % index, Vector3(0.05, 0.72, 0.05), Vector3(0.12, 0.86, along), &"wood"
+		)
+		_Primitives.box(
+			root, "Blade%d" % index, Vector3(0.16, 0.05, 0.05), Vector3(0.12, 1.18, along), &"metal"
+		)
 
 
 static func _add_herb_drying_rack(root: Node3D) -> void:
 	for post_x in [-0.5, 0.5]:
-		_Primitives.box(root, "Post%d" % int((post_x + 0.5) * 10.0), Vector3(0.08, 1.05, 0.08), Vector3(post_x, 0.52, 0.0), &"timber")
+		_Primitives.box(
+			root,
+			"Post%d" % int((post_x + 0.5) * 10.0),
+			Vector3(0.08, 1.05, 0.08),
+			Vector3(post_x, 0.52, 0.0),
+			&"timber"
+		)
 	_Primitives.box(root, "Crossbar", Vector3(1.15, 0.06, 0.06), Vector3(0.0, 0.98, 0.0), &"wood")
 	for bundle in 4:
 		var bundle_x := lerpf(-0.38, 0.38, float(bundle) / 3.0)
-		_Primitives.sphere(root, "Bundle%d" % bundle, 0.12, Vector3(bundle_x, 0.82, 0.0), &"vegetation", Vector3(1.0, 1.4, 0.8))
+		_Primitives.sphere(
+			root,
+			"Bundle%d" % bundle,
+			0.12,
+			Vector3(bundle_x, 0.82, 0.0),
+			&"vegetation",
+			Vector3(1.0, 1.4, 0.8)
+		)
 
 
 static func _add_market_goods_pallet(root: Node3D) -> void:
 	_Primitives.box(root, "Deck", Vector3(1.1, 0.08, 0.82), Vector3(0.0, 0.12, 0.0), &"wood")
-	for leg_spec in [["LegFL", -0.42, 0.3], ["LegFR", 0.42, 0.3], ["LegBL", -0.42, -0.3], ["LegBR", 0.42, -0.3]]:
-		_Primitives.box(root, leg_spec[0], Vector3(0.08, 0.12, 0.08), Vector3(leg_spec[1], 0.06, leg_spec[2]), &"timber")
+	for leg_spec in [
+		["LegFL", -0.42, 0.3], ["LegFR", 0.42, 0.3], ["LegBL", -0.42, -0.3], ["LegBR", 0.42, -0.3]
+	]:
+		_Primitives.box(
+			root,
+			leg_spec[0],
+			Vector3(0.08, 0.12, 0.08),
+			Vector3(leg_spec[1], 0.06, leg_spec[2]),
+			&"timber"
+		)
 	_Primitives.box(root, "CrateA", Vector3(0.42, 0.28, 0.34), Vector3(-0.18, 0.3, 0.0), &"wood")
 	_Primitives.box(root, "CrateB", Vector3(0.36, 0.22, 0.3), Vector3(0.2, 0.27, -0.08), &"wood")
-	_Primitives.sphere(root, "Sack", 0.22, Vector3(0.08, 0.34, 0.16), &"plaster", Vector3(0.8, 1.0, 0.78))
+	_Primitives.sphere(
+		root, "Sack", 0.22, Vector3(0.08, 0.34, 0.16), &"plaster", Vector3(0.8, 1.0, 0.78)
+	)
 
 
 static func _add_salt_pile(root: Node3D) -> void:
@@ -287,8 +418,19 @@ static func _add_tanning_frame(root: Node3D) -> void:
 static func _add_wash_tub(root: Node3D) -> void:
 	_Primitives.cylinder(root, "Tub", 0.42, 0.36, Vector3(0.0, 0.42, 0.0), &"wood")
 	_Primitives.cylinder(root, "Water", 0.34, 0.05, Vector3(0.0, 0.58, 0.0), &"water_highlight")
-	for leg_spec in [["LegFL", -0.28, 0.22], ["LegFR", 0.28, 0.22], ["LegBL", -0.28, -0.22], ["LegBR", 0.28, -0.22]]:
-		_Primitives.box(root, leg_spec[0], Vector3(0.08, 0.42, 0.08), Vector3(leg_spec[1], 0.21, leg_spec[2]), &"timber")
+	for leg_spec in [
+		["LegFL", -0.28, 0.22],
+		["LegFR", 0.28, 0.22],
+		["LegBL", -0.28, -0.22],
+		["LegBR", 0.28, -0.22]
+	]:
+		_Primitives.box(
+			root,
+			leg_spec[0],
+			Vector3(0.08, 0.42, 0.08),
+			Vector3(leg_spec[1], 0.21, leg_spec[2]),
+			&"timber"
+		)
 
 
 ## Indoor hand-wash station: oak stand, sunk basin, ewer, and towel rail.
@@ -302,7 +444,9 @@ static func _add_wash_tub(root: Node3D) -> void:
 ## and cupboard kits.
 static func _add_wash_stand_basin(root: Node3D) -> void:
 	_Primitives.box(root, "StandTop", Vector3(0.78, 0.05, 0.42), Vector3(0.0, 0.835, 0.0), &"wood")
-	_Primitives.box(root, "StandShelf", Vector3(0.72, 0.04, 0.36), Vector3(0.0, 0.30, 0.0), &"timber")
+	_Primitives.box(
+		root, "StandShelf", Vector3(0.72, 0.04, 0.36), Vector3(0.0, 0.30, 0.0), &"timber"
+	)
 	for leg_spec in [
 		["LegFrontLeft", -0.33, -0.16],
 		["LegFrontRight", 0.33, -0.16],
@@ -310,27 +454,41 @@ static func _add_wash_stand_basin(root: Node3D) -> void:
 		["LegBackRight", 0.33, 0.16],
 	]:
 		_Primitives.box(
-			root, leg_spec[0], Vector3(0.07, 0.81, 0.07), Vector3(leg_spec[1], 0.405, leg_spec[2]), &"timber"
+			root,
+			leg_spec[0],
+			Vector3(0.07, 0.81, 0.07),
+			Vector3(leg_spec[1], 0.405, leg_spec[2]),
+			&"timber"
 		)
 
 	# Shallow pewter basin recessed into the board, water surface below the rim.
 	_Primitives.cylinder(root, "Basin", 0.20, 0.09, Vector3(-0.14, 0.905, -0.02), &"metal")
 	_Primitives.cylinder(root, "BasinRim", 0.215, 0.022, Vector3(-0.14, 0.947, -0.02), &"metal")
-	_Primitives.cylinder(root, "BasinWater", 0.168, 0.02, Vector3(-0.14, 0.918, -0.02), &"water_highlight")
+	_Primitives.cylinder(
+		root, "BasinWater", 0.168, 0.02, Vector3(-0.14, 0.918, -0.02), &"water_highlight"
+	)
 
 	# Ewer poured over the basin. Metal, not timber: the plank pattern the wood
 	# role applies to a cylinder reads as barrel staves at this size.
 	_Primitives.cylinder(root, "EwerBody", 0.078, 0.20, Vector3(0.25, 0.96, 0.01), &"metal")
 	_Primitives.cylinder(root, "EwerNeck", 0.042, 0.08, Vector3(0.25, 1.10, 0.01), &"metal")
-	_Primitives.box(root, "EwerHandle", Vector3(0.03, 0.13, 0.03), Vector3(0.32, 1.03, 0.01), &"metal")
+	_Primitives.box(
+		root, "EwerHandle", Vector3(0.03, 0.13, 0.03), Vector3(0.32, 1.03, 0.01), &"metal"
+	)
 
 	# Towel rail against the wall side. Two panels over the rail read as draped
 	# linen; a single flat panel disappeared against the limewashed plaster.
 	for upright_spec in [["RailPostLeft", -0.33], ["RailPostRight", 0.33]]:
 		_Primitives.box(
-			root, upright_spec[0], Vector3(0.05, 0.58, 0.05), Vector3(upright_spec[1], 1.145, 0.19), &"timber"
+			root,
+			upright_spec[0],
+			Vector3(0.05, 0.58, 0.05),
+			Vector3(upright_spec[1], 1.145, 0.19),
+			&"timber"
 		)
-	_Primitives.box(root, "TowelRail", Vector3(0.71, 0.045, 0.045), Vector3(0.0, 1.42, 0.19), &"timber")
+	_Primitives.box(
+		root, "TowelRail", Vector3(0.71, 0.045, 0.045), Vector3(0.0, 1.42, 0.19), &"timber"
+	)
 	# Slate household linen, not cream: a plaster-toned towel vanished against the
 	# limewashed wall directly behind it.
 	for towel_spec in [

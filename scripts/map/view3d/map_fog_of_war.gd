@@ -37,7 +37,9 @@ func configure(camera: Camera3D, definition: MapDefinition) -> void:
 	_assemble()
 
 
-func update_view(player_position: Vector3, _facing: Vector2 = Vector2.ZERO, _delta: float = 0.0) -> void:
+func update_view(
+	player_position: Vector3, _facing: Vector2 = Vector2.ZERO, _delta: float = 0.0
+) -> void:
 	if _material == null or _camera == null:
 		return
 	var player_ground := Vector2(player_position.x, player_position.z)
@@ -45,7 +47,9 @@ func update_view(player_position: Vector3, _facing: Vector2 = Vector2.ZERO, _del
 	_update_ground_projection()
 
 
-func visibility_at(world_position: Vector2, player_position: Vector2, _facing: Vector2 = Vector2.ZERO) -> float:
+func visibility_at(
+	world_position: Vector2, player_position: Vector2, _facing: Vector2 = Vector2.ZERO
+) -> float:
 	var offset := world_position - player_position
 	var distance := offset.length()
 	if distance <= PLAYER_CLEAR_RADIUS_WORLD:
@@ -83,7 +87,12 @@ static func segment_crosses_rect(from: Vector2, to: Vector2, rect: Rect2) -> boo
 		if exit < enter:
 			return false
 	var distance_beyond_rect := (1.0 - exit) * delta.length()
-	return exit > 0.0 and enter > 0.0 and enter < 1.0 and distance_beyond_rect > OCCLUSION_TARGET_GRACE_WORLD
+	return (
+		exit > 0.0
+		and enter > 0.0
+		and enter < 1.0
+		and distance_beyond_rect > OCCLUSION_TARGET_GRACE_WORLD
+	)
 
 
 static func occluder_rects_for_definition(definition: MapDefinition) -> Array[Rect2]:
@@ -131,8 +140,13 @@ func _build_occlusion_mask() -> Texture2D:
 	image.fill(Color.BLACK)
 	var world_size := Vector2(_definition.size_cells)
 	for rect in _occluders:
-		var from := Vector2i(floor(rect.position.x / world_size.x * size.x), floor(rect.position.y / world_size.y * size.y))
-		var to := Vector2i(ceil(rect.end.x / world_size.x * size.x), ceil(rect.end.y / world_size.y * size.y))
+		var from := Vector2i(
+			floor(rect.position.x / world_size.x * size.x),
+			floor(rect.position.y / world_size.y * size.y)
+		)
+		var to := Vector2i(
+			ceil(rect.end.x / world_size.x * size.x), ceil(rect.end.y / world_size.y * size.y)
+		)
 		for y in range(clampi(from.y, 0, size.y), clampi(to.y, 0, size.y)):
 			for x in range(clampi(from.x, 0, size.x), clampi(to.x, 0, size.x)):
 				image.set_pixel(x, y, Color.WHITE)

@@ -6,7 +6,6 @@ const MeshMath := preload("res://scripts/map/view3d/map_view_mesh_builder_math.g
 ## Cached procedural tree canopy and ground foliage meshes.
 static var _mesh_cache: Dictionary = {}
 
-
 ## Three stacked, slightly offset cone tiers with a small top spike: a spruce
 ## silhouette with layered skirts instead of a single flat cone. Local y spans
 ## 0 (skirt) to about 2.9 (tip).
@@ -204,14 +203,28 @@ static func reed_stem_mesh() -> ArrayMesh:
 		var base := direction * radius_from_center
 		var height := 0.72 + MeshMath.hash01(stem_index, 7, 227) * 0.30
 		var lean_direction := Vector3(sin(yaw + 0.65), 0.0, cos(yaw + 0.65))
-		var top := base + Vector3.UP * height + lean_direction * (0.035 + MeshMath.hash01(stem_index, 11, 229) * 0.045)
-		var stem_color := Color(0.92, 0.94, 0.62).lerp(Color(0.72, 0.78, 0.42), MeshMath.hash01(stem_index, 13, 233))
+		var top := (
+			base
+			+ Vector3.UP * height
+			+ lean_direction * (0.035 + MeshMath.hash01(stem_index, 11, 229) * 0.045)
+		)
+		var stem_color := Color(0.92, 0.94, 0.62).lerp(
+			Color(0.72, 0.78, 0.42), MeshMath.hash01(stem_index, 13, 233)
+		)
 		_add_tapered_stem(surface, base, top, 0.0075, 0.0045, 6, stem_color, 0.0, 0.88)
 
 		for leaf_index in 2:
-			var leaf_y := 0.10 + float(leaf_index) * 0.17 + MeshMath.hash01(stem_index, leaf_index, 239) * 0.07
+			var leaf_y := (
+				0.10
+				+ float(leaf_index) * 0.17
+				+ MeshMath.hash01(stem_index, leaf_index, 239) * 0.07
+			)
 			var leaf_root := base.lerp(top, leaf_y / height)
-			var leaf_yaw := yaw + (-0.95 if leaf_index == 0 else 1.15) + MeshMath.hash01(stem_index, leaf_index, 241) * 0.35
+			var leaf_yaw := (
+				yaw
+				+ (-0.95 if leaf_index == 0 else 1.15)
+				+ MeshMath.hash01(stem_index, leaf_index, 241) * 0.35
+			)
 			var leaf_direction := Vector3(sin(leaf_yaw), 0.0, cos(leaf_yaw))
 			var leaf_height := 0.36 + MeshMath.hash01(stem_index, leaf_index, 251) * 0.24
 			var lean := 0.15 + MeshMath.hash01(stem_index, leaf_index, 257) * 0.14
@@ -219,7 +232,9 @@ static func reed_stem_mesh() -> ArrayMesh:
 			_add_curved_leaf(
 				surface,
 				_leaf_curve(leaf_root, leaf_direction, leaf_height, lean),
-				PackedFloat32Array([half_width, half_width * 0.92, half_width * 0.68, half_width * 0.34, 0.0]),
+				PackedFloat32Array(
+					[half_width, half_width * 0.92, half_width * 0.68, half_width * 0.34, 0.0]
+				),
 				Vector3(leaf_direction.z, 0.0, -leaf_direction.x),
 				Color(0.82, 0.90, 0.56),
 				Color(0.66, 0.72, 0.34),
@@ -261,15 +276,22 @@ static func cattail_cluster_mesh() -> ArrayMesh:
 		var height: float = stalk[1]
 		var head_scale: float = stalk[2]
 		var lean_yaw := MeshMath.hash01(stalk_index, 17, 331) * TAU
-		var lean := Vector3(sin(lean_yaw), 0.0, cos(lean_yaw)) * (0.015 + MeshMath.hash01(stalk_index, 19, 337) * 0.025)
+		var lean := (
+			Vector3(sin(lean_yaw), 0.0, cos(lean_yaw))
+			* (0.015 + MeshMath.hash01(stalk_index, 19, 337) * 0.025)
+		)
 		var top := base + Vector3.UP * height + lean
-		var stem_color := Color(0.76, 0.80, 0.43).lerp(Color(0.58, 0.66, 0.31), MeshMath.hash01(stalk_index, 23, 347))
+		var stem_color := Color(0.76, 0.80, 0.43).lerp(
+			Color(0.58, 0.66, 0.31), MeshMath.hash01(stalk_index, 23, 347)
+		)
 		_add_tapered_stem(surface, base, top, 0.008, 0.0055, 6, stem_color, 0.0, 1.0)
 		if head_scale > 0.0:
 			var head_height := 0.165 * head_scale
 			var head_base := top - Vector3.UP * (head_height + 0.035)
 			var head_radius := 0.034 * head_scale
-			var head_color := Color(0.76, 0.39, 0.16).lerp(Color(0.56, 0.25, 0.09), MeshMath.hash01(stalk_index, 29, 349))
+			var head_color := Color(0.76, 0.39, 0.16).lerp(
+				Color(0.56, 0.25, 0.09), MeshMath.hash01(stalk_index, 29, 349)
+			)
 			_add_cattail_head(surface, head_base, head_height, head_radius, head_color)
 
 	for leaf_index in 12:
@@ -295,7 +317,9 @@ static func cattail_cluster_mesh() -> ArrayMesh:
 	return mesh
 
 
-static func _leaf_curve(root: Vector3, direction: Vector3, height: float, lean: float) -> Array[Vector3]:
+static func _leaf_curve(
+	root: Vector3, direction: Vector3, height: float, lean: float
+) -> Array[Vector3]:
 	return [
 		root,
 		root + direction * lean * 0.10 + Vector3.UP * height * 0.27,
@@ -394,22 +418,20 @@ static func _add_tapered_stem(
 
 
 static func _add_cattail_head(
-	surface: SurfaceTool,
-	base: Vector3,
-	height: float,
-	radius: float,
-	color: Color
+	surface: SurfaceTool, base: Vector3, height: float, radius: float, color: Color
 ) -> void:
 	# Six radial faces and a rounded profile are enough to read as a compact,
 	# velvety seed head at gameplay scale without the old box silhouette.
-	var profile := PackedVector2Array([
-		Vector2(0.0, radius * 0.34),
-		Vector2(height * 0.08, radius * 0.82),
-		Vector2(height * 0.22, radius),
-		Vector2(height * 0.78, radius * 0.96),
-		Vector2(height * 0.94, radius * 0.66),
-		Vector2(height, radius * 0.28),
-	])
+	var profile := PackedVector2Array(
+		[
+			Vector2(0.0, radius * 0.34),
+			Vector2(height * 0.08, radius * 0.82),
+			Vector2(height * 0.22, radius),
+			Vector2(height * 0.78, radius * 0.96),
+			Vector2(height * 0.94, radius * 0.66),
+			Vector2(height, radius * 0.28),
+		]
+	)
 	var sides := 6
 	for ring_index in profile.size() - 1:
 		var ring_a := profile[ring_index]
@@ -443,19 +465,31 @@ static func _add_cattail_head(
 				surface.add_vertex(vertex[0])
 
 
-static func _add_reed_panicle(surface: SurfaceTool, base: Vector3, yaw: float, panicle_seed: int) -> void:
+static func _add_reed_panicle(
+	surface: SurfaceTool, base: Vector3, yaw: float, panicle_seed: int
+) -> void:
 	var direction := Vector3(sin(yaw), 0.0, cos(yaw))
-	var plume_color := Color(1.35, 0.90, 0.38).lerp(Color(1.08, 0.68, 0.28), MeshMath.hash01(panicle_seed, 31, 401))
+	var plume_color := Color(1.35, 0.90, 0.38).lerp(
+		Color(1.08, 0.68, 0.28), MeshMath.hash01(panicle_seed, 31, 401)
+	)
 	var tip := base + Vector3.UP * 0.16 + direction * 0.035
 	_add_tapered_stem(surface, base, tip, 0.0035, 0.0015, 4, plume_color, 0.88, 1.0)
 	for branch_index in 5:
 		var branch_progress := 0.18 + float(branch_index) * 0.14
 		var branch_base := base.lerp(tip, branch_progress)
-		var branch_yaw := yaw + (-1.0 if branch_index % 2 == 0 else 1.0) * (0.62 + float(branch_index) * 0.10)
+		var branch_yaw := (
+			yaw + (-1.0 if branch_index % 2 == 0 else 1.0) * (0.62 + float(branch_index) * 0.10)
+		)
 		var branch_direction := Vector3(sin(branch_yaw), 0.0, cos(branch_yaw))
 		var branch_length := 0.035 + MeshMath.hash01(panicle_seed, branch_index, 409) * 0.035
-		var branch_tip := branch_base + branch_direction * branch_length + Vector3.UP * (0.025 + branch_progress * 0.025)
-		_add_tapered_stem(surface, branch_base, branch_tip, 0.0022, 0.0008, 3, plume_color, 0.90, 1.0)
+		var branch_tip := (
+			branch_base
+			+ branch_direction * branch_length
+			+ Vector3.UP * (0.025 + branch_progress * 0.025)
+		)
+		_add_tapered_stem(
+			surface, branch_base, branch_tip, 0.0022, 0.0008, 3, plume_color, 0.90, 1.0
+		)
 
 
 static func clover_patch_mesh() -> ArrayMesh:
@@ -501,14 +535,28 @@ static func grass_seed_head_mesh() -> ArrayMesh:
 		var root := direction * (0.02 + MeshMath.hash01(stem, 29, 419) * 0.06)
 		var top := root + direction * 0.09 + Vector3.UP * height
 		var half_width := 0.012
-		var stem_vertices := [root - side * half_width, root + side * half_width, top + side * half_width * 0.55, root - side * half_width, top + side * half_width * 0.55, top - side * half_width * 0.55]
+		var stem_vertices := [
+			root - side * half_width,
+			root + side * half_width,
+			top + side * half_width * 0.55,
+			root - side * half_width,
+			top + side * half_width * 0.55,
+			top - side * half_width * 0.55
+		]
 		for index in stem_vertices.size():
 			surface.set_uv(Vector2(float(index % 3) * 0.5, 0.0 if index < 2 else 0.82))
 			surface.add_vertex(stem_vertices[index])
 		var head_height := 0.10
 		var head_width := 0.028
 		var head_top := top + Vector3.UP * head_height
-		for vertex in [top - side * head_width, top + side * head_width, head_top, top - side * head_width, head_top, top - side * head_width * 0.3 + Vector3.UP * head_height * 0.55]:
+		for vertex in [
+			top - side * head_width,
+			top + side * head_width,
+			head_top,
+			top - side * head_width,
+			head_top,
+			top - side * head_width * 0.3 + Vector3.UP * head_height * 0.55
+		]:
 			surface.set_uv(Vector2(0.5, 1.0))
 			surface.add_vertex(vertex)
 	surface.generate_normals()
@@ -533,14 +581,23 @@ static func fern_frond_mesh() -> ArrayMesh:
 		var middle := direction * 0.18 + Vector3.UP * 0.19
 		var tip := direction * 0.38 + Vector3.UP * 0.28
 		var width := 0.055
-		for vertex in [root - side * width, root + side * width, middle + side * width * 0.72, root - side * width, middle + side * width * 0.72, middle - side * width * 0.72, middle - side * width * 0.72, middle + side * width * 0.72, tip]:
+		for vertex in [
+			root - side * width,
+			root + side * width,
+			middle + side * width * 0.72,
+			root - side * width,
+			middle + side * width * 0.72,
+			middle - side * width * 0.72,
+			middle - side * width * 0.72,
+			middle + side * width * 0.72,
+			tip
+		]:
 			surface.set_uv(Vector2(0.5, clampf(vertex.y / 0.28, 0.0, 1.0)))
 			surface.add_vertex(vertex)
 	surface.generate_normals()
 	var mesh := surface.commit()
 	_mesh_cache[CACHE_KEY] = mesh
 	return mesh
-
 
 ## Landscape ring outside the playable rectangle. Each authored side may
 ## continue town silhouettes, open water, or an explicit woodland apron with a

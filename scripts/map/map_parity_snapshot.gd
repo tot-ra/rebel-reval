@@ -13,7 +13,8 @@ const FLOAT_DECIMALS := 9
 static func serialize(definition: MapDefinition, grid: MapTerrainGrid) -> String:
 	var snapshot := {
 		"format_version": FORMAT_VERSION,
-		"metadata": {
+		"metadata":
+		{
 			"active": definition.active,
 			"base_terrain": definition.base_terrain,
 			"camera_bounds": definition.camera_bounds,
@@ -26,7 +27,8 @@ static func serialize(definition: MapDefinition, grid: MapTerrainGrid) -> String
 			"seed": definition.seed,
 			"size_cells": definition.size_cells,
 		},
-		"terrain": {
+		"terrain":
+		{
 			"terrain_id_grid_sha256": terrain_grid_fingerprint(grid),
 			"used_terrain_ids": _sorted_strings(grid.used_terrain_ids()),
 		},
@@ -69,13 +71,19 @@ static func first_difference(expected: String, actual: String) -> String:
 	var shared_count := mini(expected_lines.size(), actual_lines.size())
 	for index in shared_count:
 		if expected_lines[index] != actual_lines[index]:
-			return "line %d\nexpected: %s\nactual:   %s" % [
-				index + 1,
-				expected_lines[index],
-				actual_lines[index],
-			]
+			return (
+				"line %d\nexpected: %s\nactual:   %s"
+				% [
+					index + 1,
+					expected_lines[index],
+					actual_lines[index],
+				]
+			)
 	if expected_lines.size() != actual_lines.size():
-		return "line count differs: expected %d, actual %d" % [expected_lines.size(), actual_lines.size()]
+		return (
+			"line count differs: expected %d, actual %d"
+			% [expected_lines.size(), actual_lines.size()]
+		)
 	return "no textual difference"
 
 
@@ -87,7 +95,9 @@ static func _navigation_snapshot(definition: MapDefinition, grid: MapTerrainGrid
 	for y in definition.size_cells.y:
 		for x in definition.size_cells.x:
 			var cell := Vector2i(x, y)
-			var walkable := not MapTypes.WATER_TERRAINS.has(grid.get_terrain(cell)) and not blocked.has(cell)
+			var walkable := (
+				not MapTypes.WATER_TERRAINS.has(grid.get_terrain(cell)) and not blocked.has(cell)
+			)
 			var index := y * definition.size_cells.x + x
 			walkability[index] = 1 if walkable else 0
 			if walkable:
@@ -170,9 +180,13 @@ static func _serialize_value(value: Variant, depth: int) -> String:
 		TYPE_VECTOR2I:
 			return _serialize_value([value.x, value.y], depth)
 		TYPE_RECT2:
-			return _serialize_value([value.position.x, value.position.y, value.size.x, value.size.y], depth)
+			return _serialize_value(
+				[value.position.x, value.position.y, value.size.x, value.size.y], depth
+			)
 		TYPE_RECT2I:
-			return _serialize_value([value.position.x, value.position.y, value.size.x, value.size.y], depth)
+			return _serialize_value(
+				[value.position.x, value.position.y, value.size.x, value.size.y], depth
+			)
 		TYPE_COLOR:
 			return _serialize_value([value.r, value.g, value.b, value.a], depth)
 		TYPE_ARRAY:
@@ -190,7 +204,9 @@ static func _serialize_array(values: Array, depth: int) -> String:
 	var lines: Array[String] = ["["]
 	for index in values.size():
 		var suffix := "," if index < values.size() - 1 else ""
-		lines.append("%s%s%s" % [_indent(depth + 1), _serialize_value(values[index], depth + 1), suffix])
+		lines.append(
+			"%s%s%s" % [_indent(depth + 1), _serialize_value(values[index], depth + 1), suffix]
+		)
 	lines.append(_indent(depth) + "]")
 	return "\n".join(lines)
 
@@ -204,12 +220,20 @@ static func _serialize_dictionary(values: Dictionary, depth: int) -> String:
 	for index in keys.size():
 		var key: Variant = keys[index]
 		var suffix := "," if index < keys.size() - 1 else ""
-		lines.append("%s%s: %s%s" % [
-			_indent(depth + 1),
-			JSON.stringify(String(key)),
-			_serialize_value(values[key], depth + 1),
-			suffix,
-		])
+		(
+			lines
+			. append(
+				(
+					"%s%s: %s%s"
+					% [
+						_indent(depth + 1),
+						JSON.stringify(String(key)),
+						_serialize_value(values[key], depth + 1),
+						suffix,
+					]
+				)
+			)
+		)
 	lines.append(_indent(depth) + "}")
 	return "\n".join(lines)
 

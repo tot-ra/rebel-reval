@@ -18,8 +18,13 @@ const _CLUSTER_SPECS: Array[Dictionary] = [
 	{
 		"cluster_id": CLUSTER_WORKERS,
 		"zone_ids": [ProfileScript.ZONE_WORK_YARD, ProfileScript.ZONE_RESIDENTIAL],
-		"anchor_ids": [
-			&"workers_yard", &"carriers_lane", &"smithy_door", &"brewery_door", &"street_start",
+		"anchor_ids":
+		[
+			&"workers_yard",
+			&"carriers_lane",
+			&"smithy_door",
+			&"brewery_door",
+			&"street_start",
 		],
 	},
 	{
@@ -29,8 +34,19 @@ const _CLUSTER_SPECS: Array[Dictionary] = [
 	},
 	{
 		"cluster_id": CLUSTER_WATCH,
-		"zone_ids": [ProfileScript.ZONE_CHECKPOINT, ProfileScript.ZONE_STREET, ProfileScript.ZONE_SAFE_INTERIOR],
-		"anchor_ids": [&"watch_west_checkpoint", &"watch_east_checkpoint", &"checkpoint_west", &"checkpoint_east"],
+		"zone_ids":
+		[
+			ProfileScript.ZONE_CHECKPOINT,
+			ProfileScript.ZONE_STREET,
+			ProfileScript.ZONE_SAFE_INTERIOR
+		],
+		"anchor_ids":
+		[
+			&"watch_west_checkpoint",
+			&"watch_east_checkpoint",
+			&"checkpoint_west",
+			&"checkpoint_east"
+		],
 	},
 ]
 
@@ -38,7 +54,9 @@ const _CLUSTER_SPECS: Array[Dictionary] = [
 ## Returns the authored Lower Town cluster records in canonical order.
 ## Missing or invalid anchors are omitted rather than replaced with guessed points.
 ## This makes an incomplete map fail closed while preserving deterministic lookup.
-static func clusters_for_map(definition: MapDefinition, grid: MapTerrainGrid = null) -> Array[Dictionary]:
+static func clusters_for_map(
+	definition: MapDefinition, grid: MapTerrainGrid = null
+) -> Array[Dictionary]:
 	if definition == null or definition.map_id != LOWER_TOWN_MAP_ID:
 		return []
 	var present_anchors := _present_anchor_ids(definition, grid)
@@ -48,11 +66,16 @@ static func clusters_for_map(definition: MapDefinition, grid: MapTerrainGrid = n
 		for anchor_id: StringName in spec["anchor_ids"]:
 			if present_anchors.has(anchor_id):
 				anchor_ids.append(anchor_id)
-		clusters.append({
-				"cluster_id": spec["cluster_id"],
-				"zone_ids": (spec["zone_ids"] as Array).duplicate(),
-				"anchor_ids": anchor_ids,
-			})
+		(
+			clusters
+			. append(
+				{
+					"cluster_id": spec["cluster_id"],
+					"zone_ids": (spec["zone_ids"] as Array).duplicate(),
+					"anchor_ids": anchor_ids,
+				}
+			)
+		)
 	return clusters
 
 
@@ -104,9 +127,7 @@ static func build_lookup(definition: MapDefinition, grid: MapTerrainGrid = null)
 ## Actor order and anchor selection are derived from the existing actor index, so
 ## equal profile/map inputs replay the same result without random state.
 static func bind_profile(
-	profile: Dictionary,
-	definition: MapDefinition,
-	grid: MapTerrainGrid = null
+	profile: Dictionary, definition: MapDefinition, grid: MapTerrainGrid = null
 ) -> Array[Dictionary]:
 	if definition == null or definition.map_id != LOWER_TOWN_MAP_ID:
 		return []
@@ -131,7 +152,11 @@ static func bind_profile(
 			anchor_id = anchor_ids[posmod(actor_index, anchor_ids.size())]
 		record["cluster_id"] = cluster_id
 		record["anchor_id"] = anchor_id
-		record["anchor_position"] = MapVerificationScript.anchor_position(definition, anchor_id) if not anchor_id.is_empty() else Vector2.ZERO
+		record["anchor_position"] = (
+			MapVerificationScript.anchor_position(definition, anchor_id)
+			if not anchor_id.is_empty()
+			else Vector2.ZERO
+		)
 		records.append(record)
 	return records
 
@@ -152,7 +177,9 @@ static func cluster_id_for_actor(actor: Dictionary, clusters: Array[Dictionary])
 	return _cluster_for_zone(CLUSTER_WORKERS, zone_id, clusters)
 
 
-static func anchor_ids_for_cluster(cluster_id: StringName, clusters: Array[Dictionary]) -> Array[StringName]:
+static func anchor_ids_for_cluster(
+	cluster_id: StringName, clusters: Array[Dictionary]
+) -> Array[StringName]:
 	for cluster: Dictionary in clusters:
 		if cluster.get("cluster_id", &"") == cluster_id:
 			var result: Array[StringName] = []
@@ -162,9 +189,14 @@ static func anchor_ids_for_cluster(cluster_id: StringName, clusters: Array[Dicti
 	return []
 
 
-static func _cluster_for_zone(preferred_cluster: StringName, zone_id: StringName, clusters: Array[Dictionary]) -> StringName:
+static func _cluster_for_zone(
+	preferred_cluster: StringName, zone_id: StringName, clusters: Array[Dictionary]
+) -> StringName:
 	for cluster: Dictionary in clusters:
-		if cluster.get("cluster_id", &"") == preferred_cluster and (cluster.get("zone_ids", []) as Array).has(zone_id):
+		if (
+			cluster.get("cluster_id", &"") == preferred_cluster
+			and (cluster.get("zone_ids", []) as Array).has(zone_id)
+		):
 			return preferred_cluster
 	for cluster: Dictionary in clusters:
 		if (cluster.get("zone_ids", []) as Array).has(zone_id):
@@ -172,26 +204,33 @@ static func _cluster_for_zone(preferred_cluster: StringName, zone_id: StringName
 	return &""
 
 
-static func _present_anchor_ids(definition: MapDefinition, grid: MapTerrainGrid) -> Array[StringName]:
+static func _present_anchor_ids(
+	definition: MapDefinition, grid: MapTerrainGrid
+) -> Array[StringName]:
 	var present: Array[StringName] = []
 	for anchor: Dictionary in definition.interaction_anchors:
 		var anchor_id := StringName(anchor.get("id", &""))
 		if anchor_id.is_empty() or not _anchor_is_valid(definition, grid, anchor_id):
 			continue
 		present.append(anchor_id)
-	present.sort_custom(func(left: StringName, right: StringName) -> bool:
-		return String(left) < String(right)
+	present.sort_custom(
+		func(left: StringName, right: StringName) -> bool: return String(left) < String(right)
 	)
 	return present
 
 
-static func _anchor_is_valid(definition: MapDefinition, grid: MapTerrainGrid, anchor_id: StringName) -> bool:
+static func _anchor_is_valid(
+	definition: MapDefinition, grid: MapTerrainGrid, anchor_id: StringName
+) -> bool:
 	if definition == null or not MapVerificationScript.has_anchor(definition, anchor_id):
 		return false
 	if grid == null:
 		return true
-	return MapVerificationScript.is_walkable_point(
-		definition,
-		grid,
-		MapVerificationScript.anchor_position(definition, anchor_id),
+	return (
+		MapVerificationScript
+		. is_walkable_point(
+			definition,
+			grid,
+			MapVerificationScript.anchor_position(definition, anchor_id),
+		)
 	)

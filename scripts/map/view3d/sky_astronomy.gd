@@ -6,12 +6,10 @@ extends RefCounted
 ## physical sky without making either depend on the weather state machine.
 
 const GAME_CALENDAR := preload("res://scripts/global/game_calendar.gd")
-
 ## Approximate solar orbit for Reval. World +X is east, -Z north, and +Y zenith.
 const EARTH_AXIAL_TILT_DEGREES := 23.44
 ## In 1343 the Julian calendar was about eight days behind the seasonal equinox.
 const CAMPAIGN_VERNAL_EQUINOX_DAY_OF_YEAR := 72.0
-
 ## Mean lunar orbit and phase reference. The epoch preserves the historical
 ## 1343-04-25 new moon and 1343-05-10 full moon in the campaign calendar.
 const SYNODIC_MONTH_DAYS := 29.530588853
@@ -19,18 +17,18 @@ const NEW_MOON_EPOCH_JULIAN_DAY := 2451550.25972
 const LUNAR_APPARENT_ROTATIONS_PER_SOLAR_DAY := 1.0 - 1.0 / SYNODIC_MONTH_DAYS
 const LUNAR_ORBITAL_INCLINATION_DEGREES := 5.14
 const DRACONIC_MONTH_DAYS := 27.212220817
-
 ## Restrained Baltic equilibrium-tide approximation. Rendering supplies its own
 ## visual scale because Reval's real tidal range is small.
 const SOLAR_TIDE_FORCE_RATIO := 0.46
 const TIDE_BASIN_LAG_PROGRESS := 1.5 / 24.0
-
 ## Astronomical reference for Reval (Tallinn) on St George's Night.
 const OBSERVER_LATITUDE_DEGREES := 59.437
 const SKY_EPOCH_YEAR := 1343.0
 const REFERENCE_DATE := "1343-04-23"
 const MIDNIGHT_SIDEREAL_DEGREES := 218.31
 const SIDEREAL_ROTATIONS_PER_SOLAR_DAY := 1.00273790935
+const SUN_DISK_FADE_START := -0.05
+const SUN_DISK_FADE_END := 0.05
 
 ## Solar declination follows the campaign's Julian calendar. The approximation is
 ## intentionally deterministic and is accurate enough to reproduce Reval's long
@@ -39,7 +37,10 @@ static func solar_declination_degrees(date: Dictionary) -> float:
 	var year := int(date.get("year", GAME_CALENDAR.DEFAULT_DATE["year"]))
 	var year_length := float(GAME_CALENDAR.days_in_year(year))
 	var ordinal := float(GAME_CALENDAR.day_of_year(date))
-	return EARTH_AXIAL_TILT_DEGREES * sin(TAU * (ordinal - CAMPAIGN_VERNAL_EQUINOX_DAY_OF_YEAR) / year_length)
+	return (
+		EARTH_AXIAL_TILT_DEGREES
+		* sin(TAU * (ordinal - CAMPAIGN_VERNAL_EQUINOX_DAY_OF_YEAR) / year_length)
+	)
 
 
 ## Local ENU direction for a body with the given equatorial declination.
@@ -50,13 +51,9 @@ static func celestial_direction(progress: float, declination_degrees: float) -> 
 	var hour_angle := (wrapf(progress, 0.0, 1.0) - 0.5) * TAU
 	var east := -cos(declination) * sin(hour_angle)
 	var north := (
-		cos(latitude) * sin(declination)
-		- sin(latitude) * cos(declination) * cos(hour_angle)
+		cos(latitude) * sin(declination) - sin(latitude) * cos(declination) * cos(hour_angle)
 	)
-	var up := (
-		sin(latitude) * sin(declination)
-		+ cos(latitude) * cos(declination) * cos(hour_angle)
-	)
+	var up := sin(latitude) * sin(declination) + cos(latitude) * cos(declination) * cos(hour_angle)
 	return Vector3(east, up, -north).normalized()
 
 
@@ -82,10 +79,6 @@ static func solar_elevation_degrees(progress: float, date: Dictionary = {}) -> f
 
 ## Matches `sun_visibility` in sky_weather_3d.gdshader. Water specular uses the
 ## same fade so open water cannot keep a sun glint after the disk has set.
-const SUN_DISK_FADE_START := -0.05
-const SUN_DISK_FADE_END := 0.05
-
-
 static func sun_disk_visibility(sun_direction: Vector3) -> float:
 	return smoothstep(SUN_DISK_FADE_START, SUN_DISK_FADE_END, sun_direction.y)
 
@@ -123,10 +116,7 @@ static func julian_day(date: Dictionary) -> float:
 		year -= 1
 		month += 12
 	return (
-		floor(365.25 * float(year + 4716))
-		+ floor(30.6001 * float(month + 1))
-		+ float(day)
-		- 1524.5
+		floor(365.25 * float(year + 4716)) + floor(30.6001 * float(month + 1)) + float(day) - 1524.5
 	)
 
 
@@ -181,9 +171,7 @@ static func lunar_direction(progress: float, date: Dictionary = {}) -> Vector3:
 	var wrapped_progress := wrapf(progress, 0.0, 1.0)
 	var phase := lunar_phase(effective_date)
 	var lunar_progress := wrapf(
-		wrapped_progress * LUNAR_APPARENT_ROTATIONS_PER_SOLAR_DAY - phase,
-		0.0,
-		1.0
+		wrapped_progress * LUNAR_APPARENT_ROTATIONS_PER_SOLAR_DAY - phase, 0.0, 1.0
 	)
 	return celestial_direction(lunar_progress, lunar_declination_degrees(effective_date))
 
@@ -207,8 +195,7 @@ static func tide_level(progress: float, date: Dictionary = {}) -> float:
 	var effective_date := GAME_CALENDAR.DEFAULT_DATE if date.is_empty() else date
 	var delayed_progress := wrapf(progress - TIDE_BASIN_LAG_PROGRESS, 0.0, 1.0)
 	var lunar_transit := wrapf(
-		delayed_progress * LUNAR_APPARENT_ROTATIONS_PER_SOLAR_DAY
-		- lunar_phase(effective_date),
+		delayed_progress * LUNAR_APPARENT_ROTATIONS_PER_SOLAR_DAY - lunar_phase(effective_date),
 		0.0,
 		1.0
 	)
@@ -216,8 +203,7 @@ static func tide_level(progress: float, date: Dictionary = {}) -> float:
 	var lunar_tide := cos(lunar_transit * TAU * 2.0)
 	var solar_tide := cos(solar_transit * TAU * 2.0)
 	return clampf(
-		(lunar_tide + solar_tide * SOLAR_TIDE_FORCE_RATIO)
-		/ (1.0 + SOLAR_TIDE_FORCE_RATIO),
+		(lunar_tide + solar_tide * SOLAR_TIDE_FORCE_RATIO) / (1.0 + SOLAR_TIDE_FORCE_RATIO),
 		-1.0,
 		1.0
 	)

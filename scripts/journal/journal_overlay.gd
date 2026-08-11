@@ -1,7 +1,7 @@
 class_name JournalOverlay
 extends CanvasLayer
 
-signal closed()
+signal closed
 
 var _state: GameState
 var _content_db: ContentDB

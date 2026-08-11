@@ -6,7 +6,9 @@ extends RefCounted
 const DEFAULT_CHUNK_SIZE_CELLS := MapTerrainGrid.DEFAULT_CHUNK_SIZE_CELLS
 
 
-static func build(definition: MapDefinition, chunk_size_cells: int = DEFAULT_CHUNK_SIZE_CELLS) -> MapTerrainGrid:
+static func build(
+	definition: MapDefinition, chunk_size_cells: int = DEFAULT_CHUNK_SIZE_CELLS
+) -> MapTerrainGrid:
 	var errors := definition.validate()
 	if not errors.is_empty():
 		push_error("Invalid map definition %s: %s" % [String(definition.map_id), ", ".join(errors)])
@@ -16,7 +18,9 @@ static func build(definition: MapDefinition, chunk_size_cells: int = DEFAULT_CHU
 		return MapTerrainGrid.new()
 
 	var grid := MapTerrainGrid.new()
-	grid.initialize_chunks(definition.size_cells, definition.cell_size, definition.seed, chunk_size_cells)
+	grid.initialize_chunks(
+		definition.size_cells, definition.cell_size, definition.seed, chunk_size_cells
+	)
 	_fill_chunks(grid, definition.base_terrain)
 
 	# Zone order is canonical MapDefinition semantics. Clip every overlay to each
@@ -73,8 +77,7 @@ static func _apply_zone_to_chunks(grid: MapTerrainGrid, zone: Dictionary) -> voi
 	var terrain: StringName = zone["terrain"]
 	var style_variant: StringName = zone.get("style_variant", &"")
 	var speed_multiplier := TerrainVegetation.resolved_zone_speed(
-		style_variant,
-		zone.get("movement_speed_multiplier", null)
+		style_variant, zone.get("movement_speed_multiplier", null)
 	)
 	for coordinates in grid.chunk_coordinates():
 		var clipped := zone_rect.intersection(grid.chunk_bounds(coordinates))
@@ -98,8 +101,7 @@ static func _apply_zone(grid: MapTerrainGrid, zone: Dictionary) -> void:
 	var terrain: StringName = zone["terrain"]
 	var style_variant: StringName = zone.get("style_variant", &"")
 	var speed_multiplier := TerrainVegetation.resolved_zone_speed(
-		style_variant,
-		zone.get("movement_speed_multiplier", null)
+		style_variant, zone.get("movement_speed_multiplier", null)
 	)
 	for y in range(rect.position.y, rect.end.y):
 		for x in range(rect.position.x, rect.end.x):

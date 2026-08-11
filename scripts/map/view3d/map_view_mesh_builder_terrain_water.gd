@@ -43,7 +43,13 @@ static func bake_water_contour(grid: MapTerrainGrid, terrain_id: StringName) -> 
 				value += horizontal[sample_y * columns + x] * kernel[offset + radius]
 			values[y * columns + x] = value
 			max_coverage = maxf(max_coverage, value)
-	return {"values": values, "source": source, "columns": columns, "rows": rows, "max_coverage": max_coverage}
+	return {
+		"values": values,
+		"source": source,
+		"columns": columns,
+		"rows": rows,
+		"max_coverage": max_coverage
+	}
 
 
 static func water_coverage_at(field: Dictionary, sample: Vector2, terrain_id: StringName) -> float:
@@ -58,9 +64,7 @@ static func water_coverage_at(field: Dictionary, sample: Vector2, terrain_id: St
 	var bottom_left := _water_contour_sample(contour, base + Vector2i.DOWN)
 	var bottom_right := _water_contour_sample(contour, base + Vector2i(1, 1))
 	return lerpf(
-		lerpf(top_left, top_right, local.x),
-		lerpf(bottom_left, bottom_right, local.x),
-		local.y
+		lerpf(top_left, top_right, local.x), lerpf(bottom_left, bottom_right, local.x), local.y
 	)
 
 
@@ -73,10 +77,16 @@ static func combined_water_coverage_at(field: Dictionary, sample: Vector2) -> fl
 
 static func cell_near_terrain(field: Dictionary, cell: Vector2i, terrain_id: StringName) -> bool:
 	for probe in [
-		Vector2(cell), Vector2(cell) + Vector2(1.0, 0.0), Vector2(cell) + Vector2.ONE,
-		Vector2(cell) + Vector2(0.0, 1.0), Vector2(cell) + Vector2(0.5, 0.5),
+		Vector2(cell),
+		Vector2(cell) + Vector2(1.0, 0.0),
+		Vector2(cell) + Vector2.ONE,
+		Vector2(cell) + Vector2(0.0, 1.0),
+		Vector2(cell) + Vector2(0.5, 0.5),
 	]:
-		if water_coverage_at(field, probe, terrain_id) >= MapViewMeshBuilderConfig.WATER_CONTOUR_THRESHOLD:
+		if (
+			water_coverage_at(field, probe, terrain_id)
+			>= MapViewMeshBuilderConfig.WATER_CONTOUR_THRESHOLD
+		):
 			return true
 	return false
 
@@ -106,10 +116,16 @@ static func add_water_cell_quad(
 			var corners: Array[Dictionary] = []
 			for index in indices:
 				var vertex: Vector3 = positions[index]
-				corners.append({
-					"position": vertex,
-					"coverage": water_coverage_at(field, Vector2(vertex.x, vertex.z), terrain_id),
-				})
+				(
+					corners
+					. append(
+						{
+							"position": vertex,
+							"coverage":
+							water_coverage_at(field, Vector2(vertex.x, vertex.z), terrain_id),
+						}
+					)
+				)
 			if (vertex_x + vertex_y) % 2 == 0:
 				_add_clipped_water_triangle(surface, corners[0], corners[1], corners[2])
 				_add_clipped_water_triangle(surface, corners[0], corners[2], corners[3])
@@ -129,10 +145,7 @@ static func _water_contour_sample(contour: Dictionary, cell: Vector2i) -> float:
 
 
 static func _add_clipped_water_triangle(
-	surface: SurfaceTool,
-	first: Dictionary,
-	second: Dictionary,
-	third: Dictionary
+	surface: SurfaceTool, first: Dictionary, second: Dictionary, third: Dictionary
 ) -> void:
 	var polygon: Array[Dictionary] = [first, second, third]
 	var clipped: Array[Dictionary] = []
@@ -146,10 +159,18 @@ static func _add_clipped_water_triangle(
 			var previous_coverage := float(previous["coverage"])
 			var span := float(current["coverage"]) - previous_coverage
 			var weight := (threshold - previous_coverage) / span
-			clipped.append({
-				"position": (previous["position"] as Vector3).lerp(current["position"] as Vector3, weight),
-				"coverage": threshold,
-			})
+			(
+				clipped
+				. append(
+					{
+						"position":
+						(previous["position"] as Vector3).lerp(
+							current["position"] as Vector3, weight
+						),
+						"coverage": threshold,
+					}
+				)
+			)
 		if current_inside:
 			clipped.append(current)
 	if clipped.size() < 3:
@@ -158,9 +179,7 @@ static func _add_clipped_water_triangle(
 		_add_water_vertex(surface, clipped[0]["position"], float(clipped[0]["coverage"]))
 		_add_water_vertex(surface, clipped[index]["position"], float(clipped[index]["coverage"]))
 		_add_water_vertex(
-			surface,
-			clipped[index + 1]["position"],
-			float(clipped[index + 1]["coverage"])
+			surface, clipped[index + 1]["position"], float(clipped[index + 1]["coverage"])
 		)
 
 

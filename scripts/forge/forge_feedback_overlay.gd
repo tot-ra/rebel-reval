@@ -1,7 +1,7 @@
 class_name ForgeFeedbackOverlay
 extends CanvasLayer
 
-signal closed()
+signal closed
 signal sequence_finished(option_id: String)
 
 var _panel: PanelContainer
@@ -23,7 +23,9 @@ func is_open() -> bool:
 	return visible
 
 
-func start_forging(option_id: String, snapshot: Dictionary, on_complete: Callable = Callable()) -> void:
+func start_forging(
+	option_id: String, snapshot: Dictionary, on_complete: Callable = Callable()
+) -> void:
 	_on_complete = on_complete
 	_sequence.reset(option_id, snapshot)
 	visible = true

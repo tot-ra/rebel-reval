@@ -52,7 +52,22 @@ func formatted_diagnostics() -> Array[String]:
 
 
 func _sort_diagnostics() -> void:
-	diagnostics.sort_custom(func(left: MapBlueprintDiagnostic, right: MapBlueprintDiagnostic) -> bool:
-		return [String(left.severity), String(left.code), left.path, String(left.subject), left.message] < \
-			[String(right.severity), String(right.code), right.path, String(right.subject), right.message]
+	diagnostics.sort_custom(
+		func(left: MapBlueprintDiagnostic, right: MapBlueprintDiagnostic) -> bool:
+			return (
+				[
+					String(left.severity),
+					String(left.code),
+					left.path,
+					String(left.subject),
+					left.message
+				]
+				< [
+					String(right.severity),
+					String(right.code),
+					right.path,
+					String(right.subject),
+					right.message
+				]
+			)
 	)

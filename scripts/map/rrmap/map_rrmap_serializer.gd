@@ -9,13 +9,31 @@ static func canonical_print(blueprint: MapBlueprint, format_version: int = 1) ->
 	if blueprint == null:
 		return ""
 	var lines: Array[String] = ["rrmap %d" % format_version]
-	lines.append("map %s %s %d %d %s scope=%s active=%s palette=%s seed=%d cell_size=%d elevation=%s" % [
-		blueprint.map_id, blueprint.location, blueprint.size_cells.x, blueprint.size_cells.y,
-		blueprint.base_terrain, blueprint.scope, str(blueprint.active).to_lower(), blueprint.palette,
-		blueprint.map_seed, blueprint.cell_size, _number_text(blueprint.ground_elevation),
-	])
+	(
+		lines
+		. append(
+			(
+				"map %s %s %d %d %s scope=%s active=%s palette=%s seed=%d cell_size=%d elevation=%s"
+				% [
+					blueprint.map_id,
+					blueprint.location,
+					blueprint.size_cells.x,
+					blueprint.size_cells.y,
+					blueprint.base_terrain,
+					blueprint.scope,
+					str(blueprint.active).to_lower(),
+					blueprint.palette,
+					blueprint.map_seed,
+					blueprint.cell_size,
+					_number_text(blueprint.ground_elevation),
+				]
+			)
+		)
+	)
 	var styles := blueprint.styles.duplicate(true)
-	styles.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return String(a["id"]) < String(b["id"]))
+	styles.sort_custom(
+		func(a: Dictionary, b: Dictionary) -> bool: return String(a["id"]) < String(b["id"])
+	)
 	for style in styles:
 		var values: Dictionary = style["values"]
 		var options = _canonical_options(values)
@@ -41,7 +59,15 @@ static func canonical_print(blueprint: MapBlueprint, format_version: int = 1) ->
 	for instance in blueprint.prefab_instances:
 		lines.append(_print_prefab(instance))
 	for object_override in blueprint.object_overrides:
-		lines.append("override %s%s" % [object_override["id"], _option_suffix(_canonical_options(object_override["values"]))])
+		lines.append(
+			(
+				"override %s%s"
+				% [
+					object_override["id"],
+					_option_suffix(_canonical_options(object_override["values"]))
+				]
+			)
+		)
 	return "\n".join(lines) + "\n"
 
 
@@ -54,27 +80,103 @@ static func _print_primitive(primitive: Dictionary) -> String:
 		options["style"] = primitive["style"]
 	match kind:
 		&"terrain_rect":
-			return "terrain %s %s %s layer=%d order=%d%s" % [id, data["terrain"], _rect_text(data["rects"][0]), data["layer"], data["order"], _option_suffix(_canonical_options(options))]
+			return (
+				"terrain %s %s %s layer=%d order=%d%s"
+				% [
+					id,
+					data["terrain"],
+					_rect_text(data["rects"][0]),
+					data["layer"],
+					data["order"],
+					_option_suffix(_canonical_options(options))
+				]
+			)
 		&"terrain_rects":
-			return "terrain_rects %s %s %s layer=%d order=%d%s" % [id, data["terrain"], _rect_list_text(data["rects"]), data["layer"], data["order"], _option_suffix(_canonical_options(options))]
+			return (
+				"terrain_rects %s %s %s layer=%d order=%d%s"
+				% [
+					id,
+					data["terrain"],
+					_rect_list_text(data["rects"]),
+					data["layer"],
+					data["order"],
+					_option_suffix(_canonical_options(options))
+				]
+			)
 		&"terrain_stroke":
-			return "stroke %s %s %s thickness=%d layer=%d order=%d%s" % [id, data["terrain"], _point_list_text(data["points"]), data["thickness"], data["layer"], data["order"], _option_suffix(_canonical_options(options))]
+			return (
+				"stroke %s %s %s thickness=%d layer=%d order=%d%s"
+				% [
+					id,
+					data["terrain"],
+					_point_list_text(data["points"]),
+					data["thickness"],
+					data["layer"],
+					data["order"],
+					_option_suffix(_canonical_options(options))
+				]
+			)
 		&"structure_rect":
-			return "building %s %s %s%s" % [id, data["kind"], _rect_text(data["rect"]), _option_suffix(_canonical_options(options))]
+			return (
+				"building %s %s %s%s"
+				% [
+					id,
+					data["kind"],
+					_rect_text(data["rect"]),
+					_option_suffix(_canonical_options(options))
+				]
+			)
 		&"wall_run":
 			options["thickness"] = data["thickness"]
 			options["kind"] = data["kind"]
 			if not data["openings"].is_empty():
 				options["openings"] = _rect_list_text(data["openings"])
-			return "wall %s %d %d %d %d%s" % [id, data["start"].x, data["start"].y, data["end"].x, data["end"].y, _option_suffix(_canonical_options(options))]
+			return (
+				"wall %s %d %d %d %d%s"
+				% [
+					id,
+					data["start"].x,
+					data["start"].y,
+					data["end"].x,
+					data["end"].y,
+					_option_suffix(_canonical_options(options))
+				]
+			)
 		&"prop":
 			if data.has("rect"):
 				options["rect"] = "%d,%d" % [data["rect"].size.x, data["rect"].size.y]
-				return "prop %s %s %d %d%s" % [id, data["kind"], data["rect"].position.x, data["rect"].position.y, _option_suffix(_canonical_options(options))]
-			return "prop %s %s %d %d%s" % [id, data["kind"], data["cell"].x, data["cell"].y, _option_suffix(_canonical_options(options))]
+				return (
+					"prop %s %s %d %d%s"
+					% [
+						id,
+						data["kind"],
+						data["rect"].position.x,
+						data["rect"].position.y,
+						_option_suffix(_canonical_options(options))
+					]
+				)
+			return (
+				"prop %s %s %d %d%s"
+				% [
+					id,
+					data["kind"],
+					data["cell"].x,
+					data["cell"].y,
+					_option_suffix(_canonical_options(options))
+				]
+			)
 		&"player_spawn":
 			if data.has("rect"):
-				return "spawn %s %d %d rect=%d,%d" % [id, data["rect"].position.x, data["rect"].position.y, data["rect"].size.x, data["rect"].size.y]
+				return (
+					"spawn %s %d %d rect=%d,%d"
+					% [
+						id,
+						data["rect"].position.x,
+						data["rect"].position.y,
+						data["rect"].size.x,
+						data["rect"].size.y
+					]
+				)
 			return "spawn %s %d %d" % [id, data["cell"].x, data["cell"].y]
 		&"transition":
 			if not StringName(data["destination_scene_id"]).is_empty():
@@ -83,14 +185,28 @@ static func _print_primitive(primitive: Dictionary) -> String:
 				options["destination_spawn"] = data["destination_spawn_id"]
 			if not StringName(data["spawn_id"]).is_empty():
 				options["spawn"] = data["spawn_id"]
-			return "transition %s %s%s" % [id, _rect_text(data["rect"]), _option_suffix(_canonical_options(options))]
+			return (
+				"transition %s %s%s"
+				% [id, _rect_text(data["rect"]), _option_suffix(_canonical_options(options))]
+			)
 		&"interaction_anchor":
 			if not StringName(data["kind"]).is_empty():
 				options["kind"] = data["kind"]
 			if data.has("rect"):
 				options["rect"] = "%d,%d" % [data["rect"].size.x, data["rect"].size.y]
-				return "anchor %s %d %d%s" % [id, data["rect"].position.x, data["rect"].position.y, _option_suffix(_canonical_options(options))]
-			return "anchor %s %d %d%s" % [id, data["cell"].x, data["cell"].y, _option_suffix(_canonical_options(options))]
+				return (
+					"anchor %s %d %d%s"
+					% [
+						id,
+						data["rect"].position.x,
+						data["rect"].position.y,
+						_option_suffix(_canonical_options(options))
+					]
+				)
+			return (
+				"anchor %s %d %d%s"
+				% [id, data["cell"].x, data["cell"].y, _option_suffix(_canonical_options(options))]
+			)
 		&"patrol_path":
 			return "patrol %s %s" % [id, _point_list_text(data["points"])]
 		&"excluded_rect":
@@ -99,11 +215,37 @@ static func _print_primitive(primitive: Dictionary) -> String:
 			return "fade %s %s" % [id, _rect_text(data["rect"])]
 		&"decal_rect":
 			options["radius"] = data["radius"]
-			return "decal %s %s %s%s" % [id, data["kind"], _rect_text(data["rect"]), _option_suffix(_canonical_options(options))]
+			return (
+				"decal %s %s %s%s"
+				% [
+					id,
+					data["kind"],
+					_rect_text(data["rect"]),
+					_option_suffix(_canonical_options(options))
+				]
+			)
 		&"direction_sign":
-			return "sign %s %s %d %d %s%s" % [id, _quote(data["text"]), data["cell"].x, data["cell"].y, _direction_text(data["direction"]), _option_suffix(_canonical_options(options))]
+			return (
+				"sign %s %s %d %d %s%s"
+				% [
+					id,
+					_quote(data["text"]),
+					data["cell"].x,
+					data["cell"].y,
+					_direction_text(data["direction"]),
+					_option_suffix(_canonical_options(options))
+				]
+			)
 		&"view_landmark":
-			return "landmark %s %s %s%s" % [id, data["kind"], _rect_text(data["rect"]), _option_suffix(_canonical_options(options))]
+			return (
+				"landmark %s %s %s%s"
+				% [
+					id,
+					data["kind"],
+					_rect_text(data["rect"]),
+					_option_suffix(_canonical_options(options))
+				]
+			)
 	return "# unsupported primitive %s" % kind
 
 
@@ -118,7 +260,16 @@ static func _print_prefab(instance: Dictionary) -> String:
 	keys.sort()
 	for key in keys:
 		options.append("param.%s=%s" % [key, _value_text(instance["parameters"][key])])
-	return "prefab %s %s %d %d %s" % [instance["id"], instance["prefab_id"], instance["origin"].x, instance["origin"].y, " ".join(options)]
+	return (
+		"prefab %s %s %d %d %s"
+		% [
+			instance["id"],
+			instance["prefab_id"],
+			instance["origin"].x,
+			instance["origin"].y,
+			" ".join(options)
+		]
+	)
 
 
 static func _canonical_options(values: Dictionary) -> Array[String]:
@@ -183,4 +334,4 @@ static func _direction_text(direction: Vector2i) -> String:
 
 
 static func _quote(value: String) -> String:
-	return "\"%s\"" % value.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n")
+	return '"%s"' % value.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")

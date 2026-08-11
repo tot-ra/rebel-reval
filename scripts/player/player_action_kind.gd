@@ -12,6 +12,7 @@ const ACTION_ATTACK := &"player_attack"
 const ACTION_GUARD := &"player_guard"
 const ACTION_DODGE := &"player_dodge"
 
+
 static func from_input_action(action: StringName) -> Kind:
 	match action:
 		ACTION_ATTACK:

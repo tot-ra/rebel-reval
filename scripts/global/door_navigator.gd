@@ -1,17 +1,15 @@
 extends Node
 
+signal on_trigger_player_spawn
+
 const TRANSITION_MANIFEST_PATH := "res://content/transitions/active_destinations.json"
 const MAX_CACHE_SIZE := 5
 
-signal on_trigger_player_spawn
-
 var pending_spawn_scene_id: StringName = &""
 var pending_spawn_id: StringName = &""
-
 # Kept only as a compatibility bridge for older scenes or console calls.
 # Active code should use pending_spawn_scene_id and pending_spawn_id.
 var spawn_door_tag = null
-
 var scene_cache := {}
 var cache_order: Array[StringName] = []
 
@@ -20,6 +18,7 @@ var _scenes := {}
 
 func _ready() -> void:
 	load_manifest()
+
 
 func load_manifest(force_reload: bool = false) -> bool:
 	if _manifest_loaded and not force_reload:
@@ -50,7 +49,12 @@ func load_manifest(force_reload: bool = false) -> bool:
 		var spawns := {}
 		for spawn_record in scene_record.get("spawns", []):
 			if typeof(spawn_record) != TYPE_DICTIONARY:
-				push_error("Transition manifest scene %s contains a non-object spawn record" % String(scene_id))
+				push_error(
+					(
+						"Transition manifest scene %s contains a non-object spawn record"
+						% String(scene_id)
+					)
+				)
 				continue
 			var spawn_id := StringName(String(spawn_record.get("id", "")))
 			if String(spawn_id).is_empty():
@@ -67,6 +71,7 @@ func load_manifest(force_reload: bool = false) -> bool:
 	_manifest_loaded = true
 	return true
 
+
 func get_active_scene_ids() -> Array[StringName]:
 	load_manifest()
 	var ids: Array[StringName] = []
@@ -76,10 +81,12 @@ func get_active_scene_ids() -> Array[StringName]:
 	ids.sort()
 	return ids
 
+
 func has_active_scene(scene_id) -> bool:
 	load_manifest()
 	var key := StringName(String(scene_id))
 	return _scenes.has(key) and bool(_scenes[key].get("active", false))
+
 
 func get_scene_path(scene_id) -> String:
 	load_manifest()
@@ -87,6 +94,7 @@ func get_scene_path(scene_id) -> String:
 	if not _scenes.has(key):
 		return ""
 	return String(_scenes[key].get("path", ""))
+
 
 func get_scene_spawn_ids(scene_id) -> Array[StringName]:
 	load_manifest()
@@ -99,16 +107,19 @@ func get_scene_spawn_ids(scene_id) -> Array[StringName]:
 	ids.sort()
 	return ids
 
+
 func has_spawn(scene_id, spawn_id) -> bool:
 	load_manifest()
 	var scene_key := StringName(String(scene_id))
 	var spawn_key := StringName(String(spawn_id))
 	return _scenes.has(scene_key) and _scenes[scene_key].get("spawns", {}).has(spawn_key)
 
+
 func get_spawn_node(level: Node, scene_id, spawn_id) -> Door:
 	if not has_spawn(scene_id, spawn_id):
 		return null
 	return _find_spawn_door(level, StringName(String(spawn_id)))
+
 
 func go_to_scene(scene_id, spawn_id) -> void:
 	var scene_key := StringName(String(scene_id))
@@ -117,7 +128,9 @@ func go_to_scene(scene_id, spawn_id) -> void:
 		push_warning("Transition scene is not active or registered: " + String(scene_key))
 		return
 	if not has_spawn(scene_key, spawn_key):
-		push_warning("Transition spawn is not registered: %s/%s" % [String(scene_key), String(spawn_key)])
+		push_warning(
+			"Transition spawn is not registered: %s/%s" % [String(scene_key), String(spawn_key)]
+		)
 		return
 
 	pending_spawn_scene_id = scene_key
@@ -131,6 +144,7 @@ func go_to_scene(scene_id, spawn_id) -> void:
 
 	get_tree().call_deferred("change_scene_to_packed", scene_resource)
 
+
 func spawn_player_at_pending_spawn(level: Node) -> bool:
 	# Resolve through stable Door.spawn_id values so gameplay IDs are not tied
 	# to node names or folder layout.
@@ -139,15 +153,26 @@ func spawn_player_at_pending_spawn(level: Node) -> bool:
 
 	var door := get_spawn_node(level, pending_spawn_scene_id, pending_spawn_id)
 	if door == null:
-		push_warning("Pending spawn could not be resolved: %s/%s" % [String(pending_spawn_scene_id), String(pending_spawn_id)])
+		push_warning(
+			(
+				"Pending spawn could not be resolved: %s/%s"
+				% [String(pending_spawn_scene_id), String(pending_spawn_id)]
+			)
+		)
 		return false
 	if door.spawn == null:
-		push_warning("Pending spawn door has no Spawn child: %s/%s" % [String(pending_spawn_scene_id), String(pending_spawn_id)])
+		push_warning(
+			(
+				"Pending spawn door has no Spawn child: %s/%s"
+				% [String(pending_spawn_scene_id), String(pending_spawn_id)]
+			)
+		)
 		return false
 
 	trigger_player_spawn(door.spawn.global_position, door.spawn_direction)
 	clear_pending_spawn()
 	return true
+
 
 ## Place at a pending door spawn when set; otherwise use authored default_spawn.
 ## WHY: spawn_player_at_pending_spawn clears pending IDs on success, so scenes must
@@ -160,13 +185,16 @@ func place_player(level: Node, player: Node2D, default_spawn: Vector2) -> bool:
 		player.global_position = default_spawn
 	return false
 
+
 func clear_pending_spawn() -> void:
 	pending_spawn_scene_id = &""
 	pending_spawn_id = &""
 	spawn_door_tag = null
 
+
 func trigger_player_spawn(position: Vector2, direction: String):
 	on_trigger_player_spawn.emit(position, direction)
+
 
 func _get_scene_resource(scene_id: StringName) -> PackedScene:
 	if scene_cache.has(scene_id):
@@ -190,6 +218,7 @@ func _get_scene_resource(scene_id: StringName) -> PackedScene:
 	scene_cache[scene_id] = scene_resource
 	cache_order.append(scene_id)
 	return scene_resource
+
 
 func _find_spawn_door(node: Node, target_spawn_id: StringName) -> Door:
 	if node is Door and node.spawn_id == target_spawn_id:

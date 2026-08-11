@@ -15,9 +15,7 @@ const BARREL_HOOP_PROFILE := _PropModels.BARREL_HOOP_PROFILE
 
 
 static func build_prop(
-	prop: Dictionary,
-	cell_size: int,
-	definition: MapDefinition = null
+	prop: Dictionary, cell_size: int, definition: MapDefinition = null
 ) -> Node3D:
 	return _PropModels.build_prop(prop, cell_size, definition)
 

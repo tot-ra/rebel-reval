@@ -11,17 +11,13 @@ const ENCOUNTER_ID := &"encounter.watch_checkpoint"
 const INTERACTABLE_ID := &"interact.bitter_brew.checkpoint_encounter"
 const CHECKPOINT_ANCHOR := &"checkpoint_west"
 const SERGEANT_ANCHOR := &"checkpoint_east"
-
 const RECORD_HONEST := &"forged.bitter_brew.honest_work"
 const RECORD_SUBTLE := &"forged.bitter_brew.subtle_defect"
 const RECORD_SECRET := &"forged.bitter_brew.secret_feature"
-
 const STATE_ACTIVE := &"active"
 const STATE_INVESTIGATION_READY := &"investigation_ready"
-
 const ENEMY_SCRIPT := preload("res://scripts/combat/combat_room_enemy.gd")
 const INTERACTABLE_SCENE := preload("res://scenes/interaction/interactable.tscn")
-
 const TERMINAL_QUEST_STATES: Array[StringName] = [
 	&"night_surrendered",
 	&"night_escaped",
@@ -29,18 +25,17 @@ const TERMINAL_QUEST_STATES: Array[StringName] = [
 	&"night_fought",
 ]
 
-var _scene_root: Node2D
-var _definition: MapDefinition
-var _player: Player
-var _actors: Node2D
-var _interaction_controller: InteractionController
-
 var watchman: CombatRoomEnemy
 var sergeant: CombatRoomEnemy
 var encounter_definition: EncounterOutcomeDefinition = EncounterOutcomeDefinition.new()
 var encounter_resolver := EncounterOutcomeResolver.new()
 var encounter_checkpoint := EncounterCheckpoint.new()
 
+var _scene_root: Node2D
+var _definition: MapDefinition
+var _player: Player
+var _actors: Node2D
+var _interaction_controller: InteractionController
 var _checkpoint_interactable: Interactable
 var _actions_layer: CanvasLayer
 var _surrender_button: Button
@@ -50,7 +45,6 @@ var _retry_button: Button
 var _encounter_armed := false
 var _encounter_resolved := false
 var _player_died_connected := false
-
 
 func setup(
 	scene_root: Node2D,
@@ -69,8 +63,10 @@ func setup(
 	_build_outcome_ui()
 	if not SessionState.state_replaced.is_connected(_on_state_replaced):
 		SessionState.state_replaced.connect(_on_state_replaced)
-	if SessionState.state != null \
-			and not SessionState.state.phase_changed.is_connected(_on_phase_changed):
+	if (
+		SessionState.state != null
+		and not SessionState.state.phase_changed.is_connected(_on_phase_changed)
+	):
 		SessionState.state.phase_changed.connect(_on_phase_changed)
 	_sync_encounter()
 
@@ -97,9 +93,7 @@ func resolve_encounter_outcome(kind: StringName) -> bool:
 		enemies.append(watchman)
 	if sergeant != null:
 		enemies.append(sergeant)
-	var ok := encounter_resolver.resolve(
-		SessionState.state, encounter_definition, kind, enemies
-	)
+	var ok := encounter_resolver.resolve(SessionState.state, encounter_definition, kind, enemies)
 	if ok:
 		_on_encounter_resolved()
 	return ok
@@ -117,8 +111,10 @@ func advance_enemies_for_test(delta: float) -> void:
 
 
 func _exit_tree() -> void:
-	if SessionState.state != null \
-			and SessionState.state.phase_changed.is_connected(_on_phase_changed):
+	if (
+		SessionState.state != null
+		and SessionState.state.phase_changed.is_connected(_on_phase_changed)
+	):
 		SessionState.state.phase_changed.disconnect(_on_phase_changed)
 	if SessionState.state_replaced.is_connected(_on_state_replaced):
 		SessionState.state_replaced.disconnect(_on_state_replaced)
@@ -149,7 +145,9 @@ func _sync_encounter() -> void:
 	_ensure_content()
 	var should_offer := _should_offer_encounter()
 	if _checkpoint_interactable != null:
-		_checkpoint_interactable.enabled = should_offer and not _encounter_armed and not _encounter_resolved
+		_checkpoint_interactable.enabled = (
+			should_offer and not _encounter_armed and not _encounter_resolved
+		)
 	if should_offer and _encounter_resolved:
 		_encounter_resolved = _is_quest_terminal()
 	if should_offer and not _encounter_armed and not _encounter_resolved:
@@ -328,8 +326,7 @@ func _make_outcome_button(
 	button.name = node_name
 	button.text = label
 	button.tooltip_text = (
-		"Resolve the watch checkpoint via %s"
-		% EncounterOutcome.display_name(kind)
+		"Resolve the watch checkpoint via %s" % EncounterOutcome.display_name(kind)
 	)
 	button.position = pos
 	button.custom_minimum_size = Vector2(120, 36)

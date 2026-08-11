@@ -1,10 +1,11 @@
 class_name GameSettingsOverlay
 extends CanvasLayer
 
-## In-game settings surface for audio volume and accessibility. Open with Esc when no other modal is active.
+## In-game settings surface for audio volume and accessibility. Open with Esc when no other modal is
+## active.
 
-signal closed()
-signal controls_requested()
+signal closed
+signal controls_requested
 
 const AudioSettingsScript := preload("res://scripts/settings/audio_settings.gd")
 const DialogueSettingsScript := preload("res://scripts/settings/dialogue_settings.gd")
@@ -144,16 +145,10 @@ func _build_ui() -> void:
 
 	_add_section_heading(layout, "Dialogue accessibility")
 	_text_scale_option = _add_option_row(
-		layout,
-		"Text size",
-		TextScaleScript.supported_scale_names()
+		layout, "Text size", TextScaleScript.supported_scale_names()
 	)
 	_text_scale_option.item_selected.connect(_on_text_scale_selected)
-	_text_speed_option = _add_option_row(
-		layout,
-		"Text speed",
-		DialogueSettingsScript.TEXT_SPEEDS
-	)
+	_text_speed_option = _add_option_row(layout, "Text speed", DialogueSettingsScript.TEXT_SPEEDS)
 	_text_speed_option.item_selected.connect(_on_text_speed_selected)
 	_high_contrast_check = _add_toggle_row(layout, "High contrast")
 	_high_contrast_check.toggled.connect(_on_high_contrast_toggled)
@@ -169,11 +164,7 @@ func _build_ui() -> void:
 	_reduced_motion_check.toggled.connect(_on_reduced_motion_toggled)
 
 	_add_section_heading(layout, "Gameplay accessibility")
-	_guard_mode_option = _add_option_row(
-		layout,
-		"Guard input",
-		GameplaySettingsScript.GUARD_MODES
-	)
+	_guard_mode_option = _add_option_row(layout, "Guard input", GameplaySettingsScript.GUARD_MODES)
 	_guard_mode_option.item_selected.connect(_on_guard_mode_selected)
 	_screen_shake_check = _add_toggle_row(layout, "Screen shake")
 	_screen_shake_check.toggled.connect(_on_screen_shake_toggled)
@@ -397,7 +388,10 @@ func _apply_dialogue_settings(settings) -> void:
 
 
 func _apply_gameplay_settings(settings) -> void:
-	if _settings_owner == null or not _settings_owner.has_method("apply_gameplay_accessibility_settings"):
+	if (
+		_settings_owner == null
+		or not _settings_owner.has_method("apply_gameplay_accessibility_settings")
+	):
 		return
 	_settings_owner.call("apply_gameplay_accessibility_settings", settings, true)
 

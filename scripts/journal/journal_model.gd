@@ -5,13 +5,13 @@ extends RefCounted
 ## Quest outcomes are never surfaced here; only objectives and discovered facts.
 
 const EVALUATOR_SCRIPT := preload("res://scripts/state/state_rule_evaluator.gd")
-const CommissionDeadlineModelScript := preload("res://scripts/commission/commission_deadline_model.gd")
+const CommissionDeadlineModelScript := preload(
+	"res://scripts/commission/commission_deadline_model.gd"
+)
 
 
 static func build_snapshot(
-	state: GameState,
-	content_db: ContentDB,
-	evaluator: StateRuleEvaluator = null
+	state: GameState, content_db: ContentDB, evaluator: StateRuleEvaluator = null
 ) -> Dictionary:
 	var rule_evaluator := evaluator if evaluator != null else EVALUATOR_SCRIPT.new()
 	var objectives: Array[Dictionary] = []
@@ -30,7 +30,9 @@ static func build_snapshot(
 		if _is_terminal_state(quest, current_state):
 			continue
 
-		var objective := _current_objective_for_quest(quest, quest_id, current_state, state, rule_evaluator)
+		var objective := _current_objective_for_quest(
+			quest, quest_id, current_state, state, rule_evaluator
+		)
 		if not objective.is_empty():
 			objectives.append(objective)
 
@@ -38,22 +40,33 @@ static func build_snapshot(
 			var fact_id := StringName(String(entry.get("fact_id", "")))
 			if fact_id.is_empty() or not state.get_fact(fact_id):
 				continue
-			evidence.append({
-				"fact_id": fact_id,
-				"text": String(entry.get("text", "")),
-				"quest_id": quest_id,
-			})
+			(
+				evidence
+				. append(
+					{
+						"fact_id": fact_id,
+						"text": String(entry.get("text", "")),
+						"quest_id": quest_id,
+					}
+				)
+			)
 
-	objectives.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		return String(a.get("quest_id", "")) < String(b.get("quest_id", ""))
+	objectives.sort_custom(
+		func(a: Dictionary, b: Dictionary) -> bool:
+			return String(a.get("quest_id", "")) < String(b.get("quest_id", ""))
 	)
-	evidence.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		var left := "%s:%s" % [String(a.get("quest_id", "")), String(a.get("fact_id", ""))]
-		var right := "%s:%s" % [String(b.get("quest_id", "")), String(b.get("fact_id", ""))]
-		return left < right
+	evidence.sort_custom(
+		func(a: Dictionary, b: Dictionary) -> bool:
+			var left := "%s:%s" % [String(a.get("quest_id", "")), String(a.get("fact_id", ""))]
+			var right := "%s:%s" % [String(b.get("quest_id", "")), String(b.get("fact_id", ""))]
+			return left < right
 	)
-	var commission_deadlines: Array[Dictionary] = CommissionDeadlineModelScript.build_journal_deadlines(state, content_db)
-	return {"objectives": objectives, "evidence": evidence, "commission_deadlines": commission_deadlines}
+	var commission_deadlines: Array[Dictionary] = (
+		CommissionDeadlineModelScript.build_journal_deadlines(state, content_db)
+	)
+	return {
+		"objectives": objectives, "evidence": evidence, "commission_deadlines": commission_deadlines
+	}
 
 
 static func _current_objective_for_quest(
@@ -93,9 +106,7 @@ static func _current_objective_for_quest(
 
 
 static func _objective_conditions_met(
-	objective: Dictionary,
-	state: GameState,
-	evaluator: StateRuleEvaluator
+	objective: Dictionary, state: GameState, evaluator: StateRuleEvaluator
 ) -> bool:
 	var conditions: Variant = objective.get("conditions", [])
 	if typeof(conditions) != TYPE_ARRAY:
@@ -120,7 +131,10 @@ static func _state_index(quest: Dictionary, state_id: String) -> int:
 		return -1
 	for index in (states as Array).size():
 		var value: Variant = (states as Array)[index]
-		if typeof(value) == TYPE_DICTIONARY and String((value as Dictionary).get("id", "")) == state_id:
+		if (
+			typeof(value) == TYPE_DICTIONARY
+			and String((value as Dictionary).get("id", "")) == state_id
+		):
 			return index
 	return -1
 

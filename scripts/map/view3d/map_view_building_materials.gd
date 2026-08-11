@@ -71,7 +71,9 @@ static func wall_surface(family: StringName, color: Color) -> StandardMaterial3D
 
 ## Wall material with UV repeats derived from the mesh world size so BoxMesh
 ## faces tile instead of stretching one pattern across the full span.
-static func wall_surface_for_size(family: StringName, color: Color, size: Vector3) -> StandardMaterial3D:
+static func wall_surface_for_size(
+	family: StringName, color: Color, size: Vector3
+) -> StandardMaterial3D:
 	var material := wall_surface(family, color).duplicate()
 	material.uv1_scale = building_uv_scale(_wall_pattern(family), size)
 	return material
@@ -79,19 +81,12 @@ static func wall_surface_for_size(family: StringName, color: Color, size: Vector
 
 ## Per-building wall material with unique pattern seed and weathering band.
 static func wall_surface_for_building(
-	surface_id: StringName,
-	family: StringName,
-	color: Color,
-	size: Vector3
+	surface_id: StringName, family: StringName, color: Color, size: Vector3
 ) -> StandardMaterial3D:
 	var pattern := _wall_pattern(family)
 	var weathering := surface_weathering_variant(surface_id)
 	var material := _building_surface_weathered(
-		"wall_building",
-		surface_id,
-		_weathered_albedo(color, weathering),
-		pattern,
-		weathering
+		"wall_building", surface_id, _weathered_albedo(color, weathering), pattern, weathering
 	)
 	material.uv1_scale = building_uv_scale(pattern, size)
 	return material
@@ -99,9 +94,7 @@ static func wall_surface_for_building(
 
 ## Per-building roof material with unique pattern seed and weathering band.
 static func roof_surface_for_building(
-	surface_id: StringName,
-	family: StringName,
-	color: Color
+	surface_id: StringName, family: StringName, color: Color
 ) -> StandardMaterial3D:
 	var pattern := PATTERN_ROOF_TILE
 	match family:
@@ -111,11 +104,7 @@ static func roof_surface_for_building(
 			pattern = PATTERN_THATCH
 	var weathering := surface_weathering_variant(surface_id)
 	return _building_surface_weathered(
-		"roof_building",
-		surface_id,
-		_weathered_albedo(color, weathering),
-		pattern,
-		weathering
+		"roof_building", surface_id, _weathered_albedo(color, weathering), pattern, weathering
 	)
 
 
@@ -183,11 +172,15 @@ static func building_uv_scale(pattern: StringName, size: Vector3) -> Vector3:
 
 
 ## CylinderMesh wraps U around the circumference; pass radius and height.
-static func building_uv_scale_cylinder(pattern: StringName, radius: float, height: float) -> Vector3:
+static func building_uv_scale_cylinder(
+	pattern: StringName, radius: float, height: float
+) -> Vector3:
 	return building_uv_scale(pattern, Vector3(TAU * radius, height, TAU * radius))
 
 
-static func _building_surface(prefix: String, color: Color, pattern: StringName) -> StandardMaterial3D:
+static func _building_surface(
+	prefix: String, color: Color, pattern: StringName
+) -> StandardMaterial3D:
 	var material := _patterned(prefix, color, pattern)
 	material.uv1_scale = building_uv_scale(pattern, BUILDING_UV_REFERENCE_SIZE)
 	return material
@@ -200,13 +193,16 @@ static func _building_surface_weathered(
 	pattern: StringName,
 	weathering: StringName
 ) -> StandardMaterial3D:
-	var key := "%s:%s:%s:%s:%s" % [
-		prefix,
-		String(surface_id),
-		color.to_html(),
-		String(pattern),
-		String(weathering),
-	]
+	var key := (
+		"%s:%s:%s:%s:%s"
+		% [
+			prefix,
+			String(surface_id),
+			color.to_html(),
+			String(pattern),
+			String(weathering),
+		]
+	)
 	if _cache.has(key):
 		return _cache[key]
 	var seed := building_pattern_seed(surface_id, pattern)
@@ -227,17 +223,12 @@ static func _weathered_albedo(base: Color, weathering: StringName) -> Color:
 
 
 static func _make_weathered_material(
-	base: Color,
-	pattern: StringName,
-	noise_seed: int,
-	weathering: StringName
+	base: Color, pattern: StringName, noise_seed: int, weathering: StringName
 ) -> StandardMaterial3D:
 	var material := StandardMaterial3D.new()
 	material.albedo_color = base
 	material.albedo_texture = MapViewMaterialPatterns.pattern_texture_weathered(
-		pattern,
-		noise_seed,
-		weathering
+		pattern, noise_seed, weathering
 	)
 	material.roughness = 1.0
 	material.metallic = 0.0

@@ -28,7 +28,9 @@ func setup(scene_root: Node2D, definition: MapDefinition, player: Player) -> voi
 func _connect_commission_controller() -> void:
 	if _player == null:
 		return
-	var controller := _player.get_node_or_null("ForgeCommissionController") as ForgeCommissionController
+	var controller := (
+		_player.get_node_or_null("ForgeCommissionController") as ForgeCommissionController
+	)
 	if controller == null:
 		return
 	if not controller.commission_finished.is_connected(_on_commission_finished):
@@ -41,8 +43,13 @@ func _on_commission_finished(_commission_id: StringName) -> void:
 
 func _exit_tree() -> void:
 	if _player != null:
-		var controller := _player.get_node_or_null("ForgeCommissionController") as ForgeCommissionController
-		if controller != null and controller.commission_finished.is_connected(_on_commission_finished):
+		var controller := (
+			_player.get_node_or_null("ForgeCommissionController") as ForgeCommissionController
+		)
+		if (
+			controller != null
+			and controller.commission_finished.is_connected(_on_commission_finished)
+		):
 			controller.commission_finished.disconnect(_on_commission_finished)
 	if SessionState.state_replaced.is_connected(_on_state_replaced):
 		SessionState.state_replaced.disconnect(_on_state_replaced)
@@ -116,7 +123,9 @@ func _should_enable() -> bool:
 		return false
 	if _flow_gate.is_valid() and not bool(_flow_gate.call()):
 		return false
-	var controller := _player.get_node_or_null("ForgeCommissionController") as ForgeCommissionController
+	var controller := (
+		_player.get_node_or_null("ForgeCommissionController") as ForgeCommissionController
+	)
 	if controller != null and controller.is_open():
 		return false
 	if not has_node("/root/SessionState"):
@@ -127,7 +136,9 @@ func _should_enable() -> bool:
 func _on_interact(_actor: Node) -> void:
 	if _player == null:
 		return
-	var controller := _player.get_node_or_null("ForgeCommissionController") as ForgeCommissionController
+	var controller := (
+		_player.get_node_or_null("ForgeCommissionController") as ForgeCommissionController
+	)
 	if controller == null or controller.is_open():
 		return
 	controller.open_commission(commission_id)

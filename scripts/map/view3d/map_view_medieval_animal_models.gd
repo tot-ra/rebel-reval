@@ -63,8 +63,12 @@ static func sync_animation(actor: Node3D, previous_position: Vector3, delta: flo
 	var player := actor.get_meta(ANIMATION_PLAYER_META) as AnimationPlayer
 	if player == null:
 		return
-	var displacement := Vector2(actor.position.x - previous_position.x, actor.position.z - previous_position.z)
-	var wanted := _clip_name(player, WALK_ANIMATION if displacement.length_squared() > 0.0000001 else IDLE_ANIMATION)
+	var displacement := Vector2(
+		actor.position.x - previous_position.x, actor.position.z - previous_position.z
+	)
+	var wanted := _clip_name(
+		player, WALK_ANIMATION if displacement.length_squared() > 0.0000001 else IDLE_ANIMATION
+	)
 	if wanted.is_empty() or player.current_animation == wanted:
 		return
 	player.play(wanted, 0.18)

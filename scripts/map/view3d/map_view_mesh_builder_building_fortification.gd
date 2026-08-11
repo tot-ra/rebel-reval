@@ -21,10 +21,7 @@ static func add_tower_wall_walk_passage(
 	if axis not in [&"x", &"z"] or tower_top_y <= passage_floor_y:
 		return
 	var upper_height := tower_top_y - passage_floor_y
-	var clear_width := minf(
-		MapViewMeshBuilderConfig.WALL_WALK_PASSAGE_WIDTH,
-		radius * 1.45
-	)
+	var clear_width := minf(MapViewMeshBuilderConfig.WALL_WALK_PASSAGE_WIDTH, radius * 1.45)
 	var clear_height := upper_height + MapViewMeshBuilderConfig.WALL_WALK_PASSAGE_CUT_DROP
 
 	# WHY: primitive meshes cannot receive a doorway cut. CSG is limited to the
@@ -38,8 +35,7 @@ static func add_tower_wall_walk_passage(
 	upper_drum.smooth_faces = true
 	upper_drum.position.y = passage_floor_y + upper_height * 0.5
 	upper_drum.material = MapViewMaterials.wall_surface_triplanar(
-		&"limestone",
-		wall_color.lightened(0.08)
+		&"limestone", wall_color.lightened(0.08)
 	)
 	root.add_child(upper_drum)
 
@@ -51,16 +47,15 @@ static func add_tower_wall_walk_passage(
 		if axis == &"x"
 		else Vector3(clear_width, clear_height, radius * 2.4)
 	)
-	opening.position.y = -upper_height * 0.5 + clear_height * 0.5 - MapViewMeshBuilderConfig.WALL_WALK_PASSAGE_CUT_DROP
+	opening.position.y = (
+		-upper_height * 0.5
+		+ clear_height * 0.5
+		- MapViewMeshBuilderConfig.WALL_WALK_PASSAGE_CUT_DROP
+	)
 	upper_drum.add_child(opening)
 
 
-static func add_tower_door(
-	root: Node3D,
-	radius: float,
-	height: float,
-	side: StringName
-) -> void:
+static func add_tower_door(root: Node3D, radius: float, height: float, side: StringName) -> void:
 	if side not in [&"north", &"south", &"east", &"west"]:
 		return
 	var door_height := minf(MapViewMeshBuilderConfig.TOWER_DOOR_HEIGHT, height - 0.2)
@@ -73,43 +68,82 @@ static func add_tower_door(
 	# infer a side from camera/map position because gate and castle towers can sit
 	# on internal circuits where map-center heuristics point outside that circuit.
 	MapViewMeshBuilderBuildingFacade.facade_box(
-		root, "TowerDoor", Vector3(width, door_height, panel_depth),
-		0.0, door_height * 0.5, side, radius, &"wood"
+		root,
+		"TowerDoor",
+		Vector3(width, door_height, panel_depth),
+		0.0,
+		door_height * 0.5,
+		side,
+		radius,
+		&"wood"
 	)
 	for post_side in [-1.0, 1.0]:
 		MapViewMeshBuilderBuildingFacade.facade_box(
-			root, "TowerDoorFrame%d" % int(post_side),
+			root,
+			"TowerDoorFrame%d" % int(post_side),
 			Vector3(frame_width, door_height + frame_width, frame_depth),
 			post_side * (width + frame_width) * 0.5,
 			(door_height + frame_width) * 0.5,
-			side, radius, &"stone"
+			side,
+			radius,
+			&"stone"
 		)
 	MapViewMeshBuilderBuildingFacade.facade_box(
-		root, "TowerDoorLintel",
+		root,
+		"TowerDoorLintel",
 		Vector3(width + frame_width * 2.0, frame_width, frame_depth),
-		0.0, door_height + frame_width * 0.5, side, radius, &"stone"
+		0.0,
+		door_height + frame_width * 0.5,
+		side,
+		radius,
+		&"stone"
 	)
 	MapViewMeshBuilderBuildingFacade.facade_box(
-		root, "TowerDoorStep",
+		root,
+		"TowerDoorStep",
 		Vector3(width + frame_width, 0.1, MapViewMeshBuilderConfig.TOWER_DOOR_STEP_DEPTH),
-		0.0, 0.05, side, radius + MapViewMeshBuilderConfig.TOWER_DOOR_STEP_DEPTH * 0.25, &"stone"
+		0.0,
+		0.05,
+		side,
+		radius + MapViewMeshBuilderConfig.TOWER_DOOR_STEP_DEPTH * 0.25,
+		&"stone"
 	)
 	var face_offset := radius + panel_depth * 0.5
 	MapViewMeshBuilderBuildingFacade.facade_box(
-		root, "TowerDoorStrap0", Vector3(width * 0.88, 0.07, 0.04),
-		0.0, door_height * 0.32, side, face_offset, &"metal"
+		root,
+		"TowerDoorStrap0",
+		Vector3(width * 0.88, 0.07, 0.04),
+		0.0,
+		door_height * 0.32,
+		side,
+		face_offset,
+		&"metal"
 	)
 	MapViewMeshBuilderBuildingFacade.facade_box(
-		root, "TowerDoorStrap1", Vector3(width * 0.88, 0.07, 0.04),
-		0.0, door_height * 0.7, side, face_offset, &"metal"
+		root,
+		"TowerDoorStrap1",
+		Vector3(width * 0.88, 0.07, 0.04),
+		0.0,
+		door_height * 0.7,
+		side,
+		face_offset,
+		&"metal"
 	)
 	MapViewMeshBuilderBuildingFacade.facade_box(
-		root, "TowerDoorLatch", Vector3(0.09, 0.14, 0.06),
-		width * 0.3, door_height * 0.5, side, face_offset, &"metal"
+		root,
+		"TowerDoorLatch",
+		Vector3(0.09, 0.14, 0.06),
+		width * 0.3,
+		door_height * 0.5,
+		side,
+		face_offset,
+		&"metal"
 	)
 
 
-static func add_tower_roof(root: Node3D, radius: float, height: float, building: Dictionary = {}) -> void:
+static func add_tower_roof(
+	root: Node3D, radius: float, height: float, building: Dictionary = {}
+) -> void:
 	var roof_radius := radius + 0.34
 	var roof := MeshInstance3D.new()
 	roof.name = "TowerRoof"
@@ -119,7 +153,9 @@ static func add_tower_roof(root: Node3D, radius: float, height: float, building:
 	cone.height = roof_radius * MapViewMeshBuilderConfig.TOWER_ROOF_PITCH
 	cone.radial_segments = 18
 	roof.mesh = cone
-	roof.position = Vector3(0.0, height + MapViewMeshBuilderConfig.CAP_HEIGHT * 2.0 + cone.height * 0.5, 0.0)
+	roof.position = Vector3(
+		0.0, height + MapViewMeshBuilderConfig.CAP_HEIGHT * 2.0 + cone.height * 0.5, 0.0
+	)
 	roof.material_override = MapViewMaterials.roof(MapViewMeshBuilderConfig.TOWER_ROOF_COLOR)
 	root.add_child(roof)
 	var finial := MeshInstance3D.new()
@@ -169,8 +205,14 @@ static func add_tower_slits(root: Node3D, radius: float, height: float) -> void:
 	for angle in [0.0, PI * 0.5, PI, PI * 1.5]:
 		var outward := Vector3(sin(angle), 0.0, cos(angle))
 		var frame_size := Vector3(
-			MapViewMeshBuilderConfig.ARROW_SLIT_SIZE.x + MapViewMeshBuilderConfig.ARROW_SLIT_FRAME_PAD.x * 2.0,
-			MapViewMeshBuilderConfig.ARROW_SLIT_SIZE.y + MapViewMeshBuilderConfig.ARROW_SLIT_FRAME_PAD.y * 2.0,
+			(
+				MapViewMeshBuilderConfig.ARROW_SLIT_SIZE.x
+				+ MapViewMeshBuilderConfig.ARROW_SLIT_FRAME_PAD.x * 2.0
+			),
+			(
+				MapViewMeshBuilderConfig.ARROW_SLIT_SIZE.y
+				+ MapViewMeshBuilderConfig.ARROW_SLIT_FRAME_PAD.y * 2.0
+			),
 			MapViewMeshBuilderConfig.ARROW_SLIT_FRAME_DEPTH
 		)
 		var frame := MeshInstance3D.new()
@@ -182,9 +224,7 @@ static func add_tower_slits(root: Node3D, radius: float, height: float) -> void:
 		frame.position.y = slit_center_y
 		frame.rotation.y = angle
 		frame.material_override = MapViewMaterials.wall_surface_for_size(
-			&"brick",
-			MapViewMeshBuilderConfig.BRICK_TONE,
-			frame_size
+			&"brick", MapViewMeshBuilderConfig.BRICK_TONE, frame_size
 		)
 		root.add_child(frame)
 
@@ -193,7 +233,15 @@ static func add_tower_slits(root: Node3D, radius: float, height: float) -> void:
 		var mesh := BoxMesh.new()
 		mesh.size = MapViewMeshBuilderConfig.ARROW_SLIT_SIZE
 		slit.mesh = mesh
-		slit.position = outward * (radius + MapViewMeshBuilderConfig.ARROW_SLIT_FRAME_DEPTH + MapViewMeshBuilderConfig.ARROW_SLIT_SIZE.z * 0.5 - 0.01)
+		slit.position = (
+			outward
+			* (
+				radius
+				+ MapViewMeshBuilderConfig.ARROW_SLIT_FRAME_DEPTH
+				+ MapViewMeshBuilderConfig.ARROW_SLIT_SIZE.z * 0.5
+				- 0.01
+			)
+		)
 		slit.position.y = slit_center_y
 		slit.rotation.y = angle
 		slit.material_override = MapViewMaterials.role(&"ink")
@@ -205,16 +253,14 @@ static func add_wall_walk_roof(root: Node3D, size: Vector2, height: float) -> vo
 	var along_x := size.x >= size.y
 	var length := (size.x if along_x else size.y) + 0.3
 	var span := maxf(
-		(size.y if along_x else size.x) + 0.7,
-		MapViewMeshBuilderConfig.WALL_WALK_MIN_WIDTH
+		(size.y if along_x else size.x) + 0.7, MapViewMeshBuilderConfig.WALL_WALK_MIN_WIDTH
 	)
 	var deck_y := height + MapViewMeshBuilderConfig.CAP_HEIGHT
 	var clear_height := MapViewMeshBuilderConfig.WALL_WALK_CLEAR_HEIGHT
 	var roof := MeshInstance3D.new()
 	roof.name = "WalkRoof"
 	roof.mesh = MapViewMeshBuilderPrimitives.gabled_roof_mesh(
-		Vector2(length, span) if along_x else Vector2(span, length),
-		along_x
+		Vector2(length, span) if along_x else Vector2(span, length), along_x
 	)
 	roof.position = Vector3(0.0, deck_y + clear_height, 0.0)
 	roof.material_override = MapViewMaterials.roof(MapViewMeshBuilderConfig.WALL_ROOF_COLOR)
@@ -233,7 +279,10 @@ static func add_wall_walk_roof(root: Node3D, size: Vector2, height: float) -> vo
 			MapViewMeshBuilderPrimitives.box(
 				root,
 				"RoofPost%d_%d" % [post_index, int(side)],
-				Vector3.ONE * MapViewMeshBuilderConfig.WALL_WALK_POST_SIZE + Vector3(0.0, post_height - MapViewMeshBuilderConfig.WALL_WALK_POST_SIZE, 0.0),
+				(
+					Vector3.ONE * MapViewMeshBuilderConfig.WALL_WALK_POST_SIZE
+					+ Vector3(0.0, post_height - MapViewMeshBuilderConfig.WALL_WALK_POST_SIZE, 0.0)
+				),
 				post_position,
 				&"timber"
 			)
@@ -247,19 +296,51 @@ static func add_wall_walk_roof(root: Node3D, size: Vector2, height: float) -> vo
 			MapViewMeshBuilderConfig.WALL_WALK_RAIL_HEIGHT,
 		]:
 			var rail_size := (
-				Vector3(length, MapViewMeshBuilderConfig.WALL_WALK_RAIL_SIZE, MapViewMeshBuilderConfig.WALL_WALK_RAIL_SIZE)
+				Vector3(
+					length,
+					MapViewMeshBuilderConfig.WALL_WALK_RAIL_SIZE,
+					MapViewMeshBuilderConfig.WALL_WALK_RAIL_SIZE
+				)
 				if along_x
-				else Vector3(MapViewMeshBuilderConfig.WALL_WALK_RAIL_SIZE, MapViewMeshBuilderConfig.WALL_WALK_RAIL_SIZE, length)
+				else Vector3(
+					MapViewMeshBuilderConfig.WALL_WALK_RAIL_SIZE,
+					MapViewMeshBuilderConfig.WALL_WALK_RAIL_SIZE,
+					length
+				)
 			)
-			var rail_position := Vector3(0.0, deck_y + rail_y, offset) if along_x else Vector3(offset, deck_y + rail_y, 0.0)
-			MapViewMeshBuilderPrimitives.box(root, "GalleryRail%d_%d" % [int(side), int(rail_y * 100.0)], rail_size, rail_position, &"timber")
+			var rail_position := (
+				Vector3(0.0, deck_y + rail_y, offset)
+				if along_x
+				else Vector3(offset, deck_y + rail_y, 0.0)
+			)
+			MapViewMeshBuilderPrimitives.box(
+				root,
+				"GalleryRail%d_%d" % [int(side), int(rail_y * 100.0)],
+				rail_size,
+				rail_position,
+				&"timber"
+			)
 		var eaves_size := (
-			Vector3(length, MapViewMeshBuilderConfig.WALL_WALK_POST_SIZE, MapViewMeshBuilderConfig.WALL_WALK_POST_SIZE)
+			Vector3(
+				length,
+				MapViewMeshBuilderConfig.WALL_WALK_POST_SIZE,
+				MapViewMeshBuilderConfig.WALL_WALK_POST_SIZE
+			)
 			if along_x
-			else Vector3(MapViewMeshBuilderConfig.WALL_WALK_POST_SIZE, MapViewMeshBuilderConfig.WALL_WALK_POST_SIZE, length)
+			else Vector3(
+				MapViewMeshBuilderConfig.WALL_WALK_POST_SIZE,
+				MapViewMeshBuilderConfig.WALL_WALK_POST_SIZE,
+				length
+			)
 		)
-		var eaves_position := Vector3(0.0, deck_y + clear_height, offset) if along_x else Vector3(offset, deck_y + clear_height, 0.0)
-		MapViewMeshBuilderPrimitives.box(root, "GalleryEaves%d" % int(side), eaves_size, eaves_position, &"timber")
+		var eaves_position := (
+			Vector3(0.0, deck_y + clear_height, offset)
+			if along_x
+			else Vector3(offset, deck_y + clear_height, 0.0)
+		)
+		MapViewMeshBuilderPrimitives.box(
+			root, "GalleryEaves%d" % int(side), eaves_size, eaves_position, &"timber"
+		)
 
 	# Short diagonal brackets visibly transfer the projecting gallery load back
 	# into the masonry instead of leaving the deck visually unsupported.
@@ -268,7 +349,9 @@ static func add_wall_walk_roof(root: Node3D, size: Vector2, height: float) -> vo
 			var along: float = end * (length * 0.5 - 0.3)
 			var offset: float = side * side_offset
 			var upper := Vector3(along, deck_y + 0.12, offset)
-			var lower := Vector3(along, deck_y - MapViewMeshBuilderConfig.WALL_WALK_BRACKET_DROP, offset * 0.45)
+			var lower := Vector3(
+				along, deck_y - MapViewMeshBuilderConfig.WALL_WALK_BRACKET_DROP, offset * 0.45
+			)
 			if not along_x:
 				upper = Vector3(offset, upper.y, along)
 				lower = Vector3(offset * 0.45, lower.y, along)
@@ -276,10 +359,7 @@ static func add_wall_walk_roof(root: Node3D, size: Vector2, height: float) -> vo
 
 
 static func add_base_arcades(
-	root: Node3D,
-	building: Dictionary,
-	size: Vector2,
-	world_bounds: Rect2 = Rect2()
+	root: Node3D, building: Dictionary, size: Vector2, world_bounds: Rect2 = Rect2()
 ) -> void:
 	var along_x := size.x >= size.y
 	var length := size.x if along_x else size.y
@@ -289,7 +369,10 @@ static func add_base_arcades(
 	var radius := minf(bay_width * 0.42, MapViewMeshBuilderConfig.WALL_BASE_ARCADE_MAX_RADIUS)
 	var spring_y := MapViewMeshBuilderConfig.WALL_BASE_ARCADE_SPRING_HEIGHT
 	var face_offset := depth * 0.5 + MapViewMeshBuilderConfig.WALL_BASE_ARCADE_DEPTH * 0.5
-	var stone_color := Color(building.get("wall_color", MapViewMeshBuilderConfig.DEFAULT_WALL_COLOR)).lightened(0.1)
+	var stone_color := (
+		Color(building.get("wall_color", MapViewMeshBuilderConfig.DEFAULT_WALL_COLOR))
+		. lightened(0.1)
+	)
 	var material := MapViewMaterials.wall_surface(&"limestone", stone_color)
 	var pier_transforms: Array[Transform3D] = []
 	var pier_colors: Array[Color] = []
@@ -302,7 +385,11 @@ static func add_base_arcades(
 
 	for pier_index in bay_count + 1:
 		var along := -length * 0.5 + float(pier_index) * bay_width
-		var pier_position := Vector3(along, spring_y * 0.5, side * face_offset) if along_x else Vector3(side * face_offset, spring_y * 0.5, along)
+		var pier_position := (
+			Vector3(along, spring_y * 0.5, side * face_offset)
+			if along_x
+			else Vector3(side * face_offset, spring_y * 0.5, along)
+		)
 		pier_transforms.append(Transform3D(Basis.IDENTITY, pier_position))
 		pier_colors.append(Color.WHITE)
 	for bay_index in bay_count:
@@ -310,25 +397,57 @@ static func add_base_arcades(
 		for segment_index in segment_count:
 			var angle := (float(segment_index) + 0.5) / float(segment_count) * PI
 			var along := center + cos(angle) * radius
-			var position := Vector3(along, spring_y + sin(angle) * radius, side * face_offset) if along_x else Vector3(side * face_offset, spring_y + sin(angle) * radius, along)
-			var tangent := ((Vector3.RIGHT if along_x else Vector3.BACK) * -sin(angle) + Vector3.UP * cos(angle)).normalized()
+			var position := (
+				Vector3(along, spring_y + sin(angle) * radius, side * face_offset)
+				if along_x
+				else Vector3(side * face_offset, spring_y + sin(angle) * radius, along)
+			)
+			var tangent := (
+				(
+					(Vector3.RIGHT if along_x else Vector3.BACK) * -sin(angle)
+					+ Vector3.UP * cos(angle)
+				)
+				. normalized()
+			)
 			var radial := normal.cross(tangent).normalized()
 			arc_transforms.append(Transform3D(Basis(tangent, radial, normal), position))
 			arc_colors.append(Color.WHITE)
 
 	var pier_mesh := BoxMesh.new()
 	pier_mesh.size = (
-		Vector3(MapViewMeshBuilderConfig.WALL_BASE_ARCADE_STONE_WIDTH, spring_y, MapViewMeshBuilderConfig.WALL_BASE_ARCADE_DEPTH)
+		Vector3(
+			MapViewMeshBuilderConfig.WALL_BASE_ARCADE_STONE_WIDTH,
+			spring_y,
+			MapViewMeshBuilderConfig.WALL_BASE_ARCADE_DEPTH
+		)
 		if along_x
-		else Vector3(MapViewMeshBuilderConfig.WALL_BASE_ARCADE_DEPTH, spring_y, MapViewMeshBuilderConfig.WALL_BASE_ARCADE_STONE_WIDTH)
+		else Vector3(
+			MapViewMeshBuilderConfig.WALL_BASE_ARCADE_DEPTH,
+			spring_y,
+			MapViewMeshBuilderConfig.WALL_BASE_ARCADE_STONE_WIDTH
+		)
 	)
-	root.add_child(MapViewMeshBuilderPrimitives.multi_mesh("BaseArcadePiers", pier_mesh, pier_transforms, pier_colors, material, Vector3.ZERO))
+	root.add_child(
+		MapViewMeshBuilderPrimitives.multi_mesh(
+			"BaseArcadePiers", pier_mesh, pier_transforms, pier_colors, material, Vector3.ZERO
+		)
+	)
 	var arc_mesh := BoxMesh.new()
-	arc_mesh.size = Vector3(segment_length, MapViewMeshBuilderConfig.WALL_BASE_ARCADE_STONE_WIDTH, MapViewMeshBuilderConfig.WALL_BASE_ARCADE_DEPTH)
-	root.add_child(MapViewMeshBuilderPrimitives.multi_mesh("BaseArcades", arc_mesh, arc_transforms, arc_colors, material, Vector3.ZERO))
+	arc_mesh.size = Vector3(
+		segment_length,
+		MapViewMeshBuilderConfig.WALL_BASE_ARCADE_STONE_WIDTH,
+		MapViewMeshBuilderConfig.WALL_BASE_ARCADE_DEPTH
+	)
+	root.add_child(
+		MapViewMeshBuilderPrimitives.multi_mesh(
+			"BaseArcades", arc_mesh, arc_transforms, arc_colors, material, Vector3.ZERO
+		)
+	)
 
 
-static func _interior_arcade_side(building: Dictionary, along_x: bool, world_bounds: Rect2) -> float:
+static func _interior_arcade_side(
+	building: Dictionary, along_x: bool, world_bounds: Rect2
+) -> float:
 	var authored_side := StringName(building.get("interior_side", &""))
 	if along_x and authored_side in [&"north", &"south"]:
 		return -1.0 if authored_side == &"north" else 1.0
@@ -344,7 +463,9 @@ static func _interior_arcade_side(building: Dictionary, along_x: bool, world_bou
 	return 1.0
 
 
-static func _add_timber_beam(root: Node3D, name: String, from: Vector3, to: Vector3, thickness: float) -> void:
+static func _add_timber_beam(
+	root: Node3D, name: String, from: Vector3, to: Vector3, thickness: float
+) -> void:
 	var direction := to - from
 	if direction.is_zero_approx():
 		return
@@ -360,7 +481,9 @@ static func _add_timber_beam(root: Node3D, name: String, from: Vector3, to: Vect
 	root.add_child(beam)
 
 
-static func add_battlements(root: Node3D, building: Dictionary, size: Vector2, height: float) -> void:
+static func add_battlements(
+	root: Node3D, building: Dictionary, size: Vector2, height: float
+) -> void:
 	var transforms: Array[Transform3D] = []
 	var colors: Array[Color] = []
 	var half := size * 0.5
@@ -379,7 +502,11 @@ static func add_battlements(root: Node3D, building: Dictionary, size: Vector2, h
 		var count := maxi(2, int(length / MapViewMeshBuilderConfig.MERLON_SPACING))
 		for step in count + 1:
 			var origin := from.lerp(to, float(step) / float(count))
-			origin.y = height + MapViewMeshBuilderConfig.CAP_HEIGHT + MapViewMeshBuilderConfig.MERLON_SIZE.y * 0.5
+			origin.y = (
+				height
+				+ MapViewMeshBuilderConfig.CAP_HEIGHT
+				+ MapViewMeshBuilderConfig.MERLON_SIZE.y * 0.5
+			)
 			transforms.append(Transform3D(Basis.IDENTITY, origin))
 			colors.append(Color.WHITE)
 	var merlon_mesh := BoxMesh.new()
@@ -389,7 +516,13 @@ static func add_battlements(root: Node3D, building: Dictionary, size: Vector2, h
 		merlon_mesh,
 		transforms,
 		colors,
-		MapViewMaterials.wall_surface(&"limestone", Color(building.get("wall_color", MapViewMeshBuilderConfig.DEFAULT_WALL_COLOR)).lightened(0.12)),
+		MapViewMaterials.wall_surface(
+			&"limestone",
+			(
+				Color(building.get("wall_color", MapViewMeshBuilderConfig.DEFAULT_WALL_COLOR))
+				. lightened(0.12)
+			)
+		),
 		Vector3.ZERO
 	)
 	root.add_child(merlons)

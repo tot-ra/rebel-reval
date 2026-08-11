@@ -4,8 +4,8 @@ extends Node
 ## Linear demo dialogue playback from authored JSON. Intentionally narrow: no
 ## branching UI, conditions, or bark routing. Superseded by P1-011 DialogueRunner.
 
-signal started()
-signal finished()
+signal started
+signal finished
 
 const CONTINUE_ACTIONS: Array[StringName] = [
 	&"interact",
@@ -187,7 +187,9 @@ func _set_interaction_enabled(enabled: bool) -> void:
 	_interaction_controller.set_process(enabled)
 	_interaction_controller.set_process_unhandled_input(enabled)
 	if _interaction_controller.prompt_label != null:
-		_interaction_controller.prompt_label.visible = enabled and _interaction_controller.get_focused_interactable() != null
+		_interaction_controller.prompt_label.visible = (
+			enabled and _interaction_controller.get_focused_interactable() != null
+		)
 
 
 func _is_continue_event(event: InputEvent) -> bool:

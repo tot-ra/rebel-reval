@@ -60,10 +60,9 @@ static func _add_display_modules(model: Node3D, goods_kinds: Array[StringName]) 
 			slot_indices = [0, 2]
 		_:
 			slot_indices = [0, 1, 2]
-	var module_scale := float(MODULE_SCALES.get(
-		count,
-		MODULE_SCALES[MapTypes.MARKET_STALL_MAX_DISPLAY_MODULES]
-	))
+	var module_scale := float(
+		MODULE_SCALES.get(count, MODULE_SCALES[MapTypes.MARKET_STALL_MAX_DISPLAY_MODULES])
+	)
 	for index in count:
 		var slot := Node3D.new()
 		slot.name = "Slot%d" % index

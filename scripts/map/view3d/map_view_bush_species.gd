@@ -75,11 +75,25 @@ const ALL_SPECIES: Array[StringName] = [
 ]
 
 const ALL_VARIANTS: Array[StringName] = [
-	&"bush.bilberry", &"bush.cowberry", &"bush.cloudberry", &"bush.cranberry",
-	&"bush.crowberry", &"bush.wild_strawberry", &"bush.raspberry", &"bush.dog_rose",
-	&"bush.guelder_rose", &"bush.elder", &"bush.sea_buckthorn", &"bush.heather",
-	&"bush.bog_rosemary", &"bush.juniper_shrub", &"bush.hazel_shrub",
-	&"bush.hawthorn", &"bush.blackthorn", &"bush.willow_shrub", &"bush.alder_shrub",
+	&"bush.bilberry",
+	&"bush.cowberry",
+	&"bush.cloudberry",
+	&"bush.cranberry",
+	&"bush.crowberry",
+	&"bush.wild_strawberry",
+	&"bush.raspberry",
+	&"bush.dog_rose",
+	&"bush.guelder_rose",
+	&"bush.elder",
+	&"bush.sea_buckthorn",
+	&"bush.heather",
+	&"bush.bog_rosemary",
+	&"bush.juniper_shrub",
+	&"bush.hazel_shrub",
+	&"bush.hawthorn",
+	&"bush.blackthorn",
+	&"bush.willow_shrub",
+	&"bush.alder_shrub",
 	&"bush.spindle",
 ]
 
@@ -162,26 +176,226 @@ const MIXED_WEIGHTS: Dictionary = {
 }
 
 const PROFILES: Dictionary = {
-	SPECIES_BILBERRY: {"group": GROUP_BERRY, "archetype": ARCHETYPE_ROUND, "height": 0.42, "spread": 0.52, "clusters": 5, "density": 0.36, "color": Color(0.28, 0.58, 0.24), "accent": Color(0.42, 0.18, 0.62)},
-	SPECIES_COWBERRY: {"group": GROUP_BERRY, "archetype": ARCHETYPE_ROUND, "height": 0.36, "spread": 0.48, "clusters": 4, "density": 0.34, "color": Color(0.30, 0.62, 0.26), "accent": Color(0.78, 0.22, 0.18)},
-	SPECIES_CLOUDBERRY: {"group": GROUP_BOG, "archetype": ARCHETYPE_BOG, "height": 0.22, "spread": 0.58, "clusters": 6, "density": 0.40, "color": Color(0.34, 0.56, 0.28), "accent": Color(0.96, 0.78, 0.22)},
-	SPECIES_CRANBERRY: {"group": GROUP_BOG, "archetype": ARCHETYPE_BOG, "height": 0.18, "spread": 0.62, "clusters": 7, "density": 0.42, "color": Color(0.26, 0.54, 0.24), "accent": Color(0.82, 0.24, 0.20)},
-	SPECIES_CROWBERRY: {"group": GROUP_HEATH, "archetype": ARCHETYPE_SPREAD, "height": 0.28, "spread": 0.54, "clusters": 8, "density": 0.38, "color": Color(0.22, 0.48, 0.22), "accent": Color(0.18, 0.14, 0.12)},
-	SPECIES_WILD_STRAWBERRY: {"group": GROUP_BERRY, "archetype": ARCHETYPE_SPREAD, "height": 0.14, "spread": 0.44, "clusters": 9, "density": 0.46, "color": Color(0.36, 0.68, 0.30), "accent": Color(0.92, 0.28, 0.24)},
-	SPECIES_RASPBERRY: {"group": GROUP_BERRY, "archetype": ARCHETYPE_UPRIGHT, "height": 0.78, "spread": 0.38, "clusters": 4, "density": 0.32, "color": Color(0.32, 0.60, 0.28), "accent": Color(0.84, 0.20, 0.22)},
-	SPECIES_DOG_ROSE: {"group": GROUP_UNDERSTORY, "archetype": ARCHETYPE_UPRIGHT, "height": 0.86, "spread": 0.42, "clusters": 4, "density": 0.30, "color": Color(0.34, 0.58, 0.30), "accent": Color(0.92, 0.42, 0.52)},
-	SPECIES_GUELDER_ROSE: {"group": GROUP_UNDERSTORY, "archetype": ARCHETYPE_ROUND, "height": 0.92, "spread": 0.56, "clusters": 5, "density": 0.28, "color": Color(0.30, 0.56, 0.28), "accent": Color(0.94, 0.88, 0.72)},
-	SPECIES_ELDER: {"group": GROUP_UNDERSTORY, "archetype": ARCHETYPE_UPRIGHT, "height": 1.04, "spread": 0.48, "clusters": 5, "density": 0.26, "color": Color(0.28, 0.54, 0.26), "accent": Color(0.72, 0.62, 0.18)},
-	SPECIES_SEA_BUCKTHORN: {"group": GROUP_COASTAL, "archetype": ARCHETYPE_COASTAL, "height": 0.96, "spread": 0.62, "clusters": 5, "density": 0.30, "color": Color(0.52, 0.66, 0.28), "accent": Color(0.94, 0.72, 0.18)},
-	SPECIES_HEATHER: {"group": GROUP_HEATH, "archetype": ARCHETYPE_SPREAD, "height": 0.34, "spread": 0.66, "clusters": 10, "density": 0.48, "color": Color(0.24, 0.46, 0.22), "accent": Color(0.72, 0.38, 0.78)},
-	SPECIES_BOG_ROSEMARY: {"group": GROUP_BOG, "archetype": ARCHETYPE_BOG, "height": 0.30, "spread": 0.50, "clusters": 6, "density": 0.36, "color": Color(0.30, 0.50, 0.26), "accent": Color(0.82, 0.52, 0.72)},
-	SPECIES_JUNIPER_SHRUB: {"group": GROUP_COASTAL, "archetype": ARCHETYPE_CONIFER, "height": 0.72, "spread": 0.46, "clusters": 4, "density": 0.32, "color": Color(0.22, 0.42, 0.24), "accent": Color(0.34, 0.52, 0.30)},
-	SPECIES_HAZEL_SHRUB: {"group": GROUP_HEDGE, "archetype": ARCHETYPE_UPRIGHT, "height": 0.88, "spread": 0.44, "clusters": 5, "density": 0.30, "color": Color(0.30, 0.56, 0.28), "accent": Color(0.68, 0.48, 0.18)},
-	SPECIES_HAWTHORN: {"group": GROUP_HEDGE, "archetype": ARCHETYPE_UPRIGHT, "height": 0.94, "spread": 0.40, "clusters": 4, "density": 0.28, "color": Color(0.28, 0.54, 0.26), "accent": Color(0.78, 0.22, 0.18)},
-	SPECIES_BLACKTHORN: {"group": GROUP_HEDGE, "archetype": ARCHETYPE_UPRIGHT, "height": 0.82, "spread": 0.36, "clusters": 4, "density": 0.28, "color": Color(0.24, 0.48, 0.22), "accent": Color(0.42, 0.16, 0.14)},
-	SPECIES_WILLOW_SHRUB: {"group": GROUP_WETLAND, "archetype": ARCHETYPE_WETLAND, "height": 0.98, "spread": 0.52, "clusters": 5, "density": 0.30, "color": Color(0.34, 0.60, 0.30), "accent": Color(0.72, 0.78, 0.42)},
-	SPECIES_ALDER_SHRUB: {"group": GROUP_WETLAND, "archetype": ARCHETYPE_WETLAND, "height": 0.86, "spread": 0.48, "clusters": 5, "density": 0.32, "color": Color(0.26, 0.52, 0.28), "accent": Color(0.48, 0.62, 0.34)},
-	SPECIES_SPINDLE: {"group": GROUP_HEDGE, "archetype": ARCHETYPE_UPRIGHT, "height": 0.76, "spread": 0.34, "clusters": 4, "density": 0.26, "color": Color(0.30, 0.54, 0.28), "accent": Color(0.82, 0.34, 0.42)},
+	SPECIES_BILBERRY:
+	{
+		"group": GROUP_BERRY,
+		"archetype": ARCHETYPE_ROUND,
+		"height": 0.42,
+		"spread": 0.52,
+		"clusters": 5,
+		"density": 0.36,
+		"color": Color(0.28, 0.58, 0.24),
+		"accent": Color(0.42, 0.18, 0.62)
+	},
+	SPECIES_COWBERRY:
+	{
+		"group": GROUP_BERRY,
+		"archetype": ARCHETYPE_ROUND,
+		"height": 0.36,
+		"spread": 0.48,
+		"clusters": 4,
+		"density": 0.34,
+		"color": Color(0.30, 0.62, 0.26),
+		"accent": Color(0.78, 0.22, 0.18)
+	},
+	SPECIES_CLOUDBERRY:
+	{
+		"group": GROUP_BOG,
+		"archetype": ARCHETYPE_BOG,
+		"height": 0.22,
+		"spread": 0.58,
+		"clusters": 6,
+		"density": 0.40,
+		"color": Color(0.34, 0.56, 0.28),
+		"accent": Color(0.96, 0.78, 0.22)
+	},
+	SPECIES_CRANBERRY:
+	{
+		"group": GROUP_BOG,
+		"archetype": ARCHETYPE_BOG,
+		"height": 0.18,
+		"spread": 0.62,
+		"clusters": 7,
+		"density": 0.42,
+		"color": Color(0.26, 0.54, 0.24),
+		"accent": Color(0.82, 0.24, 0.20)
+	},
+	SPECIES_CROWBERRY:
+	{
+		"group": GROUP_HEATH,
+		"archetype": ARCHETYPE_SPREAD,
+		"height": 0.28,
+		"spread": 0.54,
+		"clusters": 8,
+		"density": 0.38,
+		"color": Color(0.22, 0.48, 0.22),
+		"accent": Color(0.18, 0.14, 0.12)
+	},
+	SPECIES_WILD_STRAWBERRY:
+	{
+		"group": GROUP_BERRY,
+		"archetype": ARCHETYPE_SPREAD,
+		"height": 0.14,
+		"spread": 0.44,
+		"clusters": 9,
+		"density": 0.46,
+		"color": Color(0.36, 0.68, 0.30),
+		"accent": Color(0.92, 0.28, 0.24)
+	},
+	SPECIES_RASPBERRY:
+	{
+		"group": GROUP_BERRY,
+		"archetype": ARCHETYPE_UPRIGHT,
+		"height": 0.78,
+		"spread": 0.38,
+		"clusters": 4,
+		"density": 0.32,
+		"color": Color(0.32, 0.60, 0.28),
+		"accent": Color(0.84, 0.20, 0.22)
+	},
+	SPECIES_DOG_ROSE:
+	{
+		"group": GROUP_UNDERSTORY,
+		"archetype": ARCHETYPE_UPRIGHT,
+		"height": 0.86,
+		"spread": 0.42,
+		"clusters": 4,
+		"density": 0.30,
+		"color": Color(0.34, 0.58, 0.30),
+		"accent": Color(0.92, 0.42, 0.52)
+	},
+	SPECIES_GUELDER_ROSE:
+	{
+		"group": GROUP_UNDERSTORY,
+		"archetype": ARCHETYPE_ROUND,
+		"height": 0.92,
+		"spread": 0.56,
+		"clusters": 5,
+		"density": 0.28,
+		"color": Color(0.30, 0.56, 0.28),
+		"accent": Color(0.94, 0.88, 0.72)
+	},
+	SPECIES_ELDER:
+	{
+		"group": GROUP_UNDERSTORY,
+		"archetype": ARCHETYPE_UPRIGHT,
+		"height": 1.04,
+		"spread": 0.48,
+		"clusters": 5,
+		"density": 0.26,
+		"color": Color(0.28, 0.54, 0.26),
+		"accent": Color(0.72, 0.62, 0.18)
+	},
+	SPECIES_SEA_BUCKTHORN:
+	{
+		"group": GROUP_COASTAL,
+		"archetype": ARCHETYPE_COASTAL,
+		"height": 0.96,
+		"spread": 0.62,
+		"clusters": 5,
+		"density": 0.30,
+		"color": Color(0.52, 0.66, 0.28),
+		"accent": Color(0.94, 0.72, 0.18)
+	},
+	SPECIES_HEATHER:
+	{
+		"group": GROUP_HEATH,
+		"archetype": ARCHETYPE_SPREAD,
+		"height": 0.34,
+		"spread": 0.66,
+		"clusters": 10,
+		"density": 0.48,
+		"color": Color(0.24, 0.46, 0.22),
+		"accent": Color(0.72, 0.38, 0.78)
+	},
+	SPECIES_BOG_ROSEMARY:
+	{
+		"group": GROUP_BOG,
+		"archetype": ARCHETYPE_BOG,
+		"height": 0.30,
+		"spread": 0.50,
+		"clusters": 6,
+		"density": 0.36,
+		"color": Color(0.30, 0.50, 0.26),
+		"accent": Color(0.82, 0.52, 0.72)
+	},
+	SPECIES_JUNIPER_SHRUB:
+	{
+		"group": GROUP_COASTAL,
+		"archetype": ARCHETYPE_CONIFER,
+		"height": 0.72,
+		"spread": 0.46,
+		"clusters": 4,
+		"density": 0.32,
+		"color": Color(0.22, 0.42, 0.24),
+		"accent": Color(0.34, 0.52, 0.30)
+	},
+	SPECIES_HAZEL_SHRUB:
+	{
+		"group": GROUP_HEDGE,
+		"archetype": ARCHETYPE_UPRIGHT,
+		"height": 0.88,
+		"spread": 0.44,
+		"clusters": 5,
+		"density": 0.30,
+		"color": Color(0.30, 0.56, 0.28),
+		"accent": Color(0.68, 0.48, 0.18)
+	},
+	SPECIES_HAWTHORN:
+	{
+		"group": GROUP_HEDGE,
+		"archetype": ARCHETYPE_UPRIGHT,
+		"height": 0.94,
+		"spread": 0.40,
+		"clusters": 4,
+		"density": 0.28,
+		"color": Color(0.28, 0.54, 0.26),
+		"accent": Color(0.78, 0.22, 0.18)
+	},
+	SPECIES_BLACKTHORN:
+	{
+		"group": GROUP_HEDGE,
+		"archetype": ARCHETYPE_UPRIGHT,
+		"height": 0.82,
+		"spread": 0.36,
+		"clusters": 4,
+		"density": 0.28,
+		"color": Color(0.24, 0.48, 0.22),
+		"accent": Color(0.42, 0.16, 0.14)
+	},
+	SPECIES_WILLOW_SHRUB:
+	{
+		"group": GROUP_WETLAND,
+		"archetype": ARCHETYPE_WETLAND,
+		"height": 0.98,
+		"spread": 0.52,
+		"clusters": 5,
+		"density": 0.30,
+		"color": Color(0.34, 0.60, 0.30),
+		"accent": Color(0.72, 0.78, 0.42)
+	},
+	SPECIES_ALDER_SHRUB:
+	{
+		"group": GROUP_WETLAND,
+		"archetype": ARCHETYPE_WETLAND,
+		"height": 0.86,
+		"spread": 0.48,
+		"clusters": 5,
+		"density": 0.32,
+		"color": Color(0.26, 0.52, 0.28),
+		"accent": Color(0.48, 0.62, 0.34)
+	},
+	SPECIES_SPINDLE:
+	{
+		"group": GROUP_HEDGE,
+		"archetype": ARCHETYPE_UPRIGHT,
+		"height": 0.76,
+		"spread": 0.34,
+		"clusters": 4,
+		"density": 0.26,
+		"color": Color(0.30, 0.54, 0.28),
+		"accent": Color(0.82, 0.34, 0.42)
+	},
 }
 
 

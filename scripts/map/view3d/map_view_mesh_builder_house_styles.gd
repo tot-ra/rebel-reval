@@ -45,7 +45,9 @@ static func house_style(building: Dictionary) -> StringName:
 	return MapViewMeshBuilderConfig.HOUSE_STYLE_BRICK
 
 
-static func house_wall_material(building: Dictionary, wall_color: Color, size: Vector3) -> StandardMaterial3D:
+static func house_wall_material(
+	building: Dictionary, wall_color: Color, size: Vector3
+) -> StandardMaterial3D:
 	var surface_id: StringName = building.get("id", &"")
 	match house_style(building):
 		MapViewMeshBuilderConfig.HOUSE_STYLE_TIMBER:
@@ -64,10 +66,7 @@ static func house_wall_material(building: Dictionary, wall_color: Color, size: V
 			)
 		MapViewMeshBuilderConfig.HOUSE_STYLE_LOG:
 			return MapViewMaterials.wall_surface_for_building(
-				surface_id,
-				&"log",
-				wall_color.lerp(MapViewMeshBuilderConfig.LOG_TONE, 0.45),
-				size
+				surface_id, &"log", wall_color.lerp(MapViewMeshBuilderConfig.LOG_TONE, 0.45), size
 			)
 		MapViewMeshBuilderConfig.HOUSE_STYLE_STONE:
 			return MapViewMaterials.wall_surface_for_building(
@@ -77,7 +76,9 @@ static func house_wall_material(building: Dictionary, wall_color: Color, size: V
 				size
 			)
 		_:
-			return MapViewMaterials.wall_surface_for_building(surface_id, &"plank", wall_color, size)
+			return MapViewMaterials.wall_surface_for_building(
+				surface_id, &"plank", wall_color, size
+			)
 
 
 static func roof_style(building: Dictionary) -> StringName:
@@ -126,6 +127,8 @@ static func house_roof_material(building: Dictionary) -> StandardMaterial3D:
 	if style == MapViewMeshBuilderConfig.ROOF_STYLE_THATCH:
 		# Pull authored dark browns toward weathered reed so fishing-district
 		# thatch stays golden-olive instead of reading as rotten wood.
-		color = color.lerp(MapViewMeshBuilderConfig.THATCH_TONE, 0.45 if building.has("roof_material") else 0.55)
+		color = color.lerp(
+			MapViewMeshBuilderConfig.THATCH_TONE, 0.45 if building.has("roof_material") else 0.55
+		)
 	var surface_id: StringName = building.get("id", &"")
 	return MapViewMaterials.roof_surface_for_building(surface_id, style, color)

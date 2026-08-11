@@ -77,17 +77,21 @@ func _on_faction_event_recorded(_event_id: StringName, _faction_id: StringName) 
 
 
 func _sync_visuals() -> void:
-	if _view_runtime == null or _view_runtime.view == null or _district_id.is_empty() or _state == null:
+	if (
+		_view_runtime == null
+		or _view_runtime.view == null
+		or _district_id.is_empty()
+		or _state == null
+	):
 		return
 	var snapshot := ModelScript.resolve_snapshot(_district_id, _state)
-	var consequence_state: StringName = snapshot.get("consequence_state", ModelScript.STATE_BASELINE)
+	var consequence_state: StringName = snapshot.get(
+		"consequence_state", ModelScript.STATE_BASELINE
+	)
 	var supply_disrupted := bool(snapshot.get("supply_disrupted", false))
 	if consequence_state == _applied_state and supply_disrupted == _applied_supply:
 		return
 	_applied_state = consequence_state
 	_applied_supply = supply_disrupted
 	for prop_id: StringName in ModelScript.all_managed_prop_ids(_district_id):
-		_view_runtime.view.set_prop_visible(
-			prop_id,
-			ModelScript.prop_visible(snapshot, prop_id)
-		)
+		_view_runtime.view.set_prop_visible(prop_id, ModelScript.prop_visible(snapshot, prop_id))

@@ -215,7 +215,10 @@ static func build(host: InventoryOverlay) -> Dictionary:
 	detail_column.add_child(equip_button)
 
 	var hint := Label.new()
-	hint.text = "Select a good, then Equip / drag it onto the matching brass socket. Drag packed cells to rearrange."
+	hint.text = (
+		"Select a good, then Equip / drag it onto the matching brass socket. Drag packed cells"
+		+ "to rearrange."
+	)
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	InventoryUiThemeScene.apply_hint(hint)
@@ -238,16 +241,11 @@ static func build(host: InventoryOverlay) -> Dictionary:
 			button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			button.add_theme_font_size_override("font_size", 11)
 			InventoryUiThemeScene.apply_cell_button(
-				button,
-				InventoryUiThemeScene.LEATHER_EMPTY,
-				false,
-				false
+				button, InventoryUiThemeScene.LEATHER_EMPTY, false, false
 			)
 			var captured_x := cell_x
 			var captured_y := cell_y
-			button.pressed.connect(func() -> void:
-				host._on_cell_pressed(captured_x, captured_y)
-			)
+			button.pressed.connect(func() -> void: host._on_cell_pressed(captured_x, captured_y))
 			grid.add_child(button)
 			cell_buttons.append(button)
 

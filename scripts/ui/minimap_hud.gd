@@ -34,7 +34,9 @@ class MinimapCelestialIndicator:
 		animation_time += delta
 		var current_angle := cycle_progress * TAU
 		var target_angle := target_progress * TAU
-		cycle_progress = wrapf(lerp_angle(current_angle, target_angle, clampf(delta * 3.5, 0.0, 1.0)) / TAU, 0.0, 1.0)
+		cycle_progress = wrapf(
+			lerp_angle(current_angle, target_angle, clampf(delta * 3.5, 0.0, 1.0)) / TAU, 0.0, 1.0
+		)
 		queue_redraw()
 
 	func _draw() -> void:
@@ -56,7 +58,16 @@ class MinimapCelestialIndicator:
 		else:
 			_draw_moon(body_position, 1.0 - daylight)
 		var glint_alpha := 0.22 + sin(animation_time * 2.2) * 0.08
-		draw_arc(center, radius - 3.0, orbit_angle - 0.35, orbit_angle + 0.35, 12, Color(1.0, 0.88, 0.55, glint_alpha), 1.0, true)
+		draw_arc(
+			center,
+			radius - 3.0,
+			orbit_angle - 0.35,
+			orbit_angle + 0.35,
+			12,
+			Color(1.0, 0.88, 0.55, glint_alpha),
+			1.0,
+			true
+		)
 
 	func _draw_sun(position: Vector2, strength: float) -> void:
 		var color := Color(1.0, 0.77, 0.24, clampf(0.65 + strength * 0.35, 0.0, 1.0))
@@ -100,14 +111,24 @@ class MinimapOrnament:
 		var tangent := outward.orthogonal()
 		var tip := center + outward * (radius - 1.0)
 		var base := center + outward * (radius - 12.0)
-		var diamond := PackedVector2Array([
-			tip,
-			base + tangent * 5.0,
-			base - outward * 5.0,
-			base - tangent * 5.0,
-		])
+		var diamond := PackedVector2Array(
+			[
+				tip,
+				base + tangent * 5.0,
+				base - outward * 5.0,
+				base - tangent * 5.0,
+			]
+		)
 		draw_colored_polygon(diamond, SHADOW_BRONZE)
-		draw_polyline(PackedVector2Array([tip, base + tangent * 5.0, base - outward * 5.0, base - tangent * 5.0, tip]), INNER_GOLD, 1.5, true)
+		draw_polyline(
+			PackedVector2Array(
+				[tip, base + tangent * 5.0, base - outward * 5.0, base - tangent * 5.0, tip]
+			),
+			INNER_GOLD,
+			1.5,
+			true
+		)
+
 
 var _definition: MapDefinition
 var _grid: MapTerrainGrid
@@ -306,8 +327,7 @@ func _build_ui() -> void:
 	_date_badge.custom_minimum_size = Vector2(148.0, DATE_BADGE_HEIGHT)
 	_date_badge.size = _date_badge.custom_minimum_size
 	_date_badge.position = Vector2(
-		(MAX_DISPLAY_SIZE - _date_badge.size.x) * 0.5,
-		MAX_DISPLAY_SIZE - DATE_BADGE_HEIGHT - 14.0
+		(MAX_DISPLAY_SIZE - _date_badge.size.x) * 0.5, MAX_DISPLAY_SIZE - DATE_BADGE_HEIGHT - 14.0
 	)
 	_date_badge.add_theme_stylebox_override("panel", _date_badge_style())
 	_map_host.add_child(_date_badge)
@@ -417,8 +437,7 @@ func _apply_follow_shader_statics() -> void:
 		return
 	material.set_shader_parameter("view_cells", FOLLOW_VIEW_CELLS)
 	material.set_shader_parameter(
-		"map_cells",
-		Vector2(float(_definition.size_cells.x), float(_definition.size_cells.y))
+		"map_cells", Vector2(float(_definition.size_cells.x), float(_definition.size_cells.y))
 	)
 
 
@@ -428,7 +447,9 @@ func _update_marker() -> void:
 			_marker.visible = false
 		return
 
-	var normalized := MinimapTextureBuilder.world_to_normalized(_definition, _player.global_position)
+	var normalized := MinimapTextureBuilder.world_to_normalized(
+		_definition, _player.global_position
+	)
 	var material := _texture_rect.material as ShaderMaterial
 	if material != null:
 		# Pan the authored map under a fixed center marker so local travel reads

@@ -34,7 +34,9 @@ static func role(role_name: StringName) -> StandardMaterial3D:
 	var key := "role:%s" % String(role_name)
 	if _cache.has(key):
 		return _cache[key]
-	var base := MapVisualStyle.role_color(role_name, MapVisualStyle.TARGET_CLEAN_PAINTED, MapVisualStyle.TIME_DAY)
+	var base := MapVisualStyle.role_color(
+		role_name, MapVisualStyle.TARGET_CLEAN_PAINTED, MapVisualStyle.TIME_DAY
+	)
 	var pattern := PATTERN_PLASTER
 	match role_name:
 		&"wood", &"timber":
@@ -84,7 +86,9 @@ static func door_wood(noise_seed: int) -> StandardMaterial3D:
 	var key := "door_wood:%d" % variant
 	if _cache.has(key):
 		return _cache[key]
-	var base := MapVisualStyle.role_color(&"wood", MapVisualStyle.TARGET_CLEAN_PAINTED, MapVisualStyle.TIME_DAY)
+	var base := MapVisualStyle.role_color(
+		&"wood", MapVisualStyle.TARGET_CLEAN_PAINTED, MapVisualStyle.TIME_DAY
+	)
 	var material := StandardMaterial3D.new()
 	material.albedo_color = base.darkened(0.08 + float(variant) * 0.025)
 	material.albedo_texture = MapViewMaterialPatterns.door_wood_texture(noise_seed)
@@ -118,7 +122,9 @@ static func natural_rock() -> StandardMaterial3D:
 	var key := "natural_rock"
 	if _cache.has(key):
 		return _cache[key]
-	var base := MapVisualStyle.role_color(&"stone", MapVisualStyle.TARGET_CLEAN_PAINTED, MapVisualStyle.TIME_DAY)
+	var base := MapVisualStyle.role_color(
+		&"stone", MapVisualStyle.TARGET_CLEAN_PAINTED, MapVisualStyle.TIME_DAY
+	)
 	var material := _make_material(base, PATTERN_ROCK, 9041)
 	material.uv1_triplanar = true
 	material.uv1_world_triplanar = false

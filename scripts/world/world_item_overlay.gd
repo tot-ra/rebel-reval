@@ -82,12 +82,7 @@ func resolve_pickup_feedback(
 	location_id: StringName
 ) -> Dictionary:
 	var resolved := PickupFeedbackScript.resolve_feedback(
-		item_id,
-		item_record,
-		content_db,
-		state,
-		location_id,
-		_pickup_bark_runner
+		item_id, item_record, content_db, state, location_id, _pickup_bark_runner
 	)
 	_pickup_bark_runner = resolved.get("bark_runner", _pickup_bark_runner)
 	return resolved.get("feedback", {})

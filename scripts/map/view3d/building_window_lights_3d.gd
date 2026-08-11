@@ -47,9 +47,7 @@ func configure(building_id: StringName) -> void:
 	_end_hour = float(schedule["end_hour"])
 	var warmth := float((_building_seed >> 6) % 100) / 100.0
 	_glow_color = Color(
-		lerpf(0.98, 1.0, warmth),
-		lerpf(0.72, 0.82, warmth),
-		lerpf(0.38, 0.48, warmth)
+		lerpf(0.98, 1.0, warmth), lerpf(0.72, 0.82, warmth), lerpf(0.38, 0.48, warmth)
 	)
 
 	var parent := get_parent()
@@ -71,10 +69,7 @@ func apply_cycle_progress(progress: float) -> void:
 		return
 	var hour := DayNightCycle.progress_to_hour(progress)
 	var building_strength := DayNightCycle.evening_glow_strength(
-		hour,
-		_start_hour,
-		_end_hour,
-		GLOW_FADE_HOURS
+		hour, _start_hour, _end_hour, GLOW_FADE_HOURS
 	)
 	for index in _materials.size():
 		var strength := building_strength if _window_lit[index] else 0.0

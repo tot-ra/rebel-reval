@@ -1,7 +1,7 @@
 class_name ForgeCommissionOverlay
 extends CanvasLayer
 
-signal closed()
+signal closed
 signal option_selected(option_id: String)
 
 var _panel: PanelContainer
@@ -207,9 +207,7 @@ func _refresh() -> void:
 		var option_id := String(option.get("id", ""))
 		button.set_meta(&"option_id", option_id)
 		button.focus_mode = Control.FOCUS_ALL
-		button.pressed.connect(func() -> void:
-			option_selected.emit(option_id)
-		)
+		button.pressed.connect(func() -> void: option_selected.emit(option_id))
 		_options_box.add_child(button)
 		_option_buttons.append(button)
 	_wire_option_focus_neighbors()

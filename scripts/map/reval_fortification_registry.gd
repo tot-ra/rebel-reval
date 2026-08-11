@@ -87,12 +87,36 @@ const CONSTRUCTION_CANDIDATES_1343: Array[Dictionary] = [
 ## completed 1343 fabric. Future construction-site art can reuse their later
 ## positions only after a source-backed placement pass.
 const POST_1343_EXCLUSIONS: Array[Dictionary] = [
-	{"historical_id": &"saunatorn", "name": "Saunatorn / Bath Tower", "earliest_state": "third quarter of the 14th century"},
-	{"historical_id": &"nunnadetagune", "name": "Nunnadetagune / Behind the Nun's Tower", "earliest_state": "third quarter of the 14th century"},
-	{"historical_id": &"loewenschede", "name": "Loewenschede Tower", "earliest_state": "third quarter of the 14th century"},
-	{"historical_id": &"koismae", "name": "Köismäe / Ropemakers' Tower", "earliest_state": "third quarter of the 14th century"},
-	{"historical_id": &"epping", "name": "Epping Tower", "earliest_state": "third quarter of the 14th century"},
-	{"historical_id": &"neitsitorn", "name": "Neitsitorn / Maiden's Tower", "earliest_state": "1370-1373"},
+	{
+		"historical_id": &"saunatorn",
+		"name": "Saunatorn / Bath Tower",
+		"earliest_state": "third quarter of the 14th century"
+	},
+	{
+		"historical_id": &"nunnadetagune",
+		"name": "Nunnadetagune / Behind the Nun's Tower",
+		"earliest_state": "third quarter of the 14th century"
+	},
+	{
+		"historical_id": &"loewenschede",
+		"name": "Loewenschede Tower",
+		"earliest_state": "third quarter of the 14th century"
+	},
+	{
+		"historical_id": &"koismae",
+		"name": "Köismäe / Ropemakers' Tower",
+		"earliest_state": "third quarter of the 14th century"
+	},
+	{
+		"historical_id": &"epping",
+		"name": "Epping Tower",
+		"earliest_state": "third quarter of the 14th century"
+	},
+	{
+		"historical_id": &"neitsitorn",
+		"name": "Neitsitorn / Maiden's Tower",
+		"earliest_state": "1370-1373"
+	},
 	{"historical_id": &"kiek_in_de_kok", "name": "Kiek in de Kök", "earliest_state": "1470s"},
 	{"historical_id": &"fat_margaret", "name": "Fat Margaret", "earliest_state": "1518-1531"},
 ]

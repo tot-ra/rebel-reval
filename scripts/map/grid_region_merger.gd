@@ -40,9 +40,7 @@ static func merge_matching_cells(size_cells: Vector2i, matches: Callable) -> Arr
 
 
 static func _append_finished_rectangles(
-	output: Array[Rect2i],
-	active_by_span: Dictionary,
-	continued_by_span: Dictionary
+	output: Array[Rect2i], active_by_span: Dictionary, continued_by_span: Dictionary
 ) -> void:
 	for span: Vector2i in active_by_span:
 		if not continued_by_span.has(span):

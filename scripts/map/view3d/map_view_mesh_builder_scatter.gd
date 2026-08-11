@@ -7,6 +7,7 @@ const PlantMeshes := preload("res://scripts/map/view3d/map_view_plant_meshes.gd"
 const BushSpecies := preload("res://scripts/map/view3d/map_view_bush_species.gd")
 const BushMeshes := preload("res://scripts/map/view3d/map_view_bush_meshes.gd")
 
+
 ## Layered decorative vegetation and ground clutter. Textured ground cover carries
 ## most of the grass; sparse small/large tufts, shrubs, and trees add silhouette
 ## variation without turning every green cell into an object field.
@@ -67,80 +68,183 @@ static func build_scatter(
 			# freshwater shoreline. Authored reed.shore zones cover moat ditches.
 			if (
 				MapViewMeshBuilderTerrain.is_inland_water_shore_cell(field, grid, cell)
-				and MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 2879)
-				< MapViewMeshBuilderConfig.SHORE_CATTAIL_CHANCE
+				and (
+					MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 2879)
+					< MapViewMeshBuilderConfig.SHORE_CATTAIL_CHANCE
+				)
 			):
-				var cluster_count := 1 + int(MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 2887) > 0.54)
+				var cluster_count := (
+					1
+					+ int(MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 2887) > 0.54)
+				)
 				for cattail_index in cluster_count:
-					cattails.append(_scatter_transform(field, x, y, definition.seed + 2903 + cattail_index * 31, 0.78, 1.18))
-					var cattail_tint := MapViewMeshBuilderPrimitives.hash01(x + cattail_index, y, definition.seed + 2917)
-					cattail_colors.append(Color(0.72, 0.83, 0.52).lerp(Color(0.49, 0.66, 0.36), cattail_tint))
+					cattails.append(
+						_scatter_transform(
+							field, x, y, definition.seed + 2903 + cattail_index * 31, 0.78, 1.18
+						)
+					)
+					var cattail_tint := MapViewMeshBuilderPrimitives.hash01(
+						x + cattail_index, y, definition.seed + 2917
+					)
+					cattail_colors.append(
+						Color(0.72, 0.83, 0.52).lerp(Color(0.49, 0.66, 0.36), cattail_tint)
+					)
 
 			var puddle_chance := float(MapViewMeshBuilderConfig.PUDDLE_CHANCE.get(terrain, 0.0))
 			if puddle_chance > 0.0:
-				var height := MapViewMeshBuilderTerrain.field_height(field, Vector2(float(x) + 0.5, float(y) + 0.5))
-				var low_bias := 1.0 - clampf(height / MapViewMeshBuilderConfig.HEIGHT_BROAD_AMPLITUDE, 0.0, 1.0)
-				puddle_chance *= lerpf(0.65, 1.0, low_bias * MapViewMeshBuilderConfig.PUDDLE_LOW_HEIGHT_BIAS)
-				if MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1907) < puddle_chance:
-					var puddle_scale_x := 0.42 + MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1913) * 0.62
-					var puddle_scale_z := 0.38 + MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1919) * 0.68
-					puddles.append(_scatter_transform_elliptical(field, x, y, definition.seed + 1921, puddle_scale_x, puddle_scale_z))
-					var puddle_tint := 0.9 + MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1929) * 0.14
+				var height := MapViewMeshBuilderTerrain.field_height(
+					field, Vector2(float(x) + 0.5, float(y) + 0.5)
+				)
+				var low_bias := (
+					1.0 - clampf(height / MapViewMeshBuilderConfig.HEIGHT_BROAD_AMPLITUDE, 0.0, 1.0)
+				)
+				puddle_chance *= lerpf(
+					0.65, 1.0, low_bias * MapViewMeshBuilderConfig.PUDDLE_LOW_HEIGHT_BIAS
+				)
+				if (
+					MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1907)
+					< puddle_chance
+				):
+					var puddle_scale_x := (
+						0.42
+						+ MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1913) * 0.62
+					)
+					var puddle_scale_z := (
+						0.38
+						+ MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1919) * 0.68
+					)
+					puddles.append(
+						_scatter_transform_elliptical(
+							field, x, y, definition.seed + 1921, puddle_scale_x, puddle_scale_z
+						)
+					)
+					var puddle_tint := (
+						0.9
+						+ MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1929) * 0.14
+					)
 					puddle_colors.append(Color(puddle_tint, puddle_tint, puddle_tint + 0.03))
 
-			var hay_stubble_chance := float(MapViewMeshBuilderConfig.SCATTER_HAY_STUBBLE_CHANCE.get(terrain, 0.0))
-			if MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 4211) < hay_stubble_chance:
+			var hay_stubble_chance := float(
+				MapViewMeshBuilderConfig.SCATTER_HAY_STUBBLE_CHANCE.get(terrain, 0.0)
+			)
+			if (
+				MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 4211)
+				< hay_stubble_chance
+			):
 				var stubble_scale := Vector3(
 					0.58 + MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 4217) * 0.24,
 					0.38 + MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 4229) * 0.32,
 					0.58 + MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 4231) * 0.24
 				)
-				hay_stubble.append(_scatter_transform_scaled(field, x, y, definition.seed + 4237, stubble_scale))
-				var straw_tone := 0.78 + MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 4241) * 0.24
+				hay_stubble.append(
+					_scatter_transform_scaled(field, x, y, definition.seed + 4237, stubble_scale)
+				)
+				var straw_tone := (
+					0.78 + MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 4241) * 0.24
+				)
 				hay_stubble_colors.append(Color(straw_tone, straw_tone * 0.94, straw_tone * 0.74))
 
-			var small_chance := float(MapViewMeshBuilderConfig.SCATTER_SMALL_GRASS_CHANCE.get(terrain, 0.0))
+			var small_chance := float(
+				MapViewMeshBuilderConfig.SCATTER_SMALL_GRASS_CHANCE.get(terrain, 0.0)
+			)
 			small_chance *= float(profile.get("small_chance_scale", 1.0)) * density
 			if MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 4242) < small_chance:
 				var small_min := float(profile.get("small_height_min", 0.34))
 				var small_max := float(profile.get("small_height_max", 0.62))
-				small_grass.append(_scatter_transform(field, x, y, definition.seed + 511, small_min, small_max))
-				var green := 0.86 + MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 77) * 0.28
-				small_grass_colors.append(Color(green * 0.94 * tint.r, green * tint.g, green * 0.8 * tint.b))
+				small_grass.append(
+					_scatter_transform(field, x, y, definition.seed + 511, small_min, small_max)
+				)
+				var green := (
+					0.86 + MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 77) * 0.28
+				)
+				small_grass_colors.append(
+					Color(green * 0.94 * tint.r, green * tint.g, green * 0.8 * tint.b)
+				)
 
 			var large_chance := float(profile.get("large_chance", 0.0)) * density
 			if MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 4357) < large_chance:
 				var large_min := float(profile.get("large_height_min", 0.75))
 				var large_max := float(profile.get("large_height_max", 1.05))
-				large_grass.append(_scatter_transform(field, x, y, definition.seed + 607, large_min, large_max))
-				var large_green := 0.8 + MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 89) * 0.22
-				large_grass_colors.append(Color(large_green * 0.92 * tint.r, large_green * tint.g, large_green * 0.76 * tint.b))
+				large_grass.append(
+					_scatter_transform(field, x, y, definition.seed + 607, large_min, large_max)
+				)
+				var large_green := (
+					0.8 + MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 89) * 0.22
+				)
+				large_grass_colors.append(
+					Color(
+						large_green * 0.92 * tint.r,
+						large_green * tint.g,
+						large_green * 0.76 * tint.b
+					)
+				)
 
-			if MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1200) < float(profile.get("flower_chance", 0.0)) * density:
-				small_grass.append(_scatter_transform(field, x, y, definition.seed + 1271, 0.35, 0.55))
-				small_grass_colors.append(MapVisualStyle.role_color(&"flower", MapVisualStyle.TARGET_CLEAN_PAINTED, MapVisualStyle.TIME_DAY))
-			if MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1400) < float(profile.get("clover_chance", 0.0)) * density:
+			if (
+				MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1200)
+				< float(profile.get("flower_chance", 0.0)) * density
+			):
+				small_grass.append(
+					_scatter_transform(field, x, y, definition.seed + 1271, 0.35, 0.55)
+				)
+				small_grass_colors.append(
+					MapVisualStyle.role_color(
+						&"flower", MapVisualStyle.TARGET_CLEAN_PAINTED, MapVisualStyle.TIME_DAY
+					)
+				)
+			if (
+				MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1400)
+				< float(profile.get("clover_chance", 0.0)) * density
+			):
 				clovers.append(_scatter_transform(field, x, y, definition.seed + 1450, 0.7, 1.0))
 				clover_colors.append(Color(0.62, 0.86, 0.48))
-			if MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1300) < float(profile.get("fern_chance", 0.0)) * density:
-				large_grass.append(_scatter_transform(field, x, y, definition.seed + 1310, 0.5, 0.82))
+			if (
+				MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1300)
+				< float(profile.get("fern_chance", 0.0)) * density
+			):
+				large_grass.append(
+					_scatter_transform(field, x, y, definition.seed + 1310, 0.5, 0.82)
+				)
 				large_grass_colors.append(Color(0.48, 0.72, 0.42))
-			if MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1600) < float(profile.get("reed_chance", 0.0)) * density:
+			if (
+				MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1600)
+				< float(profile.get("reed_chance", 0.0)) * density
+			):
 				for reed_index in 2:
-					reeds.append(_scatter_transform(field, x, y, definition.seed + 1800 + reed_index, 0.9, 1.35))
-					reed_colors.append(Color(0.72, 0.82, 0.58).lerp(Color(0.58, 0.74, 0.48), MapViewMeshBuilderPrimitives.hash01(x + reed_index, y, definition.seed + 1811)))
+					reeds.append(
+						_scatter_transform(
+							field, x, y, definition.seed + 1800 + reed_index, 0.9, 1.35
+						)
+					)
+					reed_colors.append(
+						Color(0.72, 0.82, 0.58).lerp(
+							Color(0.58, 0.74, 0.48),
+							MapViewMeshBuilderPrimitives.hash01(
+								x + reed_index, y, definition.seed + 1811
+							)
+						)
+					)
 
 			var plant_chance := float(profile.get("plant_chance", 0.0)) * density
-			if plant_chance > 0.0 and MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1867) < plant_chance:
+			if (
+				plant_chance > 0.0
+				and MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1867) < plant_chance
+			):
 				var plant_species: StringName = profile.get("plant_species", &"")
 				_append_scattered_plant(plant_batches, field, x, y, definition.seed, plant_species)
 
 			var bush_chance := float(profile.get("bush_chance", 0.0)) * density
 			if bush_chance <= 0.0:
 				bush_chance = (
-					float(profile.get("dense_bush_chance", 0.0)) + float(profile.get("scrub_bush_chance", 0.0))
-				) * density
-			if bush_chance > 0.0 and MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1500) < bush_chance:
+					(
+						float(profile.get("dense_bush_chance", 0.0))
+						+ float(profile.get("scrub_bush_chance", 0.0))
+					)
+					* density
+				)
+			if (
+				bush_chance > 0.0
+				and MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1500) < bush_chance
+			):
 				var bush_variant: StringName = profile.get("bush_variant", variant)
 				if bush_variant.is_empty():
 					bush_variant = (
@@ -158,31 +262,48 @@ static func build_scatter(
 					profile.get("bush_species", &"")
 				)
 
-			var tree_chance := float(profile.get("tree_chance", MapViewMeshBuilderConfig.SCATTER_TREE_CHANCE.get(terrain, 0.0))) * density
+			var tree_chance := (
+				float(
+					profile.get(
+						"tree_chance",
+						MapViewMeshBuilderConfig.SCATTER_TREE_CHANCE.get(terrain, 0.0)
+					)
+				)
+				* density
+			)
 			if MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 2309) < tree_chance:
 				var tree_variant: StringName = profile.get("tree_variant", variant)
 				if tree_variant.is_empty() and TerrainVegetation.is_tree_variant(variant):
 					tree_variant = variant
 				elif tree_variant.is_empty():
 					tree_variant = TerrainVegetation.VARIANT_TREE_MIXED
-				_append_scattered_tree(
-					tree_batches,
-					field,
-					x,
-					y,
-					definition.seed,
-					tree_variant
-				)
+				_append_scattered_tree(tree_batches, field, x, y, definition.seed, tree_variant)
 
-			var stone_chance := float(MapViewMeshBuilderConfig.SCATTER_STONE_CHANCE.get(terrain, 0.0))
+			var stone_chance := float(
+				MapViewMeshBuilderConfig.SCATTER_STONE_CHANCE.get(terrain, 0.0)
+			)
 			if MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 913) < stone_chance:
 				stones.append(_scatter_transform(field, x, y, definition.seed + 947, 0.6, 1.6))
-				var gray := 0.8 + MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 154) * 0.35
+				var gray := (
+					0.8 + MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 154) * 0.35
+				)
 				stone_colors.append(Color(gray, gray, gray * 0.97))
 
-	_add_grass_layer(root, "SmallGrass", small_grass, small_grass_colors, MapViewMeshBuilderPrimitives.grass_tuft_mesh())
+	_add_grass_layer(
+		root,
+		"SmallGrass",
+		small_grass,
+		small_grass_colors,
+		MapViewMeshBuilderPrimitives.grass_tuft_mesh()
+	)
 	_add_hay_stubble_layer(root, hay_stubble, hay_stubble_colors)
-	_add_grass_layer(root, "LargeGrass", large_grass, large_grass_colors, MapViewMeshBuilderPrimitives.grass_tuft_mesh())
+	_add_grass_layer(
+		root,
+		"LargeGrass",
+		large_grass,
+		large_grass_colors,
+		MapViewMeshBuilderPrimitives.grass_tuft_mesh()
+	)
 
 	if not bush_batches.is_empty():
 		_emit_bush_batches(root, bush_batches)
@@ -191,14 +312,27 @@ static func build_scatter(
 		_emit_tree_batches(root, tree_batches)
 
 	if not reeds.is_empty():
-		_add_grass_layer(root, "Reeds", reeds, reed_colors, MapViewMeshBuilderPrimitives.reed_stem_mesh())
+		_add_grass_layer(
+			root, "Reeds", reeds, reed_colors, MapViewMeshBuilderPrimitives.reed_stem_mesh()
+		)
 	if not cattails.is_empty():
 		_add_cattail_layer(root, cattails, cattail_colors)
 	if not clovers.is_empty():
-		var clover_instances := MapViewMeshBuilderPrimitives.multi_mesh("Clovers", MapViewMeshBuilderPrimitives.clover_patch_mesh(), clovers, clover_colors, MapViewMaterials.foliage_tuft(), Vector3(0.0, 0.02, 0.0))
+		var clover_instances := MapViewMeshBuilderPrimitives.multi_mesh(
+			"Clovers",
+			MapViewMeshBuilderPrimitives.clover_patch_mesh(),
+			clovers,
+			clover_colors,
+			MapViewMaterials.foliage_tuft(),
+			Vector3(0.0, 0.02, 0.0)
+		)
 		clover_instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		clover_instances.visibility_range_end = MapViewMeshBuilderConfig.SCATTER_GRASS_VISIBILITY_RANGE
-		clover_instances.visibility_range_end_margin = MapViewMeshBuilderConfig.SCATTER_GRASS_VISIBILITY_RANGE_MARGIN
+		clover_instances.visibility_range_end = (
+			MapViewMeshBuilderConfig.SCATTER_GRASS_VISIBILITY_RANGE
+		)
+		clover_instances.visibility_range_end_margin = (
+			MapViewMeshBuilderConfig.SCATTER_GRASS_VISIBILITY_RANGE_MARGIN
+		)
 		root.add_child(clover_instances)
 
 	if not plant_batches.is_empty():
@@ -210,7 +344,14 @@ static func build_scatter(
 		# The shader discards the square plane into an organic waterline. A little
 		# extra lift prevents the transparent rim from z-fighting without making the
 		# water hover above cobbles when seen from the close camera.
-		var puddle_instances := MapViewMeshBuilderPrimitives.multi_mesh("Puddles", puddle_mesh, puddles, puddle_colors, MapViewMaterials.puddle_surface(), Vector3(0.0, 0.006, 0.0))
+		var puddle_instances := MapViewMeshBuilderPrimitives.multi_mesh(
+			"Puddles",
+			puddle_mesh,
+			puddles,
+			puddle_colors,
+			MapViewMaterials.puddle_surface(),
+			Vector3(0.0, 0.006, 0.0)
+		)
 		puddle_instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		puddle_instances.sorting_offset = 0.5
 		root.add_child(puddle_instances)
@@ -221,7 +362,16 @@ static func build_scatter(
 		stone_mesh.height = 0.11
 		stone_mesh.radial_segments = 8
 		stone_mesh.rings = 4
-		root.add_child(MapViewMeshBuilderPrimitives.multi_mesh("Stones", stone_mesh, stones, stone_colors, MapViewMaterials.natural_rock(), Vector3(0.0, 0.03, 0.0)))
+		root.add_child(
+			MapViewMeshBuilderPrimitives.multi_mesh(
+				"Stones",
+				stone_mesh,
+				stones,
+				stone_colors,
+				MapViewMaterials.natural_rock(),
+				Vector3(0.0, 0.03, 0.0)
+			)
+		)
 	Shoreline3D.add_to(root, definition, grid, bounds)
 	return root
 
@@ -264,8 +414,7 @@ static func _append_scattered_bush(
 	)
 	(batch["colors"] as Array).append(
 		BushSpecies.instance_tint(
-			species,
-			MapViewMeshBuilderPrimitives.hash01(x, y, map_seed + 1747)
+			species, MapViewMeshBuilderPrimitives.hash01(x, y, map_seed + 1747)
 		)
 	)
 
@@ -303,12 +452,7 @@ static func _emit_bush_batches(root: Node3D, batches: Dictionary) -> void:
 
 ## Collect one concrete botanical species into its own cached MultiMesh batch.
 static func _append_scattered_plant(
-	batches: Dictionary,
-	field: Dictionary,
-	x: int,
-	y: int,
-	map_seed: int,
-	species: StringName
+	batches: Dictionary, field: Dictionary, x: int, y: int, map_seed: int, species: StringName
 ) -> void:
 	if not PlantSpecies.is_known_species(species):
 		return
@@ -326,8 +470,7 @@ static func _append_scattered_plant(
 	)
 	(batch["colors"] as Array).append(
 		PlantSpecies.instance_tint(
-			species,
-			MapViewMeshBuilderPrimitives.hash01(x, y, map_seed + 1889)
+			species, MapViewMeshBuilderPrimitives.hash01(x, y, map_seed + 1889)
 		)
 	)
 
@@ -361,42 +504,31 @@ static func _emit_plant_batches(root: Node3D, batches: Dictionary) -> void:
 ## cached geometry preserves branch architecture while keeping three draw calls
 ## at most per visible species: wood, leaves, and optional fruit.
 static func _append_scattered_tree(
-	batches: Dictionary,
-	field: Dictionary,
-	x: int,
-	y: int,
-	map_seed: int,
-	tree_variant: StringName
+	batches: Dictionary, field: Dictionary, x: int, y: int, map_seed: int, tree_variant: StringName
 ) -> void:
 	var parsed: Dictionary = MapViewTreeSpecies.parse_variant(tree_variant)
 	var weights := MapViewTreeSpecies.weights_for_variant(tree_variant)
 	var species := MapViewTreeSpecies.pick_species(
-		weights,
-		MapViewMeshBuilderPrimitives.hash01(x, y, map_seed + 2371)
+		weights, MapViewMeshBuilderPrimitives.hash01(x, y, map_seed + 2371)
 	)
 	var pinned_size: StringName = parsed.get("size", &"")
 	# Pinned size from tree.oak.large; otherwise roll the natural size mix.
-	if pinned_size == MapViewTreeSpecies.SIZE_MEDIUM and not String(tree_variant).ends_with(".medium"):
+	if (
+		pinned_size == MapViewTreeSpecies.SIZE_MEDIUM
+		and not String(tree_variant).ends_with(".medium")
+	):
 		# Default parse size is medium; treat as unpinned unless the author
 		# wrote an explicit size suffix.
 		var parts := String(tree_variant).split(".")
 		if parts.size() < 3:
 			pinned_size = &""
 	var size_class := MapViewTreeSpecies.pick_size(
-		MapViewMeshBuilderPrimitives.hash01(x, y, map_seed + 2393),
-		pinned_size
+		MapViewMeshBuilderPrimitives.hash01(x, y, map_seed + 2393), pinned_size
 	)
 	var scale_vec := MapViewTreeSpecies.instance_scale(
-		size_class,
-		MapViewMeshBuilderPrimitives.hash01(x, y, map_seed + 2311 + 29)
+		size_class, MapViewMeshBuilderPrimitives.hash01(x, y, map_seed + 2311 + 29)
 	)
-	var tree_transform := _scatter_transform_scaled(
-		field,
-		x,
-		y,
-		map_seed + 2311,
-		scale_vec
-	)
+	var tree_transform := _scatter_transform_scaled(field, x, y, map_seed + 2311, scale_vec)
 	_push_tree_instance(
 		batches,
 		species,
@@ -491,22 +623,25 @@ static func _emit_tree_batches(root: Node3D, batches: Dictionary) -> void:
 				material = MapViewMaterials.canopy(MapViewTreeSpecies.canopy_material_kind(species))
 				layer_name = "Trees_%s" % String(species).capitalize()
 		var instances := MapViewMeshBuilderPrimitives.multi_mesh(
-			layer_name,
-			mesh,
-			typed_transforms,
-			typed_colors,
-			material,
-			Vector3.ZERO
+			layer_name, mesh, typed_transforms, typed_colors, material, Vector3.ZERO
 		)
 		if layer == &"fruit":
 			instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		root.add_child(instances)
 
 
-static func _add_grass_layer(root: Node3D, layer_name: String, transforms: Array[Transform3D], colors: Array[Color], mesh: Mesh) -> void:
+static func _add_grass_layer(
+	root: Node3D,
+	layer_name: String,
+	transforms: Array[Transform3D],
+	colors: Array[Color],
+	mesh: Mesh
+) -> void:
 	if transforms.is_empty():
 		return
-	var instances := MapViewMeshBuilderPrimitives.multi_mesh(layer_name, mesh, transforms, colors, MapViewMaterials.grass_blades(), Vector3.ZERO)
+	var instances := MapViewMeshBuilderPrimitives.multi_mesh(
+		layer_name, mesh, transforms, colors, MapViewMaterials.grass_blades(), Vector3.ZERO
+	)
 	# Paper-thin wind-animated blades flicker in directional shadow maps.
 	instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	# Cull distant grass instances that are invisible to the camera. The scatter
@@ -514,13 +649,15 @@ static func _add_grass_layer(root: Node3D, layer_name: String, transforms: Array
 	# instance is submitted to the GPU even when far off-screen, tanking FPS on
 	# vegetation-heavy maps (e.g. workers district reval_east).
 	instances.visibility_range_end = MapViewMeshBuilderConfig.SCATTER_GRASS_VISIBILITY_RANGE
-	instances.visibility_range_end_margin = MapViewMeshBuilderConfig.SCATTER_GRASS_VISIBILITY_RANGE_MARGIN
+	instances.visibility_range_end_margin = (
+		MapViewMeshBuilderConfig.SCATTER_GRASS_VISIBILITY_RANGE_MARGIN
+	)
 	root.add_child(instances)
 
 
-
-
-static func _add_hay_stubble_layer(root: Node3D, transforms: Array[Transform3D], colors: Array[Color]) -> void:
+static func _add_hay_stubble_layer(
+	root: Node3D, transforms: Array[Transform3D], colors: Array[Color]
+) -> void:
 	if transforms.is_empty():
 		return
 	var instances := MapViewMeshBuilderPrimitives.multi_mesh(
@@ -533,14 +670,14 @@ static func _add_hay_stubble_layer(root: Node3D, transforms: Array[Transform3D],
 	)
 	instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	instances.visibility_range_end = MapViewMeshBuilderConfig.SCATTER_GRASS_VISIBILITY_RANGE
-	instances.visibility_range_end_margin = MapViewMeshBuilderConfig.SCATTER_GRASS_VISIBILITY_RANGE_MARGIN
+	instances.visibility_range_end_margin = (
+		MapViewMeshBuilderConfig.SCATTER_GRASS_VISIBILITY_RANGE_MARGIN
+	)
 	root.add_child(instances)
 
 
 static func _add_cattail_layer(
-	root: Node3D,
-	transforms: Array[Transform3D],
-	colors: Array[Color]
+	root: Node3D, transforms: Array[Transform3D], colors: Array[Color]
 ) -> void:
 	# Unlike generic wind grass, cattails carry per-vertex leaf and seed-head
 	# colors, so a lightweight vertex-colored material preserves both silhouettes.
@@ -564,17 +701,18 @@ static func _add_cattail_layer(
 ## Deterministic placement helpers shared by all terrain scatter layers.
 
 
-static func _scatter_transform(field: Dictionary, x: int, y: int, noise_seed: int, scale_min: float, scale_max: float) -> Transform3D:
-	var scale := scale_min + MapViewMeshBuilderPrimitives.hash01(x, y, noise_seed + 29) * (scale_max - scale_min)
+static func _scatter_transform(
+	field: Dictionary, x: int, y: int, noise_seed: int, scale_min: float, scale_max: float
+) -> Transform3D:
+	var scale := (
+		scale_min
+		+ MapViewMeshBuilderPrimitives.hash01(x, y, noise_seed + 29) * (scale_max - scale_min)
+	)
 	return _scatter_transform_scaled(field, x, y, noise_seed, Vector3.ONE * scale)
 
 
 static func _scatter_transform_scaled(
-	field: Dictionary,
-	x: int,
-	y: int,
-	noise_seed: int,
-	scale: Vector3
+	field: Dictionary, x: int, y: int, noise_seed: int, scale: Vector3
 ) -> Transform3D:
 	var offset := Vector2(
 		MapViewMeshBuilderPrimitives.hash01(x, y, noise_seed + 7) * 0.9 + 0.05,
@@ -583,16 +721,13 @@ static func _scatter_transform_scaled(
 	var yaw := MapViewMeshBuilderPrimitives.hash01(x, y, noise_seed + 41) * TAU
 	var basis := Basis(Vector3.UP, yaw).scaled(scale)
 	var spot := Vector2(float(x) + offset.x, float(y) + offset.y)
-	return Transform3D(basis, Vector3(spot.x, MapViewMeshBuilderTerrain.field_height(field, spot), spot.y))
+	return Transform3D(
+		basis, Vector3(spot.x, MapViewMeshBuilderTerrain.field_height(field, spot), spot.y)
+	)
 
 
 static func _scatter_transform_elliptical(
-	field: Dictionary,
-	x: int,
-	y: int,
-	noise_seed: int,
-	scale_x: float,
-	scale_z: float
+	field: Dictionary, x: int, y: int, noise_seed: int, scale_x: float, scale_z: float
 ) -> Transform3D:
 	var offset := Vector2(
 		MapViewMeshBuilderPrimitives.hash01(x, y, noise_seed + 7) * 0.9 + 0.05,
@@ -601,4 +736,6 @@ static func _scatter_transform_elliptical(
 	var yaw := MapViewMeshBuilderPrimitives.hash01(x, y, noise_seed + 41) * TAU
 	var basis := Basis(Vector3.UP, yaw).scaled(Vector3(scale_x, 1.0, scale_z))
 	var spot := Vector2(float(x) + offset.x, float(y) + offset.y)
-	return Transform3D(basis, Vector3(spot.x, MapViewMeshBuilderTerrain.field_height(field, spot), spot.y))
+	return Transform3D(
+		basis, Vector3(spot.x, MapViewMeshBuilderTerrain.field_height(field, spot), spot.y)
+	)

@@ -129,8 +129,7 @@ func _apply_item_slot(button: Button, item_id: StringName) -> void:
 
 	var category := String(record.get("category", ""))
 	var tint: Color = InventoryUiThemeScene.CATEGORY_COLORS.get(
-		category,
-		InventoryUiThemeScene.SLOT_FILLED
+		category, InventoryUiThemeScene.SLOT_FILLED
 	)
 	_apply_filled_slot_style(button, tint)
 

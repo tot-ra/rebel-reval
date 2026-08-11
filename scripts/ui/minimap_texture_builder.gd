@@ -6,20 +6,13 @@ extends RefCounted
 
 static func build_image(definition: MapDefinition, grid: MapTerrainGrid) -> Image:
 	var image := Image.create(
-		definition.size_cells.x,
-		definition.size_cells.y,
-		false,
-		Image.FORMAT_RGBA8
+		definition.size_cells.x, definition.size_cells.y, false, Image.FORMAT_RGBA8
 	)
 	var blocked := MapVerification.blocked_cells(definition)
 	for y in range(definition.size_cells.y):
 		for x in range(definition.size_cells.x):
 			var cell := Vector2i(x, y)
-			image.set_pixel(
-				x,
-				y,
-				MinimapPalette.color_for_cell(definition, grid, cell, blocked)
-			)
+			image.set_pixel(x, y, MinimapPalette.color_for_cell(definition, grid, cell, blocked))
 	_paint_transitions(definition, image)
 	return image
 
@@ -29,8 +22,7 @@ static func world_to_normalized(definition: MapDefinition, world_pos: Vector2) -
 	if world_size.x <= 0.0 or world_size.y <= 0.0:
 		return Vector2.ZERO
 	return Vector2(
-		clampf(world_pos.x / world_size.x, 0.0, 1.0),
-		clampf(world_pos.y / world_size.y, 0.0, 1.0)
+		clampf(world_pos.x / world_size.x, 0.0, 1.0), clampf(world_pos.y / world_size.y, 0.0, 1.0)
 	)
 
 

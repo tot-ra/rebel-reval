@@ -1,11 +1,6 @@
 class_name DebugStatePresets
 extends RefCounted
 
-## Loads authored debug presets and applies deterministic GameState jumps for
-## slice phase and branch testing (P1-009). Presets never mutate save files.
-
-const MANIFEST_PATH := "res://content/debug/debug_state_presets.json"
-
 enum Result {
 	OK,
 	MANIFEST_MISSING,
@@ -15,12 +10,16 @@ enum Result {
 	STATE_APPLY_FAILED,
 }
 
+## Loads authored debug presets and applies deterministic GameState jumps for
+## slice phase and branch testing (P1-009). Presets never mutate save files.
+
+const MANIFEST_PATH := "res://content/debug/debug_state_presets.json"
+
 var _presets_by_id: Dictionary = {}
 var _ordered_ids: Array[String] = []
 var _evaluator: StateRuleEvaluator = StateRuleEvaluator.new()
 var _last_result := Result.OK
 var _last_error := ""
-
 
 func load_manifest() -> bool:
 	_presets_by_id.clear()
@@ -62,8 +61,7 @@ func load_manifest() -> bool:
 			return _fail(Result.MANIFEST_INVALID, "duplicate debug preset id %s" % preset_id)
 		if not preset.has("fixture") and not preset.has("game_state"):
 			return _fail(
-				Result.MANIFEST_INVALID,
-				"preset %s requires fixture or game_state" % preset_id
+				Result.MANIFEST_INVALID, "preset %s requires fixture or game_state" % preset_id
 			)
 		seen[preset_id] = true
 		_presets_by_id[preset_id] = preset.duplicate(true)

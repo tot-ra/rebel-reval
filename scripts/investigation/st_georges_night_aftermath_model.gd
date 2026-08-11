@@ -52,9 +52,7 @@ static func is_aftermath_visible(state: GameState) -> bool:
 
 
 static func commit_climax_choice(
-	state: GameState,
-	content_db: ContentDB,
-	transition_id: StringName
+	state: GameState, content_db: ContentDB, transition_id: StringName
 ) -> bool:
 	if state == null or content_db == null or transition_id.is_empty():
 		return false

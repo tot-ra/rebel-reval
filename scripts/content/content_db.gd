@@ -66,10 +66,15 @@ func load_from_directories(directories: Array[String]) -> bool:
 		var record: Dictionary = _read_json_object(path)
 		if record.is_empty() and not _load_errors.is_empty():
 			return false
-		staged.append({
-			"path": path,
-			"record": record,
-		})
+		(
+			staged
+			. append(
+				{
+					"path": path,
+					"record": record,
+				}
+			)
+		)
 
 	var seen_ids: Dictionary = {}
 	var candidate_records: Dictionary = {}
@@ -84,8 +89,10 @@ func load_from_directories(directories: Array[String]) -> bool:
 		var content_id := StringName(String(record["id"]))
 		if seen_ids.has(content_id):
 			_load_errors.append(
-				"%s: duplicate global content id %s (first in %s)"
-				% [path, String(content_id), String(seen_ids[content_id])]
+				(
+					"%s: duplicate global content id %s (first in %s)"
+					% [path, String(content_id), String(seen_ids[content_id])]
+				)
 			)
 			return false
 		seen_ids[content_id] = path
@@ -248,7 +255,11 @@ func _read_json_object(path: String) -> Dictionary:
 
 
 func _validate_record_shape(record: Dictionary, path: String) -> String:
-	if not record.has("type") or typeof(record["type"]) != TYPE_STRING or String(record["type"]).is_empty():
+	if (
+		not record.has("type")
+		or typeof(record["type"]) != TYPE_STRING
+		or String(record["type"]).is_empty()
+	):
 		return "%s: missing or invalid type field" % path
 	if not record.has("id") or typeof(record["id"]) != TYPE_STRING:
 		return "%s: missing or invalid id field" % path
@@ -261,7 +272,9 @@ func _validate_record_shape(record: Dictionary, path: String) -> String:
 	if expected_type.is_empty():
 		return "%s: unknown content id prefix for %s" % [path, content_id]
 	if String(record["type"]) != expected_type:
-		return "%s: id prefix implies type %s, got %s" % [path, expected_type, String(record["type"])]
+		return (
+			"%s: id prefix implies type %s, got %s" % [path, expected_type, String(record["type"])]
+		)
 	return ""
 
 

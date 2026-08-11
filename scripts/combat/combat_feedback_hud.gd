@@ -1,6 +1,6 @@
-extends CanvasLayer
-
 class_name CombatFeedbackHud
+
+extends CanvasLayer
 
 ## Readable combat feedback for the P1-024 test room. Always visible in that
 ## scene so outcomes do not rely on a hotkey alone.
@@ -16,7 +16,6 @@ var _controls_label: Label
 var _log_lines: PackedStringArray = PackedStringArray()
 var _pending_title := ""
 var _pending_controls := ""
-
 
 func _ready() -> void:
 	layer = 40
@@ -130,7 +129,7 @@ func _build_ui() -> void:
 		+ "Guard / parry: F or right mouse / gamepad LB\n"
 		+ "Dodge: Q / gamepad RB\n"
 		+ "Iron: Quick-access Iron button (mouse)\n"
-		+ 		"Enemies: approach Watchman (gold) or Sergeant (magenta)\n"
+		+ "Enemies: approach Watchman (gold) or Sergeant (magenta)\n"
 		+ "Non-lethal: Surrender / Escape / Bypass buttons (mouse)\n"
 		+ "Reset: Reset room button"
 	)

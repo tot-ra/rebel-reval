@@ -95,7 +95,9 @@ func _run() -> void:
 		_fail("loaded location_id does not match saved forge state")
 		return
 
-	DoorNavigator.go_to_scene(SessionState.state.player.location_id, SessionState.state.player.spawn_id)
+	DoorNavigator.go_to_scene(
+		SessionState.state.player.location_id, SessionState.state.player.spawn_id
+	)
 	forge = await _wait_for_scene(&"forge")
 	if forge == null:
 		_fail("load resume did not return to forge")
@@ -108,7 +110,11 @@ func _run() -> void:
 
 func _clear_smoke_slot() -> void:
 	var service := SessionState.save_service
-	for path in [service.slot_path(SMOKE_SLOT), service.backup_path(SMOKE_SLOT), service.temp_path(SMOKE_SLOT)]:
+	for path in [
+		service.slot_path(SMOKE_SLOT),
+		service.backup_path(SMOKE_SLOT),
+		service.temp_path(SMOKE_SLOT)
+	]:
 		if FileAccess.file_exists(path):
 			DirAccess.remove_absolute(path)
 

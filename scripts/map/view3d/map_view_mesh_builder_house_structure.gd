@@ -4,16 +4,14 @@ extends RefCounted
 ## Wall construction details and plinths shared by ordinary houses.
 
 const _Styles := preload("res://scripts/map/view3d/map_view_mesh_builder_house_styles.gd")
-const _RoofDressing := preload("res://scripts/map/view3d/map_view_mesh_builder_house_roof_dressing.gd")
+const _RoofDressing := preload(
+	"res://scripts/map/view3d/map_view_mesh_builder_house_roof_dressing.gd"
+)
 const _Rural := preload("res://scripts/map/view3d/map_view_rural_dwelling_models.gd")
 
 
 static func add_house_structure(
-	root: Node3D,
-	building: Dictionary,
-	size: Vector2,
-	height: float,
-	along_ridge_x: bool
+	root: Node3D, building: Dictionary, size: Vector2, height: float, along_ridge_x: bool
 ) -> void:
 	var style := _Styles.house_style(building)
 	if _Rural.is_rural_1343(building):
@@ -39,6 +37,7 @@ static func add_house_structure(
 			# 1343 Reval (see docs/HISTORICAL_AUDIT.md Building Materials Mix).
 			_add_plaster_timber_posts(root, size, height)
 	_RoofDressing.add_roof_trim(root, building, size, height, along_ridge_x)
+
 
 static func _add_rural_packing_stones(root: Node3D, size: Vector2) -> void:
 	var half := size * 0.5

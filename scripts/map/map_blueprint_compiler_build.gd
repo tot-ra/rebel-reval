@@ -42,14 +42,18 @@ static func build_definition(blueprint: MapBlueprint, expanded: Dictionary) -> M
 	var spawns: Array = expanded["spawns"]
 	spawns.sort_custom(MapBlueprintCompiler._compare_id_records)
 	if spawns.size() == 1:
-		definition.player_spawn = MapBlueprintCompiler._placement_position(spawns[0], definition.cell_size)
+		definition.player_spawn = MapBlueprintCompiler._placement_position(
+			spawns[0], definition.cell_size
+		)
 		definition.set_meta("player_spawn_id", spawns[0]["id"])
 	elif spawns.is_empty():
 		# MapDefinition treats Vector2.ZERO as missing, so source validation keeps
 		# this error tied to the authored primitive rather than a runtime index.
 		definition.player_spawn = Vector2.ZERO
 	else:
-		definition.player_spawn = MapBlueprintCompiler._placement_position(spawns[0], definition.cell_size)
+		definition.player_spawn = MapBlueprintCompiler._placement_position(
+			spawns[0], definition.cell_size
+		)
 
 	var transitions: Array = expanded["transitions"]
 	transitions.sort_custom(MapBlueprintCompiler._compare_id_records)
@@ -106,16 +110,47 @@ static func build_definition(blueprint: MapBlueprint, expanded: Dictionary) -> M
 	definition.source_references = blueprint.source_references.duplicate()
 	definition.source_references.sort()
 	definition.surroundings_sides = blueprint.surroundings_sides.duplicate()
-	definition.surroundings_town_sides = _town_sides_from_surroundings(definition.surroundings_sides)
-	var camera_cells := blueprint.authored_camera_bounds if blueprint.has_authored_camera_bounds else Rect2i(Vector2i.ZERO, blueprint.size_cells)
+	definition.surroundings_town_sides = _town_sides_from_surroundings(
+		definition.surroundings_sides
+	)
+	var camera_cells := (
+		blueprint.authored_camera_bounds
+		if blueprint.has_authored_camera_bounds
+		else Rect2i(Vector2i.ZERO, blueprint.size_cells)
+	)
 	definition.camera_bounds = definition.cell_rect_to_world_rect(camera_cells)
 	definition.fingerprint = _fingerprint(definition)
 	return definition
 
 
 static func _compile_building(values: Dictionary, definition: MapDefinition) -> Dictionary:
-	var output := {"id": values["id"], "kind": values["kind"], "footprint": definition.cell_rect_to_world_rect(values["rect"])}
-	_copy_fields(values, output, [&"wall_height", &"wall_height_scale", &"wall_color", &"roof_color", &"door_side", &"ridge_axis", &"wall_walk_axis", &"interior_side", &"primitive", &"tower", &"round_tower", &"persistent", &"wall_material", &"roof_material", &"house_tier", &"faction"])
+	var output := {
+		"id": values["id"],
+		"kind": values["kind"],
+		"footprint": definition.cell_rect_to_world_rect(values["rect"])
+	}
+	_copy_fields(
+		values,
+		output,
+		[
+			&"wall_height",
+			&"wall_height_scale",
+			&"wall_color",
+			&"roof_color",
+			&"door_side",
+			&"ridge_axis",
+			&"wall_walk_axis",
+			&"interior_side",
+			&"primitive",
+			&"tower",
+			&"round_tower",
+			&"persistent",
+			&"wall_material",
+			&"roof_material",
+			&"house_tier",
+			&"faction"
+		]
+	)
 	return output
 
 
@@ -125,7 +160,21 @@ static func _compile_prop(values: Dictionary, definition: MapDefinition) -> Dict
 		"kind": values["kind"],
 		"position": MapBlueprintCompiler._placement_position(values, definition.cell_size),
 	}
-	_copy_fields(values, output, [&"facing", &"style_variant", &"visual_offset_px", &"primitive", &"movement_speed_multiplier", &"vehicle_class", &"faction", &"display_goods", &"table_items"])
+	_copy_fields(
+		values,
+		output,
+		[
+			&"facing",
+			&"style_variant",
+			&"visual_offset_px",
+			&"primitive",
+			&"movement_speed_multiplier",
+			&"vehicle_class",
+			&"faction",
+			&"display_goods",
+			&"table_items"
+		]
+	)
 	if values.has("rect") and values["rect"] is Rect2i:
 		output["footprint"] = definition.cell_rect_to_world_rect(values["rect"])
 	return output
@@ -133,19 +182,36 @@ static func _compile_prop(values: Dictionary, definition: MapDefinition) -> Dict
 
 static func _compile_transition(values: Dictionary, definition: MapDefinition) -> Dictionary:
 	var output := {"id": values["id"], "rect": definition.cell_rect_to_world_rect(values["rect"])}
-	_copy_non_empty_names(values, output, [&"destination_scene_id", &"destination_spawn_id", &"spawn_id", &"building_id", &"transition_visual", &"view_landmark_id", &"alignment"])
+	_copy_non_empty_names(
+		values,
+		output,
+		[
+			&"destination_scene_id",
+			&"destination_spawn_id",
+			&"spawn_id",
+			&"building_id",
+			&"transition_visual",
+			&"view_landmark_id",
+			&"alignment"
+		]
+	)
 	if values.has("spawn_offset_px"):
 		output["spawn_offset"] = values["spawn_offset_px"]
 	if bool(values.get("highlight_area", false)):
 		output["highlight_area"] = true
-	var transition_visual: StringName = values.get("transition_visual", MapTypes.TRANSITION_VISUAL_DOOR)
+	var transition_visual: StringName = values.get(
+		"transition_visual", MapTypes.TRANSITION_VISUAL_DOOR
+	)
 	if transition_visual != MapTypes.TRANSITION_VISUAL_DOOR:
 		output["transition_visual"] = transition_visual
 	return output
 
 
 static func _compile_anchor(values: Dictionary, definition: MapDefinition) -> Dictionary:
-	var output := {"id": values["id"], "position": MapBlueprintCompiler._placement_position(values, definition.cell_size)}
+	var output := {
+		"id": values["id"],
+		"position": MapBlueprintCompiler._placement_position(values, definition.cell_size)
+	}
 	if not String(values.get("kind", "")).is_empty():
 		output["kind"] = values["kind"]
 	return output
@@ -162,8 +228,24 @@ static func _compile_sign(values: Dictionary, definition: MapDefinition) -> Dict
 
 
 static func _compile_landmark(values: Dictionary, definition: MapDefinition) -> Dictionary:
-	var output := {"id": values["id"], "kind": values["kind"], "rect": definition.cell_rect_to_world_rect(values["rect"])}
-	_copy_fields(values, output, [&"wall_color", &"top_px", &"door_material", &"gate_variant", &"grille_variant", &"passage_axis", &"interior_side"])
+	var output := {
+		"id": values["id"],
+		"kind": values["kind"],
+		"rect": definition.cell_rect_to_world_rect(values["rect"])
+	}
+	_copy_fields(
+		values,
+		output,
+		[
+			&"wall_color",
+			&"top_px",
+			&"door_material",
+			&"gate_variant",
+			&"grille_variant",
+			&"passage_axis",
+			&"interior_side"
+		]
+	)
 	return output
 
 
@@ -178,13 +260,17 @@ static func _compile_decal(values: Dictionary, definition: MapDefinition) -> Dic
 	return output
 
 
-static func _copy_fields(source: Dictionary, destination: Dictionary, keys: Array[StringName]) -> void:
+static func _copy_fields(
+	source: Dictionary, destination: Dictionary, keys: Array[StringName]
+) -> void:
 	for key in keys:
 		if source.has(key):
 			destination[key] = source[key]
 
 
-static func _copy_non_empty_names(source: Dictionary, destination: Dictionary, keys: Array[StringName]) -> void:
+static func _copy_non_empty_names(
+	source: Dictionary, destination: Dictionary, keys: Array[StringName]
+) -> void:
 	for key in keys:
 		if source.has(key) and not String(source[key]).is_empty():
 			destination[key] = source[key]

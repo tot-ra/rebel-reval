@@ -7,26 +7,56 @@ extends RefCounted
 
 const SmithyCourtyard := preload("res://scripts/map/smithy_courtyard_definition.gd")
 const KalevSmithy := preload("res://scripts/map/definitions/lower_town/kalev_smithy_definition.gd")
-const LowerTownSlice := preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd")
-const MarketCivicQuarter := preload("res://scripts/map/definitions/prototypes/market_civic_quarter_definition.gd")
-const StOlafsGuildHall := preload("res://scripts/map/definitions/prototypes/st_olafs_guild_hall_definition.gd")
-const OlevisteChurch := preload("res://scripts/map/definitions/prototypes/oleviste_church_definition.gd")
-const HolySpiritChurch := preload("res://scripts/map/definitions/prototypes/holy_spirit_church_definition.gd")
+const LowerTownSlice := preload(
+	"res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd"
+)
+const MarketCivicQuarter := preload(
+	"res://scripts/map/definitions/prototypes/market_civic_quarter_definition.gd"
+)
+const StOlafsGuildHall := preload(
+	"res://scripts/map/definitions/prototypes/st_olafs_guild_hall_definition.gd"
+)
+const OlevisteChurch := preload(
+	"res://scripts/map/definitions/prototypes/oleviste_church_definition.gd"
+)
+const HolySpiritChurch := preload(
+	"res://scripts/map/definitions/prototypes/holy_spirit_church_definition.gd"
+)
 const TownHall := preload("res://scripts/map/definitions/prototypes/town_hall_definition.gd")
-const NorthQuarter := preload("res://scripts/map/definitions/prototypes/north_quarter_definition.gd")
-const MonasteryQuarter := preload("res://scripts/map/definitions/prototypes/monastery_quarter_definition.gd")
-const ArchbishopsGarden := preload("res://scripts/map/definitions/prototypes/archbishops_garden_definition.gd")
-const ToompeaQuarter := preload("res://scripts/map/definitions/prototypes/toompea_quarter_definition.gd")
-const SouthQuarter := preload("res://scripts/map/definitions/prototypes/south_quarter_definition.gd")
-const HarborWarehouse := preload("res://scripts/map/definitions/prototypes/harbor_warehouse_definition.gd")
-const ViruGateForeland := preload("res://scripts/map/definitions/outdoor/viru_gate_foreland_definition.gd")
-const RevalHarborNorth := preload("res://scripts/map/definitions/outdoor/reval_harbor_north_definition.gd")
-const RevalHarborEast := preload("res://scripts/map/definitions/outdoor/reval_harbor_east_definition.gd")
+const NorthQuarter := preload(
+	"res://scripts/map/definitions/prototypes/north_quarter_definition.gd"
+)
+const MonasteryQuarter := preload(
+	"res://scripts/map/definitions/prototypes/monastery_quarter_definition.gd"
+)
+const ArchbishopsGarden := preload(
+	"res://scripts/map/definitions/prototypes/archbishops_garden_definition.gd"
+)
+const ToompeaQuarter := preload(
+	"res://scripts/map/definitions/prototypes/toompea_quarter_definition.gd"
+)
+const SouthQuarter := preload(
+	"res://scripts/map/definitions/prototypes/south_quarter_definition.gd"
+)
+const HarborWarehouse := preload(
+	"res://scripts/map/definitions/prototypes/harbor_warehouse_definition.gd"
+)
+const ViruGateForeland := preload(
+	"res://scripts/map/definitions/outdoor/viru_gate_foreland_definition.gd"
+)
+const RevalHarborNorth := preload(
+	"res://scripts/map/definitions/outdoor/reval_harbor_north_definition.gd"
+)
+const RevalHarborEast := preload(
+	"res://scripts/map/definitions/outdoor/reval_harbor_east_definition.gd"
+)
 const Coast := preload("res://scripts/map/definitions/outdoor/coast_harbor_definitions.gd")
 const Villages := preload("res://scripts/map/definitions/outdoor/village_monastery_definitions.gd")
 const Castles := preload("res://scripts/map/definitions/outdoor/castle_definitions.gd")
 const Wilderness := preload("res://scripts/map/definitions/outdoor/wilderness_event_definitions.gd")
-const DistantLocations := preload("res://scripts/map/definitions/outdoor/distant_location_definitions.gd")
+const DistantLocations := preload(
+	"res://scripts/map/definitions/outdoor/distant_location_definitions.gd"
+)
 
 
 static func all() -> Array[MapDefinition]:

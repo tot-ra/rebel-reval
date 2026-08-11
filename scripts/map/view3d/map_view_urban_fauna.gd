@@ -12,7 +12,6 @@ const MammalMeshes := preload("res://scripts/map/view3d/map_view_mammal_meshes.g
 const MedievalAnimalModels := preload("res://scripts/map/view3d/map_view_medieval_animal_models.gd")
 const CatCoats := preload("res://assets/characters/cat/cat_coat_variants.gd")
 const MammalSpecies := preload("res://scripts/map/view3d/map_view_mammal_species.gd")
-
 const MAX_CONCURRENT_FAUNA := 8
 const FLEE_RADIUS := 5.5
 const FLEE_SPEED := 4.2
@@ -22,44 +21,95 @@ const SCURRY_SPEED := 1.35
 ## Tiny visual lift prevents sub-pixel terrain intersections from hiding small rats
 ## when the relief mesh and height-field sample differ at a cell boundary.
 const GROUND_CLEARANCE := 0.012
-
 const URBAN_SPECIES: Array[StringName] = [
 	MammalSpecies.SPECIES_CAT,
 	MammalSpecies.SPECIES_DOG,
 	MammalSpecies.SPECIES_HORSE,
 	MammalSpecies.SPECIES_RAT,
 ]
-
 const BEHAVIOR_TETHER := &"tether"
 const BEHAVIOR_WANDER := &"wander"
 const BEHAVIOR_IDLE := &"idle"
 const BEHAVIOR_FLEE := &"flee"
-
 ## Authored Lower Town placements in map cell coordinates beside service yards and
 ## patrol spines. Radii stay inside yards so actors never overlap quest anchors.
 const LOWER_TOWN_PLACEMENTS: Array[Dictionary] = [
-	{"cell": Vector2i(90, 70), "species": MammalSpecies.SPECIES_HORSE, "behavior": BEHAVIOR_TETHER, "radius": 2.4},
-	{"cell": Vector2i(74, 56), "species": MammalSpecies.SPECIES_DOG, "behavior": BEHAVIOR_WANDER, "radius": 3.6},
-	{"cell": Vector2i(80, 62), "species": MammalSpecies.SPECIES_CAT, "behavior": BEHAVIOR_WANDER, "radius": 2.2},
-	{"cell": Vector2i(66, 52), "species": MammalSpecies.SPECIES_RAT, "behavior": BEHAVIOR_FLEE, "radius": 2.8},
-	{"cell": Vector2i(85, 58), "species": MammalSpecies.SPECIES_CAT, "behavior": BEHAVIOR_IDLE, "radius": 1.2},
-	{"cell": Vector2i(72, 54), "species": MammalSpecies.SPECIES_DOG, "behavior": BEHAVIOR_WANDER, "radius": 3.2},
-	{"cell": Vector2i(68, 48), "species": MammalSpecies.SPECIES_RAT, "behavior": BEHAVIOR_FLEE, "radius": 2.4},
-	{"cell": Vector2i(92, 66), "species": MammalSpecies.SPECIES_HORSE, "behavior": BEHAVIOR_TETHER, "radius": 2.0},
+	{
+		"cell": Vector2i(90, 70),
+		"species": MammalSpecies.SPECIES_HORSE,
+		"behavior": BEHAVIOR_TETHER,
+		"radius": 2.4
+	},
+	{
+		"cell": Vector2i(74, 56),
+		"species": MammalSpecies.SPECIES_DOG,
+		"behavior": BEHAVIOR_WANDER,
+		"radius": 3.6
+	},
+	{
+		"cell": Vector2i(80, 62),
+		"species": MammalSpecies.SPECIES_CAT,
+		"behavior": BEHAVIOR_WANDER,
+		"radius": 2.2
+	},
+	{
+		"cell": Vector2i(66, 52),
+		"species": MammalSpecies.SPECIES_RAT,
+		"behavior": BEHAVIOR_FLEE,
+		"radius": 2.8
+	},
+	{
+		"cell": Vector2i(85, 58),
+		"species": MammalSpecies.SPECIES_CAT,
+		"behavior": BEHAVIOR_IDLE,
+		"radius": 1.2
+	},
+	{
+		"cell": Vector2i(72, 54),
+		"species": MammalSpecies.SPECIES_DOG,
+		"behavior": BEHAVIOR_WANDER,
+		"radius": 3.2
+	},
+	{
+		"cell": Vector2i(68, 48),
+		"species": MammalSpecies.SPECIES_RAT,
+		"behavior": BEHAVIOR_FLEE,
+		"radius": 2.4
+	},
+	{
+		"cell": Vector2i(92, 66),
+		"species": MammalSpecies.SPECIES_HORSE,
+		"behavior": BEHAVIOR_TETHER,
+		"radius": 2.0
+	},
 ]
-
 ## Knights' stable yard and court beside knights_hall. Authored west of the
 ## south_watch spine so horses never block King Street or Karja transitions.
 const SOUTH_QUARTER_PLACEMENTS: Array[Dictionary] = [
-	{"cell": Vector2i(249, 44), "species": MammalSpecies.SPECIES_HORSE, "behavior": BEHAVIOR_TETHER, "radius": 2.2},
-	{"cell": Vector2i(254, 46), "species": MammalSpecies.SPECIES_HORSE, "behavior": BEHAVIOR_TETHER, "radius": 2.0},
-	{"cell": Vector2i(275, 30), "species": MammalSpecies.SPECIES_DOG, "behavior": BEHAVIOR_WANDER, "radius": 2.8},
+	{
+		"cell": Vector2i(249, 44),
+		"species": MammalSpecies.SPECIES_HORSE,
+		"behavior": BEHAVIOR_TETHER,
+		"radius": 2.2
+	},
+	{
+		"cell": Vector2i(254, 46),
+		"species": MammalSpecies.SPECIES_HORSE,
+		"behavior": BEHAVIOR_TETHER,
+		"radius": 2.0
+	},
+	{
+		"cell": Vector2i(275, 30),
+		"species": MammalSpecies.SPECIES_DOG,
+		"behavior": BEHAVIOR_WANDER,
+		"radius": 2.8
+	},
 ]
-
 const MAP_PLACEMENTS: Dictionary = {
 	&"lower_town_slice": LOWER_TOWN_PLACEMENTS,
 	&"south_quarter": SOUTH_QUARTER_PLACEMENTS,
 }
+const CAT_WANDER_SPEED := 0.34
 
 var _actors: Array[Node3D] = []
 var _fauna_enabled := true
@@ -68,7 +118,6 @@ var _context := &""
 var _definition: MapDefinition = null
 var _cell_size := 32
 var _elapsed := 0.0
-
 
 func _ready() -> void:
 	pass
@@ -89,10 +138,7 @@ func active_fauna_count() -> int:
 
 
 func configure(
-	map_id: StringName,
-	context: StringName,
-	cell_size: int,
-	map_definition: MapDefinition = null
+	map_id: StringName, context: StringName, cell_size: int, map_definition: MapDefinition = null
 ) -> void:
 	_map_id = map_id
 	_context = context
@@ -102,7 +148,9 @@ func configure(
 	_rebuild_actors()
 
 
-func sync(context: StringName, delta: float, listener_position: Vector3, enabled: bool = true) -> void:
+func sync(
+	context: StringName, delta: float, listener_position: Vector3, enabled: bool = true
+) -> void:
 	_fauna_enabled = enabled
 	_context = context
 	if not _should_run():
@@ -167,9 +215,6 @@ func _rebuild_actors() -> void:
 
 
 ## Cats amble; they do not trot around a yard like a working dog.
-const CAT_WANDER_SPEED := 0.34
-
-
 func _make_actor(index: int, placement: Dictionary) -> Node3D:
 	var species: StringName = placement.get("species", &"")
 	var behavior: StringName = placement.get("behavior", BEHAVIOR_IDLE)
@@ -202,7 +247,9 @@ func _make_actor(index: int, placement: Dictionary) -> Node3D:
 	return actor
 
 
-static func _wander_config(behavior: StringName, home: Vector3, radius: float, species: StringName = &"") -> Dictionary:
+static func _wander_config(
+	behavior: StringName, home: Vector3, radius: float, species: StringName = &""
+) -> Dictionary:
 	var config := {"home": home, "radius": radius}
 	match behavior:
 		BEHAVIOR_TETHER:
@@ -220,7 +267,9 @@ static func _wander_config(behavior: StringName, home: Vector3, radius: float, s
 			# reads worse than one that simply sits still.
 			config["speed"] = 0.0
 		_:
-			config["speed"] = CAT_WANDER_SPEED if species == MammalSpecies.SPECIES_CAT else WANDER_SPEED
+			config["speed"] = (
+				CAT_WANDER_SPEED if species == MammalSpecies.SPECIES_CAT else WANDER_SPEED
+			)
 			config["roam_scale"] = 0.82
 			config["pause_range"] = Vector2(0.9, 3.2)
 	return config
@@ -240,9 +289,17 @@ func _advance_actor(actor: Node3D, listener_position: Vector3, delta: float) -> 
 static func _pose_for_behavior(behavior: StringName, species: StringName) -> StringName:
 	match behavior:
 		BEHAVIOR_IDLE:
-			return MammalSpecies.POSE_RESTING if species == MammalSpecies.SPECIES_CAT else MammalSpecies.POSE_STANDING
+			return (
+				MammalSpecies.POSE_RESTING
+				if species == MammalSpecies.SPECIES_CAT
+				else MammalSpecies.POSE_STANDING
+			)
 		BEHAVIOR_TETHER:
-			return MammalSpecies.POSE_GRAZING if species == MammalSpecies.SPECIES_HORSE else MammalSpecies.POSE_STANDING
+			return (
+				MammalSpecies.POSE_GRAZING
+				if species == MammalSpecies.SPECIES_HORSE
+				else MammalSpecies.POSE_STANDING
+			)
 		_:
 			return MammalSpecies.default_pose(species)
 
@@ -264,7 +321,9 @@ func _snap_actor_visual_to_ground(actor: Node3D, ground_y: float) -> void:
 		for corner_x in [local_bounds.position.x, local_bounds.end.x]:
 			for corner_y in [local_bounds.position.y, local_bounds.end.y]:
 				for corner_z in [local_bounds.position.z, local_bounds.end.z]:
-					var world_corner := mesh.global_transform * Vector3(corner_x, corner_y, corner_z)
+					var world_corner := (
+						mesh.global_transform * Vector3(corner_x, corner_y, corner_z)
+					)
 					lowest_y = minf(lowest_y, world_corner.y)
 	if is_inf(lowest_y):
 		return
@@ -274,7 +333,11 @@ func _snap_actor_visual_to_ground(actor: Node3D, ground_y: float) -> void:
 
 
 func _ground_height_at(world: Vector3) -> float:
-	return MapViewMeshBuilder.ground_height(_definition, Vector2(world.x, world.z)) if _definition != null else 0.0
+	return (
+		MapViewMeshBuilder.ground_height(_definition, Vector2(world.x, world.z))
+		if _definition != null
+		else 0.0
+	)
 
 
 func _yaw_for_placement(index: int) -> float:

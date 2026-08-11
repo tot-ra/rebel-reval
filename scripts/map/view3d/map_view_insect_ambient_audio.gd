@@ -131,10 +131,7 @@ static func weighted_candidates(context: StringName, cycle_progress: float) -> A
 
 
 static func pick_species(
-	seed_key: StringName,
-	context: StringName,
-	cycle_progress: float,
-	refresh_tick: int
+	seed_key: StringName, context: StringName, cycle_progress: float, refresh_tick: int
 ) -> StringName:
 	var candidates := weighted_candidates(context, cycle_progress)
 	if candidates.is_empty():
@@ -156,10 +153,7 @@ static func pick_species(
 
 
 static func distinct_species_for_context(
-	seed_key: StringName,
-	context: StringName,
-	cycle_progress: float,
-	sample_count: int
+	seed_key: StringName, context: StringName, cycle_progress: float, sample_count: int
 ) -> Array[StringName]:
 	var species_list: Array[StringName] = []
 	var seen: Dictionary = {}
@@ -172,7 +166,9 @@ static func distinct_species_for_context(
 	return species_list
 
 
-static func next_refresh_delay(seed_key: StringName, context: StringName, refresh_tick: int) -> float:
+static func next_refresh_delay(
+	seed_key: StringName, context: StringName, refresh_tick: int
+) -> float:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash_seed(seed_key, context, refresh_tick) ^ 0x9E3779B9
 	return rng.randf_range(MIN_REFRESH_INTERVAL_S, MAX_REFRESH_INTERVAL_S)

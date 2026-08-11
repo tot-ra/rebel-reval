@@ -20,7 +20,9 @@ static func advance(progress: float, delta_seconds: float) -> float:
 ## Rendering needs the fraction, while calendar and lunar systems need the whole
 ## day count that wrapf alone would otherwise discard.
 static func advance_clock(progress: float, delta_seconds: float) -> Dictionary:
-	var unwrapped_progress := wrapf(progress, 0.0, 1.0) + maxf(delta_seconds, 0.0) / CYCLE_DURATION_SECONDS
+	var unwrapped_progress := (
+		wrapf(progress, 0.0, 1.0) + maxf(delta_seconds, 0.0) / CYCLE_DURATION_SECONDS
+	)
 	return {
 		"progress": wrapf(unwrapped_progress, 0.0, 1.0),
 		"completed_days": int(floor(unwrapped_progress)),
@@ -47,10 +49,7 @@ static func format_clock(progress: float) -> String:
 
 ## Soft on/off ramp for evening window glow. fade_hours is in-game hours.
 static func evening_glow_strength(
-	hour: float,
-	start_hour: float,
-	end_hour: float,
-	fade_hours: float = 0.5
+	hour: float, start_hour: float, end_hour: float, fade_hours: float = 0.5
 ) -> float:
 	if hour < start_hour - fade_hours or hour > end_hour + fade_hours:
 		return 0.0

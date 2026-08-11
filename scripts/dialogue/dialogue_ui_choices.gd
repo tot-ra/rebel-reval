@@ -5,6 +5,7 @@ extends RefCounted
 
 const TextScaleScript := preload("res://scripts/dialogue/dialogue_text_scale.gd")
 
+
 static func clear(ui: DialogueUI) -> void:
 	for button in ui._choice_buttons:
 		if is_instance_valid(button):
@@ -25,7 +26,9 @@ static func rebuild_buttons(ui: DialogueUI) -> void:
 		button.focus_mode = Control.FOCUS_ALL
 		button.disabled = not bool(choice.get("enabled", true))
 		button.add_theme_font_override("font", ui._font)
-		button.add_theme_font_size_override("font_size", TextScaleScript.choice_size(ui._text_scale))
+		button.add_theme_font_size_override(
+			"font_size", TextScaleScript.choice_size(ui._text_scale)
+		)
 		var choice_id := String(choice.get("id", ""))
 		button.pressed.connect(ui._on_choice_pressed.bind(choice_id))
 		button.focus_entered.connect(ui._on_choice_focus.bind(ui._choice_buttons.size()))
@@ -70,12 +73,19 @@ static func move_focus(ui: DialogueUI, delta: int) -> void:
 	var count := ui._choice_buttons.size()
 	ui._focused_choice_index = posmod(ui._focused_choice_index + delta, count)
 	focus_current(ui)
-	if ui._focused_choice_index < ui._choice_buttons.size() and ui._choice_buttons[ui._focused_choice_index].disabled:
+	if (
+		ui._focused_choice_index < ui._choice_buttons.size()
+		and ui._choice_buttons[ui._focused_choice_index].disabled
+	):
 		move_focus(ui, delta)
 
 
 static func confirm_focused(ui: DialogueUI) -> bool:
-	if not ui._choice_mode or ui._focused_choice_index < 0 or ui._focused_choice_index >= ui._choices.size():
+	if (
+		not ui._choice_mode
+		or ui._focused_choice_index < 0
+		or ui._focused_choice_index >= ui._choices.size()
+	):
 		return false
 	var choice: Dictionary = ui._choices[ui._focused_choice_index]
 	if not bool(choice.get("enabled", true)):

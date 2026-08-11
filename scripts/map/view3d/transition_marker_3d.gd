@@ -12,7 +12,12 @@ const FOCUS_ALPHA := 0.62
 
 func _process(_delta: float) -> void:
 	var player_rig := get_tree().get_first_node_in_group(&"player_view_rig") as Node3D
-	set_focused(player_rig != null and global_position.distance_to(player_rig.global_position) <= HIGHLIGHT_DISTANCE_WORLD)
+	set_focused(
+		(
+			player_rig != null
+			and global_position.distance_to(player_rig.global_position) <= HIGHLIGHT_DISTANCE_WORLD
+		)
+	)
 
 
 func set_focused(focused: bool) -> void:

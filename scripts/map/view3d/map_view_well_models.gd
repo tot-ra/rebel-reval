@@ -40,21 +40,39 @@ static func add_model(parent: Node3D) -> Node3D:
 	model.set_meta(&"production_well_model", true)
 	parent.add_child(model)
 
-	_add_stone_ring(model, "Shaft", SHAFT_OUTER_BOTTOM, SHAFT_OUTER_TOP, SHAFT_INNER, 0.0, SHAFT_HEIGHT, 17)
+	_add_stone_ring(
+		model, "Shaft", SHAFT_OUTER_BOTTOM, SHAFT_OUTER_TOP, SHAFT_INNER, 0.0, SHAFT_HEIGHT, 17
+	)
 	_add_stone_ring(model, "Curb", CURB_OUTER, CURB_OUTER, SHAFT_INNER, SHAFT_HEIGHT, CURB_TOP, 41)
-	MapViewMeshBuilderPrimitives.cylinder(model, "Water", SHAFT_INNER - 0.03, 0.04, Vector3(0.0, 0.30, 0.0), &"water_highlight")
+	MapViewMeshBuilderPrimitives.cylinder(
+		model, "Water", SHAFT_INNER - 0.03, 0.04, Vector3(0.0, 0.30, 0.0), &"water_highlight"
+	)
 
 	for post_x in [-POST_OFFSET, POST_OFFSET]:
 		var post_name := "PostLeft" if post_x < 0.0 else "PostRight"
-		MapViewMeshBuilderPrimitives.box(model, post_name, Vector3(0.12, POST_HEIGHT, 0.12), Vector3(post_x, POST_HEIGHT * 0.5, 0.0), &"timber")
+		MapViewMeshBuilderPrimitives.box(
+			model,
+			post_name,
+			Vector3(0.12, POST_HEIGHT, 0.12),
+			Vector3(post_x, POST_HEIGHT * 0.5, 0.0),
+			&"timber"
+		)
 
 	_add_windlass(model)
 	_add_hanging_bucket(model)
 
-	MapViewMeshBuilderPrimitives.box(model, "RidgeBeam", Vector3(1.7, 0.08, 0.08), Vector3(0.0, POST_HEIGHT - 0.04, 0.0), &"timber")
+	MapViewMeshBuilderPrimitives.box(
+		model,
+		"RidgeBeam",
+		Vector3(1.7, 0.08, 0.08),
+		Vector3(0.0, POST_HEIGHT - 0.04, 0.0),
+		&"timber"
+	)
 	var roof := MeshInstance3D.new()
 	roof.name = "Roof"
-	roof.mesh = MapViewMeshBuilderPrimitives.gabled_roof_mesh(ROOF_BASE, true, 0.12, true, ROOF_PITCH)
+	roof.mesh = MapViewMeshBuilderPrimitives.gabled_roof_mesh(
+		ROOF_BASE, true, 0.12, true, ROOF_PITCH
+	)
 	roof.position = Vector3(0.0, POST_HEIGHT, 0.0)
 	roof.material_override = MapViewMeshBuilderPrimitives.role_material(&"roof")
 	model.add_child(roof)
@@ -74,9 +92,14 @@ static func _add_stone_ring(
 	y1: float,
 	seed_salt: int
 ) -> void:
-	var cache_key := "well_ring:%.3f:%.3f:%.3f:%.3f:%.3f:%d" % [outer_bottom, outer_top, inner_radius, y0, y1, seed_salt]
+	var cache_key := (
+		"well_ring:%.3f:%.3f:%.3f:%.3f:%.3f:%d"
+		% [outer_bottom, outer_top, inner_radius, y0, y1, seed_salt]
+	)
 	if not _mesh_cache.has(cache_key):
-		_mesh_cache[cache_key] = _build_ring_mesh(outer_bottom, outer_top, inner_radius, y0, y1, seed_salt)
+		_mesh_cache[cache_key] = _build_ring_mesh(
+			outer_bottom, outer_top, inner_radius, y0, y1, seed_salt
+		)
 	var instance := MeshInstance3D.new()
 	instance.name = node_name
 	instance.mesh = _mesh_cache[cache_key]
@@ -85,12 +108,7 @@ static func _add_stone_ring(
 
 
 static func _build_ring_mesh(
-	outer_bottom: float,
-	outer_top: float,
-	inner_radius: float,
-	y0: float,
-	y1: float,
-	seed_salt: int
+	outer_bottom: float, outer_top: float, inner_radius: float, y0: float, y1: float, seed_salt: int
 ) -> ArrayMesh:
 	var surface := SurfaceTool.new()
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
@@ -149,7 +167,9 @@ static func _build_ring_mesh(
 	return surface.commit()
 
 
-static func _ring_quad(surface: SurfaceTool, vertices: Array, uvs: Array, normal: Vector3, color: Color) -> void:
+static func _ring_quad(
+	surface: SurfaceTool, vertices: Array, uvs: Array, normal: Vector3, color: Color
+) -> void:
 	for index in [0, 1, 2, 0, 2, 3]:
 		surface.set_color(color)
 		surface.set_normal(normal)
@@ -190,14 +210,33 @@ static func _add_windlass(model: Node3D) -> void:
 	wrap.material_override = MapViewMeshBuilderPrimitives.role_material(&"hay")
 	model.add_child(wrap)
 
-	MapViewMeshBuilderPrimitives.box(model, "CrankArm", Vector3(0.05, 0.26, 0.05), Vector3(POST_OFFSET + 0.12, WINDLASS_Y - 0.10, 0.0), &"wood")
-	MapViewMeshBuilderPrimitives.box(model, "CrankHandle", Vector3(0.16, 0.05, 0.05), Vector3(POST_OFFSET + 0.20, WINDLASS_Y - 0.22, 0.0), &"metal")
+	MapViewMeshBuilderPrimitives.box(
+		model,
+		"CrankArm",
+		Vector3(0.05, 0.26, 0.05),
+		Vector3(POST_OFFSET + 0.12, WINDLASS_Y - 0.10, 0.0),
+		&"wood"
+	)
+	MapViewMeshBuilderPrimitives.box(
+		model,
+		"CrankHandle",
+		Vector3(0.16, 0.05, 0.05),
+		Vector3(POST_OFFSET + 0.20, WINDLASS_Y - 0.22, 0.0),
+		&"metal"
+	)
 
 
 static func _add_hanging_bucket(model: Node3D) -> void:
 	var rope_bottom := 0.78
 	var rope_top := WINDLASS_Y - 0.09
-	MapViewMeshBuilderPrimitives.cylinder(model, "Rope", 0.018, rope_top - rope_bottom, Vector3(0.0, (rope_top + rope_bottom) * 0.5, 0.0), &"hay")
+	MapViewMeshBuilderPrimitives.cylinder(
+		model,
+		"Rope",
+		0.018,
+		rope_top - rope_bottom,
+		Vector3(0.0, (rope_top + rope_bottom) * 0.5, 0.0),
+		&"hay"
+	)
 
 	var bucket := MeshInstance3D.new()
 	bucket.name = "Bucket"

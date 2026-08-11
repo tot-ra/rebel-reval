@@ -40,12 +40,14 @@ const MAP_TO_DISTRICT: Dictionary = {
 }
 
 const DISTRICT_PROFILES: Dictionary = {
-	DISTRICT_LOWER_TOWN: {
+	DISTRICT_LOWER_TOWN:
+	{
 		"controlling_faction": FactionLedger.LIVONIAN_ORDER,
 		"trade_faction": FactionLedger.HANSEATIC,
 		"opposition_faction": FactionLedger.HARJU_KINGS,
 	},
-	DISTRICT_NORTH_MERCHANT: {
+	DISTRICT_NORTH_MERCHANT:
+	{
 		"controlling_faction": FactionLedger.HANSEATIC,
 		"trade_faction": FactionLedger.HANSEATIC,
 		"opposition_faction": FactionLedger.BLACK_CLOAKS,
@@ -100,7 +102,10 @@ static func bark_pool_id(district_id: StringName, tier: int) -> StringName:
 	if district_id.is_empty():
 		return &""
 	return StringName(
-		"bark.district.%s.%s" % [String(district_id).trim_prefix("district."), String(tier_name_for(tier))]
+		(
+			"bark.district.%s.%s"
+			% [String(district_id).trim_prefix("district."), String(tier_name_for(tier))]
+		)
 	)
 
 

@@ -7,7 +7,9 @@ extends RefCounted
 ## a soft-edge shader that multiplies authored alpha masks by DECAL_TINTS.
 
 const MaterialShaders := preload("res://scripts/map/view3d/map_view_material_shaders.gd")
-const MeshBuilderPrimitives := preload("res://scripts/map/view3d/map_view_mesh_builder_primitives.gd")
+const MeshBuilderPrimitives := preload(
+	"res://scripts/map/view3d/map_view_mesh_builder_primitives.gd"
+)
 const MeshBuilder := preload("res://scripts/map/view3d/map_view_mesh_builder.gd")
 const Bridge := preload("res://scripts/map/view3d/map_view_bridge.gd")
 
@@ -24,18 +26,22 @@ static func _decal_quad_mesh(radius: float) -> ArrayMesh:
 		return MeshBuilderPrimitives._mesh_cache[key]
 	var arrays := []
 	arrays.resize(Mesh.ARRAY_MAX)
-	var vertices := PackedVector3Array([
-		Vector3(-radius, 0.0, -radius),
-		Vector3(radius, 0.0, -radius),
-		Vector3(radius, 0.0, radius),
-		Vector3(-radius, 0.0, radius),
-	])
-	var uvs := PackedVector2Array([
-		Vector2(0.0, 0.0),
-		Vector2(1.0, 0.0),
-		Vector2(1.0, 1.0),
-		Vector2(0.0, 1.0),
-	])
+	var vertices := PackedVector3Array(
+		[
+			Vector3(-radius, 0.0, -radius),
+			Vector3(radius, 0.0, -radius),
+			Vector3(radius, 0.0, radius),
+			Vector3(-radius, 0.0, radius),
+		]
+	)
+	var uvs := PackedVector2Array(
+		[
+			Vector2(0.0, 0.0),
+			Vector2(1.0, 0.0),
+			Vector2(1.0, 1.0),
+			Vector2(0.0, 1.0),
+		]
+	)
 	var indices := PackedInt32Array([0, 1, 2, 0, 2, 3])
 	arrays[Mesh.ARRAY_VERTEX] = vertices
 	arrays[Mesh.ARRAY_TEX_UV] = uvs
@@ -69,10 +75,7 @@ static func _decal_material(kind: StringName, tint: Color) -> ShaderMaterial:
 	return material
 
 
-static func build_decals(
-	definition: MapDefinition,
-	cell_size: int
-) -> Node3D:
+static func build_decals(definition: MapDefinition, cell_size: int) -> Node3D:
 	var root := Node3D.new()
 	root.name = "Decals"
 	for decal in definition.decals:
@@ -82,11 +85,7 @@ static func build_decals(
 	return root
 
 
-static func _build_single(
-	decal: Dictionary,
-	definition: MapDefinition,
-	cell_size: int
-) -> Node3D:
+static func _build_single(decal: Dictionary, definition: MapDefinition, cell_size: int) -> Node3D:
 	var kind: StringName = decal.get("kind", &"")
 	if kind not in MapTypes.ALL_DECAL_KINDS:
 		return null

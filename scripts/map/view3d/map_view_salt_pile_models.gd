@@ -6,6 +6,7 @@ extends RefCounted
 
 const SALT_PILE_SCENE_PATH := "res://assets/props/crafts/salt_pile.glb"
 
+
 static func add_model(parent: Node3D) -> Node3D:
 	var scene := load(SALT_PILE_SCENE_PATH) as PackedScene
 	assert(scene != null, "Salt pile GLB must be imported before map assembly")

@@ -21,35 +21,73 @@ const BUILDING_MATERIALS := preload("res://scripts/map/view3d/map_view_building_
 const PROP_MATERIALS := preload("res://scripts/map/view3d/map_view_prop_materials.gd")
 const HAY_FIBER_TEXTURE := preload("res://assets/materials/production/hay_fibers.png")
 const GRASS_ALBEDO_TEXTURE := preload("res://assets/materials/pbr/grass/grass_albedo.png")
-const TIMBER_FLOOR_ALBEDO_TEXTURE := preload("res://assets/materials/pbr/timber_floor/timber_floor_albedo.png")
-const SMITHY_FLOOR_ALBEDO_TEXTURE := preload("res://assets/materials/pbr/smithy_floor/smithy_floor_albedo.png")
-const FISHING_NET_HEMP_TEXTURE := preload("res://assets/props/crafts/fishing_nets_TarredHempNet_albedo.png")
-const FISHING_NET_FLOAT_TEXTURE := preload("res://assets/props/crafts/fishing_nets_BarkCorkFloats_albedo.png")
-const FISHING_NET_SINKER_TEXTURE := preload("res://assets/props/crafts/fishing_nets_PiercedStoneSinkers_albedo.png")
+const TIMBER_FLOOR_ALBEDO_TEXTURE := preload(
+	"res://assets/materials/pbr/timber_floor/timber_floor_albedo.png"
+)
+const SMITHY_FLOOR_ALBEDO_TEXTURE := preload(
+	"res://assets/materials/pbr/smithy_floor/smithy_floor_albedo.png"
+)
+const FISHING_NET_HEMP_TEXTURE := preload(
+	"res://assets/props/crafts/fishing_nets_TarredHempNet_albedo.png"
+)
+const FISHING_NET_FLOAT_TEXTURE := preload(
+	"res://assets/props/crafts/fishing_nets_BarkCorkFloats_albedo.png"
+)
+const FISHING_NET_SINKER_TEXTURE := preload(
+	"res://assets/props/crafts/fishing_nets_PiercedStoneSinkers_albedo.png"
+)
 const BLACK_CLOAKS_BANNER_TEXTURE := preload("res://assets/heraldry/black_cloaks_banner.png")
 
 const WATER_WAVE_BASE := {
-	MapTypes.TERRAIN_SHALLOW_WATER: {
-		"height": 0.026, "chaos": 0.78, "foam": 0.24, "breakers": 0.52, "absorption": 5.0,
-		"tide_height": 0.004, "tide_shore_retreat": 0.13, "tide_optical_depth": 0.055,
+	MapTypes.TERRAIN_SHALLOW_WATER:
+	{
+		"height": 0.026,
+		"chaos": 0.78,
+		"foam": 0.24,
+		"breakers": 0.52,
+		"absorption": 5.0,
+		"tide_height": 0.004,
+		"tide_shore_retreat": 0.13,
+		"tide_optical_depth": 0.055,
 	},
-	MapTypes.TERRAIN_DEEP_WATER: {
-		"height": 0.044, "chaos": 1.18, "foam": 0.12, "breakers": 0.10, "absorption": 9.0,
-		"tide_height": 0.004, "tide_shore_retreat": 0.0, "tide_optical_depth": 0.025,
+	MapTypes.TERRAIN_DEEP_WATER:
+	{
+		"height": 0.044,
+		"chaos": 1.18,
+		"foam": 0.12,
+		"breakers": 0.10,
+		"absorption": 9.0,
+		"tide_height": 0.004,
+		"tide_shore_retreat": 0.0,
+		"tide_optical_depth": 0.025,
 	},
-	MapTypes.TERRAIN_WATER: {
-		"height": 0.030, "chaos": 0.96, "foam": 0.18, "breakers": 0.22, "absorption": 7.0,
+	MapTypes.TERRAIN_WATER:
+	{
+		"height": 0.030,
+		"chaos": 0.96,
+		"foam": 0.18,
+		"breakers": 0.22,
+		"absorption": 7.0,
 		"bed_vegetation": 1.0,
-		"tide_height": 0.0, "tide_shore_retreat": 0.0, "tide_optical_depth": 0.0,
+		"tide_height": 0.0,
+		"tide_shore_retreat": 0.0,
+		"tide_optical_depth": 0.0,
 	},
 	# Fast river water uses tighter, livelier ripples than ponds or open sea and
 	# drops the sheltered-water algae layer. Absorption sits higher than the old
 	# clear-shallow tuning so the blue water column, not the warm bed, dominates
 	# the surface colour - the Pirita should read as a river, not a green shallow.
-	MapTypes.TERRAIN_RIVER_WATER: {
-		"height": 0.024, "chaos": 0.72, "foam": 0.12, "breakers": 0.08, "absorption": 6.0,
+	MapTypes.TERRAIN_RIVER_WATER:
+	{
+		"height": 0.024,
+		"chaos": 0.72,
+		"foam": 0.12,
+		"breakers": 0.08,
+		"absorption": 6.0,
 		"bed_vegetation": 0.0,
-		"tide_height": 0.0, "tide_shore_retreat": 0.0, "tide_optical_depth": 0.0,
+		"tide_height": 0.0,
+		"tide_shore_retreat": 0.0,
+		"tide_optical_depth": 0.0,
 	},
 }
 
@@ -234,7 +272,15 @@ static func terrain_pattern_array(noise_seed: int) -> Texture2DArray:
 	var images: Array[Image] = []
 	for terrain_id in BLEND_TERRAIN_ORDER:
 		var image: Image
-		if terrain_id in [MapTypes.TERRAIN_GRASS, MapTypes.TERRAIN_MEADOW, MapTypes.TERRAIN_FOREST_FLOOR, MapTypes.TERRAIN_BOG]:
+		if (
+			terrain_id
+			in [
+				MapTypes.TERRAIN_GRASS,
+				MapTypes.TERRAIN_MEADOW,
+				MapTypes.TERRAIN_FOREST_FLOOR,
+				MapTypes.TERRAIN_BOG
+			]
+		):
 			# Leonardo's grass albedo supplies the shared outdoor family while the
 			# existing palette tint still differentiates meadow, bog, and woodland.
 			image = GRASS_ALBEDO_TEXTURE.get_image()
@@ -261,11 +307,13 @@ static func terrain_pattern_array(noise_seed: int) -> Texture2DArray:
 			image.generate_mipmaps()
 		else:
 			var pattern: StringName = TERRAIN_PATTERN.get(terrain_id, PATTERN_GRASS)
-			image = MapViewMaterialPatterns.pattern_texture_at_size(
-				pattern,
-				noise_seed + int(terrain_id.hash()),
-				TEXTURE_SIZE
-			).get_image()
+			image = (
+				MapViewMaterialPatterns
+				. pattern_texture_at_size(
+					pattern, noise_seed + int(terrain_id.hash()), TEXTURE_SIZE
+				)
+				. get_image()
+			)
 		images.append(image)
 	var array := Texture2DArray.new()
 	array.create_from_images(images)
@@ -279,11 +327,11 @@ static func cobble_pattern_array(_noise_seed: int) -> Texture2DArray:
 	var key := "cobble_pattern_array"
 	if _cache.has(key):
 		return _cache[key]
-	var image := MapViewMaterialPatterns.pattern_texture_at_size(
-		PATTERN_COBBLE,
-		8219,
-		COBBLE_TEXTURE_SIZE
-	).get_image()
+	var image := (
+		MapViewMaterialPatterns
+		. pattern_texture_at_size(PATTERN_COBBLE, 8219, COBBLE_TEXTURE_SIZE)
+		. get_image()
+	)
 	# Cobble is a seamless material family rather than authored map state. Reuse
 	# one high-resolution source so transitions do not regenerate it per map seed.
 	var images: Array[Image] = [image, image]
@@ -300,14 +348,24 @@ static func blended_ground(noise_seed: int) -> ShaderMaterial:
 	if _cache.has(key):
 		return _cache[key]
 	var material := ShaderMaterial.new()
-	material.shader = MapViewMaterialShaders.shader("terrain_blend", MapViewMaterialShaders.TERRAIN_BLEND_SHADER_CODE)
+	material.shader = MapViewMaterialShaders.shader(
+		"terrain_blend", MapViewMaterialShaders.TERRAIN_BLEND_SHADER_CODE
+	)
 	material.set_shader_parameter("terrain_patterns", terrain_pattern_array(noise_seed))
 	material.set_shader_parameter("cobble_patterns", cobble_pattern_array(noise_seed))
-	material.set_shader_parameter("cobble_surface", MapViewMaterialPatterns.cobble_surface_texture(8219))
+	material.set_shader_parameter(
+		"cobble_surface", MapViewMaterialPatterns.cobble_surface_texture(8219)
+	)
 	material.set_shader_parameter("pattern_layers", float(BLEND_TERRAIN_ORDER.size()))
-	material.set_shader_parameter("cobblestone_layer", terrain_blend_index(MapTypes.TERRAIN_COBBLESTONE))
-	material.set_shader_parameter("castle_paving_layer", terrain_blend_index(MapTypes.TERRAIN_CASTLE_PAVING))
-	material.set_shader_parameter("timber_floor_layer", terrain_blend_index(MapTypes.TERRAIN_TIMBER_FLOOR))
+	material.set_shader_parameter(
+		"cobblestone_layer", terrain_blend_index(MapTypes.TERRAIN_COBBLESTONE)
+	)
+	material.set_shader_parameter(
+		"castle_paving_layer", terrain_blend_index(MapTypes.TERRAIN_CASTLE_PAVING)
+	)
+	material.set_shader_parameter(
+		"timber_floor_layer", terrain_blend_index(MapTypes.TERRAIN_TIMBER_FLOOR)
+	)
 	material.set_shader_parameter("natural_ground_uv_scale", TERRAIN_GRASS_UV_SCALE)
 	material.set_shader_parameter("natural_ground_variation", 0.72)
 	material.set_shader_parameter("timber_floor_uv_scale", TERRAIN_TIMBER_FLOOR_UV_SCALE)
@@ -400,7 +458,9 @@ static func grass_blades() -> ShaderMaterial:
 	if _cache.has(key):
 		return _cache[key]
 	var material := ShaderMaterial.new()
-	material.shader = MapViewMaterialShaders.shader("grass", MapViewMaterialShaders.GRASS_SHADER_CODE)
+	material.shader = MapViewMaterialShaders.shader(
+		"grass", MapViewMaterialShaders.GRASS_SHADER_CODE
+	)
 	material.set_shader_parameter("base_color", Color8(104, 130, 62))
 	_cache[key] = material
 	return material
@@ -411,7 +471,9 @@ static func canopy(kind: StringName) -> ShaderMaterial:
 	if _cache.has(key):
 		return _cache[key]
 	var material := ShaderMaterial.new()
-	material.shader = MapViewMaterialShaders.shader("canopy", MapViewMaterialShaders.CANOPY_SHADER_CODE)
+	material.shader = MapViewMaterialShaders.shader(
+		"canopy", MapViewMaterialShaders.CANOPY_SHADER_CODE
+	)
 	match kind:
 		&"spruce":
 			material.set_shader_parameter("base_color", Color8(58, 84, 56))
@@ -438,7 +500,9 @@ static func sail_cloth() -> ShaderMaterial:
 	if _cache.has(key):
 		return _cache[key]
 	var material := ShaderMaterial.new()
-	material.shader = MapViewMaterialShaders.shader("cloth", MapViewMaterialShaders.CLOTH_SHADER_CODE)
+	material.shader = MapViewMaterialShaders.shader(
+		"cloth", MapViewMaterialShaders.CLOTH_SHADER_CODE
+	)
 	material.set_shader_parameter("base_color", Color8(214, 208, 190))
 	material.set_shader_parameter("sway_strength", 0.28)
 	material.set_shader_parameter("free_edge", Vector2(0.0, 1.0))
@@ -453,7 +517,9 @@ static func flag_cloth() -> ShaderMaterial:
 	if _cache.has(key):
 		return _cache[key]
 	var material := ShaderMaterial.new()
-	material.shader = MapViewMaterialShaders.shader("cloth", MapViewMaterialShaders.CLOTH_SHADER_CODE)
+	material.shader = MapViewMaterialShaders.shader(
+		"cloth", MapViewMaterialShaders.CLOTH_SHADER_CODE
+	)
 	material.set_shader_parameter("base_color", Color8(248, 246, 240))
 	material.set_shader_parameter("sway_strength", 0.42)
 	material.set_shader_parameter("free_edge", Vector2(1.0, 0.0))
@@ -470,8 +536,7 @@ static func hanging_banner_cloth(albedo: Texture2D = null) -> ShaderMaterial:
 		return _cache[keyed]
 	var material := ShaderMaterial.new()
 	material.shader = MapViewMaterialShaders.shader(
-		"hanging_banner_cloth",
-		MapViewMaterialShaders.HANGING_BANNER_CLOTH_SHADER_CODE
+		"hanging_banner_cloth", MapViewMaterialShaders.HANGING_BANNER_CLOTH_SHADER_CODE
 	)
 	material.set_shader_parameter("base_color", Color8(248, 246, 240))
 	material.set_shader_parameter("sway_strength", 0.035)
@@ -510,34 +575,19 @@ static func _white_albedo() -> Texture2D:
 ## the common deformation keeps outline rope, floats, and sinkers attached.
 static func fishing_net_hemp() -> ShaderMaterial:
 	return _fishing_net_wind_material(
-		&"fishing_net_hemp",
-		FISHING_NET_HEMP_TEXTURE,
-		0.098,
-		1.36,
-		0.17,
-		0.96
+		&"fishing_net_hemp", FISHING_NET_HEMP_TEXTURE, 0.098, 1.36, 0.17, 0.96
 	)
 
 
 static func fishing_net_float() -> ShaderMaterial:
 	return _fishing_net_wind_material(
-		&"fishing_net_float",
-		FISHING_NET_FLOAT_TEXTURE,
-		0.098,
-		1.36,
-		0.17,
-		0.94
+		&"fishing_net_float", FISHING_NET_FLOAT_TEXTURE, 0.098, 1.36, 0.17, 0.94
 	)
 
 
 static func fishing_net_sinker() -> ShaderMaterial:
 	return _fishing_net_wind_material(
-		&"fishing_net_sinker",
-		FISHING_NET_SINKER_TEXTURE,
-		0.098,
-		1.36,
-		0.17,
-		0.98
+		&"fishing_net_sinker", FISHING_NET_SINKER_TEXTURE, 0.098, 1.36, 0.17, 0.98
 	)
 
 
@@ -554,8 +604,7 @@ static func _fishing_net_wind_material(
 		return _cache[key]
 	var material := ShaderMaterial.new()
 	material.shader = MapViewMaterialShaders.shader(
-		"fishing_net_wind",
-		MapViewMaterialShaders.FISHING_NET_WIND_SHADER_CODE
+		"fishing_net_wind", MapViewMaterialShaders.FISHING_NET_WIND_SHADER_CODE
 	)
 	material.set_shader_parameter("albedo_texture", albedo)
 	material.set_shader_parameter("sway_strength", sway_strength)
@@ -576,23 +625,20 @@ static func wall_surface(family: StringName, color: Color) -> StandardMaterial3D
 	return BUILDING_MATERIALS.wall_surface(family, color)
 
 
-static func wall_surface_for_size(family: StringName, color: Color, size: Vector3) -> StandardMaterial3D:
+static func wall_surface_for_size(
+	family: StringName, color: Color, size: Vector3
+) -> StandardMaterial3D:
 	return BUILDING_MATERIALS.wall_surface_for_size(family, color, size)
 
 
 static func wall_surface_for_building(
-	surface_id: StringName,
-	family: StringName,
-	color: Color,
-	size: Vector3
+	surface_id: StringName, family: StringName, color: Color, size: Vector3
 ) -> StandardMaterial3D:
 	return BUILDING_MATERIALS.wall_surface_for_building(surface_id, family, color, size)
 
 
 static func roof_surface_for_building(
-	surface_id: StringName,
-	family: StringName,
-	color: Color
+	surface_id: StringName, family: StringName, color: Color
 ) -> StandardMaterial3D:
 	return BUILDING_MATERIALS.roof_surface_for_building(surface_id, family, color)
 
@@ -629,7 +675,9 @@ static func building_uv_scale(pattern: StringName, size: Vector3) -> Vector3:
 	return BUILDING_MATERIALS.building_uv_scale(pattern, size)
 
 
-static func building_uv_scale_cylinder(pattern: StringName, radius: float, height: float) -> Vector3:
+static func building_uv_scale_cylinder(
+	pattern: StringName, radius: float, height: float
+) -> Vector3:
 	return BUILDING_MATERIALS.building_uv_scale_cylinder(pattern, radius, height)
 
 

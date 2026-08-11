@@ -4,7 +4,6 @@ extends RefCounted
 ## Runtime adapter for the north-quarter .rrmap source.
 ## WHY: gameplay scenes keep a MapDefinition entry point while map authoring lives in .rrmap.
 
-
 const RRMAP_PATH := "res://content/maps/north_quarter.rrmap"
 
 

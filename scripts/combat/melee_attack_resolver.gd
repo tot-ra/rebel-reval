@@ -37,14 +37,9 @@ static func strike(
 			continue
 		if attack_direction.dot(offset.normalized()) < minimum_facing_dot:
 			continue
-		var applied := float(candidate.call(
-			"take_damage",
-			damage,
-			attacker,
-			damage_type,
-			swing_id,
-			pierces_guard
-		))
+		var applied := float(
+			candidate.call("take_damage", damage, attacker, damage_type, swing_id, pierces_guard)
+		)
 		if applied > 0.0:
 			hits.append(candidate)
 	return hits
@@ -52,9 +47,7 @@ static func strike(
 
 ## Convenience wrapper so callers with an AttackProfile keep technique flags.
 static func strike_with_profile(
-	attacker: Node2D,
-	facing: Vector2,
-	profile: AttackProfile
+	attacker: Node2D, facing: Vector2, profile: AttackProfile
 ) -> Array[Node2D]:
 	if profile == null:
 		return []

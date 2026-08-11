@@ -111,7 +111,9 @@ func _update_audio_info() -> void:
 		var sky = view.sky_weather() if view != null else null
 		if sky != null:
 			if sky.roof_audio_active():
-				_rain_label.text = "Roof rain: on (%.0f%%)" % (sky.roof_audio_linear_volume() * 100.0)
+				_rain_label.text = (
+					"Roof rain: on (%.0f%%)" % (sky.roof_audio_linear_volume() * 100.0)
+				)
 			else:
 				_rain_label.text = "Roof rain: off"
 		else:
@@ -153,6 +155,7 @@ func _find_music_director() -> Node:
 
 
 # -- UI construction --
+
 
 func _build_ui() -> void:
 	_panel = PanelContainer.new()
@@ -244,25 +247,42 @@ func _build_ui() -> void:
 
 	_small_asset_showcase_button = _create_button(
 		"SmallAssetShowcaseButton",
-		"Return to previous scene" if _is_current_asset_showcase(ASSET_SHOWCASE_SCENE) else "Open small assets",
+		(
+			"Return to previous scene"
+			if _is_current_asset_showcase(ASSET_SHOWCASE_SCENE)
+			else "Open small assets"
+		),
 		func() -> void: _open_asset_showcase(ASSET_SHOWCASE_SCENE)
 	)
-	_small_asset_showcase_button.tooltip_text = "Review furniture, tools, and other relatively small non-living props"
+	_small_asset_showcase_button.tooltip_text = (
+		"Review furniture, tools, and other relatively "
+		+ "small non-living props"
+	)
 	layout.add_child(_small_asset_showcase_button)
 
 	_characters_animals_showcase_button = _create_button(
 		"CharactersAnimalsShowcaseButton",
-		"Return to previous scene" if _is_current_asset_showcase(CHARACTERS_ANIMALS_SHOWCASE_SCENE) else "Open characters / animals",
+		(
+			"Return to previous scene"
+			if _is_current_asset_showcase(CHARACTERS_ANIMALS_SHOWCASE_SCENE)
+			else "Open characters / animals"
+		),
 		func() -> void: _open_asset_showcase(CHARACTERS_ANIMALS_SHOWCASE_SCENE)
 	)
+	# gdlint: ignore=max-line-length
 	_characters_animals_showcase_button.tooltip_text = "Review every humanoid, animated character clip, bird, cat, rat, and other living fauna"
 	layout.add_child(_characters_animals_showcase_button)
 
 	_large_asset_showcase_button = _create_button(
 		"LargeAssetShowcaseButton",
-		"Return to previous scene" if _is_current_asset_showcase(LARGE_ASSET_SHOWCASE_SCENE) else "Open large assets",
+		(
+			"Return to previous scene"
+			if _is_current_asset_showcase(LARGE_ASSET_SHOWCASE_SCENE)
+			else "Open large assets"
+		),
 		func() -> void: _open_asset_showcase(LARGE_ASSET_SHOWCASE_SCENE)
 	)
+	# gdlint: ignore=max-line-length
 	_large_asset_showcase_button.tooltip_text = "Review terrain materials, buildings, trees, ships, and facade assets on a spacious grid"
 	layout.add_child(_large_asset_showcase_button)
 
@@ -293,6 +313,7 @@ func _create_button(node_name: String, label_text: String, callback: Callable) -
 
 
 # -- Time control callbacks --
+
 
 func _on_pause_pressed() -> void:
 	_resolve_runtime()
@@ -341,8 +362,11 @@ func _open_asset_showcase(scene_path: String) -> void:
 
 	# Switching between the two catalogs must preserve the original return path,
 	# otherwise Return would only bounce back to the other debug gallery.
-	if current != null and current.scene_file_path not in ASSET_SHOWCASE_SCENES \
-			and not current.scene_file_path.is_empty():
+	if (
+		current != null
+		and current.scene_file_path not in ASSET_SHOWCASE_SCENES
+		and not current.scene_file_path.is_empty()
+	):
 		tree.root.set_meta(&"debug_asset_showcase_return_path", current.scene_file_path)
 	tree.change_scene_to_file(scene_path)
 

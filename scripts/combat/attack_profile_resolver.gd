@@ -8,9 +8,7 @@ const DEFAULT_CHARGE_THRESHOLD_SEC := 0.35
 ## Picks the first equipped hand with a content attack profile, otherwise unarmed.
 ## Equipped forge techniques layer onto the resolved profile (P1-024d).
 static func resolve_for_state(
-	state: GameState,
-	content_db: ContentDB,
-	use_charged: bool = false
+	state: GameState, content_db: ContentDB, use_charged: bool = false
 ) -> AttackProfile:
 	var profile := _resolve_item_profile(state, content_db, use_charged)
 	var technique_id := &""
@@ -20,9 +18,7 @@ static func resolve_for_state(
 
 
 static func _resolve_item_profile(
-	state: GameState,
-	content_db: ContentDB,
-	use_charged: bool
+	state: GameState, content_db: ContentDB, use_charged: bool
 ) -> AttackProfile:
 	var item_id := equipped_attack_item_id(state, content_db)
 	if item_id.is_empty():
@@ -41,7 +37,10 @@ static func equipped_attack_item_id(state: GameState, content_db: ContentDB) -> 
 		var item_id := state.equipped_item(slot)
 		if item_id.is_empty():
 			continue
-		if item_has_attack_profile(item_id, content_db) or item_has_charged_attack_profile(item_id, content_db):
+		if (
+			item_has_attack_profile(item_id, content_db)
+			or item_has_charged_attack_profile(item_id, content_db)
+		):
 			return item_id
 	return &""
 
@@ -74,10 +73,7 @@ static func charged_profile_for_item(item_id: StringName, content_db: ContentDB)
 
 static func charge_threshold_sec_for_item(item_id: StringName, content_db: ContentDB) -> float:
 	var gameplay := _gameplay_data(item_id, content_db)
-	return maxf(
-		0.01,
-		float(gameplay.get("charge_threshold_sec", DEFAULT_CHARGE_THRESHOLD_SEC))
-	)
+	return maxf(0.01, float(gameplay.get("charge_threshold_sec", DEFAULT_CHARGE_THRESHOLD_SEC)))
 
 
 static func _attack_profile_data(item_id: StringName, content_db: ContentDB) -> Dictionary:

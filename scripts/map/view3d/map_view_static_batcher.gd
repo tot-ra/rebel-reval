@@ -23,16 +23,16 @@ const PRESERVED_NAMES := {
 	"ChimneySmoke": true,
 	"WindowLights": true,
 }
-
 ## Opt-out contract for meshes a sibling controller mutates at runtime (window
 ## glow panes, forge embers). Such a mesh must survive as its own node because
 ## its owner keeps a direct reference to it.
 const DYNAMIC_GEOMETRY_GROUP := &"view_dynamic_geometry"
-
 ## A group of one saves nothing and would only cost the scene a node lookup that
 ## other systems or tests may rely on.
 const MIN_GROUP_SIZE := 2
-
+const SHADOW_MIN_MEDIAN_EXTENT := 0.35
+const SHADOW_MIN_LONGEST_EXTENT := 0.6
+const PRIMITIVE_MESH_FORMAT := -1
 
 ## Merges the static leaf meshes below `root`. Returns the number of removed
 ## mesh instances so callers can report the saving.
@@ -105,10 +105,6 @@ static func strip_backdrop_dressing(root: Node3D) -> void:
 ## again for every shadow cascade, yet its shadow is a sliver nobody reads. The
 ## shadow pass was ~8k of the district's ~11.6k draw calls; dropping slim and
 ## small casters removes most of it without touching the structural silhouette.
-const SHADOW_MIN_MEDIAN_EXTENT := 0.35
-const SHADOW_MIN_LONGEST_EXTENT := 0.6
-
-
 static func trim_small_shadow_casters(root: Node3D) -> int:
 	return _trim(root, root.transform.basis.get_scale())
 
@@ -116,9 +112,11 @@ static func trim_small_shadow_casters(root: Node3D) -> int:
 static func _trim(node: Node3D, accumulated_scale: Vector3) -> int:
 	var trimmed := 0
 	var mesh_instance := node as MeshInstance3D
-	if mesh_instance != null \
-			and mesh_instance.mesh != null \
-			and mesh_instance.cast_shadow != GeometryInstance3D.SHADOW_CASTING_SETTING_OFF:
+	if (
+		mesh_instance != null
+		and mesh_instance.mesh != null
+		and mesh_instance.cast_shadow != GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	):
 		var size: Vector3 = mesh_instance.get_aabb().size * accumulated_scale
 		var extents := [absf(size.x), absf(size.y), absf(size.z)]
 		extents.sort()
@@ -133,10 +131,7 @@ static func _trim(node: Node3D, accumulated_scale: Vector3) -> int:
 
 
 static func _collect(
-	node: Node3D,
-	accumulated: Transform3D,
-	preserved_names: Dictionary,
-	groups: Dictionary
+	node: Node3D, accumulated: Transform3D, preserved_names: Dictionary, groups: Dictionary
 ) -> void:
 	for child in node.get_children():
 		var child_3d := child as Node3D
@@ -161,31 +156,36 @@ static func _collect(
 			# the index buffer and filled the primitive's missing COLOR attribute with
 			# opaque black, so the roof lost its relief and grew a black ridge pipe.
 			# Batching per vertex format keeps every merge lossless.
-			var key := "%s|%d|%d" % [
-				material.get_rid() if material != null else RID(),
-				int(mesh_instance.cast_shadow),
-				_surface_format(mesh, surface_index),
-			]
+			var key := (
+				"%s|%d|%d"
+				% [
+					material.get_rid() if material != null else RID(),
+					int(mesh_instance.cast_shadow),
+					_surface_format(mesh, surface_index),
+				]
+			)
 			if not groups.has(key):
 				groups[key] = {
 					"material": material,
 					"cast_shadow": mesh_instance.cast_shadow,
 					"entries": [],
 				}
-			groups[key]["entries"].append({
-				"node": mesh_instance,
-				"mesh": mesh,
-				"surface": surface_index,
-				"transform": child_transform,
-			})
+			(
+				groups[key]["entries"]
+				. append(
+					{
+						"node": mesh_instance,
+						"mesh": mesh,
+						"surface": surface_index,
+						"transform": child_transform,
+					}
+				)
+			)
 
 
 ## Vertex format of one surface. Only ArrayMesh exposes it; engine primitives all
 ## share the same generated layout (position, normal, tangent, UV, indices), so a
 ## single sentinel keeps them batchable with each other but apart from ArrayMeshes.
-const PRIMITIVE_MESH_FORMAT := -1
-
-
 static func _surface_format(mesh: Mesh, surface_index: int) -> int:
 	var array_mesh := mesh as ArrayMesh
 	if array_mesh == null:

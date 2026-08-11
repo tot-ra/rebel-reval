@@ -5,7 +5,9 @@ extends RefCounted
 
 const AudioSettingsScript := preload("res://scripts/settings/audio_settings.gd")
 const DialogueSettingsScript := preload("res://scripts/settings/dialogue_settings.gd")
-const GameplayAccessibilitySettingsScript := preload("res://scripts/settings/gameplay_accessibility_settings.gd")
+const GameplayAccessibilitySettingsScript := preload(
+	"res://scripts/settings/gameplay_accessibility_settings.gd"
+)
 const InputBindingSettingsScript := preload("res://scripts/settings/input_binding_settings.gd")
 const CURRENT_VERSION := 4
 const LEGACY_VERSION := 1
@@ -53,25 +55,42 @@ func load_audio_settings():
 func save_dialogue_settings(settings) -> bool:
 	if settings == null:
 		return false
-	return _save_all(settings, load_gameplay_accessibility_settings(), load_input_bindings(), load_audio_settings())
+	return _save_all(
+		settings,
+		load_gameplay_accessibility_settings(),
+		load_input_bindings(),
+		load_audio_settings()
+	)
 
 
 func save_gameplay_accessibility_settings(settings) -> bool:
 	if settings == null:
 		return false
-	return _save_all(load_dialogue_settings(), settings, load_input_bindings(), load_audio_settings())
+	return _save_all(
+		load_dialogue_settings(), settings, load_input_bindings(), load_audio_settings()
+	)
 
 
 func save_input_bindings(bindings) -> bool:
 	if bindings == null:
 		return false
-	return _save_all(load_dialogue_settings(), load_gameplay_accessibility_settings(), bindings, load_audio_settings())
+	return _save_all(
+		load_dialogue_settings(),
+		load_gameplay_accessibility_settings(),
+		bindings,
+		load_audio_settings()
+	)
 
 
 func save_audio_settings(settings) -> bool:
 	if settings == null:
 		return false
-	return _save_all(load_dialogue_settings(), load_gameplay_accessibility_settings(), load_input_bindings(), settings)
+	return _save_all(
+		load_dialogue_settings(),
+		load_gameplay_accessibility_settings(),
+		load_input_bindings(),
+		settings
+	)
 
 
 func _load_envelope() -> Dictionary:

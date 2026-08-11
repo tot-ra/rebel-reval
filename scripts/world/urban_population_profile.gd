@@ -45,7 +45,8 @@ const OCCUPATIONS: Array[StringName] = [
 # Counts and caps are authored contract values. Seed changes assignment order,
 # not density, so performance and acceptance budgets remain stable across replays.
 const PROFILE_RULES: Dictionary = {
-	PROFILE_DAY: {
+	PROFILE_DAY:
+	{
 		"civilian_count": 18,
 		"watch_count": 3,
 		"civilian_cap": 24,
@@ -57,7 +58,8 @@ const PROFILE_RULES: Dictionary = {
 		"civilian_policy": &"normal_day_trade_and_work",
 		"occupation_counts": {&"merchant": 4, &"artisan": 5, &"laborer": 5, &"resident": 4},
 	},
-	PROFILE_MARKET_DAY: {
+	PROFILE_MARKET_DAY:
+	{
 		"civilian_count": 28,
 		"watch_count": 5,
 		"civilian_cap": 34,
@@ -69,7 +71,8 @@ const PROFILE_RULES: Dictionary = {
 		"civilian_policy": &"market_day_trade_and_delivery",
 		"occupation_counts": {&"merchant": 10, &"artisan": 6, &"laborer": 8, &"resident": 4},
 	},
-	PROFILE_NIGHT: {
+	PROFILE_NIGHT:
+	{
 		"civilian_count": 6,
 		"watch_count": 6,
 		"civilian_cap": 8,
@@ -81,7 +84,8 @@ const PROFILE_RULES: Dictionary = {
 		"civilian_policy": &"night_shelter_or_essential_work",
 		"occupation_counts": {&"merchant": 0, &"artisan": 1, &"laborer": 1, &"resident": 4},
 	},
-	PROFILE_CRACKDOWN: {
+	PROFILE_CRACKDOWN:
+	{
 		"civilian_count": 10,
 		"watch_count": 10,
 		"civilian_cap": 14,
@@ -106,9 +110,7 @@ static func is_known_profile(profile_id: StringName) -> bool:
 ## back to the deterministic campaign date and phase. Precedence is crackdown,
 ## night, market-day, then ordinary day so a tense night never presents as trade.
 static func profile_id_for_context(
-	phase_id: StringName,
-	date: Dictionary,
-	context: Dictionary = {}
+	phase_id: StringName, date: Dictionary, context: Dictionary = {}
 ) -> StringName:
 	var is_crackdown := _context_bool(context, &"crackdown", false)
 	is_crackdown = is_crackdown or _context_bool(context, &"tense", false)
@@ -137,10 +139,7 @@ static func profile_id_for_context(
 ## Resolves the selected context profile through the canonical profile builder so
 ## actor plans, seed, date, and replay_inputs remain identical to direct profiles.
 static func resolve_for_context(
-	phase_id: StringName,
-	date: Dictionary,
-	seed: int = 0,
-	context: Dictionary = {}
+	phase_id: StringName, date: Dictionary, seed: int = 0, context: Dictionary = {}
 ) -> Dictionary:
 	return resolve(profile_id_for_context(phase_id, date, context), phase_id, date, seed)
 
@@ -152,10 +151,7 @@ static func _context_bool(context: Dictionary, key: StringName, fallback: bool) 
 
 
 static func resolve(
-	profile_id: StringName,
-	phase_id: StringName,
-	date: Dictionary,
-	seed: int = 0
+	profile_id: StringName, phase_id: StringName, date: Dictionary, seed: int = 0
 ) -> Dictionary:
 	var selected_id := profile_id if is_known_profile(profile_id) else PROFILE_DAY
 	var rules: Dictionary = PROFILE_RULES[selected_id]
@@ -206,7 +202,8 @@ static func resolve(
 		"civilian_policy": StringName(rules["civilian_policy"]),
 		"rules": rules_snapshot,
 		"actor_plan": actor_plan,
-		"replay_inputs": {
+		"replay_inputs":
+		{
 			"profile_id": selected_id,
 			"phase_id": phase_id,
 			"date": resolved_date.duplicate(),
@@ -238,16 +235,21 @@ static func actor_records(profile: Dictionary) -> Array[Dictionary]:
 		var actor_id := StringName(actor.get("actor_id", &""))
 		if actor_id.is_empty():
 			actor_id = StringName("crowd.%s.%03d" % [String(profile_id), actor_index])
-		records.append({
-			"actor_id": actor_id,
-			"actor_index": actor_index,
-			"role": StringName(actor.get("role", &"")),
-			"occupation": StringName(actor.get("occupation", &"")),
-			"zone_id": StringName(actor.get("zone_id", &"")),
-			"movement_mode": StringName(actor.get("movement_mode", &"")),
-			"anchor_mode": StringName(actor.get("anchor_mode", &"")),
-			"replay_seed": replay_seed,
-		})
+		(
+			records
+			. append(
+				{
+					"actor_id": actor_id,
+					"actor_index": actor_index,
+					"role": StringName(actor.get("role", &"")),
+					"occupation": StringName(actor.get("occupation", &"")),
+					"zone_id": StringName(actor.get("zone_id", &"")),
+					"movement_mode": StringName(actor.get("movement_mode", &"")),
+					"anchor_mode": StringName(actor.get("anchor_mode", &"")),
+					"replay_seed": replay_seed,
+				}
+			)
+		)
 	return records
 
 
@@ -280,9 +282,16 @@ static func _is_market_day(date: Dictionary) -> bool:
 
 
 static func _phase_time_band(phase_id: StringName) -> StringName:
-	if phase_id == GameState.PHASE_INVESTIGATION_NIGHT or phase_id == GameState.PHASE_CONSEQUENCE_NIGHT:
+	if (
+		phase_id == GameState.PHASE_INVESTIGATION_NIGHT
+		or phase_id == GameState.PHASE_CONSEQUENCE_NIGHT
+	):
 		return &"night"
-	if phase_id == GameState.PHASE_PROLOGUE_DAY or phase_id == GameState.PHASE_INVESTIGATION_MORNING or phase_id == GameState.PHASE_REFLECTION_MORNING:
+	if (
+		phase_id == GameState.PHASE_PROLOGUE_DAY
+		or phase_id == GameState.PHASE_INVESTIGATION_MORNING
+		or phase_id == GameState.PHASE_REFLECTION_MORNING
+	):
 		return &"day"
 	return &"unspecified"
 
@@ -331,21 +340,31 @@ static func _build_actor_plan(
 
 	var plan: Array[Dictionary] = []
 	for index in civilian_count:
-		plan.append({
-			"actor_index": index,
-			"role": &"civilian",
-			"occupation": occupations[index],
-			"zone_id": zones[index % zones.size()],
-			"movement_mode": movement_mode,
-			"anchor_mode": anchor_mode,
-		})
+		(
+			plan
+			. append(
+				{
+					"actor_index": index,
+					"role": &"civilian",
+					"occupation": occupations[index],
+					"zone_id": zones[index % zones.size()],
+					"movement_mode": movement_mode,
+					"anchor_mode": anchor_mode,
+				}
+			)
+		)
 	for index in watch_count:
-		plan.append({
-			"actor_index": civilian_count + index,
-			"role": &"watch",
-			"occupation": &"watch",
-			"zone_id": zones[(civilian_count + index) % zones.size()],
-			"movement_mode": movement_mode,
-			"anchor_mode": anchor_mode,
-		})
+		(
+			plan
+			. append(
+				{
+					"actor_index": civilian_count + index,
+					"role": &"watch",
+					"occupation": &"watch",
+					"zone_id": zones[(civilian_count + index) % zones.size()],
+					"movement_mode": movement_mode,
+					"anchor_mode": anchor_mode,
+				}
+			)
+		)
 	return plan

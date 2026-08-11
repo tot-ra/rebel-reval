@@ -22,8 +22,7 @@ func configure(profile: Dictionary = {}) -> void:
 	randomness = 0.62
 	local_coords = true
 	visibility_aabb = AABB(
-		Vector3(-0.16, -0.04, -0.16) * flame_size,
-		Vector3(0.32, 0.38, 0.32) * flame_size
+		Vector3(-0.16, -0.04, -0.16) * flame_size, Vector3(0.32, 0.38, 0.32) * flame_size
 	)
 
 	var process := ParticleProcessMaterial.new()
@@ -78,17 +77,19 @@ static func _flame_draw_mesh() -> ArrayMesh:
 
 	# A tapered billboard gives every short-lived particle a lick-of-fire shape.
 	# Overlap, upward drift, lifetime scaling, and alpha decay create the motion.
-	var vertices := PackedVector3Array([
-		Vector3(0.0, BASE_HEIGHT * 0.42, 0.0),
-		Vector3(0.0, 0.0, 0.0),
-		Vector3(BASE_WIDTH * 0.48, BASE_HEIGHT * 0.10, 0.0),
-		Vector3(BASE_WIDTH, BASE_HEIGHT * 0.38, 0.0),
-		Vector3(BASE_WIDTH * 0.52, BASE_HEIGHT * 0.69, 0.0),
-		Vector3(0.0, BASE_HEIGHT, 0.0),
-		Vector3(-BASE_WIDTH * 0.52, BASE_HEIGHT * 0.69, 0.0),
-		Vector3(-BASE_WIDTH, BASE_HEIGHT * 0.38, 0.0),
-		Vector3(-BASE_WIDTH * 0.48, BASE_HEIGHT * 0.10, 0.0),
-	])
+	var vertices := PackedVector3Array(
+		[
+			Vector3(0.0, BASE_HEIGHT * 0.42, 0.0),
+			Vector3(0.0, 0.0, 0.0),
+			Vector3(BASE_WIDTH * 0.48, BASE_HEIGHT * 0.10, 0.0),
+			Vector3(BASE_WIDTH, BASE_HEIGHT * 0.38, 0.0),
+			Vector3(BASE_WIDTH * 0.52, BASE_HEIGHT * 0.69, 0.0),
+			Vector3(0.0, BASE_HEIGHT, 0.0),
+			Vector3(-BASE_WIDTH * 0.52, BASE_HEIGHT * 0.69, 0.0),
+			Vector3(-BASE_WIDTH, BASE_HEIGHT * 0.38, 0.0),
+			Vector3(-BASE_WIDTH * 0.48, BASE_HEIGHT * 0.10, 0.0),
+		]
+	)
 	var indices := PackedInt32Array()
 	for point in range(1, vertices.size()):
 		indices.append(0)

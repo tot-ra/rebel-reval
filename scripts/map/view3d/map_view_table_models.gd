@@ -7,7 +7,9 @@ extends RefCounted
 ## base through style_variant and any unique tabletop modules through table_items.
 ## Legacy fish_splitting_table props call the same path with a documented preset.
 
-const MedievalLightingModels := preload("res://scripts/map/view3d/map_view_medieval_lighting_models.gd")
+const MedievalLightingModels := preload(
+	"res://scripts/map/view3d/map_view_medieval_lighting_models.gd"
+)
 
 const TABLE_KIT_SCENE_PATH := "res://assets/props/furniture/tables/medieval_table_kit.glb"
 const BASE_ROOT_NAMES: Dictionary = {
@@ -81,14 +83,18 @@ static func add_fish_splitting_preset(parent: Node3D, prop: Dictionary = {}) -> 
 
 
 static func table_variant_for_prop(prop: Dictionary) -> StringName:
-	var variant := StringName(prop.get("style_variant", MapPropStyleVariants.TABLE_COMMON_HOUSEHOLD))
-	return variant if variant in MapPropStyleVariants.TABLE_VARIANTS else MapPropStyleVariants.TABLE_COMMON_HOUSEHOLD
+	var variant := StringName(
+		prop.get("style_variant", MapPropStyleVariants.TABLE_COMMON_HOUSEHOLD)
+	)
+	return (
+		variant
+		if variant in MapPropStyleVariants.TABLE_VARIANTS
+		else MapPropStyleVariants.TABLE_COMMON_HOUSEHOLD
+	)
 
 
 static func _remove_unused_components(
-	model: Node3D,
-	selected_base_name: StringName,
-	selected_item_names: Array[StringName]
+	model: Node3D, selected_base_name: StringName, selected_item_names: Array[StringName]
 ) -> void:
 	for root_name in BASE_ROOT_NAMES.values():
 		if root_name != selected_base_name:
@@ -106,7 +112,9 @@ static func _remove_component(model: Node3D, root_name: StringName) -> void:
 	unused.free()
 
 
-static func _place_geometry_module(model: Node3D, item_kind: StringName, tabletop_height: float) -> void:
+static func _place_geometry_module(
+	model: Node3D, item_kind: StringName, tabletop_height: float
+) -> void:
 	assert(ITEM_ROOT_NAMES.has(item_kind), "Unknown geometry table item: %s" % String(item_kind))
 	var module_name: StringName = ITEM_ROOT_NAMES[item_kind]
 	var module := model.find_child(String(module_name), true, false) as Node3D
@@ -127,7 +135,13 @@ static func _add_candle_module(model: Node3D, tabletop_height: float) -> void:
 	model.add_child(slot)
 	# The existing authored tallow model keeps wax, holder, flame, and day/night
 	# behavior consistent whether the candle is a standalone prop or table content.
-	MedievalLightingModels.add_model(slot, {
-		"kind": MapTypes.PROP_KIND_CANDLE,
-		"style_variant": MapTypes.DEFAULT_LIGHTING_VARIANT,
-	})
+	(
+		MedievalLightingModels
+		. add_model(
+			slot,
+			{
+				"kind": MapTypes.PROP_KIND_CANDLE,
+				"style_variant": MapTypes.DEFAULT_LIGHTING_VARIANT,
+			}
+		)
+	)

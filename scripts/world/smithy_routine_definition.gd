@@ -42,7 +42,9 @@ func get_activity_point(activity_id: StringName) -> SmithyActivityPoint:
 	return activity_points.get(activity_id) as SmithyActivityPoint
 
 
-func schedule_for(actor_id: StringName, phase_id: StringName, time_band: StringName) -> Array[StringName]:
+func schedule_for(
+	actor_id: StringName, phase_id: StringName, time_band: StringName
+) -> Array[StringName]:
 	var actor_schedules: Variant = schedules.get(actor_id, {})
 	if actor_schedules is Dictionary:
 		var phase_schedules: Variant = actor_schedules.get(phase_id, {})
@@ -89,7 +91,9 @@ static func _parse_nested_sequences(value: Variant) -> Dictionary:
 					elif phase_value is Dictionary:
 						var bands := {}
 						for band_key in phase_value.keys():
-							bands[StringName(str(band_key))] = _to_string_name_array(phase_value[band_key])
+							bands[StringName(str(band_key))] = _to_string_name_array(
+								phase_value[band_key]
+							)
 						result[actor_id][phase_id] = bands
 	return result
 

@@ -12,14 +12,13 @@ const BAR_Y := 2.18
 ## Push fill slightly toward the camera to avoid z-fighting with the background.
 const FILL_Z_BIAS := 0.002
 
+var current_health := 100.0
+var max_health := 100.0
+
 var _background: MeshInstance3D
 var _fill: MeshInstance3D
 var _fill_material: StandardMaterial3D
 var _applied_ratio := -1.0
-
-var current_health := 100.0
-var max_health := 100.0
-
 
 func _ready() -> void:
 	_build_nodes()
@@ -110,18 +109,22 @@ func _make_bar_material(color: Color) -> StandardMaterial3D:
 static func _make_bar_mesh(width: float, height: float) -> ArrayMesh:
 	var half_w := width * 0.5
 	var half_h := height * 0.5
-	var vertices := PackedVector3Array([
-		Vector3(-half_w, -half_h, 0.0),
-		Vector3(half_w, -half_h, 0.0),
-		Vector3(half_w, half_h, 0.0),
-		Vector3(-half_w, half_h, 0.0),
-	])
-	var normals := PackedVector3Array([
-		Vector3.BACK,
-		Vector3.BACK,
-		Vector3.BACK,
-		Vector3.BACK,
-	])
+	var vertices := PackedVector3Array(
+		[
+			Vector3(-half_w, -half_h, 0.0),
+			Vector3(half_w, -half_h, 0.0),
+			Vector3(half_w, half_h, 0.0),
+			Vector3(-half_w, half_h, 0.0),
+		]
+	)
+	var normals := PackedVector3Array(
+		[
+			Vector3.BACK,
+			Vector3.BACK,
+			Vector3.BACK,
+			Vector3.BACK,
+		]
+	)
 	var indices := PackedInt32Array([0, 1, 2, 0, 2, 3])
 	var arrays: Array = []
 	arrays.resize(Mesh.ARRAY_MAX)

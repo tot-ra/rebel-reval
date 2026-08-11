@@ -33,7 +33,7 @@ var _lod2_instance: MultiMeshInstance3D
 var _crowd_enabled := true
 var _seed: int = 0
 var _actor_positions: Dictionary = {}  # actor_id -> Vector3
-var _actor_tints: Dictionary = {}      # actor_id -> Color
+var _actor_tints: Dictionary = {}  # actor_id -> Color
 
 
 ## Build the crowd renderer from the shared character LOD2 mesh (the
@@ -71,7 +71,9 @@ func configure(max_instances: int = 200, seed_value: int = 0) -> void:
 		_lod1_instance.visibility_range_begin_margin = LOD1_MARGIN
 		_lod1_instance.visibility_range_end = LOD1_END
 		_lod1_instance.visibility_range_end_margin = LOD1_MARGIN
-		_lod1_instance.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_DISABLED
+		_lod1_instance.visibility_range_fade_mode = (
+			GeometryInstance3D.VISIBILITY_RANGE_FADE_DISABLED
+		)
 		add_child(_lod1_instance)
 
 	var lod2_mesh := _load_crowd_mesh_variant(2)
@@ -79,7 +81,9 @@ func configure(max_instances: int = 200, seed_value: int = 0) -> void:
 		_lod2_instance = _build_multimesh_node("CrowdLOD2", lod2_mesh, material, max_instances)
 		_lod2_instance.visibility_range_begin = LOD2_BEGIN
 		_lod2_instance.visibility_range_begin_margin = LOD1_MARGIN
-		_lod2_instance.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_DISABLED
+		_lod2_instance.visibility_range_fade_mode = (
+			GeometryInstance3D.VISIBILITY_RANGE_FADE_DISABLED
+		)
 		add_child(_lod2_instance)
 
 
@@ -160,8 +164,7 @@ func _apply_to_lod(instance: MultiMeshInstance3D, ids: Array, count: int) -> voi
 			mm.set_instance_color(i, tint)
 		else:
 			mm.set_instance_transform(
-				i,
-				Transform3D(Basis.from_scale(Vector3.ONE * 0.001), Vector3(0, -9999, 0))
+				i, Transform3D(Basis.from_scale(Vector3.ONE * 0.001), Vector3(0, -9999, 0))
 			)
 			mm.set_instance_color(i, Color(1, 1, 1, 1))
 
@@ -177,10 +180,14 @@ func _deterministic_tint(actor_id: int) -> Color:
 	var cloth_variant := rng.randi_range(0, 3)
 	var cloth_color: Color
 	match cloth_variant:
-		0: cloth_color = Color(0.45, 0.35, 0.25)  # brown wool
-		1: cloth_color = Color(0.35, 0.4, 0.3)    # green linen
-		2: cloth_color = Color(0.3, 0.35, 0.45)   # blue-grey
-		_: cloth_color = Color(0.5, 0.45, 0.4)    # undyed linen
+		0:
+			cloth_color = Color(0.45, 0.35, 0.25)  # brown wool
+		1:
+			cloth_color = Color(0.35, 0.4, 0.3)  # green linen
+		2:
+			cloth_color = Color(0.3, 0.35, 0.45)  # blue-grey
+		_:
+			cloth_color = Color(0.5, 0.45, 0.4)  # undyed linen
 	# Blend skin and cloth tint; at gameplay distance the combined
 	# hue shift is enough to distinguish individual crowd members.
 	var blend := rng.randf_range(0.3, 0.7)
@@ -245,10 +252,7 @@ static func _extract_mesh(root: Node) -> ArrayMesh:
 
 
 static func _build_multimesh_node(
-	node_name: String,
-	mesh: ArrayMesh,
-	material: Material,
-	capacity: int
+	node_name: String, mesh: ArrayMesh, material: Material, capacity: int
 ) -> MultiMeshInstance3D:
 	var instance := MultiMeshInstance3D.new()
 	instance.name = node_name
@@ -261,8 +265,7 @@ static func _build_multimesh_node(
 	# is assigned. Active instances get proper transforms in _sync_multimesh.
 	for i in capacity:
 		mm.set_instance_transform(
-			i,
-			Transform3D(Basis.from_scale(Vector3.ONE * 0.001), Vector3(0, -9999, 0))
+			i, Transform3D(Basis.from_scale(Vector3.ONE * 0.001), Vector3(0, -9999, 0))
 		)
 	instance.multimesh = mm
 	instance.material_override = material

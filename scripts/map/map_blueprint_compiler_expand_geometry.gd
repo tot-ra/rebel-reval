@@ -7,18 +7,50 @@ const PropStyleVariants := preload("res://scripts/map/map_prop_style_variants.gd
 
 
 static func expand_structure(
-	object_id: StringName, data: Dictionary, style: Dictionary, inline: Dictionary,
-	blueprint: MapBlueprint, path: String, expanded: Dictionary, global: Dictionary, errors: Array[String]
+	object_id: StringName,
+	data: Dictionary,
+	style: Dictionary,
+	inline: Dictionary,
+	blueprint: MapBlueprint,
+	path: String,
+	expanded: Dictionary,
+	global: Dictionary,
+	errors: Array[String]
 ) -> void:
-	var values := MapBlueprintCompilerExpand.resolved_values(object_id, data, style, inline, global, MapBlueprintCompiler.BUILDING_OVERRIDE_KEYS, path, errors)
+	var values := MapBlueprintCompilerExpand.resolved_values(
+		object_id,
+		data,
+		style,
+		inline,
+		global,
+		MapBlueprintCompiler.BUILDING_OVERRIDE_KEYS,
+		path,
+		errors
+	)
 	append_building(object_id, values, blueprint, path, expanded, errors)
 
 
 static func expand_wall(
-	object_id: StringName, data: Dictionary, style: Dictionary, inline: Dictionary,
-	blueprint: MapBlueprint, path: String, expanded: Dictionary, global: Dictionary, errors: Array[String]
+	object_id: StringName,
+	data: Dictionary,
+	style: Dictionary,
+	inline: Dictionary,
+	blueprint: MapBlueprint,
+	path: String,
+	expanded: Dictionary,
+	global: Dictionary,
+	errors: Array[String]
 ) -> void:
-	var values := MapBlueprintCompilerExpand.resolved_values(object_id, data, style, inline, global, MapBlueprintCompiler.BUILDING_OVERRIDE_KEYS, path, errors)
+	var values := MapBlueprintCompilerExpand.resolved_values(
+		object_id,
+		data,
+		style,
+		inline,
+		global,
+		MapBlueprintCompiler.BUILDING_OVERRIDE_KEYS,
+		path,
+		errors
+	)
 	var start: Variant = data.get("start")
 	var finish: Variant = data.get("end")
 	var thickness := int(data.get("thickness", 0))
@@ -49,15 +81,29 @@ static func expand_wall(
 			errors.append("%s.openings[%d] must be Rect2i" % [path, index])
 			continue
 		if opening.size.x <= 0 or opening.size.y <= 0 or not run_rect.encloses(opening):
-			errors.append("%s.openings[%d] must be positive and inside the wall run" % [path, index])
+			errors.append(
+				"%s.openings[%d] must be positive and inside the wall run" % [path, index]
+			)
 			continue
-		if horizontal and (opening.position.y != run_rect.position.y or opening.size.y != thickness):
+		if (
+			horizontal
+			and (opening.position.y != run_rect.position.y or opening.size.y != thickness)
+		):
 			errors.append("%s.openings[%d] must span the wall thickness" % [path, index])
 			continue
-		if not horizontal and (opening.position.x != run_rect.position.x or opening.size.x != thickness):
+		if (
+			not horizontal
+			and (opening.position.x != run_rect.position.x or opening.size.x != thickness)
+		):
 			errors.append("%s.openings[%d] must span the wall thickness" % [path, index])
 			continue
-		intervals.append(Vector2i(opening.position.x, opening.end.x) if horizontal else Vector2i(opening.position.y, opening.end.y))
+		intervals.append(
+			(
+				Vector2i(opening.position.x, opening.end.x)
+				if horizontal
+				else Vector2i(opening.position.y, opening.end.y)
+			)
+		)
 	intervals.sort_custom(MapBlueprintCompiler._compare_vector2i)
 	var cursor := run_rect.position.x if horizontal else run_rect.position.y
 	var run_end := run_rect.end.x if horizontal else run_rect.end.y
@@ -67,10 +113,22 @@ static func expand_wall(
 			errors.append("%s.openings overlap at cell %d" % [path, interval.x])
 			continue
 		if interval.x > cursor:
-			segments.append(Rect2i(cursor, run_rect.position.y, interval.x - cursor, thickness) if horizontal else Rect2i(run_rect.position.x, cursor, thickness, interval.x - cursor))
+			segments.append(
+				(
+					Rect2i(cursor, run_rect.position.y, interval.x - cursor, thickness)
+					if horizontal
+					else Rect2i(run_rect.position.x, cursor, thickness, interval.x - cursor)
+				)
+			)
 		cursor = maxi(cursor, interval.y)
 	if cursor < run_end:
-		segments.append(Rect2i(cursor, run_rect.position.y, run_end - cursor, thickness) if horizontal else Rect2i(run_rect.position.x, cursor, thickness, run_end - cursor))
+		segments.append(
+			(
+				Rect2i(cursor, run_rect.position.y, run_end - cursor, thickness)
+				if horizontal
+				else Rect2i(run_rect.position.x, cursor, thickness, run_end - cursor)
+			)
+		)
 	if segments.is_empty():
 		errors.append("%s openings remove the complete wall run" % path)
 		return
@@ -79,15 +137,32 @@ static func expand_wall(
 		# suffixes identify the runtime fragments around openings.
 		MapBlueprintCompilerExpand.register_id(object_id, path, expanded, errors)
 	for index in segments.size():
-		var segment_id := object_id if segments.size() == 1 else StringName("%s/segment.%03d" % [String(object_id), index])
+		var segment_id := (
+			object_id
+			if segments.size() == 1
+			else StringName("%s/segment.%03d" % [String(object_id), index])
+		)
 		var segment_values := values.duplicate(true)
 		segment_values["rect"] = segments[index]
-		append_building(segment_id, segment_values, blueprint, "%s.segment[%d]" % [path, index], expanded, errors)
+		append_building(
+			segment_id,
+			segment_values,
+			blueprint,
+			"%s.segment[%d]" % [path, index],
+			expanded,
+			errors
+		)
 
 
 static func expand_row(
-	row_id: StringName, data: Dictionary, style: Dictionary, blueprint: MapBlueprint,
-	path: String, expanded: Dictionary, global: Dictionary, errors: Array[String]
+	row_id: StringName,
+	data: Dictionary,
+	style: Dictionary,
+	blueprint: MapBlueprint,
+	path: String,
+	expanded: Dictionary,
+	global: Dictionary,
+	errors: Array[String]
 ) -> void:
 	var object_type: StringName = data.get("object_type", &"")
 	if object_type not in [MapBlueprint.OBJECT_BUILDING, MapBlueprint.OBJECT_PROP]:
@@ -134,18 +209,42 @@ static func expand_row(
 		MapBlueprintCompiler._merge(values, slot_override)
 		if global.has(object_id):
 			MapBlueprintCompiler._merge(values, global[object_id])
-		var allowed := MapBlueprintCompiler.BUILDING_OVERRIDE_KEYS if object_type == MapBlueprint.OBJECT_BUILDING else MapBlueprintCompiler.PROP_OVERRIDE_KEYS
+		var allowed := (
+			MapBlueprintCompiler.BUILDING_OVERRIDE_KEYS
+			if object_type == MapBlueprint.OBJECT_BUILDING
+			else MapBlueprintCompiler.PROP_OVERRIDE_KEYS
+		)
 		MapBlueprintCompilerExpand.validate_override_keys(style, allowed, "%s.style" % path, errors)
-		MapBlueprintCompilerExpand.validate_override_keys(slot_override, allowed, "%s.overrides_by_slot[%s]" % [path, String(slot_id)], errors)
+		MapBlueprintCompilerExpand.validate_override_keys(
+			slot_override, allowed, "%s.overrides_by_slot[%s]" % [path, String(slot_id)], errors
+		)
 		if global.has(object_id):
-			MapBlueprintCompilerExpand.validate_override_keys(global[object_id], allowed, "override[%s]" % String(object_id), errors)
+			MapBlueprintCompilerExpand.validate_override_keys(
+				global[object_id], allowed, "override[%s]" % String(object_id), errors
+			)
 		if bool(values.get("enabled", true)):
 			if object_type == MapBlueprint.OBJECT_BUILDING:
-				append_building(object_id, values, blueprint, "%s.slot[%s]" % [path, String(slot_id)], expanded, errors)
+				append_building(
+					object_id,
+					values,
+					blueprint,
+					"%s.slot[%s]" % [path, String(slot_id)],
+					expanded,
+					errors
+				)
 			else:
-				MapBlueprintCompilerExpand.append_prop(object_id, values, blueprint, "%s.slot[%s]" % [path, String(slot_id)], expanded, errors)
+				MapBlueprintCompilerExpand.append_prop(
+					object_id,
+					values,
+					blueprint,
+					"%s.slot[%s]" % [path, String(slot_id)],
+					expanded,
+					errors
+				)
 		else:
-			MapBlueprintCompilerExpand.register_id(object_id, "%s.slot[%s]" % [path, String(slot_id)], expanded, errors)
+			MapBlueprintCompilerExpand.register_id(
+				object_id, "%s.slot[%s]" % [path, String(slot_id)], expanded, errors
+			)
 			if global.has(object_id):
 				errors.append("override targets disabled object: %s" % String(object_id))
 	for key in per_slot.keys():
@@ -154,8 +253,12 @@ static func expand_row(
 
 
 static func append_building(
-	object_id: StringName, values: Dictionary, blueprint: MapBlueprint,
-	path: String, expanded: Dictionary, errors: Array[String]
+	object_id: StringName,
+	values: Dictionary,
+	blueprint: MapBlueprint,
+	path: String,
+	expanded: Dictionary,
+	errors: Array[String]
 ) -> void:
 	MapBlueprintCompilerExpand.register_id(object_id, path, expanded, errors)
 	if not bool(values.get("enabled", true)):

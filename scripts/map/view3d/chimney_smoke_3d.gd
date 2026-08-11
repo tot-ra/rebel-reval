@@ -146,10 +146,7 @@ func _update_color_ramp(night: bool) -> void:
 		return
 	var warmth := float((_building_seed >> 4) % 100) / 100.0
 	var base := Color(
-		lerpf(0.70, 0.78, warmth),
-		lerpf(0.71, 0.75, warmth),
-		lerpf(0.73, 0.69, warmth),
-		1.0
+		lerpf(0.70, 0.78, warmth), lerpf(0.71, 0.75, warmth), lerpf(0.73, 0.69, warmth), 1.0
 	)
 	if night:
 		base = base.lerp(Color(0.62, 0.66, 0.74), 0.28).darkened(0.06)
@@ -187,7 +184,9 @@ func _process(_delta: float) -> void:
 		cos(t * 0.39 + _phase * 1.15) * 0.40 + cos(t * 1.95 + _phase * 0.7) * 0.16
 	)
 	var prevailing := Vector3(wind_dir.x, 0.0, wind_dir.y) * lerpf(0.55, 1.45, wind_power)
-	var sway := prevailing + _horizontal_wind + Vector3(gust.x, 0.0, gust.y) * lerpf(0.45, 1.1, wind_power)
+	var sway := (
+		prevailing + _horizontal_wind + Vector3(gust.x, 0.0, gust.y) * lerpf(0.45, 1.1, wind_power)
+	)
 	# Gravity bends the rising column; new puffs still launch upward from the chimney.
 	process.gravity = Vector3(sway.x * 0.38, -0.03 + sin(t * 0.55 + _phase) * 0.02, sway.z * 0.38)
 

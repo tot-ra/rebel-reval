@@ -1,7 +1,9 @@
 class_name MapPrefabExpander
 extends RefCounted
 
-const MapPrefabPrimitiveTransformer := preload("res://scripts/map/map_prefab_primitive_transformer.gd")
+const MapPrefabPrimitiveTransformer := preload(
+	"res://scripts/map/map_prefab_primitive_transformer.gd"
+)
 
 ## Expands package prefabs to ordinary MapBlueprint primitive records. Keeping
 ## this phase separate lets the proven primitive compiler remain the authority
@@ -28,7 +30,19 @@ static func expand(blueprint: MapBlueprint, errors: Array[String]) -> Dictionary
 			errors.append("%s duplicates prefab instance id: %s" % [path, String(instance_id)])
 			continue
 		instance_ids[instance_id] = true
-		_expand_instance(instance_record, String(instance_id), registry, output, errors, path, [], 0, [], Vector2i.ZERO, MapTransform.new())
+		_expand_instance(
+			instance_record,
+			String(instance_id),
+			registry,
+			output,
+			errors,
+			path,
+			[],
+			0,
+			[],
+			Vector2i.ZERO,
+			MapTransform.new()
+		)
 	return {"primitives": output, "instance_ids": instance_ids}
 
 
@@ -45,7 +59,9 @@ static func _build_registry(packages: Array[MapPrefabPackage], errors: Array[Str
 		if package.version <= 0:
 			errors.append("%s.version must be positive" % path)
 		if package_ids.has(package.package_id):
-			errors.append("%s duplicates prefab package id: %s" % [path, String(package.package_id)])
+			errors.append(
+				"%s duplicates prefab package id: %s" % [path, String(package.package_id)]
+			)
 			continue
 		package_ids[package.package_id] = true
 		var local_ids: Dictionary = {}
@@ -59,10 +75,17 @@ static func _build_registry(packages: Array[MapPrefabPackage], errors: Array[Str
 			if prefab.version <= 0:
 				errors.append("%s.version must be positive" % prefab_path)
 			if local_ids.has(prefab.prefab_id):
-				errors.append("%s duplicates prefab id in package: %s" % [prefab_path, String(prefab.prefab_id)])
+				errors.append(
+					(
+						"%s duplicates prefab id in package: %s"
+						% [prefab_path, String(prefab.prefab_id)]
+					)
+				)
 				continue
 			local_ids[prefab.prefab_id] = true
-			var qualified_id := StringName("%s.%s" % [String(package.package_id), String(prefab.prefab_id)])
+			var qualified_id := StringName(
+				"%s.%s" % [String(package.package_id), String(prefab.prefab_id)]
+			)
 			registry[qualified_id] = prefab
 	return registry
 
@@ -101,22 +124,32 @@ static func _expand_instance(
 	if not local_origin is Vector2i:
 		errors.append("%s.origin must be Vector2i" % path)
 		return
-	var local_transform := _read_transform(instance_record.get("transform"), "%s.transform" % path, errors)
+	var local_transform := _read_transform(
+		instance_record.get("transform"), "%s.transform" % path, errors
+	)
 	if local_transform == null:
 		return
 	var map_origin := parent_origin + parent_transform.transform_cell(local_origin)
-	var composed_transform := MapPrefabPrimitiveTransformer.compose(parent_transform, local_transform)
+	var composed_transform := MapPrefabPrimitiveTransformer.compose(
+		parent_transform, local_transform
+	)
 	var prefab: MapPrefab = registry[prefab_id]
-	var parameters := _resolve_parameters(prefab, instance_record.get("parameters", {}), path, errors)
+	var parameters := _resolve_parameters(
+		prefab, instance_record.get("parameters", {}), path, errors
+	)
 
-	var own_overrides := _normalize_overrides(instance_record.get("overrides", {}), "%s.overrides" % path, errors)
+	var own_overrides := _normalize_overrides(
+		instance_record.get("overrides", {}), "%s.overrides" % path, errors
+	)
 	var next_override_layers: Array[Dictionary] = [own_overrides]
 	next_override_layers.append_array(inherited_override_layers)
 	var local_object_ids: Dictionary = {}
 	var primitive_ids: Dictionary = {}
 	for primitive_index in prefab.primitives.size():
 		var primitive: Variant = prefab.primitives[primitive_index]
-		var primitive_path := "%s.prefab[%s].primitives[%d]" % [path, String(prefab_id), primitive_index]
+		var primitive_path := (
+			"%s.prefab[%s].primitives[%d]" % [path, String(prefab_id), primitive_index]
+		)
 		if not primitive is Dictionary:
 			errors.append("%s must be Dictionary" % primitive_path)
 			continue
@@ -129,9 +162,7 @@ static func _expand_instance(
 		primitive_ids[local_id] = true
 		var resolved: Dictionary = _resolve_variant(primitive, parameters, primitive_path, errors)
 		var transformed := MapPrefabPrimitiveTransformer.transform_primitive(
-			resolved,
-			composed_transform,
-			map_origin
+			resolved, composed_transform, map_origin
 		)
 		transformed["id"] = StringName("%s/%s" % [id_namespace, String(local_id)])
 		_apply_override_layers(transformed, String(local_id), next_override_layers)
@@ -155,8 +186,22 @@ static func _expand_instance(
 			continue
 		local_object_ids[nested_id] = true
 		var nested_namespace := "%s/%s" % [id_namespace, String(nested_id)]
-		var nested_override_layers := _descend_override_layers(next_override_layers, String(nested_id))
-		_expand_instance(resolved_nested, nested_namespace, registry, output, errors, nested_path, next_stack, depth + 1, nested_override_layers, map_origin, composed_transform)
+		var nested_override_layers := _descend_override_layers(
+			next_override_layers, String(nested_id)
+		)
+		_expand_instance(
+			resolved_nested,
+			nested_namespace,
+			registry,
+			output,
+			errors,
+			nested_path,
+			next_stack,
+			depth + 1,
+			nested_override_layers,
+			map_origin,
+			composed_transform
+		)
 
 	# Override keys name semantic local objects or nested paths, never array slots.
 	var expanded_local_targets: Dictionary = {}
@@ -170,7 +215,9 @@ static func _expand_instance(
 			errors.append("%s.overrides targets unknown prefab object: %s" % [path, String(target)])
 
 
-static func _resolve_parameters(prefab: MapPrefab, supplied_value: Variant, path: String, errors: Array[String]) -> Dictionary:
+static func _resolve_parameters(
+	prefab: MapPrefab, supplied_value: Variant, path: String, errors: Array[String]
+) -> Dictionary:
 	var supplied: Dictionary = supplied_value if supplied_value is Dictionary else {}
 	if not supplied_value is Dictionary:
 		errors.append("%s.parameters must be Dictionary" % path)
@@ -191,9 +238,13 @@ static func _resolve_parameters(prefab: MapPrefab, supplied_value: Variant, path
 		var type_id: StringName = declaration.get("type", &"")
 		if not MapPrefab.PARAMETER_TYPES.has(type_id):
 			errors.append("%s has unknown parameter type: %s" % [parameter_path, String(type_id)])
-		var value: Variant = supplied.get(parameter_id, supplied.get(String(parameter_id), declaration.get("default")))
+		var value: Variant = supplied.get(
+			parameter_id, supplied.get(String(parameter_id), declaration.get("default"))
+		)
 		if not _matches_parameter_type(value, type_id):
-			errors.append("%s value for %s must have type %s" % [path, String(parameter_id), String(type_id)])
+			errors.append(
+				"%s value for %s must have type %s" % [path, String(parameter_id), String(type_id)]
+			)
 		values[parameter_id] = value
 	for key in supplied.keys():
 		if not declarations.has(StringName(key)):
@@ -201,27 +252,37 @@ static func _resolve_parameters(prefab: MapPrefab, supplied_value: Variant, path
 	return values
 
 
-static func _resolve_variant(value: Variant, parameters: Dictionary, path: String, errors: Array[String]) -> Variant:
+static func _resolve_variant(
+	value: Variant, parameters: Dictionary, path: String, errors: Array[String]
+) -> Variant:
 	if value is Dictionary:
 		if value.size() == 1 and value.has(MapPrefab.PARAMETER_REFERENCE_KEY):
 			var parameter_id: StringName = value[MapPrefab.PARAMETER_REFERENCE_KEY]
 			if not parameters.has(parameter_id):
-				errors.append("%s references undeclared parameter: %s" % [path, String(parameter_id)])
+				errors.append(
+					"%s references undeclared parameter: %s" % [path, String(parameter_id)]
+				)
 				return null
 			return parameters[parameter_id]
 		var resolved: Dictionary = {}
 		for key in value.keys():
-			resolved[key] = _resolve_variant(value[key], parameters, "%s.%s" % [path, String(key)], errors)
+			resolved[key] = _resolve_variant(
+				value[key], parameters, "%s.%s" % [path, String(key)], errors
+			)
 		return resolved
 	if value is Array:
 		var resolved: Array = []
 		for index in value.size():
-			resolved.append(_resolve_variant(value[index], parameters, "%s[%d]" % [path, index], errors))
+			resolved.append(
+				_resolve_variant(value[index], parameters, "%s[%d]" % [path, index], errors)
+			)
 		return resolved
 	return value
 
 
-static func _apply_override_layers(primitive: Dictionary, local_id: String, layers: Array[Dictionary]) -> void:
+static func _apply_override_layers(
+	primitive: Dictionary, local_id: String, layers: Array[Dictionary]
+) -> void:
 	var inline: Dictionary = primitive.get("overrides", {}).duplicate(true)
 	for layer in layers:
 		var values: Variant = layer.get(StringName(local_id), layer.get(local_id, {}))
@@ -282,7 +343,9 @@ static func _matches_parameter_type(value: Variant, type_id: StringName) -> bool
 	return false
 
 
-static func _descend_override_layers(layers: Array[Dictionary], nested_id: String) -> Array[Dictionary]:
+static func _descend_override_layers(
+	layers: Array[Dictionary], nested_id: String
+) -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
 	var prefix := nested_id + "/"
 	for layer in layers:
@@ -295,7 +358,9 @@ static func _descend_override_layers(layers: Array[Dictionary], nested_id: Strin
 	return result
 
 
-static func _validate_id(value: StringName, path: String, allow_namespace: bool, errors: Array[String]) -> void:
+static func _validate_id(
+	value: StringName, path: String, allow_namespace: bool, errors: Array[String]
+) -> void:
 	var text := String(value)
 	if text.is_empty():
 		errors.append("%s is required" % path)

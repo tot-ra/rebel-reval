@@ -21,9 +21,7 @@ const ZONE_BOUNDS: Dictionary = {
 
 
 static func build_placements(
-	definition: MapDefinition,
-	grid: MapTerrainGrid,
-	profile: Dictionary
+	definition: MapDefinition, grid: MapTerrainGrid, profile: Dictionary
 ) -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
 	if definition == null or grid == null or profile.is_empty():
@@ -47,14 +45,19 @@ static func build_placements(
 		if position == Vector2.INF:
 			return result
 		used.append(position)
-		result.append({
-			"actor_index": int(record.get("actor_index", result.size())),
-			"actor_id": record.get("actor_id", &""),
-			"role": String(record.get("role", "")),
-			"occupation": String(record.get("occupation", "")),
-			"zone_id": String(zone_id),
-			"position": position,
-		})
+		(
+			result
+			. append(
+				{
+					"actor_index": int(record.get("actor_index", result.size())),
+					"actor_id": record.get("actor_id", &""),
+					"role": String(record.get("role", "")),
+					"occupation": String(record.get("occupation", "")),
+					"zone_id": String(zone_id),
+					"position": position,
+				}
+			)
+		)
 	return result
 
 
@@ -73,21 +76,28 @@ static func _find_position(
 		floori(zone.position.y / definition.cell_size)
 	)
 	var max_cell := Vector2i(
-		ceili(zone.end.x / definition.cell_size) - 1,
-		ceili(zone.end.y / definition.cell_size) - 1
+		ceili(zone.end.x / definition.cell_size) - 1, ceili(zone.end.y / definition.cell_size) - 1
 	)
 	for _attempt in 900:
 		var cell := Vector2i(
-			rng.randi_range(min_cell.x, max_cell.x),
-			rng.randi_range(min_cell.y, max_cell.y)
+			rng.randi_range(min_cell.x, max_cell.x), rng.randi_range(min_cell.y, max_cell.y)
 		)
 		if not MapVerificationScript.is_walkable_cell(definition, grid, cell):
 			continue
 		var candidate := Vector2(
-			float(cell.x * definition.cell_size + definition.cell_size / 2) + rng.randf_range(-9.0, 9.0),
-			float(cell.y * definition.cell_size + definition.cell_size / 2) + rng.randf_range(-9.0, 9.0)
+			(
+				float(cell.x * definition.cell_size + definition.cell_size / 2)
+				+ rng.randf_range(-9.0, 9.0)
+			),
+			(
+				float(cell.y * definition.cell_size + definition.cell_size / 2)
+				+ rng.randf_range(-9.0, 9.0)
+			)
 		)
-		if not zone.has_point(candidate) or not MapVerificationScript.is_walkable_point(definition, grid, candidate):
+		if (
+			not zone.has_point(candidate)
+			or not MapVerificationScript.is_walkable_point(definition, grid, candidate)
+		):
 			continue
 		var clear := true
 		for prop_position: Vector2 in props:

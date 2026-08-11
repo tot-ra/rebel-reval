@@ -44,11 +44,31 @@ static func add_frame(parent: Node3D) -> Node3D:
 			&"wood"
 		)
 
-	_add_spar(frame, "RidgePole", Vector3(-0.74, 1.34, 0.0), Vector3(0.74, 1.34, 0.0), 0.05, &"wood")
-	_add_spar(frame, "FrontDryingPole", Vector3(-0.7, DRYING_POLE_HEIGHT, FRONT_POLE_Z), Vector3(0.7, DRYING_POLE_HEIGHT, FRONT_POLE_Z), 0.035, &"wood")
-	_add_spar(frame, "BackDryingPole", Vector3(-0.7, DRYING_POLE_HEIGHT, BACK_POLE_Z), Vector3(0.7, DRYING_POLE_HEIGHT, BACK_POLE_Z), 0.035, &"wood")
-	_add_spar(frame, "FrontBrace", Vector3(-0.6, 0.18, -0.39), Vector3(0.6, 0.72, -0.3), 0.025, &"timber")
-	_add_spar(frame, "BackBrace", Vector3(0.6, 0.18, 0.39), Vector3(-0.6, 0.72, 0.3), 0.025, &"timber")
+	_add_spar(
+		frame, "RidgePole", Vector3(-0.74, 1.34, 0.0), Vector3(0.74, 1.34, 0.0), 0.05, &"wood"
+	)
+	_add_spar(
+		frame,
+		"FrontDryingPole",
+		Vector3(-0.7, DRYING_POLE_HEIGHT, FRONT_POLE_Z),
+		Vector3(0.7, DRYING_POLE_HEIGHT, FRONT_POLE_Z),
+		0.035,
+		&"wood"
+	)
+	_add_spar(
+		frame,
+		"BackDryingPole",
+		Vector3(-0.7, DRYING_POLE_HEIGHT, BACK_POLE_Z),
+		Vector3(0.7, DRYING_POLE_HEIGHT, BACK_POLE_Z),
+		0.035,
+		&"wood"
+	)
+	_add_spar(
+		frame, "FrontBrace", Vector3(-0.6, 0.18, -0.39), Vector3(0.6, 0.72, -0.3), 0.025, &"timber"
+	)
+	_add_spar(
+		frame, "BackBrace", Vector3(0.6, 0.18, 0.39), Vector3(-0.6, 0.72, 0.3), 0.025, &"timber"
+	)
 	return frame
 
 
@@ -56,17 +76,14 @@ static func attachment_point(x: float, back_row: bool = false) -> Vector3:
 	return Vector3(x, DRYING_POLE_HEIGHT, BACK_POLE_Z if back_row else FRONT_POLE_Z)
 
 
-static func add_hanging_cord(parent: Node3D, node_name: String, start: Vector3, length: float) -> void:
+static func add_hanging_cord(
+	parent: Node3D, node_name: String, start: Vector3, length: float
+) -> void:
 	_add_spar(parent, node_name, start, start + Vector3(0.0, -length, 0.0), 0.008, &"timber")
 
 
 static func _add_spar(
-	parent: Node3D,
-	node_name: String,
-	start: Vector3,
-	end: Vector3,
-	radius: float,
-	role: StringName
+	parent: Node3D, node_name: String, start: Vector3, end: Vector3, radius: float, role: StringName
 ) -> void:
 	var direction := end - start
 	if direction.is_zero_approx():

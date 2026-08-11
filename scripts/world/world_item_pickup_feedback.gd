@@ -8,7 +8,7 @@ const PICKUP_BARK_DURATION := 3.5
 
 
 static func resolve_feedback(
-	item_id: StringName,
+	_item_id: StringName,
 	item_record: Dictionary,
 	content_db: ContentDB,
 	state: GameState,
@@ -36,7 +36,8 @@ static func resolve_feedback(
 
 	var speaker_id := StringName(String(pickup.get("speaker_id", "char.kalev")))
 	return {
-		"feedback": {
+		"feedback":
+		{
 			"speaker_id": speaker_id,
 			"speaker_name": speaker_name(content_db, speaker_id),
 			"text": comment,

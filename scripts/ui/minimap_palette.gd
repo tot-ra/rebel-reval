@@ -6,13 +6,8 @@ extends RefCounted
 
 
 static func color_for_cell(
-	definition: MapDefinition,
-	grid: MapTerrainGrid,
-	cell: Vector2i,
-	blocked: Dictionary
+	_definition: MapDefinition, grid: MapTerrainGrid, cell: Vector2i, _blocked: Dictionary
 ) -> Color:
-	if blocked.has(cell):
-		return Color(0.22, 0.2, 0.18, 1.0)
 
 	var terrain := grid.get_terrain(cell)
 	if MapTypes.WATER_TERRAINS.has(terrain):
@@ -23,6 +18,7 @@ static func color_for_cell(
 			return Color(0.52, 0.5, 0.46, 1.0)
 		MapTypes.TERRAIN_DIRT, MapTypes.TERRAIN_MUD, MapTypes.TERRAIN_FARM_SOIL, MapTypes.TERRAIN_ASH:
 			return Color(0.45, 0.34, 0.22, 1.0)
+		# gdlint: ignore=max-line-length
 		MapTypes.TERRAIN_TIMBER_FLOOR, MapTypes.TERRAIN_PLASTER, MapTypes.TERRAIN_STRAW, MapTypes.TERRAIN_HAY:
 			return Color(0.58, 0.5, 0.38, 1.0)
 		MapTypes.TERRAIN_SAND, MapTypes.TERRAIN_COAST_SAND:

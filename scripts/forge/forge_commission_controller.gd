@@ -1,18 +1,17 @@
 class_name ForgeCommissionController
 extends Node
 
+signal commission_finished(commission_id: StringName)
+
 const OVERLAY_SCENE := preload("res://scenes/ui/forge_commission_overlay.tscn")
 const FEEDBACK_OVERLAY_SCRIPT := preload("res://scripts/forge/forge_feedback_overlay.gd")
 const RunnerScript := preload("res://scripts/forge/forge_commission_runner.gd")
 const PresenterScript := preload("res://scripts/forge/forge_commission_ui_presenter.gd")
 
-signal commission_finished(commission_id: StringName)
-
 var _overlay: ForgeCommissionOverlay
 var _feedback_overlay: ForgeFeedbackOverlay
 var _runner: ForgeCommissionRunner
 var _presenter: RefCounted
-
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -50,8 +49,10 @@ func _on_state_replaced(_previous: GameState, current: GameState, _reason: Strin
 
 
 func is_open() -> bool:
-	return (_overlay != null and _overlay.is_open()) \
+	return (
+		(_overlay != null and _overlay.is_open())
 		or (_feedback_overlay != null and _feedback_overlay.is_open())
+	)
 
 
 func is_forging() -> bool:

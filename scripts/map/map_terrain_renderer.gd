@@ -84,7 +84,9 @@ func load_all_chunks() -> void:
 		load_chunk(coordinates)
 
 
-func update_active_chunks(global_position: Vector2, radius_chunks: int = load_radius_chunks) -> void:
+func update_active_chunks(
+	global_position: Vector2, radius_chunks: int = load_radius_chunks
+) -> void:
 	if grid == null:
 		return
 	assert(radius_chunks >= 0)
@@ -101,12 +103,13 @@ func update_active_chunks(global_position: Vector2, radius_chunks: int = load_ra
 			unload_chunk(coordinates)
 	var ordered: Array[Vector2i] = []
 	ordered.assign(wanted.keys())
-	ordered.sort_custom(func(left: Vector2i, right: Vector2i) -> bool:
-		var left_distance := maxi(absi(left.x - focus_chunk.x), absi(left.y - focus_chunk.y))
-		var right_distance := maxi(absi(right.x - focus_chunk.x), absi(right.y - focus_chunk.y))
-		if left_distance != right_distance:
-			return left_distance < right_distance
-		return left.y < right.y or (left.y == right.y and left.x < right.x)
+	ordered.sort_custom(
+		func(left: Vector2i, right: Vector2i) -> bool:
+			var left_distance := maxi(absi(left.x - focus_chunk.x), absi(left.y - focus_chunk.y))
+			var right_distance := maxi(absi(right.x - focus_chunk.x), absi(right.y - focus_chunk.y))
+			if left_distance != right_distance:
+				return left_distance < right_distance
+			return left.y < right.y or (left.y == right.y and left.x < right.x)
 	)
 	for coordinates in ordered:
 		load_chunk(coordinates)
@@ -150,8 +153,9 @@ func update_from_player(player: Node2D, radius_chunks: int = load_radius_chunks)
 func loaded_chunk_coordinates() -> Array[Vector2i]:
 	var result: Array[Vector2i] = []
 	result.assign(_loaded_chunks.keys())
-	result.sort_custom(func(left: Vector2i, right: Vector2i) -> bool:
-		return left.y < right.y or (left.y == right.y and left.x < right.x)
+	result.sort_custom(
+		func(left: Vector2i, right: Vector2i) -> bool:
+			return left.y < right.y or (left.y == right.y and left.x < right.x)
 	)
 	return result
 

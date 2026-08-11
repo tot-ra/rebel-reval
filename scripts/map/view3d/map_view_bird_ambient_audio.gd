@@ -113,10 +113,7 @@ static func matches_song_time(time_tag: StringName, cycle_progress: float) -> bo
 
 
 static func pick_species(
-	seed_key: StringName,
-	context: StringName,
-	cycle_progress: float,
-	schedule_tick: int
+	seed_key: StringName, context: StringName, cycle_progress: float, schedule_tick: int
 ) -> StringName:
 	var candidates := weighted_candidates(context, cycle_progress)
 	if candidates.is_empty():
@@ -157,10 +154,7 @@ static func weighted_candidates(context: StringName, cycle_progress: float) -> A
 
 
 static func distinct_cues_for_context(
-	seed_key: StringName,
-	context: StringName,
-	cycle_progress: float,
-	sample_count: int
+	seed_key: StringName, context: StringName, cycle_progress: float, sample_count: int
 ) -> Array[StringName]:
 	var cues: Array[StringName] = []
 	var seen: Dictionary = {}

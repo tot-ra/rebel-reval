@@ -3,7 +3,7 @@ extends CanvasLayer
 
 ## Focus-first controls editor for keyboard/mouse and gamepad bindings (P1-028).
 
-signal closed()
+signal closed
 
 const BindingSettingsScript := preload("res://scripts/settings/input_binding_settings.gd")
 const PANEL_MIN_SIZE := Vector2(1040, 800)
@@ -11,8 +11,11 @@ const PANEL_MIN_SIZE := Vector2(1040, 800)
 ## Mouse rules are camera-dependent, so they are shown as a legend rather than as
 ## rebindable rows. Keep in sync with docs/CONTROLS.md and MapClickInputController.
 const MOUSE_LEGEND_TEXT := """Mouse
+# gdlint: ignore=max-line-length
 - First-person and third-person: left click acts on what is in front of you - attack a hostile, or talk to / pick up / use a neutral target. Empty ground answers with a swing; there is no click-to-move.
+# gdlint: ignore=max-line-length
 - Top-down: left click on the ground moves there, on an interactable interacts, on a hostile within reach attacks.
+# gdlint: ignore=max-line-length
 - Right click guards (hold) and, while dragging, orbits the camera. Wheel zooms between first-person, third-person, and top-down."""
 
 var _settings_owner: Node
@@ -113,13 +116,9 @@ func _commit_capture(event: InputEvent) -> void:
 		_status_label.text = "Bindings service unavailable."
 		_cancel_capture(false)
 		return
-	var changed := bool(_settings_owner.call(
-		"rebind_action",
-		_waiting_action,
-		_waiting_device,
-		event,
-		true
-	))
+	var changed := bool(
+		_settings_owner.call("rebind_action", _waiting_action, _waiting_device, event, true)
+	)
 	var action_label := _action_label(_waiting_action)
 	var input_label := BindingSettingsScript.event_text(event)
 	_cancel_capture(false)
@@ -149,7 +148,9 @@ func _on_restore_defaults() -> void:
 		return
 	var restored := bool(_settings_owner.call("restore_default_input_bindings", true))
 	_refresh_binding_labels()
-	_status_label.text = "Default controls restored." if restored else "Could not save default controls."
+	_status_label.text = (
+		"Default controls restored." if restored else "Could not save default controls."
+	)
 	if _first_binding_button != null:
 		_first_binding_button.grab_focus()
 
@@ -205,6 +206,7 @@ func _build_ui() -> void:
 	header.add_child(_close_button)
 
 	var intro := Label.new()
+	# gdlint: ignore=max-line-length
 	intro.text = "Every vertical-slice action has separate keyboard/mouse and gamepad bindings. Changes save outside campaign slots."
 	intro.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	intro.add_theme_color_override("font_color", Color(0.78, 0.82, 0.9, 1.0))
@@ -280,16 +282,19 @@ func _add_binding_row(parent: VBoxContainer, definition: Dictionary) -> void:
 			_first_binding_button = button
 
 
-
-
 func _wire_focus_neighbors() -> void:
 	var rows: Array = []
 	for definition: Dictionary in BindingSettingsScript.action_definitions():
 		var action: StringName = definition["id"]
-		rows.append([
-			_button_for(action, BindingSettingsScript.DEVICE_KEYBOARD_MOUSE),
-			_button_for(action, BindingSettingsScript.DEVICE_GAMEPAD),
-		])
+		(
+			rows
+			. append(
+				[
+					_button_for(action, BindingSettingsScript.DEVICE_KEYBOARD_MOUSE),
+					_button_for(action, BindingSettingsScript.DEVICE_GAMEPAD),
+				]
+			)
+		)
 	for row_index in range(rows.size()):
 		for column_index in range(2):
 			var button := rows[row_index][column_index] as Button
@@ -313,7 +318,9 @@ func _wire_focus_neighbors() -> void:
 			elif _restore_defaults_button != null:
 				button.focus_neighbor_bottom = button.get_path_to(_restore_defaults_button)
 	if _restore_defaults_button != null and _first_binding_button != null:
-		_restore_defaults_button.focus_neighbor_bottom = _restore_defaults_button.get_path_to(_first_binding_button)
+		_restore_defaults_button.focus_neighbor_bottom = _restore_defaults_button.get_path_to(
+			_first_binding_button
+		)
 	if _close_button != null and _first_binding_button != null:
 		_close_button.focus_neighbor_bottom = _close_button.get_path_to(_first_binding_button)
 

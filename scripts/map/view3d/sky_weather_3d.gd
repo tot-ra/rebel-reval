@@ -76,35 +76,75 @@ const LUNAR_ALBEDO_MAP_SIZE := SKY_RESOURCES.LUNAR_ALBEDO_MAP_SIZE
 ## thundercloud in blue sky or as a solid rain front. `thunder` scales how often
 ## lightning strikes. Fair-weather states keep all three near zero.
 const PROFILES: Dictionary = {
-	WEATHER_CLEAR: {
-		"coverage": 0.30, "darken": 0.06,
-		"sun_energy": 1.0, "ambient_energy": 1.0,
-		"gray": 0.0, "rain": 0.0, "wind": 0.20, "chaos": 0.30,
-		"storm": 0.0, "locality": 0.0, "thunder": 0.0,
+	WEATHER_CLEAR:
+	{
+		"coverage": 0.30,
+		"darken": 0.06,
+		"sun_energy": 1.0,
+		"ambient_energy": 1.0,
+		"gray": 0.0,
+		"rain": 0.0,
+		"wind": 0.20,
+		"chaos": 0.30,
+		"storm": 0.0,
+		"locality": 0.0,
+		"thunder": 0.0,
 	},
-	WEATHER_CLOUDY: {
-		"coverage": 0.66, "darken": 0.40,
-		"sun_energy": 0.62, "ambient_energy": 0.86,
-		"gray": 0.32, "rain": 0.0, "wind": 0.52, "chaos": 0.55,
-		"storm": 0.16, "locality": 0.35, "thunder": 0.0,
+	WEATHER_CLOUDY:
+	{
+		"coverage": 0.66,
+		"darken": 0.40,
+		"sun_energy": 0.62,
+		"ambient_energy": 0.86,
+		"gray": 0.32,
+		"rain": 0.0,
+		"wind": 0.52,
+		"chaos": 0.55,
+		"storm": 0.16,
+		"locality": 0.35,
+		"thunder": 0.0,
 	},
-	WEATHER_OVERCAST: {
-		"coverage": 0.98, "darken": 0.72,
-		"sun_energy": 0.44, "ambient_energy": 0.80,
-		"gray": 0.75, "rain": 0.0, "wind": 0.58, "chaos": 0.58,
-		"storm": 0.30, "locality": 0.0, "thunder": 0.0,
+	WEATHER_OVERCAST:
+	{
+		"coverage": 0.98,
+		"darken": 0.72,
+		"sun_energy": 0.44,
+		"ambient_energy": 0.80,
+		"gray": 0.75,
+		"rain": 0.0,
+		"wind": 0.58,
+		"chaos": 0.58,
+		"storm": 0.30,
+		"locality": 0.0,
+		"thunder": 0.0,
 	},
-	WEATHER_RAIN: {
-		"coverage": 0.94, "darken": 0.82,
-		"sun_energy": 0.32, "ambient_energy": 0.70,
-		"gray": 0.62, "rain": 1.0, "wind": 0.92, "chaos": 0.86,
-		"storm": 1.0, "locality": 0.18, "thunder": 0.55,
+	WEATHER_RAIN:
+	{
+		"coverage": 0.94,
+		"darken": 0.82,
+		"sun_energy": 0.32,
+		"ambient_energy": 0.70,
+		"gray": 0.62,
+		"rain": 1.0,
+		"wind": 0.92,
+		"chaos": 0.86,
+		"storm": 1.0,
+		"locality": 0.18,
+		"thunder": 0.55,
 	},
-	WEATHER_STORM: {
-		"coverage": 0.40, "darken": 0.34,
-		"sun_energy": 0.74, "ambient_energy": 0.90,
-		"gray": 0.18, "rain": 0.22, "wind": 0.70, "chaos": 0.82,
-		"storm": 1.0, "locality": 0.9, "thunder": 1.0,
+	WEATHER_STORM:
+	{
+		"coverage": 0.40,
+		"darken": 0.34,
+		"sun_energy": 0.74,
+		"ambient_energy": 0.90,
+		"gray": 0.18,
+		"rain": 0.22,
+		"wind": 0.70,
+		"chaos": 0.82,
+		"storm": 1.0,
+		"locality": 0.9,
+		"thunder": 1.0,
 	},
 }
 ## Seconds each weather state holds before the Markov step picks the next one.
@@ -233,7 +273,9 @@ func configure(camera: Camera3D, environment: Environment) -> void:
 	_material.shader = SKY_SHADER
 	_material.set_shader_parameter(&"cloud_noise", SKY_RESOURCES.build_cloud_noise(WEATHER_SEED))
 	_material.set_shader_parameter(&"cloud_shape", SKY_RESOURCES.build_cloud_shape(WEATHER_SEED))
-	_material.set_shader_parameter(&"lunar_albedo_map", SKY_RESOURCES.build_lunar_albedo_map(WEATHER_SEED))
+	_material.set_shader_parameter(
+		&"lunar_albedo_map", SKY_RESOURCES.build_lunar_albedo_map(WEATHER_SEED)
+	)
 	_star_map = SKY_RESOURCES.build_star_map(
 		STAR_CATALOG.STARS,
 		STAR_CATALOG.CATALOG_EPOCH,
@@ -282,7 +324,9 @@ func advance(delta: float) -> void:
 	if _blend < 1.0:
 		_blend = minf(1.0, _blend + delta / TRANSITION_SECONDS)
 		for key in _current:
-			_current[key] = lerpf(float(_from[key]), float((PROFILES[weather] as Dictionary)[key]), _blend)
+			_current[key] = lerpf(
+				float(_from[key]), float((PROFILES[weather] as Dictionary)[key]), _blend
+			)
 	elif auto_weather:
 		_time_in_state += delta
 		if _time_in_state >= _state_duration:
@@ -402,7 +446,8 @@ func apply_sky_state(progress: float, day_blend: float, sun_direction: Vector3) 
 func lighting_modifiers() -> Dictionary:
 	return {
 		"sun_energy": float(_current["sun_energy"]) * (1.0 - SUNSET_ENERGY_DIM * sunset_factor),
-		"ambient_energy": float(_current["ambient_energy"]) * (1.0 - SUNSET_AMBIENT_DIM * sunset_factor),
+		"ambient_energy":
+		float(_current["ambient_energy"]) * (1.0 - SUNSET_AMBIENT_DIM * sunset_factor),
 		"sunset_tint": sunset_factor * SUNSET_TINT_STRENGTH * float(_current["sun_energy"]),
 		"overcast": float(_current["gray"]),
 		"lightning": _effective_lightning(),
@@ -601,7 +646,9 @@ func _advance_lightning(delta: float) -> void:
 	if thunder <= 0.01:
 		_lightning = 0.0
 		_lightning_time = -1.0
-		_time_to_strike = _lightning_rng.randf_range(LIGHTNING_GAP_SECONDS.x, LIGHTNING_GAP_SECONDS.y)
+		_time_to_strike = _lightning_rng.randf_range(
+			LIGHTNING_GAP_SECONDS.x, LIGHTNING_GAP_SECONDS.y
+		)
 		return
 	if _lightning_time >= 0.0:
 		_lightning_time += delta
@@ -617,7 +664,9 @@ func _advance_lightning(delta: float) -> void:
 		_lightning_dir = Vector2(cos(angle), sin(angle))
 		_lightning_time = 0.0
 		_lightning = _lightning_envelope(0.0)
-		_time_to_strike = _lightning_rng.randf_range(LIGHTNING_GAP_SECONDS.x, LIGHTNING_GAP_SECONDS.y)
+		_time_to_strike = _lightning_rng.randf_range(
+			LIGHTNING_GAP_SECONDS.x, LIGHTNING_GAP_SECONDS.y
+		)
 
 
 ## Flash shape: a sharp leader stroke plus a fast return-stroke flicker, both

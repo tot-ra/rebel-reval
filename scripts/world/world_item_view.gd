@@ -50,10 +50,18 @@ func _build_outline() -> void:
 	var half := FRAME_HALF_SIZE
 	var thickness := FRAME_THICKNESS
 	var inner := half * 2.0 - thickness * 2.0
-	_add_frame_edge(Vector3(0.0, FRAME_Y, -half + thickness * 0.5), Vector3(half * 2.0, FRAME_HEIGHT, thickness))
-	_add_frame_edge(Vector3(0.0, FRAME_Y, half - thickness * 0.5), Vector3(half * 2.0, FRAME_HEIGHT, thickness))
-	_add_frame_edge(Vector3(-half + thickness * 0.5, FRAME_Y, 0.0), Vector3(thickness, FRAME_HEIGHT, inner))
-	_add_frame_edge(Vector3(half - thickness * 0.5, FRAME_Y, 0.0), Vector3(thickness, FRAME_HEIGHT, inner))
+	_add_frame_edge(
+		Vector3(0.0, FRAME_Y, -half + thickness * 0.5), Vector3(half * 2.0, FRAME_HEIGHT, thickness)
+	)
+	_add_frame_edge(
+		Vector3(0.0, FRAME_Y, half - thickness * 0.5), Vector3(half * 2.0, FRAME_HEIGHT, thickness)
+	)
+	_add_frame_edge(
+		Vector3(-half + thickness * 0.5, FRAME_Y, 0.0), Vector3(thickness, FRAME_HEIGHT, inner)
+	)
+	_add_frame_edge(
+		Vector3(half - thickness * 0.5, FRAME_Y, 0.0), Vector3(thickness, FRAME_HEIGHT, inner)
+	)
 	add_child(_outline_root)
 
 

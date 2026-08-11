@@ -138,7 +138,8 @@ const INFORMATION_BEATS: Array[Dictionary] = [
 		"id": "aftermath.mart_reaction",
 		"phase": "consequence_night",
 		"channels": ["text_dialogue"],
-		"content_ids": [
+		"content_ids":
+		[
 			"dialogue.bitter_brew.mart_exonerated",
 			"dialogue.bitter_brew.mart_escaped",
 			"dialogue.bitter_brew.mart_monopolized",
@@ -285,9 +286,7 @@ static func validate_historical_concepts() -> Dictionary:
 			errors.append("%s: missing context_beat_id" % concept_id)
 			continue
 		if not beat_lookup.has(context_beat_id):
-			errors.append(
-				"%s: context beat %s is not catalogued" % [concept_id, context_beat_id]
-			)
+			errors.append("%s: context beat %s is not catalogued" % [concept_id, context_beat_id])
 	return {
 		"concept_count": historical_concept_count(),
 		"errors": errors,

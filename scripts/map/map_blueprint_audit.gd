@@ -23,23 +23,58 @@ static func run() -> Array[MapBlueprintDiagnostic]:
 		var expected_id := StringName(String(entry.get("id", "")))
 		var source := String(entry.get("source", ""))
 		if expected_id.is_empty() or source.is_empty():
-			diagnostics.append(_diagnostic(&"MAP_REGISTRY_ENTRY_INVALID", "registry entries require id and source", expected_id, source))
+			diagnostics.append(
+				_diagnostic(
+					&"MAP_REGISTRY_ENTRY_INVALID",
+					"registry entries require id and source",
+					expected_id,
+					source
+				)
+			)
 			continue
 		if registered_ids.has(String(expected_id)):
-			diagnostics.append(_diagnostic(&"MAP_REGISTRY_ID_DUPLICATE", "map_id is already registered by %s" % registered_ids[String(expected_id)], expected_id, source))
+			diagnostics.append(
+				_diagnostic(
+					&"MAP_REGISTRY_ID_DUPLICATE",
+					"map_id is already registered by %s" % registered_ids[String(expected_id)],
+					expected_id,
+					source
+				)
+			)
 		else:
 			registered_ids[String(expected_id)] = source
 		if registered_sources.has(source):
-			diagnostics.append(_diagnostic(&"MAP_REGISTRY_SOURCE_DUPLICATE", "source is registered more than once", expected_id, source))
+			diagnostics.append(
+				_diagnostic(
+					&"MAP_REGISTRY_SOURCE_DUPLICATE",
+					"source is registered more than once",
+					expected_id,
+					source
+				)
+			)
 		else:
 			registered_sources[source] = true
 
 		var blueprint := MapBlueprintRegistry.create_blueprint(entry)
 		if blueprint == null:
-			diagnostics.append(_diagnostic(&"MAP_REGISTRY_FACTORY_INVALID", "factory must return MapBlueprint", expected_id, source))
+			diagnostics.append(
+				_diagnostic(
+					&"MAP_REGISTRY_FACTORY_INVALID",
+					"factory must return MapBlueprint",
+					expected_id,
+					source
+				)
+			)
 			continue
 		if blueprint.map_id != expected_id:
-			diagnostics.append(_diagnostic(&"MAP_REGISTRY_ID_MISMATCH", "factory returned map_id '%s'" % blueprint.map_id, expected_id, source))
+			diagnostics.append(
+				_diagnostic(
+					&"MAP_REGISTRY_ID_MISMATCH",
+					"factory returned map_id '%s'" % blueprint.map_id,
+					expected_id,
+					source
+				)
+			)
 		var required_anchors: Array[StringName] = []
 		required_anchors.assign(entry.get("required_anchors", []))
 		var result := MapBlueprintCompiler.compile_with_diagnostics(blueprint, required_anchors)
@@ -49,12 +84,14 @@ static func run() -> Array[MapBlueprintDiagnostic]:
 
 	for source in discover_blueprint_sources():
 		if not registered_sources.has(source):
-			diagnostics.append(_diagnostic(
-			&"MAP_REGISTRY_SOURCE_MISSING",
-			"blueprint source is not present in MapBlueprintRegistry",
-			&"",
-			source
-		))
+			diagnostics.append(
+				_diagnostic(
+					&"MAP_REGISTRY_SOURCE_MISSING",
+					"blueprint source is not present in MapBlueprintRegistry",
+					&"",
+					source
+				)
+			)
 	return diagnostics
 
 
@@ -85,15 +122,8 @@ static func _discover(root: String, suffix: String, output: Array[String]) -> vo
 
 
 static func _diagnostic(
-	code: StringName,
-	message: String,
-	map_id: StringName = &"",
-	path: String = ""
+	code: StringName, message: String, map_id: StringName = &"", path: String = ""
 ) -> MapBlueprintDiagnostic:
 	return MapBlueprintDiagnostic.new(
-		code,
-		MapBlueprintDiagnostic.SEVERITY_ERROR,
-		message,
-		map_id,
-		path
+		code, MapBlueprintDiagnostic.SEVERITY_ERROR, message, map_id, path
 	)

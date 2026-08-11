@@ -68,32 +68,31 @@ const BUILDING_PULL_STEP := 0.6
 const VISIBILITY_PULL_STEP := 0.6
 const VISIBILITY_PULL_ITERATIONS := 4
 const OCCLUSION_PROBE_HEIGHTS: Array[float] = [0.5, 1.1, 1.8]
+const SHAKE_DECAY_RATE := 3.5
+const SHAKE_MAX_OFFSET := 0.14
 
 var camera: Camera3D
 var player_rig: SharedCharacterRig
 var view: MapView3D
 var player: CharacterBody2D
-
-const SHAKE_DECAY_RATE := 3.5
-const SHAKE_MAX_OFFSET := 0.14
-
-var _shake_trauma := 0.0
-var _shake_phase := 0.0
-
 var drag_rotating_view := false
 var camera_mode: CameraMode = CameraMode.THIRD_PERSON
 var first_person: bool:
-	get:
-		return camera_mode == CameraMode.FIRST_PERSON
 
+var _shake_trauma := 0.0
+var _shake_phase := 0.0
 var _mouse_rotation_armed := false
 var _last_mouse_position := Vector2.ZERO
 var _top_down_size := CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE
 var _third_person_distance := THIRD_PERSON_DISTANCE
 var _perspective_attributes: CameraAttributesPractical
 
-
-func configure(runtime_camera: Camera3D, runtime_player_rig: SharedCharacterRig, runtime_view: MapView3D, runtime_player: CharacterBody2D) -> void:
+func configure(
+	runtime_camera: Camera3D,
+	runtime_player_rig: SharedCharacterRig,
+	runtime_view: MapView3D,
+	runtime_player: CharacterBody2D
+) -> void:
 	camera = runtime_camera
 	player_rig = runtime_player_rig
 	view = runtime_view
@@ -227,9 +226,11 @@ func _follow_target() -> Vector3:
 			return player_rig.position + Vector3.UP * FIRST_PERSON_EYE_HEIGHT
 		CameraMode.THIRD_PERSON:
 			return _resolve_third_person_target(
-				player_rig.position
-				+ Vector3.UP * THIRD_PERSON_TARGET_HEIGHT
-				+ camera.transform.basis.z * _third_person_distance
+				(
+					player_rig.position
+					+ Vector3.UP * THIRD_PERSON_TARGET_HEIGHT
+					+ camera.transform.basis.z * _third_person_distance
+				)
 			)
 		_:
 			return player_rig.position + camera.transform.basis.z * MapView3D.CAMERA_DISTANCE
@@ -287,9 +288,7 @@ func look_pitch_degrees(delta_degrees: float) -> void:
 		max_pitch = THIRD_PERSON_MAX_PITCH_DEGREES
 	# Avoid crossing the vertical poles, which would make yaw and movement flip.
 	camera.rotation_degrees.x = clampf(
-		camera.rotation_degrees.x + delta_degrees,
-		min_pitch,
-		max_pitch
+		camera.rotation_degrees.x + delta_degrees, min_pitch, max_pitch
 	)
 	if camera_mode == CameraMode.THIRD_PERSON:
 		# Pitch changes the orbit boom; snap so the follow distance stays exact.
@@ -315,11 +314,7 @@ func zoom_view_steps(steps: float) -> void:
 				_third_person_distance = THIRD_PERSON_MAX_DISTANCE
 				set_camera_mode(CameraMode.THIRD_PERSON)
 				return
-			camera.size = clampf(
-				next_size,
-				ZOOM_MIN_ORTHOGRAPHIC_SIZE,
-				ZOOM_MAX_ORTHOGRAPHIC_SIZE
-			)
+			camera.size = clampf(next_size, ZOOM_MIN_ORTHOGRAPHIC_SIZE, ZOOM_MAX_ORTHOGRAPHIC_SIZE)
 			_top_down_size = camera.size
 		CameraMode.THIRD_PERSON:
 			# Same wheel polarity as top-down: positive steps pull the boom closer.
@@ -335,9 +330,7 @@ func zoom_view_steps(steps: float) -> void:
 				set_camera_mode(CameraMode.TOP_DOWN)
 				return
 			_third_person_distance = clampf(
-				next_distance,
-				THIRD_PERSON_MIN_DISTANCE,
-				THIRD_PERSON_MAX_DISTANCE
+				next_distance, THIRD_PERSON_MIN_DISTANCE, THIRD_PERSON_MAX_DISTANCE
 			)
 			follow_player(true, 0.0)
 		CameraMode.FIRST_PERSON:
@@ -420,11 +413,16 @@ func _apply_perspective_camera_attributes() -> void:
 
 
 func _supports_auto_exposure() -> bool:
-	return str(ProjectSettings.get_setting("rendering/renderer/rendering_method", "")) == "forward_plus"
+	return (
+		str(ProjectSettings.get_setting("rendering/renderer/rendering_method", ""))
+		== "forward_plus"
+	)
 
 
 func _supports_depth_of_field() -> bool:
-	var rendering_method := str(ProjectSettings.get_setting("rendering/renderer/rendering_method", ""))
+	var rendering_method := str(
+		ProjectSettings.get_setting("rendering/renderer/rendering_method", "")
+	)
 	return rendering_method in ["forward_plus", "mobile"]
 
 
@@ -522,7 +520,7 @@ func _pull_out_of_buildings() -> void:
 	# Hard fallback: if still inside after iterations, place just outside the
 	# nearest occluder by pushing toward the player at minimum boom distance.
 	if view.is_point_inside_occluder(camera.position):
-		var to_camera := (camera.position - player_pos)
+		var to_camera := camera.position - player_pos
 		if to_camera.length_squared() > 0.01:
 			camera.position = player_pos + to_camera.normalized() * THIRD_PERSON_MIN_DISTANCE
 		else:

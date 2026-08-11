@@ -17,10 +17,7 @@ var _time := 0.0
 
 
 func configure(
-	light: OmniLight3D,
-	flame: GPUParticles3D,
-	smoke: GPUParticles3D,
-	profile: Dictionary
+	light: OmniLight3D, flame: GPUParticles3D, smoke: GPUParticles3D, profile: Dictionary
 ) -> void:
 	name = "DomesticHearthLight"
 	_light = light
@@ -53,7 +50,5 @@ func _process(delta: float) -> void:
 		return
 	_time += delta
 	var phase := float(_profile.get("flicker_phase", 0.0))
-	var flicker := 1.0 \
-		+ 0.1 * sin((_time + phase) * 9.4) \
-		+ 0.06 * sin((_time + phase) * 14.2 + 0.8)
+	var flicker := 1.0 + 0.1 * sin((_time + phase) * 9.4) + 0.06 * sin((_time + phase) * 14.2 + 0.8)
 	_light.light_energy = _base_energy * flicker

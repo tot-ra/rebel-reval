@@ -1,6 +1,11 @@
 class_name PlayerPrimaryAction
 extends RefCounted
 
+enum Intent {
+	ATTACK,
+	INTERACT,
+}
+
 ## Resolves what the primary (left) click means in the character-relative camera
 ## modes: first-person and third-person.
 ##
@@ -11,12 +16,6 @@ extends RefCounted
 ## where the cursor really does select a destination on the ground.
 
 const DAMAGEABLE_GROUP := &"combat_damageable"
-
-enum Intent {
-	ATTACK,
-	INTERACT,
-}
-
 ## Hostiles slightly beyond weapon reach still resolve as ATTACK: swinging is the
 ## honest answer to an enemy closing in, and silently walking or talking instead
 ## would read as an unresponsive control.
@@ -26,7 +25,6 @@ const HOSTILE_SCAN_PX := 220.0
 ## aimed at the chest directly ahead.
 const HOSTILE_FACING_DOT := 0.35
 const INTERACT_FACING_DOT := 0.0
-
 
 ## Returns {"intent": Intent, "target": Node}. ATTACK with a null target is the
 ## default: clicking at nothing in front is still a swing, not a move order.

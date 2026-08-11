@@ -1,8 +1,8 @@
 class_name ViruGateForelandDefinition
 extends RefCounted
 
-## Runtime adapter for the Pirita River crossing .rrmap source. The legacy file ID is stable for saves/transitions.
-
+## Runtime adapter for the Pirita River crossing .rrmap source. The legacy file ID is stable for
+## saves/transitions.
 
 const RRMAP_PATH := "res://content/maps/viru_gate_foreland.rrmap"
 

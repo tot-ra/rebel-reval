@@ -5,10 +5,7 @@ extends RefCounted
 ## Lethal and non-lethal closes share this path so quest state stays one contract.
 
 signal resolved(
-	kind: StringName,
-	quest_id: StringName,
-	quest_state: StringName,
-	encounter_id: StringName
+	kind: StringName, quest_id: StringName, quest_state: StringName, encounter_id: StringName
 )
 
 var last_kind: StringName = &""
@@ -22,10 +19,7 @@ var last_ok := false
 ## marking them dead; KIND_KILL marks hosts dead. Quest writes always use
 ## GameState.set_quest_state for the definition's quest_id.
 func resolve(
-	state: GameState,
-	definition: EncounterOutcomeDefinition,
-	kind: StringName,
-	enemies: Array = []
+	state: GameState, definition: EncounterOutcomeDefinition, kind: StringName, enemies: Array = []
 ) -> bool:
 	last_ok = false
 	last_kind = kind

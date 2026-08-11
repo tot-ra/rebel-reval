@@ -15,7 +15,9 @@ var _instances: Dictionary = {}
 var _parents_by_kind: Dictionary = {}
 
 
-func configure(runtime_index: MapChunkRuntimeIndex, factory: Callable, parents_by_kind: Dictionary = {}) -> void:
+func configure(
+	runtime_index: MapChunkRuntimeIndex, factory: Callable, parents_by_kind: Dictionary = {}
+) -> void:
 	assert(runtime_index != null)
 	assert(factory.is_valid())
 	index = runtime_index
@@ -29,7 +31,10 @@ func load_chunk(coordinates: Vector2i) -> void:
 		return
 	_loaded_chunks[coordinates] = true
 	for record in index.records_consumed_by(coordinates):
-		if record.get("residency", MapChunkRuntimeIndex.RESIDENCY_STREAMED) == MapChunkRuntimeIndex.RESIDENCY_STREAMED:
+		if (
+			record.get("residency", MapChunkRuntimeIndex.RESIDENCY_STREAMED)
+			== MapChunkRuntimeIndex.RESIDENCY_STREAMED
+		):
 			_ensure_loaded(record)
 
 
@@ -37,7 +42,10 @@ func unload_chunk(coordinates: Vector2i) -> void:
 	if not _loaded_chunks.erase(coordinates):
 		return
 	for record in index.records_consumed_by(coordinates):
-		if record.get("residency", MapChunkRuntimeIndex.RESIDENCY_STREAMED) != MapChunkRuntimeIndex.RESIDENCY_STREAMED:
+		if (
+			record.get("residency", MapChunkRuntimeIndex.RESIDENCY_STREAMED)
+			!= MapChunkRuntimeIndex.RESIDENCY_STREAMED
+		):
 			continue
 		if not _has_loaded_consumer(record):
 			_free_instance(record["id"])

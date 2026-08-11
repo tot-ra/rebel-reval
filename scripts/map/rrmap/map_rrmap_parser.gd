@@ -28,7 +28,9 @@ static func parse(text: String, source_path: String = "<memory>") -> MapRrmapPar
 static func parse_file(path: String) -> MapRrmapParseResult:
 	if not FileAccess.file_exists(path):
 		var missing := MapRrmapParseResult.new()
-		missing.diagnostics.append(MapRrmapDiagnostic.new(path, 1, 1, &"file_not_found", "file does not exist"))
+		missing.diagnostics.append(
+			MapRrmapDiagnostic.new(path, 1, 1, &"file_not_found", "file does not exist")
+		)
 		return missing
 	return parse(FileAccess.get_file_as_string(path), path)
 
@@ -64,14 +66,16 @@ func _parse(text: String, source_path: String) -> MapRrmapParseResult:
 	var compiled := MapBlueprintCompiler.compile_with_diagnostics(_blueprint)
 	for diagnostic in compiled.diagnostics:
 		var location := _diagnostic_location(diagnostic.message)
-		_result.diagnostics.append(MapRrmapDiagnostic.new(
-			_path,
-			location.x,
-			location.y,
-			diagnostic.code,
-			diagnostic.message,
-			diagnostic.severity
-		))
+		_result.diagnostics.append(
+			MapRrmapDiagnostic.new(
+				_path,
+				location.x,
+				location.y,
+				diagnostic.code,
+				diagnostic.message,
+				diagnostic.severity
+			)
+		)
 	if not compiled.is_ok():
 		return _result
 	_result.definition = compiled.definition

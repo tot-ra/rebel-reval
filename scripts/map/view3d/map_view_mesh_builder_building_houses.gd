@@ -4,19 +4,23 @@ extends RefCounted
 ## Stable facade for house style, structure, roof, chimney, and civic-detail builders.
 
 const _Styles := preload("res://scripts/map/view3d/map_view_mesh_builder_house_styles.gd")
-const _RoofDressing := preload("res://scripts/map/view3d/map_view_mesh_builder_house_roof_dressing.gd")
+const _RoofDressing := preload(
+	"res://scripts/map/view3d/map_view_mesh_builder_house_roof_dressing.gd"
+)
 const _Structure := preload("res://scripts/map/view3d/map_view_mesh_builder_house_structure.gd")
 const _Rural := preload("res://scripts/map/view3d/map_view_rural_dwelling_models.gd")
-
+const TOWN_HALL_ARCADE_THICKNESS := 0.62
+const TOWN_HALL_CORRIDOR_DEPTH := 1.5
+## How far the door leaf stands off the gallery back wall, so the dark doorway
+## void stays behind the leaf and the stone surround still frames it.
+const TOWN_HALL_DOOR_RECESS := 0.16
 
 static func house_style(building: Dictionary) -> StringName:
 	return _Styles.house_style(building)
 
 
 static func house_wall_material(
-	building: Dictionary,
-	wall_color: Color,
-	size: Vector3
+	building: Dictionary, wall_color: Color, size: Vector3
 ) -> StandardMaterial3D:
 	return _Styles.house_wall_material(building, wall_color, size)
 
@@ -30,21 +34,13 @@ static func house_roof_material(building: Dictionary) -> StandardMaterial3D:
 
 
 static func add_house_structure(
-	root: Node3D,
-	building: Dictionary,
-	size: Vector2,
-	height: float,
-	along_ridge_x: bool
+	root: Node3D, building: Dictionary, size: Vector2, height: float, along_ridge_x: bool
 ) -> void:
 	_Structure.add_house_structure(root, building, size, height, along_ridge_x)
 
 
 static func add_roof_trim(
-	root: Node3D,
-	building: Dictionary,
-	size: Vector2,
-	height: float,
-	along_ridge_x: bool
+	root: Node3D, building: Dictionary, size: Vector2, height: float, along_ridge_x: bool
 ) -> void:
 	_RoofDressing.add_roof_trim(root, building, size, height, along_ridge_x)
 
@@ -53,13 +49,6 @@ static func add_roof_trim(
 ## plus the walk-through corridor behind it. WHY: the arcade has to be a real
 ## covered passage with the civic door at its back, the way the rebuilt Raekoda
 ## reads, so the solid wall box is pulled back by this much on the facade side.
-const TOWN_HALL_ARCADE_THICKNESS := 0.62
-const TOWN_HALL_CORRIDOR_DEPTH := 1.5
-## How far the door leaf stands off the gallery back wall, so the dark doorway
-## void stays behind the leaf and the stone surround still frames it.
-const TOWN_HALL_DOOR_RECESS := 0.16
-
-
 static func town_hall_gallery_inset(building: Dictionary, size: Vector2) -> float:
 	if StringName(building.get("primitive", &"")) != &"town_hall_1343":
 		return 0.0
@@ -80,17 +69,16 @@ static func authors_own_facade(building: Dictionary) -> bool:
 ## roof stack would turn the archaeological baseline into a later heated house.
 static func allows_chimney(building: Dictionary) -> bool:
 	# An oratory has no hearth, so a roof stack would misread it as a dwelling.
-	return not _Rural.is_smoke_heated(building) and (
-		StringName(building.get("primitive", &"")) != _Rural.RURAL_BARN_PRIMITIVE
-	) and not MapViewMonasticModels.is_oratory(building) \
+	return (
+		not _Rural.is_smoke_heated(building)
+		and (StringName(building.get("primitive", &"")) != _Rural.RURAL_BARN_PRIMITIVE)
+		and not MapViewMonasticModels.is_oratory(building)
 		and not MapViewMonasticModels.is_unheated_range(building)
+	)
 
 
 static func add_authored_facade(
-	root: Node3D,
-	building: Dictionary,
-	size: Vector2,
-	height: float
+	root: Node3D, building: Dictionary, size: Vector2, height: float
 ) -> void:
 	if _Rural.is_rural_1343(building):
 		_Rural.add_facade(root, building, size, height)
@@ -99,11 +87,7 @@ static func add_authored_facade(
 
 
 static func add_historic_building_details(
-	root: Node3D,
-	building: Dictionary,
-	size: Vector2,
-	height: float,
-	along_ridge_x: bool
+	root: Node3D, building: Dictionary, size: Vector2, height: float, along_ridge_x: bool
 ) -> void:
 	match StringName(building.get("primitive", &"")):
 		&"town_hall_1343":
@@ -117,10 +101,7 @@ static func add_historic_building_details(
 
 
 static func _add_early_town_hall_details(
-	root: Node3D,
-	building: Dictionary,
-	size: Vector2,
-	height: float
+	root: Node3D, building: Dictionary, size: Vector2, height: float
 ) -> void:
 	# WHY: the rebuilt Raekoda is quoted as structure, not as ornament. The bays
 	# are a real load-bearing arcade wall with a covered gallery behind it and the
@@ -144,17 +125,12 @@ static func _add_early_town_hall_details(
 	# uv1_scale is derived from the size handed in. Always ask for the mass size
 	# so the arcade cannot re-stripe the courses of the whole building.
 	var wall_material := _Styles.house_wall_material(
-		building,
-		wall_color,
-		Vector3(size.x, height, size.y)
+		building, wall_color, Vector3(size.x, height, size.y)
 	)
 	var arcade := MeshInstance3D.new()
 	arcade.name = "TownHallArcadeWall"
 	arcade.mesh = MapViewMeshBuilderPrimitives.arcade_wall_mesh(
-		size.x,
-		height,
-		arcade_thickness,
-		openings
+		size.x, height, arcade_thickness, openings
 	)
 	arcade.position = Vector3(0.0, 0.0, facade_z + arcade_thickness * 0.5)
 	arcade.material_override = wall_material
@@ -232,12 +208,19 @@ static func _town_hall_arcade_layout(size: Vector2, height: float) -> Dictionary
 	var side_spring := minf(portal_spring - 0.14, height * 0.33)
 	for side: float in [-1.0, 1.0]:
 		for index in count:
-			openings.append({
-				"x": side * (side_start + pitch * (float(index) + 0.5)),
-				"half_width": opening_half,
-				"spring_y": side_spring,
-			})
-	openings.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return float(a["x"]) < float(b["x"]))
+			(
+				openings
+				. append(
+					{
+						"x": side * (side_start + pitch * (float(index) + 0.5)),
+						"half_width": opening_half,
+						"spring_y": side_spring,
+					}
+				)
+			)
+	openings.sort_custom(
+		func(a: Dictionary, b: Dictionary) -> bool: return float(a["x"]) < float(b["x"])
+	)
 
 	var crown := 0.0
 	for opening: Dictionary in openings:
@@ -274,7 +257,9 @@ static func _add_town_hall_gallery(
 		var block_mesh := BoxMesh.new()
 		block_mesh.size = Vector3(end_wall, height, corridor_depth)
 		end_block.mesh = block_mesh
-		end_block.position = Vector3(side * (half_x - end_wall * 0.5), height * 0.5, corridor_center_z)
+		end_block.position = Vector3(
+			side * (half_x - end_wall * 0.5), height * 0.5, corridor_center_z
+		)
 		end_block.material_override = wall_material
 		root.add_child(end_block)
 
@@ -314,7 +299,15 @@ static func _add_town_hall_gallery(
 	for index in openings.size() - 1:
 		var opening: Dictionary = openings[index]
 		var next: Dictionary = openings[index + 1]
-		var pier_x := (float(opening["x"]) + float(opening["half_width"]) + float(next["x"]) - float(next["half_width"])) * 0.5
+		var pier_x := (
+			(
+				float(opening["x"])
+				+ float(opening["half_width"])
+				+ float(next["x"])
+				- float(next["half_width"])
+			)
+			* 0.5
+		)
 		MapViewMeshBuilderPrimitives.box(
 			root,
 			"TownHallGalleryRespond%02d" % index,
@@ -333,12 +326,7 @@ static func _add_town_hall_gallery(
 
 ## Outer face relief: impost blocks and archivolts around every opening.
 static func _add_town_hall_arcade_dressing(
-	root: Node3D,
-	openings: Array,
-	portal: Dictionary,
-	facade_z: float,
-	head_y: float,
-	size: Vector2
+	root: Node3D, openings: Array, portal: Dictionary, facade_z: float, head_y: float, size: Vector2
 ) -> void:
 	for index in openings.size():
 		var opening: Dictionary = openings[index]
@@ -384,10 +372,7 @@ static func _add_town_hall_arcade_dressing(
 ## The council door stands at the back of the gallery, framed by a deep arched
 ## surround on the inner wall. The door leaf itself is the map transition door.
 static func _add_town_hall_portal(
-	root: Node3D,
-	portal: Dictionary,
-	inner_wall_z: float,
-	floor_y: float
+	root: Node3D, portal: Dictionary, inner_wall_z: float, floor_y: float
 ) -> void:
 	var portal_x := float(portal["x"])
 	var door_half := MapViewMeshBuilderConfig.DOOR_WIDTH * 0.5 + 0.18
@@ -412,7 +397,11 @@ static func _add_town_hall_portal(
 			root,
 			"TownHallPortalJamb%s" % ("R" if side > 0.0 else "L"),
 			Vector3(0.22, door_head - floor_y, 0.3),
-			Vector3(portal_x + side * (door_half + 0.11), floor_y + (door_head - floor_y) * 0.5, inner_wall_z - 0.28),
+			Vector3(
+				portal_x + side * (door_half + 0.11),
+				floor_y + (door_head - floor_y) * 0.5,
+				inner_wall_z - 0.28
+			),
 			&"stone"
 		)
 	_add_arch_band(
@@ -435,12 +424,7 @@ static func _add_town_hall_portal(
 ## Single upper band of tall council lights over the arcade. Bay-aligned, so the
 ## facade reads as one order of arches carrying one order of windows.
 static func _add_town_hall_upper_storey(
-	root: Node3D,
-	size: Vector2,
-	height: float,
-	facade_z: float,
-	head_y: float,
-	openings: Array
+	root: Node3D, size: Vector2, height: float, facade_z: float, head_y: float, openings: Array
 ) -> void:
 	var sill_y := head_y + 0.42
 	var light_height := minf(height - sill_y - 0.42, 1.6)
@@ -520,7 +504,11 @@ static func _add_town_hall_light(
 			root,
 			"%sJamb%s" % [hood_name, "R" if side > 0.0 else "L"],
 			Vector3(0.16, light_height * 0.82, 0.14),
-			Vector3(x + side * (light_width * 0.5 + 0.07), sill_y + light_height * 0.41, face_z + facing * 0.08),
+			Vector3(
+				x + side * (light_width * 0.5 + 0.07),
+				sill_y + light_height * 0.41,
+				face_z + facing * 0.08
+			),
 			&"stone"
 		)
 	MapViewMeshBuilderPrimitives.box(
@@ -547,12 +535,7 @@ static func _add_town_hall_light(
 
 
 static func _add_arch_panel(
-	root: Node3D,
-	node_name: String,
-	width: float,
-	height: float,
-	z: float,
-	role: StringName
+	root: Node3D, node_name: String, width: float, height: float, z: float, role: StringName
 ) -> void:
 	var panel := MeshInstance3D.new()
 	panel.name = node_name
@@ -600,7 +583,13 @@ static func _add_holy_spirit_chapel_details(root: Node3D, size: Vector2, height:
 		)
 	var cote_x := -size.x * 0.24
 	var cote_base := height + 0.2
-	MapViewMeshBuilderPrimitives.box(root, "SanctusCote", Vector3(0.72, 1.1, 0.72), Vector3(cote_x, cote_base + 0.55, 0.0), &"stone")
+	MapViewMeshBuilderPrimitives.box(
+		root,
+		"SanctusCote",
+		Vector3(0.72, 1.1, 0.72),
+		Vector3(cote_x, cote_base + 0.55, 0.0),
+		&"stone"
+	)
 	var cote_roof := MeshInstance3D.new()
 	cote_roof.name = "SanctusCoteRoof"
 	var cone := CylinderMesh.new()
@@ -616,10 +605,7 @@ static func _add_holy_spirit_chapel_details(root: Node3D, size: Vector2, height:
 
 
 static func _add_stepped_merchant_gable(
-	root: Node3D,
-	size: Vector2,
-	height: float,
-	along_ridge_x: bool
+	root: Node3D, size: Vector2, height: float, along_ridge_x: bool
 ) -> void:
 	var front_side := &"south"
 	var facade_width := size.x
@@ -642,10 +628,21 @@ static func _add_stepped_merchant_gable(
 			face_offset,
 			&"stone"
 		)
-	MapViewMeshBuilderBuildingFacade.facade_box(root, "GablePinnacle", Vector3(0.22, 0.78, 0.28), 0.0, height + 1.42, front_side, face_offset, &"stone")
+	MapViewMeshBuilderBuildingFacade.facade_box(
+		root,
+		"GablePinnacle",
+		Vector3(0.22, 0.78, 0.28),
+		0.0,
+		height + 1.42,
+		front_side,
+		face_offset,
+		&"stone"
+	)
 
 
-static func add_chimney(root: Node3D, building: Dictionary, size: Vector2, wall_height: float, ridge_along_x: bool) -> void:
+static func add_chimney(
+	root: Node3D, building: Dictionary, size: Vector2, wall_height: float, ridge_along_x: bool
+) -> void:
 	if not allows_chimney(building):
 		return
 	var building_id: StringName = building["id"]
@@ -677,11 +674,7 @@ static func add_chimney(root: Node3D, building: Dictionary, size: Vector2, wall_
 	var stack_center_y := stack_bottom + stack_height * 0.5
 	var top := stack_bottom + stack_height
 	MapViewMeshBuilderPrimitives.add_chimney_stack(
-		root,
-		"Chimney",
-		chimney_size,
-		stack_height,
-		offset + Vector3(0.0, stack_center_y, 0.0)
+		root, "Chimney", chimney_size, stack_height, offset + Vector3(0.0, stack_center_y, 0.0)
 	)
 
 	if ChimneySmoke3D.schedule_for(seed) == ChimneySmoke3D.Schedule.NEVER:

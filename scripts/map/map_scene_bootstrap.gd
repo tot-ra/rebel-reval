@@ -18,7 +18,9 @@ static func assemble(
 ) -> Dictionary:
 	var host := map_root if map_root != null else root
 	var grid: MapTerrainGrid = MapBuilder.build(definition)
-	var assembled := MapAssembler.assemble(host, definition, grid, actors, visual_target, time_of_day)
+	var assembled := MapAssembler.assemble(
+		host, definition, grid, actors, visual_target, time_of_day
+	)
 	var terrain := assembled.get("terrain") as MapTerrainRenderer
 	var object_streamer := assembled.get("object_streamer") as MapObjectChunkStreamer
 	var terrain_focus := actors.find_child("Player", true, false) as Node2D
@@ -141,10 +143,7 @@ static func _create_doors(definition: MapDefinition, parent: Node2D) -> Array[Ar
 
 
 static func _create_minimap_hud(
-	definition: MapDefinition,
-	grid: MapTerrainGrid,
-	actors: Node2D,
-	root: Node2D
+	definition: MapDefinition, grid: MapTerrainGrid, actors: Node2D, root: Node2D
 ) -> MinimapHud:
 	var player := actors.find_child("Player", true, false) as Node2D
 	var hud := MINIMAP_HUD_SCENE.instantiate() as MinimapHud
@@ -158,14 +157,15 @@ static func _create_minimap_hud(
 ## transition triggers sit just inside these walls and fire before contact.
 ## Keyboard movement bypasses NavigationAgent2D, so water cells need the same
 ## physical blocking as buildings until a traversal mechanic ships.
-static func _create_water_blocks(definition: MapDefinition, grid: MapTerrainGrid, parent: Node2D) -> StaticBody2D:
+static func _create_water_blocks(
+	definition: MapDefinition, grid: MapTerrainGrid, parent: Node2D
+) -> StaticBody2D:
 	var body := StaticBody2D.new()
 	body.name = "WaterBlocks"
 	body.add_to_group(&"map_water_collision")
 	var water_rects := GridRegionMergerScript.merge_matching_cells(
 		definition.size_cells,
-		func(cell: Vector2i) -> bool:
-			return MapTypes.WATER_TERRAINS.has(grid.get_terrain(cell))
+		func(cell: Vector2i) -> bool: return MapTypes.WATER_TERRAINS.has(grid.get_terrain(cell))
 	)
 	for index in water_rects.size():
 		var world_rect := definition.cell_rect_to_world_rect(water_rects[index])
@@ -212,10 +212,19 @@ static func _create_world_bounds(definition: MapDefinition, parent: Node2D) -> S
 	var world := definition.world_size()
 	var thickness := float(definition.cell_size)
 	var walls := [
-		{"position": Vector2(world.x * 0.5, -thickness * 0.5), "size": Vector2(world.x + thickness * 2.0, thickness)},
-		{"position": Vector2(world.x * 0.5, world.y + thickness * 0.5), "size": Vector2(world.x + thickness * 2.0, thickness)},
+		{
+			"position": Vector2(world.x * 0.5, -thickness * 0.5),
+			"size": Vector2(world.x + thickness * 2.0, thickness)
+		},
+		{
+			"position": Vector2(world.x * 0.5, world.y + thickness * 0.5),
+			"size": Vector2(world.x + thickness * 2.0, thickness)
+		},
 		{"position": Vector2(-thickness * 0.5, world.y * 0.5), "size": Vector2(thickness, world.y)},
-		{"position": Vector2(world.x + thickness * 0.5, world.y * 0.5), "size": Vector2(thickness, world.y)},
+		{
+			"position": Vector2(world.x + thickness * 0.5, world.y * 0.5),
+			"size": Vector2(thickness, world.y)
+		},
 	]
 	for index in walls.size():
 		var collision := CollisionShape2D.new()

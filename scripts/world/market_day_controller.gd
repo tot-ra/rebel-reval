@@ -151,7 +151,10 @@ func _notify_population(previous_active: bool) -> void:
 	if previous_active == _market_day_active:
 		return
 	market_day_changed.emit(_market_day_active)
-	if _population_controller != null and _population_controller.has_method(&"set_market_day_active"):
+	if (
+		_population_controller != null
+		and _population_controller.has_method(&"set_market_day_active")
+	):
 		_population_controller.call(&"set_market_day_active", _market_day_active)
 
 
@@ -171,9 +174,7 @@ func _apply_market_presence(previous_active: bool) -> void:
 	if _merchant_interactable != null:
 		_merchant_interactable.enabled = true
 		_merchant_interactable.prompt = (
-			"Talk to the stall keeper"
-			if _market_day_active
-			else "Ask about the closed stall"
+			"Talk to the stall keeper" if _market_day_active else "Ask about the closed stall"
 		)
 	if _market_day_active and not previous_active:
 		_present_crowd_bark()

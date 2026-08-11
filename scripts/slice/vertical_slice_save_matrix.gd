@@ -39,9 +39,7 @@ static func checkpoint_ids() -> Array[StringName]:
 
 
 static func validate_checkpoint(
-	state: GameState,
-	checkpoint_id: StringName,
-	branch: Dictionary = {}
+	state: GameState, checkpoint_id: StringName, branch: Dictionary = {}
 ) -> bool:
 	if state == null:
 		return false

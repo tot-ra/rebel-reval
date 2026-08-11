@@ -15,35 +15,40 @@ const VARIANT_ROOT_NAMES: Dictionary = {
 	MapTypes.LIGHTING_VARIANT_PINE_SPLINT: &"PineSplint",
 }
 const LIGHT_PROFILES: Dictionary = {
-	MapTypes.LIGHTING_VARIANT_POOR_TALLOW: {
+	MapTypes.LIGHTING_VARIANT_POOR_TALLOW:
+	{
 		"color": Color8(255, 176, 88),
 		"day_energy": 0.12,
 		"night_energy": 0.90,
 		"range": 2.4,
 		"flame_size": 0.82,
 	},
-	MapTypes.LIGHTING_VARIANT_ARTISAN_TALLOW: {
+	MapTypes.LIGHTING_VARIANT_ARTISAN_TALLOW:
+	{
 		"color": Color8(255, 188, 98),
 		"day_energy": 0.16,
 		"night_energy": 1.18,
 		"range": 3.0,
 		"flame_size": 0.90,
 	},
-	MapTypes.LIGHTING_VARIANT_RICH_BEESWAX: {
+	MapTypes.LIGHTING_VARIANT_RICH_BEESWAX:
+	{
 		"color": Color8(255, 205, 122),
 		"day_energy": 0.18,
 		"night_energy": 1.35,
 		"range": 3.2,
 		"flame_size": 1.0,
 	},
-	MapTypes.LIGHTING_VARIANT_GREASE_LAMP: {
+	MapTypes.LIGHTING_VARIANT_GREASE_LAMP:
+	{
 		"color": Color8(255, 166, 76),
 		"day_energy": 0.11,
 		"night_energy": 0.82,
 		"range": 2.3,
 		"flame_size": 0.78,
 	},
-	MapTypes.LIGHTING_VARIANT_PINE_SPLINT: {
+	MapTypes.LIGHTING_VARIANT_PINE_SPLINT:
+	{
 		"color": Color8(255, 156, 62),
 		"day_energy": 0.14,
 		"night_energy": 1.05,
@@ -65,7 +70,9 @@ static func add_model(parent: Node3D, prop: Dictionary) -> Node3D:
 
 	var selected_name: StringName = VARIANT_ROOT_NAMES[variant]
 	var selected := model.find_child(String(selected_name), true, false) as Node3D
-	assert(selected != null, "Medieval lighting variant root is missing: %s" % String(selected_name))
+	assert(
+		selected != null, "Medieval lighting variant root is missing: %s" % String(selected_name)
+	)
 	for root_name in VARIANT_ROOT_NAMES.values():
 		if root_name == selected_name:
 			continue

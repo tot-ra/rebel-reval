@@ -1,25 +1,26 @@
 extends Node
 
+signal audio_settings_changed(settings)
+signal dialogue_settings_changed(settings)
+signal gameplay_accessibility_changed(settings)
+signal input_bindings_changed(bindings)
+
 ## Autoload that owns persisted player settings separate from save slots (P1-013/P1-028).
 
 const AudioBusServiceScript := preload("res://scripts/settings/audio_bus_service.gd")
 const AudioSettingsScript := preload("res://scripts/settings/audio_settings.gd")
 const DialogueSettingsScript := preload("res://scripts/settings/dialogue_settings.gd")
-const GameplayAccessibilitySettingsScript := preload("res://scripts/settings/gameplay_accessibility_settings.gd")
+const GameplayAccessibilitySettingsScript := preload(
+	"res://scripts/settings/gameplay_accessibility_settings.gd"
+)
 const InputBindingSettingsScript := preload("res://scripts/settings/input_binding_settings.gd")
 const StoreScript := preload("res://scripts/settings/user_settings_store.gd")
-
-signal audio_settings_changed(settings)
-signal dialogue_settings_changed(settings)
-signal gameplay_accessibility_changed(settings)
-signal input_bindings_changed(bindings)
 
 var store = StoreScript.new()
 var audio = AudioSettingsScript.default_settings()
 var dialogue = DialogueSettingsScript.default_settings()
 var gameplay = GameplayAccessibilitySettingsScript.default_settings()
 var input_bindings = InputBindingSettingsScript.default_settings()
-
 
 func _ready() -> void:
 	reload_dialogue_settings()
@@ -99,10 +100,7 @@ func apply_input_bindings(bindings, persist: bool = true) -> bool:
 
 
 func rebind_action(
-	action: StringName,
-	device: StringName,
-	event: InputEvent,
-	persist: bool = true
+	action: StringName, device: StringName, event: InputEvent, persist: bool = true
 ) -> bool:
 	var changed = input_bindings.duplicate_settings()
 	if not changed.replace_device_binding(action, device, event):

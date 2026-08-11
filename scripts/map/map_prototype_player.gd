@@ -61,15 +61,47 @@ func _rebuild_visuals() -> void:
 	var ink := MapVisualStyle.role_color(&"ink", visual_target, time_of_day)
 	var shadow := Polygon2D.new()
 	shadow.name = "Shadow"
-	shadow.polygon = PackedVector2Array([Vector2(-17, 13), Vector2(17, 13), Vector2(13, 22), Vector2(-13, 22)])
+	shadow.polygon = PackedVector2Array(
+		[Vector2(-17, 13), Vector2(17, 13), Vector2(13, 22), Vector2(-13, 22)]
+	)
 	shadow.color = Color(ink, MapVisualStyle.shadow_alpha(visual_target, time_of_day))
 	_visuals.add_child(shadow)
 
-	_add_rect("Boots", Vector2(-11, 8), Vector2(22, 10), MapVisualStyle.role_color(&"timber", visual_target, time_of_day), 1)
-	_add_rect("Body", Vector2(-14, -22), Vector2(28, 34), MapVisualStyle.role_color(&"character_cloth", visual_target, time_of_day), 2)
-	_add_rect("Apron", Vector2(-9, -12), Vector2(18, 26), MapVisualStyle.role_color(&"character_apron", visual_target, time_of_day), 3)
-	_add_rect("Head", Vector2(-10, -38), Vector2(20, 18), MapVisualStyle.role_color(&"character_skin", visual_target, time_of_day), 4)
-	_add_rect("Hair", Vector2(-11, -41), Vector2(22, 7), MapVisualStyle.role_color(&"timber", visual_target, time_of_day), 5)
+	_add_rect(
+		"Boots",
+		Vector2(-11, 8),
+		Vector2(22, 10),
+		MapVisualStyle.role_color(&"timber", visual_target, time_of_day),
+		1
+	)
+	_add_rect(
+		"Body",
+		Vector2(-14, -22),
+		Vector2(28, 34),
+		MapVisualStyle.role_color(&"character_cloth", visual_target, time_of_day),
+		2
+	)
+	_add_rect(
+		"Apron",
+		Vector2(-9, -12),
+		Vector2(18, 26),
+		MapVisualStyle.role_color(&"character_apron", visual_target, time_of_day),
+		3
+	)
+	_add_rect(
+		"Head",
+		Vector2(-10, -38),
+		Vector2(20, 18),
+		MapVisualStyle.role_color(&"character_skin", visual_target, time_of_day),
+		4
+	)
+	_add_rect(
+		"Hair",
+		Vector2(-11, -41),
+		Vector2(22, 7),
+		MapVisualStyle.role_color(&"timber", visual_target, time_of_day),
+		5
+	)
 
 	_label = Label.new()
 	_label.name = "FacingLabel"
@@ -80,10 +112,14 @@ func _rebuild_visuals() -> void:
 	_visuals.add_child(_label)
 
 
-func _add_rect(node_name: String, position: Vector2, size: Vector2, color: Color, layer: int) -> void:
+func _add_rect(
+	node_name: String, position: Vector2, size: Vector2, color: Color, layer: int
+) -> void:
 	var polygon := Polygon2D.new()
 	polygon.name = node_name
-	polygon.polygon = PackedVector2Array([position, position + Vector2(size.x, 0), position + size, position + Vector2(0, size.y)])
+	polygon.polygon = PackedVector2Array(
+		[position, position + Vector2(size.x, 0), position + size, position + Vector2(0, size.y)]
+	)
 	polygon.color = color
 	polygon.z_index = layer
 	_visuals.add_child(polygon)

@@ -476,7 +476,6 @@ const FORTIFICATION_HEIGHT_SCALE := 1.5
 const FORTIFICATION_MIN_HEIGHT_PX := 128.0
 
 
-
 static func parse_market_stall_goods(specification: StringName) -> Array[StringName]:
 	var parsed: Array[StringName] = []
 	var raw := String(specification).strip_edges()
@@ -489,7 +488,6 @@ static func parse_market_stall_goods(specification: StringName) -> Array[StringN
 		if parsed.size() == MARKET_STALL_MAX_DISPLAY_MODULES:
 			break
 	return parsed
-
 
 
 static func parse_table_items(specification: StringName) -> Array[StringName]:
@@ -614,6 +612,7 @@ static func invalid_household_clutter_variant(prop: Dictionary) -> StringName:
 	var variant := StringName(prop["style_variant"])
 	return &"" if variant in HOUSEHOLD_CLUTTER_VARIANTS else variant
 
+
 static func invalid_market_stall_goods(specification: StringName) -> Array[StringName]:
 	var invalid: Array[StringName] = []
 	var raw := String(specification).strip_edges()
@@ -630,6 +629,7 @@ static func invalid_market_stall_goods(specification: StringName) -> Array[Strin
 	if module_count > MARKET_STALL_MAX_DISPLAY_MODULES:
 		invalid.append(&"too_many_modules")
 	return invalid
+
 
 static func resolved_wall_height_px(building: Dictionary) -> float:
 	var height_px := float(building.get("wall_height", 64.0))

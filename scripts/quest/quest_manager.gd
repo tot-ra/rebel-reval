@@ -26,9 +26,7 @@ var _last_error := ""
 
 
 func _init(
-	content_db: ContentDB = null,
-	state: GameState = null,
-	evaluator: StateRuleEvaluator = null
+	content_db: ContentDB = null, state: GameState = null, evaluator: StateRuleEvaluator = null
 ) -> void:
 	_content_db = content_db
 	_state = state
@@ -56,9 +54,14 @@ func start_quest(quest_id: StringName) -> bool:
 		if not _evaluator.get_last_error().is_empty():
 			return _fail(
 				Result.INVALID_QUEST_RECORD,
-				"quest %s has invalid entry conditions: %s" % [quest_id, _evaluator.get_last_error()]
+				(
+					"quest %s has invalid entry conditions: %s"
+					% [quest_id, _evaluator.get_last_error()]
+				)
 			)
-		return _fail(Result.ENTRY_CONDITIONS_NOT_MET, "entry conditions are not met for quest %s" % quest_id)
+		return _fail(
+			Result.ENTRY_CONDITIONS_NOT_MET, "entry conditions are not met for quest %s" % quest_id
+		)
 
 	_state.set_quest_state(quest_id, StringName(String(quest["initial_state"])))
 	return true
@@ -87,8 +90,10 @@ func transition(quest_id: StringName, transition_id: StringName) -> bool:
 	if String(current_state) != String(transition_record["from_state"]):
 		return _fail(
 			Result.INVALID_CURRENT_STATE,
-			"transition %s requires state %s, current state is %s"
-			% [transition_id, transition_record["from_state"], current_state]
+			(
+				"transition %s requires state %s, current state is %s"
+				% [transition_id, transition_record["from_state"], current_state]
+			)
 		)
 
 	var conditions := _runtime_rules(transition_record.get("conditions", []))
@@ -96,18 +101,28 @@ func transition(quest_id: StringName, transition_id: StringName) -> bool:
 		if not _evaluator.get_last_error().is_empty():
 			return _fail(
 				Result.INVALID_QUEST_RECORD,
-				"transition %s has invalid conditions: %s" % [transition_id, _evaluator.get_last_error()]
+				(
+					"transition %s has invalid conditions: %s"
+					% [transition_id, _evaluator.get_last_error()]
+				)
 			)
-		return _fail(Result.CONDITIONS_NOT_MET, "conditions are not met for transition %s" % transition_id)
+		return _fail(
+			Result.CONDITIONS_NOT_MET, "conditions are not met for transition %s" % transition_id
+		)
 
 	# The target state is appended last so authored effects execute in stable JSON
 	# order and observers can only see the new quest state after all side effects.
 	var effects := _runtime_rules(transition_record["effects"])
-	effects.append({
-		"op": "set_quest_state",
-		"key": String(quest_id),
-		"value": String(transition_record["to_state"]),
-	})
+	(
+		effects
+		. append(
+			{
+				"op": "set_quest_state",
+				"key": String(quest_id),
+				"value": String(transition_record["to_state"]),
+			}
+		)
+	)
 	if not _evaluator.apply_effects(effects, _state):
 		return _fail(
 			Result.EFFECTS_REJECTED,
@@ -118,7 +133,10 @@ func transition(quest_id: StringName, transition_id: StringName) -> bool:
 
 func _load_valid_quest(quest_id: StringName) -> Dictionary:
 	if _content_db == null or _state == null or _evaluator == null:
-		_fail(Result.INVALID_DEPENDENCIES, "QuestManager requires ContentDB, GameState, and StateRuleEvaluator")
+		_fail(
+			Result.INVALID_DEPENDENCIES,
+			"QuestManager requires ContentDB, GameState, and StateRuleEvaluator"
+		)
 		return {}
 
 	var quest := _content_db.get_quest(quest_id)
@@ -134,7 +152,10 @@ func _load_valid_quest(quest_id: StringName) -> Dictionary:
 
 
 func _validate_quest_record(quest: Dictionary, quest_id: StringName) -> String:
-	if typeof(quest.get("initial_state")) != TYPE_STRING or String(quest["initial_state"]).is_empty():
+	if (
+		typeof(quest.get("initial_state")) != TYPE_STRING
+		or String(quest["initial_state"]).is_empty()
+	):
 		return "quest %s requires a non-empty initial_state" % quest_id
 	if typeof(quest.get("states")) != TYPE_ARRAY:
 		return "quest %s requires a states array" % quest_id
@@ -175,7 +196,10 @@ func _validate_quest_record(quest: Dictionary, quest_id: StringName) -> String:
 			return "quest %s transition %d must be a dictionary" % [quest_id, index]
 		var transition_record := value as Dictionary
 		for field in ["id", "from_state", "to_state"]:
-			if typeof(transition_record.get(field)) != TYPE_STRING or String(transition_record[field]).is_empty():
+			if (
+				typeof(transition_record.get(field)) != TYPE_STRING
+				or String(transition_record[field]).is_empty()
+			):
 				return "quest %s transition %d requires string %s" % [quest_id, index, field]
 
 		var transition_id := String(transition_record["id"])
@@ -194,22 +218,30 @@ func _validate_quest_record(quest: Dictionary, quest_id: StringName) -> String:
 		var runtime_conditions := _runtime_rules(transition_record.get("conditions", []))
 		_evaluator.evaluate_conditions(runtime_conditions, _state)
 		if not _evaluator.get_last_error().is_empty():
-			return "quest %s transition %s has invalid conditions: %s" \
+			return (
+				"quest %s transition %s has invalid conditions: %s"
 				% [quest_id, transition_id, _evaluator.get_last_error()]
+			)
 
 		var authored_effects: Array = transition_record["effects"]
 		for effect_value in authored_effects:
 			if typeof(effect_value) == TYPE_DICTIONARY:
 				var effect := effect_value as Dictionary
-				if String(effect.get("op", "")) == "set_quest_state" \
-						and String(effect.get("key", "")) == String(quest_id):
-					return "quest %s transition %s must use to_state instead of setting its own quest state" \
+				if (
+					String(effect.get("op", "")) == "set_quest_state"
+					and String(effect.get("key", "")) == String(quest_id)
+				):
+					return (
+						"quest %s transition %s must use to_state instead of setting its own quest state"
 						% [quest_id, transition_id]
+					)
 		var scratch_state := GameState.new()
 		var runtime_effects := _runtime_rules(authored_effects)
 		if not _evaluator.apply_effects(runtime_effects, scratch_state):
-			return "quest %s transition %s has invalid effects: %s" \
+			return (
+				"quest %s transition %s has invalid effects: %s"
 				% [quest_id, transition_id, _evaluator.get_last_error()]
+			)
 	return ""
 
 

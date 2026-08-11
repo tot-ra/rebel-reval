@@ -27,8 +27,7 @@ static func expand(source: String) -> String:
 	var accented := _accent_vowels(source)
 	var expanded := "[%s]" % accented
 	var target_length := maxi(
-		expanded.length(),
-		int(ceil(float(source.length()) * EXPANSION_RATIO)) + 2
+		expanded.length(), int(ceil(float(source.length()) * EXPANSION_RATIO)) + 2
 	)
 	while expanded.length() < target_length:
 		expanded = expanded.insert(expanded.length() - 1, "~")

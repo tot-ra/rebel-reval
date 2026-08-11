@@ -18,8 +18,5 @@ const _RA_270_360 := preload("res://scripts/map/view3d/estonia_star_catalog_ra_2
 
 ## Kept as one ordered array so catalog consumers retain the original API.
 const STARS: Array[Vector4] = (
-	_RA_000_090.STARS
-	+ _RA_090_180.STARS
-	+ _RA_180_270.STARS
-	+ _RA_270_360.STARS
+	_RA_000_090.STARS + _RA_090_180.STARS + _RA_180_270.STARS + _RA_270_360.STARS
 )

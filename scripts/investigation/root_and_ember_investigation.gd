@@ -64,8 +64,10 @@ func setup(
 	_quest_manager = QuestManager.new(SessionState.content_db, SessionState.state)
 	if not SessionState.state_replaced.is_connected(_on_state_replaced):
 		SessionState.state_replaced.connect(_on_state_replaced)
-	if SessionState.state != null \
-			and not SessionState.state.phase_changed.is_connected(_on_phase_changed):
+	if (
+		SessionState.state != null
+		and not SessionState.state.phase_changed.is_connected(_on_phase_changed)
+	):
 		SessionState.state.phase_changed.connect(_on_phase_changed)
 	_sync_quest_and_sites()
 
@@ -88,8 +90,10 @@ func advance_dialogue_for_test() -> void:
 
 
 func _exit_tree() -> void:
-	if SessionState.state != null \
-			and SessionState.state.phase_changed.is_connected(_on_phase_changed):
+	if (
+		SessionState.state != null
+		and SessionState.state.phase_changed.is_connected(_on_phase_changed)
+	):
 		SessionState.state.phase_changed.disconnect(_on_phase_changed)
 	if SessionState.state_replaced.is_connected(_on_state_replaced):
 		SessionState.state_replaced.disconnect(_on_state_replaced)
@@ -142,9 +146,7 @@ func _spawn_inspection_sites() -> void:
 		interactable.prompt = String(site["prompt"])
 		interactable.global_position = position
 		interactable.enabled = false
-		interactable.set_interact_callback(
-			Callable(self, "_on_site_pressed").bind(interactable_id)
-		)
+		interactable.set_interact_callback(Callable(self, "_on_site_pressed").bind(interactable_id))
 		_scene_root.add_child(interactable)
 		_interactables[interactable_id] = interactable
 		_view_binder.bind(interactable)

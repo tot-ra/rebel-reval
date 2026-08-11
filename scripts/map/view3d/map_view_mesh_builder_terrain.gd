@@ -8,6 +8,7 @@ extends RefCounted
 static var _height_fields: Dictionary = {}
 static var _height_field_keys_by_definition: Dictionary = {}
 
+
 static func ensure_height_field(definition: MapDefinition, grid: MapTerrainGrid) -> Dictionary:
 	var key := _height_field_key(definition, grid)
 	if _height_fields.has(key):
@@ -32,7 +33,9 @@ static func ensure_height_field(definition: MapDefinition, grid: MapTerrainGrid)
 	var water_contours := {}
 	for terrain_id in grid.used_terrain_ids():
 		if MapViewMaterials.WATER_TERRAINS.has(terrain_id):
-			water_contours[terrain_id] = MapViewMeshBuilderTerrainWater.bake_water_contour(grid, terrain_id)
+			water_contours[terrain_id] = MapViewMeshBuilderTerrainWater.bake_water_contour(
+				grid, terrain_id
+			)
 	var field := {
 		"seed": definition.seed,
 		"ground_elevation": definition.ground_elevation,
@@ -53,20 +56,27 @@ static func ensure_height_field(definition: MapDefinition, grid: MapTerrainGrid)
 
 
 static func _height_field_key(definition: MapDefinition, grid: MapTerrainGrid) -> String:
-	return "%s:%s:%s" % [
-		_definition_height_key(definition),
-		grid.size_cells,
-		grid.fingerprint(),
-	]
+	return (
+		"%s:%s:%s"
+		% [
+			_definition_height_key(definition),
+			grid.size_cells,
+			grid.fingerprint(),
+		]
+	)
 
 
 static func _definition_height_key(definition: MapDefinition) -> String:
-	return "%s:%s:%s:%d" % [
-		String(definition.map_id),
-		String(definition.fingerprint),
-		definition.size_cells,
-		definition.seed,
-	]
+	return (
+		"%s:%s:%s:%d"
+		% [
+			String(definition.map_id),
+			String(definition.fingerprint),
+			definition.size_cells,
+			definition.seed,
+		]
+	)
+
 
 ## Index level pads by the only cells they can influence. Height sampling runs for
 ## every terrain subvertex, so scanning every building and transition there made
@@ -81,8 +91,7 @@ static func _index_flatten_rects(rects: Array[Rect2], size: Vector2i) -> Diction
 			clampi(floori(affected.position.y), 0, size.y - 1)
 		)
 		var finish := Vector2i(
-			clampi(ceili(affected.end.x), 0, size.x),
-			clampi(ceili(affected.end.y), 0, size.y)
+			clampi(ceili(affected.end.x), 0, size.x), clampi(ceili(affected.end.y), 0, size.y)
 		)
 		for y in range(start.y, finish.y):
 			for x in range(start.x, finish.x):
@@ -91,6 +100,7 @@ static func _index_flatten_rects(rects: Array[Rect2], size: Vector2i) -> Diction
 					indexed[cell] = []
 				(indexed[cell] as Array).append(rect)
 	return indexed
+
 
 static func _bake_water_factors(water: Dictionary, size: Vector2i) -> PackedFloat32Array:
 	var factors := PackedFloat32Array()
@@ -116,35 +126,59 @@ static func _bake_water_factors(water: Dictionary, size: Vector2i) -> PackedFloa
 
 
 static func ground_height(definition: MapDefinition, world_xz: Vector2) -> float:
-	var field_key := String(_height_field_keys_by_definition.get(_definition_height_key(definition), ""))
+	var field_key := String(
+		_height_field_keys_by_definition.get(_definition_height_key(definition), "")
+	)
 	var field: Dictionary = _height_fields.get(field_key, {})
 	if field.is_empty():
 		return 0.0
 	return field_height(field, world_xz)
 
 
-
-
 static func field_height(field: Dictionary, position: Vector2) -> float:
 	if field.get("flat_floor", false):
 		return 0.0
 	var size: Vector2i = field["size"]
-	if position.x < 0.0 or position.y < 0.0 or position.x > float(size.x) or position.y > float(size.y):
+	if (
+		position.x < 0.0
+		or position.y < 0.0
+		or position.x > float(size.x)
+		or position.y > float(size.y)
+	):
 		return 0.0
 	var cell := Vector2i(floori(position.x), floori(position.y))
 	if field["water"].has(cell):
 		return -MapViewMeshBuilderConfig.WATER_RECESS
 	var noise_seed: int = field["seed"]
-	var macro := value_noise(position / MapViewMeshBuilderConfig.HEIGHT_MACRO_PERIOD, noise_seed + 6949) * 2.0 - 1.0
-	var broad := value_noise(position / MapViewMeshBuilderConfig.HEIGHT_BROAD_PERIOD, noise_seed + 7717) * 2.0 - 1.0
-	var fine := value_noise(position / MapViewMeshBuilderConfig.HEIGHT_FINE_PERIOD, noise_seed + 8317) * 2.0 - 1.0
+	var macro := (
+		(
+			value_noise(position / MapViewMeshBuilderConfig.HEIGHT_MACRO_PERIOD, noise_seed + 6949)
+			* 2.0
+		)
+		- 1.0
+	)
+	var broad := (
+		(
+			value_noise(position / MapViewMeshBuilderConfig.HEIGHT_BROAD_PERIOD, noise_seed + 7717)
+			* 2.0
+		)
+		- 1.0
+	)
+	var fine := (
+		value_noise(position / MapViewMeshBuilderConfig.HEIGHT_FINE_PERIOD, noise_seed + 8317) * 2.0
+		- 1.0
+	)
 	var relief := (
 		macro * MapViewMeshBuilderConfig.HEIGHT_MACRO_AMPLITUDE
 		+ broad * MapViewMeshBuilderConfig.HEIGHT_BROAD_AMPLITUDE
 		+ fine * MapViewMeshBuilderConfig.HEIGHT_FINE_AMPLITUDE
 	)
-	var base_elevation := float(field.get("ground_elevation", 0.0)) * elevation_factor(field, position)
-	return base_elevation + relief * minf(pad_factor(field, position), water_factor(field, position))
+	var base_elevation := (
+		float(field.get("ground_elevation", 0.0)) * elevation_factor(field, position)
+	)
+	return (
+		base_elevation + relief * minf(pad_factor(field, position), water_factor(field, position))
+	)
 
 
 ## Elevated outdoor maps share a zero-height datum at their authored bounds so
@@ -155,8 +189,7 @@ static func elevation_factor(field: Dictionary, position: Vector2) -> float:
 		return 0.0
 	var size: Vector2i = field["size"]
 	var border := minf(
-		minf(position.x, float(size.x) - position.x),
-		minf(position.y, float(size.y) - position.y)
+		minf(position.x, float(size.x) - position.x), minf(position.y, float(size.y) - position.y)
 	)
 	return smoothstep(0.0, MapViewMeshBuilderConfig.ELEVATION_SLOPE_CELLS, border)
 
@@ -185,8 +218,7 @@ static func value_noise(p: Vector2, noise_seed: int) -> float:
 static func pad_factor(field: Dictionary, position: Vector2) -> float:
 	var size: Vector2i = field["size"]
 	var border := minf(
-		minf(position.x, float(size.x) - position.x),
-		minf(position.y, float(size.y) - position.y)
+		minf(position.x, float(size.x) - position.x), minf(position.y, float(size.y) - position.y)
 	)
 	var factor := clampf(border / MapViewMeshBuilderConfig.BORDER_FLATTEN_CELLS, 0.0, 1.0)
 	var rects_by_cell: Dictionary = field.get("rects_by_cell", {})
@@ -196,10 +228,15 @@ static func pad_factor(field: Dictionary, position: Vector2) -> float:
 		var dx := maxf(maxf(rect.position.x - position.x, position.x - rect.end.x), 0.0)
 		var dy := maxf(maxf(rect.position.y - position.y, position.y - rect.end.y), 0.0)
 		var distance := Vector2(dx, dy).length()
-		factor = minf(factor, smoothstep(MapViewMeshBuilderConfig.FLATTEN_START, MapViewMeshBuilderConfig.FLATTEN_END, distance))
+		factor = minf(
+			factor,
+			smoothstep(
+				MapViewMeshBuilderConfig.FLATTEN_START,
+				MapViewMeshBuilderConfig.FLATTEN_END,
+				distance
+			)
+		)
 	return factor
-
-
 
 
 static func water_factor(field: Dictionary, position: Vector2) -> float:
@@ -210,8 +247,7 @@ static func water_factor(field: Dictionary, position: Vector2) -> float:
 	if size.x <= 0 or size.y <= 0 or factors.size() != size.x * size.y:
 		return 1.0
 	var cell := Vector2i(
-		clampi(floori(position.x), 0, size.x - 1),
-		clampi(floori(position.y), 0, size.y - 1)
+		clampi(floori(position.x), 0, size.x - 1), clampi(floori(position.y), 0, size.y - 1)
 	)
 	return factors[cell.y * size.x + cell.x]
 
@@ -235,14 +271,22 @@ static func bake_vertices(field: Dictionary) -> void:
 			var spot := base
 			if not field.get("flat_floor", false):
 				var jitter_scale := pad_factor(field, base)
-				jitter = Vector2(
-					MapViewMeshBuilderPrimitives.hash01(vx, vy, noise_seed + 8887) - 0.5,
-					MapViewMeshBuilderPrimitives.hash01(vx, vy, noise_seed + 9973) - 0.5
-				) * MapViewMeshBuilderConfig.EDGE_JITTER * jitter_scale
+				jitter = (
+					Vector2(
+						MapViewMeshBuilderPrimitives.hash01(vx, vy, noise_seed + 8887) - 0.5,
+						MapViewMeshBuilderPrimitives.hash01(vx, vy, noise_seed + 9973) - 0.5
+					)
+					* MapViewMeshBuilderConfig.EDGE_JITTER
+					* jitter_scale
+				)
 				if vx == 0 or vy == 0 or vx == columns - 1 or vy == rows - 1:
 					jitter = Vector2.ZERO
 				spot = base + jitter
-			var height := -MapViewMeshBuilderConfig.WATER_RECESS if subvertex_touches_water(field, vx, vy) else field_height(field, spot)
+			var height := (
+				-MapViewMeshBuilderConfig.WATER_RECESS
+				if subvertex_touches_water(field, vx, vy)
+				else field_height(field, spot)
+			)
 			positions[vy * columns + vx] = Vector3(spot.x, height, spot.y)
 	var normals := PackedVector3Array()
 	normals.resize(columns * rows)
@@ -266,7 +310,12 @@ static func subvertex_touches_water(field: Dictionary, vx: int, vy: int) -> bool
 	var water: Dictionary = field["water"]
 	var size: Vector2i = field["size"]
 	var base := Vector2(vx, vy) / float(MapViewMeshBuilderConfig.TERRAIN_SUBDIVISIONS)
-	for nudge: Vector2 in [Vector2(-0.001, -0.001), Vector2(0.001, -0.001), Vector2(-0.001, 0.001), Vector2(0.001, 0.001)]:
+	for nudge: Vector2 in [
+		Vector2(-0.001, -0.001),
+		Vector2(0.001, -0.001),
+		Vector2(-0.001, 0.001),
+		Vector2(0.001, 0.001)
+	]:
 		var sample: Vector2 = base + nudge
 		if sample.x < 0.0 or sample.y < 0.0 or sample.x >= size.x or sample.y >= size.y:
 			continue
@@ -298,9 +347,13 @@ static func build_terrain(definition: MapDefinition, grid: MapTerrainGrid) -> No
 		surface.begin(Mesh.PRIMITIVE_TRIANGLES)
 		for y in grid.size_cells.y:
 			for x in grid.size_cells.x:
-				if not MapViewMeshBuilderTerrainWater.cell_near_terrain(field, Vector2i(x, y), terrain_id):
+				if not MapViewMeshBuilderTerrainWater.cell_near_terrain(
+					field, Vector2i(x, y), terrain_id
+				):
 					continue
-				MapViewMeshBuilderTerrainWater.add_water_cell_quad(surface, field, grid, x, y, terrain_id)
+				MapViewMeshBuilderTerrainWater.add_water_cell_quad(
+					surface, field, grid, x, y, terrain_id
+				)
 		var instance := MeshInstance3D.new()
 		instance.name = "Terrain_%s" % String(terrain_id)
 		var mesh := surface.commit()
@@ -330,16 +383,12 @@ static func cell_tone(x: int, y: int, noise_seed: int, style_variant: StringName
 	return clampf(tone, 0.75, 1.2)
 
 
-
-
 ## Build the continuous ground as packed indexed arrays. The old SurfaceTool path
 ## emitted every triangle corner separately and recalculated its terrain blend,
 ## turning a 176 x 112 map into more than one million vertices during every scene
 ## change. The visual 3 x 3 grid is unchanged; each shared vertex is evaluated once.
 static func _build_blended_ground_mesh(
-	field: Dictionary,
-	grid: MapTerrainGrid,
-	noise_seed: int
+	field: Dictionary, grid: MapTerrainGrid, noise_seed: int
 ) -> ArrayMesh:
 	if grid.size_cells.x <= 0 or grid.size_cells.y <= 0:
 		return null
@@ -364,12 +413,7 @@ static func _build_blended_ground_mesh(
 				clampi(floori(spot.y), 0, grid.size_cells.y - 1)
 			)
 			var blend := terrain_blend_at(
-				field,
-				grid,
-				spot,
-				noise_seed,
-				source_cell.x,
-				source_cell.y
+				field, grid, spot, noise_seed, source_cell.x, source_cell.y
 			)
 			var primary_tint := OutdoorTerrainPalette.color(blend["primary"])
 			var secondary_tint := OutdoorTerrainPalette.color(blend["secondary"])
@@ -403,7 +447,9 @@ static func _build_blended_ground_mesh(
 	arrays[Mesh.ARRAY_CUSTOM0] = custom
 	arrays[Mesh.ARRAY_INDEX] = indices
 	var mesh := ArrayMesh.new()
-	var custom_format := RenderingServer.ARRAY_CUSTOM_RGBA_FLOAT << RenderingServer.ARRAY_FORMAT_CUSTOM0_SHIFT
+	var custom_format := (
+		RenderingServer.ARRAY_CUSTOM_RGBA_FLOAT << RenderingServer.ARRAY_FORMAT_CUSTOM0_SHIFT
+	)
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays, [], {}, custom_format)
 	return mesh
 
@@ -417,10 +463,13 @@ static func terrain_blend_at(
 	cell_y: int
 ) -> Dictionary:
 	var warped := sample
-	var warp := Vector2(
-		value_noise(sample / 2.4, noise_seed + 12101) - 0.5,
-		value_noise(sample / 2.4, noise_seed + 12703) - 0.5
-	) * MapViewMeshBuilderConfig.VISUAL_EDGE_WARP
+	var warp := (
+		Vector2(
+			value_noise(sample / 2.4, noise_seed + 12101) - 0.5,
+			value_noise(sample / 2.4, noise_seed + 12703) - 0.5
+		)
+		* MapViewMeshBuilderConfig.VISUAL_EDGE_WARP
+	)
 	warped += warp
 	warped.x = clampf(warped.x, 0.0, float(grid.size_cells.x) - 0.001)
 	warped.y = clampf(warped.y, 0.0, float(grid.size_cells.y) - 0.001)
@@ -442,7 +491,12 @@ static func terrain_blend_at(
 		if edge_distance > blend_width:
 			continue
 		var neighbor_cell := cell + offset
-		if neighbor_cell.x < 0 or neighbor_cell.y < 0 or neighbor_cell.x >= grid.size_cells.x or neighbor_cell.y >= grid.size_cells.y:
+		if (
+			neighbor_cell.x < 0
+			or neighbor_cell.y < 0
+			or neighbor_cell.x >= grid.size_cells.x
+			or neighbor_cell.y >= grid.size_cells.y
+		):
 			continue
 		var neighbor: StringName = _ground_terrain_at(grid, neighbor_cell)
 		if neighbor == primary:
@@ -473,16 +527,11 @@ static func terrain_blend_at(
 	}
 
 
-
-
 ## Soft inland bank from the combined smoothed water field:
 ## damp dirt into muted coast silt, then wet mud with only mild darkening.
 ## Returning an empty dictionary leaves hard-surface quay edges untouched.
 static func shore_blend_at(
-	field: Dictionary,
-	grid: MapTerrainGrid,
-	sample: Vector2,
-	noise_seed: int
+	field: Dictionary, grid: MapTerrainGrid, sample: Vector2, noise_seed: int
 ) -> Dictionary:
 	var cell := Vector2i(
 		clampi(floori(sample.x), 0, grid.size_cells.x - 1),
@@ -493,8 +542,9 @@ static func shore_blend_at(
 		return {}
 	var coverage := MapViewMeshBuilderTerrainWater.combined_water_coverage_at(field, sample)
 	var band_warp := (
-		value_noise(sample * 0.72, noise_seed + 16661) - 0.5
-	) * MapViewMeshBuilderConfig.SHORE_COVERAGE_WARP
+		(value_noise(sample * 0.72, noise_seed + 16661) - 0.5)
+		* MapViewMeshBuilderConfig.SHORE_COVERAGE_WARP
+	)
 	coverage += band_warp
 	var outer := MapViewMeshBuilderConfig.SHORE_SAND_OUTER_COVERAGE
 	var silt_inner := MapViewMeshBuilderConfig.SHORE_SAND_INNER_COVERAGE
@@ -518,7 +568,8 @@ static func shore_blend_at(
 		return {
 			"primary": MapTypes.TERRAIN_DIRT,
 			"secondary": MapTypes.TERRAIN_MUD,
-			"weight": lerpf(
+			"weight":
+			lerpf(
 				MapViewMeshBuilderConfig.SHORE_SILT_BLEND_CAP * 0.55,
 				MapViewMeshBuilderConfig.SHORE_MUD_BLEND_CAP,
 				mid_t
@@ -541,7 +592,9 @@ static func is_natural_shore_cell(field: Dictionary, grid: MapTerrainGrid, cell:
 	var terrain := grid.get_terrain(cell)
 	if terrain not in MapViewMeshBuilderConfig.NATURAL_SHORE_TERRAINS:
 		return false
-	var coverage := MapViewMeshBuilderTerrainWater.combined_water_coverage_at(field, Vector2(cell) + Vector2(0.5, 0.5))
+	var coverage := MapViewMeshBuilderTerrainWater.combined_water_coverage_at(
+		field, Vector2(cell) + Vector2(0.5, 0.5)
+	)
 	return (
 		coverage >= MapViewMeshBuilderConfig.SHORE_CATTAIL_MIN_COVERAGE
 		and coverage < MapViewMeshBuilderConfig.SHORE_CATTAIL_MAX_COVERAGE
@@ -551,7 +604,9 @@ static func is_natural_shore_cell(field: Dictionary, grid: MapTerrainGrid, cell:
 ## Cattails and authored reed beds belong on enclosed freshwater margins (ponds,
 ## moats, rivers), not on open Baltic beach strips that use coast sand and
 ## deep/shallow sea water.
-static func is_inland_water_shore_cell(field: Dictionary, grid: MapTerrainGrid, cell: Vector2i) -> bool:
+static func is_inland_water_shore_cell(
+	field: Dictionary, grid: MapTerrainGrid, cell: Vector2i
+) -> bool:
 	if cell.x < 0 or cell.y < 0 or cell.x >= grid.size_cells.x or cell.y >= grid.size_cells.y:
 		return false
 	var terrain := grid.get_terrain(cell)
@@ -567,6 +622,8 @@ static func is_inland_water_shore_cell(field: Dictionary, grid: MapTerrainGrid, 
 		inland_coverage >= MapViewMeshBuilderConfig.SHORE_CATTAIL_MIN_COVERAGE
 		and inland_coverage < MapViewMeshBuilderConfig.SHORE_CATTAIL_MAX_COVERAGE
 	)
+
+
 ## The recessed bank under a clipped water edge must use a dry palette layer.
 ## Pick the first adjacent dry terrain deterministically; enclosed water falls
 ## back to grass because its bed remains fully hidden by the water surface.
@@ -575,17 +632,27 @@ static func _ground_terrain_at(grid: MapTerrainGrid, cell: Vector2i) -> StringNa
 	if not MapViewMaterials.WATER_TERRAINS.has(terrain):
 		return terrain
 	for offset in [
-		Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN,
-		Vector2i(-1, -1), Vector2i(1, -1), Vector2i(-1, 1), Vector2i(1, 1),
+		Vector2i.LEFT,
+		Vector2i.RIGHT,
+		Vector2i.UP,
+		Vector2i.DOWN,
+		Vector2i(-1, -1),
+		Vector2i(1, -1),
+		Vector2i(-1, 1),
+		Vector2i(1, 1),
 	]:
 		var neighbor: Vector2i = cell + offset
-		if neighbor.x < 0 or neighbor.y < 0 or neighbor.x >= grid.size_cells.x or neighbor.y >= grid.size_cells.y:
+		if (
+			neighbor.x < 0
+			or neighbor.y < 0
+			or neighbor.x >= grid.size_cells.x
+			or neighbor.y >= grid.size_cells.y
+		):
 			continue
 		var candidate := grid.get_terrain(neighbor)
 		if not MapViewMaterials.WATER_TERRAINS.has(candidate):
 			return candidate
 	return MapTypes.TERRAIN_GRASS
-
 
 ## Hollow stone stack: four walls plus a recessed ink flue so the mouth reads as
 ## a dark tube instead of a solid cube (same pattern as tower arrow slits).

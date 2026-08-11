@@ -38,9 +38,7 @@ static func sync_on_phase_change(
 
 
 static func mark_commission_met(
-	state: GameState,
-	commission_id: StringName,
-	content_db: ContentDB
+	state: GameState, commission_id: StringName, content_db: ContentDB
 ) -> void:
 	if state == null or not _has_deadline(commission_id, content_db):
 		return
@@ -51,9 +49,7 @@ static func mark_commission_met(
 
 
 static func mark_commission_met_if_timely(
-	state: GameState,
-	commission_id: StringName,
-	content_db: ContentDB
+	state: GameState, commission_id: StringName, content_db: ContentDB
 ) -> void:
 	if state == null or not _has_deadline(commission_id, content_db):
 		return
@@ -97,24 +93,28 @@ static func build_journal_deadlines(state: GameState, content_db: ContentDB) -> 
 		var status := state.get_commission_deadline_status(commission_id)
 		if status == STATUS_MISSED:
 			continue
-		entries.append({
-			"commission_id": commission_id,
-			"title": String(commission.get("title", String(commission_id))),
-			"label": String(deadline.get("journal_label", "")),
-			"due_phase_id": StringName(String(deadline.get("due_phase_id", ""))),
-			"status": String(status),
-		})
+		(
+			entries
+			. append(
+				{
+					"commission_id": commission_id,
+					"title": String(commission.get("title", String(commission_id))),
+					"label": String(deadline.get("journal_label", "")),
+					"due_phase_id": StringName(String(deadline.get("due_phase_id", ""))),
+					"status": String(status),
+				}
+			)
+		)
 
-	entries.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		return String(a.get("commission_id", "")) < String(b.get("commission_id", ""))
+	entries.sort_custom(
+		func(a: Dictionary, b: Dictionary) -> bool:
+			return String(a.get("commission_id", "")) < String(b.get("commission_id", ""))
 	)
 	return entries
 
 
 static func deadline_snapshot(
-	commission: Dictionary,
-	state: GameState,
-	content_db: ContentDB
+	commission: Dictionary, state: GameState, _content_db: ContentDB
 ) -> Dictionary:
 	var deadline := _deadline_block(commission)
 	if deadline.is_empty() or state == null:
@@ -220,9 +220,7 @@ static func _runtime_content_db() -> ContentDB:
 
 
 static func _is_before_due_phase(
-	state: GameState,
-	commission_id: StringName,
-	content_db: ContentDB
+	state: GameState, commission_id: StringName, content_db: ContentDB
 ) -> bool:
 	if state == null or content_db == null or not content_db.is_loaded():
 		return false
@@ -231,8 +229,7 @@ static func _is_before_due_phase(
 	if deadline.is_empty():
 		return false
 	var due_index := phase_sequence_index(
-		StringName(String(deadline.get("due_phase_id", ""))),
-		content_db
+		StringName(String(deadline.get("due_phase_id", ""))), content_db
 	)
 	var current_index := phase_sequence_index(state.get_phase(), content_db)
 	return due_index >= 0 and current_index >= 0 and current_index < due_index

@@ -32,7 +32,9 @@ static func _set_bus_linear_volume(bus_name: StringName, linear_volume: float) -
 	var bus_index := AudioServer.get_bus_index(String(bus_name))
 	if bus_index < 0:
 		return
-	var clamped := clampf(linear_volume, AudioSettingsScript.MIN_LINEAR, AudioSettingsScript.MAX_LINEAR)
+	var clamped := clampf(
+		linear_volume, AudioSettingsScript.MIN_LINEAR, AudioSettingsScript.MAX_LINEAR
+	)
 	if clamped <= AudioSettingsScript.MIN_LINEAR:
 		AudioServer.set_bus_volume_db(bus_index, -80.0)
 	else:

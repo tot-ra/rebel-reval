@@ -18,10 +18,7 @@ const GRASS_DETAIL_TERRAINS: Array[StringName] = [
 
 
 static func build_chunk(
-	definition: MapDefinition,
-	grid: MapTerrainGrid,
-	cell_bounds: Rect2i,
-	first_person: bool = false
+	definition: MapDefinition, grid: MapTerrainGrid, cell_bounds: Rect2i, first_person: bool = false
 ) -> Node3D:
 	var root := Node3D.new()
 	root.name = "TerrainDetails"
@@ -36,10 +33,7 @@ static func is_first_person(root: Node) -> bool:
 
 
 static func _build_detail_level(
-	definition: MapDefinition,
-	grid: MapTerrainGrid,
-	cell_bounds: Rect2i,
-	first_person: bool
+	definition: MapDefinition, grid: MapTerrainGrid, cell_bounds: Rect2i, first_person: bool
 ) -> Node3D:
 	var root := Node3D.new()
 	var bounds := cell_bounds.intersection(Rect2i(Vector2i.ZERO, grid.size_cells))
@@ -75,15 +69,40 @@ static func _build_detail_level(
 				definition.seed
 			)
 
-	_add_foliage_layer(root, "MeadowGrass", MapViewFoliageMeshes.grass_tuft_mesh(), meadow_grass, meadow_grass_colors, GROUND_COVER_LIFT)
-	_add_foliage_layer(root, "DryGrass", MapViewFoliageMeshes.grass_seed_head_mesh(), dry_grass, dry_grass_colors, GROUND_COVER_LIFT)
-	_add_foliage_layer(root, "Clover", MapViewFoliageMeshes.clover_patch_mesh(), clover, clover_colors, GROUND_COVER_LIFT)
-	_add_foliage_layer(root, "Ferns", MapViewFoliageMeshes.fern_frond_mesh(), fern, fern_colors, GROUND_COVER_LIFT)
+	_add_foliage_layer(
+		root,
+		"MeadowGrass",
+		MapViewFoliageMeshes.grass_tuft_mesh(),
+		meadow_grass,
+		meadow_grass_colors,
+		GROUND_COVER_LIFT
+	)
+	_add_foliage_layer(
+		root,
+		"DryGrass",
+		MapViewFoliageMeshes.grass_seed_head_mesh(),
+		dry_grass,
+		dry_grass_colors,
+		GROUND_COVER_LIFT
+	)
+	_add_foliage_layer(
+		root,
+		"Clover",
+		MapViewFoliageMeshes.clover_patch_mesh(),
+		clover,
+		clover_colors,
+		GROUND_COVER_LIFT
+	)
+	_add_foliage_layer(
+		root, "Ferns", MapViewFoliageMeshes.fern_frond_mesh(), fern, fern_colors, GROUND_COVER_LIFT
+	)
 	for child in root.get_children():
 		if child is GeometryInstance3D:
 			var geometry := child as GeometryInstance3D
 			geometry.visibility_range_end = MapViewMeshBuilderConfig.FIRST_PERSON_DETAIL_RANGE
-			geometry.visibility_range_end_margin = MapViewMeshBuilderConfig.FIRST_PERSON_DETAIL_RANGE_MARGIN
+			geometry.visibility_range_end_margin = (
+				MapViewMeshBuilderConfig.FIRST_PERSON_DETAIL_RANGE_MARGIN
+			)
 	return root
 
 
@@ -116,15 +135,33 @@ static func _append_ground_cover(
 		for index in count:
 			var target_transforms := grass
 			var target_colors := grass_colors
-			var use_dry := variant == TerrainVegetation.VARIANT_GRASS_DRY or MapViewMeshBuilderPrimitives.hash01(cell.x + index, cell.y, map_seed + 7121) < 0.18
+			var use_dry := (
+				variant == TerrainVegetation.VARIANT_GRASS_DRY
+				or (
+					MapViewMeshBuilderPrimitives.hash01(cell.x + index, cell.y, map_seed + 7121)
+					< 0.18
+				)
+			)
 			if use_dry:
 				target_transforms = dry
 				target_colors = dry_colors
-			target_transforms.append(_foliage_transform(field, cell, map_seed + 7133 + index * 41, 0.42, 0.86))
+			target_transforms.append(
+				_foliage_transform(field, cell, map_seed + 7133 + index * 41, 0.42, 0.86)
+			)
 			if use_dry:
-				target_colors.append(Color(0.86, 0.76, 0.46).lerp(Color(0.68, 0.72, 0.38), MapViewMeshBuilderPrimitives.hash01(cell.x, cell.y + index, map_seed + 7151)))
+				target_colors.append(
+					Color(0.86, 0.76, 0.46).lerp(
+						Color(0.68, 0.72, 0.38),
+						MapViewMeshBuilderPrimitives.hash01(cell.x, cell.y + index, map_seed + 7151)
+					)
+				)
 			else:
-				target_colors.append(Color(0.58, 0.82, 0.38).lerp(Color(0.34, 0.62, 0.30), MapViewMeshBuilderPrimitives.hash01(cell.x + index, cell.y, map_seed + 7163)))
+				target_colors.append(
+					Color(0.58, 0.82, 0.38).lerp(
+						Color(0.34, 0.62, 0.30),
+						MapViewMeshBuilderPrimitives.hash01(cell.x + index, cell.y, map_seed + 7163)
+					)
+				)
 
 	var clover_chance := 0.16
 	if variant == TerrainVegetation.VARIANT_GRASS_CLOVER:
@@ -142,18 +179,16 @@ static func _append_ground_cover(
 
 
 static func _foliage_transform(
-	field: Dictionary,
-	cell: Vector2i,
-	noise_seed: int,
-	scale_min: float,
-	scale_max: float
+	field: Dictionary, cell: Vector2i, noise_seed: int, scale_min: float, scale_max: float
 ) -> Transform3D:
 	var offset := Vector2(
 		0.08 + MapViewMeshBuilderPrimitives.hash01(cell.x, cell.y, noise_seed + 7) * 0.84,
 		0.08 + MapViewMeshBuilderPrimitives.hash01(cell.x, cell.y, noise_seed + 13) * 0.84
 	)
 	var spot := Vector2(cell) + offset
-	var scale := lerpf(scale_min, scale_max, MapViewMeshBuilderPrimitives.hash01(cell.x, cell.y, noise_seed + 29))
+	var scale := lerpf(
+		scale_min, scale_max, MapViewMeshBuilderPrimitives.hash01(cell.x, cell.y, noise_seed + 29)
+	)
 	var yaw := MapViewMeshBuilderPrimitives.hash01(cell.x, cell.y, noise_seed + 41) * TAU
 	return Transform3D(
 		Basis(Vector3.UP, yaw).scaled(Vector3.ONE * scale),
@@ -172,12 +207,7 @@ static func _add_foliage_layer(
 	if transforms.is_empty():
 		return
 	var layer := MapViewMeshBuilderPrimitives.multi_mesh(
-		name,
-		mesh,
-		transforms,
-		colors,
-		MapViewMaterials.grass_blades(),
-		Vector3.UP * lift
+		name, mesh, transforms, colors, MapViewMaterials.grass_blades(), Vector3.UP * lift
 	)
 	layer.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	root.add_child(layer)

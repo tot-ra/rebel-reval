@@ -12,7 +12,8 @@ const OverlayScript := preload("res://scripts/world/world_item_overlay.gd")
 const PickupLabelsScript := preload("res://scripts/world/world_item_pickup_labels.gd")
 
 const DEFAULT_PLACEMENTS: Dictionary = {
-	&"loc.kalev_smithy": [
+	&"loc.kalev_smithy":
+	[
 		{
 			"object_id": &"world.spearhead_anvil",
 			"item_id": &"item.seized_spearhead",
@@ -195,7 +196,9 @@ func _spawn_item(record: Dictionary) -> void:
 func _spawn_pickup_interactable(item: WorldItem) -> void:
 	var interactable: Interactable = INTERACTABLE_SCENE.instantiate()
 	interactable.name = "Pickup_%s" % String(item.get_world_object_id()).replace(".", "_")
-	interactable.interactable_id = StringName("interact.pickup.%s" % String(item.get_world_object_id()))
+	interactable.interactable_id = StringName(
+		"interact.pickup.%s" % String(item.get_world_object_id())
+	)
 	interactable.interaction_kind = InteractionKinds.PICKUP
 	interactable.global_position = item.global_position
 	interactable.set_interact_callback(_on_pickup_interact.bind(item))
@@ -284,7 +287,9 @@ func _try_pickup(item: WorldItem) -> bool:
 	if _overlay != null:
 		_overlay.show_feedback("Picked up %s" % name_text)
 		_overlay.play_pickup_sfx(record)
-		_overlay.show_pickup_bark(_overlay.resolve_pickup_feedback(item_id, record, _content_db, _state, location_id))
+		_overlay.show_pickup_bark(
+			_overlay.resolve_pickup_feedback(item_id, record, _content_db, _state, location_id)
+		)
 	_remove_pickup_interactable(item)
 	var view: WorldItemView = _views.get(item)
 	if view != null and is_instance_valid(view):
@@ -322,11 +327,13 @@ func _drop_placement(placement: InventoryPlacement, logic_position: Vector2) -> 
 	if controller != null:
 		controller.clear_selection()
 
-	_spawn_item({
-		"object_id": object_id,
-		"item_id": item_id,
-		"position": logic_position,
-	})
+	_spawn_item(
+		{
+			"object_id": object_id,
+			"item_id": item_id,
+			"position": logic_position,
+		}
+	)
 	return true
 
 

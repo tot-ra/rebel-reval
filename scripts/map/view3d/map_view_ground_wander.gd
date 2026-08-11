@@ -39,10 +39,7 @@ static func setup(actor: Node3D, seed_key: StringName, index: int, config: Dicti
 
 
 static func advance(
-	actor: Node3D,
-	seed_key: StringName,
-	listener_position: Vector3,
-	delta: float
+	actor: Node3D, seed_key: StringName, listener_position: Vector3, delta: float
 ) -> void:
 	var home: Vector3 = actor.get_meta(&"home", actor.position)
 	# Ambient fauna is a ground-only actor kit: never let a walk step introduce
@@ -95,7 +92,9 @@ static func _select_next_target(actor: Node3D, seed_key: StringName) -> void:
 	var radius := float(actor.get_meta(&"radius", 1.0))
 	var roam_scale := float(actor.get_meta(&"roam_scale", 0.8))
 	var rng := RandomNumberGenerator.new()
-	rng.seed = hash_seed(seed_key, int(actor.get_meta(&"placement_index", 0)), 1009 + waypoint_index * 37)
+	rng.seed = hash_seed(
+		seed_key, int(actor.get_meta(&"placement_index", 0)), 1009 + waypoint_index * 37
+	)
 	var angle := rng.randf_range(0.0, TAU)
 	# sqrt spreads destinations evenly over the yard instead of clustering every
 	# route near its center.

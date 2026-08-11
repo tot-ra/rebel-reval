@@ -17,16 +17,16 @@ static func body_mesh() -> ArrayMesh:
 	# vertical hex (yt/yb half-depth hz) so the silhouette softens without
 	# losing the classic London-pattern read.
 	var stations: Array[Dictionary] = [
-		{"x": -0.62, "yt": 0.34, "yb": 0.30, "hz": 0.025}, # horn tip
+		{"x": -0.62, "yt": 0.34, "yb": 0.30, "hz": 0.025},  # horn tip
 		{"x": -0.42, "yt": 0.38, "yb": 0.27, "hz": 0.07},
 		{"x": -0.22, "yt": 0.40, "yb": 0.24, "hz": 0.11},
-		{"x": -0.06, "yt": 0.405, "yb": 0.22, "hz": 0.13}, # face start
-		{"x": 0.10, "yt": 0.405, "yb": 0.20, "hz": 0.135}, # face
+		{"x": -0.06, "yt": 0.405, "yb": 0.22, "hz": 0.13},  # face start
+		{"x": 0.10, "yt": 0.405, "yb": 0.20, "hz": 0.135},  # face
 		{"x": 0.22, "yt": 0.40, "yb": 0.16, "hz": 0.12},
-		{"x": 0.30, "yt": 0.34, "yb": 0.10, "hz": 0.085}, # waist
-		{"x": 0.38, "yt": 0.32, "yb": 0.08, "hz": 0.10}, # heel rise
+		{"x": 0.30, "yt": 0.34, "yb": 0.10, "hz": 0.085},  # waist
+		{"x": 0.38, "yt": 0.32, "yb": 0.08, "hz": 0.10},  # heel rise
 		{"x": 0.48, "yt": 0.30, "yb": 0.06, "hz": 0.12},
-		{"x": 0.54, "yt": 0.22, "yb": 0.05, "hz": 0.13}, # heel end
+		{"x": 0.54, "yt": 0.22, "yb": 0.05, "hz": 0.13},  # heel end
 	]
 
 	var surface := SurfaceTool.new()
@@ -100,12 +100,12 @@ static func _add_box(surface: SurfaceTool, center: Vector3, size: Vector3) -> vo
 		center + Vector3(half.x, half.y, half.z),
 		center + Vector3(-half.x, half.y, half.z),
 	]
-	_quad(surface, p[4], p[5], p[6], p[7]) # top
-	_quad(surface, p[0], p[3], p[2], p[1]) # bottom
-	_quad(surface, p[0], p[1], p[5], p[4]) # -Z
-	_quad(surface, p[3], p[7], p[6], p[2]) # +Z
-	_quad(surface, p[0], p[4], p[7], p[3]) # -X
-	_quad(surface, p[1], p[2], p[6], p[5]) # +X
+	_quad(surface, p[4], p[5], p[6], p[7])  # top
+	_quad(surface, p[0], p[3], p[2], p[1])  # bottom
+	_quad(surface, p[0], p[1], p[5], p[4])  # -Z
+	_quad(surface, p[3], p[7], p[6], p[2])  # +Z
+	_quad(surface, p[0], p[4], p[7], p[3])  # -X
+	_quad(surface, p[1], p[2], p[6], p[5])  # +X
 
 
 static func _quad(surface: SurfaceTool, a: Vector3, b: Vector3, c: Vector3, d: Vector3) -> void:

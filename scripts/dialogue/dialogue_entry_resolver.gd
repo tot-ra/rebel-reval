@@ -5,19 +5,18 @@ extends RefCounted
 
 
 static func resolve_entry_node_id(
-	dialogue: Dictionary,
-	state: GameState,
-	evaluator: StateRuleEvaluator
+	dialogue: Dictionary, state: GameState, evaluator: StateRuleEvaluator
 ) -> String:
 	var variants: Variant = dialogue.get("entry_variants", [])
 	if typeof(variants) != TYPE_ARRAY or (variants as Array).is_empty():
 		return ""
 
 	var ranked: Array = (variants as Array).duplicate()
-	ranked.sort_custom(func(a: Variant, b: Variant) -> bool:
-		var priority_a := int((a as Dictionary).get("priority", 0)) if a is Dictionary else 0
-		var priority_b := int((b as Dictionary).get("priority", 0)) if b is Dictionary else 0
-		return priority_a > priority_b
+	ranked.sort_custom(
+		func(a: Variant, b: Variant) -> bool:
+			var priority_a := int((a as Dictionary).get("priority", 0)) if a is Dictionary else 0
+			var priority_b := int((b as Dictionary).get("priority", 0)) if b is Dictionary else 0
+			return priority_a > priority_b
 	)
 
 	for variant_value: Variant in ranked:
@@ -28,7 +27,10 @@ static func resolve_entry_node_id(
 		if node_id.is_empty():
 			continue
 		var conditions: Array = variant.get("conditions", [])
-		if conditions.is_empty() or evaluator.evaluate_conditions(_runtime_rules(conditions), state):
+		if (
+			conditions.is_empty()
+			or evaluator.evaluate_conditions(_runtime_rules(conditions), state)
+		):
 			return node_id
 	return ""
 

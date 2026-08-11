@@ -140,8 +140,7 @@ func sync_player(snap: bool, delta: float = 0.0) -> void:
 		_player_rig.play_animation(wanted)
 	if _player.has_method("view_animation_elapsed_sec"):
 		_player_rig.sync_action_presentation(
-			wanted,
-			float(_player.call("view_animation_elapsed_sec"))
+			wanted, float(_player.call("view_animation_elapsed_sec"))
 		)
 	_player_rig.set_locomotion_speed(speed * MapViewBridge.world_scale(_definition.cell_size))
 	_sync_actor_health_ring(_player_rig, _player)
@@ -184,12 +183,7 @@ static func hide_player_canvas(player: CharacterBody2D) -> void:
 			node.visible = false
 
 
-func _sync_view_actor(
-	actor: Node2D,
-	rig: SharedCharacterRig,
-	snap: bool,
-	delta: float
-) -> void:
+func _sync_view_actor(actor: Node2D, rig: SharedCharacterRig, snap: bool, delta: float) -> void:
 	_view.sync_actor(rig, actor.global_position)
 	_sync_actor_health_ring(rig, actor)
 	var facing := Vector2.DOWN
@@ -209,7 +203,9 @@ func _sync_view_actor(
 	if rig.current_canonical_animation() != wanted:
 		rig.play_animation(wanted)
 	var actor_velocity := actor.get("velocity") as Vector2
-	rig.set_locomotion_speed(actor_velocity.length() * MapViewBridge.world_scale(_definition.cell_size))
+	rig.set_locomotion_speed(
+		actor_velocity.length() * MapViewBridge.world_scale(_definition.cell_size)
+	)
 
 
 static func _hide_actor_canvas(actor: Node2D) -> void:
@@ -219,13 +215,16 @@ static func _hide_actor_canvas(actor: Node2D) -> void:
 
 
 func _on_player_health_changed(current: float, maximum: float) -> void:
-	if _last_player_health >= 0.0 and current < _last_player_health and _request_screen_shake.is_valid():
+	if (
+		_last_player_health >= 0.0
+		and current < _last_player_health
+		and _request_screen_shake.is_valid()
+	):
 		_request_screen_shake.call(0.35)
 	_last_player_health = current
 	var ring := _player_rig.get_node_or_null("HealthRing") as CharacterHealthRing3D
 	if ring != null:
 		ring.set_health(current, maximum)
-
 
 
 func _on_player_melee_attack_resolved(targets: Array[Node2D], profile: AttackProfile) -> void:

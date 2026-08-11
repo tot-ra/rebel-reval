@@ -15,8 +15,15 @@ const TYPE_RECT2I := &"rect2i"
 const TYPE_COLOR := &"color"
 const PARAMETER_REFERENCE_KEY := &"$parameter"
 const PARAMETER_TYPES: Array[StringName] = [
-	TYPE_BOOL, TYPE_INT, TYPE_FLOAT, TYPE_STRING, TYPE_STRING_NAME,
-	TYPE_VECTOR2, TYPE_VECTOR2I, TYPE_RECT2I, TYPE_COLOR,
+	TYPE_BOOL,
+	TYPE_INT,
+	TYPE_FLOAT,
+	TYPE_STRING,
+	TYPE_STRING_NAME,
+	TYPE_VECTOR2,
+	TYPE_VECTOR2I,
+	TYPE_RECT2I,
+	TYPE_COLOR,
 ]
 
 var prefab_id: StringName
@@ -35,7 +42,9 @@ static func parameter(parameter_id: StringName) -> Dictionary:
 	return {PARAMETER_REFERENCE_KEY: parameter_id}
 
 
-func declare_parameter(parameter_id: StringName, type_id: StringName, default_value: Variant) -> MapPrefab:
+func declare_parameter(
+	parameter_id: StringName, type_id: StringName, default_value: Variant
+) -> MapPrefab:
 	parameters.append({"id": parameter_id, "type": type_id, "default": default_value})
 	return self
 
@@ -47,13 +56,18 @@ func primitive(
 	style_id: StringName = &"",
 	overrides: Dictionary = {}
 ) -> MapPrefab:
-	primitives.append({
-		"primitive": primitive_kind,
-		"id": local_id,
-		"data": data.duplicate(true),
-		"style": style_id,
-		"overrides": overrides.duplicate(true),
-	})
+	(
+		primitives
+		. append(
+			{
+				"primitive": primitive_kind,
+				"id": local_id,
+				"data": data.duplicate(true),
+				"style": style_id,
+				"overrides": overrides.duplicate(true),
+			}
+		)
+	)
 	return self
 
 
@@ -66,12 +80,18 @@ func terrain_rect(
 	style_id: StringName = &"",
 	overrides: Dictionary = {}
 ) -> MapPrefab:
-	return primitive(&"terrain_rect", local_id, {
-		"terrain": terrain,
-		"rects": [rect],
-		"layer": layer,
-		"order": order,
-	}, style_id, overrides)
+	return primitive(
+		&"terrain_rect",
+		local_id,
+		{
+			"terrain": terrain,
+			"rects": [rect],
+			"layer": layer,
+			"order": order,
+		},
+		style_id,
+		overrides
+	)
 
 
 func structure_rect(
@@ -81,7 +101,9 @@ func structure_rect(
 	style_id: StringName = &"",
 	overrides: Dictionary = {}
 ) -> MapPrefab:
-	return primitive(&"structure_rect", local_id, {"kind": kind, "rect": footprint}, style_id, overrides)
+	return primitive(
+		&"structure_rect", local_id, {"kind": kind, "rect": footprint}, style_id, overrides
+	)
 
 
 func prop(
@@ -112,12 +134,17 @@ func instance(
 	parameter_values: Dictionary = {},
 	overrides_by_local_id: Dictionary = {}
 ) -> MapPrefab:
-	instances.append({
-		"id": local_instance_id,
-		"prefab_id": prefab_id_value,
-		"origin": origin,
-		"transform": transform if transform != null else MapTransform.new(),
-		"parameters": parameter_values.duplicate(true),
-		"overrides": overrides_by_local_id.duplicate(true),
-	})
+	(
+		instances
+		. append(
+			{
+				"id": local_instance_id,
+				"prefab_id": prefab_id_value,
+				"origin": origin,
+				"transform": transform if transform != null else MapTransform.new(),
+				"parameters": parameter_values.duplicate(true),
+				"overrides": overrides_by_local_id.duplicate(true),
+			}
+		)
+	)
 	return self

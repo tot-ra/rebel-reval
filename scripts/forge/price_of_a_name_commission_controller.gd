@@ -18,42 +18,44 @@ var _commission_controller: ForgeCommissionController
 
 
 func setup(
-	commission_anchor: ForgeCommissionAnchor,
-	rest_anchor: PhaseRestAnchor,
-	player: Player
+	commission_anchor: ForgeCommissionAnchor, rest_anchor: PhaseRestAnchor, player: Player
 ) -> void:
 	_commission_anchor = commission_anchor
 	_rest_anchor = rest_anchor
 	if player != null:
-		_commission_controller = player.get_node_or_null(
-			"ForgeCommissionController"
-		) as ForgeCommissionController
+		_commission_controller = (
+			player.get_node_or_null("ForgeCommissionController") as ForgeCommissionController
+		)
 
 	if _commission_anchor != null:
 		_commission_anchor.set_flow_gate(Callable(self, "_commission_flow_gate"))
-	if _commission_controller != null \
-			and not _commission_controller.commission_finished.is_connected(
-				_on_commission_finished
-			):
+	if (
+		_commission_controller != null
+		and not _commission_controller.commission_finished.is_connected(_on_commission_finished)
+	):
 		_commission_controller.commission_finished.connect(_on_commission_finished)
 	if not SessionState.state_replaced.is_connected(_on_state_replaced):
 		SessionState.state_replaced.connect(_on_state_replaced)
-	if SessionState.state != null \
-			and not SessionState.state.phase_changed.is_connected(_on_phase_changed):
+	if (
+		SessionState.state != null
+		and not SessionState.state.phase_changed.is_connected(_on_phase_changed)
+	):
 		SessionState.state.phase_changed.connect(_on_phase_changed)
 	_sync_stage()
 
 
 func _exit_tree() -> void:
-	if _commission_controller != null \
-			and _commission_controller.commission_finished.is_connected(
-				_on_commission_finished
-			):
+	if (
+		_commission_controller != null
+		and _commission_controller.commission_finished.is_connected(_on_commission_finished)
+	):
 		_commission_controller.commission_finished.disconnect(_on_commission_finished)
 	if SessionState.state_replaced.is_connected(_on_state_replaced):
 		SessionState.state_replaced.disconnect(_on_state_replaced)
-	if SessionState.state != null \
-			and SessionState.state.phase_changed.is_connected(_on_phase_changed):
+	if (
+		SessionState.state != null
+		and SessionState.state.phase_changed.is_connected(_on_phase_changed)
+	):
 		SessionState.state.phase_changed.disconnect(_on_phase_changed)
 
 
@@ -108,15 +110,18 @@ func _sync_rest_enabled() -> void:
 	var interactable := _rest_anchor.get_interactable()
 	if interactable == null:
 		return
-	var has_next_phase := not PhaseProfileModelScript.next_phase_id(
-		SessionState.state.get_phase(),
-		SessionState.content_db
-	).is_empty()
+	var has_next_phase := not (
+		PhaseProfileModelScript
+		. next_phase_id(SessionState.state.get_phase(), SessionState.content_db)
+		. is_empty()
+	)
 	var allow_rest := has_next_phase
 	if ModelScript.is_forge_flow_active(SessionState.state):
 		allow_rest = (
 			has_next_phase
-			and ForgeCommissionModel.is_commission_resolved(SessionState.state, ModelScript.COMMISSION_ID)
+			and ForgeCommissionModel.is_commission_resolved(
+				SessionState.state, ModelScript.COMMISSION_ID
+			)
 		)
 	interactable.enabled = allow_rest
 

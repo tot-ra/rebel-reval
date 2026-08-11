@@ -60,17 +60,16 @@ static func build_lunar_albedo_map(_seed: int) -> Texture2D:
 ## Bakes a star catalog into an equatorial equirectangular map. A texture keeps
 ## the sky shader to one sample per pixel while retaining catalog photometry.
 static func build_star_map(
-	stars: Array[Vector4],
-	catalog_epoch: float,
-	target_epoch: float,
-	limiting_magnitude: float
+	stars: Array[Vector4], catalog_epoch: float, target_epoch: float, limiting_magnitude: float
 ) -> ImageTexture:
 	var image := Image.create(STAR_MAP_WIDTH, STAR_MAP_HEIGHT, false, Image.FORMAT_RGBAH)
 	image.fill(Color.TRANSPARENT)
 	for j2000_star in stars:
 		var star := precess_equatorial(j2000_star, catalog_epoch, target_epoch)
 		var x := wrapi(roundi(star.x / 360.0 * float(STAR_MAP_WIDTH)), 0, STAR_MAP_WIDTH)
-		var y := clampi(roundi((90.0 - star.y) / 180.0 * float(STAR_MAP_HEIGHT - 1)), 0, STAR_MAP_HEIGHT - 1)
+		var y := clampi(
+			roundi((90.0 - star.y) / 180.0 * float(STAR_MAP_HEIGHT - 1)), 0, STAR_MAP_HEIGHT - 1
+		)
 		var luminosity := magnitude_to_luminance(star.z, limiting_magnitude)
 		var color := bv_to_rgb(star.w) * luminosity
 		_set_star_texel(image, x, y, color)
@@ -84,12 +83,11 @@ static func _set_star_texel(image: Image, x: int, y: int, color: Color) -> void:
 	var wrapped_x := wrapi(x, 0, STAR_MAP_WIDTH)
 	var clamped_y := clampi(y, 0, STAR_MAP_HEIGHT - 1)
 	var existing := image.get_pixel(wrapped_x, clamped_y)
-	image.set_pixel(wrapped_x, clamped_y, Color(
-		maxf(existing.r, color.r),
-		maxf(existing.g, color.g),
-		maxf(existing.b, color.b),
-		1.0
-	))
+	image.set_pixel(
+		wrapped_x,
+		clamped_y,
+		Color(maxf(existing.r, color.r), maxf(existing.g, color.g), maxf(existing.b, color.b), 1.0)
+	)
 
 
 static func magnitude_to_luminance(magnitude: float, limiting_magnitude: float) -> float:
@@ -101,9 +99,7 @@ static func bv_to_rgb(bv: float) -> Color:
 	# Ballesteros temperature approximation followed by a black-body RGB fit.
 	# This preserves blue Rigel/Vega and warm Betelgeuse/Arcturus at a glance.
 	var clamped_bv := clampf(bv, -0.4, 2.0)
-	var temperature := 4600.0 * (
-		1.0 / (0.92 * clamped_bv + 1.7) + 1.0 / (0.92 * clamped_bv + 0.62)
-	)
+	var temperature := 4600.0 * (1.0 / (0.92 * clamped_bv + 1.7) + 1.0 / (0.92 * clamped_bv + 0.62))
 	var scaled := temperature / 100.0
 	var red: float
 	var green: float
@@ -127,31 +123,44 @@ static func bv_to_rgb(bv: float) -> Color:
 ## moves the entire constellation pattern together from J2000 to spring 1343.
 static func precess_equatorial(star: Vector4, from_epoch: float, to_epoch: float) -> Vector4:
 	var centuries := (to_epoch - from_epoch) / 100.0
-	var zeta := deg_to_rad((
-		2306.2181 * centuries
-		+ 0.30188 * centuries * centuries
-		+ 0.017998 * centuries * centuries * centuries
-	) / 3600.0)
-	var z := deg_to_rad((
-		2306.2181 * centuries
-		+ 1.09468 * centuries * centuries
-		+ 0.018203 * centuries * centuries * centuries
-	) / 3600.0)
-	var theta := deg_to_rad((
-		2004.3109 * centuries
-		- 0.42665 * centuries * centuries
-		- 0.041833 * centuries * centuries * centuries
-	) / 3600.0)
+	var zeta := deg_to_rad(
+		(
+			(
+				2306.2181 * centuries
+				+ 0.30188 * centuries * centuries
+				+ 0.017998 * centuries * centuries * centuries
+			)
+			/ 3600.0
+		)
+	)
+	var z := deg_to_rad(
+		(
+			(
+				2306.2181 * centuries
+				+ 1.09468 * centuries * centuries
+				+ 0.018203 * centuries * centuries * centuries
+			)
+			/ 3600.0
+		)
+	)
+	var theta := deg_to_rad(
+		(
+			(
+				2004.3109 * centuries
+				- 0.42665 * centuries * centuries
+				- 0.041833 * centuries * centuries * centuries
+			)
+			/ 3600.0
+		)
+	)
 	var right_ascension := deg_to_rad(star.x)
 	var declination := deg_to_rad(star.y)
 	var a := cos(declination) * sin(right_ascension + zeta)
 	var b := (
-		cos(theta) * cos(declination) * cos(right_ascension + zeta)
-		- sin(theta) * sin(declination)
+		cos(theta) * cos(declination) * cos(right_ascension + zeta) - sin(theta) * sin(declination)
 	)
 	var c := (
-		sin(theta) * cos(declination) * cos(right_ascension + zeta)
-		+ cos(theta) * sin(declination)
+		sin(theta) * cos(declination) * cos(right_ascension + zeta) + cos(theta) * sin(declination)
 	)
 	return Vector4(
 		wrapf(rad_to_deg(atan2(a, b) + z), 0.0, 360.0),

@@ -63,33 +63,37 @@ static func facade_position(building: Dictionary, transition: Dictionary) -> Vec
 	var center: Vector2 = transition.get("rect", Rect2()).get_center()
 	match attachment_side(building, transition):
 		&"north":
-			return Vector2(clampf(center.x, footprint.position.x, footprint.end.x), footprint.position.y)
+			return Vector2(
+				clampf(center.x, footprint.position.x, footprint.end.x), footprint.position.y
+			)
 		&"south":
 			return Vector2(clampf(center.x, footprint.position.x, footprint.end.x), footprint.end.y)
 		&"east":
 			return Vector2(footprint.end.x, clampf(center.y, footprint.position.y, footprint.end.y))
 		&"west":
-			return Vector2(footprint.position.x, clampf(center.y, footprint.position.y, footprint.end.y))
+			return Vector2(
+				footprint.position.x, clampf(center.y, footprint.position.y, footprint.end.y)
+			)
 	return footprint.get_center()
 
 
 static func facade_along_world(
-	building: Dictionary,
-	transition: Dictionary,
-	cell_size: int
+	building: Dictionary, transition: Dictionary, cell_size: int
 ) -> float:
 	var footprint: Rect2 = building.get("footprint", Rect2())
 	var position := facade_position(building, transition)
 	var center := footprint.get_center()
 	var scale := MapViewBridge.world_scale(cell_size)
 	var side := attachment_side(building, transition)
-	return (position.x - center.x) * scale if side in [&"north", &"south"] else (position.y - center.y) * scale
+	return (
+		(position.x - center.x) * scale
+		if side in [&"north", &"south"]
+		else (position.y - center.y) * scale
+	)
 
 
 static func approach_aligns_with_facade(
-	building: Dictionary,
-	transition: Dictionary,
-	cell_size: int
+	building: Dictionary, transition: Dictionary, cell_size: int
 ) -> bool:
 	if building.is_empty() or not building.get("footprint") is Rect2:
 		return false
@@ -100,15 +104,23 @@ static func approach_aligns_with_facade(
 	var gap := INF
 	match side:
 		&"north":
-			overlaps_facade = rect.end.x > footprint.position.x and rect.position.x < footprint.end.x
+			overlaps_facade = (
+				rect.end.x > footprint.position.x and rect.position.x < footprint.end.x
+			)
 			gap = maxf(0.0, footprint.position.y - rect.end.y)
 		&"south":
-			overlaps_facade = rect.end.x > footprint.position.x and rect.position.x < footprint.end.x
+			overlaps_facade = (
+				rect.end.x > footprint.position.x and rect.position.x < footprint.end.x
+			)
 			gap = maxf(0.0, rect.position.y - footprint.end.y)
 		&"east":
-			overlaps_facade = rect.end.y > footprint.position.y and rect.position.y < footprint.end.y
+			overlaps_facade = (
+				rect.end.y > footprint.position.y and rect.position.y < footprint.end.y
+			)
 			gap = maxf(0.0, rect.position.x - footprint.end.x)
 		&"west":
-			overlaps_facade = rect.end.y > footprint.position.y and rect.position.y < footprint.end.y
+			overlaps_facade = (
+				rect.end.y > footprint.position.y and rect.position.y < footprint.end.y
+			)
 			gap = maxf(0.0, footprint.position.x - rect.end.x)
 	return overlaps_facade and gap <= float(cell_size) * MAX_APPROACH_DISTANCE_CELLS

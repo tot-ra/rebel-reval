@@ -15,7 +15,8 @@ const PREVIEW_GROUP := &"map_blueprint_editor_preview"
 		blueprint_factory = value
 		_request_rebuild()
 
-@export_tool_button("Rebuild Preview", "Reload") var rebuild_preview_action: Callable = rebuild_preview
+@export_tool_button("Rebuild Preview", "Reload")
+var rebuild_preview_action: Callable = rebuild_preview
 @export_tool_button("Validate", "StatusSuccess") var validate_action: Callable = validate
 
 @export_group("Overlays")
@@ -63,14 +64,17 @@ func _exit_tree() -> void:
 
 func _validate_property(property: Dictionary) -> void:
 	var property_name := StringName(property.get("name", ""))
-	if property_name in [
-		&"rebuild_preview_action",
-		&"validate_action",
-		&"show_stable_ids",
-		&"show_anchors",
-		&"show_navigation",
-		&"show_chunk_bounds",
-	]:
+	if (
+		property_name
+		in [
+			&"rebuild_preview_action",
+			&"validate_action",
+			&"show_stable_ids",
+			&"show_anchors",
+			&"show_navigation",
+			&"show_chunk_bounds",
+		]
+	):
 		# Controls are editor session state, not authored map data. Removing
 		# STORAGE prevents toggling an overlay from changing the host .tscn.
 		property["usage"] = PROPERTY_USAGE_EDITOR
@@ -145,11 +149,15 @@ func compile_blueprint() -> MapBlueprintCompileResult:
 	if blueprint_factory == null:
 		return _failed_result("blueprint_factory is required")
 	if not blueprint_factory.has_method("create"):
-		return _failed_result("%s must define static func create() -> MapBlueprint" % blueprint_factory.resource_path)
+		return _failed_result(
+			"%s must define static func create() -> MapBlueprint" % blueprint_factory.resource_path
+		)
 
 	var value: Variant = blueprint_factory.call("create")
 	if not value is MapBlueprint:
-		return _failed_result("%s.create() must return MapBlueprint" % blueprint_factory.resource_path)
+		return _failed_result(
+			"%s.create() must return MapBlueprint" % blueprint_factory.resource_path
+		)
 	return MapBlueprintCompiler.compile_with_diagnostics(value as MapBlueprint)
 
 
@@ -217,18 +225,26 @@ func _failed_result(message: String) -> MapBlueprintCompileResult:
 
 
 func _success_status(prefix: String, definition: MapDefinition) -> String:
-	var warning_suffix := "\nWarnings: %d (see configuration warnings)" % _diagnostic_warnings.size() if not _diagnostic_warnings.is_empty() else ""
-	return "%s: %s\nFingerprint: %s\nTerrain zones: %d | Buildings: %d | Props: %d | Landmarks: %d | Anchors: %d%s" % [
-		prefix,
-		definition.map_id,
-		definition.fingerprint,
-		definition.zones.size(),
-		definition.buildings.size(),
-		definition.props.size(),
-		definition.view_landmarks.size(),
-		definition.interaction_anchors.size(),
-		warning_suffix,
-	]
+	var warning_suffix := (
+		"\nWarnings: %d (see configuration warnings)" % _diagnostic_warnings.size()
+		if not _diagnostic_warnings.is_empty()
+		else ""
+	)
+	return (
+		# gdlint: ignore=max-line-length
+		"%s: %s\nFingerprint: %s\nTerrain zones: %d | Buildings: %d | Props: %d | Landmarks: %d | Anchors: %d%s"
+		% [
+			prefix,
+			definition.map_id,
+			definition.fingerprint,
+			definition.zones.size(),
+			definition.buildings.size(),
+			definition.props.size(),
+			definition.view_landmarks.size(),
+			definition.interaction_anchors.size(),
+			warning_suffix,
+		]
+	)
 
 
 func _disable_preview_physics(node: Node) -> void:

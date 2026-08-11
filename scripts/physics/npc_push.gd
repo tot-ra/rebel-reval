@@ -49,9 +49,7 @@ static func has_queued_push(body: CharacterBody2D) -> bool:
 
 
 static func apply_player_contact_pushes(
-	player: CharacterBody2D,
-	movement_velocity: Vector2,
-	delta: float
+	player: CharacterBody2D, movement_velocity: Vector2, delta: float
 ) -> void:
 	if player == null or delta <= 0.0 or movement_velocity.is_zero_approx():
 		return

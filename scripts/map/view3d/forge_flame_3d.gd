@@ -166,22 +166,24 @@ static func _flame_mesh(size: Vector2) -> ArrayMesh:
 	# Transparent perimeter vertex colors feather overlap without a texture asset.
 	var half_width := size.x * 0.5
 	var height := size.y
-	var vertices := PackedVector3Array([
-		Vector3(0.0, height * 0.36, 0.0),
-		Vector3(-half_width * 0.30, 0.0, 0.0),
-		Vector3(half_width * 0.32, 0.0, 0.0),
-		Vector3(half_width * 0.82, height * 0.08, 0.0),
-		Vector3(half_width, height * 0.23, 0.0),
-		Vector3(half_width * 0.64, height * 0.43, 0.0),
-		Vector3(half_width * 0.44, height * 0.62, 0.0),
-		Vector3(half_width * 0.12, height * 0.78, 0.0),
-		Vector3(0.0, height, 0.0),
-		Vector3(-half_width * 0.22, height * 0.76, 0.0),
-		Vector3(-half_width * 0.48, height * 0.58, 0.0),
-		Vector3(-half_width * 0.72, height * 0.42, 0.0),
-		Vector3(-half_width, height * 0.22, 0.0),
-		Vector3(-half_width * 0.76, height * 0.07, 0.0),
-	])
+	var vertices := PackedVector3Array(
+		[
+			Vector3(0.0, height * 0.36, 0.0),
+			Vector3(-half_width * 0.30, 0.0, 0.0),
+			Vector3(half_width * 0.32, 0.0, 0.0),
+			Vector3(half_width * 0.82, height * 0.08, 0.0),
+			Vector3(half_width, height * 0.23, 0.0),
+			Vector3(half_width * 0.64, height * 0.43, 0.0),
+			Vector3(half_width * 0.44, height * 0.62, 0.0),
+			Vector3(half_width * 0.12, height * 0.78, 0.0),
+			Vector3(0.0, height, 0.0),
+			Vector3(-half_width * 0.22, height * 0.76, 0.0),
+			Vector3(-half_width * 0.48, height * 0.58, 0.0),
+			Vector3(-half_width * 0.72, height * 0.42, 0.0),
+			Vector3(-half_width, height * 0.22, 0.0),
+			Vector3(-half_width * 0.76, height * 0.07, 0.0),
+		]
+	)
 	var colors := PackedColorArray([Color.WHITE])
 	for index in range(1, vertices.size()):
 		colors.append(Color(1.0, 0.48, 0.06, 0.0))

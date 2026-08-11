@@ -22,7 +22,8 @@ const PROP_WALL_REPAIR := &"consequence_wall_repair"
 const PROP_MARKET_GOODS := &"evidence_barrels"
 
 const OVERLAY_PROPS_BY_DISTRICT: Dictionary = {
-	DISTRICT_LOWER_TOWN: [
+	DISTRICT_LOWER_TOWN:
+	[
 		PROP_REBEL_GRAFFITI,
 		PROP_ORDER_NOTICE,
 		PROP_WATCH_BARRICADE,
@@ -71,7 +72,9 @@ static func resolve_snapshot(district_id: StringName, state: GameState) -> Dicti
 
 	var dynamic_visibility := {}
 	for prop_id: StringName in DYNAMIC_PROPS_BY_DISTRICT.get(district_id, []):
-		dynamic_visibility[prop_id] = _dynamic_prop_visible(prop_id, consequence_state, state, district_id)
+		dynamic_visibility[prop_id] = _dynamic_prop_visible(
+			prop_id, consequence_state, state, district_id
+		)
 
 	return {
 		"district_id": district_id,
@@ -105,10 +108,7 @@ static func _supply_disrupted(district_id: StringName, state: GameState) -> bool
 
 
 static func _dynamic_prop_visible(
-	prop_id: StringName,
-	consequence_state: StringName,
-	state: GameState,
-	district_id: StringName
+	prop_id: StringName, consequence_state: StringName, state: GameState, district_id: StringName
 ) -> bool:
 	if prop_id == PROP_MARKET_GOODS and district_id == DISTRICT_LOWER_TOWN:
 		if _supply_disrupted(district_id, state):

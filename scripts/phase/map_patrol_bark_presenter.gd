@@ -72,7 +72,10 @@ func _process(delta: float) -> void:
 	_timer += delta
 	if _timer < BARK_INTERVAL_SEC:
 		return
-	if (_patrol_body.global_position - _player.global_position).length_squared() > PROXIMITY_RADIUS_SQ:
+	if (
+		(_patrol_body.global_position - _player.global_position).length_squared()
+		> PROXIMITY_RADIUS_SQ
+	):
 		return
 	_timer = 0.0
 	_try_show_bark()
@@ -82,11 +85,7 @@ func _try_show_bark() -> void:
 	if bark_pool_id.is_empty() or _runner == null or SessionState.state == null:
 		return
 	_runner.configure(SessionState.content_db, SessionState.state, null)
-	var bark := _runner.resolve_bark(
-		bark_pool_id,
-		SessionState.state.get_phase(),
-		location_id
-	)
+	var bark := _runner.resolve_bark(bark_pool_id, SessionState.state.get_phase(), location_id)
 	if bark.is_empty():
 		return
 	_bark_timer = FeedbackScript.show_bark(_label, bark)

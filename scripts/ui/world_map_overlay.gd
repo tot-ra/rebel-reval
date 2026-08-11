@@ -1,6 +1,9 @@
 class_name WorldMapOverlay
 extends CanvasLayer
 
+signal closed
+signal travel_requested(scene_id: StringName, spawn_id: StringName)
+
 ## Public full-screen map facade. Focused child views own local-map, district
 ## fast-travel, and global Estonia presentation; this facade owns modes and
 ## validated travel intent.
@@ -9,10 +12,6 @@ const WorldMapOverlayBuilder := preload("res://scripts/ui/world_map_overlay_buil
 const LocalMapView := preload("res://scripts/ui/world_map_local_view.gd")
 const FastTravelView := preload("res://scripts/ui/world_map_fast_travel_view.gd")
 const GlobalMapView := preload("res://scripts/ui/world_map_global_view.gd")
-
-signal closed()
-signal travel_requested(scene_id: StringName, spawn_id: StringName)
-
 const MODE_LOCAL := &"local"
 const MODE_FAST_TRAVEL := &"fast_travel"
 const MODE_GLOBAL := &"global"
@@ -30,7 +29,6 @@ var _travelable: Dictionary = {}
 var _global_travelable: Dictionary = {}
 var _mode: StringName = MODE_LOCAL
 var _local_map: MinimapHud
-
 var _title: Label
 var _subtitle: Label
 var _local_view: LocalMapView
@@ -42,7 +40,6 @@ var _global_tab: Button
 var _close_button: Button
 var _help: Label
 
-
 func configure(current_scene_id: StringName = &"", local_map: MinimapHud = null) -> void:
 	_current_scene_id = current_scene_id
 	_local_map = local_map
@@ -52,8 +49,7 @@ func configure(current_scene_id: StringName = &"", local_map: MinimapHud = null)
 	_travelable.clear()
 	for neighbor_id in WorldMapGraph.travelable_neighbors(_current_scene_id):
 		_travelable[neighbor_id] = WorldMapGraph.resolve_travel_spawn(
-			_current_scene_id,
-			neighbor_id
+			_current_scene_id, neighbor_id
 		)
 	_global_travelable.clear()
 	for marker_id in GlobalMapCatalog.location_ids():
@@ -215,12 +211,18 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _build_ui() -> void:
-	var nodes := WorldMapOverlayBuilder.build(self, {
-		"close": close,
-		"show_local_map": show_local_map,
-		"show_fast_travel": show_fast_travel,
-		"show_global_map": show_global_map,
-	})
+	var nodes := (
+		WorldMapOverlayBuilder
+		. build(
+			self,
+			{
+				"close": close,
+				"show_local_map": show_local_map,
+				"show_fast_travel": show_fast_travel,
+				"show_global_map": show_global_map,
+			}
+		)
+	)
 	_title = nodes["title"]
 	_subtitle = nodes["subtitle"]
 	_local_view = nodes["local_view"]
@@ -240,11 +242,7 @@ func _configure_views() -> void:
 		return
 	_local_view.configure(_local_map, _current_scene_id)
 	_fast_travel_view.configure(
-		_current_scene_id,
-		_scene_ids,
-		_connections,
-		_positions,
-		_travelable
+		_current_scene_id, _scene_ids, _connections, _positions, _travelable
 	)
 	_global_view.configure(_current_scene_id, _global_travelable)
 

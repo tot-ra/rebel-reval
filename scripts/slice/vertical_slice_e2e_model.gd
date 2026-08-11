@@ -63,7 +63,10 @@ static func manifest_matches_model() -> bool:
 		return false
 	if String(manifest.get("verify_script", "")) != VERIFY_SCRIPT_PATH:
 		return false
-	if String(manifest.get("maintainer_report", "")) != MAINTAINER_REPORT_PATH.trim_prefix("res://"):
+	if (
+		String(manifest.get("maintainer_report", ""))
+		!= MAINTAINER_REPORT_PATH.trim_prefix("res://")
+	):
 		return false
 	var traversal_manifest := String(manifest.get("traversal_manifest", ""))
 	if traversal_manifest != TRAVERSAL_MANIFEST_PATH.trim_prefix("res://"):

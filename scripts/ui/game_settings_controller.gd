@@ -96,7 +96,9 @@ func _can_open() -> bool:
 	var reflection := parent.get_node_or_null("ReflectionController") as ReflectionController
 	if reflection != null and reflection.is_open():
 		return false
-	var commission := parent.get_node_or_null("ForgeCommissionController") as ForgeCommissionController
+	var commission := (
+		parent.get_node_or_null("ForgeCommissionController") as ForgeCommissionController
+	)
 	if commission != null and commission.is_open():
 		return false
 	for node in get_tree().get_nodes_in_group(&"modal_input_overlay"):

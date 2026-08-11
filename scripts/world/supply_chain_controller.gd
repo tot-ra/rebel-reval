@@ -156,7 +156,10 @@ func _track_observation() -> void:
 		return
 	if _state.get_fact(ModelScript.FACT_OBSERVED):
 		return
-	if _player.global_position.distance_squared_to(_convoy.global_position) <= ModelScript.OBSERVE_RADIUS_SQ:
+	if (
+		_player.global_position.distance_squared_to(_convoy.global_position)
+		<= ModelScript.OBSERVE_RADIUS_SQ
+	):
 		_state.set_fact(ModelScript.FACT_OBSERVED, true)
 
 

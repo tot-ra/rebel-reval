@@ -89,14 +89,28 @@ static func body_mesh(variant: int = 0) -> ArrayMesh:
 	# Close the tiny crown and the hidden underside so the stack remains a solid,
 	# portable mesh instead of intersecting transparent sphere shells.
 	var top_ring := rings.size() - 1
-	var top_center := Vector3(float(rings[top_ring]["ox"]), float(rings[top_ring]["y"]) + 0.018, float(rings[top_ring]["oz"]))
+	var top_center := Vector3(
+		float(rings[top_ring]["ox"]),
+		float(rings[top_ring]["y"]) + 0.018,
+		float(rings[top_ring]["oz"])
+	)
 	for segment in RADIAL_SEGMENTS:
 		var next_segment := (segment + 1) % RADIAL_SEGMENTS
 		var edge_a := _body_vertex(rings, top_ring, segment, variant)
 		var edge_b := _body_vertex(rings, top_ring, next_segment, variant)
-		var center := {"position": top_center, "normal": Vector3.UP, "uv": Vector2(1.5, 2.2), "color": Color(0.96, 0.96, 0.96)}
+		var center := {
+			"position": top_center,
+			"normal": Vector3.UP,
+			"uv": Vector2(1.5, 2.2),
+			"color": Color(0.96, 0.96, 0.96)
+		}
 		_add_body_triangle(surface, edge_a, edge_b, center)
-	var bottom_center := {"position": Vector3.ZERO, "normal": Vector3.DOWN, "uv": Vector2(1.5, 0.0), "color": Color(0.72, 0.72, 0.72)}
+	var bottom_center := {
+		"position": Vector3.ZERO,
+		"normal": Vector3.DOWN,
+		"uv": Vector2(1.5, 0.0),
+		"color": Color(0.72, 0.72, 0.72)
+	}
 	for segment in RADIAL_SEGMENTS:
 		var next_segment := (segment + 1) % RADIAL_SEGMENTS
 		var edge_a := _body_vertex(rings, 0, segment, variant)
@@ -132,10 +146,19 @@ static func loose_straw_mesh(variant: int = 0) -> ArrayMesh:
 		var normal := Vector3(radial.x, 0.28 + float(ring_index) * 0.055, radial.z).normalized()
 		var tangent := Vector3(-sin(angle), 0.0, cos(angle))
 		var length := 0.10 + _hash01(fiber_index, variant, 727) * 0.17
-		var tip := base + normal * length + tangent * (_hash01(fiber_index, variant, 733) - 0.5) * 0.15
+		var tip := (
+			base + normal * length + tangent * (_hash01(fiber_index, variant, 733) - 0.5) * 0.15
+		)
 		tip.y += 0.025 + _hash01(fiber_index, variant, 739) * 0.055
 		var width := 0.007 + _hash01(fiber_index, variant, 743) * 0.009
-		_add_ribbon(surface, base, tip, tangent * width, normal, 0.78 + _hash01(fiber_index, variant, 751) * 0.24)
+		_add_ribbon(
+			surface,
+			base,
+			tip,
+			tangent * width,
+			normal,
+			0.78 + _hash01(fiber_index, variant, 751) * 0.24
+		)
 
 	# A modest skirt of fallen stems grounds yard stacks. It scales with wagon loads,
 	# so the same mesh also adds a few overhanging pieces without a second asset.
@@ -146,9 +169,18 @@ static func loose_straw_mesh(variant: int = 0) -> ArrayMesh:
 		var start_radius := 0.69 + _hash01(litter_index, variant, 811) * 0.12
 		var base := radial * start_radius + Vector3(0.0, 0.012, 0.0)
 		var length := 0.08 + _hash01(litter_index, variant, 821) * 0.13
-		var tip := base + radial * length + tangent * (_hash01(litter_index, variant, 823) - 0.5) * 0.12
+		var tip := (
+			base + radial * length + tangent * (_hash01(litter_index, variant, 823) - 0.5) * 0.12
+		)
 		tip.y = 0.018 + _hash01(litter_index, variant, 827) * 0.018
-		_add_ribbon(surface, base, tip, tangent * 0.009, Vector3.UP, 0.68 + _hash01(litter_index, variant, 829) * 0.18)
+		_add_ribbon(
+			surface,
+			base,
+			tip,
+			tangent * 0.009,
+			Vector3.UP,
+			0.68 + _hash01(litter_index, variant, 829) * 0.18
+		)
 
 	var mesh := surface.commit()
 	_loose_straw_cache[variant] = mesh
@@ -184,7 +216,9 @@ static func _rings_for(variant: int) -> Array[Dictionary]:
 	]
 
 
-static func _body_vertex(rings: Array[Dictionary], ring_index: int, segment: int, variant: int) -> Dictionary:
+static func _body_vertex(
+	rings: Array[Dictionary], ring_index: int, segment: int, variant: int
+) -> Dictionary:
 	var ring: Dictionary = rings[ring_index]
 	var angle := TAU * float(segment) / float(RADIAL_SEGMENTS)
 	var wobble := 0.94 + _hash01(segment, ring_index, 101 + variant * 47) * 0.12
@@ -204,7 +238,9 @@ static func _body_vertex(rings: Array[Dictionary], ring_index: int, segment: int
 	}
 
 
-static func _add_body_triangle(surface: SurfaceTool, a: Dictionary, b: Dictionary, c: Dictionary) -> void:
+static func _add_body_triangle(
+	surface: SurfaceTool, a: Dictionary, b: Dictionary, c: Dictionary
+) -> void:
 	for point: Dictionary in [a, b, c]:
 		surface.set_normal(point["normal"])
 		surface.set_uv(point["uv"])

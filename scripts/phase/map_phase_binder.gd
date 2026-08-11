@@ -120,7 +120,9 @@ func _apply_npc_rules(entries: Array) -> void:
 			actor.call("set_phase_visibility", visible)
 		if not visible:
 			continue
-		var anchor_id := StringName(String(rule.get("anchor_id", record.get("default_anchor_id", ""))))
+		var anchor_id := StringName(
+			String(rule.get("anchor_id", record.get("default_anchor_id", "")))
+		)
 		if anchor_id.is_empty() or _definition == null:
 			continue
 		if MapVerification.has_anchor(_definition, anchor_id):
@@ -157,7 +159,9 @@ func _apply_patrol_rules(entries: Array) -> void:
 func _apply_district_pressure_to_patrols() -> void:
 	if SessionState.state == null or location_id.is_empty():
 		return
-	var snapshot := DistrictPressureModelScript.resolve_for_location(location_id, SessionState.state)
+	var snapshot := DistrictPressureModelScript.resolve_for_location(
+		location_id, SessionState.state
+	)
 	if snapshot.is_empty():
 		return
 	var speed_scale := float(snapshot.get("patrol_speed_scale", 1.0))

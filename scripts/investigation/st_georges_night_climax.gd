@@ -1,20 +1,20 @@
 class_name StGeorgesNightClimax
 extends Node
 
+signal choice_committed(choice: StringName)
+
 ## Viru Gate act-boundary choice encounter for quest.st_georges_night (P4-008).
 
 const ModelScript := preload("res://scripts/quest/st_georges_night_quest_model.gd")
 const AftermathModelScript := preload(
 	"res://scripts/investigation/st_georges_night_aftermath_model.gd"
 )
-
 const INTERACTABLE_ID := &"interact.st_georges_night.gate_choice"
 const GATE_ANCHOR := &"checkpoint_east"
 const INTERACTABLE_SCENE := preload("res://scenes/interaction/interactable.tscn")
 
 var _scene_root: Node2D
 var _definition: MapDefinition
-
 var _gate_interactable: Interactable
 var _actions_layer: CanvasLayer
 var _seal_button: Button
@@ -22,9 +22,6 @@ var _break_button: Button
 var _open_button: Button
 var _choice_armed := false
 var _choice_resolved := false
-
-signal choice_committed(choice: StringName)
-
 
 func setup(scene_root: Node2D, definition: MapDefinition) -> void:
 	_scene_root = scene_root
@@ -34,8 +31,10 @@ func setup(scene_root: Node2D, definition: MapDefinition) -> void:
 	_build_choice_ui()
 	if not SessionState.state_replaced.is_connected(_on_state_replaced):
 		SessionState.state_replaced.connect(_on_state_replaced)
-	if SessionState.state != null \
-			and not SessionState.state.phase_changed.is_connected(_on_phase_changed):
+	if (
+		SessionState.state != null
+		and not SessionState.state.phase_changed.is_connected(_on_phase_changed)
+	):
 		SessionState.state.phase_changed.connect(_on_phase_changed)
 	_sync_climax()
 
@@ -57,8 +56,10 @@ func commit_choice_for_test(choice: StringName) -> bool:
 
 
 func _exit_tree() -> void:
-	if SessionState.state != null \
-			and SessionState.state.phase_changed.is_connected(_on_phase_changed):
+	if (
+		SessionState.state != null
+		and SessionState.state.phase_changed.is_connected(_on_phase_changed)
+	):
 		SessionState.state.phase_changed.disconnect(_on_phase_changed)
 	if SessionState.state_replaced.is_connected(_on_state_replaced):
 		SessionState.state_replaced.disconnect(_on_state_replaced)
@@ -80,7 +81,9 @@ func _sync_climax() -> void:
 	_ensure_content()
 	if ModelScript.is_climax_phase(SessionState.state):
 		_arm_quest_approach()
-	var should_offer := ModelScript.is_gate_choice_active(SessionState.state) and not _choice_resolved
+	var should_offer := (
+		ModelScript.is_gate_choice_active(SessionState.state) and not _choice_resolved
+	)
 	if _gate_interactable != null:
 		_gate_interactable.enabled = should_offer and not _choice_armed
 	if _choice_armed and not _choice_resolved:
@@ -130,9 +133,7 @@ func _commit_choice(choice: StringName) -> bool:
 		_:
 			return false
 	var ok := AftermathModelScript.commit_climax_choice(
-		SessionState.state,
-		SessionState.content_db,
-		transition_id
+		SessionState.state, SessionState.content_db, transition_id
 	)
 	if not ok:
 		return false
@@ -171,7 +172,9 @@ func _build_choice_ui() -> void:
 	_scene_root.add_child(_actions_layer)
 
 	_seal_button = _make_choice_button("SealButton", "Seal the gate", &"seal", Vector2(120, 640))
-	_break_button = _make_choice_button("BreakButton", "Break the gate", &"break", Vector2(260, 640))
+	_break_button = _make_choice_button(
+		"BreakButton", "Break the gate", &"break", Vector2(260, 640)
+	)
 	_open_button = _make_choice_button("OpenButton", "Open the gate", &"open", Vector2(400, 640))
 	for button in [_seal_button, _break_button, _open_button]:
 		_actions_layer.add_child(button)

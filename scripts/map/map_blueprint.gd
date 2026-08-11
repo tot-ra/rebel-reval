@@ -61,12 +61,16 @@ func _init(
 	cell_size = cell_size_value
 
 
-func define_style(style_id: StringName, values: Dictionary, parent_style: StringName = &"") -> MapBlueprint:
+func define_style(
+	style_id: StringName, values: Dictionary, parent_style: StringName = &""
+) -> MapBlueprint:
 	styles.append({"id": style_id, "parent": parent_style, "values": values.duplicate(true)})
 	return self
 
 
-func style(style_id: StringName, values: Dictionary, parent_style: StringName = &"") -> MapBlueprint:
+func style(
+	style_id: StringName, values: Dictionary, parent_style: StringName = &""
+) -> MapBlueprint:
 	return define_style(style_id, values, parent_style)
 
 
@@ -82,12 +86,17 @@ func add_source_references(paths: Array[String]) -> MapBlueprint:
 
 
 func grade(profile_id: StringName, direction: Vector2i, delta: float) -> MapBlueprint:
-	elevation_profiles.append({
-		"id": profile_id,
-		"kind": &"grade",
-		"direction": direction,
-		"delta": delta,
-	})
+	(
+		elevation_profiles
+		. append(
+			{
+				"id": profile_id,
+				"kind": &"grade",
+				"direction": direction,
+				"delta": delta,
+			}
+		)
+	)
 	return self
 
 
@@ -98,14 +107,19 @@ func elevation_area(
 	height: float,
 	falloff: float = 0.0
 ) -> MapBlueprint:
-	elevation_profiles.append({
-		"id": profile_id,
-		"kind": &"area",
-		"center": center_cell,
-		"radius": radius,
-		"height": height,
-		"falloff": falloff,
-	})
+	(
+		elevation_profiles
+		. append(
+			{
+				"id": profile_id,
+				"kind": &"area",
+				"center": center_cell,
+				"radius": radius,
+				"height": height,
+				"falloff": falloff,
+			}
+		)
+	)
 	return self
 
 
@@ -117,15 +131,20 @@ func elevation_ramp(
 	end_height: float,
 	width: float = 1.0
 ) -> MapBlueprint:
-	elevation_profiles.append({
-		"id": profile_id,
-		"kind": &"ramp",
-		"start": start_cell,
-		"end": end_cell,
-		"start_height": start_height,
-		"end_height": end_height,
-		"width": width,
-	})
+	(
+		elevation_profiles
+		. append(
+			{
+				"id": profile_id,
+				"kind": &"ramp",
+				"start": start_cell,
+				"end": end_cell,
+				"start_height": start_height,
+				"end_height": end_height,
+				"width": width,
+			}
+		)
+	)
 	return self
 
 
@@ -138,12 +157,18 @@ func terrain_rect(
 	style_id: StringName = &"",
 	overrides: Dictionary = {}
 ) -> MapBlueprint:
-	_append_primitive(&"terrain_rect", terrain_id, {
-		"terrain": terrain,
-		"rects": [rect],
-		"layer": layer,
-		"order": order,
-	}, style_id, overrides)
+	_append_primitive(
+		&"terrain_rect",
+		terrain_id,
+		{
+			"terrain": terrain,
+			"rects": [rect],
+			"layer": layer,
+			"order": order,
+		},
+		style_id,
+		overrides
+	)
 	return self
 
 
@@ -156,12 +181,18 @@ func terrain_rects(
 	style_id: StringName = &"",
 	overrides: Dictionary = {}
 ) -> MapBlueprint:
-	_append_primitive(&"terrain_rects", group_id, {
-		"terrain": terrain,
-		"rects": rects.duplicate(),
-		"layer": layer,
-		"order": order,
-	}, style_id, overrides)
+	_append_primitive(
+		&"terrain_rects",
+		group_id,
+		{
+			"terrain": terrain,
+			"rects": rects.duplicate(),
+			"layer": layer,
+			"order": order,
+		},
+		style_id,
+		overrides
+	)
 	return self
 
 
@@ -175,13 +206,19 @@ func terrain_stroke(
 	style_id: StringName = &"",
 	overrides: Dictionary = {}
 ) -> MapBlueprint:
-	_append_primitive(&"terrain_stroke", stroke_id, {
-		"terrain": terrain,
-		"points": points.duplicate(),
-		"thickness": thickness,
-		"layer": layer,
-		"order": order,
-	}, style_id, overrides)
+	_append_primitive(
+		&"terrain_stroke",
+		stroke_id,
+		{
+			"terrain": terrain,
+			"points": points.duplicate(),
+			"thickness": thickness,
+			"layer": layer,
+			"order": order,
+		},
+		style_id,
+		overrides
+	)
 	return self
 
 
@@ -192,10 +229,16 @@ func structure_rect(
 	style_id: StringName = &"",
 	overrides: Dictionary = {}
 ) -> MapBlueprint:
-	_append_primitive(&"structure_rect", structure_id, {
-		"kind": kind,
-		"rect": footprint,
-	}, style_id, overrides)
+	_append_primitive(
+		&"structure_rect",
+		structure_id,
+		{
+			"kind": kind,
+			"rect": footprint,
+		},
+		style_id,
+		overrides
+	)
 	return self
 
 
@@ -219,13 +262,19 @@ func wall_run(
 	overrides: Dictionary = {},
 	kind: StringName = MapTypes.BUILDING_KIND_WALL
 ) -> MapBlueprint:
-	_append_primitive(&"wall_run", wall_id, {
-		"kind": kind,
-		"start": start_cell,
-		"end": end_cell,
-		"thickness": thickness,
-		"openings": openings.duplicate(),
-	}, style_id, overrides)
+	_append_primitive(
+		&"wall_run",
+		wall_id,
+		{
+			"kind": kind,
+			"start": start_cell,
+			"end": end_cell,
+			"thickness": thickness,
+			"openings": openings.duplicate(),
+		},
+		style_id,
+		overrides
+	)
 	return self
 
 
@@ -240,15 +289,21 @@ func placement_row(
 	style_id: StringName = &"",
 	overrides_by_slot: Dictionary = {}
 ) -> MapBlueprint:
-	_append_primitive(&"placement_row", row_id, {
-		"object_type": object_type,
-		"kind": kind,
-		"origin": origin,
-		"step": step,
-		"slot_ids": slot_ids.duplicate(),
-		"footprint_size": footprint_size,
-		"overrides_by_slot": overrides_by_slot.duplicate(true),
-	}, style_id, {})
+	_append_primitive(
+		&"placement_row",
+		row_id,
+		{
+			"object_type": object_type,
+			"kind": kind,
+			"origin": origin,
+			"step": step,
+			"slot_ids": slot_ids.duplicate(),
+			"footprint_size": footprint_size,
+			"overrides_by_slot": overrides_by_slot.duplicate(true),
+		},
+		style_id,
+		{}
+	)
 	return self
 
 
@@ -279,7 +334,9 @@ func player_spawn(spawn_id: StringName, cell: Vector2i, overrides: Dictionary = 
 	return self
 
 
-func player_spawn_rect(spawn_id: StringName, placement_rect: Rect2i, overrides: Dictionary = {}) -> MapBlueprint:
+func player_spawn_rect(
+	spawn_id: StringName, placement_rect: Rect2i, overrides: Dictionary = {}
+) -> MapBlueprint:
 	_append_primitive(&"player_spawn", spawn_id, {"rect": placement_rect}, &"", overrides)
 	return self
 
@@ -293,12 +350,18 @@ func transition(
 	style_id: StringName = &"",
 	overrides: Dictionary = {}
 ) -> MapBlueprint:
-	_append_primitive(&"transition", transition_id, {
-		"rect": rect,
-		"destination_scene_id": destination_scene_id,
-		"destination_spawn_id": destination_spawn_id,
-		"spawn_id": spawn_id,
-	}, style_id, overrides)
+	_append_primitive(
+		&"transition",
+		transition_id,
+		{
+			"rect": rect,
+			"destination_scene_id": destination_scene_id,
+			"destination_spawn_id": destination_spawn_id,
+			"spawn_id": spawn_id,
+		},
+		style_id,
+		overrides
+	)
 	return self
 
 
@@ -309,7 +372,9 @@ func interaction_anchor(
 	style_id: StringName = &"",
 	overrides: Dictionary = {}
 ) -> MapBlueprint:
-	_append_primitive(&"interaction_anchor", anchor_id, {"cell": cell, "kind": kind}, style_id, overrides)
+	_append_primitive(
+		&"interaction_anchor", anchor_id, {"cell": cell, "kind": kind}, style_id, overrides
+	)
 	return self
 
 
@@ -320,7 +385,13 @@ func interaction_anchor_rect(
 	style_id: StringName = &"",
 	overrides: Dictionary = {}
 ) -> MapBlueprint:
-	_append_primitive(&"interaction_anchor", anchor_id, {"rect": placement_rect, "kind": kind}, style_id, overrides)
+	_append_primitive(
+		&"interaction_anchor",
+		anchor_id,
+		{"rect": placement_rect, "kind": kind},
+		style_id,
+		overrides
+	)
 	return self
 
 
@@ -334,7 +405,9 @@ func patrol_path_rects(path_id: StringName, point_rects: Array[Rect2i]) -> MapBl
 	return self
 
 
-func excluded_rect(exclusion_id: StringName, rect: Rect2i, overrides: Dictionary = {}) -> MapBlueprint:
+func excluded_rect(
+	exclusion_id: StringName, rect: Rect2i, overrides: Dictionary = {}
+) -> MapBlueprint:
 	_append_primitive(&"excluded_rect", exclusion_id, {"rect": rect}, &"", overrides)
 	return self
 
@@ -351,7 +424,9 @@ func decal_rect(
 	radius: float = MapTypes.DECAL_DEFAULT_RADIUS,
 	overrides: Dictionary = {}
 ) -> MapBlueprint:
-	_append_primitive(&"decal_rect", decal_id, {"kind": kind, "rect": rect, "radius": radius}, &"", overrides)
+	_append_primitive(
+		&"decal_rect", decal_id, {"kind": kind, "rect": rect, "radius": radius}, &"", overrides
+	)
 	return self
 
 
@@ -363,11 +438,17 @@ func direction_sign(
 	style_id: StringName = &"",
 	overrides: Dictionary = {}
 ) -> MapBlueprint:
-	_append_primitive(&"direction_sign", sign_id, {
-		"text": text,
-		"cell": cell,
-		"direction": direction,
-	}, style_id, overrides)
+	_append_primitive(
+		&"direction_sign",
+		sign_id,
+		{
+			"text": text,
+			"cell": cell,
+			"direction": direction,
+		},
+		style_id,
+		overrides
+	)
 	return self
 
 
@@ -379,11 +460,17 @@ func direction_sign_rect(
 	style_id: StringName = &"",
 	overrides: Dictionary = {}
 ) -> MapBlueprint:
-	_append_primitive(&"direction_sign", sign_id, {
-		"text": text,
-		"rect": placement_rect,
-		"direction": direction,
-	}, style_id, overrides)
+	_append_primitive(
+		&"direction_sign",
+		sign_id,
+		{
+			"text": text,
+			"rect": placement_rect,
+			"direction": direction,
+		},
+		style_id,
+		overrides
+	)
 	return self
 
 
@@ -394,7 +481,9 @@ func view_landmark(
 	style_id: StringName = &"",
 	overrides: Dictionary = {}
 ) -> MapBlueprint:
-	_append_primitive(&"view_landmark", landmark_id, {"kind": kind, "rect": rect}, style_id, overrides)
+	_append_primitive(
+		&"view_landmark", landmark_id, {"kind": kind, "rect": rect}, style_id, overrides
+	)
 	return self
 
 
@@ -439,14 +528,19 @@ func prefab_instance(
 	parameters: Dictionary = {},
 	overrides_by_local_id: Dictionary = {}
 ) -> MapBlueprint:
-	prefab_instances.append({
-		"id": instance_id,
-		"prefab_id": prefab_id,
-		"origin": origin,
-		"transform": transform if transform != null else MapTransform.new(),
-		"parameters": parameters.duplicate(true),
-		"overrides": overrides_by_local_id.duplicate(true),
-	})
+	(
+		prefab_instances
+		. append(
+			{
+				"id": instance_id,
+				"prefab_id": prefab_id,
+				"origin": origin,
+				"transform": transform if transform != null else MapTransform.new(),
+				"parameters": parameters.duplicate(true),
+				"overrides": overrides_by_local_id.duplicate(true),
+			}
+		)
+	)
 	return self
 
 
@@ -457,10 +551,15 @@ func _append_primitive(
 	style_id: StringName,
 	overrides: Dictionary
 ) -> void:
-	primitives.append({
-		"primitive": primitive_kind,
-		"id": primitive_id,
-		"data": data,
-		"style": style_id,
-		"overrides": overrides.duplicate(true),
-	})
+	(
+		primitives
+		. append(
+			{
+				"primitive": primitive_kind,
+				"id": primitive_id,
+				"data": data,
+				"style": style_id,
+				"overrides": overrides.duplicate(true),
+			}
+		)
+	)

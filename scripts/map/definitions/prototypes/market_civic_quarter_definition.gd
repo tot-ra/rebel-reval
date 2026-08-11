@@ -5,7 +5,6 @@ extends RefCounted
 ## WHY: the scene keeps its MapDefinition entry point while historical layout
 ## and reciprocal district edges remain reviewable as compact map data.
 
-
 const RRMAP_PATH := "res://content/maps/market_civic_quarter.rrmap"
 
 

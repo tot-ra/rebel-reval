@@ -21,7 +21,9 @@ func parse_header(tokens: Array[Dictionary], line: int) -> void:
 		return
 	var version_text: String = tokens[1]["text"]
 	if not version_text.is_valid_int():
-		_parser._error(line, tokens[1]["column"], &"invalid_version", "format version must be an integer")
+		_parser._error(
+			line, tokens[1]["column"], &"invalid_version", "format version must be an integer"
+		)
 		return
 	var version := int(version_text)
 	if version == 1:
@@ -50,7 +52,9 @@ func parse_statement(tokens: Array[Dictionary], line: int) -> void:
 		_parse_map(tokens, line)
 		return
 	if _parser._blueprint == null:
-		_parser._error(line, tokens[0]["column"], &"map_required", "map must be declared before '%s'" % command)
+		_parser._error(
+			line, tokens[0]["column"], &"map_required", "map must be declared before '%s'" % command
+		)
 		return
 	match command:
 		"source":
@@ -98,29 +102,42 @@ func parse_statement(tokens: Array[Dictionary], line: int) -> void:
 		"override":
 			_parse_override(tokens, line)
 		_:
-			_parser._error(line, tokens[0]["column"], &"unknown_command", "unknown command '%s'" % command)
+			_parser._error(
+				line, tokens[0]["column"], &"unknown_command", "unknown command '%s'" % command
+			)
 
 
 func _parse_map(tokens: Array[Dictionary], line: int) -> void:
 	if _parser._blueprint != null:
-		_parser._error(line, tokens[0]["column"], &"duplicate_map", "only one map statement is allowed")
+		_parser._error(
+			line, tokens[0]["column"], &"duplicate_map", "only one map statement is allowed"
+		)
 		return
-	if not _tokens.arity(tokens, line, 6, "map <id> <location> <width> <height> <base_terrain> [key=value ...]"):
+	if not _tokens.arity(
+		tokens, line, 6, "map <id> <location> <width> <height> <base_terrain> [key=value ...]"
+	):
 		return
 	var size = _tokens.vector_from_tokens(tokens, line, 3)
 	if size == null:
 		return
-	var options = _tokens.options(tokens, line, 6, ["scope", "active", "palette", "seed", "cell_size", "elevation"])
+	var options = _tokens.options(
+		tokens, line, 6, ["scope", "active", "palette", "seed", "cell_size", "elevation"]
+	)
 	if options == null:
 		return
 	_parser._blueprint = MapBlueprint.new(
-		StringName(tokens[1]["text"]), StringName(tokens[2]["text"]), size, StringName(tokens[5]["text"])
+		StringName(tokens[1]["text"]),
+		StringName(tokens[2]["text"]),
+		size,
+		StringName(tokens[5]["text"])
 	)
 	_parser._map_line = line
 	if options.has("scope"):
 		_parser._blueprint.scope = StringName(options["scope"])
 	if options.has("active"):
-		var active = _tokens.bool_value(options["active"], line, _tokens.option_column(tokens, "active"))
+		var active = _tokens.bool_value(
+			options["active"], line, _tokens.option_column(tokens, "active")
+		)
 		if active != null:
 			_parser._blueprint.active = active
 	if options.has("palette"):
@@ -130,11 +147,15 @@ func _parse_map(tokens: Array[Dictionary], line: int) -> void:
 		if seed != null:
 			_parser._blueprint.map_seed = seed
 	if options.has("cell_size"):
-		var cell_size = _tokens.int_value(options["cell_size"], line, _tokens.option_column(tokens, "cell_size"))
+		var cell_size = _tokens.int_value(
+			options["cell_size"], line, _tokens.option_column(tokens, "cell_size")
+		)
 		if cell_size != null:
 			_parser._blueprint.cell_size = cell_size
 	if options.has("elevation"):
-		var elevation = _tokens.float_value(options["elevation"], line, _tokens.option_column(tokens, "elevation"))
+		var elevation = _tokens.float_value(
+			options["elevation"], line, _tokens.option_column(tokens, "elevation")
+		)
 		if elevation != null:
 			_parser._blueprint.ground_elevation = elevation
 
@@ -146,18 +167,33 @@ func _parse_source(tokens: Array[Dictionary], line: int) -> void:
 
 func _parse_surroundings(tokens: Array[Dictionary], line: int) -> void:
 	if tokens.size() < 2:
-		_parser._error(line, tokens[0]["column"], &"invalid_surroundings", "expected surroundings <side> [<kind>] ...")
+		_parser._error(
+			line,
+			tokens[0]["column"],
+			&"invalid_surroundings",
+			"expected surroundings <side> [<kind>] ..."
+		)
 		return
 	var sides: Dictionary = {}
 	var index := 1
 	while index < tokens.size():
 		var side_text: String = tokens[index]["text"]
 		if side_text not in ["north", "east", "south", "west"]:
-			_parser._error(line, tokens[index]["column"], &"invalid_side", "expected north, east, south, or west")
+			_parser._error(
+				line,
+				tokens[index]["column"],
+				&"invalid_side",
+				"expected north, east, south, or west"
+			)
 			return
 		var side := StringName(side_text)
 		if sides.has(side):
-			_parser._error(line, tokens[index]["column"], &"duplicate_side", "duplicate surroundings side: %s" % side_text)
+			_parser._error(
+				line,
+				tokens[index]["column"],
+				&"duplicate_side",
+				"duplicate surroundings side: %s" % side_text
+			)
 			return
 		index += 1
 		var kind := &"town"
@@ -208,7 +244,9 @@ func _parse_terrain(tokens: Array[Dictionary], line: int) -> void:
 		return
 	var overrides: Dictionary = {}
 	if options.has("shore_confidence"):
-		var confidence = _tokens.shore_confidence_value(options["shore_confidence"], line, _tokens.option_column(tokens, "shore_confidence"))
+		var confidence = _tokens.shore_confidence_value(
+			options["shore_confidence"], line, _tokens.option_column(tokens, "shore_confidence")
+		)
 		if confidence == null:
 			return
 		overrides[&"shore_confidence"] = confidence
@@ -225,10 +263,7 @@ func _parse_terrain(tokens: Array[Dictionary], line: int) -> void:
 
 func _parse_terrain_rects(tokens: Array[Dictionary], line: int) -> void:
 	if not _tokens.arity(
-		tokens,
-		line,
-		4,
-		"terrain_rects <id> <terrain> <x,y,w,h|...> [layer=N] [order=N] [style=id]"
+		tokens, line, 4, "terrain_rects <id> <terrain> <x,y,w,h|...> [layer=N] [order=N] [style=id]"
 	):
 		return
 	var rects = _tokens.rect_list(tokens[3]["text"], line, tokens[3]["column"])
@@ -237,7 +272,9 @@ func _parse_terrain_rects(tokens: Array[Dictionary], line: int) -> void:
 		return
 	var overrides: Dictionary = {}
 	if options.has("shore_confidence"):
-		var confidence = _tokens.shore_confidence_value(options["shore_confidence"], line, _tokens.option_column(tokens, "shore_confidence"))
+		var confidence = _tokens.shore_confidence_value(
+			options["shore_confidence"], line, _tokens.option_column(tokens, "shore_confidence")
+		)
 		if confidence == null:
 			return
 		overrides[&"shore_confidence"] = confidence
@@ -261,12 +298,16 @@ func _parse_stroke(tokens: Array[Dictionary], line: int) -> void:
 	):
 		return
 	var points = _tokens.point_list(tokens[3]["text"], line, tokens[3]["column"])
-	var options = _tokens.options(tokens, line, 4, ["thickness", "layer", "order", "style", "shore_confidence"])
+	var options = _tokens.options(
+		tokens, line, 4, ["thickness", "layer", "order", "style", "shore_confidence"]
+	)
 	if points == null or options == null:
 		return
 	var overrides: Dictionary = {}
 	if options.has("shore_confidence"):
-		var confidence = _tokens.shore_confidence_value(options["shore_confidence"], line, _tokens.option_column(tokens, "shore_confidence"))
+		var confidence = _tokens.shore_confidence_value(
+			options["shore_confidence"], line, _tokens.option_column(tokens, "shore_confidence")
+		)
 		if confidence == null:
 			return
 		overrides[&"shore_confidence"] = confidence
@@ -283,11 +324,15 @@ func _parse_stroke(tokens: Array[Dictionary], line: int) -> void:
 
 
 func _parse_building(tokens: Array[Dictionary], line: int) -> void:
-	if not _tokens.arity(
-		tokens,
-		line,
-		7,
-		"building <id> <kind> <x> <y> <width> <height> [style=id] [transition_visual=door|ground|none] [typed overrides]"
+	if not (
+		_tokens
+		. arity(
+			tokens,
+			line,
+			7,
+			# gdlint: ignore=max-line-length
+			"building <id> <kind> <x> <y> <width> <height> [style=id] [transition_visual=door|ground|none] [typed overrides]"
+		)
 	):
 		return
 	var rect = _tokens.rect_from_tokens(tokens, line, 3)
@@ -304,11 +349,15 @@ func _parse_building(tokens: Array[Dictionary], line: int) -> void:
 
 
 func _parse_wall(tokens: Array[Dictionary], line: int) -> void:
-	if not _tokens.arity(
-		tokens,
-		line,
-		6,
-		"wall <id> <x1> <y1> <x2> <y2> [thickness=N] [openings=x,y,w,h|...] [kind=wall] [style=id] [typed overrides]"
+	if not (
+		_tokens
+		. arity(
+			tokens,
+			line,
+			6,
+			# gdlint: ignore=max-line-length
+			"wall <id> <x1> <y1> <x2> <y2> [thickness=N] [openings=x,y,w,h|...] [kind=wall] [style=id] [typed overrides]"
+		)
 	):
 		return
 	var start = _tokens.vector_from_tokens(tokens, line, 2)
@@ -319,7 +368,9 @@ func _parse_wall(tokens: Array[Dictionary], line: int) -> void:
 	var thickness = _tokens.take_int(raw, "thickness", 1, line, tokens)
 	var openings: Array[Rect2i] = []
 	if raw.has("openings"):
-		var parsed = _tokens.rect_list(raw["openings"], line, _tokens.option_column(tokens, "openings"))
+		var parsed = _tokens.rect_list(
+			raw["openings"], line, _tokens.option_column(tokens, "openings")
+		)
 		raw.erase("openings")
 		if parsed == null:
 			return
@@ -343,10 +394,7 @@ func _parse_wall(tokens: Array[Dictionary], line: int) -> void:
 
 func _parse_prop(tokens: Array[Dictionary], line: int) -> void:
 	if not _tokens.arity(
-		tokens,
-		line,
-		5,
-		"prop <id> <kind> <x> <y> [rect=width,height] [style=id] [typed overrides]"
+		tokens, line, 5, "prop <id> <kind> <x> <y> [rect=width,height] [style=id] [typed overrides]"
 	):
 		return
 	var cell = _tokens.vector_from_tokens(tokens, line, 3)
@@ -394,11 +442,15 @@ func _parse_spawn(tokens: Array[Dictionary], line: int) -> void:
 
 
 func _parse_transition(tokens: Array[Dictionary], line: int) -> void:
-	if not _tokens.arity(
-		tokens,
-		line,
-		6,
-		"transition <id> <x> <y> <width> <height> [to=id] [destination_spawn=id] [spawn=id] [building_id=id] [style=id] [typed overrides]"
+	if not (
+		_tokens
+		. arity(
+			tokens,
+			line,
+			6,
+			# gdlint: ignore=max-line-length
+			"transition <id> <x> <y> <width> <height> [to=id] [destination_spawn=id] [spawn=id] [building_id=id] [style=id] [typed overrides]"
+		)
 	):
 		return
 	var rect = _tokens.rect_from_tokens(tokens, line, 2)
@@ -448,11 +500,7 @@ func _parse_anchor(tokens: Array[Dictionary], line: int) -> void:
 		return
 	if rect_size == null:
 		_parser._blueprint.interaction_anchor(
-			StringName(tokens[1]["text"]),
-			cell,
-			kind,
-			split["style"],
-			split["overrides"]
+			StringName(tokens[1]["text"]), cell, kind, split["style"], split["overrides"]
 		)
 	else:
 		_parser._blueprint.interaction_anchor_rect(
@@ -498,7 +546,17 @@ func _parse_decal(tokens: Array[Dictionary], line: int) -> void:
 			line,
 			tokens[2]["column"],
 			&"unknown_decal_kind",
-			"decal kind '%s' is unknown; expected one of: %s" % [tokens[2]["text"], ", ".join(MapTypes.ALL_DECAL_KINDS.map(func(value: StringName) -> String: return String(value)))]
+			(
+				"decal kind '%s' is unknown; expected one of: %s"
+				% [
+					tokens[2]["text"],
+					", ".join(
+						MapTypes.ALL_DECAL_KINDS.map(
+							func(value: StringName) -> String: return String(value)
+						)
+					)
+				]
+			)
 		)
 		return
 	var rect = _tokens.rect_from_tokens(tokens, line, 3)
@@ -507,18 +565,24 @@ func _parse_decal(tokens: Array[Dictionary], line: int) -> void:
 		return
 	var radius := MapTypes.DECAL_DEFAULT_RADIUS
 	if options.has("radius"):
-		var parsed_radius = _tokens.float_value(options["radius"], line, _tokens.option_column(tokens, "radius"))
+		var parsed_radius = _tokens.float_value(
+			options["radius"], line, _tokens.option_column(tokens, "radius")
+		)
 		if parsed_radius == null:
 			return
 		radius = parsed_radius
 	var overrides: Dictionary = {}
 	if options.has("rotation"):
-		var parsed_rotation = _tokens.float_value(options["rotation"], line, _tokens.option_column(tokens, "rotation"))
+		var parsed_rotation = _tokens.float_value(
+			options["rotation"], line, _tokens.option_column(tokens, "rotation")
+		)
 		if parsed_rotation == null:
 			return
 		overrides["rotation"] = parsed_rotation
 	if options.has("tint"):
-		var parsed_tint = _tokens.color_value(options["tint"], line, _tokens.option_column(tokens, "tint"))
+		var parsed_tint = _tokens.color_value(
+			options["tint"], line, _tokens.option_column(tokens, "tint")
+		)
 		if parsed_tint == null:
 			return
 		overrides["tint"] = parsed_tint
@@ -579,7 +643,9 @@ func _parse_package(tokens: Array[Dictionary], line: int) -> void:
 		)
 		return
 	if _parser._packages.has("urban"):
-		_parser._error(line, tokens[1]["column"], &"duplicate_package", "package 'urban' is already registered")
+		_parser._error(
+			line, tokens[1]["column"], &"duplicate_package", "package 'urban' is already registered"
+		)
 		return
 	var package = _URBAN_PACKAGE.create()
 	_parser._packages["urban"] = package
@@ -587,11 +653,15 @@ func _parse_package(tokens: Array[Dictionary], line: int) -> void:
 
 
 func _parse_prefab(tokens: Array[Dictionary], line: int) -> void:
-	if not _tokens.arity(
-		tokens,
-		line,
-		5,
-		"prefab <instance_id> <qualified_prefab_id> <x> <y> [rotation=0|90|180|270] [mirror_x=bool] [mirror_y=bool] [param.<name>=typed]"
+	if not (
+		_tokens
+		. arity(
+			tokens,
+			line,
+			5,
+			# gdlint: ignore=max-line-length
+			"prefab <instance_id> <qualified_prefab_id> <x> <y> [rotation=0|90|180|270] [mirror_x=bool] [mirror_y=bool] [param.<name>=typed]"
+		)
 	):
 		return
 	var origin = _tokens.vector_from_tokens(tokens, line, 3)

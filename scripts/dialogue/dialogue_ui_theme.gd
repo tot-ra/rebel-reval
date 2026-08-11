@@ -19,9 +19,13 @@ const COLOR_SUBTITLE_BACKGROUND := Color(0.0, 0.0, 0.0, 0.72)
 static func apply_visual_theme(ui: DialogueUI) -> void:
 	var settings = ui.get_settings()
 	var body_color := COLOR_BODY_HIGH_CONTRAST if settings.high_contrast else COLOR_BODY_DEFAULT
-	var speaker_color := COLOR_SPEAKER_HIGH_CONTRAST if settings.high_contrast else COLOR_SPEAKER_DEFAULT
+	var speaker_color := (
+		COLOR_SPEAKER_HIGH_CONTRAST if settings.high_contrast else COLOR_SPEAKER_DEFAULT
+	)
 	var hint_color := COLOR_HINT_HIGH_CONTRAST if settings.high_contrast else COLOR_HINT_DEFAULT
-	var disabled_color := COLOR_DISABLED_HIGH_CONTRAST if settings.high_contrast else COLOR_DISABLED_DEFAULT
+	var disabled_color := (
+		COLOR_DISABLED_HIGH_CONTRAST if settings.high_contrast else COLOR_DISABLED_DEFAULT
+	)
 	var panel_color := COLOR_PANEL_HIGH_CONTRAST if settings.high_contrast else COLOR_PANEL_DEFAULT
 
 	ui._speaker_label.add_theme_color_override("font_color", speaker_color)
@@ -38,4 +42,6 @@ static func apply_visual_theme(ui: DialogueUI) -> void:
 
 	ui._text_background.visible = settings.subtitle_background
 	if settings.subtitle_background:
-		ui._text_background.color = COLOR_SUBTITLE_BACKGROUND if not settings.high_contrast else Color(0.0, 0.0, 0.0, 0.88)
+		ui._text_background.color = (
+			COLOR_SUBTITLE_BACKGROUND if not settings.high_contrast else Color(0.0, 0.0, 0.0, 0.88)
+		)

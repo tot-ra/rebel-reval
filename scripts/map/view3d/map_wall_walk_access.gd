@@ -88,9 +88,7 @@ static func collision_rects(definition: MapDefinition, building: Dictionary) -> 
 
 
 static func point_blocked_by_building(
-	definition: MapDefinition,
-	building: Dictionary,
-	point: Vector2
+	definition: MapDefinition, building: Dictionary, point: Vector2
 ) -> bool:
 	for rect in collision_rects(definition, building):
 		if rect.has_point(point):
@@ -116,12 +114,14 @@ static func target_height(definition: MapDefinition, prop: Dictionary) -> float:
 		if distance < nearest_distance:
 			nearest_distance = distance
 			nearest = building
-	var max_distance := float(definition.cell_size) * MapViewMeshBuilderConfig.WALL_WALK_ACCESS_MAX_TARGET_DISTANCE_CELLS
+	var max_distance := (
+		float(definition.cell_size)
+		* MapViewMeshBuilderConfig.WALL_WALK_ACCESS_MAX_TARGET_DISTANCE_CELLS
+	)
 	if nearest.is_empty() or nearest_distance > max_distance:
 		return 0.0
 	return (
-		MapTypes.resolved_wall_height_px(nearest)
-		* MapViewBridge.world_scale(definition.cell_size)
+		MapTypes.resolved_wall_height_px(nearest) * MapViewBridge.world_scale(definition.cell_size)
 		+ MapViewMeshBuilderConfig.CAP_HEIGHT
 	)
 
@@ -147,9 +147,7 @@ static func elevation_at(definition: MapDefinition, logic_position: Vector2) -> 
 			continue
 		var progress := _progress_along(footprint, logic_position, facing)
 		var climb := clampf(
-			progress / MapViewMeshBuilderConfig.WALL_WALK_ACCESS_CLIMB_FRACTION,
-			0.0,
-			1.0
+			progress / MapViewMeshBuilderConfig.WALL_WALK_ACCESS_CLIMB_FRACTION, 0.0, 1.0
 		)
 		return target_height(definition, prop) * smoothstep(0.0, 1.0, climb)
 	return 0.0
@@ -174,22 +172,31 @@ static func _subtract_rect(source: Rect2, opening: Rect2) -> Array[Rect2]:
 	if not overlap.has_area():
 		return [source]
 	var pieces: Array[Rect2] = []
-	_append_rect(pieces, Rect2(
-		source.position,
-		Vector2(overlap.position.x - source.position.x, source.size.y)
-	))
-	_append_rect(pieces, Rect2(
-		Vector2(overlap.end.x, source.position.y),
-		Vector2(source.end.x - overlap.end.x, source.size.y)
-	))
-	_append_rect(pieces, Rect2(
-		Vector2(overlap.position.x, source.position.y),
-		Vector2(overlap.size.x, overlap.position.y - source.position.y)
-	))
-	_append_rect(pieces, Rect2(
-		Vector2(overlap.position.x, overlap.end.y),
-		Vector2(overlap.size.x, source.end.y - overlap.end.y)
-	))
+	_append_rect(
+		pieces,
+		Rect2(source.position, Vector2(overlap.position.x - source.position.x, source.size.y))
+	)
+	_append_rect(
+		pieces,
+		Rect2(
+			Vector2(overlap.end.x, source.position.y),
+			Vector2(source.end.x - overlap.end.x, source.size.y)
+		)
+	)
+	_append_rect(
+		pieces,
+		Rect2(
+			Vector2(overlap.position.x, source.position.y),
+			Vector2(overlap.size.x, overlap.position.y - source.position.y)
+		)
+	)
+	_append_rect(
+		pieces,
+		Rect2(
+			Vector2(overlap.position.x, overlap.end.y),
+			Vector2(overlap.size.x, source.end.y - overlap.end.y)
+		)
+	)
 	return pieces
 
 

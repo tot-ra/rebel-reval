@@ -5,10 +5,20 @@ extends RefCounted
 
 
 static func expand_terrain_rects(
-	object_id: StringName, style_id: StringName, data: Dictionary, style: Dictionary, inline: Dictionary,
-	blueprint: MapBlueprint, path: String, expanded: Dictionary, global: Dictionary, errors: Array[String]
+	object_id: StringName,
+	style_id: StringName,
+	data: Dictionary,
+	style: Dictionary,
+	inline: Dictionary,
+	blueprint: MapBlueprint,
+	path: String,
+	expanded: Dictionary,
+	global: Dictionary,
+	errors: Array[String]
 ) -> void:
-	var values := MapBlueprintCompilerExpand.resolved_values(object_id, data, style, inline, global, MapBlueprintCompiler.TERRAIN_KEYS, path, errors)
+	var values := MapBlueprintCompilerExpand.resolved_values(
+		object_id, data, style, inline, global, MapBlueprintCompiler.TERRAIN_KEYS, path, errors
+	)
 	MapBlueprintCompilerExpand.register_id(object_id, path, expanded, errors)
 	if not MapTypes.ALL_TERRAINS.has(values.get("terrain", &"")):
 		errors.append("%s terrain is unknown: %s" % [path, str(values.get("terrain", ""))])
@@ -28,7 +38,9 @@ static func expand_terrain_rects(
 			continue
 		if values.has("rect") and sorted_rects.size() == 1:
 			rect = values["rect"]
-		MapBlueprintCompiler._validate_rect(rect, "%s.rects[%d]" % [path, fragment_index], blueprint.size_cells, errors)
+		MapBlueprintCompiler._validate_rect(
+			rect, "%s.rects[%d]" % [path, fragment_index], blueprint.size_cells, errors
+		)
 		var entry := {
 			"source_id": object_id,
 			"terrain": values.get("terrain", &""),
@@ -42,16 +54,28 @@ static func expand_terrain_rects(
 		if values.has("movement_speed_multiplier"):
 			entry["movement_speed_multiplier"] = float(values["movement_speed_multiplier"])
 		if values.has("shore_confidence"):
-			_validate_shore_confidence(values["shore_confidence"], "%s.shore_confidence" % path, errors)
+			_validate_shore_confidence(
+				values["shore_confidence"], "%s.shore_confidence" % path, errors
+			)
 			entry["shore_confidence"] = values["shore_confidence"]
 		expanded["terrain"].append(entry)
 
 
 static func expand_terrain_stroke(
-	object_id: StringName, style_id: StringName, data: Dictionary, style: Dictionary, inline: Dictionary,
-	blueprint: MapBlueprint, path: String, expanded: Dictionary, global: Dictionary, errors: Array[String]
+	object_id: StringName,
+	style_id: StringName,
+	data: Dictionary,
+	style: Dictionary,
+	inline: Dictionary,
+	blueprint: MapBlueprint,
+	path: String,
+	expanded: Dictionary,
+	global: Dictionary,
+	errors: Array[String]
 ) -> void:
-	var values := MapBlueprintCompilerExpand.resolved_values(object_id, data, style, inline, global, MapBlueprintCompiler.TERRAIN_KEYS, path, errors)
+	var values := MapBlueprintCompilerExpand.resolved_values(
+		object_id, data, style, inline, global, MapBlueprintCompiler.TERRAIN_KEYS, path, errors
+	)
 	MapBlueprintCompilerExpand.register_id(object_id, path, expanded, errors)
 	if not MapTypes.ALL_TERRAINS.has(values.get("terrain", &"")):
 		errors.append("%s terrain is unknown: %s" % [path, str(values.get("terrain", ""))])
@@ -74,14 +98,21 @@ static func expand_terrain_stroke(
 		var start: Vector2i = points[index]
 		var finish: Vector2i = points[index + 1]
 		if start == finish or (start.x != finish.x and start.y != finish.y):
-			errors.append("%s segment %d must be non-zero and orthogonal: %s -> %s" % [path, index, start, finish])
+			errors.append(
+				(
+					"%s segment %d must be non-zero and orthogonal: %s -> %s"
+					% [path, index, start, finish]
+				)
+			)
 			continue
 		var rect: Rect2i
 		if start.y == finish.y:
 			rect = Rect2i(mini(start.x, finish.x), start.y, absi(finish.x - start.x) + 1, thickness)
 		else:
 			rect = Rect2i(start.x, mini(start.y, finish.y), thickness, absi(finish.y - start.y) + 1)
-		MapBlueprintCompiler._validate_rect(rect, "%s.segment[%d]" % [path, index], blueprint.size_cells, errors)
+		MapBlueprintCompiler._validate_rect(
+			rect, "%s.segment[%d]" % [path, index], blueprint.size_cells, errors
+		)
 		var entry := {
 			"source_id": object_id,
 			"terrain": values.get("terrain", &""),
@@ -95,7 +126,9 @@ static func expand_terrain_stroke(
 		if values.has("movement_speed_multiplier"):
 			entry["movement_speed_multiplier"] = float(values["movement_speed_multiplier"])
 		if values.has("shore_confidence"):
-			_validate_shore_confidence(values["shore_confidence"], "%s.shore_confidence" % path, errors)
+			_validate_shore_confidence(
+				values["shore_confidence"], "%s.shore_confidence" % path, errors
+			)
 			entry["shore_confidence"] = values["shore_confidence"]
 		expanded["terrain"].append(entry)
 

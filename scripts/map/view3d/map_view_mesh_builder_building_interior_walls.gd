@@ -16,17 +16,14 @@ const INTERIOR_WALL_POST_SPACING := 2.25
 
 
 static func interior_wall_material(
-	building: Dictionary,
-	wall_color: Color,
-	size: Vector3
+	building: Dictionary, wall_color: Color, size: Vector3
 ) -> StandardMaterial3D:
 	var authored_family: StringName = building.get("wall_material", &"plaster")
-	var pattern_family: StringName = &"plaster" if authored_family == &"smoked_plaster" else authored_family
+	var pattern_family: StringName = (
+		&"plaster" if authored_family == &"smoked_plaster" else authored_family
+	)
 	var material := MapViewMaterials.wall_surface_for_building(
-		building.get("id", &"interior_wall"),
-		pattern_family,
-		wall_color,
-		size
+		building.get("id", &"interior_wall"), pattern_family, wall_color, size
 	)
 	# Interior wall strips are thin along one axis; triplanar keeps plaster
 	# courses readable when a segment runs north-south instead of east-west.
@@ -38,10 +35,7 @@ static func interior_wall_material(
 
 
 static func add_interior_wall_structure(
-	root: Node3D,
-	building: Dictionary,
-	size: Vector2,
-	height: float
+	root: Node3D, building: Dictionary, size: Vector2, height: float
 ) -> void:
 	var along_x := size.x >= size.y
 	var run_length := size.x if along_x else size.y
@@ -82,7 +76,9 @@ static func add_interior_wall_structure(
 			)
 		var post_count := maxi(2, ceili(run_length / INTERIOR_WALL_POST_SPACING) + 1)
 		for index in post_count:
-			var along := lerpf(-run_length * 0.5, run_length * 0.5, float(index) / float(post_count - 1))
+			var along := lerpf(
+				-run_length * 0.5, run_length * 0.5, float(index) / float(post_count - 1)
+			)
 			MapViewMeshBuilderBuildingFacade.facade_box(
 				root,
 				"Post_%s_%02d" % [String(face), index],

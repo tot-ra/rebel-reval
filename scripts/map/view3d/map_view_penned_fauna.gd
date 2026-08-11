@@ -41,36 +41,136 @@ const BEHAVIOR_FLEE := UrbanFauna.BEHAVIOR_FLEE
 ## Lower Town service-yard pens beside brewery and cooper rows. Wild mammals stay
 ## off dense urban maps per the signed P0-072 fauna bands.
 const LOWER_TOWN_PLACEMENTS: Array[Dictionary] = [
-	{"cell": Vector2i(74, 76), "species": MammalSpecies.SPECIES_CHICKEN, "behavior": BEHAVIOR_PEN, "radius": 1.8},
-	{"cell": Vector2i(77, 78), "species": MammalSpecies.SPECIES_DUCK, "behavior": BEHAVIOR_PEN, "radius": 1.6},
-	{"cell": Vector2i(80, 74), "species": MammalSpecies.SPECIES_GOOSE, "behavior": BEHAVIOR_PEN, "radius": 2.0},
-	{"cell": Vector2i(28, 66), "species": MammalSpecies.SPECIES_PIG, "behavior": BEHAVIOR_PEN, "radius": 2.2},
-	{"cell": Vector2i(82, 80), "species": MammalSpecies.SPECIES_COW, "behavior": BEHAVIOR_TETHER, "radius": 2.6},
+	{
+		"cell": Vector2i(74, 76),
+		"species": MammalSpecies.SPECIES_CHICKEN,
+		"behavior": BEHAVIOR_PEN,
+		"radius": 1.8
+	},
+	{
+		"cell": Vector2i(77, 78),
+		"species": MammalSpecies.SPECIES_DUCK,
+		"behavior": BEHAVIOR_PEN,
+		"radius": 1.6
+	},
+	{
+		"cell": Vector2i(80, 74),
+		"species": MammalSpecies.SPECIES_GOOSE,
+		"behavior": BEHAVIOR_PEN,
+		"radius": 2.0
+	},
+	{
+		"cell": Vector2i(28, 66),
+		"species": MammalSpecies.SPECIES_PIG,
+		"behavior": BEHAVIOR_PEN,
+		"radius": 2.2
+	},
+	{
+		"cell": Vector2i(82, 80),
+		"species": MammalSpecies.SPECIES_COW,
+		"behavior": BEHAVIOR_TETHER,
+		"radius": 2.6
+	},
 ]
 
 ## Merchant District west-yard pens beside Pikk/Lai. Static fence props remain on
 ## the map; cattle and sheep are runtime actors only (P4-023g).
 const NORTH_QUARTER_PLACEMENTS: Array[Dictionary] = [
-	{"cell": Vector2i(13, 68), "species": MammalSpecies.SPECIES_COW, "behavior": BEHAVIOR_TETHER, "radius": 2.4},
-	{"cell": Vector2i(15, 72), "species": MammalSpecies.SPECIES_COW, "behavior": BEHAVIOR_PEN, "radius": 2.0},
-	{"cell": Vector2i(11, 65), "species": MammalSpecies.SPECIES_COW, "behavior": BEHAVIOR_PEN, "radius": 1.8},
-	{"cell": Vector2i(13, 97), "species": MammalSpecies.SPECIES_SHEEP, "behavior": BEHAVIOR_PEN, "radius": 2.0},
-	{"cell": Vector2i(15, 100), "species": MammalSpecies.SPECIES_SHEEP, "behavior": BEHAVIOR_PEN, "radius": 1.8},
-	{"cell": Vector2i(11, 93), "species": MammalSpecies.SPECIES_SHEEP, "behavior": BEHAVIOR_PEN, "radius": 1.8},
+	{
+		"cell": Vector2i(13, 68),
+		"species": MammalSpecies.SPECIES_COW,
+		"behavior": BEHAVIOR_TETHER,
+		"radius": 2.4
+	},
+	{
+		"cell": Vector2i(15, 72),
+		"species": MammalSpecies.SPECIES_COW,
+		"behavior": BEHAVIOR_PEN,
+		"radius": 2.0
+	},
+	{
+		"cell": Vector2i(11, 65),
+		"species": MammalSpecies.SPECIES_COW,
+		"behavior": BEHAVIOR_PEN,
+		"radius": 1.8
+	},
+	{
+		"cell": Vector2i(13, 97),
+		"species": MammalSpecies.SPECIES_SHEEP,
+		"behavior": BEHAVIOR_PEN,
+		"radius": 2.0
+	},
+	{
+		"cell": Vector2i(15, 100),
+		"species": MammalSpecies.SPECIES_SHEEP,
+		"behavior": BEHAVIOR_PEN,
+		"radius": 1.8
+	},
+	{
+		"cell": Vector2i(11, 93),
+		"species": MammalSpecies.SPECIES_SHEEP,
+		"behavior": BEHAVIOR_PEN,
+		"radius": 1.8
+	},
 ]
 
 ## Foreland farmstead pens plus signed outer-margin wild actors only.
 const FORELAND_PLACEMENTS: Array[Dictionary] = [
-	{"cell": Vector2i(35, 39), "species": MammalSpecies.SPECIES_CHICKEN, "behavior": BEHAVIOR_PEN, "radius": 1.6},
-	{"cell": Vector2i(119, 89), "species": MammalSpecies.SPECIES_DUCK, "behavior": BEHAVIOR_PEN, "radius": 1.8},
-	{"cell": Vector2i(121, 79), "species": MammalSpecies.SPECIES_GOOSE, "behavior": BEHAVIOR_PEN, "radius": 2.0},
-	{"cell": Vector2i(146, 89), "species": MammalSpecies.SPECIES_PIG, "behavior": BEHAVIOR_PEN, "radius": 2.4},
-	{"cell": Vector2i(125, 86), "species": MammalSpecies.SPECIES_COW, "behavior": BEHAVIOR_TETHER, "radius": 3.0},
+	{
+		"cell": Vector2i(35, 39),
+		"species": MammalSpecies.SPECIES_CHICKEN,
+		"behavior": BEHAVIOR_PEN,
+		"radius": 1.6
+	},
+	{
+		"cell": Vector2i(119, 89),
+		"species": MammalSpecies.SPECIES_DUCK,
+		"behavior": BEHAVIOR_PEN,
+		"radius": 1.8
+	},
+	{
+		"cell": Vector2i(121, 79),
+		"species": MammalSpecies.SPECIES_GOOSE,
+		"behavior": BEHAVIOR_PEN,
+		"radius": 2.0
+	},
+	{
+		"cell": Vector2i(146, 89),
+		"species": MammalSpecies.SPECIES_PIG,
+		"behavior": BEHAVIOR_PEN,
+		"radius": 2.4
+	},
+	{
+		"cell": Vector2i(125, 86),
+		"species": MammalSpecies.SPECIES_COW,
+		"behavior": BEHAVIOR_TETHER,
+		"radius": 3.0
+	},
 	{"cell": Vector2i(132, 84), "species": &"goat", "behavior": BEHAVIOR_TETHER, "radius": 2.2},
-	{"cell": Vector2i(20, 8), "species": MammalSpecies.SPECIES_HARE, "behavior": BEHAVIOR_FLEE, "radius": 4.0},
-	{"cell": Vector2i(8, 30), "species": MammalSpecies.SPECIES_RED_FOX, "behavior": BEHAVIOR_FLEE, "radius": 5.0},
-	{"cell": Vector2i(155, 115), "species": MammalSpecies.SPECIES_WOLF, "behavior": BEHAVIOR_FLEE, "radius": 6.0},
-	{"cell": Vector2i(155, 8), "species": MammalSpecies.SPECIES_BROWN_BEAR, "behavior": BEHAVIOR_FLEE, "radius": 7.0},
+	{
+		"cell": Vector2i(20, 8),
+		"species": MammalSpecies.SPECIES_HARE,
+		"behavior": BEHAVIOR_FLEE,
+		"radius": 4.0
+	},
+	{
+		"cell": Vector2i(8, 30),
+		"species": MammalSpecies.SPECIES_RED_FOX,
+		"behavior": BEHAVIOR_FLEE,
+		"radius": 5.0
+	},
+	{
+		"cell": Vector2i(155, 115),
+		"species": MammalSpecies.SPECIES_WOLF,
+		"behavior": BEHAVIOR_FLEE,
+		"radius": 6.0
+	},
+	{
+		"cell": Vector2i(155, 8),
+		"species": MammalSpecies.SPECIES_BROWN_BEAR,
+		"behavior": BEHAVIOR_FLEE,
+		"radius": 7.0
+	},
 ]
 
 const MAP_PLACEMENTS: Dictionary = {
@@ -109,7 +209,9 @@ func configure(map_id: StringName, context: StringName, cell_size: int) -> void:
 	_rebuild_actors()
 
 
-func sync(context: StringName, delta: float, listener_position: Vector3, enabled: bool = true) -> void:
+func sync(
+	context: StringName, delta: float, listener_position: Vector3, enabled: bool = true
+) -> void:
 	_fauna_enabled = enabled
 	_context = context
 	if not _should_run():
@@ -148,8 +250,7 @@ func actor_offset_from_home(actor: Node3D) -> float:
 
 
 static func _distinct_species_from_placements(
-	map_id: StringName,
-	required_pool: Array[StringName]
+	map_id: StringName, required_pool: Array[StringName]
 ) -> Array[StringName]:
 	var placements: Array = MAP_PLACEMENTS.get(map_id, [])
 	var seen: Dictionary = {}
@@ -164,7 +265,9 @@ static func _distinct_species_from_placements(
 
 
 func _should_run() -> bool:
-	return _fauna_enabled and FaunaContext.supports_penned_fauna(_map_id) and not _context.is_empty()
+	return (
+		_fauna_enabled and FaunaContext.supports_penned_fauna(_map_id) and not _context.is_empty()
+	)
 
 
 func _rebuild_actors() -> void:
@@ -242,7 +345,14 @@ static func _pose_for_behavior(behavior: StringName, species: StringName) -> Str
 		BEHAVIOR_FLEE:
 			return MammalSpecies.POSE_STANDING
 		_:
-			if species in [MammalSpecies.SPECIES_CHICKEN, MammalSpecies.SPECIES_DUCK, MammalSpecies.SPECIES_GOOSE]:
+			if (
+				species
+				in [
+					MammalSpecies.SPECIES_CHICKEN,
+					MammalSpecies.SPECIES_DUCK,
+					MammalSpecies.SPECIES_GOOSE
+				]
+			):
 				return MammalSpecies.POSE_STANDING
 			return MammalSpecies.default_pose(species)
 

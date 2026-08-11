@@ -131,8 +131,9 @@ func can_begin(actor_id: StringName, activity_id: StringName, context: Dictionar
 		return false
 	if point.exclusive and is_occupied(activity_id):
 		return occupant_of(activity_id) == actor_id
-	if _station_reservations != null and not bool(
-		_station_reservations.call(&"can_reserve", actor_id, activity_id, point)
+	if (
+		_station_reservations != null
+		and not bool(_station_reservations.call(&"can_reserve", actor_id, activity_id, point))
 	):
 		return false
 	return true
@@ -144,8 +145,9 @@ func begin_activity(actor_id: StringName, activity_id: StringName, context: Dict
 	var point := definition.get_activity_point(activity_id)
 	if point == null:
 		return false
-	if _station_reservations != null and not bool(
-		_station_reservations.call(&"try_reserve", actor_id, activity_id, point)
+	if (
+		_station_reservations != null
+		and not bool(_station_reservations.call(&"try_reserve", actor_id, activity_id, point))
 	):
 		return false
 	if point.exclusive:
@@ -229,9 +231,7 @@ func runtime_snapshot_for(actor_id: StringName) -> Dictionary:
 
 
 func restore_runtime_snapshot_for(
-	actor_id: StringName,
-	snapshot: Dictionary,
-	context: Dictionary
+	actor_id: StringName, snapshot: Dictionary, context: Dictionary
 ) -> bool:
 	end_activity(actor_id, REASON_CANCELLED)
 	_schedule_indices[actor_id] = int(snapshot.get("schedule_index", 0))
@@ -277,9 +277,7 @@ func pick_next_activity(actor_id: StringName, context: Dictionary) -> StringName
 
 
 func resolve_blocked_target(
-	actor_id: StringName,
-	activity_id: StringName,
-	context: Dictionary
+	actor_id: StringName, activity_id: StringName, context: Dictionary
 ) -> StringName:
 	var point := get_activity_point(activity_id)
 	if point == null:
@@ -292,19 +290,22 @@ func resolve_blocked_target(
 
 
 func resolve_navigation_failure(
-	actor_id: StringName,
-	activity_id: StringName,
-	context: Dictionary
+	actor_id: StringName, activity_id: StringName, context: Dictionary
 ) -> StringName:
 	var point := get_activity_point(activity_id)
 	if point == null:
 		return &""
-	if not point.fallback_activity_id.is_empty() and can_begin(actor_id, point.fallback_activity_id, context):
+	if (
+		not point.fallback_activity_id.is_empty()
+		and can_begin(actor_id, point.fallback_activity_id, context)
+	):
 		return point.fallback_activity_id
 	return &""
 
 
-func report_navigation_failure(actor_id: StringName, activity_id: StringName, context: Dictionary) -> StringName:
+func report_navigation_failure(
+	actor_id: StringName, activity_id: StringName, context: Dictionary
+) -> StringName:
 	var point := get_activity_point(activity_id)
 	var fallback_id := &""
 	if point != null and not point.fallback_activity_id.is_empty():
@@ -316,7 +317,9 @@ func report_navigation_failure(actor_id: StringName, activity_id: StringName, co
 	return &""
 
 
-func requires_approach_before_start(actor_id: StringName, activity_id: StringName, actor_position: Vector2) -> bool:
+func requires_approach_before_start(
+	_actor_id: StringName, activity_id: StringName, actor_position: Vector2
+) -> bool:
 	var point := get_activity_point(activity_id)
 	if point == null:
 		return true
@@ -348,7 +351,9 @@ static func time_band_for_cycle_progress(progress: float) -> StringName:
 	return &"any"
 
 
-func build_kalev_context(state: GameState, time_band: StringName, extra: Dictionary = {}) -> Dictionary:
+func build_kalev_context(
+	state: GameState, time_band: StringName, extra: Dictionary = {}
+) -> Dictionary:
 	var context := {
 		"phase_id": GameState.PHASE_PROLOGUE_DAY,
 		"time_band": time_band,
@@ -464,7 +469,9 @@ func apply_kalev_activity_presentation(activity_id: StringName, context: Diction
 	return prop_variants
 
 
-func complete_kalev_activity_presentation(activity_id: StringName, reason: StringName = REASON_COMPLETED) -> void:
+func complete_kalev_activity_presentation(
+	activity_id: StringName, reason: StringName = REASON_COMPLETED
+) -> void:
 	if active_activity_for(KALEV_ID) == activity_id:
 		end_activity(KALEV_ID, reason)
 	_presentation_held_socket = &""
@@ -478,9 +485,7 @@ func persist_prop_variants(state: GameState, prop_variants: Dictionary) -> void:
 		var prop_id := StringName(String(prop_key))
 		var variant := String(prop_variants[prop_key])
 		state.map_world_state.record_object_delta(
-			SMITHY_LOCATION_ID,
-			prop_id,
-			{"style_variant": variant}
+			SMITHY_LOCATION_ID, prop_id, {"style_variant": variant}
 		)
 
 

@@ -47,10 +47,7 @@ static func build_forge_yard(definition: MapDefinition) -> Node3D:
 
 static func build_street_well(definition: MapDefinition) -> Node3D:
 	return _build_module(
-		definition,
-		MODULE_STREET_WELL,
-		[],
-		[&"cistern", &"cistern_wash_tub", &"monastery_well"]
+		definition, MODULE_STREET_WELL, [], [&"cistern", &"cistern_wash_tub", &"monastery_well"]
 	)
 
 
@@ -104,10 +101,7 @@ static func _build_module(
 			continue
 		buildings.add_child(
 			MeshBuilder.build_building(
-				building,
-				definition.cell_size,
-				[],
-				Rect2(Vector2.ZERO, definition.world_size())
+				building, definition.cell_size, [], Rect2(Vector2.ZERO, definition.world_size())
 			)
 		)
 

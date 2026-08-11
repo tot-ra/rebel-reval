@@ -1,6 +1,13 @@
 class_name MapDefinition
 extends RefCounted
 
+## cloister_walk is a covered monastic gallery. It is a view landmark rather than
+## a building so the walk it represents stays a walkable route.
+const VIEW_LANDMARK_KINDS: Array[StringName] = [&"gate_arch", &"interior_window", &"cloister_walk"]
+const WORLD_SIDES: Array[StringName] = [&"north", &"south", &"east", &"west"]
+const SURROUNDINGS_KINDS: Array[StringName] = [&"town", &"water", &"woodland"]
+const ELEVATION_PROFILE_KINDS: Array[StringName] = [&"grade", &"area", &"ramp"]
+
 ## Declarative map data used by MapBuilder. Zones are applied in array order.
 
 var map_id: StringName = &""
@@ -46,14 +53,6 @@ var surroundings_town_sides: Array[StringName] = []
 ## Per-side authored view continuation. Values are &"town", &"water", or
 ## &"woodland". Unlisted sides render no exterior backdrop.
 var surroundings_sides: Dictionary = {}
-
-## cloister_walk is a covered monastic gallery. It is a view landmark rather than
-## a building so the walk it represents stays a walkable route.
-const VIEW_LANDMARK_KINDS: Array[StringName] = [&"gate_arch", &"interior_window", &"cloister_walk"]
-const WORLD_SIDES: Array[StringName] = [&"north", &"south", &"east", &"west"]
-const SURROUNDINGS_KINDS: Array[StringName] = [&"town", &"water", &"woodland"]
-const ELEVATION_PROFILE_KINDS: Array[StringName] = [&"grade", &"area", &"ramp"]
-
 
 ## World-travel locations stand a day or more of road from Reval. They still use
 ## ground transitions, but their destination district is not spatially adjacent,
@@ -104,7 +103,6 @@ func validate() -> Array[String]:
 	elif not _point_inside_world_pixels(player_spawn):
 		errors.append("player_spawn is outside world bounds")
 
-
 	if location.is_empty():
 		errors.append("location is required")
 	if scope.is_empty():
@@ -129,7 +127,9 @@ func validate() -> Array[String]:
 		errors.append_array(_validate_patrol(patrols[index], index))
 
 	for index in interaction_anchors.size():
-		errors.append_array(_validate_interaction_anchor(interaction_anchors[index], index, seen_ids))
+		errors.append_array(
+			_validate_interaction_anchor(interaction_anchors[index], index, seen_ids)
+		)
 
 	for index in fade_volumes.size():
 		errors.append_array(_validate_fade_volume(fade_volumes[index], index))
@@ -146,8 +146,10 @@ func validate() -> Array[String]:
 			errors.append("surroundings_sides has unknown side: %s" % String(side))
 		elif not SURROUNDINGS_KINDS.has(surroundings_sides[side]):
 			errors.append(
-				"surroundings_sides[%s] has unknown kind: %s"
-				% [String(side), String(surroundings_sides[side])]
+				(
+					"surroundings_sides[%s] has unknown kind: %s"
+					% [String(side), String(surroundings_sides[side])]
+				)
 			)
 
 	if camera_bounds.size.x < 0 or camera_bounds.size.y < 0:
@@ -219,7 +221,10 @@ func _validate_elevation_profile(profile: Dictionary, index: int) -> Array[Strin
 		var direction: Variant = profile.get("direction")
 		if not direction is Vector2i or direction == Vector2i.ZERO:
 			errors.append("%s.direction must be a non-zero cardinal Vector2i" % prefix)
-		if not is_finite(float(profile.get("delta", NAN))) or absf(float(profile.get("delta", 0.0))) > 8.0:
+		if (
+			not is_finite(float(profile.get("delta", NAN)))
+			or absf(float(profile.get("delta", 0.0))) > 8.0
+		):
 			errors.append("%s.delta must be finite and between -8 and 8" % prefix)
 	elif kind == &"area":
 		if not profile.get("center") is Vector2i:
@@ -230,7 +235,10 @@ func _validate_elevation_profile(profile: Dictionary, index: int) -> Array[Strin
 			errors.append("%s.radius must be positive and finite" % prefix)
 		if not is_finite(falloff) or falloff < 0.0 or falloff >= radius:
 			errors.append("%s.falloff must be finite and in [0, radius)" % prefix)
-		if not is_finite(float(profile.get("height", NAN))) or absf(float(profile.get("height", 0.0))) > 8.0:
+		if (
+			not is_finite(float(profile.get("height", NAN)))
+			or absf(float(profile.get("height", 0.0))) > 8.0
+		):
 			errors.append("%s.height must be finite and between -8 and 8" % prefix)
 	elif kind == &"ramp":
 		if not profile.get("start") is Vector2i or not profile.get("end") is Vector2i:
@@ -241,7 +249,10 @@ func _validate_elevation_profile(profile: Dictionary, index: int) -> Array[Strin
 		if not is_finite(width) or width <= 0.0:
 			errors.append("%s.width must be positive and finite" % prefix)
 		for key in [&"start_height", &"end_height"]:
-			if not is_finite(float(profile.get(key, NAN))) or absf(float(profile.get(key, 0.0))) > 8.0:
+			if (
+				not is_finite(float(profile.get(key, NAN)))
+				or absf(float(profile.get(key, 0.0))) > 8.0
+			):
 				errors.append("%s.%s must be finite and between -8 and 8" % [prefix, key])
 	return errors
 
@@ -271,10 +282,20 @@ func _validate_zone(zone: Dictionary, index: int) -> Array[String]:
 
 	if zone.has("movement_speed_multiplier"):
 		var speed := float(zone["movement_speed_multiplier"])
-		if speed < TerrainVegetation.MIN_SPEED_MULTIPLIER or speed > TerrainVegetation.MAX_SPEED_MULTIPLIER:
-			errors.append("%s.movement_speed_multiplier must be between %.2f and %.2f" % [
-				prefix, TerrainVegetation.MIN_SPEED_MULTIPLIER, TerrainVegetation.MAX_SPEED_MULTIPLIER
-			])
+		if (
+			speed < TerrainVegetation.MIN_SPEED_MULTIPLIER
+			or speed > TerrainVegetation.MAX_SPEED_MULTIPLIER
+		):
+			errors.append(
+				(
+					"%s.movement_speed_multiplier must be between %.2f and %.2f"
+					% [
+						prefix,
+						TerrainVegetation.MIN_SPEED_MULTIPLIER,
+						TerrainVegetation.MAX_SPEED_MULTIPLIER
+					]
+				)
+			)
 
 	return errors
 
@@ -350,38 +371,71 @@ func _validate_prop(prop: Dictionary, index: int, seen_ids: Dictionary) -> Array
 
 	if prop.has("movement_speed_multiplier"):
 		var speed := float(prop["movement_speed_multiplier"])
-		if speed < TerrainVegetation.MIN_SPEED_MULTIPLIER or speed > TerrainVegetation.MAX_SPEED_MULTIPLIER:
-			errors.append("%s.movement_speed_multiplier must be between %.2f and %.2f" % [
-				prefix, TerrainVegetation.MIN_SPEED_MULTIPLIER, TerrainVegetation.MAX_SPEED_MULTIPLIER
-			])
+		if (
+			speed < TerrainVegetation.MIN_SPEED_MULTIPLIER
+			or speed > TerrainVegetation.MAX_SPEED_MULTIPLIER
+		):
+			errors.append(
+				(
+					"%s.movement_speed_multiplier must be between %.2f and %.2f"
+					% [
+						prefix,
+						TerrainVegetation.MIN_SPEED_MULTIPLIER,
+						TerrainVegetation.MAX_SPEED_MULTIPLIER
+					]
+				)
+			)
 	if prop.has("faction") and not FactionHeraldry.is_known(StringName(prop["faction"])):
 		errors.append("%s.faction is unknown: %s" % [prefix, str(prop["faction"])])
 	var invalid_lighting := MapTypes.invalid_lighting_variant(prop)
 	if not invalid_lighting.is_empty():
-		errors.append("%s.style_variant is unknown for candle: %s" % [prefix, String(invalid_lighting)])
+		errors.append(
+			"%s.style_variant is unknown for candle: %s" % [prefix, String(invalid_lighting)]
+		)
 	var invalid_kitchenware := MapTypes.invalid_kitchenware_variant(prop)
 	if not invalid_kitchenware.is_empty():
-		errors.append("%s.style_variant is unknown for kitchenware: %s" % [prefix, String(invalid_kitchenware)])
+		errors.append(
+			(
+				"%s.style_variant is unknown for kitchenware: %s"
+				% [prefix, String(invalid_kitchenware)]
+			)
+		)
 	var invalid_household_clutter := MapTypes.invalid_household_clutter_variant(prop)
 	if not invalid_household_clutter.is_empty():
-		errors.append("%s.style_variant is unknown for household_clutter: %s" % [prefix, String(invalid_household_clutter)])
+		errors.append(
+			(
+				"%s.style_variant is unknown for household_clutter: %s"
+				% [prefix, String(invalid_household_clutter)]
+			)
+		)
 	if prop.has("display_goods"):
 		if prop.get("kind") != MapTypes.PROP_KIND_STALL:
 			errors.append("%s.display_goods is supported only for stall props" % prefix)
 		for goods_kind in MapTypes.invalid_market_stall_goods(StringName(prop["display_goods"])):
 			if goods_kind == &"too_many_modules":
-				errors.append("%s.display_goods supports at most %d modules" % [
-					prefix, MapTypes.MARKET_STALL_MAX_DISPLAY_MODULES
-				])
+				errors.append(
+					(
+						"%s.display_goods supports at most %d modules"
+						% [prefix, MapTypes.MARKET_STALL_MAX_DISPLAY_MODULES]
+					)
+				)
 			else:
 				errors.append("%s.display_goods is unknown: %s" % [prefix, String(goods_kind)])
 	if prop.has("table_items"):
-		if prop.get("kind") not in [MapTypes.PROP_KIND_TABLE, MapTypes.PROP_KIND_FISH_SPLITTING_TABLE]:
+		if (
+			prop.get("kind")
+			not in [MapTypes.PROP_KIND_TABLE, MapTypes.PROP_KIND_FISH_SPLITTING_TABLE]
+		):
 			errors.append("%s.table_items is supported only for table props" % prefix)
 		for item_kind in MapTypes.invalid_table_items(StringName(prop["table_items"])):
 			match item_kind:
 				&"too_many_items":
-					errors.append("%s.table_items supports at most %d items" % [prefix, MapTypes.TABLE_MAX_ITEMS])
+					errors.append(
+						(
+							"%s.table_items supports at most %d items"
+							% [prefix, MapTypes.TABLE_MAX_ITEMS]
+						)
+					)
 				&"duplicate_items":
 					errors.append("%s.table_items cannot contain duplicate items" % prefix)
 				_:
@@ -391,26 +445,27 @@ func _validate_prop(prop: Dictionary, index: int, seen_ids: Dictionary) -> Array
 
 
 func _rect_inside_bounds(rect: Rect2i) -> bool:
-	return rect.position.x >= 0 \
-		and rect.position.y >= 0 \
-		and rect.end.x <= size_cells.x \
+	return (
+		rect.position.x >= 0
+		and rect.position.y >= 0
+		and rect.end.x <= size_cells.x
 		and rect.end.y <= size_cells.y
+	)
 
 
 func _rect_inside_world_pixels(rect: Rect2) -> bool:
 	var world := world_size()
-	return rect.position.x >= 0.0 \
-		and rect.position.y >= 0.0 \
-		and rect.end.x <= world.x \
+	return (
+		rect.position.x >= 0.0
+		and rect.position.y >= 0.0
+		and rect.end.x <= world.x
 		and rect.end.y <= world.y
+	)
 
 
 func _point_inside_world_pixels(point: Vector2) -> bool:
 	var world := world_size()
-	return point.x >= 0.0 \
-		and point.y >= 0.0 \
-		and point.x <= world.x \
-		and point.y <= world.y
+	return point.x >= 0.0 and point.y >= 0.0 and point.x <= world.x and point.y <= world.y
 
 
 func _validate_transition(trans: Dictionary, index: int, seen_ids: Dictionary) -> Array[String]:
@@ -430,10 +485,15 @@ func _validate_transition(trans: Dictionary, index: int, seen_ids: Dictionary) -
 	elif not _rect_inside_world_pixels(trans["rect"]):
 		errors.append("%s.rect is outside world bounds" % prefix)
 
-	var transition_visual: StringName = trans.get("transition_visual", MapTypes.TRANSITION_VISUAL_DOOR)
+	var transition_visual: StringName = trans.get(
+		"transition_visual", MapTypes.TRANSITION_VISUAL_DOOR
+	)
 	if not MapTypes.TRANSITION_VISUALS.has(transition_visual):
 		errors.append("%s.transition_visual is unknown: %s" % [prefix, String(transition_visual)])
-	if bool(trans.get("highlight_area", false)) and transition_visual != MapTypes.TRANSITION_VISUAL_GROUND:
+	if (
+		bool(trans.get("highlight_area", false))
+		and transition_visual != MapTypes.TRANSITION_VISUAL_GROUND
+	):
 		errors.append("%s.highlight_area requires transition_visual=ground" % prefix)
 
 	var building_id := StringName(String(trans.get("building_id", "")))
@@ -444,11 +504,18 @@ func _validate_transition(trans: Dictionary, index: int, seen_ids: Dictionary) -
 				building = candidate
 				break
 		if building.is_empty():
-			errors.append("%s.building_id references unknown building: %s" % [prefix, String(building_id)])
+			errors.append(
+				"%s.building_id references unknown building: %s" % [prefix, String(building_id)]
+			)
 		elif transition_visual != MapTypes.TRANSITION_VISUAL_DOOR:
 			errors.append("%s.building_id requires transition_visual=door" % prefix)
 		elif not MapBuildingEntrance.approach_aligns_with_facade(building, trans, cell_size):
-			errors.append("%s approach does not align with building facade: %s" % [prefix, String(building_id)])
+			errors.append(
+				(
+					"%s approach does not align with building facade: %s"
+					% [prefix, String(building_id)]
+				)
+			)
 
 	return errors
 
@@ -507,7 +574,9 @@ func _validate_patrol(patrol: Dictionary, index: int) -> Array[String]:
 	return errors
 
 
-func _validate_interaction_anchor(anchor: Dictionary, index: int, seen_ids: Dictionary) -> Array[String]:
+func _validate_interaction_anchor(
+	anchor: Dictionary, index: int, seen_ids: Dictionary
+) -> Array[String]:
 	var errors: Array[String] = []
 	var prefix := "interaction_anchors[%d]" % index
 
@@ -527,7 +596,9 @@ func _validate_interaction_anchor(anchor: Dictionary, index: int, seen_ids: Dict
 	return errors
 
 
-func _validate_view_landmark(landmark: Dictionary, index: int, seen_ids: Dictionary) -> Array[String]:
+func _validate_view_landmark(
+	landmark: Dictionary, index: int, seen_ids: Dictionary
+) -> Array[String]:
 	var errors: Array[String] = []
 	var prefix := "view_landmarks[%d]" % index
 

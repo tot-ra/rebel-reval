@@ -7,6 +7,7 @@ const ExpandTerrain := preload("res://scripts/map/map_blueprint_compiler_expand_
 const ExpandGeometry := preload("res://scripts/map/map_blueprint_compiler_expand_geometry.gd")
 const PropStyleVariants := preload("res://scripts/map/map_prop_style_variants.gd")
 
+
 static func expand_primitives(
 	blueprint: MapBlueprint,
 	styles: Dictionary,
@@ -61,45 +62,232 @@ static func expand_primitives(
 
 		match primitive_kind:
 			&"terrain_rect", &"terrain_rects":
-				ExpandTerrain.expand_terrain_rects(primitive_id, style_id, data, style_values, inline_overrides, blueprint, path, expanded, global_overrides, errors)
+				ExpandTerrain.expand_terrain_rects(
+					primitive_id,
+					style_id,
+					data,
+					style_values,
+					inline_overrides,
+					blueprint,
+					path,
+					expanded,
+					global_overrides,
+					errors
+				)
 			&"terrain_stroke":
-				ExpandTerrain.expand_terrain_stroke(primitive_id, style_id, data, style_values, inline_overrides, blueprint, path, expanded, global_overrides, errors)
+				ExpandTerrain.expand_terrain_stroke(
+					primitive_id,
+					style_id,
+					data,
+					style_values,
+					inline_overrides,
+					blueprint,
+					path,
+					expanded,
+					global_overrides,
+					errors
+				)
 			&"structure_rect":
-				ExpandGeometry.expand_structure(primitive_id, data, style_values, inline_overrides, blueprint, path, expanded, global_overrides, errors)
+				ExpandGeometry.expand_structure(
+					primitive_id,
+					data,
+					style_values,
+					inline_overrides,
+					blueprint,
+					path,
+					expanded,
+					global_overrides,
+					errors
+				)
 			&"wall_run":
-				ExpandGeometry.expand_wall(primitive_id, data, style_values, inline_overrides, blueprint, path, expanded, global_overrides, errors)
+				ExpandGeometry.expand_wall(
+					primitive_id,
+					data,
+					style_values,
+					inline_overrides,
+					blueprint,
+					path,
+					expanded,
+					global_overrides,
+					errors
+				)
 			&"placement_row":
-				ExpandGeometry.expand_row(primitive_id, data, style_values, blueprint, path, expanded, global_overrides, errors)
+				ExpandGeometry.expand_row(
+					primitive_id,
+					data,
+					style_values,
+					blueprint,
+					path,
+					expanded,
+					global_overrides,
+					errors
+				)
 			&"prop":
-				_expand_prop(primitive_id, style_id, data, style_values, inline_overrides, blueprint, path, expanded, global_overrides, errors)
+				_expand_prop(
+					primitive_id,
+					style_id,
+					data,
+					style_values,
+					inline_overrides,
+					blueprint,
+					path,
+					expanded,
+					global_overrides,
+					errors
+				)
 			&"player_spawn":
-				_expand_point_record(&"spawn", primitive_id, data, style_values, inline_overrides, MapBlueprintCompiler.SPAWN_KEYS, blueprint, path, expanded["spawns"], expanded, global_overrides, errors)
+				_expand_point_record(
+					&"spawn",
+					primitive_id,
+					data,
+					style_values,
+					inline_overrides,
+					MapBlueprintCompiler.SPAWN_KEYS,
+					blueprint,
+					path,
+					expanded["spawns"],
+					expanded,
+					global_overrides,
+					errors
+				)
 			&"transition":
-				_expand_rect_record(&"transition", primitive_id, data, style_values, inline_overrides, MapBlueprintCompiler.TRANSITION_KEYS, blueprint, path, expanded["transitions"], expanded, global_overrides, errors)
+				_expand_rect_record(
+					&"transition",
+					primitive_id,
+					data,
+					style_values,
+					inline_overrides,
+					MapBlueprintCompiler.TRANSITION_KEYS,
+					blueprint,
+					path,
+					expanded["transitions"],
+					expanded,
+					global_overrides,
+					errors
+				)
 			&"interaction_anchor":
-				_expand_point_record(&"anchor", primitive_id, data, style_values, inline_overrides, MapBlueprintCompiler.ANCHOR_KEYS, blueprint, path, expanded["anchors"], expanded, global_overrides, errors)
+				_expand_point_record(
+					&"anchor",
+					primitive_id,
+					data,
+					style_values,
+					inline_overrides,
+					MapBlueprintCompiler.ANCHOR_KEYS,
+					blueprint,
+					path,
+					expanded["anchors"],
+					expanded,
+					global_overrides,
+					errors
+				)
 			&"patrol_path":
-				_expand_patrol(primitive_id, data, style_values, inline_overrides, blueprint, path, expanded, global_overrides, errors)
+				_expand_patrol(
+					primitive_id,
+					data,
+					style_values,
+					inline_overrides,
+					blueprint,
+					path,
+					expanded,
+					global_overrides,
+					errors
+				)
 			&"excluded_rect":
-				_expand_rect_record(&"exclusion", primitive_id, data, style_values, inline_overrides, MapBlueprintCompiler.RECT_KEYS, blueprint, path, expanded["exclusions"], expanded, global_overrides, errors)
+				_expand_rect_record(
+					&"exclusion",
+					primitive_id,
+					data,
+					style_values,
+					inline_overrides,
+					MapBlueprintCompiler.RECT_KEYS,
+					blueprint,
+					path,
+					expanded["exclusions"],
+					expanded,
+					global_overrides,
+					errors
+				)
 			&"fade_rect":
-				_expand_rect_record(&"fade", primitive_id, data, style_values, inline_overrides, MapBlueprintCompiler.RECT_KEYS, blueprint, path, expanded["fades"], expanded, global_overrides, errors)
+				_expand_rect_record(
+					&"fade",
+					primitive_id,
+					data,
+					style_values,
+					inline_overrides,
+					MapBlueprintCompiler.RECT_KEYS,
+					blueprint,
+					path,
+					expanded["fades"],
+					expanded,
+					global_overrides,
+					errors
+				)
 			&"decal_rect":
-				_expand_decal(primitive_id, data, style_values, inline_overrides, blueprint, path, expanded, global_overrides, errors)
+				_expand_decal(
+					primitive_id,
+					data,
+					style_values,
+					inline_overrides,
+					blueprint,
+					path,
+					expanded,
+					global_overrides,
+					errors
+				)
 			&"direction_sign":
-				_expand_sign(primitive_id, data, style_values, inline_overrides, blueprint, path, expanded, global_overrides, errors)
+				_expand_sign(
+					primitive_id,
+					data,
+					style_values,
+					inline_overrides,
+					blueprint,
+					path,
+					expanded,
+					global_overrides,
+					errors
+				)
 			&"view_landmark":
-				_expand_rect_record(&"landmark", primitive_id, data, style_values, inline_overrides, MapBlueprintCompiler.LANDMARK_OVERRIDE_KEYS, blueprint, path, expanded["landmarks"], expanded, global_overrides, errors)
+				_expand_rect_record(
+					&"landmark",
+					primitive_id,
+					data,
+					style_values,
+					inline_overrides,
+					MapBlueprintCompiler.LANDMARK_OVERRIDE_KEYS,
+					blueprint,
+					path,
+					expanded["landmarks"],
+					expanded,
+					global_overrides,
+					errors
+				)
 			_:
 				errors.append("%s has unknown primitive kind: %s" % [path, String(primitive_kind)])
 	return expanded
 
 
 static func _expand_prop(
-	object_id: StringName, style_id: StringName, data: Dictionary, style: Dictionary, inline: Dictionary,
-	blueprint: MapBlueprint, path: String, expanded: Dictionary, global: Dictionary, errors: Array[String]
+	object_id: StringName,
+	style_id: StringName,
+	data: Dictionary,
+	style: Dictionary,
+	inline: Dictionary,
+	blueprint: MapBlueprint,
+	path: String,
+	expanded: Dictionary,
+	global: Dictionary,
+	errors: Array[String]
 ) -> void:
-	var values := resolved_values(object_id, data, style, inline, global, MapBlueprintCompiler.PROP_OVERRIDE_KEYS, path, errors)
+	var values := resolved_values(
+		object_id,
+		data,
+		style,
+		inline,
+		global,
+		MapBlueprintCompiler.PROP_OVERRIDE_KEYS,
+		path,
+		errors
+	)
 	# Vegetation and reusable district props share the authored style_variant
 	# field, but each domain validates against its own strict allowlist.
 	var style_variant := TerrainVegetation.resolved_variant(style_id, values)
@@ -118,9 +306,18 @@ static func _expand_prop(
 
 
 static func _expand_point_record(
-	record_kind: StringName, object_id: StringName, data: Dictionary, style: Dictionary, inline: Dictionary,
-	allowed: Array[StringName], blueprint: MapBlueprint, path: String, destination: Array,
-	expanded: Dictionary, global: Dictionary, errors: Array[String]
+	record_kind: StringName,
+	object_id: StringName,
+	data: Dictionary,
+	style: Dictionary,
+	inline: Dictionary,
+	allowed: Array[StringName],
+	blueprint: MapBlueprint,
+	path: String,
+	destination: Array,
+	expanded: Dictionary,
+	global: Dictionary,
+	errors: Array[String]
 ) -> void:
 	var values := resolved_values(object_id, data, style, inline, global, allowed, path, errors)
 	register_id(object_id, path, expanded, errors)
@@ -129,7 +326,9 @@ static func _expand_point_record(
 	var cell: Variant = values.get("cell")
 	var placement_rect: Variant = values.get("rect")
 	if placement_rect is Rect2i:
-		MapBlueprintCompiler._validate_rect(placement_rect, "%s.rect" % path, blueprint.size_cells, errors)
+		MapBlueprintCompiler._validate_rect(
+			placement_rect, "%s.rect" % path, blueprint.size_cells, errors
+		)
 	elif cell is Vector2i:
 		MapBlueprintCompiler._validate_cell(cell, "%s.cell" % path, blueprint.size_cells, errors)
 	else:
@@ -141,9 +340,18 @@ static func _expand_point_record(
 
 
 static func _expand_rect_record(
-	record_kind: StringName, object_id: StringName, data: Dictionary, style: Dictionary, inline: Dictionary,
-	allowed: Array[StringName], blueprint: MapBlueprint, path: String, destination: Array,
-	expanded: Dictionary, global: Dictionary, errors: Array[String]
+	record_kind: StringName,
+	object_id: StringName,
+	data: Dictionary,
+	style: Dictionary,
+	inline: Dictionary,
+	allowed: Array[StringName],
+	blueprint: MapBlueprint,
+	path: String,
+	destination: Array,
+	expanded: Dictionary,
+	global: Dictionary,
+	errors: Array[String]
 ) -> void:
 	var values := resolved_values(object_id, data, style, inline, global, allowed, path, errors)
 	register_id(object_id, path, expanded, errors)
@@ -154,7 +362,10 @@ static func _expand_rect_record(
 		errors.append("%s.rect must be Rect2i" % path)
 		return
 	MapBlueprintCompiler._validate_rect(rect, "%s.rect" % path, blueprint.size_cells, errors)
-	if record_kind == &"landmark" and not MapDefinition.VIEW_LANDMARK_KINDS.has(values.get("kind", &"")):
+	if (
+		record_kind == &"landmark"
+		and not MapDefinition.VIEW_LANDMARK_KINDS.has(values.get("kind", &""))
+	):
 		errors.append("%s kind is unknown: %s" % [path, str(values.get("kind", ""))])
 	values["id"] = object_id
 	values["record_kind"] = record_kind
@@ -162,10 +373,19 @@ static func _expand_rect_record(
 
 
 static func _expand_decal(
-	object_id: StringName, data: Dictionary, style: Dictionary, inline: Dictionary,
-	blueprint: MapBlueprint, path: String, expanded: Dictionary, global: Dictionary, errors: Array[String]
+	object_id: StringName,
+	data: Dictionary,
+	style: Dictionary,
+	inline: Dictionary,
+	blueprint: MapBlueprint,
+	path: String,
+	expanded: Dictionary,
+	global: Dictionary,
+	errors: Array[String]
 ) -> void:
-	var values := resolved_values(object_id, data, style, inline, global, MapBlueprintCompiler.DECAL_KEYS, path, errors)
+	var values := resolved_values(
+		object_id, data, style, inline, global, MapBlueprintCompiler.DECAL_KEYS, path, errors
+	)
 	register_id(object_id, path, expanded, errors)
 	if not bool(values.get("enabled", true)):
 		return
@@ -187,10 +407,19 @@ static func _expand_decal(
 
 
 static func _expand_patrol(
-	object_id: StringName, data: Dictionary, style: Dictionary, inline: Dictionary,
-	blueprint: MapBlueprint, path: String, expanded: Dictionary, global: Dictionary, errors: Array[String]
+	object_id: StringName,
+	data: Dictionary,
+	style: Dictionary,
+	inline: Dictionary,
+	blueprint: MapBlueprint,
+	path: String,
+	expanded: Dictionary,
+	global: Dictionary,
+	errors: Array[String]
 ) -> void:
-	var values := resolved_values(object_id, data, style, inline, global, MapBlueprintCompiler.PATROL_KEYS, path, errors)
+	var values := resolved_values(
+		object_id, data, style, inline, global, MapBlueprintCompiler.PATROL_KEYS, path, errors
+	)
 	register_id(object_id, path, expanded, errors)
 	if not bool(values.get("enabled", true)):
 		return
@@ -203,7 +432,9 @@ static func _expand_patrol(
 			if not rect is Rect2i:
 				errors.append("%s.point_rects[%d] must be Rect2i" % [path, index])
 				continue
-			MapBlueprintCompiler._validate_rect(rect, "%s.point_rects[%d]" % [path, index], blueprint.size_cells, errors)
+			MapBlueprintCompiler._validate_rect(
+				rect, "%s.point_rects[%d]" % [path, index], blueprint.size_cells, errors
+			)
 			resolved_points.append(rect)
 		values["point_rects"] = resolved_points
 	elif points is Array and not points.is_empty():
@@ -211,7 +442,9 @@ static func _expand_patrol(
 			if not points[index] is Vector2i:
 				errors.append("%s.points[%d] must be Vector2i" % [path, index])
 			else:
-				MapBlueprintCompiler._validate_cell(points[index], "%s.points[%d]" % [path, index], blueprint.size_cells, errors)
+				MapBlueprintCompiler._validate_cell(
+					points[index], "%s.points[%d]" % [path, index], blueprint.size_cells, errors
+				)
 	else:
 		errors.append("%s must define a non-empty points or point_rects array" % path)
 		return
@@ -220,10 +453,19 @@ static func _expand_patrol(
 
 
 static func _expand_sign(
-	object_id: StringName, data: Dictionary, style: Dictionary, inline: Dictionary,
-	blueprint: MapBlueprint, path: String, expanded: Dictionary, global: Dictionary, errors: Array[String]
+	object_id: StringName,
+	data: Dictionary,
+	style: Dictionary,
+	inline: Dictionary,
+	blueprint: MapBlueprint,
+	path: String,
+	expanded: Dictionary,
+	global: Dictionary,
+	errors: Array[String]
 ) -> void:
-	var values := resolved_values(object_id, data, style, inline, global, MapBlueprintCompiler.SIGN_KEYS, path, errors)
+	var values := resolved_values(
+		object_id, data, style, inline, global, MapBlueprintCompiler.SIGN_KEYS, path, errors
+	)
 	register_id(object_id, path, expanded, errors)
 	if not bool(values.get("enabled", true)):
 		return
@@ -233,7 +475,9 @@ static func _expand_sign(
 	var placement_rect: Variant = values.get("rect")
 	var direction: Variant = values.get("direction")
 	if placement_rect is Rect2i:
-		MapBlueprintCompiler._validate_rect(placement_rect, "%s.rect" % path, blueprint.size_cells, errors)
+		MapBlueprintCompiler._validate_rect(
+			placement_rect, "%s.rect" % path, blueprint.size_cells, errors
+		)
 	elif cell is Vector2i:
 		MapBlueprintCompiler._validate_cell(cell, "%s.cell" % path, blueprint.size_cells, errors)
 	else:
@@ -247,8 +491,12 @@ static func _expand_sign(
 
 
 static func append_prop(
-	object_id: StringName, values: Dictionary, blueprint: MapBlueprint,
-	path: String, expanded: Dictionary, errors: Array[String]
+	object_id: StringName,
+	values: Dictionary,
+	blueprint: MapBlueprint,
+	path: String,
+	expanded: Dictionary,
+	errors: Array[String]
 ) -> void:
 	register_id(object_id, path, expanded, errors)
 	if not bool(values.get("enabled", true)):
@@ -258,7 +506,9 @@ static func append_prop(
 	var cell: Variant = values.get("cell")
 	var placement_rect: Variant = values.get("rect")
 	if placement_rect is Rect2i:
-		MapBlueprintCompiler._validate_rect(placement_rect, "%s.rect" % path, blueprint.size_cells, errors)
+		MapBlueprintCompiler._validate_rect(
+			placement_rect, "%s.rect" % path, blueprint.size_cells, errors
+		)
 	elif cell is Vector2i:
 		MapBlueprintCompiler._validate_cell(cell, "%s.cell" % path, blueprint.size_cells, errors)
 	else:
@@ -269,8 +519,14 @@ static func append_prop(
 
 
 static func resolved_values(
-	object_id: StringName, data: Dictionary, style: Dictionary, inline: Dictionary,
-	global: Dictionary, allowed: Array[StringName], path: String, errors: Array[String]
+	object_id: StringName,
+	data: Dictionary,
+	style: Dictionary,
+	inline: Dictionary,
+	global: Dictionary,
+	allowed: Array[StringName],
+	path: String,
+	errors: Array[String]
 ) -> Dictionary:
 	validate_override_keys(style, allowed, "%s.style" % path, errors)
 	validate_override_keys(inline, allowed, "%s.overrides" % path, errors)
@@ -278,12 +534,16 @@ static func resolved_values(
 	MapBlueprintCompiler._merge(values, style)
 	MapBlueprintCompiler._merge(values, inline)
 	if global.has(object_id):
-		validate_override_keys(global[object_id], allowed, "override[%s]" % String(object_id), errors)
+		validate_override_keys(
+			global[object_id], allowed, "override[%s]" % String(object_id), errors
+		)
 		MapBlueprintCompiler._merge(values, global[object_id])
 	return values
 
 
-static func validate_override_keys(values: Dictionary, allowed: Array[StringName], path: String, errors: Array[String]) -> void:
+static func validate_override_keys(
+	values: Dictionary, allowed: Array[StringName], path: String, errors: Array[String]
+) -> void:
 	for raw_key in values.keys():
 		if not raw_key is String and not raw_key is StringName:
 			errors.append("%s has non-string field: %s" % [path, str(raw_key)])
@@ -295,10 +555,17 @@ static func validate_override_keys(values: Dictionary, allowed: Array[StringName
 			errors.append("%s has unsupported field for this primitive: %s" % [path, String(key)])
 
 
-static func register_id(object_id: StringName, path: String, expanded: Dictionary, errors: Array[String]) -> void:
+static func register_id(
+	object_id: StringName, path: String, expanded: Dictionary, errors: Array[String]
+) -> void:
 	var resolved_ids: Dictionary = expanded["resolved_ids"]
 	MapBlueprintCompiler._validate_id(object_id, "%s resolved id" % path, true, errors)
 	if resolved_ids.has(object_id):
-		errors.append("%s produces duplicate stable id: %s (first produced by %s)" % [path, String(object_id), resolved_ids[object_id]])
+		errors.append(
+			(
+				"%s produces duplicate stable id: %s (first produced by %s)"
+				% [path, String(object_id), resolved_ids[object_id]]
+			)
+		)
 	else:
 		resolved_ids[object_id] = path

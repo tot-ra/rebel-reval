@@ -57,9 +57,15 @@ static func budgets_match_config() -> bool:
 	var authored := budget_dictionary()
 	return (
 		float(config.get("steady_frame_time_ms_p95", -1.0)) == authored["steady_frame_time_ms_p95"]
-		and float(config.get("resident_memory_delta_mib", -1.0)) == authored["resident_memory_delta_mib"]
+		and (
+			float(config.get("resident_memory_delta_mib", -1.0))
+			== authored["resident_memory_delta_mib"]
+		)
 		and float(config.get("resident_node_count", -1.0)) == authored["resident_node_count"]
-		and float(config.get("resident_collision_count", -1.0)) == authored["resident_collision_count"]
+		and (
+			float(config.get("resident_collision_count", -1.0))
+			== authored["resident_collision_count"]
+		)
 		and int(config.get("bird_audio_peak", -1)) == authored["bird_audio_peak"]
 		and int(config.get("bird_flight_peak", -1)) == authored["bird_flight_peak"]
 	)

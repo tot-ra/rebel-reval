@@ -44,15 +44,15 @@ const ALL_FACTIONS: Array[StringName] = [
 ## fly no in-game cloth but use the pirate roster emoji in text.
 const FACTION_FLAG_EMOJI: Dictionary = {
 	DANISH_CROWN: "🇩🇰",
-	LIVONIAN_ORDER: "✠", # Teutonic cross (characters/README)
-	HANSEATIC: "🇪🇺", # Hanseatic league (characters/README)
-	HARJU_KINGS: "✊", # rural rebellion (characters/README rebel block)
-	BLACK_CLOAKS: "🐦", # swallow charge on white field
-	CULT_METSIK: "🍀", # old ways / sacred groves (characters/README)
-	PSKOV_NOVGOROD: "🐻🐆", # joint east emissaries: bear + lynx charges
-	NOVGOROD: "🐻", # bear charge
-	PSKOV: "🐆", # lynx charge
-	VITALIENBRUDER: "🏴‍☠️", # no cloth by design; roster marker only
+	LIVONIAN_ORDER: "✠",  # Teutonic cross (characters/README)
+	HANSEATIC: "🇪🇺",  # Hanseatic league (characters/README)
+	HARJU_KINGS: "✊",  # rural rebellion (characters/README rebel block)
+	BLACK_CLOAKS: "🐦",  # swallow charge on white field
+	CULT_METSIK: "🍀",  # old ways / sacred groves (characters/README)
+	PSKOV_NOVGOROD: "🐻🐆",  # joint east emissaries: bear + lynx charges
+	NOVGOROD: "🐻",  # bear charge
+	PSKOV: "🐆",  # lynx charge
+	VITALIENBRUDER: "🏴‍☠️",  # no cloth by design; roster marker only
 }
 
 const PATTERN_SOLID := &"solid"
@@ -244,25 +244,37 @@ static func pennant_mesh(faction_id: StringName) -> ArrayMesh:
 			var c := top1.lerp(bot1, v1)
 			var d := top1.lerp(bot1, v0)
 			_add_colored_quad(
-				surface, faction_id,
-				a, Vector2(u0, v0),
-				b, Vector2(u0, v1),
-				c, Vector2(u1, v1),
-				d, Vector2(u1, v0)
+				surface,
+				faction_id,
+				a,
+				Vector2(u0, v0),
+				b,
+				Vector2(u0, v1),
+				c,
+				Vector2(u1, v1),
+				d,
+				Vector2(u1, v0)
 			)
 			_add_colored_quad(
-				surface, faction_id,
-				a, Vector2(u0, v0),
-				d, Vector2(u1, v0),
-				c, Vector2(u1, v1),
-				b, Vector2(u0, v1)
+				surface,
+				faction_id,
+				a,
+				Vector2(u0, v0),
+				d,
+				Vector2(u1, v0),
+				c,
+				Vector2(u1, v1),
+				b,
+				Vector2(u0, v1)
 			)
 	surface.generate_normals()
 	return surface.commit()
 
 
 ## Rectangular courtyard or facade banner hung from a top rod.
-static func banner_mesh(faction_id: StringName, width: float = 0.72, height: float = 1.05) -> ArrayMesh:
+static func banner_mesh(
+	faction_id: StringName, width: float = 0.72, height: float = 1.05
+) -> ArrayMesh:
 	var density := _mesh_density(faction_id)
 	var cols := density.x
 	var rows := density.y
@@ -279,18 +291,28 @@ static func banner_mesh(faction_id: StringName, width: float = 0.72, height: flo
 			var c := Vector3(width * u1, height * (0.5 - v1), 0.0)
 			var d := Vector3(width * u1, height * (0.5 - v0), 0.0)
 			_add_colored_quad(
-				surface, faction_id,
-				a, Vector2(u0, v0),
-				b, Vector2(u0, v1),
-				c, Vector2(u1, v1),
-				d, Vector2(u1, v0)
+				surface,
+				faction_id,
+				a,
+				Vector2(u0, v0),
+				b,
+				Vector2(u0, v1),
+				c,
+				Vector2(u1, v1),
+				d,
+				Vector2(u1, v0)
 			)
 			_add_colored_quad(
-				surface, faction_id,
-				a, Vector2(u0, v0),
-				d, Vector2(u1, v0),
-				c, Vector2(u1, v1),
-				b, Vector2(u0, v1)
+				surface,
+				faction_id,
+				a,
+				Vector2(u0, v0),
+				d,
+				Vector2(u1, v0),
+				c,
+				Vector2(u1, v1),
+				b,
+				Vector2(u0, v1)
 			)
 	surface.generate_normals()
 	return surface.commit()
@@ -353,19 +375,19 @@ static func _mesh_density(faction_id: StringName) -> Vector2i:
 static func _add_colored_quad(
 	surface: SurfaceTool,
 	faction_id: StringName,
-	a: Vector3, uv_a: Vector2,
-	b: Vector3, uv_b: Vector2,
-	c: Vector3, uv_c: Vector2,
-	d: Vector3, uv_d: Vector2
+	a: Vector3,
+	uv_a: Vector2,
+	b: Vector3,
+	uv_b: Vector2,
+	c: Vector3,
+	uv_c: Vector2,
+	d: Vector3,
+	uv_d: Vector2
 ) -> void:
 	var pattern := pattern_for(faction_id)
 	# Geometric cloth (cross / pale / fess): paint each cell flat from its
 	# center UV so edges stay hard instead of interpolating field into charge.
-	if (
-		pattern == PATTERN_CROSS
-		or pattern == PATTERN_PALE
-		or pattern == PATTERN_FESS
-	):
+	if pattern == PATTERN_CROSS or pattern == PATTERN_PALE or pattern == PATTERN_FESS:
 		var center_uv := (uv_a + uv_b + uv_c + uv_d) * 0.25
 		var color := color_at(faction_id, center_uv)
 		_add_solid_colored_vertex(surface, a, uv_a, color)
@@ -384,19 +406,13 @@ static func _add_colored_quad(
 
 
 static func _add_colored_vertex(
-	surface: SurfaceTool,
-	faction_id: StringName,
-	vertex: Vector3,
-	uv: Vector2
+	surface: SurfaceTool, faction_id: StringName, vertex: Vector3, uv: Vector2
 ) -> void:
 	_add_solid_colored_vertex(surface, vertex, uv, color_at(faction_id, uv))
 
 
 static func _add_solid_colored_vertex(
-	surface: SurfaceTool,
-	vertex: Vector3,
-	uv: Vector2,
-	color: Color
+	surface: SurfaceTool, vertex: Vector3, uv: Vector2, color: Color
 ) -> void:
 	surface.set_color(color)
 	surface.set_uv(uv)
@@ -482,6 +498,8 @@ static func _in_ellipse(uv: Vector2, center: Vector2, radii: Vector2) -> bool:
 	return d.length_squared() <= 1.0
 
 
-static func _in_oriented_box(uv: Vector2, center: Vector2, half_extents: Vector2, angle: float) -> bool:
+static func _in_oriented_box(
+	uv: Vector2, center: Vector2, half_extents: Vector2, angle: float
+) -> bool:
 	var local := (uv - center).rotated(-angle)
 	return absf(local.x) <= half_extents.x and absf(local.y) <= half_extents.y

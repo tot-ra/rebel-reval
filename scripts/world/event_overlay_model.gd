@@ -33,7 +33,8 @@ const EVENT_IDS: Array[StringName] = [
 ]
 
 const EVENTS: Dictionary = {
-	&"easter_feast": {
+	&"easter_feast":
+	{
 		"event_id": &"easter_feast",
 		"date": {"day": 13, "month": 4, "year": YEAR},
 		"end_date": {"day": 14, "month": 4, "year": YEAR},
@@ -41,26 +42,30 @@ const EVENTS: Dictionary = {
 		"public_visibility": &"high",
 		"trade_modifier": 0.5,
 		"procession_route": [],
-		"siege_override": {
+		"siege_override":
+		{
 			"public_visibility": &"medium",
 			"trade_modifier": 0.25,
 			"procession_route": [],
 		},
 	},
-	&"st_georges_feast": {
+	&"st_georges_feast":
+	{
 		"event_id": &"st_georges_feast",
 		"date": {"day": 23, "month": 4, "year": YEAR},
 		"venue": VENUE_CHURCH_THRESHOLD,
 		"public_visibility": &"high",
 		"trade_modifier": 1.0,
 		"procession_route": [VENUE_CHURCH_THRESHOLD, VENUE_FORUM],
-		"siege_override": {
+		"siege_override":
+		{
 			"public_visibility": &"medium",
 			"trade_modifier": 0.5,
 			"procession_route": [VENUE_CHURCH_THRESHOLD],
 		},
 	},
-	&"rogation_procession": {
+	&"rogation_procession":
+	{
 		"event_id": &"rogation_procession",
 		"date": {"day": 19, "month": 5, "year": YEAR},
 		"end_date": {"day": 21, "month": 5, "year": YEAR},
@@ -68,39 +73,45 @@ const EVENTS: Dictionary = {
 		"public_visibility": &"medium",
 		"trade_modifier": 0.5,
 		"procession_route": [VENUE_CHURCH_THRESHOLD, VENUE_FORUM, VENUE_GATE_APPROACH],
-		"siege_override": {
+		"siege_override":
+		{
 			"public_visibility": &"low",
 			"trade_modifier": 0.25,
 			"procession_route": [VENUE_CHURCH_THRESHOLD, VENUE_GATE_APPROACH],
 		},
 	},
-	&"ascension_holy_day": {
+	&"ascension_holy_day":
+	{
 		"event_id": &"ascension_holy_day",
 		"date": {"day": 22, "month": 5, "year": YEAR},
 		"venue": VENUE_CHURCH_THRESHOLD,
 		"public_visibility": &"medium",
 		"trade_modifier": 0.0,
 		"procession_route": [VENUE_CHURCH_THRESHOLD, VENUE_FORUM],
-		"siege_override": {
+		"siege_override":
+		{
 			"public_visibility": &"low",
 			"trade_modifier": 0.25,
 			"procession_route": [VENUE_CHURCH_THRESHOLD],
 		},
 	},
-	&"market_pillory": {
+	&"market_pillory":
+	{
 		"event_id": &"market_pillory",
 		"date": {"day": 21, "month": 4, "year": YEAR},
 		"venue": VENUE_FORUM,
 		"public_visibility": &"high",
 		"trade_modifier": 0.5,
 		"procession_route": [],
-		"siege_override": {
+		"siege_override":
+		{
 			"public_visibility": &"medium",
 			"trade_modifier": 0.25,
 			"procession_route": [],
 		},
 	},
-	&"ration_queue": {
+	&"ration_queue":
+	{
 		"event_id": &"ration_queue",
 		"date": {"day": 24, "month": 4, "year": YEAR},
 		"venue": VENUE_VANATURU_KAEL,
@@ -108,13 +119,15 @@ const EVENTS: Dictionary = {
 		"trade_modifier": 0.25,
 		"procession_route": [],
 		"siege_only": true,
-		"siege_override": {
+		"siege_override":
+		{
 			"public_visibility": &"high",
 			"trade_modifier": 0.0,
 			"procession_route": [],
 		},
 	},
-	&"watch_muster": {
+	&"watch_muster":
+	{
 		"event_id": &"watch_muster",
 		"date": {"day": 24, "month": 4, "year": YEAR},
 		"venue": VENUE_GATE_APPROACH,
@@ -122,7 +135,8 @@ const EVENTS: Dictionary = {
 		"trade_modifier": 0.5,
 		"procession_route": [VENUE_GATE_APPROACH],
 		"siege_only": true,
-		"siege_override": {
+		"siege_override":
+		{
 			"public_visibility": &"high",
 			"trade_modifier": 0.25,
 			"procession_route": [VENUE_GATE_APPROACH],
@@ -177,4 +191,6 @@ static func _date_in_window(date: Dictionary, event: Dictionary) -> bool:
 
 
 static func _date_key(date: Dictionary) -> int:
-	return int(date.get("year", 0)) * 10000 + int(date.get("month", 0)) * 100 + int(date.get("day", 0))
+	return (
+		int(date.get("year", 0)) * 10000 + int(date.get("month", 0)) * 100 + int(date.get("day", 0))
+	)

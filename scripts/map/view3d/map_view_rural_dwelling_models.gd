@@ -32,18 +32,16 @@ static func is_rural_1343(building: Dictionary) -> bool:
 
 
 static func is_smoke_heated(building: Dictionary) -> bool:
-	return StringName(building.get("primitive", &"")) in [
-		SMOKE_COTTAGE_PRIMITIVE,
-		BARN_DWELLING_PRIMITIVE,
-	]
+	return (
+		StringName(building.get("primitive", &""))
+		in [
+			SMOKE_COTTAGE_PRIMITIVE,
+			BARN_DWELLING_PRIMITIVE,
+		]
+	)
 
 
-static func add_facade(
-	root: Node3D,
-	building: Dictionary,
-	size: Vector2,
-	height: float
-) -> void:
+static func add_facade(root: Node3D, building: Dictionary, size: Vector2, height: float) -> void:
 	var side: StringName = building.get("door_side", &"south")
 	if side == &"none":
 		return
@@ -57,7 +55,9 @@ static func add_facade(
 		BARN_DWELLING_PRIMITIVE:
 			_add_barn_dwelling_front(root, side, facade_length, face_offset, height, seed)
 		RURAL_BARN_PRIMITIVE:
-			_add_work_gate(root, "ThreshingGate", 0.0, side, face_offset, height, facade_length, seed)
+			_add_work_gate(
+				root, "ThreshingGate", 0.0, side, face_offset, height, facade_length, seed
+			)
 		_:
 			_add_human_door(root, "Door", 0.0, side, face_offset, height, seed)
 			_add_smoke_vent(root, side, face_offset, height, facade_length)
@@ -115,7 +115,9 @@ static func _add_barn_dwelling_front(
 		&"timber"
 	)
 	_add_human_door(root, "DwellingDoor", room_center, side, face_offset, height, seed)
-	_add_work_gate(root, "ThreshingGate", work_center, side, face_offset, height, facade_length, seed + 101)
+	_add_work_gate(
+		root, "ThreshingGate", work_center, side, face_offset, height, facade_length, seed + 101
+	)
 	_add_smoke_vent(root, side, face_offset, height, facade_length, room_center)
 
 
@@ -130,10 +132,7 @@ static func _add_human_door(
 ) -> void:
 	var door_height := minf(DWELLING_DOOR_HEIGHT, height - 0.18)
 	var transform := MapViewDoorBuilder.facade_transform(
-		along,
-		side,
-		face_offset,
-		MapViewMeshBuilderConfig.DOOR_THICKNESS
+		along, side, face_offset, MapViewMeshBuilderConfig.DOOR_THICKNESS
 	)
 	MapViewDoorBuilder.add_leaf(
 		root,
@@ -171,10 +170,7 @@ static func _add_work_gate(
 	var gate_width := clampf(facade_length * 0.32, WORK_GATE_MIN_WIDTH, WORK_GATE_MAX_WIDTH)
 	var gate_height := minf(WORK_GATE_HEIGHT, height - 0.15)
 	var transform := MapViewDoorBuilder.facade_transform(
-		along,
-		side,
-		face_offset,
-		MapViewMeshBuilderConfig.DOOR_THICKNESS
+		along, side, face_offset, MapViewMeshBuilderConfig.DOOR_THICKNESS
 	)
 	MapViewDoorBuilder.add_leaf(
 		root,

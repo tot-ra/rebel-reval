@@ -5,7 +5,6 @@ extends RefCounted
 ## ID remains `reval_harbor_east`, but its only cityward link follows the shore to
 ## the Coastal Gate landing; the topologically false Viru road link is removed.
 
-
 const RRMAP_PATH := "res://content/maps/reval_harbor_east.rrmap"
 
 

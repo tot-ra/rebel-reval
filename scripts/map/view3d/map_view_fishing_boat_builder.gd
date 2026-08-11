@@ -18,26 +18,36 @@ static func add_to(root: Node3D) -> void:
 
 	Primitives.box(root, "Interior", Vector3(2.5, 0.08, 0.58), Vector3(-0.05, 0.12, 0.0), &"ink")
 	_add_spar(root, "Keel", Vector3(-1.68, -0.27, 0.0), Vector3(1.7, -0.19, 0.0), 0.045, &"timber")
-	_add_spar(root, "Sternpost", Vector3(-1.68, -0.2, 0.0), Vector3(-1.86, 0.77, 0.0), 0.045, &"timber")
+	_add_spar(
+		root, "Sternpost", Vector3(-1.68, -0.2, 0.0), Vector3(-1.86, 0.77, 0.0), 0.045, &"timber"
+	)
 	_add_spar(root, "BowStem", Vector3(1.68, -0.16, 0.0), Vector3(1.94, 0.92, 0.0), 0.05, &"timber")
 	_add_clinker_rails(root)
 
 	for index in 3:
 		var x := -0.72 + float(index) * 0.72
-		Primitives.box(root, "Bench%d" % index, Vector3(0.18, 0.09, 1.13), Vector3(x, 0.59, 0.0), &"timber")
+		Primitives.box(
+			root, "Bench%d" % index, Vector3(0.18, 0.09, 1.13), Vector3(x, 0.59, 0.0), &"timber"
+		)
 
 	_add_spar(root, "Mast", Vector3(0.17, 0.2, 0.0), Vector3(0.17, 2.62, 0.0), 0.055, &"timber")
 	var yard := Node3D.new()
 	yard.name = "Yard"
 	root.add_child(yard)
-	_add_spar(yard, "Spar", Vector3(-0.22, 2.29, -0.76), Vector3(0.62, 2.08, 0.79), 0.035, &"timber")
-	_add_spar(yard, "FurledSail", Vector3(-0.12, 2.27, -0.58), Vector3(0.54, 2.11, 0.61), 0.09, &"plaster")
+	_add_spar(
+		yard, "Spar", Vector3(-0.22, 2.29, -0.76), Vector3(0.62, 2.08, 0.79), 0.035, &"timber"
+	)
+	_add_spar(
+		yard, "FurledSail", Vector3(-0.12, 2.27, -0.58), Vector3(0.54, 2.11, 0.61), 0.09, &"plaster"
+	)
 	_add_rigging(root)
 
 	_add_oar(root, "OarPort", Vector3(-0.35, 0.7, -0.2), Vector3(0.72, 0.54, -1.45))
 	_add_oar(root, "OarStarboard", Vector3(-0.62, 0.72, 0.18), Vector3(0.42, 0.5, 1.48))
 	Primitives.box(root, "Rudder", Vector3(0.12, 0.62, 0.34), Vector3(-1.82, 0.12, 0.16), &"timber")
-	_add_spar(root, "Tiller", Vector3(-1.79, 0.39, 0.12), Vector3(-1.08, 0.68, 0.04), 0.035, &"timber")
+	_add_spar(
+		root, "Tiller", Vector3(-1.79, 0.39, 0.12), Vector3(-1.08, 0.68, 0.04), 0.035, &"timber"
+	)
 	Primitives.cylinder(root, "FishBasket", 0.17, 0.22, Vector3(1.02, 0.52, -0.18), &"hay")
 
 
@@ -58,7 +68,9 @@ static func _add_clinker_rails(root: Node3D) -> void:
 			var end := rail_stations[station_index + 1]
 			start.z *= side
 			end.z *= side
-			_add_spar(root, "Gunwale%s%d" % [side_name, station_index], start, end, 0.045, &"timber")
+			_add_spar(
+				root, "Gunwale%s%d" % [side_name, station_index], start, end, 0.045, &"timber"
+			)
 			# The lower rail traces a clinker plank overlap, breaking up the slab-like side.
 			start.y -= 0.22
 			end.y -= 0.22
@@ -71,10 +83,18 @@ static func _add_rigging(root: Node3D) -> void:
 	var rigging := Node3D.new()
 	rigging.name = "Rigging"
 	root.add_child(rigging)
-	_add_spar(rigging, "Forestay", Vector3(0.17, 2.56, 0.0), Vector3(1.83, 0.86, 0.0), 0.012, &"ink")
-	_add_spar(rigging, "Backstay", Vector3(0.17, 2.56, 0.0), Vector3(-1.73, 0.72, 0.0), 0.012, &"ink")
-	_add_spar(rigging, "ShroudPort", Vector3(0.17, 2.18, 0.0), Vector3(0.0, 0.52, -0.7), 0.012, &"ink")
-	_add_spar(rigging, "ShroudStarboard", Vector3(0.17, 2.18, 0.0), Vector3(0.0, 0.52, 0.7), 0.012, &"ink")
+	_add_spar(
+		rigging, "Forestay", Vector3(0.17, 2.56, 0.0), Vector3(1.83, 0.86, 0.0), 0.012, &"ink"
+	)
+	_add_spar(
+		rigging, "Backstay", Vector3(0.17, 2.56, 0.0), Vector3(-1.73, 0.72, 0.0), 0.012, &"ink"
+	)
+	_add_spar(
+		rigging, "ShroudPort", Vector3(0.17, 2.18, 0.0), Vector3(0.0, 0.52, -0.7), 0.012, &"ink"
+	)
+	_add_spar(
+		rigging, "ShroudStarboard", Vector3(0.17, 2.18, 0.0), Vector3(0.0, 0.52, 0.7), 0.012, &"ink"
+	)
 
 
 ## Faceted stations form an open shell with a deep keel, broad working middle and
@@ -96,11 +116,19 @@ static func _hull_mesh() -> ArrayMesh:
 		var aft := _hull_section(stations[station_index])
 		var fore := _hull_section(stations[station_index + 1])
 		for section_index in aft.size() - 1:
-			_add_mesh_quad(surface, aft[section_index], fore[section_index], fore[section_index + 1], aft[section_index + 1])
+			_add_mesh_quad(
+				surface,
+				aft[section_index],
+				fore[section_index],
+				fore[section_index + 1],
+				aft[section_index + 1]
+			)
 	for station_index in [0, stations.size() - 1]:
 		var section := _hull_section(stations[station_index])
 		for section_index in range(1, section.size() - 1):
-			_add_mesh_triangle(surface, section[0], section[section_index], section[section_index + 1])
+			_add_mesh_triangle(
+				surface, section[0], section[section_index], section[section_index + 1]
+			)
 	surface.generate_normals()
 	return surface.commit()
 
@@ -134,7 +162,9 @@ static func _add_oar(root: Node3D, node_name: String, start: Vector3, end: Vecto
 	oar.add_child(blade)
 
 
-static func _add_spar(parent: Node3D, node_name: String, start: Vector3, end: Vector3, radius: float, role: StringName) -> void:
+static func _add_spar(
+	parent: Node3D, node_name: String, start: Vector3, end: Vector3, radius: float, role: StringName
+) -> void:
 	var direction := end - start
 	if direction.is_zero_approx():
 		return
@@ -153,7 +183,9 @@ static func _add_spar(parent: Node3D, node_name: String, start: Vector3, end: Ve
 	parent.add_child(instance)
 
 
-static func _add_mesh_quad(surface: SurfaceTool, a: Vector3, b: Vector3, c: Vector3, d: Vector3) -> void:
+static func _add_mesh_quad(
+	surface: SurfaceTool, a: Vector3, b: Vector3, c: Vector3, d: Vector3
+) -> void:
 	for vertex in [a, b, c, a, c, d]:
 		surface.set_uv(Vector2(vertex.x, vertex.y + vertex.z))
 		surface.add_vertex(vertex)

@@ -22,7 +22,12 @@ func load_payload(
 	var candidate: Dictionary = payload.duplicate(true)
 	var version := int(candidate.get("save_version", candidate.get("version", 1)))
 	if version < 1 or version > CURRENT_SAVE_VERSION:
-		errors.append("unsupported map world-state save version %d (supported: 1-%d)" % [version, CURRENT_SAVE_VERSION])
+		errors.append(
+			(
+				"unsupported map world-state save version %d (supported: 1-%d)"
+				% [version, CURRENT_SAVE_VERSION]
+			)
+		)
 		return errors
 
 	if version == 1:
@@ -91,7 +96,9 @@ func object_delta(location_id: StringName, object_id: StringName) -> Dictionary:
 	return (objects.get(String(object_id), {}) as Dictionary).duplicate(true)
 
 
-func set_location_metadata(location_id: StringName, map_fingerprint: String, chunk_config_version: int = 0) -> void:
+func set_location_metadata(
+	location_id: StringName, map_fingerprint: String, chunk_config_version: int = 0
+) -> void:
 	var location := _ensure_location(location_id)
 	location["map_fingerprint"] = map_fingerprint
 	if chunk_config_version > 0:
@@ -148,27 +155,51 @@ static func _validate_world_state(
 			var saved_fingerprint := String(location.get("map_fingerprint", ""))
 			var expected := String(expected_fingerprints[location_id])
 			if not saved_fingerprint.is_empty() and saved_fingerprint != expected:
-				errors.append("map fingerprint mismatch for %s: save=%s current=%s" % [location_id, saved_fingerprint, expected])
+				errors.append(
+					(
+						"map fingerprint mismatch for %s: save=%s current=%s"
+						% [location_id, saved_fingerprint, expected]
+					)
+				)
 		for collection_name in ["entities", "objects"]:
 			var collection_value: Variant = location.get(collection_name, {})
 			if not collection_value is Dictionary:
-				errors.append("world_state.%s.%s must be a dictionary" % [location_id, collection_name])
+				errors.append(
+					"world_state.%s.%s must be a dictionary" % [location_id, collection_name]
+				)
 				continue
 			for object_key in collection_value:
 				var object_id := String(object_key)
 				var record_value: Variant = collection_value[object_key]
 				if object_id.is_empty() or not record_value is Dictionary:
-					errors.append("world_state.%s.%s records require stable IDs and dictionary values" % [location_id, collection_name])
+					errors.append(
+						(
+							"world_state.%s.%s records require stable IDs and dictionary values"
+							% [location_id, collection_name]
+						)
+					)
 					continue
 				var record := record_value as Dictionary
 				if record.has("chunk") or record.has("owner_chunk"):
-					errors.append("world_state.%s.%s.%s must not persist chunk ownership" % [location_id, collection_name, object_id])
+					errors.append(
+						(
+							"world_state.%s.%s.%s must not persist chunk ownership"
+							% [location_id, collection_name, object_id]
+						)
+					)
 				if collection_name == "entities":
 					if not _valid_position(record):
-						errors.append("world_state.%s.entities.%s requires global_cell and sub_cell pairs" % [location_id, object_id])
+						errors.append(
+							(
+								"world_state.%s.entities.%s requires global_cell and sub_cell pairs"
+								% [location_id, object_id]
+							)
+						)
 					var archetype := String(record.get("archetype", ""))
 					if not known.is_empty() and (archetype.is_empty() or not known.has(archetype)):
-						errors.append("unknown archetype '%s' for %s/%s" % [archetype, location_id, object_id])
+						errors.append(
+							"unknown archetype '%s' for %s/%s" % [archetype, location_id, object_id]
+						)
 
 
 static func _valid_position(record: Dictionary) -> bool:

@@ -63,7 +63,10 @@ func setup(
 
 	if not SessionState.state_replaced.is_connected(_on_state_replaced):
 		SessionState.state_replaced.connect(_on_state_replaced)
-	if SessionState.state != null and not SessionState.state.phase_changed.is_connected(_on_phase_changed):
+	if (
+		SessionState.state != null
+		and not SessionState.state.phase_changed.is_connected(_on_phase_changed)
+	):
 		SessionState.state.phase_changed.connect(_on_phase_changed)
 	_sync_aftermath()
 
@@ -85,11 +88,15 @@ func commit_aftermath_for_test() -> bool:
 
 
 func _exit_tree() -> void:
-	if _night_consequence != null \
-			and _night_consequence.encounter_resolver.resolved.is_connected(_on_encounter_resolved):
+	if (
+		_night_consequence != null
+		and _night_consequence.encounter_resolver.resolved.is_connected(_on_encounter_resolved)
+	):
 		_night_consequence.encounter_resolver.resolved.disconnect(_on_encounter_resolved)
-	if SessionState.state != null \
-			and SessionState.state.phase_changed.is_connected(_on_phase_changed):
+	if (
+		SessionState.state != null
+		and SessionState.state.phase_changed.is_connected(_on_phase_changed)
+	):
 		SessionState.state.phase_changed.disconnect(_on_phase_changed)
 	if SessionState.state_replaced.is_connected(_on_state_replaced):
 		SessionState.state_replaced.disconnect(_on_state_replaced)
@@ -107,10 +114,7 @@ func _on_phase_changed(_previous: StringName, _next: StringName) -> void:
 
 
 func _on_encounter_resolved(
-	_kind: StringName,
-	_quest_id: StringName,
-	_quest_state: StringName,
-	_encounter_id: StringName
+	_kind: StringName, _quest_id: StringName, _quest_state: StringName, _encounter_id: StringName
 ) -> void:
 	_commit_aftermath()
 	_sync_aftermath()
@@ -145,7 +149,9 @@ func _sync_aftermath() -> void:
 		)
 
 	if _patrol_bark != null:
-		_patrol_bark.set_enabled(visible and _patrol_controller != null and _patrol_controller.is_enabled())
+		_patrol_bark.set_enabled(
+			visible and _patrol_controller != null and _patrol_controller.is_enabled()
+		)
 
 
 func _spawn_aita(definition: MapDefinition, player: Player, actors: Node2D) -> void:
@@ -173,9 +179,7 @@ func _spawn_brewery_interactable(definition: MapDefinition) -> void:
 
 
 func _spawn_patrol_bark(
-	scene_root: Node,
-	player: Player,
-	patrol_controller: MapPatrolController
+	scene_root: Node, player: Player, patrol_controller: MapPatrolController
 ) -> void:
 	_patrol_bark = PATROL_BARK_SCRIPT.new()
 	_patrol_bark.name = "BitterBrewPatrolBark"

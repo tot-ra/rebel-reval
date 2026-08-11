@@ -8,30 +8,43 @@ extends RefCounted
 static func save_payload(state: GameState) -> Dictionary:
 	var forged: Array[Dictionary] = []
 	for record in state.get_forged_records():
-		forged.append({
-			"record_id": String(record.record_id),
-			"commission_id": String(record.commission_id),
-			"item_id": String(record.item_id),
-			"modification_id": String(record.modification_id),
-		})
+		(
+			forged
+			. append(
+				{
+					"record_id": String(record.record_id),
+					"commission_id": String(record.commission_id),
+					"item_id": String(record.item_id),
+					"modification_id": String(record.modification_id),
+				}
+			)
+		)
 
 	var commission_deadlines: Dictionary = {}
 	for commission_id in state._commission_deadlines:
-		commission_deadlines[String(commission_id)] = String(state._commission_deadlines[commission_id])
+		commission_deadlines[String(commission_id)] = String(
+			state._commission_deadlines[commission_id]
+		)
 
 	var placements: Array[Dictionary] = []
 	for placement in state.bag.placements:
-		placements.append({
-			"item_id": String(placement.item_id),
-			"grid_x": placement.grid_x,
-			"grid_y": placement.grid_y,
-			"quantity": placement.quantity,
-		})
+		(
+			placements
+			. append(
+				{
+					"item_id": String(placement.item_id),
+					"grid_x": placement.grid_x,
+					"grid_y": placement.grid_y,
+					"quantity": placement.quantity,
+				}
+			)
+		)
 
 	return {
 		"version": state.version,
 		"phase": String(state.phase),
-		"player": {
+		"player":
+		{
 			"health": state.player.health,
 			"max_health": state.player.max_health,
 			"stamina": state.player.stamina,
@@ -39,7 +52,8 @@ static func save_payload(state: GameState) -> Dictionary:
 			"location_id": String(state.player.location_id),
 			"spawn_id": String(state.player.spawn_id),
 		},
-		"bag": {
+		"bag":
+		{
 			"placements": placements,
 		},
 		"equipped": _string_dictionary(state._equipped),
@@ -72,7 +86,10 @@ static func load_payload(state: GameState, payload: Dictionary) -> Array[String]
 	var schema_version := int(candidate.get("version", 0))
 	if schema_version < 1 or schema_version > GameState.CURRENT_VERSION:
 		errors.append(
-			"unsupported game-state version %d (supported: 1-%d)" % [schema_version, GameState.CURRENT_VERSION]
+			(
+				"unsupported game-state version %d (supported: 1-%d)"
+				% [schema_version, GameState.CURRENT_VERSION]
+			)
 		)
 		return errors
 
@@ -97,8 +114,12 @@ static func load_payload(state: GameState, payload: Dictionary) -> Array[String]
 		state.player.max_health = float(player_dict.get("max_health", state.player.max_health))
 		state.player.stamina = float(player_dict.get("stamina", state.player.stamina))
 		state.player.max_stamina = float(player_dict.get("max_stamina", state.player.max_stamina))
-		state.player.location_id = StringName(String(player_dict.get("location_id", state.player.location_id)))
-		state.player.spawn_id = StringName(String(player_dict.get("spawn_id", state.player.spawn_id)))
+		state.player.location_id = StringName(
+			String(player_dict.get("location_id", state.player.location_id))
+		)
+		state.player.spawn_id = StringName(
+			String(player_dict.get("spawn_id", state.player.spawn_id))
+		)
 
 	var bag_payload: Variant = candidate.get("bag", {})
 	if not bag_payload is Dictionary:
@@ -134,26 +155,26 @@ static func load_payload(state: GameState, payload: Dictionary) -> Array[String]
 		errors.append("unsupported equipped_forge_technique %s" % technique_raw)
 	state._facts = _load_bool_dictionary(candidate.get("facts", {}), errors, "facts")
 	state._flags = _load_bool_dictionary(candidate.get("flags", {}), errors, "flags")
-	state._relationships = _load_int_dictionary(candidate.get("relationships", {}), errors, "relationships")
+	state._relationships = _load_int_dictionary(
+		candidate.get("relationships", {}), errors, "relationships"
+	)
 	state._faction_events = _load_faction_events(candidate.get("faction_events", []), errors)
 	state._pressures = _load_pressure_dictionary(state, candidate.get("pressures", {}), errors)
-	state._quest_states = _load_string_dictionary(candidate.get("quest_states", {}), errors, "quest_states")
-	state._location_states = _load_string_dictionary(candidate.get("location_states", {}), errors, "location_states")
+	state._quest_states = _load_string_dictionary(
+		candidate.get("quest_states", {}), errors, "quest_states"
+	)
+	state._location_states = _load_string_dictionary(
+		candidate.get("location_states", {}), errors, "location_states"
+	)
 	state._items = _load_bool_dictionary(candidate.get("items", {}), errors, "items")
 	state._dialogue_nodes_seen = _load_bool_dictionary(
-		candidate.get("dialogue_nodes_seen", {}),
-		errors,
-		"dialogue_nodes_seen"
+		candidate.get("dialogue_nodes_seen", {}), errors, "dialogue_nodes_seen"
 	)
 	state._relationship_memories = _load_bool_dictionary(
-		candidate.get("relationship_memories", {}),
-		errors,
-		"relationship_memories"
+		candidate.get("relationship_memories", {}), errors, "relationship_memories"
 	)
 	state._commission_deadlines = _load_string_dictionary(
-		candidate.get("commission_deadlines", {}),
-		errors,
-		"commission_deadlines"
+		candidate.get("commission_deadlines", {}), errors, "commission_deadlines"
 	)
 
 	state._forged_records.clear()
@@ -216,19 +237,27 @@ static func _faction_events_array(source: Dictionary[StringName, Dictionary]) ->
 	var rows: Array[Dictionary] = []
 	for event_id in source.keys():
 		var event: Dictionary = source[event_id]
-		rows.append({
-			"event_id": String(event_id),
-			"faction_id": String(event.get("faction_id", "")),
-			"delta": int(event.get("delta", 0)),
-			"summary": String(event.get("summary", "")),
-		})
-	rows.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		return String(a.get("event_id", "")) < String(b.get("event_id", ""))
+		(
+			rows
+			. append(
+				{
+					"event_id": String(event_id),
+					"faction_id": String(event.get("faction_id", "")),
+					"delta": int(event.get("delta", 0)),
+					"summary": String(event.get("summary", "")),
+				}
+			)
+		)
+	rows.sort_custom(
+		func(a: Dictionary, b: Dictionary) -> bool:
+			return String(a.get("event_id", "")) < String(b.get("event_id", ""))
 	)
 	return rows
 
 
-static func _load_faction_events(source: Variant, errors: Array[String]) -> Dictionary[StringName, Dictionary]:
+static func _load_faction_events(
+	source: Variant, errors: Array[String]
+) -> Dictionary[StringName, Dictionary]:
 	var out: Dictionary[StringName, Dictionary] = {}
 	if source == null:
 		return out
@@ -247,7 +276,9 @@ static func _load_faction_events(source: Variant, errors: Array[String]) -> Dict
 			errors.append("faction_events[%d] missing event_id" % index)
 			continue
 		if not FactionCandidateSeats.is_recordable_faction(faction_id):
-			errors.append("faction_events[%d] uses unknown faction %s" % [index, String(faction_id)])
+			errors.append(
+				"faction_events[%d] uses unknown faction %s" % [index, String(faction_id)]
+			)
 			continue
 		if out.has(event_id):
 			errors.append("duplicate faction event id %s" % String(event_id))
@@ -255,7 +286,12 @@ static func _load_faction_events(source: Variant, errors: Array[String]) -> Dict
 		out[event_id] = {
 			"event_id": event_id,
 			"faction_id": faction_id,
-			"delta": clampi(int(event_dict.get("delta", 0)), FactionLedger.STANDING_MIN, FactionLedger.STANDING_MAX),
+			"delta":
+			clampi(
+				int(event_dict.get("delta", 0)),
+				FactionLedger.STANDING_MIN,
+				FactionLedger.STANDING_MAX
+			),
 			"summary": String(event_dict.get("summary", "")),
 		}
 	return out
@@ -332,9 +368,7 @@ static func _int_dictionary(source: Dictionary) -> Dictionary:
 
 
 static func _load_string_dictionary(
-	source: Variant,
-	errors: Array[String],
-	label: String
+	source: Variant, errors: Array[String], label: String
 ) -> Dictionary[StringName, StringName]:
 	var out: Dictionary[StringName, StringName] = {}
 	if not source is Dictionary:
@@ -346,9 +380,7 @@ static func _load_string_dictionary(
 
 
 static func _load_bool_dictionary(
-	source: Variant,
-	errors: Array[String],
-	label: String
+	source: Variant, errors: Array[String], label: String
 ) -> Dictionary[StringName, bool]:
 	var out: Dictionary[StringName, bool] = {}
 	if not source is Dictionary:
@@ -360,9 +392,7 @@ static func _load_bool_dictionary(
 
 
 static func _load_int_dictionary(
-	source: Variant,
-	errors: Array[String],
-	label: String
+	source: Variant, errors: Array[String], label: String
 ) -> Dictionary[StringName, int]:
 	var out: Dictionary[StringName, int] = {}
 	if not source is Dictionary:
@@ -374,9 +404,7 @@ static func _load_int_dictionary(
 
 
 static func _load_pressure_dictionary(
-	_state: GameState,
-	source: Variant,
-	errors: Array[String]
+	_state: GameState, source: Variant, errors: Array[String]
 ) -> Dictionary[StringName, int]:
 	var out: Dictionary[StringName, int] = {}
 	out[GameState.PRESSURE_SUSPICION] = 0

@@ -1,6 +1,8 @@
 class_name MapVerification
 extends RefCounted
 
+const PLAYER_COLLISION_HALF := Vector2(16.0, 32.0)
+
 ## Deterministic map checks shared by conversion tests.
 
 
@@ -26,8 +28,15 @@ static func blocked_cells(definition: MapDefinition) -> Dictionary:
 	return blocked
 
 
-static func is_walkable_cell(definition: MapDefinition, grid: MapTerrainGrid, cell: Vector2i) -> bool:
-	if cell.x < 0 or cell.y < 0 or cell.x >= definition.size_cells.x or cell.y >= definition.size_cells.y:
+static func is_walkable_cell(
+	definition: MapDefinition, grid: MapTerrainGrid, cell: Vector2i
+) -> bool:
+	if (
+		cell.x < 0
+		or cell.y < 0
+		or cell.x >= definition.size_cells.x
+		or cell.y >= definition.size_cells.y
+	):
 		return false
 	if MapTypes.WATER_TERRAINS.has(grid.get_terrain(cell)):
 		return false
@@ -40,7 +49,9 @@ static func cell_center(definition: MapDefinition, cell: Vector2i) -> Vector2:
 	return definition.cell_rect_center(Rect2i(cell, Vector2i.ONE))
 
 
-static func nearest_walkable_cell(definition: MapDefinition, grid: MapTerrainGrid, target: Vector2) -> Vector2i:
+static func nearest_walkable_cell(
+	definition: MapDefinition, grid: MapTerrainGrid, target: Vector2
+) -> Vector2i:
 	var origin := Vector2i(
 		int(clampf(floor(target.x / definition.cell_size), 0, definition.size_cells.x - 1)),
 		int(clampf(floor(target.y / definition.cell_size), 0, definition.size_cells.y - 1))
@@ -57,31 +68,45 @@ static func nearest_walkable_cell(definition: MapDefinition, grid: MapTerrainGri
 	return origin
 
 
-static func is_walkable_point(definition: MapDefinition, grid: MapTerrainGrid, point: Vector2) -> bool:
+static func is_walkable_point(
+	definition: MapDefinition, grid: MapTerrainGrid, point: Vector2
+) -> bool:
 	var cell := Vector2i(
-		int(floor(point.x / definition.cell_size)),
-		int(floor(point.y / definition.cell_size))
+		int(floor(point.x / definition.cell_size)), int(floor(point.y / definition.cell_size))
 	)
 	return is_walkable_cell(definition, grid, cell)
 
 
-static func route_exists_exact(definition: MapDefinition, grid: MapTerrainGrid, from_pos: Vector2, to_pos: Vector2) -> bool:
+static func route_exists_exact(
+	definition: MapDefinition, grid: MapTerrainGrid, from_pos: Vector2, to_pos: Vector2
+) -> bool:
 	## Required points must themselves be walkable. Snapping a blocked spawn or
 	## transition to a nearby cell would hide parity regressions in final audits.
-	if not is_walkable_point(definition, grid, from_pos) or not is_walkable_point(definition, grid, to_pos):
+	if (
+		not is_walkable_point(definition, grid, from_pos)
+		or not is_walkable_point(definition, grid, to_pos)
+	):
 		return false
-	var start := Vector2i(floori(from_pos.x / definition.cell_size), floori(from_pos.y / definition.cell_size))
-	var goal := Vector2i(floori(to_pos.x / definition.cell_size), floori(to_pos.y / definition.cell_size))
+	var start := Vector2i(
+		floori(from_pos.x / definition.cell_size), floori(from_pos.y / definition.cell_size)
+	)
+	var goal := Vector2i(
+		floori(to_pos.x / definition.cell_size), floori(to_pos.y / definition.cell_size)
+	)
 	return _route_between_cells(definition, grid, start, goal)
 
 
-static func route_exists(definition: MapDefinition, grid: MapTerrainGrid, from_pos: Vector2, to_pos: Vector2) -> bool:
+static func route_exists(
+	definition: MapDefinition, grid: MapTerrainGrid, from_pos: Vector2, to_pos: Vector2
+) -> bool:
 	var start := nearest_walkable_cell(definition, grid, from_pos)
 	var goal := nearest_walkable_cell(definition, grid, to_pos)
 	return _route_between_cells(definition, grid, start, goal)
 
 
-static func _route_between_cells(definition: MapDefinition, grid: MapTerrainGrid, start: Vector2i, goal: Vector2i) -> bool:
+static func _route_between_cells(
+	definition: MapDefinition, grid: MapTerrainGrid, start: Vector2i, goal: Vector2i
+) -> bool:
 	if start == goal:
 		return true
 
@@ -127,9 +152,6 @@ static func transition_rect(definition: MapDefinition, transition_id: StringName
 
 ## Player capsule half-extents (player.tscn CapsuleShape2D radius=16 height=32).
 ## Spawn markers must sit outside the door Area2D or arrivals immediately re-trigger.
-const PLAYER_COLLISION_HALF := Vector2(16.0, 32.0)
-
-
 static func spawn_clears_transition_trigger(transition: Dictionary) -> bool:
 	if not transition.has("spawn_id") or not transition.has("spawn_offset"):
 		return true
@@ -165,7 +187,9 @@ static func collision_parity(definition: MapDefinition) -> bool:
 		if shape == null:
 			body.free()
 			return false
-		var collision_rect := Rect2(body.position + collision.position - shape.size * 0.5, shape.size)
+		var collision_rect := Rect2(
+			body.position + collision.position - shape.size * 0.5, shape.size
+		)
 		if collision_rect != footprint:
 			body.free()
 			return false

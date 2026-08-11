@@ -45,8 +45,9 @@ static func ordered_profiles(content_db: ContentDB) -> Array[Dictionary]:
 		var profile := content_db.get_phase_profile(profile_id)
 		if not profile.is_empty():
 			profiles.append(profile)
-	profiles.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		return int(a.get("sequence_index", 0)) < int(b.get("sequence_index", 0))
+	profiles.sort_custom(
+		func(a: Dictionary, b: Dictionary) -> bool:
+			return int(a.get("sequence_index", 0)) < int(b.get("sequence_index", 0))
 	)
 	return profiles
 

@@ -168,15 +168,17 @@ func _draw_body_aura() -> void:
 	var h := size.y
 	# A faint arched niche separates the figure from the empty leather without
 	# flattening it into another boxed widget.
-	var niche := PackedVector2Array([
-		Vector2(cx - size.x * 0.19, h * 0.90),
-		Vector2(cx - size.x * 0.19, h * 0.20),
-		Vector2(cx - size.x * 0.12, h * 0.09),
-		Vector2(cx, h * 0.045),
-		Vector2(cx + size.x * 0.12, h * 0.09),
-		Vector2(cx + size.x * 0.19, h * 0.20),
-		Vector2(cx + size.x * 0.19, h * 0.90),
-	])
+	var niche := PackedVector2Array(
+		[
+			Vector2(cx - size.x * 0.19, h * 0.90),
+			Vector2(cx - size.x * 0.19, h * 0.20),
+			Vector2(cx - size.x * 0.12, h * 0.09),
+			Vector2(cx, h * 0.045),
+			Vector2(cx + size.x * 0.12, h * 0.09),
+			Vector2(cx + size.x * 0.19, h * 0.20),
+			Vector2(cx + size.x * 0.19, h * 0.90),
+		]
+	)
 	draw_colored_polygon(niche, Color(InventoryUiThemeScene.SECTION_INSET, 0.34))
 	draw_polyline(niche, Color(InventoryUiThemeScene.BRASS, 0.20), 1.0, true)
 
@@ -195,78 +197,128 @@ func _draw_body() -> void:
 	_draw_ellipse(Vector2(cx, h * 0.115), Vector2(w * 0.047, h * 0.070), Color(0, 0, 0, 0.30))
 	_draw_ellipse(Vector2(cx - 1, h * 0.108), Vector2(w * 0.046, h * 0.068), fill)
 	draw_arc(Vector2(cx - 1, h * 0.108), h * 0.067, -0.55, 1.45, 12, highlight, 1.1, true)
-	var neck := PackedVector2Array([
-		Vector2(cx - w * 0.025, h * 0.168),
-		Vector2(cx + w * 0.025, h * 0.168),
-		Vector2(cx + w * 0.032, h * 0.210),
-		Vector2(cx - w * 0.032, h * 0.210),
-	])
+	var neck := PackedVector2Array(
+		[
+			Vector2(cx - w * 0.025, h * 0.168),
+			Vector2(cx + w * 0.025, h * 0.168),
+			Vector2(cx + w * 0.032, h * 0.210),
+			Vector2(cx - w * 0.032, h * 0.210),
+		]
+	)
 	_fill_shape(neck, mid, stroke, 1.2)
 
 	# Broad shoulders taper naturally through chest, waist and hips.
-	var torso := PackedVector2Array([
-		Vector2(cx - w * 0.125, h * 0.215),
-		Vector2(cx - w * 0.155, h * 0.255),
-		Vector2(cx - w * 0.118, h * 0.445),
-		Vector2(cx - w * 0.098, h * 0.535),
-		Vector2(cx, h * 0.558),
-		Vector2(cx + w * 0.098, h * 0.535),
-		Vector2(cx + w * 0.118, h * 0.445),
-		Vector2(cx + w * 0.155, h * 0.255),
-		Vector2(cx + w * 0.125, h * 0.215),
-		Vector2(cx + w * 0.040, h * 0.190),
-		Vector2(cx - w * 0.040, h * 0.190),
-	])
+	var torso := PackedVector2Array(
+		[
+			Vector2(cx - w * 0.125, h * 0.215),
+			Vector2(cx - w * 0.155, h * 0.255),
+			Vector2(cx - w * 0.118, h * 0.445),
+			Vector2(cx - w * 0.098, h * 0.535),
+			Vector2(cx, h * 0.558),
+			Vector2(cx + w * 0.098, h * 0.535),
+			Vector2(cx + w * 0.118, h * 0.445),
+			Vector2(cx + w * 0.155, h * 0.255),
+			Vector2(cx + w * 0.125, h * 0.215),
+			Vector2(cx + w * 0.040, h * 0.190),
+			Vector2(cx - w * 0.040, h * 0.190),
+		]
+	)
 	_fill_shape(_offset_points(torso, Vector2(2, 3)), Color(0, 0, 0, 0.28), Color.TRANSPARENT, 0.0)
 	_fill_shape(torso, fill, stroke, 1.7)
 
 	# Collar, chest seam and belt make the body legible as clothed Kalev rather
 	# than a nude diagram, while preserving the anatomy underneath.
-	var collar := PackedVector2Array([
-		Vector2(cx - w * 0.055, h * 0.205),
-		Vector2(cx, h * 0.255),
-		Vector2(cx + w * 0.055, h * 0.205),
-	])
+	var collar := PackedVector2Array(
+		[
+			Vector2(cx - w * 0.055, h * 0.205),
+			Vector2(cx, h * 0.255),
+			Vector2(cx + w * 0.055, h * 0.205),
+		]
+	)
 	draw_polyline(collar, Color(brass, 0.52), 1.2, true)
 	draw_line(Vector2(cx, h * 0.255), Vector2(cx, h * 0.445), Color(stroke, 0.60), 1.0)
-	draw_line(Vector2(cx - w * 0.105, h * 0.455), Vector2(cx + w * 0.105, h * 0.455), mid, h * 0.022)
+	draw_line(
+		Vector2(cx - w * 0.105, h * 0.455), Vector2(cx + w * 0.105, h * 0.455), mid, h * 0.022
+	)
 	draw_rect(Rect2(cx - w * 0.018, h * 0.442, w * 0.036, h * 0.026), brass, false, 1.4)
 
 	# Bent arms: upper arm, elbow and forearm each have different angles and widths.
-	_draw_limb([
-		Vector2(cx - w * 0.137, h * 0.245), Vector2(cx - w * 0.175, h * 0.430),
-		Vector2(cx - w * 0.145, h * 0.610)
-	], [w * 0.032, w * 0.027, w * 0.021], mid, stroke)
-	_draw_limb([
-		Vector2(cx + w * 0.137, h * 0.245), Vector2(cx + w * 0.175, h * 0.430),
-		Vector2(cx + w * 0.145, h * 0.610)
-	], [w * 0.032, w * 0.027, w * 0.021], mid, stroke)
+	_draw_limb(
+		[
+			Vector2(cx - w * 0.137, h * 0.245),
+			Vector2(cx - w * 0.175, h * 0.430),
+			Vector2(cx - w * 0.145, h * 0.610)
+		],
+		[w * 0.032, w * 0.027, w * 0.021],
+		mid,
+		stroke
+	)
+	_draw_limb(
+		[
+			Vector2(cx + w * 0.137, h * 0.245),
+			Vector2(cx + w * 0.175, h * 0.430),
+			Vector2(cx + w * 0.145, h * 0.610)
+		],
+		[w * 0.032, w * 0.027, w * 0.021],
+		mid,
+		stroke
+	)
 	_draw_ellipse(Vector2(cx - w * 0.145, h * 0.625), Vector2(w * 0.024, h * 0.035), fill)
 	_draw_ellipse(Vector2(cx + w * 0.145, h * 0.625), Vector2(w * 0.024, h * 0.035), fill)
 
 	# Separate thighs, knees, calves and outward feet sell a grounded human stance.
-	_draw_limb([
-		Vector2(cx - w * 0.055, h * 0.545), Vector2(cx - w * 0.070, h * 0.715),
-		Vector2(cx - w * 0.078, h * 0.875)
-	], [w * 0.050, w * 0.044, w * 0.032], fill, stroke)
-	_draw_limb([
-		Vector2(cx + w * 0.055, h * 0.545), Vector2(cx + w * 0.070, h * 0.715),
-		Vector2(cx + w * 0.078, h * 0.875)
-	], [w * 0.050, w * 0.044, w * 0.032], fill, stroke)
-	var left_foot := PackedVector2Array([
-		Vector2(cx - w * 0.110, h * 0.875), Vector2(cx - w * 0.045, h * 0.875),
-		Vector2(cx - w * 0.038, h * 0.915), Vector2(cx - w * 0.135, h * 0.915),
-	])
-	var right_foot := PackedVector2Array([
-		Vector2(cx + w * 0.045, h * 0.875), Vector2(cx + w * 0.110, h * 0.875),
-		Vector2(cx + w * 0.135, h * 0.915), Vector2(cx + w * 0.038, h * 0.915),
-	])
+	_draw_limb(
+		[
+			Vector2(cx - w * 0.055, h * 0.545),
+			Vector2(cx - w * 0.070, h * 0.715),
+			Vector2(cx - w * 0.078, h * 0.875)
+		],
+		[w * 0.050, w * 0.044, w * 0.032],
+		fill,
+		stroke
+	)
+	_draw_limb(
+		[
+			Vector2(cx + w * 0.055, h * 0.545),
+			Vector2(cx + w * 0.070, h * 0.715),
+			Vector2(cx + w * 0.078, h * 0.875)
+		],
+		[w * 0.050, w * 0.044, w * 0.032],
+		fill,
+		stroke
+	)
+	var left_foot := PackedVector2Array(
+		[
+			Vector2(cx - w * 0.110, h * 0.875),
+			Vector2(cx - w * 0.045, h * 0.875),
+			Vector2(cx - w * 0.038, h * 0.915),
+			Vector2(cx - w * 0.135, h * 0.915),
+		]
+	)
+	var right_foot := PackedVector2Array(
+		[
+			Vector2(cx + w * 0.045, h * 0.875),
+			Vector2(cx + w * 0.110, h * 0.875),
+			Vector2(cx + w * 0.135, h * 0.915),
+			Vector2(cx + w * 0.038, h * 0.915),
+		]
+	)
 	_fill_shape(left_foot, mid.darkened(0.18), stroke, 1.2)
 	_fill_shape(right_foot, mid.darkened(0.18), stroke, 1.2)
 
 	# Subtle highlights keep the figure dimensional against the dark leather.
-	draw_line(Vector2(cx - w * 0.085, h * 0.275), Vector2(cx - w * 0.070, h * 0.410), Color(highlight, 0.34), 1.3)
-	draw_line(Vector2(cx - w * 0.090, h * 0.590), Vector2(cx - w * 0.095, h * 0.825), Color(highlight, 0.25), 1.1)
+	draw_line(
+		Vector2(cx - w * 0.085, h * 0.275),
+		Vector2(cx - w * 0.070, h * 0.410),
+		Color(highlight, 0.34),
+		1.3
+	)
+	draw_line(
+		Vector2(cx - w * 0.090, h * 0.590),
+		Vector2(cx - w * 0.095, h * 0.825),
+		Color(highlight, 0.25),
+		1.1
+	)
 
 
 func _draw_slots() -> void:
@@ -307,7 +359,12 @@ func _draw_slot_frame(rect: Rect2, base: Color, border: Color, highlighted: bool
 	_fill_shape(shadow, Color(0, 0, 0, 0.32), Color.TRANSPARENT, 0.0)
 	_fill_shape(points, base, border, 2.2 if highlighted else 1.35)
 	var inset := rect.grow(-3.0)
-	draw_polyline(_closed_points(_chamfered_rect_points(inset, maxf(2.0, cut - 2.0))), Color(border, 0.30), 0.8, true)
+	draw_polyline(
+		_closed_points(_chamfered_rect_points(inset, maxf(2.0, cut - 2.0))),
+		Color(border, 0.30),
+		0.8,
+		true
+	)
 	for rivet in [
 		Vector2(rect.position.x + cut + 1.0, rect.position.y + 3.0),
 		Vector2(rect.end.x - cut - 1.0, rect.position.y + 3.0),
@@ -323,34 +380,85 @@ func _draw_slot_glyph(slot: StringName, rect: Rect2, color: Color) -> void:
 			draw_arc(center, radius, PI, TAU, 16, color, 2.0, true)
 			draw_line(center + Vector2(-radius, 0), center + Vector2(radius, 0), color, 2.0)
 		&"back":
-			var shield := PackedVector2Array([
-				center + Vector2(-radius, -radius), center + Vector2(radius, -radius),
-				center + Vector2(radius * 0.8, radius * 0.65), center + Vector2(0, radius * 1.25),
-				center + Vector2(-radius * 0.8, radius * 0.65),
-			])
+			var shield := PackedVector2Array(
+				[
+					center + Vector2(-radius, -radius),
+					center + Vector2(radius, -radius),
+					center + Vector2(radius * 0.8, radius * 0.65),
+					center + Vector2(0, radius * 1.25),
+					center + Vector2(-radius * 0.8, radius * 0.65),
+				]
+			)
 			draw_polyline(_closed_points(shield), color, 1.7, true)
 		&"body":
-			var tunic := PackedVector2Array([
-				center + Vector2(-radius * 1.3, -radius), center + Vector2(-radius * 0.5, -radius * 1.35),
-				center + Vector2(radius * 0.5, -radius * 1.35), center + Vector2(radius * 1.3, -radius),
-				center + Vector2(radius * 0.75, radius * 1.25), center + Vector2(-radius * 0.75, radius * 1.25),
-			])
+			var tunic := PackedVector2Array(
+				[
+					center + Vector2(-radius * 1.3, -radius),
+					center + Vector2(-radius * 0.5, -radius * 1.35),
+					center + Vector2(radius * 0.5, -radius * 1.35),
+					center + Vector2(radius * 1.3, -radius),
+					center + Vector2(radius * 0.75, radius * 1.25),
+					center + Vector2(-radius * 0.75, radius * 1.25),
+				]
+			)
 			draw_polyline(_closed_points(tunic), color, 1.7, true)
 		&"arms":
-			draw_line(center + Vector2(-radius, -radius), center + Vector2(-radius * 0.2, radius), color, 3.0)
-			draw_line(center + Vector2(radius, -radius), center + Vector2(radius * 0.2, radius), color, 3.0)
+			draw_line(
+				center + Vector2(-radius, -radius),
+				center + Vector2(-radius * 0.2, radius),
+				color,
+				3.0
+			)
+			draw_line(
+				center + Vector2(radius, -radius),
+				center + Vector2(radius * 0.2, radius),
+				color,
+				3.0
+			)
 		&"belt":
-			draw_line(center + Vector2(-radius * 1.8, 0), center + Vector2(radius * 1.8, 0), color, 3.0)
-			draw_rect(Rect2(center - Vector2(radius * 0.35, radius * 0.30), Vector2(radius * 0.70, radius * 0.60)), color, false, 1.5)
+			draw_line(
+				center + Vector2(-radius * 1.8, 0), center + Vector2(radius * 1.8, 0), color, 3.0
+			)
+			draw_rect(
+				Rect2(
+					center - Vector2(radius * 0.35, radius * 0.30),
+					Vector2(radius * 0.70, radius * 0.60)
+				),
+				color,
+				false,
+				1.5
+			)
 		&"legs":
-			draw_line(center + Vector2(-radius * 0.55, -radius), center + Vector2(-radius * 0.75, radius), color, 3.0)
-			draw_line(center + Vector2(radius * 0.55, -radius), center + Vector2(radius * 0.75, radius), color, 3.0)
+			draw_line(
+				center + Vector2(-radius * 0.55, -radius),
+				center + Vector2(-radius * 0.75, radius),
+				color,
+				3.0
+			)
+			draw_line(
+				center + Vector2(radius * 0.55, -radius),
+				center + Vector2(radius * 0.75, radius),
+				color,
+				3.0
+			)
 		&"feet":
-			draw_line(center + Vector2(-radius, -radius * 0.5), center + Vector2(-radius * 1.25, radius * 0.6), color, 3.0)
-			draw_line(center + Vector2(radius * 0.3, -radius * 0.5), center + Vector2(radius * 1.25, radius * 0.6), color, 3.0)
+			draw_line(
+				center + Vector2(-radius, -radius * 0.5),
+				center + Vector2(-radius * 1.25, radius * 0.6),
+				color,
+				3.0
+			)
+			draw_line(
+				center + Vector2(radius * 0.3, -radius * 0.5),
+				center + Vector2(radius * 1.25, radius * 0.6),
+				color,
+				3.0
+			)
 		&"left_hand", &"right_hand":
 			draw_circle(center, radius * 0.55, color, false, 1.7, true)
-			draw_line(center + Vector2(0, -radius * 1.25), center + Vector2(0, radius * 1.25), color, 1.7)
+			draw_line(
+				center + Vector2(0, -radius * 1.25), center + Vector2(0, radius * 1.25), color, 1.7
+			)
 
 
 func _icon_for(item_id: StringName) -> Texture2D:
@@ -379,7 +487,10 @@ func _draw_slot_caption(rect: Rect2, text: String, occupied: bool) -> void:
 	if font.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x > available:
 		while (
 			line.length() > 1
-			and font.get_string_size(line + "…", HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x > available
+			and (
+				font.get_string_size(line + "…", HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+				> available
+			)
 		):
 			line = line.substr(0, line.length() - 1)
 		line += "…"
@@ -474,20 +585,18 @@ func _update_hover_tooltip(slot: StringName) -> void:
 		return
 	var slot_name := String(SLOT_LABELS.get(slot, slot))
 	if _equipped.has(slot) and not String(_equipped[slot]).is_empty() and _item_label.is_valid():
-		tooltip_text = "%s: %s\nClick to stow in the bag." % [
-			slot_name,
-			String(_item_label.call(_equipped[slot])),
-		]
+		tooltip_text = (
+			"%s: %s\nClick to stow in the bag."
+			% [
+				slot_name,
+				String(_item_label.call(_equipped[slot])),
+			]
+		)
 		return
 	tooltip_text = "%s slot\nDrop a matching item here." % slot_name
 
 
-func _draw_limb(
-	centers: Array[Vector2],
-	radii: Array[float],
-	fill: Color,
-	stroke: Color
-) -> void:
+func _draw_limb(centers: Array[Vector2], radii: Array[float], fill: Color, stroke: Color) -> void:
 	if centers.size() != 3 or radii.size() != 3:
 		return
 	for index in range(2):
@@ -495,12 +604,14 @@ func _draw_limb(
 		var to := centers[index + 1]
 		var direction := (to - from).normalized()
 		var normal := Vector2(-direction.y, direction.x)
-		var segment := PackedVector2Array([
-			from + normal * radii[index],
-			to + normal * radii[index + 1],
-			to - normal * radii[index + 1],
-			from - normal * radii[index],
-		])
+		var segment := PackedVector2Array(
+			[
+				from + normal * radii[index],
+				to + normal * radii[index + 1],
+				to - normal * radii[index + 1],
+				from - normal * radii[index],
+			]
+		)
 		_fill_shape(segment, fill, stroke, 1.2)
 		draw_circle(centers[index + 1], radii[index + 1], fill)
 		draw_arc(centers[index + 1], radii[index + 1], 0, TAU, 14, stroke, 1.0, true)
@@ -523,16 +634,18 @@ func _fill_shape(points: PackedVector2Array, fill: Color, stroke: Color, width: 
 
 
 func _chamfered_rect_points(rect: Rect2, cut: float) -> PackedVector2Array:
-	return PackedVector2Array([
-		Vector2(rect.position.x + cut, rect.position.y),
-		Vector2(rect.end.x - cut, rect.position.y),
-		Vector2(rect.end.x, rect.position.y + cut),
-		Vector2(rect.end.x, rect.end.y - cut),
-		Vector2(rect.end.x - cut, rect.end.y),
-		Vector2(rect.position.x + cut, rect.end.y),
-		Vector2(rect.position.x, rect.end.y - cut),
-		Vector2(rect.position.x, rect.position.y + cut),
-	])
+	return PackedVector2Array(
+		[
+			Vector2(rect.position.x + cut, rect.position.y),
+			Vector2(rect.end.x - cut, rect.position.y),
+			Vector2(rect.end.x, rect.position.y + cut),
+			Vector2(rect.end.x, rect.end.y - cut),
+			Vector2(rect.end.x - cut, rect.end.y),
+			Vector2(rect.position.x + cut, rect.end.y),
+			Vector2(rect.position.x, rect.end.y - cut),
+			Vector2(rect.position.x, rect.position.y + cut),
+		]
+	)
 
 
 func _closed_points(points: PackedVector2Array) -> PackedVector2Array:

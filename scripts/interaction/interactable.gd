@@ -1,8 +1,8 @@
 class_name Interactable
 extends Area2D
 
-signal focused()
-signal unfocused()
+signal focused
+signal unfocused
 signal interacted(actor: Node)
 
 @export var interactable_id: StringName = &""
@@ -159,9 +159,7 @@ static func find_at_logic_position(logic_position: Vector2, tree: SceneTree) -> 
 ## sits inside the facing cone. Used by the character-relative primary click
 ## (first/third person), where the character - not the cursor - aims.
 static func find_in_front_of_actor(
-	actor: Node2D,
-	facing: Vector2,
-	minimum_facing_dot: float = 0.0
+	actor: Node2D, facing: Vector2, minimum_facing_dot: float = 0.0
 ) -> Interactable:
 	if actor == null or actor.get_tree() == null:
 		return null
@@ -188,7 +186,9 @@ static func find_in_front_of_actor(
 
 ## Isometric clicks often land on the ground in front of a character instead of
 ## on the talk sensor centered at the actor's feet.
-static func find_talk_interactable_near_actor(logic_position: Vector2, tree: SceneTree) -> Interactable:
+static func find_talk_interactable_near_actor(
+	logic_position: Vector2, tree: SceneTree
+) -> Interactable:
 	if tree == null:
 		return null
 	var best: Interactable = null

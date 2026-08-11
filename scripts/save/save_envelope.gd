@@ -97,22 +97,32 @@ static func migrate_envelope(raw: Dictionary) -> Dictionary:
 				envelope = _migrate_v0_to_v1(envelope)
 				version = 1
 			_:
-				result["errors"] = PackedStringArray([
-					"unsupported save envelope version %d (supported: 0-%d)" % [
-						version,
-						SaveEnvelope.CURRENT_ENVELOPE_VERSION,
+				result["errors"] = PackedStringArray(
+					[
+						(
+							"unsupported save envelope version %d (supported: 0-%d)"
+							% [
+								version,
+								SaveEnvelope.CURRENT_ENVELOPE_VERSION,
+							]
+						)
 					]
-				])
+				)
 				result["migrated_from"] = migrated_from
 				return result
 
 	if version > SaveEnvelope.CURRENT_ENVELOPE_VERSION:
-		result["errors"] = PackedStringArray([
-			"unsupported save envelope version %d (supported: 0-%d)" % [
-				version,
-				SaveEnvelope.CURRENT_ENVELOPE_VERSION,
+		result["errors"] = PackedStringArray(
+			[
+				(
+					"unsupported save envelope version %d (supported: 0-%d)"
+					% [
+						version,
+						SaveEnvelope.CURRENT_ENVELOPE_VERSION,
+					]
+				)
 			]
-		])
+		)
 		result["migrated_from"] = migrated_from
 		return result
 
@@ -203,9 +213,7 @@ static func _migrate_v0_to_v1(envelope: Dictionary) -> Dictionary:
 static func _validate_envelope_shape(envelope: Dictionary) -> PackedStringArray:
 	var errors: PackedStringArray = []
 	if int(envelope.get("save_version", 0)) != SaveEnvelope.CURRENT_ENVELOPE_VERSION:
-		errors.append(
-			"envelope save_version must be %d" % SaveEnvelope.CURRENT_ENVELOPE_VERSION
-		)
+		errors.append("envelope save_version must be %d" % SaveEnvelope.CURRENT_ENVELOPE_VERSION)
 
 	var saved_at: Variant = envelope.get("saved_at_unix", null)
 	if saved_at != null and not (saved_at is int or saved_at is float):
