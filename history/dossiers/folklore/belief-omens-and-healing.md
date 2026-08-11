@@ -10,6 +10,7 @@ related:
   - ../religion/churches-and-religious-houses.md
   - ../religion/liturgical-calendar-spring-1343.md
   - ./tales-tellable-in-1343.md
+  - ./harju-hiis-sites-within-walk-1343.md
 - [`../culture/music-and-instruments.md`](../culture/music-and-instruments.md) — *regilaul* as healing/charm song genre.
   - ../nature/spring-climate-and-living-world.md
   - ../dailylife/food-and-drink.md
@@ -159,6 +160,7 @@ No licensed visual record survives for **Estonian spirit beings or hiis ritual i
 
 - [`../../../docs/lore/estonian_folklore.md`](../../../docs/lore/estonian_folklore.md) — full creature catalog, tale plots, and quest seeds (reference layer; seeds **`invented`** until tasked).
 - [`../hinterland/harju-village-and-manor.md`](../hinterland/harju-village-and-manor.md) — where grove belief and rebel mobilisation intersect geographically.
+- [`./harju-hiis-sites-within-walk-1343.md`](./harju-hiis-sites-within-walk-1343.md) - archaeological and *lucus sanctus* candidates within a one-day walk; preserves the attested/reconstructed boundary.
 - [`../people/estonian-and-german-populations.md`](../people/estonian-and-german-populations.md) — who may practice versus who may prosecute.
 - [`../religion/churches-and-religious-houses.md`](../religion/churches-and-religious-houses.md) — Dominican preaching against superstition; parish healing frame.
 - [`../religion/liturgical-calendar-spring-1343.md`](../religion/liturgical-calendar-spring-1343.md) — Easter/Lent constraints on healing and gathering.
