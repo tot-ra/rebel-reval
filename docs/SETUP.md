@@ -187,19 +187,15 @@ To perform a clean import of all tracked assets without launching the editor UI:
 
 Policy: keep source assets plus matching `*.import` sidecars tracked, but do not commit generated cache folders. Godot 4 regenerates `.godot/`; legacy `.import/` cache folders are also ignored. See [`docs/reports/godot_import_cache_policy_p0_023.md`](./reports/godot_import_cache_policy_p0_023.md).
 
-### Startup / parser check
+### Startup / parser smoke
 
-To verify that the project and its scripts parse without errors in headless mode:
-
-```bash
-"$GODOT_BIN" --headless --check-only
-```
-
-As of the P0-017 baseline, `"$GODOT_BIN" --headless --check-only` does not exit on this project (see [`docs/reports/known_runtime_defects.md`](./reports/known_runtime_defects.md) `DEF-001`). Until that is fixed, use this playable-room smoke command instead:
+To verify that the project and its scripts load without errors in headless mode, use the bounded playable-room smoke:
 
 ```bash
 "$GODOT_BIN" --headless --quit-after 5 scenes/reval_east/reval_east.tscn
 ```
+
+The Godot `--check-only` mode is non-terminating for this project (see [`docs/reports/known_runtime_defects.md`](./reports/known_runtime_defects.md) `DEF-001`), so do not use it as the startup/parser check until that defect is resolved.
 
 Recorded results: [`docs/reports/startup_baseline.md`](./reports/startup_baseline.md).
 
