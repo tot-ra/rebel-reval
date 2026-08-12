@@ -74,6 +74,11 @@ func test_market_day_model_flags_wednesday_and_saturday_only() -> void:
 	assert_true(ModelScript.is_market_day({"day": 27, "month": 4, "year": 1343}))
 
 
+func test_market_day_model_labels_schedule_as_implementation_fallback() -> void:
+	assert_eq(ModelScript.MARKET_WEEKDAY_SOURCE_STATUS, &"implementation_fallback")
+	assert_eq(ModelScript.MARKET_WEEKDAYS, [2, 5])
+
+
 func test_market_day_model_syncs_flag_from_phase_and_elapsed_days() -> void:
 	state.set_phase(GameState.PHASE_INVESTIGATION_MORNING)
 	assert_false(ModelScript.sync_flag(state, state.get_phase(), 0))

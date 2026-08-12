@@ -2,11 +2,14 @@ class_name MarketDayModel
 extends RefCounted
 
 ## Calendar-driven market-day schedule for Lower Town trade stalls.
-## Wednesday and Saturday match the Hanseatic market rhythm documented in P0-072.
+## The weekday is unresolved in the Reval 1340-1343 evidence; this schedule is
+## an explicit gameplay fallback and must not be presented as canon.
 
 const FLAG_MARKET_DAY := &"flag.market_day_active"
+const MARKET_WEEKDAY_SOURCE_STATUS := &"implementation_fallback"
 
-## ISO weekday indices (Monday=0). Wednesday and Saturday.
+## ISO weekday indices (Monday=0). Wednesday and Saturday are the current
+## implementation fallback, not an attested Reval market schedule.
 const MARKET_WEEKDAYS: Array[int] = [2, 5]
 
 const EXPANDED_STALL_PROP_IDS: Array[StringName] = [
