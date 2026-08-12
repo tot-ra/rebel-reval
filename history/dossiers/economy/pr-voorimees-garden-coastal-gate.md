@@ -84,6 +84,8 @@ The result is an **access blocker**, not a negative Denkelbuch result. The exist
 
 **R-499 recheck (2026-08-12, 19:02 UTC):** fresh unauthenticated requests reproduced the same boundary. The official AIS endpoint returned the Denkelbuch catalogue HTML and anonymous gallery metadata, while the official DGS permalink followed redirects to the VAU sign-in page. No authenticated session or archive-supplied scan/transcription was available in this run, so no manuscript image, folio identifier, or original wording was inspected. This recheck strengthens the access-boundary record only; it does not change `named_carter_owner: null` into either a hit or a manuscript no-hit.
 
+**R-499 recheck (2026-08-12, 19:32 UTC):** fresh direct requests reproduced the same access boundary. The official AIS unit page returned `TLA.230.1.Aa2` catalogue metadata (`1333-1374`) and 26 anonymous gallery previews (`Gallery image 0`-`25`), with no folio/page identifiers or usable transcription. The DGS shortcut redirected through the protected TIFF target `tla0230_001_0000aa2_00001_x.tif` and ended at VAU login. No authenticated session or archive-supplied scan/transcription was available, so zero Denkelbuch folios were inspected. This is an access blocker, not a carter-owner hit or no-hit; `named_carter_owner` remains `null`. The authorized-access handoff is the existing `R-462` task.
+
 ### Regional context
 |---|---|
 | **Hanseatic Reval** | Extramural **kitchen gardens** are standard burgher/craft property bundles; Coastal Gate zone is **harbour-adjacent** — logical for **carter + cooper** plots serving landing trade [2][8] |
