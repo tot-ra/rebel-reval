@@ -55,3 +55,4 @@ This file contains lessons specific to the Researcher role.
 - A combined shell loop can exit before printing endpoint diagnostics; when recording an archive access boundary, rerun each URL as a separate command so transport errors cannot be mistaken for source results.
 - The secure `code_execution` wrapper may reject standard-library imports such as `pathlib`; when a scoped text assertion is needed, use the regular project Python interpreter via `bash` and keep the wrapper failure separate from the research result.
 - When an insertion helper reports a successful line count of zero for a blank-line-only edit, re-read the target and use an exact text replacement; verify the saved Markdown block before staging.
+- When a scoped dossier check hard-codes the number of prior repeated recheck markers, a valid appended timestamp can look like a failure; inspect the live block and validate required semantic anchors plus the expected minimum/count derived from the file.
