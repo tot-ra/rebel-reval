@@ -130,6 +130,31 @@ func test_pack_horse_has_tall_rigged_body_tail_and_locomotion_clips() -> void:
 	host.free()
 
 
+func test_pack_horse_walk_keeps_four_hooves_at_ground_contact() -> void:
+	var host := Node3D.new()
+	(Engine.get_main_loop() as SceneTree).root.add_child(host)
+	var model := Models.add_model(host, MammalSpecies.SPECIES_HORSE)
+	var player := model.find_children("*", "AnimationPlayer", true, false)[0] as AnimationPlayer
+	var skeleton := model.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
+	var walk := player.get_animation(Models.WALK_ANIMATION)
+	assert_true(walk != null, "Pack horse must expose the imported Walk clip")
+	assert_eq(Models.horse_hoof_contact_points(skeleton).size(), Models.HORSE_LEG_BONES.size())
+
+	# Sample start, both diagonal transitions, and the loop endpoint.
+	for phase in 5:
+		player.seek(walk.length * float(phase) / 4.0, true)
+		skeleton.force_update_all_bone_transforms()
+		var contacts := Models.horse_hoof_contact_points(skeleton)
+		for bone_name: StringName in Models.HORSE_LEG_BONES:
+			var contact := contacts[bone_name] as Vector3
+			assert_true(
+				contact.y >= Models.HORSE_GROUND_MIN_Y and contact.y <= Models.HORSE_GROUND_MAX_Y,
+				"%s hoof leaves the ground envelope at Walk phase %d: %s" % [bone_name, phase, contact]
+			)
+
+	host.free()
+
+
 func test_medieval_livestock_carry_normal_and_roughness_maps() -> void:
 	for species: StringName in [
 		MammalSpecies.SPECIES_COW,
