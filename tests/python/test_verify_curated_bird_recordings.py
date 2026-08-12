@@ -78,7 +78,9 @@ class VerifyCuratedBirdRecordingsTest(unittest.TestCase):
             "license": "permission-granted",
             "page": "https://example.test/recordings/lh-576",
             "download_url": "https://example.test/audio/lh-576.wav",
-            "permission_evidence": "docs/reports/evidence/p0_122f/white_tailed_eagle_permission.md",
+            "permission_evidence": "permission-grant.md",
+            "rightsholder": "University of Tartu Natural History Museum",
+            "commercial_scope": "commercial game, updates, DLC, trailers, and promotional materials",
             "attribution": "Veljo Runnel / University of Tartu Natural History Museum",
             "length": "26",
             "quality": "A",
@@ -88,11 +90,32 @@ class VerifyCuratedBirdRecordingsTest(unittest.TestCase):
         return entry
 
     def test_permission_entry_accepts_explicit_commercial_grant(self) -> None:
-        errors = curated.validate_permission_entry(
-            "white_tailed_eagle",
-            self.permission_entry(),
-        )
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            (root / "permission-grant.md").write_text(
+                "Permission status: granted\nCommercial use: approved\n",
+                encoding="utf-8",
+            )
+            errors = curated.validate_permission_entry(
+                "white_tailed_eagle",
+                self.permission_entry(),
+                root=root,
+            )
         self.assertEqual(errors, [])
+
+    def test_permission_entry_rejects_blocked_evidence(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            (root / "blocked.md").write_text(
+                "Permission status: blocked\nCommercial use: not approved\n",
+                encoding="utf-8",
+            )
+            errors = curated.validate_permission_entry(
+                "white_tailed_eagle",
+                self.permission_entry(permission_evidence="blocked.md"),
+                root=root,
+            )
+        self.assertTrue(any("commercial use: approved" in error for error in errors))
 
     def test_permission_entry_rejects_missing_evidence(self) -> None:
         errors = curated.validate_permission_entry(

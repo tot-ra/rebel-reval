@@ -129,7 +129,9 @@ class FetchBirdSongsTest(unittest.TestCase):
             "license": "permission-granted",
             "page": "https://example.test/recordings/lh-576",
             "download_url": "https://example.test/audio/lh-576.wav",
-            "permission_evidence": "docs/reports/evidence/p0_122f/white_tailed_eagle_permission.md",
+            "permission_evidence": "permission-grant.md",
+            "rightsholder": "University of Tartu Natural History Museum",
+            "commercial_scope": "commercial game, updates, DLC, trailers, and promotional materials",
             "attribution": "Veljo Runnel / University of Tartu Natural History Museum",
             "length": "26",
             "quality": "A",
@@ -138,12 +140,18 @@ class FetchBirdSongsTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir, tempfile.NamedTemporaryFile(
             mode="w", suffix=".json", encoding="utf-8"
         ) as curated_file, contextlib.redirect_stdout(io.StringIO()):
+            root = Path(temp_dir)
+            (root / "permission-grant.md").write_text(
+                "Permission status: granted\nCommercial use: approved\n",
+                encoding="utf-8",
+            )
             json.dump(payload, curated_file)
             curated_file.flush()
             rows = fetch.download_curated(
                 Path(curated_file.name),
-                Path(temp_dir) / "birds",
+                root / "birds",
                 dry_run=True,
+                root=root,
             )
 
         eagle_row = next(row for row in rows if row["bird_id"] == "white_tailed_eagle")

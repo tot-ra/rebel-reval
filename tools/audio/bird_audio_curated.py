@@ -24,12 +24,18 @@ PERMISSION_LICENSE = "permission-granted"
 PERMISSION_REQUIRED_FIELDS = (
     "recording_id",
     "permission_evidence",
+    "rightsholder",
+    "commercial_scope",
     "attribution",
     "recordist",
     "scientific",
     "country",
     "length",
     "quality",
+)
+PERMISSION_EVIDENCE_REQUIRED_MARKERS = (
+    ("permission status: granted", re.compile(r"^\\s*permission status\\s*:\\s*granted\\s*$", re.MULTILINE)),
+    ("commercial use: approved", re.compile(r"^\\s*commercial use\\s*:\\s*approved\\s*$", re.MULTILINE)),
 )
 
 
@@ -82,6 +88,18 @@ def validate_permission_entry(
         errors.append(f"{bird_id}: permission evidence must be repository-relative")
     elif not (root / evidence_path).is_file():
         errors.append(f"{bird_id}: permission evidence missing: {evidence}")
+    else:
+        evidence_text = (root / evidence_path).read_text(encoding="utf-8").lower()
+        missing_markers = [
+            marker
+            for marker, pattern in PERMISSION_EVIDENCE_REQUIRED_MARKERS
+            if not pattern.search(evidence_text)
+        ]
+        if missing_markers:
+            errors.append(
+                f"{bird_id}: permission evidence must explicitly confirm "
+                f"{', '.join(missing_markers)}"
+            )
 
     length = parse_len_seconds(str(entry.get("length", "")))
     if length < 15 or length > 90:
@@ -205,6 +223,7 @@ def _source_recording(
     *,
     recording_id: str,
     dest: Path,
+    root: Path | None = None,
 ) -> dict:
     """Convert each supported curated source to the common manifest shape."""
     source = entry.get("source", "xeno-canto")
@@ -233,7 +252,7 @@ def _source_recording(
         }
 
     if source == "permission":
-        errors = validate_permission_entry(bird_id, entry)
+        errors = validate_permission_entry(bird_id, entry, root=root)
         if errors:
             raise ValueError("; ".join(errors))
         common["lic"] = entry["license"]
@@ -241,7 +260,7 @@ def _source_recording(
         common["q"] = entry["quality"]
         common["rec"] = entry["recordist"]
         if entry.get("local_file"):
-            source_path = resolve_repo_path(str(entry["local_file"]))
+            source_path = resolve_repo_path(str(entry["local_file"]), root=root)
             return common | {
                 "url": str(entry["page"]),
                 "file": str(source_path),
@@ -328,9 +347,11 @@ def download_curated(
     out_dir: Path,
     *,
     dry_run: bool,
+    root: Path | None = None,
 ) -> list[dict]:
     """Download curated recordings and return their generated manifest rows."""
     recordings = load_curated(curated_path)
+    validation_root = (root or REPO_ROOT).resolve()
     rows: list[dict] = []
     for bird_id, entry in recordings.items():
         scientific_name = SPECIES[bird_id]
@@ -349,6 +370,7 @@ def download_curated(
             entry,
             recording_id=recording_id,
             dest=dest,
+            root=validation_root,
         )
         row = manifest_row(bird_id, scientific_name, recording, dest)
         rows.append(row)
