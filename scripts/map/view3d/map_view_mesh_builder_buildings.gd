@@ -6,6 +6,7 @@ extends RefCounted
 ## API stable for callers and tests.
 
 const _Registry := preload("res://scripts/map/view3d/map_view_mesh_builder_building_registry.gd")
+const _Churches := preload("res://scripts/map/view3d/map_view_mesh_builder_churches.gd")
 
 
 static func build_building(
@@ -225,6 +226,8 @@ static func build_exceptional_building(
 	_map_bounds: Rect2 = Rect2()
 ) -> Node3D:
 	var category := _Registry.exceptional_category(building)
+	if _Churches.is_st_catherines_church(building):
+		return _Churches.build_st_catherines_church(building, cell_size)
 	var root := Node3D.new()
 	root.name = "Building_%s" % String(building["id"])
 	root.set_meta(&"renderer_boundary", &"exceptional")
