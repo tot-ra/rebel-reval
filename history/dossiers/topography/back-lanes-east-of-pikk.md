@@ -11,7 +11,7 @@ related:
   - ../architecture/burgher-house-plan.md
   - ../religion/churches-and-religious-houses.md
   - ../religion/ecclesiastical-precinct-boundaries-1343.md
-updated: 2026-07-28
+updated: 2026-08-12
 ---
 
 # Back lanes east of Pikk (Spring 1343)
@@ -118,7 +118,7 @@ Labourers and **Estonian servants** more often use **rear lanes and yard gates**
 
 ## Production hooks
 
-- **Map:** For each Pikk plot east of the market, assign `rear_lane_id` ∈ {`vene_feeder`, `katariina_passage`, `muurivahe`, `unnamed_yard_lane`}. Default **unnamed** 3–4 m earth lane behind 60–90 m deep plots; only **one** named connector per block face. Connect yard gates at rear plot line; never route through Dominican close [3][9]. Use Commons URLs in `history/reference/plates.csv` for `topography.back-lanes-east-of-pikk.01`–`.03` until R-052 fetch completes.
+- **Map:** For each Pikk plot east of the market, assign `rear_lane_id` ∈ {`vene_feeder`, `katariina_passage`, `muurivahe`, `unnamed_yard_lane`}. Default **unnamed** 3–4 m earth lane behind 60–90 m deep plots; only **one** named connector per block face. Connect yard gates at rear plot line; never route through Dominican close [3][9]. Use the fetched Commons plates in `history/reference/plates.csv` for `topography.back-lanes-east-of-pikk.01`–`.04`; they are reference evidence, not 1343 survey plans.
 - **Art:** Rear lanes = **mud, pebble, yard chips**, timber fences, privy sheds, smoke from Dominican brewery; **no** limestone street skin. Yard gates: dark tarred plank, iron strap hinges — plate [`.04`](../../reference/topography/back-lanes-east-of-pikk/topography.back-lanes-east-of-pikk.04.jpg). Katariina käik: **raw cloister masonry**, not gift-shop signage [10].
 - **Character:** Craft servants and Estonian labourers enter via **rear gates**; merchants receive guests at diele front [4][16].
 - **Quest / Narrative:** Dominican fish cart on Katariina käik; watch lantern on Müürivahe at curfew [`watch-duty-and-town-defence.md`](../military/watch-duty-and-town-defence.md); rear-lane theft/sabotage routes for night missions.
@@ -129,10 +129,10 @@ Labourers and **Estonian servants** more often use **rear lanes and yard gates**
 
 | Plate | Shows | Source, date, origin | License | Answers |
 |-------|-------|----------------------|---------|---------|
-| `topography.back-lanes-east-of-pikk.01` (link-only; fetch pending R-052) | Müürivahe narrow lane along curtain | Diego Delso photo, 2012 / medieval wall, Reval | cc by-sa 3.0 | wall-lane width and craft-stall hugging pattern |
-| `topography.back-lanes-east-of-pikk.02` (link-only; fetch pending R-052) | Katariina käik passage with cloister wall | Radosław Botev photo, 2011 / Dominican range, Reval | cc by 3.0 | ~2–3 m passage and claustral masonry flank |
-| `topography.back-lanes-east-of-pikk.03` (link-only; fetch pending R-052) | Vene street (Rußstraße) feeder lane | Andrzej Otrębski photo, 2016 / Reval | cc by-sa 4.0 | feeder-lane scale east of merchant blocks |
-| `topography.back-lanes-east-of-pikk.04` (link-only; fetch pending R-052) | Rear yard gate and service sheds | Vamps photo, Lai 5 courtyard / 15th–20th c. fabric, Reval | cc by-sa 3.0 ee | yard-gate plank form — same asset as `architecture.burgher-house-plan.03` |
+| [`topography.back-lanes-east-of-pikk.01`](../../reference/topography/back-lanes-east-of-pikk/topography.back-lanes-east-of-pikk.01.jpg) | Müürivahe narrow lane along curtain | Diego Delso photo, 2012 / medieval wall, Reval | cc by-sa 3.0 | wall-lane width and craft-stall hugging pattern |
+| [`topography.back-lanes-east-of-pikk.02`](../../reference/topography/back-lanes-east-of-pikk/topography.back-lanes-east-of-pikk.02.jpg) | Katariina käik passage with cloister wall | Radosław Botev photo, 2011 / Dominican range, Reval | cc by 3.0 | ~2–3 m passage and claustral masonry flank |
+| [`topography.back-lanes-east-of-pikk.03`](../../reference/topography/back-lanes-east-of-pikk/topography.back-lanes-east-of-pikk.03.jpg) | Vene street (Rußstraße) feeder lane | Andrzej Otrębski photo, 2016 / Reval | cc by-sa 4.0 | feeder-lane scale east of merchant blocks |
+| [`topography.back-lanes-east-of-pikk.04`](../../reference/topography/back-lanes-east-of-pikk/topography.back-lanes-east-of-pikk.04.jpg) | Rear yard gate and service sheds | Vamps photo, Lai 5 courtyard / 15th–20th c. fabric, Reval | cc by-sa 3.0 ee | yard-gate plank form — same asset as `architecture.burgher-house-plan.03` |
 | [`topography.back-lanes-east-of-pikk.05`](../../reference/topography/back-lanes-east-of-pikk/topography.back-lanes-east-of-pikk.05.jpg) | Pikk rear-yard lane mud and fence | Heinloo Hidden Heritage diagram extract, 2020s / Hanseatic plot typology, Reval | linked | deep-plot rear service zone behind street front |
 | `topography.back-lanes-east-of-pikk.06` (link-only) | AVE 2016 Viru–Müürivahe crossing plan | Kraut & Nurk AVE 2016 Fig 1, 2016, Tallinn | linked | wall-lane paving and gate-apron relationship |
 
