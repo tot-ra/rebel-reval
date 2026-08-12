@@ -33,6 +33,7 @@ style tree.hawthorn
 style tree.rowan
 style plant.plantain
 style plant.mugwort
+style reed.shore
 terrain water.deep deep_water 0 0 160 46 order=1
 terrain water.shallow shallow_water 0 46 160 8 order=2
 terrain shore.sand coast_sand 0 54 160 9 order=3

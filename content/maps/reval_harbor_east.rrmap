@@ -33,6 +33,7 @@ style tree.juniper
 style tree.blackthorn
 style plant.burdock
 style plant.thistle
+style reed.shore
 terrain water.deep deep_water 0 0 144 24 order=1
 terrain water.shallow shallow_water 0 24 144 10 order=2
 terrain shore.sand coast_sand 0 34 144 10 order=3
