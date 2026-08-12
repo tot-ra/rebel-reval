@@ -56,6 +56,7 @@ The official DGS permalink still redirects through a protected image target and 
 | Official AIS unit page | Catalogue record loads for `TLA.230.1.Aa2`; digitized 48-page German unit identified | Catalogue metadata only [11] |
 | AIS gallery | 26 unlabeled JPEG previews, `Gallery image 0`-`25`; no folio/page/date identifiers or usable transcription | Preview resources only; not folio evidence [11] |
 | Official DGS permalink | Redirect chain exposes a protected TIFF target and ends at VAU authentication | Access blocker; zero folios inspected [12] |
+| R-485 direct-source check (12 Aug. 2026) | Official AIS and DGS URLs were fetched directly; the Huygens WI_048 record was checked as the requested Middelburg comparandum | No Reval date, entry identifier, folio/page, or original wording recovered; retain `market_weekday: null` and do not promote a local fine |
 | Market search | Not run against authenticated manuscript text | No responsible positive or negative claim for weekday, hours, or holy-day penalty |
 
 The clearing condition remains an authenticated VAU/DGS review or an archive-supplied scan/transcription that preserves `TLA.230.1.Aa2`, folio/page identifiers, provenance, date coverage for 1340-1343, and the original wording before any local rule is promoted from `gap` or `plausible composite` [11][12].
