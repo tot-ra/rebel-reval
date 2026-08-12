@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import contextlib
+import io
 import json
 import sys
 import tempfile
@@ -606,6 +608,24 @@ class ValidateContentTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             diagnostics = validate_corpus([Path(tmp)], project_root=ROOT)
             self.assertIn("INPUT", _codes(diagnostics))
+
+    def test_cli_quiet_suppresses_diagnostics_and_preserves_failure(self) -> None:
+        missing = Path(tempfile.gettempdir()) / "validate_content_cli_quiet_missing_path"
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output), contextlib.redirect_stderr(output):
+            result = main(["--quiet", str(missing)])
+        self.assertEqual(result, 1)
+        self.assertEqual(output.getvalue(), "")
+
+    def test_cli_quiet_success_is_silent(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            content = Path(tmp) / "content"
+            _write(content / "char.json", _minimal_character())
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output), contextlib.redirect_stderr(output):
+                result = main([str(content), "--quiet"])
+            self.assertEqual(result, 0)
+            self.assertEqual(output.getvalue(), "")
 
     def test_cli_fails_on_nonexistent_path(self) -> None:
         missing = Path(tempfile.gettempdir()) / "validate_content_cli_missing_path"

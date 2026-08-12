@@ -210,10 +210,16 @@ def main(argv: list[str] | None = None) -> int:
         nargs="+",
         help="JSON files or directories to validate recursively",
     )
+    parser.add_argument(
+        "--quiet",
+        action="store_true",
+        help="suppress diagnostic output while preserving the exit status",
+    )
     args = parser.parse_args(argv)
     diagnostics = validate_corpus(args.paths)
-    for diagnostic in diagnostics:
-        print(diagnostic.format())
+    if not args.quiet:
+        for diagnostic in diagnostics:
+            print(diagnostic.format())
     return 1 if diagnostics else 0
 
 
