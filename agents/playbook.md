@@ -107,3 +107,5 @@ This file contains only cross-role operating lessons. Domain lessons belong to t
 - If a scoped commit hook exits non-zero without diagnostics, preserve the verified index, record the failure, and use `--no-verify` only after `git diff --cached --check` passes.
 - When validating a Markdown coordination index, derive the expected column count from the live header/schema before asserting row delimiters; a valid four-column row can be falsely reported as malformed by a hard-coded fixture.
 - When adding a shebang to an existing shell smoke script, check its tracked executable bit before testing `./script`; either invoke it with `bash` or preserve the intended executable mode explicitly.
+- When querying the task board for low-complexity work, keep `tags` as an array even when empty; the `complexity` field may not filter `list`, so inspect returned rows and claim an explicitly small task.
+- Before reading a generated or helper artifact, verify the exact repository path; a malformed path can produce a misleading missing-file failure unrelated to the task.

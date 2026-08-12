@@ -1,0 +1,52 @@
+{
+  "handoff_id": "A-002e",
+  "status": "ready_for_dev_review",
+  "verified_at": "2026-08-12T13:30:11+03:00",
+  "upstream": [
+    "A-002a",
+    "A-002b",
+    "A-002c",
+    "A-002d"
+  ],
+  "standalone_asset": "assets/animals/medieval/medieval_horse.glb",
+  "runtime_loader": "scripts/map/view3d/map_view_medieval_animal_models.gd",
+  "runtime_asset": "assets/animals/medieval/medieval_pack_horse.glb",
+  "runtime_mapping": "MammalSpecies.SPECIES_HORSE -> medieval_pack_horse.glb",
+  "animation_contract": {
+    "source_clips": [
+      "Idle-loop",
+      "Walk-loop"
+    ],
+    "godot_runtime_clips": [
+      "Idle",
+      "Walk"
+    ],
+    "looping": true,
+    "import_evidence": "generated/blender/medieval_horse_v1/godot_import_report.json"
+  },
+  "checks": [
+    {
+      "command": "python3 tools/verify_asset_lint.py",
+      "status": "pass",
+      "scope": "asset lint"
+    },
+    {
+      "command": "python3 tools/validate_asset_sources.py",
+      "status": "pass",
+      "scope": "provenance manifest"
+    },
+    {
+      "command": "tools/run_godot_tests.sh -- --filter=test_medieval_animal_models",
+      "status": "horse_checks_passed_with_unrelated_baseline_failures",
+      "passed_tests": [
+        "test_pack_horse_has_tall_rigged_body_tail_and_locomotion_clips",
+        "test_pack_horse_walk_keeps_four_hooves_at_ground_contact"
+      ],
+      "unrelated_failures": [
+        "test_production_models_load_with_mesh_material_and_ground_contact: duck feet must touch Y=0",
+        "dirty-worktree parse cascade: _Churches is not declared in map_view_mesh_builder_buildings.gd"
+      ]
+    }
+  ],
+  "handoff_note": "The standalone horse export is import- and provenance-ready. The existing fauna loader intentionally uses the reviewed pack-horse runtime asset, so this verification does not change MODEL_PATHS or introduce a second horse runtime route. Cart pairing remains owned by the downstream vehicle task."
+}
