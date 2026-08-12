@@ -8,7 +8,7 @@ related:
   - ../language/names-address-and-oaths.md
   - ../power/jurisdictions-of-reval.md
   - ../economy/awb-clausuris-mortgage-text-1340-1343.md
-updated: 2026-08-06
+updated: 2026-08-12
 ---
 
 # Reval council prosopography, 1340-1345
@@ -62,6 +62,12 @@ The ILC catalogue identifies the first Denkelbuch volume as **TLA.230.1.Aa2**, 4
 archive reference and period, but its public page does not expose the folio text [2]. This is why the
 present dossier reports dated AWB names and a bounded negative result rather than inventing a full
 annual roll.
+
+### Denkelbuch access boundary, 2026-08-12
+
+A fresh unauthenticated check of the official Rahvusarhiiv AIS record reproduced the catalogue identity for `TLA.230.1.Aa2`, *Ältestes Denkelbuch des Revaler Rats*, including its 1333-1374 date span and 48-page extent [10]. The catalogue HTML exposed metadata only; it did not expose a folio transcription. The official DGS permalink was then fetched directly and ended at the VAU sign-in page. Its redirect parameters identify the protected TIFF target `tla0230_001_0000aa2_00001_x.tif`, but no authenticated image request was made and no manuscript pixels were inspected [11].
+
+The public AIS/gallery preview route was also checked as a discovery fallback. Its anonymous images had no folio/page identifiers or transcription, and the local OCR check recovered no usable council text. This is therefore an **access blocker**, not a negative result about the Denkelbuch: this pass inspected zero folios and cannot establish or refute the December 1343 election outcome, a named burgomaster pair, annual turnover, or the `Johannes de Osenburge` / `Osenbryg` spelling. The clearing condition remains an authenticated VAU/DGS folio review, or an archive-supplied lawful scan/transcription preserving provenance, folio/page identifiers, original wording, and 1340-1345 coverage. Existing access work is tracked by R-451/R-460; no duplicate access task is created here.
 ### Bunge's secondary annual lists, 1340-1345
 
 Bunge's *Die Revaler Rathslinie* reproduces the older annual council-list tradition in a traceable BSB
@@ -198,6 +204,8 @@ full charter witness list [1][7].
 7. *Diplomatarium Danicum*, 1343, nos. 321, 324, and 376: https://tekstnet.dk/books/dipdan/1343/ (Danish regesta; dates 11 May, 21 May, and 27 October 1343).
 8. *Diplomatarium Danicum*, 1345, nos. 116-119: https://tekstnet.dk/books/dipdan/1345/ (Danish regesta; 7 January 1345 Reval privileges and civic water authority).
 9. F. G. von Bunge, *Die Revaler Rathslinie nebst Geschichte der Rathsverfassung und einem Anhange über Riga und Dorpat*, Reval: Franz Kluge, 1874, German, BSB digital scan BSB-ID `bsb11190451`, especially pp. 3-4, 21-23, and 37-41. The scan reproduces the annual council-list tradition and Bunge's discussion of `sitzender Rat`, rotation, and `proconsules`; it is secondary evidence, not a folio-level Denkelbuch reading. Manifest: https://api.digitale-sammlungen.de/iiif/presentation/v2/bsb11190451/manifest; page OCR: https://api.digitale-sammlungen.de/ocr/bsb11190451/13 and https://api.digitale-sammlungen.de/ocr/bsb11190451/33 (OCR is discovery support; consult the scan for exact readings).
+10. Rahvusarhiiv, **AIS**, description unit `TLA.230.1.Aa2`, official catalogue record: https://ais.ra.ee/en/description-unit/view?id=124030010181&ru=5GsV5p (metadata fetch returned HTML only; no folio transcription exposed, accessed 2026-08-12).
+11. Rahvusarhiiv, **DGS/VAU**, `TLA.230.1.Aa2` image permalink: https://www.ra.ee/dgs/_purl.php?shc=TLA.230.1.Aa2 (unauthenticated fetch ended at VAU sign-in and exposed protected TIFF target `tla0230_001_0000aa2_00001_x.tif`; no folio image or text accessed, 2026-08-12). Access-boundary evidence only.
 
 - **Canon Keeper:** approve the distinction between dated AWB council associates and the still-unidentified burgomaster pair before any named second burgomaster enters canon.
 - **Producer / Narrative:** keep the Denkelbuch folio read as a follow-up dependency for a fully named 1343-1345 council bench.
