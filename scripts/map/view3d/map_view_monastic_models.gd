@@ -177,6 +177,8 @@ static func add_oratory_facade(
 static func add_oratory_details(
 	root: Node3D, _building: Dictionary, size: Vector2, height: float, along_ridge_x: bool
 ) -> void:
+	var long_face := size.y * 0.5 if along_ridge_x else size.x * 0.5
+	var run := size.x if along_ridge_x else size.y
 	var narrow_half := (
 		(size.y * 0.5 if along_ridge_x else size.x * 0.5) + MapViewMeshBuilderConfig.ROOF_OVERHANG
 	)

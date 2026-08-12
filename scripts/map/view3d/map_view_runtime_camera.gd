@@ -78,6 +78,8 @@ var player: CharacterBody2D
 var drag_rotating_view := false
 var camera_mode: CameraMode = CameraMode.THIRD_PERSON
 var first_person: bool:
+	get:
+		return camera_mode == CameraMode.FIRST_PERSON
 
 var _shake_trauma := 0.0
 var _shake_phase := 0.0
