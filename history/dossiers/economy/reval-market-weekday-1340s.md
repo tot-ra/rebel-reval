@@ -8,7 +8,7 @@ related:
   - ../culture/festivals-games-and-public-life.md
   - ./reval-cart-tolls-and-fuhr-rent-1340s.md
   - ../power/reval-law-codex-arms-and-watch.md
-updated: 2026-08-11
+updated: 2026-08-12
 ---
 
 # Reval market weekday and holy-day trading (1340–1343)
@@ -38,6 +38,12 @@ The reviewed evidence does **not** identify a fixed weekly market weekday for Re
 | Sunday market | No Reval-specific weekday evidence found. A Sunday closure or reduced routine trade is a Hanseatic/religious composite, not proof that Reval normally marketed on Sunday | plausible composite [4][7][9] |
 
 The negative result is bounded: the accessible AWB material is a property, rent, mortgage, and civic-obligation register, not a complete market calendar. “Not located” therefore means that the reviewed publication/OCR and project dossier pass did not recover the rule; it does not prove that the council never set one [1][3].
+
+### Bunge 1844 full-scan boundary
+
+The University of Tartu copy of F. G. von Bunge, *Die Quellen des Revaler Stadtrechts*, Lieferung 3, *Ordnungen des Rathes der Stadt Reval (Schluss)*, was checked as a complete 205-page scan. The contents place the relevant market/trade-police material in later sections: Straßen-Ordnung confirmed 31 May 1679 (printed p. 333), Kaufhaus-Ordnung 22 November 1670 (p. 337), Nürnberger Krämer/Bauerhändler regulation 2 December 1743 (p. 358), Wäger-Ordnung (p. 397), and later trade tariffs/revisions from 1750-1798 (pp. 405 onward) [10].
+
+A local OCR pass searched `Markt`, `Markttag`, `Marktordnung`, `Marktrecht`, `Feier`, `Festtag`, `Feiertag`, `Sonntag`, `Woche`, `Wochen`, `feria`, `mercat`, `nundin`, `forum`, `Handel`, `Gewerbe`, `Kauf`, `heilig`, `Bursprache`, `Sabbat`, `Messe`, `Pfennig`, and `Schilling` variants. The later `Markt` hits concern market quarters, market-place hawking, fairs, or trade police; none names a Reval weekly market weekday or holy-day trading rule applicable to 1340-1343 [10]. This is a bounded negative for the inspected later-ordinance collection, not a Denkelbuch or medieval council-ordinance no-hit and not proof that Reval lacked such a rule.
 
 ### Dated legal anchors and fines
 
@@ -102,3 +108,4 @@ No licensed visual evidence was found for a dated Reval 1340–1343 market sched
 7. T. Kala (ed.), *Der Revaler Kodex des lübischen Rechts 1282*, Tallinn 1998, and Geschichtsquellen Werk/5024 - Reval's 1257/1282 Lübeck-law codices and the daughter-town evidence boundary; https://www.geschichtsquellen.de/werk/5024 (German/Estonian).
 8. Project runtime: `scripts/world/market_day_model.gd` and `tests/godot/test_market_day_events.gd` - current Wednesday/Saturday implementation, recorded here as an explicit gameplay fallback rather than historical evidence.
 9. Count of Holland, **WI_048**, 4 August 1338, Middelburg, Huygens RGP online edition: [record](https://resources.huygens.knaw.nl/registershollandsegrafelijkheid/oorkonde/WI_048) - the regest states that religious reasons moved the Middelburg weekly market from Sunday to Tuesday under a 5-schelling Tournois fine and prohibited Sunday trade throughout Walcheren; archival reference AGH 218, f. 8r, no. 47. North European comparative evidence only, not Reval evidence.
+10. F. G. von Bunge, *Die Quellen des Revaler Stadtrechts*, I. Band, Lieferung 3, *Ordnungen des Rathes der Stadt Reval (Schluss)*, Dorpat: Franz Kluge, 1844, University of Tartu DSpace item `29ba1aed-444d-4e61-8468-372da8231aed`, handle http://hdl.handle.net/10062/17622, PDF `bunge_revaler_erster.pdf` (German). The complete 205-page scan was checked; its contents and dated headings show that the market/trade-police material cited here is from 1670 onward, with later trade revisions through 1798. It is a source-boundary and bounded-negative check, not direct 1343 evidence.
