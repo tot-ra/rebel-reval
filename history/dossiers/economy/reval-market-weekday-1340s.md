@@ -45,6 +45,21 @@ The University of Tartu copy of F. G. von Bunge, *Die Quellen des Revaler Stadtr
 
 A local OCR pass searched `Markt`, `Markttag`, `Marktordnung`, `Marktrecht`, `Feier`, `Festtag`, `Feiertag`, `Sonntag`, `Woche`, `Wochen`, `feria`, `mercat`, `nundin`, `forum`, `Handel`, `Gewerbe`, `Kauf`, `heilig`, `Bursprache`, `Sabbat`, `Messe`, `Pfennig`, and `Schilling` variants. The later `Markt` hits concern market quarters, market-place hawking, fairs, or trade police; none names a Reval weekly market weekday or holy-day trading rule applicable to 1340-1343 [10]. This is a bounded negative for the inspected later-ordinance collection, not a Denkelbuch or medieval council-ordinance no-hit and not proof that Reval lacked such a rule.
 
+### Denkelbuch AIS/DGS public-access audit (2026-08-12)
+
+A fresh unauthenticated check of the official AIS record confirms the archival identity of `TLA.230.1.Aa2`, *Ältestes Denkelbuch des Revaler Rats*: digitized status, 48-page extent, German-language material, and the catalogue note about council elections, punishments, and judgments [11]. The record's public gallery exposes 26 JPEG resources under the unit asset path, but the HTML labels them only `Gallery image 0` through `Gallery image 25`; the files carry no folio/page identifiers, date labels, or transcription. A local OCR pass over those low-resolution gallery previews produced no usable source text. They are therefore not a provenance-preserving folio read and cannot support a market weekday, opening-hours, or Sunday/feast-day penalty claim [11].
+
+The official DGS permalink still redirects through a protected image target and ends at the VAU sign-in page. The redirect names `tla0230_001_0000aa2_00001_x.tif` as the protected TIFF target, but no authenticated image request was made and no manuscript folio was inspected [12]. This pass consequently recovers **zero folios**, no date-bearing entry, no original Latin or Middle Low German wording, and no responsible text-level hit or no-hit result for the market question. The result is an **access blocker, not negative evidence** about the contents of the Denkelbuch.
+
+| Public-access probe | Observed result | Evidence boundary |
+|---|---|---|
+| Official AIS unit page | Catalogue record loads for `TLA.230.1.Aa2`; digitized 48-page German unit identified | Catalogue metadata only [11] |
+| AIS gallery | 26 unlabeled JPEG previews, `Gallery image 0`-`25`; no folio/page/date identifiers or usable transcription | Preview resources only; not folio evidence [11] |
+| Official DGS permalink | Redirect chain exposes a protected TIFF target and ends at VAU authentication | Access blocker; zero folios inspected [12] |
+| Market search | Not run against authenticated manuscript text | No responsible positive or negative claim for weekday, hours, or holy-day penalty |
+
+The clearing condition remains an authenticated VAU/DGS review or an archive-supplied scan/transcription that preserves `TLA.230.1.Aa2`, folio/page identifiers, provenance, date coverage for 1340-1343, and the original wording before any local rule is promoted from `gap` or `plausible composite` [11][12].
+
 ### Dated legal anchors and fines
 
 | Document / date | Rule or line | 1343 use | Confidence |
@@ -109,3 +124,5 @@ No licensed visual evidence was found for a dated Reval 1340–1343 market sched
 8. Project runtime: `scripts/world/market_day_model.gd` and `tests/godot/test_market_day_events.gd` - current Wednesday/Saturday implementation, recorded here as an explicit gameplay fallback rather than historical evidence.
 9. Count of Holland, **WI_048**, 4 August 1338, Middelburg, Huygens RGP online edition: [record](https://resources.huygens.knaw.nl/registershollandsegrafelijkheid/oorkonde/WI_048) - the regest states that religious reasons moved the Middelburg weekly market from Sunday to Tuesday under a 5-schelling Tournois fine and prohibited Sunday trade throughout Walcheren; archival reference AGH 218, f. 8r, no. 47. North European comparative evidence only, not Reval evidence.
 10. F. G. von Bunge, *Die Quellen des Revaler Stadtrechts*, I. Band, Lieferung 3, *Ordnungen des Rathes der Stadt Reval (Schluss)*, Dorpat: Franz Kluge, 1844, University of Tartu DSpace item `29ba1aed-444d-4e61-8468-372da8231aed`, handle http://hdl.handle.net/10062/17622, PDF `bunge_revaler_erster.pdf` (German). The complete 205-page scan was checked; its contents and dated headings show that the market/trade-police material cited here is from 1670 onward, with later trade revisions through 1798. It is a source-boundary and bounded-negative check, not direct 1343 evidence.
+11. Tallinn City Archives AIS, description unit `TLA.230.1.Aa2`, *Ältestes Denkelbuch des Revaler Rats*, official record: https://ais.ra.ee/en/description-unit/view?id=124030010181&ru=5GsV5p ; public asset gallery observed at https://ais.ra.ee/assets/41e0dd40/images/ (accessed 2026-08-12). The catalogue record identifies a digitized 48-page German unit; the public gallery exposes 26 anonymous JPEG previews without folio/date/transcription metadata. Catalogue and preview boundaries only, not authenticated folio evidence.
+12. Tallinn City Archives DGS permalink for `TLA.230.1.Aa2`: https://www.ra.ee/dgs/_purl.php?shc=TLA.230.1.Aa2 (accessed 2026-08-12). The unauthenticated redirect chain ended at VAU sign-in after exposing a protected TIFF-like target; no folio was opened or transcribed. Access-boundary evidence only.
