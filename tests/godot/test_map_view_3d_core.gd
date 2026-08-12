@@ -55,6 +55,144 @@ func test_gameplay_view_keeps_western_lower_town_frontage_resident() -> void:
 	view.free()
 
 
+func test_playable_lower_town_routes_keep_authored_art_resident() -> void:
+	var definition := LowerTownSlice.create()
+	var view := MapView3D.create(definition, MapBuilder.build(definition))
+	var streamer := view.object_streamer()
+	# These are authored objects encountered from the existing playable route anchors,
+	# not a synthetic all-chunks fixture. The route window must keep each visual
+	# category available through the same streamer used by the 3D view.
+	var route_art: Array[Dictionary] = [
+		{
+			"anchor_id": &"smithy_door",
+			"objects": [
+				{"id": &"kalev_smithy", "kind": &"building"},
+				{"id": &"courtyard_firewood", "kind": &"prop"},
+				{"id": &"courtyard_quench", "kind": &"prop"},
+				{"id": &"hay_store", "kind": &"prop"},
+			],
+		},
+		{
+			"anchor_id": &"brewery_door",
+			"objects": [
+				{"id": &"foaming_mug_brewery", "kind": &"building"},
+				{"id": &"brewery_keg_stack", "kind": &"prop"},
+				{"id": &"brewery_malt_sacks", "kind": &"prop"},
+				{"id": &"evidence_barrels", "kind": &"prop"},
+			],
+		},
+		{
+			"anchor_id": &"street_start",
+			"objects": [
+				{"id": &"viru_house_east", "kind": &"building"},
+				{"id": &"weary_traveler_inn", "kind": &"building"},
+				{"id": &"street_cart", "kind": &"prop"},
+			],
+		},
+		{
+			"anchor_id": &"checkpoint_west",
+			"objects": [
+				{"id": &"market_stall_turg_north", "kind": &"prop"},
+				{"id": &"sign.town_centre", "kind": &"direction_sign"},
+			],
+		},
+		{
+			"anchor_id": &"checkpoint_east",
+			"objects": [
+				{"id": &"viru_gate_north_tower", "kind": &"building"},
+				{"id": &"viru_gate_south_tower", "kind": &"building"},
+				{"id": &"viru_gate_arch", "kind": &"landmark"},
+				{"id": &"viru_foregate_arch", "kind": &"landmark"},
+				{"id": &"market_stall_gate", "kind": &"prop"},
+				{"id": &"gate_cart", "kind": &"prop"},
+				{"id": &"sign.viru_road", "kind": &"direction_sign"},
+			],
+		},
+		{
+			"anchor_id": &"katariina_kaik",
+			"objects": [
+				{"id": &"monastery_precinct_wall_south_b", "kind": &"building"},
+				{"id": &"monastery_yard_linden", "kind": &"prop"},
+				{"id": &"monastery_well", "kind": &"prop"},
+			],
+		},
+		{
+			"anchor_id": &"monastery_gate",
+			"objects": [
+				{"id": &"st_catherines_church", "kind": &"building"},
+				{"id": &"monastery_cloister", "kind": &"building"},
+				{"id": &"monastery_well", "kind": &"prop"},
+			],
+		},
+		{
+			"anchor_id": &"karja_gate_south",
+			"objects": [
+				{"id": &"south_apron_wall_walk_hut", "kind": &"building"},
+				{"id": &"south_apron_timber_house", "kind": &"building"},
+				{"id": &"south_apron_cart", "kind": &"prop"},
+				{"id": &"south_apron_barrels", "kind": &"prop"},
+				{"id": &"south_apron_scrub_a", "kind": &"prop"},
+			],
+		},
+		{
+			"anchor_id": &"south_quarter_lane",
+			"objects": [
+				{"id": &"sign.south_quarter", "kind": &"direction_sign"},
+				{"id": &"sign.karja_gate", "kind": &"direction_sign"},
+			],
+		},
+	]
+
+	for route: Dictionary in route_art:
+		var anchor_id: StringName = route["anchor_id"]
+		var anchor_position := MapVerification.anchor_position(definition, anchor_id)
+		assert_true(anchor_position != Vector2.ZERO, "missing playable route anchor %s" % anchor_id)
+		view.update_active_chunks_from_logic_positions([anchor_position])
+		var active_chunks := streamer.loaded_chunk_coordinates()
+		assert_true(not active_chunks.is_empty(), "%s must activate at least one terrain chunk" % anchor_id)
+
+		for expected: Dictionary in route["objects"]:
+			var object_id: StringName = expected["id"]
+			var record := streamer.resolve(object_id)
+			assert_false(record.is_empty(), "%s must be indexed in the route view" % object_id)
+			assert_eq(record["kind"], expected["kind"], "%s kind must remain authored" % object_id)
+			var consumer_is_active := false
+			for consumer_chunk in record["consumer_chunks"]:
+				if active_chunks.has(consumer_chunk):
+					consumer_is_active = true
+			assert_true(
+				consumer_is_active,
+				"%s must be consumed by an active chunk at route anchor %s" % [object_id, anchor_id]
+			)
+			assert_true(
+				streamer.loaded_instance(object_id) is Node3D,
+				"%s must produce a 3D instance at route anchor %s" % [object_id, anchor_id]
+			)
+
+		assert_true(
+			streamer.duplicate_instance_ids().is_empty(),
+			"route anchor %s must not duplicate stable art instances" % anchor_id
+		)
+
+	var foregate := streamer.resolve(&"viru_foregate_arch")
+	assert_eq(
+		foregate["consumer_chunks"],
+		[Vector2i(3, 1), Vector2i(4, 1)],
+		"the foregate arch must retain both route-side consumer chunks"
+	)
+	assert_eq(
+		foregate["owner_chunk"],
+		Vector2i(3, 1),
+		"the foregate arch owner must be deterministic"
+	)
+	assert_true(
+		streamer.loaded_instance(&"viru_foregate_arch") != null,
+		"the boundary-spanning foregate arch must remain resident from the checkpoint route"
+	)
+	assert_true(streamer.duplicate_instance_ids().is_empty())
+	view.free()
+
+
 func test_view_renders_definitions_without_touching_logic_results() -> void:
 	for definition in _view_definitions():
 		var grid := MapBuilder.build(definition)
