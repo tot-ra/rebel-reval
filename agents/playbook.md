@@ -109,3 +109,5 @@ This file contains only cross-role operating lessons. Domain lessons belong to t
 - When adding a shebang to an existing shell smoke script, check its tracked executable bit before testing `./script`; either invoke it with `bash` or preserve the intended executable mode explicitly.
 - When querying the task board for low-complexity work, keep `tags` as an array even when empty; the `complexity` field may not filter `list`, so inspect returned rows and claim an explicitly small task.
 - Before reading a generated or helper artifact, verify the exact repository path; a malformed path can produce a misleading missing-file failure unrelated to the task.
+- When `tasks.next` returns a task outside the requested complexity, restore it to `todo` before selecting a candidate; confirm an explicit low-complexity row instead of inferring size from queue order.
+- A visual capture helper can exit 0 and overwrite valid evidence even when Godot reports parse errors; treat output as invalid until the log is checked for `SCRIPT ERROR`/`ERROR` and the generated plates pass the evidence verifier, then restore tracked plates if the run was non-reproducible.
