@@ -3,6 +3,8 @@ extends "res://tests/godot/test_case.gd"
 const LowerTownSliceDefinition := preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd")
 const PropStyleVariants := preload("res://scripts/map/map_prop_style_variants.gd")
 const HouseStyles := preload("res://scripts/map/view3d/map_view_mesh_builder_building_houses.gd")
+const MapViewMeshBuilder := preload("res://scripts/map/view3d/map_view_mesh_builder.gd")
+const MapViewMaterials := preload("res://scripts/map/view3d/map_view_materials.gd")
 const Config := preload("res://scripts/map/view3d/map_view_mesh_builder_config.gd")
 
 
@@ -113,3 +115,55 @@ func test_tier_fallback_and_authored_material_precedence_are_deterministic() -> 
 	}
 	assert_eq(HouseStyles.house_style(authored), Config.HOUSE_STYLE_TIMBER)
 	assert_eq(HouseStyles.roof_style(authored), Config.ROOF_STYLE_THATCH)
+
+
+func test_lower_town_tiers_resolve_to_worn_wall_and_roof_variation() -> void:
+	var definition := LowerTownSliceDefinition.create()
+	var by_id := {}
+	for building in definition.buildings:
+		by_id[building["id"]] = building
+
+	MapViewMaterials.reset()
+	var wall_textures: Dictionary = {}
+	var roof_textures: Dictionary = {}
+	var weathering_variants: Dictionary = {}
+	for building_id in EXPECTED_TIERS:
+		assert_true(by_id.has(building_id), "missing authored house %s" % building_id)
+		if not by_id.has(building_id):
+			continue
+		var building: Dictionary = by_id[building_id]
+		var node := MapViewMeshBuilder.build_building(building, definition.cell_size)
+		var walls := node.get_node_or_null("Walls") as MeshInstance3D
+		var roof := node.get_node_or_null("Roof") as MeshInstance3D
+		assert_true(walls != null, "%s must emit ordinary house walls" % building_id)
+		assert_true(roof != null, "%s must emit ordinary house roof" % building_id)
+		if walls != null:
+			var wall_material := walls.material_override as StandardMaterial3D
+			assert_true(wall_material != null, "%s walls need a material" % building_id)
+			if wall_material != null:
+				assert_true(wall_material.albedo_texture != null, "%s walls need surface texture" % building_id)
+				wall_textures[wall_material.albedo_texture] = building_id
+		if roof != null:
+			var roof_material := roof.material_override as StandardMaterial3D
+			assert_true(roof_material != null, "%s roof needs a material" % building_id)
+			if roof_material != null:
+				assert_true(roof_material.albedo_texture != null, "%s roof needs surface texture" % building_id)
+				roof_textures[roof_material.albedo_texture] = building_id
+		var weathering := MapViewMaterials.surface_weathering_variant(building_id)
+		assert_true(MapViewMaterials.BUILDING_WEATHER_VARIANTS.has(weathering))
+		assert_eq(
+			weathering,
+			MapViewMaterials.surface_weathering_variant(building_id),
+			"%s weathering must be stable" % building_id
+		)
+		weathering_variants[weathering] = true
+		node.free()
+	assert_true(
+		wall_textures.size() >= 3,
+		"tiered frontage must retain multiple wall texture variants"
+	)
+	assert_true(
+		roof_textures.size() >= 3,
+		"tiered frontage must retain multiple roof texture variants"
+	)
+	assert_true(weathering_variants.size() >= 2, "tiered frontage must expose weathering variation")
