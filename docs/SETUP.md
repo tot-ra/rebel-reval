@@ -161,14 +161,28 @@ test -s ./build/rr.dmg
 
 ## CLI commands
 
-The following copy-pasteable commands can be used for headless automation. They assume the `godot` binary is in your `PATH` and you are at the repository root.
+The following copy-pasteable commands can be used for headless automation. They assume you are at the repository root. Set `GODOT_BIN` once before running them; the snippet prefers `godot` from `PATH` and falls back to the standard macOS app location:
+
+```bash
+if [ -z "${GODOT_BIN:-}" ]; then
+  GODOT_BIN="$(command -v godot || true)"
+  if [ -z "$GODOT_BIN" ] && [ -x /Applications/Godot.app/Contents/MacOS/Godot ]; then
+    GODOT_BIN=/Applications/Godot.app/Contents/MacOS/Godot
+  fi
+fi
+: "${GODOT_BIN:?Set GODOT_BIN to your Godot 4.7 binary}"
+export GODOT_BIN
+"$GODOT_BIN" --version
+```
+
+The remaining commands use `"$GODOT_BIN"`, so the same examples work when Godot is installed outside `PATH`.
 
 ### Headless import
 
 To perform a clean import of all tracked assets without launching the editor UI:
 
 ```bash
-godot --headless --editor --quit
+"$GODOT_BIN" --headless --editor --quit
 ```
 
 Policy: keep source assets plus matching `*.import` sidecars tracked, but do not commit generated cache folders. Godot 4 regenerates `.godot/`; legacy `.import/` cache folders are also ignored. See [`docs/reports/godot_import_cache_policy_p0_023.md`](./reports/godot_import_cache_policy_p0_023.md).
@@ -178,13 +192,13 @@ Policy: keep source assets plus matching `*.import` sidecars tracked, but do not
 To verify that the project and its scripts parse without errors in headless mode:
 
 ```bash
-godot --headless --check-only
+"$GODOT_BIN" --headless --check-only
 ```
 
-As of the P0-017 baseline, `godot --headless --check-only` does not exit on this project (see [`docs/reports/known_runtime_defects.md`](./reports/known_runtime_defects.md) `DEF-001`). Until that is fixed, use this playable-room smoke command instead:
+As of the P0-017 baseline, `"$GODOT_BIN" --headless --check-only` does not exit on this project (see [`docs/reports/known_runtime_defects.md`](./reports/known_runtime_defects.md) `DEF-001`). Until that is fixed, use this playable-room smoke command instead:
 
 ```bash
-godot --headless --quit-after 5 scenes/reval_east/reval_east.tscn
+"$GODOT_BIN" --headless --quit-after 5 scenes/reval_east/reval_east.tscn
 ```
 
 Recorded results: [`docs/reports/startup_baseline.md`](./reports/startup_baseline.md).
@@ -195,10 +209,10 @@ The project uses a minimal repository-owned headless harness rather than an exte
 
 ```bash
 tools/run_godot_checked.sh --require-test-summary full-suite \
-  godot --headless --script tools/run_godot_tests.gd
+  "$GODOT_BIN" --headless --script tools/run_godot_tests.gd
 ```
 
-`tools/run_godot_checked.sh` rejects nonzero commands, `SCRIPT ERROR`, parser/load failures, and all unexpected `ERROR:` lines. Its only allowlist is the documented shutdown-only DEF-002 family (`resources still in use at exit`, RID allocation leaks at exit, and `PagedAllocator` pages-in-use at exit); leak warnings remain visible. `--require-test-summary` additionally rejects empty or interrupted test runs. Run `GODOT_BIN=godot tools/test_godot_harness.sh` to seed runtime and parser exceptions and prove that both failure classes exit nonzero.
+`tools/run_godot_checked.sh` rejects nonzero commands, `SCRIPT ERROR`, parser/load failures, and all unexpected `ERROR:` lines. Its only allowlist is the documented shutdown-only DEF-002 family (`resources still in use at exit`, RID allocation leaks at exit, and `PagedAllocator` pages-in-use at exit); leak warnings remain visible. `--require-test-summary` additionally rejects empty or interrupted test runs. Run `GODOT_BIN="$GODOT_BIN" tools/test_godot_harness.sh` to seed runtime and parser exceptions and prove that both failure classes exit nonzero.
 
 To add tests, create a script under `tests/godot/` named `test_<area>.gd`, extend `res://tests/godot/test_case.gd`, and add zero-argument methods named `test_<behavior>`. Use `before_each()` and `after_each()` for per-test setup when needed.
 
@@ -206,7 +220,7 @@ For a narrow iteration loop while working on map view or camera behavior, use co
 
 ```bash
 tools/run_godot_checked.sh --require-test-summary focused-map-view \
-  godot --headless --script tools/run_godot_tests.gd -- \
+  "$GODOT_BIN" --headless --script tools/run_godot_tests.gd -- \
   --filter=test_map_view_3d_mesh,test_map_camera_modes
 ```
 
@@ -247,7 +261,7 @@ This requires the matching Godot 4.7 export templates. F5/F6 still runs an edito
 To perform only a headless export:
 
 ```bash
-mkdir -p build && godot --headless --export-release "rr" ./build/rr.dmg
+mkdir -p build && "$GODOT_BIN" --headless --export-release "rr" ./build/rr.dmg
 ```
 
 ### Packaged demo walkthrough (D-004)

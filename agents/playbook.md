@@ -114,3 +114,4 @@ This file contains only cross-role operating lessons. Domain lessons belong to t
 
 - When reviewing character visual state, prefer dated face plates under `docs/reports/images/characters/face_*.png` over older `closeup_*.png` body plates; the July full-body set can predate the Aug face/PBR pass and must not drive gap analysis alone.
 - Permission-backed audio evidence tests must write actual newline characters, not literal `\\n` text, when validators match grant markers line-by-line.
+- When documenting portable Godot CLI commands, initialize and export `GODOT_BIN` before examples, use it consistently for headless operations, and keep standalone installation/CI examples on plain `godot` only when they explicitly describe PATH-based invocation.
