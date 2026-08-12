@@ -112,3 +112,8 @@ smooth shell with a hard crossing edge along the cheek, the hair shell shows
 ring terracing and UV-island blocks from the procedural hair texture, and
 Godot's importer leaves `vertex_color_use_as_albedo` off for the head's first
 surface (`hero_beard`), so the beard tint is exported but unused.
+
+Claimable follow-ups for these gaps (plus animation/living-motion rows) live in
+[`docs/CHARACTER_REALISM_BACKLOG.md`](../CHARACTER_REALISM_BACKLOG.md)
+(**P0-189**..**P0-198**). Review snapshot:
+[`docs/reports/character_visual_realism_review_2026-08-12.md`](character_visual_realism_review_2026-08-12.md).

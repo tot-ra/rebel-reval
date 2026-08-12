@@ -65,3 +65,5 @@ This file contains lessons specific to the Art role.
 - An eyeball sphere with separate lid ellipsoids above and below cannot read as an eye: the lid passes behind the ball at the lid line and never occludes the sclera. Build the eye as a flattened lens in the socket with tapered lid tubes on its rim and a dark lash line.
 - Nose realism is governed by protrusion, not by wing/columella detail: keep the tip near an eighth of the head's depth in front of the face surface.
 - Quantise hair fibre noise by azimuth around the skull, not by world axes; world-axis quantisation produces horizontal terracing bands on a head shell.
+
+- Character realism tasking after a visual review should land as a backlog (`docs/CHARACTER_REALISM_BACKLOG.md`) plus report, not as ad-hoc TODO prose; keep ADR 0016 caps and P0-183 byte budgets as hard gates beside material upgrades.

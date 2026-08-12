@@ -111,3 +111,5 @@ This file contains only cross-role operating lessons. Domain lessons belong to t
 - Before reading a generated or helper artifact, verify the exact repository path; a malformed path can produce a misleading missing-file failure unrelated to the task.
 - When `tasks.next` returns a task outside the requested complexity, restore it to `todo` before selecting a candidate; confirm an explicit low-complexity row instead of inferring size from queue order.
 - A visual capture helper can exit 0 and overwrite valid evidence even when Godot reports parse errors; treat output as invalid until the log is checked for `SCRIPT ERROR`/`ERROR` and the generated plates pass the evidence verifier, then restore tracked plates if the run was non-reproducible.
+
+- When reviewing character visual state, prefer dated face plates under `docs/reports/images/characters/face_*.png` over older `closeup_*.png` body plates; the July full-body set can predate the Aug face/PBR pass and must not drive gap analysis alone.

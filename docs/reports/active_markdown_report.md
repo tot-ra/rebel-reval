@@ -14,11 +14,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `100`
-- Markdown files excluded as archive/reference/out of active scope: `546`
-- Local/external links inspected: `593`
-- Links to active Markdown docs: `284`
-- Links to existing archive/reference/non-active local docs: `119`
+- Active Markdown files scanned: `101`
+- Markdown files excluded as archive/reference/out of active scope: `551`
+- Local/external links inspected: `606`
+- Links to active Markdown docs: `293`
+- Links to existing archive/reference/non-active local docs: `123`
 - External links skipped for reachability: `38`
 - Issues found: `0`
 
@@ -66,6 +66,7 @@ No active Markdown documentation issues found.
 - `docs/CANON.md`
 - `docs/cast_faction_promotion.md`
 - `docs/CHARACTER_GENERATION.md`
+- `docs/CHARACTER_REALISM_BACKLOG.md`
 - `docs/CHARACTERS/_template.md`
 - `docs/CHARACTERS/aita.md`
 - `docs/CHARACTERS/brother_hermann.md`

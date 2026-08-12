@@ -65,6 +65,10 @@ Visible transport of goods between districts through carts, porters, and pack an
 ### Market-Day Events (P4-032)
 On designated cycle days, markets feature expanded stalls, NPC crowds, special goods, unique dialogue encounters, and optional micro-quests. Off-days show reduced activity.
 
+## Character presentation follow-ups (2026-08-12)
+
+Visual review of shared-rig models and animations against this document and the face-realism research is recorded in [`docs/reports/character_visual_realism_review_2026-08-12.md`](reports/character_visual_realism_review_2026-08-12.md). Claimable material and motion rows (vertex-colour albedo, hair/beard, wrap skin, dialogue micro-motion, smithy/ambient packs) live in [`docs/CHARACTER_REALISM_BACKLOG.md`](CHARACTER_REALISM_BACKLOG.md).
+
 ## Implementation Notes
 
 All Witcher 3-inspired features have been adapted to fit Reval Rebel's scope constraints:

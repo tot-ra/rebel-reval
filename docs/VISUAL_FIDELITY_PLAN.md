@@ -1,6 +1,6 @@
 # Visual Fidelity Plan - saturated high-detail fantasy/anime PBR
 
-Companion to [`WITCHER3_REALISM_INSPIRATION.md`](WITCHER3_REALISM_INSPIRATION.md), which covers gameplay realism, and [ADR 0018](adr/0018-saturated-hdr-fantasy-anime-visual-direction.md), which governs appearance. This document covers the concrete gap between the current 3D presentation and a saturated, high-detail, painterly PBR medieval fantasy/anime look with HDR-range lighting. Backlog rows P0-140 through P0-160 in [`../TODO.md`](../TODO.md) implement the underlying fidelity pipeline.
+Companion to [`WITCHER3_REALISM_INSPIRATION.md`](WITCHER3_REALISM_INSPIRATION.md), which covers gameplay realism, and [ADR 0018](adr/0018-saturated-hdr-fantasy-anime-visual-direction.md), which governs appearance. This document covers the concrete gap between the current 3D presentation and a saturated, high-detail, painterly PBR medieval fantasy/anime look with HDR-range lighting. Historical foundation rows P0-140 through P0-160 described the first fidelity pipeline; open character presentation follow-ups after the 2026-08-12 review live in [`CHARACTER_REALISM_BACKLOG.md`](CHARACTER_REALISM_BACKLOG.md) (**P0-188**..**P0-198**) and are indexed from [`../TODO.md`](../TODO.md).
 
 Since [ADR 0015](adr/0015-default-third-person-camera.md) the default camera is an
 over-the-shoulder perspective follow camera (not the old fixed isometric view), so character
@@ -14,16 +14,17 @@ Large premium RPG and anime productions use specialized concept, modeling, surfa
 
 "Realism" in source briefs now means historical, anatomical, functional, scale, and material credibility. It does not prescribe pale color, photographic noise, neutral lighting, or naturalistic proportions as the final visual finish. Everything below is chosen for high visible fidelity within the frozen tier and performance constraints.
 
-## Measured gap (updated 2026-07-30)
+## Measured gap (updated 2026-08-12)
 
 | Area | Current state (measured) | Consequence |
 |---|---|---|
-| Character textures | `heroic_humanoid.glb`: ~51k indexed tris across anatomical layers, **0 images**, 14 flat per-part color materials. mart/henning/townswoman/etc. follow the same pattern. No UVs. | Reads toy-like and cannot carry expressive face/hand detail, costume story, rich material color, or anime-influenced shape grouping - the #1 fidelity gap. |
+| Character textures / face | `heroic_humanoid.glb`: ~50.9k indexed tris, UVs, 12 embedded procedural PBR images, 18 materials, parametric face pass (sockets, brow tubes, layered eyes, lip tubes). Named cast follows the same ladder with LOD1/LOD2. | Foundation P0-144/P0-145 work is in; remaining #1 gaps are dialogue-distance materials (vertex-colour albedo unused on head/beard, hard beard edge, hair terracing, clay wrap) tracked as **P0-189**..**P0-193** in [`CHARACTER_REALISM_BACKLOG.md`](CHARACTER_REALISM_BACKLOG.md). Full-body closeups under `docs/reports/images/characters/closeup_*.png` are stale (2026-07-31) versus face plates (2026-08-09) - refresh is **P0-194**. |
+| Character animation | 76 shared KayKit-derived clips; data-only gait overrides; smithy uses contact offsets on generic clips. | Locomotion/combat coverage exists; idle weight, dialogue micro-motion, smithy station pack, and ambient role gestures remain thin (**P0-195**..**P0-198**). |
 | Post-process grade | AgX, glow, and adjustment are wired with ADR 0018 saturation, contrast, and controlled highlight values. Matched day/night third-person and top-down captures live under `docs/reports/images/adr0018_calibration/`. | Continue opportunistic hero-asset migration; weather-state matched plates remain optional follow-up. |
-| Renderer | `project.godot`: `renderer/rendering_method="gl_compatibility"`. | No SSAO/SSIL/SDFGI/SSR/volumetric fog and no established HDR10/wide-gamut output. This is a ceiling on advanced light/VFX, not permission to mislabel SDR output as display HDR. |
-| Props / animals | Forge & furniture GLBs carry 1–3 images (albedo only); animal GLBs 1 image. | Flat, unlit-looking surfaces under otherwise-good dynamic lighting. |
-| LOD / crowds | Shared rig has no `visibility_range`/LOD; no `MultiMeshInstance3D` for characters. | 40k-tri characters do not scale to battle-sized counts. |
-| Camera | Third-person perspective exists; no `CameraAttributes` (no DoF, no exposure). | No cinematic depth or exposure control in closeups. |
+| Renderer | `project.godot`: `renderer/rendering_method="gl_compatibility"`. P0-142 recommends staying on GL Compatibility for the shipped macOS preset. | No SSAO/SSIL/SDFGI/SSR/volumetric fog and no established HDR10/wide-gamut output. Skin response must fake wrap via albedo/materials (**P0-192**), not true SSS. |
+| Props / animals | Forge & furniture GLBs carry 1–3 images (albedo only); animal/fauna PBR contracts advanced separately (P0-156/P0-160 family). | Prop ORM and fauna remain their own tracks; do not block character material rows. |
+| LOD / crowds | Shared rig installs LOD1/LOD2 via `visibility_range`; crowd MultiMesh path exists (P0-172). | Crowd density is no longer blocked by missing LOD wiring; keep **P0-183** byte budgets in view when raising mesh detail. |
+| Camera | Third-person/first-person attach `CameraAttributesPractical` (P0-143); top-down clears attributes. | Camera foundation is present; closeup fidelity is now limited by face/hair/animation rows above. |
 
 **Strengths to preserve:** the environment pipeline is already strong - procedural building
 shaders with normal maps, real day/night, weather, sky dome, water sky-reflection, and
