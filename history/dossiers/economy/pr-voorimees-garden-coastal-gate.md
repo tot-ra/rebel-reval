@@ -82,6 +82,8 @@ A direct unauthenticated fetch of the official DGS permalink returns the VAU sig
 
 The result is an **access blocker**, not a negative Denkelbuch result. The existing EV II readings remain the only direct *Karrienpforte* text in this dossier: they establish named extramural garden holders, but neither supplies a carter occupation [10]. Clearing R-405, tracked as follow-up **R-499**, requires authenticated VAU/DGS review or an archive-supplied provenance-preserving scan/transcription for the 1340-1343 folios, with folio/page identifiers and original wording. Until then, `named_carter_owner` remains `null` and no EV II or Denkelbuch name may be reassigned to the carter plot.
 
+**R-499 recheck (2026-08-12, 19:02 UTC):** fresh unauthenticated requests reproduced the same boundary. The official AIS endpoint returned the Denkelbuch catalogue HTML and anonymous gallery metadata, while the official DGS permalink followed redirects to the VAU sign-in page. No authenticated session or archive-supplied scan/transcription was available in this run, so no manuscript image, folio identifier, or original wording was inspected. This recheck strengthens the access-boundary record only; it does not change `named_carter_owner: null` into either a hit or a manuscript no-hit.
+
 ### Regional context
 |---|---|
 | **Hanseatic Reval** | Extramural **kitchen gardens** are standard burgher/craft property bundles; Coastal Gate zone is **harbour-adjacent** — logical for **carter + cooper** plots serving landing trade [2][8] |
