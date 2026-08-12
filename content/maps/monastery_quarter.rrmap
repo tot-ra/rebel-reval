@@ -163,7 +163,7 @@ anchor from_reval_north 104 6 rect=2,2
 # so stacked district alignment stays cycle-consistent.
 anchor from_reval_center 37 104 rect=2,2
 anchor from_reval_east 139 104 rect=2,2
-anchor outer_wall_road 237 104 rect=2,2
+anchor monastery_outer_wall_road 237 104 rect=2,2
 anchor from_reval_toompea 8 34 rect=2,2
 transition to_reval_north 98 0 12 2 to=reval_north destination_spawn=from_monastery spawn=from_reval_north spawn_offset_px=0,96 highlight_area=true transition_visual=ground
 transition to_reval_north_outer 228 0 8 2 to=reval_north destination_spawn=from_monastery_outer spawn=outer_monastery_exit spawn_offset_px=0,96 highlight_area=true transition_visual=ground alignment=travel
