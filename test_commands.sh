@@ -16,7 +16,8 @@ else
 fi
 
 "$GODOT" --headless --editor --quit
-"$GODOT" --headless --check-only
+# `--check-only` is non-terminating for this project (DEF-001); use the documented playable-room smoke instead.
+"$GODOT" --headless --quit-after 5 scenes/reval_east/reval_east.tscn
 mkdir -p build && "$GODOT" --headless --export-release "rr" build/rr.dmg
 python3 tools/generate_active_docs_report.py
 python3 tools/generate_active_docs_report.py --check
