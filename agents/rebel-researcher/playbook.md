@@ -48,3 +48,4 @@ This file contains lessons specific to the Researcher role.
 - Keep repository-wide plate and historical verifiers separate from a healthy research access check when they report known unrelated baseline failures; report the exact failing rows and preserve the scoped dossier/index result.
 - When a batched archive-preview OCR command exits before diagnostics, split download, MIME/signature checks, OCR, and term search into separate steps; otherwise one HTTP failure can hide the actual evidence boundary.
 - When a scoped documentation assertion fails, inspect the exact failing assertion before changing the dossier; spelling differences in institutional names can make a valid source block look incomplete.
+- After inserting a new research-index row, re-read the bounded table and grep the task ref; a successful replacement can relocate an existing row instead of adding one, so verify uniqueness before validation and commit.
