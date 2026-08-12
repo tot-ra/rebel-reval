@@ -49,3 +49,4 @@ This file contains lessons specific to the Researcher role.
 - When a batched archive-preview OCR command exits before diagnostics, split download, MIME/signature checks, OCR, and term search into separate steps; otherwise one HTTP failure can hide the actual evidence boundary.
 - When a scoped documentation assertion fails, inspect the exact failing assertion before changing the dossier; spelling differences in institutional names can make a valid source block look incomplete.
 - After inserting a new research-index row, re-read the bounded table and grep the task ref; a successful replacement can relocate an existing row instead of adding one, so verify uniqueness before validation and commit.
+- In access-boundary dossiers, assert stable semantic anchors for a null field (for example, the field name plus a nearby `null`) rather than requiring YAML `key: null` syntax when the report uses prose.

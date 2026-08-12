@@ -10,7 +10,7 @@ related:
   - ../topography/harbour-and-shoreline.md
   - ../people/estonian-and-german-populations.md
   - ev2-karrienpforte-carter-ort-folio.md
-updated: 2026-07-29
+updated: 2026-08-12
 ---
 
 # Voorimehe kitchen garden before the Coastal Gate (EV / PR register pass)
@@ -66,9 +66,23 @@ These are the **published edition entry numbers** backing the sea-side and extra
 
 **Nottbeck EV II folio result:** Search targets ***Karrienpforte***, ***buten der Karrienpforte***, ***hortus***, and ***ort*** in Nottbeck 1890 were checked against the complete public-domain KPBC DjVu. EV II no. 686 (printed p. 101) and no. 859 (printed p. 132) provide verbatim *extra karienporten* garden deeds with named holders, but neither names a carter. The dedicated folio dossier records the readings and keeps the carter-owner link `gap` [3][7][10].
 
-### Regional context
+### TLA/Denkelbuch access boundary (2026-08-12)
 
-| Polity | Angle |
+The official Rahvusarhiiv Pärgamendid search reproduces the catalogue hit for `TLA.230.1.Aa2`, *Ältestes Denkelbuch des Revaler Rats*, dated **1333-1374** [11]. The independent Stadtbücher catalogue describes the first band as **48 pages** and links the same archive reference [12]. These are catalogue metadata and an archival lead, not a transcription of a carter deed.
+
+A direct unauthenticated fetch of the official DGS permalink returns the VAU sign-in page rather than a manuscript image. Its redirect identifies a protected TIFF target, `tla0230_001_0000aa2_00001_x.tif`, but no authenticated image request was made. The public AIS page exposes anonymous gallery previews labelled only `Gallery image 0` through `Gallery image 25`; none supplies a folio/page identifier, date, or usable transcription. This pass therefore inspected **zero Denkelbuch folios** and makes no text-level positive or negative claim about a carter, *voorimees*, *Fuhrmann*, *carrarius*, *ort*, or *Karrienpforte* in the manuscript [11][13].
+
+| Access item | Observed result | Evidence boundary |
+|---|---|---|
+| Official Pärgamendid catalogue | `TLA.230.1.Aa2` identified as *Ältestes Denkelbuch des Revaler Rats*, 1333-1374 | Catalogue identity and date span only [11] |
+| Stadtbücher catalogue | First band listed as 48 pages, 1333-1374; archive reference `TLA.230.1.Aa2` | Independent catalogue metadata only [12] |
+| AIS public gallery | 26 anonymous JPEG previews, labelled `Gallery image 0`-`25`; no folio/page/date labels or usable transcription | Preview discovery only; not folio evidence [13] |
+| Official DGS permalink | Redirects to VAU authentication before image display | Access blocker; zero folios read [14] |
+| Carter-owner search | Not run against folio text because authentication is unavailable | No responsible manuscript hit or no-hit claim |
+
+The result is an **access blocker**, not a negative Denkelbuch result. The existing EV II readings remain the only direct *Karrienpforte* text in this dossier: they establish named extramural garden holders, but neither supplies a carter occupation [10]. Clearing R-405, tracked as follow-up **R-499**, requires authenticated VAU/DGS review or an archive-supplied provenance-preserving scan/transcription for the 1340-1343 folios, with folio/page identifiers and original wording. Until then, `named_carter_owner` remains `null` and no EV II or Denkelbuch name may be reassigned to the carter plot.
+
+### Regional context
 |---|---|
 | **Hanseatic Reval** | Extramural **kitchen gardens** are standard burgher/craft property bundles; Coastal Gate zone is **harbour-adjacent** — logical for **carter + cooper** plots serving landing trade [2][8] |
 | **Danish Estonia** | No crown tariff table found for **garden rent** at gates — municipal property register logic [6] |
@@ -128,3 +142,7 @@ These are the **published edition entry numbers** backing the sea-side and extra
 8. [`../topography/harbour-and-shoreline.md`](../topography/harbour-and-shoreline.md) — Coastal Gate merchant landing apron (project dossier).
 9. [`../people/estonian-and-german-populations.md`](../people/estonian-and-german-populations.md) — carter status (project dossier).
 10. [`ev2-karrienpforte-carter-ort-folio.md`](ev2-karrienpforte-carter-ort-folio.md) - direct EV II public-domain scan pass for nos. 686 and 859; named gate-plot holders, but no named carter profession.
+11. Rahvusarhiiv, **Pärgamendid**, `TLA.230.1.Aa2`, *Ältestes Denkelbuch des Revaler Rats*, 1333-1374: https://www.ra.ee/apps/pargamendid/index.php/en/parchment/search?institution=TLA&refcode=TLA.230.1.Aa2&start_year=1340&end_year=1363&q=1 (official catalogue metadata; accessed 2026-08-12).
+12. International League of Historical Cities / Stadtbücher, **Denkelbuch**, Reval, `TLA.230.1.Aa2`, 1333-1374: https://www.stadtbuecher.de/en/stadtbuecher/estland/kreis-harju/reval-talinn/aeltestes-denkelbuch-des-revaler-rats/ (48-page catalogue metadata and archive reference; accessed 2026-08-12).
+13. Rahvusarhiiv, **AIS**, description unit `TLA.230.1.Aa2`: https://ais.ra.ee/en/description-unit/view?id=124030010181&ru=5GsV5p (26 anonymous gallery previews, labelled `Gallery image 0`-`25`; no folio/page identifiers or usable transcription; accessed 2026-08-12).
+14. Rahvusarhiiv, **DGS/VAU**, `TLA.230.1.Aa2` image permalink: https://www.ra.ee/dgs/_purl.php?shc=TLA.230.1.Aa2 (unauthenticated fetch ends at VAU sign-in and exposes protected TIFF target `tla0230_001_0000aa2_00001_x.tif`; no folio image or text accessed; accessed 2026-08-12). Clearing condition: authenticated VAU/DGS review or archive-supplied provenance-preserving scan/transcription.
