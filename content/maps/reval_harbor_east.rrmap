@@ -3,6 +3,12 @@
 # legacy ID but now joins the merchant landing on its east edge.
 rrmap 1
 map reval_harbor_east loc.reval_harbor.kalamaja 144 80 meadow scope=prototype active=false palette=clean_painted seed=1386 cell_size=32
+# R-454e: keep the Kalamaja wet margin at the shared low harbour datum while
+# lifting the dry village edge just enough to distinguish it from the beach track.
+elevation_area r454.harbor_e.kalarand_shore 72 44 72 0.0
+elevation_ramp r454.harbor_e.shore_track 0 50 143 49 0.0 0.0 width=3
+elevation_ramp r454.harbor_e.village_edge 18 64 94 51 0.0 0.05 width=2
+elevation_area r454.harbor_e.north_seam 142 51 4 0.0
 source "scenes/harbor/harbor_east.tscn"
 source "scenes/harbor/harbor.md"
 source "scenes/harbor/warehouses.md"

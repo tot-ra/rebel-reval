@@ -4,6 +4,12 @@
 # The northern deep-water band is widened for a more open Baltic roadstead view.
 rrmap 1
 map reval_harbor_north loc.reval_harbor.north 160 108 meadow scope=prototype active=false palette=clean_painted seed=1385 cell_size=32
+# R-454e: express the Coastal Gate sill, the low quay, and the reconstructed
+# sand/mud margin without changing 2D routes or inventing a deep-water grade.
+elevation_ramp r454.harbor_n.coastal_gate_ramp 103 102 70 72 0.6 0.1 width=4
+elevation_ramp r454.harbor_n.quay_to_wet_margin 70 72 70 54 0.1 0.0 width=3
+elevation_area r454.harbor_n.wet_margin 70 58 90 0.0
+elevation_area r454.harbor_n.harbor_east_seam 2 71 4 0.0
 source "scenes/harbor/harbor_north.tscn"
 source "scenes/harbor/harbor.md"
 source "scenes/harbor/great_coast_gate.md"
