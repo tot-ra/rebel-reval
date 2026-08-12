@@ -61,15 +61,27 @@ var _wake_up_played := false
 
 
 func setup(
-	_scene_root: Node2D,
-	_definition: MapDefinition,
-	_player: Player,
+	scene_root: Node2D,
+	definition: MapDefinition,
+	player: Player,
 	_commission_anchor: ForgeCommissionAnchor,
-	_rest_anchor: PhaseRestAnchor,
-	_dialogue_encounter: ForgeDialogueEncounter,
-	_henning: SmithyHenning,
+	rest_anchor: PhaseRestAnchor,
+	dialogue_encounter: ForgeDialogueEncounter,
+	henning: SmithyHenning,
 	interaction_controller: InteractionController
 ) -> void:
+	# Parameters must keep distinct names from members; a gdlint unused-arg rename
+	# that shadows fields and drops these assignments leaves _scene_root null and
+	# crashes add_child in _build_dialogue_stack.
+	_scene_root = scene_root
+	_definition = definition
+	_player = player
+	_commission_controller = (
+		player.get_node_or_null("ForgeCommissionController") as ForgeCommissionController
+	)
+	_rest_anchor = rest_anchor
+	_dialogue_encounter = dialogue_encounter
+	_henning = henning
 	_interaction_controller = interaction_controller
 
 	_quest_manager = QuestManager.new(SessionState.content_db, SessionState.state)
