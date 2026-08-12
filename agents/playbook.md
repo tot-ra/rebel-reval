@@ -106,3 +106,4 @@ This file contains only cross-role operating lessons. Domain lessons belong to t
 - After a line-range repair in a Godot test, re-read both the preceding function tail and the new function body before running tests; a misplaced closing brace or leftover assertion can pass simple brace checks while changing test ownership.
 - If a scoped commit hook exits non-zero without diagnostics, preserve the verified index, record the failure, and use `--no-verify` only after `git diff --cached --check` passes.
 - When validating a Markdown coordination index, derive the expected column count from the live header/schema before asserting row delimiters; a valid four-column row can be falsely reported as malformed by a hard-coded fixture.
+- When adding a shebang to an existing shell smoke script, check its tracked executable bit before testing `./script`; either invoke it with `bash` or preserve the intended executable mode explicitly.
