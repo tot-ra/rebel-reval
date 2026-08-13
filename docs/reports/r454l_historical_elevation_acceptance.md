@@ -7,7 +7,7 @@
 
 ## Decision
 
-The final historical-elevation gate cannot close yet. The R-454 source matrix, all nine urban exterior runtime profile sets, and the parser/compiler regression gate now pass. The remaining R-503 gameplay-invariant and R-455 rendered-readability gates still require their dedicated reruns and evidence.
+The final historical-elevation gate cannot close yet. The R-454 source matrix, all nine urban exterior runtime profile sets, the parser/compiler regression gate, and the R-503 gameplay-invariant gate now pass. The remaining R-455 rendered-readability gate still requires its dedicated rerun and evidence.
 
 This report records the exact boundary rather than treating a data-only pass as visual acceptance. R-504 should remain open/in review until the remaining blockers below are resolved and the focused suites are rerun from a clean or otherwise attributable worktree.
 
@@ -19,15 +19,21 @@ This report records the exact boundary rather than treating a data-only pass as 
 
 ## Reproduction
 
-Godot 4.7.1 was available at `/Applications/Godot.app/Contents/MacOS/Godot`. R-522 was run through the checked runner with `GODOT_LOG_DIR=/tmp/rebel-reval-r522-logs`:
+Godot 4.7.1 was available at `/Applications/Godot.app/Contents/MacOS/Godot`. R-522 and R-523 were run through the checked runner with separate log directories:
 
 ```sh
 export GODOT_BIN=/Applications/Godot.app/Contents/MacOS/Godot
-export GODOT_LOG_DIR=/tmp/rebel-reval-r522-logs
+export GODOT_LOG_DIR=/tmp/rebel-reval-r523-logs
 
+# R-522 scope run (recorded before this R-523 rerun)
 tools/run_godot_checked.sh --require-test-summary r522-scope -- \
   "$GODOT_BIN" --headless --path . \
   --script tools/run_godot_tests.gd -- --filter=test_r454_elevation_scope
+
+# R-523 gameplay-invariant rerun
+tools/run_godot_checked.sh --require-test-summary r523-r503 -- \
+  "$GODOT_BIN" --headless --path . \
+  --script tools/run_godot_tests.gd -- --filter=test_r503_elevation_gameplay_invariants
 
 tools/run_map_pipeline_ci.sh parser
 ```
@@ -40,10 +46,20 @@ Saved logs are local verification artifacts and are not part of this documentati
 |---|---|---|
 | R-454 scope / R-522 | **PASS** | 1 file, 3 tests: all nine urban exterior maps compile within the matrix; five flat interiors remain flat; `viru_gate_foreland` remains explicitly excluded. |
 | RRMap parser regression | **PASS** | 1 file, 16 tests: elevation grammar, compiled metadata, canonical round-trip, and rejection contracts pass. |
-| R-503 gameplay invariants | **PENDING R-523** | Dedicated rerun is still required to prove elevation remains view-only and reciprocal harbour seams remain aligned. |
-| R-455 readability | **BLOCKED / PENDING R-524** | Dedicated rerun and Metal player-eye/top-down evidence are still required for ditch depth and terrain/object alignment. |
+| R-503 gameplay invariants | **PASS / R-523** | 1 file, 3 tests: elevation remains view-only, gameplay geometry/navigation snapshots stay identical, and reciprocal harbour transition identities plus physical seam spans remain aligned. |
+| R-455 readability | **BLOCKED / PENDING R-526** | Dedicated rerun and Metal player-eye/top-down evidence are still required for ditch depth and terrain/object alignment. |
 
-The checked runner reported expected shutdown resource-leak diagnostics. They did not change either R-522 command's zero status and are not the remaining acceptance blocker.
+The checked runner reported expected shutdown resource-leak diagnostics during R-522 and R-523. They did not change either command's zero status and are not the remaining acceptance blocker.
+
+## R-523 gameplay-invariant verification (2026-08-13)
+
+The dedicated R-503 gameplay-invariant suite completed with 3/3 tests and 0 failures or errors:
+
+```text
+Godot headless tests: 1 file(s), 3 test(s), 0 failure(s), 0 error(s).
+```
+
+The three passing checks prove that elevation values remain finite and scoped, changing elevation leaves terrain/gameplay/navigation snapshots unchanged, and reciprocal transitions preserve identity with an aligned physical harbour seam. This closes the R-503 gameplay-invariant boundary under R-523; it does not claim the separate R-455 rendered-readability evidence.
 
 ## R-454v1 verification (2026-08-13)
 
@@ -59,7 +75,7 @@ The parser regression pipeline completed with 16/16 tests and 0 failures or erro
 Godot headless tests: 1 file(s), 16 test(s), 0 failure(s), 0 error(s).
 ```
 
-This closes the R-454v1 implementation/parser boundary. It does not claim R-503 gameplay invariants or R-455 rendered readability acceptance.
+This closes the R-454v1 implementation/parser boundary. It does not claim the separate R-455 rendered readability acceptance.
 
 ## Runtime profile coverage
 
@@ -81,18 +97,16 @@ The five previously missing urban profile sets are now present and are covered b
 
 R-504 is not accepted because:
 
-1. R-503 gameplay-invariant verification remains to be rerun under R-523.
-2. R-455 still requires rendered Metal evidence for player-eye/top-down readability, recessed ditch depth, and exact terrain/object alignment.
-3. No human historical or art sign-off is recorded by this gate.
+1. R-455 still requires rendered Metal evidence for player-eye/top-down readability, recessed ditch depth, and exact terrain/object alignment.
+2. No human historical or art sign-off is recorded by this gate.
 
-The passing R-454 scope and parser gates establish matrix coverage and grammar/compiler integrity only. They do not override the remaining gameplay or visual acceptance requirements.
+The passing R-454 scope, parser, and R-503 gameplay-invariant gates establish matrix coverage, grammar/compiler integrity, and gameplay preservation only. They do not override the remaining visual acceptance requirement.
 
 ## Follow-up ownership
 
-The task board contains the serial verification follow-ups:
+The task board contains the serial verification follow-up:
 
-- **R-523:** rerun the R-503 gameplay-invariant gate after R-522.
-- **R-524:** close R-455/R-504 with the readability suite and matched Metal day/night captures after R-523.
+- **R-526:** close R-455/R-504 with the readability suite and matched Metal day/night captures after the completed R-523 gameplay-invariant gate.
 
 After both are complete, rerun the focused suites from a clean attributable snapshot and attach the required captures before changing the decision to accepted.
 
