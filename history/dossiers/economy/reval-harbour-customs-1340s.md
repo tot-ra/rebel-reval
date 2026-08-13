@@ -9,7 +9,7 @@ related:
   - merchant-cart-and-transport-1340s.md
   - ../topography/harbour-and-shoreline.md
   - ../power/jurisdictions-of-reval.md
-updated: 2026-08-12
+updated: 2026-08-13
 ---
 
 # Reval harbour customs, landing, and crane dues (1340–1343)
@@ -97,6 +97,18 @@ A fresh fetch of the official DGS permalink returned the VAU sign-in page and an
 
 This repeat check strengthens the provenance of the access boundary while leaving the harbour-dues question open. The next lawful action is an authenticated VAU/DGS review or a request to Tallinn City Archives / Rahvusarhiiv for a scan or transcription with folio identifiers. The clearing condition is tracked as `R-459` [6][8].
 
+### Access recheck (2026-08-13, 13:02 UTC)
+
+A direct request to the official AIS unit page returned HTTP 200 `text/html` without a redirect and reproduced the `TLA.230.1.Aa2` catalogue record and anonymous gallery previews. A separate direct request to the official DGS permalink returned HTTP 200 `text/html` only after six redirects, ending at the VAU login page. The redirect still exposed the protected TIFF target `tla0230_001_0000aa2_00001_x.tif`, but no authenticated image request was made. No folio/page identifier, original wording, date-bearing entry, rate, or collector name was recovered; zero Denkelbuch folios were inspected. The existing authorized-access handoff is `R-462`, with access enablement tracked through `R-502` [9].
+
+This is a repeated access-boundary check, not a manuscript hit or no-hit. Keep `harbour_landing_due: null`, `harbour_crane_fee: null`, and the dossier status `partial` until a producer-approved authenticated session or archive-supplied provenance-preserving scan/transcription covers the 1340-1343 folios [9].
+
+| Probe | Observed result | Evidence boundary |
+|---|---|---|
+| AIS unit page | HTTP 200 `text/html`, no redirect; catalogue record and anonymous previews reproduced | Catalogue and preview metadata only; no folio text [9] |
+| DGS permalink | HTTP 200 `text/html` after six redirects; final page is VAU login and names the protected TIFF target | Authentication boundary; no image or OCR evidence [9] |
+| Authenticated folio review | No producer-approved authenticated session or archive export available in this pass | Zero folios; no responsible harbour-term hit or no-hit |
+
 | Evidence item | Result | Confidence |
 |---|---|---|
 | TLA Pärgamendid title queries, 16 terms listed above | No catalogue-title result under the stated TLA and 1340-1343 parameters | bounded catalogue negative; not folio evidence [7] |
@@ -147,3 +159,4 @@ No licensed visual evidence was found for a dated **1340–1343 Reval fee line**
 6. Rahvusarhiiv, **AIS**, `TLA.230.1.Aa2`, *Ältestes Denkelbuch des Revaler Rats*, 1333-1374, 48 pages, German-language material, catalogue note on council elections, punishments, and judgments: https://ais.ra.ee/en/description-unit/view?id=124030010181&ru=5GsV5p . Public asset gallery observed at https://ais.ra.ee/assets/41e0dd40/images/ (catalogue metadata and anonymous previews, accessed 2026-08-12).
 7. Rahvusarhiiv, **Pärgamendid**, bounded TLA title queries for harbour/customs/crane/collector terms, 1340-1343: searched `portus`, `Lade`, `Ladung`, `Hafen`, `Hafenzoll`, `Zoll`, `Kran`, `telonium`, `teloneum`, `thelonium`, `Zollner`, `Zöllner`, `tolner`, `telonearius`, `collectarius`, and `Pfundzoll`; representative URLs for `portus` https://www.ra.ee/apps/pargamendid/index.php/en/parchment/search?institution=TLA&title=portus&start_year=1340&end_year=1343&q=1, `Zoll` https://www.ra.ee/apps/pargamendid/index.php/en/parchment/search?institution=TLA&title=Zoll&start_year=1340&end_year=1343&q=1, and `collectarius` https://www.ra.ee/apps/pargamendid/index.php/en/parchment/search?institution=TLA&title=collectarius&start_year=1340&end_year=1343&q=1 (all returned `No results found`, accessed 2026-08-10; catalogue-title check only).
 8. Rahvusarhiiv, **DGS/VAU**, `TLA.230.1.Aa2` image permalink: https://www.ra.ee/dgs/_purl.php?shc=TLA.230.1.Aa2 (accessed 2026-08-12). The unauthenticated redirect ends at VAU authentication after exposing a protected TIFF-like target; no folio text accessible in this pass. Clearing condition: `R-459`.
+9. Rahvusarhiiv, **AIS/DGS direct access recheck**, `TLA.230.1.Aa2` (2026-08-13 13:02 UTC): AIS returned HTTP 200 `text/html` without redirect; DGS returned HTTP 200 `text/html` after six redirects and ended at VAU login while exposing protected TIFF target `tla0230_001_0000aa2_00001_x.tif`. No authenticated image or folio text was accessed; zero folios inspected. Existing authorized-access handoff: `R-462`; access enablement: `R-502`.
