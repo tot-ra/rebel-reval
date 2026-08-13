@@ -82,6 +82,9 @@ def read_exceptions(path: Path) -> tuple[dict[str, BinaryException], list[str]]:
             continue
 
         path_value = str(values["path"]).strip()
+        if not path_value:
+            errors.append(f"exception entry {entry_number} missing: path")
+            continue
         relative = Path(path_value)
         if relative.is_absolute() or ".." in relative.parts:
             errors.append(f"exception entry {entry_number} has unsafe path: {path_value}")
