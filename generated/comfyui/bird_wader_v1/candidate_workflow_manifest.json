@@ -14,21 +14,33 @@
       "species": "grey_heron",
       "seed": 1343040,
       "comfyui_run_id": "4dc3aaa2-a241-4999-b258-10c499f584a8",
-      "candidate": "generated/comfyui/bird_wader_v1/candidates/grey_heron_hunyuan_candidate.glb"
+      "candidate": "generated/comfyui/bird_wader_v1/candidates/grey_heron_hunyuan_candidate.glb",
+      "status": "retained_for_audit"
     },
     {
       "species": "northern_lapwing",
       "seed": 1343041,
       "comfyui_run_id": "6ddfc883-2f08-4b70-827b-b69ae15fdd39",
-      "candidate": "generated/comfyui/bird_wader_v1/candidates/northern_lapwing_hunyuan_candidate.glb"
+      "candidate": "generated/comfyui/bird_wader_v1/candidates/northern_lapwing_hunyuan_candidate.glb",
+      "status": "removed",
+      "removal_commit": "206069637005a2c4e0f904f2baa14a8428c00458",
+      "removal_reason": "Rejected 12.67 MiB candidate removed by storage cleanup; production Blender wader retained."
     },
     {
       "species": "common_snipe",
       "seed": 1343042,
       "comfyui_run_id": "3692405b-c6a3-4537-b6d0-4bc6b6fc3b12",
-      "candidate": "generated/comfyui/bird_wader_v1/candidates/common_snipe_hunyuan_candidate.glb"
+      "candidate": "generated/comfyui/bird_wader_v1/candidates/common_snipe_hunyuan_candidate.glb",
+      "status": "retained_for_audit"
     }
   ],
   "candidate_only": true,
-  "production_policy": "Keep generated Blender waders_v1 GLBs under assets/birds/** as production; do not promote these candidates."
+  "retired_candidates": [
+    {
+      "species": "northern_lapwing",
+      "status": "removed",
+      "removal_commit": "206069637005a2c4e0f904f2baa14a8428c00458"
+    }
+  ],
+  "production_policy": "Keep generated Blender waders_v1 GLBs under assets/birds/** as production; do not promote these candidates. Retain only the audit inputs that survived storage cleanup."
 }

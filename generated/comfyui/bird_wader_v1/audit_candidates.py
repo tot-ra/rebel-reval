@@ -6,12 +6,29 @@ from pathlib import Path
 
 root = Path.cwd()
 out_path = root / "generated/comfyui/bird_wader_v1/candidates/candidate_audit.json"
-paths = {
+CANDIDATE_SPECS = {
     "grey_heron": root / "generated/comfyui/bird_wader_v1/candidates/grey_heron_hunyuan_candidate.glb",
-    "northern_lapwing": root / "generated/comfyui/bird_wader_v1/candidates/northern_lapwing_hunyuan_candidate.glb",
     "common_snipe": root / "generated/comfyui/bird_wader_v1/candidates/common_snipe_hunyuan_candidate.glb",
 }
-production_largest = {"grey_heron": 3.2685, "northern_lapwing": 0.5543, "common_snipe": 0.7644}
+RETIRED_CANDIDATES = [
+    {
+        "species": "northern_lapwing",
+        "candidate_path": "generated/comfyui/bird_wader_v1/candidates/northern_lapwing_hunyuan_candidate.glb",
+        "status": "removed",
+        "removal_commit": "206069637005a2c4e0f904f2baa14a8428c00458",
+        "removal_reason": "Rejected 12.67 MiB candidate removed by storage cleanup; production Blender wader retained.",
+        "historical_metrics": {
+            "triangles": 879680,
+            "vertices": 227166,
+            "largest_axis_m": 1.963176,
+            "min_z_m": -0.97777,
+            "material_count": 0,
+            "animation_count": 0,
+        },
+        "production_verdict": "reject",
+    }
+]
+production_largest = {"grey_heron": 3.2685, "common_snipe": 0.7644}
 
 def reset():
     bpy.ops.object.select_all(action="SELECT")
@@ -106,7 +123,8 @@ report = {
         "requires_standing_pose": True,
         "requires_animation_coverage": True,
     },
-    "candidates": [audit(species, path) for species, path in paths.items()],
+    "candidates": [audit(species, path) for species, path in CANDIDATE_SPECS.items()],
+    "retired_candidates": RETIRED_CANDIDATES,
     "production_policy": "Candidates only; assets/birds production GLBs were not modified or replaced.",
     "workflow_status": "healthy",
 }
