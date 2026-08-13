@@ -224,8 +224,8 @@ def main() -> None:
         ],
         "static_prop": True,
         "rigged": True,
-        "animations": ["Idle-loop", "Walk-loop"],
-        "animated_parts": ["legs", "neck", "tail", "eyes"],
+        "animations": ["Idle-loop", "Walk-loop", "Trot-loop", "Sniff-loop"],
+        "animated_parts": ["legs", "body", "neck", "tail", "eyes"],
     }
     report_path = REPORTS / "dog_report.json"
     report_path.write_text(json.dumps(report, indent=2) + "\n")

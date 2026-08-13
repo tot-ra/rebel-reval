@@ -9,7 +9,14 @@ const MammalSpecies := preload("res://scripts/map/view3d/map_view_mammal_species
 
 const IDLE_ANIMATION := &"Idle"
 const WALK_ANIMATION := &"Walk"
+const TROT_ANIMATION := &"Trot"
+const SNIFF_ANIMATION := &"Sniff"
 const ANIMATION_PLAYER_META := &"animal_animation_player"
+const ANIMATION_STATE_META := &"animal_animation_state"
+const IDLE_VARIATION_TIME_META := &"animal_idle_variation_time"
+const DOG_TROT_SPEED := 1.0
+const DOG_TROT_REFERENCE_SPEED := 1.35
+const DOG_SNIFF_INTERVAL := 5.5
 const PROCEDURAL_GAIT_MODEL_META := &"procedural_gait_model"
 const PROCEDURAL_GAIT_PHASE_META := &"procedural_gait_phase"
 const PROCEDURAL_GAIT_WEIGHT_META := &"procedural_gait_weight"
@@ -46,8 +53,8 @@ const MODEL_PATHS: Dictionary = {
 	MammalSpecies.SPECIES_PIG: "res://assets/animals/medieval/medieval_pig.glb",
 	MammalSpecies.SPECIES_SHEEP: "res://assets/animals/medieval/medieval_sheep.glb",
 	MammalSpecies.SPECIES_HORSE: "res://assets/animals/medieval/medieval_pack_horse.glb",
-	# The Lower Town street dog is an authored hound: closed anatomy, PBR coat,
-	# and the shared livestock idle/walk clips instead of the procedural proxy.
+	# The Lower Town street dog is an authored hound with closed anatomy, PBR
+	# coat, and dog-specific idle, walk, trot, and sniff animation clips.
 	MammalSpecies.SPECIES_DOG: "res://assets/animals/medieval/medieval_dog.glb",
 	# Town cats are the same production cat as Kalev's, dressed in another coat.
 	MammalSpecies.SPECIES_CAT: "res://assets/characters/cat/cat_rig.tscn",
@@ -77,6 +84,9 @@ static func add_model(parent: Node3D, species: StringName) -> Node3D:
 	model.rotation.y = float(MODEL_YAW.get(species, 0.0))
 	model.set_meta(&"production_animal_model", true)
 	model.set_meta(&"species", species)
+	# Animation selection runs on the visual actor rather than the imported model.
+	# Store species there as well so direct placements and tests get dog states.
+	parent.set_meta(&"species", species)
 	parent.add_child(model)
 	_configure_animation(parent, model)
 	_configure_procedural_gait(parent, model, species)
@@ -93,15 +103,36 @@ static func sync_animation(actor: Node3D, previous_position: Vector3, delta: flo
 	var player := actor.get_meta(ANIMATION_PLAYER_META) as AnimationPlayer
 	if player == null:
 		return
-	var wanted := _clip_name(
-		player, WALK_ANIMATION if displacement.length_squared() > 0.0000001 else IDLE_ANIMATION
-	)
-	if wanted.is_empty() or player.current_animation == wanted:
+	var speed := displacement.length() / maxf(delta, 0.0001)
+	var species: StringName = actor.get_meta(&"species", &"")
+	var wanted_canonical := IDLE_ANIMATION
+	if speed > 0.001:
+		wanted_canonical = (
+			TROT_ANIMATION
+			if species == MammalSpecies.SPECIES_DOG and speed >= DOG_TROT_SPEED
+			else WALK_ANIMATION
+		)
+		actor.set_meta(IDLE_VARIATION_TIME_META, 0.0)
+	elif species == MammalSpecies.SPECIES_DOG:
+		var idle_time := float(actor.get_meta(IDLE_VARIATION_TIME_META, 0.0)) + delta
+		actor.set_meta(IDLE_VARIATION_TIME_META, idle_time)
+		# Alternate a head-down sniff with alert idle while paused. This remains
+		# deterministic and gives nearby dogs variety without per-frame randomness.
+		if fmod(idle_time, DOG_SNIFF_INTERVAL * 2.0) >= DOG_SNIFF_INTERVAL:
+			wanted_canonical = SNIFF_ANIMATION
+	var wanted := _clip_name(player, wanted_canonical)
+	if wanted.is_empty():
+		wanted = _clip_name(player, WALK_ANIMATION if speed > 0.001 else IDLE_ANIMATION)
+	if wanted.is_empty():
 		return
-	player.play(wanted, 0.18)
-	if wanted == WALK_ANIMATION:
-		# Match the authored 1 m/s gait to slow penned movement without freezing it.
-		player.speed_scale = clampf(displacement.length() / maxf(delta, 0.0001), 0.35, 1.35)
+	if player.current_animation != wanted:
+		player.play(wanted, 0.16)
+		actor.set_meta(ANIMATION_STATE_META, wanted_canonical)
+	if wanted_canonical == WALK_ANIMATION:
+		# Advance in proportion to distance so paws do not skate during slow wander.
+		player.speed_scale = clampf(speed / 0.62, 0.55, 1.25)
+	elif wanted_canonical == TROT_ANIMATION:
+		player.speed_scale = clampf(speed / DOG_TROT_REFERENCE_SPEED, 0.75, 1.35)
 	else:
 		player.speed_scale = 1.0
 

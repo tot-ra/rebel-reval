@@ -5,7 +5,7 @@
   "anatomy_decision": "authored_closed_four_leg_hound_body_no_external_source",
   "scale_basis": "1.02 m nose-to-tail length; 0.64 m standing height at ear tips",
   "output": "assets/animals/medieval/medieval_dog.glb",
-  "output_sha256": "e159b84b27e651ff5572f930942999e05e158e0fc9625318796d302c4e43109c",
+  "output_sha256": "7ec555943aea49039514dd527b219e1c7dc66726585cb2b4226986e2224108b9",
   "raw": {
     "vertices": 3596,
     "polygons": 7084,
@@ -100,10 +100,13 @@
   "rigged": true,
   "animations": [
     "Idle-loop",
-    "Walk-loop"
+    "Walk-loop",
+    "Trot-loop",
+    "Sniff-loop"
   ],
   "animated_parts": [
     "legs",
+    "body",
     "neck",
     "tail",
     "eyes"

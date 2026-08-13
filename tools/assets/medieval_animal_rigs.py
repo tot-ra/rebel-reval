@@ -403,7 +403,153 @@ def create_dog_rig(
     nose = add_uv_sphere("NoseTip", at((-0.685, 0.0, 0.522)), dim((0.022, 0.019, 0.016)), nose_material)
     parent_to_bone(nose, armature, "Neck")
     details.append(nose)
+    create_dog_animations(armature)
     return armature, details
+
+
+def create_dog_animations(armature: bpy.types.Object) -> None:
+    """Replace the generic livestock motion with dog-specific ambient clips.
+
+    WHY: the shared two-pose livestock walk is readable on large animals but a
+    small street dog still appears to slide at the map camera distance. Wider
+    contact/ passing poses, body weight shifts, and a strong lateral tail arc
+    make each state legible without increasing the skeleton or runtime cost.
+    """
+    pose_bones = armature.pose.bones
+    animated_bones = [
+        "Body",
+        "Neck",
+        "Tail",
+        "FrontLeftLeg",
+        "FrontRightLeg",
+        "BackLeftLeg",
+        "BackRightLeg",
+        "EyeLeft",
+        "EyeRight",
+    ]
+    for name in animated_bones:
+        pose_bones[name].rotation_mode = "XYZ"
+
+    # This builder runs in its own clean Blender scene, so replacing the generic
+    # clips cannot affect the other livestock exports.
+    for action_name in ("Idle-loop", "Walk-loop"):
+        action = bpy.data.actions.get(action_name)
+        if action is not None:
+            bpy.data.actions.remove(action)
+
+    def make_action(name: str) -> bpy.types.Action:
+        action = bpy.data.actions.new(name)
+        action.use_fake_user = True
+        armature.animation_data.action = action
+        return action
+
+    def key_pose(
+        frame: int,
+        rotations: dict[str, tuple[float, float, float]],
+        body_location: tuple[float, float, float] = (0.0, 0.0, 0.0),
+        eye_open: float = 1.0,
+    ) -> None:
+        for name in animated_bones:
+            bone = pose_bones[name]
+            bone.rotation_euler = rotations.get(name, (0.0, 0.0, 0.0))
+            bone.keyframe_insert("rotation_euler", frame=frame, group=name)
+        pose_bones["Body"].location = body_location
+        pose_bones["Body"].keyframe_insert("location", frame=frame, group="Body")
+        for name in ("EyeLeft", "EyeRight"):
+            pose_bones[name].scale = (1.0, 1.0, eye_open)
+            pose_bones[name].keyframe_insert("scale", frame=frame, group=name)
+
+    idle = make_action("Idle-loop")
+    for frame, tail_yaw, head_pitch, body_z, eye_open in (
+        (1, -0.34, -0.02, 0.000, 1.0),
+        (10, 0.36, 0.01, 0.006, 1.0),
+        (20, -0.30, 0.03, 0.000, 1.0),
+        (30, 0.38, 0.00, 0.006, 1.0),
+        (40, -0.34, -0.02, 0.000, 0.12),
+        (43, -0.12, -0.01, 0.003, 1.0),
+        (50, 0.36, 0.02, 0.006, 1.0),
+        (61, -0.34, -0.02, 0.000, 1.0),
+    ):
+        key_pose(
+            frame,
+            {
+                "Tail": (0.08, tail_yaw, tail_yaw * 0.20),
+                "Neck": (0.0, head_pitch, -tail_yaw * 0.04),
+            },
+            (0.0, 0.0, body_z),
+            eye_open,
+        )
+
+    walk = make_action("Walk-loop")
+    for frame, diagonal_a, diagonal_b, body_z, body_roll in (
+        (1, 0.46, -0.46, 0.000, -0.035),
+        (5, 0.26, -0.26, 0.014, 0.000),
+        (9, 0.00, 0.00, 0.026, 0.035),
+        (13, -0.26, 0.26, 0.014, 0.000),
+        (17, -0.46, 0.46, 0.000, -0.035),
+        (21, -0.26, 0.26, 0.014, 0.000),
+        (25, 0.00, 0.00, 0.026, 0.035),
+        (29, 0.26, -0.26, 0.014, 0.000),
+        (33, 0.46, -0.46, 0.000, -0.035),
+    ):
+        key_pose(
+            frame,
+            {
+                "FrontLeftLeg": (0.0, diagonal_a, 0.0),
+                "BackRightLeg": (0.0, diagonal_a, 0.0),
+                "FrontRightLeg": (0.0, diagonal_b, 0.0),
+                "BackLeftLeg": (0.0, diagonal_b, 0.0),
+                "Body": (0.0, 0.0, body_roll),
+                "Tail": (0.12, diagonal_b * 0.42, diagonal_b * 0.16),
+                "Neck": (0.0, -0.04 + abs(diagonal_a) * 0.08, -body_roll * 0.45),
+            },
+            (0.0, 0.0, body_z),
+        )
+
+    trot = make_action("Trot-loop")
+    for frame, diagonal_a, diagonal_b, body_z in (
+        (1, 0.58, -0.58, 0.010),
+        (4, 0.12, -0.12, 0.038),
+        (7, -0.58, 0.58, 0.010),
+        (10, -0.12, 0.12, 0.038),
+        (13, 0.58, -0.58, 0.010),
+    ):
+        key_pose(
+            frame,
+            {
+                "FrontLeftLeg": (0.0, diagonal_a, 0.0),
+                "BackRightLeg": (0.0, diagonal_a, 0.0),
+                "FrontRightLeg": (0.0, diagonal_b, 0.0),
+                "BackLeftLeg": (0.0, diagonal_b, 0.0),
+                "Tail": (0.02, diagonal_b * 0.28, diagonal_b * 0.10),
+                "Neck": (0.0, 0.055, 0.0),
+            },
+            (0.0, 0.0, body_z),
+        )
+
+    sniff = make_action("Sniff-loop")
+    for frame, head_pitch, head_yaw, tail_yaw, body_z in (
+        (1, 0.10, -0.16, -0.20, 0.000),
+        (10, 0.32, -0.08, 0.18, -0.012),
+        (20, 0.42, 0.12, -0.16, -0.018),
+        (30, 0.28, 0.18, 0.20, -0.010),
+        (40, 0.10, -0.16, -0.20, 0.000),
+    ):
+        key_pose(
+            frame,
+            {
+                "Neck": (0.0, head_pitch, head_yaw),
+                "Tail": (0.04, tail_yaw, tail_yaw * 0.14),
+                "FrontLeftLeg": (0.0, 0.08, 0.0),
+                "FrontRightLeg": (0.0, -0.04, 0.0),
+            },
+            (0.0, 0.0, body_z),
+        )
+
+    armature.animation_data.action = idle
+    bpy.context.scene.render.fps = 30
+    bpy.context.scene.frame_start = 1
+    bpy.context.scene.frame_end = 61
 
 
 def create_livestock_animations(armature: bpy.types.Object) -> None:
