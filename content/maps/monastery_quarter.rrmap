@@ -60,7 +60,7 @@ terrain outer_wall.road dirt 232 0 20 112 order=8
 # Keep the Workers' District visual language at the shared outer road: the
 # limestone curtain is followed by a shallow wet ditch and then a packed-earth
 # wall road. The travel opening is a dirt causeway through the ditch.
-terrain outer_wall.ditch water 228 8 4 96 order=10
+terrain outer_wall.ditch water 228 8 4 104 order=10
 terrain outer_wall.causeway dirt 228 40 4 12 order=11
 terrain south.seam.grass grass 30 98 110 14 order=3
 terrain lai.rear.grass grass 148 60 22 28 order=3
