@@ -6,6 +6,31 @@ const FORGE_SCENE := preload("res://scenes/reval_east/forge/forge.tscn")
 const QUEST_ID := &"quest.makers_mark"
 const COMMISSION_ID := &"commission.watch_buckle_repair"
 const RECORD_HONEST := &"forged.watch_buckle_repair.honest_work"
+const FLAG_WAKE_UP_MONOLOGUE_SEEN := &"flag.wake_up_monologue_seen"
+
+
+func test_wake_up_monologue_only_starts_on_first_smithy_entry() -> void:
+	_prepare_prologue_state()
+	var first_forge := FORGE_SCENE.instantiate()
+	var tree := Engine.get_main_loop() as SceneTree
+	tree.root.add_child(first_forge)
+	await _settle_frames(2)
+
+	var first_runner := _find_prologue_controller(first_forge).get_dialogue_runner()
+	assert_true(first_runner.is_active(), "new game must start the wake-up monologue")
+	assert_true(SessionState.state.get_flag(FLAG_WAKE_UP_MONOLOGUE_SEEN))
+	first_forge.free()
+
+	var returning_forge := FORGE_SCENE.instantiate()
+	tree.root.add_child(returning_forge)
+	await _settle_frames(2)
+
+	var returning_runner := _find_prologue_controller(returning_forge).get_dialogue_runner()
+	assert_false(
+		returning_runner.is_active(),
+		"returning from the city must not replay the wake-up monologue"
+	)
+	returning_forge.free()
 
 
 func test_prologue_starts_henning_visit_on_commission_resolution() -> void:

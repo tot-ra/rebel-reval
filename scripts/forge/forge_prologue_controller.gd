@@ -11,6 +11,7 @@ const DIALOGUE_CHEST := &"dialogue.makers_mark.chest_discovery"
 const DIALOGUE_LEDGER := &"dialogue.makers_mark.ledger_choice"
 const DIALOGUE_WAKE_UP := &"dialogue.makers_mark.wake_up"
 const BARK_WAKE_UP_ROOM := &"bark.prologue.wake_up_room"
+const FLAG_WAKE_UP_MONOLOGUE_SEEN := &"flag.wake_up_monologue_seen"
 const LOCATION_SMITHY := &"loc.kalev_smithy"
 const CHEST_PROP_ID := &"chest"
 
@@ -192,14 +193,20 @@ func _quest_state() -> StringName:
 
 
 func _try_start_wake_up_monologue() -> void:
-	# Only play once per session; skip if already seen or runner is busy.
-	if _wake_up_played or _runner.is_active():
+	# Persist a successful opening trigger so leaving and re-entering the smithy
+	# cannot recreate the controller and replay the new-game sequence.
+	if (
+		_wake_up_played
+		or _runner.is_active()
+		or SessionState.state.get_flag(FLAG_WAKE_UP_MONOLOGUE_SEEN)
+	):
 		return
 	_wake_up_played = true
 	_runner.configure(SessionState.content_db, SessionState.state, _presenter)
 	if not _runner.start(DIALOGUE_WAKE_UP):
 		push_warning("Forge prologue failed to start wake-up monologue")
 		return
+	SessionState.state.set_flag(FLAG_WAKE_UP_MONOLOGUE_SEEN, true)
 	_set_interaction_enabled(false)
 
 
