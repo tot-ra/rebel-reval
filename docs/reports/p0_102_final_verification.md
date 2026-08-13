@@ -164,3 +164,34 @@ Fortification: test_map_view_3d_fortification (exit 1; 2 failures, 2 engine erro
 ```
 
 The expected renderer teardown ObjectDB/resource/RID diagnostics are retained as non-blocking shutdown noise. The shared environment-kit implementation and its dedicated evidence set are green, but the full P0-102 acceptance gate remains **BLOCKED** and must not promote the parent task to done or ready for review until the fortification findings are resolved by their owners. No new follow-up task was created because R-353 and R-413 already own the outstanding boundary findings.
+
+## R-385 independent acceptance recheck addendum (2026-08-14)
+
+Task **R-385 / P0-102o** re-ran the evidence-only acceptance gate against the clean detached worktree `/private/tmp/rebel-reval-r385-20260814` at `HEAD=523a0d163b14270338ed4bbef69355adcca34808` (`Add reproducible character texture generator`). The live worktree was not used for baseline asset/provenance classification because it contains unrelated modified and untracked WIP. Godot 4.7.1 editor import completed successfully before the focused runs.
+
+| Acceptance clause | Result | Evidence and classification |
+|---|---|---|
+| Clean import | **PASS** | `godot --headless --editor --import --path /private/tmp/rebel-reval-r385-20260814` completed with status 0; retained log: `/tmp/r385_checked/import.log`. |
+| Dedicated day/night environment-kit evidence | **PASS** | `python3 tools/verify_p0_102_environment_kit_evidence.py` passed with **8/8 plates**; retained log: `/tmp/r385_checked/evidence.log`. |
+| Asset lint | **PASS** | `python3 tools/verify_asset_lint.py` passed with 8 style-lock textures, 9 character GLBs, 29 tier-classified character GLBs, and 0 portraits; retained log: `/tmp/r385_checked/asset_lint.log`. |
+| Asset provenance | **BLOCKED - external manifest ownership** | `python3 tools/validate_asset_sources.py` reports one missing inventory/runtime path: `assets/props/environment/sacred_grove_ancient_oak_ancient_oak_heartwood_albedo.png`; retained log: `/tmp/r385_checked/provenance.log`. The file exists in the dirty worktree and has a concurrent `SOURCES.csv` candidate, but that change is not part of this clean baseline and was not adopted by R-385. Follow-up **R-530** owns the manifest reconciliation. |
+| Material-resolution regression | **PASS** | `test_map_view_material_resolution`: **7/7**, 0 failures, 0 errors; retained log: `/tmp/r385_checked/p0-102o-map_view_material_resolution.log`. |
+| Remaining focused Godot suites | **BLOCKED - external baseline/runtime findings** | The other six suites ran **66 tests** and returned **56 failures plus 175 engine/script errors**: building surface weathering **1/6 + 4 errors**; environment-kit integration **26/5 + 27 errors**; map-view 3D core **9/20 + 46 errors**; fortification **6/8 + 46 errors**; mesh **9/19 + 46 errors**; decals **5/8 + 6 errors**. Logs are retained under `/tmp/r385_checked/`. |
+
+The focused suite failures are not accepted as environment-kit implementation failures without first clearing the shared baseline diagnostics. The recurring first parser diagnostic is `unknown command 'elevation_area'` / `unknown command 'elevation_ramp'` in `content/maps/lower_town_slice.rrmap` at lines 14, 17, 20, and 22; the authored elevation work and acceptance chain are already owned by **R-453 / R-455**. Dependent diagnostics include invalid map-definition validation, empty module assembly, and `Dictionary` key access for `position` / `id` in the environment and landmark builders. The decals suite additionally reports the independent `water_surface` shader tokenizer failure caused by `# gdlint: ignore=max-line-length` inside the inline shader and a decal-ground-lift assertion failure. These findings are recorded as clean-baseline blockers, not repaired in this evidence-only task.
+
+R-385 therefore has a **split result**: the dedicated P0-102 evidence set, import, material-resolution suite, and scoped asset lint pass, but the full environment-kit acceptance gate remains **BLOCKED** by the clean-baseline runtime/parser findings and the one provenance gap. Do not promote P0-102g to ready or done until R-453/R-455 and R-530 are resolved and the focused suites are rerun from a clean snapshot. No runtime, map, asset, shader, test, or concurrent provenance source was changed by R-385.
+
+Exact command families and retained logs:
+
+```text
+Worktree: /private/tmp/rebel-reval-r385-20260814
+Logs: /tmp/r385_checked/
+Import: godot --headless --editor --import --path /private/tmp/rebel-reval-r385-20260814 (exit 0)
+Evidence: python3 tools/verify_p0_102_environment_kit_evidence.py (exit 0; 8/8)
+Asset lint: python3 tools/verify_asset_lint.py (exit 0)
+Provenance: python3 tools/validate_asset_sources.py (exit 1; one missing heartwood sidecar row)
+Focused suites: tools/run_godot_checked.sh --require-test-summary <log-basename> -- godot --headless --path /private/tmp/rebel-reval-r385-20260814 --script tools/run_godot_tests.gd -- --filter=<suite>
+```
+
+The expected ObjectDB/resource/RID cleanup diagnostics are retained in the logs as non-blocking shutdown noise. The acceptance decision remains **BLOCKED**, while the dedicated environment evidence remains independently green.
