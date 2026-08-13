@@ -4,7 +4,14 @@
 # streets and buildings retain their scale in the eastern half, while a continuous
 # stepped curtain and dated tower-position masses now seal the full southern circuit.
 rrmap 1
-map south_quarter loc.lower_town.south_quarter 336 96 grass scope=prototype active=false palette=clean_painted seed=1375 cell_size=32
+map south_quarter loc.lower_town.south_quarter 336 96 grass scope=prototype active=false palette=clean_painted seed=1375 cell_size=32 elevation=0.0
+# R-454f: keep the ordinary Lower Town plane flat, let the King-to-Karja
+# approach fall only slightly, and keep the uncertain Karja glacis as a shallow
+# low mud band. The garden opening remains on the shared lower-town datum.
+elevation_area r454.south.lower_town_datum 240 48 96 0.0
+elevation_ramp r454.south.king_to_karja 213 0 240 71 0.0 -0.10 width=3
+elevation_area r454.south.karja_glacis 243 90 24 -0.25
+elevation_area r454.south.garden_seam 29 0 10 0.0
 source "scenes/reval_south/reval_south.tscn"
 source "scenes/revel-map.jpg"
 source "scenes/reval_south/rataskaev_well.md"
@@ -28,6 +35,13 @@ terrain rataskaev_close grass 158 9 31 19 order=2
 terrain niguliste_close grass 161 37 31 19 order=3
 terrain dunkri_yard dirt 202 9 45 22 order=4
 terrain karja_glacis mud 219 84 48 12 order=5
+# R-454f: shallow wet wall-edge ditches stay inside the map edge and outside
+# the Karja gate throat. The dry overlay is a level causeway, not a new wall or
+# barbican, and keeps the existing southern transition corridor walkable.
+terrain south_wall.ditch.west water 156 90 72 6 order=15
+terrain south_wall.ditch.east water 267 90 69 6 order=15
+terrain east_wall.ditch water 331 9 5 57 order=15
+terrain karja.causeway dirt 240 84 14 12 order=16
 terrain old_hill_foot dirt 144 12 17 75 order=6
 terrain north_rataskaev_yard dirt 151 0 31 12 order=7
 terrain north_civic_threshold dirt 226 0 48 16 order=7
