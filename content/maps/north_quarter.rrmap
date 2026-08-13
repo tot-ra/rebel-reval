@@ -6,6 +6,13 @@
 # stays inside the curtain while the road continues north toward the harbour.
 rrmap 1
 map north_quarter loc.lower_town.north_quarter 260 140 dirt scope=prototype active=false palette=clean_painted seed=2718 cell_size=32
+# R-454: keep the ordinary inner Lower Town plane low, lift the Coastal Gate
+# sill separately, and preserve the outer road and monastery openings as zero
+# seams. The gate descent must not bleed into the extramural travel road.
+elevation_ramp r454.north.pikk_harbour_fall 104 13 104 70 0.20 0.10 width=4
+elevation_ramp r454.north.coastal_gate_sill 98 0 115 0 0.60 0.60 width=6
+elevation_area r454.north.outer_wall_road 242 70 70 0.0
+elevation_area r454.north.monastery_seam 167 136 69 0.0
 source "scenes/reval_north/reval_north.tscn"
 source "scenes/revel-map.jpg"
 source "scenes/reval_north/pikk_street.md"
