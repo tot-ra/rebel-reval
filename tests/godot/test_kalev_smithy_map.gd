@@ -32,9 +32,9 @@ func test_kalev_smithy_required_anchors_present() -> void:
 	assert_false(MapVerification.transition_rect(definition, &"smithy_start_spawn") == Rect2())
 
 
-func test_kalev_smithy_new_game_spawn_stands_beside_bed_with_camera_clearance() -> void:
-	# Start uses DoorNavigator spawn smithy_start. Keep the opening position beside
-	# the bed while moving it toward the room centre to avoid a wall-bump oscillation.
+func test_kalev_smithy_new_game_spawn_uses_central_floor_with_camera_clearance() -> void:
+	# Start uses DoorNavigator spawn smithy_start. Keep the sleep interaction beside
+	# the bed, but place the player on the clear central floor so the camera has room.
 	var definition: MapDefinition = KalevSmithyDefinition.create()
 	var routine: SmithyRoutineDefinition = RoutineDefinition.load_from_file(ROUTINE_PATH)
 	var wake: SmithyActivityPoint = routine.get_activity_point(&"ap.sleep.wake")
@@ -42,31 +42,33 @@ func test_kalev_smithy_new_game_spawn_stands_beside_bed_with_camera_clearance() 
 	if wake == null:
 		return
 	var grid: MapTerrainGrid = MapBuilder.build(definition)
-	var expected_start := Vector2(240, 368)
+	var expected_start := Vector2(432, 240)
 	var bed_approach := Vector2(144, 368)
 	assert_eq(wake.approach_position, bed_approach, "Wake must remain at the bed foot")
 	assert_true(MapVerification.is_walkable_point(definition, grid, wake.approach_position))
 	assert_true(MapVerification.is_walkable_point(definition, grid, definition.player_spawn))
-	assert_eq(definition.player_spawn, expected_start, "New-game spawn must sit beside the bed toward the room centre")
+	assert_eq(
+		definition.player_spawn,
+		expected_start,
+		"New-game spawn must use the clear central floor"
+	)
+	assert_eq(
+		MapVerification.transition_rect(definition, &"smithy_start_spawn").get_center(),
+		expected_start,
+		"DoorNavigator start marker must match the central player spawn"
+	)
+	var room_center := Vector2(definition.size_cells) * float(definition.cell_size) * 0.5
+	assert_true(
+		definition.player_spawn.distance_to(room_center) <= float(definition.cell_size),
+		"New-game spawn must stay within one cell of the room centre"
+	)
 	var bed_rect := Rect2(3 * definition.cell_size, 9 * definition.cell_size, 4 * definition.cell_size, 2 * definition.cell_size)
 	assert_false(
 		MapVerification.is_walkable_point(definition, grid, bed_rect.get_center()),
 		"Bed footprint must stay blocked"
 	)
-	assert_true(
-		definition.player_spawn.y > bed_rect.end.y - 0.01,
-		"New-game spawn must be outside the bed footprint"
-	)
-	assert_true(
-		definition.player_spawn.distance_to(wake.approach_position) <= float(definition.cell_size) * 3.25,
-		"New-game spawn must remain beside the wake bed"
-	)
 	var bed := MapVerification.anchor_position(definition, &"bed_alcove")
 	assert_eq(bed, bed_approach, "Bed approach anchor must stay outside the bed")
-	assert_true(
-		definition.player_spawn.distance_to(bed) < definition.player_spawn.distance_to(MapVerification.anchor_position(definition, &"anvil")),
-		"New-game spawn must be closer to the bed than to the anvil"
-	)
 
 
 func test_kalev_smithy_door_and_work_triangle_reachable() -> void:
