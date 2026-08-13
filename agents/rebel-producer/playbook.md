@@ -3,8 +3,7 @@
 Read `agents/playbook.md` first for shared workflow, tooling, and Git lessons.
 This file contains lessons specific to the Producer role.
 
-## Role-specific lessons
-- Task-board selection must compare the complete open-task set by both priority and complexity before choosing a parent. The built-in `next` operation can return a small task even when a higher-complexity task exists elsewhere; do not begin decomposition until the full candidate list is checked.
+- When decomposing a high-complexity parent, compare the full open-task set by priority and complexity via SQL or HTTP list before using `tasks.next`; cancel overlapping broad rows with an explicit merged-into note instead of leaving duplicate claimable scope.
 - When inserting many rows into a hot shared file like `TODO.md`, prefer one atomic Python rewrite and immediately assert the new IDs exist; Cursor `StrReplace` success alone is not enough if another writer can race the file.
 - Do not treat a substring match for a new task ID (for example `P0-163` inside a `deps:` list) as proof that the task row itself was inserted.
 - When allocating new `TODO.md` IDs, also scan open `docs/ROADMAP.md` coordination notes and other tracks that may have just claimed nearby IDs (for example cart `P0-164` / `A-010` / `P4-037` versus Toompea work). After write, assert each new ID has exactly one deliverable row, not only `deps:` / `production:` mentions.

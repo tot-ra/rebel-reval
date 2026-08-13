@@ -4,6 +4,9 @@ Coordination notes, delivery order, and planning context formerly embedded in `T
 Executable open work stays in [`TODO.md`](../TODO.md).
 Aged coordination history lives in [`ROADMAP_COORDINATION_ARCHIVE_2026-08-13.md`](./ROADMAP_COORDINATION_ARCHIVE_2026-08-13.md).
 
+<!-- R-454 decomposed in current session -->
+Coordination note (2026-08-13 R-454): high-complexity parent **R-454** (historical elevation across nine urban exterior RRMaps) decomposed into atomic per-map rows **R-515**..**R-521** (complexity 1) plus verification chain **R-522** -> **R-523** -> **R-524**. Harbour pair remains complete under **R-478**; matrix contract remains **R-474**. Superseded broad rows **R-475**/**R-476**/**R-479**/**R-481**/**R-506** and legacy gate stubs **R-482**..**R-504** cancelled on the board. Evidence: `docs/reports/r454_task_decomposition_2026-08-13.md`. Next map claims: **R-515** Toompea southern slope, then parallel **R-517**..**R-521**.
+
 <!-- P0-187 completed in current session -->
 Coordination note (2026-08-13 P0-187): aged coordination history and archived planning notes moved to `docs/ROADMAP_COORDINATION_ARCHIVE_2026-08-13.md`; live `docs/ROADMAP.md` now keeps August 2026 closeouts, Current focus, and a link to the archive. Verified: `python3 tools/generate_active_docs_report.py --check`; byte size dropped below the 2026-08-11 ~121 KiB baseline. Next size/doc claim: **P0-185** view3d extractions or **P0-186** evidence-image retention.
 
