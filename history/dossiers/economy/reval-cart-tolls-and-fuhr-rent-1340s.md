@@ -97,7 +97,7 @@ You are pricing **cart movement through forum throats, gate aprons, and harbour 
 | [`economy.reval-cart-tolls-and-fuhr-rent-1340s.01`](../../reference/economy/reval-cart-tolls-and-fuhr-rent-1340s/economy.reval-cart-tolls-and-fuhr-rent-1340s.01.jpg) | Steelyard counterweight for cargo weighing | PAS FindID 593555, 1200–1300, England | CC BY-SA 4.0 | Fees attach to **goods weight**, not wheel count |
 | [`economy.reval-cart-tolls-and-fuhr-rent-1340s.02`](../../reference/economy/reval-cart-tolls-and-fuhr-rent-1340s/economy.reval-cart-tolls-and-fuhr-rent-1340s.02.jpg) | Two-wheel cart and carter | Mendel Hausbuch I 110r, 1494, Nuremberg | public domain | Vehicle whose movement is **not** attested tolled per axle |
 | [`economy.reval-cart-tolls-and-fuhr-rent-1340s.03`](../../reference/economy/reval-cart-tolls-and-fuhr-rent-1340s/economy.reval-cart-tolls-and-fuhr-rent-1340s.03.jpg) | Viru Gate east approach | Panoramio photo, 2012, Tallinn | CC BY-SA 3.0 | Gate apron queue geometry — **no toll booth** |
-| `economy.reval-cart-tolls-and-fuhr-rent-1340s.04` (link-only) | Coins counted at table | French ms illumination, c. 1270 | public domain | Carter hire paid in schilling/pfennig — fetch pending Wikimedia rate-limit |
+| [`economy.reval-cart-tolls-and-fuhr-rent-1340s.04`](../../reference/economy/reval-cart-tolls-and-fuhr-rent-1340s/economy.reval-cart-tolls-and-fuhr-rent-1340s.04.jpg) | Coins counted at table | French ms illumination, c. 1270 | public domain | Carter hire paid in schilling/pfennig |
 
 ## Cross-references
 

@@ -125,7 +125,7 @@ The result is an **access blocker**, not a negative Denkelbuch result. The exist
 | [`economy.pr-voorimees-garden-coastal-gate.02`](../../reference/economy/pr-voorimees-garden-coastal-gate/economy.pr-voorimees-garden-coastal-gate.02.jpg) | Kitchen-garden planting labour | Tacuinum Sanitatis Casanatense 4182 f.3, c. 1390, Italy | public domain | *ort* / vegetable bed scale — comparandum |
 | [`economy.pr-voorimees-garden-coastal-gate.03`](../../reference/economy/pr-voorimees-garden-coastal-gate/economy.pr-voorimees-garden-coastal-gate.03.jpg) | Karrenmann with two-wheel cart | Mendel Hausbuch I 110r, 1494, Nuremberg | public domain | carter profession context — not Reval plot |
 | [`economy.pr-voorimees-garden-coastal-gate.04`](../../reference/economy/pr-voorimees-garden-coastal-gate/economy.pr-voorimees-garden-coastal-gate.04.jpg) | Brewer/cooper barrel gear | Mendel Hausbuch II 126r, c. 1426, Nuremberg | public domain | cooper (*püttsepp*) neighbour garden — comparandum |
-| `economy.pr-voorimees-garden-coastal-gate.05` (link-only) | Great Coastal Gate yard excavation plan | AVE 2017–19 Maritime Museum renovation, Tallinn | linked | extramural ground level at harbour gate |
+| [`economy.pr-voorimees-garden-coastal-gate.05`](https://ojs.utlib.ee/index.php/AVE/article/view/25197) (link-only) | Great Coastal Gate yard excavation plan | Reppo and Kadakas, “Excavations at the Great Coastal Gate of Tallinn,” AVE 2019, pp. 177-188 | all rights reserved - link-only | extramural ground level at harbour gate - scholarly PDF; no local image copy |
 
 ## Cross-references
 

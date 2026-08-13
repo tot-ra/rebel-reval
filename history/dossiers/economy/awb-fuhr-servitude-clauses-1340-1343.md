@@ -102,8 +102,8 @@ Secondary scholarship cites these **numbered AWB entries** in the target window.
 | [`economy.awb-fuhr-servitude-clauses-1340-1343.01`](../../reference/economy/awb-fuhr-servitude-clauses-1340-1343/economy.awb-fuhr-servitude-clauses-1340-1343.01.jpg) | Pikk-to-Coastal-Gate throat alignment | Stan Shebs photo, 2003, Tallinn | CC BY-SA 3.0 | extramural garden zone before **Karrienpforte** — not 1343 barbican |
 | [`economy.awb-fuhr-servitude-clauses-1340-1343.02`](../../reference/economy/awb-fuhr-servitude-clauses-1340-1343/economy.awb-fuhr-servitude-clauses-1340-1343.02.jpg) | Rear yard service gate and sheds | Lai 5 courtyard, Vamps photo, 15th–20th c. fabric, Reval | CC BY-SA 3.0 (EE) | ***clausuris*** / yard-access geometry on burgher plot |
 | [`economy.awb-fuhr-servitude-clauses-1340-1343.03`](../../reference/economy/awb-fuhr-servitude-clauses-1340-1343/economy.awb-fuhr-servitude-clauses-1340-1343.03.jpg) | Karrenmann with two-wheel cart | Mendel Hausbuch I 110r, 1494, Nuremberg | public domain | cart **labour** context — no attested servitude fee |
-| [`economy.awb-fuhr-servitude-clauses-1340-1343.04`](../../reference/economy/awb-fuhr-servitude-clauses-1340-1343/economy.awb-fuhr-servitude-clauses-1340-1343.04.jpg) | Medieval field workers with hand barrow | Tacuinum Sanitatis tillage scene, 15th c., France | public domain | *Fuhr* as **load** not municipal rent — comparandum |
-| `economy.awb-fuhr-servitude-clauses-1340-1343.05` (link-only) | Great Coastal Gate yard excavation plan | AVE 2017–19 Maritime Museum renovation, Tallinn | linked | extramural plot ground at harbour gate — scholarly PDF |
+| [`economy.awb-fuhr-servitude-clauses-1340-1343.04`](https://gallica.bnf.fr/ark:/12148/btv1b105072169/f50.item) (link-only; Gallica IIIF fetch blocked) | Medieval field workers with hand barrow | Tacuinum Sanitatis BnF Lat. 9333, f. 50, 15th c., France | public domain | *Fuhr* as **load** not municipal rent - comparandum; no local copy because the Gallica image endpoint was inaccessible |
+| [`economy.awb-fuhr-servitude-clauses-1340-1343.05`](https://ojs.utlib.ee/index.php/AVE/article/view/25197) (link-only) | Great Coastal Gate yard excavation plan | Reppo and Kadakas, “Excavations at the Great Coastal Gate of Tallinn,” AVE 2019, pp. 177-188 | all rights reserved - link-only | extramural plot ground at harbour gate - scholarly PDF; no local image copy |
 
 ## Cross-references
 
@@ -136,3 +136,4 @@ Secondary scholarship cites these **numbered AWB entries** in the target window.
 10. [`../people/estonian-and-german-populations.md`](../people/estonian-and-german-populations.md) — carter labour tier (project dossier).
 11. [`pr-voorimees-garden-coastal-gate.md`](pr-voorimees-garden-coastal-gate.md) — EV/PR register pass for Coastal Gate carter garden (project dossier).
 12. [`awb-clausuris-mortgage-text-1340-1343.md`](awb-clausuris-mortgage-text-1340-1343.md) — direct public-domain AWB edition OCR pass; corrects the later-term boundary and quotes the 1343 property entries.
+B edition OCR pass; corrects the later-term boundary and quotes the 1343 property entries.

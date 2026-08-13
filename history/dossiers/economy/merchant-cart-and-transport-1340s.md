@@ -92,7 +92,7 @@ Tracked in `TODO.md` (2026-07-30 decision): contract **P0-164** → art brief **
 | [`economy.merchant-cart-and-transport-1340s.02`](../../reference/economy/merchant-cart-and-transport-1340s/economy.merchant-cart-and-transport-1340s.02.jpg) | Four-wheel caravan wagons in train | Catalan Atlas, 1375, Majorca | public domain | heavy four-wheel wagon proportions |
 | [`economy.merchant-cart-and-transport-1340s.03`](../../reference/economy/merchant-cart-and-transport-1340s/economy.merchant-cart-and-transport-1340s.03.jpg) | Medieval iron horseshoe 1200–1400 | PAS FindID 232991, England | CC BY-SA 4.0 | draught-horse shoe form |
 | `economy.merchant-cart-and-transport-1340s.04` (link-only) | Cart-path rut plan, wheelbase dimensioned | AVE 2018:13 Fig. 6, 15th-c. landfill, Tallinn | linked | 1.26–1.40 m track spacing |
-| `economy.merchant-cart-and-transport-1340s.05` (link-only) | Field harvest cart with horse | Tacuinum Sanitatis, 15th c., France | public domain | lattice-side cart with sack load |
+| [`economy.merchant-cart-and-transport-1340s.05`](../../reference/economy/merchant-cart-and-transport-1340s/economy.merchant-cart-and-transport-1340s.05.jpg) | Field harvest cart with horse | Tacuinum Sanitatis, 15th c., France | public domain | lattice-side cart with sack load |
 
 ## Cross-references
 

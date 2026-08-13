@@ -44,7 +44,7 @@ All three files are under `docs/reports/images/merchant_carts/`. They are produc
 - `economy.merchant-cart-and-transport-1340s.02`: Catalan Atlas, 1375 Majorca, public domain. Later comparandum for four-wheel caravan proportions and heavy-load spacing; not a direct Reval wagon record.
 - `economy.merchant-cart-and-transport-1340s.03`: PAS FindID 232991, 1200-1400, CC BY-SA 4.0. Horse-shoe material reference; it does not establish a cart body.
 - `economy.merchant-cart-and-transport-1340s.04`: AVE 2018:13 Fig. 6, linked-only Tallinn 15th-century landfill plan. Supports the 1.26-1.40 m rut spacing used as a restrained 1343 composite.
-- `economy.merchant-cart-and-transport-1340s.05`: Tacuinum Sanitatis, 15th-century France, public-domain source row currently marked failed/link-only. It is a later lattice-side harvest-cart comparandum, not proof of a Reval 1343 form.
+- `economy.merchant-cart-and-transport-1340s.05`: Tacuinum Sanitatis, 15th-century France, public-domain source row now fetched and checksum-verified locally. It is a later lattice-side harvest-cart comparandum, not proof of a Reval 1343 form.
 
 ## 4. Shared art rules
 
