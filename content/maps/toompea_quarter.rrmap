@@ -5,6 +5,7 @@
 # Pikk Jalg descends north-east, and Lühike Jalg descends east to Lower Town.
 rrmap 1
 map toompea_quarter loc.toompea.quarter 144 192 grass scope=prototype active=false palette=clean_painted seed=1219 cell_size=32 elevation=2.8
+elevation_ramp r454.toompea.southern_slope 40 150 29 189 0.8 0 width=3
 source "scenes/reval_toompea/reval_toompea.tscn"
 source "scenes/revel-map.jpg"
 source "scenes/reval_toompea/domberg.md"
