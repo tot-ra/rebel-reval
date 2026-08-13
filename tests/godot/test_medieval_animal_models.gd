@@ -131,6 +131,21 @@ func test_sheep_has_rigged_body_tail_and_locomotion_clips() -> void:
 	var aabb := mesh.get_aabb()
 	assert_true(aabb.size.z >= 0.45, "Sheep must keep a compact fleece silhouette")
 	assert_true(model.find_child("TailTuft", true, false) != null, "Sheep needs an articulated tail")
+	assert_true(aabb.size.x >= 1.20 and aabb.size.x <= 1.30, "Sheep needs a plausible compact body length")
+	assert_true(aabb.size.y >= 0.85 and aabb.size.y <= 0.95, "Sheep must stand on four full-height legs")
+	assert_true(aabb.position.y >= -0.001, "Procedural sheep must not contain geometry below the ground plane")
+	assert_eq(mesh.mesh.get_surface_count(), 1, "Procedural anatomy must remain one skinned production surface")
+	var skeletons := model.find_children("*", "Skeleton3D", true, false)
+	assert_true(skeletons.size() >= 1, "Sheep needs a procedural quadruped skeleton")
+	var skeleton := skeletons[0] as Skeleton3D
+	for bone_name: StringName in [&"Neck", &"Tail", &"FrontLeftLeg", &"FrontRightLeg", &"BackLeftLeg", &"BackRightLeg"]:
+		assert_true(skeleton.find_bone(bone_name) >= 0, "Sheep is missing articulated %s anatomy" % bone_name)
+	assert_true(skeleton.find_bone(&"EyeLeft_2") >= 0, "Sheep needs an articulated left eyelid bone")
+	assert_true(skeleton.find_bone(&"EyeRight_2") >= 0, "Sheep needs an articulated right eyelid bone")
+	for detail_name in ["EyeLeft", "EyeRight", "PupilLeft", "PupilRight", "NostrilLeft", "NostrilRight"]:
+		assert_true(model.find_child(detail_name, true, false) != null, "Sheep is missing fitted facial detail %s" % detail_name)
+	assert_true(model.find_child("EyeLeft", true, false).position.length() < 0.20, "Sheep eye must stay fitted to its head bone, not float beside the model")
+	assert_true(model.find_child("EyeRight", true, false).position.length() < 0.20, "Sheep eye must stay fitted to its head bone, not float beside the model")
 	var players := model.find_children("*", "AnimationPlayer", true, false)
 	assert_true(players.size() >= 1, "Sheep needs imported skeletal animation")
 	var player := players[0] as AnimationPlayer

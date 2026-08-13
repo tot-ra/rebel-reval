@@ -109,15 +109,22 @@ SPECS = {
         "scale_basis": "1.35 m nose-to-rump length; 0.75 m standing height",
     },
     "sheep": {
-        "source": STAGING / "sheep_candidate.glb",
+        # WHY: the rejected image-to-3D candidate contains detached ground fragments
+        # and cannot provide trustworthy facial anatomy. The runtime mesh is built
+        # entirely from deterministic closed anatomical volumes below.
+        "source": None,
         "output": RUNTIME / "medieval_sheep.glb",
         "dimensions_m": (1.25, 0.90, 0.55),
-        "triangles": 6_000,
+        "triangles": 8_000,
         "voxel_divisor": 72.0,
-        "base_color": (0.58, 0.51, 0.38),
-        "accent_color": (0.78, 0.72, 0.59),
+        "base_color": (0.64, 0.59, 0.47),
+        "accent_color": (0.86, 0.82, 0.70),
         "seed": 208744132,
         "animated": True,
+        "route": "deterministic_procedural_closed_anatomy",
+        "source_license": "project-authored procedural geometry",
+        "anatomy_decision": "closed_multi_volume_fleece_head_ears_muzzle_four_legs_and_cloven_hooves",
+        "scale_basis": "1.25 m nose-to-rump; 0.90 m standing height; 0.55 m fleece width",
     },
     "pack_horse": {
         # WHY: rebuild only through pack_horse_v3/production/build_pack_horse_v3.py.
@@ -490,6 +497,112 @@ def export_glb(
     )
 
 
+def create_sheep_mesh() -> bpy.types.Object:
+    """Build a detailed sheep entirely from closed procedural volumes.
+
+    WHY: the previous image-to-3D surface included detached ground debris, a split
+    torso, and no dependable facial anatomy. Overlapping closed volumes provide a
+    stable skinned surface while preserving readable fleece, face, ear, leg, and
+    cloven-hoof landmarks at the map camera distance.
+    """
+    parts: list[bpy.types.Object] = []
+
+    def sphere(
+        part_name: str,
+        location: tuple[float, float, float],
+        scale: tuple[float, float, float],
+        segments: int = 16,
+    ) -> bpy.types.Object:
+        bpy.ops.mesh.primitive_uv_sphere_add(segments=segments, ring_count=8, location=location)
+        part = bpy.context.object
+        part.name = part_name
+        part.scale = scale
+        bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+        parts.append(part)
+        return part
+
+    def segment(
+        part_name: str,
+        start: tuple[float, float, float],
+        end: tuple[float, float, float],
+        start_radius: float,
+        end_radius: float,
+        vertices: int = 10,
+    ) -> bpy.types.Object:
+        start_v = Vector(start)
+        end_v = Vector(end)
+        direction = end_v - start_v
+        bpy.ops.mesh.primitive_cone_add(
+            vertices=vertices,
+            radius1=end_radius,
+            radius2=start_radius,
+            depth=direction.length,
+            location=(start_v + end_v) * 0.5,
+        )
+        part = bpy.context.object
+        part.name = part_name
+        part.rotation_euler = direction.to_track_quat("Z", "Y").to_euler()
+        bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
+        parts.append(part)
+        return part
+
+    # Interlocking fleece lobes break up the outline without loose cards or ground
+    # helpers. Shoulder and rump sit slightly higher than the belly like a compact
+    # northern short-tailed sheep under a full medieval fleece.
+    sphere("SheepFleeceCore", (0.06, 0.0, 0.56), (0.46, 0.255, 0.29), 20)
+    sphere("SheepFleeceShoulder", (-0.28, 0.0, 0.60), (0.28, 0.275, 0.30))
+    sphere("SheepFleeceRump", (0.35, 0.0, 0.58), (0.29, 0.265, 0.29))
+    sphere("SheepFleeceBack", (0.02, 0.0, 0.76), (0.35, 0.23, 0.14))
+    for index, (x, y, z, radius) in enumerate(
+        (
+            (-0.18, 0.21, 0.68, 0.105),
+            (0.08, 0.23, 0.65, 0.115),
+            (0.31, 0.21, 0.67, 0.105),
+            (-0.18, -0.21, 0.68, 0.105),
+            (0.08, -0.23, 0.65, 0.115),
+            (0.31, -0.21, 0.67, 0.105),
+        )
+    ):
+        sphere(f"SheepFleeceCurl{index + 1:02d}", (x, y, z), (radius, radius, radius), 12)
+
+    # A distinct bare face, jaw and nose eliminate the old paper-thin mask. The
+    # narrow ears remain inside the 0.55 m body width, so eyes can sit on the skull
+    # rather than floating beside it.
+    segment("SheepNeck", (-0.30, 0.0, 0.61), (-0.48, 0.0, 0.72), 0.20, 0.145)
+    sphere("SheepHead", (-0.51, 0.0, 0.73), (0.17, 0.145, 0.185))
+    sphere("SheepMuzzle", (-0.61, 0.0, 0.65), (0.115, 0.115, 0.105))
+    sphere("SheepJaw", (-0.55, 0.0, 0.61), (0.125, 0.105, 0.075))
+    segment("SheepEarLeft", (-0.48, 0.10, 0.82), (-0.43, 0.235, 0.86), 0.060, 0.018, 8)
+    segment("SheepEarRight", (-0.48, -0.10, 0.82), (-0.43, -0.235, 0.86), 0.060, 0.018, 8)
+
+    # Two-segment legs read as weight-bearing anatomy instead of four sticks. Each
+    # foot has two toe volumes with a small central cleft and rests exactly on Z=0.
+    for side, y in (("Left", 0.155), ("Right", -0.155)):
+        for end, x, knee_dx in (("Front", -0.29, -0.025), ("Back", 0.31, 0.035)):
+            segment(f"Sheep{end}{side}UpperLeg", (x, y, 0.48), (x + knee_dx, y, 0.23), 0.070, 0.052)
+            segment(f"Sheep{end}{side}LowerLeg", (x + knee_dx, y, 0.25), (x, y, 0.075), 0.052, 0.036)
+            sphere(f"Sheep{end}{side}HoofOuter", (x - 0.018, y + 0.022, 0.035), (0.060, 0.030, 0.035), 12)
+            sphere(f"Sheep{end}{side}HoofInner", (x - 0.018, y - 0.022, 0.035), (0.060, 0.030, 0.035), 12)
+
+    bpy.ops.object.select_all(action="DESELECT")
+    for part in parts:
+        part.select_set(True)
+    bpy.context.view_layer.objects.active = parts[0]
+    bpy.ops.object.join()
+    obj = bpy.context.view_layer.objects.active
+    obj.name = "AnimalMesh"
+    obj.location = (0.0, 0.0, 0.0)
+    bpy.ops.object.mode_set(mode="EDIT")
+    bpy.ops.mesh.select_all(action="SELECT")
+    bpy.ops.mesh.quads_convert_to_tris(quad_method="BEAUTY", ngon_method="BEAUTY")
+    bpy.ops.object.mode_set(mode="OBJECT")
+    for polygon in obj.data.polygons:
+        polygon.use_smooth = True
+    obj["procedural_anatomy"] = True
+    obj["fleece_lobes"] = 10
+    obj["cloven_hoof_toes"] = 8
+    return obj
+
 
 def create_pig_mesh() -> bpy.types.Object:
     """Build a coherent low-poly landrace pig from closed anatomical volumes.
@@ -594,35 +707,41 @@ def create_pig_mesh() -> bpy.types.Object:
     return obj
 
 def build(name: str, spec: dict) -> dict:
-    source: Path = spec["source"]
-    if not source.exists():
+    source: Path | None = spec.get("source")
+    if source is not None and not source.exists():
         raise FileNotFoundError(f"Missing approved candidate: {source}")
     clear_scene()
-    bpy.ops.import_scene.gltf(filepath=str(source))
-    source_obj = flatten_imported_hierarchy()
-    raw = topology(source_obj)
-    if name == "pig":
-        # Keep the licensed mesh as the measured reference, but do not ship its
-        # open scan fragments. The authored body below is the production source.
-        clear_scene()
-        obj = create_pig_mesh()
+    if name == "sheep":
+        obj = create_sheep_mesh()
+        raw = topology(obj)
+        discarded_before = 0
     else:
-        obj = source_obj
-        discarded_before = remove_tiny_islands(obj, 0.0015)
-        if spec.get("source_long_axis") == "y":
-            # The licensed source's head points along +Y. Rotate +90 degrees so that
-            # source +Y becomes runtime -X, matching the shared quadruped rig's head,
-            # neck, eye, and locomotion conventions.
-            obj.rotation_euler.z = math.pi * 0.5
-            bpy.context.view_layer.objects.active = obj
-            bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
+        assert source is not None
+        bpy.ops.import_scene.gltf(filepath=str(source))
+        source_obj = flatten_imported_hierarchy()
+        raw = topology(source_obj)
+        if name == "pig":
+            # Keep the licensed mesh as the measured reference, but do not ship its
+            # open scan fragments. The authored body below is the production source.
+            clear_scene()
+            obj = create_pig_mesh()
         else:
-            align_long_axis(obj)
-        if not spec.get("preserve_topology", False):
-            rebuild_surface(obj, spec["voxel_divisor"], spec["triangles"])
-        else:
-            for polygon in obj.data.polygons:
-                polygon.use_smooth = True
+            obj = source_obj
+            discarded_before = remove_tiny_islands(obj, 0.0015)
+            if spec.get("source_long_axis") == "y":
+                # The licensed source's head points along +Y. Rotate +90 degrees so that
+                # source +Y becomes runtime -X, matching the shared quadruped rig's head,
+                # neck, eye, and locomotion conventions.
+                obj.rotation_euler.z = math.pi * 0.5
+                bpy.context.view_layer.objects.active = obj
+                bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
+            else:
+                align_long_axis(obj)
+            if not spec.get("preserve_topology", False):
+                rebuild_surface(obj, spec["voxel_divisor"], spec["triangles"])
+            else:
+                for polygon in obj.data.polygons:
+                    polygon.use_smooth = True
     # Pack-horse scans retain tack islands; discard more aggressively before rigging.
     if name == "pack_horse":
         remove_tiny_islands(obj, 0.0025)
@@ -650,8 +769,8 @@ def build(name: str, spec: dict) -> dict:
         "source_license": spec.get("source_license", "project-authored AI generation"),
         "anatomy_decision": spec.get("anatomy_decision", "approved_reference_silhouette"),
         "scale_basis": spec.get("scale_basis", "brief metric dimensions"),
-        "source": str(source.relative_to(ROOT)),
-        "source_sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
+        "source": str(source.relative_to(ROOT)) if source is not None else "procedural:create_sheep_mesh",
+        "source_sha256": hashlib.sha256(source.read_bytes()).hexdigest() if source is not None else None,
         "output": str(output.relative_to(ROOT)),
         "output_sha256": hashlib.sha256(output.read_bytes()).hexdigest(),
         "raw": raw,

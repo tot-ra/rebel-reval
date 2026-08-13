@@ -213,43 +213,50 @@ def create_cattle_rig(obj: bpy.types.Object) -> tuple[bpy.types.Object, list[bpy
 
 
 def create_sheep_rig(obj: bpy.types.Object) -> tuple[bpy.types.Object, list[bpy.types.Object]]:
-    """Compact sheep rig scaled to the smaller fleece body envelope."""
-    return create_quadruped_rig(
+    """Detailed sheep rig with fitted eyes, nostrils, and a short fleece tail."""
+    armature, details = create_quadruped_rig(
         obj,
         "SheepRig",
         (0.0, 0.0, 0.30),
-        (0.0, 0.0, 0.58),
+        (0.0, 0.0, 0.62),
         {
-            "Neck": ((-0.26, 0.0, 0.52), (-0.50, 0.0, 0.68)),
-            "Tail": ((0.34, 0.0, 0.52), (0.52, 0.0, 0.30)),
-            "FrontLeftLeg": ((-0.30, 0.14, 0.44), (-0.30, 0.14, 0.06)),
-            "FrontRightLeg": ((-0.30, -0.14, 0.44), (-0.30, -0.14, 0.06)),
-            "BackLeftLeg": ((0.32, 0.14, 0.44), (0.32, 0.14, 0.06)),
-            "BackRightLeg": ((0.32, -0.14, 0.44), (0.32, -0.14, 0.06)),
-            "EyeLeft": ((-0.44, 0.22, 0.70), (-0.44, 0.22, 0.76)),
-            "EyeRight": ((-0.44, -0.22, 0.70), (-0.44, -0.22, 0.76)),
+            "Neck": ((-0.28, 0.0, 0.54), (-0.50, 0.0, 0.72)),
+            "Tail": ((0.39, 0.0, 0.62), (0.55, 0.0, 0.46)),
+            "FrontLeftLeg": ((-0.29, 0.155, 0.46), (-0.29, 0.155, 0.05)),
+            "FrontRightLeg": ((-0.29, -0.155, 0.46), (-0.29, -0.155, 0.05)),
+            "BackLeftLeg": ((0.31, 0.155, 0.46), (0.31, 0.155, 0.05)),
+            "BackRightLeg": ((0.31, -0.155, 0.46), (0.31, -0.155, 0.05)),
+            "EyeLeft": ((-0.53, 0.13, 0.75), (-0.53, 0.13, 0.80)),
+            "EyeRight": ((-0.53, -0.13, 0.75), (-0.53, -0.13, 0.80)),
         },
         {
-            "neck_x": -0.22,
-            "neck_z": 0.42,
-            "tail_x": 0.35,
-            "tail_z": 0.38,
-            "tail_y": 0.18,
-            "leg_z": 0.46,
-            "front_leg_x": -0.10,
-            "back_leg_x": 0.12,
-            "eye_x": 0.44,
-            "eye_scale": (0.048, 0.018, 0.040),
-            "pupil_scale": (0.022, 0.010, 0.024),
-            "pupil_offset": 0.016,
-            "tail_tuft_scale": (0.055, 0.048, 0.075),
+            "neck_x": -0.27,
+            "neck_z": 0.48,
+            "tail_x": 0.40,
+            "tail_z": 0.48,
+            "tail_y": 0.20,
+            "leg_z": 0.49,
+            "front_leg_x": -0.12,
+            "back_leg_x": 0.14,
+            "eye_x": 0.53,
+            "eye_scale": (0.034, 0.016, 0.030),
+            "pupil_scale": (0.015, 0.008, 0.017),
+            "pupil_offset": 0.012,
+            "tail_tuft_scale": (0.075, 0.065, 0.095),
         },
         eye_specs=[
-            ("Left", 0.22, 0.70, "EyeLeft"),
-            ("Right", -0.22, 0.70, "EyeRight"),
+            ("Left", 0.13, 0.75, "EyeLeft"),
+            ("Right", -0.13, 0.75, "EyeRight"),
         ],
-        tail_specs=((0.36, 0.0, 0.52), (0.52, 0.0, 0.30), 0.038, 0.020),
+        tail_specs=((0.40, 0.0, 0.62), (0.55, 0.0, 0.46), 0.055, 0.030),
     )
+    nose_material = create_flat_material("sheeprig_nostril", (0.045, 0.030, 0.024, 1.0))
+    for side, y in (("Left", 0.045), ("Right", -0.045)):
+        nostril = add_uv_sphere(f"Nostril{side}", (-0.655, y, 0.655), (0.018, 0.010, 0.012), nose_material)
+        parent_to_bone(nostril, armature, "Neck")
+        details.append(nostril)
+    armature["procedural_sheep"] = True
+    return armature, details
 
 
 def create_pack_horse_rig(obj: bpy.types.Object) -> tuple[bpy.types.Object, list[bpy.types.Object]]:
