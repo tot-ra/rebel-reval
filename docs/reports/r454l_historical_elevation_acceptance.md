@@ -2,14 +2,14 @@
 
 **Review date:** 2026-08-13
 **Task:** R-504 / R-454l
-**Status:** **BLOCKED - implementation and acceptance evidence are incomplete**
+**Status:** **BLOCKED - final gameplay and rendered acceptance evidence remains incomplete**
 **Review mode:** reproducible contract-gate run; no human historical, art, or visual sign-off is claimed
 
 ## Decision
 
-The final historical-elevation gate cannot close yet. The repository contains a valid R-454 source matrix and a partial runtime implementation, but the focused acceptance suites are not green in the current worktree and the required rendered readability evidence is still absent.
+The final historical-elevation gate cannot close yet. The R-454 source matrix, all nine urban exterior runtime profile sets, and the parser/compiler regression gate now pass. The remaining R-503 gameplay-invariant and R-455 rendered-readability gates still require their dedicated reruns and evidence.
 
-This report records the exact boundary rather than treating a data-only pass as visual acceptance. R-504 should remain open/in review until the blockers below are resolved and the focused suites are rerun from a clean or otherwise attributable worktree.
+This report records the exact boundary rather than treating a data-only pass as visual acceptance. R-504 should remain open/in review until the remaining blockers below are resolved and the focused suites are rerun from a clean or otherwise attributable worktree.
 
 ## Scope checked
 
@@ -19,82 +19,82 @@ This report records the exact boundary rather than treating a data-only pass as 
 
 ## Reproduction
 
-Godot 4.7.1 was available at `/Applications/Godot.app/Contents/MacOS/Godot`. Each suite was run independently through the checked runner with `GODOT_LOG_DIR=/tmp/rebel-reval-r504-logs`:
+Godot 4.7.1 was available at `/Applications/Godot.app/Contents/MacOS/Godot`. R-522 was run through the checked runner with `GODOT_LOG_DIR=/tmp/rebel-reval-r522-logs`:
 
 ```sh
-export GODOT_LOG_DIR=/tmp/rebel-reval-r504-logs
+export GODOT_BIN=/Applications/Godot.app/Contents/MacOS/Godot
+export GODOT_LOG_DIR=/tmp/rebel-reval-r522-logs
 
-tools/run_godot_checked.sh --require-test-summary r504-r454-scope -- \
-  /Applications/Godot.app/Contents/MacOS/Godot --headless --path . \
+tools/run_godot_checked.sh --require-test-summary r522-scope -- \
+  "$GODOT_BIN" --headless --path . \
   --script tools/run_godot_tests.gd -- --filter=test_r454_elevation_scope
 
-tools/run_godot_checked.sh --require-test-summary r504-r503-invariants -- \
-  /Applications/Godot.app/Contents/MacOS/Godot --headless --path . \
-  --script tools/run_godot_tests.gd -- --filter=test_r503_elevation_gameplay_invariants
-
-tools/run_godot_checked.sh --require-test-summary r504-r455-readability -- \
-  /Applications/Godot.app/Contents/MacOS/Godot --headless --path . \
-  --script tools/run_godot_tests.gd -- --filter=test_r455_city_elevation_readability
+tools/run_map_pipeline_ci.sh parser
 ```
 
-Saved logs are local verification artifacts and are not part of this documentation change:
-
-- `/tmp/rebel-reval-r504-logs/r504-r454-scope.log`
-- `/tmp/rebel-reval-r504-logs/r504-r503-invariants.log`
-- `/tmp/rebel-reval-r504-logs/r504-r455-readability.log`
+Saved logs are local verification artifacts and are not part of this documentation change.
 
 ## Results
 
 | Gate | Result | Evidence boundary |
 |---|---|---|
-| R-454 scope | **BLOCKED** | 1 file, 3 tests: 2 passed; the urban-matrix test could not compile `reval_harbor_north` and `reval_harbor_east` because both current RRMaps reference the unknown style `reed.shore`. |
-| R-503 gameplay invariants | **PARTIAL / BLOCKED** | 1 file, 3 tests: finite/scoped elevation and reciprocal-transition checks passed; the gameplay-snapshot test could not load the same two harbour maps because of `MAP_STYLE_UNKNOWN`. |
-| R-455 readability | **BLOCKED** | 1 file, 4 tests: patrol/camera contracts passed, but the harbour-water test failed after the harbour definition was invalidated by `reed.shore`; the suite still reports missing rendered player-eye/top-down and exact terrain/object alignment evidence. |
+| R-454 scope / R-522 | **PASS** | 1 file, 3 tests: all nine urban exterior maps compile within the matrix; five flat interiors remain flat; `viru_gate_foreland` remains explicitly excluded. |
+| RRMap parser regression | **PASS** | 1 file, 16 tests: elevation grammar, compiled metadata, canonical round-trip, and rejection contracts pass. |
+| R-503 gameplay invariants | **PENDING R-523** | Dedicated rerun is still required to prove elevation remains view-only and reciprocal harbour seams remain aligned. |
+| R-455 readability | **BLOCKED / PENDING R-524** | Dedicated rerun and Metal player-eye/top-down evidence are still required for ditch depth and terrain/object alignment. |
 
-The checked runner also reported expected shutdown resource-leak diagnostics. They are not the acceptance blocker. The actionable blocker is the parser error:
+The checked runner reported expected shutdown resource-leak diagnostics. They did not change either R-522 command's zero status and are not the remaining acceptance blocker.
+
+## R-454v1 verification (2026-08-13)
+
+The R-454 scope suite completed with 3/3 tests and 0 failures or errors:
 
 ```text
-error[MAP_STYLE_UNKNOWN]: primitives[4] references unknown style: reed.shore
+Godot headless tests: 1 file(s), 3 test(s), 0 failure(s), 0 error(s).
 ```
+
+The parser regression pipeline completed with 16/16 tests and 0 failures or errors:
+
+```text
+Godot headless tests: 1 file(s), 16 test(s), 0 failure(s), 0 error(s).
+```
+
+This closes the R-454v1 implementation/parser boundary. It does not claim R-503 gameplay invariants or R-455 rendered readability acceptance.
 
 ## Runtime profile coverage
 
-The current RRMap inventory contains authored R-454 profiles in:
+The current RRMap inventory contains the complete authored R-454 matrix in all nine urban exterior maps:
 
-- `toompea_quarter`: plateau area and both Jalg ramps
-- `archbishops_garden`: plateau area
+- `toompea_quarter`: plateau area, both Jalg ramps, southern slope
+- `archbishops_garden`: plateau area, Toompea seam, center-gate taper, south-gate taper
 - `reval_harbor_north`: Coastal Gate ramp, quay-to-wet-margin ramp, wet margin, harbour seam
 - `reval_harbor_east`: Kalarand shore, shore track, village edge, north seam
+- `lower_town_slice`: full Lower Town quartet
+- `market_civic_quarter`: full market quartet
+- `monastery_quarter`: full monastery quintet
+- `north_quarter`: full north quartet
+- `south_quarter`: full south quartet
 
-The remaining five urban exterior maps are still represented by the frozen historical matrix but do not yet contain authored `elevation_area`/`elevation_ramp` rows:
-
-- `lower_town_slice`
-- `market_civic_quarter`
-- `monastery_quarter`
-- `north_quarter`
-- `south_quarter`
-
-This is an implementation gap, not permission to invent unsupported metre readings. New rows must use the existing typed RRMap elevation grammar, preserve stable IDs, stay within the documented world-unit bounds, and keep transition seams aligned.
+The five previously missing urban profile sets are now present and are covered by the passing R-454 scope test. `viru_gate_foreland` remains intentionally flat and outside the urban relief matrix.
 
 ## Acceptance boundary
 
 R-504 is not accepted because:
 
-1. Two in-scope harbour maps do not compile in the focused suites due to an unknown style reference.
-2. Five matrix maps still lack their authored runtime profiles.
-3. R-455 still requires rendered Metal evidence for player-eye/top-down readability, recessed ditch depth, and exact terrain/object alignment.
-4. No human historical or art sign-off is recorded by this gate.
+1. R-503 gameplay-invariant verification remains to be rerun under R-523.
+2. R-455 still requires rendered Metal evidence for player-eye/top-down readability, recessed ditch depth, and exact terrain/object alignment.
+3. No human historical or art sign-off is recorded by this gate.
 
-The passing R-503 subtests are retained as useful evidence for finite values, scope bounds, reciprocal identities, and the physical harbour seam. They do not override the failed map-load path or the missing visual evidence.
+The passing R-454 scope and parser gates establish matrix coverage and grammar/compiler integrity only. They do not override the remaining gameplay or visual acceptance requirements.
 
 ## Follow-up ownership
 
-The task board contains dedicated follow-ups for the two actionable implementation blockers:
+The task board contains the serial verification follow-ups:
 
-- Register or replace the `reed.shore` map style reference and rerun the R-454/R-455/R-503 focused suites.
-- Author the remaining five R-454 runtime profile sets through the typed RRMap grammar, then rerun this gate.
+- **R-523:** rerun the R-503 gameplay-invariant gate after R-522.
+- **R-524:** close R-455/R-504 with the readability suite and matched Metal day/night captures after R-523.
 
-After both are complete, rerun the focused suites from a clean attributable snapshot and attach matched Metal day/night captures before changing the decision to accepted.
+After both are complete, rerun the focused suites from a clean attributable snapshot and attach the required captures before changing the decision to accepted.
 
 ## References
 
