@@ -68,3 +68,4 @@ This file contains lessons specific to the Researcher role.
 - When inserting a dated access recheck, anchor on the live heading boundary after re-reading the dossier; summarized replacement context can miss because of punctuation or adjacent-line formatting.
 - When validating one reference plate inside a multi-plate dossier, scope rights/path assertions to that plate row; a repository-wide negative check can falsely reject valid licenses or source labels belonging to neighbouring fetched plates.
 - If a chained `git push` command returns a silent non-zero result, verify `HEAD`, `origin/<branch>`, and `git ls-remote` before retrying; the push may have completed and the failure may be from a later diagnostic command.
+- When a continuation summary names a dossier path, verify it against the live repository before editing; if an index row must be added beside a similar recheck, restore the neighbouring row and insert a new line rather than replacing it.
