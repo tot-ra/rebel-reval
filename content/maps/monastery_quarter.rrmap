@@ -17,6 +17,13 @@
 # remains anchored by the original Vene transition.
 rrmap 1
 map monastery_quarter loc.lower_town.monastery_quarter 260 112 dirt scope=prototype active=false palette=clean_painted seed=2721 cell_size=32
+# R-454: keep the inner packed-earth precinct and outer travel road on the
+# shared zero datum; only the local ditch and its short causeway are recessed.
+elevation_area r454.monastery.inner_datum 110 56 110 0.0
+elevation_area r454.monastery.outer_road 242 56 56 0.0
+elevation_ramp r454.monastery.east_ditch 230 8 230 104 -0.35 -0.35 width=2
+elevation_ramp r454.monastery.causeway 230 40 230 52 -0.10 -0.10 width=2
+elevation_ramp r454.monastery.north_inner_gate 104 0 236 0 0.0 0.0 width=6
 source "scenes/reval_monastery/reval_monastery.tscn"
 source "scenes/revel-map.jpg"
 source "scenes/reval_north/st_olafs_church.md"
