@@ -6,6 +6,9 @@ const HouseStyles := preload("res://scripts/map/view3d/map_view_mesh_builder_bui
 const MapViewMeshBuilder := preload("res://scripts/map/view3d/map_view_mesh_builder.gd")
 const MapViewMaterials := preload("res://scripts/map/view3d/map_view_materials.gd")
 const Config := preload("res://scripts/map/view3d/map_view_mesh_builder_config.gd")
+const BuildingRegistry := preload(
+	"res://scripts/map/view3d/map_view_mesh_builder_building_registry.gd"
+)
 
 
 const EXPECTED_TIERS := {
@@ -167,3 +170,37 @@ func test_lower_town_tiers_resolve_to_worn_wall_and_roof_variation() -> void:
 		"tiered frontage must retain multiple roof texture variants"
 	)
 	assert_true(weathering_variants.size() >= 2, "tiered frontage must expose weathering variation")
+
+
+func test_exceptional_registry_wins_over_house_tier_and_building_kind() -> void:
+	var landmark := {
+		"id": &"st_catherines_church",
+		"kind": MapTypes.BUILDING_KIND_HOUSE,
+		"house_tier": PropStyleVariants.HOUSE_TIER_MERCHANT_STONE,
+	}
+	assert_eq(
+		BuildingRegistry.exceptional_category(landmark),
+		&"church",
+		"landmark IDs must stay on the exceptional renderer path even if a tier leaks in"
+	)
+	assert_true(MapViewMeshBuilder.is_exceptional_building(landmark))
+
+	var ordinary := {
+		"id": &"ordinary_frontage",
+		"kind": MapTypes.BUILDING_KIND_HOUSE,
+		"house_tier": PropStyleVariants.HOUSE_TIER_MERCHANT_STONE,
+	}
+	assert_eq(BuildingRegistry.exceptional_category(ordinary), &"")
+	assert_false(MapViewMeshBuilder.is_exceptional_building(ordinary))
+
+	var wall_with_landmark_id := {
+		"id": &"st_catherines_church",
+		"kind": MapTypes.BUILDING_KIND_WALL,
+		"house_tier": PropStyleVariants.HOUSE_TIER_MERCHANT_STONE,
+	}
+	assert_eq(
+		BuildingRegistry.exceptional_category(wall_with_landmark_id),
+		&"",
+		"wall records must remain on the fortification renderer path"
+	)
+	assert_false(MapViewMeshBuilder.is_exceptional_building(wall_with_landmark_id))
