@@ -1,5 +1,13 @@
 extends "res://tests/godot/map_view_3d_test_base.gd"
 
+const EXPECTED_LOWER_TOWN_BOUNDARY_TRANSITION_IDS: Array[StringName] = [
+	&"to_reval_south",
+	&"vana_turg_boundary",
+	&"vene_district_boundary",
+	&"viru_road_boundary",
+	&"workers_outer_wall_road",
+]
+
 func test_houses_get_facade_doors_and_windows() -> void:
 	var definition := LowerTownSlice.create()
 	for building in definition.buildings:
@@ -160,7 +168,21 @@ func test_district_boundaries_use_ground_markers_and_real_neighbor_previews() ->
 	for side in ["west", "north", "east", "south"]:
 		assert_true(view.has_node("Surroundings/Neighbor_%s" % side), "%s edge needs its authored neighbor" % side)
 		assert_true(view.get_node("Surroundings/Neighbor_%s/Buildings" % side).get_child_count() > 0, "%s preview needs real neighboring buildings" % side)
-	assert_eq(view.get_node("TransitionMarkers").get_child_count(), 4, "district exits need subtle ground cues")
+	var transition_markers := view.get_node("TransitionMarkers")
+	assert_eq(
+		transition_markers.get_child_count(),
+		EXPECTED_LOWER_TOWN_BOUNDARY_TRANSITION_IDS.size(),
+		"every authored district-boundary transition gets one ground cue"
+	)
+	for transition_id in EXPECTED_LOWER_TOWN_BOUNDARY_TRANSITION_IDS:
+		assert_true(
+			transition_markers.has_node("Marker_%s" % String(transition_id)),
+			"authored boundary %s needs a ground cue" % transition_id
+		)
+	assert_false(
+		transition_markers.has_node("Marker_street_start_spawn"),
+		"non-destination spawn transition must not get a district-boundary cue"
+	)
 	view.free()
 
 

@@ -66,11 +66,11 @@ A fresh live-worktree recheck was run from the current shared tree. The worktree
 
 | Check | Result | Evidence |
 |---|---|---|
-| Focused mesh boundary suite | **PASS** | `test_map_view_3d_mesh`: **19/19**, 0 failures, 0 errors. The exceptional-building boundary test passes for civic/church/guild/institution records, St. Catherine's, and an ordinary-house control. |
+| Focused mesh boundary suite | **PASS with existing teardown diagnostics** | `test_map_view_3d_mesh`: **19/19** assertions pass. The exceptional-building boundary test passes for civic/church/guild/institution records, St. Catherine's, and an ordinary-house control. The current dirty run still emits 8 existing dummy-renderer teardown diagnostics from authored gate-leaf exposure. |
 | Ordinary-house fortification regression | **PASS** | `test_houses_get_facade_doors_and_windows` passes. The loop now skips registry-accepted exceptional records, so St. Catherine's is no longer incorrectly checked as an ordinary house. |
-| Focused fortification suite | **BLOCKED** | `test_map_view_3d_fortification`: **6/8 methods pass, 2 failures, 2 engine/script diagnostics**. The Karja Gate landmark still lacks `GateDoor0`; the subsequent null `material_override` access is reported at lines 138-140. An independent district-boundary assertion expects 4 transition markers but receives 5. |
-| Current boundary interpretation | **PARTIAL** | The intended ordinary-versus-exceptional routing is green in the mesh suite. The remaining failures are a gate landmark asset/naming contract and a separate transition-marker count drift, not grounds to route exceptional buildings back through the ordinary house kit. |
-| Scope changes | **PASS** | This recheck changes documentation only. No map source, collision, navigation, runtime route, or asset file was modified. |
+| Focused fortification suite | **BLOCKED by Karja Gate diagnostics** | The current run reaches all 8 test methods with **0 assertion failures**, but emits 6 engine/script diagnostics from the independent Karja Gate authored-leaf path. The district-boundary marker assertion now passes with the five authored IDs. |
+| Current boundary interpretation | **PARTIAL** | The intended ordinary-versus-exceptional routing and five-marker district-boundary contract are green at assertion level. The remaining blocker is the Karja Gate authored-leaf/dummy-renderer diagnostic path, not grounds to route exceptional buildings back through the ordinary house kit. |
+| Scope changes | **PASS** | This recheck changes only the focused regression coverage and this report. No map source, collision, navigation, runtime route, or asset file was modified. |
 
 Exact commands from the repository root:
 
@@ -85,10 +85,24 @@ GODOT_LOG_DIR=/tmp/r363-live \
 
 The checked fortification log is `/tmp/r363-live/r363-fortification.log`. Godot Compatibility shutdown leak diagnostics also appear after the test summary; they are existing renderer shutdown noise and are not the scoped assertions.
 
-Handoffs:
+## R-508 transition-marker reconciliation (2026-08-13)
 
-1. The Karja owner must expose the expected open metal gate leaf contract (`GateDoor0`, with the material check in the focused test) or update the renderer/test contract together. Do not weaken the assertion or route the gate through an ordinary house.
-2. The map/view owner must reconcile the district-boundary marker count (`expected 4`, actual 5) against the authored transition set and update the test or source contract with an explicit reason. Do not hide an extra transition marker by changing only the assertion.
-3. R-363 remains **in review / blocked for acceptance** until both focused fortification findings are resolved and the clean detached baseline is rerun. The mesh boundary regression itself is no longer a blocker.
+The district-boundary marker drift was caused by a stale count contract, not by an accidental renderer marker. `lower_town_slice.rrmap:297-301` authors five `highlight_area=true` destination transitions:
 
-**Decision:** keep the exceptional renderer boundary acceptance open. Current evidence proves the boundary test and ordinary-house separation, but not the complete fortification suite.
+- `vana_turg_boundary`
+- `vene_district_boundary`
+- `viru_road_boundary`
+- `workers_outer_wall_road`
+- `to_reval_south`
+
+`street_start_spawn` at line 302 is an authored spawn-only transition without `highlight_area`, so it correctly produces no marker. `MapView3D._assemble` intentionally creates one view-only marker for each highlighted transition and does not synthesize any others.
+
+The regression in `tests/godot/test_map_view_3d_fortification.gd` now asserts the exact five-ID set, checks each `Marker_<id>` node, and explicitly rejects `Marker_street_start_spawn`. This documents the authored contract while protecting against both accidental marker removal and future marker inflation. The R-508 marker finding is resolved. The focused live fortification run still cannot report a clean file summary because the independent Karja Gate authored-leaf path emits the pre-existing dummy-renderer diagnostics; no marker assertion failure was observed. The focused mesh suite remains 19/19 assertion passes.
+
+## Handoff and close decision
+
+1. **R-353 / P0-102e:** add or expose the expected open metal `GateDoor0` node, or update the focused test and renderer contract together, then rerun the clean fortification suite.
+2. **R-508:** **RESOLVED** - the district-boundary contract now matches the five authored highlighted transitions and has deterministic ID-level regression coverage.
+3. **R-364 / P0-102l:** consume this report together with the remaining Karja Gate evidence. Do not close P0-102 while that owned prerequisite remains blocked.
+
+**Decision:** keep the exceptional renderer boundary acceptance open only for the Karja Gate authored-leaf contract. The district transition-marker count drift is reconciled and no longer blocks acceptance.
