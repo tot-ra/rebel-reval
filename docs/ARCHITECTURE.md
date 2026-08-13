@@ -1,6 +1,6 @@
 # Runtime Architecture and File Ownership
 
-Status: active baseline, audited 2026-07-21 for P0-065.
+Status: active baseline, audited 2026-07-21 for P0-065; large-runtime inventory refreshed 2026-08-13 for P0-184.
 
 This document defines the current Godot runtime boundaries, dependency direction, and file ownership for Reval Rebel. It describes the architecture that exists in the repository. It does not authorize a second framework, a new map representation, or a broad rewrite.
 
@@ -228,37 +228,65 @@ A line count over 400 is an audit trigger, not an automatic extraction trigger.
 
 ## Large runtime file audit
 
-The P0-065 TODO text expected 11 runtime scripts over 400 lines and referenced a 681-line building mesh builder plus a 565-line statement parser. The 2026-07-21 inventory finds 18 files over 400 lines after earlier focused splits. The current house builder is 527 lines and the rrmap statement parser is 569 lines. Counts exclude `tests/`, `tools/`, `addons/`, `archive/`, `quarantine/`, and generated directories.
+Inventory date: **2026-08-13** (P0-184). Counts use `wc -l` on `scripts/**/*.gd` and exclude `tests/`, `tools/`, `addons/`, `archive/`, `quarantine/`, `generated/`, and `scenes/`.
 
-| File (audited lines) | Current responsibility | Decision and regression gate |
+| Band | Count | How to treat it |
 | --- | --- | --- |
-| `scenes/comparison_room/comparison_room.gd` (459) | Developer-only P0-033 greybox construction, controls, HUD, and headless self-check | Mixed by design but not release runtime. Retain as one disposable verification scene. If changed, run its headless self-check and `scenes/comparison_room/verify_variants.gd`; do not copy it into production scenes. |
-| `scripts/dialogue/dialogue_ui.gd` (401) | Dialogue presentation facade and transient UI state | Cohesive facade already delegating build, theme, input, choice, and reveal work. Keep. Protect with `test_dialogue_ui`, `test_dialogue_overflow`, and `test_dialogue_settings`. |
-| `scripts/inventory/inventory_overlay.gd` (476) | Bag/equipment presentation, keyboard focus, drag/drop command handling | Mixed presentation and domain command orchestration. Target extraction only when inventory work resumes: route move/equip intents through the existing controller boundary. Protect with `test_inventory_overlay_view`, `test_inventory_keyboard`, `test_inventory_bag`, and `test_inventory_equipment`. |
-| `scripts/map/map_blueprint.gd` (404) | Compact map-authoring vocabulary and primitive collection | Cohesive typed authoring model. Keep as the stable DSL. Protect with `test_map_blueprint_compiler`, `test_map_blueprint_semantic_validation`, and `test_map_prefabs`. |
-| `scripts/map/map_definition.gd` (440) | Runtime map contract, validation, bounds, and fingerprint inputs | Cohesive compatibility seam. Keep validation beside the contract until a separately versioned rule family exists. Protect with `test_map_definition_contract`, map parity, audit, and route gates. |
-| `scripts/map/rrmap/map_rrmap_parser_statements.gd` (569) | rrmap v1 statement dispatch and command-specific parsing | Large but one grammar responsibility. Token/value parsing and top-level orchestration are already split. Do not split by arbitrary line count. If a new command family introduces independent state, extract that family behind the parser facade. Protect with `test_map_rrmap_parser`, parser CI, canonical round-trip, and migration tests. |
-| `scripts/map/view3d/map_view_3d.gd` (558) | Derived view assembly, lighting/environment state, visual object streaming, fog, and camera creation | Integration-heavy view owner. Existing weather, mesh, and camera helpers already reduce it. Extract another owner only when lighting or streaming changes independently. Protect with `test_map_view_3d_core`, `test_map_view_3d_lighting`, `test_map_camera_modes`, and object-streaming tests. |
-| `scripts/map/view3d/map_view_materials.gd` (509) | Stable material API, role mapping, UV density, and material cache | Cohesive facade over `MapViewMaterialPatterns` and `MapViewMaterialShaders`. Keep. Protect with `test_map_view_material_resolution` and 3D mesh/lighting tests. |
-| `scripts/map/view3d/map_view_mesh_builder_building_houses.gd` (527) | House style selection, materials, structural dressing, chimneys, windows, and historic details | Focused house visual catalog. This is the remaining large portion of the former building builder, while `MapViewMeshBuilderBuildings` is now a small facade/orchestrator. Keep until one new house-detail family needs independent reuse. Protect with `test_map_view_3d_mesh`, `test_map_view_3d_fortification`, and map visual captures. |
-| `scripts/map/view3d/map_view_mesh_builder_landmarks.gd` (465) | Gate arches, interior windows, transition doors, and marker geometry | Cohesive landmark visual catalog. Keep; extract a kind-specific builder only if its own vocabulary grows. Protect with `test_direction_sign_3d`, `test_map_view_3d_fortification`, and `test_map_view_3d_core`. |
-| `scripts/map/view3d/map_view_mesh_builder_primitives.gd` (510) | Low-level deterministic mesh primitives and immutable mesh cache | Cohesive shared geometry utility. Keep cache and constructors together so all builders reuse identical resources. Protect with `test_map_view_3d_mesh`, `test_map_view_3d_core`, and procedural mesh reuse assertions. |
-| `scripts/map/view3d/map_view_mesh_builder_surroundings.gd` (439) | Exterior aprons, vegetation, and adjoining-district previews | One derived surroundings responsibility with two strategies. Keep while both consume the same map-side contract. If neighbor previews gain lifecycle/state, extract them behind `build_surroundings`. Protect with prototype-map tests, `test_map_view_3d_core`, and outdoor captures. |
-| `scripts/map/view3d/map_view_mesh_builder_terrain.gd` (561) | Deterministic height-field/cache plus terrain mesh emission and water integration | Mixed calculation and rendering. Target extraction when terrain work resumes: isolate a pure height-field owner while preserving the `MapViewMeshBuilder` facade. Protect with `test_map_view_3d_core`, `test_riparian_banks`, `test_map_terrain_movement`, and map parity gates. |
-| `scripts/map/view3d/map_view_runtime.gd` (500) | 2D-to-3D installation facade, camera-relative input, click setup, session calendar, and day/night bridge | Actor/equipment synchronization is now extracted behind the stable facade in `MapViewRuntimeActors`; camera state remains in `MapViewRuntimeCamera`. Keep the facade focused on scene integration. Protect with `test_map_view_3d_runtime`, `test_map_camera_modes`, `test_map_click_input_controller`, `test_character_rig`, and session-state replacement tests. |
-| `scripts/map/view3d/map_view_runtime_actors.gd` (209) | 2D actor discovery, rig mirroring, locomotion/health presentation, and player equipment binding | Focused actor-view adapter extracted from `MapViewRuntime`. Keep actor synchronization and its signal lifecycle together; callers should continue through the runtime facade. Protect with runtime, character-rig, and session-state replacement tests. |
-| `scripts/map/view3d/sky_weather_3d.gd` (637) | Weather state machine, gust/lightning timing, solar/lunar astronomy facades, and sky shader uniform bridge | Simulation and rendering-resource baking were mixed before P0-079. `SkyWeatherResources` now owns deterministic procedural textures and rain construction; keep the public `SkyWeather3D` API stable. Protect with `test_sky_weather_3d`, `test_map_view_3d_lighting`, and `test_boat_float_3d`. |
-| `scripts/map/view3d/sky_weather_resources.gd` | Deterministic cloud noise/shape, NASA near-side lunar albedo preload, star catalog map, rain particles, and shared photometry helpers | Cohesive scene-tree-free factory extracted under P0-079. Lunar disk now samples `assets/sky/lunar_albedo_nearside.png` (NASA LRO mosaic). Keep beside `SkyWeather3D` until a second caller needs the same resources independently. Protect with `test_sky_weather_3d` and `test_map_view_3d_lighting`. |
-| `scripts/player.gd` (447) | CharacterBody movement, navigation, combat adapter, resources, terrain/encumbrance speed, and animation-facing facade | Multiple responsibilities remain behind one scene API. Target extraction when player controls or combat next change: isolate locomotion/resource coordination without replacing `Player`, `PlayerActionStateMachine`, or `CombatVitals`. Protect with `test_player_action_state_machine`, `test_player_resources`, `test_map_terrain_movement`, `test_inventory_encumbrance`, and combat tests. |
-| `scripts/ui/minimap_hud.gd` (426) | Local map image/marker, location/date HUD, and procedural ornament/celestial controls | Cohesive HUD assembly with nested draw-only controls. Keep until either visual control is reused independently. Protect with `test_minimap`, `test_world_map_overlay`, and `test_map_scene_bootstrap`. |
-| `scripts/ui/world_map_overlay.gd` (230) | Public full-screen map facade, tabs/mode state, and validated travel intent | Extracted under P1-034: `WorldMapLocalView` owns local image/marker rendering and `WorldMapFastTravelView` owns graph drawing/focus. Keep the facade and stable node names; `WorldMapController` remains the only travel side-effect owner. Protect with all `test_world_map_overlay` cases and `test_quick_access_menu`. |
-| `scripts/world/world_item_controller.gd` (439) | Default placement seeding, state-to-node synchronization, hover/cursor/input, pickup/drop transactions, interactables, and 3D item views | Mixed state adapter, interaction controller, and presentation. Existing overlay, label, and view binder helpers should remain the extension points. Extract only one axis at a time, starting with default-placement/content resolution when authored placements move to validated content. Protect with `test_world_items`, `test_map_click_input_controller`, `test_demo_walkthrough`, and save round-trip tests. |
+| >= 800 lines | 6 | Must have an explicit keep/extract decision (table below). Primary EE-agent pain. |
+| 600-799 lines | 17 | Audit + prefer extraction only when responsibilities already mix. |
+| 400-599 lines | 37 | Audit trigger only; do not split by line count alone. |
+| Total >= 400 | 60 | Same count as the 2026-08-11 size audit; composition shifted inside view3d. |
+
+Soft readability target for new or extracted runtime helpers: **under 600 lines**, ideally under 400, unless the file is a pure data catalog or one grammar/facade. EE-agent split plan with ordered steps: [`docs/reports/agent_file_readability_split_plan_2026-08-13.md`](./reports/agent_file_readability_split_plan_2026-08-13.md). Justified extractions for the 800+ band are **P0-185**.
+
+### Files over 800 lines (required decisions)
+
+| File (lines) | Current responsibility | Decision and regression gate |
+| --- | --- | --- |
+| `scripts/map/view3d/map_view_tree_meshes.gd` (1143) | Species profiles plus procedural wood/canopy/fruit mesh builders | **Extract (P0-185).** Split species profile tables from mesh emitters behind the existing `wood_mesh` / `canopy_mesh` / `fruit_mesh` facade. Protect with `test_map_view_3d_mesh`, foliage/tree mesh filters, and outdoor captures. |
+| `scripts/map/view3d/map_view_bird_species.gd` (1076) | Stable bird IDs, group/pose/context tables, spawn weights, materials | **Extract (P0-185).** Keep the public `MapViewBirdSpecies` API; move per-group profile tables into focused data modules (same pattern as already-split star catalogs). Protect with bird mesh/audio/flight filters and species allowlist tests. |
+| `scripts/map/view3d/map_view_mesh_builder_prop_models.gd` (986) | Prop dispatch plus smithy kits, boats, banners, livestock, authored trees | **Extract (P0-185).** Keep `build_prop` facade; peel smithy kit builders and outdoor/boat/fauna branches into typed helpers. Protect with `test_map_view_3d_mesh`, `test_forge_prop_meshes`, boat/float filters. |
+| `scripts/map/view3d/map_view_material_shaders.gd` (919) | Inline `.gdshader` string catalog and tiny shader cache | **Extract or relocate (P0-185).** Prefer moving large shader sources to `*.gdshader` resources loaded by the existing cache API so agents edit one surface at a time. Protect with `test_map_view_material_resolution`, `test_map_view_3d_lighting`, water/terrain mesh filters. |
+| `scripts/map/view3d/map_view_mammal_species.gd` (870) | Mammal ID/profile catalog parallel to birds | **Extract (P0-185).** Same group-table split as birds; keep stable IDs and accessor facade. Protect with mammal mesh/fauna filters. |
+| `scripts/map/view3d/map_view_runtime.gd` (830) | 2D-to-3D install facade, ambient installers, time ladder, click input | **Extract (P0-185).** Actors/camera already moved out; next peel ambient installers (birds/fauna/insects/crowd/music) and/or time-flow controls behind the same `MapViewRuntime` facade. Protect with `test_map_view_3d_runtime`, camera/click/crowd/fauna filters, session-state replacement tests. |
+
+### 600-799 line band (keep unless a second reason appears)
+
+| File (lines) | Decision and regression gate |
+| --- | --- |
+| `scripts/map/rrmap/map_rrmap_parser_statements.gd` (790) | **Keep** one grammar dispatcher. Extract a command family only when it gains independent state. Gate: `test_map_rrmap_parser`, parser CI, canonical round-trip. |
+| `scripts/map/view3d/map_view_3d.gd` (783) | **Keep** integration owner; extract lighting or streaming only when that axis changes alone. Gate: `test_map_view_3d_core`, lighting, camera, object-streaming. |
+| `scripts/map/view3d/map_view_materials.gd` (770) | **Keep** facade over patterns/shaders. Gate: material resolution + 3D lighting/mesh. |
+| `scripts/map/view3d/map_view_mesh_builder_scatter.gd` (741) | **Keep** scatter catalog until a second caller needs pure tables. Gate: mesh/core outdoor tests. |
+| `scripts/map/view3d/map_view_material_patterns.gd` (730) | **Keep** beside materials facade. Gate: material resolution. |
+| `scripts/map/view3d/sky_weather_3d.gd` (729) | **Keep** after P0-079 resource extract. Gate: `test_sky_weather_3d`, lighting, boat float. |
+| `scripts/map/view3d/map_view_mesh_builder_terrain.gd` (718) | **Target later:** pure height-field owner when terrain work resumes. Gate: core, riparian, terrain movement, parity. |
+| `scripts/map/view3d/map_view_bird_meshes.gd` (712) | **Keep** mesh catalog beside species data. Gate: bird mesh filters. |
+| `scripts/map/view3d/map_view_mammal_meshes.gd` (697) | **Keep** mesh catalog beside species data. Gate: mammal mesh filters. |
+| `scripts/map/view3d/map_view_mesh_builder_building_houses.gd` (693) | **Keep** house visual catalog. Gate: mesh + fortification + captures. |
+| `scripts/player.gd` (687) | **Target later:** locomotion/resources vs combat adapter when player work resumes. Gate: action SM, resources, terrain movement, encumbrance, combat. |
+| `scripts/map/view3d/map_view_mesh_builder_primitives.gd` (685) | **Keep** shared geometry + cache. Gate: mesh/core reuse assertions. |
+| `scripts/inventory/equipment_silhouette.gd` (662) | **Keep** until a second silhouette consumer appears. Gate: inventory/equipment/character-rig. |
+| `scripts/map/map_types.gd` (648) | **Keep** shared typed vocabulary; do not split for LOC. Gate: map compiler/definition/rrmap suites. |
+| `scripts/map/map_definition.gd` (633) | **Keep** runtime contract + validation. Gate: definition contract, parity, audit, routes. |
+| `scripts/map/view3d/map_view_mesh_builder_landmarks.gd` (624) | **Keep** landmark catalog. Gate: direction signs, fortification, core. |
+| `scripts/map/view3d/map_view_foliage_meshes.gd` (604) | **Keep** beside tree meshes until foliage gains a second owner. Gate: mesh/outdoor. |
+
+### 400-599 line band (audit list only)
+
+These remain over the audit trigger but are not scheduled rewrites: `map_view_runtime_camera.gd` (593), `map_view_mesh_builder_house_roof_dressing.gd` (573), `map_blueprint_compiler_expand.gd` (571), `map_blueprint.gd` (565), `game_state.gd` (538), `map_composition_audit.gd` (536), `map_view_mesh_builder_building_fortification.gd` (528), `map_prop_renderer_industrial.gd` (528), `smithy_routine_controller.gd` (512), `faction_heraldry.gd` (505), `map_view_bush_species.gd` (504), `map_view_mesh_builder_district_life_props.gd` (499), `minimap_hud.gd` (486), `inventory_overlay.gd` (481), `map_blueprint_compiler.gd` (472), `map_prop_renderer_life.gd` (467), `forge_prologue_controller.gd` (464), `map_view_plant_species.gd` (460), `map_view_bird_flight.gd` (459), `map_view_plant_meshes.gd` (453), `map_view_mesh_builder_surroundings.gd` (448), `world_item_controller.gd` (445), `state_rule_evaluator.gd` (439), `dialogue_runner.gd` (438), `bitter_brew_night_consequence.gd` (433), `game_settings_overlay.gd` (431), `estonia_star_catalog_ra_180_270.gd` (430), `dialogue_ui.gd` (426), `quick_access_menu.gd` (425), `game_state_persistence.gd` (419), `map_rrmap_parser_tokens.gd` (419), `map_view_mesh_builder_config.gd` (418), `act1_aftermath_model.gd` (409), `estonia_star_catalog_ra_090_180.gd` (409), `estonia_star_catalog_ra_270_360.gd` (408), `map_view_merchant_boat_builder.gd` (406), `estonia_star_catalog_ra_000_090.gd` (404). Star catalog shards are already the preferred data-split pattern; keep them.
+
+Non-`scripts/` files over 400 lines (scenes/tests/debug) are outside this runtime audit. Treat `scenes/comparison_room/comparison_room.gd` and debug showcases as disposable verification hosts, not production split targets.
+
+### Completed extractions (still valid)
+
+- P1-034: `WorldMapOverlay` facade with local/fast-travel child views.
+- P0-079: `SkyWeatherResources` beside `SkyWeather3D`.
+- Runtime actors: `MapViewRuntimeActors` beside `MapViewRuntime` / `MapViewRuntimeCamera`.
 
 ### Scheduled follow-up
 
-P1-034 completed the first extraction identified by this audit: local-map and fast-travel presentation now live in focused child views behind the preserved `WorldMapOverlay` facade, with travel side effects still owned by `WorldMapController`. P0-079 completed the second: procedural sky resource baking now lives in `SkyWeatherResources` while `SkyWeather3D` keeps weather simulation and astronomy facades. The runtime actor/equipment extraction is also complete: `MapViewRuntimeActors` owns 2D-to-3D rig synchronization while `MapViewRuntime` preserves the scene-facing API. Other candidates remain thresholds, not scheduled rewrites.
-
-The 2026-07-21 table below is stale relative to the 2026-08-11 size audit: runtime `scripts/**/*.gd` now has 60 files over 400 lines (22 over 600, 6 over 800). Refresh and justified extractions are scheduled as **P0-184** / **P0-185** in [`docs/STORAGE_SIZE_BACKLOG.md`](./STORAGE_SIZE_BACKLOG.md); do not split by line count alone before that refresh.
+**P0-185** performs justified extractions only for the six files in the 800+ table. Do not open broad LOC-driven rewrites of the 400-799 bands. Documentation/agent readability slim-downs for `docs/MAP_AUTHORING.md`, `docs/ROADMAP.md`, and offline `tools/` generators are tracked beside storage work in [`docs/STORAGE_SIZE_BACKLOG.md`](./STORAGE_SIZE_BACKLOG.md) and the 2026-08-13 readability report; they are not runtime architecture extractions.
 
 ## Verification baseline
 

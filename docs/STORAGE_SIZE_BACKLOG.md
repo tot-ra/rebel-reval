@@ -27,11 +27,13 @@ Format matches the legacy `TODO.md` contract: `ID | deps | deliverable | verify`
 
 - [ ] P0-186 | deps: P0-177 | role: qa/production | deliverable: evidence-image retention rule for `docs/reports/images/**` (~101 MiB PNG today) - compress closed-task captures, convert where lossless is unnecessary, or LFS-skip archival plates while keeping current-slice acceptance images local | verify: current-slice acceptance commands that read report images still pass; docs/reports byte total drops with a recorded before/after; `.gdignore` / LFS policy remains coherent
 
+## Closed - source / documentation size
+
+- [x] P0-184 | deps: P0-177 | role: dev | deliverable: refresh `docs/ARCHITECTURE.md` large-runtime-file audit table to the current inventory (60 scripts over 400 lines, list every file over 800 lines) with keep/extract decisions and regression gates; no behavior change required in-row | verify: architecture section matches `wc -l` on `scripts/**/*.gd`; `python3 tools/generate_active_docs_report.py --check` passes | closed: 2026-08-13 inventory 60 / 23 / 6 over 400 / 600 / 800; EE-agent split queue in `docs/reports/agent_file_readability_split_plan_2026-08-13.md`
+
 ## Open - source / documentation size
 
-- [ ] P0-184 | deps: P0-177 | role: dev | deliverable: refresh `docs/ARCHITECTURE.md` large-runtime-file audit table to the current inventory (60 scripts over 400 lines, list every file over 800 lines) with keep/extract decisions and regression gates; no behavior change required in-row | verify: architecture section matches `wc -l` on `scripts/**/*.gd`; `python3 tools/generate_active_docs_report.py --check` passes
-
-- [ ] P0-185 | deps: P0-184 | role: dev | deliverable: justified extractions only for view3d hotspots that fail the architecture extraction criteria, prioritized among `map_view_tree_meshes.gd`, `map_view_bird_species.gd`, `map_view_mesh_builder_prop_models.gd`, `map_view_material_shaders.gd`, `map_view_mammal_species.gd`, and `map_view_runtime.gd`; keep public facades and stable IDs | verify: focused Godot filters named in the architecture row pass; full map/view suites relevant to touched files pass; each extracted file is under the agreed soft cap or has an explicit keep decision
+- [ ] P0-185 | deps: P0-184 | role: dev | deliverable: justified extractions only for view3d hotspots that fail the architecture extraction criteria, prioritized among `map_view_bird_species.gd`, `map_view_mammal_species.gd`, `map_view_material_shaders.gd`, `map_view_tree_meshes.gd`, `map_view_mesh_builder_prop_models.gd`, and `map_view_runtime.gd` (see readability report order); keep public facades and stable IDs | verify: focused Godot filters named in the architecture row pass; full map/view suites relevant to touched files pass; each extracted file is under the agreed soft cap or has an explicit keep decision
 
 - [ ] P0-187 | deps: P0-177 | role: production | deliverable: move aged `docs/ROADMAP.md` coordination-history notes into `docs/TASK_ARCHIVE.md` or a dated ROADMAP archive so the live roadmap stays focused on Current focus plus recent notes; do not drop open dependency pointers | verify: Current focus section remains accurate; archived notes remain linkable; `python3 tools/generate_active_docs_report.py --check` passes; `docs/ROADMAP.md` shrinks versus the 119 KiB / 360-line 2026-08-11 baseline
 
