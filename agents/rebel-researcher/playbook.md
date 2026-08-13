@@ -66,3 +66,4 @@ This file contains lessons specific to the Researcher role.
 - When a web-search wrapper combines an incompatible category and search type, the request can fail before returning evidence; validate the tool schema and pivot to direct official records instead of retrying the malformed call.
 - When repairing multiple rows in one dossier, never dispatch parallel edits against that file; serialize replacements and re-read the saved table because concurrent exact edits can overwrite one another.
 - When inserting a dated access recheck, anchor on the live heading boundary after re-reading the dossier; summarized replacement context can miss because of punctuation or adjacent-line formatting.
+- When validating one reference plate inside a multi-plate dossier, scope rights/path assertions to that plate row; a repository-wide negative check can falsely reject valid licenses or source labels belonging to neighbouring fetched plates.

@@ -8,7 +8,7 @@ related:
   - ./kalamaja-fishing-shore-1343.md
   - ./walls-gates-towers.md
   - ./lower-town-street-plan.md
-updated: 2026-07-28
+updated: 2026-08-13
 ---
 
 # Härjapea mouth and 1343 shoreline GIS
@@ -117,7 +117,7 @@ Geocoded gate/wreck addresses via OpenStreetMap Nominatim (2026-07-28); wreck po
 |---|---|---|---|---|
 | [`topography.harjapea-mouth-shoreline-gis.01`](../../reference/topography/harjapea-mouth-shoreline-gis/topography.harjapea-mouth-shoreline-gis.01.png) | Härjapea course on modern base from 1885 plan | Hannu~commonswiki after *Situationsplan der Stadt Reval* 1885 | CC BY-SA 3.0 | Delta axis at Lootsi — **late 19th-c. comparandum** |
 | [`topography.harjapea-mouth-shoreline-gis.02`](../../reference/topography/harjapea-mouth-shoreline-gis/topography.harjapea-mouth-shoreline-gis.02.jpg) | Tallinn town plan extract with Toompea border | Tallinn City Archives via Wikimedia, 1810 | public domain | Wet margin east of walls vs Toompea — **not 1343 survey** |
-| [`topography.harjapea-mouth-shoreline-gis.03`](../../reference/topography/harjapea-mouth-shoreline-gis/topography.harjapea-mouth-shoreline-gis.03.jpg) | Lootsi cog wreck in excavation pit | Estonian Maritime Museum / ERR photo via Wikimedia | CC BY-SA 4.0 | Foreshore mud context at Lootsi anchor |
+| `topography.harjapea-mouth-shoreline-gis.03` (link-only) | Lootsi cog wreck in excavation pit | [Estonian Maritime Museum via ERR News](https://news.err.ee/1609172593/europe-s-oldest-compass-found-in-lootsi-wreck-even-older-cog-still-underground) | rights unclear; no local copy | Foreshore mud context at Lootsi anchor |
 | `topography.harjapea-mouth-shoreline-gis.04` (link-only) | Lootsi wreck site on 1850 map fig. 2 | Tammet, Lätti & Heikkilä, AVE 2022:10 | scholarly | Anchor S5 on historical channel margin |
 | `topography.harjapea-mouth-shoreline-gis.05` (link-only) | Holocene shore displacement around Tallinn | Nurk, Vassiljev & Saarse, Proc. Estonian Acad. Sci. 2010, Fig. 4 | scholarly | Long-term emergence context — not month-scale 1343 curve |
 | [`topography.harjapea-mouth-shoreline-gis.06`](../../reference/topography/harjapea-mouth-shoreline-gis/topography.harjapea-mouth-shoreline-gis.06.jpg) | Suur Rannavärav cliff and gate alignment | Alvesgaspar Wikimedia photo, 2010 | CC BY-SA 3.0 | Cliff descent S3 — **post-medieval gate mass**; use grade only |
