@@ -7,7 +7,7 @@ const UrbanFauna := preload("res://scripts/map/view3d/map_view_urban_fauna.gd")
 
 
 func test_production_models_load_with_mesh_material_and_ground_contact() -> void:
-	for species: StringName in [MammalSpecies.SPECIES_CHICKEN, MammalSpecies.SPECIES_DUCK, &"goat", MammalSpecies.SPECIES_COW, MammalSpecies.SPECIES_PIG, MammalSpecies.SPECIES_SHEEP, MammalSpecies.SPECIES_HORSE]:
+	for species: StringName in [MammalSpecies.SPECIES_CHICKEN, MammalSpecies.SPECIES_DUCK, MammalSpecies.SPECIES_GOOSE, &"goat", MammalSpecies.SPECIES_COW, MammalSpecies.SPECIES_PIG, MammalSpecies.SPECIES_SHEEP, MammalSpecies.SPECIES_HORSE]:
 		var host := Node3D.new()
 		var model := Models.add_model(host, species)
 		assert_true(model != null, "%s needs an imported production model" % species)
@@ -22,6 +22,42 @@ func test_production_models_load_with_mesh_material_and_ground_contact() -> void
 		var aabb := mesh_instance.get_aabb()
 		assert_true(absf(aabb.position.y) < 0.001, "%s feet must touch Y=0" % species)
 		host.free()
+
+
+func test_static_fowl_models_receive_a_distance_synced_procedural_gait() -> void:
+	for species: StringName in Models.PROCEDURAL_FOWL:
+		var host := Node3D.new()
+		var model := Models.add_model(host, species)
+		assert_true(model != null)
+		assert_true(host.has_meta(Models.PROCEDURAL_GAIT_MODEL_META), "%s needs a gait pivot" % species)
+		var pivot := host.get_meta(Models.PROCEDURAL_GAIT_MODEL_META) as Node3D
+		assert_true(pivot != null)
+		assert_eq(model.get_parent(), pivot)
+		Models.sync_animation(host, host.position - Vector3(0.08, 0.0, 0.0), 0.1)
+		assert_true(absf(pivot.rotation.x) > 0.0001 or absf(pivot.rotation.z) > 0.0001)
+		assert_true(pivot.position.y > 0.0, "%s walk should lift the body between planted steps" % species)
+		for _idle_step in 12:
+			Models.sync_animation(host, host.position, 0.1)
+		assert_true(is_zero_approx(pivot.position.y))
+		assert_true(is_zero_approx(pivot.rotation.x))
+		assert_true(is_zero_approx(pivot.rotation.z))
+		host.free()
+
+
+func test_domestic_goose_uses_the_detailed_authored_greylag_model() -> void:
+	assert_eq(
+		Models.MODEL_PATHS[MammalSpecies.SPECIES_GOOSE],
+		"res://assets/birds/greylag_goose/standing.glb"
+	)
+	var host := Node3D.new()
+	var model := Models.add_model(host, MammalSpecies.SPECIES_GOOSE)
+	assert_true(model != null)
+	var meshes := model.find_children("*", "MeshInstance3D", true, false)
+	assert_true(meshes.size() >= 1)
+	var goose_mesh := meshes[0] as MeshInstance3D
+	assert_true(goose_mesh.mesh.get_surface_count() >= 7, "Goose needs distinct feather, bill, eye, leg, and foot materials")
+	assert_true(goose_mesh.get_aabb().size.y >= 0.75, "Goose needs its authored long-neck silhouette")
+	host.free()
 
 
 func test_pig_has_realistic_rigged_body_and_locomotion_clips() -> void:

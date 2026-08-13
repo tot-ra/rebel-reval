@@ -126,3 +126,4 @@ This file contains only cross-role operating lessons. Domain lessons belong to t
 - For a scoped deletion commit, `git diff --cached --name-only --diff-filter=ACMR` intentionally omits deleted paths; validate deletions with `--diff-filter=ACMRD` or an exact allowlist, and verify the literal path spelling before diagnosing a hook pathspec failure.
 - When validating an evidence packet with a custom smoke script, assert the document's actual semantic anchors and print missing terms first; an invented exact phrase can fail a valid packet without indicating a source defect.
 - In a dirty worktree, `git diff --name-only` includes unrelated WIP; validate a scoped change with an explicit path allowlist or pathspec instead of asserting that the whole working tree contains only the current files.
+- With `git commit --only`, place every `-m` option before the `--` path separator; options after scoped paths are parsed as pathspecs and the commit fails before hooks run.

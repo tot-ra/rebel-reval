@@ -10,6 +10,18 @@ const MammalSpecies := preload("res://scripts/map/view3d/map_view_mammal_species
 const IDLE_ANIMATION := &"Idle"
 const WALK_ANIMATION := &"Walk"
 const ANIMATION_PLAYER_META := &"animal_animation_player"
+const PROCEDURAL_GAIT_MODEL_META := &"procedural_gait_model"
+const PROCEDURAL_GAIT_PHASE_META := &"procedural_gait_phase"
+const PROCEDURAL_GAIT_WEIGHT_META := &"procedural_gait_weight"
+const PROCEDURAL_FOWL: Array[StringName] = [
+	MammalSpecies.SPECIES_CHICKEN,
+	MammalSpecies.SPECIES_DUCK,
+	MammalSpecies.SPECIES_GOOSE,
+]
+const FOWL_STEP_FREQUENCY := 9.0
+const FOWL_WADDLE_ANGLE := deg_to_rad(4.5)
+const FOWL_BODY_BOB := 0.018
+const FOWL_BODY_PITCH := deg_to_rad(1.8)
 
 # The imported horse rig exposes the lower leg as a single bone. Its local +Y
 # endpoint is the hoof contact proxy after glTF axis conversion. Keep the
@@ -28,6 +40,7 @@ const HORSE_GROUND_MAX_Y := 0.04
 const MODEL_PATHS: Dictionary = {
 	MammalSpecies.SPECIES_CHICKEN: "res://assets/animals/hendrik_reyneke/chicken.glb",
 	MammalSpecies.SPECIES_DUCK: "res://assets/birds/mallard/standing.glb",
+	MammalSpecies.SPECIES_GOOSE: "res://assets/birds/greylag_goose/standing.glb",
 	&"goat": "res://assets/animals/hendrik_reyneke/goat.glb",
 	MammalSpecies.SPECIES_COW: "res://assets/animals/medieval/medieval_cattle.glb",
 	MammalSpecies.SPECIES_PIG: "res://assets/animals/medieval/medieval_pig.glb",
@@ -66,18 +79,20 @@ static func add_model(parent: Node3D, species: StringName) -> Node3D:
 	model.set_meta(&"species", species)
 	parent.add_child(model)
 	_configure_animation(parent, model)
+	_configure_procedural_gait(parent, model, species)
 	return model
 
 
 static func sync_animation(actor: Node3D, previous_position: Vector3, delta: float) -> void:
+	var displacement := Vector2(
+		actor.position.x - previous_position.x, actor.position.z - previous_position.z
+	)
+	_sync_procedural_gait(actor, displacement, delta)
 	if not actor.has_meta(ANIMATION_PLAYER_META):
 		return
 	var player := actor.get_meta(ANIMATION_PLAYER_META) as AnimationPlayer
 	if player == null:
 		return
-	var displacement := Vector2(
-		actor.position.x - previous_position.x, actor.position.z - previous_position.z
-	)
 	var wanted := _clip_name(
 		player, WALK_ANIMATION if displacement.length_squared() > 0.0000001 else IDLE_ANIMATION
 	)
@@ -100,6 +115,53 @@ static func _configure_animation(parent: Node3D, model: Node3D) -> void:
 	var idle := _clip_name(player, IDLE_ANIMATION)
 	if not idle.is_empty():
 		player.play(idle)
+
+
+## Static fowl assets have no skeleton or clips. Keep the imported model under a
+## lightweight motion pivot so walking still reads as planted steps rather than a
+## rigid mesh sliding over the terrain.
+static func _configure_procedural_gait(
+	parent: Node3D, model: Node3D, species: StringName
+) -> void:
+	if species not in PROCEDURAL_FOWL or parent.has_meta(ANIMATION_PLAYER_META):
+		return
+	var rest_transform := model.transform
+	var gait_pivot := Node3D.new()
+	gait_pivot.name = "GaitPivot"
+	parent.remove_child(model)
+	parent.add_child(gait_pivot)
+	gait_pivot.add_child(model)
+	model.transform = rest_transform
+	parent.set_meta(PROCEDURAL_GAIT_MODEL_META, gait_pivot)
+	parent.set_meta(PROCEDURAL_GAIT_PHASE_META, 0.0)
+	parent.set_meta(PROCEDURAL_GAIT_WEIGHT_META, 0.0)
+
+
+static func _sync_procedural_gait(
+	actor: Node3D, displacement: Vector2, delta: float
+) -> void:
+	if not actor.has_meta(PROCEDURAL_GAIT_MODEL_META):
+		return
+	var gait_pivot := actor.get_meta(PROCEDURAL_GAIT_MODEL_META) as Node3D
+	if gait_pivot == null:
+		return
+	var safe_delta := maxf(delta, 0.0001)
+	var speed := displacement.length() / safe_delta
+	var target_weight := 1.0 if displacement.length_squared() > 0.0000001 else 0.0
+	var weight := move_toward(
+		float(actor.get_meta(PROCEDURAL_GAIT_WEIGHT_META, 0.0)), target_weight, delta * 8.0
+	)
+	var phase := float(actor.get_meta(PROCEDURAL_GAIT_PHASE_META, 0.0))
+	if target_weight > 0.0:
+		# Advance by distance travelled so a slow penned bird does not moonwalk.
+		phase = fmod(phase + speed * delta * FOWL_STEP_FREQUENCY, TAU)
+	actor.set_meta(PROCEDURAL_GAIT_PHASE_META, phase)
+	actor.set_meta(PROCEDURAL_GAIT_WEIGHT_META, weight)
+	var stride := sin(phase)
+	var step_lift := absf(sin(phase * 2.0))
+	gait_pivot.position.y = FOWL_BODY_BOB * step_lift * weight
+	gait_pivot.rotation.x = FOWL_BODY_PITCH * stride * weight
+	gait_pivot.rotation.z = FOWL_WADDLE_ANGLE * stride * weight
 
 
 ## Livestock GLBs ship capitalised clip names; the cat rig ships the lowercase
