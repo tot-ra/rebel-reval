@@ -67,3 +67,4 @@ This file contains lessons specific to the Researcher role.
 - When repairing multiple rows in one dossier, never dispatch parallel edits against that file; serialize replacements and re-read the saved table because concurrent exact edits can overwrite one another.
 - When inserting a dated access recheck, anchor on the live heading boundary after re-reading the dossier; summarized replacement context can miss because of punctuation or adjacent-line formatting.
 - When validating one reference plate inside a multi-plate dossier, scope rights/path assertions to that plate row; a repository-wide negative check can falsely reject valid licenses or source labels belonging to neighbouring fetched plates.
+- If a chained `git push` command returns a silent non-zero result, verify `HEAD`, `origin/<branch>`, and `git ls-remote` before retrying; the push may have completed and the failure may be from a later diagnostic command.
