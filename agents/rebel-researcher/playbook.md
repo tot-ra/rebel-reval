@@ -65,3 +65,4 @@ This file contains lessons specific to the Researcher role.
 - When a scoped research smoke assertion targets Markdown prose, strip emphasis markers or assert neighboring semantic anchors; literal phrase checks can falsely fail on valid wording such as `**not** a measured phase length`.
 - When a web-search wrapper combines an incompatible category and search type, the request can fail before returning evidence; validate the tool schema and pivot to direct official records instead of retrying the malformed call.
 - When repairing multiple rows in one dossier, never dispatch parallel edits against that file; serialize replacements and re-read the saved table because concurrent exact edits can overwrite one another.
+- When inserting a dated access recheck, anchor on the live heading boundary after re-reading the dossier; summarized replacement context can miss because of punctuation or adjacent-line formatting.
