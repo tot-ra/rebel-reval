@@ -28,7 +28,9 @@ building cattle_fence wall 28 21 12 1 style=wall.fence primitive=palisade
 prop village_well well 25 15 primitive=well
 prop elder_root_cellar root_cellar_mound 18 11 rect=2,1
 prop elder_farm_cart farm_cart 27 10 rect=2,2
-prop barn_hay_rick hay_stack 37 12 primitive=hay_stack style_variant=hay_stack.tall
+prop field_hay_rick_west hay_stack 5 25 rect=2,2 primitive=hay_stack style_variant=hay_stack.tall
+prop field_hay_rick_center hay_stack 9 26 rect=2,2 primitive=hay_stack style_variant=hay_stack.medium
+prop field_hay_rick_east hay_stack 12 26 rect=2,2 primitive=hay_stack style_variant=hay_stack.small
 prop west_kitchen_garden kitchen_garden 5 22 rect=2,1
 prop east_field_strip field_strip 39 5 rect=2,1
 prop pasture_fence_west pasture_fence 30 22 rect=3,1

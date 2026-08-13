@@ -12,8 +12,14 @@ func test_harju_parses_as_an_inactive_evidence_linked_rural_prototype() -> void:
 	assert_eq(parsed.definition.size_cells, Vector2i(52, 30))
 	assert_eq(parsed.definition.scope, &"prototype")
 	assert_false(parsed.definition.active)
-	assert_true("history/dossiers/hinterland/harju-village-and-manor.md" in parsed.definition.source_references)
-	assert_true("history/dossiers/architecture/rural-smoke-dwelling-and-farmstead-1343.md" in parsed.definition.source_references)
+	assert_true(
+		"history/dossiers/hinterland/harju-village-and-manor.md"
+		in parsed.definition.source_references
+	)
+	assert_true(
+		"history/dossiers/architecture/rural-smoke-dwelling-and-farmstead-1343.md"
+		in parsed.definition.source_references
+	)
 
 
 func test_barn_dwelling_keeps_two_bays_and_rejects_late_rural_features() -> void:
@@ -23,12 +29,21 @@ func test_barn_dwelling_keeps_two_bays_and_rejects_late_rural_features() -> void
 		return
 	var building := _building(parsed.definition, &"elder_farmstead")
 	assert_eq(building.get("primitive"), &"barn_dwelling_1343")
-	assert_eq(MapViewMeshBuilderBuildingHouses.house_style(building), MapViewMeshBuilderConfig.HOUSE_STYLE_LOG)
-	assert_eq(MapViewMeshBuilderBuildingHouses.roof_style(building), MapViewMeshBuilderConfig.ROOF_STYLE_THATCH)
+	assert_eq(
+		MapViewMeshBuilderBuildingHouses.house_style(building),
+		MapViewMeshBuilderConfig.HOUSE_STYLE_LOG
+	)
+	assert_eq(
+		MapViewMeshBuilderBuildingHouses.roof_style(building),
+		MapViewMeshBuilderConfig.ROOF_STYLE_THATCH
+	)
 	var node := MapViewMeshBuilder.build_building(building, parsed.definition.cell_size)
 	assert_true(node.has_node("DwellingDoor"), "rehetuba needs its own low boarded door")
 	assert_true(node.has_node("ThreshingGate"), "rehealune needs a broad working gate")
-	assert_true(node.has_node("BarnDwellingBaySeam"), "the conservative two-part plan must read externally")
+	assert_true(
+		node.has_node("BarnDwellingBaySeam"),
+		"the conservative two-part plan must read externally"
+	)
 	assert_true(node.has_node("SmokeVent"), "the heated room needs an unglazed smoke/light aperture")
 	assert_true(node.has_node("LogEnd_0_-1_-1"), "horizontal log construction needs corner heads")
 	assert_true(node.has_node("ThatchRidge"), "barn-dwelling uses the conservative thatch lane")
@@ -49,10 +64,19 @@ func test_rural_primitive_material_guard_rejects_masonry_and_tile_defaults() -> 
 		"wall_material": &"stone",
 		"roof_material": &"tile",
 	}
-	assert_eq(MapViewMeshBuilderBuildingHouses.house_style(building), MapViewMeshBuilderConfig.HOUSE_STYLE_LOG)
-	assert_eq(MapViewMeshBuilderBuildingHouses.roof_style(building), MapViewMeshBuilderConfig.ROOF_STYLE_THATCH)
+	assert_eq(
+		MapViewMeshBuilderBuildingHouses.house_style(building),
+		MapViewMeshBuilderConfig.HOUSE_STYLE_LOG
+	)
+	assert_eq(
+		MapViewMeshBuilderBuildingHouses.roof_style(building),
+		MapViewMeshBuilderConfig.ROOF_STYLE_THATCH
+	)
 	building["roof_material"] = &"shingle"
-	assert_eq(MapViewMeshBuilderBuildingHouses.roof_style(building), MapViewMeshBuilderConfig.ROOF_STYLE_SHINGLE)
+	assert_eq(
+		MapViewMeshBuilderBuildingHouses.roof_style(building),
+		MapViewMeshBuilderConfig.ROOF_STYLE_SHINGLE
+	)
 
 
 func test_harju_farmyard_has_work_surfaces_storage_and_spring_livestock() -> void:
@@ -74,6 +98,45 @@ func test_harju_farmyard_has_work_surfaces_storage_and_spring_livestock() -> voi
 		present[prop["kind"]] = true
 	for kind in required:
 		assert_true(present.has(kind), "Harju working yard is missing %s" % kind)
+
+
+func test_harju_hay_ricks_form_a_field_group_clear_of_buildings() -> void:
+	var parsed := MapRrmapParser.parse_file(RRMAP_PATH)
+	assert_true(parsed.is_ok(), str(parsed.formatted_diagnostics()))
+	if not parsed.is_ok():
+		return
+	var definition: MapDefinition = parsed.definition
+	var hay_field := definition.cell_rect_to_world_rect(Rect2i(4, 23, 10, 5))
+	var hay_ricks: Array[Dictionary] = []
+	for prop in definition.props:
+		if prop["kind"] == MapTypes.PROP_KIND_HAY_STACK:
+			hay_ricks.append(prop)
+	assert_eq(
+		hay_ricks.size(),
+		3,
+		"the hay meadow needs a visible group rather than one barn-side stack"
+	)
+	var sizes: Dictionary = {}
+	for rick in hay_ricks:
+		var position: Vector2 = rick["position"]
+		assert_true(
+			hay_field.has_point(position),
+			"%s must stand in the authored hay field" % rick["id"]
+		)
+		sizes[rick.get("style_variant", &"")] = true
+		for building in definition.buildings:
+			var footprint: Rect2 = building["footprint"]
+			var closest := Vector2(
+				clampf(position.x, footprint.position.x, footprint.end.x),
+				clampf(position.y, footprint.position.y, footprint.end.y)
+			)
+			assert_true(
+				position.distance_to(closest) > float(definition.cell_size * 3),
+				"%s must not visually merge with %s" % [rick["id"], building["id"]]
+			)
+	assert_true(sizes.has(&"hay_stack.small"))
+	assert_true(sizes.has(&"hay_stack.medium"))
+	assert_true(sizes.has(&"hay_stack.tall"))
 
 
 func _building(definition: MapDefinition, building_id: StringName) -> Dictionary:
