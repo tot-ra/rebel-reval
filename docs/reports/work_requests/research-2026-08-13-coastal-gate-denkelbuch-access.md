@@ -33,6 +33,14 @@ The target is Rahvusarhiiv Denkelbuch `TLA.230.1.Aa2`, *Ältestes Denkelbuch des
 - **Verification:** The returned material is traceable to `TLA.230.1.Aa2`, reaches folio-level content or preserves archive-supplied provenance, covers 1340-1343, and supports an explicit positive or bounded no-hit result with page/folio identifiers and original wording.
 - **Handoff:** Producer enables the access channel; Research passes the artifact to R-499 for the carter-owner collation and Canon review.
 
+## Authorized access handoff
+
+- **Request:** R-462 is the authorized-access request for this Coastal Gate question; R-502 owns the access-enablement step, and R-499 consumes the returned source package.
+- **Permitted route:** use a Producer-approved authenticated VAU/DGS session or request a lawful Tallinn City Archives/Rahvusarhiiv scan or transcription. Do not place credentials, cookies, bearer tokens, or private URLs in the repository.
+- **Return package:** place only the archive-provided or authenticated-source export under [`history/sources/catalog_exports/`](../../../history/sources/catalog_exports/), with its required sidecar metadata: `TLA.230.1.Aa2`, access or delivery date, redacted source identifier, folio/page identifiers, 1340-1343 coverage, original wording and uncertainty policy, rights terms, and SHA-256 checksums.
+- **Acceptance gate:** R-499 may update the Coastal Gate dossier only after the package reaches folio-level content or preserves archive-supplied provenance. Catalogue HTML, anonymous previews, redirect targets, login captures, and unverified OCR remain access-boundary material and do not clear this request.
+- **Failure path:** if authorized access cannot be enabled, report the blocker to Producer and keep `named_carter_owner: null`; do not convert the failed access attempt into a manuscript hit or no-hit.
+
 ## Constraints and non-goals
 
 Do not bypass VAU authentication, scrape protected images, or treat public AIS catalogue metadata and anonymous gallery previews as folio evidence. Do not back-date EV II nos. 686 or 859 to April 1343, and do not assign Borchardus myt der Have, Ghos(s)chalcus van Rode, or another EV II holder to the carter garden without a profession-linked primary reading. Do not claim the Denkelbuch lacks carter material merely because this environment has no authenticated access.
