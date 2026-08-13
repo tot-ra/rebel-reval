@@ -24,30 +24,46 @@ func test_production_models_load_with_mesh_material_and_ground_contact() -> void
 		host.free()
 
 
-func test_static_fowl_models_receive_a_distance_synced_procedural_gait() -> void:
-	for species: StringName in Models.PROCEDURAL_FOWL:
+func test_domestic_fowl_use_skeletal_locomotion_clips() -> void:
+	for species: StringName in [
+		MammalSpecies.SPECIES_CHICKEN,
+		MammalSpecies.SPECIES_DUCK,
+		MammalSpecies.SPECIES_GOOSE,
+	]:
 		var host := Node3D.new()
 		var model := Models.add_model(host, species)
 		assert_true(model != null)
-		assert_true(host.has_meta(Models.PROCEDURAL_GAIT_MODEL_META), "%s needs a gait pivot" % species)
-		var pivot := host.get_meta(Models.PROCEDURAL_GAIT_MODEL_META) as Node3D
-		assert_true(pivot != null)
-		assert_eq(model.get_parent(), pivot)
+		assert_false(
+			host.has_meta(Models.PROCEDURAL_GAIT_MODEL_META),
+			"%s must use skeletal gait clips instead of the procedural pivot" % species
+		)
+		var skeletons := model.find_children("*", "Skeleton3D", true, false)
+		assert_true(skeletons.size() >= 1, "%s needs an imported skeleton" % species)
+		var skeleton := skeletons[0] as Skeleton3D
+		for bone_name: StringName in [
+			&"FrontLeftLeg", &"FrontRightLeg", &"BackLeftLeg", &"BackRightLeg"
+		]:
+			assert_true(
+				skeleton.find_bone(bone_name) >= 0,
+				"%s is missing authored weight-bearing leg bone %s" % [species, bone_name]
+			)
+		var players := model.find_children("*", "AnimationPlayer", true, false)
+		assert_true(players.size() >= 1, "%s needs imported skeletal animation" % species)
+		var player := players[0] as AnimationPlayer
+		assert_true(player.has_animation(Models.IDLE_ANIMATION))
+		assert_true(player.has_animation(Models.WALK_ANIMATION))
+		assert_eq(player.current_animation, Models.IDLE_ANIMATION)
 		Models.sync_animation(host, host.position - Vector3(0.08, 0.0, 0.0), 0.1)
-		assert_true(absf(pivot.rotation.x) > 0.0001 or absf(pivot.rotation.z) > 0.0001)
-		assert_true(pivot.position.y > 0.0, "%s walk should lift the body between planted steps" % species)
-		for _idle_step in 12:
-			Models.sync_animation(host, host.position, 0.1)
-		assert_true(is_zero_approx(pivot.position.y))
-		assert_true(is_zero_approx(pivot.rotation.x))
-		assert_true(is_zero_approx(pivot.rotation.z))
+		assert_eq(player.current_animation, Models.WALK_ANIMATION)
+		Models.sync_animation(host, host.position, 0.1)
+		assert_eq(player.current_animation, Models.IDLE_ANIMATION)
 		host.free()
 
 
 func test_domestic_goose_uses_the_detailed_authored_greylag_model() -> void:
 	assert_eq(
 		Models.MODEL_PATHS[MammalSpecies.SPECIES_GOOSE],
-		"res://assets/birds/greylag_goose/standing.glb"
+		"res://assets/birds/greylag_goose/walking.glb"
 	)
 	var host := Node3D.new()
 	var model := Models.add_model(host, MammalSpecies.SPECIES_GOOSE)
@@ -131,21 +147,74 @@ func test_sheep_has_rigged_body_tail_and_locomotion_clips() -> void:
 	var aabb := mesh.get_aabb()
 	assert_true(aabb.size.z >= 0.45, "Sheep must keep a compact fleece silhouette")
 	assert_true(model.find_child("TailTuft", true, false) != null, "Sheep needs an articulated tail")
-	assert_true(aabb.size.x >= 1.20 and aabb.size.x <= 1.30, "Sheep needs a plausible compact body length")
-	assert_true(aabb.size.y >= 0.85 and aabb.size.y <= 0.95, "Sheep must stand on four full-height legs")
-	assert_true(aabb.position.y >= -0.001, "Procedural sheep must not contain geometry below the ground plane")
-	assert_eq(mesh.mesh.get_surface_count(), 1, "Procedural anatomy must remain one skinned production surface")
+	assert_true(
+		aabb.size.x >= 1.20 and aabb.size.x <= 1.30,
+		"Sheep needs a plausible compact body length"
+	)
+	assert_true(
+		aabb.size.y >= 0.85 and aabb.size.y <= 0.95,
+		"Sheep must stand on four full-height legs"
+	)
+	assert_true(
+		aabb.position.y >= -0.001,
+		"Procedural sheep must not contain geometry below the ground plane"
+	)
+	assert_eq(
+		mesh.mesh.get_surface_count(),
+		1,
+		"Procedural anatomy must remain one skinned production surface"
+	)
+	# Remeshed fleece should keep enough vertices for lock-scale undulation instead
+	# of a handful of joined primitive islands.
+	var sheep_arrays := mesh.mesh.surface_get_arrays(0)
+	var sheep_vertices: PackedVector3Array = sheep_arrays[Mesh.ARRAY_VERTEX]
+	assert_true(
+		sheep_vertices.size() >= 3500,
+		"Procedural sheep needs a remeshed woolly body, not a bubble cloud"
+	)
 	var skeletons := model.find_children("*", "Skeleton3D", true, false)
 	assert_true(skeletons.size() >= 1, "Sheep needs a procedural quadruped skeleton")
 	var skeleton := skeletons[0] as Skeleton3D
-	for bone_name: StringName in [&"Neck", &"Tail", &"FrontLeftLeg", &"FrontRightLeg", &"BackLeftLeg", &"BackRightLeg"]:
-		assert_true(skeleton.find_bone(bone_name) >= 0, "Sheep is missing articulated %s anatomy" % bone_name)
-	assert_true(skeleton.find_bone(&"EyeLeft_2") >= 0, "Sheep needs an articulated left eyelid bone")
-	assert_true(skeleton.find_bone(&"EyeRight_2") >= 0, "Sheep needs an articulated right eyelid bone")
-	for detail_name in ["EyeLeft", "EyeRight", "PupilLeft", "PupilRight", "NostrilLeft", "NostrilRight"]:
-		assert_true(model.find_child(detail_name, true, false) != null, "Sheep is missing fitted facial detail %s" % detail_name)
-	assert_true(model.find_child("EyeLeft", true, false).position.length() < 0.20, "Sheep eye must stay fitted to its head bone, not float beside the model")
-	assert_true(model.find_child("EyeRight", true, false).position.length() < 0.20, "Sheep eye must stay fitted to its head bone, not float beside the model")
+	for bone_name: StringName in [
+		&"Neck",
+		&"Tail",
+		&"FrontLeftLeg",
+		&"FrontRightLeg",
+		&"BackLeftLeg",
+		&"BackRightLeg",
+	]:
+		assert_true(
+			skeleton.find_bone(bone_name) >= 0,
+			"Sheep is missing articulated %s anatomy" % bone_name
+		)
+	assert_true(
+		skeleton.find_bone(&"EyeLeft_2") >= 0,
+		"Sheep needs an articulated left eyelid bone"
+	)
+	assert_true(
+		skeleton.find_bone(&"EyeRight_2") >= 0,
+		"Sheep needs an articulated right eyelid bone"
+	)
+	for detail_name in [
+		"EyeLeft",
+		"EyeRight",
+		"PupilLeft",
+		"PupilRight",
+		"NostrilLeft",
+		"NostrilRight",
+	]:
+		assert_true(
+			model.find_child(detail_name, true, false) != null,
+			"Sheep is missing fitted facial detail %s" % detail_name
+		)
+	assert_true(
+		model.find_child("EyeLeft", true, false).position.length() < 0.20,
+		"Sheep eye must stay fitted to its head bone, not float beside the model"
+	)
+	assert_true(
+		model.find_child("EyeRight", true, false).position.length() < 0.20,
+		"Sheep eye must stay fitted to its head bone, not float beside the model"
+	)
 	var players := model.find_children("*", "AnimationPlayer", true, false)
 	assert_true(players.size() >= 1, "Sheep needs imported skeletal animation")
 	var player := players[0] as AnimationPlayer

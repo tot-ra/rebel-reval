@@ -77,6 +77,29 @@ def parent_to_bone(obj: bpy.types.Object, armature: bpy.types.Object, bone_name:
     obj.matrix_world = world
 
 
+def snap_point_to_mesh_surface(
+    mesh_obj: bpy.types.Object,
+    probe: Vector,
+    outward: float = 0.006,
+) -> Vector:
+    """Project a facial detail onto the nearest skinned surface point.
+
+    WHY: remeshed procedural livestock can shrink a few centimeters from the
+    authored volume centers. Hardcoded eye/nostril anchors then float beside the
+    skull unless they are snapped back onto the final mesh envelope.
+    """
+    from mathutils.bvhtree import BVHTree
+
+    depsgraph = bpy.context.evaluated_depsgraph_get()
+    evaluated = mesh_obj.evaluated_get(depsgraph)
+    bvh = BVHTree.FromObject(evaluated, depsgraph)
+    hit = bvh.find_nearest(probe)
+    if hit is None or hit[0] is None:
+        return probe
+    location, normal, _index, _distance = hit
+    return Vector(location) + Vector(normal).normalized() * outward
+
+
 def create_quadruped_rig(
     obj: bpy.types.Object,
     rig_name: str,
@@ -213,7 +236,16 @@ def create_cattle_rig(obj: bpy.types.Object) -> tuple[bpy.types.Object, list[bpy
 
 
 def create_sheep_rig(obj: bpy.types.Object) -> tuple[bpy.types.Object, list[bpy.types.Object]]:
-    """Detailed sheep rig with fitted eyes, nostrils, and a short fleece tail."""
+    """Detailed sheep rig with surface-snapped eyes, nostrils, and a short fleece tail."""
+    # Probe the remeshed skull before bone creation so eyelid bones and detail
+    # spheres share the same fitted anchors instead of the pre-remesh volume centers.
+    # Slightly negative outward sinks the globe into the skull so eyes read as
+    # orbits instead of googly spheres perched on the fleece.
+    eye_left = snap_point_to_mesh_surface(obj, Vector((-0.54, 0.10, 0.73)), outward=-0.004)
+    eye_right = snap_point_to_mesh_surface(obj, Vector((-0.54, -0.10, 0.73)), outward=-0.004)
+    nostril_left = snap_point_to_mesh_surface(obj, Vector((-0.70, 0.03, 0.63)), outward=0.002)
+    nostril_right = snap_point_to_mesh_surface(obj, Vector((-0.70, -0.03, 0.63)), outward=0.002)
+
     armature, details = create_quadruped_rig(
         obj,
         "SheepRig",
@@ -222,12 +254,18 @@ def create_sheep_rig(obj: bpy.types.Object) -> tuple[bpy.types.Object, list[bpy.
         {
             "Neck": ((-0.28, 0.0, 0.54), (-0.50, 0.0, 0.72)),
             "Tail": ((0.39, 0.0, 0.62), (0.55, 0.0, 0.46)),
-            "FrontLeftLeg": ((-0.29, 0.155, 0.46), (-0.29, 0.155, 0.05)),
-            "FrontRightLeg": ((-0.29, -0.155, 0.46), (-0.29, -0.155, 0.05)),
-            "BackLeftLeg": ((0.31, 0.155, 0.46), (0.31, 0.155, 0.05)),
-            "BackRightLeg": ((0.31, -0.155, 0.46), (0.31, -0.155, 0.05)),
-            "EyeLeft": ((-0.53, 0.13, 0.75), (-0.53, 0.13, 0.80)),
-            "EyeRight": ((-0.53, -0.13, 0.75), (-0.53, -0.13, 0.80)),
+            "FrontLeftLeg": ((-0.30, 0.155, 0.46), (-0.30, 0.155, 0.05)),
+            "FrontRightLeg": ((-0.30, -0.155, 0.46), (-0.30, -0.155, 0.05)),
+            "BackLeftLeg": ((0.32, 0.155, 0.46), (0.32, 0.155, 0.05)),
+            "BackRightLeg": ((0.32, -0.155, 0.46), (0.32, -0.155, 0.05)),
+            "EyeLeft": (
+                (eye_left.x, eye_left.y, eye_left.z),
+                (eye_left.x, eye_left.y, eye_left.z + 0.05),
+            ),
+            "EyeRight": (
+                (eye_right.x, eye_right.y, eye_right.z),
+                (eye_right.x, eye_right.y, eye_right.z + 0.05),
+            ),
         },
         {
             "neck_x": -0.27,
@@ -238,24 +276,56 @@ def create_sheep_rig(obj: bpy.types.Object) -> tuple[bpy.types.Object, list[bpy.
             "leg_z": 0.49,
             "front_leg_x": -0.12,
             "back_leg_x": 0.14,
-            "eye_x": 0.53,
-            "eye_scale": (0.034, 0.016, 0.030),
-            "pupil_scale": (0.015, 0.008, 0.017),
-            "pupil_offset": 0.012,
+            "eye_x": abs(eye_left.x),
+            "eye_scale": (0.020, 0.011, 0.017),
+            "pupil_scale": (0.009, 0.005, 0.010),
+            "pupil_offset": 0.006,
             "tail_tuft_scale": (0.075, 0.065, 0.095),
         },
         eye_specs=[
-            ("Left", 0.13, 0.75, "EyeLeft"),
-            ("Right", -0.13, 0.75, "EyeRight"),
+            ("Left", eye_left.y, eye_left.z, "EyeLeft"),
+            ("Right", eye_right.y, eye_right.z, "EyeRight"),
         ],
         tail_specs=((0.40, 0.0, 0.62), (0.55, 0.0, 0.46), 0.055, 0.030),
     )
+    # Replace the generic eye placement with exact snapped world poses so pupils
+    # remain seated in the orbits after remesh and glTF axis conversion.
+    for detail in list(details):
+        if detail.name.startswith(("Eye", "Pupil")):
+            bpy.data.objects.remove(detail, do_unlink=True)
+            details.remove(detail)
+    eye_white = create_flat_material("sheeprig_eye_white", (0.55, 0.45, 0.30, 1.0))
+    pupil_black = create_flat_material("sheeprig_pupil", (0.012, 0.008, 0.005, 1.0))
+    for side, anchor in (("Left", eye_left), ("Right", eye_right)):
+        eye = add_uv_sphere(
+            f"Eye{side}",
+            (anchor.x, anchor.y, anchor.z),
+            (0.020, 0.011, 0.017),
+            eye_white,
+        )
+        pupil_y = anchor.y + (0.006 if side == "Left" else -0.006)
+        pupil = add_uv_sphere(
+            f"Pupil{side}",
+            (anchor.x - 0.008, pupil_y, anchor.z),
+            (0.009, 0.005, 0.010),
+            pupil_black,
+        )
+        parent_to_bone(eye, armature, f"Eye{side}")
+        parent_to_bone(pupil, armature, f"Eye{side}")
+        details.extend([eye, pupil])
+
     nose_material = create_flat_material("sheeprig_nostril", (0.045, 0.030, 0.024, 1.0))
-    for side, y in (("Left", 0.045), ("Right", -0.045)):
-        nostril = add_uv_sphere(f"Nostril{side}", (-0.655, y, 0.655), (0.018, 0.010, 0.012), nose_material)
+    for side, anchor in (("Left", nostril_left), ("Right", nostril_right)):
+        nostril = add_uv_sphere(
+            f"Nostril{side}",
+            (anchor.x, anchor.y, anchor.z),
+            (0.014, 0.009, 0.010),
+            nose_material,
+        )
         parent_to_bone(nostril, armature, "Neck")
         details.append(nostril)
     armature["procedural_sheep"] = True
+    armature["surface_snapped_face"] = True
     return armature, details
 
 

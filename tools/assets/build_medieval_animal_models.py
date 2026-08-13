@@ -61,12 +61,12 @@ SURFACE_PROFILES: dict[str, dict] = {
         "normal_strength": 0.60,
     },
     "sheep": {
-        "noise_scale": 85.0,
-        "noise_detail": 4.5,
-        "bump_strength": 0.35,
-        "rough_min": 0.82,
-        "rough_max": 0.94,
-        "normal_strength": 0.85,
+        "noise_scale": 110.0,
+        "noise_detail": 5.5,
+        "bump_strength": 0.48,
+        "rough_min": 0.84,
+        "rough_max": 0.96,
+        "normal_strength": 0.95,
     },
     "pack_horse": {
         "noise_scale": 55.0,
@@ -111,19 +111,22 @@ SPECS = {
     "sheep": {
         # WHY: the rejected image-to-3D candidate contains detached ground fragments
         # and cannot provide trustworthy facial anatomy. The runtime mesh is built
-        # entirely from deterministic closed anatomical volumes below.
+        # from dense closed volumes, then voxel-remeshed into one skinned surface so
+        # the fleece reads as wool rather than a cloud of overlapping spheres.
         "source": None,
         "output": RUNTIME / "medieval_sheep.glb",
         "dimensions_m": (1.25, 0.90, 0.55),
-        "triangles": 8_000,
-        "voxel_divisor": 72.0,
+        "triangles": 8_500,
+        # Coarser voxels fuse overlapping fleece hulls into one body. Micro-wool
+        # then comes from the baked normal/roughness maps, not from a sphere grid.
+        "voxel_divisor": 68.0,
         "base_color": (0.64, 0.59, 0.47),
         "accent_color": (0.86, 0.82, 0.70),
         "seed": 208744132,
         "animated": True,
-        "route": "deterministic_procedural_closed_anatomy",
+        "route": "deterministic_procedural_closed_anatomy_remesh",
         "source_license": "project-authored procedural geometry",
-        "anatomy_decision": "closed_multi_volume_fleece_head_ears_muzzle_four_legs_and_cloven_hooves",
+        "anatomy_decision": "remeshed_multi_volume_fleece_bare_face_ears_muzzle_four_legs_and_cloven_hooves",
         "scale_basis": "1.25 m nose-to-rump; 0.90 m standing height; 0.55 m fleece width",
     },
     "pack_horse": {
@@ -245,7 +248,14 @@ def align_long_axis(obj: bpy.types.Object) -> None:
     bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
 
 
-def rebuild_surface(obj: bpy.types.Object, divisor: float, target_triangles: int) -> None:
+def rebuild_surface(
+    obj: bpy.types.Object,
+    divisor: float,
+    target_triangles: int,
+    *,
+    smooth_factor: float = 0.42,
+    smooth_iterations: int = 3,
+) -> None:
     max_dimension = max(obj.dimensions)
     obj.data.remesh_voxel_size = max_dimension / divisor
     obj.data.remesh_voxel_adaptivity = 0.0
@@ -254,8 +264,8 @@ def rebuild_surface(obj: bpy.types.Object, divisor: float, target_triangles: int
     remove_tiny_islands(obj, 0.006)
 
     smooth = obj.modifiers.new("OrganicSurfaceCleanup", "SMOOTH")
-    smooth.factor = 0.42
-    smooth.iterations = 3
+    smooth.factor = smooth_factor
+    smooth.iterations = smooth_iterations
     bpy.ops.object.modifier_apply(modifier=smooth.name)
 
     current_triangles = topology(obj)["triangles"]
@@ -264,6 +274,7 @@ def rebuild_surface(obj: bpy.types.Object, divisor: float, target_triangles: int
         decimate.ratio = target_triangles / current_triangles
         decimate.use_collapse_triangulate = True
         bpy.ops.object.modifier_apply(modifier=decimate.name)
+    bpy.ops.object.shade_smooth()
     for polygon in obj.data.polygons:
         polygon.use_smooth = True
 
@@ -409,10 +420,24 @@ def create_albedo(name: str, spec: dict) -> bpy.types.Image:
         + np.sin((xx + yy) / 67.0)
     ) / 6.0 + 0.5
     grain = rng.random((size, size))
-    mix = np.clip(broad * 0.78 + grain * 0.22, 0.0, 1.0)[..., None]
+    # Sheep needs stronger fleece mottling so the coat does not read as clay.
+    grain_weight = 0.34 if name == "sheep" else 0.22
+    mix = np.clip(broad * (1.0 - grain_weight) + grain * grain_weight, 0.0, 1.0)[..., None]
     base = np.array(spec["base_color"], dtype=np.float32)
     accent = np.array(spec["accent_color"], dtype=np.float32)
     rgb = base + (accent - base) * mix
+    if name == "sheep":
+        # Soft UV-space dirtying keeps the portable texture from looking painted flat.
+        dirt = np.clip(
+            0.55
+            + 0.25 * np.sin(xx / 11.0)
+            + 0.20 * np.sin(yy / 13.0 + xx / 17.0),
+            0.0,
+            1.0,
+        )[..., None]
+        face_tint = np.array((0.42, 0.32, 0.24), dtype=np.float32)
+        rgb = rgb * (0.82 + 0.18 * dirt) + face_tint * (0.18 * (1.0 - dirt))
+        rgb = np.clip(rgb, 0.0, 1.0)
     rgba = np.concatenate([rgb, np.ones((size, size, 1), dtype=np.float32)], axis=2)
 
     image = bpy.data.images.new(f"{name}_albedo", size, size, alpha=False)
@@ -421,6 +446,118 @@ def create_albedo(name: str, spec: dict) -> bpy.types.Image:
     image.filepath_raw = str(TEXTURES / f"{name}_albedo.png")
     image.file_format = "PNG"
     image.save()
+    return image
+
+
+def apply_fleece_displacement(obj: bpy.types.Object, *, strength: float = 0.030) -> None:
+    """Push organic wool undulation into the remeshed hull.
+
+    WHY: fused hulls alone read as clay. A low-frequency displace keeps one
+    manifold surface while breaking the silhouette into lock-scale fleece.
+    """
+    # Keep the bare face and lower legs smooth so displace does not wool the muzzle.
+    fleece_group = obj.vertex_groups.new(name="FleeceDisplace")
+    fleece_indices = [
+        vertex.index
+        for vertex in obj.data.vertices
+        if vertex.co.z > 0.11 and not (vertex.co.x < -0.48 and vertex.co.z > 0.54)
+    ]
+    if fleece_indices:
+        fleece_group.add(fleece_indices, 1.0, "REPLACE")
+
+    texture = bpy.data.textures.new("SheepFleeceNoise", type="CLOUDS")
+    texture.noise_scale = 0.11
+    texture.noise_depth = 5
+    texture.nabla = 0.025
+    displace = obj.modifiers.new("SheepFleeceDisplace", "DISPLACE")
+    displace.texture = texture
+    displace.texture_coords = "LOCAL"
+    displace.vertex_group = fleece_group.name
+    displace.strength = strength
+    displace.mid_level = 0.5
+    bpy.context.view_layer.objects.active = obj
+    bpy.ops.object.modifier_apply(modifier=displace.name)
+    # A second finer pass adds lock-scale breakup on top of the broad fleece swell.
+    fine = bpy.data.textures.new("SheepFleeceFine", type="CLOUDS")
+    fine.noise_scale = 0.05
+    fine.noise_depth = 3
+    fine_displace = obj.modifiers.new("SheepFleeceFineDisplace", "DISPLACE")
+    fine_displace.texture = fine
+    fine_displace.texture_coords = "LOCAL"
+    fine_displace.vertex_group = fleece_group.name
+    fine_displace.strength = strength * 0.35
+    fine_displace.mid_level = 0.5
+    bpy.ops.object.modifier_apply(modifier=fine_displace.name)
+    # Lift any displaced hoof verts that sank below the authored ground plane.
+    min_z = min(vertex.co.z for vertex in obj.data.vertices)
+    if min_z < 0.0:
+        for vertex in obj.data.vertices:
+            vertex.co.z -= min_z
+        obj.data.update()
+    weighted = obj.modifiers.new("SheepWeightedNormals", "WEIGHTED_NORMAL")
+    weighted.keep_sharp = False
+    weighted.weight = 50
+    bpy.ops.object.modifier_apply(modifier=weighted.name)
+    bpy.ops.object.shade_smooth()
+
+
+def paint_sheep_region_vertex_colors(obj: bpy.types.Object) -> None:
+    """Mark bare face and hoof regions so albedo bake can darken them."""
+    color_layer = obj.data.color_attributes.new(
+        name="SheepRegions", type="BYTE_COLOR", domain="POINT"
+    )
+    wool = (0.78, 0.72, 0.58, 1.0)
+    face = (0.36, 0.26, 0.18, 1.0)
+    hoof = (0.16, 0.12, 0.09, 1.0)
+    for index, vertex in enumerate(obj.data.vertices):
+        point = vertex.co
+        if point.z < 0.085:
+            color_layer.data[index].color = hoof
+        elif point.x < -0.46 and point.z > 0.52:
+            color_layer.data[index].color = face
+        else:
+            color_layer.data[index].color = wool
+
+
+def bake_sheep_region_albedo(obj: bpy.types.Object, base_albedo: bpy.types.Image) -> bpy.types.Image:
+    """Multiply portable coat variation with bare-face / hoof region colors."""
+    paint_sheep_region_vertex_colors(obj)
+    _prepare_bake_scene()
+    material = bpy.data.materials.new("medieval_sheep_region_bake")
+    material.use_nodes = True
+    nodes = material.node_tree.nodes
+    links = material.node_tree.links
+    for node in list(nodes):
+        if node.type != "OUTPUT_MATERIAL":
+            nodes.remove(node)
+    output = nodes.get("Material Output")
+    emission = nodes.new("ShaderNodeEmission")
+    attribute = nodes.new("ShaderNodeAttribute")
+    attribute.attribute_name = "SheepRegions"
+    base_node = nodes.new("ShaderNodeTexImage")
+    base_node.image = base_albedo
+    mix = nodes.new("ShaderNodeMixRGB")
+    mix.blend_type = "MULTIPLY"
+    mix.inputs["Fac"].default_value = 1.0
+    links.new(base_node.outputs["Color"], mix.inputs["Color1"])
+    links.new(attribute.outputs["Color"], mix.inputs["Color2"])
+    links.new(mix.outputs["Color"], emission.inputs["Color"])
+    links.new(emission.outputs["Emission"], output.inputs["Surface"])
+    obj.data.materials.clear()
+    obj.data.materials.append(material)
+
+    image = new_image("sheep_region_albedo", (0.7, 0.65, 0.55, 1.0))
+    image_node = nodes.new("ShaderNodeTexImage")
+    image_node.image = image
+    nodes.active = image_node
+    bpy.ops.object.select_all(action="DESELECT")
+    obj.select_set(True)
+    bpy.context.view_layer.objects.active = obj
+    bpy.ops.object.bake(type="EMIT", margin=8)
+    image.filepath_raw = str(TEXTURES / "sheep_albedo.png")
+    image.file_format = "PNG"
+    image.save()
+    bpy.data.materials.remove(material)
     return image
 
 
@@ -498,12 +635,12 @@ def export_glb(
 
 
 def create_sheep_mesh() -> bpy.types.Object:
-    """Build a detailed sheep entirely from closed procedural volumes.
+    """Build a detailed sheep from dense closed volumes for later remesh.
 
-    WHY: the previous image-to-3D surface included detached ground debris, a split
-    torso, and no dependable facial anatomy. Overlapping closed volumes provide a
-    stable skinned surface while preserving readable fleece, face, ear, leg, and
-    cloven-hoof landmarks at the map camera distance.
+    WHY: a plain object.join of spheres reads as a bubble cloud under the map
+    camera. These interlocking fleece, face, and leg volumes are authored denser
+    than the final budget so voxel remesh can fuse them into one woolly body while
+    keeping a bare face, ears, and cloven hooves readable.
     """
     parts: list[bpy.types.Object] = []
 
@@ -511,9 +648,12 @@ def create_sheep_mesh() -> bpy.types.Object:
         part_name: str,
         location: tuple[float, float, float],
         scale: tuple[float, float, float],
-        segments: int = 16,
+        segments: int = 18,
+        ring_count: int = 10,
     ) -> bpy.types.Object:
-        bpy.ops.mesh.primitive_uv_sphere_add(segments=segments, ring_count=8, location=location)
+        bpy.ops.mesh.primitive_uv_sphere_add(
+            segments=segments, ring_count=ring_count, location=location
+        )
         part = bpy.context.object
         part.name = part_name
         part.scale = scale
@@ -527,7 +667,7 @@ def create_sheep_mesh() -> bpy.types.Object:
         end: tuple[float, float, float],
         start_radius: float,
         end_radius: float,
-        vertices: int = 10,
+        vertices: int = 12,
     ) -> bpy.types.Object:
         start_v = Vector(start)
         end_v = Vector(end)
@@ -546,43 +686,78 @@ def create_sheep_mesh() -> bpy.types.Object:
         parts.append(part)
         return part
 
-    # Interlocking fleece lobes break up the outline without loose cards or ground
-    # helpers. Shoulder and rump sit slightly higher than the belly like a compact
-    # northern short-tailed sheep under a full medieval fleece.
-    sphere("SheepFleeceCore", (0.06, 0.0, 0.56), (0.46, 0.255, 0.29), 20)
-    sphere("SheepFleeceShoulder", (-0.28, 0.0, 0.60), (0.28, 0.275, 0.30))
-    sphere("SheepFleeceRump", (0.35, 0.0, 0.58), (0.29, 0.265, 0.29))
-    sphere("SheepFleeceBack", (0.02, 0.0, 0.76), (0.35, 0.23, 0.14))
-    for index, (x, y, z, radius) in enumerate(
-        (
-            (-0.18, 0.21, 0.68, 0.105),
-            (0.08, 0.23, 0.65, 0.115),
-            (0.31, 0.21, 0.67, 0.105),
-            (-0.18, -0.21, 0.68, 0.105),
-            (0.08, -0.23, 0.65, 0.115),
-            (0.31, -0.21, 0.67, 0.105),
-        )
-    ):
-        sphere(f"SheepFleeceCurl{index + 1:02d}", (x, y, z), (radius, radius, radius), 12)
+    # Heavily overlapping fleece hulls only. A regular lock grid survives remesh as
+    # toy-like sphere rows; soft overlapping volumes fuse into one wool body while
+    # the baked normal map supplies the micro-curl reading.
+    sphere("SheepFleeceCore", (0.04, 0.0, 0.52), (0.47, 0.255, 0.285), 24, 14)
+    sphere("SheepFleeceBelly", (0.02, 0.0, 0.38), (0.37, 0.210, 0.150), 20, 12)
+    sphere("SheepFleeceShoulder", (-0.26, 0.0, 0.55), (0.30, 0.270, 0.290), 22, 12)
+    sphere("SheepFleeceChest", (-0.34, 0.0, 0.46), (0.18, 0.210, 0.185), 18, 10)
+    sphere("SheepFleeceRump", (0.33, 0.0, 0.53), (0.30, 0.260, 0.280), 22, 12)
+    sphere("SheepFleeceBack", (0.02, 0.0, 0.70), (0.36, 0.230, 0.140), 20, 11)
+    sphere("SheepFleeceWithers", (-0.12, 0.0, 0.68), (0.22, 0.210, 0.120), 18, 10)
+    sphere("SheepFleecePoll", (-0.38, 0.0, 0.74), (0.13, 0.145, 0.110), 16, 9)
+    sphere("SheepFleeceFlankLeft", (0.06, 0.20, 0.52), (0.28, 0.120, 0.200), 18, 10)
+    sphere("SheepFleeceFlankRight", (0.06, -0.20, 0.52), (0.28, 0.120, 0.200), 18, 10)
+    sphere("SheepFleeceBritchLeft", (0.30, 0.16, 0.48), (0.16, 0.120, 0.180), 16, 9)
+    sphere("SheepFleeceBritchRight", (0.30, -0.16, 0.48), (0.16, 0.120, 0.180), 16, 9)
+    fleece_locks = 12
 
-    # A distinct bare face, jaw and nose eliminate the old paper-thin mask. The
-    # narrow ears remain inside the 0.55 m body width, so eyes can sit on the skull
-    # rather than floating beside it.
-    segment("SheepNeck", (-0.30, 0.0, 0.61), (-0.48, 0.0, 0.72), 0.20, 0.145)
-    sphere("SheepHead", (-0.51, 0.0, 0.73), (0.17, 0.145, 0.185))
-    sphere("SheepMuzzle", (-0.61, 0.0, 0.65), (0.115, 0.115, 0.105))
-    sphere("SheepJaw", (-0.55, 0.0, 0.61), (0.125, 0.105, 0.075))
-    segment("SheepEarLeft", (-0.48, 0.10, 0.82), (-0.43, 0.235, 0.86), 0.060, 0.018, 8)
-    segment("SheepEarRight", (-0.48, -0.10, 0.82), (-0.43, -0.235, 0.86), 0.060, 0.018, 8)
+    # Bare face volumes stay denser than fleece so remesh preserves a readable
+    # skull, muzzle plane, and ear tips inside the 0.55 m body width.
+    segment("SheepNeck", (-0.32, 0.0, 0.58), (-0.50, 0.0, 0.70), 0.18, 0.125)
+    sphere("SheepHead", (-0.54, 0.0, 0.72), (0.155, 0.125, 0.165), 18, 10)
+    sphere("SheepForehead", (-0.50, 0.0, 0.80), (0.10, 0.11, 0.08), 14, 8)
+    sphere("SheepCheekLeft", (-0.56, 0.08, 0.68), (0.08, 0.07, 0.08), 12, 8)
+    sphere("SheepCheekRight", (-0.56, -0.08, 0.68), (0.08, 0.07, 0.08), 12, 8)
+    sphere("SheepMuzzle", (-0.66, 0.0, 0.64), (0.105, 0.085, 0.085), 16, 9)
+    sphere("SheepNoseBridge", (-0.62, 0.0, 0.69), (0.07, 0.05, 0.05), 12, 8)
+    sphere("SheepJaw", (-0.58, 0.0, 0.58), (0.11, 0.09, 0.07), 14, 8)
+    segment("SheepEarLeft", (-0.50, 0.09, 0.80), (-0.46, 0.22, 0.84), 0.055, 0.016, 8)
+    segment("SheepEarRight", (-0.50, -0.09, 0.80), (-0.46, -0.22, 0.84), 0.055, 0.016, 8)
 
-    # Two-segment legs read as weight-bearing anatomy instead of four sticks. Each
-    # foot has two toe volumes with a small central cleft and rests exactly on Z=0.
+    # Thigh/shoulder caps plus three-segment legs prevent remesh from turning limbs
+    # into thin stilts. Cloven toes rest on Z=0 so normalize keeps ground contact.
     for side, y in (("Left", 0.155), ("Right", -0.155)):
-        for end, x, knee_dx in (("Front", -0.29, -0.025), ("Back", 0.31, 0.035)):
-            segment(f"Sheep{end}{side}UpperLeg", (x, y, 0.48), (x + knee_dx, y, 0.23), 0.070, 0.052)
-            segment(f"Sheep{end}{side}LowerLeg", (x + knee_dx, y, 0.25), (x, y, 0.075), 0.052, 0.036)
-            sphere(f"Sheep{end}{side}HoofOuter", (x - 0.018, y + 0.022, 0.035), (0.060, 0.030, 0.035), 12)
-            sphere(f"Sheep{end}{side}HoofInner", (x - 0.018, y - 0.022, 0.035), (0.060, 0.030, 0.035), 12)
+        sphere(f"SheepFront{side}Shoulder", (-0.30, y, 0.48), (0.10, 0.09, 0.11), 12, 8)
+        sphere(f"SheepBack{side}Hip", (0.32, y, 0.48), (0.11, 0.095, 0.12), 12, 8)
+        for end, x, knee_dx in (("Front", -0.30, -0.02), ("Back", 0.32, 0.03)):
+            segment(
+                f"Sheep{end}{side}UpperLeg",
+                (x, y, 0.46),
+                (x + knee_dx, y, 0.24),
+                0.075,
+                0.055,
+            )
+            segment(
+                f"Sheep{end}{side}LowerLeg",
+                (x + knee_dx, y, 0.25),
+                (x, y, 0.09),
+                0.055,
+                0.038,
+            )
+            segment(
+                f"Sheep{end}{side}Pastern",
+                (x, y, 0.095),
+                (x - 0.01, y, 0.04),
+                0.038,
+                0.030,
+                8,
+            )
+            sphere(
+                f"Sheep{end}{side}HoofOuter",
+                (x - 0.012, y + 0.018, 0.030),
+                (0.055, 0.028, 0.030),
+                12,
+                8,
+            )
+            sphere(
+                f"Sheep{end}{side}HoofInner",
+                (x - 0.012, y - 0.018, 0.030),
+                (0.055, 0.028, 0.030),
+                12,
+                8,
+            )
 
     bpy.ops.object.select_all(action="DESELECT")
     for part in parts:
@@ -599,7 +774,7 @@ def create_sheep_mesh() -> bpy.types.Object:
     for polygon in obj.data.polygons:
         polygon.use_smooth = True
     obj["procedural_anatomy"] = True
-    obj["fleece_lobes"] = 10
+    obj["fleece_lobes"] = fleece_locks
     obj["cloven_hoof_toes"] = 8
     return obj
 
@@ -714,6 +889,18 @@ def build(name: str, spec: dict) -> dict:
     if name == "sheep":
         obj = create_sheep_mesh()
         raw = topology(obj)
+        # WHY: without remesh the joined fleece volumes stay as separate bubble
+        # islands and facial details float beside an unfinished silhouette. Extra
+        # smooth iterations fuse the dense locks into continuous wool instead of
+        # leaving a cloud of sphere silhouettes.
+        rebuild_surface(
+            obj,
+            spec["voxel_divisor"],
+            spec["triangles"],
+            smooth_factor=0.72,
+            smooth_iterations=12,
+        )
+        apply_fleece_displacement(obj, strength=0.052)
         discarded_before = 0
     else:
         assert source is not None
@@ -751,6 +938,10 @@ def build(name: str, spec: dict) -> dict:
     make_uv(obj)
     profile = SURFACE_PROFILES[name]
     albedo = create_albedo(name, spec)
+    if name == "sheep":
+        # WHY: a single flat coat makes the remeshed body read as clay. Region bake
+        # keeps one production surface while darkening the bare face and hooves.
+        albedo = bake_sheep_region_albedo(obj, albedo)
     normal = bake_normal_map(obj, name, profile)
     roughness = bake_roughness_map(obj, name, profile)
     assign_pbr_material(obj, name, albedo, normal, roughness, profile)
