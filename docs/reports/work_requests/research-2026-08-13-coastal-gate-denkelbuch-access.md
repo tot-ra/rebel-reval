@@ -22,6 +22,7 @@ The target is Rahvusarhiiv Denkelbuch `TLA.230.1.Aa2`, *Ältestes Denkelbuch des
 - [`history/dossiers/economy/ev2-karrienpforte-carter-ort-folio.md`](../../../history/dossiers/economy/ev2-karrienpforte-carter-ort-folio.md) identifies EV II nos. 686 and 859 as named gate-plot controls, not named carter deeds.
 - A fresh unauthenticated AIS request on 2026-08-13 returned HTTP 200 `text/html`, catalogue metadata, and anonymous `Gallery image 0`-`25` entries without folio/page identifiers or usable transcription.
 - A fresh unauthenticated DGS request returned redirects through protected TIFF `tla0230_001_0000aa2_00001_x.tif` and ended at the VAU login page. No manuscript image, folio identifier, or original wording was available. This is an access boundary, not a Denkelbuch hit or no-hit.
+- The browser and `curl` recheck at 2026-08-13T01:32:52Z reproduced the same six-redirect VAU login boundary. The repository intake contract is [`history/sources/catalog_exports/README.md`](../../../history/sources/catalog_exports/README.md); it rejects login captures and anonymous previews as evidence and defines the metadata required for a lawful archive export.
 
 ## Proposed task
 
