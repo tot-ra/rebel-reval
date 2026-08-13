@@ -392,6 +392,34 @@ static func _add_gate_asset(
 		# shrink rather than clipping the imported mesh through the masonry.
 		instance.scale *= passage_depth / model_depth
 	root.add_child(instance)
+	instance.set_meta(&"source_asset", GATE_ASSET_PATHS[resolved_variant])
+	if not is_grille and resolved_variant == &"ironbound":
+		_expose_authored_gate_leaf_contract(root, instance)
+
+
+static func _expose_authored_gate_leaf_contract(root: Node3D, instance: Node3D) -> void:
+	# WHY: Karja's authored GLB is the visual source, but landmark consumers need
+	# stable leaf handles without routing this exceptional gate through house doors.
+	# Reparent existing authored meshes instead of duplicating or rebuilding them.
+	for leaf_index in 2:
+		var prefix := "Leaf%d_" % leaf_index
+		var authored_part: MeshInstance3D = null
+		for child in instance.find_children("*", "MeshInstance3D", true, false):
+			var candidate := child as MeshInstance3D
+			if candidate == null or not String(candidate.name).begins_with(prefix):
+				continue
+			if String(candidate.name).contains("IronEdge13"):
+				authored_part = candidate
+				break
+			if authored_part == null:
+				authored_part = candidate
+		if authored_part == null:
+			continue
+		var authored_source_node := authored_part.name
+		authored_part.reparent(root, true)
+		authored_part.name = "GateDoor%d" % leaf_index
+		authored_part.material_override = MapViewMaterials.role(&"metal")
+		authored_part.set_meta(&"authored_source_node", authored_source_node)
 
 
 static func transition_uses_landmark_visual(

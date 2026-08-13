@@ -134,8 +134,17 @@ func test_town_wall_gets_battlements_and_gate_arch_clears_character() -> void:
 			break
 	assert_false(karja_arch_def.is_empty(), "Karja Gate needs its arch landmark")
 	var karja_arch := MapViewMeshBuilder.build_landmark(karja_arch_def, south_definition.cell_size)
+	assert_true(karja_arch.has_node("GateLeaves"), "Karja Gate must retain its authored GLB container")
+	assert_eq(
+		karja_arch.get_node("GateLeaves").get_meta(&"source_asset"),
+		"res://assets/props/architecture/gates/ironbound_double_gate.glb",
+		"Karja Gate must select the ironbound authored asset"
+	)
 	assert_true(karja_arch.has_node("GateDoor0"), "Karja Gate needs open metal doors")
+	assert_true(karja_arch.has_node("GateDoor1"), "Karja Gate needs both authored open leaves")
+	assert_false(karja_arch.has_node("Door"), "Karja Gate must not fall back to an ordinary-house door")
 	var karja_door := karja_arch.get_node("GateDoor0") as MeshInstance3D
+	assert_true(karja_door.has_meta(&"authored_source_node"), "GateDoor0 must expose authored leaf geometry")
 	var metal_mat := MapViewMaterials.role(&"metal")
 	assert_true(
 		(karja_door.material_override as StandardMaterial3D).albedo_color.is_equal_approx(metal_mat.albedo_color),
