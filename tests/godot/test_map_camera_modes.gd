@@ -70,17 +70,25 @@ func test_c_cycles_third_person_first_person_and_top_down() -> void:
 	_free_map_scene(scene_root)
 
 
-func test_interior_shell_follows_close_and_top_down_camera_modes() -> void:
+func test_interior_shell_defaults_to_top_down_and_still_cycles_close_modes() -> void:
 	var fixture := _install_runtime(KalevSmithyDefinition.create())
 	var scene_root := fixture["scene_root"] as Node2D
 	var runtime := fixture["runtime"] as MapViewRuntime
 	assert_true(runtime.view.has_node("InteriorShell/Ceiling"), "smithy must build a shared ceiling shell")
-	assert_true(runtime.view.is_interior_shell_visible(), "default third-person must show the ceiling shell")
-	assert_false(runtime.view.uses_interior_top_down_background(), "third-person must retain the sky background")
+	assert_true(runtime.is_top_down(), "enclosed building scenes must default to top-down")
+	assert_false(runtime.view.is_interior_shell_visible(), "top-down must hide the ceiling for floor readability")
+	assert_true(runtime.view.uses_interior_top_down_background(), "top-down interiors must clear to black")
 	var world_env := runtime.view.get_node("ViewEnvironment") as WorldEnvironment
-	assert_eq(world_env.environment.background_mode, Environment.BG_SKY)
+	assert_eq(world_env.environment.background_mode, Environment.BG_COLOR)
+	assert_eq(world_env.environment.background_color, MapView3D.BACKGROUND_INTERIOR_TOP_DOWN_COLOR)
 
 	var camera_toggle := _camera_toggle_event()
+	runtime._unhandled_input(camera_toggle)
+	assert_true(runtime.is_third_person())
+	assert_true(runtime.view.is_interior_shell_visible(), "third-person must restore the ceiling shell")
+	assert_false(runtime.view.uses_interior_top_down_background(), "third-person must restore the sky background")
+	assert_eq(world_env.environment.background_mode, Environment.BG_SKY)
+
 	runtime._unhandled_input(camera_toggle)
 	assert_true(runtime.is_first_person())
 	assert_true(runtime.view.is_interior_shell_visible(), "first-person must keep the ceiling shell visible")
@@ -88,16 +96,9 @@ func test_interior_shell_follows_close_and_top_down_camera_modes() -> void:
 
 	runtime._unhandled_input(camera_toggle)
 	assert_true(runtime.is_top_down())
-	assert_false(runtime.view.is_interior_shell_visible(), "top-down must hide the ceiling for floor readability")
-	assert_true(runtime.view.uses_interior_top_down_background(), "top-down interiors must clear to black")
+	assert_false(runtime.view.is_interior_shell_visible())
+	assert_true(runtime.view.uses_interior_top_down_background())
 	assert_eq(world_env.environment.background_mode, Environment.BG_COLOR)
-	assert_eq(world_env.environment.background_color, MapView3D.BACKGROUND_INTERIOR_TOP_DOWN_COLOR)
-
-	runtime._unhandled_input(camera_toggle)
-	assert_true(runtime.is_third_person())
-	assert_true(runtime.view.is_interior_shell_visible(), "returning to third-person must restore the ceiling")
-	assert_false(runtime.view.uses_interior_top_down_background())
-	assert_eq(world_env.environment.background_mode, Environment.BG_SKY)
 	_free_map_scene(scene_root)
 
 
@@ -312,8 +313,9 @@ func test_enclosed_interior_third_person_does_not_enable_occlusion_ghost() -> vo
 	var scene_root := fixture["scene_root"] as Node2D
 	var runtime := fixture["runtime"] as MapViewRuntime
 	var rig := runtime.get_node("PlayerRig") as SharedCharacterRig
-	assert_true(runtime.is_third_person())
+	assert_true(runtime.is_top_down())
 	assert_true(runtime.view.definition.suppresses_exterior_surroundings())
+	runtime.set_camera_mode(MapViewRuntimeCamera.CameraMode.THIRD_PERSON)
 	runtime._update_occlusion_ghost()
 	assert_false(
 		rig.occlusion_ghost_enabled(),
@@ -329,6 +331,7 @@ func test_smithy_start_third_person_camera_avoids_walls() -> void:
 	var runtime := fixture["runtime"] as MapViewRuntime
 	var player := fixture["player"] as Player
 	var camera := runtime.view.view_camera()
+	runtime.set_camera_mode(MapViewRuntimeCamera.CameraMode.THIRD_PERSON)
 	player.global_position = definition.player_spawn
 	runtime._sync_player(true)
 	assert_false(
@@ -375,6 +378,11 @@ func test_quick_access_camera_button_cycles_all_modes() -> void:
 	var camera_button := menu.find_child("CameraButton", true, false) as Button
 	var status := menu.find_child("StatusLabel", true, false) as Label
 	assert_false(camera_button.disabled, "camera button must be available on 3D maps")
+	assert_true(runtime.is_top_down(), "enclosed building must start in top-down")
+	camera_button.pressed.emit()
+	assert_true(runtime.is_third_person())
+	assert_eq(status.text, "Third-person view")
+
 	camera_button.pressed.emit()
 	assert_true(runtime.is_first_person())
 	assert_eq(status.text, "First-person view")
@@ -382,10 +390,6 @@ func test_quick_access_camera_button_cycles_all_modes() -> void:
 	camera_button.pressed.emit()
 	assert_true(runtime.is_top_down())
 	assert_eq(status.text, "Top-down view")
-
-	camera_button.pressed.emit()
-	assert_true(runtime.is_third_person())
-	assert_eq(status.text, "Third-person view")
 	_free_map_scene(scene_root)
 
 

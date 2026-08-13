@@ -102,6 +102,13 @@ func configure(
 	_top_down_size = camera.size
 	_third_person_distance = THIRD_PERSON_DISTANCE
 	_perspective_attributes = CameraAttributesPractical.new()
+	# Enclosed building scenes start overhead so perspective camera booms cannot
+	# collide with perimeter walls. Players may still cycle to either perspective mode.
+	camera_mode = (
+		CameraMode.TOP_DOWN
+		if view.definition != null and view.definition.suppresses_exterior_surroundings()
+		else CameraMode.THIRD_PERSON
+	)
 	_apply_camera_mode()
 
 
