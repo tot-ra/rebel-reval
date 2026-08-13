@@ -8,6 +8,13 @@
 # retain the existing seams to Toompea, the Bishop's Garden, and Knights District.
 rrmap 1
 map market_civic_quarter loc.lower_town.market_civic_quarter 114 128 dirt scope=prototype active=false palette=clean_painted seed=1343 cell_size=32
+# R-454b: keep the forum near the Lower Town datum, give the east throat a
+# restrained fall toward the wet north/east margin, and leave the southern
+# service yards flat. These are view-only profiles; no moat or ditch is authored.
+elevation_area r454.market.forum_datum 46 48 24 0.0
+elevation_ramp r454.market.east_throat_fall 64 52 112 53 0.0 -0.10 width=5
+elevation_area r454.market.south_yards 59 108 55 0.0
+elevation_ramp r454.market.harbour_spine 39 0 48 31 0.10 0.0 width=4
 source "scenes/reval_center/reval_center.tscn"
 source "scenes/revel-map.jpg"
 source "scenes/reval_center/market_civic_quarter/market.md"
