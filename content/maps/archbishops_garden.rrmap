@@ -6,6 +6,12 @@
 # grass/orchard/garden ~60-75%, with timber orchard edges rather than brick fill.
 rrmap 1
 map archbishops_garden loc.toompea.archbishops_garden 144 48 grass scope=prototype active=false palette=clean_painted seed=1344 cell_size=32 elevation=2.8
+elevation_area r454.garden.plateau_datum 72 24 72 2.8
+# R-454: keep the Toompea plateau continuous at the north opening, then taper
+# only along the two authored garden-to-Lower-Town gate approaches.
+elevation_ramp r454.garden.toompea_seam 29 5 29 0 2.8 2.8 width=2
+elevation_ramp r454.garden.center_gate_taper 136 9 143 9 2.8 0.0 width=2
+elevation_ramp r454.garden.south_gate_taper 29 42 29 47 2.8 0.0 width=2
 source "scenes/reval_archbishops_garden/reval_archbishops_garden.tscn"
 source "history/AVE2018_12_Reppo_Toompea.pdf"
 source "docs/HISTORICAL_AUDIT.md"
