@@ -18,7 +18,7 @@ You are blocking out the **open market reserve** (*forum*, modern Raekoja plats)
 
 **Ship these decisions:**
 
-1. **Smaller than today.** The hall reached its full **36.78 m** measured north frontage in the completed configuration described by Neumann; the 1371–74 extension is the accepted phase boundary for that full length. For April 1343 use a **shorter south edge (~22–28 m)** and a **smaller open polygon** than the modern plaza [1][2][3][5].
+1. **Smaller than today.** The completed hall has two later-state dimensions that are not interchangeable: Nottbeck gives **30.78 m** for the market-facing north front [5], while Medieval Heritage reports **36.8 m** for the external full-building dimension [2]. Neither is a measured 1343 phase length. The 1371–74 extension is the accepted phase boundary for the later full-length configuration; for April 1343 use a shorter south edge (**~22–28 m**, a plausible composite only) and a smaller open polygon than the modern plaza [1][2][3][5].
 2. **South edge = hall only.** One-storey grey-limestone hall, clay-tile gable roof, **no arcade**, **no tower**, **no upper council storey**. The north façade is a plain wall with simple stone-framed windows opening to the market [1][4][5].
 3. **North edge = built frontage, not void.** Strip burgess plots and the modest **Holy Spirit chapel–almshouse** complex sit north of the open ground; the square does **not** read as a formal rectangle walled on four sides [6][7][8].
 4. **Open ground is irregular.** Temporary stalls, carts, and foot traffic only — no permanent market halls, no Christmas-tree tradition (1441+), no pillory as a fixed prop unless flagged uncertain [9][10].
@@ -43,8 +43,9 @@ The market and Town Hall share a site from at least the 1322 consistorium record
 | Element | 1343 state | Confidence |
 |---|---|---|
 | Position | South side of *forum*, exit of gate-ward streets [2] | attested |
-| Length along south edge | **~22–28 m** (western core + first-quarter-14th-c. extension; **not** the completed 36.78 m north frontage) | plausible composite [1][2][3][5] |
-| Completed north frontage | **36.78 m** (Neumann measured finished building; use only as a later-state comparandum) | attested measured [5] |
+| Length along south edge | **~22–28 m** (western core + first-quarter-14th-c. extension; reconstruction range, **not a measured phase dimension**) | plausible composite [1][2][3][5] |
+| Completed north frontage | **30.78 m** in Nottbeck's text for the market-facing north front; later-state comparandum only [5] | attested textual measurement |
+| Completed external full-building dimension | **36.8 m** in the Medieval Heritage summary; later-state comparandum only [2] | attested published dimension |
 | Width (north–south) | **~14.5–15.2 m** (trapezoid taper ≤0.5 m) | attested for finished hall; apply to 1343 core [2] |
 | Storeys | **One** storey + attic storeroom; board or tile roof [1][3] | attested |
 | Arcade loggia | **Absent** (1402–04) [1][4] | attested |
@@ -52,7 +53,7 @@ The market and Town Hall share a site from at least the 1322 consistorium record
 | Council chamber upstairs | **Absent** as built volume (ground-floor consistorium / warehouse) [1][5] | attested |
 | Material | Grey limestone walls, clay-tile roof [2] | attested |
 
-**Construction phasing (west → east):** Oldest fabric occupies the **western** part; first-quarter-14th-century cellar and diele–dornse expansion precede 1343; **1371–74** extension to the **east** brings full 36.8 m length [2][5]. Seven basement/ground-floor windows and three walls from the 1322 building survive in the eastern part of the present structure [1].
+**Construction phasing (west → east):** Oldest fabric occupies the **western** part; first-quarter-14th-century cellar and diele–dornse expansion precede 1343; **1371–74** extension to the **east** brings the later full-length configuration [2][5]. Nottbeck's published market-facing north-front measurement is **30.78 m**, while Medieval Heritage gives **36.8 m** for the external full-building dimension; the sources do not establish that these figures measure the same edge or datum, so do not merge or normalize them [2][5]. Seven basement/ground-floor windows and three walls from the 1322 building survive in the eastern part of the present structure [1].
 
 **Deliberate game deviation:** Project audit P0-072 models a readable arcade at ground floor for player legibility — label that as **invented** if used; this dossier’s map polygon assumes **no arcade** unless canon overrides [14].
 
@@ -62,7 +63,7 @@ The Heidelberg viewer pages were not usable in this pass because of the archive'
 
 The two fetched Public Domain leaves are usable as visual evidence, but they do **not** expose a separately dimensioned pre-1371 core. Page 187 carries Fig. 159, a later market-and-hall lithograph; page 188 carries Figs. 161–162, the published finished-hall upper-floor plan and cross-section. They are therefore later-state relationship/section plates, not a measured construction-phase drawing for the April 1343 footprint [5][18].
 
-The adjacent Neumann/Nottbeck text remains useful: it places the Rathaus on its present site by the first half of the fourteenth century from entries in the oldest mortgage book, records *Kramerbuden* near the Rathaus in 1339, and dates the architectural start of construction to the second quarter of the fourteenth century [5]. These are **attested** for site, nearby stalls, and broad construction horizon, but they do not supply a numeric pre-1371 length. Keep **~22–28 m** as a **plausible composite**, not an attested measurement [1][5].
+The adjacent Neumann/Nottbeck text remains useful: it places the Rathaus on its present site by the first half of the fourteenth century from entries in the oldest mortgage book, records *Kramerbuden* near the Rathaus in 1339, and dates the architectural start of construction to the second quarter of the fourteenth century [5]. Its text gives **30.78 m** for the completed market-facing north front, while the modern Medieval Heritage summary gives **36.8 m** for the completed building's external dimension [2][5]. These later-state figures are not a phase-plan measurement and should not be treated as interchangeable. The fetched leaves do not supply a numeric pre-1371 length: keep **~22–28 m** as a **plausible composite reconstruction**, not an attested measurement [1][5].
 
 ### Open market polygon (authoring coordinates)
 
@@ -83,7 +84,7 @@ Local axes: **+X east**, **+Y north**, origin at the **south-west corner of open
 |---|---|---|
 | Open ground E–W (north edge) | 38–46 m | plausible composite [3][9][14] |
 | Open ground N–S depth | 30–38 m | plausible composite [3][9] |
-| Hall south frontage | 22–28 m | plausible composite [1][2][5] |
+| Hall south frontage | 22–28 m | plausible composite reconstruction [1][2][5] |
 | Open area (polygon) | ~1,100–1,500 m² | plausible composite |
 
 No municipal survey gives a 1343 polygon; ranges synthesise hall phasing [1][2], burgess plot rhythm (7–11 m fronts) [15], and civic-quarter audit bands [14]. **Modern paved Raekoja plats (~45×45 m perception) is anachronistic for 1343.**
@@ -148,7 +149,7 @@ No municipal survey gives a 1343 polygon; ranges synthesise hall phasing [1][2],
 
 ## Open questions
 
-- Measured **pre-1371** hall length from Neumann phase drawings remains unresolved: the Heidelberg plates publish the completed hall plan/section and the 36.78 m finished north frontage, but do not expose a separate dimension line for the earlier core. Keep **~22–28 m** as a plausible composite until a phase-specific measured drawing is found.
+- Measured **pre-1371** hall length from Neumann phase drawings remains unresolved: the Heidelberg plates publish the completed hall plan/section, but do not expose a separate dimension line for the earlier core. Nottbeck's text gives **30.78 m** for the completed market-facing north front, while Medieval Heritage reports **36.8 m** for the completed building's external dimension; neither is a measured 1343 phase length, and the two later-state figures should not be merged. Keep **~22–28 m** as a plausible composite reconstruction until a phase-specific measured drawing is found.
 - Archaeological paving limits of *forum* vs surrounding plots — no citywide 1343 survey published in reviewed sources.
 - Whether a **well** stood in the open ground in 1343 (modern decorative well is not evidence).
 - Exact 1343 boundary between *forum* and the road convergence later called Vana Turg — resolved in [`old-market-vanaturg.md`](./old-market-vanaturg.md) (R-031): neck is a lane, not *forum inferior*.
@@ -159,7 +160,7 @@ No municipal survey gives a 1343 polygon; ranges synthesise hall phasing [1][2],
 2. Medieval Heritage, “Tallinn town hall,” https://medievalheritage.eu/en/main-page/heritage/estonia/tallinn-town-hall/ — dimensions 36.8×14.7/15.2 m, west-to-east phasing (English).
 3. Wikipedia, “Tallinn Town Hall,” https://en.wikipedia.org/wiki/Tallinn_Town_Hall — square length in 1370s, single-storey pre-1402 state (English).
 4. Project internal: `docs/HISTORICAL_AUDIT.md` H06 — 1343 hall without tower; arcade legibility note (English).
-5. Neumann W. & Nottbeck E., *Geschichte und Kunstdenkmäler der Stadt Reval*, vol. 2, Reval: Kluge, 1904, pp. 186–188, Figs. 158–162 — Heidelberg facsimile, Public Domain Mark: https://doi.org/10.11588/diglit.52774#0212 (German). Measured completed north frontage: 36.78 m; the pages do not provide a separate pre-1371 dimension line.
+5. Neumann W. & Nottbeck E., *Geschichte und Kunstdenkmäler der Stadt Reval*, vol. 2, Reval: Kluge, 1904, pp. 186–188, Figs. 158–162 — Heidelberg facsimile, Public Domain Mark: https://doi.org/10.11588/diglit.52774#0212 (German). The text states **30.78 m** for the completed market-facing north front; the published leaves do not provide a separate pre-1371 dimension line.
 6. Medieval Heritage, “Holy Spirit Church,” https://medievalheritage.eu/en/main-page/heritage/estonia/tallinn-holy-spirit-church-puha-vaimu-kirik/ — 1316 chapel, 1360s rebuild donations (English).
 7. Pühavaimu congregation, “Kirikuhoone,” https://puhavaimu.ee/kirikuhoone/ — choir c. 1300, aisle 14th c., 1375–80 works (Estonian).
 8. Project internal: `docs/HISTORICAL_AUDIT.md` — Holy Spirit 1343 modest chapel–almshouse (English).
