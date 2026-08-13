@@ -88,6 +88,30 @@ class UpdateTodoCountsTest(unittest.TestCase):
             self.assertEqual(counts["P5"].done_count, 1)
             self.assertEqual(counts["P6"].open_count, 1)
 
+    def test_scan_groups_future_priority_bands_into_p7_plus(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            todo = Path(temp_dir) / "TODO.md"
+            todo.write_text(
+                "\n".join(
+                    [
+                        "# TODO",
+                        "",
+                        "- [ ] P7-001 | deps: none | deliverable: future task | verify: passes",
+                        "- [x] P8-002 | deps: P7-001 | deliverable: later task | verify: passes",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+
+            counts = scan_todo(todo)
+            table = build_table(counts)
+
+            self.assertEqual(counts["P7+"].open_count, 1)
+            self.assertEqual(counts["P7+"].done_count, 1)
+            self.assertIn("| P7+ |", table)
+            self.assertNotIn("| P7 |", table)
+            self.assertNotIn("| P8 |", table)
+
     def test_build_table_lists_p3_through_p6_rows(self) -> None:
         counts = {
             "P0": Counters(open_count=1, done_count=2),
