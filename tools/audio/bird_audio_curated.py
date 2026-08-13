@@ -34,8 +34,8 @@ PERMISSION_REQUIRED_FIELDS = (
     "quality",
 )
 PERMISSION_EVIDENCE_REQUIRED_MARKERS = (
-    ("permission status: granted", re.compile(r"^\\s*permission status\\s*:\\s*granted\\s*$", re.MULTILINE)),
-    ("commercial use: approved", re.compile(r"^\\s*commercial use\\s*:\\s*approved\\s*$", re.MULTILINE)),
+    ("permission status: granted", re.compile(r"^\s*permission status\s*:\s*granted\s*$", re.MULTILINE)),
+    ("commercial use: approved", re.compile(r"^\s*commercial use\s*:\s*approved\s*$", re.MULTILINE)),
 )
 
 
