@@ -58,3 +58,37 @@ Captured current logs:
 4. **R-364 / P0-102l:** consume this report together with the other P0-102 evidence. Do not close P0-102 while this owned prerequisite remains blocked.
 
 **Decision:** keep R-363 in `in_review`. The clean baseline and current-WIP findings are independently reproducible, but the exceptional renderer boundary is not ready to accept.
+
+
+## R-363 live recheck addendum (2026-08-13)
+
+A fresh live-worktree recheck was run from the current shared tree. The worktree contains unrelated active changes, so this addendum records only the scoped renderer-boundary evidence and does not claim those changes.
+
+| Check | Result | Evidence |
+|---|---|---|
+| Focused mesh boundary suite | **PASS** | `test_map_view_3d_mesh`: **19/19**, 0 failures, 0 errors. The exceptional-building boundary test passes for civic/church/guild/institution records, St. Catherine's, and an ordinary-house control. |
+| Ordinary-house fortification regression | **PASS** | `test_houses_get_facade_doors_and_windows` passes. The loop now skips registry-accepted exceptional records, so St. Catherine's is no longer incorrectly checked as an ordinary house. |
+| Focused fortification suite | **BLOCKED** | `test_map_view_3d_fortification`: **6/8 methods pass, 2 failures, 2 engine/script diagnostics**. The Karja Gate landmark still lacks `GateDoor0`; the subsequent null `material_override` access is reported at lines 138-140. An independent district-boundary assertion expects 4 transition markers but receives 5. |
+| Current boundary interpretation | **PARTIAL** | The intended ordinary-versus-exceptional routing is green in the mesh suite. The remaining failures are a gate landmark asset/naming contract and a separate transition-marker count drift, not grounds to route exceptional buildings back through the ordinary house kit. |
+| Scope changes | **PASS** | This recheck changes documentation only. No map source, collision, navigation, runtime route, or asset file was modified. |
+
+Exact commands from the repository root:
+
+```sh
+export GODOT_BIN=/Applications/Godot.app/Contents/MacOS/Godot
+"$GODOT_BIN" --headless --path . --script tools/run_godot_tests.gd -- --filter=test_map_view_3d_mesh
+GODOT_LOG_DIR=/tmp/r363-live \
+  tools/run_godot_checked.sh --require-test-summary r363-fortification -- \
+  "$GODOT_BIN" --headless --path . --script tools/run_godot_tests.gd -- \
+  --filter=test_map_view_3d_fortification
+```
+
+The checked fortification log is `/tmp/r363-live/r363-fortification.log`. Godot Compatibility shutdown leak diagnostics also appear after the test summary; they are existing renderer shutdown noise and are not the scoped assertions.
+
+Handoffs:
+
+1. The Karja owner must expose the expected open metal gate leaf contract (`GateDoor0`, with the material check in the focused test) or update the renderer/test contract together. Do not weaken the assertion or route the gate through an ordinary house.
+2. The map/view owner must reconcile the district-boundary marker count (`expected 4`, actual 5) against the authored transition set and update the test or source contract with an explicit reason. Do not hide an extra transition marker by changing only the assertion.
+3. R-363 remains **in review / blocked for acceptance** until both focused fortification findings are resolved and the clean detached baseline is rerun. The mesh boundary regression itself is no longer a blocker.
+
+**Decision:** keep the exceptional renderer boundary acceptance open. Current evidence proves the boundary test and ordinary-house separation, but not the complete fortification suite.
