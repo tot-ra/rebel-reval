@@ -7,7 +7,7 @@ related:
   - ./lower-town-street-plan.md
   - ../architecture/burgher-house-plan.md
   - ../architecture/toompea-castle-and-upper-town.md
-updated: 2026-07-27
+updated: 2026-08-13
 ---
 
 # Raekoja plats extents (Spring 1343)
@@ -55,6 +55,14 @@ The market and Town Hall share a site from at least the 1322 consistorium record
 **Construction phasing (west → east):** Oldest fabric occupies the **western** part; first-quarter-14th-century cellar and diele–dornse expansion precede 1343; **1371–74** extension to the **east** brings full 36.8 m length [2][5]. Seven basement/ground-floor windows and three walls from the 1322 building survive in the eastern part of the present structure [1].
 
 **Deliberate game deviation:** Project audit P0-072 models a readable arcade at ground floor for player legibility — label that as **invented** if used; this dossier’s map polygon assumes **no arcade** unless canon overrides [14].
+
+### R-036 phase-plan audit (13 August 2026)
+
+The Heidelberg viewer pages were not usable in this pass because of the archive's Anubis challenge; the direct JPEG image endpoints remained accessible. That is an access limitation on page-viewer inspection, not evidence that a phase-specific measurement does not exist [18].
+
+The two fetched Public Domain leaves are usable as visual evidence, but they do **not** expose a separately dimensioned pre-1371 core. Page 187 carries Fig. 159, a later market-and-hall lithograph; page 188 carries Figs. 161–162, the published finished-hall upper-floor plan and cross-section. They are therefore later-state relationship/section plates, not a measured construction-phase drawing for the April 1343 footprint [5][18].
+
+The adjacent Neumann/Nottbeck text remains useful: it places the Rathaus on its present site by the first half of the fourteenth century from entries in the oldest mortgage book, records *Kramerbuden* near the Rathaus in 1339, and dates the architectural start of construction to the second quarter of the fourteenth century [5]. These are **attested** for site, nearby stalls, and broad construction horizon, but they do not supply a numeric pre-1371 length. Keep **~22–28 m** as a **plausible composite**, not an attested measurement [1][5].
 
 ### Open market polygon (authoring coordinates)
 
