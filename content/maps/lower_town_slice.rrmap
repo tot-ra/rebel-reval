@@ -9,6 +9,17 @@
 # smithy yard fence are allowed to embed into each other on purpose.
 rrmap 1
 map lower_town_slice loc.lower_town_slice 152 128 grass scope=production active=true palette=clean_painted seed=42042 cell_size=32
+# R-454: keep the ordinary Lower Town plane flat; gate and transition seams own
+# their edge tapers, so this broad datum does not introduce a second step.
+elevation_area r454.lt.lowtown_datum 76 64 76 0.0
+# Pikk is the only bounded local fall in this slice: the merchant spine starts
+# above the wet north margin and settles onto the Lower Town datum southward.
+elevation_ramp r454.lt.pikk_to_harbourward 26 0 26 55 0.20 0.0 width=3
+# No defensible grade is available for the Viru/Karja junction; keep both
+# authored road spines on the readable zero plane.
+elevation_area r454.lt.viru_karja_spines 64 91 64 0.0
+# Preserve the shared southern seam at the Karja opening and its anchor.
+elevation_area r454.lt.south_boundary 66 124 10 0.0
 # 1343 material mix (docs/HISTORICAL_AUDIT.md): church, monastery, and rich
 # merchant houses in local limestone under ceramic tile; middle burgher houses
 # plastered or plank-clad under wooden shingle; poorer lanes and the suburbs
