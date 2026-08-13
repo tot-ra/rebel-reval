@@ -35,7 +35,7 @@ Format matches the legacy `TODO.md` contract: `ID | deps | deliverable | verify`
 
 - [ ] P0-185 | deps: P0-184 | role: dev | deliverable: justified extractions only for view3d hotspots that fail the architecture extraction criteria, prioritized among `map_view_bird_species.gd`, `map_view_mammal_species.gd`, `map_view_material_shaders.gd`, `map_view_tree_meshes.gd`, `map_view_mesh_builder_prop_models.gd`, and `map_view_runtime.gd` (see readability report order); keep public facades and stable IDs | verify: focused Godot filters named in the architecture row pass; full map/view suites relevant to touched files pass; each extracted file is under the agreed soft cap or has an explicit keep decision
 
-- [ ] P0-187 | deps: P0-177 | role: production | deliverable: move aged `docs/ROADMAP.md` coordination-history notes into `docs/TASK_ARCHIVE.md` or a dated ROADMAP archive so the live roadmap stays focused on Current focus plus recent notes; do not drop open dependency pointers | verify: Current focus section remains accurate; archived notes remain linkable; `python3 tools/generate_active_docs_report.py --check` passes; `docs/ROADMAP.md` shrinks versus the 119 KiB / 360-line 2026-08-11 baseline
+- [x] P0-187 | deps: P0-177 | role: production | deliverable: move aged `docs/ROADMAP.md` coordination-history notes into `docs/TASK_ARCHIVE.md` or a dated ROADMAP archive so the live roadmap stays focused on Current focus plus recent notes; do not drop open dependency pointers | verify: Current focus section remains accurate; archived notes remain linkable; `python3 tools/generate_active_docs_report.py --check` passes; `docs/ROADMAP.md` shrinks versus the 119 KiB / 360-line 2026-08-11 baseline
 
 ## Non-goals for this backlog
 
