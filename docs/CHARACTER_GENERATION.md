@@ -68,6 +68,51 @@ Every generated part gets UVs at build time: `PartBuilder.build()` runs an angle
 - Blender's glTF exporter packs each family's roughness into the native G channel of a `metallicRoughnessTexture` and exports AO through the standard `occlusionTexture`; Godot extracts that packed image as `<body>_hero_tex_<family>_ao-hero_tex_<family>_roughness.png`. Normal, albedo, ORM, and material slots are all embedded in the GLB.
 - Tier budgets: 512 px sits under the Tier 1 1024 px cap, so the same pipeline serves hero and named-NPC tiers; LOD decimation preserves UVs and the embedded PBR material graph.
 
+### Reproducible character surface generator (P0-145)
+
+Character surfaces use the same five material zones on every generated body:
+`skin`, `cloth`, `leather`, `metal`, and `hair`. The build-time implementation is
+`tools/hero_body_textures.py`; the explicit CLI contract is
+`tools/generate_character_textures.py`.
+
+The CLI has two useful modes:
+
+```bash
+# This mode does not require Blender and is safe in CI.
+python3 tools/generate_character_textures.py --list
+
+# Blender writes a palette-neutral source set and its provenance manifest.
+/Applications/Blender.app/Contents/MacOS/Blender --background \
+  --python tools/generate_character_textures.py -- \
+  --character=hero --output=generated/comfyui/character_textures_v1
+
+# Verify all five zones and all four maps without regenerating them.
+python3 tools/generate_character_textures.py --verify \
+  --output=generated/comfyui/character_textures_v1
+```
+
+Each family has four maps: albedo, tangent-space normal, roughness, and AO.
+The prompts recorded in `manifest.json` describe the intended seamless surface
+and explicitly exclude baked lighting, faces, garments, and silhouettes. The
+implementation uses seeded NumPy fields instead of an external image service,
+so the manifest's `external_generation_ids` is intentionally empty and the
+maps are reproducible from repository code.
+
+Palette colors remain per-character data. `character_specs.py` supplies the
+sRGB overrides; `generate_hero_body.py` converts them to linear values and
+multiplies the family albedo before export. The GLB therefore carries
+`baseColorTexture` plus `baseColorFactor`, a normal texture, packed glTF
+metallic-roughness, and an occlusion texture. The five zones are shared across
+characters and LODs rather than duplicated per palette.
+
+Every Godot-extracted runtime sidecar is registered by:
+
+```bash
+python3 tools/register_character_texture_sources.py
+python3 tools/validate_asset_sources.py
+python3 tools/verify_asset_lint.py
+```
+
 ## Anatomy and clothing layers
 
 `tools/hero_body_anatomy_builder.py` builds the shared body system from the retargeted skeleton rather than from uniform limb cylinders. Thigh, knee, calf, shin, deltoid, upper arm, elbow, and forearm use distinct profiles and blended joint weights. `tools/hero_body_torso_builder.py` then adds fitted tunic or mail and existing profession/rank outerwear above that envelope.

@@ -626,6 +626,54 @@ func test_shared_rig_distance_lods_mount_with_visibility_ranges() -> void:
 	kalev.queue_free()
 
 
+
+
+func test_shared_character_pbr_materials_cover_all_five_surface_zones() -> void:
+	var kalev := _instantiate(KALEV_SCENE)
+	var henning := _instantiate(HENNING_SCENE)
+	var families := {}
+	for character: Node in [kalev, henning]:
+		for found: Node in character.get_node("Model").find_children("*", "MeshInstance3D", true, false):
+			var mesh_instance := found as MeshInstance3D
+			if mesh_instance == null or mesh_instance.mesh == null:
+				continue
+			for surface_index: int in mesh_instance.mesh.get_surface_count():
+				var material := mesh_instance.mesh.surface_get_material(surface_index) as StandardMaterial3D
+				if material == null or material.albedo_texture == null:
+					continue
+				var albedo_path := material.albedo_texture.resource_path
+				var marker := "_hero_tex_"
+				var marker_index := albedo_path.find(marker)
+				if marker_index < 0:
+					continue
+				var family := albedo_path.substr(marker_index + marker.length()).split("_")[0]
+				families[family] = true
+				assert_true(
+					material.normal_enabled and material.normal_texture != null,
+					"%s needs a normal map" % family
+				)
+				assert_true(material.roughness_texture != null, "%s needs a roughness map" % family)
+				assert_true(material.ao_texture != null, "%s needs an AO map" % family)
+				assert_true(
+					material.albedo_texture.resource_path.contains("_hero_tex_%s_albedo" % family),
+					"%s albedo must be the shared family map" % family
+				)
+	assert_eq(
+		families.keys().duplicate().filter(
+			func(family: String) -> bool: return family in ["skin", "cloth", "leather", "metal", "hair"]
+		).size(),
+		5,
+		"Kalev and the armored shared-rig variant must cover all five PBR surface zones"
+	)
+	for required_family: String in ["skin", "cloth", "leather", "metal", "hair"]:
+		assert_true(
+			families.has(required_family),
+			"%s PBR family must be represented on the shared rig" % required_family
+		)
+	kalev.queue_free()
+	henning.queue_free()
+
+
 func test_anatomical_muscle_volume_responds_to_joint_bend() -> void:
 	var warrior := _instantiate(DANISH_WARRIOR_SCENE)
 	var skeleton := warrior.skeleton()
@@ -635,7 +683,10 @@ func test_anatomical_muscle_volume_responds_to_joint_bend() -> void:
 	skeleton.set_bone_pose_rotation(elbow, Quaternion(Vector3.FORWARD, deg_to_rad(90.0)))
 	muscles.call("_process_modification")
 	var contracted := skeleton.get_bone_pose_scale(upper_arm)
-	assert_true(contracted.x > 1.02 and contracted.z > 1.02, "bent arm must gain transverse muscle volume")
+	assert_true(
+		contracted.x > 1.02 and contracted.z > 1.02,
+		"bent arm must gain transverse muscle volume"
+	)
 	assert_true(contracted.y < 1.0, "bent arm muscle must shorten along the bone")
 	warrior.queue_free()
 
