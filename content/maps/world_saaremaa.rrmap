@@ -1,26 +1,270 @@
-# Saaremaa coastal campaign hub sized from the accepted outdoor mockup.
+# Saaremaa in the summer of 1343: the north coast landing and the Kaali crater.
+#
+# WHY this place exists. The Act 3 objective is Pöide Castle, which is authored as
+# its own map. This map is therefore not a second castle but the island ground the
+# rising stands on: the ferry beach that ties Ösel to Reval and Pärnu, the peasant
+# muster that walks east to Pöide, and the sacred crater that legitimises it.
+#
+# Kaali is the island's one landmark nobody else has. `docs/data/landmark_integrations.json`
+# already reserves `beat.landmark.estonia.kaali_meteorite_craters` for this map with
+# the beat "folklore links fire from the sky to omen-reading before battles"; the
+# crater rim, the lake, the enclosure bank and the offering stones are that beat's
+# authored geography. Scale is compressed: the real crater is ~110 m across, this
+# one is ~30 cells (30 m), sized for a walkable ritual bowl rather than a survey.
+#
+# Evidence bounds. `attested`: the July 1343 Ösel rising, the killing of the German
+# lords and the burning of their houses, the march on Pöide, Kaali as a prehistoric
+# and medieval cult site with a stone enclosure, and the Saaremaa alvar landscape of
+# thin soil, limestone pavement, juniper and dry-laid field walls (kiviaed).
+# `reconstructed`: the exact hamlet, camp, manor and crater layout below. Nothing
+# here claims a surveyed plan. Deliberately absent: Kuressaare/Maasilinna masonry
+# (a later or off-map castle), windmills (post-medieval on this island), and any
+# church - the Christian fabric of the island belongs to Pöide and Karja.
 rrmap 1
-map world.saaremaa loc.world_saaremaa 50 28 bog scope=prototype active=false palette=clean_painted_outdoor seed=1346 cell_size=32
+map world.saaremaa loc.world_saaremaa 104 60 meadow scope=prototype active=false palette=clean_painted_outdoor seed=1346 cell_size=32
 source "scenes/world_travel/world_saaremaa.tscn"
 source "scenes/events/saaremaa.md"
+source "docs/CANON.md"
+source "docs/data/landmark_integrations.json"
 source "docs/reports/global_map_mockups.md"
-terrain camp_road dirt 3 12 44 6 order=1
-terrain muddy_shore mud 12 18 26 5 order=2
-terrain west_camp_straw straw 6 5 10 5 order=3
-terrain coastal_shallows shallow_water 0 0 50 6 order=4
-terrain deep_channel deep_water 0 0 50 3 order=5
-exclude water_exclusion 0 0 50 6
-building west_camp house 6 6 10 5 primitive=camp wall_height=34
-building east_camp house 34 6 10 5 primitive=camp wall_height=34
-building supply_shelter house 20 19 8 4 primitive=work_shed wall_height=44
-prop central_signal barrels 25 15 primitive=signal_fire
-prop supply_cart cart 21 22 primitive=cart
-prop field_standard banner 32 14 primitive=standard
-anchor landmark_island_coast 25 15 kind=island_coast_reference
-anchor landmark_west_camp 11 11 kind=camp
-anchor landmark_east_camp 39 11 kind=camp
-spawn prototype_inspection 4 24
-patrol prototype_inspection_route 4,24|14,23|25,23|36,23|46,24
-transition ferry_to_reval 2 22 4 3 to=reval_harbor_north destination_spawn=from_world_saaremaa spawn=from_reval_harbor spawn_offset_px=0,128 highlight_area=true transition_visual=ground alignment=travel
-transition ferry_to_parnu 44 22 4 3 to=world_parnu destination_spawn=from_world_saaremaa spawn=from_world_parnu spawn_offset_px=0,128 highlight_area=true transition_visual=ground alignment=travel
-transition road_to_poide 23 22 4 3 to=world_poide destination_spawn=from_world_saaremaa spawn=from_world_poide spawn_offset_px=0,128 highlight_area=true transition_visual=ground alignment=travel
+source "docs/reports/saaremaa_kaali_location_design.md"
+# Island vernacular: low log dwellings under thatch, plank boat sheds on the dune,
+# brushwood muster shelters, and dry-laid limestone field walls barely knee high.
+style rural.smoke_cottage primitive=smoke_cottage_1343 wall_height=52 wall_color=5e5447ff wall_material=log roof_color=6f6045ff roof_material=thatch door_side=south ridge_axis=x
+style rural.barn primitive=rural_barn_1343 wall_height=56 wall_color=594d40ff wall_material=log roof_color=6a593fff roof_material=thatch door_side=south ridge_axis=x
+style coast.boat_shed primitive=work_shed wall_height=42 wall_color=5b5043ff wall_material=plank roof_color=6b5c40ff roof_material=thatch door_side=south ridge_axis=x
+style camp.shelter primitive=camp wall_height=34
+style camp.work_shed primitive=work_shed wall_height=46 wall_color=584c3fff wall_material=plank roof_color=6a5c40ff roof_material=thatch door_side=west ridge_axis=z
+# Kiviaed: dry-laid limestone field wall, low enough to step over at a gate gap.
+style wall.kiviaed wall_height=16 wall_color=8d897fff wall_material=limestone
+# The crater enclosure reads as an earth-and-stone bank, not a defensive rampart.
+style wall.rampart primitive=ditch_edge wall_height=24 wall_color=7f7a6eff
+# Roofless shells are correct here: the manor burned in the rising.
+style wall.burned wall_height=44 wall_color=4d443aff
+style grass.short
+style grass.dry
+style grass.mossy
+style bush.juniper_shrub
+style bush.coastal
+style bush.heath
+style tree.juniper
+style tree.pine
+style tree.spruce
+style tree.birch
+style tree.oak
+style reed.shore
+# ---------------------------------------------------------------- sea and shore
+# Open Baltic to the north, the ferry bay to the west, the mainland strait to the
+# east. Water is painted, then blocked below, so the map is never bounded by void.
+terrain sea.deep deep_water 0 0 104 8 order=1
+terrain sea.shallow shallow_water 0 8 104 4 order=2
+terrain bay.shallow shallow_water 0 8 20 21 order=3
+terrain bay.deep deep_water 0 10 12 14 order=4
+terrain strait.shallow shallow_water 92 30 12 14 order=3
+terrain strait.deep deep_water 98 33 6 8 order=4
+terrain shore.north_beach coast_sand 20 12 84 3 order=5
+terrain shore.bay_beach coast_sand 20 12 6 17 order=5
+terrain shore.bay_south coast_sand 0 29 26 3 order=5
+terrain shore.east_beach coast_sand 88 28 4 18 order=5
+# Sand spits and coves break the ruler-straight edge. Spits stay blocked scenery.
+terrain_rects shore.headlands coast_sand 30,9,12,3|56,10,14,2|84,9,10,3 order=6
+terrain_rects bay.bars coast_sand 12,26,6,3|4,28,8,2|15,8,5,3 order=6
+terrain_rects strait.bars coast_sand 92,28,5,3|94,44,6,2 order=6
+terrain_rects shore.coves shallow_water 46,12,8,2|72,12,10,3|36,13,5,2 order=7
+terrain_rects bay.coves shallow_water 20,16,3,4|20,26,4,2 order=7
+terrain_rects strait.coves shallow_water 88,33,4,2|88,41,4,3 order=7
+terrain shore.dunes grass 20 15 84 3 style=grass.dry order=8
+terrain_rects shore.reeds mud 26,14,8,2|64,14,10,2 style=reed.shore order=9
+# Timber landings. The ferry deck is walkable ground laid over the shallows, which
+# is what makes the two ferry doors reachable without swimming.
+terrain pier.ferry timber_floor 8 24 12 2 order=14
+terrain pier.strait timber_floor 92 36 11 2 order=14
+# ------------------------------------------------------------- island interior
+# Alvar: thin soil over limestone, dry grass, juniper and bare pavement patches.
+terrain alvar.north grass 26 21 60 10 style=grass.dry order=8
+terrain alvar.pasture grass 20 32 17 13 style=grass.short order=8
+terrain alvar.south grass 30 44 24 7 style=bush.heath order=8
+terrain alvar.east grass 74 20 13 10 style=grass.dry order=8
+terrain_rects alvar.pavement stone 30,26,7,3|52,23,6,3|24,38,5,3|46,46,8,3|78,22,7,3 order=9
+# Erratic boulders left on the limestone are the other half of the alvar look.
+terrain_rects alvar.boulders stone 84,20,3,2|70,22,3,2|84,46,4,3|33,21,4,2 order=9
+terrain wood.south forest_floor 0 51 104 9 style=tree.pine order=6
+terrain wood.west forest_floor 0 32 12 19 style=tree.spruce order=7
+terrain wood.east forest_floor 92 44 12 7 style=tree.spruce order=7
+# --------------------------------------------------------------- Kaali crater
+# Concentric bands do the work an engine bowl cannot: a wooded outer rim, bare mud
+# inner slope, then the ring of shallows around the standing water. Octagons are
+# three overlapping rects each, all centred on cell (70, 37). The pine rim is what
+# makes the crater legible from above; against plain grass the bowl disappeared.
+terrain_rects kaali.outer_slope forest_floor 57,25,27,25|54,30,33,15|55,27,31,21 style=tree.pine order=10
+terrain_rects kaali.inner_slope mud 61,29,19,17|59,32,23,11|60,31,21,13 order=11
+terrain_rects kaali.shallow shallow_water 64,33,13,9|62,35,17,5|63,34,15,7 order=12
+terrain_rects kaali.lake deep_water 66,34,9,7|64,36,13,3|65,35,11,5 order=13
+# ----------------------------------------------------------------------- roads
+# Island tracks follow the dry ground, so every run is stepped rather than ruled.
+# RRMap strokes are strictly orthogonal; the jogs are the authored substitute for
+# a curve, and each segment still overlaps its neighbour so the graph stays joined.
+stroke road.coast dirt 20,19|34,19|34,17|52,17|52,20|70,20|70,18|92,18 thickness=3 order=15
+# The strait road stays straight: it runs the dry limestone bench between the
+# crater bank and the shore, and jogging it would put dirt on the tideline.
+stroke road.east dirt 88,18|88,56 thickness=3 order=15
+stroke road.camp dirt 41,20|41,28|38,28|38,40 thickness=3 order=15
+# The manor track leaves the pasture through the one gap in the kiviaed wall.
+stroke road.manor dirt 16,34|28,34|28,36|40,36 thickness=3 order=15
+stroke road.manor_yard dirt 16,36|16,41 thickness=2 order=15
+# The processional path enters the crater through the single gap in the bank.
+stroke road.kaali dirt 68,20|68,30 thickness=3 order=15
+# ------------------------------------------------------- ferry beach and hamlet
+building boat_shed_west house 28 15 5 3 style=coast.boat_shed
+building boat_shed_east house 38 15 5 3 style=coast.boat_shed
+building fisher_cottage_west house 24 22 7 4 style=rural.smoke_cottage
+building fisher_cottage_east house 34 22 7 4 style=rural.smoke_cottage
+building fisher_barn house 32 28 8 4 style=rural.barn
+building net_store house 24 28 5 3 style=coast.boat_shed
+prop hauled_boat_west fishing_boat 22 12 rect=2,3
+prop hauled_boat_east fishing_boat 46 15 rect=2,3
+prop moored_boat_ferry fishing_boat 10 26 rect=2,3
+prop hamlet_nets fishing_nets 30 20
+prop hamlet_drying_rack fish_drying_rack 34 20
+prop hamlet_smoke_rack smoke_rack 44 16
+prop hamlet_splitting_table fish_splitting_table 26 20
+prop hamlet_boat_timber boat_timber_stack 20 16
+prop hamlet_rope_coil rope_coil 18 26
+prop hamlet_salt_pile salt_pile 27 26
+prop hamlet_well well 31 26
+prop hamlet_garden_west kitchen_garden 22 26 rect=2,1
+prop hamlet_garden_east kitchen_garden 42 26 rect=2,1
+prop hamlet_firewood firewood_stack 41 29
+prop hamlet_cart farm_cart 46 22 rect=2,2
+prop shore.juniper_west tree 21 17 style=tree.juniper
+prop shore.juniper_east tree 50 17 style=tree.juniper
+prop shore.scrub_west bush 24 16 rect=2,2 style=bush.coastal
+prop shore.scrub_east bush 56 16 rect=3,2 style=bush.coastal
+# --------------------------------------------------------------- alvar pasture
+# Kiviaed field walls with gate gaps where the manor road passes through.
+wall kiviaed_pasture_north 20 32 37 32 thickness=1 kind=wall style=wall.kiviaed
+wall kiviaed_pasture_east 37 32 37 45 thickness=1 kind=wall style=wall.kiviaed openings=37,36,1,3
+wall kiviaed_pasture_south 20 45 37 45 thickness=1 kind=wall style=wall.kiviaed
+wall kiviaed_north_close 26 24 26 31 thickness=1 kind=wall style=wall.kiviaed
+wall kiviaed_north_close_head 26 24 38 24 thickness=1 kind=wall style=wall.kiviaed
+prop pasture_sheep_a sheep 24 40 rect=2,2
+prop pasture_sheep_b sheep 28 42 rect=2,2
+prop pasture_sheep_c sheep 32 39 rect=2,2
+prop pasture_cattle cattle 22 34 rect=2,2
+prop pasture_hay hay_stack 34 42 rect=2,2 primitive=hay_stack
+prop alvar_juniper_west tree 20 30 style=tree.juniper
+prop alvar_juniper_mid tree 48 26 style=tree.juniper
+prop alvar_juniper_east tree 82 26 style=tree.juniper
+prop alvar_scrub_a bush 50 30 rect=2,2 style=bush.juniper_shrub
+prop alvar_scrub_b bush 76 27 rect=2,2 style=bush.juniper_shrub
+prop alvar_scrub_c bush 30 34 rect=2,2 style=bush.heath
+# ------------------------------------------------------------- the muster camp
+# Brushwood shelters, a field forge, and the banner the island fights under. This
+# is the staging ground the player leaves from when the road to Pöide opens.
+building camp_shelter_north house 44 32 8 4 style=camp.shelter
+building camp_shelter_south house 44 40 8 4 style=camp.shelter
+building camp_shelter_east house 54 36 6 4 style=camp.shelter
+building camp_field_forge house 44 46 7 4 style=camp.work_shed
+prop camp_signal_fire barrels 50 30 primitive=signal_fire
+prop camp_standard banner 48 34 faction=cult_metsik facing=east
+prop camp_weapon_rack weapon_rack 52 42
+prop camp_iron_scrap iron_scrap_pile 48 46
+prop camp_charcoal charcoal_pile 52 47
+prop camp_cart cart 40 44 rect=2,2
+prop camp_horse horse 38 40 rect=2,2
+prop camp_firewood firewood_stack 46 44
+prop camp_barrels barrels 42 38
+prop camp_hay hay_stack 56 42 rect=2,2 primitive=hay_stack
+# ------------------------------------------------------- the burnt manor of Ösel
+# July 1343: the island killed its German lords and fired their houses. The site is
+# roofless shells over an ash field, kept as consequence rather than spectacle.
+terrain manor.ash ash 8 40 20 10 order=10
+building burned_manor_hall wall 12 42 11 5 style=wall.burned
+building burned_manor_store wall 12 48 7 2 style=wall.burned
+building burned_manor_byre wall 22 47 5 3 style=wall.burned
+prop manor_burnt_cart cart 20 40 rect=2,2
+prop manor_charcoal charcoal_pile 16 47
+prop manor_barrels barrels 24 42
+prop manor_root_cellar root_cellar_mound 9 44 rect=2,1
+prop manor_birch tree 26 44 style=tree.birch
+prop manor_scrub bush 8 38 rect=2,2 style=bush.heath
+# -------------------------------------------------------- Kaali sacred crater
+# The bank encloses the bowl with one gap on the north, so the approach is a gate,
+# not a shortcut. Segments are low earth-and-stone, never a defensive circuit.
+building kaali_bank_north_west wall 58 24 10 1 style=wall.rampart
+building kaali_bank_north_east wall 72 24 8 1 style=wall.rampart
+building kaali_bank_west wall 53 30 1 15 style=wall.rampart
+building kaali_bank_east wall 86 30 1 15 style=wall.rampart
+building kaali_bank_south wall 58 50 22 1 style=wall.rampart
+prop kaali_offering_stone barrels 70 32 primitive=offering_stone
+prop kaali_idol_west barrels 62 36 primitive=offering_stone
+prop kaali_idol_east barrels 79 38 primitive=offering_stone
+prop kaali_ritual_fire barrels 74 31 primitive=signal_fire
+prop kaali_ancient_oak tree 64 28 primitive=ancient_tree
+prop kaali_standard banner 67 31 faction=cult_metsik facing=east
+prop kaali_rim_juniper_north tree 66 26 style=tree.juniper
+prop kaali_rim_juniper_west tree 57 34 style=tree.juniper
+prop kaali_rim_juniper_east tree 83 33 style=tree.juniper
+prop kaali_rim_juniper_south tree 71 47 style=tree.juniper
+prop kaali_rim_scrub_west bush 56 42 rect=2,2 style=bush.juniper_shrub
+prop kaali_rim_scrub_east bush 82 42 rect=2,2 style=bush.juniper_shrub
+prop kaali_rim_pine_a tree 60 47 style=tree.pine
+prop kaali_rim_pine_b tree 80 26 style=tree.pine
+prop kaali_shore_barrels barrels 76 41
+# ------------------------------------------------------------ eastern approach
+# The east alvar is grazed common between the crater rim and the strait road; the
+# fold and its flock are what keep that quarter from reading as empty ground.
+building alvar_sheep_fold house 81 21 5 3 style=rural.barn
+prop alvar_fold_sheep_a sheep 78 22 rect=2,2
+prop alvar_fold_sheep_b sheep 86 24 rect=2,2
+prop alvar_fold_fence pasture_fence 78 25 rect=3,1
+prop alvar_east_juniper_a tree 87 22 style=tree.juniper
+prop alvar_east_juniper_b tree 74 22 style=tree.juniper
+prop alvar_east_scrub bush 84 25 rect=2,2 style=bush.juniper_shrub
+prop strait_boat fishing_boat 94 39 rect=2,3
+prop strait_nets fishing_nets 90 34
+prop strait_crates cargo_crates 90 40 rect=2,2
+prop east_road_oak tree 86 20 style=tree.oak
+prop south_road_spruce tree 92 50 style=tree.spruce
+# ------------------------------------------------------------------- interaction
+anchor landmark_island_coast 22 25 kind=island_coast_reference
+anchor landmark_ferry_landing 20 25 kind=ford
+anchor landmark_fisher_hamlet 32 25 kind=work_yard
+anchor landmark_muster_camp 48 38 kind=camp
+anchor landmark_burned_manor 18 47 kind=burned_buildings
+anchor landmark_kaali_crater 69 27 kind=offering_stone
+anchor landmark_kaali_lake 70 31 kind=spring
+anchor landmark_strait_landing 90 37 kind=ford
+spawn prototype_inspection 24 19
+patrol prototype_inspection_route 24,19|42,19|68,19|88,19|88,37|88,50|68,26|48,38|24,19
+sign sign.ferry "ferry to reval" 21 21 west
+sign sign.kaali "to the crater" 69 21 south
+sign sign.poide "road to poide" 87 45 east
+transition ferry_to_reval 8 24 4 2 to=reval_harbor_north destination_spawn=from_world_saaremaa spawn=from_reval_harbor spawn_offset_px=128,0 highlight_area=true transition_visual=ground alignment=travel
+transition ferry_to_parnu 99 36 4 2 to=world_parnu destination_spawn=from_world_saaremaa spawn=from_world_parnu spawn_offset_px=-128,0 highlight_area=true transition_visual=ground alignment=travel
+transition road_to_poide 87 56 4 4 to=world_poide destination_spawn=from_world_saaremaa spawn=from_world_poide spawn_offset_px=0,-128 highlight_area=true transition_visual=ground alignment=travel
+# Water and dense wood are scenery, not walkable ground. The pier decks are cut out
+# of the bay and strait exclusions so both ferry doors stay reachable on foot.
+exclude blocked.sea_north 0 0 104 12
+exclude blocked.cove_west 36 12 5 3
+exclude blocked.cove_mid 46 12 8 2
+exclude blocked.cove_east 72 12 10 3
+exclude blocked.bay_upper 0 12 20 12
+exclude blocked.bay_pier_west 0 24 8 2
+exclude blocked.bay_lower 0 26 20 3
+exclude blocked.bay_cove_north 20 16 3 4
+exclude blocked.bay_cove_south 20 26 4 2
+exclude blocked.strait_north 92 30 12 6
+exclude blocked.strait_tip 103 36 1 2
+exclude blocked.strait_south 92 38 12 6
+exclude blocked.strait_cove_north 88 33 4 2
+exclude blocked.strait_cove_south 88 41 4 3
+exclude blocked.kaali_water_a 64 33 13 9
+exclude blocked.kaali_water_b 62 35 17 5
+exclude blocked.kaali_water_c 63 34 15 7
+exclude blocked.wood_west 0 32 12 19
+exclude blocked.wood_east 92 44 12 7
+exclude blocked.wood_south 0 51 87 9
+exclude blocked.wood_south_east 91 51 13 9
+camera 0 0 104 60
+surroundings north water east water south woodland west water

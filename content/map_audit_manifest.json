@@ -575,8 +575,8 @@
       "capture": "world_saaremaa.png",
       "mandatory_anchors": [
         "landmark_island_coast",
-        "landmark_west_camp",
-        "landmark_east_camp"
+        "landmark_kaali_crater",
+        "landmark_muster_camp"
       ],
       "mandatory_transitions": [
         "ferry_to_reval",

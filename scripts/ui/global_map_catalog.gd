@@ -63,7 +63,7 @@ const LOCATIONS: Dictionary = {
 		"gate_spawn_id": &"from_world_saaremaa",
 		"arrival_spawn_id": &"from_reval_harbor",
 		"neighbors": [REVAL_HUB_ID, &"world_parnu", &"world_poide"],
-		"blurb": "Island campaign hub reached by coastal ferry",
+		"blurb": "Kaali crater coast, rebel muster and ferries to Reval and Pärnu",
 	},
 	&"world_rebel_kings":
 	{
