@@ -136,7 +136,9 @@ def build_skeleton(seed: int) -> tuple[list[Branch], list[Vector], list[tuple[Ve
         )
         branches.append(primary)
         if is_broken:
-            broken_caps.append((primary.points[-1], (primary.points[-1] - primary.points[-2]).normalized(), primary.radii[-1] * 1.08))
+            # Keep the torn face inside the bough silhouette; an oversized cap
+            # overhung the tube and read as a lid stuck on the branch.
+            broken_caps.append((primary.points[-1], (primary.points[-1] - primary.points[-2]).normalized(), primary.radii[-1] * 0.97))
             continue
 
         for secondary_index, secondary_t in enumerate((0.38, 0.58, 0.75, 0.89)):
@@ -358,6 +360,7 @@ def _add_disc_mesh(
     centers: list[tuple[Vector, Vector, float]],
     material: bpy.types.Material,
     radial_segments: int,
+    splintered: bool = False,
 ) -> bpy.types.Object:
     vertices: list[tuple[float, float, float]] = []
     faces: list[tuple[int, ...]] = []
@@ -371,7 +374,14 @@ def _add_disc_mesh(
         for index in range(radial_segments):
             angle = index * math.tau / radial_segments
             irregular = 1.0 + 0.10 * math.sin(angle * 3.0 + center.x * 0.7)
-            vertices.append(tuple(center + normal * 0.015 + (side * math.cos(angle) + up * math.sin(angle)) * radius * irregular))
+            lift = 0.015
+            if splintered:
+                # A storm-snapped bough tears along the grain, so the rim rises in
+                # uneven splinters instead of the flat face that read as a saw cut.
+                tear = 0.5 + 0.5 * math.sin(angle * 3.0 + center.z * 0.9) * math.cos(angle * 5.0 + center.y * 1.4)
+                irregular += 0.12 * math.sin(angle * 5.0 + center.y * 1.1)
+                lift += radius * (0.04 + 0.40 * tear**2)
+            vertices.append(tuple(center + normal * lift + (side * math.cos(angle) + up * math.sin(angle)) * radius * irregular))
             uvs.append((0.5 + math.cos(angle) * 0.5, 0.5 + math.sin(angle) * 0.5))
         for index in range(radial_segments):
             nxt = (index + 1) % radial_segments
@@ -397,7 +407,7 @@ def build_details(
 ) -> list[bpy.types.Object]:
     objects: list[bpy.types.Object] = []
     if broken_caps:
-        objects.append(_add_disc_mesh("AncientOakBrokenHeartwood", broken_caps, heartwood, 12))
+        objects.append(_add_disc_mesh("AncientOakBrokenHeartwood", broken_caps, heartwood, 16, splintered=True))
 
     # The dark inset sits slightly above the west face. Its uneven rim and low
     # placement make it read as a weathered cavity from the grove path.

@@ -102,6 +102,27 @@ def _create_leaf_image() -> bpy.types.Image:
     return _image_from_array("ancient_oak_leaf_albedo", rgb_linear)
 
 
+def _create_heartwood_image() -> bpy.types.Image:
+    """Bake growth rings and torn fibres for the face of the snapped bough."""
+    size = 256
+    yy, xx = np.mgrid[0:size, 0:size].astype(np.float32)
+    u = xx / float(size) - 0.5
+    v = yy / float(size) - 0.5
+    # The disc UVs are radial, so polar coordinates land the rings concentrically
+    # around the break instead of smearing a square texture across it.
+    radius = np.sqrt(u * u + v * v) * 2.0
+    theta = np.arctan2(v, u)
+    rings = 0.5 + 0.5 * np.sin(radius * 47.0 + 0.7 * np.sin(theta * 3.0))
+    fibres = 0.5 + 0.5 * np.sin(theta * 41.0 + radius * 7.0)
+    value = 0.58 + 0.26 * rings + 0.16 * fibres
+    # Decayed heart: the centre of an old break is darker than the sapwood ring.
+    value *= 0.52 + 0.48 * np.clip(radius / 0.38, 0.0, 1.0)
+    base = np.array([0.295, 0.210, 0.140], dtype=np.float32)
+    rgb_srgb = np.clip(base[None, None, :] * value[:, :, None], 0.0, 1.0)
+    rgb_linear = np.vectorize(_srgb_to_linear)(rgb_srgb).astype(np.float32)
+    return _image_from_array("ancient_oak_heartwood_albedo", rgb_linear)
+
+
 def create_materials(seed: int) -> dict[str, bpy.types.Material]:
     bark_albedo, bark_normal = _create_bark_images(seed)
     leaf_albedo = _create_leaf_image()
@@ -144,11 +165,34 @@ def create_materials(seed: int) -> dict[str, bpy.types.Material]:
     leaf_texture.extension = "CLIP"
     leaf_links.new(leaf_texture.outputs["Color"], leaf_principled.inputs["Base Color"])
 
-    heartwood = bpy.data.materials.new("Weathered heartwood")
-    heartwood.diffuse_color = tuple(_srgb_to_linear(value) for value in (0.38, 0.20, 0.075)) + (1.0,)
-    heartwood.roughness = 0.88
+    # Viewport diffuse_color alone is ignored by the glTF exporter: a node-less
+    # material lands in the GLB as the default light grey, which made the snapped
+    # bough and the hollow read as bright white cuts in game.
+    # An old snapped bough greys off; a fresh sawmill orange would pull the eye
+    # away from the bark and the crown.
+    heartwood = _flat_material("Weathered heartwood", (0.225, 0.155, 0.105), 0.95)
+    heartwood_nodes = heartwood.node_tree.nodes
+    heartwood_texture = heartwood_nodes.new("ShaderNodeTexImage")
+    heartwood_texture.name = "EmbeddedHeartwoodAlbedo"
+    heartwood_texture.image = _create_heartwood_image()
+    heartwood_texture.extension = "CLIP"
+    heartwood.node_tree.links.new(
+        heartwood_texture.outputs["Color"], heartwood_nodes.get("Principled BSDF").inputs["Base Color"]
+    )
 
-    hollow = bpy.data.materials.new("Deep hollow")
-    hollow.diffuse_color = tuple(_srgb_to_linear(value) for value in (0.035, 0.020, 0.012)) + (1.0,)
-    hollow.roughness = 1.0
+    hollow = _flat_material("Deep hollow", (0.035, 0.020, 0.012), 1.0)
     return {"bark": bark, "leaf": leaf, "heartwood": heartwood, "hollow": hollow}
+
+
+def _flat_material(name: str, srgb: tuple[float, float, float], roughness: float) -> bpy.types.Material:
+    """Untextured Principled material that survives the glTF material export."""
+    linear = tuple(_srgb_to_linear(value) for value in srgb)
+    material = bpy.data.materials.new(name)
+    material.use_nodes = True
+    material.diffuse_color = linear + (1.0,)
+    material.roughness = roughness
+    principled = material.node_tree.nodes.get("Principled BSDF")
+    principled.inputs["Base Color"].default_value = linear + (1.0,)
+    principled.inputs["Roughness"].default_value = roughness
+    principled.inputs["Metallic"].default_value = 0.0
+    return material

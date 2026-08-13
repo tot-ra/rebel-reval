@@ -2,7 +2,7 @@
   "asset_id": "prop.sacred_grove_ancient_oak",
   "blender_version": "Blender 5.2 LTS",
   "branch_paths": 182,
-  "cache_key": "b74ce4b8f4b9a2fbd7de4a935d1a1251ec56f6aa133915bc3a48139807c3936b",
+  "cache_key": "08e31a4ad90e2f52de77d5ab1c4953a2cf35f7d5f98f7fb0022e8812aebf4a26",
   "checks": {
     "embedded_albedo_and_bark_normal": true,
     "floating_geometry": true,
@@ -19,7 +19,7 @@
     26.4959,
     20.815
   ],
-  "faces": 54851,
+  "faces": 54855,
   "floating_objects": 0,
   "generator": "tools/generate_sacred_grove_ancient_oak.py",
   "generator_version": "sacred_grove_ancient_oak_v1",
@@ -28,12 +28,11 @@
   "leaf_count": 3793,
   "materials": 4,
   "mesh_objects": 4,
-  "preview": "generated/blender/sacred_grove_ancient_oak_v1/preview.png",
   "root_buttresses": 11,
   "route": "deterministic_blender",
   "seed": 1343,
-  "sha256": "cf9b580f18819cbc8fc8a2732c9cf3ab72045dc504b920e52059bb6e98df9dd8",
-  "triangles": 63887,
+  "sha256": "f55fd2f54ff63fabfe838ae70f1b6cd5a03f380db25faef48f619979f218a9b6",
+  "triangles": 63891,
   "uv_sets": 1,
-  "vertices": 59722
+  "vertices": 59726
 }

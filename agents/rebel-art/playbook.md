@@ -67,3 +67,5 @@ This file contains lessons specific to the Art role.
 - Quantise hair fibre noise by azimuth around the skull, not by world axes; world-axis quantisation produces horizontal terracing bands on a head shell.
 
 - Character realism tasking after a visual review should land as a backlog (`docs/CHARACTER_REALISM_BACKLOG.md`) plus report, not as ad-hoc TODO prose; keep ADR 0016 caps and P0-183 byte budgets as hard gates beside material upgrades.
+- A Blender material created via `bpy.data.materials.new()` has `use_nodes = False`, so `diffuse_color`/`roughness` are viewport-only: the glTF exporter drops them and writes the default light grey `baseColorFactor` of 0.8. This shipped the Sacred Grove oak's snapped bough and hollow as white patches. Untextured materials still need `use_nodes = True` and a Principled BSDF; verify by dumping the GLB JSON chunk material list, not by looking at Blender's viewport.
+- A flat fan disc capping a broken bough reads as a saw cut. Lift the rim in uneven splinters, keep the cap radius inside the branch silhouette, and give it a radial growth-ring texture so it sits in the same value range as the bark.
