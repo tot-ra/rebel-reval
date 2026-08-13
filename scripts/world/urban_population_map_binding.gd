@@ -105,6 +105,7 @@ static func build_lookup(definition: MapDefinition, grid: MapTerrainGrid = null)
 			var anchor_position: Vector2 = anchor.get("position", Vector2.ZERO)
 			anchors_by_id[anchor_id] = {
 				"anchor_id": anchor_id,
+				"anchor_kind": StringName(anchor.get("kind", &"")),
 				"anchor_position": anchor_position,
 			}
 	for cluster: Dictionary in clusters:

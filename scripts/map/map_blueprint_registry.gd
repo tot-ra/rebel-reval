@@ -63,6 +63,12 @@ static func entries() -> Array[Dictionary]:
 				&"brewery_door",
 				&"checkpoint_west",
 				&"checkpoint_east",
+				&"workers_yard",
+				&"carriers_lane",
+				&"merchants_market",
+				&"customers_street",
+				&"watch_west_checkpoint",
+				&"watch_east_checkpoint",
 			],
 		},
 		{

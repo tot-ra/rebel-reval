@@ -311,9 +311,23 @@ func test_lower_town_binding_snapshot_and_profile_records_are_complete() -> void
 		UrbanPopulationMapBinding.CLUSTER_WATCH,
 	]:
 		assert_true((lookup["clusters_by_id"] as Dictionary).has(cluster_id))
-	for anchor_id: StringName in [&"workers_yard", &"merchants_market", &"watch_east_checkpoint"]:
+	var expected_activity_anchors := {
+		&"workers_yard": &"workers_yard",
+		&"carriers_lane": &"carriers_lane",
+		&"merchants_market": &"merchants_market",
+		&"customers_street": &"customers_street",
+		&"watch_west_checkpoint": &"watch_checkpoint",
+		&"watch_east_checkpoint": &"watch_checkpoint",
+	}
+	for anchor_id: StringName in expected_activity_anchors:
+		assert_true((lookup["anchors_by_id"] as Dictionary).has(anchor_id))
+		var authored_anchor: Dictionary = definition.interaction_anchors.filter(
+			func(candidate: Dictionary) -> bool: return candidate.get("id", &"") == anchor_id
+		)[0]
 		var anchor_record: Dictionary = lookup["anchors_by_id"][anchor_id]
+		assert_eq(authored_anchor.get("kind", &""), expected_activity_anchors[anchor_id])
 		assert_eq(anchor_record["anchor_id"], anchor_id)
+		assert_eq(anchor_record["anchor_kind"], expected_activity_anchors[anchor_id])
 		assert_eq(anchor_record["anchor_position"], MapVerification.anchor_position(definition, anchor_id))
 		assert_true(MapVerification.is_walkable_point(definition, grid, anchor_record["anchor_position"]))
 
