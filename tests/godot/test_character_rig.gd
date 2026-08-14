@@ -574,6 +574,15 @@ func test_shared_rig_distance_lods_mount_with_visibility_ranges() -> void:
 				GeometryInstance3D.VISIBILITY_RANGE_FADE_DISABLED,
 				"LOD fade must stay disabled on GL Compatibility to avoid bright double-draws"
 			)
+			match lod_level:
+				1:
+					assert_eq(lod_mesh.visibility_range_begin, SharedCharacterRig.LOD1_VISIBILITY_BEGIN)
+					assert_eq(lod_mesh.visibility_range_begin_margin, SharedCharacterRig.LOD1_VISIBILITY_MARGIN)
+					assert_eq(lod_mesh.visibility_range_end, SharedCharacterRig.LOD1_VISIBILITY_END)
+					assert_eq(lod_mesh.visibility_range_end_margin, SharedCharacterRig.LOD1_VISIBILITY_MARGIN)
+				2:
+					assert_eq(lod_mesh.visibility_range_begin, SharedCharacterRig.LOD2_VISIBILITY_BEGIN)
+					assert_eq(lod_mesh.visibility_range_begin_margin, SharedCharacterRig.LOD1_VISIBILITY_MARGIN)
 			for surface_index: int in lod_mesh.mesh.get_surface_count():
 				var surface_material := lod_mesh.mesh.surface_get_material(surface_index)
 				assert_true(
@@ -591,6 +600,11 @@ func test_shared_rig_distance_lods_mount_with_visibility_ranges() -> void:
 		"LOD0 fade must stay disabled on GL Compatibility"
 	)
 	assert_eq(lod0_sample.visibility_range_end, SharedCharacterRig.LOD0_VISIBILITY_END)
+	assert_eq(
+		lod0_sample.visibility_range_end_margin,
+		SharedCharacterRig.LOD0_VISIBILITY_MARGIN,
+		"LOD0 end margin must preserve the one-unit hysteresis contract"
+	)
 	assert_eq(
 		SharedCharacterRig.LOD0_VISIBILITY_END,
 		SharedCharacterRig.LOD1_VISIBILITY_BEGIN,
