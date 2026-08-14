@@ -135,3 +135,4 @@ This file contains only cross-role operating lessons. Domain lessons belong to t
 - For provenance reconciliation in a shared dirty worktree, verify the runtime file hash against its `HEAD` blob and validate a clean `HEAD` snapshot plus only the candidate manifest row before creating a scoped commit.
 - When preparing a temporary Git index, capture candidate rows before exporting `GIT_INDEX_FILE`; otherwise `git show :path` reads the temporary `HEAD` index and hides the dirty candidate.
 - When a tracked manifest mixes line endings, build a scoped commit blob from the parent bytes and insert the new row with the local line ending; text-mode rewrites can turn a one-line provenance fix into a whole-file diff.
+- When using shell variables inside a quoted loop payload, expand the URL before invoking `curl`; a literal `$base` produces `Bad hostname` and must not be recorded as an archive access result.
