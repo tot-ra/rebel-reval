@@ -71,3 +71,4 @@ This file contains lessons specific to the Researcher role.
 - When a continuation summary names a dossier path, verify it against the live repository before editing; if an index row must be added beside a similar recheck, restore the neighbouring row and insert a new line rather than replacing it.
 - When using the local task-board API as a fallback, normalize the response as either a top-level list or an object containing `tasks` before filtering; do not treat a valid list response as a failed board request.
 - A dossier health-check must read the complete file before reporting a missing section; distinguish canonical headings from legacy semantic variants, and report the latter as maintenance drift rather than a production evidence failure.
+- After inserting a dated access recheck, run scoped `git diff --check` and re-read the saved Markdown blocks before staging; an extra blank line or trailing table-cell space can make an otherwise valid evidence patch fail.
