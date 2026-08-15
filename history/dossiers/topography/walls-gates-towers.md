@@ -5,6 +5,7 @@ status: partial
 consumers: [map, art, quest, dev]
 related:
   - ../topography/lower-town-street-plan.md
+  - ../topography/karja-gate-leaf-state-1343.md
   - ../architecture/burgher-house-plan.md
   - ./harbour-and-shoreline.md
   - ../military/watch-duty-and-town-defence.md
