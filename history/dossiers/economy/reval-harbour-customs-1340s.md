@@ -131,6 +131,19 @@ A fresh unauthenticated `curl -L` probe reproduced the same zero-folio boundary.
 | DGS permalink | HTTP 200 `text/html; charset=UTF-8`, 44,999 bytes after six redirects; final page is VAU login and names the protected TIFF target | Authentication boundary; no image or OCR evidence [11] |
 | Authenticated folio review | No lawful authenticated session or provenance-preserving archive export available | Zero folios; no responsible harbour-term hit or no-hit |
 
+
+### Access recheck (2026-08-15, 18:02 UTC)
+
+A fresh unauthenticated endpoint probe again reproduced the same zero-folio boundary. The official AIS unit page returned HTTP 200 `text/html; charset=UTF-8`, 95,915 bytes, with zero redirects; the `TLA.230.1.Aa2` catalogue and 26 anonymous gallery markers were present. The official DGS permalink returned HTTP 200 after six redirects and ended at VAU login; the redirect chain exposed protected target `tla0230_001_0000aa2_00001_x.tif`. No authenticated image, OCR, or archive-supplied transcription was available, so zero Denkelbuch folios were inspected and no folio/page identifier, original wording, dated entry, harbour rate, crane fee, or collector name was recovered [12].
+
+This remains an `environment` access blocker, not a manuscript hit or no-hit. Keep `harbour_landing_due: null`, `harbour_crane_fee: null`, and dossier status `partial` until `R-502` enables lawful authenticated VAU/DGS access or the archive supplies a provenance-preserving scan/transcription covering the 1340-1343 folios with identifiers and original wording [12].
+
+| Probe | Observed result | Evidence boundary |
+|---|---|---|
+| AIS unit page | HTTP 200 `text/html; charset=UTF-8`, 95,915 bytes, zero redirects; catalogue plus 26 anonymous gallery markers | Catalogue/preview metadata only; no folio text [12] |
+| DGS permalink | HTTP 200 after six redirects; final page is VAU login and names the protected TIFF target | Authentication boundary; no image or OCR evidence [12] |
+| Authenticated folio review | No lawful authenticated session or provenance-preserving archive export available | Zero folios; no responsible harbour-term hit or no-hit [12] |
+
 | Evidence item | Result | Confidence |
 |---|---|---|
 | TLA Pärgamendid title queries, 16 terms listed above | No catalogue-title result under the stated TLA and 1340-1343 parameters | bounded catalogue negative; not folio evidence [7] |
@@ -184,3 +197,4 @@ No licensed visual evidence was found for a dated **1340–1343 Reval fee line**
 9. Rahvusarhiiv, **AIS/DGS direct access recheck**, `TLA.230.1.Aa2` (2026-08-13 13:02 UTC): AIS returned HTTP 200 `text/html` without redirect; DGS returned HTTP 200 `text/html` after six redirects and ended at VAU login while exposing protected TIFF target `tla0230_001_0000aa2_00001_x.tif`. No authenticated image or folio text was accessed; zero folios inspected. Existing authorized-access handoff: `R-462`; access enablement: `R-502`.
 10. Rahvusarhiiv, **AIS/DGS direct access recheck**, `TLA.230.1.Aa2` (2026-08-15 09:03 UTC): AIS returned HTTP 200 `text/html; charset=UTF-8`, 95,915 bytes, with zero redirects and 26 anonymous gallery markers; DGS returned HTTP 200 `text/html; charset=UTF-8`, 44,999 bytes, after six redirects to VAU login while exposing protected TIFF target `tla0230_001_0000aa2_00001_x.tif`. No authenticated image, OCR, or folio text was accessed; zero folios inspected. Clearing dependency: `R-502`.
 11. Rahvusarhiiv, **AIS/DGS direct access recheck**, `TLA.230.1.Aa2` (2026-08-15 12:02 UTC): fresh unauthenticated `curl -L` requests returned the same HTML catalogue/login boundary - AIS HTTP 200 with 26 anonymous gallery markers and DGS HTTP 200 after six redirects to VAU login, exposing the protected TIFF target `tla0230_001_0000aa2_00001_x.tif`. No authenticated image, OCR, or folio text was accessed; zero folios inspected. Clearing dependency: `R-502`.
+12. Rahvusarhiiv, **AIS/DGS direct access recheck**, `TLA.230.1.Aa2` (2026-08-15 18:02 UTC): AIS returned HTTP 200 `text/html; charset=UTF-8`, 95,915 bytes, with zero redirects and 26 anonymous gallery markers; DGS returned HTTP 200 after six redirects to VAU login while exposing protected TIFF target `tla0230_001_0000aa2_00001_x.tif`. No authenticated image, OCR, or folio text was accessed; zero folios inspected. Clearing dependency: `R-502`.
