@@ -1,120 +1,128 @@
 # Lower Town P0-101 Acceptance Gate
 
-**Task:** R-493 / P0-101h
+**Task:** R-538 - Verify and close Lower Town P0-101 acceptance
 **Parent:** R-108 / P0-101
 **Map:** `lower_town_slice` / Workers' District
-**Verification date:** 2026-08-12
-**Snapshot:** `30161e0de2016ac228814620487a525a53c783ff`
-**Worktree:** shared worktree contains unrelated modified and untracked WIP; this report does not treat those changes as evidence.
-**Decision:** **BLOCKED - do not close R-108 or promote the Lower Town architecture and landmark pass to accepted.**
+**Verification date:** 2026-08-17
+**Snapshot:** `54b7e163c021a6b3b6e46028e930fcbe46e79919`
+**Worktree:** shared worktree contains unrelated modified and untracked WIP. This report uses only the scoped commands and existing named evidence; unrelated WIP is not acceptance evidence.
+**Decision:** **BLOCKED - do not close R-108 or promote P0-101 to accepted.**
 
 ## Scope and method
 
-This is the final P0-101 verification-only gate requested by R-493. It checks the acceptance clauses against the current authored source, task-board handoffs, focused map contracts, existing evidence reports, and the available capture/review records. It does not author new art, change map geometry, change runtime behavior, waive missing evidence, or reinterpret supplementary images as gameplay acceptance.
+This is the R-538 final closeout ledger. It reconciles the seven R-108 acceptance clauses with the current task board, authored Lower Town source, linked R-487-R-492 reports, the decomposition blockers R-560-R-564, and reproducible focused checks. It does not author art, change map geometry, change runtime behavior, change budgets, waive missing captures, or reinterpret supplementary images as gameplay acceptance.
 
-The report distinguishes source/contract evidence from visual and human-review evidence. A passing focused test proves the tested contract only; it does not prove gameplay-scale material readability, landmark silhouette quality, or historical/art approval.
+The report separates source and contract evidence from gameplay-scale visual evidence, human review, clean-checkout load evidence, and hardware measurements. A passing headless contract test proves only the contract covered by that test.
 
-## Task-board handoff state
+## Task-board and handoff state
 
 | Handoff | Current status | Acceptance impact |
 |---|---|---|
-| R-486 / P0-101a inventory | `done` | Source inventory and renderer-boundary evidence are available. |
-| R-213 / P2-067 tier wiring | `done` | Current map has authored `house_tier` values and focused tier coverage. |
-| R-487 / P0-101b ordinary frontage and wear | `todo` | Ordinary variation, roof/material readability, and worn/repaired detail handoff is incomplete. |
-| R-488 / P0-101c exceptional landmarks | `todo` | Required exceptional implementation handoff is incomplete. |
-| R-489 / P0-101d route integration | `todo` | Playable-route art integration handoff is incomplete. |
-| R-490 / P0-101e runtime/route/occlusion/budget QA | `in_progress` | Final runtime and budget gate is not closed. |
-| R-491 / P0-101f matched captures | `in_review` | `lower_town_p0_101_capture_matrix.md` marks every required day/night row pending or blocked. |
-| R-492 / P0-101g landmark silhouette review | `in_review` | Review explicitly records no human canon/art sign-off and all required silhouettes blocked. |
+| R-486 / P0-101a inventory | `done` | Stable source inventory and renderer-boundary evidence are available. |
+| R-213 / P2-067 tier wiring | `done` | Authored three-tier mapping and deterministic tier tests are available. |
+| R-487 / P0-101b ordinary frontage and wear | `in_progress` | Ordinary variation, roof/material readability, and wear evidence are not closed. |
+| R-488 / P0-101c exceptional landmarks | `in_progress` | Exceptional implementation handoff is not closed. |
+| R-489 / P0-101d route integration | `in_progress` | Playable-route art integration handoff is not closed. |
+| R-490 / P0-101e runtime/route/occlusion/budget QA | `in_review` | Report is complete but blocked by camera, resident-budget, clean-load, and unmeasured GPU gates. |
+| R-491 / P0-101f matched captures | `in_review` | Matrix remains blocked; no dedicated gameplay-scale packet exists. |
+| R-492 / P0-101g landmark silhouette review | `in_review` | Review has no named canon/art sign-off and keeps all required silhouettes blocked. |
+| R-532 / ordinary-fabric verification | `todo` | Required independent ordinary-fabric acceptance is not closed. |
+| R-533 / landmark-boundary verification | `todo` | Required independent landmark acceptance is not closed. |
+| R-534 / route-integration verification | `todo` | Required independent route/parity handoff is not closed. |
+| R-535 / runtime and performance verification | `todo` | Required independent runtime/performance handoff is not closed. |
+| R-536 / day/night capture verification | `todo` | Dedicated visual packet audit is not closed. |
+| R-537 / historical and art sign-off verification | `todo` | Human review ledger is not closed. |
+| R-559 / dependency and handoff preflight | `todo` | Upstream reconciliation is not closed. |
+| R-564 / decomposition-gap verification | `todo` | R-560-R-563 are not resolved and no final readiness ledger exists. |
+| R-538 / this closeout | `in_progress` at verification start | Deliverable is now a deterministic blocked ledger; it cannot be marked done. |
 | R-108 / P0-101 parent | `todo` | Parent must remain open. |
 
-Upstream context is also incomplete for this final gate: R-109 / P0-100 remains `todo`, R-110 / P0-102 remains `todo`, and R-6 / A-009 is only `in_review` with a conditional reference-art pass, not final gameplay sign-off. R-213 is complete and is therefore reported as a positive handoff, but its own gameplay capture requirement is not a substitute for R-491/R-492 evidence.
+Upstream context is also incomplete: R-109 / P0-100 is `todo`, R-110 / P0-102 is `todo`, and R-6 / A-009 is `in_review` with conditional reference-art approval rather than final gameplay sign-off.
+
+The decomposition tasks are still unresolved: R-560 gameplay-scale capture capability, R-561 capture packet audit, R-562 clean-checkout parse/load gate, and R-563 GPU/minimum-hardware evidence are all `todo`. R-564 therefore remains a blocking readiness dependency rather than a completed reconciliation.
 
 ## Clause-by-clause acceptance matrix
 
-| Acceptance clause | Result | Evidence and limitation | Source task / command / report | Reviewer or owner |
-|---|---|---|---|---|
-| 1. No unexplained repeated ordinary facade/material run; every required visible landmark is classified and present exactly once | **BLOCKED** | The authored source has 91 unique stable records: 53 houses, 36 walls, and 2 view-only gate arches. Static extraction found 91 records and 91 unique IDs. The tier counts are 14 `merchant_stone`, 14 `merchant_timber`, and 15 `craft_boda`. This proves inventory uniqueness and tier assignment, but not visual repetition, material variation, or route-scale landmark presentation. R-487 and R-488 remain open. | R-486 `lower_town_p0_101_landmark_inventory.md`; R-487/R-488 board status; static check: `python3` record/ID/tier extraction from `content/maps/lower_town_slice.rrmap` | R-493 verification; ordinary review remains with R-487 and landmark review with R-488/R-492. |
-| 2. Gameplay-scale captures distinguish all three tiers, log/plank/plaster/limestone families, tile/shingle/thatch roofs, and localized wear/repaired details | **BLOCKED** | `test_burgher_house_tiers` passes 3/3 and confirms the three authored tiers, untiered special IDs, fallback style mapping, and authored material precedence. `test_lower_town_slice_map` passes 19/19 and confirms map/parity/route/wall/water contracts. Neither suite is visual evidence. R-491 records every ordinary-fabric capture row as pending; the existing whole-map orthographic and calibration images are explicitly supplementary. | R-213; R-491; commands below: `r493-house-tiers`, `r493-lower-map`; `lower_town_p0_101_capture_matrix.md` sections 2-4 | R-493 verification; final visual evidence owned by R-491 and ordinary art review by R-6/R-108. |
-| 3. St. Catherine's, 1343 Viru Gate, and every required special building have reviewed exceptional silhouettes and are not scaled-up ordinary houses | **BLOCKED** | R-486 confirms `st_catherines_church` is on the exceptional registry and gate arches are view-only, while wall/tower/jamb records remain fortification-capable. This is a routing/boundary result, not a production silhouette result. R-488 is `todo`; R-492 marks all 48 required non-ordinary visible rows `BLOCKED`. No dedicated landmark approach captures or human sign-off exists. | R-486 inventory sections 2-4; R-488/R-492 board and report; `r492_lower_town_1343_landmark_silhouette_review.md` sections 2-6 | R-493 verification; exceptional implementation R-488; historical/art decision R-492. |
-| 4. Matched gameplay-scale day/night captures exist for ordinary fabric and each required landmark, with camera/map revision metadata | **BLOCKED** | No `docs/reports/images/lower_town_p0_101/` acceptance set exists. R-491's matrix marks representative tiers, special buildings, St. Catherine's, inner gate, foregate, walls, and route-scale proof as pending/blocked. Existing `view3d`, ADR-0018, audit, and conversion images do not meet the route-camera contract. | R-491; `lower_town_p0_101_capture_matrix.md` sections 2, 5, and 7; capture directory existence check | R-491 / production-art-canon capture owner. |
-| 5. Human historical/art review signs every required 1343 silhouette or records a blocking amendment with an owner | **BLOCKED** | R-492 explicitly states: human canon reviewer not assigned, human art reviewer not assigned, and no silhouette may be approved from the current evidence. R-6/A-009 is a conditional art-direction pass for reference plates only and states that final gameplay sign-off is blocked. | R-492 report lines 3-18; R-6 `burgher_house_art_signoff.md` lines 8-14 and 53-72 | Canon/art reviewers are not assigned in the current evidence; R-492 remains the handoff owner. |
-| 6. Routes, patrols, transitions, collision, navigation, occlusion/chunk metadata, deterministic parity fixtures, and performance budgets pass; hardware limitations are stated | **PARTIAL - focused map contracts PASS, final acceptance BLOCKED** | `test_lower_town_slice_map`: **19/19**, including parity, required route endpoints, city-wall/gate collision semantics, navigation connectivity, water exclusion, smithy entrance attachment, and stable seam checks. `test_burgher_house_tiers`: **3/3**. The final occlusion/chunk/performance handoff is not complete because R-490 is `in_progress`; no current R-493 evidence closes the broader budget and route-art integration clauses. | R-490 status; commands below; `tests/godot/test_lower_town_slice_map.gd`; `tests/godot/test_burgher_house_tiers.gd`; R-491/R-492 reports | R-493 verification for focused contracts; R-489 integration and R-490 runtime/budget QA remain owners. |
-| 7. All upstream blockers are resolved or explicitly recorded; no external/incomplete P0-102 handoff is treated as complete | **BLOCKED** | Blockers are explicitly recorded and remain owned: R-487/R-488/R-489 are `todo`, R-490 is `in_progress`, R-491/R-492 are `in_review`, R-109 and R-110 are `todo`, and R-6 is conditional. The report does not promote the shared P0-102 environment kit or reference-art sign-off into final P0-101 acceptance. | Task board state; `p0_102g_scope_boundary_recheck.md`; `burgher_house_art_signoff.md`; R-486/R-491/R-492 reports | R-493 verification; each named upstream owner retains its blocker. |
+| R-108 acceptance clause | Result | Current evidence and exact limitation | Owner / blocker |
+|---|---|---|---|
+| 1. No unexplained repeated ordinary facade/material run; every required visible landmark is classified and present exactly once | **BLOCKED** | The authored source currently contains 91 `building`/`landmark` records with 91 unique IDs: 53 houses, 36 walls, and 2 view-only gate arches. The authored tier counts are 14 `merchant_stone`, 14 `merchant_timber`, and 15 `craft_boda`. This proves source uniqueness and tier assignment only. It does not prove route-scale visual repetition limits, material variation, or landmark presentation. | R-532 is `todo`; R-487 is `in_progress`; R-533/R-488 remain open for exceptional records. |
+| 2. Gameplay-scale captures distinguish all three tiers, log/plank/plaster/limestone families, tile/shingle/thatch roofs, and localized wear/repaired details | **BLOCKED** | Current dirty-worktree contracts pass: `test_lower_town_slice_map` is 19/19 and `test_burgher_house_tiers` is 5/5. These tests confirm authored map, route, parity, tier, fallback, and material-precedence contracts, but are not visual evidence. `docs/reports/images/lower_town_p0_101/` is absent and R-491 still marks the required gameplay-scale rows pending/blocked. | R-536 is `todo`; R-491 is `in_review`; ordinary visual proof remains with R-532/R-487. |
+| 3. St. Catherine's, the 1343 Viru Gate, and every required special building have reviewed exceptional silhouettes and are not scaled-up ordinary houses | **BLOCKED** | Source boundaries are present: `st_catherines_church`, Viru Gate tower/jamb records, foregate records, and separate view-only `viru_gate_arch` / `viru_foregate_arch` landmarks are authored. R-492 still records all 48 required non-ordinary visible rows as blocked, R-488 is not closed, and no dedicated landmark approach packet or human approval exists. | R-533 is `todo`; R-488/R-492 are open. |
+| 4. Matched gameplay-scale day/night captures exist for ordinary fabric and each required landmark, with camera and map-revision metadata | **BLOCKED** | No dedicated R-491 packet directory exists. Existing `view3d` day/night PNGs and ADR-0018 calibration third-person PNGs are 1280x720 and non-blank, but they are supplementary whole-map/calibration evidence without the required route/approach metadata and stable pose matrix. They are not promoted to acceptance plates. | R-536 and R-560/R-561 are `todo`; R-491 is `in_review`. |
+| 5. Human historical/art review signs every required 1343 silhouette or records a blocking amendment with an owner | **BLOCKED** | R-492 explicitly records `Human canon reviewer: Not assigned` and `Human art reviewer: Not assigned`; its final silhouette sign-off is blocked. R-6/A-009 is conditional reference-art review, not final gameplay sign-off. R-537 is still `todo`. | R-537/R-492 and the missing named canon/art reviewers. |
+| 6. Routes, patrols, transitions, collision, navigation, occlusion/chunk metadata, deterministic parity fixtures, and performance budgets pass with hardware limitations stated | **PARTIAL - final acceptance BLOCKED** | Current focused dirty-worktree suites pass: `test_kalev_smithy_map` 16/16, `test_map_terrain_chunks` 6/6, `test_large_map_chunk_prototype` 8/8, `test_map_object_chunk_streaming` 7/7, `test_vertical_slice_performance` 4/4, `test_performance_benchmark` 3/3, and `test_urban_population_performance_cap` 2/2. `python3 tools/report_slice_performance.py --check` also passes. The current `test_map_camera_modes` run is red: 11 tests, 6 assertion failures, and 14 engine/script diagnostics covering building pull-out, first-person eye height, and follow-boom distance/zoom restoration. R-490 additionally records 8472/7500 resident nodes, 446.2/280 MiB resident memory, and missing non-headless GPU/minimum-hardware measurements. A clean HEAD checkout reproduces RRMap parser errors for `elevation_area` / `elevation_ramp` and an invalid Lower Town definition; the clean-checkout load gate itself is not implemented. | R-535/R-562/R-563 are `todo`; R-490 is `in_review`; camera, budget, parser/load, and GPU owners remain open. |
+| 7. All upstream blockers are resolved or explicitly recorded; no incomplete P0-102 handoff is treated as complete | **BLOCKED** | Blockers are now named and reproducible: R-487-R-489 are `in_progress`; R-490-R-492 are `in_review` with blocked results; R-532-R-537, R-559, and R-564 are `todo`; R-560-R-563 are `todo`; R-109/R-110 are `todo`; and R-6 is conditional `in_review`. No P0-102 or reference-art report is promoted to P0-101 acceptance. | R-559/R-564 and all listed upstream owners. |
 
-## Current positive evidence
+## Verification record
 
-### Authored-source inventory
+### Authored source and focused contracts
 
-The current `content/maps/lower_town_slice.rrmap` contains:
-
-- 91 records with unique stable IDs;
-- 53 house records, 36 wall records, and 2 `gate_arch` view landmarks;
-- 14 `merchant_stone`, 14 `merchant_timber`, and 15 `craft_boda` assignments;
-- separate untiered special/exceptional records, including `st_catherines_church`;
-- preserved Viru Gate tower/jamb records and separate view-only arch records.
-
-These results agree with R-486's inventory and do not by themselves establish visual acceptance.
-
-### Focused contract verification
-
-The following current checks passed on 2026-08-12:
+The current source extraction reports:
 
 ```text
-export GODOT_LOG_DIR=/tmp/r493_checked
-
-tools/run_godot_checked.sh --require-test-summary r493-lower-map -- \
-  /Applications/Godot.app/Contents/MacOS/Godot --headless --path . \
-  --script tools/run_godot_tests.gd -- --filter=test_lower_town_slice_map
-
-Result: Godot headless tests: 1 file(s), 19 test(s), 0 failure(s), 0 error(s).
-
-# Expected shutdown-only ObjectDB/resource leak diagnostics were emitted and
-# accepted by the checked runner's documented DEF-002 allowlist.
-
-tools/run_godot_checked.sh --require-test-summary r493-house-tiers -- \
-  /Applications/Godot.app/Contents/MacOS/Godot --headless --path . \
-  --script tools/run_godot_tests.gd -- --filter=test_burgher_house_tiers
-
-Result: Godot headless tests: 1 file(s), 3 test(s), 0 failure(s), 0 error(s).
-
-# Same expected shutdown-only diagnostics were emitted.
+records=91 unique_records=91
+merchant_stone=14
+merchant_timber=14
+craft_boda=15
+st_catherines_church=True
+viru_gate=True
 ```
 
-The focused green results are contract evidence only. They do not close the blocked visual rows above.
+The current dirty-worktree focused commands were run through `tools/run_godot_checked.sh --require-test-summary` with Godot 4.7.1:
 
-## Non-acceptance evidence boundary
+```text
+--filter=test_lower_town_slice_map       1 file, 19 tests, 0 failures, 0 errors
+--filter=test_burgher_house_tiers        1 file, 5 tests, 0 failures, 0 errors
+--filter=test_kalev_smithy_map           1 file, 16 tests, 0 failures, 0 errors
+--filter=test_map_terrain_chunks         1 file, 6 tests, 0 failures, 0 errors
+--filter=test_large_map_chunk_prototype  1 file, 8 tests, 0 failures, 0 errors
+--filter=test_map_object_chunk_streaming 1 file, 7 tests, 0 failures, 0 errors
+--filter=test_vertical_slice_performance 1 file, 4 tests, 0 failures, 0 errors
+--filter=test_performance_benchmark      1 file, 3 tests, 0 failures, 0 errors
+--filter=test_urban_population_performance_cap 1 file, 2 tests, 0 failures, 0 errors
+--filter=test_map_camera_modes            1 file, 11 tests, 6 failures, 14 errors
+```
 
-The following existing assets must not be promoted to this gate's gameplay-scale acceptance set:
+The checked runner accepted the expected shutdown-only DEF-002 resource leak lines for the green suites. The camera diagnostics were not treated as shutdown-only noise because they interrupt test completion and accompany assertion failures.
 
-- `docs/reports/images/view3d/lower_town_slice_day.png` and `lower_town_slice_night.png`: fixed whole-map orthographic smoke views;
-- `docs/reports/images/adr0018_calibration/lower_town_slice_third_person_day.png` and `lower_town_slice_third_person_night.png`: calibration plates without the P0-101 inventory and route metadata;
-- top-down/debug, map-audit, and map-conversion images listed in R-491's matrix.
+### Clean-checkout boundary
 
-They remain useful supplementary context only.
+A detached worktree at `HEAD` was imported before the scoped clean-checkout tests. The clean Lower Town run did not reach a valid map contract: `content/maps/lower_town_slice.rrmap` emitted `unknown_command` for `elevation_area` at lines 14, 20, and 22 and `elevation_ramp` at line 17, followed by an invalid map definition and dependent route/landmark failures. This is the first reproducible clean-checkout parser/resource blocker. It is recorded, not repaired, because R-538 is verification-only and R-562 owns the missing CI/load gate.
 
-## Closeout decision and handoff
+### Performance and hardware boundary
 
-**R-493 / P0-101h remains in review with a BLOCKED acceptance result.** The report deliverable is complete, but the gate cannot be marked done because clauses 1-5 and 7 are not fully evidenced, while clause 6 is only partially covered by focused map contracts.
+`python3 tools/report_slice_performance.py --check` validates the authored manifest and slice-gate schema. It does not provide a new minimum-hardware measurement. R-490's linked runtime report remains the current measured evidence: headless development-baseline frame/collision checks are green, but resident nodes and memory exceed authored caps, camera behavior is red, and the non-headless GPU/minimum-hardware probe was not run. The declared target remains `minimum-hardware-intel-uhd-620`; a target profile label is not a measurement of that hardware.
 
-No new follow-up task is created. Existing board ownership is sufficient and a duplicate task would obscure the handoff:
+### Capture and review boundary
 
-1. R-487 must complete ordinary frontage variation and localized wear evidence.
-2. R-488 must complete the exceptional landmark implementation and preserve non-ordinary renderer boundaries.
-3. R-489 must integrate ordinary and exceptional art on playable routes without gameplay drift.
-4. R-490 must close runtime, route, occlusion, navigation, and budget QA.
-5. R-491 must produce matched gameplay-scale day/night route and approach plates with metadata.
-6. R-492 must obtain named human canon and art review, or record owner-specific amendments.
-7. R-108 remains the parent acceptance owner and must not close until all clauses are PASS.
+The required directory `docs/reports/images/lower_town_p0_101/` is absent. The existing 1280x720 `view3d` and ADR-0018 third-person day/night files are supplementary only. R-491's matrix still requires matched gameplay-scale poses, map revision, camera intent, renderer, source stable IDs, and reproducible commands. R-492 has no named human canon or art reviewer and does not approve any silhouette.
+
+## Closeout decision and next actions
+
+**R-538 is complete as a verification ledger but remains blocked.** Move R-538 to `in_review`, keep R-108 `todo`, and do not promote any clause to an overall PASS. No duplicate follow-up tasks are created because the board already has explicit owners.
+
+Required next actions before a future closeout:
+
+1. R-532 closes the ordinary-fabric source and gameplay-scale evidence audit.
+2. R-533 closes the exceptional landmark and fortification-boundary evidence audit.
+3. R-534 closes route integration and parity fingerprint reconciliation.
+4. R-535 closes runtime, occlusion, streaming, and authored budget evidence.
+5. R-536/R-560/R-561 produce and verify the dedicated matched day/night gameplay-scale packet.
+6. R-537 obtains named canon/art review or records owner-specific amendments for every required row.
+7. R-562 adds and proves the clean-checkout parse/load gate; the `elevation_area` / `elevation_ramp` parser blocker must be owned outside this acceptance report.
+8. R-563 supplies non-headless GPU and declared minimum-hardware evidence without changing authored caps.
+9. R-559 and R-564 reconcile all handoffs and decomposition gaps before R-538 is rerun.
+10. R-108 remains open until every clause above is independently evidenced as PASS.
 
 ## Sources
 
 - [`content/maps/lower_town_slice.rrmap`](../../content/maps/lower_town_slice.rrmap)
-- [`lower_town_p0_101_landmark_inventory.md`](lower_town_p0_101_landmark_inventory.md) - R-486 inventory and renderer boundaries
-- [`lower_town_p0_101_capture_matrix.md`](lower_town_p0_101_capture_matrix.md) - R-491 capture contract and pending matrix
-- [`r492_lower_town_1343_landmark_silhouette_review.md`](r492_lower_town_1343_landmark_silhouette_review.md) - R-492 blocked human review
-- [`burgher_house_art_signoff.md`](burgher_house_art_signoff.md) - R-6 conditional reference-art sign-off
-- [`p0_102g_scope_boundary_recheck.md`](p0_102g_scope_boundary_recheck.md) - P0-102 downstream ownership boundary
+- [`lower_town_p0_101_landmark_inventory.md`](lower_town_p0_101_landmark_inventory.md)
+- [`lower_town_p0_101_capture_matrix.md`](lower_town_p0_101_capture_matrix.md)
+- [`lower_town_p0_101_runtime_qa.md`](lower_town_p0_101_runtime_qa.md)
+- [`r492_lower_town_1343_landmark_silhouette_review.md`](r492_lower_town_1343_landmark_silhouette_review.md)
+- [`p3_011_performance_budget.md`](p3_011_performance_budget.md)
 - [`tests/godot/test_lower_town_slice_map.gd`](../../tests/godot/test_lower_town_slice_map.gd)
 - [`tests/godot/test_burgher_house_tiers.gd`](../../tests/godot/test_burgher_house_tiers.gd)
 - [`tools/run_godot_checked.sh`](../../tools/run_godot_checked.sh)
+- [`tools/run_godot_tests.gd`](../../tools/run_godot_tests.gd)
