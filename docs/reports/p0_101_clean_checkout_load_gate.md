@@ -2,9 +2,9 @@
 
 **Task:** R-562 / P0-101 clean-checkout guard
 **Parent:** R-108 / P0-101
-**Date:** 2026-08-17
-**Snapshot:** `67169bb999859ae1e2c37fd0dd19e428eafe154b`
-**Decision:** **BLOCKED - gate implemented and wired; clean load not yet green at HEAD**
+**Date:** 2026-08-18
+**Snapshot:** `f7ceaaedcbf5d86bb10e6b0ba70b7bd04e0eaa7d`
+**Decision:** **BLOCKED - runtime LFS restore and clean import pass; load remains blocked by R-453 / R-455 map parser work**
 
 ## Scope and method
 
@@ -47,34 +47,42 @@ Result on 2026-08-17: **PASS** (gate script, workflow reference, cleanup behavio
 
 ## Live gate execution
 
-Command run:
+Command run with the repository's installed Godot 4.7.1 binary:
 
 ```bash
-tools/verify_clean_checkout_load.sh
+GODOT_BIN=/Users/artjomkurapov/.local/share/mise/installs/godot/4.7.1-stable/Godot.app/Contents/MacOS/Godot \
+  tools/verify_clean_checkout_load.sh
 ```
 
-Result on 2026-08-17 at `67169bb9`: **FAIL / BLOCKED**
+Result on 2026-08-18 at `f7ceaaed`: **FAIL / BLOCKED after LFS restore and clean import**
 
-First failing stage:
+Stage results:
+
+| Stage | Result |
+|---|---|
+| Detached clean checkout | **PASS** |
+| Restore runtime Git LFS assets | **PASS** - 37 materialized objects; the three fetched research plates are reconciled from `history/reference/plates.csv` by `tools/manage_lfs_assets.py` |
+| Import clean checkout | **PASS** |
+| Load Lower Town and MapView3D dependencies | **BLOCKED** - upstream map parser/runtime failures |
+
+The first product blocker is the existing RRMap parser contract:
 
 ```text
-restore runtime Git LFS assets
+res://content/maps/lower_town_slice.rrmap:14:1: error[unknown_command]: unknown command 'elevation_area'
+res://content/maps/lower_town_slice.rrmap:17:1: error[unknown_command]: unknown command 'elevation_ramp'
+res://content/maps/lower_town_slice.rrmap:20:1: error[unknown_command]: unknown command 'elevation_area'
+res://content/maps/lower_town_slice.rrmap:22:1: error[unknown_command]: unknown command 'elevation_area'
 ```
 
-First reproducible diagnostic:
+The bounded load run also reports the dependent MapView3D failures (`41 failure(s), 193 error(s)`), including the existing `Dictionary.id` and null-node diagnostics in `map_view_mesh_builder_landmarks.gd`. These are downstream of the map-definition/parser blocker, not LFS manifest failures.
 
-```text
-Git LFS asset verification failed:
-  - LFS-tracked path missing from manifest: history/reference/economy/merchant-cart-and-transport-1340s/economy.merchant-cart-and-transport-1340s.05.jpg
-  - LFS-tracked path missing from manifest: history/reference/economy/reval-cart-tolls-and-fuhr-rent-1340s/economy.reval-cart-tolls-and-fuhr-rent-1340s.04.jpg
-  - LFS-tracked path missing from manifest: history/reference/language/names-address-and-oaths/language.names-address-and-oaths.03.png
-```
+An initial gate invocation without `GODOT_BIN` stopped at `godot: command not found`; this is an environment/PATH limitation, not a clean-checkout result. The installed Godot binary was then supplied explicitly and reached the owned load-stage blocker.
 
-Owner for this blocker: research-plate / LFS manifest hygiene outside R-562. The gate correctly stops before import/load while runtime LFS verification is red.
+Owner for the load blocker: **R-453 / R-455** (`Add authored elevation profiles to RRMap`, `Accept city elevation and ditch readability`).
 
-## Expected next clean-checkout blocker after LFS repair
+## Confirmed upstream load blocker
 
-Prior clean detached baselines already record the next parser failure once import/load can proceed:
+The live clean-checkout run confirms the parser failure previously recorded by earlier detached baselines:
 
 ```text
 res://content/maps/lower_town_slice.rrmap:14:1: error[unknown_command]: unknown command 'elevation_area'
@@ -110,4 +118,6 @@ Keep R-562 at `in_review` until a clean HEAD run is green or the first blocker i
 - [`tools/verify_clean_checkout_load.sh`](../../tools/verify_clean_checkout_load.sh)
 - [`tests/python/test_verify_clean_checkout_load.py`](../../tests/python/test_verify_clean_checkout_load.py)
 - [`docs/reports/lower_town_p0_101_acceptance.md`](lower_town_p0_101_acceptance.md)
+- [`docs/reports/p0_102_environment_kit_clean_baseline.md`](p0_102_environment_kit_clean_baseline.md)
+.md)
 - [`docs/reports/p0_102_environment_kit_clean_baseline.md`](p0_102_environment_kit_clean_baseline.md)
