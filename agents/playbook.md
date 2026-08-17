@@ -153,3 +153,4 @@ This file contains only cross-role operating lessons. Domain lessons belong to t
 - When generating Markdown reports programmatically, strip trailing spaces before building a scoped index; intentional hard-break whitespace still fails `git diff --cached --check`.
 - When repairing an isolated commit helper, inspect the exact committed line before constructing a replacement; a guessed punctuation variant can fail before the amend while leaving the live index safe.
 - When calling `tasks.get`, always pass the exact board reference in `ref`; an empty `ref` fails before lookup and should be retried only with the verified task ref.
+- When a scoped documentation commit is blocked by Markdown hard-break whitespace, inspect `git diff --cached --check` and strip trailing spaces from the new report before retrying; preserve unrelated dirty playbook changes.
