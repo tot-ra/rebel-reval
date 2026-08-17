@@ -11,6 +11,10 @@ This acceptance covers the four P0-102 target spaces: forge, street/well, brewer
 
 The implementation is accepted for the checks that pass below, but the parent task is not accepted as complete. The remaining findings are either an open prerequisite (`R-353`), an existing repository baseline defect, or the newly opened scoped follow-up `R-360`. The dedicated eight-plate evidence requirement is complete; this does not constitute the separate P0-101 human visual sign-off.
 
+## R-543 day/night reconciliation (2026-08-17)
+
+The dedicated four-space environment-kit packet has been reconciled in [`p0_102m_environment_kit_day_night.md`](p0_102m_environment_kit_day_night.md). The scoped verifier passes 8/8 matched forge, street/well, brewery, and checkpoint plates. The addendum keeps the parent acceptance **BLOCKED / PARTIAL** because the separate P0-101 gameplay-camera proof for `merchant_stone`, `merchant_timber`, and `craft_boda`, exceptional-landmark review, and clean runtime baseline are still unresolved. Existing burgher-house reference plates are explicitly not promoted to gameplay evidence.
+
 ## Verification matrix
 
 | Check | Result | Evidence / reproduction |
