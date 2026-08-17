@@ -76,3 +76,70 @@ No new follow-up task is created here because each blocker already has an owning
 - [`burgher_house_art_brief.md`](burgher_house_art_brief.md) - A-008 tier matrix, confidence labels, plate pack, and non-runtime boundary.
 - [`burgher_house_typology_contract.md`](burgher_house_typology_contract.md) - P0-163 closed tier allowlist and rejection rules.
 - [`history/dossiers/architecture/burgher-house-plan.md`](../../history/dossiers/architecture/burgher-house-plan.md) - R-003 Brief ship decisions 1-10 and confidence notes.
+
+## R-541 ordinary-versus-exceptional boundary verification (2026-08-17)
+
+**Task:** R-541 / P0-102 acceptance: verify ordinary versus exceptional boundary
+**Parent:** R-110 / P0-102
+**Snapshot:** `f65b5a829c6f0ae0ea0577b65fb783650b17e78a`
+**Worktree:** shared worktree with unrelated staged, modified, and untracked WIP; no runtime, map, mesh, asset, or test source was changed by this verification.
+**Implementation path note:** the allowlisted historical `scripts/map/view3d/map_view_burgher_house_models.gd` is absent in this checkout. The current tier selector is `scripts/map/view3d/map_view_mesh_builder_house_styles.gd`; the exceptional registry is `scripts/map/view3d/map_view_mesh_builder_building_registry.gd`, and the ordinary/exceptional dispatch is `scripts/map/view3d/map_view_mesh_builder_buildings.gd`.
+**Decision:** **SOURCE/CONTRACT PASS; GAMEPLAY-SCALE ACCEPTANCE BLOCKED.**
+
+This addendum is the signed R-541 verification note. It confirms the authored and compiled ordinary-tier boundary, records the focused runtime checks, and keeps the final visual/gameplay gate open where the required evidence is absent. It does not promote the existing A-009 conditional art-direction pass to final sign-off.
+
+### Acceptance matrix
+
+| R-541 requirement | Result | Evidence and classification |
+|---|---|---|
+| `merchant_stone`, `merchant_timber`, and `craft_boda` coexist in the playable Lower Town slice | **PASS at authored/compiled contract level; gameplay visual proof BLOCKED** | `content/maps/lower_town_slice.rrmap` authors 43 ordinary records: `merchant_stone=14`, `merchant_timber=14`, `craft_boda=15`. `test_burgher_house_tiers` checks all 43 stable IDs and all three assignments. The map definition is used by the playable route tests, but no gameplay-scale frame is annotated to prove all three tiers in one view. |
+| Tier selection is deterministic and does not collapse to one generic house family | **PASS** | `MapViewMeshBuilderHouseStyles` gives tier fallbacks of stone/tile, timber/shingle, and log/thatch-or-shingle while preserving authored material keys first. `test_burgher_house_tiers`: 5/5, including authored-material precedence, three wall texture variants, three roof texture variants, and stable weathering variation. |
+| Ordinary modules do not assemble churches, gates, guild halls, or civic landmarks | **PASS at renderer-boundary level** | `MapViewMeshBuilderBuildingRegistry` explicitly classifies church, civic, institutional, guild, and gatehouse IDs/styles/primitives. `MapViewMeshBuilderBuildings.build_building()` dispatches registry-positive house records to `build_exceptional_building()` before the ordinary house path; exceptional roots carry `renderer_boundary=exceptional`, while ordinary roots carry `renderer_boundary=ordinary`. The focused test proves the church-vs-ordinary control and confirms that a wall record with a landmark-like ID remains outside the exceptional-house path. |
+| Viru Gate remains exceptional fortification context rather than ordinary house assembly | **PASS** | `viru_gate_north_tower` and `viru_gate_south_tower` remain `kind=wall`, `round_tower=true` records. `test_environment_kit_integration`: 5/5, including no ordinary `Roof` on the towers, separate view-only gate arches, checkpoint route/anchor preservation, and deterministic view-only construction. |
+| Stable IDs, route/parity, collision/navigation contracts | **PASS for checked authored contracts** | `test_lower_town_slice_map`: 19/19. The suite passes canonical parity, required route reachability, city-wall/Viru Gate opening, navigation-region construction, water exclusion, boundary transitions, and gate-arch/collision-jamb alignment. `test_environment_kit_integration`: 5/5 with unchanged map, terrain, transition, and patrol fingerprints. |
+| No default late-Gothic or repeated Fachwerk shortcut | **PASS at source/contract level; visual review BLOCKED** | The closed typology contract rejects late-Gothic tourist facades, post-1400 four-light crosses, rich blind niches, and scaled ordinary houses used as landmarks. The ordinary structure path explicitly omits diagonal Fachwerk braces as non-characteristic for 1343 Reval. Tier-specific material and roof fallbacks prevent a single global late-Gothic/stone treatment. Gameplay-scale repetition, silhouette, and material readability remain unreviewed because the required tier-annotated route plates are missing. |
+| Silhouette, occlusion, and gameplay-scale visual acceptance | **BLOCKED - evidence missing, no failure inferred** | The existing `lower_town_p0_101` packet has eight valid 1280x720 matched day/night route plates and proves capture capability, but its matrix leaves all three tier rows and repetition/silhouette rows pending. `docs/reports/images/burgher_houses/` contains no `signoff_*.png`; A-009 also records production tier GLBs and final gameplay sign-off as missing. No silhouette or occlusion failure was observed in the checked source/map contracts, but those checks are not established by the available images. |
+
+### Focused verification commands and results
+
+Run from the project root with Godot 4.7.1:
+
+```sh
+export GODOT_BIN="${GODOT_BIN:-/Applications/Godot.app/Contents/MacOS/Godot}"
+export GODOT_LOG_DIR=/tmp/r541_checked
+
+./tools/run_godot_checked.sh --require-test-summary \
+  r541-burgher-house-tiers -- "$GODOT_BIN" --headless --path . \
+  --script tools/run_godot_tests.gd -- --filter=test_burgher_house_tiers
+# 1 file, 5 tests, 0 failures, 0 errors
+# log: /tmp/r541_checked/r541-burgher-house-tiers.log
+
+./tools/run_godot_checked.sh --require-test-summary \
+  r541-environment-kit -- "$GODOT_BIN" --headless --path . \
+  --script tools/run_godot_tests.gd -- --filter=test_environment_kit_integration
+# 1 file, 5 tests, 0 failures, 0 errors
+# log: /tmp/r541_checked/r541-environment-kit.log
+
+./tools/run_godot_checked.sh --require-test-summary \
+  r541-lower-town-map -- "$GODOT_BIN" --headless --path . \
+  --script tools/run_godot_tests.gd -- --filter=test_lower_town_slice_map
+# 1 file, 19 tests, 0 failures, 0 errors
+# log: /tmp/r541_checked/r541-lower-town-map.log
+
+python3 tools/verify_p0_102_environment_kit_evidence.py
+# P0-102 environment-kit evidence verification passed (8/8 plates)
+```
+
+The three Godot runs emitted only the known shutdown ObjectDB/resource cleanup diagnostics after reporting clean test summaries. Those diagnostics are not the R-541 decision. No assertion, parser, route, parity, stable-ID, or navigation failure was observed in the focused checks.
+
+### Evidence boundary and required closeout
+
+The eight `lower_town_p0_101` plates are valid capture artifacts, not sufficient R-541 tier acceptance. They cover four route poses in day/night pairs, but the capture matrix explicitly marks `merchant_stone`, `merchant_timber`, `craft_boda`, repeated frontage, roof readability, and localized wear rows as pending. The A-009 decision remains **CONDITIONAL ART-DIRECTION PASS; FINAL GAMEPLAY SIGN-OFF BLOCKED**.
+
+R-541 therefore remains in review rather than being treated as a gameplay acceptance pass. Closeout requires a matched gameplay-scale route or comparison capture with all three tiers visible at the same camera scale, annotations against the R-003 decisions, and a human review of silhouette, repetition, roof/material hierarchy, localized wear, landmark separation, and occlusion. Existing route, parity, and navigation passes must be retained when that evidence is captured.
+
+### Verification signature
+
+- **Verification performed by:** Codex, implementation/QA verification
+- **Verification date:** 2026-08-17
+- **Signed result:** source and renderer boundary verified; final gameplay-scale acceptance **BLOCKED** pending the R-6/P0-101 ordinary-fabric evidence gate.
