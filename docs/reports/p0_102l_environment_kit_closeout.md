@@ -66,3 +66,86 @@ tools/run_godot_checked.sh --require-test-summary p0-102l-environment-kit -- \
 4. **P0-101 and P2-063-P2-067:** complete their existing ordinary-house, plot-dressing, tier-wiring, landmark, and gameplay-scale visual handoffs before the parent P0-102 can satisfy its full deliverable.
 
 **Decision:** The shared P0-102 environment-kit implementation is green on its scoped integration, regression, material, wear, and view-only checks. Keep R-364 as an evidence closeout in review rather than marking parent P0-102 done: external fortification, asset-baseline, and downstream production gates remain open.
+
+## R-544 current clean-snapshot closeout (2026-08-17)
+
+**Task:** R-544 / P0-102 final closeout
+**Snapshot:** `3e46eee323aeaf26a3a67e9b36b0ed349d62e480` (`Document safe fixed-text pre-commit assertions`)
+**Worktree:** `/tmp/rebel-reval-r544-20260817` (detached clean worktree created from the snapshot; the live worktree was not used for acceptance)
+**Decision:** **BLOCKED - keep R-110 / P0-102 `todo`**
+
+This addendum supersedes the older clean-snapshot classifications above for the current `HEAD`. It records only evidence reproduced from the detached worktree. Godot editor import completed with exit 0 before the focused runs. Import generated local `.uid` cache files in the temporary worktree; no generated cache file was used as acceptance evidence or copied into the project.
+
+### Final acceptance matrix
+
+| Parent P0-102 requirement | Current result | Evidence and owner classification |
+|---|---|---|
+| Forge, street/well, brewery, and checkpoint use shared modules without bespoke camera, scale, or material exceptions | **BLOCKED** | `test_environment_kit_integration`: 5 tests, 26 failures, 27 engine/script errors. The first clean-baseline diagnostic is `unknown command 'elevation_area'` / `unknown command 'elevation_ramp'` in `content/maps/lower_town_slice.rrmap` lines 14, 17, 20, and 22. Subsequent missing map-definition fields and dictionary access errors are cascade diagnostics. R-453 and R-455 own the elevation parser/acceptance work. |
+| Three R-003 tiers (`merchant_stone`, `merchant_timber`, `craft_boda`) coexist in one gameplay capture | **BLOCKED - evidence missing** | The current repository contains the eight environment-kit plates, but no current verified gameplay capture or sign-off demonstrates all three tiers in one frame. The required ordinary-house production and route handoffs remain separate work under R-108 and R-209-R-212. This closeout does not infer tier coexistence from generic environment plates. |
+| Ordinary buildings remain separate from churches, guild halls, gates, and civic landmarks | **BLOCKED by baseline test cascade** | `test_map_view_3d_fortification`: 8 tests, 6 failures, 46 engine/script errors. The clean run reaches `Viru Gate needs its arch landmark`, then reports the same elevation parser errors and dependent null/dictionary diagnostics. R-353 and R-413 are already `done`; no new defect is assigned to them here. The boundary cannot be accepted until the current parser/runtime baseline is repaired and the focused suite is rerun. |
+| Shared wall/roof material families and deterministic worn/repaired variants | **PARTIAL** | `test_map_view_material_resolution`: 7/7 pass. `test_building_surface_weathering`: 6 tests, 1 failure, 4 errors; its non-map-specific material tests pass, while the Lower Town assertion is interrupted by the elevation parser cascade. |
+| Asset lint and provenance | **PASS** | `python3 tools/verify_asset_lint.py`: exit 0, 8 style-lock textures, 9 character GLBs, 29 tier-classified character GLBs, 0 portraits. `python3 tools/validate_asset_sources.py`: exit 0, schema valid, 1,143 rows, 990 inventory paths covered, 984 active runtime assets covered. |
+| Pivot, collision, navigation, and stable route/interactable contracts | **BLOCKED** | `test_map_view_3d_core`: 20 tests, 9 failures, 46 errors; `test_map_view_3d_mesh`: 19 tests, 9 failures, 46 errors; `test_environment_kit_integration` is also blocked before its route assertions complete. These are not valid acceptance passes while the authored Lower Town map cannot parse. |
+| Day/night gameplay readability for all four spaces | **PASS for plate integrity only; gameplay acceptance remains partial** | `python3 tools/verify_p0_102_environment_kit_evidence.py`: exit 0, 8/8 plates. All eight files exist at 1280x720 RGB and are non-flat: forge, street/well, brewery, and checkpoint, each day/night. The verifier proves evidence-file integrity and metadata, not the missing three-tier coexistence requirement or a human visual sign-off. |
+| Full parent closeout with no unresolved P0-102-owned blocker | **BLOCKED** | R-453 and R-455 are `in_progress`, and the required ordinary-house/tier evidence remains owned by R-108 and R-209-R-212. R-544 therefore must not move R-110 to `in_review` or `done`. No new task is needed because each current blocker has an existing owner. |
+
+### Exact current verification commands
+
+```sh
+export GODOT_BIN=/Applications/Godot.app/Contents/MacOS/Godot
+export GODOT_LOG_DIR=/tmp/r544_checked
+WT=/tmp/rebel-reval-r544-20260817
+
+# Snapshot and clean import
+# HEAD: 3e46eee323aeaf26a3a67e9b36b0ed349d62e480
+git worktree add --detach "$WT" HEAD
+"$GODOT_BIN" --headless --editor --import --path "$WT"  # exit 0
+
+# Each command ran in its own Godot process; logs are under /tmp/r544_checked/
+for filter in \
+  test_environment_kit_integration \
+  test_building_surface_weathering \
+  test_map_view_3d_core \
+  test_map_view_3d_mesh \
+  test_map_view_material_resolution \
+  test_map_view_decals \
+  test_map_view_3d_fortification; do
+  tools/run_godot_checked.sh --require-test-summary "r544-${filter#test_}" -- \
+    "$GODOT_BIN" --headless --path "$WT" \
+    --script tools/run_godot_tests.gd -- --filter="$filter"
+done
+
+python3 "$WT/tools/verify_p0_102_environment_kit_evidence.py"  # exit 0, 8/8
+python3 "$WT/tools/verify_asset_lint.py"                       # exit 0
+python3 "$WT/tools/validate_asset_sources.py"                  # exit 0
+```
+
+Focused-suite results retained in `/tmp/r544_checked/`:
+
+- `environment_kit_integration`: 5 tests, 26 failures, 27 errors.
+- `building_surface_weathering`: 6 tests, 1 failure, 4 errors.
+- `map_view_3d_core`: 20 tests, 9 failures, 46 errors.
+- `map_view_3d_mesh`: 19 tests, 9 failures, 46 errors.
+- `map_view_material_resolution`: 7/7 pass.
+- `map_view_decals`: 8 tests, 5 failures, 6 errors.
+- `map_view_3d_fortification`: 8 tests, 6 failures, 46 errors.
+
+The repeated first diagnostic is the clean parser's missing `elevation_area` / `elevation_ramp` support, owned by R-453/R-455. The later failures are dependent diagnostics and are not reclassified as independent environment-kit defects. Existing renderer shutdown ObjectDB/resource diagnostics are non-blocking cleanup noise.
+
+**Closeout decision:** R-544 is complete as a blocked evidence report. Keep R-544 in review and keep R-110 / P0-102 `todo`. Re-run this matrix after R-453/R-455 land and after R-108/R-209-R-212 provide the three-tier gameplay evidence; only then can the parent acceptance decision be reconsidered.
+
+## Lessons learned
+
+- A clean detached snapshot can expose an authored RRMap command that exists in a dirty worktree's `MapBlueprint` helper but is not registered in the clean parser dispatch. Treat the first `unknown command` diagnostic as the blocker and do not accept downstream map/view failures as separate defects until the parser baseline is repaired.
+- Eight valid day/night environment plates do not prove the parent requirement for three ordinary house tiers in one gameplay capture. Keep plate integrity, gameplay composition, and human visual sign-off as separate acceptance rows.
+
+## Source
+
+- `docs/reports/p0_102_environment_kit_closeout.md`
+- `docs/reports/p0_102_environment_kit_acceptance.md`
+- `/tmp/r544_checked/`
+- `R-453`, `R-455`, `R-108`, `R-209`-`R-212`
+
+**Updated:** 2026-08-17
+
+**Final decision:** **BLOCKED - R-110 / P0-102 remains `todo`.**
