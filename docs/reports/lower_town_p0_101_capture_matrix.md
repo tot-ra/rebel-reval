@@ -3,22 +3,23 @@
 **Task:** R-491 / P0-101f
 **Role:** production / art / canon
 **Map:** `lower_town_slice` / Workers' District
-**Source snapshot:** `cfcf9752` (`HEAD` at capture-matrix authoring time), shared worktree dirty
-**Recorded:** 2026-08-12
-**Status:** **BLOCKED - no dedicated gameplay-scale capture set can be produced from the current worktree**
+**Source snapshot:** `6662f28c3476c324884b9802fcd499a609bf2e70`, shared worktree dirty
+**Recorded:** 2026-08-17
+**Status:** **CAPTURE PACKET COMPLETE - visual acceptance review remains open**
 
 ## Decision
 
 This report is the evidence matrix for the P0-101 visual acceptance pass. It deliberately distinguishes **evidence** from **interpretation**. No existing image is promoted to a P0-101 acceptance plate unless it is a matched day/night, gameplay-scale view with a reproducible camera and map revision.
 
-The required capture set is not available in the current snapshot:
+The dedicated capture capability is now available and has produced a reproducible packet:
 
-- `tools/capture_map_view_3d.gd` renders a fixed orthographic view of the complete map. It does not provide gameplay-scale third-person camera positions or landmark approach framing.
-- `docs/reports/images/view3d/lower_town_slice_day.png` and `docs/reports/images/view3d/lower_town_slice_night.png` were regenerated successfully by the whole-map smoke command during this task, but remain supplementary because they use the fixed orthographic camera.
-- The source inventory records 43 tiered houses, nine additional default-path special/use-site houses, 36 collision-bearing wall records, and two view-only gate arches, but source records do not prove visual material, wear, silhouette, or route-scale readability.
-- The current rerun clears the previously recorded focused-suite parse blockers: `test_lower_town_slice_map` passes 19/19 and `test_burgher_house_tiers` passes 3/3. The capture set is still unavailable because the existing capture script has no gameplay-scale route/approach camera presets.
+- `tools/capture_lower_town_p0_101.gd` uses production `LowerTownSlice.create()`, `MapBuilder.build()`, and `MapView3D.create()` with four authored route-segment midpoint presets.
+- `docs/reports/images/lower_town_p0_101/capture_manifest.json` records map ID, source fingerprint, renderer, 1280x720 viewport, gameplay orthographic size `33.75`, focus cells/heights, camera pitch/yaw, intent, and matched day/night outputs.
+- Eight dedicated PNGs exist under `docs/reports/images/lower_town_p0_101/`: four route poses times `day` and `night`. Each decodes as 1280x720 with a non-zero pixel payload; all four day/night pairs share the same framing key and focus world.
+- `test_capture_lower_town_p0_101.gd` passes 4/4 with 0 failures and 0 errors. The non-headless capture command completed with status 0; Godot emitted only the known shutdown resource-leak diagnostics after writing the packet.
+- The source inventory records 43 tiered houses, nine additional default-path special/use-site houses, 36 collision-bearing wall records, and two view-only gate arches, but source records and this route packet do not prove visual material, wear, silhouette, or route-scale readability for every required surface.
 
-This is a blocked evidence handoff, not a visual acceptance or a waiver of the missing captures.
+This is a completed capture-capability handoff, not visual acceptance or a waiver of the remaining review gates.
 
 ## Capture contract
 
@@ -36,14 +37,22 @@ Every acceptance plate must record all of the following in its filename or matri
 | Evidence | PNG path, non-blank verification result, and exact command/script |
 | Interpretation | observed result only; do not infer material/silhouette quality from source data |
 
-The intended baseline command for the currently available whole-map script is:
+The dedicated gameplay-scale packet is reproduced with:
+
+```bash
+/Applications/Godot.app/Contents/MacOS/Godot \
+  --path . --rendering-method gl_compatibility --rendering-driver opengl3 \
+  --script tools/capture_lower_town_p0_101.gd
+```
+
+The runner writes the eight dedicated plates and `capture_manifest.json` below `docs/reports/images/lower_town_p0_101/`. The whole-map command remains supplementary:
 
 ```bash
 /Applications/Godot.app/Contents/MacOS/Godot \
   --path . --script tools/capture_map_view_3d.gd
 ```
 
-The script actually writes `docs/reports/images/view3d/{kalev_smithy,lower_town_slice}_{day,night}.png`. It is useful for renderer smoke evidence, but it does **not** satisfy this matrix's gameplay-scale camera requirement. A future dedicated capture runner must expose fixed route/approach camera presets and write plates below `docs/reports/images/lower_town_p0_101/`.
+That script writes `docs/reports/images/view3d/{kalev_smithy,lower_town_slice}_{day,night}.png`; it is useful for renderer smoke evidence, but does **not** satisfy this matrix's gameplay-scale camera requirement.
 
 ## Evidence status summary
 
@@ -62,7 +71,7 @@ The script actually writes `docs/reports/images/view3d/{kalev_smithy,lower_town_
 | Viru foregate 1343 state | pending | pending | **BLOCKED** | Inventory 1.3-1.4; no foregate approach/opening frame |
 | Remaining fortification and precinct walls | pending | pending | **BLOCKED** | Inventory 1.3; no route-scale wall/landmark frame set |
 | Route-scale proof that special buildings are not enlarged ordinary houses | pending | pending | **BLOCKED** | R-491 deliverable; no matched route frame |
-| Existing playable route and landmark approach reproducibility | pending | pending | **BLOCKED** | Current capture script has no route camera presets; its whole-map orthographic smoke run cannot satisfy this gameplay-scale matrix |
+| Existing playable route and landmark approach reproducibility | `street_start_to_smithy_door_day.png`, `smithy_door_to_brewery_door_day.png`, `brewery_door_to_checkpoint_west_day.png`, `checkpoint_west_to_checkpoint_east_day.png` | matching `_night.png` plates | **CAPTURE PACKET COMPLETE** | `capture_manifest.json`; four authored route midpoint presets, matched framing keys, non-blank 1280x720 PNG verification |
 
 Every row above requires one day and one night frame. `pending` is intentionally not a claim that a file exists.
 
@@ -120,18 +129,27 @@ These files exist, but they do not satisfy the P0-101 acceptance contract becaus
 
 ## Blockers and ownership handoff
 
-1. **Capture capability:** add or use a dedicated rendering-capable capture runner with stable gameplay-scale route and approach camera presets. It must write under `docs/reports/images/lower_town_p0_101/` and emit camera/map/time metadata.
-2. **Focused contracts:** the current rerun passes `test_lower_town_slice_map` (19/19) and `test_burgher_house_tiers` (3/3). Preserve these results as the current baseline; the remaining blocker is the missing gameplay-scale route/approach capture capability, not a focused-suite parse failure.
+1. **Capture capability:** **COMPLETE for R-560.** The dedicated runner and eight-plate manifest are under `tools/capture_lower_town_p0_101.gd` and `docs/reports/images/lower_town_p0_101/`; the exact command is recorded above.
+2. **Focused contracts:** `test_capture_lower_town_p0_101.gd` passes 4/4 with 0 failures and 0 errors. The remaining blocker is not packet generation; it is surface-by-surface visual review and upstream route/art handoff.
 3. **Production dependencies:** the ordinary house kits, plot dressing, tier wiring and exceptional-landmark implementation must be complete before the captures can show the required authored visual surfaces. The existing board tasks R-487/R-488/R-489 own those upstream handoffs.
-4. **Review:** after the PNG set exists, run non-blank/dimension checks, capture the same route poses at day and night, then send the matrix plus plates to the canon/art reviewer for R-492. Do not close R-108 from this blocked matrix.
+4. **Review:** the PNG set now exists and passed non-blank/dimension/parity checks. Send the matrix plus plates to the canon/art reviewer for R-492; review each required tier, material, wear, special-building, and landmark row before changing any `pending`/`BLOCKED` status. Do not close R-108 from this matrix.
 
-No new follow-up task is created here: each blocker already has an owning board task or an existing runtime owner, and creating a duplicate would obscure ownership.
+No new follow-up task is created here: each remaining blocker already has an owning board task or an existing runtime owner, and creating a duplicate would obscure ownership.
 
 ## Reproduction and verification checklist
 
 The following commands are the minimum evidence record for the next capture attempt:
 
 ```bash
+# Dedicated gameplay-scale route packet (non-headless; required evidence).
+/Applications/Godot.app/Contents/MacOS/Godot \
+  --path . --rendering-method gl_compatibility --rendering-driver opengl3 \
+  --script tools/capture_lower_town_p0_101.gd
+
+# Focused packet contract (4/4, 0 failures, 0 errors).
+/Applications/Godot.app/Contents/MacOS/Godot --headless --path . \
+  --script tools/run_godot_tests.gd -- --filter=test_capture_lower_town_p0_101
+
 # Whole-map renderer smoke only; not sufficient for this matrix.
 /Applications/Godot.app/Contents/MacOS/Godot \
   --path . --script tools/capture_map_view_3d.gd
@@ -152,7 +170,10 @@ For each future plate, verify dimensions and non-blank output using the existing
 
 - [`lower_town_p0_101_landmark_inventory.md`](lower_town_p0_101_landmark_inventory.md), especially sections 1.1-1.4, 3-4, and 5-6.
 - [`content/maps/lower_town_slice.rrmap`](../../content/maps/lower_town_slice.rrmap), source lines 116-219.
-- [`tools/capture_map_view_3d.gd`](../../tools/capture_map_view_3d.gd), fixed `MAP_IDS`, `OUTPUT_DIR`, viewport, and orthographic view creation.
+- [`tools/capture_lower_town_p0_101.gd`](../../tools/capture_lower_town_p0_101.gd), dedicated route packet runner and manifest schema.
+- [`tests/godot/test_capture_lower_town_p0_101.gd`](../../tests/godot/test_capture_lower_town_p0_101.gd), packet contract and generated-output checks.
+- [`docs/reports/images/lower_town_p0_101/capture_manifest.json`](images/lower_town_p0_101/capture_manifest.json), generated packet metadata and output list.
+- [`tools/capture_map_view_3d.gd`](../../tools/capture_map_view_3d.gd), fixed `MAP_IDS`, `OUTPUT_DIR`, viewport, and supplementary orthographic view creation.
 - [`tests/godot/test_capture_map_view_3d.gd`](../../tests/godot/test_capture_map_view_3d.gd), existing whole-map capture contract.
 - [`tools/verify_adr0018_calibration_captures.py`](../../tools/verify_adr0018_calibration_captures.py), calibration-only image verification and camera modes.
 - [`adr0018_visual_calibration.md`](adr0018_visual_calibration.md), calibration protocol and renderer context.
