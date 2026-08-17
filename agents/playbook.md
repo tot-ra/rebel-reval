@@ -145,3 +145,6 @@ This file contains only cross-role operating lessons. Domain lessons belong to t
 - When updating an existing task to add dependencies, preserve its full body explicitly; an empty `body` argument can erase the acceptance contract even when the dependency update succeeds.
 - The active repository guide is at the project root `AGENTS.md`; verify the exact path before parallel reads instead of inferring it from the connected skills directory.
 - If a compound isolated commit command reports failure after `git commit`, inspect `HEAD` before retrying; output parsing or a later post-commit step can fail after the commit was created and cause duplicates.
+- When `tasks.next` is unfiltered, it can claim an unrelated ready row even after a scoped research lookup; restore that row with its full body before claiming the exact research ref, and verify both board states.
+- When a scoped dossier/index assertion fails before printing diagnostics, rerun it against the live wording; a date split across Markdown table cells can invalidate a composite phrase check without indicating a report defect.
+- When a clean-HEAD patch cannot apply to a dirty index because the same file has pre-existing staged edits, do not force the patch; verify the isolated commit and live worktree markers, then move the branch ref while preserving the staged baseline.
