@@ -139,6 +139,7 @@ The local equivalent of the CI validation job is:
 ```bash
 godot --version
 python3 --version
+tools/verify_clean_checkout_load.sh
 tools/run_godot_checked.sh clean-import godot --headless --editor --quit
 tools/run_godot_checked.sh main-scene godot --headless --quit-after 5
 tools/run_godot_checked.sh playable-room godot --headless --quit-after 5 scenes/reval_east/reval_east.tscn

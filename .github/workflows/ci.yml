@@ -58,6 +58,9 @@ jobs:
       - name: Verify checked Godot runner
         run: test -x tools/run_godot_checked.sh
 
+      - name: Clean-checkout Lower Town parser and MapView3D load gate
+        run: tools/verify_clean_checkout_load.sh
+
       - name: Clean headless import
         run: tools/run_godot_checked.sh clean-import godot --headless --editor --quit
 
