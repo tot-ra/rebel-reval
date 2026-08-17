@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import hashlib
 import json
 import os
@@ -28,6 +29,8 @@ REQUIRED_OBJECT_FIELDS = (
     "scope",
 )
 VALID_SCOPES = frozenset({"runtime", "archive", "research", "narrative"})
+RESEARCH_OWNER = "historical research reference archive"
+RESEARCH_APPROVAL = "reference-only; rights recorded in history/reference/plates.csv"
 
 
 @dataclass(frozen=True)
@@ -41,6 +44,7 @@ class LfsAsset:
     approval: str
     source_reference: str
     scope: str
+    runtime_restore: bool = False
 
 
 def sha256_file(path: Path) -> str:
@@ -58,6 +62,20 @@ def pointer_payload(asset: LfsAsset) -> bytes:
     )
 
 
+def parse_pointer(blob: bytes) -> tuple[str, int] | None:
+    if not blob.startswith(POINTER_HEADER):
+        return None
+    try:
+        fields = dict(
+            line.decode("utf-8").split(" ", 1)
+            for line in blob[len(POINTER_HEADER) :].splitlines()
+            if b" " in line
+        )
+        return fields["oid"], int(fields["size"])
+    except (KeyError, UnicodeDecodeError, ValueError):
+        return None
+
+
 def is_pointer_file(path: Path) -> bool:
     try:
         with path.open("rb") as handle:
@@ -66,7 +84,7 @@ def is_pointer_file(path: Path) -> bool:
         return False
 
 
-def read_manifest(path: Path) -> tuple[dict[str, Any], list[LfsAsset], list[str]]:
+def read_manifest(path: Path, root: Path | None = None) -> tuple[dict[str, Any], list[LfsAsset], list[str]]:
     errors: list[str] = []
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))
@@ -132,6 +150,10 @@ def read_manifest(path: Path) -> tuple[dict[str, Any], list[LfsAsset], list[str]
                 scope=scope,
             )
         )
+    if root is not None:
+        plate_assets, plate_errors = research_plate_assets(root, seen)
+        assets.extend(plate_assets)
+        errors.extend(plate_errors)
     return payload, assets, errors
 
 
@@ -166,9 +188,80 @@ def index_blob(root: Path, path: str) -> bytes | None:
     return result.stdout if result.returncode == 0 else None
 
 
+def research_plate_assets(root: Path, seen: set[str]) -> tuple[list[LfsAsset], list[str]]:
+    """Reconcile fetched plate rows that landed after the static LFS snapshot.
+
+    Research plates remain research evidence, but the clean-checkout gate needs the
+    fetched subset materialized before runtime import. The CSV supplies provenance and
+    rights; the indexed LFS pointer supplies authoritative object size and OID.
+    """
+    plate_manifest = root / "history" / "reference" / "plates.csv"
+    if not plate_manifest.is_file():
+        return [], []
+
+    assets: list[LfsAsset] = []
+    errors: list[str] = []
+    try:
+        with plate_manifest.open(newline="", encoding="utf-8") as handle:
+            rows = csv.DictReader(handle)
+            for number, row in enumerate(rows, start=2):
+                if row.get("status", "").strip().lower() != "fetched":
+                    continue
+                path_value = Path(row.get("local_path", "").strip()).as_posix()
+                sha256 = row.get("sha256", "").strip().lower()
+                if not path_value or not sha256:
+                    errors.append(
+                        f"reference plate row {number} is fetched without path or SHA-256"
+                    )
+                    continue
+                if path_value in seen:
+                    continue
+                relative = Path(path_value)
+                if relative.is_absolute() or ".." in relative.parts:
+                    errors.append(f"reference plate row {number} has unsafe path: {path_value}")
+                    continue
+                if len(sha256) != 64 or any(
+                    character not in "0123456789abcdef" for character in sha256
+                ):
+                    errors.append(f"reference plate row {number} has invalid SHA-256: {sha256}")
+                    continue
+                if not is_lfs_tracked(root, path_value):
+                    continue
+                pointer = parse_pointer(index_blob(root, path_value) or b"")
+                if pointer is None:
+                    errors.append(f"could not read indexed LFS pointer for fetched plate: {path_value}")
+                    continue
+                lfs_oid, size_bytes = pointer
+                if lfs_oid != f"sha256:{sha256}":
+                    errors.append(f"fetched plate pointer OID does not match CSV SHA-256: {path_value}")
+                    continue
+                assets.append(
+                    LfsAsset(
+                        path=path_value,
+                        size_bytes=size_bytes,
+                        sha256=sha256,
+                        lfs_oid=lfs_oid,
+                        owner=RESEARCH_OWNER,
+                        license=row.get("license", "").strip(),
+                        approval=RESEARCH_APPROVAL,
+                        source_reference=f"history/reference/plates.csv:{row.get('plate_id', '').strip()}",
+                        scope="research",
+                        runtime_restore=True,
+                    )
+                )
+                seen.add(path_value)
+    except (OSError, csv.Error) as error:
+        errors.append(f"could not read reference plate manifest {plate_manifest}: {error}")
+    return assets, errors
+
+
 def selected_assets(assets: list[LfsAsset], scope: str) -> list[LfsAsset]:
     if scope == "all":
         return assets
+    if scope == "runtime":
+        # Fetched research plates reconciled from plates.csv are the only research
+        # evidence needed by this runtime restore; inactive research stays excluded.
+        return [asset for asset in assets if asset.scope == "runtime" or asset.runtime_restore]
     return [asset for asset in assets if asset.scope == scope]
 
 
@@ -178,7 +271,7 @@ def validate(
     scope: str = "all",
     require_materialized: bool = False,
 ) -> list[str]:
-    payload, assets, errors = read_manifest(manifest_path)
+    payload, assets, errors = read_manifest(manifest_path, root)
     if errors:
         return errors
     if payload.get("storage") != "github-lfs":
@@ -243,7 +336,7 @@ def main(argv: list[str] | None = None) -> int:
 
     root = args.root.resolve()
     manifest_path = args.manifest.resolve() if args.manifest else root / "docs/lfs_assets.json"
-    _, assets, read_errors = read_manifest(manifest_path)
+    _, assets, read_errors = read_manifest(manifest_path, root)
     if args.command == "paths":
         if read_errors:
             print("\n".join(read_errors), file=sys.stderr)
