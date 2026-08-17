@@ -15,6 +15,11 @@ const Bridge := preload("res://scripts/map/view3d/map_view_bridge.gd")
 
 ## Slight lift above sampled ground to avoid z-fighting while staying imperceptible.
 const GROUND_LIFT := 0.015
+## Decals are view-only overlays, so do not let a negative rolling-ground sample
+## place their quad below the shared visual ground datum. This floor does not
+## alter terrain relief; it only prevents the transparent overlay from sinking
+## below the base plane when the sampled relief dips below zero.
+const GROUND_CLEARANCE_FLOOR := 0.0
 const MASK_DIR := "res://assets/materials/decals"
 
 static var _mask_cache: Dictionary = {}
@@ -102,7 +107,8 @@ static func _build_single(decal: Dictionary, definition: MapDefinition, cell_siz
 	# WHY: cobble/dirt relief sits above y=0; a fixed micro-lift buries stains
 	# under the terrain mesh. Snap to sampled ground like props do.
 	var ground_y := MeshBuilder.ground_height(definition, Vector2(world_pos.x, world_pos.z))
-	mesh_instance.position = Vector3(world_pos.x, ground_y + GROUND_LIFT, world_pos.z)
+	var decal_y := maxf(ground_y, GROUND_CLEARANCE_FLOOR) + GROUND_LIFT
+	mesh_instance.position = Vector3(world_pos.x, decal_y, world_pos.z)
 	if decal.has("rotation"):
 		mesh_instance.rotation.y = decal["rotation"]
 	# Shadow and GI off: decals are purely cosmetic overlays.

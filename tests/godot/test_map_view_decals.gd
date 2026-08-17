@@ -3,6 +3,7 @@ extends "res://tests/godot/test_case.gd"
 const MapBuilder := preload("res://scripts/map/map_builder.gd")
 const MapView3D := preload("res://scripts/map/view3d/map_view_3d.gd")
 const MapViewDecals := preload("res://scripts/map/view3d/map_view_decals.gd")
+const MapViewMeshBuilder := preload("res://scripts/map/view3d/map_view_mesh_builder.gd")
 const SmithyCourtyard := preload("res://scripts/map/smithy_courtyard_definition.gd")
 
 
@@ -46,7 +47,17 @@ func test_decals_placed_from_map_data() -> void:
 	assert_true(material.shader != null, "Decal shader must be assigned")
 	var mask: Variant = material.get_shader_parameter("mask_texture")
 	assert_true(mask != null, "Decal must bind an authored alpha mask texture")
-	# Decals must sit on sampled ground, not under cobble/dirt relief.
+	# Decals must sit on sampled ground, not under cobble/dirt relief. A negative
+	# relief sample is clamped only at the view overlay's world datum; the terrain
+	# mesh and gameplay-facing map data retain their authored/sample values.
+	var expected_decal_y := maxf(
+		MapViewMeshBuilder.ground_height(def, Vector2(soot.position.x, soot.position.z)),
+		MapViewDecals.GROUND_CLEARANCE_FLOOR
+	) + MapViewDecals.GROUND_LIFT
+	assert_true(
+		absf(soot.position.y - expected_decal_y) <= 0.0001,
+		"Decal must preserve sampled ground clearance"
+	)
 	assert_true(soot.position.y >= MapViewDecals.GROUND_LIFT - 0.001, "Decal Y must clear ground lift")
 	view.free()
 

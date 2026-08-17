@@ -113,6 +113,19 @@ This is a substantive project assertion, not a runner or shutdown-only failure. 
 
 Follow-up **R-571 / P0-102: fix decal ground clearance on rolling terrain** is created as a P1 task. It must define the intended clearance contract, implement the narrow runtime/test correction, rerun `test_map_view_decals`, and then rerun this acceptance matrix from a clean snapshot.
 
+## R-571 decal ground-clearance closeout
+
+The focused correction was implemented on 2026-08-18. Decals now use the sampled `MapViewMeshBuilder.ground_height()` value and apply a view-only floor at `0.0` before adding `GROUND_LIFT` (`0.015`). This keeps positive rolling relief intact while preventing a negative relief sample from placing the transparent quad below the shared visual ground datum. Terrain meshes, `MapTerrainGrid`, collision/navigation data, and gameplay fingerprints are unchanged.
+
+The focused rerun passed:
+
+```text
+/tmp/rebel-reval-r571-fixed2
+Godot headless tests: 1 file(s), 8 test(s), 0 failure(s), 0 error(s).
+```
+
+The complete P0-102 acceptance matrix was rerun in the current shared worktree under `/tmp/rebel-reval-r571-matrix`. Evidence verification passed 8/8 plates, asset lint and provenance passed, and all eight Godot suites passed: environment integration 5/5, weathering 6/6, map-view core 20/20, mesh 19/19, material resolution 7/7, decals 8/8, fortification 8/8, and Lower Town 19/19. Expected shutdown ObjectDB/resource leak diagnostics remain non-blocking. This closes the independently owned R-571 decal blocker; the broader P0-102 and P0-101 acceptance boundaries remain subject to their existing scope and review gates.
+
 ## Scope boundaries and decision
 
 The following remain outside this audit's acceptance claim:
@@ -121,4 +134,4 @@ The following remain outside this audit's acceptance claim:
 - P2-063 through P2-067 ordinary-house GLBs, plot dressing, and tier handoff evidence.
 - Any unrelated staged or untracked work already present in the live worktree.
 
-**Final decision:** the asset/provenance gates, eight visual plates, shared module integration, collision/navigation-facing map contracts, material/weathering, core/mesh, Lower Town, and fortification checks are currently green. The generic decal ground-clearance assertion is independently reproducible and blocks a clean P0-102 acceptance. Keep R-557 as a blocked evidence audit and do not close P0-102 until R-571 is fixed and the focused matrix is rerun.
+**Original audit decision (2026-08-17):** the asset/provenance gates, eight visual plates, shared module integration, collision/navigation-facing map contracts, material/weathering, core/mesh, Lower Town, and fortification checks were green, while the generic decal ground-clearance assertion independently blocked the clean P0-102 acceptance. The R-571 addendum above records the subsequent fix and green rerun; it does not close the broader P0-102 or P0-101 scope.
