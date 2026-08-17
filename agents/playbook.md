@@ -152,3 +152,4 @@ This file contains only cross-role operating lessons. Domain lessons belong to t
 - When a non-map runtime patch passes scoped whitespace/lint/tests but the shared pre-commit map audit fails on baseline scene/TODO inventory drift, preserve the scoped evidence and use an isolated `git commit --only --no-verify`; do not absorb unrelated staged WIP.
 - When generating Markdown reports programmatically, strip trailing spaces before building a scoped index; intentional hard-break whitespace still fails `git diff --cached --check`.
 - When repairing an isolated commit helper, inspect the exact committed line before constructing a replacement; a guessed punctuation variant can fail before the amend while leaving the live index safe.
+- When calling `tasks.get`, always pass the exact board reference in `ref`; an empty `ref` fails before lookup and should be retried only with the verified task ref.
