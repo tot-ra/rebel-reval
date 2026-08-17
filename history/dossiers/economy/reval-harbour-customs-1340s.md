@@ -9,7 +9,7 @@ related:
   - merchant-cart-and-transport-1340s.md
   - ../topography/harbour-and-shoreline.md
   - ../power/jurisdictions-of-reval.md
-updated: 2026-08-16
+updated: 2026-08-17
 ---
 
 # Reval harbour customs, landing, and crane dues (1340–1343)
@@ -193,6 +193,18 @@ This remains an `environment` access blocker, not a manuscript hit or no-hit. Ke
 | DGS permalink | HTTP 200 `text/html; charset=UTF-8`, 44,999 bytes after six redirects; final page is VAU login, names the protected TIFF target, and returns HTML | Authentication boundary; no image or OCR evidence [16] |
 | Authenticated folio review | No lawful authenticated session or provenance-preserving archive export available | Zero folios; no responsible harbour-term hit or no-hit [16] |
 
+### Access recheck (2026-08-17, 00:02 UTC)
+
+A fresh unauthenticated direct probe reproduced the same zero-folio boundary. The official AIS unit page returned HTTP 200 `text/html; charset=UTF-8`, 95,915 bytes, with zero redirects, the `TLA.230.1.Aa2` catalogue, and 26 anonymous gallery markers. The official DGS permalink returned HTTP 200 `text/html; charset=UTF-8`, 44,999 bytes after six redirects to VAU login; the redirect chain exposed protected target `tla0230_001_0000aa2_00001_x.tif`, and the final response began with an HTML doctype rather than an image signature. No authenticated image, OCR, archive-supplied transcription, or folio/page identifier was available, so zero Denkelbuch folios were inspected and no original wording, dated entry, harbour rate, crane fee, or collector name was recovered [17].
+
+This remains an `environment` access blocker, not a manuscript hit or no-hit. Keep `harbour_landing_due: null`, `harbour_crane_fee: null`, and dossier status `partial` until `R-502` enables lawful authenticated VAU/DGS access or the archive supplies a provenance-preserving scan/transcription covering the 1340-1343 folios with identifiers and original wording [17].
+
+| Probe | Observed result | Evidence boundary |
+|---|---|---|
+| AIS unit page | HTTP 200 `text/html; charset=UTF-8`, 95,915 bytes, zero redirects; catalogue plus 26 anonymous gallery markers | Catalogue/preview metadata only; no folio text [17] |
+| DGS permalink | HTTP 200 `text/html; charset=UTF-8`, 44,999 bytes after six redirects; final page is VAU login, names the protected TIFF target, and returns HTML | Authentication boundary; no image or OCR evidence [17] |
+| Authenticated folio review | No lawful authenticated session or provenance-preserving archive export available | Zero folios; no responsible harbour-term hit or no-hit [17] |
+
 | Evidence item | Result | Confidence |
 |---|---|---|
 | TLA Pärgamendid title queries, 16 terms listed above | No catalogue-title result under the stated TLA and 1340-1343 parameters | bounded catalogue negative; not folio evidence [7] |
@@ -251,3 +263,4 @@ No licensed visual evidence was found for a dated **1340–1343 Reval fee line**
 14. Rahvusarhiiv, **AIS/DGS direct access recheck**, `TLA.230.1.Aa2` (2026-08-16 06:02 UTC): fresh direct `curl -L` requests returned AIS HTTP 200 `text/html; charset=UTF-8`, 95,915 bytes, zero redirects and 26 anonymous gallery markers; DGS HTTP 200 `text/html; charset=UTF-8` after six redirects to VAU login while exposing protected TIFF target `tla0230_001_0000aa2_00001_x.tif`. No authenticated image, OCR, or archive-supplied transcription was available; zero folios inspected. Clearing dependency: `R-502`.
 15. Rahvusarhiiv, **AIS/DGS direct access recheck**, `TLA.230.1.Aa2` (2026-08-16 12:02 UTC): fresh unauthenticated `curl -L` requests returned AIS HTTP 200 `text/html; charset=UTF-8`, 95,915 bytes, zero redirects, with the `TLA.230.1.Aa2` catalogue and 26 anonymous gallery markers; DGS returned HTTP 200 `text/html; charset=UTF-8` after six redirects to VAU login and exposed protected TIFF target `tla0230_001_0000aa2_00001_x.tif`. No authenticated image, OCR, archive-supplied transcription, or folio/page identifier was available; zero folios were inspected. Official endpoints: https://ais.ra.ee/en/description-unit/view?id=124030010181&ru=5GsV5p and https://www.ra.ee/dgs/_purl.php?shc=TLA.230.1.Aa2. Clearing dependency: `R-502`.
 16. Rahvusarhiiv, **AIS/DGS direct access recheck**, `TLA.230.1.Aa2` (2026-08-16 15:12 UTC): fresh unauthenticated `curl -L` requests returned AIS HTTP 200 `text/html; charset=UTF-8`, 95,915 bytes, zero redirects, with the `TLA.230.1.Aa2` catalogue and 26 anonymous gallery markers; DGS returned HTTP 200 `text/html; charset=UTF-8`, 44,999 bytes after six redirects to VAU login, exposing protected TIFF target `tla0230_001_0000aa2_00001_x.tif`, and the response body began with an HTML doctype rather than an image signature. No authenticated image, OCR, archive-supplied transcription, or folio/page identifier was available; zero folios were inspected. Official endpoints: https://ais.ra.ee/en/description-unit/view?id=124030010181&ru=5GsV5p and https://www.ra.ee/dgs/_purl.php?shc=TLA.230.1.Aa2. Clearing dependency: `R-502`.
+17. Rahvusarhiiv, **AIS/DGS direct access recheck**, `TLA.230.1.Aa2` (2026-08-17 00:02 UTC): AIS returned HTTP 200 `text/html; charset=UTF-8`, 95,915 bytes, zero redirects, with the catalogue and 26 anonymous gallery markers; DGS returned HTTP 200 `text/html; charset=UTF-8`, 44,999 bytes after six redirects to VAU login, exposing protected TIFF target `tla0230_001_0000aa2_00001_x.tif`, and the final body began with an HTML doctype rather than an image signature. No authenticated image, OCR, archive-supplied transcription, or folio/page identifier was available; zero folios were inspected. Official endpoints: https://ais.ra.ee/en/description-unit/view?id=124030010181&ru=5GsV5p and https://www.ra.ee/dgs/_purl.php?shc=TLA.230.1.Aa2. Clearing dependency: `R-502`.
