@@ -416,10 +416,34 @@ static func _expose_authored_gate_leaf_contract(root: Node3D, instance: Node3D) 
 		if authored_part == null:
 			continue
 		var authored_source_node := authored_part.name
-		authored_part.reparent(root, true)
+		# Imported gate leaves are assembled before the landmark enters the SceneTree.
+		# Node3D.reparent(..., true) asks Godot for global_transform and emits a
+		# detached-node diagnostic in that phase, so preserve the root-local transform
+		# explicitly until the module is attached.
+		var authored_transform := _relative_transform_to_root(root, authored_part)
+		var authored_parent := authored_part.get_parent()
+		if authored_parent != null:
+			authored_parent.remove_child(authored_part)
+		authored_part.owner = null
+		root.add_child(authored_part)
+		authored_part.transform = authored_transform
 		authored_part.name = "GateDoor%d" % leaf_index
 		authored_part.material_override = MapViewMaterials.role(&"metal")
 		authored_part.set_meta(&"authored_source_node", authored_source_node)
+
+
+static func _relative_transform_to_root(root: Node3D, node: Node3D) -> Transform3D:
+	var relative := Transform3D.IDENTITY
+	var current: Node = node
+	while current != null and current != root:
+		var current_3d := current as Node3D
+		if current_3d == null:
+			return Transform3D.IDENTITY
+		relative = current_3d.transform * relative
+		current = current.get_parent()
+	if current != root:
+		return Transform3D.IDENTITY
+	return relative
 
 
 static func transition_uses_landmark_visual(
