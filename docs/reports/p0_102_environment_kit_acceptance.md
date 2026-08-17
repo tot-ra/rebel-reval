@@ -189,3 +189,77 @@ The audit checks exactly eight linked plates in `docs/reports/images/p0_102_envi
 The evidence set preserves readability of routes, doors, player approach areas, and interactables. The forge crop includes the furnace/anvil work area, courtyard door, and approach; street/well includes the cistern, wash tub, wet threshold, and `street_start` approach; brewery includes `foaming_mug_brewery`, `brewery_door`, yard props, and approach lane; checkpoint includes `viru_gate_arch`, both gate towers, `gate_cart`, approach lane, and `viru_foregate_arch`. Capture limitations are explicit: the plates are evidence-only camera captures, do not replace P0-101 human visual sign-off, and capture commands can emit non-fatal map-audit or renderer shutdown diagnostics without changing the saved images.
 
 **Audit result:** PASS - 8/8 plates present, decodable, non-blank, paired, and linked exactly once. This verification does not close the outstanding P0-102 implementation prerequisites or unrelated baseline findings recorded above.
+
+## R-542 current acceptance recheck (2026-08-17)
+
+**Task:** R-542 / P0-102 acceptance: verify shared module contract and coverage
+**Snapshot:** `89686cee` (`Document research task-board workflow limits`)
+**Status:** **PARTIAL - scoped provenance and asset lint pass; clean integration completion is blocked by R-565**
+
+This recheck is limited to the P0-102 shared environment kit. It does not author runtime scenes, generated map output, ordinary-house GLBs, tier assignments, or exceptional landmark art. The existing contract in [`p0_102_environment_kit_contract.md`](p0_102_environment_kit_contract.md) remains normative; this addendum records the current artifact and ownership state rather than rewriting historical results.
+
+### Shared module coverage
+
+| Contract family | Required reads / variants | Current artifact and stable interface | Acceptance status |
+|---|---|---|---|
+| Ordinary wall shell | Log, plank, plastered-timber, limestone; local worn/repaired variation | `MapViewMeshBuilderHouseStyles` and `MapViewMaterials.wall_surface_for_building()` resolve authored wall keys and deterministic building weather variants. Shared building nodes are exercised by the integration fixture. | **PASS - artifact and scoped test present** |
+| Gable and roof | Gable-to-street massing; tile, shingle, and thatch covers | `MapViewMeshBuilderHouseStyles.roof_style()` and the shared roof material path resolve `tile`, `shingle`, and `thatch`; tier defaults remain downstream. | **PASS - artifact and material test present** |
+| Door and threshold | Stable entrance, threshold, transition visual, and arrival clearance | `smithy_door`, `brewery_door`, `smithy_door_transition`, and `viru_road_boundary` remain authored interfaces. Transition and route checks are in `test_environment_kit_integration.gd`. | **PASS for authored contract; clean completion partial** |
+| Boundary wall/fence | Limestone or timber/wattle boundary, gates, and open thresholds | Forge yard uses `smithy_yard_fence_north` and `smithy_yard_fence_east`; checkpoint uses the authored Viru wall/tower records and gate-landmark path. | **PASS - artifact and module coverage present** |
+| Drainage and ground wear | Packed earth/mud, wet thresholds, local grime/soot, restrained cobble | `MapViewDecals` is view-only; authored examples include `decal.mud_smithy_door`, `decal.wet_smithy_door`, `decal.mud_brewery_door`, `decal.wet_cistern`, and `decal.mud_checkpoint_east`. | **PASS - authored evidence and decal audit present** |
+| Forge/workshop dressing | Furnace, anvil, bellows, hand tools, quench, charcoal/scrap/fuel | Module `forge_interior` and `forge_yard` resolve the authored `kalev_smithy` / `kalev_smithy` yard records. Stable anchors include `anvil`, `ledger`, `bed_alcove`, `door_courtyard`, and `courtyard_quench`. | **PASS for scoped module; clean completion partial** |
+| Well/street kit | Well body, wash vessel, apron, drainage cue, clear approach | Module `street_well` resolves `cistern`, `cistern_wash_tub`, and `monastery_well`; route anchors include `street_start`, `checkpoint_east`, and `monastery_gate`. | **PASS for scoped module; clean completion partial** |
+| Brewery service yard | Kegs, malt sacks, trade storage, door apron, local wet/mud wear | Module `brewery` resolves `foaming_mug_brewery`, `brewery_door`, `brewery_keg_stack`, `brewery_malt_sacks`, and `evidence_barrels`. | **PASS for scoped module; clean completion partial** |
+| Checkpoint / gate approach | Route throat, gate context, cart/stall/sign dressing, ground transition | Module `checkpoint` resolves `checkpoint_west`, `checkpoint_east`, `market_stall_gate`, `gate_cart`, `viru_gate_arch`, and `viru_foregate_arch`; patrols `viru_watch` and `iron_convoy` remain authored. | **BLOCKED only by R-565 diagnostics; no missing module** |
+| Small trade and yard props | Barrels, carts, stalls, signs, firewood, vegetation, fences | Existing validated prop builders and provenance rows cover the scoped forge, brewery, street, and gate prop families. No new P0-102-specific imported asset is required by the current assembly. | **PASS - provenance covered** |
+| Material and wear presentation | Deterministic per-ID weathering, repaired/worn local presentation | `MapViewMaterials.BUILDING_WEATHER_VARIANTS` contains `worn`, `fresh`, `damp`, and `repaired`; integration and weathering tests cover deterministic variation. | **PASS - scoped asset/lint and material evidence** |
+| Exceptional landmark handoff | Churches, civic/guild structures, gatehouses, and Viru Gate stay outside ordinary kit | `viru_gate_north_tower` and `viru_gate_south_tower` remain wall/fortification records without an ordinary roof; gate arches remain separate view landmarks. | **PASS in boundary assertion; full suite completion partial** |
+
+### Ordinary-house tier boundary
+
+The required R-003 ordinary tiers are explicitly recorded, but are not P0-102-owned environment-kit modules:
+
+- `merchant_stone`: owned by P2-063 / R-209.
+- `merchant_timber`: owned by P2-064 / R-210.
+- `craft_boda`: owned by P2-065 / R-211.
+- Plot and threshold dressing, including cellar necks, yard gates, privies, lean-tos, and merchant-only hoists, is owned by P2-066 / R-212.
+- Lower Town tier assignment, mesh selection, and route/parity wiring is owned by P2-067.
+
+P0-102 may consume these outputs after their contracts are accepted, but it must not substitute generic environment modules for the tier assets or claim their gameplay-scale evidence. Their absence is therefore a downstream handoff blocker, not an unowned P0-102 module.
+
+### Stable IDs and evidence audit
+
+The current acceptance inventory covers the four required spaces and their stable interfaces:
+
+- Forge: `kalev_smithy`, `smithy_door`, `smithy_door_transition`, `door_courtyard`, `anvil`, `ledger`, `bed_alcove`, `courtyard_quench`.
+- Street/well: `cistern`, `cistern_wash_tub`, `monastery_well`, `street_start`, `checkpoint_east`, `monastery_gate`.
+- Brewery: `foaming_mug_brewery`, `brewery_door`, `brewery_keg_stack`, `brewery_malt_sacks`, `evidence_barrels`.
+- Checkpoint: `checkpoint_west`, `checkpoint_east`, `viru_gate_north_tower`, `viru_gate_south_tower`, `viru_gate_arch`, `viru_foregate_arch`, `viru_road_boundary`, `viru_watch`, `iron_convoy`.
+
+The evidence verifier reports **8/8** valid paired plates in `docs/reports/images/p0_102_environment_kit/`. It verifies 1280x720 RGB output, non-flat luminance, distinct day/night bytes, matched framing metadata, and report links for forge, street/well, brewery, and checkpoint. Plate integrity does not replace the missing three-tier gameplay capture or human P0-101 visual sign-off.
+
+### Verification run
+
+Commands run from the live repository on 2026-08-17:
+
+```sh
+python3 tools/validate_asset_sources.py
+# PASS: schema ok; 1155 rows; 999 inventory paths covered; 993 active runtime assets covered
+
+python3 tools/verify_asset_lint.py
+# PASS: 8 style-lock textures, 9 character GLBs, 29 tier-classified character GLBs, 0 portraits checked
+
+python3 tools/verify_p0_102_environment_kit_evidence.py
+# PASS: 8/8 plates
+
+GODOT_BIN=/Applications/Godot.app/Contents/MacOS/Godot
+"$GODOT_BIN" --headless --path . --script tools/run_godot_tests.gd -- \
+  --filter=test_environment_kit_integration
+# 5 tests, 0 assertion failures, 6 engine diagnostics
+```
+
+The focused Godot run reaches all five integration tests and reports no failed assertions. It is not a clean acceptance pass because checkpoint construction emits six existing detached-node diagnostics from `_expose_authored_gate_leaf_contract()` at `scripts/map/view3d/map_view_mesh_builder_landmarks.gd:419`, caused by `reparent(root, true)` before the assembled module is inside the SceneTree. This is the exact scope of **R-565**, which owns the runtime fix and rerun. The diagnostics are not reclassified as missing environment-kit artifacts.
+
+### Final ownership decision
+
+No unowned P0-102 required module was found. Every shared family in the contract has a current builder, authored map-facing interface, existing asset/provenance coverage, or an explicit downstream ownership boundary. The P0-102 acceptance remains **partial** until R-565 removes the detached gate-leaf diagnostics and the downstream ordinary-house/tier handoff provides its separate evidence. No additional follow-up task is needed from R-542.
