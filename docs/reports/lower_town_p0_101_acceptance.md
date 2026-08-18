@@ -126,3 +126,69 @@ Required next actions before a future closeout:
 - [`tests/godot/test_burgher_house_tiers.gd`](../../tests/godot/test_burgher_house_tiers.gd)
 - [`tools/run_godot_checked.sh`](../../tools/run_godot_checked.sh)
 - [`tools/run_godot_tests.gd`](../../tools/run_godot_tests.gd)
+
+---
+
+## R-574 current verification addendum (2026-08-18)
+
+**Scope:** final board-level verification after R-573 package-integrity and the R-532-R-537 / R-559-R-564 handoff reports. This addendum is append-only and does not rewrite historical snapshots, implementation, map content, assets, budgets, thresholds, or human-review decisions.
+
+**Current decision:** **PACKAGE INTEGRITY PASS; P0-101 / R-108 ACCEPTANCE BLOCKED.** Keep R-108 `todo`. R-574 is complete as a verification deliverable and may be marked `done`; its blocked result does not close or waive the parent.
+
+### Current board and artifact reconciliation
+
+| Ref | Current board status | Current evidence / interpretation |
+|---|---|---|
+| R-487 | `in_progress` | Ordinary frontage, wear, and gameplay-visual handoff remains open; R-532 is structural/source PASS but gameplay-visual BLOCKED. |
+| R-488 | `in_progress` | Exceptional landmark implementation handoff remains open; R-533 proves boundaries structurally, not final visual acceptance. |
+| R-489 | `in_progress` | Playable-route art integration handoff remains open; R-534 retains visual/independent-baseline blockers. |
+| R-490 | `in_review` | Runtime QA retains camera, resident-cost, clean-load, and minimum-hardware blockers. |
+| R-491 | `in_review` | Dedicated packet is structurally present, but the capture matrix does not provide stable-ID visual coverage for every required surface. |
+| R-492 | `in_review` | Required silhouette rows remain blocked; named human canon/art reviewers are not assigned. |
+| R-532 | `in_review` | Source and contract evidence pass; tier/material/roof/wear gameplay readability and repetition review remain blocked. |
+| R-533 | `done` | Structural landmark-boundary verification is complete; final visual and historical acceptance remains blocked by its report. |
+| R-534 | `in_review` | Route/parity contracts pass; independent before/after and surface-level visual handoff remain open. |
+| R-535 | `done` | Verification artifact is complete with a blocked runtime/performance result. |
+| R-536 | `done` | Packet-integrity audit is complete; surface-by-surface visual acceptance remains blocked. |
+| R-537 | `done` | Evidence audit is complete; no historical/art approval was issued and all required rows remain blocked. |
+| R-559 | `done` | Dependency preflight is complete with a deterministic blocked readiness result. |
+| R-560 | `in_progress` | Capture capability is reproducible, but the board handoff remains open. |
+| R-561 | `in_review` | Packet audit confirms integrity, while all stable-ID visual rows remain blocked. |
+| R-562 | `done` | Gate implementation and CI contract pass; clean-checkout MapView3D load is blocked by the RRMap parser boundary. |
+| R-563 | `in_review` | M5 renderer evidence is supplementary; declared Intel UHD 620 minimum-hardware evidence is unavailable and resident-node overage remains. |
+| R-564 | `in_review` | Decomposition readiness ledger is complete as BLOCKED, not an overall PASS. |
+| R-573 | `done` | Package-integrity report passes package checks but explicitly preserves final P0-101 BLOCKED. |
+| R-109 / P0-100 | `todo` | Upstream layout/terrain-density handoff is unresolved. |
+| R-213 / P2-067 | `done` | Tier wiring dependency is resolved structurally; visual acceptance still belongs to P0-101. |
+| R-6 / A-009 | `in_review` | Conditional art/reference review is not final gameplay sign-off. |
+| R-108 / P0-101 | `todo` | Parent must remain open. |
+
+### Seven-clause verdicts
+
+1. **Ordinary repetition, material runs, and landmark classification: BLOCKED.** Source inventory and stable IDs are coherent, but gameplay-route repetition and presentation are not visually accepted. Owners: R-487/R-532 and R-488/R-533.
+2. **Three tiers, wall/roof families, and localized wear: BLOCKED.** The tier/map contracts pass, and the packet has four matched route pairs, but no plate is stable-ID annotated for `merchant_stone`, `merchant_timber`, `craft_boda`, each required material/roof family, or readable wear/repair. Owners: R-487/R-532/R-561.
+3. **Exceptional landmarks and 1343 silhouettes: BLOCKED.** The 48 non-ordinary IDs and renderer/view-only boundaries are structurally present, but R-492/R-537 retain blocked per-row verdicts and R-488/R-489 are not closed. Owners: R-488/R-492/R-533/R-537.
+4. **Matched gameplay-scale day/night evidence: BLOCKED for acceptance, PASS for packet integrity.** Manifest audit: 8 PNG plates, 4 presets, 4 matched pairs, `1280x720`, valid PNG signatures, non-blank payloads, `errors=0`; focused capture contract: 4/4. The packet does not cover every required stable-ID surface. Owners: R-491/R-536/R-561.
+5. **Named human historical/art review: BLOCKED.** R-492 and R-537 record no assigned human canon reviewer or human art reviewer and issue no silhouette approval. Owner: R-537/R-492.
+6. **Routes, collision, navigation, occlusion, parity, and performance: PARTIAL - final acceptance BLOCKED.** Green scoped suites: map 19/19, tiers 5/5, smithy 16/16, terrain 6/6, large chunks 8/8, object streaming 7/7, vertical performance 4/4, benchmark 3/3, population cap 2/2; performance manifest check passes. Camera suite: 11 tests, 6 assertion failures, 0 test errors. Clean-load gate: exit 1 after clean checkout/LFS/import, first product diagnostics are `elevation_area` / `elevation_ramp` unknown commands, then 41 failures and 193 errors. R-490/R-535 also retain resident-node and resident-memory overages; R-563 lacks Intel UHD 620 evidence. Owners: camera/runtime owner, R-453/R-455, P3-011/R-563.
+7. **Upstream blockers and handoff boundary: BLOCKED.** R-109 remains `todo`; R-6 remains conditional `in_review`; R-487-R-489 and R-560 remain open; R-561/R-564 retain blocked readiness; no P0-102 or reference-art evidence is promoted.
+
+### Validator and package evidence
+
+| Check | Current result | Classification |
+|---|---|---|
+| `python3 tools/validate_asset_sources.py` | PASS - 1155 rows, 999 inventory paths, 993 active runtime assets | Relevant package/provenance validation is green. |
+| Manifest/link audit | PASS - `plates=8`, `presets=4`, `errors=0`; 19 concrete links in this report, 0 missing | Relevant acceptance package integrity is green. |
+| `python3 tools/report_slice_performance.py --check` | PASS - manifest and slice gates valid | Contract/schema evidence only; not a hardware measurement. |
+| `python3 tools/verify_map_audit.py` | FAIL - missing scene coverage, target mismatch, missing strict TODO tasks, and P2-012/P2-021 dependency drift | Baseline repository inventory/TODO drift; not repaired or counted as a P0-101 acceptance PASS. |
+| `python3 tools/verify_map_conversion_plan.py` | FAIL - same baseline scene/TODO/target/dependency drift | Baseline repository inventory/TODO drift; not repaired or counted as a P0-101 acceptance PASS. |
+| `python3 tools/generate_active_docs_report.py --check` | FAIL - `docs/reports/active_markdown_report.md` is stale | Documentation baseline drift; not repaired in this verification-only task. |
+| `python3 -m unittest tests.python.test_verify_clean_checkout_load -v` | PASS - 7 tests, 1 expected skip | Gate implementation contract is green; live clean load remains blocked as above. |
+
+The current dedicated packet is valid package evidence, superseding only the older absence statement in the historical R-538 text. It does not supersede R-538's blocked outcome or the surface-level blockers recorded by R-536/R-561/R-537. Supplementary whole-map, calibration, debug, and conversion images remain non-acceptance evidence.
+
+### Closeout
+
+**R-574 result: verification complete as a deterministic BLOCKED ledger; R-108 / P0-101 cannot move to `done`.** Do not close the parent until the named owners provide stable-ID-linked day/night visual observations, human canon/art sign-off, green clean-checkout load, camera/runtime and resident-budget resolution, declared minimum-hardware evidence, and resolved upstream/handoff statuses. No duplicate follow-up task is created because existing board owners cover each blocker.
+
+**Sources:** [`r573_lower_town_acceptance_package_integrity.md`](r573_lower_town_acceptance_package_integrity.md), [`r536_lower_town_day_night_capture_verification.md`](r536_lower_town_day_night_capture_verification.md), [`r561_lower_town_gameplay_evidence_audit.md`](r561_lower_town_gameplay_evidence_audit.md), [`r537_lower_town_historical_art_signoff.md`](r537_lower_town_historical_art_signoff.md), [`p0_101_decomposition_readiness.md`](p0_101_decomposition_readiness.md), [`p0_101_clean_checkout_load_gate.md`](p0_101_clean_checkout_load_gate.md), [`p0_101_gpu_budget_evidence.md`](p0_101_gpu_budget_evidence.md), [`r535_lower_town_runtime_performance_verification.md`](r535_lower_town_runtime_performance_verification.md), [`images/lower_town_p0_101/capture_manifest.json`](images/lower_town_p0_101/capture_manifest.json).
