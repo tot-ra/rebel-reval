@@ -1,0 +1,34 @@
+{
+  "approval": "task-authorized",
+  "dimensions_m": {
+    "depth": 18.0,
+    "frontage": 8.6,
+    "typical_storeys": 2
+  },
+  "features": {
+    "default_hoist": false,
+    "late_gothic_facade": false,
+    "optional_stone_cellar": true,
+    "shingle_forward_roof": true,
+    "small_shuttered_openings": true,
+    "timber_or_plastered_front": true
+  },
+  "id": "prop.architecture.house.merchant_timber",
+  "kind": "rigid_architecture",
+  "style_refs": [
+    "history/dossiers/architecture/burgher-house-plan.md",
+    "docs/reports/burgher_house_art_brief.md",
+    "docs/ART_BIBLE.md",
+    "docs/MATERIAL_STYLE_LOCK_KIT.md"
+  ],
+  "target": "res://assets/props/architecture/houses/merchant_timber/merchant_timber.glb",
+  "textures": {
+    "albedo": 512,
+    "embedded": true
+  },
+  "tier": "merchant_timber",
+  "triangles": {
+    "max": 9000,
+    "target": 4500
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "assets": {
+    "prop.architecture.house.merchant_timber": {
+      "asset_id": "prop.architecture.house.merchant_timber",
+      "checks": {
+        "grounded": true,
+        "non_empty": true,
+        "triangles_in_budget": true
+      },
+      "dimensions_m": [
+        9.6449,
+        19.12,
+        11.7756
+      ],
+      "hoist_default": false,
+      "profile": "merchant_timber",
+      "roof_default": "shingle",
+      "sha256": "ec35e038cafa12f6e25ec1ec7b06fb38ec3cd71d5c876553c123ae4477bfae16",
+      "stone_cellar_base": true,
+      "surfaces": 56,
+      "timber_frame": true,
+      "triangles": 2112
+    }
+  },
+  "blender": "Blender 5.2 LTS",
+  "generator": "burgher_house_kit_v1",
+  "historical_basis": "history/dossiers/architecture/burgher-house-plan.md"
+}

@@ -9,6 +9,7 @@ const _RoofDressing := preload(
 )
 const _Structure := preload("res://scripts/map/view3d/map_view_mesh_builder_house_structure.gd")
 const _Rural := preload("res://scripts/map/view3d/map_view_rural_dwelling_models.gd")
+const _ProductionModels := preload("res://scripts/map/view3d/map_view_burgher_house_models.gd")
 const TOWN_HALL_ARCADE_THICKNESS := 0.62
 const TOWN_HALL_CORRIDOR_DEPTH := 1.5
 ## How far the door leaf stands off the gallery back wall, so the dark doorway
@@ -85,6 +86,13 @@ static func add_authored_facade(
 	elif MapViewMonasticModels.is_oratory(building):
 		MapViewMonasticModels.add_oratory_facade(root, building, size, height)
 
+
+static func add_production_model(
+	root: Node3D, building: Dictionary, size: Vector2, height: float
+) -> Node3D:
+	if not _ProductionModels.is_production_tier(building):
+		return null
+	return _ProductionModels.add_model(root, building, size, height)
 
 static func add_historic_building_details(
 	root: Node3D, building: Dictionary, size: Vector2, height: float, along_ridge_x: bool
