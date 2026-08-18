@@ -7,7 +7,18 @@ extends Node
 ## reports draw calls, primitives and a census of the visual node types that
 ## drive them, which is what actually decides frame rate on this map.
 
+const BirdAmbientAudio := preload("res://scripts/map/view3d/map_view_bird_ambient_audio.gd")
+const BirdFlight := preload("res://scripts/map/view3d/map_view_bird_flight.gd")
+const UrbanFauna := preload("res://scripts/map/view3d/map_view_urban_fauna.gd")
+const PennedFauna := preload("res://scripts/map/view3d/map_view_penned_fauna.gd")
 const DEFAULT_OUTPUT := "user://lower_town_render_probe.json"
+const MIB := 1024.0 * 1024.0
+
+var _memory_before := 0
+
+
+func _enter_tree() -> void:
+	_memory_before = int(Performance.get_monitor(Performance.MEMORY_STATIC))
 
 
 func _ready() -> void:
@@ -26,6 +37,11 @@ func _record() -> void:
 	var previous := Time.get_ticks_usec()
 	var draw_calls := 0
 	var primitives := 0
+	var bird_audio_peak := 0
+	var bird_flight_peak := 0
+	var urban_fauna_peak := 0
+	var penned_fauna_peak := 0
+	var view_runtime = scene_root.get_node_or_null("MapViewRuntime")
 	for ignored in 120:
 		await get_tree().process_frame
 		var current := Time.get_ticks_usec()
@@ -37,7 +53,13 @@ func _record() -> void:
 		primitives = maxi(primitives, int(RenderingServer.get_rendering_info(
 			RenderingServer.RENDERING_INFO_TOTAL_PRIMITIVES_IN_FRAME
 		)))
+		if view_runtime != null:
+			bird_audio_peak = maxi(bird_audio_peak, view_runtime.bird_audio_active_voice_count())
+			bird_flight_peak = maxi(bird_flight_peak, view_runtime.bird_flight_active_count())
+			urban_fauna_peak = maxi(urban_fauna_peak, view_runtime.urban_fauna_active_count())
+			penned_fauna_peak = maxi(penned_fauna_peak, view_runtime.penned_fauna_active_count())
 	frame_times.sort()
+	var memory_after := int(Performance.get_monitor(Performance.MEMORY_STATIC))
 	var census := {}
 	var heavy: Array = []
 	_census(scene_root, census, heavy, "")
@@ -50,7 +72,19 @@ func _record() -> void:
 		"frame_time_ms_p95": frame_times[clampi(
 			ceili(float(frame_times.size()) * 0.95) - 1, 0, frame_times.size() - 1
 		)],
-		"video_mem_mib": Performance.get_monitor(Performance.RENDER_VIDEO_MEM_USED) / 1048576.0,
+		"video_mem_mib": Performance.get_monitor(Performance.RENDER_VIDEO_MEM_USED) / MIB,
+		"memory_static_bytes": memory_after,
+		"memory_delta_mib": maxf(0.0, float(memory_after - _memory_before) / MIB),
+		"node_count": _count_nodes(scene_root),
+		"collision_count": _count_collisions(scene_root),
+		"bird_audio_peak": bird_audio_peak,
+		"bird_flight_peak": bird_flight_peak,
+		"urban_fauna_peak": urban_fauna_peak,
+		"penned_fauna_peak": penned_fauna_peak,
+		"bird_audio_cap": BirdAmbientAudio.MAX_CONCURRENT_VOICES,
+		"bird_flight_cap": BirdFlight.MAX_CONCURRENT_BIRDS,
+		"urban_fauna_cap": UrbanFauna.MAX_CONCURRENT_FAUNA,
+		"penned_fauna_cap": PennedFauna.MAX_CONCURRENT_FAUNA,
 		"census": census,
 		"heaviest_parents": heavy.slice(0, 40),
 	}
@@ -70,6 +104,20 @@ func _record() -> void:
 	file.store_string(JSON.stringify(report, "  ") + "\n")
 	file.close()
 	get_tree().quit(0)
+
+
+func _count_nodes(node: Node) -> int:
+	var count := 1
+	for child in node.get_children():
+		count += _count_nodes(child)
+	return count
+
+
+func _count_collisions(node: Node) -> int:
+	var count := 1 if node is CollisionShape2D or node is CollisionPolygon2D else 0
+	for child in node.get_children():
+		count += _count_collisions(child)
+	return count
 
 
 ## Attribution switches. They only mutate the running probe instance so a single
