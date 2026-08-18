@@ -1,6 +1,6 @@
 # P0-102f Environment Kit Integration
 
-**Status:** Acceptance verification blocked by a runtime diagnostic
+**Status:** Acceptance verification partially blocked by adjacent Lower Town parity drift
 **Task:** R-539 (verification of P0-102f)
 **Scope:** Forge, street/well, brewery, and checkpoint compositions in the Lower Town slice.
 
@@ -36,9 +36,9 @@ The fixture verifies:
 | Collision parity | **PASS** | Smithy `test_kalev_smithy_collision_parity` passes; Lower Town wall/causeway and walkability checks pass. |
 | Navigation | **PASS** | Lower Town navigation-region, water exclusion, Viru causeway connectivity, and south-quarter seam tests pass. |
 | No scene-specific camera/material overrides | **PASS** | View-only module metadata, deterministic signatures, shared material path, and fingerprint-preservation assertions pass. No camera or bespoke material override is introduced by the acceptance fixture. |
-| Checked environment-kit suite | **BLOCKED** | 3/5 integration methods pass; 2 methods are interrupted by 6 engine diagnostics from detached gate-leaf reparenting. No assertion failure occurred. |
-| Checked smithy suite | **PASS** | `test_kalev_smithy_map`: 16 tests, 0 failures, 0 errors. |
-| Checked Lower Town suite | **PASS** | `test_lower_town_slice_map`: 19 tests, 0 failures, 0 errors. |
+| Checked environment-kit suite | **PASS** | Current live checkout: `test_environment_kit_integration`: 5 tests, 0 failures, 0 errors, 0 unexpected diagnostics; R-565's detached gate-leaf runtime blocker is resolved. |
+| Checked smithy suite | **PASS** | Current live checkout: `test_kalev_smithy_map`: 16 tests, 0 failures, 0 errors. |
+| Checked Lower Town suite | **BLOCKED - adjacent map WIP** | Current live checkout: 19 tests, 18 pass, 1 failure in `test_lower_town_slice_matches_canonical_parity_fixture`; the fixture is unchanged while the dirty `content/maps/lower_town_slice.rrmap` contains adjacent service-yard/rear-workroom authoring. The remaining 18 Lower Town tests pass. |
 
 ## Verification
 
@@ -64,12 +64,14 @@ tools/run_godot_checked.sh --require-test-summary r539-lower-town -- \
 
 Logs:
 
-- `/tmp/rebel-reval-r539/r539-environment-kit.log` - `1 file, 5 tests, 0 failures, 6 errors`; checked runner status 1.
-- `/tmp/rebel-reval-r539/r539-smithy.log` - `1 file, 16 tests, 0 failures, 0 errors`; checked runner status 0.
-- `/tmp/rebel-reval-r539/r539-lower-town.log` - `1 file, 19 tests, 0 failures, 0 errors`; checked runner status 0.
+- `/tmp/rebel-reval-r539-rerun/r539-environment-kit-rerun.log` - `1 file, 5 tests, 0 failures, 0 errors`; checked runner status 0.
+- `/tmp/rebel-reval-r539-rerun/r539-smithy-rerun.log` - `1 file, 16 tests, 0 failures, 0 errors`; checked runner status 0.
+- `/tmp/rebel-reval-r539-rerun/r539-lower-town-rerun.log` - `1 file, 19 tests, 1 failure, 0 errors`; checked runner status 1. The failure is the canonical parity comparison at `test_lower_town_slice_matches_canonical_parity_fixture`; all other 18 tests pass.
 
-The environment-kit blocker is emitted at `scripts/map/view3d/map_view_mesh_builder_landmarks.gd:419` while `_expose_authored_gate_leaf_contract()` executes `authored_part.reparent(root, true)` on a module that is not inside the SceneTree. This is runtime code outside R-539's verification-only allowlist and is tracked as follow-up R-565. The acceptance remains blocked until R-565 reruns the environment-kit suite cleanly.
+The previous detached gate-leaf diagnostic is resolved by completed follow-up R-565. The remaining acceptance blocker is outside R-539's verification allowlist: the live `content/maps/lower_town_slice.rrmap` has adjacent Lower Town authoring changes (rear property lanes, workrooms, service-yard props, and view-only wear), while `tests/fixtures/maps/lower_town_slice.parity.json` remains unchanged. R-539 does not regenerate or edit that fixture. Re-run this acceptance after the owning Lower Town authoring/parity work (R-547 and dependent R-550/R-552/R-553) lands or is explicitly isolated; do not promote the current 18/19 map-suite result to a clean parity pass.
+
+A detached `HEAD` baseline was also checked after Godot import. It is not a valid substitute for the live authored adapter state: the older snapshot rejects current `elevation_area`/`elevation_ramp` map commands and produces cascading missing-definition failures. Those diagnostics are recorded as baseline age, not attributed to the environment-kit modules.
 
 ## Boundary
 
-This task does not claim ordinary house-tier authoring, plot dressing, new environment primitives, landmark art quality, map-density work, or day/night capture sign-off. Those remain owned by P2-063-P2-067, P0-101, and the other P0-102 handoff tasks. No runtime, test, or map source was changed by R-539.
+This task does not claim ordinary house-tier authoring, plot dressing, new environment primitives, landmark art quality, map-density work, day/night capture sign-off, or parity regeneration for adjacent Lower Town authoring. Those remain owned by P2-063-P2-067, P0-101, R-547 and the dependent Lower Town closeout tasks. R-539 changed only this acceptance report; no runtime, test, map source, or parity fixture was changed.
