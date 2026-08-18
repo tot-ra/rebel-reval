@@ -149,6 +149,17 @@ Existing reports and the capture matrix retain those rows as pending or blocked.
 
 Do not close R-553. Do not close R-109/P0-100 or claim final Lower Town acceptance. Preserve the existing ownership split: R-550 owns composition enforcement and fixtures, R-551 owns capture evidence, R-552 owns route/runtime/streaming verification, and R-547-R-549 own the implementation gaps. R-553 performs no remediation and creates no duplicate follow-up task.
 
+### Automated closeout preflight
+
+Before reclassifying this report after downstream work lands, run:
+
+```bash
+python3 tools/verify_r553_lower_town_closeout.py
+python3 -m unittest tests.python.test_verify_r553_lower_town_closeout -v
+```
+
+The guard validates the complete R-109 requirement matrix, reproduction-command inventory, local evidence links, and the composition-enforcement boundary. While `lower_town_slice.enforce=false`, it rejects any non-blocked decision or attempt to close R-109/P0-100.
+
 ## Sources
 
 - [`content/maps/lower_town_slice.rrmap`](../../content/maps/lower_town_slice.rrmap)
