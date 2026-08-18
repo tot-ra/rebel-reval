@@ -170,3 +170,5 @@ This file contains only cross-role operating lessons. Domain lessons belong to t
 
 - When `validate_asset_sources.py` reports a large pre-existing list of embedded texture paths after adding one provenance row, parse and verify the new row separately; classify the repository-wide missing-texture inventory as baseline drift and keep the new asset's SHA-256/evidence checks scoped.
 - When validating a new untracked Markdown report, `git diff --no-index --check /dev/null <file>` returns status 1 for a valid diff; run a separate trailing-whitespace check instead of treating that expected status as a report defect.
+- When invoking a repository script from bash, do not rely on an unset helper such as `$ROOT`; use the explicit project path or initialize the variable before expansion, then classify exit 127 as an invocation error only after confirming Godot did not start.
+- When constructing an isolated Git index candidate, update a path with the complete intended file blob, not a fragment containing only the new line; otherwise a narrow commit can silently delete accumulated playbook lessons.
