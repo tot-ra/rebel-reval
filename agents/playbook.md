@@ -169,3 +169,4 @@ This file contains only cross-role operating lessons. Domain lessons belong to t
 - When `tasks.list` ignores priority/complexity filters or `next` returns an unrelated row, inspect the project-scoped `tasks` table directly to rank open work; use the board's internal `R-*` ref for `tasks.get`, and restore any accidentally claimed row before proceeding.
 
 - When `validate_asset_sources.py` reports a large pre-existing list of embedded texture paths after adding one provenance row, parse and verify the new row separately; classify the repository-wide missing-texture inventory as baseline drift and keep the new asset's SHA-256/evidence checks scoped.
+- When validating a new untracked Markdown report, `git diff --no-index --check /dev/null <file>` returns status 1 for a valid diff; run a separate trailing-whitespace check instead of treating that expected status as a report defect.
