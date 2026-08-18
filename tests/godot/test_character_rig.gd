@@ -717,3 +717,46 @@ func _instantiate(scene: PackedScene) -> SharedCharacterRig:
 	var tree := Engine.get_main_loop() as SceneTree
 	tree.root.add_child(character)
 	return character
+
+
+func test_seeded_population_variants_are_deterministic_and_measurably_distinct() -> void:
+	var path := "res://assets/characters/variants/generated/population_variants.json"
+	assert_true(FileAccess.file_exists(path), "seeded population manifest must be committed")
+	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+	assert_true(parsed is Dictionary, "population manifest must parse")
+	if not parsed is Dictionary:
+		return
+	assert_eq(parsed.get("schema", ""), "rebel.population_variants.v1")
+	assert_eq(parsed.get("algorithm", ""), "sha256 channel sampling")
+	var determinism: Dictionary = parsed.get("determinism_probe", {})
+	assert_eq(
+		determinism.get("first", {}),
+		determinism.get("repeat", {}),
+		"resolving the same population seed twice must produce the same body"
+	)
+	var variants: Array = parsed.get("variants", [])
+	assert_true(variants.size() >= 8, "population proof needs a representative seeded batch")
+	var seeds := {}
+	var heights := {}
+	var builds := {}
+	var skins := {}
+	var garments := {}
+	for value: Variant in variants:
+		assert_true(value is Dictionary, "every population variant must be structured")
+		if not value is Dictionary:
+			continue
+		var variant: Dictionary = value
+		seeds[variant.get("seed")] = true
+		heights[variant.get("height_scale")] = true
+		builds[JSON.stringify(variant.get("build", {}), "", true)] = true
+		skins[variant.get("skin_tone")] = true
+		garments[variant.get("garment_palette")] = true
+		assert_true(
+			String(variant.get("output", "")).begins_with("assets/characters/variants/generated/npc_"),
+			"generated population output must stay in the allowlisted variant directory"
+		)
+	assert_eq(seeds.size(), variants.size(), "the proof batch must not repeat seeds")
+	assert_eq(heights.size(), variants.size(), "different seeds must vary stature")
+	assert_eq(builds.size(), variants.size(), "different seeds must vary body build")
+	assert_true(skins.size() >= 3, "the batch must visibly vary complexion")
+	assert_true(garments.size() >= 3, "the batch must visibly vary garment palette")

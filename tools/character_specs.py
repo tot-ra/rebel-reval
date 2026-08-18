@@ -31,6 +31,13 @@ Spec fields (all optional except output):
   body ("cape", "hat"). Usually only the shared hero set carries these.
 """
 
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+from pathlib import Path
+
 BASE_PROPORTIONS = {
     "leg_length": 1.85,
     "arm_length": 1.25,
@@ -566,3 +573,138 @@ def spec(name: str) -> dict:
         "garments": entry.get("garments", []),
         "skeleton_intermediate": f"tools/character_build/{name}_skeleton.glb",
     }
+
+
+# Population bodies intentionally use a small set of authored silhouettes as a
+# safe foundation, then vary continuous measurements and historically muted
+# material palettes. Named cast specs never enter this path.
+POPULATION_ARCHETYPES = ("adult", "innkeeper", "townswoman")
+POPULATION_SKIN_TONES = (
+    (0.86, 0.66, 0.50, 1.0),
+    (0.78, 0.55, 0.39, 1.0),
+    (0.68, 0.45, 0.31, 1.0),
+    (0.57, 0.37, 0.25, 1.0),
+)
+POPULATION_GARMENT_PALETTES = (
+    {"tunic": (0.31, 0.27, 0.18, 1.0), "sleeves": (0.61, 0.57, 0.43, 1.0), "pants": (0.20, 0.18, 0.14, 1.0), "outerwear": (0.38, 0.29, 0.18, 1.0), "trim": (0.50, 0.38, 0.22, 1.0)},
+    {"tunic": (0.25, 0.32, 0.30, 1.0), "sleeves": (0.66, 0.63, 0.52, 1.0), "pants": (0.18, 0.20, 0.19, 1.0), "outerwear": (0.31, 0.38, 0.34, 1.0), "trim": (0.44, 0.34, 0.21, 1.0)},
+    {"tunic": (0.39, 0.25, 0.20, 1.0), "sleeves": (0.70, 0.61, 0.48, 1.0), "pants": (0.23, 0.17, 0.15, 1.0), "outerwear": (0.45, 0.31, 0.22, 1.0), "trim": (0.55, 0.43, 0.25, 1.0)},
+    {"tunic": (0.29, 0.30, 0.39, 1.0), "sleeves": (0.62, 0.59, 0.55, 1.0), "pants": (0.17, 0.18, 0.24, 1.0), "outerwear": (0.34, 0.34, 0.42, 1.0), "trim": (0.47, 0.38, 0.25, 1.0)},
+)
+
+
+def _seed_unit(seed: int, channel: str) -> float:
+    """Stable [0, 1) sample independent of Python's randomized hash seed."""
+    digest = hashlib.sha256(f"rebel.population.v1:{seed}:{channel}".encode("utf-8")).digest()
+    return int.from_bytes(digest[:8], "big") / float(1 << 64)
+
+
+def _seed_index(seed: int, channel: str, size: int) -> int:
+    return min(int(_seed_unit(seed, channel) * size), size - 1)
+
+
+def population_spec(seed: int, *, archetype: str = "adult", fidelity_tier: int = 2) -> dict:
+    """Resolve one reproducible Tier-1/Tier-2 population body recipe.
+
+    Height is exported as a uniform model scale so the shared skeleton and all
+    animation tracks remain compatible. Build changes affect generated mesh
+    radii, while palette swaps keep the existing PBR texture families attached.
+    """
+    if archetype not in POPULATION_ARCHETYPES:
+        raise KeyError(f"unknown population archetype '{archetype}'; known: {POPULATION_ARCHETYPES}")
+    if fidelity_tier not in (1, 2):
+        raise ValueError("population fidelity tier must be 1 or 2")
+
+    base_name = "hero" if archetype == "adult" else archetype
+    base = spec(base_name)
+    height_scale = 0.93 + _seed_unit(seed, "height") * 0.14
+    bulk = 0.86 + _seed_unit(seed, "bulk") * 0.30
+    chest = 0.90 + _seed_unit(seed, "chest") * 0.22
+    belly = 0.90 + _seed_unit(seed, "belly") * 0.28
+    skin_index = _seed_index(seed, "skin", len(POPULATION_SKIN_TONES))
+    garment_index = _seed_index(seed, "garment", len(POPULATION_GARMENT_PALETTES))
+    palette = dict(base["palette"])
+    palette.update(POPULATION_GARMENT_PALETTES[garment_index])
+    palette["skin"] = POPULATION_SKIN_TONES[skin_index]
+
+    slug = f"npc_{archetype}_t{fidelity_tier}_{seed}"
+    base.update(
+        {
+            "name": slug,
+            "population_seed": int(seed),
+            "population_archetype": archetype,
+            "height_scale": round(height_scale, 6),
+            "shape": {
+                **base["shape"],
+                "bulk": round(bulk, 6),
+                "chest_breadth": round(chest, 6),
+                "belly": round(belly, 6),
+            },
+            "palette": palette,
+            "output": f"assets/characters/variants/generated/{slug}.glb",
+            "fidelity_tier": fidelity_tier,
+            "garments": [],
+            "variation": {
+                "height_scale": round(height_scale, 6),
+                "build": {
+                    "bulk": round(bulk, 6),
+                    "chest_breadth": round(chest, 6),
+                    "belly": round(belly, 6),
+                },
+                "skin_tone": skin_index,
+                "garment_palette": garment_index,
+            },
+        }
+    )
+    return base
+
+
+def population_manifest(seeds: list[int], *, archetype: str = "adult", fidelity_tier: int = 2) -> dict:
+    resolved = [population_spec(seed, archetype=archetype, fidelity_tier=fidelity_tier) for seed in seeds]
+    first_probe = population_spec(seeds[0], archetype=archetype, fidelity_tier=fidelity_tier)
+    repeated_probe = population_spec(seeds[0], archetype=archetype, fidelity_tier=fidelity_tier)
+    return {
+        "schema": "rebel.population_variants.v1",
+        "generator": "tools/character_specs.py",
+        "algorithm": "sha256 channel sampling",
+        "archetype": archetype,
+        "fidelity_tier": fidelity_tier,
+        "determinism_probe": {
+            "seed": seeds[0],
+            "first": first_probe["variation"],
+            "repeat": repeated_probe["variation"],
+        },
+        "variants": [
+            {
+                "seed": item["population_seed"],
+                "output": item["output"],
+                **item["variation"],
+                "palette_srgb": {key: list(value) for key, value in item["palette"].items()},
+            }
+            for item in resolved
+        ],
+    }
+
+
+def _main() -> None:
+    parser = argparse.ArgumentParser(description="Resolve deterministic NPC population body variants")
+    parser.add_argument("--population-seed", type=int, action="append", dest="seeds")
+    parser.add_argument("--count", type=int, default=0, help="also resolve seeds 0..count-1")
+    parser.add_argument("--archetype", choices=POPULATION_ARCHETYPES, default="adult")
+    parser.add_argument("--tier", type=int, choices=(1, 2), default=2)
+    parser.add_argument("--output", type=Path, help="write JSON manifest instead of stdout")
+    args = parser.parse_args()
+    seeds = list(args.seeds or []) + list(range(args.count))
+    if not seeds:
+        parser.error("provide --population-seed and/or --count")
+    payload = population_manifest(seeds, archetype=args.archetype, fidelity_tier=args.tier)
+    encoded = json.dumps(payload, indent=2, sort_keys=True) + "\n"
+    if args.output:
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(encoded, encoding="utf-8")
+    else:
+        print(encoded, end="")
+
+
+if __name__ == "__main__":
+    _main()

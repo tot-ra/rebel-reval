@@ -1,0 +1,672 @@
+{
+  "algorithm": "sha256 channel sampling",
+  "archetype": "adult",
+  "determinism_probe": {
+    "first": {
+      "build": {
+        "belly": 1.025282,
+        "bulk": 1.130985,
+        "chest_breadth": 0.990459
+      },
+      "garment_palette": 2,
+      "height_scale": 1.053747,
+      "skin_tone": 3
+    },
+    "repeat": {
+      "build": {
+        "belly": 1.025282,
+        "bulk": 1.130985,
+        "chest_breadth": 0.990459
+      },
+      "garment_palette": 2,
+      "height_scale": 1.053747,
+      "skin_tone": 3
+    },
+    "seed": 100
+  },
+  "fidelity_tier": 2,
+  "generator": "tools/character_specs.py",
+  "schema": "rebel.population_variants.v1",
+  "variants": [
+    {
+      "build": {
+        "belly": 1.025282,
+        "bulk": 1.130985,
+        "chest_breadth": 0.990459
+      },
+      "garment_palette": 2,
+      "height_scale": 1.053747,
+      "output": "assets/characters/variants/generated/npc_adult_t2_100.glb",
+      "palette_srgb": {
+        "beard": [
+          0.42,
+          0.28,
+          0.16,
+          1.0
+        ],
+        "belt": [
+          0.62,
+          0.46,
+          0.28,
+          1.0
+        ],
+        "boots": [
+          0.42,
+          0.28,
+          0.16,
+          1.0
+        ],
+        "hair": [
+          0.48,
+          0.32,
+          0.2,
+          1.0
+        ],
+        "outerwear": [
+          0.45,
+          0.31,
+          0.22,
+          1.0
+        ],
+        "pants": [
+          0.23,
+          0.17,
+          0.15,
+          1.0
+        ],
+        "skin": [
+          0.57,
+          0.37,
+          0.25,
+          1.0
+        ],
+        "sleeve_band": [
+          0.22,
+          0.42,
+          0.72,
+          1.0
+        ],
+        "sleeves": [
+          0.7,
+          0.61,
+          0.48,
+          1.0
+        ],
+        "trim": [
+          0.55,
+          0.43,
+          0.25,
+          1.0
+        ],
+        "tunic": [
+          0.39,
+          0.25,
+          0.2,
+          1.0
+        ]
+      },
+      "seed": 100,
+      "skin_tone": 3
+    },
+    {
+      "build": {
+        "belly": 0.995189,
+        "bulk": 1.118851,
+        "chest_breadth": 1.104476
+      },
+      "garment_palette": 3,
+      "height_scale": 1.00633,
+      "output": "assets/characters/variants/generated/npc_adult_t2_101.glb",
+      "palette_srgb": {
+        "beard": [
+          0.42,
+          0.28,
+          0.16,
+          1.0
+        ],
+        "belt": [
+          0.62,
+          0.46,
+          0.28,
+          1.0
+        ],
+        "boots": [
+          0.42,
+          0.28,
+          0.16,
+          1.0
+        ],
+        "hair": [
+          0.48,
+          0.32,
+          0.2,
+          1.0
+        ],
+        "outerwear": [
+          0.34,
+          0.34,
+          0.42,
+          1.0
+        ],
+        "pants": [
+          0.17,
+          0.18,
+          0.24,
+          1.0
+        ],
+        "skin": [
+          0.86,
+          0.66,
+          0.5,
+          1.0
+        ],
+        "sleeve_band": [
+          0.22,
+          0.42,
+          0.72,
+          1.0
+        ],
+        "sleeves": [
+          0.62,
+          0.59,
+          0.55,
+          1.0
+        ],
+        "trim": [
+          0.47,
+          0.38,
+          0.25,
+          1.0
+        ],
+        "tunic": [
+          0.29,
+          0.3,
+          0.39,
+          1.0
+        ]
+      },
+      "seed": 101,
+      "skin_tone": 0
+    },
+    {
+      "build": {
+        "belly": 1.09291,
+        "bulk": 1.056104,
+        "chest_breadth": 0.991654
+      },
+      "garment_palette": 3,
+      "height_scale": 0.963411,
+      "output": "assets/characters/variants/generated/npc_adult_t2_102.glb",
+      "palette_srgb": {
+        "beard": [
+          0.42,
+          0.28,
+          0.16,
+          1.0
+        ],
+        "belt": [
+          0.62,
+          0.46,
+          0.28,
+          1.0
+        ],
+        "boots": [
+          0.42,
+          0.28,
+          0.16,
+          1.0
+        ],
+        "hair": [
+          0.48,
+          0.32,
+          0.2,
+          1.0
+        ],
+        "outerwear": [
+          0.34,
+          0.34,
+          0.42,
+          1.0
+        ],
+        "pants": [
+          0.17,
+          0.18,
+          0.24,
+          1.0
+        ],
+        "skin": [
+          0.78,
+          0.55,
+          0.39,
+          1.0
+        ],
+        "sleeve_band": [
+          0.22,
+          0.42,
+          0.72,
+          1.0
+        ],
+        "sleeves": [
+          0.62,
+          0.59,
+          0.55,
+          1.0
+        ],
+        "trim": [
+          0.47,
+          0.38,
+          0.25,
+          1.0
+        ],
+        "tunic": [
+          0.29,
+          0.3,
+          0.39,
+          1.0
+        ]
+      },
+      "seed": 102,
+      "skin_tone": 1
+    },
+    {
+      "build": {
+        "belly": 1.009398,
+        "bulk": 0.91511,
+        "chest_breadth": 1.051002
+      },
+      "garment_palette": 0,
+      "height_scale": 1.052152,
+      "output": "assets/characters/variants/generated/npc_adult_t2_103.glb",
+      "palette_srgb": {
+        "beard": [
+          0.42,
+          0.28,
+          0.16,
+          1.0
+        ],
+        "belt": [
+          0.62,
+          0.46,
+          0.28,
+          1.0
+        ],
+        "boots": [
+          0.42,
+          0.28,
+          0.16,
+          1.0
+        ],
+        "hair": [
+          0.48,
+          0.32,
+          0.2,
+          1.0
+        ],
+        "outerwear": [
+          0.38,
+          0.29,
+          0.18,
+          1.0
+        ],
+        "pants": [
+          0.2,
+          0.18,
+          0.14,
+          1.0
+        ],
+        "skin": [
+          0.86,
+          0.66,
+          0.5,
+          1.0
+        ],
+        "sleeve_band": [
+          0.22,
+          0.42,
+          0.72,
+          1.0
+        ],
+        "sleeves": [
+          0.61,
+          0.57,
+          0.43,
+          1.0
+        ],
+        "trim": [
+          0.5,
+          0.38,
+          0.22,
+          1.0
+        ],
+        "tunic": [
+          0.31,
+          0.27,
+          0.18,
+          1.0
+        ]
+      },
+      "seed": 103,
+      "skin_tone": 0
+    },
+    {
+      "build": {
+        "belly": 1.100498,
+        "bulk": 0.977077,
+        "chest_breadth": 1.065946
+      },
+      "garment_palette": 0,
+      "height_scale": 0.978718,
+      "output": "assets/characters/variants/generated/npc_adult_t2_104.glb",
+      "palette_srgb": {
+        "beard": [
+          0.42,
+          0.28,
+          0.16,
+          1.0
+        ],
+        "belt": [
+          0.62,
+          0.46,
+          0.28,
+          1.0
+        ],
+        "boots": [
+          0.42,
+          0.28,
+          0.16,
+          1.0
+        ],
+        "hair": [
+          0.48,
+          0.32,
+          0.2,
+          1.0
+        ],
+        "outerwear": [
+          0.38,
+          0.29,
+          0.18,
+          1.0
+        ],
+        "pants": [
+          0.2,
+          0.18,
+          0.14,
+          1.0
+        ],
+        "skin": [
+          0.57,
+          0.37,
+          0.25,
+          1.0
+        ],
+        "sleeve_band": [
+          0.22,
+          0.42,
+          0.72,
+          1.0
+        ],
+        "sleeves": [
+          0.61,
+          0.57,
+          0.43,
+          1.0
+        ],
+        "trim": [
+          0.5,
+          0.38,
+          0.22,
+          1.0
+        ],
+        "tunic": [
+          0.31,
+          0.27,
+          0.18,
+          1.0
+        ]
+      },
+      "seed": 104,
+      "skin_tone": 3
+    },
+    {
+      "build": {
+        "belly": 0.928498,
+        "bulk": 0.960992,
+        "chest_breadth": 1.088707
+      },
+      "garment_palette": 0,
+      "height_scale": 1.061878,
+      "output": "assets/characters/variants/generated/npc_adult_t2_105.glb",
+      "palette_srgb": {
+        "beard": [
+          0.42,
+          0.28,
+          0.16,
+          1.0
+        ],
+        "belt": [
+          0.62,
+          0.46,
+          0.28,
+          1.0
+        ],
+        "boots": [
+          0.42,
+          0.28,
+          0.16,
+          1.0
+        ],
+        "hair": [
+          0.48,
+          0.32,
+          0.2,
+          1.0
+        ],
+        "outerwear": [
+          0.38,
+          0.29,
+          0.18,
+          1.0
+        ],
+        "pants": [
+          0.2,
+          0.18,
+          0.14,
+          1.0
+        ],
+        "skin": [
+          0.86,
+          0.66,
+          0.5,
+          1.0
+        ],
+        "sleeve_band": [
+          0.22,
+          0.42,
+          0.72,
+          1.0
+        ],
+        "sleeves": [
+          0.61,
+          0.57,
+          0.43,
+          1.0
+        ],
+        "trim": [
+          0.5,
+          0.38,
+          0.22,
+          1.0
+        ],
+        "tunic": [
+          0.31,
+          0.27,
+          0.18,
+          1.0
+        ]
+      },
+      "seed": 105,
+      "skin_tone": 0
+    },
+    {
+      "build": {
+        "belly": 0.996362,
+        "bulk": 1.08829,
+        "chest_breadth": 1.065785
+      },
+      "garment_palette": 2,
+      "height_scale": 0.961737,
+      "output": "assets/characters/variants/generated/npc_adult_t2_106.glb",
+      "palette_srgb": {
+        "beard": [
+          0.42,
+          0.28,
+          0.16,
+          1.0
+        ],
+        "belt": [
+          0.62,
+          0.46,
+          0.28,
+          1.0
+        ],
+        "boots": [
+          0.42,
+          0.28,
+          0.16,
+          1.0
+        ],
+        "hair": [
+          0.48,
+          0.32,
+          0.2,
+          1.0
+        ],
+        "outerwear": [
+          0.45,
+          0.31,
+          0.22,
+          1.0
+        ],
+        "pants": [
+          0.23,
+          0.17,
+          0.15,
+          1.0
+        ],
+        "skin": [
+          0.86,
+          0.66,
+          0.5,
+          1.0
+        ],
+        "sleeve_band": [
+          0.22,
+          0.42,
+          0.72,
+          1.0
+        ],
+        "sleeves": [
+          0.7,
+          0.61,
+          0.48,
+          1.0
+        ],
+        "trim": [
+          0.55,
+          0.43,
+          0.25,
+          1.0
+        ],
+        "tunic": [
+          0.39,
+          0.25,
+          0.2,
+          1.0
+        ]
+      },
+      "seed": 106,
+      "skin_tone": 0
+    },
+    {
+      "build": {
+        "belly": 0.906019,
+        "bulk": 0.931292,
+        "chest_breadth": 0.972048
+      },
+      "garment_palette": 0,
+      "height_scale": 0.934719,
+      "output": "assets/characters/variants/generated/npc_adult_t2_107.glb",
+      "palette_srgb": {
+        "beard": [
+          0.42,
+          0.28,
+          0.16,
+          1.0
+        ],
+        "belt": [
+          0.62,
+          0.46,
+          0.28,
+          1.0
+        ],
+        "boots": [
+          0.42,
+          0.28,
+          0.16,
+          1.0
+        ],
+        "hair": [
+          0.48,
+          0.32,
+          0.2,
+          1.0
+        ],
+        "outerwear": [
+          0.38,
+          0.29,
+          0.18,
+          1.0
+        ],
+        "pants": [
+          0.2,
+          0.18,
+          0.14,
+          1.0
+        ],
+        "skin": [
+          0.86,
+          0.66,
+          0.5,
+          1.0
+        ],
+        "sleeve_band": [
+          0.22,
+          0.42,
+          0.72,
+          1.0
+        ],
+        "sleeves": [
+          0.61,
+          0.57,
+          0.43,
+          1.0
+        ],
+        "trim": [
+          0.5,
+          0.38,
+          0.22,
+          1.0
+        ],
+        "tunic": [
+          0.31,
+          0.27,
+          0.18,
+          1.0
+        ]
+      },
+      "seed": 107,
+      "skin_tone": 0
+    }
+  ]
+}

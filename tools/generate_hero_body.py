@@ -27,7 +27,7 @@ import bpy
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
-from character_specs import spec as character_spec  # noqa: E402
+from character_specs import population_spec, spec as character_spec  # noqa: E402
 from hero_body_anatomy_builder import (  # noqa: E402
     build_anatomical_limbs,
     build_anatomical_torso,
@@ -170,11 +170,24 @@ def _material(name: str) -> bpy.types.Material:
     return material
 
 
-def generate(character: str) -> None:
-    selected = character_spec(character)
+def generate(
+    character: str,
+    *,
+    population_seed: int | None = None,
+    fidelity_tier: int = 2,
+    manifest_path: Path | None = None,
+) -> None:
+    selected = (
+        population_spec(population_seed, archetype=character, fidelity_tier=fidelity_tier)
+        if population_seed is not None
+        else character_spec(character)
+    )
+    _active_palette.clear()
+    _active_palette.update(PALETTE)
     _active_palette.update(selected["palette"])
     source = ROOT / selected["skeleton_intermediate"]
     output = ROOT / selected["output"]
+    output.parent.mkdir(parents=True, exist_ok=True)
 
     bpy.ops.wm.read_factory_settings(use_empty=True)
     bpy.ops.import_scene.gltf(filepath=str(source))
@@ -183,6 +196,13 @@ def generate(character: str) -> None:
             bpy.data.objects.remove(obj, do_unlink=True)
 
     armature = find_armature()
+    if population_seed is not None:
+        # Uniform root scale changes stature without changing bone-relative
+        # animation motion or skinning. Build variation remains mesh-local.
+        armature.scale = (selected["height_scale"],) * 3
+        armature["population_seed"] = population_seed
+        armature["population_height_scale"] = selected["height_scale"]
+        armature["population_archetype"] = selected["population_archetype"]
     context = BodyContext.from_armature(armature)
     body_parts: list[PartBuilder]
     if selected["features"]["anatomical_layers"]:
@@ -214,6 +234,22 @@ def generate(character: str) -> None:
     print(f"BODY_ACTIONS={len(bpy.data.actions)}")
     _export(output, animations=True)
     print(f"Wrote {output}")
+    if population_seed is not None:
+        manifest = {
+            "schema": "rebel.population_variant.v1",
+            "generator": "tools/generate_hero_body.py",
+            "seed": population_seed,
+            "archetype": selected["population_archetype"],
+            "fidelity_tier": selected["fidelity_tier"],
+            "output": selected["output"],
+            "variation": selected["variation"],
+            "pbr_texture_families": ["skin", "cloth", "leather", "metal", "hair"],
+            "palette_srgb": {key: list(value) for key, value in selected["palette"].items()},
+        }
+        resolved_manifest = manifest_path or output.with_suffix(".variation.json")
+        resolved_manifest.parent.mkdir(parents=True, exist_ok=True)
+        resolved_manifest.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
+        print(f"Wrote {resolved_manifest}")
 
     _export_selected_garments(context, selected["garments"], body_objects)
 
@@ -369,18 +405,34 @@ def _promote_vertex_colors(path: Path) -> None:
     )
 
 
-def _character_argument() -> str:
+def _arguments() -> tuple[str, int | None, int, Path | None]:
+    character = "hero"
+    population_seed: int | None = None
+    fidelity_tier = 2
+    manifest_path: Path | None = None
     argv = sys.argv
     if "--" in argv:
         for argument in argv[argv.index("--") + 1 :]:
             if argument.startswith("--character="):
-                return argument.split("=", 1)[1]
-    return "hero"
+                character = argument.split("=", 1)[1]
+            elif argument.startswith("--population-seed="):
+                population_seed = int(argument.split("=", 1)[1])
+            elif argument.startswith("--tier="):
+                fidelity_tier = int(argument.split("=", 1)[1])
+            elif argument.startswith("--manifest="):
+                manifest_path = Path(argument.split("=", 1)[1])
+    return character, population_seed, fidelity_tier, manifest_path
 
 
 if __name__ == "__main__":
     try:
-        generate(_character_argument())
+        selected_character, selected_seed, selected_tier, selected_manifest = _arguments()
+        generate(
+            selected_character,
+            population_seed=selected_seed,
+            fidelity_tier=selected_tier,
+            manifest_path=selected_manifest,
+        )
     except Exception:
         import traceback
 
