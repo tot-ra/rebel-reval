@@ -65,6 +65,67 @@ func test_water_shader_contains_advancing_shore_breakers() -> void:
 	assert_true("TIME * wave_speed" in source, "weather must control visible wave speed")
 
 
+func test_water_shader_has_dual_scrolling_detail_normals() -> void:
+	var source := MapViewMaterialShaders.WATER_SHADER_CODE
+	for feature in [
+		"detail_normal_strength",
+		"detail_normal_scale",
+		"_detail_gradient",
+		"_water_detail_normal",
+		"layer_a",
+		"layer_b",
+		"current_offset",
+	]:
+		assert_true(feature in source, "water detail layer must expose %s" % feature)
+	assert_true(
+		source.find("layer_a =") < source.find("layer_b ="),
+		"the two detail layers must remain independently parameterized"
+	)
+	assert_true(
+		source.find("world_normal = normalize(mix(world_normal, detail_normal") >= 0,
+		"detail normals must affect shading without replacing the broad wave normal"
+	)
+
+
+func test_river_water_advects_detail_normals_without_changing_tide_logic() -> void:
+	var source := MapViewMaterialShaders.WATER_SHADER_CODE
+	var river := MapViewMaterials.water_surface(MapTypes.TERRAIN_RIVER_WATER)
+	var sea := MapViewMaterials.water_surface(MapTypes.TERRAIN_SHALLOW_WATER)
+	assert_eq(
+		river.get_shader_parameter("flow_direction"),
+		Vector2(0.0, -1.0),
+		"river detail must follow Pirita flow",
+	)
+	assert_true(
+		float(river.get_shader_parameter("flow_strength")) > 0.0,
+		"river detail must be advected",
+	)
+	assert_eq(
+		sea.get_shader_parameter("flow_direction"),
+		Vector2(0.0, 0.0),
+		"coastal water must remain still",
+	)
+	assert_eq(
+		float(sea.get_shader_parameter("flow_strength")),
+		0.0,
+		"coastal water must not inherit river current",
+	)
+	assert_true(
+		float(river.get_shader_parameter("detail_normal_scale"))
+			> float(sea.get_shader_parameter("detail_normal_scale")),
+		"river needs tighter detail",
+	)
+	assert_true(
+		"flow_direction * (flow_strength * time" in source,
+		"current must drive both detail layers",
+	)
+	assert_eq(
+		float(river.get_shader_parameter("tide_height")),
+		0.0,
+		"river must remain outside coastal tide logic",
+	)
+
+
 func test_water_shader_layers_seabed_materials_by_depth() -> void:
 	var source := MapViewMaterialShaders.WATER_SHADER_CODE
 	for uniform_name in ["sand_bed_color", "stone_bed_color", "algae_bed_color", "deep_bed_color"]:

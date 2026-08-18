@@ -57,6 +57,13 @@ static func water_surface(terrain_id: StringName, wave_profiles: Dictionary) -> 
 	material.set_shader_parameter("foam_intensity", float(wave["foam"]))
 	material.set_shader_parameter("breaker_intensity", float(wave["breakers"]))
 	material.set_shader_parameter("bed_vegetation", float(wave.get("bed_vegetation", 1.0)))
+	material.set_shader_parameter("flow_direction", Vector2.ZERO)
+	material.set_shader_parameter("flow_strength", 0.0)
+	# Two detail layers provide the broken reflection pattern seen in realistic
+	# water demos. Keep the river's detail tighter and stronger so its current is
+	# legible without changing the shared displacement used by boat buoyancy.
+	material.set_shader_parameter("detail_normal_strength", 0.30)
+	material.set_shader_parameter("detail_normal_scale", 1.0)
 	material.set_shader_parameter("tide_height", float(wave["tide_height"]))
 	material.set_shader_parameter("tide_shore_retreat", float(wave["tide_shore_retreat"]))
 	material.set_shader_parameter("tide_optical_depth", float(wave["tide_optical_depth"]))
@@ -73,6 +80,8 @@ static func water_surface(terrain_id: StringName, wave_profiles: Dictionary) -> 
 		# a moving current; still water (sea/pond) keeps the default zero flow.
 		material.set_shader_parameter("flow_direction", Vector2(0.0, -1.0))
 		material.set_shader_parameter("flow_strength", 0.6)
+		material.set_shader_parameter("detail_normal_strength", 0.36)
+		material.set_shader_parameter("detail_normal_scale", 1.28)
 	_cache[key] = material
 	return material
 

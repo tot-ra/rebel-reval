@@ -34,6 +34,10 @@ uniform float depth_absorption = 7.0;
 uniform float refraction_strength = 0.012;
 uniform float foam_intensity = 0.22;
 uniform float breaker_intensity = 0.35;
+// Water2-style dual normal detail without texture memory: two independent
+// procedural layers are phase-blended and advected by the optional river flow.
+uniform float detail_normal_strength = 0.30;
+uniform float detail_normal_scale = 1.0;
 // River current: world-XZ flow direction and strength. Zero for still water, so
 // sea and pond surfaces are unaffected. Non-zero advects the wave field
 // downstream and spawns drifting foam ribbons so a river reads as moving water.
@@ -124,6 +128,32 @@ vec3 _water_shape(vec2 position, float time) {
 	return shape;
 }
 
+// A finite-difference slope is a small procedural stand-in for a sampled normal
+// map. Keeping the samples in world space makes detail continuous across the
+// separate water meshes generated for each terrain cell.
+vec2 _detail_gradient(vec2 position) {
+	float sample_step = 0.07;
+	return vec2(
+		_noise(position + vec2(sample_step, 0.0)) - _noise(position - vec2(sample_step, 0.0)),
+		_noise(position + vec2(0.0, sample_step)) - _noise(position - vec2(0.0, sample_step))
+	) / (sample_step * 2.0);
+}
+
+// Water2-style dual scrolling detail: each layer has its own frequency, phase
+// and scroll vector, while river current advects both layers downstream. This
+// affects shading only; the physical displacement remains _water_shape() so
+// boats and visuals continue to share the existing wave field.
+vec3 _water_detail_normal(vec2 position, float time) {
+	float scale = max(detail_normal_scale, 0.1);
+	vec2 current_offset = flow_direction * (flow_strength * time * 0.42);
+	vec2 layer_a = position * scale * 1.7 - current_offset;
+	layer_a += vec2(-time * 0.19, time * 0.13) + vec2(12.4, -4.7);
+	vec2 layer_b = position * scale * 3.9 - current_offset * 1.65;
+	layer_b += vec2(time * 0.27, -time * 0.23) + vec2(-21.8, 16.1);
+	vec2 slope = _detail_gradient(layer_a) * 0.58 + _detail_gradient(layer_b) * 0.42;
+	return normalize(vec3(-slope.x * 0.18, 1.0, -slope.y * 0.18));
+}
+
 // Deterministic world-space masks keep the bed continuous across authored water
 // terrain borders. The weights always sum to one, so depth changes material
 // dominance instead of stacking four opaque color filters.
@@ -199,6 +229,11 @@ void fragment() {
 	vec2 flow_advection = flow_direction * (flow_strength * TIME * wave_speed * 0.6);
 	vec3 shape = _water_shape(water_world_position.xz - flow_advection, TIME * wave_speed);
 	vec3 world_normal = normalize(vec3(-shape.y * wave_height, 1.0, -shape.z * wave_height));
+	// Layer two independently scrolling detail normals over the broad wave normal.
+	// The low-sun relief clamp still applies below, preventing sharp glint bands at
+	// sunrise while preserving the small-scale broken reflection at daytime angles.
+	vec3 detail_normal = _water_detail_normal(water_world_position.xz, TIME * wave_speed);
+	world_normal = normalize(mix(world_normal, detail_normal, clamp(detail_normal_strength, 0.0, 1.0)));
 	// Low-angle sunlight turns tiny animated normal changes into long, fast
 	// specular bands. Keep the physical wave displacement, but reduce only the
 	// shading normal relief near the horizon; the blend widens the sunrise and
