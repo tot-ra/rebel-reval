@@ -1,0 +1,7 @@
+{
+  "asset_id": "fauna.raptor_gliding_batch",
+  "stage": "production_ready",
+  "generator": "bird_raptor_v1",
+  "blender_version": "5.2.0 LTS",
+  "note": "Image-to-3D renderer route was unavailable; deterministic custom GLBs preserve the approved catalog silhouette contract."
+}
