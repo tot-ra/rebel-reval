@@ -30,6 +30,9 @@ var debug_presets = DebugStatePresetsScript.new()
 
 var _demo_seeded := false
 var _inspector: CanvasLayer
+# WHY: Fatal-hit presentation belongs to the current run, not to GameState or saves.
+# Keep it on the autoload so the deferred death-screen scene change can consume it.
+var _fatal_hit_damage_type: StringName = &""
 
 func _ready() -> void:
 	content_db.load_from_directories(DEMO_CONTENT_DIRS)
@@ -65,6 +68,16 @@ func load_game(slot: int = SaveService.DEFAULT_SLOT) -> bool:
 
 func has_save(slot: int = SaveService.DEFAULT_SLOT) -> bool:
 	return save_service.has_save(slot)
+
+
+func set_fatal_hit_damage_type(damage_type: StringName) -> void:
+	_fatal_hit_damage_type = damage_type
+
+
+func consume_fatal_hit_damage_type() -> StringName:
+	var damage_type := _fatal_hit_damage_type
+	_fatal_hit_damage_type = &""
+	return damage_type
 
 
 ## Returns metadata for every save slot on disk, most recent first.

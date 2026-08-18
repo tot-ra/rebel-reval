@@ -386,6 +386,10 @@ func take_damage(
 		pose.is_action_invulnerable = true
 	var result := combat_vitals.resolve_hit(amount, pose, swing_id, pierces_guard)
 	_last_hit_result = result
+	if result.died and has_node("/root/SessionState"):
+		# Capture before the deferred scene change; the value is intentionally not
+		# part of GameState so it cannot leak into saves or long-lived session data.
+		SessionState.set_fatal_hit_damage_type(_damage_type)
 	_sync_fields_from_vitals()
 	_sync_resource_bars()
 	if result.health_damage > 0.0:
