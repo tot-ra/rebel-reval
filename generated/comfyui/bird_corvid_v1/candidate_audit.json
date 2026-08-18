@@ -1,0 +1,116 @@
+{
+  "id": "fauna.corvid_batch.hunyuan_candidate_audit",
+  "generator": "bird_corvid_v1",
+  "candidate_route": "local_comfyui_hunyuan3d_v2_single_image",
+  "checkpoint": "hunyuan3d-dit-v2-mv_fp16.safetensors",
+  "workflow_api": "generated/comfyui/bird_corvid_v1/candidate_workflow_api.json",
+  "checked_at": "2026-08-18T13:37:12+03:00",
+  "reference_inputs": [
+    "generated/comfyui/bird_corvid_v1/references/hooded_crow_reference.jpg",
+    "generated/comfyui/bird_corvid_v1/references/rook_reference.jpg",
+    "generated/comfyui/bird_corvid_v1/references/western_jackdaw_reference.jpg",
+    "generated/comfyui/bird_corvid_v1/references/eurasian_magpie_reference.jpg"
+  ],
+  "backend": {
+    "endpoint": "http://127.0.0.1:8188",
+    "probe": "/system_stats",
+    "status": "unavailable",
+    "error": "URLError: [Errno 61] Connection refused",
+    "job_creation_attempted": false
+  },
+  "hunyuan3d_audit": {
+    "status": "blocked",
+    "candidate_count": 0,
+    "anatomy_audit": "not_run",
+    "topology_audit": "not_run",
+    "production_replacement": "not_allowed",
+    "decision": "Do not claim Hunyuan3D quality or replace the retained deterministic assets until the backend and checkpoint are available."
+  },
+  "fallback_validation": {
+    "status": "scoped_pass_with_uv_blocker",
+    "source_report": "generated/comfyui/bird_corvid_v1/report.json",
+    "reference_sheet": "docs/reports/images/fauna/p2_038_corvid_reference_sheet.png",
+    "production_policy": "Retain the deterministic Blender GLBs; no Hunyuan candidate was generated or promoted.",
+    "checks": {
+      "glb_import": "passed",
+      "triangle_budget_max": 8000,
+      "triangle_budget": "passed",
+      "grounding_tolerance_m": 0.02,
+      "grounding": "passed",
+      "materials_present": "passed",
+      "embedded_normal_and_roughness_image_nodes": "passed",
+      "texcoord_0_uvs": "blocked",
+      "uv_dependent_pbr_sampling": "not_passed",
+      "sha256_against_source_report": "passed"
+    },
+    "assets": [
+      {
+        "species": "hooded_crow",
+        "path": "assets/birds/hooded_crow/perched.glb",
+        "reference": "generated/comfyui/bird_corvid_v1/references/hooded_crow_reference.jpg",
+        "imported_triangles": 2624,
+        "dimensions_world_xyz_m": [0.312213, 0.730086, 0.384876],
+        "ground_min_z_m": 0.004346,
+        "materials": 6,
+        "embedded_image_nodes": 10,
+        "texcoord_0": false,
+        "sha256": "e80c0dd7a517efec0b563253aa53b466d94f3169bfb50048d669a5e4f8ce69c5",
+        "critical_cue": "Two-tone torso/chest material separation retained in deterministic fallback"
+      },
+      {
+        "species": "rook",
+        "path": "assets/birds/rook/perched.glb",
+        "reference": "generated/comfyui/bird_corvid_v1/references/rook_reference.jpg",
+        "imported_triangles": 2624,
+        "dimensions_world_xyz_m": [0.287244, 0.723124, 0.363776],
+        "ground_min_z_m": 0.004346,
+        "materials": 6,
+        "embedded_image_nodes": 10,
+        "texcoord_0": false,
+        "sha256": "61261788aea92f6097ea8dd5a8df6f1edbb8a22a918936c608e5b4f5a9de6ec9",
+        "critical_cue": "Pale bill-base cue retained in deterministic fallback material contract"
+      },
+      {
+        "species": "western_jackdaw",
+        "path": "assets/birds/western_jackdaw/perched.glb",
+        "reference": "generated/comfyui/bird_corvid_v1/references/western_jackdaw_reference.jpg",
+        "imported_triangles": 2820,
+        "dimensions_world_xyz_m": [0.254754, 0.536861, 0.330406],
+        "ground_min_z_m": 0.004346,
+        "materials": 7,
+        "embedded_image_nodes": 12,
+        "texcoord_0": false,
+        "sha256": "a1c6bb28bd4be210bb90b09e6f294717433ab5abc525bd189bbffa614441966a",
+        "critical_cue": "Silver nape cue retained in deterministic fallback material contract"
+      },
+      {
+        "species": "eurasian_magpie",
+        "path": "assets/birds/eurasian_magpie/perched.glb",
+        "reference": "generated/comfyui/bird_corvid_v1/references/eurasian_magpie_reference.jpg",
+        "imported_triangles": 2948,
+        "dimensions_world_xyz_m": [0.26225, 0.756362, 0.342676],
+        "ground_min_z_m": 0.004346,
+        "materials": 9,
+        "embedded_image_nodes": 14,
+        "texcoord_0": false,
+        "sha256": "fcd9ef22c549fcb4557dd7c477aae6b5abaa2bd42f80220004ddeb6155d44d61",
+        "critical_cue": "Four graduated tail vanes retained in deterministic fallback geometry"
+      }
+    ]
+  },
+  "repository_baseline": {
+    "bird_model_validator": "blocked_by_unrelated_dirty_worktree_baseline",
+    "known_failures": [
+      "assets/SOURCES.csv has no provenance rows for the four existing corvid GLBs",
+      "repository-wide bird inventory also reports unrelated missing asset entries"
+    ],
+    "scope_decision": "Do not rewrite the shared provenance manifest or unrelated inventory in this candidate audit."
+  },
+  "rerun_when_backend_available": [
+    "Confirm /system_stats responds and the hunyuan3d-dit-v2-mv_fp16.safetensors checkpoint is installed.",
+    "Stage all four retained reference JPGs into the ComfyUI input root and parameterize LoadImage for each species.",
+    "Generate isolated Hunyuan3D candidate GLBs; never write directly to assets/birds/**.",
+    "Audit front/side/back anatomy, topology, materials/UVs, grounding, catalog scale, and the reference-sheet cues.",
+    "Run scoped bird, PBR, and provenance validators, then replace production only if a candidate is objectively better and all gates pass."
+  ]
+}
