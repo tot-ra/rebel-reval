@@ -42,13 +42,18 @@ const GRASS_TERRAINS: Array[StringName] = [
 ]
 
 
-static func measure(definition: MapDefinition, grid: MapTerrainGrid) -> Dictionary:
+static func measure(
+	definition: MapDefinition,
+	grid: MapTerrainGrid,
+	authoring_contract: Dictionary = {},
+) -> Dictionary:
 	var interior := definition.suppresses_exterior_surroundings()
 	var occupancy := _build_occupancy(definition, grid, interior)
 	var surface := _surface_shares(grid, occupancy)
 	var density := _built_density(occupancy)
 	var style := _style_distribution(definition, interior)
-	var empty_region := _largest_empty_region(grid, occupancy)
+	var excluded_open_cells := _excluded_open_region_cells(grid, authoring_contract)
+	var empty_region := _largest_empty_region(grid, occupancy, excluded_open_cells)
 	var elevation := _elevation_range(definition, grid)
 	return {
 		"map_id": definition.map_id,
@@ -57,6 +62,7 @@ static func measure(definition: MapDefinition, grid: MapTerrainGrid) -> Dictiona
 		"style_counts": style.get("counts", {}),
 		"max_style_share_pct": style.get("max_share_pct", 0.0),
 		"largest_empty_region_cells": empty_region,
+		"excluded_open_region_cells": excluded_open_cells.size(),
 		"elevation_range": elevation,
 		"developable_cells": occupancy.get("developable_cells", 0),
 		"interior": interior,
@@ -67,9 +73,10 @@ static func audit(
 	definition: MapDefinition,
 	grid: MapTerrainGrid,
 	thresholds: Dictionary,
+	authoring_contract: Dictionary = {},
 ) -> Array[Dictionary]:
 	var violations: Array[Dictionary] = []
-	var metrics := measure(definition, grid)
+	var metrics := measure(definition, grid, authoring_contract)
 	var map_id := String(definition.map_id)
 	var source_refs: Array = thresholds.get("source_refs", [])
 
@@ -432,19 +439,23 @@ static func _style_distribution(definition: MapDefinition, interior: bool) -> Di
 	}
 
 
-static func _largest_empty_region(grid: MapTerrainGrid, occupancy: Dictionary) -> int:
+static func _largest_empty_region(
+	grid: MapTerrainGrid,
+	occupancy: Dictionary,
+	excluded_cells: Dictionary = {},
+) -> int:
 	var built_cells: Dictionary = occupancy["built_cells"]
 	var visited: Dictionary = {}
 	var largest := 0
 	for y in grid.size_cells.y:
 		for x in grid.size_cells.x:
 			var start := Vector2i(x, y)
-			if visited.has(start) or built_cells.has(start):
+			if visited.has(start) or built_cells.has(start) or excluded_cells.has(start):
 				continue
 			var terrain := grid.get_terrain(start)
 			if MapTypes.WATER_TERRAINS.has(terrain):
 				continue
-			var size := _flood_empty_region(grid, start, built_cells, visited)
+			var size := _flood_empty_region(grid, start, built_cells, visited, excluded_cells)
 			largest = maxi(largest, size)
 	return largest
 
@@ -454,12 +465,13 @@ static func _flood_empty_region(
 	start: Vector2i,
 	built_cells: Dictionary,
 	visited: Dictionary,
+	excluded_cells: Dictionary = {},
 ) -> int:
 	var queue: Array[Vector2i] = [start]
 	var size := 0
 	while not queue.is_empty():
 		var cell: Vector2i = queue.pop_front()
-		if visited.has(cell) or built_cells.has(cell):
+		if visited.has(cell) or built_cells.has(cell) or excluded_cells.has(cell):
 			continue
 		if not _cell_inside(grid, cell):
 			continue
@@ -472,6 +484,31 @@ static func _flood_empty_region(
 		queue.append(cell + Vector2i.UP)
 		queue.append(cell + Vector2i.DOWN)
 	return size
+
+
+static func _excluded_open_region_cells(
+	grid: MapTerrainGrid,
+	authoring_contract: Dictionary,
+) -> Dictionary:
+	var excluded: Dictionary = {}
+	for region in authoring_contract.get("open_regions", []):
+		if not bool(region.get("exclude_from_unowned_empty_region", false)):
+			continue
+		var bounds: Array = region.get("bounds_cells", [])
+		if bounds.size() != 4:
+			continue
+		var rect := Rect2i(
+			int(bounds[0]),
+			int(bounds[1]),
+			int(bounds[2]),
+			int(bounds[3]),
+		)
+		for y in range(rect.position.y, rect.end.y):
+			for x in range(rect.position.x, rect.end.x):
+				var cell := Vector2i(x, y)
+				if _cell_inside(grid, cell) and not MapTypes.WATER_TERRAINS.has(grid.get_terrain(cell)):
+					excluded[cell] = true
+	return excluded
 
 
 static func _elevation_range(definition: MapDefinition, grid: MapTerrainGrid) -> float:

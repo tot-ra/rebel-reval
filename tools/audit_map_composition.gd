@@ -54,9 +54,14 @@ func _run() -> void:
 				continue
 		var definition := result.definition
 		var grid := MapBuilder.build(definition)
-		var violations := MapCompositionAudit.audit(definition, grid, card)
+		var authoring_contract := _load_authoring_contract(map_id)
+		var violations := MapCompositionAudit.audit(definition, grid, card, authoring_contract)
 		audited += 1
 		print("AUDIT %s" % map_id)
+		print(
+			"  sources=%s expected=%s"
+			% [", ".join(card.get("source_refs", [])), JSON.stringify(card)]
+		)
 		if violations.is_empty():
 			print("  pass")
 			continue
@@ -66,3 +71,17 @@ func _run() -> void:
 
 	print("Composition audit: %d enforced map(s), %d error(s)." % [audited, error_count])
 	quit(1 if error_count > 0 else 0)
+
+
+func _load_authoring_contract(map_id: String) -> Dictionary:
+	var path := "res://docs/data/%s_authoring_contract.json" % map_id
+	if not FileAccess.file_exists(path):
+		return {}
+	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+	if parsed is Dictionary:
+		return parsed
+	push_error(
+		"ERROR[MAP_COMPOSITION_AUTHORING_CONTRACT_INVALID] (map=%s): could not parse %s"
+		% [map_id, path]
+	)
+	return {}

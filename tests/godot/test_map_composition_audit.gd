@@ -116,6 +116,82 @@ func test_repeated_style_violation_reports_style_share() -> void:
 	)
 
 
+func test_surface_share_violation_reports_map_metric_and_source() -> void:
+	var definition := _outdoor_fixture(&"fixture.surface_share")
+	definition.zones.clear()
+	definition.zones.append({"terrain": MapTypes.TERRAIN_GRASS, "rect": Rect2i(0, 0, 16, 16)})
+	var grid := MapBuilder.build(definition)
+	var thresholds := {
+		"source_refs": ["H04-H05"],
+		"surface_shares": {"stone_pct": [25, 40], "earth_pct": [0, 100], "grass_pct": [0, 100]},
+	}
+	var violations := MapCompositionAudit.audit(definition, grid, thresholds)
+	var surface := violations.filter(
+		func(v): return v["code"] == MapCompositionAudit.VIOLATION_SURFACE_SHARE
+	)
+	assert_eq(surface.size(), 1)
+	assert_eq(surface[0]["map_id"], "fixture.surface_share")
+	assert_eq(surface[0]["metric"], "stone_pct")
+	assert_eq(surface[0]["source_refs"], ["H04-H05"])
+
+
+func test_intentional_open_reserve_is_excluded_only_from_empty_region_metric() -> void:
+	var definition := _outdoor_fixture(&"fixture.open_reserve")
+	definition.buildings.clear()
+	_add_house(definition, &"barrier", Rect2(12, 0, 2, 16), &"plaster")
+	var grid := MapBuilder.build(definition)
+	var thresholds := {
+		"source_refs": ["H04-H05"],
+		"surface_shares": {"stone_pct": [0, 100], "earth_pct": [0, 100], "grass_pct": [0, 100]},
+	}
+	var unowned_metrics := MapCompositionAudit.measure(definition, grid)
+	var contract := {
+		"open_regions": [
+			{
+				"id": "intentional_reserve",
+				"bounds_cells": [0, 0, 12, 16],
+				"exclude_from_unowned_empty_region": true,
+			}
+		]
+	}
+	var reserved_metrics := MapCompositionAudit.measure(definition, grid, contract)
+	assert_true(
+		int(reserved_metrics["largest_empty_region_cells"])
+			< int(unowned_metrics["largest_empty_region_cells"]),
+		"excluded reserves must not inflate unowned empty-region size"
+	)
+	assert_eq(
+		reserved_metrics["developable_cells"],
+		unowned_metrics["developable_cells"],
+		"reserve exclusions must not alter developable density denominator"
+	)
+	assert_eq(
+		reserved_metrics["built_density_pct"],
+		unowned_metrics["built_density_pct"],
+		"reserve exclusions must not alter built density"
+	)
+	assert_eq(
+		reserved_metrics["surface_shares"],
+		unowned_metrics["surface_shares"],
+		"reserve exclusions must not alter surface shares"
+	)
+	assert_true(MapCompositionAudit.audit(definition, grid, thresholds, contract).is_empty())
+
+
+func test_open_reserve_without_explicit_exclusion_still_counts_as_empty_region() -> void:
+	var definition := _outdoor_fixture(&"fixture.unexcluded_reserve")
+	definition.buildings.clear()
+	_add_house(definition, &"barrier", Rect2(12, 0, 2, 16), &"plaster")
+	var grid := MapBuilder.build(definition)
+	var metrics := MapCompositionAudit.measure(
+		definition,
+		grid,
+		{"open_regions": [{"bounds_cells": [0, 0, 12, 16]}]},
+	)
+	assert_eq(metrics["excluded_open_region_cells"], 0)
+	assert_eq(metrics["largest_empty_region_cells"], 192)
+
+
 func _outdoor_fixture(map_id: StringName) -> MapDefinition:
 	var definition := MapDefinition.new()
 	definition.map_id = map_id
