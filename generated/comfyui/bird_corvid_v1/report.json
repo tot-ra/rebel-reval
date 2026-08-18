@@ -1,0 +1,67 @@
+{
+  "generator": "bird_corvid_v1",
+  "route": "image_to_3d_reference_with_deterministic_blender_cleanup_fallback",
+  "assets": [
+    {
+      "species": "hooded_crow",
+      "pose": "perched",
+      "path": "assets/birds/hooded_crow/perched.glb",
+      "triangles": 1246,
+      "dimensions_blender_xyz_m": [
+        0.3122,
+        0.7329,
+        0.3892
+      ],
+      "ground_min_z": 0.0,
+      "sha256": "e80c0dd7a517efec0b563253aa53b466d94f3169bfb50048d669a5e4f8ce69c5",
+      "reference_plate": "docs/reports/images/fauna/p2_038_hooded_crow_reference.png"
+    },
+    {
+      "species": "rook",
+      "pose": "perched",
+      "path": "assets/birds/rook/perched.glb",
+      "triangles": 1246,
+      "dimensions_blender_xyz_m": [
+        0.2872,
+        0.7256,
+        0.3681
+      ],
+      "ground_min_z": -0.0,
+      "sha256": "61261788aea92f6097ea8dd5a8df6f1edbb8a22a918936c608e5b4f5a9de6ec9",
+      "reference_plate": "docs/reports/images/fauna/p2_038_rook_reference.png"
+    },
+    {
+      "species": "western_jackdaw",
+      "pose": "perched",
+      "path": "assets/birds/western_jackdaw/perched.glb",
+      "triangles": 1442,
+      "dimensions_blender_xyz_m": [
+        0.2548,
+        0.5394,
+        0.3348
+      ],
+      "ground_min_z": -0.0,
+      "sha256": "a1c6bb28bd4be210bb90b09e6f294717433ab5abc525bd189bbffa614441966a",
+      "reference_plate": "docs/reports/images/fauna/p2_038_western_jackdaw_reference.png"
+    },
+    {
+      "species": "eurasian_magpie",
+      "pose": "perched",
+      "path": "assets/birds/eurasian_magpie/perched.glb",
+      "triangles": 1252,
+      "dimensions_blender_xyz_m": [
+        0.2623,
+        0.7588,
+        0.347
+      ],
+      "ground_min_z": 0.0,
+      "sha256": "fcd9ef22c549fcb4557dd7c477aae6b5abaa2bd42f80220004ddeb6155d44d61",
+      "reference_plate": "docs/reports/images/fauna/p2_038_eurasian_magpie_reference.png"
+    }
+  ],
+  "reference_sheet": "docs/reports/images/fauna/p2_038_corvid_reference_sheet.png",
+  "determinism": {
+    "geometry_and_json": "stable",
+    "glb_sha256": "build-specific because Blender 5.2 re-encodes embedded PNG bytes"
+  }
+}

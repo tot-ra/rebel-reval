@@ -1,0 +1,12 @@
+{
+  "id": "fauna.corvid_perched_batch",
+  "kind": "organic_creature_batch",
+  "targets": ["hooded_crow", "rook", "western_jackdaw", "eurasian_magpie"],
+  "pose": "perched, feet and claws separated, closed wings",
+  "scale_basis": "MapViewBirdSpecies scale_m body length",
+  "identity_cues": "hooded crow grey torso; rook pale bare bill base; jackdaw silver nape; magpie long graduated tail",
+  "references": "Leonardo single-object front three-quarter images on neutral backgrounds",
+  "route": "single-image Hunyuan3D then deterministic Blender cleanup fallback",
+  "triangles_max": 8000,
+  "approval": "task-authorized R-194"
+}
