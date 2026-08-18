@@ -4,6 +4,8 @@ Coordination notes, delivery order, and planning context formerly embedded in `T
 Executable open work stays in [`TODO.md`](../TODO.md).
 Aged coordination history lives in [`ROADMAP_COORDINATION_ARCHIVE_2026-08-13.md`](./ROADMAP_COORDINATION_ARCHIVE_2026-08-13.md).
 
+<!-- R-575 / P0-154-N01 measured on 2026-08-18 -->
+Coordination note (2026-08-18 R-575 / P0-154-N01): the declared Intel UHD 620 profile was run with a real non-headless renderer, but the detected host was an Apple M5 Pro MacBook Pro rather than the target machine, so minimum-hardware acceptance remains **BLOCKED**. The isolated `crowd_character_peak` profile still passed on the development host at 200/200 characters: p95 4.922 ms / 16.67 ms budget, 1 / 3 draw calls, 3.674 MiB / 96 MiB delta memory, `within_budget=true`. Raw output remains locally at `build/benchmarks/performance-minimum-hardware.json`; tracked evidence and the host boundary are in `docs/reports/p0_154_n01_minimum_hardware_crowd_evidence_2026-08-18.md`. Re-run on an actual Intel UHD 620-class Linux/Windows host before closing R-575.
 <!-- R-454 decomposed in current session -->
 Coordination note (2026-08-13 R-454): high-complexity parent **R-454** (historical elevation across nine urban exterior RRMaps) decomposed into atomic per-map rows **R-515**..**R-521** (complexity 1) plus verification chain **R-522** -> **R-523** -> **R-524**. Harbour pair remains complete under **R-478**; matrix contract remains **R-474**. Superseded broad rows **R-475**/**R-476**/**R-479**/**R-481**/**R-506** and legacy gate stubs **R-482**..**R-504** cancelled on the board. Evidence: `docs/reports/r454_task_decomposition_2026-08-13.md`. Next map claims: **R-515** Toompea southern slope, then parallel **R-517**..**R-521**.
 
