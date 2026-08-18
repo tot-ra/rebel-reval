@@ -1,0 +1,31 @@
+{
+  "species": "chicken",
+  "source": "assets/animals/hendrik_reyneke/chicken.glb",
+  "output": "assets/birds/chicken/walking.glb",
+  "skeleton": [
+    "Root",
+    "Body",
+    "FrontLeftLeg",
+    "FrontRightLeg",
+    "BackLeftLeg",
+    "BackRightLeg"
+  ],
+  "animations": [
+    "Idle",
+    "Walk"
+  ],
+  "animated_parts": [
+    "legs",
+    "body"
+  ],
+  "leg_vertex_counts": {
+    "BackLeftLeg": 699,
+    "BackRightLeg": 691,
+    "FrontLeftLeg": 699,
+    "FrontRightLeg": 691
+  },
+  "ground_z": 0.0,
+  "orient_axis": "Z",
+  "faces_gltf_minus_z": true,
+  "deterministic": true
+}

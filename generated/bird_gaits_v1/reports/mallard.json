@@ -1,0 +1,31 @@
+{
+  "species": "mallard",
+  "source": "assets/birds/mallard/standing.glb",
+  "output": "assets/birds/mallard/walking.glb",
+  "skeleton": [
+    "Root",
+    "Body",
+    "FrontLeftLeg",
+    "FrontRightLeg",
+    "BackLeftLeg",
+    "BackRightLeg"
+  ],
+  "animations": [
+    "Idle",
+    "Walk"
+  ],
+  "animated_parts": [
+    "legs",
+    "body"
+  ],
+  "leg_vertex_counts": {
+    "BackLeftLeg": 375,
+    "BackRightLeg": 377,
+    "FrontLeftLeg": 375,
+    "FrontRightLeg": 377
+  },
+  "ground_z": 0.0,
+  "orient_axis": "Z",
+  "faces_gltf_minus_z": true,
+  "deterministic": true
+}

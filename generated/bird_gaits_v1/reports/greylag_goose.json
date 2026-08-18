@@ -1,0 +1,31 @@
+{
+  "species": "greylag_goose",
+  "source": "assets/birds/greylag_goose/standing.glb",
+  "output": "assets/birds/greylag_goose/walking.glb",
+  "skeleton": [
+    "Root",
+    "Body",
+    "FrontLeftLeg",
+    "FrontRightLeg",
+    "BackLeftLeg",
+    "BackRightLeg"
+  ],
+  "animations": [
+    "Idle",
+    "Walk"
+  ],
+  "animated_parts": [
+    "legs",
+    "body"
+  ],
+  "leg_vertex_counts": {
+    "BackLeftLeg": 91,
+    "BackRightLeg": 91,
+    "FrontLeftLeg": 91,
+    "FrontRightLeg": 91
+  },
+  "ground_z": 0.0,
+  "orient_axis": "X",
+  "faces_gltf_minus_z": true,
+  "deterministic": true
+}
