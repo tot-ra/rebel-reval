@@ -1,0 +1,580 @@
+{
+  "contract_version": 1,
+  "map_id": "lower_town_slice",
+  "source": "content/maps/lower_town_slice.rrmap",
+  "coordinate_space": "cells",
+  "authoring_intent": "Named ownership and frontage contract for the Eastern Quarters lower-town slice.",
+  "composition_thresholds": {
+    "path": "docs/data/map_composition_thresholds.json",
+    "map_id": "lower_town_slice",
+    "enforce": false,
+    "reason": "The composition card remains advisory for this prototype slice; this contract still enforces authored ownership and references."
+  },
+  "frontage_rules": {
+    "default": {
+      "rule_id": "default_frontage_m",
+      "use_for": "merchant_quarter",
+      "target_range_m": [
+        7,
+        11
+      ],
+      "median_m": 9
+    },
+    "exceptions": [
+      {
+        "rule_id": "artisan_frontage_m",
+        "use_for": "craft_strip",
+        "target_range_m": [
+          5,
+          9
+        ]
+      },
+      {
+        "rule_id": "institutional_frontage_m",
+        "use_for": "institutional_landmark_edge",
+        "target_range_m": [
+          10,
+          18
+        ]
+      },
+      {
+        "rule_id": "edge_frontage_m",
+        "use_for": "outer_wall_and_transition_edges",
+        "target_range_m": [
+          4,
+          8
+        ]
+      },
+      {
+        "rule_id": "harbour_frontage_m",
+        "use_for": "harbourward_service_edge",
+        "target_range_m": [
+          6,
+          10
+        ]
+      }
+    ]
+  },
+  "sectors": [
+    {
+      "id": "market_reserve",
+      "label": "Merchants market reserve",
+      "bounds_cells": [
+        12,
+        48,
+        62,
+        20
+      ],
+      "ownership": {
+        "terrain": [
+          "workers.outer.road"
+        ],
+        "buildings": [
+          "market_row_house",
+          "apothecary_house",
+          "merchants_house",
+          "foaming_mug_brewery"
+        ],
+        "props": [
+          "market_stall_gate",
+          "market_stall_turg_north",
+          "market_stall_turg_south",
+          "brewery_malt_sacks"
+        ],
+        "anchors": [
+          "merchants_market",
+          "customers_street"
+        ],
+        "transitions": [],
+        "landmarks": [],
+        "patrols": []
+      },
+      "frontage_rule": "default_frontage_m"
+    },
+    {
+      "id": "merchant_frontage_strip",
+      "label": "Merchant quarter frontage",
+      "bounds_cells": [
+        0,
+        44,
+        152,
+        22
+      ],
+      "ownership": {
+        "terrain": [],
+        "buildings": [
+          "pikk_corner_house",
+          "vene_row_house",
+          "vene_corner_house",
+          "market_row_house",
+          "saiakang_house",
+          "vene_gate_house",
+          "apothecary_house",
+          "turg_house_north",
+          "moneychangers_house",
+          "vanaturu_kael_house",
+          "kaik_house_west",
+          "kaik_house_mid",
+          "kaik_house_east",
+          "guild_storehouse",
+          "glovers_house",
+          "corner_house_muurivahe",
+          "viru_house_west",
+          "viru_house_mid",
+          "viru_house_stone",
+          "merchants_house",
+          "viru_house_east",
+          "saddlers_house",
+          "coopers_house",
+          "sauna_corner_house",
+          "rope_makers_house",
+          "karja_corner_house",
+          "kuninga_house_west",
+          "kuninga_house_mid",
+          "kuninga_house_east",
+          "public_bathhouse",
+          "vaike_karja_house",
+          "laundress_house",
+          "widows_house",
+          "dyers_house",
+          "karja_gate_house",
+          "turg_south_house",
+          "west_lane_house",
+          "hedge_house",
+          "wall_side_house",
+          "potters_house",
+          "glassblowers_house",
+          "foaming_mug_brewery",
+          "muurivahe_house_north",
+          "south_apron_timber_house"
+        ],
+        "props": [],
+        "anchors": [
+          "mart_street",
+          "customers_street"
+        ],
+        "transitions": [],
+        "landmarks": [],
+        "patrols": [
+          "viru_watch"
+        ]
+      },
+      "frontage_rule": "default_frontage_m"
+    },
+    {
+      "id": "craft_strip",
+      "label": "Craft and smithing strip",
+      "bounds_cells": [
+        68,
+        64,
+        38,
+        28
+      ],
+      "ownership": {
+        "terrain": [],
+        "buildings": [
+          "artisan_shed",
+          "kalev_smithy",
+          "smithy_yard_fence_north",
+          "smithy_yard_fence_east"
+        ],
+        "props": [
+          "courtyard_firewood",
+          "courtyard_quench",
+          "hay_store"
+        ],
+        "anchors": [
+          "workers_yard",
+          "carriers_lane"
+        ],
+        "transitions": [
+          "smithy_door_transition"
+        ],
+        "landmarks": [],
+        "patrols": []
+      },
+      "frontage_rule": "artisan_frontage_m"
+    },
+    {
+      "id": "service_yards",
+      "label": "Carrier and brewery service yards",
+      "bounds_cells": [
+        58,
+        70,
+        52,
+        30
+      ],
+      "ownership": {
+        "terrain": [],
+        "buildings": [
+          "foaming_mug_brewery",
+          "kalev_smithy",
+          "smithy_yard_fence_north",
+          "smithy_yard_fence_east"
+        ],
+        "props": [
+          "cistern",
+          "street_cart",
+          "gate_cart",
+          "yard_cart",
+          "brewery_keg_stack",
+          "brewery_malt_sacks",
+          "evidence_barrels",
+          "cistern_wash_tub",
+          "south_apron_cart",
+          "south_apron_barrels"
+        ],
+        "anchors": [
+          "workers_yard",
+          "carriers_lane",
+          "brewery_door"
+        ],
+        "transitions": [],
+        "landmarks": [],
+        "patrols": []
+      },
+      "frontage_rule": "harbour_frontage_m"
+    },
+    {
+      "id": "institutional_landmark_edge",
+      "label": "Viru institutional and gate landmark edge",
+      "bounds_cells": [
+        104,
+        40,
+        44,
+        28
+      ],
+      "ownership": {
+        "terrain": [],
+        "buildings": [
+          "city_wall_north",
+          "wall_tower_northeast",
+          "wall_tower_north",
+          "viru_gate_north_tower",
+          "viru_gate_south_tower",
+          "viru_gate_north_jamb",
+          "viru_gate_south_jamb",
+          "foregate_wall_north",
+          "foregate_wall_south",
+          "foregate_tower_north",
+          "foregate_tower_south",
+          "foregate_north_jamb",
+          "foregate_south_jamb",
+          "city_wall_gate_south",
+          "wall_seal_viru_south_join",
+          "wall_seal_viru_south_west",
+          "wall_seal_viru_south_east",
+          "wall_seal_hinke_north",
+          "wall_seal_bend_a_east",
+          "wall_seal_bend_b_north",
+          "wall_seal_bend_c_west",
+          "wall_seal_bend_d_north",
+          "city_wall_bend_a",
+          "wall_tower_southeast",
+          "city_wall_bend_b",
+          "wall_tower_south",
+          "city_wall_bend_c",
+          "wall_tower_southwest",
+          "city_wall_bend_d",
+          "city_wall_south_continuation",
+          "st_catherines_church",
+          "monastery_cloister",
+          "monastery_precinct_wall_west",
+          "monastery_precinct_wall_south_a",
+          "monastery_precinct_wall_south_b",
+          "monastery_barn",
+          "vene_gate_house",
+          "karja_gate_house",
+          "wall_side_house",
+          "south_apron_wall_walk_hut"
+        ],
+        "props": [
+          "consequence_order_notice",
+          "consequence_watch_barricade"
+        ],
+        "anchors": [
+          "watch_west_checkpoint",
+          "watch_east_checkpoint"
+        ],
+        "transitions": [
+          "viru_road_boundary",
+          "workers_outer_wall_road"
+        ],
+        "landmarks": [
+          "viru_gate_arch",
+          "viru_foregate_arch"
+        ],
+        "patrols": [
+          "viru_watch"
+        ]
+      },
+      "frontage_rule": "institutional_frontage_m"
+    },
+    {
+      "id": "transition_edges",
+      "label": "Map boundary and district transition edges",
+      "bounds_cells": [
+        0,
+        0,
+        152,
+        128
+      ],
+      "ownership": {
+        "terrain": [],
+        "buildings": [],
+        "props": [],
+        "anchors": [],
+        "transitions": [
+          "smithy_door_transition",
+          "vana_turg_boundary",
+          "vene_district_boundary",
+          "viru_road_boundary",
+          "workers_outer_wall_road",
+          "to_reval_south",
+          "street_start_spawn"
+        ],
+        "landmarks": [],
+        "patrols": []
+      },
+      "frontage_rule": "edge_frontage_m"
+    }
+  ],
+  "open_regions": [
+    {
+      "id": "south_quarter_open_reserve",
+      "bounds_cells": [
+        0,
+        108,
+        152,
+        20
+      ],
+      "reason": "Keep the southern approach legible as an open route reserve rather than unowned empty land.",
+      "exclude_from_unowned_empty_region": true
+    },
+    {
+      "id": "viru_road_open_reserve",
+      "bounds_cells": [
+        16,
+        46,
+        78,
+        22
+      ],
+      "reason": "Preserve the Viru road and watch patrol sightline as intentional public open space.",
+      "exclude_from_unowned_empty_region": true
+    },
+    {
+      "id": "harbourward_open_reserve",
+      "bounds_cells": [
+        108,
+        72,
+        44,
+        36
+      ],
+      "reason": "Reserve the harbourward edge for service movement and future shoreline composition.",
+      "exclude_from_unowned_empty_region": true
+    }
+  ],
+  "required_landmarks": [
+    "viru_gate_arch",
+    "viru_foregate_arch"
+  ],
+  "work_anchors": [
+    "workers_yard",
+    "carriers_lane",
+    "brewery_door",
+    "smithy_door",
+    "merchants_market"
+  ],
+  "route_anchors": [
+    "mart_street",
+    "customers_street",
+    "watch_west_checkpoint",
+    "watch_east_checkpoint",
+    "south_quarter_lane",
+    "carriers_lane"
+  ],
+  "patrol_routes": [
+    "viru_watch",
+    "iron_convoy"
+  ],
+  "transitions": [
+    "smithy_door_transition",
+    "vana_turg_boundary",
+    "vene_district_boundary",
+    "viru_road_boundary",
+    "workers_outer_wall_road",
+    "to_reval_south",
+    "street_start_spawn"
+  ],
+  "source_inventory": {
+    "terrain": [
+      "workers.outer.road"
+    ],
+    "building": [
+      "city_wall_north",
+      "wall_tower_northeast",
+      "wall_tower_north",
+      "viru_gate_north_tower",
+      "viru_gate_south_tower",
+      "viru_gate_north_jamb",
+      "viru_gate_south_jamb",
+      "foregate_wall_north",
+      "foregate_wall_south",
+      "foregate_tower_north",
+      "foregate_tower_south",
+      "foregate_north_jamb",
+      "foregate_south_jamb",
+      "city_wall_gate_south",
+      "wall_seal_viru_south_join",
+      "wall_seal_viru_south_west",
+      "wall_seal_viru_south_east",
+      "wall_seal_hinke_north",
+      "wall_seal_bend_a_east",
+      "wall_seal_bend_b_north",
+      "wall_seal_bend_c_west",
+      "wall_seal_bend_d_north",
+      "hinke_tower",
+      "city_wall_bend_a",
+      "wall_tower_southeast",
+      "city_wall_bend_b",
+      "wall_tower_south",
+      "city_wall_bend_c",
+      "wall_tower_southwest",
+      "city_wall_bend_d",
+      "city_wall_south_continuation",
+      "st_catherines_church",
+      "monastery_cloister",
+      "monastery_precinct_wall_west",
+      "monastery_precinct_wall_south_a",
+      "monastery_precinct_wall_south_b",
+      "monastery_barn",
+      "pikk_corner_house",
+      "vene_row_house",
+      "vene_corner_house",
+      "market_row_house",
+      "saiakang_house",
+      "vene_gate_house",
+      "apothecary_house",
+      "turg_house_north",
+      "moneychangers_house",
+      "vanaturu_kael_house",
+      "kaik_house_west",
+      "kaik_house_mid",
+      "kaik_house_east",
+      "guild_storehouse",
+      "glovers_house",
+      "corner_house_muurivahe",
+      "viru_house_west",
+      "viru_house_mid",
+      "viru_house_stone",
+      "merchants_house",
+      "viru_house_east",
+      "weary_traveler_inn",
+      "saddlers_house",
+      "coopers_house",
+      "sauna_corner_house",
+      "rope_makers_house",
+      "karja_corner_house",
+      "kuninga_house_west",
+      "kuninga_house_mid",
+      "kuninga_house_east",
+      "public_bathhouse",
+      "vaike_karja_house",
+      "tenement_row",
+      "laundress_house",
+      "widows_house",
+      "dyers_house",
+      "karja_gate_house",
+      "turg_south_house",
+      "west_lane_house",
+      "hedge_house",
+      "wall_side_house",
+      "artisan_shed",
+      "potters_house",
+      "glassblowers_house",
+      "foaming_mug_brewery",
+      "kalev_smithy",
+      "smithy_yard_fence_north",
+      "smithy_yard_fence_east",
+      "muurivahe_house_north",
+      "south_apron_wall_walk_hut",
+      "south_apron_timber_house",
+      "south_apron_far_roofs"
+    ],
+    "prop": [
+      "courtyard_firewood",
+      "courtyard_quench",
+      "hay_store",
+      "cistern",
+      "monastery_well",
+      "viru_wall_walk_stairs",
+      "viru_wall_walk_platform",
+      "viru_wall_walk_entry",
+      "wall_walk_hinke_corner",
+      "wall_walk_east_bend",
+      "wall_walk_southeast_bend",
+      "wall_walk_south_bend",
+      "wall_walk_southwest",
+      "market_stall_gate",
+      "market_stall_turg_north",
+      "market_stall_turg_south",
+      "street_cart",
+      "gate_cart",
+      "yard_cart",
+      "brewery_keg_stack",
+      "brewery_malt_sacks",
+      "evidence_barrels",
+      "cistern_wash_tub",
+      "cooper_yard",
+      "ropeyard_rope",
+      "saddler_frame",
+      "south_apron_cart",
+      "south_apron_barrels",
+      "south_apron_scrub_a",
+      "south_apron_scrub_b",
+      "south_apron_oak",
+      "monastery_yard_linden",
+      "consequence_rebel_graffiti",
+      "consequence_order_notice",
+      "consequence_watch_barricade",
+      "consequence_supply_scatter",
+      "consequence_wall_repair"
+    ],
+    "anchor": [
+      "street_start",
+      "smithy_door",
+      "brewery_door",
+      "checkpoint_west",
+      "checkpoint_east",
+      "katariina_kaik",
+      "monastery_gate",
+      "karja_gate_south",
+      "vene_street_north",
+      "south_quarter_lane",
+      "mart_street",
+      "workers_yard",
+      "carriers_lane",
+      "merchants_market",
+      "customers_street",
+      "watch_west_checkpoint",
+      "watch_east_checkpoint"
+    ],
+    "landmark": [
+      "viru_gate_arch",
+      "viru_foregate_arch"
+    ],
+    "transition": [
+      "smithy_door_transition",
+      "vana_turg_boundary",
+      "vene_district_boundary",
+      "viru_road_boundary",
+      "workers_outer_wall_road",
+      "to_reval_south",
+      "street_start_spawn"
+    ],
+    "patrol": [
+      "viru_watch",
+      "iron_convoy"
+    ]
+  }
+}
