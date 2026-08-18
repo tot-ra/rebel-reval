@@ -268,3 +268,32 @@ The clean-checkout gate implementation is green as a contract, but its product l
 ### Closeout
 
 **R-538 is complete as a deterministic BLOCKED verification ledger.** Move R-538 to `in_review`; keep R-108 / P0-101 `todo`. No new follow-up tasks are needed because the exact owners already exist: R-487/R-532, R-488/R-492/R-533/R-537, R-489/R-534, R-490/R-535, R-491/R-536/R-561, R-453/R-455, P3-011/R-563, and R-560/R-564.
+---
+
+## R-538 focused rerun addendum (2026-08-18)
+
+**Scope:** independent rerun of the narrow contracts required to consume the current Lower Town acceptance package. This addendum records current command output only; it does not regenerate parity fixtures, alter map content, change budgets, or promote partial evidence to acceptance.
+
+### Reproduction record
+
+The checks used the installed Godot 4.7.1 binary and the checked runner:
+
+```text
+r538-lower-town-map: 19 tests, 1 failure, 0 errors
+  FAIL test_lower_town_slice_matches_canonical_parity_fixture
+  reason: authored gameplay data differs from the canonical fixture; the failure reports a footprint/door-side diff
+
+r538-house-tiers: 5 tests, 0 failures, 0 errors
+r538-capture: 5 tests, 0 failures, 0 errors
+
+capture packet audit: plates=10, presets=5, errors=0
+python3 tools/report_slice_performance.py --check: PASS
+```
+
+The tier and capture contracts remain green, and all manifest outputs remain present, matched, and non-blank. The Lower Town parity mismatch is a current acceptance blocker; this verification task does not rewrite the canonical fixture because the authored change requires owner review.
+
+### Current disposition
+
+The seven-clause result remains unchanged: clauses 1-5 and 7 are **BLOCKED**, while clause 6 is **PARTIAL - final acceptance BLOCKED**. Existing blockers remain the stable-ID visual review gaps, unassigned canon/art reviewers, the parity/object-boundary mismatch, camera failures, clean-checkout `elevation_area` / `elevation_ramp` parser diagnostics, production resident-cost overages, and unavailable Intel UHD 620 evidence. Existing owners cover these findings; no duplicate follow-up task is created.
+
+**R-538 verification is complete as a deterministic BLOCKED ledger.** Keep R-538 in `in_review` and keep R-108 / P0-101 `todo` until the named owners resolve every blocker.
