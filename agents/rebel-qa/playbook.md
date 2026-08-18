@@ -75,3 +75,4 @@ This file contains lessons specific to the Qa role.
 - Acceptance packet probes must inspect the live manifest schema before validating files: this packet stores image paths under `output` (with `res://` prefixes), not `path`; assuming the wrong key produces false missing/invalid-image results.
 - Use the correct batch wrapper schema for diagnostics: `multi_tool_use.parallel` takes `tool_uses`, while `functions.parallel` takes `steps`; a cross-wrapper payload fails before any project command runs.
 - A temporary-index `git commit` updates the current branch ref itself; verify `HEAD` after the commit and do not run a second `git update-ref` with the old parent, which fails after the commit has already succeeded.
+- The `code_execution` sandbox can reject standard-library filesystem imports such as `pathlib`; when a packet audit needs local file access, use a shell Python script or project tools instead of classifying the sandbox rejection as a repository failure.
