@@ -311,6 +311,62 @@ func test_lower_town_binding_snapshot_and_profile_records_are_complete() -> void
 		UrbanPopulationMapBinding.CLUSTER_WATCH,
 	]:
 		assert_true((lookup["clusters_by_id"] as Dictionary).has(cluster_id))
+	var expected_zone_bindings := {
+		ProfileScript.ZONE_WORK_YARD: {
+			"cluster_ids": [UrbanPopulationMapBinding.CLUSTER_WORKERS],
+			"anchor_ids":
+			[&"workers_yard", &"carriers_lane", &"smithy_door", &"brewery_door", &"street_start"],
+		},
+		ProfileScript.ZONE_RESIDENTIAL: {
+			"cluster_ids": [UrbanPopulationMapBinding.CLUSTER_WORKERS],
+			"anchor_ids":
+			[&"workers_yard", &"carriers_lane", &"smithy_door", &"brewery_door", &"street_start"],
+		},
+		ProfileScript.ZONE_MARKET: {
+			"cluster_ids": [UrbanPopulationMapBinding.CLUSTER_MERCHANTS],
+			"anchor_ids": [&"merchants_market", &"customers_street", &"mart_street", &"street_start"],
+		},
+		ProfileScript.ZONE_STREET: {
+			"cluster_ids": [
+				UrbanPopulationMapBinding.CLUSTER_MERCHANTS,
+				UrbanPopulationMapBinding.CLUSTER_WATCH,
+			],
+			"anchor_ids": [
+				&"merchants_market", &"customers_street", &"mart_street", &"street_start",
+				&"watch_west_checkpoint", &"watch_east_checkpoint", &"checkpoint_west", &"checkpoint_east",
+			],
+		},
+		ProfileScript.ZONE_CHECKPOINT: {
+			"cluster_ids": [UrbanPopulationMapBinding.CLUSTER_WATCH],
+			"anchor_ids": [
+				&"watch_west_checkpoint", &"watch_east_checkpoint", &"checkpoint_west", &"checkpoint_east",
+			],
+		},
+		ProfileScript.ZONE_SAFE_INTERIOR: {
+			"cluster_ids": [UrbanPopulationMapBinding.CLUSTER_WATCH],
+			"anchor_ids": [
+				&"watch_west_checkpoint", &"watch_east_checkpoint", &"checkpoint_west", &"checkpoint_east",
+			],
+		},
+	}
+	var zones_by_id: Dictionary = lookup["zones_by_id"]
+	assert_eq(zones_by_id.keys().size(), expected_zone_bindings.keys().size())
+	for zone_id: StringName in expected_zone_bindings:
+		assert_true(zones_by_id.has(zone_id), "missing runtime population zone %s" % String(zone_id))
+		var zone_record: Dictionary = zones_by_id[zone_id]
+		assert_eq(zone_record["zone_id"], zone_id)
+		assert_eq(zone_record["cluster_ids"], expected_zone_bindings[zone_id]["cluster_ids"])
+		assert_eq(zone_record["anchor_ids"], expected_zone_bindings[zone_id]["anchor_ids"])
+		for anchor_id: StringName in zone_record["anchor_ids"]:
+			assert_true((lookup["anchors_by_id"] as Dictionary).has(anchor_id))
+	var mutated_zone: Dictionary = (lookup["zones_by_id"] as Dictionary)[ProfileScript.ZONE_WORK_YARD]
+	(mutated_zone["anchor_ids"] as Array).clear()
+	var fresh_lookup := UrbanPopulationMapBinding.build_lookup(definition, grid)
+	assert_eq(
+		(fresh_lookup["zones_by_id"] as Dictionary)[ProfileScript.ZONE_WORK_YARD]["anchor_ids"],
+		expected_zone_bindings[ProfileScript.ZONE_WORK_YARD]["anchor_ids"],
+		"mutating a returned lookup must not change the next runtime snapshot"
+	)
 	var expected_activity_anchors := {
 		&"workers_yard": &"workers_yard",
 		&"carriers_lane": &"carriers_lane",
@@ -345,6 +401,7 @@ func test_population_binding_fails_closed_for_unknown_map_and_ids() -> void:
 	definition.map_id = &"not_lower_town"
 	var unknown_lookup := UrbanPopulationMapBinding.build_lookup(definition)
 	assert_true((unknown_lookup["clusters"] as Array).is_empty())
+	assert_true((unknown_lookup["zones_by_id"] as Dictionary).is_empty())
 	assert_true((unknown_lookup["anchors_by_id"] as Dictionary).is_empty())
 	assert_true(UrbanPopulationMapBinding.clusters_for_map(definition).is_empty())
 	assert_true(UrbanPopulationMapBinding.anchor_ids_for_cluster(&"missing_cluster", []).is_empty())

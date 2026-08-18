@@ -93,6 +93,7 @@ static func build_lookup(definition: MapDefinition, grid: MapTerrainGrid = null)
 			"clusters": [],
 			"clusters_by_id": {},
 			"clusters_by_zone": {},
+			"zones_by_id": {},
 			"anchors_by_id": {},
 		}
 	var clusters := clusters_for_map(definition, grid)
@@ -108,6 +109,7 @@ static func build_lookup(definition: MapDefinition, grid: MapTerrainGrid = null)
 				"anchor_kind": StringName(anchor.get("kind", &"")),
 				"anchor_position": anchor_position,
 			}
+	var zones_by_id := _build_zones_by_id(clusters)
 	for cluster: Dictionary in clusters:
 		var cluster_id: StringName = cluster["cluster_id"]
 		clusters_by_id[cluster_id] = cluster.duplicate(true)
@@ -120,8 +122,42 @@ static func build_lookup(definition: MapDefinition, grid: MapTerrainGrid = null)
 		"clusters": clusters,
 		"clusters_by_id": clusters_by_id,
 		"clusters_by_zone": clusters_by_zone,
+		"zones_by_id": zones_by_id,
 		"anchors_by_id": anchors_by_id,
 	}
+
+
+## Builds one deterministic record per profile zone from the authored clusters.
+## Zones without a valid authored anchor are omitted so consumers fail closed rather
+## than placing actors from a logical zone that has no map-backed activity point.
+static func _build_zones_by_id(clusters: Array[Dictionary]) -> Dictionary:
+	var zones_by_id := {}
+	for cluster: Dictionary in clusters:
+		var cluster_id: StringName = cluster.get("cluster_id", &"")
+		var cluster_anchor_ids: Array[StringName] = []
+		for anchor_id: StringName in cluster.get("anchor_ids", []):
+			if not cluster_anchor_ids.has(anchor_id):
+				cluster_anchor_ids.append(anchor_id)
+		if cluster_id.is_empty() or cluster_anchor_ids.is_empty():
+			continue
+		for zone_id: StringName in cluster.get("zone_ids", []):
+			if zone_id.is_empty():
+				continue
+			if not zones_by_id.has(zone_id):
+				zones_by_id[zone_id] = {
+					"zone_id": zone_id,
+					"cluster_ids": [],
+					"anchor_ids": [],
+				}
+			var zone_record: Dictionary = zones_by_id[zone_id]
+			var zone_cluster_ids: Array = zone_record["cluster_ids"]
+			if not zone_cluster_ids.has(cluster_id):
+				zone_cluster_ids.append(cluster_id)
+			var zone_anchor_ids: Array = zone_record["anchor_ids"]
+			for anchor_id: StringName in cluster_anchor_ids:
+				if not zone_anchor_ids.has(anchor_id):
+					zone_anchor_ids.append(anchor_id)
+	return zones_by_id
 
 
 ## Adds map-bound cluster and anchor fields to profile actor records.
