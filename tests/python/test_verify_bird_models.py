@@ -2,12 +2,22 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import re
 import struct
 import tempfile
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
+FLORA_FAUNA_PATH = ROOT / "docs" / "FLORA_FAUNA.md"
+BIRD_LEDGER_ROW_RE = re.compile(r"^\| .*? \| `bird\.([a-z0-9_]+)` \|", re.MULTILINE)
+
+
+def _documented_bird_ids() -> set[str]:
+    text = FLORA_FAUNA_PATH.read_text(encoding="utf-8")
+    start = text.index("## Bird model ledger")
+    end = text.index("## Mammal model ledger", start)
+    return set(BIRD_LEDGER_ROW_RE.findall(text[start:end]))
 
 
 def _load_verify_module():
@@ -28,6 +38,24 @@ def _write_glb(path: Path, document: dict) -> None:
 
 
 class VerifyBirdModelsTests(unittest.TestCase):
+  def test_reference_ledger_matches_catalog_and_authored_species(self) -> None:
+    verify = _load_verify_module()
+    catalog_species = set(verify.parse_bird_catalog())
+    documented_species = _documented_bird_ids()
+    self.assertEqual(documented_species, catalog_species)
+
+    authored_species = {
+      path.parent.name
+      for path in (ROOT / "assets" / "birds").glob("*/*.glb")
+      if path.name in {"standing.glb", "perched.glb", "gliding.glb"}
+      or re.fullmatch(r"gliding_\d{2}\.glb", path.name)
+    }
+    self.assertTrue(
+      authored_species <= documented_species,
+      "authored bird species missing from FLORA_FAUNA.md: %s"
+      % sorted(authored_species - documented_species),
+    )
+
   def test_catalog_parses_thirty_species_with_scale(self) -> None:
     verify = _load_verify_module()
     catalog = verify.parse_bird_catalog()
