@@ -20,7 +20,8 @@ func test_lower_town_authoring_contract_is_resolved_against_runtime() -> void:
 	assert_eq(contract.get("source"), "content/maps/lower_town_slice.rrmap")
 	var thresholds: Dictionary = contract.get("composition_thresholds", {})
 	assert_eq(thresholds.get("map_id"), "lower_town_slice")
-	assert_false(bool(thresholds.get("enforce", true)), "lower_town_slice composition enforcement must remain advisory")
+	assert_true(bool(thresholds.get("enforce", false)), "lower_town_slice composition enforcement must be explicit")
+	assert_eq(thresholds.get("enforcement_state"), "enforced")
 
 	var definition: MapDefinition = LowerTownSliceDefinition.create()
 	assert_eq(definition.map_id, &"lower_town_slice")

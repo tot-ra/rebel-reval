@@ -124,6 +124,11 @@ terrain workers.outer.road dirt 132 40 20 12 order=30
 stroke road.pikk cobblestone 26,0|26,55 thickness=3 order=40
 stroke road.viru cobblestone 0,55|64,55|100,55 thickness=3 order=41
 stroke road.karja cobblestone 64,55|64,92|64,127 thickness=3 order=42
+# R-607: the eastern foreland is a packed-earth traffic and service apron; the
+# later water overlay still owns its wet cells, while urban closes below restore
+# the documented stone/earth/grass balance without touching buildings or routes.
+terrain lower_town_foreland_apron dirt 114 0 38 128 order=5
+terrain_rects lower_town_stone_closes stone 31,0,45,19|76,0,28,22|7,98,9,27|16,103,44,22|76,76,10,27|93,87,21,21|76,108,38,20 layer=0 order=43
 building city_wall_north wall 111 0 4 41 style=wall.plain.h192.00
 building wall_tower_northeast wall 109 5 8 6 style=wall.plain.h240.01 tower=false round_tower=true wall_walk_axis=z
 building wall_tower_north wall 109 24 8 6 style=wall.plain.h240.01 tower=false round_tower=true wall_walk_axis=z

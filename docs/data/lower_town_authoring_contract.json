@@ -7,8 +7,9 @@
   "composition_thresholds": {
     "path": "docs/data/map_composition_thresholds.json",
     "map_id": "lower_town_slice",
-    "enforce": false,
-    "reason": "The composition card remains advisory for this prototype slice; this contract still enforces authored ownership and references."
+    "enforce": true,
+    "enforcement_state": "enforced",
+    "reason": "The composition card is enforced for the playable slice; this contract separately enforces authored ownership and references."
   },
   "frontage_rules": {
     "default": {
