@@ -396,6 +396,35 @@ func test_lower_town_binding_snapshot_and_profile_records_are_complete() -> void
 		assert_eq(record["anchor_position"], MapVerification.anchor_position(definition, record["anchor_id"]))
 
 
+func test_binding_maps_every_actor_in_each_profile_to_an_authored_zone_and_anchor() -> void:
+	var definition: MapDefinition = LowerTownSliceDefinition.create()
+	var grid := MapBuilder.build(definition)
+	var lookup := UrbanPopulationMapBinding.build_lookup(definition, grid)
+	var zones_by_id: Dictionary = lookup["zones_by_id"]
+	var profiles: Array[Dictionary] = [
+		ProfileScript.day(PHASE_DAY, DATE_OFF_DAY, 434),
+		ProfileScript.market_day(PHASE_DAY, DATE_MARKET_DAY, 434),
+		ProfileScript.night(PHASE_NIGHT, DATE_OFF_DAY, 434),
+		ProfileScript.crackdown(PHASE_DAY, DATE_OFF_DAY, 434),
+	]
+
+	for profile: Dictionary in profiles:
+		var profile_id := String(profile["profile_id"])
+		var records := UrbanPopulationMapBinding.bind_profile(profile, definition, grid)
+		assert_eq(records.size(), (profile["actor_plan"] as Array).size(),
+			"profile %s must bind every actor" % profile_id)
+		for record: Dictionary in records:
+			var zone_id: StringName = record["zone_id"]
+			var cluster_id: StringName = record["cluster_id"]
+			var anchor_id: StringName = record["anchor_id"]
+			assert_true(zones_by_id.has(zone_id),
+				"profile %s actor zone must be authored: %s" % [profile_id, String(zone_id)])
+			var zone_record: Dictionary = zones_by_id[zone_id]
+			assert_array_contains(zone_record["cluster_ids"], cluster_id)
+			assert_array_contains(zone_record["anchor_ids"], anchor_id)
+			assert_eq(record["anchor_position"], MapVerification.anchor_position(definition, anchor_id))
+
+
 func test_population_binding_fails_closed_for_unknown_map_and_ids() -> void:
 	var definition := MapDefinition.new()
 	definition.map_id = &"not_lower_town"
