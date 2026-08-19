@@ -87,8 +87,9 @@ func _bird_entry(species: StringName, origin: Vector3) -> Node3D:
 
 	var label := Label3D.new()
 	label.name = "Label"
-	label.text = String(BirdSpecies.id_for(species))
-	label.font_size = 28
+	var source_label := "GLB" if BirdMeshes.uses_authored_mesh(species) else "procedural"
+	label.text = "%s\n[%s]" % [String(BirdSpecies.id_for(species)), source_label]
+	label.font_size = 24
 	label.modulate = Color("e9e2d2")
 	label.outline_size = 5
 	label.outline_modulate = Color("202527")
