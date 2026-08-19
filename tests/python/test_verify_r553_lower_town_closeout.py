@@ -62,7 +62,9 @@ class R553LowerTownCloseoutTests(unittest.TestCase):
             "**Decision:** **PASS - promote R-109/P0-100 to acceptance.**",
             1,
         ).replace("Do not close R-109/P0-100", "Close R-109/P0-100", 1)
-        errors = self._validate(report=seeded)
+        thresholds = copy.deepcopy(self.thresholds)
+        thresholds["maps"]["lower_town_slice"]["enforce"] = False
+        errors = self._validate(report=seeded, thresholds=thresholds)
         self.assertTrue(any("Decision must be BLOCKED" in error for error in errors), errors)
         self.assertTrue(any("closure prohibition" in error for error in errors), errors)
 
