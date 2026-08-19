@@ -29,7 +29,7 @@ Format matches the legacy `TODO.md` contract: `ID | deps | deliverable | verify`
 
 ## Closed - source / documentation size
 
-- [x] P0-184 | deps: P0-177 | role: dev | deliverable: refresh `docs/ARCHITECTURE.md` large-runtime-file audit table to the current inventory (60 scripts over 400 lines, list every file over 800 lines) with keep/extract decisions and regression gates; no behavior change required in-row | verify: architecture section matches `wc -l` on `scripts/**/*.gd`; `python3 tools/generate_active_docs_report.py --check` passes | closed: 2026-08-13 inventory 60 / 23 / 6 over 400 / 600 / 800; EE-agent split queue in `docs/reports/agent_file_readability_split_plan_2026-08-13.md`
+- [x] P0-184 | deps: P0-177 | role: dev | deliverable: refresh `docs/ARCHITECTURE.md` large-runtime-file audit table to the current inventory (61 scripts over 400 lines, list every file over 800 lines) with keep/extract decisions and regression gates; no behavior change required in-row | verify: architecture section matches `wc -l` on `scripts/**/*.gd`; `python3 tools/generate_active_docs_report.py --check` passes | closed: 2026-08-19 inventory 61 / 18 / 6 over 400 / 600 / 800; EE-agent split queue in `docs/reports/agent_file_readability_split_plan_2026-08-13.md`
 
 ## Open - source / documentation size
 
