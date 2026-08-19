@@ -175,3 +175,4 @@ This file contains only cross-role operating lessons. Domain lessons belong to t
 - `tools/run_godot_checked.sh` requires `--require-test-summary` before the log name; placing the flag after the log name exits 127 before Godot starts and is an invocation error, not a test failure.
 
 - When a parallel task-board diagnostic includes an invalid `tasks.get` ref, isolate and rerun the valid lookups, then verify no board mutation before classifying the tick; a rejected empty-ref probe is a tooling error, not a research blocker.
+- When repairing a shared Godot test after a stale line-range edit, re-read the entire affected function and restore it as one bounded block before rerunning parser/lint; partial range repairs can leave duplicated tails that mask the actual test result.

@@ -88,12 +88,182 @@ func test_lower_town_authoring_contract_is_resolved_against_runtime() -> void:
 	for landmark in contract.get("required_landmarks", []):
 		assert_true(runtime_ids["landmarks"].has(String(landmark)), "Required landmark is not compiled: %s" % landmark)
 
+
+func test_lower_town_frontage_width_report_is_deterministic() -> void:
+	var contract := _load_json(CONTRACT_PATH)
+	var audit: Dictionary = contract.get("frontage_audit", {})
+	assert_eq(audit.get("cell_to_m"), 1, "Frontage audit uses authored cells as metres")
+	var default_rule_id := String(audit.get("default_rule_id", ""))
+	assert_eq(default_rule_id, "default_frontage_m")
+	var rear_service: Dictionary = _string_set(audit.get("rear_service_buildings", []))
+	var non_frontage: Dictionary = audit.get("non_frontage_buildings", {})
+	var overrides: Dictionary = audit.get("rule_overrides", {})
+	var source_buildings := _source_buildings()
+	var source_by_id: Dictionary = {}
+	for building in source_buildings:
+		source_by_id[String(building.get("id", ""))] = building
+	var definition: MapDefinition = LowerTownSliceDefinition.create()
+	var runtime_ids := _runtime_ids(definition)
+	for building_id in rear_service:
+		assert_true(
+			source_by_id.has(building_id),
+			"Rear/service building is missing from RRMap: %s" % building_id
+		)
+		assert_true(
+			runtime_ids["buildings"].has(building_id),
+			"Rear/service building is not compiled: %s" % building_id
+		)
+	for building_id in non_frontage:
+		assert_true(
+			source_by_id.has(building_id),
+			"Non-frontage building is missing from RRMap: %s" % building_id
+		)
+		assert_true(
+			runtime_ids["buildings"].has(building_id),
+			"Non-frontage building is not compiled: %s" % building_id
+		)
+
+	var tier_counts := {"merchant_stone": 0, "merchant_timber": 0, "craft_boda": 0}
+	var report: Array[String] = []
+	for building in source_buildings:
+		var building_id := String(building.get("id", ""))
+		var tier := String(building.get("house_tier", ""))
+		if tier.is_empty() or non_frontage.has(building_id):
+			continue
+		assert_true(tier_counts.has(tier), "Unexpected Lower Town house tier: %s" % tier)
+		if not tier_counts.has(tier):
+			continue
+		tier_counts[tier] += 1
+		var frontage_m := _source_frontage_width(building)
+		assert_true(frontage_m > 0, "%s needs a directional house style for frontage audit" % building_id)
+		var override: Dictionary = overrides.get(building_id, {})
+		var rule_id := String(override.get("rule_id", default_rule_id))
+		var rule := _frontage_rule(contract, rule_id)
+		assert_false(rule.is_empty(), "%s references an undeclared frontage rule" % building_id)
+		if rule.is_empty():
+			continue
+		var target: Array = rule.get("target_range_m", [])
+		assert_eq(target.size(), 2, "%s frontage rule needs a two-value range" % building_id)
+		if target.size() != 2:
+			continue
+		var in_range := frontage_m >= float(target[0]) and frontage_m <= float(target[1])
+		var is_rear_service := rear_service.has(building_id)
+		var is_explicit_exception := overrides.has(building_id)
+		if is_rear_service:
+			if frontage_m < 7 or frontage_m > 11:
+				report.append(
+					"%s: %dm -> rear_service_non_public (%s)" % [
+						building_id,
+						frontage_m,
+						"rear/service space is excluded from public frontage",
+					]
+				)
+			continue
+		if not in_range:
+			assert_true(
+				is_explicit_exception,
+				"%s is outside %s without a documented exception" % [
+					building_id,
+					default_rule_id,
+				]
+			)
+			if is_explicit_exception:
+				report.append(
+					"%s: %dm -> %s (%s)" % [
+						building_id,
+						frontage_m,
+						rule_id,
+						String(override.get("reason", "")),
+					]
+				)
+		elif is_explicit_exception:
+			report.append(
+				"%s: %dm -> %s (%s)" % [
+					building_id,
+					frontage_m,
+					rule_id,
+					String(override.get("reason", "")),
+				]
+			)
+
+	for tier_id in tier_counts:
+		assert_true(
+			int(tier_counts[tier_id]) > 0,
+			"Lower Town frontage is missing house tier: %s" % tier_id
+		)
+	assert_true(
+		report.size() >= 3,
+		"Width report must list rear/service and irregular frontage exceptions"
+	)
+	for row in report:
+		print("LOWER_TOWN_FRONTAGE %s" % row)
+
+
+func _source_buildings() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	var file := FileAccess.open(RRMAP_PATH, FileAccess.READ)
+	assert_true(file != null, "Lower Town RRMap source must be readable")
+	if file == null:
+		return result
+	for raw in file.get_as_text().split("\n"):
+		var tokens := String(raw).strip_edges().split(" ", false)
+		if tokens.size() < 7 or tokens[0] != "building":
+			continue
+		var building: Dictionary = {
+			"id": String(tokens[1]),
+			"kind": String(tokens[2]),
+			"x": int(tokens[3]),
+			"y": int(tokens[4]),
+			"w": int(tokens[5]),
+			"h": int(tokens[6]),
+		}
+		for token in tokens.slice(7):
+			var pair := String(token).split("=", true, 1)
+			if pair.size() == 2:
+				building[pair[0]] = pair[1]
+		result.append(building)
+	return result
+
+
+func _source_frontage_width(building: Dictionary) -> int:
+	var style_tokens := String(building.get("style", "")).split(".")
+	if style_tokens.size() < 2:
+		return 0
+	match style_tokens[1]:
+		"north", "south":
+			return int(building.get("w", 0))
+		"east", "west":
+			return int(building.get("h", 0))
+	return 0
+
+
+func _frontage_rule(contract: Dictionary, rule_id: String) -> Dictionary:
+	var rules: Dictionary = contract.get("frontage_rules", {})
+	if rule_id == "default_frontage_m":
+		return rules.get("default", {})
+	for exception in rules.get("exceptions", []):
+		var candidate: Dictionary = exception
+		if String(candidate.get("rule_id", "")) == rule_id:
+			return candidate
+	return {}
+
+
+func _string_set(values: Array) -> Dictionary:
+	var result := {}
+	for value in values:
+		result[String(value)] = true
+	return result
+
 func _load_json(path: String) -> Dictionary:
 	var file := FileAccess.open(path, FileAccess.READ)
 	assert_true(file != null, "Missing authoring contract: %s" % path)
+	if file == null:
+		return {}
 	var value: Variant = JSON.parse_string(file.get_as_text())
 	assert_true(value is Dictionary, "Authoring contract must be a JSON object")
 	return value if value is Dictionary else {}
+
+
 
 func _source_ids() -> Dictionary:
 	var result := {}

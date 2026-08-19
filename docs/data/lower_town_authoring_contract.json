@@ -52,8 +52,51 @@
           6,
           10
         ]
+      },
+      {
+        "rule_id": "merchant_irregular_frontage_m",
+        "use_for": "documented irregular merchant compound rows",
+        "target_range_m": [
+          12,
+          14
+        ]
       }
     ]
+  },
+  "frontage_audit": {
+    "cell_to_m": 1,
+    "default_rule_id": "default_frontage_m",
+    "rear_service_buildings": [
+      "saddlers_rear_workshop",
+      "coopers_rear_workshop",
+      "sauna_rear_boda",
+      "rope_makers_rear_store",
+      "karja_rear_boda",
+      "brewery_rear_store",
+      "smithy_rear_shed",
+      "carriers_barn"
+    ],
+    "rule_overrides": {
+      "kaik_house_mid": {
+        "rule_id": "merchant_irregular_frontage_m",
+        "reason": "wider guild-side merchant compound row"
+      },
+      "viru_house_mid": {
+        "rule_id": "merchant_irregular_frontage_m",
+        "reason": "wider Viru-side merchant compound row"
+      }
+    },
+    "non_frontage_buildings": {
+      "st_catherines_church": "institutional_landmark",
+      "monastery_cloister": "institutional_precinct",
+      "monastery_barn": "institutional_service",
+      "guild_storehouse": "institutional_storehouse",
+      "public_bathhouse": "institutional_bathhouse",
+      "foaming_mug_brewery": "service_workshop",
+      "kalev_smithy": "service_workshop",
+      "muurivahe_house_north": "edge_service",
+      "south_apron_wall_walk_hut": "edge_service"
+    }
   },
   "sectors": [
     {
@@ -196,6 +239,41 @@
       "frontage_rule": "artisan_frontage_m"
     },
     {
+      "id": "craft_backlots",
+      "label": "Irregular craft backlots and service lanes",
+      "bounds_cells": [
+        14,
+        70,
+        50,
+        12
+      ],
+      "ownership": {
+        "terrain": [
+          "rear_property_lane"
+        ],
+        "buildings": [
+          "saddlers_rear_workshop",
+          "coopers_rear_workshop",
+          "sauna_rear_boda",
+          "rope_makers_rear_store",
+          "karja_rear_boda"
+        ],
+        "props": [
+          "rear_saddler_frame",
+          "rear_cooper_staves",
+          "rear_rope_coil",
+          "rear_karja_barrels"
+        ],
+        "anchors": [
+          "carriers_lane"
+        ],
+        "transitions": [],
+        "landmarks": [],
+        "patrols": []
+      },
+      "frontage_rule": "artisan_frontage_m"
+    },
+    {
       "id": "service_yards",
       "label": "Carrier and brewery service yards",
       "bounds_cells": [
@@ -205,10 +283,16 @@
         30
       ],
       "ownership": {
-        "terrain": [],
+        "terrain": [
+          "rear_carrier_lane"
+        ],
         "buildings": [
           "foaming_mug_brewery",
           "kalev_smithy",
+          "artisan_shed",
+          "brewery_rear_store",
+          "smithy_rear_shed",
+          "carriers_barn",
           "smithy_yard_fence_north",
           "smithy_yard_fence_east"
         ],
@@ -222,7 +306,14 @@
           "evidence_barrels",
           "cistern_wash_tub",
           "south_apron_cart",
-          "south_apron_barrels"
+          "south_apron_barrels",
+          "rear_brewery_barrels",
+          "service_yard_gate_west",
+          "service_yard_gate_east",
+          "service_yard_firewood",
+          "service_yard_hay",
+          "service_yard_scrub_west",
+          "service_yard_scrub_east"
         ],
         "anchors": [
           "workers_yard",
@@ -408,7 +499,9 @@
   ],
   "source_inventory": {
     "terrain": [
-      "workers.outer.road"
+      "workers.outer.road",
+      "rear_property_lane",
+      "rear_carrier_lane"
     ],
     "building": [
       "city_wall_north",
@@ -490,10 +583,18 @@
       "hedge_house",
       "wall_side_house",
       "artisan_shed",
+      "saddlers_rear_workshop",
+      "coopers_rear_workshop",
+      "sauna_rear_boda",
+      "rope_makers_rear_store",
+      "karja_rear_boda",
       "potters_house",
       "glassblowers_house",
       "foaming_mug_brewery",
       "kalev_smithy",
+      "brewery_rear_store",
+      "smithy_rear_shed",
+      "carriers_barn",
       "smithy_yard_fence_north",
       "smithy_yard_fence_east",
       "muurivahe_house_north",
@@ -525,6 +626,17 @@
       "brewery_malt_sacks",
       "evidence_barrels",
       "cistern_wash_tub",
+      "rear_saddler_frame",
+      "rear_cooper_staves",
+      "rear_rope_coil",
+      "rear_karja_barrels",
+      "rear_brewery_barrels",
+      "service_yard_gate_west",
+      "service_yard_gate_east",
+      "service_yard_firewood",
+      "service_yard_hay",
+      "service_yard_scrub_west",
+      "service_yard_scrub_east",
       "cooper_yard",
       "ropeyard_rope",
       "saddler_frame",
