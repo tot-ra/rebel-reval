@@ -4,6 +4,7 @@ extends RefCounted
 ## Inline shader sources for animated MapViewMaterials surfaces.
 
 
+# gdlint: disable=max-line-length
 const WATER_SHADER_CODE := """
 shader_type spatial;
 render_mode blend_mix, depth_draw_always, cull_disabled, diffuse_burley, specular_schlick_ggx;
@@ -164,9 +165,7 @@ vec4 _seabed_layers(vec2 position, float water_depth) {
 	float deep_weight = smoothstep(0.20, 0.34, water_depth);
 	float shallow_weight = 1.0 - deep_weight;
 	float stone_weight = smoothstep(0.56, 0.78, broken * 0.72 + detail * 0.28) * shallow_weight;
-	# gdlint: ignore=max-line-length
 	float algae_depth = smoothstep(0.06, 0.16, water_depth) * (1.0 - smoothstep(0.30, 0.46, water_depth));
-	# gdlint: ignore=max-line-length
 	float algae_weight = smoothstep(0.48, 0.72, broad * 0.68 + broken * 0.32) * algae_depth * bed_vegetation;
 	float sand_weight = max(shallow_weight - stone_weight - algae_weight, 0.08 * shallow_weight);
 	float shallow_total = max(sand_weight + stone_weight + algae_weight, 0.0001);
@@ -340,7 +339,6 @@ void fragment() {
 	// Low sun elongates the glitter path; keep a warm dawn cue without a racing
 	// sparkle highway while the disk skims the horizon on a compressed day cycle.
 	float low_sun_glitter = smoothstep(-0.02, 0.22, sun_direction.y);
-	# gdlint: ignore=max-line-length
 	float sun_glint = pow(sun_alignment, 220.0) * sun_reflection_visibility * mix(0.2, 1.0, low_sun_glitter);
 	float moon_alignment = max(dot(reflected_sky_ray, normalize(moon_direction)), 0.0);
 	float moon_glint = pow(moon_alignment, 320.0) * moon_visibility;
@@ -352,7 +350,6 @@ void fragment() {
 	// at the bank. This reads as surf arriving at shore rather than static edge foam.
 	float shore = 1.0 - smoothstep(0.0, 0.88, shore_factor);
 	float breaker_phase = shore_factor * 18.0 + TIME * (1.45 * wave_speed);
-	# gdlint: ignore=max-line-length
 	float breaker_warp = (_noise(water_world_position.xz * 0.42 + vec2(TIME * 0.08, -TIME * 0.04)) - 0.5) * 3.4;
 	float breaker_a = pow(max(sin(breaker_phase + breaker_warp), 0.0), 5.0);
 	float breaker_b = pow(max(sin(breaker_phase * 0.62 + breaker_warp * 0.7 + 2.4), 0.0), 7.0);
@@ -393,6 +390,7 @@ void fragment() {
 	SPECULAR = mix(0.05, 0.25, sun_visibility);
 }
 """
+# gdlint: enable=max-line-length
 ## Grass blades: instance color carries the tint, UV.y runs root(0) to tip(1).
 ## World wind (direction + strength from SkyWeather) leans tips downwind; a
 ## lighter cross-flutter keeps the field alive even in a steady breeze.
