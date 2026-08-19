@@ -10,6 +10,7 @@ const REPUTATION_SCRIPT := preload("res://scripts/faction/social_reputation_cont
 const MARKET_DAY_SCRIPT := preload("res://scripts/world/market_day_controller.gd")
 const POPULATION_SCRIPT := preload("res://scripts/world/urban_population_controller.gd")
 const SUPPLY_CHAIN_SCRIPT := preload("res://scripts/world/supply_chain_controller.gd")
+const CART_TRANSPORT_SCRIPT := preload("res://scripts/world/cart_transport_controller.gd")
 const ENVIRONMENT_SCRIPT := preload("res://scripts/world/environmental_consequence_controller.gd")
 const BELL_INVESTIGATION_SCRIPT := preload(
 	"res://scripts/investigation/bell_and_chain_investigation.gd"
@@ -71,6 +72,7 @@ var _social_reputation: Node
 var _market_day: Node
 var _urban_population: Node
 var _supply_chain: Node
+var _cart_transport: Node
 var _environmental_consequence: Node
 var _bell_and_chain_investigation: Node
 var _bell_and_chain_night: Node
@@ -181,6 +183,10 @@ func _ready() -> void:
 		_mart_encounter.get_interaction_controller(),
 		&"loc.lower_town_slice"
 	)
+	_cart_transport = CART_TRANSPORT_SCRIPT.new()
+	_cart_transport.name = "CartTransportController"
+	add_child(_cart_transport)
+	_cart_transport.setup(definition, _view_runtime, &"loc.lower_town_slice")
 	_environmental_consequence = ENVIRONMENT_SCRIPT.new()
 	_environmental_consequence.name = "EnvironmentalConsequenceController"
 	add_child(_environmental_consequence)
