@@ -31,6 +31,7 @@ class UpdateTodoCountsTest(unittest.TestCase):
                         "| P0 |  ~1 |  ~1 | stale |",
                         "",
                         "- [x] D-004a | deps: none | deliverable: demo follow-up | verify: passes",
+                        "- [X] P0-071 | deps: P0-078 | deliverable: uppercase completion marker | verify: passes",
                         "- [ ] P0-070 | deps: P0-078 | deliverable: storage migration | verify: passes",
                         "- [x] P1-031a | deps: P1-031 | deliverable: map click travel | verify: passes",
                         "- [ ] P3-011 | deps: P1-030 | deliverable: hardware target | verify: passes",
@@ -43,6 +44,7 @@ class UpdateTodoCountsTest(unittest.TestCase):
 
             self.assertEqual(counts["D"].done_count, 1)
             self.assertEqual(counts["P0"].open_count, 1)
+            self.assertEqual(counts["P0"].done_count, 1)
             self.assertEqual(counts["P1"].done_count, 1)
             self.assertEqual(counts["P3"].open_count, 1)
 

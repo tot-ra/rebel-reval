@@ -59,9 +59,9 @@ def scan_todo(path: Path) -> dict[str, Counters]:
     text = path.read_text(encoding="utf-8")
     counts: dict[str, Counters] = {}
 
-    # Match task rows: "- [ ]" or "- [x]" followed by an ID like D-001 or P2-045.
+    # Match task rows: "- [ ]" or "- [x]"/"- [X]" followed by an ID like D-001 or P2-045.
     pattern = re.compile(
-        r"^-\s+\[(?:[ x])\]\s+(D|R|A|P\d+)-\d+[a-z]*\b.*?deps:\s*(.*?)\s*\|\s*deliverable:"
+        r"^-\s+\[(?:[ xX])\]\s+(D|R|A|P\d+)-\d+[a-z]*\b.*?deps:\s*(.*?)\s*\|\s*deliverable:"
     )
 
     for line in text.splitlines():
@@ -71,7 +71,7 @@ def scan_todo(path: Path) -> dict[str, Counters]:
         priority, deps = m.group(1), m.group(2)
         bucket = _bucket_for(priority)
         counters = counts.setdefault(bucket, Counters())
-        is_done = line.lstrip().startswith("- [x]")
+        is_done = line.lstrip().lower().startswith("- [x]")
         if is_done:
             counters.done_count += 1
         else:
