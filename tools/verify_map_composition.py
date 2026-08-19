@@ -12,6 +12,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 THRESHOLDS = ROOT / "docs" / "data" / "map_composition_thresholds.json"
+AUDIT_MANIFEST = ROOT / "content" / "map_audit_manifest.json"
+LOWER_TOWN_OWNERSHIP = ROOT / "docs" / "data" / "lower_town_authoring_contract.json"
 REGISTRY = ROOT / "scripts" / "map" / "map_blueprint_registry.gd"
 DOSSIER = ROOT / "docs" / "HISTORICAL_AUDIT.md"
 TODO = ROOT / "TODO.md"
@@ -44,15 +46,31 @@ def p1_036_complete(todo_text: str) -> bool:
     return bool(re.search(r"^- \[x\] P1-036\b", todo_text, re.MULTILINE))
 
 
+def _load_json(path: Path) -> dict:
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ValueError(f"could not parse {path}: {exc}") from exc
+    if not isinstance(value, dict):
+        raise ValueError(f"{path}: top-level JSON value must be an object")
+    return value
+
+
 def validate_threshold_contract() -> list[str]:
     errors: list[str] = []
     if not THRESHOLDS.is_file():
         return [f"missing thresholds file: {THRESHOLDS}"]
-    payload = json.loads(THRESHOLDS.read_text(encoding="utf-8"))
+    try:
+        payload = _load_json(THRESHOLDS)
+    except ValueError as exc:
+        return [str(exc)]
     maps: dict = payload.get("maps", {})
     if not maps:
         errors.append("thresholds file has no map cards")
-    registry_ids = parse_registry_ids(REGISTRY.read_text(encoding="utf-8"))
+    try:
+        registry_ids = parse_registry_ids(REGISTRY.read_text(encoding="utf-8"))
+    except OSError as exc:
+        return [f"could not read map registry: {exc}"]
     missing = sorted(set(registry_ids) - set(maps))
     extra = sorted(set(maps) - set(registry_ids))
     if missing:
@@ -72,6 +90,61 @@ def validate_threshold_contract() -> list[str]:
                 errors.append(f"{map_id}: interior map needs open_floor_pct")
         elif not card.get("surface_shares"):
             errors.append(f"{map_id}: outdoor map needs surface_shares")
+
+    errors.extend(validate_lower_town_enforcement())
+    return errors
+
+
+def validate_lower_town_enforcement() -> list[str]:
+    """Require an explicit gate and ownership source for the playable slice."""
+    errors: list[str] = []
+    try:
+        thresholds = _load_json(THRESHOLDS)
+        manifest = _load_json(AUDIT_MANIFEST)
+        ownership = _load_json(LOWER_TOWN_OWNERSHIP)
+    except ValueError as exc:
+        return [str(exc)]
+
+    card = thresholds.get("maps", {}).get("lower_town_slice")
+    if not isinstance(card, dict):
+        return ["lower_town_slice: missing threshold card"]
+    if card.get("enforce") is not True or card.get("enforcement_state") != "enforced":
+        errors.append("lower_town_slice: composition gate must be explicitly enforced")
+    if card.get("ownership_contract") != "docs/data/lower_town_authoring_contract.json":
+        errors.append("lower_town_slice: threshold card must name its ownership contract")
+    if not card.get("source_refs") or not {"H04-H05", "H09-H10"}.issubset(card["source_refs"]):
+        errors.append("lower_town_slice: H04-H05 and H09-H10 source refs are required")
+
+    rows = [row for row in manifest.get("maps", []) if row.get("id") == "lower_town_slice"]
+    if len(rows) != 1:
+        errors.append("lower_town_slice: audit manifest must contain exactly one map row")
+        return errors
+    enforcement = rows[0].get("composition_enforcement", {})
+    expected = {
+        "state": "enforced",
+        "thresholds": "docs/data/map_composition_thresholds.json#maps.lower_town_slice",
+        "ownership": "docs/data/lower_town_authoring_contract.json",
+        "open_region_exclusions": "ownership.open_regions[].exclude_from_unowned_empty_region",
+    }
+    for key, value in expected.items():
+        if enforcement.get(key) != value:
+            errors.append(f"lower_town_slice: manifest composition_enforcement.{key} must be {value!r}")
+
+    if ownership.get("map_id") != "lower_town_slice":
+        errors.append("lower_town_slice: ownership contract has the wrong map_id")
+    open_regions = ownership.get("open_regions", [])
+    if not open_regions:
+        errors.append("lower_town_slice: ownership contract must list intentional open regions")
+    for region in open_regions:
+        region_id = region.get("id", "<unnamed>")
+        if not region.get("bounds_cells"):
+            errors.append(f"lower_town_slice: open region {region_id} needs bounds_cells")
+        if not region.get("reason"):
+            errors.append(f"lower_town_slice: open region {region_id} needs an exclusion reason")
+        if region.get("exclude_from_unowned_empty_region") is not True:
+            errors.append(
+                f"lower_town_slice: open region {region_id} must explicitly opt out of the empty-region metric"
+            )
     return errors
 
 

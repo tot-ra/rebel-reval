@@ -3,6 +3,65 @@ extends "res://tests/godot/test_case.gd"
 const MapCompositionAudit := preload("res://scripts/map/map_composition_audit.gd")
 
 
+func test_lower_town_composition_gate_declares_ownership_exclusions() -> void:
+	var thresholds_doc: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string("res://docs/data/map_composition_thresholds.json")
+	)
+	var card: Dictionary = thresholds_doc["maps"]["lower_town_slice"]
+	assert_true(
+		card.get("enforce", false),
+		"Lower Town composition must be enforced, not silently skipped"
+	)
+	assert_eq(card.get("enforcement_state"), "enforced")
+	assert_eq(
+		card.get("ownership_contract"),
+		"docs/data/lower_town_authoring_contract.json"
+	)
+	assert_true(
+		["H04-H05", "H09-H10"].all(
+			func(source_ref): return source_ref in card.get("source_refs", [])
+		)
+	)
+
+	var manifest: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string("res://content/map_audit_manifest.json")
+	)
+	var lower_town_rows: Array = manifest["maps"].filter(
+		func(row): return row.get("id") == "lower_town_slice"
+	)
+	assert_eq(lower_town_rows.size(), 1)
+	var enforcement: Dictionary = lower_town_rows[0].get("composition_enforcement", {})
+	assert_eq(enforcement.get("state"), "enforced")
+	assert_eq(
+		enforcement.get("thresholds"),
+		"docs/data/map_composition_thresholds.json#maps.lower_town_slice"
+	)
+	assert_eq(enforcement.get("ownership"), "docs/data/lower_town_authoring_contract.json")
+	assert_eq(
+		enforcement.get("open_region_exclusions"),
+		"ownership.open_regions[].exclude_from_unowned_empty_region"
+	)
+
+	var ownership: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string("res://docs/data/lower_town_authoring_contract.json")
+	)
+	var open_regions: Array = ownership.get("open_regions", [])
+	assert_true(open_regions.size() > 0)
+	for region in open_regions:
+		assert_true(
+			region.get("bounds_cells", []).size() == 4,
+			"open region needs cell bounds"
+		)
+		assert_true(
+			not String(region.get("reason", "")).is_empty(),
+			"open region needs an ownership reason"
+		)
+		assert_true(
+			region.get("exclude_from_unowned_empty_region", false),
+			"intentional open regions must opt out explicitly"
+		)
+
+
 func test_enforced_registry_maps_pass_documented_thresholds() -> void:
 	var thresholds_doc: Dictionary = JSON.parse_string(
 		FileAccess.get_file_as_string("res://docs/data/map_composition_thresholds.json")

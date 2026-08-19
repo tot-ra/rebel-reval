@@ -14,7 +14,9 @@
       "open_floor_pct": [70, 85]
     },
     "lower_town_slice": {
-      "enforce": false,
+      "enforce": true,
+      "enforcement_state": "enforced",
+      "ownership_contract": "docs/data/lower_town_authoring_contract.json",
       "source_refs": ["H04-H05", "H09-H10"],
       "surface_shares": {
         "stone_pct": [25, 40],

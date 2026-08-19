@@ -49,6 +49,12 @@
       "definition": "scripts/map/definitions/lower_town/lower_town_slice_definition.gd",
       "factory": "LowerTownSliceDefinition.create",
       "disposition": "convert",
+      "composition_enforcement": {
+        "state": "enforced",
+        "thresholds": "docs/data/map_composition_thresholds.json#maps.lower_town_slice",
+        "ownership": "docs/data/lower_town_authoring_contract.json",
+        "open_region_exclusions": "ownership.open_regions[].exclude_from_unowned_empty_region"
+      },
       "capture": "lower_town_slice.png",
       "mandatory_anchors": [
         "street_start",
