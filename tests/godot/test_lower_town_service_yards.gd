@@ -30,22 +30,69 @@ const SERVICE_YARD_DECALS: Array[StringName] = [
 	&"decal.mud_carriers_lane",
 	&"decal.grime_service_firewood",
 ]
+const SERVICE_YARD_TERRAIN: Array[StringName] = [&"rear_carrier_lane"]
+const SERVICE_YARD_ANCHORS: Array[StringName] = [
+	&"workers_yard",
+	&"carriers_lane",
+	&"brewery_door",
+]
 
 
 func test_service_yard_has_authored_fences_sheds_fuel_and_greenery() -> void:
 	var definition := LowerTownSliceDefinition.create()
 	var source_ids := _source_ids()
+	var service_sector := _service_yard_sector(_load_contract())
+	assert_false(service_sector.is_empty(), "authoring contract must own the service_yards sector")
+	var ownership: Dictionary = service_sector.get("ownership", {})
+	for terrain_id in SERVICE_YARD_TERRAIN:
+		assert_true(
+			_ownership_has(ownership, "terrain", terrain_id),
+			"service yard terrain is not contract-owned: %s" % terrain_id,
+		)
 	for building_id in SERVICE_YARD_BUILDINGS:
-		assert_true(source_ids["building"].has(String(building_id)), "service yard building is missing: %s" % building_id)
+		assert_true(
+			_ownership_has(ownership, "buildings", building_id),
+			"service yard building is not contract-owned: %s" % building_id,
+		)
 	for prop_id in SERVICE_YARD_PROPS:
-		assert_true(source_ids["prop"].has(String(prop_id)), "service yard prop is missing: %s" % prop_id)
+		assert_true(
+			_ownership_has(ownership, "props", prop_id),
+			"service yard prop is not contract-owned: %s" % prop_id,
+		)
+	for anchor_id in SERVICE_YARD_ANCHORS:
+		assert_true(
+			_ownership_has(ownership, "anchors", anchor_id),
+			"service yard anchor is not contract-owned: %s" % anchor_id,
+		)
+
+	for building_id in SERVICE_YARD_BUILDINGS:
+		assert_true(
+			source_ids["building"].has(String(building_id)),
+			"service yard building is missing: %s" % building_id,
+		)
+	for prop_id in SERVICE_YARD_PROPS:
+		assert_true(
+			source_ids["prop"].has(String(prop_id)),
+			"service yard prop is missing: %s" % prop_id,
+		)
+	for decal_id in SERVICE_YARD_DECALS:
+		assert_true(
+			source_ids["decal"].has(String(decal_id)),
+			"service yard decal is missing: %s" % decal_id,
+		)
 
 	var building_ids := _ids(definition.buildings)
 	var prop_ids := _ids(definition.props)
+	var decal_ids := _ids(definition.decals)
 	for building_id in SERVICE_YARD_BUILDINGS:
-		assert_true(building_ids.has(String(building_id)), "service yard building is not compiled: %s" % building_id)
+		assert_true(
+			building_ids.has(String(building_id)),
+			"service yard building is not compiled: %s" % building_id,
+		)
 	for prop_id in SERVICE_YARD_PROPS:
 		assert_true(prop_ids.has(String(prop_id)), "service yard prop is not compiled: %s" % prop_id)
+	for decal_id in SERVICE_YARD_DECALS:
+		assert_true(decal_ids.has(String(decal_id)), "service yard decal is not compiled: %s" % decal_id)
 
 	assert_true(_prop_of_kind(definition, MapTypes.PROP_KIND_TIMBER_FENCE).size() >= 2, "yard gates need two timber fence runs")
 	assert_true(_prop_of_kind(definition, MapTypes.PROP_KIND_FIREWOOD_STACK).size() >= 2, "service yards need fuel storage")
@@ -98,7 +145,7 @@ func test_service_yard_detail_keeps_routes_and_interaction_approaches_open() -> 
 
 
 func _source_ids() -> Dictionary:
-	var result := {"building": {}, "prop": {}}
+	var result := {"terrain": {}, "building": {}, "prop": {}, "anchor": {}, "decal": {}}
 	var file := FileAccess.open("res://content/maps/lower_town_slice.rrmap", FileAccess.READ)
 	assert_true(file != null, "Lower Town RRMap source must be readable")
 	if file == null:
@@ -108,6 +155,30 @@ func _source_ids() -> Dictionary:
 		if tokens.size() >= 2 and result.has(tokens[0]):
 			result[tokens[0]][String(tokens[1])] = true
 	return result
+
+
+func _load_contract() -> Dictionary:
+	var file := FileAccess.open("res://docs/data/lower_town_authoring_contract.json", FileAccess.READ)
+	assert_true(file != null, "Lower Town authoring contract must be readable")
+	if file == null:
+		return {}
+	var value: Variant = JSON.parse_string(file.get_as_text())
+	assert_true(value is Dictionary, "Lower Town authoring contract must be a JSON object")
+	return value if value is Dictionary else {}
+
+
+func _service_yard_sector(contract: Dictionary) -> Dictionary:
+	for sector in contract.get("sectors", []):
+		if sector is Dictionary and String(sector.get("id", "")) == "service_yards":
+			return sector
+	return {}
+
+
+func _ownership_has(ownership: Dictionary, kind: String, id: StringName) -> bool:
+	for value in ownership.get(kind, []):
+		if String(value) == String(id):
+			return true
+	return false
 
 
 func _ids(rows: Array) -> Dictionary:
