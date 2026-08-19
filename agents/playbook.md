@@ -173,3 +173,5 @@ This file contains only cross-role operating lessons. Domain lessons belong to t
 - When invoking a repository script from bash, do not rely on an unset helper such as `$ROOT`; use the explicit project path or initialize the variable before expansion, then classify exit 127 as an invocation error only after confirming Godot did not start.
 - When constructing an isolated Git index candidate, update a path with the complete intended file blob, not a fragment containing only the new line; otherwise a narrow commit can silently delete accumulated playbook lessons.
 - `tools/run_godot_checked.sh` requires `--require-test-summary` before the log name; placing the flag after the log name exits 127 before Godot starts and is an invocation error, not a test failure.
+
+- When a parallel task-board diagnostic includes an invalid `tasks.get` ref, isolate and rerun the valid lookups, then verify no board mutation before classifying the tick; a rejected empty-ref probe is a tooling error, not a research blocker.
