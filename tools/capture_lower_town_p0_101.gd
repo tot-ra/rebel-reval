@@ -12,7 +12,9 @@ extends SceneTree
 ## only the evidence pose is changed; map geometry and runtime systems remain
 ## authoritative.
 
-const LowerTownSlice := preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd")
+const LowerTownSlice := preload(
+	"res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd"
+)
 const MapBuilder := preload("res://scripts/map/map_builder.gd")
 const MapView3D := preload("res://scripts/map/view3d/map_view_3d.gd")
 const MapViewBridge := preload("res://scripts/map/view3d/map_view_bridge.gd")
@@ -29,32 +31,54 @@ const ORTHOGRAPHIC_SIZE := CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE
 const FOCUS_HEIGHT := 0.8
 const WARMUP_FRAMES := 12
 
-## One stable crop per playable route segment. The midpoint gives the review frame
-## both ends of the authored route segment without inventing a new camera anchor.
+## One stable crop per required Lower Town sector. Every focus is the midpoint
+## of authored anchors, so the packet exercises the production map without adding
+## evidence-only camera anchors to the map source.
 const PRESETS: Array[Dictionary] = [
 	{
-		"id": "street_start_to_smithy_door",
-		"from_anchor": &"street_start",
-		"to_anchor": &"smithy_door",
-		"camera_intent": "route-scale ordinary frontage",
-	},
-	{
-		"id": "smithy_door_to_brewery_door",
-		"from_anchor": &"smithy_door",
-		"to_anchor": &"brewery_door",
-		"camera_intent": "route-scale forge and brewery frontage",
-	},
-	{
-		"id": "brewery_door_to_checkpoint_west",
-		"from_anchor": &"brewery_door",
+		"id": "market_primary_spine",
+		"from_anchor": &"vene_street_north",
 		"to_anchor": &"checkpoint_west",
-		"camera_intent": "route-scale ordinary frontage toward gate",
+		"sector_id": "market_primary_spine",
+		"coverage": "market reserve and western primary-spine approach",
+		"camera_intent": "market and primary spine readability",
+		"interaction_targets": ["vene_street_north", "checkpoint_west"],
 	},
 	{
-		"id": "checkpoint_west_to_checkpoint_east",
+		"id": "merchant_craft_lane",
+		"from_anchor": &"checkpoint_west",
+		"to_anchor": &"brewery_door",
+		"sector_id": "merchant_craft_lane",
+		"coverage": "merchant frontage into craft/workshop lane",
+		"camera_intent": "route-scale merchant and craft frontage",
+		"interaction_targets": ["checkpoint_west", "brewery_door"],
+	},
+	{
+		"id": "service_yard",
+		"from_anchor": &"brewery_door",
+		"to_anchor": &"smithy_door",
+		"sector_id": "service_yard",
+		"coverage": "brewery and smithy working yards",
+		"camera_intent": "route-scale service yard and production frontage",
+		"interaction_targets": ["brewery_door", "smithy_door"],
+	},
+	{
+		"id": "eastern_artisan_wet_margin",
+		"from_anchor": &"checkpoint_east",
+		"to_anchor": &"karja_gate_south",
+		"sector_id": "eastern_artisan_wet_margin",
+		"coverage": "eastern artisan edge, rear lanes, and southern wet-margin transition",
+		"camera_intent": "artisan edge and wet-margin surface readability",
+		"interaction_targets": ["checkpoint_east", "karja_gate_south"],
+	},
+	{
+		"id": "landmark_approaches",
 		"from_anchor": &"checkpoint_west",
 		"to_anchor": &"checkpoint_east",
+		"sector_id": "landmark_approaches",
+		"coverage": "inner Viru Gate and foregate approach sequence",
 		"camera_intent": "landmark approach and gate opening",
+		"interaction_targets": ["checkpoint_west", "checkpoint_east"],
 	},
 ]
 
@@ -74,16 +98,23 @@ func _run() -> void:
 		quit(1)
 		return
 
-	var manifest: Dictionary = _manifest_header(definition)
-	manifest["plates"] = []
+	var selection := _capture_selection()
+	if selection["error"] != OK:
+		quit(selection["error"])
+		return
+	var manifest := _load_manifest(definition, selection["reset_manifest"])
 	for preset: Dictionary in PRESETS:
+		if not _selection_matches(preset, selection):
+			continue
 		var plate_metadata := _preset_metadata(definition, preset)
 		for time_of_day in MapView3D.ALL_TIMES:
+			if not selection["time_of_day"].is_empty() and String(time_of_day) != selection["time_of_day"]:
+				continue
 			var result := await _capture(definition, preset, time_of_day, plate_metadata)
 			if result["error"] != OK:
 				quit(1)
 				return
-			manifest["plates"].append(result["metadata"])
+			_upsert_plate(manifest, result["metadata"])
 
 	var manifest_error := _write_manifest(manifest)
 	if manifest_error != OK:
@@ -92,6 +123,76 @@ func _run() -> void:
 		return
 	print("P0-101 Lower Town route evidence written: %s" % OUTPUT_DIR)
 	quit(0)
+
+
+func _capture_selection() -> Dictionary:
+	var selection := {
+		"preset_id": "",
+		"time_of_day": "",
+		"reset_manifest": true,
+		"error": OK,
+	}
+	var args := OS.get_cmdline_user_args()
+	var index := 0
+	while index < args.size():
+		var argument := String(args[index])
+		if argument == "--preset":
+			if index + 1 >= args.size():
+				push_error("P0-101 --preset requires a preset ID")
+				selection["error"] = ERR_INVALID_PARAMETER
+				return selection
+			selection["preset_id"] = String(args[index + 1])
+			index += 2
+			continue
+		if argument == "--time":
+			if index + 1 >= args.size():
+				push_error("P0-101 --time requires day or night")
+				selection["error"] = ERR_INVALID_PARAMETER
+				return selection
+			selection["time_of_day"] = String(args[index + 1])
+			index += 2
+			continue
+		if argument == "--append-manifest":
+			selection["reset_manifest"] = false
+			index += 1
+			continue
+		push_error("Unknown P0-101 capture argument: %s" % argument)
+		selection["error"] = ERR_INVALID_PARAMETER
+		return selection
+	if selection["preset_id"].is_empty() and not selection["time_of_day"].is_empty():
+		push_error("P0-101 --time requires --preset")
+		selection["error"] = ERR_INVALID_PARAMETER
+		return selection
+	if not selection["time_of_day"].is_empty() and not ["day", "night"].has(selection["time_of_day"]):
+		push_error("P0-101 --time must be day or night")
+		selection["error"] = ERR_INVALID_PARAMETER
+	return selection
+
+
+func _selection_matches(preset: Dictionary, selection: Dictionary) -> bool:
+	return selection["preset_id"].is_empty() or String(preset["id"]) == selection["preset_id"]
+
+
+func _load_manifest(definition: MapDefinition, reset_manifest: bool) -> Dictionary:
+	if not reset_manifest and FileAccess.file_exists(ProjectSettings.globalize_path(MANIFEST_PATH)):
+		var existing_variant: Variant = JSON.parse_string(
+			FileAccess.get_file_as_string(ProjectSettings.globalize_path(MANIFEST_PATH))
+		)
+		if existing_variant is Dictionary and existing_variant.get("map_fingerprint", "") == definition.fingerprint:
+			return existing_variant
+	var manifest := _manifest_header(definition)
+	manifest["plates"] = []
+	return manifest
+
+
+func _upsert_plate(manifest: Dictionary, metadata: Dictionary) -> void:
+	var plates: Array = manifest.get("plates", [])
+	for index in range(plates.size() - 1, -1, -1):
+		var existing: Dictionary = plates[index]
+		if existing.get("preset_id", "") == metadata["preset_id"] and existing.get("time_of_day", "") == metadata["time_of_day"]:
+			plates.remove_at(index)
+	plates.append(metadata)
+	manifest["plates"] = plates
 
 
 func _capture(
@@ -168,9 +269,12 @@ static func _preset_metadata(definition: MapDefinition, preset: Dictionary) -> D
 	var focus_logic := (from_position + to_position) * 0.5
 	return {
 		"preset_id": String(preset["id"]),
+		"sector_id": String(preset["sector_id"]),
+		"coverage": String(preset["coverage"]),
 		"from_anchor": String(from_anchor),
 		"to_anchor": String(to_anchor),
 		"camera_intent": String(preset["camera_intent"]),
+		"interaction_targets": preset["interaction_targets"].duplicate(),
 		"focus_logic_cell": [focus_logic.x, focus_logic.y],
 		"focus_height": FOCUS_HEIGHT,
 		"focus_world": MapViewBridge.logic_to_world(focus_logic, definition.cell_size, FOCUS_HEIGHT),
@@ -192,7 +296,10 @@ func _manifest_header(definition: MapDefinition) -> Dictionary:
 		"orthographic_size": ORTHOGRAPHIC_SIZE,
 		"times": [String(MapView3D.TIME_DAY), String(MapView3D.TIME_NIGHT)],
 		"presets": PRESETS.map(func(preset: Dictionary) -> String: return String(preset["id"])),
-		"command": "Godot --path . --rendering-method gl_compatibility --rendering-driver opengl3 --script tools/capture_lower_town_p0_101.gd",
+		"command": (
+			"Godot --path . --rendering-method gl_compatibility "
+			+ "--rendering-driver opengl3 --script tools/capture_lower_town_p0_101.gd"
+		),
 	}
 
 

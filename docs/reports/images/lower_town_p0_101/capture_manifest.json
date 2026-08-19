@@ -1,102 +1,43 @@
 {
   "command": "Godot --path . --rendering-method gl_compatibility --rendering-driver opengl3 --script tools/capture_lower_town_p0_101.gd",
-  "map_fingerprint": "e8cde197067d824d1efd46b399506f6d86158a506cd92bf5d6c6b5552f4209b2",
+  "map_fingerprint": "13525325b3d8be840c79d8c709c8aab12632bc6092a7123bc6d9275ba51d17ba",
   "map_id": "lower_town_slice",
   "map_revision": "lower_town_slice.rrmap authored source (shared worktree; record HEAD separately)",
   "orthographic_size": 33.75,
   "plates": [
     {
-      "camera_intent": "route-scale ordinary frontage",
+      "camera_intent": "market and primary spine readability",
       "camera_pitch_degrees": -30.0,
       "camera_yaw_degrees": 45.0,
+      "coverage": "market reserve and western primary-spine approach",
       "focus_height": 0.8,
       "focus_logic_cell": [
-        2768.0,
-        2056.0
+        464.0,
+        896.0
       ],
       "focus_world": [
-        86.5,
+        14.5,
         0.800000011920929,
-        64.25
+        28.0
       ],
-      "framing_key": "street_start_to_smithy_door|[2768.0, 2056.0]|0.8|33.750|-30.000|45.000",
-      "from_anchor": "street_start",
+      "framing_key": "market_primary_spine|[464.0, 896.0]|0.8|33.750|-30.000|45.000",
+      "from_anchor": "vene_street_north",
+      "interaction_targets": [
+        "vene_street_north",
+        "checkpoint_west"
+      ],
       "orthographic_size": 33.75,
-      "output": "res://docs/reports/images/lower_town_p0_101/street_start_to_smithy_door_day.png",
-      "preset_id": "street_start_to_smithy_door",
-      "time_of_day": "day",
-      "to_anchor": "smithy_door"
-    },
-    {
-      "camera_intent": "route-scale ordinary frontage",
-      "camera_pitch_degrees": -30.0,
-      "camera_yaw_degrees": 45.0,
-      "focus_height": 0.8,
-      "focus_logic_cell": [
-        2768.0,
-        2056.0
-      ],
-      "focus_world": [
-        86.5,
-        0.800000011920929,
-        64.25
-      ],
-      "framing_key": "street_start_to_smithy_door|[2768.0, 2056.0]|0.8|33.750|-30.000|45.000",
-      "from_anchor": "street_start",
-      "orthographic_size": 33.75,
-      "output": "res://docs/reports/images/lower_town_p0_101/street_start_to_smithy_door_night.png",
-      "preset_id": "street_start_to_smithy_door",
+      "output": "res://docs/reports/images/lower_town_p0_101/market_primary_spine_night.png",
+      "preset_id": "market_primary_spine",
+      "sector_id": "market_primary_spine",
       "time_of_day": "night",
-      "to_anchor": "smithy_door"
+      "to_anchor": "checkpoint_west"
     },
     {
-      "camera_intent": "route-scale forge and brewery frontage",
+      "camera_intent": "route-scale merchant and craft frontage",
       "camera_pitch_degrees": -30.0,
       "camera_yaw_degrees": 45.0,
-      "focus_height": 0.8,
-      "focus_logic_cell": [
-        2688.0,
-        2144.0
-      ],
-      "focus_world": [
-        84.0,
-        0.800000011920929,
-        67.0
-      ],
-      "framing_key": "smithy_door_to_brewery_door|[2688.0, 2144.0]|0.8|33.750|-30.000|45.000",
-      "from_anchor": "smithy_door",
-      "orthographic_size": 33.75,
-      "output": "res://docs/reports/images/lower_town_p0_101/smithy_door_to_brewery_door_day.png",
-      "preset_id": "smithy_door_to_brewery_door",
-      "time_of_day": "day",
-      "to_anchor": "brewery_door"
-    },
-    {
-      "camera_intent": "route-scale forge and brewery frontage",
-      "camera_pitch_degrees": -30.0,
-      "camera_yaw_degrees": 45.0,
-      "focus_height": 0.8,
-      "focus_logic_cell": [
-        2688.0,
-        2144.0
-      ],
-      "focus_world": [
-        84.0,
-        0.800000011920929,
-        67.0
-      ],
-      "framing_key": "smithy_door_to_brewery_door|[2688.0, 2144.0]|0.8|33.750|-30.000|45.000",
-      "from_anchor": "smithy_door",
-      "orthographic_size": 33.75,
-      "output": "res://docs/reports/images/lower_town_p0_101/smithy_door_to_brewery_door_night.png",
-      "preset_id": "smithy_door_to_brewery_door",
-      "time_of_day": "night",
-      "to_anchor": "brewery_door"
-    },
-    {
-      "camera_intent": "route-scale ordinary frontage toward gate",
-      "camera_pitch_degrees": -30.0,
-      "camera_yaw_degrees": 45.0,
+      "coverage": "merchant frontage into craft/workshop lane",
       "focus_height": 0.8,
       "focus_logic_cell": [
         1328.0,
@@ -107,18 +48,24 @@
         0.800000011920929,
         56.25
       ],
-      "framing_key": "brewery_door_to_checkpoint_west|[1328.0, 1800.0]|0.8|33.750|-30.000|45.000",
-      "from_anchor": "brewery_door",
+      "framing_key": "merchant_craft_lane|[1328.0, 1800.0]|0.8|33.750|-30.000|45.000",
+      "from_anchor": "checkpoint_west",
+      "interaction_targets": [
+        "checkpoint_west",
+        "brewery_door"
+      ],
       "orthographic_size": 33.75,
-      "output": "res://docs/reports/images/lower_town_p0_101/brewery_door_to_checkpoint_west_day.png",
-      "preset_id": "brewery_door_to_checkpoint_west",
+      "output": "res://docs/reports/images/lower_town_p0_101/merchant_craft_lane_day.png",
+      "preset_id": "merchant_craft_lane",
+      "sector_id": "merchant_craft_lane",
       "time_of_day": "day",
-      "to_anchor": "checkpoint_west"
+      "to_anchor": "brewery_door"
     },
     {
-      "camera_intent": "route-scale ordinary frontage toward gate",
+      "camera_intent": "route-scale merchant and craft frontage",
       "camera_pitch_degrees": -30.0,
       "camera_yaw_degrees": 45.0,
+      "coverage": "merchant frontage into craft/workshop lane",
       "focus_height": 0.8,
       "focus_logic_cell": [
         1328.0,
@@ -129,18 +76,136 @@
         0.800000011920929,
         56.25
       ],
-      "framing_key": "brewery_door_to_checkpoint_west|[1328.0, 1800.0]|0.8|33.750|-30.000|45.000",
-      "from_anchor": "brewery_door",
+      "framing_key": "merchant_craft_lane|[1328.0, 1800.0]|0.8|33.750|-30.000|45.000",
+      "from_anchor": "checkpoint_west",
+      "interaction_targets": [
+        "checkpoint_west",
+        "brewery_door"
+      ],
       "orthographic_size": 33.75,
-      "output": "res://docs/reports/images/lower_town_p0_101/brewery_door_to_checkpoint_west_night.png",
-      "preset_id": "brewery_door_to_checkpoint_west",
+      "output": "res://docs/reports/images/lower_town_p0_101/merchant_craft_lane_night.png",
+      "preset_id": "merchant_craft_lane",
+      "sector_id": "merchant_craft_lane",
       "time_of_day": "night",
-      "to_anchor": "checkpoint_west"
+      "to_anchor": "brewery_door"
+    },
+    {
+      "camera_intent": "route-scale service yard and production frontage",
+      "camera_pitch_degrees": -30.0,
+      "camera_yaw_degrees": 45.0,
+      "coverage": "brewery and smithy working yards",
+      "focus_height": 0.8,
+      "focus_logic_cell": [
+        2688.0,
+        2144.0
+      ],
+      "focus_world": [
+        84.0,
+        0.800000011920929,
+        67.0
+      ],
+      "framing_key": "service_yard|[2688.0, 2144.0]|0.8|33.750|-30.000|45.000",
+      "from_anchor": "brewery_door",
+      "interaction_targets": [
+        "brewery_door",
+        "smithy_door"
+      ],
+      "orthographic_size": 33.75,
+      "output": "res://docs/reports/images/lower_town_p0_101/service_yard_day.png",
+      "preset_id": "service_yard",
+      "sector_id": "service_yard",
+      "time_of_day": "day",
+      "to_anchor": "smithy_door"
+    },
+    {
+      "camera_intent": "route-scale service yard and production frontage",
+      "camera_pitch_degrees": -30.0,
+      "camera_yaw_degrees": 45.0,
+      "coverage": "brewery and smithy working yards",
+      "focus_height": 0.8,
+      "focus_logic_cell": [
+        2688.0,
+        2144.0
+      ],
+      "focus_world": [
+        84.0,
+        0.800000011920929,
+        67.0
+      ],
+      "framing_key": "service_yard|[2688.0, 2144.0]|0.8|33.750|-30.000|45.000",
+      "from_anchor": "brewery_door",
+      "interaction_targets": [
+        "brewery_door",
+        "smithy_door"
+      ],
+      "orthographic_size": 33.75,
+      "output": "res://docs/reports/images/lower_town_p0_101/service_yard_night.png",
+      "preset_id": "service_yard",
+      "sector_id": "service_yard",
+      "time_of_day": "night",
+      "to_anchor": "smithy_door"
+    },
+    {
+      "camera_intent": "artisan edge and wet-margin surface readability",
+      "camera_pitch_degrees": -30.0,
+      "camera_yaw_degrees": 45.0,
+      "coverage": "eastern artisan edge, rear lanes, and southern wet-margin transition",
+      "focus_height": 0.8,
+      "focus_logic_cell": [
+        2768.0,
+        2784.0
+      ],
+      "focus_world": [
+        86.5,
+        0.800000011920929,
+        87.0
+      ],
+      "framing_key": "eastern_artisan_wet_margin|[2768.0, 2784.0]|0.8|33.750|-30.000|45.000",
+      "from_anchor": "checkpoint_east",
+      "interaction_targets": [
+        "checkpoint_east",
+        "karja_gate_south"
+      ],
+      "orthographic_size": 33.75,
+      "output": "res://docs/reports/images/lower_town_p0_101/eastern_artisan_wet_margin_day.png",
+      "preset_id": "eastern_artisan_wet_margin",
+      "sector_id": "eastern_artisan_wet_margin",
+      "time_of_day": "day",
+      "to_anchor": "karja_gate_south"
+    },
+    {
+      "camera_intent": "artisan edge and wet-margin surface readability",
+      "camera_pitch_degrees": -30.0,
+      "camera_yaw_degrees": 45.0,
+      "coverage": "eastern artisan edge, rear lanes, and southern wet-margin transition",
+      "focus_height": 0.8,
+      "focus_logic_cell": [
+        2768.0,
+        2784.0
+      ],
+      "focus_world": [
+        86.5,
+        0.800000011920929,
+        87.0
+      ],
+      "framing_key": "eastern_artisan_wet_margin|[2768.0, 2784.0]|0.8|33.750|-30.000|45.000",
+      "from_anchor": "checkpoint_east",
+      "interaction_targets": [
+        "checkpoint_east",
+        "karja_gate_south"
+      ],
+      "orthographic_size": 33.75,
+      "output": "res://docs/reports/images/lower_town_p0_101/eastern_artisan_wet_margin_night.png",
+      "preset_id": "eastern_artisan_wet_margin",
+      "sector_id": "eastern_artisan_wet_margin",
+      "time_of_day": "night",
+      "to_anchor": "karja_gate_south"
     },
     {
       "camera_intent": "landmark approach and gate opening",
       "camera_pitch_degrees": -30.0,
       "camera_yaw_degrees": 45.0,
+      "coverage": "inner Viru Gate and foregate approach sequence",
       "focus_height": 0.8,
       "focus_logic_cell": [
         1824.0,
@@ -151,11 +216,16 @@
         0.800000011920929,
         52.0
       ],
-      "framing_key": "checkpoint_west_to_checkpoint_east|[1824.0, 1664.0]|0.8|33.750|-30.000|45.000",
+      "framing_key": "landmark_approaches|[1824.0, 1664.0]|0.8|33.750|-30.000|45.000",
       "from_anchor": "checkpoint_west",
+      "interaction_targets": [
+        "checkpoint_west",
+        "checkpoint_east"
+      ],
       "orthographic_size": 33.75,
-      "output": "res://docs/reports/images/lower_town_p0_101/checkpoint_west_to_checkpoint_east_day.png",
-      "preset_id": "checkpoint_west_to_checkpoint_east",
+      "output": "res://docs/reports/images/lower_town_p0_101/landmark_approaches_day.png",
+      "preset_id": "landmark_approaches",
+      "sector_id": "landmark_approaches",
       "time_of_day": "day",
       "to_anchor": "checkpoint_east"
     },
@@ -163,6 +233,7 @@
       "camera_intent": "landmark approach and gate opening",
       "camera_pitch_degrees": -30.0,
       "camera_yaw_degrees": 45.0,
+      "coverage": "inner Viru Gate and foregate approach sequence",
       "focus_height": 0.8,
       "focus_logic_cell": [
         1824.0,
@@ -173,20 +244,54 @@
         0.800000011920929,
         52.0
       ],
-      "framing_key": "checkpoint_west_to_checkpoint_east|[1824.0, 1664.0]|0.8|33.750|-30.000|45.000",
+      "framing_key": "landmark_approaches|[1824.0, 1664.0]|0.8|33.750|-30.000|45.000",
       "from_anchor": "checkpoint_west",
+      "interaction_targets": [
+        "checkpoint_west",
+        "checkpoint_east"
+      ],
       "orthographic_size": 33.75,
-      "output": "res://docs/reports/images/lower_town_p0_101/checkpoint_west_to_checkpoint_east_night.png",
-      "preset_id": "checkpoint_west_to_checkpoint_east",
+      "output": "res://docs/reports/images/lower_town_p0_101/landmark_approaches_night.png",
+      "preset_id": "landmark_approaches",
+      "sector_id": "landmark_approaches",
       "time_of_day": "night",
       "to_anchor": "checkpoint_east"
+    },
+    {
+      "camera_intent": "market and primary spine readability",
+      "camera_pitch_degrees": -30.0,
+      "camera_yaw_degrees": 45.0,
+      "coverage": "market reserve and western primary-spine approach",
+      "focus_height": 0.8,
+      "focus_logic_cell": [
+        464.0,
+        896.0
+      ],
+      "focus_world": [
+        14.5,
+        0.800000011920929,
+        28.0
+      ],
+      "framing_key": "market_primary_spine|[464.0, 896.0]|0.8|33.750|-30.000|45.000",
+      "from_anchor": "vene_street_north",
+      "interaction_targets": [
+        "vene_street_north",
+        "checkpoint_west"
+      ],
+      "orthographic_size": 33.75,
+      "output": "res://docs/reports/images/lower_town_p0_101/market_primary_spine_day.png",
+      "preset_id": "market_primary_spine",
+      "sector_id": "market_primary_spine",
+      "time_of_day": "day",
+      "to_anchor": "checkpoint_west"
     }
   ],
   "presets": [
-    "street_start_to_smithy_door",
-    "smithy_door_to_brewery_door",
-    "brewery_door_to_checkpoint_west",
-    "checkpoint_west_to_checkpoint_east"
+    "market_primary_spine",
+    "merchant_craft_lane",
+    "service_yard",
+    "eastern_artisan_wet_margin",
+    "landmark_approaches"
   ],
   "renderer": "gl_compatibility",
   "schema": "r-560-lower-town-p0-101-capture-v1",
@@ -196,7 +301,7 @@
     "night"
   ],
   "viewport": [
-    1280,
-    720
+    1280.0,
+    720.0
   ]
 }
