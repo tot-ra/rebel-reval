@@ -4,6 +4,15 @@ const CONTRACT_PATH := "res://docs/data/lower_town_authoring_contract.json"
 const RRMAP_PATH := "res://content/maps/lower_town_slice.rrmap"
 const LowerTownSliceDefinition := preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd")
 
+const REQUIRED_STABLE_ANCHOR_IDS: Array[StringName] = [
+	&"street_start",
+	&"smithy_door",
+	&"brewery_door",
+	&"checkpoint_west",
+	&"checkpoint_east",
+]
+const REQUIRED_STABLE_PROP_IDS: Array[StringName] = [&"cistern"]
+
 func test_lower_town_authoring_contract_is_resolved_against_runtime() -> void:
 	var contract := _load_json(CONTRACT_PATH)
 	assert_eq(contract.get("contract_version"), 1)
@@ -19,6 +28,36 @@ func test_lower_town_authoring_contract_is_resolved_against_runtime() -> void:
 	assert_true(parsed.is_ok(), "RRMap source must parse before resolving the authoring contract")
 	var source_ids := _source_ids()
 	var runtime_ids := _runtime_ids(definition)
+	var frontage_rules: Dictionary = contract.get("frontage_rules", {})
+	var default_frontage: Dictionary = frontage_rules.get("default", {})
+	var frontage_rule_ids: Dictionary = {"default_frontage_m": true}
+	assert_eq(default_frontage.get("target_range_m"), [7.0, 11.0])
+	assert_eq(default_frontage.get("median_m"), 9)
+	for exception in frontage_rules.get("exceptions", []):
+		var exception_dict: Dictionary = exception
+		frontage_rule_ids[String(exception_dict.get("rule_id", ""))] = true
+		assert_eq(exception_dict.get("target_range_m", []).size(), 2)
+
+	for anchor_id in REQUIRED_STABLE_ANCHOR_IDS:
+		var anchor_name := String(anchor_id)
+		assert_true(
+			source_ids["anchor"].has(anchor_name),
+			"Stable anchor missing from RRMap source: %s" % anchor_name
+		)
+		assert_true(
+			runtime_ids["anchors"].has(anchor_name),
+			"Stable anchor missing from compiled runtime: %s" % anchor_name
+		)
+	for prop_id in REQUIRED_STABLE_PROP_IDS:
+		var prop_name := String(prop_id)
+		assert_true(
+			source_ids["prop"].has(prop_name),
+			"Stable prop missing from RRMap source: %s" % prop_name
+		)
+		assert_true(
+			runtime_ids["props"].has(prop_name),
+			"Stable prop missing from compiled runtime: %s" % prop_name
+		)
 
 	for sector in contract.get("sectors", []):
 		assert_true(sector is Dictionary and not String(sector.get("id", "")).is_empty(), "Every sector needs an id")
@@ -31,7 +70,11 @@ func test_lower_town_authoring_contract_is_resolved_against_runtime() -> void:
 		for kind in ownership.keys():
 			for ref in ownership[kind]:
 				assert_true(_kind_ids(kind, source_ids, runtime_ids).has(String(ref)), "%s references unknown %s id %s" % [sector.get("id"), kind, ref])
-		assert_true(not String(sector.get("frontage_rule", "")).is_empty(), "%s needs a frontage rule" % sector.get("id"))
+		var frontage_rule_id := String(sector.get("frontage_rule", ""))
+		assert_true(
+			frontage_rule_ids.has(frontage_rule_id),
+			"%s references unknown frontage rule" % sector.get("id")
+		)
 
 	for region in contract.get("open_regions", []):
 		assert_true(bool(region.get("exclude_from_unowned_empty_region", false)), "%s must explicitly exclude intentional open space" % region.get("id"))
@@ -83,6 +126,8 @@ func _runtime_ids(definition: MapDefinition) -> Dictionary:
 func _kind_ids(kind: String, source_ids: Dictionary, runtime_ids: Dictionary) -> Dictionary:
 	if kind == "terrain":
 		return source_ids["terrain"]
+	if kind == "work_anchors" or kind == "route_anchors":
+		return runtime_ids["anchors"]
 	if kind == "patrols" or kind == "patrol_routes":
 		return source_ids["patrol"]
 	if kind == "landmarks" or kind == "required_landmarks":
