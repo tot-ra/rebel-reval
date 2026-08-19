@@ -46,3 +46,4 @@ This file contains lessons specific to the Map role.
 - RRMap source records encode stable IDs as the second token on `building`/`landmark` lines; source-level ID audits must parse those record kinds rather than look for a standalone `id` field.
 - If a scoped commit hook fails without actionable diagnostics in a dirty worktree, confirm the staged path allowlist and `git diff --cached --check` before using `--no-verify`; restore the worktree file afterward so foreign WIP stays untouched.
 - For merchant-cart corridor work in dirty RRMap sources, build the scoped patch from HEAD, validate each wagon against authored exclusions, and keep unrelated shoreline/parity WIP out of the commit.
+- When restoring legacy RRMap anchors, verify each authored cell is outside blocking terrain/exclusions and reachable; matching the registry IDs alone can still trigger `MAP_ANCHOR_BLOCKED`.
