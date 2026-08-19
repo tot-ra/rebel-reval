@@ -208,6 +208,9 @@ prop merchant_stall_a stall 97 96 rect=3,2
 prop merchant_stall_b stall 114 96 rect=3,2
 prop market_crates cargo_crates 94 102 rect=3,2
 prop market_goods trade_goods 116 102 rect=3,2
+# R-207 / R-068: Pikk/Lai delivery fronts accept one cart_2w only; the
+# adjacent Lai lane stays a single-cart frontage, not a passing bay.
+prop pikk_lai_delivery_cart cart 104 47 rect=2,2 vehicle_class=cart_2w
 prop harbor_cart cart 103 16 rect=2,2
 prop east_work_cart cart 177 80 rect=2,2
 prop west_work_cart cart 67 70 rect=2,2

@@ -95,8 +95,10 @@ wall cargo_yard_fence_west 10 68 10 87 thickness=1 kind=wall style=wall.fence op
 wall cargo_yard_fence_south 10 87 43 87 thickness=1 kind=wall style=wall.fence openings=25,87,5,1
 wall ropeyard_fence_west 123 72 123 88 thickness=1 kind=wall style=wall.fence openings=123,77,1,5
 wall ropeyard_fence_south 123 88 156 88 thickness=1 kind=wall style=wall.fence openings=137,88,6,1
-# P4-028b: trade-specific yard dressing beside cargo sheds, tally ground, and ropewalk.
-prop quay_crane cart 66 65 rect=2,2
+# R-207 / R-068: the Coastal Gate landing keeps barrel/timber traffic on a
+# single cart_2w, with the optional wagon_4w on the wide harbour margin only.
+prop quay_crane cart 66 65 rect=2,2 vehicle_class=cart_2w
+prop coastal_gate_timber_wagon cart 82 74 rect=3,2 vehicle_class=wagon_4w
 prop cargo_shed_west_crates cargo_crates 15 74 rect=3,2
 prop cargo_shed_west_goods trade_goods 22 75 rect=2,2
 prop warehouse_mid_crates cargo_crates 52 73 rect=3,2

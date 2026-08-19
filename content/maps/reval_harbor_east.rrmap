@@ -101,7 +101,10 @@ prop fish_rack_mid fish_drying_rack 72 59 rect=2,1 style_variant=fish_rack.herri
 prop netyard_fence_mid fishing_nets 45 52
 prop fish_splitting_net_house fish_splitting_table 50 51
 prop fish_splitting_hut_mid fish_splitting_table 58 58
-prop boatwright_cart cart 95 50 rect=2,2
+# R-207 / R-068: harbour margin carries the default cart_2w and the optional
+# heavy wagon_4w for barrel/timber bulk; both remain outside the water exclusion.
+prop boatwright_cart cart 95 50 rect=2,2 vehicle_class=cart_2w
+prop harbour_timber_wagon cart 83 68 rect=3,2 vehicle_class=wagon_4w
 prop boat_timber_boatwright boat_timber_stack 86 58 rect=2,1
 prop fish_barrels_east barrels 115 57 rect=3,2
 prop drying_nets_east fishing_nets 130 53

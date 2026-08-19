@@ -250,8 +250,14 @@ prop wall_walk_southwest stairs 74 105 rect=2,23 facing=south primitive=wall_wal
 prop market_stall_gate stall 102 60 rect=2,1
 prop market_stall_turg_north stall 5 43 rect=2,2
 prop market_stall_turg_south stall 10 62 rect=2,2
+# R-207 / R-068: Vanaturg throat is the 2.5 m cart queue. The east-side
+# cart is a single-horse cart_2w; no toll booth or twin-cart staging is authored.
 prop street_cart cart 48 57 rect=2,2
-prop gate_cart cart 117 54 rect=2,2
+prop vanaturg_cart_queue cart 21 55 rect=2,2 vehicle_class=cart_2w
+prop gate_cart cart 117 54 rect=2,2 vehicle_class=cart_2w
+# R-207 / R-068: inbound Viru apron grain traffic is explicitly cart_2w and
+# remains the stable prop that P4-037 can mark stallable after 23 April.
+prop viru_apron_grain_cart cart 110 53 rect=2,2 vehicle_class=cart_2w
 prop yard_cart cart 79 84 rect=2,2
 prop brewery_keg_stack brewery_keg_stack 76 73
 prop brewery_malt_sacks malt_sack_pile 75 74
