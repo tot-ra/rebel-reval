@@ -18,7 +18,7 @@ VALID_ROLES = frozenset({"level", "map", "event", "support", "actor", "ui", "tes
 VALID_STATUSES = frozenset({"convert", "archive", "retain"})
 DETAILED_ROLES = frozenset({"level", "map", "event"})
 # Local agent/worktree mirrors must not pollute repository scene discovery.
-SKIP_TREE_PARTS = frozenset({".git", ".godot", ".a2gent-worktrees"})
+SKIP_TREE_PARTS = frozenset({".git", ".godot", ".a2gent-worktrees", ".worktrees"})
 REQUIRED_TASK_IDS = tuple(f"P0-{number:03d}" for number in range(43, 47)) + tuple(
     f"P2-{number:03d}" for number in range(18, 22)
 ) + ("P4-014", "P4-015")

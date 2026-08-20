@@ -354,7 +354,8 @@ const GROUP_SPAWN_WEIGHTS: Dictionary = {
 }
 ## `scale_m` is approximate body length used to preserve relative runtime scale.
 ## `song` is metadata only: no audio stream or playback behavior is loaded here.
-const PROFILES: Dictionary = {
+const _PROFILE_SONGBIRD := preload("res://scripts/map/view3d/map_view_bird_species_songbird.gd")
+const _BASE_PROFILES: Dictionary = {
 	SPECIES_HERRING_GULL:
 	{
 		## proportions and plumage while these ten families preserve cheap model reuse.
@@ -618,25 +619,6 @@ const PROFILES: Dictionary = {
 		},
 		"abundance": 0.42
 	},
-	SPECIES_HOUSE_SPARROW:
-	{
-		"name": "House sparrow",
-		"group": GROUP_SONGBIRD,
-		"scale_m": 0.15,
-		"pose": POSE_PERCHED,
-		"colors": [Color("8a7255"), Color("4b453d"), Color("c5ad7e")],
-		"breast": Color("c9bda6"),
-		"geometry": {"body": Vector3(0.32, 0.21, 0.20), "beak": 0.09},
-		"song":
-		{
-			"cue": &"bird.house_sparrow.call",
-			"kind": &"cheep_chatter",
-			"time": &"day",
-			"cadence_s": Vector2(1.5, 5.0)
-		},
-		"abundance": 1.0,
-		"spawn": {CONTEXT_LOWER_TOWN: 1.0, CONTEXT_MARKET: 0.95}
-	},
 	SPECIES_HOODED_CROW:
 	{
 		"name": "Hooded crow",
@@ -723,147 +705,6 @@ const PROFILES: Dictionary = {
 		},
 		"abundance": 0.86
 	},
-	SPECIES_SKYLARK:
-	{
-		"name": "Skylark",
-		"group": GROUP_SONGBIRD,
-		"scale_m": 0.18,
-		"pose": POSE_GLIDING,
-		"colors": [Color("8d785a"), Color("625642"), Color("d0b987")],
-		"geometry": {"wing_span": 0.82, "tail": 0.30},
-		"song":
-		{
-			"cue": &"bird.skylark.song",
-			"kind": &"sustained_aerial_warble",
-			"time": &"dawn_day",
-			"cadence_s": Vector2(7.0, 20.0)
-		},
-		"abundance": 0.78,
-		"spawn": {CONTEXT_FORELAND: 1.0, CONTEXT_LOWER_TOWN: 0.08}
-	},
-	SPECIES_YELLOWHAMMER:
-	{
-		"name": "Yellowhammer",
-		"group": GROUP_SONGBIRD,
-		"scale_m": 0.17,
-		"pose": POSE_PERCHED,
-		"colors": [Color("c3b44d"), Color("76694a"), Color("e0cf59")],
-		"breast": Color("d9c34a"),
-		"song":
-		{
-			"cue": &"bird.yellowhammer.song",
-			"kind": &"descending_phrase",
-			"time": &"day",
-			"cadence_s": Vector2(3.0, 9.0)
-		},
-		"abundance": 0.66,
-		"spawn": {CONTEXT_FORELAND: 0.94, CONTEXT_GARDEN: 0.62}
-	},
-	SPECIES_COMMON_CHAFFINCH:
-	{
-		"name": "Common chaffinch",
-		"group": GROUP_SONGBIRD,
-		"scale_m": 0.15,
-		"pose": POSE_PERCHED,
-		"colors": [Color("b77f66"), Color("526678"), Color("e1d6bc")],
-		"breast": Color("c08a70"),
-		"song":
-		{
-			"cue": &"bird.common_chaffinch.song",
-			"kind": &"descending_trill",
-			"time": &"dawn_day",
-			"cadence_s": Vector2(2.5, 8.0)
-		},
-		"abundance": 0.90
-	},
-	SPECIES_GREAT_TIT:
-	{
-		"name": "Great tit",
-		"group": GROUP_SONGBIRD,
-		"scale_m": 0.14,
-		"pose": POSE_PERCHED,
-		"colors": [Color("b9b44b"), Color("2d3536"), Color("e1d9c3")],
-		"breast": Color("cfc45a"),
-		"geometry": {"body": Vector3(0.30, 0.22, 0.20), "tail": 0.21},
-		"song":
-		{
-			"cue": &"bird.great_tit.song",
-			"kind": &"two_note_repeat",
-			"time": &"dawn_day",
-			"cadence_s": Vector2(2.0, 7.0)
-		},
-		"abundance": 0.92
-	},
-	SPECIES_EUROPEAN_ROBIN:
-	{
-		"name": "European robin",
-		"group": GROUP_SONGBIRD,
-		"scale_m": 0.14,
-		"pose": POSE_PERCHED,
-		"colors": [Color("786b55"), Color("9f5134"), Color("c8b58c")],
-		"breast": Color("b3603c"),
-		"geometry": {"body": Vector3(0.29, 0.23, 0.21), "tail": 0.18},
-		"song":
-		{
-			"cue": &"bird.european_robin.song",
-			"kind": &"thin_fluting_warble",
-			"time": &"dawn_dusk",
-			"cadence_s": Vector2(4.0, 11.0)
-		},
-		"abundance": 0.78
-	},
-	SPECIES_COMMON_BLACKBIRD:
-	{
-		"name": "Common blackbird",
-		"group": GROUP_SONGBIRD,
-		"scale_m": 0.25,
-		"pose": POSE_PERCHED,
-		"colors": [Color("282a28"), Color("1d201f"), Color("d39a3c")],
-		"geometry": {"body": Vector3(0.38, 0.22, 0.21), "tail": 0.36, "beak": 0.14},
-		"song":
-		{
-			"cue": &"bird.common_blackbird.song",
-			"kind": &"rich_fluting_phrase",
-			"time": &"dawn_dusk",
-			"cadence_s": Vector2(5.0, 14.0)
-		},
-		"abundance": 0.72
-	},
-	SPECIES_SONG_THRUSH:
-	{
-		"name": "Song thrush",
-		"group": GROUP_SONGBIRD,
-		"scale_m": 0.23,
-		"pose": POSE_PERCHED,
-		"colors": [Color("8b7455"), Color("5f513f"), Color("d7c6a1")],
-		"geometry": {"body": Vector3(0.37, 0.22, 0.21), "tail": 0.31},
-		"song":
-		{
-			"cue": &"bird.song_thrush.song",
-			"kind": &"repeated_fluting_motifs",
-			"time": &"dawn_dusk",
-			"cadence_s": Vector2(4.0, 12.0)
-		},
-		"abundance": 0.68
-	},
-	SPECIES_COMMON_NIGHTINGALE:
-	{
-		"name": "Common nightingale",
-		"group": GROUP_SONGBIRD,
-		"scale_m": 0.16,
-		"pose": POSE_PERCHED,
-		"colors": [Color("826b50"), Color("6e5943"), Color("b79a70")],
-		"geometry": {"tail": 0.32},
-		"song":
-		{
-			"cue": &"bird.common_nightingale.song",
-			"kind": &"powerful_varied_phrase",
-			"time": &"night_dawn",
-			"cadence_s": Vector2(4.0, 11.0)
-		},
-		"abundance": 0.42,
-		"spawn": {CONTEXT_GARDEN: 0.86, CONTEXT_WOODLAND: 0.78, CONTEXT_MARKET: 0.08}
-	},
 	SPECIES_GREAT_SPOTTED_WOODPECKER:
 	{
 		"name": "Great spotted woodpecker",
@@ -883,8 +724,16 @@ const PROFILES: Dictionary = {
 }
 const MaterialPatterns := preload("res://scripts/map/view3d/map_view_material_patterns.gd")
 
+static var _profiles_cache: Dictionary = {}
 static var _surface_material_cache: Dictionary = {}
 static var _normal_texture_cache: Dictionary = {}
+
+
+static func _profiles() -> Dictionary:
+	if _profiles_cache.is_empty():
+		_profiles_cache = _BASE_PROFILES.merged(_PROFILE_SONGBIRD.PROFILES)
+	return _profiles_cache
+
 
 static func is_known_species(species: StringName) -> bool:
 	return species in ALL_SPECIES
@@ -927,23 +776,23 @@ static func parse_variant(variant: StringName) -> Dictionary:
 static func profile_for(species: StringName) -> Dictionary:
 	if not is_known_species(species):
 		return {}
-	return (PROFILES[species] as Dictionary).duplicate(true)
+	return (_profiles()[species] as Dictionary).duplicate(true)
 
 
 static func common_name(species: StringName) -> String:
-	return String(PROFILES.get(species, {}).get("name", String(species)))
+	return String(_profiles().get(species, {}).get("name", String(species)))
 
 
 static func group_for(species: StringName) -> StringName:
-	return StringName(PROFILES.get(species, {}).get("group", &""))
+	return StringName(_profiles().get(species, {}).get("group", &""))
 
 
 static func default_pose(species: StringName) -> StringName:
-	return StringName(PROFILES.get(species, {}).get("pose", POSE_PERCHED))
+	return StringName(_profiles().get(species, {}).get("pose", POSE_PERCHED))
 
 
 static func scale_m(species: StringName) -> float:
-	return float(PROFILES.get(species, {}).get("scale_m", 0.2))
+	return float(_profiles().get(species, {}).get("scale_m", 0.2))
 
 
 static func geometry_for(species: StringName) -> Dictionary:
@@ -951,14 +800,14 @@ static func geometry_for(species: StringName) -> Dictionary:
 	if not GROUP_GEOMETRY.has(group):
 		return {}
 	var geometry := (GROUP_GEOMETRY[group] as Dictionary).duplicate()
-	var overrides: Dictionary = PROFILES[species].get("geometry", {})
+	var overrides: Dictionary = _profiles()[species].get("geometry", {})
 	geometry.merge(overrides, true)
 	geometry["scale_m"] = scale_m(species)
 	return geometry
 
 
 static func colors_for(species: StringName) -> Array[Color]:
-	var source: Array = PROFILES.get(species, {}).get(
+	var source: Array = _profiles().get(species, {}).get(
 		"colors", [Color.GRAY, Color.DARK_GRAY, Color.BEIGE]
 	)
 	var colors: Array[Color] = []
@@ -970,7 +819,7 @@ static func colors_for(species: StringName) -> Array[Color]:
 ## Countershading tone for the belly/breast rings. Iconic species pin an
 ## explicit "breast" color; the rest fall back to a lightened body tone.
 static func breast_color_for(species: StringName) -> Color:
-	var profile: Dictionary = PROFILES.get(species, {})
+	var profile: Dictionary = _profiles().get(species, {})
 	if profile.has("breast"):
 		return profile["breast"] as Color
 	var colors := colors_for(species)
@@ -979,13 +828,13 @@ static func breast_color_for(species: StringName) -> Color:
 
 ## Species with a visible crown crest feather (currently the northern lapwing).
 static func has_crest(species: StringName) -> bool:
-	return bool(PROFILES.get(species, {}).get("crest", false))
+	return bool(_profiles().get(species, {}).get("crest", false))
 
 
 static func song_profile_for(species: StringName) -> Dictionary:
 	if not is_known_species(species):
 		return {}
-	return (PROFILES[species].get("song", {}) as Dictionary).duplicate(true)
+	return (_profiles()[species].get("song", {}) as Dictionary).duplicate(true)
 
 
 ## Maps a catalog cue such as ``bird.herring_gull.call`` to the processed P0-123 clip.
@@ -1009,13 +858,13 @@ static func spawn_weights_for(species: StringName) -> Dictionary:
 	var group := group_for(species)
 	if not GROUP_SPAWN_WEIGHTS.has(group):
 		return {}
-	var abundance := float(PROFILES[species].get("abundance", 1.0))
+	var abundance := float(_profiles()[species].get("abundance", 1.0))
 	var weights: Dictionary = {}
 	for context in ALL_CONTEXTS:
 		weights[context] = clampf(
 			float(GROUP_SPAWN_WEIGHTS[group].get(context, 0.0)) * abundance, 0.0, 1.0
 		)
-	var overrides: Dictionary = PROFILES[species].get("spawn", {})
+	var overrides: Dictionary = _profiles()[species].get("spawn", {})
 	for context: Variant in overrides:
 		if context in ALL_CONTEXTS:
 			weights[context] = clampf(float(overrides[context]), 0.0, 1.0)
