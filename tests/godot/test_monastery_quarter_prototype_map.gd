@@ -214,6 +214,16 @@ func test_monastery_st_olaf_frontage_opens_oleviste_church_interior() -> void:
 	assert_eq(entry.get("building_id"), &"st_olaf_silhouette")
 
 
+func test_nunnatorn_exterior_door_opens_dedicated_interior() -> void:
+	var definition: MapDefinition = MonasteryQuarterDefinition.create()
+	var entry := _transition_by_id(definition, &"nunnatorn_enter")
+	assert_false(entry.is_empty(), "Nunnatorn tower must expose its interior door")
+	assert_eq(entry.get("destination_scene_id"), &"nunnatorn_interior")
+	assert_eq(entry.get("destination_spawn_id"), &"nunnatorn_interior_entry")
+	assert_eq(entry.get("spawn_id"), &"monastery_wall_tower_northwest_return")
+	assert_eq(entry.get("building_id"), &"monastery_wall_tower_northwest")
+
+
 func _transition_by_id(definition: MapDefinition, transition_id: StringName) -> Dictionary:
 	for transition in definition.transitions:
 		if transition.get("id", &"") == transition_id:

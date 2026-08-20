@@ -55,6 +55,6 @@ anchor nunnatorn_loot 6 3 rect=1,1 kind=loot
 anchor nunnatorn_evidence 5 3 rect=1,1 kind=evidence
 # R-624 owns the reciprocal manifest destination. The local transition and stable
 # spawn id are authored here so the return cell remains deterministic today.
-transition nunnatorn_exit 8 16 3 1 spawn=nunnatorn_exit transition_visual=door
+transition nunnatorn_exit 8 16 3 1 to=reval_monastery destination_spawn=monastery_wall_tower_northwest_return spawn=nunnatorn_interior_entry spawn_offset_px=0,-64 transition_visual=door
 fade nunnatorn_readability 1 1 16 16
 camera 0 0 18 18

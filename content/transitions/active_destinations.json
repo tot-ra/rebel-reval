@@ -123,6 +123,20 @@
         },
         {
           "id": "to_oleviste_church"
+        },
+        {
+          "id": "monastery_wall_tower_northwest_return"
+        }
+      ]
+    },
+    {
+      "id": "nunnatorn_interior",
+      "path": "res://scenes/reval_monastery/nunnatorn_interior.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        {
+          "id": "nunnatorn_interior_entry"
         }
       ]
     },

@@ -93,6 +93,9 @@ stroke convent_lane mud 0,34|23,34|23,54|49,54 thickness=3 order=14
 # sides. The open north/south district seams remain streets rather than walls.
 building monastery_city_wall_west_north wall 0 0 3 20 style=wall.city
 building monastery_wall_tower_northwest wall 0 0 8 8 style=wall.tower tower=true door_side=east
+# R-624: the inward-facing tower door is a reciprocal developer transition into
+# the dedicated Nunnatorn interior; the return spawn is kept on the same door.
+transition nunnatorn_enter 6 3 2 1 to=nunnatorn_interior destination_spawn=nunnatorn_interior_entry spawn=monastery_wall_tower_northwest_return spawn_offset_px=96,0 building_id=monastery_wall_tower_northwest transition_visual=door
 # The western gate cut is retained for inter-district travel, but later paired
 # gate-tower silhouettes are deliberately suppressed in the 1343 snapshot.
 building monastery_west_gate_north_tower wall 0 20 8 8 style=wall.tower tower=false
