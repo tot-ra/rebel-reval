@@ -206,3 +206,4 @@ This file contains only cross-role operating lessons. Domain lessons belong to t
 - For new review reports, derive semantic smoke anchors from the referenced contract's stable-ID table; broad terms such as `boss` or `loot` can pass while exact gameplay IDs are still missing.
 
 - When a focused Python test imports a repository tool module from `tools/`, add both the `tools/` path and its `sys` import before running the test; otherwise the failure is a harness `NameError`/`ModuleNotFoundError`, not a content regression.
+- Before creating a task-scoped file, verify its exact path against the task allowlist; a functionally correct implementation under a nearby directory can still violate the declared ownership contract.
