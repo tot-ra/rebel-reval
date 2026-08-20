@@ -207,3 +207,5 @@ This file contains only cross-role operating lessons. Domain lessons belong to t
 
 - When a focused Python test imports a repository tool module from `tools/`, add both the `tools/` path and its `sys` import before running the test; otherwise the failure is a harness `NameError`/`ModuleNotFoundError`, not a content regression.
 - Before creating a task-scoped file, verify its exact path against the task allowlist; a functionally correct implementation under a nearby directory can still violate the declared ownership contract.
+- For evidence-only sign-off ledgers, treat checked Godot non-zero exits caused by teardown leaks as separate from assertion results; record green summaries, baseline parity/asset failures, and missing human approval independently instead of promoting structural tests to visual acceptance.
+- This Git build does not support `git diff --no-index --label`; generate the temporary-file diff without labels, then normalize its `diff --git`, `---`, and `+++` paths before applying a scoped playbook patch to the index.
