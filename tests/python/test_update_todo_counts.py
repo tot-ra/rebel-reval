@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -128,6 +129,49 @@ class UpdateTodoCountsTest(unittest.TestCase):
         self.assertIn("| P5 |", table)
         self.assertIn("| P6 |", table)
         self.assertNotIn("| P3+ |", table)
+
+    def test_cli_path_scans_and_rewrites_selected_fixture(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            todo = Path(temp_dir) / "TODO.md"
+            todo.write_text(
+                "\n".join(
+                    [
+                        "# Fixture TODO",
+                        "",
+                        "<!-- Quick-reference counts updated on every structural change -->",
+                        "| Priority | Open | Done | Notes |",
+                        "|----------|-----:|-----:|-------|",
+                        "| P0 | stale | stale | stale |",
+                        "",
+                        "- [ ] P2-001 | deps: none | deliverable: fixture task | verify: passes",
+                        "- [x] P2-002 | deps: P2-001 | deliverable: completed fixture | verify: passes",
+                        "",
+                        "## Notes",
+                        "keep this content",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            before_root = (ROOT / "TODO.md").read_bytes()
+
+            command = [
+                sys.executable,
+                str(TOOLS / "update_todo_counts.py"),
+                "--path",
+                str(todo),
+                "--write",
+            ]
+            result = subprocess.run(command, capture_output=True, text=True, check=False)
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("| P2 |", result.stdout)
+            self.assertIn("-> TODO.md summary table rewritten.", result.stdout)
+            updated = todo.read_text(encoding="utf-8")
+            self.assertIn("| P2 |", updated)
+            self.assertIn("|     1  |     1  |", updated)
+            self.assertIn("Vertical-slice production (playable MVP)", updated)
+            self.assertIn("## Notes\nkeep this content", updated)
+            self.assertEqual(before_root, (ROOT / "TODO.md").read_bytes())
 
     def test_rewrite_table_preserves_task_rows(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

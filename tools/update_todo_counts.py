@@ -2,10 +2,13 @@
 """Regenerate the TODO.md priority summary table from actual task rows.
 
 Usage:
-    python3 tools/update_todo_counts.py              # show counts only
-    python3 tools/update_todo_counts.py --write      # rewrite the table in-place
+    python3 tools/update_todo_counts.py                         # show root counts
+    python3 tools/update_todo_counts.py --path /tmp/TODO.md   # show selected counts
+    python3 tools/update_todo_counts.py --write               # rewrite root table
+    python3 tools/update_todo_counts.py --path /tmp/TODO.md --write
+                                                              # rewrite selected table
 
-Scans every `- [ ]` row in `TODO.md`, extracts its priority (P0..P9, D), and
+Scans every `- [ ]` row in the selected TODO.md, extracts its priority (P0..P9, D),
 counts open / done rows per bucket. The existing summary block right after
 the header is replaced with a freshly computed Markdown table; everything else
 in the file is left untouched.
@@ -143,10 +146,15 @@ def rewrite_table(path: Path, new_table: str) -> bool:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--write", action="store_true", help="rewrite the table in TODO.md")
+    parser.add_argument(
+        "--path",
+        type=Path,
+        help="TODO.md path to scan (defaults to the repository root)",
+    )
     args = parser.parse_args()
 
     root = Path(__file__).resolve().parent.parent
-    todo_path = root / "TODO.md"
+    todo_path = args.path or (root / "TODO.md")
     if not todo_path.exists():
         print(f"ERROR: {todo_path} not found", file=sys.stderr)
         return 1
