@@ -204,3 +204,5 @@ This file contains only cross-role operating lessons. Domain lessons belong to t
 - When a temporary-index `git commit` succeeds, do not run a second unconditional `git update-ref` with the old parent; inspect the new HEAD first, because the commit command already advances the branch and the redundant compare-and-swap returns status 128.
 - When a multi-tool wrapper rejects a batch before execution with `steps is required`, treat it as a tool-schema failure, rerun each independent check with the correct wrapper, and do not classify the project check as failed.
 - For new review reports, derive semantic smoke anchors from the referenced contract's stable-ID table; broad terms such as `boss` or `loot` can pass while exact gameplay IDs are still missing.
+
+- When a focused Python test imports a repository tool module from `tools/`, add both the `tools/` path and its `sys` import before running the test; otherwise the failure is a harness `NameError`/`ModuleNotFoundError`, not a content regression.
