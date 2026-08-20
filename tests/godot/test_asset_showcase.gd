@@ -108,13 +108,26 @@ func test_large_showcase_uses_a_spacious_grid() -> void:
 
 func test_showcases_include_review_variants_and_animation_catalogs() -> void:
 	assert_eq(Definition.GATE_SPECS.size(), 3, "oak, ironbound, and portcullis need dedicated samples")
-	assert_eq(AssetShowcase.HUMANOID_SCENES.size(), 8, "all current humanoid character scenes need comparison samples")
 	assert_true(
-		AssetShowcase.HUMANOID_SCENES.any(
-			func(scene: PackedScene) -> bool: return scene.resource_path.ends_with("danish_warrior.tscn")
-		),
-		"small debug showcase must include the Danish warrior"
+		AssetShowcase.HUMANOID_SCENES.size() >= 12,
+		"showcase must retain production variants plus the full core-cast lineup"
 	)
+	var required_scenes: Array[String] = [
+		"mart.tscn",
+		"aita.tscn",
+		"kaja.tscn",
+		"henning.tscn",
+		"jurgen.tscn",
+		"ellen.tscn",
+		"danish_warrior.tscn",
+	]
+	for required_scene: String in required_scenes:
+		assert_true(
+			AssetShowcase.HUMANOID_SCENES.any(
+				func(scene: PackedScene) -> bool: return scene.resource_path.ends_with(required_scene)
+			),
+			"debug showcase must include %s" % required_scene
+		)
 	assert_true(SharedCharacterRig.CANONICAL_ANIMATIONS.size() >= 15,
 		"shared rig must retain the full canonical animation minimum")
 	assert_eq(CatRig.REQUIRED_ANIMATIONS.size(), 5)

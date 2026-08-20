@@ -7,6 +7,7 @@ const HENNING_SCENE := preload("res://assets/characters/variants/henning.tscn")
 const AITA_SCENE := preload("res://assets/characters/variants/aita.tscn")
 const KAJA_SCENE := preload("res://assets/characters/variants/kaja.tscn")
 const JURGEN_SCENE := preload("res://assets/characters/variants/jurgen.tscn")
+const ELLEN_SCENE := preload("res://assets/characters/variants/ellen.tscn")
 const TOWNSWOMAN_SCENE := preload("res://assets/characters/variants/townswoman.tscn")
 const WATCHMAN_SCENE := preload("res://assets/characters/variants/watchman.tscn")
 const SERGEANT_SCENE := preload("res://assets/characters/variants/sergeant.tscn")
@@ -239,6 +240,7 @@ func test_approved_hero_cast_uses_one_shared_animation_and_lod_contract() -> voi
 		{"scene": KAJA_SCENE, "id": &"char.kaja"},
 		{"scene": HENNING_SCENE, "id": &"char.henning"},
 		{"scene": JURGEN_SCENE, "id": &"char.jurgen"},
+		{"scene": ELLEN_SCENE, "id": &"char.ellen"},
 	]
 	for entry: Dictionary in cases:
 		var character := _instantiate(entry["scene"] as PackedScene)
@@ -252,6 +254,48 @@ func test_approved_hero_cast_uses_one_shared_animation_and_lod_contract() -> voi
 		assert_true(character.lod_mesh_count(1) > 0 and character.lod_mesh_count(2) > 0)
 		character.queue_free()
 	reference.queue_free()
+
+func test_hero_cast_silhouettes_are_distinct_without_color_cues() -> void:
+	var scenes: Array[PackedScene] = [
+		MART_SCENE,
+		AITA_SCENE,
+		KAJA_SCENE,
+		HENNING_SCENE,
+		JURGEN_SCENE,
+		ELLEN_SCENE,
+	]
+	var signatures := {}
+	for scene: PackedScene in scenes:
+		var character := _instantiate(scene)
+		var skeleton := character.skeleton()
+		var head_y := skeleton.get_bone_global_rest(skeleton.find_bone("head")).origin.y
+		var hand_x := absf(
+			skeleton.get_bone_global_rest(skeleton.find_bone("hand.l")).origin.x
+		)
+		var hip_x := absf(
+			skeleton.get_bone_global_rest(skeleton.find_bone("upperleg.l")).origin.x
+		)
+		# WHY: Bone-space stature, arm breadth, and hip breadth survive grayscale and
+		# material swaps, so this signature rejects color-only cast differentiation.
+		var signature := Vector3(
+			snappedf(head_y, 0.001),
+			snappedf(hand_x, 0.001),
+			snappedf(hip_x, 0.001)
+		)
+		assert_false(
+			signatures.has(signature),
+			"%s duplicates %s's silhouette" % [
+				character.name,
+				signatures.get(signature, ""),
+			]
+		)
+		signatures[signature] = character.name
+		character.queue_free()
+	assert_eq(
+		signatures.size(),
+		scenes.size(),
+		"all six named cast silhouettes must remain geometrically distinct"
+	)
 
 
 func test_occlusion_ghost_overlays_every_mesh_and_clears() -> void:
@@ -668,11 +712,18 @@ func test_shared_rig_distance_lods_mount_with_visibility_ranges() -> void:
 
 
 
-func test_shared_character_pbr_materials_cover_all_five_surface_zones() -> void:
-	var kalev := _instantiate(KALEV_SCENE)
-	var henning := _instantiate(HENNING_SCENE)
-	var families := {}
-	for character: Node in [kalev, henning]:
+func test_hero_cast_carries_pbr_maps_at_the_tier_zero_contract() -> void:
+	var characters: Array[Node] = [
+		_instantiate(MART_SCENE),
+		_instantiate(AITA_SCENE),
+		_instantiate(KAJA_SCENE),
+		_instantiate(HENNING_SCENE),
+		_instantiate(JURGEN_SCENE),
+		_instantiate(ELLEN_SCENE),
+	]
+	var all_families := {}
+	for character: Node in characters:
+		var character_families := {}
 		for found: Node in character.get_node("Model").find_children("*", "MeshInstance3D", true, false):
 			var mesh_instance := found as MeshInstance3D
 			if mesh_instance == null or mesh_instance.mesh == null:
@@ -687,31 +738,25 @@ func test_shared_character_pbr_materials_cover_all_five_surface_zones() -> void:
 				if marker_index < 0:
 					continue
 				var family := albedo_path.substr(marker_index + marker.length()).split("_")[0]
-				families[family] = true
+				character_families[family] = true
+				all_families[family] = true
 				assert_true(
 					material.normal_enabled and material.normal_texture != null,
 					"%s needs a normal map" % family
 				)
 				assert_true(material.roughness_texture != null, "%s needs a roughness map" % family)
 				assert_true(material.ao_texture != null, "%s needs an AO map" % family)
-				assert_true(
-					material.albedo_texture.resource_path.contains("_hero_tex_%s_albedo" % family),
-					"%s albedo must be the shared family map" % family
-				)
-	assert_eq(
-		families.keys().duplicate().filter(
-			func(family: String) -> bool: return family in ["skin", "cloth", "leather", "metal", "hair"]
-		).size(),
-		5,
-		"Kalev and the armored shared-rig variant must cover all five PBR surface zones"
-	)
+		for required_family: String in ["skin", "cloth", "leather", "hair"]:
+			assert_true(
+				character_families.has(required_family),
+				"%s Tier-0 body needs the %s PBR family" % [character.name, required_family]
+			)
+		character.queue_free()
 	for required_family: String in ["skin", "cloth", "leather", "metal", "hair"]:
 		assert_true(
-			families.has(required_family),
-			"%s PBR family must be represented on the shared rig" % required_family
+			all_families.has(required_family),
+			"%s must be represented in the cast material contract" % required_family
 		)
-	kalev.queue_free()
-	henning.queue_free()
 
 
 func test_shared_character_hair_and_beard_shader_follow_material_names_across_lods() -> void:

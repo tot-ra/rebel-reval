@@ -14,6 +14,10 @@ const HUMANOID_SCENES: Array[PackedScene] = [
 	preload("res://assets/characters/variants/sergeant.tscn"),
 	preload("res://assets/characters/variants/townswoman.tscn"),
 	preload("res://assets/characters/variants/watchman.tscn"),
+	preload("res://assets/characters/variants/aita.tscn"),
+	preload("res://assets/characters/variants/kaja.tscn"),
+	preload("res://assets/characters/variants/jurgen.tscn"),
+	preload("res://assets/characters/variants/ellen.tscn"),
 ]
 const CAT_SCENE := preload("res://assets/characters/cat/cat_rig.tscn")
 const CatCoats := preload("res://assets/characters/cat/cat_coat_variants.gd")

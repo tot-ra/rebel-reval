@@ -5,6 +5,24 @@
   },
   "bodies": [
     {
+      "body": "aita.glb",
+      "lod0_triangles": 48388,
+      "levels": {
+        "lod1": {
+          "path": "assets/characters/shared/aita_lod1.glb",
+          "triangles": 24188,
+          "fraction_of_lod0": 0.4999,
+          "target_ratio": 0.5
+        },
+        "lod2": {
+          "path": "assets/characters/shared/aita_lod2.glb",
+          "triangles": 9670,
+          "fraction_of_lod0": 0.1998,
+          "target_ratio": 0.2
+        }
+      }
+    },
+    {
       "body": "bandit.glb",
       "lod0_triangles": 51816,
       "levels": {
@@ -35,6 +53,24 @@
         "lod2": {
           "path": "assets/characters/shared/danish_warrior_lod2.glb",
           "triangles": 10366,
+          "fraction_of_lod0": 0.1999,
+          "target_ratio": 0.2
+        }
+      }
+    },
+    {
+      "body": "ellen.glb",
+      "lod0_triangles": 48340,
+      "levels": {
+        "lod1": {
+          "path": "assets/characters/shared/ellen_lod1.glb",
+          "triangles": 24167,
+          "fraction_of_lod0": 0.4999,
+          "target_ratio": 0.5
+        },
+        "lod2": {
+          "path": "assets/characters/shared/ellen_lod2.glb",
+          "triangles": 9663,
           "fraction_of_lod0": 0.1999,
           "target_ratio": 0.2
         }
@@ -90,6 +126,42 @@
           "path": "assets/characters/shared/innkeeper_lod2.glb",
           "triangles": 9582,
           "fraction_of_lod0": 0.1999,
+          "target_ratio": 0.2
+        }
+      }
+    },
+    {
+      "body": "jurgen.glb",
+      "lod0_triangles": 51816,
+      "levels": {
+        "lod1": {
+          "path": "assets/characters/shared/jurgen_lod1.glb",
+          "triangles": 25903,
+          "fraction_of_lod0": 0.4999,
+          "target_ratio": 0.5
+        },
+        "lod2": {
+          "path": "assets/characters/shared/jurgen_lod2.glb",
+          "triangles": 10359,
+          "fraction_of_lod0": 0.1999,
+          "target_ratio": 0.2
+        }
+      }
+    },
+    {
+      "body": "kaja.glb",
+      "lod0_triangles": 48680,
+      "levels": {
+        "lod1": {
+          "path": "assets/characters/shared/kaja_lod1.glb",
+          "triangles": 24335,
+          "fraction_of_lod0": 0.4999,
+          "target_ratio": 0.5
+        },
+        "lod2": {
+          "path": "assets/characters/shared/kaja_lod2.glb",
+          "triangles": 9734,
+          "fraction_of_lod0": 0.2,
           "target_ratio": 0.2
         }
       }
