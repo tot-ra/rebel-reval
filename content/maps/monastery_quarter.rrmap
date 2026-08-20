@@ -179,7 +179,7 @@ transition to_reval_north 98 0 12 2 to=reval_north destination_spawn=from_monast
 transition to_reval_north_outer 228 0 8 2 to=reval_north destination_spawn=from_monastery_outer spawn=outer_monastery_exit spawn_offset_px=0,96 highlight_area=true transition_visual=ground alignment=travel
 transition to_reval_center 33 108 12 4 to=reval_center destination_spawn=to_reval_north spawn=from_reval_center spawn_offset_px=0,-128 highlight_area=true transition_visual=ground
 transition to_reval_east 134 108 11 4 to=reval_east destination_spawn=vene_district_boundary spawn=from_reval_east spawn_offset_px=0,-128 highlight_area=true transition_visual=ground
-transition to_reval_east_outer 228 43 8 4 to=reval_east destination_spawn=workers_outer_exit spawn=outer_workers_entry spawn_offset_px=128,0 highlight_area=true transition_visual=ground alignment=travel
+transition to_reval_east_outer 228 43 8 4 to=reval_east destination_spawn=workers_outer_exit spawn=outer_workers_entry spawn_offset_px=160,0 highlight_area=true transition_visual=ground alignment=travel
 transition to_reval_toompea 0 28 3 12 to=reval_toompea destination_spawn=from_reval_north spawn=from_reval_toompea spawn_offset_px=96,0 highlight_area=true transition_visual=ground view_landmark_id=monastery_west_gate_arch
 sign sign.merchant "to merchant district" 106 6 north
 sign sign.outer_wall "outer wall road to harbour" 237 8 north
