@@ -1,0 +1,36 @@
+{
+  "type": "item",
+  "id": "item.nunnatorn_evidence",
+  "name": "Nunnatorn watch ledger",
+  "category": "evidence",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "R-626",
+    "notes": "Gameplay-authored loot; not an attested surviving archival object."
+  },
+  "material_grade": "common",
+  "gameplay": {
+    "visible_in_pouch": true,
+    "stackable": false,
+    "uses": [
+      "A tower ledger recovered after the lethal Nunnatorn resolution; it records the watch's supply obligations without claiming archival authenticity."
+    ],
+    "carry": {
+      "weight_g": 120,
+      "grid_width": 1,
+      "grid_height": 1
+    }
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "The ledger is authored loot placed behind the Nunnatorn encounter; the historical review explicitly rejects an archival loot claim.",
+      "citations": [
+        "docs/reports/nunnatorn_historical_art_review.md",
+        "docs/reports/nunnatorn_interior_contract.md"
+      ]
+    }
+  ]
+}

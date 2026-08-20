@@ -1,0 +1,139 @@
+{
+  "type": "quest",
+  "id": "quest.nunnatorn_evidence",
+  "title": "The Nunnatorn record",
+  "summary": "Collect the outcome-specific loot or testimony left behind after resolving Marten of Nunnatorn.",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "R-626",
+    "notes": "Loot and evidence are authored gameplay effects. The tower review does not establish an archival cache or historical occupant."
+  },
+  "entry_conditions": [],
+  "initial_state": "awaiting_collection",
+  "states": [
+    {
+      "id": "awaiting_collection",
+      "label": "Outcome record not collected"
+    },
+    {
+      "id": "collected_lethal",
+      "label": "Recovered the tower ledger"
+    },
+    {
+      "id": "collected_alternate",
+      "label": "Recorded the tower witness account"
+    }
+  ],
+  "transitions": [
+    {
+      "id": "collect_lethal",
+      "from_state": "awaiting_collection",
+      "to_state": "collected_lethal",
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.nunnatorn_boss_defeated",
+          "value": true
+        },
+        {
+          "op": "flag_not",
+          "key": "flag.nunnatorn_loot_collected",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "op": "add_item",
+          "key": "item.nunnatorn_evidence"
+        },
+        {
+          "op": "set_fact",
+          "key": "fact.nunnatorn.evidence.ledger",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.nunnatorn_loot_collected",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "collect_alternate",
+      "from_state": "awaiting_collection",
+      "to_state": "collected_alternate",
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.nunnatorn_boss_alternate_resolution",
+          "value": true
+        },
+        {
+          "op": "flag_not",
+          "key": "flag.nunnatorn_evidence_recorded",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_fact",
+          "key": "fact.nunnatorn.evidence.witness_account",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.nunnatorn_evidence_recorded",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "collect_outcome_record",
+      "text": "Search the Nunnatorn outcome site for a recoverable record.",
+      "state_id": "awaiting_collection"
+    }
+  ],
+  "journal_evidence": [
+    {
+      "fact_id": "fact.nunnatorn.evidence.ledger",
+      "text": "Marten's tower ledger records watch supplies and names the pressure points around the Nunnatorn post."
+    },
+    {
+      "fact_id": "fact.nunnatorn.evidence.witness_account",
+      "text": "The Nunnatorn watchman's account confirms that the tower post could be left without a bloodied ledger."
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "lethal_record",
+      "summary": "The defeated watch leaves a ledger that can be carried as evidence.",
+      "effects": []
+    },
+    {
+      "id": "alternate_record",
+      "summary": "The alternate resolution preserves a witness account instead of the ledger loot.",
+      "effects": []
+    }
+  ],
+  "content_links": {
+    "item_ids": [
+      "item.nunnatorn_evidence"
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Collection is anchored to the authored nunnatorn_loot and nunnatorn_evidence map slots. Collection states remain non-terminal so JournalModel keeps the discovered fact visible after the encounter.",
+      "citations": [
+        "content/maps/nunnatorn_interior.rrmap",
+        "content/examples/valid/encounter.nunnatorn_boss.json",
+        "scripts/quest/nunnatorn_evidence_model.gd",
+        "docs/reports/nunnatorn_interior_contract.md"
+      ]
+    }
+  ]
+}
