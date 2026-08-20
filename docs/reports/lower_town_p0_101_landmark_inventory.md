@@ -2,18 +2,18 @@
 
 **Task:** R-486 / P0-101a, c1
 **Map:** `lower_town_slice` / Workers' District
-**Source snapshot:** current shared worktree, 2026-08-12
-**Status:** **INVENTORY COMPLETE - FINAL VISUAL ACCEPTANCE BLOCKED**
+**Source snapshot:** current shared worktree, 2026-08-21; current RRMap SHA-256 `6ae0b82a0a46a7391cb5db5a0bb02e562756def8073fe08cf63beebd7ace7e50` (the capture packet fingerprint predates the R-547 rear-workshop additions)
+**Status:** **INVENTORY RECONCILED - FINAL VISUAL ACCEPTANCE BLOCKED**
 
 ## Decision
 
-The authored Lower Town source contains 91 stable records:
+The authored Lower Town source currently contains **99 stable records**:
 
-- 53 `building ... house` records.
+- **61 `building ... house` records**, including **51 tiered ordinary houses** (`merchant_stone=14`, `merchant_timber=14`, `craft_boda=23`) and ten untiered special/exceptional houses.
 - 36 `building ... wall` records, including city-wall fabric, Viru Gate and foregate structures, monastery precinct walls, and the smithy yard fence.
 - 2 `landmark ... gate_arch` view landmarks.
 
-The ordinary-fabric scope is the 43 tiered house records: 14 `merchant_stone`, 14 `merchant_timber`, and 15 `craft_boda`. Ten house records intentionally omit `house_tier`; one of those, `st_catherines_church`, is recognized by the exceptional-house registry, while the other nine are named special/use-site records that remain on the default building path. The 36 wall records are not exceptional houses and must remain on the fortification-capable building path. The two gate arches are view-only and do not provide collision or navigation.
+The prior 91-record inventory is retained below as the original source snapshot. The eight R-547 rear-workshop records are now reconciled in section 1.1a and are part of the current ordinary-fabric count. The capture packet remains a separate, older evidence snapshot: its manifest fingerprint does not include these additions, and no existing day/night plate provides stable-ID visual observations for them.
 
 This report is evidence-only. It does not change authored map data, renderer code, assets, or tests.
 
@@ -22,7 +22,9 @@ This report is evidence-only. It does not change authored map data, renderer cod
 Source lines below refer to [`content/maps/lower_town_slice.rrmap`](../../content/maps/lower_town_slice.rrmap).
 Coordinates are cell coordinates and `w x h` is the authored footprint in cells.
 
-### 1.1 Tiered ordinary houses: 43 records
+### 1.1 Baseline tiered ordinary houses: 43 records
+
+The table below is the original pre-R-547 tier snapshot. The current source scope is 51 tiered houses after the eight-record delta in section 1.1a; these 43 baseline rows remain listed individually for stable-ID continuity.
 
 #### `merchant_stone`: 14
 
@@ -82,9 +84,26 @@ Coordinates are cell coordinates and `w x h` is the authored footprint in cells.
 | `south_apron_timber_house` | `81,114` / `8 x 6` | 212 |
 | `south_apron_far_roofs` | `100,118` / `10 x 6` | 213 |
 
+
+### 1.1a Current source delta: R-547 rear-workshop records: 8
+
+These records were added to the authored RRMap after the original 91-record inventory. They are `house` records with `house_tier=craft_boda`, but the current P0-101 capture manifest predates them. They therefore expand the structural tier inventory without creating visual acceptance evidence.
+
+| ID | Position / footprint | Tier | Source |
+|---|---:|---|---:|
+| `saddlers_rear_workshop` | `16,72` / `8 x 4` | `craft_boda` | 234 |
+| `coopers_rear_workshop` | `26,72` / `7 x 4` | `craft_boda` | 235 |
+| `sauna_rear_boda` | `35,72` / `8 x 4` | `craft_boda` | 236 |
+| `rope_makers_rear_store` | `45,72` / `8 x 4` | `craft_boda` | 237 |
+| `karja_rear_boda` | `54,72` / `6 x 4` | `craft_boda` | 238 |
+| `brewery_rear_store` | `83,72` / `5 x 4` | `craft_boda` | 239 |
+| `smithy_rear_shed` | `94,72` / `4 x 4` | `craft_boda` | 240 |
+| `carriers_barn` | `65,80` / `3 x 5` | `craft_boda` | 241 |
+
+**Visual status:** **BLOCKED** for all eight IDs. The existing ten-plate packet contains route candidates near the craft/service areas but no stable-ID annotation or per-record day/night observation. Do not infer that a rear-workshop record is visible merely because a route preset covers the same district.
 ### 1.2 Untiered houses: 10 records
 
-Omitting `house_tier` is legal in the compiler contract. These records are kept separate from the 43-record ordinary tier inventory. The focused tier test explicitly keeps seven named exceptional/special IDs outside ordinary tiers; the remaining three untiered records are retained here as additional legacy or use-site records and are not silently counted as ordinary fabric.
+Omitting `house_tier` is legal in the compiler contract. These ten records are kept separate from the current 51-record ordinary tier inventory. The focused tier test explicitly keeps seven named exceptional/special IDs outside ordinary tiers; the remaining three untiered records are retained here as additional legacy or use-site records and are not silently counted as ordinary fabric.
 
 | ID | Position / footprint | Boundary classification | Source |
 |---|---:|---|---:|
@@ -173,7 +192,7 @@ Evidence: [`scripts/map/view3d/map_view_mesh_builder_buildings.gd`](../../script
 
 Within that path, `kind=wall` records remain on the wall-aware default building path. Records whose authored height meets the battlement threshold enter the fortification branch; lower wall and fence records still retain wall material and wall-specific semantics without being treated as houses. Authored height, tower flags, round-tower flags, wall-walk axis, sealed-wall sizing, limestone material, battlements, and wall-walk details remain owned by the fortification-capable builder. The Lower Town wall inventory must therefore be accepted as fortification surface, not reclassified as landmark houses.
 
-The 43 tiered houses use the ordinary house style and roof selection contract. `house_tier` is a closed allowlist of `merchant_stone`, `merchant_timber`, and `craft_boda`; omitted values remain legal for legacy or special records. The compiler rejects unknown values with `house_tier is unknown`.
+The 51 current tiered houses use the ordinary house style and roof selection contract. `house_tier` is a closed allowlist of `merchant_stone`, `merchant_timber`, and `craft_boda`; omitted values remain legal for legacy or special records. The compiler rejects unknown values with `house_tier is unknown`.
 
 ### 2.3 View-landmark path
 
@@ -190,13 +209,13 @@ Evidence:
 
 ## 3. Ordinary-fabric acceptance scope
 
-The final ordinary-fabric review should cover the 43 tiered IDs, with all three closed tiers represented on the playable Lower Town route:
+The final ordinary-fabric review should cover the **51 current tiered IDs** (the 43 baseline IDs plus the eight R-547 rear-workshop records), with all three closed tiers represented on the playable Lower Town route:
 
 | Tier | Count | Acceptance focus |
 |---|---:|---|
 | `merchant_stone` | 14 | Affluent stone or mixed street frontage, tile-forward material bias, readable diele/dornse massing where the kit provides it |
 | `merchant_timber` | 14 | Timber or plastered-timber frontage, shingle-forward roof bias, readable merchant/craft frontage without stone landmark treatment |
-| `craft_boda` | 15 | Compact workshop-dwelling massing, log/thatch or shingle bias, no merchant hoist default |
+| `craft_boda` | 23 | Compact workshop-dwelling massing, log/thatch or shingle bias, no merchant hoist default; the eight rear-workshop records remain a separate visual sub-review. |
 
 The typology contract is documented in [`docs/reports/burgher_house_typology_contract.md`](burgher_house_typology_contract.md) and [`docs/MAP_AUTHORING.md`](../MAP_AUTHORING.md). The inventory proves that all three tiers are authored and that the counts are mixed rather than single-family. It does not by itself prove:
 
@@ -206,7 +225,9 @@ The typology contract is documented in [`docs/reports/burgher_house_typology_con
 - day/night value hierarchy at gameplay scale;
 - absence of ordinary-house visual drift into exceptional landmark silhouettes.
 
-The nine untiered special/use-site houses should be reviewed separately from the 43-record ordinary tier matrix. They must not be counted as missing tier assignments unless the owning task explicitly decides that a given special record should become ordinary fabric.
+The nine untiered special/use-site houses should be reviewed separately from the 51-record ordinary tier matrix. They must not be counted as missing tier assignments unless the owning task explicitly decides that a given special record should become ordinary fabric.
+
+The eight rear-workshop IDs are structural tier evidence only. The existing packet has no stable-ID visual observations for them, so they remain **BLOCKED** until a future matched capture/review explicitly identifies the records.
 
 ## 4. Gate and fortification acceptance surfaces
 
@@ -233,14 +254,14 @@ The city-wall seals, bends, continuation, monastery precinct walls, and smithy y
 
 | Check | Result | Evidence / limitation |
 |---|---|---|
-| Authored source record extraction | **PASS** | Independent parser counted 91 records: 53 houses, 36 walls, 2 gate arches; all stable IDs are unique. |
-| Tier inventory | **PASS as source evidence** | 14 `merchant_stone`, 14 `merchant_timber`, 15 `craft_boda`, 10 untiered. |
+| Authored source record extraction | **PASS** | Independent parser counted 99 current records: 61 houses, 36 walls, 2 gate arches; all stable IDs are unique. The eight R-547 rear-workshop records are included in the current count. |
+| Tier inventory | **PASS as source evidence** | Current source has 51 tiered houses: 14 `merchant_stone`, 14 `merchant_timber`, and 23 `craft_boda`; ten untiered special/exceptional houses remain separate. |
 | Registry boundary review | **PASS as static evidence** | `st_catherines_church` resolves to exceptional `church`; wall-kind Viru tower IDs remain outside exceptional-house routing. |
-| `test_lower_town_slice_map` focused run | **BLOCKED in current rerun** | The earlier focused baseline recorded 19/19 map-contract tests. The current checked rerun fails during dependent script loading at `map_view_3d.gd:82` because `MapViewRuntime.ZOOM_MAX_ORTHOGRAPHIC_SIZE` cannot be resolved, before map methods execute. |
-| `test_burgher_house_tiers` focused run | **BLOCKED** | Current checked run executes 0 tests and reports unrelated parse errors in `map_view_monastic_models.gd:185,187,189,218` (`run`, `long_face`, and `gable_offset` scope/type cascade). |
+| `test_lower_town_slice_map` focused run | **BLOCKED by pre-existing authored-map parity drift** | Current rerun executes 18/19 tests; the only failure is canonical `walkability_sha256` mismatch (`expected 57e9b0...`, `actual 0c33d8...`) caused by the already-present R-547 source delta. The parity fixture is outside this evidence-only allowlist and was not regenerated. |
+| `test_burgher_house_tiers` focused run | **PASS** | Current checked run: 1 file, 5 tests, 0 failures, 0 errors. The suite still covers the original 43-ID expected-tier table; the eight R-547 IDs are reconciled as an additional source delta and remain a visual-review blocker until that expected list is intentionally extended by its owner. |
 | `test_burgher_house_typology_contract` | **Contract evidence only** | The repository contract names the closed tiers, fallback rules, and rejection diagnostic. This report does not treat contract text as visual kit acceptance. |
 | Composition audit | **NOT an acceptance gate for this map** | `docs/data/map_composition_thresholds.json` sets `lower_town_slice.enforce=false`; `tools/audit_map_composition.gd` explicitly prints `SKIP` for such cards. The threshold card remains useful as review context, not a passing runtime result. |
-| Final gameplay-scale day/night landmark and ordinary-fabric sign-off | **OPEN / BLOCKED** | No dedicated evidence in this audit proves the final 43-house tier presentation, all special records, St. Catherine's silhouette, and both gate arches under matched gameplay-scale day/night framing. |
+| Final gameplay-scale day/night landmark and ordinary-fabric sign-off | **OPEN / BLOCKED** | No dedicated evidence in this audit proves the final 51-house tier presentation, all special records, the eight rear-workshop IDs, St. Catherine's silhouette, and both gate arches under matched gameplay-scale day/night framing. |
 
 Reproduction commands for the blocked focused suites:
 
@@ -258,16 +279,16 @@ The parse diagnostics are recorded as baseline blockers, not as authored-map fai
 
 ## 6. Gaps and next acceptance steps
 
-1. Clear the shared `map_view_3d.gd:82` / runtime-camera parse cascade, then rerun `test_lower_town_slice_map` and require a clean non-empty summary.
-2. Repair the independent `map_view_monastic_models.gd` scope/type parse errors, then rerun `test_burgher_house_tiers`. Confirm the 43 expected ordinary IDs and the seven named untiered exceptional/special IDs covered by that focused test; review the remaining three untiered source records separately.
-3. Capture matched gameplay-scale day/night views covering representative and repeated frontage from all three tiers, the nine default-path special records, `st_catherines_church`, `viru_gate_arch`, and `viru_foregate_arch`.
+1. Resolve the existing `lower_town_slice` canonical parity drift through the owning R-547 map/parity handoff, then rerun `test_lower_town_slice_map` and require a clean non-empty summary. This evidence task does not regenerate the fixture.
+2. Rerun `test_burgher_house_tiers` after the ordinary-fabric owner deliberately extends its expected stable-ID list to cover the eight R-547 records; the current 5/5 suite remains valid for the original 43-ID contract but is not visual evidence for the additions.
+3. Capture matched gameplay-scale day/night views covering representative and repeated frontage from all three tiers, all eight rear-workshop IDs, the nine default-path special records, `st_catherines_church`, `viru_gate_arch`, and `viru_foregate_arch.
 4. Review ordinary-fabric repetition, material hierarchy, roof readability, occlusion, gate opening readability, and route/collision clearance from those captures.
 5. Keep all 36 wall IDs in the fortification acceptance set. Do not use the exceptional-house registry as a shortcut for walls or gate arches.
 6. Revisit the composition threshold only when the Lower Town composition owner enables its card; a skipped `enforce=false` card must not be reported as a completed acceptance result.
 
 ## Sources
 
-- [`content/maps/lower_town_slice.rrmap`](../../content/maps/lower_town_slice.rrmap), lines 116-219.
+- [`content/maps/lower_town_slice.rrmap`](../../content/maps/lower_town_slice.rrmap), current source lines 116-247 (the pre-R-547 baseline rows remain embedded in the historical table above).
 - [`scripts/map/view3d/map_view_mesh_builder_building_registry.gd`](../../scripts/map/view3d/map_view_mesh_builder_building_registry.gd), lines 8-60.
 - [`scripts/map/view3d/map_view_mesh_builder_buildings.gd`](../../scripts/map/view3d/map_view_mesh_builder_buildings.gd), lines 11-60 and 90-120.
 - [`scripts/map/view3d/map_view_mesh_builder_landmarks.gd`](../../scripts/map/view3d/map_view_mesh_builder_landmarks.gd), lines 39-72 and gate-arch builder.

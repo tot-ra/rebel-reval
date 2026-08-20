@@ -2,10 +2,10 @@
 
 **Task:** R-616 / P0-101 decomposition: verify gameplay-scale day/night evidence
 **Parent:** R-108 / P0-101
-**Verification date:** 2026-08-20
+**Verification date:** 2026-08-21
 **Map:** `lower_town_slice` / Workers' District
-**Checkout:** `4c288b4e`, shared worktree with unrelated modified, staged, and untracked WIP
-**Decision:** **PACKET INTEGRITY PASS; P0-101 VISUAL ACCEPTANCE BLOCKED.**
+**Checkout:** `94ae942a`, shared worktree with unrelated modified, staged, and untracked WIP
+**Decision:** **PACKET INTEGRITY PASS; SOURCE/INVENTORY RECONCILED; P0-101 VISUAL ACCEPTANCE BLOCKED.**
 
 ## Scope and decision rule
 
@@ -58,11 +58,12 @@ All rows below are route or approach candidates. They are not promoted to stable
 
 ## Source and inventory reconciliation
 
-The current authored source is ahead of the older inventory/matrix snapshot:
+The current authored source is now reconciled with the evidence audit:
 
-- `content/maps/lower_town_slice.rrmap` currently contains **99 unique records**: 61 `house`, 36 `wall`, and 2 `gate_arch` records.
+- `content/maps/lower_town_slice.rrmap` contains **99 unique records**: 61 `house`, 36 `wall`, and 2 `gate_arch` records.
 - The current source has **51 tiered houses**: `merchant_stone=14`, `merchant_timber=14`, and `craft_boda=23`.
-- The prior R-486 inventory and the current capture matrix describe 91 records and 15 `craft_boda` houses. They do not include the eight current rear-workshop records listed below.
+- The prior R-486 inventory and capture matrix covered 91 records and 15 craft-boda houses. The eight R-547 rear-workshop records are now listed in the inventory delta at source lines 234-241, but the existing packet fingerprint predates them and no plate metadata identifies them visually.
+- The current RRMap SHA-256 is `6ae0b82a0a46a7391cb5db5a0bb02e562756def8073fe08cf63beebd7ace7e50`; the packet manifest's authored-map fingerprint remains a separate older snapshot.
 
 | Current source ID | RRMap line | Acceptance effect |
 |---|---:|---|
@@ -75,7 +76,7 @@ The current authored source is ahead of the older inventory/matrix snapshot:
 | `smithy_rear_shed` | 240 | Missing from prior inventory/matrix; no visual evidence. |
 | `carriers_barn` | 241 | Missing from prior inventory/matrix; no visual evidence. |
 
-This revision drift is a coverage blocker, not a reason to infer acceptance from the source. The eight records must be reconciled into the inventory/matrix by their owning map/art handoff before the final visual gate can be complete.
+This revision drift is now reconciled in the source inventory, but it remains a coverage blocker, not a reason to infer acceptance from the source. The eight records require a future matched capture/review that identifies each stable ID in both day and night evidence.
 
 ## R-108 visual coverage matrix
 
@@ -158,7 +159,7 @@ What remains blocked:
 - material, roof, wear, and repeated-frontage review is absent;
 - special/use-site buildings, St. Catherine's, inner Viru Gate, foregate, wall/precinct surfaces, and smithy fences lack per-ID observations;
 - no named canon/art reviewer status is attached to these visual rows;
-- the old 91-record inventory/matrix must be reconciled with the current 99-record source before coverage can be considered complete;
+- the current 99-record source and eight rear-workshop IDs are reconciled into the inventory/matrix, but the older packet fingerprint remains explicitly separate and does not prove those additions visually;
 - R-560 remains `in_progress`, so the packet is current shared-worktree evidence rather than a clean completed handoff.
 
 Keep R-108/P0-101 open. Existing owners R-487/R-488/R-489/R-492/R-532/R-533 and the R-560/R-561 handoff are sufficient; no duplicate follow-up task is created by this audit.
@@ -174,4 +175,4 @@ Keep R-108/P0-101 open. Existing owners R-487/R-488/R-489/R-492/R-532/R-533 and 
 - [`capture_manifest.json`](images/lower_town_p0_101/capture_manifest.json)
 - [`tools/capture_lower_town_p0_101.gd`](../../tools/capture_lower_town_p0_101.gd)
 - [`tests/godot/test_capture_lower_town_p0_101.gd`](../../tests/godot/test_capture_lower_town_p0_101.gd)
-- [`content/maps/lower_town_slice.rrmap`](../../content/maps/lower_town_slice.rrmap)
+- [`content/maps/lower_town_slice.rrmap`](../../content/maps/lower_town_slice.rrmap), current authored source and R-547 delta at lines 234-241

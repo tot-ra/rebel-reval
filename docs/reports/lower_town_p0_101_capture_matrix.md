@@ -3,8 +3,8 @@
 **Task:** R-491 / P0-101f
 **Role:** production / art / canon
 **Map:** `lower_town_slice` / Workers' District
-**Source snapshot:** `6662f28c3476c324884b9802fcd499a609bf2e70`, shared worktree dirty
-**Recorded:** 2026-08-17
+**Source snapshot:** current shared worktree, 2026-08-21; the authored RRMap currently hashes to `6ae0b82a0a46a7391cb5db5a0bb02e562756def8073fe08cf63beebd7ace7e50`, while the packet manifest fingerprint predates the R-547 rear-workshop additions
+**Recorded:** 2026-08-21
 **Status:** **CAPTURE PACKET COMPLETE - visual acceptance review remains open**
 
 ## Decision
@@ -13,11 +13,11 @@ This report is the evidence matrix for the P0-101 visual acceptance pass. It del
 
 The dedicated capture capability is now available and has produced a reproducible packet:
 
-- `tools/capture_lower_town_p0_101.gd` uses production `LowerTownSlice.create()`, `MapBuilder.build()`, and `MapView3D.create()` with four authored route-segment midpoint presets.
+- `tools/capture_lower_town_p0_101.gd` uses production `LowerTownSlice.create()`, `MapBuilder.build()`, and `MapView3D.create()` with five authored sector route-segment midpoint presets.
 - `docs/reports/images/lower_town_p0_101/capture_manifest.json` records map ID, source fingerprint, renderer, 1280x720 viewport, gameplay orthographic size `33.75`, focus cells/heights, camera pitch/yaw, intent, and matched day/night outputs.
-- Eight dedicated PNGs exist under `docs/reports/images/lower_town_p0_101/`: four route poses times `day` and `night`. Each decodes as 1280x720 with a non-zero pixel payload; all four day/night pairs share the same framing key and focus world.
-- `test_capture_lower_town_p0_101.gd` passes 4/4 with 0 failures and 0 errors. The non-headless capture command completed with status 0; Godot emitted only the known shutdown resource-leak diagnostics after writing the packet.
-- The source inventory records 43 tiered houses, nine additional default-path special/use-site houses, 36 collision-bearing wall records, and two view-only gate arches, but source records and this route packet do not prove visual material, wear, silhouette, or route-scale readability for every required surface.
+- Ten dedicated PNGs exist under `docs/reports/images/lower_town_p0_101/`: five sector route poses times `day` and `night`. Each decodes as 1280x720 with a non-zero pixel payload; all five day/night pairs share the same framing key and focus world.
+- `test_capture_lower_town_p0_101.gd` passes 5/5 with 0 failures and 0 errors. The non-headless capture command completed with status 0; Godot emitted only the known shutdown resource-leak diagnostics after writing the packet.
+- The current source inventory contains 51 tiered houses (`merchant_stone=14`, `merchant_timber=14`, `craft_boda=23`), ten untiered special/exceptional houses, 36 collision-bearing wall records, and two view-only gate arches. The eight R-547 rear-workshop IDs are listed in the inventory delta and have no stable-ID visual observations in this packet.
 
 This is a completed capture-capability handoff, not visual acceptance or a waiver of the remaining review gates.
 
@@ -45,7 +45,7 @@ The dedicated gameplay-scale packet is reproduced with:
   --script tools/capture_lower_town_p0_101.gd
 ```
 
-The runner writes the eight dedicated plates and `capture_manifest.json` below `docs/reports/images/lower_town_p0_101/`. The whole-map command remains supplementary:
+The runner writes the ten dedicated plates and `capture_manifest.json` below `docs/reports/images/lower_town_p0_101/`. The whole-map command remains supplementary:
 
 ```bash
 /Applications/Godot.app/Contents/MacOS/Godot \
@@ -60,7 +60,7 @@ That script writes `docs/reports/images/view3d/{kalev_smithy,lower_town_slice}_{
 |---|---|---|---|---|
 | Representative `merchant_stone` frontage | pending | pending | **BLOCKED** | Inventory 1.1, `merchant_stone` rows; no gameplay-scale tier capture |
 | Representative `merchant_timber` frontage | pending | pending | **BLOCKED** | Inventory 1.1, `merchant_timber` rows; no gameplay-scale tier capture |
-| Representative `craft_boda` frontage | pending | pending | **BLOCKED** | Inventory 1.1, `craft_boda` rows; no gameplay-scale tier capture |
+| Representative `craft_boda` frontage, including eight current rear-workshop IDs | pending | pending | **BLOCKED** | Inventory 1.1/1.1a; source count is 23 but the packet has no stable-ID tier observation for any representative or rear-workshop record |
 | Repeated frontage / variation audit | pending | pending | **BLOCKED** | Inventory 3, source inventory only; repetition cannot be judged from records |
 | Log / plank / plaster / limestone wall families | pending | pending | **BLOCKED** | Inventory 1.1-1.3; no material-readable route frames |
 | Tile / shingle / thatch roof covers | pending | pending | **BLOCKED** | Inventory 3; no gameplay-scale roof-readability frames |
@@ -71,7 +71,7 @@ That script writes `docs/reports/images/view3d/{kalev_smithy,lower_town_slice}_{
 | Viru foregate 1343 state | pending | pending | **BLOCKED** | Inventory 1.3-1.4; no foregate approach/opening frame |
 | Remaining fortification and precinct walls | pending | pending | **BLOCKED** | Inventory 1.3; no route-scale wall/landmark frame set |
 | Route-scale proof that special buildings are not enlarged ordinary houses | pending | pending | **BLOCKED** | R-491 deliverable; no matched route frame |
-| Existing playable route and landmark approach reproducibility | `street_start_to_smithy_door_day.png`, `smithy_door_to_brewery_door_day.png`, `brewery_door_to_checkpoint_west_day.png`, `checkpoint_west_to_checkpoint_east_day.png` | matching `_night.png` plates | **CAPTURE PACKET COMPLETE** | `capture_manifest.json`; four authored route midpoint presets, matched framing keys, non-blank 1280x720 PNG verification |
+| Existing playable route and landmark approach reproducibility | `market_primary_spine_day.png`, `merchant_craft_lane_day.png`, `service_yard_day.png`, `eastern_artisan_wet_margin_day.png`, `landmark_approaches_day.png` | matching `_night.png` plates | **CAPTURE PACKET COMPLETE** | `capture_manifest.json`; five authored sector route midpoint presets, matched framing keys, non-blank 1280x720 PNG verification |
 
 Every row above requires one day and one night frame. `pending` is intentionally not a claim that a file exists.
 
@@ -83,9 +83,11 @@ The source inventory establishes the required IDs, but not visual acceptance. At
 |---|---|---|---|---|
 | `merchant_stone` | `pikk_corner_house`, `vene_row_house`, `vene_corner_house`, `market_row_house`, `saiakang_house`, `vene_gate_house`, `apothecary_house`, `moneychangers_house`, `kaik_house_west`, `kaik_house_mid`, `kaik_house_east`, `glovers_house`, `viru_house_stone`, `merchants_house` | pending | pending | Stone/mixed frontage, tier silhouette, tile-forward roof bias, variation across adjacent rows |
 | `merchant_timber` | `turg_house_north`, `vanaturu_kael_house`, `corner_house_muurivahe`, `viru_house_west`, `viru_house_mid`, `viru_house_east`, `weary_traveler_inn`, `saddlers_house`, `coopers_house`, `rope_makers_house`, `karja_corner_house`, `turg_south_house`, `west_lane_house`, `glassblowers_house` | pending | pending | Timber/plastered-timber frontage, shingle-forward roof bias, no accidental landmark treatment |
-| `craft_boda` | `sauna_corner_house`, `kuninga_house_west`, `kuninga_house_mid`, `kuninga_house_east`, `vaike_karja_house`, `tenement_row`, `laundress_house`, `widows_house`, `dyers_house`, `hedge_house`, `wall_side_house`, `artisan_shed`, `potters_house`, `south_apron_timber_house`, `south_apron_far_roofs` | pending | pending | Compact workshop-dwelling massing, log/plank/thatch or shingle readability, no merchant hoist default |
+| `craft_boda` (23 current records, including R-547 rear workshops) | pending | pending | **BLOCKED** | Source IDs are reconciled in inventory section 1.1a, but no packet plate is stable-ID linked; do not infer visibility from `merchant_craft_lane` or `eastern_artisan_wet_margin` route coverage |
 
-**Inventory link:** [`lower_town_p0_101_landmark_inventory.md`](lower_town_p0_101_landmark_inventory.md), section 1.1, source lines 160-213 of `content/maps/lower_town_slice.rrmap`.
+**Inventory link:** [`lower_town_p0_101_landmark_inventory.md`](lower_town_p0_101_landmark_inventory.md), sections 1.1 and 1.1a, current source lines 160-241 of `content/maps/lower_town_slice.rrmap`.
+
+The eight current R-547 rear-workshop IDs are not silently folded into a route verdict. They are structural source records only and remain `BLOCKED` for both day and night until a future capture identifies each stable ID in-frame: `saddlers_rear_workshop`, `coopers_rear_workshop`, `sauna_rear_boda`, `rope_makers_rear_store`, `karja_rear_boda`, `brewery_rear_store`, `smithy_rear_shed`, and `carriers_barn`.
 
 ## Required special and landmark coverage
 
@@ -129,10 +131,10 @@ These files exist, but they do not satisfy the P0-101 acceptance contract becaus
 
 ## Blockers and ownership handoff
 
-1. **Capture capability:** **COMPLETE for R-560.** The dedicated runner and eight-plate manifest are under `tools/capture_lower_town_p0_101.gd` and `docs/reports/images/lower_town_p0_101/`; the exact command is recorded above.
-2. **Focused contracts:** `test_capture_lower_town_p0_101.gd` passes 4/4 with 0 failures and 0 errors. The remaining blocker is not packet generation; it is surface-by-surface visual review and upstream route/art handoff.
+1. **Capture capability:** **COMPLETE for R-560.** The dedicated runner and ten-plate manifest are under `tools/capture_lower_town_p0_101.gd` and `docs/reports/images/lower_town_p0_101/`; the exact command is recorded above.
+2. **Focused contracts:** `test_capture_lower_town_p0_101.gd` passes 5/5 with 0 failures and 0 errors. The remaining blocker is not packet generation; it is surface-by-surface visual review and upstream route/art handoff.
 3. **Production dependencies:** the ordinary house kits, plot dressing, tier wiring and exceptional-landmark implementation must be complete before the captures can show the required authored visual surfaces. The existing board tasks R-487/R-488/R-489 own those upstream handoffs.
-4. **Review:** the PNG set now exists and passed non-blank/dimension/parity checks. Send the matrix plus plates to the canon/art reviewer for R-492; review each required tier, material, wear, special-building, and landmark row before changing any `pending`/`BLOCKED` status. Do not close R-108 from this matrix.
+4. **Review:** The PNG set now exists and passes non-blank/dimension/parity checks. Send the matrix plus plates to the canon/art reviewer for R-492; review each required tier, material, wear, special-building, rear-workshop, and landmark row before changing any `pending`/`BLOCKED` status. Do not close R-108 from this matrix.
 
 No new follow-up task is created here: each remaining blocker already has an owning board task or an existing runtime owner, and creating a duplicate would obscure ownership.
 
@@ -146,7 +148,7 @@ The following commands are the minimum evidence record for the next capture atte
   --path . --rendering-method gl_compatibility --rendering-driver opengl3 \
   --script tools/capture_lower_town_p0_101.gd
 
-# Focused packet contract (4/4, 0 failures, 0 errors).
+# Focused packet contract (5/5, 0 failures, 0 errors).
 /Applications/Godot.app/Contents/MacOS/Godot --headless --path . \
   --script tools/run_godot_tests.gd -- --filter=test_capture_lower_town_p0_101
 
@@ -169,7 +171,7 @@ For each future plate, verify dimensions and non-blank output using the existing
 ## Source references
 
 - [`lower_town_p0_101_landmark_inventory.md`](lower_town_p0_101_landmark_inventory.md), especially sections 1.1-1.4, 3-4, and 5-6.
-- [`content/maps/lower_town_slice.rrmap`](../../content/maps/lower_town_slice.rrmap), source lines 116-219.
+- [`content/maps/lower_town_slice.rrmap`](../../content/maps/lower_town_slice.rrmap), current source lines 116-247, including the R-547 rear-workshop delta.
 - [`tools/capture_lower_town_p0_101.gd`](../../tools/capture_lower_town_p0_101.gd), dedicated route packet runner and manifest schema.
 - [`tests/godot/test_capture_lower_town_p0_101.gd`](../../tests/godot/test_capture_lower_town_p0_101.gd), packet contract and generated-output checks.
 - [`docs/reports/images/lower_town_p0_101/capture_manifest.json`](images/lower_town_p0_101/capture_manifest.json), generated packet metadata and output list.
