@@ -33,6 +33,7 @@ const InsectAmbientAudio := preload("res://scripts/map/view3d/map_view_insect_am
 const InsectContext := preload("res://scripts/map/view3d/map_view_insect_context.gd")
 const MapMusicZoneBinder := preload("res://scripts/map/map_music_zone_binder.gd")
 const CrowdRenderer := preload("res://scripts/map/view3d/map_view_crowd_renderer.gd")
+const NunnatornPresentation := preload("res://scripts/map/view3d/map_view_nunnatorn_interior.gd")
 ## Compatibility aliases keep the runtime's public locomotion thresholds stable.
 const WALK_ANIMATION_MIN_SPEED := RuntimeActors.WALK_ANIMATION_MIN_SPEED
 const RUN_ANIMATION_MIN_SPEED := RuntimeActors.RUN_ANIMATION_MIN_SPEED
@@ -103,6 +104,7 @@ var _insect_audio_enabled := true
 var _music_zone_binder
 var _crowd_renderer: MapViewCrowdRenderer
 var _crowd_enabled := true
+var _nunnatorn_presentation: MapViewNunnatornInterior
 
 static func install(
 	scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasItem, player: CharacterBody2D
@@ -168,6 +170,7 @@ static func install(
 	runtime._install_insect_audio()
 	runtime._install_music_zone_binder()
 	runtime._install_crowd_renderer()
+	runtime._install_nunnatorn_presentation()
 	runtime._install_click_input(scene_root)
 	return runtime
 
@@ -340,6 +343,13 @@ func crowd_active_count() -> int:
 	return _crowd_renderer.active_count()
 
 
+func _install_nunnatorn_presentation() -> void:
+	if _definition == null or _definition.map_id != NunnatornPresentation.MAP_ID:
+		return
+	_nunnatorn_presentation = NunnatornPresentation.install(view, _definition)
+	_sync_nunnatorn_presentation(0.0)
+
+
 func _install_click_input(_scene_root: Node2D) -> void:
 	# Keep gameplay click routing out of the editor-time map dependency graph.
 	# MapViewRuntime is loaded by import tooling before gameplay autoloads exist.
@@ -368,6 +378,7 @@ func set_time_of_day(next_time: StringName) -> void:
 	cycle_enabled = false
 	view.set_time_of_day(next_time)
 	cycle_progress = 0.5 if next_time == MapView3D.TIME_DAY else 0.0
+	_sync_nunnatorn_presentation(0.0)
 	_sync_music_cycle()
 
 
@@ -437,6 +448,14 @@ func _notify_time_flow() -> void:
 	time_flow_changed.emit(effective_time_speed(), time_paused)
 
 
+func _sync_nunnatorn_presentation(delta: float) -> void:
+	if _nunnatorn_presentation == null or view == null:
+		return
+	var rain_intensity := view.sky_weather().rain_intensity()
+	_nunnatorn_presentation.apply_cycle_progress(cycle_progress, rain_intensity)
+	_nunnatorn_presentation.sync_audio(rain_intensity, delta)
+
+
 func _process(delta: float) -> void:
 	# The time controls scale (or pause) the world clock and, through the view,
 	# the sky's own cloud/weather/lightning stepping so they stay in lockstep.
@@ -450,6 +469,7 @@ func _process(delta: float) -> void:
 			cycle_elapsed_days += completed_days
 			view.set_calendar_date(_current_calendar_date())
 		view.apply_cycle_progress(cycle_progress)
+		_sync_nunnatorn_presentation(delta)
 		_sync_music_cycle()
 	if _player == null or not is_instance_valid(_player):
 		return
