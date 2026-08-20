@@ -604,6 +604,16 @@ class ValidateContentTests(unittest.TestCase):
         diagnostics = validate_corpus([missing], project_root=ROOT)
         self.assertIn("INPUT", _codes(diagnostics))
 
+    def test_duplicate_input_paths_are_validated_once(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            content = root / "content"
+            _write(content / "char.json", _minimal_character())
+
+            diagnostics = validate_corpus([content, content / "."], project_root=root)
+
+            self.assertEqual(diagnostics, [])
+
     def test_empty_corpus_input(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             diagnostics = validate_corpus([Path(tmp)], project_root=ROOT)
