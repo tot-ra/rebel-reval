@@ -181,5 +181,6 @@ This file contains only cross-role operating lessons. Domain lessons belong to t
 - After a broad exact edit in a test file, inspect the saved surrounding tests before running the suite; a passing test run can hide accidental replacement of existing coverage, so restore the original test and add the new case as a separate block.
 - When a temporary-index `git commit` succeeds, do not run a second unconditional `git update-ref` with the old parent; inspect the new HEAD first, because the commit command already advances the branch and the redundant compare-and-swap returns status 128.
 - When a multi-tool wrapper rejects a batch before execution with `steps is required`, treat it as a tool-schema failure, rerun each independent check with the correct wrapper, and do not classify the project check as failed.
-- For new review reports, derive semantic smoke anchors from the referenced contract
-s stable-ID table; broad terms such as `boss` or `loot` can pass while exact gameplay IDs are still missing.
+- For new review reports, derive semantic smoke anchors from the referenced contract's stable-ID table; broad terms such as `boss` or `loot` can pass while exact gameplay IDs are still missing.
+
+- When constructing an isolated Git-index text patch, pass one complete line to `printf` or use a heredoc; separate arguments can introduce unintended line breaks.
