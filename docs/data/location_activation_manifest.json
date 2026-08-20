@@ -1,0 +1,86 @@
+{
+  "schema": "rebel-reval-location-activation-v1",
+  "task": "R-373",
+  "generated_on": "2026-08-20",
+  "policy": "Inventory records may be red. Promotion requires a selected candidate to evaluate GREEN.",
+  "maps": [
+    {
+      "map_id": "lower_town_slice",
+      "owner": "P0-100",
+      "implementation_delivered": false,
+      "urban": true,
+      "composition": {"enforce": true, "status": "FAIL", "evidence": "docs/data/map_composition_thresholds.json#maps.lower_town_slice"},
+      "focused_suites": {"compile": "BLOCKED", "navigation": "BLOCKED", "transitions": "BLOCKED", "patrols": "BLOCKED"},
+      "mandatory_anchors": {"status": "BLOCKED", "blocked": []},
+      "landmarks": {"required": ["st_catherines_church"], "present": [], "required_affordances": ["inner_viru_gate/opening"], "present_affordances": []},
+      "fortification_seams": [{"id": "lower_town_viru_foreland", "reciprocal_footprints": false, "captures": {"day": {}, "night": {}}}],
+      "population": {"status": "PASS", "profile_ids": ["day", "market_day", "night", "crackdown"], "activity_profile_ids": ["workers", "merchants", "watch"], "evidence": "docs/reports/r448_lower_town_urban_population_acceptance.md"},
+      "gameplay": {"status": "BLOCKED", "loop_ids": [], "interaction_ids": []}
+    },
+    {
+      "map_id": "market_civic_quarter",
+      "owner": "P4-022",
+      "implementation_delivered": false,
+      "urban": true,
+      "composition": {"enforce": false, "status": "BLOCKED", "evidence": "docs/data/map_composition_thresholds.json#maps.market_civic_quarter"},
+      "focused_suites": {"compile": "BLOCKED", "navigation": "BLOCKED", "transitions": "BLOCKED", "patrols": "BLOCKED"},
+      "mandatory_anchors": {"status": "BLOCKED", "blocked": []},
+      "landmarks": {"required": ["town_hall_mass", "holy_spirit_frontage"], "present": [], "required_affordances": [], "present_affordances": []},
+      "fortification_seams": [],
+      "population": {"status": "BLOCKED", "profile_ids": [], "activity_profile_ids": []},
+      "gameplay": {"status": "BLOCKED", "loop_ids": [], "interaction_ids": []}
+    },
+    {
+      "map_id": "north_quarter",
+      "owner": "P4-023/P4-023f",
+      "implementation_delivered": false,
+      "urban": true,
+      "composition": {"enforce": false, "status": "BLOCKED", "evidence": "docs/data/map_composition_thresholds.json#maps.north_quarter"},
+      "focused_suites": {"compile": "BLOCKED", "navigation": "BLOCKED", "transitions": "BLOCKED", "patrols": "BLOCKED"},
+      "mandatory_anchors": {"status": "BLOCKED", "blocked": []},
+      "landmarks": {"required": ["coastal_gate"], "present": [], "required_affordances": ["coastal_gate/opening"], "present_affordances": []},
+      "fortification_seams": [{"id": "north_monastery_wall", "reciprocal_footprints": false, "captures": {"day": {}, "night": {}}}],
+      "population": {"status": "BLOCKED", "profile_ids": [], "activity_profile_ids": []},
+      "gameplay": {"status": "BLOCKED", "loop_ids": [], "interaction_ids": []}
+    },
+    {
+      "map_id": "south_quarter",
+      "owner": "P4-024",
+      "implementation_delivered": false,
+      "urban": true,
+      "composition": {"enforce": false, "status": "BLOCKED", "evidence": "docs/data/map_composition_thresholds.json#maps.south_quarter"},
+      "focused_suites": {"compile": "BLOCKED", "navigation": "BLOCKED", "transitions": "BLOCKED", "patrols": "BLOCKED"},
+      "mandatory_anchors": {"status": "BLOCKED", "blocked": []},
+      "landmarks": {"required": ["karja_gate_arch"], "present": ["karja_gate_arch"], "required_affordances": ["karja_gate_arch/GateDoor0"], "present_affordances": []},
+      "fortification_seams": [{"id": "south_lower_town_wall", "reciprocal_footprints": true, "captures": {"day": {}, "night": {}}}],
+      "population": {"status": "BLOCKED", "profile_ids": [], "activity_profile_ids": []},
+      "gameplay": {"status": "BLOCKED", "loop_ids": [], "interaction_ids": []}
+    },
+    {
+      "map_id": "toompea_quarter",
+      "owner": "P4-025",
+      "implementation_delivered": false,
+      "urban": true,
+      "composition": {"enforce": false, "status": "BLOCKED", "evidence": "docs/data/map_composition_thresholds.json#maps.toompea_quarter"},
+      "focused_suites": {"compile": "BLOCKED", "navigation": "BLOCKED", "transitions": "BLOCKED", "patrols": "BLOCKED"},
+      "mandatory_anchors": {"status": "BLOCKED", "blocked": []},
+      "landmarks": {"required": ["toomkirik", "danish_castle"], "present": [], "required_affordances": ["pikk_jalg_gate/opening", "luhike_jalg_gate/opening"], "present_affordances": []},
+      "fortification_seams": [{"id": "toompea_lower_town_hill_barrier", "reciprocal_footprints": false, "captures": {"day": {}, "night": {}}}],
+      "population": {"status": "BLOCKED", "profile_ids": [], "activity_profile_ids": []},
+      "gameplay": {"status": "BLOCKED", "loop_ids": [], "interaction_ids": []}
+    },
+    {
+      "map_id": "world.harju",
+      "owner": "P5-003",
+      "implementation_delivered": false,
+      "urban": false,
+      "composition": {"enforce": false, "status": "BLOCKED", "evidence": "docs/data/map_composition_thresholds.json#maps.world.harju"},
+      "focused_suites": {"compile": "FAIL", "navigation": "FAIL", "transitions": "BLOCKED", "patrols": "BLOCKED"},
+      "mandatory_anchors": {"status": "FAIL", "blocked": ["MAP_ANCHOR_BLOCKED (35,10)"]},
+      "landmarks": {"required": [], "present": [], "required_affordances": [], "present_affordances": []},
+      "fortification_seams": [],
+      "population": {"status": "NOT_APPLICABLE", "profile_ids": [], "activity_profile_ids": []},
+      "gameplay": {"status": "BLOCKED", "loop_ids": [], "interaction_ids": []}
+    }
+  ]
+}
