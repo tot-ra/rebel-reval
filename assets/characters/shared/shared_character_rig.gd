@@ -95,6 +95,11 @@ const LOD2_VISIBILITY_BEGIN := 46.0
 const LOD_LEVELS: Array[int] = [1, 2]
 const BODY_GLB_BASENAMES: Dictionary = {
 	&"char.kalev": &"heroic_humanoid",
+	&"char.mart": &"mart",
+	&"char.aita": &"aita",
+	&"char.kaja": &"kaja",
+	&"char.henning": &"henning",
+	&"char.jurgen": &"jurgen",
 }
 const CHARACTER_LOD_DIR := "res://assets/characters/shared/"
 
@@ -102,6 +107,9 @@ const CHARACTER_LOD_DIR := "res://assets/characters/shared/"
 ## different spec sets this to 2.0 / its own BODY_STATURE.
 @export var model_scale: Vector3 = HEROIC_MODEL_SCALE
 const OCCLUDED_SILHOUETTE_SHADER := preload("res://assets/characters/shared/occluded_silhouette.gdshader")
+const SKIN_MATERIAL_SHADER := preload("res://scripts/characters/skin_material.gdshader")
+const EYE_MATERIAL_SHADER := preload("res://scripts/characters/eye_material.gdshader")
+const HAIR_MATERIAL_SHADER := preload("res://scripts/characters/hair_material.gdshader")
 const HEAD_SCALE_MODIFIER := preload("res://assets/characters/shared/head_scale_modifier.gd")
 const ANATOMICAL_MUSCLE_MODIFIER := preload("res://assets/characters/shared/anatomical_muscle_modifier.gd")
 ## Head bone origin is mid-skull; this clears crown / helmet before the talk glyph.
@@ -110,6 +118,35 @@ const HEAD_CROWN_OFFSET := 0.30
 const PROMPT_GLYPH_PADDING := 0.14
 
 static var _occluded_silhouette_material: ShaderMaterial
+
+const SKIN_MATERIAL_NAMES: Array[StringName] = [&"hero_skin", &"hero_skin.001"]
+const EYE_MATERIAL_NAMES: Array[StringName] = [
+	&"hero_cornea",
+	&"hero_eye_white",
+	&"hero_eyes",
+	&"hero_pupil",
+]
+const HAIR_MATERIAL_NAMES: Array[StringName] = [&"hero_hair", &"hero_beard"]
+
+## Runtime scalar baselines for imported material families. The authored texture
+## maps remain attached to each duplicate; these values keep low-resolution
+## character zones from collapsing into one glossy/default response.
+const CHARACTER_PBR_MATERIAL_PROFILES: Dictionary = {
+	&"hero_tunic": {"family": "cloth", "roughness": 0.88, "metallic": 0.0},
+	&"hero_sleeves": {"family": "cloth", "roughness": 0.88, "metallic": 0.0},
+	&"hero_sleeve_band": {"family": "cloth", "roughness": 0.84, "metallic": 0.0},
+	&"hero_pants": {"family": "cloth", "roughness": 0.90, "metallic": 0.0},
+	&"hero_trim": {"family": "cloth", "roughness": 0.82, "metallic": 0.0},
+	&"hero_outerwear": {"family": "cloth", "roughness": 0.92, "metallic": 0.0},
+	&"hero_cape": {"family": "cloth", "roughness": 0.94, "metallic": 0.0},
+	&"hero_hat": {"family": "cloth", "roughness": 0.92, "metallic": 0.0},
+	&"hero_boots": {"family": "leather", "roughness": 0.56, "metallic": 0.0},
+	&"hero_sole": {"family": "leather", "roughness": 0.68, "metallic": 0.0},
+	&"hero_belt": {"family": "leather", "roughness": 0.50, "metallic": 0.0},
+	&"hero_leather": {"family": "leather", "roughness": 0.54, "metallic": 0.0},
+	&"hero_armor": {"family": "metal", "roughness": 0.28, "metallic": 0.95},
+	&"hero_mail": {"family": "metal", "roughness": 0.34, "metallic": 0.95},
+}
 
 @export var variant: CharacterVariant
 ## All generated humanoids use the shared pose-driven muscle response.
@@ -124,6 +161,7 @@ var _slot_attachments: Dictionary = {}
 var _garments: Dictionary = {}
 var _extra_visual_layers := 0
 var _occlusion_ghost := false
+var _distance_lods_installed := false
 
 func _ready() -> void:
 	# Apply the authored anisotropic normalization in code because inherited
@@ -131,11 +169,23 @@ func _ready() -> void:
 	$Model.scale = model_scale
 	_animation_player = _find_animation_player($Model)
 	_skeleton = _find_skeleton($Model)
-	_apply_variant()
 	_install_proportion_modifiers()
 	_configure_lod0_visibility()
-	_install_distance_lods()
+	if variant == null:
+		call_deferred("_apply_variant_and_distance_lods")
+	else:
+		_apply_variant_and_distance_lods()
 	play_animation(start_animation)
+
+
+func _apply_variant_and_distance_lods() -> void:
+	if variant == null:
+		return
+	_apply_variant()
+	if _distance_lods_installed:
+		return
+	_distance_lods_installed = true
+	_install_distance_lods()
 
 
 func _exit_tree() -> void:
@@ -516,7 +566,7 @@ func _find_skeleton(root: Node) -> Skeleton3D:
 func _apply_variant() -> void:
 	if variant == null:
 		return
-	_tint_meshes($Model, variant.material_tint)
+	_apply_material_stack($Model, variant.material_tint)
 	if _skeleton == null:
 		return
 	if variant.equipment != null:
@@ -526,17 +576,71 @@ func _apply_variant() -> void:
 	if variant.show_hat:
 		equip_garment(&"hat", GARMENT_SCENES[&"hat"])
 
-func _tint_meshes(root: Node, tint: Color) -> void:
+## Duplicate each imported surface before applying a variant tint or shader.
+## WHY: GLB materials are shared resources; mutating one in-place would leak a
+## skin/eye override into every other character instance in the scene.
+func _apply_material_stack(root: Node, tint: Color) -> void:
 	if root is MeshInstance3D:
 		var mesh_instance := root as MeshInstance3D
-		for surface_index: int in mesh_instance.mesh.get_surface_count():
-			var source_material := mesh_instance.mesh.surface_get_material(surface_index)
-			if source_material is BaseMaterial3D:
-				var tinted_material := source_material.duplicate() as BaseMaterial3D
-				tinted_material.albedo_color *= tint
-				mesh_instance.set_surface_override_material(surface_index, tinted_material)
+		if mesh_instance.mesh != null:
+			for surface_index: int in mesh_instance.mesh.get_surface_count():
+				var source_material := mesh_instance.mesh.surface_get_material(surface_index)
+				if source_material is BaseMaterial3D:
+					var material_name := StringName(source_material.resource_name)
+					var material := source_material.duplicate() as BaseMaterial3D
+					_apply_character_pbr_profile(material_name, material)
+					material.albedo_color *= tint
+					# Reapply after tinting so imported scalar defaults cannot win over the
+					# family baseline when a duplicated GLB material carries texture maps.
+					_apply_character_pbr_profile(material_name, material)
+					var shader_material := _shader_material_for(material_name, material)
+					mesh_instance.set_surface_override_material(
+						surface_index,
+						shader_material if shader_material != null else material
+					)
 	for child: Node in root.get_children():
-		_tint_meshes(child, tint)
+		_apply_material_stack(child, tint)
+
+func _apply_character_pbr_profile(material_name: StringName, material: BaseMaterial3D) -> void:
+	var profile: Dictionary = CHARACTER_PBR_MATERIAL_PROFILES.get(material_name, {})
+	if profile.is_empty():
+		return
+	# WHY: explicit per-pixel lighting prevents imported fallback flags from
+	# making cloth appear flat/unshaded after the scalar PBR tuning is applied.
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL
+	material.roughness = float(profile["roughness"])
+	material.metallic = float(profile["metallic"])
+
+
+func _shader_material_for(material_name: StringName, source_material: BaseMaterial3D) -> ShaderMaterial:
+	var shader: Shader
+	if material_name in SKIN_MATERIAL_NAMES:
+		shader = SKIN_MATERIAL_SHADER
+	elif material_name in EYE_MATERIAL_NAMES:
+		shader = EYE_MATERIAL_SHADER
+	elif material_name in HAIR_MATERIAL_NAMES:
+		shader = HAIR_MATERIAL_SHADER
+	else:
+		return null
+
+	var material := ShaderMaterial.new()
+	material.shader = shader
+	material.set_shader_parameter("albedo_tint", source_material.albedo_color)
+	material.set_shader_parameter("roughness_base", source_material.roughness)
+	if source_material.albedo_texture != null:
+		material.set_shader_parameter("albedo_texture", source_material.albedo_texture)
+	if source_material.normal_texture != null:
+		material.set_shader_parameter("normal_texture", source_material.normal_texture)
+	if source_material.roughness_texture != null:
+		material.set_shader_parameter("roughness_texture", source_material.roughness_texture)
+	if material_name in HAIR_MATERIAL_NAMES:
+		material.set_shader_parameter("anisotropy_strength", 0.68)
+		material.set_shader_parameter("alpha_cutoff", 0.08)
+		material.set_shader_parameter("strand_frequency", 22.0)
+	return material
+
+func _tint_meshes(root: Node, tint: Color) -> void:
+	_apply_material_stack(root, tint)
 
 
 func _resolve_body_glb_basename() -> String:
@@ -593,6 +697,7 @@ func _mount_lod_meshes(imported: Node, lod_level: int) -> void:
 		mesh_instance.transform = local_xf
 		mesh_instance.skeleton = NodePath("..")
 		_apply_lod_level_visibility(mesh_instance, lod_level)
+		_apply_material_stack(mesh_instance, variant.material_tint if variant != null else Color.WHITE)
 		if _occlusion_ghost:
 			_apply_overlay(mesh_instance, _silhouette_material())
 

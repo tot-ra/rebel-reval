@@ -4,6 +4,9 @@ const KALEV_SCENE := preload("res://assets/characters/kalev/kalev.tscn")
 const MART_SCENE := preload("res://assets/characters/variants/mart.tscn")
 const INNKEEPER_SCENE := preload("res://assets/characters/variants/innkeeper.tscn")
 const HENNING_SCENE := preload("res://assets/characters/variants/henning.tscn")
+const AITA_SCENE := preload("res://assets/characters/variants/aita.tscn")
+const KAJA_SCENE := preload("res://assets/characters/variants/kaja.tscn")
+const JURGEN_SCENE := preload("res://assets/characters/variants/jurgen.tscn")
 const TOWNSWOMAN_SCENE := preload("res://assets/characters/variants/townswoman.tscn")
 const WATCHMAN_SCENE := preload("res://assets/characters/variants/watchman.tscn")
 const SERGEANT_SCENE := preload("res://assets/characters/variants/sergeant.tscn")
@@ -227,6 +230,29 @@ func test_mart_has_a_named_body_on_the_shared_animation_contract() -> void:
 
 	kalev.queue_free()
 	mart.queue_free()
+
+func test_approved_hero_cast_uses_one_shared_animation_and_lod_contract() -> void:
+	var reference := _instantiate(KALEV_SCENE)
+	var cases: Array[Dictionary] = [
+		{"scene": MART_SCENE, "id": &"char.mart"},
+		{"scene": AITA_SCENE, "id": &"char.aita"},
+		{"scene": KAJA_SCENE, "id": &"char.kaja"},
+		{"scene": HENNING_SCENE, "id": &"char.henning"},
+		{"scene": JURGEN_SCENE, "id": &"char.jurgen"},
+	]
+	for entry: Dictionary in cases:
+		var character := _instantiate(entry["scene"] as PackedScene)
+		assert_eq(character.validation_errors(), [], "%s must satisfy the shared rig contract" % character.name)
+		assert_eq(character.variant_id(), entry["id"])
+		assert_eq(character.skeleton().get_bone_count(), reference.skeleton().get_bone_count())
+		assert_eq(character.canonical_animation_names(), REQUIRED_ANIMATIONS)
+		for animation_name: StringName in REQUIRED_ANIMATIONS:
+			assert_true(character.has_animation(animation_name), "%s needs %s" % [character.name, animation_name])
+		assert_true(character.lod_visibility_configured(), "%s must mount distance LODs" % character.name)
+		assert_true(character.lod_mesh_count(1) > 0 and character.lod_mesh_count(2) > 0)
+		character.queue_free()
+	reference.queue_free()
+
 
 func test_occlusion_ghost_overlays_every_mesh_and_clears() -> void:
 	var kalev := _instantiate(KALEV_SCENE)
@@ -688,6 +714,123 @@ func test_shared_character_pbr_materials_cover_all_five_surface_zones() -> void:
 	henning.queue_free()
 
 
+func test_shared_character_hair_and_beard_shader_follow_material_names_across_lods() -> void:
+	var kalev := _instantiate(KALEV_SCENE)
+	var checked_hair := 0
+	var checked_beard := 0
+	for found: Node in kalev.find_children("*", "MeshInstance3D", true, false):
+		var mesh_instance := found as MeshInstance3D
+		if mesh_instance == null or mesh_instance.mesh == null:
+			continue
+		for surface_index: int in mesh_instance.mesh.get_surface_count():
+			var source_material := mesh_instance.mesh.surface_get_material(surface_index)
+			if source_material == null:
+				continue
+			var material_name := StringName(source_material.resource_name)
+			if material_name not in SharedCharacterRig.HAIR_MATERIAL_NAMES:
+				continue
+			var active := mesh_instance.get_active_material(surface_index)
+			assert_true(
+				active is ShaderMaterial,
+				"%s hair surface must use the anisotropic hair shader" % mesh_instance.name
+			)
+			if active is not ShaderMaterial:
+				continue
+			var shader_material := active as ShaderMaterial
+			assert_eq(shader_material.shader, SharedCharacterRig.HAIR_MATERIAL_SHADER)
+			assert_true(
+				shader_material.get_shader_parameter("albedo_texture") != null,
+				"%s must preserve its albedo map" % material_name
+			)
+			assert_true(
+				shader_material.get_shader_parameter("normal_texture") != null,
+				"%s must preserve its normal map" % material_name
+			)
+			assert_true(
+				shader_material.get_shader_parameter("roughness_texture") != null,
+				"%s must preserve its roughness map" % material_name
+			)
+			var anisotropy_strength: Variant = shader_material.get_shader_parameter("anisotropy_strength")
+			assert_true(
+				anisotropy_strength is float and anisotropy_strength > 0.0,
+				"%s must enable directional fibre response" % material_name
+			)
+			var alpha_cutoff: Variant = shader_material.get_shader_parameter("alpha_cutoff")
+			assert_true(
+				alpha_cutoff is float and alpha_cutoff > 0.0,
+				"%s must expose alpha cutout for hair cards" % material_name
+			)
+			if material_name == &"hero_hair":
+				checked_hair += 1
+			else:
+				checked_beard += 1
+	assert_true(checked_hair > 0, "hero hair must use the shared hair shader")
+	assert_true(checked_beard > 0, "hero beard must use the shared hair shader")
+	assert_true(kalev.lod_mesh_count(1) > 0 and kalev.lod_mesh_count(2) > 0)
+	kalev.queue_free()
+
+
+func test_shared_character_material_profiles_separate_cloth_leather_and_metal() -> void:
+	var kalev := _instantiate(KALEV_SCENE)
+	var henning := _instantiate(HENNING_SCENE)
+	var profiles := {}
+	for character: Node in [kalev, henning]:
+		for found: Node in character.find_children("*", "MeshInstance3D", true, false):
+			var mesh_instance := found as MeshInstance3D
+			if mesh_instance == null or mesh_instance.mesh == null:
+				continue
+			for surface_index: int in mesh_instance.mesh.get_surface_count():
+				var source_material := mesh_instance.mesh.surface_get_material(surface_index)
+				if source_material == null:
+					continue
+				var material_name := StringName(source_material.resource_name)
+				var active := mesh_instance.get_active_material(surface_index)
+				if not (active is BaseMaterial3D) or not SharedCharacterRig.CHARACTER_PBR_MATERIAL_PROFILES.has(material_name):
+					continue
+				var material := active as BaseMaterial3D
+				assert_ne(
+					material.shading_mode,
+					BaseMaterial3D.SHADING_MODE_UNSHADED,
+					"%s must receive dynamic lighting" % material_name
+				)
+				var profile: Dictionary = SharedCharacterRig.CHARACTER_PBR_MATERIAL_PROFILES[material_name]
+				var expected_roughness: float = profile["roughness"]
+				var expected_metallic: float = profile["metallic"]
+				assert_true(is_equal_approx(material.roughness, expected_roughness))
+				assert_true(is_equal_approx(material.metallic, expected_metallic))
+				profiles[profile["family"]] = material
+				assert_true(material.albedo_texture != null, "%s must preserve its albedo map" % material_name)
+				assert_true(material.normal_texture != null, "%s must preserve its normal map" % material_name)
+				assert_true(material.roughness_texture != null, "%s must preserve its roughness map" % material_name)
+	assert_true(profiles.has("cloth"), "cloth profile must be present")
+	assert_true(profiles.has("leather"), "leather profile must be present")
+	assert_true(profiles.has("metal"), "metal profile must be present")
+	assert_true(profiles["cloth"].roughness > profiles["leather"].roughness)
+	assert_true(profiles["leather"].roughness > profiles["metal"].roughness)
+	assert_eq(profiles["cloth"].metallic, 0.0)
+	assert_eq(profiles["leather"].metallic, 0.0)
+	assert_true(profiles["metal"].metallic > 0.9)
+	kalev.queue_free()
+	henning.queue_free()
+
+
+func test_shared_character_no_body_material_is_unshaded() -> void:
+	var kalev := _instantiate(KALEV_SCENE)
+	for found: Node in kalev.get_node("Model").find_children("*", "MeshInstance3D", true, false):
+		var mesh_instance := found as MeshInstance3D
+		if mesh_instance == null or mesh_instance.mesh == null:
+			continue
+		for surface_index: int in mesh_instance.mesh.get_surface_count():
+			var active := mesh_instance.get_active_material(surface_index)
+			if active is BaseMaterial3D:
+				assert_ne(
+					(active as BaseMaterial3D).shading_mode,
+					BaseMaterial3D.SHADING_MODE_UNSHADED,
+					"%s surface %d must not be unshaded" % [mesh_instance.name, surface_index]
+				)
+	kalev.queue_free()
+
+
 func test_anatomical_muscle_volume_responds_to_joint_bend() -> void:
 	var warrior := _instantiate(DANISH_WARRIOR_SCENE)
 	var skeleton := warrior.skeleton()
@@ -716,4 +859,8 @@ func _instantiate(scene: PackedScene) -> SharedCharacterRig:
 	var character := scene.instantiate() as SharedCharacterRig
 	var tree := Engine.get_main_loop() as SceneTree
 	tree.root.add_child(character)
+	# Instanced rig scenes can receive their CharacterVariant export after _ready;
+	# refresh materials once the export is present without remounting distance LODs.
+	if character.variant != null:
+		character._apply_material_stack(character.get_node("Model"), character.variant.material_tint)
 	return character
