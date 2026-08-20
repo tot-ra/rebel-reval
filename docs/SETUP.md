@@ -171,10 +171,12 @@ if [ -z "${GODOT_BIN:-}" ]; then
     GODOT_BIN=/Applications/Godot.app/Contents/MacOS/Godot
   fi
 fi
-: "${GODOT_BIN:?Set GODOT_BIN to your Godot 4.7 binary}"
 export GODOT_BIN
+: "${GODOT_BIN:?Set GODOT_BIN to your Godot 4.7 binary}"
 "$GODOT_BIN" --version
 ```
+
+Export the variable on its own line before using `"$GODOT_BIN"`. Do not combine an inline assignment with expansion, such as `GODOT_BIN=/path/to/Godot "$GODOT_BIN" ...`, because the shell expands the old value before applying the assignment.
 
 The remaining commands use `"$GODOT_BIN"`, so the same examples work when Godot is installed outside `PATH`.
 
