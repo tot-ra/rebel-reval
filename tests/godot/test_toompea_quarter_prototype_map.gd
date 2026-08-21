@@ -58,6 +58,48 @@ func test_toompea_landmarks_follow_historic_upper_town_geography() -> void:
 	assert_eq((luhike_gate["rect"] as Rect2).end.x, definition.world_size().x, "Lühike Jalg must descend from the east edge")
 
 
+func test_toompea_hill_gates_are_spring_1343_timber_reconstructions() -> void:
+	var definition: MapDefinition = ToompeaQuarterDefinition.create()
+	assert_eq(definition.scope, &"prototype")
+	assert_false(definition.active, "Toompea must remain developer-only")
+	for building_id in [
+		&"pikk_jalg_gate_tower",
+		&"pikk_jalg_gate_east_tower",
+		&"luhike_gate_tower",
+		&"luhike_gate_guardhouse",
+	]:
+		var gate_mass := _building_by_id(definition, building_id)
+		assert_false(gate_mass.is_empty(), "missing stable hill-gate record %s" % building_id)
+		assert_eq(gate_mass.get("kind"), MapTypes.BUILDING_KIND_WALL)
+		assert_eq(
+			gate_mass.get("primitive"),
+			&"palisade",
+			"stable hill-gate record must use a palisade"
+		)
+		assert_eq(gate_mass.get("wall_material"), &"plank")
+		assert_false(bool(gate_mass.get("tower", false)), "%s must not be a stone tower" % building_id)
+	for barrier_id in [&"city_wall_east_mid", &"city_wall_east_south_north"]:
+		var barrier := _building_by_id(definition, barrier_id)
+		assert_eq(barrier.get("primitive"), &"palisade", "%s must remain a timber/earthen barrier" % barrier_id)
+		assert_eq(barrier.get("wall_material"), &"plank")
+
+	var pikk_gate := _landmark_by_id(definition, &"pikk_jalg_gate")
+	var luhike_gate := _landmark_by_id(definition, &"luhike_jalg_gate_arch")
+	for gate in [pikk_gate, luhike_gate]:
+		assert_eq(gate.get("gate_variant"), &"oak", "hill gates must use visible timber leaves")
+		assert_eq(gate.get("top_px"), 96.0, "hill gates must stay low reconstructions")
+		assert_eq(gate.get("passage_axis"), &"x")
+
+	var center_transition := _transition_by_id(definition, &"to_reval_center")
+	assert_eq(center_transition.get("destination_scene_id"), &"reval_center")
+	assert_eq(center_transition.get("destination_spawn_id"), &"to_reval_toompea")
+	assert_eq(center_transition.get("spawn_id"), &"from_reval_center")
+	var north_transition := _transition_by_id(definition, &"to_reval_north")
+	assert_eq(north_transition.get("destination_scene_id"), &"reval_monastery")
+	assert_eq(north_transition.get("destination_spawn_id"), &"from_reval_toompea")
+	assert_eq(north_transition.get("spawn_id"), &"from_reval_north")
+
+
 func test_toompea_plateau_routes_connect_landmarks_and_all_three_descents() -> void:
 	var definition: MapDefinition = ToompeaQuarterDefinition.create()
 	var grid: MapTerrainGrid = MapBuilder.build(definition)
@@ -144,6 +186,13 @@ func _building_by_id(definition: MapDefinition, building_id: StringName) -> Dict
 	for building in definition.buildings:
 		if building["id"] == building_id:
 			return building
+	return {}
+
+
+func _transition_by_id(definition: MapDefinition, transition_id: StringName) -> Dictionary:
+	for transition in definition.transitions:
+		if transition["id"] == transition_id:
+			return transition
 	return {}
 
 
