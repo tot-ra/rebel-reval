@@ -9,7 +9,7 @@ related:
   - ../architecture/burgher-house-plan.md
   - ./harbour-and-shoreline.md
   - ../military/watch-duty-and-town-defence.md
-updated: 2026-07-27
+updated: 2026-08-21
 ---
 
 # Walls, gates, and towers (Spring 1343)
@@ -50,6 +50,51 @@ The scholarly consensus (Zobel reconstruction via Medieval Heritage) is explicit
 | Foregates | 1448–1461 | Viru, Karja, Harju, Coastal barbicans | **Absent** [1][4] |
 | Height raise + buttresses | 15th c. | Curtains to ~11 m+ | **Absent** [1] |
 | Fat Margaret | ~1529–1531 | Coastal cannon bastion | **Absent** [9] |
+
+
+### Local map evidence and R-288 decision packet
+
+The local Estonian institutional map is a **present-day survival/localisation survey**, not a
+reconstructed April-1343 plan. Its title block dates the survey to August 2022 and credits Ragnar
+Nurk (TLPA MKO); the map's base-plan layers are approximately 2016 city plan and 2021 plot
+boundaries [13, p. 1]. The legend separates medieval elements from modern fortifications: medieval
+stone walls, archaeological stone walls, conjectural above-ground stone walls, towers/gates and
+water or dry moats are separate from early-modern earthworks, bastions, caponiers and related
+structures [13, p. 1]. The map explicitly says that the inventory is not exhaustive, that locations
+are generalised from historical plans and archaeological data, and that actual positions require
+further investigation [13, p. 1]. The survey therefore cannot prove a complete 1343 circuit;
+these limitations keep this dossier **partial**.
+
+The Lower Town medieval anchor set is useful for placement, but not for silently upgrading dates:
+`B1.1` Nuns' Gate, `B1.2` Nuns' Tower, `B1.3` Bath Tower, `B1.4` Golden Leg, `B1.12` Renten's
+Tower, `B1.15` Stolting Tower, `B1.18` Small Coastal Gate, `B1.22` Viru Gate, `B1.23` Hinko
+Tower, `B1.25` Cattle/Karja Gate, `B1.27` Harju Gate, and `B1.32`/`B1.33` Short/Long Leg
+gate towers are listed on the medieval B section [13, pp. 4-5]. The same list also includes later
+or uncertain compounds inside the historical footprint, including foregates, zwinger, mills and
+surviving lower fragments; those labels cannot override the dated 1343 verdicts above.
+
+**R-288 ship decisions from the map, bounded by the dated dossier evidence:**
+
+- **Ship as anchors, not as a complete 1343 circuit:** use the B1 medieval positions above for
+  gate/tower readability and retain the irregular wall trace. The map supports localisation and
+  category, while the 1343 completion state remains the separate chronology question in [1]-[3].
+- **Ship as construction/uncertain only:** Viru (`B1.22`), Karja (`B1.25`), Harju (`B1.27`),
+  and the S/E moat or apron segments remain dated composites. The map's labels include later
+  foregates and watermills in those entries [13, p. 5]; do not copy those sub-elements into the
+  Spring-1343 scene. Keep Viru unfinished and Karja/Harju superstructure and watermill state
+  unresolved [5]-[8].
+- **Ship as wooden hill-gate readability only:** `B1.32` and `B1.33` locate the Short and Long
+  Leg gate-tower approaches, but the local map does not establish their 1343 material. Keep the
+  wooden 1343 treatment and the later stone dates from [1] and [13, p. 5] separate.
+- **Exclude wholesale:** every `C` entry is explicitly in the modern-fortification section. In
+  particular, pages 8-9 identify `C3` north, `C4` east and `C5` south-east bastion/earthwork
+  groups, including the Viru, Karja and Harju modern gate works [13, pp. 8-9]. These are not
+  Spring-1343 silhouettes. This independently reinforces the existing exclusions for foregates,
+  barbicans, zwinger, Fat Margaret, Kiek in de Kök and other post-1343 works [1][4][13].
+
+No complete 1343 ring, moat completion percentage, tower chronology, gate leaf material, or
+surviving-material claim is inferred from this survey. The map is a localisation and exclusion aid;
+chronology stays with the dated historical and archaeological sources already cited in this dossier.
 
 **Dimensions (attested ranges for 14th-century fabric, not 15th-century rebuild):**
 
@@ -130,6 +175,22 @@ For April 1343: show **wet ditch** on south/east where completed; **timber sluic
 | Firearms embrasures | late 15th c.+ | [1] |
 | Fat Margaret cannon tower | ~1529 | [9] |
 
+## Reference plates
+
+All four rows are **link-only** because the local institutional PDF does not state an explicit
+redistribution licence for map crops. No image file was downloaded or invented. The rows preserve
+page-bounded access to the survey's legend and explication while keeping the map as evidence, not a
+shipped asset.
+
+| Plate | Shows | Source, date, origin | License | Answers |
+|-------|-------|----------------------|---------|---------|
+| `topography.walls-gates-towers.01` (link-only) | Survey overview, medieval/modern legend, base-plan layers and limitations | Ragnar Nurk (TLPA MKO), *Linnakindlustuste kaardistus*, map sheet, Aug. 2022, Tallinn | rights unclear | Which categories are medieval versus modern, and why the survey cannot prove a complete 1343 circuit [13, p. 1] |
+| `topography.walls-gates-towers.02` (link-only) | B1 medieval Lower Town gate/tower inventory, including Nuns, Coastal, Viru, Karja and Harju entries | Ragnar Nurk (TLPA MKO), *Linnakindlustuste kaardistus*, pp. 4-5, Aug. 2022, Tallinn | rights unclear | Which current/localised anchors can guide R-288 placement without importing later foregates or mills [13, pp. 4-5] |
+| `topography.walls-gates-towers.03` (link-only) | B2 curtain-side defensive areas and B3 earlier Lower Town earthworks | Ragnar Nurk (TLPA MKO), *Linnakindlustuste kaardistus*, pp. 5-6, Aug. 2022, Tallinn | rights unclear | Where defensive zones and earlier earthworks are recorded while preserving uncertainty about chronology and completeness [13, pp. 5-6] |
+| `topography.walls-gates-towers.04` (link-only) | C3-C5 modern north, east and south-east bastion/earthwork groups | Ragnar Nurk (TLPA MKO), *Linnakindlustuste kaardistus*, pp. 8-9, Aug. 2022, Tallinn | rights unclear | Which visible gate-area works must be excluded from Spring-1343 silhouettes [13, pp. 8-9] |
+
+The linked source is the local PDF; plate URLs use its page anchors: [`.01`](../../reference/plates.csv#topography.walls-gates-towers.01), [`.02`](../../reference/plates.csv#topography.walls-gates-towers.02), [`.03`](../../reference/plates.csv#topography.walls-gates-towers.03), and [`.04`](../../reference/plates.csv#topography.walls-gates-towers.04).
+
 ## Production hooks
 
 - **Map:** Trace irregular mid-1343 circuit from Zobel mid-14th-c. plan [3]; default curtain 6–6.5 m; eight gate gaps; wooden hill gates on west; moat on S/E with partial ponds; Viru and Karja aprons **open** (15–30% built outside wall per audit) [12]; Toompea separate plateau [12].
@@ -174,4 +235,4 @@ For April 1343: show **wet ditch** on south/east where completed; **timber sluic
 10. Project internal: `history/HISTORY.md`, `history/TIMELINE.md`, `docs/CANON.md` — 1343 siege, Sõjamäe (English).
 11. Päll, street-name attestations — cited in `lower-town-street-plan.md` [5] — Harju 1362 (English).
 12. Project internal: `docs/HISTORICAL_AUDIT.md` P0-072 `lower_town_slice` — gate apron density, Viru/Karja landmark rules (English).
-13. Local holding: `history/Linnakindlustuste kaardistus.pdf` — fortification mapping (Estonian); cited by backlog; not fully mined this tick — tower coordinates defer to [1][3].
+13. Local holding: `history/Linnakindlustuste kaardistus.pdf` - fortification mapping (Estonian); survey legend, B1-B3 medieval inventory, and C3-C5 modern-fortification exclusion read in this pass; page-bounded plate rows `.01`-`.04` remain link-only because redistribution rights are unclear.
