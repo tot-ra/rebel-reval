@@ -170,6 +170,7 @@ static func _compile_prop(values: Dictionary, definition: MapDefinition) -> Dict
 			&"primitive",
 			&"movement_speed_multiplier",
 			&"vehicle_class",
+			&"house_tier",
 			&"faction",
 			&"display_goods",
 			&"table_items"

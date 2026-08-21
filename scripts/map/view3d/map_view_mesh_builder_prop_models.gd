@@ -62,6 +62,18 @@ const TradeGoodsModels := preload("res://scripts/map/view3d/map_view_trade_goods
 const SMITHY_BED_PROP_ID := &"bed"
 # gdlint: ignore=max-line-length
 const SACRED_GROVE_ANCIENT_OAK_SCENE_PATH := "res://assets/props/environment/sacred_grove_ancient_oak.glb"
+const PLOT_DRESSING_SCENE_PATH := "res://assets/props/architecture/houses/plot_dressing/plot_dressing.glb"
+const PLOT_DRESSING_COMPONENTS: Dictionary = {
+	MapTypes.PROP_KIND_CELLAR_NECK: &"CellarNeck",
+	MapTypes.PROP_KIND_PLOT_WALL: &"PlotWall",
+	MapTypes.PROP_KIND_WATTLE_FENCE: &"WattleFence",
+	MapTypes.PROP_KIND_YARD_GATE: &"YardGate",
+	MapTypes.PROP_KIND_PRIVY: &"Privy",
+	MapTypes.PROP_KIND_WELL_SWEEP: &"WellSweep",
+	MapTypes.PROP_KIND_SERVANT_LEAN_TO: &"ServantLeanTo",
+	MapTypes.PROP_KIND_HOIST_BEAM: &"HoistBeam",
+	MapTypes.PROP_KIND_LOADING_HATCH: &"LoadingHatch",
+}
 ## Individual authored prop meshes.
 
 const BARREL_HEIGHT := 0.72
@@ -250,7 +262,9 @@ static func build_prop(
 		MapTypes.PROP_KIND_BANNER:
 			_add_banner(root, prop)
 		_:
-			if prop["kind"] in MapTypes.DISTRICT_LIFE_PROP_KINDS:
+			if PLOT_DRESSING_COMPONENTS.has(prop["kind"]):
+				_add_plot_dressing_component(root, prop["kind"])
+			elif prop["kind"] in MapTypes.DISTRICT_LIFE_PROP_KINDS:
 				DistrictLifeProps.add_to(root, prop["kind"], prop)
 			elif prop["kind"] in MapTypes.RURAL_LIFE_PROP_KINDS:
 				RuralLifeProps.add_to(root, prop["kind"])
@@ -259,6 +273,24 @@ static func build_prop(
 					root, "Marker", Vector3(0.5, 0.5, 0.5), Vector3(0.0, 0.25, 0.0), &"ink"
 				)
 	return root
+
+
+static func _add_plot_dressing_component(root: Node3D, kind: StringName) -> void:
+	var scene := load(PLOT_DRESSING_SCENE_PATH) as PackedScene
+	assert(scene != null, "Plot dressing GLB must be imported before map assembly")
+	var component_name: StringName = PLOT_DRESSING_COMPONENTS.get(kind, &"")
+	assert(not component_name.is_empty(), "Unknown plot dressing component: %s" % String(kind))
+	var source := scene.instantiate() as Node3D
+	assert(source != null, "Plot dressing GLB root must be Node3D")
+	# WHY: Blender exports the component library under a named kit root. Search below
+	# that wrapper so the renderer remains stable if Godot preserves the import root.
+	var component := source.find_child(String(component_name), true, false) as Node3D
+	assert(component != null, "Plot dressing GLB is missing component: %s" % String(component_name))
+	var model := component.duplicate() as Node3D
+	assert(model != null, "Plot dressing component must duplicate as Node3D: %s" % String(component_name))
+	model.name = "%sModel" % String(component_name)
+	root.add_child(model)
+	source.free()
 
 
 static func _add_smithy_bed(root: Node3D) -> void:
