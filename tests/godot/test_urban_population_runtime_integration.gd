@@ -6,7 +6,10 @@ const ControllerScript := preload("res://scripts/world/urban_population_controll
 const ProfileScript := preload("res://scripts/world/urban_population_profile.gd")
 const PlacementScript := preload("res://scripts/world/urban_population_placement.gd")
 const CrowdRenderer := preload("res://scripts/map/view3d/map_view_crowd_renderer.gd")
-const LowerTownSliceDefinition := preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd")
+const MapVerification := preload("res://scripts/map/map_verification.gd")
+const LowerTownSliceDefinition := preload(
+	"res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd"
+)
 const MapBuilder := preload("res://scripts/map/map_builder.gd")
 
 const PHASE_DAY := GameState.PHASE_INVESTIGATION_MORNING
@@ -97,6 +100,38 @@ func test_controller_registers_full_day_profile_in_crowd_renderer() -> void:
 	fake_runtime.view.queue_free()
 	if fake_runtime._crowd != null:
 		fake_runtime._crowd.queue_free()
+
+
+func test_placements_replay_and_clear_authored_props_and_each_other() -> void:
+	var definition: MapDefinition = LowerTownSliceDefinition.create()
+	var grid := MapBuilder.build(definition)
+	var profile := ProfileScript.day(PHASE_DAY, DATE_OFF_DAY, 610)
+	var first := PlacementScript.build_placements(definition, grid, profile)
+	var replay := PlacementScript.build_placements(definition, grid, profile)
+
+	assert_eq(first, replay, "same placement inputs must replay identical positions")
+	assert_eq(first.size(), profile["total_count"])
+	for placement: Dictionary in first:
+		var position: Vector2 = placement["position"]
+		assert_true(
+			MapVerification.is_walkable_point(definition, grid, position),
+			"crowd placement must remain on a walkable point",
+		)
+		for prop: Dictionary in definition.props:
+			var prop_position: Vector2 = prop["position"]
+			assert_true(
+				position.distance_to(prop_position) >= PlacementScript.PROP_CLEARANCE,
+				"crowd placement must clear authored prop %s" % String(prop["id"]),
+			)
+
+	for first_index in first.size():
+		var first_position: Vector2 = first[first_index]["position"]
+		for second_index in range(first_index + 1, first.size()):
+			var second_position: Vector2 = first[second_index]["position"]
+			assert_true(
+				first_position.distance_to(second_position) >= PlacementScript.ACTOR_CLEARANCE,
+				"crowd actors must keep authored inter-actor clearance",
+			)
 
 
 func test_market_day_active_switches_profile_without_game_state_writes() -> void:
