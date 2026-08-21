@@ -30,11 +30,16 @@ def _render_content_dirs(package: QuestPackage) -> str:
     for directory in package_content_dirs(package):
         relative_parent = directory.relative_to(ROOT).as_posix()
         dirs.append(_godot_string("res://" + relative_parent))
-    return ", ".join(dirs)
+    return "\n".join(f"\t{directory}," for directory in dirs)
 
 
 def _render_branch_dictionary(branch: dict[str, object]) -> str:
-    transitions = ", ".join(_godot_string_name(str(item)) for item in branch.get("transitions", []))
+    transition_entries = [
+        f"\t\t\t{_godot_string_name(str(item))}"
+        for item in branch.get("transitions", [])
+    ]
+    transitions = ",\n".join(transition_entries)
+    transition_block = f"[\n{transitions}\n\t\t]" if transitions else "[]"
     expect = branch.get("expect", {})
     expect_state = _godot_string_name(str(expect.get("quest_state", "")))
     flag_entries: list[str] = []
@@ -58,17 +63,20 @@ def _render_branch_dictionary(branch: dict[str, object]) -> str:
     if "route" in branch:
         lines.append(f'\t\t"route": {_godot_string_name(str(branch["route"]))},')
     lines.extend([
-        f"\t\t\"transitions\": [{transitions}],",
+        f'\t\t"transitions": {transition_block},',
         f"\t\t\"setup\": {setup_block},",
         f"\t\t\"require_flags\": {require_block},",
         f"\t\t\"expect_state\": {expect_state},",
         f"\t\t\"expect_flags\": {expect_flags},",
     ])
     if "ledger_events" in expect:
-        ledger_events = ", ".join(
-            _godot_string_name(str(event_id)) for event_id in expect.get("ledger_events", [])
-        )
-        lines.append(f"\t\t\"expect_ledger_events\": [{ledger_events}],")
+        ledger_entries = [
+            f"\t\t\t{_godot_string_name(str(event_id))}"
+            for event_id in expect.get("ledger_events", [])
+        ]
+        ledger_events = ",\n".join(ledger_entries)
+        ledger_block = f"[\n{ledger_events}\n\t\t]" if ledger_events else "[]"
+        lines.append(f'\t\t"expect_ledger_events": {ledger_block},')
     lines.append("\t}")
     return "\n".join(lines)
 
@@ -79,9 +87,14 @@ def render_godot_test(package: QuestPackage) -> str:
     quest_record_path = package.root / str(manifest["quest"])
     quest_id = json.loads(quest_record_path.read_text(encoding="utf-8"))["id"]
     landmark_beats = manifest.get("bindings", {}).get("landmark_beats", [])
-    beat_lines = ",\n".join(f"\t{_godot_string_name(str(beat))}" for beat in landmark_beats)
+    beat_lines = ",\n".join(
+        f"\t{_godot_string_name(str(beat))}" for beat in landmark_beats
+    )
     content_dirs = _render_content_dirs(package)
-    branch_blocks = ",\n".join(_render_branch_dictionary(branch) for branch in package.branch_map.get("branches", []))
+    branch_blocks = ",\n".join(
+        _render_branch_dictionary(branch)
+        for branch in package.branch_map.get("branches", [])
+    )
     relative_package = package.root.relative_to(ROOT).as_posix()
     return "\n".join(
         [
@@ -95,7 +108,9 @@ def render_godot_test(package: QuestPackage) -> str:
             "const LANDMARK_BEATS: Array[StringName] = [",
             beat_lines,
             "]",
-            f"const CONTENT_DIRS: Array[String] = [{content_dirs}]",
+            "const CONTENT_DIRS: Array[String] = [",
+            content_dirs,
+            "]",
             "const BRANCHES: Array[Dictionary] = [",
             branch_blocks,
             "]",
@@ -107,33 +122,56 @@ def render_godot_test(package: QuestPackage) -> str:
             "",
             "func before_each() -> void:",
             "\tdb = ContentDB.new()",
-            '\tassert_true(db.load_from_directories(CONTENT_DIRS), "quest package corpus should load")',
+            "\tassert_true(",
+            "\t\tdb.load_from_directories(CONTENT_DIRS),",
+            '\t\t"quest package corpus should load",',
+            "\t)",
             "\tstate = GameState.new()",
             "\tevaluator = StateRuleEvaluator.new()",
             "\tmanager = QuestManager.new(db, state, evaluator)",
             "",
             "func test_landmark_beat_bindings_are_declared() -> void:",
-            '\tassert_false(LANDMARK_BEATS.is_empty(), "package must declare at least one landmark beat")',
+            "\tassert_false(",
+            "\t\tLANDMARK_BEATS.is_empty(),",
+            '\t\t"package must declare at least one landmark beat",',
+            "\t)",
             "\tfor beat in LANDMARK_BEATS:",
-            '\t\tassert_true(String(beat).begins_with("beat.landmark."), "landmark beat ids must use beat.landmark.* prefix")',
+            "\t\tassert_true(",
+            '\t\t\tString(beat).begins_with("beat.landmark."),',
+            '\t\t\t"landmark beat ids must use beat.landmark.* prefix",',
+            "\t\t)",
             "",
             "func test_generated_branch_traversal_paths() -> void:",
             "\tfor branch in BRANCHES:",
             "\t\tvar branch_state := GameState.new()",
-            "\t\tvar branch_manager := QuestManager.new(db, branch_state, StateRuleEvaluator.new())",
-            '\t\tassert_true(branch_manager.start_quest(QUEST_ID), "start should succeed for %s" % branch["id"])',
+            "\t\tvar branch_manager := QuestManager.new(",
+            "\t\t\tdb, branch_state, StateRuleEvaluator.new()",
+            "\t\t)",
+            "\t\tassert_true(",
+            "\t\t\tbranch_manager.start_quest(QUEST_ID),",
+            '\t\t\t"start should succeed for %s" % branch["id"],',
+            "\t\t)",
             "\t\tfor flag_name in branch.get(\"setup\", {}):",
             "\t\t\tbranch_state.set_flag(flag_name, branch[\"setup\"][flag_name])",
             "\t\tfor require_flag in branch.get(\"require_flags\", {}):",
             "\t\t\tbranch_state.set_flag(require_flag, branch[\"require_flags\"][require_flag])",
             "\t\tfor transition_id in branch.get(\"transitions\", []):",
-            '\t\t\tassert_true(branch_manager.transition(QUEST_ID, transition_id), "transition should succeed: %s" % transition_id)',
+            "\t\t\tassert_true(",
+            "\t\t\t\tbranch_manager.transition(QUEST_ID, transition_id),",
+            '\t\t\t\t"transition should succeed: %s" % transition_id,',
+            "\t\t\t)",
             '\t\tassert_eq(branch_state.get_quest_state(QUEST_ID), branch["expect_state"])',
             "\t\tfor expected_flag in branch.get(\"expect_flags\", []):",
             '\t\t\tassert_eq(branch_state.get_flag(expected_flag["flag"]), expected_flag["value"])',
             "\t\tfor expected_event in branch.get(\"expect_ledger_events\", []):",
-            '\t\t\tassert_true(branch_state.has_faction_event(expected_event), "ledger event should be recorded: %s" % expected_event)',
+            "\t\t\tassert_true(",
+            "\t\t\t\tbranch_state.has_faction_event(expected_event),",
+            '\t\t\t\t"ledger event should be recorded: %s" % expected_event,',
+            "\t\t\t)",
             "\t\tif branch.has(\"route\"):",
-            '\t\t\tassert_true(["combat", "non_combat"].has(branch["route"]), "route must be combat or non_combat")',
+            "\t\t\tassert_true(",
+            '\t\t\t\t["combat", "non_combat"].has(branch["route"]),',
+            '\t\t\t\t"route must be combat or non_combat",',
+            "\t\t\t)",
         ]
     ) + "\n"

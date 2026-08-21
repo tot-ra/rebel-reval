@@ -9,11 +9,17 @@ const LANDMARK_BEATS: Array[StringName] = [
 	&"beat.landmark.tallinn.viru_gate_viru_varav",
 	&"beat.landmark.tallinn.market_weighbridge_lane"
 ]
-const CONTENT_DIRS: Array[String] = ["res://content/examples/valid", "res://content/examples/support"]
+const CONTENT_DIRS: Array[String] = [
+	"res://content/examples/valid",
+	"res://content/examples/support",
+]
 const BRANCHES: Array[Dictionary] = [
 	{
 		"id": &"bribe_and_pass",
-		"transitions": [&"bribe_carter", &"pass_under_sack"],
+		"transitions": [
+			&"bribe_carter",
+			&"pass_under_sack"
+		],
 		"setup": {
 		&"flag.osmond_sack_smuggle.carter_bribe_agreed": true,
 		&"flag.osmond_sack_smuggle.passed_checkpoint": true,
@@ -27,7 +33,9 @@ const BRANCHES: Array[Dictionary] = [
 	},
 	{
 		"id": &"carter_refuses",
-		"transitions": [&"carter_refuses"],
+		"transitions": [
+			&"carter_refuses"
+		],
 		"setup": {
 		&"flag.osmond_sack_smuggle.carter_refused": true,
 	},
@@ -46,31 +54,54 @@ var manager: QuestManager
 
 func before_each() -> void:
 	db = ContentDB.new()
-	assert_true(db.load_from_directories(CONTENT_DIRS), "quest package corpus should load")
+	assert_true(
+		db.load_from_directories(CONTENT_DIRS),
+		"quest package corpus should load",
+	)
 	state = GameState.new()
 	evaluator = StateRuleEvaluator.new()
 	manager = QuestManager.new(db, state, evaluator)
 
 func test_landmark_beat_bindings_are_declared() -> void:
-	assert_false(LANDMARK_BEATS.is_empty(), "package must declare at least one landmark beat")
+	assert_false(
+		LANDMARK_BEATS.is_empty(),
+		"package must declare at least one landmark beat",
+	)
 	for beat in LANDMARK_BEATS:
-		assert_true(String(beat).begins_with("beat.landmark."), "landmark beat ids must use beat.landmark.* prefix")
+		assert_true(
+			String(beat).begins_with("beat.landmark."),
+			"landmark beat ids must use beat.landmark.* prefix",
+		)
 
 func test_generated_branch_traversal_paths() -> void:
 	for branch in BRANCHES:
 		var branch_state := GameState.new()
-		var branch_manager := QuestManager.new(db, branch_state, StateRuleEvaluator.new())
-		assert_true(branch_manager.start_quest(QUEST_ID), "start should succeed for %s" % branch["id"])
+		var branch_manager := QuestManager.new(
+			db, branch_state, StateRuleEvaluator.new()
+		)
+		assert_true(
+			branch_manager.start_quest(QUEST_ID),
+			"start should succeed for %s" % branch["id"],
+		)
 		for flag_name in branch.get("setup", {}):
 			branch_state.set_flag(flag_name, branch["setup"][flag_name])
 		for require_flag in branch.get("require_flags", {}):
 			branch_state.set_flag(require_flag, branch["require_flags"][require_flag])
 		for transition_id in branch.get("transitions", []):
-			assert_true(branch_manager.transition(QUEST_ID, transition_id), "transition should succeed: %s" % transition_id)
+			assert_true(
+				branch_manager.transition(QUEST_ID, transition_id),
+				"transition should succeed: %s" % transition_id,
+			)
 		assert_eq(branch_state.get_quest_state(QUEST_ID), branch["expect_state"])
 		for expected_flag in branch.get("expect_flags", []):
 			assert_eq(branch_state.get_flag(expected_flag["flag"]), expected_flag["value"])
 		for expected_event in branch.get("expect_ledger_events", []):
-			assert_true(branch_state.has_faction_event(expected_event), "ledger event should be recorded: %s" % expected_event)
+			assert_true(
+				branch_state.has_faction_event(expected_event),
+				"ledger event should be recorded: %s" % expected_event,
+			)
 		if branch.has("route"):
-			assert_true(["combat", "non_combat"].has(branch["route"]), "route must be combat or non_combat")
+			assert_true(
+				["combat", "non_combat"].has(branch["route"]),
+				"route must be combat or non_combat",
+			)
