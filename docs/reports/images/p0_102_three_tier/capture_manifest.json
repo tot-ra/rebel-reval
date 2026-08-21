@@ -1,0 +1,134 @@
+{
+  "command": "Godot --path . --rendering-method gl_compatibility --rendering-driver opengl3 --script tools/capture_p0_102_three_tier_gameplay.gd",
+  "map_fingerprint": "13525325b3d8be840c79d8c709c8aab12632bc6092a7123bc6d9275ba51d17ba",
+  "map_id": "lower_town_slice",
+  "map_revision": "lower_town_slice.rrmap authored source; record HEAD separately",
+  "orthographic_size": 33.75,
+  "plates": [
+    {
+      "camera_intent": "three-tier ordinary frontage at gameplay scale",
+      "camera_pitch_degrees": -30.0,
+      "camera_yaw_degrees": 45.0,
+      "coverage": "merchant frontage into craft/workshop lane",
+      "exceptional_landmarks": [
+        "st_catherines_church",
+        "viru_gate_arch",
+        "viru_foregate_arch"
+      ],
+      "focus_height": 0.8,
+      "focus_logic_cell": [
+        1328.0,
+        1800.0
+      ],
+      "focus_world": [
+        41.5,
+        0.800000011920929,
+        56.25
+      ],
+      "framing_key": "three_tier_route|[1328.0, 1800.0]|0.8|33.750|-30.000|45.000",
+      "from_anchor": "checkpoint_west",
+      "interaction_targets": [
+        "checkpoint_west",
+        "brewery_door"
+      ],
+      "material_families": [
+        "limestone",
+        "plaster",
+        "log"
+      ],
+      "observed_buildings": [
+        "kaik_house_west",
+        "viru_house_west",
+        "sauna_corner_house",
+        "saddlers_rear_workshop"
+      ],
+      "orthographic_size": 33.75,
+      "output": "res://docs/reports/images/p0_102_three_tier/three_tier_route_day.png",
+      "preset_id": "three_tier_route",
+      "readability_limitations": "Gameplay crop is route-scale rather than a close-up; roof-cover and wall-family readings remain subject to human visual review.",
+      "roof_families": [
+        "tile",
+        "shingle",
+        "thatch"
+      ],
+      "sector_id": "merchant_craft_lane",
+      "tier_labels": [
+        "merchant_stone",
+        "merchant_timber",
+        "craft_boda"
+      ],
+      "time_of_day": "day",
+      "to_anchor": "brewery_door"
+    },
+    {
+      "camera_intent": "three-tier ordinary frontage at gameplay scale",
+      "camera_pitch_degrees": -30.0,
+      "camera_yaw_degrees": 45.0,
+      "coverage": "merchant frontage into craft/workshop lane",
+      "exceptional_landmarks": [
+        "st_catherines_church",
+        "viru_gate_arch",
+        "viru_foregate_arch"
+      ],
+      "focus_height": 0.8,
+      "focus_logic_cell": [
+        1328.0,
+        1800.0
+      ],
+      "focus_world": [
+        41.5,
+        0.800000011920929,
+        56.25
+      ],
+      "framing_key": "three_tier_route|[1328.0, 1800.0]|0.8|33.750|-30.000|45.000",
+      "from_anchor": "checkpoint_west",
+      "interaction_targets": [
+        "checkpoint_west",
+        "brewery_door"
+      ],
+      "material_families": [
+        "limestone",
+        "plaster",
+        "log"
+      ],
+      "observed_buildings": [
+        "kaik_house_west",
+        "viru_house_west",
+        "sauna_corner_house",
+        "saddlers_rear_workshop"
+      ],
+      "orthographic_size": 33.75,
+      "output": "res://docs/reports/images/p0_102_three_tier/three_tier_route_night.png",
+      "preset_id": "three_tier_route",
+      "readability_limitations": "Gameplay crop is route-scale rather than a close-up; roof-cover and wall-family readings remain subject to human visual review.",
+      "roof_families": [
+        "tile",
+        "shingle",
+        "thatch"
+      ],
+      "sector_id": "merchant_craft_lane",
+      "tier_labels": [
+        "merchant_stone",
+        "merchant_timber",
+        "craft_boda"
+      ],
+      "time_of_day": "night",
+      "to_anchor": "brewery_door"
+    }
+  ],
+  "presets": [
+    "three_tier_route"
+  ],
+  "renderer": "gl_compatibility",
+  "route_contract": "One matched checkpoint_west -> brewery_door route crop must read all three ordinary R-003 tiers; exceptional landmarks remain excluded from ordinary coverage.",
+  "schema": "r-667-p0-102-three-tier-gameplay-v1",
+  "task": "R-667 / P0-102 decomposition",
+  "times": [
+    "day",
+    "night"
+  ],
+  "viewport": [
+    1280,
+    720
+  ]
+}
