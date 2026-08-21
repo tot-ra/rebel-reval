@@ -18,6 +18,9 @@ Coordination note (2026-08-19 P0-184): `docs/ARCHITECTURE.md` large-runtime audi
 <!-- P0-187 completed in current session -->
 Coordination note (2026-08-13 P0-187): aged coordination history and archived planning notes moved to `docs/ROADMAP_COORDINATION_ARCHIVE_2026-08-13.md`; live `docs/ROADMAP.md` now keeps August 2026 closeouts, Current focus, and a link to the archive. Verified: `python3 tools/generate_active_docs_report.py --check`; byte size dropped below the 2026-08-11 ~121 KiB baseline. Next size/doc claim: **P0-185** view3d extractions or **P0-186** evidence-image retention.
 
+<!-- P0-178 closed in current session -->
+Coordination note (2026-08-21 P0-178): storage hygiene is green again after the 2026-08-13 removal of rejected `generated/comfyui/bird_wader_v1/candidates/northern_lapwing_hunyuan_candidate.glb` (commit `20606963`). Verified: `python3 tools/verify_storage_hygiene.py` exits 0 with zero temporary exceptions; active Markdown report regenerated and `--check` green. Next size claim: **P0-179** generated comfyui prune, **P0-180** music takes, or **P0-186** evidence-image retention.
+
 <!-- P0-188 completed in current session -->
 Coordination note (2026-08-12 P0-188): character model/animation visual realism review closed in `docs/reports/character_visual_realism_review_2026-08-12.md` with claimable contracts in `docs/CHARACTER_REALISM_BACKLOG.md`. Current hero bodies already ship UVs, procedural PBR maps, LOD1/LOD2, and a parametric face pass, but dialogue closeups still fail on unused vertex-colour albedo, hard beard edges, hair terracing, clay skin response, frozen faces, and thin profession/ambient motion. Next character presentation work: **P0-189** vertex-colour albedo, **P0-191** hair terracing, then **P0-190**/**P0-192** beard/skin, **P0-193** hair cards, **P0-194** plate refresh, and motion rows **P0-195**..**P0-198**. Keep **P0-183** as the parallel GLB size gate.
 
