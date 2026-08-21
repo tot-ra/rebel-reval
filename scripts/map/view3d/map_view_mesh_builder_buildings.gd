@@ -7,6 +7,8 @@ extends RefCounted
 
 const _Registry := preload("res://scripts/map/view3d/map_view_mesh_builder_building_registry.gd")
 const _Churches := preload("res://scripts/map/view3d/map_view_mesh_builder_churches.gd")
+const ST_MARYS_ID := &"cathedral_silhouette"
+const ST_MARYS_PRIMITIVE := &"st_marys_construction_1343"
 
 
 static func build_building(
@@ -218,6 +220,186 @@ static func build_building(
 	return root
 
 
+static func is_st_marys_construction(building: Dictionary) -> bool:
+	return (
+		StringName(String(building.get("id", ""))) == ST_MARYS_ID
+		and StringName(String(building.get("primitive", ""))) == ST_MARYS_PRIMITIVE
+	)
+
+
+static func build_st_marys_construction(building: Dictionary, cell_size: int) -> Node3D:
+	var root := Node3D.new()
+	root.name = "Building_%s" % String(building["id"])
+	root.set_meta(&"renderer_boundary", &"exceptional")
+	root.set_meta(&"exceptional_category", &"church")
+	root.set_meta(&"church_renderer", ST_MARYS_PRIMITIVE)
+	root.set_meta(&"construction_phase", &"early_1330s_gothic_enlargement")
+
+	var scale := MapViewBridge.world_scale(cell_size)
+	var footprint: Rect2 = building["footprint"]
+	var size := footprint.size * scale
+	var height := MapTypes.resolved_wall_height_px(building) * scale
+	var center := footprint.get_center() * scale
+	root.position = Vector3(center.x, 0.0, center.y)
+
+	# WHY: the east end remained usable while the 1330s three-aisle nave was being
+	# enlarged. Separate masses keep the roofed choir and vestry visually distinct
+	# from the deliberately open, unfinished nave.
+	var choir_length := size.x * 0.34
+	var nave_length := size.x - choir_length
+	var choir_x := size.x * 0.5 - choir_length * 0.5
+	var nave_x := -size.x * 0.5 + nave_length * 0.5
+	var choir_height := height * 0.88
+	var wall_color := Color(building.get("wall_color", MapViewMeshBuilderConfig.DEFAULT_WALL_COLOR))
+	_add_limestone_mass(
+		root,
+		"StandingChoir",
+		Vector3(choir_length, choir_height, size.y * 0.72),
+		Vector3(choir_x, choir_height * 0.5, 0.0),
+		wall_color
+	)
+	var choir_roof := MeshInstance3D.new()
+	choir_roof.name = "StandingChoirRoof"
+	choir_roof.mesh = MapViewMeshBuilderPrimitives.gabled_roof_mesh(
+		Vector2(choir_length, size.y * 0.72), true, 0.18, true, 0.68
+	)
+	choir_roof.position = Vector3(choir_x, choir_height, 0.0)
+	choir_roof.material_override = MapViewMaterials.roof_surface_for_building(
+		ST_MARYS_ID,
+		&"tile",
+		Color(building.get("roof_color", MapViewMeshBuilderConfig.DEFAULT_ROOF_COLOR))
+	)
+	root.add_child(choir_roof)
+
+	var vestry_size := Vector3(choir_length * 0.62, height * 0.52, size.y * 0.3)
+	_add_limestone_mass(
+		root,
+		"StandingVestry",
+		vestry_size,
+		Vector3(choir_x + choir_length * 0.05, vestry_size.y * 0.5, -size.y * 0.5 + vestry_size.z * 0.45),
+		wall_color.darkened(0.04)
+	)
+
+	_add_open_three_aisle_nave(root, nave_x, nave_length, size.y, height, wall_color)
+	_add_nave_scaffolding(root, nave_x, nave_length, size.y, height)
+	_add_masons_yard(root, nave_x, nave_length, size.y)
+	return root
+
+
+static func _add_limestone_mass(
+	root: Node3D, node_name: String, mass_size: Vector3, position: Vector3, color: Color
+) -> void:
+	var instance := MeshInstance3D.new()
+	instance.name = node_name
+	var mesh := BoxMesh.new()
+	mesh.size = mass_size
+	instance.mesh = mesh
+	instance.position = position
+	instance.material_override = MapViewMaterials.wall_surface_for_building(
+		ST_MARYS_ID, &"limestone", color, mass_size
+	)
+	root.add_child(instance)
+
+
+static func _add_open_three_aisle_nave(
+	root: Node3D,
+	nave_x: float,
+	nave_length: float,
+	nave_width: float,
+	height: float,
+	wall_color: Color
+) -> void:
+	var nave := Node3D.new()
+	nave.name = "OpenNave"
+	root.add_child(nave)
+	var aisle_offset := nave_width * 0.24
+	var bay_count := 5
+	var pier_height := height * 0.66
+	for bay_index in bay_count:
+		var bay_x := nave_x - nave_length * 0.42 + nave_length * 0.84 * float(bay_index) / float(bay_count - 1)
+		for side: float in [-1.0, 1.0]:
+			_add_limestone_mass(
+				nave,
+				"RectangularPier_%s_%02d" % ["N" if side < 0.0 else "S", bay_index],
+				Vector3(0.5, pier_height, 0.5),
+				Vector3(bay_x, pier_height * 0.5, side * aisle_offset),
+				wall_color.lightened(0.03)
+			)
+	# Low unfinished aisle walls disclose the open sky and construction phase at
+	# gameplay scale instead of reading as a completed basilica shell.
+	for side: float in [-1.0, 1.0]:
+		_add_limestone_mass(
+			nave,
+			"UnfinishedAisleWall_%s" % ("N" if side < 0.0 else "S"),
+			Vector3(nave_length * 0.92, height * 0.2, 0.38),
+			Vector3(nave_x, height * 0.1, side * (nave_width * 0.5 - 0.19)),
+			wall_color.darkened(0.02)
+		)
+
+
+static func _add_nave_scaffolding(
+	root: Node3D, nave_x: float, nave_length: float, nave_width: float, height: float
+) -> void:
+	var scaffold := Node3D.new()
+	scaffold.name = "NaveScaffolding"
+	root.add_child(scaffold)
+	var scaffold_y := height * 0.52
+	for frame_index in 4:
+		var frame_x := nave_x - nave_length * 0.38 + nave_length * 0.76 * float(frame_index) / 3.0
+		for side: float in [-1.0, 1.0]:
+			var frame_z := side * (nave_width * 0.5 + 0.18)
+			MapViewMeshBuilderPrimitives.box(
+				scaffold,
+				"Post_%s_%02d" % ["N" if side < 0.0 else "S", frame_index],
+				Vector3(0.14, height * 0.76, 0.14),
+				Vector3(frame_x, height * 0.38, frame_z),
+				&"timber"
+			)
+			MapViewMeshBuilderPrimitives.box(
+				scaffold,
+				"Platform_%s_%02d" % ["N" if side < 0.0 else "S", frame_index],
+				Vector3(nave_length * 0.23, 0.14, 0.58),
+				Vector3(frame_x, scaffold_y, frame_z),
+				&"timber"
+			)
+	for side: float in [-1.0, 1.0]:
+		MapViewMeshBuilderPrimitives.box(
+			scaffold,
+			"TopRail_%s" % ("N" if side < 0.0 else "S"),
+			Vector3(nave_length * 0.94, 0.12, 0.12),
+			Vector3(nave_x, height * 0.75, side * (nave_width * 0.5 + 0.18)),
+			&"timber"
+		)
+
+
+static func _add_masons_yard(
+	root: Node3D, nave_x: float, nave_length: float, nave_width: float
+) -> void:
+	var yard := Node3D.new()
+	yard.name = "MasonsYard"
+	root.add_child(yard)
+	var yard_z := nave_width * 0.5 + 0.75
+	MapViewMeshBuilderPrimitives.box(
+		yard,
+		"MasonBench",
+		Vector3(2.2, 0.55, 0.68),
+		Vector3(nave_x - nave_length * 0.18, 0.55, yard_z),
+		&"timber"
+	)
+	for stone_index in 5:
+		var row := stone_index / 3
+		var column := stone_index % 3
+		MapViewMeshBuilderPrimitives.box(
+			yard,
+			"CutStone_%02d" % stone_index,
+			Vector3(0.58, 0.34 + float(row) * 0.08, 0.5),
+			Vector3(nave_x + nave_length * 0.1 + float(column) * 0.66, 0.17, yard_z + float(row) * 0.58),
+			&"stone"
+		)
+
+
+
+
 ## Specialized handoff for authored landmarks and institutions. It intentionally
 ## owns only the landmark mass and dressing, never the ordinary house kit.
 static func build_exceptional_building(
@@ -229,6 +411,8 @@ static func build_exceptional_building(
 	var category := _Registry.exceptional_category(building)
 	if category == &"monastic_precinct":
 		return MapViewMonasticModels.build_st_michaels_precinct(building, cell_size)
+	if is_st_marys_construction(building):
+		return build_st_marys_construction(building, cell_size)
 	if _Churches.is_st_catherines_church(building):
 		return _Churches.build_st_catherines_church(building, cell_size)
 	var root := Node3D.new()

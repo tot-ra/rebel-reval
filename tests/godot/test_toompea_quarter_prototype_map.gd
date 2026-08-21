@@ -3,6 +3,7 @@ extends "res://tests/godot/test_case.gd"
 const ToompeaQuarterDefinition := preload("res://scripts/map/definitions/prototypes/toompea_quarter_definition.gd")
 const MapBuilder := preload("res://scripts/map/map_builder.gd")
 const MapVerification := preload("res://scripts/map/map_verification.gd")
+const MapViewMeshBuilderBuildings := preload("res://scripts/map/view3d/map_view_mesh_builder_buildings.gd")
 
 
 func test_toompea_matches_reference_map_footprint() -> void:
@@ -116,6 +117,45 @@ func test_toompea_hill_gates_are_spring_1343_timber_reconstructions() -> void:
 	assert_eq(north_transition.get("destination_scene_id"), &"reval_monastery")
 	assert_eq(north_transition.get("destination_spawn_id"), &"from_reval_toompea")
 	assert_eq(north_transition.get("spawn_id"), &"from_reval_north")
+
+
+func test_toompea_st_marys_reads_as_1343_gothic_construction_site() -> void:
+	var definition: MapDefinition = ToompeaQuarterDefinition.create()
+	var cathedral := _building_by_id(definition, &"cathedral_silhouette")
+	assert_false(cathedral.is_empty(), "St Mary's stable building ID is required")
+	assert_eq(cathedral.get("primitive"), &"st_marys_construction_1343")
+
+	var cathedral_node := MapViewMeshBuilderBuildings.build_building(
+		cathedral, definition.cell_size
+	)
+	assert_eq(cathedral_node.get_meta(&"renderer_boundary"), &"exceptional")
+	assert_eq(cathedral_node.get_meta(&"church_renderer"), &"st_marys_construction_1343")
+	assert_eq(
+		cathedral_node.get_meta(&"construction_phase"),
+		&"early_1330s_gothic_enlargement"
+	)
+	assert_true(cathedral_node.has_node("StandingChoir"), "The usable choir must remain standing")
+	assert_true(cathedral_node.has_node("StandingChoirRoof"), "The standing choir needs its roof")
+	assert_true(cathedral_node.has_node("StandingVestry"), "The vestry must remain standing")
+	assert_true(
+		cathedral_node.has_node("OpenNave/RectangularPier_N_00")
+		and cathedral_node.has_node("OpenNave/RectangularPier_S_04"),
+		"The open three-aisle enlargement needs visible rectangular piers"
+	)
+	assert_true(
+		cathedral_node.has_node("NaveScaffolding/Post_N_00")
+		and cathedral_node.has_node("NaveScaffolding/Platform_S_03"),
+		"Timber scaffolding must identify the active construction phase"
+	)
+	assert_true(
+		cathedral_node.has_node("MasonsYard/MasonBench")
+		and cathedral_node.has_node("MasonsYard/CutStone_04"),
+		"The cathedral close needs an identifiable masons' work area"
+	)
+	assert_false(cathedral_node.has_node("LandmarkRoof"), "The open nave cannot have a finished roof")
+	assert_false(cathedral_node.has_node("WestBellTower"), "The later west tower must be absent")
+	assert_false(cathedral_node.has_node("BaroqueSpire"), "The 1779 baroque spire must be absent")
+	cathedral_node.free()
 
 
 func test_toompea_plateau_routes_connect_landmarks_and_all_three_descents() -> void:

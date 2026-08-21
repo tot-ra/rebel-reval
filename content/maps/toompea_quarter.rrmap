@@ -27,7 +27,7 @@ source "docs/HISTORICAL_AUDIT.md"
 # Limestone institutions dominate, with smaller noble/canonical houses in
 # plaster, plank, and shingle around the broad ecclesiastical plots.
 style house.castle door_side=east ridge_axis=x wall_height=176 wall_color=8a8278ff wall_material=limestone roof_color=3a2218ff roof_material=tile
-style house.cathedral door_side=south ridge_axis=x primitive=holy_spirit_chapel_1343 wall_height=192 wall_color=9e998cff wall_material=limestone roof_color=42261fff roof_material=tile
+style house.cathedral door_side=south ridge_axis=x primitive=st_marys_construction_1343 wall_height=192 wall_color=9e998cff wall_material=limestone roof_color=42261fff roof_material=tile
 style house.barracks door_side=north ridge_axis=x wall_height=112 wall_color=70685eff wall_material=limestone roof_color=3d3329ff roof_material=shingle
 style house.noble door_side=south ridge_axis=z wall_height=128 wall_color=756b5cff wall_material=limestone roof_color=4a2a20ff roof_material=tile
 style house.chancery door_side=west ridge_axis=x wall_height=104 wall_color=7a7061ff wall_material=plaster roof_color=383029ff roof_material=shingle
