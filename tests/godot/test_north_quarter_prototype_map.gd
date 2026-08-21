@@ -102,6 +102,45 @@ func test_merchant_district_has_three_sided_walls_dated_towers_and_harbor_gate()
 	assert_true((coast_gate["rect"] as Rect2).encloses(harbor_transition["rect"]), "Great Coast Gate must cover the route to Trade Harbour")
 
 
+func test_coastal_gate_preserves_1343_single_tower_profile() -> void:
+	var definition: MapDefinition = NorthQuarterDefinition.create()
+	var completed_tower := _building_by_id(definition, &"coast_gate_west_tower")
+	var eastern_mass := _building_by_id(definition, &"coast_gate_east_tower")
+	assert_true(
+		bool(completed_tower.get("tower", false)),
+		"The 1343 Coastal Gate keeps its probable completed tower"
+	)
+	assert_false(
+		bool(eastern_mass.get("tower", true)),
+		"The eastern gate mass must not become a second completed tower"
+	)
+
+	var gate_arch := _landmark_by_id(definition, &"coast_gate_arch")
+	assert_false(gate_arch.is_empty(), "The Coastal Gate arch keeps its stable landmark ID")
+	assert_eq(gate_arch.get("id", &""), &"coast_gate_arch")
+
+	for building: Dictionary in definition.buildings:
+		var building_id := String(building.get("id", &"")).to_lower()
+		assert_false(
+			building_id.contains("barbican"),
+			"1343 exterior must omit barbican markers"
+		)
+		assert_false(
+			building_id.contains("fat") and building_id.contains("margaret"),
+			"1343 exterior must omit Fat Margaret markers"
+		)
+	for landmark: Dictionary in definition.view_landmarks:
+		var landmark_id := String(landmark.get("id", &"")).to_lower()
+		assert_false(
+			landmark_id.contains("barbican"),
+			"1343 landmarks must omit barbican markers"
+		)
+		assert_false(
+			landmark_id.contains("fat") and landmark_id.contains("margaret"),
+			"1343 landmarks must omit Fat Margaret markers"
+		)
+
+
 func test_merchant_district_connects_to_monastery_district() -> void:
 	var definition: MapDefinition = NorthQuarterDefinition.create()
 	var transition_by_id: Dictionary = {}
