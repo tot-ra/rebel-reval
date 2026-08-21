@@ -125,6 +125,7 @@ func test_lower_town_frontage_width_report_is_deterministic() -> void:
 		)
 
 	var tier_counts := {"merchant_stone": 0, "merchant_timber": 0, "craft_boda": 0}
+	var public_tier_counts := {"merchant_stone": 0, "merchant_timber": 0, "craft_boda": 0}
 	var report: Array[String] = []
 	for building in source_buildings:
 		var building_id := String(building.get("id", ""))
@@ -149,6 +150,8 @@ func test_lower_town_frontage_width_report_is_deterministic() -> void:
 			continue
 		var in_range := frontage_m >= float(target[0]) and frontage_m <= float(target[1])
 		var is_rear_service := rear_service.has(building_id)
+		if not is_rear_service:
+			public_tier_counts[tier] += 1
 		var is_explicit_exception := overrides.has(building_id)
 		if is_rear_service:
 			if frontage_m < 7 or frontage_m > 11:
@@ -191,6 +194,10 @@ func test_lower_town_frontage_width_report_is_deterministic() -> void:
 		assert_true(
 			int(tier_counts[tier_id]) > 0,
 			"Lower Town frontage is missing house tier: %s" % tier_id
+		)
+		assert_true(
+			int(public_tier_counts[tier_id]) > 0,
+			"Lower Town public frontage is missing house tier: %s" % tier_id
 		)
 	assert_true(
 		report.size() >= 3,
