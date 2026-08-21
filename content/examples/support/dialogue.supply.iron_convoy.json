@@ -13,7 +13,7 @@
     "runtime_llm_allowed": false,
     "free_text_input_allowed": false,
     "selection": "explicit_node_id",
-    "notes": "Player can block the authored convoy route during investigation morning."
+    "notes": "Player can block the authored convoy route during investigation morning. The Fuhrmann calls the Karren a Wagen; a voorimees shouts Macht Platz! while the harbour handoff remains a lighter-to-cart route."
   },
   "participants": [
     "char.kalev",

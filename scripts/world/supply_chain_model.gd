@@ -4,6 +4,8 @@ extends RefCounted
 ## Authored iron convoy route from the north quarter into Lower Town market.
 ## WHY: P4-033 makes district supply visible and lets players disrupt one route.
 
+const CartTransport := preload("res://scripts/world/cart_transport_model.gd")
+
 const PATROL_ID := &"iron_convoy"
 const FLAG_DISRUPTED := &"flag.supply.iron_convoy_disrupted"
 const FACT_OBSERVED := &"fact.supply.iron_convoy_observed"
@@ -21,6 +23,7 @@ const CONVOY_DIALOGUE_ID := &"dialogue.supply.iron_convoy"
 
 const CONVOY_SPEED := 40.0
 const OBSERVE_RADIUS_SQ := 72.0 * 72.0
+const ROUTE_ID := CartTransport.ROUTE_VIRU_GRAIN
 
 
 static func convoy_active_for_phase(phase_id: StringName) -> bool:
@@ -29,6 +32,10 @@ static func convoy_active_for_phase(phase_id: StringName) -> bool:
 
 static func is_route_disrupted(state: GameState) -> bool:
 	return state != null and state.get_flag(FLAG_DISRUPTED)
+
+
+static func convoy_route_available_for_date(game_date: String) -> bool:
+	return CartTransport.route_available_for_date(ROUTE_ID, game_date)
 
 
 static func resolve_patrol_points(definition: MapDefinition) -> PackedVector2Array:
