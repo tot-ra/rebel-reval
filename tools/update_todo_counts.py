@@ -102,8 +102,27 @@ def build_table(counts: dict[str, Counters]) -> str:
     return "\n".join(lines)
 
 
+def _read_preserving_newlines(path: Path) -> str:
+    """Read text without normalizing newline sequences."""
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        return handle.read()
+
+
+def _newline_for(text: str) -> str:
+    """Use the file's existing newline convention for generated content."""
+    first_newline = re.search(r"\r\n|\r|\n", text)
+    return first_newline.group(0) if first_newline else "\n"
+
+
+def _write_preserving_newlines(path: Path, text: str) -> None:
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        handle.write(text)
+
+
 def rewrite_table(path: Path, new_table: str) -> bool:
-    text = path.read_text(encoding="utf-8")
+    text = _read_preserving_newlines(path)
+    newline = _newline_for(text)
+    new_table = new_table.replace("\n", newline)
     comment = "<!-- Quick-reference counts updated on every structural change -->"
 
     table_pattern = re.compile(
@@ -112,16 +131,16 @@ def rewrite_table(path: Path, new_table: str) -> bool:
     )
     m = table_pattern.search(text)
     if m:
-        separator = "\n\n" if text.endswith("\n") or text[m.end() :] else ""
+        separator = newline * 2 if text.endswith(("\n", "\r")) or text[m.end() :] else ""
         new_text = (
             text[: m.start()]
             + comment
-            + "\n"
+            + newline
             + new_table
             + separator
             + text[m.end() :]
         )
-        path.write_text(new_text, encoding="utf-8")
+        _write_preserving_newlines(path, new_text)
         return True
 
     # Fallback when the comment anchor was removed but the summary table remains.
@@ -129,16 +148,16 @@ def rewrite_table(path: Path, new_table: str) -> bool:
     for candidate in bare_table.finditer(text):
         if not candidate.group().startswith("| Priority |"):
             continue
-        separator = "\n\n" if text.endswith("\n") or text[candidate.end() :] else ""
+        separator = newline * 2 if text.endswith(("\n", "\r")) or text[candidate.end() :] else ""
         new_text = (
             text[: candidate.start()]
             + comment
-            + "\n"
+            + newline
             + new_table
             + separator
             + text[candidate.end() :]
         )
-        path.write_text(new_text, encoding="utf-8")
+        _write_preserving_newlines(path, new_text)
         return True
 
     print("ERROR: existing priority summary table not found", file=sys.stderr)
