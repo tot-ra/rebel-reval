@@ -143,3 +143,26 @@ R-541 therefore remains in review rather than being treated as a gameplay accept
 - **Verification performed by:** Codex, implementation/QA verification
 - **Verification date:** 2026-08-17
 - **Signed result:** source and renderer boundary verified; final gameplay-scale acceptance **BLOCKED** pending the R-6/P0-101 ordinary-fabric evidence gate.
+
+## R-541 verification recheck (2026-08-21)
+
+**Snapshot:** live shared worktree; unrelated staged, modified, and untracked WIP was preserved.
+**Decision:** **SOURCE/CONTRACT PASS; GAMEPLAY-SCALE ACCEPTANCE BLOCKED.**
+
+The verification was rerun without changing runtime, map, mesh, asset, or test source. Focused results:
+
+| Check | Result | Evidence |
+|---|---|---|
+| Ordinary tier assignments and renderer boundary | **PASS** | `test_burgher_house_tiers`: 5/5. All 43 authored ordinary IDs remain assigned across `merchant_stone=14`, `merchant_timber=14`, and `craft_boda=15`; exceptional/special IDs remain untiered; tier fallback, authored-material precedence, wall/roof texture variation, deterministic weathering, and exceptional registry dispatch pass. |
+| Shared environment-kit exceptional boundary | **PASS** | `test_environment_kit_integration`: 5/5. Viru towers remain wall/fortification records without an ordinary roof, gate arches remain separate view landmarks, and view-only construction preserves routes and fingerprints. |
+| Lower Town map route/parity contract | **BLOCKED by existing fixture drift** | `test_lower_town_slice_map`: 18/19 passed. The sole failure is `test_lower_town_slice_matches_canonical_parity_fixture` because `walkability_sha256` differs from the tracked fixture. This verification did not regenerate the fixture or attribute the drift to tier wiring. |
+| Existing P0-102 day/night evidence packet | **PASS for packet integrity; insufficient for R-541** | `python3 tools/verify_p0_102_environment_kit_evidence.py`: 8/8 plates. These four-space plates do not show all three ordinary house tiers together and are not promoted to tier sign-off evidence. |
+| Gameplay-scale visual/art acceptance | **BLOCKED** | A-009 remains conditional: no `docs/reports/images/burgher_houses/signoff_*.png` tier plates or shared route comparison are present. R-6 remains the owner of the final day/night annotations against R-003 decisions 1-10. |
+
+The lower-town parity failure is an existing acceptance input problem, not a source-contract failure in R-541. The saved checked-runner log is `/tmp/rebel-reval-r541-20260821/r541-lower-town-map-20260821.log`; it reports no parser or test errors and identifies only the canonical walkability hash mismatch. R-213 is already `done` and R-353 is already `done`; the remaining R-541 closeout boundary is the missing human/gameplay visual packet owned by R-6/P0-101.
+
+**Current closeout:** keep R-541 open/in progress until a gameplay-scale comparison capture shows all three tiers at one camera scale, with annotations for silhouette, facade/roof/material hierarchy, localized wear, landmark separation, repetition, and occlusion. Do not weaken thresholds or regenerate parity from this verification.
+
+- **Rechecked by:** Codex, implementation/QA verification
+- **Recheck date:** 2026-08-21
+- **Signed result:** source and renderer boundary remains verified; final gameplay-scale acceptance remains **BLOCKED**.
