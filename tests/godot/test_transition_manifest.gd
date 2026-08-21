@@ -64,3 +64,17 @@ func test_transition_manifest_resolves_paths_and_spawns() -> void:
 	assert_false(DoorNavigator.has_spawn(&"forge", &"main"), "Legacy forge spawn alias must be retired")
 	assert_false(DoorNavigator.has_spawn(&"reval_east", &"south_1"), "Legacy district-edge spawns must be retired")
 	assert_false(DoorNavigator.has_spawn(&"forge", &"missing_spawn"), "Missing spawn IDs must not resolve")
+
+func test_transition_manifest_returns_deterministic_spawn_ids() -> void:
+	var spawn_ids := DoorNavigator.get_scene_spawn_ids(&"forge")
+
+	assert_eq(
+		spawn_ids,
+		[&"door_courtyard", &"smithy_start"],
+		"Registered spawn IDs should be sorted and stable"
+	)
+	assert_eq(
+		DoorNavigator.get_scene_spawn_ids(&"archive_only"),
+		[],
+		"Unknown scenes should return no spawn IDs"
+	)
