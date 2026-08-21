@@ -29,6 +29,8 @@ Coordination note (2026-08-13 P0-184): `docs/ARCHITECTURE.md` large-runtime audi
 <!-- R-294 / P4-025e completed in current session -->
 Coordination note (2026-08-11 R-294 / P4-025e): Toompea's Spring-1343 historical acceptance gate now closes the hill-gate dating question. The `toompea_quarter` audit row records Pikk jalg and Lühike jalg as wooden gates with timber/earthen boundary treatment; exact carpentry and guard-house geometry remain bounded reconstruction. The acceptance report annotates all R-006 decisions 1-8 against the four A-012 documentation-only Blender studies and preserves the R-035 post-1346 exclusion lock. This does not claim runtime/gameplay sign-off or activate the prototype; `content/maps/toompea_quarter.rrmap` remains `active=false`. Verified: four `reference_*.png` plates are present at 1200x800 RGBA, the focused Toompea fabric contract is run separately, and the superseded open `C/U` dating sentence is absent.
 
+Coordination note (2026-08-21 R-295 / P4-040): added the typed jurisdiction and hill-gate curfew contract for inactive Toompea. `toompea_danish` and `all_linn_lubeck` bind the two stable hill-gate transitions; `HillGateCurfewController` stores day/night `open` / `closed` state in the existing `GameState.location_states` save payload. The prototype remains `active=false`; focused coverage is `tests/godot/test_jurisdiction_hill_gates.gd`.
+
 ## Current focus (2026-07-30)
 
 - **Milestone:** Act 1 standalone candidate is release-accepted. **P4-012**, **P4-013**, and **P4-044** are closed for package SHA `ea3cf41493394ab6bd01e17de38011b05bf3ee199fd4710a08a4eb3dc`.

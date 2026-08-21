@@ -14,6 +14,19 @@ This document defines the production authoring contract for programmatic maps. I
 
 Non-goals for the first implementation are a visual level editor, a new runtime map contract, a custom YAML/JSON grammar, arbitrary procedural generation, seamless-world streaming, and a universal raw `Dictionary` escape hatch.
 
+## RRMap Editor in Godot
+
+The `RRMap Editor` addon provides a visual companion to the text format. `.rrmap`
+remains the only source of truth, which keeps maps compact, diffable, and easy for
+LLMs to modify. The editor parses the same `MapBlueprint`, previews the normal
+compiled `MapDefinition`, and saves through the deterministic canonical serializer.
+Godot's built-in TileMap editor is intentionally not the authoring contract because
+RRMap also carries semantic buildings, props, transitions, anchors, stable IDs, and
+typed overrides that cannot be represented safely as tile metadata alone.
+
+See [`MAP_ALIGNMENT_EDITOR.md`](MAP_ALIGNMENT_EDITOR.md) for editor tools, direct
+opening from the FileSystem dock, multi-map alignment, and current limitations.
+
 ## City terrain presentation in RRMap
 
 City surface detail is automatic and requires no scene nodes, imported meshes, or
@@ -46,6 +59,10 @@ example `shore.reconstructed_water`), keep `deep_water` outside the approved
 GeoJSON polygon, and do not place the wet layer over walkable timber landings,
 required routes, or gate approaches. The R-033 GeoJSON is WGS84 interchange
 evidence; RRMap coordinates remain local integer cells, not longitude/latitude.
+The current harbour envelopes author S1-S2 on `reval_harbor_east` and S3-S4 on
+`reval_harbor_north`; attested S5-S7 wreck/find points lie outside those local
+maps and must remain evidence references rather than speculative wet geometry or
+walkable interaction anchors.
 
 ## Architecture and terminology
 
@@ -174,6 +191,22 @@ Footprint rules:
 
 New production maps should retire barrel/crate placeholders on plots where one of the kinds above is already defined for that trade.
 
+New R-212 plot/street-threshold dressing props use the normal `prop` primitive and remain view-only. The renderer selects named components from `res://assets/props/architecture/houses/plot_dressing/plot_dressing.glb`; rrmap still owns the gameplay footprint, collision, and navigation.
+
+| Kind | Typical footprint | Contract |
+|---|---|---|
+| `cellar_neck` | `rect=2,1` | Raised stone threshold steps before a merchant/craft entry |
+| `plot_wall` | `rect=3,1` | Low-detail limestone boundary, upper-bound wealthy-strip analogue |
+| `wattle_fence` | `rect=3,1` | Timber/wattle rear-plot boundary |
+| `yard_gate` | `rect=1,1` | Rear-lane or service-yard timber gate, not a city gate |
+| `privy` | `rect=2,1` | Small rear-yard shed over a pit/barrel typology |
+| `well_sweep` | `rect=2,2` | Yard sweep, rope, and bucket dressing beside a well apron |
+| `servant_lean_to` | `rect=3,2` | Compact service lean-to / Hinterhaus mass |
+| `firewood_stack` | `rect=2,2` | Existing domestic/workshop split-fuel stack |
+| `hoist_beam`, `loading_hatch` | `rect=2,1` | Merchant-only loading hardware; requires `house_tier=merchant_stone` or `merchant_timber` and is rejected on `craft_boda` |
+
+The focused contract is `tests/godot/test_burgher_plot_dressing.gd`. Unknown kinds fail with the normal `prop kind is unknown` diagnostic, while merchant-only hardware emits `requires merchant_stone or merchant_timber house_tier`.
+
 ### Modular market-stall displays
 
 `stall` always instantiates the shared `market_stall.glb` frame. Countertop merchandise is selected independently with the typed `display_goods` override:
@@ -275,6 +308,22 @@ Every functional transition must declare how the 3D view dresses the trigger. Fr
 - `highlight_area=true` requires `transition_visual=ground`
 - `building_id` requires `transition_visual=door` and a facade-aligned approach
 - `transition_visual=door` without `building_id` must attach to a gate landmark (`view_landmark_id`) or an explicit interior-wall exception listed in the registry test
+
+### Jurisdiction and hill-gate curfew contract (P4-040)
+
+The inactive `toompea_quarter` prototype is developer-visible as the Danish
+`toompea_danish` jurisdiction. Its `to_reval_center` (Lühike Jalg) and
+`to_reval_north` (Pikk Jalg) transitions descend into the Lubeck-governed
+`all_linn_lubeck` jurisdiction. These names are a closed runtime vocabulary in
+`MapTypes` and `JurisdictionModel`; do not invent per-map spellings.
+
+`HillGateCurfewController` stores `hill_gate.pikk_jalg` and
+`hill_gate.luhike_jalg` as `open` or `closed` location states in `GameState`.
+The Lower Town watch closes both gates during investigation/consequence night
+and opens them during day phases. Because `GameState.location_states` is part of
+its existing save payload, no parallel save format is allowed. The map remains
+`scope=prototype active=false`: the contract is inspectable for tools and
+save/load tests but does not make Toompea traversable in release gameplay.
 
 ## Stable-ID rules
 
@@ -714,7 +763,8 @@ file          = trivia, "rrmap", WS, "1", EOL,
                 { trivia, statement, EOL }, trivia, EOF ;
 trivia        = { blank_line | comment_line } ;
 statement     = source | surroundings | camera | style
-              | terrain | terrain_rects | stroke | building | wall | prop
+              | terrain | terrain_rects | stroke | grade | elevation_area | elevation_ramp
+              | building | wall | prop
               | spawn | transition | anchor | patrol | exclude | fade | decal
               | sign | landmark | package | prefab | override ;
 
@@ -736,6 +786,11 @@ terrain_rects = "terrain_rects", ID, TERRAIN, RECT_LIST,
 stroke        = "stroke", ID, TERRAIN, POINT_LIST,
                 [ "thickness=", INT ], [ "layer=", INT ],
                 [ "order=", INT ], [ "style=", ID ] ;
+grade         = "grade", ID, SIDE, NUMBER ;
+elevation_area = "elevation_area", ID, INT, INT, NUMBER, NUMBER,
+                [ "falloff=", NUMBER ] ;
+elevation_ramp = "elevation_ramp", ID, INT, INT, INT, INT, NUMBER, NUMBER,
+                 [ "width=", NUMBER ] ;
 building      = "building", ID, BUILDING_KIND, RECT,
                 [ "style=", ID ], { typed_option } ;
 wall          = "wall", ID, INT, INT, INT, INT,
