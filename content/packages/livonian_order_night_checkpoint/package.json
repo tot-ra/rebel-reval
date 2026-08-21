@@ -1,0 +1,39 @@
+{
+  "type": "quest_package",
+  "id": "package.livonian_order_night_checkpoint",
+  "schema_version": 1,
+  "title": "Act 1 Livonian Order faction line: The Night Checkpoint",
+  "quest": "content/quest.json",
+  "branch_map": "branch_map.json",
+  "bindings": {
+    "landmark_beats": [
+      "beat.landmark.tallinn.viru_gate_viru_varav"
+    ],
+    "map_anchors": [
+      {
+        "map_id": "lower_town_slice",
+        "anchor_id": "checkpoint_east"
+      }
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P4-021 authored Livonian Order faction-line quest package.",
+      "citations": [
+        "docs/reports/p5_001_act2_design.md",
+        "TODO.md"
+      ]
+    }
+  ],
+  "support": [
+    "../../examples/support/character.aita.json",
+    "../../examples/support/character.henning.json",
+    "../../examples/support/character.kaja.json",
+    "../../examples/support/character.mart.json",
+    "../../examples/valid/character.kalev.json",
+    "../../examples/support/location.lower_town_slice.json",
+    "../../examples/support/location.smithy_courtyard.json",
+    "../../examples/valid/location.kalev_smithy.json"
+  ]
+}

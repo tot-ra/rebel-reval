@@ -1,0 +1,140 @@
+{
+  "type": "quest",
+  "id": "quest.black_cloaks_night_route",
+  "title": "The Night Route",
+  "summary": "Move a sealed rebel message through the night ward, choosing to fight the checkpoint or misdirect the patrol without bloodshed.",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-021",
+    "notes": "Authored Act 1 faction-line package; runtime scene presentation remains downstream work."
+  },
+  "entry_conditions": [],
+  "initial_state": "latent",
+  "states": [
+    {
+      "id": "latent",
+      "label": "Waiting for the night route brief"
+    },
+    {
+      "id": "ready",
+      "label": "Message in hand after curfew"
+    },
+    {
+      "id": "combat_complete",
+      "label": "Message delivered after a fight",
+      "terminal": true
+    },
+    {
+      "id": "non_combat_complete",
+      "label": "Message delivered without a fight",
+      "terminal": true
+    }
+  ],
+  "transitions": [
+    {
+      "id": "brief",
+      "from_state": "latent",
+      "to_state": "ready",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.cloaks.night_route.briefed",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "resolve_combat",
+      "from_state": "ready",
+      "to_state": "combat_complete",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.cloaks.night_route.combat_resolved",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.cloaks.night_route.combat",
+          "value": "faction.black_cloaks",
+          "amount": 1,
+          "summary": "Kalev delivered the Black Cloaks message after fighting through the checkpoint."
+        }
+      ]
+    },
+    {
+      "id": "resolve_non_combat",
+      "from_state": "ready",
+      "to_state": "non_combat_complete",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.cloaks.night_route.non_combat_resolved",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.cloaks.night_route.non_combat",
+          "value": "faction.black_cloaks",
+          "amount": 1,
+          "summary": "Kalev misdirected the patrol and delivered the Black Cloaks message quietly."
+        }
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "complete_assignment",
+      "text": "Reach the night route, then deliver the sealed message by force or misdirection.",
+      "state_id": "ready"
+    },
+    {
+      "id": "record_faction_outcome",
+      "text": "Record the chosen outcome in the faction ledger.",
+      "state_id": "combat_complete"
+    }
+  ],
+  "journal_evidence": [
+    {
+      "fact_id": "fact.black_cloaks_night_route.brief",
+      "text": "Reach the night route, then deliver the sealed message by force or misdirection."
+    },
+    {
+      "fact_id": "fact.black_cloaks_night_route.ledger",
+      "text": "The Black Cloaks records the result as a faction consequence."
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "combat_route",
+      "summary": "Authored combat route outcome.",
+      "effects": []
+    },
+    {
+      "id": "non_combat_route",
+      "summary": "Authored non combat route outcome.",
+      "effects": []
+    }
+  ],
+  "content_links": {
+    "character_ids": [
+      "char.mart",
+      "char.kaja"
+    ],
+    "location_ids": [
+      "loc.lower_town_slice"
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P4-021 Black Cloaks line package with an authored ledger consequence.",
+      "citations": [
+        "docs/reports/p5_001_act2_design.md",
+        "TODO.md"
+      ]
+    }
+  ]
+}

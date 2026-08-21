@@ -1,0 +1,43 @@
+{
+  "quest_id": "quest.livonian_order_grain_tally",
+  "branches": [
+    {
+      "id": "shortage_recorded",
+      "transitions": [
+        "brief",
+        "expose_shortage"
+      ],
+      "setup": {},
+      "require_flags": {},
+      "expect": {
+        "quest_state": "shortage_exposed",
+        "flags": {
+          "flag.order.grain_tally.reviewed": true,
+          "flag.order.grain_tally.shortage_exposed": true
+        },
+        "ledger_events": [
+          "ledger.order.grain_tally.shortage_exposed"
+        ]
+      }
+    },
+    {
+      "id": "quartermaster_spared",
+      "transitions": [
+        "brief",
+        "spare_quartermaster"
+      ],
+      "setup": {},
+      "require_flags": {},
+      "expect": {
+        "quest_state": "quartermaster_spared",
+        "flags": {
+          "flag.order.grain_tally.reviewed": true,
+          "flag.order.grain_tally.quartermaster_spared": true
+        },
+        "ledger_events": [
+          "ledger.order.grain_tally.quartermaster_spared"
+        ]
+      }
+    }
+  ]
+}

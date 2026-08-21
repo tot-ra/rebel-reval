@@ -50,14 +50,22 @@
     {
       "line_id": "faction_line.livonian_order",
       "faction_id": "faction.livonian_order",
-      "status": "planned",
-      "quest_ids": []
+      "status": "authored",
+      "quest_ids": [
+        "quest.livonian_order_grain_tally",
+        "quest.livonian_order_night_checkpoint",
+        "quest.livonian_order_relic_vigil"
+      ]
     },
     {
       "line_id": "faction_line.black_cloaks",
       "faction_id": "faction.black_cloaks",
-      "status": "planned",
-      "quest_ids": []
+      "status": "authored",
+      "quest_ids": [
+        "quest.black_cloaks_iron_mark",
+        "quest.black_cloaks_night_route",
+        "quest.black_cloaks_safehouse_debt"
+      ]
     }
   ],
   "dialogue_word_budget": 12000,

@@ -1,0 +1,43 @@
+{
+  "quest_id": "quest.black_cloaks_safehouse_debt",
+  "branches": [
+    {
+      "id": "debt_paid_openly",
+      "transitions": [
+        "negotiate_terms",
+        "pay_openly"
+      ],
+      "setup": {},
+      "require_flags": {},
+      "expect": {
+        "quest_state": "debt_paid",
+        "flags": {
+          "flag.cloaks.safehouse_debt.terms_ready": true,
+          "flag.cloaks.safehouse_debt.paid_openly": true
+        },
+        "ledger_events": [
+          "ledger.cloaks.safehouse_debt.paid_openly"
+        ]
+      }
+    },
+    {
+      "id": "debt_settled_concealed",
+      "transitions": [
+        "negotiate_terms",
+        "settle_concealed"
+      ],
+      "setup": {},
+      "require_flags": {},
+      "expect": {
+        "quest_state": "debt_concealed",
+        "flags": {
+          "flag.cloaks.safehouse_debt.terms_ready": true,
+          "flag.cloaks.safehouse_debt.settled_concealed": true
+        },
+        "ledger_events": [
+          "ledger.cloaks.safehouse_debt.settled_concealed"
+        ]
+      }
+    }
+  ]
+}

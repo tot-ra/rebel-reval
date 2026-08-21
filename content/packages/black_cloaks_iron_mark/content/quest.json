@@ -1,0 +1,140 @@
+{
+  "type": "quest",
+  "id": "quest.black_cloaks_iron_mark",
+  "title": "The Iron Mark",
+  "summary": "Trace rejected spearheads bearing Kalev's mark and decide whether to expose the forge link or redirect the watch record.",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-021",
+    "notes": "Authored Act 1 faction-line package; runtime scene presentation remains downstream work."
+  },
+  "entry_conditions": [],
+  "initial_state": "latent",
+  "states": [
+    {
+      "id": "latent",
+      "label": "Marked iron not yet traced"
+    },
+    {
+      "id": "marks_found",
+      "label": "Rejected spearheads traced to the lane"
+    },
+    {
+      "id": "forge_exposed",
+      "label": "Forge link exposed to the watch",
+      "terminal": true
+    },
+    {
+      "id": "record_redirected",
+      "label": "Watch record redirected away from the forge",
+      "terminal": true
+    }
+  ],
+  "transitions": [
+    {
+      "id": "inspect_marks",
+      "from_state": "latent",
+      "to_state": "marks_found",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.cloaks.iron_mark.inspected",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "expose_forge",
+      "from_state": "marks_found",
+      "to_state": "forge_exposed",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.cloaks.iron_mark.forge_exposed",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.cloaks.iron_mark.forge_exposed",
+          "value": "faction.black_cloaks",
+          "amount": 1,
+          "summary": "Kalev exposed the marked iron trail to protect the Black Cloaks cell."
+        }
+      ]
+    },
+    {
+      "id": "redirect_record",
+      "from_state": "marks_found",
+      "to_state": "record_redirected",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.cloaks.iron_mark.record_redirected",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.cloaks.iron_mark.record_redirected",
+          "value": "faction.black_cloaks",
+          "amount": 1,
+          "summary": "Kalev redirected the watch record away from the marked forge."
+        }
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "complete_assignment",
+      "text": "Inspect the rejected spearheads and decide what the watch should learn about Kalev's mark.",
+      "state_id": "marks_found"
+    },
+    {
+      "id": "record_faction_outcome",
+      "text": "Record the chosen outcome in the faction ledger.",
+      "state_id": "forge_exposed"
+    }
+  ],
+  "journal_evidence": [
+    {
+      "fact_id": "fact.black_cloaks_iron_mark.brief",
+      "text": "Inspect the rejected spearheads and decide what the watch should learn about Kalev's mark."
+    },
+    {
+      "fact_id": "fact.black_cloaks_iron_mark.ledger",
+      "text": "The Black Cloaks records the result as a faction consequence."
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "forge_exposed",
+      "summary": "Authored forge exposed outcome.",
+      "effects": []
+    },
+    {
+      "id": "record_redirected",
+      "summary": "Authored record redirected outcome.",
+      "effects": []
+    }
+  ],
+  "content_links": {
+    "character_ids": [
+      "char.mart",
+      "char.kalev"
+    ],
+    "location_ids": [
+      "loc.lower_town_slice"
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P4-021 Black Cloaks line package with an authored ledger consequence.",
+      "citations": [
+        "docs/reports/p5_001_act2_design.md",
+        "TODO.md"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "type": "quest_package",
+  "id": "package.livonian_order_relic_vigil",
+  "schema_version": 1,
+  "title": "Act 1 Livonian Order faction line: The Relic Vigil",
+  "quest": "content/quest.json",
+  "branch_map": "branch_map.json",
+  "bindings": {
+    "landmark_beats": [
+      "beat.landmark.tallinn.st_mary_s_cathedral_toomkirik"
+    ],
+    "map_anchors": [
+      {
+        "map_id": "toompea_quarter",
+        "anchor_id": "cathedral_frontage"
+      }
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P4-021 authored Livonian Order faction-line quest package.",
+      "citations": [
+        "docs/reports/p5_001_act2_design.md",
+        "TODO.md"
+      ]
+    }
+  ],
+  "support": [
+    "../../examples/support/character.henning.json"
+  ]
+}

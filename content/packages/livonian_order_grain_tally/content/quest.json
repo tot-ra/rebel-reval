@@ -1,0 +1,139 @@
+{
+  "type": "quest",
+  "id": "quest.livonian_order_grain_tally",
+  "title": "The Order Grain Tally",
+  "summary": "Audit a disputed grain tally for the Order watch and decide whether to expose the shortage or protect the quartermaster.",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-021",
+    "notes": "Authored Act 1 faction-line package; runtime scene presentation remains downstream work."
+  },
+  "entry_conditions": [],
+  "initial_state": "latent",
+  "states": [
+    {
+      "id": "latent",
+      "label": "Waiting for the quartermaster brief"
+    },
+    {
+      "id": "evidence_ready",
+      "label": "Grain tally evidence assembled"
+    },
+    {
+      "id": "shortage_exposed",
+      "label": "Shortage entered in the Order ledger",
+      "terminal": true
+    },
+    {
+      "id": "quartermaster_spared",
+      "label": "Quartermaster protected by a corrected tally",
+      "terminal": true
+    }
+  ],
+  "transitions": [
+    {
+      "id": "brief",
+      "from_state": "latent",
+      "to_state": "evidence_ready",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.order.grain_tally.reviewed",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "expose_shortage",
+      "from_state": "evidence_ready",
+      "to_state": "shortage_exposed",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.order.grain_tally.shortage_exposed",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.order.grain_tally.shortage_exposed",
+          "value": "faction.livonian_order",
+          "amount": 1,
+          "summary": "Kalev entered the grain shortage honestly for the Order watch."
+        }
+      ]
+    },
+    {
+      "id": "spare_quartermaster",
+      "from_state": "evidence_ready",
+      "to_state": "quartermaster_spared",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.order.grain_tally.quartermaster_spared",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.order.grain_tally.quartermaster_spared",
+          "value": "faction.livonian_order",
+          "amount": 1,
+          "summary": "Kalev corrected the tally without exposing the Order quartermaster."
+        }
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "complete_assignment",
+      "text": "Inspect the tally, storage seals, and watch requisition before filing the Order report.",
+      "state_id": "evidence_ready"
+    },
+    {
+      "id": "record_faction_outcome",
+      "text": "Record the chosen outcome in the faction ledger.",
+      "state_id": "shortage_exposed"
+    }
+  ],
+  "journal_evidence": [
+    {
+      "fact_id": "fact.livonian_order_grain_tally.brief",
+      "text": "Inspect the tally, storage seals, and watch requisition before filing the Order report."
+    },
+    {
+      "fact_id": "fact.livonian_order_grain_tally.ledger",
+      "text": "The Livonian Order records the result as a faction consequence."
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "shortage_recorded",
+      "summary": "Authored shortage recorded outcome.",
+      "effects": []
+    },
+    {
+      "id": "quartermaster_spared",
+      "summary": "Authored quartermaster spared outcome.",
+      "effects": []
+    }
+  ],
+  "content_links": {
+    "character_ids": [
+      "char.henning"
+    ],
+    "location_ids": [
+      "loc.lower_town_slice"
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P4-021 Livonian Order line package with an authored ledger consequence.",
+      "citations": [
+        "docs/reports/p5_001_act2_design.md",
+        "TODO.md"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "quest_id": "quest.livonian_order_relic_vigil",
+  "branches": [
+    {
+      "id": "relic_returned",
+      "transitions": [
+        "follow_trail",
+        "return_relic"
+      ],
+      "setup": {},
+      "require_flags": {},
+      "expect": {
+        "quest_state": "returned",
+        "flags": {
+          "flag.order.relic_vigil.trail_found": true,
+          "flag.order.relic_vigil.returned": true
+        },
+        "ledger_events": [
+          "ledger.order.relic_vigil.returned"
+        ]
+      }
+    },
+    {
+      "id": "relic_hidden",
+      "transitions": [
+        "follow_trail",
+        "hide_relic"
+      ],
+      "setup": {},
+      "require_flags": {},
+      "expect": {
+        "quest_state": "hidden",
+        "flags": {
+          "flag.order.relic_vigil.trail_found": true,
+          "flag.order.relic_vigil.hidden": true
+        },
+        "ledger_events": [
+          "ledger.order.relic_vigil.hidden"
+        ]
+      }
+    }
+  ]
+}

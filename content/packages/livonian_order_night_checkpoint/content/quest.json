@@ -1,0 +1,140 @@
+{
+  "type": "quest",
+  "id": "quest.livonian_order_night_checkpoint",
+  "title": "The Night Checkpoint",
+  "summary": "Hold an Order checkpoint through curfew, choosing a direct fight or a controlled surrender that keeps the gate watch intact.",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-021",
+    "notes": "Authored Act 1 faction-line package; runtime scene presentation remains downstream work."
+  },
+  "entry_conditions": [],
+  "initial_state": "latent",
+  "states": [
+    {
+      "id": "latent",
+      "label": "Waiting for the curfew alarm"
+    },
+    {
+      "id": "ready",
+      "label": "At the checkpoint after dark"
+    },
+    {
+      "id": "combat_complete",
+      "label": "Checkpoint held after a fight",
+      "terminal": true
+    },
+    {
+      "id": "non_combat_complete",
+      "label": "Checkpoint held through a controlled surrender",
+      "terminal": true
+    }
+  ],
+  "transitions": [
+    {
+      "id": "brief",
+      "from_state": "latent",
+      "to_state": "ready",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.order.night_checkpoint.briefed",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "resolve_combat",
+      "from_state": "ready",
+      "to_state": "combat_complete",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.order.night_checkpoint.combat_resolved",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.order.night_checkpoint.combat",
+          "value": "faction.livonian_order",
+          "amount": 1,
+          "summary": "Kalev held the Order checkpoint after a curfew fight."
+        }
+      ]
+    },
+    {
+      "id": "resolve_non_combat",
+      "from_state": "ready",
+      "to_state": "non_combat_complete",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.order.night_checkpoint.non_combat_resolved",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.order.night_checkpoint.non_combat",
+          "value": "faction.livonian_order",
+          "amount": 1,
+          "summary": "Kalev kept the Order checkpoint intact through a controlled surrender."
+        }
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "complete_assignment",
+      "text": "Reach the checkpoint after dark and resolve the breach with steel or a controlled surrender.",
+      "state_id": "ready"
+    },
+    {
+      "id": "record_faction_outcome",
+      "text": "Record the chosen outcome in the faction ledger.",
+      "state_id": "combat_complete"
+    }
+  ],
+  "journal_evidence": [
+    {
+      "fact_id": "fact.livonian_order_night_checkpoint.brief",
+      "text": "Reach the checkpoint after dark and resolve the breach with steel or a controlled surrender."
+    },
+    {
+      "fact_id": "fact.livonian_order_night_checkpoint.ledger",
+      "text": "The Livonian Order records the result as a faction consequence."
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "combat_route",
+      "summary": "Authored combat route outcome.",
+      "effects": []
+    },
+    {
+      "id": "non_combat_route",
+      "summary": "Authored non combat route outcome.",
+      "effects": []
+    }
+  ],
+  "content_links": {
+    "character_ids": [
+      "char.henning",
+      "char.kalev"
+    ],
+    "location_ids": [
+      "loc.lower_town_slice"
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P4-021 Livonian Order line package with an authored ledger consequence.",
+      "citations": [
+        "docs/reports/p5_001_act2_design.md",
+        "TODO.md"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,136 @@
+{
+  "type": "quest",
+  "id": "quest.livonian_order_relic_vigil",
+  "title": "The Relic Vigil",
+  "summary": "Trace a disputed relic through the church close and decide whether to return it publicly or hide it from a dangerous procession.",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-021",
+    "notes": "Authored Act 1 faction-line package; runtime scene presentation remains downstream work."
+  },
+  "entry_conditions": [],
+  "initial_state": "latent",
+  "states": [
+    {
+      "id": "latent",
+      "label": "Relic trail not yet followed"
+    },
+    {
+      "id": "trail_found",
+      "label": "Relic trail reaches the cathedral close"
+    },
+    {
+      "id": "returned",
+      "label": "Relic returned to the Order chapel",
+      "terminal": true
+    },
+    {
+      "id": "hidden",
+      "label": "Relic hidden before the procession",
+      "terminal": true
+    }
+  ],
+  "transitions": [
+    {
+      "id": "follow_trail",
+      "from_state": "latent",
+      "to_state": "trail_found",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.order.relic_vigil.trail_found",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "return_relic",
+      "from_state": "trail_found",
+      "to_state": "returned",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.order.relic_vigil.returned",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.order.relic_vigil.returned",
+          "value": "faction.livonian_order",
+          "amount": 1,
+          "summary": "Kalev returned the disputed relic to the Order chapel."
+        }
+      ]
+    },
+    {
+      "id": "hide_relic",
+      "from_state": "trail_found",
+      "to_state": "hidden",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.order.relic_vigil.hidden",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.order.relic_vigil.hidden",
+          "value": "faction.livonian_order",
+          "amount": 1,
+          "summary": "Kalev hid the relic before the Order procession could seize it."
+        }
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "complete_assignment",
+      "text": "Follow the relic trail to the cathedral close and choose its final keeper.",
+      "state_id": "trail_found"
+    },
+    {
+      "id": "record_faction_outcome",
+      "text": "Record the chosen outcome in the faction ledger.",
+      "state_id": "returned"
+    }
+  ],
+  "journal_evidence": [
+    {
+      "fact_id": "fact.livonian_order_relic_vigil.brief",
+      "text": "Follow the relic trail to the cathedral close and choose its final keeper."
+    },
+    {
+      "fact_id": "fact.livonian_order_relic_vigil.ledger",
+      "text": "The Livonian Order records the result as a faction consequence."
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "relic_returned",
+      "summary": "Authored relic returned outcome.",
+      "effects": []
+    },
+    {
+      "id": "relic_hidden",
+      "summary": "Authored relic hidden outcome.",
+      "effects": []
+    }
+  ],
+  "content_links": {
+    "character_ids": [
+      "char.henning"
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P4-021 Livonian Order line package with an authored ledger consequence.",
+      "citations": [
+        "docs/reports/p5_001_act2_design.md",
+        "TODO.md"
+      ]
+    }
+  ]
+}

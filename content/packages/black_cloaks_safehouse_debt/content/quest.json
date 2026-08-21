@@ -1,0 +1,139 @@
+{
+  "type": "quest",
+  "id": "quest.black_cloaks_safehouse_debt",
+  "title": "The Safehouse Debt",
+  "summary": "Settle a safehouse debt in the Lower Town and choose whether to repay the contact openly or preserve the cell through a concealed exchange.",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-021",
+    "notes": "Authored Act 1 faction-line package; runtime scene presentation remains downstream work."
+  },
+  "entry_conditions": [],
+  "initial_state": "latent",
+  "states": [
+    {
+      "id": "latent",
+      "label": "Safehouse debt not yet negotiated"
+    },
+    {
+      "id": "terms_ready",
+      "label": "Terms agreed with the contact"
+    },
+    {
+      "id": "debt_paid",
+      "label": "Debt paid in public",
+      "terminal": true
+    },
+    {
+      "id": "debt_concealed",
+      "label": "Debt settled through a concealed exchange",
+      "terminal": true
+    }
+  ],
+  "transitions": [
+    {
+      "id": "negotiate_terms",
+      "from_state": "latent",
+      "to_state": "terms_ready",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.cloaks.safehouse_debt.terms_ready",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "pay_openly",
+      "from_state": "terms_ready",
+      "to_state": "debt_paid",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.cloaks.safehouse_debt.paid_openly",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.cloaks.safehouse_debt.paid_openly",
+          "value": "faction.black_cloaks",
+          "amount": 1,
+          "summary": "Kalev paid the safehouse debt openly and kept the contact out of hiding."
+        }
+      ]
+    },
+    {
+      "id": "settle_concealed",
+      "from_state": "terms_ready",
+      "to_state": "debt_concealed",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.cloaks.safehouse_debt.settled_concealed",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.cloaks.safehouse_debt.settled_concealed",
+          "value": "faction.black_cloaks",
+          "amount": 1,
+          "summary": "Kalev settled the safehouse debt through a concealed exchange."
+        }
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "complete_assignment",
+      "text": "Negotiate the safehouse terms and decide how visibly to settle the debt.",
+      "state_id": "terms_ready"
+    },
+    {
+      "id": "record_faction_outcome",
+      "text": "Record the chosen outcome in the faction ledger.",
+      "state_id": "debt_paid"
+    }
+  ],
+  "journal_evidence": [
+    {
+      "fact_id": "fact.black_cloaks_safehouse_debt.brief",
+      "text": "Negotiate the safehouse terms and decide how visibly to settle the debt."
+    },
+    {
+      "fact_id": "fact.black_cloaks_safehouse_debt.ledger",
+      "text": "The Black Cloaks records the result as a faction consequence."
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "debt_paid_openly",
+      "summary": "Authored debt paid openly outcome.",
+      "effects": []
+    },
+    {
+      "id": "debt_settled_concealed",
+      "summary": "Authored debt settled concealed outcome.",
+      "effects": []
+    }
+  ],
+  "content_links": {
+    "character_ids": [
+      "char.mart"
+    ],
+    "location_ids": [
+      "loc.lower_town_slice"
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P4-021 Black Cloaks line package with an authored ledger consequence.",
+      "citations": [
+        "docs/reports/p5_001_act2_design.md",
+        "TODO.md"
+      ]
+    }
+  ]
+}

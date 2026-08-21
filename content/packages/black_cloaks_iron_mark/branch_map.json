@@ -1,0 +1,43 @@
+{
+  "quest_id": "quest.black_cloaks_iron_mark",
+  "branches": [
+    {
+      "id": "forge_exposed",
+      "transitions": [
+        "inspect_marks",
+        "expose_forge"
+      ],
+      "setup": {},
+      "require_flags": {},
+      "expect": {
+        "quest_state": "forge_exposed",
+        "flags": {
+          "flag.cloaks.iron_mark.inspected": true,
+          "flag.cloaks.iron_mark.forge_exposed": true
+        },
+        "ledger_events": [
+          "ledger.cloaks.iron_mark.forge_exposed"
+        ]
+      }
+    },
+    {
+      "id": "record_redirected",
+      "transitions": [
+        "inspect_marks",
+        "redirect_record"
+      ],
+      "setup": {},
+      "require_flags": {},
+      "expect": {
+        "quest_state": "record_redirected",
+        "flags": {
+          "flag.cloaks.iron_mark.inspected": true,
+          "flag.cloaks.iron_mark.record_redirected": true
+        },
+        "ledger_events": [
+          "ledger.cloaks.iron_mark.record_redirected"
+        ]
+      }
+    }
+  ]
+}

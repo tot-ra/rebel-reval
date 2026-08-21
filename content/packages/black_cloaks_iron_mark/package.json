@@ -1,0 +1,39 @@
+{
+  "type": "quest_package",
+  "id": "package.black_cloaks_iron_mark",
+  "schema_version": 1,
+  "title": "Act 1 Black Cloaks faction line: The Iron Mark",
+  "quest": "content/quest.json",
+  "branch_map": "branch_map.json",
+  "bindings": {
+    "landmark_beats": [
+      "beat.landmark.tallinn.karja_street_smithies"
+    ],
+    "map_anchors": [
+      {
+        "map_id": "lower_town_slice",
+        "anchor_id": "smithy_door"
+      }
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P4-021 authored Black Cloaks faction-line quest package.",
+      "citations": [
+        "docs/reports/p5_001_act2_design.md",
+        "TODO.md"
+      ]
+    }
+  ],
+  "support": [
+    "../../examples/support/character.aita.json",
+    "../../examples/support/character.henning.json",
+    "../../examples/support/character.kaja.json",
+    "../../examples/support/character.mart.json",
+    "../../examples/valid/character.kalev.json",
+    "../../examples/support/location.lower_town_slice.json",
+    "../../examples/support/location.smithy_courtyard.json",
+    "../../examples/valid/location.kalev_smithy.json"
+  ]
+}

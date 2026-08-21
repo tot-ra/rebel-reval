@@ -1,0 +1,45 @@
+{
+  "quest_id": "quest.black_cloaks_night_route",
+  "branches": [
+    {
+      "id": "combat_route",
+      "route": "combat",
+      "transitions": [
+        "brief",
+        "resolve_combat"
+      ],
+      "setup": {},
+      "require_flags": {},
+      "expect": {
+        "quest_state": "combat_complete",
+        "flags": {
+          "flag.cloaks.night_route.briefed": true,
+          "flag.cloaks.night_route.combat_resolved": true
+        },
+        "ledger_events": [
+          "ledger.cloaks.night_route.combat"
+        ]
+      }
+    },
+    {
+      "id": "non_combat_route",
+      "route": "non_combat",
+      "transitions": [
+        "brief",
+        "resolve_non_combat"
+      ],
+      "setup": {},
+      "require_flags": {},
+      "expect": {
+        "quest_state": "non_combat_complete",
+        "flags": {
+          "flag.cloaks.night_route.briefed": true,
+          "flag.cloaks.night_route.non_combat_resolved": true
+        },
+        "ledger_events": [
+          "ledger.cloaks.night_route.non_combat"
+        ]
+      }
+    }
+  ]
+}
