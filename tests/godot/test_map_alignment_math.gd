@@ -65,6 +65,8 @@ func test_partial_rrmap_load_keeps_valid_definitions_and_reports_invalid_sources
 	assert_eq(definitions[0].map_id, &"lower_town_slice")
 	assert_eq(skipped_names, ["missing_alignment_fixture"])
 	assert_true("file does not exist" in "\n".join(issues))
+	var path_by_map_id: Dictionary = result["path_by_map_id"]
+	assert_eq(path_by_map_id.get(&"lower_town_slice", ""), "res://content/maps/lower_town_slice.rrmap")
 
 
 func test_layout_connected_city_maps_places_every_reciprocal_neighbor() -> void:
@@ -138,10 +140,25 @@ func test_reval_city_cycles_resolve_to_one_physical_offset() -> void:
 	var layout := MapAlignmentMath.layout_connected_maps(definitions, &"lower_town_slice")
 	var offsets: Dictionary = layout["offsets"]
 	for seam in layout["seams"]:
-		var base: MapDefinition = definitions.filter(func(d): return d.map_id == seam["base_map_id"])[0]
-		var neighbor: MapDefinition = definitions.filter(func(d): return d.map_id == seam["neighbor_map_id"])[0]
-		var expected := Vector2(offsets[base.map_id]) + MapAlignmentMath.aligned_neighbor_offset(base, neighbor, seam["base"], seam["neighbor"])
-		assert_eq(Vector2(offsets[neighbor.map_id]), expected, "Conflicting map cycle at %s/%s" % [base.map_id, neighbor.map_id])
+		var base_id: StringName = seam["base_map_id"]
+		var neighbor_id: StringName = seam["neighbor_map_id"]
+		var base: MapDefinition = definitions.filter(
+			func(d): return d.map_id == base_id
+		)[0]
+		var neighbor: MapDefinition = definitions.filter(
+			func(d): return d.map_id == neighbor_id
+		)[0]
+		var expected := (
+			Vector2(offsets[base.map_id])
+			+ MapAlignmentMath.aligned_neighbor_offset(
+				base, neighbor, seam["base"], seam["neighbor"]
+			)
+		)
+		assert_eq(
+			Vector2(offsets[neighbor.map_id]),
+			expected,
+			"Conflicting map cycle at %s/%s" % [base.map_id, neighbor.map_id]
+		)
 
 
 func test_editor_portfolio_contains_accepted_campaign_greyboxes() -> void:
@@ -165,6 +182,7 @@ func test_editor_portfolio_contains_accepted_campaign_greyboxes() -> void:
 		if definition == null:
 			continue
 		assert_eq(definition.size_cells, expected_sizes[source_name], source_name)
-		assert_true(definition.interaction_anchors.size() >= 2, "%s needs working landmarks" % source_name)
+		assert_true(definition.interaction_anchors.size() >= 2,
+			"%s needs working landmarks" % source_name)
 		assert_eq(definition.scope, &"prototype")
 		assert_false(definition.active)

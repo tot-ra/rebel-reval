@@ -61,6 +61,8 @@ var background_opacity := 0.55
 var background_visible := true
 var edit_background := false
 var edit_mode := false
+## When set, the matching authored primitive is outlined on the selected map.
+var selected_primitive_id: StringName = &""
 
 var _zoom := 0.12
 var _pan := Vector2.ZERO
@@ -77,7 +79,8 @@ func _ready() -> void:
 	resized.connect(_on_resized)
 
 
-func configure(map_definitions: Array[MapDefinition], offsets: Dictionary, map_seams: Array[Dictionary]) -> void:
+func configure(map_definitions: Array[MapDefinition], offsets: Dictionary,
+	map_seams: Array[Dictionary]) -> void:
 	layers.clear()
 	seams = map_seams
 	for index in map_definitions.size():
@@ -96,12 +99,19 @@ func configure(map_definitions: Array[MapDefinition], offsets: Dictionary, map_s
 	queue_redraw()
 
 
-func update_layer_definition(map_id: StringName, updated_definition: MapDefinition) -> void:
+func update_layer_definition(
+	map_id: StringName,
+	updated_definition: MapDefinition,
+	rebuild_terrain := true
+) -> void:
 	for index in layers.size():
 		if layers[index]["id"] != map_id:
 			continue
 		layers[index]["definition"] = updated_definition
-		layers[index]["terrain_texture"] = _build_terrain_texture(updated_definition)
+		# Prop/building edits leave terrain unchanged. Rebuilding MapBuilder + pixel
+		# textures on every click is the main placement lag on district-sized maps.
+		if rebuild_terrain or layers[index].get("terrain_texture") == null:
+			layers[index]["terrain_texture"] = _build_terrain_texture(updated_definition)
 		queue_redraw()
 		view_changed.emit()
 		return
@@ -295,7 +305,10 @@ func _gui_input(event: InputEvent) -> void:
 		elif button.button_index == MOUSE_BUTTON_WHEEL_DOWN and button.pressed:
 			_zoom_at(button.position, 1.0 / 1.12)
 			accept_event()
-		elif button.button_index in [MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT] and button.pressed and edit_mode and not edit_background:
+		elif (
+			button.button_index in [MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT]
+			and button.pressed and edit_mode and not edit_background
+		):
 			var clicked_cell := _cell_at(button.position)
 			if clicked_cell != Vector2i(-1, -1):
 				edit_cell_clicked.emit(clicked_cell, button.button_index)
@@ -337,6 +350,10 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not is_visible_in_tree():
 		return
 	if event is InputEventKey and event.pressed and not event.echo:
+		if edit_mode:
+			# The workspace owns arrows while an RRMap primitive is selected. Leaving
+			# this event unhandled prevents map-layer alignment from moving instead.
+			return
 		var key := event as InputEventKey
 		var delta := Vector2i.ZERO
 		match key.keycode:
@@ -407,26 +424,59 @@ func _draw_map(map_layer: Dictionary) -> void:
 	var world_rect := _screen_rect(Rect2(offset, definition.world_size()))
 	var texture: Texture2D = map_layer["terrain_texture"]
 	draw_texture_rect(texture, world_rect, false, Color(1.0, 1.0, 1.0, opacity))
+	var map_selected: bool = StringName(map_layer["id"]) == selected_map_id
 	if show_features:
 		for building in definition.buildings:
 			var primitive := StringName(building.get("primitive", &"house"))
-			var fill := Color8(150, 137, 119) if primitive not in [&"wall", &"palisade"] else Color8(86, 82, 79)
+			var fill := Color8(150, 137, 119) if primitive not in [&"wall", &"palisade"] else Color8(86, 82,
+				79)
 			var rect: Rect2 = building["footprint"]
 			var screen_rect := _screen_rect(Rect2(rect.position + offset, rect.size))
 			draw_rect(screen_rect, Color(fill, opacity * 0.88), true)
 			draw_rect(screen_rect, Color(accent, opacity), false, maxf(1.0, _zoom * 2.0))
+			_draw_selection_outline(building.get("id", &""), screen_rect, map_selected)
 			if show_ids:
 				_draw_id(String(building["id"]), screen_rect.get_center(), accent, opacity)
+		for prop in definition.props:
+			var prop_screen := _prop_screen_rect(prop, definition, offset)
+			if not prop_screen.has_area():
+				continue
+			draw_rect(prop_screen, Color(0.2, 0.55, 0.95, opacity * 0.72), true)
+			draw_rect(prop_screen, Color(0.85, 0.95, 1.0, opacity), false, maxf(1.0, _zoom * 1.5))
+			_draw_selection_outline(prop.get("id", &""), prop_screen, map_selected)
+			if show_ids:
+				_draw_id(String(prop.get("kind", prop.get("id", &""))), prop_screen.get_center(), Color(0.75,
+					0.9, 1.0), opacity)
 		for transition in definition.transitions:
 			var rect: Rect2 = transition["rect"]
 			var screen_rect := _screen_rect(Rect2(rect.position + offset, rect.size))
 			draw_rect(screen_rect, Color(1.0, 0.2, 0.2, opacity * 0.38), true)
 			draw_rect(screen_rect, Color(1.0, 0.25, 0.2, opacity), false, 3.0)
+			_draw_selection_outline(transition.get("id", &""), screen_rect, map_selected)
 			if show_ids:
 				_draw_id(String(transition["id"]), screen_rect.get_center(), Color(1.0, 0.38, 0.3), opacity)
-	var selected: bool = StringName(map_layer["id"]) == selected_map_id
-	draw_rect(world_rect, Color.WHITE if selected else Color(accent, opacity), false, 5.0 if selected else 2.0)
-	_draw_id(String(DISPLAY_NAMES.get(definition.map_id, definition.map_id)), world_rect.position + Vector2(8.0, 20.0), Color.WHITE if selected else accent, opacity, false)
+	draw_rect(world_rect, Color.WHITE if map_selected else Color(accent, opacity), false,
+		5.0 if map_selected else 2.0)
+	_draw_id(String(DISPLAY_NAMES.get(definition.map_id, definition.map_id)),
+		world_rect.position + Vector2(8.0, 20.0), Color.WHITE if map_selected else accent, opacity, false)
+
+
+func _prop_screen_rect(prop: Dictionary, definition: MapDefinition, offset: Vector2) -> Rect2:
+	var cell_size := float(definition.cell_size)
+	var world_position: Vector2 = prop.get("position", Vector2.ZERO)
+	var footprint: Rect2 = prop.get("footprint", Rect2())
+	if footprint.has_area():
+		return _screen_rect(Rect2(footprint.position + offset, footprint.size))
+	# Fallback: one-cell marker centred on the compiled world position.
+	var marker := Rect2(world_position - Vector2.ONE * cell_size * 0.35, Vector2.ONE * cell_size * 0.7)
+	return _screen_rect(Rect2(marker.position + offset, marker.size))
+
+
+func _draw_selection_outline(primitive_id: StringName, screen_rect: Rect2,
+	map_selected: bool) -> void:
+	if not map_selected or selected_primitive_id.is_empty() or primitive_id != selected_primitive_id:
+		return
+	draw_rect(screen_rect.grow(3.0), Color(1.0, 0.92, 0.2, 0.95), false, maxf(2.0, _zoom * 3.0))
 
 
 func _cell_at(screen_point: Vector2) -> Vector2i:
@@ -437,14 +487,22 @@ func _cell_at(screen_point: Vector2) -> Vector2i:
 		return Vector2i(-1, -1)
 	var definition: MapDefinition = target["definition"]
 	var world_point := (screen_point - _pan) / _zoom - Vector2(target["offset"])
-	var cell := Vector2i(floori(world_point.x / float(definition.cell_size)), floori(world_point.y / float(definition.cell_size)))
-	if cell.x < 0 or cell.y < 0 or cell.x >= definition.size_cells.x or cell.y >= definition.size_cells.y:
+	var cell := Vector2i(
+		floori(world_point.x / float(definition.cell_size)),
+		floori(world_point.y / float(definition.cell_size))
+	)
+	if (
+		cell.x < 0 or cell.y < 0
+		or cell.x >= definition.size_cells.x
+		or cell.y >= definition.size_cells.y
+	):
 		return Vector2i(-1, -1)
 	return cell
 
 func _build_terrain_texture(definition: MapDefinition) -> ImageTexture:
 	var grid := MapBuilder.build(definition)
-	var image := Image.create(definition.size_cells.x, definition.size_cells.y, false, Image.FORMAT_RGBA8)
+	var image := Image.create(definition.size_cells.x, definition.size_cells.y, false,
+		Image.FORMAT_RGBA8)
 	for y in definition.size_cells.y:
 		for x in definition.size_cells.x:
 			image.set_pixel(x, y, OutdoorTerrainPalette.color(grid.get_terrain(Vector2i(x, y))))
@@ -463,11 +521,13 @@ func _draw_grid() -> void:
 	var start_y := floorf(visible_world.position.y / cell_size) * cell_size
 	var x := start_x
 	while x <= visible_world.end.x:
-		draw_line(_screen(Vector2(x, visible_world.position.y)), _screen(Vector2(x, visible_world.end.y)), Color(1, 1, 1, 0.13), 1.0)
+		draw_line(_screen(Vector2(x, visible_world.position.y)), _screen(Vector2(x, visible_world.end.y)),
+			Color(1, 1, 1, 0.13), 1.0)
 		x += cell_size
 	var y := start_y
 	while y <= visible_world.end.y:
-		draw_line(_screen(Vector2(visible_world.position.x, y)), _screen(Vector2(visible_world.end.x, y)), Color(1, 1, 1, 0.13), 1.0)
+		draw_line(_screen(Vector2(visible_world.position.x, y)), _screen(Vector2(visible_world.end.x, y)),
+			Color(1, 1, 1, 0.13), 1.0)
 		y += cell_size
 
 
@@ -475,25 +535,32 @@ func _draw_seams() -> void:
 	for seam in seams:
 		var first := layer(seam["base_map_id"])
 		var second := layer(seam["neighbor_map_id"])
-		if first.is_empty() or second.is_empty() or not bool(first["visible"]) or not bool(second["visible"]):
+		if (
+			first.is_empty() or second.is_empty()
+			or not bool(first["visible"])
+			or not bool(second["visible"])
+		):
 			continue
 		var first_rect: Rect2 = seam["base"]["rect"]
 		var second_rect: Rect2 = seam["neighbor"]["rect"]
 		var first_center := _screen(first_rect.get_center() + Vector2(first["offset"]))
 		var second_center := _screen(second_rect.get_center() + Vector2(second["offset"]))
-		var mismatch := not is_equal_approx(float(seam["base_span_cells"]), float(seam["neighbor_span_cells"]))
+		var mismatch := not is_equal_approx(float(seam["base_span_cells"]),
+			float(seam["neighbor_span_cells"]))
 		var color := Color(1.0, 0.25, 0.2) if mismatch else Color(1.0, 0.95, 0.2)
 		draw_line(first_center, second_center, color, 4.0)
 		draw_circle(first_center, 6.0, Color(first["accent"]))
 		draw_circle(second_center, 6.0, Color(second["accent"]))
 
 
-func _draw_id(text: String, position: Vector2, color: Color, opacity: float, centered := true) -> void:
+func _draw_id(text: String, position: Vector2, color: Color, opacity: float,
+	centered := true) -> void:
 	var font := ThemeDB.fallback_font
 	var font_size := 13
 	var text_size := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size)
 	var origin := position - Vector2(text_size.x * 0.5, -font_size * 0.35) if centered else position
-	draw_rect(Rect2(origin - Vector2(3.0, float(font_size)), text_size + Vector2(6.0, 5.0)), Color(0.02, 0.02, 0.025, opacity * 0.8), true)
+	draw_rect(Rect2(origin - Vector2(3.0, float(font_size)), text_size + Vector2(6.0, 5.0)),
+		Color(0.02, 0.02, 0.025, opacity * 0.8), true)
 	draw_string(font, origin, text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size, Color(color, opacity))
 
 
@@ -501,7 +568,8 @@ func _draw_center_message(message: String) -> void:
 	var font := ThemeDB.fallback_font
 	var font_size := 18
 	var text_size := font.get_string_size(message, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size)
-	draw_string(font, size * 0.5 - Vector2(text_size.x * 0.5, 0.0), message, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size, Color8(190, 194, 201))
+	draw_string(font, size * 0.5 - Vector2(text_size.x * 0.5, 0.0), message, HORIZONTAL_ALIGNMENT_LEFT,
+		-1.0, font_size, Color8(190, 194, 201))
 
 
 func _screen(world: Vector2) -> Vector2:

@@ -9,7 +9,7 @@ func _enter_tree() -> void:
 	_loader = RrmapResourceFormatLoader.new()
 	ResourceLoader.add_resource_format_loader(_loader)
 	_alignment_workspace = MapAlignmentWorkspace.new()
-	_alignment_workspace.name = "RRMapAlignmentWorkspace"
+	_alignment_workspace.name = "RRMapEditorWorkspace"
 	_alignment_workspace.hide()
 	get_editor_interface().get_editor_main_screen().add_child(_alignment_workspace)
 
@@ -32,8 +32,20 @@ func _make_visible(visible: bool) -> void:
 		_alignment_workspace.visible = visible
 
 
+func _handles(object: Object) -> bool:
+	return object is RrmapResource
+
+
+func _edit(object: Object) -> void:
+	if not object is RrmapResource or not is_instance_valid(_alignment_workspace):
+		return
+	var resource := object as RrmapResource
+	_alignment_workspace.open_source(resource.source_path)
+	get_editor_interface().set_main_screen_editor("RRMap Editor")
+
+
 func _get_plugin_name() -> String:
-	return "Map Alignment"
+	return "RRMap Editor"
 
 
 func _get_plugin_icon() -> Texture2D:
