@@ -13,7 +13,9 @@ counts open / done rows per bucket. The existing summary block right after
 the header is replaced with a freshly computed Markdown table; everything else
 in the file is left untouched.
 
-Exit codes: 0 = success, 1 = TODO.md missing or unparseable."""
+Exit codes: 0 = success, 1 = TODO.md missing or unparseable. `scan_todo()` raises
+`ValueError` when a task-like checklist row is missing required task fields.
+"""
 from __future__ import annotations
 
 import argparse
@@ -63,18 +65,28 @@ def scan_todo(path: Path) -> dict[str, Counters]:
     counts: dict[str, Counters] = {}
 
     # Match task rows: "- [ ]" or "- [x]"/"- [X]" followed by an ID like D-001 or P2-045.
-    pattern = re.compile(
-        r"^-\s+\[(?:[ xX])\]\s+(D|R|A|P\d+)-\d+[a-z]*\b.*?deps:\s*(.*?)\s*\|\s*deliverable:"
+    row_pattern = re.compile(r"^-\s+\[(?:[ xX])\]\s+(D|R|A|P\d+)-\d+[a-z]*\b(.*)$")
+    fields_pattern = re.compile(r"\bdeps:\s*.*?\|\s*deliverable:")
+    valid_pattern = re.compile(
+        r"^-(?:\s+)\[(?:[ xX])\]\s+(D|R|A|P\d+)-\d+[a-z]*\b.*?deps:\s*(.*?)\s*\|\s*deliverable:"
     )
 
-    for line in text.splitlines():
-        m = pattern.match(line.strip())
-        if not m:
+    for line_number, line in enumerate(text.splitlines(), start=1):
+        stripped = line.strip()
+        row_match = row_pattern.match(stripped)
+        if not row_match:
             continue
-        priority, deps = m.group(1), m.group(2)
+        if not fields_pattern.search(row_match.group(2)):
+            raise ValueError(
+                f"line {line_number}: task row is missing `deps:` and `deliverable:` fields"
+            )
+        match = valid_pattern.match(stripped)
+        if match is None:
+            raise ValueError(f"line {line_number}: task row fields are malformed")
+        priority = match.group(1)
         bucket = _bucket_for(priority)
         counters = counts.setdefault(bucket, Counters())
-        is_done = line.lstrip().lower().startswith("- [x]")
+        is_done = stripped.lower().startswith("- [x]")
         if is_done:
             counters.done_count += 1
         else:
@@ -180,7 +192,11 @@ def main() -> int:
         print(f"ERROR: {todo_path} not found", file=sys.stderr)
         return 1
 
-    counts = scan_todo(todo_path)
+    try:
+        counts = scan_todo(todo_path)
+    except ValueError as error:
+        print(f"ERROR: {todo_path} is unparseable: {error}", file=sys.stderr)
+        return 1
     table = build_table(counts)
     print(table)
 

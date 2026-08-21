@@ -259,6 +259,37 @@ class UpdateTodoCountsTest(unittest.TestCase):
             self.assertIn(b"|     2  |     1  |", updated)
             self.assertNotEqual(original, updated)
 
+    def test_cli_rejects_task_row_without_required_fields(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            todo = Path(temp_dir) / "TODO.md"
+            todo.write_text(
+                "\n".join(
+                    [
+                        "# Fixture TODO",
+                        "",
+                        "- [ ] P2-001 | verify: this row is missing task fields",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+
+            command = [
+                sys.executable,
+                str(TOOLS / "update_todo_counts.py"),
+                "--path",
+                str(todo),
+            ]
+            result = subprocess.run(command, capture_output=True, text=True, check=False)
+
+            self.assertEqual(result.returncode, 1)
+            self.assertIn("is unparseable", result.stderr)
+            self.assertIn("line 3", result.stderr)
+            self.assertIn("missing `deps:` and `deliverable:` fields", result.stderr)
+            self.assertEqual(
+                todo.read_text(encoding="utf-8"),
+                "# Fixture TODO\n\n- [ ] P2-001 | verify: this row is missing task fields",
+            )
+
 
 if __name__ == "__main__":
     unittest.main()
