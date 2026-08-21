@@ -141,6 +141,35 @@ func test_coastal_gate_preserves_1343_single_tower_profile() -> void:
 		)
 
 
+func test_coastal_gate_1343_exceptional_contract_is_inactive_and_timber() -> void:
+	var definition: MapDefinition = NorthQuarterDefinition.create()
+	assert_false(definition.active, "North Quarter must remain an inactive prototype")
+
+	var gate_arch := _landmark_by_id(definition, &"coast_gate_arch")
+	assert_eq(gate_arch.get("kind", &""), &"gate_arch")
+	assert_eq(
+		gate_arch.get("door_material", &""),
+		&"wood",
+		"The 1343 Coastal Gate keeps a timber leaf rather than a later masonry/barbican treatment"
+	)
+	assert_eq(
+		gate_arch.get("top_px", 0),
+		240.0,
+		"The exceptional gate remains a restrained low gate mass"
+	)
+
+	var completed_tower := _building_by_id(definition, &"coast_gate_west_tower")
+	var eastern_mass := _building_by_id(definition, &"coast_gate_east_tower")
+	assert_true(
+		bool(completed_tower.get("tower", false)),
+		"The west gate tower remains the only completed tower"
+	)
+	assert_false(
+		bool(eastern_mass.get("tower", true)),
+		"The east gate mass must stay below the single-tower profile"
+	)
+
+
 func test_merchant_district_connects_to_monastery_district() -> void:
 	var definition: MapDefinition = NorthQuarterDefinition.create()
 	var transition_by_id: Dictionary = {}
