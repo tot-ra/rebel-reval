@@ -1,0 +1,77 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.carter.harbour_barrel_run",
+  "title": "The Harbour Carter's Price",
+  "confidence": "plausible composite",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-038",
+    "notes": "Negotiated harbour-to-forge transport exchange for the cart quest beat."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "participants": [
+    "char.kalev",
+    "char.merchant_stall"
+  ],
+  "start_node_id": "price_open",
+  "word_count_estimate": 74,
+  "nodes": [
+    {
+      "id": "price_open",
+      "speaker_id": "char.merchant_stall",
+      "text": "The harbour barrels will reach the forge if you hire a carter now. Six schillings buys a light run; ten buys a driver who will not wait for a second bargain.",
+      "choices": [
+        {
+          "id": "negotiate_hire",
+          "text": "I will agree the carter's 6-10 schilling hire.",
+          "target_node_id": "hire_recorded"
+        },
+        {
+          "id": "delay",
+          "text": "Wait. I will find another route.",
+          "target_node_id": "curfew_warning"
+        }
+      ]
+    },
+    {
+      "id": "hire_recorded",
+      "speaker_id": "char.kalev",
+      "text": "The hire is agreed. Load the barrels and keep the forge route clear before curfew.",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.harbour_barrel_run.carter_hire_negotiated",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "curfew_warning",
+      "speaker_id": "char.merchant_stall",
+      "text": "Then do not call it a civic charge when the watch closes the gate. The route simply waits for daylight.",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.harbour_barrel_run.curfew_missed",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "plausible composite",
+      "summary": "The 6-10 schilling range and negotiated harbour-to-forge exchange are authored production dialogue based on the R-068/R-069 hook.",
+      "citations": [
+        "history/dossiers/economy/reval-cart-tolls-and-fuhr-rent-1340s.md",
+        "history/dossiers/economy/merchant-cart-and-transport-1340s.md"
+      ]
+    }
+  ]
+}

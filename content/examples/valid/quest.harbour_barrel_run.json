@@ -1,0 +1,187 @@
+{
+  "type": "quest",
+  "id": "quest.harbour_barrel_run",
+  "title": "Barrels from the Harbour",
+  "summary": "Get a harbour barrel load to the forge by negotiating a 6-10 schilling carter hire before curfew.",
+  "confidence": "plausible composite",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-038",
+    "notes": "R-068/R-069 transport beat; the negotiated carter hire is authored connective tissue, not a dated tariff."
+  },
+  "entry_conditions": [
+    {
+      "op": "always"
+    }
+  ],
+  "initial_state": "hire_pending",
+  "states": [
+    {
+      "id": "hire_pending",
+      "label": "Carter hire is not yet negotiated"
+    },
+    {
+      "id": "hire_agreed",
+      "label": "A carter accepted 6-10 schillings for the harbour-to-forge run"
+    },
+    {
+      "id": "delivered",
+      "label": "Barrels reached the forge before curfew",
+      "terminal": true
+    },
+    {
+      "id": "curfew_failed",
+      "label": "Curfew closed the route before the barrels moved",
+      "terminal": true
+    }
+  ],
+  "transitions": [
+    {
+      "id": "negotiate_carter_hire",
+      "from_state": "hire_pending",
+      "to_state": "hire_agreed",
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.harbour_barrel_run.carter_hire_negotiated",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.harbour_barrel_run.hire_agreed",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "deliver_before_curfew",
+      "from_state": "hire_agreed",
+      "to_state": "delivered",
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.harbour_barrel_run.delivered_before_curfew",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.harbour_barrel_run.forge_stock_delivered",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "miss_curfew",
+      "from_state": "hire_pending",
+      "to_state": "curfew_failed",
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.harbour_barrel_run.curfew_missed",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.harbour_barrel_run.curfew_failed",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "miss_curfew_after_hire",
+      "from_state": "hire_agreed",
+      "to_state": "curfew_failed",
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.harbour_barrel_run.curfew_missed",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.harbour_barrel_run.curfew_failed",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "find_carter",
+      "text": "Find the harbour carter and negotiate a 6-10 schilling hire.",
+      "state_id": "hire_pending"
+    },
+    {
+      "id": "move_barrels",
+      "text": "Take the barrels from the harbour to the forge before curfew.",
+      "state_id": "hire_agreed"
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "barrels_delivered",
+      "summary": "The forge receives the harbour barrels after a negotiated carter hire.",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.harbour_barrel_run",
+          "value": "delivered"
+        }
+      ]
+    },
+    {
+      "id": "curfew_route_lost",
+      "summary": "The watch closes the route and the barrel run fails without inventing a civic cart charge.",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.harbour_barrel_run",
+          "value": "curfew_failed"
+        }
+      ]
+    }
+  ],
+  "content_links": {
+    "character_ids": [
+      "char.kalev",
+      "char.merchant_stall"
+    ],
+    "dialogue_ids": [
+      "dialogue.carter.harbour_barrel_run"
+    ],
+    "bark_ids": [
+      "bark.cart.transport"
+    ],
+    "location_ids": [
+      "loc.lower_town_slice"
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "plausible composite",
+      "summary": "A negotiated 6-10 schilling urban carter hire and a harbour-to-forge barrel run are authored production connective tissue.",
+      "citations": [
+        "history/dossiers/economy/reval-cart-tolls-and-fuhr-rent-1340s.md",
+        "history/dossiers/economy/merchant-cart-and-transport-1340s.md",
+        "docs/reports/merchant_cart_transport_contract.md"
+      ]
+    },
+    {
+      "confidence": "plausible composite",
+      "summary": "Curfew failure is a watch and timing consequence; the R-069 evidence gap does not authorize a municipal cart charge.",
+      "citations": [
+        "history/dossiers/military/watch-duty-and-town-defence.md",
+        "history/dossiers/economy/reval-cart-tolls-and-fuhr-rent-1340s.md"
+      ]
+    }
+  ]
+}

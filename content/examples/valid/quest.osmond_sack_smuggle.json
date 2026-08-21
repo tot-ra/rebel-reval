@@ -1,0 +1,167 @@
+{
+  "type": "quest",
+  "id": "quest.osmond_sack_smuggle",
+  "title": "Osmond Under the Sack",
+  "summary": "Move an osmond sack through the cart queue by bribing the carter instead of asking a civic fee collector for passage.",
+  "confidence": "plausible composite",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-038",
+    "notes": "R-068/R-069 smuggling beat; the transport payment is a private carter bribe and not a municipal axle charge."
+  },
+  "entry_conditions": [
+    {
+      "op": "always"
+    }
+  ],
+  "initial_state": "sack_hidden",
+  "states": [
+    {
+      "id": "sack_hidden",
+      "label": "The osmond is hidden under a sack"
+    },
+    {
+      "id": "bribe_agreed",
+      "label": "The carter accepted a private bribe to carry the hidden osmond"
+    },
+    {
+      "id": "smuggled",
+      "label": "The osmond passed under the sack",
+      "terminal": true
+    },
+    {
+      "id": "carter_refused",
+      "label": "The carter refused and the smuggling route failed",
+      "terminal": true
+    }
+  ],
+  "transitions": [
+    {
+      "id": "bribe_carter",
+      "from_state": "sack_hidden",
+      "to_state": "bribe_agreed",
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.osmond_sack_smuggle.carter_bribe_agreed",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.osmond_sack_smuggle.carter_bribed",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "pass_under_sack",
+      "from_state": "bribe_agreed",
+      "to_state": "smuggled",
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.osmond_sack_smuggle.passed_checkpoint",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.osmond_sack_smuggle.passed",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "carter_refuses",
+      "from_state": "sack_hidden",
+      "to_state": "carter_refused",
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.osmond_sack_smuggle.carter_refused",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.osmond_sack_smuggle.failed",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "find_willing_carter",
+      "text": "Find a carter willing to carry the osmond under an ordinary sack.",
+      "state_id": "sack_hidden"
+    },
+    {
+      "id": "cross_with_sack",
+      "text": "Bribe the carter and get the hidden osmond through the queue.",
+      "state_id": "bribe_agreed"
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "osmond_smuggled",
+      "summary": "The carter's private bribe carries the osmond through under the sack.",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.osmond_sack_smuggle",
+          "value": "smuggled"
+        }
+      ]
+    },
+    {
+      "id": "smuggle_failed",
+      "summary": "The carter refuses the bribe and the osmond remains hidden.",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.osmond_sack_smuggle",
+          "value": "carter_refused"
+        }
+      ]
+    }
+  ],
+  "content_links": {
+    "character_ids": [
+      "char.kalev",
+      "char.merchant_stall"
+    ],
+    "dialogue_ids": [
+      "dialogue.carter.osmond_sack_smuggle"
+    ],
+    "bark_ids": [
+      "bark.cart.transport"
+    ],
+    "location_ids": [
+      "loc.lower_town_slice"
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "plausible composite",
+      "summary": "The hidden osmond sack, queue crossing, and carter negotiation are authored connective tissue from the transport and blacksmith-material dossiers.",
+      "citations": [
+        "history/dossiers/economy/reval-cart-tolls-and-fuhr-rent-1340s.md",
+        "history/dossiers/crafts/blacksmith-materials-and-techniques.md"
+      ]
+    },
+    {
+      "confidence": "plausible composite",
+      "summary": "The route resolves through a private carter bribe; the R-069 evidence gap does not become a civic passage fee.",
+      "citations": [
+        "history/dossiers/economy/reval-cart-tolls-and-fuhr-rent-1340s.md",
+        "docs/reports/merchant_cart_transport_contract.md"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "type": "quest_package",
+  "id": "package.harbour_barrel_run",
+  "schema_version": 1,
+  "title": "Harbour barrel run transport beat",
+  "quest": "../../examples/valid/quest.harbour_barrel_run.json",
+  "dialogue": [
+    "../../examples/support/dialogue.carter.harbour_barrel_run.json"
+  ],
+  "support": [
+    "../../examples/valid/character.kalev.json",
+    "../../examples/valid/location.kalev_smithy.json",
+    "../../examples/valid/bark.cart.transport.json",
+    "../../examples/support/character.merchant_stall.json",
+    "../../examples/support/character.henning.json",
+    "../../examples/support/character.mart.json",
+    "../../examples/support/character.aita.json",
+    "../../examples/support/location.lower_town_slice.json",
+    "../../examples/support/location.smithy_courtyard.json"
+  ],
+  "branch_map": "branch_map.json",
+  "bindings": {
+    "landmark_beats": [
+      "beat.landmark.tallinn.viru_street_viru_tanav",
+      "beat.landmark.tallinn.anchor_forge_outstation"
+    ],
+    "map_anchors": [
+      {
+        "map_id": "lower_town_slice",
+        "anchor_id": "street_start"
+      }
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "plausible composite",
+      "summary": "R-068/R-069 harbour-to-forge barrel run with negotiated carter hire and curfew failure.",
+      "citations": [
+        "history/dossiers/economy/reval-cart-tolls-and-fuhr-rent-1340s.md",
+        "TODO.md"
+      ]
+    }
+  ]
+}

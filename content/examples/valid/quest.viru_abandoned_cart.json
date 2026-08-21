@@ -1,0 +1,191 @@
+{
+  "type": "quest",
+  "id": "quest.viru_abandoned_cart",
+  "title": "The Cart at the Viru Queue",
+  "summary": "Deal with a cart abandoned in the siege-week Viru queue while the council treats the obstruction as a dumping offence.",
+  "confidence": "plausible composite",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-038",
+    "notes": "R-068/R-069 siege-week traffic beat; the civic response is a market-order fine, not a vehicle tariff."
+  },
+  "entry_conditions": [
+    {
+      "op": "always"
+    }
+  ],
+  "initial_state": "queue_waiting",
+  "states": [
+    {
+      "id": "queue_waiting",
+      "label": "The siege-week cart is still waiting at the Viru queue"
+    },
+    {
+      "id": "cart_abandoned",
+      "label": "The cart was abandoned in the Viru queue"
+    },
+    {
+      "id": "dumping_fine_pending",
+      "label": "The council is preparing a dumping fine for the obstruction"
+    },
+    {
+      "id": "route_cleared",
+      "label": "The queue is cleared and the market route is open",
+      "terminal": true
+    },
+    {
+      "id": "fine_recorded",
+      "label": "The dumping fine is recorded against the abandoned load",
+      "terminal": true
+    }
+  ],
+  "transitions": [
+    {
+      "id": "find_abandoned_cart",
+      "from_state": "queue_waiting",
+      "to_state": "cart_abandoned",
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.viru_abandoned_cart.cart_abandoned",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.viru_abandoned_cart.found",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "council_names_dumping_fine",
+      "from_state": "cart_abandoned",
+      "to_state": "dumping_fine_pending",
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.viru_abandoned_cart.dumping_notice",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.viru_abandoned_cart.dumping_fine_pending",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "clear_queue",
+      "from_state": "cart_abandoned",
+      "to_state": "route_cleared",
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.viru_abandoned_cart.cart_removed",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.viru_abandoned_cart.route_cleared",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "record_dumping_fine",
+      "from_state": "dumping_fine_pending",
+      "to_state": "fine_recorded",
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.viru_abandoned_cart.fine_recorded",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.viru_abandoned_cart.dumping_fine_recorded",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "inspect_viru_queue",
+      "text": "Inspect the siege-week cart queue at Viru and find the abandoned cart.",
+      "state_id": "queue_waiting"
+    },
+    {
+      "id": "resolve_obstruction",
+      "text": "Clear the cart or hear the council's dumping-fine order for the obstruction.",
+      "state_id": "cart_abandoned"
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "queue_cleared",
+      "summary": "The abandoned cart is moved and the Viru route opens without a vehicle tariff claim.",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.viru_abandoned_cart",
+          "value": "route_cleared"
+        }
+      ]
+    },
+    {
+      "id": "dumping_fine",
+      "summary": "The council records a dumping fine for leaving the cart in the market queue.",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.viru_abandoned_cart",
+          "value": "fine_recorded"
+        }
+      ]
+    }
+  ],
+  "content_links": {
+    "character_ids": [
+      "char.kalev",
+      "char.henning",
+      "char.merchant_stall"
+    ],
+    "dialogue_ids": [
+      "dialogue.carter.viru_abandoned_cart"
+    ],
+    "bark_ids": [
+      "bark.cart.transport"
+    ],
+    "location_ids": [
+      "loc.lower_town_slice"
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "plausible composite",
+      "summary": "A siege-week cart queue at the Viru apron and a council response to obstruction are authored connective tissue grounded in the traffic and market-order dossiers.",
+      "citations": [
+        "history/dossiers/economy/reval-cart-tolls-and-fuhr-rent-1340s.md",
+        "history/dossiers/topography/viru-vanaturg-paving-archaeology.md"
+      ]
+    },
+    {
+      "confidence": "plausible composite",
+      "summary": "The fine is framed as a dumping and blockage consequence; no per-cart charge is claimed for the 1343 queue.",
+      "citations": [
+        "history/dossiers/power/reval-street-cleaning-ordinances-1340s.md",
+        "history/dossiers/economy/reval-cart-tolls-and-fuhr-rent-1340s.md"
+      ]
+    }
+  ]
+}

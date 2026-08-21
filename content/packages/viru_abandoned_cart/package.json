@@ -1,0 +1,44 @@
+{
+  "type": "quest_package",
+  "id": "package.viru_abandoned_cart",
+  "schema_version": 1,
+  "title": "Viru siege-week abandoned cart beat",
+  "quest": "../../examples/valid/quest.viru_abandoned_cart.json",
+  "dialogue": [
+    "../../examples/support/dialogue.carter.viru_abandoned_cart.json"
+  ],
+  "support": [
+    "../../examples/valid/character.kalev.json",
+    "../../examples/valid/location.kalev_smithy.json",
+    "../../examples/valid/bark.cart.transport.json",
+    "../../examples/support/character.merchant_stall.json",
+    "../../examples/support/character.henning.json",
+    "../../examples/support/character.mart.json",
+    "../../examples/support/character.aita.json",
+    "../../examples/support/location.lower_town_slice.json",
+    "../../examples/support/location.smithy_courtyard.json"
+  ],
+  "branch_map": "branch_map.json",
+  "bindings": {
+    "landmark_beats": [
+      "beat.landmark.tallinn.viru_gate_viru_varav",
+      "beat.landmark.tallinn.viru_street_viru_tanav"
+    ],
+    "map_anchors": [
+      {
+        "map_id": "lower_town_slice",
+        "anchor_id": "street_start"
+      }
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "plausible composite",
+      "summary": "R-068/R-069 siege-week Viru queue where obstruction is handled as dumping, not a cart tariff.",
+      "citations": [
+        "history/dossiers/economy/reval-cart-tolls-and-fuhr-rent-1340s.md",
+        "TODO.md"
+      ]
+    }
+  ]
+}

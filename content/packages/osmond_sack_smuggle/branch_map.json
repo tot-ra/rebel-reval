@@ -1,0 +1,40 @@
+{
+  "quest_id": "quest.osmond_sack_smuggle",
+  "branches": [
+    {
+      "id": "bribe_and_pass",
+      "transitions": [
+        "bribe_carter",
+        "pass_under_sack"
+      ],
+      "setup": {
+        "flag.osmond_sack_smuggle.carter_bribe_agreed": true,
+        "flag.osmond_sack_smuggle.passed_checkpoint": true
+      },
+      "require_flags": {},
+      "expect": {
+        "quest_state": "smuggled",
+        "flags": {
+          "flag.osmond_sack_smuggle.carter_bribed": true,
+          "flag.osmond_sack_smuggle.passed": true
+        }
+      }
+    },
+    {
+      "id": "carter_refuses",
+      "transitions": [
+        "carter_refuses"
+      ],
+      "setup": {
+        "flag.osmond_sack_smuggle.carter_refused": true
+      },
+      "require_flags": {},
+      "expect": {
+        "quest_state": "carter_refused",
+        "flags": {
+          "flag.osmond_sack_smuggle.failed": true
+        }
+      }
+    }
+  ]
+}
