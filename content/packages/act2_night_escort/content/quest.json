@@ -1,0 +1,130 @@
+{
+  "type": "quest",
+  "id": "quest.act2.night.escort",
+  "title": "Carry the Message Through Curfew",
+  "summary": "Guide a sealed message across the night ward, choosing to confront the checkpoint or misdirect it.",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P5-004",
+    "notes": "Content-only Act 2 night escort template; runtime mission host remains downstream work."
+  },
+  "entry_conditions": [],
+  "initial_state": "latent",
+  "states": [
+    {
+      "id": "latent",
+      "label": "Waiting for the escort brief"
+    },
+    {
+      "id": "ready",
+      "label": "Message in hand at Viru Street"
+    },
+    {
+      "id": "combat_complete",
+      "label": "Message delivered after a fight",
+      "terminal": true
+    },
+    {
+      "id": "non_combat_complete",
+      "label": "Message delivered without a fight",
+      "terminal": true
+    }
+  ],
+  "transitions": [
+    {
+      "id": "brief",
+      "from_state": "latent",
+      "to_state": "ready",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.act2.night.escort.briefed",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "resolve_combat",
+      "from_state": "ready",
+      "to_state": "combat_complete",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.act2.night.escort.combat_resolved",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.act2.night.escort.combat",
+          "value": "faction.harju_kings",
+          "amount": 1,
+          "summary": "Kalev escorted the sealed message through the checkpoint by force."
+        }
+      ]
+    },
+    {
+      "id": "resolve_non_combat",
+      "from_state": "ready",
+      "to_state": "non_combat_complete",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.act2.night.escort.non_combat_resolved",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.act2.night.escort.non_combat",
+          "value": "faction.black_cloaks",
+          "amount": 1,
+          "summary": "Kale escorted the sealed message through Viru Street under a borrowed watch call."
+        }
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "take_message",
+      "text": "Take the sealed message into Viru Street after curfew.",
+      "state_id": "latent"
+    },
+    {
+      "id": "cross_checkpoint",
+      "text": "Cross the checkpoint by force or by misdirecting the patrol.",
+      "state_id": "ready"
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "combat",
+      "summary": "The message reaches its contact after a checkpoint fight.",
+      "effects": []
+    },
+    {
+      "id": "non_combat",
+      "summary": "The message reaches its contact without a checkpoint fight.",
+      "effects": []
+    }
+  ],
+  "content_links": {
+    "character_ids": [
+      "char.kaja",
+      "char.henning"
+    ],
+    "location_ids": [
+      "loc.lower_town_slice"
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P5-004 template contract; local route framing is authored while the Act 2 siege phase remains the P5-001 design spine.",
+      "citations": [
+        "docs/reports/p5_001_act2_design.md",
+        "docs/GAMEPLAY-NIGHT.md"
+      ]
+    }
+  ]
+}

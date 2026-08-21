@@ -212,3 +212,4 @@ This file contains only cross-role operating lessons. Domain lessons belong to t
 - For new verification ledgers, strip Markdown metadata trailing spaces before the report contract and `git diff --check`; semantic checks can pass while whitespace hygiene still blocks the scoped commit.
 
 - When a scoped asset commit is blocked by repository-wide provenance drift outside its allowlist, preserve the green scoped lint and manifest-hash checks, keep unrelated staged WIP untouched, and use `git commit --only --no-verify` after recording the exact baseline errors.
+- When filtering the Godot harness through `tools/run_godot_checked.sh`, pass harness arguments after the `--` that follows the script path (for example `... --script tools/run_godot_tests.gd -- --filter=test_name`); passing `--filter` as an engine argument silently runs the full corpus and mixes unrelated baseline failures into a focused result.

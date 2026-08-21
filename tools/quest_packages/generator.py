@@ -51,16 +51,26 @@ def _render_branch_dictionary(branch: dict[str, object]) -> str:
     for key, value in sorted((branch.get("require_flags") or {}).items()):
         require_entries.append(f"\t\t{_godot_string_name(str(key))}: {str(value).lower()},")
     require_block = "{\n" + "\n".join(require_entries) + "\n\t}" if require_entries else "{}"
-    return (
-        "\t{\n"
-        f'\t\t"id": {_godot_string_name(str(branch["id"]))},\n'
-        f"\t\t\"transitions\": [{transitions}],\n"
-        f"\t\t\"setup\": {setup_block},\n"
-        f"\t\t\"require_flags\": {require_block},\n"
-        f"\t\t\"expect_state\": {expect_state},\n"
-        f"\t\t\"expect_flags\": {expect_flags},\n"
-        "\t}"
-    )
+    lines = [
+        "\t{",
+        f'\t\t"id": {_godot_string_name(str(branch["id"]))},',
+    ]
+    if "route" in branch:
+        lines.append(f'\t\t"route": {_godot_string_name(str(branch["route"]))},')
+    lines.extend([
+        f"\t\t\"transitions\": [{transitions}],",
+        f"\t\t\"setup\": {setup_block},",
+        f"\t\t\"require_flags\": {require_block},",
+        f"\t\t\"expect_state\": {expect_state},",
+        f"\t\t\"expect_flags\": {expect_flags},",
+    ])
+    if "ledger_events" in expect:
+        ledger_events = ", ".join(
+            _godot_string_name(str(event_id)) for event_id in expect.get("ledger_events", [])
+        )
+        lines.append(f"\t\t\"expect_ledger_events\": [{ledger_events}],")
+    lines.append("\t}")
+    return "\n".join(lines)
 
 
 def render_godot_test(package: QuestPackage) -> str:
@@ -121,6 +131,9 @@ def render_godot_test(package: QuestPackage) -> str:
             '\t\tassert_eq(branch_state.get_quest_state(QUEST_ID), branch["expect_state"])',
             "\t\tfor expected_flag in branch.get(\"expect_flags\", []):",
             '\t\t\tassert_eq(branch_state.get_flag(expected_flag["flag"]), expected_flag["value"])',
-            "",
+            "\t\tfor expected_event in branch.get(\"expect_ledger_events\", []):",
+            '\t\t\tassert_true(branch_state.has_faction_event(expected_event), "ledger event should be recorded: %s" % expected_event)',
+            "\t\tif branch.has(\"route\"):",
+            '\t\t\tassert_true(["combat", "non_combat"].has(branch["route"]), "route must be combat or non_combat")',
         ]
     ) + "\n"

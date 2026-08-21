@@ -79,4 +79,7 @@ func test_generated_branch_traversal_paths() -> void:
 		assert_eq(branch_state.get_quest_state(QUEST_ID), branch["expect_state"])
 		for expected_flag in branch.get("expect_flags", []):
 			assert_eq(branch_state.get_flag(expected_flag["flag"]), expected_flag["value"])
-
+		for expected_event in branch.get("expect_ledger_events", []):
+			assert_true(branch_state.has_faction_event(expected_event), "ledger event should be recorded: %s" % expected_event)
+		if branch.has("route"):
+			assert_true(["combat", "non_combat"].has(branch["route"]), "route must be combat or non_combat")

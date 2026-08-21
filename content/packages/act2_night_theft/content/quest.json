@@ -1,0 +1,130 @@
+{
+  "type": "quest",
+  "id": "quest.act2.night.theft",
+  "title": "Take the Watch's Grain",
+  "summary": "Recover a grain tally and one sack from the eastern row, choosing a loud extraction or a quiet lift.",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P5-004",
+    "notes": "Content-only Act 2 night theft template; runtime mission host remains downstream work."
+  },
+  "entry_conditions": [],
+  "initial_state": "latent",
+  "states": [
+    {
+      "id": "latent",
+      "label": "Waiting for the theft brief"
+    },
+    {
+      "id": "ready",
+      "label": "At the eastern granary row"
+    },
+    {
+      "id": "combat_complete",
+      "label": "Grain recovered after a fight",
+      "terminal": true
+    },
+    {
+      "id": "non_combat_complete",
+      "label": "Grain recovered without a fight",
+      "terminal": true
+    }
+  ],
+  "transitions": [
+    {
+      "id": "brief",
+      "from_state": "latent",
+      "to_state": "ready",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.act2.night.theft.briefed",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "resolve_combat",
+      "from_state": "ready",
+      "to_state": "combat_complete",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.act2.night.theft.combat_resolved",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.act2.night.theft.combat",
+          "value": "faction.harju_kings",
+          "amount": 1,
+          "summary": "Kalev took the watch grain after breaking the granary guard line."
+        }
+      ]
+    },
+    {
+      "id": "resolve_non_combat",
+      "from_state": "ready",
+      "to_state": "non_combat_complete",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.act2.night.theft.non_combat_resolved",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.act2.night.theft.non_combat",
+          "value": "faction.black_cloaks",
+          "amount": 1,
+          "summary": "Kale lifted the watch grain while the eastern granary tally was checked."
+        }
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "reach_granary",
+      "text": "Reach the eastern granary row after curfew.",
+      "state_id": "latent"
+    },
+    {
+      "id": "recover_grain",
+      "text": "Recover the grain by force or by slipping past the tally keeper.",
+      "state_id": "ready"
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "combat",
+      "summary": "The grain is recovered after a night fight.",
+      "effects": []
+    },
+    {
+      "id": "non_combat",
+      "summary": "The grain is recovered without alerting the watch.",
+      "effects": []
+    }
+  ],
+  "content_links": {
+    "character_ids": [
+      "char.kaja",
+      "char.mart"
+    ],
+    "location_ids": [
+      "loc.lower_town_slice"
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P5-004 template contract; local route framing is authored while the Act 2 siege phase remains the P5-001 design spine.",
+      "citations": [
+        "docs/reports/p5_001_act2_design.md",
+        "docs/GAMEPLAY-NIGHT.md"
+      ]
+    }
+  ]
+}
