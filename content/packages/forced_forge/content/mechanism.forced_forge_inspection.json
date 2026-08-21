@@ -1,0 +1,147 @@
+{
+  "type": "mechanism",
+  "id": "mechanism.forced_forge_inspection",
+  "title": "Order inspection fitting mechanism",
+  "commission_id": "commission.forced_forge",
+  "object_item_id": "item.forced_forge_work",
+  "location_id": "loc.kalev_smithy",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P6-003"
+  },
+  "responses": [
+    {
+      "id": "compliance_logged",
+      "behavior": "hold",
+      "summary": "Compliant fittings pass the Order's inspection, but the forge remains under authority pressure.",
+      "requires": [
+        {
+          "op": "forged_modification_is",
+          "key": "commission.forced_forge",
+          "value": "honest_work"
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.forced_forge_inspection_passed",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "flaw_missed",
+      "behavior": "jam",
+      "summary": "The soft pin survives the first inspection; the load flaw remains undiscovered until a later test.",
+      "requires": [
+        {
+          "op": "forged_modification_is",
+          "key": "commission.forced_forge",
+          "value": "subtle_defect"
+        },
+        {
+          "op": "flag_not",
+          "key": "flag.forced_forge_inspection_found",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.forced_forge_flaw_undiscovered",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "flaw_found",
+      "behavior": "fail",
+      "summary": "The Order finds the soft pin during the load test and records Kalev's sabotage risk.",
+      "requires": [
+        {
+          "op": "forged_modification_is",
+          "key": "commission.forced_forge",
+          "value": "subtle_defect"
+        },
+        {
+          "op": "flag_is",
+          "key": "flag.forced_forge_inspection_found",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.forced_forge_flaw_discovered",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "channel_missed",
+      "behavior": "release",
+      "summary": "The inspector misses the concealed rear channel, allowing a rebel message to travel unnoticed.",
+      "requires": [
+        {
+          "op": "forged_modification_is",
+          "key": "commission.forced_forge",
+          "value": "secret_feature"
+        },
+        {
+          "op": "flag_not",
+          "key": "flag.forced_forge_inspection_found",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.forced_forge_secret_undiscovered",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "channel_found",
+      "behavior": "fail",
+      "summary": "The Order finds the concealed channel and confiscates the fitting before the message can pass.",
+      "requires": [
+        {
+          "op": "forged_modification_is",
+          "key": "commission.forced_forge",
+          "value": "secret_feature"
+        },
+        {
+          "op": "flag_is",
+          "key": "flag.forced_forge_inspection_found",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.forced_forge_secret_discovered",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "default_response": {
+    "id": "unresolved",
+    "behavior": "idle",
+    "summary": "The Order has not inspected the forced-forge fitting yet."
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Mechanism contract mapping the forced-forge modification to compliant, discovered, and undiscovered inspection outcomes.",
+      "citations": [
+        "content/packages/forced_forge/content/commission.forced_forge.json",
+        "docs/CANON.md",
+        "TODO.md#P6-003"
+      ]
+    }
+  ]
+}

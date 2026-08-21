@@ -1,0 +1,296 @@
+{
+  "type": "quest",
+  "id": "quest.forced_forge",
+  "title": "The Forced Forge",
+  "summary": "Under Order coercion, forge inspection fittings and decide whether the first search records compliance, exposes a flaw, or misses a concealed channel for quiet sabotage.",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P6-003",
+    "notes": "Content-only Act 3 contract; runtime forced-forge host remains downstream work."
+  },
+  "entry_conditions": [],
+  "initial_state": "coerced",
+  "states": [
+    {
+      "id": "coerced",
+      "label": "Order search has forced the commission"
+    },
+    {
+      "id": "ready",
+      "label": "Inspection fittings are ready for the Order"
+    },
+    {
+      "id": "compliant",
+      "label": "Compliance recorded; forge remains open",
+      "terminal": true
+    },
+    {
+      "id": "flaw_undiscovered",
+      "label": "Soft pin passes the first inspection",
+      "terminal": true
+    },
+    {
+      "id": "flaw_discovered",
+      "label": "Order discovers the load-bearing flaw",
+      "terminal": true
+    },
+    {
+      "id": "secret_undiscovered",
+      "label": "Concealed channel carries a quiet message",
+      "terminal": true
+    },
+    {
+      "id": "secret_discovered",
+      "label": "Order discovers and confiscates the concealed channel",
+      "terminal": true
+    }
+  ],
+  "transitions": [
+    {
+      "id": "prepare_fittings",
+      "from_state": "coerced",
+      "to_state": "ready",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.forced_forge_ready",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "commit_compliant",
+      "from_state": "ready",
+      "to_state": "compliant",
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.forced_forge_compliant",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.forced_forge_compliant",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.forced_forge.compliance",
+          "value": "faction.livonian_order",
+          "amount": -1,
+          "summary": "Kalev completed the Order's coerced commission without a hidden defect."
+        }
+      ]
+    },
+    {
+      "id": "inspect_flaw_unseen",
+      "from_state": "ready",
+      "to_state": "flaw_undiscovered",
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.forced_forge_flawed",
+          "value": true
+        },
+        {
+          "op": "flag_not",
+          "key": "flag.forced_forge_inspection_found",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.forced_forge_flaw_undiscovered",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.forced_forge.soft_pin_missed",
+          "value": "faction.black_cloaks",
+          "amount": 1,
+          "summary": "The Order missed the soft pin's flaw during its first inspection."
+        }
+      ]
+    },
+    {
+      "id": "inspect_flaw_found",
+      "from_state": "ready",
+      "to_state": "flaw_discovered",
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.forced_forge_flawed",
+          "value": true
+        },
+        {
+          "op": "flag_is",
+          "key": "flag.forced_forge_inspection_found",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.forced_forge_flaw_discovered",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.forced_forge.soft_pin_found",
+          "value": "faction.livonian_order",
+          "amount": 1,
+          "summary": "The Order discovered the soft pin's load-bearing flaw."
+        }
+      ]
+    },
+    {
+      "id": "inspect_channel_unseen",
+      "from_state": "ready",
+      "to_state": "secret_undiscovered",
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.forced_forge_secret_feature",
+          "value": true
+        },
+        {
+          "op": "flag_not",
+          "key": "flag.forced_forge_inspection_found",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.forced_forge_secret_undiscovered",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.forced_forge.hidden_channel_missed",
+          "value": "faction.black_cloaks",
+          "amount": 1,
+          "summary": "The Order missed the concealed channel and a rebel message passed quietly."
+        }
+      ]
+    },
+    {
+      "id": "inspect_channel_found",
+      "from_state": "ready",
+      "to_state": "secret_discovered",
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.forced_forge_secret_feature",
+          "value": true
+        },
+        {
+          "op": "flag_is",
+          "key": "flag.forced_forge_inspection_found",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.forced_forge_secret_discovered",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.forced_forge.hidden_channel_found",
+          "value": "faction.livonian_order",
+          "amount": 1,
+          "summary": "The Order discovered and confiscated the concealed message channel."
+        }
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "survive_coercion",
+      "text": "Accept the Order's forced commission without surrendering the forge's future.",
+      "state_id": "coerced"
+    },
+    {
+      "id": "prepare_inspection",
+      "text": "Forge the inspection fittings and choose whether to risk a flaw or conceal a message channel.",
+      "state_id": "ready"
+    }
+  ],
+  "journal_evidence": [
+    {
+      "fact_id": "fact.forced_forge.order_seal_route",
+      "text": "The genuine confiscation seal omits the smithy's rear store from the Order's inspection route."
+    },
+    {
+      "fact_id": "fact.forced_forge.search_list_locked",
+      "text": "Henning's search list leaves no legal room to refuse the commission."
+    },
+    {
+      "fact_id": "fact.forced_forge.soft_pin_failure",
+      "text": "A soft pin passes the first inspection but fails under load."
+    },
+    {
+      "fact_id": "fact.forced_forge.hidden_channel",
+      "text": "A concealed rear channel can carry a folded rebel message without changing the fitting's outward silhouette."
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "compliant",
+      "summary": "The Order records compliance and leaves the forge open under supervision.",
+      "effects": []
+    },
+    {
+      "id": "flaw_undiscovered",
+      "summary": "The soft pin survives the first inspection and preserves a future sabotage option.",
+      "effects": []
+    },
+    {
+      "id": "flaw_discovered",
+      "summary": "The Order discovers the flaw and raises the inspection risk around Kalev's forge.",
+      "effects": []
+    },
+    {
+      "id": "secret_undiscovered",
+      "summary": "A concealed channel carries a rebel message past the first inspection.",
+      "effects": []
+    },
+    {
+      "id": "secret_discovered",
+      "summary": "The Order discovers the channel and confiscates the forced commission.",
+      "effects": []
+    }
+  ],
+  "content_links": {
+    "character_ids": [
+      "char.henning"
+    ],
+    "location_ids": [
+      "loc.kalev_smithy"
+    ],
+    "commission_ids": [
+      "commission.forced_forge"
+    ],
+    "item_ids": [
+      "item.forced_forge_work"
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P6-003 content-only forced-forge arc with compliant, flawed, and secret-feature outcomes plus discovered and undiscovered inspection branches.",
+      "citations": [
+        "docs/CANON.md",
+        "docs/adr/0008-three-act-campaign-and-faction-scope.md",
+        "TODO.md#P6-003"
+      ]
+    }
+  ]
+}

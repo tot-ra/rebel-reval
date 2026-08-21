@@ -1,0 +1,35 @@
+{
+  "type": "item",
+  "id": "item.forced_forge_work",
+  "name": "Confiscated Order commission work",
+  "category": "commission_object",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P6-003"
+  },
+  "material_grade": "fine",
+  "gameplay": {
+    "visible_in_pouch": true,
+    "stackable": false,
+    "uses": [
+      "Commission object for the Order's coerced inspection fitting and concealed sabotage feature."
+    ],
+    "carry": {
+      "weight_g": 2600,
+      "grid_width": 2,
+      "grid_height": 2
+    }
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Shared commission object for compliant, flawed, and concealed forced-forge outcomes.",
+      "citations": [
+        "docs/CANON.md",
+        "TODO.md#P6-003"
+      ]
+    }
+  ]
+}

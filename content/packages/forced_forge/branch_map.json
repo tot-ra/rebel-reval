@@ -1,0 +1,122 @@
+{
+  "quest_id": "quest.forced_forge",
+  "branches": [
+    {
+      "id": "compliant_inspection",
+      "transitions": [
+        "prepare_fittings",
+        "commit_compliant"
+      ],
+      "setup": {
+        "flag.forced_forge_compliant": true
+      },
+      "require_flags": {},
+      "expect": {
+        "quest_state": "compliant",
+        "flags": {
+          "flag.forced_forge_ready": true,
+          "flag.forced_forge_compliant": true
+        },
+        "ledger_events": [
+          "ledger.forced_forge.compliance"
+        ]
+      }
+    },
+    {
+      "id": "flawed_inspection_missed",
+      "transitions": [
+        "prepare_fittings",
+        "inspect_flaw_unseen"
+      ],
+      "setup": {
+        "flag.forced_forge_flawed": true
+      },
+      "require_flags": {
+        "flag.forced_forge_flawed": true
+      },
+      "expect": {
+        "quest_state": "flaw_undiscovered",
+        "flags": {
+          "flag.forced_forge_ready": true,
+          "flag.forced_forge_flaw_undiscovered": true
+        },
+        "ledger_events": [
+          "ledger.forced_forge.soft_pin_missed"
+        ]
+      }
+    },
+    {
+      "id": "flawed_inspection_found",
+      "transitions": [
+        "prepare_fittings",
+        "inspect_flaw_found"
+      ],
+      "setup": {
+        "flag.forced_forge_flawed": true,
+        "flag.forced_forge_inspection_found": true
+      },
+      "require_flags": {
+        "flag.forced_forge_flawed": true,
+        "flag.forced_forge_inspection_found": true
+      },
+      "expect": {
+        "quest_state": "flaw_discovered",
+        "flags": {
+          "flag.forced_forge_ready": true,
+          "flag.forced_forge_flaw_discovered": true
+        },
+        "ledger_events": [
+          "ledger.forced_forge.soft_pin_found"
+        ]
+      }
+    },
+    {
+      "id": "secret_inspection_missed",
+      "transitions": [
+        "prepare_fittings",
+        "inspect_channel_unseen"
+      ],
+      "setup": {
+        "flag.forced_forge_secret_feature": true
+      },
+      "require_flags": {
+        "flag.forced_forge_secret_feature": true
+      },
+      "expect": {
+        "quest_state": "secret_undiscovered",
+        "flags": {
+          "flag.forced_forge_ready": true,
+          "flag.forced_forge_secret_undiscovered": true
+        },
+        "ledger_events": [
+          "ledger.forced_forge.hidden_channel_missed"
+        ]
+      }
+    },
+    {
+      "id": "secret_inspection_found",
+      "transitions": [
+        "prepare_fittings",
+        "inspect_channel_found"
+      ],
+      "setup": {
+        "flag.forced_forge_secret_feature": true,
+        "flag.forced_forge_inspection_found": true
+      },
+      "require_flags": {
+        "flag.forced_forge_secret_feature": true,
+        "flag.forced_forge_inspection_found": true
+      },
+      "expect": {
+        "quest_state": "secret_discovered",
+        "flags": {
+          "flag.forced_forge_ready": true,
+          "flag.forced_forge_secret_discovered": true
+        },
+        "ledger_events": [
+          "ledger.forced_forge.hidden_channel_found"
+        ]
+      }
+    }
+  ]
+}

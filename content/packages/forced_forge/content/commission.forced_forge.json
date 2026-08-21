@@ -1,0 +1,136 @@
+{
+  "type": "commission",
+  "id": "commission.forced_forge",
+  "title": "Forge for the Order under duress",
+  "client_id": "char.henning",
+  "quest_id": "quest.forced_forge",
+  "object_item_id": "item.forced_forge_work",
+  "location_id": "loc.kalev_smithy",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P6-003",
+    "notes": "Act 3 forced-forge design contract; Brother Hermann's final handler identity remains subject to P6-001 reconciliation."
+  },
+  "concrete_order": "Forge a set of Order inspection fittings before the next search of Kalev's smithy, or lose access to the forge.",
+  "hidden_contradiction": "The Order demands compliant hardware, but every flaw can buy time for the city while a concealed feature can quietly protect a rebel contact.",
+  "investigation_clues": [
+    {
+      "id": "order_seal",
+      "summary": "The confiscation seal on the work order is genuine, but its inspection route omits the smithy's rear store.",
+      "reveals_fact_id": "fact.forced_forge.order_seal_route"
+    },
+    {
+      "id": "search_list",
+      "summary": "Henning's search list names every visible tool and leaves no legal room to refuse the commission.",
+      "reveals_fact_id": "fact.forced_forge.search_list_locked"
+    },
+    {
+      "id": "soft_pin",
+      "summary": "A soft pin would pass the first inspection but fail when the Order tests the fittings under load.",
+      "reveals_fact_id": "fact.forced_forge.soft_pin_failure"
+    },
+    {
+      "id": "hidden_channel",
+      "summary": "The rear channel can carry a folded message without changing the fitting's outward silhouette.",
+      "reveals_fact_id": "fact.forced_forge.hidden_channel"
+    }
+  ],
+  "forging_options": [
+    {
+      "id": "honest_work",
+      "label": "Forge compliant inspection fittings and keep the forge open.",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.forced_forge_compliant",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.forced_forge.compliance",
+          "value": "faction.livonian_order",
+          "amount": -1,
+          "summary": "Kalev completed the Order's coerced commission without a hidden defect."
+        }
+      ]
+    },
+    {
+      "id": "subtle_defect",
+      "label": "Use a soft pin that passes the first inspection but risks discovery under load.",
+      "requires": [
+        {
+          "op": "fact_known",
+          "key": "fact.forced_forge.soft_pin_failure"
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.forced_forge_flawed",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.forced_forge.soft_pin",
+          "value": "faction.livonian_order",
+          "amount": 1,
+          "summary": "Kalev hid a load-bearing flaw in the Order's inspection fittings."
+        }
+      ]
+    },
+    {
+      "id": "secret_feature",
+      "label": "Cut a concealed message channel into the fitting's rear face.",
+      "requires": [
+        {
+          "op": "fact_known",
+          "key": "fact.forced_forge.hidden_channel"
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.forced_forge_secret_feature",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.forced_forge.hidden_channel",
+          "value": "faction.black_cloaks",
+          "amount": 1,
+          "summary": "Kalev concealed a rebel message channel inside the Order's commissioned fitting."
+        }
+      ]
+    }
+  ],
+  "night_consequence": "At the next inspection, the Order either records compliance, discovers the load flaw, or misses the concealed channel while the forged fitting carries a rebel message.",
+  "deadline": {
+    "due_phase_id": "phase.act3_occupation_day",
+    "journal_label": "Before the Order's inspection",
+    "missed_effects": [
+      {
+        "op": "set_flag",
+        "key": "flag.forced_forge_deadline_missed",
+        "value": true
+      },
+      {
+        "op": "adjust_pressure",
+          "key": "pressure.suspicion",
+        "amount": 1
+      }
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P6-003 forced-forge commission contract with coercion, inspection risk, and quiet sabotage options.",
+      "citations": [
+        "docs/CANON.md",
+        "docs/adr/0008-three-act-campaign-and-faction-scope.md",
+        "TODO.md#P6-003"
+      ]
+    }
+  ]
+}

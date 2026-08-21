@@ -1,0 +1,38 @@
+{
+  "type": "quest_package",
+  "id": "package.forced_forge",
+  "schema_version": 1,
+  "title": "Act 3 Forced Forge design package",
+  "quest": "content/quest.json",
+  "support": [
+    "content/commission.forced_forge.json",
+    "content/mechanism.forced_forge_inspection.json",
+    "content/item.forced_forge_work.json",
+    "../../examples/support/character.henning.json",
+    "../../examples/valid/location.kalev_smithy.json",
+    "../../examples/support/location.smithy_courtyard.json",
+    "../../examples/valid/character.kalev.json"
+  ],
+  "branch_map": "branch_map.json",
+  "bindings": {
+    "landmark_beats": [
+      "beat.landmark.tallinn.gate_portcullis_groove_viru"
+    ],
+    "map_anchors": [
+      {
+        "map_id": "lower_town_slice",
+        "anchor_id": "smithy_start"
+      }
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P6-003 content-only contract for Order coercion, inspection risk, and quiet sabotage; runtime Act 3 host remains downstream work.",
+      "citations": [
+        "docs/CANON.md",
+        "TODO.md#P6-003"
+      ]
+    }
+  ]
+}
