@@ -58,6 +58,24 @@ func test_toompea_landmarks_follow_historic_upper_town_geography() -> void:
 	assert_eq((luhike_gate["rect"] as Rect2).end.x, definition.world_size().x, "Lühike Jalg must descend from the east edge")
 
 
+func test_toompea_danish_castle_compound_keeps_stable_massing_and_banner() -> void:
+	var definition: MapDefinition = ToompeaQuarterDefinition.create()
+	var castle_mass := _building_by_id(definition, &"castle_mass")
+	var keep_tower := _building_by_id(definition, &"castle_keep_tower")
+	var barracks := _building_by_id(definition, &"order_barracks")
+	# WHY: these stable records preserve the restrained Small Castle, tower, and
+	# service/outer-ward relationship without importing a later Order skyline.
+	assert_false(castle_mass.is_empty(), "Danish castle compound needs its main mass")
+	assert_false(keep_tower.is_empty(), "Danish castle compound needs its keep record")
+	assert_false(barracks.is_empty(), "Danish castle compound needs its barracks record")
+	assert_eq(castle_mass.get("kind"), MapTypes.BUILDING_KIND_HOUSE)
+	assert_eq(keep_tower.get("kind"), MapTypes.BUILDING_KIND_WALL)
+	assert_eq(barracks.get("kind"), MapTypes.BUILDING_KIND_HOUSE)
+	var banner := _prop_by_id(definition, &"castle_courtyard_banner")
+	assert_false(banner.is_empty(), "Danish castle compound needs a courtyard banner")
+	assert_eq(banner.get("faction"), &"danish_crown")
+
+
 func test_toompea_hill_gates_are_spring_1343_timber_reconstructions() -> void:
 	var definition: MapDefinition = ToompeaQuarterDefinition.create()
 	assert_eq(definition.scope, &"prototype")
