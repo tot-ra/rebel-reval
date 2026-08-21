@@ -121,6 +121,8 @@ func clear() -> void:
 	layers.clear()
 	seams.clear()
 	selected_map_id = &""
+	selected_primitive_id = &""
+	clear_background()
 	queue_redraw()
 
 
