@@ -36,6 +36,211 @@ const BRACE_LENGTH := 0.55
 const PORTAL_WIDTH := 1.18
 const PORTAL_HEIGHT := 2.25
 
+const ST_MICHAELS_PRECINCT_PRIMITIVE := &"st_michaels_precinct_1343"
+const ST_MICHAELS_CHAPEL_PRIMITIVE := &"st_michaels_chapel_1343"
+const ST_MICHAELS_SERVICE_PRIMITIVE := &"st_michaels_service_wing_1343"
+
+
+static func is_st_michaels_precinct(building: Dictionary) -> bool:
+	return StringName(building.get("primitive", &"")) in [
+		ST_MICHAELS_PRECINCT_PRIMITIVE,
+		ST_MICHAELS_CHAPEL_PRIMITIVE,
+		ST_MICHAELS_SERVICE_PRIMITIVE,
+	]
+
+
+## Conservative St Michael's precinct forms for the 1343 snapshot. The source
+## does not locate every above-ground range, so the renderer uses a low-detail
+## mass, chapel, and service wing instead of inventing a later cloister plan.
+static func build_st_michaels_precinct(building: Dictionary, cell_size: int) -> Node3D:
+	var root := Node3D.new()
+	root.name = "Building_%s" % String(building["id"])
+	root.set_meta(&"renderer_boundary", &"exceptional")
+	root.set_meta(&"exceptional_category", &"monastic_precinct")
+	root.set_meta(&"monastic_renderer", ST_MICHAELS_PRECINCT_PRIMITIVE)
+	root.set_meta(&"historical_confidence", &"reconstructed")
+
+	var scale := MapViewBridge.world_scale(cell_size)
+	var footprint: Rect2 = building["footprint"]
+	var size := footprint.size * scale
+	var height := MapTypes.resolved_wall_height_px(building) * scale
+	var center := footprint.get_center() * scale
+	root.position = Vector3(center.x, 0.0, center.y)
+
+	var primitive := StringName(building.get("primitive", &""))
+	var service := primitive == ST_MICHAELS_SERVICE_PRIMITIVE
+	var wall_family: StringName = &"plaster" if service else &"limestone"
+	var roof_family: StringName = &"shingle" if service else &"tile"
+	var wall_color := Color(building.get("wall_color", Color(0.52, 0.49, 0.43)))
+	var roof_color := Color(building.get("roof_color", Color(0.26, 0.16, 0.12)))
+
+	var walls := MeshInstance3D.new()
+	walls.name = "PrecinctMass"
+	var wall_mesh := BoxMesh.new()
+	wall_mesh.size = Vector3(size.x, height, size.y)
+	walls.mesh = wall_mesh
+	walls.position = Vector3(0.0, height * 0.5, 0.0)
+	walls.material_override = MapViewMaterials.wall_surface_for_building(
+		StringName(building.get("id", &"st_michaels_precinct")),
+		wall_family,
+		wall_color,
+		wall_mesh.size
+	)
+	root.add_child(walls)
+
+	var roof := MeshInstance3D.new()
+	roof.name = "PrecinctRoof"
+	var along_ridge_x := StringName(building.get("ridge_axis", &"x")) == &"x"
+	roof.mesh = MapViewMeshBuilderPrimitives.gabled_roof_mesh(
+		size,
+		along_ridge_x,
+		0.14 if service else 0.18,
+		true,
+		0.68 if service else 0.78
+	)
+	roof.position = Vector3(0.0, height, 0.0)
+	roof.material_override = MapViewMaterials.roof_surface_for_building(
+		StringName(building.get("id", &"st_michaels_precinct")), roof_family, roof_color
+	)
+	root.add_child(roof)
+
+	if primitive == ST_MICHAELS_CHAPEL_PRIMITIVE:
+		_add_st_michaels_chapel_details(root, size, height, along_ridge_x)
+	elif service:
+		_add_st_michaels_service_details(root, size, height, along_ridge_x)
+	else:
+		_add_st_michaels_convent_details(root, size, height, along_ridge_x)
+	return root
+
+
+static func _add_st_michaels_convent_details(
+	root: Node3D, size: Vector2, height: float, along_ridge_x: bool
+) -> void:
+	# A plain entry and a few openings establish a convent mass without a later
+	# cloister arcade, grand tower, or tourist-restored facade.
+	_add_precinct_portal(root, "PrecinctPortal", height, &"east", 0.0)
+	var face := size.y * 0.5 + 0.055 if along_ridge_x else size.x * 0.5 + 0.055
+	for index in 3:
+		var along := (float(index + 1) / 4.0 - 0.5) * (size.x if along_ridge_x else size.y)
+		var position := (
+			Vector3(along, height * 0.56, face)
+			if along_ridge_x
+			else Vector3(face, height * 0.56, along)
+		)
+		var window_size := Vector3(0.28, minf(1.1, height * 0.34), 0.08)
+		if not along_ridge_x:
+			window_size = Vector3(0.08, minf(1.1, height * 0.34), 0.28)
+		MapViewMeshBuilderPrimitives.box(
+			root,
+			"PrecinctWindow_%02d" % index,
+			window_size,
+			position,
+			&"window"
+		)
+
+
+static func _add_st_michaels_chapel_details(
+	root: Node3D, size: Vector2, height: float, along_ridge_x: bool
+) -> void:
+	var face := size.y * 0.5 + 0.06 if along_ridge_x else size.x * 0.5 + 0.06
+	for index in 2:
+		var along := (float(index + 1) / 3.0 - 0.5) * (size.x if along_ridge_x else size.y)
+		var position := (
+			Vector3(along, height * 0.52, face)
+			if along_ridge_x
+			else Vector3(face, height * 0.52, along)
+		)
+		MapViewMeshBuilderPrimitives.box(
+			root,
+			"ChapelLancet_%02d" % index,
+			Vector3(0.24, minf(1.4, height * 0.4), 0.08)
+			if along_ridge_x
+			else Vector3(0.08, minf(1.4, height * 0.4), 0.24),
+			position,
+			&"window"
+		)
+	_add_precinct_portal(root, "ChapelPortal", height, &"south", 0.0)
+	# A small timber bellcote keeps the chapel legible without a later stone tower.
+	var bellcote := Node3D.new()
+	bellcote.name = "ChapelBellcote"
+	bellcote.position = (
+		Vector3(-size.x * 0.32, height, 0.0)
+		if along_ridge_x
+		else Vector3(0.0, height, -size.y * 0.32)
+	)
+	root.add_child(bellcote)
+	MapViewMeshBuilderPrimitives.box(
+		bellcote,
+		"BellcotePostA",
+		Vector3(0.12, 0.8, 0.12),
+		Vector3(-0.28, 0.4, 0.0),
+		&"timber"
+	)
+	MapViewMeshBuilderPrimitives.box(
+		bellcote,
+		"BellcotePostB",
+		Vector3(0.12, 0.8, 0.12),
+		Vector3(0.28, 0.4, 0.0),
+		&"timber"
+	)
+	MapViewMeshBuilderPrimitives.box(
+		bellcote,
+		"BellcoteBeam",
+		Vector3(0.7, 0.12, 0.12),
+		Vector3(0.0, 0.76, 0.0),
+		&"timber"
+	)
+
+
+static func _add_st_michaels_service_details(
+	root: Node3D, size: Vector2, height: float, along_ridge_x: bool
+) -> void:
+	_add_precinct_portal(root, "ServiceDoor", height, &"north", 0.0)
+	var beam_size := (
+		Vector3(size.x * 0.72, 0.12, 0.12)
+		if along_ridge_x
+		else Vector3(0.12, 0.12, size.y * 0.72)
+	)
+	MapViewMeshBuilderPrimitives.box(
+		root,
+		"ServiceWallPlate",
+		beam_size,
+		Vector3(0.0, height * 0.48, -size.y * 0.5 - 0.06)
+		if along_ridge_x
+		else Vector3(-size.x * 0.5 - 0.06, height * 0.48, 0.0),
+		&"timber"
+	)
+
+
+static func _add_precinct_portal(
+	root: Node3D, node_name: String, height: float, side: StringName, along: float
+) -> void:
+	var transform := MapViewDoorBuilder.facade_transform(
+		along, side, 0.0, MapViewMeshBuilderConfig.DOOR_THICKNESS
+	)
+	MapViewDoorBuilder.add_leaf(
+		root,
+		node_name,
+		node_name,
+		minf(PORTAL_WIDTH, 1.0),
+		minf(PORTAL_HEIGHT, height - 0.2),
+		MapViewMeshBuilderConfig.DOOR_THICKNESS,
+		transform,
+		String(node_name).hash()
+	)
+	MapViewDoorBuilder.add_frame(
+		root,
+		node_name,
+		minf(PORTAL_WIDTH, 1.0),
+		minf(PORTAL_HEIGHT, height - 0.2),
+		MapViewMeshBuilderConfig.HOUSE_DOOR_FRAME_WIDTH,
+		MapViewMeshBuilderConfig.HOUSE_DOOR_FRAME_DEPTH,
+		transform,
+		String(node_name).hash(),
+		false
+	)
+
+
 static func is_oratory(building: Dictionary) -> bool:
 	return StringName(building.get("primitive", &"")) == ORATORY_PRIMITIVE
 

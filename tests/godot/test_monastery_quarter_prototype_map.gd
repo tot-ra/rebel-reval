@@ -224,6 +224,38 @@ func test_nunnatorn_exterior_door_opens_dedicated_interior() -> void:
 	assert_eq(entry.get("building_id"), &"monastery_wall_tower_northwest")
 
 
+func test_st_michaels_precinct_uses_conservative_1343_view_forms() -> void:
+	var definition: MapDefinition = MonasteryQuarterDefinition.create()
+	var convent := _building_by_id(definition, &"st_michaels_convent")
+	var chapel := _building_by_id(definition, &"convent_chapel")
+	var service := _building_by_id(definition, &"convent_service_wing")
+	assert_eq(convent.get("primitive"), &"st_michaels_precinct_1343")
+	assert_eq(chapel.get("primitive"), &"st_michaels_chapel_1343")
+	assert_eq(service.get("primitive"), &"st_michaels_service_wing_1343")
+	assert_true(MapViewMeshBuilder.is_exceptional_building(convent))
+	assert_eq(MapViewMeshBuilder.exceptional_building_category(convent), &"monastic_precinct")
+	var convent_node := MapViewMeshBuilder.build_building(convent, definition.cell_size)
+	assert_eq(convent_node.get_meta(&"historical_confidence"), &"reconstructed")
+	assert_true(convent_node.has_node("PrecinctMass"))
+	assert_true(convent_node.has_node("PrecinctRoof"))
+	assert_true(convent_node.has_node("PrecinctPortal"))
+	assert_false(convent_node.has_node("Chimney"), "Convent mass must not read as a domestic house")
+	assert_false(
+		convent_node.has_node("WestBellTower"),
+		"No later stone bell tower belongs in the 1343 reconstruction"
+	)
+	convent_node.free()
+	var chapel_node := MapViewMeshBuilder.build_building(chapel, definition.cell_size)
+	assert_true(chapel_node.has_node("ChapelBellcote"))
+	assert_true(chapel_node.has_node("ChapelLancet_00"))
+	assert_false(chapel_node.has_node("WestBellTower"))
+	chapel_node.free()
+	var service_node := MapViewMeshBuilder.build_building(service, definition.cell_size)
+	assert_true(service_node.has_node("ServiceWallPlate"))
+	assert_true(service_node.has_node("ServiceDoor"))
+	service_node.free()
+
+
 func _transition_by_id(definition: MapDefinition, transition_id: StringName) -> Dictionary:
 	for transition in definition.transitions:
 		if transition.get("id", &"") == transition_id:

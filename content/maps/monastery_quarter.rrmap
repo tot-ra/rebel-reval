@@ -32,6 +32,9 @@ source "docs/MAP_AUTHORING.md"
 style house.merchant.south door_side=south roof_color=3d3329ff roof_material=shingle wall_color=706352ff wall_material=plank wall_height=120
 style house.merchant.north door_side=north roof_color=3b332bff roof_material=shingle wall_color=756654ff wall_material=plaster wall_height=120
 style house.church door_side=south roof_color=2e241cff roof_material=tile wall_color=807a70ff wall_material=limestone wall_height=192
+style house.convent.precinct door_side=east ridge_axis=x primitive=st_michaels_precinct_1343 roof_color=42261fff roof_material=tile wall_color=8c867aff wall_material=limestone wall_height=128
+style house.convent.chapel door_side=south ridge_axis=x primitive=st_michaels_chapel_1343 roof_color=42261fff roof_material=tile wall_color=8c867aff wall_material=limestone wall_height=112
+style house.convent.service door_side=north ridge_axis=z primitive=st_michaels_service_wing_1343 roof_color=6b5c40ff roof_material=shingle wall_color=6e6458ff wall_material=plaster wall_height=88
 style house.convent door_side=east ridge_axis=x roof_color=42261fff roof_material=tile wall_color=8c867aff wall_material=limestone wall_height=128
 style house.service door_side=north roof_color=6b5c40ff roof_material=thatch wall_color=5a4f45ff wall_material=log wall_height=88
 style wall.precinct wall_height=112 wall_color=8d897fff
@@ -109,9 +112,9 @@ building monastery_city_wall_east wall 225 0 3 112 style=wall.city persistent=tr
 building monastery_wall_tower_northeast wall 220 0 8 8 style=wall.tower tower=false persistent=true
 building monastery_wall_tower_east_mid wall 220 52 8 8 style=wall.tower tower=false persistent=true
 building monastery_wall_tower_southeast wall 220 104 8 8 style=wall.tower tower=false persistent=true
-building st_michaels_convent house 16 16 22 14 style=house.convent
-building convent_chapel house 16 36 14 10 style=house.church
-building convent_service_wing house 44 16 10 22 style=house.service
+building st_michaels_convent house 16 16 22 14 style=house.convent.precinct
+building convent_chapel house 16 36 14 10 style=house.convent.chapel
+building convent_service_wing house 44 16 10 22 style=house.convent.service
 building convent_precinct_wall_north wall 10 10 52 2 style=wall.precinct
 building convent_precinct_wall_west wall 10 10 2 48 style=wall.precinct
 building convent_precinct_wall_south wall 10 56 36 2 style=wall.precinct

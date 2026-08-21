@@ -227,6 +227,8 @@ static func build_exceptional_building(
 	_map_bounds: Rect2 = Rect2()
 ) -> Node3D:
 	var category := _Registry.exceptional_category(building)
+	if category == &"monastic_precinct":
+		return MapViewMonasticModels.build_st_michaels_precinct(building, cell_size)
 	if _Churches.is_st_catherines_church(building):
 		return _Churches.build_st_catherines_church(building, cell_size)
 	var root := Node3D.new()

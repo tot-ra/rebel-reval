@@ -24,6 +24,7 @@ const EXCEPTIONAL_STYLES := {
 	&"house.guild": &"guild",
 	&"house.gatehouse": &"gatehouse",
 	&"house.hospital": &"institutional",
+	&"house.convent.precinct": &"monastic_precinct",
 }
 
 const EXCEPTIONAL_PRIMITIVES := {
@@ -32,6 +33,9 @@ const EXCEPTIONAL_PRIMITIVES := {
 	&"stone_church": &"church",
 	&"stone_hall": &"hall",
 	&"monastic_range": &"hall",
+	&"st_michaels_precinct_1343": &"monastic_precinct",
+	&"st_michaels_chapel_1343": &"monastic_precinct",
+	&"st_michaels_service_wing_1343": &"monastic_precinct",
 	&"gatehouse": &"gatehouse",
 }
 
