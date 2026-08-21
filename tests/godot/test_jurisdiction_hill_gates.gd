@@ -45,6 +45,42 @@ func test_day_opens_both_hill_gates_and_night_closes_from_lower_town() -> void:
 	assert_eq(controller.get_gate_state(controller.GATE_LUHIKE_JALG), controller.GATE_STATE_OPEN)
 
 
+func test_phase_director_hook_persists_night_closure_and_morning_reopen() -> void:
+	var previous_state := SessionState.state
+	var phase_state := GameState.new()
+	SessionState.replace_state(phase_state, &"test.hill_gate_phase_hook")
+	PhaseDirector.rebind_session_state()
+
+	phase_state.set_phase(GameState.PHASE_INVESTIGATION_NIGHT)
+	assert_eq(
+		PhaseDirector._hill_gate_controller.get_gate_state(
+			HillGateControllerScript.GATE_PIKK_JALG
+		),
+		HillGateControllerScript.GATE_STATE_CLOSED
+	)
+	assert_eq(
+		PhaseDirector._hill_gate_controller.get_gate_state(
+			HillGateControllerScript.GATE_LUHIKE_JALG
+		),
+		HillGateControllerScript.GATE_STATE_CLOSED
+	)
+
+	phase_state.set_phase(GameState.PHASE_REFLECTION_MORNING)
+	assert_eq(
+		PhaseDirector._hill_gate_controller.get_gate_state(
+			HillGateControllerScript.GATE_PIKK_JALG
+		),
+		HillGateControllerScript.GATE_STATE_OPEN
+	)
+	assert_eq(
+		PhaseDirector._hill_gate_controller.get_gate_state(
+			HillGateControllerScript.GATE_LUHIKE_JALG
+		),
+		HillGateControllerScript.GATE_STATE_OPEN
+	)
+	SessionState.replace_state(previous_state, &"test.hill_gate_phase_hook.cleanup")
+
+
 func test_gate_states_round_trip_through_game_state_save_payload() -> void:
 	var original := GameState.new()
 	var controller := HillGateControllerScript.new()

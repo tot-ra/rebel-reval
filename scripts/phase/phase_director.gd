@@ -9,14 +9,19 @@ const PhaseProfileModelScript := preload("res://scripts/phase/phase_profile_mode
 const CommissionDeadlineModelScript := preload(
 	"res://scripts/commission/commission_deadline_model.gd"
 )
+const HillGateCurfewControllerScript := preload(
+	"res://scripts/world/hill_gate_curfew_controller.gd"
+)
 
 var _connected_state: GameState
+var _hill_gate_controller: HillGateCurfewController
 ## Presentation (sun angle / music night bias) snaps only when the phase id
 ## changes. Re-entering Workers' District must not rewind the shared clock.
 var _presentation_phase_id: StringName = &""
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	_hill_gate_controller = HillGateCurfewControllerScript.new()
 	call_deferred("_connect_session")
 
 
@@ -29,6 +34,7 @@ func _exit_tree() -> void:
 func sync_current_phase() -> void:
 	if SessionState.state == null:
 		return
+	_sync_hill_gates(SessionState.state, SessionState.state.get_phase())
 	apply_profile_for_phase(SessionState.state.get_phase())
 
 
@@ -92,9 +98,19 @@ func _on_phase_changed(previous: StringName, next: StringName) -> void:
 	CommissionDeadlineModelScript.sync_on_phase_change(
 		SessionState.state, SessionState.content_db, previous, next
 	)
+	_sync_hill_gates(SessionState.state, next)
 	if not SessionState.save_game():
 		push_warning("Phase-boundary autosave failed for phase %s" % String(next))
 	apply_profile_for_phase(next)
+
+
+func _sync_hill_gates(state: GameState, phase_id: StringName) -> void:
+	if state == null:
+		return
+	if _hill_gate_controller == null:
+		_hill_gate_controller = HillGateCurfewControllerScript.new()
+	_hill_gate_controller.setup(state)
+	_hill_gate_controller.sync_for_phase(phase_id)
 
 
 func _on_state_replaced(_previous: GameState, current: GameState, _reason: StringName) -> void:
