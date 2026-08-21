@@ -14,6 +14,7 @@ The proposed engine, camera, scale, lighting, grade, day/night, value-hierarchy,
 - [`p0_040_engine_camera_scale_lock.md`](p0_040_engine_camera_scale_lock.md);
 - [`p0_040_lighting_grade_style_lock.md`](p0_040_lighting_grade_style_lock.md); and
 - [`p0_040_maintainer_approval_packet.md`](p0_040_maintainer_approval_packet.md).
+- [`r653_p0_040_minimum_hardware_gpu_evidence_2026_08_21.md`](r653_p0_040_minimum_hardware_gpu_evidence_2026_08_21.md) - R-653 non-headless instrumentation ledger; target acceptance remains blocked because the detected host was Apple M5 Pro.
 
 ADR 0013 continues to cancel the blind-panel gate. P0-040 still requires green technical evidence and an explicit maintainer decision.
 
@@ -28,7 +29,7 @@ ADR 0013 continues to cancel the blind-panel gate. P0-040 still requires green t
 | Lighting integration | `tools/run_godot_checked.sh --require-test-summary p0040-lighting -- "$GODOT_BIN" --headless --path . --script tools/run_godot_tests.gd -- --filter=test_map_view_3d_lighting` | **FAIL** - 15 tests, 2 failures, 2 errors. `st_catherines_church` still lacks the expected `WindowLights` node and glass-pane evidence. |
 | Active Markdown consistency | `python3 tools/generate_active_docs_report.py --check` | **FAIL** - `docs/reports/active_markdown_report.md` is stale. |
 | Detached clean-checkout load | `GODOT_BIN=/Applications/Godot.app/Contents/MacOS/Godot tools/verify_clean_checkout_load.sh` | **INCONCLUSIVE** - import remained active past the tool's 90-second execution window and its surviving process tree was terminated. No pass or fail is inferred. |
-| Declared minimum-hardware GPU evidence | Review of `tools/benchmarks/minimum-hardware.json` and current evidence packet | **MISSING** - the target remains Intel Core i5-8250U / Intel UHD Graphics 620 / 8 GiB / 1920x1080. Headless or Apple M-series measurements do not certify it. |
+| Declared minimum-hardware GPU evidence | [`r653_p0_040_minimum_hardware_gpu_evidence_2026_08_21.md`](r653_p0_040_minimum_hardware_gpu_evidence_2026_08_21.md) | **BLOCKED** - non-headless instrumentation now proves non-zero texture/video-memory fields, but the detected host was Apple M5 Pro rather than the declared Intel Core i5-8250U / Intel UHD Graphics 620 target. A real target run is still required. |
 | Maintainer decision | [`p0_040_maintainer_approval_packet.md`](p0_040_maintainer_approval_packet.md) | **PENDING** - no maintainer identity, date, or `ACCEPT` decision is recorded. |
 
 ## Worktree boundary
@@ -39,7 +40,7 @@ The shared worktree contained unrelated staged, unstaged, and untracked work, in
 
 1. Repair and independently verify the camera-mode contract until `test_map_camera_modes` passes.
 2. Restore the Lower Town landmark window-light contract until `test_map_view_3d_lighting` passes without engine diagnostics.
-3. Obtain a non-headless run on the declared Intel UHD 620 minimum target, recording frame time and GPU/texture memory with provenance.
+3. Obtain a non-headless run on the declared Intel UHD 620 minimum target, recording frame time and GPU/texture memory with provenance. R-653's Apple M5 Pro ledger is supplementary only.
 4. Regenerate the active Markdown report in an isolated clean snapshot and pass its check.
 5. Rerun the bounded detached clean-checkout load gate after the runtime fixes.
 6. Ask the maintainer to review the complete packet and explicitly record `ACCEPT`, `REJECT`, or continued `PENDING`.
@@ -48,4 +49,4 @@ Dedicated follow-up board tasks own items 1-4: `R-652` camera, `R-655` lighting,
 
 ## Final decision
 
-**P0-040 is not complete.** The technical value set is fully documented and the P0-038 report plus ADR 0018 calibration checks pass, but two focused runtime suites are red, minimum-hardware GPU evidence is absent, documentation consistency is red, the clean gate is inconclusive, and maintainer acceptance is pending.
+**P0-040 is not complete.** The technical value set is fully documented and the P0-038 report plus ADR 0018 calibration checks pass, non-headless renderer instrumentation now has provenance and non-zero GPU memory fields on the Apple M5 Pro development host, but the declared Intel UHD 620 target remains unmeasured, two focused runtime suites are red, documentation consistency is red, the clean gate is inconclusive, and maintainer acceptance is pending.

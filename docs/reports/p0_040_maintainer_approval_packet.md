@@ -25,6 +25,7 @@ A source-level reconciliation or a passing headless development check is not its
 | [`p0_040_engine_camera_scale_lock.md`](p0_040_engine_camera_scale_lock.md) | R-567 engine, camera, and world-scale matrix | Contract is documented, but R-567 remains `in_progress`; its camera integration suite is red. |
 | [`p0_040_lighting_grade_style_lock.md`](p0_040_lighting_grade_style_lock.md) | R-568 lighting, grade, day/night, value hierarchy, and material matrix | Contract and calibration are documented, but current lighting integration has failures/errors and approval is not claimed. |
 | [`p0_038_3d_view_comparison.md`](p0_038_3d_view_comparison.md) | P0-038 performance and renderer evidence | Headless development baseline only; its zero-byte texture readings are not GPU evidence. |
+| [`r653_p0_040_minimum_hardware_gpu_evidence_2026_08_21.md`](r653_p0_040_minimum_hardware_gpu_evidence_2026_08_21.md) | R-653 non-headless GPU evidence ledger | Supplementary Apple M5 Pro instrumentation with non-zero texture/video-memory values; declared Intel UHD 620 acceptance remains blocked and this artifact does not substitute for it. |
 | [`p0_040_decomposition_verification.md`](p0_040_decomposition_verification.md) | R-570 parent-readiness verification | Recommends keeping R-111/P0-040 blocked. |
 | [`../ART_BIBLE.md`](../ART_BIBLE.md) | Normative v2 visual direction | Direction is accepted through ADR 0018; technical production freeze remains gated. |
 | [`../adr/0013-authorial-visual-direction-without-blind-ux-panels.md`](../adr/0013-authorial-visual-direction-without-blind-ux-panels.md) | Approval-process authority | Blind-panel gate cancelled; maintainer review plus P0-038 evidence govern. |
@@ -76,14 +77,15 @@ Selective focal accents are hero crimson `#D9364D`, rebel indigo `#4052B5`, forg
 - `python3 -m unittest tests.python.test_generate_p038_comparison_report -v` is the focused P0-038 unit test and is expected to pass 5/5.
 - The historical P0-038 headless Lower Town p95 is `7.346 ms` against the `16.67 ms` steady-state reference.
 - The P0-038 report, ADR 0018 calibration, R-566, and R-568 all preserve their evidence boundaries instead of presenting headless or historical measurements as GPU acceptance.
+- R-653 adds a provenance-checked non-headless renderer ledger with 120 frame samples, `texture_memory_bytes=442222135`, and `render_video_memory_bytes=671481419` on an Apple M5 Pro host. These values prove instrumentation availability only; they do not certify the declared Intel UHD 620 target.
 
 ### Blockers that keep the decision pending
 
-1. **Minimum-hardware/GPU evidence is missing.** P0-038 reports `RENDER_TEXTURE_MEM_USED = 0` and `RENDER_VIDEO_MEM_USED = 0` in the dummy renderer. A non-headless benchmark on the declared minimum-supported-hardware profile is required before frame time or texture memory can support acceptance.
+1. **Minimum-hardware/GPU evidence is not yet accepted.** The R-653 ledger records a successful non-headless run with non-zero `texture_memory_bytes` and `render_video_memory_bytes`, but the detected host was Apple M5 Pro rather than the declared Intel UHD 620 target. A real run on the declared minimum-supported hardware is still required.
 2. **R-567 is not complete.** Its contract is documented, but the focused camera integration suite records 6 assertion failures involving collision pull-out, first-person eye height, third-person boom distance, and scroll-zoom restoration.
 3. **Current lighting integration is not green.** R-568 records 13 passed tests, 2 failed tests, and 2 engine errors around the missing `WindowLights` contract for `st_catherines_church`. R-568 did not widen its allowlist into runtime/test repair.
 4. **Evidence revisions are not one synchronized clean acceptance snapshot.** P0-038 measurements are historical development evidence, while the reconciliation reports describe the current shared checkout and explicitly note unrelated worktree WIP.
-5. **The parent is not ready to advance.** R-570 recommends keeping R-111/P0-040 `todo`; no approval can be inferred from R-566 or R-568.
+5. **The parent is not ready to advance.** R-570 recommends keeping R-111/P0-040 `todo`; no approval can be inferred from R-566, R-568, or the supplementary R-653 run.
 
 These limitations are blockers, not rejected design choices. The reconciled values remain the proposed baseline for the next maintainer review.
 
