@@ -41,6 +41,22 @@ const TRANSITION_VISUALS: Array[StringName] = [
 	TRANSITION_VISUAL_GROUND,
 	TRANSITION_VISUAL_NONE,
 ]
+
+## Jurisdiction and gate-state IDs shared by map authoring and the inactive
+## Toompea curfew controller. These are a closed vocabulary, not free-form tags.
+const JURISDICTION_TOOMPEA_DANISH := &"toompea_danish"
+const JURISDICTION_ALL_LINN_LUBECK := &"all_linn_lubeck"
+const JURISDICTIONS: Array[StringName] = [
+	JURISDICTION_TOOMPEA_DANISH,
+	JURISDICTION_ALL_LINN_LUBECK,
+]
+const HILL_GATE_STATE_OPEN := &"open"
+const HILL_GATE_STATE_CLOSED := &"closed"
+const HILL_GATE_STATES: Array[StringName] = [
+	HILL_GATE_STATE_OPEN,
+	HILL_GATE_STATE_CLOSED,
+]
+
 const TERRAIN_ASH := &"ash"
 const TERRAIN_TIMBER_FLOOR := &"timber_floor"
 const TERRAIN_PLASTER := &"plaster"
