@@ -107,33 +107,35 @@ def rewrite_table(path: Path, new_table: str) -> bool:
     comment = "<!-- Quick-reference counts updated on every structural change -->"
 
     table_pattern = re.compile(
-        r"^<!-- Quick-reference counts.*?-->\s*\n(?:^\|[^\n]+\n)+",
+        r"^<!-- Quick-reference counts.*?-->\s*\n(?:^\|[^\n]+(?:\n|$))+",
         re.MULTILINE | re.DOTALL,
     )
     m = table_pattern.search(text)
     if m:
+        separator = "\n\n" if text.endswith("\n") or text[m.end() :] else ""
         new_text = (
             text[: m.start()]
             + comment
             + "\n"
             + new_table
-            + "\n\n"
+            + separator
             + text[m.end() :]
         )
         path.write_text(new_text, encoding="utf-8")
         return True
 
     # Fallback when the comment anchor was removed but the summary table remains.
-    bare_table = re.compile(r"^(?:^\|[^\n]+\n)+", re.MULTILINE)
+    bare_table = re.compile(r"^(?:^\|[^\n]+(?:\n|$))+", re.MULTILINE)
     for candidate in bare_table.finditer(text):
         if not candidate.group().startswith("| Priority |"):
             continue
+        separator = "\n\n" if text.endswith("\n") or text[candidate.end() :] else ""
         new_text = (
             text[: candidate.start()]
             + comment
             + "\n"
             + new_table
-            + "\n\n"
+            + separator
             + text[candidate.end() :]
         )
         path.write_text(new_text, encoding="utf-8")

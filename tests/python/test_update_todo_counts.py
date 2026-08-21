@@ -207,6 +207,33 @@ class UpdateTodoCountsTest(unittest.TestCase):
             self.assertIn("unchanged", updated)
             self.assertIn("<!-- Quick-reference counts", updated)
 
+    def test_rewrite_table_handles_missing_final_newline(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            todo = Path(temp_dir) / "TODO.md"
+            todo.write_text(
+                "\n".join(
+                    [
+                        "# TODO",
+                        "",
+                        "<!-- Quick-reference counts updated on every structural change -->",
+                        "| Priority | Open | Done | Notes |",
+                        "|----------|-----:|-----:|-------|",
+                        "| P0 | stale | stale | stale |",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            original = todo.read_bytes()
+            self.assertFalse(original.endswith(b"\n"))
+
+            table = build_table({"P0": Counters(open_count=2, done_count=1)})
+
+            self.assertTrue(rewrite_table(todo, table))
+            updated = todo.read_bytes()
+            self.assertFalse(updated.endswith(b"\n"))
+            self.assertIn(b"|     2  |     1  |", updated)
+            self.assertNotEqual(original, updated)
+
 
 if __name__ == "__main__":
     unittest.main()
