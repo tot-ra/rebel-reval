@@ -3,23 +3,24 @@
 **Task:** R-491 / P0-101f
 **Role:** production / art / canon
 **Map:** `lower_town_slice` / Workers' District
-**Source snapshot:** current shared worktree, 2026-08-21; the authored RRMap currently hashes to `6ae0b82a0a46a7391cb5db5a0bb02e562756def8073fe08cf63beebd7ace7e50`, while the packet manifest fingerprint predates the R-547 rear-workshop additions
-**Recorded:** 2026-08-21
-**Status:** **CAPTURE PACKET COMPLETE - visual acceptance review remains open**
+**Source snapshot:** current shared worktree, 2026-08-22; current RRMap SHA-256 `6ae0b82a0a46a7391cb5db5a0bb02e562756def8073fe08cf63beebd7ace7e50`; the tracked packet manifest declares `13525325b3d8be840c79d8c709c8aab12632bc6092a7123bc6d9275ba51d17ba`
+**Recorded:** 2026-08-22
+**Status:** **CAPTURE PACKET STRUCTURALLY COMPLETE - CURRENT-REVISION VISUAL ACCEPTANCE BLOCKED**
 
 ## Decision
 
 This report is the evidence matrix for the P0-101 visual acceptance pass. It deliberately distinguishes **evidence** from **interpretation**. No existing image is promoted to a P0-101 acceptance plate unless it is a matched day/night, gameplay-scale view with a reproducible camera and map revision.
 
-The dedicated capture capability is now available and has produced a reproducible packet:
+The dedicated capture capability is now available and has produced a reproducible packet, but the packet is **stale for the current source revision**:
 
 - `tools/capture_lower_town_p0_101.gd` uses production `LowerTownSlice.create()`, `MapBuilder.build()`, and `MapView3D.create()` with five authored sector route-segment midpoint presets.
 - `docs/reports/images/lower_town_p0_101/capture_manifest.json` records map ID, source fingerprint, renderer, 1280x720 viewport, gameplay orthographic size `33.75`, focus cells/heights, camera pitch/yaw, intent, and matched day/night outputs.
 - Ten dedicated PNGs exist under `docs/reports/images/lower_town_p0_101/`: five sector route poses times `day` and `night`. Each decodes as 1280x720 with a non-zero pixel payload; all five day/night pairs share the same framing key and focus world.
 - `test_capture_lower_town_p0_101.gd` passes 5/5 with 0 failures and 0 errors. The non-headless capture command completed with status 0; Godot emitted only the known shutdown resource-leak diagnostics after writing the packet.
 - The current source inventory contains 51 tiered houses (`merchant_stone=14`, `merchant_timber=14`, `craft_boda=23`), ten untiered special/exceptional houses, 36 collision-bearing wall records, and two view-only gate arches. The eight R-547 rear-workshop IDs are listed in the inventory delta and have no stable-ID visual observations in this packet.
+- **Stale-manifest warning:** the manifest fingerprint is `13525325b3d8be840c79d8c709c8aab12632bc6092a7123bc6d9275ba51d17ba`, while the current RRMap SHA-256 is `6ae0b82a0a46a7391cb5db5a0bb02e562756def8073fe08cf63beebd7ace7e50`. The manifest plates also have no `stable_ids` field, so route proximity is not visual proof for any current record.
 
-This is a completed capture-capability handoff, not visual acceptance or a waiver of the remaining review gates.
+This is a completed capture-capability handoff, not current-revision visual acceptance or a waiver of the remaining review gates.
 
 ## Capture contract
 
@@ -65,13 +66,30 @@ That script writes `docs/reports/images/view3d/{kalev_smithy,lower_town_slice}_{
 | Log / plank / plaster / limestone wall families | pending | pending | **BLOCKED** | Inventory 1.1-1.3; no material-readable route frames |
 | Tile / shingle / thatch roof covers | pending | pending | **BLOCKED** | Inventory 3; no gameplay-scale roof-readability frames |
 | Localized wear and repaired states | pending | pending | **BLOCKED** | Inventory 3; no close or route-scale wear frames |
-| Nine default-path special/use-site buildings | pending | pending | **BLOCKED** | Inventory 1.2; listed individually below |
+| Ten untiered special/use-site buildings | pending | pending | **BLOCKED** | Inventory 1.2; listed individually below |
 | St. Catherine's church | pending | pending | **BLOCKED** | Inventory 1.2, `st_catherines_church`; no dated silhouette approach |
 | Inner Viru Gate 1343 state | pending | pending | **BLOCKED** | Inventory 1.3-1.4; no gate approach/opening frame |
 | Viru foregate 1343 state | pending | pending | **BLOCKED** | Inventory 1.3-1.4; no foregate approach/opening frame |
 | Remaining fortification and precinct walls | pending | pending | **BLOCKED** | Inventory 1.3; no route-scale wall/landmark frame set |
 | Route-scale proof that special buildings are not enlarged ordinary houses | pending | pending | **BLOCKED** | R-491 deliverable; no matched route frame |
 | Existing playable route and landmark approach reproducibility | `market_primary_spine_day.png`, `merchant_craft_lane_day.png`, `service_yard_day.png`, `eastern_artisan_wet_margin_day.png`, `landmark_approaches_day.png` | matching `_night.png` plates | **CAPTURE PACKET COMPLETE** | `capture_manifest.json`; five authored sector route midpoint presets, matched framing keys, non-blank 1280x720 PNG verification |
+
+
+## Current-revision R-108 coverage ledger
+
+The parent acceptance contract has seven clauses. This ledger maps each clause to source IDs, existing evidence, the missing acceptance evidence, and the owner. **No packet row is promoted merely because its route preset passes near an authored record.**
+
+| # | R-108 parent clause | Current source IDs / structural evidence | Existing evidence | Missing evidence | Owner |
+|---:|---|---|---|---|---|
+| 1 | No unexplained repeated facade/material run; every required visible landmark is classified exactly once | 51 tiered houses; 10 untiered houses; 36 wall IDs; 2 `gate_arch` IDs; all 99 IDs unique | [`lower_town_p0_101_landmark_inventory.md`](lower_town_p0_101_landmark_inventory.md), current-source audit | Stable-ID-linked gameplay review proving repetition limits, material variation, and one-time landmark classification | R-487 / R-612; exceptional boundary R-488 / R-613 |
+| 2 | Gameplay captures distinguish three tiers plus log/plank/plaster/limestone, tile/shingle/thatch, and wear/repair | `merchant_stone=14`, `merchant_timber=14`, `craft_boda=23`; eight rear-workshop IDs are current `craft_boda` records | Source inventory and tier contract; no visual claim | Matched day/night plates annotated to representative IDs, all eight rear workshops, materials, roof covers, and wear states | R-487 / R-612; packet handoff R-616 |
+| 3 | St. Catherine's, 1343 Viru Gate, and special buildings read as exceptional, not enlarged ordinary houses | `st_catherines_church`; special houses; Viru towers/jambs; foregate walls/towers/jambs; `viru_gate_arch`; `viru_foregate_arch` | Static registry and wall/view-landmark separation in inventory | Dated gameplay-scale approach/close plates plus historical/art decision per required ID | R-488 / R-613; review R-617 / R-492 |
+| 4 | Matched gameplay-scale day/night captures exist for ordinary fabric and each landmark with map revision metadata | Five route presets, 10 existing plates, current source SHA `6ae0b82a...` | Packet integrity: 10 PNGs, 5 framing pairs, 1280x720; manifest schema | Re-run against current SHA and stable-ID observations for every required surface; current manifest is stale (`13525325...`) | R-489 / R-614; capture R-560/R-491 |
+| 5 | Human historical/art review signs every 1343 silhouette or records an owned blocking amendment | Required IDs are enumerated in inventory and this matrix | No named human approval in current packet | Named canon/art sign-off or per-ID blocking amendments | R-617 / R-492 |
+| 6 | Routes, collision, navigation, occlusion/chunk metadata, parity, and performance budgets pass | Wall/gate IDs preserve collision/view split; authored route anchors and transitions remain source evidence | Existing focused reports and map contracts only | Current parity, camera/occlusion, clean-load, resident-budget, and declared-hardware gates | R-490 / R-615; map/parity R-547; runtime R-577/R-578 |
+| 7 | All upstream blockers and child handoffs resolve without promoting incomplete P0-102 evidence | Current child ownership is explicit: R-487, R-488, R-489, R-490, R-491, R-492; P0-102 remains separate | Existing decomposition and acceptance ledgers preserve blocked statuses | Resolved child statuses and final parent rerun; no incomplete handoff may be promoted | R-493 / R-618; upstream R-109/R-110 and A-009 |
+
+**Disposition:** source inventory and packet integrity are deterministic structural evidence, but the current-revision acceptance result remains **BLOCKED**. The exact audit is `python3 -m unittest tests.python.test_lower_town_p0_101_baseline -v`. It confirms the current fingerprint and fails the audit contract if the stale manifest is treated as current acceptance evidence.
 
 Every row above requires one day and one night frame. `pending` is intentionally not a claim that a file exists.
 

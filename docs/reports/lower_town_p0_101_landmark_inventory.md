@@ -2,8 +2,8 @@
 
 **Task:** R-486 / P0-101a, c1
 **Map:** `lower_town_slice` / Workers' District
-**Source snapshot:** current shared worktree, 2026-08-21; current RRMap SHA-256 `6ae0b82a0a46a7391cb5db5a0bb02e562756def8073fe08cf63beebd7ace7e50` (the capture packet fingerprint predates the R-547 rear-workshop additions)
-**Status:** **INVENTORY RECONCILED - FINAL VISUAL ACCEPTANCE BLOCKED**
+**Source snapshot:** current shared worktree, 2026-08-22; current RRMap SHA-256 `6ae0b82a0a46a7391cb5db5a0bb02e562756def8073fe08cf63beebd7ace7e50`; the tracked capture manifest still declares `13525325b3d8be840c79d8c709c8aab12632bc6092a7123bc6d9275ba51d17ba`
+**Status:** **INVENTORY RECONCILED - CURRENT-REVISION VISUAL ACCEPTANCE BLOCKED**
 
 ## Decision
 
@@ -13,7 +13,7 @@ The authored Lower Town source currently contains **99 stable records**:
 - 36 `building ... wall` records, including city-wall fabric, Viru Gate and foregate structures, monastery precinct walls, and the smithy yard fence.
 - 2 `landmark ... gate_arch` view landmarks.
 
-The prior 91-record inventory is retained below as the original source snapshot. The eight R-547 rear-workshop records are now reconciled in section 1.1a and are part of the current ordinary-fabric count. The capture packet remains a separate, older evidence snapshot: its manifest fingerprint does not include these additions, and no existing day/night plate provides stable-ID visual observations for them.
+The prior 91-record inventory is retained below as the original source snapshot. The eight R-547 rear-workshop records are now reconciled in section 1.1a and are part of the current ordinary-fabric count. **Stale-manifest warning:** `capture_manifest.json` records fingerprint `13525325b3d8be840c79d8c709c8aab12632bc6092a7123bc6d9275ba51d17ba`, which does not match the current source SHA-256 above. Its ten plates have no stable-ID annotations for the eight added records and must not be promoted to current-revision visual acceptance.
 
 This report is evidence-only. It does not change authored map data, renderer code, assets, or tests.
 
@@ -225,7 +225,7 @@ The typology contract is documented in [`docs/reports/burgher_house_typology_con
 - day/night value hierarchy at gameplay scale;
 - absence of ordinary-house visual drift into exceptional landmark silhouettes.
 
-The nine untiered special/use-site houses should be reviewed separately from the 51-record ordinary tier matrix. They must not be counted as missing tier assignments unless the owning task explicitly decides that a given special record should become ordinary fabric.
+The **ten** untiered special/use-site houses should be reviewed separately from the 51-record ordinary tier matrix. They must not be counted as missing tier assignments unless the owning task explicitly decides that a given special record should become ordinary fabric.
 
 The eight rear-workshop IDs are structural tier evidence only. The existing packet has no stable-ID visual observations for them, so they remain **BLOCKED** until a future matched capture/review explicitly identifies the records.
 
@@ -260,8 +260,9 @@ The city-wall seals, bends, continuation, monastery precinct walls, and smithy y
 | `test_lower_town_slice_map` focused run | **BLOCKED by pre-existing authored-map parity drift** | Current rerun executes 18/19 tests; the only failure is canonical `walkability_sha256` mismatch (`expected 57e9b0...`, `actual 0c33d8...`) caused by the already-present R-547 source delta. The parity fixture is outside this evidence-only allowlist and was not regenerated. |
 | `test_burgher_house_tiers` focused run | **PASS** | Current checked run: 1 file, 5 tests, 0 failures, 0 errors. The suite still covers the original 43-ID expected-tier table; the eight R-547 IDs are reconciled as an additional source delta and remain a visual-review blocker until that expected list is intentionally extended by its owner. |
 | `test_burgher_house_typology_contract` | **Contract evidence only** | The repository contract names the closed tiers, fallback rules, and rejection diagnostic. This report does not treat contract text as visual kit acceptance. |
-| Composition audit | **NOT an acceptance gate for this map** | `docs/data/map_composition_thresholds.json` sets `lower_town_slice.enforce=false`; `tools/audit_map_composition.gd` explicitly prints `SKIP` for such cards. The threshold card remains useful as review context, not a passing runtime result. |
-| Final gameplay-scale day/night landmark and ordinary-fabric sign-off | **OPEN / BLOCKED** | No dedicated evidence in this audit proves the final 51-house tier presentation, all special records, the eight rear-workshop IDs, St. Catherine's silhouette, and both gate arches under matched gameplay-scale day/night framing. |
+| Composition audit | **BLOCKED / owner handoff** | The live contract and threshold card set `lower_town_slice.enforce=true` / `enforcement_state=enforced`; this inventory does not substitute for the composition owner's audit. R-550 owns the current composition/parity reconciliation. |
+| Current-revision fingerprint audit | **PASS as source ledger; packet stale** | `tests/python/test_lower_town_p0_101_baseline.py` verifies the current SHA-256, 99 unique IDs, 61 houses, 36 walls, 2 gate arches, and tier counts 14/14/23. It also fails closed if the manifest is silently treated as current evidence: the manifest fingerprint is `13525325...`, not `6ae0b82a...`, and its plates have no `stable_ids` fields. |
+| Final gameplay-scale day/night landmark and ordinary-fabric sign-off | **OPEN / BLOCKED** | No current-revision evidence in this audit proves the final 51-house tier presentation, all special records, the eight rear-workshop IDs, St. Catherine's silhouette, and both gate arches under matched gameplay-scale day/night framing. |
 
 Reproduction commands for the blocked focused suites:
 
@@ -280,11 +281,12 @@ The parse diagnostics are recorded as baseline blockers, not as authored-map fai
 ## 6. Gaps and next acceptance steps
 
 1. Resolve the existing `lower_town_slice` canonical parity drift through the owning R-547 map/parity handoff, then rerun `test_lower_town_slice_map` and require a clean non-empty summary. This evidence task does not regenerate the fixture.
-2. Rerun `test_burgher_house_tiers` after the ordinary-fabric owner deliberately extends its expected stable-ID list to cover the eight R-547 records; the current 5/5 suite remains valid for the original 43-ID contract but is not visual evidence for the additions.
-3. Capture matched gameplay-scale day/night views covering representative and repeated frontage from all three tiers, all eight rear-workshop IDs, the nine default-path special records, `st_catherines_church`, `viru_gate_arch`, and `viru_foregate_arch.
-4. Review ordinary-fabric repetition, material hierarchy, roof readability, occlusion, gate opening readability, and route/collision clearance from those captures.
-5. Keep all 36 wall IDs in the fortification acceptance set. Do not use the exceptional-house registry as a shortcut for walls or gate arches.
-6. Revisit the composition threshold only when the Lower Town composition owner enables its card; a skipped `enforce=false` card must not be reported as a completed acceptance result.
+2. Reconcile and rerun the capture packet against the current RRMap SHA-256 before using any plate for acceptance. The tracked manifest fingerprint is stale and its route presets do not provide stable-ID observations.
+3. Rerun `test_burgher_house_tiers` after the ordinary-fabric owner deliberately extends its expected stable-ID list to cover the eight R-547 records; the current 5/5 suite remains valid for the original 43-ID contract but is not visual evidence for the additions.
+4. Capture matched gameplay-scale day/night views covering representative and repeated frontage from all three tiers, all eight rear-workshop IDs, the **ten** untiered special/use-site houses, `st_catherines_church`, `viru_gate_arch`, and `viru_foregate_arch`.
+5. Review ordinary-fabric repetition, material hierarchy, roof readability, occlusion, gate opening readability, and route/collision clearance from those captures.
+6. Keep all 36 wall IDs in the fortification acceptance set. Do not use the exceptional-house registry as a shortcut for walls or gate arches.
+7. Re-run the enforced Lower Town composition audit through R-550; do not report the threshold card as skipped or accepted from this inventory alone.
 
 ## Sources
 
@@ -296,4 +298,4 @@ The parse diagnostics are recorded as baseline blockers, not as authored-map fai
 - [`tests/godot/test_lower_town_slice_map.gd`](../../tests/godot/test_lower_town_slice_map.gd), including the Viru arch span test.
 - [`tests/godot/test_burgher_house_tiers.gd`](../../tests/godot/test_burgher_house_tiers.gd), expected tier inventory and untiered boundary list.
 - [`docs/reports/burgher_house_typology_contract.md`](burgher_house_typology_contract.md).
-- [`docs/data/map_composition_thresholds.json`](../data/map_composition_thresholds.json), `lower_town_slice.enforce=false`.
+- [`docs/data/map_composition_thresholds.json`](../data/map_composition_thresholds.json), `lower_town_slice.enforce=true`, `enforcement_state=enforced`.
