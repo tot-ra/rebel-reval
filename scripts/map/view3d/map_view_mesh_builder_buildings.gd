@@ -413,6 +413,8 @@ static func build_exceptional_building(
 		return MapViewMonasticModels.build_st_michaels_precinct(building, cell_size)
 	if is_st_marys_construction(building):
 		return build_st_marys_construction(building, cell_size)
+	if _Churches.is_st_olaf_church(building):
+		return _Churches.build_st_olaf_church(building, cell_size)
 	if _Churches.is_st_catherines_church(building):
 		return _Churches.build_st_catherines_church(building, cell_size)
 	var root := Node3D.new()

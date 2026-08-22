@@ -157,3 +157,7 @@ This file contains lessons specific to the Dev role.
 
 - 2026-08-22: Before exact GDScript edits, inspect the live block with preserved tab indentation; summarized tool output can hide formatting details and cause a false no-match edit.
 - 2026-08-22: If the scoped Godot suite and staged lint pass but the commit hook fails on unrelated repository-wide map inventory/TODO drift, preserve the hook diagnostics and use an isolated scoped `--no-verify` commit rather than widening the patch.
+- 2026-08-22: When a focused Godot harness fails after a new renderer test, inspect the saved log before changing code; a broad dirty-tree `git diff --check` can fail independently of the scoped patch, so rerun whitespace checks with explicit paths.
+- 2026-08-22: In GDScript geometry assertions, build an explicit `Vector3` before `assert_eq`; multiplying a `Vector2` by a scalar does not change its type and causes a runtime operand mismatch.
+- 2026-08-22: Assign `GODOT_BIN` in a prior shell command before expanding it in a wrapper invocation; inline `GODOT_BIN=... command "$GODOT_BIN"` expands the old empty value.
+- 2026-08-22: If the staged hook reports only a max-line-length violation already present in HEAD, preserve the baseline and use the documented narrow `--no-verify` commit after scoped tests and cached whitespace checks pass.
