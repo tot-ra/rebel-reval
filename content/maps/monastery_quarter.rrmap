@@ -161,6 +161,14 @@ prop netmakers_timber boat_timber_stack 118 78 rect=2,1
 prop workshop_service_cart farm_cart 134 12 rect=2,2
 prop street_cart cart 101 84 rect=2,2
 prop service_yard_goods market_goods_pallet 161 54 rect=2,1
+# P4-023b: ordinary service plots are bounded by small timber/wattle work rather
+# than empty grass. These view-only pieces sit behind the Lai frontage and leave
+# the Pikk/Lai spine, monastery close, and patrol corridor unobstructed.
+prop lai_service_yard_fence wattle_fence 168 38 rect=8,1
+prop lai_service_yard_gate yard_gate 167 38
+prop lai_service_yard_privy privy 197 60 rect=2,1
+prop lai_rear_firewood firewood_stack 197 78 rect=2,2
+prop lai_rear_lean_to servant_lean_to 198 84 rect=3,2
 prop convent.ash tree 58 48 style=tree.ash
 prop convent.elm tree 8 72 style=tree.elm
 prop convent.linden tree 58 69 style=tree.linden

@@ -124,6 +124,11 @@ func test_monastery_quarter_service_life_dressing() -> void:
 		MapTypes.PROP_KIND_MARKET_GOODS_PALLET: false,
 		MapTypes.PROP_KIND_BOAT_TIMBER_STACK: false,
 		MapTypes.PROP_KIND_FARM_CART: false,
+		MapTypes.PROP_KIND_WATTLE_FENCE: false,
+		MapTypes.PROP_KIND_YARD_GATE: false,
+		MapTypes.PROP_KIND_PRIVY: false,
+		MapTypes.PROP_KIND_FIREWOOD_STACK: false,
+		MapTypes.PROP_KIND_SERVANT_LEAN_TO: false,
 	}
 	for prop in definition.props:
 		var kind: StringName = prop.get("kind", &"")
@@ -173,6 +178,26 @@ func test_monastery_quarter_service_life_dressing() -> void:
 	assert_true(
 		_prop_near_building(definition, &"almonry_cart", &"convent_almonry", 8),
 		"Farm cart must sit beside convent almonry"
+	)
+	assert_true(
+		_prop_near_prop(definition, &"lai_service_yard_gate", &"lai_service_yard_fence", 6),
+		"Lai service yard gate must sit beside its wattle boundary"
+	)
+	assert_true(
+		_prop_near_prop(definition, &"lai_rear_firewood", &"lai_rear_lean_to", 8),
+		"Rear service plot must pair fuel with its lean-to"
+	)
+	assert_true(
+		_prop_near_building(definition, &"lai_service_yard_privy", &"market_house_east", 12),
+		"Rear-yard privy must stay behind the Lai frontage"
+	)
+	assert_true(
+		_prop_by_id(definition, &"lai_service_yard_fence").get("footprint").size.x > 0.0,
+		"Lai service yard boundary must have an explicit footprint"
+	)
+	assert_true(
+		_prop_by_id(definition, &"lai_rear_lean_to").get("footprint").size.x > 0.0,
+		"Rear lean-to must have an explicit footprint"
 	)
 	assert_true(
 		_prop_by_id(definition, &"service_barrels").is_empty(),
