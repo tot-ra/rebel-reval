@@ -71,19 +71,17 @@ static func _add_lancet_windows(root: Node3D, size: Vector2, height: float) -> v
 	var face_z := size.y * 0.5 + 0.055
 	var window_height := minf(1.65, height * 0.34)
 	var window_y := height * 0.52
-	var window_index := 0
 	for index in LANCET_COUNT:
 		var along := (float(index + 1) / float(LANCET_COUNT + 1) - 0.5) * run
 		for side: float in [-1.0, 1.0]:
 			var suffix := "N" if side < 0.0 else "S"
 			MapViewMeshBuilderPrimitives.box(
 				root,
-				"Window%d" % window_index,
+				"LancetWindow_%s_%02d" % [suffix, index],
 				Vector3(0.34, window_height, 0.08),
 				Vector3(along, window_y, side * face_z),
 				&"window"
 			)
-			window_index += 1
 			# Narrow limestone jambs make the openings read as masonry cuts rather
 			# than painted marks when the church is viewed from above.
 			for jamb_side: float in [-1.0, 1.0]:

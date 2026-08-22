@@ -154,3 +154,6 @@ This file contains lessons specific to the Dev role.
 - 2026-08-21: After a structural exact edit in a Godot builder, re-read the saved helper before testing; replacing a local declaration block can silently remove a still-used derived value and mask the intended contract behind a parse cascade.
 - 2026-08-21: Blender-authored Python generators import `bpy` and cannot run with the repository `python3`; invoke them through Blender's bundled Python (`blender --background --factory-startup --python ...`) before treating missing generated evidence as a content failure.
 - 2026-08-21: When a focused Lower Town map suite reports a single canonical `walkability_sha256` mismatch with all route/stable-ID assertions passing, preserve the exact checked log and classify it as existing fixture drift; do not regenerate parity during a verification-only tier acceptance task.
+
+- 2026-08-22: Before exact GDScript edits, inspect the live block with preserved tab indentation; summarized tool output can hide formatting details and cause a false no-match edit.
+- 2026-08-22: If the scoped Godot suite and staged lint pass but the commit hook fails on unrelated repository-wide map inventory/TODO drift, preserve the hook diagnostics and use an isolated scoped `--no-verify` commit rather than widening the patch.
