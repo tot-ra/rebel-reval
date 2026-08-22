@@ -14,7 +14,7 @@ This bundle reproduces the clean replacement for the artifacted runtime horse.
 - Local Hunyuan3D prompt: `1c7ce801-247e-49bd-8431-40618411eb73`.
 - Cleanup seed: `208744234`.
 - Reference SHA-256: `f1ecd1ed7cc4bac429b0e8faa905535d68e1738e120ab8acf32ff075db069d07`.
-- Candidate SHA-256: `f5aeaee2a6f701588042138db01145546632561eaf096941d93d5ca5157fcd3d`.
+- Candidate SHA-256: `f5aeaee2a6f701588042138db01145546632561eaf096941d93d5ca5157fcd3d` (candidate GLB removed by P0-179; superseded by `pack_horse_v3`).
 
 The reference prompt requested a photorealistic compact northern-European dark-bay horse in a neutral square stance, with all four legs and hooves visible, isolated on a plain studio background. Negative constraints excluded carts, fences, scenery, tack, fused or missing limbs, stylization, and cropped anatomy.
 

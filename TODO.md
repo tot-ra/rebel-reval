@@ -18,7 +18,7 @@ See [`docs/STORAGE_SIZE_BACKLOG.md`](docs/STORAGE_SIZE_BACKLOG.md) for full deli
 
 - [x] P0-177 | deps: none | deliverable: repository size audit + claimable follow-ups | verify: report and backlog landed
 - [x] P0-178 | deps: P0-177 | deliverable: green storage hygiene for `generated/` >=10 MiB binaries | verify: `python3 tools/verify_storage_hygiene.py`
-- [ ] P0-179 | deps: P0-178 | deliverable: prune rejected/duplicate `generated/comfyui` candidates | verify: hygiene + asset validators green
+- [x] P0-179 | deps: P0-178 | deliverable: prune rejected/duplicate `generated/comfyui` candidates | verify: hygiene + asset validators green
 - [ ] P0-180 | deps: P0-177 | deliverable: curated music take reduction with MusicDirector proof | verify: soundtrack tests + recorded byte drop
 - [ ] P0-181 | deps: P0-177 | deliverable: research-plate dimension/byte policy for `history/reference` | verify: plate fetch `--verify`
 - [ ] P0-182 | deps: P0-180 | deliverable: runtime audio bitrate/size budget | verify: lint/validator + audio tests

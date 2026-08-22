@@ -4,5 +4,10 @@
   "stage": "production_ready",
   "generator_version": "waterfowl_v1",
   "blender_version": "Blender 5.2 LTS",
+  "candidate_route": "local_comfyui_hunyuan3d_v2_single_image",
+  "candidate_stage": "audited_rejected",
+  "candidate_audit": "generated/comfyui/bird_waterfowl_v1/candidates/candidate_audit.json",
+  "candidate_workflow": "generated/comfyui/bird_waterfowl_v1/candidate_workflow.json",
+  "candidate_note": "All four Hunyuan waterfowl candidates and the UUID-prefixed ComfyUI dump copies were removed by P0-179 storage cleanup; audit JSON, workflow manifests, and production Blender GLBs remain unchanged.",
   "note": "Hunyuan3D unavailable; catalog-proportion standing waterfowl with PBR feather maps and long-neck overrides"
 }

@@ -118,6 +118,18 @@ A binary may leave Git or LFS only when the same change records all of the follo
 
 If the destination is unavailable or its license/access contract is unclear, do not delete the tracked source.
 
+## ComfyUI generated candidate retention (`generated/comfyui/`)
+
+Tracked `generated/comfyui/**` is pipeline evidence, not runtime import surface. Keep manifests, workflow JSON, audit reports, generator scripts, and production Blender outputs that still reproduce an accepted runtime asset.
+
+Remove without LFS migration when any of the following holds:
+
+1. A fauna or livestock audit marks the Hunyuan candidate `rejected_for_production` or an equivalent overall rejected verdict. Delete candidate GLBs and cleanup experiment meshes; retain `candidate_audit.json`, `candidate_workflow.json`, `state.json`, and markdown reports with SHA-256 checksums.
+2. A ComfyUI run dumps a UUID-prefixed GLB beside a canonical named copy with identical bytes. Keep the canonical path inside the experiment bundle; delete the root-level UUID dump.
+3. A superseded experiment bundle (for example `pack_horse_v2` replaced by `pack_horse_v3`) no longer feeds runtime assets. Delete its candidate GLB when the successor bundle documents the retained checksum and reproduction path.
+
+Do not delete pending or accepted candidate GLBs solely for size unless they also fail hygiene (standard Git at or above 10 MiB) or an approved task names the path. Record removals in the bundle `state.json` `candidate_note` field, matching the `bird_wader_v1` pattern.
+
 ## Verification
 
 Run from the repository root:
