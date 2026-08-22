@@ -1,0 +1,50 @@
+{
+  "camera": {
+    "orthographic_size": 33.75,
+    "pitch_degrees": -30.0,
+    "projection": "orthographic",
+    "yaw_degrees": 45.0
+  },
+  "camera_intent": "gameplay-scale St Olaf landmark approach",
+  "historical_phase": "compact_1343_mass",
+  "map_fingerprint": "668379ff603210e8a64901ddcf971aeca73a764a7309862769193d74d2c71c5d",
+  "map_id": "monastery_quarter",
+  "plates": [
+    {
+      "camera_intent": "gameplay-scale St Olaf landmark approach",
+      "focus_world": [
+        97.0,
+        0.0,
+        70.0
+      ],
+      "framing_key": "st_olaf_frontage|97.000|0.000|70.000",
+      "frontage_id": "st_olaf_frontage",
+      "output": "res://docs/reports/images/st_olaf_r281/st_olaf_day.png",
+      "stable_id": "st_olaf_silhouette",
+      "time_of_day": "day"
+    },
+    {
+      "camera_intent": "gameplay-scale St Olaf landmark approach",
+      "focus_world": [
+        97.0,
+        0.0,
+        70.0
+      ],
+      "framing_key": "st_olaf_frontage|97.000|0.000|70.000",
+      "frontage_id": "st_olaf_frontage",
+      "output": "res://docs/reports/images/st_olaf_r281/st_olaf_night.png",
+      "stable_id": "st_olaf_silhouette",
+      "time_of_day": "night"
+    }
+  ],
+  "renderer": "gl_compatibility",
+  "stable_ids": [
+    "st_olaf_silhouette",
+    "st_olaf_frontage"
+  ],
+  "task": "R-673 / R-281",
+  "viewport_px": [
+    1280,
+    720
+  ]
+}
