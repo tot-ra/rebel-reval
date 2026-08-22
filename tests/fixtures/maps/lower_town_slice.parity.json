@@ -2487,8 +2487,8 @@
     ]
   },
   "navigation": {
-    "walkability_sha256": "57e9b9d32a01099e4c399e51b1552e5edbf6eba58d07eff5b6975d081bbbbf8f",
-    "walkable_cell_count": 13788
+    "walkability_sha256": "0c33d876cd74bdd69c35cb4e91e4b1503112cb1adf690c2072219c72f85a4944",
+    "walkable_cell_count": 13982
   },
   "patrols": [
     {
@@ -3274,7 +3274,7 @@
     "west"
   ],
   "terrain": {
-    "terrain_id_grid_sha256": "a9e0ea65b17c7ff1d3065c6d97f7743424f55e3dc414652e4a3074bbaac4d0ec",
+    "terrain_id_grid_sha256": "8174b29011ee0827976fbaf247bd2aab3d609935bfc34f690c300f5aa0dd859d",
     "used_terrain_ids": [
       "cobblestone",
       "dirt",
@@ -3283,6 +3283,7 @@
       "meadow",
       "mud",
       "sand",
+      "stone",
       "water"
     ]
   },
