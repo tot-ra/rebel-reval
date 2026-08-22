@@ -9,7 +9,7 @@ related:
   - merchant-cart-and-transport-1340s.md
   - ../topography/harbour-and-shoreline.md
   - ../power/jurisdictions-of-reval.md
-updated: 2026-08-21
+updated: 2026-08-22
 ---
 
 # Reval harbour customs, landing, and crane dues (1340–1343)
@@ -291,6 +291,19 @@ This remains an `environment` access blocker, not a manuscript hit or no-hit. Pr
 | Legacy `ais.tla.ee` probe | curl error 35 / TLS connect error `0A000438` before catalogue HTML | Transport failure only; not evidence about the archive unit [26] |
 | Authenticated folio review | No lawful authenticated session or provenance-preserving archive export available | Zero folios; no responsible harbour-term hit or no-hit [26] |
 
+### Access recheck (2026-08-22, 00:12 UTC)
+
+A fresh unauthenticated probe against the exact official endpoints reproduced the existing zero-folio boundary. AIS returned HTTP 200 `text/html; charset=UTF-8`, 95,915 bytes, with zero redirects, the `TLA.230.1.Aa2` catalogue, and 26 anonymous gallery markers. DGS returned HTTP 200 `text/html; charset=UTF-8`, 44,999 bytes after six redirects to VAU login; its redirect chain exposed protected TIFF target `tla0230_001_0000aa2_00001_x.tif`, while the final body began with `<!DOCTYPE html>` rather than a TIFF signature. The legacy `ais.tla.ee` probe failed with curl error 35 / TLS `0A000438` before catalogue HTML. No authenticated image, OCR, archive-supplied transcription, folio/page identifier, original wording, dated harbour rate, crane fee, or collector name was recovered; zero Denkelbuch folios were inspected [27].
+
+This remains an `environment` access blocker, not a manuscript hit or no-hit. Preserve `status: partial`, `harbour_landing_due: null`, and `harbour_crane_fee: null` until `R-502` enables lawful authenticated VAU/DGS access or the archive supplies a provenance-preserving scan/transcription covering the 1340-1343 folios with identifiers and original wording [27].
+
+| Probe | Observed result | Evidence boundary |
+|---|---|---|
+| AIS unit page | HTTP 200 `text/html; charset=UTF-8`, 95,915 bytes, zero redirects; catalogue plus 26 anonymous gallery markers | Catalogue/preview metadata only; no folio text [27] |
+| DGS permalink | HTTP 200 `text/html; charset=UTF-8`, 44,999 bytes after six redirects; final page is VAU login and names the protected TIFF target; final body is HTML | Authentication boundary; no image or OCR evidence [27] |
+| Legacy `ais.tla.ee` probe | curl error 35 / TLS connect error `0A000438` before catalogue HTML | Transport failure only; not evidence about the archive unit [27] |
+| Authenticated folio review | No lawful authenticated session or provenance-preserving archive export available | Zero folios; no responsible harbour-term hit or no-hit [27] |
+
 | Evidence item | Result | Confidence |
 |---|---|---|
 | TLA Pärgamendid title queries, 16 terms listed above | No catalogue-title result under the stated TLA and 1340-1343 parameters | bounded catalogue negative; not folio evidence [7] |
@@ -359,3 +372,4 @@ No licensed visual evidence was found for a dated **1340–1343 Reval fee line**
 24. Rahvusarhiiv, **AIS/DGS direct access recheck**, `TLA.230.1.Aa2` (2026-08-21 18:02 UTC): separate direct `curl -L` requests returned AIS HTTP 200 `text/html; charset=UTF-8`, 95,915 bytes, zero redirects, with the catalogue and 26 anonymous gallery markers; DGS returned HTTP 200 `text/html; charset=UTF-8`, 44,999 bytes after six redirects to VAU login, exposing protected target `tla0230_001_0000aa2_00001_x.tif`, and the final body began with an HTML doctype rather than an image signature. A parallel probe of legacy host `ais.tla.ee` failed with TLS connect error `0A000438` before catalogue HTML. No authenticated image, OCR, archive-supplied transcription, folio/page identifier, or original wording was available; zero folios were inspected. Clearing dependency: `R-502`.
 25. Rahvusarhiiv, **AIS/DGS direct access recheck**, `TLA.230.1.Aa2` (2026-08-21 19:33 UTC): fresh unauthenticated requests returned AIS HTTP 200 `text/html; charset=UTF-8`, 95,915 bytes, zero redirects, with the catalogue and 26 anonymous gallery markers; DGS returned HTTP 200 `text/html; charset=UTF-8`, 44,999 bytes after six redirects to VAU login, exposing protected target `tla0230_001_0000aa2_00001_x.tif`, and the final body began with `<!DOCTYPE html>`. No authenticated image, OCR, archive-supplied transcription, folio/page identifier, original wording, dated harbour rate, crane fee, or collector name was recovered; zero Denkelbuch folios were inspected. Official endpoints: https://ais.ra.ee/en/description-unit/view?id=124030010181&ru=5GsV5p and https://www.ra.ee/dgs/_purl.php?shc=TLA.230.1.Aa2. Clearing dependency: `R-502`.
 26. Rahvusarhiiv, **AIS/DGS direct access recheck**, `TLA.230.1.Aa2` (2026-08-21 21:03 UTC): separate unauthenticated requests returned AIS HTTP 200 `text/html; charset=UTF-8`, 95,915 bytes, zero redirects, with the catalogue and 26 anonymous gallery markers; DGS returned HTTP 200 `text/html; charset=UTF-8`, 44,999 bytes after six redirects to VAU login, exposing protected TIFF target `tla0230_001_0000aa2_00001_x.tif`, and the final body began with `<!DOCTYPE html>` rather than a TIFF signature. A separate legacy `ais.tla.ee` request failed with curl error 35 / TLS `0A000438` before catalogue HTML. No authenticated image, OCR, archive-supplied transcription, folio/page identifier, original wording, dated harbour rate, crane fee, or collector name was recovered; zero Denkelbuch folios were inspected. Official endpoints: https://ais.ra.ee/en/description-unit/view?id=124030010181&ru=5GsV5p and https://www.ra.ee/dgs/_purl.php?shc=TLA.230.1.Aa2. Clearing dependency: `R-502`.
+27. Rahvusarhiiv, **AIS/DGS direct access recheck**, `TLA.230.1.Aa2` (2026-08-22 00:12 UTC): exact official AIS request returned HTTP 200 `text/html; charset=UTF-8`, 95,915 bytes, zero redirects, with the catalogue and 26 anonymous gallery markers; exact DGS request returned HTTP 200 `text/html; charset=UTF-8`, 44,999 bytes after six redirects to VAU login, exposing protected target `tla0230_001_0000aa2_00001_x.tif`, while the final body began with `<!DOCTYPE html>` rather than a TIFF signature. Legacy `ais.tla.ee` returned curl error 35 / TLS connect error `0A000438` before catalogue HTML. No authenticated image, OCR, archive-supplied transcription, folio/page identifier, or original wording was available; zero folios were inspected. Official endpoints: https://ais.ra.ee/en/description-unit/view?id=124030010181&ru=5GsV5p and https://www.ra.ee/dgs/_purl.php?shc=TLA.230.1.Aa2. Clearing dependency: `R-502`.
