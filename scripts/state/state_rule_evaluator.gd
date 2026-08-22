@@ -18,6 +18,10 @@ const CONDITION_OPS := [
 	"pressure_at_least",
 	"relationship_at_least",
 	"faction_standing_at_least",
+	"living_city_hope_at_least",
+	"living_city_hope_at_most",
+	"living_city_fear_at_least",
+	"living_city_fear_at_most",
 	"district_pressure_at_least",
 	"district_price_tier_at_least",
 	"item_owned",
@@ -36,6 +40,7 @@ const EFFECT_OPS := [
 	"adjust_pressure",
 	"adjust_relationship",
 	"record_faction_event",
+	"record_living_city_event",
 	"add_item",
 	"remove_item",
 	"set_location_state",
@@ -78,6 +83,14 @@ func evaluate_condition(condition: Dictionary, state: GameState) -> bool:
 				state.get_faction_standing(FactionLedger.faction_id_from_key(key))
 				>= int(condition["amount"])
 			)
+		"living_city_hope_at_least":
+			return state.get_living_city_hope() >= int(condition["amount"])
+		"living_city_hope_at_most":
+			return state.get_living_city_hope() <= int(condition["amount"])
+		"living_city_fear_at_least":
+			return state.get_living_city_fear() >= int(condition["amount"])
+		"living_city_fear_at_most":
+			return state.get_living_city_fear() <= int(condition["amount"])
 		"district_pressure_at_least":
 			return (
 				DistrictPressureModelScript.resolve(key, state).get(
@@ -185,6 +198,13 @@ func _apply_valid_effect(effect: Dictionary, state: GameState) -> void:
 				int(effect["amount"]),
 				String(effect.get("summary", ""))
 			)
+		"record_living_city_event":
+			state.record_living_city_event(
+				key,
+				int(effect["hope_delta"]),
+				int(effect["fear_delta"]),
+				String(effect["summary"])
+			)
 		"add_item":
 			state.add_item(key)
 		"remove_item":
@@ -219,6 +239,10 @@ func _validate_condition(condition: Dictionary, state: GameState) -> String:
 			return _validate_key_amount(condition, "rel.", -3, 3)
 		"faction_standing_at_least":
 			return _validate_faction_standing(condition)
+		"living_city_hope_at_least", "living_city_hope_at_most":
+			return _validate_living_city_condition(condition)
+		"living_city_fear_at_least", "living_city_fear_at_most":
+			return _validate_living_city_condition(condition)
 		"district_pressure_at_least", "district_price_tier_at_least":
 			return _validate_district_tier(condition)
 		"item_owned":
@@ -243,6 +267,21 @@ func _validate_forged_modification(condition: Dictionary) -> String:
 		return key_error
 	if typeof(condition["value"]) != TYPE_STRING or String(condition["value"]).is_empty():
 		return "forged_modification_is value must be a non-empty modification id"
+	return ""
+
+
+func _validate_living_city_condition(condition: Dictionary) -> String:
+	var shape_error := _require_shape(condition, ["op", "amount"])
+	if not shape_error.is_empty():
+		return shape_error
+	if typeof(condition["amount"]) != TYPE_INT:
+		return "%s amount must be an integer" % String(condition["op"])
+	var amount := int(condition["amount"])
+	if amount < GameState.LIVING_CITY_MIN or amount > GameState.LIVING_CITY_MAX:
+		return (
+			"%s amount must be between %d and %d"
+			% [String(condition["op"]), GameState.LIVING_CITY_MIN, GameState.LIVING_CITY_MAX]
+		)
 	return ""
 
 
@@ -295,6 +334,26 @@ func _validate_district_tier(condition: Dictionary) -> String:
 	var district_id := StringName(String(condition["key"]))
 	if not DistrictPressureModelScript.DISTRICT_PROFILES.has(district_id):
 		return "%s key must name a supported district" % String(condition["op"])
+	return ""
+
+
+func _validate_record_living_city_event(effect: Dictionary) -> String:
+	var shape_error := _require_shape(effect, ["op", "key", "hope_delta", "fear_delta", "summary"])
+	if not shape_error.is_empty():
+		return shape_error
+	var key_error := _validate_key(effect, "living.")
+	if not key_error.is_empty():
+		return key_error
+	for delta_key in ["hope_delta", "fear_delta"]:
+		if typeof(effect[delta_key]) != TYPE_INT:
+			return "record_living_city_event %s must be an integer" % delta_key
+		var delta := int(effect[delta_key])
+		if delta < GameState.LIVING_CITY_DELTA_MIN or delta > GameState.LIVING_CITY_DELTA_MAX:
+			return "record_living_city_event %s must be between -5 and 5" % delta_key
+	if int(effect["hope_delta"]) == 0 and int(effect["fear_delta"]) == 0:
+		return "record_living_city_event needs a non-zero delta"
+	if typeof(effect["summary"]) != TYPE_STRING or String(effect["summary"]).is_empty():
+		return "record_living_city_event summary must be a non-empty string"
 	return ""
 
 
@@ -355,6 +414,8 @@ func _validate_effect(effect: Dictionary, state: GameState) -> String:
 			return _validate_key_amount(effect, "rel.", -3, 3)
 		"record_faction_event":
 			return _validate_record_faction_event(effect)
+		"record_living_city_event":
+			return _validate_record_living_city_event(effect)
 		"add_item", "remove_item":
 			return _validate_key_only(effect, "item.")
 		"set_location_state":
