@@ -11,6 +11,9 @@ map south_quarter loc.lower_town.south_quarter 336 96 grass scope=prototype acti
 elevation_area r454.south.lower_town_datum 240 48 96 0.0
 elevation_ramp r454.south.king_to_karja 213 0 240 71 0.0 -0.10 width=3
 elevation_area r454.south.karja_glacis 243 90 24 -0.25
+# R-676: keep the dry Karja opening on the authored -0.10 datum while the
+# surrounding glacis remains the lower, uncertain wet-edge reconstruction.
+elevation_area r454.south.karja_causeway 247 90 7 -0.10
 elevation_area r454.south.garden_seam 29 0 10 0.0
 source "scenes/reval_south/reval_south.tscn"
 source "scenes/revel-map.jpg"
@@ -42,6 +45,17 @@ terrain south_wall.ditch.west water 156 90 72 6 order=15
 terrain south_wall.ditch.east water 267 90 69 6 order=15
 terrain east_wall.ditch water 331 9 5 57 order=15
 terrain karja.causeway dirt 240 84 14 12 order=16
+# R-676: named surface bands keep the compressed reconstruction legible in the
+# editor and audit without turning the western connector into a second frontage.
+terrain south.western_connector dirt 4 0 140 82 order=2
+terrain_rects south.western_pasture grass 4,60,140,22 order=3
+terrain south.garden_seam grass 20 0 28 12 order=3
+terrain south.eastern_ward dirt 257 0 74 82 order=6
+terrain_rects south.service_plots mud 192,18,18,12|245,40,14,8|284,42,14,8|288,60,18,8 order=6
+# Stone/paving bands are concentrated on primary approaches, institutional closes,
+# and selected property thresholds; they are not a district-wide limestone fill.
+terrain_rects south.stone_closes stone 158,9,31,19|161,37,31,19|188,0,20,16|226,0,48,16|282,0,22,16|188,37,25,15|225,37,25,15|264,16,32,18|294,16,24,18|225,56,36,17|286,56,34,17|304,12,27,28|304,56,27,24|226,16,31,20|188,16,25,20|188,50,25,20|225,64,36,16|264,64,40,16 order=7
+terrain_rects south.wall_margins mud 156,84,72,6|267,84,69,6|325,9,6,57 order=14
 terrain old_hill_foot dirt 144 12 17 75 order=6
 terrain north_rataskaev_yard dirt 151 0 31 12 order=7
 terrain north_civic_threshold dirt 226 0 48 16 order=7
