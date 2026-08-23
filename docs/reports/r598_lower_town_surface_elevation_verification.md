@@ -65,6 +65,25 @@ The Godot run produced 27 tests with 26 passes, one failure, and zero errors. Th
 
 **R-598 verification is complete as a deterministic ledger.** Lower Town surface shares, elevation access, gameplay invariants, map contracts, and canonical parity pass in the current checkout. The combined verification command remains globally blocked by unrelated elevation-matrix and registry-card baselines owned by existing tasks. Keep P0-100 parent acceptance open until those owners reconcile their inputs; do not regenerate parity or alter thresholds as part of R-598.
 
+## 2026-08-23 rerun addendum
+
+The focused rerun used Godot 4.7.1 with `tools/run_godot_checked.sh` and captured wrapper logs before classifying non-zero exits. Lower Town-specific acceptance remains green:
+
+- `test_lower_town_authoring_contract`: **2/2 PASS**.
+- `test_lower_town_slice_map`: **19/19 PASS**.
+- The measured Lower Town substrate remains `stone_pct=26.6815536608472`, `earth_pct=45.8722425226688`, `grass_pct=27.446203816484`, `cobblestone_pct=4.52023277845446`, with `elevation_range=1.48229014535609`; these remain within the enforced surface bands and elevation minimum recorded by R-607.
+
+The broader checks preserve the same ownership boundary but expose the current blockers precisely:
+
+| Check | Result | Current blocker / interpretation |
+|---|---|---|
+| `python3 -m unittest tests.python.test_verify_map_composition -v` | **4/5 PASS** | The four Lower Town enforcement/regression cases pass. Registry coverage fails for missing threshold cards `kuldjala_interior`, `nunnatorn_interior`, and `toompea_small_castle`. |
+| `python3 tools/verify_map_composition.py` | **BLOCKED** | Stops at the same three missing registry threshold cards before running the enforced-map audit. |
+| `test_r454_elevation_scope` | **2/3 test methods PASS** | The urban matrix method reports the inactive/unknown `kuldjala_interior` transition, plus `r454.north.east_harbour_fall` and `r454.south.karja_causeway` outside the current matrix. R-453/R-455 and the map-package owners already cover these inputs. |
+| `test_r503_elevation_gameplay_invariants` | **2/3 test methods PASS** | Finite/scoped values and reciprocal transition identity pass. The geometry/navigation method is blocked while `monastery_quarter` cannot compile through its missing `kuldjala_interior` destination. |
+
+No R-598 follow-up task was created: `R-623/R-251` own Nunnatorn, `R-297` owns Toompea Small Castle, and `R-453/R-455` own the elevation matrix/profile reconciliation. R-598 remains **in review** with Lower Town invariants verified and only those pre-existing cross-map blockers open.
+
 ## Sources
 
 - [`Lower Town RRMap`](../../content/maps/lower_town_slice.rrmap)
