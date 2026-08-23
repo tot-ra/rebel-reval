@@ -48,7 +48,7 @@
       "owner": "P4-024",
       "implementation_delivered": false,
       "urban": true,
-      "composition": {"enforce": false, "status": "BLOCKED", "evidence": "docs/data/map_composition_thresholds.json#maps.south_quarter"},
+      "composition": {"enforce": true, "status": "BLOCKED", "evidence": "docs/data/map_composition_thresholds.json#maps.south_quarter", "contract": "docs/reports/south_quarter_1343_fabric_contract.md"},
       "focused_suites": {"compile": "BLOCKED", "navigation": "BLOCKED", "transitions": "BLOCKED", "patrols": "BLOCKED"},
       "mandatory_anchors": {"status": "BLOCKED", "blocked": []},
       "landmarks": {"required": ["karja_gate_arch"], "present": ["karja_gate_arch"], "required_affordances": ["karja_gate_arch/GateDoor0"], "present_affordances": []},

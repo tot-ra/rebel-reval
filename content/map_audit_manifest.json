@@ -143,6 +143,11 @@
       "definition": "scripts/map/definitions/prototypes/south_quarter_definition.gd",
       "factory": "SouthQuarterDefinition.create",
       "disposition": "convert",
+      "composition_enforcement": {
+        "state": "enforced",
+        "thresholds": "docs/data/map_composition_thresholds.json#maps.south_quarter",
+        "ownership": "docs/reports/south_quarter_1343_fabric_contract.md"
+      },
       "capture": "south_quarter.png",
       "mandatory_anchors": [
         "inspection_spawn",

@@ -100,7 +100,9 @@
       "elevation_range_min": 2.5
     },
     "south_quarter": {
-      "enforce": false,
+      "enforce": true,
+      "enforcement_state": "enforced",
+      "ownership_contract": "docs/reports/south_quarter_1343_fabric_contract.md",
       "source_refs": ["H08-H10"],
       "surface_shares": {
         "stone_pct": [25, 40],
@@ -108,6 +110,7 @@
         "grass_pct": [15, 30]
       },
       "built_density_pct": [40, 55],
+      "max_cobblestone_pct": 40,
       "max_style_share_pct": 35,
       "max_empty_region_cells": 20000,
       "elevation_range_min": 0.3

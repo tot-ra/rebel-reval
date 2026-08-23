@@ -1,6 +1,93 @@
 extends "res://tests/godot/test_case.gd"
 
-const SouthQuarterDefinition := preload("res://scripts/map/definitions/prototypes/south_quarter_definition.gd")
+const SouthQuarterDefinition := preload(
+	"res://scripts/map/definitions/prototypes/south_quarter_definition.gd"
+)
+
+const CONTRACT_PATH := "res://docs/reports/south_quarter_1343_fabric_contract.md"
+const THRESHOLDS_PATH := "res://docs/data/map_composition_thresholds.json"
+const ACTIVATION_MANIFEST_PATH := "res://docs/data/location_activation_manifest.json"
+const AUDIT_MANIFEST_PATH := "res://content/map_audit_manifest.json"
+const RRMAP_PATH := "res://content/maps/south_quarter.rrmap"
+
+
+func test_south_quarter_contract_freezes_sources_evidence_and_exclusions() -> void:
+	var contract := FileAccess.get_file_as_string(CONTRACT_PATH)
+	assert_true(contract.contains("H08 - Tallinn defensive walls"))
+	assert_true(contract.contains("H09 - Viru/Vana Turg/Kuninga archaeology"))
+	assert_true(contract.contains("H10 - Karja Gate archaeology"))
+	for evidence_id in [
+		"p4_024.south.rataskaev_well.day",
+		"p4_024.south.rataskaev_well.night",
+		"p4_024.south.western_connector.day",
+		"p4_024.south.western_connector.night",
+		"p4_024.south.eastern_ward.day",
+		"p4_024.south.eastern_ward.night",
+		"p4_024.south.knights_court.day",
+		"p4_024.south.knights_court.night",
+		"p4_024.south.service_plots.day",
+		"p4_024.south.service_plots.night",
+		"p4_024.south.karja_gate.day",
+		"p4_024.south.karja_gate.night",
+		"p4_024.south.neighbor_seams.day",
+		"p4_024.south.neighbor_seams.night",
+	]:
+		assert_true(contract.contains(evidence_id), "Missing South Quarter evidence ID %s" % evidence_id)
+	for excluded_form in [
+		"saunatorn",
+		"neitsitorn",
+		"kiek_in_de_kok",
+		"fat_margaret",
+		"later Karja/Viru barbicans",
+	]:
+		assert_true(contract.contains(excluded_form), "Missing historical exclusion %s" % excluded_form)
+	assert_true(contract.contains("GateDoor0"), "Contract must reserve the Karja GateDoor0 affordance")
+	assert_true(
+		contract.contains("Rataskaev") and contract.contains("1375"),
+		"Rataskaev uncertainty must remain explicit",
+	)
+
+	var thresholds: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(THRESHOLDS_PATH))
+	var card: Dictionary = thresholds["maps"]["south_quarter"]
+	assert_true(card.get("enforce", false), "South Quarter composition must be enforced")
+	assert_eq(card.get("enforcement_state"), "enforced")
+	assert_eq(card.get("ownership_contract"), "docs/reports/south_quarter_1343_fabric_contract.md")
+	assert_eq(card.get("source_refs"), ["H08-H10"])
+
+	var activation: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(ACTIVATION_MANIFEST_PATH)
+	)
+	var activation_rows: Array = activation["maps"].filter(
+		func(row): return row.get("map_id") == "south_quarter"
+	)
+	assert_eq(activation_rows.size(), 1)
+	var activation_row: Dictionary = activation_rows[0]
+	assert_false(activation_row.get("implementation_delivered", true))
+	assert_eq(activation_row["composition"]["enforce"], true)
+	assert_eq(activation_row["composition"]["status"], "BLOCKED")
+	assert_eq(activation_row["landmarks"]["present_affordances"], [])
+	assert_eq(activation_row["population"]["profile_ids"], [])
+	assert_eq(activation_row["gameplay"]["loop_ids"], [])
+
+	var audit_manifest: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(AUDIT_MANIFEST_PATH)
+	)
+	var audit_rows: Array = audit_manifest["maps"].filter(
+		func(row): return row.get("id") == "south_quarter"
+	)
+	assert_eq(audit_rows.size(), 1)
+	assert_eq(audit_rows[0]["composition_enforcement"]["state"], "enforced")
+	assert_eq(
+		audit_rows[0]["composition_enforcement"]["ownership"],
+		"docs/reports/south_quarter_1343_fabric_contract.md",
+	)
+
+	var rrmap := FileAccess.get_file_as_string(RRMAP_PATH)
+	assert_true(rrmap.contains("map south_quarter"))
+	assert_true(rrmap.contains("active=false"), "South Quarter must remain inactive")
+
+
+
 
 
 func test_south_quarter_prototype_bounds_and_anchors() -> void:
@@ -8,7 +95,10 @@ func test_south_quarter_prototype_bounds_and_anchors() -> void:
 	assert_eq(definition.size_cells, Vector2i(336, 96))
 	assert_true(MapBuilder.validate(definition).is_empty())
 	for anchor_id in [&"rataskaev_well", &"karja_approach", &"king_street_climb"]:
-		assert_true(MapVerification.has_anchor(definition, anchor_id), "Missing south-quarter anchor %s" % anchor_id)
+		assert_true(
+			MapVerification.has_anchor(definition, anchor_id),
+			"Missing south-quarter anchor %s" % anchor_id,
+		)
 
 
 func test_south_quarter_district_life_dressing() -> void:
@@ -26,7 +116,10 @@ func test_south_quarter_district_life_dressing() -> void:
 		if dressing_kinds.has(kind):
 			dressing_kinds[kind] = true
 	for dressing_kind in dressing_kinds:
-		assert_true(dressing_kinds[dressing_kind], "South quarter needs district-life prop %s" % String(dressing_kind))
+		assert_true(
+			dressing_kinds[dressing_kind],
+			"South quarter needs district-life prop %s" % String(dressing_kind),
+		)
 	assert_true(
 		_prop_near_prop(definition, &"rataskaev_well_wash", &"rataskaev_well_prop", 6),
 		"Wash tub must sit beside Rataskaev well"
