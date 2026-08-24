@@ -100,3 +100,27 @@ func test_transition_manifest_forced_reload_discards_stale_records() -> void:
 		DoorNavigator.has_spawn(&"stale_scene", &"stale_spawn"),
 		"Forced reload must discard stale spawn records with their scene",
 	)
+
+
+func test_transition_manifest_forced_reload_is_idempotent() -> void:
+	assert_true(
+		DoorNavigator.load_manifest(true),
+		"First forced reload should rebuild the manifest registry",
+	)
+	var first_scene_ids := DoorNavigator.get_active_scene_ids()
+	var first_forge_spawn_ids := DoorNavigator.get_scene_spawn_ids(&"forge")
+
+	assert_true(
+		DoorNavigator.load_manifest(true),
+		"Second forced reload should rebuild the manifest registry",
+	)
+	assert_eq(
+		DoorNavigator.get_active_scene_ids(),
+		first_scene_ids,
+		"Repeated manifest reloads must preserve active scene IDs",
+	)
+	assert_eq(
+		DoorNavigator.get_scene_spawn_ids(&"forge"),
+		first_forge_spawn_ids,
+		"Repeated manifest reloads must preserve forge spawn IDs",
+	)
