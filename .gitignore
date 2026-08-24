@@ -16,6 +16,8 @@
 /bin/
 # Local A2gent/Codex worktree mirrors used for parallel agent runs
 .a2gent-worktrees/
+.worktrees/
+.git_commit_output
 
 # Language and test-tool caches
 __pycache__/
