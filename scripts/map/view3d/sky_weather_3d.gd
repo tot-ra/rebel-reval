@@ -201,6 +201,7 @@ const RAIN_EMITTER_HEIGHT := 11.0
 ## pausing or accelerating the weather clock affects puddles consistently.
 const PUDDLE_RAIN_FILL_PER_SECOND := 0.08
 const PUDDLE_DRY_PER_SECOND := 0.004
+const LAST_RAIN_NEVER := INF
 
 ## Cloud drift scales with wind so a gust visibly accelerates the sky and storms
 ## race while clear days barely stir. Base drift is the light fair-weather rate.
@@ -234,6 +235,9 @@ var _cloud_offset := Vector2.ZERO
 var _cloud_detail_offset := Vector2.ZERO
 ## Starts dry so a fresh map cannot display puddles before rain has fallen.
 var _puddle_wetness := 0.0
+## Elapsed simulated seconds since rain last reached the ground. INF means this
+## weather controller has never observed rain, useful to mud and save/debug UI.
+var _seconds_since_rain := LAST_RAIN_NEVER
 ## Transient gust magnitude on top of the profile wind. `_gust_time` < 0 is idle.
 var _gust := 0.0
 var _gust_time := -1.0
@@ -482,10 +486,24 @@ func puddle_wetness() -> float:
 	return _puddle_wetness
 
 
+## Mud uses the same retained ground water as puddles, so viscosity changes from
+## both current rainfall and elapsed drying rather than a disconnected timer.
+func mud_wetness() -> float:
+	return _puddle_wetness
+
+
+func seconds_since_rain() -> float:
+	return _seconds_since_rain
+
+
 func _advance_puddle_wetness(delta: float) -> void:
 	var rain_fill := rain_intensity() * PUDDLE_RAIN_FILL_PER_SECOND
 	var drying := PUDDLE_DRY_PER_SECOND if rain_fill <= 0.0 else 0.0
 	_puddle_wetness = clampf(_puddle_wetness + (rain_fill - drying) * delta, 0.0, 1.0)
+	if rain_intensity() > 0.001:
+		_seconds_since_rain = 0.0
+	elif not is_inf(_seconds_since_rain):
+		_seconds_since_rain += delta
 
 
 ## Sustained profile wind plus any transient gust front, clamped to the 0..1

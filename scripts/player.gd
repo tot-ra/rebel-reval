@@ -45,6 +45,7 @@ var _dodge_distance_remaining := 0.0
 var _death_transition_started := false
 var _map_definition: MapDefinition
 var _map_grid: MapTerrainGrid
+var _mud_wetness_provider: Callable
 
 @onready var animation_player: AnimatedSprite2D = get_node_or_null("AnimatedSprite2D")
 # Optional so headless unit tests can construct Player.new() without the full scene.
@@ -78,6 +79,10 @@ func _on_spawn(position: Vector2, direction: String):
 func configure_map_movement(definition: MapDefinition, grid: MapTerrainGrid) -> void:
 	_map_definition = definition
 	_map_grid = grid
+
+
+func set_mud_wetness_provider(provider: Callable) -> void:
+	_mud_wetness_provider = provider
 
 
 func _physics_process(_delta):
@@ -630,7 +635,12 @@ func _get_encumbrance_speed_multiplier() -> float:
 func _get_terrain_speed_multiplier() -> float:
 	if _map_definition == null or _map_grid == null:
 		return 1.0
-	return MapTerrainMovement.speed_multiplier_at(_map_definition, _map_grid, global_position)
+	var mud_wetness := 0.0
+	if _mud_wetness_provider.is_valid():
+		mud_wetness = float(_mud_wetness_provider.call())
+	return MapTerrainMovement.speed_multiplier_at(
+		_map_definition, _map_grid, global_position, mud_wetness
+	)
 
 
 func _apply_npc_pushes(movement_velocity: Vector2, delta: float) -> void:

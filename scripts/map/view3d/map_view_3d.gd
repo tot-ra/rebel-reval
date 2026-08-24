@@ -6,6 +6,7 @@ const DayNightCycle := preload("res://scripts/global/day_night_cycle.gd")
 const Lighting := preload("res://scripts/map/view3d/map_view_lighting.gd")
 const SkyWeather3D := preload("res://scripts/map/view3d/sky_weather_3d.gd")
 const TerrainDetails := preload("res://scripts/map/view3d/map_view_terrain_details.gd")
+const MudFootprints3D := preload("res://scripts/map/view3d/mud_footprints_3d.gd")
 ## P0-052 3D orthographic view layer (ADR 0007). Assembles terrain, building,
 ## and prop geometry from an immutable MapDefinition, framed by a fixed
 ## dimetric orthographic camera under a deterministic day/night sun.
@@ -108,6 +109,7 @@ var _last_puddle_visible := false
 var _first_person_terrain_detail := false
 var _terrain_detail_focus_cell := Vector2i(2147483647, 2147483647)
 var _decals_node: Node3D
+var _mud_footprints: MudFootprints3D
 
 static func create(
 	map_definition: MapDefinition, built_grid: MapTerrainGrid, initial_time: StringName = TIME_DAY
@@ -194,6 +196,7 @@ func _sync_sea_weather() -> void:
 	if _sky_weather == null:
 		return
 	MapViewMaterials.apply_sea_weather(_sky_weather.wind_strength(), _sky_weather.rain_intensity())
+	MapViewMaterials.apply_mud_wetness(_sky_weather.mud_wetness())
 	# Vegetation, sails, and tower pennants share the same weather wind field as
 	# floating hulls so a storm leans the whole harbor one way.
 	MapViewMaterials.apply_world_wind(
@@ -300,6 +303,24 @@ func sync_actor(actor: Node3D, logic_position: Vector2) -> void:
 		MapViewMeshBuilder.ground_height(definition, Vector2(actor.position.x, actor.position.z))
 		+ surface_elevation
 	)
+
+
+func add_mud_footprint(logic_position: Vector2, movement: Vector2) -> bool:
+	if _mud_footprints == null or grid == null or _sky_weather == null:
+		return false
+	var cell := Vector2i(
+		floori(logic_position.x / float(definition.cell_size)),
+		floori(logic_position.y / float(definition.cell_size))
+	)
+	if grid.get_terrain(cell) != MapTypes.TERRAIN_MUD:
+		return false
+	var position := world_position(logic_position)
+	position.y = MapViewMeshBuilder.ground_height(definition, Vector2(position.x, position.z))
+	return _mud_footprints.try_add(position, movement, _sky_weather.mud_wetness())
+
+
+func mud_wetness() -> float:
+	return _sky_weather.mud_wetness() if _sky_weather != null else 0.0
 
 
 func anchor_world_position(anchor_id: StringName) -> Vector3:
@@ -582,6 +603,9 @@ func _assemble() -> void:
 	_sky_weather.rain_suppressed = (
 		definition != null and definition.suppresses_exterior_surroundings()
 	)
+	_mud_footprints = MudFootprints3D.new()
+	_mud_footprints.name = "MudFootprints"
+	add_child(_mud_footprints)
 	_sync_puddle_visibility(true)
 
 	# Headless uses the dummy renderer, which cannot provide the screen texture

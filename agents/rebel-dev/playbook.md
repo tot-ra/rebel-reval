@@ -169,3 +169,6 @@ This file contains lessons specific to the Dev role.
 Parallel exact replacements against one mutable file can race and reapply stale context, creating duplicate map IDs or truncating the tail. Restore the file from the known baseline, then apply edits sequentially and run duplicate-ID checks before tests.
 
 - 2026-08-22: A Godot `Could not parse global class` error often means a missing `func` header after an insertion, not a bad class_name; re-read the helper boundary and restore the displaced signature before chasing dependency preload cascades.
+
+- 2026-08-24: Arrays returned from typed GDScript containers can still infer `Variant` on mutating calls such as `pop_front()` under warnings-as-errors; explicitly type the receiving local before interpreting dependent preload failures.
+- 2026-08-24: For gait-side tests, derive lateral sign from the actual cross-vector convention (`side = (-forward.z, forward.x)`) instead of assuming screen-right; otherwise correct alternating footprints fail a sign-only assertion.

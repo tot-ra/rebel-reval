@@ -118,6 +118,7 @@ func sync_player(snap: bool, delta: float = 0.0) -> void:
 	var speed := _player.velocity.length()
 	var moving := speed > WALK_ANIMATION_MIN_SPEED
 	if moving:
+		_view.add_mud_footprint(_player.global_position, _player.velocity.normalized())
 		_last_facing = _player.velocity.normalized()
 	elif _last_facing.is_zero_approx():
 		# Spawn-facing must use the snapped camera offset, not pre-sync positions.

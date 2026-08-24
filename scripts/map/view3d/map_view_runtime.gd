@@ -139,6 +139,8 @@ static func install(
 		runtime._camera_controller.logic_direction_toward_camera
 	)
 	runtime._actor_controller.set_screen_shake_callback(runtime._camera_controller.add_screen_shake)
+	if player.has_method("set_mud_wetness_provider"):
+		player.call("set_mud_wetness_provider", runtime.view.mud_wetness)
 
 	scene_root.add_child(runtime)
 	# The rig's _ready() creates distance LOD meshes; assign the isolated light

@@ -366,11 +366,20 @@ static func blended_ground(noise_seed: int) -> ShaderMaterial:
 	material.set_shader_parameter(
 		"timber_floor_layer", terrain_blend_index(MapTypes.TERRAIN_TIMBER_FLOOR)
 	)
+	material.set_shader_parameter("mud_layer", terrain_blend_index(MapTypes.TERRAIN_MUD))
+	material.set_shader_parameter("mud_wetness", 0.0)
 	material.set_shader_parameter("natural_ground_uv_scale", TERRAIN_GRASS_UV_SCALE)
 	material.set_shader_parameter("natural_ground_variation", 0.72)
 	material.set_shader_parameter("timber_floor_uv_scale", TERRAIN_TIMBER_FLOOR_UV_SCALE)
 	_cache[key] = material
 	return material
+
+
+static func apply_mud_wetness(wetness: float) -> void:
+	var value := clampf(wetness, 0.0, 1.0)
+	for key: Variant in _cache.keys():
+		if String(key).begins_with("blended_ground:"):
+			(_cache[key] as ShaderMaterial).set_shader_parameter("mud_wetness", value)
 
 
 ## Water material API remains here for existing map builders and tests. The

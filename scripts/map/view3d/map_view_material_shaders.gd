@@ -619,6 +619,8 @@ uniform float pattern_layers = 1.0;
 uniform int cobblestone_layer = 12;
 uniform int castle_paving_layer = 13;
 uniform int timber_floor_layer = 15;
+uniform int mud_layer = 8;
+uniform float mud_wetness = 0.0;
 uniform float natural_ground_uv_scale = 2.0;
 uniform float natural_ground_variation = 0.72;
 uniform float timber_floor_uv_scale = 2.0;
@@ -753,6 +755,10 @@ void fragment() {
 	float primary_cobble = cobble_layer_weight(blend_layers.x);
 	float secondary_cobble = cobble_layer_weight(blend_layers.y);
 	float cobble_weight = mix(primary_cobble, secondary_cobble, blend);
+	float primary_mud = float(blend_layers.x == mud_layer);
+	float secondary_mud = float(blend_layers.y == mud_layer);
+	float mud_weight = mix(primary_mud, secondary_mud, blend);
+	float wet_mud = clamp(mud_wetness, 0.0, 1.0) * mud_weight;
 	vec4 surface = texture(cobble_surface, UV);
 	float stone = surface.b;
 	float palette = surface.a;
@@ -786,13 +792,21 @@ void fragment() {
 	// Pull the whole road toward compacted earth so setts never float as clean tiles.
 	vec3 cobble_albedo = mix(earth, stone_color, stone * 0.82 + 0.06);
 	ALBEDO = mix(terrain_albedo, cobble_albedo * tone, cobble_weight);
+	// Rain turns clay/silt darker and glossy while preserving granular clumps.
+	// Low-frequency pools vary the liquid film instead of making mud a flat mirror.
+	float mud_pool = smoothstep(0.38, 0.78, cobble_noise(terrain_world_xz * 0.72 + vec2(9.1, 3.7)));
+	float mud_film_weight = wet_mud * mix(0.58, 1.0, mud_pool);
+	ALBEDO = mix(ALBEDO, ALBEDO * vec3(0.48, 0.43, 0.36), mud_film_weight * 0.64);
 
 	vec2 normal_xy = surface.rg * 2.0 - 1.0;
 	vec3 cobble_normal = vec3(normal_xy, sqrt(max(1.0 - dot(normal_xy, normal_xy), 0.0)));
 	NORMAL_MAP = cobble_normal * 0.5 + 0.5;
 	NORMAL_MAP_DEPTH = 0.55 * cobble_weight;
-	// High roughness kills the linoleum sheen on dry medieval paving.
+	// High roughness kills the linoleum sheen on dry medieval paving. Saturated
+	// mud keeps rough clumps but grows a narrow liquid sheen in its low pockets.
 	ROUGHNESS = mix(0.96, mix(0.99, 0.93, stone), cobble_weight);
+	ROUGHNESS = mix(ROUGHNESS, mix(0.42, 0.20, mud_pool), mud_film_weight);
+	SPECULAR = mix(0.12, 0.30, mud_film_weight);
 }
 """
 ## Thin rainwater decals. The opaque scene supplies the transmitted ground while

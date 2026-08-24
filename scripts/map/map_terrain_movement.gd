@@ -1,11 +1,19 @@
 class_name MapTerrainMovement
 extends RefCounted
 
-## Resolves locomotion speed penalties from authored terrain variants and bushes.
+## Resolves locomotion speed penalties from authored terrain variants, bushes, and
+## rain-softened mud. Weather remains an optional input so logic-only maps retain
+## deterministic dry-terrain behavior.
+
+const MUD_DRY_SPEED_MULTIPLIER := 0.88
+const MUD_SATURATED_SPEED_MULTIPLIER := 0.58
 
 
 static func speed_multiplier_at(
-	definition: MapDefinition, grid: MapTerrainGrid, world_position: Vector2
+	definition: MapDefinition,
+	grid: MapTerrainGrid,
+	world_position: Vector2,
+	mud_wetness: float = 0.0
 ) -> float:
 	if definition == null or grid == null:
 		return 1.0
@@ -14,9 +22,17 @@ static func speed_multiplier_at(
 		int(floor(world_position.y / float(definition.cell_size)))
 	)
 	var multiplier := grid.get_movement_speed_multiplier(cell)
+	if grid.get_terrain(cell) == MapTypes.TERRAIN_MUD:
+		multiplier = minf(multiplier, mud_speed_multiplier(mud_wetness))
 	for prop in definition.props:
 		multiplier = minf(multiplier, _prop_multiplier_at(prop, world_position))
 	return TerrainVegetation.clamp_speed_multiplier(multiplier)
+
+
+static func mud_speed_multiplier(wetness: float) -> float:
+	# Freshly saturated mud yields underfoot; granular dry mud still drags a little.
+	var saturation := smoothstep(0.0, 1.0, clampf(wetness, 0.0, 1.0))
+	return lerpf(MUD_DRY_SPEED_MULTIPLIER, MUD_SATURATED_SPEED_MULTIPLIER, saturation)
 
 
 static func _prop_multiplier_at(prop: Dictionary, world_position: Vector2) -> float:
