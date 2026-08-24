@@ -1,8 +1,9 @@
 # P0-102f Environment Kit Integration
 
-**Status:** Acceptance verification partially blocked by adjacent Lower Town parity drift
+**Status:** Acceptance verification complete
 **Task:** R-539 (verification of P0-102f)
 **Scope:** Forge, street/well, brewery, and checkpoint compositions in the Lower Town slice.
+**Latest run:** 2026-08-24, Godot 4.7.1, live checkout, one suite per checked-runner process
 
 ## Contract
 
@@ -36,9 +37,10 @@ The fixture verifies:
 | Collision parity | **PASS** | Smithy `test_kalev_smithy_collision_parity` passes; Lower Town wall/causeway and walkability checks pass. |
 | Navigation | **PASS** | Lower Town navigation-region, water exclusion, Viru causeway connectivity, and south-quarter seam tests pass. |
 | No scene-specific camera/material overrides | **PASS** | View-only module metadata, deterministic signatures, shared material path, and fingerprint-preservation assertions pass. No camera or bespoke material override is introduced by the acceptance fixture. |
-| Checked environment-kit suite | **PASS** | Current live checkout: `test_environment_kit_integration`: 5 tests, 0 failures, 0 errors, 0 unexpected diagnostics; R-565's detached gate-leaf runtime blocker is resolved. |
-| Checked smithy suite | **PASS** | Current live checkout: `test_kalev_smithy_map`: 16 tests, 0 failures, 0 errors. |
-| Checked Lower Town suite | **BLOCKED - adjacent map WIP** | Current live checkout: 19 tests, 18 pass, 1 failure in `test_lower_town_slice_matches_canonical_parity_fixture`; the fixture is unchanged while the dirty `content/maps/lower_town_slice.rrmap` contains adjacent service-yard/rear-workroom authoring. The remaining 18 Lower Town tests pass. |
+| Checked environment-kit suite | **PASS** | Current live checkout: `test_environment_kit_integration`: 5 tests, 0 failures, 0 errors; checked runner status 0. |
+| Checked smithy suite | **PASS** | Current live checkout: `test_kalev_smithy_map`: 16 tests, 0 failures, 0 errors; checked runner status 0. |
+| Checked Lower Town suite | **PASS** | Current live checkout: `test_lower_town_slice_map`: 19 tests, 0 failures, 0 errors; canonical parity and route/collision/navigation assertions pass. |
+| Teardown diagnostics | **NON-BLOCKING NOTE** | Godot reports ObjectDB/resource leaks at process exit in each run, but no assertion, parser, or script errors occur and the checked runner returns 0. |
 
 ## Verification
 
@@ -62,16 +64,16 @@ tools/run_godot_checked.sh --require-test-summary r539-lower-town -- \
   --filter=test_lower_town_slice_map
 ```
 
-Logs:
+Logs from the latest run:
 
-- `/tmp/rebel-reval-r539-rerun/r539-environment-kit-rerun.log` - `1 file, 5 tests, 0 failures, 0 errors`; checked runner status 0.
-- `/tmp/rebel-reval-r539-rerun/r539-smithy-rerun.log` - `1 file, 16 tests, 0 failures, 0 errors`; checked runner status 0.
-- `/tmp/rebel-reval-r539-rerun/r539-lower-town-rerun.log` - `1 file, 19 tests, 1 failure, 0 errors`; checked runner status 1. The failure is the canonical parity comparison at `test_lower_town_slice_matches_canonical_parity_fixture`; all other 18 tests pass.
+- `/tmp/rebel-reval-r539-live/r539-environment-kit-live.log` - `1 file, 5 tests, 0 failures, 0 errors`; checked runner status 0.
+- `/tmp/rebel-reval-r539-live/r539-smithy-live.log` - `1 file, 16 tests, 0 failures, 0 errors`; checked runner status 0.
+- `/tmp/rebel-reval-r539-live/r539-lower-town-live.log` - `1 file, 19 tests, 0 failures, 0 errors`; checked runner status 0, including the canonical parity comparison.
 
-The previous detached gate-leaf diagnostic is resolved by completed follow-up R-565. The remaining acceptance blocker is outside R-539's verification allowlist: the live `content/maps/lower_town_slice.rrmap` has adjacent Lower Town authoring changes (rear property lanes, workrooms, service-yard props, and view-only wear), while `tests/fixtures/maps/lower_town_slice.parity.json` remains unchanged. R-539 does not regenerate or edit that fixture. Re-run this acceptance after the owning Lower Town authoring/parity work (R-547 and dependent R-550/R-552/R-553) lands or is explicitly isolated; do not promote the current 18/19 map-suite result to a clean parity pass.
+The previous detached gate-leaf diagnostic is resolved by completed follow-up R-565. The live acceptance matrix is now green: all four target spaces are represented, shared view-only modules preserve gameplay fingerprints, and the environment-kit, smithy, and Lower Town suites pass. Godot emits only teardown ObjectDB/resource-leak diagnostics after the suites finish; these do not produce assertion, parser, or script errors and do not change the checked runner status.
 
-A detached `HEAD` baseline was also checked after Godot import. It is not a valid substitute for the live authored adapter state: the older snapshot rejects current `elevation_area`/`elevation_ramp` map commands and produces cascading missing-definition failures. Those diagnostics are recorded as baseline age, not attributed to the environment-kit modules.
+A detached `HEAD` baseline was also checked after Godot import. It is not needed for this green live-checkout acceptance result and remains historical context only: the older snapshot rejects current `elevation_area`/`elevation_ramp` map commands and produces cascading missing-definition failures. Those diagnostics are recorded as baseline age, not attributed to the environment-kit modules.
 
 ## Boundary
 
-This task does not claim ordinary house-tier authoring, plot dressing, new environment primitives, landmark art quality, map-density work, day/night capture sign-off, or parity regeneration for adjacent Lower Town authoring. Those remain owned by P2-063-P2-067, P0-101, R-547 and the dependent Lower Town closeout tasks. R-539 changed only this acceptance report; no runtime, test, map source, or parity fixture was changed.
+This task does not claim ordinary house-tier authoring, plot dressing, new environment primitives, landmark art quality, map-density work, or day/night capture sign-off. Those remain owned by P2-063-P2-067 and P0-101. R-539 changed only this acceptance report; no runtime, test, map source, or parity fixture was changed.
