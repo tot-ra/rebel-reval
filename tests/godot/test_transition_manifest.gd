@@ -78,3 +78,25 @@ func test_transition_manifest_returns_deterministic_spawn_ids() -> void:
 		[],
 		"Unknown scenes should return no spawn IDs"
 	)
+
+func test_transition_manifest_forced_reload_discards_stale_records() -> void:
+	DoorNavigator._scenes[&"stale_scene"] = {
+		"path": "res://scenes/missing/stale_scene.tscn",
+		"active": true,
+		"spawns": {&"stale_spawn": true},
+	}
+	assert_true(DoorNavigator.has_active_scene(&"stale_scene"))
+	assert_true(DoorNavigator.has_spawn(&"stale_scene", &"stale_spawn"))
+
+	assert_true(
+		DoorNavigator.load_manifest(true),
+		"Forced reload should rebuild the manifest registry",
+	)
+	assert_false(
+		DoorNavigator.has_active_scene(&"stale_scene"),
+		"Forced reload must discard scene records from the previous registry",
+	)
+	assert_false(
+		DoorNavigator.has_spawn(&"stale_scene", &"stale_spawn"),
+		"Forced reload must discard stale spawn records with their scene",
+	)
