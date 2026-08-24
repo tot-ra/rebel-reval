@@ -81,15 +81,22 @@ SURFACE_PROFILES: dict[str, dict] = {
 # Dimensions use the game contract's Y-up order: length, height, width.
 SPECS = {
     "cattle": {
-        "source": STAGING / "cattle_candidate.glb",
+        # WHY: the rejected image-to-3D candidate has a fused ground sheet, stretched
+        # limbs, and an unreadable head. Match the sheep pipeline by generating closed
+        # anatomical volumes and fusing them into one deterministic skinned surface.
+        "source": None,
         "output": RUNTIME / "medieval_cattle.glb",
         "dimensions_m": (2.20, 1.45, 1.02),
-        "triangles": 8_000,
-        "voxel_divisor": 72.0,
-        "base_color": (0.30, 0.115, 0.055),
-        "accent_color": (0.48, 0.235, 0.095),
+        "triangles": 9_000,
+        "voxel_divisor": 78.0,
+        "base_color": (0.24, 0.075, 0.028),
+        "accent_color": (0.52, 0.205, 0.065),
         "seed": 208744131,
         "animated": True,
+        "route": "deterministic_procedural_closed_anatomy_remesh",
+        "source_license": "project-authored procedural geometry",
+        "anatomy_decision": "remeshed_multi_volume_cattle_body_head_muzzle_horns_udder_four_legs_and_cloven_hooves",
+        "scale_basis": "2.20 m nose-to-rump; 1.45 m standing height; 1.02 m body width",
     },
     "pig": {
         "source": STAGING / "pig_hendrik_reyneke_cc_by_source.glb",
@@ -634,6 +641,170 @@ def export_glb(
     )
 
 
+
+
+def create_cattle_mesh() -> bpy.types.Object:
+    """Build a sturdy northern-European cow from closed anatomical volumes.
+
+    WHY: the old image-to-3D mesh fused the animal to a ground sheet and distorted
+    its limbs. Interlocking closed volumes follow the successful sheep pipeline:
+    voxel remesh produces one clean hide surface while retaining a broad barrel,
+    deep chest, level back, readable bovine head, horns, udder, and planted legs.
+    """
+    parts: list[bpy.types.Object] = []
+
+    def sphere(
+        part_name: str,
+        location: tuple[float, float, float],
+        scale: tuple[float, float, float],
+        segments: int = 22,
+        ring_count: int = 12,
+    ) -> bpy.types.Object:
+        bpy.ops.mesh.primitive_uv_sphere_add(
+            segments=segments, ring_count=ring_count, location=location
+        )
+        part = bpy.context.object
+        part.name = part_name
+        part.scale = scale
+        bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+        parts.append(part)
+        return part
+
+    def segment(
+        part_name: str,
+        start: tuple[float, float, float],
+        end: tuple[float, float, float],
+        start_radius: float,
+        end_radius: float,
+        vertices: int = 14,
+    ) -> bpy.types.Object:
+        start_v = Vector(start)
+        end_v = Vector(end)
+        direction = end_v - start_v
+        bpy.ops.mesh.primitive_cone_add(
+            vertices=vertices,
+            radius1=end_radius,
+            radius2=start_radius,
+            depth=direction.length,
+            location=(start_v + end_v) * 0.5,
+        )
+        part = bpy.context.object
+        part.name = part_name
+        part.rotation_euler = direction.to_track_quat("Z", "Y").to_euler()
+        bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
+        parts.append(part)
+        return part
+
+    # A long barrel with distinct shoulder and rump masses gives cattle their
+    # load-bearing silhouette without reproducing the old tent-like dorsal ridge.
+    sphere("CattleBarrel", (0.08, 0.0, 0.86), (0.72, 0.42, 0.40), 28, 16)
+    sphere("CattleBelly", (0.10, 0.0, 0.67), (0.58, 0.37, 0.27), 24, 14)
+    sphere("CattleShoulders", (-0.48, 0.0, 0.90), (0.40, 0.43, 0.43), 24, 14)
+    sphere("CattleBrisket", (-0.55, 0.0, 0.70), (0.26, 0.35, 0.31), 20, 12)
+    sphere("CattleRump", (0.58, 0.0, 0.88), (0.41, 0.41, 0.40), 24, 14)
+    sphere("CattleTopline", (0.08, 0.0, 1.12), (0.60, 0.32, 0.16), 22, 12)
+
+    # The neck slopes forward into a broad poll and a blunt, low muzzle. Cheeks,
+    # ears, horn bases, dewlap, and nostril plane keep the face bovine in close view.
+    segment("CattleNeck", (-0.48, 0.0, 0.92), (-0.86, 0.0, 1.13), 0.34, 0.23)
+    sphere("CattlePoll", (-0.91, 0.0, 1.19), (0.25, 0.30, 0.25), 22, 12)
+    sphere("CattleForehead", (-1.02, 0.0, 1.16), (0.25, 0.25, 0.25), 22, 12)
+    sphere("CattleCheekLeft", (-1.03, 0.17, 1.04), (0.20, 0.15, 0.19), 18, 10)
+    sphere("CattleCheekRight", (-1.03, -0.17, 1.04), (0.20, 0.15, 0.19), 18, 10)
+    sphere("CattleMuzzle", (-1.25, 0.0, 0.96), (0.24, 0.25, 0.17), 22, 12)
+    sphere("CattleNose", (-1.39, 0.0, 0.94), (0.13, 0.23, 0.13), 18, 10)
+    sphere("CattleJaw", (-1.12, 0.0, 0.86), (0.21, 0.21, 0.14), 18, 10)
+    sphere("CattleDewlap", (-0.71, 0.0, 0.69), (0.24, 0.20, 0.25), 18, 10)
+    segment("CattleEarLeft", (-0.94, 0.19, 1.26), (-0.88, 0.43, 1.24), 0.095, 0.025, 10)
+    segment("CattleEarRight", (-0.94, -0.19, 1.26), (-0.88, -0.43, 1.24), 0.095, 0.025, 10)
+    for side, y_sign in (("Left", 1.0), ("Right", -1.0)):
+        # Short outward-upward horns suit practical medieval cows and survive the
+        # remesh better than thin crescents.
+        segment(
+            f"CattleHorn{side}Base",
+            (-0.88, 0.18 * y_sign, 1.34),
+            (-0.83, 0.34 * y_sign, 1.44),
+            0.075,
+            0.045,
+            12,
+        )
+        segment(
+            f"CattleHorn{side}Tip",
+            (-0.83, 0.34 * y_sign, 1.44),
+            (-0.90, 0.43 * y_sign, 1.53),
+            0.046,
+            0.014,
+            10,
+        )
+
+    # Hip/shoulder caps and articulated-looking limb volumes prevent the remesh
+    # from creating spindly poles. Every cloven toe ends at Z=0 before normalization.
+    for side, y in (("Left", 0.29), ("Right", -0.29)):
+        sphere(f"CattleFront{side}Shoulder", (-0.52, y, 0.74), (0.16, 0.14, 0.22), 16, 9)
+        sphere(f"CattleBack{side}Hip", (0.58, y, 0.76), (0.18, 0.15, 0.23), 16, 9)
+        for end, x, knee_dx in (("Front", -0.52, -0.02), ("Back", 0.58, 0.05)):
+            segment(
+                f"Cattle{end}{side}UpperLeg",
+                (x, y, 0.76),
+                (x + knee_dx, y, 0.40),
+                0.125,
+                0.090,
+            )
+            segment(
+                f"Cattle{end}{side}LowerLeg",
+                (x + knee_dx, y, 0.42),
+                (x, y, 0.13),
+                0.090,
+                0.057,
+            )
+            segment(
+                f"Cattle{end}{side}Pastern",
+                (x, y, 0.15),
+                (x - 0.02, y, 0.055),
+                0.058,
+                0.045,
+                10,
+            )
+            sphere(
+                f"Cattle{end}{side}HoofOuter",
+                (x - 0.035, y + 0.032, 0.045),
+                (0.095, 0.050, 0.045),
+                14,
+                8,
+            )
+            sphere(
+                f"Cattle{end}{side}HoofInner",
+                (x - 0.035, y - 0.032, 0.045),
+                (0.095, 0.050, 0.045),
+                14,
+                8,
+            )
+
+    # A restrained udder identifies the animal as a cow without becoming a comic
+    # focal point. Four short teats remain connected through remesh.
+    sphere("CattleUdder", (0.39, 0.0, 0.49), (0.24, 0.24, 0.16), 18, 10)
+    for index, (x, y) in enumerate(((0.31, 0.10), (0.31, -0.10), (0.47, 0.10), (0.47, -0.10))):
+        segment(f"CattleTeat{index}", (x, y, 0.48), (x, y, 0.36), 0.040, 0.026, 10)
+
+    bpy.ops.object.select_all(action="DESELECT")
+    for part in parts:
+        part.select_set(True)
+    bpy.context.view_layer.objects.active = parts[0]
+    bpy.ops.object.join()
+    obj = bpy.context.view_layer.objects.active
+    obj.name = "AnimalMesh"
+    obj.location = (0.0, 0.0, 0.0)
+    bpy.ops.object.mode_set(mode="EDIT")
+    bpy.ops.mesh.select_all(action="SELECT")
+    bpy.ops.mesh.quads_convert_to_tris(quad_method="BEAUTY", ngon_method="BEAUTY")
+    bpy.ops.object.mode_set(mode="OBJECT")
+    for polygon in obj.data.polygons:
+        polygon.use_smooth = True
+    obj["procedural_anatomy"] = True
+    obj["cloven_hoof_toes"] = 8
+    obj["horn_count"] = 2
+    obj["udder_teat_count"] = 4
+    return obj
 def create_sheep_mesh() -> bpy.types.Object:
     """Build a detailed sheep from dense closed volumes for later remesh.
 
@@ -886,21 +1057,21 @@ def build(name: str, spec: dict) -> dict:
     if source is not None and not source.exists():
         raise FileNotFoundError(f"Missing approved candidate: {source}")
     clear_scene()
-    if name == "sheep":
-        obj = create_sheep_mesh()
+    if name in {"cattle", "sheep"}:
+        obj = create_cattle_mesh() if name == "cattle" else create_sheep_mesh()
         raw = topology(obj)
-        # WHY: without remesh the joined fleece volumes stay as separate bubble
-        # islands and facial details float beside an unfinished silhouette. Extra
-        # smooth iterations fuse the dense locks into continuous wool instead of
-        # leaving a cloud of sphere silhouettes.
+        # WHY: without remesh the joined anatomical volumes stay as separate
+        # islands. Species-tuned smoothing fuses them into a coherent silhouette
+        # while retaining cattle joints or sheep fleece relief.
         rebuild_surface(
             obj,
             spec["voxel_divisor"],
             spec["triangles"],
-            smooth_factor=0.72,
-            smooth_iterations=12,
+            smooth_factor=0.58 if name == "cattle" else 0.72,
+            smooth_iterations=7 if name == "cattle" else 12,
         )
-        apply_fleece_displacement(obj, strength=0.052)
+        if name == "sheep":
+            apply_fleece_displacement(obj, strength=0.052)
         discarded_before = 0
     else:
         assert source is not None
@@ -960,7 +1131,11 @@ def build(name: str, spec: dict) -> dict:
         "source_license": spec.get("source_license", "project-authored AI generation"),
         "anatomy_decision": spec.get("anatomy_decision", "approved_reference_silhouette"),
         "scale_basis": spec.get("scale_basis", "brief metric dimensions"),
-        "source": str(source.relative_to(ROOT)) if source is not None else "procedural:create_sheep_mesh",
+        "source": (
+            str(source.relative_to(ROOT))
+            if source is not None
+            else f"procedural:create_{name}_mesh"
+        ),
         "source_sha256": hashlib.sha256(source.read_bytes()).hexdigest() if source is not None else None,
         "output": str(output.relative_to(ROOT)),
         "output_sha256": hashlib.sha256(output.read_bytes()).hexdigest(),

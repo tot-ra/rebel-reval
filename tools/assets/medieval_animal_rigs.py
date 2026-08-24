@@ -196,43 +196,66 @@ def create_quadruped_rig(
 
 
 def create_cattle_rig(obj: bpy.types.Object) -> tuple[bpy.types.Object, list[bpy.types.Object]]:
-    """Compact cattle rig with readable eyes and swishing tail."""
-    return create_quadruped_rig(
+    """Procedural cattle rig with fitted eyes, nostrils, and swishing tail."""
+    eye_left = snap_point_to_mesh_surface(obj, Vector((-0.91, 0.22, 1.17)), outward=-0.006)
+    eye_right = snap_point_to_mesh_surface(obj, Vector((-0.91, -0.22, 1.17)), outward=-0.006)
+    nostril_left = snap_point_to_mesh_surface(obj, Vector((-1.08, 0.13, 0.91)), outward=0.003)
+    nostril_right = snap_point_to_mesh_surface(obj, Vector((-1.08, -0.13, 0.91)), outward=0.003)
+    armature, details = create_quadruped_rig(
         obj,
         "CattleRig",
         (0.0, 0.0, 0.48),
         (0.0, 0.0, 1.02),
         {
-            "Neck": ((-0.48, 0.0, 0.88), (-0.90, 0.0, 1.15)),
-            "Tail": ((0.64, 0.0, 0.90), (0.98, 0.0, 0.50)),
-            "FrontLeftLeg": ((-0.55, 0.27, 0.70), (-0.55, 0.27, 0.08)),
-            "FrontRightLeg": ((-0.55, -0.27, 0.70), (-0.55, -0.27, 0.08)),
-            "BackLeftLeg": ((0.60, 0.27, 0.70), (0.60, 0.27, 0.08)),
-            "BackRightLeg": ((0.60, -0.27, 0.70), (0.60, -0.27, 0.08)),
-            "EyeLeft": ((-0.80, 0.42, 1.20), (-0.80, 0.42, 1.29)),
-            "EyeRight": ((-0.80, -0.42, 1.20), (-0.80, -0.42, 1.29)),
+            "Neck": ((-0.42, 0.0, 0.86), (-0.88, 0.0, 1.16)),
+            "Tail": ((0.64, 0.0, 0.94), (0.98, 0.0, 0.52)),
+            "FrontLeftLeg": ((-0.43, 0.25, 0.72), (-0.43, 0.25, 0.08)),
+            "FrontRightLeg": ((-0.43, -0.25, 0.72), (-0.43, -0.25, 0.08)),
+            "BackLeftLeg": ((0.48, 0.25, 0.72), (0.48, 0.25, 0.08)),
+            "BackRightLeg": ((0.48, -0.25, 0.72), (0.48, -0.25, 0.08)),
+            "EyeLeft": (
+                tuple(eye_left),
+                (eye_left.x, eye_left.y, eye_left.z + 0.07),
+            ),
+            "EyeRight": (
+                tuple(eye_right),
+                (eye_right.x, eye_right.y, eye_right.z + 0.07),
+            ),
         },
         {
-            "neck_x": -0.48,
-            "neck_z": 0.68,
-            "tail_x": 0.70,
-            "tail_z": 0.54,
-            "tail_y": 0.36,
-            "leg_z": 0.72,
-            "front_leg_x": -0.24,
-            "back_leg_x": 0.26,
-            "eye_x": 0.82,
-            "eye_scale": (0.070, 0.026, 0.058),
-            "pupil_scale": (0.030, 0.014, 0.034),
-            "pupil_offset": 0.024,
+            "neck_x": -0.40,
+            "neck_z": 0.67,
+            "tail_x": 0.66,
+            "tail_z": 0.56,
+            "tail_y": 0.31,
+            "leg_z": 0.73,
+            "front_leg_x": -0.18,
+            "back_leg_x": 0.22,
+            "eye_x": abs(eye_left.x),
+            "eye_scale": (0.043, 0.022, 0.037),
+            "pupil_scale": (0.018, 0.010, 0.020),
+            "pupil_offset": 0.013,
             "tail_tuft_scale": (0.075, 0.065, 0.105),
         },
         eye_specs=[
-            ("Left", 0.425, 1.205, "EyeLeft"),
-            ("Right", -0.425, 1.205, "EyeRight"),
+            ("Left", eye_left.y, eye_left.z, "EyeLeft"),
+            ("Right", eye_right.y, eye_right.z, "EyeRight"),
         ],
-        tail_specs=((0.67, 0.0, 0.90), (0.98, 0.0, 0.50), 0.050, 0.025),
+        tail_specs=((0.66, 0.0, 0.94), (0.98, 0.0, 0.52), 0.050, 0.025),
     )
+    nose_material = create_flat_material("cattlerig_nostril", (0.040, 0.022, 0.016, 1.0))
+    for side, anchor in (("Left", nostril_left), ("Right", nostril_right)):
+        nostril = add_uv_sphere(
+            f"Nostril{side}",
+            tuple(anchor),
+            (0.026, 0.015, 0.018),
+            nose_material,
+        )
+        parent_to_bone(nostril, armature, "Neck")
+        details.append(nostril)
+    armature["procedural_cattle"] = True
+    armature["surface_snapped_face"] = True
+    return armature, details
 
 
 def create_sheep_rig(obj: bpy.types.Object) -> tuple[bpy.types.Object, list[bpy.types.Object]]:
