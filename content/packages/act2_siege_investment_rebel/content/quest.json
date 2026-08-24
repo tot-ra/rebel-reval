@@ -1,0 +1,142 @@
+{
+  "type": "quest",
+  "id": "quest.act2.siege.investment.rebel",
+  "title": "Carry the Investment Signal",
+  "summary": "Carry a rebel signal through the invested approaches to Reval, choosing a forceful break or a quiet handoff.",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P5-006",
+    "notes": "Content-only siege mission package; the authored mission host reuses the downstream Act 2 combat and travel systems."
+  },
+  "entry_conditions": [],
+  "initial_state": "latent",
+  "states": [
+    {
+      "id": "latent",
+      "label": "Receive the rebel investment signal at the Harju approach."
+    },
+    {
+      "id": "ready",
+      "label": "At the rebel signal route outside Reval"
+    },
+    {
+      "id": "direct_complete",
+      "label": "The rebel signal reaches the invested line after a forced crossing.",
+      "terminal": true
+    },
+    {
+      "id": "quiet_complete",
+      "label": "The rebel signal reaches the invested line through a quiet handoff.",
+      "terminal": true
+    }
+  ],
+  "transitions": [
+    {
+      "id": "brief",
+      "from_state": "latent",
+      "to_state": "ready",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.act2.siege.investment.rebel.briefed",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "resolve_direct",
+      "from_state": "ready",
+      "to_state": "direct_complete",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.act2.siege.investment.rebel.direct_resolved",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.war.siege_phase.investment",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.act2.siege.investment.rebel.direct",
+          "value": "faction.harju_kings",
+          "amount": 1,
+          "summary": "Kalev forced the invested approach open for the Harju rebels."
+        }
+      ]
+    },
+    {
+      "id": "resolve_quiet",
+      "from_state": "ready",
+      "to_state": "quiet_complete",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.act2.siege.investment.rebel.quiet_resolved",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.war.siege_phase.investment",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.act2.siege.investment.rebel.quiet",
+          "value": "faction.harju_kings",
+          "amount": 1,
+          "summary": "Kalev carried the Harju signal through a quiet contact chain."
+        }
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "receive_brief",
+      "text": "Receive the rebel investment signal at the Harju approach.",
+      "state_id": "latent"
+    },
+    {
+      "id": "resolve_mission",
+      "text": "Deliver the signal by breaking through or arranging a quiet handoff.",
+      "state_id": "ready"
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "direct",
+      "summary": "The rebel signal reaches the invested line after a forced crossing.",
+      "effects": []
+    },
+    {
+      "id": "quiet",
+      "summary": "The rebel signal reaches the invested line through a quiet handoff.",
+      "effects": []
+    }
+  ],
+  "content_links": {
+    "character_ids": [
+      "char.kalev",
+      "char.henning",
+      "char.kaja",
+      "char.mart"
+    ],
+    "location_ids": [
+      "loc.lower_town_slice"
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "attested",
+      "summary": "The three siege phases and their calendar windows are attested in the Act 2 design spine; this mission framing and branch resolution are invented.",
+      "citations": [
+        "docs/reports/p5_001_act2_design.md",
+        "docs/data/act2_design_manifest.json"
+      ]
+    }
+  ]
+}

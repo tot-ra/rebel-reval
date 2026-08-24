@@ -1,0 +1,142 @@
+{
+  "type": "quest",
+  "id": "quest.act2.siege.assault.rebel",
+  "title": "Press the Foreland Before Assault",
+  "summary": "Press the rebel foreland before the assault window, choosing a direct breach attempt or a quiet weakening of the approach.",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P5-006",
+    "notes": "Content-only siege mission package; the authored mission host reuses the downstream Act 2 combat and travel systems."
+  },
+  "entry_conditions": [],
+  "initial_state": "latent",
+  "states": [
+    {
+      "id": "latent",
+      "label": "Take the rebel assault brief before the Sõjamäe pressure peaks."
+    },
+    {
+      "id": "ready",
+      "label": "At the Viru foreland before assault"
+    },
+    {
+      "id": "direct_complete",
+      "label": "The rebel assault pressure reaches the foreland after a direct breach attempt.",
+      "terminal": true
+    },
+    {
+      "id": "quiet_complete",
+      "label": "The rebel assault pressure reaches the foreland after quiet preparation.",
+      "terminal": true
+    }
+  ],
+  "transitions": [
+    {
+      "id": "brief",
+      "from_state": "latent",
+      "to_state": "ready",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.act2.siege.assault.rebel.briefed",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "resolve_direct",
+      "from_state": "ready",
+      "to_state": "direct_complete",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.act2.siege.assault.rebel.direct_resolved",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.war.siege_phase.assault",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.act2.siege.assault.rebel.direct",
+          "value": "faction.harju_kings",
+          "amount": 1,
+          "summary": "Kalev pressed the Viru foreland with the rebel assault party."
+        }
+      ]
+    },
+    {
+      "id": "resolve_quiet",
+      "from_state": "ready",
+      "to_state": "quiet_complete",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.act2.siege.assault.rebel.quiet_resolved",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.war.siege_phase.assault",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.act2.siege.assault.rebel.quiet",
+          "value": "faction.harju_kings",
+          "amount": 1,
+          "summary": "Kalev weakened the Viru foreland before the rebel assault without raising the alarm."
+        }
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "receive_brief",
+      "text": "Take the rebel assault brief before the Sõjamäe pressure peaks.",
+      "state_id": "latent"
+    },
+    {
+      "id": "resolve_mission",
+      "text": "Press the foreland by attempting a breach or quietly weakening the approach.",
+      "state_id": "ready"
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "direct",
+      "summary": "The rebel assault pressure reaches the foreland after a direct breach attempt.",
+      "effects": []
+    },
+    {
+      "id": "quiet",
+      "summary": "The rebel assault pressure reaches the foreland after quiet preparation.",
+      "effects": []
+    }
+  ],
+  "content_links": {
+    "character_ids": [
+      "char.kalev",
+      "char.henning",
+      "char.kaja",
+      "char.mart"
+    ],
+    "location_ids": [
+      "loc.lower_town_slice"
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "attested",
+      "summary": "The three siege phases and their calendar windows are attested in the Act 2 design spine; this mission framing and branch resolution are invented.",
+      "citations": [
+        "docs/reports/p5_001_act2_design.md",
+        "docs/data/act2_design_manifest.json"
+      ]
+    }
+  ]
+}

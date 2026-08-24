@@ -1,0 +1,37 @@
+{
+  "type": "quest_package",
+  "id": "package.act2_siege_investment_ruler",
+  "schema_version": 1,
+  "title": "Hold the Stores Through Investment",
+  "quest": "content/quest.json",
+  "support": [
+    "../../examples/support/character.henning.json",
+    "../../examples/support/character.kaja.json",
+    "../../examples/support/character.mart.json",
+    "../../examples/valid/character.kalev.json",
+    "../../examples/support/location.lower_town_slice.json"
+  ],
+  "branch_map": "branch_map.json",
+  "bindings": {
+    "landmark_beats": [
+      "beat.landmark.tallinn.toompea_guard_barracks"
+    ],
+    "map_anchors": [
+      {
+        "map_id": "toompea_quarter",
+        "anchor_id": "toompea_guard_barracks"
+      }
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P5-006 investment ruler-aligned mission package with direct and quiet authored resolutions.",
+      "citations": [
+        "docs/reports/p5_001_act2_design.md",
+        "docs/data/act2_design_manifest.json",
+        "TODO.md"
+      ]
+    }
+  ]
+}
