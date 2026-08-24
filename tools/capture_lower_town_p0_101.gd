@@ -23,8 +23,11 @@ const MapVerification := preload("res://scripts/map/map_verification.gd")
 
 const OUTPUT_DIR := "res://docs/reports/images/lower_town_p0_101"
 const MANIFEST_PATH := OUTPUT_DIR + "/capture_manifest.json"
+const SOURCE_RRMAP_PATH := "res://content/maps/lower_town_slice.rrmap"
 const MAP_ID := "lower_town_slice"
-const MAP_REVISION := "lower_town_slice.rrmap authored source (shared worktree; record HEAD separately)"
+const MAP_REVISION := (
+	"lower_town_slice.rrmap authored source (shared worktree; record HEAD separately)"
+)
 const RENDERER := "gl_compatibility"
 const VIEWPORT_SIZE := Vector2i(1280, 720)
 const ORTHOGRAPHIC_SIZE := CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE
@@ -178,7 +181,27 @@ func _load_manifest(definition: MapDefinition, reset_manifest: bool) -> Dictiona
 		var existing_variant: Variant = JSON.parse_string(
 			FileAccess.get_file_as_string(ProjectSettings.globalize_path(MANIFEST_PATH))
 		)
-		if existing_variant is Dictionary and existing_variant.get("map_fingerprint", "") == definition.fingerprint:
+		if (
+			existing_variant is Dictionary
+			and existing_variant.get("map_fingerprint", "") == definition.fingerprint
+		):
+			var current_header := _manifest_header(definition)
+			for key in [
+				"map_id",
+				"map_revision",
+				"map_source_sha256",
+				"renderer",
+				"viewport",
+				"orthographic_size",
+				"times",
+				"presets",
+				"command",
+			]:
+				existing_variant[key] = current_header[key]
+			if not existing_variant.has("stable_id_observation_coverage"):
+				existing_variant["stable_id_observation_coverage"] = current_header[
+					"stable_id_observation_coverage"
+				]
 			return existing_variant
 	var manifest := _manifest_header(definition)
 	manifest["plates"] = []
@@ -189,11 +212,13 @@ func _upsert_plate(manifest: Dictionary, metadata: Dictionary) -> void:
 	var plates: Array = manifest.get("plates", [])
 	for index in range(plates.size() - 1, -1, -1):
 		var existing: Dictionary = plates[index]
-		if existing.get("preset_id", "") == metadata["preset_id"] and existing.get("time_of_day", "") == metadata["time_of_day"]:
+		if (
+			existing.get("preset_id", "") == metadata["preset_id"]
+			and existing.get("time_of_day", "") == metadata["time_of_day"]
+		):
 			plates.remove_at(index)
 	plates.append(metadata)
 	manifest["plates"] = plates
-
 
 func _capture(
 	definition: MapDefinition,
@@ -290,10 +315,12 @@ func _manifest_header(definition: MapDefinition) -> Dictionary:
 		"task": "R-560 / P0-101f",
 		"map_id": String(definition.map_id),
 		"map_revision": MAP_REVISION,
+		"map_source_sha256": _source_sha256(),
 		"map_fingerprint": definition.fingerprint,
 		"renderer": RENDERER,
 		"viewport": [VIEWPORT_SIZE.x, VIEWPORT_SIZE.y],
 		"orthographic_size": ORTHOGRAPHIC_SIZE,
+		"stable_id_observation_coverage": _stable_id_observation_coverage(),
 		"times": [String(MapView3D.TIME_DAY), String(MapView3D.TIME_NIGHT)],
 		"presets": PRESETS.map(func(preset: Dictionary) -> String: return String(preset["id"])),
 		"command": (
@@ -301,6 +328,28 @@ func _manifest_header(definition: MapDefinition) -> Dictionary:
 			+ "--rendering-driver opengl3 --script tools/capture_lower_town_p0_101.gd"
 		),
 	}
+
+
+static func _source_sha256() -> String:
+	var file := FileAccess.open(ProjectSettings.globalize_path(SOURCE_RRMAP_PATH), FileAccess.READ)
+	if file == null:
+		return ""
+	var hashing := HashingContext.new()
+	hashing.start(HashingContext.HASH_SHA256)
+	hashing.update(file.get_buffer(file.get_length()))
+	file.close()
+	return hashing.finish().hex_encode()
+
+
+func _stable_id_observation_coverage() -> Array[Dictionary]:
+	var coverage: Array[Dictionary] = []
+	for preset: Dictionary in PRESETS:
+		coverage.append({
+			"preset_id": String(preset["id"]),
+			"day": {"status": "not_reviewed", "stable_ids": []},
+			"night": {"status": "not_reviewed", "stable_ids": []},
+		})
+	return coverage
 
 
 func _write_manifest(manifest: Dictionary) -> Error:

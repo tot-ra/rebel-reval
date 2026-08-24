@@ -4,7 +4,8 @@
 **Map:** `lower_town_slice` / Workers' District
 **Capture date:** 2026-08-19
 **Map revision:** `HEAD=06ab54e4` at capture start; shared worktree was dirty, so the authored RRMap fingerprint is the authoritative packet identity
-**Map fingerprint:** `8aaad06a1d88bce339ae1ccf809e303a0d31707e52bd6f53d67eb43f289e525c`
+**Map source SHA-256:** `6ae0b82a0a46a7391cb5db5a0bb02e562756def8073fe08cf63beebd7ace7e50`
+**Compiled map fingerprint:** `13525325b3d8be840c79d8c709c8aab12632bc6092a7123bc6d9275ba51d17ba`
 **Renderer:** Godot 4.7.1, `gl_compatibility`, OpenGL 3 / Metal compatibility driver
 **Viewport:** `1280x720`
 **Decision:** **PACKET VALID; VISUAL ACCEPTANCE BLOCKED/CONDITIONAL**
@@ -47,11 +48,12 @@ All ten required combinations were executed through the selector mode. A represe
 | Presets | **PASS** | Five required IDs in `capture_manifest.json` |
 | Matched times | **PASS** | Five `day` and five `night` plates |
 | Stable framing | **PASS** | Five framing keys, each shared by its day/night pair |
-| Map identity | **PASS** | `map_id=lower_town_slice`, fingerprint recorded above |
+| Map identity | **PASS** | `map_id=lower_town_slice`, raw source SHA and compiled fingerprint recorded above and in the manifest |
 | Camera contract | **PASS** | Gameplay orthographic size `33.75`, pitch `-30`, yaw `45`, focus height `0.8` |
 | PNG decode | **PASS** | All ten files decode as RGBA `1280x720` |
 | Non-blank payload | **PASS** | All ten images contain non-zero pixel data |
-| Focused Godot contract | **PASS** | `test_capture_lower_town_p0_101`: 5 tests, 0 failures, 0 errors |
+| Focused Godot contract | **PASS** | `test_capture_lower_town_p0_101`: 6 tests, 0 failures, 0 errors |
+| Stable-ID observation coverage | **PASS** | Manifest records five sector rows with explicit `not_reviewed` day/night statuses and empty `stable_ids`; no source proximity is promoted to visual acceptance |
 | Runtime route acceptance | **BLOCKED** | R-601 is still `in_progress`; this packet cannot waive its route/collision/transition/streaming gate |
 
 The known Godot shutdown diagnostics (`ObjectDB instances were leaked` and `resources still in use`) appeared after successful output and test summaries. They are renderer/process cleanup diagnostics, not image decode failures, but remain a limitation of this capture path.
@@ -86,6 +88,8 @@ PNG/manifest audit:
 ```text
 schema=r-560-lower-town-p0-101-capture-v1
 map=lower_town_slice
+map_source_sha256=6ae0b82a0a46a7391cb5db5a0bb02e562756def8073fe08cf63beebd7ace7e50
+map_fingerprint=13525325b3d8be840c79d8c709c8aab12632bc6092a7123bc6d9275ba51d17ba
 renderer=gl_compatibility
 viewport=[1280, 720]
 plate_count=10
@@ -95,8 +99,7 @@ framing_pairs=5
 all ten plates: 1280x720, nonblank=True
 ```
 
-The ten outputs are under [`images/lower_town_p0_101/`](images/lower_town_p0_101/) and the full metadata is in [`images/lower_town_p0_101/capture_manifest.json`](images/lower_town_p0_101/capture_manifest.json).
-
+The ten outputs are under [`images/lower_town_p0_101/`](images/lower_town_p0_101/) and the full metadata is in [`images/lower_town_p0_101/capture_manifest.json`](images/lower_town_p0_101/capture_manifest.json). The manifest now records both the raw RRMap SHA-256 and the compiled semantic fingerprint; its per-sector observation rows are explicit review coverage and remain `not_reviewed` until a human annotates visible stable IDs.
 ## Limitations and handoff
 
 1. This is compatibility-renderer evidence on the development Mac, not a measurement on the declared minimum hardware profile. It does not establish GPU budget compliance.

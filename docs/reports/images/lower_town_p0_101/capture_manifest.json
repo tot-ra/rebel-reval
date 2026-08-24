@@ -3,6 +3,7 @@
   "map_fingerprint": "13525325b3d8be840c79d8c709c8aab12632bc6092a7123bc6d9275ba51d17ba",
   "map_id": "lower_town_slice",
   "map_revision": "lower_town_slice.rrmap authored source (shared worktree; record HEAD separately)",
+  "map_source_sha256": "6ae0b82a0a46a7391cb5db5a0bb02e562756def8073fe08cf63beebd7ace7e50",
   "orthographic_size": 33.75,
   "plates": [
     {
@@ -295,6 +296,63 @@
   ],
   "renderer": "gl_compatibility",
   "schema": "r-560-lower-town-p0-101-capture-v1",
+  "stable_id_observation_coverage": [
+    {
+      "day": {
+        "stable_ids": [],
+        "status": "not_reviewed"
+      },
+      "night": {
+        "stable_ids": [],
+        "status": "not_reviewed"
+      },
+      "preset_id": "market_primary_spine"
+    },
+    {
+      "day": {
+        "stable_ids": [],
+        "status": "not_reviewed"
+      },
+      "night": {
+        "stable_ids": [],
+        "status": "not_reviewed"
+      },
+      "preset_id": "merchant_craft_lane"
+    },
+    {
+      "day": {
+        "stable_ids": [],
+        "status": "not_reviewed"
+      },
+      "night": {
+        "stable_ids": [],
+        "status": "not_reviewed"
+      },
+      "preset_id": "service_yard"
+    },
+    {
+      "day": {
+        "stable_ids": [],
+        "status": "not_reviewed"
+      },
+      "night": {
+        "stable_ids": [],
+        "status": "not_reviewed"
+      },
+      "preset_id": "eastern_artisan_wet_margin"
+    },
+    {
+      "day": {
+        "stable_ids": [],
+        "status": "not_reviewed"
+      },
+      "night": {
+        "stable_ids": [],
+        "status": "not_reviewed"
+      },
+      "preset_id": "landmark_approaches"
+    }
+  ],
   "task": "R-560 / P0-101f",
   "times": [
     "day",

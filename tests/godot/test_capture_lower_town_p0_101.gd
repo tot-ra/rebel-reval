@@ -135,6 +135,28 @@ func test_existing_manifest_records_sector_and_interaction_metadata() -> void:
 			assert_eq(plate["to_anchor"], String(preset["to_anchor"]))
 
 
+
+func test_existing_manifest_records_current_source_and_explicit_observation_coverage() -> void:
+	var manifest_path := ProjectSettings.globalize_path(CaptureScript.MANIFEST_PATH)
+	if not FileAccess.file_exists(manifest_path):
+		return
+	var manifest_variant: Variant = JSON.parse_string(FileAccess.get_file_as_string(manifest_path))
+	assert_true(manifest_variant is Dictionary, "capture manifest must decode as an object")
+	if not manifest_variant is Dictionary:
+		return
+	var manifest: Dictionary = manifest_variant
+	assert_eq(manifest.get("map_source_sha256", ""), CaptureScript._source_sha256())
+	var coverage: Array = manifest.get("stable_id_observation_coverage", [])
+	assert_eq(coverage.size(), CaptureScript.PRESETS.size())
+	for entry: Dictionary in coverage:
+		assert_true(CaptureScript.PRESETS.any(func(preset: Dictionary) -> bool:
+			return String(preset["id"]) == String(entry.get("preset_id", ""))
+		))
+		for time_of_day in MapView3D.ALL_TIMES:
+			var observation: Dictionary = entry.get(String(time_of_day), {})
+			assert_eq(observation.get("status", ""), "not_reviewed")
+			assert_true(observation.get("stable_ids", []) is Array)
+
 func test_existing_capture_packet_outputs_are_present_and_non_blank() -> void:
 	var output_dir := ProjectSettings.globalize_path(CaptureScript.OUTPUT_DIR)
 	if not DirAccess.dir_exists_absolute(output_dir):
