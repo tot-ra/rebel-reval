@@ -27,6 +27,34 @@
         "checkpoint_west"
       ],
       "orthographic_size": 33.75,
+      "output": "res://docs/reports/images/lower_town_p0_101/market_primary_spine_day.png",
+      "preset_id": "market_primary_spine",
+      "sector_id": "market_primary_spine",
+      "time_of_day": "day",
+      "to_anchor": "checkpoint_west"
+    },
+    {
+      "camera_intent": "market and primary spine readability",
+      "camera_pitch_degrees": -30.0,
+      "camera_yaw_degrees": 45.0,
+      "coverage": "market reserve and western primary-spine approach",
+      "focus_height": 0.8,
+      "focus_logic_cell": [
+        464.0,
+        896.0
+      ],
+      "focus_world": [
+        14.5,
+        0.800000011920929,
+        28.0
+      ],
+      "framing_key": "market_primary_spine|[464.0, 896.0]|0.8|33.750|-30.000|45.000",
+      "from_anchor": "vene_street_north",
+      "interaction_targets": [
+        "vene_street_north",
+        "checkpoint_west"
+      ],
+      "orthographic_size": 33.75,
       "output": "res://docs/reports/images/lower_town_p0_101/market_primary_spine_night.png",
       "preset_id": "market_primary_spine",
       "sector_id": "market_primary_spine",
@@ -256,34 +284,6 @@
       "sector_id": "landmark_approaches",
       "time_of_day": "night",
       "to_anchor": "checkpoint_east"
-    },
-    {
-      "camera_intent": "market and primary spine readability",
-      "camera_pitch_degrees": -30.0,
-      "camera_yaw_degrees": 45.0,
-      "coverage": "market reserve and western primary-spine approach",
-      "focus_height": 0.8,
-      "focus_logic_cell": [
-        464.0,
-        896.0
-      ],
-      "focus_world": [
-        14.5,
-        0.800000011920929,
-        28.0
-      ],
-      "framing_key": "market_primary_spine|[464.0, 896.0]|0.8|33.750|-30.000|45.000",
-      "from_anchor": "vene_street_north",
-      "interaction_targets": [
-        "vene_street_north",
-        "checkpoint_west"
-      ],
-      "orthographic_size": 33.75,
-      "output": "res://docs/reports/images/lower_town_p0_101/market_primary_spine_day.png",
-      "preset_id": "market_primary_spine",
-      "sector_id": "market_primary_spine",
-      "time_of_day": "day",
-      "to_anchor": "checkpoint_west"
     }
   ],
   "presets": [
@@ -301,7 +301,7 @@
     "night"
   ],
   "viewport": [
-    1280.0,
-    720.0
+    1280,
+    720
   ]
 }
