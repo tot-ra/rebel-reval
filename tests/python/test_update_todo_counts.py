@@ -272,6 +272,9 @@ class UpdateTodoCountsTest(unittest.TestCase):
                         "| P0 | stale | stale | stale |",
                         "",
                         "- [ ] P0-999 | deps: none | deliverable: sample | verify: sample",
+                        "",
+                        "## Notes",
+                        "unchanged",
                     ]
                 ).encode("utf-8")
             )
@@ -283,6 +286,11 @@ class UpdateTodoCountsTest(unittest.TestCase):
             self.assertNotIn(b"\n", updated)
             self.assertIn(b"<!-- Quick-reference counts", updated)
             self.assertIn(b"\r| P0 |     1  |     0  |", updated)
+            self.assertIn(
+                b"\r- [ ] P0-999 | deps: none | deliverable: sample | verify: sample",
+                updated,
+            )
+            self.assertIn(b"\r## Notes\runchanged", updated)
 
     def test_rewrite_table_handles_missing_final_newline(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
