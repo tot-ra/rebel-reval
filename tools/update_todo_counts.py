@@ -137,9 +137,13 @@ def rewrite_table(path: Path, new_table: str) -> bool:
     new_table = new_table.replace("\n", newline)
     comment = "<!-- Quick-reference counts updated on every structural change -->"
 
+    # Match line boundaries independently from the file's preferred output newline.
+    # `re.MULTILINE` only recognizes LF as a line start, so a CR-only file would
+    # otherwise pass `_newline_for()` but fail to find its summary table.
+    line_break = r"(?:\r\n|\r|\n)"
     table_pattern = re.compile(
-        r"^<!-- Quick-reference counts.*?-->\s*\n(?:^\|[^\n]+(?:\n|$))+",
-        re.MULTILINE | re.DOTALL,
+        rf"(?<![^\r\n])<!-- Quick-reference counts.*?-->\s*{line_break}"
+        rf"(?:\|[^\r\n]*(?:{line_break}|$))+"
     )
     m = table_pattern.search(text)
     if m:
@@ -156,7 +160,9 @@ def rewrite_table(path: Path, new_table: str) -> bool:
         return True
 
     # Fallback when the comment anchor was removed but the summary table remains.
-    bare_table = re.compile(r"^(?:^\|[^\n]+(?:\n|$))+", re.MULTILINE)
+    bare_table = re.compile(
+        rf"(?<![^\r\n])(?:\|[^\r\n]*(?:{line_break}|$))+"
+    )
     for candidate in bare_table.finditer(text):
         if not candidate.group().startswith("| Priority |"):
             continue

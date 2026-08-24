@@ -232,6 +232,58 @@ class UpdateTodoCountsTest(unittest.TestCase):
             self.assertNotIn(b"\n", updated.replace(b"\r\n", b""))
             self.assertIn(b"\r\n| P0 |     1  |     0  |", updated)
 
+
+    def test_rewrite_table_preserves_cr_only_line_endings(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            todo = Path(temp_dir) / "TODO.md"
+            todo.write_bytes(
+                "\r".join(
+                    [
+                        "# TODO",
+                        "",
+                        "<!-- Quick-reference counts updated on every structural change -->",
+                        "| Priority | Open | Done | Notes |",
+                        "|----------|-----:|-----:|-------|",
+                        "| P0 | stale | stale | stale |",
+                        "",
+                        "- [ ] P0-999 | deps: none | deliverable: sample | verify: sample",
+                    ]
+                ).encode("utf-8")
+            )
+
+            table = build_table({"P0": Counters(open_count=1, done_count=0)})
+
+            self.assertTrue(rewrite_table(todo, table))
+            updated = todo.read_bytes()
+            self.assertNotIn(b"\n", updated)
+            self.assertIn(b"\r| P0 |     1  |     0  |", updated)
+            self.assertIn(b"\r- [ ] P0-999", updated)
+
+    def test_rewrite_table_fallback_handles_cr_only_line_endings(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            todo = Path(temp_dir) / "TODO.md"
+            todo.write_bytes(
+                "\r".join(
+                    [
+                        "# TODO",
+                        "",
+                        "| Priority | Open | Done | Notes |",
+                        "|----------|-----:|-----:|-------|",
+                        "| P0 | stale | stale | stale |",
+                        "",
+                        "- [ ] P0-999 | deps: none | deliverable: sample | verify: sample",
+                    ]
+                ).encode("utf-8")
+            )
+
+            table = build_table({"P0": Counters(open_count=1, done_count=0)})
+
+            self.assertTrue(rewrite_table(todo, table))
+            updated = todo.read_bytes()
+            self.assertNotIn(b"\n", updated)
+            self.assertIn(b"<!-- Quick-reference counts", updated)
+            self.assertIn(b"\r| P0 |     1  |     0  |", updated)
+
     def test_rewrite_table_handles_missing_final_newline(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             todo = Path(temp_dir) / "TODO.md"
