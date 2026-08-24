@@ -13,11 +13,17 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 MAP_PATH = ROOT / "content/maps/lower_town_slice.rrmap"
 MANIFEST_PATH = ROOT / "docs/reports/images/lower_town_p0_101/capture_manifest.json"
-INVENTORY_PATH = ROOT / "docs/reports/lower_town_p0_101_landmark_inventory.md"
 RECORD_RE = re.compile(r"^(building|landmark)\s+(\S+)\s+(\S+)\s+")
 TIER_RE = re.compile(r"\bhouse_tier=(\S+)")
 
 EXPECTED_MAP_SHA256 = "6ae0b82a0a46a7391cb5db5a0bb02e562756def8073fe08cf63beebd7ace7e50"
+EXPECTED_CAPTURE_PRESETS = {
+    "market_primary_spine",
+    "merchant_craft_lane",
+    "service_yard",
+    "eastern_artisan_wet_margin",
+    "landmark_approaches",
+}
 EXPECTED_COUNTS = {"house": 61, "wall": 36, "gate_arch": 2}
 EXPECTED_TIERS = {"merchant_stone": 14, "merchant_timber": 14, "craft_boda": 23}
 REQUIRED_IDS = {
@@ -94,13 +100,35 @@ class LowerTownP0101BaselineTest(unittest.TestCase):
         self.assertEqual(record_by_id["viru_gate_arch"]["subtype"], "gate_arch")
         self.assertEqual(record_by_id["viru_foregate_arch"]["subtype"], "gate_arch")
 
-    def test_capture_manifest_is_explicitly_stale_for_current_source(self) -> None:
+    def test_capture_manifest_matches_current_source_and_preserves_packet_integrity(self) -> None:
         manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
-        current_fingerprint = hashlib.sha256(MAP_PATH.read_bytes()).hexdigest()
-        self.assertNotEqual(manifest["map_fingerprint"], current_fingerprint)
+        current_source_sha = hashlib.sha256(MAP_PATH.read_bytes()).hexdigest()
+        self.assertEqual(manifest["map_source_sha256"], current_source_sha)
+        self.assertEqual(manifest["map_source_sha256"], EXPECTED_MAP_SHA256)
         self.assertEqual(len(manifest["plates"]), 10)
+        plates_by_preset = Counter(
+            str(plate["preset_id"])
+            for plate in manifest["plates"]
+        )
+        self.assertEqual(plates_by_preset, Counter({preset: 2 for preset in EXPECTED_CAPTURE_PRESETS}))
+        self.assertEqual(Counter(str(plate["time_of_day"]) for plate in manifest["plates"]), Counter(day=5, night=5))
         self.assertTrue(all("stable_ids" not in plate for plate in manifest["plates"]))
-        self.assertIn("stale", INVENTORY_PATH.read_text(encoding="utf-8").lower())
+
+    def test_capture_manifest_keeps_stable_id_observations_unreviewed(self) -> None:
+        manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
+        observations = manifest["stable_id_observation_coverage"]
+        self.assertEqual(len(observations), 5)
+        self.assertEqual(
+            {str(observation["preset_id"]) for observation in observations},
+            EXPECTED_CAPTURE_PRESETS,
+        )
+        for observation in observations:
+            for time_of_day in ("day", "night"):
+                review = observation[time_of_day]
+                self.assertEqual(review["status"], "not_reviewed")
+                self.assertEqual(review["stable_ids"], [])
+        self.assertFalse(any(observation["day"]["stable_ids"] for observation in observations))
+        self.assertFalse(any(observation["night"]["stable_ids"] for observation in observations))
 
 
 if __name__ == "__main__":
