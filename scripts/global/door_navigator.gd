@@ -24,6 +24,11 @@ func load_manifest(force_reload: bool = false) -> bool:
 	if _manifest_loaded and not force_reload:
 		return true
 
+	if force_reload:
+		# A forced manifest reload may replace scene paths under an existing ID;
+		# discard resources resolved from the previous manifest before rebuilding it.
+		scene_cache.clear()
+		cache_order.clear()
 	_scenes.clear()
 	var file := FileAccess.open(TRANSITION_MANIFEST_PATH, FileAccess.READ)
 	if file == null:
