@@ -241,6 +241,7 @@ func _capture(
 		await process_frame
 		return {"error": ERR_CANT_CREATE}
 	_configure_camera(camera, plate_metadata["focus_world"])
+	plate_metadata["stable_id_candidates"] = _stable_id_candidates(definition, camera)
 
 	for _frame in WARMUP_FRAMES:
 		await process_frame
@@ -284,6 +285,43 @@ func _configure_camera(camera: Camera3D, focus_world: Vector3) -> void:
 	# viewing axis; an XZ offset would shift an orthographic crop off the route.
 	camera.global_position = focus_world + camera.global_transform.basis.z * MapView3D.CAMERA_DISTANCE
 	camera.look_at(focus_world, Vector3.UP)
+
+
+func _stable_id_candidates(definition: MapDefinition, camera: Camera3D) -> Array[Dictionary]:
+	## WHY: route metadata needs an objective bridge from each plate to the authored
+	## inventory, but projected presence is not a visual/art verdict. Reviewers can
+	## inspect these candidates without mistaking them for accepted observations.
+	var candidates: Array[Dictionary] = []
+	for building: Dictionary in definition.buildings:
+		if _record_intersects_viewport(building.get("footprint", Rect2()), definition.cell_size, camera):
+			candidates.append({"id": String(building["id"]), "kind": "building"})
+	for landmark: Dictionary in definition.view_landmarks:
+		if _record_intersects_viewport(landmark.get("rect", Rect2()), definition.cell_size, camera):
+			candidates.append({"id": String(landmark["id"]), "kind": "view_landmark"})
+	candidates.sort_custom(func(left: Dictionary, right: Dictionary) -> bool:
+		return String(left["id"]) < String(right["id"])
+	)
+	return candidates
+
+
+func _record_intersects_viewport(rect: Rect2, cell_size: int, camera: Camera3D) -> bool:
+	if rect.size.x <= 0.0 or rect.size.y <= 0.0:
+		return false
+	var sample_points := [
+		rect.position,
+		rect.end,
+		Vector2(rect.position.x, rect.end.y),
+		Vector2(rect.end.x, rect.position.y),
+		rect.get_center(),
+	]
+	var viewport_rect := Rect2(Vector2.ZERO, VIEWPORT_SIZE).grow(4.0)
+	for point: Vector2 in sample_points:
+		var world_point := MapViewBridge.logic_to_world(point, cell_size)
+		if camera.is_position_behind(world_point):
+			continue
+		if viewport_rect.has_point(camera.unproject_position(world_point)):
+			return true
+	return false
 
 
 static func _preset_metadata(definition: MapDefinition, preset: Dictionary) -> Dictionary:

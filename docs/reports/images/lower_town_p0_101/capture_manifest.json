@@ -31,6 +31,88 @@
       "output": "res://docs/reports/images/lower_town_p0_101/market_primary_spine_day.png",
       "preset_id": "market_primary_spine",
       "sector_id": "market_primary_spine",
+      "stable_id_candidates": [
+        {
+          "id": "apothecary_house",
+          "kind": "building"
+        },
+        {
+          "id": "coopers_house",
+          "kind": "building"
+        },
+        {
+          "id": "kaik_house_mid",
+          "kind": "building"
+        },
+        {
+          "id": "kaik_house_west",
+          "kind": "building"
+        },
+        {
+          "id": "market_row_house",
+          "kind": "building"
+        },
+        {
+          "id": "monastery_precinct_wall_south_a",
+          "kind": "building"
+        },
+        {
+          "id": "monastery_precinct_wall_west",
+          "kind": "building"
+        },
+        {
+          "id": "moneychangers_house",
+          "kind": "building"
+        },
+        {
+          "id": "pikk_corner_house",
+          "kind": "building"
+        },
+        {
+          "id": "saddlers_house",
+          "kind": "building"
+        },
+        {
+          "id": "saddlers_rear_workshop",
+          "kind": "building"
+        },
+        {
+          "id": "saiakang_house",
+          "kind": "building"
+        },
+        {
+          "id": "st_catherines_church",
+          "kind": "building"
+        },
+        {
+          "id": "turg_house_north",
+          "kind": "building"
+        },
+        {
+          "id": "vanaturu_kael_house",
+          "kind": "building"
+        },
+        {
+          "id": "vene_corner_house",
+          "kind": "building"
+        },
+        {
+          "id": "vene_gate_house",
+          "kind": "building"
+        },
+        {
+          "id": "vene_row_house",
+          "kind": "building"
+        },
+        {
+          "id": "viru_house_mid",
+          "kind": "building"
+        },
+        {
+          "id": "viru_house_west",
+          "kind": "building"
+        }
+      ],
       "time_of_day": "day",
       "to_anchor": "checkpoint_west"
     },
@@ -59,6 +141,88 @@
       "output": "res://docs/reports/images/lower_town_p0_101/market_primary_spine_night.png",
       "preset_id": "market_primary_spine",
       "sector_id": "market_primary_spine",
+      "stable_id_candidates": [
+        {
+          "id": "apothecary_house",
+          "kind": "building"
+        },
+        {
+          "id": "coopers_house",
+          "kind": "building"
+        },
+        {
+          "id": "kaik_house_mid",
+          "kind": "building"
+        },
+        {
+          "id": "kaik_house_west",
+          "kind": "building"
+        },
+        {
+          "id": "market_row_house",
+          "kind": "building"
+        },
+        {
+          "id": "monastery_precinct_wall_south_a",
+          "kind": "building"
+        },
+        {
+          "id": "monastery_precinct_wall_west",
+          "kind": "building"
+        },
+        {
+          "id": "moneychangers_house",
+          "kind": "building"
+        },
+        {
+          "id": "pikk_corner_house",
+          "kind": "building"
+        },
+        {
+          "id": "saddlers_house",
+          "kind": "building"
+        },
+        {
+          "id": "saddlers_rear_workshop",
+          "kind": "building"
+        },
+        {
+          "id": "saiakang_house",
+          "kind": "building"
+        },
+        {
+          "id": "st_catherines_church",
+          "kind": "building"
+        },
+        {
+          "id": "turg_house_north",
+          "kind": "building"
+        },
+        {
+          "id": "vanaturu_kael_house",
+          "kind": "building"
+        },
+        {
+          "id": "vene_corner_house",
+          "kind": "building"
+        },
+        {
+          "id": "vene_gate_house",
+          "kind": "building"
+        },
+        {
+          "id": "vene_row_house",
+          "kind": "building"
+        },
+        {
+          "id": "viru_house_mid",
+          "kind": "building"
+        },
+        {
+          "id": "viru_house_west",
+          "kind": "building"
+        }
+      ],
       "time_of_day": "night",
       "to_anchor": "checkpoint_west"
     },
@@ -87,6 +251,144 @@
       "output": "res://docs/reports/images/lower_town_p0_101/merchant_craft_lane_day.png",
       "preset_id": "merchant_craft_lane",
       "sector_id": "merchant_craft_lane",
+      "stable_id_candidates": [
+        {
+          "id": "coopers_house",
+          "kind": "building"
+        },
+        {
+          "id": "coopers_rear_workshop",
+          "kind": "building"
+        },
+        {
+          "id": "dyers_house",
+          "kind": "building"
+        },
+        {
+          "id": "foaming_mug_brewery",
+          "kind": "building"
+        },
+        {
+          "id": "glassblowers_house",
+          "kind": "building"
+        },
+        {
+          "id": "kaik_house_east",
+          "kind": "building"
+        },
+        {
+          "id": "kaik_house_mid",
+          "kind": "building"
+        },
+        {
+          "id": "kaik_house_west",
+          "kind": "building"
+        },
+        {
+          "id": "karja_corner_house",
+          "kind": "building"
+        },
+        {
+          "id": "karja_rear_boda",
+          "kind": "building"
+        },
+        {
+          "id": "kuninga_house_east",
+          "kind": "building"
+        },
+        {
+          "id": "kuninga_house_mid",
+          "kind": "building"
+        },
+        {
+          "id": "kuninga_house_west",
+          "kind": "building"
+        },
+        {
+          "id": "laundress_house",
+          "kind": "building"
+        },
+        {
+          "id": "merchants_house",
+          "kind": "building"
+        },
+        {
+          "id": "monastery_precinct_wall_south_a",
+          "kind": "building"
+        },
+        {
+          "id": "monastery_precinct_wall_west",
+          "kind": "building"
+        },
+        {
+          "id": "moneychangers_house",
+          "kind": "building"
+        },
+        {
+          "id": "public_bathhouse",
+          "kind": "building"
+        },
+        {
+          "id": "rope_makers_house",
+          "kind": "building"
+        },
+        {
+          "id": "rope_makers_rear_store",
+          "kind": "building"
+        },
+        {
+          "id": "saddlers_house",
+          "kind": "building"
+        },
+        {
+          "id": "saddlers_rear_workshop",
+          "kind": "building"
+        },
+        {
+          "id": "sauna_corner_house",
+          "kind": "building"
+        },
+        {
+          "id": "sauna_rear_boda",
+          "kind": "building"
+        },
+        {
+          "id": "st_catherines_church",
+          "kind": "building"
+        },
+        {
+          "id": "turg_house_north",
+          "kind": "building"
+        },
+        {
+          "id": "vaike_karja_house",
+          "kind": "building"
+        },
+        {
+          "id": "vanaturu_kael_house",
+          "kind": "building"
+        },
+        {
+          "id": "vene_gate_house",
+          "kind": "building"
+        },
+        {
+          "id": "viru_house_mid",
+          "kind": "building"
+        },
+        {
+          "id": "viru_house_stone",
+          "kind": "building"
+        },
+        {
+          "id": "viru_house_west",
+          "kind": "building"
+        },
+        {
+          "id": "widows_house",
+          "kind": "building"
+        }
+      ],
       "time_of_day": "day",
       "to_anchor": "brewery_door"
     },
@@ -115,6 +417,144 @@
       "output": "res://docs/reports/images/lower_town_p0_101/merchant_craft_lane_night.png",
       "preset_id": "merchant_craft_lane",
       "sector_id": "merchant_craft_lane",
+      "stable_id_candidates": [
+        {
+          "id": "coopers_house",
+          "kind": "building"
+        },
+        {
+          "id": "coopers_rear_workshop",
+          "kind": "building"
+        },
+        {
+          "id": "dyers_house",
+          "kind": "building"
+        },
+        {
+          "id": "foaming_mug_brewery",
+          "kind": "building"
+        },
+        {
+          "id": "glassblowers_house",
+          "kind": "building"
+        },
+        {
+          "id": "kaik_house_east",
+          "kind": "building"
+        },
+        {
+          "id": "kaik_house_mid",
+          "kind": "building"
+        },
+        {
+          "id": "kaik_house_west",
+          "kind": "building"
+        },
+        {
+          "id": "karja_corner_house",
+          "kind": "building"
+        },
+        {
+          "id": "karja_rear_boda",
+          "kind": "building"
+        },
+        {
+          "id": "kuninga_house_east",
+          "kind": "building"
+        },
+        {
+          "id": "kuninga_house_mid",
+          "kind": "building"
+        },
+        {
+          "id": "kuninga_house_west",
+          "kind": "building"
+        },
+        {
+          "id": "laundress_house",
+          "kind": "building"
+        },
+        {
+          "id": "merchants_house",
+          "kind": "building"
+        },
+        {
+          "id": "monastery_precinct_wall_south_a",
+          "kind": "building"
+        },
+        {
+          "id": "monastery_precinct_wall_west",
+          "kind": "building"
+        },
+        {
+          "id": "moneychangers_house",
+          "kind": "building"
+        },
+        {
+          "id": "public_bathhouse",
+          "kind": "building"
+        },
+        {
+          "id": "rope_makers_house",
+          "kind": "building"
+        },
+        {
+          "id": "rope_makers_rear_store",
+          "kind": "building"
+        },
+        {
+          "id": "saddlers_house",
+          "kind": "building"
+        },
+        {
+          "id": "saddlers_rear_workshop",
+          "kind": "building"
+        },
+        {
+          "id": "sauna_corner_house",
+          "kind": "building"
+        },
+        {
+          "id": "sauna_rear_boda",
+          "kind": "building"
+        },
+        {
+          "id": "st_catherines_church",
+          "kind": "building"
+        },
+        {
+          "id": "turg_house_north",
+          "kind": "building"
+        },
+        {
+          "id": "vaike_karja_house",
+          "kind": "building"
+        },
+        {
+          "id": "vanaturu_kael_house",
+          "kind": "building"
+        },
+        {
+          "id": "vene_gate_house",
+          "kind": "building"
+        },
+        {
+          "id": "viru_house_mid",
+          "kind": "building"
+        },
+        {
+          "id": "viru_house_stone",
+          "kind": "building"
+        },
+        {
+          "id": "viru_house_west",
+          "kind": "building"
+        },
+        {
+          "id": "widows_house",
+          "kind": "building"
+        }
+      ],
       "time_of_day": "night",
       "to_anchor": "brewery_door"
     },
@@ -143,6 +583,196 @@
       "output": "res://docs/reports/images/lower_town_p0_101/service_yard_day.png",
       "preset_id": "service_yard",
       "sector_id": "service_yard",
+      "stable_id_candidates": [
+        {
+          "id": "artisan_shed",
+          "kind": "building"
+        },
+        {
+          "id": "brewery_rear_store",
+          "kind": "building"
+        },
+        {
+          "id": "carriers_barn",
+          "kind": "building"
+        },
+        {
+          "id": "city_wall_bend_a",
+          "kind": "building"
+        },
+        {
+          "id": "city_wall_bend_b",
+          "kind": "building"
+        },
+        {
+          "id": "city_wall_bend_c",
+          "kind": "building"
+        },
+        {
+          "id": "city_wall_gate_south",
+          "kind": "building"
+        },
+        {
+          "id": "corner_house_muurivahe",
+          "kind": "building"
+        },
+        {
+          "id": "foaming_mug_brewery",
+          "kind": "building"
+        },
+        {
+          "id": "foregate_tower_south",
+          "kind": "building"
+        },
+        {
+          "id": "foregate_wall_south",
+          "kind": "building"
+        },
+        {
+          "id": "glassblowers_house",
+          "kind": "building"
+        },
+        {
+          "id": "glovers_house",
+          "kind": "building"
+        },
+        {
+          "id": "guild_storehouse",
+          "kind": "building"
+        },
+        {
+          "id": "hinke_tower",
+          "kind": "building"
+        },
+        {
+          "id": "kaik_house_east",
+          "kind": "building"
+        },
+        {
+          "id": "kalev_smithy",
+          "kind": "building"
+        },
+        {
+          "id": "karja_corner_house",
+          "kind": "building"
+        },
+        {
+          "id": "karja_rear_boda",
+          "kind": "building"
+        },
+        {
+          "id": "merchants_house",
+          "kind": "building"
+        },
+        {
+          "id": "potters_house",
+          "kind": "building"
+        },
+        {
+          "id": "rope_makers_house",
+          "kind": "building"
+        },
+        {
+          "id": "rope_makers_rear_store",
+          "kind": "building"
+        },
+        {
+          "id": "sauna_corner_house",
+          "kind": "building"
+        },
+        {
+          "id": "smithy_rear_shed",
+          "kind": "building"
+        },
+        {
+          "id": "smithy_yard_fence_east",
+          "kind": "building"
+        },
+        {
+          "id": "smithy_yard_fence_north",
+          "kind": "building"
+        },
+        {
+          "id": "vaike_karja_house",
+          "kind": "building"
+        },
+        {
+          "id": "viru_gate_arch",
+          "kind": "view_landmark"
+        },
+        {
+          "id": "viru_gate_north_jamb",
+          "kind": "building"
+        },
+        {
+          "id": "viru_gate_north_tower",
+          "kind": "building"
+        },
+        {
+          "id": "viru_gate_south_jamb",
+          "kind": "building"
+        },
+        {
+          "id": "viru_gate_south_tower",
+          "kind": "building"
+        },
+        {
+          "id": "viru_house_east",
+          "kind": "building"
+        },
+        {
+          "id": "viru_house_mid",
+          "kind": "building"
+        },
+        {
+          "id": "viru_house_stone",
+          "kind": "building"
+        },
+        {
+          "id": "wall_seal_bend_a_east",
+          "kind": "building"
+        },
+        {
+          "id": "wall_seal_bend_b_north",
+          "kind": "building"
+        },
+        {
+          "id": "wall_seal_bend_c_west",
+          "kind": "building"
+        },
+        {
+          "id": "wall_seal_hinke_north",
+          "kind": "building"
+        },
+        {
+          "id": "wall_seal_viru_south_east",
+          "kind": "building"
+        },
+        {
+          "id": "wall_seal_viru_south_join",
+          "kind": "building"
+        },
+        {
+          "id": "wall_seal_viru_south_west",
+          "kind": "building"
+        },
+        {
+          "id": "wall_tower_south",
+          "kind": "building"
+        },
+        {
+          "id": "wall_tower_southeast",
+          "kind": "building"
+        },
+        {
+          "id": "wall_tower_southwest",
+          "kind": "building"
+        },
+        {
+          "id": "weary_traveler_inn",
+          "kind": "building"
+        }
+      ],
       "time_of_day": "day",
       "to_anchor": "smithy_door"
     },
@@ -171,6 +801,196 @@
       "output": "res://docs/reports/images/lower_town_p0_101/service_yard_night.png",
       "preset_id": "service_yard",
       "sector_id": "service_yard",
+      "stable_id_candidates": [
+        {
+          "id": "artisan_shed",
+          "kind": "building"
+        },
+        {
+          "id": "brewery_rear_store",
+          "kind": "building"
+        },
+        {
+          "id": "carriers_barn",
+          "kind": "building"
+        },
+        {
+          "id": "city_wall_bend_a",
+          "kind": "building"
+        },
+        {
+          "id": "city_wall_bend_b",
+          "kind": "building"
+        },
+        {
+          "id": "city_wall_bend_c",
+          "kind": "building"
+        },
+        {
+          "id": "city_wall_gate_south",
+          "kind": "building"
+        },
+        {
+          "id": "corner_house_muurivahe",
+          "kind": "building"
+        },
+        {
+          "id": "foaming_mug_brewery",
+          "kind": "building"
+        },
+        {
+          "id": "foregate_tower_south",
+          "kind": "building"
+        },
+        {
+          "id": "foregate_wall_south",
+          "kind": "building"
+        },
+        {
+          "id": "glassblowers_house",
+          "kind": "building"
+        },
+        {
+          "id": "glovers_house",
+          "kind": "building"
+        },
+        {
+          "id": "guild_storehouse",
+          "kind": "building"
+        },
+        {
+          "id": "hinke_tower",
+          "kind": "building"
+        },
+        {
+          "id": "kaik_house_east",
+          "kind": "building"
+        },
+        {
+          "id": "kalev_smithy",
+          "kind": "building"
+        },
+        {
+          "id": "karja_corner_house",
+          "kind": "building"
+        },
+        {
+          "id": "karja_rear_boda",
+          "kind": "building"
+        },
+        {
+          "id": "merchants_house",
+          "kind": "building"
+        },
+        {
+          "id": "potters_house",
+          "kind": "building"
+        },
+        {
+          "id": "rope_makers_house",
+          "kind": "building"
+        },
+        {
+          "id": "rope_makers_rear_store",
+          "kind": "building"
+        },
+        {
+          "id": "sauna_corner_house",
+          "kind": "building"
+        },
+        {
+          "id": "smithy_rear_shed",
+          "kind": "building"
+        },
+        {
+          "id": "smithy_yard_fence_east",
+          "kind": "building"
+        },
+        {
+          "id": "smithy_yard_fence_north",
+          "kind": "building"
+        },
+        {
+          "id": "vaike_karja_house",
+          "kind": "building"
+        },
+        {
+          "id": "viru_gate_arch",
+          "kind": "view_landmark"
+        },
+        {
+          "id": "viru_gate_north_jamb",
+          "kind": "building"
+        },
+        {
+          "id": "viru_gate_north_tower",
+          "kind": "building"
+        },
+        {
+          "id": "viru_gate_south_jamb",
+          "kind": "building"
+        },
+        {
+          "id": "viru_gate_south_tower",
+          "kind": "building"
+        },
+        {
+          "id": "viru_house_east",
+          "kind": "building"
+        },
+        {
+          "id": "viru_house_mid",
+          "kind": "building"
+        },
+        {
+          "id": "viru_house_stone",
+          "kind": "building"
+        },
+        {
+          "id": "wall_seal_bend_a_east",
+          "kind": "building"
+        },
+        {
+          "id": "wall_seal_bend_b_north",
+          "kind": "building"
+        },
+        {
+          "id": "wall_seal_bend_c_west",
+          "kind": "building"
+        },
+        {
+          "id": "wall_seal_hinke_north",
+          "kind": "building"
+        },
+        {
+          "id": "wall_seal_viru_south_east",
+          "kind": "building"
+        },
+        {
+          "id": "wall_seal_viru_south_join",
+          "kind": "building"
+        },
+        {
+          "id": "wall_seal_viru_south_west",
+          "kind": "building"
+        },
+        {
+          "id": "wall_tower_south",
+          "kind": "building"
+        },
+        {
+          "id": "wall_tower_southeast",
+          "kind": "building"
+        },
+        {
+          "id": "wall_tower_southwest",
+          "kind": "building"
+        },
+        {
+          "id": "weary_traveler_inn",
+          "kind": "building"
+        }
+      ],
       "time_of_day": "night",
       "to_anchor": "smithy_door"
     },
@@ -199,6 +1019,168 @@
       "output": "res://docs/reports/images/lower_town_p0_101/eastern_artisan_wet_margin_day.png",
       "preset_id": "eastern_artisan_wet_margin",
       "sector_id": "eastern_artisan_wet_margin",
+      "stable_id_candidates": [
+        {
+          "id": "artisan_shed",
+          "kind": "building"
+        },
+        {
+          "id": "brewery_rear_store",
+          "kind": "building"
+        },
+        {
+          "id": "carriers_barn",
+          "kind": "building"
+        },
+        {
+          "id": "city_wall_bend_a",
+          "kind": "building"
+        },
+        {
+          "id": "city_wall_bend_b",
+          "kind": "building"
+        },
+        {
+          "id": "city_wall_bend_c",
+          "kind": "building"
+        },
+        {
+          "id": "city_wall_bend_d",
+          "kind": "building"
+        },
+        {
+          "id": "city_wall_gate_south",
+          "kind": "building"
+        },
+        {
+          "id": "dyers_house",
+          "kind": "building"
+        },
+        {
+          "id": "foaming_mug_brewery",
+          "kind": "building"
+        },
+        {
+          "id": "glassblowers_house",
+          "kind": "building"
+        },
+        {
+          "id": "hinke_tower",
+          "kind": "building"
+        },
+        {
+          "id": "kalev_smithy",
+          "kind": "building"
+        },
+        {
+          "id": "karja_corner_house",
+          "kind": "building"
+        },
+        {
+          "id": "karja_gate_house",
+          "kind": "building"
+        },
+        {
+          "id": "karja_rear_boda",
+          "kind": "building"
+        },
+        {
+          "id": "kuninga_house_east",
+          "kind": "building"
+        },
+        {
+          "id": "merchants_house",
+          "kind": "building"
+        },
+        {
+          "id": "potters_house",
+          "kind": "building"
+        },
+        {
+          "id": "public_bathhouse",
+          "kind": "building"
+        },
+        {
+          "id": "rope_makers_rear_store",
+          "kind": "building"
+        },
+        {
+          "id": "smithy_rear_shed",
+          "kind": "building"
+        },
+        {
+          "id": "smithy_yard_fence_east",
+          "kind": "building"
+        },
+        {
+          "id": "smithy_yard_fence_north",
+          "kind": "building"
+        },
+        {
+          "id": "south_apron_far_roofs",
+          "kind": "building"
+        },
+        {
+          "id": "south_apron_timber_house",
+          "kind": "building"
+        },
+        {
+          "id": "vaike_karja_house",
+          "kind": "building"
+        },
+        {
+          "id": "viru_gate_south_tower",
+          "kind": "building"
+        },
+        {
+          "id": "viru_house_east",
+          "kind": "building"
+        },
+        {
+          "id": "wall_seal_bend_a_east",
+          "kind": "building"
+        },
+        {
+          "id": "wall_seal_bend_b_north",
+          "kind": "building"
+        },
+        {
+          "id": "wall_seal_bend_c_west",
+          "kind": "building"
+        },
+        {
+          "id": "wall_seal_bend_d_north",
+          "kind": "building"
+        },
+        {
+          "id": "wall_seal_hinke_north",
+          "kind": "building"
+        },
+        {
+          "id": "wall_seal_viru_south_east",
+          "kind": "building"
+        },
+        {
+          "id": "wall_seal_viru_south_join",
+          "kind": "building"
+        },
+        {
+          "id": "wall_seal_viru_south_west",
+          "kind": "building"
+        },
+        {
+          "id": "wall_tower_south",
+          "kind": "building"
+        },
+        {
+          "id": "wall_tower_southeast",
+          "kind": "building"
+        },
+        {
+          "id": "wall_tower_southwest",
+          "kind": "building"
+        }
+      ],
       "time_of_day": "day",
       "to_anchor": "karja_gate_south"
     },
@@ -227,6 +1209,168 @@
       "output": "res://docs/reports/images/lower_town_p0_101/eastern_artisan_wet_margin_night.png",
       "preset_id": "eastern_artisan_wet_margin",
       "sector_id": "eastern_artisan_wet_margin",
+      "stable_id_candidates": [
+        {
+          "id": "artisan_shed",
+          "kind": "building"
+        },
+        {
+          "id": "brewery_rear_store",
+          "kind": "building"
+        },
+        {
+          "id": "carriers_barn",
+          "kind": "building"
+        },
+        {
+          "id": "city_wall_bend_a",
+          "kind": "building"
+        },
+        {
+          "id": "city_wall_bend_b",
+          "kind": "building"
+        },
+        {
+          "id": "city_wall_bend_c",
+          "kind": "building"
+        },
+        {
+          "id": "city_wall_bend_d",
+          "kind": "building"
+        },
+        {
+          "id": "city_wall_gate_south",
+          "kind": "building"
+        },
+        {
+          "id": "dyers_house",
+          "kind": "building"
+        },
+        {
+          "id": "foaming_mug_brewery",
+          "kind": "building"
+        },
+        {
+          "id": "glassblowers_house",
+          "kind": "building"
+        },
+        {
+          "id": "hinke_tower",
+          "kind": "building"
+        },
+        {
+          "id": "kalev_smithy",
+          "kind": "building"
+        },
+        {
+          "id": "karja_corner_house",
+          "kind": "building"
+        },
+        {
+          "id": "karja_gate_house",
+          "kind": "building"
+        },
+        {
+          "id": "karja_rear_boda",
+          "kind": "building"
+        },
+        {
+          "id": "kuninga_house_east",
+          "kind": "building"
+        },
+        {
+          "id": "merchants_house",
+          "kind": "building"
+        },
+        {
+          "id": "potters_house",
+          "kind": "building"
+        },
+        {
+          "id": "public_bathhouse",
+          "kind": "building"
+        },
+        {
+          "id": "rope_makers_rear_store",
+          "kind": "building"
+        },
+        {
+          "id": "smithy_rear_shed",
+          "kind": "building"
+        },
+        {
+          "id": "smithy_yard_fence_east",
+          "kind": "building"
+        },
+        {
+          "id": "smithy_yard_fence_north",
+          "kind": "building"
+        },
+        {
+          "id": "south_apron_far_roofs",
+          "kind": "building"
+        },
+        {
+          "id": "south_apron_timber_house",
+          "kind": "building"
+        },
+        {
+          "id": "vaike_karja_house",
+          "kind": "building"
+        },
+        {
+          "id": "viru_gate_south_tower",
+          "kind": "building"
+        },
+        {
+          "id": "viru_house_east",
+          "kind": "building"
+        },
+        {
+          "id": "wall_seal_bend_a_east",
+          "kind": "building"
+        },
+        {
+          "id": "wall_seal_bend_b_north",
+          "kind": "building"
+        },
+        {
+          "id": "wall_seal_bend_c_west",
+          "kind": "building"
+        },
+        {
+          "id": "wall_seal_bend_d_north",
+          "kind": "building"
+        },
+        {
+          "id": "wall_seal_hinke_north",
+          "kind": "building"
+        },
+        {
+          "id": "wall_seal_viru_south_east",
+          "kind": "building"
+        },
+        {
+          "id": "wall_seal_viru_south_join",
+          "kind": "building"
+        },
+        {
+          "id": "wall_seal_viru_south_west",
+          "kind": "building"
+        },
+        {
+          "id": "wall_tower_south",
+          "kind": "building"
+        },
+        {
+          "id": "wall_tower_southeast",
+          "kind": "building"
+        },
+        {
+          "id": "wall_tower_southwest",
+          "kind": "building"
+        }
+      ],
       "time_of_day": "night",
       "to_anchor": "karja_gate_south"
     },
@@ -255,6 +1399,148 @@
       "output": "res://docs/reports/images/lower_town_p0_101/landmark_approaches_day.png",
       "preset_id": "landmark_approaches",
       "sector_id": "landmark_approaches",
+      "stable_id_candidates": [
+        {
+          "id": "artisan_shed",
+          "kind": "building"
+        },
+        {
+          "id": "brewery_rear_store",
+          "kind": "building"
+        },
+        {
+          "id": "carriers_barn",
+          "kind": "building"
+        },
+        {
+          "id": "coopers_house",
+          "kind": "building"
+        },
+        {
+          "id": "dyers_house",
+          "kind": "building"
+        },
+        {
+          "id": "foaming_mug_brewery",
+          "kind": "building"
+        },
+        {
+          "id": "glassblowers_house",
+          "kind": "building"
+        },
+        {
+          "id": "guild_storehouse",
+          "kind": "building"
+        },
+        {
+          "id": "kaik_house_east",
+          "kind": "building"
+        },
+        {
+          "id": "kaik_house_mid",
+          "kind": "building"
+        },
+        {
+          "id": "kaik_house_west",
+          "kind": "building"
+        },
+        {
+          "id": "kalev_smithy",
+          "kind": "building"
+        },
+        {
+          "id": "karja_corner_house",
+          "kind": "building"
+        },
+        {
+          "id": "karja_gate_house",
+          "kind": "building"
+        },
+        {
+          "id": "karja_rear_boda",
+          "kind": "building"
+        },
+        {
+          "id": "kuninga_house_east",
+          "kind": "building"
+        },
+        {
+          "id": "merchants_house",
+          "kind": "building"
+        },
+        {
+          "id": "monastery_cloister",
+          "kind": "building"
+        },
+        {
+          "id": "monastery_precinct_wall_south_a",
+          "kind": "building"
+        },
+        {
+          "id": "monastery_precinct_wall_south_b",
+          "kind": "building"
+        },
+        {
+          "id": "moneychangers_house",
+          "kind": "building"
+        },
+        {
+          "id": "public_bathhouse",
+          "kind": "building"
+        },
+        {
+          "id": "rope_makers_house",
+          "kind": "building"
+        },
+        {
+          "id": "rope_makers_rear_store",
+          "kind": "building"
+        },
+        {
+          "id": "saddlers_house",
+          "kind": "building"
+        },
+        {
+          "id": "sauna_corner_house",
+          "kind": "building"
+        },
+        {
+          "id": "sauna_rear_boda",
+          "kind": "building"
+        },
+        {
+          "id": "st_catherines_church",
+          "kind": "building"
+        },
+        {
+          "id": "vaike_karja_house",
+          "kind": "building"
+        },
+        {
+          "id": "vanaturu_kael_house",
+          "kind": "building"
+        },
+        {
+          "id": "viru_house_east",
+          "kind": "building"
+        },
+        {
+          "id": "viru_house_mid",
+          "kind": "building"
+        },
+        {
+          "id": "viru_house_stone",
+          "kind": "building"
+        },
+        {
+          "id": "viru_house_west",
+          "kind": "building"
+        },
+        {
+          "id": "weary_traveler_inn",
+          "kind": "building"
+        }
+      ],
       "time_of_day": "day",
       "to_anchor": "checkpoint_east"
     },
@@ -283,6 +1569,148 @@
       "output": "res://docs/reports/images/lower_town_p0_101/landmark_approaches_night.png",
       "preset_id": "landmark_approaches",
       "sector_id": "landmark_approaches",
+      "stable_id_candidates": [
+        {
+          "id": "artisan_shed",
+          "kind": "building"
+        },
+        {
+          "id": "brewery_rear_store",
+          "kind": "building"
+        },
+        {
+          "id": "carriers_barn",
+          "kind": "building"
+        },
+        {
+          "id": "coopers_house",
+          "kind": "building"
+        },
+        {
+          "id": "dyers_house",
+          "kind": "building"
+        },
+        {
+          "id": "foaming_mug_brewery",
+          "kind": "building"
+        },
+        {
+          "id": "glassblowers_house",
+          "kind": "building"
+        },
+        {
+          "id": "guild_storehouse",
+          "kind": "building"
+        },
+        {
+          "id": "kaik_house_east",
+          "kind": "building"
+        },
+        {
+          "id": "kaik_house_mid",
+          "kind": "building"
+        },
+        {
+          "id": "kaik_house_west",
+          "kind": "building"
+        },
+        {
+          "id": "kalev_smithy",
+          "kind": "building"
+        },
+        {
+          "id": "karja_corner_house",
+          "kind": "building"
+        },
+        {
+          "id": "karja_gate_house",
+          "kind": "building"
+        },
+        {
+          "id": "karja_rear_boda",
+          "kind": "building"
+        },
+        {
+          "id": "kuninga_house_east",
+          "kind": "building"
+        },
+        {
+          "id": "merchants_house",
+          "kind": "building"
+        },
+        {
+          "id": "monastery_cloister",
+          "kind": "building"
+        },
+        {
+          "id": "monastery_precinct_wall_south_a",
+          "kind": "building"
+        },
+        {
+          "id": "monastery_precinct_wall_south_b",
+          "kind": "building"
+        },
+        {
+          "id": "moneychangers_house",
+          "kind": "building"
+        },
+        {
+          "id": "public_bathhouse",
+          "kind": "building"
+        },
+        {
+          "id": "rope_makers_house",
+          "kind": "building"
+        },
+        {
+          "id": "rope_makers_rear_store",
+          "kind": "building"
+        },
+        {
+          "id": "saddlers_house",
+          "kind": "building"
+        },
+        {
+          "id": "sauna_corner_house",
+          "kind": "building"
+        },
+        {
+          "id": "sauna_rear_boda",
+          "kind": "building"
+        },
+        {
+          "id": "st_catherines_church",
+          "kind": "building"
+        },
+        {
+          "id": "vaike_karja_house",
+          "kind": "building"
+        },
+        {
+          "id": "vanaturu_kael_house",
+          "kind": "building"
+        },
+        {
+          "id": "viru_house_east",
+          "kind": "building"
+        },
+        {
+          "id": "viru_house_mid",
+          "kind": "building"
+        },
+        {
+          "id": "viru_house_stone",
+          "kind": "building"
+        },
+        {
+          "id": "viru_house_west",
+          "kind": "building"
+        },
+        {
+          "id": "weary_traveler_inn",
+          "kind": "building"
+        }
+      ],
       "time_of_day": "night",
       "to_anchor": "checkpoint_east"
     }

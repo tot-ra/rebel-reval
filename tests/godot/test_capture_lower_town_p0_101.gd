@@ -133,6 +133,19 @@ func test_existing_manifest_records_sector_and_interaction_metadata() -> void:
 			assert_eq(plate["interaction_targets"], preset["interaction_targets"])
 			assert_eq(plate["from_anchor"], String(preset["from_anchor"]))
 			assert_eq(plate["to_anchor"], String(preset["to_anchor"]))
+			var candidates: Array = plate.get("stable_id_candidates", [])
+			assert_true(
+				candidates is Array,
+				"each plate must link to objective authored stable-ID candidates"
+			)
+			var candidate_ids: Array[String] = []
+			for candidate: Dictionary in candidates:
+				assert_true(["building", "view_landmark"].has(candidate.get("kind", "")))
+				candidate_ids.append(String(candidate.get("id", "")))
+			assert_eq(candidate_ids, candidate_ids.duplicate())
+			var sorted_ids := candidate_ids.duplicate()
+			sorted_ids.sort()
+			assert_eq(candidate_ids, sorted_ids)
 
 
 
