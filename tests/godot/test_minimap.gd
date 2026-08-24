@@ -188,6 +188,21 @@ func test_story_calendar_tracks_slice_timeline_and_solar_day_offsets() -> void:
 		"local clock must decorate the current calendar date"
 	)
 	assert_eq(
+		GameCalendarScript.format_date({"day": 99, "month": 99, "year": 1343}),
+		"31.12.1343",
+		"formatted HUD dates must clamp invalid month and day fields"
+	)
+	assert_eq(
+		GameCalendarScript.format_date({"day": 31, "month": 2, "year": 1344}),
+		"29.02.1344",
+		"formatted leap-year dates must clamp to the Julian leap day"
+	)
+	assert_eq(
+		GameCalendarScript.format_date({"year": 1343}),
+		"21.04.1343",
+		"missing date fields must use the campaign defaults"
+	)
+	assert_eq(
 		GameCalendarScript.add_days({"day": 30, "month": 4, "year": 1343}, 1),
 		{"day": 1, "month": 5, "year": 1343},
 		"solar days must advance through month boundaries"

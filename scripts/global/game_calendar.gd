@@ -34,11 +34,19 @@ static func days_in_month(month: int, year: int) -> int:
 	return MONTH_LENGTHS[valid_month - 1]
 
 
-## ISO weekday for the Julian campaign calendar: Monday=0 through Sunday=6.
-static func weekday_index(date: Dictionary) -> int:
+static func normalize_date(date: Dictionary) -> Dictionary:
 	var year := int(date.get("year", DEFAULT_DATE["year"]))
 	var month := clampi(int(date.get("month", DEFAULT_DATE["month"])), 1, 12)
 	var day := clampi(int(date.get("day", DEFAULT_DATE["day"])), 1, days_in_month(month, year))
+	return {"day": day, "month": month, "year": year}
+
+
+## ISO weekday for the Julian campaign calendar: Monday=0 through Sunday=6.
+static func weekday_index(date: Dictionary) -> int:
+	var normalized := normalize_date(date)
+	var year := int(normalized["year"])
+	var month := int(normalized["month"])
+	var day := int(normalized["day"])
 	var y := year
 	var m := month
 	if m < 3:
@@ -52,9 +60,10 @@ static func weekday_index(date: Dictionary) -> int:
 
 
 static func day_of_year(date: Dictionary) -> int:
-	var year := int(date.get("year", DEFAULT_DATE["year"]))
-	var month := clampi(int(date.get("month", DEFAULT_DATE["month"])), 1, 12)
-	var day := clampi(int(date.get("day", DEFAULT_DATE["day"])), 1, days_in_month(month, year))
+	var normalized := normalize_date(date)
+	var year := int(normalized["year"])
+	var month := int(normalized["month"])
+	var day := int(normalized["day"])
 	var ordinal := day
 	for preceding_month in range(1, month):
 		ordinal += days_in_month(preceding_month, year)
@@ -70,9 +79,10 @@ static func date_for_phase(phase_id: StringName) -> Dictionary:
 ## date arithmetic centralized prevents HUD, solar seasons, and lunar phases
 ## from disagreeing at month or year boundaries.
 static func add_days(date: Dictionary, day_offset: int) -> Dictionary:
-	var year := int(date.get("year", DEFAULT_DATE["year"]))
-	var month := clampi(int(date.get("month", DEFAULT_DATE["month"])), 1, 12)
-	var day := clampi(int(date.get("day", DEFAULT_DATE["day"])), 1, days_in_month(month, year))
+	var normalized := normalize_date(date)
+	var year := int(normalized["year"])
+	var month := int(normalized["month"])
+	var day := int(normalized["day"])
 
 	if day_offset > 0:
 		for _step in day_offset:
@@ -103,12 +113,13 @@ static func date_for_phase_and_elapsed_days(phase_id: StringName, elapsed_days: 
 
 
 static func format_date(date: Dictionary) -> String:
+	var normalized := normalize_date(date)
 	return (
 		"%02d.%02d.%04d"
 		% [
-			int(date.get("day", DEFAULT_DATE["day"])),
-			int(date.get("month", DEFAULT_DATE["month"])),
-			int(date.get("year", DEFAULT_DATE["year"])),
+			int(normalized["day"]),
+			int(normalized["month"]),
+			int(normalized["year"]),
 		]
 	)
 
