@@ -15,58 +15,48 @@ const MODULE_FORGE_YARD := &"forge_yard"
 const MODULE_STREET_WELL := &"street_well"
 const MODULE_BREWERY := &"brewery"
 const MODULE_CHECKPOINT := &"checkpoint"
+const MODULE_IDS: Array[StringName] = [
+	MODULE_FORGE_INTERIOR,
+	MODULE_FORGE_YARD,
+	MODULE_STREET_WELL,
+	MODULE_BREWERY,
+	MODULE_CHECKPOINT,
+]
+
+
+## Returns deterministic authoring errors before a module reaches mesh assembly.
+## WHY: silently skipping a renamed or duplicated RRMap record produces a plausible
+## but incomplete acceptance capture. The shared kit therefore fails closed at its
+## authored-record boundary while gameplay collision/navigation remain map-owned.
+static func validate_module(definition: MapDefinition, module_id: StringName) -> Array[String]:
+	var errors: Array[String] = []
+	if not MODULE_IDS.has(module_id):
+		return ["unknown environment module: %s" % String(module_id)]
+	var contract := _module_contract(module_id)
+	_validate_selectors(definition.buildings, contract["buildings"], "building", errors)
+	_validate_ids(definition.props, contract["props"], "prop", errors)
+	_validate_ids(definition.view_landmarks, contract["landmarks"], "landmark", errors)
+	return errors
 
 
 static func build_forge_interior(definition: MapDefinition) -> Node3D:
-	return _build_module(
-		definition,
-		MODULE_FORGE_INTERIOR,
-		[&"wall.north_forge", &"wall.south_forge", &"wall.divider"],
-		[
-			&"forge_anvil",
-			&"forge_furnace",
-			&"forge_bellows",
-			&"forge_tongs",
-			&"forge_hammer",
-			&"forge_punch",
-			&"quench",
-			&"coal_store",
-			&"iron_scrap_store",
-		]
-	)
+	return _build_catalog_module(definition, MODULE_FORGE_INTERIOR)
 
 
 static func build_forge_yard(definition: MapDefinition) -> Node3D:
-	return _build_module(
-		definition,
-		MODULE_FORGE_YARD,
-		[&"kalev_smithy", &"smithy_yard_fence_north", &"smithy_yard_fence_east"],
-		[&"courtyard_firewood", &"courtyard_quench", &"hay_store"]
-	)
+	return _build_catalog_module(definition, MODULE_FORGE_YARD)
 
 
 static func build_street_well(definition: MapDefinition) -> Node3D:
-	return _build_module(
-		definition, MODULE_STREET_WELL, [], [&"cistern", &"cistern_wash_tub", &"monastery_well"]
-	)
+	return _build_catalog_module(definition, MODULE_STREET_WELL)
 
 
 static func build_brewery(definition: MapDefinition) -> Node3D:
-	return _build_module(
-		definition,
-		MODULE_BREWERY,
-		[&"foaming_mug_brewery"],
-		[&"brewery_keg_stack", &"brewery_malt_sacks", &"evidence_barrels"]
-	)
+	return _build_catalog_module(definition, MODULE_BREWERY)
 
 
 static func build_checkpoint(definition: MapDefinition) -> Node3D:
-	var root := _build_module(
-		definition,
-		MODULE_CHECKPOINT,
-		[&"viru_gate_north_tower", &"viru_gate_south_tower"],
-		[&"market_stall_gate", &"gate_cart"]
-	)
+	var root := _build_catalog_module(definition, MODULE_CHECKPOINT)
 	var landmarks := Node3D.new()
 	landmarks.name = "Landmarks"
 	_build_group_metadata(landmarks, &"landmarks")
@@ -78,12 +68,22 @@ static func build_checkpoint(definition: MapDefinition) -> Node3D:
 	return root
 
 
+static func _build_catalog_module(definition: MapDefinition, module_id: StringName) -> Node3D:
+	var contract := _module_contract(module_id)
+	return _build_module(definition, module_id, contract["buildings"], contract["props"])
+
+
 static func _build_module(
 	definition: MapDefinition,
 	module_id: StringName,
 	building_selectors: Array[StringName],
 	prop_ids: Array[StringName]
 ) -> Node3D:
+	var contract_errors := validate_module(definition, module_id)
+	assert(
+		contract_errors.is_empty(),
+		"Environment kit contract failed for %s: %s" % [String(module_id), "; ".join(contract_errors)]
+	)
 	var root := Node3D.new()
 	root.name = "EnvironmentKit_%s" % String(module_id)
 	root.set_meta(&"environment_module", module_id)
@@ -122,6 +122,73 @@ static func _build_group_metadata(group: Node3D, group_id: StringName) -> void:
 	# module root, so consumers can inspect a group without guessing ownership.
 	group.set_meta(&"view_only", true)
 	group.set_meta(&"environment_group", group_id)
+
+
+static func _module_contract(module_id: StringName) -> Dictionary:
+	match module_id:
+		MODULE_FORGE_INTERIOR:
+			return {
+				"buildings": [&"wall.north_forge", &"wall.south_forge", &"wall.divider"],
+				"props": [
+					&"forge_anvil", &"forge_furnace", &"forge_bellows", &"forge_tongs",
+					&"forge_hammer", &"forge_punch", &"quench", &"coal_store", &"iron_scrap_store",
+				],
+				"landmarks": [],
+			}
+		MODULE_FORGE_YARD:
+			return {
+				"buildings": [&"kalev_smithy", &"smithy_yard_fence_north", &"smithy_yard_fence_east"],
+				"props": [&"courtyard_firewood", &"courtyard_quench", &"hay_store"],
+				"landmarks": [],
+			}
+		MODULE_STREET_WELL:
+			return {
+				"buildings": [],
+				"props": [&"cistern", &"cistern_wash_tub", &"monastery_well"],
+				"landmarks": [],
+			}
+		MODULE_BREWERY:
+			return {
+				"buildings": [&"foaming_mug_brewery"],
+				"props": [&"brewery_keg_stack", &"brewery_malt_sacks", &"evidence_barrels"],
+				"landmarks": [],
+			}
+		MODULE_CHECKPOINT:
+			return {
+				"buildings": [&"viru_gate_north_tower", &"viru_gate_south_tower"],
+				"props": [&"market_stall_gate", &"gate_cart"],
+				"landmarks": [&"viru_gate_arch", &"viru_foregate_arch"],
+			}
+	return {}
+
+
+static func _validate_selectors(
+	records: Array[Dictionary], selectors: Array, record_kind: String, errors: Array[String]
+) -> void:
+	for selector_value in selectors:
+		var selector := StringName(selector_value)
+		var matches := 0
+		for record in records:
+			var record_id := StringName(record.get("id", &""))
+			if record_id == selector or String(record_id).begins_with("%s/" % String(selector)):
+				matches += 1
+		if matches == 0:
+			errors.append("missing %s selector: %s" % [record_kind, String(selector)])
+
+
+static func _validate_ids(
+	records: Array[Dictionary], required_ids: Array, record_kind: String, errors: Array[String]
+) -> void:
+	for required_value in required_ids:
+		var required_id := StringName(required_value)
+		var matches := 0
+		for record in records:
+			if StringName(record.get("id", &"")) == required_id:
+				matches += 1
+		if matches == 0:
+			errors.append("missing %s: %s" % [record_kind, String(required_id)])
+		elif matches > 1:
+			errors.append("duplicate %s: %s" % [record_kind, String(required_id)])
 
 
 static func _matches_building(building: Dictionary, selectors: Array[StringName]) -> bool:
