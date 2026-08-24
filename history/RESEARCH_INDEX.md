@@ -57,7 +57,7 @@ Domains and their scope are defined in the
 | `dailylife` | food, clothing, housing, health | partial | [`food-and-drink`](dossiers/dailylife/food-and-drink.md) (solid), [`clothing-and-status-markers`](dossiers/dailylife/clothing-and-status-markers.md) (solid), [`hygiene-and-grooming-1343`](dossiers/dailylife/hygiene-and-grooming-1343.md) (solid) | R-064 | Character, Art, Dialogue |
 | `language` | registers, names, address, oaths | partial | [`names-address-and-oaths`](dossiers/language/names-address-and-oaths.md) (solid), [`estonian-forenames-harju-1340s`](dossiers/language/estonian-forenames-harju-1340s.md) (partial) | — | Dialogue, Character |
 | `nature` | flora, fauna, April-May climate, livestock | partial | [`spring-climate-and-living-world`](dossiers/nature/spring-climate-and-living-world.md) (solid), [`working-horses-and-draught-tack-1343`](dossiers/nature/working-horses-and-draught-tack-1343.md) (partial) | R-022 phenology tie-in | Map, Art |
-| `hinterland` | villages, manors, roads, Saaremaa | partial | [`harju-village-and-manor`](dossiers/hinterland/harju-village-and-manor.md) (partial) | R-048, R-049 | Map, Narrative |
+| `hinterland` | villages, manors, roads, Saaremaa | partial | [`harju-village-and-manor`](dossiers/hinterland/harju-village-and-manor.md) (partial) | R-076 / board R-696 (idea) | Map, Narrative |
 
 Replace the `-` in **Dossiers** with links as files land, and clear the backlog cell as rows close.
 The skeleton every dossier copies is [`dossiers/TEMPLATE.md`](dossiers/TEMPLATE.md).
