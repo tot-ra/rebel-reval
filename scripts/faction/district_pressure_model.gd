@@ -132,6 +132,16 @@ static func _resolve_tier(district_id: StringName, state: GameState, profile: Di
 	if not opposition.is_empty() and state.get_faction_standing(opposition) >= 2:
 		tier += 1
 
+	# WHY: authored city-wide bridges stay separate from faction standing.
+	if (
+		state.get_living_city_hope() >= 14
+		and not opposition.is_empty()
+		and state.get_faction_standing(opposition) >= 2
+	):
+		tier += 1
+	if state.get_living_city_fear() >= 14 and controlling_standing < FactionLedger.STANDING_MAX:
+		tier += 1
+
 	return clampi(tier, TIER_RELAXED, TIER_CRACKDOWN)
 
 

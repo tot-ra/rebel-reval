@@ -63,6 +63,11 @@ static func save_payload(state: GameState) -> Dictionary:
 		"relationships": _int_dictionary(state._relationships),
 		"faction_events": _faction_events_array(state._faction_events),
 		"pressures": _int_dictionary(state._pressures),
+		"living_city": {
+			"hope": state.get_living_city_hope(),
+			"fear": state.get_living_city_fear(),
+			"events": _living_city_events_dictionary(state._living_city_events),
+		},
 		"quest_states": _string_dictionary(state._quest_states),
 		"location_states": _string_dictionary(state._location_states),
 		"items": _bool_dictionary(state._items),
@@ -160,6 +165,7 @@ static func load_payload(state: GameState, payload: Dictionary) -> Array[String]
 	)
 	state._faction_events = _load_faction_events(candidate.get("faction_events", []), errors)
 	state._pressures = _load_pressure_dictionary(state, candidate.get("pressures", {}), errors)
+	_load_living_city(state, candidate.get("living_city", {}), errors)
 	state._quest_states = _load_string_dictionary(
 		candidate.get("quest_states", {}), errors, "quest_states"
 	)
@@ -295,6 +301,77 @@ static func _load_faction_events(
 			"summary": String(event_dict.get("summary", "")),
 		}
 	return out
+
+
+static func _living_city_events_dictionary(
+	source: Dictionary[StringName, Dictionary]
+) -> Array[Dictionary]:
+	var rows: Array[Dictionary] = []
+	for event_id in source.keys():
+		var event: Dictionary = source[event_id]
+		rows.append({
+			"event_id": String(event_id),
+			"hope_delta": int(event.get("hope_delta", 0)),
+			"fear_delta": int(event.get("fear_delta", 0)),
+			"summary": String(event.get("summary", "")),
+		})
+	rows.sort_custom(
+		func(a: Dictionary, b: Dictionary) -> bool:
+			return String(a.get("event_id", "")) < String(b.get("event_id", ""))
+	)
+	return rows
+
+
+static func _load_living_city(state: GameState, source: Variant, errors: Array[String]) -> void:
+	state._living_city_events.clear()
+	state.set_living_city_meter(GameState.LIVING_CITY_HOPE, GameState.LIVING_CITY_DEFAULT)
+	state.set_living_city_meter(GameState.LIVING_CITY_FEAR, GameState.LIVING_CITY_DEFAULT)
+	if source == null:
+		return
+	if not source is Dictionary:
+		errors.append("living_city must be a dictionary")
+		return
+	var living_city := source as Dictionary
+	state.set_living_city_meter(
+		GameState.LIVING_CITY_HOPE, int(living_city.get("hope", GameState.LIVING_CITY_DEFAULT))
+	)
+	state.set_living_city_meter(
+		GameState.LIVING_CITY_FEAR, int(living_city.get("fear", GameState.LIVING_CITY_DEFAULT))
+	)
+	var events: Variant = living_city.get("events", [])
+	if not events is Array:
+		errors.append("living_city.events must be an array")
+		return
+	for index in (events as Array).size():
+		var row: Variant = (events as Array)[index]
+		if not row is Dictionary:
+			errors.append("living_city.events[%d] must be a dictionary" % index)
+			continue
+		var event := row as Dictionary
+		var event_id := StringName(String(event.get("event_id", "")))
+		var hope_delta := int(event.get("hope_delta", 0))
+		var fear_delta := int(event.get("fear_delta", 0))
+		if event_id.is_empty() or not String(event_id).begins_with("living."):
+			errors.append("living_city.events[%d] has invalid event_id" % index)
+			continue
+		if state._living_city_events.has(event_id):
+			errors.append("duplicate living city event id %s" % String(event_id))
+			continue
+		if (
+			(hope_delta == 0 and fear_delta == 0)
+			or hope_delta < GameState.LIVING_CITY_DELTA_MIN
+			or hope_delta > GameState.LIVING_CITY_DELTA_MAX
+			or fear_delta < GameState.LIVING_CITY_DELTA_MIN
+			or fear_delta > GameState.LIVING_CITY_DELTA_MAX
+		):
+			errors.append("living_city.events[%d] delta is outside -5..5 or is zero" % index)
+			continue
+		state._living_city_events[event_id] = {
+			"event_id": event_id,
+			"hope_delta": hope_delta,
+			"fear_delta": fear_delta,
+			"summary": String(event.get("summary", "")),
+		}
 
 
 static func _string_dictionary(source: Dictionary) -> Dictionary:

@@ -9,6 +9,8 @@ signal items_changed
 signal forged_record_added(record_id: StringName)
 ## Fired when an explicit faction ledger event is recorded.
 signal faction_event_recorded(event_id: StringName, faction_id: StringName)
+## Fired when an explicit Living City Hope/Fear event is recorded.
+signal living_city_event_recorded(event_id: StringName)
 ## Fired when the campaign phase changes; SessionState autosaves on this boundary.
 signal phase_changed(previous: StringName, next: StringName)
 
@@ -35,6 +37,13 @@ const RELATIONSHIP_MIN := -3
 const RELATIONSHIP_MAX := 3
 const PRESSURE_MIN := 0
 const PRESSURE_MAX := 3
+const LIVING_CITY_HOPE := &"living_city.hope"
+const LIVING_CITY_FEAR := &"living_city.fear"
+const LIVING_CITY_MIN := 0
+const LIVING_CITY_MAX := 20
+const LIVING_CITY_DEFAULT := 8
+const LIVING_CITY_DELTA_MIN := -5
+const LIVING_CITY_DELTA_MAX := 5
 
 var version: int = CURRENT_VERSION
 var phase: StringName = PHASE_PROLOGUE_DAY
@@ -47,6 +56,8 @@ var _facts: Dictionary[StringName, bool] = {}
 var _relationships: Dictionary[StringName, int] = {}
 var _faction_events: Dictionary[StringName, Dictionary] = {}
 var _pressures: Dictionary[StringName, int] = {}
+var _living_city_events: Dictionary[StringName, Dictionary] = {}
+var _living_city: Dictionary[StringName, int] = {}
 var _forged_records: Dictionary[StringName, ForgedRecord] = {}
 var _flags: Dictionary[StringName, bool] = {}
 var _quest_states: Dictionary[StringName, StringName] = {}
@@ -66,6 +77,8 @@ func _init() -> void:
 	_pressures[PRESSURE_SUSPICION] = 0
 	_pressures[PRESSURE_SOLIDARITY] = 0
 	_pressures[PRESSURE_SCARCITY] = 0
+	_living_city[LIVING_CITY_HOPE] = LIVING_CITY_DEFAULT
+	_living_city[LIVING_CITY_FEAR] = LIVING_CITY_DEFAULT
 
 
 func get_version() -> int:
@@ -471,6 +484,70 @@ func set_pressure(key: StringName, value: int) -> void:
 
 func adjust_pressure(key: StringName, amount: int) -> void:
 	set_pressure(key, get_pressure(key) + amount)
+
+
+func get_living_city_meter(key: StringName) -> int:
+	return _living_city.get(key, LIVING_CITY_DEFAULT)
+
+
+func get_living_city_hope() -> int:
+	return get_living_city_meter(LIVING_CITY_HOPE)
+
+
+func get_living_city_fear() -> int:
+	return get_living_city_meter(LIVING_CITY_FEAR)
+
+
+func has_living_city_event(event_id: StringName) -> bool:
+	return _living_city_events.has(event_id)
+
+
+func record_living_city_event(
+	event_id: StringName, hope_delta: int, fear_delta: int, summary: String
+) -> bool:
+	if event_id.is_empty() or not String(event_id).begins_with("living."):
+		return false
+	if _living_city_events.has(event_id):
+		return false
+	if (
+		(hope_delta == 0 and fear_delta == 0)
+		or hope_delta < LIVING_CITY_DELTA_MIN
+		or hope_delta > LIVING_CITY_DELTA_MAX
+		or fear_delta < LIVING_CITY_DELTA_MIN
+		or fear_delta > LIVING_CITY_DELTA_MAX
+	):
+		return false
+	_living_city_events[event_id] = {
+		"event_id": event_id,
+		"hope_delta": hope_delta,
+		"fear_delta": fear_delta,
+		"summary": summary,
+	}
+	_living_city[LIVING_CITY_HOPE] = clampi(
+		get_living_city_hope() + hope_delta, LIVING_CITY_MIN, LIVING_CITY_MAX
+	)
+	_living_city[LIVING_CITY_FEAR] = clampi(
+		get_living_city_fear() + fear_delta, LIVING_CITY_MIN, LIVING_CITY_MAX
+	)
+	living_city_event_recorded.emit(event_id)
+	return true
+
+
+func get_living_city_events() -> Array[Dictionary]:
+	var events: Array[Dictionary] = []
+	for event_id in _living_city_events:
+		events.append((_living_city_events[event_id] as Dictionary).duplicate(true))
+	events.sort_custom(
+		func(a: Dictionary, b: Dictionary) -> bool:
+			return String(a.get("event_id", "")) < String(b.get("event_id", ""))
+	)
+	return events
+
+
+func set_living_city_meter(key: StringName, value: int) -> void:
+	if key != LIVING_CITY_HOPE and key != LIVING_CITY_FEAR:
+		return
+	_living_city[key] = clampi(value, LIVING_CITY_MIN, LIVING_CITY_MAX)
 
 
 func add_forged_record(record: ForgedRecord) -> bool:
