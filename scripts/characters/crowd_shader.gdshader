@@ -9,7 +9,7 @@ shader_type spatial;
 
 uniform sampler2D albedo_texture : source_color, filter_linear_mipmap;
 uniform sampler2D normal_texture : hint_normal, filter_linear_mipmap;
-uniform sampler2D roughness_texture : hint_roughness_r, filter_linear_mipmap;
+uniform sampler2D roughness_texture : hint_roughness_g, filter_linear_mipmap;
 
 // Per-instance color is set via MultiMesh.set_instance_color().
 // Vertex color carries the palette tint from the MultiMesh; the shader
@@ -29,7 +29,13 @@ void fragment() {
 	ALBEDO = mix(albedo_sample.rgb, tint, tint_strength);
 	ALPHA = albedo_sample.a;
 
-	NORMAL_MAP = texture(normal_texture, UV).rgb;
-	ROUGHNESS = texture(roughness_texture, UV).r * roughness_base;
+	vec3 normal_sample = texture(normal_texture, UV).rgb;
+	NORMAL_MAP = length(normal_sample) < 0.001 ? vec3(0.5, 0.5, 1.0) : normal_sample;
+	float map_roughness = texture(roughness_texture, UV).g;
+	ROUGHNESS = clamp(
+		(map_roughness < 0.001 ? 1.0 : map_roughness) * roughness_base,
+		0.04,
+		1.0
+	);
 	METALLIC = metallic_base;
 }

@@ -13,7 +13,9 @@ render_mode depth_draw_opaque;
 
 uniform sampler2D albedo_texture : source_color, filter_linear_mipmap;
 uniform sampler2D normal_texture : hint_normal, filter_linear_mipmap;
-uniform sampler2D roughness_texture : hint_roughness_r, filter_linear_mipmap;
+// glTF ORM packs roughness in G (R=AO, B=metallic). hint_roughness_g keeps
+// the sampler in the linear roughness path Godot expects for that channel.
+uniform sampler2D roughness_texture : hint_roughness_g, filter_linear_mipmap;
 uniform vec4 albedo_tint : source_color = vec4(1.0);
 uniform float roughness_base : hint_range(0.0, 1.0) = 0.72;
 uniform float wrap_lighting : hint_range(0.0, 1.0) = 0.35;
@@ -23,8 +25,17 @@ uniform float specular_strength : hint_range(0.0, 1.0) = 0.22;
 void fragment() {
 	vec4 base = texture(albedo_texture, UV);
 	ALBEDO = base.rgb * albedo_tint.rgb;
-	NORMAL_MAP = texture(normal_texture, UV).rgb;
-	ROUGHNESS = clamp(texture(roughness_texture, UV).r * roughness_base, 0.0, 1.0);
+	vec3 normal_sample = texture(normal_texture, UV).rgb;
+	// Solid-black embeds were shipped by a broken Non-Color export; treat them
+	// as flat so lighting does not collapse into a specular glow blob.
+	NORMAL_MAP = length(normal_sample) < 0.001 ? vec3(0.5, 0.5, 1.0) : normal_sample;
+	// WHY: constant ORM with G=0 zeroed roughness_base and bloom-haloed characters.
+	float map_roughness = texture(roughness_texture, UV).g;
+	ROUGHNESS = clamp(
+		(map_roughness < 0.001 ? 1.0 : map_roughness) * roughness_base,
+		0.04,
+		1.0
+	);
 	SPECULAR = specular_strength;
 }
 

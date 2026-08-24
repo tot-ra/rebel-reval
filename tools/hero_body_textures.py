@@ -283,11 +283,18 @@ def apply_texture(material: bpy.types.Material, material_name: str) -> None:
 
     roughness_node = nodes.new("ShaderNodeTexImage")
     roughness_node.image = roughness
-    links.new(roughness_node.outputs["Color"], bsdf.inputs["Roughness"])
+    # WHY: linking Color->Roughness let Blender 5.2 glTF export emit constant
+    # ORM (G=0,B=255) and black normals. Feed a scalar channel explicitly so
+    # the exporter packs real roughness into metallicRoughnessTexture.G.
+    roughness_separate = nodes.new("ShaderNodeSeparateColor")
+    links.new(roughness_node.outputs["Color"], roughness_separate.inputs["Color"])
+    links.new(roughness_separate.outputs["Red"], bsdf.inputs["Roughness"])
 
     ao_node = nodes.new("ShaderNodeTexImage")
     ao_node.image = ao
+    ao_separate = nodes.new("ShaderNodeSeparateColor")
+    links.new(ao_node.outputs["Color"], ao_separate.inputs["Color"])
     gltf_output = nodes.new("ShaderNodeGroup")
     gltf_output.node_tree = _gltf_material_output_group()
     gltf_output.name = "glTF Material Output"
-    links.new(ao_node.outputs["Color"], gltf_output.inputs["Occlusion"])
+    links.new(ao_separate.outputs["Red"], gltf_output.inputs["Occlusion"])

@@ -3,33 +3,35 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://csa6dpwhlf0ll"
-path="res://.godot/imported/aita_hero_tex_cloth_normal.png-0af84da071e9a424503234c5b95f6dba.ctex"
+path.s3tc="res://.godot/imported/aita_hero_tex_cloth_normal.png-0af84da071e9a424503234c5b95f6dba.s3tc.ctex"
+path.etc2="res://.godot/imported/aita_hero_tex_cloth_normal.png-0af84da071e9a424503234c5b95f6dba.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
-"md5": "cb18a5d28e77522dfec6a6255bc3847e"
+"md5": "39f5872c00688d3b26b842ca4d5a3798"
 }
 
 [deps]
 
 source_file="res://assets/characters/shared/aita_hero_tex_cloth_normal.png"
-dest_files=["res://.godot/imported/aita_hero_tex_cloth_normal.png-0af84da071e9a424503234c5b95f6dba.ctex"]
+dest_files=["res://.godot/imported/aita_hero_tex_cloth_normal.png-0af84da071e9a424503234c5b95f6dba.s3tc.ctex", "res://.godot/imported/aita_hero_tex_cloth_normal.png-0af84da071e9a424503234c5b95f6dba.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
-compress/normal_map=0
+compress/normal_map=1
 compress/channel_pack=0
 mipmaps/generate=true
 mipmaps/limit=-1
-roughness/mode=0
-roughness/src_normal=""
+roughness/mode=1
+roughness/src_normal="res://assets/characters/shared/aita_hero_tex_cloth_normal.png"
 process/channel_remap/red=0
 process/channel_remap/green=1
 process/channel_remap/blue=2
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

@@ -746,6 +746,7 @@ func test_hero_cast_carries_pbr_maps_at_the_tier_zero_contract() -> void:
 				)
 				assert_true(material.roughness_texture != null, "%s needs a roughness map" % family)
 				assert_true(material.ao_texture != null, "%s needs an AO map" % family)
+				_assert_maps_not_degenerate(material, family)
 		for required_family: String in ["skin", "cloth", "leather", "hair"]:
 			assert_true(
 				character_families.has(required_family),
@@ -757,6 +758,40 @@ func test_hero_cast_carries_pbr_maps_at_the_tier_zero_contract() -> void:
 			all_families.has(required_family),
 			"%s must be represented in the cast material contract" % required_family
 		)
+
+
+func _assert_maps_not_degenerate(material: StandardMaterial3D, family: String) -> void:
+	# Constant ORM (G=0) and black normals made characters mirror-smooth and
+	# bloom-haloed under MapViewLighting. Sample the authored PNG path because
+	# VRAM-compressed textures often return null from Texture2D.get_image().
+	var roughness_path := material.roughness_texture.resource_path
+	var normal_path := material.normal_texture.resource_path
+	assert_true(
+		roughness_path.ends_with(".png") and FileAccess.file_exists(roughness_path),
+		"%s roughness sidecar must remain a readable PNG" % family
+	)
+	assert_true(
+		normal_path.ends_with(".png") and FileAccess.file_exists(normal_path),
+		"%s normal sidecar must remain a readable PNG" % family
+	)
+	var roughness_image := Image.new()
+	assert_eq(roughness_image.load(roughness_path), OK, "%s roughness map must decode" % family)
+	var roughness_sample := roughness_image.get_pixel(
+		roughness_image.get_width() / 2, roughness_image.get_height() / 2
+	)
+	assert_true(
+		roughness_sample.g > 0.05,
+		"%s ORM must carry roughness in G (got %s)" % [family, roughness_sample]
+	)
+	var normal_image := Image.new()
+	assert_eq(normal_image.load(normal_path), OK, "%s normal map must decode" % family)
+	var normal_sample := normal_image.get_pixel(
+		normal_image.get_width() / 2, normal_image.get_height() / 2
+	)
+	assert_true(
+		normal_sample.b > 0.4,
+		"%s normal map must not be solid black (got %s)" % [family, normal_sample]
+	)
 
 
 func test_shared_character_hair_and_beard_shader_follow_material_names_across_lods() -> void:

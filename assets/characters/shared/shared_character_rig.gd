@@ -610,6 +610,14 @@ func _apply_character_pbr_profile(material_name: StringName, material: BaseMater
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL
 	material.roughness = float(profile["roughness"])
 	material.metallic = float(profile["metallic"])
+	# glTF ORM stores roughness in G; without this, StandardMaterial samples R
+	# (AO) and can disagree with the skin/hair shaders that read G.
+	if material.roughness_texture != null:
+		material.roughness_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_GREEN
+	if material.ao_texture != null:
+		material.ao_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_RED
+	if material.metallic_texture != null:
+		material.metallic_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_BLUE
 
 
 func _shader_material_for(material_name: StringName, source_material: BaseMaterial3D) -> ShaderMaterial:

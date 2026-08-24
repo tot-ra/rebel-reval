@@ -3,22 +3,24 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://opqvohaes438"
-path="res://.godot/imported/kaja_hero_tex_hair_ao-hero_tex_hair_roughness.png-329ba5d9a7935b77c0db606ebd65a012.ctex"
+path.s3tc="res://.godot/imported/kaja_hero_tex_hair_ao-hero_tex_hair_roughness.png-329ba5d9a7935b77c0db606ebd65a012.s3tc.ctex"
+path.etc2="res://.godot/imported/kaja_hero_tex_hair_ao-hero_tex_hair_roughness.png-329ba5d9a7935b77c0db606ebd65a012.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
-"md5": "30dc4ace913d2f4bc97fa94683f7f5cf"
+"md5": "1ff122642ea9eaf4e200c25f107ce6ba"
 }
 
 [deps]
 
 source_file="res://assets/characters/shared/kaja_hero_tex_hair_ao-hero_tex_hair_roughness.png"
-dest_files=["res://.godot/imported/kaja_hero_tex_hair_ao-hero_tex_hair_roughness.png-329ba5d9a7935b77c0db606ebd65a012.ctex"]
+dest_files=["res://.godot/imported/kaja_hero_tex_hair_ao-hero_tex_hair_roughness.png-329ba5d9a7935b77c0db606ebd65a012.s3tc.ctex", "res://.godot/imported/kaja_hero_tex_hair_ao-hero_tex_hair_roughness.png-329ba5d9a7935b77c0db606ebd65a012.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -28,8 +30,8 @@ compress/normal_map=0
 compress/channel_pack=0
 mipmaps/generate=true
 mipmaps/limit=-1
-roughness/mode=0
-roughness/src_normal=""
+roughness/mode=8
+roughness/src_normal="res://assets/characters/shared/kaja_hero_tex_hair_normal.png"
 process/channel_remap/red=0
 process/channel_remap/green=1
 process/channel_remap/blue=2
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

@@ -172,3 +172,4 @@ Parallel exact replacements against one mutable file can race and reapply stale 
 
 - 2026-08-24: Arrays returned from typed GDScript containers can still infer `Variant` on mutating calls such as `pop_front()` under warnings-as-errors; explicitly type the receiving local before interpreting dependent preload failures.
 - 2026-08-24: For gait-side tests, derive lateral sign from the actual cross-vector convention (`side = (-forward.z, forward.x)`) instead of assuming screen-right; otherwise correct alternating footprints fail a sign-only assertion.
+- 2026-08-24: If characters bloom or look chrome-shiny, inspect embedded ORM/normal sidecars before tuning lights: constant ORM G=0 zeros shader roughness and MapView glow halos the body. Prefer `tools/repair_character_orm_normals.py` plus green-channel roughness sampling over lowering global bloom.
