@@ -292,6 +292,31 @@ class UpdateTodoCountsTest(unittest.TestCase):
             )
             self.assertIn(b"\r## Notes\runchanged", updated)
 
+    def test_rewrite_table_fallback_preserves_missing_final_newline(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            todo = Path(temp_dir) / "TODO.md"
+            todo.write_text(
+                "\n".join(
+                    [
+                        "# TODO",
+                        "",
+                        "| Priority | Open | Done | Notes |",
+                        "|----------|-----:|-----:|-------|",
+                        "| P0 | stale | stale | stale |",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            self.assertFalse(todo.read_bytes().endswith(b"\n"))
+
+            table = build_table({"P0": Counters(open_count=1, done_count=0)})
+
+            self.assertTrue(rewrite_table(todo, table))
+            updated = todo.read_bytes()
+            self.assertFalse(updated.endswith(b"\n"))
+            self.assertIn(b"<!-- Quick-reference counts", updated)
+            self.assertIn(b"| P0 |     1  |     0  |", updated)
+
     def test_rewrite_table_handles_missing_final_newline(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             todo = Path(temp_dir) / "TODO.md"
