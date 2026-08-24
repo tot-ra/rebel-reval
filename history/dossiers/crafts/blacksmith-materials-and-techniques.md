@@ -9,6 +9,7 @@ related:
   - ../military/arms-and-armour-livonia-1340s.md
   - ../economy/coinage-prices-and-measures.md
   - ../economy/steel-sheet-import-1340s.md
+  - ../nature/working-horses-and-draught-tack-1343.md
 updated: 2026-07-30
 ---
 
@@ -169,6 +170,8 @@ Guild **quality inspection** (`Amt` visit) can catch **visible seams, wrong weig
 - [`schmiede-amt-ordinances-pre-1363.md`](schmiede-amt-ordinances-pre-1363.md) - inspection disputes, visible forge failures, and the distinction between *Amt* remedies and town-law penalties.
 - [`../economy/coinage-prices-and-measures.md`](../economy/coinage-prices-and-measures.md) — coin scale, iron/charcoal price rows, siege multiplier.
 - [`../economy/steel-sheet-import-1340s.md`](../economy/steel-sheet-import-1340s.md) - osmund piece/barrel weights, later price anchors, and the pre-1368 steel evidence gap.
+- [`../nature/working-horses-and-draught-tack-1343.md`](../nature/working-horses-and-draught-tack-1343.md) - horseshoe limits, plain tack, and repair-prop boundaries.
+- [`../economy/merchant-cart-and-transport-1340s.md`](../economy/merchant-cart-and-transport-1340s.md) - single-horse shafts and cart pairing context.
 
 ## Open questions
 

@@ -10,6 +10,7 @@ related:
   - ../economy/hanseatic-trade-and-season.md
   - ../religion/liturgical-calendar-spring-1343.md
   - ../../TIMELINE.md
+  - working-horses-and-draught-tack-1343.md
 updated: 2026-07-28
 ---
 
@@ -153,6 +154,7 @@ Register fetched files under `history/reference/nature/spring-climate-and-living
 - [`hanseatic-trade-and-season.md`](../economy/hanseatic-trade-and-season.md) — ice-break sailing season and interior supply stall after 23 April.
 - [`liturgical-calendar-spring-1343.md`](../religion/liturgical-calendar-spring-1343.md) — Easter 13 April and St George 23 April weekday anchors.
 - [`../culture/festivals-games-and-public-life.md`](../culture/festivals-games-and-public-life.md) — outdoor processional windows, spring public life, and weather-sensitive event dressing.
+- [`working-horses-and-draught-tack-1343.md`](working-horses-and-draught-tack-1343.md) - worker scale, seasonal placement, and evidence-bounded livestock claims.
 - [`food-and-drink.md`](../dailylife/food-and-drink.md) — pre-harvest diet scarcity and siege grain tension.
 
 ## Open questions

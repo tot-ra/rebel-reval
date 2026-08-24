@@ -10,6 +10,7 @@ related:
   - ../topography/harbour-and-shoreline.md
   - ../hinterland/harju-village-and-manor.md
   - ../power/reval-street-cleaning-ordinances-1340s.md
+  - ../nature/working-horses-and-draught-tack-1343.md
 updated: 2026-07-30
 ---
 
@@ -105,6 +106,7 @@ Tracked in `TODO.md` (2026-07-30 decision): contract **P0-164** → art brief **
 - [`reval-harbour-customs-1340s.md`](reval-harbour-customs-1340s.md) — AWB 485/539/553 delivery and free-access lines; no dated 1343 crane or landing tariff.
 - [`awb-fuhr-servitude-clauses-1340-1343.md`](awb-fuhr-servitude-clauses-1340-1343.md) — AWB folio pass confirms no *Fuhrpacht* 1340–1343; yard-access and *clausuris* vocabulary.
 - [`../power/reval-street-cleaning-ordinances-1340s.md`](../power/reval-street-cleaning-ordinances-1340s.md) — parallel AWB gap for municipal dung carts.
+- [`../nature/working-horses-and-draught-tack-1343.md`](../nature/working-horses-and-draught-tack-1343.md) — worker scale, plain draught tack, and cart-horse pairing evidence.
 
 ## Open questions
 
