@@ -1,0 +1,458 @@
+{
+  "schema_version": 1,
+  "task_id": "P5-010",
+  "description": "Act 2 authorial gate for authored night and siege packages. Paide remains blocked on P5-009.",
+  "expected": {
+    "package_count": 10,
+    "branch_count": 20,
+    "route_counts": {
+      "combat": 10,
+      "non_combat": 10
+    },
+    "fixture_count": 20
+  },
+  "content_budget": {
+    "mission_copy_word_cap": 1200,
+    "budget_basis": "Titles, summaries, state labels, objectives, and outcome summaries in authored Act 2 quest packages."
+  },
+  "packages": [
+    {
+      "package_dir": "content/packages/act2_night_defense",
+      "package_id": "package.act2_night_defense",
+      "quest_id": "quest.act2.night.defense",
+      "branch_count": 2
+    },
+    {
+      "package_dir": "content/packages/act2_night_escort",
+      "package_id": "package.act2_night_escort",
+      "quest_id": "quest.act2.night.escort",
+      "branch_count": 2
+    },
+    {
+      "package_dir": "content/packages/act2_night_sabotage",
+      "package_id": "package.act2_night_sabotage",
+      "quest_id": "quest.act2.night.sabotage",
+      "branch_count": 2
+    },
+    {
+      "package_dir": "content/packages/act2_night_theft",
+      "package_id": "package.act2_night_theft",
+      "quest_id": "quest.act2.night.theft",
+      "branch_count": 2
+    },
+    {
+      "package_dir": "content/packages/act2_siege_assault_rebel",
+      "package_id": "package.act2_siege_assault_rebel",
+      "quest_id": "quest.act2.siege.assault.rebel",
+      "branch_count": 2
+    },
+    {
+      "package_dir": "content/packages/act2_siege_assault_ruler",
+      "package_id": "package.act2_siege_assault_ruler",
+      "quest_id": "quest.act2.siege.assault.ruler",
+      "branch_count": 2
+    },
+    {
+      "package_dir": "content/packages/act2_siege_investment_rebel",
+      "package_id": "package.act2_siege_investment_rebel",
+      "quest_id": "quest.act2.siege.investment.rebel",
+      "branch_count": 2
+    },
+    {
+      "package_dir": "content/packages/act2_siege_investment_ruler",
+      "package_id": "package.act2_siege_investment_ruler",
+      "quest_id": "quest.act2.siege.investment.ruler",
+      "branch_count": 2
+    },
+    {
+      "package_dir": "content/packages/act2_siege_sortie_rebel",
+      "package_id": "package.act2_siege_sortie_rebel",
+      "quest_id": "quest.act2.siege.sortie_supply.rebel",
+      "branch_count": 2
+    },
+    {
+      "package_dir": "content/packages/act2_siege_sortie_ruler",
+      "package_id": "package.act2_siege_sortie_ruler",
+      "quest_id": "quest.act2.siege.sortie_supply.ruler",
+      "branch_count": 2
+    }
+  ],
+  "fixtures": [
+    {
+      "id": "save.act2.act2_night_defense.combat_route",
+      "path": "act2/act2_night_defense.combat_route.json",
+      "campaign_stage": "act2_authored_branch",
+      "expected_phase": "phase.act2.siege.investment",
+      "expected_game_state_version": 2,
+      "expected_package_id": "package.act2_night_defense",
+      "expected_quest_id": "quest.act2.night.defense",
+      "expected_quest_state": "combat_complete",
+      "expected_route": "combat",
+      "expected_flags": {
+        "flag.act2.night.defense.briefed": true,
+        "flag.act2.night.defense.combat_resolved": true
+      },
+      "expected_ledger_events": [
+        "ledger.act2.night.defense.combat"
+      ]
+    },
+    {
+      "id": "save.act2.act2_night_defense.non_combat_route",
+      "path": "act2/act2_night_defense.non_combat_route.json",
+      "campaign_stage": "act2_authored_branch",
+      "expected_phase": "phase.act2.siege.investment",
+      "expected_game_state_version": 2,
+      "expected_package_id": "package.act2_night_defense",
+      "expected_quest_id": "quest.act2.night.defense",
+      "expected_quest_state": "non_combat_complete",
+      "expected_route": "non_combat",
+      "expected_flags": {
+        "flag.act2.night.defense.briefed": true,
+        "flag.act2.night.defense.non_combat_resolved": true
+      },
+      "expected_ledger_events": [
+        "ledger.act2.night.defense.non_combat"
+      ]
+    },
+    {
+      "id": "save.act2.act2_night_escort.combat_route",
+      "path": "act2/act2_night_escort.combat_route.json",
+      "campaign_stage": "act2_authored_branch",
+      "expected_phase": "phase.act2.siege.investment",
+      "expected_game_state_version": 2,
+      "expected_package_id": "package.act2_night_escort",
+      "expected_quest_id": "quest.act2.night.escort",
+      "expected_quest_state": "combat_complete",
+      "expected_route": "combat",
+      "expected_flags": {
+        "flag.act2.night.escort.briefed": true,
+        "flag.act2.night.escort.combat_resolved": true
+      },
+      "expected_ledger_events": [
+        "ledger.act2.night.escort.combat"
+      ]
+    },
+    {
+      "id": "save.act2.act2_night_escort.non_combat_route",
+      "path": "act2/act2_night_escort.non_combat_route.json",
+      "campaign_stage": "act2_authored_branch",
+      "expected_phase": "phase.act2.siege.investment",
+      "expected_game_state_version": 2,
+      "expected_package_id": "package.act2_night_escort",
+      "expected_quest_id": "quest.act2.night.escort",
+      "expected_quest_state": "non_combat_complete",
+      "expected_route": "non_combat",
+      "expected_flags": {
+        "flag.act2.night.escort.briefed": true,
+        "flag.act2.night.escort.non_combat_resolved": true
+      },
+      "expected_ledger_events": [
+        "ledger.act2.night.escort.non_combat"
+      ]
+    },
+    {
+      "id": "save.act2.act2_night_sabotage.combat_route",
+      "path": "act2/act2_night_sabotage.combat_route.json",
+      "campaign_stage": "act2_authored_branch",
+      "expected_phase": "phase.act2.siege.investment",
+      "expected_game_state_version": 2,
+      "expected_package_id": "package.act2_night_sabotage",
+      "expected_quest_id": "quest.act2.night.sabotage",
+      "expected_quest_state": "combat_complete",
+      "expected_route": "combat",
+      "expected_flags": {
+        "flag.act2.night.sabotage.briefed": true,
+        "flag.act2.night.sabotage.combat_resolved": true
+      },
+      "expected_ledger_events": [
+        "ledger.act2.night.sabotage.combat"
+      ]
+    },
+    {
+      "id": "save.act2.act2_night_sabotage.non_combat_route",
+      "path": "act2/act2_night_sabotage.non_combat_route.json",
+      "campaign_stage": "act2_authored_branch",
+      "expected_phase": "phase.act2.siege.investment",
+      "expected_game_state_version": 2,
+      "expected_package_id": "package.act2_night_sabotage",
+      "expected_quest_id": "quest.act2.night.sabotage",
+      "expected_quest_state": "non_combat_complete",
+      "expected_route": "non_combat",
+      "expected_flags": {
+        "flag.act2.night.sabotage.briefed": true,
+        "flag.act2.night.sabotage.non_combat_resolved": true
+      },
+      "expected_ledger_events": [
+        "ledger.act2.night.sabotage.non_combat"
+      ]
+    },
+    {
+      "id": "save.act2.act2_night_theft.combat_route",
+      "path": "act2/act2_night_theft.combat_route.json",
+      "campaign_stage": "act2_authored_branch",
+      "expected_phase": "phase.act2.siege.investment",
+      "expected_game_state_version": 2,
+      "expected_package_id": "package.act2_night_theft",
+      "expected_quest_id": "quest.act2.night.theft",
+      "expected_quest_state": "combat_complete",
+      "expected_route": "combat",
+      "expected_flags": {
+        "flag.act2.night.theft.briefed": true,
+        "flag.act2.night.theft.combat_resolved": true
+      },
+      "expected_ledger_events": [
+        "ledger.act2.night.theft.combat"
+      ]
+    },
+    {
+      "id": "save.act2.act2_night_theft.non_combat_route",
+      "path": "act2/act2_night_theft.non_combat_route.json",
+      "campaign_stage": "act2_authored_branch",
+      "expected_phase": "phase.act2.siege.investment",
+      "expected_game_state_version": 2,
+      "expected_package_id": "package.act2_night_theft",
+      "expected_quest_id": "quest.act2.night.theft",
+      "expected_quest_state": "non_combat_complete",
+      "expected_route": "non_combat",
+      "expected_flags": {
+        "flag.act2.night.theft.briefed": true,
+        "flag.act2.night.theft.non_combat_resolved": true
+      },
+      "expected_ledger_events": [
+        "ledger.act2.night.theft.non_combat"
+      ]
+    },
+    {
+      "id": "save.act2.act2_siege_assault_rebel.direct_route",
+      "path": "act2/act2_siege_assault_rebel.direct_route.json",
+      "campaign_stage": "act2_authored_branch",
+      "expected_phase": "phase.act2.siege.assault",
+      "expected_game_state_version": 2,
+      "expected_package_id": "package.act2_siege_assault_rebel",
+      "expected_quest_id": "quest.act2.siege.assault.rebel",
+      "expected_quest_state": "direct_complete",
+      "expected_route": "combat",
+      "expected_flags": {
+        "flag.act2.siege.assault.rebel.briefed": true,
+        "flag.act2.siege.assault.rebel.direct_resolved": true,
+        "flag.war.siege_phase.assault": true
+      },
+      "expected_ledger_events": [
+        "ledger.act2.siege.assault.rebel.direct"
+      ]
+    },
+    {
+      "id": "save.act2.act2_siege_assault_rebel.quiet_route",
+      "path": "act2/act2_siege_assault_rebel.quiet_route.json",
+      "campaign_stage": "act2_authored_branch",
+      "expected_phase": "phase.act2.siege.assault",
+      "expected_game_state_version": 2,
+      "expected_package_id": "package.act2_siege_assault_rebel",
+      "expected_quest_id": "quest.act2.siege.assault.rebel",
+      "expected_quest_state": "quiet_complete",
+      "expected_route": "non_combat",
+      "expected_flags": {
+        "flag.act2.siege.assault.rebel.briefed": true,
+        "flag.act2.siege.assault.rebel.quiet_resolved": true,
+        "flag.war.siege_phase.assault": true
+      },
+      "expected_ledger_events": [
+        "ledger.act2.siege.assault.rebel.quiet"
+      ]
+    },
+    {
+      "id": "save.act2.act2_siege_assault_ruler.direct_route",
+      "path": "act2/act2_siege_assault_ruler.direct_route.json",
+      "campaign_stage": "act2_authored_branch",
+      "expected_phase": "phase.act2.siege.assault",
+      "expected_game_state_version": 2,
+      "expected_package_id": "package.act2_siege_assault_ruler",
+      "expected_quest_id": "quest.act2.siege.assault.ruler",
+      "expected_quest_state": "direct_complete",
+      "expected_route": "combat",
+      "expected_flags": {
+        "flag.act2.siege.assault.ruler.briefed": true,
+        "flag.act2.siege.assault.ruler.direct_resolved": true,
+        "flag.war.siege_phase.assault": true
+      },
+      "expected_ledger_events": [
+        "ledger.act2.siege.assault.ruler.direct"
+      ]
+    },
+    {
+      "id": "save.act2.act2_siege_assault_ruler.quiet_route",
+      "path": "act2/act2_siege_assault_ruler.quiet_route.json",
+      "campaign_stage": "act2_authored_branch",
+      "expected_phase": "phase.act2.siege.assault",
+      "expected_game_state_version": 2,
+      "expected_package_id": "package.act2_siege_assault_ruler",
+      "expected_quest_id": "quest.act2.siege.assault.ruler",
+      "expected_quest_state": "quiet_complete",
+      "expected_route": "non_combat",
+      "expected_flags": {
+        "flag.act2.siege.assault.ruler.briefed": true,
+        "flag.act2.siege.assault.ruler.quiet_resolved": true,
+        "flag.war.siege_phase.assault": true
+      },
+      "expected_ledger_events": [
+        "ledger.act2.siege.assault.ruler.quiet"
+      ]
+    },
+    {
+      "id": "save.act2.act2_siege_investment_rebel.direct_route",
+      "path": "act2/act2_siege_investment_rebel.direct_route.json",
+      "campaign_stage": "act2_authored_branch",
+      "expected_phase": "phase.act2.siege.investment",
+      "expected_game_state_version": 2,
+      "expected_package_id": "package.act2_siege_investment_rebel",
+      "expected_quest_id": "quest.act2.siege.investment.rebel",
+      "expected_quest_state": "direct_complete",
+      "expected_route": "combat",
+      "expected_flags": {
+        "flag.act2.siege.investment.rebel.briefed": true,
+        "flag.act2.siege.investment.rebel.direct_resolved": true,
+        "flag.war.siege_phase.investment": true
+      },
+      "expected_ledger_events": [
+        "ledger.act2.siege.investment.rebel.direct"
+      ]
+    },
+    {
+      "id": "save.act2.act2_siege_investment_rebel.quiet_route",
+      "path": "act2/act2_siege_investment_rebel.quiet_route.json",
+      "campaign_stage": "act2_authored_branch",
+      "expected_phase": "phase.act2.siege.investment",
+      "expected_game_state_version": 2,
+      "expected_package_id": "package.act2_siege_investment_rebel",
+      "expected_quest_id": "quest.act2.siege.investment.rebel",
+      "expected_quest_state": "quiet_complete",
+      "expected_route": "non_combat",
+      "expected_flags": {
+        "flag.act2.siege.investment.rebel.briefed": true,
+        "flag.act2.siege.investment.rebel.quiet_resolved": true,
+        "flag.war.siege_phase.investment": true
+      },
+      "expected_ledger_events": [
+        "ledger.act2.siege.investment.rebel.quiet"
+      ]
+    },
+    {
+      "id": "save.act2.act2_siege_investment_ruler.direct_route",
+      "path": "act2/act2_siege_investment_ruler.direct_route.json",
+      "campaign_stage": "act2_authored_branch",
+      "expected_phase": "phase.act2.siege.investment",
+      "expected_game_state_version": 2,
+      "expected_package_id": "package.act2_siege_investment_ruler",
+      "expected_quest_id": "quest.act2.siege.investment.ruler",
+      "expected_quest_state": "direct_complete",
+      "expected_route": "combat",
+      "expected_flags": {
+        "flag.act2.siege.investment.ruler.briefed": true,
+        "flag.act2.siege.investment.ruler.direct_resolved": true,
+        "flag.war.siege_phase.investment": true
+      },
+      "expected_ledger_events": [
+        "ledger.act2.siege.investment.ruler.direct"
+      ]
+    },
+    {
+      "id": "save.act2.act2_siege_investment_ruler.quiet_route",
+      "path": "act2/act2_siege_investment_ruler.quiet_route.json",
+      "campaign_stage": "act2_authored_branch",
+      "expected_phase": "phase.act2.siege.investment",
+      "expected_game_state_version": 2,
+      "expected_package_id": "package.act2_siege_investment_ruler",
+      "expected_quest_id": "quest.act2.siege.investment.ruler",
+      "expected_quest_state": "quiet_complete",
+      "expected_route": "non_combat",
+      "expected_flags": {
+        "flag.act2.siege.investment.ruler.briefed": true,
+        "flag.act2.siege.investment.ruler.quiet_resolved": true,
+        "flag.war.siege_phase.investment": true
+      },
+      "expected_ledger_events": [
+        "ledger.act2.siege.investment.ruler.quiet"
+      ]
+    },
+    {
+      "id": "save.act2.act2_siege_sortie_rebel.direct_route",
+      "path": "act2/act2_siege_sortie_rebel.direct_route.json",
+      "campaign_stage": "act2_authored_branch",
+      "expected_phase": "phase.act2.siege.sortie_supply",
+      "expected_game_state_version": 2,
+      "expected_package_id": "package.act2_siege_sortie_rebel",
+      "expected_quest_id": "quest.act2.siege.sortie_supply.rebel",
+      "expected_quest_state": "direct_complete",
+      "expected_route": "combat",
+      "expected_flags": {
+        "flag.act2.siege.sortie_supply.rebel.briefed": true,
+        "flag.act2.siege.sortie_supply.rebel.direct_resolved": true,
+        "flag.war.siege_phase.sortie_supply": true
+      },
+      "expected_ledger_events": [
+        "ledger.act2.siege.sortie_supply.rebel.direct"
+      ]
+    },
+    {
+      "id": "save.act2.act2_siege_sortie_rebel.quiet_route",
+      "path": "act2/act2_siege_sortie_rebel.quiet_route.json",
+      "campaign_stage": "act2_authored_branch",
+      "expected_phase": "phase.act2.siege.sortie_supply",
+      "expected_game_state_version": 2,
+      "expected_package_id": "package.act2_siege_sortie_rebel",
+      "expected_quest_id": "quest.act2.siege.sortie_supply.rebel",
+      "expected_quest_state": "quiet_complete",
+      "expected_route": "non_combat",
+      "expected_flags": {
+        "flag.act2.siege.sortie_supply.rebel.briefed": true,
+        "flag.act2.siege.sortie_supply.rebel.quiet_resolved": true,
+        "flag.war.siege_phase.sortie_supply": true
+      },
+      "expected_ledger_events": [
+        "ledger.act2.siege.sortie_supply.rebel.quiet"
+      ]
+    },
+    {
+      "id": "save.act2.act2_siege_sortie_ruler.direct_route",
+      "path": "act2/act2_siege_sortie_ruler.direct_route.json",
+      "campaign_stage": "act2_authored_branch",
+      "expected_phase": "phase.act2.siege.sortie_supply",
+      "expected_game_state_version": 2,
+      "expected_package_id": "package.act2_siege_sortie_ruler",
+      "expected_quest_id": "quest.act2.siege.sortie_supply.ruler",
+      "expected_quest_state": "direct_complete",
+      "expected_route": "combat",
+      "expected_flags": {
+        "flag.act2.siege.sortie_supply.ruler.briefed": true,
+        "flag.act2.siege.sortie_supply.ruler.direct_resolved": true,
+        "flag.war.siege_phase.sortie_supply": true
+      },
+      "expected_ledger_events": [
+        "ledger.act2.siege.sortie_supply.ruler.direct"
+      ]
+    },
+    {
+      "id": "save.act2.act2_siege_sortie_ruler.quiet_route",
+      "path": "act2/act2_siege_sortie_ruler.quiet_route.json",
+      "campaign_stage": "act2_authored_branch",
+      "expected_phase": "phase.act2.siege.sortie_supply",
+      "expected_game_state_version": 2,
+      "expected_package_id": "package.act2_siege_sortie_ruler",
+      "expected_quest_id": "quest.act2.siege.sortie_supply.ruler",
+      "expected_quest_state": "quiet_complete",
+      "expected_route": "non_combat",
+      "expected_flags": {
+        "flag.act2.siege.sortie_supply.ruler.briefed": true,
+        "flag.act2.siege.sortie_supply.ruler.quiet_resolved": true,
+        "flag.war.siege_phase.sortie_supply": true
+      },
+      "expected_ledger_events": [
+        "ledger.act2.siege.sortie_supply.ruler.quiet"
+      ]
+    }
+  ],
+  "known_blockers": [
+    "P5-009 is not complete: the Paide finale package and its branch-dependent Act 3 transition records are still required before the full Act 2 gate can pass.",
+    "Maintainer playable review remains pending until the P5-009 dependency is complete; no critical/high issue is waived by this report."
+  ]
+}
