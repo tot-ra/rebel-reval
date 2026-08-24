@@ -17,7 +17,14 @@ const DEMO_CONTENT_DIRS: Array[String] = [
 	"res://content/examples/support",
 	"res://content/examples/valid",
 	"res://content/packages/bell_and_chain/content",
+	"res://content/packages/act2_siege_investment_rebel/content",
+	"res://content/packages/act2_siege_investment_ruler/content",
+	"res://content/packages/act2_siege_sortie_rebel/content",
+	"res://content/packages/act2_siege_sortie_ruler/content",
+	"res://content/packages/act2_siege_assault_rebel/content",
+	"res://content/packages/act2_siege_assault_ruler/content",
 ]
+const Act2MissionHostScript := preload("res://scripts/quest/act2_mission_host.gd")
 const DebugStatePresetsScript := preload("res://scripts/debug/debug_state_presets.gd")
 const DebugStateInspectorScript := preload("res://scripts/debug/debug_state_inspector.gd")
 const STATE_REPLACE_REASON_MANUAL_LOAD := &"manual_load"
@@ -25,6 +32,7 @@ const STATE_REPLACE_REASON_DEBUG_PRESET := &"debug_preset"
 
 var state: GameState = GameState.new()
 var content_db: ContentDB = ContentDB.new()
+var act2_mission_host: Act2MissionHost = Act2MissionHost.new(content_db, state)
 var save_service: SaveService = SaveService.new()
 var debug_presets = DebugStatePresetsScript.new()
 
@@ -37,6 +45,7 @@ var _fatal_hit_damage_type: StringName = &""
 func _ready() -> void:
 	content_db.load_from_directories(DEMO_CONTENT_DIRS)
 	state.bag.set_content_db(content_db)
+	act2_mission_host = Act2MissionHost.new(content_db, state)
 	_seed_demo_bag_if_empty()
 	debug_presets.load_manifest()
 	if OS.is_debug_build():
@@ -96,6 +105,7 @@ func replace_state(replacement: GameState, reason: StringName) -> bool:
 	var previous := state
 	state = replacement
 	state.bag.set_content_db(content_db)
+	act2_mission_host.bind_state(state)
 	state_replaced.emit(previous, state, reason)
 	if has_node("/root/PhaseDirector"):
 		# PhaseDirector normally receives the signal above, but explicit rebinding
