@@ -76,6 +76,14 @@ The benchmark used the production `LowerTown` scene and collected 120 steady-sta
 
 Run the same command on a representative x86_64 machine matching the declared Intel Core i5-8250U / Intel UHD Graphics 620 / 8 GiB profile. Preserve the raw JSON, OS/driver/Godot metadata, 120-sample frame-time distribution, non-zero or explicitly instrumented GPU memory fields, exact command, and revision. Then replace the missing-target status in this ledger and link the accepted result from the P0-040 packet. Existing board task `R-563` owns that hardware acquisition/run; no duplicate follow-up task is created here.
 
+## Current availability check
+
+**Checked:** `2026-08-25T10:33:25Z`
+
+The declared target is not available on the current measurement host. The host is an Apple MacBook Pro (Mac17,8) with Apple M5 Pro, arm64 architecture, 48 GiB RAM, and Metal 4 display hardware. It is not the required x86_64 Intel Core i5-8250U / Intel UHD Graphics 620 / 8 GiB profile. No Intel UHD 620 machine or compatible remote runner is configured in this environment.
+
+**Verdict:** **BLOCKED** - the R-708 target run was not executed. The required `BENCHMARK_HEADLESS=0` command must not be run here and relabeled as target evidence. The existing Apple M5 Pro JSON and non-headless instrumentation remain supplementary only; no headless or Apple result is substituted for the declared target, and no performance cap is changed. R-563 remains the owner of target hardware acquisition/run.
+
 ## Sources
 
 - [`tools/benchmarks/minimum-hardware.json`](../../tools/benchmarks/minimum-hardware.json)
