@@ -1,0 +1,2764 @@
+{
+  "schema_version": 1,
+  "task_id": "R-716",
+  "status": "blocked_until_evidence",
+  "purpose": "Repeatable exterior world-building benchmark matrix and fail-closed activation gate.",
+  "fixed_capture_settings": {
+    "camera": "third_person_gameplay_scale",
+    "resolution": "1920x1080",
+    "exposure": "art_bible_day_night_locked",
+    "time": "authored_day_and_midnight_presets",
+    "weather": "clear,rain",
+    "wind_seed": 716
+  },
+  "capture_matrix": {
+    "evidence_root": "docs/reports/images/world_building_benchmark",
+    "required_categories": [
+      "close_up",
+      "gameplay",
+      "vista",
+      "day",
+      "night",
+      "rain",
+      "wind",
+      "water",
+      "crowds",
+      "characters",
+      "landmark_architecture",
+      "adjacent_map_traversal"
+    ],
+    "comparison_sheet": "docs/reports/images/world_building_benchmark/comparison_sheet.png"
+  },
+  "visual_rubric": [
+    {
+      "id": "geometry_silhouette",
+      "scale": "macro",
+      "question": "Do routes, roofs, landmarks, and actors read by silhouette?"
+    },
+    {
+      "id": "pbr_response",
+      "scale": "meso",
+      "question": "Do stone, timber, plaster, metal, cloth, and water respond as distinct materials?"
+    },
+    {
+      "id": "texture_density",
+      "scale": "meso_micro",
+      "question": "Is detail concentrated at gameplay and close-up scale without shimmer?"
+    },
+    {
+      "id": "lighting_atmosphere",
+      "scale": "all",
+      "question": "Do day, night, rain, fog, and fire preserve the value hierarchy?"
+    },
+    {
+      "id": "water_surface",
+      "scale": "meso",
+      "question": "Are water reflections, banks, and wet surfaces coherent where present?"
+    },
+    {
+      "id": "vegetation_distribution",
+      "scale": "macro_meso",
+      "question": "Does vegetation match the authored biome and avoid repetition?"
+    },
+    {
+      "id": "animation_temporal",
+      "scale": "all",
+      "question": "Do wind, crowds, characters, and ambient motion remain stable over time?"
+    },
+    {
+      "id": "historical_coherence",
+      "scale": "macro_meso",
+      "question": "Do architecture, materials, props, and silhouettes stay within 1343 canon?"
+    },
+    {
+      "id": "repetition_and_variation",
+      "scale": "all",
+      "question": "Are adjacent facades, props, materials, and wear states intentionally varied?"
+    },
+    {
+      "id": "seams_and_transitions",
+      "scale": "gameplay_vista",
+      "question": "Are adjacent-map borders, terrain seams, occlusion, and route handoffs clean?"
+    },
+    {
+      "id": "temporal_stability",
+      "scale": "all",
+      "question": "Are there no popping, flicker, aliasing, exposure jumps, or unstable LOD changes?"
+    },
+    {
+      "id": "performance_tier",
+      "scale": "all",
+      "question": "Does evidence meet both minimum and recommended hardware budgets?"
+    }
+  ],
+  "automated_checks": {
+    "map_registry": {
+      "status": "pending",
+      "evidence": "tools/verify_map_activation.py"
+    },
+    "map_audit": {
+      "status": "pending",
+      "evidence": "tools/verify_map_audit.py"
+    },
+    "capture_manifest": {
+      "status": "pending",
+      "evidence": "tools/verify_world_building_visual_gate.py"
+    },
+    "transition_audit": {
+      "status": "pending",
+      "evidence": "tools/verify_transitions.gd"
+    },
+    "performance_report": {
+      "status": "pending",
+      "evidence": "docs/PERFORMANCE_REPORT.md"
+    }
+  },
+  "performance_evidence": {
+    "minimum": {
+      "status": "pending",
+      "evidence": "docs/reports/data/r653_minimum_hardware_gpu_evidence_manifest.json",
+      "target_hardware": {
+        "profile_id": "minimum-hardware-intel-uhd-620",
+        "architecture": "x86_64",
+        "gpu": "Intel UHD Graphics 620"
+      },
+      "measurement_host": {
+        "profile_id": "development-baseline-m5-pro",
+        "architecture": "arm64",
+        "gpu": "Apple M5 Pro"
+      }
+    },
+    "recommended": {
+      "status": "pending",
+      "evidence": "docs/reports/data/p038_comparison_evidence.json",
+      "target_hardware": {
+        "profile_id": "recommended-development-baseline",
+        "architecture": "arm64",
+        "gpu": "Apple M5 Pro"
+      },
+      "measurement_host": {
+        "profile_id": "development-baseline-m5-pro",
+        "architecture": "arm64",
+        "gpu": "Apple M5 Pro"
+      }
+    }
+  },
+  "comparison_sheet": {
+    "status": "pending",
+    "evidence": "docs/reports/images/world_building_benchmark/comparison_sheet.png",
+    "revision": "",
+    "generated_utc": ""
+  },
+  "maps": [
+    {
+      "id": "lower_town_slice",
+      "source_path": "content/maps/lower_town_slice.rrmap",
+      "owner": "P0-100",
+      "captures": {
+        "close_up": {
+          "status": "pending"
+        },
+        "gameplay": {
+          "status": "pending"
+        },
+        "vista": {
+          "status": "pending"
+        },
+        "day": {
+          "status": "pending"
+        },
+        "night": {
+          "status": "pending"
+        },
+        "rain": {
+          "status": "pending"
+        },
+        "wind": {
+          "status": "pending"
+        },
+        "water": {
+          "status": "pending"
+        },
+        "crowds": {
+          "status": "pending"
+        },
+        "characters": {
+          "status": "pending"
+        },
+        "landmark_architecture": {
+          "status": "pending"
+        },
+        "adjacent_map_traversal": {
+          "status": "pending"
+        }
+      },
+      "rubric_reviews": {
+        "geometry_silhouette": {
+          "status": "pending"
+        },
+        "pbr_response": {
+          "status": "pending"
+        },
+        "texture_density": {
+          "status": "pending"
+        },
+        "lighting_atmosphere": {
+          "status": "pending"
+        },
+        "water_surface": {
+          "status": "pending"
+        },
+        "vegetation_distribution": {
+          "status": "pending"
+        },
+        "animation_temporal": {
+          "status": "pending"
+        },
+        "historical_coherence": {
+          "status": "pending"
+        },
+        "repetition_and_variation": {
+          "status": "pending"
+        },
+        "seams_and_transitions": {
+          "status": "pending"
+        },
+        "temporal_stability": {
+          "status": "pending"
+        },
+        "performance_tier": {
+          "status": "pending"
+        }
+      },
+      "human_review": {
+        "status": "pending",
+        "reviewer": "",
+        "review_date": "",
+        "evidence": ""
+      }
+    },
+    {
+      "id": "reval_east",
+      "source_path": "content/maps/lower_town_slice.rrmap",
+      "owner": "P0-100",
+      "captures": {
+        "close_up": {
+          "status": "pending"
+        },
+        "gameplay": {
+          "status": "pending"
+        },
+        "vista": {
+          "status": "pending"
+        },
+        "day": {
+          "status": "pending"
+        },
+        "night": {
+          "status": "pending"
+        },
+        "rain": {
+          "status": "pending"
+        },
+        "wind": {
+          "status": "pending"
+        },
+        "water": {
+          "status": "pending"
+        },
+        "crowds": {
+          "status": "pending"
+        },
+        "characters": {
+          "status": "pending"
+        },
+        "landmark_architecture": {
+          "status": "pending"
+        },
+        "adjacent_map_traversal": {
+          "status": "pending"
+        }
+      },
+      "rubric_reviews": {
+        "geometry_silhouette": {
+          "status": "pending"
+        },
+        "pbr_response": {
+          "status": "pending"
+        },
+        "texture_density": {
+          "status": "pending"
+        },
+        "lighting_atmosphere": {
+          "status": "pending"
+        },
+        "water_surface": {
+          "status": "pending"
+        },
+        "vegetation_distribution": {
+          "status": "pending"
+        },
+        "animation_temporal": {
+          "status": "pending"
+        },
+        "historical_coherence": {
+          "status": "pending"
+        },
+        "repetition_and_variation": {
+          "status": "pending"
+        },
+        "seams_and_transitions": {
+          "status": "pending"
+        },
+        "temporal_stability": {
+          "status": "pending"
+        },
+        "performance_tier": {
+          "status": "pending"
+        }
+      },
+      "human_review": {
+        "status": "pending",
+        "reviewer": "",
+        "review_date": "",
+        "evidence": ""
+      }
+    },
+    {
+      "id": "market_civic_quarter",
+      "source_path": "content/maps/market_civic_quarter.rrmap",
+      "owner": "P4-022",
+      "captures": {
+        "close_up": {
+          "status": "pending"
+        },
+        "gameplay": {
+          "status": "pending"
+        },
+        "vista": {
+          "status": "pending"
+        },
+        "day": {
+          "status": "pending"
+        },
+        "night": {
+          "status": "pending"
+        },
+        "rain": {
+          "status": "pending"
+        },
+        "wind": {
+          "status": "pending"
+        },
+        "water": {
+          "status": "pending"
+        },
+        "crowds": {
+          "status": "pending"
+        },
+        "characters": {
+          "status": "pending"
+        },
+        "landmark_architecture": {
+          "status": "pending"
+        },
+        "adjacent_map_traversal": {
+          "status": "pending"
+        }
+      },
+      "rubric_reviews": {
+        "geometry_silhouette": {
+          "status": "pending"
+        },
+        "pbr_response": {
+          "status": "pending"
+        },
+        "texture_density": {
+          "status": "pending"
+        },
+        "lighting_atmosphere": {
+          "status": "pending"
+        },
+        "water_surface": {
+          "status": "pending"
+        },
+        "vegetation_distribution": {
+          "status": "pending"
+        },
+        "animation_temporal": {
+          "status": "pending"
+        },
+        "historical_coherence": {
+          "status": "pending"
+        },
+        "repetition_and_variation": {
+          "status": "pending"
+        },
+        "seams_and_transitions": {
+          "status": "pending"
+        },
+        "temporal_stability": {
+          "status": "pending"
+        },
+        "performance_tier": {
+          "status": "pending"
+        }
+      },
+      "human_review": {
+        "status": "pending",
+        "reviewer": "",
+        "review_date": "",
+        "evidence": ""
+      }
+    },
+    {
+      "id": "north_quarter",
+      "source_path": "content/maps/north_quarter.rrmap",
+      "owner": "P4-023/P4-023f",
+      "captures": {
+        "close_up": {
+          "status": "pending"
+        },
+        "gameplay": {
+          "status": "pending"
+        },
+        "vista": {
+          "status": "pending"
+        },
+        "day": {
+          "status": "pending"
+        },
+        "night": {
+          "status": "pending"
+        },
+        "rain": {
+          "status": "pending"
+        },
+        "wind": {
+          "status": "pending"
+        },
+        "water": {
+          "status": "pending"
+        },
+        "crowds": {
+          "status": "pending"
+        },
+        "characters": {
+          "status": "pending"
+        },
+        "landmark_architecture": {
+          "status": "pending"
+        },
+        "adjacent_map_traversal": {
+          "status": "pending"
+        }
+      },
+      "rubric_reviews": {
+        "geometry_silhouette": {
+          "status": "pending"
+        },
+        "pbr_response": {
+          "status": "pending"
+        },
+        "texture_density": {
+          "status": "pending"
+        },
+        "lighting_atmosphere": {
+          "status": "pending"
+        },
+        "water_surface": {
+          "status": "pending"
+        },
+        "vegetation_distribution": {
+          "status": "pending"
+        },
+        "animation_temporal": {
+          "status": "pending"
+        },
+        "historical_coherence": {
+          "status": "pending"
+        },
+        "repetition_and_variation": {
+          "status": "pending"
+        },
+        "seams_and_transitions": {
+          "status": "pending"
+        },
+        "temporal_stability": {
+          "status": "pending"
+        },
+        "performance_tier": {
+          "status": "pending"
+        }
+      },
+      "human_review": {
+        "status": "pending",
+        "reviewer": "",
+        "review_date": "",
+        "evidence": ""
+      }
+    },
+    {
+      "id": "south_quarter",
+      "source_path": "content/maps/south_quarter.rrmap",
+      "owner": "P4-024",
+      "captures": {
+        "close_up": {
+          "status": "pending"
+        },
+        "gameplay": {
+          "status": "pending"
+        },
+        "vista": {
+          "status": "pending"
+        },
+        "day": {
+          "status": "pending"
+        },
+        "night": {
+          "status": "pending"
+        },
+        "rain": {
+          "status": "pending"
+        },
+        "wind": {
+          "status": "pending"
+        },
+        "water": {
+          "status": "pending"
+        },
+        "crowds": {
+          "status": "pending"
+        },
+        "characters": {
+          "status": "pending"
+        },
+        "landmark_architecture": {
+          "status": "pending"
+        },
+        "adjacent_map_traversal": {
+          "status": "pending"
+        }
+      },
+      "rubric_reviews": {
+        "geometry_silhouette": {
+          "status": "pending"
+        },
+        "pbr_response": {
+          "status": "pending"
+        },
+        "texture_density": {
+          "status": "pending"
+        },
+        "lighting_atmosphere": {
+          "status": "pending"
+        },
+        "water_surface": {
+          "status": "pending"
+        },
+        "vegetation_distribution": {
+          "status": "pending"
+        },
+        "animation_temporal": {
+          "status": "pending"
+        },
+        "historical_coherence": {
+          "status": "pending"
+        },
+        "repetition_and_variation": {
+          "status": "pending"
+        },
+        "seams_and_transitions": {
+          "status": "pending"
+        },
+        "temporal_stability": {
+          "status": "pending"
+        },
+        "performance_tier": {
+          "status": "pending"
+        }
+      },
+      "human_review": {
+        "status": "pending",
+        "reviewer": "",
+        "review_date": "",
+        "evidence": ""
+      }
+    },
+    {
+      "id": "toompea_quarter",
+      "source_path": "content/maps/toompea_quarter.rrmap",
+      "owner": "P4-025",
+      "captures": {
+        "close_up": {
+          "status": "pending"
+        },
+        "gameplay": {
+          "status": "pending"
+        },
+        "vista": {
+          "status": "pending"
+        },
+        "day": {
+          "status": "pending"
+        },
+        "night": {
+          "status": "pending"
+        },
+        "rain": {
+          "status": "pending"
+        },
+        "wind": {
+          "status": "pending"
+        },
+        "water": {
+          "status": "pending"
+        },
+        "crowds": {
+          "status": "pending"
+        },
+        "characters": {
+          "status": "pending"
+        },
+        "landmark_architecture": {
+          "status": "pending"
+        },
+        "adjacent_map_traversal": {
+          "status": "pending"
+        }
+      },
+      "rubric_reviews": {
+        "geometry_silhouette": {
+          "status": "pending"
+        },
+        "pbr_response": {
+          "status": "pending"
+        },
+        "texture_density": {
+          "status": "pending"
+        },
+        "lighting_atmosphere": {
+          "status": "pending"
+        },
+        "water_surface": {
+          "status": "pending"
+        },
+        "vegetation_distribution": {
+          "status": "pending"
+        },
+        "animation_temporal": {
+          "status": "pending"
+        },
+        "historical_coherence": {
+          "status": "pending"
+        },
+        "repetition_and_variation": {
+          "status": "pending"
+        },
+        "seams_and_transitions": {
+          "status": "pending"
+        },
+        "temporal_stability": {
+          "status": "pending"
+        },
+        "performance_tier": {
+          "status": "pending"
+        }
+      },
+      "human_review": {
+        "status": "pending",
+        "reviewer": "",
+        "review_date": "",
+        "evidence": ""
+      }
+    },
+    {
+      "id": "world.harju",
+      "source_path": "content/maps/world_harju.rrmap",
+      "owner": "P5-003",
+      "captures": {
+        "close_up": {
+          "status": "pending"
+        },
+        "gameplay": {
+          "status": "pending"
+        },
+        "vista": {
+          "status": "pending"
+        },
+        "day": {
+          "status": "pending"
+        },
+        "night": {
+          "status": "pending"
+        },
+        "rain": {
+          "status": "pending"
+        },
+        "wind": {
+          "status": "pending"
+        },
+        "water": {
+          "status": "pending"
+        },
+        "crowds": {
+          "status": "pending"
+        },
+        "characters": {
+          "status": "pending"
+        },
+        "landmark_architecture": {
+          "status": "pending"
+        },
+        "adjacent_map_traversal": {
+          "status": "pending"
+        }
+      },
+      "rubric_reviews": {
+        "geometry_silhouette": {
+          "status": "pending"
+        },
+        "pbr_response": {
+          "status": "pending"
+        },
+        "texture_density": {
+          "status": "pending"
+        },
+        "lighting_atmosphere": {
+          "status": "pending"
+        },
+        "water_surface": {
+          "status": "pending"
+        },
+        "vegetation_distribution": {
+          "status": "pending"
+        },
+        "animation_temporal": {
+          "status": "pending"
+        },
+        "historical_coherence": {
+          "status": "pending"
+        },
+        "repetition_and_variation": {
+          "status": "pending"
+        },
+        "seams_and_transitions": {
+          "status": "pending"
+        },
+        "temporal_stability": {
+          "status": "pending"
+        },
+        "performance_tier": {
+          "status": "pending"
+        }
+      },
+      "human_review": {
+        "status": "pending",
+        "reviewer": "",
+        "review_date": "",
+        "evidence": ""
+      }
+    },
+    {
+      "id": "world.kanavere",
+      "source_path": "content/maps/world_kanavere.rrmap",
+      "owner": "P5-003",
+      "captures": {
+        "close_up": {
+          "status": "pending"
+        },
+        "gameplay": {
+          "status": "pending"
+        },
+        "vista": {
+          "status": "pending"
+        },
+        "day": {
+          "status": "pending"
+        },
+        "night": {
+          "status": "pending"
+        },
+        "rain": {
+          "status": "pending"
+        },
+        "wind": {
+          "status": "pending"
+        },
+        "water": {
+          "status": "pending"
+        },
+        "crowds": {
+          "status": "pending"
+        },
+        "characters": {
+          "status": "pending"
+        },
+        "landmark_architecture": {
+          "status": "pending"
+        },
+        "adjacent_map_traversal": {
+          "status": "pending"
+        }
+      },
+      "rubric_reviews": {
+        "geometry_silhouette": {
+          "status": "pending"
+        },
+        "pbr_response": {
+          "status": "pending"
+        },
+        "texture_density": {
+          "status": "pending"
+        },
+        "lighting_atmosphere": {
+          "status": "pending"
+        },
+        "water_surface": {
+          "status": "pending"
+        },
+        "vegetation_distribution": {
+          "status": "pending"
+        },
+        "animation_temporal": {
+          "status": "pending"
+        },
+        "historical_coherence": {
+          "status": "pending"
+        },
+        "repetition_and_variation": {
+          "status": "pending"
+        },
+        "seams_and_transitions": {
+          "status": "pending"
+        },
+        "temporal_stability": {
+          "status": "pending"
+        },
+        "performance_tier": {
+          "status": "pending"
+        }
+      },
+      "human_review": {
+        "status": "pending",
+        "reviewer": "",
+        "review_date": "",
+        "evidence": ""
+      }
+    },
+    {
+      "id": "world.padise",
+      "source_path": "content/maps/world_padise.rrmap",
+      "owner": "P6-002/P6-009",
+      "captures": {
+        "close_up": {
+          "status": "pending"
+        },
+        "gameplay": {
+          "status": "pending"
+        },
+        "vista": {
+          "status": "pending"
+        },
+        "day": {
+          "status": "pending"
+        },
+        "night": {
+          "status": "pending"
+        },
+        "rain": {
+          "status": "pending"
+        },
+        "wind": {
+          "status": "pending"
+        },
+        "water": {
+          "status": "pending"
+        },
+        "crowds": {
+          "status": "pending"
+        },
+        "characters": {
+          "status": "pending"
+        },
+        "landmark_architecture": {
+          "status": "pending"
+        },
+        "adjacent_map_traversal": {
+          "status": "pending"
+        }
+      },
+      "rubric_reviews": {
+        "geometry_silhouette": {
+          "status": "pending"
+        },
+        "pbr_response": {
+          "status": "pending"
+        },
+        "texture_density": {
+          "status": "pending"
+        },
+        "lighting_atmosphere": {
+          "status": "pending"
+        },
+        "water_surface": {
+          "status": "pending"
+        },
+        "vegetation_distribution": {
+          "status": "pending"
+        },
+        "animation_temporal": {
+          "status": "pending"
+        },
+        "historical_coherence": {
+          "status": "pending"
+        },
+        "repetition_and_variation": {
+          "status": "pending"
+        },
+        "seams_and_transitions": {
+          "status": "pending"
+        },
+        "temporal_stability": {
+          "status": "pending"
+        },
+        "performance_tier": {
+          "status": "pending"
+        }
+      },
+      "human_review": {
+        "status": "pending",
+        "reviewer": "",
+        "review_date": "",
+        "evidence": ""
+      }
+    },
+    {
+      "id": "world.paide",
+      "source_path": "content/maps/world_paide.rrmap",
+      "owner": "P5-009/P6-006",
+      "captures": {
+        "close_up": {
+          "status": "pending"
+        },
+        "gameplay": {
+          "status": "pending"
+        },
+        "vista": {
+          "status": "pending"
+        },
+        "day": {
+          "status": "pending"
+        },
+        "night": {
+          "status": "pending"
+        },
+        "rain": {
+          "status": "pending"
+        },
+        "wind": {
+          "status": "pending"
+        },
+        "water": {
+          "status": "pending"
+        },
+        "crowds": {
+          "status": "pending"
+        },
+        "characters": {
+          "status": "pending"
+        },
+        "landmark_architecture": {
+          "status": "pending"
+        },
+        "adjacent_map_traversal": {
+          "status": "pending"
+        }
+      },
+      "rubric_reviews": {
+        "geometry_silhouette": {
+          "status": "pending"
+        },
+        "pbr_response": {
+          "status": "pending"
+        },
+        "texture_density": {
+          "status": "pending"
+        },
+        "lighting_atmosphere": {
+          "status": "pending"
+        },
+        "water_surface": {
+          "status": "pending"
+        },
+        "vegetation_distribution": {
+          "status": "pending"
+        },
+        "animation_temporal": {
+          "status": "pending"
+        },
+        "historical_coherence": {
+          "status": "pending"
+        },
+        "repetition_and_variation": {
+          "status": "pending"
+        },
+        "seams_and_transitions": {
+          "status": "pending"
+        },
+        "temporal_stability": {
+          "status": "pending"
+        },
+        "performance_tier": {
+          "status": "pending"
+        }
+      },
+      "human_review": {
+        "status": "pending",
+        "reviewer": "",
+        "review_date": "",
+        "evidence": ""
+      }
+    },
+    {
+      "id": "world.parnu",
+      "source_path": "content/maps/world_parnu.rrmap",
+      "owner": "P5-003",
+      "captures": {
+        "close_up": {
+          "status": "pending"
+        },
+        "gameplay": {
+          "status": "pending"
+        },
+        "vista": {
+          "status": "pending"
+        },
+        "day": {
+          "status": "pending"
+        },
+        "night": {
+          "status": "pending"
+        },
+        "rain": {
+          "status": "pending"
+        },
+        "wind": {
+          "status": "pending"
+        },
+        "water": {
+          "status": "pending"
+        },
+        "crowds": {
+          "status": "pending"
+        },
+        "characters": {
+          "status": "pending"
+        },
+        "landmark_architecture": {
+          "status": "pending"
+        },
+        "adjacent_map_traversal": {
+          "status": "pending"
+        }
+      },
+      "rubric_reviews": {
+        "geometry_silhouette": {
+          "status": "pending"
+        },
+        "pbr_response": {
+          "status": "pending"
+        },
+        "texture_density": {
+          "status": "pending"
+        },
+        "lighting_atmosphere": {
+          "status": "pending"
+        },
+        "water_surface": {
+          "status": "pending"
+        },
+        "vegetation_distribution": {
+          "status": "pending"
+        },
+        "animation_temporal": {
+          "status": "pending"
+        },
+        "historical_coherence": {
+          "status": "pending"
+        },
+        "repetition_and_variation": {
+          "status": "pending"
+        },
+        "seams_and_transitions": {
+          "status": "pending"
+        },
+        "temporal_stability": {
+          "status": "pending"
+        },
+        "performance_tier": {
+          "status": "pending"
+        }
+      },
+      "human_review": {
+        "status": "pending",
+        "reviewer": "",
+        "review_date": "",
+        "evidence": ""
+      }
+    },
+    {
+      "id": "world.poide",
+      "source_path": "content/maps/world_poide.rrmap",
+      "owner": "P6-004",
+      "captures": {
+        "close_up": {
+          "status": "pending"
+        },
+        "gameplay": {
+          "status": "pending"
+        },
+        "vista": {
+          "status": "pending"
+        },
+        "day": {
+          "status": "pending"
+        },
+        "night": {
+          "status": "pending"
+        },
+        "rain": {
+          "status": "pending"
+        },
+        "wind": {
+          "status": "pending"
+        },
+        "water": {
+          "status": "pending"
+        },
+        "crowds": {
+          "status": "pending"
+        },
+        "characters": {
+          "status": "pending"
+        },
+        "landmark_architecture": {
+          "status": "pending"
+        },
+        "adjacent_map_traversal": {
+          "status": "pending"
+        }
+      },
+      "rubric_reviews": {
+        "geometry_silhouette": {
+          "status": "pending"
+        },
+        "pbr_response": {
+          "status": "pending"
+        },
+        "texture_density": {
+          "status": "pending"
+        },
+        "lighting_atmosphere": {
+          "status": "pending"
+        },
+        "water_surface": {
+          "status": "pending"
+        },
+        "vegetation_distribution": {
+          "status": "pending"
+        },
+        "animation_temporal": {
+          "status": "pending"
+        },
+        "historical_coherence": {
+          "status": "pending"
+        },
+        "repetition_and_variation": {
+          "status": "pending"
+        },
+        "seams_and_transitions": {
+          "status": "pending"
+        },
+        "temporal_stability": {
+          "status": "pending"
+        },
+        "performance_tier": {
+          "status": "pending"
+        }
+      },
+      "human_review": {
+        "status": "pending",
+        "reviewer": "",
+        "review_date": "",
+        "evidence": ""
+      }
+    },
+    {
+      "id": "world.rebel_kings",
+      "source_path": "content/maps/world_rebel_kings.rrmap",
+      "owner": "P5-003",
+      "captures": {
+        "close_up": {
+          "status": "pending"
+        },
+        "gameplay": {
+          "status": "pending"
+        },
+        "vista": {
+          "status": "pending"
+        },
+        "day": {
+          "status": "pending"
+        },
+        "night": {
+          "status": "pending"
+        },
+        "rain": {
+          "status": "pending"
+        },
+        "wind": {
+          "status": "pending"
+        },
+        "water": {
+          "status": "pending"
+        },
+        "crowds": {
+          "status": "pending"
+        },
+        "characters": {
+          "status": "pending"
+        },
+        "landmark_architecture": {
+          "status": "pending"
+        },
+        "adjacent_map_traversal": {
+          "status": "pending"
+        }
+      },
+      "rubric_reviews": {
+        "geometry_silhouette": {
+          "status": "pending"
+        },
+        "pbr_response": {
+          "status": "pending"
+        },
+        "texture_density": {
+          "status": "pending"
+        },
+        "lighting_atmosphere": {
+          "status": "pending"
+        },
+        "water_surface": {
+          "status": "pending"
+        },
+        "vegetation_distribution": {
+          "status": "pending"
+        },
+        "animation_temporal": {
+          "status": "pending"
+        },
+        "historical_coherence": {
+          "status": "pending"
+        },
+        "repetition_and_variation": {
+          "status": "pending"
+        },
+        "seams_and_transitions": {
+          "status": "pending"
+        },
+        "temporal_stability": {
+          "status": "pending"
+        },
+        "performance_tier": {
+          "status": "pending"
+        }
+      },
+      "human_review": {
+        "status": "pending",
+        "reviewer": "",
+        "review_date": "",
+        "evidence": ""
+      }
+    },
+    {
+      "id": "world.saaremaa",
+      "source_path": "content/maps/world_saaremaa.rrmap",
+      "owner": "P6-004",
+      "captures": {
+        "close_up": {
+          "status": "pending"
+        },
+        "gameplay": {
+          "status": "pending"
+        },
+        "vista": {
+          "status": "pending"
+        },
+        "day": {
+          "status": "pending"
+        },
+        "night": {
+          "status": "pending"
+        },
+        "rain": {
+          "status": "pending"
+        },
+        "wind": {
+          "status": "pending"
+        },
+        "water": {
+          "status": "pending"
+        },
+        "crowds": {
+          "status": "pending"
+        },
+        "characters": {
+          "status": "pending"
+        },
+        "landmark_architecture": {
+          "status": "pending"
+        },
+        "adjacent_map_traversal": {
+          "status": "pending"
+        }
+      },
+      "rubric_reviews": {
+        "geometry_silhouette": {
+          "status": "pending"
+        },
+        "pbr_response": {
+          "status": "pending"
+        },
+        "texture_density": {
+          "status": "pending"
+        },
+        "lighting_atmosphere": {
+          "status": "pending"
+        },
+        "water_surface": {
+          "status": "pending"
+        },
+        "vegetation_distribution": {
+          "status": "pending"
+        },
+        "animation_temporal": {
+          "status": "pending"
+        },
+        "historical_coherence": {
+          "status": "pending"
+        },
+        "repetition_and_variation": {
+          "status": "pending"
+        },
+        "seams_and_transitions": {
+          "status": "pending"
+        },
+        "temporal_stability": {
+          "status": "pending"
+        },
+        "performance_tier": {
+          "status": "pending"
+        }
+      },
+      "human_review": {
+        "status": "pending",
+        "reviewer": "",
+        "review_date": "",
+        "evidence": ""
+      }
+    },
+    {
+      "id": "world.sacred_grove",
+      "source_path": "content/maps/world_sacred_grove.rrmap",
+      "owner": "P5-003",
+      "captures": {
+        "close_up": {
+          "status": "pending"
+        },
+        "gameplay": {
+          "status": "pending"
+        },
+        "vista": {
+          "status": "pending"
+        },
+        "day": {
+          "status": "pending"
+        },
+        "night": {
+          "status": "pending"
+        },
+        "rain": {
+          "status": "pending"
+        },
+        "wind": {
+          "status": "pending"
+        },
+        "water": {
+          "status": "pending"
+        },
+        "crowds": {
+          "status": "pending"
+        },
+        "characters": {
+          "status": "pending"
+        },
+        "landmark_architecture": {
+          "status": "pending"
+        },
+        "adjacent_map_traversal": {
+          "status": "pending"
+        }
+      },
+      "rubric_reviews": {
+        "geometry_silhouette": {
+          "status": "pending"
+        },
+        "pbr_response": {
+          "status": "pending"
+        },
+        "texture_density": {
+          "status": "pending"
+        },
+        "lighting_atmosphere": {
+          "status": "pending"
+        },
+        "water_surface": {
+          "status": "pending"
+        },
+        "vegetation_distribution": {
+          "status": "pending"
+        },
+        "animation_temporal": {
+          "status": "pending"
+        },
+        "historical_coherence": {
+          "status": "pending"
+        },
+        "repetition_and_variation": {
+          "status": "pending"
+        },
+        "seams_and_transitions": {
+          "status": "pending"
+        },
+        "temporal_stability": {
+          "status": "pending"
+        },
+        "performance_tier": {
+          "status": "pending"
+        }
+      },
+      "human_review": {
+        "status": "pending",
+        "reviewer": "",
+        "review_date": "",
+        "evidence": ""
+      }
+    },
+    {
+      "id": "world.sojamae",
+      "source_path": "content/maps/world_sojamae.rrmap",
+      "owner": "P5-003",
+      "captures": {
+        "close_up": {
+          "status": "pending"
+        },
+        "gameplay": {
+          "status": "pending"
+        },
+        "vista": {
+          "status": "pending"
+        },
+        "day": {
+          "status": "pending"
+        },
+        "night": {
+          "status": "pending"
+        },
+        "rain": {
+          "status": "pending"
+        },
+        "wind": {
+          "status": "pending"
+        },
+        "water": {
+          "status": "pending"
+        },
+        "crowds": {
+          "status": "pending"
+        },
+        "characters": {
+          "status": "pending"
+        },
+        "landmark_architecture": {
+          "status": "pending"
+        },
+        "adjacent_map_traversal": {
+          "status": "pending"
+        }
+      },
+      "rubric_reviews": {
+        "geometry_silhouette": {
+          "status": "pending"
+        },
+        "pbr_response": {
+          "status": "pending"
+        },
+        "texture_density": {
+          "status": "pending"
+        },
+        "lighting_atmosphere": {
+          "status": "pending"
+        },
+        "water_surface": {
+          "status": "pending"
+        },
+        "vegetation_distribution": {
+          "status": "pending"
+        },
+        "animation_temporal": {
+          "status": "pending"
+        },
+        "historical_coherence": {
+          "status": "pending"
+        },
+        "repetition_and_variation": {
+          "status": "pending"
+        },
+        "seams_and_transitions": {
+          "status": "pending"
+        },
+        "temporal_stability": {
+          "status": "pending"
+        },
+        "performance_tier": {
+          "status": "pending"
+        }
+      },
+      "human_review": {
+        "status": "pending",
+        "reviewer": "",
+        "review_date": "",
+        "evidence": ""
+      }
+    },
+    {
+      "id": "reval_center",
+      "source_path": "content/maps/market_civic_quarter.rrmap",
+      "owner": "P4-022",
+      "captures": {
+        "close_up": {
+          "status": "pending"
+        },
+        "gameplay": {
+          "status": "pending"
+        },
+        "vista": {
+          "status": "pending"
+        },
+        "day": {
+          "status": "pending"
+        },
+        "night": {
+          "status": "pending"
+        },
+        "rain": {
+          "status": "pending"
+        },
+        "wind": {
+          "status": "pending"
+        },
+        "water": {
+          "status": "pending"
+        },
+        "crowds": {
+          "status": "pending"
+        },
+        "characters": {
+          "status": "pending"
+        },
+        "landmark_architecture": {
+          "status": "pending"
+        },
+        "adjacent_map_traversal": {
+          "status": "pending"
+        }
+      },
+      "rubric_reviews": {
+        "geometry_silhouette": {
+          "status": "pending"
+        },
+        "pbr_response": {
+          "status": "pending"
+        },
+        "texture_density": {
+          "status": "pending"
+        },
+        "lighting_atmosphere": {
+          "status": "pending"
+        },
+        "water_surface": {
+          "status": "pending"
+        },
+        "vegetation_distribution": {
+          "status": "pending"
+        },
+        "animation_temporal": {
+          "status": "pending"
+        },
+        "historical_coherence": {
+          "status": "pending"
+        },
+        "repetition_and_variation": {
+          "status": "pending"
+        },
+        "seams_and_transitions": {
+          "status": "pending"
+        },
+        "temporal_stability": {
+          "status": "pending"
+        },
+        "performance_tier": {
+          "status": "pending"
+        }
+      },
+      "human_review": {
+        "status": "pending",
+        "reviewer": "",
+        "review_date": "",
+        "evidence": ""
+      }
+    },
+    {
+      "id": "reval_north",
+      "source_path": "content/maps/north_quarter.rrmap",
+      "owner": "P4-023",
+      "captures": {
+        "close_up": {
+          "status": "pending"
+        },
+        "gameplay": {
+          "status": "pending"
+        },
+        "vista": {
+          "status": "pending"
+        },
+        "day": {
+          "status": "pending"
+        },
+        "night": {
+          "status": "pending"
+        },
+        "rain": {
+          "status": "pending"
+        },
+        "wind": {
+          "status": "pending"
+        },
+        "water": {
+          "status": "pending"
+        },
+        "crowds": {
+          "status": "pending"
+        },
+        "characters": {
+          "status": "pending"
+        },
+        "landmark_architecture": {
+          "status": "pending"
+        },
+        "adjacent_map_traversal": {
+          "status": "pending"
+        }
+      },
+      "rubric_reviews": {
+        "geometry_silhouette": {
+          "status": "pending"
+        },
+        "pbr_response": {
+          "status": "pending"
+        },
+        "texture_density": {
+          "status": "pending"
+        },
+        "lighting_atmosphere": {
+          "status": "pending"
+        },
+        "water_surface": {
+          "status": "pending"
+        },
+        "vegetation_distribution": {
+          "status": "pending"
+        },
+        "animation_temporal": {
+          "status": "pending"
+        },
+        "historical_coherence": {
+          "status": "pending"
+        },
+        "repetition_and_variation": {
+          "status": "pending"
+        },
+        "seams_and_transitions": {
+          "status": "pending"
+        },
+        "temporal_stability": {
+          "status": "pending"
+        },
+        "performance_tier": {
+          "status": "pending"
+        }
+      },
+      "human_review": {
+        "status": "pending",
+        "reviewer": "",
+        "review_date": "",
+        "evidence": ""
+      }
+    },
+    {
+      "id": "reval_monastery",
+      "source_path": "content/maps/monastery_quarter.rrmap",
+      "owner": "P4-023",
+      "captures": {
+        "close_up": {
+          "status": "pending"
+        },
+        "gameplay": {
+          "status": "pending"
+        },
+        "vista": {
+          "status": "pending"
+        },
+        "day": {
+          "status": "pending"
+        },
+        "night": {
+          "status": "pending"
+        },
+        "rain": {
+          "status": "pending"
+        },
+        "wind": {
+          "status": "pending"
+        },
+        "water": {
+          "status": "pending"
+        },
+        "crowds": {
+          "status": "pending"
+        },
+        "characters": {
+          "status": "pending"
+        },
+        "landmark_architecture": {
+          "status": "pending"
+        },
+        "adjacent_map_traversal": {
+          "status": "pending"
+        }
+      },
+      "rubric_reviews": {
+        "geometry_silhouette": {
+          "status": "pending"
+        },
+        "pbr_response": {
+          "status": "pending"
+        },
+        "texture_density": {
+          "status": "pending"
+        },
+        "lighting_atmosphere": {
+          "status": "pending"
+        },
+        "water_surface": {
+          "status": "pending"
+        },
+        "vegetation_distribution": {
+          "status": "pending"
+        },
+        "animation_temporal": {
+          "status": "pending"
+        },
+        "historical_coherence": {
+          "status": "pending"
+        },
+        "repetition_and_variation": {
+          "status": "pending"
+        },
+        "seams_and_transitions": {
+          "status": "pending"
+        },
+        "temporal_stability": {
+          "status": "pending"
+        },
+        "performance_tier": {
+          "status": "pending"
+        }
+      },
+      "human_review": {
+        "status": "pending",
+        "reviewer": "",
+        "review_date": "",
+        "evidence": ""
+      }
+    },
+    {
+      "id": "reval_harbor_north",
+      "source_path": "content/maps/reval_harbor_north.rrmap",
+      "owner": "P4-026",
+      "captures": {
+        "close_up": {
+          "status": "pending"
+        },
+        "gameplay": {
+          "status": "pending"
+        },
+        "vista": {
+          "status": "pending"
+        },
+        "day": {
+          "status": "pending"
+        },
+        "night": {
+          "status": "pending"
+        },
+        "rain": {
+          "status": "pending"
+        },
+        "wind": {
+          "status": "pending"
+        },
+        "water": {
+          "status": "pending"
+        },
+        "crowds": {
+          "status": "pending"
+        },
+        "characters": {
+          "status": "pending"
+        },
+        "landmark_architecture": {
+          "status": "pending"
+        },
+        "adjacent_map_traversal": {
+          "status": "pending"
+        }
+      },
+      "rubric_reviews": {
+        "geometry_silhouette": {
+          "status": "pending"
+        },
+        "pbr_response": {
+          "status": "pending"
+        },
+        "texture_density": {
+          "status": "pending"
+        },
+        "lighting_atmosphere": {
+          "status": "pending"
+        },
+        "water_surface": {
+          "status": "pending"
+        },
+        "vegetation_distribution": {
+          "status": "pending"
+        },
+        "animation_temporal": {
+          "status": "pending"
+        },
+        "historical_coherence": {
+          "status": "pending"
+        },
+        "repetition_and_variation": {
+          "status": "pending"
+        },
+        "seams_and_transitions": {
+          "status": "pending"
+        },
+        "temporal_stability": {
+          "status": "pending"
+        },
+        "performance_tier": {
+          "status": "pending"
+        }
+      },
+      "human_review": {
+        "status": "pending",
+        "reviewer": "",
+        "review_date": "",
+        "evidence": ""
+      }
+    },
+    {
+      "id": "reval_harbor_east",
+      "source_path": "content/maps/reval_harbor_east.rrmap",
+      "owner": "P4-026",
+      "captures": {
+        "close_up": {
+          "status": "pending"
+        },
+        "gameplay": {
+          "status": "pending"
+        },
+        "vista": {
+          "status": "pending"
+        },
+        "day": {
+          "status": "pending"
+        },
+        "night": {
+          "status": "pending"
+        },
+        "rain": {
+          "status": "pending"
+        },
+        "wind": {
+          "status": "pending"
+        },
+        "water": {
+          "status": "pending"
+        },
+        "crowds": {
+          "status": "pending"
+        },
+        "characters": {
+          "status": "pending"
+        },
+        "landmark_architecture": {
+          "status": "pending"
+        },
+        "adjacent_map_traversal": {
+          "status": "pending"
+        }
+      },
+      "rubric_reviews": {
+        "geometry_silhouette": {
+          "status": "pending"
+        },
+        "pbr_response": {
+          "status": "pending"
+        },
+        "texture_density": {
+          "status": "pending"
+        },
+        "lighting_atmosphere": {
+          "status": "pending"
+        },
+        "water_surface": {
+          "status": "pending"
+        },
+        "vegetation_distribution": {
+          "status": "pending"
+        },
+        "animation_temporal": {
+          "status": "pending"
+        },
+        "historical_coherence": {
+          "status": "pending"
+        },
+        "repetition_and_variation": {
+          "status": "pending"
+        },
+        "seams_and_transitions": {
+          "status": "pending"
+        },
+        "temporal_stability": {
+          "status": "pending"
+        },
+        "performance_tier": {
+          "status": "pending"
+        }
+      },
+      "human_review": {
+        "status": "pending",
+        "reviewer": "",
+        "review_date": "",
+        "evidence": ""
+      }
+    },
+    {
+      "id": "reval_archbishops_garden",
+      "source_path": "content/maps/archbishops_garden.rrmap",
+      "owner": "P4-025",
+      "captures": {
+        "close_up": {
+          "status": "pending"
+        },
+        "gameplay": {
+          "status": "pending"
+        },
+        "vista": {
+          "status": "pending"
+        },
+        "day": {
+          "status": "pending"
+        },
+        "night": {
+          "status": "pending"
+        },
+        "rain": {
+          "status": "pending"
+        },
+        "wind": {
+          "status": "pending"
+        },
+        "water": {
+          "status": "pending"
+        },
+        "crowds": {
+          "status": "pending"
+        },
+        "characters": {
+          "status": "pending"
+        },
+        "landmark_architecture": {
+          "status": "pending"
+        },
+        "adjacent_map_traversal": {
+          "status": "pending"
+        }
+      },
+      "rubric_reviews": {
+        "geometry_silhouette": {
+          "status": "pending"
+        },
+        "pbr_response": {
+          "status": "pending"
+        },
+        "texture_density": {
+          "status": "pending"
+        },
+        "lighting_atmosphere": {
+          "status": "pending"
+        },
+        "water_surface": {
+          "status": "pending"
+        },
+        "vegetation_distribution": {
+          "status": "pending"
+        },
+        "animation_temporal": {
+          "status": "pending"
+        },
+        "historical_coherence": {
+          "status": "pending"
+        },
+        "repetition_and_variation": {
+          "status": "pending"
+        },
+        "seams_and_transitions": {
+          "status": "pending"
+        },
+        "temporal_stability": {
+          "status": "pending"
+        },
+        "performance_tier": {
+          "status": "pending"
+        }
+      },
+      "human_review": {
+        "status": "pending",
+        "reviewer": "",
+        "review_date": "",
+        "evidence": ""
+      }
+    },
+    {
+      "id": "reval_toompea",
+      "source_path": "content/maps/toompea_quarter.rrmap",
+      "owner": "P4-025",
+      "captures": {
+        "close_up": {
+          "status": "pending"
+        },
+        "gameplay": {
+          "status": "pending"
+        },
+        "vista": {
+          "status": "pending"
+        },
+        "day": {
+          "status": "pending"
+        },
+        "night": {
+          "status": "pending"
+        },
+        "rain": {
+          "status": "pending"
+        },
+        "wind": {
+          "status": "pending"
+        },
+        "water": {
+          "status": "pending"
+        },
+        "crowds": {
+          "status": "pending"
+        },
+        "characters": {
+          "status": "pending"
+        },
+        "landmark_architecture": {
+          "status": "pending"
+        },
+        "adjacent_map_traversal": {
+          "status": "pending"
+        }
+      },
+      "rubric_reviews": {
+        "geometry_silhouette": {
+          "status": "pending"
+        },
+        "pbr_response": {
+          "status": "pending"
+        },
+        "texture_density": {
+          "status": "pending"
+        },
+        "lighting_atmosphere": {
+          "status": "pending"
+        },
+        "water_surface": {
+          "status": "pending"
+        },
+        "vegetation_distribution": {
+          "status": "pending"
+        },
+        "animation_temporal": {
+          "status": "pending"
+        },
+        "historical_coherence": {
+          "status": "pending"
+        },
+        "repetition_and_variation": {
+          "status": "pending"
+        },
+        "seams_and_transitions": {
+          "status": "pending"
+        },
+        "temporal_stability": {
+          "status": "pending"
+        },
+        "performance_tier": {
+          "status": "pending"
+        }
+      },
+      "human_review": {
+        "status": "pending",
+        "reviewer": "",
+        "review_date": "",
+        "evidence": ""
+      }
+    },
+    {
+      "id": "toompea_small_castle",
+      "source_path": "content/maps/toompea_small_castle.rrmap",
+      "owner": "P4-025",
+      "captures": {
+        "close_up": {
+          "status": "pending"
+        },
+        "gameplay": {
+          "status": "pending"
+        },
+        "vista": {
+          "status": "pending"
+        },
+        "day": {
+          "status": "pending"
+        },
+        "night": {
+          "status": "pending"
+        },
+        "rain": {
+          "status": "pending"
+        },
+        "wind": {
+          "status": "pending"
+        },
+        "water": {
+          "status": "pending"
+        },
+        "crowds": {
+          "status": "pending"
+        },
+        "characters": {
+          "status": "pending"
+        },
+        "landmark_architecture": {
+          "status": "pending"
+        },
+        "adjacent_map_traversal": {
+          "status": "pending"
+        }
+      },
+      "rubric_reviews": {
+        "geometry_silhouette": {
+          "status": "pending"
+        },
+        "pbr_response": {
+          "status": "pending"
+        },
+        "texture_density": {
+          "status": "pending"
+        },
+        "lighting_atmosphere": {
+          "status": "pending"
+        },
+        "water_surface": {
+          "status": "pending"
+        },
+        "vegetation_distribution": {
+          "status": "pending"
+        },
+        "animation_temporal": {
+          "status": "pending"
+        },
+        "historical_coherence": {
+          "status": "pending"
+        },
+        "repetition_and_variation": {
+          "status": "pending"
+        },
+        "seams_and_transitions": {
+          "status": "pending"
+        },
+        "temporal_stability": {
+          "status": "pending"
+        },
+        "performance_tier": {
+          "status": "pending"
+        }
+      },
+      "human_review": {
+        "status": "pending",
+        "reviewer": "",
+        "review_date": "",
+        "evidence": ""
+      }
+    },
+    {
+      "id": "reval_south",
+      "source_path": "content/maps/south_quarter.rrmap",
+      "owner": "P4-024",
+      "captures": {
+        "close_up": {
+          "status": "pending"
+        },
+        "gameplay": {
+          "status": "pending"
+        },
+        "vista": {
+          "status": "pending"
+        },
+        "day": {
+          "status": "pending"
+        },
+        "night": {
+          "status": "pending"
+        },
+        "rain": {
+          "status": "pending"
+        },
+        "wind": {
+          "status": "pending"
+        },
+        "water": {
+          "status": "pending"
+        },
+        "crowds": {
+          "status": "pending"
+        },
+        "characters": {
+          "status": "pending"
+        },
+        "landmark_architecture": {
+          "status": "pending"
+        },
+        "adjacent_map_traversal": {
+          "status": "pending"
+        }
+      },
+      "rubric_reviews": {
+        "geometry_silhouette": {
+          "status": "pending"
+        },
+        "pbr_response": {
+          "status": "pending"
+        },
+        "texture_density": {
+          "status": "pending"
+        },
+        "lighting_atmosphere": {
+          "status": "pending"
+        },
+        "water_surface": {
+          "status": "pending"
+        },
+        "vegetation_distribution": {
+          "status": "pending"
+        },
+        "animation_temporal": {
+          "status": "pending"
+        },
+        "historical_coherence": {
+          "status": "pending"
+        },
+        "repetition_and_variation": {
+          "status": "pending"
+        },
+        "seams_and_transitions": {
+          "status": "pending"
+        },
+        "temporal_stability": {
+          "status": "pending"
+        },
+        "performance_tier": {
+          "status": "pending"
+        }
+      },
+      "human_review": {
+        "status": "pending",
+        "reviewer": "",
+        "review_date": "",
+        "evidence": ""
+      }
+    },
+    {
+      "id": "viru_gate_foreland",
+      "source_path": "content/maps/viru_gate_foreland.rrmap",
+      "owner": "P0-100",
+      "captures": {
+        "close_up": {
+          "status": "pending"
+        },
+        "gameplay": {
+          "status": "pending"
+        },
+        "vista": {
+          "status": "pending"
+        },
+        "day": {
+          "status": "pending"
+        },
+        "night": {
+          "status": "pending"
+        },
+        "rain": {
+          "status": "pending"
+        },
+        "wind": {
+          "status": "pending"
+        },
+        "water": {
+          "status": "pending"
+        },
+        "crowds": {
+          "status": "pending"
+        },
+        "characters": {
+          "status": "pending"
+        },
+        "landmark_architecture": {
+          "status": "pending"
+        },
+        "adjacent_map_traversal": {
+          "status": "pending"
+        }
+      },
+      "rubric_reviews": {
+        "geometry_silhouette": {
+          "status": "pending"
+        },
+        "pbr_response": {
+          "status": "pending"
+        },
+        "texture_density": {
+          "status": "pending"
+        },
+        "lighting_atmosphere": {
+          "status": "pending"
+        },
+        "water_surface": {
+          "status": "pending"
+        },
+        "vegetation_distribution": {
+          "status": "pending"
+        },
+        "animation_temporal": {
+          "status": "pending"
+        },
+        "historical_coherence": {
+          "status": "pending"
+        },
+        "repetition_and_variation": {
+          "status": "pending"
+        },
+        "seams_and_transitions": {
+          "status": "pending"
+        },
+        "temporal_stability": {
+          "status": "pending"
+        },
+        "performance_tier": {
+          "status": "pending"
+        }
+      },
+      "human_review": {
+        "status": "pending",
+        "reviewer": "",
+        "review_date": "",
+        "evidence": ""
+      }
+    },
+    {
+      "id": "oleviste_church",
+      "source_path": "content/maps/oleviste_church.rrmap",
+      "owner": "P4-023",
+      "captures": {
+        "close_up": {
+          "status": "pending"
+        },
+        "gameplay": {
+          "status": "pending"
+        },
+        "vista": {
+          "status": "pending"
+        },
+        "day": {
+          "status": "pending"
+        },
+        "night": {
+          "status": "pending"
+        },
+        "rain": {
+          "status": "pending"
+        },
+        "wind": {
+          "status": "pending"
+        },
+        "water": {
+          "status": "pending"
+        },
+        "crowds": {
+          "status": "pending"
+        },
+        "characters": {
+          "status": "pending"
+        },
+        "landmark_architecture": {
+          "status": "pending"
+        },
+        "adjacent_map_traversal": {
+          "status": "pending"
+        }
+      },
+      "rubric_reviews": {
+        "geometry_silhouette": {
+          "status": "pending"
+        },
+        "pbr_response": {
+          "status": "pending"
+        },
+        "texture_density": {
+          "status": "pending"
+        },
+        "lighting_atmosphere": {
+          "status": "pending"
+        },
+        "water_surface": {
+          "status": "pending"
+        },
+        "vegetation_distribution": {
+          "status": "pending"
+        },
+        "animation_temporal": {
+          "status": "pending"
+        },
+        "historical_coherence": {
+          "status": "pending"
+        },
+        "repetition_and_variation": {
+          "status": "pending"
+        },
+        "seams_and_transitions": {
+          "status": "pending"
+        },
+        "temporal_stability": {
+          "status": "pending"
+        },
+        "performance_tier": {
+          "status": "pending"
+        }
+      },
+      "human_review": {
+        "status": "pending",
+        "reviewer": "",
+        "review_date": "",
+        "evidence": ""
+      }
+    },
+    {
+      "id": "st_olafs_guild_hall",
+      "source_path": "content/maps/st_olafs_guild_hall.rrmap",
+      "owner": "P4-022",
+      "captures": {
+        "close_up": {
+          "status": "pending"
+        },
+        "gameplay": {
+          "status": "pending"
+        },
+        "vista": {
+          "status": "pending"
+        },
+        "day": {
+          "status": "pending"
+        },
+        "night": {
+          "status": "pending"
+        },
+        "rain": {
+          "status": "pending"
+        },
+        "wind": {
+          "status": "pending"
+        },
+        "water": {
+          "status": "pending"
+        },
+        "crowds": {
+          "status": "pending"
+        },
+        "characters": {
+          "status": "pending"
+        },
+        "landmark_architecture": {
+          "status": "pending"
+        },
+        "adjacent_map_traversal": {
+          "status": "pending"
+        }
+      },
+      "rubric_reviews": {
+        "geometry_silhouette": {
+          "status": "pending"
+        },
+        "pbr_response": {
+          "status": "pending"
+        },
+        "texture_density": {
+          "status": "pending"
+        },
+        "lighting_atmosphere": {
+          "status": "pending"
+        },
+        "water_surface": {
+          "status": "pending"
+        },
+        "vegetation_distribution": {
+          "status": "pending"
+        },
+        "animation_temporal": {
+          "status": "pending"
+        },
+        "historical_coherence": {
+          "status": "pending"
+        },
+        "repetition_and_variation": {
+          "status": "pending"
+        },
+        "seams_and_transitions": {
+          "status": "pending"
+        },
+        "temporal_stability": {
+          "status": "pending"
+        },
+        "performance_tier": {
+          "status": "pending"
+        }
+      },
+      "human_review": {
+        "status": "pending",
+        "reviewer": "",
+        "review_date": "",
+        "evidence": ""
+      }
+    },
+    {
+      "id": "town_hall",
+      "source_path": "content/maps/town_hall.rrmap",
+      "owner": "P4-022",
+      "captures": {
+        "close_up": {
+          "status": "pending"
+        },
+        "gameplay": {
+          "status": "pending"
+        },
+        "vista": {
+          "status": "pending"
+        },
+        "day": {
+          "status": "pending"
+        },
+        "night": {
+          "status": "pending"
+        },
+        "rain": {
+          "status": "pending"
+        },
+        "wind": {
+          "status": "pending"
+        },
+        "water": {
+          "status": "pending"
+        },
+        "crowds": {
+          "status": "pending"
+        },
+        "characters": {
+          "status": "pending"
+        },
+        "landmark_architecture": {
+          "status": "pending"
+        },
+        "adjacent_map_traversal": {
+          "status": "pending"
+        }
+      },
+      "rubric_reviews": {
+        "geometry_silhouette": {
+          "status": "pending"
+        },
+        "pbr_response": {
+          "status": "pending"
+        },
+        "texture_density": {
+          "status": "pending"
+        },
+        "lighting_atmosphere": {
+          "status": "pending"
+        },
+        "water_surface": {
+          "status": "pending"
+        },
+        "vegetation_distribution": {
+          "status": "pending"
+        },
+        "animation_temporal": {
+          "status": "pending"
+        },
+        "historical_coherence": {
+          "status": "pending"
+        },
+        "repetition_and_variation": {
+          "status": "pending"
+        },
+        "seams_and_transitions": {
+          "status": "pending"
+        },
+        "temporal_stability": {
+          "status": "pending"
+        },
+        "performance_tier": {
+          "status": "pending"
+        }
+      },
+      "human_review": {
+        "status": "pending",
+        "reviewer": "",
+        "review_date": "",
+        "evidence": ""
+      }
+    },
+    {
+      "id": "holy_spirit_church",
+      "source_path": "content/maps/holy_spirit_church.rrmap",
+      "owner": "P4-022",
+      "captures": {
+        "close_up": {
+          "status": "pending"
+        },
+        "gameplay": {
+          "status": "pending"
+        },
+        "vista": {
+          "status": "pending"
+        },
+        "day": {
+          "status": "pending"
+        },
+        "night": {
+          "status": "pending"
+        },
+        "rain": {
+          "status": "pending"
+        },
+        "wind": {
+          "status": "pending"
+        },
+        "water": {
+          "status": "pending"
+        },
+        "crowds": {
+          "status": "pending"
+        },
+        "characters": {
+          "status": "pending"
+        },
+        "landmark_architecture": {
+          "status": "pending"
+        },
+        "adjacent_map_traversal": {
+          "status": "pending"
+        }
+      },
+      "rubric_reviews": {
+        "geometry_silhouette": {
+          "status": "pending"
+        },
+        "pbr_response": {
+          "status": "pending"
+        },
+        "texture_density": {
+          "status": "pending"
+        },
+        "lighting_atmosphere": {
+          "status": "pending"
+        },
+        "water_surface": {
+          "status": "pending"
+        },
+        "vegetation_distribution": {
+          "status": "pending"
+        },
+        "animation_temporal": {
+          "status": "pending"
+        },
+        "historical_coherence": {
+          "status": "pending"
+        },
+        "repetition_and_variation": {
+          "status": "pending"
+        },
+        "seams_and_transitions": {
+          "status": "pending"
+        },
+        "temporal_stability": {
+          "status": "pending"
+        },
+        "performance_tier": {
+          "status": "pending"
+        }
+      },
+      "human_review": {
+        "status": "pending",
+        "reviewer": "",
+        "review_date": "",
+        "evidence": ""
+      }
+    }
+  ]
+}
