@@ -191,3 +191,4 @@ Parallel exact replacements against one mutable file can race and reapply stale 
 - 2026-08-25: If a test insertion anchor remains ambiguous after reading a nearby range, use a verified function-boundary line insertion and immediately re-read both neighboring methods before running the suite.
 - 2026-08-25: When inserting a regression test by replacing a neighboring method header, preserve the complete original method first; re-read both bounded methods before running Python tests so the old body cannot become nested under the new test.
 - 2026-08-25: When a Python unittest command returns non-zero without surfaced output, inspect its redirected log before editing; the runner may have completed and reported ordinary assertion failures that the tool wrapper hid.
+- 2026-08-25: Guard animated Node3D `look_at` calls when the current and look-ahead positions are approximately equal; endpoint easing can collapse adjacent samples even on a non-zero path.

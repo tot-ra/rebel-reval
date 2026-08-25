@@ -168,7 +168,7 @@ func _advance_active_birds(delta: float) -> void:
 		var position := _flight_position(bird, t)
 		var look_ahead := _flight_position(bird, minf(t + 0.02, 1.0))
 		bird.position = position
-		bird.look_at(look_ahead, Vector3.UP)
+		_orient_bird_if_distinct(bird, look_ahead)
 		var sway_phase := float(bird.get_meta(&"sway_phase", 0.0))
 		var sway_amplitude := float(bird.get_meta(&"sway_amplitude", 0.3))
 		var sway_frequency := float(bird.get_meta(&"sway_frequency", 1.0))
@@ -177,6 +177,12 @@ func _advance_active_birds(delta: float) -> void:
 		bird.set_meta(&"traveled", traveled)
 		# Advance wing flap animation
 		_advance_flap(bird, delta)
+
+
+func _orient_bird_if_distinct(bird: Node3D, target: Vector3) -> void:
+	if bird.position.is_equal_approx(target):
+		return
+	bird.look_at(target, Vector3.UP)
 
 
 func _install_modular_rig(bird: Node3D, frame: Dictionary, procedural_material: bool) -> bool:
@@ -330,7 +336,7 @@ func _spawn_bird() -> void:
 	var start: Vector3 = path["start"]
 	var end: Vector3 = path["end"]
 	bird.position = start
-	bird.look_at(start + (end - start).normalized(), Vector3.UP)
+	_orient_bird_if_distinct(bird, start + (end - start).normalized())
 	bird.visible = true
 	bird.set_meta(&"start", start)
 	bird.set_meta(&"end", end)

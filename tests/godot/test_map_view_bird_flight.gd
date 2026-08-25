@@ -56,6 +56,22 @@ func test_flight_path_uses_wind_carved_curve() -> void:
 	flight.free()
 
 
+func test_active_bird_skips_orientation_when_look_ahead_matches_position() -> void:
+	var flight := BirdFlight.new()
+	(Engine.get_main_loop() as SceneTree).root.add_child(flight)
+	var bird := flight.get_node("FlightBird0") as Node3D
+	bird.visible = true
+	bird.set_meta(&"start", Vector3(8.0, 10.0, 8.0))
+	bird.set_meta(&"end", Vector3(48.0, 10.0, 8.0))
+	bird.set_meta(&"speed", 9.9999)
+	bird.set_meta(&"path_length", 10.0)
+	bird.set_meta(&"traveled", 0.0)
+	flight._advance_active_birds(1.0)
+	assert_true(bird.visible, "a bird near the end of its path should remain active")
+	assert_true(bird.position.x > 47.9)
+	flight.queue_free()
+
+
 func test_species_selection_is_deterministic_for_seed_and_tick() -> void:
 	var first := BirdFlight.pick_species(&"lower_town_slice", BirdSpecies.CONTEXT_LOWER_TOWN, 0.35, 7)
 	var second := BirdFlight.pick_species(&"lower_town_slice", BirdSpecies.CONTEXT_LOWER_TOWN, 0.35, 7)
