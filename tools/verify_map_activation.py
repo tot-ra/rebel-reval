@@ -9,6 +9,20 @@ ARCHIVE_GDIGNORE_PATHS = (
     "scenes/map/.gdignore",
 )
 
+
+def _load_json(path, label):
+    try:
+        with open(path, "r") as handle:
+            return json.load(handle), None
+    except FileNotFoundError:
+        return None, None
+    except json.JSONDecodeError as error:
+        return None, (
+            f"Invalid JSON in {label}: line {error.lineno}, "
+            f"column {error.colno}: {error.msg}"
+        )
+
+
 def parse_catalog(catalog_path):
     catalog = {}
     try:
@@ -47,10 +61,11 @@ def verify_release_scope(destinations_path, root):
         if not (root_path / relative_path).is_file():
             errors.append(f"Missing archive import exclusion: {relative_path}")
 
-    try:
-        with open(destinations_path, 'r') as f:
-            dests = json.load(f)
-    except FileNotFoundError:
+    dests, json_error = _load_json(destinations_path, "destinations manifest")
+    if json_error:
+        errors.append(json_error)
+        return errors
+    if dests is None:
         return errors
 
     release_scene_ids = set()
@@ -81,10 +96,10 @@ def verify_activation(catalog_path, destinations_path, start_label_path):
     
     errors = []
     
-    try:
-        with open(destinations_path, 'r') as f:
-            dests = json.load(f)
-            
+    dests, json_error = _load_json(destinations_path, "destinations manifest")
+    if json_error:
+        errors.append(json_error)
+    elif dests is not None:
         for scene in dests.get("scenes", []):
             if not scene.get("active", False):
                 continue
@@ -97,9 +112,7 @@ def verify_activation(catalog_path, destinations_path, start_label_path):
 
             if map_info and map_info["scope"] in ["archive", "prototype"]:
                 errors.append(f"Scene {path} is active in destinations but has scope {map_info['scope']}")
-    except FileNotFoundError:
-        pass
-        
+
     try:
         with open(start_label_path, 'r') as f:
             content = f.read()
@@ -127,7 +140,7 @@ if __name__ == "__main__":
     errors = verify_activation(args.catalog, args.destinations, args.start)
     errors.extend(verify_release_scope(args.destinations, args.root))
     if errors:
-        for e in errors:
+        for e in dict.fromkeys(errors):
             print("ERROR:", e)
         sys.exit(1)
     

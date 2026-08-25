@@ -53,6 +53,21 @@ const MAPS: Dictionary = {
         errors = verify_activation(self.catalog_path, dest_path, start_path)
         self.assertEqual(len(errors), 0)
 
+    def test_malformed_destinations_json_returns_actionable_error(self):
+        dest_path = os.path.join(self.temp_dir.name, "broken-dest.json")
+        with open(dest_path, "w") as f:
+            f.write('{"scenes": [')
+
+        start_path = os.path.join(self.temp_dir.name, "start.gd")
+        with open(start_path, "w") as f:
+            f.write('change_scene_to_file("res://valid.tscn")')
+
+        errors = verify_activation(self.catalog_path, dest_path, start_path)
+
+        self.assertEqual(len(errors), 1)
+        self.assertIn("Invalid JSON in destinations manifest", errors[0])
+        self.assertIn("line 1, column 13", errors[0])
+
     def test_seeded_active_prototype_without_release_flag(self):
         dest_path = os.path.join(self.temp_dir.name, "dest.json")
         with open(dest_path, 'w') as f:
