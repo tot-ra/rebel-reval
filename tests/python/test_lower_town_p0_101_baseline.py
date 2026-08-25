@@ -25,6 +25,13 @@ EXPECTED_CAPTURE_PRESETS = {
     "eastern_artisan_wet_margin",
     "landmark_approaches",
 }
+EXPECTED_CAPTURE_PRESET_ORDER = [
+    "market_primary_spine",
+    "merchant_craft_lane",
+    "service_yard",
+    "eastern_artisan_wet_margin",
+    "landmark_approaches",
+]
 EXPECTED_COUNTS = {"house": 61, "wall": 36, "gate_arch": 2}
 EXPECTED_TIERS = {"merchant_stone": 14, "merchant_timber": 14, "craft_boda": 23}
 REQUIRED_IDS = {
@@ -129,6 +136,33 @@ class LowerTownP0101BaselineTest(unittest.TestCase):
                 self.assertEqual(image_file.read(4), b"IHDR", image_path)
                 width, height = struct.unpack(">II", image_file.read(8))
             self.assertEqual((width, height), (expected_width, expected_height), image_path)
+
+    def test_capture_manifest_header_and_matched_framing_are_traceable(self) -> None:
+        manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
+        self.assertEqual(manifest["schema"], "r-560-lower-town-p0-101-capture-v1")
+        self.assertEqual(manifest["task"], "R-560 / P0-101f")
+        self.assertEqual(manifest["map_id"], "lower_town_slice")
+        self.assertEqual(
+            manifest["map_revision"],
+            "lower_town_slice.rrmap authored source "
+            "(shared worktree; record HEAD separately)",
+        )
+        self.assertEqual(len(manifest["map_fingerprint"]), 64)
+        self.assertEqual(manifest["renderer"], "gl_compatibility")
+        self.assertEqual(manifest["viewport"], [1280, 720])
+        self.assertEqual(manifest["times"], ["day", "night"])
+        self.assertEqual(manifest["presets"], EXPECTED_CAPTURE_PRESET_ORDER)
+
+        framing_by_preset: dict[str, set[str]] = {}
+        for plate in manifest["plates"]:
+            preset_id = str(plate["preset_id"])
+            framing_by_preset.setdefault(preset_id, set()).add(
+                str(plate["framing_key"])
+            )
+        self.assertEqual(set(framing_by_preset), EXPECTED_CAPTURE_PRESETS)
+        self.assertTrue(
+            all(len(framing_keys) == 1 for framing_keys in framing_by_preset.values())
+        )
 
     def test_capture_manifest_keeps_stable_id_observations_unreviewed(self) -> None:
         manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
