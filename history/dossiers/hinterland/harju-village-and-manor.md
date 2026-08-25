@@ -138,6 +138,7 @@ No licensed plate gives a **measured 1343 hamlet plan** or **attested signal-hil
 - [`../economy/merchant-cart-and-transport-1340s.md`](../economy/merchant-cart-and-transport-1340s.md) — manor cart corvée and post–23 Apr road risk on Harju routes.
 - [`../../../docs/lore/four_kings_act2_lore.md`](../../../docs/lore/four_kings_act2_lore.md) — invented Four Kings cast on attested election event.
 - [`../folklore/belief-omens-and-healing.md`](../folklore/belief-omens-and-healing.md) — hiis groves, rebel sacred geography, and syncretic healing outside manor yards.
+- [`./harju-rebel-camp-and-pirita-approach-1343.md`](./harju-rebel-camp-and-pirita-approach-1343.md) — eastern Viru-Iru-Pirita corridor, rebel-camp placement boundary, and unresolved signal-hill/bridge questions.
 
 ## Open questions
 
