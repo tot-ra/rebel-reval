@@ -29,6 +29,90 @@ from validate_content_semantics import (
 
 RecordValidator = Callable[[RecordValidationContext], None]
 
+
+def validate_magic(context: RecordValidationContext) -> None:
+    """Keep the dual-school records closed even where JSON Schema is permissive."""
+    record = context.record
+    record_type = record.get("type")
+
+    if record_type == "spell":
+        if record.get("school") != "school.pagan":
+            context.diagnose(
+                "MAGIC_CONTRACT",
+                "$.school",
+                "pagan spells must use school.pagan",
+            )
+        sequence = record.get("sequence")
+        if not isinstance(sequence, list) or not sequence:
+            context.diagnose(
+                "MAGIC_CONTRACT",
+                "$.sequence",
+                "pagan spells require an authored element sequence",
+            )
+    elif record_type == "rite":
+        if record.get("school") != "school.divine":
+            context.diagnose(
+                "MAGIC_CONTRACT",
+                "$.school",
+                "rites must use school.divine",
+            )
+        tags = record.get("tags")
+        if not isinstance(tags, list) or not tags:
+            context.diagnose(
+                "MAGIC_CONTRACT",
+                "$.tags",
+                "rites require authored element tags",
+            )
+        if record.get("fixed_liturgy") is not True:
+            context.diagnose(
+                "MAGIC_CONTRACT",
+                "$.fixed_liturgy",
+                "rites must declare fixed_liturgy true",
+            )
+        if "sequence" in record:
+            context.diagnose(
+                "MAGIC_CONTRACT",
+                "$.sequence",
+                "rites use fixed tags instead of a forge sequence",
+            )
+    elif record_type == "magic_grant":
+        operation = record.get("operation")
+        if operation not in {"grant", "revoke"}:
+            context.diagnose(
+                "MAGIC_CONTRACT",
+                "$.operation",
+                "magic grant records require operation grant or revoke",
+            )
+        target_id = record.get("target_id")
+        if not isinstance(target_id, str) or not target_id.startswith(("spell.", "rite.")):
+            context.diagnose(
+                "MAGIC_CONTRACT",
+                "$.target_id",
+                "magic operations must target a spell or rite record",
+            )
+        grant_flag = record.get("grant_flag")
+        if not isinstance(grant_flag, str) or not grant_flag.startswith("flag.magic."):
+            context.diagnose(
+                "MAGIC_CONTRACT",
+                "$.grant_flag",
+                "magic operations require a flag.magic.* grant flag",
+            )
+
+        record_id = record.get("id")
+        if isinstance(record_id, str):
+            expected_operation = None
+            if record_id.startswith("magic.grant."):
+                expected_operation = "grant"
+            elif record_id.startswith("magic.revoke."):
+                expected_operation = "revoke"
+            if expected_operation is not None and operation != expected_operation:
+                context.diagnose(
+                    "MAGIC_CONTRACT",
+                    "$.operation",
+                    f"{record_id} must use operation {expected_operation}",
+                )
+
+
 RECORD_VALIDATORS: dict[str, RecordValidator] = {
     "character": validate_character,
     "dialogue": validate_dialogue_record,
@@ -39,6 +123,9 @@ RECORD_VALIDATORS: dict[str, RecordValidator] = {
     "mechanism": validate_mechanism,
     "encounter": validate_encounter,
     "location": validate_location,
+    "spell": validate_magic,
+    "rite": validate_magic,
+    "magic_grant": validate_magic,
 }
 
 

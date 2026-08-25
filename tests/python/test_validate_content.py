@@ -218,6 +218,43 @@ class ValidateContentTests(unittest.TestCase):
             diagnostics = validate_corpus([content], project_root=root)
             self.assertEqual(diagnostics, [])
 
+    def test_magic_contract_rejects_cross_school_and_operation_mismatch(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            content = root / "content"
+
+            spell = json.loads(
+                (ROOT / "content/examples/valid/spell.pagan.spark.json").read_text(encoding="utf-8")
+            )
+            spell["school"] = "school.divine"
+            spell.pop("sequence")
+            _write(content / "spell.json", spell)
+
+            rite = json.loads(
+                (ROOT / "content/examples/valid/rite.blessing.json").read_text(encoding="utf-8")
+            )
+            rite["sequence"] = ["element.faith"]
+            _write(content / "rite.json", rite)
+
+            grant = json.loads(
+                (
+                    ROOT / "content/examples/valid/magic.grant.starter_spark.json"
+                ).read_text(encoding="utf-8")
+            )
+            grant["operation"] = "revoke"
+            _write(content / "grant.json", grant)
+
+            diagnostics = validate_corpus([content], project_root=root)
+
+            self.assertEqual(
+                {diagnostic.code for diagnostic in diagnostics},
+                {"MAGIC_CONTRACT"},
+            )
+            messages = [diagnostic.message for diagnostic in diagnostics]
+            self.assertTrue(any("authored element sequence" in message for message in messages))
+            self.assertTrue(any("fixed tags" in message for message in messages))
+            self.assertTrue(any("must use operation grant" in message for message in messages))
+
     def test_json_parse_error(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
