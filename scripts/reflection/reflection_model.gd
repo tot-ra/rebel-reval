@@ -33,6 +33,11 @@ static func build_snapshot(state: GameState) -> Dictionary:
 		"marks": marks,
 		"plain_summary": _build_plain_summary(state, marks),
 		"options": _build_options(),
+		"natural_enabled": state.is_natural_system_enabled(),
+		"natural_unspent_points": state.get_natural_unspent_points(),
+		"natural_aspects": _build_natural_aspects(state),
+		"psyche_states": state.get_psyche_states(),
+		"hingepuu_loci": state.get_hingepuu_loci(),
 	}
 
 
@@ -159,6 +164,20 @@ static func _build_options() -> Array[Dictionary]:
 			],
 		},
 	]
+
+
+static func _build_natural_aspects(state: GameState) -> Array[Dictionary]:
+	var aspects: Array[Dictionary] = []
+	for aspect_id in GameState.NATURAL_ASPECT_IDS:
+		aspects.append(
+			{
+				"id": String(aspect_id),
+				"display": String(GameState.NATURAL_ASPECT_DISPLAY_NAMES.get(aspect_id, aspect_id)),
+				"rank": state.get_natural_aspect_rank(aspect_id),
+				"effective_rank": state.get_natural_effective_aspect_rank(aspect_id),
+			}
+		)
+	return aspects
 
 
 static func _mark(mark_id: String, label: String, color: Color) -> Dictionary:
