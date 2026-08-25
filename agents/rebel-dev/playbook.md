@@ -4,6 +4,7 @@ Read `agents/playbook.md` first for shared workflow, tooling, and Git lessons.
 This file contains lessons specific to the Dev role.
 
 ## Role-specific lessons
+- In a shared dirty worktree, a path-limited commit can lose a race with another session and exit without output after `HEAD` advances; verify the resulting commit contains the scoped files, then retry from the new `HEAD` without amending the other session's commit.
 - When a Godot preload reports that an existing script cannot be resolved, run the target script directly to expose the first parse error; dependent preload messages are often only a cascade.
 - In Godot 4.7 evidence helpers, conditional inference from `definition.map_id` can become a `Variant` warning treated as an error; explicitly cast map IDs to `String` when building capture filenames.
 - A headless Godot diagnostic that waits on scene frames can hang in a dirty editor-heavy worktree; kill only the probe process, remove its temporary script and rely on a bounded focused harness for verification.
