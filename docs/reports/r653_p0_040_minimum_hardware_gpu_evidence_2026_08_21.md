@@ -88,6 +88,56 @@ The declared target is not available on the current measurement host. The host i
 
 **Verdict:** **BLOCKED** - the R-709 audit confirms that no valid declared-target run was executed. The raw renderer JSON has no embedded target/host identity fields, and the captured provenance identifies the actual host as Apple M5 Pro arm64 rather than Intel Core i5-8250U / Intel UHD Graphics 620 x86_64. The required `BENCHMARK_HEADLESS=0` command must not be run here and relabeled as target evidence. The existing Apple M5 Pro non-headless capture remains supplementary only: it proves 120 samples, a complete median/p95/p99/max distribution, and non-zero GPU memory instrumentation, but it cannot certify the target or change any performance cap. R-563 remains the owner of target hardware acquisition/run.
 
+## Independent R-711 verification addendum
+
+**Checked:** `2026-08-25T12:02:34Z`
+**Verification task:** `R-711`
+**Verdict:** **BLOCKED** - `READY_FOR_PARENT_REVIEW` is not permitted because the declared Intel UHD 620 target was not measured.
+
+### Board and dependency state
+
+- `R-711`: `done` after recording this independent verification.
+- `R-710`: `done`; its ledger reconciliation preserves the unavailable-target boundary.
+- Readiness owners `R-652`, `R-654`, and `R-655`: `done`.
+- `R-653`: `in_progress`; the target-capture owner remains open because no valid Intel UHD 620 run is available.
+- `R-563`: `in_review`; it remains the owner of target hardware acquisition and the declared-target capture.
+
+### Evidence checks
+
+| Check | Result |
+|---|---|
+| Target profile identity | **BLOCKED** - `tools/benchmarks/minimum-hardware.json` still declares Intel Core i5-8250U / Intel UHD Graphics 620 / x86_64 / 8 GiB / 1920x1080; the detected host is Apple M5 Pro / arm64 / 48 GiB. |
+| Raw report provenance | **PASS** - `/tmp/r653-renderer-comparison.json` exists and SHA-256 `fddda43c820383c4c247d5b2b9e85a4dd3be0541f9a3f9adad30ddc771604e04` matches the linked manifest. |
+| Non-headless status | **PASS as supplementary instrumentation** - manifest records `headless=false`, `gl_compatibility`, `opengl3`, and 1920x1080; this does not repair the host mismatch. |
+| Frame-time distribution | **PASS as supplementary instrumentation** - 120 samples with median `9.737 ms`, p95 `68.674 ms`, p99 `187.460 ms`, and max `2085.971 ms`. |
+| GPU metrics/instrumentation | **PASS as supplementary instrumentation** - `texture_memory_bytes=442222135` and `render_video_memory_bytes=671481419`; fidelity limitations and shutdown diagnostics remain documented. |
+| Approval packet link | **PASS** - [`p0_040_maintainer_approval_packet.md`](p0_040_maintainer_approval_packet.md) links this ledger and the raw-evidence manifest, while retaining `PENDING` and no-acceptance boundaries. |
+| Authored target/caps | **PASS** - no runtime, asset, map, budget, or performance-cap files were changed; the declared profile remains unchanged. |
+
+### Exact verification commands and results
+
+```text
+python3 -m unittest tests.python.test_r653_minimum_hardware_evidence -v
+PASS - 6/6 tests
+
+python3 tools/generate_p038_comparison_report.py --check
+PASS - P0-038 comparison report is up to date
+
+python3 -m unittest tests.python.test_generate_p038_comparison_report -v
+PASS - 5/5 tests
+
+python3 -m json.tool tools/benchmarks/minimum-hardware.json
+PASS - declared profile parses
+
+git diff --check -- docs/reports/r653_p0_040_minimum_hardware_gpu_evidence_2026_08_21.md
+PASS
+
+python3 tools/generate_active_docs_report.py --check
+BLOCKED by pre-existing repository-wide drift: active_markdown_report.md is not up to date
+```
+
+The active-document failure is outside this task's allowlist and does not alter the R-653 evidence result. The first actionable blocker remains the unavailable x86_64 Intel Core i5-8250U / Intel UHD Graphics 620 machine. The Apple M5 Pro capture is retained as supplementary non-headless instrumentation only; no target acceptance, maintainer approval, parent closure, or performance-cap change is inferred.
+
 ## Sources
 
 - [`tools/benchmarks/minimum-hardware.json`](../../tools/benchmarks/minimum-hardware.json)
