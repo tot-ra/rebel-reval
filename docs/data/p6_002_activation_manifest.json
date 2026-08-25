@@ -1,0 +1,82 @@
+{
+  "schema": "rebel-reval-p6-002-activation-v1",
+  "task": "R-321 / P6-002",
+  "approval_artifact": "docs/adr/0008-three-act-campaign-and-faction-scope.md",
+  "decision": "blocked",
+  "status": "prototype_wave_ready_for_gate_review",
+  "blockers": [
+    "P5-009",
+    "P6-004",
+    "P6-009"
+  ],
+  "activation_policy": "Keep Act 3 maps developer-traversable without promoting any prototype to release or production until all owning content and parity gates are accepted.",
+  "targets": [
+    {
+      "id": "world_padise",
+      "rrmap_id": "world.padise",
+      "scene_path": "res://scenes/world_travel/world_padise.tscn",
+      "role": "Padise monastery phases",
+      "owner_tasks": ["P6-002", "P6-009"],
+      "expected_dev_spawns": ["from_reval_west", "from_world_parnu"],
+      "phases": [
+        {
+          "id": "padise.before_sack",
+          "status": "blocked",
+          "source": null
+        },
+        {
+          "id": "padise.after_sack",
+          "status": "blocked",
+          "source": "content/maps/world_padise.rrmap"
+        }
+      ]
+    },
+    {
+      "id": "world_paide",
+      "rrmap_id": "world.paide",
+      "scene_path": "res://scenes/world_travel/world_paide.tscn",
+      "role": "Paide Castle Act 2 to Act 3 handoff",
+      "owner_tasks": ["P5-009", "P6-006"],
+      "expected_dev_spawns": ["from_world_kanavere", "from_world_sojamae", "from_world_parnu"]
+    },
+    {
+      "id": "world_saaremaa",
+      "rrmap_id": "world.saaremaa",
+      "scene_path": "res://scenes/world_travel/world_saaremaa.tscn",
+      "role": "Saaremaa campaign corridor",
+      "owner_tasks": ["P6-004"],
+      "expected_dev_spawns": ["from_reval_harbor", "from_world_parnu", "from_world_poide"]
+    },
+    {
+      "id": "world_poide",
+      "rrmap_id": "world.poide",
+      "scene_path": "res://scenes/world_travel/world_poide.tscn",
+      "role": "Pöide Castle siege objective",
+      "owner_tasks": ["P6-004"],
+      "expected_dev_spawns": ["from_world_saaremaa"]
+    }
+  ],
+  "gates": {
+    "activation_guard": {
+      "status": "pass",
+      "evidence": "tools/verify_p6_002_activation.py"
+    },
+    "transition_verifier": {
+      "status": "pending",
+      "evidence": "tools/verify_transitions.gd"
+    },
+    "traversal_collision": {
+      "status": "pending",
+      "evidence": "tests/godot/test_world_padise_1343.gd and target map traversal suites"
+    },
+    "day_night_parity": {
+      "status": "blocked",
+      "day_capture": null,
+      "night_capture": null
+    },
+    "phase_coverage": {
+      "status": "blocked",
+      "evidence": "P6-009 must author both Padise phases before promotion"
+    }
+  }
+}
