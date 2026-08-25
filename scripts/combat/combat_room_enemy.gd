@@ -126,6 +126,7 @@ func tick_ai(delta: float, target: Node2D = null) -> void:
 		machine.set_perception(true, distance)
 	else:
 		machine.clear_target()
+	machine.set_health_ratio(health / maxf(1.0, max_health))
 	machine.tick(delta)
 	_refresh_label()
 

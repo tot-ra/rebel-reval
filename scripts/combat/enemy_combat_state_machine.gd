@@ -1,9 +1,8 @@
 class_name EnemyCombatStateMachine
 extends RefCounted
 
-## Shared watchman/sergeant AI loop (P1-025).
-## Why: both archetypes must patrol → detect → telegraph → attack → react →
-## disengage through one controller so night encounters cannot fork duplicate AI.
+## Shared enemy AI loop. Controllers use the same readable patrol -> detect ->
+## chase -> telegraph -> attack -> react/retreat -> disengage phases.
 
 signal state_changed(previous: EnemyCombatState.State, current: EnemyCombatState.State)
 signal attack_impact
@@ -19,9 +18,9 @@ var state_elapsed_sec: float = 0.0
 ## Abstract distance to the current hostile target. INF means no target.
 var target_distance: float = INF
 var target_in_sight: bool = false
+var health_ratio: float = 1.0
 
 var _attack_impact_emitted := false
-var _resume_after_react: EnemyCombatState.State = EnemyCombatState.State.TELEGRAPH
 var _dead := false
 
 
@@ -33,9 +32,9 @@ func configure(next_archetype: EnemyArchetype) -> void:
 func reset() -> void:
 	_dead = false
 	_attack_impact_emitted = false
-	_resume_after_react = EnemyCombatState.State.TELEGRAPH
 	target_distance = INF
 	target_in_sight = false
+	health_ratio = 1.0
 	_set_state(EnemyCombatState.State.PATROL)
 
 
@@ -48,16 +47,24 @@ func tick(delta: float) -> void:
 			_tick_patrol()
 		EnemyCombatState.State.DETECT:
 			_tick_detect()
+		EnemyCombatState.State.CHASE:
+			_tick_chase()
 		EnemyCombatState.State.TELEGRAPH:
 			_tick_telegraph()
 		EnemyCombatState.State.ATTACK:
 			_tick_attack()
 		EnemyCombatState.State.REACT:
 			_tick_react()
+		EnemyCombatState.State.RETREAT:
+			_tick_retreat()
 		EnemyCombatState.State.DISENGAGE:
 			_tick_disengage()
 		EnemyCombatState.State.DEAD:
 			pass
+
+
+func set_health_ratio(value: float) -> void:
+	health_ratio = clampf(value, 0.0, 1.0)
 
 
 func set_perception(in_sight: bool, distance: float) -> void:
@@ -79,8 +86,7 @@ func apply_hit() -> void:
 		# Surprise hit on patrol jumps straight into detect, then combat.
 		_set_state(EnemyCombatState.State.DETECT)
 		return
-	# After stagger, both archetypes re-telegraph so the player gets a readable window.
-	_resume_after_react = EnemyCombatState.State.TELEGRAPH
+	# After stagger, recalculate whether to fight, chase, or retreat.
 	_set_state(EnemyCombatState.State.REACT)
 
 
@@ -112,16 +118,30 @@ func _tick_patrol() -> void:
 
 
 func _tick_detect() -> void:
-	if not _can_detect_target() and not _target_still_engaged():
+	if _should_lose_target():
 		_set_state(EnemyCombatState.State.DISENGAGE)
 		return
-	if state_elapsed_sec >= archetype.detect_duration_sec:
-		_set_state(EnemyCombatState.State.TELEGRAPH)
+	if state_elapsed_sec < archetype.detect_duration_sec:
+		return
+	_set_state(_desired_engagement_state())
+
+
+func _tick_chase() -> void:
+	if _should_lose_target():
+		_set_state(EnemyCombatState.State.DISENGAGE)
+		return
+	var desired := _desired_engagement_state()
+	if desired != EnemyCombatState.State.CHASE:
+		_set_state(desired)
 
 
 func _tick_telegraph() -> void:
 	if _should_lose_target():
 		_set_state(EnemyCombatState.State.DISENGAGE)
+		return
+	var desired := _desired_engagement_state()
+	if desired == EnemyCombatState.State.RETREAT or desired == EnemyCombatState.State.CHASE:
+		_set_state(desired)
 		return
 	if state_elapsed_sec >= archetype.telegraph_duration_sec:
 		_set_state(EnemyCombatState.State.ATTACK)
@@ -133,10 +153,7 @@ func _tick_attack() -> void:
 		attack_impact.emit()
 	if state_elapsed_sec < archetype.attack_duration_sec:
 		return
-	if _target_still_engaged():
-		_set_state(EnemyCombatState.State.TELEGRAPH)
-	else:
-		_set_state(EnemyCombatState.State.DISENGAGE)
+	_set_state(_desired_engagement_state())
 
 
 func _tick_react() -> void:
@@ -144,7 +161,16 @@ func _tick_react() -> void:
 		if _should_lose_target():
 			_set_state(EnemyCombatState.State.DISENGAGE)
 		else:
-			_set_state(_resume_after_react)
+			_set_state(_desired_engagement_state())
+
+
+func _tick_retreat() -> void:
+	if _should_lose_target():
+		_set_state(EnemyCombatState.State.DISENGAGE)
+		return
+	# A cornered wounded enemy fights instead of oscillating between retreat and attack.
+	if target_distance <= archetype.cornered_radius:
+		_set_state(EnemyCombatState.State.TELEGRAPH)
 
 
 func _tick_disengage() -> void:
@@ -163,6 +189,14 @@ func _can_detect_target() -> bool:
 
 func _target_still_engaged() -> bool:
 	return target_in_sight and target_distance <= archetype.engage_radius
+
+
+func _desired_engagement_state() -> EnemyCombatState.State:
+	if health_ratio <= archetype.retreat_health_ratio and target_distance > archetype.cornered_radius:
+		return EnemyCombatState.State.RETREAT
+	if target_distance > archetype.attack_reach_px:
+		return EnemyCombatState.State.CHASE
+	return EnemyCombatState.State.TELEGRAPH
 
 
 func _should_lose_target() -> bool:

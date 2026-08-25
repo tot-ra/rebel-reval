@@ -353,12 +353,9 @@ def create_sheep_rig(obj: bpy.types.Object) -> tuple[bpy.types.Object, list[bpy.
 
 
 def create_pack_horse_rig(obj: bpy.types.Object) -> tuple[bpy.types.Object, list[bpy.types.Object]]:
-    """Taller pack-horse rig with longer legs and a readable swishing tail.
-
-    WHY: the v3 Hunyuan horse has a much narrower head (~±0.19 m) than the older
-    wall-artifact mesh. Eyes at ±0.34 m floated beside the skull, so the orbit
-    anchors stay inside the measured head envelope.
-    """
+    """Surface-fitted procedural pack-horse rig with compact, seated eyes."""
+    eye_left = snap_point_to_mesh_surface(obj, Vector((-0.94, 0.14, 1.38)), outward=-0.010)
+    eye_right = snap_point_to_mesh_surface(obj, Vector((-0.94, -0.14, 1.38)), outward=-0.010)
     return create_quadruped_rig(
         obj,
         "PackHorseRig",
@@ -371,8 +368,8 @@ def create_pack_horse_rig(obj: bpy.types.Object) -> tuple[bpy.types.Object, list
             "FrontRightLeg": ((-0.60, -0.22, 0.80), (-0.60, -0.22, 0.10)),
             "BackLeftLeg": ((0.65, 0.22, 0.80), (0.65, 0.22, 0.10)),
             "BackRightLeg": ((0.65, -0.22, 0.80), (0.65, -0.22, 0.10)),
-            "EyeLeft": ((-0.94, 0.14, 1.38), (-0.94, 0.14, 1.46)),
-            "EyeRight": ((-0.94, -0.14, 1.38), (-0.94, -0.14, 1.46)),
+            "EyeLeft": (tuple(eye_left), (eye_left.x, eye_left.y, eye_left.z + 0.06)),
+            "EyeRight": (tuple(eye_right), (eye_right.x, eye_right.y, eye_right.z + 0.06)),
         },
         {
             "neck_x": -0.45,
@@ -383,15 +380,15 @@ def create_pack_horse_rig(obj: bpy.types.Object) -> tuple[bpy.types.Object, list
             "leg_z": 0.95,
             "front_leg_x": -0.20,
             "back_leg_x": 0.30,
-            "eye_x": 0.94,
-            "eye_scale": (0.048, 0.020, 0.042),
-            "pupil_scale": (0.022, 0.010, 0.024),
-            "pupil_offset": 0.012,
+            "eye_x": abs(eye_left.x),
+            "eye_scale": (0.033, 0.014, 0.029),
+            "pupil_scale": (0.014, 0.007, 0.016),
+            "pupil_offset": 0.008,
             "tail_tuft_scale": (0.082, 0.070, 0.110),
         },
         eye_specs=[
-            ("Left", 0.14, 1.38, "EyeLeft"),
-            ("Right", -0.14, 1.38, "EyeRight"),
+            ("Left", eye_left.y, eye_left.z, "EyeLeft"),
+            ("Right", eye_right.y, eye_right.z, "EyeRight"),
         ],
         tail_specs=((0.70, 0.0, 0.95), (1.02, 0.0, 0.52), 0.055, 0.028),
     )
@@ -399,6 +396,8 @@ def create_pack_horse_rig(obj: bpy.types.Object) -> tuple[bpy.types.Object, list
 
 def create_pig_rig(obj: bpy.types.Object) -> tuple[bpy.types.Object, list[bpy.types.Object]]:
     """Lean landrace-pig rig preserving the licensed model's cloven-foot anatomy."""
+    eye_left = snap_point_to_mesh_surface(obj, Vector((-0.58, 0.17, 0.52)), outward=-0.006)
+    eye_right = snap_point_to_mesh_surface(obj, Vector((-0.58, -0.17, 0.52)), outward=-0.006)
     return create_quadruped_rig(
         obj,
         "PigRig",
@@ -411,8 +410,8 @@ def create_pig_rig(obj: bpy.types.Object) -> tuple[bpy.types.Object, list[bpy.ty
             "FrontRightLeg": ((-0.28, -0.12, 0.32), (-0.28, -0.12, 0.04)),
             "BackLeftLeg": ((0.28, 0.12, 0.32), (0.28, 0.12, 0.04)),
             "BackRightLeg": ((0.28, -0.12, 0.32), (0.28, -0.12, 0.04)),
-            "EyeLeft": ((-0.58, 0.17, 0.52), (-0.58, 0.17, 0.56)),
-            "EyeRight": ((-0.58, -0.17, 0.52), (-0.58, -0.17, 0.56)),
+            "EyeLeft": (tuple(eye_left), (eye_left.x, eye_left.y, eye_left.z + 0.04)),
+            "EyeRight": (tuple(eye_right), (eye_right.x, eye_right.y, eye_right.z + 0.04)),
         },
         {
             "neck_x": -0.34,
@@ -423,15 +422,15 @@ def create_pig_rig(obj: bpy.types.Object) -> tuple[bpy.types.Object, list[bpy.ty
             "leg_z": 0.35,
             "front_leg_x": -0.12,
             "back_leg_x": 0.12,
-            "eye_x": 0.58,
-            "eye_scale": (0.026, 0.012, 0.022),
-            "pupil_scale": (0.012, 0.007, 0.012),
-            "pupil_offset": 0.010,
+            "eye_x": abs(eye_left.x),
+            "eye_scale": (0.020, 0.009, 0.017),
+            "pupil_scale": (0.009, 0.005, 0.009),
+            "pupil_offset": 0.006,
             "tail_tuft_scale": (0.025, 0.020, 0.025),
         },
         eye_specs=[
-            ("Left", 0.17, 0.52, "EyeLeft"),
-            ("Right", -0.17, 0.52, "EyeRight"),
+            ("Left", eye_left.y, eye_left.z, "EyeLeft"),
+            ("Right", eye_right.y, eye_right.z, "EyeRight"),
         ],
         # The source's small curled tail is retained and weighted to Tail directly.
         tail_specs=None,
@@ -728,6 +727,50 @@ def create_livestock_animations(armature: bpy.types.Object) -> None:
                 "Neck": (0.0, -0.035 + abs(diagonal_a) * 0.06, 0.0),
             },
             body_lift=body_lift,
+            eye_open=1.0,
+        )
+
+    trot = bpy.data.actions.new("Trot-loop")
+    trot.use_fake_user = True
+    armature.animation_data.action = trot
+    for frame, diagonal_a, diagonal_b, body_lift in (
+        (1, 0.48, -0.48, 0.008),
+        (5, 0.0, 0.0, 0.038),
+        (9, -0.48, 0.48, 0.008),
+        (13, 0.0, 0.0, 0.038),
+        (17, 0.48, -0.48, 0.008),
+    ):
+        key_pose(
+            frame,
+            {
+                "FrontLeftLeg": (0.0, diagonal_a, 0.0),
+                "BackRightLeg": (0.0, diagonal_a, 0.0),
+                "FrontRightLeg": (0.0, diagonal_b, 0.0),
+                "BackLeftLeg": (0.0, diagonal_b, 0.0),
+                "Tail": (diagonal_b * 0.35, 0.0, diagonal_b * 0.12),
+                "Neck": (0.0, 0.045, 0.0),
+            },
+            body_lift=body_lift,
+        )
+
+    graze = bpy.data.actions.new("Graze-loop")
+    graze.use_fake_user = True
+    armature.animation_data.action = graze
+    for frame, neck_pitch, neck_yaw, tail_swing in (
+        (1, 0.20, -0.05, -0.12),
+        (14, 0.48, 0.08, 0.10),
+        (30, 0.62, -0.10, -0.08),
+        (46, 0.42, 0.06, 0.12),
+        (61, 0.20, -0.05, -0.12),
+    ):
+        key_pose(
+            frame,
+            {
+                "Neck": (0.0, neck_pitch, neck_yaw),
+                "Tail": (tail_swing, 0.0, tail_swing * 0.25),
+                "FrontLeftLeg": (0.0, 0.05, 0.0),
+                "FrontRightLeg": (0.0, -0.03, 0.0),
+            },
             eye_open=1.0,
         )
 

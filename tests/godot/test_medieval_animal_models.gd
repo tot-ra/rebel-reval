@@ -402,3 +402,54 @@ func test_ambient_livestock_actors_share_production_models_without_collision() -
 			assert_true((actor.get_node("Model") as Node3D).get_meta(&"production_animal_model", false))
 		assert_false(urban.actor_has_collision(actor))
 	urban.queue_free()
+
+
+func test_livestock_exposes_idle_walk_trot_and_graze_clips() -> void:
+	for species: StringName in [
+		MammalSpecies.SPECIES_COW,
+		MammalSpecies.SPECIES_PIG,
+		MammalSpecies.SPECIES_SHEEP,
+		MammalSpecies.SPECIES_HORSE,
+	]:
+		var host := Node3D.new()
+		var model := Models.add_model(host, species)
+		assert_true(model != null)
+		var players := model.find_children("*", "AnimationPlayer", true, false)
+		assert_true(players.size() >= 1, "%s needs skeletal animation" % species)
+		var player := players[0] as AnimationPlayer
+		for clip: StringName in [
+			Models.IDLE_ANIMATION,
+			Models.WALK_ANIMATION,
+			Models.TROT_ANIMATION,
+			Models.GRAZE_ANIMATION,
+		]:
+			assert_true(player.has_animation(clip), "%s is missing %s" % [species, clip])
+		Models.sync_animation(host, host.position - Vector3(0.15, 0.0, 0.0), 0.1)
+		assert_eq(player.current_animation, Models.TROT_ANIMATION)
+		for idle_step in 72:
+			Models.sync_animation(host, host.position, 0.1)
+		assert_eq(player.current_animation, Models.GRAZE_ANIMATION)
+		host.free()
+
+
+func test_livestock_eyes_stay_compact_and_seated_on_the_head() -> void:
+	for species: StringName in [
+		MammalSpecies.SPECIES_PIG,
+		MammalSpecies.SPECIES_SHEEP,
+		MammalSpecies.SPECIES_HORSE,
+	]:
+		var host := Node3D.new()
+		var model := Models.add_model(host, species)
+		assert_true(model != null)
+		var body := model.find_child("AnimalMesh", true, false) as MeshInstance3D
+		assert_true(body != null)
+		var body_bounds := body.get_aabb()
+		for eye_name in [&"EyeLeft", &"EyeRight"]:
+			var eye := model.find_child(eye_name, true, false) as MeshInstance3D
+			assert_true(eye != null, "%s needs %s" % [species, eye_name])
+			var eye_bounds := eye.get_aabb()
+			assert_true(
+				eye_bounds.size.length() <= body_bounds.size.length() * 0.055,
+				"%s eye must not read as a detached oversized sphere" % species
+			)
+		host.free()

@@ -20,7 +20,8 @@ const WAYPOINT_EPSILON := 0.04
 ## home (Vector3), radius (float), speed (float, 0 keeps the actor still),
 ## roam_scale (float share of radius used for destinations),
 ## pause_range (Vector2 seconds), flee_speed (float, 0 disables fleeing),
-## flee_radius (float listener distance that triggers a flee).
+## flee_radius (float listener distance that triggers a flee), and blocked_rects
+## (Array[Rect2] of building/wall footprints already expanded by body clearance).
 static func setup(actor: Node3D, seed_key: StringName, index: int, config: Dictionary) -> void:
 	var home: Vector3 = config.get("home", actor.position)
 	var pause_range: Vector2 = config.get("pause_range", Vector2(0.9, 3.2))
@@ -31,6 +32,7 @@ static func setup(actor: Node3D, seed_key: StringName, index: int, config: Dicti
 	actor.set_meta(&"pause_range", pause_range)
 	actor.set_meta(&"flee_speed", float(config.get("flee_speed", 0.0)))
 	actor.set_meta(&"flee_radius", float(config.get("flee_radius", 0.0)))
+	actor.set_meta(&"blocked_rects", config.get("blocked_rects", []))
 	actor.set_meta(&"placement_index", index)
 	actor.set_meta(&"waypoint_index", 0)
 	actor.set_meta(&"target", home)
@@ -73,6 +75,13 @@ static func advance(
 
 	var next_position := flat_position.move_toward(target, speed * delta)
 	next_position.y = home.y
+	if _is_blocked(actor, next_position):
+		# Do not slide through a facade when a large delta crosses its edge. Stay
+		# at the last valid point and choose another deterministic yard waypoint.
+		actor.position = flat_position
+		_select_next_target(actor, seed_key)
+		actor.set_meta(&"pause_remaining", 0.15)
+		return
 	var movement := next_position - flat_position
 	actor.position = next_position
 	if movement.length_squared() > 0.000001:
@@ -97,9 +106,27 @@ static func _select_next_target(actor: Node3D, seed_key: StringName) -> void:
 	)
 	var angle := rng.randf_range(0.0, TAU)
 	# sqrt spreads destinations evenly over the yard instead of clustering every
-	# route near its center.
+	# route near its center. Retry around the circle when the sampled point lands
+	# inside a building or wall; the final fallback is always the valid home.
 	var distance := sqrt(rng.randf()) * radius * roam_scale
-	actor.set_meta(&"target", home + Vector3(cos(angle) * distance, 0.0, sin(angle) * distance))
+	var target := home
+	for attempt in 12:
+		var candidate_angle := angle + float(attempt) * TAU / 12.0
+		var candidate := home + Vector3(
+			cos(candidate_angle) * distance, 0.0, sin(candidate_angle) * distance
+		)
+		if not _is_blocked(actor, candidate):
+			target = candidate
+			break
+	actor.set_meta(&"target", target)
+
+
+static func _is_blocked(actor: Node3D, position: Vector3) -> bool:
+	var point := Vector2(position.x, position.z)
+	for blocked_rect: Rect2 in actor.get_meta(&"blocked_rects", []):
+		if blocked_rect.has_point(point):
+			return true
+	return false
 
 
 static func _flee_target(actor: Node3D, listener_position: Vector3, home: Vector3) -> Vector3:

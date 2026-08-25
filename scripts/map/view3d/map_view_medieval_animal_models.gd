@@ -10,6 +10,7 @@ const MammalSpecies := preload("res://scripts/map/view3d/map_view_mammal_species
 const IDLE_ANIMATION := &"Idle"
 const WALK_ANIMATION := &"Walk"
 const TROT_ANIMATION := &"Trot"
+const GRAZE_ANIMATION := &"Graze"
 const SNIFF_ANIMATION := &"Sniff"
 const ANIMATION_PLAYER_META := &"animal_animation_player"
 const ANIMATION_STATE_META := &"animal_animation_state"
@@ -17,14 +18,13 @@ const IDLE_VARIATION_TIME_META := &"animal_idle_variation_time"
 const DOG_TROT_SPEED := 1.0
 const DOG_TROT_REFERENCE_SPEED := 1.35
 const DOG_SNIFF_INTERVAL := 5.5
+const LIVESTOCK_GRAZE_INTERVAL := 7.0
+const LIVESTOCK_TROT_SPEED := 1.2
+const LIVESTOCK_TROT_REFERENCE_SPEED := 0.95
 const PROCEDURAL_GAIT_MODEL_META := &"procedural_gait_model"
 const PROCEDURAL_GAIT_PHASE_META := &"procedural_gait_phase"
 const PROCEDURAL_GAIT_WEIGHT_META := &"procedural_gait_weight"
-const PROCEDURAL_FOWL: Array[StringName] = [
-	MammalSpecies.SPECIES_CHICKEN,
-	MammalSpecies.SPECIES_DUCK,
-	MammalSpecies.SPECIES_GOOSE,
-]
+const PROCEDURAL_FOWL: Array[StringName] = []
 const FOWL_STEP_FREQUENCY := 9.0
 const FOWL_WADDLE_ANGLE := deg_to_rad(4.5)
 const FOWL_BODY_BOB := 0.018
@@ -45,9 +45,9 @@ const HORSE_GROUND_MAX_Y := 0.04
 # Runtime loading avoids a clean-clone parse cycle before Godot has imported the
 # new GLBs for the first time.
 const MODEL_PATHS: Dictionary = {
-	MammalSpecies.SPECIES_CHICKEN: "res://assets/animals/hendrik_reyneke/chicken.glb",
-	MammalSpecies.SPECIES_DUCK: "res://assets/birds/mallard/standing.glb",
-	MammalSpecies.SPECIES_GOOSE: "res://assets/birds/greylag_goose/standing.glb",
+	MammalSpecies.SPECIES_CHICKEN: "res://assets/birds/chicken/walking.glb",
+	MammalSpecies.SPECIES_DUCK: "res://assets/birds/mallard/walking.glb",
+	MammalSpecies.SPECIES_GOOSE: "res://assets/birds/greylag_goose/walking.glb",
 	&"goat": "res://assets/animals/hendrik_reyneke/goat.glb",
 	MammalSpecies.SPECIES_COW: "res://assets/animals/medieval/medieval_cattle.glb",
 	MammalSpecies.SPECIES_PIG: "res://assets/animals/medieval/medieval_pig.glb",
@@ -109,17 +109,23 @@ static func sync_animation(actor: Node3D, previous_position: Vector3, delta: flo
 	if speed > 0.001:
 		wanted_canonical = (
 			TROT_ANIMATION
-			if species == MammalSpecies.SPECIES_DOG and speed >= DOG_TROT_SPEED
+			if (
+				(species == MammalSpecies.SPECIES_DOG and speed >= DOG_TROT_SPEED)
+				or (species != MammalSpecies.SPECIES_DOG and speed >= LIVESTOCK_TROT_SPEED)
+			)
 			else WALK_ANIMATION
 		)
 		actor.set_meta(IDLE_VARIATION_TIME_META, 0.0)
-	elif species == MammalSpecies.SPECIES_DOG:
+	else:
 		var idle_time := float(actor.get_meta(IDLE_VARIATION_TIME_META, 0.0)) + delta
 		actor.set_meta(IDLE_VARIATION_TIME_META, idle_time)
-		# Alternate a head-down sniff with alert idle while paused. This remains
-		# deterministic and gives nearby dogs variety without per-frame randomness.
-		if fmod(idle_time, DOG_SNIFF_INTERVAL * 2.0) >= DOG_SNIFF_INTERVAL:
-			wanted_canonical = SNIFF_ANIMATION
+		# Deterministic long idle variants make herds feel alive without random
+		# animation churn. Dogs sniff; livestock periodically lower their heads.
+		if species == MammalSpecies.SPECIES_DOG:
+			if fmod(idle_time, DOG_SNIFF_INTERVAL * 2.0) >= DOG_SNIFF_INTERVAL:
+				wanted_canonical = SNIFF_ANIMATION
+		elif fmod(idle_time, LIVESTOCK_GRAZE_INTERVAL * 2.0) >= LIVESTOCK_GRAZE_INTERVAL:
+			wanted_canonical = GRAZE_ANIMATION
 	var wanted := _clip_name(player, wanted_canonical)
 	if wanted.is_empty():
 		wanted = _clip_name(player, WALK_ANIMATION if speed > 0.001 else IDLE_ANIMATION)
@@ -132,7 +138,12 @@ static func sync_animation(actor: Node3D, previous_position: Vector3, delta: flo
 		# Advance in proportion to distance so paws do not skate during slow wander.
 		player.speed_scale = clampf(speed / 0.62, 0.55, 1.25)
 	elif wanted_canonical == TROT_ANIMATION:
-		player.speed_scale = clampf(speed / DOG_TROT_REFERENCE_SPEED, 0.75, 1.35)
+		var reference_speed := (
+			DOG_TROT_REFERENCE_SPEED
+			if species == MammalSpecies.SPECIES_DOG
+			else LIVESTOCK_TROT_REFERENCE_SPEED
+		)
+		player.speed_scale = clampf(speed / reference_speed, 0.75, 1.35)
 	else:
 		player.speed_scale = 1.0
 

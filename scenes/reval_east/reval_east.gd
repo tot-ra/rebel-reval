@@ -108,6 +108,9 @@ func _ready() -> void:
 	_bandit_encounter.global_position = BANDIT_SPAWN
 	actors.add_child(_bandit_encounter)
 	_bandit_encounter.configure_bandit(player)
+	var navigation: NavigationRegion2D = _bootstrap.get("navigation")
+	if navigation != null:
+		_bandit_encounter.set_navigation_map(navigation.get_navigation_map())
 
 	_view_runtime = MapViewRuntime.install(self, _bootstrap, map_root, player)
 	_setup_phase_binder(definition)

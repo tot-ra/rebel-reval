@@ -1,9 +1,9 @@
 {
   "asset_id": "assets.animals.medieval.horse",
   "source": "assets/animals/medieval/medieval_pack_horse.glb",
-  "source_sha256": "48c78d7997d398d8ba62a6dd74a5217f8c5c2a3d70a24bd0df1a5c665a79d50d",
+  "source_sha256": "f2923f32cf835c120e5ebfb6f889a38236c76e96daa73a1f3a88a6f6e11c453b",
   "output": "assets/animals/medieval/medieval_horse.glb",
-  "output_sha256": "7bcb7a029f3930fc7e3417f78eca367d983283bbb9323e6e6f83c1a59066c3ef",
+  "output_sha256": "f811490b8df806bbbdb93b39cc20fde0a36cecc8959c3b516ecf61e60141a267",
   "route": "reviewed_pack_horse_rig_to_standalone_blender_export",
   "dimensions_m_xyz": [
     2.35,
@@ -14,7 +14,9 @@
   "mesh_objects": 7,
   "armatures": 1,
   "animations": [
+    "Graze-loop",
     "Idle-loop",
+    "Trot-loop",
     "Walk-loop"
   ],
   "glb_nodes": 17,

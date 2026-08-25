@@ -30,6 +30,11 @@ var detect_radius: float = 120.0
 var engage_radius: float = 72.0
 var lose_sight_radius: float = 220.0
 
+## Health-based behavior. Wounded melee enemies retreat unless the player is close
+## enough to keep them cornered and fighting.
+var retreat_health_ratio: float = 0.25
+var cornered_radius: float = 34.0
+
 ## Phase durations (seconds).
 var detect_duration_sec: float = 0.45
 var telegraph_duration_sec: float = 0.55

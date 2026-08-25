@@ -9,9 +9,6 @@ var _intro_label: Label
 var _recap_label: Label
 var _plain_summary_label: Label
 var _marks_box: HBoxContainer
-var _natural_label: Label
-var _psyche_label: Label
-var _loci_label: Label
 var _options_box: VBoxContainer
 var _snapshot: Dictionary = {}
 
@@ -136,24 +133,6 @@ func _build_ui() -> void:
 	_plain_summary_label.add_theme_color_override("font_color", Color(0.78, 0.82, 0.76, 1.0))
 	layout.add_child(_plain_summary_label)
 
-	_natural_label = Label.new()
-	_natural_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_natural_label.add_theme_font_size_override("font_size", 13)
-	_natural_label.visible = false
-	layout.add_child(_natural_label)
-
-	_psyche_label = Label.new()
-	_psyche_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_psyche_label.add_theme_font_size_override("font_size", 13)
-	_psyche_label.visible = false
-	layout.add_child(_psyche_label)
-
-	_loci_label = Label.new()
-	_loci_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_loci_label.add_theme_font_size_override("font_size", 12)
-	_loci_label.visible = false
-	layout.add_child(_loci_label)
-
 	var options_header := Label.new()
 	options_header.text = "Choose a conviction"
 	options_header.add_theme_font_size_override("font_size", 15)
@@ -175,9 +154,6 @@ func _refresh() -> void:
 	_recap_label.text = recap_text
 	_plain_summary_label.text = String(_snapshot.get("plain_summary", ""))
 	_refresh_marks(_snapshot.get("marks", []) as Array)
-	_refresh_natural(_snapshot)
-	_refresh_psyche(_snapshot)
-	_refresh_loci(_snapshot)
 	_refresh_options(_snapshot.get("options", []) as Array)
 	call_deferred("_seed_option_focus")
 

@@ -86,7 +86,7 @@ func _assert_full_combat_loop(profile: EnemyArchetype) -> void:
 		approach = profile.engage_radius + 4.0
 	machine.set_perception(true, approach)
 	_advance_until(machine, EnemyCombatState.State.DETECT, 1.0)
-	machine.set_perception(true, profile.engage_radius * 0.4)
+	machine.set_perception(true, profile.attack_reach_px * 0.8)
 	_advance_until(machine, EnemyCombatState.State.ATTACK, 3.0)
 	_advance(machine, profile.attack_duration_sec + TEST_DELTA)
 	assert_eq(impacts[0], 1, "%s must emit one attack impact" % String(profile.id))

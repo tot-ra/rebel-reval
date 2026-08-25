@@ -211,7 +211,7 @@ func _rebuild_actors() -> void:
 		add_child(actor)
 		_actors.append(actor)
 		if _definition != null:
-			_snap_actor_visual_to_ground(actor, _ground_height_at(actor.position))
+			snap_actor_visual_to_ground(actor, _ground_height_at(actor.position))
 
 
 ## Cats amble; they do not trot around a yard like a working dog.
@@ -243,7 +243,9 @@ func _make_actor(index: int, placement: Dictionary) -> Node3D:
 	actor.rotation.y = _yaw_for_placement(index)
 	actor.set_meta(&"species", species)
 	actor.set_meta(&"behavior", behavior)
-	GroundWander.setup(actor, _map_id, index, _wander_config(behavior, home, radius, species))
+	var wander_config := _wander_config(behavior, home, radius, species)
+	wander_config["blocked_rects"] = _blocked_rects(species)
+	GroundWander.setup(actor, _map_id, index, wander_config)
 	return actor
 
 
@@ -282,7 +284,7 @@ func _advance_actor(actor: Node3D, listener_position: Vector3, delta: float) -> 
 		# Keep the visual actor on the same relief surface as Terrain_Ground while
 		# it crosses a yard. The logic plane remains flat and authoritative.
 		actor.position.y = _ground_height_at(actor.position)
-		_snap_actor_visual_to_ground(actor, actor.position.y)
+		snap_actor_visual_to_ground(actor, actor.position.y)
 	MedievalAnimalModels.sync_animation(actor, previous_position, delta)
 
 
@@ -311,7 +313,9 @@ func _ground_height_for_cell(cell: Vector2i) -> float:
 	return _ground_height_at(world)
 
 
-func _snap_actor_visual_to_ground(actor: Node3D, ground_y: float) -> void:
+## Shared with penned fauna: both actor kits must rest on the visible terrain
+## relief rather than on the flat logic plane.
+static func snap_actor_visual_to_ground(actor: Node3D, ground_y: float) -> void:
 	var lowest_y := INF
 	for mesh_instance in actor.find_children("*", "MeshInstance3D", true, false):
 		var mesh := mesh_instance as MeshInstance3D
@@ -338,6 +342,22 @@ func _ground_height_at(world: Vector3) -> float:
 		if _definition != null
 		else 0.0
 	)
+
+
+func _blocked_rects(species: StringName) -> Array[Rect2]:
+	var blocked: Array[Rect2] = []
+	if _definition == null:
+		return blocked
+	var clearance := 0.16
+	if species in [MammalSpecies.SPECIES_DOG, MammalSpecies.SPECIES_CAT]:
+		clearance = 0.24
+	elif species == MammalSpecies.SPECIES_HORSE:
+		clearance = 0.55
+	for building: Dictionary in _definition.buildings:
+		var footprint: Rect2 = building.get("footprint", Rect2())
+		if footprint.size != Vector2.ZERO:
+			blocked.append(footprint.grow(clearance))
+	return blocked
 
 
 func _yaw_for_placement(index: int) -> float:

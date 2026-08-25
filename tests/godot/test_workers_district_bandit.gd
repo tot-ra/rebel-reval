@@ -29,3 +29,32 @@ func test_workers_district_bandit_is_a_damageable_enemy() -> void:
 	assert_eq(bandit.view_animation(), &"fall")
 	bandit.queue_free()
 	player.queue_free()
+
+
+func test_bandit_chases_stops_to_attack_and_retreats_when_wounded() -> void:
+	var tree := Engine.get_main_loop() as SceneTree
+	var player := Node2D.new()
+	player.global_position = Vector2(100.0, 0.0)
+	tree.root.add_child(player)
+	var bandit := BANDIT_ACTOR_SCENE.instantiate() as WorkersDistrictBandit
+	bandit.global_position = Vector2.ZERO
+	tree.root.add_child(bandit)
+	bandit.configure_bandit(player)
+
+	bandit.get_machine().state = EnemyCombatState.State.CHASE
+	bandit._update_motion(0.1)
+	assert_true(bandit.global_position.x > 0.0, "Bandit should move toward the player")
+	assert_eq(bandit.view_animation(), &"run")
+
+	bandit.get_machine().state = EnemyCombatState.State.TELEGRAPH
+	var stopped_at := bandit.global_position
+	bandit._update_motion(0.1)
+	assert_eq(bandit.global_position, stopped_at, "Bandit must stop while telegraphing")
+	assert_eq(bandit.view_animation(), &"guard")
+
+	bandit.get_machine().state = EnemyCombatState.State.RETREAT
+	bandit._update_motion(0.1)
+	assert_true(bandit.global_position.x < stopped_at.x, "Wounded bandit should run away")
+	assert_eq(bandit.view_animation(), &"run")
+	bandit.queue_free()
+	player.queue_free()

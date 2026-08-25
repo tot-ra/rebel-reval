@@ -7,7 +7,7 @@
   "source": "procedural:create_cattle_mesh",
   "source_sha256": null,
   "output": "assets/animals/medieval/medieval_cattle.glb",
-  "output_sha256": "003049a99c29fb3c74ec393cd3354a7e91161747433e09037f5e3b132dfd4cf7",
+  "output_sha256": "e85c0b61ed932813e9475fd44fea2e99e5ceb2e7d4b735ccd350e52c8de55c5f",
   "raw": {
     "vertices": 5406,
     "polygons": 10612,
@@ -100,7 +100,9 @@
   "rigged": true,
   "animations": [
     "Idle-loop",
-    "Walk-loop"
+    "Walk-loop",
+    "Trot-loop",
+    "Graze-loop"
   ],
   "animated_parts": [
     "legs",

@@ -6,7 +6,7 @@
   "source_sha256": "174b8c8f41aa219d2a8e20856bece07e38a09b3b4f901cf0ad919c50cab50483",
   "output": "assets/animals/medieval/medieval_pack_horse.glb",
   "staging_output": "generated/comfyui/pack_horse_v3/pack_horse_v3.glb",
-  "output_sha256": "48c78d7997d398d8ba62a6dd74a5217f8c5c2a3d70a24bd0df1a5c665a79d50d",
+  "output_sha256": "f2923f32cf835c120e5ebfb6f889a38236c76e96daa73a1f3a88a6f6e11c453b",
   "raw": {
     "vertices": 100661,
     "polygons": 206936,
@@ -55,7 +55,9 @@
   "rigged": true,
   "animations": [
     "Idle-loop",
-    "Walk-loop"
+    "Walk-loop",
+    "Trot-loop",
+    "Graze-loop"
   ],
   "anatomy_decision": "approved_four_separate_weight_bearing_legs_no_ground_disc",
   "scale_basis": "2.35 m nose-to-rump; 1.65 m standing height; 0.78 m width"

@@ -79,16 +79,6 @@ static func save_payload(state: GameState) -> Dictionary:
 		"world_defaults_seeded": state._world_defaults_seeded.duplicate(true),
 		"map_world_state": state.save_map_world_state(),
 		"act1_transition": state._act1_transition.duplicate(true),
-		"natural": {
-			"version": GameState.NATURAL_VERSION,
-			"aspects": _int_dictionary(state._natural_aspects),
-			"unspent_points": state._natural_unspent_points,
-		},
-		"psyche": {
-			"version": GameState.PSYCHE_VERSION,
-			"states": state.get_psyche_states(),
-			"faces": _int_dictionary(state._psyche_face_integration),
-		},
 	}
 
 
@@ -170,8 +160,6 @@ static func load_payload(state: GameState, payload: Dictionary) -> Array[String]
 		errors.append("unsupported equipped_forge_technique %s" % technique_raw)
 	state._facts = _load_bool_dictionary(candidate.get("facts", {}), errors, "facts")
 	state._flags = _load_bool_dictionary(candidate.get("flags", {}), errors, "flags")
-	_load_natural(state, candidate.get("natural", {}), errors)
-	_load_psyche(state, candidate.get("psyche", {}), errors)
 	state._relationships = _load_int_dictionary(
 		candidate.get("relationships", {}), errors, "relationships"
 	)
@@ -490,76 +478,6 @@ static func _load_int_dictionary(
 	for key in source as Dictionary:
 		out[StringName(String(key))] = int(source[key])
 	return out
-
-
-static func _load_natural(state: GameState, source: Variant, errors: Array[String]) -> void:
-	state._natural_aspects.clear()
-	for aspect_id in GameState.NATURAL_ASPECT_IDS:
-		state._natural_aspects[aspect_id] = GameState.NATURAL_ASPECT_BASELINE
-	state._natural_unspent_points = 0
-	if source == null:
-		return
-	if not source is Dictionary:
-		errors.append("natural must be a dictionary")
-		return
-	var natural := source as Dictionary
-	var version := int(natural.get("version", GameState.NATURAL_VERSION))
-	if version != GameState.NATURAL_VERSION:
-		errors.append("unsupported natural version %d" % version)
-	var aspects: Variant = natural.get("aspects", {})
-	if not aspects is Dictionary:
-		errors.append("natural.aspects must be a dictionary")
-	else:
-		for key in aspects as Dictionary:
-			var aspect_id := StringName(String(key))
-			if not GameState.NATURAL_ASPECT_IDS.has(aspect_id):
-				errors.append("unknown natural aspect %s" % String(aspect_id))
-				continue
-			state._natural_aspects[aspect_id] = clampi(
-				int((aspects as Dictionary)[key]), 0, GameState.NATURAL_ASPECT_CAP
-			)
-	state._natural_unspent_points = maxi(0, int(natural.get("unspent_points", 0)))
-
-
-static func _load_psyche(state: GameState, source: Variant, errors: Array[String]) -> void:
-	state._psyche_states.clear()
-	state._psyche_face_integration.clear()
-	for face_id in GameState.PSYCHE_FACE_IDS:
-		state._psyche_face_integration[face_id] = 0
-	if source == null:
-		return
-	if not source is Dictionary:
-		errors.append("psyche must be a dictionary")
-		return
-	var psyche := source as Dictionary
-	var version := int(psyche.get("version", GameState.PSYCHE_VERSION))
-	if version != GameState.PSYCHE_VERSION:
-		errors.append("unsupported psyche version %d" % version)
-	var states: Variant = psyche.get("states", [])
-	if not states is Array:
-		errors.append("psyche.states must be an array")
-	else:
-		for row in states as Array:
-			if not row is Dictionary:
-				errors.append("psyche state row must be a dictionary")
-				continue
-			var state_row := row as Dictionary
-			var state_id := StringName(String(state_row.get("id", "")))
-			var intensity := int(state_row.get("intensity", 0))
-			if state.apply_psyche_state(
-				state_id, intensity, StringName(String(state_row.get("source_beat", "")))
-			) != &"":
-				errors.append("invalid psyche state %s" % String(state_id))
-	var faces: Variant = psyche.get("faces", {})
-	if not faces is Dictionary:
-		errors.append("psyche.faces must be a dictionary")
-	else:
-		for key in faces as Dictionary:
-			var face_id := StringName(String(key))
-			if not state.set_psyche_face_integration(face_id, int((faces as Dictionary)[key])):
-				errors.append("unknown psyche face %s" % String(face_id))
-
-
 
 
 static func _load_pressure_dictionary(

@@ -45,10 +45,6 @@ const EFFECT_OPS := [
 	"remove_item",
 	"set_location_state",
 	"record_memory",
-	"natural.grant_points",
-	"natural.spend_point",
-	"psyche.apply_state",
-	"psyche.clear_state",
 ]
 
 var _last_error := ""
@@ -152,8 +148,7 @@ func apply_effect(effect: Dictionary, state: GameState) -> bool:
 	_last_error = _validate_effect(effect, state)
 	if not _last_error.is_empty():
 		return false
-	if not _apply_valid_effect(effect, state):
-		return false
+	_apply_valid_effect(effect, state)
 	return true
 
 
@@ -176,14 +171,13 @@ func apply_effects(effects: Array, state: GameState) -> bool:
 			return false
 
 	for effect in effects:
-		if not _apply_valid_effect(effect as Dictionary, state):
-			return false
+		_apply_valid_effect(effect as Dictionary, state)
 	return true
 
 
-func _apply_valid_effect(effect: Dictionary, state: GameState) -> bool:
+func _apply_valid_effect(effect: Dictionary, state: GameState) -> void:
 	var op := String(effect["op"])
-	var key := StringName(String(effect.get("key", "")))
+	var key := StringName(String(effect["key"]))
 	match op:
 		"set_flag":
 			state.set_flag(key, bool(effect["value"]))
@@ -219,28 +213,8 @@ func _apply_valid_effect(effect: Dictionary, state: GameState) -> bool:
 			state.set_location_state(key, StringName(String(effect["value"])))
 		"record_memory":
 			state.record_relationship_memory(key)
-		"natural.grant_points":
-			if not state.grant_natural_points(int(effect["amount"])):
-				_last_error = "natural.fail.invalid_amount"
-				return false
-		"natural.spend_point":
-			var natural_error := state.spend_natural_point(key)
-			if not natural_error.is_empty():
-				_last_error = String(natural_error)
-				return false
-		"psyche.apply_state":
-			var psyche_apply_error := state.apply_psyche_state(
-				key, int(effect["intensity"]), StringName(String(effect.get("source_beat", "")))
-			)
-			if not psyche_apply_error.is_empty():
-				_last_error = String(psyche_apply_error)
-				return false
-		"psyche.clear_state":
-			var psyche_clear_error := state.clear_psyche_state(key)
-			if not psyche_clear_error.is_empty():
-				_last_error = String(psyche_clear_error)
-				return false
-	return true
+
+
 func _validate_condition(condition: Dictionary, state: GameState) -> String:
 	if state == null:
 		return "condition requires a GameState"
@@ -448,14 +422,6 @@ func _validate_effect(effect: Dictionary, state: GameState) -> String:
 			return _validate_key_value(effect, "loc.", TYPE_STRING)
 		"record_memory":
 			return _validate_memory_record(effect)
-		"natural.grant_points":
-			return _validate_natural_grant(effect)
-		"natural.spend_point":
-			return _validate_key_only(effect, "aspect.")
-		"psyche.apply_state":
-			return _validate_psyche_apply(effect)
-		"psyche.clear_state":
-			return _validate_key_only(effect, "psyche.state.")
 	return "unsupported effect op: %s" % op
 
 
@@ -488,33 +454,6 @@ func _validate_key_value(operation: Dictionary, prefix: String, value_type: int)
 		return key_error
 	if typeof(operation["value"]) != value_type:
 		return "%s value has the wrong type" % String(operation["op"])
-	return ""
-
-
-func _validate_natural_grant(effect: Dictionary) -> String:
-	var shape_error := _require_shape(effect, ["op", "amount"])
-	if not shape_error.is_empty():
-		return shape_error
-	if typeof(effect["amount"]) != TYPE_INT or int(effect["amount"]) <= 0:
-		return "natural.grant_points amount must be a positive integer"
-	return ""
-
-
-func _validate_psyche_apply(effect: Dictionary) -> String:
-	var shape_error := _require_shape(effect, ["op", "key", "intensity", "source_beat"])
-	if not shape_error.is_empty():
-		return shape_error
-	var key_error := _validate_key(effect, "psyche.state.")
-	if not key_error.is_empty():
-		return key_error
-	if (
-		typeof(effect["intensity"]) != TYPE_INT
-		or int(effect["intensity"]) < 1
-		or int(effect["intensity"]) > 3
-	):
-		return "psyche.apply_state intensity must be between 1 and 3"
-	if typeof(effect["source_beat"]) != TYPE_STRING:
-		return "psyche.apply_state source_beat must be a string"
 	return ""
 
 

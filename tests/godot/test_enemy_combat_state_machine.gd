@@ -115,6 +115,30 @@ func test_mark_dead_locks_state_machine() -> void:
 	assert_eq(deaths[0], 1)
 
 
+func test_enemy_chases_until_target_enters_attack_reach() -> void:
+	var profile := EnemyArchetype.bandit()
+	var machine := _make_machine(profile)
+	machine.set_perception(true, profile.attack_reach_px + 30.0)
+	_advance_until(machine, EnemyCombatState.State.CHASE, 2.0)
+	assert_eq(machine.state, EnemyCombatState.State.CHASE)
+	machine.set_perception(true, profile.attack_reach_px - 2.0)
+	_advance_until(machine, EnemyCombatState.State.TELEGRAPH, 1.0)
+	_advance_until(machine, EnemyCombatState.State.ATTACK, 2.0)
+	assert_eq(machine.state, EnemyCombatState.State.ATTACK)
+
+
+func test_low_health_enemy_retreats_unless_cornered() -> void:
+	var profile := EnemyArchetype.bandit()
+	var machine := _make_machine(profile)
+	machine.set_health_ratio(profile.retreat_health_ratio)
+	machine.set_perception(true, profile.attack_reach_px + 20.0)
+	_advance_until(machine, EnemyCombatState.State.RETREAT, 2.0)
+	assert_eq(machine.state, EnemyCombatState.State.RETREAT)
+	machine.set_perception(true, profile.cornered_radius - 1.0)
+	_advance_until(machine, EnemyCombatState.State.TELEGRAPH, 1.0)
+	assert_eq(machine.state, EnemyCombatState.State.TELEGRAPH)
+
+
 func _assert_full_combat_loop(profile: EnemyArchetype) -> void:
 	var machine := _make_machine(profile)
 	var trail: Array[String] = []
@@ -143,7 +167,7 @@ func _assert_full_combat_loop(profile: EnemyArchetype) -> void:
 
 	# Close in during detect so telegraph/attack can fire, then open distance
 	# after the swing so disengage wins.
-	machine.set_perception(true, profile.engage_radius * 0.4)
+	machine.set_perception(true, profile.attack_reach_px * 0.8)
 	_advance_until(machine, EnemyCombatState.State.TELEGRAPH, 2.0)
 	assert_eq(machine.state, EnemyCombatState.State.TELEGRAPH)
 	_advance_until(machine, EnemyCombatState.State.ATTACK, 2.0)

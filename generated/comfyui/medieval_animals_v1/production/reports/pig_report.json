@@ -7,7 +7,7 @@
   "source": "generated/comfyui/medieval_animals_v1/pig_hendrik_reyneke_cc_by_source.glb",
   "source_sha256": "a029a0ec3f45a809f15b6f71a9a413c054cd3f0cb4d4137dc46f9504471cf9e5",
   "output": "assets/animals/medieval/medieval_pig.glb",
-  "output_sha256": "ca6a25eb8219ca1805085f9a2a2452e51b93b7c51c94c64e51fe3ac6adfb98bc",
+  "output_sha256": "034634d7b1c6a41fdaa18063470e654596571e268bf13607caf55d5b59d87b9d",
   "raw": {
     "vertices": 3784,
     "polygons": 6748,
@@ -91,7 +91,9 @@
   "rigged": true,
   "animations": [
     "Idle-loop",
-    "Walk-loop"
+    "Walk-loop",
+    "Trot-loop",
+    "Graze-loop"
   ],
   "animated_parts": [
     "legs",

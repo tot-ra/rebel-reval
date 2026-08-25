@@ -7,7 +7,7 @@
   "source": "procedural:create_sheep_mesh",
   "source_sha256": null,
   "output": "assets/animals/medieval/medieval_sheep.glb",
-  "output_sha256": "33936372dab0d1f8c6b95ef83bb01745e36fa14121162dc59f3b0212d86de4f5",
+  "output_sha256": "43e468a95ca9feed034a37f6dbd3c38b7a1f42d396f2e73e2728a5305563320a",
   "raw": {
     "vertices": 4368,
     "polygons": 8552,
@@ -96,7 +96,9 @@
   "rigged": true,
   "animations": [
     "Idle-loop",
-    "Walk-loop"
+    "Walk-loop",
+    "Trot-loop",
+    "Graze-loop"
   ],
   "animated_parts": [
     "legs",

@@ -4,3 +4,10 @@
 
 [node name="WorkersDistrictBandit" type="Node2D"]
 script = ExtResource("1_bandit")
+
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
+path_desired_distance = 8.0
+target_desired_distance = 42.0
+path_max_distance = 48.0
+radius = 14.0
+avoidance_enabled = true

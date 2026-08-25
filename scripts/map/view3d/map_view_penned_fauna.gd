@@ -183,6 +183,7 @@ var _actors: Array[Node3D] = []
 var _fauna_enabled := true
 var _map_id := &""
 var _context := &""
+var _definition: MapDefinition = null
 var _cell_size := 32
 var _elapsed := 0.0
 
@@ -201,8 +202,11 @@ func active_fauna_count() -> int:
 	return count
 
 
-func configure(map_id: StringName, context: StringName, cell_size: int) -> void:
+func configure(
+	map_id: StringName, context: StringName, cell_size: int, map_definition: MapDefinition = null
+) -> void:
 	_map_id = map_id
+	_definition = map_definition
 	_context = context
 	_cell_size = maxi(cell_size, 1)
 	_elapsed = 0.0
@@ -283,6 +287,8 @@ func _rebuild_actors() -> void:
 		var actor := _make_actor(index, placement)
 		add_child(actor)
 		_actors.append(actor)
+		if _definition != null:
+			UrbanFauna.snap_actor_visual_to_ground(actor, _ground_height_at(actor.position))
 
 
 func _make_actor(index: int, placement: Dictionary) -> Node3D:
@@ -291,7 +297,9 @@ func _make_actor(index: int, placement: Dictionary) -> Node3D:
 	var radius := float(placement.get("radius", 1.0))
 	var cell: Vector2i = placement.get("cell", Vector2i.ZERO)
 	var pose := _pose_for_behavior(behavior, species)
-	var home := MapViewBridge.cell_center_to_world(cell, _cell_size)
+	# Pens sit on the visible relief, not on the flat logic plane, so a yard that
+	# was carved below Y=0 must not leave its livestock hovering in the air.
+	var home := MapViewBridge.cell_center_to_world(cell, _cell_size, _ground_height_for_cell(cell))
 	var actor := Node3D.new()
 	actor.name = "PennedFauna%d" % index
 	if MedievalAnimalModels.add_model(actor, species) == null:
@@ -308,7 +316,9 @@ func _make_actor(index: int, placement: Dictionary) -> Node3D:
 	actor.rotation.y = _yaw_for_placement(index)
 	actor.set_meta(&"species", species)
 	actor.set_meta(&"behavior", behavior)
-	GroundWander.setup(actor, _map_id, index, _wander_config(behavior, home, radius))
+	var wander_config := _wander_config(behavior, home, radius)
+	wander_config["blocked_rects"] = _blocked_rects(species)
+	GroundWander.setup(actor, _map_id, index, wander_config)
 	return actor
 
 
@@ -335,7 +345,45 @@ static func _wander_config(behavior: StringName, home: Vector3, radius: float) -
 func _advance_actor(actor: Node3D, listener_position: Vector3, delta: float) -> void:
 	var previous_position := actor.position
 	GroundWander.advance(actor, _map_id, listener_position, delta)
+	if _definition != null:
+		# Follow the terrain while crossing a pen; the logic plane stays flat and
+		# authoritative for the wander waypoints.
+		actor.position.y = _ground_height_at(actor.position)
+		UrbanFauna.snap_actor_visual_to_ground(actor, actor.position.y)
 	MedievalAnimalModels.sync_animation(actor, previous_position, delta)
+
+
+func _ground_height_for_cell(cell: Vector2i) -> float:
+	if _definition == null:
+		return 0.0
+	return _ground_height_at(MapViewBridge.cell_center_to_world(cell, _cell_size))
+
+
+func _ground_height_at(world: Vector3) -> float:
+	return (
+		MapViewMeshBuilder.ground_height(_definition, Vector2(world.x, world.z))
+		if _definition != null
+		else 0.0
+	)
+
+
+func _blocked_rects(species: StringName) -> Array[Rect2]:
+	var blocked: Array[Rect2] = []
+	if _definition == null:
+		return blocked
+	# Visual actors have no physics bodies, so expand authored solid footprints by
+	# approximate shoulder radius and reject movement before the model intersects.
+	var clearance := 0.18
+	if species in [MammalSpecies.SPECIES_COW, MammalSpecies.SPECIES_HORSE]:
+		clearance = 0.55
+	elif species in [MammalSpecies.SPECIES_PIG, MammalSpecies.SPECIES_SHEEP, &"goat"]:
+		clearance = 0.32
+	for building: Dictionary in _definition.buildings:
+		var footprint: Rect2 = building.get("footprint", Rect2())
+		if footprint.size == Vector2.ZERO:
+			continue
+		blocked.append(footprint.grow(clearance))
+	return blocked
 
 
 static func _pose_for_behavior(behavior: StringName, species: StringName) -> StringName:

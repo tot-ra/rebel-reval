@@ -233,7 +233,7 @@ def main() -> None:
         "texture_size": builder.TEXTURE_SIZE,
         "textures": texture_paths,
         "rigged": True,
-        "animations": ["Idle-loop", "Walk-loop"],
+        "animations": ["Idle-loop", "Walk-loop", "Trot-loop", "Graze-loop"],
     }
     REPORT.parent.mkdir(parents=True, exist_ok=True)
     REPORT.write_text(json.dumps(report, indent=2) + "\n")

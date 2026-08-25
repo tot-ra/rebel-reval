@@ -7,9 +7,11 @@ extends RefCounted
 enum State {
 	PATROL,
 	DETECT,
+	CHASE,
 	TELEGRAPH,
 	ATTACK,
 	REACT,
+	RETREAT,
 	DISENGAGE,
 	DEAD,
 }
@@ -21,12 +23,16 @@ static func display_name(state: State) -> String:
 			return "patrol"
 		State.DETECT:
 			return "detect"
+		State.CHASE:
+			return "chase"
 		State.TELEGRAPH:
 			return "telegraph"
 		State.ATTACK:
 			return "attack"
 		State.REACT:
 			return "react"
+		State.RETREAT:
+			return "retreat"
 		State.DISENGAGE:
 			return "disengage"
 		State.DEAD:
@@ -40,9 +46,11 @@ static func is_combat_engaged(state: State) -> bool:
 		state
 		in [
 			State.DETECT,
+			State.CHASE,
 			State.TELEGRAPH,
 			State.ATTACK,
 			State.REACT,
+			State.RETREAT,
 		]
 	)
 

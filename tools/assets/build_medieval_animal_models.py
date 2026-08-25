@@ -1154,7 +1154,7 @@ def build(name: str, spec: dict) -> dict:
         ],
         "static_prop": True,
         "rigged": armature is not None,
-        "animations": ["Idle-loop", "Walk-loop"] if armature is not None else [],
+        "animations": ["Idle-loop", "Walk-loop", "Trot-loop", "Graze-loop"] if armature is not None else [],
         "animated_parts": ["legs", "neck", "tail", "eyes"] if armature is not None else [],
     }
     report_path = REPORTS / f"{name}_report.json"
