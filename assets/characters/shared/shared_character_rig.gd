@@ -678,9 +678,12 @@ func _shader_material_for(material_name: StringName, source_material: BaseMateri
 	if source_material.roughness_texture != null:
 		material.set_shader_parameter("roughness_texture", source_material.roughness_texture)
 	if material_name in HAIR_MATERIAL_NAMES:
-		material.set_shader_parameter("anisotropy_strength", 0.68)
+		# Hair reads as layered keratin only when the directional lobe stays broad
+		# and restrained. Strong values turn the procedural scalp into polished,
+		# concentric rings under a point light.
+		material.set_shader_parameter("anisotropy_strength", 0.42)
+		material.set_shader_parameter("normal_strength", 0.34)
 		material.set_shader_parameter("alpha_cutoff", 0.08)
-		material.set_shader_parameter("strand_frequency", 22.0)
 	return material
 
 func _tint_meshes(root: Node, tint: Color) -> void:

@@ -853,10 +853,20 @@ func test_shared_character_hair_and_beard_shader_follow_material_names_across_lo
 				shader_material.get_shader_parameter("roughness_texture") != null,
 				"%s must preserve its roughness map" % material_name
 			)
-			var anisotropy_strength: Variant = shader_material.get_shader_parameter("anisotropy_strength")
+			var anisotropy_strength: Variant = shader_material.get_shader_parameter(
+				"anisotropy_strength"
+			)
 			assert_true(
-				anisotropy_strength is float and anisotropy_strength > 0.0,
-				"%s must enable directional fibre response" % material_name
+				anisotropy_strength is float
+				and anisotropy_strength >= 0.25
+				and anisotropy_strength <= 0.50,
+				"%s must use a restrained directional fibre response" % material_name
+			)
+			var normal_strength: Variant = shader_material.get_shader_parameter("normal_strength")
+			assert_true(
+				normal_strength is float and normal_strength <= 0.40,
+				"%s normal detail must break up clumps without " % material_name
+				+ "embossing plastic grooves"
 			)
 			var alpha_cutoff: Variant = shader_material.get_shader_parameter("alpha_cutoff")
 			assert_true(
