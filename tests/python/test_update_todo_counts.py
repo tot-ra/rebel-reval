@@ -132,7 +132,7 @@ class UpdateTodoCountsTest(unittest.TestCase):
 
     def test_cli_path_scans_and_rewrites_selected_fixture(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
-            todo = Path(temp_dir) / "TODO.md"
+            todo = Path(temp_dir) / "fixture-todo.md"
             todo.write_text(
                 "\n".join(
                     [
@@ -165,7 +165,7 @@ class UpdateTodoCountsTest(unittest.TestCase):
 
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertIn("| P2 |", result.stdout)
-            self.assertIn("-> TODO.md summary table rewritten.", result.stdout)
+            self.assertIn("-> fixture-todo.md summary table rewritten.", result.stdout)
             updated = todo.read_text(encoding="utf-8")
             self.assertIn("| P2 |", updated)
             self.assertIn("|     1  |     1  |", updated)

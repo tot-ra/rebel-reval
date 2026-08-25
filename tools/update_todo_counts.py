@@ -208,7 +208,7 @@ def main() -> int:
 
     if args.write:
         if rewrite_table(todo_path, table):
-            print("\n-> TODO.md summary table rewritten.")
+            print(f"\n-> {todo_path.name} summary table rewritten.")
         else:
             return 1
     return 0
