@@ -83,3 +83,25 @@ offscreen chimney plumes.
 The committed profile, `development-baseline-m5-pro`, records the current reproducible development baseline. Its status is `development_baseline_not_minimum`. It is not a supported-platform or minimum-hardware declaration. P3-011 owns selection of the actual minimum target and its release budgets.
 
 Headless runs use the dummy renderer. They are valid for deterministic command smoke, CPU-side scene/pipeline timings, memory, actor/node/collision counts, and regression evidence, but not for target-GPU acceptance. Before using frame time for P0-038 or P3-011 acceptance, run the full command non-headlessly on the declared target and retain the generated JSON as release evidence outside source Git.
+
+## R-653 minimum-hardware GPU run checklist
+
+Use this checklist only for the declared target run owned by R-563. It does not authorize a benchmark run on a substitute host or change any performance budget.
+
+1. **Select the declared target profile:** `minimum-hardware-intel-uhd-620` from [`tools/benchmarks/minimum-hardware.json`](../tools/benchmarks/minimum-hardware.json). Record its Intel Core i5-8250U / Intel UHD Graphics 620 / 8 GiB / `1920x1080` values before the run.
+2. **Use a real display:** the acceptance run must be non-headless. Do not use `--headless`; require the raw report to record `headless=false` and the detected OS/display driver.
+3. **Run the full 120-frame capture:** do not pass `--quick`, because that intentionally reduces the distribution to 20 samples.
+
+```bash
+export GODOT_BIN=/Applications/Godot.app/Contents/MacOS/Godot
+"$GODOT_BIN" --path . \
+  --rendering-method gl_compatibility --rendering-driver opengl3 \
+  --resolution 1920x1080 \
+  res://tools/benchmarks/renderer_comparison_benchmark.tscn \
+  -- --output=/tmp/r653-renderer-comparison.json \
+  --renderer-requested=gl_compatibility
+```
+
+4. **Retain provenance:** copy the raw JSON to the release-evidence location without rewriting it; record its SHA-256, repository revision, UTC timestamp, OS and driver, detected CPU/GPU, Godot version, renderer, and `frame_time_ms.samples=120`.
+5. **Separate target from host:** compare the declared profile with Godot's detected `measurement_host`. An Apple host, another non-target GPU, or any headless result is supplementary instrumentation only and cannot certify `minimum-hardware-intel-uhd-620`.
+6. **Run documentation checks without acquiring hardware:** validate the profile with `python3 -m json.tool tools/benchmarks/minimum-hardware.json`, run the relevant evidence/report checks, and finish with `git diff --check`. No acceptance decision is implied by these checks alone.
