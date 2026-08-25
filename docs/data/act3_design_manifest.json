@@ -1,0 +1,204 @@
+{
+  "id": "act3_design",
+  "task": "P6-001",
+  "status": "approved_for_implementation",
+  "authority": "docs/adr/0008-three-act-campaign-and-faction-scope.md",
+  "report": "docs/reports/p6_001_act3_design.md",
+  "confidence_labels": [
+    "attested",
+    "plausible composite",
+    "folklore",
+    "invented"
+  ],
+  "occupation_state": {
+    "opening_phase_id": "phase.act3_occupation_day",
+    "opening_input": "transition.act2_to_act3.paide",
+    "historical_basis": "attested",
+    "states": [
+      {
+        "id": "state.occupation.order_controlled",
+        "label": "Order-controlled authority",
+        "confidence": "invented",
+        "notes": "The player-facing state represents Order leverage after the mainland defeat; it does not claim that every Lower Town institution was replaced."
+      },
+      {
+        "id": "state.occupation.negotiated_survival",
+        "label": "Negotiated survival",
+        "confidence": "invented",
+        "notes": "Ledger and prior-record outcomes preserve limited civic bargains inside the occupied political reality."
+      },
+      {
+        "id": "state.occupation.hidden_resistance",
+        "label": "Hidden resistance",
+        "confidence": "invented",
+        "notes": "Black Cloak, Harju, and Metsik routes remain authored resistance networks, not a claim of a documented unified underground."
+      }
+    ],
+    "invariants": [
+      "event.sale_estonia_1346 remains the terminal campaign milestone",
+      "no universal morality, alignment, karma, or good-evil aggregate",
+      "the Danish sale and Order authority change do not erase the authored Lower Town continuity layer"
+    ]
+  },
+  "forced_forge": {
+    "commission_id": "commission.forced_forge",
+    "package_id": "package.forced_forge",
+    "confidence": "invented",
+    "implementation_task": "P6-003",
+    "approval_status": "design_approved_content_runtime_pending",
+    "branches": [
+      {
+        "id": "honest_work",
+        "result": "compliant inspection fittings keep the forge open",
+        "confidence": "invented"
+      },
+      {
+        "id": "subtle_defect",
+        "result": "a load flaw risks discovery during Order inspection",
+        "confidence": "invented"
+      },
+      {
+        "id": "secret_feature",
+        "result": "a concealed channel carries a rebel message",
+        "confidence": "invented"
+      }
+    ],
+    "reused_systems": [
+      "FactionLedger",
+      "ForgeCommission",
+      "SaveService",
+      "Act3EndingModel"
+    ]
+  },
+  "locations": [
+    {
+      "id": "world_padise",
+      "name": "Padise Cistercian monastery",
+      "role": "monastery_phases",
+      "confidence": "attested",
+      "phases": [
+        {
+          "id": "padise.before_sack",
+          "label": "under-construction monastery",
+          "confidence": "attested"
+        },
+        {
+          "id": "padise.after_sack",
+          "label": "sacked and damaged monastery",
+          "confidence": "attested"
+        }
+      ],
+      "implementation_tasks": ["P6-002", "P6-009"],
+      "runtime_status": "prototype_inactive"
+    },
+    {
+      "id": "world_paide",
+      "name": "Paide Castle",
+      "role": "Act 2 to Act 3 handoff",
+      "confidence": "attested",
+      "implementation_tasks": ["P5-009", "P6-006"],
+      "runtime_status": "prototype_inactive"
+    },
+    {
+      "id": "world_saaremaa",
+      "name": "Saaremaa campaign corridor",
+      "role": "island_campaign_staging",
+      "confidence": "plausible composite",
+      "implementation_tasks": ["P6-004"],
+      "runtime_status": "prototype_inactive"
+    },
+    {
+      "id": "world_poide",
+      "name": "Pöide Castle",
+      "role": "Saaremaa siege objective",
+      "confidence": "attested",
+      "implementation_tasks": ["P6-004"],
+      "runtime_status": "prototype_inactive"
+    },
+    {
+      "id": "loc.maasilinna_castle",
+      "name": "Maasilinna / Soneburg",
+      "role": "post-pacification concept metadata",
+      "confidence": "attested",
+      "implementation_tasks": ["P6-001", "P6-004"],
+      "runtime_status": "metadata_only",
+      "constraints": [
+        "do not activate as a playable map in P6-001",
+        "do not present later castle fabric as the 1343 Pöide layout"
+      ]
+    }
+  ],
+  "ending_families": {
+    "runtime_choice_source": "scripts/quest/act3_ending_model.gd",
+    "sale_event": "event.sale_estonia_1346",
+    "confidence": "invented",
+    "dimensions": {
+      "kalev": [
+        "ending.kalev.civic_rebuilder",
+        "ending.kalev.order_survivor",
+        "ending.kalev.hidden_maker"
+      ],
+      "forge": [
+        "ending.forge.civic_hearth",
+        "ending.forge.commandeered",
+        "ending.forge.buried_hammer"
+      ],
+      "people": [
+        "ending.people.shared_ward",
+        "ending.people.ordered_silence",
+        "ending.people.hidden_network"
+      ],
+      "land": [
+        "ending.land.remembered_roads",
+        "ending.land.extracted_holdings",
+        "ending.land.memory_under_occupation"
+      ]
+    },
+    "choice_mapping": {
+      "choice.rebuild_with_the_city": "family.rebuild",
+      "choice.serve_the_new_order": "family.occupation",
+      "choice.hide_the_hammer": "family.survival"
+    }
+  },
+  "implementation_tasks": [
+    "P5-009",
+    "P6-001",
+    "P6-002",
+    "P6-003",
+    "P6-004",
+    "P6-005",
+    "P6-006",
+    "P6-007",
+    "P6-009"
+  ],
+  "historical_milestones": [
+    {
+      "id": "event.poide_rising_1343",
+      "label": "Saaremaa rising and capture of Pöide",
+      "date": "1343-07-24",
+      "confidence": "attested",
+      "canon_anchor": "July 24, 1343"
+    },
+    {
+      "id": "event.karja_vesse_1344",
+      "label": "Karja campaign and Vesse",
+      "date": "1344-02",
+      "confidence": "attested",
+      "canon_anchor": "February 1344"
+    },
+    {
+      "id": "event.maasilinna_pacification_1345",
+      "label": "Saaremaa pacification and Maasilinna concept",
+      "date": "1345-winter",
+      "confidence": "attested",
+      "canon_anchor": "Winter 1345"
+    },
+    {
+      "id": "event.sale_estonia_1346",
+      "label": "Sale of the Duchy of Estonia",
+      "date": "1346",
+      "confidence": "attested",
+      "canon_anchor": "1346 (Sale of the Duchy of Estonia)"
+    }
+  ]
+}

@@ -17,7 +17,7 @@ Every entry in this document uses one of the following confidence labels to guid
 
 ## Timeline (1342–1346)
 
-The playable narrative covers spring 1343 through the 1346 sale. Act 1–2 design lives in shipped packages and [`docs/reports/p5_001_act2_design.md`](./reports/p5_001_act2_design.md). Act 3 design remains **P6-001**. Sources folded here under P7-008: [`history/HISTORY.md`](../history/HISTORY.md), [`history/TIMELINE.md`](../history/TIMELINE.md), [`story/STORY.md`](../story/STORY.md).
+The playable narrative covers spring 1343 through the 1346 sale. Act 1-2 design lives in shipped packages and [`docs/reports/p5_001_act2_design.md`](./reports/p5_001_act2_design.md). Act 3 design is approved for implementation in [`docs/reports/p6_001_act3_design.md`](./reports/p6_001_act3_design.md), with runtime and activation still gated by its named P6 tasks. Sources folded here under P7-008: [`history/HISTORY.md`](../history/HISTORY.md), [`history/TIMELINE.md`](../history/TIMELINE.md), [`story/STORY.md`](../story/STORY.md).
 
 ### Backstory and Act 1 (to 23 April 1343)
 
@@ -60,14 +60,14 @@ The playable narrative covers spring 1343 through the 1346 sale. Act 1–2 desig
 
 ### Act 3 seeds (occupation through sale)
 
-* **July 24, 1343 (Saaremaa / Ösel rising; Pöide)** - **`attested`** (Source: `history/TIMELINE.md`, `history/HISTORY.md`)
-  * Islanders kill German lords, drown priests, and take Pöide Castle after a broken safe-conduct. Chronologically after the mainland collapse; playable placement belongs to Act 3 design (**P6-001** / **P6-004**), not as an Act 2 rewrite of Sõjamäe.
-* **February 1344 (Karja Fortress; Vesse)** - **`attested`**
-  * Order forces reinforced from Prussia cross the frozen sea, storm the rebel Karja stronghold, and execute leader Vesse. Act 3 siege-materiel and survivor branches may steer local cost only.
-* **Winter 1345 (Saaremaa pacification; Maasilinna / Soneburg)** - **`attested`**
-  * Final island submission; Order begins the "castle of atonement." Maasilinna may appear as concept metadata / aftermath colour until a dedicated activation row exists.
-* **1346 (Sale of the Duchy of Estonia)** - **`attested`**
-  * Valdemar IV sells Danish Estonia to the Teutonic Order (then to Livonian administration). This is the active campaign close (ADR 0008 Act 3 / **P6-005**). There is no 1351 plague epilogue.
+* **July 24, 1343 (Saaremaa / Ösel rising; Pöide)** - **`attested`** (Source: `history/TIMELINE.md`, `history/HISTORY.md`; Act 3 design mapping: [`docs/reports/p6_001_act3_design.md`](./reports/p6_001_act3_design.md))
+  * Islanders kill German lords, drown priests, and take Pöide Castle after a broken safe-conduct. Chronologically after the mainland collapse; playable placement belongs to Act 3 (**P6-001** / **P6-004**), not as an Act 2 rewrite of Sõjamäe. Mission outcomes may steer local cost, survivors, and evidence only.
+* **February 1344 (Karja Fortress; Vesse)** - **`attested`** (Source: `history/TIMELINE.md`, `history/HISTORY.md`; Act 3 design mapping: [`docs/reports/p6_001_act3_design.md`](./reports/p6_001_act3_design.md))
+  * Order forces reinforced from Prussia cross the frozen sea, storm the rebel Karja stronghold, and execute leader Vesse. Act 3 branches may steer local cost and evidence only.
+* **Winter 1345 (Saaremaa pacification; Maasilinna / Soneburg)** - **`attested`** (Source: `history/TIMELINE.md`, `history/HISTORY.md`; Act 3 design mapping: [`docs/reports/p6_001_act3_design.md`](./reports/p6_001_act3_design.md))
+  * Final island submission; Order begins the "castle of atonement." Maasilinna remains concept metadata and aftermath colour in P6-001; it must not be presented as a completed later castle in the 1343 Pöide layout without a later activation decision.
+* **1346 (Sale of the Duchy of Estonia)** - **`attested`** (Source: `history/TIMELINE.md`, `history/HISTORY.md`; Act 3 design mapping: [`docs/reports/p6_001_act3_design.md`](./reports/p6_001_act3_design.md))
+  * Valdemar IV sells Danish Estonia to the Teutonic Order (then to Livonian administration). This is the active campaign close (ADR 0008 Act 3 / **P6-001** / **P6-005**). There is no 1351 plague epilogue.
 
 ---
 
