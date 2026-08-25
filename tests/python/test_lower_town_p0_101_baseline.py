@@ -6,6 +6,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import struct
 import unittest
 from collections import Counter
 from pathlib import Path
@@ -113,6 +114,21 @@ class LowerTownP0101BaselineTest(unittest.TestCase):
         self.assertEqual(plates_by_preset, Counter({preset: 2 for preset in EXPECTED_CAPTURE_PRESETS}))
         self.assertEqual(Counter(str(plate["time_of_day"]) for plate in manifest["plates"]), Counter(day=5, night=5))
         self.assertTrue(all("stable_ids" not in plate for plate in manifest["plates"]))
+
+    def test_capture_manifest_outputs_are_present_and_gameplay_sized(self) -> None:
+        manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
+        expected_width, expected_height = 1280, 720
+        for plate in manifest["plates"]:
+            output = str(plate["output"])
+            self.assertTrue(output.startswith("res://"), output)
+            image_path = ROOT / output.removeprefix("res://")
+            self.assertTrue(image_path.is_file(), image_path)
+            with image_path.open("rb") as image_file:
+                self.assertEqual(image_file.read(8), b"\x89PNG\r\n\x1a\n", image_path)
+                image_file.read(4)
+                self.assertEqual(image_file.read(4), b"IHDR", image_path)
+                width, height = struct.unpack(">II", image_file.read(8))
+            self.assertEqual((width, height), (expected_width, expected_height), image_path)
 
     def test_capture_manifest_keeps_stable_id_observations_unreviewed(self) -> None:
         manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))

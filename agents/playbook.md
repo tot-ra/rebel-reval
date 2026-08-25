@@ -212,6 +212,8 @@ This file contains only cross-role operating lessons. Domain lessons belong to t
 - This Git build does not support `git diff --no-index --label`; generate the temporary-file diff without labels, then normalize its `diff --git`, `---`, and `+++` paths before applying a scoped playbook patch to the index.
 - For new verification ledgers, strip Markdown metadata trailing spaces before the report contract and `git diff --check`; semantic checks can pass while whitespace hygiene still blocks the scoped commit.
 
+- 2026-08-25: After inserting a new unittest before an existing method, re-read the complete bounded class tail immediately; preserve the original method as a separate block before running tests, because a successful text insertion can silently nest the old assertions under the new test.
+
 - When a scoped asset commit is blocked by repository-wide provenance drift outside its allowlist, preserve the green scoped lint and manifest-hash checks, keep unrelated staged WIP untouched, and use `git commit --only --no-verify` after recording the exact baseline errors.
 - When filtering the Godot harness through `tools/run_godot_checked.sh`, pass harness arguments after the `--` that follows the script path (for example `... --script tools/run_godot_tests.gd -- --filter=test_name`); passing `--filter` as an engine argument silently runs the full corpus and mixes unrelated baseline failures into a focused result.
 - RRMap Editor placement lag is usually full terrain-texture rebuilds after every mutation plus reloading the draft from disk on layer sync; skip terrain rebuild for prop/building/move previews, cache map_id to path, and keep the in-memory draft loaded.

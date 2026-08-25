@@ -16,7 +16,7 @@ The dedicated capture capability is now available and has produced a reproducibl
 - `tools/capture_lower_town_p0_101.gd` uses production `LowerTownSlice.create()`, `MapBuilder.build()`, and `MapView3D.create()` with five authored sector route-segment midpoint presets.
 - `docs/reports/images/lower_town_p0_101/capture_manifest.json` records map ID, source fingerprint, renderer, 1280x720 viewport, gameplay orthographic size `33.75`, focus cells/heights, camera pitch/yaw, intent, and matched day/night outputs.
 - Ten dedicated PNGs exist under `docs/reports/images/lower_town_p0_101/`: five sector route poses times `day` and `night`. Each decodes as 1280x720 with a non-zero pixel payload; all five day/night pairs share the same framing key and focus world.
-- `test_capture_lower_town_p0_101.gd` passes 5/5 with 0 failures and 0 errors. The non-headless capture command completed with status 0 and wrote all ten plates. Godot also emitted the known shutdown resource-leak diagnostics plus pre-existing `monastery_quarter` neighbor-preview diagnostics (`MAP_TRANSITION_DESTINATION_UNKNOWN` for `kuldjala_interior` and chunk-boundary warnings); those diagnostics are outside this Lower Town evidence task and do not invalidate the written packet.
+- `test_capture_lower_town_p0_101.gd` passes 6/6 with 0 failures and 0 errors. The non-headless capture command completed with status 0 and wrote all ten plates. Godot also emitted the known shutdown resource-leak diagnostics plus pre-existing `monastery_quarter` neighbor-preview diagnostics (`MAP_TRANSITION_DESTINATION_UNKNOWN` for `kuldjala_interior` and chunk-boundary warnings); those diagnostics are outside this Lower Town evidence task and do not invalidate the written packet.
 - The current source inventory contains 51 tiered houses (`merchant_stone=14`, `merchant_timber=14`, `craft_boda=23`), ten untiered special/exceptional houses, 36 collision-bearing wall records, and two view-only gate arches. The eight R-547 rear-workshop IDs are linked as objective candidates where their authored footprint intersects a plate, but they still have no stable-ID visual observations in this packet.
 - **Revision semantics:** the manifest's `map_fingerprint` is the compiled `MapDefinition` semantic fingerprint (`13525325b3d8be840c79d8c709c8aab12632bc6092a7123bc6d9275ba51d17ba`), not a raw-file digest. The current raw RRMap SHA is separately recorded above (`6ae0b82a...`). A direct Godot probe on 2026-08-24 reproduced the manifest fingerprint and found 97 building records, two view landmarks, and all eight R-547 rear-workshop IDs in the compiled definition.
 - **Stable-ID candidate links:** every plate now records sorted `stable_id_candidates` with the authored record kind (`building` or `view_landmark`) for footprints projected into its gameplay viewport. These links make the reviewer handoff auditable, but are not visual observations: the manifest plates still have no accepted `stable_ids` field.
@@ -151,7 +151,7 @@ These files exist, but they do not satisfy the P0-101 acceptance contract becaus
 ## Blockers and ownership handoff
 
 1. **Capture capability:** **COMPLETE for R-560.** The dedicated runner and ten-plate manifest are under `tools/capture_lower_town_p0_101.gd` and `docs/reports/images/lower_town_p0_101/`; the exact command is recorded above.
-2. **Focused contracts:** `test_capture_lower_town_p0_101.gd` passes 5/5 with 0 failures and 0 errors. The remaining blocker is not packet generation; it is surface-by-surface visual review and upstream route/art handoff.
+2. **Focused contracts:** `test_capture_lower_town_p0_101.gd` passes 6/6 with 0 failures and 0 errors. The remaining blocker is not packet generation; it is surface-by-surface visual review and upstream route/art handoff.
 3. **Production dependencies:** the ordinary house kits, plot dressing, tier wiring and exceptional-landmark implementation must be complete before the captures can show the required authored visual surfaces. The existing board tasks R-487/R-488/R-489 own those upstream handoffs.
 4. **Review:** The PNG set now exists and passes non-blank/dimension/parity checks. Send the matrix plus plates to the canon/art reviewer for R-492; review each required tier, material, wear, special-building, rear-workshop, and landmark row before changing any `pending`/`BLOCKED` status. Do not close R-108 from this matrix.
 
@@ -167,7 +167,7 @@ The following commands are the minimum evidence record for the next capture atte
   --path . --rendering-method gl_compatibility --rendering-driver opengl3 \
   --script tools/capture_lower_town_p0_101.gd
 
-# Focused packet contract (5/5, 0 failures, 0 errors).
+# Focused packet contract (6/6, 0 failures, 0 errors).
 /Applications/Godot.app/Contents/MacOS/Godot --headless --path . \
   --script tools/run_godot_tests.gd -- --filter=test_capture_lower_town_p0_101
 
