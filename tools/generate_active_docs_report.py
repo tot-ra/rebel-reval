@@ -152,21 +152,23 @@ def main() -> int:
     if not output.is_absolute():
         output = ROOT / output
 
+    output_name = output.name
+
     if args.check:
         current = output.read_text(encoding="utf-8") if output.exists() else ""
         stale = current != result.rendered
         if stale:
-            print(f"{rel(output, ROOT)} is not up to date", file=sys.stderr)
+            print(f"{output_name} is not up to date", file=sys.stderr)
         if result.issues:
             print(f"active Markdown docs contain {len(result.issues)} issue(s)", file=sys.stderr)
         if stale or result.issues:
             return 1
-        print(f"{rel(output, ROOT)} is up to date and active Markdown docs have zero issues")
+        print(f"{output_name} is up to date and active Markdown docs have zero issues")
         return 0
 
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(result.rendered, encoding="utf-8")
-    print(f"wrote {rel(output, ROOT)} with {len(result.issues)} issue(s)")
+    print(f"wrote {output_name} with {len(result.issues)} issue(s)")
     return 1 if result.issues else 0
 
 

@@ -63,6 +63,29 @@ class ActiveDocsReportCommonTest(unittest.TestCase):
             self.assertEqual(issues[0].path, "docs/draft.md")
             self.assertEqual(issues[0].code, "MISSING_REFERENCE")
 
+    def test_cli_confirmation_uses_custom_output_basename(self) -> None:
+        import subprocess
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            output = Path(temp_dir) / "custom-active-report.md"
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(ROOT / "tools" / "generate_active_docs_report.py"),
+                    "--output",
+                    str(output),
+                ],
+                cwd=ROOT,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("wrote custom-active-report.md with ", result.stdout)
+            self.assertNotIn("active_markdown_report.md", result.stdout)
+            self.assertTrue(output.is_file())
+
 
 if __name__ == "__main__":
     unittest.main()
