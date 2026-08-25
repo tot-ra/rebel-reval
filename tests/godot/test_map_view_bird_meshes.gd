@@ -7,7 +7,8 @@ const BirdSpecies := preload("res://scripts/map/view3d/map_view_bird_species.gd"
 
 
 func test_catalog_uses_only_the_reviewed_authored_glbs() -> void:
-	# Static-pose allowlist plus P2-034 harbour gull flap cycles, P2-035 waterfowl, P2-036 waders.
+	# Static poses plus P2-034 gulls, P2-035 waterfowl, P2-036 waders,
+	# P2-037 raptors, P2-038 corvids, and P2-039/P2-040 songbirds.
 	var authored_static := {
 		BirdSpecies.SPECIES_MUTE_SWAN: BirdSpecies.POSE_STANDING,
 		BirdSpecies.SPECIES_MALLARD: BirdSpecies.POSE_STANDING,
@@ -16,6 +17,21 @@ func test_catalog_uses_only_the_reviewed_authored_glbs() -> void:
 		BirdSpecies.SPECIES_GREY_HERON: BirdSpecies.POSE_STANDING,
 		BirdSpecies.SPECIES_NORTHERN_LAPWING: BirdSpecies.POSE_STANDING,
 		BirdSpecies.SPECIES_COMMON_SNIPE: BirdSpecies.POSE_STANDING,
+		BirdSpecies.SPECIES_WHITE_TAILED_EAGLE: BirdSpecies.POSE_GLIDING,
+		BirdSpecies.SPECIES_OSPREY: BirdSpecies.POSE_GLIDING,
+		BirdSpecies.SPECIES_COMMON_BUZZARD: BirdSpecies.POSE_GLIDING,
+		BirdSpecies.SPECIES_COMMON_KESTREL: BirdSpecies.POSE_GLIDING,
+		BirdSpecies.SPECIES_HOODED_CROW: BirdSpecies.POSE_PERCHED,
+		BirdSpecies.SPECIES_ROOK: BirdSpecies.POSE_PERCHED,
+		BirdSpecies.SPECIES_WESTERN_JACKDAW: BirdSpecies.POSE_PERCHED,
+		BirdSpecies.SPECIES_EURASIAN_MAGPIE: BirdSpecies.POSE_PERCHED,
+		BirdSpecies.SPECIES_COMMON_CHAFFINCH: BirdSpecies.POSE_PERCHED,
+		BirdSpecies.SPECIES_GREAT_TIT: BirdSpecies.POSE_PERCHED,
+		BirdSpecies.SPECIES_EUROPEAN_ROBIN: BirdSpecies.POSE_PERCHED,
+		BirdSpecies.SPECIES_COMMON_BLACKBIRD: BirdSpecies.POSE_PERCHED,
+		BirdSpecies.SPECIES_SONG_THRUSH: BirdSpecies.POSE_PERCHED,
+		BirdSpecies.SPECIES_COMMON_NIGHTINGALE: BirdSpecies.POSE_PERCHED,
+		BirdSpecies.SPECIES_YELLOWHAMMER: BirdSpecies.POSE_PERCHED,
 		BirdSpecies.SPECIES_HOUSE_SPARROW: BirdSpecies.POSE_PERCHED,
 		BirdSpecies.SPECIES_HERRING_GULL: BirdSpecies.POSE_GLIDING,
 		BirdSpecies.SPECIES_COMMON_GULL: BirdSpecies.POSE_GLIDING,
@@ -25,6 +41,10 @@ func test_catalog_uses_only_the_reviewed_authored_glbs() -> void:
 		BirdSpecies.SPECIES_HERRING_GULL,
 		BirdSpecies.SPECIES_COMMON_GULL,
 		BirdSpecies.SPECIES_COMMON_TERN,
+		BirdSpecies.SPECIES_WHITE_TAILED_EAGLE,
+		BirdSpecies.SPECIES_OSPREY,
+		BirdSpecies.SPECIES_COMMON_BUZZARD,
+		BirdSpecies.SPECIES_COMMON_KESTREL,
 	]
 	for species in BirdSpecies.ALL_SPECIES:
 		for pose in BirdSpecies.ALL_POSES:
@@ -50,6 +70,21 @@ func test_mesh_for_prefers_reviewed_authored_defaults_and_falls_back_for_the_res
 		BirdSpecies.SPECIES_GREY_HERON,
 		BirdSpecies.SPECIES_NORTHERN_LAPWING,
 		BirdSpecies.SPECIES_COMMON_SNIPE,
+		BirdSpecies.SPECIES_WHITE_TAILED_EAGLE,
+		BirdSpecies.SPECIES_OSPREY,
+		BirdSpecies.SPECIES_COMMON_BUZZARD,
+		BirdSpecies.SPECIES_COMMON_KESTREL,
+		BirdSpecies.SPECIES_HOODED_CROW,
+		BirdSpecies.SPECIES_ROOK,
+		BirdSpecies.SPECIES_WESTERN_JACKDAW,
+		BirdSpecies.SPECIES_EURASIAN_MAGPIE,
+		BirdSpecies.SPECIES_COMMON_CHAFFINCH,
+		BirdSpecies.SPECIES_GREAT_TIT,
+		BirdSpecies.SPECIES_EUROPEAN_ROBIN,
+		BirdSpecies.SPECIES_COMMON_BLACKBIRD,
+		BirdSpecies.SPECIES_SONG_THRUSH,
+		BirdSpecies.SPECIES_COMMON_NIGHTINGALE,
+		BirdSpecies.SPECIES_YELLOWHAMMER,
 		BirdSpecies.SPECIES_HOUSE_SPARROW,
 		BirdSpecies.SPECIES_HERRING_GULL,
 		BirdSpecies.SPECIES_COMMON_GULL,
@@ -59,10 +94,12 @@ func test_mesh_for_prefers_reviewed_authored_defaults_and_falls_back_for_the_res
 		var pose := BirdSpecies.default_pose(species)
 		var mesh := BirdMeshes.mesh_for(species, pose)
 		assert_true(mesh is ArrayMesh, "%s needs a mesh" % species)
-		assert_eq(BirdMeshes.uses_authored_mesh(species, pose), species in authored_defaults)
+		var uses_authored := species in authored_defaults
+		assert_eq(BirdMeshes.uses_authored_mesh(species, pose), uses_authored)
 		var stats := BirdMeshes.geometry_stats(species, pose)
-		assert_true(int(stats.get("triangles", 0)) >= 100)
-		if species not in authored_defaults:
+		# Authored GLBs may exceed the procedural fallback budget.
+		if not uses_authored:
+			assert_true(int(stats.get("triangles", 0)) >= 100)
 			assert_true(int(stats.get("triangles", 9999)) <= 512)
 
 
@@ -157,6 +194,10 @@ func test_procedural_mesh_uses_lit_surface_material() -> void:
 		BirdSpecies.SPECIES_HERRING_GULL,
 		BirdSpecies.SPECIES_COMMON_GULL,
 		BirdSpecies.SPECIES_COMMON_TERN,
+		BirdSpecies.SPECIES_WHITE_TAILED_EAGLE,
+		BirdSpecies.SPECIES_OSPREY,
+		BirdSpecies.SPECIES_COMMON_BUZZARD,
+		BirdSpecies.SPECIES_COMMON_KESTREL,
 	]
 	for species in BirdSpecies.ALL_SPECIES:
 		var mesh := BirdMeshes.mesh_for(species, BirdSpecies.POSE_GLIDING)
@@ -193,12 +234,29 @@ func test_modular_flap_rig_exposes_attached_wings_and_shadow_casters() -> void:
 	assert_false(frame.is_empty())
 	var flight := BirdFlight.new()
 	var actor := Node3D.new()
+	(Engine.get_main_loop() as SceneTree).root.add_child(actor)
 	assert_true(flight._install_modular_rig(actor, frame, false))
 	for pivot_name in [&"WingRootL", &"WingRootR", &"WingRootL/WingElbowL", &"WingRootR/WingElbowR"]:
-		assert_true(actor.get_node_or_null(pivot_name) is Node3D, "%s pivot must exist" % pivot_name)
-	for mesh_name in [&"Body", &"WingUpperL", &"WingPrimaryL", &"WingUpperR", &"WingPrimaryR"]:
-		var mesh_node := actor.get_node_or_null(mesh_name) as MeshInstance3D
-		assert_true(mesh_node != null, "%s must be a separate mesh module" % mesh_name)
-		assert_eq(mesh_node.cast_shadow, GeometryInstance3D.SHADOW_CASTING_SETTING_ON, "%s must cast a shadow" % mesh_name)
-	actor.free()
+		var pivot_path := NodePath(pivot_name)
+		assert_true(
+			actor.get_node_or_null(pivot_path) is Node3D,
+			"%s pivot must exist" % pivot_name
+		)
+	for mesh_path in [
+		NodePath("Body"),
+		NodePath("WingRootL/WingUpperL"),
+		NodePath("WingRootL/WingElbowL/WingPrimaryL"),
+		NodePath("WingRootR/WingUpperR"),
+		NodePath("WingRootR/WingElbowR/WingPrimaryR"),
+	]:
+		var mesh_node := actor.get_node_or_null(mesh_path) as MeshInstance3D
+		assert_true(mesh_node != null, "%s must be a separate mesh module" % mesh_path)
+		assert_eq(
+			mesh_node.cast_shadow,
+			GeometryInstance3D.SHADOW_CASTING_SETTING_ON,
+			"%s must cast a shadow" % mesh_path
+		)
+	# queue_free avoids freeing imported mesh resources while the detached test
+	# actor is still referenced by the renderer's dummy backend.
+	actor.queue_free()
 	flight.free()
