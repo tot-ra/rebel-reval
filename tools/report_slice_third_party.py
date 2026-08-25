@@ -59,6 +59,7 @@ def main(argv: list[str] | None = None) -> int:
             "errors": report.errors,
         }
         args.json.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+        print(f"JSON report written: {args.json.name}")
 
     if args.check and not report.valid:
         return 1

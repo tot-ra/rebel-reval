@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import contextlib
+import io
 import json
 import sys
 import tempfile
@@ -44,14 +46,20 @@ class SliceThirdPartyReportTest(unittest.TestCase):
     def test_check_mode_exits_zero_on_current_corpus(self) -> None:
         self.assertEqual(report_main(["--check"]), 0)
 
-    def test_json_output_is_written(self) -> None:
+    def test_json_output_confirms_selected_filename(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
-            output = Path(temp_dir) / "slice_third_party.json"
-            exit_code = report_main(["--json", str(output), "--check"])
+            output = Path(temp_dir) / "alternate-third-party-report.json"
+            stdout = io.StringIO()
+            with contextlib.redirect_stdout(stdout):
+                exit_code = report_main(["--json", str(output), "--check"])
             self.assertEqual(exit_code, 0)
             payload = json.loads(output.read_text(encoding="utf-8"))
             self.assertTrue(payload["valid"])
             self.assertIn("third_party_asset_count", payload)
+            self.assertIn(
+                f"JSON report written: {output.name}",
+                stdout.getvalue(),
+            )
 
 
 if __name__ == "__main__":
