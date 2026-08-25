@@ -70,8 +70,13 @@ func test_dog_has_rigged_face_and_locomotion_clips() -> void:
 	var eye_right := model.find_child("EyeRight", true, false) as Node3D
 	assert_true(eye_left != null, "Dog needs a visible left eye")
 	assert_true(eye_right != null, "Dog needs a visible right eye")
-	assert_true(eye_left.global_position.x < -0.40, "Dog eyes must sit on the head side of the body")
-	assert_true(eye_right.global_position.x < -0.40, "Dog eyes must sit on the head side of the body")
+	# MODEL_YAW maps the authored -X muzzle onto Godot walk -Z.
+	assert_true(eye_left.global_position.z < -0.40, "Dog eyes must lead along walk -Z")
+	assert_true(eye_right.global_position.z < -0.40, "Dog eyes must lead along walk -Z")
+	assert_true(
+		is_equal_approx(model.rotation.y, -PI * 0.5),
+		"Dog needs livestock yaw so look_at does not crab-walk"
+	)
 	assert_true(
 		model.find_child("NoseTip", true, false) != null,
 		"Dog muzzle needs a dark nose detail"

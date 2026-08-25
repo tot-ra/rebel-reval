@@ -123,8 +123,13 @@ func test_pig_has_realistic_rigged_body_and_locomotion_clips() -> void:
 	var eye_right := model.find_child("EyeRight", true, false) as Node3D
 	assert_true(eye_left != null)
 	assert_true(eye_right != null)
-	assert_true(eye_left.global_position.x < -0.40, "Pig eyes must sit on the head side of the body")
-	assert_true(eye_right.global_position.x < -0.40, "Pig eyes must sit on the head side of the body")
+	# MODEL_YAW turns livestock -X noses onto Godot walk -Z; eyes must lead travel.
+	assert_true(eye_left.global_position.z < -0.40, "Pig eyes must lead along walk -Z")
+	assert_true(eye_right.global_position.z < -0.40, "Pig eyes must lead along walk -Z")
+	assert_true(
+		is_equal_approx(model.rotation.y, -PI * 0.5),
+		"Pig needs the shared livestock yaw so look_at does not crab-walk"
+	)
 	var players := model.find_children("*", "AnimationPlayer", true, false)
 	assert_true(players.size() >= 1, "Pig needs imported skeletal animation")
 	var player := players[0] as AnimationPlayer
@@ -144,17 +149,28 @@ func test_cattle_has_procedural_rigged_anatomy_and_locomotion_clips() -> void:
 	assert_true(mesh != null)
 	var aabb := mesh.get_aabb()
 	assert_true(
-		aabb.size.x >= 2.15 and aabb.size.x <= 2.25,
+		aabb.size.x >= 2.60 and aabb.size.x <= 2.70,
 		"Procedural cattle needs a plausible nose-to-rump length"
 	)
 	assert_true(
-		aabb.size.y >= 1.40 and aabb.size.y <= 1.50,
+		aabb.size.y >= 1.67 and aabb.size.y <= 1.77,
 		"Procedural cattle must stand on four full-height legs"
 	)
-	assert_true(aabb.size.z >= 1.0, "Cattle must keep a broad, readable body silhouette")
+	assert_true(aabb.size.z >= 1.15, "Cattle must keep a broad, readable body silhouette")
 	assert_true(
 		aabb.position.y >= -0.001,
 		"Procedural cattle must not contain a generated ground sheet"
+	)
+	assert_true(
+		is_equal_approx(model.rotation.y, -PI * 0.5),
+		"Cattle needs livestock yaw so look_at walks nose-first"
+	)
+	# Authored muzzle is on mesh -X; after MODEL_YAW that axis must lead walk -Z.
+	# Prefer a local basis check so the orphan host need not enter the SceneTree.
+	var nose_after_yaw := model.transform.basis * Vector3(-1.0, 0.0, 0.0)
+	assert_true(
+		nose_after_yaw.z < -0.5,
+		"Cattle nose must point along walk -Z after livestock yaw"
 	)
 	assert_eq(
 		mesh.mesh.get_surface_count(),

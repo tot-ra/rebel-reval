@@ -86,7 +86,11 @@ SPECS = {
         # anatomical volumes and fusing them into one deterministic skinned surface.
         "source": None,
         "output": RUNTIME / "medieval_cattle.glb",
-        "dimensions_m": (2.20, 1.45, 1.02),
+        # WHY: 2.20 x 1.45 m read as a stubby yard animal beside heroic characters,
+        # and the sideways walk made the 1.02 m width look like body length. Grow
+        # the metric envelope for gameplay readability while keeping cattle below
+        # pack-horse withers.
+        "dimensions_m": (2.65, 1.72, 1.18),
         "triangles": 9_000,
         "voxel_divisor": 78.0,
         "base_color": (0.24, 0.075, 0.028),
@@ -96,7 +100,7 @@ SPECS = {
         "route": "deterministic_procedural_closed_anatomy_remesh",
         "source_license": "project-authored procedural geometry",
         "anatomy_decision": "remeshed_multi_volume_cattle_body_head_muzzle_horns_udder_four_legs_and_cloven_hooves",
-        "scale_basis": "2.20 m nose-to-rump; 1.45 m standing height; 1.02 m body width",
+        "scale_basis": "2.65 m nose-to-rump; 1.72 m standing height; 1.18 m body width",
     },
     "pig": {
         "source": STAGING / "pig_hendrik_reyneke_cc_by_source.glb",

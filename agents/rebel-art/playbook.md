@@ -80,3 +80,5 @@ This file contains lessons specific to the Art role.
 - For ad hoc `assets/SOURCES.csv` checksum audits, read the live header before indexing rows; the primary key is `asset_id`, not a generic `id`.
 - When an exact test edit fails despite a visually matching snippet, re-read the narrow live range and use a bounded line replacement; copied indentation or hidden formatting can make repeated exact replacement unreliable.
 - After a bounded GDScript line replacement inside nested loops, inspect literal tab depth (`sed -n 'l'`) before testing; carrying indentation from rendered tool output can add one tab and create an `Expected statement, found Indent` parse error.
+
+- 2026-08-25: When a penned cow looks short in length and walks sideways, fix `MODEL_YAW` first; a -X-facing livestock mesh under `look_at` presents its width as length. Only then rebuild `dimensions_m` if gameplay scale is still too small beside heroic characters.

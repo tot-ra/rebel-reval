@@ -3,11 +3,11 @@
   "route": "deterministic_procedural_closed_anatomy_remesh",
   "source_license": "project-authored procedural geometry",
   "anatomy_decision": "remeshed_multi_volume_cattle_body_head_muzzle_horns_udder_four_legs_and_cloven_hooves",
-  "scale_basis": "2.20 m nose-to-rump; 1.45 m standing height; 1.02 m body width",
+  "scale_basis": "2.65 m nose-to-rump; 1.72 m standing height; 1.18 m body width",
   "source": "procedural:create_cattle_mesh",
   "source_sha256": null,
   "output": "assets/animals/medieval/medieval_cattle.glb",
-  "output_sha256": "e85c0b61ed932813e9475fd44fea2e99e5ceb2e7d4b735ccd350e52c8de55c5f",
+  "output_sha256": "00e97da8960e6bc02254a84e96ba415bb6ecbe74bb8072d0aa60a05223250baa",
   "raw": {
     "vertices": 5406,
     "polygons": 10612,
@@ -83,9 +83,9 @@
   },
   "discarded_raw_noise_components": 0,
   "metric_dimensions_m_y_up": [
-    2.2,
-    1.45,
-    1.02
+    2.65,
+    1.72,
+    1.18
   ],
   "ground_min_y": 0.0,
   "uv_sets": 1,

@@ -191,4 +191,14 @@ Parallel exact replacements against one mutable file can race and reapply stale 
 - 2026-08-25: If a test insertion anchor remains ambiguous after reading a nearby range, use a verified function-boundary line insertion and immediately re-read both neighboring methods before running the suite.
 - 2026-08-25: When inserting a regression test by replacing a neighboring method header, preserve the complete original method first; re-read both bounded methods before running Python tests so the old body cannot become nested under the new test.
 - 2026-08-25: When a Python unittest command returns non-zero without surfaced output, inspect its redirected log before editing; the runner may have completed and reported ordinary assertion failures that the tool wrapper hid.
+- 2026-08-25: Broad `git log --all` pickaxe searches across the full repository can exceed the parallel step timeout; scope history recovery to known magic paths and cap output before inspecting candidate commits.
+- 2026-08-25: When inserting animation actions before a Python registry, anchor on the complete registry header and re-read the file tail immediately; replacing only a repeated `animation_data.action` suffix can remove the dictionary assignment while leaving its entries behind.
+
+- 2026-08-25: After inserting multiple Godot UI helpers, re-read the complete neighboring function block; a misplaced insertion can move the original loop body into the next helper while the file still looks superficially valid.
+- 2026-08-25: The lightweight content example validator does not resolve local JSON Schema `$ref` targets; inline small magic effect definitions in `magic.schema.json` unless validator support is expanded first.
+- 2026-08-25: Godot 4.7 treats `func(arg=value)` as assignment-in-expression, not a named argument; focused tests must call optional parameters positionally.
+- 2026-08-25: A freshly assigned Godot `NavigationAgent2D` can have a valid map RID while `get_next_path_position()` still equals the actor position before the navigation server syncs; locomotion must retain a bounded direct-target fallback for that frame instead of freezing.
 - 2026-08-25: Guard animated Node3D `look_at` calls when the current and look-ahead positions are approximately equal; endpoint easing can collapse adjacent samples even on a non-zero path.
+
+- 2026-08-25: Shared quadruped livestock GLBs are authored facing -X, while ambient `look_at` walks along -Z. Without `MODEL_YAW = -PI * 0.5` they crab-walk, and the body width reads as length. Keep the yaw on the imported model root and assert the transformed nose axis, not orphan `global_position`.
+- 2026-08-25: `tools/run_godot_tests.gd` reads `--filter=` from `OS.get_cmdline_user_args()`; pass it after `--` (for example `-- --filter=test_medieval_animal_models`) or the harness silently runs the full suite.

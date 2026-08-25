@@ -692,10 +692,10 @@ const PROFILES: Dictionary = {
 	{
 		"name": "Cattle",
 		"group": GROUP_UNGULATE,
-		"scale_m": 1.48,
+		"scale_m": 1.72,
 		"pose": POSE_GRAZING,
 		"colors": [Color("8a6a48"), Color("e8e4dc"), Color("4a3424")],
-		"geometry": {"body": Vector3(1.08, 0.52, 0.40), "horns": 0.10},
+		"geometry": {"body": Vector3(1.30, 0.62, 0.48), "horns": 0.12},
 		"abundance": 0.32,
 		"spawn": {CONTEXT_FORELAND: 0.68}
 	},

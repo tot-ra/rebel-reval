@@ -62,9 +62,16 @@ const MODEL_PATHS: Dictionary = {
 
 ## Yaw applied to a model so its nose points along -Z, which is the direction
 ## ambient actors are turned toward by `look_at` while walking. The cat rig is
-## authored facing +Z for `SharedCharacterRig`.
+## authored facing +Z for `SharedCharacterRig`. Livestock and dog GLBs face -X
+## for the shared quadruped rig, so without a -90 deg yaw they crab-walk.
 const MODEL_YAW: Dictionary = {
 	MammalSpecies.SPECIES_CAT: PI,
+	MammalSpecies.SPECIES_COW: -PI * 0.5,
+	MammalSpecies.SPECIES_PIG: -PI * 0.5,
+	MammalSpecies.SPECIES_SHEEP: -PI * 0.5,
+	MammalSpecies.SPECIES_HORSE: -PI * 0.5,
+	MammalSpecies.SPECIES_DOG: -PI * 0.5,
+	&"goat": -PI * 0.5,
 }
 
 
