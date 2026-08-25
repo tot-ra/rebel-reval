@@ -344,7 +344,9 @@ static func _neighbor_preview(
 		building["footprint"] = Rect2(
 			source["footprint"].position + offset_px, source["footprint"].size
 		)
-		buildings.add_child(_Buildings.build_building(building, neighbor.cell_size))
+		var building_node := _Buildings.build_building(building, neighbor.cell_size)
+		_simplify_neighbor_building(building_node)
+		buildings.add_child(building_node)
 	var props := Node3D.new()
 	props.name = "Props"
 	root.add_child(props)
@@ -364,14 +366,30 @@ static func _neighbor_preview(
 	# Stripping the dressing and merging the silhouette keeps the skyline while
 	# collapsing thousands of draw calls into a handful.
 	_Batcher.strip_backdrop_dressing(root)
-	# Merge each building and prop on its own so skyline silhouettes do not
-	# collapse into one parent-space mesh (object-space triplanar masonry breaks
-	# when instances from different footprints share a merged surface).
+	# Merge each silhouette independently. Keeping every building's authored root as
+	# the batching origin prevents detached roof or chimney geometry when neighbor
+	# previews are shifted to their seam position.
 	for building_node in buildings.get_children():
 		_Batcher.merge(building_node as Node3D, {})
 	for prop_node in props.get_children():
 		_Batcher.merge(prop_node as Node3D, {})
 	return root
+
+
+## Neighbor previews are unreachable backdrop geometry, not playable buildings.
+## Keep their dominant procedural silhouette or authored production model, but
+## drop interactive-scale facade dressing from ordinary houses. Exceptional and
+## fortification roots retain their authored detail for landmark readability.
+static func _simplify_neighbor_building(building: Node3D) -> void:
+	if building == null or building.get_meta(&"renderer_boundary", &"ordinary") != &"ordinary":
+		return
+	for child: Node in building.get_children().duplicate():
+		if child.name == &"Walls" or child.name == &"Roof":
+			continue
+		if child.get_meta(&"production_house_model", false):
+			continue
+		building.remove_child(child)
+		child.free()
 
 
 static func _add_preview_quad(surface: SurfaceTool, cell: Vector2, terrain: StringName) -> void:
