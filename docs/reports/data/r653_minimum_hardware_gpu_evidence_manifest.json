@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "evidence_id": "r653-p0-040-minimum-hardware-gpu-2026-08-21",
+  "status": "supplementary_only_blocked_for_declared_target",
+  "recorded_utc": "2026-08-21T13:05:45Z/2026-08-21T13:06:13Z",
+  "capture_revision": "847c9277320983c0398d25a5199e18f005b39d99",
+  "target_hardware": {
+    "profile_id": "minimum-hardware-intel-uhd-620",
+    "architecture": "x86_64",
+    "cpu": "Intel Core i5-8250U",
+    "gpu": "Intel UHD Graphics 620",
+    "memory_gib": 8,
+    "display": "1920x1080"
+  },
+  "measurement_host": {
+    "os": "macOS 26.3 (25D2125)",
+    "architecture": "arm64",
+    "processor_name": "Apple M5 Pro",
+    "video_adapter": "Apple M5 Pro GPU",
+    "memory_gib": 48,
+    "headless": false,
+    "display_driver": "macOS",
+    "godot": "4.7.1.stable.official.a13da4feb"
+  },
+  "capture": {
+    "requested_renderer": "gl_compatibility",
+    "rendering_driver": "opengl3",
+    "resolution": "1920x1080",
+    "scene": "res://tools/benchmarks/renderer_comparison_benchmark.tscn",
+    "command": [
+      "export GODOT_BIN=/Applications/Godot.app/Contents/MacOS/Godot",
+      "$GODOT_BIN --path . --rendering-method gl_compatibility --rendering-driver opengl3 --resolution 1920x1080 res://tools/benchmarks/renderer_comparison_benchmark.tscn -- --output=/tmp/r653-renderer-comparison.json --renderer-requested=gl_compatibility"
+    ],
+    "raw_report_path": "/tmp/r653-renderer-comparison.json",
+    "raw_report_sha256": "fddda43c820383c4c247d5b2b9e85a4dd3be0541f9a3f9adad30ddc771604e04"
+  },
+  "raw_metrics": {
+    "scene_startup_ms": 20074.656,
+    "frame_time_ms": {
+      "samples": 120,
+      "median": 9.737,
+      "p95": 68.674,
+      "p99": 187.46,
+      "max": 2085.971
+    },
+    "texture_memory_bytes": 442222135,
+    "render_video_memory_bytes": 671481419,
+    "memory_static_bytes": 333988097,
+    "memory_delta_mib": 229.207
+  },
+  "instrumentation": {
+    "non_headless_renderer": "PASS",
+    "gpu_memory_counters": "PASS - non-zero texture and video-memory values",
+    "fidelity_features": "shadows/glow enabled; SSAO/SSIL/SDFGI/SSR/volumetric fog unavailable",
+    "known_run_diagnostics": "Patrol_viru_watch missing-rig warning and shutdown ObjectDB/resource-leak diagnostics"
+  },
+  "r709_audit": {
+    "task": "R-709",
+    "result": "BLOCKED_FOR_TARGET_ACCEPTANCE",
+    "raw_payload_target_identity": "REJECTED - renderer JSON has no target_hardware or measurement_host identity fields",
+    "target_identity_match": "FAIL - measured host is Apple M5 Pro arm64, not Intel Core i5-8250U / Intel UHD Graphics 620 x86_64",
+    "headless_requirement": "PASS - capture is non-headless, but this does not repair the host mismatch",
+    "sample_distribution": "PASS as supplementary instrumentation - 120 samples and median/p95/p99/max are present",
+    "gpu_memory": "PASS as supplementary instrumentation - both counters are non-zero",
+    "minimum_hardware_verdict": "BLOCKED - no valid declared-target run was executed"
+  },
+  "acceptance": {
+    "target_run": "BLOCKED",
+    "supplementary_m5_run": "PASS as instrumentation only",
+    "p0_040_approval": "PENDING/BLOCKED - no maintainer decision"
+  }
+}

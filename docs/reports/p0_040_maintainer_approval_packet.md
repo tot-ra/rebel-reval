@@ -26,6 +26,7 @@ A source-level reconciliation or a passing headless development check is not its
 | [`p0_040_lighting_grade_style_lock.md`](p0_040_lighting_grade_style_lock.md) | R-568 lighting, grade, day/night, value hierarchy, and material matrix | Contract and calibration are documented, but current lighting integration has failures/errors and approval is not claimed. |
 | [`p0_038_3d_view_comparison.md`](p0_038_3d_view_comparison.md) | P0-038 performance and renderer evidence | Headless development baseline only; its zero-byte texture readings are not GPU evidence. |
 | [`r653_p0_040_minimum_hardware_gpu_evidence_2026_08_21.md`](r653_p0_040_minimum_hardware_gpu_evidence_2026_08_21.md) | R-653 non-headless GPU evidence ledger | Supplementary Apple M5 Pro instrumentation with non-zero texture/video-memory values; declared Intel UHD 620 acceptance remains blocked and this artifact does not substitute for it. |
+| [`data/r653_minimum_hardware_gpu_evidence_manifest.json`](data/r653_minimum_hardware_gpu_evidence_manifest.json) | R-709 raw-evidence provenance and audit manifest | Preserves the raw report path/hash, revision, host/target identity, command, 120-sample distribution, GPU instrumentation status, and explicit BLOCKED target verdict; it is not a target-run result. |
 | [`p0_040_decomposition_verification.md`](p0_040_decomposition_verification.md) | R-570 parent-readiness verification | Recommends keeping R-111/P0-040 blocked. |
 | [`../ART_BIBLE.md`](../ART_BIBLE.md) | Normative v2 visual direction | Direction is accepted through ADR 0018; technical production freeze remains gated. |
 | [`../adr/0013-authorial-visual-direction-without-blind-ux-panels.md`](../adr/0013-authorial-visual-direction-without-blind-ux-panels.md) | Approval-process authority | Blind-panel gate cancelled; maintainer review plus P0-038 evidence govern. |
@@ -51,6 +52,22 @@ The values below are the proposed technical freeze set. `Reconciled` means that 
 | Value hierarchy | `1` player/NPC silhouette and interaction/combat feedback; `2` interactables, hazards, authorized VFX; `3` doors, passages, routes, collision boundaries; `4` landmarks/building identity/faction blocks; `5` meso detail; `6` terrain variation/micro detail | ART_BIBLE v2 and R-568; tiers 1-3 must survive grayscale/squint review in day, night, fog, rain, and firelight. Capture review remains open. |
 | Day/night settings | One rich day-master asset set; night is deterministic light/post rather than recolored textures; night is at least `20%` darker by the post-grade luminance proxy while retaining local hue; shadows indigo/cobalt, moon edges cyan, fire/windows amber/gold; weather uses authored color scripts | ART_BIBLE v2, `MapViewLighting`, R-568; source/test contract pass, current visual/minimum-hardware acceptance remains open. |
 | Style-lock version | `style-lock-v1.1`, recorded `2026-07-30`, authority ADR 0018 and ART_BIBLE v2; v1.0 is migration/reference evidence only | `MATERIAL_STYLE_LOCK_KIT.md`, ADR 0018, R-568; version reconciled. |
+
+### R-653 / R-709 minimum-hardware evidence reconciliation
+
+The linked [`R-653 ledger`](r653_p0_040_minimum_hardware_gpu_evidence_2026_08_21.md) and [`R-709 manifest`](data/r653_minimum_hardware_gpu_evidence_manifest.json) describe one supplementary Apple M5 Pro capture, not a valid minimum-hardware run. The raw renderer JSON is retained outside Git at `/tmp/r653-renderer-comparison.json`; the manifest records SHA-256 `fddda43c820383c4c247d5b2b9e85a4dd3be0541f9a3f9adad30ddc771604e04`, revision `847c9277320983c0398d25a5199e18f005b39d99`, the exact `gl_compatibility` / `opengl3` 1920x1080 command, and the target/host identity boundary.
+
+| R-653 / R-709 field | Result | Acceptance interpretation |
+|---|---|---|
+| Declared target | Intel Core i5-8250U / Intel UHD Graphics 620 / x86_64 / 8 GiB / 1920x1080 | **BLOCKED** - no matching target machine was measured |
+| Measurement host | Apple M5 Pro / arm64 / macOS 26.3 / 48 GiB | **Supplementary only** - cannot emulate or certify Intel UHD 620 |
+| Headless and renderer request | `headless=false`; `gl_compatibility`, `opengl3`; 1920x1080 | **PASS as instrumentation**, not target acceptance |
+| Sample count and distribution | 120 samples; median `9.737 ms`, p95 `68.674 ms`, p99 `187.460 ms`, max `2085.971 ms` | **PASS as supplementary instrumentation**; no Intel performance conclusion |
+| GPU metrics/instrumentation | `texture_memory_bytes=442222135`; `render_video_memory_bytes=671481419` | **PASS as supplementary instrumentation**; fidelity limitations are recorded in the manifest |
+| R-709 target-identity audit | Raw JSON lacks embedded identity; provenance identifies Apple host | **BLOCKED** - exact failure is identity mismatch, not missing metrics |
+| Minimum-hardware acceptance | No valid declared-target run | **BLOCKED** - keep P0-040 pending |
+
+The M5 run remains explicitly supplementary. Its non-zero GPU counters and complete frame distribution do not change renderer settings, performance caps, or the maintainer decision boundary.
 
 ### Material family values
 

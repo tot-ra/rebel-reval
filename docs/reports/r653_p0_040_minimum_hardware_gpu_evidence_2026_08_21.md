@@ -25,9 +25,9 @@ The run is retained because it proves that the non-headless instrumentation can 
 | Renderer/driver | `gl_compatibility` / OpenGL 4.1 Metal compatibility (`opengl3`) |
 | Display server | `macOS`; `headless=false` |
 | Target profile | `minimum-hardware-intel-uhd-620` - declared target, not detected host |
-| Raw JSON SHA-256 | `fddda43c820383c4c247d5b2b9e85a4dd3be0541f9a3f9adad30ddc771604e04` |
+| Raw JSON SHA-256 | [`fddda43c820383c4c247d5b2b9e85a4dd3be0541f9a3f9adad30ddc771604e04`](data/r653_minimum_hardware_gpu_evidence_manifest.json) |
 
-The raw JSON was written to `/tmp/r653-renderer-comparison.json` during the run. The external file is intentionally not committed as a host-specific artifact; the hash and complete measured fields below preserve its provenance.
+The raw JSON was written to `/tmp/r653-renderer-comparison.json` during the run and is not committed as a host-specific artifact. Its SHA-256, complete measured fields, and R-709 audit result are preserved in [`docs/reports/data/r653_minimum_hardware_gpu_evidence_manifest.json`](data/r653_minimum_hardware_gpu_evidence_manifest.json). The manifest is a provenance record, not a substitute for rerunning the declared target.
 
 ## Exact command
 
@@ -47,25 +47,29 @@ The benchmark used the production `LowerTown` scene and collected 120 steady-sta
 
 | Metric | Raw value | Interpretation |
 |---|---:|---|
-| `scene_startup_ms` | `20074.656` | Supplementary Apple M5 Pro startup measurement |
-| Frame samples | `120` | Complete distribution present |
-| Frame-time median | `9.737 ms` | Supplementary host only |
-| Frame-time p95 | `68.674 ms` | Supplementary host only; includes observed long-frame outliers |
-| Frame-time p99 | `187.460 ms` | Supplementary host only |
-| Frame-time max | `2085.971 ms` | Supplementary host only; not a target acceptance result |
-| `texture_memory_bytes` | `442222135` (`421.736 MiB`) | Non-zero real-renderer instrumentation; host-specific |
-| `render_video_memory_bytes` | `671481419` (`640.375 MiB`) | Non-zero real-renderer instrumentation; host-specific |
-| `memory_static_bytes` | `333988097` | Supplementary host observation |
-| `memory_delta_mib` | `229.207` | Supplementary host observation |
-| Rendering method | `gl_compatibility` | Matches current project renderer |
-| Fidelity flags | shadows/glow enabled; SSAO/SSIL/SDFGI/SSR/volumetric fog unavailable | Renderer comparison metadata |
+| `scene_startup_ms` | `20074.656` | **PASS as supplementary instrumentation / BLOCKED for target acceptance** - Apple M5 Pro only |
+| Frame samples | `120` | **PASS as supplementary instrumentation / BLOCKED for target acceptance** - complete distribution present |
+| Frame-time median | `9.737 ms` | **PASS as supplementary instrumentation / BLOCKED for target acceptance** - host only |
+| Frame-time p95 | `68.674 ms` | **PASS as supplementary instrumentation / BLOCKED for target acceptance** - host only; includes observed long-frame outliers |
+| Frame-time p99 | `187.460 ms` | **PASS as supplementary instrumentation / BLOCKED for target acceptance** - host only |
+| Frame-time max | `2085.971 ms` | **PASS as supplementary instrumentation / BLOCKED for target acceptance** - host only; not a target acceptance result |
+| `texture_memory_bytes` | `442222135` (`421.736 MiB`) | **PASS as supplementary instrumentation / BLOCKED for target acceptance** - non-zero real-renderer counter; host-specific |
+| `render_video_memory_bytes` | `671481419` (`640.375 MiB`) | **PASS as supplementary instrumentation / BLOCKED for target acceptance** - non-zero real-renderer counter; host-specific |
+| `memory_static_bytes` | `333988097` | **PASS as supplementary instrumentation / BLOCKED for target acceptance** - host observation |
+| `memory_delta_mib` | `229.207` | **PASS as supplementary instrumentation / BLOCKED for target acceptance** - host observation |
+| Rendering method | `gl_compatibility` | **PASS as supplementary instrumentation / BLOCKED for target acceptance** - matches current project renderer |
+| Fidelity flags | shadows/glow enabled; SSAO/SSIL/SDFGI/SSR/volumetric fog unavailable | **PASS as metadata / BLOCKED for final visual acceptance** - renderer capability limitations are preserved |
 
 ## Verification result
 
 | Check | Result |
 |---|---|
-| Non-headless renderer run | **PASS as instrumentation** - exit 0, `headless=false`, raw JSON written |
-| Non-zero GPU memory metrics | **PASS as instrumentation** - texture and video memory both available and non-zero |
+| R-709 target identity audit | **BLOCKED** - the raw renderer JSON has no embedded `target_hardware` or `measurement_host` identity; the captured provenance records an Apple M5 Pro arm64 host, not Intel UHD 620 x86_64 |
+| Target profile identity | **BLOCKED** - declared profile is Intel Core i5-8250U / Intel UHD Graphics 620 / x86_64 / 8 GiB / 1920x1080; no valid target run was executed |
+| Non-headless renderer run | **PASS as supplementary instrumentation** - exit 0, `headless=false`, raw JSON written |
+| Requested renderer and resolution | **PASS as supplementary instrumentation** - `gl_compatibility`, `opengl3`, 1920x1080 |
+| Frame sample count and distribution | **PASS as supplementary instrumentation** - 120 samples with median/p95/p99/max present |
+| GPU memory instrumentation | **PASS as supplementary instrumentation** - texture and video memory both available and non-zero; renderer fidelity limitations remain recorded |
 | Declared Intel UHD 620 target measured | **BLOCKED** - detected host is Apple M5 Pro, not the declared target |
 | Minimum-hardware frame-time acceptance | **BLOCKED** - Apple measurements cannot certify Intel UHD 620 performance |
 | P0-038 generator check | **PASS** - `python3 tools/generate_p038_comparison_report.py --check` |
@@ -82,7 +86,7 @@ Run the same command on a representative x86_64 machine matching the declared In
 
 The declared target is not available on the current measurement host. The host is an Apple MacBook Pro (Mac17,8) with Apple M5 Pro, arm64 architecture, 48 GiB RAM, and Metal 4 display hardware. It is not the required x86_64 Intel Core i5-8250U / Intel UHD Graphics 620 / 8 GiB profile. No Intel UHD 620 machine or compatible remote runner is configured in this environment.
 
-**Verdict:** **BLOCKED** - the R-708 target run was not executed. The required `BENCHMARK_HEADLESS=0` command must not be run here and relabeled as target evidence. The existing Apple M5 Pro JSON and non-headless instrumentation remain supplementary only; no headless or Apple result is substituted for the declared target, and no performance cap is changed. R-563 remains the owner of target hardware acquisition/run.
+**Verdict:** **BLOCKED** - the R-709 audit confirms that no valid declared-target run was executed. The raw renderer JSON has no embedded target/host identity fields, and the captured provenance identifies the actual host as Apple M5 Pro arm64 rather than Intel Core i5-8250U / Intel UHD Graphics 620 x86_64. The required `BENCHMARK_HEADLESS=0` command must not be run here and relabeled as target evidence. The existing Apple M5 Pro non-headless capture remains supplementary only: it proves 120 samples, a complete median/p95/p99/max distribution, and non-zero GPU memory instrumentation, but it cannot certify the target or change any performance cap. R-563 remains the owner of target hardware acquisition/run.
 
 ## Sources
 
@@ -90,4 +94,5 @@ The declared target is not available on the current measurement host. The host i
 - [`tools/benchmarks/renderer_comparison_benchmark.tscn`](../../tools/benchmarks/renderer_comparison_benchmark.tscn)
 - [`tools/benchmarks/renderer_comparison.gd`](../../tools/benchmarks/renderer_comparison.gd)
 - [`docs/PERFORMANCE_REPORT.md`](../PERFORMANCE_REPORT.md)
+- [`docs/reports/data/r653_minimum_hardware_gpu_evidence_manifest.json`](data/r653_minimum_hardware_gpu_evidence_manifest.json)
 - [`docs/reports/p0_040_maintainer_approval_packet.md`](p0_040_maintainer_approval_packet.md)
