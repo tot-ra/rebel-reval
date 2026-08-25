@@ -1,0 +1,33 @@
+{
+  "type": "rite",
+  "id": "rite.blessing",
+  "name": "Blessing",
+  "school": "school.divine",
+  "tags": [
+    "element.faith"
+  ],
+  "resolution": "authored_lookup",
+  "fixed_liturgy": true,
+  "runtime_combination_allowed": false,
+  "allows_hammer_symbol": true,
+  "cost": {
+    "resource": "resource.piety",
+    "amount": 1
+  },
+  "effect_summary": "Short authored self damage blessing.",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P7-010 fixture"
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Starter rite stub from the active dual-school magic contract; it is authored gameplay, not attested historical liturgy.",
+      "citations": [
+        "docs/SYSTEMS/MAGIC.md"
+      ]
+    }
+  ]
+}

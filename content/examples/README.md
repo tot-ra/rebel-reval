@@ -2,9 +2,9 @@
 
 These files are schema fixtures for TODO P1-003, not final shipped content. They are intentionally small and representative:
 
-- `valid/` contains one passing example for each schema type: character, dialogue, bark pool, quest, item, commission, and location.
+- `valid/` contains one passing example for each schema type: character, dialogue, bark pool, quest, item, commission, location, and the P7-010 magic spell/rite/grant records.
 - `support/` contains the additional referenced records that make `valid/` a complete semantic corpus without changing the representative P1-003 examples.
-- `invalid/` contains one seeded failing example for each schema type so validation can prove negative cases are rejected.
+- `invalid/` contains one seeded failing example for each schema type so validation can prove negative cases are rejected, including a runtime-invented magic combination.
 
 The examples use the approved P0 canon and character brief data where possible. Dialogue and barks follow ADR 0003: authored offline strings, deterministic local selection, no runtime LLM dependency, and no free-text NPC chat.
 

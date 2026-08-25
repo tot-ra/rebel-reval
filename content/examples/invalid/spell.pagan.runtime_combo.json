@@ -1,0 +1,32 @@
+{
+  "type": "spell",
+  "id": "spell.pagan.runtime_combo",
+  "name": "Runtime Combination",
+  "school": "school.pagan",
+  "sequence": [
+    "element.fire",
+    "element.air"
+  ],
+  "resolution": "runtime_combination",
+  "runtime_combination_allowed": true,
+  "requires_conduit": "none",
+  "cost": {
+    "resource": "resource.willpower",
+    "amount": 1
+  },
+  "effect_summary": "This must never be accepted as a player-invented recipe.",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft"
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Negative fixture for the fail-closed authored lookup rule.",
+      "citations": [
+        "docs/SYSTEMS/MAGIC.md"
+      ]
+    }
+  ]
+}

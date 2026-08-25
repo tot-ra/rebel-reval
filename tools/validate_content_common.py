@@ -18,6 +18,9 @@ RECORD_TYPE_BY_PREFIX = {
     "encounter.": "encounter",
     "phase_profile.": "phase_profile",
     "slicephase.": "phase_profile",
+    "spell.": "spell",
+    "rite.": "rite",
+    "magic.": "magic_grant",
 }
 
 CONDITION_OPS = {

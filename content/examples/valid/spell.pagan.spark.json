@@ -1,0 +1,32 @@
+{
+  "type": "spell",
+  "id": "spell.pagan.spark",
+  "name": "Spark",
+  "school": "school.pagan",
+  "sequence": [
+    "element.fire"
+  ],
+  "resolution": "authored_lookup",
+  "runtime_combination_allowed": false,
+  "requires_conduit": "none",
+  "cost": {
+    "resource": "resource.willpower",
+    "amount": 1
+  },
+  "effect_summary": "Minor authored fire projectile.",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P7-010 fixture"
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Starter spell stub from the active dual-school magic contract; it is authored gameplay, not attested historical practice.",
+      "citations": [
+        "docs/SYSTEMS/MAGIC.md"
+      ]
+    }
+  ]
+}
