@@ -306,17 +306,36 @@ func sync_actor(actor: Node3D, logic_position: Vector2) -> void:
 
 
 func add_mud_footprint(logic_position: Vector2, movement: Vector2) -> bool:
+	var position := world_position(logic_position)
+	return add_mud_footprint_at(position, movement, true)
+
+
+## Places a print under an animated foot bone. Terrain is sampled at that foot,
+## not at the actor pivot, so a boot crossing a mud boundary leaves contact only
+## where the sole actually lands.
+func add_mud_footprint_at(
+	foot_world_position: Vector3,
+	movement: Vector2,
+	apply_lateral_offset: bool = false
+) -> bool:
 	if _mud_footprints == null or grid == null or _sky_weather == null:
 		return false
+	var logic_position := MapViewBridge.world_to_logic(foot_world_position, definition.cell_size)
 	var cell := Vector2i(
 		floori(logic_position.x / float(definition.cell_size)),
 		floori(logic_position.y / float(definition.cell_size))
 	)
 	if grid.get_terrain(cell) != MapTypes.TERRAIN_MUD:
 		return false
-	var position := world_position(logic_position)
-	position.y = MapViewMeshBuilder.ground_height(definition, Vector2(position.x, position.z))
-	return _mud_footprints.try_add(position, movement, _sky_weather.mud_wetness())
+	foot_world_position.y = MapViewMeshBuilder.ground_height(
+		definition, Vector2(foot_world_position.x, foot_world_position.z)
+	)
+	return _mud_footprints.try_add(
+		foot_world_position,
+		movement,
+		_sky_weather.mud_wetness(),
+		apply_lateral_offset
+	)
 
 
 ## Pushes the shared grass MultiMesh material so blades part around the player.

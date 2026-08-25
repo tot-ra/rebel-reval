@@ -36,7 +36,12 @@ func _process(delta: float) -> void:
 			footprint.queue_free()
 
 
-func try_add(world_position: Vector3, movement: Vector2, wetness: float) -> bool:
+func try_add(
+	world_position: Vector3,
+	movement: Vector2,
+	wetness: float,
+	apply_lateral_offset: bool = true
+) -> bool:
 	if movement.length_squared() < 0.0001:
 		return false
 	if (
@@ -46,7 +51,9 @@ func try_add(world_position: Vector3, movement: Vector2, wetness: float) -> bool
 		return false
 	var forward := Vector3(movement.x, 0.0, movement.y).normalized()
 	var side := Vector3(-forward.z, 0.0, forward.x)
-	var lateral := FOOT_LATERAL_OFFSET if _left_step else -FOOT_LATERAL_OFFSET
+	var lateral := 0.0
+	if apply_lateral_offset:
+		lateral = FOOT_LATERAL_OFFSET if _left_step else -FOOT_LATERAL_OFFSET
 	var saturation := clampf(wetness, 0.0, 1.0)
 	var footprint := MeshInstance3D.new()
 	footprint.name = "MudPrint_%02d" % _prints.size()
@@ -65,7 +72,8 @@ func try_add(world_position: Vector3, movement: Vector2, wetness: float) -> bool
 	add_child(footprint)
 	_prints.append(footprint)
 	_last_position = world_position
-	_left_step = not _left_step
+	if apply_lateral_offset:
+		_left_step = not _left_step
 	while _prints.size() > MAX_PRINTS:
 		var oldest: MeshInstance3D = _prints.pop_front()
 		oldest.queue_free()

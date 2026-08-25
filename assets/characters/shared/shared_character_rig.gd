@@ -36,11 +36,14 @@ const LOOPING_ANIMATIONS: Array[StringName] = [
 ## 1x playback; set_locomotion_speed stretches playback around these so feet
 ## track the ground instead of skating.
 const LOCOMOTION_REFERENCE_SPEED: Dictionary = {
-	&"walk": 2.6,
-	&"run": 5.5,
+	&"walk": 1.4,
+	&"run": 2.8,
 }
 const LOCOMOTION_SPEED_SCALE_MIN := 0.7
-const LOCOMOTION_SPEED_SCALE_MAX := 1.5
+const LOCOMOTION_SPEED_SCALE_MAX := 3.0
+const FOOT_PLANT_HEIGHT_HYSTERESIS := 0.025
+const LEFT_FOOT_BONE := &"foot.l"
+const RIGHT_FOOT_BONE := &"foot.r"
 const TURN_SMOOTHING := 10.0
 const RIGHT_HAND_BONE := &"hand.r"
 ## Hammer action clips are deliberately time-warped against the logic profile.
@@ -157,6 +160,7 @@ const CHARACTER_PBR_MATERIAL_PROFILES: Dictionary = {
 var _animation_player: AnimationPlayer
 var _current_canonical_animation: StringName = &""
 var _skeleton: Skeleton3D
+var _planted_foot: StringName = &""
 var _slot_attachments: Dictionary = {}
 var _garments: Dictionary = {}
 var _extra_visual_layers := 0
@@ -336,6 +340,7 @@ func set_locomotion_speed(world_speed: float) -> void:
 	var canonical := current_canonical_animation()
 	if not LOCOMOTION_REFERENCE_SPEED.has(canonical):
 		_animation_player.speed_scale = 1.0
+		_planted_foot = &""
 		return
 	var reference: float = LOCOMOTION_REFERENCE_SPEED[canonical]
 	_animation_player.speed_scale = clampf(
@@ -343,6 +348,37 @@ func set_locomotion_speed(world_speed: float) -> void:
 		LOCOMOTION_SPEED_SCALE_MIN,
 		LOCOMOTION_SPEED_SCALE_MAX
 	)
+
+
+## Returns the foot that has just become the lower, weight-bearing foot.
+## Consumers use the transition rather than a timer so effects stay attached to
+## the authored gait even when locomotion playback is scaled by ground speed.
+func consume_foot_plant() -> StringName:
+	if _skeleton == null or not LOCOMOTION_REFERENCE_SPEED.has(current_canonical_animation()):
+		_planted_foot = &""
+		return &""
+	var left_index := _skeleton.find_bone(String(LEFT_FOOT_BONE))
+	var right_index := _skeleton.find_bone(String(RIGHT_FOOT_BONE))
+	if left_index < 0 or right_index < 0:
+		return &""
+	_skeleton.force_update_all_bone_transforms()
+	var left_height := _skeleton.get_bone_global_pose(left_index).origin.y
+	var right_height := _skeleton.get_bone_global_pose(right_index).origin.y
+	var lower_foot := LEFT_FOOT_BONE if left_height < right_height else RIGHT_FOOT_BONE
+	if absf(left_height - right_height) < FOOT_PLANT_HEIGHT_HYSTERESIS or lower_foot == _planted_foot:
+		return &""
+	_planted_foot = lower_foot
+	return lower_foot
+
+
+func foot_world_position(foot_bone: StringName) -> Vector3:
+	if _skeleton == null:
+		return global_position
+	var bone_index := _skeleton.find_bone(String(foot_bone))
+	if bone_index < 0:
+		return global_position
+	_skeleton.force_update_all_bone_transforms()
+	return _skeleton.global_transform * _skeleton.get_bone_global_pose(bone_index).origin
 
 func current_canonical_animation() -> StringName:
 	return _current_canonical_animation

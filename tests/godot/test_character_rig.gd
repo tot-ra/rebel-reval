@@ -163,6 +163,29 @@ func test_running_uses_contralateral_arm_swing() -> void:
 	kalev.queue_free()
 
 
+func test_locomotion_speed_and_foot_plants_follow_the_authored_gait() -> void:
+	var kalev := _instantiate(KALEV_SCENE)
+	assert_true(kalev.play_animation(&"walk", 0.0))
+	kalev.set_locomotion_speed(3.125)
+	assert_true(
+		is_equal_approx(kalev.animation_player().speed_scale, 3.125 / 1.4),
+		"walk playback must scale with actual world speed instead of capping below the player"
+	)
+
+	var player := kalev.animation_player()
+	var animation := player.get_animation(&"Walking_A")
+	player.seek(0.0, true)
+	assert_eq(kalev.consume_foot_plant(), SharedCharacterRig.LEFT_FOOT_BONE)
+	assert_eq(kalev.consume_foot_plant(), &"", "one planted foot must emit only one contact")
+	player.seek(animation.length * 0.5, true)
+	assert_eq(kalev.consume_foot_plant(), SharedCharacterRig.RIGHT_FOOT_BONE)
+	var right_foot := kalev.foot_world_position(SharedCharacterRig.RIGHT_FOOT_BONE)
+	assert_true(
+		right_foot.distance_to(kalev.global_position) > 0.1,
+		"foot contact position must come from the animated bone, not the actor pivot"
+	)
+	kalev.queue_free()
+
 func test_scale_contract_projects_to_sixty_four_pixels() -> void:
 	assert_true(is_equal_approx(CharacterScale.VISIBLE_HEIGHT_WORLD, 2.0))
 	assert_true(is_equal_approx(CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE, 33.75))

@@ -45,6 +45,12 @@ func test_mud_footprints_alternate_and_deepen_with_wetness() -> void:
 		float(wet.get_meta(&"lifetime")) > float(dry.get_meta(&"lifetime")),
 		"wet impressions must persist longer"
 	)
+	assert_true(trail.try_add(Vector3(0.4, 0.0, 1.2), Vector2.DOWN, 0.5, false))
+	var bone_placed := trail.get_child(2) as MeshInstance3D
+	assert_true(
+		is_equal_approx(bone_placed.position.x, 0.4),
+		"a bone-positioned print must not receive an additional synthetic gait offset"
+	)
 	trail.free()
 
 
