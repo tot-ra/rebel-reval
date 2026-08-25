@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "task_id": "P6-005",
+  "godot_model": "scripts/quest/act3_ending_model.gd",
+  "godot_test_filter": "test_act3_ending",
+  "sale_year": 1346,
+  "sale_event": "event.sale_estonia_1346",
+  "choice_count": 3,
+  "core_character_count": 7,
+  "active_faction_count": 8,
+  "active_district_count": 2,
+  "forbidden_aggregate_keys": [
+    "morality",
+    "alignment",
+    "karma",
+    "virtue",
+    "sin",
+    "good_evil",
+    "morality_score"
+  ]
+}
