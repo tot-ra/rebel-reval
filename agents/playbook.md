@@ -19,6 +19,7 @@ This file contains only cross-role operating lessons. Domain lessons belong to t
 - In a dirty shared worktree, a broad transition test file can fail on an unrelated edited map; run its map-specific test methods separately before attributing the failure to the scoped map.
 - Never run parallel edits against the same file; dependent replacements can report success and then overwrite each other. Edit serially and re-read the saved block.
 - In a dirty shared worktree, generate repository-wide derived reports from a temporary clean worktree plus only the scoped patch; otherwise unrelated active-doc changes leak into the commit artifact.
+- 2026-08-25: When an exact edit anchor matches a function body instead of its header, re-read the saved source immediately; restore the complete bounded function before continuing, then run syntax checks before adding tests.
 - If project file indexing is disabled, skip `file_search` and use targeted `find_files`, `grep`, or `rg` searches instead.
 - In `code_execution`, avoid relying on helper functions from comprehensions because the execution wrapper may isolate their scope; use explicit loops or inline calculations.
 - Before `git commit`, inspect `git status` for already-staged unrelated files (`M ` in the first column); unstage them or the commit will absorb them.
