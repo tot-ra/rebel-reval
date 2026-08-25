@@ -394,6 +394,8 @@ void fragment() {
 ## Grass blades: instance color carries the tint, UV.y runs root(0) to tip(1).
 ## World wind (direction + strength from SkyWeather) leans tips downwind; a
 ## lighter cross-flutter keeps the field alive even in a steady breeze.
+## Character interaction (center/push/strength from MapViewRuntime) parts tips
+## away from the body with a soft radial falloff so walking reads as contact.
 const GRASS_SHADER_CODE := """
 shader_type spatial;
 // depth_draw_opaque keeps stacked blade layers sorted; cull_disabled shows both
@@ -405,6 +407,12 @@ uniform vec3 base_color : source_color = vec3(0.38, 0.48, 0.24);
 uniform float sway_strength = 0.10;
 uniform vec2 wind_direction = vec2(0.9285, 0.3714);
 uniform float wind_strength = 0.22;
+// Character parting: world-XZ contact point, tip displacement in meters, soft
+// radius, and normalized movement for a short wake behind the step.
+uniform vec2 interact_center = vec2(0.0);
+uniform float interact_strength = 0.0;
+uniform float interact_radius = 0.65;
+uniform vec2 interact_push = vec2(0.0);
 
 void vertex() {
 	vec3 world = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
@@ -420,6 +428,21 @@ void vertex() {
 		+ across * flutter * 0.45;
 	VERTEX.x += displace.x * sway_strength * weight;
 	VERTEX.z += displace.y * sway_strength * weight;
+
+	// Soft physics-like parting: roots stay planted (weight), tips lean away
+	// from the character and dip slightly as if pushed by the body/legs.
+	if (interact_strength > 0.001 && interact_radius > 0.001) {
+		vec2 offset = world.xz - interact_center;
+		float dist = length(offset);
+		float falloff = 1.0 - smoothstep(0.0, interact_radius, dist);
+		falloff *= falloff;
+		vec2 radial = dist > 0.001 ? offset / dist : vec2(0.0, 1.0);
+		vec2 interact_disp = radial * 0.9 + interact_push * 0.55;
+		float tip = interact_strength * weight * falloff;
+		VERTEX.x += interact_disp.x * tip;
+		VERTEX.z += interact_disp.y * tip;
+		VERTEX.y -= tip * 0.22;
+	}
 }
 
 void fragment() {

@@ -468,11 +468,40 @@ static func grass_blades() -> ShaderMaterial:
 		return _cache[key]
 	var material := ShaderMaterial.new()
 	material.shader = MapViewMaterialShaders.shader(
-		"grass", MapViewMaterialShaders.GRASS_SHADER_CODE
+		"grass_character", MapViewMaterialShaders.GRASS_SHADER_CODE
 	)
 	material.set_shader_parameter("base_color", Color8(104, 130, 62))
+	# Interaction starts off so maps without a player keep pure wind sway.
+	material.set_shader_parameter("interact_strength", 0.0)
+	material.set_shader_parameter("interact_radius", 0.65)
+	material.set_shader_parameter("interact_center", Vector2.ZERO)
+	material.set_shader_parameter("interact_push", Vector2.ZERO)
 	_cache[key] = material
 	return material
+
+
+## Soft character parting for all grass MultiMeshes sharing grass_blades().
+## center_xz / velocity_xz are world-space ground coordinates; tip displacement
+## grows with speed so a walk opens a pocket and a run leaves a readable wake.
+static func apply_grass_interaction(center_xz: Vector2, velocity_xz: Vector2) -> void:
+	var material := grass_blades()
+	var speed := velocity_xz.length()
+	var push := Vector2.ZERO
+	if speed > 0.02:
+		push = velocity_xz / speed
+	# Standing still still parts blades around the feet; motion adds wake amplitude.
+	var tip_displace := clampf(0.10 + speed * 0.015, 0.10, 0.22)
+	material.set_shader_parameter("interact_center", center_xz)
+	material.set_shader_parameter("interact_push", push)
+	material.set_shader_parameter("interact_strength", tip_displace)
+	material.set_shader_parameter("interact_radius", 0.65)
+
+
+## Clears character parting when no player rig is driving the view.
+static func clear_grass_interaction() -> void:
+	var material := grass_blades()
+	material.set_shader_parameter("interact_strength", 0.0)
+	material.set_shader_parameter("interact_push", Vector2.ZERO)
 
 
 static func canopy(kind: StringName) -> ShaderMaterial:

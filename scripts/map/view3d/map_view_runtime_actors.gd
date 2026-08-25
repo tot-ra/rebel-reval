@@ -123,6 +123,9 @@ func sync_player(snap: bool, delta: float = 0.0) -> void:
 	elif _last_facing.is_zero_approx():
 		# Spawn-facing must use the snapped camera offset, not pre-sync positions.
 		_last_facing = _logic_direction_toward_camera.call() as Vector2
+	# Grass MultiMeshes share one material; drive tip parting from the live
+	# logic pose so walking through meadow/fern scatter reads as contact.
+	_view.update_grass_interaction(_player.global_position, _player.velocity)
 	var facing := _player.velocity if moving else _last_facing
 	if _player.has_method("view_facing"):
 		facing = _player.call("view_facing") as Vector2

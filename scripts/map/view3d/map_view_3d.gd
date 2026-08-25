@@ -319,6 +319,15 @@ func add_mud_footprint(logic_position: Vector2, movement: Vector2) -> bool:
 	return _mud_footprints.try_add(position, movement, _sky_weather.mud_wetness())
 
 
+## Pushes the shared grass MultiMesh material so blades part around the player.
+## Logic velocity is scaled to world XZ so walk/run wake strength stays readable.
+func update_grass_interaction(logic_position: Vector2, logic_velocity: Vector2) -> void:
+	var world := world_position(logic_position)
+	var scale := MapViewBridge.world_scale(definition.cell_size)
+	var world_velocity := Vector2(logic_velocity.x, logic_velocity.y) * scale
+	MapViewMaterials.apply_grass_interaction(Vector2(world.x, world.z), world_velocity)
+
+
 func mud_wetness() -> float:
 	return _sky_weather.mud_wetness() if _sky_weather != null else 0.0
 
