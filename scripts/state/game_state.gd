@@ -44,6 +44,55 @@ const LIVING_CITY_MAX := 20
 const LIVING_CITY_DEFAULT := 8
 const LIVING_CITY_DELTA_MIN := -5
 const LIVING_CITY_DELTA_MAX := 5
+const MAGIC_RESOURCE_WILLPOWER := &"resource.willpower"
+const MAGIC_RESOURCE_PIETY := &"resource.piety"
+const MAGIC_RESOURCE_HEALTH := &"resource.health"
+const MAGIC_RESOURCE_DEFAULT := 0
+const ITEM_FORGE_HAMMER := &"item.forge_hammer"
+const NATURAL_VERSION := 1
+const NATURAL_ASPECT_BASELINE := 5
+const NATURAL_ASPECT_CAP := 50
+const NATURAL_INITIAL_POINTS := 10
+const NATURAL_ASPECT_IDS: Array[StringName] = [
+	&"aspect.nature",
+	&"aspect.affection",
+	&"aspect.tenacity",
+	&"aspect.unity",
+	&"aspect.resonance",
+	&"aspect.awareness",
+	&"aspect.light",
+]
+const NATURAL_ASPECT_DISPLAY_NAMES: Dictionary = {
+	&"aspect.nature": "Nature",
+	&"aspect.affection": "Affection",
+	&"aspect.tenacity": "Tenacity",
+	&"aspect.unity": "Unity",
+	&"aspect.resonance": "Resonance",
+	&"aspect.awareness": "Awareness",
+	&"aspect.light": "Light",
+}
+const PSYCHE_VERSION := 1
+const PSYCHE_STATE_IDS: Array[StringName] = [
+	&"psyche.state.ruthless",
+	&"psyche.state.exalted",
+	&"psyche.state.melancholy",
+	&"psyche.state.pride",
+	&"psyche.state.apathy",
+	&"psyche.state.paranoid",
+	&"psyche.state.obsession",
+]
+const PSYCHE_FACE_IDS: Array[StringName] = [
+	&"face.persona",
+	&"face.shadow",
+	&"face.anima",
+	&"face.self",
+]
+const PSYCHE_STATE_DELTAS: Dictionary = {
+	&"psyche.state.ruthless": {&"aspect.tenacity": 2, &"aspect.unity": -2},
+	&"psyche.state.exalted": {&"aspect.affection": 1, &"aspect.nature": -1},
+	&"psyche.state.melancholy": {&"aspect.awareness": -2},
+	&"psyche.state.apathy": {&"aspect.unity": -2, &"aspect.resonance": -1},
+}
 
 var version: int = CURRENT_VERSION
 var phase: StringName = PHASE_PROLOGUE_DAY
@@ -72,6 +121,14 @@ var _world_defaults_seeded: Dictionary = {}
 var _equipped_forge_technique: StringName = &""
 ## Frozen Act 1 transition envelope written at St. George's Night (P4-009).
 var _act1_transition: Dictionary = {}
+## Magic resources and authored grants are optional in legacy saves.
+var _magic_resources: Dictionary[StringName, int] = {}
+var _magic_grants: Dictionary[StringName, bool] = {}
+var _natural_aspects: Dictionary[StringName, int] = {}
+var _natural_unspent_points := 0
+var _psyche_states: Dictionary[StringName, Dictionary] = {}
+var _psyche_face_integration: Dictionary[StringName, int] = {}
+var _forge_conduit_bound := false
 
 func _init() -> void:
 	_pressures[PRESSURE_SUSPICION] = 0
@@ -79,9 +136,132 @@ func _init() -> void:
 	_pressures[PRESSURE_SCARCITY] = 0
 	_living_city[LIVING_CITY_HOPE] = LIVING_CITY_DEFAULT
 	_living_city[LIVING_CITY_FEAR] = LIVING_CITY_DEFAULT
+	for aspect_id in NATURAL_ASPECT_IDS:
+		_natural_aspects[aspect_id] = NATURAL_ASPECT_BASELINE
+	for face_id in PSYCHE_FACE_IDS:
+		_psyche_face_integration[face_id] = 0
+
+
+## NATURAL stores authored aspect ranks only; psyche modifiers are composed at read time.
+func get_natural_aspect_rank(aspect_id: StringName) -> int:
+	if not NATURAL_ASPECT_IDS.has(aspect_id):
+		return 0
+	return int(_natural_aspects.get(aspect_id, NATURAL_ASPECT_BASELINE))
+
+
+func get_natural_effective_aspect_rank(aspect_id: StringName) -> int:
+	var rank := get_natural_aspect_rank(aspect_id)
+	for state_id in _psyche_states:
+		var deltas: Dictionary = PSYCHE_STATE_DELTAS.get(state_id, {})
+		rank += int(deltas.get(aspect_id, 0)) * int(_psyche_states[state_id].get("intensity", 1))
+	return clampi(rank, 1, NATURAL_ASPECT_CAP)
+
+
+func get_natural_aspects() -> Dictionary[StringName, int]:
+	return _natural_aspects.duplicate()
+
+
+func get_natural_unspent_points() -> int:
+	return _natural_unspent_points
+
+
+func grant_natural_points(amount: int) -> bool:
+	if amount <= 0:
+		return false
+	_natural_unspent_points += amount
+	return true
+
+
+func spend_natural_point(aspect_id: StringName) -> StringName:
+	if not NATURAL_ASPECT_IDS.has(aspect_id):
+		return &"natural.fail.unknown_aspect"
+	if _natural_unspent_points <= 0:
+		return &"natural.fail.no_points"
+	if get_natural_aspect_rank(aspect_id) >= NATURAL_ASPECT_CAP:
+		return &"natural.fail.at_cap"
+	_natural_aspects[aspect_id] = get_natural_aspect_rank(aspect_id) + 1
+	_natural_unspent_points -= 1
+	return &""
+
+
+func get_psyche_states() -> Array[Dictionary]:
+	var states: Array[Dictionary] = []
+	for state_id in _psyche_states:
+		states.append(_psyche_states[state_id].duplicate(true))
+	states.sort_custom(
+		func(a: Dictionary, b: Dictionary) -> bool:
+			return String(a.get("id", "")) < String(b.get("id", ""))
+	)
+	return states
+
+
+func apply_psyche_state(
+	state_id: StringName, intensity: int, source_beat: StringName = &""
+) -> StringName:
+	if not PSYCHE_STATE_IDS.has(state_id):
+		return &"psyche.fail.unknown_state"
+	if intensity < 1 or intensity > 3:
+		return &"psyche.fail.blocked"
+	if _psyche_states.has(state_id):
+		return &"psyche.fail.already_active"
+	_psyche_states[state_id] = {
+		"id": String(state_id),
+		"intensity": intensity,
+		"source_beat": String(source_beat),
+	}
+	return &""
+
+
+func clear_psyche_state(state_id: StringName) -> StringName:
+	if not _psyche_states.erase(state_id):
+		return &"psyche.fail.unknown_state"
+	return &""
+
+
+func get_psyche_face_integration(face_id: StringName) -> int:
+	return clampi(int(_psyche_face_integration.get(face_id, 0)), 0, 5)
+
+
+func set_psyche_face_integration(face_id: StringName, rank: int) -> bool:
+	if not PSYCHE_FACE_IDS.has(face_id):
+		return false
+	_psyche_face_integration[face_id] = clampi(rank, 0, 5)
+	return true
+
+
+func get_psyche_faces() -> Dictionary[StringName, int]:
+	return _psyche_face_integration.duplicate()
+
+
+func set_natural_initial_allocation_complete(value: bool) -> void:
+	set_flag(&"flag.natural.initial_allocation", value)
+
+
+func is_natural_system_enabled() -> bool:
+	return get_flag(&"flag.natural.system_enabled")
+
+
+func get_hingepuu_loci() -> Array[Dictionary]:
+	var loci: Array[Dictionary] = [{"id": "hingepuu.locus.reflection", "kind": "rite"}]
+	for aspect_id in NATURAL_ASPECT_IDS:
+		loci.append(
+			{
+				"id": "hingepuu.locus.%s" % String(aspect_id).trim_prefix("aspect."),
+				"kind": "aspect",
+			}
+		)
+	for face_id in PSYCHE_FACE_IDS:
+		loci.append(
+			{
+				"id": "hingepuu.locus.%s" % String(face_id).trim_prefix("face."),
+				"kind": "face",
+			}
+		)
+	return loci
 
 
 func get_version() -> int:
+	return version
 	return version
 
 
@@ -125,6 +305,70 @@ func get_flag(key: StringName) -> bool:
 
 func set_flag(key: StringName, value: bool) -> void:
 	_flags[key] = value
+
+
+## Magic resource values are deterministic integers. Health remains backed by the
+## existing PlayerState field so martyrdom costs cannot diverge from combat.
+func get_magic_resource(resource_id: StringName) -> int:
+	if resource_id == MAGIC_RESOURCE_HEALTH:
+		return maxi(0, floori(player.health))
+	return maxi(0, int(_magic_resources.get(resource_id, MAGIC_RESOURCE_DEFAULT)))
+
+
+func set_magic_resource(resource_id: StringName, value: int) -> bool:
+	if resource_id == MAGIC_RESOURCE_HEALTH:
+		player.health = clampf(float(value), 0.0, player.max_health)
+		return true
+	if resource_id != MAGIC_RESOURCE_WILLPOWER and resource_id != MAGIC_RESOURCE_PIETY:
+		return false
+	_magic_resources[resource_id] = maxi(0, value)
+	return true
+
+
+func adjust_magic_resource(resource_id: StringName, delta: int) -> bool:
+	return set_magic_resource(resource_id, get_magic_resource(resource_id) + delta)
+
+
+func spend_magic_resource(resource_id: StringName, amount: int) -> bool:
+	if amount < 0 or get_magic_resource(resource_id) < amount:
+		return false
+	return adjust_magic_resource(resource_id, -amount)
+
+
+func has_magic_grant(target_id: StringName) -> bool:
+	return _magic_grants.get(target_id, false)
+
+
+func grant_magic(target_id: StringName, grant_flag: StringName) -> bool:
+	if not _is_magic_target(target_id) or not String(grant_flag).begins_with("flag.magic."):
+		return false
+	_magic_grants[target_id] = true
+	set_flag(grant_flag, true)
+	return true
+
+
+func revoke_magic(target_id: StringName, grant_flag: StringName) -> bool:
+	if not _is_magic_target(target_id) or not String(grant_flag).begins_with("flag.magic."):
+		return false
+	_magic_grants.erase(target_id)
+	set_flag(grant_flag, false)
+	return true
+
+
+func is_forge_conduit_available() -> bool:
+	return _forge_conduit_bound or equipped_item(&"right_hand") == ITEM_FORGE_HAMMER
+
+
+func set_forge_conduit_bound(value: bool) -> void:
+	_forge_conduit_bound = value
+
+
+func is_forge_conduit_bound() -> bool:
+	return _forge_conduit_bound
+
+
+func _is_magic_target(target_id: StringName) -> bool:
+	return String(target_id).begins_with("spell.") or String(target_id).begins_with("rite.")
 
 
 func equipped_forge_technique() -> StringName:

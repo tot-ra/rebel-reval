@@ -1,0 +1,55 @@
+{
+  "type": "spell",
+  "id": "spell.pagan.fireball",
+  "name": "Fireball",
+  "school": "school.pagan",
+  "sequence": [
+    "element.fire",
+    "element.air"
+  ],
+  "resolution": "authored_lookup",
+  "runtime_combination_allowed": false,
+  "requires_conduit": "none",
+  "cost": {
+    "resource": "resource.willpower",
+    "amount": 2
+  },
+  "effect_summary": "Explosive fire projectile; Air expands Fire into an area impact.",
+  "effect": {
+    "delivery": {
+      "kind": "projectile",
+      "speed": 420.0,
+      "range": 640.0
+    },
+    "impact": {
+      "kind": "damage",
+      "amount": 12.0,
+      "damage_type": "fire"
+    },
+    "area": {
+      "radius": 72.0,
+      "effect": {
+        "kind": "damage",
+        "amount": 7.0,
+        "damage_type": "fire"
+      }
+    }
+  },
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "Modular magic fireball prototype"
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Restores the legacy Fire plus Air fireball as the first executable modular spell recipe.",
+      "citations": [
+        "character/PAGAN-MAGIC.md",
+        "docs/GAME-PILLARS.md",
+        "docs/SYSTEMS/MAGIC.md"
+      ]
+    }
+  ]
+}

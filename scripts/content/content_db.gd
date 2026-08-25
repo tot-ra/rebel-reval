@@ -19,6 +19,9 @@ const TYPE_LOCATION := "location"
 const TYPE_MECHANISM := "mechanism"
 const TYPE_ENCOUNTER := "encounter"
 const TYPE_PHASE_PROFILE := "phase_profile"
+const TYPE_SPELL := "spell"
+const TYPE_RITE := "rite"
+const TYPE_MAGIC_GRANT := "magic_grant"
 
 const CONTENT_ID_REGEX := "^[a-z][a-z0-9]*(\\.[a-z0-9_]+)+$"
 
@@ -34,6 +37,9 @@ const _TYPE_BY_PREFIX := {
 	"encounter.": TYPE_ENCOUNTER,
 	"phase_profile.": TYPE_PHASE_PROFILE,
 	"slicephase.": TYPE_PHASE_PROFILE,
+	"spell.": TYPE_SPELL,
+	"rite.": TYPE_RITE,
+	"magic.": TYPE_MAGIC_GRANT,
 }
 
 static var _content_id_regex: RegEx
@@ -188,6 +194,18 @@ func get_encounter(content_id: StringName) -> Dictionary:
 
 func get_phase_profile(content_id: StringName) -> Dictionary:
 	return _lookup_typed(content_id, TYPE_PHASE_PROFILE)
+
+
+func get_spell(content_id: StringName) -> Dictionary:
+	return _lookup_typed(content_id, TYPE_SPELL)
+
+
+func get_rite(content_id: StringName) -> Dictionary:
+	return _lookup_typed(content_id, TYPE_RITE)
+
+
+func get_magic_grant(content_id: StringName) -> Dictionary:
+	return _lookup_typed(content_id, TYPE_MAGIC_GRANT)
 
 
 func get_ids_by_type(expected_type: String) -> Array[StringName]:

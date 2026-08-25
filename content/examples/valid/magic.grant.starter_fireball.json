@@ -1,0 +1,25 @@
+{
+  "type": "magic_grant",
+  "id": "magic.grant.starter_fireball",
+  "name": "Teach Fireball",
+  "operation": "grant",
+  "target_id": "spell.pagan.fireball",
+  "grant_flag": "flag.magic.taught_fireball",
+  "resolution": "authored_lookup",
+  "runtime_combination_allowed": false,
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "Modular magic fireball prototype"
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Explicit authored unlock for the first executable modular spell.",
+      "citations": [
+        "docs/SYSTEMS/MAGIC.md"
+      ]
+    }
+  ]
+}
