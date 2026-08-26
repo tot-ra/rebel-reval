@@ -13,7 +13,11 @@ TOOLS = ROOT / "tools"
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
-from report_accessibility_checklist import load_manifest, run_check  # noqa: E402
+from report_accessibility_checklist import (  # noqa: E402
+    load_manifest,
+    run_check,
+    verify_manifest_contract,
+)
 
 
 class ReportAccessibilityChecklistTest(unittest.TestCase):
@@ -31,6 +35,40 @@ class ReportAccessibilityChecklistTest(unittest.TestCase):
                 "screen_shake",
                 "reduced_flashing",
             }.issubset(required)
+        )
+
+    def test_manifest_rejects_malformed_required_options(self) -> None:
+        for malformed in (None, {}, [], ["remapping", ""]):
+            with self.subTest(required_options=malformed):
+                failures = verify_manifest_contract(
+                    {
+                        "required_options": malformed,
+                        "supported_resolutions": [
+                            {"width": 1280, "height": 720},
+                            {"width": 1920, "height": 1080},
+                        ],
+                        "input_methods": ["keyboard_mouse", "gamepad"],
+                    }
+                )
+                self.assertTrue(
+                    any("required_options" in failure for failure in failures),
+                    failures,
+                )
+
+    def test_manifest_accepts_non_empty_option_names(self) -> None:
+        failures = verify_manifest_contract(
+            {
+                "required_options": ["remapping", " text_speed "],
+                "supported_resolutions": [
+                    {"width": 1280, "height": 720},
+                    {"width": 1920, "height": 1080},
+                ],
+                "input_methods": ["keyboard_mouse", "gamepad"],
+            }
+        )
+        self.assertFalse(
+            any("required_options" in failure for failure in failures),
+            failures,
         )
 
     def test_repository_checklist_passes_on_head(self) -> None:

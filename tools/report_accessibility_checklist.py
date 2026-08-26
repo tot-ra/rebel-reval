@@ -61,10 +61,16 @@ def verify_files() -> list[str]:
 
 def verify_manifest_contract(manifest: dict) -> list[str]:
     failures: list[str] = []
-    required = manifest.get("required_options", [])
-    for option in manifest.get("required_options", []):
-        if option not in required:
-            failures.append(f"manifest option not listed in required_options: {option}")
+    required = manifest.get("required_options")
+    if not isinstance(required, list) or not required:
+        failures.append("manifest required_options must be a non-empty list")
+        required = []
+    else:
+        for index, option in enumerate(required):
+            if not isinstance(option, str) or not option.strip():
+                failures.append(
+                    f"manifest required_options[{index}] must be a non-empty string"
+                )
     for option in [
         "remapping",
         "guard_hold_toggle",

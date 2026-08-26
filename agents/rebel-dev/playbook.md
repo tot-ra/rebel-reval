@@ -204,3 +204,5 @@ Parallel exact replacements against one mutable file can race and reapply stale 
 - 2026-08-25: `tools/run_godot_tests.gd` reads `--filter=` from `OS.get_cmdline_user_args()`; pass it after `--` (for example `-- --filter=test_medieval_animal_models`) or the harness silently runs the full suite.
 
 - 2026-08-26: A local `gdlint` probe may be unavailable or silent while the repository pre-commit hook invokes its own linter; before committing new GDScript, inspect the hook log and wrap any newly added lines over the 100-character limit.
+
+- lesson
