@@ -1,7 +1,11 @@
 extends "res://tests/godot/test_case.gd"
 
-const HarborNorthDefinition := preload("res://scripts/map/definitions/outdoor/reval_harbor_north_definition.gd")
-const HarborEastDefinition := preload("res://scripts/map/definitions/outdoor/reval_harbor_east_definition.gd")
+const HarborNorthDefinition := preload(
+	"res://scripts/map/definitions/outdoor/reval_harbor_north_definition.gd"
+)
+const HarborEastDefinition := preload(
+	"res://scripts/map/definitions/outdoor/reval_harbor_east_definition.gd"
+)
 
 
 func test_harbor_maps_have_irregular_authored_waterlines() -> void:
@@ -26,11 +30,26 @@ func test_harbor_coastal_rocks_are_deterministic_and_visible() -> void:
 		var second := MapViewMeshBuilder.build_scatter(definition, grid)
 		var first_rocks := first.get_node_or_null("CoastalRocks") as MultiMeshInstance3D
 		var second_rocks := second.get_node_or_null("CoastalRocks") as MultiMeshInstance3D
-		assert_true(first_rocks != null, "%s needs wave-washed rocks along the beach" % String(definition.map_id))
-		assert_true(second_rocks != null, "%s must reproduce its rock scatter" % String(definition.map_id))
+		assert_true(
+			first_rocks != null,
+				"%s needs wave-washed rocks along the beach"
+				% String(definition.map_id),
+		)
+		assert_true(
+			second_rocks != null,
+			" %s must reproduce its rock scatter" % String(definition.map_id),
+		)
 		if first_rocks != null and second_rocks != null:
-			assert_true(first_rocks.multimesh.instance_count >= 8, "%s shoreline rocks must be readable at gameplay zoom" % String(definition.map_id))
-			assert_eq(first_rocks.multimesh.instance_count, second_rocks.multimesh.instance_count, "the map seed must stabilize coastal rock count")
+			assert_true(
+				first_rocks.multimesh.instance_count >= 8,
+				" %s shoreline rocks must be readable at gameplay zoom"
+				% String(definition.map_id),
+			)
+			assert_eq(
+				first_rocks.multimesh.instance_count,
+				second_rocks.multimesh.instance_count,
+				"the map seed must stabilize coastal rock count",
+			)
 			for index in first_rocks.multimesh.instance_count:
 				assert_eq(
 					first_rocks.multimesh.get_instance_transform(index),
@@ -133,15 +152,27 @@ func test_water_shader_layers_seabed_materials_by_depth() -> void:
 	assert_true("_seabed_layers" in source, "seabed masks must be stable procedural layers")
 	assert_true("bed_layers.w" in source, "deep water must replace shallow bed detail")
 	assert_true("floor_color" in source, "authored underwater geometry must remain visible")
-	assert_true("spectral_transmission" in source, "water lighting must attenuate wavelengths by depth")
+	assert_true(
+		"spectral_transmission" in source,
+		"water lighting must attenuate wavelengths by depth",
+	)
 	assert_true("_bed_caustics" in source, "sunlit shallows need moving floor light")
 	assert_true("day_blend" in source, "floor caustics must fade at night")
-	assert_true("twilight_water_light" in source, "water caustics must use a broad solar transition")
-	assert_true("sun_height_stability" in source, "direct water lighting must stabilize at low sun angles")
-	assert_true("direct_normal_relief" in source, "wave displacement must stay separate from low-sun shading relief")
+	assert_true(
+		"twilight_water_light" in source,
+		"water caustics must use a broad solar transition",
+	)
+	assert_true(
+		"sun_height_stability" in source,
+		"direct water lighting must stabilize at low sun angles",
+	)
+	assert_true(
+		"direct_normal_relief" in source,
+		"wave displacement must stay separate from low-sun shading relief",
+	)
 	assert_true(
 		"smoothstep(-0.25, 0.25, sun_direction.y)" in source,
-		"sunrise and sunset must not switch animated water illumination on at the disk edge"
+		"sunrise and sunset must not switch animated water illumination on at the disk edge",
 	)
 
 
@@ -152,14 +183,17 @@ func test_authored_water_families_keep_distinct_optical_depths() -> void:
 	assert_true(
 		float(shallow.get_shader_parameter("depth_absorption"))
 		< float(river.get_shader_parameter("depth_absorption")),
-		"river water must hide more bed light than shallow coastal water"
+		"river water must hide more bed light than shallow coastal water",
 	)
 	assert_true(
 		float(river.get_shader_parameter("depth_absorption"))
 		< float(deep.get_shader_parameter("depth_absorption")),
-		"deep water must hide more bed light than river water"
+		"deep water must hide more bed light than river water",
 	)
-	assert_true("terrain_optical_depth" in deep.shader.code, "flat gameplay beds need visual depth per terrain family")
+	assert_true(
+		"terrain_optical_depth" in deep.shader.code,
+		"flat gameplay beds need visual depth per terrain family",
+	)
 
 
 func test_coastal_tide_changes_shore_and_depth_without_affecting_rivers() -> void:
@@ -194,3 +228,77 @@ func test_coastal_tide_changes_shore_and_depth_without_affecting_rivers() -> voi
 			"all cached water materials must receive one synchronized tide phase"
 		)
 	MapViewMaterials.apply_coastal_tide(0.0)
+
+
+func test_all_water_terrain_ids_use_shared_approved_material_profile() -> void:
+	assert_eq(
+		MapViewMaterials.WATER_TERRAINS,
+		MapTypes.WATER_TERRAINS,
+		"the view registry must cover every stable water terrain ID",
+	)
+	var source := MapViewMaterialShaders.WATER_SHADER_CODE
+	var profile_signatures: Dictionary = {}
+	for terrain_id: StringName in MapTypes.WATER_TERRAINS:
+		var material := MapViewMaterials.water_surface(terrain_id)
+		assert_true(
+			material is ShaderMaterial,
+			"%s must resolve to the shared shader material, not flat terrain fallback" % terrain_id,
+		)
+		if not material is ShaderMaterial:
+			continue
+		var shader_material := material as ShaderMaterial
+		assert_true(shader_material.shader != null, "%s water material needs a shader" % terrain_id)
+		if shader_material.shader == null:
+			continue
+		assert_eq(
+			shader_material.shader.code,
+			source,
+			"%s must use the approved shared water shader source" % terrain_id,
+		)
+		for feature in [
+			"hint_screen_texture",
+			"hint_depth_texture",
+			"depth_absorption",
+			"fresnel",
+			"star_map",
+		]:
+			assert_true(
+				feature in source,
+				"%s water profile must retain %s" % [String(terrain_id), feature],
+			)
+		var profile := MapViewMaterials.WATER_WAVE_BASE.get(terrain_id, {}) as Dictionary
+		assert_false(profile.is_empty(), "%s needs an approved wave profile" % terrain_id)
+		if profile.is_empty():
+			continue
+		var signature := "%f|%f|%f|%f|%f" % [
+			float(profile["height"]),
+			float(profile["chaos"]),
+			float(profile["absorption"]),
+			float(profile.get("bed_vegetation", 1.0)),
+			float(profile["tide_height"]),
+		]
+		assert_false(
+			profile_signatures.has(signature),
+			"%s must not silently reuse another water profile" % terrain_id,
+		)
+		profile_signatures[signature] = terrain_id
+		for uniform_name in ["wave_height", "wave_chaos", "depth_absorption", "bed_vegetation"]:
+			var expected_value := float(profile.get("bed_vegetation", 1.0))
+			if uniform_name == "wave_height":
+				expected_value = float(profile["height"])
+			elif uniform_name == "wave_chaos":
+				expected_value = float(profile["chaos"])
+			elif uniform_name == "depth_absorption":
+				expected_value = float(profile["absorption"])
+			assert_true(
+				is_equal_approx(
+					float(shader_material.get_shader_parameter(uniform_name)), expected_value
+				),
+				" %s material must expose its approved %s profile value"
+				% [String(terrain_id), uniform_name],
+			)
+	assert_eq(
+		profile_signatures.size(),
+		MapTypes.WATER_TERRAINS.size(),
+		"every water terrain must have a distinct approved profile",
+	)
