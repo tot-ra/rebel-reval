@@ -57,7 +57,7 @@ static func layout_connected_maps(
 	var seam_keys: Dictionary = {}
 	var queue: Array[StringName] = [root_id]
 	while not queue.is_empty():
-		var base_id := queue.pop_front()
+		var base_id: StringName = queue.pop_front()
 		var base: MapDefinition = by_id[base_id]
 		for neighbor_id_value in by_id.keys():
 			var neighbor_id := StringName(neighbor_id_value)
