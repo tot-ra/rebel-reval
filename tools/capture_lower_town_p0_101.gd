@@ -129,19 +129,27 @@ func _run() -> void:
 
 
 func _capture_selection() -> Dictionary:
+	var selection := _capture_selection_from_args(OS.get_cmdline_user_args())
+	var error_message := String(selection.get("error_message", ""))
+	if selection["error"] != OK and not error_message.is_empty():
+		push_error(error_message)
+	return selection
+
+
+static func _capture_selection_from_args(args: Array) -> Dictionary:
 	var selection := {
 		"preset_id": "",
 		"time_of_day": "",
 		"reset_manifest": true,
 		"error": OK,
+		"error_message": "",
 	}
-	var args := OS.get_cmdline_user_args()
 	var index := 0
 	while index < args.size():
 		var argument := String(args[index])
 		if argument == "--preset":
 			if index + 1 >= args.size():
-				push_error("P0-101 --preset requires a preset ID")
+				selection["error_message"] = "P0-101 --preset requires a preset ID"
 				selection["error"] = ERR_INVALID_PARAMETER
 				return selection
 			selection["preset_id"] = String(args[index + 1])
@@ -149,7 +157,7 @@ func _capture_selection() -> Dictionary:
 			continue
 		if argument == "--time":
 			if index + 1 >= args.size():
-				push_error("P0-101 --time requires day or night")
+				selection["error_message"] = "P0-101 --time requires day or night"
 				selection["error"] = ERR_INVALID_PARAMETER
 				return selection
 			selection["time_of_day"] = String(args[index + 1])
@@ -159,21 +167,32 @@ func _capture_selection() -> Dictionary:
 			selection["reset_manifest"] = false
 			index += 1
 			continue
-		push_error("Unknown P0-101 capture argument: %s" % argument)
+		selection["error_message"] = "Unknown P0-101 capture argument: %s" % argument
 		selection["error"] = ERR_INVALID_PARAMETER
 		return selection
 	if selection["preset_id"].is_empty() and not selection["time_of_day"].is_empty():
-		push_error("P0-101 --time requires --preset")
+		selection["error_message"] = "P0-101 --time requires --preset"
+		selection["error"] = ERR_INVALID_PARAMETER
+		return selection
+	if not selection["preset_id"].is_empty() and not _has_preset_id(selection["preset_id"]):
+		selection["error_message"] = "P0-101 unknown --preset: %s" % selection["preset_id"]
 		selection["error"] = ERR_INVALID_PARAMETER
 		return selection
 	if not selection["time_of_day"].is_empty() and not ["day", "night"].has(selection["time_of_day"]):
-		push_error("P0-101 --time must be day or night")
+		selection["error_message"] = "P0-101 --time must be day or night"
 		selection["error"] = ERR_INVALID_PARAMETER
 	return selection
 
 
 func _selection_matches(preset: Dictionary, selection: Dictionary) -> bool:
 	return selection["preset_id"].is_empty() or String(preset["id"]) == selection["preset_id"]
+
+
+static func _has_preset_id(preset_id: String) -> bool:
+	for preset: Dictionary in PRESETS:
+		if String(preset["id"]) == preset_id:
+			return true
+	return false
 
 
 func _load_manifest(definition: MapDefinition, reset_manifest: bool) -> Dictionary:

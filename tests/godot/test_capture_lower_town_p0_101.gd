@@ -195,3 +195,24 @@ func test_existing_capture_packet_outputs_are_present_and_non_blank() -> void:
 					has_non_zero_pixel = true
 					break
 			assert_true(has_non_zero_pixel, "plate must contain non-zero pixel data: %s" % output_path)
+
+
+func test_capture_selection_rejects_unknown_preset() -> void:
+	var selection := CaptureScript._capture_selection_from_args(["--preset", "missing_sector"])
+	assert_eq(selection["error"], ERR_INVALID_PARAMETER)
+	assert_eq(selection["error_message"], "P0-101 unknown --preset: missing_sector")
+
+
+func test_capture_selection_rejects_unknown_argument() -> void:
+	var selection := CaptureScript._capture_selection_from_args(["--unexpected"])
+	assert_eq(selection["error"], ERR_INVALID_PARAMETER)
+	assert_eq(selection["error_message"], "Unknown P0-101 capture argument: --unexpected")
+
+func test_capture_selection_accepts_known_preset_and_time() -> void:
+	var selection := CaptureScript._capture_selection_from_args(
+		["--preset", "market_primary_spine", "--time", "night", "--append-manifest"]
+	)
+	assert_eq(selection["error"], OK)
+	assert_eq(selection["preset_id"], "market_primary_spine")
+	assert_eq(selection["time_of_day"], "night")
+	assert_false(selection["reset_manifest"])
