@@ -202,3 +202,5 @@ Parallel exact replacements against one mutable file can race and reapply stale 
 
 - 2026-08-25: Shared quadruped livestock GLBs are authored facing -X, while ambient `look_at` walks along -Z. Without `MODEL_YAW = -PI * 0.5` they crab-walk, and the body width reads as length. Keep the yaw on the imported model root and assert the transformed nose axis, not orphan `global_position`.
 - 2026-08-25: `tools/run_godot_tests.gd` reads `--filter=` from `OS.get_cmdline_user_args()`; pass it after `--` (for example `-- --filter=test_medieval_animal_models`) or the harness silently runs the full suite.
+
+- 2026-08-26: A local `gdlint` probe may be unavailable or silent while the repository pre-commit hook invokes its own linter; before committing new GDScript, inspect the hook log and wrap any newly added lines over the 100-character limit.
