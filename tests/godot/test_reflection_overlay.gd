@@ -84,6 +84,46 @@ func test_overlay_plain_summary_matches_snapshot_marks() -> void:
 	overlay.free()
 
 
+func test_overlay_extended_reflection_sections_follow_snapshot_contract() -> void:
+	var overlay := OverlayScene.instantiate() as ReflectionOverlay
+	var tree := Engine.get_main_loop() as SceneTree
+	tree.root.add_child(overlay)
+	overlay.present(
+		{
+			"natural_enabled": false,
+			"natural_aspects": [{"display": "Nature", "rank": 5, "effective_rank": 5}],
+			"natural_unspent_points": 2,
+			"psyche_states": [],
+			"hingepuu_loci": [],
+		}
+	)
+	assert_false(overlay._natural_label.visible)
+	assert_false(overlay._psyche_label.visible)
+	assert_false(overlay._loci_label.visible)
+
+	overlay.present(
+		{
+			"natural_enabled": true,
+			"natural_unspent_points": 2,
+			"natural_aspects": [
+				{"display": "Nature", "rank": 5, "effective_rank": 7},
+			],
+			"psyche_states": [
+				{"id": "psyche.state.ruthless", "intensity": 2, "source_beat": "beat.test"},
+			],
+			"hingepuu_loci": [{"id": "hingepuu.locus.nature", "kind": "aspect"}],
+		}
+	)
+	assert_true(overlay._natural_label.visible)
+	assert_true(overlay._natural_label.text.contains("2 point(s) unspent"))
+	assert_true(overlay._natural_label.text.contains("Nature: 5 (effective 7)"))
+	assert_true(overlay._psyche_label.visible)
+	assert_true(overlay._psyche_label.text.contains("psyche.state.ruthless (intensity 2)"))
+	assert_true(overlay._loci_label.visible)
+	assert_true(overlay._loci_label.text.contains("hingepuu.locus.nature"))
+	overlay.free()
+
+
 func test_closed_overlay_does_not_join_modal_input_group() -> void:
 	# WHY: permanent modal_input_overlay membership blocked all player locomotion.
 	var overlay := OverlayScene.instantiate() as ReflectionOverlay

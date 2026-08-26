@@ -9,6 +9,9 @@ var _intro_label: Label
 var _recap_label: Label
 var _plain_summary_label: Label
 var _marks_box: HBoxContainer
+var _natural_label: Label
+var _psyche_label: Label
+var _loci_label: Label
 var _options_box: VBoxContainer
 var _snapshot: Dictionary = {}
 
@@ -133,6 +136,24 @@ func _build_ui() -> void:
 	_plain_summary_label.add_theme_color_override("font_color", Color(0.78, 0.82, 0.76, 1.0))
 	layout.add_child(_plain_summary_label)
 
+	_natural_label = Label.new()
+	_natural_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_natural_label.add_theme_font_size_override("font_size", 13)
+	_natural_label.visible = false
+	layout.add_child(_natural_label)
+
+	_psyche_label = Label.new()
+	_psyche_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_psyche_label.add_theme_font_size_override("font_size", 13)
+	_psyche_label.visible = false
+	layout.add_child(_psyche_label)
+
+	_loci_label = Label.new()
+	_loci_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_loci_label.add_theme_font_size_override("font_size", 12)
+	_loci_label.visible = false
+	layout.add_child(_loci_label)
+
 	var options_header := Label.new()
 	options_header.text = "Choose a conviction"
 	options_header.add_theme_font_size_override("font_size", 15)
@@ -154,8 +175,84 @@ func _refresh() -> void:
 	_recap_label.text = recap_text
 	_plain_summary_label.text = String(_snapshot.get("plain_summary", ""))
 	_refresh_marks(_snapshot.get("marks", []) as Array)
+	_refresh_natural(_snapshot)
+	_refresh_psyche(_snapshot)
+	_refresh_loci(_snapshot)
 	_refresh_options(_snapshot.get("options", []) as Array)
 	call_deferred("_seed_option_focus")
+
+
+func _refresh_natural(snapshot: Dictionary) -> void:
+	if not bool(snapshot.get("natural_enabled", false)):
+		_natural_label.text = ""
+		_natural_label.visible = false
+		return
+	var aspects: Array = snapshot.get("natural_aspects", []) as Array
+	if aspects.is_empty():
+		_natural_label.text = ""
+		_natural_label.visible = false
+		return
+	var lines := PackedStringArray()
+	lines.append(
+		"NATURAL hearths - %d point(s) unspent."
+		% int(snapshot.get("natural_unspent_points", 0))
+	)
+	for aspect_variant in aspects:
+		if not aspect_variant is Dictionary:
+			continue
+		var aspect := aspect_variant as Dictionary
+		var display := String(aspect.get("display", aspect.get("id", "")))
+		var rank := int(aspect.get("rank", 0))
+		var effective_rank := int(aspect.get("effective_rank", rank))
+		var rank_text := str(rank)
+		if effective_rank != rank:
+			rank_text += " (effective %d)" % effective_rank
+		lines.append("%s: %s" % [display, rank_text])
+	_natural_label.text = "\n".join(lines)
+	_natural_label.visible = not lines.is_empty()
+
+
+func _refresh_psyche(snapshot: Dictionary) -> void:
+	var states: Array = snapshot.get("psyche_states", []) as Array
+	if states.is_empty():
+		_psyche_label.text = ""
+		_psyche_label.visible = false
+		return
+	var lines := PackedStringArray(["Active psyche states:"])
+	for state_variant in states:
+		if not state_variant is Dictionary:
+			continue
+		var state := state_variant as Dictionary
+		var state_id := String(state.get("id", ""))
+		var line := "%s (intensity %d)" % [state_id, int(state.get("intensity", 1))]
+		var source_beat := String(state.get("source_beat", ""))
+		if not source_beat.is_empty():
+			line += " - source: %s" % source_beat
+		lines.append(line)
+	_psyche_label.text = "\n".join(lines)
+	_psyche_label.visible = lines.size() > 1
+
+
+func _refresh_loci(snapshot: Dictionary) -> void:
+	var loci: Array = snapshot.get("hingepuu_loci", []) as Array
+	if loci.is_empty():
+		_loci_label.text = ""
+		_loci_label.visible = false
+		return
+	var locus_names := PackedStringArray()
+	for locus_variant in loci:
+		if not locus_variant is Dictionary:
+			continue
+		var locus := locus_variant as Dictionary
+		var locus_id := String(locus.get("id", ""))
+		if not locus_id.is_empty():
+			locus_names.append(locus_id)
+	if locus_names.is_empty():
+		_loci_label.text = ""
+		_loci_label.visible = false
+		return
+	_loci_label.text = "Hingepuu loci (%d): %s" % [locus_names.size(), ", ".join(locus_names)]
+	_loci_label.visible = true
 
 
 func _refresh_marks(marks: Array) -> void:
