@@ -255,3 +255,5 @@ This file contains only cross-role operating lessons. Domain lessons belong to t
 - 2026-08-25: Staging any `scripts/map/**` path triggers the on-commit map audit even for view-only shader changes; when that audit fails on pre-existing baseline gaps unrelated to the scoped patch, keep the focused Godot/gdlint proof and use the documented `SKIP_PRE_COMMIT=1` bypass rather than absorbing audit WIP into the commit.
 
 - 2026-08-26: During task decomposition, verify inferred paths before reading; `scripts/state/save_service.gd` and `scripts/map/view3d/map_view.gd` were absent in this checkout, while the live implementations were `scripts/save/save_service.gd` and `scripts/map/view3d/map_view_3d.gd`. Treat failed reads as path-discovery errors and continue from the discovered files.
+
+- 2026-08-26: When a verification report is created before a required engine is installed, record the executable absence and keep dependent suites BLOCKED; never infer a pass from source inspection or neighboring Python tests.
