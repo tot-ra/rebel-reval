@@ -1,6 +1,7 @@
 extends "res://tests/godot/test_case.gd"
 
 const SkyWeather := preload("res://scripts/map/view3d/sky_weather_3d.gd")
+const SkyWeatherState := preload("res://scripts/map/view3d/sky_weather_state.gd")
 
 
 func test_starts_clear_with_full_lighting() -> void:
@@ -30,6 +31,65 @@ func test_weather_sequence_is_deterministic() -> void:
 	assert_array_contains(first_sequence, SkyWeather.WEATHER_RAIN, "rain must be reachable, and frequent enough to catch in a short run")
 	first.free()
 	second.free()
+
+
+func test_snapshot_json_round_trip_preserves_full_state() -> void:
+	var source := SkyWeather.new()
+	source.auto_weather = false
+	source.set_calendar_date({"day": 23, "month": 4, "year": 1343})
+	source.set_weather(SkyWeather.WEATHER_RAIN)
+	source.advance(SkyWeather.TRANSITION_SECONDS * 0.4)
+	var expected = source.snapshot_state(0.75, 3)
+	var payload: Variant = JSON.parse_string(JSON.stringify(expected.to_dict()))
+	var target := SkyWeather.new()
+	assert_true(target.restore_state(payload), "JSON snapshots must restore into a new presenter")
+	assert_eq(
+		target.snapshot_state(0.75, 3).to_dict(),
+		expected.to_dict(),
+		"JSON round-trip must preserve all weather continuity inputs"
+	)
+	source.free()
+	target.free()
+
+
+func test_snapshot_restore_continues_deterministically() -> void:
+	var source := SkyWeather.new()
+	source.advance(37.0)
+	var snapshot = source.snapshot_state(0.5, 1)
+	var target := SkyWeather.new()
+	assert_true(target.restore_state(snapshot), "a typed snapshot must restore")
+	for step in 20:
+		source.advance(0.25)
+		target.advance(0.25)
+		assert_eq(
+			target.snapshot_state(0.5, 1).to_dict(),
+			source.snapshot_state(0.5, 1).to_dict(),
+			"restored weather must produce the same next simulation step"
+		)
+	source.free()
+	target.free()
+
+
+func test_malformed_snapshot_falls_back_without_mutating_presenter() -> void:
+	var sky := SkyWeather.new()
+	var before = sky.snapshot_state().to_dict()
+	assert_false(sky.restore_state("not a snapshot"), "non-dictionary snapshots must be rejected")
+	assert_eq(sky.snapshot_state().to_dict(), before, "rejection must leave the presenter untouched")
+	var future := {"schema_version": SkyWeatherState.CURRENT_VERSION + 1, "weather": "clear"}
+	assert_false(sky.restore_state(future), "future snapshots must be rejected")
+	assert_eq(
+		sky.snapshot_state().to_dict(), before,
+		"future rejection must leave the presenter untouched"
+	)
+	var old_snapshot := {"weather": "cloudy"}
+	assert_true(
+		sky.restore_state(old_snapshot),
+		"older snapshots with omitted fields must use defaults"
+	)
+	assert_eq(sky.weather, SkyWeather.WEATHER_CLOUDY, "legacy weather mode must remain recoverable")
+	sky.free()
+
+
 
 
 func test_puddles_form_only_after_rain_and_dry_afterward() -> void:

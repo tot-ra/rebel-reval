@@ -12,6 +12,7 @@ extends Node3D
 const SKY_SHADER := preload("res://scripts/map/view3d/sky_weather_3d.gdshader")
 const SKY_RESOURCES := preload("res://scripts/map/view3d/sky_weather_resources.gd")
 const SkyWeatherRoofAudioScript := preload("res://scripts/map/view3d/sky_weather_roof_audio.gd")
+const SkyWeatherStateScript := preload("res://scripts/map/view3d/sky_weather_state.gd")
 const STAR_CATALOG := preload("res://scripts/map/view3d/estonia_star_catalog.gd")
 const GAME_CALENDAR := preload("res://scripts/global/game_calendar.gd")
 
@@ -227,6 +228,7 @@ var calendar_date: Dictionary = GAME_CALENDAR.DEFAULT_DATE.duplicate()
 
 var _current: Dictionary = (PROFILES[WEATHER_CLEAR] as Dictionary).duplicate()
 var _from: Dictionary = (PROFILES[WEATHER_CLEAR] as Dictionary).duplicate()
+var _transition_from_weather: StringName = WEATHER_CLEAR
 var _blend := 1.0
 var _time_in_state := 0.0
 var _state_duration := 60.0
@@ -265,8 +267,127 @@ func _init() -> void:
 	_state_duration = _roll_duration(weather)
 
 
+## Captures only simulation data so a presenter can hand the weather field to the
+## next map without serializing renderer nodes or rebuilding the deterministic RNG.
+## The owning runtime supplies cycle_progress/elapsed_days because those values
+## belong to the shared day clock rather than this scene node.
+func snapshot_state(
+	cycle_progress: float = 0.25, elapsed_days: int = 0
+) -> RefCounted:
+	var state = SkyWeatherStateScript.new()
+	state.weather = weather
+	state.transition_from_weather = _transition_from_weather
+	state.transition_progress = _json_safe_float(_blend)
+	state.time_in_state = _json_safe_float(_time_in_state)
+	state.state_duration = _json_safe_float(_state_duration)
+	state.auto_weather = auto_weather
+	state.time_scale = time_scale
+	state.rain_suppressed = rain_suppressed
+	state.calendar_date = calendar_date.duplicate(true)
+	state.cycle_progress = cycle_progress
+	state.elapsed_days = elapsed_days
+	state.cloud_offset = _cloud_offset
+	state.cloud_detail_offset = _cloud_detail_offset
+	state.puddle_wetness = _json_safe_float(_puddle_wetness)
+	state.seconds_since_rain = _seconds_since_rain
+	if not is_finite(_seconds_since_rain):
+		state.seconds_since_rain = SkyWeatherStateScript.LAST_RAIN_NEVER
+	state.gust = _json_safe_float(_gust)
+	state.gust_time = _json_safe_float(_gust_time)
+	state.lightning = _json_safe_float(_lightning)
+	state.lightning_direction = _lightning_dir
+	state.lightning_time = _json_safe_float(_lightning_time)
+	state.time_to_strike = _json_safe_float(_time_to_strike)
+	state.weather_rng_state = _rng.state
+	state.lightning_rng_state = _lightning_rng.state
+	state.current_profile = _profile_for_state(_current)
+	state.transition_from_profile = _profile_for_state(_from)
+	state.normalize()
+	return state
+
+
+## Restores a validated state produced by snapshot_state(). Returning false keeps
+## corrupt/foreign save data from poisoning the active weather controller.
+func apply_state(state: RefCounted) -> bool:
+	if state == null:
+		return false
+	var restored = state.duplicate_state()
+	if not restored.validation_errors().is_empty():
+		return false
+	weather = restored.weather
+	_transition_from_weather = restored.transition_from_weather
+	_blend = restored.transition_progress
+	_time_in_state = restored.time_in_state
+	_state_duration = restored.state_duration
+	auto_weather = restored.auto_weather
+	time_scale = restored.time_scale
+	rain_suppressed = restored.rain_suppressed
+	calendar_date = restored.calendar_date.duplicate(true)
+	_cloud_offset = restored.cloud_offset
+	_cloud_detail_offset = restored.cloud_detail_offset
+	_puddle_wetness = restored.puddle_wetness
+	_seconds_since_rain = restored.seconds_since_rain
+	if restored.seconds_since_rain < 0.0:
+		_seconds_since_rain = LAST_RAIN_NEVER
+	_gust = restored.gust
+	_gust_time = restored.gust_time
+	_lightning = restored.lightning
+	_lightning_dir = restored.lightning_direction
+	_lightning_time = restored.lightning_time
+	_time_to_strike = restored.time_to_strike
+	if restored.weather_rng_state != -1:
+		_rng.state = restored.weather_rng_state
+	if restored.lightning_rng_state != -1:
+		_lightning_rng.state = restored.lightning_rng_state
+	_current = _profile_from_state(restored.current_profile, weather)
+	_from = _profile_from_state(restored.transition_from_profile, _transition_from_weather)
+	_push_cloud_uniforms()
+	_update_rain()
+	return true
+
+
+## Dictionary keys become String after JSON encoding. Convert profile snapshots back
+## to StringName keys before the runtime accesses their typed profile identifiers.
+func _profile_for_state(profile: Dictionary) -> Dictionary:
+	var result: Dictionary = {}
+	for field in SkyWeatherStateScript.PROFILE_FIELDS:
+		if profile.has(field):
+			result[String(field)] = _json_safe_float(float(profile[field]))
+	return result
+
+
+func _json_safe_float(value: float) -> float:
+	return snappedf(value, 0.000000001)
+
+
+func _profile_from_state(profile: Dictionary, fallback_weather: StringName) -> Dictionary:
+	if profile.is_empty():
+		return (PROFILES[fallback_weather] as Dictionary).duplicate()
+	var result: Dictionary = {}
+	for key in profile:
+		result[StringName(key)] = float(profile[key])
+	return result
+
+
+func restore_state(snapshot: Variant) -> bool:
+	if snapshot is SkyWeatherStateScript:
+		return apply_state(snapshot)
+	if snapshot is Dictionary:
+		return apply_state(SkyWeatherStateScript.from_dict(snapshot))
+	return false
+
+
+func _weather_for_profile(profile: Dictionary) -> StringName:
+	for weather_id in PROFILES:
+		if profile == PROFILES[weather_id]:
+			return weather_id
+	return weather
+
+
 func _process(delta: float) -> void:
 	advance(delta * maxf(time_scale, 0.0))
+
+
 
 
 ## Replaces the environment's flat background with the sky dome and builds the
@@ -349,6 +470,7 @@ func set_weather(next_weather: StringName) -> void:
 	if next_weather == WEATHER_RAIN:
 		_gust_time = 0.0
 	_from = _current.duplicate()
+	_transition_from_weather = weather
 	weather = next_weather
 	_blend = 0.0
 	_time_in_state = 0.0
