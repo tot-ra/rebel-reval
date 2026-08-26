@@ -50,6 +50,6 @@
   "generator": "generated/blender/viru_gate_v1/generate_viru_gate.py",
   "generator_version": "viru_gate_v1",
   "historical_scope": "Simple mid-14th-century Viru gatehouse, possibly unfinished; no round foregate towers, barbican, Fat Margaret, or portcullis complex.",
-  "preview": null,
+  "preview": "generated/blender/viru_gate_v1/preview.png",
   "route": "deterministic_blender"
 }
