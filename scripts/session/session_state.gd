@@ -121,6 +121,12 @@ func _seed_demo_bag_if_empty() -> void:
 	state.bag.try_add(&"item.forge_hammer")
 	# Kalev starts with his working hammer in hand; stow it from the bag (I).
 	state.equip_from_bag(&"right_hand", &"item.forge_hammer")
+	# Magic is an optional starter affordance: the critical slice path never checks
+	# this grant or resource, but players can discover and execute the Fireball recipe.
+	MagicResolver.apply_grant_operation(
+		state, content_db, &"magic.grant.starter_fireball"
+	)
+	state.set_magic_resource(GameState.MAGIC_RESOURCE_WILLPOWER, 6)
 	# Seized spearhead starts on the anvil; WorldItemController seeds it on forge load.
 
 

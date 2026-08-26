@@ -11,6 +11,7 @@
 [ext_resource type="Script" uid="uid://ckkqw3ra0222m" path="res://scripts/ui/world_map_controller.gd" id="8_world_map"]
 [ext_resource type="Script" path="res://scripts/reflection/reflection_controller.gd" id="9_reflection"]
 [ext_resource type="Script" path="res://scripts/ui/game_settings_controller.gd" id="11_game_settings"]
+[ext_resource type="Script" path="res://scripts/magic/spellforge_controller.gd" id="13_spellforge"]
 
 [ext_resource type="Script" path="res://scripts/inventory/quest_pouch_controller.gd" id="12_quest_pouch"]
 
@@ -82,6 +83,9 @@ script = ExtResource("9_reflection")
 
 [node name="GameSettingsController" type="Node" parent="."]
 script = ExtResource("11_game_settings")
+
+[node name="SpellforgeController" type="Node" parent="."]
+script = ExtResource("13_spellforge")
 
 [node name="QuickAccessMenu" type="CanvasLayer" parent="."]
 script = ExtResource("6_quick_access")

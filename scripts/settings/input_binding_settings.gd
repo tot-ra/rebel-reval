@@ -22,6 +22,12 @@ const ACTION_DEFINITIONS: Array[Dictionary] = [
 	{"id": &"player_attack", "label": "Attack", "category": "Combat"},
 	{"id": &"player_guard", "label": "Guard", "category": "Combat"},
 	{"id": &"player_dodge", "label": "Dodge", "category": "Combat"},
+	{"id": &"toggle_spellforge", "label": "Spellforge", "category": "Magic"},
+	{"id": &"spellforge_element_1", "label": "Spellforge element 1", "category": "Magic"},
+	{"id": &"spellforge_element_2", "label": "Spellforge element 2", "category": "Magic"},
+	{"id": &"spellforge_element_3", "label": "Spellforge element 3", "category": "Magic"},
+	{"id": &"spellforge_remove", "label": "Remove spellforge element", "category": "Magic"},
+	{"id": &"spellforge_cast", "label": "Cast forged spell", "category": "Magic"},
 	{"id": &"toggle_inventory", "label": "Inventory", "category": "Views"},
 	{"id": &"toggle_journal", "label": "Journal", "category": "Views"},
 	{"id": &"toggle_camera_view", "label": "Camera view", "category": "Views"},
@@ -95,6 +101,36 @@ static func default_settings() -> InputBindingSettings:
 		{
 			DEVICE_KEYBOARD_MOUSE: [_key(KEY_Q)],
 			DEVICE_GAMEPAD: [_joy_button(JOY_BUTTON_RIGHT_SHOULDER)],
+		},
+		"toggle_spellforge":
+		{
+			DEVICE_KEYBOARD_MOUSE: [_key(KEY_R)],
+			DEVICE_GAMEPAD: [_joy_button(JOY_BUTTON_DPAD_RIGHT)],
+		},
+		"spellforge_element_1":
+		{
+			DEVICE_KEYBOARD_MOUSE: [_key(KEY_1)],
+			DEVICE_GAMEPAD: [_joy_button(JOY_BUTTON_X)],
+		},
+		"spellforge_element_2":
+		{
+			DEVICE_KEYBOARD_MOUSE: [_key(KEY_2)],
+			DEVICE_GAMEPAD: [_joy_button(JOY_BUTTON_Y)],
+		},
+		"spellforge_element_3":
+		{
+			DEVICE_KEYBOARD_MOUSE: [_key(KEY_3)],
+			DEVICE_GAMEPAD: [_joy_button(JOY_BUTTON_LEFT_SHOULDER)],
+		},
+		"spellforge_remove":
+		{
+			DEVICE_KEYBOARD_MOUSE: [_key(KEY_BACKSPACE)],
+			DEVICE_GAMEPAD: [_joy_button(JOY_BUTTON_B)],
+		},
+		"spellforge_cast":
+		{
+			DEVICE_KEYBOARD_MOUSE: [_key(KEY_ENTER)],
+			DEVICE_GAMEPAD: [_joy_button(JOY_BUTTON_A)],
 		},
 		"toggle_inventory":
 		{
