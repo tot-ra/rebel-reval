@@ -253,3 +253,5 @@ This file contains only cross-role operating lessons. Domain lessons belong to t
 - Focused Godot verification needs `tools/run_godot_tests.gd -- --filter=<name>`; a bare path after `--` is ignored and runs the full suite.
 - 2026-08-25: For `git commit --only`, keep `-m` before `-- <paths>`; placing `-m` after `--` makes Git treat the message as pathspecs and abort before creating a commit.
 - 2026-08-25: Staging any `scripts/map/**` path triggers the on-commit map audit even for view-only shader changes; when that audit fails on pre-existing baseline gaps unrelated to the scoped patch, keep the focused Godot/gdlint proof and use the documented `SKIP_PRE_COMMIT=1` bypass rather than absorbing audit WIP into the commit.
+
+- 2026-08-26: During task decomposition, verify inferred paths before reading; `scripts/state/save_service.gd` and `scripts/map/view3d/map_view.gd` were absent in this checkout, while the live implementations were `scripts/save/save_service.gd` and `scripts/map/view3d/map_view_3d.gd`. Treat failed reads as path-discovery errors and continue from the discovered files.
