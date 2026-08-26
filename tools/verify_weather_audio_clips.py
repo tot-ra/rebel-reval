@@ -73,7 +73,12 @@ def main() -> int:
         if not import_path.is_file():
             print(f"ERROR: missing Godot import sidecar {import_path}")
             errors += 1
-        duration = probe_duration_seconds(clip_path)
+        try:
+            duration = probe_duration_seconds(clip_path)
+        except (OSError, subprocess.SubprocessError, ValueError) as exc:
+            print(f"ERROR: could not probe {clip_path.name} duration: {exc}")
+            errors += 1
+            continue
         if duration < MIN_DURATION_SECONDS or duration > MAX_DURATION_SECONDS:
             print(
                 f"ERROR: {clip_path.name} duration {duration:.2f}s "
