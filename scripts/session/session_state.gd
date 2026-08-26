@@ -37,6 +37,7 @@ var save_service: SaveService = SaveService.new()
 var debug_presets = DebugStatePresetsScript.new()
 
 var _demo_seeded := false
+var _environment_runtime: Node
 var _inspector: CanvasLayer
 # WHY: Fatal-hit presentation belongs to the current run, not to GameState or saves.
 # Keep it on the autoload so the deferred death-screen scene change can consume it.
@@ -63,6 +64,7 @@ func apply_debug_preset(preset_id: String) -> bool:
 
 
 func save_game(slot: int = SaveService.DEFAULT_SLOT) -> bool:
+	_capture_environment_runtime()
 	return save_service.save_game(state, slot)
 
 
@@ -81,6 +83,51 @@ func has_save(slot: int = SaveService.DEFAULT_SLOT) -> bool:
 
 func set_fatal_hit_damage_type(damage_type: StringName) -> void:
 	_fatal_hit_damage_type = damage_type
+
+
+## The session owns the scene-tree-free weather payload. A runtime is only a
+## presentation binding, so a map transition can replace it without resetting
+## the deterministic weather timeline or creating a second active controller.
+func bind_environment_runtime(runtime: Node) -> bool:
+	if runtime == null:
+		return false
+	if _environment_runtime == runtime:
+		return true
+	_capture_environment_runtime()
+	if _environment_runtime != null and is_instance_valid(_environment_runtime):
+		_environment_runtime.call("deactivate_environment_binding")
+	_environment_runtime = runtime
+	var snapshot := state.get_environment_state()
+	if not snapshot.is_empty() and runtime.has_method(&"restore_environment_snapshot"):
+		if not bool(runtime.call("restore_environment_snapshot", snapshot)):
+			_environment_runtime = null
+			return false
+	if runtime.has_method(&"apply_environment_presentation"):
+		runtime.call("apply_environment_presentation")
+	if snapshot.is_empty():
+		_capture_environment_runtime()
+	return true
+
+
+func unbind_environment_runtime(runtime: Node) -> void:
+	if _environment_runtime != runtime:
+		return
+	_capture_environment_runtime()
+	_environment_runtime = null
+
+
+func active_environment_runtime() -> Node:
+	return _environment_runtime if is_instance_valid(_environment_runtime) else null
+
+
+func _capture_environment_runtime() -> void:
+	if _environment_runtime == null or not is_instance_valid(_environment_runtime):
+		return
+	if not _environment_runtime.has_method(&"environment_snapshot"):
+		return
+	var snapshot: Variant = _environment_runtime.call("environment_snapshot")
+	if snapshot is Dictionary:
+		state.set_environment_state(snapshot)
 
 
 func consume_fatal_hit_damage_type() -> StringName:
@@ -107,6 +154,13 @@ func replace_state(replacement: GameState, reason: StringName) -> bool:
 	state.bag.set_content_db(content_db)
 	act2_mission_host.bind_state(state)
 	state_replaced.emit(previous, state, reason)
+	var environment_snapshot := state.get_environment_state()
+	if (
+		_environment_runtime != null
+		and is_instance_valid(_environment_runtime)
+		and not environment_snapshot.is_empty()
+	):
+		_environment_runtime.call("restore_environment_snapshot", environment_snapshot)
 	if has_node("/root/PhaseDirector"):
 		# PhaseDirector normally receives the signal above, but explicit rebinding
 		# also repairs startup/test ordering where it has not connected yet.

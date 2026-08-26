@@ -328,3 +328,47 @@ func test_pausing_holds_the_sun_and_sky_still() -> void:
 		"pausing must also freeze the sky's clouds, weather, and lightning"
 	)
 	runtime.free()
+
+
+func test_environment_binding_keeps_weather_identity_across_map_transition() -> void:
+	var tree := Engine.get_main_loop() as SceneTree
+	var session_state: Node = tree.root.get_node_or_null("SessionState")
+	if session_state == null:
+		return
+	var exterior := MapViewRuntime.new()
+	var interior := MapViewRuntime.new()
+	tree.root.add_child(exterior)
+	tree.root.add_child(interior)
+	var exterior_definition := SmithyCourtyard.create()
+	var interior_definition := KalevSmithyDefinition.create()
+	exterior._definition = exterior_definition
+	interior._definition = interior_definition
+	exterior.view = MapView3D.create(exterior_definition, MapBuilder.build(exterior_definition))
+	interior.view = MapView3D.create(interior_definition, MapBuilder.build(interior_definition))
+	exterior.add_child(exterior.view)
+	interior.add_child(interior.view)
+	session_state.state.set_environment_state(null)
+	exterior._bind_environment_runtime()
+	var weather := exterior.view.sky_weather()
+	weather.auto_weather = false
+	weather.set_weather(SkyWeather3D.WEATHER_RAIN)
+	weather.advance(SkyWeather3D.TRANSITION_SECONDS * 0.5)
+	var expected_weather := weather.weather
+	var expected_offset := weather.cloud_offset()
+	exterior._bind_environment_runtime()
+	assert_true(exterior.view.environment_binding_active(), "rebinding the same runtime must be idempotent")
+	interior._bind_environment_runtime()
+	assert_false(exterior.view.environment_binding_active(), "old map binding must be deactivated")
+	assert_true(interior.view.environment_binding_active(), "new map must become the only active binding")
+	assert_eq(interior.view.sky_weather().weather, expected_weather, "weather identity must survive the handoff")
+	assert_true(interior.view.sky_weather().cloud_offset().is_equal_approx(expected_offset), "cloud drift must survive the handoff")
+	assert_true(interior.view.sky_weather().rain_suppressed, "interior roof suppression is presentation-only")
+	interior._bind_environment_runtime()
+	exterior._bind_environment_runtime()
+	assert_false(interior.view.environment_binding_active(), "returning outside must release the interior binding")
+	assert_false(exterior.view.sky_weather().rain_suppressed, "exterior binding must restore visible rain")
+	assert_eq(exterior.view.sky_weather().weather, expected_weather, "returning outside must keep weather identity")
+	assert_true(exterior.view.sky_weather().cloud_offset().is_equal_approx(expected_offset), "returning outside must keep cloud offset")
+	exterior.free()
+	interior.free()
+	session_state.state.set_environment_state(null)

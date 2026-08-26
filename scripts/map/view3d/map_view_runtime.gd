@@ -163,6 +163,9 @@ static func install(
 	runtime.view.set_calendar_date(runtime._current_calendar_date())
 	runtime.view.apply_cycle_progress(runtime.cycle_progress)
 	runtime._sync_music_cycle()
+	# `SessionState` owns the canonical weather snapshot; this runtime only binds
+	# its renderer after the shared clock has been restored.
+	runtime._bind_environment_runtime()
 	runtime._install_bird_audio()
 	runtime._install_bird_flight()
 	runtime._install_urban_fauna()
@@ -439,6 +442,49 @@ func _notify_time_flow() -> void:
 	time_flow_changed.emit(effective_time_speed(), time_paused)
 
 
+func _bind_environment_runtime() -> void:
+	var session_state := get_node_or_null("/root/SessionState")
+	if session_state == null or not session_state.has_method(&"bind_environment_runtime"):
+		view.apply_environment_presentation()
+		return
+	session_state.call("bind_environment_runtime", self)
+
+
+func environment_snapshot() -> Dictionary:
+	if view == null or view.sky_weather() == null:
+		return {}
+	return view.sky_weather().snapshot_state(cycle_progress, cycle_elapsed_days).to_dict()
+
+
+func restore_environment_snapshot(snapshot: Dictionary) -> bool:
+	if view == null or view.sky_weather() == null:
+		return false
+	if not bool(view.sky_weather().restore_state(snapshot)):
+		return false
+	cycle_progress = float(snapshot.get("cycle_progress", cycle_progress))
+	cycle_elapsed_days = int(snapshot.get("elapsed_days", cycle_elapsed_days))
+	return true
+
+
+func apply_environment_presentation() -> void:
+	if view == null:
+		return
+	view.activate_environment_binding()
+	view.set_weather_rain_suppressed(
+		_definition != null and _definition.suppresses_exterior_surroundings()
+	)
+	view.apply_cycle_progress(cycle_progress)
+
+
+func deactivate_environment_binding() -> void:
+	if view != null:
+		view.deactivate_environment_binding()
+
+
+func environment_weather() -> Node:
+	return view.sky_weather() if view != null else null
+
+
 func _process(delta: float) -> void:
 	# The time controls scale (or pause) the world clock and, through the view,
 	# the sky's own cloud/weather/lightning stepping so they stay in lockstep.
@@ -711,6 +757,11 @@ func _sync_player(snap: bool, delta: float = 0.0) -> void:
 ## equipment is only a default for showcase scenes. Mirror the state now and
 ## on every equipment change.
 func _exit_tree() -> void:
+	var session_state := get_node_or_null("/root/SessionState")
+	if session_state != null and session_state.has_method(&"unbind_environment_runtime"):
+		session_state.call("unbind_environment_runtime", self)
+	if view != null:
+		view.deactivate_environment_binding()
 	if (
 		_session_state != null
 		and _session_state.is_connected(&"state_replaced", _on_state_replaced)

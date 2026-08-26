@@ -96,6 +96,8 @@ var _sun: DirectionalLight3D
 var _sky_weather: SkyWeather3D
 var _last_chimney_bucket: StringName = TIME_DAY
 var _environment: Environment
+var _world_environment: WorldEnvironment
+var _environment_binding_active := true
 var _camera: Camera3D
 var _smoke_cull_timer := 0.0
 var _fog_of_war: Node3D
@@ -479,6 +481,43 @@ func sky_weather() -> SkyWeather3D:
 	return _sky_weather
 
 
+func environment_weather() -> SkyWeather3D:
+	return _sky_weather
+
+
+## The session owner keeps the simulation alive across map presenters. A view
+## only owns this renderer binding while it is the active map.
+func activate_environment_binding() -> void:
+	_environment_binding_active = true
+	set_process(true)
+	if _world_environment != null:
+		_world_environment.environment = _environment
+	if _sky_weather != null:
+		_sky_weather.set_process(true)
+
+
+func deactivate_environment_binding() -> void:
+	_environment_binding_active = false
+	set_process(false)
+	if _world_environment != null:
+		_world_environment.environment = null
+	if _sky_weather != null:
+		_sky_weather.set_process(false)
+
+
+func environment_binding_active() -> bool:
+	return _environment_binding_active
+
+
+func environment_node() -> WorldEnvironment:
+	return _world_environment
+
+
+func set_weather_rain_suppressed(suppressed: bool) -> void:
+	if _sky_weather != null:
+		_sky_weather.rain_suppressed = suppressed
+
+
 func object_streamer() -> MapObjectChunkStreamer:
 	return _object_streamer
 
@@ -611,10 +650,10 @@ func _assemble() -> void:
 	_environment.background_mode = Environment.BG_COLOR
 	_environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	Lighting.configure_post_process(_environment)
-	var world_environment := WorldEnvironment.new()
-	world_environment.name = "ViewEnvironment"
-	world_environment.environment = _environment
-	add_child(world_environment)
+	_world_environment = WorldEnvironment.new()
+	_world_environment.name = "ViewEnvironment"
+	_world_environment.environment = _environment
+	add_child(_world_environment)
 
 	_camera = _create_camera()
 	add_child(_camera)
