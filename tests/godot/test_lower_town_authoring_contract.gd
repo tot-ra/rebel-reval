@@ -90,6 +90,82 @@ func test_lower_town_authoring_contract_is_resolved_against_runtime() -> void:
 		assert_true(runtime_ids["landmarks"].has(String(landmark)), "Required landmark is not compiled: %s" % landmark)
 
 
+func test_lower_town_frontage_rules_and_overrides_are_explicit() -> void:
+	var contract := _load_json(CONTRACT_PATH)
+	var expected_ranges: Dictionary = {
+		"default_frontage_m": [7.0, 11.0],
+		"artisan_frontage_m": [5.0, 9.0],
+		"institutional_frontage_m": [10.0, 18.0],
+		"edge_frontage_m": [4.0, 8.0],
+		"harbour_frontage_m": [6.0, 10.0],
+		"merchant_irregular_frontage_m": [12.0, 14.0],
+	}
+	for rule_id_variant in expected_ranges:
+		var rule_id := String(rule_id_variant)
+		var rule := _frontage_rule(contract, rule_id)
+		assert_false(rule.is_empty(), "Missing frontage rule: %s" % rule_id)
+		if rule.is_empty():
+			continue
+		assert_eq(
+			rule.get("target_range_m", []),
+			expected_ranges[rule_id_variant],
+			"Frontage range changed without updating the acceptance contract: %s" % rule_id,
+		)
+		assert_false(
+			String(rule.get("use_for", "")).is_empty(),
+			"Frontage rule needs a semantic use: %s" % rule_id,
+		)
+
+	var audit: Dictionary = contract.get("frontage_audit", {})
+	var rear_service: Dictionary = _string_set(audit.get("rear_service_buildings", []))
+	var non_frontage: Dictionary = audit.get("non_frontage_buildings", {})
+	assert_true(
+		non_frontage.size() > 0,
+		"Institutional and service buildings need explicit non-frontage categories",
+	)
+	for building_id_variant in non_frontage:
+		var building_id := String(building_id_variant)
+		assert_false(
+			rear_service.has(building_id),
+			"A building cannot be both rear/service and an explicit non-frontage category: %s" % building_id,
+		)
+		assert_false(
+			String(non_frontage[building_id_variant]).is_empty(),
+			"Non-frontage building needs a semantic category: %s" % building_id,
+		)
+	var source_by_id: Dictionary = {}
+	for building in _source_buildings():
+		source_by_id[String(building.get("id", ""))] = building
+	var overrides: Dictionary = audit.get("rule_overrides", {})
+	assert_true(overrides.size() > 0, "Out-of-default public rows need explicit frontage overrides")
+	for building_id_variant in overrides:
+		var building_id := String(building_id_variant)
+		assert_true(
+			source_by_id.has(building_id),
+			"Frontage override names unknown building: %s" % building_id,
+		)
+		var override: Dictionary = overrides[building_id_variant]
+		var rule_id := String(override.get("rule_id", ""))
+		var rule := _frontage_rule(contract, rule_id)
+		assert_false(rule.is_empty(), "%s references an undeclared frontage rule" % building_id)
+		assert_false(
+			String(override.get("reason", "")).is_empty(),
+			"%s needs an override reason" % building_id,
+		)
+		if rule.is_empty():
+			continue
+		var target: Array = rule.get("target_range_m", [])
+		assert_eq(target.size(), 2, "%s override rule needs a two-value range" % building_id)
+		if target.size() != 2:
+			continue
+		var frontage_m := _source_frontage_width(source_by_id[building_id])
+		assert_true(frontage_m > 0, "%s override needs a directional house style" % building_id)
+		assert_true(
+			frontage_m >= float(target[0]) and frontage_m <= float(target[1]),
+			"%s width must fit its explicit frontage exception" % building_id,
+		)
+
+
 func test_lower_town_frontage_width_report_is_deterministic() -> void:
 	var contract := _load_json(CONTRACT_PATH)
 	var audit: Dictionary = contract.get("frontage_audit", {})
