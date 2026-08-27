@@ -203,6 +203,9 @@ def main() -> int:
     except ValueError as error:
         print(f"ERROR: {todo_path} is unparseable: {error}", file=sys.stderr)
         return 1
+    except OSError as error:
+        print(f"ERROR: {todo_path} could not be read: {error}", file=sys.stderr)
+        return 1
     table = build_table(counts)
     print(table)
 

@@ -375,6 +375,20 @@ class UpdateTodoCountsTest(unittest.TestCase):
                 "# Fixture TODO\n\n- [ ] P2-001 | verify: this row is missing task fields",
             )
 
+    def test_cli_rejects_directory_path_without_traceback(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            command = [
+                sys.executable,
+                str(TOOLS / "update_todo_counts.py"),
+                "--path",
+                temp_dir,
+            ]
+            result = subprocess.run(command, capture_output=True, text=True, check=False)
+
+            self.assertEqual(result.returncode, 1)
+            self.assertIn("could not be read", result.stderr)
+            self.assertNotIn("Traceback", result.stderr)
+
 
 if __name__ == "__main__":
     unittest.main()
