@@ -15,18 +15,18 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 ## Summary
 
 - Active Markdown files scanned: `104`
-- Markdown files excluded as archive/reference/out of active scope: `641`
-- Local/external links inspected: `628`
-- Links to active Markdown docs: `298`
+- Markdown files excluded as archive/reference/out of active scope: `643`
+- Local/external links inspected: `630`
+- Links to active Markdown docs: `299`
 - Links to existing archive/reference/non-active local docs: `132`
 - External links skipped for reachability: `38`
-- Issues found: `1`
+- Issues found: `0`
 
 ## Issue counts
 
 | Code | Count |
 | --- | ---: |
-| `BROKEN_LINK` | 1 |
+| `BROKEN_LINK` | 0 |
 | `BROKEN_ANCHOR` | 0 |
 | `DUPLICATE_CHARACTER_NAME` | 0 |
 | `CONTRADICTORY_DATE` | 0 |
@@ -34,9 +34,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Issues
 
-| Code | Location | Detail |
-| --- | --- | --- |
-| `BROKEN_LINK` | `docs/WORLD_BUILDING_VISUAL_GATE.md:31` | Local Markdown link target does not exist: `../PERFORMANCE_REPORT.md` |
+No active Markdown documentation issues found.
 
 ## Active files scanned
 

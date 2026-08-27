@@ -28,7 +28,7 @@ Captures use `1920x1080`, the locked Art Bible day/night exposure presets, autho
 - `water`, `crowds`, and `characters` behavior/material views;
 - `landmark_architecture` and `adjacent_map_traversal` acceptance views.
 
-Evidence paths must remain repository-relative. The manifest also requires separate `minimum` and `recommended` performance evidence rows. Each row must include both `target_hardware` and `measurement_host` identities so a development-host result cannot be relabeled as target evidence. Host-specific raw performance JSON may live outside Git, but the row must link a retained release summary that identifies target hardware separately from the measurement host, following [`docs/PERFORMANCE_REPORT.md`](../PERFORMANCE_REPORT.md).
+Evidence paths must remain repository-relative. The manifest also requires separate `minimum` and `recommended` performance evidence rows. Each row must include both `target_hardware` and `measurement_host` identities so a development-host result cannot be relabeled as target evidence. Host-specific raw performance JSON may live outside Git, but the row must link a retained release summary that identifies target hardware separately from the measurement host, following [`PERFORMANCE_REPORT.md`](PERFORMANCE_REPORT.md).
 
 ## Rubric and approval
 
