@@ -26,13 +26,17 @@ func test_wrong_root_type_is_rejected() -> void:
 
 
 func test_unknown_envelope_version_is_rejected() -> void:
-	var result := SaveEnvelope.parse_file("res://tests/fixtures/saves/invalid/unknown_envelope_version.json")
+	var result := SaveEnvelope.parse_file(
+		"res://tests/fixtures/saves/invalid/unknown_envelope_version.json"
+	)
 	assert_false(result["ok"])
 	assert_true(_errors_contain(result, "unsupported save envelope version"))
 
 
 func test_wrong_game_state_type_is_rejected() -> void:
-	var result := SaveEnvelope.parse_file("res://tests/fixtures/saves/invalid/wrong_game_state_type.json")
+	var result := SaveEnvelope.parse_file(
+		"res://tests/fixtures/saves/invalid/wrong_game_state_type.json"
+	)
 	assert_false(result["ok"])
 	assert_true(_errors_contain(result, "game_state must be a dictionary"))
 
@@ -55,8 +59,72 @@ func test_every_released_fixture_loads() -> void:
 		var relative_path := String(entry.get("path", ""))
 		assert_false(relative_path.is_empty(), "fixture row must include path")
 		var fixture_id := String(entry.get("id", relative_path))
-		var result := SaveEnvelope.parse_file(SaveEnvelope.released_fixture_path(relative_path))
-		assert_true(result["ok"], "released fixture %s must load: %s" % [fixture_id, ", ".join(result["errors"])])
+		var result := SaveEnvelope.parse_file(
+			SaveEnvelope.released_fixture_path(relative_path)
+		)
+		assert_true(
+			result["ok"],
+			"released fixture %s must load: %s" % [fixture_id, ", ".join(result["errors"])]
+		)
+
+
+func test_every_campaign_fixture_loads_and_preserves_identity() -> void:
+	var manifest := _load_json_dictionary(
+		"res://content/saves/campaign_fixtures_manifest.json"
+	)
+	var fixtures: Variant = manifest.get("fixtures", [])
+	assert_true(fixtures is Array, "campaign fixture manifest must list fixtures")
+	assert_true((fixtures as Array).size() >= 7)
+	for fixture_entry: Variant in fixtures as Array:
+		assert_true(fixture_entry is Dictionary)
+		var row := fixture_entry as Dictionary
+		var fixture_id := String(row.get("id", ""))
+		var relative_path := String(row.get("path", ""))
+		assert_false(fixture_id.is_empty(), "campaign fixture id is required")
+		assert_false(relative_path.is_empty(), "campaign fixture path is required")
+		var result := SaveEnvelope.parse_file(
+			SaveEnvelope.released_fixture_path(relative_path)
+		)
+		assert_true(
+			result["ok"],
+			"campaign fixture %s must load: %s" % [fixture_id, ", ".join(result["errors"])]
+		)
+		var state := result["state"] as GameState
+		assert_eq(
+			String(state.get_phase()),
+			String(row.get("expected_phase", "")),
+			"phase drift for %s" % fixture_id
+		)
+		assert_eq(
+			state.get_version(),
+			int(row.get("expected_game_state_version", -1)),
+			"game-state migration drift for %s" % fixture_id
+		)
+		var expected_boundary := String(row.get("expected_act_boundary", ""))
+		if not expected_boundary.is_empty():
+			assert_true(state.has_act1_transition())
+			assert_eq(
+				String(state.get_act1_transition().get("act_boundary", "")),
+				expected_boundary,
+				"branch identity drift for %s" % fixture_id
+			)
+		var quest_id := String(row.get("expected_quest_id", ""))
+		if not quest_id.is_empty():
+			assert_eq(
+				String(state.get_quest_state(StringName(quest_id))),
+				String(row.get("expected_quest_state", "")),
+				"quest outcome drift for %s" % fixture_id
+			)
+
+
+func _load_json_dictionary(path: String) -> Dictionary:
+	var source := FileAccess.get_file_as_string(path)
+	if source.is_empty():
+		return {}
+	var parsed: Variant = JSON.parse_string(source)
+	if parsed is Dictionary:
+		return parsed as Dictionary
+	return {}
 
 
 func test_released_demo_fresh_start_matches_demo_seed_shape() -> void:
