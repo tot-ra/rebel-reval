@@ -206,3 +206,5 @@ Parallel exact replacements against one mutable file can race and reapply stale 
 - 2026-08-26: A local `gdlint` probe may be unavailable or silent while the repository pre-commit hook invokes its own linter; before committing new GDScript, inspect the hook log and wrap any newly added lines over the 100-character limit.
 
 - lesson
+- 2026-08-27: When reflowing an existing GDScript diagnostic for max-line-length, preserve the enclosing block
+  indentation and re-read it immediately; an exact replacement can add an extra tab and introduce a parse error.
