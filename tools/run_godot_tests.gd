@@ -67,18 +67,16 @@ func _initialize() -> void:
 func _run() -> void:
 	var test_files := _discover_tests(TEST_ROOT)
 	var filter_value := _argument_value("--filter=")
-	var filters := filter_value.split(",", false)
-	if not filters.is_empty():
-		test_files = test_files.filter(func(path: String) -> bool:
-			for filter_entry in filters:
-				if filter_entry in path:
-					return true
-			return false
-		)
+	test_files = _filter_test_files(test_files, filter_value)
 	test_files.sort()
 	if test_files.is_empty():
 		var filter_suffix := " (filter: %s)" % filter_value if not filter_value.is_empty() else ""
-		print("HARNESS ERROR: No Godot tests found under %s matching %s*%s%s" % [TEST_ROOT, TEST_PREFIX, TEST_SUFFIX, filter_suffix])
+		print("HARNESS ERROR: No Godot tests found under %s matching %s*%s%s" % [
+			TEST_ROOT,
+			TEST_PREFIX,
+			TEST_SUFFIX,
+			filter_suffix,
+		])
 		_finish(1)
 		return
 
@@ -125,6 +123,16 @@ func _discover_tests(root_path: String) -> Array[String]:
 	dir.list_dir_end()
 	return discovered
 
+
+static func _filter_test_files(test_files: Array[String], filter_value: String) -> Array[String]:
+	if filter_value.is_empty():
+		return test_files
+
+	var filters := filter_value.split(",", false)
+	return test_files.filter(func(path: String) -> bool:
+		var filename_stem := path.get_file().trim_suffix(TEST_SUFFIX)
+		return filters.has(filename_stem)
+	)
 
 func _run_test_file(path: String) -> void:
 	var diagnostic_mark := _logger.mark()
