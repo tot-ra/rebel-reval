@@ -9,7 +9,7 @@ related:
   - ../religion/churches-and-religious-houses.md
   - ../people/town-council-and-officers.md
   - burgher-house-plan.md
-updated: 2026-07-28
+updated: 2026-08-28
 ---
 
 # Toompea Small Castle and Great Castle interiors (c. 1340)
@@ -48,7 +48,7 @@ Danish Estonia (1238–1346) vs Hanseatic Lower Town: hill rooms are **feudal-co
 
 **1238–1240s (Danish resumption):** Danes continue Order-started work. Cross-wall divides kastell: **south = forecourt** (*eeshoov*); **north = walled viceroy's enclosure** on the site of the modern castle courtyard, tying into the western curtain where Pikk Hermann will later rise [1][3]. Inter-courtyard gate with tower **attested** [1]. Western outer wall: **bricked-up large window openings** survive — strongest physical anchor for Danish-period upper rooms [3]. **attested** fabric; internal partition layout **plausible composite** from cross-wall logic [1].
 
-**Early 14th century:** Extension with **forecourts and curtains eastward**; hill gate linking to **Lühike jalg** route **plausible composite** contemporary with outer-ward closure described in parent dossier [1][8]. **plausible composite**
+**Early 14th century:** Extension with **forecourts and curtains eastward**; hill gate linking to **Lühike jalg** route **plausible composite** contemporary with outer-ward closure described in parent dossier [1][8]. On-plateau **limestone quarrying** around the cathedral-school belt supplied castle and church stone; Reppo 2018 revises Zobel’s quarry outline northward and ties quarrying to the **1229 SW castrum minus** corner in scholarly reconstruction, while pre-Danish extent remains **unknown** [`toompea-castle-and-upper-town.md`](toompea-castle-and-upper-town.md) [16]. **plausible composite**
 
 **After 1343 (do not model in Spring 1343 scenes):**
 
@@ -130,7 +130,7 @@ No licensed measured plan of the **Danish-period** Small Castle interior survive
 
 ## Open questions
 
-- Mine **Zobel 2008** (*Toompea loss keskajal*, pp. 11–30) and **Zobel 2011** (*Tallinn keskaegsed kindlustused*) for measured Danish-phase drawings — local PDF pass if holdings land in `history/`.
+- Mine **Zobel 2008** (*Toompea loss keskajal*, pp. 11–30) and **Zobel 2011** (*Tallinn keskaegsed kindlustused*) for measured Danish-phase drawings — local PDF pass if holdings land in `history/`. **Reppo 2018** (`history/AVE2018_12_Reppo_Toompea.txt`) now revises quarry extent and the natural northern plateau-edge barrier but does not replace Zobel for interior room dimensions.
 - AWB / *DD* folio read for named rooms (kitchen, *kamer*, chapel) in Danish Reval charters — may upgrade `SC-*` labels from composite to attested.
 - Archaeological section under **Pikk Hermann** (Riigikogu visitor route) for pre-1350 floor surfaces — physical evidence for cellar/storey functions.
 - Whether **Great Castle ring wall** was already closed in April 1343 or only after 1346 sale — Estonian Wikipedia favours **mid-century after sale** [7]; reconcile with outer-ward contemporaneity in parent dossier.
@@ -152,3 +152,4 @@ No licensed measured plan of the **Danish-period** Small Castle interior survive
 13. Kuressaare Castle / AVE cellar-plan literature — Konventhaus comparandum; Saaremaa episcopal, late 14th c.; https://linnus.samu.ee/en/about-the-castle/ ; https://ojs.utlib.ee/index.php/AVE/article/download/25263/19251/38352
 14. Zobel, R., "Toompea loss keskajal (ca 1030–1525)," in *Toompea loss* (Kalm, Maiste, Zobel), Riigikogu Kantselei, Tallinn 2008, pp. 11–30 — **not yet mined locally**; cited throughout Estonian scholarship.
 15. Riigikogu visitor text on 13th-c. Brethren convent building footprint 34 × 39 m — https://www.riigikogu.ee/en/visit-us/toompea-castle/toompea-castle-riigikogu-building/ — Order-phase dimensions, not 1343 Danish.
+16. M. Reppo, “The Bishop’s House and new additions to the study of the limestone quarry on Toompea Hill,” *Archaeological Fieldwork in Estonia* 2018, 171–184, https://arheoloogia.ee/ave2018/AVE2018_12_Reppo_Toompea.pdf ; local OCR text `history/AVE2018_12_Reppo_Toompea.txt` — quarry revision and natural plateau-edge barrier; English.
