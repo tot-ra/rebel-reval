@@ -55,8 +55,7 @@ def _bucket_for(priority: str) -> str:
     if priority in PRIORITY_MAP:
         return priority
     # Strip numeric suffix letter (e.g. "P4-027a" → "P4") to map correctly.
-    import re as _re
-    base = _re.sub(r"\d+[a-z]*$", "", priority) if len(priority) > 2 else priority
+    base = re.sub(r"\d+[a-z]*$", "", priority) if len(priority) > 2 else priority
     return _bucket_for(base) if base in PRIORITY_MAP or base == "D" else OTHER_PREFIX
 
 
