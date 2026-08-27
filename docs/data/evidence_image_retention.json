@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "owner": "P0-186",
+  "baseline": {
+    "audit_date": "2026-08-11",
+    "audit_docs_reports_images_bytes": 105906176,
+    "p0_186_start_docs_reports_images_bytes": 127926272,
+    "p0_186_closed_docs_reports_images_bytes": 118485597
+  },
+  "budget": {
+    "target_docs_reports_images_bytes": 119000000,
+    "new_capture_soft_cap_png_bytes": 1572864,
+    "new_capture_standard_long_edge": 1280
+  },
+  "policy": {
+    "gdignore_path": "docs/reports/images/.gdignore",
+    "allowed_formats_active": ["png"],
+    "allowed_formats_archived": ["png", "jpg", "jpeg", "webp"],
+    "closed_task_action": "lossless_png_optimize_or_convert_to_jpeg_when_verifier_allows"
+  },
+  "active_acceptance_verifiers": [
+    {
+      "id": "slice_surface_captures",
+      "command": ["python3", "tools/verify_slice_surface_captures.py"]
+    },
+    {
+      "id": "slice_surface_assets",
+      "command": ["python3", "tools/verify_slice_surface_assets.py"]
+    },
+    {
+      "id": "p0_102_environment_kit",
+      "command": ["python3", "tools/verify_p0_102_environment_kit_evidence.py"]
+    },
+    {
+      "id": "adr0018_calibration",
+      "command": ["python3", "tools/verify_adr0018_calibration_captures.py"]
+    },
+    {
+      "id": "harbor_fishing_net_wind",
+      "command": ["python3", "tools/verify_harbor_fishing_net_wind_captures.py"]
+    },
+    {
+      "id": "outdoor_prototypes",
+      "command": ["python3", "tools/verify_outdoor_prototypes.py"]
+    }
+  ],
+  "active_directories": [
+  {"path": "docs/reports/images/view3d", "tier": "active", "max_long_edge": 1280},
+  {"path": "docs/reports/images/p0_102_environment_kit", "tier": "active", "max_long_edge": 1280},
+  {"path": "docs/reports/images/p0_102_three_tier", "tier": "active", "max_long_edge": 1280},
+  {"path": "docs/reports/images/adr0018_calibration", "tier": "active", "max_long_edge": 1280},
+  {"path": "docs/reports/images/demo_walkthrough", "tier": "active", "max_long_edge": 1920},
+  {"path": "docs/reports/images/nunnatorn", "tier": "active", "max_long_edge": 1280},
+  {"path": "docs/reports/images/outdoor", "tier": "active", "max_long_edge": 1280},
+  {"path": "docs/reports/images/lower_town_p0_101", "tier": "active", "max_long_edge": 1280},
+  {"path": "docs/reports/images/r713_sky_weather", "tier": "active", "max_long_edge": 1280},
+  {"path": "docs/reports/images/r715_water", "tier": "active", "max_long_edge": 1280}
+  ],
+  "archived_directories": [
+  {"path": "docs/reports/images/renderer_evaluation", "tier": "archived", "closed_task": "renderer_evaluation"},
+  {"path": "docs/reports/images/p039_blind_pack", "tier": "archived", "closed_task": "P0-039"},
+  {"path": "docs/reports/images/characters", "tier": "archived", "closed_task": "P0-188"},
+  {"path": "docs/reports/images/combat", "tier": "archived", "closed_task": "P1-024"},
+  {"path": "docs/reports/images/fauna", "tier": "archived", "closed_task": "P2-035"},
+  {"path": "docs/reports/images/population", "tier": "archived", "closed_task": "P1-036"},
+  {"path": "docs/reports/images/st_olaf_r281", "tier": "archived", "closed_task": "R-281"}
+  ]
+}

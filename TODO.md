@@ -25,7 +25,7 @@ See [`docs/STORAGE_SIZE_BACKLOG.md`](docs/STORAGE_SIZE_BACKLOG.md) for full deli
 - [ ] P0-183 | deps: P0-177 | deliverable: oversized runtime GLB budgets (oak + shared characters) | verify: asset lint + focused Godot filters
 - [x] P0-184 | deps: P0-177 | deliverable: refresh ARCHITECTURE large-file audit to current LOC inventory | verify: table matches `scripts/**/*.gd`
 - [ ] P0-185 | deps: P0-184 | deliverable: justified view3d hotspot extractions only | verify: named focused filters
-- [ ] P0-186 | deps: P0-177 | deliverable: `docs/reports/images` retention/compression rule | verify: acceptance image readers + byte drop
+- [x] P0-186 | deps: P0-177 | deliverable: `docs/reports/images` retention/compression rule | verify: acceptance image readers + byte drop
 - [x] P0-187 | deps: P0-177 | deliverable: archive aged ROADMAP coordination notes | verify: Current focus intact + active-docs check
 
 ## Character visual realism (active)

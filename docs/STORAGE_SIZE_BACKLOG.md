@@ -25,7 +25,7 @@ Format matches the legacy `TODO.md` contract: `ID | deps | deliverable | verify`
 
 - [ ] P0-183 | deps: P0-177 | role: art | deliverable: runtime mesh byte and triangle budgets for oversized GLBs, starting with `assets/props/environment/sacred_grove_ancient_oak.glb` (~9.5 MiB) and the ~5 MiB `assets/characters/shared/*.glb` set; reduce or LOD without breaking silhouette contracts; enforce through `tools/verify_asset_lint.py` / fidelity tiers | verify: `python3 tools/verify_asset_lint.py` green for touched assets; focused bird/character/prop Godot filters covering those assets pass; sizes recorded before/after
 
-- [ ] P0-186 | deps: P0-177 | role: qa/production | deliverable: evidence-image retention rule for `docs/reports/images/**` (~101 MiB PNG today) - compress closed-task captures, convert where lossless is unnecessary, or LFS-skip archival plates while keeping current-slice acceptance images local | verify: current-slice acceptance commands that read report images still pass; docs/reports byte total drops with a recorded before/after; `.gdignore` / LFS policy remains coherent
+- [x] P0-186 | deps: P0-177 | role: qa/production | deliverable: evidence-image retention rule for `docs/reports/images/**` (~101 MiB PNG today) - compress closed-task captures, convert where lossless is unnecessary, or LFS-skip archival plates while keeping current-slice acceptance images local | verify: current-slice acceptance commands that read report images still pass; docs/reports byte total drops with a recorded before/after; `.gdignore` / LFS policy remains coherent | closed: 2026-08-28 manifest + verifier + lossless optimize; 127926272 -> 118485597 bytes (-9440675); removed 220 stray `*.import` sidecars
 
 ## Closed - source / documentation size
 

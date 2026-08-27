@@ -130,6 +130,23 @@ Remove without LFS migration when any of the following holds:
 
 Do not delete pending or accepted candidate GLBs solely for size unless they also fail hygiene (standard Git at or above 10 MiB) or an approved task names the path. Record removals in the bundle `state.json` `candidate_note` field, matching the `bird_wader_v1` pattern.
 
+## Evidence image retention (`docs/reports/images/`)
+
+Acceptance captures, README walkthrough frames, and closed-task report plates live under `docs/reports/images/`. They are documentation evidence, not runtime imports. The tree is excluded from Godot import/export through [`docs/reports/images/.gdignore`](./reports/images/.gdignore); do not add tracked `*.import` sidecars there.
+
+| Tier | Examples | Format / size rule | On close |
+|------|----------|--------------------|----------|
+| Active acceptance | `view3d/`, `p0_102_environment_kit/`, `adr0018_calibration/`, `demo_walkthrough/`, `nunnatorn/`, `r713_sky_weather/`, `r715_water/` | PNG only; standard captures at `1280x720` unless a task names a higher cap (for example README walkthrough at `1920x1080`); active PNG soft cap 1.5 MiB | Keep local; regenerate through the owned capture tool when stale |
+| Archived evidence | `renderer_evaluation/`, `characters/`, `combat/`, `fauna/`, `population/`, `p039_blind_pack/` | PNG/JPEG/WebP allowed after lossless optimize; archived PNG soft cap 1.0 MiB | Run `python3 tools/optimize_evidence_images.py`; move to LFS-skip only with manifest + verifier update |
+
+Manifest and byte budgets: [`docs/data/evidence_image_retention.json`](./data/evidence_image_retention.json). Closed directories must stay listed in `archived_directories` with the owning task id. New acceptance sets must be added to `active_directories` and, when they gate CI or slice sign-off, to `active_acceptance_verifiers`.
+
+```bash
+python3 tools/verify_evidence_image_retention.py
+python3 tools/verify_evidence_image_retention.py --run-acceptance
+python3 tools/optimize_evidence_images.py
+```
+
 ## Verification
 
 Run from the repository root:
@@ -138,6 +155,7 @@ Run from the repository root:
 python3 tools/manage_lfs_assets.py verify
 tools/restore_lfs_assets.sh runtime
 python3 tools/verify_storage_hygiene.py
+python3 tools/verify_evidence_image_retention.py
 python3 tools/validate_asset_sources.py
 python3 tools/generate_asset_inventory.py --check
 godot --headless --editor --quit
