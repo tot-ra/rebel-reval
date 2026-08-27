@@ -65,6 +65,26 @@ func test_1343_lower_town_uses_the_conservative_four_tower_registry() -> void:
 	assert_true(seen_historical_ids.has(&"great_coastal_gate"))
 
 
+func test_1343_registry_exposes_dated_non_completed_positions() -> void:
+	var lower_town_candidates := FortificationRegistry.construction_candidate_by_map(
+		&"lower_town_slice"
+	)
+	assert_eq(lower_town_candidates.size(), 3)
+	assert_eq(
+		FortificationRegistry.construction_candidate_by_id(&"sand_gate")["building_id"],
+		&"wall_tower_northeast"
+	)
+	assert_eq(
+		FortificationRegistry.construction_candidate_by_id(&"viru_gate")["building_id"],
+		&"viru_gate_north_tower"
+	)
+	assert_eq(
+		FortificationRegistry.post_1343_exclusion_by_id(&"fat_margaret")["earliest_state"],
+		"1518-1531"
+	)
+	assert_true(FortificationRegistry.post_1343_exclusion_by_id(&"missing_tower").is_empty())
+
+
 func test_lower_town_maps_do_not_invent_later_completed_towers() -> void:
 	var completed_count := 0
 	for definition in _lower_town_definitions():

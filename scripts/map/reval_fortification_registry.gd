@@ -127,8 +127,33 @@ static func completed_tower_count() -> int:
 
 
 static func completed_tower_by_map(map_id: StringName) -> Array[Dictionary]:
+	return _records_by_map(COMPLETED_TOWERS_1343, map_id)
+
+
+static func construction_candidate_by_map(map_id: StringName) -> Array[Dictionary]:
+	return _records_by_map(CONSTRUCTION_CANDIDATES_1343, map_id)
+
+
+static func construction_candidate_by_id(historical_id: StringName) -> Dictionary:
+	return _record_by_historical_id(CONSTRUCTION_CANDIDATES_1343, historical_id)
+
+
+static func post_1343_exclusion_by_id(historical_id: StringName) -> Dictionary:
+	return _record_by_historical_id(POST_1343_EXCLUSIONS, historical_id)
+
+
+static func _records_by_map(records: Array[Dictionary], map_id: StringName) -> Array[Dictionary]:
 	var matches: Array[Dictionary] = []
-	for record in COMPLETED_TOWERS_1343:
-		if record["map_id"] == map_id:
+	for record in records:
+		if record.get("map_id", &"") == map_id:
 			matches.append(record)
 	return matches
+
+
+static func _record_by_historical_id(
+		records: Array[Dictionary], historical_id: StringName
+) -> Dictionary:
+	for record in records:
+		if record.get("historical_id", &"") == historical_id:
+			return record
+	return {}
