@@ -1,0 +1,235 @@
+{
+  "type": "quest",
+  "id": "quest.act3.poide_siege",
+  "title": "The Stone Gate at Pöide",
+  "summary": "Take the authored siege materiel to Pöide and let the forge record and Act 2 memory shape the island's local cost.",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P6-004",
+    "notes": "Content-only Pöide siege contract. The capture remains the attested milestone; branches vary local losses, records, and surviving island contacts without activating the prototype map."
+  },
+  "entry_conditions": [],
+  "initial_state": "latent",
+  "states": [
+    {
+      "id": "latent",
+      "label": "The island road is open and the Pöide siege brief awaits Kalev."
+    },
+    {
+      "id": "ready",
+      "label": "Kalev's siege materiel and prior records are brought to the Pöide line."
+    },
+    {
+      "id": "taken_broken_gate",
+      "label": "Pöide falls through a weakened gate, at a high local cost.",
+      "terminal": true
+    },
+    {
+      "id": "taken_honored_record",
+      "label": "Pöide falls after a disciplined assault, preserving Kalev's older record.",
+      "terminal": true
+    },
+    {
+      "id": "taken_hidden_signal",
+      "label": "Pöide falls, but a concealed signal moves islanders toward a safer retreat.",
+      "terminal": true
+    }
+  ],
+  "transitions": [
+    {
+      "id": "brief",
+      "from_state": "latent",
+      "to_state": "ready",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.act3.poide_siege.briefed",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "resolve_broken_gate",
+      "from_state": "ready",
+      "to_state": "taken_broken_gate",
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.act1.forge.siege_materiel.subtle_defect",
+          "value": true
+        },
+        {
+          "op": "flag_is",
+          "key": "flag.act2.record.viru_break",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.act3.poide_siege.taken",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.act3.poide_siege.losses_high",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.act3.poide_siege.broken_gate",
+          "value": "faction.harju_kings",
+          "amount": 1,
+          "summary": "The weakened gate breaks at Pöide, and the island rebels pay the highest local cost."
+        }
+      ]
+    },
+    {
+      "id": "resolve_honored_record",
+      "from_state": "ready",
+      "to_state": "taken_honored_record",
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.act1.forge.siege_materiel.honest_work",
+          "value": true
+        },
+        {
+          "op": "flag_is",
+          "key": "flag.act2.record.viru_seal",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.act3.poide_siege.taken",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.act3.poide_siege.record_preserved",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.act3.poide_siege.honored_record",
+          "value": "faction.harju_kings",
+          "amount": 1,
+          "summary": "Kalev's reliable materiel keeps the assault ordered and preserves the older forge record."
+        }
+      ]
+    },
+    {
+      "id": "resolve_hidden_signal",
+      "from_state": "ready",
+      "to_state": "taken_hidden_signal",
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.act1.forge.siege_materiel.secret_feature",
+          "value": true
+        },
+        {
+          "op": "flag_is",
+          "key": "flag.act2.record.harju_signal",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.act3.poide_siege.taken",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.act3.poide_siege.islanders_withdrawn",
+          "value": true
+        },
+        {
+          "op": "record_memory",
+          "key": "memory.kalev.poide_hidden_signal"
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.act3.poide_siege.hidden_signal",
+          "value": "faction.black_cloaks",
+          "amount": 1,
+          "summary": "A concealed feature carries the Harju signal beyond the fall of Pöide."
+        }
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "receive_brief",
+      "text": "Bring the siege brief and Kalev's remembered forge work to the Pöide line.",
+      "state_id": "latent"
+    },
+    {
+      "id": "resolve_siege",
+      "text": "Resolve Pöide's attested fall while choosing the local cost carried by the old records.",
+      "state_id": "ready"
+    }
+  ],
+  "journal_evidence": [
+    {
+      "fact_id": "fact.act3.poide_siege.capture_attested",
+      "text": "The island rising reaches Pöide in July 1343; the capture is a fixed historical milestone, not a branch result."
+    },
+    {
+      "fact_id": "fact.act3.poide_siege.forge_record",
+      "text": "The siege materiel carries one of Kalev's earlier forge choices into the island campaign."
+    },
+    {
+      "fact_id": "fact.act3.poide_siege.act2_record",
+      "text": "The Viru boundary or Harju signal record changes who can read the assault and who gets warning to withdraw."
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "broken_gate",
+      "summary": "Pöide falls through the weakened gate; the capture remains fixed, but local losses are high.",
+      "effects": []
+    },
+    {
+      "id": "honored_record",
+      "summary": "Pöide falls after a disciplined assault; the older forge record survives the handoff.",
+      "effects": []
+    },
+    {
+      "id": "hidden_signal",
+      "summary": "Pöide falls, while a concealed signal moves islanders toward a safer retreat.",
+      "effects": []
+    }
+  ],
+  "content_links": {
+    "character_ids": [
+      "char.kalev"
+    ],
+    "location_ids": []
+  },
+  "source_notes": [
+    {
+      "confidence": "attested",
+      "summary": "The July 1343 Saaremaa rising and capture of Pöide are fixed historical milestones for the authored encounter.",
+      "citations": [
+        "history/HISTORY.md",
+        "history/TIMELINE.md",
+        "docs/reports/p6_001_act3_design.md"
+      ]
+    },
+    {
+      "confidence": "invented",
+      "summary": "The three local-cost outcomes use prior forge and Act 2 records without changing the attested capture or activating later Maasilinna content.",
+      "citations": [
+        "docs/reports/p6_001_act3_design.md",
+        "content/maps/world_poide.rrmap",
+        "TODO.md"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "quest_id": "quest.act3.poide_siege",
+  "branches": [
+    {
+      "id": "broken_gate_high_losses",
+      "route": "combat",
+      "transitions": [
+        "brief",
+        "resolve_broken_gate"
+      ],
+      "setup": {
+        "flag.act1.forge.siege_materiel.subtle_defect": true,
+        "flag.act2.record.viru_break": true
+      },
+      "require_flags": {
+        "flag.act1.forge.siege_materiel.subtle_defect": true,
+        "flag.act2.record.viru_break": true
+      },
+      "expect": {
+        "quest_state": "taken_broken_gate",
+        "flags": {
+          "flag.act3.poide_siege.briefed": true,
+          "flag.act3.poide_siege.losses_high": true,
+          "flag.act3.poide_siege.taken": true
+        },
+        "ledger_events": [
+          "ledger.act3.poide_siege.broken_gate"
+        ]
+      }
+    },
+    {
+      "id": "honored_record_ordered_assault",
+      "route": "combat",
+      "transitions": [
+        "brief",
+        "resolve_honored_record"
+      ],
+      "setup": {
+        "flag.act1.forge.siege_materiel.honest_work": true,
+        "flag.act2.record.viru_seal": true
+      },
+      "require_flags": {
+        "flag.act1.forge.siege_materiel.honest_work": true,
+        "flag.act2.record.viru_seal": true
+      },
+      "expect": {
+        "quest_state": "taken_honored_record",
+        "flags": {
+          "flag.act3.poide_siege.briefed": true,
+          "flag.act3.poide_siege.record_preserved": true,
+          "flag.act3.poide_siege.taken": true
+        },
+        "ledger_events": [
+          "ledger.act3.poide_siege.honored_record"
+        ]
+      }
+    },
+    {
+      "id": "hidden_signal_islander_withdrawal",
+      "route": "non_combat",
+      "transitions": [
+        "brief",
+        "resolve_hidden_signal"
+      ],
+      "setup": {
+        "flag.act1.forge.siege_materiel.secret_feature": true,
+        "flag.act2.record.harju_signal": true
+      },
+      "require_flags": {
+        "flag.act1.forge.siege_materiel.secret_feature": true,
+        "flag.act2.record.harju_signal": true
+      },
+      "expect": {
+        "quest_state": "taken_hidden_signal",
+        "flags": {
+          "flag.act3.poide_siege.briefed": true,
+          "flag.act3.poide_siege.islanders_withdrawn": true,
+          "flag.act3.poide_siege.taken": true
+        },
+        "ledger_events": [
+          "ledger.act3.poide_siege.hidden_signal"
+        ]
+      }
+    }
+  ]
+}

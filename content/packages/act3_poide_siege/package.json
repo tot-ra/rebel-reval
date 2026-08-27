@@ -1,0 +1,40 @@
+{
+  "type": "quest_package",
+  "id": "package.act3_poide_siege",
+  "schema_version": 1,
+  "title": "The Stone Gate at Pöide",
+  "quest": "content/quest.json",
+  "support": [
+    "../../examples/valid/character.kalev.json",
+    "../../examples/support/character.aita.json",
+    "../../examples/support/character.henning.json",
+    "../../examples/support/character.mart.json"
+  ],
+  "branch_map": "branch_map.json",
+  "bindings": {
+    "landmark_beats": [
+      "beat.landmark.estonia.poide_church_fortress"
+    ],
+    "map_anchors": [
+      {
+        "map_id": "world_poide",
+        "anchor_id": "landmark_central_keep"
+      },
+      {
+        "map_id": "world_saaremaa",
+        "anchor_id": "landmark_primary"
+      }
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Content-only P6-004 package for the Pöide siege; the prototype map remains inactive and later Maasilinna geometry is excluded.",
+      "citations": [
+        "docs/reports/p6_001_act3_design.md",
+        "content/maps/world_poide.rrmap",
+        "TODO.md"
+      ]
+    }
+  ]
+}
