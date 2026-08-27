@@ -330,6 +330,59 @@ func test_pausing_holds_the_sun_and_sky_still() -> void:
 	runtime.free()
 
 
+func test_runtime_facade_preserves_ambient_controls_and_camera_contract() -> void:
+	var runtime := MapViewRuntime.new()
+	assert_eq(
+		runtime.bird_audio_active_voice_count(),
+		0,
+		"uninstalled bird audio must report no active voices"
+	)
+	assert_eq(
+		runtime.bird_flight_active_count(),
+		0,
+		"uninstalled bird flight must report no active birds"
+	)
+	assert_eq(
+		runtime.urban_fauna_active_count(),
+		0,
+		"uninstalled urban fauna must report no active actors"
+	)
+	assert_eq(
+		runtime.penned_fauna_active_count(),
+		0,
+		"uninstalled penned fauna must report no active actors"
+	)
+	assert_eq(
+		runtime.insect_audio_active_voice_count(),
+		0,
+		"uninstalled insect audio must report no active voices"
+	)
+	assert_eq(
+		runtime.crowd_active_count(),
+		0,
+		"uninstalled crowd rendering must report no active actors"
+	)
+
+	runtime.set_bird_audio_enabled(false)
+	runtime.set_bird_flight_enabled(false)
+	runtime.set_urban_fauna_enabled(false)
+	runtime.set_penned_fauna_enabled(false)
+	runtime.set_insect_audio_enabled(false)
+	runtime.set_crowd_enabled(false)
+	assert_false(runtime._bird_audio_enabled, "bird audio toggle must persist before installation")
+	assert_false(runtime._bird_flight_enabled, "bird flight toggle must persist before installation")
+	assert_false(runtime._urban_fauna_enabled, "urban fauna toggle must persist before installation")
+	assert_false(runtime._penned_fauna_enabled, "penned fauna toggle must persist before installation")
+	assert_false(runtime._insect_audio_enabled, "insect audio toggle must persist before installation")
+	assert_false(runtime._crowd_enabled, "crowd toggle must persist before installation")
+
+	assert_eq(MapViewRuntime.FOLLOW_LERP_WEIGHT, MapViewRuntimeCamera.FOLLOW_LERP_WEIGHT)
+	assert_eq(MapViewRuntime.ZOOM_STEP_FACTOR, MapViewRuntimeCamera.ZOOM_STEP_FACTOR)
+	assert_eq(MapViewRuntime.THIRD_PERSON_MAX_DISTANCE, MapViewRuntimeCamera.THIRD_PERSON_MAX_DISTANCE)
+	assert_eq(MapViewRuntime.FIRST_PERSON_EYE_HEIGHT, MapViewRuntimeCamera.FIRST_PERSON_EYE_HEIGHT)
+	runtime.free()
+
+
 func test_environment_binding_keeps_weather_identity_across_map_transition() -> void:
 	var tree := Engine.get_main_loop() as SceneTree
 	var session_state: Node = tree.root.get_node_or_null("SessionState")

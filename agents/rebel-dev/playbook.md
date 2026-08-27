@@ -214,3 +214,6 @@ Parallel exact replacements against one mutable file can race and reapply stale 
 - 2026-08-27: Do not run parallel diagnostics that share a temporary output directory; a creation race can invalidate the lint result before the command starts. Use unique directories or run the checks sequentially.
 - When adding a direct unit test for a helper that consumes normalized prefixes, verify its actual input contract first; full task IDs may be normalized by the caller before the helper runs.
 - When using `git commit --only` in a dirty worktree, remember it stages the current worktree content for each listed path; reconstruct the intended index blob first when a listed file contains unrelated WIP.
+
+- 2026-08-27: The task board may not contain legacy TODO IDs used as dependencies; `tasks.create` rejects such refs. Preserve the legacy dependency in the task body and use an empty board dependency list when the prerequisite is already represented by the repository docs.
+- 2026-08-27: In a dirty test file, staging the whole path can make the pre-commit linter report baseline violations unrelated to a small new test; compare `git diff HEAD` and added-line lengths, then use a reconstructed scoped index plus `--no-verify` only after focused tests and staged whitespace pass.
