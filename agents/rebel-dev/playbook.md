@@ -210,3 +210,5 @@ Parallel exact replacements against one mutable file can race and reapply stale 
   indentation and re-read it immediately; an exact replacement can add an extra tab and introduce a parse error.
 
 - 2026-08-27: For frontage acceptance, checking only that a sector references a known rule is insufficient; validate every rule's exact range, semantic use, and each building override's existence, reason, and measured width. Keep rear/service and institutional exclusions mutually exclusive so public tier counts cannot be inflated by backlot buildings.
+- 2026-08-27: In a shared dirty worktree, a focused Godot harness can report a green test summary while the checked wrapper correctly fails on unrelated parser/resource diagnostics; preserve both results and classify the wrapper failure as a baseline blocker.
+- 2026-08-27: Do not run parallel diagnostics that share a temporary output directory; a creation race can invalidate the lint result before the command starts. Use unique directories or run the checks sequentially.
