@@ -59,6 +59,18 @@
       "max_empty_region_cells": 12000,
       "elevation_range_min": 0.3
     },
+    "nunnatorn_interior": {
+      "enforce": false,
+      "interior": true,
+      "source_refs": ["H04-H05"],
+      "note": "Developer-only enterable tower interior. District composition bands do not apply to a single-tower dungeon; authored interior thresholds land with the P4-027f portfolio acceptance."
+    },
+    "rentenitorn_interior": {
+      "enforce": false,
+      "interior": true,
+      "source_refs": ["H04-H05"],
+      "note": "Developer-only enterable tower interior (P4-027d). District composition bands do not apply to a single-tower dungeon; authored interior thresholds land with the P4-027f portfolio acceptance."
+    },
     "monastery_quarter": {
       "enforce": true,
       "source_refs": ["H04-H05", "H14"],

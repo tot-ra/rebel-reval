@@ -1,0 +1,42 @@
+{
+  "type": "encounter",
+  "id": "encounter.rentenitorn_boss",
+  "title": "The Rent Tower Watcher over the sealed strongroom",
+  "quest_id": "quest.bitter_brew",
+  "resolved_flag": "flag.rentenitorn_boss_resolved",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-027d",
+    "notes": "The watcher identity, the farmed rent dispute, the enemy composition, and the outcomes are gameplay authorship. The tower is attested only as present on the north-west circuit before the mid fourteenth century, so the closed rectangular interior stays a reversible minimum-claim reconstruction."
+  },
+  "outcomes": [
+    {
+      "kind": "bypass",
+      "quest_state": "night_bypassed"
+    },
+    {
+      "kind": "kill",
+      "quest_state": "night_fought"
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "The Rent Tower Watcher, the farmed dues, and the sealed-tally stand-down are authored encounter identities, not attested occupants or events.",
+      "citations": [
+        "docs/reports/rentenitorn_interior_review.md",
+        "scripts/combat/rentenitorn_boss_encounter.gd"
+      ]
+    },
+    {
+      "confidence": "plausible composite",
+      "summary": "The encounter separates a crossbow-shaped watcher in the counting chamber from a hired strongarm on the strongroom floor below.",
+      "citations": [
+        "content/maps/rentenitorn_interior.rrmap",
+        "history/dossiers/topography/walls-gates-towers.md"
+      ]
+    }
+  ]
+}

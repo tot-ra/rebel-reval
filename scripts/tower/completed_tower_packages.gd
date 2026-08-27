@@ -114,7 +114,7 @@ static func all() -> Array[Dictionary]:
 			"rentenitorn_retry",
 			"rentenitorn_readability",
 			"rentenitorn_acceptance",
-			"in_progress",
+			"implemented",
 			"res://scenes/reval_north/rentenitorn_interior.tscn",
 			"res://content/maps/rentenitorn_interior.rrmap",
 			"res://scripts/map/definitions/prototypes/rentenitorn_interior_definition.gd",

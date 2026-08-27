@@ -19,6 +19,9 @@ const MonasteryQuarter := preload(
 const NunnatornInterior := preload(
 	"res://scripts/map/definitions/prototypes/nunnatorn_interior_rrmap_factory.gd"
 )
+const RentenitornInterior := preload(
+	"res://scripts/map/definitions/prototypes/rentenitorn_interior_rrmap_factory.gd"
+)
 const ArchbishopsGarden := preload(
 	"res://scripts/map/definitions/prototypes/archbishops_garden_rrmap_factory.gd"
 )
@@ -126,6 +129,24 @@ static func entries() -> Array[Dictionary]:
 				&"nunnatorn_boss_alternate_resolution",
 				&"nunnatorn_loot",
 				&"nunnatorn_evidence",
+			],
+		},
+		{
+			"id": &"rentenitorn_interior",
+			"source": "res://content/maps/rentenitorn_interior.rrmap",
+			"factory": RentenitornInterior,
+			"required_anchors":
+			[
+				&"rentenitorn_interior_entry",
+				&"rentenitorn_floor_ground",
+				&"rentenitorn_floor_watch",
+				&"rentenitorn_floor_roof",
+				&"rentenitorn_wall_walk",
+				&"rentenitorn_wall_walk_entry",
+				&"rentenitorn_boss",
+				&"rentenitorn_boss_alternate_resolution",
+				&"rentenitorn_loot",
+				&"rentenitorn_evidence",
 			],
 		},
 		{

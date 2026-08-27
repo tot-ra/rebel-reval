@@ -1,0 +1,67 @@
+# P4-027d: developer-only Rentenitorn interior.
+# The registry only attests that the Rent Tower stood on the north-west circuit
+# before the mid fourteenth century. No plan, height, or occupant is excavated,
+# so this is a deliberate minimum-claim reconstruction: a compact closed
+# rectangular curtain tower with a single inward (south) door, matching the
+# registry door_side, plus one door onto the adjoining wall-walk. Every enclosed
+# band, stair position, and prop below is reversible gameplay authorship and is
+# labelled as such in docs/reports/rentenitorn_interior_review.md.
+rrmap 1
+map rentenitorn_interior loc.lower_town.rentenitorn_interior 18 18 stone scope=prototype active=false palette=clean_painted seed=1343 cell_size=32
+source "docs/reports/rentenitorn_interior_review.md"
+source "docs/reports/reval_fortifications_1343.md"
+source "history/dossiers/topography/walls-gates-towers.md"
+style wall.limestone wall_height=176 wall_color=8f8c80ff wall_material=limestone
+style wall.partition wall_height=96 wall_color=968d7fff wall_material=plank
+style deck.timber wall_height=72 wall_color=705b49ff wall_material=plank roof_material=shingle
+style floor.stone
+style light.tallow style_variant=artisan_tallow
+terrain ground.stone stone 1 1 16 16 order=1
+terrain ground.entry dirt 9 14 3 3 order=2
+terrain ground.strongroom stone 5 2 11 4 order=3
+terrain ground.counting timber_floor 5 7 11 4 order=3
+terrain ground.deck timber_floor 5 12 11 4 order=3
+terrain ground.wall_walk timber_floor 1 2 3 14 order=4
+# Closed rectangular shell. Unlike the open-backed Nunnatorn bartizan and the
+# Kuldjala horseshoe, the Rent Tower is authored as a lockable strongroom tower,
+# so the only breaks are the south city door and the west wall-walk door.
+wall shell.west 4 1 4 16 thickness=1 openings=4,12,1,3 kind=interior_wall style=wall.limestone
+wall shell.north 4 1 16 1 thickness=1 kind=interior_wall style=wall.limestone
+wall shell.east 16 1 16 16 thickness=1 kind=interior_wall style=wall.limestone
+wall shell.south_west 4 16 8 16 thickness=1 kind=interior_wall style=wall.limestone
+wall shell.south_east 12 16 16 16 thickness=1 kind=interior_wall style=wall.limestone
+# Two timber divisions carry the three traversal bands. The openings sit on
+# opposite sides so the reconstructed climb alternates corners instead of
+# asserting a single excavated newel position.
+wall floor.partition.strongroom 5 6 15 6 thickness=1 openings=5,6,3,1 kind=interior_wall style=wall.partition
+wall floor.partition.counting 5 11 15 11 thickness=1 openings=13,11,3,1 kind=interior_wall style=wall.partition
+prop rentenitorn_deck_stair stairs 13 12 rect=3,2 facing=north primitive=wall_walk_access
+prop rentenitorn_counting_landing stairs 13 9 rect=3,2 facing=north primitive=wall_walk_platform
+prop rentenitorn_strongroom_stair stairs 5 7 rect=3,2 facing=north primitive=wall_walk_access
+prop rentenitorn_wall_walk_platform stairs 1 2 rect=3,14 facing=west primitive=wall_walk_platform
+prop strongroom_tallow candle 9 3 rect=1,1 style_variant=artisan_tallow visual_offset_px=0,-18
+prop counting_tallow candle 10 7 rect=1,1 style_variant=artisan_tallow visual_offset_px=0,-18
+prop deck_tallow candle 6 12 rect=1,1 style_variant=artisan_tallow visual_offset_px=0,-18
+prop rent_chest chest 12 2 rect=2,2 style_variant=chest.burgher
+prop tally_table table 6 9 rect=3,1 style_variant=table.trestle_work
+prop strongroom_bench table 6 5 rect=3,1 style_variant=table.trestle_work
+# Reserved footprints for the stacked dues and the deck hatch. They stay clear of
+# every gameplay anchor so the vertical route is never sealed by dressing.
+exclude rentenitorn_dues_stack 9 4 2 2
+exclude rentenitorn_deck_hatch 9 12 2 2
+spawn spawn.rentenitorn_interior_entry 9 14 rect=2,1
+anchor rentenitorn_interior_entry 9 14 rect=2,1 kind=arrival
+anchor rentenitorn_floor_ground 6 3 rect=2,2 kind=floor
+anchor rentenitorn_floor_watch 9 7 rect=2,2 kind=floor
+# Shared tower tooling names the third traversal band "roof"; here it is the
+# timber fighting deck at the door level, not an invented masonry storey.
+anchor rentenitorn_floor_roof 6 13 rect=2,2 kind=floor
+anchor rentenitorn_wall_walk 2 8 rect=1,3 kind=route
+anchor rentenitorn_wall_walk_entry 2 5 rect=1,2 kind=arrival
+anchor rentenitorn_boss 12 7 rect=2,2 kind=encounter
+anchor rentenitorn_boss_alternate_resolution 10 9 rect=1,1 kind=alternate
+anchor rentenitorn_loot 14 3 rect=1,1 kind=loot
+anchor rentenitorn_evidence 6 3 rect=1,1 kind=evidence
+transition rentenitorn_exit 9 16 3 1 to=reval_north destination_spawn=merchant_wall_tower_northwest_return spawn=rentenitorn_interior_entry spawn_offset_px=0,-64 transition_visual=door
+fade rentenitorn_readability 1 1 16 16
+camera 0 0 18 18

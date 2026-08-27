@@ -17,16 +17,25 @@ func test_catalog_covers_all_completed_1343_towers() -> void:
 		assert_eq(String(package["tower_id"]), String(tower_id))
 
 
-func test_nunnatorn_is_the_only_release_ready_package_until_follow_ups_land() -> void:
-	assert_true(CompletedTowerPackages.release_ready(CompletedTowerPackages.by_id(&"nunnatorn")))
-	for tower_id in [&"kuldjala", &"rentenitorn", &"great_coastal_gate"]:
-		var package := CompletedTowerPackages.by_id(tower_id)
-		assert_false(
+## Release readiness is derived from each package's declared implementation status
+## instead of a hard-coded tower list, so landing one more authored interior can
+## neither be forgotten here nor silently promote an unfinished follow-up.
+func test_authored_packages_are_release_ready_while_follow_ups_stay_blocked() -> void:
+	var authored: Array[String] = []
+	for package in CompletedTowerPackages.all():
+		var tower_id := String(package["tower_id"])
+		var implemented := String(package["implementation_status"]) == "implemented"
+		assert_eq(
 			CompletedTowerPackages.release_ready(package),
-			"%s is missing its dedicated interior" % tower_id,
+			implemented,
+			"%s release readiness must follow its implementation status" % tower_id,
 		)
-		assert_false(bool(package["release_active"]))
-		assert_true(bool(package["developer_only"]))
+		assert_false(bool(package["release_active"]), "%s must not be release-active" % tower_id)
+		assert_true(bool(package["developer_only"]), "%s must stay developer-only" % tower_id)
+		if implemented:
+			authored.append(tower_id)
+	assert_true(authored.has("nunnatorn"), str(authored))
+	assert_true(authored.has("rentenitorn"), str(authored))
 
 
 func test_catalog_rejects_reused_ids_and_one_way_transitions() -> void:

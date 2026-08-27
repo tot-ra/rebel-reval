@@ -22,6 +22,12 @@ const MAPS: Dictionary = {
 			"scope": "prototype",
 			"active": false
 		},
+	"rentenitorn_interior":
+		{
+			"path": "res://scenes/reval_north/rentenitorn_interior.tscn",
+			"scope": "prototype",
+			"active": false
+		},
 	"reval_archbishops_garden":
 	{
 		"path": "res://scenes/reval_archbishops_garden/reval_archbishops_garden.tscn",

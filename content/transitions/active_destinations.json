@@ -94,6 +94,20 @@
         },
         {
           "id": "outer_harbor_exit"
+        },
+        {
+          "id": "merchant_wall_tower_northwest_return"
+        }
+      ]
+    },
+    {
+      "id": "rentenitorn_interior",
+      "path": "res://scenes/reval_north/rentenitorn_interior.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        {
+          "id": "rentenitorn_interior_entry"
         }
       ]
     },

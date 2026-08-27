@@ -78,6 +78,10 @@ building coast_gate_west_jamb wall 102 0 2 9 style=wall.city tower=false
 building coast_gate_east_jamb wall 109 0 2 9 style=wall.city tower=false
 building city_wall_north_east wall 118 0 102 3 style=wall.city
 building merchant_wall_tower_northwest wall 7 8 8 8 style=wall.tower.merchant tower=true door_side=south
+# P4-027d: reciprocal developer-only entry into the dedicated Rent Tower interior.
+# The door sits on the registry's inward (south) side so the curtain collision
+# north of the tower stays sealed.
+transition rentenitorn_enter 10 14 2 2 to=rentenitorn_interior destination_spawn=rentenitorn_interior_entry spawn=merchant_wall_tower_northwest_return spawn_offset_px=0,96 building_id=merchant_wall_tower_northwest transition_visual=door
 building merchant_wall_tower_northeast wall 213 8 8 8 style=wall.tower tower=false
 # Vertical returns close the stepped seaward corners. The 3D overhang hides
 # sub-cell seams, while these authored blocks also close collision at full depth.
