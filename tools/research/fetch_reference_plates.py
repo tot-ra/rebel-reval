@@ -22,14 +22,22 @@ from __future__ import annotations
 import argparse
 import csv
 import hashlib
+import json
 import sys
 import urllib.error
 import urllib.request
 from pathlib import Path
 
+try:
+    from PIL import Image
+except ImportError:  # pragma: no cover - optional for fetch, required for verify caps
+    Image = None  # type: ignore[misc, assignment]
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 MANIFEST = REPO_ROOT / "history" / "reference" / "plates.csv"
 PLATE_ROOT = REPO_ROOT / "history" / "reference"
+RETENTION_MANIFEST = REPO_ROOT / "docs" / "data" / "reference_plate_retention.json"
+RASTER_SUFFIXES = {".jpg", ".jpeg", ".png", ".webp"}
 
 FIELDNAMES = [
     "plate_id",
@@ -196,9 +204,71 @@ def fetch(rows: list[dict[str, str]], args: argparse.Namespace) -> int:
     return 1 if failures else 0
 
 
+def load_retention_policy() -> tuple[dict, list[str]]:
+    if not RETENTION_MANIFEST.is_file():
+        return {}, []
+    try:
+        payload = json.loads(RETENTION_MANIFEST.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        return {}, [f"could not read retention manifest: {error}"]
+    if not isinstance(payload, dict):
+        return {}, ["retention manifest root must be an object"]
+    return payload, []
+
+
+def verify_retention_caps(
+    policy_doc: dict,
+    *,
+    exceptions: set[str],
+) -> list[str]:
+    problems: list[str] = []
+    if not policy_doc:
+        return problems
+    if Image is None:
+        return ["Pillow is required for reference plate retention checks"]
+
+    budget = policy_doc.get("budget", {})
+    max_bytes = int(budget.get("max_raster_bytes", 8_388_608))
+    max_long_edge = int(budget.get("max_long_edge_pixels", 2400))
+    policy = policy_doc.get("policy", {})
+    root = REPO_ROOT / policy.get("root", "history/reference")
+    if not root.is_dir():
+        problems.append(f"missing reference plate root: {root.relative_to(REPO_ROOT)}")
+        return problems
+
+    for path in sorted(root.rglob("*")):
+        if not path.is_file() or path.suffix.lower() not in RASTER_SUFFIXES:
+            continue
+        rel = path.relative_to(REPO_ROOT).as_posix()
+        if rel in exceptions:
+            continue
+        size = path.stat().st_size
+        if size > max_bytes:
+            problems.append(
+                f"{rel}: {size} bytes exceeds cap {max_bytes}"
+            )
+        with Image.open(path) as image:
+            width, height = image.size
+        if max(width, height) > max_long_edge:
+            problems.append(
+                f"{rel}: long edge {max(width, height)} exceeds cap {max_long_edge}"
+            )
+    return problems
+
+
 def verify(rows: list[dict[str, str]], args: argparse.Namespace) -> int:
     problems: list[str] = []
     seen: set[str] = set()
+    policy_doc, policy_errors = load_retention_policy()
+    problems.extend(policy_errors)
+    exceptions = {
+        item.strip()
+        for item in policy_doc.get("exceptions", [])
+        if isinstance(item, str) and item.strip()
+    }
+    problems.extend(
+        verify_retention_caps(policy_doc, exceptions=exceptions)
+    )
 
     for row in selected(rows, args):
         plate_id = row.get("plate_id", "").strip()

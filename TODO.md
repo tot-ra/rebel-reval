@@ -20,7 +20,7 @@ See [`docs/STORAGE_SIZE_BACKLOG.md`](docs/STORAGE_SIZE_BACKLOG.md) for full deli
 - [x] P0-178 | deps: P0-177 | deliverable: green storage hygiene for `generated/` >=10 MiB binaries | verify: `python3 tools/verify_storage_hygiene.py`
 - [x] P0-179 | deps: P0-178 | deliverable: prune rejected/duplicate `generated/comfyui` candidates | verify: hygiene + asset validators green
 - [ ] P0-180 | deps: P0-177 | deliverable: curated music take reduction with MusicDirector proof | verify: soundtrack tests + recorded byte drop
-- [ ] P0-181 | deps: P0-177 | deliverable: research-plate dimension/byte policy for `history/reference` | verify: plate fetch `--verify`
+- [x] P0-181 | deps: P0-177 | deliverable: research-plate dimension/byte policy for `history/reference` | verify: plate fetch `--verify`
 - [ ] P0-182 | deps: P0-180 | deliverable: runtime audio bitrate/size budget | verify: lint/validator + audio tests
 - [ ] P0-183 | deps: P0-177 | deliverable: oversized runtime GLB budgets (oak + shared characters) | verify: asset lint + focused Godot filters
 - [x] P0-184 | deps: P0-177 | deliverable: refresh ARCHITECTURE large-file audit to current LOC inventory | verify: table matches `scripts/**/*.gd`

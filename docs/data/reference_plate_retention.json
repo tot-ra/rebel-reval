@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "owner": "P0-181",
+  "baseline": {
+    "audit_date": "2026-08-11",
+    "p0_181_start_outlier_count": 7,
+    "p0_181_start_outlier_bytes": 112653925,
+    "p0_181_optimized_plate_count": 50,
+    "p0_181_optimized_raster_bytes_before": 273904275,
+    "p0_181_optimized_raster_bytes_after": 39090195,
+    "p0_181_closed_history_reference_raster_bytes": 131106551
+  },
+  "budget": {
+    "max_raster_bytes": 8388608,
+    "max_long_edge_pixels": 2400,
+    "jpeg_quality": 85
+  },
+  "policy": {
+    "root": "history/reference",
+    "plates_manifest": "history/reference/plates.csv",
+    "gdignore_path": "history/.gdignore",
+    "allowed_formats": ["jpg", "jpeg", "png", "webp", "tif", "pdf"]
+  },
+  "exceptions": []
+}

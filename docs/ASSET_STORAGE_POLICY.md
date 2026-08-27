@@ -147,6 +147,23 @@ python3 tools/verify_evidence_image_retention.py --run-acceptance
 python3 tools/optimize_evidence_images.py
 ```
 
+## Research reference plates (`history/reference/`)
+
+Visual evidence plates for historical dossiers live under `history/reference/` and are listed in `history/reference/plates.csv`. The tree is excluded from Godot import through [`history/.gdignore`](./../history/.gdignore); plates are not runtime assets and never appear in `assets/SOURCES.csv`.
+
+| Rule | Value |
+|------|-------|
+| Max raster bytes | 8 MiB (`8388608`) |
+| Max long edge | 2400 px |
+| JPEG quality on optimize | 85 |
+
+Manifest and caps: [`docs/data/reference_plate_retention.json`](./data/reference_plate_retention.json). Owned exceptions must be listed in the manifest `exceptions` array with a task id in the closeout note.
+
+```bash
+python3 tools/research/fetch_reference_plates.py --verify
+python3 tools/optimize_reference_plates.py
+```
+
 ## Verification
 
 Run from the repository root:
@@ -156,6 +173,7 @@ python3 tools/manage_lfs_assets.py verify
 tools/restore_lfs_assets.sh runtime
 python3 tools/verify_storage_hygiene.py
 python3 tools/verify_evidence_image_retention.py
+python3 tools/research/fetch_reference_plates.py --verify
 python3 tools/validate_asset_sources.py
 python3 tools/generate_asset_inventory.py --check
 godot --headless --editor --quit
