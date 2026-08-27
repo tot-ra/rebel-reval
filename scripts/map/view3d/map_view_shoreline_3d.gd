@@ -39,6 +39,33 @@ static func add_to(
 	bounds = bounds.intersection(Rect2i(Vector2i.ZERO, grid.size_cells))
 	var transforms: Array[Transform3D] = []
 	var colors: Array[Color] = []
+	collect_rock_instances(definition, grid, bounds, transforms, colors)
+	if transforms.is_empty():
+		return
+
+	var mesh := SphereMesh.new()
+	mesh.radius = 0.48
+	mesh.height = 0.68
+	mesh.radial_segments = 7
+	mesh.rings = 4
+	root.add_child(
+		MapViewMeshBuilderPrimitives.multi_mesh(
+			"CoastalRocks", mesh, transforms, colors, MapViewMaterials.natural_rock(), Vector3.ZERO
+		)
+	)
+
+
+static func collect_rock_instances(
+	definition: MapDefinition,
+	grid: MapTerrainGrid,
+	cell_bounds: Rect2i,
+	transforms: Array[Transform3D],
+	colors: Array[Color]
+) -> void:
+	var bounds := cell_bounds
+	if bounds.size == Vector2i.ZERO:
+		bounds = Rect2i(Vector2i.ZERO, grid.size_cells)
+	bounds = bounds.intersection(Rect2i(Vector2i.ZERO, grid.size_cells))
 	for y in range(bounds.position.y, bounds.end.y):
 		for x in range(bounds.position.x, bounds.end.x):
 			var cell := Vector2i(x, y)
@@ -55,19 +82,6 @@ static func add_to(
 				< ROCK_CLUSTER_CHANCE
 			):
 				_add_rock(transforms, colors, cell, water_offset, definition.seed, 1)
-	if transforms.is_empty():
-		return
-
-	var mesh := SphereMesh.new()
-	mesh.radius = 0.48
-	mesh.height = 0.68
-	mesh.radial_segments = 7
-	mesh.rings = 4
-	root.add_child(
-		MapViewMeshBuilderPrimitives.multi_mesh(
-			"CoastalRocks", mesh, transforms, colors, MapViewMaterials.natural_rock(), Vector3.ZERO
-		)
-	)
 
 
 static func _water_neighbor(grid: MapTerrainGrid, cell: Vector2i, seed: int) -> Vector2i:

@@ -1,8 +1,8 @@
-# R-748 / R-752 water rollout inventory
+# R-748 / R-751 / R-752 water rollout inventory
 
 Recorded: 2026-08-27
 Parent: R-715, reflective water rollout across authored maps
-Scope: inventory and shared view rollout contract
+Scope: inventory, shared view rollout contract, and water surface/shoreline geometry contract
 
 ## Decision boundary
 
@@ -102,6 +102,27 @@ Existing board rows own the next bounded steps; R-748 does not duplicate them:
 | R-757 | Independently rerun the complete rollout, map, weather, performance, capture, and report gates. |
 
 External blockers recorded for downstream coordination are **R-529** (pre-existing Monastery east-ditch water regression) and **R-713** (unified sky/weather acceptance still blocked, including water-facing synchronization evidence). They are not repaired or reclassified by this audit.
+
+## R-751 water surface and shoreline geometry contract
+
+Focused coverage: [`tests/godot/test_r715_water_surface_geometry.gd`](../../tests/godot/test_r715_water_surface_geometry.gd)
+
+```text
+treat empty or sub-threshold water contours as dry instead of indexing missing samples
+build deterministic recessed water surfaces without mutating gameplay terrain fingerprints
+clip water triangles against smoothed contour coverage and expose shoreline vertex colors for foam
+place coastal rock scatter only on coast-sand cells with adjacent closed water IDs
+verify authored rock origins through collect_rock_instances before multimesh commit
+```
+
+Expected command:
+
+```bash
+export GODOT_BIN="/Applications/Godot.app/Contents/MacOS/Godot"
+"$GODOT_BIN" --headless --path . --script tools/run_godot_tests.gd -- --filter=test_r715_water_surface_geometry
+```
+
+Headless Godot 4.7.1 returns identity transforms from `MultiMesh.get_instance_transform()` under the dummy renderer, so shoreline placement assertions read the authored transform list from `MapViewShoreline3D.collect_rock_instances()` and only compare the committed instance count on the node. Visual acceptance remains owned by R-756; gameplay collision and navigation remain unchanged.
 
 ## Verification contract
 

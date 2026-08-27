@@ -137,10 +137,17 @@ static func add_water_cell_quad(
 static func _water_contour_sample(contour: Dictionary, cell: Vector2i) -> float:
 	var columns: int = contour["columns"]
 	var rows: int = contour["rows"]
-	var clamped := Vector2i(clampi(cell.x, 0, columns - 1), clampi(cell.y, 0, rows - 1))
-	var values: PackedFloat32Array = contour["values"]
+	if columns <= 0 or rows <= 0:
+		# Invalid map definitions can leave an empty view field after MapBuilder
+		# rejects them. Treat that field as dry instead of indexing an empty array.
+		return 0.0
+	var values: PackedFloat32Array = contour.get("values", PackedFloat32Array())
+	var source: PackedFloat32Array = contour.get("source", PackedFloat32Array())
 	if float(contour["max_coverage"]) < MapViewMeshBuilderConfig.WATER_CONTOUR_THRESHOLD:
-		values = contour["source"]
+		values = source
+	if values.size() < columns * rows:
+		return 0.0
+	var clamped := Vector2i(clampi(cell.x, 0, columns - 1), clampi(cell.y, 0, rows - 1))
 	return values[clamped.y * columns + clamped.x]
 
 
