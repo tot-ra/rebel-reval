@@ -5,6 +5,13 @@ extends RefCounted
 ## This owns water-only shader state so MapViewMaterials can remain the stable
 ## public facade for terrain, building, foliage, and water material consumers.
 
+const OPTICAL_DEPTH_BY_TERRAIN := {
+	MapTypes.TERRAIN_SHALLOW_WATER: 0.038,
+	MapTypes.TERRAIN_RIVER_WATER: 0.072,
+	MapTypes.TERRAIN_WATER: 0.105,
+	MapTypes.TERRAIN_DEEP_WATER: 0.22,
+}
+
 static var _cache: Dictionary = {}
 
 
@@ -52,6 +59,10 @@ static func water_surface(terrain_id: StringName, wave_profiles: Dictionary) -> 
 		wave_profiles.get(terrain_id, wave_profiles[MapTypes.TERRAIN_WATER]) as Dictionary
 	)
 	material.set_shader_parameter("depth_absorption", float(wave["absorption"]))
+	material.set_shader_parameter(
+		"optical_depth",
+		float(OPTICAL_DEPTH_BY_TERRAIN.get(terrain_id, 0.105)),
+	)
 	material.set_shader_parameter("wave_height", float(wave["height"]))
 	material.set_shader_parameter("wave_chaos", float(wave["chaos"]))
 	material.set_shader_parameter("foam_intensity", float(wave["foam"]))
