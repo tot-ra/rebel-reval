@@ -1,0 +1,5137 @@
+{
+  "schema_version": 1,
+  "capture_id": "r715-water-acceptance-v1",
+  "recorded": "2026-08-27",
+  "capture_status": "blocked",
+  "commit": "not captured",
+  "engine": "Godot 4.7",
+  "renderer_expected": "metal",
+  "renderer_observed": "not_run",
+  "hardware_host": "not_measured",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "quality": "recommended",
+  "maps": [
+    {
+      "map_id": "smithy_courtyard",
+      "water_terrain_ids": [
+        "water"
+      ],
+      "water_context": [
+        "enclosed_water"
+      ],
+      "status": "blocked"
+    },
+    {
+      "map_id": "lower_town_slice",
+      "water_terrain_ids": [
+        "water"
+      ],
+      "water_context": [
+        "enclosed_water",
+        "shoreline"
+      ],
+      "status": "blocked"
+    },
+    {
+      "map_id": "south_quarter",
+      "water_terrain_ids": [
+        "water"
+      ],
+      "water_context": [
+        "enclosed_water",
+        "shoreline"
+      ],
+      "status": "blocked"
+    },
+    {
+      "map_id": "viru_gate_foreland",
+      "water_terrain_ids": [
+        "river_water"
+      ],
+      "water_context": [
+        "river",
+        "shoreline"
+      ],
+      "status": "blocked"
+    },
+    {
+      "map_id": "reval_harbor_north",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "harbour",
+        "shoreline",
+        "open_coast"
+      ],
+      "status": "blocked"
+    },
+    {
+      "map_id": "reval_harbor_east",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "harbour",
+        "shoreline",
+        "open_coast"
+      ],
+      "status": "blocked"
+    },
+    {
+      "map_id": "prototype.paldiski_coastal_outpost",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "status": "blocked"
+    },
+    {
+      "map_id": "prototype.sacred_grove",
+      "water_terrain_ids": [
+        "shallow_water"
+      ],
+      "water_context": [
+        "shoreline",
+        "enclosed_water"
+      ],
+      "status": "blocked"
+    },
+    {
+      "map_id": "prototype.saaremaa",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "status": "blocked"
+    },
+    {
+      "map_id": "prototype.swedish_arrival",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "status": "blocked"
+    },
+    {
+      "map_id": "world.sacred_grove",
+      "water_terrain_ids": [
+        "shallow_water"
+      ],
+      "water_context": [
+        "shoreline",
+        "enclosed_water"
+      ],
+      "status": "blocked"
+    },
+    {
+      "map_id": "world.padise",
+      "water_terrain_ids": [
+        "water",
+        "river_water",
+        "shallow_water"
+      ],
+      "water_context": [
+        "river",
+        "shoreline",
+        "enclosed_water"
+      ],
+      "status": "blocked"
+    },
+    {
+      "map_id": "world.saaremaa",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "status": "blocked"
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "clear",
+      "weather": "clear",
+      "description": "dry baseline; reflection continuity and calm wave readability"
+    },
+    {
+      "id": "overcast",
+      "weather": "overcast",
+      "description": "continuous overcast; muted reflection and grounded shoreline"
+    },
+    {
+      "id": "rain",
+      "weather": "rain",
+      "description": "rain curtain, wet surface response, and readable water waves"
+    },
+    {
+      "id": "storm",
+      "weather": "storm",
+      "description": "storm wind, wave response, foam, and night/day readability"
+    },
+    {
+      "id": "post_rain",
+      "weather": "clear",
+      "description": "rain-to-clear handoff with retained post-rain wetness"
+    }
+  ],
+  "times_of_day": [
+    "day",
+    "night"
+  ],
+  "required_visual_checks": [
+    "reflection_continuity",
+    "wave_readability",
+    "shoreline_grounding",
+    "underwater_depth",
+    "night_readability",
+    "parity"
+  ],
+  "capture_policy": {
+    "one_process_per_plate": true,
+    "real_renderer_required": true,
+    "human_review_required": true,
+    "headless_policy": "reject_and_preserve_blocked_status"
+  },
+  "external_handoffs": {
+    "r529_monastery_east_ditch": "blocked_external_owner",
+    "r713_sky_weather_continuity": "blocked_external_evidence"
+  },
+  "blockers": [
+    "real renderer/Metal capture and human visual review are required before acceptance",
+    "R-529 Monastery east-ditch regression remains external to this packet",
+    "R-713 unified sky/weather continuity packet remains blocked upstream"
+  ],
+  "plates": [
+    {
+      "plate_id": "smithy_courtyard/clear/day",
+      "map_id": "smithy_courtyard",
+      "water_terrain_ids": [
+        "water"
+      ],
+      "water_context": [
+        "enclosed_water"
+      ],
+      "scenario_id": "clear",
+      "weather": "clear",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/smithy_courtyard_clear_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "smithy_courtyard/clear/night",
+      "map_id": "smithy_courtyard",
+      "water_terrain_ids": [
+        "water"
+      ],
+      "water_context": [
+        "enclosed_water"
+      ],
+      "scenario_id": "clear",
+      "weather": "clear",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/smithy_courtyard_clear_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "smithy_courtyard/overcast/day",
+      "map_id": "smithy_courtyard",
+      "water_terrain_ids": [
+        "water"
+      ],
+      "water_context": [
+        "enclosed_water"
+      ],
+      "scenario_id": "overcast",
+      "weather": "overcast",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/smithy_courtyard_overcast_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "smithy_courtyard/overcast/night",
+      "map_id": "smithy_courtyard",
+      "water_terrain_ids": [
+        "water"
+      ],
+      "water_context": [
+        "enclosed_water"
+      ],
+      "scenario_id": "overcast",
+      "weather": "overcast",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/smithy_courtyard_overcast_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "smithy_courtyard/rain/day",
+      "map_id": "smithy_courtyard",
+      "water_terrain_ids": [
+        "water"
+      ],
+      "water_context": [
+        "enclosed_water"
+      ],
+      "scenario_id": "rain",
+      "weather": "rain",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/smithy_courtyard_rain_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "smithy_courtyard/rain/night",
+      "map_id": "smithy_courtyard",
+      "water_terrain_ids": [
+        "water"
+      ],
+      "water_context": [
+        "enclosed_water"
+      ],
+      "scenario_id": "rain",
+      "weather": "rain",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/smithy_courtyard_rain_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "smithy_courtyard/storm/day",
+      "map_id": "smithy_courtyard",
+      "water_terrain_ids": [
+        "water"
+      ],
+      "water_context": [
+        "enclosed_water"
+      ],
+      "scenario_id": "storm",
+      "weather": "storm",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/smithy_courtyard_storm_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "smithy_courtyard/storm/night",
+      "map_id": "smithy_courtyard",
+      "water_terrain_ids": [
+        "water"
+      ],
+      "water_context": [
+        "enclosed_water"
+      ],
+      "scenario_id": "storm",
+      "weather": "storm",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/smithy_courtyard_storm_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "smithy_courtyard/post_rain/day",
+      "map_id": "smithy_courtyard",
+      "water_terrain_ids": [
+        "water"
+      ],
+      "water_context": [
+        "enclosed_water"
+      ],
+      "scenario_id": "post_rain",
+      "weather": "clear",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/smithy_courtyard_post_rain_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "smithy_courtyard/post_rain/night",
+      "map_id": "smithy_courtyard",
+      "water_terrain_ids": [
+        "water"
+      ],
+      "water_context": [
+        "enclosed_water"
+      ],
+      "scenario_id": "post_rain",
+      "weather": "clear",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/smithy_courtyard_post_rain_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "lower_town_slice/clear/day",
+      "map_id": "lower_town_slice",
+      "water_terrain_ids": [
+        "water"
+      ],
+      "water_context": [
+        "enclosed_water",
+        "shoreline"
+      ],
+      "scenario_id": "clear",
+      "weather": "clear",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/lower_town_slice_clear_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "lower_town_slice/clear/night",
+      "map_id": "lower_town_slice",
+      "water_terrain_ids": [
+        "water"
+      ],
+      "water_context": [
+        "enclosed_water",
+        "shoreline"
+      ],
+      "scenario_id": "clear",
+      "weather": "clear",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/lower_town_slice_clear_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "lower_town_slice/overcast/day",
+      "map_id": "lower_town_slice",
+      "water_terrain_ids": [
+        "water"
+      ],
+      "water_context": [
+        "enclosed_water",
+        "shoreline"
+      ],
+      "scenario_id": "overcast",
+      "weather": "overcast",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/lower_town_slice_overcast_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "lower_town_slice/overcast/night",
+      "map_id": "lower_town_slice",
+      "water_terrain_ids": [
+        "water"
+      ],
+      "water_context": [
+        "enclosed_water",
+        "shoreline"
+      ],
+      "scenario_id": "overcast",
+      "weather": "overcast",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/lower_town_slice_overcast_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "lower_town_slice/rain/day",
+      "map_id": "lower_town_slice",
+      "water_terrain_ids": [
+        "water"
+      ],
+      "water_context": [
+        "enclosed_water",
+        "shoreline"
+      ],
+      "scenario_id": "rain",
+      "weather": "rain",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/lower_town_slice_rain_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "lower_town_slice/rain/night",
+      "map_id": "lower_town_slice",
+      "water_terrain_ids": [
+        "water"
+      ],
+      "water_context": [
+        "enclosed_water",
+        "shoreline"
+      ],
+      "scenario_id": "rain",
+      "weather": "rain",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/lower_town_slice_rain_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "lower_town_slice/storm/day",
+      "map_id": "lower_town_slice",
+      "water_terrain_ids": [
+        "water"
+      ],
+      "water_context": [
+        "enclosed_water",
+        "shoreline"
+      ],
+      "scenario_id": "storm",
+      "weather": "storm",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/lower_town_slice_storm_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "lower_town_slice/storm/night",
+      "map_id": "lower_town_slice",
+      "water_terrain_ids": [
+        "water"
+      ],
+      "water_context": [
+        "enclosed_water",
+        "shoreline"
+      ],
+      "scenario_id": "storm",
+      "weather": "storm",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/lower_town_slice_storm_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "lower_town_slice/post_rain/day",
+      "map_id": "lower_town_slice",
+      "water_terrain_ids": [
+        "water"
+      ],
+      "water_context": [
+        "enclosed_water",
+        "shoreline"
+      ],
+      "scenario_id": "post_rain",
+      "weather": "clear",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/lower_town_slice_post_rain_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "lower_town_slice/post_rain/night",
+      "map_id": "lower_town_slice",
+      "water_terrain_ids": [
+        "water"
+      ],
+      "water_context": [
+        "enclosed_water",
+        "shoreline"
+      ],
+      "scenario_id": "post_rain",
+      "weather": "clear",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/lower_town_slice_post_rain_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "south_quarter/clear/day",
+      "map_id": "south_quarter",
+      "water_terrain_ids": [
+        "water"
+      ],
+      "water_context": [
+        "enclosed_water",
+        "shoreline"
+      ],
+      "scenario_id": "clear",
+      "weather": "clear",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/south_quarter_clear_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "south_quarter/clear/night",
+      "map_id": "south_quarter",
+      "water_terrain_ids": [
+        "water"
+      ],
+      "water_context": [
+        "enclosed_water",
+        "shoreline"
+      ],
+      "scenario_id": "clear",
+      "weather": "clear",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/south_quarter_clear_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "south_quarter/overcast/day",
+      "map_id": "south_quarter",
+      "water_terrain_ids": [
+        "water"
+      ],
+      "water_context": [
+        "enclosed_water",
+        "shoreline"
+      ],
+      "scenario_id": "overcast",
+      "weather": "overcast",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/south_quarter_overcast_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "south_quarter/overcast/night",
+      "map_id": "south_quarter",
+      "water_terrain_ids": [
+        "water"
+      ],
+      "water_context": [
+        "enclosed_water",
+        "shoreline"
+      ],
+      "scenario_id": "overcast",
+      "weather": "overcast",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/south_quarter_overcast_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "south_quarter/rain/day",
+      "map_id": "south_quarter",
+      "water_terrain_ids": [
+        "water"
+      ],
+      "water_context": [
+        "enclosed_water",
+        "shoreline"
+      ],
+      "scenario_id": "rain",
+      "weather": "rain",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/south_quarter_rain_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "south_quarter/rain/night",
+      "map_id": "south_quarter",
+      "water_terrain_ids": [
+        "water"
+      ],
+      "water_context": [
+        "enclosed_water",
+        "shoreline"
+      ],
+      "scenario_id": "rain",
+      "weather": "rain",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/south_quarter_rain_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "south_quarter/storm/day",
+      "map_id": "south_quarter",
+      "water_terrain_ids": [
+        "water"
+      ],
+      "water_context": [
+        "enclosed_water",
+        "shoreline"
+      ],
+      "scenario_id": "storm",
+      "weather": "storm",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/south_quarter_storm_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "south_quarter/storm/night",
+      "map_id": "south_quarter",
+      "water_terrain_ids": [
+        "water"
+      ],
+      "water_context": [
+        "enclosed_water",
+        "shoreline"
+      ],
+      "scenario_id": "storm",
+      "weather": "storm",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/south_quarter_storm_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "south_quarter/post_rain/day",
+      "map_id": "south_quarter",
+      "water_terrain_ids": [
+        "water"
+      ],
+      "water_context": [
+        "enclosed_water",
+        "shoreline"
+      ],
+      "scenario_id": "post_rain",
+      "weather": "clear",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/south_quarter_post_rain_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "south_quarter/post_rain/night",
+      "map_id": "south_quarter",
+      "water_terrain_ids": [
+        "water"
+      ],
+      "water_context": [
+        "enclosed_water",
+        "shoreline"
+      ],
+      "scenario_id": "post_rain",
+      "weather": "clear",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/south_quarter_post_rain_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "viru_gate_foreland/clear/day",
+      "map_id": "viru_gate_foreland",
+      "water_terrain_ids": [
+        "river_water"
+      ],
+      "water_context": [
+        "river",
+        "shoreline"
+      ],
+      "scenario_id": "clear",
+      "weather": "clear",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/viru_gate_foreland_clear_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "viru_gate_foreland/clear/night",
+      "map_id": "viru_gate_foreland",
+      "water_terrain_ids": [
+        "river_water"
+      ],
+      "water_context": [
+        "river",
+        "shoreline"
+      ],
+      "scenario_id": "clear",
+      "weather": "clear",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/viru_gate_foreland_clear_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "viru_gate_foreland/overcast/day",
+      "map_id": "viru_gate_foreland",
+      "water_terrain_ids": [
+        "river_water"
+      ],
+      "water_context": [
+        "river",
+        "shoreline"
+      ],
+      "scenario_id": "overcast",
+      "weather": "overcast",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/viru_gate_foreland_overcast_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "viru_gate_foreland/overcast/night",
+      "map_id": "viru_gate_foreland",
+      "water_terrain_ids": [
+        "river_water"
+      ],
+      "water_context": [
+        "river",
+        "shoreline"
+      ],
+      "scenario_id": "overcast",
+      "weather": "overcast",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/viru_gate_foreland_overcast_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "viru_gate_foreland/rain/day",
+      "map_id": "viru_gate_foreland",
+      "water_terrain_ids": [
+        "river_water"
+      ],
+      "water_context": [
+        "river",
+        "shoreline"
+      ],
+      "scenario_id": "rain",
+      "weather": "rain",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/viru_gate_foreland_rain_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "viru_gate_foreland/rain/night",
+      "map_id": "viru_gate_foreland",
+      "water_terrain_ids": [
+        "river_water"
+      ],
+      "water_context": [
+        "river",
+        "shoreline"
+      ],
+      "scenario_id": "rain",
+      "weather": "rain",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/viru_gate_foreland_rain_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "viru_gate_foreland/storm/day",
+      "map_id": "viru_gate_foreland",
+      "water_terrain_ids": [
+        "river_water"
+      ],
+      "water_context": [
+        "river",
+        "shoreline"
+      ],
+      "scenario_id": "storm",
+      "weather": "storm",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/viru_gate_foreland_storm_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "viru_gate_foreland/storm/night",
+      "map_id": "viru_gate_foreland",
+      "water_terrain_ids": [
+        "river_water"
+      ],
+      "water_context": [
+        "river",
+        "shoreline"
+      ],
+      "scenario_id": "storm",
+      "weather": "storm",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/viru_gate_foreland_storm_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "viru_gate_foreland/post_rain/day",
+      "map_id": "viru_gate_foreland",
+      "water_terrain_ids": [
+        "river_water"
+      ],
+      "water_context": [
+        "river",
+        "shoreline"
+      ],
+      "scenario_id": "post_rain",
+      "weather": "clear",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/viru_gate_foreland_post_rain_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "viru_gate_foreland/post_rain/night",
+      "map_id": "viru_gate_foreland",
+      "water_terrain_ids": [
+        "river_water"
+      ],
+      "water_context": [
+        "river",
+        "shoreline"
+      ],
+      "scenario_id": "post_rain",
+      "weather": "clear",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/viru_gate_foreland_post_rain_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "reval_harbor_north/clear/day",
+      "map_id": "reval_harbor_north",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "harbour",
+        "shoreline",
+        "open_coast"
+      ],
+      "scenario_id": "clear",
+      "weather": "clear",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/reval_harbor_north_clear_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "reval_harbor_north/clear/night",
+      "map_id": "reval_harbor_north",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "harbour",
+        "shoreline",
+        "open_coast"
+      ],
+      "scenario_id": "clear",
+      "weather": "clear",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/reval_harbor_north_clear_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "reval_harbor_north/overcast/day",
+      "map_id": "reval_harbor_north",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "harbour",
+        "shoreline",
+        "open_coast"
+      ],
+      "scenario_id": "overcast",
+      "weather": "overcast",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/reval_harbor_north_overcast_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "reval_harbor_north/overcast/night",
+      "map_id": "reval_harbor_north",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "harbour",
+        "shoreline",
+        "open_coast"
+      ],
+      "scenario_id": "overcast",
+      "weather": "overcast",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/reval_harbor_north_overcast_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "reval_harbor_north/rain/day",
+      "map_id": "reval_harbor_north",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "harbour",
+        "shoreline",
+        "open_coast"
+      ],
+      "scenario_id": "rain",
+      "weather": "rain",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/reval_harbor_north_rain_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "reval_harbor_north/rain/night",
+      "map_id": "reval_harbor_north",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "harbour",
+        "shoreline",
+        "open_coast"
+      ],
+      "scenario_id": "rain",
+      "weather": "rain",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/reval_harbor_north_rain_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "reval_harbor_north/storm/day",
+      "map_id": "reval_harbor_north",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "harbour",
+        "shoreline",
+        "open_coast"
+      ],
+      "scenario_id": "storm",
+      "weather": "storm",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/reval_harbor_north_storm_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "reval_harbor_north/storm/night",
+      "map_id": "reval_harbor_north",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "harbour",
+        "shoreline",
+        "open_coast"
+      ],
+      "scenario_id": "storm",
+      "weather": "storm",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/reval_harbor_north_storm_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "reval_harbor_north/post_rain/day",
+      "map_id": "reval_harbor_north",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "harbour",
+        "shoreline",
+        "open_coast"
+      ],
+      "scenario_id": "post_rain",
+      "weather": "clear",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/reval_harbor_north_post_rain_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "reval_harbor_north/post_rain/night",
+      "map_id": "reval_harbor_north",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "harbour",
+        "shoreline",
+        "open_coast"
+      ],
+      "scenario_id": "post_rain",
+      "weather": "clear",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/reval_harbor_north_post_rain_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "reval_harbor_east/clear/day",
+      "map_id": "reval_harbor_east",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "harbour",
+        "shoreline",
+        "open_coast"
+      ],
+      "scenario_id": "clear",
+      "weather": "clear",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/reval_harbor_east_clear_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "reval_harbor_east/clear/night",
+      "map_id": "reval_harbor_east",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "harbour",
+        "shoreline",
+        "open_coast"
+      ],
+      "scenario_id": "clear",
+      "weather": "clear",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/reval_harbor_east_clear_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "reval_harbor_east/overcast/day",
+      "map_id": "reval_harbor_east",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "harbour",
+        "shoreline",
+        "open_coast"
+      ],
+      "scenario_id": "overcast",
+      "weather": "overcast",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/reval_harbor_east_overcast_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "reval_harbor_east/overcast/night",
+      "map_id": "reval_harbor_east",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "harbour",
+        "shoreline",
+        "open_coast"
+      ],
+      "scenario_id": "overcast",
+      "weather": "overcast",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/reval_harbor_east_overcast_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "reval_harbor_east/rain/day",
+      "map_id": "reval_harbor_east",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "harbour",
+        "shoreline",
+        "open_coast"
+      ],
+      "scenario_id": "rain",
+      "weather": "rain",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/reval_harbor_east_rain_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "reval_harbor_east/rain/night",
+      "map_id": "reval_harbor_east",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "harbour",
+        "shoreline",
+        "open_coast"
+      ],
+      "scenario_id": "rain",
+      "weather": "rain",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/reval_harbor_east_rain_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "reval_harbor_east/storm/day",
+      "map_id": "reval_harbor_east",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "harbour",
+        "shoreline",
+        "open_coast"
+      ],
+      "scenario_id": "storm",
+      "weather": "storm",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/reval_harbor_east_storm_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "reval_harbor_east/storm/night",
+      "map_id": "reval_harbor_east",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "harbour",
+        "shoreline",
+        "open_coast"
+      ],
+      "scenario_id": "storm",
+      "weather": "storm",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/reval_harbor_east_storm_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "reval_harbor_east/post_rain/day",
+      "map_id": "reval_harbor_east",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "harbour",
+        "shoreline",
+        "open_coast"
+      ],
+      "scenario_id": "post_rain",
+      "weather": "clear",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/reval_harbor_east_post_rain_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "reval_harbor_east/post_rain/night",
+      "map_id": "reval_harbor_east",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "harbour",
+        "shoreline",
+        "open_coast"
+      ],
+      "scenario_id": "post_rain",
+      "weather": "clear",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/reval_harbor_east_post_rain_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "prototype.paldiski_coastal_outpost/clear/day",
+      "map_id": "prototype.paldiski_coastal_outpost",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "scenario_id": "clear",
+      "weather": "clear",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/prototype_paldiski_coastal_outpost_clear_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "prototype.paldiski_coastal_outpost/clear/night",
+      "map_id": "prototype.paldiski_coastal_outpost",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "scenario_id": "clear",
+      "weather": "clear",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/prototype_paldiski_coastal_outpost_clear_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "prototype.paldiski_coastal_outpost/overcast/day",
+      "map_id": "prototype.paldiski_coastal_outpost",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "scenario_id": "overcast",
+      "weather": "overcast",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/prototype_paldiski_coastal_outpost_overcast_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "prototype.paldiski_coastal_outpost/overcast/night",
+      "map_id": "prototype.paldiski_coastal_outpost",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "scenario_id": "overcast",
+      "weather": "overcast",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/prototype_paldiski_coastal_outpost_overcast_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "prototype.paldiski_coastal_outpost/rain/day",
+      "map_id": "prototype.paldiski_coastal_outpost",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "scenario_id": "rain",
+      "weather": "rain",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/prototype_paldiski_coastal_outpost_rain_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "prototype.paldiski_coastal_outpost/rain/night",
+      "map_id": "prototype.paldiski_coastal_outpost",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "scenario_id": "rain",
+      "weather": "rain",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/prototype_paldiski_coastal_outpost_rain_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "prototype.paldiski_coastal_outpost/storm/day",
+      "map_id": "prototype.paldiski_coastal_outpost",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "scenario_id": "storm",
+      "weather": "storm",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/prototype_paldiski_coastal_outpost_storm_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "prototype.paldiski_coastal_outpost/storm/night",
+      "map_id": "prototype.paldiski_coastal_outpost",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "scenario_id": "storm",
+      "weather": "storm",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/prototype_paldiski_coastal_outpost_storm_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "prototype.paldiski_coastal_outpost/post_rain/day",
+      "map_id": "prototype.paldiski_coastal_outpost",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "scenario_id": "post_rain",
+      "weather": "clear",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/prototype_paldiski_coastal_outpost_post_rain_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "prototype.paldiski_coastal_outpost/post_rain/night",
+      "map_id": "prototype.paldiski_coastal_outpost",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "scenario_id": "post_rain",
+      "weather": "clear",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/prototype_paldiski_coastal_outpost_post_rain_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "prototype.sacred_grove/clear/day",
+      "map_id": "prototype.sacred_grove",
+      "water_terrain_ids": [
+        "shallow_water"
+      ],
+      "water_context": [
+        "shoreline",
+        "enclosed_water"
+      ],
+      "scenario_id": "clear",
+      "weather": "clear",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/prototype_sacred_grove_clear_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "prototype.sacred_grove/clear/night",
+      "map_id": "prototype.sacred_grove",
+      "water_terrain_ids": [
+        "shallow_water"
+      ],
+      "water_context": [
+        "shoreline",
+        "enclosed_water"
+      ],
+      "scenario_id": "clear",
+      "weather": "clear",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/prototype_sacred_grove_clear_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "prototype.sacred_grove/overcast/day",
+      "map_id": "prototype.sacred_grove",
+      "water_terrain_ids": [
+        "shallow_water"
+      ],
+      "water_context": [
+        "shoreline",
+        "enclosed_water"
+      ],
+      "scenario_id": "overcast",
+      "weather": "overcast",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/prototype_sacred_grove_overcast_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "prototype.sacred_grove/overcast/night",
+      "map_id": "prototype.sacred_grove",
+      "water_terrain_ids": [
+        "shallow_water"
+      ],
+      "water_context": [
+        "shoreline",
+        "enclosed_water"
+      ],
+      "scenario_id": "overcast",
+      "weather": "overcast",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/prototype_sacred_grove_overcast_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "prototype.sacred_grove/rain/day",
+      "map_id": "prototype.sacred_grove",
+      "water_terrain_ids": [
+        "shallow_water"
+      ],
+      "water_context": [
+        "shoreline",
+        "enclosed_water"
+      ],
+      "scenario_id": "rain",
+      "weather": "rain",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/prototype_sacred_grove_rain_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "prototype.sacred_grove/rain/night",
+      "map_id": "prototype.sacred_grove",
+      "water_terrain_ids": [
+        "shallow_water"
+      ],
+      "water_context": [
+        "shoreline",
+        "enclosed_water"
+      ],
+      "scenario_id": "rain",
+      "weather": "rain",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/prototype_sacred_grove_rain_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "prototype.sacred_grove/storm/day",
+      "map_id": "prototype.sacred_grove",
+      "water_terrain_ids": [
+        "shallow_water"
+      ],
+      "water_context": [
+        "shoreline",
+        "enclosed_water"
+      ],
+      "scenario_id": "storm",
+      "weather": "storm",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/prototype_sacred_grove_storm_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "prototype.sacred_grove/storm/night",
+      "map_id": "prototype.sacred_grove",
+      "water_terrain_ids": [
+        "shallow_water"
+      ],
+      "water_context": [
+        "shoreline",
+        "enclosed_water"
+      ],
+      "scenario_id": "storm",
+      "weather": "storm",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/prototype_sacred_grove_storm_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "prototype.sacred_grove/post_rain/day",
+      "map_id": "prototype.sacred_grove",
+      "water_terrain_ids": [
+        "shallow_water"
+      ],
+      "water_context": [
+        "shoreline",
+        "enclosed_water"
+      ],
+      "scenario_id": "post_rain",
+      "weather": "clear",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/prototype_sacred_grove_post_rain_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "prototype.sacred_grove/post_rain/night",
+      "map_id": "prototype.sacred_grove",
+      "water_terrain_ids": [
+        "shallow_water"
+      ],
+      "water_context": [
+        "shoreline",
+        "enclosed_water"
+      ],
+      "scenario_id": "post_rain",
+      "weather": "clear",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/prototype_sacred_grove_post_rain_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "prototype.saaremaa/clear/day",
+      "map_id": "prototype.saaremaa",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "scenario_id": "clear",
+      "weather": "clear",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/prototype_saaremaa_clear_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "prototype.saaremaa/clear/night",
+      "map_id": "prototype.saaremaa",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "scenario_id": "clear",
+      "weather": "clear",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/prototype_saaremaa_clear_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "prototype.saaremaa/overcast/day",
+      "map_id": "prototype.saaremaa",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "scenario_id": "overcast",
+      "weather": "overcast",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/prototype_saaremaa_overcast_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "prototype.saaremaa/overcast/night",
+      "map_id": "prototype.saaremaa",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "scenario_id": "overcast",
+      "weather": "overcast",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/prototype_saaremaa_overcast_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "prototype.saaremaa/rain/day",
+      "map_id": "prototype.saaremaa",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "scenario_id": "rain",
+      "weather": "rain",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/prototype_saaremaa_rain_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "prototype.saaremaa/rain/night",
+      "map_id": "prototype.saaremaa",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "scenario_id": "rain",
+      "weather": "rain",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/prototype_saaremaa_rain_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "prototype.saaremaa/storm/day",
+      "map_id": "prototype.saaremaa",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "scenario_id": "storm",
+      "weather": "storm",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/prototype_saaremaa_storm_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "prototype.saaremaa/storm/night",
+      "map_id": "prototype.saaremaa",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "scenario_id": "storm",
+      "weather": "storm",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/prototype_saaremaa_storm_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "prototype.saaremaa/post_rain/day",
+      "map_id": "prototype.saaremaa",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "scenario_id": "post_rain",
+      "weather": "clear",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/prototype_saaremaa_post_rain_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "prototype.saaremaa/post_rain/night",
+      "map_id": "prototype.saaremaa",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "scenario_id": "post_rain",
+      "weather": "clear",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/prototype_saaremaa_post_rain_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "prototype.swedish_arrival/clear/day",
+      "map_id": "prototype.swedish_arrival",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "scenario_id": "clear",
+      "weather": "clear",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/prototype_swedish_arrival_clear_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "prototype.swedish_arrival/clear/night",
+      "map_id": "prototype.swedish_arrival",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "scenario_id": "clear",
+      "weather": "clear",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/prototype_swedish_arrival_clear_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "prototype.swedish_arrival/overcast/day",
+      "map_id": "prototype.swedish_arrival",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "scenario_id": "overcast",
+      "weather": "overcast",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/prototype_swedish_arrival_overcast_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "prototype.swedish_arrival/overcast/night",
+      "map_id": "prototype.swedish_arrival",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "scenario_id": "overcast",
+      "weather": "overcast",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/prototype_swedish_arrival_overcast_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "prototype.swedish_arrival/rain/day",
+      "map_id": "prototype.swedish_arrival",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "scenario_id": "rain",
+      "weather": "rain",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/prototype_swedish_arrival_rain_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "prototype.swedish_arrival/rain/night",
+      "map_id": "prototype.swedish_arrival",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "scenario_id": "rain",
+      "weather": "rain",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/prototype_swedish_arrival_rain_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "prototype.swedish_arrival/storm/day",
+      "map_id": "prototype.swedish_arrival",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "scenario_id": "storm",
+      "weather": "storm",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/prototype_swedish_arrival_storm_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "prototype.swedish_arrival/storm/night",
+      "map_id": "prototype.swedish_arrival",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "scenario_id": "storm",
+      "weather": "storm",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/prototype_swedish_arrival_storm_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "prototype.swedish_arrival/post_rain/day",
+      "map_id": "prototype.swedish_arrival",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "scenario_id": "post_rain",
+      "weather": "clear",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/prototype_swedish_arrival_post_rain_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "prototype.swedish_arrival/post_rain/night",
+      "map_id": "prototype.swedish_arrival",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "scenario_id": "post_rain",
+      "weather": "clear",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/prototype_swedish_arrival_post_rain_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "world.sacred_grove/clear/day",
+      "map_id": "world.sacred_grove",
+      "water_terrain_ids": [
+        "shallow_water"
+      ],
+      "water_context": [
+        "shoreline",
+        "enclosed_water"
+      ],
+      "scenario_id": "clear",
+      "weather": "clear",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/world_sacred_grove_clear_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "world.sacred_grove/clear/night",
+      "map_id": "world.sacred_grove",
+      "water_terrain_ids": [
+        "shallow_water"
+      ],
+      "water_context": [
+        "shoreline",
+        "enclosed_water"
+      ],
+      "scenario_id": "clear",
+      "weather": "clear",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/world_sacred_grove_clear_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "world.sacred_grove/overcast/day",
+      "map_id": "world.sacred_grove",
+      "water_terrain_ids": [
+        "shallow_water"
+      ],
+      "water_context": [
+        "shoreline",
+        "enclosed_water"
+      ],
+      "scenario_id": "overcast",
+      "weather": "overcast",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/world_sacred_grove_overcast_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "world.sacred_grove/overcast/night",
+      "map_id": "world.sacred_grove",
+      "water_terrain_ids": [
+        "shallow_water"
+      ],
+      "water_context": [
+        "shoreline",
+        "enclosed_water"
+      ],
+      "scenario_id": "overcast",
+      "weather": "overcast",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/world_sacred_grove_overcast_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "world.sacred_grove/rain/day",
+      "map_id": "world.sacred_grove",
+      "water_terrain_ids": [
+        "shallow_water"
+      ],
+      "water_context": [
+        "shoreline",
+        "enclosed_water"
+      ],
+      "scenario_id": "rain",
+      "weather": "rain",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/world_sacred_grove_rain_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "world.sacred_grove/rain/night",
+      "map_id": "world.sacred_grove",
+      "water_terrain_ids": [
+        "shallow_water"
+      ],
+      "water_context": [
+        "shoreline",
+        "enclosed_water"
+      ],
+      "scenario_id": "rain",
+      "weather": "rain",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/world_sacred_grove_rain_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "world.sacred_grove/storm/day",
+      "map_id": "world.sacred_grove",
+      "water_terrain_ids": [
+        "shallow_water"
+      ],
+      "water_context": [
+        "shoreline",
+        "enclosed_water"
+      ],
+      "scenario_id": "storm",
+      "weather": "storm",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/world_sacred_grove_storm_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "world.sacred_grove/storm/night",
+      "map_id": "world.sacred_grove",
+      "water_terrain_ids": [
+        "shallow_water"
+      ],
+      "water_context": [
+        "shoreline",
+        "enclosed_water"
+      ],
+      "scenario_id": "storm",
+      "weather": "storm",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/world_sacred_grove_storm_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "world.sacred_grove/post_rain/day",
+      "map_id": "world.sacred_grove",
+      "water_terrain_ids": [
+        "shallow_water"
+      ],
+      "water_context": [
+        "shoreline",
+        "enclosed_water"
+      ],
+      "scenario_id": "post_rain",
+      "weather": "clear",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/world_sacred_grove_post_rain_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "world.sacred_grove/post_rain/night",
+      "map_id": "world.sacred_grove",
+      "water_terrain_ids": [
+        "shallow_water"
+      ],
+      "water_context": [
+        "shoreline",
+        "enclosed_water"
+      ],
+      "scenario_id": "post_rain",
+      "weather": "clear",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/world_sacred_grove_post_rain_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "world.padise/clear/day",
+      "map_id": "world.padise",
+      "water_terrain_ids": [
+        "water",
+        "river_water",
+        "shallow_water"
+      ],
+      "water_context": [
+        "river",
+        "shoreline",
+        "enclosed_water"
+      ],
+      "scenario_id": "clear",
+      "weather": "clear",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/world_padise_clear_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "world.padise/clear/night",
+      "map_id": "world.padise",
+      "water_terrain_ids": [
+        "water",
+        "river_water",
+        "shallow_water"
+      ],
+      "water_context": [
+        "river",
+        "shoreline",
+        "enclosed_water"
+      ],
+      "scenario_id": "clear",
+      "weather": "clear",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/world_padise_clear_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "world.padise/overcast/day",
+      "map_id": "world.padise",
+      "water_terrain_ids": [
+        "water",
+        "river_water",
+        "shallow_water"
+      ],
+      "water_context": [
+        "river",
+        "shoreline",
+        "enclosed_water"
+      ],
+      "scenario_id": "overcast",
+      "weather": "overcast",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/world_padise_overcast_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "world.padise/overcast/night",
+      "map_id": "world.padise",
+      "water_terrain_ids": [
+        "water",
+        "river_water",
+        "shallow_water"
+      ],
+      "water_context": [
+        "river",
+        "shoreline",
+        "enclosed_water"
+      ],
+      "scenario_id": "overcast",
+      "weather": "overcast",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/world_padise_overcast_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "world.padise/rain/day",
+      "map_id": "world.padise",
+      "water_terrain_ids": [
+        "water",
+        "river_water",
+        "shallow_water"
+      ],
+      "water_context": [
+        "river",
+        "shoreline",
+        "enclosed_water"
+      ],
+      "scenario_id": "rain",
+      "weather": "rain",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/world_padise_rain_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "world.padise/rain/night",
+      "map_id": "world.padise",
+      "water_terrain_ids": [
+        "water",
+        "river_water",
+        "shallow_water"
+      ],
+      "water_context": [
+        "river",
+        "shoreline",
+        "enclosed_water"
+      ],
+      "scenario_id": "rain",
+      "weather": "rain",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/world_padise_rain_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "world.padise/storm/day",
+      "map_id": "world.padise",
+      "water_terrain_ids": [
+        "water",
+        "river_water",
+        "shallow_water"
+      ],
+      "water_context": [
+        "river",
+        "shoreline",
+        "enclosed_water"
+      ],
+      "scenario_id": "storm",
+      "weather": "storm",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/world_padise_storm_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "world.padise/storm/night",
+      "map_id": "world.padise",
+      "water_terrain_ids": [
+        "water",
+        "river_water",
+        "shallow_water"
+      ],
+      "water_context": [
+        "river",
+        "shoreline",
+        "enclosed_water"
+      ],
+      "scenario_id": "storm",
+      "weather": "storm",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/world_padise_storm_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "world.padise/post_rain/day",
+      "map_id": "world.padise",
+      "water_terrain_ids": [
+        "water",
+        "river_water",
+        "shallow_water"
+      ],
+      "water_context": [
+        "river",
+        "shoreline",
+        "enclosed_water"
+      ],
+      "scenario_id": "post_rain",
+      "weather": "clear",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/world_padise_post_rain_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "world.padise/post_rain/night",
+      "map_id": "world.padise",
+      "water_terrain_ids": [
+        "water",
+        "river_water",
+        "shallow_water"
+      ],
+      "water_context": [
+        "river",
+        "shoreline",
+        "enclosed_water"
+      ],
+      "scenario_id": "post_rain",
+      "weather": "clear",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/world_padise_post_rain_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "world.saaremaa/clear/day",
+      "map_id": "world.saaremaa",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "scenario_id": "clear",
+      "weather": "clear",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/world_saaremaa_clear_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "world.saaremaa/clear/night",
+      "map_id": "world.saaremaa",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "scenario_id": "clear",
+      "weather": "clear",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/world_saaremaa_clear_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "world.saaremaa/overcast/day",
+      "map_id": "world.saaremaa",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "scenario_id": "overcast",
+      "weather": "overcast",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/world_saaremaa_overcast_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "world.saaremaa/overcast/night",
+      "map_id": "world.saaremaa",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "scenario_id": "overcast",
+      "weather": "overcast",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/world_saaremaa_overcast_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "world.saaremaa/rain/day",
+      "map_id": "world.saaremaa",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "scenario_id": "rain",
+      "weather": "rain",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/world_saaremaa_rain_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "world.saaremaa/rain/night",
+      "map_id": "world.saaremaa",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "scenario_id": "rain",
+      "weather": "rain",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/world_saaremaa_rain_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "world.saaremaa/storm/day",
+      "map_id": "world.saaremaa",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "scenario_id": "storm",
+      "weather": "storm",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/world_saaremaa_storm_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "world.saaremaa/storm/night",
+      "map_id": "world.saaremaa",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "scenario_id": "storm",
+      "weather": "storm",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/world_saaremaa_storm_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "world.saaremaa/post_rain/day",
+      "map_id": "world.saaremaa",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "scenario_id": "post_rain",
+      "weather": "clear",
+      "time_of_day": "day",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/world_saaremaa_post_rain_day.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    },
+    {
+      "plate_id": "world.saaremaa/post_rain/night",
+      "map_id": "world.saaremaa",
+      "water_terrain_ids": [
+        "shallow_water",
+        "deep_water"
+      ],
+      "water_context": [
+        "open_coast",
+        "shoreline"
+      ],
+      "scenario_id": "post_rain",
+      "weather": "clear",
+      "time_of_day": "night",
+      "quality": "recommended",
+      "renderer_expected": "metal",
+      "renderer_observed": "not_run",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "output": "res://docs/reports/images/r715_water/world_saaremaa_post_rain_night.png",
+      "status": "blocked",
+      "sha256": "",
+      "visual_checks": {
+        "reflection_continuity": "blocked",
+        "wave_readability": "blocked",
+        "shoreline_grounding": "blocked",
+        "underwater_depth": "blocked",
+        "night_readability": "blocked",
+        "parity": "blocked"
+      },
+      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "blockers": [
+        "real renderer/Metal capture not run",
+        "human visual review not performed"
+      ]
+    }
+  ]
+}
