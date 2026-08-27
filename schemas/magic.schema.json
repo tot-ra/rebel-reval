@@ -97,6 +97,106 @@
       "type": "string",
       "minLength": 1
     },
+    "effect": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "delivery",
+        "impact"
+      ],
+      "properties": {
+        "delivery": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "enum": [
+                "projectile",
+                "area_pulse"
+              ]
+            },
+            "speed": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "range": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "radius": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          }
+        },
+        "impact": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "enum": [
+                "damage",
+                "stagger"
+              ]
+            },
+            "amount": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "damage_type": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*$"
+            },
+            "duration_sec": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          }
+        },
+        "area": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "radius",
+            "effect"
+          ],
+          "properties": {
+            "radius": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "effect": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind",
+                "amount",
+                "damage_type"
+              ],
+              "properties": {
+                "kind": {
+                  "const": "damage"
+                },
+                "amount": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                "damage_type": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*$"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "operation": {
       "enum": [
         "grant",
