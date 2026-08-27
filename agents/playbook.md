@@ -257,3 +257,4 @@ This file contains only cross-role operating lessons. Domain lessons belong to t
 - 2026-08-26: During task decomposition, verify inferred paths before reading; `scripts/state/save_service.gd` and `scripts/map/view3d/map_view.gd` were absent in this checkout, while the live implementations were `scripts/save/save_service.gd` and `scripts/map/view3d/map_view_3d.gd`. Treat failed reads as path-discovery errors and continue from the discovered files.
 
 - 2026-08-26: When a verification report is created before a required engine is installed, record the executable absence and keep dependent suites BLOCKED; never infer a pass from source inspection or neighboring Python tests.
+- 2026-08-27: `content_search` expects an indexed directory root in `path`, not a file path; pass the project or containing directory, and use `grep`/`read` when targeting one file.
