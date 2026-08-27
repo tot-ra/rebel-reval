@@ -340,7 +340,6 @@ const GROUP_SPAWN_WEIGHTS: Dictionary = {
 	},
 	GROUP_WOODPECKER:
 	{
-		## Geometry families remain deliberately bounded. Species overrides below change
 		CONTEXT_HARBOR: 0.0,
 		CONTEXT_LOWER_TOWN: 0.04,
 		CONTEXT_MARKET: 0.0,

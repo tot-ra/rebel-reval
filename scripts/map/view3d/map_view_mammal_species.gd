@@ -376,7 +376,8 @@ const GROUP_SPAWN_WEIGHTS: Dictionary = {
 		CONTEXT_GARDEN: 0.16
 	},
 }
-const PROFILES: Dictionary = {
+const _PROFILE_LIVESTOCK := preload("res://scripts/map/view3d/map_view_mammal_species_livestock.gd")
+const _BASE_PROFILES: Dictionary = {
 	SPECIES_BROWN_BEAR:
 	{
 		"name": "Brown bear",
@@ -647,74 +648,19 @@ const PROFILES: Dictionary = {
 		"abundance": 0.82,
 		"spawn": {CONTEXT_LOWER_TOWN: 0.86, CONTEXT_HARBOR: 0.72}
 	},
-	SPECIES_CHICKEN:
-	{
-		"name": "Chicken",
-		"group": GROUP_FOWL,
-		"scale_m": 0.34,
-		"pose": POSE_STANDING,
-		"colors": [Color("c8a86a"), Color("8a4a28"), Color("d8c8a8")],
-		"abundance": 0.76,
-		"spawn": {CONTEXT_LOWER_TOWN: 0.62, CONTEXT_FORELAND: 0.58}
-	},
-	SPECIES_DUCK:
-	{
-		"name": "Domestic duck",
-		"group": GROUP_FOWL,
-		"scale_m": 0.38,
-		"pose": POSE_STANDING,
-		"colors": [Color("6a5a42"), Color("4a6a52"), Color("d8a848")],
-		"abundance": 0.58,
-		"spawn": {CONTEXT_FORELAND: 0.52, CONTEXT_WETLAND: 0.34}
-	},
-	SPECIES_GOOSE:
-	{
-		"name": "Domestic goose",
-		"group": GROUP_FOWL,
-		"scale_m": 0.62,
-		"pose": POSE_STANDING,
-		"colors": [Color("e8e4dc"), Color("6a6a62"), Color("d8a848")],
-		"geometry": {"neck": 0.18},
-		"abundance": 0.46,
-		"spawn": {CONTEXT_FORELAND: 0.62}
-	},
-	SPECIES_PIG:
-	{
-		"name": "Domestic pig",
-		"group": GROUP_SWINE,
-		"scale_m": 0.82,
-		"pose": POSE_STANDING,
-		"colors": [Color("d8a8a0"), Color("c88880"), Color("4a3424")],
-		"abundance": 0.48,
-		"spawn": {CONTEXT_FORELAND: 0.52, CONTEXT_LOWER_TOWN: 0.22}
-	},
-	SPECIES_COW:
-	{
-		"name": "Cattle",
-		"group": GROUP_UNGULATE,
-		"scale_m": 1.72,
-		"pose": POSE_GRAZING,
-		"colors": [Color("8a6a48"), Color("e8e4dc"), Color("4a3424")],
-		"geometry": {"body": Vector3(1.30, 0.62, 0.48), "horns": 0.12},
-		"abundance": 0.32,
-		"spawn": {CONTEXT_FORELAND: 0.68}
-	},
-	SPECIES_SHEEP:
-	{
-		"name": "Sheep",
-		"group": GROUP_UNGULATE,
-		"scale_m": 0.92,
-		"pose": POSE_GRAZING,
-		"colors": [Color("e8e4dc"), Color("b8b0a4"), Color("4a3424")],
-		"geometry": {"body": Vector3(0.78, 0.40, 0.32)},
-		"abundance": 0.38,
-		"spawn": {CONTEXT_FORELAND: 0.72}
-	},
 }
 const MaterialPatterns := preload("res://scripts/map/view3d/map_view_material_patterns.gd")
 
+static var _profiles_cache: Dictionary = {}
 static var _surface_material_cache: Dictionary = {}
 static var _normal_texture_cache: Dictionary = {}
+
+
+static func _profiles() -> Dictionary:
+	if _profiles_cache.is_empty():
+		_profiles_cache = _BASE_PROFILES.merged(_PROFILE_LIVESTOCK.PROFILES)
+	return _profiles_cache
+
 
 static func is_known_species(species: StringName) -> bool:
 	return species in ALL_SPECIES
@@ -756,23 +702,23 @@ static func parse_variant(variant: StringName) -> Dictionary:
 static func profile_for(species: StringName) -> Dictionary:
 	if not is_known_species(species):
 		return {}
-	return (PROFILES[species] as Dictionary).duplicate(true)
+	return (_profiles()[species] as Dictionary).duplicate(true)
 
 
 static func common_name(species: StringName) -> String:
-	return String(PROFILES.get(species, {}).get("name", String(species)))
+	return String(_profiles().get(species, {}).get("name", String(species)))
 
 
 static func group_for(species: StringName) -> StringName:
-	return StringName(PROFILES.get(species, {}).get("group", &""))
+	return StringName(_profiles().get(species, {}).get("group", &""))
 
 
 static func default_pose(species: StringName) -> StringName:
-	return StringName(PROFILES.get(species, {}).get("pose", POSE_STANDING))
+	return StringName(_profiles().get(species, {}).get("pose", POSE_STANDING))
 
 
 static func scale_m(species: StringName) -> float:
-	return float(PROFILES.get(species, {}).get("scale_m", 0.2))
+	return float(_profiles().get(species, {}).get("scale_m", 0.2))
 
 
 static func geometry_for(species: StringName) -> Dictionary:
@@ -780,14 +726,14 @@ static func geometry_for(species: StringName) -> Dictionary:
 	if not GROUP_GEOMETRY.has(group):
 		return {}
 	var geometry := (GROUP_GEOMETRY[group] as Dictionary).duplicate()
-	var overrides: Dictionary = PROFILES[species].get("geometry", {})
+	var overrides: Dictionary = _profiles()[species].get("geometry", {})
 	geometry.merge(overrides, true)
 	geometry["scale_m"] = scale_m(species)
 	return geometry
 
 
 static func colors_for(species: StringName) -> Array[Color]:
-	var source: Array = PROFILES.get(species, {}).get(
+	var source: Array = _profiles().get(species, {}).get(
 		"colors", [Color.GRAY, Color.DARK_GRAY, Color.BEIGE]
 	)
 	var colors: Array[Color] = []
@@ -800,13 +746,13 @@ static func spawn_weights_for(species: StringName) -> Dictionary:
 	var group := group_for(species)
 	if not GROUP_SPAWN_WEIGHTS.has(group):
 		return {}
-	var abundance := float(PROFILES[species].get("abundance", 1.0))
+	var abundance := float(_profiles()[species].get("abundance", 1.0))
 	var weights: Dictionary = {}
 	for context in ALL_CONTEXTS:
 		weights[context] = clampf(
 			float(GROUP_SPAWN_WEIGHTS[group].get(context, 0.0)) * abundance, 0.0, 1.0
 		)
-	var overrides: Dictionary = PROFILES[species].get("spawn", {})
+	var overrides: Dictionary = _profiles()[species].get("spawn", {})
 	for context: Variant in overrides:
 		if context in ALL_CONTEXTS:
 			weights[context] = clampf(float(overrides[context]), 0.0, 1.0)
