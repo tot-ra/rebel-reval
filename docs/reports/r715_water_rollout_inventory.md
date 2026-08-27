@@ -1,8 +1,8 @@
-# R-748 / R-715 water rollout inventory
+# R-748 / R-752 water rollout inventory
 
 Recorded: 2026-08-27
 Parent: R-715, reflective water rollout across authored maps
-Scope: inventory and ownership contract only
+Scope: inventory and shared view rollout contract
 
 ## Decision boundary
 
@@ -47,6 +47,32 @@ The focused test builds every definition returned by [`MapAuditRegistry.all()`](
 
 The two sacred-grove and two Saaremaa rows are intentionally separate: `prototype.*` definitions are event/prototype packages, while `world.*` definitions are the developer-traversable RRMap layer. Stable map IDs are not merged or renamed.
 
+## R-752 shared view rollout matrix
+
+The rollout uses the existing `MapView3D.create` path for every row below. `MapViewMeshBuilderTerrain` discovers each water ID from the compiled grid, builds one `Terrain_<terrain_id>` surface, and assigns `MapViewMaterials.water_surface(terrain_id)`. No authored `.rrmap` or prototype activation flag is changed by this rollout.
+
+| Map ID | Water IDs | Shared view path | Gameplay topology |
+|---|---|---|---|
+| `smithy_courtyard` | `water` | `Terrain/Terrain_water` | unchanged; enclosed-water exception retained |
+| `lower_town_slice` | `water` | `Terrain/Terrain_water` | unchanged; stable terrain and transition IDs retained |
+| `south_quarter` | `water` | `Terrain/Terrain_water` | unchanged; ditch gameplay remains map-owned |
+| `viru_gate_foreland` | `river_water` | `Terrain/Terrain_river_water` | unchanged; river flow remains presentation-only |
+| `reval_harbor_north` | `shallow_water`, `deep_water` | `Terrain/Terrain_shallow_water` + `Terrain/Terrain_deep_water` | unchanged; landing and navigation remain map-owned |
+| `reval_harbor_east` | `shallow_water`, `deep_water` | `Terrain/Terrain_shallow_water` + `Terrain/Terrain_deep_water` | unchanged; landing and navigation remain map-owned |
+| `prototype.paldiski_coastal_outpost` | `shallow_water`, `deep_water` | shared water terrain loop | inactive prototype preserved |
+| `prototype.sacred_grove` | `shallow_water` | `Terrain/Terrain_shallow_water` | inactive prototype preserved |
+| `prototype.saaremaa` | `shallow_water`, `deep_water` | shared water terrain loop | inactive prototype preserved |
+| `prototype.swedish_arrival` | `shallow_water`, `deep_water` | shared water terrain loop | inactive prototype preserved |
+| `world.sacred_grove` | `shallow_water` | `Terrain/Terrain_shallow_water` | world-travel layer unchanged |
+| `world.padise` | `water`, `river_water`, `shallow_water` | three shared terrain surfaces | world-travel layer unchanged |
+| `world.saaremaa` | `shallow_water`, `deep_water` | two shared terrain surfaces | world-travel layer unchanged |
+
+Focused coverage is [`tests/godot/test_r715_water_map_rollout.gd`](../../tests/godot/test_r715_water_map_rollout.gd). It enumerates the registry rather than hard-coding view construction per map, verifies the shared material for each generated surface, asserts exactly one `ViewEnvironment` and one `SkyWeather3D`, and compares terrain fingerprints plus walkability signatures before and after view construction.
+
+R-529 handoff: the pre-existing Monastery east-ditch regression remains owned by its existing task and is not folded into this rollout. Re-run that map-specific regression before final R-715 closeout.
+
+R-713 handoff: unified sky/weather acceptance and water-facing synchronization evidence remain blocked upstream. This rollout consumes the existing shared presenter; it does not create a second weather/environment controller or claim the missing visual acceptance.
+
 ## Existing ownership boundaries
 
 | Concern | Current owner | Boundary |
@@ -79,21 +105,23 @@ External blockers recorded for downstream coordination are **R-529** (pre-existi
 
 ## Verification contract
 
-Focused contract test: [`tests/godot/test_r715_water_rollout_inventory.gd`](../../tests/godot/test_r715_water_rollout_inventory.gd)
+Focused rollout test: [`tests/godot/test_r715_water_map_rollout.gd`](../../tests/godot/test_r715_water_map_rollout.gd)
 
 ```text
-automatically enumerate MapTypes.WATER_TERRAINS
 automatically enumerate water-bearing MapAuditRegistry definitions
-audit the stable owner modules and facade wiring
+automatically build each definition through MapView3D.create
+audit one shared water material and surface per compiled water terrain
+assert one ViewEnvironment and one SkyWeather3D presenter per view
+compare terrain fingerprints and walkability signatures before and after view build
 ```
 
 Expected command:
 
 ```bash
 export GODOT_BIN="/Applications/Godot.app/Contents/MacOS/Godot"
-"$GODOT_BIN" --headless --path . --script tools/run_godot_tests.gd -- --filter=test_r715_water_rollout_inventory
+"$GODOT_BIN" --headless --path . --script tools/run_godot_tests.gd -- --filter=test_r715_water_map_rollout
 ```
 
-The current dirty checkout cannot provide a clean executable result because the existing `SkyWeather3D` parse cascade and unrelated RRMap validation errors occur while loading the shared map registry. That is a baseline verification blocker, not a reason to weaken this inventory. The report intentionally records source ownership and the exact map/terrain contract separately from visual/performance acceptance.
+The new rollout contract is lint-clean. The current dirty checkout cannot provide a clean executable result because the existing `SkyWeather3D` parse cascade and unrelated RRMap validation errors occur while loading the shared map registry. This is a baseline verification blocker, not a reason to weaken the rollout contract or alter authored maps. R-752 therefore claims shared view registration and focused coverage, but not visual/performance acceptance.
 
 A scoped Markdown link check must resolve every relative link in this report. `git diff --check` must remain clean for this report and the Roadmap coordination note.
