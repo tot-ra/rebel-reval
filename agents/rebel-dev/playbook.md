@@ -208,3 +208,5 @@ Parallel exact replacements against one mutable file can race and reapply stale 
 - lesson
 - 2026-08-27: When reflowing an existing GDScript diagnostic for max-line-length, preserve the enclosing block
   indentation and re-read it immediately; an exact replacement can add an extra tab and introduce a parse error.
+
+- 2026-08-27: For frontage acceptance, checking only that a sector references a known rule is insufficient; validate every rule's exact range, semantic use, and each building override's existence, reason, and measured width. Keep rear/service and institutional exclusions mutually exclusive so public tier counts cannot be inflated by backlot buildings.
