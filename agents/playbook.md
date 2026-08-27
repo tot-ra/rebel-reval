@@ -258,3 +258,4 @@ This file contains only cross-role operating lessons. Domain lessons belong to t
 
 - 2026-08-26: When a verification report is created before a required engine is installed, record the executable absence and keep dependent suites BLOCKED; never infer a pass from source inspection or neighboring Python tests.
 - 2026-08-27: `content_search` expects an indexed directory root in `path`, not a file path; pass the project or containing directory, and use `grep`/`read` when targeting one file.
+- 2026-08-27: When a focused Godot suite is blocked by a project-wide parse cascade, capture the complete engine log and classify the first unresolved global class separately from downstream errors; do not attribute the cascade to a scoped map change or mark the task passed from source inspection.
