@@ -22,6 +22,10 @@ const COMPLETED_TOWERS_1343: Array[Dictionary] = [
 		"map_id": &"monastery_quarter",
 		"building_id": &"monastery_wall_tower_northwest",
 		"evidence": &"first_half_14c",
+		"state": &"completed_1343",
+		"visual_treatment": &"completed_tower",
+		"collision_policy": &"sealed_wall_with_inward_door",
+		"door_side": &"east",
 	},
 	{
 		"historical_id": &"kuldjala",
@@ -29,6 +33,10 @@ const COMPLETED_TOWERS_1343: Array[Dictionary] = [
 		"map_id": &"monastery_quarter",
 		"building_id": &"monastery_wall_tower_west_mid",
 		"evidence": &"circa_1310",
+		"state": &"completed_1343",
+		"visual_treatment": &"completed_tower",
+		"collision_policy": &"sealed_wall_with_inward_door",
+		"door_side": &"east",
 	},
 	{
 		"historical_id": &"rentenitorn",
@@ -36,6 +44,10 @@ const COMPLETED_TOWERS_1343: Array[Dictionary] = [
 		"map_id": &"north_quarter",
 		"building_id": &"merchant_wall_tower_northwest",
 		"evidence": &"before_mid_14c",
+		"state": &"completed_1343",
+		"visual_treatment": &"completed_tower",
+		"collision_policy": &"sealed_wall_with_inward_door",
+		"door_side": &"south",
 	},
 	{
 		"historical_id": &"great_coastal_gate",
@@ -43,43 +55,68 @@ const COMPLETED_TOWERS_1343: Array[Dictionary] = [
 		"map_id": &"north_quarter",
 		"building_id": &"coast_gate_west_tower",
 		"evidence": &"probable_1311_1340",
+		"state": &"completed_1343",
+		"visual_treatment": &"completed_tower",
+		"collision_policy": &"sealed_wall_with_inward_door",
+		"door_side": &"south",
 	},
 ]
 
 ## The mid-fourteenth-century reconstruction places these works on the circuit,
 ## but the reviewed evidence cannot prove their exact completion state on the
 ## game's 1343 date. Maps may show reversible masonry/scaffolding at these stable
-## positions, not finished later silhouettes.
+## positions, not finished later silhouettes. Every candidate keeps the wall
+## collision sealed even when its footprint is drawn as a circular work position.
 const CONSTRUCTION_CANDIDATES_1343: Array[Dictionary] = [
 	{
 		"historical_id": &"sand_gate",
 		"name": "Sand Gate",
 		"map_id": &"lower_town_slice",
 		"building_id": &"wall_tower_northeast",
+		"evidence": &"mid_14c_plan",
+		"state": &"construction_candidate_1343",
+		"visual_treatment": &"reversible_construction_mockup",
+		"collision_policy": &"sealed_wall_no_breach",
 	},
 	{
 		"historical_id": &"viru_gate",
 		"name": "Viru Gate",
 		"map_id": &"lower_town_slice",
 		"building_id": &"viru_gate_north_tower",
+		"evidence": &"mid_14c_archaeology",
+		"state": &"construction_candidate_1343",
+		"visual_treatment": &"reversible_construction_mockup",
+		"collision_policy": &"sealed_wall_no_breach",
 	},
 	{
 		"historical_id": &"hinke",
 		"name": "Hinke Tower",
 		"map_id": &"lower_town_slice",
 		"building_id": &"hinke_tower",
+		"evidence": &"mid_14c_plan",
+		"state": &"construction_candidate_1343",
+		"visual_treatment": &"reversible_construction_mockup",
+		"collision_policy": &"sealed_wall_no_breach",
 	},
 	{
 		"historical_id": &"cattle_gate",
 		"name": "Cattle (Karja) Gate",
 		"map_id": &"south_quarter",
 		"building_id": &"karja_gate_west_tower",
+		"evidence": &"early_14c_wall_reconstruction",
+		"state": &"construction_candidate_1343",
+		"visual_treatment": &"reversible_construction_mockup",
+		"collision_policy": &"sealed_wall_no_breach",
 	},
 	{
 		"historical_id": &"harju_gate",
 		"name": "Harju Gate",
 		"map_id": &"south_quarter",
-		"building_id": &"south_wall_tower_midwest",
+		"building_id": &"south_wall_tower_join",
+		"evidence": &"gate_mentioned_1361",
+		"state": &"construction_candidate_1343",
+		"visual_treatment": &"reversible_construction_mockup",
+		"collision_policy": &"sealed_wall_no_breach",
 	},
 ]
 
