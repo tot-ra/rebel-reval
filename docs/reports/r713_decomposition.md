@@ -16,7 +16,7 @@ The parent task is too large to implement as a single agent session. The first-l
 |---|---|---|
 | State contract | [`docs/SKY_WEATHER_STATE_CONTRACT.md`](../SKY_WEATHER_STATE_CONTRACT.md) exists; R-732 body was empty | R-767 |
 | Deterministic snapshots | `test_sky_weather_3d` passes 27/27 headless (2026-08-28); R-768 fixed lunar UV assertion; R-769 closed R-733 | R-733 `done`; R-771/R-773/R-776 unblocked |
-| Save/load | `test_save_envelope.gd` cannot load because of a duplicate `entry` iterator in one scope | R-770, then R-771/R-772 |
+| Save/load | `test_save_envelope` passes 15/15 and `test_save_service` passes 14/14 after R-770/R-771; environment round-trip and deterministic continuation evidence are executable | R-734 `done` |
 | Transition ownership | R-735 is `done` | no new row |
 | Atmosphere/wet sync | R-736 remains `in_progress` at complexity 2 | R-773, R-774, R-775 |
 | Quality tiers | R-737 remains `in_progress` at complexity 2 | R-776, R-777, R-778 |
@@ -31,7 +31,7 @@ External parents that still gate R-739 and must not be duplicated here: **R-714*
 |---|---|---|---|
 | R-732 | 0 | in_progress | Shared state contract |
 | R-733 | 2 | done | Deterministic `SkyWeather3D` snapshots |
-| R-734 | 2 | in_progress | Save/load persistence |
+| R-734 | 2 | done | Save/load persistence |
 | R-735 | 2 | done | One environment owner across transitions |
 | R-736 | 2 | in_progress | Atmosphere and wet-surface synchronization |
 | R-737 | 2 | in_progress | Quality tiers and budgets |
