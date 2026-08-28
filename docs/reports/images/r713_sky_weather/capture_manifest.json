@@ -1,522 +1,1364 @@
 {
-  "schema_version": 1,
-  "capture_id": "r713-sky-weather-continuity-v1",
-  "capture_status": "blocked",
-  "commit": "not captured",
-  "engine": "Godot 4.7",
-  "renderer_expected": "metal",
-  "renderer_observed": "not_run",
-  "hardware_host": "not_measured",
-  "viewport": {
-    "width": 1280,
-    "height": 720
-  },
-  "maps": [
-    "lower_town_slice",
-    "monastery_quarter"
-  ],
-  "world_group_id": "reval_contiguous_outdoor",
-  "physical_handoff": {
-    "source_map": "lower_town_slice",
-    "target_map": "monastery_quarter",
-    "transition": "vene_district_boundary -> to_reval_east",
-    "scene_swap": false,
-    "environment_owner": "SessionState",
-    "expected_active_environment_owners": 1,
-    "status": "not_run"
-  },
-  "expected_invariants": [
-    "day/night keeps one sun and one cloud front at the handoff",
-    "clear/overcast/rain/storm preserve weather identity and transition progress",
-    "wind direction is the shared normalized cloud/water direction",
-    "fog/haze and exposure do not reset at the handoff",
-    "sheltered interior/exterior pairs suppress only visible rain emission",
-    "there is no duplicate environment owner or scene-swap flash"
-  ],
-  "plates": [
-    {
-      "map_id": "lower_town_slice",
-      "scenario_id": "clear",
-      "weather": "clear",
-      "time_of_day": "day",
-      "shelter": "exterior",
-      "output": "res://docs/reports/images/r713_sky_weather/lower_town_slice_clear_day_exterior.png",
-      "status": "missing",
-      "sha256": "",
-      "width": 1280,
-      "height": 720
-    },
-    {
-      "map_id": "lower_town_slice",
-      "scenario_id": "clear",
-      "weather": "clear",
-      "time_of_day": "day",
-      "shelter": "sheltered",
-      "output": "res://docs/reports/images/r713_sky_weather/lower_town_slice_clear_day_sheltered.png",
-      "status": "missing",
-      "sha256": "",
-      "width": 1280,
-      "height": 720
-    },
-    {
-      "map_id": "lower_town_slice",
-      "scenario_id": "clear",
-      "weather": "clear",
-      "time_of_day": "night",
-      "shelter": "exterior",
-      "output": "res://docs/reports/images/r713_sky_weather/lower_town_slice_clear_night_exterior.png",
-      "status": "missing",
-      "sha256": "",
-      "width": 1280,
-      "height": 720
-    },
-    {
-      "map_id": "lower_town_slice",
-      "scenario_id": "clear",
-      "weather": "clear",
-      "time_of_day": "night",
-      "shelter": "sheltered",
-      "output": "res://docs/reports/images/r713_sky_weather/lower_town_slice_clear_night_sheltered.png",
-      "status": "missing",
-      "sha256": "",
-      "width": 1280,
-      "height": 720
-    },
-    {
-      "map_id": "lower_town_slice",
-      "scenario_id": "overcast",
-      "weather": "overcast",
-      "time_of_day": "day",
-      "shelter": "exterior",
-      "output": "res://docs/reports/images/r713_sky_weather/lower_town_slice_overcast_day_exterior.png",
-      "status": "missing",
-      "sha256": "",
-      "width": 1280,
-      "height": 720
-    },
-    {
-      "map_id": "lower_town_slice",
-      "scenario_id": "overcast",
-      "weather": "overcast",
-      "time_of_day": "day",
-      "shelter": "sheltered",
-      "output": "res://docs/reports/images/r713_sky_weather/lower_town_slice_overcast_day_sheltered.png",
-      "status": "missing",
-      "sha256": "",
-      "width": 1280,
-      "height": 720
-    },
-    {
-      "map_id": "lower_town_slice",
-      "scenario_id": "overcast",
-      "weather": "overcast",
-      "time_of_day": "night",
-      "shelter": "exterior",
-      "output": "res://docs/reports/images/r713_sky_weather/lower_town_slice_overcast_night_exterior.png",
-      "status": "missing",
-      "sha256": "",
-      "width": 1280,
-      "height": 720
-    },
-    {
-      "map_id": "lower_town_slice",
-      "scenario_id": "overcast",
-      "weather": "overcast",
-      "time_of_day": "night",
-      "shelter": "sheltered",
-      "output": "res://docs/reports/images/r713_sky_weather/lower_town_slice_overcast_night_sheltered.png",
-      "status": "missing",
-      "sha256": "",
-      "width": 1280,
-      "height": 720
-    },
-    {
-      "map_id": "lower_town_slice",
-      "scenario_id": "rain",
-      "weather": "rain",
-      "time_of_day": "day",
-      "shelter": "exterior",
-      "output": "res://docs/reports/images/r713_sky_weather/lower_town_slice_rain_day_exterior.png",
-      "status": "missing",
-      "sha256": "",
-      "width": 1280,
-      "height": 720
-    },
-    {
-      "map_id": "lower_town_slice",
-      "scenario_id": "rain",
-      "weather": "rain",
-      "time_of_day": "day",
-      "shelter": "sheltered",
-      "output": "res://docs/reports/images/r713_sky_weather/lower_town_slice_rain_day_sheltered.png",
-      "status": "missing",
-      "sha256": "",
-      "width": 1280,
-      "height": 720
-    },
-    {
-      "map_id": "lower_town_slice",
-      "scenario_id": "rain",
-      "weather": "rain",
-      "time_of_day": "night",
-      "shelter": "exterior",
-      "output": "res://docs/reports/images/r713_sky_weather/lower_town_slice_rain_night_exterior.png",
-      "status": "missing",
-      "sha256": "",
-      "width": 1280,
-      "height": 720
-    },
-    {
-      "map_id": "lower_town_slice",
-      "scenario_id": "rain",
-      "weather": "rain",
-      "time_of_day": "night",
-      "shelter": "sheltered",
-      "output": "res://docs/reports/images/r713_sky_weather/lower_town_slice_rain_night_sheltered.png",
-      "status": "missing",
-      "sha256": "",
-      "width": 1280,
-      "height": 720
-    },
-    {
-      "map_id": "lower_town_slice",
-      "scenario_id": "storm",
-      "weather": "storm",
-      "time_of_day": "day",
-      "shelter": "exterior",
-      "output": "res://docs/reports/images/r713_sky_weather/lower_town_slice_storm_day_exterior.png",
-      "status": "missing",
-      "sha256": "",
-      "width": 1280,
-      "height": 720
-    },
-    {
-      "map_id": "lower_town_slice",
-      "scenario_id": "storm",
-      "weather": "storm",
-      "time_of_day": "day",
-      "shelter": "sheltered",
-      "output": "res://docs/reports/images/r713_sky_weather/lower_town_slice_storm_day_sheltered.png",
-      "status": "missing",
-      "sha256": "",
-      "width": 1280,
-      "height": 720
-    },
-    {
-      "map_id": "lower_town_slice",
-      "scenario_id": "storm",
-      "weather": "storm",
-      "time_of_day": "night",
-      "shelter": "exterior",
-      "output": "res://docs/reports/images/r713_sky_weather/lower_town_slice_storm_night_exterior.png",
-      "status": "missing",
-      "sha256": "",
-      "width": 1280,
-      "height": 720
-    },
-    {
-      "map_id": "lower_town_slice",
-      "scenario_id": "storm",
-      "weather": "storm",
-      "time_of_day": "night",
-      "shelter": "sheltered",
-      "output": "res://docs/reports/images/r713_sky_weather/lower_town_slice_storm_night_sheltered.png",
-      "status": "missing",
-      "sha256": "",
-      "width": 1280,
-      "height": 720
-    },
-    {
-      "map_id": "lower_town_slice",
-      "scenario_id": "rain_shelter_pair",
-      "weather": "rain",
-      "time_of_day": "day",
-      "shelter": "exterior",
-      "output": "res://docs/reports/images/r713_sky_weather/lower_town_slice_rain_shelter_pair_day_exterior.png",
-      "status": "missing",
-      "sha256": "",
-      "width": 1280,
-      "height": 720
-    },
-    {
-      "map_id": "lower_town_slice",
-      "scenario_id": "rain_shelter_pair",
-      "weather": "rain",
-      "time_of_day": "day",
-      "shelter": "sheltered",
-      "output": "res://docs/reports/images/r713_sky_weather/lower_town_slice_rain_shelter_pair_day_sheltered.png",
-      "status": "missing",
-      "sha256": "",
-      "width": 1280,
-      "height": 720
-    },
-    {
-      "map_id": "lower_town_slice",
-      "scenario_id": "rain_shelter_pair",
-      "weather": "rain",
-      "time_of_day": "night",
-      "shelter": "exterior",
-      "output": "res://docs/reports/images/r713_sky_weather/lower_town_slice_rain_shelter_pair_night_exterior.png",
-      "status": "missing",
-      "sha256": "",
-      "width": 1280,
-      "height": 720
-    },
-    {
-      "map_id": "lower_town_slice",
-      "scenario_id": "rain_shelter_pair",
-      "weather": "rain",
-      "time_of_day": "night",
-      "shelter": "sheltered",
-      "output": "res://docs/reports/images/r713_sky_weather/lower_town_slice_rain_shelter_pair_night_sheltered.png",
-      "status": "missing",
-      "sha256": "",
-      "width": 1280,
-      "height": 720
-    },
-    {
-      "map_id": "monastery_quarter",
-      "scenario_id": "clear",
-      "weather": "clear",
-      "time_of_day": "day",
-      "shelter": "exterior",
-      "output": "res://docs/reports/images/r713_sky_weather/monastery_quarter_clear_day_exterior.png",
-      "status": "missing",
-      "sha256": "",
-      "width": 1280,
-      "height": 720
-    },
-    {
-      "map_id": "monastery_quarter",
-      "scenario_id": "clear",
-      "weather": "clear",
-      "time_of_day": "day",
-      "shelter": "sheltered",
-      "output": "res://docs/reports/images/r713_sky_weather/monastery_quarter_clear_day_sheltered.png",
-      "status": "missing",
-      "sha256": "",
-      "width": 1280,
-      "height": 720
-    },
-    {
-      "map_id": "monastery_quarter",
-      "scenario_id": "clear",
-      "weather": "clear",
-      "time_of_day": "night",
-      "shelter": "exterior",
-      "output": "res://docs/reports/images/r713_sky_weather/monastery_quarter_clear_night_exterior.png",
-      "status": "missing",
-      "sha256": "",
-      "width": 1280,
-      "height": 720
-    },
-    {
-      "map_id": "monastery_quarter",
-      "scenario_id": "clear",
-      "weather": "clear",
-      "time_of_day": "night",
-      "shelter": "sheltered",
-      "output": "res://docs/reports/images/r713_sky_weather/monastery_quarter_clear_night_sheltered.png",
-      "status": "missing",
-      "sha256": "",
-      "width": 1280,
-      "height": 720
-    },
-    {
-      "map_id": "monastery_quarter",
-      "scenario_id": "overcast",
-      "weather": "overcast",
-      "time_of_day": "day",
-      "shelter": "exterior",
-      "output": "res://docs/reports/images/r713_sky_weather/monastery_quarter_overcast_day_exterior.png",
-      "status": "missing",
-      "sha256": "",
-      "width": 1280,
-      "height": 720
-    },
-    {
-      "map_id": "monastery_quarter",
-      "scenario_id": "overcast",
-      "weather": "overcast",
-      "time_of_day": "day",
-      "shelter": "sheltered",
-      "output": "res://docs/reports/images/r713_sky_weather/monastery_quarter_overcast_day_sheltered.png",
-      "status": "missing",
-      "sha256": "",
-      "width": 1280,
-      "height": 720
-    },
-    {
-      "map_id": "monastery_quarter",
-      "scenario_id": "overcast",
-      "weather": "overcast",
-      "time_of_day": "night",
-      "shelter": "exterior",
-      "output": "res://docs/reports/images/r713_sky_weather/monastery_quarter_overcast_night_exterior.png",
-      "status": "missing",
-      "sha256": "",
-      "width": 1280,
-      "height": 720
-    },
-    {
-      "map_id": "monastery_quarter",
-      "scenario_id": "overcast",
-      "weather": "overcast",
-      "time_of_day": "night",
-      "shelter": "sheltered",
-      "output": "res://docs/reports/images/r713_sky_weather/monastery_quarter_overcast_night_sheltered.png",
-      "status": "missing",
-      "sha256": "",
-      "width": 1280,
-      "height": 720
-    },
-    {
-      "map_id": "monastery_quarter",
-      "scenario_id": "rain",
-      "weather": "rain",
-      "time_of_day": "day",
-      "shelter": "exterior",
-      "output": "res://docs/reports/images/r713_sky_weather/monastery_quarter_rain_day_exterior.png",
-      "status": "missing",
-      "sha256": "",
-      "width": 1280,
-      "height": 720
-    },
-    {
-      "map_id": "monastery_quarter",
-      "scenario_id": "rain",
-      "weather": "rain",
-      "time_of_day": "day",
-      "shelter": "sheltered",
-      "output": "res://docs/reports/images/r713_sky_weather/monastery_quarter_rain_day_sheltered.png",
-      "status": "missing",
-      "sha256": "",
-      "width": 1280,
-      "height": 720
-    },
-    {
-      "map_id": "monastery_quarter",
-      "scenario_id": "rain",
-      "weather": "rain",
-      "time_of_day": "night",
-      "shelter": "exterior",
-      "output": "res://docs/reports/images/r713_sky_weather/monastery_quarter_rain_night_exterior.png",
-      "status": "missing",
-      "sha256": "",
-      "width": 1280,
-      "height": 720
-    },
-    {
-      "map_id": "monastery_quarter",
-      "scenario_id": "rain",
-      "weather": "rain",
-      "time_of_day": "night",
-      "shelter": "sheltered",
-      "output": "res://docs/reports/images/r713_sky_weather/monastery_quarter_rain_night_sheltered.png",
-      "status": "missing",
-      "sha256": "",
-      "width": 1280,
-      "height": 720
-    },
-    {
-      "map_id": "monastery_quarter",
-      "scenario_id": "storm",
-      "weather": "storm",
-      "time_of_day": "day",
-      "shelter": "exterior",
-      "output": "res://docs/reports/images/r713_sky_weather/monastery_quarter_storm_day_exterior.png",
-      "status": "missing",
-      "sha256": "",
-      "width": 1280,
-      "height": 720
-    },
-    {
-      "map_id": "monastery_quarter",
-      "scenario_id": "storm",
-      "weather": "storm",
-      "time_of_day": "day",
-      "shelter": "sheltered",
-      "output": "res://docs/reports/images/r713_sky_weather/monastery_quarter_storm_day_sheltered.png",
-      "status": "missing",
-      "sha256": "",
-      "width": 1280,
-      "height": 720
-    },
-    {
-      "map_id": "monastery_quarter",
-      "scenario_id": "storm",
-      "weather": "storm",
-      "time_of_day": "night",
-      "shelter": "exterior",
-      "output": "res://docs/reports/images/r713_sky_weather/monastery_quarter_storm_night_exterior.png",
-      "status": "missing",
-      "sha256": "",
-      "width": 1280,
-      "height": 720
-    },
-    {
-      "map_id": "monastery_quarter",
-      "scenario_id": "storm",
-      "weather": "storm",
-      "time_of_day": "night",
-      "shelter": "sheltered",
-      "output": "res://docs/reports/images/r713_sky_weather/monastery_quarter_storm_night_sheltered.png",
-      "status": "missing",
-      "sha256": "",
-      "width": 1280,
-      "height": 720
-    },
-    {
-      "map_id": "monastery_quarter",
-      "scenario_id": "rain_shelter_pair",
-      "weather": "rain",
-      "time_of_day": "day",
-      "shelter": "exterior",
-      "output": "res://docs/reports/images/r713_sky_weather/monastery_quarter_rain_shelter_pair_day_exterior.png",
-      "status": "missing",
-      "sha256": "",
-      "width": 1280,
-      "height": 720
-    },
-    {
-      "map_id": "monastery_quarter",
-      "scenario_id": "rain_shelter_pair",
-      "weather": "rain",
-      "time_of_day": "day",
-      "shelter": "sheltered",
-      "output": "res://docs/reports/images/r713_sky_weather/monastery_quarter_rain_shelter_pair_day_sheltered.png",
-      "status": "missing",
-      "sha256": "",
-      "width": 1280,
-      "height": 720
-    },
-    {
-      "map_id": "monastery_quarter",
-      "scenario_id": "rain_shelter_pair",
-      "weather": "rain",
-      "time_of_day": "night",
-      "shelter": "exterior",
-      "output": "res://docs/reports/images/r713_sky_weather/monastery_quarter_rain_shelter_pair_night_exterior.png",
-      "status": "missing",
-      "sha256": "",
-      "width": 1280,
-      "height": 720
-    },
-    {
-      "map_id": "monastery_quarter",
-      "scenario_id": "rain_shelter_pair",
-      "weather": "rain",
-      "time_of_day": "night",
-      "shelter": "sheltered",
-      "output": "res://docs/reports/images/r713_sky_weather/monastery_quarter_rain_shelter_pair_night_sheltered.png",
-      "status": "missing",
-      "sha256": "",
-      "width": 1280,
-      "height": 720
-    }
-  ],
-  "handoffs": [],
-  "blockers": [
-    "real renderer/Metal capture and human visual review are required before acceptance"
-  ]
+	"blockers": [
+		"real renderer/Metal capture and human visual review are required before acceptance"
+	],
+	"capture_id": "r713-sky-weather-continuity-v1",
+	"capture_status": "captured_pending_review",
+	"commit": "37686843313d3710d748c9002827900f0609dce3",
+	"engine": "4.7.1-stable (official)",
+	"expected_invariants": [
+		"day/night keeps one sun and one cloud front at the handoff",
+		"clear/overcast/rain/storm preserve weather identity and transition progress",
+		"wind direction is the shared normalized cloud/water direction",
+		"fog/haze and exposure do not reset at the handoff",
+		"sheltered interior/exterior pairs suppress only visible rain emission",
+		"there is no duplicate environment owner or scene-swap flash"
+	],
+	"handoffs": [
+		{
+			"environment_owner_count_source": 1,
+			"environment_owner_count_target": 1,
+			"scenario_id": "clear",
+			"scene_swap": false,
+			"shelter": "exterior",
+			"source_map": "lower_town_slice",
+			"state_hash_source": "156f9aaae9aba3b2b95b2a06408170fe0b1dd139d04996605941151391b638d5",
+			"state_hash_target": "156f9aaae9aba3b2b95b2a06408170fe0b1dd139d04996605941151391b638d5",
+			"status": "captured",
+			"target_map": "monastery_quarter",
+			"time_of_day": "day",
+			"weather": "clear"
+		},
+		{
+			"environment_owner_count_source": 1,
+			"environment_owner_count_target": 1,
+			"scenario_id": "clear",
+			"scene_swap": false,
+			"shelter": "sheltered",
+			"source_map": "lower_town_slice",
+			"state_hash_source": "7b613822fe197df294b6ff952c6da86c8c30a7b9a380321a668e1119f6c06b3e",
+			"state_hash_target": "7b613822fe197df294b6ff952c6da86c8c30a7b9a380321a668e1119f6c06b3e",
+			"status": "captured",
+			"target_map": "monastery_quarter",
+			"time_of_day": "day",
+			"weather": "clear"
+		},
+		{
+			"environment_owner_count_source": 1,
+			"environment_owner_count_target": 1,
+			"scenario_id": "clear",
+			"scene_swap": false,
+			"shelter": "exterior",
+			"source_map": "lower_town_slice",
+			"state_hash_source": "1b56c571cab42e67df534686c92e03b48c6ffca2fda2d735202af14bbca1a9ee",
+			"state_hash_target": "1b56c571cab42e67df534686c92e03b48c6ffca2fda2d735202af14bbca1a9ee",
+			"status": "captured",
+			"target_map": "monastery_quarter",
+			"time_of_day": "night",
+			"weather": "clear"
+		},
+		{
+			"environment_owner_count_source": 1,
+			"environment_owner_count_target": 1,
+			"scenario_id": "clear",
+			"scene_swap": false,
+			"shelter": "sheltered",
+			"source_map": "lower_town_slice",
+			"state_hash_source": "7fcf11137bd9c56b73b19f209a89f6b033f864d7c644b6b79adf1b5815414bdb",
+			"state_hash_target": "7fcf11137bd9c56b73b19f209a89f6b033f864d7c644b6b79adf1b5815414bdb",
+			"status": "captured",
+			"target_map": "monastery_quarter",
+			"time_of_day": "night",
+			"weather": "clear"
+		},
+		{
+			"environment_owner_count_source": 1,
+			"environment_owner_count_target": 1,
+			"scenario_id": "overcast",
+			"scene_swap": false,
+			"shelter": "exterior",
+			"source_map": "lower_town_slice",
+			"state_hash_source": "e790ba58a7385fb0b13b53f6076f6bb2ba6a25dd10f0506448baee25a5fdddd9",
+			"state_hash_target": "e790ba58a7385fb0b13b53f6076f6bb2ba6a25dd10f0506448baee25a5fdddd9",
+			"status": "captured",
+			"target_map": "monastery_quarter",
+			"time_of_day": "day",
+			"weather": "overcast"
+		},
+		{
+			"environment_owner_count_source": 1,
+			"environment_owner_count_target": 1,
+			"scenario_id": "overcast",
+			"scene_swap": false,
+			"shelter": "sheltered",
+			"source_map": "lower_town_slice",
+			"state_hash_source": "48fe801ea5b22898e12de9955ef4fff2b9d04231ab308e6e18801c36092ffd2e",
+			"state_hash_target": "48fe801ea5b22898e12de9955ef4fff2b9d04231ab308e6e18801c36092ffd2e",
+			"status": "captured",
+			"target_map": "monastery_quarter",
+			"time_of_day": "day",
+			"weather": "overcast"
+		},
+		{
+			"environment_owner_count_source": 1,
+			"environment_owner_count_target": 1,
+			"scenario_id": "overcast",
+			"scene_swap": false,
+			"shelter": "exterior",
+			"source_map": "lower_town_slice",
+			"state_hash_source": "e2f6d612075ded152d34325ea2d26ab563fde0bee4b3a3e62e4c6eb393400e22",
+			"state_hash_target": "e2f6d612075ded152d34325ea2d26ab563fde0bee4b3a3e62e4c6eb393400e22",
+			"status": "captured",
+			"target_map": "monastery_quarter",
+			"time_of_day": "night",
+			"weather": "overcast"
+		},
+		{
+			"environment_owner_count_source": 1,
+			"environment_owner_count_target": 1,
+			"scenario_id": "overcast",
+			"scene_swap": false,
+			"shelter": "sheltered",
+			"source_map": "lower_town_slice",
+			"state_hash_source": "1ed51c0c284b30d2075be3b54d51eb0b441b214f73e844345e719f48f9cb4446",
+			"state_hash_target": "1ed51c0c284b30d2075be3b54d51eb0b441b214f73e844345e719f48f9cb4446",
+			"status": "captured",
+			"target_map": "monastery_quarter",
+			"time_of_day": "night",
+			"weather": "overcast"
+		},
+		{
+			"environment_owner_count_source": 1,
+			"environment_owner_count_target": 1,
+			"scenario_id": "rain",
+			"scene_swap": false,
+			"shelter": "exterior",
+			"source_map": "lower_town_slice",
+			"state_hash_source": "879648a0770be8ddeb4a6852363b68a6436ccc2d551bbce5dbe43e7c43b85aef",
+			"state_hash_target": "879648a0770be8ddeb4a6852363b68a6436ccc2d551bbce5dbe43e7c43b85aef",
+			"status": "captured",
+			"target_map": "monastery_quarter",
+			"time_of_day": "day",
+			"weather": "rain"
+		},
+		{
+			"environment_owner_count_source": 1,
+			"environment_owner_count_target": 1,
+			"scenario_id": "rain",
+			"scene_swap": false,
+			"shelter": "sheltered",
+			"source_map": "lower_town_slice",
+			"state_hash_source": "84d6c113cc6f08b184669eadc8467a12f5626a050b18f665028b456a69307fe9",
+			"state_hash_target": "84d6c113cc6f08b184669eadc8467a12f5626a050b18f665028b456a69307fe9",
+			"status": "captured",
+			"target_map": "monastery_quarter",
+			"time_of_day": "day",
+			"weather": "rain"
+		},
+		{
+			"environment_owner_count_source": 1,
+			"environment_owner_count_target": 1,
+			"scenario_id": "rain",
+			"scene_swap": false,
+			"shelter": "exterior",
+			"source_map": "lower_town_slice",
+			"state_hash_source": "70f27dc8ddb6eede0c412a11ae22761617db9c48bd107b309ae507899a6670ac",
+			"state_hash_target": "70f27dc8ddb6eede0c412a11ae22761617db9c48bd107b309ae507899a6670ac",
+			"status": "captured",
+			"target_map": "monastery_quarter",
+			"time_of_day": "night",
+			"weather": "rain"
+		},
+		{
+			"environment_owner_count_source": 1,
+			"environment_owner_count_target": 1,
+			"scenario_id": "rain",
+			"scene_swap": false,
+			"shelter": "sheltered",
+			"source_map": "lower_town_slice",
+			"state_hash_source": "aa87257367559c81cf3ea231d51c87234bcdfd2c595d8ac122c236cb32af3eb9",
+			"state_hash_target": "aa87257367559c81cf3ea231d51c87234bcdfd2c595d8ac122c236cb32af3eb9",
+			"status": "captured",
+			"target_map": "monastery_quarter",
+			"time_of_day": "night",
+			"weather": "rain"
+		},
+		{
+			"environment_owner_count_source": 1,
+			"environment_owner_count_target": 1,
+			"scenario_id": "storm",
+			"scene_swap": false,
+			"shelter": "exterior",
+			"source_map": "lower_town_slice",
+			"state_hash_source": "8614a9838f4760d8e305f4da02299fa302303434cc617e696d9dd4ee296702f0",
+			"state_hash_target": "8614a9838f4760d8e305f4da02299fa302303434cc617e696d9dd4ee296702f0",
+			"status": "captured",
+			"target_map": "monastery_quarter",
+			"time_of_day": "day",
+			"weather": "storm"
+		},
+		{
+			"environment_owner_count_source": 1,
+			"environment_owner_count_target": 1,
+			"scenario_id": "storm",
+			"scene_swap": false,
+			"shelter": "sheltered",
+			"source_map": "lower_town_slice",
+			"state_hash_source": "9cb1f0e9dafcf21ecd40df4271f826b372157f1ece7cfbd696de4c51234f8172",
+			"state_hash_target": "9cb1f0e9dafcf21ecd40df4271f826b372157f1ece7cfbd696de4c51234f8172",
+			"status": "captured",
+			"target_map": "monastery_quarter",
+			"time_of_day": "day",
+			"weather": "storm"
+		},
+		{
+			"environment_owner_count_source": 1,
+			"environment_owner_count_target": 1,
+			"scenario_id": "storm",
+			"scene_swap": false,
+			"shelter": "exterior",
+			"source_map": "lower_town_slice",
+			"state_hash_source": "336710e8e0b7ca07eac589621f0afa30ae9f487be3ec40f35fa57c244ae8bc58",
+			"state_hash_target": "336710e8e0b7ca07eac589621f0afa30ae9f487be3ec40f35fa57c244ae8bc58",
+			"status": "captured",
+			"target_map": "monastery_quarter",
+			"time_of_day": "night",
+			"weather": "storm"
+		},
+		{
+			"environment_owner_count_source": 1,
+			"environment_owner_count_target": 1,
+			"scenario_id": "storm",
+			"scene_swap": false,
+			"shelter": "sheltered",
+			"source_map": "lower_town_slice",
+			"state_hash_source": "263c743b2c005a18f13365e59be99461d1b91945817edfcd39f8c2bdfc366e3d",
+			"state_hash_target": "263c743b2c005a18f13365e59be99461d1b91945817edfcd39f8c2bdfc366e3d",
+			"status": "captured",
+			"target_map": "monastery_quarter",
+			"time_of_day": "night",
+			"weather": "storm"
+		},
+		{
+			"environment_owner_count_source": 1,
+			"environment_owner_count_target": 1,
+			"scenario_id": "rain_shelter_pair",
+			"scene_swap": false,
+			"shelter": "exterior",
+			"source_map": "lower_town_slice",
+			"state_hash_source": "879648a0770be8ddeb4a6852363b68a6436ccc2d551bbce5dbe43e7c43b85aef",
+			"state_hash_target": "879648a0770be8ddeb4a6852363b68a6436ccc2d551bbce5dbe43e7c43b85aef",
+			"status": "captured",
+			"target_map": "monastery_quarter",
+			"time_of_day": "day",
+			"weather": "rain"
+		},
+		{
+			"environment_owner_count_source": 1,
+			"environment_owner_count_target": 1,
+			"scenario_id": "rain_shelter_pair",
+			"scene_swap": false,
+			"shelter": "sheltered",
+			"source_map": "lower_town_slice",
+			"state_hash_source": "84d6c113cc6f08b184669eadc8467a12f5626a050b18f665028b456a69307fe9",
+			"state_hash_target": "84d6c113cc6f08b184669eadc8467a12f5626a050b18f665028b456a69307fe9",
+			"status": "captured",
+			"target_map": "monastery_quarter",
+			"time_of_day": "day",
+			"weather": "rain"
+		},
+		{
+			"environment_owner_count_source": 1,
+			"environment_owner_count_target": 1,
+			"scenario_id": "rain_shelter_pair",
+			"scene_swap": false,
+			"shelter": "exterior",
+			"source_map": "lower_town_slice",
+			"state_hash_source": "70f27dc8ddb6eede0c412a11ae22761617db9c48bd107b309ae507899a6670ac",
+			"state_hash_target": "70f27dc8ddb6eede0c412a11ae22761617db9c48bd107b309ae507899a6670ac",
+			"status": "captured",
+			"target_map": "monastery_quarter",
+			"time_of_day": "night",
+			"weather": "rain"
+		},
+		{
+			"environment_owner_count_source": 1,
+			"environment_owner_count_target": 1,
+			"scenario_id": "rain_shelter_pair",
+			"scene_swap": false,
+			"shelter": "sheltered",
+			"source_map": "lower_town_slice",
+			"state_hash_source": "aa87257367559c81cf3ea231d51c87234bcdfd2c595d8ac122c236cb32af3eb9",
+			"state_hash_target": "aa87257367559c81cf3ea231d51c87234bcdfd2c595d8ac122c236cb32af3eb9",
+			"status": "captured",
+			"target_map": "monastery_quarter",
+			"time_of_day": "night",
+			"weather": "rain"
+		}
+	],
+	"hardware_host": "macOS/arm64",
+	"maps": [
+		"lower_town_slice",
+		"monastery_quarter"
+	],
+	"physical_handoff": {
+		"environment_owner": "SessionState",
+		"expected_active_environment_owners": 1,
+		"scene_swap": false,
+		"source_map": "lower_town_slice",
+		"state_hash": "aa87257367559c81cf3ea231d51c87234bcdfd2c595d8ac122c236cb32af3eb9",
+		"status": "captured",
+		"target_map": "monastery_quarter",
+		"transition": "vene_district_boundary -> to_reval_east"
+	},
+	"plates": [
+		{
+			"height": 720,
+			"map_id": "lower_town_slice",
+			"output": "docs/reports/images/r713_sky_weather/lower_town_slice_clear_day_exterior.png",
+			"presentation": {
+				"ambient_energy": 1.0,
+				"overcast": 0.0,
+				"puddle_wetness": 0.0,
+				"rain_intensity": 0.0,
+				"rain_suppressed": false,
+				"sun_energy": 1.0,
+				"weather": "clear",
+				"wind_direction": [
+					0.928476631641388,
+					0.371390670537949
+				],
+				"wind_strength": 0.2
+			},
+			"scenario_id": "clear",
+			"sha256": "b812b3510a5c2e196bfefda84791594a096ea91b6026e1306ec99a87701048f1",
+			"shelter": "exterior",
+			"status": "captured",
+			"time_of_day": "day",
+			"weather": "clear",
+			"width": 1280
+		},
+		{
+			"height": 720,
+			"map_id": "lower_town_slice",
+			"output": "docs/reports/images/r713_sky_weather/lower_town_slice_clear_day_sheltered.png",
+			"presentation": {
+				"ambient_energy": 1.0,
+				"overcast": 0.0,
+				"puddle_wetness": 0.0,
+				"rain_intensity": 0.0,
+				"rain_suppressed": true,
+				"sun_energy": 1.0,
+				"weather": "clear",
+				"wind_direction": [
+					0.928476631641388,
+					0.371390670537949
+				],
+				"wind_strength": 0.2
+			},
+			"scenario_id": "clear",
+			"sha256": "ecd66165fe0c7047c11b9d7990cf529aedba8a415855efefafd881f369f4c83b",
+			"shelter": "sheltered",
+			"status": "captured",
+			"time_of_day": "day",
+			"weather": "clear",
+			"width": 1280
+		},
+		{
+			"height": 720,
+			"map_id": "lower_town_slice",
+			"output": "docs/reports/images/r713_sky_weather/lower_town_slice_clear_night_exterior.png",
+			"presentation": {
+				"ambient_energy": 0.999833358498732,
+				"overcast": 0.0,
+				"puddle_wetness": 0.0,
+				"rain_intensity": 0.0,
+				"rain_suppressed": false,
+				"sun_energy": 0.999666716997465,
+				"weather": "clear",
+				"wind_direction": [
+					0.928476631641388,
+					0.371390670537949
+				],
+				"wind_strength": 0.2
+			},
+			"scenario_id": "clear",
+			"sha256": "e02db643509f3d76df807ee42716f0d64437b601caa756c659f0fd9c1aadafe1",
+			"shelter": "exterior",
+			"status": "captured",
+			"time_of_day": "night",
+			"weather": "clear",
+			"width": 1280
+		},
+		{
+			"height": 720,
+			"map_id": "lower_town_slice",
+			"output": "docs/reports/images/r713_sky_weather/lower_town_slice_clear_night_sheltered.png",
+			"presentation": {
+				"ambient_energy": 0.999833358498732,
+				"overcast": 0.0,
+				"puddle_wetness": 0.0,
+				"rain_intensity": 0.0,
+				"rain_suppressed": true,
+				"sun_energy": 0.999666716997465,
+				"weather": "clear",
+				"wind_direction": [
+					0.928476631641388,
+					0.371390670537949
+				],
+				"wind_strength": 0.2
+			},
+			"scenario_id": "clear",
+			"sha256": "9e4bfb880826f1420ab5f8f646e7306eb180ff8b4ac69af37492b2d88b7697c0",
+			"shelter": "sheltered",
+			"status": "captured",
+			"time_of_day": "night",
+			"weather": "clear",
+			"width": 1280
+		},
+		{
+			"height": 720,
+			"map_id": "lower_town_slice",
+			"output": "docs/reports/images/r713_sky_weather/lower_town_slice_overcast_day_exterior.png",
+			"presentation": {
+				"ambient_energy": 0.8,
+				"overcast": 0.75,
+				"puddle_wetness": 0.0,
+				"rain_intensity": 0.0,
+				"rain_suppressed": false,
+				"sun_energy": 0.44,
+				"weather": "overcast",
+				"wind_direction": [
+					0.928476631641388,
+					0.371390670537949
+				],
+				"wind_strength": 0.58
+			},
+			"scenario_id": "overcast",
+			"sha256": "2fd3e739006a13bc26cf9b343afb7edecaff0001db39debdf757ca30020bec80",
+			"shelter": "exterior",
+			"status": "captured",
+			"time_of_day": "day",
+			"weather": "overcast",
+			"width": 1280
+		},
+		{
+			"height": 720,
+			"map_id": "lower_town_slice",
+			"output": "docs/reports/images/r713_sky_weather/lower_town_slice_overcast_day_sheltered.png",
+			"presentation": {
+				"ambient_energy": 0.8,
+				"overcast": 0.75,
+				"puddle_wetness": 0.0,
+				"rain_intensity": 0.0,
+				"rain_suppressed": true,
+				"sun_energy": 0.44,
+				"weather": "overcast",
+				"wind_direction": [
+					0.928476631641388,
+					0.371390670537949
+				],
+				"wind_strength": 0.58
+			},
+			"scenario_id": "overcast",
+			"sha256": "1682c219a7481012b256213b57e73f60bbd3e487500ff7ea12205ea310e34568",
+			"shelter": "sheltered",
+			"status": "captured",
+			"time_of_day": "day",
+			"weather": "overcast",
+			"width": 1280
+		},
+		{
+			"height": 720,
+			"map_id": "lower_town_slice",
+			"output": "docs/reports/images/r713_sky_weather/lower_town_slice_overcast_night_exterior.png",
+			"presentation": {
+				"ambient_energy": 0.799866686798986,
+				"overcast": 0.75,
+				"puddle_wetness": 0.0,
+				"rain_intensity": 0.0,
+				"rain_suppressed": false,
+				"sun_energy": 0.439853355478884,
+				"weather": "overcast",
+				"wind_direction": [
+					0.928476631641388,
+					0.371390670537949
+				],
+				"wind_strength": 0.58
+			},
+			"scenario_id": "overcast",
+			"sha256": "ae0ac058176fc4c146cef9bfa9533476c6d8685d6337de23735d246da435c68c",
+			"shelter": "exterior",
+			"status": "captured",
+			"time_of_day": "night",
+			"weather": "overcast",
+			"width": 1280
+		},
+		{
+			"height": 720,
+			"map_id": "lower_town_slice",
+			"output": "docs/reports/images/r713_sky_weather/lower_town_slice_overcast_night_sheltered.png",
+			"presentation": {
+				"ambient_energy": 0.799866686798986,
+				"overcast": 0.75,
+				"puddle_wetness": 0.0,
+				"rain_intensity": 0.0,
+				"rain_suppressed": true,
+				"sun_energy": 0.439853355478884,
+				"weather": "overcast",
+				"wind_direction": [
+					0.928476631641388,
+					0.371390670537949
+				],
+				"wind_strength": 0.58
+			},
+			"scenario_id": "overcast",
+			"sha256": "ff75a54210cb012bdccc0ec6aab827382f7e0d4b034f7927dcbf83020c33b994",
+			"shelter": "sheltered",
+			"status": "captured",
+			"time_of_day": "night",
+			"weather": "overcast",
+			"width": 1280
+		},
+		{
+			"height": 720,
+			"map_id": "lower_town_slice",
+			"output": "docs/reports/images/r713_sky_weather/lower_town_slice_rain_day_exterior.png",
+			"presentation": {
+				"ambient_energy": 0.7,
+				"overcast": 0.62,
+				"puddle_wetness": 0.4,
+				"rain_intensity": 1.0,
+				"rain_suppressed": false,
+				"sun_energy": 0.32,
+				"weather": "rain",
+				"wind_direction": [
+					0.928476631641388,
+					0.371390670537949
+				],
+				"wind_strength": 1.0
+			},
+			"scenario_id": "rain",
+			"sha256": "dbd091343bb5abae70410f64f0302a7c4f87ee132c7a7a4cc77ed8fe20575101",
+			"shelter": "exterior",
+			"status": "captured",
+			"time_of_day": "day",
+			"weather": "rain",
+			"width": 1280
+		},
+		{
+			"height": 720,
+			"map_id": "lower_town_slice",
+			"output": "docs/reports/images/r713_sky_weather/lower_town_slice_rain_day_sheltered.png",
+			"presentation": {
+				"ambient_energy": 0.7,
+				"overcast": 0.62,
+				"puddle_wetness": 0.4,
+				"rain_intensity": 1.0,
+				"rain_suppressed": true,
+				"sun_energy": 0.32,
+				"weather": "rain",
+				"wind_direction": [
+					0.928476631641388,
+					0.371390670537949
+				],
+				"wind_strength": 1.0
+			},
+			"scenario_id": "rain",
+			"sha256": "bd8554675dda89ffc1e612726cc0a4460ea261b2eccb38ca2a1fb7c027393bc5",
+			"shelter": "sheltered",
+			"status": "captured",
+			"time_of_day": "day",
+			"weather": "rain",
+			"width": 1280
+		},
+		{
+			"height": 720,
+			"map_id": "lower_town_slice",
+			"output": "docs/reports/images/r713_sky_weather/lower_town_slice_rain_night_exterior.png",
+			"presentation": {
+				"ambient_energy": 0.699883350949113,
+				"overcast": 0.62,
+				"puddle_wetness": 0.4,
+				"rain_intensity": 1.0,
+				"rain_suppressed": false,
+				"sun_energy": 0.319893349439189,
+				"weather": "rain",
+				"wind_direction": [
+					0.928476631641388,
+					0.371390670537949
+				],
+				"wind_strength": 1.0
+			},
+			"scenario_id": "rain",
+			"sha256": "74125a67afb324987d1da8613929f5715321a8f6acadb214a97430f789406586",
+			"shelter": "exterior",
+			"status": "captured",
+			"time_of_day": "night",
+			"weather": "rain",
+			"width": 1280
+		},
+		{
+			"height": 720,
+			"map_id": "lower_town_slice",
+			"output": "docs/reports/images/r713_sky_weather/lower_town_slice_rain_night_sheltered.png",
+			"presentation": {
+				"ambient_energy": 0.699883350949113,
+				"overcast": 0.62,
+				"puddle_wetness": 0.4,
+				"rain_intensity": 1.0,
+				"rain_suppressed": true,
+				"sun_energy": 0.319893349439189,
+				"weather": "rain",
+				"wind_direction": [
+					0.928476631641388,
+					0.371390670537949
+				],
+				"wind_strength": 1.0
+			},
+			"scenario_id": "rain",
+			"sha256": "d6e0721f64a94d743d321a213ffea080991dffabb27f87f90ccfc8988793f5eb",
+			"shelter": "sheltered",
+			"status": "captured",
+			"time_of_day": "night",
+			"weather": "rain",
+			"width": 1280
+		},
+		{
+			"height": 720,
+			"map_id": "lower_town_slice",
+			"output": "docs/reports/images/r713_sky_weather/lower_town_slice_storm_day_exterior.png",
+			"presentation": {
+				"ambient_energy": 0.9,
+				"overcast": 0.18,
+				"puddle_wetness": 0.088,
+				"rain_intensity": 0.22,
+				"rain_suppressed": false,
+				"sun_energy": 0.74,
+				"weather": "storm",
+				"wind_direction": [
+					0.928476631641388,
+					0.371390670537949
+				],
+				"wind_strength": 0.7
+			},
+			"scenario_id": "storm",
+			"sha256": "70a03437f459846c3b08f045a868d2773f60a13c06f3b5f1dad3051414e02567",
+			"shelter": "exterior",
+			"status": "captured",
+			"time_of_day": "day",
+			"weather": "storm",
+			"width": 1280
+		},
+		{
+			"height": 720,
+			"map_id": "lower_town_slice",
+			"output": "docs/reports/images/r713_sky_weather/lower_town_slice_storm_day_sheltered.png",
+			"presentation": {
+				"ambient_energy": 0.9,
+				"overcast": 0.18,
+				"puddle_wetness": 0.088,
+				"rain_intensity": 0.22,
+				"rain_suppressed": true,
+				"sun_energy": 0.74,
+				"weather": "storm",
+				"wind_direction": [
+					0.928476631641388,
+					0.371390670537949
+				],
+				"wind_strength": 0.7
+			},
+			"scenario_id": "storm",
+			"sha256": "41d0f439a6a165ce4d48e3fc433fb275459bd4344dd28f18e0c70df79b3a0e5c",
+			"shelter": "sheltered",
+			"status": "captured",
+			"time_of_day": "day",
+			"weather": "storm",
+			"width": 1280
+		},
+		{
+			"height": 720,
+			"map_id": "lower_town_slice",
+			"output": "docs/reports/images/r713_sky_weather/lower_town_slice_storm_night_exterior.png",
+			"presentation": {
+				"ambient_energy": 0.899850022648859,
+				"overcast": 0.18,
+				"puddle_wetness": 0.088,
+				"rain_intensity": 0.22,
+				"rain_suppressed": false,
+				"sun_energy": 0.739753370578124,
+				"weather": "storm",
+				"wind_direction": [
+					0.928476631641388,
+					0.371390670537949
+				],
+				"wind_strength": 0.7
+			},
+			"scenario_id": "storm",
+			"sha256": "8190486d546cc83ee3f0a3d8ef58064f4c73efc85c3e7a02b64e3faf36af42e9",
+			"shelter": "exterior",
+			"status": "captured",
+			"time_of_day": "night",
+			"weather": "storm",
+			"width": 1280
+		},
+		{
+			"height": 720,
+			"map_id": "lower_town_slice",
+			"output": "docs/reports/images/r713_sky_weather/lower_town_slice_storm_night_sheltered.png",
+			"presentation": {
+				"ambient_energy": 0.899850022648859,
+				"overcast": 0.18,
+				"puddle_wetness": 0.088,
+				"rain_intensity": 0.22,
+				"rain_suppressed": true,
+				"sun_energy": 0.739753370578124,
+				"weather": "storm",
+				"wind_direction": [
+					0.928476631641388,
+					0.371390670537949
+				],
+				"wind_strength": 0.7
+			},
+			"scenario_id": "storm",
+			"sha256": "30df1a6c5db267416c34542abbfdca96b5d68068a23c1f3df015934ad94c3856",
+			"shelter": "sheltered",
+			"status": "captured",
+			"time_of_day": "night",
+			"weather": "storm",
+			"width": 1280
+		},
+		{
+			"height": 720,
+			"map_id": "lower_town_slice",
+			"output": "docs/reports/images/r713_sky_weather/lower_town_slice_rain_shelter_pair_day_exterior.png",
+			"presentation": {
+				"ambient_energy": 0.7,
+				"overcast": 0.62,
+				"puddle_wetness": 0.4,
+				"rain_intensity": 1.0,
+				"rain_suppressed": false,
+				"sun_energy": 0.32,
+				"weather": "rain",
+				"wind_direction": [
+					0.928476631641388,
+					0.371390670537949
+				],
+				"wind_strength": 1.0
+			},
+			"scenario_id": "rain_shelter_pair",
+			"sha256": "553720cfa78692ade6d7c78e186bd3c4a5d78a2a67f75ffd7edc453a02be2170",
+			"shelter": "exterior",
+			"status": "captured",
+			"time_of_day": "day",
+			"weather": "rain",
+			"width": 1280
+		},
+		{
+			"height": 720,
+			"map_id": "lower_town_slice",
+			"output": "docs/reports/images/r713_sky_weather/lower_town_slice_rain_shelter_pair_day_sheltered.png",
+			"presentation": {
+				"ambient_energy": 0.7,
+				"overcast": 0.62,
+				"puddle_wetness": 0.4,
+				"rain_intensity": 1.0,
+				"rain_suppressed": true,
+				"sun_energy": 0.32,
+				"weather": "rain",
+				"wind_direction": [
+					0.928476631641388,
+					0.371390670537949
+				],
+				"wind_strength": 1.0
+			},
+			"scenario_id": "rain_shelter_pair",
+			"sha256": "91da45644d50abd35ca6e86ada4662af2aa22d20201695c6c7d9bbe8e50b6102",
+			"shelter": "sheltered",
+			"status": "captured",
+			"time_of_day": "day",
+			"weather": "rain",
+			"width": 1280
+		},
+		{
+			"height": 720,
+			"map_id": "lower_town_slice",
+			"output": "docs/reports/images/r713_sky_weather/lower_town_slice_rain_shelter_pair_night_exterior.png",
+			"presentation": {
+				"ambient_energy": 0.699883350949113,
+				"overcast": 0.62,
+				"puddle_wetness": 0.4,
+				"rain_intensity": 1.0,
+				"rain_suppressed": false,
+				"sun_energy": 0.319893349439189,
+				"weather": "rain",
+				"wind_direction": [
+					0.928476631641388,
+					0.371390670537949
+				],
+				"wind_strength": 1.0
+			},
+			"scenario_id": "rain_shelter_pair",
+			"sha256": "bfcdde5e9dce81b734e3cb0a3a84754a5a8bd0ef8aeca2efd54a4bd536532184",
+			"shelter": "exterior",
+			"status": "captured",
+			"time_of_day": "night",
+			"weather": "rain",
+			"width": 1280
+		},
+		{
+			"height": 720,
+			"map_id": "lower_town_slice",
+			"output": "docs/reports/images/r713_sky_weather/lower_town_slice_rain_shelter_pair_night_sheltered.png",
+			"presentation": {
+				"ambient_energy": 0.699883350949113,
+				"overcast": 0.62,
+				"puddle_wetness": 0.4,
+				"rain_intensity": 1.0,
+				"rain_suppressed": true,
+				"sun_energy": 0.319893349439189,
+				"weather": "rain",
+				"wind_direction": [
+					0.928476631641388,
+					0.371390670537949
+				],
+				"wind_strength": 1.0
+			},
+			"scenario_id": "rain_shelter_pair",
+			"sha256": "0c0477414b6b3fb162df63f0ff79e3d2b703377b9849d062b02967f70c7b9525",
+			"shelter": "sheltered",
+			"status": "captured",
+			"time_of_day": "night",
+			"weather": "rain",
+			"width": 1280
+		},
+		{
+			"height": 720,
+			"map_id": "monastery_quarter",
+			"output": "docs/reports/images/r713_sky_weather/monastery_quarter_clear_day_exterior.png",
+			"presentation": {
+				"ambient_energy": 1.0,
+				"overcast": 0.0,
+				"puddle_wetness": 0.0,
+				"rain_intensity": 0.0,
+				"rain_suppressed": false,
+				"sun_energy": 1.0,
+				"weather": "clear",
+				"wind_direction": [
+					0.928476631641388,
+					0.371390670537949
+				],
+				"wind_strength": 0.2
+			},
+			"scenario_id": "clear",
+			"sha256": "50e7b6137b313e1cd3794bddc9c225cb5dabe99eea4c61e8bc90744efac276df",
+			"shelter": "exterior",
+			"status": "captured",
+			"time_of_day": "day",
+			"weather": "clear",
+			"width": 1280
+		},
+		{
+			"height": 720,
+			"map_id": "monastery_quarter",
+			"output": "docs/reports/images/r713_sky_weather/monastery_quarter_clear_day_sheltered.png",
+			"presentation": {
+				"ambient_energy": 1.0,
+				"overcast": 0.0,
+				"puddle_wetness": 0.0,
+				"rain_intensity": 0.0,
+				"rain_suppressed": true,
+				"sun_energy": 1.0,
+				"weather": "clear",
+				"wind_direction": [
+					0.928476631641388,
+					0.371390670537949
+				],
+				"wind_strength": 0.2
+			},
+			"scenario_id": "clear",
+			"sha256": "fea9ed85ca1e1cf91d40422ea1c633e94dab192b087ff2b945dfc2e77bc94d82",
+			"shelter": "sheltered",
+			"status": "captured",
+			"time_of_day": "day",
+			"weather": "clear",
+			"width": 1280
+		},
+		{
+			"height": 720,
+			"map_id": "monastery_quarter",
+			"output": "docs/reports/images/r713_sky_weather/monastery_quarter_clear_night_exterior.png",
+			"presentation": {
+				"ambient_energy": 0.999833358498732,
+				"overcast": 0.0,
+				"puddle_wetness": 0.0,
+				"rain_intensity": 0.0,
+				"rain_suppressed": false,
+				"sun_energy": 0.999666716997465,
+				"weather": "clear",
+				"wind_direction": [
+					0.928476631641388,
+					0.371390670537949
+				],
+				"wind_strength": 0.2
+			},
+			"scenario_id": "clear",
+			"sha256": "abb8006b1b10595b2d4ce34771a51115b2b518929ffc93198de6bbc55299617a",
+			"shelter": "exterior",
+			"status": "captured",
+			"time_of_day": "night",
+			"weather": "clear",
+			"width": 1280
+		},
+		{
+			"height": 720,
+			"map_id": "monastery_quarter",
+			"output": "docs/reports/images/r713_sky_weather/monastery_quarter_clear_night_sheltered.png",
+			"presentation": {
+				"ambient_energy": 0.999833358498732,
+				"overcast": 0.0,
+				"puddle_wetness": 0.0,
+				"rain_intensity": 0.0,
+				"rain_suppressed": true,
+				"sun_energy": 0.999666716997465,
+				"weather": "clear",
+				"wind_direction": [
+					0.928476631641388,
+					0.371390670537949
+				],
+				"wind_strength": 0.2
+			},
+			"scenario_id": "clear",
+			"sha256": "e42f4f99ae5562ba1416bd141ecd0e8a92b2e87e7a60af2f916afa7283e274b6",
+			"shelter": "sheltered",
+			"status": "captured",
+			"time_of_day": "night",
+			"weather": "clear",
+			"width": 1280
+		},
+		{
+			"height": 720,
+			"map_id": "monastery_quarter",
+			"output": "docs/reports/images/r713_sky_weather/monastery_quarter_overcast_day_exterior.png",
+			"presentation": {
+				"ambient_energy": 0.8,
+				"overcast": 0.75,
+				"puddle_wetness": 0.0,
+				"rain_intensity": 0.0,
+				"rain_suppressed": false,
+				"sun_energy": 0.44,
+				"weather": "overcast",
+				"wind_direction": [
+					0.928476631641388,
+					0.371390670537949
+				],
+				"wind_strength": 0.58
+			},
+			"scenario_id": "overcast",
+			"sha256": "5936d4f546fb1cd6c6901fa48d84de73f5020843ecd3c503b5c3d227d4782152",
+			"shelter": "exterior",
+			"status": "captured",
+			"time_of_day": "day",
+			"weather": "overcast",
+			"width": 1280
+		},
+		{
+			"height": 720,
+			"map_id": "monastery_quarter",
+			"output": "docs/reports/images/r713_sky_weather/monastery_quarter_overcast_day_sheltered.png",
+			"presentation": {
+				"ambient_energy": 0.8,
+				"overcast": 0.75,
+				"puddle_wetness": 0.0,
+				"rain_intensity": 0.0,
+				"rain_suppressed": true,
+				"sun_energy": 0.44,
+				"weather": "overcast",
+				"wind_direction": [
+					0.928476631641388,
+					0.371390670537949
+				],
+				"wind_strength": 0.58
+			},
+			"scenario_id": "overcast",
+			"sha256": "43290d9d3e8ac2daa1cfa39aed656655b78b366f9890ab33dd863c458d9609f4",
+			"shelter": "sheltered",
+			"status": "captured",
+			"time_of_day": "day",
+			"weather": "overcast",
+			"width": 1280
+		},
+		{
+			"height": 720,
+			"map_id": "monastery_quarter",
+			"output": "docs/reports/images/r713_sky_weather/monastery_quarter_overcast_night_exterior.png",
+			"presentation": {
+				"ambient_energy": 0.799866686798986,
+				"overcast": 0.75,
+				"puddle_wetness": 0.0,
+				"rain_intensity": 0.0,
+				"rain_suppressed": false,
+				"sun_energy": 0.439853355478885,
+				"weather": "overcast",
+				"wind_direction": [
+					0.928476631641388,
+					0.371390670537949
+				],
+				"wind_strength": 0.58
+			},
+			"scenario_id": "overcast",
+			"sha256": "fa94e05f18cdae2edf89e20031af7c4832f9219386a96ee8de8abd1aec3e9377",
+			"shelter": "exterior",
+			"status": "captured",
+			"time_of_day": "night",
+			"weather": "overcast",
+			"width": 1280
+		},
+		{
+			"height": 720,
+			"map_id": "monastery_quarter",
+			"output": "docs/reports/images/r713_sky_weather/monastery_quarter_overcast_night_sheltered.png",
+			"presentation": {
+				"ambient_energy": 0.799866686798986,
+				"overcast": 0.75,
+				"puddle_wetness": 0.0,
+				"rain_intensity": 0.0,
+				"rain_suppressed": true,
+				"sun_energy": 0.439853355478885,
+				"weather": "overcast",
+				"wind_direction": [
+					0.928476631641388,
+					0.371390670537949
+				],
+				"wind_strength": 0.58
+			},
+			"scenario_id": "overcast",
+			"sha256": "0bb72c4d4c23c998f9d523aacef2c0e9c3eb72c0562ca75228e6e5eed3b52ca0",
+			"shelter": "sheltered",
+			"status": "captured",
+			"time_of_day": "night",
+			"weather": "overcast",
+			"width": 1280
+		},
+		{
+			"height": 720,
+			"map_id": "monastery_quarter",
+			"output": "docs/reports/images/r713_sky_weather/monastery_quarter_rain_day_exterior.png",
+			"presentation": {
+				"ambient_energy": 0.7,
+				"overcast": 0.62,
+				"puddle_wetness": 0.4,
+				"rain_intensity": 1.0,
+				"rain_suppressed": false,
+				"sun_energy": 0.32,
+				"weather": "rain",
+				"wind_direction": [
+					0.928476631641388,
+					0.371390670537949
+				],
+				"wind_strength": 1.0
+			},
+			"scenario_id": "rain",
+			"sha256": "6ce06316709acbbb5a4ecd4b17b4d9131915228d36e232352235e23c553a9c46",
+			"shelter": "exterior",
+			"status": "captured",
+			"time_of_day": "day",
+			"weather": "rain",
+			"width": 1280
+		},
+		{
+			"height": 720,
+			"map_id": "monastery_quarter",
+			"output": "docs/reports/images/r713_sky_weather/monastery_quarter_rain_day_sheltered.png",
+			"presentation": {
+				"ambient_energy": 0.7,
+				"overcast": 0.62,
+				"puddle_wetness": 0.4,
+				"rain_intensity": 1.0,
+				"rain_suppressed": true,
+				"sun_energy": 0.32,
+				"weather": "rain",
+				"wind_direction": [
+					0.928476631641388,
+					0.371390670537949
+				],
+				"wind_strength": 1.0
+			},
+			"scenario_id": "rain",
+			"sha256": "a5a456e9f2064d6cc25a1a758694952ad3afb643250276508306b1fd544bbfa1",
+			"shelter": "sheltered",
+			"status": "captured",
+			"time_of_day": "day",
+			"weather": "rain",
+			"width": 1280
+		},
+		{
+			"height": 720,
+			"map_id": "monastery_quarter",
+			"output": "docs/reports/images/r713_sky_weather/monastery_quarter_rain_night_exterior.png",
+			"presentation": {
+				"ambient_energy": 0.699883350949113,
+				"overcast": 0.62,
+				"puddle_wetness": 0.4,
+				"rain_intensity": 1.0,
+				"rain_suppressed": false,
+				"sun_energy": 0.319893349439189,
+				"weather": "rain",
+				"wind_direction": [
+					0.928476631641388,
+					0.371390670537949
+				],
+				"wind_strength": 1.0
+			},
+			"scenario_id": "rain",
+			"sha256": "ce25daab51a5014f3d6856bd265ccdf41bbc6f756145d231a4089af11ac7d1c2",
+			"shelter": "exterior",
+			"status": "captured",
+			"time_of_day": "night",
+			"weather": "rain",
+			"width": 1280
+		},
+		{
+			"height": 720,
+			"map_id": "monastery_quarter",
+			"output": "docs/reports/images/r713_sky_weather/monastery_quarter_rain_night_sheltered.png",
+			"presentation": {
+				"ambient_energy": 0.699883350949113,
+				"overcast": 0.62,
+				"puddle_wetness": 0.4,
+				"rain_intensity": 1.0,
+				"rain_suppressed": true,
+				"sun_energy": 0.319893349439189,
+				"weather": "rain",
+				"wind_direction": [
+					0.928476631641388,
+					0.371390670537949
+				],
+				"wind_strength": 1.0
+			},
+			"scenario_id": "rain",
+			"sha256": "47518a8e393867a6560540d63a75d41dc5b36d204a1b3464bb0682aebe462b3e",
+			"shelter": "sheltered",
+			"status": "captured",
+			"time_of_day": "night",
+			"weather": "rain",
+			"width": 1280
+		},
+		{
+			"height": 720,
+			"map_id": "monastery_quarter",
+			"output": "docs/reports/images/r713_sky_weather/monastery_quarter_storm_day_exterior.png",
+			"presentation": {
+				"ambient_energy": 0.9,
+				"overcast": 0.18,
+				"puddle_wetness": 0.088,
+				"rain_intensity": 0.22,
+				"rain_suppressed": false,
+				"sun_energy": 0.74,
+				"weather": "storm",
+				"wind_direction": [
+					0.928476631641388,
+					0.371390670537949
+				],
+				"wind_strength": 0.7
+			},
+			"scenario_id": "storm",
+			"sha256": "b675a191e10eea945bccfca116296fdf62bb85f933aaf9bbccebbcfe59d4bf61",
+			"shelter": "exterior",
+			"status": "captured",
+			"time_of_day": "day",
+			"weather": "storm",
+			"width": 1280
+		},
+		{
+			"height": 720,
+			"map_id": "monastery_quarter",
+			"output": "docs/reports/images/r713_sky_weather/monastery_quarter_storm_day_sheltered.png",
+			"presentation": {
+				"ambient_energy": 0.9,
+				"overcast": 0.18,
+				"puddle_wetness": 0.088,
+				"rain_intensity": 0.22,
+				"rain_suppressed": true,
+				"sun_energy": 0.74,
+				"weather": "storm",
+				"wind_direction": [
+					0.928476631641388,
+					0.371390670537949
+				],
+				"wind_strength": 0.7
+			},
+			"scenario_id": "storm",
+			"sha256": "9a459b6d6e84e0e6886a3aa3d9dbe415bab5cd319575bff29726822ffcf2c8d3",
+			"shelter": "sheltered",
+			"status": "captured",
+			"time_of_day": "day",
+			"weather": "storm",
+			"width": 1280
+		},
+		{
+			"height": 720,
+			"map_id": "monastery_quarter",
+			"output": "docs/reports/images/r713_sky_weather/monastery_quarter_storm_night_exterior.png",
+			"presentation": {
+				"ambient_energy": 0.899850022648859,
+				"overcast": 0.18,
+				"puddle_wetness": 0.088,
+				"rain_intensity": 0.22,
+				"rain_suppressed": false,
+				"sun_energy": 0.739753370578124,
+				"weather": "storm",
+				"wind_direction": [
+					0.928476631641388,
+					0.371390670537949
+				],
+				"wind_strength": 0.7
+			},
+			"scenario_id": "storm",
+			"sha256": "9edc2477f6cffb22ab1f6955b4cd7a97ca4160722278c64b39768ea118cb634c",
+			"shelter": "exterior",
+			"status": "captured",
+			"time_of_day": "night",
+			"weather": "storm",
+			"width": 1280
+		},
+		{
+			"height": 720,
+			"map_id": "monastery_quarter",
+			"output": "docs/reports/images/r713_sky_weather/monastery_quarter_storm_night_sheltered.png",
+			"presentation": {
+				"ambient_energy": 0.899850022648859,
+				"overcast": 0.18,
+				"puddle_wetness": 0.088,
+				"rain_intensity": 0.22,
+				"rain_suppressed": true,
+				"sun_energy": 0.739753370578124,
+				"weather": "storm",
+				"wind_direction": [
+					0.928476631641388,
+					0.371390670537949
+				],
+				"wind_strength": 0.7
+			},
+			"scenario_id": "storm",
+			"sha256": "60decdc98b8f06ef6df17a803164f2b57af76bff021f500f99e04ccf79026ecb",
+			"shelter": "sheltered",
+			"status": "captured",
+			"time_of_day": "night",
+			"weather": "storm",
+			"width": 1280
+		},
+		{
+			"height": 720,
+			"map_id": "monastery_quarter",
+			"output": "docs/reports/images/r713_sky_weather/monastery_quarter_rain_shelter_pair_day_exterior.png",
+			"presentation": {
+				"ambient_energy": 0.7,
+				"overcast": 0.62,
+				"puddle_wetness": 0.4,
+				"rain_intensity": 1.0,
+				"rain_suppressed": false,
+				"sun_energy": 0.32,
+				"weather": "rain",
+				"wind_direction": [
+					0.928476631641388,
+					0.371390670537949
+				],
+				"wind_strength": 1.0
+			},
+			"scenario_id": "rain_shelter_pair",
+			"sha256": "6fedce9d246f6aeedeb9f96c4c05d160b9879f0592f516003f4624c615fc2a4b",
+			"shelter": "exterior",
+			"status": "captured",
+			"time_of_day": "day",
+			"weather": "rain",
+			"width": 1280
+		},
+		{
+			"height": 720,
+			"map_id": "monastery_quarter",
+			"output": "docs/reports/images/r713_sky_weather/monastery_quarter_rain_shelter_pair_day_sheltered.png",
+			"presentation": {
+				"ambient_energy": 0.7,
+				"overcast": 0.62,
+				"puddle_wetness": 0.4,
+				"rain_intensity": 1.0,
+				"rain_suppressed": true,
+				"sun_energy": 0.32,
+				"weather": "rain",
+				"wind_direction": [
+					0.928476631641388,
+					0.371390670537949
+				],
+				"wind_strength": 1.0
+			},
+			"scenario_id": "rain_shelter_pair",
+			"sha256": "5774acd73284534f476ecff7087e6027040e061b5a4fd96727b7257a8c8db15b",
+			"shelter": "sheltered",
+			"status": "captured",
+			"time_of_day": "day",
+			"weather": "rain",
+			"width": 1280
+		},
+		{
+			"height": 720,
+			"map_id": "monastery_quarter",
+			"output": "docs/reports/images/r713_sky_weather/monastery_quarter_rain_shelter_pair_night_exterior.png",
+			"presentation": {
+				"ambient_energy": 0.699883350949113,
+				"overcast": 0.62,
+				"puddle_wetness": 0.4,
+				"rain_intensity": 1.0,
+				"rain_suppressed": false,
+				"sun_energy": 0.319893349439189,
+				"weather": "rain",
+				"wind_direction": [
+					0.928476631641388,
+					0.371390670537949
+				],
+				"wind_strength": 1.0
+			},
+			"scenario_id": "rain_shelter_pair",
+			"sha256": "762d4f77d2f0019d68f7499599d1e38480a8850714640bfd970e32096ae9081e",
+			"shelter": "exterior",
+			"status": "captured",
+			"time_of_day": "night",
+			"weather": "rain",
+			"width": 1280
+		},
+		{
+			"height": 720,
+			"map_id": "monastery_quarter",
+			"output": "docs/reports/images/r713_sky_weather/monastery_quarter_rain_shelter_pair_night_sheltered.png",
+			"presentation": {
+				"ambient_energy": 0.699883350949113,
+				"overcast": 0.62,
+				"puddle_wetness": 0.4,
+				"rain_intensity": 1.0,
+				"rain_suppressed": true,
+				"sun_energy": 0.319893349439189,
+				"weather": "rain",
+				"wind_direction": [
+					0.928476631641388,
+					0.371390670537949
+				],
+				"wind_strength": 1.0
+			},
+			"scenario_id": "rain_shelter_pair",
+			"sha256": "c418dbadc37ffbd5e2f11141750659716936bfb8ce77e04a1022282637b64a16",
+			"shelter": "sheltered",
+			"status": "captured",
+			"time_of_day": "night",
+			"weather": "rain",
+			"width": 1280
+		}
+	],
+	"renderer_expected": "metal",
+	"renderer_observed": "macOS",
+	"schema_version": 1,
+	"viewport": {
+		"height": 720,
+		"width": 1280
+	},
+	"world_group_id": "reval_contiguous_outdoor"
 }

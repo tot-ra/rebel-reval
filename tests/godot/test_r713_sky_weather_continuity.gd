@@ -23,9 +23,22 @@ func test_packet_declares_representative_physical_handoff_and_fixed_viewport() -
 	var source := _source()
 	assert_true(source.contains('const CAPTURE_ID := "r713-sky-weather-continuity-v1"'))
 	assert_true(source.contains('const VIEWPORT_SIZE := Vector2i(1280, 720)'))
-	assert_true(source.contains('const MAP_IDS: Array[StringName] = [&"lower_town_slice", &"monastery_quarter"]'))
-	assert_true(source.contains('const TIMES_OF_DAY: Array[StringName] = [MapView3D.TIME_DAY, MapView3D.TIME_NIGHT]'))
-	assert_true(source.contains('const SHELTER_MODES: Array[StringName] = [&"exterior", &"sheltered"]'))
+	assert_true(
+		source.contains('const MAP_IDS: Array[StringName] = [&"lower_town_slice", &"monastery_quarter"]')
+	)
+	assert_true(
+		source.contains(
+			'const TIMES_OF_DAY: Array[StringName] = [MapView3D.TIME_DAY, MapView3D.TIME_NIGHT]'
+		)
+	)
+	assert_true(source.contains('const LowerTownSlice := preload('))
+	assert_true(source.contains('const MonasteryQuarter := preload('))
+	assert_false(source.contains('MapAuditRegistry.by_id()'))
+	assert_true(source.contains('String(MAP_IDS[0]): LowerTownSlice.create()'))
+	assert_true(source.contains('String(MAP_IDS[1]): MonasteryQuarter.create()'))
+	assert_true(
+		source.contains('const SHELTER_MODES: Array[StringName] = [&"exterior", &"sheltered"]')
+	)
 	assert_true(source.contains('"transition": "vene_district_boundary -> to_reval_east"'))
 
 
@@ -64,8 +77,13 @@ func test_manifest_header_contains_every_weather_time_and_shelter_pair() -> void
 	assert_eq(manifest["physical_handoff"]["scene_swap"], false)
 	assert_eq(manifest["physical_handoff"]["environment_owner"], "SessionState")
 	assert_eq(manifest["physical_handoff"]["expected_active_environment_owners"], 1)
+	assert_eq(manifest.get("capture_status"), "captured_pending_review")
+	assert_eq(manifest["physical_handoff"]["status"], "captured")
 	var plates: Array = manifest.get("plates", [])
 	assert_eq(plates.size(), 40, "two maps x five scenarios x day/night x shelter")
+	assert_eq(
+		manifest.get("handoffs", []).size(), 20, "two maps x five scenarios x day/night x shelter"
+	)
 	var identities: Dictionary = {}
 	for plate: Dictionary in plates:
 		var key := "%s/%s/%s/%s" % [
@@ -75,7 +93,7 @@ func test_manifest_header_contains_every_weather_time_and_shelter_pair() -> void
 			plate.get("shelter", ""),
 		]
 		identities[key] = true
-		assert_eq(plate.get("status"), "missing", "unrun evidence must remain blocked")
+		assert_eq(plate.get("status"), "captured", "captured evidence must be recorded")
 		assert_eq(plate.get("width"), 1280)
 		assert_eq(plate.get("height"), 720)
 	for map_id in EXPECTED_MAPS:

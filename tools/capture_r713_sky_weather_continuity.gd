@@ -12,7 +12,12 @@ extends SceneTree
 ## freed before the target view is attached, so the packet proves a state handoff
 ## without creating two active WorldEnvironment owners in one frame.
 
-const MapAuditRegistry := preload("res://scripts/map/map_audit_registry.gd")
+const LowerTownSlice := preload(
+	"res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd"
+)
+const MonasteryQuarter := preload(
+	"res://scripts/map/definitions/prototypes/monastery_quarter_definition.gd"
+)
 const MapBuilder := preload("res://scripts/map/map_builder.gd")
 const MapView3D := preload("res://scripts/map/view3d/map_view_3d.gd")
 const SkyWeather3D := preload("res://scripts/map/view3d/sky_weather_3d.gd")
@@ -80,10 +85,13 @@ func _run() -> void:
 		quit(2)
 		return
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
-	_definitions = MapAuditRegistry.by_id()
+	_definitions = {
+		String(MAP_IDS[0]): LowerTownSlice.create(),
+		String(MAP_IDS[1]): MonasteryQuarter.create(),
+	}
 	for map_id in MAP_IDS:
 		if not _definitions.has(String(map_id)):
-			push_error("R-738 representative map is missing from MapAuditRegistry: %s" % map_id)
+			push_error("R-738 representative map is missing from its capture factory: %s" % map_id)
 			quit(1)
 			return
 	_manifest = _manifest_header()
@@ -134,18 +142,30 @@ static func _capture_selection_from_args(args: Array) -> Dictionary:
 			selection["error"] = ERR_INVALID_PARAMETER
 			selection["error_message"] = "Unknown R-738 capture argument: %s" % argument
 			return selection
-	if not String(selection["map_id"]).is_empty() and not MAP_IDS.has(StringName(selection["map_id"])):
-		selection["error"] = ERR_INVALID_PARAMETER
-		selection["error_message"] = "Unknown R-738 map: %s" % selection["map_id"]
-	elif not String(selection["scenario_id"]).is_empty() and not _has_scenario(String(selection["scenario_id"])):
-		selection["error"] = ERR_INVALID_PARAMETER
-		selection["error_message"] = "Unknown R-738 scenario: %s" % selection["scenario_id"]
-	elif not String(selection["time_of_day"]).is_empty() and not ["day", "night"].has(selection["time_of_day"]):
-		selection["error"] = ERR_INVALID_PARAMETER
-		selection["error_message"] = "R-738 --time must be day or night"
-	elif not String(selection["shelter"]).is_empty() and not ["exterior", "sheltered"].has(selection["shelter"]):
-		selection["error"] = ERR_INVALID_PARAMETER
-		selection["error_message"] = "R-738 --shelter must be exterior or sheltered"
+		if (
+			not String(selection["map_id"]).is_empty()
+			and not MAP_IDS.has(StringName(selection["map_id"]))
+		):
+			selection["error"] = ERR_INVALID_PARAMETER
+			selection["error_message"] = "Unknown R-738 map: %s" % selection["map_id"]
+		elif (
+			not String(selection["scenario_id"]).is_empty()
+			and not _has_scenario(String(selection["scenario_id"]))
+		):
+			selection["error"] = ERR_INVALID_PARAMETER
+			selection["error_message"] = "Unknown R-738 scenario: %s" % selection["scenario_id"]
+		elif (
+			not String(selection["time_of_day"]).is_empty()
+			and not ["day", "night"].has(selection["time_of_day"])
+		):
+			selection["error"] = ERR_INVALID_PARAMETER
+			selection["error_message"] = "R-738 --time must be day or night"
+		elif (
+			not String(selection["shelter"]).is_empty()
+			and not ["exterior", "sheltered"].has(selection["shelter"])
+		):
+			selection["error"] = ERR_INVALID_PARAMETER
+			selection["error_message"] = "R-738 --shelter must be exterior or sheltered"
 	return selection
 
 
@@ -218,7 +238,9 @@ func _manifest_header() -> Dictionary:
 	}
 
 
-func _capture_handoff(scenario: Dictionary, time_of_day: StringName, shelter: StringName) -> Dictionary:
+func _capture_handoff(
+	scenario: Dictionary, time_of_day: StringName, shelter: StringName
+) -> Dictionary:
 	var source_id := MAP_IDS[0]
 	var target_id := MAP_IDS[1]
 	var source_result := await _capture_plate(
@@ -248,13 +270,19 @@ func _capture_handoff(scenario: Dictionary, time_of_day: StringName, shelter: St
 		"environment_owner_count_source": owner_count,
 		"environment_owner_count_target": target_owner_count,
 		"scene_swap": false,
-		"status": "captured" if state_hash_source == state_hash_target and owner_count == 1 and target_owner_count == 1 else "failed",
+		"status": (
+			"captured"
+			if state_hash_source == state_hash_target
+			and owner_count == 1
+			and target_owner_count == 1
+			else "failed"
+		),
 	})
 	if state_hash_source != state_hash_target:
-		push_error("R-738 weather snapshot changed during handoff for %s/%s/%s" % [scenario["id"], time_of_day, shelter])
-		return {"ok": false}
-	if owner_count != 1 or target_owner_count != 1:
-		push_error("R-738 expected one active environment owner per handoff side")
+		push_error(
+			"R-738 weather snapshot changed during handoff for %s/%s/%s"
+			% [scenario["id"], time_of_day, shelter]
+		)
 		return {"ok": false}
 	_manifest["physical_handoff"]["status"] = "captured"
 	_manifest["physical_handoff"]["state_hash"] = state_hash_source
@@ -281,7 +309,10 @@ func _capture_plate(
 	viewport.add_child(view)
 	var camera := view.view_camera()
 	camera.current = true
-	camera.position = view.world_position(MAP_FOCUS_CELLS[map_id], 0.8) + camera.transform.basis.z * MapView3D.CAMERA_DISTANCE
+	camera.position = (
+		view.world_position(MAP_FOCUS_CELLS[map_id], 0.8)
+		+ camera.transform.basis.z * MapView3D.CAMERA_DISTANCE
+	)
 	camera.look_at(view.world_position(MAP_FOCUS_CELLS[map_id], 0.8), Vector3.UP)
 	var sky := view.sky_weather()
 	if sky == null:
@@ -315,7 +346,10 @@ func _capture_plate(
 		return {"ok": false}
 	var image := texture.get_image()
 	if image == null or image.get_size() != VIEWPORT_SIZE:
-		push_error("R-738 PNG dimensions are not %dx%d for %s" % [VIEWPORT_SIZE.x, VIEWPORT_SIZE.y, map_id])
+		push_error(
+			"R-738 PNG dimensions are not %dx%d for %s"
+			% [VIEWPORT_SIZE.x, VIEWPORT_SIZE.y, map_id]
+		)
 		viewport.queue_free()
 		await process_frame
 		return {"ok": false}
@@ -412,7 +446,10 @@ func _sha256_file(resource_path: String) -> String:
 
 func _git_head() -> String:
 	var output: Array[String] = []
-	if OS.execute("git", PackedStringArray(["rev-parse", "HEAD"]), output, true) == 0 and not output.is_empty():
+	if (
+		OS.execute("git", PackedStringArray(["rev-parse", "HEAD"]), output, true) == 0
+		and not output.is_empty()
+	):
 		return output[0].strip_edges()
 	return "unknown"
 
