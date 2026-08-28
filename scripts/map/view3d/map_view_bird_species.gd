@@ -358,104 +358,11 @@ const _PROFILE_CORVID := preload("res://scripts/map/view3d/map_view_bird_species
 const _PROFILE_RAPTOR := preload("res://scripts/map/view3d/map_view_bird_species_raptor.gd")
 const _PROFILE_WATERFOWL := preload("res://scripts/map/view3d/map_view_bird_species_waterfowl.gd")
 const _PROFILE_WADER := preload("res://scripts/map/view3d/map_view_bird_species_wader.gd")
-const _BASE_PROFILES: Dictionary = {
-	SPECIES_HERRING_GULL:
-	{
-		"name": "Herring gull",
-		"group": GROUP_GULL,
-		"scale_m": 0.60,
-		"pose": POSE_GLIDING,
-		"colors": [Color("d9d8cf"), Color("666d73"), Color("f0e8ce")],
-		"song":
-		{
-			"cue": &"bird.herring_gull.call",
-			"kind": &"harsh_laugh",
-			"time": &"day",
-			"cadence_s": Vector2(4.0, 12.0)
-		},
-		"abundance": 0.90
-	},
-	SPECIES_COMMON_GULL:
-	{
-		"name": "Common gull",
-		"group": GROUP_GULL,
-		"scale_m": 0.43,
-		"pose": POSE_GLIDING,
-		"colors": [Color("deddd4"), Color("81888d"), Color("f2e4bd")],
-		"song":
-		{
-			"cue": &"bird.common_gull.call",
-			"kind": &"clear_laugh",
-			"time": &"day",
-			"cadence_s": Vector2(5.0, 14.0)
-		},
-		"abundance": 0.72
-	},
-	SPECIES_COMMON_TERN:
-	{
-		"name": "Common tern",
-		"group": GROUP_TERN,
-		"scale_m": 0.35,
-		"pose": POSE_GLIDING,
-		"colors": [Color("d8d9d4"), Color("2d3336"), Color("c74a39")],
-		"song":
-		{
-			"cue": &"bird.common_tern.call",
-			"kind": &"sharp_kik",
-			"time": &"day",
-			"cadence_s": Vector2(2.5, 8.0)
-		},
-		"abundance": 0.68
-	},
-	SPECIES_TAWNY_OWL:
-	{
-		"name": "Tawny owl",
-		"group": GROUP_OWL,
-		"scale_m": 0.39,
-		"pose": POSE_PERCHED,
-		"colors": [Color("7a6248"), Color("4e4034"), Color("c8a879")],
-		"song":
-		{
-			"cue": &"bird.tawny_owl.call",
-			"kind": &"hooting_phrase",
-			"time": &"night",
-			"cadence_s": Vector2(12.0, 30.0)
-		},
-		"abundance": 0.42
-	},
-	SPECIES_BARN_SWALLOW:
-	{
-		"name": "Barn swallow",
-		"group": GROUP_SWALLOW,
-		"scale_m": 0.19,
-		"pose": POSE_GLIDING,
-		"colors": [Color("e7ddd0"), Color("283d49"), Color("9c4b3e")],
-		"song":
-		{
-			"cue": &"bird.barn_swallow.song",
-			"kind": &"liquid_twitter",
-			"time": &"day",
-			"cadence_s": Vector2(2.0, 6.0)
-		},
-		"abundance": 0.86
-	},
-	SPECIES_GREAT_SPOTTED_WOODPECKER:
-	{
-		"name": "Great spotted woodpecker",
-		"group": GROUP_WOODPECKER,
-		"scale_m": 0.23,
-		"pose": POSE_PERCHED,
-		"colors": [Color("d8d2c3"), Color("292b2b"), Color("a74335")],
-		"song":
-		{
-			"cue": &"bird.great_spotted_woodpecker.call",
-			"kind": &"sharp_kik_and_drumming",
-			"time": &"day",
-			"cadence_s": Vector2(7.0, 18.0)
-		},
-		"abundance": 0.60
-	},
-}
+const _PROFILE_GULL := preload("res://scripts/map/view3d/map_view_bird_species_gull.gd")
+const _PROFILE_TERN := preload("res://scripts/map/view3d/map_view_bird_species_tern.gd")
+const _PROFILE_OWL := preload("res://scripts/map/view3d/map_view_bird_species_owl.gd")
+const _PROFILE_SWALLOW := preload("res://scripts/map/view3d/map_view_bird_species_swallow.gd")
+const _PROFILE_WOODPECKER := preload("res://scripts/map/view3d/map_view_bird_species_woodpecker.gd")
 const MaterialPatterns := preload("res://scripts/map/view3d/map_view_material_patterns.gd")
 
 static var _profiles_cache: Dictionary = {}
@@ -466,12 +373,16 @@ static var _normal_texture_cache: Dictionary = {}
 static func _profiles() -> Dictionary:
 	if _profiles_cache.is_empty():
 		_profiles_cache = (
-			_BASE_PROFILES
-			.merged(_PROFILE_SONGBIRD.PROFILES)
+			_PROFILE_SONGBIRD.PROFILES
 			.merged(_PROFILE_CORVID.PROFILES)
 			.merged(_PROFILE_RAPTOR.PROFILES)
 			.merged(_PROFILE_WATERFOWL.PROFILES)
 			.merged(_PROFILE_WADER.PROFILES)
+			.merged(_PROFILE_GULL.PROFILES)
+			.merged(_PROFILE_TERN.PROFILES)
+			.merged(_PROFILE_OWL.PROFILES)
+			.merged(_PROFILE_SWALLOW.PROFILES)
+			.merged(_PROFILE_WOODPECKER.PROFILES)
 		)
 	return _profiles_cache
 
