@@ -194,6 +194,40 @@ func test_presentation_snapshot_keeps_wet_surface_and_water_inputs_together() ->
 	sky.free()
 
 
+func test_presentation_snapshot_drives_lighting_and_fog_without_re_sampling_weather() -> void:
+	const Lighting := preload("res://scripts/map/view3d/map_view_lighting.gd")
+	var sky := SkyWeather.new()
+	sky.auto_weather = false
+	var fog_date := {"day": 18, "month": 1, "year": 1343}
+	sky.set_calendar_date(fog_date)
+	var sunrise := float(SkyWeather.sunrise_sunset_hours(fog_date)["sunrise"])
+	var progress := sunrise / 24.0
+	var day_blend := SkyWeather.daylight_blend(progress, fog_date)
+	var presentation := sky.presentation_snapshot(progress, day_blend)
+	assert_true(presentation.sunrise_hour == sunrise, "snapshot must carry the shared sunrise input")
+	assert_true(
+		is_equal_approx(presentation.fog_potential, SkyWeather.morning_fog_potential(fog_date)),
+		"fog must use the snapshot's seasonal potential"
+	)
+	assert_true(
+		is_equal_approx(presentation.lunar_light_strength, SkyWeather.moonlight_strength(progress, fog_date)),
+		"lighting must use the snapshot's lunar input"
+	)
+
+	var environment := Environment.new()
+	Lighting.apply_ground_mist(environment, presentation, false)
+	assert_true(environment.fog_enabled, "a fog-prone sunrise snapshot must enable ground mist")
+	var snapshot_density := environment.fog_density
+	sky.set_weather(SkyWeather.WEATHER_RAIN)
+	sky.advance(SkyWeather.TRANSITION_SECONDS)
+	Lighting.apply_ground_mist(environment, presentation, false)
+	assert_true(
+		is_equal_approx(environment.fog_density, snapshot_density),
+		"fog must stay on the captured frame sample after weather changes"
+	)
+
+
+
 func test_time_scale_freezes_and_accelerates_the_sky() -> void:
 	# _process applies time_scale, so a paused clock (scale 0) freezes cloud drift
 	# and the weather machine, while a higher scale advances the sky faster.

@@ -255,6 +255,7 @@ const WIND_DRIFT_GAIN := 1.6
 ## rendered frame.
 class WeatherPresentation extends RefCounted:
 	var weather: StringName = WEATHER_CLEAR
+	var cycle_progress := 0.0
 	var day_blend := 1.0
 	var sun_direction := Vector3.UP
 	var moon_direction := Vector3.UP
@@ -271,8 +272,11 @@ class WeatherPresentation extends RefCounted:
 	var sun_energy := 1.0
 	var ambient_energy := 1.0
 	var sun_visibility := 0.0
+	var lunar_light_strength := 0.0
 	var moon_visibility := 0.0
 	var star_visibility := 0.0
+	var sunrise_hour := 6.0
+	var fog_potential := 0.0
 	var tide_level := 0.0
 	var sidereal_angle := 0.0
 	var star_map: Texture2D
@@ -703,6 +707,7 @@ func apply_sky_state(progress: float, day_blend: float, sun_direction: Vector3) 
 func presentation_snapshot(progress: float, day_blend: float) -> WeatherPresentation:
 	var snapshot := WeatherPresentation.new()
 	snapshot.weather = weather
+	snapshot.cycle_progress = wrapf(progress, 0.0, 1.0)
 	snapshot.day_blend = clampf(day_blend, 0.0, 1.0)
 	snapshot.sun_direction = solar_direction(progress, calendar_date)
 	snapshot.moon_direction = lunar_direction(progress, calendar_date)
@@ -720,8 +725,12 @@ func presentation_snapshot(progress: float, day_blend: float) -> WeatherPresenta
 	snapshot.sun_energy = float(modifiers["sun_energy"])
 	snapshot.ambient_energy = float(modifiers["ambient_energy"])
 	snapshot.sun_visibility = sun_disk_visibility(snapshot.sun_direction)
+	snapshot.lunar_light_strength = moonlight_strength(progress, calendar_date)
+	var sunrise_data := sunrise_sunset_hours(calendar_date)
+	snapshot.sunrise_hour = float(sunrise_data["sunrise"])
+	snapshot.fog_potential = morning_fog_potential(calendar_date)
 	var cloud_occlusion := 1.0 - snapshot.cloud_coverage
-	snapshot.moon_visibility = moonlight_strength(progress, calendar_date) * cloud_occlusion
+	snapshot.moon_visibility = snapshot.lunar_light_strength * cloud_occlusion
 	snapshot.star_visibility = pow(1.0 - snapshot.day_blend, 3.0) * cloud_occlusion
 	snapshot.tide_level = tide_level(progress, calendar_date)
 	snapshot.sidereal_angle = sidereal_angle_for_progress(progress)

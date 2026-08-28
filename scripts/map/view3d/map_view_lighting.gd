@@ -123,65 +123,79 @@ static func apply_cycle_progress(
 ) -> bool:
 	var sun_direction := SkyWeather3D.solar_direction(progress, sky_weather.calendar_date)
 	var day_blend := SkyWeather3D.daylight_blend(progress, sky_weather.calendar_date)
-	var moon_direction := SkyWeather3D.lunar_direction(progress, sky_weather.calendar_date)
-	var sun_elevation := SkyWeather3D.solar_elevation_degrees(progress, sky_weather.calendar_date)
+
+	# Update the sky before taking the shared presentation snapshot so lighting,
+	# fog, wet ground, wind, and water all consume the same transition sample.
+	sky_weather.apply_sky_state(progress, day_blend, sun_direction)
+	var presentation := sky_weather.presentation_snapshot(progress, day_blend)
 	# DirectionalLight3D emits along local -Z. Twilight therefore hands the light
 	# direction smoothly from the date-driven moon to the moving sun.
-	var sun_light_weight := smoothstep(-6.0, 0.0, sun_elevation)
-	var light_direction := moon_direction.slerp(sun_direction, sun_light_weight).normalized()
+	var sun_light_weight := smoothstep(
+		-6.0,
+		0.0,
+		rad_to_deg(asin(clampf(presentation.sun_direction.y, -1.0, 1.0)))
+	)
+	var light_direction := presentation.moon_direction.slerp(
+		presentation.sun_direction, sun_light_weight
+	).normalized()
 	sun.basis = Basis.looking_at(-light_direction, Vector3.UP)
-
-	# Update the sky before reading its modifiers so lighting and the dome always
-	# represent the same cycle point.
-	sky_weather.apply_sky_state(progress, day_blend, sun_direction)
-	var weather := sky_weather.lighting_modifiers()
-	var sun_color := SUN_NIGHT_COLOR.lerp(SUN_DAY_COLOR, day_blend)
-	sun_color = sun_color.lerp(SUNSET_LIGHT_COLOR, weather["sunset_tint"])
-	sun_color = sun_color.lerp(OVERCAST_LIGHT_COLOR, weather["overcast"])
+	var sun_color := SUN_NIGHT_COLOR.lerp(SUN_DAY_COLOR, presentation.day_blend)
+	sun_color = sun_color.lerp(SUNSET_LIGHT_COLOR, presentation.sunset_tint)
+	sun_color = sun_color.lerp(OVERCAST_LIGHT_COLOR, presentation.overcast)
 	sun.light_color = sun_color
 
-	var moonlight := SkyWeather3D.moonlight_strength(progress, sky_weather.calendar_date)
-	var celestial_energy := lerpf(SUN_NIGHT_ENERGY * moonlight, SUN_DAY_ENERGY, day_blend)
-	var lightning := float(weather.get("lightning", 0.0))
-	sun.light_energy = celestial_energy * weather["sun_energy"] + lightning * LIGHTNING_SUN_ENERGY
+	var celestial_energy := lerpf(
+		SUN_NIGHT_ENERGY * presentation.lunar_light_strength,
+		SUN_DAY_ENERGY,
+		presentation.day_blend
+	)
+	sun.light_energy = (
+		celestial_energy * presentation.sun_energy
+		+ presentation.lightning * LIGHTNING_SUN_ENERGY
+	)
 	# Grey overcast diffuses hard shadows; clear skies retain their crisp baseline.
-	sun.shadow_opacity = clampf(1.0 - float(weather["overcast"]) * 0.85, 0.12, 1.0)
+	sun.shadow_opacity = clampf(1.0 - presentation.overcast * 0.85, 0.12, 1.0)
 
-	var ambient := AMBIENT_NIGHT_COLOR.lerp(AMBIENT_DAY_COLOR, day_blend)
-	ambient = ambient.lerp(OVERCAST_LIGHT_COLOR, weather["overcast"] * 0.5)
-	ambient = ambient.lerp(LIGHTNING_LIGHT_COLOR, lightning * 0.7)
+	var ambient := AMBIENT_NIGHT_COLOR.lerp(AMBIENT_DAY_COLOR, presentation.day_blend)
+	ambient = ambient.lerp(OVERCAST_LIGHT_COLOR, presentation.overcast * 0.5)
+	ambient = ambient.lerp(LIGHTNING_LIGHT_COLOR, presentation.lightning * 0.7)
 	environment.ambient_light_color = ambient
 	environment.ambient_light_energy = (
-		lerpf(AMBIENT_NIGHT_ENERGY, AMBIENT_DAY_ENERGY, day_blend) * weather["ambient_energy"]
-		+ lightning * LIGHTNING_AMBIENT_ENERGY
+		lerpf(AMBIENT_NIGHT_ENERGY, AMBIENT_DAY_ENERGY, presentation.day_blend)
+		* presentation.ambient_energy
+		+ presentation.lightning * LIGHTNING_AMBIENT_ENERGY
 	)
-	environment.background_color = BACKGROUND_NIGHT_COLOR.lerp(BACKGROUND_DAY_COLOR, day_blend)
+	environment.background_color = BACKGROUND_NIGHT_COLOR.lerp(
+		BACKGROUND_DAY_COLOR, presentation.day_blend
+	)
 	sync_background(environment, interior_top_down)
-	apply_ground_mist(environment, sky_weather, progress, enclosed_interior)
+	apply_ground_mist(environment, presentation, enclosed_interior)
 
 	# Water specular follows the visible sun disk rather than civil-twilight light,
 	# preventing a sun glint after the disk has set.
-	MapViewMaterials.apply_water_lighting(
-		SkyWeather3D.sun_disk_visibility(sun_direction), day_blend
-	)
-	MapViewMaterials.apply_coastal_tide(
-		SkyWeather3D.tide_level(progress, sky_weather.calendar_date)
-	)
-	var cloud_occlusion := 1.0 - sky_weather.cloud_coverage()
-	var sun_reflection_color := SUN_DAY_COLOR.lerp(SUNSET_LIGHT_COLOR, weather["sunset_tint"])
+	MapViewMaterials.apply_water_lighting(presentation.sun_visibility, presentation.day_blend)
+	MapViewMaterials.apply_coastal_tide(presentation.tide_level)
 	MapViewMaterials.apply_water_sky_reflection(
-		sky_weather.star_map_texture(),
-		sun_direction,
-		moon_direction,
-		SkyWeather3D.sun_disk_visibility(sun_direction) * cloud_occlusion,
-		moonlight * cloud_occlusion,
-		pow(1.0 - day_blend, 3.0) * cloud_occlusion,
+		presentation.star_map,
+		presentation.sun_direction,
+		presentation.moon_direction,
+		presentation.sun_visibility * (1.0 - presentation.cloud_coverage),
+		presentation.moon_visibility,
+		presentation.star_visibility,
 		deg_to_rad(SkyWeather3D.OBSERVER_LATITUDE_DEGREES),
-		SkyWeather3D.sidereal_angle_for_progress(progress),
-		sun_reflection_color
+		presentation.sidereal_angle,
+		presentation.sun_reflection_color
 	)
-	apply_post_grade(environment, day_blend)
-	return day_blend < 0.5
+	apply_post_grade_snapshot(environment, presentation)
+	return presentation.day_blend < 0.5
+
+
+static func apply_post_grade_snapshot(
+	environment: Environment, presentation: SkyWeather3D.WeatherPresentation
+) -> void:
+	if presentation == null:
+		return
+	apply_post_grade(environment, presentation.day_blend)
 
 
 ## Enclosed top-down interiors use a black void below the hidden ceiling;
@@ -200,22 +214,24 @@ static func sync_background(environment: Environment, interior_top_down: bool) -
 ## in enclosed interiors (any camera mode under a roofed room shell). The
 ## date-based potential keeps fog occasional rather than universal outdoors.
 static func apply_ground_mist(
-	environment: Environment, sky_weather: SkyWeather3D, progress: float, enclosed_interior: bool
+	environment: Environment,
+	presentation: SkyWeather3D.WeatherPresentation,
+	enclosed_interior: bool
 ) -> void:
-	if environment == null:
+	if environment == null or presentation == null:
 		return
 	if enclosed_interior:
 		environment.fog_enabled = false
 		return
-	var hour := DayNightCycle.progress_to_hour(progress)
-	var sunrise := float(SkyWeather3D.sunrise_sunset_hours(sky_weather.calendar_date)["sunrise"])
-	var mist := morning_mist_factor(hour, sunrise)
+	var hour := DayNightCycle.progress_to_hour(presentation.cycle_progress)
+	var mist := morning_mist_factor(hour, presentation.sunrise_hour)
 	mist *= smoothstep(
 		FOG_POTENTIAL_MIN,
 		FOG_POTENTIAL_FULL,
-		SkyWeather3D.morning_fog_potential(sky_weather.calendar_date)
+		presentation.fog_potential
 	)
-	mist *= clampf(1.0 - sky_weather.wind_strength() * 0.7, 0.0, 1.0)
+	mist *= clampf(1.0 - presentation.wind_strength * 0.7, 0.0, 1.0)
+	mist *= clampf(presentation.fog_quality, 0.0, 1.0)
 	if mist <= 0.001:
 		environment.fog_enabled = false
 		return
