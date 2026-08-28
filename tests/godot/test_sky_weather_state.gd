@@ -33,6 +33,41 @@ func test_default_state_is_versioned_and_renderer_free() -> void:
 	)
 
 
+func test_payload_lists_every_persisted_field() -> void:
+	var expected_keys: Array[String] = [
+		"schema_version",
+		"weather",
+		"transition_from_weather",
+		"transition_progress",
+		"time_in_state",
+		"state_duration",
+		"auto_weather",
+		"time_scale",
+		"rain_suppressed",
+		"calendar_date",
+		"cycle_progress",
+		"elapsed_days",
+		"cloud_offset",
+		"cloud_detail_offset",
+		"puddle_wetness",
+		"seconds_since_rain",
+		"gust",
+		"gust_time",
+		"lightning",
+		"lightning_direction",
+		"lightning_time",
+		"time_to_strike",
+		"weather_rng_state",
+		"lightning_rng_state",
+		"current_profile",
+		"transition_from_profile",
+	]
+	var payload := SkyWeatherState.default_state().to_dict()
+	assert_eq(payload.size(), expected_keys.size(), "payload field count must match the contract")
+	for key in expected_keys:
+		assert_true(payload.has(key), "persisted field is missing from the payload: %s" % key)
+
+
 func test_state_round_trip_preserves_weather_continuity_inputs() -> void:
 	var source := SkyWeather.new()
 	source.auto_weather = false
