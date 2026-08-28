@@ -376,219 +376,19 @@ const GROUP_SPAWN_WEIGHTS: Dictionary = {
 		CONTEXT_GARDEN: 0.16
 	},
 }
+const _PROFILE_CARNIVORE := preload("res://scripts/map/view3d/map_view_mammal_species_carnivore.gd")
+const _PROFILE_WILD_UNGULATE := preload(
+	"res://scripts/map/view3d/map_view_mammal_species_wild_ungulate.gd"
+)
+const _PROFILE_MUSTELID := preload("res://scripts/map/view3d/map_view_mammal_species_mustelid.gd")
+const _PROFILE_SMALL_MAMMAL := preload(
+	"res://scripts/map/view3d/map_view_mammal_species_small_mammal.gd"
+)
+const _PROFILE_COASTAL := preload("res://scripts/map/view3d/map_view_mammal_species_coastal.gd")
 const _PROFILE_LIVESTOCK := preload("res://scripts/map/view3d/map_view_mammal_species_livestock.gd")
 const _PROFILE_URBAN_COMPANION := preload(
 	"res://scripts/map/view3d/map_view_mammal_species_urban_companion.gd"
 )
-const _BASE_PROFILES: Dictionary = {
-	SPECIES_BROWN_BEAR:
-	{
-		"name": "Brown bear",
-		"group": GROUP_BEAR,
-		"scale_m": 1.35,
-		"pose": POSE_STANDING,
-		"colors": [Color("6a4a32"), Color("4a3424"), Color("2a2018")],
-		"abundance": 0.12
-	},
-	SPECIES_WOLF:
-	{
-		"name": "Wolf",
-		"group": GROUP_CANID,
-		"scale_m": 0.95,
-		"pose": POSE_STANDING,
-		"colors": [Color("7a7468"), Color("4f4a42"), Color("2a2824")],
-		"abundance": 0.18,
-		"spawn": {CONTEXT_WOODLAND: 0.82, CONTEXT_FORELAND: 0.68}
-	},
-	SPECIES_RED_FOX:
-	{
-		"name": "Red fox",
-		"group": GROUP_CANID,
-		"scale_m": 0.62,
-		"pose": POSE_STANDING,
-		"colors": [Color("b56a3a"), Color("e8ddd0"), Color("2a2824")],
-		"geometry": {"tail": 0.42},
-		"abundance": 0.46,
-		"spawn": {CONTEXT_FORELAND: 0.78, CONTEXT_WOODLAND: 0.62}
-	},
-	SPECIES_LYNX:
-	{
-		"name": "Eurasian lynx",
-		"group": GROUP_FELID,
-		"scale_m": 0.82,
-		"pose": POSE_STANDING,
-		"colors": [Color("b39a72"), Color("6f5a42"), Color("2a2824")],
-		"geometry": {"ears": 0.16, "tail": 0.12},
-		"abundance": 0.14,
-		"spawn": {CONTEXT_WOODLAND: 0.76}
-	},
-	SPECIES_ELK:
-	{
-		"name": "Elk",
-		"group": GROUP_UNGULATE,
-		"scale_m": 1.55,
-		"pose": POSE_GRAZING,
-		"colors": [Color("6a5844"), Color("4a3c30"), Color("2a241c")],
-		"geometry": {"body": Vector3(1.18, 0.58, 0.42), "horns": 0.42},
-		"abundance": 0.16,
-		"spawn": {CONTEXT_WOODLAND: 0.72, CONTEXT_FORELAND: 0.58}
-	},
-	SPECIES_RED_DEER:
-	{
-		"name": "Red deer",
-		"group": GROUP_UNGULATE,
-		"scale_m": 1.18,
-		"pose": POSE_GRAZING,
-		"colors": [Color("8a6848"), Color("5a4632"), Color("2a241c")],
-		"geometry": {"horns": 0.36},
-		"abundance": 0.22,
-		"spawn": {CONTEXT_WOODLAND: 0.68}
-	},
-	SPECIES_ROE_DEER:
-	{
-		"name": "Roe deer",
-		"group": GROUP_UNGULATE,
-		"scale_m": 0.78,
-		"pose": POSE_GRAZING,
-		"colors": [Color("9a7a52"), Color("6a5438"), Color("2a241c")],
-		"geometry": {"body": Vector3(0.72, 0.36, 0.30), "horns": 0.14},
-		"abundance": 0.34,
-		"spawn": {CONTEXT_FORELAND: 0.74, CONTEXT_GARDEN: 0.28}
-	},
-	SPECIES_WILD_BOAR:
-	{
-		"name": "Wild boar",
-		"group": GROUP_UNGULATE,
-		"scale_m": 0.92,
-		"pose": POSE_GRAZING,
-		"colors": [Color("4a3428"), Color("2a2018"), Color("1a1814")],
-		"geometry": {"head": 0.18, "tail": 0.08},
-		"abundance": 0.28,
-		"spawn": {CONTEXT_WOODLAND: 0.62, CONTEXT_FORELAND: 0.48}
-	},
-	SPECIES_BEAVER:
-	{
-		"name": "Beaver",
-		"group": GROUP_RODENT,
-		"scale_m": 0.58,
-		"pose": POSE_STANDING,
-		"colors": [Color("5a4638"), Color("3a2e24"), Color("2a241c")],
-		"geometry": {"tail": 0.28, "body": Vector3(0.42, 0.20, 0.18)},
-		"abundance": 0.24,
-		"spawn": {CONTEXT_WETLAND: 0.82}
-	},
-	SPECIES_OTTER:
-	{
-		"name": "Eurasian otter",
-		"group": GROUP_MUSTELID,
-		"scale_m": 0.62,
-		"pose": POSE_STANDING,
-		"colors": [Color("5a4a3a"), Color("e8ddd0"), Color("2a2824")],
-		"geometry": {"body": Vector3(0.58, 0.16, 0.14), "tail": 0.32},
-		"abundance": 0.26,
-		"spawn": {CONTEXT_HARBOR: 0.48, CONTEXT_WETLAND: 0.76}
-	},
-	SPECIES_BADGER:
-	{
-		"name": "European badger",
-		"group": GROUP_MUSTELID,
-		"scale_m": 0.68,
-		"pose": POSE_STANDING,
-		"colors": [Color("7a6a52"), Color("2a2824"), Color("e8ddd0")],
-		"geometry": {"body": Vector3(0.56, 0.22, 0.18)},
-		"abundance": 0.30
-	},
-	SPECIES_STOAT:
-	{
-		"name": "Stoat",
-		"group": GROUP_MUSTELID,
-		"scale_m": 0.28,
-		"pose": POSE_STANDING,
-		"colors": [Color("8a7a62"), Color("e8e4dc"), Color("2a2824")],
-		"geometry": {"body": Vector3(0.38, 0.12, 0.10), "tail": 0.16},
-		"abundance": 0.32
-	},
-	SPECIES_PINE_MARTEN:
-	{
-		"name": "Pine marten",
-		"group": GROUP_MUSTELID,
-		"scale_m": 0.48,
-		"pose": POSE_STANDING,
-		"colors": [Color("6a4a2a"), Color("d8c8a8"), Color("2a2824")],
-		"geometry": {"tail": 0.30},
-		"abundance": 0.28,
-		"spawn": {CONTEXT_WOODLAND: 0.72}
-	},
-	SPECIES_POLECAT:
-	{
-		"name": "European polecat",
-		"group": GROUP_MUSTELID,
-		"scale_m": 0.42,
-		"pose": POSE_STANDING,
-		"colors": [Color("4a3a2a"), Color("d8c8a8"), Color("2a2824")],
-		"abundance": 0.22
-	},
-	SPECIES_HARE:
-	{
-		"name": "European hare",
-		"group": GROUP_LAGOMORPH,
-		"scale_m": 0.52,
-		"pose": POSE_STANDING,
-		"colors": [Color("9a8468"), Color("d8c8a8"), Color("6a5a48")],
-		"abundance": 0.52,
-		"spawn": {CONTEXT_FORELAND: 0.88}
-	},
-	SPECIES_SQUIRREL:
-	{
-		"name": "Red squirrel",
-		"group": GROUP_RODENT,
-		"scale_m": 0.22,
-		"pose": POSE_STANDING,
-		"colors": [Color("9a4a28"), Color("d8c8a8"), Color("4a3424")],
-		"geometry": {"tail": 0.28, "ears": 0.10},
-		"abundance": 0.58,
-		"spawn": {CONTEXT_GARDEN: 0.72, CONTEXT_WOODLAND: 0.68}
-	},
-	SPECIES_HEDGEHOG:
-	{
-		"name": "European hedgehog",
-		"group": GROUP_INSECTIVORE,
-		"scale_m": 0.20,
-		"pose": POSE_STANDING,
-		"colors": [Color("6a5a48"), Color("4a4038"), Color("2a241c")],
-		"abundance": 0.42
-	},
-	SPECIES_GREY_SEAL:
-	{
-		"name": "Grey seal",
-		"group": GROUP_SEAL,
-		"scale_m": 1.42,
-		"pose": POSE_RESTING,
-		"colors": [Color("8a8a82"), Color("6a6a62"), Color("4a4a44")],
-		"abundance": 0.18,
-		"spawn": {CONTEXT_HARBOR: 0.86}
-	},
-	SPECIES_RINGED_SEAL:
-	{
-		"name": "Ringed seal",
-		"group": GROUP_SEAL,
-		"scale_m": 1.05,
-		"pose": POSE_RESTING,
-		"colors": [Color("9a9488"), Color("6a6458"), Color("4a443c")],
-		"geometry": {"body": Vector3(0.82, 0.28, 0.24)},
-		"abundance": 0.12,
-		"spawn": {CONTEXT_HARBOR: 0.62, CONTEXT_WETLAND: 0.42}
-	},
-	SPECIES_COMMON_BAT:
-	{
-		"name": "Common bat",
-		"group": GROUP_BAT,
-		"scale_m": 0.10,
-		"pose": POSE_STANDING,
-		"colors": [Color("4a4038"), Color("2a2824"), Color("6a5a48")],
-		"abundance": 0.36
-	},
-}
 const MaterialPatterns := preload("res://scripts/map/view3d/map_view_material_patterns.gd")
 
 static var _profiles_cache: Dictionary = {}
@@ -599,7 +399,11 @@ static var _normal_texture_cache: Dictionary = {}
 static func _profiles() -> Dictionary:
 	if _profiles_cache.is_empty():
 		_profiles_cache = (
-			_BASE_PROFILES
+			_PROFILE_CARNIVORE.PROFILES
+			.merged(_PROFILE_WILD_UNGULATE.PROFILES)
+			.merged(_PROFILE_MUSTELID.PROFILES)
+			.merged(_PROFILE_SMALL_MAMMAL.PROFILES)
+			.merged(_PROFILE_COASTAL.PROFILES)
 			.merged(_PROFILE_URBAN_COMPANION.PROFILES)
 			.merged(_PROFILE_LIVESTOCK.PROFILES)
 		)

@@ -232,9 +232,9 @@ Inventory date: **2026-08-19** (P0-184). Counts use `wc -l` on `scripts/**/*.gd`
 
 | Band | Count | How to treat it |
 | --- | --- | --- |
-| >= 800 lines | 6 | Must have an explicit keep/extract decision (table below). Primary EE-agent pain. |
+| >= 800 lines | 4 | Must have an explicit keep/extract decision (table below). Primary EE-agent pain. |
 | 600-799 lines | 18 | Audit + prefer extraction only when responsibilities already mix. |
-| 400-599 lines | 37 | Audit trigger only; do not split by line count alone. |
+| 400-599 lines | 39 | Audit trigger only; do not split by line count alone. |
 | Total >= 400 | 61 | Up one from the 2026-08-13 refresh; growth is in view3d mesh builders and map types. |
 
 Soft readability target for new or extracted runtime helpers: **under 600 lines**, ideally under 400, unless the file is a pure data catalog or one grammar/facade. EE-agent split plan with ordered steps: [`docs/reports/agent_file_readability_split_plan_2026-08-13.md`](./reports/agent_file_readability_split_plan_2026-08-13.md). Justified extractions for the 800+ band are **P0-185**.
@@ -244,10 +244,8 @@ Soft readability target for new or extracted runtime helpers: **under 600 lines*
 | File (lines) | Current responsibility | Decision and regression gate |
 | --- | --- | --- |
 | `scripts/map/view3d/map_view_tree_meshes.gd` (1143) | Species profiles plus procedural wood/canopy/fruit mesh builders | **Extract (P0-185).** Split species profile tables from mesh emitters behind the existing `wood_mesh` / `canopy_mesh` / `fruit_mesh` facade. Protect with `test_map_view_3d_mesh`, foliage/tree mesh filters, and outdoor captures. |
-| `scripts/map/view3d/map_view_bird_species.gd` (1076) | Stable bird IDs, group/pose/context tables, spawn weights, materials | **Extract (P0-185).** Keep the public `MapViewBirdSpecies` API; move per-group profile tables into focused data modules (same pattern as already-split star catalogs). Protect with bird mesh/audio/flight filters and species allowlist tests. |
 | `scripts/map/view3d/map_view_mesh_builder_prop_models.gd` (1020) | Prop dispatch plus smithy kits, boats, banners, livestock, authored trees | **Extract (P0-185).** Keep `build_prop` facade; peel smithy kit builders and outdoor/boat/fauna branches into typed helpers. Protect with `test_map_view_3d_mesh`, `test_forge_prop_meshes`, boat/float filters. |
 | `scripts/map/view3d/map_view_material_shaders.gd` (952) | Inline `.gdshader` string catalog and tiny shader cache | **Extract or relocate (P0-185).** Prefer moving large shader sources to `*.gdshader` resources loaded by the existing cache API so agents edit one surface at a time. Protect with `test_map_view_material_resolution`, `test_map_view_3d_lighting`, water/terrain mesh filters. |
-| `scripts/map/view3d/map_view_mammal_species.gd` (870) | Mammal ID/profile catalog parallel to birds | **Extract (P0-185).** Same group-table split as birds; keep stable IDs and accessor facade. Protect with mammal mesh/fauna filters. |
 | `scripts/map/view3d/map_view_runtime.gd` (832) | 2D-to-3D install facade, ambient installers, time ladder, click input | **Extract (P0-185).** Actors/camera already moved out; next peel ambient installers (birds/fauna/insects/crowd/music) and/or time-flow controls behind the same `MapViewRuntime` facade. Protect with `test_map_view_3d_runtime`, camera/click/crowd/fauna filters, session-state replacement tests. |
 
 ### 600-799 line band (keep unless a second reason appears)
@@ -275,7 +273,7 @@ Soft readability target for new or extracted runtime helpers: **under 600 lines*
 
 ### 400-599 line band (audit list only)
 
-These remain over the audit trigger but are not scheduled rewrites: `map_blueprint_compiler_expand.gd` (579), `map_view_mesh_builder_house_roof_dressing.gd` (573), `map_composition_audit.gd` (573), `map_blueprint.gd` (565), `game_state.gd` (538), `map_view_mesh_builder_building_fortification.gd` (528), `map_prop_renderer_industrial.gd` (528), `smithy_routine_controller.gd` (512), `faction_heraldry.gd` (505), `map_view_bush_species.gd` (504), `map_view_mesh_builder_district_life_props.gd` (499), `minimap_hud.gd` (486), `inventory_overlay.gd` (481), `map_blueprint_compiler.gd` (473), `forge_prologue_controller.gd` (471), `map_view_bird_flight.gd` (467), `map_prop_renderer_life.gd` (467), `map_view_plant_species.gd` (460), `map_view_plant_meshes.gd` (453), `map_view_mesh_builder_surroundings.gd` (448), `world_item_controller.gd` (445), `state_rule_evaluator.gd` (439), `dialogue_runner.gd` (438), `bitter_brew_night_consequence.gd` (433), `game_settings_overlay.gd` (431), `estonia_star_catalog_ra_180_270.gd` (430), `dialogue_ui.gd` (426), `quick_access_menu.gd` (425), `game_state_persistence.gd` (419), `map_rrmap_parser_tokens.gd` (419), `map_view_mesh_builder_config.gd` (418), `map_view_penned_fauna.gd` (412), `act1_aftermath_model.gd` (409), `estonia_star_catalog_ra_090_180.gd` (409), `estonia_star_catalog_ra_270_360.gd` (408), `map_view_merchant_boat_builder.gd` (406), `estonia_star_catalog_ra_000_090.gd` (404). Star catalog shards are already the preferred data-split pattern; keep them.
+These remain over the audit trigger but are not scheduled rewrites: `map_blueprint_compiler_expand.gd` (579), `map_view_mesh_builder_house_roof_dressing.gd` (573), `map_composition_audit.gd` (573), `map_blueprint.gd` (565), `map_view_mammal_species.gd` (564), `game_state.gd` (538), `map_view_mesh_builder_building_fortification.gd` (528), `map_prop_renderer_industrial.gd` (528), `smithy_routine_controller.gd` (512), `faction_heraldry.gd` (505), `map_view_bush_species.gd` (504), `map_view_mesh_builder_district_life_props.gd` (499), `minimap_hud.gd` (486), `inventory_overlay.gd` (481), `map_blueprint_compiler.gd` (473), `forge_prologue_controller.gd` (471), `map_view_bird_flight.gd` (467), `map_prop_renderer_life.gd` (467), `map_view_plant_species.gd` (460), `map_view_plant_meshes.gd` (453), `map_view_mesh_builder_surroundings.gd` (448), `world_item_controller.gd` (445), `state_rule_evaluator.gd` (439), `dialogue_runner.gd` (438), `bitter_brew_night_consequence.gd` (433), `game_settings_overlay.gd` (431), `estonia_star_catalog_ra_180_270.gd` (430), `dialogue_ui.gd` (426), `quick_access_menu.gd` (425), `game_state_persistence.gd` (419), `map_rrmap_parser_tokens.gd` (419), `map_view_mesh_builder_config.gd` (418), `map_view_penned_fauna.gd` (412), `act1_aftermath_model.gd` (409), `estonia_star_catalog_ra_090_180.gd` (409), `estonia_star_catalog_ra_270_360.gd` (408), `map_view_merchant_boat_builder.gd` (406), `estonia_star_catalog_ra_000_090.gd` (404), `map_view_bird_species.gd` (577). Star catalog shards are already the preferred data-split pattern; keep them.
 
 Non-`scripts/` files over 400 lines (scenes/tests/debug) are outside this runtime audit. Treat `scenes/comparison_room/comparison_room.gd` and debug showcases as disposable verification hosts, not production split targets.
 
@@ -284,10 +282,11 @@ Non-`scripts/` files over 400 lines (scenes/tests/debug) are outside this runtim
 - P1-034: `WorldMapOverlay` facade with local/fast-travel child views.
 - P0-079: `SkyWeatherResources` beside `SkyWeather3D`.
 - Runtime actors: `MapViewRuntimeActors` beside `MapViewRuntime` / `MapViewRuntimeCamera`.
+- P0-185 (partial): `MapViewBirdSpecies` and `MapViewMammalSpecies` profile tables moved into per-group shard modules; facades now 577 and 564 lines. Gate: `test_map_view_bird_species`, `test_map_view_mammal_species`, bird mesh/audio/flight, urban/penned fauna filters.
 
 ### Scheduled follow-up
 
-**P0-185** performs justified extractions only for the six files in the 800+ table. Do not open broad LOC-driven rewrites of the 400-799 bands. Documentation/agent readability slim-downs for `docs/MAP_AUTHORING.md`, `docs/ROADMAP.md`, and offline `tools/` generators are tracked beside storage work in [`docs/STORAGE_SIZE_BACKLOG.md`](./STORAGE_SIZE_BACKLOG.md) and the 2026-08-13 readability report; they are not runtime architecture extractions.
+**P0-185** performs justified extractions only for the four remaining files in the 800+ table (`map_view_tree_meshes`, `map_view_mesh_builder_prop_models`, `map_view_material_shaders`, `map_view_runtime`). Bird and mammal species catalog shards are closed. Do not open broad LOC-driven rewrites of the 400-799 bands. Documentation/agent readability slim-downs for `docs/MAP_AUTHORING.md`, `docs/ROADMAP.md`, and offline `tools/` generators are tracked beside storage work in [`docs/STORAGE_SIZE_BACKLOG.md`](./STORAGE_SIZE_BACKLOG.md) and the 2026-08-13 readability report; they are not runtime architecture extractions.
 
 ## Verification baseline
 
