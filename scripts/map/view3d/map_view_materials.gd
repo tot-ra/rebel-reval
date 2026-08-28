@@ -538,8 +538,8 @@ static func sail_cloth() -> ShaderMaterial:
 	if _cache.has(key):
 		return _cache[key]
 	var material := ShaderMaterial.new()
-	material.shader = MapViewMaterialShaders.shader(
-		"cloth", MapViewMaterialShaders.CLOTH_SHADER_CODE
+	material.shader = MapViewMaterialShaders.shader_resource(
+		"cloth", MapViewMaterialShaders.CLOTH_SHADER
 	)
 	material.set_shader_parameter("base_color", Color8(214, 208, 190))
 	material.set_shader_parameter("sway_strength", 0.28)
@@ -555,8 +555,8 @@ static func flag_cloth() -> ShaderMaterial:
 	if _cache.has(key):
 		return _cache[key]
 	var material := ShaderMaterial.new()
-	material.shader = MapViewMaterialShaders.shader(
-		"cloth", MapViewMaterialShaders.CLOTH_SHADER_CODE
+	material.shader = MapViewMaterialShaders.shader_resource(
+		"cloth", MapViewMaterialShaders.CLOTH_SHADER
 	)
 	material.set_shader_parameter("base_color", Color8(248, 246, 240))
 	material.set_shader_parameter("sway_strength", 0.42)

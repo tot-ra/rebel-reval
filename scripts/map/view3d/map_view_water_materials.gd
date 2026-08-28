@@ -24,8 +24,8 @@ static func puddle_surface() -> ShaderMaterial:
 	if _cache.has(key):
 		return _cache[key]
 	var material := ShaderMaterial.new()
-	material.shader = MapViewMaterialShaders.shader(
-		"puddle", MapViewMaterialShaders.PUDDLE_SHADER_CODE
+	material.shader = MapViewMaterialShaders.shader_resource(
+		"puddle", MapViewMaterialShaders.PUDDLE_SHADER
 	)
 	material.set_shader_parameter("wet_tint", Vector3(0.78, 0.82, 0.86))
 	material.set_shader_parameter("sheen_tint", Vector3(0.94, 0.96, 0.98))
