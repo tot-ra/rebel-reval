@@ -1,9 +1,8 @@
 extends "res://tests/godot/test_case.gd"
 
 ## R-738 structural contract tests intentionally avoid preloading the capture
-## helper. The current worktree has an unrelated SkyWeather3D parser blocker;
-## reading the new source/manifest keeps this suite useful and fail-closed while
-## the renderer-bound capture remains a separate integration check.
+## helper. Reading the committed source and manifest keeps this suite deterministic
+## and useful, while renderer-bound visual acceptance remains a separate review gate.
 
 const CAPTURE_SOURCE := "res://tools/capture_r713_sky_weather_continuity.gd"
 const MANIFEST_PATH := "res://docs/reports/images/r713_sky_weather/capture_manifest.json"
