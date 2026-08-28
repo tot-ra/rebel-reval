@@ -18,3 +18,4 @@ The project playbook is split by agent ownership so each role loads only relevan
 New lessons must be appended to the shared playbook or the narrowest relevant role playbook. Do not rebuild identical copies across every agent.
 - A temporary Godot navigation probe can fail before running when a loop iterator name is redeclared in the same scope; inspect the saved log and use distinct iterator names before classifying the engine bake result.
 - 2026-08-26: When reconstructing a scoped staged patch from temporary clean/current blobs, normalize all temporary absolute paths in `diff --git`, `---`, and `+++` headers before `git apply --cached`; changing only one header or leaving `/tmp` paths makes a valid patch fail without changing the index.
+- 2026-08-29: Before reading a project guidance or playbook file, pass the exact discovered file path; a malformed composed path can produce a misleading stat error and waste an investigation step.
