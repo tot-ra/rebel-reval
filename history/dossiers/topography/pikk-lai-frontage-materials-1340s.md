@@ -7,7 +7,7 @@ related:
   - ./lower-town-street-plan.md
   - ../architecture/burgher-house-plan.md
   - ./raekoja-plats-extents-1343.md
-updated: 2026-07-27
+updated: 2026-08-28
 ---
 
 # Pikk and Lai frontage materials (1340s)
@@ -43,6 +43,23 @@ Reval's city archives hold one of the richer Hanseatic record collections [1]. F
 | Building-history chains (Pikk 52, 55, etc.) | Original wooden houses replaced 15th c. | Address-specific but **post-1343** [10] | attested for later phases; 1343 inference **plausible composite** [10] |
 
 **Bottom line:** property records confirm **both timber and stone houses existed in the 1340s** but **cannot** be mapped to individual Pikk/Lai frontages for Spring 1343 [1][2]. Any street-level map is a **labelled composite**.
+
+### AWB street-name pass (1340-1343 window; edition-local)
+
+A full-volume OCR pass on the public-domain Arbusow/BSB MDZ digitisation (240 canvases, manifest `bsb00149661`) searched for `picken`, `langen`, `Pikk`, `Lai`, `laien`, `karri*`, and related Latin street forms. **No AWB entry in the published edition names Pikk or Lai** (or obvious MLG/Latin equivalents such as *platea longa* / *platea picken*) in any register year [14].
+
+Within the **1340-1343** entry band, location formulas that **do** appear are landmark- or function-based, not the modern merchant-spine names:
+
+| AWB no. | Date / sequence | Printed page; MDZ canvas | Location formula | Relevance to Pikk/Lai | Confidence |
+|---|---|---|---|---|---|
+| **508** | **1341** | p. 78; canvas 91 | `areas duarum institricarum bodarum iuxta consistorium proxime sitarum` | Forum / council-house adjacency, not a named Pikk/Lai frontage | attested [14] |
+| **521** | **1341** | pp. 72-73; canvases 89, 93 | `hereditas in platea fabrorum in opposito domini Hunoldi de Ostinchusen sita` | Smiths' plate near a named burgher; useful guild-quarter comparandum, **not** evidence that *platea fabrorum* equals Pikk or Lai | attested [14] |
+| **553** | **1342 register sequence** (before AWB 554, 3 Dec. 1342) | p. 83; canvas 99 | `stupa sub longo monte` | Bath-site landmark; **do not** equate *longo monte* with the Estonian street name Pikk without separate onomastic evidence | attested clause; street identification **gap** [14] |
+| **569** | **1343** | p. 86; canvas 102 | `hereditatem retro consistorium sitam` | Rear plot behind the council house; forum-edge hook only | attested [14] |
+
+Earlier but still pre-1343 comparanda outside the narrow window include AWB **302** (`platea dicta dummestrate`, hoist-street / Rataskaevu anchor; see [`back-lanes-east-of-pikk.md`](./back-lanes-east-of-pikk.md)) and AWB **497** (continuation on canvas 89: `platea fabrorum in opposito domini Hunoldi de Ostinchusen`) [14].
+
+**Production read:** Map and art must keep Pikk/Lai as **modern spine labels** backed by later onomastics and archaeology, not AWB house-by-house addressing. Ward-level timber/stone bands in this dossier remain valid; do not promote AWB *platea fabrorum* rows into plot tags on Pikk Block A/B without a separate transfer argument.
 
 ### Citywide material rule (1343-safe)
 
@@ -142,7 +159,7 @@ Segment: Lai east toward St Olaf, including Lai 38–42 (Three Brothers) and Lai
 
 ## Open questions
 
-- Whether any **1340–1343 AWB entry** names Pikk or Lai explicitly — needs Tallinn City Archives pass (supports future `R-037` row).
+- **Resolved (edition-local negative, 2026-08-28):** the published Arbusow/MDZ AWB contains **no** explicit Pikk/Lai street name in 1340-1343 entries; landmark formulas (*consistorium*, *platea fabrorum*, *longo monte*) remain the usable locators. A TLA manuscript folio collation could still surface spellings absent from the 1888 print/OCR [14].
 - **Dendrochronology** for surviving Pikk/Lai houses with 14th-c. cores — would tighten which plots can carry `front_stone` in Act 2.
 - **Fire-loss chronology** on Pikk vs Lai before 1400 — would explain acceleration of stone fronts.
 
@@ -161,3 +178,4 @@ Segment: Lai east toward St Olaf, including Lai 38–42 (Three Brothers) and Lai
 11. Visit Tallinn architecture guide — stone merchant houses first on Pikk, Lai, Old Market (general medieval, not 1343-dated). https://visittallinn.ee/eng/visitor/ideas-tips/tips-and-guides/architecture-in-tallinn
 12. Wikimedia / building-history comparanda cited in [`burgher-house-plan.md`](../architecture/burgher-house-plan.md) images folder — Lai 5 rear yard, Lai 23 courtyard (English).
 13. Tallinn Town Hall building history — first-quarter 14th-c. limestone civic mass adjacent to Pikk Block A. https://raekoda.tallinn.ee/en/the-building/
+14. L. Arbusow (ed.), *Das älteste Wittschopbuch der Stadt Reval (1312-1360)*, Reval: Kluge, 1888 — full-volume MDZ OCR pass (240 canvases) for Pikk/Lai and related street forms; negative for explicit spine names; positive rows AWB 302, 497/521, 508, 553, 569 as cited above. Manifest: https://api.digitale-sammlungen.de/iiif/presentation/v2/bsb00149661/manifest

@@ -148,7 +148,7 @@ Labourers and **Estonian servants** more often use **rear lanes and yard gates**
 
 ## Open questions
 
-- Whether **1340–1343 AWB** entries name any rear lane beside Pikk explicitly — Tallinn City Archives pass (supports downstream index request).
+- Whether **1340–1343 AWB** entries name any rear lane beside Pikk explicitly — **edition-local negative for Pikk/Lai spine names** delivered 2026-08-28; AWB **302** still attests *platea dicta dummestrate* pre-1343 (see [`pikk-lai-frontage-materials-1340s.md`](./pikk-lai-frontage-materials-1340s.md)).
 - **Measured medieval yard-gate widths** on Pikk plots — no published survey; dendrochronology on surviving gates would help art.
 - **Unnamed parallel lanes** between Pikk and Lai in the eastern blocks — separate tick from Lai-side Kloostri network.
 - **Katariina käik** cart traffic rights vs pedestrian-only custom in the 1340s — Dominican account books not reviewed here.
@@ -169,5 +169,5 @@ Labourers and **Estonian servants** more often use **rear lanes and yard gates**
 12. Tourist/heritage observation: Katariina käik length ~80 m, narrow pedestrian scale — **plausible composite** width only (English). https://www.tallinn-trip.com/guides/st-catherines-passage/
 13. Pärn, A., "Über die ältere Infrastruktur Tallinns (Revals)," in *Lübecker Kolloquium zur Stadtarchäologie im Hanseraum IV*, 2004 — Hanseatic infrastructure framing (German).
 14. Medieval Heritage, Tallinn Gothic houses — deep strip plots and rear service buildings (English). https://medievalheritage.eu/en/main-page/heritage/estonia/tallinn-gothic-houses/
-15. Project dossier: [`pikk-lai-frontage-materials-1340s.md`](./pikk-lai-frontage-materials-1340s.md) — Pikk Block A market yards (English).
+15. Project dossier: [`pikk-lai-frontage-materials-1340s.md`](./pikk-lai-frontage-materials-1340s.md) — Pikk Block A market yards; AWB full-volume pass (2026-08-28) confirms no explicit Pikk/Lai names in 1340-1343 entries.
 16. Project dossier: [`estonian-and-german-populations.md`](../people/estonian-and-german-populations.md) — rear-lane labour housing gradient (English).
