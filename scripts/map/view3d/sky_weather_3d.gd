@@ -75,11 +75,11 @@ const QUALITY_AUTO: StringName = &"auto"
 const QUALITY_TIER_IDS: Array[StringName] = [QUALITY_MINIMUM, QUALITY_RECOMMENDED]
 const QUALITY_TIERS: Dictionary = {
 	QUALITY_MINIMUM: {
-		"cloud_noise_resolution": 128,
-		"cloud_shape_resolution": 256,
+		"cloud_noise_resolution": SKY_RESOURCES.CLOUD_NOISE_RESOLUTION_MINIMUM,
+		"cloud_shape_resolution": SKY_RESOURCES.CLOUD_SHAPE_RESOLUTION_MINIMUM,
 		"cloud_shadow_samples": 2,
 		"rain_shaft_samples": 3,
-		"rain_particles": 700,
+		"rain_particles": SKY_RESOURCES.RAIN_PARTICLES_MINIMUM,
 		# This scales rendered flash intensity, not deterministic strike timing.
 		"lightning_density": 0.65,
 		"fog_quality": 0.65,
@@ -90,11 +90,11 @@ const QUALITY_TIERS: Dictionary = {
 		"shader_sample_budget": 80,
 	},
 	QUALITY_RECOMMENDED: {
-		"cloud_noise_resolution": 256,
-		"cloud_shape_resolution": 512,
+		"cloud_noise_resolution": SKY_RESOURCES.CLOUD_NOISE_RESOLUTION_RECOMMENDED,
+		"cloud_shape_resolution": SKY_RESOURCES.CLOUD_SHAPE_RESOLUTION_RECOMMENDED,
 		"cloud_shadow_samples": 4,
 		"rain_shaft_samples": 6,
-		"rain_particles": 2200,
+		"rain_particles": SKY_RESOURCES.RAIN_PARTICLES_RECOMMENDED,
 		"lightning_density": 1.0,
 		"fog_quality": 1.0,
 		"fallback_behavior": &"gradient_only_if_resource_missing",
@@ -265,6 +265,7 @@ class WeatherPresentation extends RefCounted:
 	var cloud_coverage := 0.0
 	var overcast := 0.0
 	var lightning := 0.0
+	var fog_quality := 1.0
 	var sunset_factor := 0.0
 	var sunset_tint := 0.0
 	var sun_energy := 1.0
@@ -295,7 +296,12 @@ var rain_suppressed := false
 ## 1 while the sun hugs the horizon (golden hour), 0 the rest of the cycle.
 var sunset_factor := 0.0
 var calendar_date: Dictionary = GAME_CALENDAR.DEFAULT_DATE.duplicate()
-var quality_tier: StringName = QUALITY_RECOMMENDED
+var quality_tier: StringName = QUALITY_RECOMMENDED:
+	set(value):
+		quality_tier = resolve_quality_tier(value)
+		if _material != null:
+			_apply_quality_resources()
+			_push_cloud_uniforms()
 
 var _current: Dictionary = (PROFILES[WEATHER_CLEAR] as Dictionary).duplicate()
 var _from: Dictionary = (PROFILES[WEATHER_CLEAR] as Dictionary).duplicate()
@@ -348,8 +354,43 @@ static func quality_settings(requested: Variant) -> Dictionary:
 	return (QUALITY_TIERS[tier] as Dictionary).duplicate(true)
 
 
-## State is seeded here, not in configure(), so headless tests can exercise the
-## weather machine without building any rendering resources.
+## Quality-specific resources are rebuilt only during renderer configuration. Keeping the
+## selected tier out of the simulation state preserves deterministic weather results.
+func _quality_settings() -> Dictionary:
+	return quality_settings(quality_tier)
+
+
+func fog_quality() -> float:
+	return float(_quality_settings()["fog_quality"])
+
+
+func set_quality_tier(requested: Variant) -> void:
+	quality_tier = requested
+
+
+func _apply_quality_resources() -> void:
+	var settings := _quality_settings()
+	var cloud_noise := SKY_RESOURCES.build_cloud_noise(
+		WEATHER_SEED, int(settings["cloud_noise_resolution"])
+	)
+	var cloud_shape := SKY_RESOURCES.build_cloud_shape(
+		WEATHER_SEED, int(settings["cloud_shape_resolution"])
+	)
+	_cloud_resources_available = cloud_noise != null and cloud_shape != null
+	_material.set_shader_parameter(&"cloud_noise", cloud_noise)
+	_material.set_shader_parameter(&"cloud_shape", cloud_shape)
+	_material.set_shader_parameter(
+		&"cloud_shadow_samples", int(settings["cloud_shadow_samples"])
+	)
+	_material.set_shader_parameter(
+		&"rain_shaft_samples", int(settings["rain_shaft_samples"])
+	)
+	_material.set_shader_parameter(&"lightning_density", float(settings["lightning_density"]))
+	_material.set_shader_parameter(&"cloud_fallback", not _cloud_resources_available)
+	if _rain != null:
+		_rain.amount = int(settings["rain_particles"])
+
+
 func _init() -> void:
 	_rng.seed = WEATHER_SEED
 	_lightning_rng.seed = WEATHER_SEED + 101
@@ -486,8 +527,7 @@ func configure(camera: Camera3D, environment: Environment) -> void:
 	_camera = camera
 	_material = ShaderMaterial.new()
 	_material.shader = SKY_SHADER
-	_material.set_shader_parameter(&"cloud_noise", SKY_RESOURCES.build_cloud_noise(WEATHER_SEED))
-	_material.set_shader_parameter(&"cloud_shape", SKY_RESOURCES.build_cloud_shape(WEATHER_SEED))
+	_apply_quality_resources()
 	_material.set_shader_parameter(
 		&"lunar_albedo_map", SKY_RESOURCES.build_lunar_albedo_map(WEATHER_SEED)
 	)
@@ -504,7 +544,7 @@ func configure(camera: Camera3D, environment: Environment) -> void:
 	environment.sky = sky
 	environment.background_mode = Environment.BG_SKY
 
-	_rain = SKY_RESOURCES.build_rain()
+	_rain = SKY_RESOURCES.build_rain(int(_quality_settings()["rain_particles"]))
 	add_child(_rain)
 	_roof_audio = SkyWeatherRoofAudioScript.new()
 	_roof_audio.name = "RoofRainAudio"
@@ -674,6 +714,7 @@ func presentation_snapshot(progress: float, day_blend: float) -> WeatherPresenta
 	var modifiers := lighting_modifiers()
 	snapshot.overcast = float(modifiers["overcast"])
 	snapshot.lightning = float(modifiers["lightning"])
+	snapshot.fog_quality = fog_quality()
 	snapshot.sunset_factor = sunset_factor
 	snapshot.sunset_tint = float(modifiers["sunset_tint"])
 	snapshot.sun_energy = float(modifiers["sun_energy"])
@@ -987,6 +1028,11 @@ func _push_cloud_uniforms() -> void:
 	_material.set_shader_parameter(&"cloud_offset", _cloud_offset)
 	_material.set_shader_parameter(&"cloud_detail_offset", _cloud_detail_offset)
 	_material.set_shader_parameter(&"cloud_chaos", cloud_chaos())
+	var settings := _quality_settings()
+	_material.set_shader_parameter(&"cloud_shadow_samples", int(settings["cloud_shadow_samples"]))
+	_material.set_shader_parameter(&"rain_shaft_samples", int(settings["rain_shaft_samples"]))
+	_material.set_shader_parameter(&"lightning_density", float(settings["lightning_density"]))
+	_material.set_shader_parameter(&"cloud_fallback", not _cloud_resources_available)
 	_material.set_shader_parameter(&"storm_intensity", storm_intensity())
 	_material.set_shader_parameter(&"storm_locality", storm_locality())
 	_material.set_shader_parameter(&"lightning", _effective_lightning())

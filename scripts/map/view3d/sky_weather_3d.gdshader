@@ -39,6 +39,15 @@ uniform vec2 cloud_offset = vec2(0.0);
 uniform vec2 cloud_detail_offset = vec2(0.0);
 // Domain-warp strength. Clear weather keeps mild chaos; storms tear harder.
 uniform float cloud_chaos : hint_range(0.0, 1.0) = 0.35;
+// Quality tier controls the fixed upper bound of the cloud self-shadow march.
+uniform int cloud_shadow_samples : hint_range(1, 4) = 4;
+// Quality tier controls the fixed upper bound of the distant rain march.
+uniform int rain_shaft_samples : hint_range(1, 6) = 6;
+// Missing procedural textures fail closed to the readable gradient instead of
+// sampling an invalid resource. Normal minimum quality still keeps cloud shape.
+uniform bool cloud_fallback = false;
+// Minimum quality reduces visible lightning cost without changing strike timing.
+uniform float lightning_density : hint_range(0.0, 1.0) = 1.0;
 // Cumulonimbus development: 0 = fair-weather heaps, 1 = towering anvil storm.
 // Drives the squall wall, darkened bases, sunlit anvil crowns, and rain curtains.
 uniform float storm_intensity : hint_range(0.0, 1.0) = 0.0;
@@ -117,7 +126,7 @@ float cloud_opacity(vec2 uv, float cover) {
 //   y = light factor (0 = shadowed underside, 1 = sunlit top / anvil crown),
 //   z = local storm strength here (drives shadow depth and rain association).
 vec3 cloud_field(vec3 dir) {
-	if (dir.y < 0.02) {
+	if (cloud_fallback || dir.y < 0.02) {
 		return vec3(0.0);
 	}
 	float horizon_fade = smoothstep(0.02, 0.20, dir.y);
@@ -162,10 +171,16 @@ vec3 cloud_field(vec3 dir) {
 	// emboss rim, and unlike a single tap it is a smooth gradient, not two tones.
 	vec2 sun_xz = vec2(sun_direction.x, -sun_direction.z);
 	vec2 light_dir = length(sun_xz) > 0.001 ? normalize(sun_xz) : vec2(1.0, 0.0);
-	float march = cloud_bulk(uv + light_dir * 0.02, cover)
-		+ cloud_bulk(uv + light_dir * 0.05, cover) * 0.7
-		+ cloud_bulk(uv + light_dir * 0.09, cover) * 0.45
-		+ cloud_bulk(uv + light_dir * 0.15, cover) * 0.25;
+	float march = cloud_bulk(uv + light_dir * 0.02, cover);
+	if (cloud_shadow_samples >= 2) {
+		march += cloud_bulk(uv + light_dir * 0.05, cover) * 0.7;
+	}
+	if (cloud_shadow_samples >= 3) {
+		march += cloud_bulk(uv + light_dir * 0.09, cover) * 0.45;
+	}
+	if (cloud_shadow_samples >= 4) {
+		march += cloud_bulk(uv + light_dir * 0.15, cover) * 0.25;
+	}
 	float self_shadow = exp(-march * 1.25);
 	// Ambient fill stops shadowed sides crushing to black; storm cells sit darker.
 	float ambient = mix(0.46, 0.22, local_storm);
@@ -196,7 +211,7 @@ float rain_shafts(vec3 dir) {
 	// rain hangs from. `base_gap` is the distance up to the nearest cloud.
 	float source = 0.0;
 	float base_gap = 1.0;
-	for (int i = 1; i <= 6; i++) {
+	for (int i = 1; i <= rain_shaft_samples; i++) {
 		float offset = float(i) * 0.07;
 		vec3 up = normalize(vec3(dir.x, dir.y + offset, dir.z));
 		vec2 up_uv = up.xz / (up.y + 0.26) * 0.30 + cloud_offset;
@@ -511,9 +526,10 @@ void sky() {
 		float aim = max(dot(strike_ground, lightning_dir), 0.0);
 		float near_strike = pow(aim, 3.0) * smoothstep(0.75, 0.0, dir.y);
 		vec3 flash_col = vec3(0.90, 0.94, 1.10);
-		color += flash_col * lightning * (near_strike * (0.5 + clouds * 1.6 + shafts * 1.3) + 0.03);
+		color += flash_col * lightning * lightning_density
+			* (near_strike * (0.5 + clouds * 1.6 + shafts * 1.3) + 0.03);
 		// The bolt itself, a searing white-blue channel drawn over the flash.
-		color += vec3(0.95, 0.97, 1.25) * lightning_bolt(dir) * 4.0;
+		color += vec3(0.95, 0.97, 1.25) * lightning_bolt(dir) * 4.0 * lightning_density;
 	}
 
 	COLOR = color;

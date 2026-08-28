@@ -8,6 +8,12 @@ extends RefCounted
 const STAR_MAP_WIDTH := 2048
 const STAR_MAP_HEIGHT := 1024
 const LUNAR_ALBEDO_MAP_SIZE := 1024
+const CLOUD_NOISE_RESOLUTION_MINIMUM := 128
+const CLOUD_NOISE_RESOLUTION_RECOMMENDED := 256
+const CLOUD_SHAPE_RESOLUTION_MINIMUM := 256
+const CLOUD_SHAPE_RESOLUTION_RECOMMENDED := 512
+const RAIN_PARTICLES_MINIMUM := 700
+const RAIN_PARTICLES_RECOMMENDED := 2200
 ## NASA LRO near-side mosaic, cropped to an opaque RGB disk with a filter-safe
 ## limb fill (no black exterior). Public-domain US Government work; see SOURCES.
 const LUNAR_ALBEDO_NEAR_SIDE := preload("res://assets/sky/lunar_albedo_nearside.png")
@@ -15,15 +21,20 @@ const LUNAR_ALBEDO_NEAR_SIDE := preload("res://assets/sky/lunar_albedo_nearside.
 
 ## Deterministic seamless FBM noise used only to erode cloud edges and add
 ## surface texture. Authored in code so no runtime art assets are required.
-static func build_cloud_noise(seed: int) -> NoiseTexture2D:
+static func build_cloud_noise(
+	seed: int, resolution: int = CLOUD_NOISE_RESOLUTION_RECOMMENDED
+) -> NoiseTexture2D:
 	var noise := FastNoiseLite.new()
 	noise.seed = seed
 	noise.frequency = 0.03
 	noise.fractal_type = FastNoiseLite.FRACTAL_FBM
 	noise.fractal_octaves = 4
 	var texture := NoiseTexture2D.new()
-	texture.width = 256
-	texture.height = 256
+	var clamped_resolution := clampi(
+		resolution, CLOUD_NOISE_RESOLUTION_MINIMUM, CLOUD_NOISE_RESOLUTION_RECOMMENDED
+	)
+	texture.width = clamped_resolution
+	texture.height = clamped_resolution
 	texture.seamless = true
 	texture.noise = noise
 	return texture
@@ -31,7 +42,9 @@ static func build_cloud_noise(seed: int) -> NoiseTexture2D:
 
 ## Cellular (Worley) noise supplies the puffy body of cumulus heaps. FBM alone
 ## reads as fluid smoke under thresholding, so the cloud silhouette starts here.
-static func build_cloud_shape(seed: int) -> NoiseTexture2D:
+static func build_cloud_shape(
+	seed: int, resolution: int = CLOUD_SHAPE_RESOLUTION_RECOMMENDED
+) -> NoiseTexture2D:
 	var noise := FastNoiseLite.new()
 	noise.seed = seed + 7
 	noise.noise_type = FastNoiseLite.TYPE_CELLULAR
@@ -42,8 +55,11 @@ static func build_cloud_shape(seed: int) -> NoiseTexture2D:
 	noise.fractal_octaves = 3
 	noise.fractal_gain = 0.5
 	var texture := NoiseTexture2D.new()
-	texture.width = 512
-	texture.height = 512
+	var clamped_resolution := clampi(
+		resolution, CLOUD_SHAPE_RESOLUTION_MINIMUM, CLOUD_SHAPE_RESOLUTION_RECOMMENDED
+	)
+	texture.width = clamped_resolution
+	texture.height = clamped_resolution
 	texture.seamless = true
 	texture.noise = noise
 	return texture
@@ -170,10 +186,10 @@ static func precess_equatorial(star: Vector4, from_epoch: float, to_epoch: float
 	)
 
 
-static func build_rain() -> GPUParticles3D:
+static func build_rain(amount: int = RAIN_PARTICLES_RECOMMENDED) -> GPUParticles3D:
 	var rain := GPUParticles3D.new()
 	rain.name = "Rain"
-	rain.amount = 2200
+	rain.amount = clampi(amount, RAIN_PARTICLES_MINIMUM, RAIN_PARTICLES_RECOMMENDED)
 	rain.lifetime = 1.1
 	# World-space particles so camera motion does not drag the rain volume along.
 	rain.local_coords = false
