@@ -2,7 +2,11 @@ class_name MapViewMaterialShaders
 extends RefCounted
 
 ## Inline shader sources for animated MapViewMaterials surfaces.
+## Small or stable shaders may live in sibling `*.gdshader` resources; the cache
+## API keeps one shared Shader instance per logical name.
 
+
+const WEAR_DECAL_SHADER := preload("res://scripts/map/view3d/map_view_wear_decal.gdshader")
 
 # gdlint: disable=max-line-length
 const WATER_SHADER_CODE := """
@@ -950,27 +954,6 @@ void fragment() {
 	SPECULAR = mix(0.10, 0.25, water_mask);
 }
 """
-## P0-157 wear/grime/blood projected decals. Soft radial falloff times an authored
-## alpha mask keeps GL Compatibility free of Decal3D while avoiding hard quad edges.
-const WEAR_DECAL_SHADER_CODE := """
-shader_type spatial;
-render_mode blend_mix, depth_draw_never, cull_disabled, unshaded, shadows_disabled;
-
-uniform vec4 tint_color : source_color = vec4(0.2, 0.2, 0.2, 0.4);
-uniform sampler2D mask_texture : source_color, filter_linear_mipmap;
-uniform float soft_edge = 0.35;
-
-void fragment() {
-	vec4 mask = texture(mask_texture, UV);
-	vec2 centered = UV * 2.0 - 1.0;
-	float radial = 1.0 - clamp(length(centered), 0.0, 1.0);
-	float edge = clamp(soft_edge, 0.05, 0.95);
-	float falloff = smoothstep(0.0, edge, radial);
-	float alpha = mask.a * tint_color.a * falloff;
-	ALBEDO = tint_color.rgb;
-	ALPHA = alpha;
-}
-"""
 
 static var _cache: Dictionary = {}
 
@@ -987,3 +970,11 @@ static func shader(name: String, code: String) -> Shader:
 	compiled_shader.code = code
 	_cache[key] = compiled_shader
 	return compiled_shader
+
+
+static func shader_resource(name: String, resource: Shader) -> Shader:
+	var key := "shader:%s" % name
+	if _cache.has(key):
+		return _cache[key]
+	_cache[key] = resource
+	return resource

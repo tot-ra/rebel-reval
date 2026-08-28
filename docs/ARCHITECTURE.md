@@ -245,7 +245,7 @@ Soft readability target for new or extracted runtime helpers: **under 600 lines*
 | --- | --- | --- |
 | `scripts/map/view3d/map_view_tree_meshes.gd` (1143) | Species profiles plus procedural wood/canopy/fruit mesh builders | **Extract (P0-185).** Split species profile tables from mesh emitters behind the existing `wood_mesh` / `canopy_mesh` / `fruit_mesh` facade. Protect with `test_map_view_3d_mesh`, foliage/tree mesh filters, and outdoor captures. |
 | `scripts/map/view3d/map_view_mesh_builder_prop_models.gd` (1020) | Prop dispatch plus smithy kits, boats, banners, livestock, authored trees | **Extract (P0-185).** Keep `build_prop` facade; peel smithy kit builders and outdoor/boat/fauna branches into typed helpers. Protect with `test_map_view_3d_mesh`, `test_forge_prop_meshes`, boat/float filters. |
-| `scripts/map/view3d/map_view_material_shaders.gd` (952) | Inline `.gdshader` string catalog and tiny shader cache | **Extract or relocate (P0-185).** Prefer moving large shader sources to `*.gdshader` resources loaded by the existing cache API so agents edit one surface at a time. Protect with `test_map_view_material_resolution`, `test_map_view_3d_lighting`, water/terrain mesh filters. |
+| `scripts/map/view3d/map_view_material_shaders.gd` (980) | Inline `.gdshader` string catalog and tiny shader cache | **Extract or relocate (P0-185, partial).** `map_view_wear_decal.gdshader` relocated; remaining large inline sources (water, terrain blend, puddle, cloth, etc.) still live here. Protect with `test_map_view_decals`, `test_map_view_material_resolution`, `test_map_view_3d_lighting`, water/terrain mesh filters. |
 | `scripts/map/view3d/map_view_runtime.gd` (832) | 2D-to-3D install facade, ambient installers, time ladder, click input | **Extract (P0-185).** Actors/camera already moved out; next peel ambient installers (birds/fauna/insects/crowd/music) and/or time-flow controls behind the same `MapViewRuntime` facade. Protect with `test_map_view_3d_runtime`, camera/click/crowd/fauna filters, session-state replacement tests. |
 
 ### 600-799 line band (keep unless a second reason appears)
@@ -283,6 +283,7 @@ Non-`scripts/` files over 400 lines (scenes/tests/debug) are outside this runtim
 - P0-079: `SkyWeatherResources` beside `SkyWeather3D`.
 - Runtime actors: `MapViewRuntimeActors` beside `MapViewRuntime` / `MapViewRuntimeCamera`.
 - P0-185 (partial): `MapViewBirdSpecies` and `MapViewMammalSpecies` profile tables moved into per-group shard modules; facades now 577 and 564 lines. Gate: `test_map_view_bird_species`, `test_map_view_mammal_species`, bird mesh/audio/flight, urban/penned fauna filters.
+- P0-185 (partial): `map_view_wear_decal.gdshader` extracted from `MapViewMaterialShaders`; cache API gained `shader_resource()`. Gate: `test_map_view_decals`.
 
 ### Scheduled follow-up
 

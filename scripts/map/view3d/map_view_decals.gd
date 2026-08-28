@@ -70,7 +70,9 @@ static func _mask_texture(kind: StringName) -> Texture2D:
 
 static func _decal_material(kind: StringName, tint: Color) -> ShaderMaterial:
 	var material := ShaderMaterial.new()
-	material.shader = MaterialShaders.shader("wear_decal", MaterialShaders.WEAR_DECAL_SHADER_CODE)
+	material.shader = MaterialShaders.shader_resource(
+		"wear_decal", MaterialShaders.WEAR_DECAL_SHADER
+	)
 	material.render_priority = -1
 	material.set_shader_parameter("tint_color", tint)
 	material.set_shader_parameter("soft_edge", 0.35)
