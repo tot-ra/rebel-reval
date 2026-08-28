@@ -94,13 +94,40 @@ No measured Danish plan survives. Zones below are **production labels** tied to 
 - **14 May 1343:** Parembeke hands Reval and Wesenberg castles to the Order to hold for the Danish crown; **Goswin von Herike** installed as castle commander [1][11]. **attested**
 - **No AWB entry** names individual rooms in the Small Castle in 1343 — interior labels remain architectural inference. **gap**
 
+### Zobel-derived feature inventory (secondary collation)
+
+Primary holding `Zobel 2008` (*Toompea loss keskajal*, pp. 11–30) is **not** in local extractable form in this checkout. This pass collates **secondary** Zobel citations and the 2022 TLPA survey inventory that states medieval Toompea fortification elements are localised mainly from Rein Zobel's research [17][18].
+
+| Code | Feature (Estonian survey label) | Maps to zone ID | April 1343 status | Confidence |
+|---|---|---|---|---|
+| A2.2 | *(Kastelli) põhjahoov* — north courtyard | `SC-viceroy-*`, `SC-castle-chapel`, `SC-service-cellar` | Danish viceroy enclosure north of cross-wall | attested function [1]; no measured plan [17] |
+| A2.3 | *(Kastelli) lõunahoov* — south courtyard | `SC-forecourt` | Danish forecourt south of cross-wall | attested [1][17] |
+| A2.4 | Castle gate with outer gate | `SC-gate-tower` | Inter-courtyard gate + tower | attested [1] |
+| A2.6 | West curtain with **three danskers** (small south, middle traces only, large north) and west small gate | `SC-west-dansker`, `SC-west-gate` | Western façade works; dansker sequence attested in survey taxonomy | attested fabric grouping [17]; individual dansker functions **plausible composite** |
+| A2.12 | Earlier SE corner tower | `SC-gate-tower` (pre-Pikk Hermann watch position) | Order-built 1229 SE watch tower; not later Pikk Hermann mass | attested phase [1] |
+| A2.14 | East/north outer bailey with moat | `OB-courtyard`, `OB-east-gate` | Early-14th-c. east extension + hill-gate chain | plausible composite [1][8] |
+| A2.15 | South outer bailey with moat (transition to natural cliff) | `SC-forecourt` slope edge, `OB-courtyard` south | Forecourt open to Tõnismägi slope | plausible composite [1] |
+| A2.5, A2.7–A2.11, A2.16 | Pikk Hermann, Pilsticker, Landskrone, Stür den Kerl, Russian-period gate works | — | **Exclude** from Spring 1343 scenes | attested later dates [1][4] |
+
+Wikipedia (et), citing Zobel 2008, adds two bounded Danish-phase frames without interior dimensions: the kastell originally had **three gates** (west link toward Toompea settlement, north link toward Great Castle, east main gate later rebuilt) and the east/south faces were protected by a **berm wall** while east/north sides had a rock-cut ditch about **15 m wide** [1]. Treat the 15 m ditch width as **comparative site geometry**, not a measured April 1343 interior room module.
+
+**Explicit exclusions from accessible Zobel-citing secondary sources (not Danish 1343 evidence):**
+
+| Measurement | Source | Why excluded |
+|---|---|---|
+| Convent house **34 × 39 m**; wall up to **2.6 m** thick, height **20 m** | Wikipedia (et) citing Zobel on **1350–1360** Order rebuild [1] | Order convent phase; forbidden in April 1343 |
+| Upper ward **52/43 × 40 m** four-wing plan | Medieval Heritage after Borowski/Dubovik [4][9] | Post-1346 Order layout |
+| Whole castle **~132 × 56–75 m** | Medieval Heritage [4] | Mature 14th-c. multi-part circuit, not April 1343 Danish core |
+
+**Production decision:** Map and Art may place the **A2.2/A2.3 courtyard split**, **A2.6 trois-dansker west curtain**, and **three-gate / ditch frame** as labelled topology. **Do not** import Order convent footprint dimensions or upper-ward cloister plans into Danish-era rooms. Measured Danish room sizes remain **`null`**.
+
 ### What the Order rebuild teaches (comparandum only)
 
 Medieval Heritage and Zobel summarise the **post-1346** upper ward: four wings around a cloistered courtyard; main-floor chapel, chapter, refectory, dormitory; ground-floor kitchen and stores [4][9]. Estonian Wikipedia dates the core convent house **1350–1360** [1]. Kuressaare bishop's castle (Saaremaa) offers a Baltic **Konventhaus** parallel — square courtyard ~43 m, cellar stores, main-floor representative rooms, dansker [13] — but it is **episcopal**, **Saaremaa**, and **late 14th-century**; use only to understand what the Order **will** build at Reval, not April 1343 Danish layout [13]. **plausible composite** comparandum; **not** transferable as 1343 evidence.
 
 ## Production hooks
 
-- **Map:** Mesh three labelled zones: `SC-*` (SW Small Castle + outer bailey), `cingele` corridor, `GC-*` (cathedral square + vassal plots). Keep **no Pikk Hermann mesh** in April scenes. Outer bailey eastern gate aligns to **Lühike jalg** top [8]. Great Castle **omit** complete ring curtain unless flagged `reconstructed` [7].
+- **Map:** Mesh three labelled zones: `SC-*` (SW Small Castle + outer bailey), `cingele` corridor, `GC-*` (cathedral square + vassal plots). Keep **no Pikk Hermann mesh** in April scenes. Outer bailey eastern gate aligns to **Lühike jalg** top [8]. Great Castle **omit** complete ring curtain unless flagged `reconstructed` [7]. Use **A2.2/A2.3** courtyard split and **A2.6** three-dansker west curtain as topology anchors; do not scale rooms from Order **34 × 39 m** or **52 × 40 m** comparanda [1][4][17].
 - **Art:** Danish hill scenes: limestone ashlar, **bricked window voids** on west curtain [`architecture.toompea-small-castle-interior.03`](../../reference/architecture/toompea-small-castle-interior/architecture.toompea-small-castle-interior.03.jpg); forecourt mud and carts; viceroy hall = **boarded tables, wall hangings, Danish arms** — not Hanseatic diele [`burgher-house-plan.md`](burgher-house-plan.md). Cathedral square = **scaffolding and cut stone** [`architecture.toompea-castle-and-upper-town.02`](../../reference/architecture/toompea-castle-and-upper-town/architecture.toompea-castle-and-upper-town.02.jpg). Post-16 May patch: swap banners to Order cross; **do not** remodel interior to four-wing cloister until time-skip [4].
 - **Character:** Viceroy household (clerks, sergeants, Danish-speaking officials), castle chaplain, garrison spearmen; vassals summoned to `SC-viceroy-audience`; bishop uses `GC-bishop-palace` not Small Castle for diocesan business [6][10].
 - **Quest / Narrative:** Audience with Preen before Paide; smuggle message through `SC-west-gate` / hill lanes; **14 May** castle handover scene at `OB-courtyard`; grain levy dispute ties Lower Town to `SC-viceroy-audience` [10].
@@ -116,6 +143,7 @@ Medieval Heritage and Zobel summarise the **post-1346** upper ward: four wings a
 | [`architecture.toompea-small-castle-interior.02`](../../reference/architecture/toompea-small-castle-interior/architecture.toompea-small-castle-interior.02.jpg) | Medieval castle plan with labelled rooms | Parchment plan, 1326, Belgium | CC BY-SA 4.0 | Room-naming vocabulary — **not** Reval plan |
 | `architecture.toompea-small-castle-interior.04` (link-only) | Order upper-ward first-floor plan — chapel, chapter, refectory, dormitory | Borowski after Dubovik via Medieval Heritage, 2nd half 14th c., Reval | web | **Post-1346 Order layout — forbidden for April 1343** |
 | `architecture.toompea-small-castle-interior.05` (link-only) | Kuressaare Konventhaus cellar plan | AVE / UT journal after Dubovik, 14th c., Saaremaa | scholarly PDF | Baltic Order Konventhaus comparandum — **not** 1343 Reval Danish interior |
+| `architecture.toompea-small-castle-interior.06` (link-only) | A2 Small Castle element inventory (courtyards, west danskers, outer baileys) | Nurk, *Linnakindlustuste kaardistus*, pp. 2–3, Aug. 2022, Tallinn | rights unclear | Zobel-derived feature taxonomy mapped to `SC-*` / `OB-*` zone IDs — **not** a measured 1343 plan |
 
 No licensed measured plan of the **Danish-period** Small Castle interior survives; plates above are circumstantial or explicitly post-date 1343.
 
@@ -130,7 +158,8 @@ No licensed measured plan of the **Danish-period** Small Castle interior survive
 
 ## Open questions
 
-- Mine **Zobel 2008** (*Toompea loss keskajal*, pp. 11–30) and **Zobel 2011** (*Tallinn keskaegsed kindlustused*) for measured Danish-phase drawings — local PDF pass if holdings land in `history/`. **Reppo 2018** (`history/AVE2018_12_Reppo_Toompea.txt`) now revises quarry extent and the natural northern plateau-edge barrier but does not replace Zobel for interior room dimensions.
+- **Primary Zobel 2008 pass still open:** local holdings lack an OCR/PDF extract of *Toompea loss keskajal*, pp. 11–30. The 2026-08-28 secondary collation above maps Linnakindlustuste **A2** inventory and Wikipedia (et) frames to production zone IDs but recovers **no Danish interior dimensions**. Acquire or transcribe the primary chapter before upgrading any `SC-*` footprint from `plausible composite` to measured.
+- **Zobel 2011** (*Tallinn keskaegsed kindlustused*) remains unmined for any Danish-phase interior drawings beyond the A2 taxonomy already mirrored in the 2022 survey [17].
 - AWB / *DD* folio read for named rooms (kitchen, *kamer*, chapel) in Danish Reval charters — may upgrade `SC-*` labels from composite to attested.
 - Archaeological section under **Pikk Hermann** (Riigikogu visitor route) for pre-1350 floor surfaces — physical evidence for cellar/storey functions.
 - Whether **Great Castle ring wall** was already closed in April 1343 or only after 1346 sale — Estonian Wikipedia favours **mid-century after sale** [7]; reconcile with outer-ward contemporaneity in parent dossier.
@@ -150,6 +179,8 @@ No licensed measured plan of the **Danish-period** Small Castle interior survive
 11. Same as [1] — 14 May 1343 castle transfer, Goswin von Herike.
 12. [`burgher-house-plan.md`](burgher-house-plan.md) — Lower Town diele-dornse contrast.
 13. Kuressaare Castle / AVE cellar-plan literature — Konventhaus comparandum; Saaremaa episcopal, late 14th c.; https://linnus.samu.ee/en/about-the-castle/ ; https://ojs.utlib.ee/index.php/AVE/article/download/25263/19251/38352
-14. Zobel, R., "Toompea loss keskajal (ca 1030–1525)," in *Toompea loss* (Kalm, Maiste, Zobel), Riigikogu Kantselei, Tallinn 2008, pp. 11–30 — **not yet mined locally**; cited throughout Estonian scholarship.
+14. Zobel, R., "Toompea loss keskajal (ca 1030–1525)," in *Toompea loss* (Kalm, Maiste, Zobel), Riigikogu Kantselei, Tallinn 2008, pp. 11–30 — **primary chapter not yet mined locally**; secondary citations in [1] and [17] only.
 15. Riigikogu visitor text on 13th-c. Brethren convent building footprint 34 × 39 m — https://www.riigikogu.ee/en/visit-us/toompea-castle/toompea-castle-riigikogu-building/ — Order-phase dimensions, not 1343 Danish.
 16. M. Reppo, “The Bishop’s House and new additions to the study of the limestone quarry on Toompea Hill,” *Archaeological Fieldwork in Estonia* 2018, 171–184, https://arheoloogia.ee/ave2018/AVE2018_12_Reppo_Toompea.pdf ; local OCR text `history/AVE2018_12_Reppo_Toompea.txt` — quarry revision and natural plateau-edge barrier; English.
+17. R. Nurk (TLPA MKO), *Linnakindlustuste kaardistus* — local PDF `history/Linnakindlustuste kaardistus.pdf`, A2 inventory pp. 2–3, Aug. 2022; Estonian; states medieval fortification localisation relies mainly on Rein Zobel's research; redistribution rights unclear — link-only plate `.06`.
+18. Same as [17] — A2.2 north courtyard, A2.3 south courtyard, A2.6 west curtain with three danskers and west gate, A2.14–A2.15 outer baileys.

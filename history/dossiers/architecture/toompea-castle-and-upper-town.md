@@ -156,7 +156,7 @@ Reppo’s 2018 synthesis revises Rein Zobel’s long-used quarry outline using w
 
 ## Open questions
 
-- Measured 1343 plan of Small Castle vs Great Castle interior rooms — partially addressed in [`toompea-small-castle-interior.md`](toompea-small-castle-interior.md); **Reppo 2018** now revises the on-plateau quarry outline and natural northern edge barrier but does **not** supply Danish room dimensions; Zobel 2008 plate mining still needed for measured interior drawings.
+- Measured 1343 plan of Small Castle vs Great Castle interior rooms — partially addressed in [`toompea-small-castle-interior.md`](toompea-small-castle-interior.md); **Reppo 2018** revises the on-plateau quarry outline and natural northern edge barrier; **2026-08-28 Zobel secondary collation** maps A2 courtyard/dansker topology to zone IDs but **does not** supply Danish room dimensions; primary **Zobel 2008** pp. 11–30 pass still needed for measured interior drawings.
 - Specific vassal houses attested by name on Toompea c. 1340 — supports character roster (`R-007` dependency).
 - Whether outer-ward southern gate had a stone gate tower before 1346 Order rebuild.
 - Daily curfew time on hill gates in 1343 (later records give 21:00 Order / 22:00 Swedish) — dialogue prop only.
