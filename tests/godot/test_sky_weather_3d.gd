@@ -294,8 +294,12 @@ func test_sky_shader_covers_required_features() -> void:
 		"the NASA near-side mosaic must align to celestial north, not world zenith"
 	)
 	assert_true(
-		"vec2(moon_uv.x, -moon_uv.y) * 0.485" in source,
-		"lunar UV must inset inside the crust and flip V so mosaic north stays disk-north"
+		"vec2(-moon_uv.x, -moon_uv.y) * 0.485 + 0.5" in source,
+		"lunar UV must inset inside the crust, flip both axes for Estonia-facing orientation, and center the mosaic"
+	)
+	assert_true(
+		"clamp(lunar_uv" in source,
+		"lunar UV must stay inside the authored disk so bilinear taps never sample the black skirt"
 	)
 	assert_true(
 		"max(lunar_albedo, vec3(0.08))" not in source,
