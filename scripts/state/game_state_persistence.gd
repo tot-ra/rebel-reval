@@ -1,6 +1,8 @@
 class_name GameStatePersistence
 extends RefCounted
 
+const _SkyWeatherStateScript := preload("res://scripts/map/view3d/sky_weather_state.gd")
+
 ## Save/load serialization for GameState. Kept separate so runtime state accessors
 ## stay readable and persistence tests can evolve independently.
 
@@ -40,7 +42,7 @@ static func save_payload(state: GameState) -> Dictionary:
 			)
 		)
 
-	return {
+	var payload: Dictionary = {
 		"version": state.version,
 		"phase": String(state.phase),
 		"player":
@@ -93,6 +95,10 @@ static func save_payload(state: GameState) -> Dictionary:
 			"faces": _int_dictionary(state._psyche_face_integration),
 		},
 	}
+	var environment := state.get_environment_state()
+	if not environment.is_empty():
+		payload["environment"] = environment
+	return payload
 
 
 static func load_payload(state: GameState, payload: Dictionary) -> Array[String]:
@@ -255,8 +261,105 @@ static func load_payload(state: GameState, payload: Dictionary) -> Array[String]
 	else:
 		state._act1_transition = (act1_payload as Dictionary).duplicate(true)
 
+	var environment_payload: Variant = candidate.get("environment", null)
+	if environment_payload == null:
+		state.set_environment_state(null)
+	elif not _load_environment_state(state, environment_payload, errors):
+		state.set_environment_state(null)
+
 	state._refresh_reserved_weight()
 	return errors
+
+
+static func _load_environment_state(
+	state: GameState, payload: Variant, errors: Array[String]
+) -> bool:
+	if not payload is Dictionary:
+		errors.append("environment must be a dictionary")
+		return false
+	var environment := payload as Dictionary
+	if not GameState._is_json_safe_value(environment):
+		errors.append("environment must contain JSON-safe primitive values")
+		return false
+	var shape_errors := _validate_environment_shape(environment)
+	if not shape_errors.is_empty():
+		errors.append_array(shape_errors)
+		return false
+	var snapshot := _SkyWeatherStateScript.from_dict(environment)
+	var validation_errors := snapshot.validation_errors()
+	if not validation_errors.is_empty():
+		for entry in validation_errors:
+			errors.append("environment: %s" % entry)
+		return false
+	return state.set_environment_state(snapshot.to_dict())
+
+
+static func _validate_environment_shape(environment: Dictionary) -> Array[String]:
+	var errors: Array[String] = []
+	var numeric_fields: Array[String] = [
+		"schema_version",
+		"transition_progress",
+		"time_in_state",
+		"state_duration",
+		"time_scale",
+		"cycle_progress",
+		"puddle_wetness",
+		"seconds_since_rain",
+		"gust",
+		"gust_time",
+		"lightning",
+		"lightning_time",
+		"time_to_strike",
+		"elapsed_days",
+	]
+	for field in numeric_fields:
+		if environment.has(field) and not _is_finite_number(environment[field]):
+			errors.append("environment.%s must be a finite number" % field)
+	for field in ["weather", "transition_from_weather"]:
+		if environment.has(field) and not environment[field] is String:
+			errors.append("environment.%s must be a string" % field)
+	for field in ["auto_weather", "rain_suppressed"]:
+		if environment.has(field) and not environment[field] is bool:
+			errors.append("environment.%s must be a boolean" % field)
+	for field in ["calendar_date", "current_profile", "transition_from_profile"]:
+		if environment.has(field) and not environment[field] is Dictionary:
+			errors.append("environment.%s must be a dictionary" % field)
+	for field in ["cloud_offset", "cloud_detail_offset", "lightning_direction"]:
+		if environment.has(field) and not _is_number_array(environment[field]):
+			errors.append("environment.%s must be a numeric pair" % field)
+	var rng_fields: Array[String] = ["weather_rng_state", "lightning_rng_state"]
+	for field in rng_fields:
+		if environment.has(field) and not (
+			environment[field] is String or _is_integer_number(environment[field])
+		):
+			errors.append("environment.%s must be an integer or string" % field)
+	for profile_field in ["current_profile", "transition_from_profile"]:
+		var profile: Variant = environment.get(profile_field, {})
+		if not profile is Dictionary:
+			continue
+		for key in profile as Dictionary:
+			if not _is_finite_number((profile as Dictionary)[key]):
+				errors.append(
+					"environment.%s.%s must be a finite number" % [profile_field, key]
+				)
+	return errors
+
+
+static func _is_finite_number(value: Variant) -> bool:
+	return (value is int or value is float) and is_finite(float(value))
+
+
+static func _is_integer_number(value: Variant) -> bool:
+	return value is int or (value is float and is_equal_approx(float(value), roundf(float(value))))
+
+
+static func _is_number_array(value: Variant) -> bool:
+	if not value is Array or (value as Array).size() < 2:
+		return false
+	for entry in value as Array:
+		if not _is_finite_number(entry):
+			return false
+	return true
 
 
 static func _faction_events_array(source: Dictionary[StringName, Dictionary]) -> Array[Dictionary]:

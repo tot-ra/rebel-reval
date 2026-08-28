@@ -5,6 +5,7 @@ const OBJ_SPEAR := &"world.spearhead_anvil"
 const ITEM_HAMMER := &"item.forge_hammer"
 const ITEM_SPEARHEAD := &"item.seized_spearhead"
 const FLAG_MART_SPOKEN := &"flag.demo_mart_spoken"
+const SkyWeather := preload("res://scripts/map/view3d/sky_weather_3d.gd")
 
 
 func test_truncated_json_is_rejected() -> void:
@@ -233,6 +234,46 @@ func test_unsupported_game_state_version_is_rejected() -> void:
 	var loaded := SaveEnvelope.load_game_state_from_envelope(migrated["envelope"])
 	assert_false(loaded["ok"])
 	assert_true(_errors_contain(loaded, "unsupported game-state version"))
+
+
+func test_environment_survives_envelope_parse_and_rng_continuation() -> void:
+	var weather := SkyWeather.new()
+	weather.auto_weather = false
+	weather.set_calendar_date({"day": 23, "month": 4, "year": 1343})
+	weather.set_weather(SkyWeather.WEATHER_RAIN)
+	weather.advance(SkyWeather.TRANSITION_SECONDS * 0.4)
+	var expected: Dictionary = weather.snapshot_state(0.75, 3).to_dict()
+
+	var state := GameState.new()
+	assert_true(state.set_environment_state(expected))
+	var envelope := {
+		"save_version": SaveEnvelope.CURRENT_ENVELOPE_VERSION,
+		"saved_at_unix": 1,
+		"game_state": state.save_payload(),
+	}
+	var result := SaveEnvelope.parse_text(JSON.stringify(envelope))
+	assert_true(result["ok"], ", ".join(result["errors"]))
+
+	var restored_state := result["state"] as GameState
+	var restored_environment := restored_state.get_environment_state()
+	assert_eq(
+		MapParitySnapshot.serialize_value(restored_environment),
+		MapParitySnapshot.serialize_value(expected)
+	)
+	assert_eq(typeof(restored_environment["schema_version"]), TYPE_INT)
+	assert_eq(typeof(restored_environment["elapsed_days"]), TYPE_INT)
+
+	var restored_weather := SkyWeather.new()
+	assert_true(restored_weather.restore_state(restored_environment))
+	weather.advance(0.25)
+	restored_weather.advance(0.25)
+	assert_eq(
+		restored_weather.snapshot_state(0.75, 3).to_dict(),
+		weather.snapshot_state(0.75, 3).to_dict(),
+		"envelope hydration must preserve deterministic RNG continuation"
+	)
+	weather.free()
+	restored_weather.free()
 
 
 func _errors_contain(result: Dictionary, needle: String) -> bool:

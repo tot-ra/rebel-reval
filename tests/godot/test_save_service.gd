@@ -7,6 +7,7 @@ const ITEM_SPEARHEAD := &"item.seized_spearhead"
 const PHASE_NIGHT := &"phase.investigation_night"
 const RECORD_HONEST := &"forged.watch_buckle_repair.honest_work"
 const COMMISSION := &"commission.watch_buckle_repair"
+const SkyWeather := preload("res://scripts/map/view3d/sky_weather_3d.gd")
 
 var _test_root := ""
 
@@ -187,6 +188,65 @@ func test_game_state_payload_round_trip_without_files() -> void:
 	_assert_states_equal(original, restored)
 
 
+func test_environment_state_survives_save_service_json_round_trip() -> void:
+	var original := _rich_state()
+	var weather := SkyWeather.new()
+	weather.auto_weather = false
+	weather.set_calendar_date({"day": 23, "month": 4, "year": 1343})
+	weather.set_weather(SkyWeather.WEATHER_RAIN)
+	weather.advance(SkyWeather.TRANSITION_SECONDS * 0.4)
+	var expected: Dictionary = weather.snapshot_state(0.75, 3).to_dict()
+	assert_true(original.set_environment_state(expected))
+	var payload := original.save_payload()
+	assert_true(payload.has("environment"))
+	assert_true(JSON.parse_string(JSON.stringify(payload)) is Dictionary)
+
+	var service := _service()
+	assert_true(service.save_game(original))
+	var loaded := service.load_game()
+	assert_true(loaded["ok"], ", ".join(loaded["errors"]))
+	var loaded_environment := (loaded["state"] as GameState).get_environment_state()
+	assert_eq(
+		MapParitySnapshot.serialize_value(loaded_environment),
+		MapParitySnapshot.serialize_value(expected)
+	)
+
+	var restored_weather := SkyWeather.new()
+	assert_true(restored_weather.restore_state(loaded_environment))
+	weather.advance(0.25)
+	restored_weather.advance(0.25)
+	assert_eq(
+		restored_weather.snapshot_state(0.75, 3).to_dict(),
+		weather.snapshot_state(0.75, 3).to_dict()
+	)
+	weather.free()
+	restored_weather.free()
+
+
+func test_legacy_save_without_environment_uses_empty_default() -> void:
+	var legacy := _rich_state().save_payload()
+	legacy.erase("environment")
+	var restored := GameState.new()
+	assert_eq(restored.load_payload(legacy), [])
+	assert_true(restored.get_environment_state().is_empty())
+
+
+func test_malformed_environment_is_reported_without_dropping_game_state() -> void:
+	var payload := _rich_state().save_payload()
+	payload["environment"] = {"schema_version": 99, "weather": "rain"}
+	var restored := GameState.new()
+	var errors := restored.load_payload(payload)
+	assert_true(errors.size() > 0)
+	assert_true("environment" in ", ".join(errors))
+	assert_eq(restored.get_phase(), PHASE_NIGHT)
+	assert_true(restored.get_environment_state().is_empty())
+
+
+func test_environment_rejects_non_json_values() -> void:
+	var state := GameState.new()
+	assert_false(state.set_environment_state({"schema_version": 1, "offset": Vector2.ONE}))
+	assert_true(state.get_environment_state().is_empty())
+
 func _save_after_gate(
 	service: SaveService,
 	state: GameState,
@@ -273,10 +333,22 @@ func _assert_states_equal(expected: GameState, actual: GameState) -> void:
 	assert_true(is_equal_approx(actual.player.stamina, expected.player.stamina))
 	assert_eq(actual.player.location_id, expected.player.location_id)
 	assert_eq(actual.player.spawn_id, expected.player.spawn_id)
-	assert_eq(actual.get_fact(&"fact.seized_spearhead_seen"), expected.get_fact(&"fact.seized_spearhead_seen"))
-	assert_eq(actual.get_flag(&"flag.demo_talked_to_mart"), expected.get_flag(&"flag.demo_talked_to_mart"))
-	assert_eq(actual.get_relationship(&"rel.henning_trust"), expected.get_relationship(&"rel.henning_trust"))
-	assert_eq(actual.get_pressure(GameState.PRESSURE_SUSPICION), expected.get_pressure(GameState.PRESSURE_SUSPICION))
+	assert_eq(
+		actual.get_fact(&"fact.seized_spearhead_seen"),
+		expected.get_fact(&"fact.seized_spearhead_seen")
+	)
+	assert_eq(
+		actual.get_flag(&"flag.demo_talked_to_mart"),
+		expected.get_flag(&"flag.demo_talked_to_mart")
+	)
+	assert_eq(
+		actual.get_relationship(&"rel.henning_trust"),
+		expected.get_relationship(&"rel.henning_trust")
+	)
+	assert_eq(
+		actual.get_pressure(GameState.PRESSURE_SUSPICION),
+		expected.get_pressure(GameState.PRESSURE_SUSPICION)
+	)
 	assert_eq(actual.get_quest_state(&"quest.demo"), expected.get_quest_state(&"quest.demo"))
 	assert_eq(actual.get_location_state(LOC_SMITHY), expected.get_location_state(LOC_SMITHY))
 	assert_eq(actual.equipped_item(&"right_hand"), expected.equipped_item(&"right_hand"))

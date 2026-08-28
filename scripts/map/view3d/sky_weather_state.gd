@@ -159,8 +159,8 @@ func to_dict() -> Dictionary:
 		# full 64-bit RNG state. Strings keep deterministic map transitions exact.
 		"weather_rng_state": str(weather_rng_state),
 		"lightning_rng_state": str(lightning_rng_state),
-		"current_profile": current_profile.duplicate(true),
-		"transition_from_profile": transition_from_profile.duplicate(true),
+		"current_profile": _profile_to_dict(current_profile),
+		"transition_from_profile": _profile_to_dict(transition_from_profile),
 	}
 
 
@@ -204,6 +204,14 @@ static func from_dict(data: Dictionary) -> SkyWeatherState:
 	state.transition_from_profile = raw_from.duplicate(true) if raw_from is Dictionary else {}
 	state.normalize()
 	return state
+
+
+static func _profile_to_dict(profile: Dictionary) -> Dictionary:
+	var result: Dictionary = {}
+	for field in PROFILE_FIELDS:
+		if profile.has(field):
+			result[String(field)] = float(profile[field])
+	return result
 
 
 func _normalize_profile(profile: Dictionary) -> void:

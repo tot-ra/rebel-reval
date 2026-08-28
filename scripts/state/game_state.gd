@@ -18,6 +18,8 @@ const _PersistenceScript := preload("res://scripts/state/game_state_persistence.
 const _RelationshipMemoryScript := preload("res://scripts/relationship/relationship_memory.gd")
 const COMMISSION_DEADLINE_ACTIVE := &"active"
 const CURRENT_VERSION := 2
+## Version of the optional JSON-safe SkyWeatherState payload in GameState saves.
+const ENVIRONMENT_STATE_VERSION := 1
 const PHASE_PROLOGUE_DAY := &"phase.prologue_day"
 const PHASE_INVESTIGATION_MORNING := &"phase.investigation_morning"
 const PHASE_INVESTIGATION_NIGHT := &"phase.investigation_night"
@@ -99,6 +101,8 @@ var phase: StringName = PHASE_PROLOGUE_DAY
 var player: PlayerState = PlayerState.new()
 var bag: InventoryBag = InventoryBag.new()
 var map_world_state: MapStableStateStore = MapStableStateStore.new()
+## Optional scene-tree-free weather snapshot owned by the session/save boundary.
+var _environment_state: Dictionary = {}
 
 var _equipped: Dictionary[StringName, StringName] = {}
 var _facts: Dictionary[StringName, bool] = {}
@@ -425,6 +429,49 @@ func load_map_world_state(
 
 func save_map_world_state() -> Dictionary:
 	return map_world_state.save_payload()
+
+
+## Returns the optional JSON-safe weather snapshot without exposing mutable state.
+func get_environment_state() -> Dictionary:
+	return _environment_state.duplicate(true)
+
+
+## Stores a scene-tree-free weather snapshot for the canonical save path.
+## Empty/null clears the optional payload; renderer objects and non-JSON values are rejected.
+func set_environment_state(payload: Variant) -> bool:
+	if payload == null:
+		_environment_state.clear()
+		return true
+	if not payload is Dictionary or not _is_json_safe_value(payload):
+		return false
+	var environment := payload as Dictionary
+	var version: Variant = environment.get("schema_version", null)
+	if not _is_integer_number(version) or int(version) != ENVIRONMENT_STATE_VERSION:
+		return false
+	_environment_state = environment.duplicate(true)
+	return true
+
+
+static func _is_json_safe_value(value: Variant) -> bool:
+	if value == null or value is bool or value is int or value is String:
+		return true
+	if value is float:
+		return is_finite(value)
+	if value is Array:
+		for entry in value as Array:
+			if not _is_json_safe_value(entry):
+				return false
+		return true
+	if value is Dictionary:
+		for key in value as Dictionary:
+			if not key is String or not _is_json_safe_value((value as Dictionary)[key]):
+				return false
+		return true
+	return false
+
+
+static func _is_integer_number(value: Variant) -> bool:
+	return value is int or (value is float and is_equal_approx(float(value), roundf(float(value))))
 
 
 ## --- Equipment placement (see docs/INVENTORY_MECHANICS.md) ---------------
