@@ -57,6 +57,37 @@ class VerifyWeatherAudioClipsTests(unittest.TestCase):
         self.assertIn("weather audio verification failed with 1 error(s)", result.stdout)
         self.assertNotIn("Traceback", result.stderr)
 
+    def test_malformed_manifest_rows_are_reported_without_traceback(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            weather_dir = Path(temp_dir)
+            shutil.copy2(WEATHER_DIR / "rain_roof.mp3", weather_dir / "valid.mp3")
+            shutil.copy2(
+                WEATHER_DIR / "rain_roof.mp3.import",
+                weather_dir / "valid.mp3.import",
+            )
+            (weather_dir / "manifest.csv").write_text(
+                "clip_id,file,license,source,notes\n"
+                "weather.missing,,CC0,test,missing file\n"
+                "weather.omitted\n"
+                "weather.valid,valid.mp3,CC0,test,valid fixture\n",
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                ["python3", str(VERIFY), "--weather-dir", str(weather_dir)],
+                cwd=ROOT,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(result.stdout.count("missing file field"), 2)
+        self.assertIn("weather.missing", result.stdout)
+        self.assertIn("weather.omitted", result.stdout)
+        self.assertIn("weather audio verification failed with 2 error(s)", result.stdout)
+        self.assertNotIn("Traceback", result.stderr)
+
 
 if __name__ == "__main__":
     unittest.main()

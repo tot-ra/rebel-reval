@@ -63,8 +63,17 @@ def main() -> int:
     if not rows:
         print("ERROR: weather manifest is empty")
         return 1
-    for row in rows:
-        clip_path = weather_dir / row["file"]
+    for row_number, row in enumerate(rows, start=2):
+        file_name = str(row.get("file") or "").strip()
+        if not file_name:
+            clip_id = row.get("clip_id") or f"row {row_number}"
+            print(
+                f"ERROR: manifest row {row_number} ({clip_id}) "
+                "missing file field"
+            )
+            errors += 1
+            continue
+        clip_path = weather_dir / file_name
         if not clip_path.is_file():
             print(f"ERROR: missing clip {clip_path}")
             errors += 1
