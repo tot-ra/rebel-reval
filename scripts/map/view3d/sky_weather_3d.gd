@@ -66,6 +66,46 @@ const STAR_MAP_WIDTH := SKY_RESOURCES.STAR_MAP_WIDTH
 const STAR_MAP_HEIGHT := SKY_RESOURCES.STAR_MAP_HEIGHT
 const LUNAR_ALBEDO_MAP_SIZE := SKY_RESOURCES.LUNAR_ALBEDO_MAP_SIZE
 
+
+## Quality tiers change renderer cost only. Weather state, profile transitions, cloud
+## offsets, and seeded event scheduling stay identical across tiers.
+const QUALITY_MINIMUM: StringName = &"minimum"
+const QUALITY_RECOMMENDED: StringName = &"recommended"
+const QUALITY_AUTO: StringName = &"auto"
+const QUALITY_TIER_IDS: Array[StringName] = [QUALITY_MINIMUM, QUALITY_RECOMMENDED]
+const QUALITY_TIERS: Dictionary = {
+	QUALITY_MINIMUM: {
+		"cloud_noise_resolution": 128,
+		"cloud_shape_resolution": 256,
+		"cloud_shadow_samples": 2,
+		"rain_shaft_samples": 3,
+		"rain_particles": 700,
+		# This scales rendered flash intensity, not deterministic strike timing.
+		"lightning_density": 0.65,
+		"fog_quality": 0.65,
+		"fallback_behavior": &"gradient_only_if_resource_missing",
+		"frame_time_budget_ms": 1.50,
+		"memory_budget_mib": 8.0,
+		"particle_budget": 700,
+		"shader_sample_budget": 80,
+	},
+	QUALITY_RECOMMENDED: {
+		"cloud_noise_resolution": 256,
+		"cloud_shape_resolution": 512,
+		"cloud_shadow_samples": 4,
+		"rain_shaft_samples": 6,
+		"rain_particles": 2200,
+		"lightning_density": 1.0,
+		"fog_quality": 1.0,
+		"fallback_behavior": &"gradient_only_if_resource_missing",
+		"frame_time_budget_ms": 2.50,
+		"memory_budget_mib": 24.0,
+		"particle_budget": 2200,
+		"shader_sample_budget": 140,
+	},
+}
+
+
 ## Per-weather visual targets blended during transitions.
 ## `wind` drives harbor boat heel/heave and water-shader sea state (0..1).
 ## `chaos` domain-warps cloud banks so clear weather stays partly cloudy with
@@ -209,6 +249,36 @@ const LAST_RAIN_NEVER := INF
 const WIND_DRIFT_FLOOR := 0.5
 const WIND_DRIFT_GAIN := 1.6
 
+
+## Keeping these values together prevents lighting, fog, wet ground, wind, and
+## water from observing different sides of a weather transition in the same
+## rendered frame.
+class WeatherPresentation extends RefCounted:
+	var weather: StringName = WEATHER_CLEAR
+	var day_blend := 1.0
+	var sun_direction := Vector3.UP
+	var moon_direction := Vector3.UP
+	var wind_direction := Vector2.RIGHT
+	var wind_strength := 0.0
+	var rain_intensity := 0.0
+	var puddle_wetness := 0.0
+	var cloud_coverage := 0.0
+	var overcast := 0.0
+	var lightning := 0.0
+	var sunset_factor := 0.0
+	var sunset_tint := 0.0
+	var sun_energy := 1.0
+	var ambient_energy := 1.0
+	var sun_visibility := 0.0
+	var moon_visibility := 0.0
+	var star_visibility := 0.0
+	var tide_level := 0.0
+	var sidereal_angle := 0.0
+	var star_map: Texture2D
+	var sun_reflection_color := Color.WHITE
+	var rain_suppressed := false
+
+
 var weather: StringName = WEATHER_CLEAR
 ## When false the current state holds until set_weather() is called.
 var auto_weather := true
@@ -225,6 +295,7 @@ var rain_suppressed := false
 ## 1 while the sun hugs the horizon (golden hour), 0 the rest of the cycle.
 var sunset_factor := 0.0
 var calendar_date: Dictionary = GAME_CALENDAR.DEFAULT_DATE.duplicate()
+var quality_tier: StringName = QUALITY_RECOMMENDED
 
 var _current: Dictionary = (PROFILES[WEATHER_CLEAR] as Dictionary).duplicate()
 var _from: Dictionary = (PROFILES[WEATHER_CLEAR] as Dictionary).duplicate()
@@ -254,8 +325,27 @@ var _lightning_rng := RandomNumberGenerator.new()
 var _material: ShaderMaterial
 var _star_map: ImageTexture
 var _camera: Camera3D
+var _environment: Environment
 var _rain: GPUParticles3D
 var _roof_audio: SkyWeatherRoofAudio
+var _cloud_resources_available := false
+
+
+## Maps user-facing tier requests to a named minimum/recommended row. Auto and
+## unknown values fall back to recommended so headless tests and save payloads
+## stay deterministic until a runtime probe chooses otherwise.
+static func resolve_quality_tier(requested: Variant) -> StringName:
+	var normalized := StringName(String(requested))
+	if normalized == QUALITY_AUTO:
+		return QUALITY_RECOMMENDED
+	if normalized in QUALITY_TIERS:
+		return normalized
+	return QUALITY_RECOMMENDED
+
+
+static func quality_settings(requested: Variant) -> Dictionary:
+	var tier := resolve_quality_tier(requested)
+	return (QUALITY_TIERS[tier] as Dictionary).duplicate(true)
 
 
 ## State is seeded here, not in configure(), so headless tests can exercise the
@@ -565,6 +655,41 @@ func apply_sky_state(progress: float, day_blend: float, sun_direction: Vector3) 
 	_material.set_shader_parameter(&"day_blend", day_blend)
 	_material.set_shader_parameter(&"sunset_factor", sunset_factor)
 	_material.set_shader_parameter(&"sidereal_angle", sidereal_angle_for_progress(progress))
+
+
+## Builds one immutable-in-practice presentation handoff from the current weather
+## profile and cycle inputs. Callers should retain this value for the frame rather
+## than reading individual weather accessors between lighting and material passes.
+func presentation_snapshot(progress: float, day_blend: float) -> WeatherPresentation:
+	var snapshot := WeatherPresentation.new()
+	snapshot.weather = weather
+	snapshot.day_blend = clampf(day_blend, 0.0, 1.0)
+	snapshot.sun_direction = solar_direction(progress, calendar_date)
+	snapshot.moon_direction = lunar_direction(progress, calendar_date)
+	snapshot.wind_direction = wind_direction_xz()
+	snapshot.wind_strength = wind_strength()
+	snapshot.rain_intensity = rain_intensity()
+	snapshot.puddle_wetness = puddle_wetness()
+	snapshot.cloud_coverage = cloud_coverage()
+	var modifiers := lighting_modifiers()
+	snapshot.overcast = float(modifiers["overcast"])
+	snapshot.lightning = float(modifiers["lightning"])
+	snapshot.sunset_factor = sunset_factor
+	snapshot.sunset_tint = float(modifiers["sunset_tint"])
+	snapshot.sun_energy = float(modifiers["sun_energy"])
+	snapshot.ambient_energy = float(modifiers["ambient_energy"])
+	snapshot.sun_visibility = sun_disk_visibility(snapshot.sun_direction)
+	var cloud_occlusion := 1.0 - snapshot.cloud_coverage
+	snapshot.moon_visibility = moonlight_strength(progress, calendar_date) * cloud_occlusion
+	snapshot.star_visibility = pow(1.0 - snapshot.day_blend, 3.0) * cloud_occlusion
+	snapshot.tide_level = tide_level(progress, calendar_date)
+	snapshot.sidereal_angle = sidereal_angle_for_progress(progress)
+	snapshot.star_map = star_map_texture()
+	snapshot.sun_reflection_color = Color(255, 243, 222).lerp(
+		Color(255, 148, 64), snapshot.sunset_tint
+	)
+	snapshot.rain_suppressed = rain_suppressed
+	return snapshot
 
 
 ## Multipliers/tints MapView3D applies on top of its day/night lerp. Overcast

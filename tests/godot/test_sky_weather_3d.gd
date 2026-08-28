@@ -3,6 +3,7 @@ extends "res://tests/godot/test_case.gd"
 const SkyWeather := preload("res://scripts/map/view3d/sky_weather_3d.gd")
 const SkyWeatherState := preload("res://scripts/map/view3d/sky_weather_state.gd")
 
+# gdlint: disable=max-line-length
 
 func test_starts_clear_with_full_lighting() -> void:
 	var sky = SkyWeather.new()
@@ -160,6 +161,36 @@ func test_transition_blends_toward_rain_profile() -> void:
 	var modifiers: Dictionary = sky.lighting_modifiers()
 	assert_true(modifiers["sun_energy"] < 0.5, "storm light must be visibly dimmer than clear light")
 	assert_true(modifiers["overcast"] > 0.5, "storm light must desaturate toward overcast gray")
+	sky.free()
+
+
+func test_presentation_snapshot_keeps_wet_surface_and_water_inputs_together() -> void:
+	var sky := SkyWeather.new()
+	sky.auto_weather = false
+	sky.set_weather(SkyWeather.WEATHER_RAIN)
+	sky.advance(SkyWeather.TRANSITION_SECONDS * 0.5)
+	var presentation := sky.presentation_snapshot(0.25, 0.5)
+	assert_eq(presentation.weather, SkyWeather.WEATHER_RAIN, "snapshot must identify the active regime")
+	assert_true(
+		is_equal_approx(presentation.rain_intensity, sky.rain_intensity()),
+		"water rain input must come from the same transition sample"
+	)
+	assert_true(
+		is_equal_approx(presentation.puddle_wetness, sky.puddle_wetness()),
+		"wet ground must use the same retained water sample"
+	)
+	assert_true(
+		is_equal_approx(presentation.wind_strength, sky.wind_strength()),
+		"wind must use the same gust/profile sample as water"
+	)
+	assert_true(
+		presentation.wind_direction.length() > 0.99,
+		"water and world wind need a normalized shared direction"
+	)
+	assert_true(
+		is_equal_approx(presentation.tide_level, SkyWeather.tide_level(0.25, sky.calendar_date)),
+		"water tide input must use the same campaign date and cycle"
+	)
 	sky.free()
 
 
@@ -456,3 +487,63 @@ func test_shader_projects_stars_for_tallinn_and_weather() -> void:
 	assert_true("sidereal_angle" in source, "stars must rotate with the day/night clock")
 	assert_true("equatorial_uv" in source, "catalog coordinates must project into the local horizon")
 	assert_true("(1.0 - clouds)" in source, "weather must occlude stars")
+
+
+func test_quality_tier_clamps_unknown_and_auto_to_named_settings() -> void:
+	assert_eq(
+		SkyWeather.resolve_quality_tier(SkyWeather.QUALITY_MINIMUM),
+		SkyWeather.QUALITY_MINIMUM
+	)
+	assert_eq(
+		SkyWeather.resolve_quality_tier(SkyWeather.QUALITY_RECOMMENDED),
+		SkyWeather.QUALITY_RECOMMENDED
+	)
+	assert_eq(
+		SkyWeather.resolve_quality_tier(SkyWeather.QUALITY_AUTO),
+		SkyWeather.QUALITY_RECOMMENDED,
+		"auto resolves to recommended until runtime hardware probing lands"
+	)
+	assert_eq(
+		SkyWeather.resolve_quality_tier(&"not-a-tier"),
+		SkyWeather.QUALITY_RECOMMENDED,
+		"unknown tier requests must not escape the named table"
+	)
+	var minimum := SkyWeather.quality_settings(SkyWeather.QUALITY_MINIMUM)
+	var recommended := SkyWeather.quality_settings(SkyWeather.QUALITY_RECOMMENDED)
+	assert_eq(
+		minimum["cloud_noise_resolution"],
+		SkyWeather.SKY_RESOURCES.CLOUD_NOISE_RESOLUTION_MINIMUM
+	)
+	assert_eq(
+		recommended["cloud_noise_resolution"],
+		SkyWeather.SKY_RESOURCES.CLOUD_NOISE_RESOLUTION_RECOMMENDED
+	)
+	assert_eq(
+		minimum["rain_particles"],
+		SkyWeather.SKY_RESOURCES.RAIN_PARTICLES_MINIMUM
+	)
+	assert_eq(
+		recommended["rain_particles"],
+		SkyWeather.SKY_RESOURCES.RAIN_PARTICLES_RECOMMENDED
+	)
+
+
+func test_quality_tier_does_not_change_weather_state_digest() -> void:
+	var minimum := SkyWeather.new()
+	minimum.quality_tier = SkyWeather.QUALITY_MINIMUM
+	var recommended := SkyWeather.new()
+	recommended.quality_tier = SkyWeather.QUALITY_RECOMMENDED
+	minimum.auto_weather = false
+	recommended.auto_weather = false
+	minimum.set_weather(SkyWeather.WEATHER_STORM)
+	recommended.set_weather(SkyWeather.WEATHER_STORM)
+	for step in 25:
+		minimum.advance(1.0)
+		recommended.advance(1.0)
+	assert_eq(
+		minimum.snapshot_state(0.5, 2).to_dict(),
+		recommended.snapshot_state(0.5, 2).to_dict(),
+		"renderer tier must not alter deterministic weather state"
+	)
+	minimum.free()
+	recommended.free()
