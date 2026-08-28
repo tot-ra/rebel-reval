@@ -2,15 +2,15 @@
 
 **Task:** R-789 / P4-027d decomposition
 **Parent:** R-246 / P4-027d
-**Audit date:** 2026-08-28
-**Audited revision:** `1290c2d9` (`main`, shared worktree)
+**Audit date:** 2026-08-29
+**Audited revision:** `82deb8c7` (`main`, shared dirty worktree)
 **Decision:** **BLOCKED**
 
 ## Scope and decision boundary
 
 This is a review-only audit of the Rentenitorn historical minimum-claim and reversibility boundary. It does not change the interior report, RRMap, catalog, transition manifest, exterior map, registry, or encounter content. The current worktree contains unrelated edits in `content/maps/north_quarter.rrmap`; no Rentenitorn-specific line is part of that diff.
 
-The implementation is structurally complete, but the package cannot be treated as historically/art accepted until the named human review and gameplay-scale day/night captures owned by **R-785** are recorded. No approval is inferred from automated tests or from the existing implementation report.
+The implementation is structurally complete, and the gameplay-scale day/night packet is present in the linked R-785 evidence. The package cannot be treated as historically/art accepted until the named human review and verdicts owned by **R-785** are recorded. No approval is inferred from automated tests, captures, or from the existing implementation report.
 
 ## Minimum-claim and reversibility matrix
 
@@ -24,12 +24,12 @@ The implementation is structurally complete, but the package cannot be treated a
 | Developer-only state is preserved; no release activation is claimed | **PASS** | `content/maps/rentenitorn_interior.rrmap:9-13` declares `scope=prototype active=false`; `scripts/map/map_catalog.gd:31-36` declares the catalog entry `active=false`; and `scripts/tower/completed_tower_packages.gd:192-200,288` enforces developer-only and `release_active=false`. The transition manifest entry is intentionally `active=true, release=false` (`content/transitions/active_destinations.json:103-112`), which permits developer traversal while keeping release activation disabled. |
 | Existing report links resolve | **PASS** | Relative links in `docs/reports/rentenitorn_interior_review.md:84-88` resolve to `history/dossiers/topography/walls-gates-towers.md`, `docs/reports/reval_fortifications_1343.md`, and `content/maps/rentenitorn_interior.rrmap`. A filesystem probe confirmed all three targets exist. |
 | No later tower silhouette or activation claim has been introduced | **PASS** | `docs/reports/reval_fortifications_1343.md:44-54` explicitly excludes later additions, Fat Margaret, Kiek in de Kök, foreworks, and later wall profiles. `history/dossiers/topography/walls-gates-towers.md:165-176` dates the relevant later forms. The Rentenitorn RRMap contains no later-silhouette terms and remains inactive in its authored source. |
-| Historical reviewer signs the conservative form | **BLOCKED** | `docs/reports/rentenitorn_interior_review.md:78-82` requires historical review before the report can become signed. No named historical approval is recorded. Owner: **R-785**, `P4-027d: sign off Rentenitorn interior with day/night captures`. |
-| Art reviewer confirms gameplay-scale three-band and wall-walk readability | **BLOCKED** | The required gameplay-camera day/night captures and art review are not recorded. The existing structural evidence proves IDs and reachability only, not visual acceptance. Owner: **R-785**. |
+| Historical reviewer signs the conservative form | **BLOCKED** | `docs/reports/rentenitorn_interior_review.md:132-145` requires a named historical reviewer to confirm the conservative form before the report can become signed. No named historical approval is recorded. Owner: **R-785**, `P4-027d: sign off Rentenitorn interior with day/night captures`. |
+| Art reviewer confirms gameplay-scale three-band and wall-walk readability | **BLOCKED** | `docs/reports/rentenitorn_interior_review.md:132-145` records the matched day/night packet but leaves the named art verdict pending. Structural and capture evidence proves IDs, reachability, framing, and output integrity, not visual acceptance. Owner: **R-785**. |
 
 ## Automated verification
 
-All focused commands below ran against the current checkout with Godot 4.7.1 at `/Applications/Godot.app/Contents/MacOS/Godot`.
+The current Rentenitorn-specific verification remains green: the interior map, encounter, persistence, completed-package, and tower-door focused suites pass (3 + 3 + 4 + 3 + 7 Godot tests), the focused Python content suite passes 3 tests, and the content corpus validator exits 0. The map and registry identity checks found no committed or working-tree changes to the Rentenitorn interior or its exterior registry row.
 
 ```text
 python3 -m unittest tests.python.test_rentenitorn_boss_content -v
@@ -84,7 +84,7 @@ A separate source probe passed the following assertions:
 
 ## Final disposition
 
-**BLOCKED.** The historical minimum-claim and reversibility boundary is structurally and content-wise PASS, and all focused automated checks are green. R-246 remains open because R-785 must provide named historical and art sign-off plus matched gameplay-scale day/night captures. Do not change `rentenitorn_interior_review.md` to signed, change the map/catalog/manifest to release-active, or infer approval from this audit.
+**BLOCKED.** The historical minimum-claim and reversibility boundary is structurally and content-wise PASS, and all focused automated checks are green. The matched day/night packet is present, but R-246 remains open because R-785 must provide named historical and art verdicts. Do not change `rentenitorn_interior_review.md` to signed, change the map/catalog/manifest to release-active, or infer approval from this audit.
 
 ## Sources
 

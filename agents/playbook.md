@@ -212,6 +212,8 @@ This file contains only cross-role operating lessons. Domain lessons belong to t
 - This Git build does not support `git diff --no-index --label`; generate the temporary-file diff without labels, then normalize its `diff --git`, `---`, and `+++` paths before applying a scoped playbook patch to the index.
 - For new verification ledgers, strip Markdown metadata trailing spaces before the report contract and `git diff --check`; semantic checks can pass while whitespace hygiene still blocks the scoped commit.
 
+- 2026-08-29: When refreshing a Markdown audit in a dirty worktree, use plain line breaks instead of hard-break trailing spaces; `git diff --check` can reject an otherwise valid scoped report. Keep existing capture evidence separate from pending human review so BLOCKED criteria identify only the true approval gap.
+
 - 2026-08-28: When a line-range edit is accidentally aimed at a directory, no file change occurs; retry with the exact file path, then re-read the bounded block because a prior partial insertion may have left orphaned lines.
 - 2026-08-25: After inserting a new unittest before an existing method, re-read the complete bounded class tail immediately; preserve the original method as a separate block before running tests, because a successful text insertion can silently nest the old assertions under the new test.
 - When a scoped asset commit is blocked by repository-wide provenance drift outside its allowlist, preserve the green scoped lint and manifest-hash checks, keep unrelated staged WIP untouched, and use `git commit --only --no-verify` after recording the exact baseline errors.
