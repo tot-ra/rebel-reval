@@ -121,6 +121,20 @@ Wikipedia (et), citing Zobel 2008, adds two bounded Danish-phase frames without 
 
 **Production decision:** Map and Art may place the **A2.2/A2.3 courtyard split**, **A2.6 trois-dansker west curtain**, and **three-gate / ditch frame** as labelled topology. **Do not** import Order convent footprint dimensions or upper-ward cloister plans into Danish-era rooms. Measured Danish room sizes remain **`null`**.
 
+### Primary Zobel 2008 access boundary (2026-08-28 recheck)
+
+Target chapter: Rein Zobel, "Toompea loss keskajal (ca 1030–1525)," in *Toompea loss* (Kalm, Maiste, Zobel), Riigikogu Kantselei, Tallinn **2008**, pp. **11–30** (ISBN 9789985953167; ETIS record `2c1729b5-31d1-4923-9db8-810e8f82814c`).
+
+| Channel | Result | Boundary |
+|---|---|---|
+| Local `history/` holdings | No OCR/PDF extract or scan of pp. 11–30 | Primary text not in checkout |
+| Internet Archive (`title:Toompea loss` + `creator:Zobel`) | `numFound: 0` | No public-domain surrogate |
+| Riigikogu publications catalogue | Print listing only; no downloadable chapter PDF | Commercial/library acquisition required |
+| ETIS publication page | JavaScript shell only in automated fetch | No extractable text |
+| Google Books API | HTTP 429 quota exceeded on 2026-08-28 | Tooling limit only; not a no-hit claim |
+
+**Classification:** `environment` / rights access blocker. Zero primary pages were inspected, so **no Danish interior dimension** can be upgraded from `plausible composite` to measured, and **no manuscript no-hit** is claimed for measured drawings inside pp. 11–30. Clearing condition: maintainer-supplied scan/OCR of Zobel 2008 pp. 11–30 with redistribution rights, or on-site library transcription naming page, figure, and measured values. Work request: [`research-2026-08-28-zobel-2008-primary-access`](../../../docs/reports/work_requests/research-2026-08-28-zobel-2008-primary-access.md).
+
 ### What the Order rebuild teaches (comparandum only)
 
 Medieval Heritage and Zobel summarise the **post-1346** upper ward: four wings around a cloistered courtyard; main-floor chapel, chapter, refectory, dormitory; ground-floor kitchen and stores [4][9]. Estonian Wikipedia dates the core convent house **1350–1360** [1]. Kuressaare bishop's castle (Saaremaa) offers a Baltic **Konventhaus** parallel — square courtyard ~43 m, cellar stores, main-floor representative rooms, dansker [13] — but it is **episcopal**, **Saaremaa**, and **late 14th-century**; use only to understand what the Order **will** build at Reval, not April 1343 Danish layout [13]. **plausible composite** comparandum; **not** transferable as 1343 evidence.
@@ -158,7 +172,7 @@ No licensed measured plan of the **Danish-period** Small Castle interior survive
 
 ## Open questions
 
-- **Primary Zobel 2008 pass still open:** local holdings lack an OCR/PDF extract of *Toompea loss keskajal*, pp. 11–30. The 2026-08-28 secondary collation above maps Linnakindlustuste **A2** inventory and Wikipedia (et) frames to production zone IDs but recovers **no Danish interior dimensions**. Acquire or transcribe the primary chapter before upgrading any `SC-*` footprint from `plausible composite` to measured.
+- **Primary Zobel 2008 pass blocked (access):** the 2026-08-28 recheck above confirms no local or open-web OCR/PDF of *Toompea loss keskajal*, pp. 11–30. The secondary collation maps Linnakindlustuste **A2** inventory and Wikipedia (et) frames to production zone IDs but recovers **no Danish interior dimensions**. Measured `SC-*` footprints stay `null` until the work-request clearing pass supplies page-cited primary drawings.
 - **Zobel 2011** (*Tallinn keskaegsed kindlustused*) remains unmined for any Danish-phase interior drawings beyond the A2 taxonomy already mirrored in the 2022 survey [17].
 - AWB / *DD* folio read for named rooms (kitchen, *kamer*, chapel) in Danish Reval charters — may upgrade `SC-*` labels from composite to attested.
 - Archaeological section under **Pikk Hermann** (Riigikogu visitor route) for pre-1350 floor surfaces — physical evidence for cellar/storey functions.
@@ -184,3 +198,4 @@ No licensed measured plan of the **Danish-period** Small Castle interior survive
 16. M. Reppo, “The Bishop’s House and new additions to the study of the limestone quarry on Toompea Hill,” *Archaeological Fieldwork in Estonia* 2018, 171–184, https://arheoloogia.ee/ave2018/AVE2018_12_Reppo_Toompea.pdf ; local OCR text `history/AVE2018_12_Reppo_Toompea.txt` — quarry revision and natural plateau-edge barrier; English.
 17. R. Nurk (TLPA MKO), *Linnakindlustuste kaardistus* — local PDF `history/Linnakindlustuste kaardistus.pdf`, A2 inventory pp. 2–3, Aug. 2022; Estonian; states medieval fortification localisation relies mainly on Rein Zobel's research; redistribution rights unclear — link-only plate `.06`.
 18. Same as [17] — A2.2 north courtyard, A2.3 south courtyard, A2.6 west curtain with three danskers and west gate, A2.14–A2.15 outer baileys.
+19. Primary-source access recheck, 2026-08-28 — Internet Archive API (`numFound: 0` for `Toompea loss` + `Zobel`); Riigikogu print catalogue without chapter PDF; no local extract; Google Books API quota exceeded — access blocker only, not a no-hit claim for measured Danish interior drawings in Zobel 2008 pp. 11–30.
