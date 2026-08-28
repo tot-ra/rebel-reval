@@ -357,6 +357,7 @@ const _PROFILE_SONGBIRD := preload("res://scripts/map/view3d/map_view_bird_speci
 const _PROFILE_CORVID := preload("res://scripts/map/view3d/map_view_bird_species_corvid.gd")
 const _PROFILE_RAPTOR := preload("res://scripts/map/view3d/map_view_bird_species_raptor.gd")
 const _PROFILE_WATERFOWL := preload("res://scripts/map/view3d/map_view_bird_species_waterfowl.gd")
+const _PROFILE_WADER := preload("res://scripts/map/view3d/map_view_bird_species_wader.gd")
 const _BASE_PROFILES: Dictionary = {
 	SPECIES_HERRING_GULL:
 	{
@@ -405,59 +406,6 @@ const _BASE_PROFILES: Dictionary = {
 			"cadence_s": Vector2(2.5, 8.0)
 		},
 		"abundance": 0.68
-	},
-	SPECIES_GREY_HERON:
-	{
-		"name": "Grey heron",
-		"group": GROUP_WADER,
-		"scale_m": 0.94,
-		"pose": POSE_STANDING,
-		"colors": [Color("858d91"), Color("444b4e"), Color("d6b050")],
-		"geometry": {"neck": 0.66, "legs": 0.72, "beak": 0.48, "body": Vector3(0.48, 0.19, 0.20)},
-		"song":
-		{
-			"cue": &"bird.grey_heron.call",
-			"kind": &"harsh_fraank",
-			"time": &"day",
-			"cadence_s": Vector2(14.0, 35.0)
-		},
-		"abundance": 0.34
-	},
-	SPECIES_NORTHERN_LAPWING:
-	{
-		"name": "Northern lapwing",
-		"group": GROUP_WADER,
-		"scale_m": 0.30,
-		"pose": POSE_STANDING,
-		"colors": [Color("303d39"), Color("dedbd0"), Color("6f8a69")],
-		"crest": true,
-		"geometry": {"neck": 0.08, "legs": 0.27, "beak": 0.16, "body": Vector3(0.45, 0.22, 0.23)},
-		"song":
-		{
-			"cue": &"bird.northern_lapwing.call",
-			"kind": &"peewit",
-			"time": &"day",
-			"cadence_s": Vector2(3.0, 10.0)
-		},
-		"abundance": 0.70,
-		"spawn": {CONTEXT_FORELAND: 0.90}
-	},
-	SPECIES_COMMON_SNIPE:
-	{
-		"name": "Common snipe",
-		"group": GROUP_WADER,
-		"scale_m": 0.27,
-		"pose": POSE_STANDING,
-		"colors": [Color("76664c"), Color("4f4738"), Color("d0b577")],
-		"geometry": {"neck": 0.05, "legs": 0.25, "beak": 0.56, "body": Vector3(0.42, 0.19, 0.19)},
-		"song":
-		{
-			"cue": &"bird.common_snipe.call",
-			"kind": &"ticking_and_drumming",
-			"time": &"dawn_dusk",
-			"cadence_s": Vector2(4.0, 12.0)
-		},
-		"abundance": 0.58
 	},
 	SPECIES_TAWNY_OWL:
 	{
@@ -523,6 +471,7 @@ static func _profiles() -> Dictionary:
 			.merged(_PROFILE_CORVID.PROFILES)
 			.merged(_PROFILE_RAPTOR.PROFILES)
 			.merged(_PROFILE_WATERFOWL.PROFILES)
+			.merged(_PROFILE_WADER.PROFILES)
 		)
 	return _profiles_cache
 
