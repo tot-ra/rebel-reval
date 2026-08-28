@@ -2,6 +2,7 @@ extends "res://tests/godot/test_case.gd"
 
 const SkyWeather := preload("res://scripts/map/view3d/sky_weather_3d.gd")
 const SkyWeatherState := preload("res://scripts/map/view3d/sky_weather_state.gd")
+const Lighting := preload("res://scripts/map/view3d/map_view_lighting.gd")
 
 # gdlint: disable=max-line-length
 
@@ -195,7 +196,6 @@ func test_presentation_snapshot_keeps_wet_surface_and_water_inputs_together() ->
 
 
 func test_presentation_snapshot_drives_lighting_and_fog_without_re_sampling_weather() -> void:
-	const Lighting := preload("res://scripts/map/view3d/map_view_lighting.gd")
 	var sky := SkyWeather.new()
 	sky.auto_weather = false
 	var fog_date := {"day": 18, "month": 1, "year": 1343}
@@ -226,6 +226,42 @@ func test_presentation_snapshot_drives_lighting_and_fog_without_re_sampling_weat
 		"fog must stay on the captured frame sample after weather changes"
 	)
 
+
+
+func test_weather_transition_does_not_reset_frame_exposure_or_morning_fog() -> void:
+	var tree := Engine.get_main_loop() as SceneTree
+	var sky := SkyWeather.new()
+	tree.root.add_child(sky)
+	sky.auto_weather = false
+	var fog_date := {"day": 18, "month": 1, "year": 1343}
+	sky.set_calendar_date(fog_date)
+	var progress := float(SkyWeather.sunrise_sunset_hours(fog_date)["sunrise"]) / 24.0
+	var sun := DirectionalLight3D.new()
+	var camera := Camera3D.new()
+	var environment := Environment.new()
+	sky.add_child(camera)
+	sky.configure(camera, environment)
+	Lighting.configure_post_process(environment)
+	Lighting.apply_cycle_progress(progress, sun, environment, sky, false)
+	assert_true(environment.fog_enabled, "the fog-prone sunrise fixture must start with visible mist")
+	var initial_exposure := environment.tonemap_exposure
+	var initial_fog_density := environment.fog_density
+
+	sky.set_weather(SkyWeather.WEATHER_RAIN)
+	sky.advance(0.1)
+	Lighting.apply_cycle_progress(progress, sun, environment, sky, false)
+	assert_true(
+		is_equal_approx(environment.tonemap_exposure, initial_exposure),
+		"a weather transition must not reset exposure for the current day-cycle frame"
+	)
+	assert_true(environment.fog_enabled, "a weather transition must not disable morning fog for one frame")
+	assert_true(environment.fog_density > 0.0, "a weather transition must not reset fog density to zero")
+	assert_true(
+		absf(environment.fog_density - initial_fog_density) < initial_fog_density * 0.2,
+		"one weather frame must change fog smoothly instead of resetting its density"
+	)
+	sun.free()
+	sky.free()
 
 
 func test_time_scale_freezes_and_accelerates_the_sky() -> void:
