@@ -75,11 +75,74 @@ The scoped acceptance suite verifies:
 - developer-only catalog, blueprint-registry, and completed-tower package wiring;
 - the reversibility markers above, asserted from the content package and this report.
 
+## R-785 presentation evidence packet
+
+The reproducible presentation packet is now captured from the production `MapView3D` with the same
+camera contract for every plate: `1280x720`, orthographic gameplay scale `33.75`, pitch `-30`,
+yaw `45`, and camera distance `90`. The day/night pairs share a framing key; only the lighting
+state changes. The packet includes the interior route, an exterior tower approach, and a closer
+exterior view of the south door and return spawn.
+
+| View | Day plate | Night plate | Stable-ID coverage | Packet result |
+| --- | --- | --- | --- | --- |
+| Interior three-band route and wall-walk | [`rentenitorn_interior_day.png`](images/rentenitorn/rentenitorn_interior_day.png) | [`rentenitorn_interior_night.png`](images/rentenitorn/rentenitorn_interior_night.png) | `rentenitorn_interior_entry`, `rentenitorn_floor_ground`, `rentenitorn_floor_watch`, `rentenitorn_floor_roof`, `rentenitorn_wall_walk` | **PASS - matched 1280x720 pair** |
+| Exterior tower approach | [`north_quarter_merchant_wall_tower_northwest_day.png`](images/rentenitorn/north_quarter_merchant_wall_tower_northwest_day.png) | [`north_quarter_merchant_wall_tower_northwest_night.png`](images/rentenitorn/north_quarter_merchant_wall_tower_northwest_night.png) | `merchant_wall_tower_northwest` | **PASS - matched 1280x720 pair** |
+| Exterior south door and return spawn | [`north_quarter_merchant_wall_tower_northwest_door_day.png`](images/rentenitorn/north_quarter_merchant_wall_tower_northwest_door_day.png) | [`north_quarter_merchant_wall_tower_northwest_door_night.png`](images/rentenitorn/north_quarter_merchant_wall_tower_northwest_door_night.png) | `merchant_wall_tower_northwest`, `rentenitorn_enter`, `merchant_wall_tower_northwest_return` | **PASS - matched 1280x720 pair** |
+
+The machine-readable metadata is [`capture_manifest.json`](images/rentenitorn/capture_manifest.json).
+It records both map fingerprints, the `active=false` boundary for the interior and exterior maps,
+the OpenGL compatibility renderer, stable IDs, focus coordinates, camera settings, and the three
+matched day/night framing keys. The capture runner is
+[`tools/capture_rentenitorn_presentation.gd`](../../tools/capture_rentenitorn_presentation.gd),
+and its packet contract is [`test_rentenitorn_presentation.gd`](../../tests/godot/test_rentenitorn_presentation.gd).
+
+## Review observations (not human approval)
+
+The source-bound historical review confirms the conservative interpretation supported by the
+current dossier: only the tower's pre-mid-fourteenth-century presence is attested. The closed
+rectangular shell, three traversal bands, timber deck, stairs, and room uses remain labelled as
+plausible or invented reconstruction. The authored shell is distinct from Nunnatorn's open-backed
+bartizan treatment, and no later tower silhouette is introduced. This is an agent/source review,
+not a named human historical sign-off.
+
+The packet is suitable for an art reviewer to inspect the three traversal bands, the wall-walk,
+and the south exterior door at gameplay distance in matched day/night lighting. The capture
+contract confirms framing and output integrity, but it cannot certify visual readability or replace
+an art review. No map/catalog/transition activation was changed; Rentenitorn remains developer-only.
+
+## Reproduction and verification
+
+```text
+/Applications/Godot.app/Contents/MacOS/Godot --path . \
+  --rendering-method gl_compatibility --rendering-driver opengl3 \
+  --script tools/capture_rentenitorn_presentation.gd
+# PASS: 6 PNG plates written at 1280x720; shutdown emitted known resource-leak diagnostics
+
+GODOT_LOG_DIR=/tmp/r785-test-rentenitorn-presentation \
+  ./tools/run_godot_checked.sh --require-test-summary r785-rentenitorn-presentation -- \
+  /Applications/Godot.app/Contents/MacOS/Godot --headless --path . \
+  --script tools/run_godot_tests.gd -- --filter=test_rentenitorn_presentation
+# PASS: 1 file, 2 tests, 0 failures, 0 errors
+
+python3 -m gdtoolkit.linter \
+  tools/capture_rentenitorn_presentation.gd tests/godot/test_rentenitorn_presentation.gd
+# PASS: no problems found
+```
+
 ## Required human review
 
-Historical and art reviewers must inspect the floor-plan silhouette and a gameplay capture
-before this report changes to signed. Until then Rentenitorn stays developer-only and the task
-must not claim release activation.
+The automated packet and source review are complete, but the report does not invent human approval.
+A named historical reviewer and a named art reviewer must inspect the six linked plates and record
+observations below before this report changes to signed. Until then Rentenitorn stays developer-only
+and the task remains in review.
+
+| Role | Reviewer | Date | Observation | Verdict |
+| --- | --- | --- | --- | --- |
+| Historical reviewer | **Not assigned** | - | Confirm that a closed rectangular minimum-claim plan is defensible for a tower attested only as present before the mid-14th c.; confirm it is neither the Nunnatorn open-backed bartizan nor a later silhouette. | **BLOCKED** |
+| Art reviewer | **Not assigned** | - | Confirm that all three traversal bands, the wall-walk door, and the exterior south door read at gameplay distance in both matched lighting states; record any concrete amendment and owner. | **BLOCKED** |
+
+Do not change either row to PASS based on the automated tests or this agent/source review. The
+portfolio acceptance remains with P4-027f / R-261 and this task does not activate the map.
 
 ## Sources
 

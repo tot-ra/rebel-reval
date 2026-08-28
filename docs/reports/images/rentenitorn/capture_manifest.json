@@ -1,0 +1,162 @@
+{
+  "camera": {
+    "distance": 90.0,
+    "orthographic_size": 33.75,
+    "pitch_degrees": -30.0,
+    "projection": "orthographic",
+    "yaw_degrees": 45.0
+  },
+  "camera_intent": "gameplay-scale tower presentation",
+  "historical_boundary": "pre-mid-14c presence; reversible plan/fabric reconstruction",
+  "maps": {
+    "north_quarter": {
+      "active": false,
+      "fingerprint": "da6bfe9e553638388fd0bc578eca68f236574ad91528f1cf68602f942174211f"
+    },
+    "rentenitorn_interior": {
+      "active": false,
+      "fingerprint": "037f7a6bc32050bb417ef317fa50a291f380a8113dfc6e0dc13f4531db57ef7d"
+    }
+  },
+  "plates": [
+    {
+      "camera_intent": "interior three-band route and wall-walk",
+      "focus_logic_px": [
+        152.0,
+        216.0
+      ],
+      "focus_world": [
+        4.75,
+        0.800000011920929,
+        6.75
+      ],
+      "framing_key": "rentenitorn_interior|4.750|0.800|6.750|33.750",
+      "map_id": "rentenitorn_interior",
+      "output": "res://docs/reports/images/rentenitorn/rentenitorn_interior_day.png",
+      "stable_ids": [
+        "rentenitorn_interior_entry",
+        "rentenitorn_floor_ground",
+        "rentenitorn_floor_watch",
+        "rentenitorn_floor_roof",
+        "rentenitorn_wall_walk"
+      ],
+      "time_of_day": "day",
+      "view_id": "rentenitorn_interior"
+    },
+    {
+      "camera_intent": "exterior tower approach",
+      "focus_logic_px": [
+        352.0,
+        432.0
+      ],
+      "focus_world": [
+        11.0,
+        0.800000011920929,
+        13.5
+      ],
+      "framing_key": "north_quarter_merchant_wall_tower_northwest|11.000|0.800|13.500|33.750",
+      "map_id": "north_quarter",
+      "output": "res://docs/reports/images/rentenitorn/north_quarter_merchant_wall_tower_northwest_day.png",
+      "stable_ids": [
+        "merchant_wall_tower_northwest"
+      ],
+      "time_of_day": "day",
+      "view_id": "north_quarter_merchant_wall_tower_northwest"
+    },
+    {
+      "camera_intent": "exterior south door and return spawn",
+      "focus_logic_px": [
+        352.0,
+        480.0
+      ],
+      "focus_world": [
+        11.0,
+        0.800000011920929,
+        15.0
+      ],
+      "framing_key": "north_quarter_merchant_wall_tower_northwest_door|11.000|0.800|15.000|33.750",
+      "map_id": "north_quarter",
+      "output": "res://docs/reports/images/rentenitorn/north_quarter_merchant_wall_tower_northwest_door_day.png",
+      "stable_ids": [
+        "merchant_wall_tower_northwest",
+        "rentenitorn_enter",
+        "merchant_wall_tower_northwest_return"
+      ],
+      "time_of_day": "day",
+      "view_id": "north_quarter_merchant_wall_tower_northwest_door"
+    },
+    {
+      "camera_intent": "interior three-band route and wall-walk",
+      "focus_logic_px": [
+        152.0,
+        216.0
+      ],
+      "focus_world": [
+        4.75,
+        0.800000011920929,
+        6.75
+      ],
+      "framing_key": "rentenitorn_interior|4.750|0.800|6.750|33.750",
+      "map_id": "rentenitorn_interior",
+      "output": "res://docs/reports/images/rentenitorn/rentenitorn_interior_night.png",
+      "stable_ids": [
+        "rentenitorn_interior_entry",
+        "rentenitorn_floor_ground",
+        "rentenitorn_floor_watch",
+        "rentenitorn_floor_roof",
+        "rentenitorn_wall_walk"
+      ],
+      "time_of_day": "night",
+      "view_id": "rentenitorn_interior"
+    },
+    {
+      "camera_intent": "exterior tower approach",
+      "focus_logic_px": [
+        352.0,
+        432.0
+      ],
+      "focus_world": [
+        11.0,
+        0.800000011920929,
+        13.5
+      ],
+      "framing_key": "north_quarter_merchant_wall_tower_northwest|11.000|0.800|13.500|33.750",
+      "map_id": "north_quarter",
+      "output": "res://docs/reports/images/rentenitorn/north_quarter_merchant_wall_tower_northwest_night.png",
+      "stable_ids": [
+        "merchant_wall_tower_northwest"
+      ],
+      "time_of_day": "night",
+      "view_id": "north_quarter_merchant_wall_tower_northwest"
+    },
+    {
+      "camera_intent": "exterior south door and return spawn",
+      "focus_logic_px": [
+        352.0,
+        480.0
+      ],
+      "focus_world": [
+        11.0,
+        0.800000011920929,
+        15.0
+      ],
+      "framing_key": "north_quarter_merchant_wall_tower_northwest_door|11.000|0.800|15.000|33.750",
+      "map_id": "north_quarter",
+      "output": "res://docs/reports/images/rentenitorn/north_quarter_merchant_wall_tower_northwest_door_night.png",
+      "stable_ids": [
+        "merchant_wall_tower_northwest",
+        "rentenitorn_enter",
+        "merchant_wall_tower_northwest_return"
+      ],
+      "time_of_day": "night",
+      "view_id": "north_quarter_merchant_wall_tower_northwest_door"
+    }
+  ],
+  "render_driver": "opengl3",
+  "renderer": "gl_compatibility",
+  "task": "R-785 / P4-027d",
+  "viewport_px": [
+    1280,
+    720
+  ]
+}
