@@ -29,6 +29,13 @@ REPORT_PATH = ROOT / "docs" / "reports" / "r713_sky_weather_continuity.md"
 EXPECTED_CAPTURE_ID = "r713-sky-weather-continuity-v1"
 EXPECTED_MAPS = ("lower_town_slice", "monastery_quarter")
 EXPECTED_SCENARIOS = ("clear", "overcast", "rain", "storm", "rain_shelter_pair")
+EXPECTED_WEATHER_BY_SCENARIO = {
+    "clear": "clear",
+    "overcast": "overcast",
+    "rain": "rain",
+    "storm": "storm",
+    "rain_shelter_pair": "rain",
+}
 EXPECTED_TIMES = ("day", "night")
 EXPECTED_SHELTERS = ("exterior", "sheltered")
 EXPECTED_WIDTH = 1280
@@ -93,6 +100,25 @@ def _plate_key(plate: dict) -> tuple[str, str, str, str]:
         str(plate.get("time_of_day", "")),
         str(plate.get("shelter", "")),
     )
+
+
+def _handoff_key(handoff: dict) -> tuple[str, str, str, str, str]:
+    return (
+        str(handoff.get("source_map", "")),
+        str(handoff.get("target_map", "")),
+        str(handoff.get("scenario_id", "")),
+        str(handoff.get("time_of_day", "")),
+        str(handoff.get("shelter", "")),
+    )
+
+
+def _expected_handoff_keys() -> set[tuple[str, str, str, str, str]]:
+    return {
+        (EXPECTED_MAPS[0], EXPECTED_MAPS[1], scenario, time_of_day, shelter)
+        for scenario in EXPECTED_SCENARIOS
+        for time_of_day in EXPECTED_TIMES
+        for shelter in EXPECTED_SHELTERS
+    }
 
 
 def _expected_keys() -> set[tuple[str, str, str, str]]:
@@ -198,21 +224,74 @@ def _verify_manifest(manifest: dict) -> list[str]:
             errors.append("physical_handoff status is not captured")
 
     raw_handoffs = manifest.get("handoffs")
+    handoffs_by_key: dict[tuple[str, str, str, str, str], dict] = {}
     if not isinstance(raw_handoffs, list) or not raw_handoffs:
         errors.append("manifest must contain at least one captured handoff")
     else:
+        expected_handoff_keys = _expected_handoff_keys()
+        if len(raw_handoffs) != len(expected_handoff_keys):
+            errors.append(
+                "manifest handoff count must be "
+                f"{len(expected_handoff_keys)}"
+            )
         for handoff_entry in raw_handoffs:
             if not isinstance(handoff_entry, dict):
                 errors.append("handoffs must contain only objects")
                 continue
+            key = _handoff_key(handoff_entry)
+            if key in handoffs_by_key:
+                errors.append(f"duplicate handoff identity: {'/'.join(key)}")
+            handoffs_by_key[key] = handoff_entry
             if handoff_entry.get("status") != "captured":
                 errors.append("handoff entry is not captured")
             if handoff_entry.get("scene_swap") is not False:
                 errors.append("handoff entry must not use a scene swap")
-            if handoff_entry.get("environment_owner_count_source") != 1 or handoff_entry.get("environment_owner_count_target") != 1:
+            if (
+                handoff_entry.get("environment_owner_count_source") != 1
+                or handoff_entry.get("environment_owner_count_target") != 1
+            ):
                 errors.append("handoff entry must record one environment owner on both sides")
             if handoff_entry.get("state_hash_source") != handoff_entry.get("state_hash_target"):
                 errors.append("handoff entry weather state hashes differ")
+            state_hash = handoff_entry.get("state_hash_source")
+            if not isinstance(state_hash, str) or len(state_hash) != 64:
+                errors.append(f"handoff state hash must be a 64-character SHA-256: {'/'.join(key)}")
+            expected_weather = EXPECTED_WEATHER_BY_SCENARIO.get(key[2])
+            if expected_weather is None:
+                errors.append(f"unexpected handoff scenario: {'/'.join(key)}")
+            elif handoff_entry.get("weather") != expected_weather:
+                errors.append(
+                    f"handoff weather does not match scenario: {'/'.join(key)}"
+                )
+            for map_id in key[:2]:
+                plate_key = (map_id, key[2], key[3], key[4])
+                if plate_key not in by_key:
+                    errors.append(
+                        "handoff has no matching captured plate: "
+                        + "/".join(plate_key)
+                    )
+        missing_handoffs = sorted(expected_handoff_keys - set(handoffs_by_key))
+        unexpected_handoffs = sorted(set(handoffs_by_key) - expected_handoff_keys)
+        if missing_handoffs:
+            errors.append(
+                "missing handoff identities: "
+                + ", ".join("/".join(key) for key in missing_handoffs)
+            )
+        if unexpected_handoffs:
+            errors.append(
+                "unexpected handoff identities: "
+                + ", ".join("/".join(key) for key in unexpected_handoffs)
+            )
+
+    if isinstance(handoff, dict):
+        physical_hash = handoff.get("state_hash")
+        if not isinstance(physical_hash, str) or len(physical_hash) != 64:
+            errors.append("physical_handoff state_hash must be a 64-character SHA-256")
+        elif not any(
+            entry.get("state_hash_source") == physical_hash
+            for entry in handoffs_by_key.values()
+        ):
+            errors.append("physical_handoff state_hash does not match a captured handoff")
     return errors
 
 
