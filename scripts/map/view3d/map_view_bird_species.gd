@@ -356,10 +356,10 @@ const GROUP_SPAWN_WEIGHTS: Dictionary = {
 const _PROFILE_SONGBIRD := preload("res://scripts/map/view3d/map_view_bird_species_songbird.gd")
 const _PROFILE_CORVID := preload("res://scripts/map/view3d/map_view_bird_species_corvid.gd")
 const _PROFILE_RAPTOR := preload("res://scripts/map/view3d/map_view_bird_species_raptor.gd")
+const _PROFILE_WATERFOWL := preload("res://scripts/map/view3d/map_view_bird_species_waterfowl.gd")
 const _BASE_PROFILES: Dictionary = {
 	SPECIES_HERRING_GULL:
 	{
-		## proportions and plumage while these ten families preserve cheap model reuse.
 		"name": "Herring gull",
 		"group": GROUP_GULL,
 		"scale_m": 0.60,
@@ -406,79 +406,8 @@ const _BASE_PROFILES: Dictionary = {
 		},
 		"abundance": 0.68
 	},
-	SPECIES_MUTE_SWAN:
-	{
-		"name": "Mute swan",
-		"group": GROUP_WATERFOWL,
-		"scale_m": 1.45,
-		"pose": POSE_STANDING,
-		"colors": [Color("e8e5dc"), Color("d8d5cc"), Color("d77a36")],
-		"geometry": {"neck": 0.72, "body": Vector3(0.72, 0.32, 0.38), "head": 0.13, "beak": 0.25},
-		"song":
-		{
-			"cue": &"bird.mute_swan.call",
-			"kind": &"hiss_and_wing",
-			"time": &"day",
-			"cadence_s": Vector2(12.0, 28.0)
-		},
-		"abundance": 0.32
-	},
-	SPECIES_MALLARD:
-	{
-		"name": "Mallard",
-		"group": GROUP_WATERFOWL,
-		"scale_m": 0.56,
-		"pose": POSE_STANDING,
-		"colors": [Color("766a4d"), Color("335b4d"), Color("d3a442")],
-		"breast": Color("77503a"),
-		"geometry": {"neck": 0.13, "beak": 0.26},
-		"song":
-		{
-			"cue": &"bird.mallard.call",
-			"kind": &"quack",
-			"time": &"day",
-			"cadence_s": Vector2(4.0, 13.0)
-		},
-		"abundance": 0.82
-	},
-	SPECIES_GREYLAG_GOOSE:
-	{
-		"name": "Greylag goose",
-		"group": GROUP_WATERFOWL,
-		"scale_m": 0.82,
-		"pose": POSE_STANDING,
-		"colors": [Color("938d7c"), Color("6f7168"), Color("d68c4c")],
-		"geometry": {"neck": 0.46, "body": Vector3(0.68, 0.31, 0.36)},
-		"song":
-		{
-			"cue": &"bird.greylag_goose.call",
-			"kind": &"nasal_honk",
-			"time": &"day",
-			"cadence_s": Vector2(5.0, 16.0)
-		},
-		"abundance": 0.54
-	},
-	SPECIES_GREAT_CORMORANT:
-	{
-		"name": "Great cormorant",
-		"group": GROUP_WATERFOWL,
-		"scale_m": 0.88,
-		"pose": POSE_STANDING,
-		"colors": [Color("252b2b"), Color("15191a"), Color("c9a85b")],
-		"geometry": {"neck": 0.52, "body": Vector3(0.58, 0.25, 0.28), "beak": 0.29, "tail": 0.30},
-		"song":
-		{
-			"cue": &"bird.great_cormorant.call",
-			"kind": &"guttural_croak",
-			"time": &"day",
-			"cadence_s": Vector2(8.0, 22.0)
-		},
-		"abundance": 0.38,
-		"spawn": {CONTEXT_HARBOR: 0.92, CONTEXT_WETLAND: 0.70}
-	},
 	SPECIES_GREY_HERON:
 	{
-		## Suitability values are relative authoring weights, not probabilities. P0-105
 		"name": "Grey heron",
 		"group": GROUP_WADER,
 		"scale_m": 0.94,
@@ -487,7 +416,6 @@ const _BASE_PROFILES: Dictionary = {
 		"geometry": {"neck": 0.66, "legs": 0.72, "beak": 0.48, "body": Vector3(0.48, 0.19, 0.20)},
 		"song":
 		{
-			## may normalize a selected context after applying phase and population budgets.
 			"cue": &"bird.grey_heron.call",
 			"kind": &"harsh_fraank",
 			"time": &"day",
@@ -533,7 +461,6 @@ const _BASE_PROFILES: Dictionary = {
 	},
 	SPECIES_TAWNY_OWL:
 	{
-		## `scale_m` is approximate body length used to preserve relative runtime scale.
 		"name": "Tawny owl",
 		"group": GROUP_OWL,
 		"scale_m": 0.39,
@@ -541,7 +468,6 @@ const _BASE_PROFILES: Dictionary = {
 		"colors": [Color("7a6248"), Color("4e4034"), Color("c8a879")],
 		"song":
 		{
-			## `song` is metadata only: no audio stream or playback behavior is loaded here.
 			"cue": &"bird.tawny_owl.call",
 			"kind": &"hooting_phrase",
 			"time": &"night",
@@ -596,6 +522,7 @@ static func _profiles() -> Dictionary:
 			.merged(_PROFILE_SONGBIRD.PROFILES)
 			.merged(_PROFILE_CORVID.PROFILES)
 			.merged(_PROFILE_RAPTOR.PROFILES)
+			.merged(_PROFILE_WATERFOWL.PROFILES)
 		)
 	return _profiles_cache
 
