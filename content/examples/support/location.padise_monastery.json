@@ -1,0 +1,48 @@
+{
+  "type": "location",
+  "id": "loc.padise_monastery",
+  "name": "Padise Monastery",
+  "district": "Outside Reval",
+  "confidence": "attested",
+  "canon_status": "active",
+  "approval": {
+    "status": "approved",
+    "reviewer": "P6-001"
+  },
+  "description": "A Cistercian monastery estate shown before the April 1343 attack and as a burned, silent site after it.",
+  "gameplay_space": true,
+  "scene_path": "res://scenes/world_travel/world_padise.tscn",
+  "spawn_ids": [
+    "prototype_inspection",
+    "from_world_padise"
+  ],
+  "connected_location_ids": [
+    "loc.world_padise"
+  ],
+  "occupant_ids": [],
+  "pressure_tags": [
+    "Authority",
+    "Community",
+    "Suspicion"
+  ],
+  "phase_states": [
+    {
+      "id": "before_attack",
+      "description": "White Brother choir monks and Grey Brother lay monks keep the oratory, hospital, brewery, and well in use with a Latin liturgical soundscape."
+    },
+    {
+      "id": "after_attack",
+      "description": "The 23 April fire leaves the monastery empty and the soundscape turns to a restrained, desolate monastery theme."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "attested",
+      "summary": "Padise was an active Cistercian monastery with choir monks and lay brothers before the 1343 attack; the permanent exhibition records 28 monks killed and buildings burned.",
+      "citations": [
+        "docs/reports/padise_monastery_research_p6_009.md",
+        "wiki/events/padise_monastery_massacre.md"
+      ]
+    }
+  ]
+}
