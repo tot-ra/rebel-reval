@@ -15,7 +15,7 @@ The parent task is too large to implement as a single agent session. The first-l
 | Area | Observation | Immediate low-complexity owner |
 |---|---|---|
 | State contract | [`docs/SKY_WEATHER_STATE_CONTRACT.md`](../SKY_WEATHER_STATE_CONTRACT.md) exists; R-732 body was empty | R-767 |
-| Deterministic snapshots | `test_sky_weather_3d` runs 24/25; one lunar UV shader assertion fails | R-768, then R-769 |
+| Deterministic snapshots | `test_sky_weather_3d` passes 27/27 headless (2026-08-28); R-768 fixed lunar UV assertion; R-769 closed R-733 | R-733 `done`; R-771/R-773/R-776 unblocked |
 | Save/load | `test_save_envelope.gd` cannot load because of a duplicate `entry` iterator in one scope | R-770, then R-771/R-772 |
 | Transition ownership | R-735 is `done` | no new row |
 | Atmosphere/wet sync | R-736 remains `in_progress` at complexity 2 | R-773, R-774, R-775 |
@@ -30,7 +30,7 @@ External parents that still gate R-739 and must not be duplicated here: **R-714*
 | Ref | Complexity | Status | Role |
 |---|---|---|---|
 | R-732 | 0 | in_progress | Shared state contract |
-| R-733 | 2 | in_review | Deterministic `SkyWeather3D` snapshots |
+| R-733 | 2 | done | Deterministic `SkyWeather3D` snapshots |
 | R-734 | 2 | in_progress | Save/load persistence |
 | R-735 | 2 | done | One environment owner across transitions |
 | R-736 | 2 | in_progress | Atmosphere and wet-surface synchronization |
@@ -46,7 +46,7 @@ External parents that still gate R-739 and must not be duplicated here: **R-714*
 |---|---|---|---|---|
 | R-767 | 0 | none | Reconcile `SKY_WEATHER_STATE_CONTRACT.md` with `SkyWeatherState` / `snapshot_state()` / `apply_state()` and close R-732 | `python3 -m unittest tests.python.test_verify_active_docs_report -v` only if links change; `--filter=test_sky_weather_state`; contract doc lists every persisted field present in code |
 | R-768 | 0 | none | Fix the failing lunar UV assertion in `test_sky_weather_3d` without changing weather semantics | `--filter=test_sky_weather_3d` all green |
-| R-769 | 0 | R-768 | Close R-733: confirm snapshot round-trip and deterministic continuation, then move R-733 to `done` | `--filter=test_sky_weather_3d`; `git diff --check` |
+| R-769 | 0 | R-768 | Close R-733: confirm snapshot round-trip and deterministic continuation, then move R-733 to `done` | **done 2026-08-28** - 27/27 `test_sky_weather_3d` green; `test_snapshot_json_round_trip_preserves_full_state` and `test_snapshot_restore_continues_deterministically` pass |
 
 ### R-734 chain
 
