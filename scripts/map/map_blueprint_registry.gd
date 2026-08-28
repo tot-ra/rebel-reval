@@ -19,6 +19,9 @@ const MonasteryQuarter := preload(
 const NunnatornInterior := preload(
 	"res://scripts/map/definitions/prototypes/nunnatorn_interior_rrmap_factory.gd"
 )
+const KuldjalaInterior := preload(
+	"res://scripts/map/definitions/prototypes/kuldjala_interior_rrmap_factory.gd"
+)
 const RentenitornInterior := preload(
 	"res://scripts/map/definitions/prototypes/rentenitorn_interior_rrmap_factory.gd"
 )
@@ -129,6 +132,24 @@ static func entries() -> Array[Dictionary]:
 				&"nunnatorn_boss_alternate_resolution",
 				&"nunnatorn_loot",
 				&"nunnatorn_evidence",
+			],
+		},
+		{
+			"id": &"kuldjala_interior",
+			"source": "res://content/maps/kuldjala_interior.rrmap",
+			"factory": KuldjalaInterior,
+			"required_anchors":
+			[
+				&"kuldjala_interior_entry",
+				&"kuldjala_floor_ground",
+				&"kuldjala_floor_watch",
+				&"kuldjala_floor_roof",
+				&"kuldjala_wall_walk",
+				&"kuldjala_wall_walk_entry",
+				&"kuldjala_boss",
+				&"kuldjala_boss_alternate_resolution",
+				&"kuldjala_loot",
+				&"kuldjala_evidence",
 			],
 		},
 		{

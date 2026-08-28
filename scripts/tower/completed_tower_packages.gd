@@ -89,7 +89,7 @@ static func all() -> Array[Dictionary]:
 			"kuldjala_retry",
 			"kuldjala_readability",
 			"kuldjala_acceptance",
-			"planned",
+			"implemented",
 			"res://scenes/reval_monastery/kuldjala_interior.tscn",
 			"res://content/maps/kuldjala_interior.rrmap",
 			"res://scripts/map/definitions/prototypes/kuldjala_interior_definition.gd",

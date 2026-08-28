@@ -71,6 +71,12 @@
       "source_refs": ["H04-H05"],
       "note": "Developer-only enterable tower interior (P4-027d). District composition bands do not apply to a single-tower dungeon; authored interior thresholds land with the P4-027f portfolio acceptance."
     },
+    "kuldjala_interior": {
+      "enforce": false,
+      "interior": true,
+      "source_refs": ["H04-H05"],
+      "note": "Developer-only enterable Golden Leg tower interior (P4-027c). District composition bands do not apply to a single-tower dungeon; authored interior thresholds land with the P4-027f portfolio acceptance."
+    },
     "monastery_quarter": {
       "enforce": true,
       "source_refs": ["H04-H05", "H14"],

@@ -1,0 +1,59 @@
+# P4-027c: developer-only Kuldjala interior based on the attested circa-1310
+# horseshoe tower form. The ground chamber and upper fighting chamber are the two
+# enclosed levels; the third traversal band is the adjoining timber wall-walk,
+# not an invented masonry storey. The east/city-facing opening remains legible.
+rrmap 1
+map kuldjala_interior loc.lower_town.kuldjala_interior 18 16 stone scope=prototype active=false palette=clean_painted seed=1310 cell_size=32
+source "docs/reports/kuldjala_interior_review.md"
+source "docs/reports/reval_fortifications_1343.md"
+source "history/dossiers/topography/walls-gates-towers.md"
+style wall.limestone wall_height=176 wall_color=8f8c80ff wall_material=limestone
+style wall.partition wall_height=96 wall_color=968d7fff wall_material=plank
+style deck.timber wall_height=72 wall_color=705b49ff wall_material=plank roof_material=shingle
+style floor.stone
+style light.tallow style_variant=artisan_tallow
+terrain ground.stone stone 1 1 16 14 order=1
+terrain ground.entry dirt 13 6 4 4 order=2
+terrain ground.lower stone 2 2 11 5 order=3
+terrain ground.upper timber_floor 2 8 11 5 order=3
+terrain ground.wall_walk timber_floor 13 2 4 11 order=4
+# The closed west arc and short north/south returns express the horseshoe shell.
+# The city-facing east gap is deliberate and must not be closed by later walls.
+wall shell.west 1 1 1 14 thickness=1 kind=interior_wall style=wall.limestone
+wall shell.north_arc 1 1 12 1 thickness=1 kind=interior_wall style=wall.limestone
+wall shell.north_return 12 1 15 1 thickness=1 kind=interior_wall style=wall.limestone
+wall shell.north_tip 15 1 15 3 thickness=1 kind=interior_wall style=wall.limestone
+wall shell.south_arc 1 14 12 14 thickness=1 kind=interior_wall style=wall.limestone
+wall shell.south_return 12 14 15 14 thickness=1 kind=interior_wall style=wall.limestone
+wall shell.south_tip 15 12 15 14 thickness=1 kind=interior_wall style=wall.limestone
+# A timber division separates the two enclosed fighting levels. The aligned gap
+# carries one reconstructed stair route without asserting an excavated plan.
+wall floor.partition 1 7 13 7 thickness=1 openings=10,7,3,1 kind=interior_wall style=wall.partition
+prop kuldjala_upper_stair stairs 10 5 rect=2,4 facing=north primitive=wall_walk_access
+prop kuldjala_upper_landing stairs 11 8 rect=2,2 facing=east primitive=wall_walk_platform
+prop kuldjala_wall_walk_access stairs 13 9 rect=2,3 facing=east primitive=wall_walk_access
+prop kuldjala_wall_walk_platform stairs 15 3 rect=2,9 facing=east primitive=wall_walk_platform
+prop lower_tallow candle 4 3 rect=1,1 style_variant=artisan_tallow visual_offset_px=0,-18
+prop upper_tallow candle 5 10 rect=1,1 style_variant=artisan_tallow visual_offset_px=0,-18
+prop wall_walk_tallow candle 15 5 rect=1,1 style_variant=artisan_tallow visual_offset_px=0,-18
+prop warden_workbench table 5 10 rect=3,1 style_variant=table.trestle_work
+prop bow_rack weapon_rack 8 3 rect=2,1
+prop repair_chest chest 3 3 rect=2,2 style_variant=chest.burgher
+exclude kuldjala_stair_clearance 9 5 4 4
+exclude kuldjala_wall_walk_hatch 13 8 2 3
+spawn spawn.kuldjala_interior_entry 14 7 rect=2,1
+anchor kuldjala_interior_entry 14 7 rect=2,1 kind=arrival
+anchor kuldjala_floor_ground 5 4 rect=2,2 kind=floor
+anchor kuldjala_floor_watch 5 10 rect=2,2 kind=floor
+# Shared tower tooling names this third traversal band "roof"; here it is the
+# open timber fighting deck that joins the city wall-walk, not a third chamber.
+anchor kuldjala_floor_roof 15 5 rect=1,2 kind=floor
+anchor kuldjala_wall_walk 15 8 rect=1,3 kind=route
+anchor kuldjala_wall_walk_entry 16 6 rect=1,2 kind=arrival
+anchor kuldjala_boss 7 10 rect=2,2 kind=encounter
+anchor kuldjala_boss_alternate_resolution 10 10 rect=1,1 kind=alternate
+anchor kuldjala_loot 8 3 rect=1,1 kind=loot
+anchor kuldjala_evidence 4 3 rect=1,1 kind=evidence
+transition kuldjala_exit 14 7 3 2 to=reval_monastery destination_spawn=monastery_wall_tower_west_mid_return spawn=kuldjala_interior_entry spawn_offset_px=-96,0 transition_visual=door
+fade kuldjala_readability 1 1 16 14
+camera 0 0 18 16

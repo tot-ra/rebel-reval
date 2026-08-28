@@ -140,6 +140,9 @@
         },
         {
           "id": "monastery_wall_tower_northwest_return"
+        },
+        {
+          "id": "monastery_wall_tower_west_mid_return"
         }
       ]
     },
@@ -151,6 +154,17 @@
       "spawns": [
         {
           "id": "nunnatorn_interior_entry"
+        }
+      ]
+    },
+    {
+      "id": "kuldjala_interior",
+      "path": "res://scenes/reval_monastery/kuldjala_interior.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        {
+          "id": "kuldjala_interior_entry"
         }
       ]
     },

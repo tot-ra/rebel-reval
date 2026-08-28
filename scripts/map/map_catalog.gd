@@ -22,6 +22,12 @@ const MAPS: Dictionary = {
 			"scope": "prototype",
 			"active": false
 		},
+	"kuldjala_interior":
+		{
+			"path": "res://scenes/reval_monastery/kuldjala_interior.tscn",
+			"scope": "prototype",
+			"active": false
+		},
 	"rentenitorn_interior":
 		{
 			"path": "res://scenes/reval_north/rentenitorn_interior.tscn",
