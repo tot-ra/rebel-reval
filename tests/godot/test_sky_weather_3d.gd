@@ -581,6 +581,16 @@ func test_quality_tier_clamps_unknown_and_auto_to_named_settings() -> void:
 	var minimum := SkyWeather.quality_settings(SkyWeather.QUALITY_MINIMUM)
 	var recommended := SkyWeather.quality_settings(SkyWeather.QUALITY_RECOMMENDED)
 	assert_eq(
+		SkyWeather.quality_settings(SkyWeather.QUALITY_AUTO),
+		recommended,
+		"auto must select the complete recommended settings row"
+	)
+	assert_eq(
+		SkyWeather.quality_settings(&"not-a-tier"),
+		recommended,
+		"unknown tiers must use the complete recommended fallback row"
+	)
+	assert_eq(
 		minimum["cloud_noise_resolution"],
 		SkyWeather.SKY_RESOURCES.CLOUD_NOISE_RESOLUTION_MINIMUM
 	)
@@ -596,13 +606,34 @@ func test_quality_tier_clamps_unknown_and_auto_to_named_settings() -> void:
 		recommended["rain_particles"],
 		SkyWeather.SKY_RESOURCES.RAIN_PARTICLES_RECOMMENDED
 	)
+	var sky := SkyWeather.new()
+	sky.set_quality_tier(SkyWeather.QUALITY_MINIMUM)
+	assert_eq(
+		sky.quality_tier,
+		SkyWeather.QUALITY_MINIMUM,
+		"the setter must keep a known minimum tier"
+	)
+	sky.set_quality_tier(SkyWeather.QUALITY_AUTO)
+	assert_eq(sky.quality_tier, SkyWeather.QUALITY_RECOMMENDED, "auto must clamp on the presenter")
+	sky.set_quality_tier(&"not-a-tier")
+	assert_eq(
+		sky.quality_tier,
+		SkyWeather.QUALITY_RECOMMENDED,
+		"unknown tiers must clamp on the presenter"
+	)
+	sky.free()
 
 
 func test_quality_tier_does_not_change_weather_state_digest() -> void:
 	var minimum := SkyWeather.new()
 	minimum.quality_tier = SkyWeather.QUALITY_MINIMUM
 	var recommended := SkyWeather.new()
-	recommended.quality_tier = SkyWeather.QUALITY_RECOMMENDED
+	recommended.set_quality_tier(SkyWeather.QUALITY_AUTO)
+	assert_eq(
+		recommended.quality_tier,
+		SkyWeather.QUALITY_RECOMMENDED,
+		"the deterministic comparison must use the resolved auto fallback"
+	)
 	minimum.auto_weather = false
 	recommended.auto_weather = false
 	minimum.set_weather(SkyWeather.WEATHER_STORM)
