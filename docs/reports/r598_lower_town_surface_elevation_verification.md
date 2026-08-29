@@ -97,3 +97,57 @@ No R-598 follow-up task was created: `R-623/R-251` own Nunnatorn, `R-297` owns T
 - [`verify_map_composition.py`](../../tools/verify_map_composition.py)
 - [`r454_historical_elevation_profiles.md`](r454_historical_elevation_profiles.md)
 - [`r454l_historical_elevation_acceptance.md`](r454l_historical_elevation_acceptance.md)
+
+## 2026-08-29 current-checkout rerun
+
+The R-598 verification was rerun against the current shared checkout with Godot 4.7.1. The report remains verification-only: no map, threshold, parity fixture, runtime, or focused test source was changed.
+
+Fresh metric probe:
+
+```text
+R598_METRICS_20260829 map_id=lower_town_slice
+surface_shares={"cobblestone_pct":4.52023277845446,"earth_pct":45.8722425226688,"grass_pct":27.446203816484,"stone_pct":26.6815536608472,"timber_pct":0.0,"unbuilt_cells":14778}
+elevation_range=1.48229014535609
+profiles=4
+```
+
+All enforced Lower Town surface bands and the elevation minimum pass: stone `25..40%`, earth `35..50%`, grass `15..30%`, cobblestone `<=40%`, and elevation range `>=0.3`. The focused Lower Town limit is also `<=5%` cobblestone, and the measured value passes it.
+
+Commands and checked results (logs retained under `/tmp/rebel-reval-r598-logs-20260829/`):
+
+```text
+export GODOT_BIN=/Applications/Godot.app/Contents/MacOS/Godot
+export GODOT_LOG_DIR=/tmp/rebel-reval-r598-logs-20260829
+
+# PASS: 1 file, 3 tests, 0 failures, 0 errors
+tools/run_godot_checked.sh --require-test-summary r598-authoring-contract -- "$GODOT_BIN" --headless --path . --script tools/run_godot_tests.gd -- --filter=test_lower_town_authoring_contract
+
+# PASS: 1 file, 19 tests, 0 failures, 0 errors
+tools/run_godot_checked.sh --require-test-summary r598-lower-town-slice -- "$GODOT_BIN" --headless --path . --script tools/run_godot_tests.gd -- --filter=test_lower_town_slice_map
+
+# PASS: 1 file, 3 tests, 0 failures, 0 errors
+tools/run_godot_checked.sh --require-test-summary r598-r503-elevation -- "$GODOT_BIN" --headless --path . --script tools/run_godot_tests.gd -- --filter=test_r503_elevation_gameplay_invariants
+
+# BLOCKED: 1 file, 3 tests, 2 failures, 0 errors
+tools/run_godot_checked.sh --require-test-summary r598-r454-elevation -- "$GODOT_BIN" --headless --path . --script tools/run_godot_tests.gd -- --filter=test_r454_elevation_scope
+ # Failures: north_quarter profile r454.north.east_harbour_fall and
+ # south_quarter profile r454.south.karja_causeway are outside the R-454 matrix.
+
+# PASS: 4/5 Python tests; the one failure is registry coverage for
+# toompea_small_castle only.
+python3 -m unittest tests.python.test_verify_map_composition -v
+
+# BLOCKED: registry maps missing threshold cards: toompea_small_castle
+python3 tools/verify_map_composition.py
+
+# PASS: no scoped report whitespace errors
+git diff --check -- docs/reports/r598_lower_town_surface_elevation_verification.md
+```
+
+The two R-454 failures are outside the Lower Town slice and remain owned by R-453/R-455. The composition blocker is the missing `toompea_small_castle` registry threshold card, owned by the Toompea Small Castle package work (`R-297`/`P4-039`). No new follow-up task is needed because both blockers already have active owners. Lower Town surface shares, elevation access, authoring contract, map routes/parity, and view-only elevation invariants remain **PASS**; the global matrix/composition command remains **BLOCKED** only at those external baselines.
+
+The checked Godot logs contain only the repository's known shutdown ObjectDB/resource-leak diagnostics after clean summaries; no parser, script, shader, or resource-loading errors were reported.
+
+## Updated disposition
+
+R-598 is ready for review as a deterministic verification ledger. Keep P0-100 acceptance open until the existing R-453/R-455 elevation-matrix work and the Toompea threshold-card owner reconcile their inputs. Do not regenerate parity or alter thresholds as part of R-598.
