@@ -1,0 +1,45 @@
+{
+  "type": "spell",
+  "id": "spell.pagan.illusionary_double",
+  "name": "Illusionary Double",
+  "school": "school.pagan",
+  "sequence": [
+    "element.mind",
+    "element.deception"
+  ],
+  "resolution": "authored_lookup",
+  "runtime_combination_allowed": false,
+  "requires_conduit": "none",
+  "cost": {
+    "resource": "resource.willpower",
+    "amount": 3
+  },
+  "effect_summary": "Summons a fragile double that redirects nearby enemies before expiring or being destroyed.",
+  "effect": {
+    "delivery": {
+      "kind": "summon",
+      "summon_kind": "illusionary_double",
+      "lifetime_sec": 6.0,
+      "health": 10.0,
+      "collision_radius": 18.0,
+      "aggro_radius": 240.0,
+      "spawn_offset": 36.0
+    }
+  },
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "R-720 Illusionary Double prototype"
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Authored Mind plus Deception decoy recipe from the accepted pagan-magic design; not an attested historical rite.",
+      "citations": [
+        "character/PAGAN-MAGIC.md",
+        "docs/SYSTEMS/MAGIC.md"
+      ]
+    }
+  ]
+}

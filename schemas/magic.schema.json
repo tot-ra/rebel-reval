@@ -101,8 +101,7 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "delivery",
-        "impact"
+        "delivery"
       ],
       "properties": {
         "delivery": {
@@ -115,7 +114,8 @@
             "kind": {
               "enum": [
                 "projectile",
-                "area_pulse"
+                "area_pulse",
+                "summon"
               ]
             },
             "speed": {
@@ -129,6 +129,29 @@
             "radius": {
               "type": "number",
               "exclusiveMinimum": 0
+            },
+            "summon_kind": {
+              "const": "illusionary_double"
+            },
+            "lifetime_sec": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "health": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "collision_radius": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "aggro_radius": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "spawn_offset": {
+              "type": "number",
+              "minimum": 0
             }
           }
         },

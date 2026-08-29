@@ -4,7 +4,8 @@ extends RefCounted
 ## Bridges validated/resourced cast results into reusable world delivery nodes.
 
 const PROJECTILE_SCRIPT := preload("res://scripts/magic/magic_projectile_2d.gd")
-const AREA_PULSE_SCRIPT := preload("res://scripts/magic/magic_area_pulse_2d.gd")
+const AREA_PULSE_SCRIPT_PATH := "res://scripts/magic/magic_area_pulse_2d.gd"
+const ILLUSIONARY_DOUBLE_SCRIPT := preload("res://scripts/magic/magic_illusionary_double_2d.gd")
 
 
 static func execute(
@@ -31,6 +32,8 @@ static func execute(
 		return _execute_projectile(cast_result, caster, direction, parent, effect_dict)
 	if delivery_kind == "area_pulse":
 		return _execute_area_pulse(cast_result, caster, parent, effect_dict)
+	if delivery_kind == "summon":
+		return _execute_summon(cast_result, caster, direction, parent, effect_dict)
 	return null
 
 
@@ -62,8 +65,11 @@ static func _execute_area_pulse(
 	effect: Dictionary
 ) -> Node2D:
 	var delivery := effect.get("delivery", {}) as Dictionary
+	var pulse_script := load(AREA_PULSE_SCRIPT_PATH) as Script
+	if pulse_script == null:
+		return null
+	var pulse := pulse_script.new() as Node2D
 	var pulse_effect := effect.get("impact", {}) as Dictionary
-	var pulse := AREA_PULSE_SCRIPT.new() as Node2D
 	if not pulse.configure(
 		caster,
 		StringName(String(cast_result.get("target_id", ""))),
@@ -76,3 +82,32 @@ static func _execute_area_pulse(
 	pulse.global_position = caster.global_position
 	pulse.call("pulse")
 	return pulse
+
+
+static func _execute_summon(
+	cast_result: Dictionary,
+	caster: Node2D,
+	direction: Vector2,
+	parent: Node,
+	effect: Dictionary
+) -> Node2D:
+	var delivery := effect.get("delivery", {}) as Dictionary
+	if String(delivery.get("summon_kind", "")) != "illusionary_double":
+		return null
+	var summon := ILLUSIONARY_DOUBLE_SCRIPT.new() as Node2D
+	if not summon.call(
+		"configure",
+		caster,
+		StringName(String(cast_result.get("target_id", ""))),
+		delivery
+	):
+		summon.free()
+		return null
+	parent.add_child(summon)
+	var spawn_offset := float(delivery.get("spawn_offset", 0.0))
+	var spawn_direction := direction.normalized()
+	if spawn_direction.is_zero_approx():
+		spawn_direction = Vector2.RIGHT
+	summon.global_position = caster.global_position + spawn_direction * spawn_offset
+	summon.call("activate")
+	return summon

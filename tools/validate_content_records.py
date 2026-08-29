@@ -30,10 +30,58 @@ from validate_content_semantics import (
 RecordValidator = Callable[[RecordValidationContext], None]
 
 
+def _validate_magic_summon_effect(context: RecordValidationContext) -> None:
+    """Fail closed on authored summon lifecycle and adapter identity."""
+    effect = context.record.get("effect")
+    if not isinstance(effect, dict):
+        return
+    delivery = effect.get("delivery")
+    if not isinstance(delivery, dict) or delivery.get("kind") != "summon":
+        return
+    if delivery.get("summon_kind") != "illusionary_double":
+        context.diagnose(
+            "MAGIC_EFFECT",
+            "$.effect.delivery.summon_kind",
+            "summon requires the supported authored summon_kind illusionary_double",
+        )
+    for field in ("lifetime_sec", "health", "collision_radius", "aggro_radius"):
+        value = delivery.get(field)
+        if not _is_positive_number(value):
+            context.diagnose(
+                "MAGIC_EFFECT",
+                f"$.effect.delivery.{field}",
+                f"summon requires a positive {field}",
+            )
+    spawn_offset = delivery.get("spawn_offset")
+    if not _is_non_negative_number(spawn_offset):
+        context.diagnose(
+            "MAGIC_EFFECT",
+            "$.effect.delivery.spawn_offset",
+            "summon requires a non-negative spawn_offset",
+        )
+    if effect.get("impact") is not None:
+        context.diagnose(
+            "MAGIC_EFFECT",
+            "$.effect.impact",
+            "summon effects must not define a direct impact",
+        )
+
+
+def _is_positive_number(value: Any) -> bool:
+    return isinstance(value, (int, float)) and not isinstance(value, bool) and value > 0
+
+
+def _is_non_negative_number(value: Any) -> bool:
+    return isinstance(value, (int, float)) and not isinstance(value, bool) and value >= 0
+
+
 def validate_magic(context: RecordValidationContext) -> None:
     """Keep the dual-school records closed even where JSON Schema is permissive."""
     record = context.record
     record_type = record.get("type")
+
+    if record_type in {"spell", "rite"}:
+        _validate_magic_summon_effect(context)
 
     if record_type == "spell":
         if record.get("school") != "school.pagan":

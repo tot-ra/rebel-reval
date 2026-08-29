@@ -41,6 +41,7 @@ var _signals_wired := false
 
 func _ready() -> void:
 	add_to_group(&"combat_damageable")
+	add_to_group(&"combat_ai_enemy")
 	add_to_group(&"map_view_actor")
 	combat_vitals.configure(health, max_health, stamina, max_stamina)
 	if not combat_vitals.died.is_connected(_on_vitals_died):
@@ -108,6 +109,10 @@ func is_combat_dead() -> bool:
 
 func set_ai_target(target: Node2D) -> void:
 	_target = target
+
+
+func get_ai_target() -> Node2D:
+	return _target
 
 
 ## Advance perception + AI one step. Tests call this directly because the

@@ -1,0 +1,25 @@
+{
+  "type": "magic_grant",
+  "id": "magic.grant.starter_illusionary_double",
+  "name": "Teach Illusionary Double",
+  "operation": "grant",
+  "target_id": "spell.pagan.illusionary_double",
+  "grant_flag": "flag.magic.taught_illusionary_double",
+  "resolution": "authored_lookup",
+  "runtime_combination_allowed": false,
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "R-720 Illusionary Double prototype"
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Explicit authored unlock for the Mind plus Deception decoy recipe.",
+      "citations": [
+        "docs/SYSTEMS/MAGIC.md"
+      ]
+    }
+  ]
+}
