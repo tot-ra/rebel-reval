@@ -44,8 +44,8 @@ Regression coverage includes:
 | Check | Result | Evidence |
 |---|---|---|
 | Exact transition manifest row | **PASS** | JSON parse, unique scene IDs, exact `active=false` / `release=false` pair, and unchanged `rentenitorn_interior_entry` spawn. |
-| Transition manifest suite | **PASS: 1 file, 7 tests, 0 failures, 0 errors** | `test_transition_manifest` |
-| Semantic transition validation suite | **PASS: 1 file, 11 tests, 0 failures, 0 errors** | `test_map_blueprint_semantic_validation` |
+| Transition manifest suite | **PASS: 1 file, 6 tests, 0 failures, 0 errors** | `test_transition_manifest` |
+| Semantic transition validation suite | **PASS: 1 file, 10 tests, 0 failures, 0 errors** | `test_map_blueprint_semantic_validation` |
 | Tower door suite | **PASS: 1 file, 7 tests, 0 failures, 0 errors** | `test_map_tower_doors` |
 | Rentenitorn map suite | **PASS: 1 file, 3 tests, 0 failures, 0 errors** | `test_rentenitorn_interior_map` |
 | Enterable tower contract | **PASS: 1 file, 3 tests, 0 failures, 0 errors** | `test_enterable_tower_contract` |
