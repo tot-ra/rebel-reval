@@ -158,3 +158,102 @@ rg -n 'st_catherines_church|viru_gate_(north|south)_tower|viru_gate_arch|viru_fo
 - [`scripts/map/view3d/map_view_mesh_builder_buildings.gd`](../../scripts/map/view3d/map_view_mesh_builder_buildings.gd) - ordinary/exceptional builder routing and boundary metadata.
 - [`scripts/map/view3d/map_view_mesh_builder_churches.gd`](../../scripts/map/view3d/map_view_mesh_builder_churches.gd) - dedicated St. Catherine's exceptional builder.
 - [`tests/godot/test_burgher_house_tiers.gd`](../../tests/godot/test_burgher_house_tiers.gd) - tier assignment and exceptional exclusion checks.
+
+---
+
+## Current handoff recheck (2026-08-29)
+
+**Recheck scope:** refresh the R-554 ordinary-versus-exceptional handoff against the current task board and checkout. This addendum is documentation-only. It does not change map geometry, runtime builders, assets, tests, thresholds, or visual acceptance decisions.
+
+**Current decision:** **SOURCE/PRODUCTION CONTRACTS PASS; GAMEPLAY-SCALE ACCEPTANCE BLOCKED.** The earlier sections retain historical snapshots. This section is the current board and artifact state and must be used for handoff decisions.
+
+### Current board state
+
+| Handoff | Current status | Interpretation |
+|---|---|---|
+| R-209 / P2-063 `merchant_stone` | `in_progress` | Production kit is present and its focused contract passes, but the owning task is not closed. |
+| R-210 / P2-064 `merchant_timber` | `done` | Production kit, runtime style, and imported-model contract are available. |
+| R-211 / P2-065 `craft_boda` | `in_progress` | Production kit is present and its focused contract passes, but the owning task is not closed. |
+| R-212 / P2-066 plot dressing | `in_progress` | Plot-dressing kit and parser/model contracts are present, but the owning task is not closed. |
+| R-213 / P2-067 tier wiring | `done` | Lower Town tier assignments and renderer selection are present; this does not constitute visual sign-off. |
+| R-353 / P0-102e exceptional boundary | `done` | Exceptional routing implementation is complete; final landmark quality and review remain separate gates. |
+| R-487 / P0-101b ordinary frontage and wear | `in_progress` | Ordinary route-scale variation and wear acceptance remain open. |
+| R-488 / P0-101c exceptional landmarks | `in_progress` | Exceptional landmark handoff remains open. |
+| R-489 / P0-101d route integration | `in_progress` | Independent route/art handoff remains open. |
+| R-492 / P0-101g silhouette review | `in_review` | No final named historical/art approval has been recorded for the required gameplay-scale silhouettes. |
+| R-6 / A-009 | `in_review` | Conditional reference-art pass, not final gameplay-scale sign-off. |
+| R-108 / P0-101 | `in_progress` | Parent acceptance remains open. |
+| R-110 / P0-102 | `in_progress` | Parent environment handoff remains open. |
+
+### Current ordinary-kit evidence
+
+The authored `lower_town_slice` source currently contains **51** tiered ordinary records:
+
+```text
+merchant_stone=14
+merchant_timber=14
+craft_boda=23
+tiered ordinary total=51
+```
+
+The additional craft-boda records include the eight current rear-workshop IDs covered by `test_lower_town_current_tier_inventory_includes_rear_workrooms`. The source count is not treated as a visual observation.
+
+All four production handoff paths named by R-209-R-212 are present in the current checkout:
+
+- `assets/props/architecture/houses/merchant_stone/merchant_stone.glb`
+- `assets/props/architecture/houses/merchant_timber/merchant_timber.glb`
+- `assets/props/architecture/houses/craft_boda/craft_boda.glb`
+- `assets/props/architecture/houses/plot_dressing/plot_dressing.glb`
+
+The corresponding focused Godot contracts verify imported production models, profile/budget evidence, tier-specific runtime style, and plot-dressing components/prop restrictions. These artifacts establish production-contract coverage, but do not replace R-487/R-489 route-scale review or R-6/R-492 visual sign-off.
+
+### Current exceptional boundary
+
+The boundary remains explicit in the current source and renderer:
+
+- `MapViewMeshBuilderBuildings.build_building()` dispatches registry-positive house records to `build_exceptional_building()` before the ordinary path.
+- Ordinary roots carry `renderer_boundary=ordinary`; exceptional roots carry `renderer_boundary=exceptional` and an `exceptional_category`.
+- `MapViewMeshBuilderBuildingRegistry.exceptional_category()` only classifies house records. Wall records with landmark-like IDs retain the fortification path.
+- `st_catherines_church` remains an exceptional church record without an ordinary `house_tier`.
+- `viru_gate_north_tower` and `viru_gate_south_tower` remain wall/round-tower records, while `viru_gate_arch` and `viru_foregate_arch` remain separate view-only gate landmarks.
+
+The focused tier contract also covers the negative boundary: a known exceptional house stays exceptional even if a tier leaks into a fixture, an ordinary house stays ordinary, and a wall record is not promoted into the exceptional-house path. No exceptional landmark is counted as ordinary-kit coverage in this recheck.
+
+### Focused verification record
+
+The current Godot 4.7.1 checked runs were:
+
+```text
+--filter=test_burgher_house_merchant_stone   1 file, 3 tests, 0 failures, 0 errors
+--filter=test_burgher_house_merchant_timber  1 file, 3 tests, 0 failures, 0 errors
+--filter=test_burgher_house_craft_boda       1 file, 3 tests, 0 failures, 0 errors
+--filter=test_burgher_plot_dressing          1 file, 4 tests, 0 failures, 0 errors
+--filter=test_burgher_house_tiers            1 file, 6 tests, 0 failures, 0 errors
+```
+
+The runs were executed through `tools/run_godot_checked.sh --require-test-summary` with `GODOT_LOG_DIR=/tmp/r554-current`. The plot-dressing and tier runs emitted the known Godot shutdown ObjectDB/resource cleanup diagnostics after green summaries; no assertion or parser error occurred. The combined focused result is **19/19 tests green**.
+
+### Remaining acceptance blockers
+
+The handoff is not promoted to PASS because the required visual and owner gates remain open:
+
+1. R-209, R-211, and R-212 are still `in_progress`, so their board-level production handoffs are not closed even though the current artifacts and focused contracts exist.
+2. `docs/reports/images/burgher_houses/signoff_*.png` is absent. The six A-008 reference plates are documentation-only and cannot substitute for matched gameplay-scale day/night evidence.
+3. The current P0-101 packet contains ten route plates, but its matrix still marks tier-specific stable-ID observations, repeated-frontage review, material/roof readability, localized wear, and special/landmark observations as pending or blocked.
+4. R-6/A-009 remains a conditional art-direction pass, and R-492 has not recorded final named canon/art approval.
+5. R-108/R-110 and the active R-487-R-489 handoffs remain open. No source count, imported GLB contract, or renderer-boundary test is promoted as a substitute for the gameplay-scale visual gate.
+
+**Current closeout:** R-554 is complete as a current blocked handoff audit. Existing board rows already own the production, route, exceptional, and visual blockers; no duplicate follow-up task is created. Keep R-108 and R-110 open, and do not count exceptional buildings as ordinary-house coverage.
+
+### Recheck sources
+
+- [`content/maps/lower_town_slice.rrmap`](../../content/maps/lower_town_slice.rrmap) - current authored tier and exceptional records.
+- [`tests/godot/test_burgher_house_tiers.gd`](../../tests/godot/test_burgher_house_tiers.gd) - current 51-record tier inventory and negative boundary checks.
+- [`tests/godot/test_burgher_house_merchant_stone.gd`](../../tests/godot/test_burgher_house_merchant_stone.gd) - stone production contract.
+- [`tests/godot/test_burgher_house_merchant_timber.gd`](../../tests/godot/test_burgher_house_merchant_timber.gd) - timber production contract.
+- [`tests/godot/test_burgher_house_craft_boda.gd`](../../tests/godot/test_burgher_house_craft_boda.gd) - boda production contract.
+- [`tests/godot/test_burgher_plot_dressing.gd`](../../tests/godot/test_burgher_plot_dressing.gd) - plot-dressing contract.
+- [`scripts/map/view3d/map_view_mesh_builder_building_registry.gd`](../../scripts/map/view3d/map_view_mesh_builder_building_registry.gd) - exceptional registry boundary.
+- [`scripts/map/view3d/map_view_mesh_builder_buildings.gd`](../../scripts/map/view3d/map_view_mesh_builder_buildings.gd) - ordinary/exceptional dispatch.
+- [`lower_town_p0_101_capture_matrix.md`](lower_town_p0_101_capture_matrix.md) - current gameplay-scale evidence matrix.
+- [`burgher_house_art_signoff.md`](burgher_house_art_signoff.md) - current conditional A-009 review.
