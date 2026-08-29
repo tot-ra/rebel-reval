@@ -149,3 +149,32 @@ The repeated first diagnostic is the clean parser's missing `elevation_area` / `
 **Updated:** 2026-08-17
 
 **Final decision:** **BLOCKED - R-110 / P0-102 remains `todo`.**
+
+## Current clean-HEAD recheck (2026-08-29)
+
+**Snapshot:** `7dddee2746a5536c6e4f68d7b75a49554a9f33dd` (`Cover DebugOverlay slower time control`)
+**Worktree:** `/tmp/rebel-reval-r364-clean-20260829` (detached clean worktree created from the current `HEAD`)
+**Status:** **BLOCKED - evidence packet and asset lint pass, but the clean runtime matrix is blocked by the RRMap elevation parser baseline and provenance drift**
+
+This recheck was run outside the dirty shared worktree. Godot 4.7.1 editor import completed with status 0. Each focused suite ran in a separate checked process under `/tmp/r364_clean_checked_20260829/`; the checked runner status matched the summary below.
+
+| Check | Result | Evidence / owner classification |
+|---|---|---|
+| Clean checkout and editor import | **PASS** | Detached worktree created from the current `HEAD`; headless editor import completed successfully. |
+| Shared environment-kit integration | **BLOCKED** | `test_environment_kit_integration`: 5 tests, 26 failures, 34 errors. The first product diagnostics are `unknown command 'elevation_area'` / `unknown command 'elevation_ramp'` in `content/maps/lower_town_slice.rrmap`, followed by invalid-map and typed-array cascades. R-453/R-455 own the elevation parser/acceptance boundary. |
+| Shared building surface weathering | **BLOCKED** | `test_building_surface_weathering`: 6 tests, 1 failure, 4 errors; the clean Lower Town path is interrupted by the same elevation parser baseline. |
+| Core 3D map-view regression | **BLOCKED** | `test_map_view_3d_core`: 20 tests, 9 failures, 44 errors; the repeated elevation parser diagnostics prevent valid Lower Town runtime acceptance. |
+| Mesh-builder regression | **BLOCKED** | `test_map_view_3d_mesh`: 19 tests, 9 failures, 44 errors; failures are downstream of the same clean parser baseline. |
+| Material resolution | **PASS** | `test_map_view_material_resolution`: 7 tests, 0 failures, 0 errors. |
+| Decal and local-wear regression | **BLOCKED** | `test_map_view_decals`: 8 tests, 4 failures, 4 errors; Lower Town map parsing is the first product blocker. |
+| Exceptional fortification regression | **BLOCKED** | `test_map_view_3d_fortification`: 8 tests, 6 failures, 45 errors; this is a clean-baseline cascade, not evidence to reopen the completed R-353 gate-leaf work. |
+| Dedicated day/night evidence packet | **PASS** | `python3 tools/verify_p0_102_environment_kit_evidence.py`: 8/8 decodable, paired, non-flat 1280x720 plates. This verifies file integrity and metadata, not three-tier gameplay readability or human sign-off. |
+| Asset lint | **PASS** | `python3 tools/verify_asset_lint.py`: 8 style-lock textures, 13 character GLBs, 41 tier-classified character GLBs, 0 portraits. |
+| Asset provenance | **BLOCKED - external owner** | `python3 tools/validate_asset_sources.py` reports 10 active plot-dressing albedo paths absent from `assets/SOURCES.csv`; these belong to the active R-212 asset/provenance handoff, not the environment-kit module implementation. |
+| Downstream parent closeout | **BLOCKED** | R-453 and R-455 remain `in_progress`; R-601/R-614 own route/runtime follow-up; R-209/R-211/R-212 remain active for ordinary-house and plot-dressing handoffs; R-110 remains `in_progress`. No duplicate follow-up task is needed. |
+
+### Recheck decision
+
+R-364 is complete as a reproducible blocked evidence closeout and should remain in review. The shared environment-kit packet itself has green evidence and asset-lint coverage, but P0-102 cannot be promoted while the clean RRMap parser baseline, plot-dressing provenance rows, and downstream gameplay/runtime handoffs remain unresolved. Re-run this matrix from a new clean revision after R-453/R-455 land, then consume R-601/R-614 and the ordinary-house handoffs before changing the parent decision.
+
+**Current verification logs:** `/tmp/r364_clean_checked_20260829/`
