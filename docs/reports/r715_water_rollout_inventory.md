@@ -27,12 +27,13 @@ The list is owned by [`scripts/map/map_types.gd`](../../scripts/map/map_types.gd
 
 ## Water-bearing map definitions
 
-The focused test builds every definition returned by [`MapAuditRegistry.all()`](../../scripts/map/map_audit_registry.gd), ignores only invalid empty definitions returned after an already-failed parser dependency, and records every compiled definition containing one or more closed water IDs. The current result is 13 definitions:
+The focused test builds every definition returned by [`MapAuditRegistry.all()`](../../scripts/map/map_audit_registry.gd), ignores only invalid empty definitions returned after an already-failed parser dependency, and records every compiled definition containing one or more closed water IDs. The complete result is 14 definitions: 13 rollout rows plus the explicitly excluded `monastery_quarter` row owned by R-529.
 
 | Compiled map ID | Authored definition/source | Water terrain IDs |
 |---|---|---|
 | `smithy_courtyard` | [`scripts/map/smithy_courtyard_definition.gd`](../../scripts/map/smithy_courtyard_definition.gd) | `water` |
 | `lower_town_slice` | [`content/maps/lower_town_slice.rrmap`](../../content/maps/lower_town_slice.rrmap) | `water` |
+| `monastery_quarter` | [`content/maps/monastery_quarter.rrmap`](../../content/maps/monastery_quarter.rrmap) | `water` |
 | `south_quarter` | [`content/maps/south_quarter.rrmap`](../../content/maps/south_quarter.rrmap) | `water` |
 | `viru_gate_foreland` | [`content/maps/viru_gate_foreland.rrmap`](../../content/maps/viru_gate_foreland.rrmap) | `river_water` |
 | `reval_harbor_north` | [`content/maps/reval_harbor_north.rrmap`](../../content/maps/reval_harbor_north.rrmap) | `shallow_water`, `deep_water` |
@@ -44,6 +45,8 @@ The focused test builds every definition returned by [`MapAuditRegistry.all()`](
 | `world.sacred_grove` | [`content/maps/world_sacred_grove.rrmap`](../../content/maps/world_sacred_grove.rrmap) via [`DistantLocationDefinitions`](../../scripts/map/definitions/outdoor/distant_location_definitions.gd) | `shallow_water` |
 | `world.padise` | [`content/maps/world_padise.rrmap`](../../content/maps/world_padise.rrmap) via [`DistantLocationDefinitions`](../../scripts/map/definitions/outdoor/distant_location_definitions.gd) | `water`, `river_water`, `shallow_water` |
 | `world.saaremaa` | [`content/maps/world_saaremaa.rrmap`](../../content/maps/world_saaremaa.rrmap) via [`DistantLocationDefinitions`](../../scripts/map/definitions/outdoor/distant_location_definitions.gd) | `shallow_water`, `deep_water` |
+
+`monastery_quarter` is inventoried because its authored `outer_wall.ditch` contains `water`, but it is excluded from the 13-row rollout matrix pending the R-529 east-ditch regression. This is an explicit external blocker, not an omitted water-bearing definition.
 
 The two sacred-grove and two Saaremaa rows are intentionally separate: `prototype.*` definitions are event/prototype packages, while `world.*` definitions are the developer-traversable RRMap layer. Stable map IDs are not merged or renamed.
 
@@ -95,13 +98,15 @@ Existing board rows own the next bounded steps; R-748 does not duplicate them:
 |---|---|
 | R-750 | Lock the shared reflective material contract and preserve distinct shallow/deep/river optical and flow/tide profiles. Depends on this inventory. |
 | R-751 | Stabilize water surface and shoreline geometry using the existing mesh and shoreline owners. |
-| R-752 | Roll the shared water presentation across the 13 inventoried definitions without changing stable map IDs or navigation semantics. |
+| R-752 | Roll the shared water presentation across the 13 inventoried rollout definitions without changing stable map IDs or navigation semantics. |
 | R-754 | Synchronize water uniforms with the shared sky/weather state rather than creating a second weather store. |
 | R-755 | Measure rendering budgets and fallbacks on declared hardware; do not infer target-hardware acceptance from headless runs. |
 | R-756 | Produce matched visual evidence; this inventory supplies the map/terrain matrix but does not sign captures. |
 | R-757 | Independently rerun the complete rollout, map, weather, performance, capture, and report gates. |
 
 External blockers recorded for downstream coordination are **R-529** (pre-existing Monastery east-ditch water regression) and **R-713** (unified sky/weather acceptance still blocked, including water-facing synchronization evidence). They are not repaired or reclassified by this audit.
+
+The inventory contract itself is [`tests/godot/test_r715_water_rollout_inventory.gd`](../../tests/godot/test_r715_water_rollout_inventory.gd); its report marker check keeps this document and the 14-row full inventory synchronized.
 
 ## R-751 water surface and shoreline geometry contract
 

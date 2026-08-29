@@ -9,9 +9,11 @@ const WaterMesh := preload("res://scripts/map/view3d/map_view_mesh_builder_terra
 const Shoreline := preload("res://scripts/map/view3d/map_view_shoreline_3d.gd")
 const ShaderSources := preload("res://scripts/map/view3d/map_view_material_shaders.gd")
 
+const INVENTORY_REPORT := "res://docs/reports/r715_water_rollout_inventory.md"
 const EXPECTED_WATER_MAPS := {
 	&"smithy_courtyard": [&"water"],
 	&"lower_town_slice": [&"water"],
+	&"monastery_quarter": [&"water"],
 	&"south_quarter": [&"water"],
 	&"viru_gate_foreland": [&"river_water"],
 	&"reval_harbor_north": [&"shallow_water", &"deep_water"],
@@ -62,6 +64,26 @@ func test_every_inventoried_water_map_contains_only_expected_water_ids() -> void
 		)
 		found[definition.map_id] = water_ids
 	assert_eq(found, EXPECTED_WATER_MAPS, "water map inventory drifted")
+
+
+func test_external_water_row_is_explicitly_documented() -> void:
+	var report := FileAccess.get_file_as_string(INVENTORY_REPORT)
+	assert_true(
+		report.contains("14 definitions"),
+		"the report must state the complete water-bearing inventory size",
+	)
+	assert_true(
+		report.contains("| `monastery_quarter` |"),
+		"the report must list the Monastery water-bearing definition",
+	)
+	assert_true(
+		report.contains("excluded from the 13-row rollout matrix"),
+		"the Monastery exception must remain outside the rollout matrix",
+	)
+	assert_true(
+		report.contains("R-529"),
+		"the excluded Monastery row must retain its external owner",
+	)
 
 
 func test_water_owner_modules_and_shader_contract_are_present() -> void:
