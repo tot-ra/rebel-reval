@@ -103,7 +103,7 @@
     {
       "id": "rentenitorn_interior",
       "path": "res://scenes/reval_north/rentenitorn_interior.tscn",
-      "active": true,
+      "active": false,
       "release": false,
       "spawns": [
         {
@@ -291,6 +291,23 @@
         },
         {
           "id": "from_world_padise"
+        },
+        {
+          "id": "from_small_castle"
+        }
+      ]
+    },
+    {
+      "id": "toompea_small_castle",
+      "path": "res://scenes/reval_toompea/reval_toompea.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        {
+          "id": "small_castle_entry"
+        },
+        {
+          "id": "from_small_castle"
         }
       ]
     },

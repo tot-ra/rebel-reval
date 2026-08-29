@@ -54,14 +54,17 @@ static func load_transition_registry(diagnostics: Array[MapBlueprintDiagnostic] 
 		if not scene_value is Dictionary:
 			continue
 		var scene: Dictionary = scene_value
-		if not bool(scene.get("active", false)):
-			continue
 		var scene_id := StringName(scene.get("id", ""))
+		if scene_id.is_empty():
+			continue
 		var spawns: Dictionary = {}
 		for spawn_value in scene.get("spawns", []):
 			if spawn_value is Dictionary:
 				spawns[StringName(spawn_value.get("id", ""))] = true
-		registry[scene_id] = spawns
+		registry[scene_id] = {
+			"active": bool(scene.get("active", false)),
+			"spawns": spawns,
+		}
 	return registry
 
 
@@ -101,19 +104,40 @@ static func _validate_transition_relationships(
 					path,
 					transition_id
 				)
-			elif not (registry[destination] as Dictionary).has(destination_spawn):
-				_add(
-					diagnostics,
-					&"MAP_TRANSITION_DESTINATION_SPAWN_UNKNOWN",
-					MapBlueprintDiagnostic.SEVERITY_ERROR,
-					(
-						"destination '%s' has no registered spawn '%s'"
-						% [String(destination), String(destination_spawn)]
-					),
-					definition.map_id,
-					path,
-					transition_id
+			else:
+				var destination_registry := registry[destination] as Dictionary
+				var destination_spawns: Dictionary = destination_registry.get("spawns", destination_registry)
+				# Inactive maps retain authored reciprocal wiring, but an active map
+				# must never expose a transition into an inactive destination.
+				var destination_active := bool(
+					destination_registry.get("active", destination_registry.get("__active", true))
 				)
+				if definition.active and not destination_active:
+					_add(
+						diagnostics,
+						&"MAP_TRANSITION_DESTINATION_UNKNOWN",
+						MapBlueprintDiagnostic.SEVERITY_ERROR,
+						(
+							"active map cannot reference inactive destination scene '%s'"
+							% String(destination)
+						),
+						definition.map_id,
+						path,
+						transition_id
+					)
+				elif not destination_spawns.has(destination_spawn):
+					_add(
+						diagnostics,
+						&"MAP_TRANSITION_DESTINATION_SPAWN_UNKNOWN",
+						MapBlueprintDiagnostic.SEVERITY_ERROR,
+						(
+							"destination '%s' has no registered spawn '%s'"
+							% [String(destination), String(destination_spawn)]
+						),
+						definition.map_id,
+						path,
+						transition_id
+					)
 		if own_spawn.is_empty():
 			_add(
 				diagnostics,
