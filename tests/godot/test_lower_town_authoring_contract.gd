@@ -145,6 +145,18 @@ func test_lower_town_frontage_rules_and_overrides_are_explicit() -> void:
 			"Frontage override names unknown building: %s" % building_id,
 		)
 		var override: Dictionary = overrides[building_id_variant]
+		assert_false(
+			rear_service.has(building_id),
+			"Rear/service building cannot receive a public frontage override: %s" % building_id,
+		)
+		assert_false(
+			non_frontage.has(building_id),
+			"Non-frontage building cannot receive a public frontage override: %s" % building_id,
+		)
+		assert_false(
+			String(source_by_id[building_id].get("house_tier", "")).is_empty(),
+			"Public frontage override needs an authored house tier: %s" % building_id,
+		)
 		var rule_id := String(override.get("rule_id", ""))
 		var rule := _frontage_rule(contract, rule_id)
 		assert_false(rule.is_empty(), "%s references an undeclared frontage rule" % building_id)
