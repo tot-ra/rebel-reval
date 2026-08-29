@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "report_id": "r715-water-performance-v1",
+  "task": "R-755",
+  "evidence_owner": "R-801",
+  "tier": "minimum",
+  "status": "BLOCKED",
+  "budget_scope": "water_only",
+  "target_hardware": {
+    "profile_id": "minimum-hardware-intel-uhd-620",
+    "architecture": "x86_64",
+    "gpu": "Intel UHD Graphics 620 (24 EUs, ~300 GFLOPS)",
+    "cpu": "Intel Core i5-8250U, 4 cores / 8 threads, 1.6-3.4 GHz",
+    "memory_gib": 8,
+    "display": "1920x1080"
+  },
+  "measurement_host": {
+    "status": "not_available",
+    "profile_id": "",
+    "architecture": "",
+    "gpu": "",
+    "owner": "R-755",
+    "reason": "No Intel UHD Graphics 620-class x86_64 host or compatible remote runner is configured in this environment."
+  },
+  "renderer": {
+    "status": "not_measured",
+    "method": "",
+    "driver": "",
+    "headless": null,
+    "owner": "R-755",
+    "reason": "A headless run or Apple M5 Pro run cannot certify the declared minimum target."
+  },
+  "samples": null,
+  "metrics": {
+    "frame_time_ms_p95": null,
+    "draw_calls_peak": null,
+    "resource_count_peak": null,
+    "memory_delta_mib": null
+  },
+  "thresholds": {
+    "detail_layers": 1,
+    "reflection_samples": 1,
+    "refraction_samples": 1,
+    "foam_shore_detail": 0.5,
+    "frame_time_ms_p95": 1.5,
+    "draw_calls_peak": 2,
+    "resource_count_peak": 4,
+    "memory_delta_mib": 8
+  },
+  "fallback": {
+    "id": "compatibility_water_surface",
+    "declared": true,
+    "renderer_safe": true,
+    "behavior": "Keep water-like base, Fresnel, bounded refraction, and detail normal when screen/depth inputs are unavailable."
+  },
+  "blocker": {
+    "owner": "R-755",
+    "kind": "missing_measurement_host_and_renderer",
+    "required": "Run the water-only benchmark on the declared Intel UHD 620 target with a real renderer, target/host identity, and at least 120 samples.",
+    "acceptance": "BLOCKED until the measurement host matches the declared target; this artifact contains no performance result."
+  }
+}
