@@ -294,3 +294,4 @@ This file contains only cross-role operating lessons. Domain lessons belong to t
 - 2026-08-29: Before a scoped commit, run `git diff --cached --name-only` and unstage unrelated index entries; pre-existing staged playbook or facade edits can land in the same commit as the claimed task.
 - 2026-08-29: When checking an `assets/SOURCES.csv` provenance row, inspect the live CSV header first; SHA-256 evidence belongs in the schema's `prompt_or_url` field here, not an inferred `notes` field.
 - 2026-08-29: Shell expands command arguments before applying an inline environment assignment; export `GODOT_BIN` on a separate line before invoking `"$GODOT_BIN"`, otherwise a documented Godot check can fail with status 127 before the engine starts.
+- 2026-08-29: The `filter` tool validates supplied line bounds as 1-based; omit `start_line`/`end_line` for complete input instead of passing 0 or -1, which fails before filtering runs.

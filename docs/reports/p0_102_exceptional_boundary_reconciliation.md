@@ -155,3 +155,25 @@ A fresh detached worktree at `/tmp/rebel-reval-r397-20260802` from `HEAD=94ea0de
 The clean result is **8 test methods, 2 failures, and 6 engine/script errors**. The pre-existing exceptional landmark blocker remains: `Landmark_karja_gate_arch/GateDoor0` is absent and the null `material_override` access follows at `tests/godot/test_map_view_3d_fortification.gd:137`. A second independent baseline blocker is `MAP_ID_DUPLICATE` for `outer_wall_road` at `content/maps/monastery_quarter.rrmap:162`, which prevents the north neighbor preview from being built and causes the `Surroundings/Neighbor_north/Buildings` assertion to fail. R-413 owns that map-source defect. The other six fortification methods pass, including the ordinary-house regression and wall-walk checks.
 
 This recheck changed documentation only. It does not weaken boundary assertions or route either landmark through the ordinary-house renderer. Keep the boundary acceptance **BLOCKED** until R-353 resolves `GateDoor0` and R-413 resolves the monastery stable-ID collision.
+
+## R-397 current-HEAD recheck addendum (2026-08-29)
+
+A fresh detached checkout at `/tmp/rebel-reval-r397-20260829` from `HEAD=d2bb1d24da4fe00d2efa6b0c92d4f846e9cbf814` (`Add static harbour prototype contract verifier`) was used for this recheck. The live worktree was not used because it contains unrelated modified and untracked WIP. Godot 4.7.1 editor import completed successfully with status 0.
+
+Exact verification command:
+
+```sh
+export GODOT_BIN=/Applications/Godot.app/Contents/MacOS/Godot
+export GODOT_LOG_DIR=/tmp/r397_checked_20260829
+/tmp/rebel-reval-r397-20260829/tools/run_godot_checked.sh --require-test-summary p0-102-r397-boundary -- \
+  "$GODOT_BIN" --headless --path /tmp/rebel-reval-r397-20260829 \
+  --script tools/run_godot_tests.gd -- --filter=test_map_view_3d_fortification
+```
+
+Result: **BLOCKED**. The checked command returned exit status 1. The saved log `/tmp/r397_checked_20260829/p0-102-r397-boundary.log` reports 8 tests, 6 failures, and 45 engine/script errors.
+
+- The first repeated diagnostics are `unknown command 'elevation_area'` and `unknown command 'elevation_ramp'` while loading the authored elevation statements in `lower_town_slice.rrmap` and related map definitions. The resulting invalid definitions produce dependent missing-fixture, null-builder, and assertion diagnostics, including `MapViewMeshBuilder` dictionary access and null `has_node` calls.
+- The prior R-353 `GateDoor0` and R-413 `outer_wall_road` findings were not emitted before the elevation/parser cascade interrupted the suite. Board records show R-353 and R-413 as `done`, but this run does not independently certify either owner; a clean rerun is required after R-453/R-455 land the elevation parser/authoring handoff.
+- No runtime, map, landmark, test, or asset source was changed by R-397. The exceptional renderer boundary remains **not accepted** because the required focused suite did not complete cleanly.
+
+The current ownership boundary is therefore R-453/R-455 for the clean-HEAD elevation/parser blocker, followed by a fresh `test_map_view_3d_fortification` run to verify the exceptional renderer contract itself.
