@@ -350,6 +350,9 @@ static func _add_gate_asset(
 		push_error("Gate asset root must be Node3D: %s" % GATE_ASSET_PATHS[resolved_variant])
 		return
 	instance.name = "GatePortcullis" if is_grille else "GateLeaves"
+	instance.set_meta(&"gate_state", &"raised" if is_grille else &"open")
+	if not is_grille and resolved_variant == &"ironbound":
+		instance.set_meta(&"gate_material", &"metal")
 	var opening_width := maxf(
 		(
 			(size.y if passage_along_x else size.x)
@@ -429,6 +432,8 @@ static func _expose_authored_gate_leaf_contract(root: Node3D, instance: Node3D) 
 		authored_part.transform = authored_transform
 		authored_part.name = "GateDoor%d" % leaf_index
 		authored_part.material_override = MapViewMaterials.role(&"metal")
+		authored_part.set_meta(&"gate_state", &"open")
+		authored_part.set_meta(&"gate_material", &"metal")
 		authored_part.set_meta(&"authored_source_node", authored_source_node)
 
 
