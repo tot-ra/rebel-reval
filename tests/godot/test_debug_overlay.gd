@@ -47,6 +47,16 @@ func test_time_controls_change_runtime_without_touching_game_state() -> void:
 		"time controls must not mutate GameState"
 	)
 
+	(overlay.find_child("SlowerButton", true, false) as Button).pressed.emit()
+	assert_true(
+		is_equal_approx(runtime.effective_time_speed(), 1.0),
+		"slower button must step the runtime clock back to real time"
+	)
+	assert_true(
+		state_before.get_flag(&"flag.debug_probe"),
+		"slower control must not mutate GameState"
+	)
+
 	(overlay.find_child("PauseButton", true, false) as Button).pressed.emit()
 	assert_true(runtime.time_paused, "pause button must freeze the runtime clock")
 	(overlay.find_child("ResetButton", true, false) as Button).pressed.emit()
