@@ -17,6 +17,7 @@ const COBBLE_TEXTURE_SIZE := 512
 const EMBER_COLOR := Color8(224, 108, 48)
 const EMBER_ENERGY := 1.6
 const WATER_MATERIALS := preload("res://scripts/map/view3d/map_view_water_materials.gd")
+const SKY_WEATHER := preload("res://scripts/map/view3d/sky_weather_3d.gd")
 const BUILDING_MATERIALS := preload("res://scripts/map/view3d/map_view_building_materials.gd")
 const PROP_MATERIALS := preload("res://scripts/map/view3d/map_view_prop_materials.gd")
 const HAY_FIBER_TEXTURE := preload("res://assets/materials/production/hay_fibers.png")
@@ -382,6 +383,19 @@ static func apply_mud_wetness(wetness: float) -> void:
 			(_cache[key] as ShaderMaterial).set_shader_parameter("mud_wetness", value)
 
 
+## Applies every weather-facing material input from one typed frame snapshot. This
+## adapter is intentionally the only path that fans a weather transition out to
+## water, wet ground, and world wind, preventing per-system sampling drift.
+static func apply_weather_presentation(
+	presentation: SKY_WEATHER.WeatherPresentation
+) -> void:
+	if presentation == null:
+		return
+	apply_sea_weather(presentation.wind_strength, presentation.rain_intensity)
+	apply_mud_wetness(presentation.puddle_wetness)
+	apply_world_wind(presentation.wind_direction, presentation.wind_strength)
+
+
 ## Water material API remains here for existing map builders and tests. The
 ## implementation and its independent cache live in WATER_MATERIALS.
 static func puddle_surface() -> ShaderMaterial:
@@ -573,8 +587,8 @@ static func hanging_banner_cloth(albedo: Texture2D = null) -> ShaderMaterial:
 	if _cache.has(keyed):
 		return _cache[keyed]
 	var material := ShaderMaterial.new()
-	material.shader = MapViewMaterialShaders.shader(
-		"hanging_banner_cloth", MapViewMaterialShaders.HANGING_BANNER_CLOTH_SHADER_CODE
+	material.shader = MapViewMaterialShaders.shader_resource(
+		"hanging_banner_cloth", MapViewMaterialShaders.HANGING_BANNER_CLOTH_SHADER
 	)
 	material.set_shader_parameter("base_color", Color8(248, 246, 240))
 	material.set_shader_parameter("sway_strength", 0.035)
