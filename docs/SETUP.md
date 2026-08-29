@@ -213,6 +213,16 @@ tools/run_godot_checked.sh --require-test-summary full-suite \
 
 `tools/run_godot_checked.sh` rejects nonzero commands, `SCRIPT ERROR`, parser/load failures, and all unexpected `ERROR:` lines. Its only allowlist is the documented shutdown-only DEF-002 family (`resources still in use at exit`, RID allocation leaks at exit, and `PagedAllocator` pages-in-use at exit); leak warnings remain visible. `--require-test-summary` additionally rejects empty or interrupted test runs. Run `GODOT_BIN="$GODOT_BIN" tools/test_godot_harness.sh` to seed runtime and parser exceptions and prove that both failure classes exit nonzero.
 
+To focus the harness, pass its arguments after the standalone `--` that follows the script path. `--filter` matches test filenames, not individual test methods, and accepts comma-separated filename stems. A misspelled or otherwise unmatched filter is expected to fail with `HARNESS ERROR: No Godot tests found`, which prevents an accidental green run of zero tests:
+
+```bash
+tools/run_godot_checked.sh --require-test-summary focused-save \
+  "$GODOT_BIN" --headless --script tools/run_godot_tests.gd -- \
+  --filter=test_save_envelope
+```
+
+Do not place `--filter` before that separator or pass a method name when you intend to select one file; the engine may ignore the argument or the harness may report no matching test file.
+
 To add tests, create a script under `tests/godot/` named `test_<area>.gd`, extend `res://tests/godot/test_case.gd`, and add zero-argument methods named `test_<behavior>`. Use `before_each()` and `after_each()` for per-test setup when needed.
 
 For a narrow iteration loop while working on map view or camera behavior, use comma-separated filters with the same hardened harness:
