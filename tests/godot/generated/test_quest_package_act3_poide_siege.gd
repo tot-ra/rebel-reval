@@ -22,12 +22,12 @@ const BRANCHES: Array[Dictionary] = [
 			&"resolve_broken_gate"
 		],
 		"setup": {
-		&"flag.act1.forge.siege_materiel.subtle_defect": true,
-		&"flag.act2.record.viru_break": true,
+		&"flag.act_climax_viru_break": true,
+		&"flag.forced_forge_flaw_undiscovered": true,
 	},
 		"require_flags": {
-		&"flag.act1.forge.siege_materiel.subtle_defect": true,
-		&"flag.act2.record.viru_break": true,
+		&"flag.act_climax_viru_break": true,
+		&"flag.forced_forge_flaw_undiscovered": true,
 	},
 		"expect_state": &"taken_broken_gate",
 		"expect_flags": [
@@ -47,12 +47,12 @@ const BRANCHES: Array[Dictionary] = [
 			&"resolve_honored_record"
 		],
 		"setup": {
-		&"flag.act1.forge.siege_materiel.honest_work": true,
-		&"flag.act2.record.viru_seal": true,
+		&"flag.act_climax_viru_seal": true,
+		&"flag.forced_forge_compliant": true,
 	},
 		"require_flags": {
-		&"flag.act1.forge.siege_materiel.honest_work": true,
-		&"flag.act2.record.viru_seal": true,
+		&"flag.act_climax_viru_seal": true,
+		&"flag.forced_forge_compliant": true,
 	},
 		"expect_state": &"taken_honored_record",
 		"expect_flags": [
@@ -72,12 +72,12 @@ const BRANCHES: Array[Dictionary] = [
 			&"resolve_hidden_signal"
 		],
 		"setup": {
-		&"flag.act1.forge.siege_materiel.secret_feature": true,
-		&"flag.act2.record.harju_signal": true,
+		&"flag.act_climax_viru_open": true,
+		&"flag.forced_forge_secret_undiscovered": true,
 	},
 		"require_flags": {
-		&"flag.act1.forge.siege_materiel.secret_feature": true,
-		&"flag.act2.record.harju_signal": true,
+		&"flag.act_climax_viru_open": true,
+		&"flag.forced_forge_secret_undiscovered": true,
 	},
 		"expect_state": &"taken_hidden_signal",
 		"expect_flags": [

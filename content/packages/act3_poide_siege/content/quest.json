@@ -2,7 +2,7 @@
   "type": "quest",
   "id": "quest.act3.poide_siege",
   "title": "The Stone Gate at Pöide",
-  "summary": "Take the authored siege materiel to Pöide and let the forge record and Act 2 memory shape the island's local cost.",
+  "summary": "Carry the forced-forge inspection fitting into the Pöide siege train, where its saved workmanship and the Act 2 Viru Gate record shape the island's local cost.",
   "confidence": "invented",
   "canon_status": "draft",
   "approval": {
@@ -19,7 +19,7 @@
     },
     {
       "id": "ready",
-      "label": "Kalev's siege materiel and prior records are brought to the Pöide line."
+      "label": "Kalev's forced-forge fitting and the remembered Viru Gate outcome reach the Pöide line."
     },
     {
       "id": "taken_broken_gate",
@@ -57,12 +57,12 @@
       "conditions": [
         {
           "op": "flag_is",
-          "key": "flag.act1.forge.siege_materiel.subtle_defect",
+          "key": "flag.forced_forge_flaw_undiscovered",
           "value": true
         },
         {
           "op": "flag_is",
-          "key": "flag.act2.record.viru_break",
+          "key": "flag.act_climax_viru_break",
           "value": true
         }
       ],
@@ -93,12 +93,12 @@
       "conditions": [
         {
           "op": "flag_is",
-          "key": "flag.act1.forge.siege_materiel.honest_work",
+          "key": "flag.forced_forge_compliant",
           "value": true
         },
         {
           "op": "flag_is",
-          "key": "flag.act2.record.viru_seal",
+          "key": "flag.act_climax_viru_seal",
           "value": true
         }
       ],
@@ -129,12 +129,12 @@
       "conditions": [
         {
           "op": "flag_is",
-          "key": "flag.act1.forge.siege_materiel.secret_feature",
+          "key": "flag.forced_forge_secret_undiscovered",
           "value": true
         },
         {
           "op": "flag_is",
-          "key": "flag.act2.record.harju_signal",
+          "key": "flag.act_climax_viru_open",
           "value": true
         }
       ],
@@ -166,7 +166,7 @@
   "objectives": [
     {
       "id": "receive_brief",
-      "text": "Bring the siege brief and Kalev's remembered forge work to the Pöide line.",
+      "text": "Bring the siege brief, the saved forced-forge fitting, and the Viru Gate record to the Pöide line.",
       "state_id": "latent"
     },
     {
@@ -182,11 +182,11 @@
     },
     {
       "fact_id": "fact.act3.poide_siege.forge_record",
-      "text": "The siege materiel carries one of Kalev's earlier forge choices into the island campaign."
+      "text": "The Order's saved inspection fitting is reused in the siege train; its compliant, flawed, or concealed workmanship changes how the assault is prepared."
     },
     {
       "fact_id": "fact.act3.poide_siege.act2_record",
-      "text": "The Viru boundary or Harju signal record changes who can read the assault and who gets warning to withdraw."
+      "text": "The Act 2 Viru Gate outcome changes whether Kalev repeats a sealed assault, exploits a break, or passes a concealed opening signal."
     }
   ],
   "outcomes": [
@@ -224,9 +224,11 @@
     },
     {
       "confidence": "invented",
-      "summary": "The three local-cost outcomes use prior forge and Act 2 records without changing the attested capture or activating later Maasilinna content.",
+      "summary": "The three local-cost outcomes combine the saved P6-003 forced-forge result with existing Act 2 Viru Gate outcome flags without changing the attested capture or activating later Maasilinna content.",
       "citations": [
         "docs/reports/p6_001_act3_design.md",
+        "content/packages/forced_forge/package.json",
+        "content/packages/bell_and_chain/package.json",
         "content/maps/world_poide.rrmap",
         "TODO.md"
       ]

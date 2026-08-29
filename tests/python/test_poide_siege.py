@@ -17,6 +17,8 @@ from quest_packages import load_package, validate_package  # noqa: E402
 PACKAGE_ROOT = ROOT / "content" / "packages" / "act3_poide_siege"
 QUEST_PATH = PACKAGE_ROOT / "content" / "quest.json"
 BRANCH_MAP_PATH = PACKAGE_ROOT / "branch_map.json"
+FORCED_FORGE_QUEST_PATH = ROOT / "content" / "packages" / "forced_forge" / "content" / "quest.json"
+VIRU_GATE_QUEST_PATH = ROOT / "content" / "packages" / "bell_and_chain" / "content" / "quest.json"
 
 
 class PoideSiegeContractTests(unittest.TestCase):
@@ -24,6 +26,8 @@ class PoideSiegeContractTests(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.quest = json.loads(QUEST_PATH.read_text(encoding="utf-8"))
         cls.branch_map = json.loads(BRANCH_MAP_PATH.read_text(encoding="utf-8"))
+        cls.forced_forge_quest = json.loads(FORCED_FORGE_QUEST_PATH.read_text(encoding="utf-8"))
+        cls.viru_gate_quest = json.loads(VIRU_GATE_QUEST_PATH.read_text(encoding="utf-8"))
         cls.package = load_package(PACKAGE_ROOT)
 
     def test_package_validates_against_landmark_registry(self) -> None:
@@ -37,7 +41,7 @@ class PoideSiegeContractTests(unittest.TestCase):
             ["beat.landmark.estonia.poide_church_fortress"],
         )
 
-    def test_three_branches_consume_distinct_forge_and_act2_records(self) -> None:
+    def test_three_branches_consume_published_forge_and_act2_records(self) -> None:
         branches = self.branch_map["branches"]
         self.assertEqual(len(branches), 3)
         self.assertEqual(
@@ -49,29 +53,45 @@ class PoideSiegeContractTests(unittest.TestCase):
             },
         )
 
-        condition_keys: set[str] = set()
-        for transition in self.quest["transitions"]:
-            for condition in transition.get("conditions", []):
-                if condition["op"] == "flag_is":
-                    condition_keys.add(condition["key"])
-        forge_keys = {key for key in condition_keys if key.startswith("flag.act1.forge.siege_materiel.")}
-        act2_keys = {key for key in condition_keys if key.startswith("flag.act2.record.")}
-        self.assertEqual(
-            forge_keys,
-            {
-                "flag.act1.forge.siege_materiel.honest_work",
-                "flag.act1.forge.siege_materiel.secret_feature",
-                "flag.act1.forge.siege_materiel.subtle_defect",
-            },
-        )
-        self.assertEqual(
-            act2_keys,
-            {
-                "flag.act2.record.harju_signal",
-                "flag.act2.record.viru_break",
-                "flag.act2.record.viru_seal",
-            },
-        )
+        condition_keys = {
+            condition["key"]
+            for transition in self.quest["transitions"]
+            for condition in transition.get("conditions", [])
+            if condition["op"] == "flag_is"
+        }
+        forced_forge_effect_keys = {
+            effect["key"]
+            for transition in self.forced_forge_quest["transitions"]
+            for effect in transition.get("effects", [])
+            if effect["op"] == "set_flag"
+        }
+        viru_gate_effect_keys = {
+            effect["key"]
+            for transition in self.viru_gate_quest["transitions"]
+            for effect in transition.get("effects", [])
+            if effect["op"] == "set_flag"
+        }
+        expected_forge_keys = {
+            "flag.forced_forge_compliant",
+            "flag.forced_forge_flaw_undiscovered",
+            "flag.forced_forge_secret_undiscovered",
+        }
+        expected_act2_keys = {
+            "flag.act_climax_viru_break",
+            "flag.act_climax_viru_open",
+            "flag.act_climax_viru_seal",
+        }
+        self.assertEqual(condition_keys, expected_forge_keys | expected_act2_keys)
+        self.assertLessEqual(expected_forge_keys, forced_forge_effect_keys)
+        self.assertLessEqual(expected_act2_keys, viru_gate_effect_keys)
+
+        input_pairs = {frozenset(branch["setup"]) for branch in branches}
+        self.assertEqual(len(input_pairs), 3)
+        for branch in branches:
+            setup_keys = set(branch["setup"])
+            self.assertEqual(len(setup_keys & expected_forge_keys), 1)
+            self.assertEqual(len(setup_keys & expected_act2_keys), 1)
+            self.assertEqual(branch["setup"], branch["require_flags"])
 
     def test_each_branch_reaches_a_distinct_terminal_outcome(self) -> None:
         transitions = {row["id"]: row for row in self.quest["transitions"]}
@@ -96,6 +116,35 @@ class PoideSiegeContractTests(unittest.TestCase):
             reached.add(current)
 
         self.assertEqual(len(reached), 3)
+
+    def test_mismatched_forge_and_act2_records_do_not_unlock_an_outcome(self) -> None:
+        resolution_transitions = [
+            transition
+            for transition in self.quest["transitions"]
+            if transition["from_state"] == "ready"
+        ]
+        branches = self.branch_map["branches"]
+        for index, branch in enumerate(branches):
+            mismatched_flags = dict(branch["setup"])
+            next_branch = branches[(index + 1) % len(branches)]
+            act2_key = next(
+                key for key in next_branch["setup"] if key.startswith("flag.act_climax_")
+            )
+            mismatched_flags[act2_key] = True
+            own_act2_key = next(
+                key for key in branch["setup"] if key.startswith("flag.act_climax_")
+            )
+            mismatched_flags.pop(own_act2_key)
+
+            unlocked = [
+                transition["id"]
+                for transition in resolution_transitions
+                if all(
+                    mismatched_flags.get(condition["key"], False) == condition["value"]
+                    for condition in transition.get("conditions", [])
+                )
+            ]
+            self.assertEqual(unlocked, [], branch["id"])
 
     def test_attested_capture_is_preserved_in_every_outcome(self) -> None:
         self.assertIn("capture is a fixed historical milestone", self.quest["journal_evidence"][0]["text"])
