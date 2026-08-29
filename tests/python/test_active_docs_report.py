@@ -63,6 +63,30 @@ class ActiveDocsReportCommonTest(unittest.TestCase):
             self.assertEqual(issues[0].path, "docs/draft.md")
             self.assertEqual(issues[0].code, "MISSING_REFERENCE")
 
+    def test_missing_reference_check_ignores_fenced_code_examples(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            docs = root / "docs"
+            docs.mkdir()
+            example = docs / "example.md"
+            example.write_text(
+                "# Example\n\n"
+                "```text\n"
+                "- Evidence: source needed.\n"
+                "```\n\n"
+                "~~~text\n"
+                "- Evidence: citation needed.\n"
+                "~~~\n\n"
+                "- Evidence: reference needed.\n",
+                encoding="utf-8",
+            )
+
+            issues = check_missing_references([example], root)
+
+            self.assertEqual(len(issues), 1)
+            self.assertEqual(issues[0].path, "docs/example.md")
+            self.assertEqual(issues[0].line, 11)
+
     def test_cli_confirmation_uses_custom_output_basename(self) -> None:
         import subprocess
 

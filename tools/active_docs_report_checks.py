@@ -22,6 +22,9 @@ from active_docs_report_common import (
 )
 
 
+_FENCED_CODE_RE = re.compile(r"^[ ]{0,3}(`{3,}|~{3,})")
+
+
 def normalize_character_name(name: str) -> str:
     cleaned = re.sub(r"\s+", " ", name).strip()
     cleaned = re.sub(r"^(captain|master|brother|sister|viceroy|prince|bishop|king|queen)\s+", "", cleaned, flags=re.IGNORECASE)
@@ -135,7 +138,18 @@ def check_contradictory_dates(active_docs: list[Path], root: Path) -> list[Issue
 def check_missing_references(active_docs: list[Path], root: Path) -> list[Issue]:
     issues: list[Issue] = []
     for path in active_docs:
+        fence_marker: str | None = None
         for line_number, raw_line in enumerate(read_text(path).splitlines(), start=1):
+            fence = _FENCED_CODE_RE.match(raw_line)
+            if fence:
+                marker = fence.group(1)
+                if fence_marker is None:
+                    fence_marker = marker[0]
+                elif marker[0] == fence_marker:
+                    fence_marker = None
+                continue
+            if fence_marker is not None:
+                continue
             line = strip_code_spans(raw_line)
             if REFERENCE_MARKER_RE.search(line):
                 issues.append(
