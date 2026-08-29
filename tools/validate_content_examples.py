@@ -222,6 +222,8 @@ def run(check_invalid: bool = True) -> tuple[list[str], list[str]]:
         try:
             validate_file(path, store)
             ok.append(f"PASS valid {path.relative_to(ROOT)}")
+        except json.JSONDecodeError as exc:
+            errors.append(f"FAIL valid {path.relative_to(ROOT)}: invalid JSON: {exc}")
         except SchemaValidationError as exc:
             errors.append(f"FAIL valid {path.relative_to(ROOT)}: {exc}")
 
@@ -229,6 +231,8 @@ def run(check_invalid: bool = True) -> tuple[list[str], list[str]]:
         for path in iter_json_files(INVALID_DIR):
             try:
                 validate_file(path, store)
+            except json.JSONDecodeError as exc:
+                errors.append(f"FAIL invalid {path.relative_to(ROOT)}: invalid JSON: {exc}")
             except SchemaValidationError as exc:
                 ok.append(f"PASS invalid rejected {path.relative_to(ROOT)}: {exc}")
             else:
