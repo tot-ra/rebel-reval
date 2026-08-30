@@ -12,6 +12,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SMOKE_HELPER = ROOT / "test_commands.sh"
+PERFORMANCE_HELPER = ROOT / "tools" / "run_performance_report.sh"
 
 
 class TestCommandsSmokeHelperTest(unittest.TestCase):
@@ -31,6 +32,19 @@ class TestCommandsSmokeHelperTest(unittest.TestCase):
         self.assertNotEqual(completed.returncode, 0)
         self.assertIn("GODOT_BIN is not an executable Godot binary", completed.stderr)
         self.assertNotIn("Playable-room smoke scene was not found", completed.stderr)
+        self.assertEqual(completed.stdout, "")
+
+    def test_performance_report_rejects_extra_argument_before_running_godot(self) -> None:
+        completed = subprocess.run(
+            ["bash", str(PERFORMANCE_HELPER), "report.json", "--quick", "unexpected"],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        self.assertEqual(completed.returncode, 2)
+        self.assertIn("Usage:", completed.stderr)
         self.assertEqual(completed.stdout, "")
 
 

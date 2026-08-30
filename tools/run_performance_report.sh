@@ -5,6 +5,11 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 OUTPUT="${1:-$ROOT/build/benchmarks/performance-report.json}"
 MODE="${2:-}"
 
+if [[ "$#" -gt 2 ]]; then
+  echo "Usage: $0 [output.json] [--quick]" >&2
+  exit 2
+fi
+
 if [[ -n "$MODE" && "$MODE" != "--quick" ]]; then
   echo "Usage: $0 [output.json] [--quick]" >&2
   exit 2
