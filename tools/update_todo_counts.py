@@ -5,16 +5,20 @@ Usage:
     python3 tools/update_todo_counts.py                         # show root counts
     python3 tools/update_todo_counts.py --path /tmp/TODO.md   # show selected counts
     python3 tools/update_todo_counts.py --write               # rewrite root table
+    python3 tools/update_todo_counts.py --check               # check root table
     python3 tools/update_todo_counts.py --path /tmp/TODO.md --write
                                                               # rewrite selected table
+    python3 tools/update_todo_counts.py --path /tmp/TODO.md --check
+                                                              # check selected table
 
 Scans every `- [ ]` row in the selected TODO.md, extracts its priority (P0..P9, D),
 counts open / done rows per bucket. The existing summary block right after
 the header is replaced with a freshly computed Markdown table; everything else
 in the file is left untouched.
 
-Exit codes: 0 = success, 1 = TODO.md missing or unparseable. `scan_todo()` raises
-`ValueError` when a task-like checklist row is missing required task fields.
+Exit codes: 0 = success or a current `--check` result, 1 = TODO.md missing, unparseable,
+missing a summary table, or a stale `--check` result. `scan_todo()` raises `ValueError`
+when a task-like checklist row is missing required task fields.
 """
 from __future__ import annotations
 
@@ -130,6 +134,32 @@ def _write_preserving_newlines(path: Path, text: str) -> None:
         handle.write(text)
 
 
+def _summary_table_from_text(text: str) -> str | None:
+    """Return the normalized existing summary table, without changing the file."""
+    line_break = r"(?:\r\n|\r|\n)"
+    table_pattern = re.compile(
+        rf"(?<![^\r\n])<!-- Quick-reference counts.*?-->\s*{line_break}"
+        rf"((?:\|[^\r\n]*(?:{line_break}|$))+)"
+    )
+    match = table_pattern.search(text)
+    if match:
+        return "\n".join(match.group(1).splitlines())
+
+    # Support the same legacy fallback as rewrite_table when the comment is absent.
+    bare_table = re.compile(
+        rf"(?<![^\r\n])((?:\|[^\r\n]*(?:{line_break}|$))+)"
+    )
+    for candidate in bare_table.finditer(text):
+        if candidate.group(1).startswith("| Priority |"):
+            return "\n".join(candidate.group(1).splitlines())
+    return None
+
+
+def read_summary_table(path: Path) -> str | None:
+    """Read the existing summary table for a non-mutating freshness check."""
+    return _summary_table_from_text(_read_preserving_newlines(path))
+
+
 def rewrite_table(path: Path, new_table: str) -> bool:
     text = _read_preserving_newlines(path)
     newline = _newline_for(text)
@@ -183,7 +213,13 @@ def rewrite_table(path: Path, new_table: str) -> bool:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--write", action="store_true", help="rewrite the table in TODO.md")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--write", action="store_true", help="rewrite the table in TODO.md")
+    mode.add_argument(
+        "--check",
+        action="store_true",
+        help="check whether the existing summary table matches the scanned counts",
+    )
     parser.add_argument(
         "--path",
         type=Path,
@@ -207,6 +243,17 @@ def main() -> int:
         return 1
     table = build_table(counts)
     print(table)
+
+    if args.check:
+        existing_table = read_summary_table(todo_path)
+        if existing_table == table:
+            print(f"OK: {todo_path.name} summary table is current.")
+            return 0
+        if existing_table is None:
+            print("ERROR: existing priority summary table not found", file=sys.stderr)
+        else:
+            print(f"ERROR: {todo_path.name} summary table is stale; run with --write", file=sys.stderr)
+        return 1
 
     if args.write:
         if rewrite_table(todo_path, table):

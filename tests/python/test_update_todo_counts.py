@@ -182,6 +182,81 @@ class UpdateTodoCountsTest(unittest.TestCase):
             self.assertIn("## Notes\nkeep this content", updated)
             self.assertEqual(before_root, (ROOT / "TODO.md").read_bytes())
 
+
+    def test_cli_check_rejects_stale_summary_without_writing(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            todo = Path(temp_dir) / "fixture-todo.md"
+            todo.write_text(
+                "\n".join(
+                    [
+                        "# Fixture TODO",
+                        "",
+                        "<!-- Quick-reference counts updated on every structural change -->",
+                        "| Priority | Open | Done | Notes |",
+                        "|----------|-----:|-----:|-------|",
+                        "| P2 | stale | stale | stale |",
+                        "",
+                        "- [ ] P2-001 | deps: none | deliverable: fixture task | verify: passes",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            before = todo.read_bytes()
+
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(TOOLS / "update_todo_counts.py"),
+                    "--path",
+                    str(todo),
+                    "--check",
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(result.returncode, 1)
+            self.assertIn("summary table is stale", result.stderr)
+            self.assertEqual(before, todo.read_bytes())
+
+    def test_cli_check_accepts_current_summary_without_writing(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            todo = Path(temp_dir) / "fixture-todo.md"
+            todo.write_text(
+                "\n".join(
+                    [
+                        "# Fixture TODO",
+                        "",
+                        "<!-- Quick-reference counts updated on every structural change -->",
+                        "| Priority | Open | Done | Notes |",
+                        "|----------|-----:|-----:|-------|",
+                        "| P2 |     1  |     0  | Vertical-slice production (playable MVP) |",
+                        "",
+                        "- [ ] P2-001 | deps: none | deliverable: fixture task | verify: passes",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            before = todo.read_bytes()
+
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(TOOLS / "update_todo_counts.py"),
+                    "--path",
+                    str(todo),
+                    "--check",
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("summary table is current", result.stdout)
+            self.assertEqual(before, todo.read_bytes())
+
     def test_rewrite_table_preserves_task_rows(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             todo = Path(temp_dir) / "TODO.md"
