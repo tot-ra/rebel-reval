@@ -48,6 +48,35 @@ func test_double_redirects_nearby_enemy_and_restores_target_after_lifetime() -> 
 	host.free()
 
 
+func test_double_redirects_enemy_entering_radius_and_restores_first_target() -> void:
+	var fixture := _make_combat_fixture()
+	var host := fixture["host"] as Node2D
+	var player := fixture["player"] as Node2D
+	var far_enemy := fixture["far_enemy"] as CombatRoomEnemy
+	var double := CAST_EXECUTOR.execute(_cast_result(), player, Vector2.RIGHT, host) as Node2D
+
+	assert_eq(far_enemy.get_ai_target(), player)
+	far_enemy.global_position = Vector2(200.0, 0.0)
+	double.advance(1.0)
+	assert_eq(far_enemy.get_ai_target(), double, "AI entering aggro radius should acquire the decoy")
+	double.advance(5.0)
+	assert_eq(far_enemy.get_ai_target(), player, "expiry should restore the first observed target")
+	host.free()
+
+
+func test_external_double_cleanup_restores_redirected_enemy() -> void:
+	var fixture := _make_combat_fixture()
+	var host := fixture["host"] as Node2D
+	var player := fixture["player"] as Node2D
+	var near_enemy := fixture["near_enemy"] as CombatRoomEnemy
+	var double := CAST_EXECUTOR.execute(_cast_result(), player, Vector2.RIGHT, host) as Node2D
+
+	assert_eq(near_enemy.get_ai_target(), double)
+	double.free()
+	assert_eq(near_enemy.get_ai_target(), player, "external cleanup must not leave a dangling AI target")
+	host.free()
+
+
 func test_damage_destroys_double_and_newer_enemy_decision_wins_cleanup() -> void:
 	var fixture := _make_combat_fixture()
 	var host := fixture["host"] as Node2D

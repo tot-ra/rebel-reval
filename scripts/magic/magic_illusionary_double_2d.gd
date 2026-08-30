@@ -68,18 +68,7 @@ func configure(caster: Node2D, cast_spell_id: StringName, summon_plan: Dictionar
 func activate() -> int:
 	if not active or not is_inside_tree():
 		return 0
-	var redirected := 0
-	for candidate: Node in get_tree().get_nodes_in_group(AI_ENEMY_GROUP):
-		var enemy := candidate as Node2D
-		if not _can_redirect(enemy):
-			continue
-		_original_targets[enemy.get_instance_id()] = {
-			"enemy": enemy,
-			"target": enemy.call("get_ai_target"),
-		}
-		enemy.call("set_ai_target", self)
-		redirected += 1
-	return redirected
+	return _redirect_nearby_enemies()
 
 
 func _physics_process(delta: float) -> void:
@@ -93,6 +82,35 @@ func advance(delta: float) -> void:
 	remaining_sec = maxf(0.0, remaining_sec - delta)
 	if remaining_sec <= 0.0:
 		_expire(EXPIRE_LIFETIME)
+		return
+	# Re-scan while alive so enemies entering the authored aggro radius can
+	# acquire the decoy without overwriting the target remembered at first sight.
+	_redirect_nearby_enemies()
+
+
+func _exit_tree() -> void:
+	# External scene teardown/free must obey the same target cleanup contract as
+	# lifetime expiry and damage destruction.
+	active = false
+	_restore_targets()
+
+
+func _redirect_nearby_enemies() -> int:
+	var redirected := 0
+	for candidate: Node in get_tree().get_nodes_in_group(AI_ENEMY_GROUP):
+		var enemy := candidate as Node2D
+		if not _can_redirect(enemy):
+			continue
+		var enemy_id := enemy.get_instance_id()
+		if _original_targets.has(enemy_id):
+			continue
+		_original_targets[enemy_id] = {
+			"enemy": enemy,
+			"target": enemy.call("get_ai_target"),
+		}
+		enemy.call("set_ai_target", self)
+		redirected += 1
+	return redirected
 
 
 func take_damage(
