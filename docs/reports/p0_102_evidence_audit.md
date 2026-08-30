@@ -135,3 +135,93 @@ The following remain outside this audit's acceptance claim:
 - Any unrelated staged or untracked work already present in the live worktree.
 
 **Original audit decision (2026-08-17):** the asset/provenance gates, eight visual plates, shared module integration, collision/navigation-facing map contracts, material/weathering, core/mesh, Lower Town, and fortification checks were green, while the generic decal ground-clearance assertion independently blocked the clean P0-102 acceptance. The R-571 addendum above records the subsequent fix and green rerun; it does not close the broader P0-102 or P0-101 scope.
+
+## Current clean-snapshot recheck (2026-08-30)
+
+This addendum refreshes the audit against the current repository revision after the earlier R-571 decal correction. It does not replace the historical results above or claim the broader P0-102 parent closeout.
+
+**Snapshot:** `4f4f74f91a152152bfc37a56e97e38c2fab99807` (`HEAD`)
+**Clean workspace:** detached checkout `/tmp/rebel-reval-r557-20260830`
+**Live workspace:** shared worktree with unrelated staged, modified, and untracked WIP; not used as a clean acceptance result
+**Godot:** 4.7.1.stable.official (`a13da4feb`)
+**Decision:** **BLOCKED / PARTIAL - retain R-557 in review**
+
+### Evidence and asset checks
+
+The current tracked evidence packet and repository-wide checks were run independently in the clean detached checkout:
+
+| Check | Result | Boundary |
+|---|---|---|
+| `verify_p0_102_environment_kit_evidence.py` | **PASS - 8/8** | All forge, street/well, brewery, and checkpoint day/night plates are present and valid. This proves packet integrity, not human visual sign-off. |
+| `verify_asset_lint.py` | **PASS** | 8 style-lock textures, 13 character GLBs, 41 tier-classified character GLBs, and 0 portraits checked. |
+| `validate_asset_sources.py` | **BLOCKED** | Ten active plot-dressing albedo paths are missing from `assets/SOURCES.csv`: the Iron, Oak, Rope, Shingle, Stone, StoneDark, Thatch, Timber, Wattle, and WoodLight sidecars. This is the existing R-212/R-641 provenance handoff, not an R-557 asset change. |
+| Godot editor import | **PASS - process status 0** | Import completed on the clean snapshot. The focused checked suites below still expose parser and authored-contract failures. |
+
+The live dirty worktree reports provenance PASS because its modified `assets/SOURCES.csv` contains active WIP rows. That result is not promoted into the clean acceptance decision.
+
+### Focused clean Godot suites
+
+Each suite was run in a separate process through `tools/run_godot_checked.sh --require-test-summary`, after importing the detached checkout. The exact logs are retained under `/tmp/rebel-reval-r557-clean-20260830/`.
+
+| Suite | Result | Classification |
+|---|---:|---|
+| `test_environment_kit_integration` | 5 tests, 26 failures, 34 errors | **BLOCKED** by the clean RRMap parser cascade and missing authored map records. |
+| `test_building_surface_weathering` | 6 tests, 1 failure, 4 errors | **BLOCKED**; the Lower Town map cannot expose the expected authored wall variants in this snapshot. |
+| `test_map_view_3d_core` | 20 tests, 9 failures, 44 errors | **BLOCKED** by the same map/parser cascade and dependent residency assertions. |
+| `test_map_view_3d_mesh` | 19 tests, 9 failures, 44 errors | **BLOCKED** by the same map/parser cascade and dependent geometry assertions. |
+| `test_map_view_material_resolution` | 7/7 pass | **PASS** for the isolated authored material-resolution contract. |
+| `test_map_view_decals` | 8 tests, 4 failures, 4 errors | **BLOCKED** by missing Lower Town authored decal records in the clean snapshot; `test_decals_placed_from_map_data` itself passes after R-571. |
+| `test_map_view_3d_fortification` | 8 tests, 6 failures, 45 errors | **BLOCKED** by the same parser cascade and dependent landmark/wall-walk assertions. |
+| `test_burgher_house_tiers` | 5 tests, 92 failures, 12 errors | **BLOCKED**; the clean snapshot lacks the authored house records expected by the current tier contract. |
+| `test_lower_town_slice_map` | 19 tests, 26 failures, 93 errors | **BLOCKED** by the parser cascade and clean-snapshot authored map gap. |
+
+The first recurring substantive diagnostics are:
+
+```text
+res://content/maps/lower_town_slice.rrmap:14:1: error[unknown_command]: unknown command 'elevation_area'
+res://content/maps/lower_town_slice.rrmap:17:1: error[unknown_command]: unknown command 'elevation_ramp'
+```
+
+The original attempted `test_lower_town_slice` filter was not a valid current test filename. The clean rerun used the discovered current file filter `test_lower_town_slice_map`, so the 19-test result above is the authoritative map-contract result for this recheck.
+
+### Visual acceptance boundary and ownership
+
+The eight environment-kit plates remain valid packet evidence. The separate three-tier gameplay packet also exists under `docs/reports/images/p0_102_three_tier/`, but its manifest explicitly limits the claim to matched file/camera/metadata integrity and leaves gameplay-scale material readability and human historical/art review open. Neither packet is promoted to visual sign-off by this audit.
+
+The clean recheck leaves the following ownership boundaries unchanged:
+
+- **R-453 / R-455:** repair and accept `elevation_area` / `elevation_ramp` RRMap dispatch and rerun the focused runtime matrix from clean `HEAD`.
+- **R-209 / R-210 / R-211 / R-212:** complete authored ordinary-house and plot-dressing production handoffs; R-210's prior delivery does not waive synchronized clean acceptance.
+- **R-641:** reconcile the ten missing plot-dressing provenance rows after the owning asset bundle lands.
+- **R-612 / R-613 / R-638 / R-108:** complete gameplay-scale ordinary/exceptional visual review and named human art/canon sign-off.
+- **R-557:** retain this evidence audit in review; do not advance R-110/P0-102 from this mixed historical/current evidence set.
+
+**Current conclusion:** packet integrity, asset lint, and isolated material resolution pass. Clean runtime integration, Lower Town/tier contracts, provenance, and human visual acceptance remain blocked. No new follow-up task was created because every current blocker is already assigned to an existing board owner.
+
+### Reproduction commands
+
+```sh
+export GODOT_BIN=/Applications/Godot.app/Contents/MacOS/Godot
+export WT=/tmp/rebel-reval-r557-20260830
+export GODOT_LOG_DIR=/tmp/rebel-reval-r557-clean-20260830
+
+git worktree add --detach "$WT" 4f4f74f91a152152bfc37a56e97e38c2fab99807
+"$GODOT_BIN" --headless --editor --import --path "$WT" --quit
+
+python3 "$WT/tools/verify_p0_102_environment_kit_evidence.py"
+python3 "$WT/tools/verify_asset_lint.py"
+python3 "$WT/tools/validate_asset_sources.py"  # expected blocked by R-212/R-641 rows
+
+# Run each filter in a separate checked process from "$WT":
+# test_environment_kit_integration
+# test_building_surface_weathering
+# test_map_view_3d_core
+# test_map_view_3d_mesh
+# test_map_view_material_resolution
+# test_map_view_decals
+# test_map_view_3d_fortification
+# test_burgher_house_tiers
+# test_lower_town_slice_map
+```
+
+The detached checkout is temporary verification state and is not part of the commit.
