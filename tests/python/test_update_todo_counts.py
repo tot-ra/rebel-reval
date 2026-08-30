@@ -257,6 +257,49 @@ class UpdateTodoCountsTest(unittest.TestCase):
             self.assertIn("summary table is current", result.stdout)
             self.assertEqual(before, todo.read_bytes())
 
+    def test_cli_check_reports_summary_read_error_without_traceback(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            todo = Path(temp_dir) / "fixture-todo.md"
+            todo.write_text(
+                "\n".join(
+                    [
+                        "# Fixture TODO",
+                        "",
+                        "- [ ] P2-001 | deps: none | deliverable: fixture task | verify: passes",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+
+            import unittest.mock
+
+            with unittest.mock.patch(
+                "update_todo_counts.read_summary_table",
+                side_effect=OSError("simulated read race"),
+            ):
+                with unittest.mock.patch.object(
+                    sys,
+                    "argv",
+                    [
+                        str(TOOLS / "update_todo_counts.py"),
+                        "--path",
+                        str(todo),
+                        "--check",
+                    ],
+                ):
+                    with unittest.mock.patch("sys.stderr") as stderr:
+                        from update_todo_counts import main
+
+                        self.assertEqual(main(), 1)
+
+            error = "".join(call.args[0] for call in stderr.write.call_args_list)
+            self.assertIn("could not be read: simulated read race", error)
+            self.assertNotIn("Traceback", error)
+            self.assertEqual(
+                todo.read_text(encoding="utf-8"),
+                "# Fixture TODO\n\n- [ ] P2-001 | deps: none | deliverable: fixture task | verify: passes",
+            )
+
     def test_rewrite_table_preserves_task_rows(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             todo = Path(temp_dir) / "TODO.md"

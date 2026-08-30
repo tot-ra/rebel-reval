@@ -245,7 +245,11 @@ def main() -> int:
     print(table)
 
     if args.check:
-        existing_table = read_summary_table(todo_path)
+        try:
+            existing_table = read_summary_table(todo_path)
+        except OSError as error:
+            print(f"ERROR: {todo_path} could not be read: {error}", file=sys.stderr)
+            return 1
         if existing_table == table:
             print(f"OK: {todo_path.name} summary table is current.")
             return 0
