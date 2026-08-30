@@ -58,6 +58,7 @@ class ReleaseCandidateCheckTest(unittest.TestCase):
             (root / "assets" / "SOURCES.csv").write_text("path,source\n", encoding="utf-8")
             (root / "tools").mkdir()
             (root / "tools" / "validate_asset_sources.py").write_text("# stub\n", encoding="utf-8")
+            (root / "tools" / "report_slice_third_party.py").write_text("# stub\n", encoding="utf-8")
 
             result = check_provenance(root)
 
@@ -170,6 +171,12 @@ class ReleaseCandidateCheckTest(unittest.TestCase):
                 "extends RefCounted\n", encoding="utf-8"
             )
             (settings_dir / "input_binding_settings.gd").write_text("extends RefCounted\n", encoding="utf-8")
+            (docs_dir / "slice_performance_manifest.json").write_text(
+                json.dumps({"version": 1}),
+                encoding="utf-8",
+            )
+            (root / "tools" / "report_slice_performance.py").write_text("# stub\n", encoding="utf-8")
+            (reports_dir / "p3_011_performance_budget.md").write_text("# stub\n", encoding="utf-8")
 
             result = check_accessibility(root)
 
@@ -203,6 +210,27 @@ class ReleaseCandidateCheckTest(unittest.TestCase):
             result = check_platform(root)
 
             self.assertTrue(result.passed)
+
+    def test_platform_checks_reject_unsupported_godot_version(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            (root / ".godot-version").write_text("4.6\n", encoding="utf-8")
+
+            result = check_platform(root)
+
+            self.assertFalse(result.passed)
+            self.assertIn("Godot version must be 4.7, got 4.6", result.details)
+            self.assertNotIn("Godot 4.7 version family is supported", result.details)
+
+    def test_platform_checks_accept_supported_godot_version(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            (root / ".godot-version").write_text("4.7\n", encoding="utf-8")
+
+            result = check_platform(root)
+
+            self.assertIn("Godot 4.7 version family is supported", result.details)
+            self.assertNotIn("Godot version must be 4.7", "\n".join(result.details))
 
     def test_ci_checks_workflow_and_runner_scripts(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

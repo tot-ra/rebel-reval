@@ -30,6 +30,7 @@ AGPL_MARKERS = (
     "Version 3, 19 November 2007",
     "Copyright (C) 2007 Free Software Foundation, Inc.",
 )
+SUPPORTED_GODOT_VERSION_FAMILY = "4.7"
 
 
 @dataclass
@@ -261,8 +262,20 @@ def check_platform(root: Path = ROOT) -> CheckResult:
         details.append(".godot-version missing")
     else:
         version = godot_version_file.read_text(encoding="utf-8").strip()
-        checks.append((".godot-version present", bool(version)))
+        has_supported_version = version == SUPPORTED_GODOT_VERSION_FAMILY
+        checks.extend(
+            [
+                (".godot-version present", bool(version)),
+                ("supported Godot version family pinned", has_supported_version),
+            ]
+        )
         details.append(f"Godot version pinned: {version or '<empty>'}")
+        if has_supported_version:
+            details.append(f"Godot {SUPPORTED_GODOT_VERSION_FAMILY} version family is supported")
+        else:
+            details.append(
+                f"Godot version must be {SUPPORTED_GODOT_VERSION_FAMILY}, got {version or '<empty>'}"
+            )
 
     if not export_presets.is_file():
         checks.append(("export_presets.cfg present", False))
