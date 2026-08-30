@@ -54,6 +54,8 @@ The two sacred-grove and two Saaremaa rows are intentionally separate: `prototyp
 
 The rollout uses the existing `MapView3D.create` path for every row below. `MapViewMeshBuilderTerrain` discovers each water ID from the compiled grid, builds one `Terrain_<terrain_id>` surface, and assigns `MapViewMaterials.water_surface(terrain_id)`. No authored `.rrmap` or prototype activation flag is changed by this rollout.
 
+The focused exception and handoff audit is [`tests/godot/test_r715_water_exceptions.gd`](../../tests/godot/test_r715_water_exceptions.gd), with its fail-closed matrix and external-owner status recorded in [`r715_water_exceptions.md`](r715_water_exceptions.md). It covers the 13 rollout rows while making enclosed, river, shallow/deep coastal, harbour, shoreline, and intentionally excluded Monastery cases explicit.
+
 | Map ID | Water IDs | Shared view path | Gameplay topology |
 |---|---|---|---|
 | `smithy_courtyard` | `water` | `Terrain/Terrain_water` | unchanged; enclosed-water exception retained |
