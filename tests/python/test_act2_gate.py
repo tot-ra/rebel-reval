@@ -24,9 +24,10 @@ class TestAct2Gate(unittest.TestCase):
         self.assertEqual(report.fixture_count, 20)
         self.assertEqual(report.mission_copy_words, 906)
 
-    def test_gate_keeps_paide_dependency_explicit(self) -> None:
+    def test_gate_keeps_maintainer_review_pending(self) -> None:
         manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
-        self.assertTrue(any("P5-009" in blocker for blocker in manifest["known_blockers"]))
+        self.assertFalse(any("P5-009 is not complete" in blocker for blocker in manifest["known_blockers"]))
+        self.assertTrue(any("Maintainer playable review" in blocker for blocker in manifest["known_blockers"]))
         report = verify_manifest(ROOT, MANIFEST)
         self.assertFalse(report.ready_for_maintainer_review)
         self.assertEqual(len(report.errors), 0)
@@ -65,6 +66,15 @@ class TestAct2Gate(unittest.TestCase):
             temp_manifest.write_text(json.dumps(manifest), encoding="utf-8")
             report = verify_manifest(temp_root, temp_manifest)
         self.assertTrue(any("not_authored" in error for error in report.errors))
+
+    def test_fixture_route_drift_is_rejected(self) -> None:
+        manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+        manifest["fixtures"][0]["expected_route"] = "non_combat"
+        with tempfile.TemporaryDirectory() as tmp:
+            temp_manifest = Path(tmp) / "manifest.json"
+            temp_manifest.write_text(json.dumps(manifest), encoding="utf-8")
+            report = verify_manifest(ROOT, temp_manifest)
+        self.assertTrue(any("route identity drift" in error for error in report.errors))
 
 
 if __name__ == "__main__":

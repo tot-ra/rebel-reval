@@ -4,7 +4,8 @@ The gate treats authored quest packages and their branch maps as the source of
 truth. It validates that every declared branch is executable through the
 quest's transition graph, that the corresponding save fixture preserves the
 branch identity, and that the authored copy remains within the gate budget.
-The Paide finale is reported separately until P5-009 supplies its package.
+The Paide finale transition is validated separately by its dedicated model and
+Godot suite; maintainer playable review remains a separate acceptance step.
 """
 
 from __future__ import annotations
@@ -70,6 +71,17 @@ def _mission_copy_words(quest: dict[str, Any]) -> int:
     return sum(len(WORD_RE.findall(value)) for value in fields)
 
 
+def _branch_expectation_key(
+    quest_id: str, expected: dict[str, Any]
+) -> tuple[str, str, str, str]:
+    return (
+        quest_id,
+        str(expected.get("quest_state", "")),
+        json.dumps(expected.get("flags", {}), sort_keys=True),
+        json.dumps([str(value) for value in expected.get("ledger_events", [])]),
+    )
+
+
 def _verify_branch(
     quest: dict[str, Any], branch: dict[str, Any], label: str, errors: list[str]
 ) -> None:
@@ -129,7 +141,13 @@ def _verify_branch(
         )
 
 
-def _verify_package(root: Path, row: dict[str, Any], report: Act2GateReport) -> None:
+def _verify_package(
+    root: Path,
+    row: dict[str, Any],
+    report: Act2GateReport,
+    branch_routes: dict[tuple[str, str, str, str], set[str]],
+    quest_package_ids: dict[str, str],
+) -> None:
     package_dir = root / str(row.get("package_dir", ""))
     package = _read_json(package_dir / "package.json", report.errors, "package")
     if package is None:
@@ -160,14 +178,29 @@ def _verify_package(root: Path, row: dict[str, Any], report: Act2GateReport) -> 
     report.package_count += 1
     report.branch_count += len(branches)
     report.mission_copy_words += _mission_copy_words(quest)
+    quest_id = str(quest.get("id", ""))
+    quest_package_ids[quest_id] = str(package.get("id", ""))
     for branch in branches:
-        report.route_counts[str(branch.get("route", ""))] = (
-            report.route_counts.get(str(branch.get("route", "")), 0) + 1
-        )
-        _verify_branch(quest, branch, f"{package_dir.name}/{branch.get('id', '')}", report.errors)
+        branch_id = str(branch.get("id", ""))
+        route = str(branch.get("route", ""))
+        report.route_counts[route] = report.route_counts.get(route, 0) + 1
+        branch_routes.setdefault(
+            _branch_expectation_key(
+                quest_id,
+                branch.get("expect", {}),
+            ),
+            set(),
+        ).add(route)
+        _verify_branch(quest, branch, f"{package_dir.name}/{branch_id}", report.errors)
 
 
-def _verify_fixtures(root: Path, manifest: dict[str, Any], report: Act2GateReport) -> None:
+def _verify_fixtures(
+    root: Path,
+    manifest: dict[str, Any],
+    report: Act2GateReport,
+    branch_routes: dict[tuple[str, str, str, str], set[str]],
+    quest_package_ids: dict[str, str],
+) -> None:
     fixtures = manifest.get("fixtures", [])
     if not isinstance(fixtures, list):
         report.errors.append("fixtures must be an array")
@@ -188,8 +221,29 @@ def _verify_fixtures(root: Path, manifest: dict[str, Any], report: Act2GateRepor
         if state.get("phase") != row.get("expected_phase"):
             report.errors.append(f"fixture {fixture_id}: phase identity drift")
         quest_states = state.get("quest_states", {})
-        if quest_states.get(row.get("expected_quest_id")) != row.get("expected_quest_state"):
+        expected_quest_id = str(row.get("expected_quest_id", ""))
+        expected_state = str(row.get("expected_quest_state", ""))
+        if quest_states.get(expected_quest_id) != expected_state:
             report.errors.append(f"fixture {fixture_id}: quest identity drift")
+        expected_key = _branch_expectation_key(
+            expected_quest_id,
+            {
+                "quest_state": expected_state,
+                "flags": row.get("expected_flags", {}),
+                "ledger_events": row.get("expected_ledger_events", []),
+            },
+        )
+        routes = branch_routes.get(expected_key, set())
+        if not routes:
+            report.errors.append(f"fixture {fixture_id}: no authored branch matches result")
+        elif row.get("expected_route") not in routes:
+            report.errors.append(
+                f"fixture {fixture_id}: route identity drift: "
+                f"{row.get('expected_route')!r} not in {sorted(routes)!r}"
+            )
+        package_id = row.get("expected_package_id")
+        if quest_package_ids.get(expected_quest_id) != package_id:
+            report.errors.append(f"fixture {fixture_id}: package identity drift")
         flags = state.get("flags", {})
         for flag, value in row.get("expected_flags", {}).items():
             if flags.get(flag) != value:
@@ -206,9 +260,11 @@ def verify_manifest(root: Path, manifest_path: Path | None = None) -> Act2GateRe
     report = Act2GateReport(
         mission_copy_word_budget=int(manifest.get("content_budget", {}).get("mission_copy_word_cap", 0))
     )
+    branch_routes: dict[tuple[str, str, str, str], set[str]] = {}
+    quest_package_ids: dict[str, str] = {}
     for row in manifest.get("packages", []):
-        _verify_package(root, row, report)
-    _verify_fixtures(root, manifest, report)
+        _verify_package(root, row, report, branch_routes, quest_package_ids)
+    _verify_fixtures(root, manifest, report, branch_routes, quest_package_ids)
 
     expected = manifest.get("expected", {})
     if report.package_count != int(expected.get("package_count", report.package_count)):

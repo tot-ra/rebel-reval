@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "task_id": "P5-010",
-  "description": "Act 2 authorial gate for authored night and siege packages. Paide remains blocked on P5-009.",
+  "description": "Act 2 authorial gate for authored night and siege packages. The Paide finale transition is validated by its dedicated model suite; maintainer playable review remains pending.",
   "expected": {
     "package_count": 10,
     "branch_count": 20,
@@ -452,7 +452,6 @@
     }
   ],
   "known_blockers": [
-    "P5-009 is not complete: the Paide finale package and its branch-dependent Act 3 transition records are still required before the full Act 2 gate can pass.",
-    "Maintainer playable review remains pending until the P5-009 dependency is complete; no critical/high issue is waived by this report."
+    "Maintainer playable review remains pending for the authored Act 2 routes and the completed Paide finale transition; no critical/high issue is waived by this report."
   ]
 }
