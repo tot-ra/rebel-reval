@@ -7,7 +7,7 @@
 **Authority:** [ADR 0014](../adr/0014-authorial-acceptance-gates-without-external-playtests.md)
 **Manifest:** [`docs/data/act2_gate_manifest.json`](../data/act2_gate_manifest.json)
 
-This report records the remaining P5-010 acceptance review. The automated authored-corpus contract is green, but the full playable gate cannot pass while four authored night routes remain content-only and the boundary-family review lacks runtime evidence. No failed automation is waived, and this report does not promote R-309 to done.
+This report records the remaining P5-010 acceptance review. The automated authored-corpus contract is green, but the full playable gate cannot pass while four authored night routes remain content-only. Focused Act 2 host evidence now covers all three Act 1 boundary families, and no failed automation is waived; this report does not promote R-309 to done.
 
 ## Scope and review method
 
@@ -30,10 +30,10 @@ The review therefore records completion of the available evidence and withholds 
 | Branch traversal | **PASS for authored corpus** | Ten packages, two branches each; Python manifest check and ten generated Godot suites pass, 20/20 branch paths total |
 | Save fixtures | **PASS for authored corpus** | 20 current-schema Act 2 envelopes load through `SaveEnvelope` and preserve phase, quest, flags, and ledger identity |
 | Content budget | **PASS** | 906 / 1200 words for titles, summaries, state labels, objectives, and outcome summaries |
-| Siege mission host | **PASS for six authored siege routes** | `test_act2_mission_host`: 4/4; investment, sortie/supply, and assault expose rebel/ruler offers and direct outcomes round-trip through save/load |
+| Siege mission host | **PASS for six authored siege routes** | `test_act2_mission_host`: 5/5; investment, sortie/supply, and assault expose rebel/ruler offers and direct outcomes round-trip through save/load |
 | Paide handoff model | **PASS for transition contract** | `test_paide_finale`: 4/4; all three player roles, knowledge/warning states, immutable Four Kings outcome, and Act 3 opening records validate |
 | Night mission playable review | **BLOCKED** | Defense, escort, sabotage, and theft packages are content-only drafts; no runtime mission host or interactive input path is available for these four routes |
-| Act 1 boundary-family coverage | **INCOMPLETE** | The host test fixture seeds only `flag.act_boundary.viru_open`; `flag.act_boundary.viru_seal` / `flag.act_boundary.viru_break` offer and traversal evidence is not covered by the focused Act 2 host suite |
+| Act 1 boundary-family coverage | **PASS** | `test_act2_mission_host` covers `flag.act_boundary.viru_seal` (ruler), `flag.act_boundary.viru_break` (rebel), and `flag.act_boundary.viru_open` (both) across all three siege phases; each applicable route starts, resolves, and preserves branch identity through `GameState` save/load |
 | Maintainer playable review | **NOT SIGNED** | Completion, pacing, combat/non-combat readability, choice impact, and supported input cannot be confirmed for the four non-runtime night routes |
 | Full Act 2 gate | **BLOCKED** | ADR 0014 requires the automated rows plus maintainer sign-off; the open high findings below remain |
 
@@ -57,7 +57,7 @@ No critical finding was observed in the focused automated runs. The high finding
 |---|---|---|---|
 | P5-010-F01 | **high** | **open** | Four night packages (`act2_night_defense`, `act2_night_escort`, `act2_night_sabotage`, `act2_night_theft`) explicitly remain content-only drafts in their `content/quest.json` approval notes. Add runtime mission presentation, traversal, combat/non-combat feedback, and input coverage before playable review. Follow-up is part of P5-012's Act 2 end-to-end scope. |
 | P5-010-F02 | **high** | **open** | Because F01 is open, completion, pacing, combat/non-combat readability, continuity, and supported input cannot be signed for the full Act 2 route set. Re-run this review after the four night routes are playable; do not waive the missing evidence. |
-| P5-010-F03 | **medium** | **open** | `tests/godot/test_act2_mission_host.gd` seeds only `flag.act_boundary.viru_open`. Add seal and break boundary-family offer/traversal cases to the Act 2 end-to-end matrix before final sign-off. |
+| P5-010-F03 | **medium** | **closed** | `test_act2_mission_host` covers all three Act 1 boundary families across investment, sortie/supply, and assault: Seal exposes ruler offers, Break exposes rebel offers, and Open exposes both. Each applicable direct route starts and preserves quest, boundary-flag, and ledger-event identity through `GameState` save/load. |
 
 ## Automated verification
 
@@ -75,7 +75,7 @@ PASS - 4 tests, 0 failures
 PASS - 1 file, 1 test, 0 failures, 0 errors
 
 /Applications/Godot.app/Contents/MacOS/Godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_act2_mission_host
-PASS - 1 file, 4 tests, 0 failures, 0 errors
+PASS - 1 file, 5 tests, 0 failures, 0 errors
 
 /Applications/Godot.app/Contents/MacOS/Godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_paide_finale
 PASS - 1 file, 4 tests, 0 failures, 0 errors
@@ -102,6 +102,6 @@ The generated suites and Python verifier prove authored graph integrity. They do
 
 | Reviewer | Date | Decision |
 |---|---|---|
-| maintainer | 2026-08-30 | **Not signed - P5-010-F01 and P5-010-F02 remain open; P5-010-F03 also requires boundary-family coverage.** |
+| maintainer | 2026-08-30 | **Not signed - P5-010-F01 and P5-010-F02 remain open; P5-010-F03 boundary-family coverage is closed.** |
 
-**Final decision:** **BLOCKED. Keep R-309 / P5-010 open.** Re-open this review after P5-012 supplies playable night-route traversal, supported-input evidence, full Act 1 boundary-family coverage, and end-to-end continuity through the Paide handoff. No automation failure was waived.
+**Final decision:** **BLOCKED. Keep R-309 / P5-010 open.** Re-open this review after P5-012 supplies playable night-route traversal, supported-input evidence, and end-to-end continuity through the Paide handoff. Act 1 boundary-family coverage is now complete in the focused host suite. No automation failure was waived.

@@ -56,6 +56,24 @@ const MISSIONS: Array[Dictionary] = [
 	},
 ]
 
+const BOUNDARY_FAMILIES: Array[Dictionary] = [
+	{
+		"id": "seal",
+		"flag": HostScript.FLAG_BOUNDARY_SEAL,
+		"allowed_alignments": [HostScript.ALIGNMENT_RULER],
+	},
+	{
+		"id": "break",
+		"flag": HostScript.FLAG_BOUNDARY_BREAK,
+		"allowed_alignments": [HostScript.ALIGNMENT_REBEL],
+	},
+	{
+		"id": "open",
+		"flag": HostScript.FLAG_BOUNDARY_OPEN,
+		"allowed_alignments": [HostScript.ALIGNMENT_REBEL, HostScript.ALIGNMENT_RULER],
+	},
+]
+
 var db: ContentDB
 
 
@@ -78,6 +96,76 @@ func test_each_siege_phase_offers_both_authored_alignments() -> void:
 		assert_eq(host.available_offers(phase_id, HostScript.ALIGNMENT_RULER).size(), 1)
 
 
+func test_each_act1_boundary_family_exposes_expected_routes_and_survives_save_load() -> void:
+	for boundary: Dictionary in BOUNDARY_FAMILIES:
+		var boundary_flag: StringName = boundary["flag"]
+		var allowed_alignments: Array = boundary["allowed_alignments"]
+		for phase_id in [
+			HostScript.PHASE_INVESTMENT,
+			HostScript.PHASE_SORTIE_SUPPLY,
+			HostScript.PHASE_ASSAULT,
+		]:
+			var offers_state := _state_for_phase(phase_id, boundary_flag)
+			var offers_host := HostScript.new(db, offers_state)
+			var offers := offers_host.available_offers()
+			assert_eq(
+				offers.size(),
+				allowed_alignments.size(),
+				"boundary family offer count mismatch: %s / %s" % [boundary["id"], phase_id],
+			)
+			for alignment: StringName in [HostScript.ALIGNMENT_REBEL, HostScript.ALIGNMENT_RULER]:
+				var alignment_offers := offers_host.available_offers(phase_id, alignment)
+				if not allowed_alignments.has(alignment):
+					assert_eq(
+						alignment_offers.size(),
+						0,
+						"boundary family must hide %s: %s" % [alignment, boundary["id"]],
+					)
+					continue
+
+				assert_eq(alignment_offers.size(), 1)
+				var mission := _mission_for(phase_id, alignment)
+				var state := _state_for_phase(phase_id, boundary_flag)
+				var host := HostScript.new(db, state)
+				var quest_id: StringName = alignment_offers[0]["quest_id"]
+				assert_eq(quest_id, mission["quest_id"])
+				assert_true(host.can_start_mission(quest_id))
+				assert_true(host.start_mission(quest_id), "mission should start: %s" % quest_id)
+				assert_true(host.transition(quest_id, &"brief"))
+				assert_true(host.transition(quest_id, &"resolve_direct"))
+				assert_eq(state.get_quest_state(quest_id), &"direct_complete")
+				assert_true(state.get_flag(boundary_flag))
+				assert_true(state.has_faction_event(mission["event_id"]))
+				for other_boundary: StringName in [
+					HostScript.FLAG_BOUNDARY_SEAL,
+					HostScript.FLAG_BOUNDARY_BREAK,
+					HostScript.FLAG_BOUNDARY_OPEN,
+				]:
+					if other_boundary != boundary_flag:
+						assert_false(state.get_flag(other_boundary))
+
+				var restored := GameState.new()
+				assert_eq(restored.load_payload(state.save_payload()), [])
+				assert_eq(restored.get_phase(), phase_id)
+				assert_eq(restored.get_quest_state(quest_id), &"direct_complete")
+				assert_true(restored.get_flag(boundary_flag))
+				assert_true(restored.has_faction_event(mission["event_id"]))
+				for other_boundary: StringName in [
+					HostScript.FLAG_BOUNDARY_SEAL,
+					HostScript.FLAG_BOUNDARY_BREAK,
+					HostScript.FLAG_BOUNDARY_OPEN,
+				]:
+					if other_boundary != boundary_flag:
+						assert_false(restored.get_flag(other_boundary))
+
+
+func _mission_for(phase_id: StringName, alignment: StringName) -> Dictionary:
+	for mission: Dictionary in MISSIONS:
+		if mission["phase_id"] == phase_id and mission["alignment"] == alignment:
+			return mission
+	return {}
+
+
 func test_wrong_phase_offer_is_hidden_and_cannot_start() -> void:
 	var state := _state_for_phase(HostScript.PHASE_INVESTMENT)
 	var host := HostScript.new(db, state)
@@ -97,6 +185,8 @@ func test_production_session_loads_all_siege_quests() -> void:
 			"production ContentDB should load %s" % quest_id,
 		)
 	assert_true(SessionState.act2_mission_host != null)
+
+
 func test_all_siege_missions_start_and_direct_outcomes_survive_save_load() -> void:
 	for mission in MISSIONS:
 		var state := _state_for_phase(mission["phase_id"])
@@ -119,9 +209,10 @@ func test_all_siege_missions_start_and_direct_outcomes_survive_save_load() -> vo
 		assert_true(restored.has_faction_event(mission["event_id"]))
 
 
-func _state_for_phase(phase_id: StringName) -> GameState:
+func _state_for_phase(
+	phase_id: StringName, boundary_flag: StringName = HostScript.FLAG_BOUNDARY_OPEN
+) -> GameState:
 	var state := GameState.new()
 	state.set_phase(phase_id)
-	# Open is the Act 1 boundary family that can receive both sides' offers.
-	state.set_flag(&"flag.act_boundary.viru_open", true)
+	state.set_flag(boundary_flag, true)
 	return state
