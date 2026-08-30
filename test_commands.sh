@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Repository smoke, export, documentation, transition, map, and performance gates.
+# Set GODOT_BIN when the Godot 4.7 executable is not available on PATH or at the
+# standard macOS installation path. Run from any directory; ROOT_DIR is derived
+# from this script's location.
+
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PLAYABLE_SCENE="$ROOT_DIR/scenes/reval_east/reval_east.tscn"
 cd "$ROOT_DIR"
