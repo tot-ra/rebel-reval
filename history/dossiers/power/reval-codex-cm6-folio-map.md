@@ -8,7 +8,7 @@ related:
   - ./law-courts-and-punishment.md
   - ../military/watch-duty-and-town-defence.md
   - ../culture/writing-and-records-reval-1343.md
-updated: 2026-08-02
+updated: 2026-08-30
 ---
 
 # Revaler Kodex 1282: Cm 6 article map and folio evidence
@@ -127,6 +127,21 @@ The source also does not expose a fixed Reval 1343 curfew fine. Article 69 suppo
 scene, but the amount and enforcement routine should remain `fine_marks: null` until an AWB or
 council-ordinance folio supplies it. This is **attested evidence boundary [4][6]**.
 
+### Access-boundary recheck (2026-08-30)
+
+The current public catalogue confirms additional codicological facts for Cm 6: it is a 27-leaf
+parchment codex, approximately 245 × 175 mm, with a 165 × 110-115 mm writing space, two columns,
+and normally 29 lines (occasionally 30); the catalogue dates its production to 1282 and identifies
+the writing place as the Lübeck chancery [2][8]. Handschriftencensus also lists published
+reproductions of selected leaves, including Bl. 1v-2r and Bl. 26v-27r, but does not expose a complete
+image sequence or an article-to-folio concordance [8].
+
+This narrows the evidence gap but does not clear it: the public catalogue supports the manuscript's
+physical description and selected-image references, while the defence/public-order crosswalk above
+still has `cm6_folio: null` for every article. The complete folio pass remains blocked pending a
+rights-cleared scan or a page-cited transcription that can be collated against Kala 1998. This is an
+**attested access boundary [2][8]**, not a claim that the missing folios contain no relevant text.
+
 ## Production hooks
 
 - **Quest:** A council crier calls a morning city-need assembly under Reval Art. 34; a night
@@ -206,5 +221,7 @@ decision under the dossier standard.
    *Tuna*, https://tuna.ra.ee/kuidas-lugeda-tallinna-taani-aegseid-dokumente-ehk-veel-kord-lubecki-oigusest
    - overview of the five Tallinn Lübeck-law codices (Estonian).
 8. Handschriftencensus, “Reval / Tallinn, Stadtarchiv / Tallinna Linnaarhiiv, Bestand 230 Cm 6,”
-   https://handschriftencensus.de/1499 - manuscript description and bibliography, including Kala
-   1998 and the 1282 witness (German).
+   https://handschriftencensus.de/1499 - manuscript description and bibliography; confirms 27
+   parchment leaves, dimensions, two-column/line layout, 1282 dating, and references to published
+   reproductions of selected leaves, but exposes no complete image sequence or article-level folio
+   concordance (German).
