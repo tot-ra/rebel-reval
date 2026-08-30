@@ -1,7 +1,11 @@
 extends "res://tests/godot/test_case.gd"
 
-const NunnatornDefinition := preload("res://scripts/map/definitions/prototypes/nunnatorn_interior_definition.gd")
-const NunnatornFactory := preload("res://scripts/map/definitions/prototypes/nunnatorn_interior_rrmap_factory.gd")
+const NunnatornDefinition := preload(
+	"res://scripts/map/definitions/prototypes/nunnatorn_interior_definition.gd"
+)
+const NunnatornFactory := preload(
+	"res://scripts/map/definitions/prototypes/nunnatorn_interior_rrmap_factory.gd"
+)
 
 const SOURCE_PATH := "res://content/maps/nunnatorn_interior.rrmap"
 const REQUIRED_ANCHORS: Array[StringName] = [
@@ -38,13 +42,19 @@ func test_nunnatorn_interior_map() -> void:
 	assert_eq(definition.get_meta("player_spawn_id"), &"spawn.nunnatorn_interior_entry")
 
 	for anchor_id in REQUIRED_ANCHORS:
-		assert_true(MapVerification.has_anchor(definition, anchor_id), "Missing Nunnatorn anchor %s" % anchor_id)
+		assert_true(
+			MapVerification.has_anchor(definition, anchor_id),
+			"Missing Nunnatorn anchor %s" % anchor_id
+		)
 
 	var grid := MapBuilder.build(definition)
 	for anchor_id in REQUIRED_ANCHORS:
 		assert_true(
 			MapVerification.route_exists_exact(
-				definition, grid, definition.player_spawn, MapVerification.anchor_position(definition, anchor_id)
+				definition,
+				grid,
+				definition.player_spawn,
+				MapVerification.anchor_position(definition, anchor_id)
 			),
 			"Nunnatorn anchor %s must be reachable from the safe entry" % anchor_id
 		)
@@ -89,3 +99,25 @@ func test_nunnatorn_interior_map() -> void:
 	var source := FileAccess.get_file_as_string(SOURCE_PATH).to_lower()
 	for forbidden in ["horseshoe", "fat margaret", "cannon", "post-1343"]:
 		assert_false(forbidden in source, "Forbidden later-form token leaked into source: %s" % forbidden)
+
+
+func test_nunnatorn_floor_partitions_keep_central_vertical_openings() -> void:
+	var definition: MapDefinition = NunnatornDefinition.create()
+	var expected_segments := {
+		&"floor.partition.ground/segment.000": Rect2(32, 192, 192, 32),
+		&"floor.partition.ground/segment.001": Rect2(320, 192, 224, 32),
+		&"floor.partition.watch/segment.000": Rect2(32, 384, 384, 32),
+		&"floor.partition.watch/segment.001": Rect2(512, 384, 32, 32),
+	}
+
+	var actual_segments := {}
+	for building in definition.buildings:
+		var building_id := StringName(building.get("id", ""))
+		if expected_segments.has(building_id):
+			actual_segments[building_id] = building.get("footprint")
+	assert_eq(
+		actual_segments,
+		expected_segments,
+		"Floor partitions must preserve their authored openings"
+	)
+	assert_eq(actual_segments.size(), 4, "Both floor partitions need a compiled gap")
