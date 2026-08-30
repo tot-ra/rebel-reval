@@ -21,7 +21,7 @@ This report records the remaining P5-010 acceptance review. The automated author
 
 **BLOCKED.** The authored package and save-fixture contracts pass, and the six siege mission host routes plus Paide transition model pass their focused suites. The four night missions cannot yet receive a genuine playable review: each package explicitly declares `approval.status: draft` and `notes: Content-only ...; runtime mission host remains downstream work.` The production host catalog contains only the six investment, sortie/supply, and assault missions.
 
-The review therefore records completion of the available evidence and withholds maintainer sign-off. Existing `P5-012` owns the remaining Act 2 end-to-end traversal and save-compatibility coverage; it must not be considered complete until it exercises the night routes and Paide handoff in a playable campaign path.
+The review therefore records completion of the available evidence and withholds maintainer sign-off. Existing board task `R-314 / P5-012` owns the remaining Act 2 end-to-end traversal and save-compatibility coverage; it must not be considered complete until it exercises the night routes and Paide handoff in a playable campaign path.
 
 ## Gate area
 
