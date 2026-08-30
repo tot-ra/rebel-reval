@@ -11,6 +11,10 @@ This file remains the durable/legacy ID index expected by `README.md`, `AGENTS.m
 | [`docs/STORAGE_SIZE_BACKLOG.md`](docs/STORAGE_SIZE_BACKLOG.md) | Open storage and file-size contracts (**P0-177**..**P0-187**) |
 | [`docs/CHARACTER_REALISM_BACKLOG.md`](docs/CHARACTER_REALISM_BACKLOG.md) | Character model/animation realism follow-ups (**P0-188**..**P0-198**) |
 | [`docs/LEGACY_REINTRODUCTION.md`](docs/LEGACY_REINTRODUCTION.md) | ADR 0017 / P7 inventory |
+<!-- Quick-reference counts updated on every structural change -->
+| Priority | Open | Done | Notes |
+|----------|-----:|-----:|-------|
+| P0 |    14  |     8  | Baseline, storage, materials, historical audit |
 
 ## Storage and file-size (active)
 
