@@ -2759,6 +2759,93 @@
         "review_date": "",
         "evidence": ""
       }
+    },
+    {
+      "id": "kuldjala_interior",
+      "source_path": "content/maps/kuldjala_interior.rrmap",
+      "owner": "P4-027c",
+      "captures": {
+        "close_up": {
+          "status": "pending"
+        },
+        "gameplay": {
+          "status": "pending"
+        },
+        "vista": {
+          "status": "pending"
+        },
+        "day": {
+          "status": "pending"
+        },
+        "night": {
+          "status": "pending"
+        },
+        "rain": {
+          "status": "pending"
+        },
+        "wind": {
+          "status": "pending"
+        },
+        "water": {
+          "status": "pending"
+        },
+        "crowds": {
+          "status": "pending"
+        },
+        "characters": {
+          "status": "pending"
+        },
+        "landmark_architecture": {
+          "status": "pending"
+        },
+        "adjacent_map_traversal": {
+          "status": "pending"
+        }
+      },
+      "rubric_reviews": {
+        "geometry_silhouette": {
+          "status": "pending"
+        },
+        "pbr_response": {
+          "status": "pending"
+        },
+        "texture_density": {
+          "status": "pending"
+        },
+        "lighting_atmosphere": {
+          "status": "pending"
+        },
+        "water_surface": {
+          "status": "pending"
+        },
+        "vegetation_distribution": {
+          "status": "pending"
+        },
+        "animation_temporal": {
+          "status": "pending"
+        },
+        "historical_coherence": {
+          "status": "pending"
+        },
+        "repetition_and_variation": {
+          "status": "pending"
+        },
+        "seams_and_transitions": {
+          "status": "pending"
+        },
+        "temporal_stability": {
+          "status": "pending"
+        },
+        "performance_tier": {
+          "status": "pending"
+        }
+      },
+      "human_review": {
+        "status": "pending",
+        "reviewer": "",
+        "review_date": "",
+        "evidence": ""
+      }
     }
   ]
 }
