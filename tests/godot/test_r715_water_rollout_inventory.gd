@@ -86,6 +86,19 @@ func test_external_water_row_is_explicitly_documented() -> void:
 	)
 
 
+func test_report_names_shared_water_owner_paths() -> void:
+	var report := FileAccess.get_file_as_string(INVENTORY_REPORT)
+	for owner_path in [
+		"../../scripts/map/view3d/map_view_water_materials.gd)",
+		"../../scripts/map/view3d/map_view_mesh_builder_terrain_water.gd)",
+		"../../scripts/map/view3d/map_view_shoreline_3d.gd)",
+	]:
+		assert_true(
+			report.contains(owner_path),
+			"inventory report must link the shared owner %s" % owner_path,
+		)
+
+
 func test_water_owner_modules_and_shader_contract_are_present() -> void:
 	var water_materials := WaterMaterials.new()
 	var water_mesh := WaterMesh.new()

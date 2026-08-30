@@ -302,3 +302,4 @@ This file contains only cross-role operating lessons. Domain lessons belong to t
 - 2026-08-30: When a compound Git validation returns before showing diagnostics, rerun each stage independently; a scoped `git diff --check` can expose Markdown metadata trailing spaces that stop later chained output.
 - 2026-08-30: `tools/run_godot_tests.gd --filter` matches exact test filename stems, not prefixes; enumerate generated suite stems or pass comma-separated exact names instead of relying on a broad prefix.
 - 2026-08-30: When a Python link-check diagnostic needs a regex count, compute the match list before formatting output; backslashes inside f-string expressions cause a SyntaxError before the report check runs.
+- 2026-08-30: When a GDScript test asserts Markdown links, match the relative URL target rather than label punctuation such as backticks; also use the harness test-file filter because method-name filters return `No Godot tests found`.
