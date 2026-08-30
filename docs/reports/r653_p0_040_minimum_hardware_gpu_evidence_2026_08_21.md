@@ -138,6 +138,14 @@ BLOCKED by pre-existing repository-wide drift: active_markdown_report.md is not 
 
 The active-document failure is outside this task's allowlist and does not alter the R-653 evidence result. The first actionable blocker remains the unavailable x86_64 Intel Core i5-8250U / Intel UHD Graphics 620 machine. The Apple M5 Pro capture is retained as supplementary non-headless instrumentation only; no target acceptance, maintainer approval, parent closure, or performance-cap change is inferred.
 
+## Current availability recheck
+
+**Checked:** `2026-08-30T03:32:49Z`
+
+The declared target remains unavailable in this environment. The live host reports Darwin `25.3.0` on `arm64` (`Mac17,8`), Apple M5 Pro with 48 GiB RAM and Apple M5 Pro GPU / Metal 4. This does not match the required x86_64 Intel Core i5-8250U, Intel UHD Graphics 620, and 8 GiB profile. No compatible Intel UHD 620 machine or configured remote runner is available.
+
+**Verdict:** **BLOCKED** - the required target command was not run, because this host cannot provide declared-target evidence. No Apple, headless, emulated, or otherwise non-matching result was substituted. The existing Apple M5 Pro non-headless capture remains supplementary instrumentation only; R-563 remains responsible for obtaining the real Intel UHD 620 run.
+
 ## Sources
 
 - [`tools/benchmarks/minimum-hardware.json`](../../tools/benchmarks/minimum-hardware.json)
