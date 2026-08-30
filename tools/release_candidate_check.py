@@ -19,6 +19,7 @@ Exit codes: 0 = all selected checks pass, 1 = one or more checks failed.
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -31,6 +32,13 @@ AGPL_MARKERS = (
     "Copyright (C) 2007 Free Software Foundation, Inc.",
 )
 SUPPORTED_GODOT_VERSION_FAMILY = "4.7"
+GODOT_VERSION_PATTERN = re.compile(r"^(?P<family>\d+\.\d+)(?:\.\d+)?$")
+
+
+def godot_version_family(version: str) -> str | None:
+    """Return the major/minor family for a supported numeric version shape."""
+    match = GODOT_VERSION_PATTERN.fullmatch(version)
+    return match.group("family") if match else None
 
 
 @dataclass
@@ -262,7 +270,8 @@ def check_platform(root: Path = ROOT) -> CheckResult:
         details.append(".godot-version missing")
     else:
         version = godot_version_file.read_text(encoding="utf-8").strip()
-        has_supported_version = version == SUPPORTED_GODOT_VERSION_FAMILY
+        version_family = godot_version_family(version)
+        has_supported_version = version_family == SUPPORTED_GODOT_VERSION_FAMILY
         checks.extend(
             [
                 (".godot-version present", bool(version)),
@@ -274,7 +283,8 @@ def check_platform(root: Path = ROOT) -> CheckResult:
             details.append(f"Godot {SUPPORTED_GODOT_VERSION_FAMILY} version family is supported")
         else:
             details.append(
-                f"Godot version must be {SUPPORTED_GODOT_VERSION_FAMILY}, got {version or '<empty>'}"
+                f"Godot version must be {SUPPORTED_GODOT_VERSION_FAMILY}.x or {SUPPORTED_GODOT_VERSION_FAMILY}, "
+                f"got {version or '<empty>'}"
             )
 
     if not export_presets.is_file():

@@ -21,6 +21,7 @@ from release_candidate_check import (  # noqa: E402
     check_platform,
     check_provenance,
     check_slice_gate,
+    godot_version_family,
     main,
     run_checks,
 )
@@ -219,7 +220,7 @@ class ReleaseCandidateCheckTest(unittest.TestCase):
             result = check_platform(root)
 
             self.assertFalse(result.passed)
-            self.assertIn("Godot version must be 4.7, got 4.6", result.details)
+            self.assertIn("Godot version must be 4.7.x or 4.7, got 4.6", result.details)
             self.assertNotIn("Godot 4.7 version family is supported", result.details)
 
     def test_platform_checks_accept_supported_godot_version(self) -> None:
@@ -231,6 +232,44 @@ class ReleaseCandidateCheckTest(unittest.TestCase):
 
             self.assertIn("Godot 4.7 version family is supported", result.details)
             self.assertNotIn("Godot version must be 4.7", "\n".join(result.details))
+
+    def test_godot_version_family_accepts_exact_and_patch_versions(self) -> None:
+        self.assertEqual(godot_version_family("4.7"), "4.7")
+        self.assertEqual(godot_version_family("4.7.1"), "4.7")
+
+    def test_godot_version_family_rejects_malformed_versions(self) -> None:
+        self.assertIsNone(godot_version_family("4.7.x"))
+        self.assertIsNone(godot_version_family("4.7.1.2"))
+
+    def test_platform_checks_accept_supported_godot_patch_version(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            (root / ".godot-version").write_text("4.7.1\n", encoding="utf-8")
+
+            result = check_platform(root)
+
+            self.assertIn("Godot 4.7 version family is supported", result.details)
+            self.assertIn("Godot version pinned: 4.7.1", result.details)
+
+    def test_platform_checks_reject_other_minor_patch_version(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            (root / ".godot-version").write_text("4.6.9\n", encoding="utf-8")
+
+            result = check_platform(root)
+
+            self.assertFalse(result.passed)
+            self.assertIn("Godot version must be 4.7.x or 4.7, got 4.6.9", result.details)
+
+    def test_platform_checks_reject_malformed_version(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            (root / ".godot-version").write_text("4.7.x\n", encoding="utf-8")
+
+            result = check_platform(root)
+
+            self.assertFalse(result.passed)
+            self.assertIn("Godot version must be 4.7.x or 4.7, got 4.7.x", result.details)
 
     def test_ci_checks_workflow_and_runner_scripts(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
