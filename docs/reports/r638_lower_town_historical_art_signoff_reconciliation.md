@@ -185,3 +185,79 @@ The report intentionally records the result boundary for each check. A green cap
 - [`tests/godot/test_capture_lower_town_p0_101.gd`](../../tests/godot/test_capture_lower_town_p0_101.gd)
 
 **Final status:** **BLOCKED**. This report is a reproducible sign-off ledger, not an approval.
+
+## Current-checkout recheck addendum (2026-08-30)
+
+**Recheck date:** 2026-08-30 UTC
+**Checkout:** shared worktree at `HEAD=94371ec7b2cba00fd0866ca7f3e9a7fa11ed5e9c`; unrelated modified and untracked WIP is present
+**Godot:** 4.7.1.stable.official (`a13da4feb`)
+**Decision:** **BLOCKED - current packet and structural contracts pass, but human historical/art approval remains absent**
+
+The report was independently rechecked against the current checkout after R-637 completed and while R-617 and R-492 remain open. The decision does not change: the current packet is valid evidence for capture capability and the structural contracts pass, but no row may leave `BLOCKED` without an accepted stable-ID observation and named human canon/art review.
+
+### Fresh packet audit
+
+- `capture_manifest.json` contains 10 plates for `lower_town_slice`: five `day` and five `night` outputs across five presets.
+- All 10 referenced PNGs exist, decode as `1280x720`, and have non-zero payloads.
+- Each preset has one matched day/night pair with the same `framing_key`.
+- All 10 plates contain objective `stable_id_candidates`, but all 10 lack an accepted `stable_ids` field. Candidate proximity is not a visual observation.
+- The packet therefore remains **PASS for file and framing integrity; BLOCKED for surface acceptance**.
+
+### Fresh focused contract runs
+
+| Check | Result | Acceptance classification |
+|---|---:|---|
+| `test_capture_lower_town_p0_101` | **9/9** | Packet contract PASS; no visual or human-review claim inferred. |
+| `test_burgher_house_tiers` | **6/6** | Tier and ordinary/exceptional source contract PASS; gameplay-scale visual review remains blocked. |
+| `test_environment_kit_integration` | **5/5** | Exceptional environment and gate-context contract PASS; historical/art approval remains blocked. |
+| `test_map_view_3d_fortification` | **9/9** | Fortification, wall-walk and gate readability contract PASS; no human silhouette approval inferred. |
+| `test_lower_town_slice_map` | **19/19** | Map, route, parity, navigation and gate-arch boundary contract PASS. |
+| `test_map_view_3d_mesh` | **19/19** | Parametric mesh and plot-dressing construction contract PASS; one shutdown-only RID leak diagnostic remains non-substantive. |
+
+All checked runs used `tools/run_godot_checked.sh --require-test-summary` with Godot 4.7.1 and returned clean non-empty test summaries. The runner ignored only documented shutdown cleanup diagnostics. No parser, resource-loading, assertion, route, parity, collision, navigation or stable-ID contract error was observed in these focused runs.
+
+### Updated acceptance ledger decision
+
+The 10 R-003 ordinary-house rules and 48 required non-ordinary stable IDs remain **BLOCKED**. The fresh runs strengthen the structural prerequisite evidence but do not provide:
+
+1. accepted stable-ID annotations for the visible production surfaces in both day and night;
+2. a named human canon observation with confidence and explicit exclusion of later forms;
+3. a named human art observation covering silhouette, material/value readability, route/occlusion and day/night legibility;
+4. a concrete amendment owner for any row that is not accepted.
+
+A-009 remains **CONDITIONAL ART-DIRECTION PASS; FINAL GAMEPLAY SIGN-OFF BLOCKED**. Existing candidate plates and `stable_id_candidates` support reviewer handoff only. No human canon or human art reviewer is assigned in the current evidence packet, so R-108's human historical/art clause is **not independently proven**.
+
+### Reproduction commands
+
+```sh
+export GODOT_LOG_DIR=/tmp/r638_checked
+./tools/run_godot_checked.sh --require-test-summary r638-capture -- \
+  /Applications/Godot.app/Contents/MacOS/Godot --headless --path . \
+  --script tools/run_godot_tests.gd -- --filter=test_capture_lower_town_p0_101
+
+./tools/run_godot_checked.sh --require-test-summary r638-tiers -- \
+  /Applications/Godot.app/Contents/MacOS/Godot --headless --path . \
+  --script tools/run_godot_tests.gd -- --filter=test_burgher_house_tiers
+
+./tools/run_godot_checked.sh --require-test-summary r638-environment -- \
+  /Applications/Godot.app/Contents/MacOS/Godot --headless --path . \
+  --script tools/run_godot_tests.gd -- --filter=test_environment_kit_integration
+
+./tools/run_godot_checked.sh --require-test-summary r638-fortification -- \
+  /Applications/Godot.app/Contents/MacOS/Godot --headless --path . \
+  --script tools/run_godot_tests.gd -- --filter=test_map_view_3d_fortification
+
+./tools/run_godot_checked.sh --require-test-summary r638-map -- \
+  /Applications/Godot.app/Contents/MacOS/Godot --headless --path . \
+  --script tools/run_godot_tests.gd -- --filter=test_lower_town_slice_map
+
+./tools/run_godot_checked.sh --require-test-summary r638-mesh -- \
+  /Applications/Godot.app/Contents/MacOS/Godot --headless --path . \
+  --script tools/run_godot_tests.gd -- --filter=test_map_view_3d_mesh
+```
+
+The packet audit also verified all local Markdown targets in this report, all 10 PNG paths, all five day/night framing pairs, and the 48 unique non-ordinary ledger rows plus 10 R-003 rows. `git diff --check -- docs/reports/r638_lower_town_historical_art_signoff_reconciliation.md` passes.
+
+No duplicate follow-up task is created. Existing owners remain sufficient: R-487/R-532 for ordinary visual evidence, R-488/R-489 for exceptional implementation and route integration, R-492/R-617 for historical/art review, and R-108 for final parent acceptance.
+
+**Current R-638 result:** verification ledger complete; **BLOCKED** for human historical/art acceptance. R-638 is complete as a verification task; keep R-108 open until the named review and stable-ID-linked visual evidence are supplied.

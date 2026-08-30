@@ -298,3 +298,4 @@ This file contains only cross-role operating lessons. Domain lessons belong to t
 
 - 2026-08-30: A mixed parallel wrapper call can execute valid diagnostics while rejecting one malformed step; rerun the rejected operation independently and inspect its result before classifying the task. For task updates, verify the exact ref with `tasks.get` after mutation.
 - 2026-08-30: Before closing a claimed low-complexity board task, re-check the live acceptance report against fresh focused-run counts; an already-landed commit can satisfy the implementation while its evidence matrix still has stale test totals.
+- 2026-08-30: In shell verification commands, an inline variable assignment does not populate the variable during expansion of the same command (`GODOT_BIN=... "$GODOT_BIN"`); use an absolute executable path or export the variable in a prior command before invoking checked runners.
