@@ -10,32 +10,32 @@ R-713 replaces the static or underspecified sky presentation with one coherent a
 
 The parent task is too large to implement as a single agent session. The first-level board rows **R-732..R-739** remain the integration owners. This report adds second-level **low-complexity** rows (**R-767..R-782**) so each handoff has a single verification command and an explicit owner boundary.
 
-## Current blocker snapshot (2026-08-28)
+## Current blocker snapshot (2026-08-30)
 
-| Area | Observation | Immediate low-complexity owner |
+| Area | Observation | Immediate owner |
 |---|---|---|
-| State contract | [`docs/SKY_WEATHER_STATE_CONTRACT.md`](../SKY_WEATHER_STATE_CONTRACT.md) exists; R-732 body was empty | R-767 |
-| Deterministic snapshots | `test_sky_weather_3d` passes 27/27 headless (2026-08-28); R-768 fixed lunar UV assertion; R-769 closed R-733 | R-733 `done`; R-771/R-773/R-776 unblocked |
-| Save/load | `test_save_envelope` passes 15/15 and `test_save_service` passes 14/14 after R-770/R-771; environment round-trip and deterministic continuation evidence are executable | R-734 `done` |
-| Transition ownership | R-735 is `done` | no new row |
-| Atmosphere/wet sync | R-736 remains `in_progress` at complexity 2 | R-773, R-774, R-775 |
-| Quality tiers | R-737 remains `in_progress` at complexity 2 | R-776, R-777, R-778 |
-| Adjacent-map captures | Structural packet exists; Metal plates are still `blocked` | R-779, R-780, R-781 |
-| Final acceptance | R-739 ledger recommends **BLOCKED** | R-782 after children clear |
+| State contract | R-732 / R-767 are done; `test_sky_weather_state` passes 5/5 in the refreshed checkout | cleared |
+| Deterministic snapshots | R-733 is done; `test_sky_weather_3d` passes 29/29, including snapshot continuation and tier equivalence | cleared |
+| Save/load | R-734 / R-772 are done; retained envelope/service evidence is 15/15 and 14/14 | cleared |
+| Transition ownership | R-735 is `done` | cleared for owned scope |
+| Atmosphere/wet sync | R-773 and R-775 are done; R-774 still depends on open R-754 water synchronization | R-774 / R-754 |
+| Quality tiers | R-776..R-778 are done; budgets are explicit but minimum/recommended target-specific measurements remain `BLOCKED` | R-737 |
+| Adjacent-map captures | R-779..R-781 are done; 40/40 Metal plates and 20/20 handoffs verify, but named human visual review is pending | R-738 / human reviewer |
+| Final acceptance | R-782 refreshed the ledger and aggregate verifier; recommendation remains **BLOCKED** | R-739 after all gates clear |
 
-External parents that still gate R-739 and must not be duplicated here: **R-714**, **R-715**, **R-726**.
+External parents that still gate R-739 and must not be duplicated here: **R-714**, **R-715**, **R-726**. The generic R-716/R-726 visual gate additionally has current registry drift because `kuldjala_interior` is absent from its benchmark matrix; that defect needs a narrow external follow-up, not an R-713 runtime edit.
 
 ## First-level ownership (unchanged)
 
 | Ref | Complexity | Status | Role |
 |---|---|---|---|
-| R-732 | 0 | in_progress | Shared state contract |
+| R-732 | 0 | done | Shared state contract |
 | R-733 | 2 | done | Deterministic `SkyWeather3D` snapshots |
 | R-734 | 2 | done | Save/load persistence |
 | R-735 | 2 | done | One environment owner across transitions |
 | R-736 | 2 | in_progress | Atmosphere and wet-surface synchronization |
 | R-737 | 2 | in_progress | Quality tiers and budgets |
-| R-738 | 2 | in_progress | Adjacent-map continuity captures |
+| R-738 | 2 | in_progress | Adjacent-map continuity captures / human review |
 | R-739 | 0 | in_progress | Final acceptance and closeout |
 
 ## Second-level low-complexity breakdown
