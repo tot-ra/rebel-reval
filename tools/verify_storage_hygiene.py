@@ -97,7 +97,10 @@ def read_exceptions(path: Path) -> tuple[dict[str, BinaryException], list[str]]:
             continue
 
         try:
-            size_bytes = int(values["size_bytes"])
+            raw_size_bytes = values["size_bytes"]
+            if isinstance(raw_size_bytes, bool):
+                raise ValueError
+            size_bytes = int(raw_size_bytes)
         except (TypeError, ValueError):
             errors.append(f"exception entry {entry_number} has invalid size: {values['size_bytes']}")
             continue

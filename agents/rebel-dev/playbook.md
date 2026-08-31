@@ -234,3 +234,4 @@ Parallel exact replacements against one mutable file can race and reapply stale 
 - 2026-08-30: When extending an aggregate release check, run existing fixture tests first; fixture roots must materialize every required sibling artifact, and `CheckResult.details` contains strings rather than `(name, passed)` tuples.
 
 - 2026-08-30: When a report smoke check fails on an expected diagnostic marker, inspect the captured report text before editing; distinguish a typo in the checker from a missing evidence marker and rerun the corrected check independently.
+- 2026-08-31: When inserting a Python unittest beside an existing method, preserve the original method header and body as a complete block; re-read both neighboring methods before running tests so the new regression cannot absorb the old test body.
