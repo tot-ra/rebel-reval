@@ -241,3 +241,4 @@ Parallel exact replacements against one mutable file can race and reapply stale 
 - When testing a Node teardown hook, attach it to `SceneTree` and remove it before `free()`; freeing an orphan never invokes `_exit_tree`, so the test does not represent runtime cleanup.
 
 - 2026-09-01: Optional-marker grep probes should end with `|| true` when a no-match result is expected; otherwise a diagnostic command can return status 1 before the saved test log is classified.
+- 2026-09-01: Do not run a RefCounted model factory or `tests/godot/test_*.gd` directly with Godot `--script`; without an explicit SceneTree quit they can hang. Use `tools/run_godot_tests.gd -- --filter=<exact_test_stem>` through `tools/run_godot_checked.sh` for bounded verification.

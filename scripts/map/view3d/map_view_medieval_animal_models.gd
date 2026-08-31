@@ -6,6 +6,7 @@ extends RefCounted
 ## drift between static and moving placements.
 
 const MammalSpecies := preload("res://scripts/map/view3d/map_view_mammal_species.gd")
+const ProceduralChicken := preload("res://scripts/map/view3d/procedural_chicken_model.gd")
 
 const IDLE_ANIMATION := &"Idle"
 const WALK_ANIMATION := &"Walk"
@@ -45,7 +46,6 @@ const HORSE_GROUND_MAX_Y := 0.04
 # Runtime loading avoids a clean-clone parse cycle before Godot has imported the
 # new GLBs for the first time.
 const MODEL_PATHS: Dictionary = {
-	MammalSpecies.SPECIES_CHICKEN: "res://assets/birds/chicken/walking.glb",
 	MammalSpecies.SPECIES_DUCK: "res://assets/birds/mallard/walking.glb",
 	MammalSpecies.SPECIES_GOOSE: "res://assets/birds/greylag_goose/walking.glb",
 	&"goat": "res://assets/animals/medieval/medieval_goat.glb",
@@ -76,18 +76,22 @@ const MODEL_YAW: Dictionary = {
 
 
 static func has_model(species: StringName) -> bool:
-	return MODEL_PATHS.has(species)
+	return species == MammalSpecies.SPECIES_CHICKEN or MODEL_PATHS.has(species)
 
 
 static func add_model(parent: Node3D, species: StringName) -> Node3D:
-	var path := String(MODEL_PATHS.get(species, ""))
-	if path.is_empty():
-		return null
-	var scene := load(path) as PackedScene
-	assert(scene != null, "Medieval animal GLB must be imported before map assembly: %s" % path)
-	var model := scene.instantiate() as Node3D
-	assert(model != null, "Medieval animal GLB root must be Node3D: %s" % path)
-	model.name = "Model"
+	var model: Node3D
+	if species == MammalSpecies.SPECIES_CHICKEN:
+		model = ProceduralChicken.create()
+	else:
+		var path := String(MODEL_PATHS.get(species, ""))
+		if path.is_empty():
+			return null
+		var scene := load(path) as PackedScene
+		assert(scene != null, "Medieval animal GLB must be imported before map assembly: %s" % path)
+		model = scene.instantiate() as Node3D
+		assert(model != null, "Medieval animal GLB root must be Node3D: %s" % path)
+		model.name = "Model"
 	model.rotation.y = float(MODEL_YAW.get(species, 0.0))
 	model.set_meta(&"production_animal_model", true)
 	model.set_meta(&"species", species)

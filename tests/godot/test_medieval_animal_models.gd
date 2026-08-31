@@ -36,9 +36,8 @@ func test_production_models_load_with_mesh_material_and_ground_contact() -> void
 		host.free()
 
 
-func test_domestic_fowl_use_skeletal_locomotion_clips() -> void:
+func test_imported_domestic_fowl_use_skeletal_locomotion_clips() -> void:
 	for species: StringName in [
-		MammalSpecies.SPECIES_CHICKEN,
 		MammalSpecies.SPECIES_DUCK,
 		MammalSpecies.SPECIES_GOOSE,
 	]:
@@ -70,6 +69,34 @@ func test_domestic_fowl_use_skeletal_locomotion_clips() -> void:
 		Models.sync_animation(host, host.position, 0.1)
 		assert_eq(player.current_animation, Models.IDLE_ANIMATION)
 		host.free()
+
+
+func test_chicken_is_procedural_and_uses_articulated_animation_clips() -> void:
+	assert_false(Models.MODEL_PATHS.has(MammalSpecies.SPECIES_CHICKEN))
+	var host := Node3D.new()
+	var model := Models.add_model(host, MammalSpecies.SPECIES_CHICKEN)
+	assert_true(model != null)
+	assert_true(model.get_meta(&"procedural_animal_model", false))
+	for part_name in [
+		"AnimalMesh", "NeckPivot", "WingLeft", "WingRight", "TailPivot", "LegLeft", "LegRight",
+	]:
+		assert_true(model.find_child(part_name, true, false) != null, "Chicken is missing %s" % part_name)
+	var meshes := model.find_children("*", "MeshInstance3D", true, false)
+	assert_true(meshes.size() >= 20, "Procedural chicken needs a detailed primitive silhouette")
+	var player := model.find_child("AnimationPlayer", true, false) as AnimationPlayer
+	assert_true(player != null)
+	assert_true(player.has_animation(Models.IDLE_ANIMATION))
+	assert_true(player.has_animation(Models.WALK_ANIMATION))
+	assert_eq(player.current_animation, Models.IDLE_ANIMATION)
+	var walk := player.get_animation(Models.WALK_ANIMATION)
+	assert_true(walk.find_track(NodePath("Rig/LegLeft:rotation"), Animation.TYPE_VALUE) >= 0)
+	assert_true(walk.find_track(NodePath("Rig/LegRight:rotation"), Animation.TYPE_VALUE) >= 0)
+	assert_true(walk.find_track(NodePath("Rig/BodyPivot/NeckPivot:rotation"), Animation.TYPE_VALUE) >= 0)
+	Models.sync_animation(host, host.position - Vector3(0.08, 0.0, 0.0), 0.1)
+	assert_eq(player.current_animation, Models.WALK_ANIMATION)
+	Models.sync_animation(host, host.position, 0.1)
+	assert_eq(player.current_animation, Models.IDLE_ANIMATION)
+	host.free()
 
 
 func test_domestic_goose_uses_the_detailed_authored_greylag_model() -> void:
