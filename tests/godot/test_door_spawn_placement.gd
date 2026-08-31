@@ -46,6 +46,37 @@ func test_place_player_keeps_courtyard_door_spawn_after_pending_clears() -> void
 	DoorNavigator.on_trigger_player_spawn.disconnect(on_spawn)
 	root.free()
 
+func test_place_player_uses_new_game_smithy_start_marker() -> void:
+	# StartLabel routes New Game through forge/smithy_start. Verify that this
+	# pending route lands on the authored central spawn rather than falling back
+	# to an arbitrary door or a stale position.
+	DoorNavigator.load_manifest(true)
+	var definition: MapDefinition = KalevSmithy.create()
+	var root := Node2D.new()
+	var actors := Node2D.new()
+	var player := Node2D.new()
+	player.name = "Player"
+	player.global_position = Vector2(-1000, -1000)
+	actors.add_child(player)
+	root.add_child(actors)
+	var tree := Engine.get_main_loop() as SceneTree
+	tree.root.add_child(root)
+
+	MapSceneBootstrap.assemble(root, definition, actors)
+	DoorNavigator.pending_spawn_scene_id = &"forge"
+	DoorNavigator.pending_spawn_id = &"smithy_start"
+
+	var on_spawn := func(position: Vector2, _direction: String) -> void:
+		player.global_position = position
+	DoorNavigator.on_trigger_player_spawn.connect(on_spawn)
+
+	var used_door := DoorNavigator.place_player(root, player, definition.player_spawn)
+	assert_true(used_door, "New Game must resolve through the registered smithy_start marker")
+	assert_true(DoorNavigator.pending_spawn_id.is_empty(), "successful New Game spawn clears pending IDs")
+	assert_eq(player.global_position, definition.player_spawn, "New Game must land on the authored central spawn")
+
+	DoorNavigator.on_trigger_player_spawn.disconnect(on_spawn)
+	root.free()
 
 func test_place_player_falls_back_to_authored_spawn_without_pending() -> void:
 	DoorNavigator.load_manifest(true)
