@@ -3,7 +3,7 @@
 - Status: **BLOCKED**
 - Parent: R-251 / P4-027b
 - Verification owner: R-629 independent QA gate
-- Run timestamp: `2026-08-24T08:52:29.208102+00:00`
+- Run timestamp: `2026-08-31T08:07:29.947184+00:00`
 - Scope: verification only; no runtime implementation files are changed by this gate
 
 ## Decision
@@ -24,11 +24,11 @@ The gate is fail-closed. Core contract defects are **FAIL**. Missing downstream 
 | activation isolation | **PASS** | Catalog remains inactive while developer traversal manifest is release=false. |
 | boss outcomes and loot/evidence | **PASS** | Kill and bypass branches, separate evidence item, and two journal facts are authored. |
 | persistence, save/load, and retry | **PASS** | Stable map state, one-shot collection, migration, and transient retry are covered by source and tests. |
-| lighting/audio/readability and day/night captures | **BLOCKED** | R-628 presentation packet is incomplete; missing=none, untracked=docs/reports/images/nunnatorn/nunnatorn_day.png, docs/reports/images/nunnatorn/nunnatorn_night.png, scripts/audio/nunnatorn_audio_controller.gd, scripts/map/view3d/map_view_nunnatorn_interior.gd, tests/godot/test_nunnatorn_presentation.gd, day_captures=1, night_captures=1, capture_errors=none. |
+| lighting/audio/readability and day/night captures | **BLOCKED** | R-628 presentation packet is incomplete; missing=none, untracked=scripts/audio/nunnatorn_audio_controller.gd, scripts/map/view3d/map_view_nunnatorn_interior.gd, tests/godot/test_nunnatorn_presentation.gd, day_captures=1, night_captures=1, capture_errors=none. |
 | packaged artifact discovery | **PASS** | build/rr.dmg is available for packaged smoke execution. |
 | existing Nunnatorn Python content suites | **PASS** | exit=0 |
-| focused Godot Nunnatorn suites | **BLOCKED** | 15/15 Nunnatorn-specific tests pass; the reciprocal transition method is blocked by the external `kuldjala_interior` destination diagnostic in `monastery_quarter.rrmap` (R-250 owns the Kuldjala package). |
-| focused Nunnatorn presentation suite | **BLOCKED** | Live-only R-628 presentation smoke passed, but the packet is untracked and cannot count as committed acceptance evidence: docs/reports/images/nunnatorn/nunnatorn_day.png, docs/reports/images/nunnatorn/nunnatorn_night.png, scripts/audio/nunnatorn_audio_controller.gd, scripts/map/view3d/map_view_nunnatorn_interior.gd, tests/godot/test_nunnatorn_presentation.gd |
+| focused Godot Nunnatorn suites | **PASS** | exit=0 |
+| focused Nunnatorn presentation suite | **BLOCKED** | Live-only R-628 presentation smoke passed, but the packet is untracked and cannot count as committed acceptance evidence: scripts/audio/nunnatorn_audio_controller.gd, scripts/map/view3d/map_view_nunnatorn_interior.gd, tests/godot/test_nunnatorn_presentation.gd |
 | packaged install/start/save/load/exit smoke | **PASS** | exit=0 |
 
 ## Reproducible command record
@@ -48,104 +48,53 @@ test_collection_transitions_are_outcome_aware_and_idempotent (tests.python.test_
 test_scoped_content_corpus_is_valid (tests.python.test_nunnatorn_evidence_content.NunnatornEvidenceContentTests) ... ok
 
 ----------------------------------------------------------------------
-Ran 6 tests in 0.028s
+Ran 6 tests in 0.048s
 
 OK
 ```
 
-### focused Godot Nunnatorn suites: BLOCKED
+### focused Godot Nunnatorn suites: PASS
 
 ```text
 $ /Users/artjomkurapov/git/rebel-reval/tools/run_godot_checked.sh --require-test-summary nunnatorn-acceptance -- /Applications/Godot.app/Contents/MacOS/Godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_nunnatorn_interior_map,test_nunnatorn_transitions,test_nunnatorn_boss_encounter,test_nunnatorn_evidence,test_nunnatorn_persistence
-15/15 Nunnatorn-specific tests pass; the reciprocal transition method is blocked by the external `kuldjala_interior` destination diagnostic in `monastery_quarter.rrmap` (R-250 owns the Kuldjala package).
-... (output truncated)
-       [2] _call_and_capture (res://tools/run_godot_tests.gd:210)
-       [3] _run_test_method (res://tools/run_godot_tests.gd:183)
-       [4] _run_test_file (res://tools/run_godot_tests.gd:157)
-       [5] _run (res://tools/run_godot_tests.gd:87)
-ERROR: res://content/maps/monastery_quarter.rrmap:19:1: warning[MAP_CHUNK_BOUNDARY_AMBIGUOUS]: object crosses future 16x16-cell chunk boundaries ((5, 4) to (6, 4)); split it or document ownership before chunking
-   at: push_error (core/variant/variant_utility.cpp:1023)
-   GDScript backtrace (most recent call first):
-       [0] create (res://scripts/map/definitions/prototypes/monastery_quarter_definition.gd:13)
-       [1] test_nunnatorn_transition_ids_are_reciprocal (res://tests/godot/test_nunnatorn_transitions.gd:8)
-       [2] _call_and_capture (res://tools/run_godot_tests.gd:210)
-       [3] _run_test_method (res://tools/run_godot_tests.gd:183)
-       [4] _run_test_file (res://tools/run_godot_tests.gd:157)
-       [5] _run (res://tools/run_godot_tests.gd:87)
-ERROR: res://content/maps/monastery_quarter.rrmap:19:1: warning[MAP_CHUNK_BOUNDARY_AMBIGUOUS]: object crosses future 16x16-cell chunk boundaries ((8, 6) to (9, 6)); split it or document ownership before chunking
-   at: push_error (core/variant/variant_utility.cpp:1023)
-   GDScript backtrace (most recent call first):
-       [0] create (res://scripts/map/definitions/prototypes/monastery_quarter_definition.gd:13)
-       [1] test_nunnatorn_transition_ids_are_reciprocal (res://tests/godot/test_nunnatorn_transitions.gd:8)
-       [2] _call_and_capture (res://tools/run_godot_tests.gd:210)
-       [3] _run_test_method (res://tools/run_godot_tests.gd:183)
-       [4] _run_test_file (res://tools/run_godot_tests.gd:157)
-       [5] _run (res://tools/run_godot_tests.gd:87)
-ERROR: res://content/maps/monastery_quarter.rrmap:19:1: warning[MAP_CHUNK_BOUNDARY_AMBIGUOUS]: object crosses future 16x16-cell chunk boundaries ((0, 1) to (0, 2)); split it or document ownership before chunking
-   at: push_error (core/variant/variant_utility.cpp:1023)
-   GDScript backtrace (most recent call first):
-       [0] create (res://scripts/map/definitions/prototypes/monastery_quarter_definition.gd:13)
-       [1] test_nunnatorn_transition_ids_are_reciprocal (res://tests/godot/test_nunnatorn_transitions.gd:8)
-       [2] _call_and_capture (res://tools/run_godot_tests.gd:210)
-       [3] _run_test_method (res://tools/run_godot_tests.gd:183)
-       [4] _run_test_file (res://tools/run_godot_tests.gd:157)
-       [5] _run (res://tools/run_godot_tests.gd:87)
-  ERROR res://tests/godot/test_nunnatorn_transitions.gd::test_nunnatorn_transition_ids_are_reciprocal - 38 engine/script diagnostic(s) interrupted clean completion
-    [test] core/variant/variant_utility.cpp:1023 (push_error): res://content/maps/monastery_quarter.rrmap:19:1: error[MAP_TRANSITION_DESTINATION_UNKNOWN]: transition references unknown or inactive destination scene 'kuldjala_interior'
-    [test] core/variant/variant_utility.cpp:1023 (push_error): res://content/maps/monastery_quarter.rrmap:19:1: warning[MAP_CHUNK_BOUNDARY_AMBIGUOUS]: object crosses future 16x16-cell chunk boundaries ((4, 1) to (5, 2)); split it or document ownership before chunking
-    [test] core/variant/variant_utility.cpp:1023 (push_error): res://content/maps/monastery_quarter.rrmap:19:1: warning[MAP_CHUNK_BOUNDARY_AMBIGUOUS]: object crosses future 16x16-cell chunk boundaries ((4, 3) to (5, 3)); split it or document ownership before chunking
-    [test] core/variant/variant_utility.cpp:1023 (push_error): res://content/maps/monastery_quarter.rrmap:19:1: warning[MAP_CHUNK_BOUNDARY_AMBIGUOUS]: object crosses future 16x16-cell chunk boundaries ((9, 2) to (10, 3)); split it or document ownership before chunking
-    [test] core/variant/variant_utility.cpp:1023 (push_error): res://content/maps/monastery_quarter.rrmap:19:1: warning[MAP_CHUNK_BOUNDARY_AMBIGUOUS]: object crosses future 16x16-cell chunk boundaries ((10, 1) to (11, 1)); split it or document ownership before chunking
-    [test] core/variant/variant_utility.cpp:1023 (push_error): res://content/maps/monastery_quarter.rrmap:19:1: warning[MAP_CHUNK_BOUNDARY_AMBIGUOUS]: object crosses future 16x16-cell chunk boundaries ((10, 5) to (11, 5)); split it or document ownership before chunking
-    [test] core/variant/variant_utility.cpp:1023 (push_error): res://content/maps/monastery_quarter.rrmap:19:1: warning[MAP_CHUNK_BOUNDARY_AMBIGUOUS]: object crosses future 16x16-cell chunk boundaries ((8, 1) to (9, 2)); split it or document ownership before chunking
-    [test] core/variant/variant_utility.cpp:1023 (push_error): res://content/maps/monastery_quarter.rrmap:19:1: warning[MAP_CHUNK_BOUNDARY_AMBIGUOUS]: object crosses future 16x16-cell chunk boundaries ((8, 4) to (9, 4)); split it or document ownership before chunking
-    [test] core/variant/variant_utility.cpp:1023 (push_error): res://content/maps/monastery_quarter.rrmap:19:1: warning[MAP_CHUNK_BOUNDARY_AMBIGUOUS]: object crosses future 16x16-cell chunk boundaries ((11, 4) to (12, 4)); split it or document ownership before chunking
-    [test] core/variant/variant_utility.cpp:1023 (push_error): res://content/maps/monastery_quarter.rrmap:208:8: warning[MAP_CHUNK_BOUNDARY_AMBIGUOUS]: object crosses future 16x16-cell chunk boundaries ((14, 0) to (14, 6)); split it or document ownership before chunking
-    [test] core/variant/variant_utility.cpp:1023 (push_error): res://content/maps/monastery_quarter.rrmap:208:8: warning[MAP_CHUNK_BOUNDARY_AMBIGUOUS]: object crosses future 16x16-cell chunk boundaries ((0, 0) to (0, 1)); split it or document ownership before chunking
-    [test] core/variant/variant_utility.cpp:1023 (push_error): res://content/maps/monastery_quarter.rrmap:19:1: warning[MAP_CHUNK_BOUNDARY_AMBIGUOUS]: object crosses future 16x16-cell chunk boundaries ((0, 3) to (0, 6)); split it or document ownership before chunking
-    [test] core/variant/variant_utility.cpp:1023 (push_error): res://content/maps/monastery_quarter.rrmap:19:1: warning[MAP_CHUNK_BOUNDARY_AMBIGUOUS]: object crosses future 16x16-cell chunk boundaries ((2, 4) to (3, 5)); split it or document ownership before chunking
-    [test] core/variant/variant_utility.cpp:1023 (push_error): res://content/maps/monastery_quarter.rrmap:19:1: warning[MAP_CHUNK_BOUNDARY_AMBIGUOUS]: object crosses future 16x16-cell chunk boundaries ((13, 3) to (14, 3)); split it or document ownership before chunking
-    [test] core/variant/variant_utility.cpp:1023 (push_error): res://content/maps/monastery_quarter.rrmap:208:8: warning[MAP_CHUNK_BOUNDARY_AMBIGUOUS]: object crosses future 16x16-cell chunk boundaries ((13, 0) to (14, 0)); split it or document ownership before chunking
-    [test] core/variant/variant_utility.cpp:1023 (push_error): res://content/maps/monastery_quarter.rrmap:19:1: warning[MAP_CHUNK_BOUNDARY_AMBIGUOUS]: object crosses future 16x16-cell chunk boundaries ((13, 6) to (14, 6)); split it or document ownership before chunking
-    [test] core/variant/variant_utility.cpp:1023 (push_error): res://content/maps/monastery_quarter.rrmap:19:1: warning[MAP_CHUNK_BOUNDARY_AMBIGUOUS]: object crosses future 16x16-cell chunk boundaries ((0, 4) to (1, 4)); split it or document ownership before chunking
-    [test] core/variant/variant_utility.cpp:1023 (push_error): res://content/maps/monastery_quarter.rrmap:19:1: warning[MAP_CHUNK_BOUNDARY_AMBIGUOUS]: object crosses future 16x16-cell chunk boundaries ((7, 4) to (8, 5)); split it or document ownership before chunking
-    [test] core/variant/variant_utility.cpp:1023 (push_error): res://content/maps/monastery_quarter.rrmap:19:1: warning[MAP_CHUNK_BOUNDARY_AMBIGUOUS]: object crosses future 16x16-cell chunk boundaries ((7, 4) to (8, 4)); split it or document ownership before chunking
-    [test] core/variant/variant_utility.cpp:1023 (push_error): res://content/maps/monastery_quarter.rrmap:19:1: warning[MAP_CHUNK_BOUNDARY_AMBIGUOUS]: object crosses future 16x16-cell chunk boundaries ((4, 4) to (4, 5)); split it or document ownership before chunking
-    [test] core/variant/variant_utility.cpp:1023 (push_error): res://content/maps/monastery_quarter.rrmap:19:1: warning[MAP_CHUNK_BOUNDARY_AMBIGUOUS]: object crosses future 16x16-cell chunk boundaries ((6, 1) to (7, 2)); split it or document ownership before chunking
-    [test] core/variant/variant_utility.cpp:1023 (push_error): res://content/maps/monastery_quarter.rrmap:19:1: warning[MAP_CHUNK_BOUNDARY_AMBIGUOUS]: object crosses future 16x16-cell chunk boundaries ((6, 4) to (7, 4)); split it or document ownership before chunking
-    [test] core/variant/variant_utility.cpp:1023 (push_error): res://content/maps/monastery_quarter.rrmap:19:1: warning[MAP_CHUNK_BOUNDARY_AMBIGUOUS]: object crosses future 16x16-cell chunk boundaries ((9, 2) to (10, 2)); split it or document ownership before chunking
-    [test] core/variant/variant_utility.cpp:1023 (push_error): res://content/maps/monastery_quarter.rrmap:19:1: warning[MAP_CHUNK_BOUNDARY_AMBIGUOUS]: object crosses future 16x16-cell chunk boundaries ((1, 1) to (2, 1)); split it or document ownership before chunking
-    [test] core/variant/variant_utility.cpp:1023 (push_error): res://content/maps/monastery_quarter.rrmap:19:1: warning[MAP_CHUNK_BOUNDARY_AMBIGUOUS]: object crosses future 16x16-cell chunk boundaries ((5, 3) to (6, 4)); split it or document ownership before chunking
-    [test] core/variant/variant_utility.cpp:1023 (push_error): res://content/maps/monastery_quarter.rrmap:19:1: warning[MAP_CHUNK_BOUNDARY_AMBIGUOUS]: object crosses future 16x16-cell chunk boundaries ((2, 2) to (2, 3)); split it or document ownership before chunking
-    [test] core/variant/variant_utility.cpp:1023 (push_error): res://content/maps/monastery_quarter.rrmap:208:8: warning[MAP_CHUNK_BOUNDARY_AMBIGUOUS]: object crosses future 16x16-cell chunk boundaries ((2, 0) to (2, 1)); split it or document ownership before chunking
-    [test] core/variant/variant_utility.cpp:1023 (push_error): res://content/maps/monastery_quarter.rrmap:19:1: warning[MAP_CHUNK_BOUNDARY_AMBIGUOUS]: object crosses future 16x16-cell chunk boundaries ((7, 2) to (8, 3)); split it or document ownership before chunking
-    [test] core/variant/variant_utility.cpp:1023 (push_error): res://content/maps/monastery_quarter.rrmap:208:8: warning[MAP_CHUNK_BOUNDARY_AMBIGUOUS]: object crosses future 16x16-cell chunk boundaries ((7, 0) to (8, 0)); split it or document ownership before chunking
-    [test] core/variant/variant_utility.cpp:1023 (push_error): res://content/maps/monastery_quarter.rrmap:208:8: warning[MAP_CHUNK_BOUNDARY_AMBIGUOUS]: object crosses future 16x16-cell chunk boundaries ((0, 0) to (3, 0)); split it or document ownership before chunking
-    [test] core/variant/variant_utility.cpp:1023 (push_error): res://content/maps/monastery_quarter.rrmap:19:1: warning[MAP_CHUNK_BOUNDARY_AMBIGUOUS]: object crosses future 16x16-cell chunk boundaries ((0, 3) to (2, 3)); split it or document ownership before chunking
-    [test] core/variant/variant_utility.cpp:1023 (push_error): res://content/maps/monastery_quarter.rrmap:208:8: warning[MAP_CHUNK_BOUNDARY_AMBIGUOUS]: object crosses future 16x16-cell chunk boundaries ((0, 0) to (0, 3)); split it or document ownership before chunking
-    [test] core/variant/variant_utility.cpp:1023 (push_error): res://content/maps/monastery_quarter.rrmap:19:1: warning[MAP_CHUNK_BOUNDARY_AMBIGUOUS]: object crosses future 16x16-cell chunk boundaries ((2, 1) to (3, 2)); split it or document ownership before chunking
-    [test] core/variant/variant_utility.cpp:1023 (push_error): res://content/maps/monastery_quarter.rrmap:19:1: warning[MAP_CHUNK_BOUNDARY_AMBIGUOUS]: object crosses future 16x16-cell chunk boundaries ((2, 1) to (3, 1)); split it or document ownership before chunking
-    [test] core/variant/variant_utility.cpp:1023 (push_error): res://content/maps/monastery_quarter.rrmap:19:1: warning[MAP_CHUNK_BOUNDARY_AMBIGUOUS]: object crosses future 16x16-cell chunk boundaries ((2, 3) to (3, 3)); split it or document ownership before chunking
-    [test] core/variant/variant_utility.cpp:1023 (push_error): res://content/maps/monastery_quarter.rrmap:19:1: warning[MAP_CHUNK_BOUNDARY_AMBIGUOUS]: object crosses future 16x16-cell chunk boundaries ((5, 4) to (6, 4)); split it or document ownership before chunking
-    [test] core/variant/variant_utility.cpp:1023 (push_error): res://content/maps/monastery_quarter.rrmap:19:1: warning[MAP_CHUNK_BOUNDARY_AMBIGUOUS]: object crosses future 16x16-cell chunk boundaries ((8, 6) to (9, 6)); split it or document ownership before chunking
-    [test] core/variant/variant_utility.cpp:1023 (push_error): res://content/maps/monastery_quarter.rrmap:19:1: warning[MAP_CHUNK_BOUNDARY_AMBIGUOUS]: object crosses future 16x16-cell chunk boundaries ((0, 1) to (0, 2)); split it or document ownership before chunking
-  FAIL res://tests/godot/test_nunnatorn_transitions.gd::test_nunnatorn_transition_ids_are_reciprocal - Expected <nunnatorn_interior> but got <<null>>
-  FAIL res://tests/godot/test_nunnatorn_transitions.gd::test_nunnatorn_transition_ids_are_reciprocal - Expected <nunnatorn_interior_entry> but got <<null>>
-  FAIL res://tests/godot/test_nunnatorn_transitions.gd::test_nunnatorn_transition_ids_are_reciprocal - Expected <(96.0, 0.0)> but got <<null>>
-  FAIL res://tests/godot/test_nunnatorn_transitions.gd::test_nunnatorn_transition_ids_are_reciprocal - Expected <<null>> but got <monastery_wall_tower_northwest_return>
-Godot headless tests: 5 file(s), 16 test(s), 4 failure(s), 38 error(s).
-WARNING: 118 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+exit=0
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+Godot headless tests: discovered 5 file(s).
+RUN res://tests/godot/test_nunnatorn_boss_encounter.gd (5 test(s))
+  PASS test_alternate_bypass_resolves_and_keeps_boss_and_guard_alive
+  PASS test_content_definition_exposes_named_boss_outcomes
+  PASS test_deterministic_composition_and_readable_anchors
+  PASS test_lethal_kill_marks_boss_dead_and_keeps_lethal_branch_distinct
+  PASS test_unsupported_outcome_fails_closed_without_state_or_enemy_mutation
+RUN res://tests/godot/test_nunnatorn_evidence.gd (4 test(s))
+  PASS test_alternate_resolution_records_witness_without_lethal_loot
+  PASS test_content_exposes_loot_and_two_journal_records
+  PASS test_lethal_resolution_collects_item_and_ledger_fact_once
+  PASS test_mixed_outcome_flags_fail_closed_without_starting_collection
+RUN res://tests/godot/test_nunnatorn_interior_map.gd (2 test(s))
+  PASS test_nunnatorn_floor_partitions_keep_central_vertical_openings
+  PASS test_nunnatorn_interior_map
+RUN res://tests/godot/test_nunnatorn_persistence.gd (5 test(s))
+  PASS test_failed_encounter_retry_restores_pre_fight_state_and_keeps_checkpoint_transient
+  PASS test_fresh_entry_creates_stable_state_and_round_trips_through_save_service
+  PASS test_lethal_and_alternate_outcomes_persist_without_being_overwritten_on_reentry
+  PASS test_nunnatorn_evidence_flags_and_stable_state_survive_save_load
+  PASS test_older_nunnatorn_record_migrates_with_safe_defaults
+RUN res://tests/godot/test_nunnatorn_transitions.gd (1 test(s))
+  PASS test_nunnatorn_transition_ids_are_reciprocal
+Godot headless tests: 5 file(s), 17 test(s), 0 failure(s), 0 error(s).
+WARNING: 129 ObjectDB instances were leaked at exit (run with `--verbose` for details).
    at: cleanup (core/object/object.cpp:2536)
 ERROR: 8 resources still in use at exit (run with --verbose for details).
    at: clear (core/io/resource.cpp:822)
-Godot command failed with status 1: /Applications/Godot.app/Contents/MacOS/Godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_nunnatorn_interior_map,test_nunnatorn_transitions,test_nunnatorn_boss_encounter,test_nunnatorn_evidence,test_nunnatorn_persistence
 ```
 
 ### focused Nunnatorn presentation suite: BLOCKED
 
 ```text
 $ /Users/artjomkurapov/git/rebel-reval/tools/run_godot_checked.sh --require-test-summary nunnatorn-presentation -- /Applications/Godot.app/Contents/MacOS/Godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_nunnatorn_presentation
-Live-only R-628 presentation smoke passed, but the packet is untracked and cannot count as committed acceptance evidence: docs/reports/images/nunnatorn/nunnatorn_day.png, docs/reports/images/nunnatorn/nunnatorn_night.png, scripts/audio/nunnatorn_audio_controller.gd, scripts/map/view3d/map_view_nunnatorn_interior.gd, tests/godot/test_nunnatorn_presentation.gd
+Live-only R-628 presentation smoke passed, but the packet is untracked and cannot count as committed acceptance evidence: scripts/audio/nunnatorn_audio_controller.gd, scripts/map/view3d/map_view_nunnatorn_interior.gd, tests/godot/test_nunnatorn_presentation.gd
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 
 Godot headless tests: discovered 1 file(s).
@@ -201,8 +150,8 @@ Maintainer report: docs/reports/p3_012_supported_platforms.md
 
 ## External and downstream blockers
 
-- R-628 presentation dependency: R-628 presentation packet is incomplete; missing=none, untracked=docs/reports/images/nunnatorn/nunnatorn_day.png, docs/reports/images/nunnatorn/nunnatorn_night.png, scripts/audio/nunnatorn_audio_controller.gd, scripts/map/view3d/map_view_nunnatorn_interior.gd, tests/godot/test_nunnatorn_presentation.gd, day_captures=1, night_captures=1, capture_errors=none.
-- R-250 Kuldjala dependency: 15/15 Nunnatorn-specific tests pass; the reciprocal transition method is blocked by the external `kuldjala_interior` destination diagnostic in `monastery_quarter.rrmap` (R-250 owns the Kuldjala package).
+- R-628 presentation dependency: R-628 presentation packet is incomplete; missing=none, untracked=scripts/audio/nunnatorn_audio_controller.gd, scripts/map/view3d/map_view_nunnatorn_interior.gd, tests/godot/test_nunnatorn_presentation.gd, day_captures=1, night_captures=1, capture_errors=none.
+- R-250 Kuldjala dependency: no external Kuldjala transition blocker recorded.
 - Packaged build: packaged smoke was executed; see command record above.
 - No human visual approval is inferred from automated traversal, content, or save tests.
 
