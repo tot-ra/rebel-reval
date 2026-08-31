@@ -80,6 +80,30 @@ class VerifyStorageHygieneTest(unittest.TestCase):
         self.assertEqual(exceptions, {})
         self.assertEqual(errors, ["exception entry 1 missing: path"])
 
+    def test_negative_exception_size_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            manifest = root / "docs" / "storage_binary_exceptions.json"
+            self._write_manifest(
+                root,
+                [
+                    {
+                        "path": "assets/negative.bin",
+                        "size_bytes": -1,
+                        "sha256": "0" * 64,
+                        "owner": "test owner",
+                        "rationale": "negative size fixture",
+                        "follow_up": "P0-TEST",
+                    }
+                ],
+            )
+
+            exceptions, errors = verifier.read_exceptions(manifest)
+
+        self.assertEqual(exceptions, {})
+        self.assertEqual(errors, ["exception entry 1 has invalid size: -1"])
+
+
     def test_unapproved_large_binary_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)

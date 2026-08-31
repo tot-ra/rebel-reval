@@ -98,6 +98,9 @@ def read_exceptions(path: Path) -> tuple[dict[str, BinaryException], list[str]]:
         except (TypeError, ValueError):
             errors.append(f"exception entry {entry_number} has invalid size: {values['size_bytes']}")
             continue
+        if size_bytes < 0:
+            errors.append(f"exception entry {entry_number} has invalid size: {values['size_bytes']}")
+            continue
         sha256 = str(values["sha256"]).strip().lower()
         if len(sha256) != 64 or any(character not in "0123456789abcdef" for character in sha256):
             errors.append(f"exception entry {entry_number} has invalid SHA-256: {values['sha256']}")
