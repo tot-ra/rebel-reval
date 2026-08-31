@@ -103,6 +103,28 @@ class VerifyStorageHygieneTest(unittest.TestCase):
         self.assertEqual(exceptions, {})
         self.assertEqual(errors, ["exception entry 1 has invalid size: -1"])
 
+    def test_whitespace_only_text_metadata_is_rejected(self) -> None:
+        for field in ("owner", "rationale", "follow_up"):
+            with self.subTest(field=field), tempfile.TemporaryDirectory() as temp_dir:
+                root = Path(temp_dir)
+                row = {
+                    "path": "assets/large.bin",
+                    "size_bytes": verifier.LARGE_FILE_BYTES,
+                    "sha256": "0" * 64,
+                    "owner": "test owner",
+                    "rationale": "test rationale",
+                    "follow_up": "P0-TEST",
+                }
+                row[field] = " \t\n"
+                self._write_manifest(root, [row])
+
+                exceptions, errors = verifier.read_exceptions(
+                    root / "docs" / "storage_binary_exceptions.json"
+                )
+
+            self.assertEqual(exceptions, {})
+            self.assertEqual(errors, [f"exception entry 1 missing: {field}"])
+
 
     def test_unapproved_large_binary_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

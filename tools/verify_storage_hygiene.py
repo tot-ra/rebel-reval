@@ -71,20 +71,23 @@ def read_exceptions(path: Path) -> tuple[dict[str, BinaryException], list[str]]:
         return {}, ["exception manifest root must be a JSON array"]
 
     exceptions: dict[str, BinaryException] = {}
+    text_fields = frozenset({"path", "owner", "rationale", "follow_up"})
     for entry_number, row in enumerate(payload, start=1):
         if not isinstance(row, dict):
             errors.append(f"exception entry {entry_number} must be an object")
             continue
         values = {field: row.get(field) for field in REQUIRED_FIELDS}
-        missing = [field for field, value in values.items() if value is None or value == ""]
+        normalized_values = dict(values)
+        for field in text_fields:
+            value = values[field]
+            if value is not None:
+                normalized_values[field] = str(value).strip()
+        missing = [field for field, value in normalized_values.items() if value is None or value == ""]
         if missing:
             errors.append(f"exception entry {entry_number} missing: {', '.join(missing)}")
             continue
 
-        path_value = str(values["path"]).strip()
-        if not path_value:
-            errors.append(f"exception entry {entry_number} missing: path")
-            continue
+        path_value = normalized_values["path"]
         relative = Path(path_value)
         if relative.is_absolute() or ".." in relative.parts:
             errors.append(f"exception entry {entry_number} has unsafe path: {path_value}")
@@ -110,9 +113,9 @@ def read_exceptions(path: Path) -> tuple[dict[str, BinaryException], list[str]]:
             path=path_value,
             size_bytes=size_bytes,
             sha256=sha256,
-            owner=str(values["owner"]).strip(),
-            rationale=str(values["rationale"]).strip(),
-            follow_up=str(values["follow_up"]).strip(),
+            owner=str(normalized_values["owner"]),
+            rationale=str(normalized_values["rationale"]),
+            follow_up=str(normalized_values["follow_up"]),
         )
     return exceptions, errors
 
