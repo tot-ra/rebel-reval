@@ -12,6 +12,10 @@ style wall.partition wall_height=120 wall_color=b59d78ff wall_material=plaster
 terrain floor.forge stone 15 1 10 12 order=1
 terrain floor.hearth ash 17 1 8 5 order=2
 terrain floor.living timber_floor 1 1 13 12 order=3
+# A narrow rush runner gives the opening shot a warm, readable route from Kalev's
+# central start position toward the forge without creating collision or changing
+# the clear spawn cell used by DoorNavigator.
+terrain floor.start_runner straw 10 6 4 2 order=4
 wall wall.north_living 0 0 14 0 thickness=1 openings=5,0,1,1 kind=interior_wall style=wall.living
 wall wall.north_forge 15 0 25 0 thickness=1 openings=20,0,1,1 kind=interior_wall style=wall.forge
 wall wall.south_living 0 13 11 13 thickness=1 kind=interior_wall style=wall.living
@@ -78,6 +82,11 @@ prop work_chair chair 11 10 rect=1,1 facing=west
 prop table_settings kitchenware 7 10 style_variant=kitchenware.group.eating visual_offset_px=11.2,-25.3
 prop table_cleanup kitchenware 8 10 style_variant=kitchenware.group.cleanup visual_offset_px=3.2,-25.3
 prop table_candle candle 9 10 rect=1,1 style_variant=artisan_tallow visual_offset_px=-8,-25.3
+# The start runner is framed by a wall-side tallow light and a forge-side pine
+# splint. Both sit above existing furniture so they improve first-frame depth
+# and wayfinding without occupying the central navigation lane.
+prop start_nook_candle candle 4 1 style_variant=artisan_tallow visual_offset_px=12,-48.6
+prop forge_wayfinding_splint candle 15 5 style_variant=pine_splint visual_offset_px=-12,-28
 prop bed_linen household_clutter 4 9 style_variant=household.linen_folded visual_offset_px=0,-25.3
 prop ash_scoop household_clutter 11 12 style_variant=household.ash_scoop
 prop broom household_clutter 10 12 style_variant=household.broom
