@@ -303,3 +303,127 @@ No runtime code, map content, asset, provenance manifest, parity fixture, or par
 - `/tmp/r666_checked_20260830/asset-lint.command.log`
 - `/tmp/r666_checked_20260830/asset-provenance.command.log`
 - `/tmp/r666-elevation-20260830.patch`
+
+## 2026-08-31 rerun addendum
+
+**Rerun base revision:** `5f997f8cb2da9ca61611e216840c37b37a27e422` (`fix: refresh illusionary double aggro targets`)
+**Verification worktree:** `/tmp/rebel-reval-r666-20260831` (detached current `HEAD` plus only the four-file elevation handoff patch)
+**Scoped patch:** `/tmp/r666-elevation-20260831.patch`
+**Scoped patch SHA-256:** `51db7fd87da85836cfc9bb965141a89a1481d101aad21913b40270a3293adfef`
+**Decision:** **BLOCKED - the elevation parser handoff remains green, while the clean acceptance matrix is blocked by the existing environment-kit runtime error, Lower Town parity drift, and plot-dressing provenance gaps**
+
+The shared worktree remains dirty with unrelated staged, unstaged, and untracked WIP. The rerun therefore used a detached checkout from the current `HEAD` and applied only these four allowlisted handoff files:
+
+- `scripts/map/rrmap/map_rrmap_parser_statements.gd`
+- `scripts/map/rrmap/map_rrmap_serializer.gd`
+- `scripts/map/map_blueprint_compiler_build.gd`
+- `tests/godot/test_map_rrmap_parser.gd`
+
+The temporary checkout contained no other scoped changes and was not used to create a commit or modify the project worktree.
+
+### Exact rerun commands
+
+```sh
+export GODOT_BIN=/Applications/Godot.app/Contents/MacOS/Godot
+export WT=/tmp/rebel-reval-r666-20260831
+export LOG=/tmp/r666_checked_20260831
+export PATCH=/tmp/r666-elevation-20260831.patch
+
+git worktree add --detach "$WT" 5f997f8cb2da9ca61611e216840c37b37a27e422
+git -C "$WT" apply "$PATCH"
+"$GODOT_BIN" --headless --editor --import --path "$WT"
+
+for filter in \
+  test_environment_kit_integration \
+  test_lower_town_slice_map \
+  test_map_view_3d_fortification \
+  test_map_rrmap_parser; do
+  GODOT_LOG_DIR="$LOG" "$WT/tools/run_godot_checked.sh" \
+    --require-test-summary "r666-${filter#test_}" -- \
+    "$GODOT_BIN" --headless --path "$WT" \
+    --script tools/run_godot_tests.gd -- --filter="$filter"
+done
+
+python3 "$WT/tools/verify_asset_lint.py"
+python3 "$WT/tools/validate_asset_sources.py"
+```
+
+The detached editor import and checked import completed without parser, resource, or shader diagnostics. The elevation patch applied cleanly and retained the previously verified SHA-256.
+
+### Current results matrix
+
+| Check | Result | Exact result / retained evidence |
+|---|---|---|
+| Detached checkout and scoped handoff | **PASS** | `/tmp/rebel-reval-r666-20260831`, current base `5f997f8c`; four allowlisted files; patch SHA-256 above |
+| Godot editor import | **PASS** | `--headless --editor --import` completed without `SCRIPT ERROR`, parser, or resource diagnostics |
+| `test_map_rrmap_parser` | **PASS** | `1 file(s), 16 test(s), 0 failure(s), 0 error(s)`; checked runner status `0` |
+| `test_map_view_3d_fortification` | **PASS** | `1 file(s), 8 test(s), 0 failure(s), 0 error(s)`; checked runner status `0` |
+| `test_lower_town_slice_map` | **BLOCKED** | `1 file(s), 19 test(s), 1 failure(s), 0 error(s)`; only `test_lower_town_slice_matches_canonical_parity_fixture`; expected `door_side: north`, actual canonical data reaches `footprint` |
+| `test_environment_kit_integration` | **BLOCKED** | `1 file(s), 5 test(s), 0 failure(s), 14 error(s)`; first diagnostic is the typed-array mismatch in `_build_module` at `scripts/map/view3d/map_view_environment_kit.gd:73`, followed by dependent null-node calls |
+| Asset lint | **PASS** | `asset lint passed (8 style-lock textures, 13 character glbs, 41 tier-classified character glb(s), 0 portrait(s) checked)` |
+| Asset provenance | **BLOCKED** | The same ten active plot-dressing albedo sidecars remain absent from `assets/SOURCES.csv`; ownership remains R-212/R-641 |
+
+### First substantive diagnostics and ownership
+
+The dedicated elevation boundary remains green: `test_map_rrmap_parser` passes all 16 tests, including elevation statement parsing, canonical serialization/reparsing, fingerprint preservation, and overlap precedence. No `elevation_area` or `elevation_ramp` unknown-command diagnostic appears in the fresh logs. This confirms the R-453/R-455 handoff in this snapshot but does not close either parent task; both remain `in_progress`.
+
+The first environment-kit diagnostic is:
+
+```text
+Invalid type in function '_build_module' in base 'GDScript'. The array of argument 3 (Array) does not have the same element type as the expected typed array argument.
+at: _build_catalog_module (res://scripts/map/view3d/map_view_environment_kit.gd:73)
+```
+
+This is owned by the existing environment-kit/runtime owner R-542. The later `add_child`, `get_node`, and `get_meta` null calls are dependent errors and are not separate blockers for this verification task.
+
+The independent Lower Town failure remains the canonical parity mismatch:
+
+```text
+lower_town_slice gameplay data changed; regenerate only after reviewing the canonical diff
+expected:       "door_side": "north",
+actual:         "footprint": [
+```
+
+The parity fixture was not regenerated. Authored layout ownership remains R-547, and route/parity verification remains R-552.
+
+`validate_asset_sources.py` reports the same ten active plot-dressing albedo files without manifest rows:
+
+```text
+assets/props/architecture/houses/plot_dressing/plot_dressing_PlotDressingIron_albedo.png
+assets/props/architecture/houses/plot_dressing/plot_dressing_PlotDressingOak_albedo.png
+assets/props/architecture/houses/plot_dressing/plot_dressing_PlotDressingRope_albedo.png
+assets/props/architecture/houses/plot_dressing/plot_dressing_PlotDressingShingle_albedo.png
+assets/props/architecture/houses/plot_dressing/plot_dressing_PlotDressingStone_albedo.png
+assets/props/architecture/houses/plot_dressing/plot_dressing_PlotDressingStoneDark_albedo.png
+assets/props/architecture/houses/plot_dressing/plot_dressing_PlotDressingThatch_albedo.png
+assets/props/architecture/houses/plot_dressing/plot_dressing_PlotDressingTimber_albedo.png
+assets/props/architecture/houses/plot_dressing/plot_dressing_PlotDressingWattle_albedo.png
+assets/props/architecture/houses/plot_dressing/plot_dressing_PlotDressingWoodLight_albedo.png
+```
+
+### Current handoff
+
+R-666 remains a reproducible **BLOCKED** clean-baseline verification artifact:
+
+1. The elevation parser handoff is available and its dedicated regression is green at 16/16.
+2. Clean editor import is green on current `HEAD` with the scoped handoff patch.
+3. Environment-kit runtime acceptance is blocked by the existing typed-array diagnostic under R-542.
+4. Lower Town acceptance is blocked by one unreviewed parity fixture mismatch under R-547/R-552.
+5. Asset provenance is blocked by ten plot-dressing sidecars under R-212/R-641.
+6. Fortification assertions are independently green at 8/8, but this does not waive the blocked environment-kit, parity, or provenance gates.
+
+No runtime code, map content, asset, provenance manifest, parity fixture, or parent status was changed. No follow-up task was created because every actionable blocker has an existing registered owner.
+
+**Fresh final status:** **BLOCKED - keep P0-102 open and rerun after the existing environment-kit, parity, and provenance owners land their handoffs.**
+
+**Fresh evidence files:**
+
+- `/tmp/r666_checked_20260831/raw-import.log`
+- `/tmp/r666_checked_20260831/r666-clean-import.log`
+- `/tmp/r666_checked_20260831/r666-environment_kit_integration.log`
+- `/tmp/r666_checked_20260831/r666-lower_town_slice_map.log`
+- `/tmp/r666_checked_20260831/r666-map_view_3d_fortification.log`
+- `/tmp/r666_checked_20260831/r666-map_rrmap_parser.log`
+- `/tmp/r666_checked_20260831/asset-lint-20260831.log`
+- `/tmp/r666_checked_20260831/asset-provenance-20260831.log`
+- `/tmp/r666-elevation-20260831.patch`
