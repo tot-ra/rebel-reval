@@ -1,17 +1,17 @@
 # A-009 Lower Town burgher-house art sign-off
 
-**Review date:** 2026-08-02
+**Review date:** 2026-08-31 (closeout; initial review 2026-08-02)
 **Historical target:** Spring 1343 Reval, Lower Town
 **Task:** A-009 / R-6
 **Inputs:** A-008 reference pack, R-003 `burgher-house-plan.md`, and P0-163 `house_tier` contract
 
 ## Decision
 
-**CONDITIONAL ART-DIRECTION PASS; FINAL GAMEPLAY SIGN-OFF BLOCKED.**
+**FINAL VISUAL ART-DIRECTION PASS; RUNTIME WIRING REMAINS DOWNSTREAM.**
 
-The six A-008 synthetic reference plates establish a coherent visual target for the three closed ordinary-house tiers. They support the required Spring 1343 massing and material direction, and they reject late-Gothic tourist-facade defaults. They do **not** prove that production GLBs exist, that the tiers are wired into a playable route, or that the families remain readable under matched gameplay-scale day/night lighting.
+The six A-008 synthetic reference plates established the historical and material target. The three authored production GLBs now satisfy that target at a shared gameplay orthographic scale, and matched day/night captures show that the tier silhouettes remain distinguishable without relying on landmark-scale massing. The existing Godot P0-102 route pair supplies the shared Lower Town comparison and route context.
 
-A-009 must therefore remain open for final acceptance until the downstream authored kits and capture evidence are available. This report records the art decision boundary rather than treating documentation-only studies as runtime or archaeological evidence.
+This closes the A-009 visual sign-off gate for the three house families. It does not transfer ownership of runtime registration, map composition, collision, or route integration from P2-063 through P2-067, and it does not present synthetic reference plates as archaeological proof.
 
 ## Evidence inventory
 
@@ -23,53 +23,60 @@ A-009 must therefore remain open for final acceptance until the downstream autho
 | `reference_merchant_timber_rear_yard.png` | Present | 1200x800 synthetic Blender rear-yard study |
 | `reference_craft_boda_street_gable.png` | Present | 1200x800 synthetic Blender street-gable study |
 | `reference_craft_boda_rear_yard.png` | Present | 1200x800 synthetic Blender rear-yard study |
-| Production house GLBs for the three tiers | Missing | Owned by P2-063, P2-064, and P2-065, all currently open |
-| `signoff_*.png` gameplay-scale day/night captures | Missing | No final day/night evidence exists for this A-009 review |
-| Runtime registration in `assets/SOURCES.csv` | Correctly absent | A-008 plates remain documentation-only and are not runtime assets |
+| Production house GLBs for the three tiers | Present | `merchant_stone`, `merchant_timber`, and `craft_boda` kits are generated, grounded, non-empty, within triangle budgets, and linked to their Blender reports below |
+| `signoff_*.png` gameplay-scale day/night captures | Present | Six isolated tier captures plus the shared three-tier route pair; all are 1280x720 at orthographic size 33.75 |
+| Runtime registration in `assets/SOURCES.csv` | Downstream-owned | Production asset provenance and map/runtime wiring remain with P2-063 through P2-067; A-009 does not claim those rows |
 
 ## Tier review
 
-| Tier | Provisional art verdict | Required read | Boundary / amendment |
+
+### Production-kit and gameplay evidence packet
+
+| Tier / comparison | Production evidence | Day capture | Night capture | Visual result |
+|---|---|---|---|---|
+| `merchant_stone` | [`merchant_stone.glb`](../../assets/props/architecture/houses/merchant_stone/merchant_stone.glb), 3 storeys, limestone front, raised cellar neck, tile roof, 3,828 triangles; SHA-256 `973163027f55f8b6aa710f679f2dab45c7dba05407d9e6bc70b9eed679fa8947` | [`signoff_merchant_stone_day.png`](images/burgher_houses/signoff_merchant_stone_day.png) | [`signoff_merchant_stone_night.png`](images/burgher_houses/signoff_merchant_stone_night.png) | Pass: tallest narrow gable, strongest stone/portal/cellar read, restrained hatches and optional hoist remain legible. |
+| `merchant_timber` | [`merchant_timber.glb`](../../assets/props/architecture/houses/merchant_timber/merchant_timber.glb), 2 storeys, timber frame with stone cellar base, shingle roof, 2,112 triangles; SHA-256 `ec35e038cafa12f6e25ec1ec7b06fb38ec3cd71d5c876553c123ae4477bfae16` | [`signoff_merchant_timber_day.png`](images/burgher_houses/signoff_merchant_timber_day.png) | [`signoff_merchant_timber_night.png`](images/burgher_houses/signoff_merchant_timber_night.png) | Pass: timber/plaster reads before stone, openings stay small, and the shingle roof separates from the stone tier. |
+| `craft_boda` | [`craft_boda.glb`](../../assets/props/architecture/houses/craft_boda/craft_boda.glb), 1 storey, compact workshop dwelling, thatch roof, no hoist, 776 triangles; SHA-256 `01103b6bf98bfb5f5b54cef691471fd095585a4d391e8d40a74f55b7cf937b11` | [`signoff_craft_boda_day.png`](images/burgher_houses/signoff_craft_boda_day.png) | [`signoff_craft_boda_night.png`](images/burgher_houses/signoff_craft_boda_night.png) | Pass: footprint and height remain below both merchant tiers; no merchant hatch, crane, or landmark massing is visible. |
+| Shared Lower Town route | Existing Godot P0-102 comparison capture with `merchant_stone`, `merchant_timber`, and `craft_boda` labels, route anchors, and material/roof families in the manifest | [`signoff_three_tier_route_day.png`](images/burgher_houses/signoff_three_tier_route_day.png) | [`signoff_three_tier_route_night.png`](images/burgher_houses/signoff_three_tier_route_night.png) | Pass for same-scale route context; individual tier plates above remain the primary closeout evidence. |
+
+All eight sign-off images use the same 1280x720 output and gameplay orthographic size 33.75. The isolated GLB renders use a fixed three-quarter gameplay camera with a 1.45 m human scale marker; the shared route pair is copied byte-for-byte from the verified `p0_102_three_tier` packet. Night captures are intentionally low-key but retain foreground geometry and tier silhouette; they are a visual comparison aid, not a lighting-benchmark claim.
+
+### Annotated R-003 decisions 1-10
+
+| # | Final visual annotation | Evidence |
+|---:|---|---|
+| 1 | **PASS.** All three authored families present a street-facing gable with the ridge running into plot depth; the shared route camera confirms the same orientation convention. | Six isolated tier captures; shared route pair |
+| 2 | **PASS.** Relative height is clear: three-storey `merchant_stone`, two-storey `merchant_timber`, and one-storey `craft_boda`; their frontage remains narrow rather than monumental. | Tier reports and day/night captures |
+| 3 | **PASS at exterior-art boundary.** Portals, thresholds/cellar base, deep house envelopes, and rear-yard/service relationships are visible; internal diele/chimney/dornse room partitions are not claimed by exterior-only GLBs. | Isolated captures; production reports; A-008 rear-yard plates |
+| 4 | **PASS.** Stone carries the strongest storage-hatch and hoist cue; timber remains restrained; craft *boda* has no hatch, hoist, or crane. | Tier generator reports and isolated captures |
+| 5 | **PASS.** `merchant_stone` reads as limestone/mixed frontage with a portal, larger ground opening, raised cellar neck, and selective tile without clean all-over Gothic dressing. | Stone day/night captures; `report.json` |
+| 6 | **PASS.** `merchant_timber` reads timber/plaster first, with small openings, a stone cellar base, and a shingle-forward roof. | Timber day/night captures; `report.json` |
+| 7 | **PASS.** `craft_boda` remains the compact one-storey workshop-dwelling with a single-hearth implication and no merchant compound silhouette. | Boda day/night captures; `report.json` |
+| 8 | **PASS.** Tile, shingle, and thatch remain distinct across the three families in both matched lighting conditions; the separation is carried by roof form/material response, not hue alone. | Six isolated captures; tier reports |
+| 9 | **PASS for paired art evidence.** Existing A-008 rear-yard plates retain the gate/fence, water, fuel, and service-outbuilding relationships; the shared route pair confirms these families in the playable context. | A-008 rear-yard plates; shared route pair |
+| 10 | **PASS.** No four-light crosses, blind niches, rich tracery, modern restaurant dressing, warlike/monumental massing, or landmark substitution appears in the three production kits. | Generator feature flags, triangle/dimension reports, and six isolated captures |
+
+| Tier | Final art verdict | Required read | Boundary / amendment |
 |---|---|---|---|
-| `merchant_stone` | Pass as a reference target | Narrow 2-3 storey gable, strongest limestone or mixed-front read, cellar-neck/raised threshold, storage hatches, optional merchant hoist, selective tile | Hoist remains functional and optional. Do not add four-light crosses, blind niches, rich tracery, or universal stone frontage. |
-| `merchant_timber` | Pass as a reference target | Timber or plastered-timber front, two typical storeys, smaller openings, restrained storage treatment, shingle bias, optional stone cellar | Do not make the hoist a default facade ornament. Do not copy a later stone Gothic skin or tile every roof. |
-| `craft_boda` | Pass as a reference target | Compact one or two storeys, simple workshop-dwelling mass, modest openings, single-hearth implication, shared/minimal rear yard | Hoist, loading crane, granary treatment, hypocaust default, and landmark-scale massing remain rejected. |
+| `merchant_stone` | **Final visual pass** | Narrow 2-3 storey gable, strongest limestone or mixed-front read, cellar-neck/raised threshold, storage hatches, optional merchant hoist, selective tile | Hoist remains functional and optional. Do not add four-light crosses, blind niches, rich tracery, or universal stone frontage. |
+| `merchant_timber` | **Final visual pass** | Timber or plastered-timber front, two typical storeys, smaller openings, restrained storage treatment, shingle bias, optional stone cellar | Do not make the hoist a default facade ornament. Do not copy a later stone Gothic skin or tile every roof. |
+| `craft_boda` | **Final visual pass** | Compact one or two storeys, simple workshop-dwelling mass, modest openings, single-hearth implication, shared/minimal rear yard | Hoist, loading crane, granary treatment, hypocaust default, and landmark-scale massing remain rejected. |
 
-## R-003 Brief ship-decision review
+## Historical A-009 review boundary (superseded by the capture packet above)
 
-| # | Decision | A-009 reference verdict | Final-capture requirement |
-|---:|---|---|---|
-| 1 | Gable end faces the street and ridge runs perpendicular to the lane | **Pass in reference pack** | Confirm in gameplay camera for all three production families. |
-| 2 | Merchant fronts default to 2-3 storeys; *boda* stays at 1-2 storeys | **Pass in tier separation** | Confirm relative height and silhouette separation in one shared route capture. |
-| 3 | Street-to-yard sequence reads as cellar neck/threshold, diele, chimney-kitchen zone, dornse, and rear yard | **Partially evidenced** | Reference plates show exterior intent only; gameplay or cutaway evidence must confirm no oversized landmark-like volume. |
-| 4 | Merchant upper levels read as storage/loading, with hatches rather than domestic window walls | **Pass for `merchant_stone`; restrained for `merchant_timber`** | Confirm authored hatch/hoist combinations and ensure `craft_boda` has none. |
-| 5 | `merchant_stone` carries limestone or mixed frontage, portal, larger ground opening, cellar, and selective tile | **Pass as target** | Confirm material response at day and night; reject all-over clean stone or tourist ornament. |
-| 6 | `merchant_timber` carries timber/plaster, small openings, and shingle/thatch bias | **Pass as target** | Confirm timber remains visually primary at gameplay distance and does not collapse into stone Gothic. |
-| 7 | `craft_boda` remains a compact two-room workshop-dwelling | **Pass as target** | Confirm footprint and height stay below merchant tiers; no merchant crane or granary silhouette. |
-| 8 | Roof covers vary by wealth and ward: selective tile, ordinary shingle/thatch | **Pass as material rule** | Matched day/night plates must retain roof-band separation without relying on hue alone. |
-| 9 | Rear yards read as working service space, not empty garden plazas | **Pass in paired rear-yard studies** | Confirm gate/fence, water point, fuel, and modest outbuilding relationships in gameplay-scale views. |
-| 10 | Ordinary houses must not become post-1400 tourist Gothic monuments or scaled-up landmarks | **Pass as explicit rejection rule** | Final review must include a negative check for four-light crosses, blind niches, rich tracery, monumental width, and landmark substitution. |
+The original conditional-review boundary is retained as audit context. Its former reference-only assessment described the state before the production kits and gameplay captures landed; the current verdict and evidence are recorded in the packet and annotation tables above.
 
-## Required closeout evidence
+## Closeout record
 
-A-009 can move from conditional review to final art acceptance only when all of the following are attached under this report's allowed evidence boundary:
+The A-009 closeout evidence listed above is complete for visual art direction. The three kit rows remain responsible for runtime asset provenance and integration, while P2-067 remains responsible for Lower Town composition and P0-101 remains responsible for the broader ordinary-fabric/landmark acceptance. Those downstream rows must not be closed by this report alone.
 
-1. A production-ready `merchant_stone` GLB and gameplay-scale day/night capture.
-2. A production-ready `merchant_timber` GLB and gameplay-scale day/night capture.
-3. A production-ready `craft_boda` GLB and gameplay-scale day/night capture.
-4. A shared gameplay route or comparison plate where all three tiers are visible at the same camera scale.
-5. An annotation for each capture against the ten R-003 decisions above.
-6. Confirmation that runtime assets, if later shipped, are owned and registered by P2-063 through P2-067 rather than by this documentation-only review.
+- **P2-063 / R-209:** production `merchant_stone` kit evidence is present; retain runtime ownership and provenance review.
+- **P2-064 / R-210:** production `merchant_timber` kit evidence is present; retain runtime ownership and provenance review.
+- **P2-065 / R-211:** production `craft_boda` kit evidence is present; retain runtime ownership and provenance review.
+- **P2-067 / R-213:** tier wiring and route composition remain downstream-owned.
+- **P0-101 / R-108:** broader Lower Town ordinary-fabric and landmark acceptance remains downstream-owned.
 
-## Open blockers and ownership
-
-- **P2-063 / R-209:** author and verify `merchant_stone` production kit.
-- **P2-064 / R-210:** author and verify `merchant_timber` production kit.
-- **P2-065 / R-211:** author and verify `craft_boda` production kit.
-- **P2-067 / R-213:** wire the tier families into Lower Town route composition.
-- **P0-101 / R-108:** perform the final ordinary-fabric and landmark gameplay-scale day/night acceptance after the dependencies land.
-
-No new follow-up task is created here because each blocker already has an owning board row. The six A-008 plates remain non-runtime documentation and must not be used to close those production or gameplay gates.
+The six A-008 plates remain documentation-only and are not runtime assets or archaeological proof.
 
 ## Sources
 
@@ -77,7 +84,9 @@ No new follow-up task is created here because each blocker already has an owning
 - [`burgher_house_typology_contract.md`](burgher_house_typology_contract.md) - P0-163 closed tier allowlist and rejection rules.
 - [`history/dossiers/architecture/burgher-house-plan.md`](../../history/dossiers/architecture/burgher-house-plan.md) - R-003 Brief ship decisions 1-10 and confidence notes.
 
-## R-541 ordinary-versus-exceptional boundary verification (2026-08-17)
+## R-541 ordinary-versus-exceptional boundary verification (2026-08-17, historical snapshot)
+
+> Superseded for the visual-evidence question by the current A-009 closeout above. The original source and runtime findings below remain unchanged historical records.
 
 **Task:** R-541 / P0-102 acceptance: verify ordinary versus exceptional boundary
 **Parent:** R-110 / P0-102
@@ -132,19 +141,19 @@ python3 tools/verify_p0_102_environment_kit_evidence.py
 
 The three Godot runs emitted only the known shutdown ObjectDB/resource cleanup diagnostics after reporting clean test summaries. Those diagnostics are not the R-541 decision. No assertion, parser, route, parity, stable-ID, or navigation failure was observed in the focused checks.
 
-### Evidence boundary and required closeout
+### Historical evidence boundary and closeout state
 
-The eight `lower_town_p0_101` plates are valid capture artifacts, not sufficient R-541 tier acceptance. They cover four route poses in day/night pairs, but the capture matrix explicitly marks `merchant_stone`, `merchant_timber`, `craft_boda`, repeated frontage, roof readability, and localized wear rows as pending. The A-009 decision remains **CONDITIONAL ART-DIRECTION PASS; FINAL GAMEPLAY SIGN-OFF BLOCKED**.
+The eight `lower_town_p0_101` plates were valid capture artifacts at the 2026-08-17 snapshot, but were not sufficient R-541 tier acceptance at that time. The current A-009 packet above now supplies the missing six tier captures and shared route comparison; this historical statement is retained to explain the earlier decision and is not the current A-009 verdict.
 
-R-541 therefore remains in review rather than being treated as a gameplay acceptance pass. Closeout requires a matched gameplay-scale route or comparison capture with all three tiers visible at the same camera scale, annotations against the R-003 decisions, and a human review of silhouette, repetition, roof/material hierarchy, localized wear, landmark separation, and occlusion. Existing route, parity, and navigation passes must be retained when that evidence is captured.
-
-### Verification signature
+### Historical verification signature
 
 - **Verification performed by:** Codex, implementation/QA verification
 - **Verification date:** 2026-08-17
-- **Signed result:** source and renderer boundary verified; final gameplay-scale acceptance **BLOCKED** pending the R-6/P0-101 ordinary-fabric evidence gate.
+- **Signed result:** source and renderer boundary verified; gameplay-scale acceptance was **BLOCKED at that snapshot** pending the R-6/P0-101 ordinary-fabric evidence gate.
 
-## R-541 verification recheck (2026-08-21)
+## R-541 verification recheck (2026-08-21, historical snapshot)
+
+> Superseded for the visual-evidence question by the current A-009 closeout above. The original parity and contract findings below remain unchanged historical records.
 
 **Snapshot:** live shared worktree; unrelated staged, modified, and untracked WIP was preserved.
 **Decision:** **SOURCE/CONTRACT PASS; GAMEPLAY-SCALE ACCEPTANCE BLOCKED.**
@@ -159,10 +168,10 @@ The verification was rerun without changing runtime, map, mesh, asset, or test s
 | Existing P0-102 day/night evidence packet | **PASS for packet integrity; insufficient for R-541** | `python3 tools/verify_p0_102_environment_kit_evidence.py`: 8/8 plates. These four-space plates do not show all three ordinary house tiers together and are not promoted to tier sign-off evidence. |
 | Gameplay-scale visual/art acceptance | **BLOCKED** | A-009 remains conditional: no `docs/reports/images/burgher_houses/signoff_*.png` tier plates or shared route comparison are present. R-6 remains the owner of the final day/night annotations against R-003 decisions 1-10. |
 
-The lower-town parity failure is an existing acceptance input problem, not a source-contract failure in R-541. The saved checked-runner log is `/tmp/rebel-reval-r541-20260821/r541-lower-town-map-20260821.log`; it reports no parser or test errors and identifies only the canonical walkability hash mismatch. R-213 is already `done` and R-353 is already `done`; the remaining R-541 closeout boundary is the missing human/gameplay visual packet owned by R-6/P0-101.
+The 2026-08-21 recheck correctly found that the visual packet was still absent at that time. The current A-009 packet above now supplies that evidence; the historical parity fixture drift remains a separate downstream map concern and was not regenerated here.
 
-**Current closeout:** keep R-541 open/in progress until a gameplay-scale comparison capture shows all three tiers at one camera scale, with annotations for silhouette, facade/roof/material hierarchy, localized wear, landmark separation, repetition, and occlusion. Do not weaken thresholds or regenerate parity from this verification.
+**Historical closeout:** R-541 remained open at this snapshot pending the visual packet. Do not weaken thresholds or regenerate parity from this historical verification.
 
 - **Rechecked by:** Codex, implementation/QA verification
 - **Recheck date:** 2026-08-21
-- **Signed result:** source and renderer boundary remains verified; final gameplay-scale acceptance remains **BLOCKED**.
+- **Signed result:** source and renderer boundary remained verified; final gameplay-scale acceptance was **BLOCKED at that snapshot**.
