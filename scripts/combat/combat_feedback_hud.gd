@@ -125,7 +125,7 @@ func _build_ui() -> void:
 	_controls_label.add_theme_color_override("font_color", Color(0.72, 0.76, 0.82, 0.95))
 	_controls_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_controls_label.text = (
-		"Attack: Space / gamepad X (hold for charged hammer)\n"
+		"Attack: Space / gamepad X (mouse hold for charged hammer)\n"
 		+ "Guard / parry: F or right mouse / gamepad LB\n"
 		+ "Dodge: Q / gamepad RB\n"
 		+ "Iron: Quick-access Iron button (mouse)\n"

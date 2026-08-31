@@ -286,6 +286,35 @@ func test_view_animation_reports_run_walk_and_attack() -> void:
 	player.free()
 
 
+func test_space_starts_hammer_attack_and_hits_front_target() -> void:
+	# User preferences can replace the runtime InputMap before this harness starts.
+	# Restore shipped bindings so this exercises the physical Space mapping players use.
+	InputBindingSettings.default_settings().apply_to_input_map()
+	_ensure_content_loaded()
+	var player := _create_player()
+	_equip_item(&"right_hand", &"item.forge_hammer")
+	player.global_position = Vector2.ZERO
+	player.set_view_facing(Vector2.RIGHT)
+	player.stamina = 100.0
+	var front_target: Node2D = _create_dummy(Vector2(40.0, 0.0))
+	# Space and gamepad X both invoke request_primary_attack() through the input map;
+	# test_input_bindings separately verifies that physical Space maps to this action.
+	assert_true(player.request_primary_attack())
+
+	assert_eq(
+		player.action_state_machine.state,
+		PlayerActionState.State.ATTACK,
+		"Pressing Space with a hammer must start the attack immediately"
+	)
+	assert_eq(player.view_animation(), &"hammer_attack")
+	_advance_player(player, player.action_state_machine.attack_impact_sec)
+	assert_eq(front_target.hit_count, 1, "A hammer swing must damage a target in front")
+	assert_true(front_target.health < 20.0)
+	Input.action_release(PlayerActionKind.ACTION_ATTACK)
+	front_target.free()
+	player.free()
+
+
 func test_charged_attack_preview_is_visible_before_release() -> void:
 	_ensure_content_loaded()
 	var player := _create_player()
@@ -300,7 +329,7 @@ func test_charged_attack_preview_is_visible_before_release() -> void:
 	assert_eq(
 		player.view_animation(),
 		&"hammer_charged_attack",
-		"Holding Space must show the hammer wind-up before release commits the swing"
+		"Holding a charged attack must show the hammer wind-up before release commits the swing"
 	)
 	assert_true(player.view_animation_elapsed_sec() > 0.0)
 

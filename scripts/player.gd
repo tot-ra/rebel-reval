@@ -173,13 +173,13 @@ func _physics_process(_delta):
 	update_animation(_combat_or_locomotion_animation(new_animation))
 
 
-func _process_action_input(delta: float) -> void:
+func _process_action_input(_delta: float) -> void:
 	if not combat_input_enabled or _movement_blocked():
 		return
-	if _supports_charged_attack():
-		_process_charged_attack_input(delta)
-	else:
-		_process_instant_attack_input()
+	# Keyboard and gamepad attacks must commit on press. The mouse primary-action
+	# controller owns its separate hold-to-charge path, so Space never leaves the
+	# player walking while waiting for a release event.
+	_process_instant_attack_input()
 	for kind in PlayerActionInput.read_pressed_actions():
 		if kind == PlayerActionKind.Kind.ATTACK:
 			continue
@@ -308,13 +308,7 @@ func _process_instant_attack_input() -> void:
 	for kind in PlayerActionInput.read_pressed_actions():
 		if kind != PlayerActionKind.Kind.ATTACK:
 			continue
-		var profile := _resolve_attack_profile(false)
-		if stamina < profile.stamina_cost:
-			continue
-		_prepare_attack_for_profile(profile)
-		if action_state_machine.try_start_action(kind):
-			stamina = maxf(0.0, stamina - profile.stamina_cost)
-			_sync_resource_bars()
+		request_primary_attack()
 
 
 func _process_charged_attack_input(delta: float) -> void:
