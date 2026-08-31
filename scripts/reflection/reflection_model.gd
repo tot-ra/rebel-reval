@@ -63,18 +63,13 @@ static func apply_conviction(
 
 static func _build_recap_lines(state: GameState) -> Array[String]:
 	var lines: Array[String] = []
-	(
-		lines
-		. append(
-			(
-				"Suspicion %d, solidarity %d, scarcity %d."
-				% [
-					state.get_pressure(GameState.PRESSURE_SUSPICION),
-					state.get_pressure(GameState.PRESSURE_SOLIDARITY),
-					state.get_pressure(GameState.PRESSURE_SCARCITY),
-				]
-			)
-		)
+	lines.append(
+		"Suspicion %d, solidarity %d, scarcity %d."
+		% [
+			state.get_pressure(GameState.PRESSURE_SUSPICION),
+			state.get_pressure(GameState.PRESSURE_SOLIDARITY),
+			state.get_pressure(GameState.PRESSURE_SCARCITY),
+		]
 	)
 	if state.has_forged_modification(COMMISSION_WATCH_BUCKLE, &"honest_work"):
 		lines.append("The watch buckle was repaired cleanly.")
