@@ -239,3 +239,5 @@ Parallel exact replacements against one mutable file can race and reapply stale 
 - 2026-09-01: Activation test fixtures that promote catalog entries must accept both compact and multiline dictionary formatting; use a bounded regex inside the selected entry rather than an exact one-line scope/active replacement.
 - 2026-09-01: A scoped `git commit --only` can still run the repository-wide map audit against dirty scene/TODO inventories; after scoped lint, tests, and whitespace pass, preserve the hook diagnostics and use a HEAD-based temporary index with `--no-verify` to commit only owned paths.
 - When testing a Node teardown hook, attach it to `SceneTree` and remove it before `free()`; freeing an orphan never invokes `_exit_tree`, so the test does not represent runtime cleanup.
+
+- 2026-09-01: Optional-marker grep probes should end with `|| true` when a no-match result is expected; otherwise a diagnostic command can return status 1 before the saved test log is classified.
