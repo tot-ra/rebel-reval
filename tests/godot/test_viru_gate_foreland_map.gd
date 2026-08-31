@@ -78,6 +78,24 @@ func test_pirita_current_is_clear_and_plant_free() -> void:
 	for target in MapVisualStyle.ALL_TARGETS:
 		assert_ne(MapVisualStyle.terrain_color(MapTypes.TERRAIN_RIVER_WATER, target, MapVisualStyle.TIME_DAY), Color.MAGENTA)
 
+
+func test_pirita_roads_are_narrow_cart_ruts_with_a_grassy_crown() -> void:
+	var definition: MapDefinition = ForelandDefinition.create()
+	var grid := MapBuilder.build(definition)
+	# The main east-west approach keeps two one-cell wheel ruts separated by a
+	# two-cell grassy crown. The bridge is deliberately excluded: its timber deck
+	# is a distinct one-wagon crossing, not an earth road surface.
+	for x in range(definition.size_cells.x):
+		if x >= 71 and x < 99:
+			continue
+		assert_eq(grid.get_terrain(Vector2i(x, 62)), MapTypes.TERRAIN_DIRT)
+		assert_eq(grid.get_terrain(Vector2i(x, 65)), MapTypes.TERRAIN_DIRT)
+		for y in [63, 64]:
+			assert_eq(grid.get_terrain(Vector2i(x, y)), MapTypes.TERRAIN_GRASS)
+			assert_eq(grid.get_style_variant(Vector2i(x, y)), &"grass.short")
+	for x in [20, 40, 60, 110, 140, 160]:
+		assert_ne(grid.get_terrain(Vector2i(x, 61)), MapTypes.TERRAIN_DIRT)
+		assert_ne(grid.get_terrain(Vector2i(x, 66)), MapTypes.TERRAIN_DIRT)
 func test_pirita_uses_rural_livestock_and_has_no_early_bridgettine_church() -> void:
 	var definition: MapDefinition = ForelandDefinition.create()
 	var horse_count := 0

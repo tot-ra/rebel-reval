@@ -56,16 +56,16 @@ terrain_rects river.current river_water 76,0,19,6|75,6,19,6|73,12,19,6|71,18,19,
 terrain river.reed mud 67 36 6 10 style=plant.reed order=8
 terrain river.cattail mud 96 75 6 10 style=plant.cattail order=8
 terrain east.farm_pond mud 118 88 8 6 style=plant.water_lily order=8
-terrain road.west dirt 0 60 72 8 order=9
-terrain road.east dirt 98 60 70 8 order=9
-terrain road.wear_west mud 30 63 36 4 order=10
-terrain road.wear_east mud 102 63 38 4 order=10
+# The Viru-Iru corridor is a worn cart track rather than a modern graded road:
+# two compacted wheel ruts leave a low grassy crown and keep the meadow visible.
+terrain road.crown_west grass 0 63 71 2 style=grass.short order=20
+terrain road.crown_east grass 99 63 69 2 style=grass.short order=20
 # A rural cart crossing, not a monumental span: the deck is a single-lane timber
 # bridge just wide enough for one wagon. The Pirita keeps flowing in the open rows
 # on either side of the narrow deck rather than passing under a broad platform.
 terrain bridge.deck timber_floor 71 62 28 5 order=22
-terrain west.track dirt 37 43 5 18 order=11
-terrain east.farm_track dirt 116 67 5 12 order=11
+terrain west.croft_crown grass 39 43 2 18 style=grass.short order=20
+terrain east.farm_crown grass 117 67 2 15 style=grass.short order=20
 terrain boundary.north_west forest_floor 0 0 68 12 style=tree.mixed order=12
 terrain boundary.north_east forest_floor 101 0 67 10 style=tree.spruce order=12
 terrain boundary.south_west forest_floor 0 111 69 9 style=tree.mixed order=12
@@ -74,9 +74,12 @@ terrain boundary.west_north forest_floor 0 12 10 40 style=tree.mixed order=12
 terrain boundary.west_south forest_floor 0 74 10 37 style=tree.mixed order=12
 terrain boundary.east_north forest_floor 158 10 10 42 style=tree.spruce order=12
 terrain boundary.east_south forest_floor 158 74 10 35 style=tree.mixed order=12
-stroke reval_iru_road dirt 0,63|71,63|99,63|167,63 thickness=3 order=21
-stroke west_croft_track dirt 39,61|39,39 thickness=2 order=21
-stroke east_farm_track dirt 118,65|118,82 thickness=2 order=21
+stroke reval_iru_north_rut dirt 0,62|71,62|99,62|167,62 thickness=1 order=21
+stroke reval_iru_south_rut dirt 0,65|71,65|99,65|167,65 thickness=1 order=21
+stroke west_croft_north_rut dirt 38,61|38,39 thickness=1 order=21
+stroke west_croft_south_rut dirt 41,61|41,39 thickness=1 order=21
+stroke east_farm_west_rut dirt 117,65|117,82 thickness=1 order=21
+stroke east_farm_east_rut dirt 120,65|120,82 thickness=1 order=21
 building road_inn house 52 55 9 6 style=house.shed
 building west_farmhouse house 23 25 12 7 style=house.croft
 building west_shed house 41 32 10 6 style=house.shed
