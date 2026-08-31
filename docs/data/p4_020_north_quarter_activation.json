@@ -16,10 +16,11 @@
     "night_capture": null
   },
   "notes": [
-    "P0-040 remains pending maintainer technical-freeze approval.",
-    "P2-021 remains in review and does not yet provide accepted visual parity.",
-    "P4-019 remains todo, so the prerequisite Central District activation is unavailable.",
-    "P4-023f remains todo and owns North Quarter drainage, relief, Coastal Gate review, and signed day/night captures.",
-    "Keep developer traversal enabled with release=false until all blockers close and this ledger records approved evidence."
+    "P0-040 remains in_progress on the board; its maintainer technical-freeze approval is not a cleared activation dependency.",
+    "P2-021 remains in_review on the board and does not yet provide accepted visual parity.",
+    "P4-019 remains in_review on the board, so the prerequisite Central District activation is unavailable.",
+    "P4-023f remains in_review on the board and owns North Quarter drainage, relief, Coastal Gate review, and signed day/night captures.",
+    "R-834 reconciliation confirms that in_review is not an accepted dependency; keep developer traversal enabled with release=false until all blockers close and this ledger records approved evidence.",
+    "Reconciliation evidence: docs/reports/r834_p4_020a_upstream_dependency_reconciliation.md"
   ]
 }
