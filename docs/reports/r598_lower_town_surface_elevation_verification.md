@@ -183,3 +183,37 @@ The R-454 failures remain owned by R-453/R-455. The missing composition card rem
 ## Current disposition
 
 R-598 has a complete current-checkout verification ledger and remains in review pending maintainer review. Keep P0-100 open until R-453/R-455 and the Toompea threshold-card owner reconcile their inputs. Do not regenerate parity or alter thresholds as part of R-598.
+
+## 2026-08-31 current-checkout rerun
+
+R-598 was rerun against the current shared checkout at `HEAD=d827e089d8ddd02d603052bc6c58cd9c48f6a2a2` with Godot `4.7.1.stable.official.a13da4feb` after a successful headless editor import. The verification remained read-only for map, runtime, threshold, parity, and focused test sources.
+
+Fresh Lower Town metric probe (`tools/_tmp_r598_metrics.gd`, removed after the run) reported:
+
+```text
+R598_METRICS_20260831 map_id=lower_town_slice
+surface_shares={"cobblestone_pct":4.52023277845446,"earth_pct":45.8722425226688,"grass_pct":27.446203816484,"stone_pct":26.6815536608472,"timber_pct":0.0,"unbuilt_cells":14778}
+elevation_range=1.48229014535609
+profiles=4
+```
+
+The enforced Lower Town substrate bands and the `>=0.3` elevation minimum remain satisfied. Checked focused results were captured under `/tmp/rebel-reval-r598-logs-20260831/`:
+
+| Check | Result | Interpretation |
+|---|---|---|
+| `test_lower_town_authoring_contract` | **PASS: 3/3** | Ownership, frontage exceptions, tier coverage, and explicit enforcement resolve. |
+| `test_lower_town_slice_map` | **PASS: 19/19** | Map validation, routes, collision, navigation, parity, water exclusion, and transition seams pass. |
+| `test_r503_elevation_gameplay_invariants` | **PASS: 3/3** | Elevation values remain finite/view-only; gameplay geometry, navigation, reciprocal identity, and physical seam alignment remain stable. |
+| `test_r454_elevation_scope` | **BLOCKED: 1/3** | The two failures remain external matrix drift: `north_quarter` profile `r454.north.east_harbour_fall` and `south_quarter` profile `r454.south.karja_causeway` are outside the R-454 allowlists. |
+| `python3 -m unittest tests.python.test_verify_map_composition -v` | **BLOCKED: 6/7** | All Lower Town enforcement/regression cases pass; registry coverage fails only because `toompea_small_castle` has no threshold card. |
+| `python3 tools/verify_map_composition.py` | **BLOCKED** | Stops at the same missing `toompea_small_castle` threshold card before map metrics are audited. |
+| Report link audit | **PASS: 11/11** | Every relative source link resolves. |
+| `git diff --check -- docs/reports/r598_lower_town_surface_elevation_verification.md` | **PASS** | No scoped whitespace errors. |
+
+The metric probe's checked wrapper returned non-zero only for the known shutdown leak diagnostics (`92 ObjectDB` instances and `8 resources`); its direct rerun exited 0 and reported no parser, script, shader, or resource-loading errors. The three focused Lower Town test files completed with clean checked summaries; their shutdown leak lines were likewise the known teardown output.
+
+The R-454 failures remain owned by R-453/R-455. The missing composition card remains owned by the Toompea Small Castle package (`R-297`/`P4-039`). No follow-up task was created because both blockers have registered owners. Lower Town surface shares, elevation access, authoring contract, map routes/parity, and view-only elevation invariants remain **PASS**; only the external matrix/composition baselines remain **BLOCKED**.
+
+## Current disposition
+
+R-598 has a complete current-checkout verification ledger and is ready for maintainer review. Keep P0-100 open until R-453/R-455 and the Toompea threshold-card owner reconcile their inputs. Do not regenerate parity or alter thresholds as part of R-598.
