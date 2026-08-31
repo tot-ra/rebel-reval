@@ -96,6 +96,32 @@ func test_water_profiles_keep_optical_flow_and_tide_roles_distinct() -> void:
 		)
 
 
+
+func test_water_prioritizes_reflection_and_hides_terrestrial_bed_detail() -> void:
+	MaterialsFacade.reset()
+	var shallow := MaterialsFacade.water_surface(MapTypesContract.TERRAIN_SHALLOW_WATER)
+	var enclosed := MaterialsFacade.water_surface(MapTypesContract.TERRAIN_WATER)
+	var deep := MaterialsFacade.water_surface(MapTypesContract.TERRAIN_DEEP_WATER)
+	assert_true(
+		float(shallow.get_shader_parameter("optical_depth")) >= 0.075,
+		"even shallow water needs enough visual column to avoid exposing the grass bed",
+	)
+	assert_true(
+		float(enclosed.get_shader_parameter("optical_depth")) >= 0.24,
+		"pond and harbour water must hide the flat grass terrain below its surface",
+	)
+	assert_true(
+		float(deep.get_shader_parameter("optical_depth")) >= 0.38,
+		"deep water must retain the strongest visual depth treatment",
+	)
+	var source := ShaderSources.WATER_SHADER_CODE
+	for safeguard in [
+		"bed_vegetation * 0.22",
+		"bed_detail_visibility = exp(-water_depth * 9.5) * 0.18",
+		"0.34 + fresnel",
+	]:
+		assert_true(safeguard in source, "water shader must retain %s" % safeguard)
+
 func test_water_shader_declares_reflection_inputs_and_safe_compatibility_fallbacks() -> void:
 	var source := ShaderSources.WATER_SHADER_CODE
 	for feature in [

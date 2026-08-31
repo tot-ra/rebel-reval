@@ -175,7 +175,9 @@ vec4 _seabed_layers(vec2 position, float water_depth) {
 	float shallow_weight = 1.0 - deep_weight;
 	float stone_weight = smoothstep(0.56, 0.78, broken * 0.72 + detail * 0.28) * shallow_weight;
 	float algae_depth = smoothstep(0.06, 0.16, water_depth) * (1.0 - smoothstep(0.30, 0.46, water_depth));
-	float algae_weight = smoothstep(0.48, 0.72, broad * 0.68 + broken * 0.32) * algae_depth * bed_vegetation;
+	// Sparse algae can tint an authentic shallow bed, but it must never read as
+	// the terrestrial grass layer continuing below a pond or harbour surface.
+	float algae_weight = smoothstep(0.48, 0.72, broad * 0.68 + broken * 0.32) * algae_depth * bed_vegetation * 0.22;
 	float sand_weight = max(shallow_weight - stone_weight - algae_weight, 0.08 * shallow_weight);
 	float shallow_total = max(sand_weight + stone_weight + algae_weight, 0.0001);
 	vec3 shallow_layers = vec3(sand_weight, stone_weight, algae_weight) / shallow_total;
@@ -296,8 +298,11 @@ void fragment() {
 		+ algae_bed_color * bed_layers.z
 	);
 	vec3 layered_bed = mix(shallow_bed, deep_bed_color, bed_layers.w);
-	float bed_detail_visibility = exp(-water_depth * 4.2);
-	vec3 seabed = mix(layered_bed, floor_color * layered_bed * 1.55, bed_detail_visibility * 0.72);
+	// The rendered terrain is physical geometry, but its grass texture should only
+	// survive as a restrained hint right at a clear, shallow edge. Otherwise the
+	// map's flat recessed bed makes it look like a meadow continues under water.
+	float bed_detail_visibility = exp(-water_depth * 9.5) * 0.18;
+	vec3 seabed = mix(layered_bed, floor_color * layered_bed * 1.18, bed_detail_visibility);
 
 	// Wavelength-dependent transmission removes red first and blue last. This
 	// creates depth lighting variation rather than uniformly darkening RGB.
@@ -326,7 +331,10 @@ void fragment() {
 	vec3 day_sky = mix(highlight_color, vec3(0.72, 0.82, 0.88), 0.32);
 	vec3 night_sky = vec3(0.05, 0.07, 0.12);
 	vec3 sky_reflection = mix(night_sky, day_sky, day_blend);
-	water_color = mix(water_color, sky_reflection, fresnel * mix(0.35, 0.68, day_blend));
+	// Keep the reflection legible from the gameplay camera. Fresnel still makes
+	// grazing angles brightest, while this base share stops the shallow bed from
+	// overpowering sky and sun reflections on broad, calm water.
+	water_color = mix(water_color, sky_reflection, 0.34 + fresnel * mix(0.44, 0.62, day_blend));
 
 	// WHY: DayNightCycle packs a solar day into 60s. Reflecting the catalog and
 	// sun/moon through fully animated wave normals turns that race into frantic

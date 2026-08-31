@@ -6,10 +6,10 @@ extends RefCounted
 ## public facade for terrain, building, foliage, and water material consumers.
 
 const OPTICAL_DEPTH_BY_TERRAIN := {
-	MapTypes.TERRAIN_SHALLOW_WATER: 0.038,
-	MapTypes.TERRAIN_RIVER_WATER: 0.072,
-	MapTypes.TERRAIN_WATER: 0.105,
-	MapTypes.TERRAIN_DEEP_WATER: 0.22,
+	MapTypes.TERRAIN_SHALLOW_WATER: 0.075,
+	MapTypes.TERRAIN_RIVER_WATER: 0.14,
+	MapTypes.TERRAIN_WATER: 0.24,
+	MapTypes.TERRAIN_DEEP_WATER: 0.38,
 }
 
 static var _cache: Dictionary = {}
