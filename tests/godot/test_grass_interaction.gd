@@ -66,3 +66,33 @@ func test_map_view_scales_logic_velocity_into_world_grass_interaction() -> void:
 	)
 	MapViewMaterials.clear_grass_interaction()
 	view.free()
+
+
+func test_grass_interaction_clears_when_map_view_is_freed() -> void:
+	var definition := MapDefinition.new()
+	definition.cell_size = MapTypes.DEFAULT_CELL_SIZE
+	var view := MapView3D.new()
+	view.definition = definition
+	view.update_grass_interaction(Vector2(64.0, 96.0), Vector2(160.0, 0.0))
+	var grass := MapViewMaterials.grass_blades()
+	assert_true(
+		float(grass.get_shader_parameter("interact_strength")) > 0.0,
+		"the active map view must drive grass interaction before teardown"
+	)
+
+	var tree := Engine.get_main_loop() as SceneTree
+	assert_true(tree != null, "SceneTree required to exercise map view teardown")
+	tree.root.add_child(view)
+	tree.root.remove_child(view)
+	view.free()
+
+	assert_eq(
+		float(grass.get_shader_parameter("interact_strength")),
+		0.0,
+		"freeing a map view must not leak a bent grass patch into the next view"
+	)
+	assert_eq(
+		grass.get_shader_parameter("interact_push"),
+		Vector2.ZERO,
+		"freeing a map view must clear its movement wake direction"
+	)

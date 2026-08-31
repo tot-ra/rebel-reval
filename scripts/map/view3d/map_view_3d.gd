@@ -126,6 +126,10 @@ static func create(
 
 
 func _exit_tree() -> void:
+	# The grass material is cached across map views. Clear its dynamic player
+	# parameters before this view disappears so a menu or another map cannot
+	# retain the last character's bent patch.
+	MapViewMaterials.clear_grass_interaction()
 	# WHY: headless/dummy RenderingServer logs ERROR when MultiMeshInstance3D
 	# nodes with ShaderMaterial + instance colors are freed while their material
 	# RIDs are already invalid. Detach first so teardown stays quiet.
