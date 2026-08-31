@@ -92,6 +92,18 @@ R-713 handoff: unified sky/weather acceptance and water-facing synchronization e
 | Astronomical tide calculation | [`sky_astronomy.gd`](../../scripts/map/view3d/sky_astronomy.gd) | Owns the deterministic tide calculation; `MapViewLighting` forwards the presentation tide level to the material facade. |
 | Weather/tide fan-out | [`map_view_lighting.gd`](../../scripts/map/view3d/map_view_lighting.gd) | Applies the shared celestial/weather presentation to water lighting, coastal tide, and sky reflection. |
 
+## R-750 shared reflective material contract
+
+The material contract is implemented by the cached water adapter and one shader source:
+
+- [`map_view_water_materials.gd`](../../scripts/map/view3d/map_view_water_materials.gd) owns the per-terrain uniform profile and cache. `optical_depth`, `depth_absorption`, `foam_intensity`, `breaker_intensity`, `wave_height`, `wave_chaos`, and `bed_vegetation` remain terrain-profile inputs. Coastal tide fields (`tide_height`, `tide_shore_retreat`, `tide_optical_depth`) are non-zero only where the profile permits them; `river_water` keeps them at zero and owns the authored `flow_direction` / `flow_strength` current.
+- [`map_view_material_shaders.gd`](../../scripts/map/view3d/map_view_material_shaders.gd) owns the single `WATER_SHADER_CODE` family. It samples screen/depth textures for transmission and safe refraction, applies a Schlick Fresnel response, and consumes the shared sky/celestial inputs (`star_map`, sun/moon directions, visibility, latitude, and sidereal angle).
+- [`map_view_materials.gd`](../../scripts/map/view3d/map_view_materials.gd) remains the public facade and supplies the closed `WATER_WAVE_BASE` catalog to every water surface. No map source or stable terrain ID is changed.
+
+The GL Compatibility fallback is intentional: invalid refracted depth falls back to `SCREEN_UV`, UV distortion is clamped away from texture edges, and optical depth is floored before absorption. The rollout does not use planar reflections; the shared sky catalog plus explicit celestial glints provide the supported deterministic reflection path without a second reflection pass.
+
+Focused proof: [`test_r715_water_material_contract.gd`](../../tests/godot/test_r715_water_material_contract.gd) passes 3/3, covering the shared shader identity, distinct shallow/deep/enclosed/river optical and flow/tide profiles, required screen/depth/Fresnel/celestial inputs, and compatibility fallbacks. This is structural material evidence only; renderer-quality and target-hardware acceptance remain owned by R-756/R-755.
+
 ## Child-task handoff boundaries
 
 Existing board rows own the next bounded steps; R-748 does not duplicate them:
