@@ -55,6 +55,43 @@ func test_gameplay_view_keeps_western_lower_town_frontage_resident() -> void:
 	view.free()
 
 
+func test_lower_town_initial_view_loads_full_authored_district() -> void:
+	var definition := LowerTownSlice.create()
+	var grid := MapBuilder.build(definition)
+	var view := MapView3D.create(definition, grid)
+	var streamer := view.object_streamer()
+
+	assert_eq(
+		streamer.loaded_chunk_coordinates().size(),
+		grid.chunk_count().x * grid.chunk_count().y,
+		"Lower Town's 5x4 startup view must retain every authored district chunk",
+	)
+	for object_id: StringName in [
+		&"city_wall_north",
+		&"viru_gate_north_tower",
+		&"corner_house_muurivahe",
+		&"west_lane_house",
+		&"hedge_house",
+		&"south_apron_far_roofs",
+	]:
+		assert_true(
+			streamer.loaded_instance(object_id) is Node3D,
+			"Lower Town startup must render authored object %s" % object_id,
+		)
+	var brick_house := streamer.loaded_instance(&"corner_house_muurivahe") as Node3D
+	assert_true(brick_house != null, "Lower Town startup must render its brick facade")
+	if brick_house != null:
+		var brick_walls := brick_house.get_node_or_null("Walls") as MeshInstance3D
+		assert_true(brick_walls != null, "Lower Town's brick facade must have wall geometry")
+		if brick_walls != null:
+			var brick_material := brick_walls.material_override as StandardMaterial3D
+			assert_true(
+				brick_material != null and brick_material.albedo_texture != null,
+				"Lower Town's authored brick facade must retain its textured wall material",
+			)
+	view.free()
+
+
 func test_playable_lower_town_routes_keep_authored_art_resident() -> void:
 	var definition := LowerTownSlice.create()
 	var view := MapView3D.create(definition, MapBuilder.build(definition))
