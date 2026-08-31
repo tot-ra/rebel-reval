@@ -166,9 +166,9 @@ Required next actions before a future closeout:
 ### Seven-clause verdicts
 
 1. **Ordinary repetition, material runs, and landmark classification: BLOCKED.** Source inventory and stable IDs are coherent, but gameplay-route repetition and presentation are not visually accepted. Owners: R-487/R-532 and R-488/R-533.
-2. **Three tiers, wall/roof families, and localized wear: BLOCKED.** The tier/map contracts pass, and the packet has four matched route pairs, but no plate is stable-ID annotated for `merchant_stone`, `merchant_timber`, `craft_boda`, each required material/roof family, or readable wear/repair. Owners: R-487/R-532/R-561.
+2. **Three tiers, wall/roof families, and localized wear: BLOCKED.** The tier/map contracts pass, and the packet has five matched route pairs, but no plate is stable-ID annotated for `merchant_stone`, `merchant_timber`, `craft_boda`, each required material/roof family, or readable wear/repair. Owners: R-487/R-532/R-561.
 3. **Exceptional landmarks and 1343 silhouettes: BLOCKED.** The 48 non-ordinary IDs and renderer/view-only boundaries are structurally present, but R-492/R-537 retain blocked per-row verdicts and R-488/R-489 are not closed. Owners: R-488/R-492/R-533/R-537.
-4. **Matched gameplay-scale day/night evidence: BLOCKED for acceptance, PASS for packet integrity.** Manifest audit: 8 PNG plates, 4 presets, 4 matched pairs, `1280x720`, valid PNG signatures, non-blank payloads, `errors=0`; focused capture contract: 4/4. The packet does not cover every required stable-ID surface. Owners: R-491/R-536/R-561.
+4. **Matched gameplay-scale day/night evidence: BLOCKED for acceptance, PASS for packet integrity.** Manifest audit: 10 PNG plates, 5 presets, 5 matched pairs, `1280x720`, valid PNG signatures, non-blank payloads, `errors=0`; focused capture contract: 5/5. The packet does not cover every required stable-ID surface. Owners: R-491/R-536/R-561.
 5. **Named human historical/art review: BLOCKED.** R-492 and R-537 record no assigned human canon reviewer or human art reviewer and issue no silhouette approval. Owner: R-537/R-492.
 6. **Routes, collision, navigation, occlusion, parity, and performance: PARTIAL - final acceptance BLOCKED.** Green scoped suites: map 19/19, tiers 5/5, smithy 16/16, terrain 6/6, large chunks 8/8, object streaming 7/7, vertical performance 4/4, benchmark 3/3, population cap 2/2; performance manifest check passes. Camera suite: 11 tests, 6 assertion failures, 0 test errors. Clean-load gate: exit 1 after clean checkout/LFS/import, first product diagnostics are `elevation_area` / `elevation_ramp` unknown commands, then 41 failures and 193 errors. R-490/R-535 also retain resident-node and resident-memory overages; R-563 lacks Intel UHD 620 evidence. Owners: camera/runtime owner, R-453/R-455, P3-011/R-563.
 7. **Upstream blockers and handoff boundary: BLOCKED.** R-109 remains `todo`; R-6 remains conditional `in_review`; R-487-R-489 and R-560 remain open; R-561/R-564 retain blocked readiness; no P0-102 or reference-art evidence is promoted.
@@ -178,7 +178,7 @@ Required next actions before a future closeout:
 | Check | Current result | Classification |
 |---|---|---|
 | `python3 tools/validate_asset_sources.py` | PASS - 1155 rows, 999 inventory paths, 993 active runtime assets | Relevant package/provenance validation is green. |
-| Manifest/link audit | PASS - `plates=8`, `presets=4`, `errors=0`; 19 concrete links in this report, 0 missing | Relevant acceptance package integrity is green. |
+| Manifest/link audit | PASS - `plates=10`, `presets=5`, `errors=0`; 19 concrete links in this report, 0 missing | Relevant acceptance package integrity is green. |
 | `python3 tools/report_slice_performance.py --check` | PASS - manifest and slice gates valid | Contract/schema evidence only; not a hardware measurement. |
 | `python3 tools/verify_map_audit.py` | FAIL - missing scene coverage, target mismatch, missing strict TODO tasks, and P2-012/P2-021 dependency drift | Baseline repository inventory/TODO drift; not repaired or counted as a P0-101 acceptance PASS. |
 | `python3 tools/verify_map_conversion_plan.py` | FAIL - same baseline scene/TODO/target/dependency drift | Baseline repository inventory/TODO drift; not repaired or counted as a P0-101 acceptance PASS. |
@@ -268,6 +268,7 @@ The clean-checkout gate implementation is green as a contract, but its product l
 ### Closeout
 
 **R-538 is complete as a deterministic BLOCKED verification ledger.** Move R-538 to `in_review`; keep R-108 / P0-101 `todo`. No new follow-up tasks are needed because the exact owners already exist: R-487/R-532, R-488/R-492/R-533/R-537, R-489/R-534, R-490/R-535, R-491/R-536/R-561, R-453/R-455, P3-011/R-563, and R-560/R-564.
+
 ---
 
 ## R-538 focused rerun addendum (2026-08-18)
@@ -297,6 +298,7 @@ The tier and capture contracts remain green, and all manifest outputs remain pre
 The seven-clause result remains unchanged: clauses 1-5 and 7 are **BLOCKED**, while clause 6 is **PARTIAL - final acceptance BLOCKED**. Existing blockers remain the stable-ID visual review gaps, unassigned canon/art reviewers, the parity/object-boundary mismatch, camera failures, clean-checkout `elevation_area` / `elevation_ramp` parser diagnostics, production resident-cost overages, and unavailable Intel UHD 620 evidence. Existing owners cover these findings; no duplicate follow-up task is created.
 
 **R-538 verification is complete as a deterministic BLOCKED ledger.** Keep R-538 in `in_review` and keep R-108 / P0-101 `todo` until the named owners resolve every blocker.
+
 ---
 
 ## R-538 independent rerun addendum (2026-08-22)
@@ -399,3 +401,105 @@ The seven-clause result remains:
 **Closeout:** R-538 is complete as a deterministic **BLOCKED** ledger. Keep R-538 in `in_review`, keep R-108/P0-101 open, and do not create duplicate follow-up tasks while the existing owners remain active.
 
 **Sources:** [`lower_town_p0_101_landmark_inventory.md`](lower_town_p0_101_landmark_inventory.md), [`lower_town_p0_101_capture_matrix.md`](lower_town_p0_101_capture_matrix.md), [`r639_lower_town_runtime_performance_reverification.md`](r639_lower_town_runtime_performance_reverification.md), [`r638_lower_town_historical_art_signoff_reconciliation.md`](r638_lower_town_historical_art_signoff_reconciliation.md), [`p0_101_decomposition_readiness.md`](p0_101_decomposition_readiness.md), [`content/maps/lower_town_slice.rrmap`](../../content/maps/lower_town_slice.rrmap), and the focused commands listed above.
+
+---
+
+## R-538 independent rerun addendum (2026-08-23)
+
+**Scope:** fresh verification-only rerun in the shared checkout at HEAD `bda5326ace979de572740b723bb18339abd5d66c`. No runtime, art, map, fixture, budget, threshold, or human-review files were changed. The current `content/maps/lower_town_slice.rrmap` SHA-256 is `6ae0b82a0a46a7391cb5db5a0bb02e562756def8073fe08cf63beebd7ace7e50`.
+
+**Decision:** **BLOCKED - keep R-538 in `in_review` and R-108 / P0-101 open.** Existing owners cover the actionable blockers; no duplicate follow-up task was created.
+
+### Fresh focused results
+
+All Godot suites used `/Applications/Godot.app/Contents/MacOS/Godot` through `tools/run_godot_checked.sh --require-test-summary`. Known shutdown-only resource/RID leak diagnostics were not treated as substantive failures.
+
+| Focused check | Fresh result | Acceptance interpretation |
+|---|---|---|
+| `test_lower_town_slice_map` | **19/19** | Current Lower Town map, route, collision, navigation, and parity assertions pass in this checkout. |
+| `test_burgher_house_tiers` | **5/5** | Tier/material-precedence contract passes; visual readability remains unproven. |
+| `test_capture_lower_town_p0_101` | **5/5** | Capture packet contract passes; stable-ID visual acceptance remains blocked. |
+| `test_kalev_smithy_map` | **16/16** | Smithy route and collision contract passes. |
+| `test_map_object_chunk_streaming` | **7/7** | Object ownership and lifecycle contract passes. |
+| `test_large_map_chunk_prototype` | **8/8** | Chunk ownership and route prototype contract passes. |
+| `test_environment_kit_integration` | **5/5** | Shared environment-kit structural contract passes. |
+| `test_urban_population_performance_cap` | **2/2** | Population-cap contract passes. |
+| `test_vertical_slice_performance` | **4/4** | Authored budget/target-profile contract passes; this is not target-hardware evidence. |
+| `test_performance_benchmark` | **5/5** | Benchmark schema/target contract passes; aggregate resident-budget acceptance remains open. |
+| `test_map_view_3d_fortification` | **9 tests, 1 failure, 40 errors** | The run is blocked by the existing Lower Town neighbor/boundary fixture (`north edge needs its authored neighbor`) and related map diagnostics; it is not evidence of a new R-538 edit. |
+| `test_map_camera_modes` | **11 tests, 2 failures, 266 errors** | `test_building_collision_pulls_camera_out` and `test_mouse_drag_pitch_orbits_perspective_modes_and_yaw_turns_character` fail; global map diagnostics interrupt the remaining camera checks. |
+
+Supporting checks: `python3 -m unittest tests.python.test_lower_town_p0_101_baseline -v` passes **4/4**; `python3 -m unittest tests.python.test_verify_clean_checkout_load -v` passes **7** with **1 expected skip**; `python3 tools/report_slice_performance.py --check` passes; and `python3 tools/verify_map_activation.py` passes. `python3 tools/verify_map_composition.py` remains blocked by missing threshold cards `kuldjala_interior`, `nunnatorn_interior`, and `toompea_small_castle`.
+
+### Capture and clean-checkout boundary
+
+`docs/reports/images/lower_town_p0_101/capture_manifest.json` contains **10** plates and **5** presets at `1280x720` with `gl_compatibility`, but its `map_fingerprint` remains `13525325b3d8be840c79d8c709c8aab12632bc6092a7123bc6d9275ba51d17ba`, which is stale against the current map SHA above. Plate records have no `stable_ids` field. The packet therefore remains package-integrity evidence only and cannot prove current-revision tier, material, roof, wear, special-building, fortification, or landmark acceptance.
+
+The clean-load Python suite validates the gate implementation, not a successful product import. The current acceptance evidence continues to record the clean import blocker on tracked-HEAD shader preloads `res://scripts/characters/eye_material.gdshader` and `res://scripts/characters/hair_material.gdshader`, with the dependent shared-rig/GameState parse cascade owned by R-122/R-124. The older `elevation_area` / `elevation_ramp` parser blocker remains a later rerun boundary, not a new result of this addendum.
+
+### Seven-clause disposition
+
+1. **BLOCKED:** no stable-ID gameplay review proves ordinary repetition, materials, wear, or landmark classification.
+2. **BLOCKED:** tier contracts pass, but matched day/night surface observations remain absent.
+3. **BLOCKED:** exceptional structures are present structurally, but named canon/art silhouette approval is absent.
+4. **BLOCKED for acceptance, PASS for packet integrity:** ten plates exist, but the packet is stale and lacks stable-ID observations.
+5. **BLOCKED:** no named human canon/art reviewers have signed the required rows; A-009 remains conditional.
+6. **PARTIAL - final acceptance BLOCKED:** most scoped contracts pass, while camera behavior, fortification boundary diagnostics, clean product import, resident-cost, and declared minimum-hardware evidence remain unresolved.
+7. **BLOCKED:** required handoffs and upstream acceptance gates are not all resolved; existing task owners remain responsible.
+
+**Closeout:** R-538 is complete as a deterministic blocked verification ledger. Keep R-538 in `in_review`, keep R-108 / P0-101 open, and do not promote any partial contract result to final acceptance.
+
+---
+
+## R-538 fresh verification addendum (2026-08-31)
+
+**Scope:** independent verification-only rerun in the shared worktree. No runtime, art, map content, parity fixture, acceptance threshold, budget, or human-review outcome was changed. Existing unrelated WIP was preserved.
+
+**Decision:** **BLOCKED - R-538 is complete as a verification artifact; keep R-538 in `in_review` and keep R-108 / P0-101 open.** The current owners already cover the unresolved blockers, so no duplicate follow-up task was created.
+
+### Fresh source and packet audit
+
+- `content/maps/lower_town_slice.rrmap` contains `99` building/landmark records with `99` unique stable IDs. Authored tier counts are `merchant_stone=14`, `merchant_timber=14`, and `craft_boda=23`; `st_catherines_church`, `viru_gate_arch`, and `viru_foregate_arch` are present.
+- The current source SHA-256 is `6ae0b82a0a46a7391cb5db5a0bb02e562756def8073fe08cf63beebd7ace7e50`, matching the manifest's `map_source_sha256`. The manifest's separate `map_fingerprint` remains `13525325b3d8be840c79d8c709c8aab12632bc6092a7123bc6d9275ba51d17ba`, so the packet is not current-revision acceptance evidence.
+- `docs/reports/images/lower_town_p0_101/capture_manifest.json` contains `10` plates, `5` presets, `5` matched day/night pairs, `0` manifest errors, and all referenced outputs are present. Plate records do not contain `stable_ids` observations. The packet therefore passes package integrity only and does not prove tier, material, roof, wear, special-building, fortification, or landmark acceptance.
+- `python3 tools/validate_asset_sources.py` passes with `2229` rows, `2016` inventory paths, and `2006` active runtime assets covered. `python3 tools/report_slice_performance.py --check` and `python3 tools/verify_map_activation.py` pass. `python3 tools/verify_map_composition.py` remains blocked by the baseline missing threshold card `toompea_small_castle`.
+
+### Fresh focused verification
+
+All Godot checks used `/Applications/Godot.app/Contents/MacOS/Godot` through `tools/run_godot_checked.sh --require-test-summary`. Known shutdown-only ObjectDB/resource/RID leak lines were not treated as substantive failures.
+
+| Focused check | Fresh result | Acceptance interpretation |
+|---|---|---|
+| `test_lower_town_slice_map` | **19/19** | Current Lower Town map, route, collision, navigation, and parity contracts pass in the live checkout. |
+| `test_burgher_house_tiers` | **6/6** | Tier/material-precedence contract passes; visual readability remains unproven. |
+| `test_capture_lower_town_p0_101` | **9/9** | Capture packet contract passes; stable-ID visual acceptance remains blocked. |
+| `test_kalev_smithy_map` | **16/16** | Smithy route and collision contract passes. |
+| `test_map_terrain_chunks` | **6/6** | Terrain residency contract passes. |
+| `test_large_map_chunk_prototype` | **8/8** | Large-map chunk and route prototype contract passes. |
+| `test_map_object_chunk_streaming` | **7/7** | Object ownership and lifecycle contract passes. |
+| `test_environment_kit_integration` | **5/5** | Shared environment-kit structural contract passes. |
+| `test_map_view_3d_fortification` | **9/9** | Fortification renderer boundary contract passes; no human silhouette approval is implied. |
+| `test_map_camera_modes` | **11/11** | Camera contract passes in this live checkout; this does not clear the historical clean-load or resident-budget blockers. |
+| `test_vertical_slice_performance` | **4/4** | Authored budget/target-profile contract passes; this is not target-hardware evidence. |
+| `test_performance_benchmark` | **5/5** | Benchmark schema/target contract passes; aggregate resident-budget acceptance remains open. |
+| `test_urban_population_performance_cap` | **2/2** | Population-cap contract passes. |
+
+The live focused batch totals **13 files, 107 tests, 0 failures, and 0 errors**. These are structural/runtime contract results only and do not promote the overall acceptance gate.
+
+### Clean-checkout and remaining acceptance boundary
+
+`GODOT_BIN=/Applications/Godot.app/Contents/MacOS/Godot tools/verify_clean_checkout_load.sh` created the detached checkout, restored runtime LFS assets, and completed the import stage. The bounded clean load then failed with `4 files, 69 tests, 44 failures, and 191 errors`. The first actionable product diagnostics are `unknown_command` for `elevation_area` at lines 14, 20, and 22 and `elevation_ramp` at line 17 in `content/maps/lower_town_slice.rrmap`, followed by an invalid map definition. The checked runner rejected the command for those substantive diagnostics; shutdown-only leak messages were allowlisted. This is a clean product-load blocker, not a missing Godot binary or a report-only issue.
+
+The final seven-clause disposition remains:
+
+1. **BLOCKED:** no stable-ID-linked gameplay review proves ordinary repetition, materials, wear, or landmark classification.
+2. **BLOCKED:** tier contracts pass, but matched day/night surface observations for all required tier, roof, material, and repair reads remain absent.
+3. **BLOCKED:** exceptional structures are structurally present, but named canon/art silhouette approval is absent.
+4. **BLOCKED for acceptance, PASS for packet integrity:** ten valid plates exist, but the packet fingerprint is stale and plate records lack stable-ID observations.
+5. **BLOCKED:** no named human canon or art reviewers have signed the required rows; A-009 remains conditional.
+6. **PARTIAL - final acceptance BLOCKED:** all current live focused suites pass, but clean product load, resident-node/memory caps, and minimum-hardware evidence remain unresolved; composition audit also has baseline registry drift.
+7. **BLOCKED:** upstream and handoff owners remain open or conditional, including P0-100, R-487-R-489, R-490-R-492, R-564, and A-009.
+
+**Closeout:** R-538 is complete as a deterministic **BLOCKED** ledger. Keep R-538 in `in_review`, keep R-108 / P0-101 open, and do not create duplicate follow-up tasks while R-578/P3-011, R-122/R-124, R-453/R-455/R-604, R-563, R-577, R-487-R-492, and the existing decomposition owners remain responsible.
+
+**Sources:** [`content/maps/lower_town_slice.rrmap`](../../content/maps/lower_town_slice.rrmap), [`images/lower_town_p0_101/capture_manifest.json`](images/lower_town_p0_101/capture_manifest.json), [`r639_lower_town_runtime_performance_reverification.md`](r639_lower_town_runtime_performance_reverification.md), [`r638_lower_town_historical_art_signoff_reconciliation.md`](r638_lower_town_historical_art_signoff_reconciliation.md), [`tools/verify_clean_checkout_load.sh`](../../tools/verify_clean_checkout_load.sh), and the focused commands listed above.
