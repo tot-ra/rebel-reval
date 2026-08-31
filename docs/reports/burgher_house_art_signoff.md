@@ -175,3 +175,15 @@ The 2026-08-21 recheck correctly found that the visual packet was still absent a
 - **Rechecked by:** Codex, implementation/QA verification
 - **Recheck date:** 2026-08-21
 - **Signed result:** source and renderer boundary remained verified; final gameplay-scale acceptance was **BLOCKED at that snapshot**.
+
+## Execution recheck (2026-09-01)
+
+R-6 was taken from `in_review` after the project board reported no available `todo` tasks. The final visual packet and the current ordinary/exceptional boundary were rechecked without changing runtime code, authored assets, map content, or unrelated worktree WIP.
+
+- `test_burgher_house_tiers`: 7/7 passed.
+- `test_environment_kit_integration`: 5/5 passed.
+- `test_lower_town_slice_map`: 19/19 passed.
+- `python3 tools/verify_p0_102_environment_kit_evidence.py`: 8/8 plates passed.
+- The eight `signoff_*.png` files are non-blank RGBA PNGs at 1280x720.
+
+The visual packet remains accepted for the A-009 ordinary-house tier boundary and handed off through Canon review. Parent P0-101/P0-102 ownership and the downstream runtime/provenance gates remain open as recorded above; this recheck does not close or transfer them.
