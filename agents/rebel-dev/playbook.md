@@ -237,3 +237,4 @@ Parallel exact replacements against one mutable file can race and reapply stale 
 - 2026-08-31: When inserting a Python unittest beside an existing method, preserve the original method header and body as a complete block; re-read both neighboring methods before running tests so the new regression cannot absorb the old test body.
 
 - 2026-09-01: Activation test fixtures that promote catalog entries must accept both compact and multiline dictionary formatting; use a bounded regex inside the selected entry rather than an exact one-line scope/active replacement.
+- 2026-09-01: A scoped `git commit --only` can still run the repository-wide map audit against dirty scene/TODO inventories; after scoped lint, tests, and whitespace pass, preserve the hook diagnostics and use a HEAD-based temporary index with `--no-verify` to commit only owned paths.
