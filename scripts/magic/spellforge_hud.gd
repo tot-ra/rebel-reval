@@ -12,6 +12,10 @@ signal close_requested
 const PANEL_SIZE := Vector2(720.0, 620.0)
 
 var _model: SpellforgeModel
+var _collection_root: Control
+var _quick_element_row: HBoxContainer
+var _quick_sequence_label: Label
+var _quick_feedback_label: Label
 var _element_row: HBoxContainer
 var _sequence_label: Label
 var _resource_label: Label
@@ -31,12 +35,13 @@ func _ready() -> void:
 	layer = 25
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_build_ui()
-	visible = false
+	visible = true
+	refresh()
 
 
 func open() -> void:
 	refresh()
-	visible = true
+	_collection_root.visible = true
 	add_to_group(&"modal_input_overlay")
 	if _first_element_button != null:
 		_first_element_button.grab_focus()
@@ -45,15 +50,15 @@ func open() -> void:
 
 
 func close() -> void:
-	if not visible:
+	if not is_open():
 		return
-	visible = false
+	_collection_root.visible = false
 	remove_from_group(&"modal_input_overlay")
 	close_requested.emit()
 
 
 func is_open() -> bool:
-	return visible
+	return _collection_root != null and _collection_root.visible
 
 
 func refresh() -> void:
@@ -62,15 +67,20 @@ func refresh() -> void:
 	_sequence_label.text = "Forged sequence: %s" % SpellforgeModel.sequence_text(
 		_model.selected_sequence()
 	)
+	_quick_sequence_label.text = "Sequence: %s" % SpellforgeModel.sequence_text(
+		_model.selected_sequence()
+	)
 	_feedback_label.text = _model.feedback_text()
+	_quick_feedback_label.text = _model.feedback_text()
 	_resource_label.text = _resource_text()
 	_rebuild_elements()
+	_rebuild_quick_elements()
 	_rebuild_cookbook()
 	_cast_button.disabled = _model.selected_sequence().is_empty()
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if not visible or not event.is_pressed() or event.is_echo():
+	if not is_open() or not event.is_pressed() or event.is_echo():
 		return
 	if event.is_action_pressed(&"ui_cancel"):
 		close()
@@ -78,17 +88,29 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed(&"spellforge_remove"):
 		remove_requested.emit()
 		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed(&"spellforge_cast"):
+	elif event.is_action_pressed(&"spellforge_cast") and not _is_left_click(event):
 		cast_requested.emit()
 		get_viewport().set_input_as_handled()
 
 
+static func _is_left_click(event: InputEvent) -> bool:
+	if not event is InputEventMouseButton:
+		return false
+	var button := event as InputEventMouseButton
+	return button.button_index == MOUSE_BUTTON_LEFT and button.pressed
+
+
 func _build_ui() -> void:
-	var root := Control.new()
-	root.name = "SpellforgeRoot"
-	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	root.mouse_filter = Control.MOUSE_FILTER_STOP
-	add_child(root)
+	_build_quick_hud()
+
+	_collection_root = Control.new()
+	_collection_root.name = "SpellforgeRoot"
+	_collection_root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_collection_root.mouse_filter = Control.MOUSE_FILTER_STOP
+	_collection_root.visible = false
+	add_child(_collection_root)
+
+	var root := _collection_root
 
 	var dim := ColorRect.new()
 	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -186,6 +208,71 @@ func _build_ui() -> void:
 	_cookbook.add_theme_constant_override("separation", 8)
 	scroll.add_child(_cookbook)
 
+
+
+func _build_quick_hud() -> void:
+	var margin := MarginContainer.new()
+	margin.name = "QuickSpellHud"
+	margin.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	margin.position = Vector2(-310.0, -150.0)
+	margin.custom_minimum_size = Vector2(620.0, 118.0)
+	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(margin)
+
+	var panel := PanelContainer.new()
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	margin.add_child(panel)
+
+	var padding := MarginContainer.new()
+	for side in ["left", "right", "top", "bottom"]:
+		padding.add_theme_constant_override("margin_%s" % side, 10)
+	padding.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.add_child(padding)
+
+	var layout := VBoxContainer.new()
+	layout.add_theme_constant_override("separation", 4)
+	layout.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	padding.add_child(layout)
+
+	var title := Label.new()
+	title.text = "QUICK SPELL  •  number keys add elements  •  LMB casts  •  Backspace removes"
+	title.add_theme_color_override("font_color", Color(0.96, 0.67, 0.3))
+	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layout.add_child(title)
+
+	_quick_element_row = HBoxContainer.new()
+	_quick_element_row.name = "QuickElementSlots"
+	_quick_element_row.add_theme_constant_override("separation", 12)
+	_quick_element_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layout.add_child(_quick_element_row)
+
+	_quick_sequence_label = Label.new()
+	_quick_sequence_label.name = "QuickSequenceLabel"
+	_quick_sequence_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layout.add_child(_quick_sequence_label)
+
+	_quick_feedback_label = Label.new()
+	_quick_feedback_label.name = "QuickSpellFeedback"
+	_quick_feedback_label.add_theme_color_override("font_color", Color(0.84, 0.9, 0.72))
+	_quick_feedback_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layout.add_child(_quick_feedback_label)
+
+
+func _rebuild_quick_elements() -> void:
+	for child in _quick_element_row.get_children():
+		child.queue_free()
+	var learned := _model.learned_elements()
+	var catalog := _model.catalog_elements()
+	for index in catalog.size():
+		var element_id := catalog[index]
+		var label := Label.new()
+		label.name = "Quick%sElement" % SpellforgeModel.display_element(element_id).replace(" ", "")
+		label.text = "[%d] %s" % [index + 1, SpellforgeModel.display_element(element_id)]
+		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		label.add_theme_color_override(
+			"font_color", Color(0.9, 0.92, 0.96) if learned.has(element_id) else Color(0.4, 0.42, 0.46)
+		)
+		_quick_element_row.add_child(label)
 
 func _rebuild_elements() -> void:
 	for child in _element_row.get_children():

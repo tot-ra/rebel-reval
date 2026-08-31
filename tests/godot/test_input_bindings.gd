@@ -22,6 +22,8 @@ const EXPECTED_SLICE_ACTIONS: Array[StringName] = [
 	&"spellforge_element_1",
 	&"spellforge_element_2",
 	&"spellforge_element_3",
+	&"spellforge_element_4",
+	&"spellforge_element_5",
 	&"spellforge_remove",
 	&"spellforge_cast",
 	&"toggle_inventory",

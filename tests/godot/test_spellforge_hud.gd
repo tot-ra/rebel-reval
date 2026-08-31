@@ -6,6 +6,7 @@ const CONTENT_DIRS: Array[String] = [
 ]
 const ModelScript := preload("res://scripts/magic/spellforge_model.gd")
 const HudScript := preload("res://scripts/magic/spellforge_hud.gd")
+const ControllerScript := preload("res://scripts/magic/spellforge_controller.gd")
 const BindingSettings := preload("res://scripts/settings/input_binding_settings.gd")
 const FIREBALL := &"spell.pagan.fireball"
 const GRANT_FIREBALL := &"magic.grant.starter_fireball"
@@ -117,6 +118,45 @@ func test_hud_uses_text_controls_and_exposes_cookbook_without_legacy_sprites() -
 	hud.free()
 
 
+func test_quick_hud_stays_visible_when_cookbook_is_closed() -> void:
+	var state := GameState.new()
+	var db := _make_db()
+	assert_true(MagicResolver.apply_grant_operation(state, db, GRANT_FIREBALL))
+	var model := ModelScript.new() as SpellforgeModel
+	model.configure(state, db)
+	var hud := HudScript.new() as SpellforgeHud
+	hud.configure(model)
+	(Engine.get_main_loop() as SceneTree).root.add_child(hud)
+
+	assert_true(hud.visible)
+	assert_false(hud.is_open(), "cookbook starts closed without hiding quick casting")
+	assert_true(hud.find_child("QuickSpellHud", true, false) is Control)
+	assert_true(hud.find_child("QuickSequenceLabel", true, false) is Label)
+	assert_eq((hud.find_child("QuickFireElement", true, false) as Label).text, "[4] Fire")
+	hud.free()
+
+
+func test_catalog_shortcuts_make_four_plus_one_fireball_sequence() -> void:
+	var state := GameState.new()
+	var db := _make_db()
+	assert_true(MagicResolver.apply_grant_operation(state, db, GRANT_FIREBALL))
+	var model := ModelScript.new() as SpellforgeModel
+	model.configure(state, db)
+	var controller := ControllerScript.new() as SpellforgeController
+	var hud := HudScript.new() as SpellforgeHud
+	hud.configure(model)
+	(Engine.get_main_loop() as SceneTree).root.add_child(hud)
+	controller.set("_model", model)
+	controller.set("_hud", hud)
+
+	controller.call("_select_catalog_index", 3)
+	controller.call("_select_catalog_index", 0)
+
+	assert_eq(model.selected_sequence(), FIRE_AIR)
+	hud.free()
+	controller.free()
+
+
 func test_spellforge_actions_are_remappable_for_keyboard_and_gamepad() -> void:
 	var bindings = BindingSettings.default_settings()
 	for action: StringName in [
@@ -124,6 +164,8 @@ func test_spellforge_actions_are_remappable_for_keyboard_and_gamepad() -> void:
 		&"spellforge_element_1",
 		&"spellforge_element_2",
 		&"spellforge_element_3",
+		&"spellforge_element_4",
+		&"spellforge_element_5",
 		&"spellforge_remove",
 		&"spellforge_cast",
 	]:
@@ -132,6 +174,14 @@ func test_spellforge_actions_are_remappable_for_keyboard_and_gamepad() -> void:
 			bindings.events_for(action, BindingSettings.DEVICE_KEYBOARD_MOUSE).is_empty()
 		)
 		assert_false(bindings.events_for(action, BindingSettings.DEVICE_GAMEPAD).is_empty())
+	var cast_events = bindings.events_for(
+		&"spellforge_cast", BindingSettings.DEVICE_KEYBOARD_MOUSE
+	)
+	var has_left_click := false
+	for event: InputEvent in cast_events:
+		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+			has_left_click = true
+	assert_true(has_left_click, "quick cast must include the left mouse button")
 
 
 func _cookbook_row(rows: Array[Dictionary], target_id: StringName) -> Dictionary:
