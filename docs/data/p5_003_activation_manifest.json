@@ -1,0 +1,85 @@
+{
+  "schema": "rebel-reval-p5-003-activation-v1",
+  "task": "R-313 / P5-003",
+  "approval_artifact": "docs/adr/0008-three-act-campaign-and-faction-scope.md",
+  "decision": "blocked",
+  "status": "prototype_wave_ready_for_gate_review",
+  "blockers": [
+    "P5-002"
+  ],
+  "activation_policy": "Promote Harju village, the rebel kings' camp, and the sacred grove atomically only after world travel, transition, traversal/collision, and per-location day/night parity gates are accepted.",
+  "targets": [
+    {
+      "id": "world_harju",
+      "rrmap_id": "world.harju",
+      "scene_path": "res://scenes/world_travel/world_harju.tscn",
+      "role": "Harju village rural staging",
+      "expected_dev_spawns": [
+        "from_reval_east",
+        "from_world_sacred_grove",
+        "from_world_rebel_kings",
+        "from_world_kanavere",
+        "from_world_sojamae"
+      ]
+    },
+    {
+      "id": "world_rebel_kings",
+      "rrmap_id": "world.rebel_kings",
+      "scene_path": "res://scenes/world_travel/world_rebel_kings.tscn",
+      "role": "Rebel kings' camp command hub",
+      "expected_dev_spawns": [
+        "from_world_harju",
+        "from_world_kanavere"
+      ]
+    },
+    {
+      "id": "world_sacred_grove",
+      "rrmap_id": "world.sacred_grove",
+      "scene_path": "res://scenes/world_travel/world_sacred_grove.tscn",
+      "role": "Cult of Metsik folklore route",
+      "expected_dev_spawns": [
+        "from_reval_south",
+        "from_world_harju"
+      ]
+    }
+  ],
+  "gates": {
+    "activation_guard": {
+      "status": "pass",
+      "evidence": "tools/verify_p5_003_activation.py"
+    },
+    "transition_verifier": {
+      "status": "pending",
+      "evidence": "tools/verify_transitions.gd"
+    },
+    "traversal_collision": {
+      "status": "pending",
+      "evidence": "target map traversal and collision suites"
+    },
+    "day_night_parity": {
+      "status": "blocked",
+      "locations": {
+        "world_harju": {
+          "status": "pending",
+          "day_capture": null,
+          "night_capture": null
+        },
+        "world_rebel_kings": {
+          "status": "pending",
+          "day_capture": null,
+          "night_capture": null
+        },
+        "world_sacred_grove": {
+          "status": "pending",
+          "day_capture": null,
+          "night_capture": null
+        }
+      }
+    }
+  },
+  "notes": [
+    "P5-002 still owns act-gated world travel and must close before this wave can enter production.",
+    "Developer traversal remains active with release=false so focused transition and traversal checks can run before promotion.",
+    "The location acceptance ledger currently records world.harju as environment-not-delivered with a blocked mandatory anchor; parity stays blocked until replacement evidence is accepted."
+  ]
+}
