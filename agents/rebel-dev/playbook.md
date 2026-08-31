@@ -242,3 +242,5 @@ Parallel exact replacements against one mutable file can race and reapply stale 
 
 - 2026-09-01: Optional-marker grep probes should end with `|| true` when a no-match result is expected; otherwise a diagnostic command can return status 1 before the saved test log is classified.
 - 2026-09-01: Do not run a RefCounted model factory or `tests/godot/test_*.gd` directly with Godot `--script`; without an explicit SceneTree quit they can hang. Use `tools/run_godot_tests.gd -- --filter=<exact_test_stem>` through `tools/run_godot_checked.sh` for bounded verification.
+
+- 2026-09-01: When an aggregate Godot transition/collision verifier times out or stops on unrelated map parser diagnostics, run a bounded map-specific collision/route probe and preserve the focused suite counts; do not promote the aggregate timeout into a scoped map failure.
