@@ -384,7 +384,10 @@ static func _simplify_neighbor_building(building: Node3D) -> void:
 	if building == null or building.get_meta(&"renderer_boundary", &"ordinary") != &"ordinary":
 		return
 	for child: Node in building.get_children().duplicate():
-		if child.name == &"Walls" or child.name == &"Roof":
+		# Curtain galleries and tower caps are the skyline read of a walled neighbor.
+		# Keep them with the structural walls instead of treating them as facade trim.
+		# The backdrop batcher preserves the same named roofs as structural silhouettes.
+		if child.name in [&"Walls", &"Roof", &"WalkRoof", &"TowerRoof"]:
 			continue
 		if child.get_meta(&"production_house_model", false):
 			continue
