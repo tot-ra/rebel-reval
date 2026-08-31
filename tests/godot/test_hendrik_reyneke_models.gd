@@ -8,7 +8,6 @@ const MammalSpecies := preload("res://scripts/map/view3d/map_view_mammal_species
 const EXPECTED_LARGEST_AXIS_M: Dictionary = {
 	MammalSpecies.SPECIES_CHICKEN: 0.46,
 	MammalSpecies.SPECIES_DUCK: 0.56,
-	&"goat": 1.20,
 }
 
 

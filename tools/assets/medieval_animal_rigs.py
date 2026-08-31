@@ -258,6 +258,60 @@ def create_cattle_rig(obj: bpy.types.Object) -> tuple[bpy.types.Object, list[bpy
     return armature, details
 
 
+def create_goat_rig(obj: bpy.types.Object) -> tuple[bpy.types.Object, list[bpy.types.Object]]:
+    """Procedural goat rig with fitted face, articulated tail, and livestock clips."""
+    eye_left = snap_point_to_mesh_surface(obj, Vector((-0.60, 0.125, 0.86)), outward=-0.004)
+    eye_right = snap_point_to_mesh_surface(obj, Vector((-0.60, -0.125, 0.86)), outward=-0.004)
+    nostril_left = snap_point_to_mesh_surface(obj, Vector((-0.77, 0.07, 0.73)), outward=0.002)
+    nostril_right = snap_point_to_mesh_surface(obj, Vector((-0.77, -0.07, 0.73)), outward=0.002)
+    armature, details = create_quadruped_rig(
+        obj,
+        "GoatRig",
+        (0.0, 0.0, 0.34),
+        (0.0, 0.0, 0.66),
+        {
+            "Neck": ((-0.30, 0.0, 0.64), (-0.58, 0.0, 0.88)),
+            "Tail": ((0.43, 0.0, 0.68), (0.62, 0.0, 0.77)),
+            "FrontLeftLeg": ((-0.29, 0.145, 0.49), (-0.30, 0.145, 0.05)),
+            "FrontRightLeg": ((-0.29, -0.145, 0.49), (-0.30, -0.145, 0.05)),
+            "BackLeftLeg": ((0.36, 0.145, 0.49), (0.35, 0.145, 0.05)),
+            "BackRightLeg": ((0.36, -0.145, 0.49), (0.35, -0.145, 0.05)),
+            "EyeLeft": (tuple(eye_left), (eye_left.x, eye_left.y, eye_left.z + 0.05)),
+            "EyeRight": (tuple(eye_right), (eye_right.x, eye_right.y, eye_right.z + 0.05)),
+        },
+        {
+            "neck_x": -0.28,
+            "neck_z": 0.54,
+            "tail_x": 0.43,
+            "tail_z": 0.62,
+            "tail_y": 0.18,
+            "leg_z": 0.50,
+            "front_leg_x": -0.12,
+            "back_leg_x": 0.14,
+            "eye_x": abs(eye_left.x),
+            "eye_scale": (0.022, 0.010, 0.018),
+            "pupil_scale": (0.011, 0.005, 0.012),
+            "pupil_offset": 0.006,
+            "tail_tuft_scale": (0.055, 0.045, 0.070),
+        },
+        eye_specs=[
+            ("Left", eye_left.y, eye_left.z, "EyeLeft"),
+            ("Right", eye_right.y, eye_right.z, "EyeRight"),
+        ],
+        tail_specs=((0.43, 0.0, 0.68), (0.62, 0.0, 0.77), 0.045, 0.020),
+    )
+    nose_material = create_flat_material("goatrig_nostril", (0.035, 0.022, 0.016, 1.0))
+    for side, anchor in (("Left", nostril_left), ("Right", nostril_right)):
+        nostril = add_uv_sphere(
+            f"Nostril{side}", tuple(anchor), (0.014, 0.008, 0.010), nose_material
+        )
+        parent_to_bone(nostril, armature, "Neck")
+        details.append(nostril)
+    armature["procedural_goat"] = True
+    armature["surface_snapped_face"] = True
+    return armature, details
+
+
 def create_sheep_rig(obj: bpy.types.Object) -> tuple[bpy.types.Object, list[bpy.types.Object]]:
     """Detailed sheep rig with surface-snapped eyes, nostrils, and a short fleece tail."""
     # Probe the remeshed skull before bone creation so eyelid bones and detail
@@ -783,6 +837,7 @@ def create_livestock_animations(armature: bpy.types.Object) -> None:
 RIG_BUILDERS = {
     "cattle": create_cattle_rig,
     "dog": create_dog_rig,
+    "goat": create_goat_rig,
     "pig": create_pig_rig,
     "sheep": create_sheep_rig,
     "pack_horse": create_pack_horse_rig,

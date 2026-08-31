@@ -52,6 +52,14 @@ SURFACE_PROFILES: dict[str, dict] = {
         "rough_max": 0.90,
         "normal_strength": 0.65,
     },
+    "goat": {
+        "noise_scale": 62.0,
+        "noise_detail": 4.0,
+        "bump_strength": 0.30,
+        "rough_min": 0.80,
+        "rough_max": 0.92,
+        "normal_strength": 0.78,
+    },
     "pig": {
         "noise_scale": 42.0,
         "noise_detail": 3.0,
@@ -101,6 +109,23 @@ SPECS = {
         "source_license": "project-authored procedural geometry",
         "anatomy_decision": "remeshed_multi_volume_cattle_body_head_muzzle_horns_udder_four_legs_and_cloven_hooves",
         "scale_basis": "2.65 m nose-to-rump; 1.72 m standing height; 1.18 m body width",
+    },
+    "goat": {
+        # WHY: replace the static licensed scan with reproducible authored anatomy
+        # and the shared livestock animation contract requested for the live actor.
+        "source": None,
+        "output": RUNTIME / "medieval_goat.glb",
+        "dimensions_m": (1.30, 1.05, 0.48),
+        "triangles": 8_000,
+        "voxel_divisor": 76.0,
+        "base_color": (0.20, 0.105, 0.052),
+        "accent_color": (0.48, 0.31, 0.16),
+        "seed": 208744135,
+        "animated": True,
+        "route": "deterministic_procedural_closed_anatomy_remesh",
+        "source_license": "AGPL-3.0-or-later (project author)",
+        "anatomy_decision": "remeshed_goat_barrel_wedge_head_swept_horns_beard_four_legs_and_cloven_hooves",
+        "scale_basis": "1.30 m nose-to-rump; 1.05 m horn height; 0.48 m body width",
     },
     "pig": {
         "source": STAGING / "pig_hendrik_reyneke_cc_by_source.glb",
@@ -809,6 +834,152 @@ def create_cattle_mesh() -> bpy.types.Object:
     obj["horn_count"] = 2
     obj["udder_teat_count"] = 4
     return obj
+
+
+def create_goat_mesh() -> bpy.types.Object:
+    """Build a compact horned goat from closed volumes for deterministic remesh."""
+    parts: list[bpy.types.Object] = []
+
+    def sphere(
+        part_name: str,
+        location: tuple[float, float, float],
+        scale: tuple[float, float, float],
+        segments: int = 20,
+        ring_count: int = 11,
+    ) -> bpy.types.Object:
+        bpy.ops.mesh.primitive_uv_sphere_add(
+            segments=segments, ring_count=ring_count, location=location
+        )
+        part = bpy.context.object
+        part.name = part_name
+        part.scale = scale
+        bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+        parts.append(part)
+        return part
+
+    def segment(
+        part_name: str,
+        start: tuple[float, float, float],
+        end: tuple[float, float, float],
+        start_radius: float,
+        end_radius: float,
+        vertices: int = 12,
+    ) -> bpy.types.Object:
+        start_v = Vector(start)
+        end_v = Vector(end)
+        direction = end_v - start_v
+        bpy.ops.mesh.primitive_cone_add(
+            vertices=vertices,
+            radius1=end_radius,
+            radius2=start_radius,
+            depth=direction.length,
+            location=(start_v + end_v) * 0.5,
+        )
+        part = bpy.context.object
+        part.name = part_name
+        part.rotation_euler = direction.to_track_quat("Z", "Y").to_euler()
+        bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
+        parts.append(part)
+        return part
+
+    # Lean barrel, high withers, sloped neck, and wedge-shaped face distinguish the
+    # goat from the round fleece sheep at normal gameplay distance.
+    sphere("GoatBarrel", (0.08, 0.0, 0.61), (0.47, 0.225, 0.255), 26, 14)
+    sphere("GoatBelly", (0.08, 0.0, 0.48), (0.37, 0.19, 0.16))
+    sphere("GoatShoulder", (-0.30, 0.0, 0.65), (0.24, 0.23, 0.27))
+    sphere("GoatRump", (0.39, 0.0, 0.62), (0.24, 0.22, 0.245))
+    sphere("GoatWithers", (-0.20, 0.0, 0.80), (0.22, 0.18, 0.12), 18, 10)
+    segment("GoatNeck", (-0.29, 0.0, 0.66), (-0.51, 0.0, 0.84), 0.20, 0.135)
+    sphere("GoatHead", (-0.58, 0.0, 0.86), (0.18, 0.135, 0.17))
+    segment("GoatFace", (-0.59, 0.0, 0.85), (-0.76, 0.0, 0.76), 0.13, 0.085)
+    sphere("GoatMuzzle", (-0.78, 0.0, 0.74), (0.105, 0.095, 0.075), 16, 9)
+    sphere("GoatJaw", (-0.66, 0.0, 0.72), (0.13, 0.105, 0.075), 16, 9)
+    segment("GoatEarLeft", (-0.57, 0.09, 0.94), (-0.52, 0.23, 0.96), 0.055, 0.014, 9)
+    segment("GoatEarRight", (-0.57, -0.09, 0.94), (-0.52, -0.23, 0.96), 0.055, 0.014, 9)
+
+    # Two backward-swept, slightly divergent horns and a hanging beard are the
+    # strongest species cues. Thick bases keep them connected through voxel remesh.
+    for side, sign in (("Left", 1.0), ("Right", -1.0)):
+        segment(
+            f"GoatHorn{side}Base",
+            (-0.53, 0.07 * sign, 0.98),
+            (-0.45, 0.11 * sign, 1.12),
+            0.052,
+            0.037,
+            12,
+        )
+        segment(
+            f"GoatHorn{side}Mid",
+            (-0.45, 0.11 * sign, 1.12),
+            (-0.32, 0.14 * sign, 1.18),
+            0.038,
+            0.023,
+            10,
+        )
+        segment(
+            f"GoatHorn{side}Tip",
+            (-0.32, 0.14 * sign, 1.18),
+            (-0.20, 0.15 * sign, 1.16),
+            0.024,
+            0.008,
+            9,
+        )
+    segment("GoatBeard", (-0.69, 0.0, 0.70), (-0.65, 0.0, 0.53), 0.050, 0.012, 10)
+
+    # Slender jointed legs finish in paired cloven toes at the ground plane.
+    for side, y in (("Left", 0.145), ("Right", -0.145)):
+        for end, x, knee_dx in (("Front", -0.29, -0.02), ("Back", 0.36, 0.035)):
+            sphere(f"Goat{end}{side}Joint", (x, y, 0.48), (0.085, 0.075, 0.105), 14, 8)
+            segment(
+                f"Goat{end}{side}UpperLeg",
+                (x, y, 0.50),
+                (x + knee_dx, y, 0.25),
+                0.068,
+                0.050,
+            )
+            segment(
+                f"Goat{end}{side}LowerLeg",
+                (x + knee_dx, y, 0.26),
+                (x - 0.01, y, 0.075),
+                0.050,
+                0.032,
+            )
+            sphere(
+                f"Goat{end}{side}HoofOuter",
+                (x - 0.025, y + 0.017, 0.030),
+                (0.060, 0.027, 0.030),
+                12,
+                8,
+            )
+            sphere(
+                f"Goat{end}{side}HoofInner",
+                (x - 0.025, y - 0.017, 0.030),
+                (0.060, 0.027, 0.030),
+                12,
+                8,
+            )
+
+    bpy.ops.object.select_all(action="DESELECT")
+    for part in parts:
+        part.select_set(True)
+    bpy.context.view_layer.objects.active = parts[0]
+    bpy.ops.object.join()
+    obj = bpy.context.view_layer.objects.active
+    obj.name = "AnimalMesh"
+    obj.location = (0.0, 0.0, 0.0)
+    bpy.ops.object.mode_set(mode="EDIT")
+    bpy.ops.mesh.select_all(action="SELECT")
+    bpy.ops.mesh.quads_convert_to_tris(quad_method="BEAUTY", ngon_method="BEAUTY")
+    bpy.ops.object.mode_set(mode="OBJECT")
+    for polygon in obj.data.polygons:
+        polygon.use_smooth = True
+    obj["procedural_anatomy"] = True
+    obj["horn_count"] = 2
+    obj["cloven_hoof_toes"] = 8
+    obj["beard"] = True
+    return obj
+
+
 def create_sheep_mesh() -> bpy.types.Object:
     """Build a detailed sheep from dense closed volumes for later remesh.
 
@@ -1061,8 +1232,13 @@ def build(name: str, spec: dict) -> dict:
     if source is not None and not source.exists():
         raise FileNotFoundError(f"Missing approved candidate: {source}")
     clear_scene()
-    if name in {"cattle", "sheep"}:
-        obj = create_cattle_mesh() if name == "cattle" else create_sheep_mesh()
+    if name in {"cattle", "goat", "sheep"}:
+        mesh_builders = {
+            "cattle": create_cattle_mesh,
+            "goat": create_goat_mesh,
+            "sheep": create_sheep_mesh,
+        }
+        obj = mesh_builders[name]()
         raw = topology(obj)
         # WHY: without remesh the joined anatomical volumes stay as separate
         # islands. Species-tuned smoothing fuses them into a coherent silhouette
@@ -1071,8 +1247,8 @@ def build(name: str, spec: dict) -> dict:
             obj,
             spec["voxel_divisor"],
             spec["triangles"],
-            smooth_factor=0.58 if name == "cattle" else 0.72,
-            smooth_iterations=7 if name == "cattle" else 12,
+            smooth_factor=0.58 if name in {"cattle", "goat"} else 0.72,
+            smooth_iterations=7 if name in {"cattle", "goat"} else 12,
         )
         if name == "sheep":
             apply_fleece_displacement(obj, strength=0.052)

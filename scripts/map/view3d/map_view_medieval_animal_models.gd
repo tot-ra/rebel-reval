@@ -48,7 +48,7 @@ const MODEL_PATHS: Dictionary = {
 	MammalSpecies.SPECIES_CHICKEN: "res://assets/birds/chicken/walking.glb",
 	MammalSpecies.SPECIES_DUCK: "res://assets/birds/mallard/walking.glb",
 	MammalSpecies.SPECIES_GOOSE: "res://assets/birds/greylag_goose/walking.glb",
-	&"goat": "res://assets/animals/hendrik_reyneke/goat.glb",
+	&"goat": "res://assets/animals/medieval/medieval_goat.glb",
 	MammalSpecies.SPECIES_COW: "res://assets/animals/medieval/medieval_cattle.glb",
 	MammalSpecies.SPECIES_PIG: "res://assets/animals/medieval/medieval_pig.glb",
 	MammalSpecies.SPECIES_SHEEP: "res://assets/animals/medieval/medieval_sheep.glb",

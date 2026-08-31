@@ -83,3 +83,4 @@ This file contains lessons specific to the Art role.
 
 - 2026-08-25: When a penned cow looks short in length and walks sideways, fix `MODEL_YAW` first; a -X-facing livestock mesh under `look_at` presents its width as length. Only then rebuild `dimensions_m` if gameplay scale is still too small beside heroic characters.
 - 2026-08-27: For asset provenance checksum audits, inspect the live CSV header first: the GLB SHA-256 belongs in `prompt_or_url`, while `edits` contains the authoring notes. Run Blender import probes with the bundled Blender executable rather than repository Python, and use an absolute GLB path inside the probe.
+- 2026-09-01: When extending a Blender animal generator, anchor exact edits on the surrounding section and neighboring profile/spec keys; a bare species key can occur in both `SURFACE_PROFILES` and `SPECS`, making a valid-looking insertion ambiguous before any file change.

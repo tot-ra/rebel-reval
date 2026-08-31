@@ -91,6 +91,53 @@ func test_domestic_goose_uses_the_detailed_authored_greylag_model() -> void:
 	host.free()
 
 
+func test_goat_has_procedural_rigged_anatomy_and_locomotion_clips() -> void:
+	assert_eq(Models.MODEL_PATHS[&"goat"], "res://assets/animals/medieval/medieval_goat.glb")
+	var host := Node3D.new()
+	var model := Models.add_model(host, &"goat")
+	assert_true(model != null)
+	var mesh := model.find_child("AnimalMesh", true, false) as MeshInstance3D
+	assert_true(mesh != null)
+	var aabb := mesh.get_aabb()
+	assert_true(aabb.size.x >= 1.29 and aabb.size.x <= 1.31)
+	assert_true(aabb.size.y >= 1.04 and aabb.size.y <= 1.06)
+	assert_true(aabb.size.z >= 0.47 and aabb.size.z <= 0.49)
+	assert_true(aabb.position.y >= -0.001, "Procedural goat must stay grounded")
+	assert_eq(mesh.mesh.get_surface_count(), 1, "Goat body must be one remeshed surface")
+	var arrays := mesh.mesh.surface_get_arrays(0)
+	var vertices: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+	assert_true(vertices.size() >= 3500, "Goat needs coherent remeshed anatomy")
+	for detail_name in [
+		"EyeLeft", "EyeRight", "PupilLeft", "PupilRight",
+		"NostrilLeft", "NostrilRight", "TailTuft",
+	]:
+		assert_true(model.find_child(detail_name, true, false) != null)
+	var skeleton := model.find_child("Skeleton3D", true, false) as Skeleton3D
+	assert_true(skeleton != null, "Goat needs a procedural quadruped skeleton")
+	for bone_name: StringName in [
+		&"Neck",
+		&"Tail",
+		&"FrontLeftLeg",
+		&"FrontRightLeg",
+		&"BackLeftLeg",
+		&"BackRightLeg",
+	]:
+		assert_true(skeleton.find_bone(bone_name) >= 0, "Goat is missing %s" % bone_name)
+	var player := model.find_child("AnimationPlayer", true, false) as AnimationPlayer
+	assert_true(player != null)
+	for clip: StringName in [
+		Models.IDLE_ANIMATION,
+		Models.WALK_ANIMATION,
+		Models.TROT_ANIMATION,
+		Models.GRAZE_ANIMATION,
+	]:
+		assert_true(player.has_animation(clip), "Goat is missing %s animation" % clip)
+	assert_eq(player.current_animation, Models.IDLE_ANIMATION)
+	Models.sync_animation(host, host.position - Vector3(0.1, 0.0, 0.0), 0.1)
+	assert_eq(player.current_animation, Models.WALK_ANIMATION)
+	host.free()
+
+
 func test_pig_has_realistic_rigged_body_and_locomotion_clips() -> void:
 	var host := Node3D.new()
 	(Engine.get_main_loop() as SceneTree).root.add_child(host)

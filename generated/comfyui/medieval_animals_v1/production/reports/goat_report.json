@@ -1,0 +1,102 @@
+{
+  "asset_id": "creature.goat",
+  "route": "deterministic_procedural_closed_anatomy_remesh",
+  "source_license": "AGPL-3.0-or-later (project author)",
+  "anatomy_decision": "remeshed_goat_barrel_wedge_head_swept_horns_beard_four_legs_and_cloven_hooves",
+  "scale_basis": "1.30 m nose-to-rump; 1.05 m horn height; 0.48 m body width",
+  "source": "procedural:create_goat_mesh",
+  "source_sha256": null,
+  "output": "assets/animals/medieval/medieval_goat.glb",
+  "output_sha256": "cc21d1193ee8226db8aa8055cecc7f464160bf5c387482c7470de5d01ab87350",
+  "raw": {
+    "vertices": 3080,
+    "polygons": 6004,
+    "triangles": 6004,
+    "components": 39,
+    "component_vertices": [
+      340,
+      202,
+      202,
+      202,
+      202,
+      164,
+      130,
+      130,
+      100,
+      100,
+      100,
+      100,
+      86,
+      86,
+      86,
+      86,
+      86,
+      86,
+      86,
+      86,
+      24,
+      24,
+      24,
+      24,
+      24,
+      24,
+      24,
+      24,
+      24,
+      24,
+      24,
+      24,
+      20,
+      20,
+      20,
+      18,
+      18,
+      18,
+      18
+    ],
+    "boundary_edges": 0,
+    "non_manifold_edges": 0,
+    "loose_vertices": 0
+  },
+  "production": {
+    "vertices": 4002,
+    "polygons": 8000,
+    "triangles": 8000,
+    "components": 1,
+    "component_vertices": [
+      4002
+    ],
+    "boundary_edges": 0,
+    "non_manifold_edges": 0,
+    "loose_vertices": 0
+  },
+  "discarded_raw_noise_components": 0,
+  "metric_dimensions_m_y_up": [
+    1.3,
+    1.05,
+    0.48
+  ],
+  "ground_min_y": 0.0,
+  "uv_sets": 1,
+  "materials": 1,
+  "texture_size": 512,
+  "textures": [
+    "goat_albedo.png",
+    "goat_normal.png",
+    "goat_roughness.png"
+  ],
+  "static_prop": true,
+  "rigged": true,
+  "animations": [
+    "Idle-loop",
+    "Walk-loop",
+    "Trot-loop",
+    "Graze-loop"
+  ],
+  "animated_parts": [
+    "legs",
+    "neck",
+    "tail",
+    "eyes"
+  ]
+}
