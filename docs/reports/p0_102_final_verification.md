@@ -217,3 +217,25 @@ Result: **BLOCKED**. The checked command returned exit status 1. The saved log `
 - No runtime, map, landmark, test, or asset source was changed by R-397. The exceptional renderer boundary remains **not accepted** because the required focused suite did not complete cleanly.
 
 The current ownership boundary is therefore R-453/R-455 for the clean-HEAD elevation/parser blocker, followed by a fresh `test_map_view_3d_fortification` run to verify the exceptional renderer contract itself.
+
+## R-397 latest clean-HEAD recheck addendum (2026-09-01)
+
+A fresh detached checkout at `/tmp/rebel-reval-r397-20260901` from `HEAD=15634e77559e1c5a1af3de9233baea56989a0abc` (`test: cover Harju blocked activation contract`) was used for the latest recheck. The live worktree was not used because it contains unrelated modified and untracked WIP. Godot 4.7.1 editor import completed successfully with status 0 before the focused run.
+
+Exact verification command:
+
+```sh
+export GODOT_BIN=/Applications/Godot.app/Contents/MacOS/Godot
+export GODOT_LOG_DIR=/tmp/r397_checked_20260901
+/tmp/rebel-reval-r397-20260901/tools/run_godot_checked.sh --require-test-summary p0-102-r397-boundary -- \
+  "$GODOT_BIN" --headless --path /tmp/rebel-reval-r397-20260901 \
+  --script tools/run_godot_tests.gd -- --filter=test_map_view_3d_fortification
+```
+
+Result: **BLOCKED**. The checked command returned exit status 1. The saved log `/tmp/r397_checked_20260901/p0-102-r397-boundary.log` reports 8 test methods, 6 failures, and 45 engine/script errors.
+
+- The first repeated diagnostics are `unknown command 'elevation_area'` and `unknown command 'elevation_ramp'` while loading authored elevation statements, including `lower_town_slice.rrmap` lines 14, 17, 20, and 22 and related statements in `south_quarter.rrmap`. The clean snapshot's parser dispatch still does not register these commands, so invalid map definitions and dependent missing-fixture, null-builder, and assertion diagnostics prevent a clean exceptional-boundary result.
+- The earlier R-353 `GateDoor0` and R-413 `outer_wall_road` findings were not reached or emitted in this run. They must not be reported as the current root cause. A fresh fortification rerun is required after the active R-453/R-455 elevation parser/authoring handoff lands.
+- No runtime, map, landmark, test, or asset source was changed by R-397. The exceptional renderer boundary remains **not accepted** because the required focused suite did not complete cleanly.
+
+The current ownership boundary is R-453/R-455 for the clean-HEAD elevation/parser blocker, followed by a fresh `test_map_view_3d_fortification` run to verify the exceptional renderer contract itself.
