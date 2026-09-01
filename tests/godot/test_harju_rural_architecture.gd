@@ -1,6 +1,14 @@
 extends "res://tests/godot/test_case.gd"
 
+const MapBuilder := preload("res://scripts/map/map_builder.gd")
+const MapVerification := preload("res://scripts/map/map_verification.gd")
+
 const RRMAP_PATH := "res://content/maps/world_harju.rrmap"
+const REQUIRED_ANCHOR_CELLS := {
+	&"landmark_village_well": Vector2i(25, 15),
+	&"landmark_threshing_barn": Vector2i(35, 12),
+	&"landmark_split_fields": Vector2i(42, 6),
+}
 
 
 func test_harju_parses_as_an_inactive_evidence_linked_rural_prototype() -> void:
@@ -20,6 +28,40 @@ func test_harju_parses_as_an_inactive_evidence_linked_rural_prototype() -> void:
 		"history/dossiers/architecture/rural-smoke-dwelling-and-farmstead-1343.md"
 		in parsed.definition.source_references
 	)
+
+
+func test_harju_required_anchors_are_clear_and_reachable() -> void:
+	var parsed := MapRrmapParser.parse_file(RRMAP_PATH)
+	assert_true(parsed.is_ok(), str(parsed.formatted_diagnostics()))
+	if not parsed.is_ok():
+		return
+	var definition: MapDefinition = parsed.definition
+	var grid := MapBuilder.build(definition)
+	var diagnostics := parsed.formatted_diagnostics()
+	assert_false(
+		diagnostics.has("MAP_ANCHOR_BLOCKED"),
+		"Harju anchors must stay clear: %s" % str(diagnostics)
+	)
+	for anchor_id in REQUIRED_ANCHOR_CELLS:
+		var expected_cell: Vector2i = REQUIRED_ANCHOR_CELLS[anchor_id]
+		var anchor_position := MapVerification.anchor_position(definition, anchor_id)
+		var anchor_cell := Vector2i(
+			floori(anchor_position.x / definition.cell_size),
+			floori(anchor_position.y / definition.cell_size)
+		)
+		assert_eq(
+			anchor_cell,
+			expected_cell,
+			"Harju anchor %s moved unexpectedly" % anchor_id
+		)
+		assert_true(
+			MapVerification.is_walkable_point(definition, grid, anchor_position),
+			"Harju anchor %s must remain walkable" % anchor_id
+		)
+		assert_true(
+			MapVerification.route_exists_exact(definition, grid, definition.player_spawn, anchor_position),
+			"Harju inspection spawn must reach %s" % anchor_id
+		)
 
 
 func test_barn_dwelling_keeps_two_bays_and_rejects_late_rural_features() -> void:
