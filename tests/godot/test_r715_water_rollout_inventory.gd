@@ -66,6 +66,26 @@ func test_every_inventoried_water_map_contains_only_expected_water_ids() -> void
 	assert_eq(found, EXPECTED_WATER_MAPS, "water map inventory drifted")
 
 
+func test_every_inventoried_water_map_is_listed_in_report() -> void:
+	var report := FileAccess.get_file_as_string(INVENTORY_REPORT)
+	for map_id: StringName in EXPECTED_WATER_MAPS:
+		var row_prefix := "| `%s` |" % String(map_id)
+		var inventory_row := ""
+		for line: String in report.split("\n"):
+			if line.begins_with(row_prefix):
+				inventory_row = line
+				break
+		assert_true(
+			inventory_row != "",
+			"inventory report must list the compiled water map %s" % map_id,
+		)
+		for terrain_id: StringName in EXPECTED_WATER_MAPS[map_id]:
+			assert_true(
+				inventory_row.contains("`%s`" % String(terrain_id)),
+				"inventory row for %s must list terrain %s" % [map_id, terrain_id],
+			)
+
+
 func test_external_water_row_is_explicitly_documented() -> void:
 	var report := FileAccess.get_file_as_string(INVENTORY_REPORT)
 	assert_true(
