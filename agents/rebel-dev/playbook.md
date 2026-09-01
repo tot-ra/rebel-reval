@@ -244,3 +244,4 @@ Parallel exact replacements against one mutable file can race and reapply stale 
 - 2026-09-01: Do not run a RefCounted model factory or `tests/godot/test_*.gd` directly with Godot `--script`; without an explicit SceneTree quit they can hang. Use `tools/run_godot_tests.gd -- --filter=<exact_test_stem>` through `tools/run_godot_checked.sh` for bounded verification.
 
 - 2026-09-01: When an aggregate Godot transition/collision verifier times out or stops on unrelated map parser diagnostics, run a bounded map-specific collision/route probe and preserve the focused suite counts; do not promote the aggregate timeout into a scoped map failure.
+- 2026-09-01: After inserting a regression test near an existing helper, re-read the full class tail before any test run; a broad replacement can move helper statements outside the function while leaving superficially valid indentation.

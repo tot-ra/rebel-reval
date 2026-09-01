@@ -33,12 +33,23 @@ class TestP5WorldActivationWave(unittest.TestCase):
                 errors,
             )
 
-    def test_partial_wave_promotion_is_rejected(self) -> None:
+    def test_catalog_fixture_promotes_compact_and_multiline_entries(self) -> None:
         with self._fixture() as root:
             self._promote_target(root, "world_harju", "world.harju")
-            errors = verify(root)
-            self.assertTrue(
-                any("partial wave activation" in error for error in errors), errors
+            self._promote_target(root, "world_rebel_kings", "world.rebel_kings")
+            catalog = (root / "scripts/map/map_catalog.gd").read_text(encoding="utf-8")
+            compact_entry = re.search(
+                r'"world_harju":\s*\{[^}]+\}', catalog, re.DOTALL
+            )
+            multiline_entry = re.search(
+                r'"world_rebel_kings":\s*\{[^}]+\}', catalog, re.DOTALL
+            )
+            self.assertIsNotNone(compact_entry)
+            self.assertIsNotNone(multiline_entry)
+            self.assertIn('"scope": "production", "active": true', compact_entry.group())
+            self.assertRegex(
+                multiline_entry.group(),
+                r'"scope":\s*"production",\s*"active":\s*true',
             )
 
     def test_transition_spawn_drift_is_rejected(self) -> None:
@@ -87,6 +98,14 @@ class TestP5WorldActivationWave(unittest.TestCase):
                     errors,
                 )
 
+    def test_partial_wave_promotion_is_rejected(self) -> None:
+        with self._fixture() as root:
+            self._promote_target(root, "world_harju", "world.harju")
+            errors = verify(root)
+            self.assertTrue(
+                any("partial wave activation" in error for error in errors), errors
+            )
+
     def _promote_target(self, root: Path, scene_id: str, rrmap_id: str) -> None:
         rrmap = root / "content/maps" / f"{scene_id}.rrmap"
         rrmap.write_text(
@@ -98,9 +117,15 @@ class TestP5WorldActivationWave(unittest.TestCase):
 
         catalog = root / "scripts/map/map_catalog.gd"
         text = catalog.read_text(encoding="utf-8")
-        entry_start = text.index(f'\t"{scene_id}":')
-        entry_end = text.index("\n\t\"", entry_start + 2)
-        entry = text[entry_start:entry_end]
+        match = re.search(
+            rf'(?ms)^[ \t]*"{re.escape(scene_id)}":\s*\{{.*?\}}'
+            rf'(?=\s*,?\s*\n[ \t]*"|\s*$)',
+            text,
+        )
+        self.assertIsNotNone(match, f"missing catalog entry for {scene_id}")
+        if match is None:
+            return
+        entry = match.group()
         promoted = re.sub(
             r'"scope":\s*"prototype",\s*"active":\s*false',
             '"scope": "production", "active": true',
@@ -108,7 +133,7 @@ class TestP5WorldActivationWave(unittest.TestCase):
             count=1,
         )
         self.assertNotEqual(entry, promoted, f"failed to promote catalog entry for {scene_id}")
-        catalog.write_text(text[:entry_start] + promoted + text[entry_end:], encoding="utf-8")
+        catalog.write_text(text[: match.start()] + promoted + text[match.end() :], encoding="utf-8")
 
         destinations_path = root / "content/transitions/active_destinations.json"
         destinations = json.loads(destinations_path.read_text(encoding="utf-8"))
