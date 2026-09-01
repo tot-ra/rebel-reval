@@ -178,3 +178,66 @@ This recheck was run outside the dirty shared worktree. Godot 4.7.1 editor impor
 R-364 is complete as a reproducible blocked evidence closeout and should remain in review. The shared environment-kit packet itself has green evidence and asset-lint coverage, but P0-102 cannot be promoted while the clean RRMap parser baseline, plot-dressing provenance rows, and downstream gameplay/runtime handoffs remain unresolved. Re-run this matrix from a new clean revision after R-453/R-455 land, then consume R-601/R-614 and the ordinary-house handoffs before changing the parent decision.
 
 **Current verification logs:** `/tmp/r364_clean_checked_20260829/`
+
+## R-544 clean-HEAD recheck (2026-09-01)
+
+**Snapshot:** `a9d8d3f3e6847ae641554cb1cfd9d22f09e9263c` (`test: cover CR-only TODO summary flow`)
+**Worktree:** `/tmp/rebel-reval-r544-clean-20260901` (detached clean worktree created from this revision; the live worktree was not used for acceptance)
+**Status:** **BLOCKED - evidence packet, asset lint, and material-resolution regression pass, but authored-map runtime suites and provenance remain blocked**
+
+This recheck was run from a detached clean snapshot after Godot 4.7.1 editor import completed with status 0. The live worktree contains unrelated staged and untracked WIP; none of it is included in this result. Focused checked logs are retained under `/tmp/r544_checked_20260901/`.
+
+| Check | Result | Evidence / owner classification |
+|---|---|---|
+| Clean checkout and editor import | **PASS** | Detached worktree at `a9d8d3f3e6847ae641554cb1cfd9d22f09e9263c`; `/Applications/Godot.app/Contents/MacOS/Godot --headless --editor --import --path /tmp/rebel-reval-r544-clean-20260901` returned 0. |
+| Shared environment-kit integration | **BLOCKED** | `test_environment_kit_integration`: 5 tests, 26 failures, 34 errors. The first repeated product diagnostics are unknown `elevation_area` and `elevation_ramp` commands in `content/maps/lower_town_slice.rrmap` lines 14, 17, 20, and 22, followed by invalid map-definition and dependent fixture cascades. The same log records missing `brewery_door` and checkpoint authored-map validation/anchor failures after the parser cascade. R-453/R-455 own the elevation parser/acceptance boundary; R-601 owns the route/anchor reconciliation. |
+| Lower Town authored-map contract | **BLOCKED** | `test_lower_town_slice_map`: 19 tests, 26 failures, 93 errors. The same elevation parser diagnostics interrupt map construction; remaining failures include the smithy courtyard, district seam/navigation, Viru Gate portcullis, water cells, and worker-district seam contracts. R-601 owns route/collision/navigation/transition/runtime reconciliation; do not reclassify the cascade as an environment-kit pass. |
+| Burgher-house tier regression | **BLOCKED** | `test_burgher_house_tiers`: 5 tests, 92 failures, 12 errors. The clean fixture cannot resolve the authored Lower Town houses and therefore cannot prove multiple wall/roof/weathering variants. Ordinary-house and tier handoffs remain with the active downstream owners, including R-209/R-211/R-212. |
+| Shared building surface weathering | **BLOCKED** | `test_building_surface_weathering`: 6 tests, 1 failure, 4 errors. The generic wall/roof/weathering tests pass, while the Lower Town assertion is interrupted by the elevation parser cascade. |
+| Core 3D map-view regression | **BLOCKED** | `test_map_view_3d_core`: 21 tests, 14 failures, 49 errors. The clean authored-map parse failure prevents valid Lower Town resident-object, route, terrain, and definition acceptance. R-601 owns the route/runtime follow-up. |
+| Mesh-builder regression | **BLOCKED** | `test_map_view_3d_mesh`: 19 tests, 9 failures, 44 errors. The clean parser cascade prevents valid Lower Town puddle, surroundings, transition-door, and map-driven mesh acceptance; independent parametric mesh checks still pass. |
+| Material resolution | **PASS** | `test_map_view_material_resolution`: 7 tests, 0 failures, 0 errors. |
+| Decal and local-wear regression | **BLOCKED** | `test_map_view_decals`: 8 tests, 4 failures, 4 errors. The generic decal checks pass; Lower Town threshold/yard, anvil soot, district-door mud, and smithy-threshold wet-wear assertions are not validly accepted while the authored map parser is blocked. |
+| Exceptional fortification regression | **BLOCKED** | `test_map_view_3d_fortification`: 8 tests, 6 failures, 45 errors. The first clean fixture failures are missing authored Lower Town wall/neighbor data and `Viru Gate needs its arch landmark`, followed by the same parser-dependent cascade. This does not reopen completed R-353 work. |
+| Dedicated day/night evidence packet | **PASS** | `python3 tools/verify_p0_102_environment_kit_evidence.py`: 8/8 plates. The manifest has two `lower_town_slice` plates (`day`, `night`), one shared `three_tier_route` framing key, all three tier labels (`craft_boda`, `merchant_stone`, `merchant_timber`), three material families, and three roof families. Each PNG is 1280x720 RGB and non-flat. This proves packet integrity and metadata only, not gameplay-camera acceptance or human visual sign-off. |
+| Asset lint | **PASS** | `python3 tools/verify_asset_lint.py`: 8 style-lock textures, 13 character GLBs, 41 tier-classified character GLBs, 0 portraits. |
+| Asset provenance | **BLOCKED - external owner** | `python3 tools/validate_asset_sources.py` returned 1 for 10 active `assets/props/architecture/houses/plot_dressing/*_albedo.png` paths absent from `assets/SOURCES.csv`. R-212 owns the plot-dressing asset/provenance handoff. |
+| Downstream parent closeout | **BLOCKED** | R-453 and R-455 remain `in_progress`; R-601, R-614, and R-212 remain active for parser/runtime, playable-route, ordinary-house, and plot-dressing handoffs. R-110/P0-102 remains `in_progress`; no duplicate follow-up task is needed. |
+
+### Exact current verification commands
+
+```sh
+export GODOT_BIN=/Applications/Godot.app/Contents/MacOS/Godot
+WT=/tmp/rebel-reval-r544-clean-20260901
+
+# Snapshot and clean import
+# HEAD: a9d8d3f3e6847ae641554cb1cfd9d22f09e9263c
+git worktree add --detach "$WT" HEAD
+"$GODOT_BIN" --headless --editor --import --path "$WT"  # exit 0
+
+# Each command ran in its own checked Godot process; logs are under /tmp/r544_checked_20260901/
+for filter in \
+  test_environment_kit_integration \
+  test_lower_town_slice_map \
+  test_burgher_house_tiers \
+  test_building_surface_weathering \
+  test_map_view_3d_core \
+  test_map_view_3d_mesh \
+  test_map_view_material_resolution \
+  test_map_view_decals \
+  test_map_view_3d_fortification; do
+  tools/run_godot_checked.sh --require-test-summary "r544-${filter#test_}" -- \
+    "$GODOT_BIN" --headless --path "$WT" \
+    --script tools/run_godot_tests.gd -- --filter="$filter"
+done
+
+python3 "$WT/tools/verify_p0_102_environment_kit_evidence.py"  # exit 0, 8/8
+python3 "$WT/tools/verify_asset_lint.py"                       # exit 0
+python3 "$WT/tools/validate_asset_sources.py"                  # exit 1, 10 missing plot-dressing paths
+```
+
+### Recheck decision
+
+R-544 is complete as a reproducible blocked evidence closeout and should remain in review. The dedicated evidence packet, clean import, asset lint, and material-resolution suite are green. The parent P0-102 gate cannot be promoted while the clean RRMap parser baseline blocks authored-map/runtime acceptance, R-212 provenance rows are missing, and R-601/R-614 plus ordinary-house handoffs have not supplied valid route/gameplay evidence. Re-run this matrix from a new clean revision after R-453/R-455 land, then consume the route and tier handoffs before changing the parent decision.
+
+**Current verification logs:** `/tmp/r544_checked_20260901/`
