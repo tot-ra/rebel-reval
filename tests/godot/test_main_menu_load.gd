@@ -57,6 +57,7 @@ func test_load_label_focusable_when_save_exists() -> void:
 
 	assert_true(load_label.visible)
 	assert_eq(load_label.focus_mode, Control.FOCUS_ALL)
+	assert_true(load_label.get_theme_stylebox("focus") is StyleBoxEmpty)
 	assert_eq(start.focus_neighbor_bottom, NodePath("../Load label"))
 	assert_eq(load_label.focus_neighbor_top, NodePath("../Start label"))
 	assert_eq(load_label.focus_neighbor_bottom, NodePath("../Credits label"))
