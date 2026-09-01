@@ -1,7 +1,7 @@
 # R-373 city-location activation acceptance
 
 **Task:** R-373
-**Verification date:** 2026-08-20
+**Verification date:** 2026-09-01
 **Engine:** Godot 4.7.1 (`a13da4feb`)
 **Decision:** **GATE IMPLEMENTED; ALL CURRENT CANDIDATES RED.**
 
@@ -33,6 +33,7 @@ A candidate can become GREEN only after its owning environment row is delivered 
 | Gameplay fixture | **PASS** | empty loops/interactions produce `GAMEPLAY_EVIDENCE_MISSING` |
 | Inventory mode | **PASS** | checker records six RED verdicts and exits 0 without claiming activation |
 | Selected candidate mode | **PASS** | `--map=south_quarter` reports RED and exits 1 |
+| Harju focused rural suite | **PASS** | `test_harju_rural_architecture`; 7/7 tests, including clear/reachable anchors at `(25,15)`, `(35,12)`, and `(42,6)`; compile/navigation evidence refreshed, transitions and patrols remain blocked |
 
 ## Current verdicts
 
@@ -45,7 +46,7 @@ The first boundary intentionally follows delivery order. Later failures are stil
 | `north_quarter` | P4-023/P4-023f | **RED** | `ENVIRONMENT_NOT_DELIVERED` | Composition is advisory; Coastal Gate, wall seam pairs, population/activity, focused suites, and gameplay evidence remain incomplete. |
 | `south_quarter` | P4-024 | **RED** | `ENVIRONMENT_NOT_DELIVERED` | Composition is advisory; `karja_gate_arch/GateDoor0` is absent; reciprocal topology alone lacks matched day/night seam evidence. |
 | `toompea_quarter` | P4-025 | **RED** | `ENVIRONMENT_NOT_DELIVERED` | Composition is advisory; cathedral/castle and hill-gate affordances, seam pairs, population/activity, focused suites, and gameplay evidence remain incomplete. |
-| `world.harju` | P5-003 | **RED** | `ENVIRONMENT_NOT_DELIVERED` | `MAP_ANCHOR_BLOCKED (35,10)` remains explicit; composition is advisory and gameplay evidence is absent. Urban population is not required. |
+| `world.harju` | P5-003 | **RED** | `ENVIRONMENT_NOT_DELIVERED` | Mandatory-anchor audit passes for `(25,15)`, `(35,12)`, and `(42,6)` in the focused Harju suite; composition is advisory and gameplay evidence is absent. Urban population is not required. |
 
 No image is promoted into `docs/reports/images/location_qa/`: existing topology checks and reference/capture packets do not provide signed, matched gameplay-camera seam pairs from both adjacent districts. Recording empty seam evidence is safer than copying unrelated or unsigned images.
 

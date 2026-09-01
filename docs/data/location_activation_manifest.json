@@ -1,7 +1,7 @@
 {
   "schema": "rebel-reval-location-activation-v1",
   "task": "R-373",
-  "generated_on": "2026-08-20",
+  "generated_on": "2026-09-01",
   "policy": "Inventory records may be red. Promotion requires a selected candidate to evaluate GREEN.",
   "maps": [
     {
@@ -75,8 +75,8 @@
       "implementation_delivered": false,
       "urban": false,
       "composition": {"enforce": false, "status": "BLOCKED", "evidence": "docs/data/map_composition_thresholds.json#maps.world.harju"},
-      "focused_suites": {"compile": "FAIL", "navigation": "FAIL", "transitions": "BLOCKED", "patrols": "BLOCKED"},
-      "mandatory_anchors": {"status": "FAIL", "blocked": ["MAP_ANCHOR_BLOCKED (35,10)"]},
+      "focused_suites": {"compile": "PASS", "navigation": "PASS", "transitions": "BLOCKED", "patrols": "BLOCKED"},
+      "mandatory_anchors": {"status": "PASS", "blocked": [], "evidence": "tests/godot/test_harju_rural_architecture.gd::test_harju_required_anchors_are_clear_and_reachable; cells=(25,15),(35,12),(42,6)"},
       "landmarks": {"required": [], "present": [], "required_affordances": [], "present_affordances": []},
       "fortification_seams": [],
       "population": {"status": "NOT_APPLICABLE", "profile_ids": [], "activity_profile_ids": []},
