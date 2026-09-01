@@ -1,7 +1,40 @@
 extends "res://tests/godot/test_case.gd"
 
 ## P1-031: world/district map overlay matches the active transition manifest.
-const LowerTownSlice := preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd")
+
+
+class TestReflectionController:
+	extends ReflectionController
+
+	var opened := false
+
+	func _ready() -> void:
+		pass
+
+	func open() -> void:
+		opened = true
+
+	func is_open() -> bool:
+		return opened
+
+	func close() -> void:
+		opened = false
+
+
+class TestWorldMapOverlay:
+	extends WorldMapOverlay
+
+	func _ready() -> void:
+		pass
+
+	func configure(_current_scene_id: StringName = &"", _local_map: MinimapHud = null) -> void:
+		pass
+
+	func open() -> void:
+		visible = true
+const LowerTownSlice := preload(
+	"res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd"
+)
 const MapBuilder := preload("res://scripts/map/map_builder.gd")
 const LocalMapView := preload("res://scripts/ui/world_map_local_view.gd")
 const FastTravelView := preload("res://scripts/ui/world_map_fast_travel_view.gd")
@@ -14,7 +47,10 @@ func before_each() -> void:
 func test_graph_nodes_match_active_transition_manifest() -> void:
 	var scene_ids := WorldMapGraph.active_scene_ids()
 	var manifest_ids := DoorNavigator.get_active_scene_ids()
-	assert_true(scene_ids.size() <= manifest_ids.size(), "district graph is a filter of the active manifest")
+	assert_true(
+		scene_ids.size() <= manifest_ids.size(),
+		"district graph is a filter of the active manifest"
+	)
 	for scene_id in scene_ids:
 		assert_true(manifest_ids.has(scene_id), "district nodes must stay in the active manifest")
 		assert_false(
@@ -23,7 +59,10 @@ func test_graph_nodes_match_active_transition_manifest() -> void:
 		)
 	assert_array_contains(scene_ids, &"forge")
 	assert_array_contains(scene_ids, &"reval_east")
-	assert_false(scene_ids.has(&"harbor_warehouse"), "retired scenes must not appear on the district map")
+	assert_false(
+		scene_ids.has(&"harbor_warehouse"),
+		"retired scenes must not appear on the district map"
+	)
 	assert_false(scene_ids.has(&"archive_only"), "unknown scenes must not appear on the district map")
 	assert_false(scene_ids.has(&"world_sacred_grove"), "distant roads belong on the Estonia map tab")
 	assert_true(
@@ -90,9 +129,17 @@ func test_map_mode_opens_on_local_position_with_fast_travel_as_separate_option()
 	overlay.configure(&"reval_east", local_map)
 	overlay.open()
 
-	assert_eq(overlay.get_mode(), WorldMapOverlay.MODE_LOCAL, "M map mode must open on the local map")
-	assert_true(overlay.get_local_map_texture().texture != null, "local map must reuse compiled minimap data")
-	assert_true(overlay.get_local_map_marker().visible, "local map must mark the player's current position")
+	assert_eq(
+		overlay.get_mode(), WorldMapOverlay.MODE_LOCAL, "M map mode must open on the local map"
+	)
+	assert_true(
+		overlay.get_local_map_texture().texture != null,
+		"local map must reuse compiled minimap data"
+	)
+	assert_true(
+		overlay.get_local_map_marker().visible,
+		"local map must mark the player's current position"
+	)
 	var local_button := overlay.find_child("LocalMapButton", true, false) as Button
 	var travel_button := overlay.find_child("FastTravelButton", true, false) as Button
 	var global_button := overlay.find_child("GlobalMapButton", true, false) as Button
@@ -117,7 +164,10 @@ func test_map_mode_opens_on_local_position_with_fast_travel_as_separate_option()
 
 	travel_button.pressed.emit()
 	assert_eq(overlay.get_mode(), WorldMapOverlay.MODE_FAST_TRAVEL)
-	assert_true(overlay.get_node_button(&"forge") != null, "district option must expose the existing Reval graph")
+	assert_true(
+		overlay.get_node_button(&"forge") != null,
+		"district option must expose the existing Reval graph"
+	)
 	global_button.pressed.emit()
 	assert_eq(overlay.get_mode(), WorldMapOverlay.MODE_GLOBAL)
 	assert_true(
@@ -260,6 +310,33 @@ func test_controller_toggles_with_action_and_quick_access_button() -> void:
 	controller.toggle()
 	assert_false(controller.is_open())
 	host.queue_free()
+
+
+func test_opening_world_map_closes_reflection_overlay() -> void:
+	# WHY: every global overlay must leave only one modal surface active.
+	var host := Node.new()
+	var reflection := TestReflectionController.new()
+	reflection.name = "ReflectionController"
+	host.add_child(reflection)
+	var controller := WorldMapController.new()
+	controller.name = "WorldMapController"
+	host.add_child(controller)
+	var tree := Engine.get_main_loop() as SceneTree
+	tree.root.add_child(host)
+	var map_overlay := TestWorldMapOverlay.new()
+	map_overlay.visible = false
+	controller._overlay = map_overlay
+
+	reflection.open()
+	assert_true(reflection.is_open(), "reflection overlay must be open before map takeover")
+	controller.open()
+	assert_false(
+		reflection.is_open(),
+		"opening the world map must close an already-open reflection overlay"
+	)
+	assert_true(controller.is_open(), "world map must remain open after closing reflection")
+	host.queue_free()
+	map_overlay.free()
 
 
 func test_resolve_current_scene_id_from_scene_path() -> void:
@@ -422,7 +499,9 @@ func test_focus_neighbor_ui_accept_records_same_travel_as_click() -> void:
 
 	var current := overlay.get_node_button(&"reval_east")
 	assert_true(current != null)
-	assert_eq(current.focus_mode, Control.FOCUS_NONE, "current-scene node must stay out of the focus ring")
+	assert_eq(
+		current.focus_mode, Control.FOCUS_NONE, "current-scene node must stay out of the focus ring"
+	)
 	assert_true(current.disabled, "current-scene node stays non-interactive")
 	assert_false(
 		overlay.focus_travel_node(&"reval_east"),

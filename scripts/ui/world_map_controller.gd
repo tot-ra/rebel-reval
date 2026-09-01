@@ -105,6 +105,9 @@ func _close_sibling_overlays() -> void:
 	var journal := get_parent().get_node_or_null("JournalController") as JournalController
 	if journal != null:
 		journal.close()
+	var reflection := get_parent().get_node_or_null("ReflectionController") as ReflectionController
+	if reflection != null:
+		reflection.close()
 
 
 func _is_toggle_event(event: InputEvent) -> bool:
