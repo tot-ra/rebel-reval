@@ -52,6 +52,7 @@ func _on_save_selected(slot: int) -> void:
 func _refresh_availability() -> void:
 	var saves := SessionState.list_saves()
 	visible = saves.size() > 0
+	focus_mode = Control.FOCUS_ALL if visible else Control.FOCUS_NONE
 	if visible:
 		mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		_update_sibling_focus_neighbors(true)
