@@ -64,6 +64,19 @@ func test_harju_required_anchors_are_clear_and_reachable() -> void:
 		)
 
 
+func test_harju_village_well_anchor_matches_authored_prop() -> void:
+	var parsed := MapRrmapParser.parse_file(RRMAP_PATH)
+	assert_true(parsed.is_ok(), str(parsed.formatted_diagnostics()))
+	if not parsed.is_ok():
+		return
+	var definition: MapDefinition = parsed.definition
+	assert_eq(
+		MapVerification.anchor_position(definition, &"landmark_village_well"),
+		MapVerification.prop_position(definition, &"village_well"),
+		"the village-well landmark must stay attached to its authored prop"
+	)
+
+
 func test_barn_dwelling_keeps_two_bays_and_rejects_late_rural_features() -> void:
 	var parsed := MapRrmapParser.parse_file(RRMAP_PATH)
 	assert_true(parsed.is_ok(), str(parsed.formatted_diagnostics()))
