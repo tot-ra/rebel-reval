@@ -3,11 +3,11 @@
 **Task:** R-490 / P0-101e
 **Parent:** R-108 / P0-101
 **Maps:** `lower_town_slice` (Workers' District) and `kalev_smithy`
-**Verification date:** 2026-08-12
+**Verification date:** 2026-08-12; current reconciliation 2026-09-01
 **Engine:** Godot 4.7.1.stable.official (a13da4fe)
 **Measurement host:** macOS, Apple M5 Pro, 18 logical cores, headless (`development-baseline-m5-pro`, `development_baseline_not_minimum`)
-**Worktree:** shared worktree contains unrelated concurrent WIP. Every failure in this report was re-checked against a clean `git worktree` checkout of `HEAD` before being attributed.
-**Decision:** **BLOCKED - clause 6 of P0-101 does not pass.** Routes, collision, navigation, chunk ownership and frame-time budgets are green; resident node/memory budgets fail, camera occlusion behaviour fails, and the 3D runtime does not load at all from a clean checkout of `HEAD`.
+**Worktree:** shared worktree contains unrelated concurrent WIP. Every historical failure in this report was re-checked against a clean `git worktree` checkout of `HEAD` before being attributed.
+**Decision:** **BLOCKED - clause 6 of P0-101 does not pass.** Routes, collision, navigation, chunk ownership and frame-time budgets are green; resident node/memory budgets fail, and the current clean-checkout runtime gate remains blocked by the RRMap elevation parser. The camera implementation has a current green assertion result in the live imported worktree, but the parser errors prevent independent camera certification.
 
 ## Scope and method
 
@@ -16,6 +16,14 @@ R-490 is the runtime gate for P0-101 clause 6: routes, patrols, transitions, col
 Because the shared worktree is dirty, every red result was reproduced in `/tmp/r490_clean`, a detached worktree at `HEAD` with a full `--import` pass. Failures that reproduce there are real repository state; failures that only appear in the dirty worktree would be concurrent WIP and are not attributed to this gate. No such WIP-only failure was found.
 
 All Godot commands ran through `tools/run_godot_checked.sh --require-test-summary`, which fails on any engine, script, parser or resource error outside the documented DEF-002 shutdown allowlist.
+
+## Current status reconciliation (2026-09-01)
+
+The original 2026-08-12 matrix below is retained as historical evidence. A current rerun from `HEAD=a317cfdd` changes the camera and clean-load attribution without changing the P0-101 decision:
+
+- `test_map_camera_modes` was run in the imported live worktree with `tools/run_godot_checked.sh --require-test-summary r490-camera-current -- /Applications/Godot.app/Contents/MacOS/Godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_map_camera_modes`. The harness discovered 1 file and 11 tests, with **0 assertion failures and 35 engine/script errors**. The first errors are `unknown_command` for `elevation_area` at `lower_town_slice.rrmap` lines 14, 20, and 22 and `elevation_ramp` at line 17, followed by an invalid `MapDefinition`. Camera assertions are therefore not independently measurable in this run.
+- `GODOT_BIN=/Applications/Godot.app/Contents/MacOS/Godot tools/verify_clean_checkout_load.sh` completed detached checkout creation and Godot import, then failed in the bounded load stage with **4 files, 70 tests, 49 failures, and 196 errors**. The first substantive product diagnostics are the same four unsupported elevation commands; later landmark/null-node errors are dependent cascades. This reproduces the parser boundary from a clean checkout and is not a dirty-worktree artifact.
+- The camera implementation and focused live-worktree result are owned by **R-577**; the clean-baseline parser dependency remains owned by **R-453/R-455**, with parser/load verification tracked by **R-604**. **R-562** already provides the CI/local clean-checkout gate, so this report does not add a duplicate gate.
 
 ## Result matrix
 
@@ -28,8 +36,8 @@ All Godot commands ran through `tools/run_godot_checked.sh --require-test-summar
 | Asset lint | **PASS** | `python3 tools/verify_asset_lint.py`: 8 style-lock textures, 9 character GLBs, 29 tier-classified GLBs |
 | Measured frame time, collision count, ambient-audio peaks | **PASS** | `lower_town_scene` p95 7.326 ms (limit 16.67), collisions 172 (limit 900), bird audio 1/3, bird flight 1/4 |
 | Measured resident node count and resident memory | **FAIL** | `lower_town_scene` node count 8472 (limit 7500), memory delta 446.2 MiB (limit 280); see [Finding 1](#finding-1-lower-town-production-scene-exceeds-resident-node-and-memory-budgets) |
-| Camera occlusion, building pull-out and follow boom | **FAIL** | `test_map_camera_modes` 6 failing assertions, reproduced at clean `HEAD`; see [Finding 2](#finding-2-camera-occlusion-and-follow-boom-regressions) |
-| Runtime loads from a clean checkout | **FAIL at `HEAD`** | `MapView3D` cannot load; the whole 3D map runtime is dead at `HEAD`; see [Finding 4](#finding-4-release-blocking-runtime-load-breakage-at-head-fixed-here) |
+| Camera occlusion, building pull-out and follow boom | **BLOCKED by parser baseline at current `HEAD`** | Historical 2026-08-12 run recorded 6 placement failures; after R-577, the 2026-09-01 run reaches 11 tests with 0 assertion failures but 35 engine/script errors from the shared `elevation_area` / `elevation_ramp` parser blocker; see [Current status reconciliation](#current-status-reconciliation-2026-09-01) and [Finding 2](#finding-2-camera-placement-evidence-is-blocked-by-the-current-parser-baseline) |
+| Runtime loads from a clean checkout | **FAIL at current `HEAD`** | R-562 gate completes import, then fails bounded MapView3D load with 4 files, 70 tests, 49 failures, and 196 errors; first substantive diagnostic is unsupported `elevation_area` / `elevation_ramp`; see [Finding 4](#finding-4-release-blocking-runtime-load-breakage-at-head-superseded-by-the-parser-blocker) |
 
 ## Findings
 
@@ -53,18 +61,13 @@ Both numbers were measured headless on a development baseline, not on the declar
 
 The synthetic `navigation_bake_ms` failures at 128 and 256 cells (66.5 ms and 3258.9 ms against a 25 ms limit) are scale-profile results for the large-map prototype, not Lower Town, and are outside this gate.
 
-### Finding 2: Camera occlusion and follow-boom regressions
+### Finding 2: Camera placement evidence is blocked by the current parser baseline
 
-`test_map_camera_modes` fails 6 assertions across 4 of its 11 tests. The identical 6 failures reproduce on a clean `HEAD` checkout (with only the Finding 4 syntax repair applied, so the file can parse at all), so they are repository state, not local WIP:
+The historical 2026-08-12 run recorded 6 assertions failing across 4 of 11 camera tests. That result remains useful as the pre-R-577 baseline, but it is no longer the current camera result: R-577's implementation note reports the focused camera contract green in the imported live worktree.
 
-- `test_building_collision_pulls_camera_out` - camera is not pulled out of a building AABB after follow;
-- `test_c_cycles_third_person_first_person_and_top_down` - first-person camera does not sit at eye height;
-- `test_mouse_drag_pitch_orbits_perspective_modes_and_yaw_turns_character` - third-person pitch does not keep the follow boom distance;
-- `test_third_person_scroll_zoom_clamps_and_enters_first_person` - restored boom does not reach max or min follow distance, and zoom-entered first-person does not sit at eye height.
+The current 2026-09-01 checked run discovers all 11 camera tests and reports **0 assertion failures**, but it also reports **35 engine/script errors** before the map-backed camera setup can complete. The first diagnostics are the unsupported `elevation_area` and `elevation_ramp` commands in `content/maps/lower_town_slice.rrmap`, followed by invalid-map-definition errors. This run cannot certify the camera contract, and its parser errors must not be misreported as new camera regressions.
 
-The other 7 tests pass in the `r490-camera` run below, including every occlusion assertion: `test_enclosed_interior_third_person_does_not_enable_occlusion_ghost`, `test_top_down_occlusion_allows_ghost_not_reset`, `test_smithy_start_third_person_camera_avoids_walls`, `test_ground_clamp_prevents_underground_camera`, `test_interior_shell_follows_close_and_top_down_camera_modes`. Occlusion culling and interior ghosting are therefore healthy; the defect is confined to camera placement.
-
-The failing set is exactly the follow-boom and eye-height contract. `scripts/map/view3d/map_view_runtime_camera.gd` is being actively edited by a concurrent session, so this gate reports the regression and does not change camera behaviour. It must be closed before P0-101 clause 6 can pass, because P0-101 route captures depend on the gameplay camera being correct.
+The camera implementation remains owned by **R-577**. Once **R-453/R-455** land the parser/compiler support and **R-604** re-runs the clean load gate, R-490 should rerun `test_map_camera_modes` and the companion camera suite from a clean imported checkout. No camera behavior or assertion was changed by this QA refresh.
 
 ### Finding 3: Stale reviewed chunk-ownership baseline (resolved)
 
@@ -79,16 +82,13 @@ No `owner_chunk`, `consumer_chunks`, `residency` or `kind` value changed, and no
 
 The baseline was regenerated from the clean `HEAD` worktree, not from the dirty shared worktree, so concurrent WIP in the compiler and rrmap parser could not contaminate it. Verified green afterwards in both the clean worktree and the shared worktree.
 
-### Finding 4: Release-blocking runtime load breakage at `HEAD` (fixed here)
+### Finding 4: Release-blocking runtime load breakage at `HEAD` (superseded by the parser blocker)
 
-From a clean checkout of `HEAD`, the entire 3D map runtime fails to load. Two files were left syntactically or semantically broken by commit `c1da164b` ("Fix GDScript gdlint across scripts and align lint config.", 2026-08-11), a 342-file reformat that deleted real code alongside formatting:
+The historical 2026-08-12 clean-checkout run found two files left syntactically or semantically broken by commit `c1da164b` (the 342-file reformat): `map_view_runtime_camera.gd` had a deleted `get:` body and `map_view_monastic_models.gd` had deleted local declarations. Those four lines were restored in the original R-490 closeout and are retained in history here.
 
-1. `scripts/map/view3d/map_view_runtime_camera.gd` - the `get:` body of `var first_person: bool:` was deleted, leaving a property with no block. The file does not parse, so `MapViewRuntimeCamera` cannot be resolved, `map_view_runtime.gd` fails to compile, and nothing that touches `MapView3D` can run.
-2. `scripts/map/view3d/map_view_monastic_models.gd` - the `var long_face` and `var run` declarations were deleted from `add_oratory_details()` while their uses remained. The file does not parse, `MapViewMonasticModels.is_oratory` becomes unresolvable, and a single test run emitted 2128 `Nonexistent function 'is_oratory'` script errors. This is the oratory and monastic render path, which covers `st_catherines_church` and `monastery_cloister` - the two landmarks P0-101 must present.
+The current `HEAD` includes those repairs and R-562's clean-checkout gate. On 2026-09-01 the gate completed detached checkout creation and the full Godot import, so the earlier reformat/import blocker is no longer the first failure. The bounded MapView3D smoke then failed with **4 files, 70 tests, 49 failures, and 196 errors**. The first substantive product diagnostics are the four unsupported `elevation_area` / `elevation_ramp` commands in `content/maps/lower_town_slice.rrmap` lines 14, 17, 20, and 22. The later invalid map-definition, landmark dictionary, and null-node errors are dependent cascades, not separate R-490 defects.
 
-Both declarations are restored verbatim to their pre-`c1da164b` form (4 lines total, no behaviour change). The same 4 lines were already present as uncommitted edits in the shared worktree from a concurrent session; this gate reproduced them independently in the clean worktree, confirmed byte equality with the pre-`c1da164b` source, and commits them because `HEAD` must not stay unloadable. Verified: at clean `HEAD` plus these four lines plus the Finding 3 baseline, `test_map_object_chunk_streaming` and `test_lower_town_slice_map` run **26/26 green with zero script errors**, where the same command at unmodified `HEAD` cannot load the runtime at all.
-
-CI did not catch this because gdlint checks style, not compilation, and no gate runs a parse or load check over every script from a clean checkout.
+This remains a release blocker, but ownership is now explicit: **R-453/R-455** own elevation parser/compiler support, and **R-604** owns the clean-load rerun. R-562 already provides the CI/local gate that prevents this failure from being hidden by the shared dirty worktree. R-490 does not modify the parser or map source.
 
 ## Commands
 
@@ -121,13 +121,14 @@ python3 tools/verify_asset_lint.py          # asset lint passed
 GODOT_BIN="$GODOT" tools/run_performance_report.sh build/benchmarks/r490-lower-town.json
 # frame p95: 7.326 ms; static memory: 599291229 bytes; actor count: 6
 
-# Camera occlusion and follow boom (blocking)
+# Camera contract (historical baseline; current rerun is recorded above)
 tools/run_godot_checked.sh --require-test-summary r490-camera -- \
   "$GODOT" --headless --path . --script tools/run_godot_tests.gd -- --filter=test_map_camera_modes
-# Godot headless tests: 1 file(s), 11 test(s), 6 failure(s).
+# Historical 2026-08-12 result: 1 file(s), 11 test(s), 6 failure(s).
+# Current 2026-09-01 result: 1 file(s), 11 test(s), 0 assertion failures, 35 engine/script errors.
 ```
 
-Consolidated re-run of every in-scope suite after the Finding 3 and Finding 4 repairs:
+Consolidated historical re-run of every in-scope suite after the Finding 3 and Finding 4 repairs:
 
 ```text
 --filter=test_lower_town_slice_map,test_kalev_smithy_map,test_burgher_house_tiers,
@@ -145,13 +146,14 @@ git worktree add /tmp/r490_clean HEAD
 
 ## Closeout and handoff
 
-R-490 delivers the gate result; the gate itself is **BLOCKED**. Fixed in this task: the stale chunk-ownership baseline (Finding 3) and the runtime load breakage (Finding 4). Remaining owners:
+R-490 delivers the gate result; the gate itself is **BLOCKED**. Fixed or superseded since the original run: the stale chunk-ownership baseline (Finding 3), the reformat-induced runtime load breakage (historical Finding 4), and the six camera placement assertions (R-577). Remaining owners:
 
 1. **P3-011 / performance owner** - resolve the `lower_town_scene` resident node count (8472/7500) and resident memory (446.2/280 MiB) overage, or re-authorize the budgets with evidence. Blocks P0-101 clause 6.
-2. **Camera owner** - fix the six `test_map_camera_modes` follow-boom, building-pull-out and eye-height assertions. Blocks P0-101 clause 6 and any route capture work in R-491.
-3. **CI owner** - add a clean-checkout parse/load gate so a formatting pass can never again delete executable code without a red build.
-4. **R-491 / R-492** - unchanged; matched captures and human silhouette review remain their blockers.
-5. **R-108** - parent stays open.
+2. **R-453/R-455 elevation owners, with R-604 verification** - land parser/compiler support for `elevation_area` / `elevation_ramp`, then rerun the clean-checkout MapView3D load and camera suites. The current clean gate remains blocked by this first parser diagnostic.
+3. **R-577 camera owner** - preserve the current camera fix and provide the post-parser clean imported rerun; the current live run has 0 assertion failures but cannot certify camera behavior while engine errors interrupt map-backed setup.
+4. **R-562 / CI gate** - already resolved: the clean-checkout parse/load gate is present and referenced by CI; it correctly catches the current parser failure.
+5. **R-491 / R-492** - unchanged; matched captures and human silhouette review remain their blockers.
+6. **R-108** - parent stays open.
 
 Not measured by this gate and still open for whoever needs GPU evidence: non-headless draw-call attribution through `tools/benchmarks/lower_town_render_probe.tscn`, and any run on the declared minimum hardware profile.
 
