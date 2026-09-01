@@ -194,6 +194,37 @@ func test_harju_hay_ricks_form_a_field_group_clear_of_buildings() -> void:
 	assert_true(sizes.has(&"hay_stack.tall"))
 
 
+func test_harju_world_routes_keep_all_authored_neighbors_and_spawns() -> void:
+	var parsed := MapRrmapParser.parse_file(RRMAP_PATH)
+	assert_true(parsed.is_ok(), str(parsed.formatted_diagnostics()))
+	if not parsed.is_ok():
+		return
+	var expected_routes := {
+		&"road_to_reval": [&"viru_gate_foreland", &"from_world_harju", &"from_reval_east"],
+		&"road_to_sacred_grove": [
+			&"world_sacred_grove", &"from_world_harju", &"from_world_sacred_grove"
+		],
+		&"road_to_rebel_kings": [
+			&"world_rebel_kings", &"from_world_harju", &"from_world_rebel_kings"
+		],
+		&"road_to_kanavere": [&"world_kanavere", &"from_world_harju", &"from_world_kanavere"],
+		&"road_to_sojamae": [&"world_sojamae", &"from_world_harju", &"from_world_sojamae"],
+	}
+	var transitions_by_id: Dictionary = {}
+	for transition in parsed.definition.transitions:
+		transitions_by_id[transition["id"]] = transition
+	assert_eq(transitions_by_id.size(), expected_routes.size())
+	for transition_id in expected_routes:
+		assert_true(transitions_by_id.has(transition_id), "Missing Harju route %s" % transition_id)
+		if not transitions_by_id.has(transition_id):
+			continue
+		var transition: Dictionary = transitions_by_id[transition_id]
+		var expected: Array = expected_routes[transition_id]
+		assert_eq(transition["destination_scene_id"], expected[0])
+		assert_eq(transition["destination_spawn_id"], expected[1])
+		assert_eq(transition["spawn_id"], expected[2])
+
+
 func _building(definition: MapDefinition, building_id: StringName) -> Dictionary:
 	for building in definition.buildings:
 		if building["id"] == building_id:
