@@ -559,6 +559,39 @@ class UpdateTodoCountsTest(unittest.TestCase):
                 "# Fixture TODO\n\n- [ ] P2-001 | verify: this row is missing task fields",
             )
 
+    def test_cli_check_rejects_missing_summary_without_writing(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            todo = Path(temp_dir) / "custom-todo.md"
+            todo.write_text(
+                "\n".join(
+                    [
+                        "# Fixture TODO",
+                        "",
+                        "- [ ] P2-001 | deps: none | deliverable: fixture task | verify: passes",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            before = todo.read_bytes()
+
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(TOOLS / "update_todo_counts.py"),
+                    "--path",
+                    str(todo),
+                    "--check",
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(result.returncode, 1)
+            self.assertIn("| P2 |     1  |     0  |", result.stdout)
+            self.assertIn("existing priority summary table not found", result.stderr)
+            self.assertEqual(before, todo.read_bytes())
+
     def test_cli_write_rejects_missing_summary_without_writing(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             todo = Path(temp_dir) / "fixture-todo.md"
