@@ -245,3 +245,5 @@ Parallel exact replacements against one mutable file can race and reapply stale 
 
 - 2026-09-01: When an aggregate Godot transition/collision verifier times out or stops on unrelated map parser diagnostics, run a bounded map-specific collision/route probe and preserve the focused suite counts; do not promote the aggregate timeout into a scoped map failure.
 - 2026-09-01: After inserting a regression test near an existing helper, re-read the full class tail before any test run; a broad replacement can move helper statements outside the function while leaving superficially valid indentation.
+- 2026-09-01: When inserting a regression test beside an existing unittest, preserve the neighboring method header and re-read the method boundaries before testing; otherwise the original test body can be silently absorbed by the new test.
+- 2026-09-01: `git update-index --cacheinfo` requires `mode,sha,path`; when reconstructing a temporary scoped index, include the repository path in the same argument or the command exits before creating the intended staged entry.

@@ -100,6 +100,14 @@ class UpdateTodoCountsTest(unittest.TestCase):
         self.assertEqual(_bucket_for("D"), "D")
         self.assertEqual(_bucket_for("P9"), "P7+")
 
+    def test_bucket_helper_maps_task_ids_to_priority_bands(self) -> None:
+        from update_todo_counts import _bucket_for
+
+        self.assertEqual(_bucket_for("P4-027a"), "P4")
+        self.assertEqual(_bucket_for("P5-008"), "P5")
+        self.assertEqual(_bucket_for("A-002b"), "A")
+        self.assertEqual(_bucket_for("R-001"), "R")
+
     def test_scan_groups_future_priority_bands_into_p7_plus(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             todo = Path(temp_dir) / "TODO.md"
