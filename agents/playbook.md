@@ -336,3 +336,4 @@ This file contains only cross-role operating lessons. Domain lessons belong to t
 
 - 2026-09-01: In a shared pre-staged worktree, `git add` can capture unrelated index entries; compare `git diff-tree` to the intended allowlist before pushing, and use a temporary index plus `git commit-tree` to repair scope without disturbing concurrent staged work.
 - 2026-09-01: In a final acceptance batch with an expected provenance exit 1, run each validator with explicit status labels under `set +e`; this preserves preceding clean-import/evidence/lint results and prevents an expected blocker from appearing as an ambiguous batch failure.
+- 2026-09-01: When a focused Godot regression passes but the file-level harness fails on unrelated RRMap parser diagnostics, record the target method as green and classify the cross-project errors separately; do not widen the scoped fix into an unrelated map-parser task.
