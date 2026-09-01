@@ -92,6 +92,7 @@ func test_lower_town_authoring_contract_is_resolved_against_runtime() -> void:
 
 func test_lower_town_frontage_rules_and_overrides_are_explicit() -> void:
 	var contract := _load_json(CONTRACT_PATH)
+	var frontage_rules: Dictionary = contract.get("frontage_rules", {})
 	var expected_ranges: Dictionary = {
 		"default_frontage_m": [7.0, 11.0],
 		"artisan_frontage_m": [5.0, 9.0],
@@ -100,6 +101,31 @@ func test_lower_town_frontage_rules_and_overrides_are_explicit() -> void:
 		"harbour_frontage_m": [6.0, 10.0],
 		"merchant_irregular_frontage_m": [12.0, 14.0],
 	}
+	var declared_rule_ids: Dictionary = {"default_frontage_m": true}
+	for exception in frontage_rules.get("exceptions", []):
+		var exception_dict: Dictionary = exception
+		var rule_id := String(exception_dict.get("rule_id", ""))
+		assert_false(rule_id.is_empty(), "Every frontage exception needs a rule id")
+		assert_false(declared_rule_ids.has(rule_id), "Duplicate frontage rule: %s" % rule_id)
+		declared_rule_ids[rule_id] = true
+		var target: Array = exception_dict.get("target_range_m", [])
+		assert_eq(target.size(), 2, "%s frontage rule needs a two-value range" % rule_id)
+		if target.size() == 2:
+			assert_true(
+				float(target[0]) <= float(target[1]),
+				"%s frontage range must be ordered" % rule_id,
+			)
+	assert_eq(
+		declared_rule_ids.size(),
+		expected_ranges.size(),
+		"New frontage exceptions require an explicit acceptance range",
+	)
+	for declared_rule_id_variant in declared_rule_ids:
+		var declared_rule_id := String(declared_rule_id_variant)
+		assert_true(
+			expected_ranges.has(declared_rule_id),
+			"Unexpected frontage rule lacks an acceptance range: %s" % declared_rule_id,
+		)
 	for rule_id_variant in expected_ranges:
 		var rule_id := String(rule_id_variant)
 		var rule := _frontage_rule(contract, rule_id)
