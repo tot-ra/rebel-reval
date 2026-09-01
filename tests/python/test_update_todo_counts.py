@@ -360,6 +360,63 @@ class UpdateTodoCountsTest(unittest.TestCase):
             self.assertIn(b"\r\n| P0 |     1  |     0  |", updated)
 
 
+    def test_scan_build_rewrite_and_cli_support_cr_only_line_endings(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            todo = Path(temp_dir) / "fixture-todo.md"
+            task_rows = [
+                "- [ ] P2-001 | deps: none | deliverable: pending fixture | verify: passes",
+                "- [x] P2-002 | deps: P2-001 | deliverable: completed fixture | verify: passes",
+            ]
+            todo.write_bytes(
+                "\r".join(
+                    [
+                        "# Fixture TODO",
+                        "",
+                        "<!-- Quick-reference counts updated on every structural change -->",
+                        "| Priority | Open | Done | Notes |",
+                        "|----------|-----:|-----:|-------|",
+                        "| P2 | stale | stale | stale |",
+                        "",
+                        *task_rows,
+                        "",
+                        "## Notes",
+                        "keep this content",
+                    ]
+                ).encode("utf-8")
+            )
+
+            counts = scan_todo(todo)
+            table = build_table(counts)
+
+            self.assertEqual(counts["P2"].open_count, 1)
+            self.assertEqual(counts["P2"].done_count, 1)
+            self.assertIn("| P2 |     1  |     1  |", table)
+            self.assertTrue(rewrite_table(todo, table))
+
+            updated = todo.read_bytes()
+            self.assertNotIn(b"\n", updated)
+            for task_row in task_rows:
+                self.assertIn(task_row.encode("utf-8"), updated)
+            self.assertIn(b"\r## Notes\rkeep this content", updated)
+
+            before_check = updated
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(TOOLS / "update_todo_counts.py"),
+                    "--path",
+                    str(todo),
+                    "--check",
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("summary table is current", result.stdout)
+            self.assertEqual(before_check, todo.read_bytes())
+
     def test_rewrite_table_preserves_cr_only_line_endings(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             todo = Path(temp_dir) / "TODO.md"
