@@ -41,6 +41,21 @@ const MAPS: Dictionary = {
         self.assertIn("valid_prod", cat)
         self.assertEqual(cat["archived_map"]["scope"], "archive")
 
+    def test_parse_compact_catalog_entry(self):
+        compact_path = os.path.join(self.temp_dir.name, "compact_map_catalog.gd")
+        with open(compact_path, "w") as f:
+            f.write(
+                'const MAPS: Dictionary = {"compact_map": {"path": "res://compact.tscn", '
+                '"scope": "prototype", "active": false}}'
+            )
+
+        catalog = parse_catalog(compact_path)
+
+        self.assertEqual(
+            catalog["compact_map"],
+            {"path": "res://compact.tscn", "scope": "prototype", "active": False},
+        )
+
     def test_valid_activation(self):
         dest_path = os.path.join(self.temp_dir.name, "dest.json")
         with open(dest_path, 'w') as f:
