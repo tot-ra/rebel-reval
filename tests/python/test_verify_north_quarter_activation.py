@@ -13,6 +13,25 @@ class TestNorthQuarterActivation(unittest.TestCase):
     def test_repository_records_consistent_blocked_state(self):
         self.assertEqual([], verify(ROOT))
 
+    def test_ledger_identity_must_match_north_quarter_activation(self):
+        with self._fixture() as root:
+            ledger_path = root / "docs/data/p4_020_north_quarter_activation.json"
+            ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
+            ledger["task"] = "P4-019"
+            ledger["map_id"] = "market_civic_quarter"
+            ledger["scene_id"] = "reval_center"
+            ledger_path.write_text(json.dumps(ledger), encoding="utf-8")
+            errors = verify(root)
+            self.assertTrue(any("ledger task must be P4-020" in error for error in errors), errors)
+            self.assertTrue(
+                any("ledger map_id must be north_quarter" in error for error in errors),
+                errors,
+            )
+            self.assertTrue(
+                any("ledger scene_id must be reval_north" in error for error in errors),
+                errors,
+            )
+
     def test_partial_activation_is_rejected(self):
         with self._fixture() as root:
             rrmap = root / "content/maps/north_quarter.rrmap"

@@ -21,6 +21,9 @@ RRMAP_PATH = Path("content/maps/north_quarter.rrmap")
 CATALOG_PATH = Path("scripts/map/map_catalog.gd")
 DESTINATIONS_PATH = Path("content/transitions/active_destinations.json")
 LEDGER_PATH = Path("docs/data/p4_020_north_quarter_activation.json")
+EXPECTED_TASK = "P4-020"
+EXPECTED_MAP_ID = "north_quarter"
+EXPECTED_SCENE_ID = "reval_north"
 EXPECTED_APPROVAL = "docs/adr/0008-three-act-campaign-and-faction-scope.md"
 REQUIRED_BLOCKERS = {"P0-040", "P2-021", "P4-019", "P4-023f"}
 
@@ -80,6 +83,15 @@ def verify(root: Path) -> list[str]:
         ledger = json.loads((root / LEDGER_PATH).read_text(encoding="utf-8"))
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         return [str(exc)]
+
+    expected_identity = {
+        "task": EXPECTED_TASK,
+        "map_id": EXPECTED_MAP_ID,
+        "scene_id": EXPECTED_SCENE_ID,
+    }
+    for field, expected in expected_identity.items():
+        if ledger.get(field) != expected:
+            errors.append(f"activation ledger {field} must be {expected}")
 
     if ledger.get("approval_artifact") != EXPECTED_APPROVAL:
         errors.append(f"approval_artifact must be {EXPECTED_APPROVAL}")
