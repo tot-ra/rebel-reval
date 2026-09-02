@@ -83,6 +83,35 @@ const MAPS: Dictionary = {
         self.assertIn("Invalid JSON in destinations manifest", errors[0])
         self.assertIn("line 1, column 13", errors[0])
 
+    def test_non_object_destinations_json_returns_actionable_error(self):
+        for payload in ([], "not-a-manifest"):
+            with self.subTest(payload=payload):
+                dest_path = os.path.join(self.temp_dir.name, "wrong-shape.json")
+                with open(dest_path, "w") as f:
+                    json.dump(payload, f)
+
+                start_path = os.path.join(self.temp_dir.name, "start.gd")
+                with open(start_path, "w") as f:
+                    f.write('change_scene_to_file("res://valid.tscn")')
+
+                errors = verify_activation(self.catalog_path, dest_path, start_path)
+
+                self.assertEqual(errors, ["destinations manifest must be a JSON object"])
+
+    def test_release_scope_rejects_non_object_destinations_json(self):
+        root = os.path.join(self.temp_dir.name, "repo")
+        os.makedirs(os.path.join(root, "scenes", "map"))
+        with open(os.path.join(root, "scenes", "map", ".gdignore"), "w") as f:
+            f.write("*")
+
+        dest_path = os.path.join(self.temp_dir.name, "wrong-shape.json")
+        with open(dest_path, "w") as f:
+            json.dump([], f)
+
+        errors = verify_release_scope(dest_path, root)
+
+        self.assertEqual(errors, ["destinations manifest must be a JSON object"])
+
     def test_seeded_active_prototype_without_release_flag(self):
         dest_path = os.path.join(self.temp_dir.name, "dest.json")
         with open(dest_path, 'w') as f:

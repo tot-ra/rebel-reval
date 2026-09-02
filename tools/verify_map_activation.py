@@ -13,7 +13,7 @@ ARCHIVE_GDIGNORE_PATHS = (
 def _load_json(path, label):
     try:
         with open(path, "r") as handle:
-            return json.load(handle), None
+            payload = json.load(handle)
     except FileNotFoundError:
         return None, None
     except json.JSONDecodeError as error:
@@ -21,6 +21,10 @@ def _load_json(path, label):
             f"Invalid JSON in {label}: line {error.lineno}, "
             f"column {error.colno}: {error.msg}"
         )
+
+    if not isinstance(payload, dict):
+        return None, f"{label} must be a JSON object"
+    return payload, None
 
 
 def parse_catalog(catalog_path):
