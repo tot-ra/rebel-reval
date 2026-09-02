@@ -150,12 +150,28 @@ def validate(root: Path = ROOT, exceptions_path: Path | None = None) -> list[str
         return [*errors, f"could not inspect Git index: {error}"]
 
     tracked_set = set(tracked)
+    root_resolved = root.resolve()
+    safe_tracked: list[str] = []
     for path in tracked:
+        absolute = root / path
+        try:
+            resolved = absolute.resolve(strict=False)
+        except (OSError, RuntimeError) as error:
+            errors.append(f"could not resolve tracked path {path}: {error}")
+            continue
+        try:
+            resolved.relative_to(root_resolved)
+        except ValueError:
+            # Git can track symlinks, so guard the resolved target before any
+            # stat or hash operation can read outside the checkout.
+            errors.append(f"tracked path resolves outside repository root: {path}")
+            continue
+        safe_tracked.append(path)
         if is_forbidden_tracked_path(path):
             errors.append(f"generated or release path is tracked: {path}")
 
     observed_large: set[str] = set()
-    for path in tracked:
+    for path in safe_tracked:
         absolute = root / path
         # The index is authoritative. An unrelated unstaged deletion in a developer
         # tree must not make this policy check fail; clean CI still has every blob.

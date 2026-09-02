@@ -57,6 +57,29 @@ class VerifyStorageHygieneTest(unittest.TestCase):
 
         self.assertEqual(errors, [])
 
+    def test_tracked_symlink_outside_root_is_rejected_before_file_checks(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "checkout"
+            root.mkdir()
+            external = Path(temp_dir) / "outside.bin"
+            external.write_bytes(b"outside")
+            link = root / "assets" / "linked.bin"
+            link.parent.mkdir()
+            link.symlink_to(external)
+            self._write_manifest(root, [])
+            with (
+                mock.patch.object(verifier, "LARGE_FILE_BYTES", 1),
+                mock.patch.object(verifier, "tracked_paths", return_value=["assets/linked.bin"]),
+                mock.patch.object(verifier, "is_lfs_tracked") as is_lfs_tracked,
+            ):
+                errors = verifier.validate(root)
+
+        self.assertEqual(
+            errors,
+            ["tracked path resolves outside repository root: assets/linked.bin"],
+        )
+        is_lfs_tracked.assert_not_called()
+
     def test_blank_exception_path_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
