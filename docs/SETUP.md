@@ -134,16 +134,16 @@ The installer writes `.git/hooks/pre-commit` and re-runs `git lfs install --loca
 
 [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) reads the same 4.7 family pin from `.godot-version` and checks `project.godot` `config/features` before running automation. The workflow installs Godot `4.7.1` with matching export templates, matching the recorded P0-017 baseline patch release.
 
-The local equivalent of the CI validation job is:
+The local equivalent of the CI validation job is shown below. Initialize `GODOT_BIN` first using the snippet in [CLI commands](#cli-commands), then run:
 
 ```bash
-godot --version
+"$GODOT_BIN" --version
 python3 --version
 tools/verify_clean_checkout_load.sh
-tools/run_godot_checked.sh clean-import godot --headless --editor --quit
-tools/run_godot_checked.sh main-scene godot --headless --quit-after 5
-tools/run_godot_checked.sh playable-room godot --headless --quit-after 5 scenes/reval_east/reval_east.tscn
-tools/run_godot_checked.sh --require-test-summary full-suite godot --headless --script tools/run_godot_tests.gd
+tools/run_godot_checked.sh clean-import -- "$GODOT_BIN" --headless --editor --quit
+tools/run_godot_checked.sh main-scene -- "$GODOT_BIN" --headless --quit-after 5
+tools/run_godot_checked.sh playable-room -- "$GODOT_BIN" --headless --quit-after 5 scenes/reval_east/reval_east.tscn
+tools/run_godot_checked.sh --require-test-summary full-suite -- "$GODOT_BIN" --headless --script tools/run_godot_tests.gd
 python3 tools/generate_active_docs_report.py --check
 python3 tools/generate_active_docs_report.py --fixture clean
 python3 tools/generate_active_docs_report.py --fixture invalid  # expected to fail
