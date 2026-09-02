@@ -83,12 +83,20 @@ def verify_manifest_contract(manifest: dict) -> list[str]:
     ]:
         if option not in required:
             failures.append(f"missing required option: {option}")
-    if len(manifest.get("supported_resolutions", [])) < 2:
+    supported_resolutions = manifest.get("supported_resolutions", [])
+    if not isinstance(supported_resolutions, list):
+        failures.append("manifest supported_resolutions must be a list")
+    elif len(supported_resolutions) < 2:
         failures.append("manifest must list at least two supported resolutions")
-    if "keyboard_mouse" not in manifest.get("input_methods", []):
-        failures.append("manifest must list keyboard_mouse input method")
-    if "gamepad" not in manifest.get("input_methods", []):
-        failures.append("manifest must list gamepad input method")
+
+    input_methods = manifest.get("input_methods", [])
+    if not isinstance(input_methods, list):
+        failures.append("manifest input_methods must be a list")
+    else:
+        if "keyboard_mouse" not in input_methods:
+            failures.append("manifest must list keyboard_mouse input method")
+        if "gamepad" not in input_methods:
+            failures.append("manifest must list gamepad input method")
     return failures
 
 

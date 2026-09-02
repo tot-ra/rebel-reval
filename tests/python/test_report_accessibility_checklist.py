@@ -55,6 +55,35 @@ class ReportAccessibilityChecklistTest(unittest.TestCase):
                     failures,
                 )
 
+    def test_manifest_rejects_malformed_collection_fields(self) -> None:
+        base_manifest = {
+            "required_options": [
+                "remapping",
+                "guard_hold_toggle",
+                "text_speed",
+                "scalable_text",
+                "subtitle_background",
+                "focus_contrast",
+                "screen_shake",
+                "reduced_flashing",
+            ],
+            "supported_resolutions": [
+                {"width": 1280, "height": 720},
+                {"width": 1920, "height": 1080},
+            ],
+            "input_methods": ["keyboard_mouse", "gamepad"],
+        }
+        for field in ("supported_resolutions", "input_methods"):
+            for malformed in (None, {}):
+                with self.subTest(field=field, value=malformed):
+                    manifest = dict(base_manifest)
+                    manifest[field] = malformed
+                    failures = verify_manifest_contract(manifest)
+                    self.assertTrue(
+                        any(f"{field} must be a list" in failure for failure in failures),
+                        failures,
+                    )
+
     def test_manifest_accepts_non_empty_option_names(self) -> None:
         failures = verify_manifest_contract(
             {
