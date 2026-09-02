@@ -228,52 +228,53 @@ A line count over 400 is an audit trigger, not an automatic extraction trigger.
 
 ## Large runtime file audit
 
-Inventory date: **2026-08-19** (P0-184). Counts use `wc -l` on `scripts/**/*.gd` and exclude `tests/`, `tools/`, `addons/`, `archive/`, `quarantine/`, `generated/`, and `scenes/`.
+Inventory date: **2026-09-02** (P0-185 refresh). Counts use `wc -l` on tracked `scripts/**/*.gd` and exclude `tests/`, `tools/`, `addons/`, `archive/`, `quarantine/`, `generated/`, and `scenes/`.
 
 | Band | Count | How to treat it |
-| --- | --- | --- |
-| >= 800 lines | 4 | Must have an explicit keep/extract decision (table below). Primary EE-agent pain. |
-| 600-799 lines | 18 | Audit + prefer extraction only when responsibilities already mix. |
-| 400-599 lines | 39 | Audit trigger only; do not split by line count alone. |
-| Total >= 400 | 61 | Up one from the 2026-08-13 refresh; growth is in view3d mesh builders and map types. |
+| --- | ---: | --- |
+| >= 800 lines | 7 | Must have an explicit keep/extract decision (table below). Primary EE-agent pain. |
+| 600-799 lines | 16 | Audit + prefer extraction only when responsibilities already mix. |
+| 400-599 lines | 40 | Audit trigger only; do not split by line count alone. |
+| Total >= 400 | 63 | Current tracked runtime inventory; line count alone is not an extraction mandate. |
 
 Soft readability target for new or extracted runtime helpers: **under 600 lines**, ideally under 400, unless the file is a pure data catalog or one grammar/facade. EE-agent split plan with ordered steps: [`docs/reports/agent_file_readability_split_plan_2026-08-13.md`](./reports/agent_file_readability_split_plan_2026-08-13.md). Justified extractions for the 800+ band are **P0-185**.
 
 ### Files over 800 lines (required decisions)
 
-| File (lines) | Current responsibility | Decision and regression gate |
-| --- | --- | --- |
-| `scripts/map/view3d/map_view_tree_meshes.gd` (1143) | Species profiles plus procedural wood/canopy/fruit mesh builders | **Extract (P0-185).** Split species profile tables from mesh emitters behind the existing `wood_mesh` / `canopy_mesh` / `fruit_mesh` facade. Protect with `test_map_view_3d_mesh`, foliage/tree mesh filters, and outdoor captures. |
-| `scripts/map/view3d/map_view_mesh_builder_prop_models.gd` (1020) | Prop dispatch plus smithy kits, boats, banners, livestock, authored trees | **Extract (P0-185).** Keep `build_prop` facade; peel smithy kit builders and outdoor/boat/fauna branches into typed helpers. Protect with `test_map_view_3d_mesh`, `test_forge_prop_meshes`, boat/float filters. |
-| `scripts/map/view3d/map_view_material_shaders.gd` (783) | Inline `.gdshader` string catalog and tiny shader cache | **Extract or relocate (P0-185, partial).** `map_view_wear_decal.gdshader`, `map_view_puddle.gdshader`, `map_view_cloth.gdshader`, and `map_view_hanging_banner_cloth.gdshader` relocated; remaining large inline sources (water, terrain blend, fishing net, etc.) still live here. Protect with `test_map_view_decals`, `test_map_view_material_resolution`, `test_map_view_3d_lighting`, water/terrain mesh filters. |
-| `scripts/map/view3d/map_view_runtime.gd` (832) | 2D-to-3D install facade, ambient installers, time ladder, click input | **Extract (P0-185).** Actors/camera already moved out; next peel ambient installers (birds/fauna/insects/crowd/music) and/or time-flow controls behind the same `MapViewRuntime` facade. Protect with `test_map_view_3d_runtime`, camera/click/crowd/fauna filters, session-state replacement tests. |
+| File | Lines | Decision and regression gate |
+| --- | ---: | --- |
+| `scripts/map/view3d/map_view_tree_meshes.gd` | 1143 | **Extract (P0-185).** Split species profile tables from procedural wood/canopy/fruit mesh emitters behind the existing `wood_mesh` / `canopy_mesh` / `fruit_mesh` facade. Protect with `test_map_view_3d_mesh`, `test_map_view_tree_species`, foliage filters, and outdoor captures. |
+| `scripts/map/view3d/sky_weather_3d.gd` | 1049 | **Keep.** This is the cohesive sky/weather presentation owner after the `SkyWeatherResources` extraction; do not split by LOC until a separate weather concern changes independently. Protect with `test_sky_weather_3d`, `test_sky_weather_state`, `test_r713_sky_weather_continuity`, lighting, and boat-float filters. |
+| `scripts/map/view3d/map_view_mesh_builder_prop_models.gd` | 1018 | **Extract (P0-185).** Keep the `build_prop` facade; peel smithy-kit builders and outdoor/boat/fauna branches into typed helpers. Protect with `test_map_view_3d_mesh`, `test_forge_prop_meshes`, `test_boat_float_3d`, and authored prop/fauna filters. |
+| `scripts/state/game_state.gd` | 906 | **Keep.** Preserve the canonical campaign-state owner and public persistence API; extract only an independently changing state concern behind a typed boundary and focused tests, never a second state store. Protect with `test_game_state`, session-state replacement, save-envelope, and vertical-slice save-matrix suites. |
+| `scripts/map/view3d/map_view_runtime.gd` | 883 | **Extract (P0-185).** Actors and camera are already separate; next peel ambient installers (birds/fauna/insects/crowd/music) and/or time-flow controls behind the same `MapViewRuntime` facade. Protect with `test_map_view_3d_runtime`, runtime-camera, click, crowd, fauna, and session-state replacement filters. |
+| `scripts/map/view3d/map_view_3d.gd` | 878 | **Keep.** Retain this as the integration owner; extract lighting or streaming only when that axis changes independently behind a stable facade. Protect with `test_map_view_3d_core`, `test_map_view_3d_lighting`, camera, object-streaming, and capture filters. |
+| `scripts/map/view3d/map_view_materials.gd` | 822 | **Keep.** Retain the material-resolution facade over focused patterns/shaders modules; do not split the cohesive resolver for LOC alone. Protect with `test_map_view_material_resolution`, `test_map_view_3d_lighting`, decal, water, and terrain-material filters. |
 
 ### 600-799 line band (keep unless a second reason appears)
 
 | File (lines) | Decision and regression gate |
 | --- | --- |
-| `scripts/map/rrmap/map_rrmap_parser_statements.gd` (790) | **Keep** one grammar dispatcher. Extract a command family only when it gains independent state. Gate: `test_map_rrmap_parser`, parser CI, canonical round-trip. |
-| `scripts/map/view3d/map_view_3d.gd` (783) | **Keep** integration owner; extract lighting or streaming only when that axis changes alone. Gate: `test_map_view_3d_core`, lighting, camera, object-streaming. |
-| `scripts/map/view3d/map_view_materials.gd` (770) | **Keep** facade over patterns/shaders. Gate: material resolution + 3D lighting/mesh. |
-| `scripts/map/view3d/map_view_mesh_builder_scatter.gd` (741) | **Keep** scatter catalog until a second caller needs pure tables. Gate: mesh/core outdoor tests. |
-| `scripts/map/view3d/map_view_material_patterns.gd` (730) | **Keep** beside materials facade. Gate: material resolution. |
-| `scripts/map/view3d/sky_weather_3d.gd` (729) | **Keep** after P0-079 resource extract. Gate: `test_sky_weather_3d`, lighting, boat float. |
-| `scripts/map/view3d/map_view_mesh_builder_terrain.gd` (718) | **Target later:** pure height-field owner when terrain work resumes. Gate: core, riparian, terrain movement, parity. |
-| `scripts/map/view3d/map_view_bird_meshes.gd` (712) | **Keep** mesh catalog beside species data. Gate: bird mesh filters. |
-| `scripts/map/view3d/map_view_mammal_meshes.gd` (697) | **Keep** mesh catalog beside species data. Gate: mammal mesh filters. |
-| `scripts/map/view3d/map_view_mesh_builder_building_houses.gd` (711) | **Keep** house visual catalog. Gate: mesh + fortification + captures. |
-| `scripts/player.gd` (691) | **Target later:** locomotion/resources vs combat adapter when player work resumes. Gate: action SM, resources, terrain movement, encumbrance, combat. |
-| `scripts/map/view3d/map_view_mesh_builder_primitives.gd` (685) | **Keep** shared geometry + cache. Gate: mesh/core reuse assertions. |
-| `scripts/map/map_types.gd` (675) | **Keep** shared typed vocabulary; do not split for LOC. Gate: map compiler/definition/rrmap suites. |
-| `scripts/inventory/equipment_silhouette.gd` (662) | **Keep** until a second silhouette consumer appears. Gate: inventory/equipment/character-rig. |
-| `scripts/map/view3d/map_view_mesh_builder_landmarks.gd` (648) | **Keep** landmark catalog. Gate: direction signs, fortification, core. |
-| `scripts/map/map_definition.gd` (641) | **Keep** runtime contract + validation. Gate: definition contract, parity, audit, routes. |
-| `scripts/map/view3d/map_view_foliage_meshes.gd` (604) | **Keep** beside tree meshes until foliage gains a second owner. Gate: mesh/outdoor. |
-| `scripts/map/view3d/map_view_runtime_camera.gd` (600) | **Keep** camera owner beside runtime facade. Gate: `test_map_view_3d_runtime`, camera/click filters. |
+| `scripts/map/view3d/map_view_material_shaders.gd` (791) | **Extract or relocate (P0-185, partial).** Keep the shader cache facade and move remaining large inline shader sources only when each resource has a focused owner. Gate: `test_map_view_decals`, `test_map_view_material_resolution`, `test_map_view_3d_lighting`, water/terrain mesh filters. |
+| `scripts/map/view3d/map_view_mesh_builder_scatter.gd` (741) | **Keep** species-batched scatter catalog until a second caller needs pure tables. Gate: mesh/core outdoor tests. |
+| `scripts/map/view3d/map_view_material_patterns.gd` (730) | **Keep** deterministic surface-pattern generator beside the materials facade. Gate: `test_map_view_material_resolution`, building-surface-weathering, and terrain-material filters. |
+| `scripts/map/view3d/map_view_bird_meshes.gd` (712) | **Keep** mesh catalog beside bird species data. Gate: `test_map_view_bird_meshes`, bird species, and bird-flight filters. |
+| `scripts/map/rrmap/map_rrmap_parser_statements.gd` (703) | **Keep** one grammar dispatcher. Extract a command family only when it gains independent state. Gate: `test_map_rrmap_parser`, parser CI, canonical round-trip. |
+| `scripts/map/view3d/map_view_mesh_builder_building_houses.gd` (701) | **Keep** house visual catalog. Gate: `test_map_view_3d_mesh`, burgher-house typology/tier, fortification, and capture filters. |
+| `scripts/state/game_state_persistence.gd` (696) | **Keep** persistence-shape adapter beside `GameState`; split only if serialization and migration acquire independent owners without changing the envelope contract. Gate: `test_save_service`, `test_save_envelope`, and vertical-slice save-matrix suites. |
+| `scripts/map/view3d/map_view_mammal_meshes.gd` (697) | **Keep** mesh catalog beside mammal species data. Gate: mammal mesh/species and fauna filters. |
+| `scripts/map/map_types.gd` (691) | **Keep** shared typed vocabulary; do not split for LOC. Gate: map compiler, definition, and rrmap suites. |
+| `scripts/map/view3d/map_view_mesh_builder_primitives.gd` (685) | **Keep** shared geometry and cache owner. Gate: mesh/core reuse assertions. |
+| `scripts/map/view3d/map_view_runtime_camera.gd` (678) | **Keep** camera owner beside the runtime facade. Gate: `test_map_view_3d_runtime`, `test_map_view_runtime_camera`, and camera/click filters. |
+| `scripts/map/view3d/map_view_mesh_builder_terrain.gd` (658) | **Target later:** pure height-field owner when terrain work resumes. Gate: core, riparian, terrain movement, and parity suites. |
+| `scripts/inventory/equipment_silhouette.gd` (662) | **Keep** until a second silhouette consumer appears. Gate: inventory, equipment, and character-rig suites. |
+| `scripts/map/view3d/map_view_mesh_builder_landmarks.gd` (653) | **Keep** landmark catalog. Gate: direction-sign, fortification, core, and landmark capture filters. |
+| `scripts/map/map_definition.gd` (633) | **Keep** runtime contract and validation owner. Gate: definition contract, parity, audit, and route suites. |
+| `scripts/map/view3d/map_view_foliage_meshes.gd` (604) | **Keep** beside tree meshes until foliage gains a second owner. Gate: mesh, tree-species, and outdoor suites. |
 
 ### 400-599 line band (audit list only)
 
-These remain over the audit trigger but are not scheduled rewrites: `map_blueprint_compiler_expand.gd` (579), `map_view_mesh_builder_house_roof_dressing.gd` (573), `map_composition_audit.gd` (573), `map_blueprint.gd` (565), `map_view_mammal_species.gd` (564), `game_state.gd` (538), `map_view_mesh_builder_building_fortification.gd` (528), `map_prop_renderer_industrial.gd` (528), `smithy_routine_controller.gd` (512), `faction_heraldry.gd` (505), `map_view_bush_species.gd` (504), `map_view_mesh_builder_district_life_props.gd` (499), `minimap_hud.gd` (486), `inventory_overlay.gd` (481), `map_blueprint_compiler.gd` (473), `forge_prologue_controller.gd` (471), `map_view_bird_flight.gd` (467), `map_prop_renderer_life.gd` (467), `map_view_plant_species.gd` (460), `map_view_plant_meshes.gd` (453), `map_view_mesh_builder_surroundings.gd` (448), `world_item_controller.gd` (445), `state_rule_evaluator.gd` (439), `dialogue_runner.gd` (438), `bitter_brew_night_consequence.gd` (433), `game_settings_overlay.gd` (431), `estonia_star_catalog_ra_180_270.gd` (430), `dialogue_ui.gd` (426), `quick_access_menu.gd` (425), `game_state_persistence.gd` (419), `map_rrmap_parser_tokens.gd` (419), `map_view_mesh_builder_config.gd` (418), `map_view_penned_fauna.gd` (412), `act1_aftermath_model.gd` (409), `estonia_star_catalog_ra_090_180.gd` (409), `estonia_star_catalog_ra_270_360.gd` (408), `map_view_merchant_boat_builder.gd` (406), `estonia_star_catalog_ra_000_090.gd` (404), `map_view_bird_species.gd` (577). Star catalog shards are already the preferred data-split pattern; keep them.
+These remain over the audit trigger but are not scheduled rewrites: `quick_access_menu.gd` (425), `minimap_hud.gd` (486), `game_settings_overlay.gd` (431), `input_binding_settings.gd` (443), `smithy_routine_controller.gd` (512), `world_item_controller.gd` (445), `state_rule_evaluator.gd` (500), `bitter_brew_night_consequence.gd` (433), `dialogue_ui.gd` (426), `dialogue_runner.gd` (438), `faction_heraldry.gd` (505), `map_prop_renderer_industrial.gd` (528), `map_blueprint_compiler_expand.gd` (571), `map_blueprint_compiler.gd` (472), `map_prop_renderer_life.gd` (467), `map_blueprint.gd` (565), `map_composition_audit.gd` (573), `map_view_mesh_builder_building_fortification.gd` (528), `map_view_plant_species.gd` (460), `map_view_bird_species.gd` (577), `map_view_penned_fauna.gd` (433), `map_view_merchant_boat_builder.gd` (406), `map_view_mammal_species.gd` (564), `map_view_mesh_builder_house_roof_dressing.gd` (573), `map_view_mesh_builder_config.gd` (418), `map_view_monastic_models.gd` (532), `estonia_star_catalog_ra_270_360.gd` (408), `map_view_mesh_builder_surroundings.gd` (469), `estonia_star_catalog_ra_090_180.gd` (409), `map_view_bird_flight.gd` (465), `estonia_star_catalog_ra_000_090.gd` (404), `estonia_star_catalog_ra_180_270.gd` (430), `map_view_mesh_builder_buildings.gd` (566), `map_view_mesh_builder_district_life_props.gd` (499), `map_view_bush_species.gd` (504), `map_view_plant_meshes.gd` (453), `map_rrmap_parser_tokens.gd` (419), `forge_prologue_controller.gd` (471), `act1_aftermath_model.gd` (409), `inventory_overlay.gd` (481). Star catalog shards are already the preferred data-split pattern; keep them.
 
 Non-`scripts/` files over 400 lines (scenes/tests/debug) are outside this runtime audit. Treat `scenes/comparison_room/comparison_room.gd` and debug showcases as disposable verification hosts, not production split targets.
 
@@ -284,12 +285,12 @@ Non-`scripts/` files over 400 lines (scenes/tests/debug) are outside this runtim
 - Runtime actors: `MapViewRuntimeActors` beside `MapViewRuntime` / `MapViewRuntimeCamera`.
 - P0-185 (partial): `MapViewBirdSpecies` and `MapViewMammalSpecies` profile tables moved into per-group shard modules; facades now 577 and 564 lines. Gate: `test_map_view_bird_species`, `test_map_view_mammal_species`, bird mesh/audio/flight, urban/penned fauna filters.
 - P0-185 (partial): `map_view_wear_decal.gdshader` extracted from `MapViewMaterialShaders`; cache API gained `shader_resource()`. Gate: `test_map_view_decals`.
-- P0-185 (partial): `map_view_puddle.gdshader` and `map_view_cloth.gdshader` relocated; `map_view_material_shaders.gd` facade now 823 lines. Gate: `test_map_view_3d_core` puddle optics, `test_boat_float_3d`, `test_faction_heraldry`, `test_merchant_boat_model`.
-- P0-185 (partial): `map_view_hanging_banner_cloth.gdshader` relocated; `map_view_material_shaders.gd` facade now 783 lines. Gate: `test_faction_heraldry`, `test_map_view_material_resolution`.
+- P0-185 (partial): `map_view_puddle.gdshader` and `map_view_cloth.gdshader` relocated; the shader facade remains in the 600-799 audit band. Gate: `test_map_view_3d_core` puddle optics, `test_boat_float_3d`, `test_faction_heraldry`, `test_merchant_boat_model`.
+- P0-185 (partial): `map_view_hanging_banner_cloth.gdshader` relocated; the shader facade remains in the 600-799 audit band. Gate: `test_faction_heraldry`, `test_map_view_material_resolution`.
 
 ### Scheduled follow-up
 
-**P0-185** performs justified extractions only for the four remaining files in the 800+ table (`map_view_tree_meshes`, `map_view_mesh_builder_prop_models`, `map_view_material_shaders`, `map_view_runtime`). Bird and mammal species catalog shards are closed. Do not open broad LOC-driven rewrites of the 400-799 bands. Documentation/agent readability slim-downs for `docs/MAP_AUTHORING.md`, `docs/ROADMAP.md`, and offline `tools/` generators are tracked beside storage work in [`docs/STORAGE_SIZE_BACKLOG.md`](./STORAGE_SIZE_BACKLOG.md) and the 2026-08-13 readability report; they are not runtime architecture extractions.
+**P0-185** performs justified extractions only for the four current extraction targets in the 800+ table (`map_view_tree_meshes`, `map_view_mesh_builder_prop_models`, `map_view_runtime`, and any independently justified concern in `map_view_materials`/`game_state` after review). `sky_weather_3d` and `map_view_3d` remain cohesive integration owners; the bird and mammal species catalog shards are closed. Do not open broad LOC-driven rewrites of the 400-799 bands. Documentation/agent readability slim-downs for `docs/MAP_AUTHORING.md`, `docs/ROADMAP.md`, and offline `tools/` generators are tracked beside storage work in [`docs/STORAGE_SIZE_BACKLOG.md`](./STORAGE_SIZE_BACKLOG.md) and the 2026-08-13 readability report; they are not runtime architecture extractions.
 
 ## Verification baseline
 
