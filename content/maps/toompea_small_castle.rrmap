@@ -36,14 +36,14 @@ prop audience_table table 15 7 rect=2,1
 prop chapel_banner banner 24 14 rect=2,2 faction=danish_crown
 prop service_chest chest 12 10 rect=2,2
 spawn small_castle_entry 16 20 rect=2,1
-anchor SC-forecourt 4 20 rect=2,2 kind=zone
-anchor SC-gate-tower 16 13 rect=2,2 kind=zone
-anchor SC-viceroy-audience 15 8 rect=2,2 kind=zone
-anchor SC-viceroy-private 18 8 rect=2,2 kind=zone
-anchor SC-castle-chapel 18 14 rect=2,2 kind=zone
-anchor SC-service-cellar 12 10 rect=2,2 kind=zone
-anchor OB-courtyard 16 20 rect=2,2 kind=zone
-anchor OB-east-gate 29 20 rect=2,2 kind=zone
+anchor sc-forecourt 4 20 rect=2,2 kind=zone
+anchor sc-gate-tower 16 13 rect=2,2 kind=zone
+anchor sc-viceroy-audience 15 8 rect=2,2 kind=zone
+anchor sc-viceroy-private 18 8 rect=2,2 kind=zone
+anchor sc-castle-chapel 18 14 rect=2,2 kind=zone
+anchor sc-service-cellar 12 10 rect=2,2 kind=zone
+anchor ob-courtyard 16 20 rect=2,2 kind=zone
+anchor ob-east-gate 29 20 rect=2,2 kind=zone
 # Developer return to the Danish hill host. This remains data-only until the
 # dedicated interior scene activation task supplies a separate packed scene.
 transition to_toompea_quarter 14 21 4 2 to=reval_toompea destination_spawn=from_small_castle spawn=from_small_castle spawn_offset_px=0,-128 transition_visual=ground
