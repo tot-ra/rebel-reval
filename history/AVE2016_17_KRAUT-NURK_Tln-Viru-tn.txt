@@ -1,0 +1,735 @@
+Archaeological Fieldwork in Estonia 2016, 181–194
+
+
+
+
+Results of archaeological surveillance in Tallinn
+during the reconstruction of Viru, Vana turu and
+Kuninga Streets in 2015–2016
+New data about the fortifications of the Viru Gate
+Ants Kraut
+   Muinasprojekt OÜ, Pikk 46, 10133 Tallinn, Estonia; ants.kraut@eesti.ee
+
+
+Ragnar Nurk
+   Tallinna Linnaplaneerimise Amet, muinsuskaitse osakond (Tallinn City Government, Urban Planning
+   Department, Division of Heritage Protection), Raekoja plats 12, 10146 Tallinn, Estonia
+
+
+
+
+INTRODUCTION
+From October 2015 to August 2016 Muinasprojekt OÜ carried out archaeological surveillance
+work in the heritage protection area of Old Tallinn in connection with reconstruction of wa-
+ter and sewage piping, electricity cables and also renewing the pavement of sideways and
+driveways to the same street level (Fig. 1). Surveillance work was carried out on the streets
+Viru, Vana turu and Kuninga. The work was conditioned by the intention of the Tallinn City
+Government to convert the area around Viru, Vana turu and Kuninga Streets into a pedes-
+trian zone. The contours of the destroyed Viru Gates and other historic buildings were to be
+marked on the street pavement. The project was a continuation of earlier reconstruction of
+Harju Street into a pedestrian street (for the archaeological part of the work, see Russow et
+al. 2014, 16–17), all the mentioned streets were to form an uniform area where people can
+appreciate the history of the town and feel the former urban space by perceiving the marking
+of the historic town buildings.
+    Archaeological fieldwork concentrated on the documentation of the streets during on-
+going earthworks – bringing the sidewalks and driveways to the same level and installing
+underground technical networks. Depending on the nature of the reconstruction work and
+current on-site requirements, archaeological studies were planned as watching briefs or ex-
+cavations. The results presented in the current article do not aim to provide full scientific
+analysis of the area, but rather offer initial knowledge about the recent fieldwork. Earlier
+building archaeological and archaeological approaches of the area provided very useful in-
+formation and support throughout archaeological fieldwork (Zobel 1980; 2014; Russow et
+al. 2017). The finds unearthed are stored in the archaeological research collection of Tallinn
+University (AI 7477). The general overview and description of the investigations is written by
+Ants Kraut, the analysis of the found structures presented by Ragnar Nurk.
+182                                                                                                                               Ants Kraut and Ragnar Nurk
+
+
+                                                                                                 N                                                    N
+
+
+                                     St
+
+
+                                                      Müü riva he St
+                                   Ven
+                                       e
+
+                                                                                Aia St
+                                                                                                                         G3
+
+                                    Viru St
+
+
+                 g a St
+          Ku n in
+                                                                                    0                100 m
+
+
+
+                                                                                  u St
+
+                                                                                Va na-Vir
+                      4
+                                                                       WM
+      5
+
+                          G1
+                                                                                                                  11
+                                                      8                     9
+                                                                                                                                           13
+              3
+                                                  7                                         G2
+                                                                                                                                                GR
+  1                                                                                                          10        Vir u St
+
+                                                                                                                                                15
+                                              6                                                          12            GZ            14
+                               2
+      he St
+
+   Müü riva
+
+
+                                                                                                                                      0              10 m
+
+
+
+              whole area of investigation / kogu uuringute ala
+              stone constructions known earlier / varem teada olnud kivikonstruktsioonid
+              newly discovered stone constructions / avastatud kivikonstruktsioonid
+              wooden constructions / puitkonstruktsioonid
+              stone pavements / kivisillutised
+              reconstruction of fortifications / kindlustuste rekonstruktsioon
+              moats / vallikraavid
+
+
+Fig. 1. Plan of the research area at Viru Street. Numbers 1–15 indicate the location of excavated sections.
+Jn 1. Viru tn uuringuala plaan. Numbritega 1–15 on tähistatud uuritud lõikude asukohad.
+Drawing / Joonis: Ragnar Nurk
+
+
+METHODOLOGY AND WORK PROCESS
+The special conditions set by heritage conservation requirements to reconstruction work
+(Pantelejev 2014) concentrated mainly on the level of the sidewalks and driveways, with the
+suggestion to mark the contours of historic buildings and on preserving other aspects of the
+historic appearance of the town on the present day pavement. From the standpoint of ar-
+chaeology, surveillance was required, and in case preserved layers should appear, research
+was to be conducted. Special attention was to be paid on medieval and also modern period
+constructions (sewerage, wooden pipes for fresh water etc.), which were to be documented
+and preserved. Archaeological studies followed on-going reconstruction work, archaeologist
+conducted surveillance, photographed and documented the open layers. In case traces of
+past structures or archaeological finds were spotted, construction work was stopped as nec-
+essary for the duration of one day to a week. Supplementary technical workforce and ex-
+perts were engaged as required. Trenches, apart from archaeological digs, were dug with the
+help of heavy earth-moving machinery and powerful earth absorbing equipment. Decisions
+Archaeological surveillance of Viru, Vana turu and Kuninga Streets in 2015–2016                     183
+
+
+about unavoidable demolitions were made
+in consultation with heritage specialists of
+the Tallinn City Government. A considerable
+part of the research was conducted in quite
+extreme weather conditions, including win-
+ter period.
+    The present paper introduces the main
+results of the fieldwork, moving in the Old
+Town from inside to outside: from the cross-
+ing of Kuninga, Kullassepa and Harju Streets
+to the Viru Street ending at Viru Square /
+Pärnu Road. Since drawings are still in draft
+format and artefacts collected are not yet
+properly analysed, the following is a prelim-
+inary overview which can be specified after
+the completion of the report. Several meas-
+urements are approximate. The logistics of
+the reconstruction work (different pipelines
+at different heights, securing access for pe-
+destrians and servicing personnel etc.) re-
+quired that some sections were excavated
+several times or parts of the same construc- Fig. 2. Viru Gate: the main gate and barbican in the
+                                                      mid-15th century as suggested by Rein Zobel (2014,
+tions were seen one fragment after another            fig. 303).
+and not together. The studied sections, ob- Jn. 2. Viru pea- ja eesvärav 15. sajandi keskpaiku Rein
+jects and finds are designated with numbers           Zobeli (2014, jn 303) nägemuse järgi.
+on the plan (Fig. 1: 1–15).
+    In order to assist the reader to better understand the following overview, the authors
+feel it necessary to explain first the chronology of the studied fortifications as their main
+researcher Rein Zobel has formulated it (Zobel 1980; 2014; see also Fig. 2). The original Viru
+Gate, referred to as the main gate (Fig. 1: G1), in line with the town wall, and a water mill in
+front of it (Fig. 1: WM) were built in the mid-14th century. By the last quarter of the 14th cen-
+tury they were supplemented with the first barbican with side defence walls to connect the
+gates. Archaeological fieldwork did not trace remains of this barbican. The present barbican
+(Fig. 1: G2) was built in the mid-15th century, and the main gate saw a few additions to its
+construction. In the 1470s the presumed earlier outer defence wall was replaced by the so-
+called Great Zwinger (Fig. 1: GZ), which had a new gate at its northernmost end (Fig. 1: G3).
+The main gate was reconstructed into a five storied gate tower in the first years of the 16th
+century. In 1558 the zwinger was rebuilt into earthen fortification – the Great Roundel of
+the Viru Gate (Fig. 1: GR) –, which in turn was reinforced towards the end of the century.
+In the mid-17th century the roundel was rebuilt into the High Bastion of the Viru Gate, the
+barbican was closed and the passage was moved to Vana-Viru Street through a new gate in
+the rampart. In the second half of the 17th century a moat was built in front of the bastions,
+supported with earthen fortifications and associated walls, which in turn were replenished
+in the 18th century. Viru main gate was demolished in 1843 and passage through the barbi-
+can was restored in the year 1888, removing parts of earthen fortification located in front of
+it (Zobel 1993, 30–31).
+184                                                                        Ants Kraut and Ragnar Nurk
+
+
+RESEARCH RESULTS
+Inside the fortified town
+Excavations on the Kuninga Street and Vana turg (Old Market) provided somewhat less infor-
+mation than in the area of fortifications but still some noteworthy discoveries were made. In
+the westernmost part of the research area small spots of intense black humus – however, with-
+out any remarkable finds – were documented. One of such places was in front of Kuninga St. 3,
+where ca. 1 m from the present street level an approximately 20–30 cm thick layer was found, on
+it some limestone slabs hinted possibly to some kind of construction, for example, a probable
+floor level or pavement (Fig. 3). In the southern part of the Vana turg, in front of Kuninga St. 1,
+2 m from the present street level, a similar layer existed. In both of these spots the layer com-
+posed of natural sand that had been turned considerably darker due to the occupation layer
+which had covered it, but unfortunately was not preserved. It is remarkable that in between
+these two locations earlier remains of a fireplace have been found and documented, dated to
+prehistoric period, i.e. not later than the beginning of the 13th century (Talvar 2000).
+    On the north side of Kuninga Street, in front of Kullassepa 13 / Kuninga 8, the basement
+walls of the building and its protruding parts – the foundations of former kiosks – became
+visible. On the south side of the street the basement of the former building that had been
+hit in World War II and demolished in the 1950s was documented, presently located at
+Harju St. 1. The uncovered walls enabled to determine the exact location of the building and
+to finalise the marking of the location of historic buildings on the pavement, which had been
+started two years ago in the area of the Harju Street. The area of the Vana turg itself has been
+previously used for installation of various pipes and cables very intensively, mostly with-
+out archaeological investigations, although some research has taken place here in the 1970s
+(Deemant 1979). The present project concentrated mainly on refurbishing the pavement, to-
+gether with the upper fill and rubbish layers immediately beneath it. New water pipes were
+installed mostly inside existing tubes with relatively modest digging work. No traces of occu-
+pation layer of archaeological value were discovered.
+    Along the Viru Street almost in its full length a power cable trench ran at the southern
+side of the street and water pipe trench at its northern side. The power cable trench reached
+1 (occasionally 2) m and the water pipe 2 m in depth from the present street level. Power
+cables were installed in exactly the same location as earlier cables, water pipes immediately
+next to the old ones. That means historical constructions were already earlier more or less
+demolished. The occupation layer of archaeological interest, including structures, was better
+preserved in profiles and at the bottom of the trenches.
+    In the western part of Viru Street, between the streets Vana turg and Müürivahe, a variety
+of structures were studied despite of the numerous technical installations like 19th century
+limestone collectors (pipelines), 20th century concrete communication cable tunnels and a
+maze of gas and water pipes. This section enabled archaeologists to observe the connections
+of limestone pipelines to individual houses and to document the details of basement walls
+on the northern side of the street east of Vene Street. Only very sporadic traces of earlier
+settlement activities could be noted in the form of a black humus rich layer – however its
+dating remained unclear. On the southern side of the street, where cables were installed, on
+the level of the basements of existing buildings, only scarce traces of some earlier structures
+became visible, like remains of terrace-staircases etc.
+    Closer to Müürivahe Street, valuable data concerning the town’s historical water sup-
+ply system was obtained. The trench for a new water line revealed longer sections of water
+Archaeological surveillance of Viru, Vana turu and Kuninga Streets in 2015–2016                                                                  185
+
+
+pipe, made of timber beams and covered
+with planks that ran along Viru Street. Along
+Müürivahe Street 2.2 m from the street level a
+timber pipe with the diameter of 20 cm ran,
+also consisting of bottom and upper part,
+here wrapped into birch bark. The pipe was
+stratigraphically earlier than the wall also
+running along the street (referred to in more
+detail below). Another pipeline that was
+gouged out from round beams whose junc-
+tions were connected with iron collars was
+seen in the northern part of the street, west
+from Viru St. 11, running in the south-east
+direction. Probably part of the same pipe-
+line was documented at the corner of Viru
+and Müürivahe Streets, next to the building
+at Müürivahe St. 38, at the inner side of the
+town wall (see below). This pipe reached
+to a timber water container measuring 1.8
+                                                Fig. 3. Darkened natural sand layer in front of
+m in diameter and preserved up to 1.1 m in         Kuninga St. 3.
+height (Fig. 1: 1). The durable container made Jn 3. Tumenenud looduslik liiv Kuninga tn 3 ees.
+of 10 cm thick upright balks and bottom of Photo / Foto: Ragnar Nurk
+the same material was lined from the outside
+with a 10–15 cm thick clay layer (clay insulation existed also around pipes). A timber water
+pipe with the diameter of 20 cm was connected to the container in its north-west corner.
+The southern part of the barrel remained in its original position. Apparently the barrel had
+been connected to the local water system via the pipe under the adjacent building. It was not
+possible to precisely date the elements of water system, yet so far pipes drilled from whole
+logs discovered in Tallinn have been dated to the Modern Period (e.g. from the 18th century
+onwards¹), although it cannot be excluded that the locations of pipes and wells may consist-
+ently originate from the Middle Ages.
+
+Medieval Viru main gate and barbican
+The area from the site of the Viru main gate up to the partly preserved barbican also provided
+an opportunity to study cable trenches dug in the southern side of the street and trenches
+dug for water pipelines in the central and northern side of the street. The overview of results
+starts from chronologically earlier parts of medieval fortifications, i.e. from inside to outside.
+   Remarkable results were obtained from the excavation at the crossing of the Viru and
+Müürivahe Streets. On the southern side of Viru Street, at the north-western corner of the
+building at Viru St. 24 / Müürivahe St. 38 a well preserved section of the town wall was exca-
+vated (Figs 1: 2; 4), which was erected 2 m below the present ground level (absolute altitude
+ca. 4.6 m). The inner side of the wall had earlier been damaged. The thickness of the preserved
+part was 2.5 m. On the inner side, under the town wall a small fragment of an earlier building
+
+¹ Archaeological evidence from Mündi St. 4 (1999), Town Hall Square (1971), among a few other places. Pers. comm. Erki Russow. In 2015 also from
+Sauna St. 8 where 17th century stove tile fragments were collected from the trench backfill of one such pipe (pers. comm. Guido Toos, Agu EMS
+OÜ), but it is possible that the tiled stove built in the 17th century might have been demolished later in the 18th century (Russow et al. 2010, 252).
+186                                                                             Ants Kraut and Ragnar Nurk
+
+
+                                                            had been preserved under its foundation.
+                                                            This small section crossing the town wall had
+                                                            been built with extremely strong lime mortar.
+                                                            Its location in the immediate vicinity of the
+                                                            gate tower is very intriguing. Archaeological
+                                                            excavation established that the part of the
+                                                            town wall adjacent to the main gate was of
+                                                            later origin. This may well support Zobel’s
+                                                            analysis of the historic measurements of the
+                                                            tower, according to which it was at the end of
+                                                            the Middle Ages enlarged southwards (Zobel
+Fig. 4. Outer side of the town wall south of the main gate.
+                                                            2014, figs 75 & 76) – expectedly also the part
+Jn 4. Linnamüüri vundamendi väliskülg peaväravast           of the town wall was demolished and rebuilt.
+    lõuna pool.                                             The conflux with the main gate tower was
+Photo / Foto: Ants Kraut                                    most probably destroyed during the installa-
+                                                            tion of a collector in 1978 monitored by Jaan
+Tamm (1978). On the outer side of the excavated foundation against the town wall, a massive
+layer of clay was deposited, at least a meter in thickness. This may have been the insulation of
+the mill pond that was part of the gate complex. According to Zobel’s calculations (Zobel 2014,
+100–101), the water level in the pond must have been higher than the surrounding ground lev-
+el in order for the mill to function – so an adequate insulation was of great importance. Binder
+in the town wall foundation was also clay which is rather unusual in Tallinn (normally lime
+mortar). Still, the inner part of the foundation had partly collapsed (had been washed away).
+Here, unlike some parts of the town wall between the Viru and Karja gates (Russow et al. 2017,
+51–80), a timber raft had not been built below the wall.
+     In the immediate vicinity of the inner side of the town wall a floor-like section of timber
+planks was revealed (Fig. 1: 3), only a bit higher than the level on which the town wall was
+erected. Its purpose and dating remained uncertain, but its location would have been perfect
+for a cellar or some kind of underground technical installation conveniently between the
+main gate tower and the town wall – belonging possibly to the modern period, from where
+most of such satellite constructions date.
+     Archaeological excavation provided important information that specified the precise lo-
+cation and state of preservation of the foundations of the Viru main gate (Fig. 1: 4). The
+foundations of its outer (eastern) wall have been fragmentarily documented already in 1958
+and 1978 (Zobel 1960; Tamm 1978). At the outer side of the gate and in its northern, but also
+southern part foundation fragments of the gate were documented, which generally support-
+ed the information obtained from historical plans. An important contribution was the precise
+documentation of the location of the south-western corner of the foundation, which provided
+supplementary information about the location of the construction (Fig. 5) and basis for mark-
+ing it on the present day pavement. The outer measurements of the tower were specified to
+be 11.8 × 8.8 m at the foundation level (Zobel reached to measurements 11.1 × 9.1 m for the first
+floor based on the analysis of historical drawings; Zobel 1993, 30). The thickness of the foun-
+dation of the outer wall of the tower was measured to be 2.5 m, it was erected more than 2 m
+below the present ground (absolute altitude ca. 4.3 m). According to historical plans the spot
+where it was documented could have been at the location of the gateway. If that is the case
+the outer wall of the tower had continuous foundation also under the gateway. On both sides
+Archaeological surveillance of Viru, Vana turu and Kuninga Streets in 2015–2016                        187
+
+
+of the foundation there was the fill of clayey
+soil. In the presumable location of the inner
+side of the tower the number of modern pipes
+was so great that nothing except the above
+mentioned fragment of the south-western
+corner was preserved. Although the tower
+foundations had largely been demolished,
+the survived elements confirm that the gate-
+way must have been located not symmetri-
+cally, but slightly northwards, as also indi-
+cated on historical measurement drawings.
+At the location of the gateway of the main
+gate tower a very small fragment of cobble-
+stone pavement was documented ca. 1 m Fig. 5. The south-western corner of the main gate tower
+                                                     foundation.
+below the present ground. Since it was laid
+                                                 Jn 5. Peaväravatorni vundamendi edelanurk.
+directly on the clayey soil which filled the in- Photo / Foto: Ragnar Nurk
+side of the tower it could indicate the street
+level after its completion, expectedly in the
+mid-14th century.
+    Already out of the contours of the tower,
+inside the town, ca. 2 m from the inner side
+of the gate tower, a limestone wall was dis-
+covered that ran along Müürivahe Street
+(Figs 1: 5; 6); the preserved width of it was
+1.1 m – the eastern side of the wall wore
+traces of demolition. Its exact nature needs
+further studies, but it may well belong to the
+fortification system, since it seems to be a bit
+too massive for a side-wall of the collector or
+something similar. The lowermost stones of
+the wall were bind with clay.                    Fig. 6. Section of a lime stone wall and wooden water pipe
+                                                     at the crossing of Viru and Müürivahe Streets.
+    Most logically the barbican was later
+                                                 Jn 6. Paemüüri lõik ja puidust veetoru Viru ja Müüri-
+than the main gate tower. In that aspect             vahe tn ristmikul.
+once again the fact which was first docu- Photo / Foto: Ants Kraut
+mented already in 1978 was confirmed – that
+the southern side wall of the barbican (Fig. 1: 6) was secondary to the main gate tower
+(Fig. 7). Yet, the possible construction stages of the barbican have remained on hypotheti-
+cal level. It had been established earlier by Zobel, based on the analysis of historical plans
+that the northern wall of the barbican ran straight (which found additional proof now),
+the southern wall, in contrary, had been broken outwards just before the barbican front
+side building. Based on this data Zobel assumed that an even earlier barbican had existed,
+which was shorter – reaching until the break point of the southern wall (Zobel 2014, fig.
+257). Current excavation did not reveal any wall in the area of the supposed front side of the
+earlier barbican. Unfortunately in that zone there was a very dense network of underground
+communications by now and no scientific data was possible to detect. However, it was dis-
+covered that there was a barely noticeable fraction of a couple of degrees and a possible
+188                                                                               Ants Kraut and Ragnar Nurk
+
+
+                                                           joint in the south wall of the barbican also
+                                                           near the main gate tower (8 m from it), for
+                                                           some reason exactly in the same line with
+                                                           the western wall of the water mill located at
+                                                           the opposite side of the barbican. The ques-
+                                                           tion about the different building stages of
+                                                           the barbican remains open.
+                                                               The occupation layer in between the side
+                                                           walls of the barbican contained construc-
+                                                           tions both from the period when here – more
+                                                           precisely in front of the town wall and the
+                                                           main gate tower – a moat still existed and
+                                                           from the period when it was already filled.
+                                                           The moat was filled after the construction
+                                                           of the watermill and barbican. A couple of
+                                                           metres on the outer side of the foundation of
+                                                           the main gate tower clay insulation with its
+                                                           upper surface declining outside (eastwards)
+                                                           was observable. In 1958 Zobel saw wooden
+                                                           stakes in clay, presumably meant to avoid
+                                                           washing clay away. Close to the gate tower
+Fig. 7. The spot where barbican’s S-wall (to the left) was he also had a chance to document well pre-
+   built towards the main gate tower.
+                                                           served remains of a wooden bridge (Zobel
+Jn 7. Eesvärava lõunamüüri kokkupuutekoht peavärava-
+   torni välisseinaga.                                     2014, 82). Partly over the clay reached hu-
+Photo / Foto: Ragnar Nurk                                  mus-containing layer which probably was
+                                                           the upper part of the moat fill – the bottom
+                                                           of the moat and natural soil was not reached
+                                                           in the trench with the depth of 2 m. On the
+                                                           surface of that presumable moat fill layer
+                                                           also slightly declining outwards, a fragment
+                                                           of timber pavement or possibly a plat-
+                                                           form-like construction was found ca. 1.7 m
+                                                           below the ground in front of the main gate.
+                                                           Several planks of this structure were pre-
+                                                           served side by side crosswise to the street
+                                                           (abs. altitude 4.6–4.7 m), together with some
+                                                           vertical stakes nearby (Figs 1: 7; 8). Somewhat
+Fig. 8. Wooden pavement on the fill of medieval moat.
+                                                           later the street level was raised with the new
+Jn 8. Puitsillutis keskaegse vallikraavi täitekihil.       clayey fill layer, but the original height of the
+Photo / Foto: Ragnar Nurk                                  deposit remained unclear because pipeline
+                                                           trenches had destroyed all upper layers.
+    Zobel has seen some horizontal wooden details also less than a metre from the present
+ground. Although he interpreted these also as remains of the bridge, it seems more likely it
+was the next layer of pavement. A possible reason for raising the street level was the con-
+struction of the conduit leading from the mill pond to the watermill, the bottom parts
+of its side walls came to light (Figs 1: 8; 9), the clayey fill reached against the conduit walls.
+Archaeological surveillance of Viru, Vana turu and Kuninga Streets in 2015–2016                   189
+
+
+Its vault or other covering construction was
+not preserved, also the floor was not clearly
+distinguishable – maybe it was higher, being
+destroyed with the modern pipelines. The
+inner width of the channel had been almost
+2 m (!).
+    Here an important question from histo-
+riography has to be addressed. Zobel has
+claimed in the case of all three gates on the
+southern side of the town that watermills
+existed first without barbicans, being locat-
+ed alone in front of the town wall. Zobel’s
+hypothesis has already previously been
+questioned in the case of Karja Gate. On
+that place archaeological investigation clar-
+ified that the mill pond – which according to
+Zobel had to reach to the front of the mill to
+protect it – never actually had, and also the
+watermill appeared to be built against the
+barbican (Nurk 2014, 64–66). Here, at Viru
+Gate, the fact that the moat was filled before
+the water conduit was built also supports the Fig. 9. Measuring of the conduit of the watermill in the
+                                                     barbican.
+most logical version that there first the barbi- Jn 9. Vesiveski kanali mõõdistamine eesvärava alal.
+can existed and then the watermill was built Photo / Foto: Ragnar Nurk
+against it.
+    A modern period limestone vaulted collector, running along Vana-Viru Street, was also a
+noteworthy discovery (Fig. 1: 9), together with its stone well, both still in use today.
+    At the site of the gateway of the barbican archaeologists sought to determine the in-
+terconnections of the various pavements and constructions of the barbican’s gate building
+(Fig. 1: 10), which two side-towers are still preserved. The various pavement layers were ob-
+servable in the location of the gateway itself, but also several metres inside the barbican’s
+walled area and in front of the gateway roughly until the zwinger wall (see below). The pres-
+ent stage of research suggests that the bottommost layer from split granite stones without
+any sand foundation was older than the foundation of the barbican. The next pavement was
+made of small fieldstones that rested upon a sand and brushwood layer. Its chronological
+relation with the barbican remained unclear. On top of this pavement two other layers ex-
+isted in the gateway. The uppermost of them certainly dated from the modern period being
+stratigraphically later than the already mentioned zwinger wall in front of the gate. The gen-
+eral tendency was clear that earlier pavements were made of smaller and later pavements of
+bigger and bigger stones. The street level after the erection of the gate house was hinted at
+while digging near the northern tower of the barbican, where the foundation started to widen
+1.1 m from the present ground level (at absolute altitude 5.16 m; Fig. 10). The third pavement
+(5.17–5.25 m) was virtually at the same level, made of relatively big fieldstones with the diam-
+eter up to 20–30 cm. Both the second pavement at ca. 4.75 m in its final form and the first at
+ca. 4.50 m probably belong to the period before the barbican. Unfortunately, due to the later
+disturbances stratigraphic relation with other medieval structures documented inside the
+190                                                                            Ants Kraut and Ragnar Nurk
+
+
+                                                            barbican including the wooden pavement re-
+                                                            mains unclear.
+                                                               Zobel’s reconstruction of the barbican’s
+                                                            gate building, its architecture and defence
+                                                            functions can be reviewed in the light of the
+                                                            2016 excavations. Zobel assumed that there
+                                                            was a moat in front of the gate building and
+                                                            he assumed that its foundation continued
+                                                            also in the location of the gateway, thus
+                                                            forming the inner side of the moat (Zobel
+                                                            2014, fig. 256). Fieldwork clearly disproved
+Fig. 10. Wall section between the side towers of the barbi- this supposition. Earlier pavements were
+   can next to the N-tower.
+                                                            preserved in the location of the gateway and
+Jn 10. Eesvärava külgtornide vaheline müürilõik põhja-
+   torni kõrval.                                            foundations existed only at the sides of the
+Photo / Foto: Ragnar Nurk                                   gateway; also outside of the barbican no sign
+                                                            of the moat was found. Instead, at least two
+earlier pavements documented in the gateway continued without interruption – thus the
+moat could have been only very shallow (up to 50 cm in depth possibly). Immediately outside
+the barbican wall remains of a wooden construction were found, but in the light of the pre-
+viously mentioned circumstances it is questionable whether they could belong to the bridge.
+    As mentioned above, near the barbican’s northern tower the foundations of gate building
+were opened (Fig. 1: 11). According to Zobel’s interpretation of the 18th century measurement
+drawings (Zobel 2014, 208) a smaller, pedestrian gate or sally port should have existed here. The
+wall of the outer façade of the gate building was preserved in the height of 50 cm measured from
+the widening foundation mentioned above, but no traces of the gate could be identified.
+    The power cable trench ran through the passage of the neo-Gothic gate house located next
+to the southern side-tower of the barbican, annexed to the tower in the last decade of the 19th
+century. The foundations of that building were erected on an earlier wall (Fig. 1: 12), possibly
+belonging to 18th–19th cc buildings depicted on historical town plans.
+
+The area of early modern period fortifications
+In the area between the Viru barbican and Viru Square / Pärnu Road several artillery forti-
+fications have existed from the second half of the 15th century until the second half of the
+19th century: Great Zwinger, Great Roundel and The High Bastion of the Viru Gate in sequence.
+    The Great Zwinger is mentioned in historical records. Zobel has hypothetically identi-
+fied it with the polygonal wall which is depicted on historical maps (Zobel 2014, 249–250).
+However, these maps date from the 17th–19th centuries, when the mentioned wall had a
+function to support the inner side of earthen fortification. Zobel has reconstructed the zwing-
+er as a fortification consisting of a wall, erected on a higher bank of soil, and a moat in front
+of it. In the course of the present excavation a presumable zwinger wall was documented in
+two spots – in two sections with different directions.
+    The full cross-section was revealed in the profile of a water pipeline trench (Figs 1: 13; 11).
+The foundation trench for the zwinger wall was dug ca. 1 m inside earlier layers, 2 m from the
+present ground level. On both sides of the wall it was still possible to trace the lowermost pave-
+ment made of very small stone pieces which was documented inside the barbican’s gateway
+(see above). There had been another pavement which was visible in the profile only as a stripe
+Archaeological surveillance of Viru, Vana turu and Kuninga Streets in 2015–2016                      191
+
+
+of sand because stones had been removed
+for re-use when the zwinger wall was built
+and the ground level was raised on the inner
+side of it. No direct parallel for that pavement
+existed in the gateway of the barbican. The
+inner side of the wall foundation was laid
+neatly, with the outer side against the soil,
+slightly widening upwards – the reason of it
+remains unclear. On the inner side of the wall
+a stone foundation of some later annex was
+found together with the gateway’s uppermost
+(here the third) pavement. In a long profile
+until Aia Street on the outer side of the wall
+humus-rich layer obviously belonging to the
+earlier period than the zwinger wall was ob-
+servable. Towards Aia Street its upper surface
+had clear signs of digging. Just after digging
+that layer was covered with clayey soil which
+upper surface was clearly slanting eastward.
+It seems likely that the work described was
+in connection with the construction of earth-
+en fortifications – maybe in connection with
+                                                 Fig. 11. Section of the wall in the E-side of the Great
+rebuilding the former zwinger into the Great        Zwinger.
+Roundel in 1558, at the beginning of the Jn 11. Müürilõik Suure zwingeri idaküljel.
+Livonian War. No hint of possible moat in Photo / Foto: Ragnar Nurk
+front of the zwinger wall was found.
+    Another section of the wall of the Great
+Zwinger was cleaned in the power cable
+trench (Fig. 1: 14). Also here it was the un-
+derground part of the structure which was
+preserved and for the wall it was dug in
+through the earlier occupation layer. Here
+that layer was humus-rich and contained
+some medieval finds, between that layer and
+later rubbish, ca. 70–80 cm from the pres-
+ent day surface, a horizon of thin wooden
+planks existed on the outer side of the wall
+                                                 Fig. 12. Section of the pavement made of planks outside
+(Figs 1: 15; 12). Both sides of the foundation      the zwinger wall.
+were laid with care in that section of the Jn 12. Laudsillutise lõik zwingeri müürist väljaspool.
+zwinger wall. On the inner side of the struc- Photo / Foto: Ants Kraut
+ture the floor of the niche or embrasure was
+discovered, and a stone pavement made of relatively big stones. The latter was similar to the
+uppermost pavement seen in the previously described spot. The thickness of both wall frag-
+ments was almost exactly 2 m. A lot of limestone demolition debris was detected at the prob-
+able site of the zwinger’s southern foundation, which led to the south tower of the barbican,
+but the wall itself was not preserved.
+192                                                                       Ants Kraut and Ragnar Nurk
+
+
+    Approximately in line with the Aia Street scarp wall of the latest earthen fortification here,
+the High Bastion of the Viru Gate was documented on several occasions. Its location cor-
+responded well with the historical fortress plans from the 17th–18th centuries. The wall was
+a typical modern period earthen fortification wall, with a slightly slanting outer surface to-
+wards the moat. The width of the wall which came into light just below the existing street
+level was 2.2 m. On the inner side of the wall counterforts were identified in three places, their
+width and depth were 1.3–1.5 m. Soil filling of the moat in front of the scarp wall consisted
+mostly of dark brownish humus-containing soil, which was partly covered with limestone
+debris. Surprisingly no traces of contrescarp wall which supported the outer edge of the moat
+were found. At the end of the street a cobblestone pavement was unearthed at the bottom of
+the power trench, which, located already outside the moat, may be connected with the outer
+defences of earthen fortifications.
+    In conclusion on the topic of fortifications it should be said that some hypotheses of Zobel
+are more likely than others. He has made a valuable contribution taking the maximum of his
+sources, historical and archaeological, available until the early 1990s. However, it is possible
+that some of his ideas may not find proof or disproof anymore because of large scale demo-
+lition which has taken place earlier without archaeological documenting. In the light of the
+current fieldwork it seems plausible that the main gate tower was enlarged towards the end
+of the Middle Ages, while the peculiarities of construction of the town wall here raise new
+questions concerning its constructional history in that particularly difficult area. Previously
+unknown wall fragments and a possible junction in the side wall of the barbican – all in the
+area surrounding the main gate tower wait further investigation and interpretation. There
+has been a moat in front of the main gate tower which was filled when the barbican was
+built. Also in case of this gate the barbican in its possibly unfinalized form seems to be earlier
+than the watermill located next to it. At a later stage probably no moat existed in front of the
+barbican’s gate house. The existence of a small gate beside the bigger one is uncertain. In
+the final stage the ground level of the main gate and the barbican seems to have been only
+ca. 1 m below the present street level. The earliest stone and also wooden pavements, which
+were possible to reach remained approximately at the bottom level of the 2 m deep trench.
+
+CONCLUSION
+Ten months of archaeological surveillance during the reconstruction of Viru, Vana turu and
+Kuninga Streets provided valuable information about the area around one of the main streets
+in the Old Town of Tallinn with its medieval and later fortifications and constructions. The
+contractor faced various challenges in providing daily communication and access for local
+inhabitants, businesses and tourists in both summer and winter conditions, they also will-
+ingly cooperated with archaeologists in securing necessary conditions for surveillance and
+studies. As a result, valuable information was obtained from a 480 m long research area,
+from modern fortifications to foundations of medieval buildings. Unavoidable demolition
+was as discrete and minimal as possible. Earlier studies and historic plans were verified, their
+existence, locations and exact positions were specified. Modern excavation technology like
+powerful earth absorbing machinery assisted in making the required pits and cleaning the
+surface as necessary, where often manual digging proved to be difficult or impossible. The
+studied environment had largely been hopelessly destroyed by modern collectors and cable
+lines, still the studies managed to provide sufficient evidence that enabled to verify, recon-
+struct on plans and mark on present day street pavement the earlier layers of town history.
+Archaeological Fieldwork in Estonia 2016, 181–194                                                             193
+
+
+ACKNOWLEDGEMENTS
+Andres Sildre was consulted for architectural history. Expert advice was provided by Tanel
+Moora, Villu Kadakas, Jaak Mäll, Erki Russow and Jüri Peets. Fieldwork was assisted by Guido
+Toos and Tarvi Toome. Valuable help in both fieldwork and assessing the finds was provided
+by Reet Maldre and Liina Maldre, drawings and measurements were done by and in coop-
+eration with Tiina Sakermaa. The contribution of everyone involved is much appreciated by
+archaeologist, construction company and people interested in the early history of Tallinn.
+
+REFERENCES
+Deemant, K. 1979. Archäologische Ausgrabungen auf        Talvar, P. 2000. Arheoloogiline järelvalve ja arheo-
+  dem Tallinner Alten Markt. – TATÜ, 28, 4, 390–392.        loogilised kaevamised Kuninga tn. 1 loodeküljel.
+Nurk, R. 2014. Täiendusi Tallinna Karjavärava ehitus-       Tallinn. (Manuscript in MA.)
+  loole. – Vana Tallinn XXV (XXIX). Tallinn, 57–73.      Tamm, J. 1978. Viru tänavale rajatava kollektori haru-
+Pantelejev, A. 2014. Tallinn, Viru tänava sõidu- ja         lõigu kaevetööde järelvalve aruanne (1978. a. suvel).
+  kõnnitee ühte tasapinda viimise muinsuskaitse             Tallinn. (Manuscript in MA.)
+  eritingimused. Tallinn. (Manuscript in TLPA.)          Zobel, R. 1960. Endise Viru väravatorni kohal piki
+Russow, E., Kadakas, V. & Kaju, K. 2010.                    Viru tänavat kaevatud tranšee profiil. Tallinn.
+  Varauusaegne kuldsõrmus Tallinnast. – Ilusad              (Manuscript in MA.)
+  asjad. Tähelepanuväärseid leide Eesti arheoloogia-     Zobel, R. 1980. Tallinna keskaegsed kindlustused.
+  kogudest. Comp. and ed. by Ü. Tamla. Muinasaja            Tallinn.
+  Teadus, 21. Tallinn, 245–268.                          Zobel, R. 1993. Viru värav. – Tallinn. Ed. by V. Raam.
+Russow, E., Haak, A. & Kadakas, U. 2014.                    Eesti Arhitektuur, 1. Tallinn, 30–31.
+  Archaeological fieldwork in 2013. – AVE, 2013, 9–32.   Zobel, R. 2014. Tallinn (Reval). Fortifications in the
+Russow, E., Kadakas, V. & Bernotas, R. 2017.                Middle Ages. Tallinn.
+  80 aastat hiljem. Tallinna linnamüüri kaguosast
+  1930. aastate arheoloogiliste uuringute valguses –
+  Järelevastamine. Kaur Alttoale. Ed. by A. Randla.
+  Eesti Kunstiakadeemia toimetised, 22. Tallinn,
+  51–80.
+
+
+ARHEOLOOGILISE JÄRELEVALVE TULEMUSI TALLINNAS VIRU TÄNAVA, VANA TURU JA
+KUNINGA TÄNAVA REKONSTRUEERIMISTÖÖDEL 2015–2016
+UUSI ANDMEID VIRU VÄRAVA KINDLUSTUSTEST
+Ants Kraut ja Ragnar Nurk
+
+Aastatel 2015–2016 teostati arheoloogilist järeleval-        Vana turu ja Müürivahe tn vahelisel tänavalõigu
+vet Tallinnas Viru, Vana turu ja Kuninga tänavatel       rohkete tehnorajatiste kõrval ja all võis täheldada
+seoses kommunikatsioonitrasside uuendamisega             varasemaid ehitusjärke. Müürivahe tänava joonel
+ning kõnni- ja sõidutee ühte tasapinda viimisega.        kulgenud paemüüri olemus vajab selgitamist (jn 1: 5;
+Sõltuvalt tööde iseloomust teostati arheoloogilist       6) – see jääb väljapoole Viru peaväravatorni, kuid on
+jälgimist ja vajadusel väikesemahulisi kaevamisi ning    siiski sellele väga lähedal. U 2 m sügavusel tänavapin-
+dokumenteerimist. Uuringu olulisemad tulemused           nast kaevati välja puitrenne ja veetorusid, samuti ver-
+esitatakse artiklis lõikude kaupa Harju tänavast kuni    tikaalsetest prussidest koosnev kogumiskaev (jn 1: 1).
+Pärnu maanteeni (jn 1), keskendudes esmajoones               Kõige rohkem uut infot saadi keskaegsete linna-
+Viru värava ümbruskonnale, kus välitööd pakkusid         kindlustuste kohta. Viru ja Müürivahe ristmikul
+olulist lisa Rein Zobeli poolt varem välja pakutud       tänava lõunaservas kaevati välja linnamüüri vunda-
+rekonstruktsioonikatsele (jn 2).                         mendi 1,7 m kõrgusena ja 2,5 m paksusena säilinud
+    Kaevetööd Vanal turul puudutasid peamiselt           lõik (jn 1: 2; 4). Tuvastati, et peaväravatorniga külgnev
+varem läbikaevatud kihte kohatiste säilinud huumu-       osa müürist on hilisem, mis võiks kinnitada varase-
+selaikudega (jn 3) ja vundamentidega Kuninga täna-       mat hüpoteesi peavärava gabariitide suurendami-
+val. Tänava lõunaküljel puhastati välja ja markeeriti    sest keskaja lõpul. Linnamüüri välisküljel asunud
+sõjas hävinud hoonete vundamendid.                       meetripaksune savikiht oli ilmselt veskitiigi isolat-
+194                                                                                       Ants Kraut ja Ragnar Nurk
+
+
+siooniks. Puitparve, nagu Viru ja Karjaväravate vahe-       tamise järel (jn 1: 11; 10). Ei leidnud kinnitust, nagu
+lises linnamüürilõigus, müürile alla polnud tehtud,         oleks eesvärava ees kunagi olnud vallikraav või siis
+mistõttu müüri sisemust oli osaliselt alt ära uhutud.       sai see olla maksimaalselt poole meetri sügavune.
+Linnamüürist seespool tuli välja puitplankudest             Viru eesvärava kunagise väravaava piirkonnas olid
+põrandalaadne lõik (jn 1: 3), mille otstarve ja datee-      eriaegsed maapinnatasandid sillutiste näol väga hästi
+ring jäi ebaselgeks. Müür oli osaliselt rajatud mingi       jälgitavad (jn 1: 10). Kaks neist sillutistest kuulusid
+varasema kiviehitise konstruktsioonile suunaga piki         aega enne eesvärava ehitamist, üks pärines ilmselt
+Viru tänavat.                                               sellega umbes samast ajast ja neljas kuulus uusaega.
+    Viru peavärava ida-, põhja- ja lõunaosas tuvastati      Varaseim sillutis meenutas prügitist, olles tehtud
+väravaga seotud vundamentide lõigud, mis üldjoon-           purustatud maakivitükkidest savikale ja kivisele või
+tes kinnitasid ajaloolise plaanimaterjali põhjal teatud     ka huumust sisaldavale täitele. Järgmisele, valdavalt
+infot (jn 1: 4). Torni idapoolse ehk peafassaadi vunda-     väiksemapoolsetest maakividest sillutisele eelnes liiv
+ment oli 2,5 m paksune. Torni vundamendi edela-             peenikestest hagudest vahekihiga. Kolmanda sillutise
+nurga väljakaevamine andis täiendava ettekujutuse           suhteliselt suured maakivid olid õhukesel liivapadjal.
+rajatise paiknemisest (jn 5). Torni põhiplaanilisteks       Uusaegne sillutis oli tehtud ühtlaselt suurtest maa-
+gabariitideks saab lugeda 11,8 × 8,8 m. Leitud frag-        kividest paksule liivapadjale.
+mendid osutavad, et väravakäik oli mitte torni keskel,          Viru eesväravast kuni Aia tänavani võis jälgida,
+vaid rohkem põhjapoolses osas. Torni vundamentide           kuidas ühelt poolt olid säilinud keskaegsed savikad,
+vaheline ja neid ümbritsev ala oli täidetud saviga.         kuid huumust sisaldavad pinnasekihid, teisalt olid
+Väravatorni sisemuses u 1 m praegusest maapinnast           jälgitavad uusaegsete, suurtükkide perioodist päri-
+allpool oli säilinud väike fragment sillutist, mis päri-    nevate kindlustuste elemendid ja nendega seotud
+neb arvatavasti vahetult torni valmimisjärgsest ajast.      pinnasetööd, sh nende piiril puitsillutis (jn 1: 12; 12).
+Kinnitust leidis varem tuvastatud asjaolu, et eesvä-        Kahes kohas oli võimalus uurida Viru värava Suure
+rava poole suunduv lõunapoolne külgkaitsemüür on            zwingeri müüri, millest oli säilinud 2 m paksune
+torni suhtes sekundaarne (jn 7). Põhjapoolne külg-          vundamendiosa (jn 1: 13, 14; 11). Müüri ehitamisel oli
+müür kulgeb sirgelt, lõunapoolsel täheldati lisaks          sisse kaevatud eesvärava-aegse sillutise pealt. Tänava
+seni teadaolevale murdekohale väravahoone lähedu-           lõunapoolses osas tuvastati müüri siseküljel laske-
+ses veel üks raskemini märgatav vesiveski lääneseina        ava või niši põhi. Aia tänava pool oli varasemat kihti
+joonel (jn 1: 6). Külgmüürid olid mõlemad 1,2–1,3 m         selgelt maha kaevatud ja toodud täiteks hulgaliselt
+paksused. Zobeli oletatud varasemat eesväravat leida        savikat pinnast kaldega linnast väljapoole. See tege-
+ei õnnestunud. Eesvärava alal peaväravatorni ja veski       vus võis olla seotud 16. sajandi keskpaiku zwingeri
+vahelises lõigus leiti ka puitsillutise jäänuseid maa-      ümberkujundamisega Viru värava Suureks rondee-
+pinnast ligi 2 m sügavusel (jn 1: 7; 8). Ilmselt ei kuulu   liks. Aia tänava joonel tuvastati 17.–18. sajandi Kõrge
+need mitte sillale, vaid tegu on vallikraavi täitele loo-   Viru värava bastioni eskarpmüüri ülemine osa laiu-
+dud teega, mis rajati pärast eesvärava esialgsel kujul      sega 2,2 m koos sisekülje kontraforssidega.
+ehitamist. Alles selle järel, koos järgmise täitmisega,         Kümne kuu jooksul 480 meetri ulatuses tehtud
+ehitati eesvärava kõrval paiknenud vesiveski peale-         arheoloogiline järelevalvetöö andis täiendavat infot
+voolukanal (jn 1: 8; 9). Mainida tuleks ka piki Valli–      Viru tänava piirkonna kesk- ja uusaegsetest kindlus-
+Vana-Viru tänavate suunda kulgevat hilisemat, täna-         tustest ja teistest rajatistest. Vältimatuid lammutus-
+seni kasutuses olevat võlvkollektorit (jn 1: 9).            töid tehti kaalutletult ja väga piiratud mahus.
+    Kaevati osaliselt lahti ja mõõdistati eesvärava ja      Kaasaegsete kollektorite, kaablitunnelite poolt oluli-
+selle tornide vundamendid. Selgus, et väravahoone           selt rikutud keskkond andis siiski olulist teavet ajaloo-
+vundamendiosa algab u 1,1 m sügavusel maapinnast,           liste kihistuste uurimiseks ja nende tänavasillutisel
+mis ilmselt osutab maapinnatasandile eesvärava ehi-         markeerimiseks.
+

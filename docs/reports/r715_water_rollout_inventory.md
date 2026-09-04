@@ -10,6 +10,14 @@ This report freezes the existing water rollout surface so downstream tasks can w
 
 The inventory is fail-closed: a new water terrain family or water-bearing map definition must update the focused contract test and this report before it can be treated as part of the rollout. Text such as `surroundings ... water` is not counted as a water terrain; only compiled terrain cells whose ID belongs to `MapTypes.WATER_TERRAINS` are counted.
 
+## R-799 water-only benchmark protocol
+
+The runnable protocol is [`r715_water_benchmark.sh`](../../tools/benchmarks/r715_water_benchmark.sh), backed by [`r715_water_benchmark.gd`](../../tools/benchmarks/r715_water_benchmark.gd) and [`r715_water_benchmark_config.json`](../../tools/benchmarks/r715_water_benchmark_config.json). It samples an isolated baseline and the same scene with one representative surface for each closed water terrain family, then emits only the non-negative water-phase deltas required by R-795: `frame_time_ms_p95`, `draw_calls_peak`, `resource_count_peak`, and `memory_delta_mib`.
+
+Run `tools/benchmarks/r715_water_benchmark.sh recommended` or `tools/benchmarks/r715_water_benchmark.sh minimum`. Each tier requires at least 120 samples and writes the corresponding `build/benchmarks/r715-water-<tier>.json` artifact. Target hardware, detected measurement host, and renderer identity are separate fields. A headless run or a host whose profile, architecture, or GPU differs from the declared target is retained as `SUPPLEMENTARY` and cannot certify acceptance. The `compatibility_water_surface` fallback remains explicit.
+
+The protocol consumes the 13-map inventory below but does not duplicate R-713 weather ownership or include the R-529 Monastery east-ditch exception. It defines measurement and schema only; target-host runs and independent acceptance remain owned by R-800, R-801, and R-795.
+
 R-731 (`R-715a` shared water material coverage audit) is complete and remains the upstream material baseline. R-715 remains open because rollout, synchronization, budgets, captures, and independent closeout are not accepted.
 
 ## Closed terrain vocabulary

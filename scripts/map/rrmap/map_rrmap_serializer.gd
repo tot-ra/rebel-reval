@@ -52,6 +52,8 @@ static func canonical_print(blueprint: MapBlueprint, format_version: int = 1) ->
 		lines.append("surroundings %s" % " ".join(tokens))
 	if blueprint.has_authored_camera_bounds:
 		lines.append("camera %s" % _rect_text(blueprint.authored_camera_bounds))
+	for profile in blueprint.elevation_profiles:
+		lines.append(_print_elevation_profile(profile))
 	for package in blueprint.prefab_packages:
 		lines.append("package %s %d" % [package.package_id, package.version])
 	for primitive in blueprint.primitives:
@@ -247,6 +249,49 @@ static func _print_primitive(primitive: Dictionary) -> String:
 				]
 			)
 	return "# unsupported primitive %s" % kind
+
+
+static func _print_elevation_profile(profile: Dictionary) -> String:
+	var profile_id = profile["id"]
+	match profile.get("kind", &""):
+		&"grade":
+			return "grade %s %s %s" % [
+				profile_id,
+				_direction_text(profile["direction"]),
+				_number_text(profile["delta"]),
+			]
+		&"area":
+			var center: Vector2i = profile["center"]
+			var options: Array[String] = []
+			var falloff := float(profile.get("falloff", 0.0))
+			if falloff != 0.0:
+				options.append("falloff=%s" % _number_text(falloff))
+			return "elevation_area %s %d %d %s %s%s" % [
+				profile_id,
+				center.x,
+				center.y,
+				_number_text(profile["radius"]),
+				_number_text(profile["height"]),
+				_option_suffix(options),
+			]
+		&"ramp":
+			var start: Vector2i = profile["start"]
+			var end: Vector2i = profile["end"]
+			var options: Array[String] = []
+			var width := float(profile.get("width", 1.0))
+			if width != 1.0:
+				options.append("width=%s" % _number_text(width))
+			return "elevation_ramp %s %d %d %d %d %s %s%s" % [
+				profile_id,
+				start.x,
+				start.y,
+				end.x,
+				end.y,
+				_number_text(profile["start_height"]),
+				_number_text(profile["end_height"]),
+				_option_suffix(options),
+			]
+	return "# unsupported elevation profile %s" % profile_id
 
 
 static func _print_prefab(instance: Dictionary) -> String:

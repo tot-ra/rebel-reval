@@ -1,0 +1,16 @@
+{
+  "asset_id": "bird.songbird_town_batch",
+  "task": "P2-039",
+  "route": "deterministic_blender_guided_by_catalog_and_reference",
+  "stage": "production_ready",
+  "generator_version": "songbird_town_v1",
+  "blender_version": "Blender 5.2 LTS",
+  "species": [
+    "house_sparrow",
+    "common_chaffinch",
+    "great_tit",
+    "european_robin"
+  ],
+  "pose": "perched",
+  "note": "Hunyuan3D image-to-3D route unavailable; authored deterministic fallback preserves the runtime GLB contract."
+}

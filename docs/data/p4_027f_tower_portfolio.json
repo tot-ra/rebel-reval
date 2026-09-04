@@ -1,0 +1,111 @@
+{
+  "schema": "rebel-reval-tower-portfolio-v1",
+  "task": "R-261",
+  "snapshot_year": 1343,
+  "decision": "blocked",
+  "policy": "fail_closed",
+  "registry_source": "scripts/map/reval_fortification_registry.gd",
+  "acceptance_report": "docs/reports/p4_027f_completed_tower_portfolio.md",
+  "completed_registry_count": 4,
+  "completed_registry_ids": [
+    "nunnatorn",
+    "kuldjala",
+    "rentenitorn",
+    "great_coastal_gate"
+  ],
+  "construction_candidates": [
+    "sand_gate",
+    "viru_gate",
+    "hinke",
+    "cattle_gate",
+    "harju_gate"
+  ],
+  "post_1343_exclusions": [
+    "saunatorn",
+    "nunnadetagune",
+    "loewenschede",
+    "koismae",
+    "epping",
+    "neitsitorn",
+    "kiek_in_de_kok",
+    "fat_margaret"
+  ],
+  "portfolio": [
+    {
+      "historical_id": "nunnatorn",
+      "map_id": "monastery_quarter",
+      "building_id": "monastery_wall_tower_northwest",
+      "interior_map_id": "nunnatorn_interior",
+      "interior_scene": "scenes/reval_monastery/nunnatorn_interior.tscn",
+      "owner_ref": "R-251",
+      "acceptance_ref": "R-629",
+      "status": "blocked",
+      "difficulty_band": "baseline",
+      "loot_band": "baseline_evidence",
+      "boss_identity": "Marten of Nunnatorn / nunnatorn_boss_guard",
+      "contract": "content/examples/valid/encounter.nunnatorn_boss.json"
+    },
+    {
+      "historical_id": "kuldjala",
+      "map_id": "monastery_quarter",
+      "building_id": "monastery_wall_tower_west_mid",
+      "interior_map_id": "kuldjala_interior",
+      "interior_scene": "scenes/reval_monastery/kuldjala_interior.tscn",
+      "owner_ref": "R-250",
+      "acceptance_ref": null,
+      "status": "planned",
+      "difficulty_band": "entry",
+      "loot_band": "local_craft_and_evidence",
+      "boss_identity": "pending authored package; must not reuse nunnatorn_boss_guard",
+      "contract": "docs/reports/reval_fortifications_1343.md"
+    },
+    {
+      "historical_id": "rentenitorn",
+      "map_id": "north_quarter",
+      "building_id": "merchant_wall_tower_northwest",
+      "interior_map_id": "rentenitorn_interior",
+      "interior_scene": "scenes/reval_north/rentenitorn_interior.tscn",
+      "owner_ref": "R-246",
+      "acceptance_ref": null,
+      "status": "in_progress",
+      "difficulty_band": "intermediate",
+      "loot_band": "watch_and_merchant_evidence",
+      "boss_identity": "pending authored package; must be mechanically distinct",
+      "contract": "docs/reports/reval_fortifications_1343.md"
+    },
+    {
+      "historical_id": "great_coastal_gate",
+      "map_id": "north_quarter",
+      "building_id": "coast_gate_west_tower",
+      "interior_map_id": "great_coastal_gate_interior",
+      "interior_scene": "scenes/reval_north/great_coastal_gate_interior.tscn",
+      "owner_ref": "R-252",
+      "acceptance_ref": null,
+      "status": "in_progress",
+      "difficulty_band": "advanced",
+      "loot_band": "gate_and_harbour_evidence",
+      "boss_identity": "pending archaeology-reviewed package; must be mechanically distinct",
+      "contract": "docs/reports/reval_fortifications_1343.md"
+    }
+  ],
+  "shared_gate": {
+    "required_blockers_to_clear": [
+      "R-270",
+      "R-251",
+      "R-250",
+      "R-246",
+      "R-252",
+      "R-629"
+    ],
+    "one_interior_per_completed_tower": true,
+    "construction_candidates_enterable_as_completed_dungeons": false,
+    "post_1343_exclusions_enterable": false,
+    "requires_reciprocal_transition": true,
+    "requires_multi_floor_and_wall_walk": true,
+    "requires_boss_and_alternate_resolution": true,
+    "requires_save_migration_and_retry": true,
+    "requires_target_hardware_performance_evidence": true,
+    "requires_accessibility_review": true,
+    "requires_signed_day_night_captures": true
+  }
+}

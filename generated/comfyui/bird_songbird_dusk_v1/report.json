@@ -1,0 +1,65 @@
+{
+  "generator": "songbird_dusk_v1",
+  "assets": [
+    {
+      "triangles": 1100,
+      "dimensions_m": [
+        0.0902,
+        0.1,
+        0.162
+      ],
+      "largest_axis_m": 0.162,
+      "materials": 8,
+      "embedded_images": 3,
+      "species": "common_blackbird",
+      "path": "assets/birds/common_blackbird/perched.glb",
+      "sha256": "c0836c43a03fde32a1f3184c021c5638314a1f2d58f36d80b9b6407ad1761542",
+      "catalog_scale_m": 0.25
+    },
+    {
+      "triangles": 1436,
+      "dimensions_m": [
+        0.0902,
+        0.098,
+        0.1566
+      ],
+      "largest_axis_m": 0.1566,
+      "materials": 9,
+      "embedded_images": 3,
+      "species": "song_thrush",
+      "path": "assets/birds/song_thrush/perched.glb",
+      "sha256": "2f7c60f50a3deaafe85d8240099ef56f2e9316640194f97ae0b5d5ce48017a8e",
+      "catalog_scale_m": 0.23
+    },
+    {
+      "triangles": 972,
+      "dimensions_m": [
+        0.0616,
+        0.07,
+        0.11016
+      ],
+      "largest_axis_m": 0.11016,
+      "materials": 7,
+      "embedded_images": 3,
+      "species": "common_nightingale",
+      "path": "assets/birds/common_nightingale/perched.glb",
+      "sha256": "fd8d6ba6a54599a29c290f79005986a625f02b49a0ff465972edf17d59dbee88",
+      "catalog_scale_m": 0.16
+    },
+    {
+      "triangles": 1196,
+      "dimensions_m": [
+        0.0638,
+        0.074,
+        0.11664
+      ],
+      "largest_axis_m": 0.11664,
+      "materials": 9,
+      "embedded_images": 3,
+      "species": "yellowhammer",
+      "path": "assets/birds/yellowhammer/perched.glb",
+      "sha256": "bc3fda8eaba7b0b739115abc5caf3590829fa9be8b39c1c16245507ab4279ef3",
+      "catalog_scale_m": 0.17
+    }
+  ]
+}

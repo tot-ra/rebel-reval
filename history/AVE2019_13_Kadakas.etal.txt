@@ -1,0 +1,956 @@
+Archaeological Fieldwork in Estonia 2019, 147–162
+
+
+
+
+Archaeological studies in the Cistercian monastic
+complex in Padise
+Villu Kadakas
+    Tallinna Ülikool, humanitaarteaduste instituut, ajaloo, arheoloogia ja kunstiajaloo keskus (Tallinn
+    University, School of Humanities, Institute of History, Archaeology and Art History), Uus-Sadama 5, 10120
+    Tallinn, Estonia; villu.kadakas@tlu.ee
+
+
+Monika Reppo
+    Tartu Ülikool, ajaloo ja arheoloogia instituut, arheoloogia osakond (University of Tartu, Institute of History
+    and Archaeology, Department of Archaeology), Jakobi 2, 51005, Tartu, Estonia
+
+
+Paul Ööbik
+    OÜ Agu EMS, Roosikrantsi 17, 10119 Tallinn, Estonia
+
+
+
+
+INTRODUCTION
+The ruins of the medieval Padise monastery are situated close to the north-western coast of
+Estonia, ca. 50 km south-west from Tallinn, on the western edge of the historical province
+of Harjumaa. In spring 2020 a visitor centre with an exhibition was opened in the well-pre-
+served ruin of the Cistercian monastery. The conservation project was largely based on the
+results of the field studies of 2010–2011, which were published in AVE 2011 (Kadakas 2012b;
+Lõugas et al. 2012). In 2018–2019, additional field studies (for a short summary in Estonian,
+see Kadakas & Ööbik 2019) took place because of the conservation work (Fig. 1). Most of these
+studies were connected with laying various floors and pavements, also installing power ca-
+bles and water pipes. Regardless of the moderate scope of the work, various information was
+obtained, regarding both the monastic and post-monastery period.
+   The monastery was established in the beginning of the 14th century on the lands of
+Daugavgrīva monastery and probably on the site of its former grange. Most of the preserved
+monastic complex was built probably during the 15th century. The main building, the mo-
+nastic quadrangle, was built exceptionally as a fortress, like the conventual castles of the
+Teutonic Order. The monastery was secularized and turned into a proper castle in the be-
+ginning of the Livonian Wars, in 1559 by the Teutonic Order. Soon the former monastic com-
+plex was taken over by the Swedish army, who lost it for a short period to the Russian army
+(1576–1580). During the siege of 1580, the buildings suffered heavy damage and thereafter the
+site was used as a royal manor. In 1622 the estate was enfeoffed to Thomas Ramm. The former
+monastic complex was used by his descendants as a manorial residence for centuries. After
+the fire of 1766 the preserved building parts were turned into storerooms. Restoration work
+was carried out since the 1930s, large-scale excavations, mostly removal of collapse debris in
+the 1950s and 1960s were led by art historian Villem Raam.¹
+
+¹ See the written history and the current state of research in detail in Kadakas 2012b, 58–62 and 2015a, 21–22; history of research and conservation
+in Tamm 2010, 119–121; Alttoa et al. 2012. Later, usage of water in the monastery has been studied in a separate article (Kadakas 2015b).
+             148                                                                                                                                Villu Kadakas, Monika Reppo and Paul Ööbik
+
+
+                                                                                                           11
+                                                                                                           11
+                                                                                                                                                                 11
+                                                                                                                       9
+                                                                                                                       9
+                            nn
+                       alliin n
+                                                                                                                                                13
+                                                                                                                                                13
+                     Tall
+                     T                      14
+                                            14
+                  10
+                  10                                                                                                                                                        9
+      sallu
+          u                                                                 9 allinn
+                                                                            9
+                                                                                                                                                                                                 13
+  aap
+    psa                                                                       T                14                                1
+Haa
+H                                                                                                                                13
+                                                                      10                                                           3
+                                                 14
+                                                        psa
+                                                             lu                                                            9
+               9  9                             Haa
+                                                 14                                                                                                                                  13
+              14                                                                                                                          12
+                                                                                                                                           12
+                                                                                                    14
+                                                                                                     14
+                                                                                                    14                     13
+                                                                                                                           13
+                                                       15             9
+                                                       15                                                                                                 14
+                                                                                                                                                                                            12
+                                            3
+                                            3                                                                                                                                   13
+                               6
+                                                1515
+                                                                                               7 15
+                                                                                               7
+                               6   9                                                           3                                                                            12
+                                                                                                                                                                            12
+                                                                                                          1414
+
+                                                                                     6
+                                                                                                15
+                                                                                                                                                7
+                                                                                                                                                                                                                12
+                      4
+                      4                                                                                                                              13
+                                                                                                                                                                 14
+                                                                                                                                                     13
+                                                5
+                                                5
+                                                                          4 16
+                                                                            16                                   13
+                                                                                                                 13
+                                                                                                                                                                                                      13
+                                       10
+                                                                                                5
+                                                    1                                                                           16                         1          13
+                           2                        1                                                     1                 9
+                                                                                                                            9
+                                                                                                                                                           122
+                           2                                                                              122
+
+                                                                                                    1                                                                            9
+                                                                                                                                                                                                           12
+                                                                                 2                                                                               12
+                                                                                                                      13
+                                                                                                                      13
+                                                                      166
+                                                                      1
+                                                                                                                                                                           13
+      1111                     3
+                               3                                                                                 14
+                                                                                                                      16
+                                                                                  9
+                                                                                  9
+                                                                                                                 14
+
+                                                            11                    3                                                                                   14
+                                   10                         11                                                                  9
+        8
+        8
+                                   10                         11                                                 15
+                                                                                                                 15
+
+                                                                                          10                11
+                  N       10
+                          10
+                                                              8                                                                                                       15
+
+                          11
+                                   0 5
+                                   0 5 10
+                                       10              20
+                                                       20        30
+                                                                 30         40
+                                                                            40       50
+                                                                                     50                                         100m
+                                                                                                                                100m
+             12           11
+             12                                                              10
+                                                                                      0 5 10         20         30         40        50                                              100m
+                                                                             11
+                                                                 12
+                           pipe trench of 2019/ 2019. a. kaevatud torukraav
+                           pipetrench
+                           pipe trenchof of 2019/
+                                         2019 /    2019.
+                                                2019. a a. kaevatud
+                                                       kaevatud        torukraav
+                                                                torukraav
+                           supposed area
+                           supposedarea
+                           supposed areaof of
+                                           thethe
+                                           of     moat
+                                               moat
+                                              the   discovered
+                                                  moat                in/ 2019/
+                                                               in 2019in
+                                                        discovered
+                                                        discovered        2019.
+                                                                          2019/a 2019. a.
+                                                                                       a. avastatud
+                                                                                 avastatud
+                                                                                 2019.                 vallikraavi
+                                                                                           vallikraavi oletatav
+                                                                                          avastatud                 oletatav ulatus
+                                                                                                                    oletatav
+                                                                                                                ulatus
+                                                                                                       vallikraavi           ulatus
+                                                           pipe   trench   of 2019/  2019.  a. kaevatud    torukraav
+             Fig. 1. Plan of Padise monastic ruin   area area
+                                                 supposed (mainof flthe
+                                                                     oor). 1 – inner
+                                                                        moat         courtyard,
+                                                                             discovered in 2019/ 2 – a.
+                                                                                                2019.western   courtyard,
+                                                                                                        avastatud vallikraavi3 – gun ulatus
+                                                                                                                              oletatav towers,
+                 4 – gate tower, 5 – church, 6 – northern courtyard, 7 – eastern courtyard, 8 – River Kloostri, 9 – moat, 10 – road,
+                 11 – foundations of a late medieval chapel discovered in 2009, 12 – pond, 13 – 18th century manor house, 14 – site of
+                 the watermill, 15 – gate complex discovered in 2011, 16 – building remains in the moat.
+             Jn 1. Padise kloostri vareme piirkonna plaan (peakorrus). 1 – sisehoov, 2 – lääne-eeshoov, 3 – haakpüssitornid, 4 – vära-
+                 vatorn, 5 – kirik, 6 – põhja-eeshoov, 7 – ida-eeshoov, 8 – Kloostri jõgi, 9 – vallikraav, 10 – maantee, 11 – 2009. a
+                 avastatud hiliskeskaegse kabeli vundamendid, 12 – tiik, 13 – 18. saj mõisahoone, 14 – vesiveski asukoht, 15 – 2011. a
+                 avastatud väravakompleks, 16 – hoonejäänus vallikraavis.
+             Drawing / Joonis: Villu Kadakas
+
+
+             DISCOVERY OF A MOAT IN THE EASTERN COURTYARD
+             A pipe trench, running in the east-west direction (Fig. 1), crossed the eastern courtyard which
+             has largely remained unstudied until now. It is not clear if the eastern courtyard was built in
+             the monastic period or was added only after it was turned into a castle. However, researchers
+             have for a long time supposed that initially a moat must have surrounded the monastic quad-
+             rangle also on the eastern side. Villem Raam and architect Kalvi Aluve suggested that the
+             moat was situated directly next to the eastern range, but during the excavations of 2010–2011
+             it appeared that there has been no moat in that area (Kadakas 2012b, 70–71). In 2019 in the
+             profile of the pipe trench a cross-section of an at least 4 m deep and ca. 15 m wide depression
+             could be documented, situated ca. 7 m towards east from the eastern range (Fig. 1). Based on
+             this discovery, it seems likely that a ca. 15 m wide moat was running parallel to the eastern
+Archaeological studies in the Cistercian monastic complex in Padise                             149
+
+
+range. The discovered moat is in correspondence with the plan of the supposed gate com-
+plex (Fig. 1: 15), which was discovered in 2010–2011 in the north-western corner of the east-
+ern courtyard (Kadakas 2012b, 72). The L-shaped wall of the supposed gate passage reaches
+ca. 10 m to the east from the wall between the northern and eastern courtyard. It roughly
+corresponds to the width of the area between the eastern range and the discovered moat. It
+looks like there was a 7–10 m wide flat area between the monastic quadrangle and the eastern
+moat – probably some kind of an outwork. It is not clear, if this outwork was surrounded with
+its own curtain wall or a palisade near the moat – remains of it were not discovered in the
+pipe trench. Based on the new discovery, the plan of the gate complex can be supplemented:
+it must have had a gate also in its southern wall, enabling access to this eastern outwork
+(Fig. 1: 15).
+    Very scarce datable finds could be obtained from the filling layers of the moat, but it can
+be concluded that the filling did not take place in Late Medieval but rather in Early Modern
+times. After the fire of 1766 the new manor house was built in the eastern part of the eastern
+courtyard (Raam 1958, 72). It is likely that the moat was filled only after this fire. This con-
+clusion is supported by soot and charcoal, also demolition debris with signs of fire damage
+among the filling layers of the moat. The earliest historical images of the eastern courtyard –
+the engravings by Fr. A. Darbes / J. Chr. Brotze from 1795 (Brotze 2006, 454–455) – depict no
+moat in the area anymore but a flat area with a new small garden building.
+
+HOUSE REMAINS AT THE BOTTOM OF THE MOAT
+Remains of a basement of a stone building were discovered at the bottom of the moat
+(Fig. 1: 16). The basement storey of this building has had at least one room, with an outer wall
+ca. 60 cm thick and a small rectangular candle niche in one of the walls. An 80–90 cm wide
+staircase up with limestone steps was added secondarily to the structure.
+    No certain information was obtained during the excavations about the building time or
+demolition of the house. However, based on general context it could have been built after the
+moat had lost its military function, i.e. during the 17th or 18th centuries. The building must
+have been demolished when the moat was filled at the latest. The dilapidation of the house
+could be connected with written evidence – description of the fire of 1766 by Thomas von
+Ramm, the lord of the manor at the time. Among the buildings destroyed by the fire he listed
+‘a small house at the bottom of the moat’ (Ridbeck 2005, 168; Tamm 2010, 118). In the present
+state of research there is no evidence about any other house being situated at the bottom of
+the moat neither at that time nor any other.
+
+MODERN FLOORS OF THE BASEMENT ROOMS
+The floor level in most of the basement rooms of the northern and eastern ranges was brought
+deeper by 10–20 cm, in some cases even more. The top of the floor level was covered with soil
+containing various debris, but extensive remains of brick or limestone floors had been discov-
+ered in the test pits of 2010 in several rooms. In all the basement rooms of the eastern range
+brick floors were uncovered and recorded (Fig. 2). These consisted of a wide variety of wall
+bricks as well as square thin floor tiles of different size. It is likely that most of this material
+has been used secondarily, after initial use in some main floor rooms of the former monastic
+complex or the new manor house from the late 18th century. Based on finds from the soil be-
+low the floors it can be concluded that all the brick floors were laid not before the 19th centu-
+ry. However, some of the used material, especially the square floor tiles might originate from
+150                                                            Villu Kadakas, Monika Reppo and Paul Ööbik
+
+
+                                                           older periods. It cannot be excluded that
+                                                           some of the square floor tiles originate from
+                                                           the monastic period, although there is no ev-
+                                                           idence about the use of such unglazed tiles
+                                                           in Padise in the Middle Ages. No glazed or
+                                                           otherwise decorated tiles were found in the
+                                                           basement rooms of the eastern range. A large
+                                                           part of the brick floor could be preserved and
+                                                           exposed in situ in the basement room under
+                                                           the chapter hall. The late date of the brick
+                                                           floors is a clear evidence that the basement
+                                                           rooms of the former monastic complex had
+                                                           not been neglected but were intensively used
+                                                           for storage and even reconstructed to some
+                                                           extent during the 19th century.
+                                                              Floors of irregular split limestone were
+Fig. 2. Tile floor in a basement under the supposed par-   uncovered and recorded in the middle base-
+    latory.                                                ment room of the northern range and the
+Jn 2. Tellispõrand oletatava parlatooriumi aluses keldris.
+Photo / Foto: Villu Kadakas
+                                                           room under the sacristy, discovered in the
+                                                           latter case under the brick floor described
+above. Both floors had the lowest beam of timber partition walls which had been built before
+the floors, still preserved between the slabs. The partition walls were obviously connected
+with the storage function of the basement rooms. Both limestone floors were preserved, but
+in their more uneven parts the slabs were taken up and laid anew in their original place in
+order to gain a smooth surface. As the soil under the limestone floors was not excavated, no
+direct evidence of their age could be obtained. However, based on general context, these
+probably come from the period after the fire of 1766.
+
+ALTAR REMAINS OF THE UNDERCROFT CHAPEL
+Among all the basement rooms the easternmost one of the northern range, under the eastern
+part of the church deserves special attention (Fig. 3). Considering the rib vaults and a carved
+masonry pillar, exceptional in the basement storey of the monastic quadrangle of Padise,
+and especially the carved remains of consecration crosses in the plaster of the walls, this
+room has been estimated to have been an unconventional undercroft chapel in the monastic
+period. Raam supposed that the undercroft chapel was necessary to accommodate the side
+altars which did not fit into the unconventionally small church of the fortified quadrangle
+(Raam 1988, 59; Alttoa 2012b, 63).
+   Raam (1958, 61) has described here some stones as preserved evidence of one of the altars.
+A rectangular foundation (2.0 × 1.37 m) of a structure built next to the northern wall, in front
+of the western window has been visible in its full extent for at least two decades, but it is
+not known when it was fully uncovered. During the excavations of 2019 the western half of
+an identical foundation was discovered in front of the eastern window of the northern wall
+(Fig. 3: 1). The foundations of more altars were searched for in vain, as much of the upper soil
+under the chapel has been disturbed during the Early Modern period.
+   However, an unexpected match of the altar foundations and a medieval limestone men-
+sa (see: Mänd 2019, 146–147) of the chapel of the nearby Väike-Pakri island could be made.
+Archaeological studies in the Cistercian monastic complex in Padise                                                                  151
+
+
+During the last centuries the mensa was
+                                                                                                             N
+part of the small timber chapel (Söderbäck
+1940, 282–284), which was destroyed after
+the World War II within a Soviet military                         1                      1
+base. During an expedition in 2014 the site
+was studied and the mensa described and                                 2
+measured. It was interpreted to be unpro-                                                 3
+portionally big for the small timber chapel
+and a hypothesis was presented, that it was
+initially made for Padise monastery and
+brought to the island only after the dissolu-
+tion of the monastery, in the Early Modern
+period (Kadakas 2015c, 16; see also: Mänd                                  0                         5m
+2019, 146–147), when the island belonged to
+Padise manor.² The measures of the mensa
+(lower rim 208 × 139 cm) match the founda-                             discovered foundations / leitud vundamendid
+tion (200 × 137 cm) in the undercroft chapel
+of Padise monastery rather well. As regards Fig. 3. Plan of the undercroft chapel. 1 – foundations of al-
+                                                    tars, 2 – foundation of partition wall, 3 – site of a burial.
+the minor mismatch, it should be kept in
+                                                 Jn 3. Kelderkabeli plaan. 1 – altarite vundamendid,
+mind that only the underground foundation           2 – vaheseina vundament, 3 – haua asukoht.
+has preserved, not the block (stipes) of the Drawing / Joonis: Villu Kadakas
+altar above the floor. However, as there was
+at least one more altar with the same size in the chapel, the mensa cannot be connected
+with the particular altar. The mensa of Väike-Pakri could have come from any of the altars
+of the undercroft chapel, which all were possibly of approximately the same size. The mensa
+of Väike-Pakri has a semicircular cavity (ø = 23 cm) in the middle of its back edge. It was
+probably made for attaching a timber crucifix to keep when not used during processions. It
+was common with the altar of the Cistercians to keep the processional cross behind it (Kinder
+2002, 172; Gaud & Leroux-Dhuys 2006, 52).
+    An 80–90 cm thick foundation of a partition wall was recorded, running between the pil-
+lar and the northern wall, situated between both altar remains (Fig 3: 2). This wall still stood
+about 2 m high on the earliest photos from the 1920s, e.g. by Nikolai Nyländer (Tuulse 1942,
+Abb. 184; TÜKAF, s B-60-42³), but was demolished, as a presumably post-monastic element
+during later restoration work. However, screens or partition walls between side-altars divid-
+ing these into separate chapels were not uncommon in the Late Medieval churches (Rodwell
+2012, 164–165). Therefore, it cannot be excluded that this particular wall was not an Early
+Modern addition, but from the monastic period. Remains of other, similar partition walls
+were searched for in vain. Two altars with a partition wall which formed two separate chap-
+els, are depicted in the eastern end of the undercroft chapel of the other Cistercian monastery
+in Estonia – Kärkna, on a disputed reconstruction plan by Reinhold Guleke (1896, Plate IV,
+VI & VIa; Alttoa 2012a, 35).
+    In addition to the glazed floor tile fragments (brown, green and yellow) found in 2010–
+2011 in the undercroft chapel (Kadakas 2012b, 63), some similar new ones were found in 2019.
+Based on the identification of altar foundations, it can be supposed that some floor parts
+
+² Thomas Ramm, the owner of Padise manor, got the island of Väike-Pakri from the king of Sweden in 1628 (Russwurm 1855, 141–142; Johansen
+1951, 226–227).
+³ Available online: https://dspace.ut.ee/handle/10062/38966 (visited 22.09.2020).
+152                                                                                 Villu Kadakas, Monika Reppo and Paul Ööbik
+
+
+in immediate connection with the altars were laid with these glazed tiles. Evidence of such
+glaze tile floor patches in connection with altars have been discovered in the nunnery of St
+Bridget (Pirita) near Tallinn (Tamm 2002, 129–130).
+   During the last episode of field study of the undercroft chapel – preparing a small pit for
+a lamp post – a human skull was discovered. Further study revealed that it is a part of a pre-
+served skeleton (Fig. 3: 3) of a person, who has been buried in front of the eastern altar, with
+the head directed to the west. A new pit was dug for the lamp so that the burial was preserved
+untouched for future fieldwork. It is the first evidence in Padise that someone has been bur-
+ied in the undercroft chapel. Brief in situ inspection of the skull certified that it probably
+belongs to an adult person, probably a male. It is likely that the person was buried during the
+monastic period.
+   No further evidence was obtained about a building preceding the monastic quadrangle,
+which was supposed during fieldwork carried out in 2010–2011 (Kadakas 2012b, 63).
+
+EVIDENCE ABOUT EARLY MODERN REBUILDING OF THE CHURCH
+The most remarkable research results on the main floor were obtained in the church. It has
+been long known that the church was divided with two partition walls and timber floors into
+several dwelling rooms by the von Ramm family, who had acquired the estate in 1622 (Raam
+1958, 72). The timber ceiling and the eastern partition wall had collapsed or been demolished
+by 1954 already, but the last elements – the western partition wall together with a kitch-
+en – the large mantel chimney – were demolished in 1956 (Raam & Zobel 1957, 19–20, 35).
+Unfortunately, it was done without recording. These have only been depicted on a ground
+plan and a longitudinal section from the 1920s (photocopies by Eduard Selleke (TÜKAF,
+s C-60-8⁴) and a few odd photos by Nikolai Nyländer (TÜKAF, s B-60-43⁵). In 2019 the foun-
+dations of the partition walls came to light and were recorded after the removal of only a thin
+layer of debris (Fig. 4: 8, 9; 5). The upper soil (10–30 cm) was removed from the eastern and
+western parts of the church, above the western basement room and the undercroft chapel.⁶
+    In the western part of the church a 1 m thick partition wall (Fig. 4: 9; 5) was uncovered next
+to the portal of the lay brothers (Fig. 4: 4; 5). It divided the western vault from the rest of the
+church into an almost square hall (ca. 9.3 m) with a huge mantel chimney (ca. 3.8 × 2.0 m)
+in the corner (Fig. 4: 10; 5). Most of this hall interior is still covered with a floor of square
+limestone slabs, which were uncovered from a thin layer of debris (Fig. 4: 12; 5). The size of
+the slabs (52–53 cm) corresponds to one ell of Tallinn. These remains of the floor have been
+known for decades, but have never been documented, but rather ignored as an Early Modern
+addition to the church.
+    Traces of a narrow doorway were recorded in the middle of the partition wall. Remains of
+a winding mural (ca. 0.7 m) staircase leading downstairs, were recorded within the northern
+end of the partition wall (Fig. 4: 11; 5). The lower part of this staircase in the basement room
+has been demolished decades ago, but its foundations were uncovered in 2019. A rectangular
+foundation (1.5 × 1.5 m) of red bricks of a tiled stove or a fireplace was recorded on the eastern
+side of the partition wall next to the kitchen (Fig. 4: 13; 5). The room directly to the east of
+the partition wall had been covered with a floor of red bricks of which two rows had been
+preserved next to the partition wall.
+
+⁴ Available online: https://dspace.ut.ee/handle/10062/38369 (visited 22.09.2020).
+⁵ Available online: https://dspace.ut.ee/handle/10062/36569 (visited 22.09.2020).
+⁶ The vault of the middle basement room collapsed in the 1990s and during the reconstruction of it the soil on top of the vault was removed
+without archaeological methods and recording.
+5   Archaeological studies in the Cistercian monastic complex in Padise                                                                     153
+5
+
+
+                                      11                                                                 7
+             5                        11                                                                 7
+
+
+
+                                                        11
+                                                                                                                       13
+                                                                                                                           7
+                    12                                                                                                 13
+                    12                                                                                   7         6
+                                                                                                         7         6
+                                                                                                 8
+                                           9
+                                           9                                          N          8
+                    10                         13                                                                                      13
+                    10                         13
+                                       12                                                                                  7       6
+                                                             9                                           7         8
+                                                                                                         7
+                                  4    10                        13                          3                 1
+                                  4                                                          3       2         1
+                                                                                                     2
+                                                    0                     5                10m                             7
+                                                    0                     5                10m
+                                                    4                                                          3               1
+                                                                                                                       2
+
+                                                                      0                5                     10m
+
+                  foundations
+                  foundations discovered
+                               discovered in
+                                          in 2019/
+                                             2019/ 2019.
+                                                   2019. aa avastatud
+                                                            avastatud vundamendid
+                                                                      vundamendid
+                 foundations discovered in 2019 / 2019. a avastatud vundamendid
+                  contours
+                  contours of the undercroft chapel/ kelderkabeli kontuurid
+                           of the undercroft chapel/ kelderkabeli
+                 contours of the undercroft chapel / kelderkabeli kontuurid
+                                                                   kontuurid
+    Fig. 4. Plan of Padise monastery    church.discovered
+                               foundations       1 – sedilia niche, 2 – sacristy
+                                                                in 2019/   2019. portal, 3 – choir monks’
+                                                                                   a avastatud             portal, 4 – lay brothers
+                                                                                                   vundamendid
+        portal, 5 – passage to the gate tower, 6 – foundation of the main altar, 7 – burial vault, 8 – foundation of the eastern
+                               contours
+        partition wall, 9 – foundation   of of
+                                            thethe   undercroft
+                                                western  partition chapel/
+                                                                    wall, 10 –kelderkabeli     kontuurid
+                                                                               foundation of the   kitchen wall (mantel chimney),
+        11 – stairs to the basement, 12 – floor of square limestone slabs, 13 – foundations of tiled stoves.
+    Jn 4. Padise kloostri kiriku plaan. 1 – sedilia nišš, 2 – käärkambri portaal, 3 – koorimunkade portaal, 4 – ilmik vendade
+        portaal, 5 – käik väravatorni, 6 – peaaltari vundament, 7 – hauakast, 8 – idapoolse vaheseina vundament, 9 – lääne-
+        poolse vaheseina vundament, 10 – köögi (mantelkorstna) vundament, 11 – trepikäik keldrisse, 12 – ruudukujulistest
+        paeplaatidest põrand, 13 – kahhelahjude vundamendid.
+    Drawing / Joonis: Villu Kadakas
+
+
+       Within the lime mortar used for fixing
+    the floor slabs a poorly preserved coin was
+    found – a Swedish schilling of Eric XIV
+    or John III, with a greater coat of arms of
+    Tallinn, minted in the period 1564–1585
+    (Leimus et al. 2018, 74). It might indicate that
+    the partition wall with the mantel chimney
+    and the floor were not laid in the von Ramm
+    period after 1628 but probably earlier, during
+    the period of the royal manor already. It is
+    possible that the church room was not filled
+    with partition walls and a timber ceiling dur-
+    ing one construction campaign, but possibly
+    in several stages. It is not clear if the rest of
+    the church room remained in use as a church
+    for a while after turning its western part into
+    a large square hall.                                                          Fig. 5. The floor of square limestone slabs, foundations of
+       In the eastern part of the church, between                                     a tiled stove, a partition wall and the mantel chimney
+    the choir monks’ portal and the sacristy por-                                     in the western part of the church.
+                                                                                  Jn 5. Ruudukujulistest paeplaatidest põrand ning kahhel-
+    tal, a foundation of a rather thin (ca. 0.8 m)
+                                                                                      ahju, vaheseina ja mantelkorstna vundamendid kiriku
+    partition wall was uncovered (Fig. 4: 8; 6).                                      lääneosas.
+    Extensive remains of a floor of irregular                                     Photo / Foto: Paul Ööbik
+154                                                                      Villu Kadakas, Monika Reppo and Paul Ööbik
+
+
+
+
+Fig. 6. Three burial vaults, foundations of a tiled stove, the main altar and a partition wall in the eastern part of the
+    church.
+Jn 6. Kahhelahju, peaaltari ja vaheseina vundamendid ning kolm hauakasti kiriku idaosas.
+Photo / Foto: Paul Ööbik
+
+
+limestone slabs was uncovered on its western side. On its eastern side, in the eastern part of
+the church, remains of underlay beams of a timber floor probably from the 19th century were
+recorded.
+
+THE MAIN ALTAR AND BURIAL VAULTS IN THE CHURCH
+Next to the eastern wall of the church, on the symmetry axis, a rectangular, ca. 1.2 × 2.6 m
+foundation was discovered. After preliminary enthusiasm, it appeared not to be a foun-
+dation of the medieval main altar but rather of an Early Modern tiled stove (Fig. 4: 13; 6).
+Nevertheless, the rectangular foundation of the altar (1.8 × 2.6 m) was discovered under it,
+set 1 m off the eastern wall (Fig. 4: 6; 6). This location is in accordance with the medieval
+tradition of the Cistercian monks to move in a procession through the back of the altar when
+receiving the Holy Communion (Kinder 2002, 172). No foundations of side altars were discov-
+ered, but some may lay hidden deeper than was excavated. All the side altars did probably
+not fit into the undercroft chapel, because in 1448 more than a dozen was mentioned to exist
+in Padise (Alttoa 2012a, 47).
+   As a surprise, three large boxes of limestone were discovered under this partition wall
+(Fig. 4: 7; 6). These resemble the burial vaults, which are common in parish churches, usually
+covered with a limestone grave slab. A narrow test pit was dug into the middle one, which re-
+vealed no human bones neither in the filling debris nor at the bottom. Nevertheless, it seems
+most likely that these have been burial vaults. The inner size (on the average 1.1 × 2.0 m,
+ca. 1.2 m deep), is fit for one coffin. Probably the vaults have been looted and filled with dem-
+olition debris after removing the grave slabs.
+Archaeological studies in the Cistercian monastic complex in Padise                          155
+
+
+    In the Middle Ages the common choir monks were normally buried without a grave sign
+into the graveyard next to the church. Burial vaults with stone grave slabs for abbots were
+located either in the graveyard, in the floor of the church (close to the stall in the choir or
+adjoining the high altar), in the cloister between the church and the chapter hall or in the
+chapter hall (Butler 1993, 78–79; Untermann 2001, 90–92; Kinder 2002, 366). The three burial
+vaults of Padise church are peculiar because these have not been built into the ground as
+burial vaults normally are, but on top of the vaults of the undercroft chapel. The top of the
+vaults of the chapel reach almost to the floor level of the church, but the space between the
+vaults is at least 2 m high. The three burial vaults use the only three areas above the chapel
+vaults, where a burial vault could be installed in the east-west direction. The middle one
+is on top of the pillar of the chapel and the other two are on the same line, next to the side
+walls. It is a rare, skillful technical solution, never recorded in Estonian churches of any
+period.
+    It could be supposed that some significant abbots or donators were buried inside these
+burial vaults. These cannot be connected with any grave slabs, because none have been pre-
+served in the monastic ruin. Only a few very small fragments in the assemblage of dressed
+limestone details of the monastery could be theoretically connected with grave slabs.
+
+ARTEFACTS
+Ceramic vessels
+In general, most of the new finds share the distribution and deposition patterns of the pre-
+vious fieldwork of 2010–2011 (Kadakas 2012b, 74–75; Kadakas & Väisänen 2012, 326). The
+finds in the basement rooms can be mostly dated to the Early Modern, the private manor
+period. However, in the church and sacristy, within the filling layers on top of the basement
+vaults, also in some basement rooms, a few sherds of Siegburg and Waldenburg stoneware
+beakers or jugs could be collected. The earliest sherds of Siegburg vessels can probably be
+dated to the second half of the 14th century (Sieg3b jacoba I after Russow 2006, fig. 12: 3). It
+is difficult to estimate, how many of these or if any at all were deposited during use of these
+vessels in these rooms. According to the present state of research, the northern and eastern
+ranges were probably built step by step during the 15th century (Alttoa 2012b, 77; Kadakas
+2012b, 69). At least in the rooms of the main floor (church and sacristy), it is likely that the
+sherds have been brought in together with the large amount of sand, which was necessary
+to fill the top of the basement vaults, during the construction of the initial floors already. A
+single sherd of a Cologne stoneware jug, with characteristic plant ornamentation, probably
+from the second quarter of the 16th century, possibly represents the final decades of the
+monastery.
+    As in 2010–2011 (Kadakas 2012b, 76; Kadakas & Väisänen 2012, 334), a few sherds of sim-
+ple Russian pots probably represent the short period of inhabitancy of the Russian troops
+(1576–1580). In correspondence with the results of previous fieldwork (Kadakas 2012b, 76;
+Kadakas & Väisänen 2012, 333–336), the period of the private manor (1622–1917) is represent-
+ed by sherds of simple glazed redware pipkins, painted redware bowls, various painted and
+unpainted faience, clay pipes, painted china, Duingen stoneware and ceramic mineral water
+bottles. Some of the redware pipkins, painted bowls, or even the early faience may theoret-
+ically come from the Swedish royal manor period (1561–1622). A few sherds of Westerwald
+stoneware were new in the assemblage of Padise.
+156                                                                Villu Kadakas, Monika Reppo and Paul Ööbik
+
+
+Floor and stove tiles
+As in 2010–2011, a few fragments of glazed (yellow, brown and green) redware floor tiles were
+found from the undercroft chapel (Kadakas 2012b, 76; Kadakas & Väisänen 2012, 336–337),
+but now some were also found in the eastern part of the church. It supports the hypothesis
+presented after the previous fieldwork that such prominent material was reserved only for
+the most important areas of the monastery, the surrounding of the altars (Kadakas 2012a, 90).
+   It was common in the medieval Cistercian monastic churches to build floors of glazed ce-
+ramic tiles, often with a square form. Monochrome glaze tiles with a few contrasting colours
+were usually laid in geometric patterns. It was common to reuse these by local people in their
+dwellings after the dissolution (Beaulah 1993, 1–4).
+   Fragments of various glazed stove tiles were discovered in the rooms of both the main
+and the basement floor (Fig. 7). Most of the stove tile fragments in the basement rooms have
+probably been brought there together with demolition debris, although some foundations
+and chutes indicate that at least some basement rooms had a stove or a fireplace at some mo-
+ment. A lot of panel tile fragments in the rooms of the main floor – dwelling rooms in the pri-
+vate manor period – were gathered close to the discovered stove foundations. The few stove
+foundations correspond to the smoke chutes, still preserved inside the walls or chimneys,
+depicted on the Early Modern engravings. It is likely that earlier tiled stoves were replaced
+on the same foundation with new ones as time passed, at least until the fire of 1766. Among
+the new fragments there are a few with Renaissance style motifs (mostly low relief floral
+patterns), and with monochrome green or black glaze. Most represent the late 17th and 18th
+century Baroque style stoves with abundant plant ornamentation, with monochrome black
+or white glaze. In the case of most of the stoves, only a few fragments could be collected, but
+
+
+
+
+                                                                                           0             5 cm
+
+
+
+
+Fig. 7. A selection of 17th century glazed stove tile fragments.
+Jn 7. Valik 17. sajandi ahjukahlite kilde.
+Photo / Foto: Villu Kadakas
+Archaeological studies in the Cistercian monastic complex in Padise                                                                        157
+
+
+in a room on the south-eastern corner of the complex, a huge heap of tiles with white glaze
+was unearthed. Reconstruction of the particular stoves, based on both the information in the
+fieldwork reports in the 1950s and 1960s⁷ and on new excavation results, falls outside the
+scope of this article.
+
+Coins
+Among a few various Early Modern copper coins, found in various rooms, two silver coins
+from the monastic period were discovered in the church – one on top of the floor of regular
+limestone slabs in the western part, and the other inside the filling of the midmost burial
+vault. As a surprise, both appeared to be seestlings of the Teutonic Order, minted in Tallinn at
+the end of the 14th or at the beginning of the 15th century, valid until the monetary reform of
+Livonia (1422/1426). According to the present state of research the church was not completed
+until the middle of the 15th century (see above). Therefore, it is difficult to connect these coins
+with the use of the church. Furthermore, coin offering is not an expectable practice⁸ in the
+church of Padise monastery, because the monastic churches of the Cistercians were normally
+not open for lay people. It is possible that these coins have been lost by the builders during
+the construction work or brought inside with the sand, which was used to fill the empty space
+above the basement vaults.
+
+Iron artefacts
+Among the metal artefacts a large collection of various forged iron fittings and tools was dis-
+covered under the tile floor of the basement under the supposed parlatory. All these artefacts
+indicate heavy damage by fire and have probably been dumped at the same time. It includes
+fittings of doors and windows (window and door hinges, window bars, locks, threaded bolts,
+threaded nuts, rings, nails) and a few tools (spade, ice pick). Nuts and bolts with threaded
+ends deserve attention, as examples of early thread making craftmanship, probably by a lo-
+cal blacksmith. One strap hinge of a door has an elaborate decorative leaf with scroll design,
+characteristic to the 17th and 18th centuries. Window angle brackets of the so-called dove
+beak type also fit to this period. It is likely that all these items were damaged and became
+unusable during the fire of 1766.
+
+Glass artefacts
+Over 1,000 fragments of glass were recovered during the field study in 2018–2019. Roughly
+half of the fragments can be attributed to the private manor period of the former monastery
+building and the other half are connected to the house remains which were uncovered at
+the bottom of the moat. Most of the glass was post-medieval, yet there were some earlier
+fragments.
+   In terms of medieval finds relating to the monastery, the base of a 14th–15th century beak-
+er was discovered in the basement of the northern range. A rim fragment of an undecorated
+beaker potentially from the same period was discovered in the filling soil of the middle burial
+vault in the church. Although the rest of the glass artefacts from the house remains found in
+the bottom of the moat were later, a small poorly-preserved body fragment of a beaker with
+an applied rib was found here, generally dated to the 14th–15th century (Fig. 8: 3).
+
+⁷ The location of the find material of the early field studies is unknown (Kadakas & Väisänen 2012, 326), but many stove tiles have descriptions
+and are depicted on black and white photos.
+⁸ About coin offering in the rural churches of Estonia see Kadakas 2017, 125–127.
+158                                                               Villu Kadakas, Monika Reppo and Paul Ööbik
+
+
+                                                                  From the earlier private manor period, nu-
+                                                              merous glass sherds, mainly window glass
+                                                              were found. Most of these are related to the
+                                                              house in the moat. These sherds are heavily
+                                     3
+                                                              weathered and show some signs of soot and
+                    2
+                                                  4           heat damage, potentially from the 1766 fire.
+       1
+                                                      0 1 cm
+                                                              The window glass is largely unworked with
+                                                              uneven edges. This indicates it was ‘broad
+Fig. 8. Fragments of glass vessels. 1 – of medieval beaker,   glass’ – blown as a cylinder, cut open and
+    2 - of square case bottle, 3 - beaker rim from the middle flattened, forming the wavy edges. It seems
+    burial vault, 4 – foot of early Roemer.                   the glass was in place as larger panes. Some
+Jn 8. Klaasnõude katked. 1 – keskaegne peeker, 2 – tahu-
+                                                              have been grozed (knapped) to fit into lead
+    line pudel, 3 – peekri serv keskmisest matusekastist,
+    4 – varase röömeri jalg.                                  cames and cut into smaller rhomboid and
+Photo / Foto: Monika Reppo                                    narrow rectangular panes.
+                                                                  It has also been possible to identify Early
+Modern red stained glass. The fragments of stained glass are red only on one side. As solid
+red glass does not let enough light through, one side of a colourless glass pane was flashed
+with a thin sheet of red glass to allow for a lighter red. At present it appears some of the glass
+may also be tinted red due to weathering. The vessel glass was harder to identify but most of
+it appears to be from a 17th–18th century square case bottle. The finds are in keeping with the
+potential terminus ante quem of the house.
+     Square case bottle fragments were discovered also from within the Padise monastery com-
+plex both from the westernmost basement room of the northern range but also from the east-
+ern range. A potentially early 17th century Roemer base (Fig. 8: 4) was found from the west-
+ernmost room as well. Further evidence of alcohol consumption on site during the 17th–18th
+century period comes from fragments of lead crystal goblets and onion-shaped wine bottles
+from the basement rooms of the eastern range. A small squat colourless hand-blown medi-
+cine bottle was also found here. It is notable that no drinking vessel fragments from this pe-
+riod were found from the first floor though a heavy lead crystal footed bowl discovered from
+the monastery may be from the late 18th century.
+     Most of the glass from the 2018–2019 fieldwork season in Padise is from the 19th century.
+In terms of spatial distribution, the basement rooms of the northern range stand out. Several
+hundred cylindrical bottles from the mid-19th century had been discarded here, some dug
+into pits. The bottles were mostly broken, however, none of them had any signs of iridescent
+weathering common for archaeological glass. The bottles were likely placed here in one piece
+as dozens of cork tops were found as well, several still attached and many of the bottles can
+be reconstructed from the fragments.
+     Due to the sheer size of the collection, conclusions can be drawn in terms of glass pro-
+duction in Estonia but also glass consumption in the manor in the mid-19th century. Bottles
+from at least four different glass factories were present – Lelle (Eidapere), Vändra, Tudu and
+Robert Elfenbein Reval (Fig. 9). All are represented by bottles with seals from the early 1860s.
+Regionally speaking, the former two factories are situated near Pärnu in western Estonia,
+Tudu in eastern Estonia and Robert Elfenbein produced bottles in Tallinn in northern
+Estonia. The discovery of bottle seals of Robert Elfenbein Reval is notable as none have been
+published – neither from Tallinn nor elsewhere in Estonia. It is unclear when he operated.
+The private purchase of the plot and building at Tartu Road plot 752 A, Tallinn in 1857 could
+Archaeological studies in the Cistercian monastic complex in Padise                                                                   159
+
+
+potentially signify the start of production.
+Robert Elfenbein’s factory was put on auc-
+tion in November 1863.⁹ These dates clearly
+correspond with the rest of the dated bottle
+seals.
+   Almost all the 19th century bottles were
+cylindrical wine or beer bottles made of
+                                                  0     1 cm
+green forest glass alluding to consumption of
+alcoholic beverages within the complex dur-
+                                               Fig. 9. Seals from Robert Elfenbein Reval, Tudu ja Lelle.
+ing the 19th century. Similar larger groups of Jn 9. Robert Elfenbein Reval, Tudu ja Lelle pudelimärgid.
+cylindrical bottles were found also in some Photo and retouch / Foto ja retušš: Monika Reppo
+of the basement rooms in the eastern range.
+Other 19th century vessels from the basement rooms include fragments of milk-souring
+bowls, also produced locally, rummers (shot glasses) and medicine bottles. Very few window
+and no stained glass fragments were recorded within the complex.
+
+CONCLUSION
+The field study of 2018 and 2019 gave new information about several important questions
+concerning the development of the large building complex of Padise monastery, as well as
+social history of the site, based on artefacts.
+    On the eastern side of the monastic quadrangle a filled moat was discovered. During the
+Middle Ages, probably a ca. 7 m wide outer ward existed between the eastern range of the
+monastic quadrangle.
+    Among the basement rooms the undercroft chapel under the eastern part of the church
+gave spectacular results. Two foundations of altars were recorded. Comparing the measures
+enables to bring these altars into connection with the mensa of a chapel on the nearby island
+Väike-Pakri. Most likely the mensa was originally in the undercroft chapel, but was taken to
+the island after the dissolution of the monastery in the 17th century.
+    On the main floor the most significant results are from the church. Foundations of two
+partition walls, a mantel chimney, stairs to the basement, also some floor fragments and
+tiled stove foundations from the post-monastic period were uncovered and recorded. Among
+the floors, the one in the western part of the church, made of regular square limestone slabs,
+is most remarkable. Based on artefacts, it can be supposed that this floor with the western-
+most partition wall and the mantel chimney are older than previously thought – not from
+the private manor period (1622–1917), but from the Swedish royal manor or the castle period
+(1563–1622). Based on new analysis, it can be supposed that the church hall was not filled in
+one building campaign but at least two.
+    Discovery of a foundation of the main altar and three limestone burial vaults in the east-
+ern part of the church enable to get a basic idea of the inner layout of the monastic church.
+The location of the burial vaults on top of the vaults of the undercroft chapel testify about a
+unique technical solution in the specific built circumstances of Padise monastery.
+    Abundant finds of the post-monastic period – glazed redware pipkins, glazed and painted
+redware bowls, various painted and unpainted faience, clay pipes, painted china, Duingen
+
+⁹ According to Endel Varep, Robert Elfenbein produced glass on Wismari (Vaestekooli) Street in 1861. However, the local newspapers from the
+period mark Tartu Road 752A (now on the corner of Lastekodu and Odra Streets) as the site of the factory (Revalsche Zeitung 15.11.1863, 4;
+Varep 1962, 203).
+160                                                                     Villu Kadakas, Monika Reppo and Paul Ööbik
+
+
+and Westerwald stoneware, ceramic mineral water bottles, red brick floor tiles, various glazed
+stove tiles – enrich the knowledge about the everyday life and interiors of the manor period.
+A number of fragments from medieval Siegburg and Westerwald stoneware drinking vessels
+and three glass beaker fragments enable limited conclusions of the household of the monks.
+
+ACKNOWLEDGEMENTS
+The authors are most grateful to Heli Nurger, Leemet Vaikmaa and Veljo Männiste who facil-
+itated the fieldwork in various ways as representatives of the municipality, to architect Mart
+Keskküla for various professional advice and discussions, to Kaur Lillipuu and to several BA
+students of the Estonian Academy of Arts for generous assistance during fieldwork. This arti-
+cle was supported by the research grant TF2119 of Tallinn University.
+
+
+
+
+REFERENCES
+Alttoa, K. 2012a. Kärkna tsistertslaste klooster.             Kadakas, V. 2012a. 2010.–2011. aasta väljakaevami-
+   Kärknan sisterssiläinen luostari. – Padise ja Vantaa.         sed Padise kloostri klausuuris. Vuosien 2010–2011
+   Keskaja sild Padise ja Vantaa vahel. Keskiajan                kaivaukset Padisen luostarin klausuurissa. – Padise
+   silta Padisen ja Vantaan välillä. Ed. by E. Russow.           ja Vantaa. Keskaja sild Padise ja Vantaa vahel.
+   Padise, 33–50.                                                Keskiajan silta Padisen ja Vantaan välillä. Ed. by
+Alttoa, K. 2012b. Padise kloostri ehitusloo probleeme.           E. Russow, Padise, 81–116.
+   Padisen luostarin rakennushistorian ongelmia. –            Kadakas, V. 2012b. Archaeological studies in Padise
+   Padise ja Vantaa. Keskaja sild Padise ja Vantaa               monastery. – AVE, 2011, 57–82.
+   vahel. Keskiajan silta Padisen ja Vantaan välillä.         Kadakas, V. 2015a. Padise Monastery. – The Heritage of
+   Ed. by E. Russow. Padise, 63–80.                              Padise. Padise, 10–23.
+Alttoa, K., Keskküla, M. & Keskküla, L. 2012. Padise          Kadakas, V. 2015b. Usage of water in the fortified
+   kloostrivaremete ehituslik minevik ja tulevik.                monastery of Padise. – Castella Maris Baltici, XI.
+   Padisen luostarin raunioiden rakennustekninen                 Proceedings of a symposium held in Malmö,
+   menneisyys ja tulevaisuus. – Padise ja Vantaa.                Sweden, on the 27th of May to the 2nd of June
+   Keskaja sild Padise ja Vantaa vahel. Keskiajan                2012. Ed. by A. Gutehall, A. Ödman & Ch. Ödman.
+   silta Padisen ja Vantaan välillä. Ed. by E. Russow.           Archaeologia Medii Aevi Finlandiae, XX, Malmöfynd,
+   Padise, 149–180.                                              22. Malmö, 113–122.
+Beaulah, G. K. 1993. Thirteenth century square-tile           Kadakas, V. 2015c. Arheoloogiline uuring Väike-Pakri
+   mosaic pavements at Cistercian houses in Britain. –           kiriku varemes. Tallinn. (Manuscript in MA.)
+   Studies in Cistercian art and architecture. Vol. 4.        Kadakas, V. 2017. Archaeological studies in the church
+   Ed. by M. P. Lillich. Cistercian Studies Series, 134,         of Haljala. – AVE, 2016, 109–130.
+   1–14.                                                      Kadakas, V. & Väisänen, R. 2012. Padise tsistertslaste
+Brotze, J. Chr. 2006. Estonica. Ed. by A. Hein,                  kloostri ning Gubbacka ja Mårtensby asulakoha
+   I. Leimus, R. Pullat & A. Viires. Tallinn.                    keraamikaleidudest. Padisen sisterssiläisluos-
+Butler, L. 1993. Cistercian abbots’ tombs and abbey              tarin sekä Gubbackan ja Mårtensbyn kylätonttien
+   seals. – Studies in Cistercian art and architecture.          keramiikalöydöistä. – Padise ja Vantaa. Keskaja sild
+   Vol. 4. Ed. by M. P. Lillich. Cistercian Studies Series,      Padise ja Vantaa vahel. Keskiajan silta Padisen ja
+   134, 78–89.                                                   Vantaan välillä. Ed. by E. Russow. Padise, 325–352.
+Gaud, H. & Leroux-Dhuys, J.-Fr. 2006. Cistercian              Kadakas, V. & Ööbik, P. 2019. Uuringud Padise
+   Abbeys. History and architecture. Cologne.                    kloostris. – Tutulus, 2019, 54–55.
+Guleke, R. 1896. Alt-Livland. Mittelalterliche Baudenk-       Kinder, T. N. 2002. Cistercian Europe. Architecture of
+   mäler Liv-, Est-, Kurlands und Oesels, Folge III.             contemplation. Grand Rapids-Cambridge.
+   Leipzig.                                                   Leimus, I., Kiudsoo, M. & Haljak, G. 2018. Sestertsist
+Johansen, P. 1951. Nordische Mission, Revals                     sendini. 2000 aastat raha Eestis. Tallinn.
+   Gründung und die Schwedensiedlung in Estland.              Lõugas, L., Maldre, L., Tomek, T. & Kadakas, V. 2012.
+   Kungl. Vitterhets historie och antikvitets akademiens         Archaeozoological evidence from the Padise monas-
+   handlingar, Del 74. Stockholm.                                tery. – AVE, 2011, 83–92.
+Archaeological Fieldwork in Estonia 2019, 147–162                                                                161
+
+
+Mänd, A. 2019. Keskaegsed altarid ja retaablid. Eesti       Russwurm, C. 1855. Eibofolke oder, Die Schweden an
+   kirikute sisustus, 4. Tallinn.                              den Küsten Ehstlands und auf Runö: eine historisch-
+Raam, V. 1958. Padise klooster. Падизеский                     ethnographische von der Kaiserlichen Akademie der
+   монастырь. Padise monastery. Tallinn.                       Wissenschaften zu St. Petersburg mit einem demi-
+Raam, V. 1988. Padise klooster. – Harju rajooni ajaloo-        dowschen Preise gekrönte Untersuchung. Reval.
+   ja kultuurimälestised. Ed. by E. Vainu. Tallinn,         Söderbäck, P. 1940. Rågöborna. Nordiska Museets
+   53–67.                                                      Handlingar, 13. Stockholm.
+Raam, V. & Zobel, R. 1957. Aruanne end. Padise              Tamm, J. 2002. Eesti keskaegsed kloostrid. Tallinn.
+   kloostri objektil 1954.–56. a. teostatud töödest.        Tamm, J. 2010. Padise klooster. Ehitus- ja uurimislugu.
+   Köide I. Dokumentatsioon ja ehitusalased tööd.              Tallinn.
+   Tallinn. (Manuscript in MA.)                             TÜKAF = Photo collection of art history of the
+Revalsche Zeitung 1863. Bekanntmachungen, 15.11, 4.            University of Tartu. Available online: https://dspace.
+Ridbeck, H. 2005. Padise läbi aegade: kodulooraamat.           ut.ee/handle/10062/34121 (last accessed 22.09.2020.)
+   Tallinn.                                                 Tuulse, A. 1942. Die Burgen in Estland und Lettland.
+Rodwell, W. 2012. The archaeology of churches.                 Õpetatud Eesti Seltsi Toimetused, XXXIII. Dorpat.
+   Amberley.                                                Untermann, M. 2001. Forma Ordinis. Kunstwissen-
+Russow, E. 2006. Importkeraamika Lääne-Eesti linna-            schaftliche Studien, 89. München, Berlin.
+   des 13.–17. sajandil. Tallinn.                           Varep, E. 1962. Klaasitööstusest Eestis. Peatükk Eesti
+                                                               loodusvarade kasutamise ajaloost. Eesti Loodus, 4,
+                                                               199–204.
+
+
+
+ARHEOLOOGILISED UURINGUD PADISE KLOOSTRIS
+Villu Kadakas, Monika Reppo ja Paul Ööbik
+
+2020. a kevadel keskaegse Padise kloostri varemetes         tati välja ja uuriti mitmeid enamasti 19. sajandil laotud
+avatud külastuskeskuse ja selle ekspositsiooni loo-         põrandaid (jn 2). Need on laotud nii paest kui ka eri-
+miseks toimusid 2018.–2019. aastal uuringud, mis            neva kujuga telliskividest, sealhulgas ruudukujulis-
+olid enamasti seotud sillutiste, põrandate, kaablite        test keraamilistest põrandaplaatidest, millest osa võib
+ja torustike paigaldamisega. Hoolimata töö vähesest         pärineda kloostri ajast. Mõne ruumi vabakujulistest
+mahust saadi mitmesugust informatsiooni nii kloostri        paeplaatidest põrandas dokumenteeriti ka puidust
+kui ka hilisema mõisa ajajärgu kohta. Klausuuri ja          vaheseinte jäljed. Põrandate hiline ehitusaeg näitab,
+18. sajandil rajatud mõisahoone vahel laiuva ida-ees-       et keldriruume kasutati intensiivselt veel 19. sajandil,
+hoovi kohta (jn 1) oli seni teadmisi väga vähe. Oletuste    ilmselt laoruumidena.
+järgi ümbritses kindlustatud klausuuri keskajal ka              Keldritest väärib enim tähelepanu kiriku idaosa
+idaküljel vallikraav, kuid 2010.–2011. aasta väliuurin-     alla rajatud kelderkabel ehk krüpt, kust leiti kahe
+gutel selgus, et vahetult klausuuri ääres seda ei olnud.    u 2 × 1,37 m suuruse kivialtari vundamendid (jn 3: 1).
+2019. a avastati ida-lääne suunalise torukraavi profiilis   Altarite mõõdud klapivad peaaegu täpselt naabruses,
+u 4 m sügavune ja vähemalt 15 m laiune kinni aetud          Väike-Pakri saarel II maailmasõjani seisnud puu-
+vallikraav ligikaudu 7 meetri kaugusel klausuurist.         kabeli keskaegse altariplaadiga. Avastus kinnitab
+Avastuse järgi võib oletada, et keskajal piirnes klau-      varasemat oletust, et Väike-Pakri kabeli altariplaat
+suuri idatiib kitsa, u 7 m laiuse eeskaitsealaga. Selle     paiknes algselt Padise kloostris. Dokumenteeriti ka
+võimalike kaitseehitiste kohta andmeid ei saadud.           kahe altari vahel kuni 20. sajandi keskpaigani asunud
+Eeskaitsealale pääses arvatavasti väravakompleksi           sekundaarse vaheseina vundament (jn 3: 2). Ei ole või-
+kaudu (jn 1: 15), mille jäänused avastati suurtükitorni     matu, et sein pärines algsel kujul kloostriajast, eral-
+idaküljel 2010.–2011. a välitöödel. Vallikraavi põhjast     dades kahe altari ümbruse kabeliteks. Krüpti põranda
+leiti vähemalt ühe ruumi ja trepiga kivist hoone jää-       alt avastati üks ilma hauakastita inimluustik, kuid
+nus (jn 1: 16). Selle hävingut võib oletamisi seostada      seda lähemalt ei uuritud (jn 3: 3).
+1766. aastal toimunud põlenguga. Tolleaegne omanik,             Peakorrusel saadi kõige tähelepanuväärsemaid
+Thomas von Ramm on tules hävinud hoonete hulgas             tulemusi kiriku põranda uurimisel (jn 4–6). Varem oli
+nimetanud maja vallikraavi põhjas. Tõenäoliselt täi-        teada, et 1622. aastal endise kloostrivalduse omani-
+deti ka vallikraav lõplikult pärast 1766. aasta põlengut.   keks saanud von Rammide ajal oli kirik vaheseinte ja
+    Enamiku keldriruumide põrandat süvendati                -laega jaotatud paljudeks ruumideks. Puhastati välja
+mõnekümne sentimeetri võrra. Selle töö käigus puhas-        ja dokumenteeriti kahe vaheseina, mantelkorstna,
+162                                                                     Villu Kadakas, Monika Reppo ja Paul Ööbik
+
+
+keldritrepi, kahe kahhelahju vundamendi ja mitmete              Kelderkabelist ja kiriku idaosast saadi samasugu-
+põrandate jäänused (jn 4: 9–13; 5). Kõige tähelepanu-       seid kolme erinevat tooni glasuuritud põrandaplaa-
+väärsem säilinud põrand paikneb kiriku läänevõl-            tide kilde, nagu ka varasematel uuringutel. Tulemus
+vikus ja koosneb 53 × 53 cm suurustest diagonaalis          toetab oletust, et kloostris kasutati neid vaid altarite
+asetatud paeplaatidest (jn 4: 12; 5). Selgus, et see on     ümbruse katmiseks. Suures koguses leiti mitmesu-
+koos külgneva vaheseinaga tõenäoliselt vanem kui            guste varauusaegsete ahjude kahlite kilde (jn 7). Arva-
+von Rammide ajastu. Põranda ladumisel segu sisse            tavasti pärinevad need enamasti peakorrusel paik-
+sattunud 16. sajandi II poole münt osutab, et tõenäo-       nenud ahjudest. Kirikus ja idatiivas leiti ka mõnede
+liselt ehitati see juba 16. sajandi lõpupoolel, Rootsi      ahjude vundamendid. Kahlikildude hulgas on vara-
+kuningamõisa ajajärgul. Läänevõlviku vaheseina              seid, 17. sajandist pärit musta ja rohelise glasuuriga
+ja põranda varase dateeringu alusel saab oletada,           renessanss-stiilis kahleid, kuid enamiku moodusta-
+et kloostrikiriku avarus kaotati järk-järgult: alguses      vad hilisemad, 17.–18. sajandist pärit mitmesuguste
+muudeti eluruumideks vaid selle läänevõlvik, kuid           barokkstiilis kahlite killud. Leiukohad ahjude vunda-
+ülejäänud mahus jäi kirik esialgu püsima.                   mentide läheduses võimaldavad tulevikus konkreet-
+    Ootuspäraselt leiti idaakna lähedalt peaaltari          sete ahjude väljanägemist mingil määral rekonstruee-
+u 1,8 × 2,6 m suurune vundament (jn 4: 6; 6). Ülla-         rida.
+tusena avastati idavõlvikus kolm paekividest laotud             Kokku leiti paarkümmend münti, neist enamik
+keskaegset hauakasti (jn 4: 7; 6). Kivist hauakastid olid   varauusaegsed vaskrahad. Vanimaks osutusid kaks
+kirikutes hilisel keskajal ja varasel uusajal tavapära-     kirikust leitud Saksa ordu nimel Tallinnas 14. sajandi
+sed, kuid Padise omad on unikaalsed selle poolest, et       lõpul või 15. sajandi algusveerandil löödud seestlin-
+need ei ole ehitatud maa sisse, vaid kelderkabeli võl-      gut. Kuna nende kasutamine lõppes 1422/1426. aasta
+vide peale. Kolm kasti on ehitatud ainsatesse tehni-        rahareformiga ning praeguse uurimisseisu järgi ei val-
+liselt võimalikesse kohtadesse – krüpti külgmiste           minud kirik enne 15. sajandi keskpaika, siis on neid
+võlvikandade ja keskpiilari kohale. Mujal ulatuvad          raske seostada kirikus kasutamisega. Raudleidudest
+krüpti võlvid peaaegu kiriku põrandani ning ruumi           väärib tähelepanu ühest idatiiva keldrist leitud kol-
+pole piisavalt. Võib oletada, et hauakastidesse maeti       lektsioon varauusaegseid akna- ja uksedetaile ning
+mõni silmapaistvam kloostri juht – abt – või mõni           tööriistu, millel on tugevad tulekahjustused. Arvata-
+tähtsam annetaja, kuid maetute jäänuseid ei leitud.         vasti pärinevad need 1766. aasta tulekahjust.
+Keskmisest hauakastist leiti ka üks keskaegse klaas-            Ligikaudu tuhandest klaasikillust enamik päri-
+peekri servakatke (jn 8: 3).                                neb varauusajast. Väheste keskaegsete leidude hul-
+    Lisaks rikkalikule varauusaegsele, nn mõisaperi-        gas väärivad tähelepanu 14.–15. sajandi peekrite
+oodi leiumaterjalile saadi ka paarkümmend kloostri          põhja ja serva kild, samuti ühe ribipeekri külje kild
+ajast pärit kivikeraamiliste Siegburgi ja Waldenburgi       (jn 8). Varasest mõisa ajajärgust pärineb suur kogus
+kannude kildu 14. sajandi II poolest ja 15.–16. sajan-      tahmaseid ja tule jälgedega aknaklaasi kilde, mida
+dist. Enamik neist leiti peakorruse ruumide põranda         võib seostada 1766. aasta tulekahjuga. Enamasti on
+alusest liivast, mis on ilmselt juba keskajal toodud        tegemist töötlemata servaga tahvelklaasiga. Osa
+keldriruumide võlvide katmiseks. Kloostriaegseid            neist on retušeeritud servaga tinaraami sisse paigal-
+esemeleide oli varemest seni kokku leitud vaid paar-        damiseks. Varauusaegsetest klaasnõudest saab esile
+kümmend. Nagu ka varasematel uuringutel, moo-               tõsta mõnda kandilise pudeli kildu ja röömeri peekri
+dustas keraamilise leiumaterjali enamiku hilisem,           põhja. Kiriku alustest keldritest leiti suures koguses
+varauusaegne materjal: glasuuritud graapenid, maa-          19. sajandi keskpaigast pärit silindrikujuliste pudelite
+litud kausid, maalitud fajanss, savipiibud, maalitud        kilde, sh nelja Eesti klaasivabriku pudelimärgiga kilde
+portselan, Duingeni kivikeraamika ning mineraal-            (jn 9). Leidmise asjaolud osutavad, et pudelikillud ei
+veepudelid. Uudiseks on mõned Westerwaldi nõude             ole keldrisse veetud prügina, vaid tegemist oli mõisa
+killud.                                                     joogilaoga.
+

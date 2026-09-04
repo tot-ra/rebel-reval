@@ -1,0 +1,8 @@
+{
+  "generator": "merchant_cart_kit_v1",
+  "deterministic": true,
+  "outputs": [
+    "assets/props/trade/merchant_wagon_4w.glb",
+    "assets/props/trade/merchant_barrow.glb"
+  ]
+}

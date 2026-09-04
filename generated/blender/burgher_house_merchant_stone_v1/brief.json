@@ -1,0 +1,37 @@
+{
+  "approval": "task-authorized",
+  "dimensions_m": {
+    "depth": 19.5,
+    "frontage": 9.4,
+    "typical_storeys": 3
+  },
+  "features": {
+    "large_ground_opening": true,
+    "late_gothic_facade": false,
+    "limestone_or_mixed_front": true,
+    "protruding_hoist_beam": true,
+    "raised_cellar_neck": true,
+    "steep_gable_to_street": true,
+    "street_portal": true,
+    "tile_roof_band": true,
+    "upper_loading_hatches": true
+  },
+  "id": "prop.architecture.house.merchant_stone",
+  "kind": "rigid_architecture",
+  "style_refs": [
+    "history/dossiers/architecture/burgher-house-plan.md",
+    "docs/reports/burgher_house_art_brief.md",
+    "docs/ART_BIBLE.md",
+    "docs/MATERIAL_STYLE_LOCK_KIT.md"
+  ],
+  "target": "res://assets/props/architecture/houses/merchant_stone/merchant_stone.glb",
+  "textures": {
+    "albedo": 512,
+    "embedded": true
+  },
+  "tier": "merchant_stone",
+  "triangles": {
+    "max": 9000,
+    "target": 6000
+  }
+}

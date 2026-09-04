@@ -1,0 +1,31 @@
+{
+  "id": "prop.architecture.house.plot_dressing",
+  "target": "res://assets/props/architecture/houses/plot_dressing/plot_dressing.glb",
+  "components": [
+    "CellarNeck",
+    "FirewoodStack",
+    "HoistBeam",
+    "LoadingHatch",
+    "PlotWall",
+    "Privy",
+    "ServantLeanTo",
+    "WattleFence",
+    "WellSweep",
+    "YardGate"
+  ],
+  "merchant_only": [
+    "hoist_beam",
+    "loading_hatch"
+  ],
+  "house_tier_requirement": [
+    "merchant_stone",
+    "merchant_timber"
+  ],
+  "rejected_house_tier": "craft_boda",
+  "historical_basis": [
+    "history/dossiers/architecture/burgher-house-plan.md",
+    "history/dossiers/topography/lower-town-street-plan.md",
+    "history/dossiers/dailylife/hygiene-and-grooming-1343.md"
+  ],
+  "approval": "task-authorized"
+}

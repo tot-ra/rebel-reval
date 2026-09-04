@@ -1,4 +1,6 @@
 extends "res://tests/godot/test_case.gd"
+# RRMap parser fixtures contain statements that must remain on one physical line.
+# gdlint: disable=max-line-length
 
 const EXAMPLE_PATH := "res://tests/fixtures/maps/rrmap_courtyard_example.rrmap"
 
@@ -10,7 +12,7 @@ func test_complete_example_parses_and_compiles_through_blueprint_compiler() -> v
 		return
 	assert_eq(parsed.blueprint.map_id, &"rrmap_courtyard_example")
 	assert_eq(parsed.definition.map_id, &"rrmap_courtyard_example")
-	assert_eq(parsed.definition.buildings.size(), 3) # House plus two wall fragments.
+	assert_eq(parsed.definition.buildings.size(), 3)  # House plus two wall fragments.
 	assert_eq(parsed.definition.props.size(), 2)
 	assert_eq(parsed.definition.get_meta("player_spawn_id"), &"spawn.main")
 	assert_eq(parsed.definition.source_references, ["docs/MAP_AUTHORING.md"])
@@ -73,7 +75,9 @@ spawn spawn.main 2 2
 	assert_true(parsed.is_ok(), str(parsed.formatted_diagnostics()))
 	if not parsed.is_ok():
 		return
-	assert_eq(parsed.definition.props[0].get("style_variant"), MapTypes.LIGHTING_VARIANT_ARTISAN_TALLOW)
+	assert_eq(
+		parsed.definition.props[0].get("style_variant"), MapTypes.LIGHTING_VARIANT_ARTISAN_TALLOW
+	)
 	var canonical := MapRrmapParser.canonical_print(parsed.blueprint)
 	assert_true("style_variant=artisan_tallow" in canonical)
 	var reparsed := MapRrmapParser.parse(canonical, "res://lighting_variants.canonical.rrmap")
@@ -122,6 +126,35 @@ spawn spawn.main 12 12
 	var reparsed := MapRrmapParser.parse(canonical, "res://elevated.canonical.rrmap")
 	assert_true(reparsed.is_ok(), str(reparsed.formatted_diagnostics()))
 	assert_eq(reparsed.definition.ground_elevation, 2.8)
+
+
+func test_elevation_profiles_parse_compile_and_round_trip() -> void:
+	var source := """rrmap 1
+map elevation_profiles loc.elevation_profiles 24 24 grass
+grade slope south -0.1
+elevation_area plateau 12 12 6 2.8 falloff=1.5
+elevation_ramp descent 12 12 18 12 2.8 0.0 width=3
+spawn spawn.main 4 4
+"""
+	var parsed := MapRrmapParser.parse(source, "res://elevation_profiles.rrmap")
+	assert_true(parsed.is_ok(), str(parsed.formatted_diagnostics()))
+	if not parsed.is_ok():
+		return
+	assert_eq(parsed.definition.elevation_profiles.size(), 3)
+	assert_eq(parsed.definition.elevation_profiles[0]["direction"], Vector2i.DOWN)
+	assert_eq(parsed.definition.elevation_profiles[0]["delta"], -0.1)
+	assert_eq(parsed.definition.elevation_profiles[1]["center"], Vector2i(12, 12))
+	assert_eq(parsed.definition.elevation_profiles[1]["falloff"], 1.5)
+	assert_eq(parsed.definition.elevation_profiles[2]["end"], Vector2i(18, 12))
+	assert_eq(parsed.definition.elevation_profiles[2]["width"], 3.0)
+	var canonical := MapRrmapParser.canonical_print(parsed.blueprint)
+	assert_true("grade slope south -0.1" in canonical)
+	assert_true("elevation_area plateau 12 12 6 2.8 falloff=1.5" in canonical)
+	assert_true("elevation_ramp descent 12 12 18 12 2.8 0 width=3" in canonical)
+	var reparsed := MapRrmapParser.parse(canonical, "res://elevation_profiles.canonical.rrmap")
+	assert_true(reparsed.is_ok(), str(reparsed.formatted_diagnostics()))
+	if reparsed.is_ok():
+		assert_eq(reparsed.definition.elevation_profiles, parsed.definition.elevation_profiles)
 
 
 func test_decal_statements_round_trip_kinds_radius_and_rotation() -> void:
@@ -181,7 +214,9 @@ spawn spawn.main 2 2
 	assert_eq(diagnostic.line, 2)
 	assert_eq(diagnostic.column, 29)
 	assert_eq(diagnostic.code, &"invalid_integer")
-	assert_true(diagnostic.format().begins_with("res://bad/malformed.rrmap:2:29: error[invalid_integer]:"))
+	assert_true(
+		diagnostic.format().begins_with("res://bad/malformed.rrmap:2:29: error[invalid_integer]:")
+	)
 
 
 func test_unknown_commands_and_fields_cannot_execute_code() -> void:
@@ -198,11 +233,15 @@ building house house 3 3 2 2 script=res://malicious.gd
 
 
 func test_version_zero_requires_explicit_migration_and_future_versions_are_rejected() -> void:
-	var old := MapRrmapParser.parse("rrmap 0\nmap old loc.old 8 8 grass\nspawn spawn.main 1 1\n", "old.rrmap")
+	var old := MapRrmapParser.parse(
+		"rrmap 0\nmap old loc.old 8 8 grass\nspawn spawn.main 1 1\n", "old.rrmap"
+	)
 	assert_false(old.is_ok())
 	assert_true(_has_code(old, &"version_migration_required"))
 	assert_true(old.formatted_diagnostics()[0].contains("migrate the header to 'rrmap 1'"))
-	var future := MapRrmapParser.parse("rrmap 2\nmap future loc.future 8 8 grass\nspawn spawn.main 1 1\n", "future.rrmap")
+	var future := MapRrmapParser.parse(
+		"rrmap 2\nmap future loc.future 8 8 grass\nspawn spawn.main 1 1\n", "future.rrmap"
+	)
 	assert_false(future.is_ok())
 	assert_true(_has_code(future, &"unsupported_version"))
 

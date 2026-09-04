@@ -1,0 +1,708 @@
+Archaeological Fieldwork in Estonia 2019, 177–188
+
+
+
+
+Excavations at the Great Coastal Gate of Tallinn
+Monika Reppo
+    OÜ Agu EMS, Roosikrantsi 17, 10119 Tallinn, Estonia; monikareppo@gmail.com
+
+
+Villu Kadakas
+    Tallinna Ülikool, humanitaarteaduste instituut, ajaloo, arheoloogia ja kunstiajaloo keskus
+    (Tallinn University, School of Humanities, Institute of History, Archaeology and Art History), Uus-Sadama 5,
+    10120 Tallinn, Estonia
+
+
+
+
+INTRODUCTION
+In 2017–2019, archaeological research was undertaken in the premises of the former Great
+Coastal Gate, during the renovation of the Estonian Maritime Museum, which encompasses
+the Late Medieval cannon tower known as Fat Margaret and its yard (Fig. 1). In addition to
+construction work within Fat Margaret, new premises for the museum were built in the yard.
+This led to the discovery of several medieval and post-medieval structures, related to the
+medieval defence complex and the Early Modern warehouse, barracks and prison. In this
+article, an overview of the results is given with a focus on the 14th–18th century.¹
+    From the Middle Ages until today the Great Coastal Gate has been one of the most impor-
+tant gates of the lower town – the main exit towards the harbour. The gate was built on a
+sandstone cliff, which is located ca. 5–8 m higher (11–12 m a.s.l.) than the surrounding areas
+of the historical harbour to the north and east. Today the main town wall survives on the
+southern side of the museum yard together with a tower (called Stolting tower) on the sharp
+north-eastern corner of the town wall (Fig. 1: G). Also, the gatehouse of the barbican survives
+together with two adjoining towers – a slender round tower on its western and a huge cannon
+tower Fat Margaret on its eastern corner (Fig. 1: E, H). The tower of the main gate and the side
+walls of the barbican were demolished in ca. 1780 (Fig. 1: B–D; Zobel 2008, 140).
+    Previous archaeological field studies have been limited. In 1924 the foundation of the
+main gate tower and another foundation which was interpreted as remains of the ‘second
+gate’, i.e. the first barbican were partly uncovered in a cable trench (Plaesterer 1925). In the
+late 1970s several test pits were dug to study the foundations of Fat Margaret (Reppo et al.
+2019, 24). Then the soil under Fat Margaret, also in some parts of the yard was removed with-
+out archaeological survey, so that in these areas in 2017–2019 it was possible to study only
+the foundations. In 1979 a wall, situated crosswise to the street was discovered, recorded and
+demolished under the former guardhouse between Pikk Street and the yard of the museum
+(Tamm 1979, 24). Although no contextual finds were uncovered, it was surmised that the wall
+was built in the 17th century.
+    The geophysical survey carried out in 2016 (Tõnisson & Orviku 2016) showed that the yard
+is scattered with various structures. A preliminary excavation followed in January 2017 to
+
+¹ A more detailed overview of the fieldwork results was recently published in Estonian (Reppo et al. 2019).
+178                                                                                                           Monika Reppo and Villu Kadakas
+
+
+study the foundations of the 19th century building in the southern part of the yard and the
+eastern wall of the yard, the former outwork (Germ. der Zwinger) wall (Reppo 2017a). Another
+preliminary excavation was carried out from February to May 2017 with three trenches to
+study the foundations of Fat Margaret, the central part of the outwork wall and the Stolting
+tower inside the yard building (Reppo 2017b). This was followed by archaeological excava-
+tions on an area of 175 m² in the yard and the 19th century building from June to July 2017.
+
+                         0               10m
+                                                                                         N
+                               I
+
+  0        500 m
+
+                                                           H
+                     E
+                               D           F
+                                                                                                              preserved
+                                                                                                              preserved medieval fortifications
+                                                                                                                         medieval fortifi cations //
+                                                                                                              säilinud
+                                                                                                              säilinud keskaegsed
+                                                                                                                       keskaegsed kindlusmüürid
+                                                                                                                                   kindlusmüürid
+
+                                                                                                              preserved
+                                                                                                              preserved post-medieval
+                                                                                                                         post-medieval buildings
+                                                                                                                                        buildings //
+                                          Q                                                                   säilinud
+                                                                                                              säilinud keskaja
+                                                                                                                       keskaja järgsed
+                                                                                                                               järgsed hooned
+                                                                                                                                       hooned
+
+                                                                                                              reconstruction
+                                                                                                              reconstruction of
+                                                                                                                             of post-medieval
+                                                                                                                                post-medieval walls
+                                                                                                                                              walls //
+                                                                                                              keskaja
+                                                                                                              keskaja järgsete
+                                                                                                                      järgsete müüride
+                                                                                                                                müüride rekonstruktsioon
+                                                                                                                                        rekonstruktsioon
+                         C
+                                                                                                              veiled
+                                                                                                              veiled post-medieval
+                                                                                                                     post-medieval walls
+                                                                                                                                    walls //
+                                                           O                                                  varjatud
+                                                                                                              varjatud keskaja
+                                                                                                                       keskaja järgsed
+                                                                                                                               järgsed müürid
+                                                                                                                                       müürid
+                                     P
+                                                                         J                                    reconstruction
+                                                                                                              reconstruction of
+                                                                                                                             of medieval
+                                                                                                                                medieval walls
+                                                                                                                                         walls //
+                                                                                                              keskaegsete
+                                                                                                              keskaegsete müüride
+                                                                                                                           müüride rekonstruktsioon
+                                                                                                                                    rekonstruktsioon
+
+                                                                                                              veiled
+                                                                                                              veiled medieval
+                                                                                                                     medieval walls
+                                                                                                                              walls //
+                                                             N                                                varjatud
+                                                                                                              varjatud keskaegsed
+                                                                                                                       keskaegsed müürid
+                                                                                                                                    müürid
+
+                                                                                                               medieval walls found in 2017–2019 /
+                                                                                                               2017.–2019. a leitud keskaegsed müürid
+
+                                                                                                               2017–2019 excavation area /
+   A                                                                                                           2017–2019 kaevatud ala
+             B                                          M
+                                               L
+                                                                                                               lower cobblestone pavement 16th c /
+                                A                                                                              alumine munakivisillutis 16. saj
+
+                                                       G                                                       upper cobblestone pavement 17th c /
+        preserved medieval fortifications/                                                                      ülemine munakivisillutis 17. saj
+        säilinud keskaegsed kindlusmüürid                                    K
+        preserved post-medieval buildings/                                                                      post-medieval walls found in 2017–2019 /
+        säilinud keskaja järgsed hooned               A                                                         2017.–2019. a leitud keskaja järgsed müürid
+        reconstruction of post-medieval walls/
+        keskaja järgsete müüride rekonstruktsioon       2017-2019 excavation area/
+Fig. 1. Great    Coastal Gate
+        veiled post-medieval  walls/ complex: research2017-2019
+        varjatud keskaja järgsed müürid
+                                                          resultskaevatud
+                                                                    (2017–2019).
+                                                                             ala
+                                                                                         A – town’s curtain wall, B – main gate tower, C – gate
+                                                       lower cobblestone pavement 16th c/
+   of the fi   rst of
+                   barbican,
+        reconstruction    medievalD   – gate of the second
+                                    walls/             alumineand   third 16.barbicans,
+                                                               munakivisillutis     saj        E – western tower of the second and third barbi-
+   cans,     F – eastern
+        keskaegsete           tower of the second upper
+                     müüride rekonstruktsioon        barbican,      G – pavement
+                                                             cobblestone   Stolting     tower, H – Fat Margaret cannon tower, I – gate of the
+                                                                                     17th c/
+        veiled medieval walls/
+   fourth    barbican,
+        varjatud keskaegsedJ –   eastern wall of the museum
+                             müürid                               yard, K – cistern from the 1825 plan, L – storeroom on the 1858 plan,
+                                                       ülemine munakivisillutis 17. saj
+                                                       post-medieval walls found in 2017-2019/
+   M –medieval
+          toilet on
+                  wallsthe   1858
+                        found in    plan, N – bakery on
+                                 2017-2019/                the a1858
+                                                       2017.-2019.       plan,
+                                                                     leitud      O–
+                                                                            keskaja     kitchen
+                                                                                    järgsed  müürid on the 1858 plan, P – guard house, Q – prison
+        2017.-2019. a leitud keskaegsed müürid
+   house from 1884. Excavated built elements: 1 – water channel, 2 – first outwork wall, 3 – posthole, 4 – fragment of
+   the eastern tower of the second barbican, 5 – second outwork wall, 6 – fragment of an unknown structure, 7 – third
+   outwork wall, 8 – embrasure, 9 – lower pavement, 10 – tunnel, 11 – upper pavement, 12 – foundation of supposed
+   timber house, 13 – cesspit of the prison.
+Jn 1. Suure Rannavärava kompleks: uuringute tulemused (2017–2019). A – linnamüür, B – värava peatorn, C – I ees-
+   värav, D – II ja III eesvärav, E – II ja III eesvärava läänetorn, F – II eesvärava idatorn, G – Stoltingi torn, H – suur-
+   tükitorn Paks Margareeta, I – IV eesvärav, J – muuseumi hoovi idamüür, K – 1825. a plaanil kujutatud paak, L – lao-
+   ruum 1858. a plaanil, M – käimla 1858. a plaanil, N – pagaritöökoda 1858. a plaanil, O – köök 1858. a plaanil,
+   P – vahimaja, Q – 1884. a ehitatud vanglahoone. Välja kaevatud ehituselemendid: 1 – veekanal, 2 – I eeskaitsemüür,
+   3 – postiauk, 4 – II eesvärava idatorni jäänus, 5 – II eeskaitsemüür, 6 – tundmatu ehitise müür, 7 – III eeskaitse-
+   müür, 8 – laskeava, 9 – alumine sillutis, 10 – tunnel, 11 – ülemine sillutis, 12 – oletatava puithoone vundament,
+   13 – vangla jäätmekast.
+Drawing / Joonis: Monika Reppo, Villu Kadakas
+Excavations at the Great Coastal Gate of Tallinn                                                                                        179
+
+
+The final part of the archaeological research, the survey, was carried out from July 2018 to
+November 2019 (Reppo 2017c).²
+
+HISTORICAL BACKGROUND
+The first town wall of Tallinn was built on the order given in the 1260s and 1280s by Margaret
+Sambiria, queen dowager of Denmark, the ruler of the Duchy of Estonia, and his son Erik V,
+king of Denmark. It is not clear, if it encompassed the northern end of the lower town.
+According to the main researcher of Tallinn’s medieval defence structures – architect Rein
+Zobel – the first town wall near the Great Coastal Gate was built in this period already (Zobel
+2008, 89–92). According to later researchers, there is no evidence to support this opinion,
+and it cannot be excluded that the northern part of the lower town was encompassed with a
+town wall only in the first half of the 14th century (Mäll & Kadakas 2002, 421–424; see also:
+Russow 2010, 703–704). A low curtain wall with a gate opening existed there by the middle of
+the 14th century at the latest. According to Zobel, the main gate tower in its initial form was
+probably built from 1311 to 1340. The Coastal Gate first appears in writing in 1359 (L. Germ.
+Strandporte) (Zobel 1980, 59). A small rectangular tower was built very early at the sharp
+north-eastern corner of the town wall, on the edge of the sandstone cliff – the location of the
+later Stolting tower. It probably had an additional function – a guard point for the harbour
+(Zobel 2008, 92). In about 1400 it was replaced with a high round watchtower Stolting, which
+survives today (Zobel 2014, 163–165).
+    Although without material evidence, based on the analysis of historical ground plans and
+evidence from other gates of Tallinn, Zobel speculated that the gate tower was equipped with
+an outwork – the first barbican – in the second half of the 14th century. He dismissed the pre-
+vious interpretation of a foundation as remains of the ‘second gate’, i. e. the first barbican by
+Plaesterer as erroneous. Zobel identified the extent of the first barbican, 1/3 shorter than the
+final one, based on the change of the alignment of the western side wall on historical plans
+(Fig. 1: C; Zobel 2014, 126–127). Based on the town’s account books, Zobel has supposed that
+the second barbican – the extension of the old one – was built from 1434 to 1448 (Zobel 2014,
+215–217).
+    The second barbican had two towers – only the rectangular base and the lower half of the
+western tower has been preserved (Fig. 1: D–F). It was later integrated into the third barbican.
+Whilst carrying out his surveys, Rein Zobel discovered a 4.9 m wide and 60 cm deep ditch in
+front of the barbican gate and interpreted it as a moat. This led him to conclude that the sec-
+ond barbican had a drawbridge and that its gateway was narrower than the later one (Zobel
+2014, 215–217). The latter hypothesis was set under question in 2008 when no remains of a
+narrower gate were discovered (Nurk 2008, 5).
+    In 1518–1529, the barbican complex was completely reconstructed. According to Zobel, the
+two towers of the second barbican were demolished, except the bottom part of the western
+one, and instead of the small eastern tower, a huge cannon tower was built (Fig. 1: H), called
+at first ‘the new tower’, but known since the 19th century as Fat Margaret. The cannon tower
+was finally completed in 1531 with the installation of windows, weathervanes, gutters and
+other details (Zobel 1980, 233, 247). Without fieldwork evidence Zobel has supposed that the
+thin eastern wall of the former outwork was replaced with a much thicker (3 m) wall, and so
+the third outwork (Germ. der Zwinger) was formed (Fig. 1: 7; Zobel 1980, 241–242).
+
+² Some trenchwork was carried out on the northern outer perimeter of Fat Margaret in the spring of 2019 surveyed by archaeologist Gurly Vedru
+(MTÜ Arheoloogiakeskus). These results are not included in the article.
+180                                                                Monika Reppo and Villu Kadakas
+
+
+    During the Livonian Wars (1558–1583) the Danish and Lübeck fleet bombed the town in
+1569 and the town’s cannons in the Great Coastal Gate complex played an important part
+in the defence (Russow 1584, 67–68). It was followed by an unsuccessful attempt to capture
+the town in the next year by Russian troops (Russow 1584, 74–76). Both attacks most likely
+damaged the Great Coastal Gate but the extent of it is not known. In 1602, the town’s master
+mason Arent Passer designed a new gate, drawbridge and moat in front of the Great Coastal
+Gate by the ‘new tower’, then referred to as Rosencrantz. With the building of the 4th bar-
+bican the complex got a third successive gate. In the 1640–1650s, an earthwork bastion was
+built on the eastern side of the outwork wall and the Rosencrantz tower (Zobel 1980, 269;
+Nurk 2019, 52–53).
+    Probably in about 1730 a guardhouse which survives today, was built for the military per-
+sonnel on the western side of the yard, next to the side wall of the barbican. In 1757, the
+main gate tower was damaged in a fire. It collapsed in 1782 and was demolished soon after
+together with the side walls of the barbican, in order to enable traffic and easier access to
+the storehouses built into the yard of the former outwork. This signifies the end of using the
+complex as a fortification – it was turned into a warehouse for ammunition and later for
+provisions of the admiralty. The storage of provisions is perhaps the reason why the tower
+became known as Fat Margaret. From the 1830s, the cannon tower and the new auxiliary
+buildings started to be used as a prison. In 1857, the fortifications of Tallinn were removed
+from the list of military objects. In the 1870s, the fourth barbican with a drawbridge was de-
+molished. From 1877 to 1899, parts of the complex functioned as military barracks. In 1884,
+a multi-storey prison building was built on the south-western corner of Fat Margaret for the
+barracks (Zobel 1988, 40).
+    The prisoners were liberated during the March Revolution in 1917 and the buildings set on
+fire. The complex fell into disuse for years until Tallinn Town Museum was opened here in
+1940. In 1954 it was given to the Estonian Maritime Museum. Extensive reconstruction work
+was undertaken in the late 1970s (Zobel 1988, 42–44). After the new reconstruction project
+(2017–2019) the museum opened doors to the public in November 2019.
+
+THE RESULTS OF THE RECENT FIELDWORK
+The 13th–14th centuries: the first town wall, gate and barbican
+The oldest structure discovered during the excavations was an underground channel, cov-
+ered and lined with limestone slabs. It ran into the yard from the direction of the first moat
+which surrounded the main curtain wall of the town. This channel was probably built under
+the first barbican and the yard of the first outwork in order to let the water of the moat run
+through under these. The channel exited the yard aslant under the eastern wall (Figs 1: 1; 2).
+Funnelled into the channel, the excess rainwater was carried from the moat and the outwork
+towards the sea. The 73–81 cm wide and 85–110 cm high channel was built into a ditch dug
+into sandstone (Fig. 3). The ca. 60 × 80 cm limestone slabs covering the channel were origi-
+nally probably part of the pavement of the yard, so that rainwater could drain into the chan-
+nel through the gaps between the slabs.
+   A 1 m high fragment of a 125 cm thick limestone wall was discovered on top of the chan-
+nel, positioned crossways to the channel and Pikk Street (Figs 1: 2; 2). This wall has the same
+direction and is very similar to the wall which was discovered and demolished in 1979 (Tamm
+1979, 24). These were probably parts of the same wall. Soil stratification and artefacts do not
+enable to date it. However, based on the stratigraphic sequence of the walls and the general
+Excavations at the Great Coastal Gate of Tallinn                                                   181
+
+
+context of the gate complex, this wall may be
+connected with the hypothetical first barbi-
+can (Zobel 2014, 126; see above). It is aligned
+with the spot where the western side wall of
+the barbican changed its direction, which
+according to Zobel marks the extent of the
+first barbican (Fig. 1: C). The discovered wall
+was probably the northern curtain wall of
+the first outwork (Germ. Zwinger) which was
+built on the eastern side of the first barbican.
+The discovery of this wall is the first mate-
+rial evidence which supports the hypothesis
+of the first barbican. Furthermore, based on
+this discovery, it can be concluded that this Fig. 2. Medieval water channel, first and third outwork.
+first barbican was probably equipped with Jn 2. Keskaegne kanal, I ja III eeskaitsemüür.
+an outwork, a walled enclosure on its eastern Photo / Foto: Paul Ööbik
+side, like the second barbican had later. The
+new field study did not give any information
+which could help to interpret the foundation
+discovered by Plaesterer and interpreted as
+remains of the ‘second gate’, i.e. the first bar-
+bican in 1924. It could have been e.g. part of a
+bridge structure above the moat.
+    The eastern end of the discovered wall
+disappears into the yard’s eastern wall, so
+that its continuation cannot be followed
+(Figs 1–2). Based on general context, it can
+be supposed that the curtain wall of the first
+outwork turned abruptly south here and fol-
+lowed the course of the current wall south-
+wards, but is hidden within it as its earliest
+building stage. Unfortunately, no informa-
+tion about the building time of the first barbi-
+can and the first outwork could be obtained.
+Also, no information was discovered about Fig. 3. Internal view of the drainage channel towards the
+the demolition time of the wall – if it was de-       harbour.
+                                                  Jn 3. Kanali sisevaade sadama suunas.
+molished right after the construction of the Photo / Foto: Monika Reppo
+second barbican with the second, larger out-
+work, or if the wall remained in use for much longer, dividing the outwork into two areas.
+However, based on general context, some conclusions about the end of use of the water chan-
+nel can be made. It was probably in use until the moat on the western side of the barbican
+was filled. Based on the historical plans, it can be supposed that the moat was probably not
+filled before the building of the Skåne bastion. It took place in 1685–1706 (Nurk 2019, 58–60).
+Only clean silty sand had deposited on the bottom of the channel (Fig. 3, lowest layer). A
+sherd of yellow-glazed whiteware and a sherd of unglazed redware (AI 7738: 174, 175) which
+could be collected from it, are not in contradiction with the proposed end of its use.
+182                                                                   Monika Reppo and Villu Kadakas
+
+
+   A small embrasure-like splayed window was discovered in the eastern part of the wall
+directly on ground level on the southern side on its eastern end (Figs 1: 8; 2). The 18 cm wide
+loop faced outside, the north, but curiously only ca. 20 cm above the cover slabs of the chan-
+nel. It seems as if there was a deep shooting position or a basement room in the north-eastern
+corner of the first outwork. However, the area directly south of the loophole could not be
+studied, in order to preserve and expose the walls and pavements within the museum exhi-
+bition. This sharp corner of the town defence system was a vulnerable spot and therefore an
+extra fortification would be expectable. It is possible that this corner of the first outwork was
+fortified with a similar non-flanking small tower as there was on the north-eastern corner
+of the main curtain wall, on the spot of the later round tower Stolting. However, the small
+window is the only indication of such a hypothetical building and the exact function of the
+window remains unclear.
+
+The 15th century: the second barbican and outwork
+Only one of the discovered wall fragments could be brought into connection with the hypo-
+thetical outwork of the second barbican. A 1.6 m long fragment of a ca. 1 m thick wall was
+discovered inside the western foundation of Fat Margaret (Fig. 1: 5). Based on this fragment
+it can be estimated that the wall was positioned perpendicular to Pikk Street, i.e. the gate
+passage. The wall has lost its extent towards east. However, a vivid robber trench of this wall
+could be recorded in the natural sand, quite on the line where Zobel had supposed. Nothing
+was discovered of the eastern wall of the second barbican. It is probably running hidden
+within the eastern wall of the yard and the tower of Fat Margaret (Fig. 1: J).
+    Another, but very small fragment of an older wall was recorded on the inner side of the
+western foundation of Fat Margaret. It has a straight edge preserved on its eastern side but
+shows marks of demolition on its northern side. Based on Zobel’s reconstruction of the sec-
+ond barbican, it can be supposed that this fragment belongs to the quadrangular bottom part
+of the demolished eastern tower of this second barbican (Fig. 1: F, 4; see above). The third
+wall fragment was recorded within the western foundation of Fat Margaret, running in par-
+allel to the gate passage (Fig. 1: 6). We have been unable to identify the function of this third
+fragment. This must have belonged to an unknown structure which existed in front of the
+second barbican before building Fat Margaret, but nothing else can be said about it. After the
+excavations the foundations of Fat Margaret were reinforced with concrete, but the fragment
+of the northern wall of the second outwork was exposed in the museum exposition.
+    At the foot of Stolting tower, a very large posthole (Fig. 1: 3) with the diameter of 64 cm and
+depth of 120 cm was uncovered. The hole was about 60 cm away from the tower foundation
+and 80 cm from the tower wall. It had been dug into sandstone. According to Zobel Stolting
+was built at the very end of the 14th century (2014, 163–165). This posthole could then relate
+to construction techniques, i.e. belong to the original scaffolding of the tower. It was also
+established that the footing of Stolting stands very high (+12.55 m) on the very edge of a crum-
+bling sandstone cliff. The upper edge of the sandstone cliff was later covered with additional
+supportive cladding in order to avoid further erosion of the cliff.
+
+The 16th century: the third barbican and outwork with Fat Margaret
+In order to add a new basement floor to the complex, soil from under the Fat Margaret was
+removed. It consisted mostly of various debris, in part deposited during the construction
+work in the Soviet period. This gave a unique opportunity to observe the side surface of the
+Excavations at the Great Coastal Gate of Tallinn                                                 183
+
+
+foundations all around the interior of Fat Margaret. In test pits Zobel had noticed a big dif-
+ference in the depth of different parts of the tower’s foundations (1988, 18). It appears that
+the foundation of the northern part is founded 3 metres deeper than on the western side. It is
+further 4.5 m deeper on the southern side, but gradually rises on the eastern side again. The
+difference of the bottom level of foundations is more than 6 meters, probably caused by the
+sandstone cliff with very uneven surface. A
+broken oval-eyed bone needle (AI 7738: 76),
+15th–16th century glazed redware, stoneware
+and unglazed brick fragments (AI 7738: 68–
+75; Fig. 4) found inside Fat Margaret all came
+from the filling layers which were deposited
+after building the foundations of the tower.
+From the greyish sandy fill of the foundation
+ditch of Fat Margaret, fragments of a late me-
+dieval wooden bowl (AI 7738: 98–100) and a
+wooden utensil, potentially the remains of a
+spoon (AI 7738: 101–106; Fig. 4) were found.
+The edge of the foundation ditch of both
+the outwork wall and inside Fat Margaret
+was fringed with horizontal wooden planks
+which were partially preserved. These ap-
+pear to have aided the process of laying the
+foundation, keeping the soil of the steep side
+of the ditch from caving in. A 30 cm thick
+soot layer was deposited on top of the planks
+which is difficult to connect to any historical                                              0   2 cm
+event. As it was situated underground dur-
+ing the use of the complex, it is possible that
+                                                 Fig. 4. Finds from Fat Margaret.
+it indicates a fire which occurred during the Jn 4. Leiumaterjal Paksust Margareetast.
+building work.                                   (AI 7738: 88–94, 76, 68–75, 3, 98–106.)
+    The inner side of the third outwork wall Photo / Foto: Jaana Ratas
+revealed further evidence of construction
+techniques in the 16th century. Firstly, put-
+log holes (30 × 30 cm) to support scaffolding
+were identified both at foundation level but
+also higher up on the southern end of the
+wall (Fig. 5). Secondly, it appeared that the
+inner half of the width of the wall was demol-
+ished down to the 18th–19th century yard
+level (Figs 1: 7; 2) in order to accommodate
+the auxiliary buildings next to the eastern
+wall of the yard. This had badly damaged the
+embrasures in the wall with only the bottom Fig. 5. Upper pavement and third outwork wall with put-
+                                                     log holes and embrasures.
+part of their niches surviving (Fig. 1: 8). In Jn 5. Ülemine sillutis tellinguaukude ja laskeavadega
+one of them, the traces of a supporting beam         eeskaitsemüüri ees.
+(30 cm thick) for a breach-loading swivel gun Photo / Foto: Monika Reppo
+184                                                                Monika Reppo and Villu Kadakas
+
+
+were visible. It is a clear indicator that by the 16th century, the Great Coastal complex had
+been redesigned to counter significant attacks.
+   There was a manure-rich layer slightly south of the outwork wall which yielded the only
+find complex near the wall. A small collection of orange-glazed and unglazed redware frag-
+ments (AI 7738: 88–93; Fig. 4) were found with a fragment of window glass. The layer is dated
+to the late 15th–16th century. It is probable that the window glass fragment (AI 7738: 94)
+relates to the glazing of the windows during this time. Most of the few archaeological finds
+from the 16th century come from building elements. During the excavations, a worn wooden
+pulley fragment (5.7 × 30 cm, groove 4 cm wide; AI 7738: 176) was discovered in the debris of
+the 20th century near the doorway of Fat Margaret leading to Pikk Street. Based on the find’s
+location next to the medieval portcullis, it might have been a part of the portcullis mecha-
+nism which had survived since the early 16th century until it was destroyed in the fire of 1917
+(Zobel 1988, 18).
+
+The 16th–17th century: pavements and water channel in the yard
+After the construction of the third barbican, a cobblestone pavement was installed in the gate
+court. Only a small part of it was uncovered and studied, because it was superimposed by a
+later, 17th century pavement which was also preserved and exposed. The pavement was laid
+from small uneven cobblestones which formed a gutter with some inclination southwards
+(Figs 1: 9; 6). It led the rainwater into a curved ca. 0.9 m wide channel which exited the yard
+in its south-eastern corner as a passage running under the wall (Fig. 1: 10) tapering off to a
+height of 90 cm under the outer side of the wall.
+   Based on stratigraphy, the lower pavement was probably built in the second half of the
+16th century. Although this pavement continues into the tunnel, the latter is clearly a sec-
+ondary solution regarding the thick eastern wall of the third outwork. The eastern wall of
+the tunnel is built only ca. 1 m away from the curved part of the outwork’s eastern wall. This
+made using some of the embrasures in that wall impossible. The tunnel under the wall is not
+covered with a vault but just runs under the flat lower layer of limestone slabs of the founda-
+tion of the outwork wall. The outmost part of the tunnel, to the east of the outwork wall, is
+covered with reused dressed masonry jambs of barred windows, made of limestone. We have
+no indication what the structure above this tunnel was like in the 17th or 18th century. On
+a plan from 1825 (RGVIA.349.36.2791), an underground cistern is shown directly east of the
+tunnel. Originally the rainwater may have continued its way towards the eastern moat of the
+town in an open channel. The same plan of 1825 depicts a 9-seated lavatory above the tun-
+nel. Obviously, this tunnel functioned then as a latrine box. It cannot be excluded that there
+had been some kind of a lavatory structure on top of it from the beginning. In such a case
+rain and meltwater may have been used to flush the lavatory. The fill included two shovels,
+several 19th century shoes and many rags, further alluding to the end of use of the structure.
+The 10–20 cm thick layer of demolition debris and roof tiles between the two pavements
+can be connected with the renovation work of 1599, known from the written sources, or may
+have accumulated even later (Zobel 1980, 265). The pavement laid on top of it permanently
+blocked access to the tunnel.
+   The upper pavement (Figs 1: 11; 5; 7) is of larger cobblestones than the lower one, laid on
+the debris layer with the help of some patches of sand to level the area. This pavement was
+likely laid after the renovations of 1599. In this period, access of the water into the channel
+described above was blocked. The new pavement also has a gutter running in the middle
+Excavations at the Great Coastal Gate of Tallinn                                                   185
+
+
+(Fig. 5), but it is unknown how the rainwater
+exited the yard. This pavement was also kept
+clean – only a few artefacts were found. From
+a sand patch just below the pavement three
+tobacco pipe fragments (AI 7738: 9–11) were
+found. Three further fragments were found
+from the thin organic-rich layer on top of the
+pavement (AI 7738: 18, 25–26) with glazed
+redware, pipkin and glazed and painted
+redware fragments (AI 7738: 24, 27–30, 33).
+Based on the finds, the pavement was cer-
+tainly used in the second quarter of the 17th
+century. Both pavements and the tunnel are
+preserved largely in situ and are on display in
+the new museum.
+
+The 18th–20th centuries: yard and build-
+ings of warehouse, prison and barracks
+In connection with the 18th century build-
+ing activities – construction of low auxilia-
+                                                   Fig. 6. View of the tunnel towards its southern end.
+ry buildings (see above) – the ground level Jn 6. Tunneli vaade selle lõunaotsa suunas.
+of the yard was raised. An organic-rich soil Photo / Foto: Monika Reppo
+was laid on top of the cobblestone pavement
+probably in the beginning of the 18th centu-
+ry, but no remains of a new pavement of the
+yard were discovered. A 0.5 m high fragment
+of a 45 cm thick foundation (Figs 1: 12; 7), dis-
+covered in the middle of the yard, could be
+connected with a narrow north-south orient-
+ed thin line that exists on a plan from 1738
+already (RGAVMF.3.26.226). The nature of
+this line on the plan of 1738 is not clear, but
+on various later 18th- and 19th-century plans
+(LVVA.6828.4.562; RA, EAA.79.2.281) it coin-
+cides with the façade of a stone house, built
+against the eastern wall of the yard. Probably
+the discovered thin foundation belongs to its Fig. 7. View of the upper pavement, the southern building
+                                                      and the foundations of the eastern building.
+timber predecessor. The 17th–18th-century Jn 7. Vaade ülemisele sillutisele, lõunapoolsele hoonele ja
+finds from the wall’s foundation ditch con-           idapoolse hoone vundamentidele.
+firm its building date. It was replaced with a Photo / Foto: Monika Reppo
+stone one only in the 19th century. Remains
+of the wall which divided the yard into the southern and northern part on the plan of 1738
+and various later plans, could not be discovered, because this area had been disturbed.
+    Although both auxiliary buildings – one in the southern part of the yard and the other
+near the eastern wall – first appear on the town plan from 1793 (LVVA.6828.4.562), it is not
+clear if these were of stone or timber. Both are depicted as stone structures on the plan of 1825
+186                                                                 Monika Reppo and Villu Kadakas
+
+
+(RGVIA.349.36.2791). According to a plan from 1858 the southern building was divided with
+a timber partition wall into a storeroom (Rus. кладовая) and a toilet (Rus. отхожее место)
+and the eastern building with a stone partition wall into a kitchen (Rus. кухня) and a bakery
+(Rus. пекарня) (RA, EAA.79.2.281; see also Fig. 1: L–O). During the excavations, the southern
+part of the western wall of the eastern building was one of the first structures discovered
+(Figs 1; 7). The 90 cm thick wall was preserved up to 100 cm high. Nothing was preserved
+of the northern part of the eastern building (kitchen), except the L-shaped base of a large
+chimney with a fragment with its floor. As it is not depicted on the 1856 plan, it had probably
+been demolished by this time. Among the debris a cast iron cooking stove ring and a smoke
+chute damper, probably from this kitchen were found. A fragment of a worn limestone floor
+from 70 × 70 cm and 70 × 90 cm slabs was discovered inside the former bakery. The limestone
+floor may come from its original warehouse period but the chimneys and oven remains may
+be secondary additions from the prison period.
+    Several brick-lined flues were added for the stoves, some built partly into the embrasures
+in the outwork wall. It cannot be excluded that some of these changes were made even earli-
+er, in the period of the admiralty. As we know, the 9-person lavatory is already in use by 1825
+and the layout of the kitchen building is also the same. The multi-storey auxiliary building
+of the prison from 1884 still stands today but it also appears to have had a latrine, situated
+on its eastern side (Fig. 1: 13), demolished during later reconstructions. The latrine (internal
+measurements 320 × 320 cm) was filled with organic material, kitchen waste and numerous
+everyday items such as glass bottles, ceramic mugs, cups, lamp shades, animal bones with
+cut marks. Two iron shovels were recovered, indicating this cesspit was also emptied manu-
+ally. More than half of the 176 archaeological finds from the excavation are related to the bar-
+racks and prison period, illuminating the everyday life of two institutions within the complex
+which have thus far been understudied.
+
+CONCLUSION
+The excavations in the yard of the Estonian Maritime Museum, the former Great Coastal Gate
+complex have revealed significant new knowledge about the development of the medieval
+fortifications of this part of the town’s defence system. The discovery of an early outwork wall
+is the first material evidence about the existence of the supposed first barbican, which was
+probably built in the 14th century. Also, it proves that a rectangular outwork with a stone cur-
+tain wall was situated next to the barbican, in front of the sharp north-eastern corner of the
+town wall already during the first barbican period, greatly expanding our knowledge of early
+pre-defence areas and gate systems of Tallinn. The discovery of wall fragments which were
+interpreted as remains of the second barbican and outwork offer important evidence, which
+has been very limited. The discovery of a medieval drainage channel and an Early Modern
+paved drainage and sewage tunnel expand our knowledge about the drainage systems of
+both medieval and Early Modern periods in a military building complex. The fragments and
+outwork walls, parts of the channels, and cobblestone pavements have been preserved in situ
+as part of the museum exhibition. Although not much was preserved of the Early Modern and
+Modern structures – warehouse, prison and barracks buildings, this first attempt in Estonia
+to study material remains of such institutions with archaeological methods was successful.
+Discovered structures could be linked with elements depicted on historical plans. The 19th
+and early 20th century household artefacts could be brought into connection with the par-
+ticular institutions and can be used to study the history of these institutions in the future.
+Archaeological Fieldwork in Estonia 2019, 177–188                                                              187
+
+
+ACKNOWLEDGEMENTS
+The authors would like to thank Ragnar Nurk, Boris Dubovik, Priit Lätti and Paul Ööbik for
+fruitful discussions on the development of the complex. Research was supported by grant
+TF2119, financed by Tallinn University.
+
+REFERENCES
+LVVA.6828.4.562. Плань Города Ревеля сьокололе-            Reppo, M. & Ööbik, P. 2018. Arheoloogiline järele-
+   жащймь Форштатомь сьназначениемь поли-                     valve Pikk 69 // Tolli 1, Tallinn. Aruanne. Tallinn.
+   цеискихь разделении вьчасти исьотлъчаниемь                 (Manuscript in TLPA.)
+   казенныхь домовь и публичнаго строения                  Reppo, M., Kadakas, V. & Lätti, P. 2019. Suur Ranna-
+   сочинень вьревель губернскимь земле[мером ...]             värav. Hoonekompleksi ehitusloolised ja arheoloogi-
+   1793го года. (Document in the National Archives of         lised uuringud. – Paks Margareeta. Värav linna ja
+   Latvia.)                                                   sadama vahel. Tallinn, 22–52.
+                                                           RGAVMF.3.26.226. Плань 1738. (Document in Russian
+Mäll, J. & Kadakas, V. 2002. Märkmeid Tallinna
+                                                              State Archive of the Navy.)
+   vanemast topograafiast. – Keskus – tagamaa – ääre-
+                                                           RGVIA.349.36.2791. Плань 1825. (Document in Russian
+   ala. Uurimusi asustushierarhia ja võimukeskuste
+                                                              State Military Archive.)
+   kujunemisest Eestis. Ed. by V. Lang. MT, 11. Tallinn-
+                                                           Russow, B. 1584. Chronica. Der Provintz Lyfflandt. [...]
+   Tartu, 409–430.                                            Barth. http://digar.nlib.ee/digar/show/?id=104675
+Nurk, R. 2008. Vundamentide fikseerimine Suures               (last accessed 30.05.2020.)
+   Rannaväravas. Aruanne. Tallinn. (Manuscript in          Russow, E. 2010. Hansestadt Tallinn (Reval) und
+   TLPA.)                                                     seine mittelalterlichen Befestigungen. – Die
+Nurk, R. 2019. Esimesed sammud bastionaalvööndi               Befestigungen. Ed. by M. Gläser. Lübecker
+   väljaehitamisel. – Tallinna ajalugu II, 1561–1710.         Kolloquium zur Stadtarchäologie im Hanseraum,
+   Comp. by L. Kõiv, ed. by T. Kala & T. Tamla. Tallinn,      VII. Lübeck, 693–713.
+   52–60.                                                  Tamm, J. 1979. Ehitusarheoloogilistest tähelepaneku-
+Plaesterer, A. 1925. Die Strandpforte und die “Dicke          test Paksu Margareeta rekonstrueerimistöödel. –
+   Margarete”. Ein Beitrag zur Baugeschichte Revals. –        J. Tamm et al., Mitmesugused arheoloogilised
+   Beiträge zur Kunde Estlands, Bd. XI. Reval, 18–22.         uurimistööd Tallinna vanalinnas. Tallinn, 22–26.
+RA, EAA.79.2.281. Планы, профили и фасад связи                (Manuscript in TLPA.)
+   состоящей под № 25 при остроге крепостных               Tõnisson, H. & Orviku, K. 2016. Georadari töö Mere-
+                                                              muuseumi territooriumil. Aruanne. TLÜ Ökoloogia
+   арестантов под лит. В. (Drawings of military build-
+                                                              Instituut. Tallinn. (Manuscript in Agu EMS.)
+   ings of Tallinn in RA.)
+                                                           Zobel, R. 1980. Tallinna keskaegsed kindlustused.
+Reppo, M. 2017a. Arheoloogilised eeluuringud Eesti
+                                                              Tallinn.
+   Meremuuseumi Paksu Margareeta kompleksi sise-
+                                                           Zobel, R. 1988. Suur Rannavärav ja Paks Margareeta.
+   hoovis. Aruanne. Tallinn. (Manuscript in TLPA.)            Tallinn.
+Reppo, M. 2017b. Arheoloogilised eeluuringud Eesti         Zobel, R. 2008. Tallinn (Reval) in the Middle Ages.
+   Meremuuseumis Pikk 70 sisehoovis ja hoovimajas.            Town building in the 13th–14th centuries. Tallinn.
+   Aruanne. Tallinn. (Manuscript in Agu EMS.)              Zobel, R. 2014. Tallinn (Reval). Fortifications in the
+Reppo, M. 2017c. Arheoloogilised uuringud Eesti               Middle Ages. Tallinn.
+   Meremuuseumis, Pikk 70 hoovialal. Vahearuanne.
+   Tallinn. (Manuscript in Agu EMS.)
+
+ARHEOLOOGILISED KAEVAMISED PAKSUS MARGAREETAS
+Monika Reppo ja Villu Kadakas
+
+Eesti Meremuuseumi rekonstrueerimis- ja ümber-             kompleksi ajaloos, keskendudes eelkõige 14.–18.
+ehitustööde raames toimusid 2017. aasta jaanuarist         sajandile.
+2019. aasta novembrini Paksus Margareetas, selle sise-         2016. aastal läbi viidud geofüüsikaliste uuringute
+hoovis ja hoovihoones arheoloogilised uuringud, kus        põhjal oli teada, et hooviala on täis eriaegseid, ris-
+avastati mitmeid kesk- ja uusaegseid rajatisi. Artiklis    tuvaid müüre ja muid rajatisi. Eeluuringute, arheo-
+on leitud struktuure kirjeldatud nende ajalises järjes-    loogiliste kaevamiste ja jälgimise ajal selgus, et 13.
+tuses ja vaadeldakse nende rolli Suure Rannavärava         sajandisse dateeritavate rajatiste jäänused Paksu
+188                                                                                  Monika Reppo ja Villu Kadakas
+
+
+Margareeta alal puuduvad. Vanimateks fikseeritud            alaosa on maapinnas säilinud siiski algses laiuses
+rajatisteks osutusid kirde–edelasuunaline paemüü-           ning see eksponeeriti muuseumis (jn 1: 7; 5).
+ritisega ja paeplaatidega kaetud 73–81 cm laiune ja             16. sajandisse dateeriti vastu III eeskaitsemüüri
+83–110 cm kõrgune kanal (jn 1: 1; 3) ning selle peale       ehitatud väikestest munakividest laotud, lõunasse
+rajatud O–W-suunaline müür (jn 1: 2; 2). 125 cm pak-        kalduva renniga sillutis (jn 1: 9; 5). Hoovi kagunurgas
+sune müür oli säilinud 80–100 cm kõrgusena. Selle           asunud renn laskus hoovihoone all 90 cm laiusesse
+lõunaküljel fikseeriti laske- või valgusava (jn 1: 8;       tunnelisse (jn 1: 10; 6). Antud tunnel keeras eeskaitse-
+2 vasakul). Omaaegsest maapinnast vaid u 20 cm kõr-         müüri all kagusse ja suubus arvatavasti 19. sajandi
+gemal paiknenud ava täpne roll ei selgunud. Müür ja         joonistelt tuntud paaki (jn 1: K; 6). Hoovi pool inime-
+kanal on tõenäoliselt samaaegsed. Tegemist on esi-          sest kõrgem tunnel madaldub müüri all vaid 90 cm
+mese eesvärava eeskaitsemüüriga ning sadeveekana-           kõrguseks. Kanal juhtis Paksu Margareeta hoovist ära
+liga, mis on tõenäoliselt ehitatud 14. sajandi II poolel.   sade- ja sulavee. Sillutisele oli arvatavasti 16. sajandi
+     Esimese eeskaitsemüüri avastamine näitas, et           lõpul ladestunud leiuvaene lammutusrusu kiht.
+Suure Rannavärava juures asus ristkülikukujuline            Sellel paiknes suurtest munakividest sillutis (jn 1: 11;
+müüridega suletud eeskaitseala juba ammu enne               5; 7), mille vahelt ja alt saadi mõni üksik piibukatke.
+Paksu Margareeta rajamist. Lisaks eeskaitseala hoovi        Arvatavasti sai hoov uue sillutise 17. sajandi I poolel.
+vihmaveele on võimalik, et kanali kaudu juhiti linnast      Ka leidus piibukatkeid hiljem sillutisele ladestunud
+välja ka tänase Tornide väljaku kandis paiknenud            kihis, kuid valdavalt iseloomustas sõjalise funktsioo-
+madalasse vallikraavi kogunenud vesi. Stoltingi tor-        niga hoovi puhtus ja kord. Mõlemad sillutised ja tun-
+nist u 80 cm kaugusel leitud väga suur, 63 cm läbimõõ-      nel on säilitatud in situ.
+duga ning 120 cm sügavune postiauk (jn 1: 3) kuulus             Arvatavasti 17. sajandi II poolel või 18. sajandi
+tõenäoliselt torni ehitamisel kasutatud tellingupos-        alguses kaeti pealmine sillutis täitepinnasega. Algas
+tile. Selgus, et liivakivist nõlv on torni kõrval murene-   hoonete ehitamine hoovi servadesse, keskaegsete
+mise vältimiseks kaetud paekivist vooderdusega.             kaitsemüüride vastu. Kaevamistel avastati 18. sajandi
+     Paksu Margareeta sees, selle läänepoolse vunda-        lõpus või 19. sajandi alguses vastu hoovi idamüüri
+mendi siseküljel avastati kolm varasemat müürifrag-         ehitatud satelliithoone 90 cm paksune läänesein
+menti, mida kaudsete andmete alusel võib oletamisi          ja korstna põhi (jn 1: N–O; 7). 18.–19. sajandil hoovi
+seostada eesvärava varasemate ehitistega. Üks neist         lõunaossa ehitatud ja seni säilinud hoone idaossa
+kujutab enesest tõenäoliselt teise eesvärava ümmar-         rajati varasema tunneli kohale 9-kohaline käimla
+guse idatorni ristkülikukujulist vundamenti (jn 1: 4),      (jn 1: M), mida on kujutatud 1825. aasta plaanil. 1830.
+teine II eeskaitseala põhjapoolse piirdemüüri vunda-        aastaks oli kogu kompleks vangla kasutuses, toimides
+menti (jn 1: 5) ning kolmas seni tundmatut, eesvärava       1877–1899 osaliselt kasarmuna. 1884. aastal Paksu
+ees paiknenud rajatist (jn 1: 6). Müürid kaeti betoo-       Margareeta lõunaküljele püstitatud mitmekorruse-
+niga, kuid osa eeskaitsemüürist on uues muuseumis           lise vanglahoone (jn 1: Q) kõrval avastati koos sellega
+jälgitav.                                                   ehitatud jäätmekast (jn 1: 13). Valdav osa kaevamis-
+     16. sajandil toimunud suurtest ehitustöödest,          telt saadud leide on seotud vangla ja kasarmuga, mis
+mille käigus rajati kolmas eesvärav, hiljem Paksuks         lõpetasid tegevuse 1917. aasta märtsis, kui revolutsio-
+Margareetaks ristitud suurtükitorn ning kolmas ees-         näärid pärast vangide vabastamist hoonekompleksi
+kaitsemüür, leiti vähem jälgi. Hoovi sõnnikusest            maha põletasid.
+täitepinnasest ja Paksu Margareeta seest, selle vunda-          Arheoloogiliste uuringutega saadi esimest korda
+mendikraavi täitepinnasest leiti üksikuid savinõude         materiaalseid tõendeid Rein Zobeli oletatud I ees-
+katkeid, aknaklaasi kild ja luunõel (jn 4). Ka III ees-     värava ning selle idaküljele, hilisema hoovi kohale
+kaitsemüüri vundamendikraavist saadi hiliskeskaegse         rajatud eeskaitseala kahe etapi kohta. Lisaks saadi
+puitkausi ja võimaliku -lusika katked. Vundamentide         informatsiooni hilisemate eesväravate, Stoltingi ja
+küljelt lahti kaevamise abil oli võimalik kindlaks teha     Paksu Margareeta tornide ehitustehnika, hoovi hea-
+Paksu Margareeta vundamendi sügavus, mis kõikus             korra, samuti 18.–19. sajandil hoovi rajatud hoonete
+loodusliku pinnamoe tõttu enam kui 6 meetrit. Lisaks        ja sanitaarsüsteemide kohta, mis on oluline täiendus
+leiti ehitist toetanud tellingute talapesasid (jn 5).       ja täpsustus meie teadmistele Tallinna linna ühe tun-
+Selgus, et hoovi idamüüri, st III eeskaitsemüüri sise-      tuima kindlustusrajatise – Suure Rannavärava komp-
+külg on vähemalt 1,5 meetri laiuses lõhutud, millega        leksi – ajaloo kohta.
+on suures osas hävinud ka laskeavad. Paksu müüri
+

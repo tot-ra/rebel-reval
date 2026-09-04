@@ -1,0 +1,37 @@
+{
+  "approval": "task-authorized",
+  "dimensions_m": {
+    "depth": 11.5,
+    "frontage": 6.6,
+    "typical_storeys": 1
+  },
+  "features": {
+    "compact_two_room_workshop_dwelling": true,
+    "granary_crane": false,
+    "hoist_beam": false,
+    "hypocaust": false,
+    "late_gothic_facade": false,
+    "minimal_rear_yard_mass": true,
+    "modest_street_openings": true,
+    "single_hearth_implication": true,
+    "thatch_or_shingle_roof": true
+  },
+  "id": "prop.architecture.house.craft_boda",
+  "kind": "rigid_architecture",
+  "style_refs": [
+    "history/dossiers/architecture/burgher-house-plan.md",
+    "docs/reports/burgher_house_art_brief.md",
+    "docs/ART_BIBLE.md",
+    "docs/MATERIAL_STYLE_LOCK_KIT.md"
+  ],
+  "target": "res://assets/props/architecture/houses/craft_boda/craft_boda.glb",
+  "textures": {
+    "albedo": 512,
+    "embedded": true
+  },
+  "tier": "craft_boda",
+  "triangles": {
+    "max": 9000,
+    "target": 2500
+  }
+}

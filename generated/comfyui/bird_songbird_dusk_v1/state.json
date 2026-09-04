@@ -1,0 +1,16 @@
+{
+  "asset_id": "assets.birds.songbird_dusk_batch",
+  "task": "P2-040",
+  "route": "deterministic_blender_guided_by_catalog_and_reference",
+  "stage": "production_ready",
+  "generator_version": "songbird_dusk_v1",
+  "blender_version": "Blender 5.2 LTS",
+  "species": [
+    "common_blackbird",
+    "song_thrush",
+    "common_nightingale",
+    "yellowhammer"
+  ],
+  "pose": "perched",
+  "note": "Hunyuan3D image-to-3D route unavailable; authored deterministic fallback preserves the runtime GLB contract."
+}

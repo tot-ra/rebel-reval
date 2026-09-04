@@ -1,0 +1,52 @@
+{
+  "body_vertices": 6587,
+  "body_polygons": 9000,
+  "mesh_objects": [
+    "AnimalMesh",
+    "EyeLeft",
+    "EyeRight",
+    "Icosphere",
+    "NostrilLeft",
+    "NostrilRight",
+    "PupilLeft",
+    "PupilRight",
+    "TailTuft",
+    "TailTuftStem"
+  ],
+  "dimensions": [
+    2.201272964477539,
+    1.9999998807907104,
+    2.4536221027374268
+  ],
+  "min": [
+    -1.1090502738952637,
+    -0.9999999403953552,
+    -1.0
+  ],
+  "max": [
+    1.0922226905822754,
+    0.9999999403953552,
+    1.4536221027374268
+  ],
+  "bones": [
+    "BackLeftLeg",
+    "BackRightLeg",
+    "Body",
+    "EyeLeft",
+    "EyeRight",
+    "FrontLeftLeg",
+    "FrontRightLeg",
+    "Neck",
+    "Tail"
+  ],
+  "actions": [
+    "Idle-loop",
+    "Walk-loop"
+  ],
+  "materials": [
+    "cattlerig_eye_white",
+    "cattlerig_nostril",
+    "cattlerig_pupil",
+    "medieval_cattle"
+  ]
+}

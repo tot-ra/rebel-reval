@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dduxibyb8konl"
-path="res://.godot/imported/ellen_hero_tex_hair_albedo.png-11532477b39ce06a03d275be16bd5b18.ctex"
+path.s3tc="res://.godot/imported/ellen_hero_tex_hair_albedo.png-11532477b39ce06a03d275be16bd5b18.s3tc.ctex"
+path.etc2="res://.godot/imported/ellen_hero_tex_hair_albedo.png-11532477b39ce06a03d275be16bd5b18.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "6a0d39b248ee4510936b3ab1e230d970"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/characters/shared/ellen_hero_tex_hair_albedo.png"
-dest_files=["res://.godot/imported/ellen_hero_tex_hair_albedo.png-11532477b39ce06a03d275be16bd5b18.ctex"]
+dest_files=["res://.godot/imported/ellen_hero_tex_hair_albedo.png-11532477b39ce06a03d275be16bd5b18.s3tc.ctex", "res://.godot/imported/ellen_hero_tex_hair_albedo.png-11532477b39ce06a03d275be16bd5b18.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

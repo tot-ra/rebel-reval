@@ -1,0 +1,58 @@
+{
+  "generator": "tools/generate_merchant_cart_kit.py",
+  "blender_version": "Blender 5.2 LTS",
+  "classes": {
+    "cart_2w": {
+      "path": "assets/props/trade/supply_cart.glb",
+      "status": "existing_authored_asset",
+      "wheel_count": 2
+    },
+    "wagon_4w": {
+      "path": "assets/props/trade/merchant_wagon_4w.glb",
+      "triangles": 1560,
+      "vertices": 808,
+      "dimensions_m": [
+        1.92,
+        4.055,
+        1.1922
+      ],
+      "ground_min_z": -0.0022,
+      "materials": [
+        "iron",
+        "oak",
+        "timber"
+      ],
+      "checks": {
+        "embedded_albedo": true,
+        "ground_contact": true,
+        "war_wagon": true,
+        "y_up_glb": true
+      },
+      "sha256": "8cde7ca654c05e78a8495fdb7a4c8f5e72a0b86698812ac346ce36efafa9c4db"
+    },
+    "barrow": {
+      "path": "assets/props/trade/merchant_barrow.glb",
+      "triangles": 324,
+      "vertices": 176,
+      "dimensions_m": [
+        0.82,
+        2.6996,
+        1.0446
+      ],
+      "ground_min_z": 0.0054,
+      "materials": [
+        "iron",
+        "linen",
+        "oak",
+        "timber"
+      ],
+      "checks": {
+        "embedded_albedo": true,
+        "ground_contact": true,
+        "war_wagon": true,
+        "y_up_glb": true
+      },
+      "sha256": "f5f0b8e4485db68f4c4ebe422a88b11d0dd06cc0fb24d8e5b11a36fbfdf0bf7f"
+    }
+  }
+}

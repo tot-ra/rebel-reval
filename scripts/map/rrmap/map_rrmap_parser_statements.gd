@@ -63,6 +63,12 @@ func parse_statement(tokens: Array[Dictionary], line: int) -> void:
 			_parse_surroundings(tokens, line)
 		"camera":
 			_parse_camera(tokens, line)
+		"grade":
+			_parse_grade(tokens, line)
+		"elevation_area":
+			_parse_elevation_area(tokens, line)
+		"elevation_ramp":
+			_parse_elevation_ramp(tokens, line)
 		"style":
 			_parse_style(tokens, line)
 		"terrain":
@@ -214,6 +220,71 @@ func _parse_camera(tokens: Array[Dictionary], line: int) -> void:
 	var rect = _tokens.rect_from_tokens(tokens, line, 1)
 	if rect != null and _tokens.exact_arity(tokens, line, 5, "camera <x> <y> <width> <height>"):
 		_parser._blueprint.camera_bounds(rect)
+
+
+func _parse_grade(tokens: Array[Dictionary], line: int) -> void:
+	if not _tokens.exact_arity(tokens, line, 4, "grade <id> <north|east|south|west> <delta>"):
+		return
+	var direction = _tokens.cardinal(tokens[2]["text"], line, tokens[2]["column"])
+	var delta = _tokens.float_value(tokens[3]["text"], line, tokens[3]["column"])
+	if direction == null or delta == null:
+		return
+	_parser._blueprint.grade(StringName(tokens[1]["text"]), direction, delta)
+
+
+func _parse_elevation_area(tokens: Array[Dictionary], line: int) -> void:
+	if not _tokens.arity(
+		tokens,
+		line,
+		6,
+		"elevation_area <id> <x> <y> <radius> <height> [falloff=N]"
+	):
+		return
+	var center = _tokens.vector_from_tokens(tokens, line, 2)
+	var radius = _tokens.float_value(tokens[4]["text"], line, tokens[4]["column"])
+	var height = _tokens.float_value(tokens[5]["text"], line, tokens[5]["column"])
+	var options = _tokens.options(tokens, line, 6, ["falloff"])
+	if center == null or radius == null or height == null or options == null:
+		return
+	var falloff := 0.0
+	if options.has("falloff"):
+		var parsed_falloff = _tokens.float_value(
+			options["falloff"], line, _tokens.option_column(tokens, "falloff")
+		)
+		if parsed_falloff == null:
+			return
+		falloff = parsed_falloff
+	_parser._blueprint.elevation_area(
+		StringName(tokens[1]["text"]), center, radius, height, falloff
+	)
+
+
+func _parse_elevation_ramp(tokens: Array[Dictionary], line: int) -> void:
+	if not _tokens.arity(
+		tokens,
+		line,
+		8,
+		"elevation_ramp <id> <start_x> <start_y> <end_x> <end_y> <start_height> <end_height> [width=N]"
+	):
+		return
+	var start = _tokens.vector_from_tokens(tokens, line, 2)
+	var end = _tokens.vector_from_tokens(tokens, line, 4)
+	var start_height = _tokens.float_value(tokens[6]["text"], line, tokens[6]["column"])
+	var end_height = _tokens.float_value(tokens[7]["text"], line, tokens[7]["column"])
+	var options = _tokens.options(tokens, line, 8, ["width"])
+	if start == null or end == null or start_height == null or end_height == null or options == null:
+		return
+	var width := 1.0
+	if options.has("width"):
+		var parsed_width = _tokens.float_value(
+			options["width"], line, _tokens.option_column(tokens, "width")
+		)
+		if parsed_width == null:
+			return
+		width = parsed_width
+	_parser._blueprint.elevation_ramp(
+		StringName(tokens[1]["text"]), start, end, start_height, end_height, width
+	)
 
 
 func _parse_style(tokens: Array[Dictionary], line: int) -> void:

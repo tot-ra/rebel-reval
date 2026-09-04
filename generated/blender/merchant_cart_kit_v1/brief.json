@@ -1,0 +1,17 @@
+{
+  "vehicle_classes": [
+    "cart_2w",
+    "wagon_4w",
+    "barrow"
+  ],
+  "load_props": [
+    "grain_sack",
+    "beer_barrel",
+    "salt_keg",
+    "iron_bar_bundle",
+    "charcoal_sack",
+    "hemp_flax_bale",
+    "hide_bundle"
+  ],
+  "approval": "task-authorized"
+}

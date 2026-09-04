@@ -1,0 +1,28 @@
+{
+  "assets": {
+    "prop.architecture.house.craft_boda": {
+      "asset_id": "prop.architecture.house.craft_boda",
+      "checks": {
+        "grounded": true,
+        "non_empty": true,
+        "triangles_in_budget": true
+      },
+      "dimensions_m": [
+        7.4849,
+        12.26,
+        7.615
+      ],
+      "hoist_default": false,
+      "profile": "craft_boda",
+      "roof_default": "thatch",
+      "sha256": "01103b6bf98bfb5f5b54cef691471fd095585a4d391e8d40a74f55b7cf937b11",
+      "single_hearth": true,
+      "storeys": 1,
+      "surfaces": 22,
+      "triangles": 776
+    }
+  },
+  "blender": "Blender 5.2 LTS",
+  "generator": "burgher_house_kit_v1",
+  "historical_basis": "history/dossiers/architecture/burgher-house-plan.md"
+}

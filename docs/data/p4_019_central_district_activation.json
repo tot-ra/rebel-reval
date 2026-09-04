@@ -1,0 +1,25 @@
+{
+  "task": "P4-019",
+  "map_id": "market_civic_quarter",
+  "scene_id": "reval_center",
+  "decision": "blocked",
+  "approval_artifact": "docs/adr/0008-three-act-campaign-and-faction-scope.md",
+  "blockers": [
+    "P0-040",
+    "P2-021",
+    "P3-014",
+    "P4-022"
+  ],
+  "parity_review": {
+    "status": "pending",
+    "day_capture": null,
+    "night_capture": null
+  },
+  "notes": [
+    "P0-040 remains pending maintainer technical-freeze approval.",
+    "P2-021 remains in review and does not yet provide accepted visual parity.",
+    "P3-014 remains pending and owns the relevant runtime acceptance dependency.",
+    "P4-022 remains todo and owns the Central District environment pass.",
+    "Keep developer traversal enabled with release=false until all blockers close and this ledger records approved evidence."
+  ]
+}

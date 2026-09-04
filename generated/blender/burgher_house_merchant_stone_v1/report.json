@@ -1,0 +1,28 @@
+{
+  "assets": {
+    "prop.architecture.house.merchant_stone": {
+      "asset_id": "prop.architecture.house.merchant_stone",
+      "checks": {
+        "grounded": true,
+        "non_empty": true,
+        "triangles_in_budget": true
+      },
+      "dimensions_m": [
+        10.5649,
+        22.36,
+        15.2199
+      ],
+      "hoist_default": true,
+      "limestone_front": true,
+      "profile": "merchant_stone",
+      "raised_cellar_neck": true,
+      "roof_default": "tile",
+      "sha256": "973163027f55f8b6aa710f679f2dab45c7dba05407d9e6bc70b9eed679fa8947",
+      "surfaces": 97,
+      "triangles": 3828
+    }
+  },
+  "blender": "Blender 5.2 LTS",
+  "generator": "burgher_house_kit_v1",
+  "historical_basis": "history/dossiers/architecture/burgher-house-plan.md"
+}

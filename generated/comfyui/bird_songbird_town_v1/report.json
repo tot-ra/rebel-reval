@@ -1,0 +1,50 @@
+{
+  "generator": "songbird_town_v1",
+  "assets": [
+    {
+      "triangles": 1116,
+      "dimensions_m": [
+        0.055,
+        0.064,
+        0.10368
+      ],
+      "largest_axis_m": 0.10368,
+      "materials": 8,
+      "embedded_images": 3,
+      "species": "common_chaffinch",
+      "path": "assets/birds/common_chaffinch/perched.glb",
+      "sha256": "142bf12a9fc127f1e5d12bbf9cd95ad88b0260084f1e6003ec9ef88f0675f1ce",
+      "catalog_scale_m": 0.15
+    },
+    {
+      "triangles": 1404,
+      "dimensions_m": [
+        0.0572,
+        0.068,
+        0.09936
+      ],
+      "largest_axis_m": 0.09936,
+      "materials": 10,
+      "embedded_images": 3,
+      "species": "great_tit",
+      "path": "assets/birds/great_tit/perched.glb",
+      "sha256": "e1663a33243f75ed97001072fd42788d20c57ad2f1f9deb94e1538d1aaa58872",
+      "catalog_scale_m": 0.14
+    },
+    {
+      "triangles": 1116,
+      "dimensions_m": [
+        0.0583,
+        0.07,
+        0.09612
+      ],
+      "largest_axis_m": 0.09612,
+      "materials": 8,
+      "embedded_images": 3,
+      "species": "european_robin",
+      "path": "assets/birds/european_robin/perched.glb",
+      "sha256": "fa94d4583e58254be51475d7c91f6e4a191eb55cac0e95076a55e5604f93066f",
+      "catalog_scale_m": 0.14
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "contract_version": 1,
+  "map_id": "north_quarter",
+  "source": "content/maps/north_quarter.rrmap",
+  "coordinate_space": "cells",
+  "authoring_intent": "Merchant property rows around Pikk and Lai, with explicitly owned streets, work yards, wall verges, and the extramural road.",
+  "composition_thresholds": {
+    "path": "docs/data/map_composition_thresholds.json",
+    "map_id": "north_quarter",
+    "enforce": true,
+    "enforcement_state": "enforced"
+  },
+  "open_regions": [
+    {
+      "id": "pikk_lai_route_reserve",
+      "bounds_cells": [72, 40, 70, 83],
+      "reason": "Pikk, Lai, Goldsmith lane, merchant court, patrol loop, and transition approaches must remain open and connected.",
+      "exclude_from_unowned_empty_region": true
+    },
+    {
+      "id": "western_livestock_and_work_courts",
+      "bounds_cells": [8, 55, 64, 55],
+      "reason": "Fenced livestock and work courts are intentional open service ground rather than missing frontage.",
+      "exclude_from_unowned_empty_region": true
+    },
+    {
+      "id": "eastern_workyard",
+      "bounds_cells": [151, 44, 67, 55],
+      "reason": "Shipwright, rope, warehouse, and loading activity requires an open workyard with drainage fall.",
+      "exclude_from_unowned_empty_region": true
+    },
+    {
+      "id": "outer_wall_verge_and_road",
+      "bounds_cells": [218, 0, 42, 140],
+      "reason": "The wall verge and extramural harbour-monastery road intentionally stay open and preserve both boundary transitions.",
+      "exclude_from_unowned_empty_region": true
+    }
+  ]
+}

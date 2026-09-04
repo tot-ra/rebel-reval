@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "protocol_id": "r715-water-only-benchmark-v1",
+  "task": "R-755",
+  "protocol_owner": "R-799",
+  "budget_scope": "water_only",
+  "minimum_samples": 120,
+  "warmup_frames": 30,
+  "tiers": {
+    "minimum": {
+      "target_hardware": "res://tools/benchmarks/minimum-hardware.json",
+      "output": "build/benchmarks/r715-water-minimum.json",
+      "quality": {
+        "detail_layers": 1,
+        "reflection_samples": 1,
+        "refraction_samples": 1,
+        "foam_shore_detail": 0.5
+      },
+      "thresholds": {
+        "frame_time_ms_p95": 1.5,
+        "draw_calls_peak": 2,
+        "resource_count_peak": 4,
+        "memory_delta_mib": 8.0
+      }
+    },
+    "recommended": {
+      "target_hardware": "res://tools/benchmarks/target_hardware.json",
+      "output": "build/benchmarks/r715-water-recommended.json",
+      "quality": {
+        "detail_layers": 2,
+        "reflection_samples": 2,
+        "refraction_samples": 2,
+        "foam_shore_detail": 1.0
+      },
+      "thresholds": {
+        "frame_time_ms_p95": 2.5,
+        "draw_calls_peak": 4,
+        "resource_count_peak": 8,
+        "memory_delta_mib": 24.0
+      }
+    }
+  },
+  "fallback": {
+    "id": "compatibility_water_surface",
+    "declared": true,
+    "renderer_safe": true,
+    "behavior": "Keep a water-like base, Fresnel response, bounded refraction, and detail normal when screen or depth inputs are unavailable."
+  },
+  "map_matrix": [
+    {"map_id": "smithy_courtyard", "terrains": ["water"]},
+    {"map_id": "lower_town_slice", "terrains": ["water"]},
+    {"map_id": "south_quarter", "terrains": ["water"]},
+    {"map_id": "viru_gate_foreland", "terrains": ["river_water"]},
+    {"map_id": "reval_harbor_north", "terrains": ["shallow_water", "deep_water"]},
+    {"map_id": "reval_harbor_east", "terrains": ["shallow_water", "deep_water"]},
+    {"map_id": "prototype.paldiski_coastal_outpost", "terrains": ["shallow_water", "deep_water"]},
+    {"map_id": "prototype.sacred_grove", "terrains": ["shallow_water"]},
+    {"map_id": "prototype.saaremaa", "terrains": ["shallow_water", "deep_water"]},
+    {"map_id": "prototype.swedish_arrival", "terrains": ["shallow_water", "deep_water"]},
+    {"map_id": "world.sacred_grove", "terrains": ["shallow_water"]},
+    {"map_id": "world.padise", "terrains": ["water", "river_water", "shallow_water"]},
+    {"map_id": "world.saaremaa", "terrains": ["shallow_water", "deep_water"]}
+  ],
+  "external_boundaries": {
+    "R-529": "Monastery east-ditch exception remains excluded from the 13-map benchmark matrix.",
+    "R-713": "Shared sky and weather state remains externally owned; this protocol samples water presentation only."
+  }
+}

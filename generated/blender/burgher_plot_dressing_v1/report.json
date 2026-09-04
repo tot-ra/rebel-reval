@@ -1,0 +1,45 @@
+{
+  "generator": "tools/generate_burgher_plot_dressing.py",
+  "blender": "Blender 5.2 LTS",
+  "asset": {
+    "triangles": 2904,
+    "vertices": 1608,
+    "dimensions_m": [
+      3.62,
+      2.0012,
+      2.33
+    ],
+    "ground_min_z": -0.13,
+    "materials": [
+      "PlotDressingIron",
+      "PlotDressingOak",
+      "PlotDressingRope",
+      "PlotDressingShingle",
+      "PlotDressingStone",
+      "PlotDressingStoneDark",
+      "PlotDressingThatch",
+      "PlotDressingTimber",
+      "PlotDressingWattle",
+      "PlotDressingWoodLight"
+    ],
+    "components": [
+      "CellarNeck",
+      "FirewoodStack",
+      "HoistBeam",
+      "LoadingHatch",
+      "PlotWall",
+      "Privy",
+      "ServantLeanTo",
+      "WattleFence",
+      "WellSweep",
+      "YardGate"
+    ],
+    "checks": {
+      "embedded_albedo": true,
+      "ground_contact": false,
+      "merchant_only_marked": true,
+      "y_up_glb": true
+    },
+    "sha256": "bbc8a4d8b940858843fa4780475ee9581e6522d3e9067996fbcf6599e39d121a"
+  }
+}

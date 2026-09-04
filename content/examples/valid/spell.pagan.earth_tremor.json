@@ -1,0 +1,42 @@
+{
+  "type": "spell",
+  "id": "spell.pagan.earth_tremor",
+  "name": "Earth Tremor",
+  "school": "school.pagan",
+  "sequence": [
+    "element.earth"
+  ],
+  "resolution": "authored_lookup",
+  "runtime_combination_allowed": false,
+  "requires_conduit": "none",
+  "cost": {
+    "resource": "resource.willpower",
+    "amount": 1
+  },
+  "effect_summary": "A ground pulse that staggers hostile actors within its authored radius.",
+  "effect": {
+    "delivery": {
+      "kind": "area_pulse",
+      "radius": 96.0
+    },
+    "impact": {
+      "kind": "stagger",
+      "duration_sec": 1.5
+    }
+  },
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "R-724 Earth Tremor prototype"
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Authored gameplay spell for a pure earth area stagger; not an attested historical rite.",
+      "citations": [
+        "docs/SYSTEMS/MAGIC.md"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,823 @@
+                                       ArchAeologicAl Fieldwork in estoniA 2013, 119–134
+
+
+
+
+ARCHAEOLOGICAL STUDIES
+IN THE CHURCH AND CHURCHYARD OF KOSE
+     MARTIN MALVE
+     Tartu Ülikool, Ajaloo ja arheoloogia instituut, Arheoloogia osakond (University
+     of Tartu, Institute of History and Archaeology, Department of Archaeology),
+     Jakobi 2, 51014 Tartu, Estonia; martinmalve@gmail.com
+
+     VILLU KADAKAS and MAURI KIUDSOO
+     Tallinna Ülikool, Ajaloo Instituut (Tallinn University, Institute of History),
+     Rüütli 6, 10130 Tallinn, Estonia
+
+     ELIS TIIDU
+     Tartu Linnamuuseum (Tartu City Museum), Narva mnt 23, 51009 Tartu, Estonia
+
+     INTRODUCTION
+This paper introduces the results of two cases of fieldwork: excavations in 2011 in the
+so called ‘New Church’ in the northern annex of the nave (Kadakas 2012; 2013) and
+excavations in 2013 in the northern part of the churchyard while digging a trench for
+water and sewerage pipes (directed by Malve, Tiidu & Raido Roog).1
+
+     HISTORIC BACKGROUND OF THE CHURCH AND CHURCHYARD
+The parish of Kose with the initial church was probably established very soon after con-
+quering North Estonia in 1219 by the Danish king Waldemar II and followed by mass
+baptising of the area (Johansen 1933, 204). The first building was probably of timber
+(Raam 1990, 149). Written records shed no light on the building history of the existing
+stone church. According to Villem Raam the church got its present shape throughout
+several construction stages (Raam 1988a; 1990; 1997a). The original stone church was
+erected in the 1370s at the latest as a simple building consisting of a rectangular nave
+(Fig 1: 2). At first it lacked a separate chancel and the eastern part of the nave func-
+tioned as a chancel. The original nave was covered with cross vaults. A turret topped
+the western gable. A new chancel was added in the 1430s, breaking the chancel arch
+into the old eastern wall (Fig. 1: 3). While the rest of the building was erected of local
+limestone, the chancel vault was built of bricks. The large western tower (Fig. 1: 1) was
+probably constructed only in the 1480s–1490s (Raam 1990, 150; 1997a).
+     The church was burnt during the Livonian War in 1560 (Russow 1584, 47). Prob-
+ably the vaults of the nave were also destroyed (Raam 1997a). In 1856 the old sacristy
+was demolished and replaced with the so called ‘New Church’ – a northern annex con-
+nected with the nave by two large doors (Fig. 1: 4) – because the old sacristy decayed
+and the church became too narrow for the congregation. Two storeys with neo­Gothic
+decoration and a spire were added on the tower in 1873 (Ederma & Jaik 1939, 53).
+
+    1
+     In this article the fieldwork of 2011 is introduced by Kadakas, the fieldwork of 2013 by Malve and
+    Tiidu, and the coins as an outstanding part of the find material have been analyzed by Kiudsoo.
+                                                                                                          119
+MArtin MAlVe et al.
+
+
+
+
+                                                                   1. western tower / läänetorn
+                                4
+                                                                   2. nave / pikihoone
+                                                                   3. chancel / kooriruum
+                                          5
+                                                                   4. New Church / uus kirik
+
+                                                                   5. old sacristy / vana käärkamber
+
+
+
+      1                    2                     3
+
+                                                                             contours of walls of the present church /
+                                                                             praeguse kiriku müüride kontuurid
+                                                                             original stone church with the sacristy /
+                                                                             algne kivikirik koos käärkambriga
+                                                                             discovered medieval foundations /
+                                                         10 m                leitud keskaegsed vundamendid
+
+
+
+Fig. 1. Plan of Kose church with discovered walls of the sacristy: 1 – western tower, 2 – nave, 3 – chancel,
+        4 – New Church, 5 – old sacristy.
+Jn 1.   Kose kiriku plaan koos käärkambri avastatud alusmüüridega: 1 – läänetorn, 2 – pikihoone, 3 – koori-
+        ruum, 4 – uus kirik, 5 – vana käärkamber.
+Drawing / Joonis: Villu Kadakas
+
+      Conclusions by Raam about the medieval building history of the church were
+largely based on observations and fieldwork of 1987 (Raam 1987). Two test pits were
+dug: one in the southern outer corner of the nave and the chancel, the other in the
+south­western inner corner of the chancel to specify the stratigraphic relation of these
+building parts. The results confirmed Raam’s previous hypothesis that the chancel
+was a secondary annex to the nave. The interior plaster was removed in several places
+revealing hewn limestone corbels in the chancel, remains of the vaults and original
+windows of the nave amongst other things. The question of the location of the previous
+sacristy and its relation to the nave was raised by Raam as one of the most important
+future research issues (raam 1987, 10).
+      The existence of the older sacristy was known only from an unconfirmed text
+(Ederma & Jaik 1939, 53). No drawings or photos exist of the sacristy, but Raam con-
+cluded on the basis of known scant information that it must have been built before
+the chancel, otherwise it would have been positioned next to the chancel as usual.
+Nevertheless he admitted that the relation of the sacristy to the nave and their rela-
+tive chronology have not been established yet. Raam noticed a connection between the
+sacristy of Kose and the one of Jõelähtme church in north­eastern Harjumaa, where
+the old sacristy has also been situated on the northern side of the nave, and marked
+that in no other medieval church in Estonia is the sacristy located in such a position
+(Raam 1990, 150; see also Kadakas 2010).
+      Kose churchyard, which is still rarely used as a burial ground, was not archaeo-
+logically studied before 2013. Although in 2010 earthwork in connection with install-
+ing water and sewerage pipelines was carried out in the churchyard’s protection zone,
+directly outside the present churchyard wall. According to the report nothing archaeo-
+logically significant was found (Treuman 2010). As there are no known stray finds
+from the cemetery, the excavations held in 2013 gave the first opportunity to get infor-
+mation about local inhabitants, who were buried there and to confirm the period the
+
+
+
+120
+                   ArchAeologicAl stUdies in the chUrch And chUrchYArd oF kose
+
+
+
+
+cemetery was used. The fieldwork in Kose is also the biggest rural churchyard excava-
+tion held in North Estonia so far. Earlier only some small­scale archaeological rescue
+excavations e.g. in Kuusalu (Tamla 2003, 13; Kadakas 2014), Lüganuse (see Kadakas
+& Jonuks, this volume) and Viru­Nigula (Aus & Tamla 1989; Tamla 1991) churchyards
+have taken place. The churchyard of Kose was probably used from the first half of 13th
+century, from the time the church was erected. The active usage of the burial ground
+ended sometime at the end of the 18th century due to the laws set in 1771–1772, that
+ordered cemeteries to be established at a certain distance from the churches and set-
+tlements (Polnoye 1830, 409, 500, 691). The new cemetery was founded in the first half
+of the 19th century and is located 1.5 km south from the church.
+
+      EXCAVATIONS IN THE CHURCH IN 2011
+      Foundations of the sacristy
+In 2011 during the replacement of the floor of the ‘New Church’, filling layers of demoli-
+tion debris together with some structures coming from the ‘New Church’ period were
+removed. In the south­eastern part of the ‘New Church’ the foundations of the western
+and northern walls of the medieval sacristy were discovered (Figs 1: 5; 2). The outer
+edge of the old walls of the old sacristy had preserved only in the height of an under-
+ground foundation of unworked irregularly laid fieldstones. The inner edge of the walls
+of the old sacristy had preserved only in the height of one row of stones above the origi-
+nal floor level. Therefore it was difficult to estimate the thickness of the walls of the old
+sacristy: only in one place the thickness of the northern wall could be measured ca. 100
+cm. The eastern wall has obviously been located on the same line as the eastern wall
+of the ‘New Church’ and has been completely removed. Probably the outer measures of
+the sacristy were ca. 5.35 m in the east­west and ca. 4.15 m in the north­south direc-
+tion, inside ca. 3.05 m and 3.15 m respectively.
+      As there was no vertical joint between the western foundation of the sacristy
+and the nave, it could be concluded that both were built during the same stage. In the
+original floor there were both limestone
+slabs of natural shape and slabs worked
+into a regular rectangle, also pieces of
+slabs, probably in secondary use. From
+the sand and organic soil under the floor
+some coins and sherds of vessel tiles of
+a stove were gathered. Among these the
+more precisely datable coins belong to
+the period of Wolter von Plettenberg,
+Master of the Teutonic Order in Livonia
+(1494–1535), indicating that one of the
+reconstructions of the floor might have
+taken place during the first half of the
+16th century.                                     Fig. 2. The foundations of the old sacristy of Kose
+                                                            church from north-west.
+      there has been a ca. 110 cm wide door-      Jn 2.     Kose kiriku vana käärkambri vundamendid
+way connecting the sacristy with the nave,                  loodest.
+later walled up and noticeable by two             Photo / Foto: Villu Kadakas
+
+
+
+
+                                                                                                 121
+MArtin MAlVe et al.
+
+
+
+
+vertical joints in the masonry. The portal has been facing the nave which is usual in
+such sacristy doorways. Raam supposed that there has been a sitting niche in the
+northern wall of the eastern vault, which initially functioned as a chancel. There are
+similar sitting niches in the walls of the present chancel (Raam 1987, 6). Also in the
+southern wall of the eastern vault of the nave remains of a similar niche have pre-
+served, distorted when building a secondary doorway and an enlarged window (Raam
+1990, 150). If there was a similar niche in the northern wall, then the portal of the
+sacristy must have been located in this niche. A window could not have existed in the
+northern wall of the eastern vault, as the space must have been blocked by the roof of
+the sacristy. The sacristy itself must have had at least one window in its outer wall.
+     It is conspicuous that the surface of the southern wall of the sacristy is not aligned
+with the rest of the walls which have been positioned with notably correct geometry.
+This deviation in regularity could be explained by a hypothesis that the observable
+southern wall is in fact a thin lining wall built next to the original southern wall of
+the sacristy. Consequently the original wall surface could be hidden inside the present
+wall, i.e. the interior of the sacristy would have reached into the northern wall of the
+nave. For example the sacristy of Martna church (Raam 1996a) has been built in a
+similar manner and possibly also the sacristy of Jõelähtme (Kadakas 2010, 107–108).
+In Estonia such a solution is rare, but it is common in Finland, e.g. Sauvo, Ulvila,
+Hollola, etc. (Hiekkanen 2007). It could be the result of a building sequence when an
+existing sacristy with thin walls has been integrated into a new nave (or a new chancel)
+with thicker walls. In Finland it was common to build a stone sacristy next to a timber
+nave as the first stage of a stone church (Hiekkanen 1992, 25; 2003, 78−79). in estonia
+such a sequence has been suspected in Jõelähtme church (Kadakas 2010, 108) and it
+cannot be excluded in the case of Kose. Nothing supports this interpretation in Kose at
+the present stage of research.
+
+      Northern portal
+In the northern wall of the nave in the south­western corner of the ‘New Church’ a ver-
+tical joint emerged after some plaster fell off. It appeared that a doorway – a northern
+portal – walled up long ago, has had a hewn limestone portal. Two stones of the arch
+could be cleaned, but the stones of the vertical part of the portal have been removed
+while walling up. The discovery was a surprise because previously the doorway had
+not been considered medieval. The portal has not been positioned on the central axis of
+the middle vault probably because it could not fit with a rather high window which has
+been walled up while building the ‘New Church’.
+
+      Churches with a sacristy located next to the nave
+Many medieval churches in Estonia have been built without a sacristy and several of
+them even never got one. Therefore it would not have been surprising if Kose church
+did not have one, either. The most significant aspect about the discovered sacristy is
+its location next to the northern wall of the nave, not next to the chancel. In fact, the
+discovery of the sacristy in such a place proves that there has been no earlier chancel,
+narrower than the present one. Previously the existence of such a narrower chancel
+could not be excluded. The location of the sacristy next to the nave is obviously related
+
+
+
+122
+                  ArchAeologicAl stUdies in the chUrch And chUrchYArd oF kose
+
+
+
+
+to the fact that originally there was no chancel. However, such a solution is rare in the
+whole area of Old­Livonia, e.g. only five other such medieval rural parish churches are
+known from Estonia. There have been many more churches with neither a chancel nor
+a sacristy. A type of ground plan consisting only of a simple nave spread especially in
+North and West Estonia under the influence of the Dominicans, mostly during the 14th
+century (Raam 1970, 35).
+     There are two churches originally consisting of a single nave with a sacristy in
+West Estonia: Martna and Käina, but these apparently come from a much later pe-
+riod, from around 1500 (Raam 1996a; 1996b). The other three comparable churches
+are all close to Kose in eastern Harjumaa. The church of Jõelähtme with its three
+aisles and a sacristy located next to the centre of the northern wall of the nave is
+rather different and probably earlier than Kose (Raam 1990, 148 & 155; Kadakas
+2010). The churches of Jüri and Harju­Jaani, located in the neighbouring parishes,
+had been probably built roughly at the same time. Both churches, which were de-
+molished already in the 19th century, had a similar nave with three vaults and a
+sacristy located next to its northern wall (Raam 1988b; 1997b) as the original stone
+church of Kose. The similarity of the three churches has been noted and associated
+with the activities of Bishop Ludovicus de Monasterio (1352 – ca. 1389) of tallinn
+(Markus 2006, 13).
+     The type of church with a sacristy attached to a single nave has been widely
+spread e.g. in Finland (Hiekkanen 2007) and former East Prussia (Herrmann 2004,
+144–145), but at the present stage of research there is no basis to claim direct influ-
+ences to the architecture of kose church from these areas.
+
+     Finds
+The most significant among the few finds gathered from the debris covering the foun-
+dations of the sacristy was a fragment of limestone masonry detail worked into a
+shape of a human head (Fig. 3). It could be a fragment of a corbel of the vaults of
+the nave or a piece from the western portal, which have not been preserved. Little
+can be said about the sculpture. The human has worn a cap or a helmet, indicated
+by a welt above the eyes. A piece of a special brick of a double rib of a vault, found
+from the debris might come from the still
+preserved vault of the chancel or be an
+unused extra piece made for it. Although
+it cannot be excluded, there is no reason
+to suggest that the sacristy itself had a
+brick vault, as it appeared that the sac-
+risty had been built together with the
+nave, in an earlier building stage than
+the chancel. An ample quantity of pieces
+of roof­tiles with S­profile was discovered Fig. 3. Fragment of a limestone masonry detail
+covering the foundations of the sacristy.             worked into the shape of a human head.
+                                            Jn 3.     Tahutud paekivist inimpea kujuline raidkivi
+these came from the last roof of the old              tükk.
+sacristy, built probably in the 17th or     (AI 7073: 18.)
+18th century.                               Photo / Foto: Villu Kadakas
+
+
+
+
+                                                                                             123
+MArtin MAlVe et al.
+
+
+
+
+                                                       2                                                3
+
+
+
+
+  1                                                    4                                                     5
+
+
+
+                      1 cm
+                                                                                                            1 cm
+
+
+
+Fig. 4.   Finds from the old sacristy: 1 – sherd of a Siegburg stoneware beaker or a jug (ca. 1400−1550),
+          2 – pfennig of the Teutonic Order in Livonia, Tallinn (ca. 1515−1555), 3 – scherf of the Teutonic
+          Order in Livonia, Tallinn (ca. 1515−1520), 4 – Swedish 1 öre (1691), 5 – lock´s decorative plate.
+Jn 4.     Leide vanast käärkambrist: 1 – kivikeraamilise Siegburgi päritolu kannu või peekri katke (u 1400−1550),
+          2 – Liivi Ordu penn, Tallinn (u 1515−1555), 3 – Liivi Ordu šerf, Tallinn (u 1515–1520), 4 – Rootsi 1 öör
+          (1691), 5 – luku ehisplaat.
+(AI 7073: 11, 3, 4, 6, 9.)
+Photo / Foto: Villu Kadakas
+
+     Surprisingly a sherd of a bottom part of a stoneware jug or a beaker, made be-
+tween ca. 1400–1550 in Siegburg, Germany was discovered from 20th century debris
+(Fig. 4: 1). Siegburg stoneware is a common find in Estonian towns (see Russow 2006,
+49), e.g. Tallinn, less in villages close to Tallinn, but not at all in medieval churches
+of Estonia. As Communion chalices were normally of metal, the jug or beaker of Kose
+church might have been a simple drinking vessel or used as a vase for flowers.
+     From the soil under the floor of the old sacristy several Late Medieval coins of the
+Teutonic Order in Livonia were gathered. Three coins of five – one pfennig and two
+scherfs (Fig. 4: 3) – belong to the time of Master Wolter von Plettenberg (1494–1535),
+additionally one more vaguely datable pfennig (1515–1555; Fig. 4: 2) could originate
+from the same time period. A pfennig of Henning Scharpenberg (1424–1448), Arch-
+bishop of Riga, represents an earlier period. The only pfennig from the time of W. von
+Plettenberg was minted in Riga, while the three other coins of the Order were minted
+in Tallinn. This is the first assemblage of coins gathered during an archaeological ex-
+cavation in a sacristy of a medieval church in Estonia.
+     A couple of sherds of stove tiles of vessel tile type from the 17th – 18th centuries
+were found from under the floor, along with some small sherds of painted window
+glass. The latter should not be automatically connected to the window of the sacristy –
+these might come from the windows of the chancel.
+     The finds from debris covering the foundations of the sacristy included Swedish cop-
+per and silver coins, a copper alloy lock plate with stamped ornament and a cross­shaped
+keyhole (Fig. 4: 5). The item has been fixed with four small nails belonging supposedly to
+a small chest. Also abundant mixed human bones were gathered and reburied.
+
+
+
+124
+                     ArchAeologicAl stUdies in the chUrch And chUrchYArd oF kose
+
+
+
+
+     THE EXCAVATIONS IN 2013
+The field season in 2013 was divided into several periods: preliminary excavations in
+the pre­planned trench area in May (Malve & Roog 2013), rescue excavations in June2
+and a small survey regarding the instalment of the air source heat pump in September.
+During the excavations an ca. 55 m long, 1 m wide and approximately 2 m deep trench
+was opened in the summer of 2013 (Fig. 5). The trench started from the western gates
+of the present churchyard wall and finished in front of the ‘New Church’ sacristy door.
+
+      The burials and the paving
+During the excavations approximately 118 inhumations3, one cremation and fragments
+of two coffins without any human remains were unearthed. The dead had mostly been
+placed into the graves in extended supine position. The only exception was a double
+burial in which one child (burial no. 48) was placed prone on top of the other (burial
+no. 49). The majority of the deceased were headed towards west as was common in the
+Christian belief. However, 10 burials with their heads directed to east and few towards
+north (burial nos 108 and 114) and north­east (burial no. 107) were also discovered.
+The hands of the deceased were placed equally on the chest, stomach and belt area,
+seldom on sides. Due to high burial density numerous commingled bones and skeletons
+that had been partly destroyed by later inhumations were found. About a third of the
+dead had been buried in board coffins which can be inferred by remnants of decayed
+wood, nails next to human remains and the position of the skeleton inside the grave
+pit. Noteworthy was burial no. 100 in which a well­preserved infant’s coffin (75 × 21
+cm) was fixed with 30 iron nails. The other burials had maximum four nails per coffin.
+      During excavations 65 adults (54.2%) and 54 subadults (45.8%) were unearthed.
+Skeletons were preserved quite well as no erosion was noted on their surface. However,
+the soil in the churchyard is naturally limestone­rich, so the weight of the earth has
+caused fractures on the bones. From two of the burials only remnants of the coffin had
+preserved. In one case (burial no. 47) a corner of the coffin was found, the rest of it had
+probably been destroyed by later inhumations. The second coffin (burial no. 112) was
+observable in a larger extent so it was
+possible to ascertain that it had belonged
+to a child.
+      The burial layer in the western part
+of the churchyard near the cemetery gates
+started about 60 cm below the present­
+day ground level and it included only one
+layer of burials. On the other hand, in the
+northern side of the church inhumations
+started in the depth of about ca. 1 m and
+the layer was approximately 70 cm thick
+containing many burials on top of each
+other. It is possible that some soil together
+                                               Fig. 5. Opened trench in the Kose churchyard.
+with the upper burials had been removed        Jn 5.     Avatud trass Kose kirikuaias.
+while the gate and wall in the western         Photo / Foto: Raido Roog
+
+    2
+        The article focuses on the rescue excavations held in June 2013.
+    3
+        The total number may change as the osteological analysis is in progress.
+                                                                                        125
+MArtin MAlVe et al.
+
+
+
+
+                                                         side of the churchyard was built. On the
+                                                         other hand natural soil rises towards the
+                                                         west, which could be the reason why the
+                                                         cultural layer is thinner there. In front of
+                                                         the gates the trench running through the
+                                                         burial ground and the main pipeline (see
+                                                         Treuman 2010) were connected. From the
+                                                         pipeline trench fill incomplete skeletons
+                                                         along with scattered bones were recov-
+                                                         ered. It appears the burial ground contin-
+                                                         ued outside the western churchyard wall
+                                                         and those burials were partly disturbed
+                                                         during the excavations in 2010.
+                                                              Surprisingly a limestone paving (Fig.
+                                                         6) was unearthed near the north­western
+                                                         corner of the church 60 cm below the
+                                                         present­day ground level. The preserved
+                                                         length of the pavement was three metres,
+                                                         the width could not be determined as it
+                                                         extended to the northern and southern
+                                                         profile. It was probably buried during
+                                                         the construction work of the church, e.g.
+                                                         in 1856 when the foundation for the new
+                                                         sacristy was built. Under the western
+                                                         part of the paving was a dark area with
+Fig. 6.   An unearthed limestone paving near the         pieces of charcoal where burnt human
+          north-western corner of the tower of Kose
+          church.                                        bones were collected (cremation no. 1) –
+Jn 6.     Välja puhastatud paekivisillutis Kose kiriku   mostly fragments of cranium and tubular
+          torni loodenurga juures.                       bones. Some burnt bones were collected
+Photo / Foto: Raido Roog                                 as stray finds from the other parts of the
+                                                         trench; these originate from disturbed
+                                                         cremations.
+
+                                                               Fatal cranial trauma
+                                                         The most interesting osteological find was
+                                                         a cranium of a man4 (burial no. 84), which
+                                                         had a 7.6 cm long peri mortem cut mark
+                                                         on the vault (Fig. 7). It is of the same col-
+                                                         our with the rest of the cranial bones and
+                                                         has sharp edges. Since the cut is narrow
+                                                         and clean, it can be concluded that the
+Fig. 7.   Male skull (burial no. 84) with fatal cut      blow was made with a narrow­bladed ob-
+          wound on the neurocranium.
+Jn 7.     Surmav lõikejälg mehe ajukolju osas (matus
+                                                         ject, e.g. a sword. The man was aged 25–
+          nr 84).                                        35 years5 when he died. The blade had cut
+Photo / Foto: Martin Malve                               deep into the skull injuring soft tissues
+     4
+      Sex is determined according to the morphology of pelvic bone and cranium (Buikstra & Ubelaker
+    1994, 16–20).
+126 5 Age is determined according to the occlusial wearing of the molars (Brothwell 1981, 72).
+                       ArchAeologicAl stUdies in the chUrch And chUrchYArd oF kose
+
+
+
+
+and therefore was fatal to the individual.
+Additionally the lower third of his ster-
+num had a penetrating diamond­shaped
+(1 × 0.4 cm) injury that could have been
+caused by an arrow or a piercing weapon.
+
+      Finds
+Altogether 140 finds were gathered dur-
+ing the excavations. More than a third of
+them were coins which were found scat-
+tered in the soil. Only one coin, which
+could be associated with a male burial
+(no. 43), was found. The poor preservation
+of the coin did not allow dating it. Grave­                   Fig. 8.   Penannular brooch (13th – 14th century).
+                                                              Jn 8.     Kose kirikuaiast leitud 13.–14. saj
+goods, ornaments or details of clothing                                 hoburaudsõlg.
+were found only in ten burials out of 121                     (AI 7119: 22.)
+which is a remarkably low ratio compared                      Photo / Foto: Martin Malve
+to the churchyards from South Estonia.
+So far all similar studies have shown
+that scantiness of grave­goods is charac-
+teristic to Medieval and Early Modern
+graveyards of North and West Estonia
+(Valk 2004, 105). Rings were completely
+lacking and only one penannular bronze
+brooch (Fig. 8) with rolled ends was found
+scattered in the soil. This type of brooches
+were numerous from the 13th to the late
+17th centuries (Valk 2001, 45). Exact
+dating of the burials is complicated due
+to the small number of grave goods and
+their long period of usage. Since some of
+the soil from the western part of Kose
+churchyard has been probably removed
+and the burial density is very high, it is
+extremely difficult to base the dating on
+the depth of the inhumations.
+      the most remarkable burial (no. 7,
+Fig. 9) belonged to a juvenile6 who was
+wearing a necklace consisting of seven
+cowry shells, eight bells and one very
+poorly preserved Biser­type bead (AI
+7119: 4). The cowry shells can be dated                       Fig. 9.   Medieval juvenile burial (no. 7) with
+from 13th to the 18th century, Biser­type                               a necklace.
+                                                              Jn 9.     Keskaegne nooruki matus kaelakeega (nr 7).
+beads found in Estonia belong to the find                     (AI 7119: 4.)
+complexes dating from 13th to 16th cen-                       Photo / Foto: Martin Malve
+
+    6
+        Sex is determined according to the formation and eruption of teeth (Ubelaker 1989, 63).
+
+                                                                                                              127
+MArtin MAlVe et al.
+
+
+
+
+                                                   tury (Valk 2001, 51–52). Considering pre-
+                                                   vious, the necklace is dated to the 13th –
+                                                   16th century, making it the only definite
+                                                   inhumation from the Medieval Period.
+                                                         The most numerous grave­goods
+                                                   were knives – these were found in five
+                                                   burials (nos 5, 43, (Fig. 10), 56, 75 and
+                                                   111) (AI 7119: 3, 8–10; 14), two of which
+                                                   belonged to women. Additionally seven
+                                                   knives and a fragment of a knife­handle
+ Fig. 10. Male burial (no. 43) with a knife on his were recovered scattered. A bronze spiral
+           chest.                                  (AI 7119: 5) was found on the chest area
+ Jn 10.    Mehematus (nr 43), kus panusena hauda   of a female skeleton (burial no. 20). those
+           asetatud nuga paikneb rinnal.
+ Photo / Foto: Raido Roog                          were mostly used for decorating cloth-
+                                                   ing in the 13th – 14th century, but single
+finds occur sometimes even in 17th century burials (Valk 2001, 54). In a man’s burial
+no. 78 two round iron belt rings (AI 7119: 11/1–2) were found which can be dated to the
+Medieval or Early Modern times (ibid.). In a burial no. 108 an iron needle (AI 7119:
+12) was found on top of the child’s chest. It was probably used for fastening clothes or
+shroud. In a man’s burial no. 109 a bronze thimble (AI 7119: 13) was collected. The
+thimble lay next to the right knee inside the coffin.
+       Some remarkable finds were gathered from the mixed layer. These included three
+silver plaques with gilded avers (AI 7119: 20, 21, 98) which were sometimes used as
+pendants in necklaces during the 15th – 16th centuries (Kiudsoo 2008, 117–119). Ad-
+ditionally a number of bronze plaques and spirals, a fragment of a silver decoration
+(AI 7119: 99), a set of ornamented tweezers (AI 7119: 24), a fragment of a bracelet (AI
+7119: 30), a tiny round piece of amber (AI 7119: 117) and a flat rhombus­shaped sheet
+pendant (AI 7119: 27) which dates from the first centuries of the Middle Ages (Valk
+2001, 52) were present. Noteworthy are the pieces of a leather item (AI 7119: 23), prob-
+ably a shoe7, which was decorated with thick bronze spirals. Also a few Medieval and
+Early Modern fragments of ceramics, an iron belt buckle (AI 7119: 42), iron ice nail
+(AI 7119: 128) and a wooden button or gaming piece (AI 7119: 130) were unearthed.
+Remarkable were four sherds of burnished pottery (AI 7119: 131–133) which cannot
+be dated later than Latest Iron Age (11th – early 13th century) (Tvauri 2005, 85–86).
+
+         Coins
+During the rescue excavations 53 coins were collected from the northern side of the
+church. They were absent in the trench in front of the north­western corner of the
+building. All coins were found from the topmost mixed layer (up to 1 m). Therefore all
+the coins were probably lost or sacrificed by placing them between the floor splits. They
+were dug out during some extensive earthwork inside the church, e.g. in the second
+half of the 19th century when the foundation for the new sacristy was constructed.
+     Besides the finds from the historical period two Gotlandic pennies (ca. 1140–
+1210/20) struck before the Christianisation of Estonia were also brought to light in
+Kose (Fig. 11: 1). It is very interesting because so far no prehistoric coins are known
+      7
+          Pers. comm. riina rammo (tÜ), 06.06.2014.
+
+128
+                   ArchAeologicAl stUdies in the chUrch And chUrchYArd oF kose
+
+
+
+
+from other Estonian churchyards. In ad-
+dition, two Visby pennies were struck
+just after the german and danish local
+crusade campaign in the second quarter
+of the 13th century. There was also one
+early Livonian bracteate depicting a bish-
+op’s head with a mitre of a crescent shape,
+which belonged to the period of Bishop
+Nicolaus (1231–1253) in Riga.
+      From the perspective of coin histo-      Fig. 11. Rare coins from Kose churchyard.
+                                                         1 – Gotlandic coin, struck before 1220,
+ry in Livonia the most unique find from                  2 – Livonian Order, Tallinn, seestling,
+Kose is undoubtedly the earliest type of                 ca. 1363/64–68(?).
+seestling (Fig. 11: 2), which was minted       Jn 11.    Haruldased mündid Kose kirikuaiast.
+in Tallinn by the Livonian Order (ca.                    1 – Enne 1220. aastat valmistatud Gotlandi
+                                                         münt, 2 – Liivimaa Ordu, Tallinn, seestling,
+1363/64–68) – the first such coin to reach               u 1363/64–68(?).
+Estonian museum collections. Until now         (AI 7119: 75, 79.)
+that type has been found only in Finnish       Photo / Foto: Martin Malve
+churches (Nemirowitsch­Dantschenko &
+Pärn 1980, 76; Leimus 2001, 79). Rare coins were also seven scherfs struck in tallinn
+during the reign of Wolter von Plettenberg (1494–1535), Master of the Livonian Order.
+Establishing the very precise time of minting and circulation of scherfs is complicated
+because they are mainly found from sacrificial sites and cemeteries. With the exception
+of a few coins they do not occur in hoards (Kiudsoo 2004, 81). It is believed that possibly
+this coin type might have been minted in the years following the coin regulation of 1515
+(Leimus 1990, no. 1331–1332; Kiudsoo & Leimus 2008, 225).
+
+      CONCLUSIONS
+In 2011 foundations of the western and northern walls of the medieval sacristy were
+discovered in the south­eastern part of the ‘New Church’. It appeared that the sacristy
+had been erected next to the northern wall of the nave. Such type of church is rare in
+the whole area of Old­Livonia. In the northern wall of the nave in the south­western
+corner of the ‘New Church’ a medieval portal was discovered. The most significant finds
+gathered from the church were a copper alloy lock plate with a stamped ornament and
+a keyhole in the shape of cross, a sherd of Siegburg stoneware and a fragment of lime-
+stone masonry detail worked into the shape of a human head. In addition to that Late
+Medieval and Early Modern silver and copper coins, a couple of fragments of stove tiles
+of vessel tile type, sherds of painted window glass and a fair amount of pieces of roof­
+tiles with S­profile were unearthed.
+      During the rescue excavations in summer 2013 approximately 118 inhumations
+and one cremation were found. A little less than half (45.8%) of them were subadults.
+Most of them were inhumed according to Christian traditions, one third of the de-
+ceased were buried in coffins. Grave­goods were found only in a few cases, which is
+characteristic to the North Estonian cemeteries. Osteologically the most interesting
+was burial no. 84 – a man with a fatal cranial wound. Near the north­western corner
+of the church tower a limestone paving, probably a path, was unearthed 60 cm below
+
+
+
+                                                                                                 129
+MArtin MAlVe et al.
+
+
+
+
+the present­day ground level. Local inhabitants probably started using the churchyard
+as a burial ground at the same time as the church was built, in the first half of the
+13th century. Excavations revealed that the burial area extended outside the modern
+western churchyard wall. The finds included 51 coins collected from the northern side
+of the church. The earliest of them were two Gotlandic pennies (ca. 1140–1210/20)
+which are the only prehistoric coins found in Estonian churchyards. In addition to
+that the earliest type of seestling which was minted in Tallinn by the Livonian Order
+(ca. 1363/64–68) was unearthed.
+
+Acknowledgements: The fieldwork in 2013 was supported by ENPI Estonia-Latvia-Rus-
+sia cross-border cooperation programme 2007–2013 in the frameworks of the project
+‘Archaeology, Authority and Community: Cooperation to Protect Archaeological Herit-
+age’ (ELRI-191). The writing of this paper was supported by Estonian Research Council
+(IUT18-8) and by the European Union through the European Regional Development
+Fund (Centre of Excellence in Cultural Theory (CECT)). The authors thank Mihkel
+Tammet for help during fieldwork and preliminary identifications of the coins, Erki
+Russow for identifying the Siegburg stoneware, Kaur Alttoa for consultations about
+medieval church architecture, Liivi Varul for editing and translating the paper, archi-
+tect Nele Rohtla, Rev. Mare Palgi, the chairman of the congregation Andres Õis, senior
+inspector of the National Heritage Board Ly Renter for her assistance and student of
+Estonian Academy of Arts Triin Jänes, employees of H. Uuetalu OÜ and several mem-
+bers of the congregation for carrying out the fieldwork.
+
+
+
+
+130
+                     ArchAeologicAl stUdies in the chUrch And chUrchYArd oF kose
+
+
+
+
+   REFERENCES
+Aus, T. & Tamla, T. 1989. = Аус, Т. & Тамла, Т.           Kiudsoo, M. & Leimus, I. 2008. hoards
+1989. Интересная находка у церкви Виру-Нигула. –          discovered in 2007. – AVE, 2007, 223–227.
+tAtÜ, 38, 4, 338–341.                                     Leimus, I. 1990. Ein spätmittelalterlicher
+Brothwell, D. R. 1981. Digging Up Bones. New              Münzschatz von Üksnurme. – TATÜ, 39, 4,
+York.                                                     463–467.
+Buikstra, J. E. & Ubelaker, D. H. 1994.                   Leimus, I. 2001. Seestlingid – tõend Tallinna
+standards for data collection from human                  sidemetest Pommeriga 14. sajandil. – töid ajaloo
+skeletal remains. Arkansas Archaeological Survey          alalt 3. studia numismatica ii. Festschrift Mihhail
+Research Series, 44. Arkansas.                            Nemirovitš­Dantšenko 80. Tallinn, 75–82.
+Ederma, B. & Jaik, A. 1939. Eesti evangeeliumi            Malve, M. & Roog, R. 2013. eeluuringud kose
+luteriusu kirikud. tartu.                                 kirikuaias (reg nr 14). Tartu. [Excavation report]
+Herrmann, Chr. 2004. Die Haupttypen ländlicher            (Manuscript in MA.)
+Pfarrkirchen im mittelalterlichen Preussen. –             Markus, K. 2006. Keskaegsed maavaldused –
+Dorfkirchen. Beiträge zu Architektur, Ausstattung         uus allikas arhitektuuriuurijale. – Acta historica
+und Denkmalpflege. Kirchen in ländlichen Raum.            tallinnensia, 10. tallinn, 3–19.
+Band 3. Ed. by B. Janowski & D. Schumann.                 Nemirowitsch-Dantschenko, M. & Pärn, F.
+Berlin, 139–152.                                          1980. seestlinge und scherfe. ein Beitrag zur
+Hiekkanen, M. 1992. near but far. Finnish and             Münzgeschichte Livlands. – Nord­deutsches
+estonian church architecture in the Middle Ages. –        Jahrbuch für Münzkunde und verwandte Gebiete,
+Suomen museo 1991. Helsinki, 15–42.                       Bd. 2. hamburg, 61–96.
+Hiekkanen, M. 2003. the reformation and                   Polnoye 1830 = Полное coбраніе законовъ
+unfinished churches in Finland. – Archaeology             Россійской имперіи съ 1649 года. Томъ XIX.
+of Reformation 1480–1580. Papers given at the             1770–1774. Санктпетербург. 1830.
+Archaeology of Reformation Conference, February           Raam, V. 1970. Jõhvi kiriku mõningatest
+2001. Ed. by D. Gaimster & R. Gilchrist. The              ehitusloolistest probleemidest. – Ehitus ja
+Society for Post-Medieval Archaeology Monograph,          Arhitektuur, 3, 29–38.
+I. london, 73–83.                                         Raam, V. 1987. Aruanne kose nikolai kiriku
+Hiekkanen, M. 2007. suomen keskiajan                      väliuuringutest. [Excavation report] (Manuscript
+kivikirkot. Helsinki.                                     in MA.)
+Johansen, P. 1933. die estlandliste des liber             Raam, V. 1988a. kose kirik. – harju rajooni
+Census Daniae. Kopenhagen­Reval.                          ajaloo­ ja kultuurimälestised. Comp. by E. Vainu.
+Kadakas, V. 2010. New data on the first stone             Tallinn, 75–79.
+church of Jõelähtme. – Baltic Journal of Art              Raam, V. 1988b. Jüri (Vaskjala) kirik. – Harju
+History, 2, 97–114.                                       rajooni ajaloo­ ja kultuurimälestised. Comp. by
+Kadakas, V. 2012. Arheoloogilised uuringud kose           e. Vainu. tallinn, 101–102.
+kiriku käärkambris. Keila. [Excavation report]            Raam, V. 1990. Uut Harju vanadest kirikutest
+(Manuscript in MA.)                                       (Jõelähtme ja Kose). – Eesti ehitusmälestised.
+Kadakas, V. 2013. Uut kose keskaegsest                    Aastaraamat. Tallinn, 141–175.
+kivikirikust ja eriti selle käärkambrist. – Arheoloogia   Raam, V. 1996a. Martna Martini kirik. – eesti
+kogumik. Harjumaa uurimusi, 9. Keila, 65–84.              arhitektuur 2. Läänemaa, Saaremaa, Hiiumaa,
+Kadakas, V. 2014. Arheoloogiline järelevalve              Pärnumaa, Viljandimaa. Ed. by V. Raam.
+Kuusalu kirikus pikihoone põranda vahetusel.              tallinn, 30–31.
+Keila. [Excavation report] (Manuscript in MA.)            Raam, V. 1996b. Käina Martini (varem Nigula)
+Kiudsoo, M. 2004. Täiendusi Varbola Jaanilinna            kirik. – Eesti arhitektuur 2. Läänemaa, Saaremaa,
+müntide osas. – linnusest ja linnast. Uurimusi            Hiiumaa, Pärnumaa, Viljandimaa. Ed. by V. Raam.
+Vilma Trummali auks. Ed. and comp. by A. Haak,            tallinn, 92.
+E. Russow & A. Tvauri. Muinasaja Teadus, 14.              Raam, V. 1997a. kose nikolai kirik. – eesti
+tartu-tallinn, 77–93.                                     arhitektuur 3. Harjumaa, Raplamaa, Järvamaa,
+Kiudsoo, M. 2008. kesk- ja uusaegsetest                   Lääne­Virumaa, Ida­Virumaa. Ed. by V. Raam.
+ripatsmüntidest Eesti arheoloogilises                     tallinn, 28–29.
+materjalis.– loodus, inimene ja tehnoloogia, 2.           Raam, V. 1997b. Harju­Jaani kirik Raasikul. –
+Interdistsiplinaarseid uurimusi arheoloogias.             Eesti arhitektuur 3. Harjumaa, Raplamaa, Järva­
+Comp. by J. Peets. Ed. by L. Jaanits, V. Lang & J.        maa, Lääne­Virumaa, Ida­Virumaa. Ed. by V.
+Peets. Muinasaja Teadus, 17. tallinn-tartu,               raam. tallinn, 48.
+109–132.
+
+
+
+
+                                                                                                          131
+MArtin MAlVe et al.
+
+
+
+Russow, B. 1584. Chronica. Der Provintz               Ubelaker, D. H. 1989. human skeletal remains.
+Lyfflandt. [...] Barth. http://digar.nlib.ee/digar/   Excavation, Analysis, Interpretation. Manuals of
+show/?id=104675 (29.04.2014)                          Archaeology, 2. washington.
+Russow, E. 2006. Importkeraamika Lääne­Eesti          Valk, H. 2001. rural cemeteries of southern
+linnades 13.–17. sajandil. tallinn.                   Estonia 1225–1800 AD. 2nd edition. CCC Papers, 3.
+Tamla, T. 1991. Zur Datierung der Kirche von          Visby­Tartu.
+Viru-nigula. – tAtÜ, 40, 4, 376–377.                  Valk, H. 2004. Artefacts in estonian urban
+Tamla, Ü. 2003. 2002. aasta arheoloogiliste           churchyards: reflections on different traditions
+välitööde tulemusi. – AVE, 2003, 5–16.                and ideologies. – der ostseeraum und
+Treuman, K. 2010. Aruanne arheoloogilise              Kontinentaleuropa 1100–1600. Einflußnahme –
+järelvalve teostamise kohta Kose kirikaia             Rezeption – Wandel. Ed. by D. Kattinger,
+kaitsevööndis. Tallinn. [Excavation report]           J. E. Olesen & H. Wernicke. CCC Papers, VIII.
+(Manuscript in MA.)                                   Schwerin, 103–112.
+Tvauri, A. 2005. Eesti hilisrauaaja savinõud.
+Ed. by E. Russow. Muinasaja Teadus, 16. tartu-
+tallinn.
+
+
+
+
+132
+                                         ArchAeologicAl Fieldwork in estoniA 2013, 119–134
+
+
+
+
+   ARHEOLOOGILISED UURINGUD KOSE KIRIKUS JA KIRIKUAIAS
+   Martin Malve, Villu Kadakas, Mauri Kiudsoo ja Elis Tiidu
+
+Artikkel käsitleb kahtede arheoloogiliste välitööde tulemusi: 2011. a uuringud nn Uues kirikus, 19. sajandi
+keskpaigas ehitatud põhjatiivas8 ning 2013. a uuringud kirikuaia lääne­ ja põhjaosas.
+    2011. a nn Uue kiriku, kirikuhoone põhjatiiva põranda vahetuse käigus avastati samal kohal varem
+asunud käärkambri alusmüürid (jn 1: 5; 2), millest teati seni vaid kinnitamata kirjalike teadete põhjal.
+Vana käärkamber lammutati 19. sajandi keskpaigas nn Uue kiriku rajamisel juurdeehitisena keskaegsele
+pikihoonele. Kuni 2011. aastani oli teada, et algne kivikirik koosnes vaid praegusest pikihoonest (jn 1: 2),
+millel oli kolme võlviga lagi ja viilutorn läänefassaadil. Kitsam kooriruum ja massiivne läänetorn (jn 1:
+3; 1) on lisatud 15. sajandil. Algselt täitis pikihoone idavõlvik kooriruumi ülesandeid. 2011. aastal selgus,
+et pikihoone põhjaseina idapoolse otsa vastas on paiknenud u 1 m paksuste seintega ja ruudule läheneva
+põhiplaaniga (u 4,15 × 5,35 m interjöör) käärkamber. Niiviisi selgus algselt ilma pikihoonest kitsama
+eraldi kooriruumita ja läänetornita püstitatud algse kivikiriku põhiplaani viimane teadmata osa (jn 1).
+    Leiumaterjal koosneb mõnedest hiliskeskaegsetest ja varauusaegsetest hõbe­ (jn 4: 2–4) ja vaskmünti-
+dest, maalitud aknaklaasi kildudest, katusekivide tükkidest; erandlikuna väärivad ära märkimist Siegburgi
+kivikeraamilise kannu või peekri kild (15. sajand – 16. sajandi II pool; jn 4: 1), vaskplekist ornamenteeritud
+ristikujulise lukuauguga lukuplaat (jn 4: 5) ning inimpea kujuga raidkivi fragment (jn 3), mis arvatavasti
+pärineb pikihoone hävinud konsoolilt või portaalilt.
+    Pikihoone küljes asuva käärkambriga ja ilma kitsama kooriruumita kirikuhoone tüüp on Eesti ja kogu
+Vana­Liivimaa keskaegsete maakirikute hulgas haruldane. Naaberkihelkondade Jüri ja Harju­Jaani kiri-
+kud, mis mõlemad lammutati 19. sajandil, rajati Kosega ligikaudu samal ajal. Tõenäoliselt puudus kõigil
+algselt kitsam kooriruum, kuna mõlemal oli käärkamber ehitatud pikihoone külge. Taoline kirikuhoone
+tüüp on levinud nt Soomes ja endisel Ida­Preisimaal, kuid praeguses uurimisseisus ei ole alust väita, et
+nendel piirkondadel oli otsene mõju Kose algse kivikiriku arhitektuurile.
+    2013. a suvel Kose kirikuaia lääne­ ja põhjaküljel toimunud välitööd (jn 5) olid ühed seni kõige ulatus-
+likumad ja põhjalikumad maakirikuaia kaevamised Põhja­Eestis. Trassi pikkus oli u 55 m ja laius u 1 m.
+Välitööde käigus avati ja võeti üles u 118 laibamatust. Kahe matuse puhul oli säilinud vaid kirstude katked
+(nr 47 ja 112). Kirikutorni kirdenurga lähedalt kaevati maapinnast ligi 60 cm sügavuselt välja u 3 m pikku-
+selt jälgitav paekivist sillutis ehk kunagine teekoht (jn 6). Tee oli pinnasesse mattunud tõenäoliselt kiriku
+ehitustööde käigus, võimalik et 1856. aastal, mil rajati uus käärkamber. Tee alt leiti üks põletusmatus,
+üksikuid kremeeritud luid leidus ka mujal trassi alal.
+    Leitud matused kuulusid kesk­ ja varauusaega. Surnud olid enamasti sängitatud selili­siruli asendis
+peaga lääne suunas, kuid esines ka üksikuid erandeid. Kümme surnut oli sängitatud peaga itta, kaks põhja
+ja üks loodesse. Ainus kaksikmatus koosnes kahest lapsest (matus nr 48 ja nr 49), kus üks laps oli kõhuli
+teise peale asetatud. Maetute käed olid asetatud nii rinnale, kõhule kui ka vööle, harvem külgedele. Säili-
+nud oli kirstupuitu ja ­naelu. Märkimisväärne oli väikelapse matus nr 100, kus pisike kirst (75 × 21 cm) oli
+kinnitatud 30 naelaga. Ligi pooled matustest kuulusid lastele ja noorukitele (45,8%), mis on selle perioodi
+kalmistutele iseloomulik. Huvitava osteoloogilise leiuna väärib märkimist surmava vigastusega noore mehe
+kolju (matus nr 84; jn 7) ja võimaliku noolevigastusega rinnakuluu.
+    Kalmistu kultuurkihis oli hulgaliselt segamini inimluid ja lõhutud luustikke, mis viitab väga suurele
+matmistihedusele. Kaevamiste käigus täheldati, et kirikuaia lääneosas algavad matused u 60 cm sügavusel
+tänapäevasest maapinnast ning need on säilinud vaid ühes kihis. Samas kiriku põhjaküljel esineb mitmes
+kihis matuseid vahemikus u 1–1,7 m tänasest maapinnast. Võimalik, et kirikuaia läänevärava ehitamisel
+on maapinda kooritud ja selle käigus ülemised hauad ära kaevatud. Samas võib põhjus olla looduslikus
+pinnases, mis tõuseb läänesuunas kõrgemale. Välitööde käigus ilmnes, et kalmistu ala laieneb kirikuaia
+tänapäevasest läänemüürist väljapoole.
+    Välitööde käigus koguti 140 leidu, millest üle kolmandiku saadi juhuleidudena segatud pinnasest. Vaid
+kümne matuse juurest leiti esemeid. Panuste vähesust on täheldatud ka teiste kesk­ ja varauusaegsete
+Põhja­ ja Lääne­Eesti kalmistute puhul. Märkimisväärseim avastus oli seitsmest kauriteokarbist, kahek-
+sast kuljusest ja ühest halvasti säilinud kudrushelmest koosneva keega nooruki matus (matus nr 7), mis on
+dateeritud 13.–16. sajandisse (jn 9). Lisaks oli matustega seostuvate panuste hulgas viis nuga (jn 10), kaks
+vöörõngast, münt, pronksspiraal, nõel ja sõrmkübar. Kaevamistel saadi ka ehisnaaste (sh kaks hõbedast,
+kullatud esiküljega eksemplari, mida võib dateerida 15.–16. sajandisse), pronksist pintsetid ja käevõru kat-
+ke, pronksspiraalidega kaunistatud nahkeseme (jalatsi?) katke ning 53 kesk­ ja varauusaegset münti. Ül-
+
+
+     8
+         2011. a välitööde tulemused on varem eesti keeles avaldatud (Kadakas 2013).
+
+                                                                                                         133
+MArtin MAlVe jt
+
+
+
+latavalt puudusid leiumaterjalis sõrmused, mis Lõuna­Eestis on väga levinud panuseks. Segatud materjali
+hulgast leiti lühikeste rullotstega hoburaudsõlg, mis on dateeritud 13.–14. sajandisse (jn 8).
+   Kose kirikuaiast leitud müntide seas domineerivad keskaegsed vermingud. Lisaks on meil tegemist
+esimese juhtumiga, kus kirikuaiast avastatud mündimaterjal ulatub tagasi juba muinasaega. Nimelt on
+neljast sealt päevavalgele tulnud Gotlandi pennist kaks valmistatud perioodil 1140–1210/20 (jn 11: 1).
+Vana­Liivimaa rahadest tuleks eraldi esile tõsta Liivimaa Ordu Tallinna rahapaja seestlingi varaseimat tüüpi
+(u 1363/64–68) (jn 11: 2), millist oli siiani avastatud üksnes Soome kirikutest. Haruldaseks tüübiks võib
+pidada ka Wolter von Plettenbergi (1494–1535) aegseid šerfe.
+
+
+
+
+134
+
