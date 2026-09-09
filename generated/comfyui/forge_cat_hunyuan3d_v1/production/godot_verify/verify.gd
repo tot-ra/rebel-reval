@@ -5,14 +5,14 @@ extends Node3D
 # materials/skeleton/all five runtime clips/ground contact/bounds, renders a forge-lit screenshot,
 # writes a JSON report and quits. This verifies the integrated production asset.
 
-# Load the sibling production GLB directly (no duplicated copy in the repo).
-const GLB_PATH := "res://generated/comfyui/forge_cat_hunyuan3d_v1/production/forge_cat_production_v1.glb"
-const SHOT_PATH := "res://generated/comfyui/forge_cat_hunyuan3d_v1/production/previews/godot_preview.png"
+# Load the runtime production GLB directly (no duplicated copy in generated/).
+const GLB_PATH := "res://assets/characters/cat/forge_cat_production_v1.glb"
+const PREVIEW_DIR := "res://generated/comfyui/forge_cat_hunyuan3d_v1/production"
+const SHOT_PATH := PREVIEW_DIR + "/previews/godot_preview.png"
+const REPORT := PREVIEW_DIR + "/godot_verify/godot_verify.json"
 
 var _glb := ProjectSettings.globalize_path(GLB_PATH)
 var _shot := ProjectSettings.globalize_path(SHOT_PATH)
-const REPORT := "res://generated/comfyui/forge_cat_hunyuan3d_v1/production/godot_verify/godot_verify.json"
-
 var _report := {}
 
 func _ready() -> void:

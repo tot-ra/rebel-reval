@@ -1,6 +1,6 @@
 # Forge cat Hunyuan3D candidate v1
 
-This directory contains the visually approved base-shape source for Kalev's smithy cat. The raw files remain staging material; the cleaned production GLB under `production/` is integrated through `assets/characters/cat/cat_rig.tscn`.
+This directory contains the visually approved base-shape source for Kalev's smithy cat. The raw files remain staging material; the cleaned production GLB lives at `assets/characters/cat/forge_cat_production_v1.glb` and is integrated through `assets/characters/cat/cat_rig.tscn`.
 
 ## Decision
 
@@ -28,4 +28,8 @@ This directory contains the visually approved base-shape source for Kalev's smit
 - `preview_front.png`, `preview_side.png`, `preview_back.png` - separate inspection views, not a contact sheet.
 - `mesh_audit.json` and `audit_and_render.py` - reproducible topology audit and preview renderer.
 - `PRODUCTION_PLAN.md` - production requirements implemented under `production/`.
-- `production/forge_cat_production_v1.glb` - integrated manifold, textured, rigged runtime asset with five canonical clips.
+- Runtime outputs (rebuild with `production/production_build.py`):
+  `assets/characters/cat/forge_cat_production_v1.glb`,
+  `assets/characters/cat/forge_cat_lod1.glb`,
+  `assets/characters/cat/forge_cat_lod2.glb`,
+  and town-coat / shared normal+roughness maps under `assets/characters/cat/tex/`.

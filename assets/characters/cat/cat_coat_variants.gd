@@ -9,7 +9,7 @@ extends RefCounted
 ## small deterministic size jitter. Kalev's smithy cat keeps the embedded forge
 ## coat; the town cats draw from the rest.
 
-const TEX_DIR := "res://generated/comfyui/forge_cat_hunyuan3d_v1/production/tex"
+const TEX_DIR := "res://assets/characters/cat/tex"
 const NORMAL_TEXTURE := TEX_DIR + "/forge_cat_normal.png"
 const ROUGHNESS_TEXTURE := TEX_DIR + "/forge_cat_roughness.png"
 

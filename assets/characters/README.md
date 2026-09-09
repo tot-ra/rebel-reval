@@ -98,3 +98,11 @@ python3 tools/validate_asset_sources.py
 ```
 
 All `test_character_rig.gd` cases must pass: contract completeness, transform-driven facing, contralateral run swing, 64 px scale, neutral modifier, data-only variant, equipment slots, skinned garments, occlusion ghost.
+
+## Ambient forge cat (quadruped)
+
+Kalev's smithy cat and town cats share `assets/characters/cat/cat_rig.tscn`. The production GLB, distance LODs, and town-coat maps live under `assets/characters/cat/`; rebuild inputs stay in `generated/comfyui/forge_cat_hunyuan3d_v1/`. Rebuild with:
+
+```bash
+blender -b --python generated/comfyui/forge_cat_hunyuan3d_v1/production/production_build.py
+```

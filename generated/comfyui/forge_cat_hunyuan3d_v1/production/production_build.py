@@ -22,10 +22,14 @@ ASSET = os.path.abspath("generated/comfyui/forge_cat_hunyuan3d_v1")
 SRC = os.path.join(ASSET, "forge_cat_hunyuan3d_v1.glb")
 OUT = os.path.join(ASSET, "production")
 TEX = os.path.join(OUT, "tex")
-COATS_DIR = os.path.join(TEX, "coats")
-LOD = os.path.join(OUT, "lod")
+# WHY: accepted runtime meshes/coats live under assets/ so generated/ can later
+# be export-isolated without breaking cat_rig.tscn or town-coat swaps.
+RUNTIME = os.path.abspath("assets/characters/cat")
+RUNTIME_TEX = os.path.join(RUNTIME, "tex")
+COATS_DIR = os.path.join(RUNTIME_TEX, "coats")
+LOD = RUNTIME
 REP = os.path.join(OUT, "reports")
-PROD_GLB = os.path.join(OUT, "forge_cat_production_v1.glb")
+PROD_GLB = os.path.join(RUNTIME, "forge_cat_production_v1.glb")
 # Nose-to-rump length in metres over the source mesh span. Sized as a large
 # well-fed tom (0.60 m body, ~0.29 m at the withers): the earlier 0.52 m build
 # read as a kitten next to the human rigs from the game camera.
@@ -245,7 +249,7 @@ def bake_maps(obj):
     img_node.image = ao_img
     bpy.ops.object.bake(type="AO", margin=8)
 
-    nrm_img.filepath_raw = os.path.join(TEX, "forge_cat_normal.png")
+    nrm_img.filepath_raw = os.path.join(RUNTIME_TEX, "forge_cat_normal.png")
     nrm_img.file_format = "PNG"; nrm_img.save()
     ao_img.filepath_raw = os.path.join(TEX, "forge_cat_ao.png")
     ao_img.file_format = "PNG"; ao_img.save()
@@ -422,7 +426,7 @@ def author_roughness(obj, ao_img):
     bpy.ops.object.select_all(action="DESELECT"); obj.select_set(True)
     bpy.context.view_layer.objects.active = obj
     bpy.ops.object.bake(type="DIFFUSE", pass_filter={"COLOR"}, margin=8)
-    rough.filepath_raw = os.path.join(TEX, "forge_cat_roughness.png")
+    rough.filepath_raw = os.path.join(RUNTIME_TEX, "forge_cat_roughness.png")
     rough.file_format = "PNG"; rough.save()
     for node in list(nodes):
         if node.type in {"TEX_IMAGE", "TEX_NOISE", "MAP_RANGE", "MIX_RGB", "INVERT"}:
@@ -1283,7 +1287,7 @@ def make_lod(obj, tris, path):
 
 
 def main():
-    for d in (TEX, COATS_DIR, LOD, REP):
+    for d in (TEX, COATS_DIR, LOD, REP, RUNTIME, RUNTIME_TEX):
         os.makedirs(d, exist_ok=True)
     clear()
     obj, orientation = build_lod0()
@@ -1295,8 +1299,8 @@ def main():
     if REUSE_TEXTURES:
         # Keep the already-shipped PBR set; this rebuild only fixes paws/rig/clips.
         alb = bpy.data.images.load(os.path.join(TEX, "forge_cat_albedo.png"))
-        nrm_img = bpy.data.images.load(os.path.join(TEX, "forge_cat_normal.png"))
-        rgh_img = bpy.data.images.load(os.path.join(TEX, "forge_cat_roughness.png"))
+        nrm_img = bpy.data.images.load(os.path.join(RUNTIME_TEX, "forge_cat_normal.png"))
+        rgh_img = bpy.data.images.load(os.path.join(RUNTIME_TEX, "forge_cat_roughness.png"))
         nrm_img.colorspace_settings.name = "Non-Color"
         rgh_img.colorspace_settings.name = "Non-Color"
         final_material(obj, alb, nrm_img, rgh_img)
@@ -1346,6 +1350,11 @@ def main():
                        "materials": [m.name for m in face.data.materials]},
         "textures": ["forge_cat_albedo.png", "forge_cat_normal.png",
                      "forge_cat_roughness.png", "forge_cat_ao.png"],
+        "runtime_glb": "assets/characters/cat/forge_cat_production_v1.glb",
+        "runtime_lods": [
+            "assets/characters/cat/forge_cat_lod1.glb",
+            "assets/characters/cat/forge_cat_lod2.glb",
+        ],
         "coats": [c["id"] for c in COATS],
         "texture_size": TEX_SIZE,
         "weight_mode": wmode,

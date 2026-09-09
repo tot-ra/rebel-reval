@@ -15,8 +15,9 @@ import numpy as np
 from mathutils import Vector
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-GLB = os.path.join(HERE, "forge_cat_production_v1.glb")
-COATS = os.path.join(HERE, "tex", "coats")
+ROOT = os.path.abspath(os.path.join(HERE, "..", "..", "..", ".."))
+GLB = os.path.join(ROOT, "assets/characters/cat/forge_cat_production_v1.glb")
+COATS = os.path.join(ROOT, "assets/characters/cat/tex/coats")
 OUT = os.path.join(HERE, "previews")
 TILE = 480
 

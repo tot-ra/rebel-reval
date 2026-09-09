@@ -122,6 +122,17 @@ If the destination is unavailable or its license/access contract is unclear, do 
 
 Tracked `generated/comfyui/**` is pipeline evidence, not runtime import surface. Keep manifests, workflow JSON, audit reports, generator scripts, and production Blender outputs that still reproduce an accepted runtime asset.
 
+Classify every tracked `generated/` path before deleting or adding Godot import/export boundaries:
+
+| Class | Keep in Git | Examples |
+|------|-------------|----------|
+| Runtime | Move into `assets/` | Forge-cat production GLB, LODs, town-coat maps (`assets/characters/cat/`) |
+| Indispensable rebuild input | Keep under `generated/` | `pack_horse_v3/pack_horse_candidate.glb`, cattle/sheep/pig candidates, forge-cat Hunyuan candidate + `production_build.py` |
+| Retained documentation/evidence | Keep | Bundle README/state/audit JSON, reference sheets, licenses, preview plates, music |
+| Disposable intermediate | Delete only when verified | Reproducible `*.log`, unnamed `generated/blender/script-*` / `render-*` probes, UUID dumps that duplicate a canonical named file |
+
+Do not treat the 2026-09-09 snapshot (590 tracked files / 132.3 MiB) as uniformly removable. Animal builders still require candidate GLBs, including `pack_horse_v3`. Add `generated/.gdignore` or an export exclude only after accepted runtime files have left `generated/`, and keep command-line rebuild tools on filesystem paths.
+
 Remove without LFS migration when any of the following holds:
 
 1. A fauna or livestock audit marks the Hunyuan candidate `rejected_for_production` or an equivalent overall rejected verdict. Delete candidate GLBs and cleanup experiment meshes; retain `candidate_audit.json`, `candidate_workflow.json`, `state.json`, and markdown reports with SHA-256 checksums.

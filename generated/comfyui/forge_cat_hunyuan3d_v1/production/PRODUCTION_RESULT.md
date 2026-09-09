@@ -17,16 +17,17 @@ adapter preserves the existing `SharedCharacterRig` gameplay contract.
 
 ## Deliverables
 
-- `forge_cat_production_v1.glb` - LOD0 mesh + `forge_cat` material + 22-bone
-  quadruped armature + `idle`, `walk`, `sleep`, `lick`, and `stretch` animations
-  (single-file GLB, textures embedded).
-- `lod/forge_cat_lod1.glb`, `lod/forge_cat_lod2.glb` - decimated distance LODs
+- `assets/characters/cat/forge_cat_production_v1.glb` - LOD0 mesh + `forge_cat`
+  material + 22-bone quadruped armature + `idle`, `walk`, `sleep`, `lick`, and
+  `stretch` animations (single-file GLB, textures embedded).
+- `assets/characters/cat/forge_cat_lod1.glb`,
+  `assets/characters/cat/forge_cat_lod2.glb` - decimated distance LODs
   (mesh + UV, shared-material placeholder, no embedded textures).
-- `tex/forge_cat_albedo.png`, `tex/forge_cat_normal.png`,
-  `tex/forge_cat_roughness.png`, `tex/forge_cat_ao.png` - 1024 texture set
-  (AO also multiplied into the albedo).
-- `tex/coats/forge_cat_albedo_*.png` - five town coats over the same UVs, swapped
-  at runtime by `assets/characters/cat/cat_coat_variants.gd`.
+- Staging `tex/forge_cat_albedo.png` and `tex/forge_cat_ao.png` stay in this
+  bundle as rebuild inputs. Runtime `forge_cat_normal.png`,
+  `forge_cat_roughness.png`, and `tex/coats/forge_cat_albedo_*.png` live under
+  `assets/characters/cat/tex/` and are swapped at runtime by
+  `assets/characters/cat/cat_coat_variants.gd`.
 - `previews/walk_cycle.png`, `previews/pose_sheet.png`, `previews/coat_sheet.png`
   - review sheets from `render_review.py`.
 - `previews/prod_{front,side,back,threeq}.png` - Blender previews.
@@ -139,8 +140,8 @@ Loaded via `GLTFDocument` (tests the raw GLB, not a pre-baked import):
 ## Reproduce
 
 ```
-blender -b --python production_build.py                       # build GLB + LODs + textures + coats + report + gait audit
+blender -b --python production_build.py                       # build GLB + LODs + textures + coats + report + gait audit into assets/characters/cat/
 blender -b --python render_review.py                          # walk-cycle, pose and coat review sheets
-blender -b --python render_textured.py -- forge_cat_production_v1.glb previews/prod
+blender -b --python render_textured.py -- ../../../../assets/characters/cat/forge_cat_production_v1.glb previews/prod
 Godot --headless --path . --script generated/comfyui/forge_cat_hunyuan3d_v1/production/godot_verify/run_verify.gd  # in-engine verify + preview
 ```
