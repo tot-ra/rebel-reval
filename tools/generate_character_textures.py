@@ -2,9 +2,11 @@
 """Generate and audit the shared character-surface PBR texture families.
 
 The runtime generator lives in :mod:`hero_body_textures` because Blender must
-pack the images into the character GLB.  This CLI is the explicit contract for
-that generator: it can list the available zones without Blender, and in
-Blender it can export the source maps plus a deterministic provenance manifest.
+pack the images while exporting. ``tools/share_character_textures.py`` then
+rewrites each runtime GLB so those maps URI-reference one canonical PNG set.
+This CLI is the explicit contract for that generator: it can list the available
+zones without Blender, and in Blender it can export the source maps plus a
+deterministic provenance manifest.
 
 The maps are intentionally palette-neutral.  ``generate_hero_body.py``
 multiplies each albedo by the selected character spec's sRGB palette entry,
@@ -150,7 +152,7 @@ def _manifest(character: str, families: Iterable[str], output: Path) -> dict:
         "runtime_contract": {
             "palette_application": "detail albedo multiplied by the character palette in generate_hero_body._material",
             "normal_space": "OpenGL tangent-space",
-            "roughness_ao_export": "roughness is packed into glTF metallicRoughnessTexture; AO uses occlusionTexture",
+            "roughness_ao_export": "roughness is packed into glTF metallicRoughnessTexture; AO uses occlusionTexture; share_character_textures rewrites both to shared URIs",
         },
         "zones": zones,
         "provenance": {

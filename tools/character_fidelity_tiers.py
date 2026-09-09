@@ -139,15 +139,17 @@ def inspect_glb(path: Path) -> dict[str, int]:
                 triangles += accessor.get("count", 0) // 3
 
     for image in document.get("images", []):
+        uri = image.get("uri")
+        if isinstance(uri, str) and not uri.startswith("data:"):
+            texture_path = (path.parent / uri).resolve()
+            if texture_path.is_file() and texture_path.suffix.lower() == ".png":
+                header = texture_path.read_bytes()[:24]
+                if header.startswith(b"\x89PNG\r\n\x1a\n") and len(header) >= 24:
+                    width, height = struct.unpack(">II", header[16:24])
+                    max_texture_px = max(max_texture_px, width, height)
+            continue
         if "bufferView" in image:
-            # Embedded images: dimensions are not in JSON; skip until exporters
-            # embed mime metadata. Texture caps apply once P0-144 ships UVs.
-            continue
-        source = image.get("source")
-        if source is None:
-            continue
-        if source < len(document.get("images", [])):
-            # External URI images are not embedded in the GLB payload.
+            # Embedded unique maps: dimensions are not in JSON.
             continue
 
     for texture in document.get("textures", []):

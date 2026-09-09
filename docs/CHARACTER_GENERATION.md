@@ -65,8 +65,11 @@ Every generated part gets UVs at build time: `PartBuilder.build()` runs an angle
 
 - Five grayscale families - `cloth` (plain wool weave), `leather` (tanned grain and pores), `skin` (blotch, pores, freckles), `hair` (strand streaks), `metal` (brushed streaks and dents) - each generates 512 px albedo, tangent-space normal, roughness, and AO maps with seeded numpy noise inside Blender.
 - Base color is detail-albedo multiplied by the spec's palette color (exported as `baseColorTexture` x `baseColorFactor`), so palette entries keep working unchanged and one texture family serves every character and garment. Roughness is authored per-pixel from the same relief field instead of leaving cloth and skin at a plastic scalar.
-- Blender's glTF exporter packs each family's roughness into the native G channel of a `metallicRoughnessTexture` and exports AO through the standard `occlusionTexture`; Godot extracts that packed image as `<body>_hero_tex_<family>_ao-hero_tex_<family>_roughness.png`. Normal, albedo, ORM, and material slots are all embedded in the GLB.
-- Tier budgets: 512 px sits under the Tier 1 1024 px cap, so the same pipeline serves hero and named-NPC tiers; LOD decimation preserves UVs and the embedded PBR material graph.
+- Blender's glTF exporter packs each family's roughness into the native G channel of a `metallicRoughnessTexture` and exports AO through the standard `occlusionTexture`. The generator then rewrites those images to URI-reference `assets/characters/shared/textures/hero_tex_<family>_*.png` (packed ORM keeps the `ao-hero_tex_<family>_roughness` stem). Palette, normal scale, metallic, and specular stay per-material inside each GLB.
+- Godot import keeps `gltf/embedded_image_handling=1` so a remaining unique embed can still extract. Shared URI maps are not copied beside each body. Do not delete extracted PNGs unless the GLB no longer embeds them - the next import would recreate the copies.
+- Distinct AO or other maps (byte-hash mismatch for the same glTF image name) stay embedded. UV islands remain mesh attributes. Rig, clip, and LOD contracts are unchanged.
+- Evidence for the share pass: [`docs/reports/character_shared_textures.md`](reports/character_shared_textures.md).
+- Tier budgets: 512 px sits under the Tier 1 1024 px cap, so the same pipeline serves hero and named-NPC tiers; LOD decimation preserves UVs and the shared PBR material graph.
 
 ### Reproducible character surface generator (P0-145)
 
@@ -103,12 +106,16 @@ sRGB overrides; `generate_hero_body.py` converts them to linear values and
 multiplies the family albedo before export. The GLB therefore carries
 `baseColorTexture` plus `baseColorFactor`, a normal texture, packed glTF
 metallic-roughness, and an occlusion texture. The five zones are shared across
-characters and LODs rather than duplicated per palette.
+characters and LODs rather than duplicated per palette. Runtime files live in
+`assets/characters/shared/textures/`; rebuilding one body refreshes those PNGs,
+and every URI-linked GLB picks up the new pixels.
 
-Every Godot-extracted runtime sidecar is registered by:
+Every shared runtime texture is registered by:
 
 ```bash
+python3 tools/share_character_textures.py --apply
 python3 tools/register_character_texture_sources.py
+python3 tools/share_character_textures.py --verify
 python3 tools/validate_asset_sources.py
 python3 tools/verify_asset_lint.py
 ```
@@ -174,6 +181,7 @@ New body parts (skirts, hoods, animal shapes) are new `PartBuilder` sections in 
 tools/rebuild_hero_character.sh            # hero
 tools/rebuild_hero_character.sh innkeeper  # every committed spec
 blender --background --python tools/generate_character_lods.py   # after any body change
+python3 tools/share_character_textures.py --verify
 blender --background --python tools/audit_arm_swing.py           # locomotion arm numbers
 godot --headless --path . --script tools/run_godot_tests.gd
 python3 tools/validate_asset_sources.py

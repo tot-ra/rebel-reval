@@ -187,7 +187,7 @@ func test_kalev_tier_zero_hero_contract_is_showcase_ready() -> void:
 			assert_true(material.ao_texture != null,
 				"%s must carry an AO map" % material.resource_name)
 			for family: String in REQUIRED_PBR_FAMILIES:
-				if material.albedo_texture.resource_path.contains("_hero_tex_%s_" % family):
+				if material.albedo_texture.resource_path.contains("hero_tex_%s_" % family):
 					pbr_families[family] = true
 					break
 			max_texture_px = max(

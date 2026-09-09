@@ -14,8 +14,12 @@ GODOT="${GODOT:-/Applications/Godot.app/Contents/MacOS/Godot}"
 BLENDER="${BLENDER:-/Applications/Blender.app/Contents/MacOS/Blender}"
 
 python3 tools/build_heroic_humanoid_glb.py "$CHARACTER"
-"$BLENDER" --background --python tools/generate_hero_body.py -- \
-  --character="$CHARACTER" 2>&1 \
-  | grep -E "BODY_|Wrote|Traceback|Error" || true
-"$GODOT" --headless --path . --import >/dev/null 2>&1
-echo "Character '$CHARACTER' rebuilt and reimported."
+"$BLENDER" --background --python-exit-code 1 --python tools/generate_hero_body.py -- \
+  --character="$CHARACTER"
+"$BLENDER" --background --python-exit-code 1 --python tools/generate_character_lods.py
+python3 tools/share_character_textures.py --apply
+"$GODOT" --headless --path . --import
+python3 tools/register_character_texture_sources.py
+python3 tools/share_character_textures.py --verify
+python3 tools/verify_asset_lint.py
+echo "Character '$CHARACTER' rebuilt, LODs refreshed and reimported."

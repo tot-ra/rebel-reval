@@ -756,7 +756,7 @@ func test_hero_cast_carries_pbr_maps_at_the_tier_zero_contract() -> void:
 				if material == null or material.albedo_texture == null:
 					continue
 				var albedo_path := material.albedo_texture.resource_path
-				var marker := "_hero_tex_"
+				var marker := "hero_tex_"
 				var marker_index := albedo_path.find(marker)
 				if marker_index < 0:
 					continue

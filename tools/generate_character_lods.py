@@ -27,6 +27,7 @@ import bpy
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 from character_specs import CHARACTERS  # noqa: E402
+from share_character_textures import link_exported_character_glb  # noqa: E402
 
 SHARED_DIR = ROOT / "assets/characters/shared"
 MANIFEST_PATH = SHARED_DIR / "character_lod_manifest.json"
@@ -153,6 +154,8 @@ def _export_lod(path: Path, armature: bpy.types.Object, meshes: list[bpy.types.O
         export_skins=True,
         export_materials="EXPORT",
     )
+    # LOD re-export re-embeds the family maps; restore shared URIs immediately.
+    link_exported_character_glb(path)
 
 
 def _process_body(path: Path) -> dict:

@@ -8,9 +8,10 @@ Python. Materials multiply the detail albedo by their palette color, so one
 512 px set per family serves every character, palette variant, and garment
 without per-character texture memory growth.
 
-The maps are build-time artifacts embedded into the exported GLBs; no runtime
-GDScript changes are involved. Families are deliberately coarse - cloth,
-leather, skin, hair, metal - matching the material response table in
+The maps are build-time artifacts. Blender still packs them while exporting,
+then ``tools/share_character_textures.py`` rewrites the GLB so every body and
+LOD URI-references one canonical PNG set. Families are deliberately coarse -
+cloth, leather, skin, hair, metal - matching the material response table in
 tools/generate_hero_body.py.
 """
 
@@ -192,7 +193,8 @@ def _make_image(name: str, rgb: np.ndarray, non_color: bool) -> bpy.types.Image:
     image.pixels = rgba.reshape(-1)
     if non_color:
         image.colorspace_settings.name = "Non-Color"
-    # Packed images are embedded into the exported GLB.
+    # Packed in the Blender scene so the glTF exporter can emit them; the
+    # character export post-process then replaces embeds with shared URIs.
     image.pack()
     return image
 

@@ -13,7 +13,9 @@ from __future__ import annotations
 
 import csv
 import importlib.util
+import json
 import re
+import struct
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -65,6 +67,11 @@ from character_fidelity_tiers import (  # noqa: E402
     iter_runtime_character_glbs,
 )
 from fauna_glb_inspect import validate_fauna_glb_pbr  # noqa: E402
+from share_character_textures import (  # noqa: E402
+    canonical_stem,
+    extracted_sidecar_paths,
+    parse_glb as parse_character_glb,
+)
 
 
 @dataclass(frozen=True)
@@ -420,7 +427,41 @@ def validate(*, root: Path = ROOT) -> list[LintIssue]:
                     f"{rel}: tier {tier} ({budget.label}) texture budget exceeded "
                     f"({max_texture_px}px>{budget.texture_max_px}px)",
                 )
+                )
+
+    texture_dir = root / "assets" / "characters" / "shared" / "textures"
+    if texture_dir.is_dir() and any(texture_dir.glob("hero_tex_*.png")):
+        leftovers = extracted_sidecar_paths(root=root)
+        if leftovers:
+            issues.append(
+                LintIssue(
+                    "ASSET_LINT_CHARACTER_TEXTURE_SHARE",
+                    "per-body extracted hero_tex PNGs remain; Godot will recreate them "
+                    f"unless GLBs URI-reference shared maps ({leftovers[0].name})",
+                )
             )
+        for glb_path in iter_runtime_character_glbs(root=root):
+            rel = _rel_path(glb_path, root)
+            if rel.replace("\\", "/") in BUILD_INPUT_GLBS:
+                continue
+            try:
+                gltf, _bin = parse_character_glb(glb_path)
+            except (OSError, ValueError, json.JSONDecodeError, KeyError, struct.error):
+                continue
+            for image in gltf.get("images") or []:
+                stem = canonical_stem(str(image.get("name") or ""))
+                if stem is None:
+                    continue
+                uri = image.get("uri")
+                if "bufferView" in image or uri != f"textures/{stem}.png":
+                    issues.append(
+                        LintIssue(
+                            "ASSET_LINT_CHARACTER_TEXTURE_SHARE",
+                            f"{rel}: {image.get('name')} must URI-reference "
+                            f"textures/{stem}.png",
+                        )
+                    )
+                    break
 
     for message in validate_fauna_glb_pbr(root=root):
         issues.append(LintIssue("ASSET_LINT_FAUNA_PBR", message))

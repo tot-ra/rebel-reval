@@ -190,9 +190,11 @@ def _is_degenerate_orm(path: Path) -> bool:
     return max(greens) < 8
 
 
-_SIDECAR_NORMAL = re.compile(r"^(?P<body>.+)_hero_tex_(?P<family>skin|cloth|leather|hair|metal)_normal$")
+_SIDECAR_NORMAL = re.compile(
+    r"^(?:(?P<body>.+)_)?hero_tex_(?P<family>skin|cloth|leather|hair|metal)_normal$"
+)
 _SIDECAR_ORM = re.compile(
-    r"^(?P<body>.+)_hero_tex_(?P<family>skin|cloth|leather|hair|metal)"
+    r"^(?:(?P<body>.+)_)?hero_tex_(?P<family>skin|cloth|leather|hair|metal)"
     r"_ao-hero_tex_(?P=family)_roughness$"
 )
 
@@ -200,7 +202,11 @@ _SIDECAR_ORM = re.compile(
 def repair_sidecars(maps: dict[str, tuple[bytes, bytes]]) -> tuple[int, int]:
     repaired_normals = 0
     repaired_orms = 0
-    for path in sorted(SHARED.glob("*.png")):
+    pngs = list(SHARED.glob("*.png"))
+    texture_dir = SHARED / "textures"
+    if texture_dir.is_dir():
+        pngs.extend(texture_dir.glob("*.png"))
+    for path in sorted(pngs):
         stem = path.stem
         normal_match = _SIDECAR_NORMAL.match(stem)
         if normal_match:

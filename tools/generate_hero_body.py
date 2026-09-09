@@ -39,6 +39,7 @@ from hero_body_mesh_builder import PartBuilder, find_armature  # noqa: E402
 from hero_body_textures import apply_texture  # noqa: E402
 from hero_body_torso_builder import build_torso  # noqa: E402
 from hero_garment_builder import build_garments  # noqa: E402
+from share_character_textures import link_exported_character_glb  # noqa: E402
 
 GARMENT_OUTPUTS = {
     "cape": ROOT / "assets/characters/shared/hero_cape.glb",
@@ -253,6 +254,9 @@ def _export(path: Path, animations: bool) -> None:
         export_all_vertex_colors=True,
     )
     _promote_vertex_colors(path)
+    # WHY: Blender always packs family maps into the GLB. Point them at the
+    # shared PNG set so Godot cannot extract per-body copies on import.
+    link_exported_character_glb(path)
 
 
 def _promote_vertex_colors(path: Path) -> None:
