@@ -210,6 +210,11 @@ jobs:
       - name: Verify release-candidate scaffold
         run: python3 tools/release_candidate_check.py
 
+      - name: Verify shipped resource export contract
+        run: |
+          python3 -m unittest tests.python.test_verify_shipped_resources -v
+          python3 tools/verify_shipped_resources.py --check
+
       - name: Verify Godot harness error gates
         run: GODOT_BIN=godot tools/test_godot_harness.sh
 
@@ -255,6 +260,7 @@ jobs:
           mkdir -p build
           godot --headless --export-release "rr" ./build/rr.dmg
           test -s ./build/rr.dmg
+          python3 tools/verify_shipped_resources.py --dmg ./build/rr.dmg --preset rr
 
       - name: Upload export smoke artifact
         uses: actions/upload-artifact@v4

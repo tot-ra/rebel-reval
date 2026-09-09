@@ -153,11 +153,16 @@ python3 tools/validate_asset_sources.py
 
 P1-002 adds a minimal repository-owned Godot headless harness. CI still keeps the main-scene startup smoke as parser/startup coverage, but invokes the real test command below instead of using startup smokes as a test substitute. The workflow also includes seeded negative checks for active links/canon, manifest coverage, parser diagnostics, and the Godot test harness so those failure classes are known to fail CI.
 
-The local equivalent of the desktop export smoke is macOS-only today because `export_presets.cfg` contains only the `rr` macOS preset:
+The local equivalent of the desktop export smoke is macOS-only today. Release presets are `rr` and `act1`; `rr-diagnostic` keeps tests/tools for packaged diagnostic runs. Do not overwrite the frozen Act 1 bind at `build/act1/rr.dmg` (`docs/data/act1_release_manifest.json`); send a new act1 export to a side path.
 
 ```bash
+python3 tools/verify_shipped_resources.py --check
 mkdir -p build && godot --headless --export-release "rr" ./build/rr.dmg
 test -s ./build/rr.dmg
+python3 tools/verify_shipped_resources.py --dmg ./build/rr.dmg --preset rr
+mkdir -p build/inventory
+godot --headless --export-pack "act1" ./build/inventory/act1-after.pck
+python3 tools/verify_shipped_resources.py --pck ./build/inventory/act1-after.pck --preset act1
 ```
 
 ## CLI commands

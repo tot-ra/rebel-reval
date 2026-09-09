@@ -49,13 +49,21 @@ func test_merchant_timber_mesh_builder_uses_imported_production_model() -> void:
 	if model != null:
 		assert_true(model.get_meta(&"production_house_model", false))
 		assert_eq(model.get_meta(&"house_tier"), &"merchant_timber")
-	assert_false(node.get_node("Walls").visible, "placeholder walls must be hidden behind the production GLB")
-	assert_false(node.get_node("Roof").visible, "placeholder roof must be hidden behind the production GLB")
+	assert_false(
+		node.get_node("Walls").visible,
+		"placeholder walls must be hidden behind the production GLB"
+	)
+	assert_false(
+		node.get_node("Roof").visible,
+		"placeholder roof must be hidden behind the production GLB"
+	)
 	node.free()
 
 
 func _read_json(path: String) -> Dictionary:
-	var file := FileAccess.open(path, FileAccess.READ)
+	# WHY: generated/ is .gdignored so ResourceLoader cannot see rebuild briefs;
+	# tests still read those JSON files from the project filesystem.
+	var file := FileAccess.open(ProjectSettings.globalize_path(path), FileAccess.READ)
 	assert_true(file != null, "missing %s" % path)
 	if file == null:
 		return {}

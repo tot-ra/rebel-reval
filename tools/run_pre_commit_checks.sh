@@ -77,6 +77,16 @@ if any_staged_path ".godot-version" "project.godot" "export_presets.cfg"; then
   '
 fi
 
+if any_staged_path "export_presets.cfg" \
+  "docs/data/shipped_resource_manifest.json" \
+  "tools/verify_shipped_resources.py" \
+  "tools/pck_inventory.py" \
+  "tests/python/test_verify_shipped_resources.py"; then
+  run_step "shipped resource export contract" \
+    python3 -m unittest tests.python.test_verify_shipped_resources -v
+  run_step "shipped resource verifier" python3 tools/verify_shipped_resources.py --check
+fi
+
 GD_FILES=()
 while IFS= read -r path; do
   case "$path" in

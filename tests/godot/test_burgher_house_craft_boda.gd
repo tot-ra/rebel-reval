@@ -68,7 +68,9 @@ func test_craft_boda_mesh_builder_uses_imported_production_model() -> void:
 
 
 func _read_json(path: String) -> Dictionary:
-	var file := FileAccess.open(path, FileAccess.READ)
+	# WHY: generated/ is .gdignored so ResourceLoader cannot see rebuild briefs;
+	# tests still read those JSON files from the project filesystem.
+	var file := FileAccess.open(ProjectSettings.globalize_path(path), FileAccess.READ)
 	assert_true(file != null, "missing %s" % path)
 	if file == null:
 		return {}

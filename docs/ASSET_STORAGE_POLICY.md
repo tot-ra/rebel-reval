@@ -131,7 +131,7 @@ Classify every tracked `generated/` path before deleting or adding Godot import/
 | Retained documentation/evidence | Keep | Bundle README/state/audit JSON, reference sheets, licenses, preview plates, music |
 | Disposable intermediate | Delete only when verified | Reproducible `*.log`, unnamed `generated/blender/script-*` / `render-*` probes, UUID dumps that duplicate a canonical named file |
 
-Do not treat the 2026-09-09 snapshot (590 tracked files / 132.3 MiB) as uniformly removable. Animal builders still require candidate GLBs, including `pack_horse_v3`. Add `generated/.gdignore` or an export exclude only after accepted runtime files have left `generated/`, and keep command-line rebuild tools on filesystem paths.
+Do not treat the 2026-09-09 snapshot (590 tracked files / 132.3 MiB) as uniformly removable. Animal builders still require candidate GLBs, including `pack_horse_v3`. After the forge-cat runtime move, `generated/.gdignore` plus the `rr`/`act1` export exclude keep rebuild inputs out of Godot import and the shipped PCK. Burgher rebuild-brief tests read those JSON files through filesystem paths, not `ResourceLoader`.
 
 Remove without LFS migration when any of the following holds:
 

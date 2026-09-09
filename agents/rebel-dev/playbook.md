@@ -5,6 +5,9 @@ This file contains lessons specific to the Dev role.
 
 ## Role-specific lessons
 - In a shared dirty worktree, a path-limited commit can lose a race with another session and exit without output after `HEAD` advances; verify the resulting commit contains the scoped files, then retry from the new `HEAD` without amending the other session's commit.
+- Godot 4.7 export-pack writes PCK format v4. Parse `dir_offset` after `file_base`; do not assume the v2 immediately-after-header directory. Required shipped files may appear as `.import` / `.remap` / `.gdc` or `.godot/imported/<basename>-<hash>.*`.
+- Burgher rebuild-brief tests cannot keep `FileAccess.open("res://generated/...")` after `generated/.gdignore`; use `ProjectSettings.globalize_path` so filesystem JSON still loads in the editor.
+- Do not overwrite `build/act1/rr.dmg` when proving a new export filter; that DMG is the frozen Act 1 SHA bind. Use `build/inventory/` for after-packs.
 - When `git push` ends with `broken pipe`, do not assume success: compare `git ls-remote` with local `HEAD`; if GitHub SSH port 22 is closed, retry once through `ssh.github.com:443` via a command-local `GIT_SSH_COMMAND`.
 - When verifying a scoped fix in a dirty shared worktree, trust the dedicated regression filter first; broader suite failures from unrelated WIP maps or transitions are not proof the fix regressed.
 - When a Godot preload reports that an existing script cannot be resolved, run the target script directly to expose the first parse error; dependent preload messages are often only a cascade.
@@ -253,3 +256,4 @@ Parallel exact replacements against one mutable file can race and reapply stale 
 - 2026-09-02: In Godot 4.7 benchmark runners, explicitly type booleans composed from dictionary-indexed `Variant` values; `var inferred := typed_bool and dictionary["flag"] == false` can fail parsing before focused tests execute.
 - 2026-09-02: A Godot benchmark passed as `--script` must extend `SceneTree` and start from `_initialize()`; a script extending `Node` has no scene lifecycle entry point and can idle indefinitely without producing its output artifact.
 - 2026-09-04: RRMap stable IDs are lowercase-only; uppercase zone prefixes such as `SC-*` and `OB-*` fail `MAP_ID_UNSTABLE` before map assertions run.
+- 2026-09-09: A one-line Godot test marker change still stages the whole file; local gdlint then reports baseline `max-line-length` and `duplicated-load` on unchanged lines. CI `gdlint scripts/**/*.gd` does not cover `tests/godot`. Keep the marker fix, compare diagnostics with HEAD, and use documented `SKIP_PRE_COMMIT=1` instead of reformatting unrelated tests.
