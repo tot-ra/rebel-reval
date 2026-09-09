@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Enforce the repository storage policy recorded by TODO P0-064."""
+"""Enforce the repository storage policy recorded by TODO P0-064.
+
+Also rejects leftover tools/_tmp* and tools/_debug* probes, and tracked
+Godot .import / .uid sidecars whose source file is no longer in the index.
+"""
 
 from __future__ import annotations
 
@@ -24,6 +28,9 @@ TRACKED_RELEASE_FINGERPRINTS = frozenset(
 )
 FORBIDDEN_PARTS = frozenset({"__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache"})
 FORBIDDEN_SUFFIXES = frozenset({".pyc", ".pyo"})
+# One-off Godot probes under tools/. Runtime debug overlays and tests/godot/test_debug_* stay allowed.
+TEMPORARY_TOOL_PREFIXES = ("_tmp", "_debug")
+SIDECAR_SUFFIXES = (".import", ".uid")
 
 
 @dataclass(frozen=True)
@@ -132,6 +139,23 @@ def is_forbidden_tracked_path(path: str) -> bool:
     return bool(FORBIDDEN_PARTS.intersection(relative.parts)) or relative.suffix.lower() in FORBIDDEN_SUFFIXES
 
 
+def is_temporary_tool_artifact(path: str) -> bool:
+    """Return True for leftover tools/_tmp* and tools/_debug* probes."""
+    relative = Path(path)
+    if relative.parts[:1] != ("tools",):
+        return False
+    name = relative.name
+    return name.startswith(TEMPORARY_TOOL_PREFIXES)
+
+
+def sidecar_source_path(path: str) -> str | None:
+    """Return the source path for a tracked Godot .import or .uid sidecar."""
+    for suffix in SIDECAR_SUFFIXES:
+        if path.endswith(suffix):
+            return path[: -len(suffix)]
+    return None
+
+
 def sha256_file(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as handle:
@@ -169,6 +193,11 @@ def validate(root: Path = ROOT, exceptions_path: Path | None = None) -> list[str
         safe_tracked.append(path)
         if is_forbidden_tracked_path(path):
             errors.append(f"generated or release path is tracked: {path}")
+        if is_temporary_tool_artifact(path):
+            errors.append(f"temporary probe artifact is tracked: {path}")
+        source = sidecar_source_path(path)
+        if source is not None and source not in tracked_set:
+            errors.append(f"orphan sidecar is tracked without its source: {path}")
 
     observed_large: set[str] = set()
     for path in safe_tracked:

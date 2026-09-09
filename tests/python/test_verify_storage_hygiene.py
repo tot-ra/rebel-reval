@@ -298,6 +298,82 @@ class VerifyStorageHygieneTest(unittest.TestCase):
 
         self.assertEqual(errors, [])
 
+    def test_orphan_import_sidecar_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            self._write_manifest(root, [])
+            with mock.patch.object(
+                verifier,
+                "tracked_paths",
+                return_value=["assets/UI/stale.png.import"],
+            ):
+                errors = verifier.validate(root)
+
+        self.assertTrue(
+            any(
+                "orphan sidecar is tracked without its source: assets/UI/stale.png.import" in error
+                for error in errors
+            )
+        )
+
+    def test_orphan_uid_sidecar_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            self._write_manifest(root, [])
+            with mock.patch.object(
+                verifier,
+                "tracked_paths",
+                return_value=["tools/_tmp_duck_aabb.gd.uid"],
+            ):
+                errors = verifier.validate(root)
+
+        self.assertTrue(
+            any(
+                "orphan sidecar is tracked without its source: tools/_tmp_duck_aabb.gd.uid" in error
+                for error in errors
+            )
+        )
+
+    def test_matching_import_sidecar_is_allowed(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            self._write_manifest(root, [])
+            with mock.patch.object(
+                verifier,
+                "tracked_paths",
+                return_value=[
+                    "assets/UI/cursors/cursor_grab.png",
+                    "assets/UI/cursors/cursor_grab.png.import",
+                ],
+            ):
+                errors = verifier.validate(root)
+
+        self.assertEqual(errors, [])
+
+    def test_temporary_tool_probe_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            self._write_manifest(root, [])
+            with mock.patch.object(
+                verifier,
+                "tracked_paths",
+                return_value=[
+                    "tools/_tmp_saaremaa_probe.gd",
+                    "tools/_tmp_saaremaa_probe.gd.uid",
+                    "tools/_debug_chunk_index.gd",
+                ],
+            ):
+                errors = verifier.validate(root)
+
+        self.assertTrue(any("temporary probe artifact is tracked: tools/_tmp_saaremaa_probe.gd" in error for error in errors))
+        self.assertTrue(any("temporary probe artifact is tracked: tools/_debug_chunk_index.gd" in error for error in errors))
+
+    def test_runtime_debug_paths_are_not_temporary_artifacts(self) -> None:
+        self.assertFalse(verifier.is_temporary_tool_artifact("tests/godot/test_debug_overlay.gd"))
+        self.assertFalse(verifier.is_temporary_tool_artifact("scripts/ui/debug_overlay.gd"))
+        self.assertTrue(verifier.is_temporary_tool_artifact("tools/_tmp_saaremaa_probe.gd"))
+        self.assertTrue(verifier.is_temporary_tool_artifact("tools/_debug_chunk_index.gd.uid"))
+
     @staticmethod
     def _write_lfs_manifest(root: Path, payload: Path, sha256: str | None = None) -> None:
         digest = sha256 or hashlib.sha256(payload.read_bytes()).hexdigest()
