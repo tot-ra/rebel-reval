@@ -8,14 +8,14 @@ const Models := preload("res://scripts/map/view3d/map_view_medieval_animal_model
 const MammalSpecies := preload("res://scripts/map/view3d/map_view_mammal_species.gd")
 
 
-func test_dog_has_production_model_with_grounded_pbr_body() -> void:
+func test_legacy_dog_has_production_model_with_grounded_pbr_body() -> void:
 	assert_true(
 		Models.has_model(MammalSpecies.SPECIES_DOG),
 		"Dog must use the authored production GLB"
 	)
 	var host := Node3D.new()
 	(Engine.get_main_loop() as SceneTree).root.add_child(host)
-	var model := Models.add_model(host, MammalSpecies.SPECIES_DOG)
+	var model := _legacy_model(host)
 	assert_true(model != null, "Dog needs an imported production model")
 	assert_true(model.get_meta(&"production_animal_model", false))
 	var mesh := model.find_child("AnimalMesh", true, false) as MeshInstance3D
@@ -48,10 +48,10 @@ func test_dog_has_production_model_with_grounded_pbr_body() -> void:
 	host.free()
 
 
-func test_dog_has_rigged_face_and_locomotion_clips() -> void:
+func test_legacy_dog_has_rigged_face_and_locomotion_clips() -> void:
 	var host := Node3D.new()
 	(Engine.get_main_loop() as SceneTree).root.add_child(host)
-	var model := Models.add_model(host, MammalSpecies.SPECIES_DOG)
+	var model := _legacy_model(host)
 	assert_true(model != null)
 	var skeletons := model.find_children("*", "Skeleton3D", true, false)
 	assert_true(skeletons.size() >= 1, "Dog needs an imported skeleton")
@@ -114,10 +114,10 @@ func test_dog_has_rigged_face_and_locomotion_clips() -> void:
 	host.free()
 
 
-func test_dog_clips_deform_legs_tail_and_head_between_key_poses() -> void:
+func test_legacy_dog_clips_deform_legs_tail_and_head_between_key_poses() -> void:
 	var host := Node3D.new()
 	(Engine.get_main_loop() as SceneTree).root.add_child(host)
-	var model := Models.add_model(host, MammalSpecies.SPECIES_DOG)
+	var model := _legacy_model(host)
 	var skeleton := model.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
 	var player := model.find_children("*", "AnimationPlayer", true, false)[0] as AnimationPlayer
 	_assert_bone_moves(player, skeleton, Models.WALK_ANIMATION, &"FrontLeftLeg", 0.0, 0.27)
@@ -145,3 +145,14 @@ func _assert_bone_moves(
 		pose_a.angle_to(pose_b) > deg_to_rad(4.0),
 		"%s must visibly move during %s" % [bone_name, animation_name]
 	)
+
+
+# Retain the original generator contract independently of the replacement registry.
+func _legacy_model(host: Node3D) -> Node3D:
+	var model := preload("res://assets/animals/medieval/medieval_dog.glb").instantiate() as Node3D
+	model.rotation.y = -PI * 0.5
+	model.set_meta(&"production_animal_model", true)
+	host.set_meta(&"species", MammalSpecies.SPECIES_DOG)
+	host.add_child(model)
+	Models._configure_animation(host, model)
+	return model

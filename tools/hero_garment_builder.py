@@ -50,24 +50,17 @@ def build_garments(context: BodyContext) -> dict[str, PartBuilder]:
 
     hat = PartBuilder("Garment_Hat", frame)
     hat.start_tube()
-    brim = context.head_center + up * 0.105 * scale
-    hat.ring(brim, up, 0.190 * scale, 0.200 * scale, {"head": 1.0}, "hat")
-    hat.ring(
-        brim + up * 0.020 * scale,
-        up,
-        0.150 * scale,
-        0.160 * scale,
-        {"head": 1.0},
-        "hat",
-    )
-    hat.ring(
-        brim + up * 0.085 * scale,
-        up,
-        0.110 * scale,
-        0.118 * scale,
-        {"head": 1.0},
-        "hat",
-    )
-    hat.cap(brim + up * 0.125 * scale, {"head": 1.0}, "hat")
+    # A fitted wool cap, with a supported lower edge. The earlier broad disk
+    # perched above the crown and only looked attached while scalp hair hid it.
+    brim = context.head_center + up * 0.052 * scale
+    for height, width, depth in (
+        (0.0, 0.119, 0.142),
+        (0.008, 0.120, 0.143),
+        (0.050, 0.110, 0.125),
+        (0.090, 0.073, 0.084),
+    ):
+        hat.ring(brim + up * height * scale, up, width * scale, depth * scale,
+                 {"head": 1.0}, "hat")
+    hat.cap(brim + up * 0.122 * scale, {"head": 1.0}, "hat")
 
     return {"cape": cape, "hat": hat}

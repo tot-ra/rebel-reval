@@ -2,10 +2,18 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://bxcc2ou6u13s6"
+path.s3tc="res://.godot/imported/hero_tex_skin_ao-hero_tex_skin_roughness.png-da251172617ab0ac32eb89fbf5c73640.s3tc.ctex"
+path.etc2="res://.godot/imported/hero_tex_skin_ao-hero_tex_skin_roughness.png-da251172617ab0ac32eb89fbf5c73640.etc2.ctex"
+metadata={
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
+}
 
 [deps]
 
 source_file="res://assets/characters/shared/textures/hero_tex_skin_ao-hero_tex_skin_roughness.png"
+dest_files=["res://.godot/imported/hero_tex_skin_ao-hero_tex_skin_roughness.png-da251172617ab0ac32eb89fbf5c73640.s3tc.ctex", "res://.godot/imported/hero_tex_skin_ao-hero_tex_skin_roughness.png-da251172617ab0ac32eb89fbf5c73640.etc2.ctex"]
 
 [params]
 

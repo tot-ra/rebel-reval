@@ -5,6 +5,7 @@ extends Node3D
 ## selection reuses P0-117 spawn weights; song playback is MapViewBirdAmbientAudio.
 
 const BirdAmbientAudio := preload("res://scripts/map/view3d/map_view_bird_ambient_audio.gd")
+const BirdAssets := preload("res://scripts/map/view3d/map_view_bird_assets.gd")
 const BirdMeshes := preload("res://scripts/map/view3d/map_view_bird_meshes.gd")
 const BirdSpecies := preload("res://scripts/map/view3d/map_view_bird_species.gd")
 
@@ -129,7 +130,7 @@ static func weighted_flight_candidates(context: StringName, cycle_progress: floa
 		var time_tag := StringName(song.get("time", &"day"))
 		if not BirdAmbientAudio.matches_song_time(time_tag, cycle_progress):
 			continue
-		if BirdMeshes.mesh_for(species, BirdSpecies.POSE_GLIDING) == null:
+		if not BirdAssets.has_animated_model(species) and BirdMeshes.mesh_for(species, BirdSpecies.POSE_GLIDING) == null:
 			continue
 		candidates.append({"species": species, "weight": weight})
 	return candidates
@@ -321,17 +322,7 @@ func _spawn_bird() -> void:
 	if bird == null:
 		return
 	var path := _random_path(_seed_key, _spawn_tick)
-	# Build a real body/wing hierarchy. The wing meshes are attached at the
-	# shoulder and elbow pivots, so their roots stay connected to the body while
-	# the outer primaries rotate through the stroke.
-	var modular_cycle := BirdMeshes.modular_flap_cycle(species)
-	if modular_cycle.is_empty():
-		return
-	if not _install_modular_rig(
-		bird,
-		modular_cycle[mini(2, modular_cycle.size() - 1)],
-		not BirdMeshes.uses_authored_mesh(species, BirdSpecies.POSE_GLIDING)
-	):
+	if not _install_species_rig(bird, species):
 		return
 	var start: Vector3 = path["start"]
 	var end: Vector3 = path["end"]
@@ -353,6 +344,23 @@ func _spawn_bird() -> void:
 	bird.set_meta(&"flap_pause", 0.0)
 	bird.set_meta(&"glide_skip", _glide_skip_for_species(species))
 	_apply_wing_pose(bird, 2.0)
+
+
+func _install_species_rig(bird: Node3D, species: StringName) -> bool:
+	bird.remove_meta(&"flight_player")
+	if BirdAssets.has_animated_model(species):
+		var model := BirdAssets.create_animated_model(species)
+		if model == null:
+			return false
+		for child: Node in bird.get_children():
+			child.free()
+		bird.remove_meta(&"wing_rig_frame")
+		bird.add_child(model)
+		bird.set_meta(&"flight_player", model.get_meta(&"flight_player"))
+		bird.set_meta(&"species", species)
+		return true
+	var frame := BirdMeshes.modular_rig_for(species)
+	return not frame.is_empty() and _install_modular_rig(bird, frame, false)
 
 
 func _random_path(seed_key: StringName, spawn_tick: int) -> Dictionary:
@@ -409,6 +417,11 @@ func _first_idle_bird() -> Node3D:
 
 func _advance_flap(bird: Node3D, delta: float) -> void:
 	var pause := maxf(float(bird.get_meta(&"flap_pause", 0.0)) - delta, 0.0)
+	if bird.has_meta(&"flight_player"):
+		var player := bird.get_meta(&"flight_player") as AnimationPlayer
+		var clip := &"Glide" if pause > 0.0 else &"Fly"
+		if player.current_animation != clip:
+			player.play(clip, 0.15)
 	if pause > 0.0:
 		bird.set_meta(&"flap_pause", pause)
 		_apply_wing_pose(bird, 2.0)

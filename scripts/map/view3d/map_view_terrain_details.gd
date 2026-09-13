@@ -37,8 +37,13 @@ static func _build_detail_level(
 ) -> Node3D:
 	var root := Node3D.new()
 	var bounds := cell_bounds.intersection(Rect2i(Vector2i.ZERO, grid.size_cells))
-	if bounds.size == Vector2i.ZERO or not first_person:
+	if (
+		bounds.size == Vector2i.ZERO
+		or not first_person
+		or definition.suppresses_exterior_surroundings()
+	):
 		return root
+	var blocked := MapViewMeshBuilderPrimitives.building_cell_rects(definition)
 	var field := MapViewMeshBuilderTerrain.ensure_height_field(definition, grid)
 	var meadow_grass: Array[Transform3D] = []
 	var meadow_grass_colors: Array[Color] = []
@@ -52,7 +57,10 @@ static func _build_detail_level(
 	for y in range(bounds.position.y, bounds.end.y):
 		for x in range(bounds.position.x, bounds.end.x):
 			var cell := Vector2i(x, y)
-			if grid.get_terrain(cell) not in GRASS_DETAIL_TERRAINS:
+			if (
+				grid.get_terrain(cell) not in GRASS_DETAIL_TERRAINS
+				or MapViewMeshBuilderPrimitives.cell_blocked(cell, blocked)
+			):
 				continue
 			_append_ground_cover(
 				meadow_grass,
@@ -130,8 +138,19 @@ static func _append_ground_cover(
 			cover_chance = 0.66
 		MapTypes.TERRAIN_BOG:
 			cover_chance = 0.58
+	# Broad seeded patches cross chunk boundaries without a repeating cell grid.
+	var patch := patch_density(Vector2(cell) + Vector2(0.5, 0.5), map_seed)
+	cover_chance *= lerpf(0.35, 1.0, smoothstep(0.22, 0.72, patch))
 	if MapViewMeshBuilderPrimitives.hash01(cell.x, cell.y, map_seed + 7103) < cover_chance:
-		var count := 2 if terrain == MapTypes.TERRAIN_MEADOW else 1
+		var count := 3 + int(patch * 5.0)
+		if terrain == MapTypes.TERRAIN_MEADOW:
+			count += 2
+		var profile := TerrainVegetation.scatter_profile(variant)
+		var scale_min := float(profile.get("small_height_min", 0.42))
+		var scale_max := float(profile.get("small_height_max", 0.86))
+		if variant == TerrainVegetation.VARIANT_GRASS_TALL:
+			scale_min = 0.85
+			scale_max = 1.4
 		for index in count:
 			var target_transforms := grass
 			var target_colors := grass_colors
@@ -146,19 +165,19 @@ static func _append_ground_cover(
 				target_transforms = dry
 				target_colors = dry_colors
 			target_transforms.append(
-				_foliage_transform(field, cell, map_seed + 7133 + index * 41, 0.42, 0.86)
+				_foliage_transform(field, cell, map_seed + 7133 + index * 41, scale_min, scale_max)
 			)
 			if use_dry:
 				target_colors.append(
-					Color(0.86, 0.76, 0.46).lerp(
-						Color(0.68, 0.72, 0.38),
+					Color(1.16, 1.02, 0.72).lerp(
+						Color(0.98, 0.96, 0.69),
 						MapViewMeshBuilderPrimitives.hash01(cell.x, cell.y + index, map_seed + 7151)
 					)
 				)
 			else:
 				target_colors.append(
-					Color(0.58, 0.82, 0.38).lerp(
-						Color(0.34, 0.62, 0.30),
+					Color(1.04, 1.06, 0.88).lerp(
+						Color(0.76, 0.92, 0.70),
 						MapViewMeshBuilderPrimitives.hash01(cell.x + index, cell.y, map_seed + 7163)
 					)
 				)
@@ -176,6 +195,11 @@ static func _append_ground_cover(
 	if MapViewMeshBuilderPrimitives.hash01(cell.x, cell.y, map_seed + 7307) < fern_chance:
 		ferns.append(_foliage_transform(field, cell, map_seed + 7319, 0.54, 0.9))
 		fern_colors.append(Color(0.32, 0.64, 0.30))
+
+
+## Continuous world-cell noise, independent of build order and chunk origin.
+static func patch_density(spot: Vector2, map_seed: int) -> float:
+	return MapViewMeshBuilderTerrain.value_noise(spot / 4.7, map_seed + 7403)
 
 
 static func _foliage_transform(

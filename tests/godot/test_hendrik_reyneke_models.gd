@@ -6,16 +6,17 @@ const Models := preload("res://scripts/map/view3d/map_view_medieval_animal_model
 const MammalSpecies := preload("res://scripts/map/view3d/map_view_mammal_species.gd")
 
 const EXPECTED_LARGEST_AXIS_M: Dictionary = {
-	MammalSpecies.SPECIES_DUCK: 0.56,
+	# Retained walking GLB rest bounds, including bill/tail; live scaling is tested separately.
+	MammalSpecies.SPECIES_DUCK: 0.672,
 }
 
 
-func test_selected_hendrik_reyneke_models_are_runtime_assets() -> void:
+func test_archived_hendrik_duck_retains_authored_metric_scale() -> void:
 	for species: StringName in EXPECTED_LARGEST_AXIS_M:
-		assert_true(Models.has_model(species), "%s must use the authored CC BY model" % species)
 		var host := Node3D.new()
 		(Engine.get_main_loop() as SceneTree).root.add_child(host)
-		var model := Models.add_model(host, species)
+		var model := preload("res://assets/birds/mallard/walking.glb").instantiate() as Node3D
+		host.add_child(model)
 		assert_true(model != null)
 		var meshes := model.find_children("*", "MeshInstance3D", true, false)
 		assert_true(meshes.size() >= 1)

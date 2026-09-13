@@ -42,6 +42,13 @@ func _run() -> void:
 			scene = load(argument.trim_prefix("--scene=")) as PackedScene
 	var rig: SharedCharacterRig = scene.instantiate()
 	viewport.add_child(rig)
+	for argument: String in OS.get_cmdline_user_args():
+		if argument.begins_with("--wearable="):
+			var wearable := load(argument.trim_prefix("--wearable=")) as CharacterWearable
+			if not rig.equip_wearable(wearable):
+				push_error("Capture outfit does not fit this body")
+				quit(1)
+				return
 	var action_animation: StringName = &"hammer_attack" if rig.variant_id() == &"char.kalev" else &"guard"
 	var views := VIEWS.duplicate(true)
 	views.append({

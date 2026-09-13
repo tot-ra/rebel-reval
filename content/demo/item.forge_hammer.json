@@ -25,7 +25,7 @@
     },
     "equip": {
       "slot": "right_hand",
-      "scene": "res://assets/characters/shared/hammer.tscn"
+      "scene": "res://assets/storybook/equipment/hammer.tscn"
     },
     "attack_profile": {
       "animation": "hammer_attack",

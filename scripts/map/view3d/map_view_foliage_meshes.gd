@@ -150,38 +150,44 @@ static func grass_tuft_mesh() -> ArrayMesh:
 		return _mesh_cache[CACHE_KEY]
 	var surface := SurfaceTool.new()
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
-	var blade_count := 7
-	for blade in blade_count:
-		var yaw := TAU * float(blade) / float(blade_count) + MeshMath.hash01(blade, 3, 17) * 0.9
-		var lean := 0.10 + MeshMath.hash01(blade, 7, 29) * 0.22
-		var blade_height := 0.26 + MeshMath.hash01(blade, 11, 41) * 0.24
-		var half_width := 0.020 + MeshMath.hash01(blade, 13, 53) * 0.012
-		var direction := Vector3(sin(yaw), 0.0, cos(yaw))
-		var side := Vector3(cos(yaw), 0.0, -sin(yaw))
-		var root_center := direction * 0.03
-		var tip := root_center + direction * lean + Vector3(0.0, blade_height, 0.0)
-		var mid := root_center + direction * lean * 0.45 + Vector3(0.0, blade_height * 0.55, 0.0)
-		var normal := Vector3.UP.cross(side).normalized() + Vector3(0.0, 0.4, 0.0)
-		normal = normal.normalized()
-		var quad := [
-			[root_center - side * half_width, Vector2(0.0, 0.0)],
-			[root_center + side * half_width, Vector2(1.0, 0.0)],
-			[mid + side * half_width * 0.55, Vector2(1.0, 0.55)],
-			[mid - side * half_width * 0.55, Vector2(0.0, 0.55)],
-		]
-		for index in [0, 1, 2, 0, 2, 3]:
-			surface.set_normal(normal)
-			surface.set_uv(quad[index][1])
-			surface.add_vertex(quad[index][0])
-		var tip_triangle := [
-			[mid - side * half_width * 0.55, Vector2(0.0, 0.55)],
-			[mid + side * half_width * 0.55, Vector2(1.0, 0.55)],
-			[tip, Vector2(0.5, 1.0)],
-		]
-		for point in tip_triangle:
-			surface.set_normal(normal)
-			surface.set_uv(point[1])
-			surface.add_vertex(point[0])
+	# Four curved segments keep the silhouette supple at eye level. Each blade
+	# is narrow, independently leaned and rooted inside a small basal rosette.
+	for blade in 14:
+		var yaw := float(blade) * 2.39996 + MeshMath.hash01(blade, 3, 17) * 0.7
+		var direction := Vector3(sin(yaw), 0, cos(yaw))
+		var side := Vector3(cos(yaw), 0, -sin(yaw))
+		var height := 0.22 + MeshMath.hash01(blade, 11, 41) * 0.31
+		var lean := 0.07 + MeshMath.hash01(blade, 7, 29) * 0.24
+		var half_width := 0.006 + MeshMath.hash01(blade, 13, 53) * 0.006
+		var root := direction * (0.015 + MeshMath.hash01(blade, 17, 61) * 0.075)
+		var tint := Color(0.88, 0.94, 0.73).lerp(
+			Color(1.08, 1.04, 0.91), MeshMath.hash01(blade, 19, 71)
+		)
+		for segment in 4:
+			var points: Array[Vector3] = []
+			var normals: Array[Vector3] = []
+			var uvs: Array[Vector2] = []
+			for ring in 2:
+				var t := float(segment + ring) / 4.0
+				var center := (
+					root + direction * lean * t * t + Vector3.UP * height * (t - 0.16 * t * t)
+				)
+				var tangent := (
+					(direction * lean * 2.0 * t + Vector3.UP * height * (1.0 - 0.32 * t))
+					. normalized()
+				)
+				var normal := tangent.cross(side).normalized()
+				var width := half_width * (1.0 - pow(t, 1.3))
+				for edge in 2:
+					points.append(center + side * width * (-1.0 if edge == 0 else 1.0))
+					normals.append(normal)
+					uvs.append(Vector2(float(edge), t))
+			var indices := [0, 1, 2] if segment == 3 else [0, 1, 3, 0, 3, 2]
+			for index: int in indices:
+				surface.set_normal(normals[index])
+				surface.set_color(tint)
+				surface.set_uv(uvs[index])
+				surface.add_vertex(points[index])
 	var mesh := surface.commit()
 	_mesh_cache[CACHE_KEY] = mesh
 	return mesh
@@ -351,7 +357,7 @@ static func _add_curved_leaf(
 		var left_b := center_b - side * widths[segment_index + 1]
 		var right_b := center_b + side * widths[segment_index + 1]
 		var tangent := (center_b - center_a).normalized()
-		var normal := side.cross(tangent).normalized()
+		var normal := tangent.cross(side).normalized()
 		var color_a := root_color.lerp(tip_color, progress_a)
 		var color_b := root_color.lerp(tip_color, progress_b)
 		var uv_a := lerpf(uv_bottom, uv_top, progress_a)

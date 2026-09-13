@@ -2,10 +2,18 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://dck4mr6r4p3ia"
+path.s3tc="res://.godot/imported/hero_tex_cloth_ao-hero_tex_cloth_roughness.png-c12d2ffbd7c45f8cc2fd09188b002abd.s3tc.ctex"
+path.etc2="res://.godot/imported/hero_tex_cloth_ao-hero_tex_cloth_roughness.png-c12d2ffbd7c45f8cc2fd09188b002abd.etc2.ctex"
+metadata={
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
+}
 
 [deps]
 
 source_file="res://assets/characters/shared/textures/hero_tex_cloth_ao-hero_tex_cloth_roughness.png"
+dest_files=["res://.godot/imported/hero_tex_cloth_ao-hero_tex_cloth_roughness.png-c12d2ffbd7c45f8cc2fd09188b002abd.s3tc.ctex", "res://.godot/imported/hero_tex_cloth_ao-hero_tex_cloth_roughness.png-c12d2ffbd7c45f8cc2fd09188b002abd.etc2.ctex"]
 
 [params]
 

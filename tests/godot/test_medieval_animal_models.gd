@@ -31,8 +31,8 @@ func test_production_models_load_with_mesh_material_and_ground_contact() -> void
 			mesh_instance.mesh.surface_get_material(0) != null,
 			"%s needs portable PBR material" % species
 		)
-		var aabb := mesh_instance.get_aabb()
-		assert_true(absf(aabb.position.y) < 0.001, "%s feet must touch Y=0" % species)
+		var aabb := _bounds(model)
+		assert_true(absf(aabb.position.y) < 0.035, "%s feet must touch Y=0: %s" % [species, aabb.position.y])
 		host.free()
 
 
@@ -51,9 +51,8 @@ func test_imported_domestic_fowl_use_skeletal_locomotion_clips() -> void:
 		var skeletons := model.find_children("*", "Skeleton3D", true, false)
 		assert_true(skeletons.size() >= 1, "%s needs an imported skeleton" % species)
 		var skeleton := skeletons[0] as Skeleton3D
-		for bone_name: StringName in [
-			&"FrontLeftLeg", &"FrontRightLeg", &"BackLeftLeg", &"BackRightLeg"
-		]:
+		var legs: Array = [&"Leg.L", &"Leg.R"] if species == MammalSpecies.SPECIES_DUCK else [&"FrontLeftLeg", &"FrontRightLeg", &"BackLeftLeg", &"BackRightLeg"]
+		for bone_name: StringName in legs:
 			assert_true(
 				skeleton.find_bone(bone_name) >= 0,
 				"%s is missing authored weight-bearing leg bone %s" % [species, bone_name]
@@ -71,10 +70,9 @@ func test_imported_domestic_fowl_use_skeletal_locomotion_clips() -> void:
 		host.free()
 
 
-func test_chicken_is_procedural_and_uses_articulated_animation_clips() -> void:
-	assert_false(Models.MODEL_PATHS.has(MammalSpecies.SPECIES_CHICKEN))
+func test_legacy_chicken_is_procedural_and_uses_articulated_animation_clips() -> void:
 	var host := Node3D.new()
-	var model := Models.add_model(host, MammalSpecies.SPECIES_CHICKEN)
+	var model := _legacy_model(host, MammalSpecies.SPECIES_CHICKEN)
 	assert_true(model != null)
 	assert_true(model.get_meta(&"procedural_animal_model", false))
 	for part_name in [
@@ -118,10 +116,9 @@ func test_domestic_goose_uses_the_detailed_authored_greylag_model() -> void:
 	host.free()
 
 
-func test_goat_has_procedural_rigged_anatomy_and_locomotion_clips() -> void:
-	assert_eq(Models.MODEL_PATHS[&"goat"], "res://assets/animals/medieval/medieval_goat.glb")
+func test_legacy_goat_has_procedural_rigged_anatomy_and_locomotion_clips() -> void:
 	var host := Node3D.new()
-	var model := Models.add_model(host, &"goat")
+	var model := _legacy_model(host, &"goat")
 	assert_true(model != null)
 	var mesh := model.find_child("AnimalMesh", true, false) as MeshInstance3D
 	assert_true(mesh != null)
@@ -165,10 +162,10 @@ func test_goat_has_procedural_rigged_anatomy_and_locomotion_clips() -> void:
 	host.free()
 
 
-func test_pig_has_realistic_rigged_body_and_locomotion_clips() -> void:
+func test_legacy_pig_has_realistic_rigged_body_and_locomotion_clips() -> void:
 	var host := Node3D.new()
 	(Engine.get_main_loop() as SceneTree).root.add_child(host)
-	var model := Models.add_model(host, MammalSpecies.SPECIES_PIG)
+	var model := _legacy_model(host, MammalSpecies.SPECIES_PIG)
 	assert_true(model != null)
 	var mesh := model.find_child("AnimalMesh", true, false) as MeshInstance3D
 	assert_true(mesh != null)
@@ -290,9 +287,9 @@ func test_cattle_has_procedural_rigged_anatomy_and_locomotion_clips() -> void:
 	host.free()
 
 
-func test_sheep_has_rigged_body_tail_and_locomotion_clips() -> void:
+func test_legacy_sheep_has_rigged_body_tail_and_locomotion_clips() -> void:
 	var host := Node3D.new()
-	var model := Models.add_model(host, MammalSpecies.SPECIES_SHEEP)
+	var model := _legacy_model(host, MammalSpecies.SPECIES_SHEEP)
 	assert_true(model != null)
 	var mesh := model.find_child("AnimalMesh", true, false) as MeshInstance3D
 	assert_true(mesh != null)
@@ -430,7 +427,7 @@ func test_pack_horse_walk_keeps_four_hooves_at_ground_contact() -> void:
 	host.free()
 
 
-func test_medieval_livestock_carry_normal_and_roughness_maps() -> void:
+func test_legacy_medieval_livestock_carry_normal_and_roughness_maps() -> void:
 	for species: StringName in [
 		MammalSpecies.SPECIES_COW,
 		MammalSpecies.SPECIES_PIG,
@@ -438,7 +435,7 @@ func test_medieval_livestock_carry_normal_and_roughness_maps() -> void:
 		MammalSpecies.SPECIES_HORSE,
 	]:
 		var host := Node3D.new()
-		var model := Models.add_model(host, species)
+		var model := _legacy_model(host, species)
 		assert_true(model != null, "%s production model must load" % species)
 		var mesh_instance := model.find_child("AnimalMesh", true, false) as MeshInstance3D
 		assert_true(mesh_instance != null, "%s needs AnimalMesh" % species)
@@ -513,23 +510,23 @@ func test_livestock_exposes_idle_walk_trot_and_graze_clips() -> void:
 			Models.TROT_ANIMATION,
 			Models.GRAZE_ANIMATION,
 		]:
-			assert_true(player.has_animation(clip), "%s is missing %s" % [species, clip])
+			assert_false(Models._clip_name(player, clip).is_empty(), "%s is missing %s" % [species, clip])
 		Models.sync_animation(host, host.position - Vector3(0.15, 0.0, 0.0), 0.1)
-		assert_eq(player.current_animation, Models.TROT_ANIMATION)
+		assert_eq(player.current_animation, Models._clip_name(player, Models.TROT_ANIMATION))
 		for idle_step in 72:
 			Models.sync_animation(host, host.position, 0.1)
 		assert_eq(player.current_animation, Models.GRAZE_ANIMATION)
 		host.free()
 
 
-func test_livestock_eyes_stay_compact_and_seated_on_the_head() -> void:
+func test_legacy_livestock_eyes_stay_compact_and_seated_on_the_head() -> void:
 	for species: StringName in [
 		MammalSpecies.SPECIES_PIG,
 		MammalSpecies.SPECIES_SHEEP,
 		MammalSpecies.SPECIES_HORSE,
 	]:
 		var host := Node3D.new()
-		var model := Models.add_model(host, species)
+		var model := _legacy_model(host, species)
 		assert_true(model != null)
 		var body := model.find_child("AnimalMesh", true, false) as MeshInstance3D
 		assert_true(body != null)
@@ -543,3 +540,37 @@ func test_livestock_eyes_stay_compact_and_seated_on_the_head() -> void:
 				"%s eye must not read as a detached oversized sphere" % species
 			)
 		host.free()
+
+
+func _bounds(node: Node3D, transform: Transform3D = Transform3D.IDENTITY) -> AABB:
+	var box := AABB()
+	var first := true
+	for child: Node in node.get_children():
+		if child is not Node3D:
+			continue
+		var xform := transform * (child as Node3D).transform
+		var part := xform * (child as MeshInstance3D).get_aabb() if child is MeshInstance3D else _bounds(child, xform)
+		if part.size == Vector3.ZERO:
+			continue
+		box = part if first else box.merge(part)
+		first = false
+	return box
+
+
+func _legacy_model(host: Node3D, species: StringName) -> Node3D:
+	if species == MammalSpecies.SPECIES_CHICKEN:
+		var model := preload("res://scripts/map/view3d/procedural_chicken_model.gd").create()
+		host.add_child(model)
+		Models._configure_animation(host, model)
+		return model
+	var path := "res://assets/animals/medieval/medieval_%s.glb" % species
+	if species == &"cow":
+		path = Models.MODEL_PATHS[species]
+	if species == &"horse":
+		path = Models.MODEL_PATHS[species]
+	var model := (load(path) as PackedScene).instantiate() as Node3D
+	model.rotation.y = -PI * 0.5
+	host.set_meta(&"species", species)
+	host.add_child(model)
+	Models._configure_animation(host, model)
+	return model

@@ -3,7 +3,7 @@ extends CharacterBody2D
 
 ## Brewery aftermath NPC for A Bitter Brew. Logic body only; MapViewRuntime mirrors the rig.
 
-@export var rig_scene: PackedScene = preload("res://assets/characters/variants/townswoman.tscn")
+@export var rig_scene: PackedScene = preload("res://assets/characters/variants/aita.tscn")
 
 var _player: Node2D
 var _facing := Vector2.DOWN

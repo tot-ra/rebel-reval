@@ -18,17 +18,19 @@ uniform sampler2D normal_texture : hint_normal, filter_linear_mipmap;
 uniform sampler2D roughness_texture : hint_roughness_g, filter_linear_mipmap;
 uniform vec4 albedo_tint : source_color = vec4(1.0);
 uniform float roughness_base : hint_range(0.0, 1.0) = 0.72;
+uniform float normal_strength : hint_range(0.0, 1.0) = 0.16;
 uniform float wrap_lighting : hint_range(0.0, 1.0) = 0.35;
 uniform float subsurface_strength : hint_range(0.0, 1.0) = 0.16;
 uniform float specular_strength : hint_range(0.0, 1.0) = 0.22;
 
 void fragment() {
 	vec4 base = texture(albedo_texture, UV);
-	ALBEDO = base.rgb * albedo_tint.rgb;
+	ALBEDO = base.rgb * albedo_tint.rgb * COLOR.rgb;
 	vec3 normal_sample = texture(normal_texture, UV).rgb;
 	// Solid-black embeds were shipped by a broken Non-Color export; treat them
 	// as flat so lighting does not collapse into a specular glow blob.
 	NORMAL_MAP = length(normal_sample) < 0.001 ? vec3(0.5, 0.5, 1.0) : normal_sample;
+	NORMAL_MAP_DEPTH = normal_strength;
 	// WHY: constant ORM with G=0 zeroed roughness_base and bloom-haloed characters.
 	float map_roughness = texture(roughness_texture, UV).g;
 	ROUGHNESS = clamp(
@@ -44,11 +46,11 @@ void light() {
 	float wrapped = clamp((ndotl + wrap_lighting) / (1.0 + wrap_lighting), 0.0, 1.0);
 	float backlight = pow(max(dot(-normalize(NORMAL), normalize(LIGHT)), 0.0), 2.0);
 	float diffuse = wrapped + backlight * subsurface_strength;
-	DIFFUSE_LIGHT += ALBEDO * LIGHT_COLOR * ATTENUATION * diffuse;
+	DIFFUSE_LIGHT += ALBEDO * LIGHT_COLOR * ATTENUATION * diffuse / 3.14159265;
 
 	// A restrained Blinn-Phong highlight keeps skin moist without making the
 	// low-poly face look metallic, and works in the GL Compatibility light path.
 	vec3 half_vector = normalize(normalize(LIGHT) + normalize(VIEW));
 	float highlight = pow(max(dot(normalize(NORMAL), half_vector), 0.0), 24.0);
-	SPECULAR_LIGHT += LIGHT_COLOR * ATTENUATION * highlight * specular_strength;
+	SPECULAR_LIGHT += LIGHT_COLOR * ATTENUATION * highlight * specular_strength * 0.25;
 }

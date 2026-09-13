@@ -24,7 +24,7 @@
     },
     "equip": {
       "slot": "right_hand",
-      "scene": "res://assets/characters/shared/sword.tscn"
+      "scene": "res://assets/storybook/equipment/sword.tscn"
     },
     "attack_profile": {
       "animation": "sword_attack",

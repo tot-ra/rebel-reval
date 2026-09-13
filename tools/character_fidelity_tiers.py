@@ -34,6 +34,7 @@ GARMENT_GLBS = frozenset(
     {
         "assets/characters/shared/hero_cape.glb",
         "assets/characters/shared/hero_hat.glb",
+        "assets/characters/shared/hero_mail.glb",
     }
 )
 

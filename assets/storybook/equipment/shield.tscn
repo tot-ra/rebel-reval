@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://assets/storybook/equipment/shield.glb" id="1"]
+
+[node name="shield" type="Node3D"]
+rotation = Vector3(0, 0, 0)
+
+[node name="Visual" parent="." instance=ExtResource("1")]

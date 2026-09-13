@@ -48,7 +48,7 @@ static func build_cloud_shape(
 	var noise := FastNoiseLite.new()
 	noise.seed = seed + 7
 	noise.noise_type = FastNoiseLite.TYPE_CELLULAR
-	noise.frequency = 0.018
+	noise.frequency = 0.012
 	noise.cellular_distance_function = FastNoiseLite.DISTANCE_EUCLIDEAN
 	noise.cellular_return_type = FastNoiseLite.RETURN_DISTANCE
 	noise.fractal_type = FastNoiseLite.FRACTAL_FBM
@@ -206,11 +206,11 @@ static func build_rain(amount: int = RAIN_PARTICLES_RECOMMENDED) -> GPUParticles
 	rain.process_material = process
 	# Stretched unshaded streaks; built from primitives, no texture assets.
 	var streak := BoxMesh.new()
-	streak.size = Vector3(0.018, 0.5, 0.018)
+	streak.size = Vector3(0.010, 0.36, 0.010)
 	var streak_material := StandardMaterial3D.new()
 	streak_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	streak_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	streak_material.albedo_color = Color(0.68, 0.76, 0.88, 0.5)
+	streak_material.albedo_color = Color(0.68, 0.73, 0.78, 0.28)
 	streak.material = streak_material
 	rain.draw_pass_1 = streak
 	rain.visible = false

@@ -2,10 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://df15gsn2qp5gg"
+path="res://.godot/imported/hero_tex_cloth_albedo.png-c2e94e53a429cd3d593fc1c087802c78.ctex"
+metadata={
+"vram_texture": false
+}
 
 [deps]
 
 source_file="res://assets/characters/shared/textures/hero_tex_cloth_albedo.png"
+dest_files=["res://.godot/imported/hero_tex_cloth_albedo.png-c2e94e53a429cd3d593fc1c087802c78.ctex"]
 
 [params]
 

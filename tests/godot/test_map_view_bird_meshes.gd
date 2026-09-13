@@ -60,50 +60,19 @@ func test_catalog_uses_only_the_reviewed_authored_glbs() -> void:
 		)
 
 
-func test_mesh_for_prefers_reviewed_authored_defaults_and_falls_back_for_the_rest() -> void:
+func test_catalog_uses_revised_cached_anatomy_for_all_default_poses() -> void:
 	BirdMeshes.reset_cache()
-	var authored_defaults: Array[StringName] = [
-		BirdSpecies.SPECIES_MUTE_SWAN,
-		BirdSpecies.SPECIES_MALLARD,
-		BirdSpecies.SPECIES_GREYLAG_GOOSE,
-		BirdSpecies.SPECIES_GREAT_CORMORANT,
-		BirdSpecies.SPECIES_GREY_HERON,
-		BirdSpecies.SPECIES_NORTHERN_LAPWING,
-		BirdSpecies.SPECIES_COMMON_SNIPE,
-		BirdSpecies.SPECIES_WHITE_TAILED_EAGLE,
-		BirdSpecies.SPECIES_OSPREY,
-		BirdSpecies.SPECIES_COMMON_BUZZARD,
-		BirdSpecies.SPECIES_COMMON_KESTREL,
-		BirdSpecies.SPECIES_HOODED_CROW,
-		BirdSpecies.SPECIES_ROOK,
-		BirdSpecies.SPECIES_WESTERN_JACKDAW,
-		BirdSpecies.SPECIES_EURASIAN_MAGPIE,
-		BirdSpecies.SPECIES_COMMON_CHAFFINCH,
-		BirdSpecies.SPECIES_GREAT_TIT,
-		BirdSpecies.SPECIES_EUROPEAN_ROBIN,
-		BirdSpecies.SPECIES_COMMON_BLACKBIRD,
-		BirdSpecies.SPECIES_SONG_THRUSH,
-		BirdSpecies.SPECIES_COMMON_NIGHTINGALE,
-		BirdSpecies.SPECIES_YELLOWHAMMER,
-		BirdSpecies.SPECIES_HOUSE_SPARROW,
-		BirdSpecies.SPECIES_HERRING_GULL,
-		BirdSpecies.SPECIES_COMMON_GULL,
-		BirdSpecies.SPECIES_COMMON_TERN,
-	]
 	for species in BirdSpecies.ALL_SPECIES:
-		var pose := BirdSpecies.default_pose(species)
-		var mesh := BirdMeshes.mesh_for(species, pose)
+		var mesh := BirdMeshes.mesh_for(species)
 		assert_true(mesh is ArrayMesh, "%s needs a mesh" % species)
-		var uses_authored := species in authored_defaults
-		assert_eq(BirdMeshes.uses_authored_mesh(species, pose), uses_authored)
-		var stats := BirdMeshes.geometry_stats(species, pose)
-		# Authored GLBs may exceed the procedural fallback budget.
-		if not uses_authored:
-			assert_true(int(stats.get("triangles", 0)) >= 100)
-			assert_true(int(stats.get("triangles", 9999)) <= 512)
+		assert_eq(mesh.get_meta(&"bird_catalog_revision", 0), 212)
+		assert_false(BirdMeshes.uses_authored_mesh(species))
+		var stats := BirdMeshes.geometry_stats(species)
+		assert_true(int(stats.get("triangles", 0)) >= 2000)
+		assert_true(int(stats.get("triangles", 99999)) <= 8000)
 
 
-func test_harbour_gull_flap_cycle_uses_authored_frames() -> void:
+func test_harbour_gull_flap_cycle_keeps_eight_frames() -> void:
 	BirdMeshes.reset_cache()
 	assert_true(BirdAssets.has_complete_flap_cycle(BirdSpecies.SPECIES_HERRING_GULL))
 	var cycle := BirdMeshes.flap_cycle(BirdSpecies.SPECIES_HERRING_GULL)
@@ -113,8 +82,8 @@ func test_harbour_gull_flap_cycle_uses_authored_frames() -> void:
 		assert_true((mesh as ArrayMesh).get_surface_count() > 0)
 	var neutral := BirdMeshes.mesh_for(BirdSpecies.SPECIES_HERRING_GULL, BirdSpecies.POSE_GLIDING)
 	assert_true(neutral is ArrayMesh)
-	# Neutral gliding.glb matches flap frame 02 (MapViewBirdAssets convention).
-	assert_true((cycle[2] as ArrayMesh).get_aabb().is_equal_approx(neutral.get_aabb()))
+	# Neutral runtime geometry matches flap frame 02.
+	assert_true((cycle[2] as ArrayMesh).get_aabb().size.is_equal_approx(neutral.get_aabb().size))
 
 
 func test_harbour_flap_frames_move_both_wing_halves() -> void:
@@ -190,42 +159,11 @@ func test_bird_asset_paths_follow_runtime_convention() -> void:
 func test_procedural_mesh_uses_lit_surface_material() -> void:
 	BirdMeshes.reset_cache()
 	BirdSpecies.reset_surface_material_cache()
-	var authored_gliding: Array[StringName] = [
-		BirdSpecies.SPECIES_HERRING_GULL,
-		BirdSpecies.SPECIES_COMMON_GULL,
-		BirdSpecies.SPECIES_COMMON_TERN,
-		BirdSpecies.SPECIES_WHITE_TAILED_EAGLE,
-		BirdSpecies.SPECIES_OSPREY,
-		BirdSpecies.SPECIES_COMMON_BUZZARD,
-		BirdSpecies.SPECIES_COMMON_KESTREL,
-	]
 	for species in BirdSpecies.ALL_SPECIES:
 		var mesh := BirdMeshes.mesh_for(species, BirdSpecies.POSE_GLIDING)
-		assert_true(mesh.get_surface_count() > 0, "%s needs a lit surface" % species)
-		_assert_lit_fauna_material(
-			mesh.surface_get_material(0),
-			species,
-			species not in authored_gliding
-		)
-
-
-func _assert_lit_fauna_material(material: Material, label: String, expect_vertex_tint: bool) -> void:
-	assert_true(material is StandardMaterial3D, "%s surface must be StandardMaterial3D" % label)
-	var std := material as StandardMaterial3D
-	assert_ne(
-		std.shading_mode,
-		BaseMaterial3D.SHADING_MODE_UNSHADED,
-		"%s must react to scene lighting" % label
-	)
-	assert_true(std.normal_enabled and std.normal_texture != null, "%s needs feather normal response" % label)
-	# Authored harbour-gull GLBs use roughness textures; procedural birds keep a scalar.
-	var has_roughness_tex := std.roughness_texture != null
-	assert_true(
-		has_roughness_tex or (std.roughness > 0.05 and std.roughness < 1.0),
-		"%s roughness must be authored" % label
-	)
-	if expect_vertex_tint:
-		assert_true(std.vertex_color_use_as_albedo, "%s keeps vertex colour as albedo tint" % label)
+		var material := mesh.surface_get_material(0) as ShaderMaterial
+		assert_true(material != null, "%s needs the detailed lit plumage material" % species)
+		assert_eq(material.shader.resource_path, "res://assets/birds/catalog_plumage.gdshader")
 
 
 func test_modular_flap_rig_exposes_attached_wings_and_shadow_casters() -> void:

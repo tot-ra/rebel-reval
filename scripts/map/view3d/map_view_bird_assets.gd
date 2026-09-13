@@ -1,10 +1,12 @@
 class_name MapViewBirdAssets
 extends RefCounted
 
-## Authored bird GLB loader for P2-033. Runtime convention:
+## Legacy authored bird GLB loader for P2-033. Runtime convention:
 ## ``assets/birds/<species>/<pose>.glb`` for static poses and
 ## ``assets/birds/<species>/gliding_XX.glb`` (00-07) for the gliding flap cycle.
-## Missing files fall back to procedural P0-117 meshes in ``MapViewBirdMeshes``.
+## These files remain available for archival/reference callers. Active map flight
+## uses ``MapViewBirdMeshes`` P0-212 catalogue geometry, except the five
+## explicitly listed skinned storybook species below.
 
 const BirdSpecies := preload("res://scripts/map/view3d/map_view_bird_species.gd")
 
@@ -115,3 +117,33 @@ static func _load_mesh(scene_path: String) -> ArrayMesh:
 	var mesh := source_mesh.duplicate() as ArrayMesh
 	_mesh_cache[scene_path] = mesh
 	return mesh
+
+## The five higher-detail skinned assets remain active in live flight. All other
+## catalogue species use P0-212 anatomy through ``MapViewBirdMeshes``.
+const ANIMATED_MODELS := {
+	&"european_robin": "res://assets/storybook/robin.glb",
+	&"hooded_crow": "res://assets/storybook/hooded_crow.glb",
+	&"herring_gull": "res://assets/storybook/gull.glb",
+	&"common_gull": "res://assets/storybook/gull.glb",
+	&"mallard": "res://assets/storybook/duck.glb",
+}
+
+static func has_animated_model(species: StringName) -> bool:
+	return ANIMATED_MODELS.has(species)
+
+static func create_animated_model(species: StringName) -> Node3D:
+	if not has_animated_model(species):
+		return null
+	var packed := load(ANIMATED_MODELS[species]) as PackedScene
+	if packed == null:
+		return null
+	var model := packed.instantiate() as Node3D
+	model.name = "AnimatedBird"
+	model.rotation.y = PI # Generated birds face +Z; live flight uses look_at(-Z).
+	model.scale = Vector3.ONE * (0.45 if species == &"european_robin" else 0.7)
+	var player := model.find_child("AnimationPlayer", true, false) as AnimationPlayer
+	for clip: StringName in [&"Fly", &"Glide"]:
+		player.get_animation(clip).loop_mode = Animation.LOOP_LINEAR
+	player.play(&"Fly")
+	model.set_meta(&"flight_player", player)
+	return model

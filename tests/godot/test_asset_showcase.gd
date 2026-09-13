@@ -5,7 +5,8 @@ const SMALL_SHOWCASE_SCENE := "res://scenes/debug/asset_showcase.tscn"
 const LARGE_SHOWCASE_SCENE := "res://scenes/debug/asset_showcase_large.tscn"
 const CHARACTERS_ANIMALS_SHOWCASE_SCENE := "res://scenes/debug/characters_animals_showcase.tscn"
 
-const KALEV_SCENE := preload("res://assets/characters/kalev/kalev.tscn")
+# Original generator/LOD contract, retained for existing crowd assets.
+const LEGACY_KALEV_SCENE := preload("res://assets/characters/shared/shared_character_rig.tscn")
 const HERO_BODY_SCENE := preload("res://assets/characters/shared/heroic_humanoid.glb")
 # WHY: Keep the acceptance contract executable in Godot without importing the
 # Python budget module; these values mirror the frozen Tier-0 caps in
@@ -152,7 +153,7 @@ func test_showcase_scenes_and_debug_destinations_are_loadable() -> void:
 	_assert_showcase_scene(CHARACTERS_ANIMALS_SHOWCASE_SCENE, Definition.SHOWCASE_CHARACTERS_ANIMALS)
 
 
-func test_kalev_tier_zero_hero_contract_is_showcase_ready() -> void:
+func test_legacy_tier_zero_hero_contract_is_showcase_ready() -> void:
 	var body := HERO_BODY_SCENE.instantiate()
 	var total_triangles := 0
 	var max_texture_px := 0
@@ -223,7 +224,7 @@ func test_kalev_tier_zero_hero_contract_is_showcase_ready() -> void:
 		"Kalev must remain within the frozen Tier-0 texture budget")
 	body.free()
 
-	var kalev := KALEV_SCENE.instantiate() as SharedCharacterRig
+	var kalev := LEGACY_KALEV_SCENE.instantiate() as SharedCharacterRig
 	var tree := Engine.get_main_loop() as SceneTree
 	tree.root.add_child(kalev)
 	assert_eq(kalev.validation_errors(), [], "Kalev must remain valid on the shared rig")

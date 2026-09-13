@@ -1,14 +1,19 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
-[ext_resource type="Script" path="res://assets/characters/shared/shared_character_rig.gd" id="1_rig"]
-[ext_resource type="PackedScene" path="res://assets/characters/shared/watchman.glb" id="2_model"]
+[ext_resource type="Script" path="res://assets/storybook/storybook_character.gd" id="1_rig"]
+[ext_resource type="PackedScene" path="res://assets/storybook/watchman.glb" id="2_model"]
 [ext_resource type="Resource" path="res://assets/characters/variants/watchman_variant.tres" id="3_variant"]
+
+[ext_resource type="Script" path="res://scripts/ui/character_health_ring_3d.gd" id="4_health_ring"]
 
 [node name="Watchman" type="Node3D"]
 script = ExtResource("1_rig")
 variant = ExtResource("3_variant")
+use_anatomical_muscles = false
 
 [node name="Model" type="Node3D" parent="."]
-scale = Vector3(1.1621, 1.1621, 1.1621)
 
 [node name="ImportedHumanoid" parent="Model" instance=ExtResource("2_model")]
+
+[node name="HealthRing" type="Node3D" parent="."]
+script = ExtResource("4_health_ring")

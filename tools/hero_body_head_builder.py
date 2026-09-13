@@ -239,6 +239,23 @@ def _feature_point(
     )
 
 
+def build_head_layers(context: BodyContext, shape: dict, face: dict, features: dict) -> list[PartBuilder]:
+    """Headwear can hide scalp hair without removing the face, brows or neck."""
+    bare_features = dict(features, hair_style="bald", beard_style="none")
+    parts = [build_head(context, shape, face, bare_features)]
+    for name, style, builder, absent in (
+        ("Hair_Scalp", features["hair_style"], _add_hair, "bald"),
+        ("Hair_Beard", features["beard_style"], _add_beard, "none"),
+    ):
+        if style == absent:
+            continue
+        part = PartBuilder(name, context.frame, bulk=shape["head_scale"], segments=14)
+        builder(part, context, shape, style, face)
+        part.vertex_color_fn = _complexion(context, shape, face)
+        parts.append(part)
+    return parts
+
+
 def build_head(
     context: BodyContext, shape: dict, face: dict, features: dict
 ) -> PartBuilder:

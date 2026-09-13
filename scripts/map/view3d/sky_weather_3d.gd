@@ -31,10 +31,10 @@ const ALL_WEATHERS: Array[StringName] = [
 
 ## Fixed seed: same weather sequence on every launch (deterministic, reviewable).
 const WEATHER_SEED := 24217
-const TRANSITION_SECONDS := 5.0
+const TRANSITION_SECONDS := 12.0
 ## Bank masses cross the dome at this rate; detail churns faster for edge chaos.
-const CLOUD_DRIFT_PER_SECOND := Vector2(0.0045, 0.0018)
-const CLOUD_DETAIL_DRIFT_PER_SECOND := Vector2(0.0078, -0.0031)
+const CLOUD_DRIFT_PER_SECOND := Vector2(0.0011, 0.00044)
+const CLOUD_DETAIL_DRIFT_PER_SECOND := Vector2(0.0019, -0.00075)
 
 ## Golden-hour presentation stays with the weather controller because it blends
 ## the live weather profile into MapView3D lighting.
@@ -149,8 +149,8 @@ const PROFILES: Dictionary = {
 	{
 		"coverage": 0.98,
 		"darken": 0.72,
-		"sun_energy": 0.44,
-		"ambient_energy": 0.80,
+		"sun_energy": 0.12,
+		"ambient_energy": 0.92,
 		"gray": 0.75,
 		"rain": 0.0,
 		"wind": 0.58,
@@ -163,8 +163,8 @@ const PROFILES: Dictionary = {
 	{
 		"coverage": 0.94,
 		"darken": 0.82,
-		"sun_energy": 0.32,
-		"ambient_energy": 0.70,
+		"sun_energy": 0.07,
+		"ambient_energy": 0.82,
 		"gray": 0.62,
 		"rain": 1.0,
 		"wind": 0.92,
@@ -581,10 +581,20 @@ func advance(delta: float) -> void:
 	_cloud_offset += CLOUD_DRIFT_PER_SECOND * wind_scale * delta
 	_cloud_detail_offset += CLOUD_DETAIL_DRIFT_PER_SECOND * wind_scale * delta
 	if _blend < 1.0:
+		var previous_ease := smoothstep(0.0, 1.0, _blend)
 		_blend = minf(1.0, _blend + delta / TRANSITION_SECONDS)
+		var remaining_weight := (
+			(smoothstep(0.0, 1.0, _blend) - previous_ease)
+			/ maxf(1.0 - previous_ease, 0.000001)
+		)
+		if _blend >= 1.0:
+			remaining_weight = 1.0
+		# Resume from the saved visible profile, including older linear blends.
+		# A zero-time update cannot jump when easing or authored targets change.
 		for key in _current:
 			_current[key] = lerpf(
-				float(_from[key]), float((PROFILES[weather] as Dictionary)[key]), _blend
+				float(_current[key]), float((PROFILES[weather] as Dictionary)[key]),
+				remaining_weight
 			)
 	elif auto_weather:
 		_time_in_state += delta
@@ -1023,6 +1033,10 @@ func _update_rain(delta: float = 0.0) -> void:
 	_rain.visible = rain_emitter_visible()
 	if _rain.visible:
 		_rain.amount_ratio = clampf(rain_intensity(), 0.05, 1.0)
+	var process := _rain.process_material as ParticleProcessMaterial
+	if process != null:
+		var wind := wind_direction_xz() * wind_strength()
+		process.direction = Vector3(wind.x * 0.40, -1.0, wind.y * 0.40).normalized()
 	if _camera != null:
 		_rain.global_position = _camera.global_position + Vector3.UP * RAIN_EMITTER_HEIGHT
 	if _roof_audio != null:

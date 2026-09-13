@@ -13,6 +13,31 @@ This document is binding for new art decisions. It replaces the pale/desaturated
 
 Historical grounding controls what exists, how it is built, worn, carried, and used. Stylization controls color, shape emphasis, facial expression, material response, effects, and dramatic composition. Fantasy treatment never licenses an anachronistic object, building, costume, creature, or magical effect without research/canon authorization.
 
+## Kalev realism exception (P0-210)
+
+Per [ADR 0020](adr/0020-kalev-character-realism.md), the maintainer requests a more realistic main character using The Witcher 3 as a fidelity reference. Kalev uses natural adult facial anatomy, groomed hair, restrained skin tones, and detailed cloth/leather/metal PBR, within the existing hero budget and modular shared-rig contract. This supersedes the anime shape language for Kalev only; it does not change NPC or environment art direction.
+
+## Vegetation realism (P0-208)
+
+Maintainer-directed 2026-09-12: use The Witcher 3 as a reference for natural
+vegetation structure, light response and wind. Existing botanical species gain
+fine curved grass blades, folded species-shaped leaves, restrained light-driven
+translucency and irregular ground-cover patches. Keep the Baltic palette,
+authored planting, cached procedural meshes and GL Compatibility renderer.
+Original geometry only; this revises existing vegetation presentation without
+adding a biome, gameplay mechanic or imported game assets.
+
+## Bird realism (P0-207 / P0-212)
+
+Maintainer-directed September 2026: existing birds move toward natural anatomy
+and material detail, with The Witcher 3 as a fidelity reference. The five skinned
+birds retain P0-207 assets. All 30 ambient catalogue species use original cached
+geometry with continuous torso/neck/skull surfaces, layered feather vanes,
+species markings, feet and bills. Feather, keratin and eye response share one
+lit material; ambient meshes remain below 8,000 triangles. Ecology, stable IDs
+and world placement are unchanged. This is an incremental realism pass, not a
+claim of finished AAA animal fidelity. See the [catalogue evidence](reports/bird_catalog_realism_2026-09-12.md).
+
 ## Production foundation
 
 - Engine: Godot 4.7; current renderer: GL Compatibility.
@@ -23,6 +48,18 @@ Historical grounding controls what exists, how it is built, worn, carried, and u
 - Negative constraints: no photoreal photographic noise, pale/desaturated global wash, universal black cel outlines, plastic gloss, uncontrolled bloom, generic neon fantasy, or restored frame-by-frame sprite pipeline.
 
 ## Historical truth and stylization boundary
+
+**Animal revision (P0-209, maintainer-directed 2026-09-12):** mammals move toward
+grounded realism, with Witcher 3 as a quality reference for anatomy and material
+separation. Use continuous musculature, natural eyes/ears, textured fur or fleece,
+and distinct wet nose, horn and hoof response. The previous storybook bead fleece,
+cone ears and flat coats are superseded. This species-specific direction does not
+change the environment palette or authorize copied game assets. P0-209b replaces the
+rejected procedural mammals with credited CC BY 4.0 source surfaces, preserving
+actual paws/hooves, coat UVs and species silhouettes. Dogs use a shaggy village
+phenotype; do not imply a modern Labrador or an attested medieval breed. See
+`assets/storybook/mammal_sources.json` for provenance and source limitations.
+The rabbit-derived hare remains a documented species-fidelity limitation.
 
 ### Must remain evidence-led
 
@@ -136,6 +173,14 @@ A grayscale/squint pass must preserve tiers 1-3 in day, night, fog, rain, and fi
 - Do not fake the direction with a full-screen saturation overlay. Rich albedos, colored light, roughness response, atmospheric perspective, and local contrast must all contribute.
 
 ## Day, night, and weather
+
+The maintainer-directed sky/weather refinement (**P0-211**, 2026-09-12) uses
+The Witcher 3 as an atmospheric realism reference: natural celestial scale,
+layered cloud extinction and sun-facing shading, restrained haze, diffuse
+overcast illumination and wind-driven rain. This applies to atmospheric
+presentation within the existing renderer; retain material color identity and
+gameplay readability. Implementation and comparison evidence live in
+[`weather_realism_2026-09-12.md`](reports/weather_realism_2026-09-12.md).
 
 - Author one rich day-master asset set. Night is deterministic lighting/post, not separately recolored textures.
 - Night remains at least 20 percent darker than day while retaining local hue identity.

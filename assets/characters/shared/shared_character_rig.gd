@@ -96,14 +96,6 @@ const LOD1_VISIBILITY_END := 46.0
 const LOD1_VISIBILITY_MARGIN := 1.0
 const LOD2_VISIBILITY_BEGIN := 46.0
 const LOD_LEVELS: Array[int] = [1, 2]
-const BODY_GLB_BASENAMES: Dictionary = {
-	&"char.kalev": &"heroic_humanoid",
-	&"char.mart": &"mart",
-	&"char.aita": &"aita",
-	&"char.kaja": &"kaja",
-	&"char.henning": &"henning",
-	&"char.jurgen": &"jurgen",
-}
 const CHARACTER_LOD_DIR := "res://assets/characters/shared/"
 
 ## Per-scene override for non-hero bodies: a body scene generated from a
@@ -112,6 +104,7 @@ const CHARACTER_LOD_DIR := "res://assets/characters/shared/"
 const OCCLUDED_SILHOUETTE_SHADER := preload("res://assets/characters/shared/occluded_silhouette.gdshader")
 const SKIN_MATERIAL_SHADER := preload("res://scripts/characters/skin_material.gdshader")
 const EYE_MATERIAL_SHADER := preload("res://scripts/characters/eye_material.gdshader")
+const MAIL_MATERIAL_SHADER := preload("res://assets/characters/shared/mail_material.gdshader")
 const HAIR_MATERIAL_SHADER := preload("res://scripts/characters/hair_material.gdshader")
 const HEAD_SCALE_MODIFIER := preload("res://assets/characters/shared/head_scale_modifier.gd")
 const ANATOMICAL_MUSCLE_MODIFIER := preload("res://assets/characters/shared/anatomical_muscle_modifier.gd")
@@ -148,7 +141,7 @@ const CHARACTER_PBR_MATERIAL_PROFILES: Dictionary = {
 	&"hero_belt": {"family": "leather", "roughness": 0.50, "metallic": 0.0},
 	&"hero_leather": {"family": "leather", "roughness": 0.54, "metallic": 0.0},
 	&"hero_armor": {"family": "metal", "roughness": 0.28, "metallic": 0.95},
-	&"hero_mail": {"family": "metal", "roughness": 0.34, "metallic": 0.95},
+	&"hero_mail": {"family": "metal", "roughness": 0.72, "metallic": 0.55},
 }
 
 @export var variant: CharacterVariant
@@ -163,6 +156,7 @@ var _skeleton: Skeleton3D
 var _planted_foot: StringName = &""
 var _slot_attachments: Dictionary = {}
 var _garments: Dictionary = {}
+var _wardrobe := CharacterWardrobe.new()
 var _extra_visual_layers := 0
 var _occlusion_ghost := false
 var _distance_lods_installed := false
@@ -190,6 +184,7 @@ func _apply_variant_and_distance_lods() -> void:
 		return
 	_distance_lods_installed = true
 	_install_distance_lods()
+	_wardrobe.refresh(self)
 
 
 func _exit_tree() -> void:
@@ -493,15 +488,47 @@ func equipped(slot: StringName) -> Node3D:
 			return child as Node3D
 	return null
 
+## Fitted clothes/armor replace authored body layers while keeping the live rig.
+func equip_wearable(wearable: CharacterWearable) -> bool:
+	return _wardrobe.equip(self, wearable)
+
+func unequip_wearable(slot: StringName) -> void:
+	unequip_garment(StringName("wearable_%s" % slot))
+
+func equipped_wearable(slot: StringName) -> CharacterWearable:
+	return _wardrobe.equipped(slot)
+
+func body_basename() -> String:
+	# Fit belongs to the imported geometry, not the character's narrative ID.
+	# Data-only variants of Kalev may share clothes; naming Mart "char.kalev"
+	# must never make differently proportioned armor fit his body.
+	var model := get_node_or_null("Model")
+	if model != null:
+		for child: Node in model.get_children():
+			if child.scene_file_path.ends_with(".glb"):
+				return child.scene_file_path.get_file().get_basename()
+	return ""
+
 ## Mounts a skinned garment (a glb whose meshes are skinned to the shared
 ## skeleton) so it deforms with the body — clothes rather than props.
 func equip_garment(garment_id: StringName, scene: PackedScene) -> bool:
 	if _skeleton == null or scene == null:
 		return false
-	unequip_garment(garment_id)
 	var source := scene.instantiate()
+	var source_meshes := source.find_children("*", "MeshInstance3D", true, false)
+	if source_meshes.is_empty():
+		source.free()
+		return false
+	# Check the full scene before removing the old outfit. Rigid/invalid scenes
+	# are not garments, and must not silently destroy equipped clothing.
+	for found: Node in source_meshes:
+		var candidate := found as MeshInstance3D
+		if candidate.mesh == null or candidate.skin == null:
+			source.free()
+			return false
+	unequip_garment(garment_id)
 	var mounted: Array[MeshInstance3D] = []
-	for found: Node in source.find_children("*", "MeshInstance3D", true, false):
+	for found: Node in source_meshes:
 		var mesh_instance := found as MeshInstance3D
 		mesh_instance.get_parent().remove_child(mesh_instance)
 		mesh_instance.owner = null
@@ -509,6 +536,7 @@ func equip_garment(garment_id: StringName, scene: PackedScene) -> bool:
 		_skeleton.add_child(mesh_instance)
 		mesh_instance.skeleton = NodePath("..")
 		mesh_instance.transform = Transform3D.IDENTITY
+		_apply_material_stack(mesh_instance, variant.material_tint if variant != null else Color.WHITE)
 		_apply_visual_layers(mesh_instance)
 		if _occlusion_ghost:
 			_apply_overlay(mesh_instance, _silhouette_material())
@@ -522,8 +550,11 @@ func equip_garment(garment_id: StringName, scene: PackedScene) -> bool:
 func unequip_garment(garment_id: StringName) -> void:
 	var mounted: Array = _garments.get(garment_id, [])
 	for mesh_instance: MeshInstance3D in mounted:
+		mesh_instance.visible = false
+		_detach_render_geometry(mesh_instance)
 		mesh_instance.queue_free()
 	_garments.erase(garment_id)
+	_wardrobe.forget(garment_id, self)
 
 func has_garment(garment_id: StringName) -> bool:
 	return _garments.has(garment_id)
@@ -611,6 +642,8 @@ func _apply_variant() -> void:
 		equip_garment(&"cape", GARMENT_SCENES[&"cape"])
 	if variant.show_hat:
 		equip_garment(&"hat", GARMENT_SCENES[&"hat"])
+	for wearable: CharacterWearable in variant.wearables:
+		equip_wearable(wearable)
 
 ## Duplicate each imported surface before applying a variant tint or shader.
 ## WHY: GLB materials are shared resources; mutating one in-place would leak a
@@ -625,6 +658,8 @@ func _apply_material_stack(root: Node, tint: Color) -> void:
 					var material_name := StringName(source_material.resource_name)
 					var material := source_material.duplicate() as BaseMaterial3D
 					_apply_character_pbr_profile(material_name, material)
+					if material_name == &"hero_mail":
+						material.albedo_color = Color(0.62, 0.67, 0.72)
 					material.albedo_color *= tint
 					# Reapply after tinting so imported scalar defaults cannot win over the
 					# family baseline when a duplicated GLB material carries texture maps.
@@ -644,6 +679,8 @@ func _apply_character_pbr_profile(material_name: StringName, material: BaseMater
 	# WHY: explicit per-pixel lighting prevents imported fallback flags from
 	# making cloth appear flat/unshaded after the scalar PBR tuning is applied.
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL
+	material.normal_scale = 0.20 if profile.get("family") == "cloth" else 0.24
+	material.vertex_color_use_as_albedo = true
 	material.roughness = float(profile["roughness"])
 	material.metallic = float(profile["metallic"])
 	# glTF ORM stores roughness in G; without this, StandardMaterial samples R
@@ -658,7 +695,9 @@ func _apply_character_pbr_profile(material_name: StringName, material: BaseMater
 
 func _shader_material_for(material_name: StringName, source_material: BaseMaterial3D) -> ShaderMaterial:
 	var shader: Shader
-	if material_name in SKIN_MATERIAL_NAMES:
+	if material_name == &"hero_mail":
+		shader = MAIL_MATERIAL_SHADER
+	elif material_name in SKIN_MATERIAL_NAMES:
 		shader = SKIN_MATERIAL_SHADER
 	elif material_name in EYE_MATERIAL_NAMES:
 		shader = EYE_MATERIAL_SHADER
@@ -677,6 +716,10 @@ func _shader_material_for(material_name: StringName, source_material: BaseMateri
 		material.set_shader_parameter("normal_texture", source_material.normal_texture)
 	if source_material.roughness_texture != null:
 		material.set_shader_parameter("roughness_texture", source_material.roughness_texture)
+	if material_name in EYE_MATERIAL_NAMES:
+		material.set_shader_parameter("has_albedo_map", source_material.albedo_texture != null)
+		material.set_shader_parameter("has_normal_map", source_material.normal_texture != null)
+		material.set_shader_parameter("has_roughness_map", source_material.roughness_texture != null)
 	if material_name in HAIR_MATERIAL_NAMES:
 		# Hair reads as layered keratin only when the directional lobe stays broad
 		# and restrained. Strong values turn the procedural scalp into polished,
@@ -690,17 +733,6 @@ func _tint_meshes(root: Node, tint: Color) -> void:
 	_apply_material_stack(root, tint)
 
 
-func _resolve_body_glb_basename() -> String:
-	if variant == null:
-		return ""
-	if BODY_GLB_BASENAMES.has(variant.stable_id):
-		return String(BODY_GLB_BASENAMES[variant.stable_id])
-	var stable := String(variant.stable_id)
-	if stable.begins_with("char."):
-		return stable.substr(5)
-	return ""
-
-
 func _configure_lod0_visibility() -> void:
 	var model := get_node_or_null("Model") as Node3D
 	if model == null:
@@ -712,7 +744,7 @@ func _configure_lod0_visibility() -> void:
 func _install_distance_lods() -> void:
 	if _skeleton == null:
 		return
-	var basename := _resolve_body_glb_basename()
+	var basename := body_basename()
 	if basename.is_empty():
 		return
 	for lod_level: int in LOD_LEVELS:

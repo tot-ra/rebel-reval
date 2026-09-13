@@ -35,12 +35,12 @@ const REQUIRED_ANIMATIONS: Array[StringName] = [
 	&"sit_up",
 ]
 
-func test_kalev_rig_has_required_skeleton_animations_and_hammer() -> void:
+func test_kalev_rig_has_required_skeleton_animations_and_empty_hand_start() -> void:
 	var kalev := _instantiate(KALEV_SCENE)
 
 	assert_eq(kalev.validation_errors(), [], "Kalev rig contract must be complete")
 	assert_eq(kalev.variant_id(), &"char.kalev")
-	assert_true(kalev.has_equipment(), "Kalev variant must attach the hammer by bone")
+	assert_false(kalev.has_equipment(), "Kalev starts empty-handed until inventory state equips a weapon")
 	for animation_name: StringName in REQUIRED_ANIMATIONS:
 		assert_true(kalev.has_animation(animation_name), "Missing canonical animation %s" % animation_name)
 		assert_true(kalev.play_animation(animation_name), "Animation %s must play" % animation_name)
@@ -124,40 +124,58 @@ func test_running_uses_contralateral_arm_swing() -> void:
 
 	var animation := kalev.animation_player().get_animation(&"Running_B")
 	var skeleton := kalev.skeleton()
-	var modifier := skeleton.get_node("RealisticProportions")
 	var left_hand := skeleton.find_bone("hand.l")
 	var right_hand := skeleton.find_bone("hand.r")
 	var left_foot := skeleton.find_bone("foot.l")
 	var right_foot := skeleton.find_bone("foot.r")
+	var left_knee := skeleton.find_bone("lowerleg.l")
+	var right_knee := skeleton.find_bone("lowerleg.r")
+	var hips := skeleton.find_bone("hips")
+	var head := skeleton.find_bone("head")
+	var left_toes := skeleton.find_bone("toes.l")
 	assert_true(
-		left_hand >= 0 and right_hand >= 0 and left_foot >= 0 and right_foot >= 0,
-		"run verification requires both hands and feet"
+		left_hand >= 0 and right_hand >= 0 and left_foot >= 0 and right_foot >= 0
+		and left_knee >= 0 and right_knee >= 0
+		and hips >= 0 and head >= 0 and left_toes >= 0,
+		"run verification requires the authored hands, feet, hips, head and toes"
 	)
-	if left_hand >= 0 and right_hand >= 0 and left_foot >= 0 and right_foot >= 0:
+	if left_hand >= 0 and right_hand >= 0 and left_foot >= 0 and right_foot >= 0 and left_knee >= 0 and right_knee >= 0 and hips >= 0 and head >= 0 and left_toes >= 0:
+		var hips_rest := skeleton.get_bone_global_rest(hips).origin
+		var up := (skeleton.get_bone_global_rest(head).origin - hips_rest).normalized()
+		var forward := (
+			skeleton.get_bone_global_rest(left_toes).origin
+			- skeleton.get_bone_global_rest(left_foot).origin
+		)
+		forward = (forward - up * forward.dot(up)).normalized()
 		kalev.animation_player().play(&"Running_B", 0.0)
-		kalev.animation_player().seek(0.0, true)
-		modifier.call("_process_modification")
+		kalev.animation_player().seek(animation.length * 0.25, true)
+		kalev.animation_player().advance(0.0)
 		skeleton.force_update_all_bone_transforms()
-		var start_left_hand_z := skeleton.get_bone_global_pose(left_hand).origin.z
-		var start_right_hand_z := skeleton.get_bone_global_pose(right_hand).origin.z
-		var start_left_foot_z := skeleton.get_bone_global_pose(left_foot).origin.z
-		var start_right_foot_z := skeleton.get_bone_global_pose(right_foot).origin.z
+		var hips_pose := skeleton.get_bone_global_pose(hips).origin
+		var start_left_hand_z := (skeleton.get_bone_global_pose(left_hand).origin - hips_pose).dot(forward)
+		var start_right_hand_z := (skeleton.get_bone_global_pose(right_hand).origin - hips_pose).dot(forward)
+		var start_left_knee_z := (skeleton.get_bone_global_pose(left_knee).origin - hips_pose).dot(forward)
+		var start_right_knee_z := (skeleton.get_bone_global_pose(right_knee).origin - hips_pose).dot(forward)
 		assert_true(
-			start_left_hand_z < -0.10 and start_right_hand_z > 0.10,
+			start_left_hand_z * start_right_hand_z < 0.0
+			and absf(start_left_hand_z) > 0.10 and absf(start_right_hand_z) > 0.10,
 			"hands must visibly swing to opposite sides of the torso"
 		)
 		assert_true(
-			start_left_hand_z * start_left_foot_z < 0.0
-			and start_right_hand_z * start_right_foot_z < 0.0,
+			start_left_hand_z * start_left_knee_z < 0.0
+			and start_right_hand_z * start_right_knee_z < 0.0,
 			"each arm must counter-swing against the leg on the same side"
 		)
 
-		kalev.animation_player().seek(animation.length * 0.5, true)
-		modifier.call("_process_modification")
+		kalev.animation_player().seek(animation.length * 0.75, true)
+		kalev.animation_player().advance(0.0)
 		skeleton.force_update_all_bone_transforms()
+		hips_pose = skeleton.get_bone_global_pose(hips).origin
+		var end_left_hand_z := (skeleton.get_bone_global_pose(left_hand).origin - hips_pose).dot(forward)
+		var end_right_hand_z := (skeleton.get_bone_global_pose(right_hand).origin - hips_pose).dot(forward)
 		assert_true(
-			skeleton.get_bone_global_pose(left_hand).origin.z > 0.10
-			and skeleton.get_bone_global_pose(right_hand).origin.z < -0.10,
+			end_left_hand_z * start_left_hand_z < 0.0
+			and end_right_hand_z * start_right_hand_z < 0.0,
 			"arm swing must reverse during the second half of the stride"
 		)
 	kalev.queue_free()
@@ -174,11 +192,16 @@ func test_locomotion_speed_and_foot_plants_follow_the_authored_gait() -> void:
 
 	var player := kalev.animation_player()
 	var animation := player.get_animation(&"Walking_A")
-	player.seek(0.0, true)
-	assert_eq(kalev.consume_foot_plant(), SharedCharacterRig.LEFT_FOOT_BONE)
-	assert_eq(kalev.consume_foot_plant(), &"", "one planted foot must emit only one contact")
-	player.seek(animation.length * 0.5, true)
-	assert_eq(kalev.consume_foot_plant(), SharedCharacterRig.RIGHT_FOOT_BONE)
+	var contacts: Dictionary = {}
+	for phase: float in [0.0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875]:
+		player.seek(animation.length * phase, true)
+		player.advance(0.0)
+		var contact := kalev.consume_foot_plant()
+		if not contact.is_empty():
+			contacts[contact] = true
+			assert_eq(kalev.consume_foot_plant(), &"", "one planted foot must emit only one contact")
+	assert_true(contacts.has(SharedCharacterRig.LEFT_FOOT_BONE), "walk cycle must plant the left foot")
+	assert_true(contacts.has(SharedCharacterRig.RIGHT_FOOT_BONE), "walk cycle must plant the right foot")
 	var right_foot := kalev.foot_world_position(SharedCharacterRig.RIGHT_FOOT_BONE)
 	assert_true(
 		right_foot.distance_to(kalev.global_position) > 0.1,
@@ -192,9 +215,10 @@ func test_scale_contract_projects_to_sixty_four_pixels() -> void:
 	assert_true(is_equal_approx(CharacterScale.projected_height_px(), 64.0))
 	var kalev := _instantiate(KALEV_SCENE)
 	assert_true(
-		kalev.get_node("Model").scale.is_equal_approx(SharedCharacterRig.HEROIC_MODEL_SCALE),
-		"runtime must retain the taller, narrower heroic model normalization"
+		kalev.get_node("Model").scale.is_equal_approx(kalev.model_scale),
+		"runtime must apply the fresh body's authored normalization"
 	)
+	assert_true(is_equal_approx(kalev.model_scale.y, 1.0989011))
 	kalev.queue_free()
 
 
@@ -220,18 +244,10 @@ func test_view_glyph_height_clears_posed_crown() -> void:
 	henning.queue_free()
 
 
-func test_proportions_modifier_installed_and_neutral_by_default() -> void:
+func test_fresh_kalev_keeps_authored_mesh_proportions() -> void:
 	var kalev := _instantiate(KALEV_SCENE)
 	var modifier := kalev.skeleton().get_node_or_null("RealisticProportions")
-	assert_true(modifier != null, "shared rig must install its per-variant proportions hook")
-	if modifier != null:
-		# Adult proportions are baked into the generated glb by
-		# tools/build_heroic_humanoid_glb.py + tools/generate_hero_body.py;
-		# the runtime modifier is a fine-tune hook and must default neutral.
-		assert_true(is_equal_approx(modifier.head_scale, 1.0), "baked head needs no runtime correction")
-		assert_true(is_equal_approx(modifier.leg_segment_scale, 1.0), "baked legs need no runtime correction")
-		assert_true(is_equal_approx(modifier.arm_segment_scale, 1.0), "baked arms need no runtime correction")
-		assert_true(is_equal_approx(modifier.torso_scale, 1.0), "baked torso needs no runtime correction")
+	assert_eq(modifier, null, "fresh Kalev proportions must remain authored in the mesh")
 	kalev.queue_free()
 
 
@@ -255,7 +271,7 @@ func test_mart_has_a_named_body_on_the_shared_animation_contract() -> void:
 	kalev.queue_free()
 	mart.queue_free()
 
-func test_approved_hero_cast_uses_one_shared_animation_and_lod_contract() -> void:
+func test_approved_hero_cast_uses_shared_animation_and_stays_visible_at_distance() -> void:
 	var reference := _instantiate(KALEV_SCENE)
 	var cases: Array[Dictionary] = [
 		{"scene": MART_SCENE, "id": &"char.mart"},
@@ -273,8 +289,9 @@ func test_approved_hero_cast_uses_one_shared_animation_and_lod_contract() -> voi
 		assert_eq(character.canonical_animation_names(), REQUIRED_ANIMATIONS)
 		for animation_name: StringName in REQUIRED_ANIMATIONS:
 			assert_true(character.has_animation(animation_name), "%s needs %s" % [character.name, animation_name])
-		assert_true(character.lod_visibility_configured(), "%s must mount distance LODs" % character.name)
-		assert_true(character.lod_mesh_count(1) > 0 and character.lod_mesh_count(2) > 0)
+		assert_eq(character.lod_mesh_count(1), 0)
+		for mesh: MeshInstance3D in character.get_node("Model").find_children("*", "MeshInstance3D", true, false):
+			assert_eq(mesh.visibility_range_end, 0.0, "New body must remain visible without replacement LODs")
 		character.queue_free()
 	reference.queue_free()
 
@@ -402,13 +419,13 @@ func test_map_view_runtime_hot_swaps_hammer_sword_and_empty_hand_visuals() -> vo
 
 	assert_eq(state.bag.try_add(&"item.forge_hammer"), InventoryBag.AddResult.OK)
 	assert_true(state.equip_from_bag(&"right_hand", &"item.forge_hammer"))
-	assert_true(kalev.equipped(&"right_hand").get_node_or_null("Handle") != null)
-	assert_true(kalev.equipped(&"right_hand").get_node_or_null("Head") != null)
+	assert_eq(kalev.equipped(&"right_hand").scene_file_path, "res://assets/storybook/equipment/hammer.tscn")
+	assert_true(kalev.equipped(&"right_hand").find_children("*", "MeshInstance3D", true, false).size() > 0)
 
 	assert_eq(state.bag.try_add(&"item.plain_sword"), InventoryBag.AddResult.OK)
 	assert_true(state.equip_from_bag(&"right_hand", &"item.plain_sword"))
-	assert_true(kalev.equipped(&"right_hand").get_node_or_null("Blade") != null)
-	assert_true(kalev.equipped(&"right_hand").get_node_or_null("Crossguard") != null)
+	assert_eq(kalev.equipped(&"right_hand").scene_file_path, "res://assets/storybook/equipment/sword.tscn")
+	assert_true(kalev.equipped(&"right_hand").find_children("*", "MeshInstance3D", true, false).size() > 0)
 
 	assert_true(state.unequip_to_bag(&"right_hand"))
 	assert_eq(kalev.equipped(&"right_hand"), null)
@@ -420,7 +437,9 @@ func test_equipment_slots_mount_replace_and_clear_props() -> void:
 	var kalev := _instantiate(KALEV_SCENE)
 	var hammer_scene := load("res://assets/characters/shared/hammer.tscn") as PackedScene
 
-	assert_true(kalev.equipped(&"right_hand") != null, "variant hammer must occupy the right hand slot")
+	assert_eq(kalev.equipped(&"right_hand"), null, "inventory state owns Kalev's initial weapon")
+	var right := kalev.equip(&"right_hand", hammer_scene)
+	assert_true(right != null, "right hand slot must accept an inventory weapon")
 	var left := kalev.equip(&"left_hand", hammer_scene)
 	assert_true(left != null, "left hand slot must accept a prop")
 	assert_eq(kalev.equipped(&"left_hand"), left)
@@ -433,28 +452,26 @@ func test_equipment_slots_mount_replace_and_clear_props() -> void:
 	assert_eq(kalev.equip(&"nonsense", hammer_scene), null, "unknown slots must be rejected")
 	kalev.queue_free()
 
-func test_skinned_garments_deform_with_the_shared_skeleton() -> void:
+func test_fresh_forge_outfit_deforms_with_the_shared_skeleton() -> void:
 	var kalev := _instantiate(KALEV_SCENE)
 	var mart := _instantiate(MART_SCENE)
 
-	assert_true(kalev.has_garment(&"cape"), "Kalev variant must wear the generated cape")
-	assert_false(kalev.has_garment(&"hat"), "Kalev variant must not wear the hat")
+	assert_false(kalev.has_garment(&"cape"), "fresh Kalev must not inherit the superseded cape")
+	for slot: StringName in [&"torso", &"outerwear", &"legs", &"feet"]:
+		var wearable := kalev.equipped_wearable(slot)
+		assert_true(wearable != null, "fresh forge outfit must fill %s" % slot)
+		var garment_id := StringName("wearable_%s" % slot)
+		var garment_meshes := kalev.skeleton().find_children(
+			"Garment_%s*" % garment_id, "MeshInstance3D", false, false
+		)
+		assert_true(garment_meshes.size() > 0, "%s meshes must mount under the skeleton" % slot)
+		for mesh: MeshInstance3D in garment_meshes:
+			assert_true(mesh.mesh.get_surface_count() > 0, "garment must carry visible surfaces")
+			assert_true(mesh.skin != null, "garment must stay skinned so it deforms with the body")
 	assert_false(mart.has_garment(&"hat"), "Mart keeps his generated adolescent silhouette unobstructed")
 
-	var cape_meshes := kalev.skeleton().find_children("Garment_cape*", "MeshInstance3D", false, false)
-	assert_true(cape_meshes.size() > 0, "cape meshes must mount under the skeleton")
-	for mesh: MeshInstance3D in cape_meshes:
-		assert_true(mesh.mesh.get_surface_count() > 0, "garment must carry visible surfaces")
-		assert_true(mesh.skin != null, "garment must stay skinned so it deforms with the body")
-
-	kalev.unequip_garment(&"cape")
-	assert_false(kalev.has_garment(&"cape"), "garments must be removable")
-
-	assert_true(
-		kalev.equip_garment(&"hat", SharedCharacterRig.GARMENT_SCENES[&"hat"]),
-		"garments must be equippable at runtime"
-	)
-	assert_true(kalev.has_garment(&"hat"))
+	kalev.unequip_wearable(&"outerwear")
+	assert_eq(kalev.equipped_wearable(&"outerwear"), null, "forge apron must be removable")
 
 	kalev.queue_free()
 	mart.queue_free()
@@ -481,7 +498,7 @@ func test_innkeeper_body_spec_fulfills_the_rig_contract() -> void:
 
 
 func test_henning_body_has_an_authoritative_silhouette_and_social_animations() -> void:
-	var kalev := _instantiate(KALEV_SCENE)
+	var kalev := _instantiate_legacy(KALEV_SCENE)
 	var henning := _instantiate(HENNING_SCENE)
 
 	assert_eq(henning.validation_errors(), [], "Henning must satisfy the shared rig contract")
@@ -626,8 +643,8 @@ func test_all_humanoids_use_anatomical_body_clothing_and_muscle_system() -> void
 		var character := _instantiate(scene)
 		assert_eq(character.validation_errors(), [], "%s must preserve the shared rig contract" % character.name)
 		assert_true(
-			character.skeleton().has_node("AnatomicalMuscles"),
-			"%s must install pose-driven muscle response" % character.name
+			character.skeleton().has_node("AnatomicalMuscles") == character.use_anatomical_muscles,
+			"%s must honor its authored muscle modifier policy" % character.name
 		)
 		var has_anatomy := false
 		var has_clothing := false
@@ -649,8 +666,8 @@ func test_danish_warrior_is_a_distinct_animated_spear_variant() -> void:
 	warrior.queue_free()
 
 
-func test_shared_rig_distance_lods_mount_with_visibility_ranges() -> void:
-	var kalev := _instantiate(KALEV_SCENE)
+func test_legacy_shared_rig_distance_lods_mount_with_visibility_ranges() -> void:
+	var kalev := _instantiate_legacy(KALEV_SCENE)
 	assert_true(kalev.lod_visibility_configured(), "Kalev must mount LOD1/LOD2 meshes with distance fades")
 	assert_true(kalev.lod_mesh_count(1) > 0, "LOD1 meshes must exist on the live skeleton")
 	assert_true(kalev.lod_mesh_count(2) > 0, "LOD2 meshes must exist on the live skeleton")
@@ -735,14 +752,14 @@ func test_shared_rig_distance_lods_mount_with_visibility_ranges() -> void:
 
 
 
-func test_hero_cast_carries_pbr_maps_at_the_tier_zero_contract() -> void:
+func test_legacy_hero_cast_carries_pbr_maps_at_the_tier_zero_contract() -> void:
 	var characters: Array[Node] = [
-		_instantiate(MART_SCENE),
-		_instantiate(AITA_SCENE),
-		_instantiate(KAJA_SCENE),
-		_instantiate(HENNING_SCENE),
-		_instantiate(JURGEN_SCENE),
-		_instantiate(ELLEN_SCENE),
+		_instantiate_legacy(MART_SCENE),
+		_instantiate_legacy(AITA_SCENE),
+		_instantiate_legacy(KAJA_SCENE),
+		_instantiate_legacy(HENNING_SCENE),
+		_instantiate_legacy(JURGEN_SCENE),
+		_instantiate_legacy(ELLEN_SCENE),
 	]
 	var all_families := {}
 	for character: Node in characters:
@@ -817,8 +834,8 @@ func _assert_maps_not_degenerate(material: StandardMaterial3D, family: String) -
 	)
 
 
-func test_shared_character_hair_and_beard_shader_follow_material_names_across_lods() -> void:
-	var kalev := _instantiate(KALEV_SCENE)
+func test_legacy_shared_character_hair_and_beard_shader_follow_material_names_across_lods() -> void:
+	var kalev := _instantiate_legacy(KALEV_SCENE)
 	var checked_hair := 0
 	var checked_beard := 0
 	for found: Node in kalev.find_children("*", "MeshInstance3D", true, false):
@@ -883,9 +900,9 @@ func test_shared_character_hair_and_beard_shader_follow_material_names_across_lo
 	kalev.queue_free()
 
 
-func test_shared_character_material_profiles_separate_cloth_leather_and_metal() -> void:
-	var kalev := _instantiate(KALEV_SCENE)
-	var henning := _instantiate(HENNING_SCENE)
+func test_legacy_shared_character_material_profiles_separate_cloth_leather_and_metal() -> void:
+	var kalev := _instantiate_legacy(KALEV_SCENE)
+	var henning := _instantiate_legacy(HENNING_SCENE)
 	var profiles := {}
 	for character: Node in [kalev, henning]:
 		for found: Node in character.find_children("*", "MeshInstance3D", true, false):
@@ -977,3 +994,23 @@ func _instantiate(scene: PackedScene) -> SharedCharacterRig:
 	if character.variant != null:
 		character._apply_material_stack(character.get_node("Model"), character.variant.material_tint)
 	return character
+
+
+# Legacy material/LOD assets remain used by the crowd and unreplaced cast.
+func _instantiate_legacy(scene: PackedScene) -> SharedCharacterRig:
+	var source := scene.instantiate() as SharedCharacterRig
+	var spec := source.variant
+	source.free()
+	var rig := load("res://assets/characters/shared/shared_character_rig.tscn").instantiate() as SharedCharacterRig
+	var imported := rig.get_node("Model/ImportedHumanoid")
+	rig.get_node("Model").remove_child(imported)
+	imported.free()
+	var body := String(spec.stable_id).trim_prefix("char.")
+	if body == "kalev":
+		body = "heroic_humanoid"
+	var model := load("res://assets/characters/shared/%s.glb" % body).instantiate() as Node3D
+	model.name = "ImportedHumanoid"
+	rig.get_node("Model").add_child(model)
+	rig.variant = spec
+	(Engine.get_main_loop() as SceneTree).root.add_child(rig)
+	return rig

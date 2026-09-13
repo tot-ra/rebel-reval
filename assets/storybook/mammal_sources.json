@@ -1,0 +1,115 @@
+{
+  "version": 1,
+  "restoration": "Download the original GLB (or converted GLB where listed by source) from the credited Sketchfab page under CC BY4.0. Unzip and copy the matching GLB to staging_path. Verify sha256 before rebuilding. Downloads may require a free Sketchfab login. Source bulk is not committed.",
+  "build": "blender -b --python tools/assets/import_realistic_mammals.py -- --publish",
+  "models": {
+    "goat": {
+      "author": "hendrikReyneke",
+      "url": "https://sketchfab.com/3d-models/goat-2624ac2ce2364930ba2d5f70eb7aa1ea",
+      "license": "CC-BY-4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "sha256": "2a8632783137dc2f10a0b80644937c771d74e713d21bfdadddebb7440b5733cb",
+      "source_bytes": 2544316,
+      "staging_path": "build/animal_redo/sources/goat.glb",
+      "output": "assets/storybook/goat.glb",
+      "notes": "authored mesh",
+      "adaptations": "Scaled and oriented for runtime; UV and sculpted surfaces preserved; textures capped at 1024; rough dielectric materials; measured limb rig and six clips."
+    },
+    "pig": {
+      "author": "hendrikReyneke",
+      "url": "https://sketchfab.com/3d-models/pig-041ea96fc6ae4839bf9ce16f8ea4ad68",
+      "license": "CC-BY-4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "sha256": "a029a0ec3f45a809f15b6f71a9a413c054cd3f0cb4d4137dc46f9504471cf9e5",
+      "source_bytes": 2197304,
+      "staging_path": "build/animal_redo/sources/pig.glb",
+      "output": "assets/storybook/pig.glb",
+      "notes": "authored mesh",
+      "adaptations": "Scaled and oriented for runtime; UV and sculpted surfaces preserved; textures capped at 1024; rough dielectric materials; measured limb rig and six clips."
+    },
+    "sheep": {
+      "author": "hendrikReyneke",
+      "url": "https://sketchfab.com/3d-models/sheep-67abff7459f34afca11e3effab62c761",
+      "license": "CC-BY-4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "sha256": "d6a5caea71c63db6cae98472fcc9a34b531e19a77d3802358267e27113c20bf6",
+      "source_bytes": 2118888,
+      "staging_path": "build/animal_redo/sources/sheep.glb",
+      "output": "assets/storybook/sheep.glb",
+      "notes": "authored mesh",
+      "adaptations": "Scaled and oriented for runtime; UV and sculpted surfaces preserved; textures capped at 1024; rough dielectric materials; measured limb rig and six clips."
+    },
+    "forge_cat": {
+      "author": "iRahulRajput (rt699448)",
+      "url": "https://sketchfab.com/3d-models/cat-in-motion-3d-model-free-baa1120483c844e6bce9744f3f868c63",
+      "license": "CC-BY-4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "sha256": "0007dee476db39757e2ede2f5b68422b35efac4b10a899612dde929e97b67a96",
+      "source_bytes": 24544432,
+      "staging_path": "build/animal_redo/sources/forge_cat.glb",
+      "output": "assets/storybook/forge_cat.glb",
+      "notes": "Meshy AI source (source filename)",
+      "adaptations": "Scaled and oriented for runtime; UV and sculpted surfaces preserved; textures capped at 1024; rough dielectric materials; measured limb rig and six clips."
+    },
+    "dog": {
+      "author": "3Dima (Hdjusj)",
+      "url": "https://sketchfab.com/3d-models/realistic-terrier-dog-game-ready-asset-51f498df96c049cbb9e600b0a88c5838",
+      "license": "CC-BY-4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "sha256": "41d7213a7fb9d8891ee8b8f2a7479ff9d9115885c75f1d249fe8f7f05c558450",
+      "source_bytes": 2471180,
+      "staging_path": "build/animal_redo/sources/dog.glb",
+      "output": "assets/storybook/dog.glb",
+      "notes": "shaggy dog; used as generic village phenotype, not a historical breed attribution",
+      "adaptations": "Scaled and oriented for runtime; UV and sculpted surfaces preserved; textures capped at 1024; rough dielectric materials; measured limb rig and six clips."
+    },
+    "boar": {
+      "author": "iRahulRajput (rt699448)",
+      "url": "https://sketchfab.com/3d-models/bristled-wild-boar-3d-model-free-1c243598b9e54606a0bf1d8f5bf0a8b1",
+      "license": "CC-BY-4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "sha256": "3edfc616aee19387b740bdfcd1b406fa293742fc25cf652d8393da20b23a403e",
+      "source_bytes": 43787884,
+      "staging_path": "build/animal_redo/sources/boar.glb",
+      "output": "assets/storybook/boar.glb",
+      "notes": "source production method unspecified",
+      "adaptations": "Scaled and oriented for runtime; UV and sculpted surfaces preserved; textures capped at 1024; rough dielectric materials; measured limb rig and six clips."
+    },
+    "fox": {
+      "author": "Pigcraft (s8819296)",
+      "url": "https://sketchfab.com/3d-models/red-fox-standing-pose-realistic-3278bddb17024f3287aa374cc1e9f6f6",
+      "license": "CC-BY-4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "sha256": "5802c4bff0f483a3da2cd26f71ec3f689696e574b4ac402314e023d2281f80e4",
+      "source_bytes": 43932120,
+      "staging_path": "build/animal_redo/sources/fox.glb",
+      "output": "assets/storybook/fox.glb",
+      "notes": "Tripo source (mesh names)",
+      "adaptations": "Scaled and oriented for runtime; UV and sculpted surfaces preserved; textures capped at 1024; rough dielectric materials; measured limb rig and six clips."
+    },
+    "hare": {
+      "author": "Dakota.Hinkle",
+      "url": "https://sketchfab.com/3d-models/rabbit-073eef14ae3c4d06808498c3ba895e67",
+      "license": "CC-BY-4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "sha256": "5c2e0fafd5dcd6ad678ebe573ba024ae1969e8ce503c4907d418f31fe5da5cf4",
+      "source_bytes": 6911084,
+      "staging_path": "build/animal_redo/sources/hare.glb",
+      "output": "assets/storybook/hare.glb",
+      "notes": "rabbit source; long-eared lagomorph proxy, not species-exact European hare",
+      "adaptations": "Scaled and oriented for runtime; UV and sculpted surfaces preserved; textures capped at 1024; rough dielectric materials; measured limb rig and six clips."
+    },
+    "rat": {
+      "author": "Nestaeric",
+      "url": "https://sketchfab.com/3d-models/black-rat-free-download-3db3acb4140d4de8bd62a171212bad9c",
+      "license": "CC-BY-4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "sha256": "23b24f6e89c3f6dad517146d1950ac21b576be6758fb61b715548f4a362e28f2",
+      "source_bytes": 33580924,
+      "staging_path": "build/animal_redo/sources/rat.glb",
+      "output": "assets/storybook/rat.glb",
+      "notes": "authored rig and animation retained",
+      "adaptations": "Original authored rig and six animation aliases; unused bones pruned; textures capped at1024; normal UV rebaked; scaled to0.42m; bind-pose import fixed."
+    }
+  }
+}

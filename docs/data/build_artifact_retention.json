@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "owner": "local-build-retention",
+  "policy": {
+    "never_rm_rf_build": true,
+    "default_mode": "dry-run",
+    "scope": "build/",
+    "local_only": true,
+    "clone_savings": "Ignored build artifacts are not in Git. Cleanup never changes clone size unless a tracked fingerprint is deleted, which this tool refuses."
+  },
+  "protected_prefixes": [
+    "music/",
+    "docs/",
+    ".git/",
+    ".godot/",
+    "agents/",
+    "history/",
+    "story/",
+    "archive/",
+    "quarantine/"
+  ],
+  "tracked_release_fingerprints": [
+    "build/act1/PACKAGE_SHA256.txt",
+    "build/act1/package_fingerprint.json"
+  ],
+  "retained_release": {
+    "id": "act1-p4-013",
+    "task_ids": ["P4-013", "P4-044"],
+    "manifest": "docs/data/act1_release_manifest.json",
+    "package_path": "build/act1/rr.dmg",
+    "app_path": "build/act1/Reval Rebel.app",
+    "package_fingerprint_path": "build/act1/package_fingerprint.json",
+    "package_sha256_sidecar": "build/act1/PACKAGE_SHA256.txt",
+    "qa_evidence": [
+      "build/act1/launch_smoke.log",
+      "docs/reports/p4_044_act1_release_acceptance.md"
+    ],
+    "do_not_overwrite": true,
+    "rebuild_note": "Do not overwrite build/act1/rr.dmg. That path is the frozen P4-013 / P4-044 SHA bind. New act1 membership proofs use a side path such as build/inventory/act1-after.pck."
+  },
+  "retained_prefixes": [
+    "build/act1/"
+  ],
+  "retained_paths": [
+    "build/act1/rr.dmg",
+    "build/act1/Reval Rebel.app",
+    "build/act1/PACKAGE_SHA256.txt",
+    "build/act1/package_fingerprint.json",
+    "build/act1/launch_smoke.log",
+    "build/act1/export.log"
+  ],
+  "allowlisted_removable": [
+    {
+      "path": "build/rr.dmg",
+      "reason": "Regenerable current rr preset export. CI and SETUP rebuild it.",
+      "rebuild": "mkdir -p build && godot --headless --export-release rr ./build/rr.dmg"
+    },
+    {
+      "path": "build/Reval Rebel.app",
+      "reason": "Unpacked leftover from the rr export or DMG extract. Regenerable from build/rr.dmg."
+    },
+    {
+      "path": "build/test-logs",
+      "reason": "Local QA logs. Regenerable by rerunning the named test or validator."
+    },
+    {
+      "path": "build/inventory",
+      "reason": "Side-path PCK proofs. Never a substitute for the frozen act1 DMG."
+    },
+    {
+      "path": "build/benchmarks",
+      "reason": "Ignored host-specific benchmark JSON. Regenerable via tools/run_performance_report.sh and tools/benchmarks/."
+    },
+    {
+      "path": "build/previews",
+      "reason": "Local preview captures. Not tracked documentation evidence."
+    },
+    {
+      "path": "build/logs",
+      "reason": "Local tool logs."
+    },
+    {
+      "path": "build/godot-logs",
+      "reason": "Local Godot log dumps."
+    },
+    {
+      "path": "build/map_alignment",
+      "reason": "Local map-alignment probe output."
+    },
+    {
+      "path": "build/gate-kit",
+      "reason": "Local gate-kit probe output."
+    },
+    {
+      "path": "build/diagnostic",
+      "reason": "Regenerable rr-diagnostic export path from export_presets.cfg."
+    },
+    {
+      "path": "build/r198-performance.json",
+      "reason": "Local performance probe JSON at build root."
+    },
+    {
+      "glob": "build/char_audit_*",
+      "reason": "Local character-audit probe folders."
+    },
+    {
+      "glob": "build/*.png",
+      "reason": "Local build-root preview PNGs. Documentation evidence lives under docs/reports/images/."
+    },
+    {
+      "glob": "build/*.png.import",
+      "reason": "Accidental Godot import sidecars for local build-root PNGs."
+    },
+    {
+      "glob": "build/test_*.json",
+      "reason": "Local composition/ownership probe JSON at build root."
+    },
+    {
+      "path": "build/.DS_Store",
+      "reason": "Finder metadata."
+    }
+  ],
+  "packaging_scripts": [
+    "export_presets.cfg",
+    "tools/verify_act1_release.sh",
+    "tools/verify_supported_platform.sh",
+    "tools/verify_packaged_demo.sh",
+    "tools/run_macos_release.sh",
+    "tools/verify_shipped_resources.py",
+    "tools/pck_inventory.py",
+    "tools/release_candidate_check.py",
+    "tools/cleanup_build_artifacts.py",
+    ".github/workflows/ci.yml"
+  ],
+  "rebuild": {
+    "rr": {
+      "command": "mkdir -p build && godot --headless --export-release \"rr\" ./build/rr.dmg && test -s ./build/rr.dmg && python3 tools/verify_shipped_resources.py --dmg ./build/rr.dmg --preset rr",
+      "notes": "Current slice/demo export. Regenerable. Not the P4-044 bind."
+    },
+    "act1_side_path": {
+      "command": "mkdir -p build/inventory && godot --headless --export-pack \"act1\" ./build/inventory/act1-after.pck && python3 tools/verify_shipped_resources.py --pck ./build/inventory/act1-after.pck --preset act1",
+      "notes": "Never write a new act1 export over build/act1/rr.dmg."
+    }
+  }
+}

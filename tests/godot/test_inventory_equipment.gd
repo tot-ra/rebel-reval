@@ -91,7 +91,7 @@ func test_sword_carry_and_equip_metadata_drive_inventory_state() -> void:
 
 	assert_eq(String(item.get("category", "")), "weapon")
 	assert_eq(StringName(String(equip.get("slot", ""))), &"right_hand")
-	assert_eq(String(equip.get("scene", "")), "res://assets/characters/shared/sword.tscn")
+	assert_eq(String(equip.get("scene", "")), "res://assets/storybook/equipment/sword.tscn")
 	assert_eq(state.bag.profile_for(ITEM_SWORD).grid_width, 1)
 	assert_eq(state.bag.profile_for(ITEM_SWORD).grid_height, 4)
 	assert_true(is_equal_approx(state.bag.profile_for(ITEM_SWORD).weight_kg, 1.45))

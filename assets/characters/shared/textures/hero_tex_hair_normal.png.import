@@ -2,10 +2,18 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://dojbgnd2r26kl"
+path.s3tc="res://.godot/imported/hero_tex_hair_normal.png-3c79168888c42be2efda575ab73b7ea5.s3tc.ctex"
+path.etc2="res://.godot/imported/hero_tex_hair_normal.png-3c79168888c42be2efda575ab73b7ea5.etc2.ctex"
+metadata={
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
+}
 
 [deps]
 
 source_file="res://assets/characters/shared/textures/hero_tex_hair_normal.png"
+dest_files=["res://.godot/imported/hero_tex_hair_normal.png-3c79168888c42be2efda575ab73b7ea5.s3tc.ctex", "res://.godot/imported/hero_tex_hair_normal.png-3c79168888c42be2efda575ab73b7ea5.etc2.ctex"]
 
 [params]
 

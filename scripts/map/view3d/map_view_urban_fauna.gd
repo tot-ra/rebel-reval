@@ -228,7 +228,7 @@ func _make_actor(index: int, placement: Dictionary) -> Node3D:
 	if model != null and species == MammalSpecies.SPECIES_CAT:
 		# Same mesh and rig as Kalev's cat, different coat and build, so a town
 		# with several cats does not read as one cat copied around.
-		actor.set_meta(&"coat", CatCoats.apply(model, hash_seed(_map_id, index, 71)))
+		actor.set_meta(&"coat", model.apply_coat(hash_seed(_map_id, index, 71)) if model.has_method("apply_coat") else CatCoats.apply(model, hash_seed(_map_id, index, 71)))
 	if model == null:
 		var mesh := MammalMeshes.mesh_for(species, pose)
 		var proxy := MeshInstance3D.new()

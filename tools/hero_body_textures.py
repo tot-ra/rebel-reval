@@ -56,9 +56,9 @@ _HEIGHT_STRENGTH = {
 
 # NormalMap node strength per family (exporter carries this as normal scale).
 NORMAL_STRENGTH = {
-    "skin": 0.35,
-    "cloth": 0.85,
-    "leather": 0.75,
+    "skin": 0.16,
+    "cloth": 0.20,
+    "leather": 0.24,
     "hair": 0.65,
     "metal": 0.55,
 }
@@ -190,9 +190,12 @@ def _make_image(name: str, rgb: np.ndarray, non_color: bool) -> bpy.types.Image:
     rgba = np.empty((SIZE, SIZE, 4), dtype=np.float32)
     rgba[..., :3] = np.clip(rgb, 0.0, 1.0).astype(np.float32)
     rgba[..., 3] = 1.0
-    image.pixels = rgba.reshape(-1)
+    # Set color space before pixels: Blender can reset generated pixels when
+    # switching it afterward, exporting black normals and zero roughness.
     if non_color:
         image.colorspace_settings.name = "Non-Color"
+    image.pixels.foreach_set(rgba.reshape(-1))
+    image.update()
     # Packed in the Blender scene so the glTF exporter can emit them; the
     # character export post-process then replaces embeds with shared URIs.
     image.pack()

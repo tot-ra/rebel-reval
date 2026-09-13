@@ -1,26 +1,26 @@
 # Scene inventory (P0-018, reconciled P0-055)
 
 Recorded: 2026-07-16
-Reconciled: 2026-07-28 (P0-133 town hall and Holy Spirit interior scenes)
+Reconciled: 2026-09-10 (P0-206 grounded model and equipment integration)
 
 ## Summary
 
 | Classification | Count | Role |
 |----------------|------:|------|
-| `working` | 28 | Active runtime scenes with verified or complete behavior |
-| `partial` | 36 | Substantial content but incomplete integration or dev-only use |
+| `working` | 44 | Active runtime scenes with verified or complete behavior |
+| `partial` | 60 | Substantial content but incomplete integration or dev-only use |
 | `placeholder` | 3 | Reserved stubs or reference-only visuals, not playable |
 | `archive` | 20 | Out of vertical-slice scope; legacy open-world or event shells |
-| **Total** | **96** | Matches repository `.tscn` count |
+| **Total** | **127** | Matches repository `.tscn` count |
 
 Repository count command:
 
 ```bash
 find . -name '*.tscn' -not -path './.git/*' -not -path './.godot/*' -not -path './.a2gent-worktrees/*' | wc -l
-# Expected: 96
+# Expected: 127
 ```
 
-Inventory row count (data rows in the table below): **96**.
+Inventory row count (data rows in the table below): **127**.
 
 ## Classification criteria
 
@@ -190,3 +190,34 @@ Both commands should print `96` on a clean checkout at this revision.
 - **P0-030** - prune active runtime folders using this inventory.
 - **P0-034** - migration matrix for slice-relevant artifacts (complete; see [`migration_matrix_p0_034.md`](./migration_matrix_p0_034.md)).
 - **P0-022** - fix door tags and stable scene IDs (`DEF-003`, `DEF-004` in [`known_runtime_defects.md`](./known_runtime_defects.md)).
+| 97 | `assets/characters/shared/sword.tscn` | working | Shared equippable sword scene. |
+| 98 | `assets/characters/variants/aita.tscn` | working | Aita cast variant on the shared rig. |
+| 99 | `assets/characters/variants/bandit.tscn` | working | Bandit hostile variant on the shared rig. |
+| 100 | `assets/characters/variants/danish_warrior.tscn` | working | Danish warrior hostile variant on the shared rig. |
+| 101 | `assets/characters/variants/ellen.tscn` | working | Ellen cast variant on the shared rig. |
+| 102 | `assets/characters/variants/jurgen.tscn` | working | Jurgen cast variant on the shared rig. |
+| 103 | `assets/characters/variants/kaja.tscn` | working | Kaja cast variant on the shared rig. |
+| 104 | `scenes/death/death_screen.tscn` | working | Runtime damage-specific death presentation overlay. |
+| 105 | `scenes/debug/asset_showcase.tscn` | partial | Developer-only asset review scene. |
+| 106 | `scenes/debug/asset_showcase_large.tscn` | partial | Developer-only large asset review scene. |
+| 107 | `scenes/debug/characters_animals_showcase.tscn` | partial | Developer-only character and animal review scene. |
+| 108 | `scenes/reval_east/forge/smithy_mart.tscn` | working | Mart smithy routine child actor scene. |
+| 109 | `scenes/reval_east/workers_district_bandit.tscn` | working | Workers District bandit child actor scene. |
+| 110 | `scenes/reval_monastery/kuldjala_interior.tscn` | partial | Inactive declarative Kuldjala tower prototype. |
+| 111 | `scenes/reval_monastery/nunnatorn_interior.tscn` | partial | Inactive declarative Nunnatorn tower prototype. |
+| 112 | `scenes/reval_north/rentenitorn_interior.tscn` | partial | Inactive declarative Rentenitorn tower prototype. |
+| 113 | `tools/benchmarks/renderer_comparison_benchmark.tscn` | partial | Developer-only renderer comparison host. |
+| 114 | `assets/storybook/aita.tscn` | partial | Model and equipment review; P0-206. |
+| 115 | `assets/storybook/ellen.tscn` | partial | Model and equipment review; P0-206. |
+| 116 | `assets/storybook/equipment/hammer.tscn` | working | Grounded live actor or held prop; P0-206. |
+| 117 | `assets/storybook/equipment/shield.tscn` | working | Grounded live actor or held prop; P0-206. |
+| 118 | `assets/storybook/equipment/sword.tscn` | working | Grounded live actor or held prop; P0-206. |
+| 119 | `assets/storybook/forge_cat.tscn` | working | Grounded live actor or held prop; P0-206. |
+| 120 | `assets/storybook/henning.tscn` | partial | Model and equipment review; P0-206. |
+| 121 | `assets/storybook/jurgen.tscn` | partial | Model and equipment review; P0-206. |
+| 122 | `assets/storybook/kaja.tscn` | partial | Model and equipment review; P0-206. |
+| 123 | `assets/storybook/kalev.tscn` | partial | Model and equipment review; P0-206. |
+| 124 | `assets/storybook/mart.tscn` | partial | Model and equipment review; P0-206. |
+| 125 | `assets/storybook/watchman.tscn` | partial | Model and equipment review; P0-206. |
+| 126 | `scenes/debug/storybook_showcase.tscn` | partial | Model and equipment review; P0-206. |
+| 127 | `assets/characters/showcase/modular_character_showcase.tscn` | partial | Model and equipment review; P0-206. |

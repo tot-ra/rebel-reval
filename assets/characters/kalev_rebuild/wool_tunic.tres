@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="CharacterWearable" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/characters/character_wearable.gd" id="1"]
+[ext_resource type="PackedScene" path="res://assets/characters/kalev_rebuild/wool_tunic.glb" id="2"]
+
+[resource]
+script = ExtResource("1")
+stable_id = &"wearable.kalev_fresh.wool_tunic"
+slot = "torso"
+fitted_body = "kalev_fresh"
+scene = ExtResource("2")
+covered_meshes = Array[StringName]([&"Anatomy_Torso", &"Anatomy_Arms"])

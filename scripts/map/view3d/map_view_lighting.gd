@@ -154,7 +154,7 @@ static func apply_cycle_progress(
 		+ presentation.lightning * LIGHTNING_SUN_ENERGY
 	)
 	# Grey overcast diffuses hard shadows; clear skies retain their crisp baseline.
-	sun.shadow_opacity = clampf(1.0 - presentation.overcast * 0.85, 0.12, 1.0)
+	sun.shadow_opacity = 1.0 - smoothstep(0.45, 0.96, presentation.cloud_coverage) * 0.97
 
 	var ambient := AMBIENT_NIGHT_COLOR.lerp(AMBIENT_DAY_COLOR, presentation.day_blend)
 	ambient = ambient.lerp(OVERCAST_LIGHT_COLOR, presentation.overcast * 0.5)
@@ -196,6 +196,9 @@ static func apply_post_grade_snapshot(
 	if presentation == null:
 		return
 	apply_post_grade(environment, presentation.day_blend)
+	# Wet air reduces distant contrast; retain local material color and exposure.
+	environment.adjustment_saturation -= presentation.overcast * 0.12
+	environment.adjustment_contrast -= presentation.overcast * 0.07
 
 
 ## Enclosed top-down interiors use a black void below the hidden ceiling;
@@ -232,18 +235,22 @@ static func apply_ground_mist(
 	)
 	mist *= clampf(1.0 - presentation.wind_strength * 0.7, 0.0, 1.0)
 	mist *= clampf(presentation.fog_quality, 0.0, 1.0)
-	if mist <= 0.001:
+	# Rain adds atmospheric extinction even at noon. Calm, dry days keep the
+	# existing fog-free path, while shelter still excludes outdoor atmosphere.
+	var rain_haze := presentation.rain_intensity * presentation.fog_quality
+	if mist <= 0.001 and rain_haze <= 0.001:
 		environment.fog_enabled = false
 		return
 	environment.fog_enabled = true
 	environment.fog_mode = Environment.FOG_MODE_EXPONENTIAL
-	environment.fog_light_color = FOG_MORNING_COLOR
+	var rain_color := Color8(34, 42, 58).lerp(Color8(145, 157, 168), presentation.day_blend)
+	environment.fog_light_color = FOG_MORNING_COLOR.lerp(rain_color, rain_haze)
 	environment.fog_sun_scatter = 0.2
 	environment.fog_sky_affect = 0.08
 	environment.fog_aerial_perspective = 0.0
-	environment.fog_density = FOG_MAX_DENSITY * mist
+	environment.fog_density = FOG_MAX_DENSITY * mist + 0.0035 * rain_haze
 	environment.fog_height = FOG_HEIGHT
-	environment.fog_height_density = FOG_MAX_HEIGHT_DENSITY * mist
+	environment.fog_height_density = FOG_MAX_HEIGHT_DENSITY * mist * (1.0 - rain_haze)
 
 
 ## Mist rises during the pre-dawn window and burns off after sunrise.

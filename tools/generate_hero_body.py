@@ -33,11 +33,11 @@ from hero_body_anatomy_builder import (  # noqa: E402
     build_anatomical_torso,
 )
 from hero_body_context import BodyContext  # noqa: E402
-from hero_body_head_builder import build_head  # noqa: E402
+from hero_body_head_builder import build_head, build_head_layers  # noqa: E402
 from hero_body_limb_builder import build_limbs  # noqa: E402
 from hero_body_mesh_builder import PartBuilder, find_armature  # noqa: E402
 from hero_body_textures import apply_texture  # noqa: E402
-from hero_body_torso_builder import build_torso  # noqa: E402
+from hero_body_torso_builder import build_torso, build_torso_layers  # noqa: E402
 from hero_garment_builder import build_garments  # noqa: E402
 from share_character_textures import link_exported_character_glb  # noqa: E402
 
@@ -192,8 +192,8 @@ def generate(character: str) -> None:
         # profile. Existing characters remain byte-for-byte rebuild compatible.
         body_parts = [
             build_anatomical_torso(context, selected["shape"]),
-            build_torso(context, selected["shape"], selected["features"]),
-            build_head(context, selected["shape"], selected["face"], selected["features"]),
+            *build_torso_layers(context, selected["shape"], selected["features"]),
+            *build_head_layers(context, selected["shape"], selected["face"], selected["features"]),
         ]
         body_parts.extend(
             build_anatomical_limbs(context, selected["shape"], selected["features"])
@@ -217,6 +217,31 @@ def generate(character: str) -> None:
     print(f"Wrote {output}")
 
     _export_selected_garments(context, selected["garments"], body_objects)
+    if character == "hero":
+        _export_mail_outfit(context, selected)
+
+
+def _export_mail_outfit(context: BodyContext, selected: dict) -> None:
+    """A fitted example, deliberately below the existing 1024-triangle accessory cap."""
+    for obj in list(bpy.data.objects):
+        if obj.type == "MESH":
+            bpy.data.objects.remove(obj, do_unlink=True)
+    features = dict(selected["features"], outerwear="none", armor_style="mail", pauldrons=False, tunic_length="long")
+    parts = build_torso_layers(context, selected["shape"], features)
+    parts.extend(part for part in build_anatomical_limbs(context, selected["shape"], features)
+                 if part.name.startswith("Clothing_Sleeve"))
+    for part in parts:
+        part.subdivision = 0
+        obj = part.build(context.armature, _material)
+        count = sum(len(p.vertices)-2 for p in obj.data.polygons)
+        if count > 300:
+            modifier = obj.modifiers.new("OutfitBudget", "DECIMATE")
+            modifier.ratio = 300 / count
+            bpy.context.view_layer.objects.active = obj
+            bpy.ops.object.modifier_apply(modifier=modifier.name)
+    output = ROOT / "assets/characters/shared/hero_mail.glb"
+    _export(output, animations=False)
+    print(f"Wrote {output}")
 
 
 def _export_selected_garments(

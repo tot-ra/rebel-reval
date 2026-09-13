@@ -1,0 +1,20 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://assets/storybook/storybook_character.gd" id="1"]
+[ext_resource type="PackedScene" path="res://assets/storybook/kalev.glb" id="2"]
+
+[ext_resource type="Script" path="res://assets/characters/shared/character_variant.gd" id="3"]
+
+[sub_resource type="Resource" id="Variant"]
+script = ExtResource("3")
+stable_id = &"char.kalev"
+
+[node name="Storybook_kalev" type="Node3D"]
+script = ExtResource("1")
+variant = SubResource("Variant")
+model_scale = Vector3(1, 1, 1)
+use_anatomical_muscles = false
+
+[node name="Model" type="Node3D" parent="."]
+
+[node name="ImportedHumanoid" parent="Model" instance=ExtResource("2")]

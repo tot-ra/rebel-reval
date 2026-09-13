@@ -1,0 +1,83 @@
+{
+	"device": "Apple M5 Pro",
+	"engine": "4.7.1-stable (official)",
+	"note": "Uncapped whole viewport with live clouds; null GPU timing means unavailable; not minimum-hardware certification",
+	"size": [
+		1280,
+		720
+	],
+	"timings": [
+		{
+			"cpu_median_ms": 0.75,
+			"frame_median_ms": 2.341,
+			"frame_p95_ms": 3.202,
+			"gpu_median_ms": null,
+			"gpu_p95_ms": null,
+			"samples": 60,
+			"scenario": "clear"
+		},
+		{
+			"cpu_median_ms": 0.648999989032745,
+			"frame_median_ms": 2.141,
+			"frame_p95_ms": 4.276,
+			"gpu_median_ms": null,
+			"gpu_p95_ms": null,
+			"samples": 60,
+			"scenario": "cloudy"
+		},
+		{
+			"cpu_median_ms": 0.64300000667572,
+			"frame_median_ms": 1.5,
+			"frame_p95_ms": 3.762,
+			"gpu_median_ms": null,
+			"gpu_p95_ms": null,
+			"samples": 60,
+			"scenario": "overcast"
+		},
+		{
+			"cpu_median_ms": 0.686999976634979,
+			"frame_median_ms": 3.854,
+			"frame_p95_ms": 5.837,
+			"gpu_median_ms": null,
+			"gpu_p95_ms": null,
+			"samples": 60,
+			"scenario": "rain"
+		},
+		{
+			"cpu_median_ms": 0.626999974250793,
+			"frame_median_ms": 3.18,
+			"frame_p95_ms": 4.78,
+			"gpu_median_ms": null,
+			"gpu_p95_ms": null,
+			"samples": 60,
+			"scenario": "storm"
+		},
+		{
+			"cpu_median_ms": 0.639999985694885,
+			"frame_median_ms": 1.878,
+			"frame_p95_ms": 4.267,
+			"gpu_median_ms": null,
+			"gpu_p95_ms": null,
+			"samples": 60,
+			"scenario": "dusk"
+		},
+		{
+			"cpu_median_ms": 0.666000008583069,
+			"frame_median_ms": 2.596,
+			"frame_p95_ms": 4.269,
+			"gpu_median_ms": null,
+			"gpu_p95_ms": null,
+			"samples": 60,
+			"scenario": "night"
+		},
+		{
+			"cpu_median_ms": 0.632000029087067,
+			"frame_median_ms": 2.71,
+			"frame_p95_ms": 4.772,
+			"gpu_median_ms": null,
+			"gpu_p95_ms": null,
+			"samples": 60,
+			"scenario": "minimum"
+		}
+	]
+}

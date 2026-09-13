@@ -57,6 +57,18 @@ const Wilderness := preload("res://scripts/map/definitions/outdoor/wilderness_ev
 const DistantLocations := preload(
 	"res://scripts/map/definitions/outdoor/distant_location_definitions.gd"
 )
+const KuldjalaInterior := preload(
+	"res://scripts/map/definitions/prototypes/kuldjala_interior_definition.gd"
+)
+const NunnatornInterior := preload(
+	"res://scripts/map/definitions/prototypes/nunnatorn_interior_definition.gd"
+)
+const RentenitornInterior := preload(
+	"res://scripts/map/definitions/prototypes/rentenitorn_interior_definition.gd"
+)
+const ToompeaSmallCastle := preload(
+	"res://scripts/map/definitions/prototypes/toompea_small_castle_definition.gd"
+)
 
 
 static func all() -> Array[MapDefinition]:
@@ -78,6 +90,10 @@ static func all() -> Array[MapDefinition]:
 		ViruGateForeland.create(),
 		RevalHarborNorth.create(),
 		RevalHarborEast.create(),
+		KuldjalaInterior.create(),
+		NunnatornInterior.create(),
+		RentenitornInterior.create(),
+		ToompeaSmallCastle.create(),
 	]
 	definitions.append_array(Coast.all())
 	definitions.append_array(Villages.all())

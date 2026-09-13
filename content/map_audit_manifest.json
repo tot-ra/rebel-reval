@@ -704,6 +704,89 @@
       "mandatory_transitions": [
         "road_to_saaremaa"
       ]
+    },
+    {
+      "id": "kuldjala_interior",
+      "location_name": "Kuldjala Tower Interior",
+      "scene": "scenes/reval_monastery/kuldjala_interior.tscn",
+      "definition": "scripts/map/definitions/prototypes/kuldjala_interior_definition.gd",
+      "factory": "KuldjalaInteriorDefinition.create",
+      "disposition": "convert",
+      "capture": "kuldjala_interior.png",
+      "mandatory_anchors": [
+        "kuldjala_floor_ground",
+        "kuldjala_floor_watch",
+        "kuldjala_floor_roof",
+        "kuldjala_wall_walk",
+        "kuldjala_boss",
+        "kuldjala_loot",
+        "kuldjala_evidence"
+      ],
+      "mandatory_transitions": [
+        "kuldjala_exit"
+      ]
+    },
+    {
+      "id": "nunnatorn_interior",
+      "location_name": "Nunnatorn Tower Interior",
+      "scene": "scenes/reval_monastery/nunnatorn_interior.tscn",
+      "definition": "scripts/map/definitions/prototypes/nunnatorn_interior_definition.gd",
+      "factory": "NunnatornInteriorDefinition.create",
+      "disposition": "convert",
+      "capture": "nunnatorn_interior.png",
+      "mandatory_anchors": [
+        "nunnatorn_floor_ground",
+        "nunnatorn_floor_watch",
+        "nunnatorn_floor_roof",
+        "nunnatorn_wall_walk",
+        "nunnatorn_boss",
+        "nunnatorn_loot",
+        "nunnatorn_evidence"
+      ],
+      "mandatory_transitions": [
+        "nunnatorn_exit"
+      ]
+    },
+    {
+      "id": "rentenitorn_interior",
+      "location_name": "Rentenitorn Tower Interior",
+      "scene": "scenes/reval_north/rentenitorn_interior.tscn",
+      "definition": "scripts/map/definitions/prototypes/rentenitorn_interior_definition.gd",
+      "factory": "RentenitornInteriorDefinition.create",
+      "disposition": "convert",
+      "capture": "rentenitorn_interior.png",
+      "mandatory_anchors": [
+        "rentenitorn_floor_ground",
+        "rentenitorn_floor_watch",
+        "rentenitorn_floor_roof",
+        "rentenitorn_wall_walk",
+        "rentenitorn_boss",
+        "rentenitorn_loot",
+        "rentenitorn_evidence"
+      ],
+      "mandatory_transitions": [
+        "rentenitorn_exit"
+      ]
+    },
+    {
+      "id": "toompea_small_castle",
+      "location_name": "Danish Small Castle Interior",
+      "scene": "scenes/reval_toompea/domberg.tscn",
+      "definition": "scripts/map/definitions/prototypes/toompea_small_castle_definition.gd",
+      "factory": "ToompeaSmallCastleDefinition.create",
+      "disposition": "archive-prototype",
+      "capture": "toompea_small_castle.png",
+      "mandatory_anchors": [
+        "sc-forecourt",
+        "sc-gate-tower",
+        "sc-viceroy-audience",
+        "sc-viceroy-private",
+        "sc-castle-chapel",
+        "sc-service-cellar"
+      ],
+      "mandatory_transitions": [
+        "to_toompea_quarter"
+      ]
     }
   ]
 }

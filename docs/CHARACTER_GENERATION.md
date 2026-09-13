@@ -188,3 +188,58 @@ python3 tools/validate_asset_sources.py
 ```
 
 Bone-level changes shift the generator's reported `BODY_STATURE`; `SharedCharacterRig.HEROIC_MODEL_SCALE` must be updated to `2.0 / BODY_STATURE` in the same change.
+
+## Modular body and wearable authoring (P0-199)
+
+The generator now separates the torso into `Clothing_Torso`,
+`Clothing_Outerwear` and optional `Clothing_Armor`; scalp hair and beard are
+`Hair_Scalp` and `Hair_Beard`. Sleeves, hose, boots, skin regions, face and neck
+retain the shared skeleton and named animation contract. Rebuild body LODs
+together with the source model so these mesh names remain stable at distance.
+
+Use `CharacterWearable` resources for replaceable clothes/armor/headwear:
+
+- `stable_id`: presentation ID, for example `wearable.kalev_mail`.
+- `slot`: `torso`, `outerwear`, `legs`, `feet`, `hands`, `head`, or `back`.
+- `fitted_body`: the existing body GLB basename, for example `heroic_humanoid`.
+  Sharing skeleton names does not make different body proportions interchangeable.
+- `scene`: a generated, skinned outfit with the body's exact rest skeleton,
+  identity mesh transforms and named skin bindings. Rigid props continue to use
+  `equip()` and their grip origin.
+- `covered_meshes`: authored `Clothing_`, `Anatomy_` or `Hair_` mesh prefixes.
+  Only hide a skin region when the garment covers its full extent. The mail
+  example covers torso/arms; neck and hands are separate and remain visible.
+
+`equip_wearable()` validates body fit and coverage names before changing the
+outfit. Empty/unskinned scenes are rejected without removing the current item.
+Removing one wearable restores only regions not still covered by another.
+`CharacterVariant.wearables` supplies an initial outfit. Game inventory owns
+persistent item IDs and stats; these resources only change the visible model.
+The legacy `equip_garment()` API remains for existing cape/hat callers and assumes
+trusted, correctly fitted shared-rig imports.
+
+The worked example `hero_mail.tres` swaps Kalev's tunic, apron and sleeves for a
+900-triangle fitted outfit generated from his own body profile. It stays below
+the existing 1024-triangle garment cap, carries no animation clips, and uses a
+filtered linked-iron shader. `hero_hat_wearable.tres` hides scalp hair while
+preserving the face, eyebrows, beard and neck. New items need their own fitted
+mesh and provenance, not a copy of the entire animated person.
+
+The apron uses a curved, supported panel with broad folds and bound edges;
+spine/chest weights bend its bib with the torso. Material detail stays subdued
+at gameplay distance. Blender image color space is set before pixels are
+populated to prevent black exported normal maps and zero roughness. Rebuilding
+now fails on Blender errors, refreshes distance LODs, imports, registers extracted
+textures and runs asset lint.
+
+Run the interactive comparison scene with:
+
+```bash
+godot --path . assets/characters/showcase/modular_character_showcase.tscn
+godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_character_rig,test_character_wardrobe,test_inventory_equipment
+godot --headless --path . assets/characters/showcase/modular_character_showcase.tscn -- --verify-controls
+```
+
+Closeup capture accepts `--wearable=res://assets/characters/shared/hero_mail.tres`
+after `--`, alongside `--output-dir` and `--scene`. Evidence and limits are in
+[the P0-199 report](reports/character_modularity_2026-09-05.md).

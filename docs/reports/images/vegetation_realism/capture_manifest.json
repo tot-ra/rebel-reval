@@ -1,0 +1,129 @@
+{
+  "renderer": "Godot 4.7.1 OpenGL Compatibility",
+  "date": "2026-09-12",
+  "changed_pixels": {
+    "calm": 0,
+    "wind": 593590,
+    "bush_wind": 10200
+  },
+  "unlit_rgb_black": true,
+  "images": {
+    "after/bush_wind_a.png": {
+      "sha256": "cc2c30a4e2e690f6ed8a5bddb2d23cfe555ef89f5a5408bf7a8d8a82c39b0f48",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    "after/bush_wind_b.png": {
+      "sha256": "f20cddabbb06e0c377afdfb75186a416b779ae027aae12d230204fbb4b04f34e",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    "after/calm_a.png": {
+      "sha256": "9bce75d4327d151a79502699d9815889c86521d0b6089a062818f915a06c9fa5",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    "after/calm_b.png": {
+      "sha256": "9bce75d4327d151a79502699d9815889c86521d0b6089a062818f915a06c9fa5",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    "after/district_cover.png": {
+      "sha256": "1fbf9bebaefe2c13bf7ed0447b4762a772958d44d0cc13d54bb28b479621d9d1",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    "after/district_live.png": {
+      "sha256": "4361507c91b7e0145de1d236971d72c746f7d233f71b8d20427d55cddb7c8eb8",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    "after/grass.png": {
+      "sha256": "67136b6bafe88c14127b2dd3de2a429d498182284fb2ee452f38d89e0eb92af9",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    "after/stand.png": {
+      "sha256": "312442063a68effe7dd9068b1644cccea80ed2838524d3e082a2df0cf7af87e8",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    "after/unlit.png": {
+      "sha256": "3db1b6d31452f80eff1204dd9d5767a382b3e1e7d8f548957f10af806b15ca46",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    "after/wind_a.png": {
+      "sha256": "a3dcd8841f3b2304bd44325a56e9e7dd022bb38a7de9f441d98d852223e0d6cd",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    "after/wind_b.png": {
+      "sha256": "b381675f6faf4797e00d7b4ca09316be4ea0e3e5a5eb076c5b8dd9b2a7b3a9ef",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    "before/district_cover.png": {
+      "sha256": "8d22f6435fe017e22b7b40756f9ca7c7a4c3da6b5261f2caec82d15895be3605",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    "before/grass.png": {
+      "sha256": "9362db655844736b943081c8c5d8309007a71e31ae6165b17fab9d9604dab080",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    "before/stand.png": {
+      "sha256": "dbb13806f9402ae863d7a16b6327123c7a3cdd94d01ca78431262494edfc64ca",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    "before/wind_a.png": {
+      "sha256": "7fab0dd0258e6f64afd1109f82868784a2f4008dc2db479c84e0c0fa9d81cb3c",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    "before/wind_b.png": {
+      "sha256": "ce366ec660133b0b6d365064076582d1f89e3814a48589ca92257a95118d1226",
+      "size": [
+        1440,
+        900
+      ]
+    }
+  },
+  "notes": [
+    "Before stand/grass are matching geometry camera comparisons.",
+    "Before district_cover used flat ground; after uses actual district terrain. Not a matched pair.",
+    "Wind samples verify motion, not temporal phase parity between revisions."
+  ]
+}

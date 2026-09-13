@@ -2,11 +2,90 @@
 
 from __future__ import annotations
 
+import math
+
 from mathutils import Vector
 
 from hero_body_anatomy_builder import torso_profile
 from hero_body_context import BodyContext, blend_weights
 from hero_body_mesh_builder import PartBuilder
+
+
+def build_torso_layers(context: BodyContext, shape: dict, features: dict) -> list[PartBuilder]:
+    """Stable mesh boundaries allow outfits to replace cloth without replacing skin."""
+    base_features = dict(features, outerwear="none", pauldrons=False)
+    torso = build_torso(context, shape, base_features)
+    torso.name = "Clothing_Torso"
+    parts = [torso]
+    if features["outerwear"] != "none":
+        outerwear = PartBuilder("Clothing_Outerwear", context.frame, bulk=shape["bulk"])
+        _add_outerwear(outerwear, context, shape, features["outerwear"])
+        parts.append(outerwear)
+    if features["pauldrons"]:
+        armor = PartBuilder("Clothing_Armor", context.frame, bulk=shape["bulk"])
+        _add_pauldrons(armor, context, features)
+        parts.append(armor)
+    return parts
+
+
+def _apron_panel(
+    part: PartBuilder, context: BodyContext, shape: dict,
+    material: str = "leather", hem_fraction: float = 0.59,
+) -> None:
+    """A supported, curved leather panel; subdividing a single box made a diamond."""
+    up, forward, left = context.frame.up, context.frame.forward, context.frame.left
+    scale = context.scale
+    sections = torso_profile(context, shape)
+    rows = []
+    # Top bib -> waist -> skirt. Closely spaced boundary rows preserve the cut
+    # through subdivision, and spine/chest weights bend the bib with the wearer.
+    top = context.chest_height + up * 0.11 * scale
+    rows.extend([
+        (top, .086 * shape["chest_breadth"], sections[4][2] + .033, {"chest": 1.0}),
+        (top - up * .012 * scale, .087 * shape["chest_breadth"], sections[4][2] + .034, {"chest": 1.0}),
+        (context.chest_height, .103 * shape["chest_breadth"], sections[4][2] + .035, blend_weights("spine", "chest", .65)),
+        (context.waist, .122 * shape["belly"], sections[2][2] + .040, blend_weights("hips", "spine", .7)),
+        (context.hips + up * .025 * scale, .140 * shape["belly"], sections[1][2] + .037, {"hips": 1.0}),
+        (context.hips - up * .05 * scale, .147 * shape["belly"], sections[1][2] + .039, {"hips": 1.0}),
+        (context.hips.lerp(context.knee_center, hem_fraction * .68), .148 * shape["belly"], sections[1][2] + .044, {"hips": 1.0}),
+        (context.hips.lerp(context.knee_center, hem_fraction - .02), .141 * shape["belly"], sections[1][2] + .045, {"hips": 1.0}),
+        (context.hips.lerp(context.knee_center, hem_fraction), .138 * shape["belly"], sections[1][2] + .045, {"hips": 1.0}),
+    ])
+    across = [-1.0, -.94, -.66, -.33, 0.0, .33, .66, .94, 1.0]
+    grids = []
+    for back in (False, True):
+        grid = []
+        for row, (center, width, depth, weights) in enumerate(rows):
+            strip = []
+            for x in across:
+                # Gentle drape and two broad folds, not a board or micro noise.
+                fold = .005 * math.cos(x * math.pi * 3) * min(row / 4, 1.0)
+                point = center + left * x * width * scale
+                point += forward * (depth * shape["bulk"] - .025 * x*x + fold - (.004 if back else 0)) * scale
+                strip.append(part._add_vertex(point, weights))
+            grid.append(strip)
+        grids.append(grid)
+    def face(indices, surface_material=material):
+        part.faces.append(tuple(indices))
+        part.face_materials.append(surface_material)
+    for side, grid in enumerate(grids):
+        for y in range(len(rows)-1):
+            for x in range(len(across)-1):
+                quad = [grid[y][x], grid[y][x+1], grid[y+1][x+1], grid[y+1][x]]
+                face(quad if side == 0 else quad[::-1], "trim" if x in (0, len(across)-2) or y == len(rows)-2 else material)
+    a,b = grids
+    for y in range(len(rows)-1):
+        for x in (0,len(across)-1):
+            face([a[y][x], a[y+1][x], b[y+1][x], b[y][x]])
+    for y in (0,len(rows)-1):
+        for x in range(len(across)-1):
+            face([a[y][x], b[y][x], b[y][x+1], a[y][x+1]])
+    # Existing leather straps, with close support rings to retain their width.
+    for side in (-1,1):
+        part.start_tube()
+        for center in (top - up * .015 * scale, top, context.shoulder_line, context.shoulder_line + up * .012 * scale):
+            part.ring(center + left * side * .071 * scale + forward * (sections[4][2]+.045) * scale,
+                      up, .012*scale, .005*scale, {"chest":1.0}, "trim")
 
 
 def build_torso(context: BodyContext, shape: dict, features: dict) -> PartBuilder:
@@ -295,49 +374,7 @@ def _add_outerwear(
     shoulder_front = _worn_depth(context, shape, 6)
 
     if style == "apron":
-        # Leather work apron: bib, skirt, neck strap and belt ties. Bib and
-        # skirt use the "leather" material family so the apron reads as tanned
-        # hide against the wool tunic at closeups.
-        torso.box(
-            context.chest_height + forward * chest_front * scale,
-            left * 0.105 * scale * chest_breadth,
-            forward * 0.012 * scale,
-            up * 0.170 * scale,
-            blend_weights("spine", "chest", 0.55),
-            "leather",
-        )
-        # The skirt stops at mid-thigh: hung to the knee it read as a plank
-        # swinging clear of the legs.
-        apron_center = (
-            context.hips.lerp(context.knee_center, 0.30) + forward * hip_front * scale
-        )
-        torso.box(
-            apron_center,
-            left * 0.132 * scale * belly,
-            forward * 0.013 * scale,
-            up * 0.200 * scale,
-            {"hips": 1.0},
-            "leather",
-        )
-        torso.box(
-            context.hips + up * 0.025 * scale + forward * (hip_front + 0.008) * scale,
-            left * 0.155 * scale * belly,
-            forward * 0.018 * scale,
-            up * 0.025 * scale,
-            {"hips": 1.0},
-            "trim",
-        )
-        for side in (-1.0, 1.0):
-            torso.box(
-                context.shoulder_line
-                + left * side * 0.078 * scale
-                + forward * shoulder_front * scale,
-                left * 0.012 * scale,
-                forward * 0.009 * scale,
-                up * 0.125 * scale,
-                {"chest": 1.0},
-                "trim",
-            )
+        _apron_panel(torso, context, shape)
         return
 
     if style in ("vest", "surcoat"):
@@ -404,35 +441,6 @@ def _add_outerwear(
         return
 
     if style == "kirtle":
-        # Contrasting over-dress/apron panel with shoulder straps. The main
-        # long tunic still supplies the animated skirt volume beneath it.
-        panel_center = (
-            context.hips.lerp(context.knee_center, 0.34) + forward * hip_front * scale
-        )
-        torso.box(
-            panel_center,
-            left * 0.125 * scale,
-            forward * 0.012 * scale,
-            up * 0.290 * scale,
-            {"hips": 1.0},
-            "outerwear",
-        )
-        torso.box(
-            context.chest_height + forward * chest_front * scale,
-            left * 0.105 * scale,
-            forward * 0.012 * scale,
-            up * 0.125 * scale,
-            blend_weights("spine", "chest", 0.6),
-            "outerwear",
-        )
-        for side in (-1.0, 1.0):
-            torso.box(
-                context.shoulder_line
-                + left * side * 0.078 * scale
-                + forward * shoulder_front * scale,
-                left * 0.013 * scale,
-                forward * 0.009 * scale,
-                up * 0.125 * scale,
-                {"chest": 1.0},
-                "trim",
-            )
+        # Use the same supported cloth cut as the work apron rather than
+        # subdivided boxes that collapse into detached diamond-shaped patches.
+        _apron_panel(torso, context, shape, material="outerwear", hem_fraction=0.90)

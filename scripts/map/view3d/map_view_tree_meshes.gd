@@ -6,6 +6,8 @@ extends RefCounted
 ## their tips. Geometry is generated once per species and then reused by MultiMesh,
 ## so additional botanical detail does not multiply node or draw-call counts.
 
+const LeafGeometry := preload("res://scripts/map/view3d/map_view_leaf_geometry.gd")
+
 const WOOD_RADIAL_SEGMENTS := 5
 const MAX_WOOD_SEGMENTS := 120
 const MAX_LEAF_SPRAYS := 110
@@ -53,7 +55,7 @@ static func _geometry_for(species: StringName) -> Dictionary:
 		"leaf_count": int(canopy_data["leaf_count"]),
 		"fruit_count": int(canopy_data["fruit_count"]),
 		"wood_triangles": int(skeleton["segments"].size()) * WOOD_RADIAL_SEGMENTS * 2,
-		"canopy_triangles": int(canopy_data["leaf_count"]) * 2,
+		"canopy_triangles": (canopy_data["mesh"] as ArrayMesh).surface_get_array_len(0) / 3,
 		"trunk_radii": (skeleton["trunk_radii"] as Array).duplicate(),
 		"trunk_height": float(profile["trunk_height"]),
 		"curved_branch_paths": int(skeleton["growth_stats"].get("curved_branch_paths", 0)),
@@ -871,11 +873,19 @@ static func _build_canopy_mesh(
 			var leaf_length := (
 				float(profile["leaf_length"]) * lerpf(0.72, 1.16, _hash(leaf_index, seed, 419))
 			)
-			var width_ratio := 0.16 if species in [&"spruce", &"pine", &"juniper"] else 0.52
+			var width_ratio := 0.16 if species in [&"spruce", &"pine", &"juniper"] else 0.60
+			if species in [&"willow", &"ash", &"rowan"]:
+				width_ratio = 0.26
 			var light := lerpf(0.78, 1.12, _hash(leaf_index, seed, 431))
 			var color := _leaf_vertex_color(species, light)
-			_append_leaf(
-				surface, center, leaf_direction, leaf_length, leaf_length * width_ratio, color
+			LeafGeometry.append_leaf(
+				surface,
+				species,
+				center,
+				leaf_direction,
+				leaf_length,
+				leaf_length * width_ratio,
+				color
 			)
 			leaf_count += 1
 	var fruit_count := mini(int(profile["fruit_count"]), used_anchors.size())
@@ -979,49 +989,6 @@ static func _append_tapered_tube(
 			Vector2(float(next_index) / WOOD_RADIAL_SEGMENTS, 1.0),
 			Vector2(float(next_index) / WOOD_RADIAL_SEGMENTS, 0.0)
 		)
-
-
-static func _append_leaf(
-	surface: SurfaceTool,
-	center: Vector3,
-	direction: Vector3,
-	length: float,
-	width: float,
-	color: Color
-) -> void:
-	var leaf_axis := direction.normalized()
-	var side := _perpendicular(leaf_axis)
-	var normal := side.cross(leaf_axis).normalized()
-	var root := center - leaf_axis * length * 0.48
-	var tip := center + leaf_axis * length * 0.52
-	var left := center - side * width * 0.5
-	var right := center + side * width * 0.5
-	_append_colored_triangle(
-		surface,
-		root,
-		right,
-		tip,
-		normal,
-		normal,
-		normal,
-		color * 0.86,
-		Vector2(0.5, 0.0),
-		Vector2(1.0, 0.48),
-		Vector2(0.5, 1.0)
-	)
-	_append_colored_triangle(
-		surface,
-		root,
-		tip,
-		left,
-		normal,
-		normal,
-		normal,
-		color,
-		Vector2(0.5, 0.0),
-		Vector2(0.5, 1.0),
-		Vector2(0.0, 0.48)
-	)
 
 
 static func _append_octahedron(

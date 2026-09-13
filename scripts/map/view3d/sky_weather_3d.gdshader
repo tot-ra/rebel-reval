@@ -6,8 +6,8 @@ shader_type sky;
 // are script-driven uniforms (no TIME), so the sky stays deterministic and
 // testable like the rest of the view.
 
-uniform vec4 day_top_color : source_color = vec4(0.24, 0.51, 0.88, 1.0);
-uniform vec4 day_horizon_color : source_color = vec4(0.62, 0.78, 0.93, 1.0);
+uniform vec4 day_top_color : source_color = vec4(0.18, 0.38, 0.65, 1.0);
+uniform vec4 day_horizon_color : source_color = vec4(0.67, 0.75, 0.81, 1.0);
 uniform vec4 night_top_color : source_color = vec4(0.020, 0.045, 0.130, 1.0);
 uniform vec4 night_horizon_color : source_color = vec4(0.050, 0.100, 0.220, 1.0);
 uniform vec4 sunset_color : source_color = vec4(0.98, 0.45, 0.18, 1.0);
@@ -39,7 +39,7 @@ uniform vec2 cloud_offset = vec2(0.0);
 uniform vec2 cloud_detail_offset = vec2(0.0);
 // Domain-warp strength. Clear weather keeps mild chaos; storms tear harder.
 uniform float cloud_chaos : hint_range(0.0, 1.0) = 0.35;
-// Quality tier controls the fixed upper bound of the cloud self-shadow march.
+// Compatibility uniform: quality selects twice this many cloud depth samples.
 uniform int cloud_shadow_samples : hint_range(1, 4) = 4;
 // Quality tier controls the fixed upper bound of the distant rain march.
 uniform int rain_shaft_samples : hint_range(1, 6) = 6;
@@ -104,7 +104,7 @@ float cloud_bulk(vec2 uv, float cover) {
 	// Coverage raises the cloud floor: low coverage keeps only the densest cores,
 	// high coverage lets the whole heap field become solid overcast.
 	float floor_thr = mix(0.66, 0.04, cover);
-	return clamp(remap(base, floor_thr, floor_thr + 0.30, 0.0, 1.0), 0.0, 1.0);
+	return clamp(remap(base, floor_thr, floor_thr + 0.58, 0.0, 1.0), 0.0, 1.0);
 }
 
 
@@ -116,7 +116,7 @@ float cloud_opacity(vec2 uv, float cover) {
 	float detail = texture(cloud_noise, uv * 1.9 + cloud_detail_offset).r * 0.5
 		+ texture(cloud_noise, uv * 4.6 - cloud_detail_offset * 0.6).r * 0.32
 		+ texture(cloud_noise, uv * 9.4 + cloud_detail_offset * 0.3).r * 0.18;
-	cloud = remap(cloud, detail * mix(0.32, 0.72, cloud_chaos), 1.0, 0.0, 1.0);
+	cloud = remap(cloud, detail * mix(0.18, 0.42, cloud_chaos), 1.0, 0.0, 1.0);
 	return clamp(cloud, 0.0, 1.0);
 }
 
@@ -125,72 +125,67 @@ float cloud_opacity(vec2 uv, float cover) {
 //   x = opacity of cloud along this ray (0..1),
 //   y = light factor (0 = shadowed underside, 1 = sunlit top / anvil crown),
 //   z = local storm strength here (drives shadow depth and rain association).
+// Curvature limits the distance at the horizon, unlike a plane with a pole.
+// The same projection is used for rain sources so curtains follow their banks.
+vec2 cloud_uv(vec3 dir, float altitude) {
+	float distance_to_layer = altitude / sqrt(dir.y * dir.y + 0.012);
+	return dir.xz * distance_to_layer * 0.12 - cloud_offset;
+}
+
+
 vec3 cloud_field(vec3 dir) {
-	if (cloud_fallback || dir.y < 0.02) {
+	if (cloud_fallback || dir.y < -0.025) {
 		return vec3(0.0);
 	}
-	float horizon_fade = smoothstep(0.02, 0.20, dir.y);
-
-	// Planar projection of the view ray onto an overhead cumulus layer.
-	vec2 uv = dir.xz / (dir.y + 0.26) * 0.30 + cloud_offset;
-
-	// Storm strength here can be an isolated cell or a full front (storm_locality).
-	// A cell towers and darkens: it raises coverage locally so a heavy raining
-	// cloud can stand in an otherwise open sky, and it stacks a wall toward the
-	// upwind horizon so widespread storms read as marching in.
+	vec2 uv = cloud_uv(dir, 1.0);
 	float local_storm = local_storm_at(uv);
-	vec2 ground = normalize(vec2(dir.x, -dir.z) + vec2(0.0001));
-	float upwind = 0.5 + 0.5 * dot(ground, -wind_dir);
-	float storm_wall = local_storm * smoothstep(0.55, 0.05, dir.y) * mix(0.55, 1.0, upwind);
-	float cover = clamp(cloud_coverage + local_storm * 0.5 + storm_wall * 0.2, 0.0, 1.0);
-
-	float density = cloud_opacity(uv, cover);
-
-	// Thin cirrus veil combed along the HIGH-altitude wind on a farther plane, so
-	// wispy high cloud parallaxes behind the cumulus at moderate coverage. Cirrus
-	// really does run in parallel bands along the wind aloft, but that wind is
-	// sheared from the surface wind, so the wisps cross the low cloud drift at an
-	// angle instead of running dead parallel to it.
-	vec2 high_uv = dir.xz / (dir.y + 0.05) * 0.55 + cloud_detail_offset * 0.3;
-	const float CIRRUS_SHEAR = 0.6; // ~34 degrees off the surface wind
-	vec2 high_wind = vec2(
-		wind_dir.x * cos(CIRRUS_SHEAR) - wind_dir.y * sin(CIRRUS_SHEAR),
-		wind_dir.x * sin(CIRRUS_SHEAR) + wind_dir.y * cos(CIRRUS_SHEAR)
-	);
-	vec2 wind_perp = vec2(-high_wind.y, high_wind.x);
-	float cirrus = texture(cloud_noise, vec2(dot(high_uv, high_wind) * 0.4, dot(high_uv, wind_perp) * 2.4)).r;
-	cirrus = smoothstep(0.62, 0.92, cirrus) * smoothstep(0.4, 0.75, cloud_coverage)
-		* (1.0 - storm_intensity * 0.7) * 0.4;
-	density = max(density, cirrus) * horizon_fade;
-
-	// Volumetric self-shadow by a short light-march toward the sun. Accumulate the
-	// cloud body along a few steps and apply Beer's law: the sun-facing flank of
-	// each heap stays bright while light falls off smoothly deeper into its body.
-	// Because the march direction comes from the sun, the bright side tracks the
-	// sun across the day. Unlike a local-gradient normal this leaves no dark
-	// emboss rim, and unlike a single tap it is a smooth gradient, not two tones.
-	vec2 sun_xz = vec2(sun_direction.x, -sun_direction.z);
-	vec2 light_dir = length(sun_xz) > 0.001 ? normalize(sun_xz) : vec2(1.0, 0.0);
-	float march = cloud_bulk(uv + light_dir * 0.02, cover);
-	if (cloud_shadow_samples >= 2) {
-		march += cloud_bulk(uv + light_dir * 0.05, cover) * 0.7;
+	float cover = clamp(cloud_coverage + local_storm * 0.38, 0.0, 1.0);
+	// Integrate through a finite cloud slab. Height-dependent erosion gives
+	// broad bases and rounded tops, rather than opaque cutouts on one plane.
+	int steps = cloud_shadow_samples * 2;
+	float step_length = 1.0 / float(steps);
+	float optical_step = step_length * mix(9.0, 15.0, local_storm)
+		/ max(sqrt(max(dir.y, 0.0)), 0.38);
+	float transmittance = 1.0;
+	float illumination = 0.0;
+	vec2 light_dir = sun_direction.xz;
+	float sun_up = smoothstep(-0.08, 0.18, sun_direction.y);
+	for (int i = 0; i < 8; i++) {
+		if (i >= steps) { break; }
+		float h = (float(i) + 0.5) * step_length;
+		vec2 sample_uv = cloud_uv(dir, 1.0 + h * mix(0.14, 0.32, local_storm));
+		// Height shear adds depth without animation noise or temporal jitter.
+		sample_uv += wind_dir * h * 0.008;
+		float body = cloud_opacity(sample_uv, cover);
+		float profile = smoothstep(0.0, 0.16, h)
+			* (1.0 - smoothstep(0.48, 1.0, h));
+		float billows = texture(cloud_noise, sample_uv * 5.2 + cloud_detail_offset + h * 0.12).r;
+		float density = max(body - h * h * 0.38, 0.0) * profile
+			* mix(0.55, 1.25, billows);
+		// Stratiform decks stay closed even between convective heaps.
+		density += smoothstep(0.84, 0.98, cover) * profile * 0.32;
+		float alpha = 1.0 - exp(-density * optical_step);
+		float obstruction = cloud_bulk(sample_uv + light_dir * (0.07 + h * 0.05), cover);
+		float self_shadow = exp(-obstruction * (0.4 + billows * 2.0)
+			* (1.0 - h) * mix(3.0, 5.0, local_storm));
+		float light = mix(0.20 + h * 0.20, 1.0, self_shadow * sun_up);
+		illumination += transmittance * alpha * light;
+		transmittance *= 1.0 - alpha;
 	}
-	if (cloud_shadow_samples >= 3) {
-		march += cloud_bulk(uv + light_dir * 0.09, cover) * 0.45;
-	}
-	if (cloud_shadow_samples >= 4) {
-		march += cloud_bulk(uv + light_dir * 0.15, cover) * 0.25;
-	}
-	float self_shadow = exp(-march * 1.25);
-	// Ambient fill stops shadowed sides crushing to black; storm cells sit darker.
-	float ambient = mix(0.46, 0.22, local_storm);
-	float light = mix(ambient, 1.0, self_shadow);
-
-	// Anvil crown / silver lining: thin sun-facing edges flare, hardest on storms.
-	float edge = clamp(density * (1.0 - density) * 4.0, 0.0, 1.0);
-	float sun_facing = max(dot(normalize(dir), sun_direction), 0.0);
-	light = clamp(light + edge * pow(sun_facing, 3.0) * (0.35 + 0.65 * local_storm), 0.0, 1.0);
-
+	float density = 1.0 - transmittance;
+	float light = illumination / max(density, 0.001);
+	// High thin cloud lies behind the low deck and uses a sheared wind.
+	vec2 high_uv = cloud_uv(dir, 2.1) + cloud_offset * 0.65;
+	vec2 high_wind = vec2(wind_dir.x * 0.825 - wind_dir.y * 0.565,
+		wind_dir.x * 0.565 + wind_dir.y * 0.825);
+	vec2 across = vec2(-high_wind.y, high_wind.x);
+	float cirrus = texture(cloud_noise,
+		vec2(dot(high_uv, high_wind) * 0.45, dot(high_uv, across) * 1.8)).r;
+	cirrus = smoothstep(0.58, 0.85, cirrus) * 0.20
+		* smoothstep(0.25, 0.65, cloud_coverage) * (1.0 - local_storm);
+	light = mix(light, 0.8, cirrus * (1.0 - density));
+	density += cirrus * (1.0 - density);
+	density *= smoothstep(-0.025, 0.055, dir.y);
 	return vec3(density, light, local_storm);
 }
 
@@ -202,7 +197,7 @@ vec3 cloud_field(vec3 dir) {
 // actually sits overhead — never floating in open sky the way a fixed horizon
 // band did. The caller also keeps it out of the opaque cloud body itself.
 float rain_shafts(vec3 dir) {
-	if (storm_intensity < 0.05 || dir.y > 0.6 || dir.y < 0.01) {
+	if (cloud_fallback || storm_intensity < 0.05 || dir.y > 0.6 || dir.y < 0.01) {
 		return 0.0;
 	}
 	// March up the bearing to find the raining cell overhead AND how far below its
@@ -214,7 +209,7 @@ float rain_shafts(vec3 dir) {
 	for (int i = 1; i <= rain_shaft_samples; i++) {
 		float offset = float(i) * 0.07;
 		vec3 up = normalize(vec3(dir.x, dir.y + offset, dir.z));
-		vec2 up_uv = up.xz / (up.y + 0.26) * 0.30 + cloud_offset;
+		vec2 up_uv = cloud_uv(up, 1.0);
 		float ls = local_storm_at(up_uv);
 		float cover = clamp(cloud_coverage + ls * 0.5, 0.0, 1.0);
 		float hit = smoothstep(0.45, 0.95, ls) * cloud_bulk(up_uv, cover);
@@ -252,7 +247,7 @@ float rain_shafts(vec3 dir) {
 // (not high-frequency zigzag), plus 2-3 branches that fork off at realistic
 // angles. Each strike wanders uniquely via the per-strike seed.
 float lightning_bolt(vec3 dir) {
-	if (lightning < 0.35 || dir.y < 0.015 || dir.y > 0.62) {
+	if (cloud_fallback || lightning < 0.35 || dir.y < 0.015 || dir.y > 0.62) {
 		return 0.0;
 	}
 	vec2 g = normalize(vec2(dir.x, -dir.z) + vec2(0.0001));
@@ -329,7 +324,15 @@ void sky() {
 	float sun_amount = max(dot(dir, sun_direction), 0.0);
 	horizon = mix(horizon, sunset_color.rgb, sunset_factor * pow(sun_amount, 2.0) * 0.8);
 
-	vec3 color = mix(horizon, top, pow(clamp(height, 0.0, 1.0), 0.55));
+	// Longer optical paths desaturate the horizon; forward scattering is
+	// concentrated toward the sun rather than a uniform blue gradient.
+	float air_mass = 1.0 / max(height + 0.12, 0.12);
+	float haze = 1.0 - exp(-air_mass * (0.10 + cloud_darken * 0.12));
+	vec3 color = mix(top, horizon, haze);
+	float forward_scatter = pow(sun_amount, 12.0) * (0.06 + haze * 0.20);
+	color += mix(sun_color.rgb, sunset_color.rgb, sunset_factor)
+		* forward_scatter * day_blend * (1.0 - cloud_darken * 0.8);
+	color = mix(color, horizon * vec3(0.83, 0.87, 0.93), cloud_darken * 0.38);
 	// Below the horizon fade into darker haze so the map edge reads as ground fog.
 	color = mix(color, horizon * 0.55, clamp(-height * 3.0, 0.0, 1.0));
 
@@ -347,8 +350,8 @@ void sky() {
 	// Sun disk plus halo, hidden once the sun dips below the horizon.
 	float sun_visibility = smoothstep(-0.05, 0.05, sun_direction.y);
 	vec3 sun_tint = mix(sun_color.rgb, sunset_color.rgb, sunset_factor * 0.55);
-	float disk = smoothstep(0.99930, 0.99972, sun_amount);
-	float halo = pow(sun_amount, 90.0) * 0.4;
+	float disk = 1.0 - smoothstep(0.0042, 0.0053, length(dir - sun_direction));
+	float halo = pow(sun_amount, 350.0) * 0.18;
 	color += sun_tint * (disk * 2.4 + halo) * sun_visibility * (1.0 - clouds * 0.95);
 
 	// Moon: opaque shaded sphere sampled from a NASA near-side albedo photo.
@@ -356,11 +359,11 @@ void sky() {
 	// the disk and reads as a cyan moon. The lunar body is optically thick, so
 	// the surface must replace the background inside the disk mask.
 	float moon_dot = dot(dir, moon_direction);
-	float moon_radius = 0.031;
+	float moon_radius = 0.00465;
 	float moon_edge = cos(moon_radius);
 	// Thin AA only. A wide outer skirt used to sample empty black albedo and
 	// read as a dark sticker outline against the night sky.
-	float moon_disk = smoothstep(moon_edge - 0.00012, moon_edge + 0.00004, moon_dot);
+	float moon_disk = 1.0 - smoothstep(moon_radius - 0.0006, moon_radius + 0.0006, length(dir - moon_direction));
 	// WHY: The NASA near-side mosaic is north-up / west-left. Align the disk to
 	// celestial north (same ENU frame as the star map) instead of world zenith so
 	// maria keep the familiar Earth orientation and pick up the correct
@@ -496,16 +499,19 @@ void sky() {
 	vec3 cloud_col = mix(cloud_shadow, cloud_top, cloud_light);
 	// Hot rim where a lit cloud faces the low sun — the fiery sunset edge.
 	vec3 rim = mix(sun_color.rgb, dusk_hot, sunset_factor);
-	cloud_col += rim * pow(sun_amount, 5.0) * cloud_light * (0.4 + 1.3 * sunset_factor) * sun_visibility;
+	cloud_col += rim * pow(sun_amount, 5.0) * cloud_light * (0.12 + 0.40 * sunset_factor) * sun_visibility;
 	// Anvil crown: the icy top of a tall storm cell catches light as a bright,
 	// cool-white cap high over its dark base — the giveaway of a thunderhead.
 	float anvil = local_storm * smoothstep(0.32, 0.62, dir.y) * cloud_light * smoothstep(0.25, 0.6, clouds);
-	cloud_col = mix(cloud_col, vec3(1.05, 1.08, 1.16), anvil * 0.45);
+	cloud_col = mix(cloud_col, vec3(1.05, 1.08, 1.16), anvil * 0.18 * sun_visibility * day_blend);
 	// Overcast fronts flatten the heaps toward a dim, cool, uniform sheet; storm
 	// decks go darker and a touch bluer than a plain grey overcast.
 	vec3 overcast = cloud_top * mix(0.5, 0.4, local_storm) * vec3(0.94, 0.98, 1.06);
-	cloud_col = mix(cloud_col, overcast, cloud_darken * 0.72);
-	color = mix(color, cloud_col, clouds * 0.96);
+	cloud_col = mix(cloud_col, overcast, cloud_darken * 0.28);
+	// Distant banks dissolve into the same air as the horizon, preserving depth.
+	float cloud_haze = (1.0 - exp(-0.07 / max(height + 0.03, 0.03)));
+	cloud_col = mix(cloud_col, horizon * mix(1.0, 0.65, cloud_darken), cloud_haze);
+	color = mix(color, cloud_col, clouds);
 
 	// Distant rain curtains hanging under a heavy cell. They grey the low sky, but
 	// catch sunlight — brighter and a touch warm toward the sun — so a sunlit
