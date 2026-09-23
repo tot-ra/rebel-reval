@@ -61,6 +61,7 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 - Identity is the internal `R-*` ref, not a product ID (`P0-122f`) or a prose label (`R-454a`). Resolve with `tasks.list` before `tasks.get`.
 - `tasks.next` does not honor complexity or role filters. Restore a wrongly claimed row with its full body, then claim the exact ref.
 - Create dependency chains sequentially and verify each returned ref. An empty `body` on update erases the contract. If a mutation times out, query the exact ref before retrying.
+- When the `tasks` tool is unavailable in Cursor, read or update the project board through `~/.local/share/aagent/aagent.db` with the session `project_id`; do not infer open work from `TODO.md` alone.
 
 ### Documentation, provenance, and evidence
 - `tools/validate_content.py` validates JSON corpus roots, not Markdown reports.
