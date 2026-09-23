@@ -1,0 +1,74 @@
+{
+  "asset_id": "creature.lynx",
+  "route": "deterministic_procedural_closed_anatomy_remesh",
+  "source_license": "AGPL-3.0-or-later (project author)",
+  "anatomy_decision": "remeshed_eurasian_lynx_ruff_ear_tufts_bob_tail_spotted_coat",
+  "scale_basis": "1.18 m nose-to-rump; 0.74 m ear-tuft height; 0.36 m body width",
+  "output": "assets/animals/medieval/medieval_lynx.glb",
+  "output_sha256": "0d6b54721488d68679b0e98b0ced6e0ec85cf3bdadea1d1480e953cc11d181df",
+  "raw": {
+    "vertices": 2814,
+    "polygons": 5504,
+    "triangles": 5504,
+    "components": 31,
+    "component_vertices": [
+      340,
+      244,
+      222,
+      222,
+      164,
+      146,
+      114,
+      100,
+      100,
+      100,
+      100,
+      100,
+      86,
+      86,
+      86,
+      86,
+      86,
+      86,
+      86,
+      24,
+      24,
+      24,
+      24,
+      24,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20
+    ],
+    "boundary_edges": 0,
+    "non_manifold_edges": 0,
+    "loose_vertices": 0
+  },
+  "production": {
+    "vertices": 7002,
+    "polygons": 14000,
+    "triangles": 14000,
+    "components": 1,
+    "component_vertices": [
+      7002
+    ],
+    "boundary_edges": 0,
+    "non_manifold_edges": 0,
+    "loose_vertices": 0
+  },
+  "metric_dimensions_m_y_up": [
+    1.18,
+    0.74,
+    0.36
+  ],
+  "animations": [
+    "Idle-loop",
+    "Walk-loop",
+    "Trot-loop",
+    "Graze-loop"
+  ]
+}

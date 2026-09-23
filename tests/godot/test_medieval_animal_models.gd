@@ -17,6 +17,7 @@ func test_production_models_load_with_mesh_material_and_ground_contact() -> void
 		MammalSpecies.SPECIES_SHEEP,
 		MammalSpecies.SPECIES_HORSE,
 		MammalSpecies.SPECIES_BROWN_BEAR,
+		MammalSpecies.SPECIES_LYNX,
 	]:
 		var host := Node3D.new()
 		var model := Models.add_model(host, species)
@@ -33,7 +34,9 @@ func test_production_models_load_with_mesh_material_and_ground_contact() -> void
 			"%s needs portable PBR material" % species
 		)
 		var aabb := _bounds(model)
-		assert_true(absf(aabb.position.y) < 0.035, "%s feet must touch Y=0: %s" % [species, aabb.position.y])
+		assert_true(
+			absf(aabb.position.y) < 0.035, "%s feet must touch Y=0: %s" % [species, aabb.position.y]
+		)
 		host.free()
 
 
@@ -52,7 +55,11 @@ func test_imported_domestic_fowl_use_skeletal_locomotion_clips() -> void:
 		var skeletons := model.find_children("*", "Skeleton3D", true, false)
 		assert_true(skeletons.size() >= 1, "%s needs an imported skeleton" % species)
 		var skeleton := skeletons[0] as Skeleton3D
-		var legs: Array = [&"Leg.L", &"Leg.R"] if species == MammalSpecies.SPECIES_DUCK else [&"FrontLeftLeg", &"FrontRightLeg", &"BackLeftLeg", &"BackRightLeg"]
+		var legs: Array = (
+			[&"Leg.L", &"Leg.R"]
+			if species == MammalSpecies.SPECIES_DUCK
+			else [&"FrontLeftLeg", &"FrontRightLeg", &"BackLeftLeg", &"BackRightLeg"]
+		)
 		for bone_name: StringName in legs:
 			assert_true(
 				skeleton.find_bone(bone_name) >= 0,
@@ -90,7 +97,9 @@ func test_legacy_chicken_is_procedural_and_uses_articulated_animation_clips() ->
 	var walk := player.get_animation(Models.WALK_ANIMATION)
 	assert_true(walk.find_track(NodePath("Rig/LegLeft:rotation"), Animation.TYPE_VALUE) >= 0)
 	assert_true(walk.find_track(NodePath("Rig/LegRight:rotation"), Animation.TYPE_VALUE) >= 0)
-	assert_true(walk.find_track(NodePath("Rig/BodyPivot/NeckPivot:rotation"), Animation.TYPE_VALUE) >= 0)
+	assert_true(
+		walk.find_track(NodePath("Rig/BodyPivot/NeckPivot:rotation"), Animation.TYPE_VALUE) >= 0
+	)
 	Models.sync_animation(host, host.position - Vector3(0.08, 0.0, 0.0), 0.1)
 	assert_eq(player.current_animation, Models.WALK_ANIMATION)
 	Models.sync_animation(host, host.position, 0.1)
@@ -361,6 +370,67 @@ func test_brown_bear_has_procedural_rigged_anatomy_and_locomotion_clips() -> voi
 	host.free()
 
 
+func test_lynx_has_procedural_rigged_anatomy_and_locomotion_clips() -> void:
+	var host := Node3D.new()
+	var model := Models.add_model(host, MammalSpecies.SPECIES_LYNX)
+	assert_true(model != null)
+	var mesh := model.find_child("AnimalMesh", true, false) as MeshInstance3D
+	assert_true(mesh != null)
+	var aabb := mesh.get_aabb()
+	assert_true(
+		aabb.size.x >= 1.05 and aabb.size.x <= 1.30,
+		"Lynx needs a long felid body, not the catalog loaf: %s" % aabb.size
+	)
+	assert_true(
+		aabb.size.y >= 0.62 and aabb.size.y <= 0.86,
+		"Lynx ear tufts must rise above a standing cat: %s" % aabb.size
+	)
+	assert_true(aabb.size.z <= 0.55, "Lynx must stay narrow through the chest")
+	assert_true(aabb.position.y >= -0.001, "Lynx must not contain a generated ground sheet")
+	assert_true(
+		is_equal_approx(model.rotation.y, -PI * 0.5),
+		"Lynx needs livestock yaw so look_at walks nose-first"
+	)
+	var nose_after_yaw := model.transform.basis * Vector3(-1.0, 0.0, 0.0)
+	assert_true(nose_after_yaw.z < -0.5, "Lynx nose must point along walk -Z after livestock yaw")
+	assert_eq(mesh.mesh.get_surface_count(), 1, "Lynx hide must remain one skinned surface")
+	var arrays := mesh.mesh.surface_get_arrays(0)
+	var vertices: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+	assert_true(vertices.size() >= 4000, "Lynx needs remeshed felid anatomy")
+	var colors: PackedColorArray = arrays[Mesh.ARRAY_COLOR]
+	assert_true(colors.size() == vertices.size(), "Lynx coat is stored in vertex color")
+	for detail_name in [
+		"EyeLeft",
+		"EyeRight",
+		"PupilLeft",
+		"PupilRight",
+		"NoseTip",
+		"EarTuftLeft",
+		"EarTuftRight",
+		"TailTip",
+	]:
+		assert_true(
+			model.find_child(detail_name, true, false) != null,
+			"Lynx is missing %s" % detail_name
+		)
+	var skeletons := model.find_children("*", "Skeleton3D", true, false)
+	assert_true(skeletons.size() >= 1, "Lynx needs a quadruped skeleton")
+	var skeleton := skeletons[0] as Skeleton3D
+	for bone_name: StringName in [
+		&"Neck", &"Tail", &"FrontLeftLeg", &"FrontRightLeg", &"BackLeftLeg", &"BackRightLeg"
+	]:
+		assert_true(skeleton.find_bone(bone_name) >= 0, "Lynx is missing %s" % bone_name)
+	var players := model.find_children("*", "AnimationPlayer", true, false)
+	assert_true(players.size() >= 1, "Lynx needs imported skeletal animation")
+	var player := players[0] as AnimationPlayer
+	assert_true(player.has_animation(Models.IDLE_ANIMATION))
+	assert_true(player.has_animation(Models.WALK_ANIMATION))
+	assert_eq(player.current_animation, Models.IDLE_ANIMATION)
+	Models.sync_animation(host, host.position - Vector3(0.1, 0.0, 0.0), 0.1)
+	assert_eq(player.current_animation, Models.WALK_ANIMATION)
+	host.free()
+
+
 func test_elk_has_procedural_rigged_anatomy_and_locomotion_clips() -> void:
 	var host := Node3D.new()
 	var model := Models.add_model(host, MammalSpecies.SPECIES_ELK)
@@ -581,6 +651,7 @@ func test_legacy_medieval_livestock_carry_normal_and_roughness_maps() -> void:
 		MammalSpecies.SPECIES_SHEEP,
 		MammalSpecies.SPECIES_HORSE,
 		MammalSpecies.SPECIES_BROWN_BEAR,
+		MammalSpecies.SPECIES_LYNX,
 	]:
 		var host := Node3D.new()
 		var model := _legacy_model(host, species)
@@ -646,6 +717,7 @@ func test_livestock_exposes_idle_walk_trot_and_graze_clips() -> void:
 		MammalSpecies.SPECIES_SHEEP,
 		MammalSpecies.SPECIES_HORSE,
 		MammalSpecies.SPECIES_BROWN_BEAR,
+		MammalSpecies.SPECIES_LYNX,
 	]:
 		var host := Node3D.new()
 		var model := Models.add_model(host, species)
@@ -698,7 +770,11 @@ func _bounds(node: Node3D, transform: Transform3D = Transform3D.IDENTITY) -> AAB
 		if child is not Node3D:
 			continue
 		var xform := transform * (child as Node3D).transform
-		var part := xform * (child as MeshInstance3D).get_aabb() if child is MeshInstance3D else _bounds(child, xform)
+		var part := (
+			xform * (child as MeshInstance3D).get_aabb()
+			if child is MeshInstance3D
+			else _bounds(child, xform)
+		)
 		if part.size == Vector3.ZERO:
 			continue
 		box = part if first else box.merge(part)
