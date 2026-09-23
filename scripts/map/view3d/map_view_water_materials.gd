@@ -27,9 +27,11 @@ static func puddle_surface() -> ShaderMaterial:
 	material.shader = MapViewMaterialShaders.shader_resource(
 		"puddle", MapViewMaterialShaders.PUDDLE_SHADER
 	)
-	material.set_shader_parameter("wet_tint", Vector3(0.78, 0.82, 0.86))
-	material.set_shader_parameter("sheen_tint", Vector3(0.94, 0.96, 0.98))
-	material.set_shader_parameter("refraction_strength", 0.032)
+	# Standing rainwater over a dirty street reads dark, not silver: the film only
+	# darkens the ground it covers, and the sky sheen arrives through fresnel.
+	material.set_shader_parameter("water_tint", Vector3(0.10, 0.11, 0.11))
+	material.set_shader_parameter("damp_tint", Vector3(0.22, 0.20, 0.17))
+	material.set_shader_parameter("sheen_tint", Vector3(0.62, 0.70, 0.80))
 	_cache[key] = material
 	return material
 

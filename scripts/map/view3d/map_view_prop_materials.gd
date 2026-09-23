@@ -267,4 +267,12 @@ static func _make_material(base: Color, pattern: StringName, noise_seed: int) ->
 	# Terrain cells and scatter instances carry per-cell tone in vertex/instance
 	# colors; meshes without a color attribute stay white so nothing shifts.
 	material.vertex_color_use_as_albedo = true
+	# Weathered stone needs visible relief: loose street stones and boulders are
+	# low-poly spheres, so all of their surface detail has to come from shading.
+	if pattern == PATTERN_ROCK:
+		material.normal_enabled = true
+		material.normal_texture = MapViewMaterialPatterns.pattern_normal_texture(
+			pattern, noise_seed, 1.8
+		)
+		material.normal_scale = 1.0
 	return material

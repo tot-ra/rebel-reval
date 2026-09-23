@@ -297,6 +297,8 @@ static func _add_gate_arch(root: Node3D, landmark: Dictionary, size: Vector2, sc
 	threshold.material_override = MapViewMaterials.role_for_size(&"stone", threshold_size)
 	root.add_child(threshold)
 
+	_add_gate_arch_head(root, size, passage_along_x, limestone)
+
 	var gate_variant: StringName = landmark.get(
 		"gate_variant", landmark.get("door_material", &"wood")
 	)
@@ -312,6 +314,61 @@ static func _add_gate_arch(root: Node3D, landmark: Dictionary, size: Vector2, sc
 		size,
 		top - MapViewMeshBuilderConfig.CAP_HEIGHT
 	)
+
+
+## Segmental arched head over the gate passage.
+##
+## A city gate is a vaulted tunnel, not a flat lintel on two piers: the flat
+## opening was the single clearest reason the Viru gate read as a hole cut in a
+## slab. The head is built from horizontal masonry bands whose inner edge follows
+## the arc, so the stepped intrados reads as coursed voussoirs in the same
+## material and the authored clear opening is never narrowed - each band starts
+## at the widest point of the span it covers.
+static func _add_gate_arch_head(
+	root: Node3D, size: Vector2, passage_along_x: bool, material: Material
+) -> void:
+	var footprint_half := (size.y if passage_along_x else size.x) * 0.5
+	var opening_half := maxf(
+		footprint_half - MapViewMeshBuilderConfig.GATE_JAMB_THICKNESS, 0.4
+	)
+	var crown := MapViewMeshBuilderConfig.GATE_ARCH_CLEARANCE
+	var springing := crown * MapViewMeshBuilderConfig.GATE_ARCH_SPRINGING_RATIO
+	var rise := crown - springing
+	if rise <= 0.05 or opening_half <= 0.2:
+		return
+	# Circular segment through both springing points and the crown.
+	var radius := (opening_half * opening_half + rise * rise) / (2.0 * rise)
+	var center_y := crown - radius
+	var depth := size.x if passage_along_x else size.y
+	var bands := MapViewMeshBuilderConfig.GATE_ARCH_BANDS
+	var band_height := rise / float(bands)
+	for band in bands:
+		var band_bottom := springing + float(band) * band_height
+		var offset := band_bottom - center_y
+		var open_half := sqrt(maxf(radius * radius - offset * offset, 0.0))
+		# Above the springing line the circular intrados narrows toward the crown.
+		# Clamp to the jamb clear width so view-only voussoirs never eat the
+		# authored walkable opening the collision jambs already reserve.
+		var intrados_half := maxf(open_half, opening_half)
+		var haunch := footprint_half - intrados_half
+		if haunch <= 0.02:
+			continue
+		for side_index in 2:
+			var side := -1.0 if side_index == 0 else 1.0
+			var lateral := side * (intrados_half + haunch * 0.5)
+			var box_size := (
+				Vector3(depth, band_height, haunch)
+				if passage_along_x
+				else Vector3(haunch, band_height, depth)
+			)
+			var position := (
+				Vector3(0.0, band_bottom + band_height * 0.5, lateral)
+				if passage_along_x
+				else Vector3(lateral, band_bottom + band_height * 0.5, 0.0)
+			)
+			_add_gate_masonry_box(
+				root, "ArchBand%d_%d" % [band, side_index], box_size, position, material
+			)
 
 
 static func _add_gate_masonry_box(

@@ -30,9 +30,15 @@ const BUILDING_WEATHER_VARIANTS: Array[StringName] = [
 ## repeats, one procedural tile spans an entire house wall and bricks read
 ## billboard-sized. Values are tuned for typical 3-6 unit footprints at the
 ## frozen 32 px/cell scale (character height 2.0 units).
+##
+## Masonry repeats are derived from real course heights rather than from what
+## looked busy: one world unit is about 0.87 m, a split limestone course is about
+## 0.3 m and a hand-moulded brick course about 0.1 m. The former limestone/brick
+## repeats packed roughly six times that many courses into a wall, which is why
+## fortifications read as a fine printed grid instead of laid stone.
 const BUILDING_UV_SCALE := {
-	PATTERN_BRICK: Vector3(5.0, 6.5, 5.0),
-	PATTERN_LIMESTONE: Vector3(4.0, 6.0, 4.0),
+	PATTERN_BRICK: Vector3(0.8, 1.4, 0.8),
+	PATTERN_LIMESTONE: Vector3(1.0, 1.1, 1.0),
 	PATTERN_PLANK: Vector3(5.0, 3.0, 5.0),
 	PATTERN_PLASTER: Vector3(3.5, 2.5, 3.5),
 	PATTERN_ROOF_TILE: Vector3(4.0, 2.5, 4.0),
@@ -41,6 +47,24 @@ const BUILDING_UV_SCALE := {
 	PATTERN_THATCH: Vector3(4.5, 5.5, 4.5),
 }
 const BUILDING_UV_REFERENCE_SIZE := Vector3(4.0, 3.5, 4.0)
+
+## Families whose plates describe real relief (recessed joints, pitted faces,
+## board gaps). They receive a matching normal map so light reveals the surface
+## instead of treating every wall as a perfectly flat plane.
+const RELIEF_PATTERNS: Array[StringName] = [
+	PATTERN_BRICK,
+	PATTERN_LIMESTONE,
+	PATTERN_PLASTER,
+	PATTERN_PLANK,
+	PATTERN_LOG,
+]
+const RELIEF_NORMAL_SCALE := {
+	PATTERN_BRICK: 0.85,
+	PATTERN_LIMESTONE: 1.15,
+	PATTERN_PLASTER: 0.45,
+	PATTERN_PLANK: 0.55,
+	PATTERN_LOG: 0.80,
+}
 
 static var _cache: Dictionary = {}
 
@@ -222,18 +246,31 @@ static func _weathered_albedo(base: Color, weathering: StringName) -> Color:
 			return base
 
 
+static func _apply_relief(
+	material: StandardMaterial3D, pattern: StringName, noise_seed: int
+) -> void:
+	if pattern not in RELIEF_PATTERNS:
+		return
+	material.normal_enabled = true
+	material.normal_texture = MapViewMaterialPatterns.pattern_normal_texture(pattern, noise_seed)
+	material.normal_scale = float(RELIEF_NORMAL_SCALE.get(pattern, 0.8))
+
+
 static func _make_weathered_material(
 	base: Color, pattern: StringName, noise_seed: int, weathering: StringName
 ) -> StandardMaterial3D:
 	var material := StandardMaterial3D.new()
 	material.albedo_color = base
 	material.albedo_texture = MapViewMaterialPatterns.pattern_texture_weathered(
-		pattern, noise_seed, weathering
+		pattern, noise_seed, weathering, MapViewMaterialPatterns.pattern_source_size(pattern)
 	)
 	material.roughness = 1.0
 	material.metallic = 0.0
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	material.vertex_color_use_as_albedo = true
+	# Weathering only re-tones the plate, so the relief is shared with the base
+	# pattern seed and does not multiply normal-map memory per weathering band.
+	_apply_relief(material, pattern, noise_seed)
 	return material
 
 
@@ -272,4 +309,5 @@ static func _make_material(base: Color, pattern: StringName, noise_seed: int) ->
 	# Terrain cells and scatter instances carry per-cell tone in vertex/instance
 	# colors; meshes without a color attribute stay white so nothing shifts.
 	material.vertex_color_use_as_albedo = true
+	_apply_relief(material, pattern, noise_seed)
 	return material

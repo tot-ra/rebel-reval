@@ -315,6 +315,14 @@ const ARROW_SLIT_FRAME_DEPTH := 0.12
 
 ## Gate arch landmark: view-only mass bridging a walkable gate passage.
 const GATE_ARCH_CLEARANCE := 3.2
+## Height where the gate passage stops being a rectangle and springs into its
+## arch, as a fraction of the clear height. 0.58 gives the shallow segmental head
+## used on fourteenth-century gate tunnels rather than a full semicircle that
+## would spring almost from the ground at this span.
+const GATE_ARCH_SPRINGING_RATIO := 0.58
+## Masonry bands approximating the intrados. Ten reads as coursed voussoirs at
+## gameplay range without adding a curved mesh to the view layer.
+const GATE_ARCH_BANDS := 10
 const GATE_JAMB_THICKNESS := 0.55
 const GATE_DOOR_HEIGHT := 2.45
 const GATE_DOOR_THICKNESS := 0.12

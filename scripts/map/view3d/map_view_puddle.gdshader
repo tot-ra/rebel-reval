@@ -1,13 +1,17 @@
 shader_type spatial;
 render_mode blend_mix, depth_draw_never, cull_disabled, diffuse_burley, specular_schlick_ggx;
 
-// Puddles are too shallow for a separate bed mesh. Sampling the already-rendered
-// ground preserves cobbles and mud beneath the water; the decal contributes only
-// wet darkening, refraction, normals, and reflected light.
-uniform sampler2D screen_texture : hint_screen_texture, repeat_disable, filter_linear_mipmap;
-uniform vec3 wet_tint : source_color = vec3(0.72, 0.78, 0.82);
-uniform vec3 sheen_tint : source_color = vec3(0.88, 0.92, 0.94);
-uniform float refraction_strength = 0.032;
+// Puddles are too shallow for a separate bed mesh, so the decal only darkens the
+// ground it covers and adds a water specular lobe.
+//
+// WHY no screen texture: the project ships the GL Compatibility renderer, where
+// sampling hint_screen_texture from these transparent decals produced flat white
+// shards instead of the ground beneath them. A darkening film plus a real
+// specular/fresnel response is both correct under alpha blending and cheaper,
+// because it needs no back-buffer copy per puddle.
+uniform vec3 water_tint : source_color = vec3(0.10, 0.11, 0.11);
+uniform vec3 damp_tint : source_color = vec3(0.22, 0.20, 0.17);
+uniform vec3 sheen_tint : source_color = vec3(0.62, 0.70, 0.80);
 
 float _hash(vec2 p) {
 	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
@@ -51,12 +55,14 @@ void vertex() {
 void fragment() {
 	vec2 local = UV * 2.0 - 1.0;
 	float angle = atan(local.y, local.x);
+	// Sampling the outline noise on the unit circle keeps it continuous across the
+	// angle wrap; the earlier low harmonics produced a star rather than a pool.
 	vec2 edge_direction = vec2(cos(angle), sin(angle));
-	float edge_noise = _fbm(edge_direction * 1.85 + puddle_origin_xz * 0.37);
-	float edge_radius = 0.68
-		+ (edge_noise - 0.48) * 0.18
-		+ sin(angle * 3.0 + puddle_origin_xz.x * 1.7) * 0.045
-		+ sin(angle * 7.0 - puddle_origin_xz.y * 1.3) * 0.025;
+	float edge_noise = _fbm(edge_direction * 1.35 + puddle_origin_xz * 0.37);
+	float edge_radius = 0.70
+		+ (edge_noise - 0.48) * 0.14
+		+ sin(angle * 2.0 + puddle_origin_xz.x * 1.7) * 0.030
+		+ sin(angle * 3.0 - puddle_origin_xz.y * 1.3) * 0.018;
 	float edge_distance = length(local) - edge_radius;
 
 	// Water ends first; a broader irregular damp band remains in the porous ground.
@@ -91,22 +97,16 @@ void fragment() {
 
 	vec3 world_normal = normalize(vec3(-slope.x, 1.0, -slope.y));
 	vec3 view_normal = normalize((VIEW_MATRIX * vec4(world_normal, 0.0)).xyz);
-	vec3 flat_view_normal = normalize((VIEW_MATRIX * vec4(0.0, 1.0, 0.0, 0.0)).xyz);
 	NORMAL = view_normal;
 
-	// Offset from the flat normal, rather than the normal itself, prevents the
-	// camera angle from shifting the whole image under every puddle.
-	vec2 refraction_offset = (view_normal - flat_view_normal).xy * refraction_strength * water_mask;
-	vec2 refracted_uv = clamp(SCREEN_UV + refraction_offset, vec2(0.001), vec2(0.999));
-	vec3 transmitted_ground = textureLod(screen_texture, refracted_uv, 0.0).rgb;
-
 	float fresnel = pow(1.0 - clamp(dot(view_normal, normalize(VIEW)), 0.0, 1.0), 5.0);
-	float transmission = mix(0.58, 0.88, water_mask) * (1.0 - fresnel * 0.34);
-	// Emission carries the pre-lit terrain exactly once; low ALBEDO leaves room for
-	// Godot's dielectric specular lobe without washing the decal white.
-	EMISSION = transmitted_ground * wet_tint * transmission;
-	ALBEDO = mix(wet_tint * 0.035, sheen_tint * 0.075, fresnel * water_mask);
-	ALPHA = coverage * mix(0.38, 0.70, water_mask);
+
+	// Alpha blending over the already-lit ground: a dark film is exactly the wet
+	// darkening real water produces, and the sky sheen rides on top of it at
+	// grazing angles instead of replacing the street with a bright decal.
+	ALBEDO = mix(damp_tint, water_tint, water_mask);
+	EMISSION = sheen_tint * fresnel * water_mask * 0.22;
+	ALPHA = coverage * mix(0.30, 0.66, water_mask);
 	ROUGHNESS = mix(0.86, 0.075 + _noise(puddle_world_xz * 9.0) * 0.045, water_mask);
 	// In Godot, 0.25 maps to roughly the F0 of water rather than a metallic mirror.
 	SPECULAR = mix(0.10, 0.25, water_mask);

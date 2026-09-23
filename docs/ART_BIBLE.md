@@ -97,7 +97,7 @@ Values are sRGB albedo or UI reference masters, not emitted light values. PBR li
 | Family | Master | Supporting range | Use |
 |---|---|---|---|
 | Moss/grass | `#4F954F` | pine `#277052`, spring `#72AF4E` | vegetation, damp edges, rural ground |
-| Amber earth | `#9A5A3F` | umber `#663B38`, ochre `#C9873D` | dirt, mud, worn yards |
+| Amber earth | `#9A5A3F` | umber `#663B38`, ochre `#C9873D`, trodden street `#6A6154` | dirt, mud, worn yards |
 | Harvest gold | `#E3B83F` | straw `#C99732`, sunlit `#F2CE62` | hay, thatch, warm material accents |
 | Baltic water | `#168FAA` | deep teal `#14617C`, cyan `#46C7D8` | water, glazed cool accents, reflected sky |
 | Limestone blue-gray | `#9EADB9` | shadow `#667889`, light `#C8D1D3` | stone, cobble, cool structural neutrals |
@@ -206,6 +206,10 @@ gameplay readability. Implementation and comparison evidence live in
 - Lower Town buildings use compact gables, lime plaster, visible timber or plank structure where sourced, small openings, dark doors, and period roof materials.
 - Saturated color comes from light, weathered pigments, cloth, plants, water, and material response, not unsupported modern paint coverage.
 - Stone landmarks use regionally plausible limestone construction with individually authored massing and meso detail; exceptional buildings are not scaled-up ordinary houses.
+- Walls, towers and gate jambs are **coursed limestone rubble**: roughly levelled bands of irregular hand-split stone in wide lime mortar, with chipped arrises and varied face tone. Even machine ashlar is wrong for Reval and reads as printed grid at gameplay range.
+- Masonry repeats follow physical course heights, not visual busyness. One world unit is about 0.87 m; a split limestone course is about 0.3 m and a hand-moulded brick course about 0.1 m.
+- Trodden streets are packed earth over limestone rubble and building waste: grey-ochre with gravel, ruts, drying cracks and damp hollows, never saturated red clay. Paving meets earth on an irregular worn edge, not a cut line.
+- Gate passages are vaulted tunnels. A gate opening springs into an arch; a flat lintel over two piers reads as a hole cut in a slab.
 - Props prioritize silhouette recognition first, functional construction second, and close-camera craft third.
 - Architecture may exaggerate facade visibility and characteristic roof rhythm for gameplay cameras, but footprints, street widths, and access remain historically and mechanically grounded.
 

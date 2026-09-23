@@ -16,10 +16,37 @@ static func reset() -> void:
 
 
 static func pattern_texture(pattern: StringName, noise_seed: int) -> ImageTexture:
-	var texture_size := MapViewMaterials.TEXTURE_SIZE
+	return _pattern_texture_at_size(pattern, noise_seed, pattern_source_size(pattern))
+
+
+## Source resolution per pattern family. Paving fills the street-level frame and
+## masonry fills every wall and tower face at close range, so both need more
+## source detail than secondary families such as thatch or straw.
+static func pattern_source_size(pattern: StringName) -> int:
 	if pattern == MapViewMaterials.PATTERN_COBBLE:
-		texture_size = MapViewMaterials.COBBLE_TEXTURE_SIZE
-	return _pattern_texture_at_size(pattern, noise_seed, texture_size)
+		return MapViewMaterials.COBBLE_TEXTURE_SIZE
+	if pattern in [MapViewMaterials.PATTERN_LIMESTONE, MapViewMaterials.PATTERN_BRICK]:
+		return MapViewMaterials.MASONRY_TEXTURE_SIZE
+	return MapViewMaterials.TEXTURE_SIZE
+
+
+## Tangent-space normal derived from the same grayscale plate that produces the
+## albedo. Masonry joints are recessed and block faces are pitted, so without a
+## normal map the walls were lit as perfectly flat planes - the single biggest
+## reason fortifications read as painted cardboard at gameplay range.
+static func pattern_normal_texture(
+	pattern: StringName, noise_seed: int, strength: float = 2.2
+) -> ImageTexture:
+	var texture_size := pattern_source_size(pattern)
+	var key := "pattern_normal:%s:%d:%d:%.2f" % [String(pattern), noise_seed, texture_size, strength]
+	if _cache.has(key):
+		return _cache[key]
+	var image := _pattern_image_at_size(pattern, noise_seed, texture_size)
+	image.bump_map_to_normal_map(strength)
+	image.generate_mipmaps()
+	var texture := ImageTexture.create_from_image(image)
+	_cache[key] = texture
+	return texture
 
 
 static func door_wood_texture(noise_seed: int) -> ImageTexture:
@@ -170,6 +197,8 @@ static func _pattern_image_at_size(
 			_paint_speckle(image, noise_seed)
 		MapViewMaterials.PATTERN_MUD:
 			_paint_mud(image, noise_seed)
+		MapViewMaterials.PATTERN_EARTH:
+			_paint_earth(image, noise_seed)
 		MapViewMaterials.PATTERN_PLASTER:
 			_paint_plaster(image, noise_seed)
 		_:
@@ -241,6 +270,19 @@ static func _fill_value(image: Image, x: int, y: int, value: float) -> void:
 	image.set_pixel(x, y, Color(v, v, v))
 
 
+## Ground and masonry plates carry hue variation, not only brightness: real earth
+## and limestone shift between warm dust and cool damp within one surface. The
+## terrain and building shaders multiply the full RGB by the palette tint, so a
+## near-neutral tinted multiplier keeps palette authority while removing the flat
+## single-hue fill that made packed earth read as painted clay.
+static func _fill_tinted(image: Image, x: int, y: int, value: float, warmth: float) -> void:
+	var v := clampf(value, 0.0, 1.0)
+	var w := clampf(warmth, -1.0, 1.0)
+	image.set_pixel(
+		x, y, Color(clampf(v * (1.0 + w * 0.10), 0.0, 1.0), v, clampf(v * (1.0 - w * 0.13), 0.0, 1.0))
+	)
+
+
 static func _paint_grass(image: Image, noise_seed: int) -> void:
 	var size := image.get_width()
 	for y in size:
@@ -262,7 +304,9 @@ static func _paint_grass(image: Image, noise_seed: int) -> void:
 			_fill_value(image, x, y, value)
 
 
-## Darker, clumpy wet soil with shallow ripple troughs for mud and puddle rims.
+## Darker, clumpy wet soil: churned hoof/wheel pockets, a drier crust on the
+## raised clumps, and cool damp hollows. Hue variation (not brightness alone)
+## separates saturated churn from the drying rim without a second material.
 static func _paint_mud(image: Image, noise_seed: int) -> void:
 	var size := image.get_width()
 	for y in size:
@@ -276,12 +320,81 @@ static func _paint_mud(image: Image, noise_seed: int) -> void:
 			var trough := _lattice(
 				float(x) / 9.0, float(y) / 11.0, floori(float(size) / 9.0), noise_seed + 907
 			)
-			var value := 0.68 + broad * 0.12 + clump * 0.10
-			if trough > 0.72:
-				value -= 0.14
-			elif trough < 0.22:
-				value += 0.08
-			_fill_value(image, x, y, value)
+			var churn := _lattice(
+				float(x) / 3.0, float(y) / 3.5, maxi(floori(float(size) / 3.0), 2), noise_seed + 313
+			)
+			var value := 0.66 + broad * 0.14 + clump * 0.12 + (churn - 0.5) * 0.10
+			# Deep churn pockets hold standing silt; their rims dry pale and warm.
+			if trough > 0.70:
+				value -= 0.20 * smoothstep(0.70, 0.94, trough)
+			elif trough < 0.24:
+				value += 0.10
+			var grit := _hash01(x, y, noise_seed + 77)
+			value += (grit - 0.5) * 0.05
+			if grit > 0.985:
+				value += 0.12
+			# Warm where the crust dried, cool where the pocket stays wet.
+			var warmth := (clump - 0.5) * 1.1 - smoothstep(0.62, 0.95, trough) * 0.9
+			_fill_tinted(image, x, y, value, warmth)
+
+
+## Packed-earth street: compacted silt with embedded gravel, cart ruts, drying
+## cracks and trodden straw. The former flat speckle left dirt roads as a single
+## saturated fill, which is what made them read as painted clay at gameplay range.
+static func _paint_earth(image: Image, noise_seed: int) -> void:
+	var size := image.get_width()
+	for y in size:
+		for x in size:
+			var broad := _lattice(
+				float(x) / 21.0, float(y) / 21.0, maxi(floori(float(size) / 21.0), 2), noise_seed
+			)
+			var patch := _lattice(
+				float(x) / 9.0, float(y) / 9.0, maxi(floori(float(size) / 9.0), 2), noise_seed + 41
+			)
+			var grain := _lattice(
+				float(x) / 3.0, float(y) / 3.0, maxi(floori(float(size) / 3.0), 2), noise_seed + 97
+			)
+			# Dry dust sits high and pale; trodden hollows stay damp and dark.
+			var value := 0.80 + (broad - 0.5) * 0.26 + (patch - 0.5) * 0.16 + (grain - 0.5) * 0.10
+
+			# Gravel and limestone chips: pale grains with a contact shadow below.
+			var gravel := _hash01(x, y, noise_seed + 11)
+			if gravel > 0.975:
+				value += 0.16
+			elif gravel < 0.012:
+				value -= 0.20
+			var pebble := _hash01(
+				floori(float(x) / 6.0), floori(float(y) / 6.0), noise_seed + 149
+			)
+			if pebble > 0.90:
+				var local_x := (float(x % 6) - 2.5) / 3.0
+				var local_y := (float(y % 6) - 2.5) / 3.0
+				var radius := sqrt(local_x * local_x + local_y * local_y)
+				if radius < 0.85:
+					value += (0.85 - radius) * 0.34
+					if local_y > 0.45:
+						value -= (local_y - 0.45) * 0.42
+
+			# Drying cracks: thin dark lines following a warped lattice, not a grid.
+			var crack := _lattice(
+				float(x + y) / 7.0,
+				float(x - y) / 11.0,
+				maxi(floori(float(size) / 7.0), 2),
+				noise_seed + 211
+			)
+			if crack > 0.88:
+				value -= (crack - 0.88) * 1.3
+
+			# Trodden straw and litter: short warm streaks, sparse enough to read
+			# as debris rather than a fibre texture.
+			var straw := _hash01(floori(float(x) / 5.0), y, noise_seed + 317)
+			var straw_warmth := 0.0
+			if straw > 0.982:
+				value += 0.10
+				straw_warmth = 1.0
+
+			var warmth := (broad - 0.5) * 1.4 - (patch - 0.5) * 0.8 + straw_warmth * 0.8
+			_fill_tinted(image, x, y, value, warmth)
 
 
 static func _paint_speckle(image: Image, noise_seed: int) -> void:
@@ -499,28 +612,56 @@ static func _cobble_surface_sample(x: int, y: int, size: int, noise_seed: int) -
 	return Color(height, joint, palette, tone)
 
 
+## Hand-moulded medieval brick. Wood-fired bricks from one kiln vary from pale
+## salmon to near-black flashed headers, and their mortar beds are thick and
+## uneven; the previous near-uniform grid read as printed wallpaper on facades.
 static func _paint_brick(image: Image, noise_seed: int) -> void:
 	var size := image.get_width()
+	var scale := float(size) / 128.0
 	# Half the legacy course/brick span so each tile carries more bricks; UV
 	# repeats on building faces finish the scale for typical house footprints.
 	# Keep brick_w >> course so stretcher courses stay visibly horizontal.
-	var course := 5
-	var brick_w := 16
+	var course := maxi(int(5.0 * scale), 3)
+	var brick_w := maxi(int(16.0 * scale), 6)
+	var joint := maxf(1.0, 1.2 * scale)
 	for y in size:
 		var row := floori(float(y) / float(course))
-		var in_course := y % course
+		var in_course := float(y % course)
 		for x in size:
-			var offset := floori(float((row % 2) * brick_w) / 2.0)
-			var column := floori(float(x + offset) / float(brick_w))
-			var in_brick := (x + offset) % brick_w
-			var tone := _hash01(column, row, noise_seed)
-			var value := 0.82 + (tone - 0.5) * 0.16
-			value += (
-				_lattice(float(x) / 7.0, float(y) / 7.0, floori(float(size) / 7.0), noise_seed + 5)
-				* 0.06
+			# Monk-bond style stagger with a small per-course wander, so the
+			# perpends do not fall on one machine-perfect half-brick offset.
+			var offset := (
+				floori(float((row % 2) * brick_w) / 2.0)
+				+ int(_hash01(row, 3, noise_seed + 71) * float(brick_w) * 0.18)
 			)
-			if in_course < 1 or in_brick < 1:
-				value = 0.62 + _hash01(x, y, noise_seed + 9) * 0.06
+			var column := floori(float(x + offset) / float(brick_w))
+			var in_brick := float((x + offset) % brick_w)
+			var tone := _hash01(column, row, noise_seed)
+			var flash := _hash01(column, row, noise_seed + 211)
+			var value := 0.84 + (tone - 0.5) * 0.16
+			# Occasional over-fired header: much darker, sometimes glazed.
+			if flash > 0.90:
+				value -= 0.17
+			elif flash < 0.08:
+				value += 0.08
+			value += (
+				_lattice(float(x) / 5.0, float(y) / 5.0, maxi(floori(float(size) / 5.0), 2), noise_seed + 5)
+				- 0.5
+			) * 0.10
+			# Worn arrises and the odd broken corner.
+			var edge := minf(
+				minf(in_brick, float(brick_w) - 1.0 - in_brick),
+				minf(in_course, float(course) - 1.0 - in_course)
+			)
+			if edge < 1.6 * scale:
+				value -= (1.0 - edge / (1.6 * scale)) * 0.10
+			var mortar_noise := _lattice(
+				float(x) / 3.0, float(y) / 3.0, maxi(floori(float(size) / 3.0), 2), noise_seed + 9
+			)
+			if in_course < joint * (1.0 + mortar_noise * 0.45):
+				value = 0.60 + mortar_noise * 0.10
+			elif in_brick < joint * (0.85 + mortar_noise * 0.45):
+				value = 0.63 + mortar_noise * 0.10
 			_fill_value(image, x, y, value)
 
 
@@ -576,28 +717,95 @@ static func _paint_rock(image: Image, noise_seed: int) -> void:
 			_fill_value(image, x, y, value)
 
 
-## Irregular ashlar courses: Tallinn's grey limestone masonry. Keep block width
-## well above course height so tall fortification walls read horizontal courses.
+## Wrapping boundary list: `count` segments whose lengths jitter around
+## `size / count` but still sum to exactly `size`, so the painted plate tiles.
+static func _jittered_bounds(
+	size: int, count: int, jitter: float, noise_seed: int
+) -> PackedInt32Array:
+	var bounds := PackedInt32Array()
+	var nominal := float(size) / float(count)
+	var minimum := maxi(2, int(nominal * (1.0 - jitter) * 0.5))
+	var cursor := 0.0
+	for index in count:
+		bounds.append(clampi(int(round(cursor)), 0, size))
+		cursor += nominal * (1.0 - jitter + _hash01(index, 17, noise_seed) * jitter * 2.0)
+	bounds.append(size)
+	# Re-space any segment the jitter collapsed; masonry never has zero-width blocks.
+	for index in range(1, bounds.size()):
+		if bounds[index] - bounds[index - 1] < minimum:
+			bounds[index] = mini(bounds[index - 1] + minimum, size)
+	bounds[bounds.size() - 1] = size
+	return bounds
+
+
+static func _segment_index(bounds: PackedInt32Array, value: int) -> int:
+	for index in range(bounds.size() - 1):
+		if value < bounds[index + 1]:
+			return index
+	return maxi(bounds.size() - 2, 0)
+
+
+## Tallinn limestone rubble masonry. Reval's walls, towers and gate jambs are
+## coursed rubble: roughly levelled bands of irregular, hand-split limestone in
+## wide lime mortar, not the even machine ashlar the previous plate produced.
+##
+## The band structure stays strongly horizontal (fortification walls must read as
+## courses), while block widths, face tone, pitting and chipped arrises vary so a
+## tall wall no longer looks like a printed brick grid.
 static func _paint_limestone(image: Image, noise_seed: int) -> void:
 	var size := image.get_width()
-	var courses := 16
-	var course_h := floori(float(size) / float(courses))
+	var scale := float(size) / 128.0
+	var courses := _jittered_bounds(size, 11, 0.38, noise_seed + 5)
+	var joint := maxf(1.0, 1.6 * scale)
 	for y in size:
-		var row := floori(float(y) / float(course_h))
-		var in_course := y % course_h
+		var row := _segment_index(courses, y)
+		var course_top := courses[row]
+		var course_height := maxi(courses[row + 1] - course_top, 1)
+		# Every band is broken independently, so vertical joints never line up
+		# across courses the way a stack bond would.
+		var block_count := 5 + (absi(row * 7 + noise_seed) % 3)
+		var blocks := _jittered_bounds(size, block_count, 0.46, noise_seed + row * 131 + 7)
 		for x in size:
-			var width := 16 + int(_hash01(row, 3, noise_seed) * 12.0)
-			var offset := int(_hash01(row, 7, noise_seed + 3) * 24.0)
-			var column := floori(float(x + offset) / float(width))
-			var in_block := (x + offset) % width
-			var tone := _hash01(column, row, noise_seed + 17)
-			var value := 0.80 + (tone - 0.5) * 0.18
+			var column := _segment_index(blocks, x)
+			var block_left := blocks[column]
+			var block_width := maxi(blocks[column + 1] - block_left, 1)
+			var local_x := float(x - block_left) / float(block_width)
+			var local_y := float(y - course_top) / float(course_height)
+
+			# Hand-split limestone runs from pale buff to dark grey-blue.
+			var stone_tone := _hash01(column, row, noise_seed + 17)
+			var value := 0.76 + (stone_tone - 0.5) * 0.20
+			# Face texture: coarse pitting plus fine granular limestone grain.
 			value += (
-				_lattice(float(x) / 9.0, float(y) / 9.0, floori(float(size) / 9.0), noise_seed + 23)
-				* 0.08
+				_lattice(float(x) / 6.0, float(y) / 6.0, maxi(floori(float(size) / 6.0), 2), noise_seed + 23)
+				- 0.5
+			) * 0.11
+			value += (_hash01(x, y, noise_seed + 29) - 0.5) * 0.05
+			# Blocks are laid slightly proud; their lower arris catches shadow while
+			# the weathered upper face keeps rain-washed highlight.
+			value += (0.5 - local_y) * 0.09
+			# Rounded, chipped edges rather than sawn corners.
+			var edge := minf(
+				minf(local_x, 1.0 - local_x) * float(block_width),
+				minf(local_y, 1.0 - local_y) * float(course_height)
 			)
-			if in_course < 1 or in_block < 1:
-				value = 0.58 + _hash01(x, y, noise_seed + 31) * 0.05
+			if edge < 2.0 * scale:
+				value -= (1.0 - edge / (2.0 * scale)) * 0.16
+			var chip := _hash01(column * 13 + floori(float(y) / 3.0), row, noise_seed + 61)
+			if chip > 0.93 and edge < 3.5 * scale:
+				value -= 0.12
+
+			# Wide lime mortar joints, recessed and granular. Bed joints are kept
+			# heavier than the perpends so the wall still reads as coursed rubble.
+			var bed_distance := minf(float(y - course_top), float(courses[row + 1] - 1 - y))
+			var perp_distance := minf(float(x - block_left), float(blocks[column + 1] - 1 - x))
+			var mortar_noise := _lattice(
+				float(x) / 4.0, float(y) / 4.0, maxi(floori(float(size) / 4.0), 2), noise_seed + 37
+			)
+			if bed_distance < joint * (1.15 + mortar_noise * 0.5):
+				value = 0.57 + mortar_noise * 0.10
+			elif perp_distance < joint * (0.8 + mortar_noise * 0.5):
+				value = 0.60 + mortar_noise * 0.10
 			_fill_value(image, x, y, value)
 
 

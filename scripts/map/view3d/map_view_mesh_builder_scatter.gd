@@ -283,11 +283,17 @@ static func build_scatter(
 				MapViewMeshBuilderConfig.SCATTER_STONE_CHANCE.get(terrain, 0.0)
 			)
 			if MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 913) < stone_chance:
-				stones.append(_scatter_transform(field, x, y, definition.seed + 947, 0.6, 1.6))
-				var gray := (
-					0.8 + MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 154) * 0.35
+				stones.append(_scatter_transform(field, x, y, definition.seed + 947, 0.55, 1.9))
+				# Loose street stones are weathered limestone and glacial erratics lying
+				# in dirt, not washed white pebbles. The previous 0.80-1.15 tint range
+				# pushed each instance above the rock albedo, so every stone read as a
+				# bright egg on the road.
+				var stone_roll := MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 154)
+				var gray := 0.42 + stone_roll * 0.30
+				var warmth := MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 271)
+				stone_colors.append(
+					Color(gray * (0.96 + warmth * 0.10), gray, gray * (1.04 - warmth * 0.12))
 				)
-				stone_colors.append(Color(gray, gray, gray * 0.97))
 
 	_add_grass_layer(
 		root,
@@ -358,10 +364,12 @@ static func build_scatter(
 
 	if not stones.is_empty():
 		var stone_mesh := SphereMesh.new()
-		stone_mesh.radius = 0.09
-		stone_mesh.height = 0.11
-		stone_mesh.radial_segments = 8
-		stone_mesh.rings = 4
+		# Stones worked into a street bed sit low and broad; a tall sphere lifted
+		# clear of the ground read as a loose egg instead of a trodden-in cobble.
+		stone_mesh.radius = 0.10
+		stone_mesh.height = 0.085
+		stone_mesh.radial_segments = 7
+		stone_mesh.rings = 3
 		root.add_child(
 			MapViewMeshBuilderPrimitives.multi_mesh(
 				"Stones",
@@ -369,7 +377,7 @@ static func build_scatter(
 				stones,
 				stone_colors,
 				MapViewMaterials.natural_rock(),
-				Vector3(0.0, 0.03, 0.0)
+				Vector3(0.0, -0.012, 0.0)
 			)
 		)
 	Shoreline3D.add_to(root, definition, grid, bounds)

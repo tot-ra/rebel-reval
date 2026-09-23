@@ -14,6 +14,10 @@ const TEXTURE_SIZE := 128
 ## Cobblestone fills most of the gameplay frame at street level, so it needs a
 ## denser source than secondary materials to keep joints and stone grain sharp.
 const COBBLE_TEXTURE_SIZE := 512
+## Wall, tower and gate faces are the tallest surfaces in frame and are read from
+## a few metres away, so masonry needs a denser source than secondary materials
+## to keep rubble courses, joints and chipped arrises legible.
+const MASONRY_TEXTURE_SIZE := 256
 const EMBER_COLOR := Color8(224, 108, 48)
 const EMBER_ENERGY := 1.6
 const WATER_MATERIALS := preload("res://scripts/map/view3d/map_view_water_materials.gd")
@@ -118,6 +122,9 @@ const TERRAIN_TIMBER_FLOOR_UV_SCALE := 2.0
 const PATTERN_GRASS := &"grass"
 const PATTERN_SPECKLE := &"speckle"
 const PATTERN_MUD := &"mud"
+## Packed-earth streets and yards. Separate from PATTERN_SPECKLE so sand and ash
+## keep their fine even grain while trodden earth gains gravel, ruts and cracks.
+const PATTERN_EARTH := &"earth"
 const PATTERN_COBBLE := &"cobble"
 const PATTERN_BRICK := &"brick"
 const PATTERN_PLANK := &"plank"
@@ -158,7 +165,7 @@ const TERRAIN_PATTERN := {
 	MapTypes.TERRAIN_HAY: PATTERN_STRAW,
 	MapTypes.TERRAIN_STRAW: PATTERN_STRAW,
 	MapTypes.TERRAIN_FARM_SOIL: PATTERN_STRAW,
-	MapTypes.TERRAIN_DIRT: PATTERN_SPECKLE,
+	MapTypes.TERRAIN_DIRT: PATTERN_EARTH,
 	MapTypes.TERRAIN_MUD: PATTERN_MUD,
 	MapTypes.TERRAIN_SAND: PATTERN_SPECKLE,
 	MapTypes.TERRAIN_COAST_SAND: PATTERN_SPECKLE,
@@ -206,8 +213,8 @@ const BLEND_TERRAIN_ORDER: Array[StringName] = [
 ## Stretcher courses need more vertical UV repeats than horizontal ones so each
 ## block reads wider than tall (running bond, not soldier/stack bond).
 const BUILDING_UV_SCALE := {
-	PATTERN_BRICK: Vector3(5.0, 6.5, 5.0),
-	PATTERN_LIMESTONE: Vector3(4.0, 6.0, 4.0),
+	PATTERN_BRICK: Vector3(0.8, 1.4, 0.8),
+	PATTERN_LIMESTONE: Vector3(1.0, 1.1, 1.0),
 	PATTERN_PLANK: Vector3(5.0, 3.0, 5.0),
 	PATTERN_PLASTER: Vector3(3.5, 2.5, 3.5),
 	PATTERN_ROOF_TILE: Vector3(4.0, 2.5, 4.0),
@@ -368,6 +375,13 @@ static func blended_ground(noise_seed: int) -> ShaderMaterial:
 		"timber_floor_layer", terrain_blend_index(MapTypes.TERRAIN_TIMBER_FLOOR)
 	)
 	material.set_shader_parameter("mud_layer", terrain_blend_index(MapTypes.TERRAIN_MUD))
+	# Trodden-ground relief band is derived from the stable blend order rather than
+	# hard-coded in the shader, so reordering layers cannot silently unflatten grass
+	# or flatten the street again.
+	material.set_shader_parameter(
+		"earth_layer_min", terrain_blend_index(MapTypes.TERRAIN_FARM_SOIL)
+	)
+	material.set_shader_parameter("earth_layer_max", terrain_blend_index(MapTypes.TERRAIN_ASH))
 	material.set_shader_parameter("mud_wetness", 0.0)
 	material.set_shader_parameter("natural_ground_uv_scale", TERRAIN_GRASS_UV_SCALE)
 	material.set_shader_parameter("natural_ground_variation", 0.72)

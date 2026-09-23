@@ -557,19 +557,30 @@ func test_water_material_uses_depth_aware_optics() -> void:
 	assert_true(float(material.get_shader_parameter("depth_absorption")) > 0.0)
 
 
-func test_puddle_material_preserves_ground_and_uses_shallow_water_optics() -> void:
+func test_puddle_material_darkens_ground_and_uses_shallow_water_optics() -> void:
+	# The screen-texture transmission this contract used to require rendered as
+	# flat pale sheets under the shipped GL Compatibility renderer. A darkening
+	# water film plus a fresnel sheen is correct under alpha blending, needs no
+	# back-buffer copy, and is what the shader must keep doing.
 	var material := MapViewMaterials.puddle_surface()
 	assert_true(material is ShaderMaterial, "puddles must use a dedicated shallow-water shader")
 	var source := material.shader.code
-	assert_true("hint_screen_texture" in source, "puddles must transmit the rendered ground instead of painting a gray decal")
-	assert_true("transmitted_ground" in source, "puddle optics must preserve cobble and mud detail below the water")
+	assert_true(
+		"uniform sampler2D screen_texture" not in source,
+		"puddle decals must not depend on screen transmission in GL Compatibility"
+	)
 	assert_true("wet_ground_mask" in source, "puddles need a damp porous rim outside the standing water")
 	assert_true("edge_radius" in source, "puddles need an instance-stable irregular waterline")
 	assert_true("ring_slope" in source, "raindrops must disturb normals rather than paint bright rings")
 	assert_true("NORMAL = view_normal" in source, "small ripples must bend puddle reflections")
 	assert_true("depth_draw_never" in source, "thin puddle decals must not occlude later transparent surfaces")
 	assert_true("ALPHA = coverage" in source, "the decal must disappear outside its organic wet edge")
-	assert_true(float(material.get_shader_parameter("refraction_strength")) > 0.0)
+	assert_true("fresnel" in source, "the sky sheen must arrive through fresnel, not a painted highlight")
+	var water_tint: Vector3 = material.get_shader_parameter("water_tint")
+	assert_true(
+		water_tint.x < 0.25 and water_tint.y < 0.25 and water_tint.z < 0.25,
+		"standing water over a dirty street must darken the ground it covers"
+	)
 
 
 func test_placeholder_materials_cover_every_terrain() -> void:

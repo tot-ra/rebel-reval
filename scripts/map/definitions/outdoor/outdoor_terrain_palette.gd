@@ -19,12 +19,16 @@ static func color(terrain: StringName) -> Color:
 			return Color8(227, 184, 63)
 		MapTypes.TERRAIN_STRAW:
 			return Color8(201, 151, 50)
+		# Reval streets are packed earth over limestone rubble and building waste, not
+		# tropical laterite. The former saturated terracotta read as red clay desert at
+		# gameplay range; a grey-ochre keeps the historical limestone-dust street tone
+		# while the earth pattern supplies the hue variation the flat fill was missing.
 		MapTypes.TERRAIN_DIRT:
-			return Color8(154, 90, 63)
+			return Color8(106, 97, 84)
 		MapTypes.TERRAIN_FARM_SOIL:
-			return Color8(111, 60, 45)
+			return Color8(94, 78, 60)
 		MapTypes.TERRAIN_MUD:
-			return Color8(102, 59, 56)
+			return Color8(86, 77, 65)
 		MapTypes.TERRAIN_FOREST_FLOOR:
 			return Color8(52, 101, 62)
 		MapTypes.TERRAIN_BOG:
@@ -45,7 +49,10 @@ static func color(terrain: StringName) -> Color:
 			return Color8(45, 168, 196)
 		MapTypes.TERRAIN_DEEP_WATER:
 			return Color8(20, 92, 131)
+		# Tallinn building stone is warm grey limestone, not the blue granite the
+		# earlier tint implied. Keeping it close to the paving value also stops
+		# stone aprons from flaring against the street they sit in.
 		MapTypes.TERRAIN_STONE:
-			return Color8(158, 173, 185)
+			return Color8(150, 145, 133)
 		_:
 			return TerrainPalette.base_color(terrain)
