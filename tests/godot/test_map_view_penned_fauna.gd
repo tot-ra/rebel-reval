@@ -2,12 +2,18 @@ extends "res://tests/godot/test_case.gd"
 
 const FaunaContext := preload("res://scripts/map/view3d/map_view_fauna_context.gd")
 const KalevSmithy := preload("res://scripts/map/definitions/lower_town/kalev_smithy_definition.gd")
-const LowerTownSlice := preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd")
+const LowerTownSlice := preload(
+	"res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd"
+)
 const MapViewBridge := preload("res://scripts/map/view3d/map_view_bridge.gd")
 const MammalSpecies := preload("res://scripts/map/view3d/map_view_mammal_species.gd")
 const PennedFauna := preload("res://scripts/map/view3d/map_view_penned_fauna.gd")
-const ForelandDefinition := preload("res://scripts/map/definitions/outdoor/viru_gate_foreland_definition.gd")
-const NorthQuarterDefinition := preload("res://scripts/map/definitions/prototypes/north_quarter_definition.gd")
+const ForelandDefinition := preload(
+	"res://scripts/map/definitions/outdoor/viru_gate_foreland_definition.gd"
+)
+const NorthQuarterDefinition := preload(
+	"res://scripts/map/definitions/prototypes/north_quarter_definition.gd"
+)
 
 
 func test_penned_fowl_walks_in_straight_segments_instead_of_circling() -> void:
@@ -81,24 +87,30 @@ func test_foreland_surfaces_domestic_and_wild_species() -> void:
 	var domestic := PennedFauna.distinct_domestic_species_for_map(&"viru_gate_foreland")
 	var wild := PennedFauna.distinct_wild_species_for_map(&"viru_gate_foreland")
 	assert_eq(domestic.size(), 5)
-	assert_eq(wild.size(), 4)
+	assert_eq(wild.size(), 5)
 	for required in PennedFauna.WILD_SPECIES:
 		assert_true(required in wild, "Missing wild species %s" % required)
 
 
 func test_lower_town_authors_five_placements_under_cap() -> void:
 	assert_eq(PennedFauna.placement_count_for_map(&"lower_town_slice"), 5)
-	assert_true(PennedFauna.placement_count_for_map(&"lower_town_slice") <= PennedFauna.MAX_CONCURRENT_FAUNA)
+	assert_true(
+		PennedFauna.placement_count_for_map(&"lower_town_slice") <= PennedFauna.MAX_CONCURRENT_FAUNA
+	)
 
 
 func test_foreland_authors_ten_placements_under_cap() -> void:
-	assert_eq(PennedFauna.placement_count_for_map(&"viru_gate_foreland"), 10)
-	assert_true(PennedFauna.placement_count_for_map(&"viru_gate_foreland") <= PennedFauna.MAX_CONCURRENT_FAUNA)
+	assert_eq(PennedFauna.placement_count_for_map(&"viru_gate_foreland"), 11)
+	assert_true(
+		PennedFauna.placement_count_for_map(&"viru_gate_foreland") <= PennedFauna.MAX_CONCURRENT_FAUNA
+	)
 
 
 func test_north_quarter_authors_cattle_and_sheep_under_cap() -> void:
 	assert_eq(PennedFauna.placement_count_for_map(&"north_quarter"), 6)
-	assert_true(PennedFauna.placement_count_for_map(&"north_quarter") <= PennedFauna.MAX_CONCURRENT_FAUNA)
+	assert_true(
+		PennedFauna.placement_count_for_map(&"north_quarter") <= PennedFauna.MAX_CONCURRENT_FAUNA
+	)
 	var seen: Dictionary = {}
 	for placement: Dictionary in PennedFauna.MAP_PLACEMENTS[&"north_quarter"]:
 		seen[placement.get("species", &"")] = true
@@ -248,7 +260,10 @@ func test_wild_predators_stay_outside_required_route_corridor() -> void:
 		var nearest := _nearest_manhattan_distance(cell, corridor)
 		assert_true(
 			nearest >= 8,
-			"Predator %s at %s must stay outside the required route corridor (nearest=%d)" % [species, cell, nearest]
+			(
+				"Predator %s at %s must stay outside the required route corridor (nearest=%d)"
+				% [species, cell, nearest]
+			)
 		)
 
 

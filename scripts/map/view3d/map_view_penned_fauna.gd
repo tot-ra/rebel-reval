@@ -12,7 +12,7 @@ const MedievalAnimalModels := preload("res://scripts/map/view3d/map_view_medieva
 const MammalSpecies := preload("res://scripts/map/view3d/map_view_mammal_species.gd")
 const UrbanFauna := preload("res://scripts/map/view3d/map_view_urban_fauna.gd")
 
-const MAX_CONCURRENT_FAUNA := 10
+const MAX_CONCURRENT_FAUNA := 11
 const FLEE_RADIUS := 6.5
 const FLEE_SPEED := 5.0
 const PEN_SPEED := 0.34
@@ -32,6 +32,7 @@ const WILD_SPECIES: Array[StringName] = [
 	MammalSpecies.SPECIES_RED_FOX,
 	MammalSpecies.SPECIES_WOLF,
 	MammalSpecies.SPECIES_BROWN_BEAR,
+	MammalSpecies.SPECIES_ELK,
 ]
 
 const BEHAVIOR_PEN := &"pen"
@@ -170,6 +171,12 @@ const FORELAND_PLACEMENTS: Array[Dictionary] = [
 		"species": MammalSpecies.SPECIES_BROWN_BEAR,
 		"behavior": BEHAVIOR_FLEE,
 		"radius": 7.0
+	},
+	{
+		"cell": Vector2i(12, 110),
+		"species": MammalSpecies.SPECIES_ELK,
+		"behavior": BEHAVIOR_FLEE,
+		"radius": 6.5
 	},
 ]
 
