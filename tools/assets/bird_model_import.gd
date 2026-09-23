@@ -20,6 +20,13 @@ func _post_import(scene: Node) -> Object:
 			channel[material.roughness_texture_channel] = 1.0
 			imported.set_shader_parameter("roughness_channel", channel)
 			imported.set_shader_parameter("normal_map", material.normal_texture)
-			imported.set_shader_parameter("normal_strength", material.normal_scale if material.normal_enabled else 0.0)
+			var strength := material.normal_scale if material.normal_enabled else 0.0
+			imported.set_shader_parameter("normal_strength", strength)
+			# Authored sculpts build feather edges from alpha-masked cards. Carry
+			# that cutout across; procedural birds keep the opaque default.
+			var scissor := 0.0
+			if material.transparency == BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR:
+				scissor = maxf(material.alpha_scissor_threshold, 0.01)
+			imported.set_shader_parameter("alpha_scissor_threshold", scissor)
 			instance.mesh.surface_set_material(surface, imported)
 	return scene

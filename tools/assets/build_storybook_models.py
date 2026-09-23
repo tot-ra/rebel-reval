@@ -22,8 +22,13 @@ OUT = ROOT / 'assets/storybook'
 BUILD = ROOT / 'build/storybook'
 PARTS = []
 RIG = None
-from storybook_anatomy import HUMANS, BIRDS, MAMMALS, human_head, limb
+from storybook_anatomy import HUMANS as LEGACY_HUMANS, BIRDS, MAMMALS, human_head, limb
 from realistic_mammals import mammal
+# Kalev's live body is maintained by kalev_rebuild; do not regenerate the
+# retired storybook duplicate during a full batch rebuild.
+HUMANS = tuple(name for name in LEGACY_HUMANS if name != 'kalev')
+# Hen uses the existing licensed chicken sculpt, rigged by import_authored_birds.py.
+BIRDS = tuple(name for name in BIRDS if name != 'hen')
 MODELS = (*HUMANS, *MAMMALS, *BIRDS)
 
 
@@ -559,7 +564,7 @@ def main():
     parser=argparse.ArgumentParser()
     parser.add_argument('--only',choices=MODELS)
     parser.add_argument('--mammals-only',action='store_true')
-    parser.add_argument('--birds-only',action='store_true',help='Rebuild only the five live birds, without human/prop exports')
+    parser.add_argument('--birds-only',action='store_true',help='Rebuild four legacy procedural birds (authored hen excluded)')
     parser.add_argument('--render',action='store_true')
     parser.add_argument('--gallery-only',action='store_true')
     opts=parser.parse_args(args)

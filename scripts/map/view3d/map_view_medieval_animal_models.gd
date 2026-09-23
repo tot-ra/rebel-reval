@@ -74,9 +74,11 @@ const MODEL_PATHS: Dictionary = {
 # The greylag walking GLB is about 1.42 m tall in mesh space. Domestic yard
 # geese must sit beside hens, not beside cattle, so they share the same
 # down-scale pattern as duck/chicken.
+# The authored hen GLB is exported at its real 0.44 m standing height, so it
+# only needs the project's 2-world-units-per-1.82 m character conversion.
 const MODEL_SCALE: Dictionary = {
 	MammalSpecies.SPECIES_DUCK: 0.7,
-	MammalSpecies.SPECIES_CHICKEN: 0.8,
+	MammalSpecies.SPECIES_CHICKEN: 1.1,
 	MammalSpecies.SPECIES_GOOSE: 0.45,
 }
 

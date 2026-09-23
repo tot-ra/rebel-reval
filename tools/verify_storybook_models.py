@@ -5,7 +5,7 @@ from pathlib import Path
 import struct
 
 ROOT = Path(__file__).resolve().parents[1]
-HUMANS = ('kalev', 'mart', 'aita', 'ellen', 'watchman', 'henning', 'jurgen', 'kaja')
+HUMANS = ('mart', 'aita', 'ellen', 'watchman', 'henning', 'jurgen', 'kaja')
 BIRDS = ('robin', 'hooded_crow', 'gull', 'hen', 'duck')
 MAMMALS = ('forge_cat', 'sheep', 'dog', 'pig', 'goat', 'boar', 'fox', 'hare', 'rat')
 EXPECTED = {**dict.fromkeys(HUMANS, 76), **dict.fromkeys(MAMMALS, 6), **dict.fromkeys(BIRDS, 8)}
@@ -134,7 +134,11 @@ def verify(mammals_only=False):
                         # Blender 5.2 can silently export white on all but the
                         # first material of a joined mesh. Check every region.
                         limit = 65535 if doc['accessors'][attributes['COLOR_0']]['componentType'] == 5123 else 1
-                        assert any(min(c[:3]) < limit * .8 for c in colors), f'{name}/{material["name"]}: lost pigmentation'
+                        # Authored sculpts carry their species markings in the
+                        # albedo map, so neutral vertex colour there is correct
+                        # rather than a lost paint layer.
+                        painted = 'baseColorTexture' not in material.get('pbrMetallicRoughness', {})
+                        assert not painted or any(min(c[:3]) < limit * .8 for c in colors), f'{name}/{material["name"]}: lost pigmentation'
                     if material['name'] == 'Bird plumage':
                         pbr = material['pbrMetallicRoughness']
                         assert 'baseColorTexture' in pbr and 'metallicRoughnessTexture' in pbr and 'normalTexture' in material

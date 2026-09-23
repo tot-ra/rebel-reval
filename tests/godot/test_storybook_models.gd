@@ -1,13 +1,6 @@
 extends "res://tests/godot/test_case.gd"
 
 const MODEL_CLIPS: Dictionary = {
-  "kalev": [
-    "Idle",
-    "Walking_A",
-    "Running_B",
-    "Interact",
-    "1H_Melee_Attack_Chop"
-  ],
   "mart": [
     "Idle",
     "Walking_A",
@@ -228,7 +221,7 @@ func test_bird_pigmentation_and_pbr_survive_godot_import() -> void:
 		model.free()
 
 func test_humans_retain_shared_motion_and_attachment_names() -> void:
-	for id: String in ["kalev", "mart", "aita", "ellen", "watchman", "henning", "jurgen", "kaja"]:
+	for id: String in ["mart", "aita", "ellen", "watchman", "henning", "jurgen", "kaja"]:
 		var model := (load("res://assets/storybook/%s.glb" % id) as PackedScene).instantiate()
 		var skeleton := model.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
 		var player := model.find_child("AnimationPlayer", true, false) as AnimationPlayer
@@ -263,7 +256,7 @@ func test_showcase_group_controls_switch_all_models_and_pause() -> void:
 	scene.free()
 
 func test_all_humans_use_existing_wardrobe_with_fitted_armor_and_hand_props() -> void:
-	for id: String in ["kalev", "mart", "aita", "ellen", "watchman", "henning", "jurgen", "kaja"]:
+	for id: String in ["mart", "aita", "ellen", "watchman", "henning", "jurgen", "kaja"]:
 		var rig := (load("res://assets/storybook/%s.tscn" % id) as PackedScene).instantiate() as SharedCharacterRig
 		Engine.get_main_loop().root.add_child(rig)
 		var skeleton := rig.skeleton()
@@ -299,7 +292,7 @@ func test_all_humans_use_existing_wardrobe_with_fitted_armor_and_hand_props() ->
 			assert_false((rig.find_child("Clothing_Legs",true,false) as Node3D).visible, "custom leg gear retains coverage union")
 			rig.unequip_wearable(&"legs")
 			assert_true((rig.find_child("Clothing_Legs",true,false) as Node3D).visible, "removing leg gear restores hose under mail")
-		var wrong := "mart" if id != "mart" else "kalev"
+		var wrong := "mart" if id != "mart" else "aita"
 		assert_false(rig.equip_wearable(load("res://assets/storybook/equipment/%s_mail.tres" % wrong)))
 		assert_true(rig.equipped_wearable(&"torso") != null, "rejected fit preserves armor")
 		for slot: StringName in [&"torso", &"head", &"back"]:

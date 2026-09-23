@@ -1,12 +1,28 @@
+# Storybook model inventory
+
+The storybook catalogue now contains seven human models, nine mammals and five birds. Kalev's active body is `res://assets/characters/kalev_rebuild/kalev_fresh.glb`; the superseded `storybook/kalev.glb` and its fitted equipment were removed. His live scene is `res://assets/characters/kalev/kalev.tscn`.
+
+The hen is derived from the licensed authored `assets/animals/hendrik_reyneke/chicken.glb`, preserving its sculpt, UVs and PBR maps while adding a 16-bone articulated rig and eight named animations. Rebuild **only the hen** with:
+
+```sh
+blender -b --python-exit-code 1 --python tools/assets/import_authored_birds.py -- --only hen --publish
+/Applications/Godot.app/Contents/MacOS/Godot --headless --path . --editor --import
+python3 tools/verify_storybook_models.py
+```
+
+The four other storybook birds and seven storybook humans still use the earlier procedural models. They have **not** been brought to high realism; the per-person storybook wearable bundles for those seven characters have **not** been consolidated. Do not use the legacy `build_storybook_models.py --birds-only` command to rebuild the hen: that generator deliberately excludes it. Review reference captures in `docs/reports/images/authored_birds/`.
+
+## Legacy catalogue notes
+
 # Grounded stylized models and equipment
 
-Twenty-two animated models in the maintainer's revised **grounded stylized realism** direction. The original soft storybook look is superseded. Human heads and eyes are smaller, sleeves and trousers deform continuously, and mammal legs now have knees/hocks and feet. The pig, dog and sheep have substantially lower body centres and shorter legs.
+Twenty-one animated models in the maintainer's revised **grounded stylized realism** direction. The original soft storybook look is superseded. Human heads and eyes are smaller, sleeves and trousers deform continuously, and mammal legs now have knees/hocks and feet. The pig, dog and sheep have substantially lower body centres and shorter legs.
 
 Magicka and Hades guide strong silhouettes, distinct material regions and adult character proportions; no game geometry, textures or character designs were copied. The legacy `storybook/` path stays stable. P0-206 integrates the set into the existing live character, fauna and bird adapters.
 
 | Models | Motion |
 | --- | --- |
-| Kalev, Mart, Aita, Ellen, watchman, Henning, Jurgen, Kaja | 76 shared clips each; Mart retains the shorter arm chain |
+| Mart, Aita, Ellen, watchman, Henning, Jurgen, Kaja | 76 shared clips each; Mart retains the shorter arm chain |
 | Forge cat, sheep, dog, pig, goat, boar, fox, hare, rat | Idle, Walk, Run, LookAround, Graze, Alert |
 | Robin, hooded crow, gull, hen, duck | Idle, Walk, Hop, Peck, TakeOff, Fly, Glide, Land |
 
@@ -18,14 +34,7 @@ Birds have separate shoulder and wing-tip joints. Wings fold at rest and extend 
 
 The maintainer’s 2026-09-12 direction moves Kalev toward naturalistic RPG fidelity. His live body now has a sculpted face with small inset eyes, a tapered neck, groomed scalp/stubble, separate textile/leather materials with portable albedo/normal/roughness maps, fitted collar and boots, and a tunic hem that follows the thighs. Mail, helmet and cape are rebuilt against the unchanged skeleton. The 76 clips and clothing/weapon APIs above remain compatible. This is a more detailed procedural model, still below The Witcher 3’s finished character fidelity; facial animation, independently rigged fingers and cloth simulation are not supplied by this pass.
 
-```sh
-blender -b -t 6 --python-exit-code 1 --python tools/assets/build_storybook_models.py -- --only kalev
-godot --headless --path . --editor --import
-python3 tools/verify_kalev_realism.py
-godot --path . --script tools/capture_kalev_realism.gd
-```
-
-A single-model rebuild no longer rewrites shared rigid props. The original rigged editable source is `build/storybook/kalev.blend`; the live model remains `assets/storybook/kalev.glb`. Captures and limitations are recorded in [the Kalev report](../../docs/reports/kalev_realism_2026-09-12.md).
+Historical P0-210 notes and captures are retained in [the Kalev report](../../docs/reports/kalev_realism_2026-09-12.md). That generator and its storybook output were superseded by `kalev_rebuild`; do not run the former `--only kalev` rebuild command.
 
 ## Live game
 
@@ -71,18 +80,18 @@ To add your own clothing or armor:
 
 To add a weapon or shield, author its origin at the grip, then create a thin scene with its grip orientation. Copy `equipment/sword.tscn`, `hammer.tscn` or `shield.tscn` as the starting example. Mount using `right_hand` / `left_hand` (the `handslot.r` / `handslot.l` bones), or the existing `head` / `back` slots for rigid props. Model transforms are local to the grip. Check the held pose instead of guessing a universal world-axis orientation.
 
-There are 24 fitted wearables: mail, kettle helmet and cape for each human; plus three rigid props. `storybook_character.gd` disables absent replacement LODs and prevents loading older production bodies with matching names. It also hides fully covered hose under Aita/Ellen/Kaja’s long kirtles and restores it under mail, respecting the existing wardrobe coverage union for custom leg layers. Attachment and wearable binding remain inherited. Future optimized LODs must be authored for this same set. The editable women’s Blender files open with the covered hose hidden; reveal that mesh when fitting trousers or armour.
+There are 21 fitted storybook wearables: mail, kettle helmet and cape for each of the seven remaining storybook humans; plus three rigid props. Kalev uses his separate fresh-rig wardrobe. `storybook_character.gd` disables absent replacement LODs and prevents loading older production bodies with matching names. It also hides fully covered hose under Aita/Ellen/Kaja’s long kirtles and restores it under mail, respecting the existing wardrobe coverage union for custom leg layers. Attachment and wearable binding remain inherited. Future optimized LODs must be authored for this same set. The editable women’s Blender files open with the covered hose hidden; reveal that mesh when fitting trousers or armour.
 
 ## Rebuild and verify
 
-The five birds have a naturalistic revision under **P0-207**, following the
+The four procedural birds (excluding the authored hen) have a naturalistic revision under **P0-207**, following the
 maintainer's Witcher 3 realism reference. Continuous bodies, species pigmentation,
 keratin bills, scaled toes, curved feather vanes and overlapping upper/underwing
 coverts replace the original sphere-and-tube construction. Each keeps the nine-bone
-rig and eight named clips. Resting wings compact and unfold into the existing
+rig and eight named clips for the procedural birds. Resting wings compact and unfold into the existing
 flight cycle. The mallard has a lower stance.
 
-Rebuild just these birds with `blender -b -t 6 --python-exit-code 1 --python
+Rebuild just the four legacy procedural birds with `blender -b -t 6 --python-exit-code 1 --python
 tools/assets/build_storybook_models.py -- --birds-only`. Their portable GLBs embed
 256×512 feather maps; `tools/assets/bird_model_import.gd` installs the packaged
 `bird_plumage.gdshader` to preserve linear vertex pigmentation under Compatibility

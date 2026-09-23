@@ -10,13 +10,16 @@ func test_live_cast_retains_identity_health_and_fitted_equipment() -> void:
 		var path := "res://assets/characters/kalev/kalev.tscn" if body == "kalev" else "res://assets/characters/variants/%s.tscn" % body
 		var rig := (load(path) as PackedScene).instantiate() as SharedCharacterRig
 		(Engine.get_main_loop() as SceneTree).root.add_child(rig)
-		assert_eq(rig.body_basename(), body)
+		assert_eq(rig.body_basename(), "kalev_fresh" if body == "kalev" else body)
 		assert_eq(rig.variant_id(), StringName("char." + body))
 		assert_true(rig.has_node("HealthRing"), "Live combat feedback must survive model replacement")
 		assert_eq(rig.validation_errors(), [])
-		for kind: String in ["mail", "helmet", "cape"]:
-			var wearable := load("res://assets/storybook/equipment/%s_%s.tres" % [body, kind]) as CharacterWearable
-			assert_true(rig.equip_wearable(wearable), "%s must accept fitted %s" % [body, kind])
+		# Kalev is the fresh-rig body; its wardrobe is verified separately and
+		# no longer uses the removed storybook per-person equipment bundle.
+		if body != "kalev":
+			for kind: String in ["mail", "helmet", "cape"]:
+				var wearable := load("res://assets/storybook/equipment/%s_%s.tres" % [body, kind]) as CharacterWearable
+				assert_true(rig.equip_wearable(wearable), "%s must accept fitted %s" % [body, kind])
 		assert_true(rig.play_animation(&"sword_attack", 0.0))
 		for slot: StringName in [&"right_hand", &"left_hand"]:
 			var prop := "sword" if slot == &"right_hand" else "shield"

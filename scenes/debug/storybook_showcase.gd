@@ -1,11 +1,11 @@
 extends Node3D
 ## P0-203: isolated animated model review, without map or gameplay dependencies.
 
-const HUMANS: Array[String] = ["kalev", "mart", "aita", "ellen", "watchman", "henning", "jurgen", "kaja"]
+const HUMANS: Array[String] = ["mart", "aita", "ellen", "watchman", "henning", "jurgen", "kaja"]
 const BIRDS: Array[String] = ["robin", "hooded_crow", "gull", "hen", "duck"]
-const IDS: Array[String] = ["kalev", "mart", "aita", "ellen", "watchman", "henning", "jurgen", "kaja", "forge_cat", "sheep", "dog", "pig", "goat", "boar", "fox", "hare", "rat", "robin", "hooded_crow", "gull", "hen", "duck"]
-const TITLES: Array[String] = ["Kalev", "Mart", "Aita", "Ellen", "Watchman", "Henning", "Jurgen", "Kaja", "Forge cat", "Sheep", "Dog", "Pig", "Goat", "Boar", "Fox", "Hare", "Rat", "Robin", "Hooded crow", "Gull", "Hen", "Duck"]
-const DISPLAY_SCALES: Array[float] = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.3, 1.3, 1.3, 1.3, 1.3, 1.3, 1.3, 1.3, 2.1, 2.1, 1.3, 1.3, 1.3, 1.3]
+const IDS: Array[String] = ["mart", "aita", "ellen", "watchman", "henning", "jurgen", "kaja", "forge_cat", "sheep", "dog", "pig", "goat", "boar", "fox", "hare", "rat", "robin", "hooded_crow", "gull", "hen", "duck"]
+const TITLES: Array[String] = ["Mart", "Aita", "Ellen", "Watchman", "Henning", "Jurgen", "Kaja", "Forge cat", "Sheep", "Dog", "Pig", "Goat", "Boar", "Fox", "Hare", "Rat", "Robin", "Hooded crow", "Gull", "Hen", "Duck"]
+const DISPLAY_SCALES: Array[float] = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.3, 1.3, 1.3, 1.3, 1.3, 1.3, 1.3, 1.3, 2.1, 2.1, 1.3, 1.3, 1.3, 1.3]
 var _players: Array[AnimationPlayer] = []
 var _models: Array[Node3D] = []
 var _subject: OptionButton
