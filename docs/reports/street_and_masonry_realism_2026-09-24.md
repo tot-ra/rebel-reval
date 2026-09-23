@@ -92,21 +92,11 @@ variation, flatter, embedded slightly into the ground, and carry a normal map.
   the arc. Each band starts at the widest point of the span it covers, so the
   authored clear opening is never narrowed and collision is unchanged.
 
-## Known remaining defect
+## Follow-up (P0-219)
 
-**Paving fringe wedges.** Where a paving stroke ends, the terrain shows a row of
-hard triangular wedges of pure paving reaching into the earth (visible in both
-the before and after road-surface plates, lower right).
-
-Cause, confirmed by debug renders during this pass: terrain layer indices are
-`flat` per triangle while the blend weight interpolates, so a triangle whose
-provoking vertex sits in a paving cell is drawn entirely as paving even where it
-covers earth. Reducing the material contrast and adding the noise-warped edge
-softens it, but the wedges follow the triangulation and cannot be removed from
-the fragment shader alone: the fix belongs in the ground mesh builder, which
-would need per-corner layer weights (three indices plus barycentric weights)
-rather than one flat pair.
-
-Verified *not* the cause, so a future fix should not re-investigate these:
-puddle decals, wear decals, scatter meshes, terrain height relief, per-cell tone
-jitter.
+**Paving fringe wedges** were fixed by resolving each ground-mesh corner's
+finished albedo and material weights in the terrain blend vertex shader, then
+interpolating those values across the triangle instead of keeping layer indices
+`flat` per triangle. Regenerate `road_surface_after.png` with
+`tools/capture_street_realism.gd` after pulling this change to refresh the
+evidence plate.

@@ -590,18 +590,15 @@ uniform float natural_ground_uv_scale = 2.0;
 uniform float natural_ground_variation = 0.72;
 uniform float timber_floor_uv_scale = 2.0;
 
-// CUSTOM0 is only readable in vertex(); layer indices must stay flat (an
-// interpolated index would sample arbitrary in-between layers mid-triangle)
-// while weight and tone interpolate for soft terrain borders.
-varying flat ivec2 blend_layers;
+// CUSTOM0 is only readable in vertex(). Layer indices cannot be interpolated
+// directly, so each corner resolves its own finished albedo and material
+// weights before the rasterizer blends them across the triangle.
+varying vec3 vertex_albedo;
+varying float vertex_cobble_weight;
+varying float vertex_earth_weight;
+varying float vertex_mud_weight;
 varying vec2 blend_mix;
 varying vec2 terrain_world_xz;
-
-void vertex() {
-	blend_layers = ivec2(int(CUSTOM0.x + 0.5), int(CUSTOM0.y + 0.5));
-	blend_mix = CUSTOM0.zw;
-	terrain_world_xz = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xz;
-}
 
 vec2 terrain_pattern_uv(int layer, vec2 base_uv) {
 	// Natural ground needs a tighter repeat than paving/soil: the authored grass
@@ -729,47 +726,15 @@ float earth_height(vec2 p) {
 	return lumps * 0.58 + tread * 0.29 + gravel * 0.13;
 }
 
-void fragment() {
-	float raw_blend = clamp(blend_mix.x, 0.0, 1.0);
-	float tone = blend_mix.y;
-
-	// Terrain layer indices are flat per triangle, so a linear blend draws the
-	// boundary between two surfaces as the triangulation itself: a row of hard
-	// wedges along every paving stroke. Warping the blend with a world-space noise
-	// threshold both hides the triangulation and gives paving the irregular,
-	// interlocking edge a worn medieval street actually has.
-	float edge_noise = (
-		cobble_noise(terrain_world_xz * 2.3 + vec2(31.7, 12.4)) * 0.64
-		+ cobble_noise(terrain_world_xz * 6.1 - vec2(7.2, 21.9)) * 0.36
-	);
-	float blend = clamp((raw_blend - 0.5) * 2.2 + (edge_noise - 0.5) * 1.15 + 0.5, 0.0, 1.0);
-
-	vec3 primary_tint = COLOR.rgb;
-	vec3 secondary_tint = COLOR.rgb;
-	// The paving layers are shaded by the dedicated cobble surface below, not by
-	// their grayscale plate. Sampling the plate for the mix produced a pale blue
-	// wash wherever a triangle held one paving and one earth layer, which is what
-	// made the street edges read as bright torn shards along every stroke border.
-	float pattern = texture(cobble_patterns, vec3(UV, 0.0)).r;
-
-	float primary_cobble = cobble_layer_weight(blend_layers.x);
-	float secondary_cobble = cobble_layer_weight(blend_layers.y);
-	float cobble_weight = mix(primary_cobble, secondary_cobble, blend);
-	float primary_mud = float(blend_layers.x == mud_layer);
-	float secondary_mud = float(blend_layers.y == mud_layer);
-	float mud_weight = mix(primary_mud, secondary_mud, blend);
-	float wet_mud = clamp(mud_wetness, 0.0, 1.0) * mud_weight;
-	vec4 surface = texture(cobble_surface, UV);
+vec3 compute_cobble_albedo(vec2 uv, vec2 world_xz) {
+	float pattern = texture(cobble_patterns, vec3(uv, 0.0)).r;
+	vec4 surface = texture(cobble_surface, uv);
 	float stone = surface.b;
 	float palette = surface.a;
-
-	// Broad dirt settles across many stones rather than repeating at tile scale.
-	// Keep hues near-neutral and dark so streets read as worn city stone, not
-	// fresh linoleum with purple/orange setts.
-	float age = cobble_noise(terrain_world_xz * 0.17 + vec2(13.7, 4.3));
-	age = age * 0.68 + cobble_noise(terrain_world_xz * 0.43 - vec2(2.1, 7.9)) * 0.32;
-	float grit = cobble_noise(terrain_world_xz * 1.15 + vec2(8.4, 19.2));
-	float mud_film = cobble_noise(terrain_world_xz * 0.29 - vec2(5.6, 1.8));
+	float age = cobble_noise(world_xz * 0.17 + vec2(13.7, 4.3));
+	age = age * 0.68 + cobble_noise(world_xz * 0.43 - vec2(2.1, 7.9)) * 0.32;
+	float grit = cobble_noise(world_xz * 1.15 + vec2(8.4, 19.2));
+	float mud_film = cobble_noise(world_xz * 0.29 - vec2(5.6, 1.8));
 	vec3 earth = mix(vec3(0.20, 0.17, 0.13), vec3(0.32, 0.27, 0.20), age);
 	vec3 gray = vec3(0.40, 0.39, 0.38);
 	vec3 blue_gray = vec3(0.36, 0.38, 0.39);
@@ -783,41 +748,51 @@ void fragment() {
 	} else if (palette < 0.14) {
 		stone_color = warm_gray;
 	}
-	// Cap highlight so dome tops stay dusty instead of clean bright caps.
 	stone_color *= mix(0.70, 0.92, pattern);
 	stone_color = mix(stone_color, gray, 0.22);
-	// Dirt fills joints, veils low stones, and leaves irregular mud patches on faces.
 	float dirt_amount = (1.0 - stone) * 0.58 + (1.0 - age) * 0.20 + grit * 0.10 + mud_film * 0.14;
 	stone_color = mix(stone_color, earth, clamp(dirt_amount, 0.0, 0.72));
-	// Pull the whole road toward compacted earth so setts never float as clean tiles.
-	vec3 cobble_albedo = mix(earth, stone_color, stone * 0.82 + 0.06);
-	// Resolve each blend layer to its own finished surface, then mix. Paving and
-	// earth now meet as two real materials instead of one material being faded
-	// into the other layer's raw plate.
-	vec3 primary_albedo = primary_cobble > 0.5
-		? cobble_albedo
-		: terrain_pattern_albedo(blend_layers.x, UV, primary_tint);
-	vec3 secondary_albedo = secondary_cobble > 0.5
-		? cobble_albedo
-		: terrain_pattern_albedo(blend_layers.y, UV, secondary_tint);
-	ALBEDO = mix(primary_albedo, secondary_albedo, blend) * tone;
-	// Rain turns clay/silt darker and glossy while preserving granular clumps.
-	// Low-frequency pools vary the liquid film instead of making mud a flat mirror.
+	return mix(earth, stone_color, stone * 0.82 + 0.06);
+}
+
+vec3 resolve_layer_albedo(int layer, vec2 uv, vec2 world_xz, vec3 palette_tint) {
+	if (cobble_layer_weight(layer) > 0.5) {
+		return compute_cobble_albedo(uv, world_xz);
+	}
+	return terrain_pattern_albedo(layer, uv, palette_tint);
+}
+
+void vertex() {
+	ivec2 layers = ivec2(int(CUSTOM0.x + 0.5), int(CUSTOM0.y + 0.5));
+	float raw_blend = clamp(CUSTOM0.z, 0.0, 1.0);
+	blend_mix = vec2(raw_blend, CUSTOM0.w);
+	terrain_world_xz = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xz;
+	vec3 tint = COLOR.rgb;
+	vec3 primary_albedo = resolve_layer_albedo(layers.x, UV, terrain_world_xz, tint);
+	vec3 secondary_albedo = resolve_layer_albedo(layers.y, UV, terrain_world_xz, tint);
+	vertex_albedo = mix(primary_albedo, secondary_albedo, raw_blend);
+	vertex_cobble_weight = mix(cobble_layer_weight(layers.x), cobble_layer_weight(layers.y), raw_blend);
+	vertex_earth_weight = mix(earth_layer_weight(layers.x), earth_layer_weight(layers.y), raw_blend);
+	vertex_mud_weight = mix(float(layers.x == mud_layer), float(layers.y == mud_layer), raw_blend);
+}
+
+void fragment() {
+	float tone = blend_mix.y;
+	float cobble_weight = vertex_cobble_weight;
+	float earth_weight = vertex_earth_weight * (1.0 - cobble_weight);
+	float wet_mud = clamp(mud_wetness, 0.0, 1.0) * vertex_mud_weight;
+	vec4 surface = texture(cobble_surface, UV);
+	float stone = surface.b;
+
+	ALBEDO = vertex_albedo * tone;
 	float mud_pool = smoothstep(0.38, 0.78, cobble_noise(terrain_world_xz * 0.72 + vec2(9.1, 3.7)));
 	float mud_film_weight = wet_mud * mix(0.58, 1.0, mud_pool);
 	ALBEDO = mix(ALBEDO, ALBEDO * vec3(0.48, 0.43, 0.36), mud_film_weight * 0.64);
 
-	// Trodden ground relief. Hollows hold damp silt and darken; crests dry pale.
-	// Without this the earth layers were a single flat fill lit only by the sun
-	// angle, which is what made streets read as painted clay rather than ground.
-	float earth_weight = mix(earth_layer_weight(blend_layers.x), earth_layer_weight(blend_layers.y), blend);
-	earth_weight *= 1.0 - cobble_weight;
 	float earth_h = earth_height(terrain_world_xz);
 	ALBEDO *= 1.0 + (earth_h - 0.5) * 0.34 * earth_weight;
 	vec2 normal_xy = surface.rg * 2.0 - 1.0;
 	vec3 cobble_normal = vec3(normal_xy, sqrt(max(1.0 - dot(normal_xy, normal_xy), 0.0)));
-	// Central differences on the same field give the earth its own tangent normal;
-	// the epsilon is one decimetre so relief survives the gameplay camera distance.
 	float eps = 0.10;
 	vec2 earth_slope = vec2(
 		earth_height(terrain_world_xz + vec2(eps, 0.0)) - earth_height(terrain_world_xz - vec2(eps, 0.0)),
@@ -826,8 +801,6 @@ void fragment() {
 	vec3 earth_normal = normalize(vec3(-earth_slope.x, 1.0, -earth_slope.y)).xzy;
 	NORMAL_MAP = mix(earth_normal * 0.5 + 0.5, cobble_normal * 0.5 + 0.5, cobble_weight);
 	NORMAL_MAP_DEPTH = mix(0.85 * earth_weight, 0.55, cobble_weight);
-	// High roughness kills the linoleum sheen on dry medieval paving. Saturated
-	// mud keeps rough clumps but grows a narrow liquid sheen in its low pockets.
 	ROUGHNESS = mix(0.96, mix(0.99, 0.93, stone), cobble_weight);
 	ROUGHNESS = mix(ROUGHNESS, mix(0.42, 0.20, mud_pool), mud_film_weight);
 	SPECULAR = mix(0.12, 0.30, mud_film_weight);
