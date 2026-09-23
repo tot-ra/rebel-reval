@@ -60,16 +60,16 @@ const LOWER_TOWN_PLACEMENTS: Array[Dictionary] = [
 		"radius": 2.0
 	},
 	{
-		"cell": Vector2i(28, 66),
+		"cell": Vector2i(24, 72),
 		"species": MammalSpecies.SPECIES_PIG,
 		"behavior": BEHAVIOR_PEN,
 		"radius": 2.2
 	},
 	{
-		"cell": Vector2i(82, 80),
+		"cell": Vector2i(80, 76),
 		"species": MammalSpecies.SPECIES_COW,
 		"behavior": BEHAVIOR_TETHER,
-		"radius": 2.6
+		"radius": 2.0
 	},
 ]
 
@@ -299,7 +299,13 @@ func _make_actor(index: int, placement: Dictionary) -> Node3D:
 	var pose := _pose_for_behavior(behavior, species)
 	# Pens sit on the visible relief, not on the flat logic plane, so a yard that
 	# was carved below Y=0 must not leave its livestock hovering in the air.
-	var home := MapViewBridge.cell_center_to_world(cell, _cell_size, _ground_height_for_cell(cell))
+	var blocked := _blocked_rects(species)
+	# Homes must sit in the yard. A cell authored inside a house would otherwise
+	# become the wander fallback and keep the animal occluded by the facade.
+	var home := _nudge_home_out_of_buildings(
+		MapViewBridge.cell_center_to_world(cell, _cell_size, _ground_height_for_cell(cell)),
+		blocked
+	)
 	var actor := Node3D.new()
 	actor.name = "PennedFauna%d" % index
 	if MedievalAnimalModels.add_model(actor, species) == null:
@@ -317,7 +323,7 @@ func _make_actor(index: int, placement: Dictionary) -> Node3D:
 	actor.set_meta(&"species", species)
 	actor.set_meta(&"behavior", behavior)
 	var wander_config := _wander_config(behavior, home, radius)
-	wander_config["blocked_rects"] = _blocked_rects(species)
+	wander_config["blocked_rects"] = blocked
 	GroundWander.setup(actor, _map_id, index, wander_config)
 	return actor
 
@@ -375,15 +381,37 @@ func _blocked_rects(species: StringName) -> Array[Rect2]:
 	# approximate shoulder radius and reject movement before the model intersects.
 	var clearance := 0.18
 	if species in [MammalSpecies.SPECIES_COW, MammalSpecies.SPECIES_HORSE]:
-		clearance = 0.55
+		clearance = 0.85
 	elif species in [MammalSpecies.SPECIES_PIG, MammalSpecies.SPECIES_SHEEP, &"goat"]:
 		clearance = 0.32
 	for building: Dictionary in _definition.buildings:
 		var footprint: Rect2 = building.get("footprint", Rect2())
 		if footprint.size == Vector2.ZERO:
 			continue
-		blocked.append(footprint.grow(clearance))
+		blocked.append(
+			MapViewBridge.logic_rect_to_world_xz(footprint, _cell_size).grow(clearance)
+		)
 	return blocked
+
+
+static func _nudge_home_out_of_buildings(home: Vector3, blocked: Array[Rect2]) -> Vector3:
+	if not _world_point_blocked(home, blocked):
+		return home
+	for distance in [1.0, 1.5, 2.0, 2.5, 3.0, 4.0]:
+		for attempt in 8:
+			var angle := float(attempt) * TAU / 8.0
+			var candidate := home + Vector3(cos(angle) * distance, 0.0, sin(angle) * distance)
+			if not _world_point_blocked(candidate, blocked):
+				return candidate
+	return home
+
+
+static func _world_point_blocked(position: Vector3, blocked: Array[Rect2]) -> bool:
+	var point := Vector2(position.x, position.z)
+	for blocked_rect: Rect2 in blocked:
+		if blocked_rect.has_point(point):
+			return true
+	return false
 
 
 static func _pose_for_behavior(behavior: StringName, species: StringName) -> StringName:

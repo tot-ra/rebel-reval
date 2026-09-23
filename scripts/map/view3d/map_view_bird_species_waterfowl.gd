@@ -49,10 +49,10 @@ const PROFILES: Dictionary = {
 	{
 		"name": "Greylag goose",
 		"group": GROUP_WATERFOWL,
-		"scale_m": 0.82,
+		"scale_m": 0.64,
 		"pose": POSE_STANDING,
 		"colors": [Color("938d7c"), Color("6f7168"), Color("d68c4c")],
-		"geometry": {"neck": 0.46, "body": Vector3(0.68, 0.31, 0.36)},
+		"geometry": {"neck": 0.34, "body": Vector3(0.62, 0.26, 0.30)},
 		"song":
 		{
 			"cue": &"bird.greylag_goose.call",

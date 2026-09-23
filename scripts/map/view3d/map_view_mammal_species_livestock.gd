@@ -39,10 +39,10 @@ const PROFILES: Dictionary = {
 	{
 		"name": "Domestic goose",
 		"group": GROUP_FOWL,
-		"scale_m": 0.62,
+		"scale_m": 0.45,
 		"pose": POSE_STANDING,
 		"colors": [Color("e8e4dc"), Color("6a6a62"), Color("d8a848")],
-		"geometry": {"neck": 0.18},
+		"geometry": {"neck": 0.16},
 		"abundance": 0.46,
 		"spawn": {CONTEXT_FORELAND: 0.62}
 	},

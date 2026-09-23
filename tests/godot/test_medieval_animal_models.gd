@@ -113,6 +113,15 @@ func test_domestic_goose_uses_the_detailed_authored_greylag_model() -> void:
 		"Goose needs distinct feather, bill, eye, leg, and foot materials"
 	)
 	assert_true(goose_mesh.get_aabb().size.y >= 0.75, "Goose needs its authored long-neck silhouette")
+	assert_true(
+		is_equal_approx(model.scale.y, 0.45),
+		"Domestic goose must down-scale the catalog greylag so it stays yard-sized"
+	)
+	var world_height := _bounds(host).size.y
+	assert_true(
+		world_height >= 0.42 and world_height <= 0.72,
+		"Domestic goose world height must stay beside hens, not cattle: %s" % world_height
+	)
 	host.free()
 
 

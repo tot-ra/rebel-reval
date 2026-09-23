@@ -3,6 +3,7 @@ extends "res://tests/godot/test_case.gd"
 const FaunaContext := preload("res://scripts/map/view3d/map_view_fauna_context.gd")
 const KalevSmithy := preload("res://scripts/map/definitions/lower_town/kalev_smithy_definition.gd")
 const LowerTownSlice := preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd")
+const MapViewBridge := preload("res://scripts/map/view3d/map_view_bridge.gd")
 const MammalSpecies := preload("res://scripts/map/view3d/map_view_mammal_species.gd")
 const PennedFauna := preload("res://scripts/map/view3d/map_view_penned_fauna.gd")
 const ForelandDefinition := preload("res://scripts/map/definitions/outdoor/viru_gate_foreland_definition.gd")
@@ -152,6 +153,49 @@ func test_fauna_actors_carry_no_collision_shapes() -> void:
 	fauna.queue_free()
 
 
+func test_lower_town_penned_livestock_stays_outside_building_volumes() -> void:
+	var definition: MapDefinition = LowerTownSlice.create()
+	var fauna := PennedFauna.new()
+	(Engine.get_main_loop() as SceneTree).root.add_child(fauna)
+	fauna.configure(
+		definition.map_id, MammalSpecies.CONTEXT_LOWER_TOWN, definition.cell_size, definition
+	)
+	var shed: Dictionary = {}
+	for building: Dictionary in definition.buildings:
+		if building.get("id", &"") == &"artisan_shed":
+			shed = building
+			break
+	assert_false(shed.is_empty(), "Lower Town must still author artisan_shed")
+	var shed_world := MapViewBridge.logic_rect_to_world_xz(
+		shed["footprint"], definition.cell_size
+	)
+	var found_cow := false
+	for actor in fauna.get_children():
+		assert_false(
+			_world_point_in_buildings(definition, actor.position),
+			"%s spawned inside a building footprint" % actor.name
+		)
+		if actor.get_meta(&"species", &"") != MammalSpecies.SPECIES_COW:
+			continue
+		found_cow = true
+		assert_false(
+			shed_world.grow(0.5).has_point(Vector2(actor.position.x, actor.position.z)),
+			"Cow must not start inside artisan_shed"
+		)
+		var saw_world_shed := false
+		for blocked_rect: Rect2 in actor.get_meta(&"blocked_rects", []):
+			if not blocked_rect.has_point(shed_world.get_center()):
+				continue
+			saw_world_shed = true
+			assert_true(
+				blocked_rect.size.x < 64.0,
+				"Blocked rects must be world metres, not logic pixels"
+			)
+		assert_true(saw_world_shed, "Cow wander must treat artisan_shed as blocked")
+	assert_true(found_cow, "Lower Town must still spawn a penned cow")
+	fauna.queue_free()
+
+
 func test_pen_and_tether_actors_stay_within_authored_radius() -> void:
 	var fauna := PennedFauna.new()
 	(Engine.get_main_loop() as SceneTree).root.add_child(fauna)
@@ -273,3 +317,14 @@ func _nearest_manhattan_distance(cell: Vector2i, corridor: Dictionary) -> int:
 		var distance := absi(cell.x - corridor_cell.x) + absi(cell.y - corridor_cell.y)
 		nearest = mini(nearest, distance)
 	return nearest
+
+
+func _world_point_in_buildings(definition: MapDefinition, world: Vector3) -> bool:
+	var point := Vector2(world.x, world.z)
+	for building: Dictionary in definition.buildings:
+		var footprint: Rect2 = building.get("footprint", Rect2())
+		if footprint.size == Vector2.ZERO:
+			continue
+		if MapViewBridge.logic_rect_to_world_xz(footprint, definition.cell_size).has_point(point):
+			return true
+	return false

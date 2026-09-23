@@ -35,6 +35,13 @@ static func world_to_cell(world_position: Vector3, cell_size: int) -> Vector2i:
 	return Vector2i(floori(logic.x / float(cell_size)), floori(logic.y / float(cell_size)))
 
 
+## Authored building and prop footprints stay in logic pixels. Fauna wander and
+## occlusion probes consume world XZ metres, so convert before testing a point.
+static func logic_rect_to_world_xz(logic_rect: Rect2, cell_size: int) -> Rect2:
+	var scale := world_scale(cell_size)
+	return Rect2(logic_rect.position * scale, logic_rect.size * scale)
+
+
 ## Places a view actor at the logic simulation's position, preserving any
 ## view-side vertical offset the actor already carries.
 static func sync_actor(actor: Node3D, logic_position: Vector2, cell_size: int) -> void:

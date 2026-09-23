@@ -267,7 +267,7 @@ func _install_penned_fauna() -> void:
 	_penned_fauna.name = "PennedFauna"
 	add_child(_penned_fauna)
 	var context := FaunaContext.context_for_map(_definition.map_id)
-	_penned_fauna.configure(_definition.map_id, context, _definition.cell_size)
+	_penned_fauna.configure(_definition.map_id, context, _definition.cell_size, _definition)
 
 
 func _install_bird_audio() -> void:
