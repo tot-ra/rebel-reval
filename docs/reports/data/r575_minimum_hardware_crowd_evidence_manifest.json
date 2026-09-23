@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "evidence_id": "r575-p0-154-n01-minimum-hardware-crowd-2026-08-18",
+  "status": "supplementary_only_blocked_for_declared_target",
+  "recorded_utc": "2026-08-18T07:32:43Z",
+  "capture_revision": "cc1030c901f6ab73984e73e9ee895f37e236523b",
+  "target_hardware": {
+    "profile_id": "minimum-hardware-intel-uhd-620",
+    "architecture": "x86_64",
+    "cpu": "Intel Core i5-8250U, 4 cores / 8 threads, 1.6-3.4 GHz",
+    "gpu": "Intel UHD Graphics 620 (24 EUs, ~300 GFLOPS)",
+    "memory_gib": 8,
+    "display": "1920x1080"
+  },
+  "measurement_host": {
+    "os": "macOS",
+    "architecture": "arm64",
+    "processor_name": "Apple M5 Pro",
+    "video_adapter": "Apple M5 Pro",
+    "headless": false,
+    "godot": "4.7.1-stable (official)"
+  },
+  "capture": {
+    "command": [
+      "export GODOT_BIN=/Applications/Godot.app/Contents/MacOS/Godot",
+      "export GODOT_LOG_DIR=/tmp/rebel-reval-p0154",
+      "TARGET_HARDWARE=tools/benchmarks/minimum-hardware.json BENCHMARK_HEADLESS=0 tools/run_performance_report.sh build/benchmarks/performance-minimum-hardware.json --quick"
+    ],
+    "target_hardware_source": "tools/benchmarks/minimum-hardware.json",
+    "raw_report_path": "build/benchmarks/performance-minimum-hardware.json",
+    "raw_report_sha256": "3c89f3f7586dc9c43bc8dfc135409278e8beb0c0418093e822c866eedf6f2633",
+    "quick_mode": true
+  },
+  "crowd_character_peak": {
+    "target_count": 200,
+    "concurrent_character_cap": 200,
+    "within_budget": true,
+    "frame_time_ms": {
+      "samples": 20,
+      "median": 1.935,
+      "p95": 4.922,
+      "p99": 8.283,
+      "max": 8.283
+    },
+    "draw_calls_peak": 1,
+    "memory_delta_mib": 3.67417144775391
+  },
+  "lower_town_scene_gpu_memory": {
+    "texture_memory_bytes": 409065066,
+    "render_video_memory_bytes": 643271870
+  },
+  "r862_audit": {
+    "task": "R-862",
+    "result": "BLOCKED_FOR_TARGET_ACCEPTANCE",
+    "target_identity_match": "FAIL - measured host is Apple M5 Pro arm64, not Intel Core i5-8250U / Intel UHD Graphics 620 x86_64",
+    "target_host_separation": "PASS - target_hardware and measurement_host are both present and distinct",
+    "non_headless_renderer": "PASS - measurement_host.headless=false",
+    "declared_resolution": "PASS - target_hardware.display=1920x1080",
+    "frame_time_distribution": "PASS as supplementary instrumentation - crowd_character_peak has median/p95/p99/max with 20 samples",
+    "gpu_memory_counters": "PASS as supplementary instrumentation - lower_town_scene texture and video memory are non-zero",
+    "quick_mode_limitation": "BLOCKED for target acceptance - --quick uses 20 frame samples, not the 120-sample minimum-hardware contract",
+    "minimum_hardware_verdict": "BLOCKED - no valid declared-target run was executed"
+  },
+  "acceptance": {
+    "target_run": "BLOCKED",
+    "supplementary_m5_run": "PASS as instrumentation only",
+    "next_owner": "R-863"
+  }
+}
