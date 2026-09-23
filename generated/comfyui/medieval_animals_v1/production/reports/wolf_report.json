@@ -1,0 +1,77 @@
+{
+  "asset_id": "creature.wolf",
+  "route": "authored_closed_anatomy_blender_pbr",
+  "source_license": "project-authored",
+  "anatomy_decision": "remeshed_digitigrade_wolf_long_muzzle_ruff_bushy_tail",
+  "scale_basis": "1.72 m nose-to-tail; 0.98 m ear height; 0.40 m chest width",
+  "output": "assets/animals/medieval/medieval_wolf.glb",
+  "output_sha256": "19969bd96a52cd9763b5d6190888954afbb159ba0cb43ec5dce21d24425d899b",
+  "raw": {
+    "vertices": 3528,
+    "polygons": 6912,
+    "triangles": 6912,
+    "components": 36,
+    "component_vertices": [
+      340,
+      244,
+      244,
+      244,
+      222,
+      164,
+      146,
+      146,
+      146,
+      146,
+      114,
+      114,
+      100,
+      100,
+      100,
+      100,
+      100,
+      100,
+      86,
+      86,
+      86,
+      28,
+      28,
+      28,
+      28,
+      28,
+      28,
+      28,
+      28,
+      28,
+      28,
+      28,
+      28,
+      24,
+      20,
+      20
+    ],
+    "boundary_edges": 0,
+    "non_manifold_edges": 0,
+    "loose_vertices": 0
+  },
+  "production": {
+    "vertices": 7002,
+    "polygons": 14000,
+    "triangles": 14000,
+    "components": 1,
+    "component_vertices": [
+      7002
+    ],
+    "boundary_edges": 0,
+    "non_manifold_edges": 0,
+    "loose_vertices": 0
+  },
+  "metric_dimensions_m_y_up": [
+    1.72,
+    0.98,
+    0.4
+  ],
+  "animations": [
+    "Idle-loop",
+    "Walk-loop"
+  ]
+}
