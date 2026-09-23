@@ -70,7 +70,10 @@ mane, muzzle, palmate antlers), because a smart-projected albedo atlas breaks
 those small regions into dots. The elk is Alces alces: long legs, scapular hump,
 hanging roman muzzle, throat bell, and palmate antlers. The red squirrel is
 Sciurus vulgaris: compact arched body, tufted ears, short muzzle, cream belly,
-and a fused bushy plume. Witcher 3 is the
+and a fused bushy plume. The European hedgehog is Erinaceus europaeus:
+a low plantigrade body, pointed snout, small lateral ears, and a banded keratin
+spine mantle kept as its own surface so voxel remesh cannot melt the quills.
+Witcher 3 is the
 fidelity reference only; do not copy game assets. The standalone
 `medieval_horse.glb` copy is not the live fauna model.
 

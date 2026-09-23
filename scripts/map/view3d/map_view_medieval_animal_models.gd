@@ -70,6 +70,7 @@ const MODEL_PATHS: Dictionary = {
 	MammalSpecies.SPECIES_WOLF: "res://assets/animals/medieval/medieval_wolf.glb",
 	MammalSpecies.SPECIES_LYNX: "res://assets/animals/medieval/medieval_lynx.glb",
 	MammalSpecies.SPECIES_SQUIRREL: "res://assets/animals/medieval/medieval_squirrel.glb",
+	MammalSpecies.SPECIES_HEDGEHOG: "res://assets/animals/medieval/medieval_hedgehog.glb",
 }
 
 ## Yaw applied to a model so its nose points along -Z, which is the direction
@@ -104,6 +105,7 @@ const MODEL_YAW: Dictionary = {
 	MammalSpecies.SPECIES_WOLF: -PI * 0.5,
 	MammalSpecies.SPECIES_LYNX: -PI * 0.5,
 	MammalSpecies.SPECIES_SQUIRREL: -PI * 0.5,
+	MammalSpecies.SPECIES_HEDGEHOG: -PI * 0.5,
 }
 
 
@@ -136,6 +138,7 @@ static func add_model(parent: Node3D, species: StringName) -> Node3D:
 		or species == MammalSpecies.SPECIES_WOLF
 		or species == MammalSpecies.SPECIES_LYNX
 		or species == MammalSpecies.SPECIES_SQUIRREL
+		or species == MammalSpecies.SPECIES_HEDGEHOG
 	):
 		_enable_vertex_coat(model)
 	# Animation selection runs on the visual actor rather than the imported model.
@@ -209,23 +212,28 @@ static func sync_animation(actor: Node3D, previous_position: Vector3, delta: flo
 
 
 static func _enable_vertex_coat(model: Node3D) -> void:
-	var mesh_instance := model.find_child("AnimalMesh", true, false) as MeshInstance3D
-	if mesh_instance == null or mesh_instance.mesh == null:
-		return
-	if mesh_instance.mesh.get_surface_count() < 1:
-		return
-	var format_flags: int = mesh_instance.mesh.surface_get_format(0)
-	if (format_flags & Mesh.ARRAY_FORMAT_COLOR) == 0:
-		return
-	var source := mesh_instance.mesh.surface_get_material(0) as StandardMaterial3D
-	if source == null:
-		return
-	# Keep the imported material. A surface override is reported as null by the
-	# headless dummy renderer and fails the livestock suite.
-	source.vertex_color_use_as_albedo = true
-	source.albedo_color = Color.WHITE
-	# The extracted atlas is a dot grid on small islands. Vertex color is the coat.
-	source.albedo_texture = null
+	# AnimalMesh is the hide. SpineMantle is the hedgehog keratin coat, which is
+	# a second surface so voxel remesh cannot melt the quills into the body.
+	for node in model.find_children("*", "MeshInstance3D", true, false):
+		var mesh_instance := node as MeshInstance3D
+		if mesh_instance == null:
+			continue
+		if mesh_instance.name != "AnimalMesh" and mesh_instance.name != "SpineMantle":
+			continue
+		if mesh_instance.mesh == null or mesh_instance.mesh.get_surface_count() < 1:
+			continue
+		var format_flags: int = mesh_instance.mesh.surface_get_format(0)
+		if (format_flags & Mesh.ARRAY_FORMAT_COLOR) == 0:
+			continue
+		var source := mesh_instance.mesh.surface_get_material(0) as StandardMaterial3D
+		if source == null:
+			continue
+		# Keep the imported material. A surface override is reported as null by the
+		# headless dummy renderer and fails the livestock suite.
+		source.vertex_color_use_as_albedo = true
+		source.albedo_color = Color.WHITE
+		# The extracted atlas is a dot grid on small islands. Vertex color is the coat.
+		source.albedo_texture = null
 
 
 static func _configure_animation(parent: Node3D, model: Node3D) -> void:

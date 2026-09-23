@@ -178,7 +178,7 @@ Bird tests: [`test_map_view_bird_species.gd`](../tests/godot/test_map_view_bird_
 | European polecat | `fauna.polecat` | mustelid | wild margin | modeled (catalog) |
 | European hare | `fauna.hare` | lagomorph | foreland margin | modeled (catalog) |
 | Red squirrel | `fauna.squirrel` | rodent | garden/woodland | runtime (production GLB) |
-| European hedgehog | `fauna.hedgehog` | insectivore | garden margin | modeled (catalog) |
+| European hedgehog | `fauna.hedgehog` | insectivore | garden margin | runtime (production GLB) |
 | Grey seal | `fauna.grey_seal` | seal | harbour margin | modeled (catalog) |
 | Ringed seal | `fauna.ringed_seal` | seal | harbour/wetland | modeled (catalog) |
 | Common bat | `fauna.common_bat` | bat | night margin | modeled (catalog) |
