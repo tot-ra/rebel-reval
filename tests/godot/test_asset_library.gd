@@ -68,6 +68,54 @@ func test_library_static_prop_has_no_clip_dropdown() -> void:
 	library.free()
 
 
+func test_select_model_accumulates_paths_and_copies_clipboard() -> void:
+	var library := LibraryScene.instantiate() as Control
+	(Engine.get_main_loop() as SceneTree).root.add_child(library)
+	assert_true(library.show_model(DOG_PATH))
+	var button := library.find_child("SelectModelButton", true, false) as Button
+	assert_true(button != null)
+	assert_eq(button.text, "Select model")
+	assert_true(library.select_current_model())
+	assert_true(library.show_model(ANVIL_PATH))
+	button.pressed.emit()
+	var selected: PackedStringArray = library.selected_model_paths()
+	assert_eq(selected.size(), 2)
+	assert_eq(selected[0], DOG_PATH)
+	assert_eq(selected[1], ANVIL_PATH)
+	var expected := "%s\n%s" % [DOG_PATH, ANVIL_PATH]
+	assert_eq(library.selected_models_clipboard_text(), expected)
+	assert_true(library.select_current_model())
+	assert_eq(library.selected_model_paths().size(), 2)
+	var listed := library.find_child("ModelList", true, false) as ItemList
+	var marked := false
+	for i: int in listed.item_count:
+		if String(listed.get_item_metadata(i)) == ANVIL_PATH:
+			assert_true(listed.get_item_text(i).begins_with("●"))
+			marked = true
+			break
+	assert_true(marked, "selected list rows should keep a mark")
+	var status := library.find_child("SelectStatusLabel", true, false) as Label
+	assert_true(status.text.contains("2 models selected"))
+	library.free()
+
+
+func test_enter_selects_current_model_unless_search_focused() -> void:
+	var library := LibraryScene.instantiate() as Control
+	(Engine.get_main_loop() as SceneTree).root.add_child(library)
+	assert_true(library.show_model(DOG_PATH))
+	var listed := library.find_child("ModelList", true, false) as ItemList
+	listed.grab_focus()
+	library._input(_enter_key())
+	assert_eq(library.selected_model_paths(), PackedStringArray([DOG_PATH]))
+	assert_eq(library.selected_models_clipboard_text(), DOG_PATH)
+	var search := library.find_child("SearchField", true, false) as LineEdit
+	search.grab_focus()
+	assert_true(library.show_model(ANVIL_PATH))
+	library._input(_enter_key())
+	assert_eq(library.selected_model_paths(), PackedStringArray([DOG_PATH]))
+	library.free()
+
+
 func test_main_menu_has_assets_library_focus_ring() -> void:
 	var menu := MainMenuScene.instantiate()
 	(Engine.get_main_loop() as SceneTree).root.add_child(menu)
@@ -81,3 +129,11 @@ func test_main_menu_has_assets_library_focus_ring() -> void:
 	assert_eq(library.focus_neighbor_bottom, NodePath("../Exit label"))
 	assert_eq(exit_label.focus_neighbor_top, NodePath("../Assets library label"))
 	menu.free()
+
+
+func _enter_key() -> InputEventKey:
+	var key := InputEventKey.new()
+	key.keycode = KEY_ENTER
+	key.physical_keycode = KEY_ENTER
+	key.pressed = true
+	return key

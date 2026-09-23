@@ -32,6 +32,11 @@ var _clips: OptionButton
 var _info: Label
 var _back: RichTextLabel
 var _auto_btn: CheckButton
+var _select_btn: Button
+var _select_status: Label
+# Sticky multi-select, separate from the single-item preview highlight, so
+# Enter / Select can accumulate paths and publish them to the clipboard.
+var _selected_paths: PackedStringArray = PackedStringArray()
 
 
 func _ready() -> void:
@@ -40,6 +45,7 @@ func _ready() -> void:
 	_rebuild_list()
 	if _filtered.is_empty():
 		_info.text = "No imported GLB/GLTF models found under res://assets."
+		_select_btn.disabled = true
 		_back.grab_focus()
 		return
 	_list.select(0)
@@ -59,6 +65,32 @@ func current_clips() -> PackedStringArray:
 
 func filtered_count() -> int:
 	return _filtered.size()
+
+
+func selected_model_paths() -> PackedStringArray:
+	return _selected_paths.duplicate()
+
+
+func selected_models_clipboard_text() -> String:
+	return "\n".join(_selected_paths)
+
+
+func select_current_model() -> bool:
+	if _current_path.is_empty():
+		return false
+	if not _selected_paths.has(_current_path):
+		_selected_paths.append(_current_path)
+	_refresh_selection_marks()
+	_update_select_status()
+	_copy_selected_to_clipboard()
+	return true
+
+
+func _copy_selected_to_clipboard() -> void:
+	# Headless CI has no pasteboard; keep the in-memory list either way.
+	if not DisplayServer.has_feature(DisplayServer.FEATURE_CLIPBOARD):
+		return
+	DisplayServer.clipboard_set(selected_models_clipboard_text())
 
 
 func show_model(path: String) -> bool:
@@ -138,7 +170,8 @@ func _build_sidebar() -> Control:
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	hint.text = (
 		"Every imported 3D model under assets/. "
-		+ "Use this list when writing improvement prompts."
+		+ "Select model or Enter adds the current preview to a list "
+		+ "and copies every selected path to the clipboard."
 	)
 	hint.add_theme_font_size_override("font_size", 14)
 	side.add_child(hint)
@@ -162,6 +195,19 @@ func _build_sidebar() -> Control:
 	_list.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_list.item_selected.connect(_show_index)
 	side.add_child(_list)
+
+	_select_btn = Button.new()
+	_select_btn.name = "SelectModelButton"
+	_select_btn.text = "Select model"
+	_select_btn.pressed.connect(_on_select_model)
+	side.add_child(_select_btn)
+
+	_select_status = Label.new()
+	_select_status.name = "SelectStatusLabel"
+	_select_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_select_status.add_theme_font_size_override("font_size", 14)
+	_update_select_status()
+	side.add_child(_select_status)
 
 	_back = RichTextLabel.new()
 	_back.name = "BackLabel"
@@ -286,9 +332,39 @@ func _rebuild_list() -> void:
 	_filtered = Catalog.filter_entries(_entries, _search.text, category)
 	_list.clear()
 	for entry in _filtered:
-		var label := "%s  ·  %s" % [entry["display_name"], entry["folder"]]
-		var index := _list.add_item(label)
+		var index := _list.add_item(_item_label(entry))
 		_list.set_item_metadata(index, entry["path"])
+
+
+func _item_label(entry: Dictionary) -> String:
+	var label := "%s  ·  %s" % [entry["display_name"], entry["folder"]]
+	if _selected_paths.has(String(entry["path"])):
+		return "●  %s" % label
+	return label
+
+
+func _refresh_selection_marks() -> void:
+	for i: int in _list.item_count:
+		if i >= _filtered.size():
+			break
+		_list.set_item_text(i, _item_label(_filtered[i]))
+
+
+func _update_select_status() -> void:
+	if _select_status == null:
+		return
+	if _selected_paths.is_empty():
+		_select_status.text = "No models selected"
+		return
+	var noun := "model" if _selected_paths.size() == 1 else "models"
+	_select_status.text = "%d %s selected · copied to clipboard" % [
+		_selected_paths.size(),
+		noun,
+	]
+
+
+func _on_select_model() -> void:
+	select_current_model()
 
 
 func _show_index(index: int) -> void:
@@ -359,7 +435,10 @@ func _update_info() -> void:
 	if not clips.is_empty():
 		clip_text = "%d: %s" % [clips.size(), ", ".join(clips)]
 	var bounds := Catalog.combined_aabb(_model)
-	var hint := "Drag preview to orbit · wheel zoom · Q/E rotate · Esc back"
+	var hint := (
+		"Drag preview to orbit · wheel zoom · Q/E rotate · Esc back"
+		+ " · Enter selects the current model"
+	)
 	_info.text = "%s\n%s meshes · size %.2f x %.2f x %.2f m\nClips: %s\n%s" % [
 		_current_path,
 		Catalog.mesh_count(_model),
@@ -387,7 +466,9 @@ func _on_filter_changed(_text: String) -> void:
 	_rebuild_list()
 	if _filtered.is_empty():
 		_info.text = "No models match this filter."
+		_select_btn.disabled = true
 		return
+	_select_btn.disabled = false
 	_list.select(0)
 	_show_index(0)
 
@@ -431,6 +512,31 @@ func _on_preview_input(event: InputEvent) -> void:
 func _on_back_input(event: InputEvent) -> void:
 	if _is_activate(event):
 		_go_back()
+
+
+func _input(event: InputEvent) -> void:
+	if not (event is InputEventKey and event.pressed and not event.echo):
+		return
+	var key := event as InputEventKey
+	if key.keycode != KEY_ENTER and key.keycode != KEY_KP_ENTER:
+		return
+	if not _can_select_from_enter():
+		return
+	select_current_model()
+	get_viewport().set_input_as_handled()
+
+
+func _can_select_from_enter() -> bool:
+	if _current_path.is_empty():
+		return false
+	var focused := get_viewport().gui_get_focus_owner()
+	if focused == null:
+		return true
+	if focused == _search or focused == _back:
+		return false
+	if focused == _category or focused == _clips:
+		return false
+	return true
 
 
 func _unhandled_input(event: InputEvent) -> void:
