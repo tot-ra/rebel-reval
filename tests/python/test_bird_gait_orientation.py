@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
-"""Orientation contract for the domestic fowl gait GLBs.
+"""Orientation contract for the relocated domestic goose gait GLB.
 
 Godot turns ambient actors with `look_at`, so a walking bird travels along its
-own -Z. The reviewed source meshes do not satisfy that on their own: both fowl
-were authored facing +Z and the greylag goose is stored upside down.
-`tools/assets/build_bird_gaits.py` bakes the corrective rotation, and these
-checks keep a rebuild from silently shipping a bird that walks backwards or
-stands on its head again.
+own -Z. The reviewed greylag source mesh was authored facing +Z and stored
+upside down. `tools/assets/build_bird_gaits.py` baked the corrective rotation
+into the runtime asset now shipped as ``assets/storybook/goose.glb``.
 """
 
 from __future__ import annotations
@@ -19,14 +17,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 
 GAIT_MODELS = {
-    "mallard": ROOT / "assets" / "birds" / "mallard" / "walking.glb",
-    "greylag_goose": ROOT / "assets" / "birds" / "greylag_goose" / "walking.glb",
+    "goose": ROOT / "assets" / "storybook" / "goose.glb",
 }
 # Authored leg/foot material slots, used to prove the bird is not standing on its
-# head. The hen ships a single merged material and therefore has no entry here.
+# head.
 FOOT_MATERIALS = {
-    "mallard": ("mallard_feet",),
-    "greylag_goose": ("greylag_goose_leg", "greylag_goose_foot"),
+    "goose": ("greylag_goose_leg", "greylag_goose_foot"),
 }
 COMPONENT_FORMATS = {5120: "b", 5121: "B", 5122: "h", 5123: "H", 5125: "I", 5126: "f"}
 TYPE_COUNTS = {"SCALAR": 1, "VEC2": 2, "VEC3": 3, "VEC4": 4}
@@ -141,7 +137,7 @@ class BirdGaitOrientationTest(unittest.TestCase):
 
     def test_gait_reports_record_the_applied_orientation(self) -> None:
         reports = ROOT / "generated" / "bird_gaits_v1" / "reports"
-        for species in ("mallard", "greylag_goose"):
+        for species in ("greylag_goose",):
             with self.subTest(species=species):
                 report = json.loads((reports / f"{species}.json").read_text(encoding="utf-8"))
                 self.assertTrue(report["faces_gltf_minus_z"])

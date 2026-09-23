@@ -13,7 +13,7 @@ after a real helper is removed.
 
 Run from the repository root:
     blender --background --factory-startup --python tools/assets/cleanup_runtime_glb.py -- \\
-        assets/storybook/dog.glb assets/birds/herring_gull/gliding_00.glb
+        assets/storybook/dog.glb assets/storybook/goose.glb
 
 Pass a manifest file with one repo-relative path per line instead of paths:
     blender --background --factory-startup --python tools/assets/cleanup_runtime_glb.py -- \\

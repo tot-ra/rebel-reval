@@ -120,7 +120,7 @@ class FaunaGlbInspectTests(unittest.TestCase):
     def test_complete_contract_passes(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
-            glb = root / "assets/birds/mallard/standing.glb"
+            glb = root / "assets/birds/house_sparrow/perched.glb"
             _write_minimal_glb(glb)
             self.assertEqual(inspect_fauna_glb(glb), [])
             self.assertEqual(validate_fauna_glb_pbr(root=root), [])
@@ -128,7 +128,7 @@ class FaunaGlbInspectTests(unittest.TestCase):
     def test_missing_roughness_fails(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
-            glb = root / "assets/birds/mallard/standing.glb"
+            glb = root / "assets/birds/house_sparrow/perched.glb"
             _write_minimal_glb(glb, with_roughness=False)
             errors = validate_fauna_glb_pbr(root=root)
             self.assertEqual(len(errors), 1)

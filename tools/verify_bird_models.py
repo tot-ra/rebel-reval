@@ -2,9 +2,9 @@
 """Verify ambient bird poses and the complete domestic bird-gait set.
 
 Ambient poses are checked against ``MapViewBirdSpecies`` and ``SOURCES.csv``.
-Walking mallard and greylag-goose assets additionally require one
-skinned mesh, weighted legs, Idle/Walk clips, ground contact and real Walk
-leg deformation.
+Domestic bird gait GLBs were retired with the storybook livestock migration.
+Ambient catalogue birds now use procedural anatomy; only archived poses may
+remain under ``assets/birds/``.
 
 Usage:
     python3 tools/verify_bird_models.py
@@ -50,12 +50,7 @@ GROUP_WING_SPAN = {
     "woodpecker": 0.76,
 }
 
-# These walking assets are livestock runtime models, not three new entries in the
-# 30-species ambient catalog. Keep their structural contract separate.
-GAIT_SPECS = {
-    "mallard": {"scale_m": 0.56},
-    "greylag_goose": {"scale_m": 0.82},
-}
+GAIT_SPECS: dict[str, dict[str, float]] = {}
 GAIT_LEG_BONES = frozenset(
     {"FrontLeftLeg", "FrontRightLeg", "BackLeftLeg", "BackRightLeg"}
 )
@@ -434,7 +429,7 @@ def main() -> int:
     glb_count = sum(1 for _ in args.birds_dir.rglob("*.glb"))
     print(
         "bird model verification passed "
-        f"(catalog=30; gait_models=2; authored_glbs={glb_count})"
+        f"(catalog=30; gait_models=0; authored_glbs={glb_count})"
     )
     return 0
 

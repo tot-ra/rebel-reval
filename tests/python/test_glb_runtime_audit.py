@@ -32,7 +32,7 @@ class GlbRuntimeAuditTests(unittest.TestCase):
         samples = [
             ROOT / "assets/storybook/cow.glb",
             ROOT / "assets/storybook/dog.glb",
-            ROOT / "assets/birds/herring_gull/gliding_00.glb",
+            ROOT / "assets/storybook/goose.glb",
             ROOT / "assets/storybook/hen.glb",
             ROOT / "assets/characters/cat/forge_cat_production_v1.glb",
             ROOT / "assets/characters/shared/kaykit_barbarian.glb",

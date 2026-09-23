@@ -6,8 +6,8 @@ const Models := preload("res://scripts/map/view3d/map_view_medieval_animal_model
 const MammalSpecies := preload("res://scripts/map/view3d/map_view_mammal_species.gd")
 
 const EXPECTED_LARGEST_AXIS_M: Dictionary = {
-	# Retained walking GLB rest bounds, including bill/tail; live scaling is tested separately.
-	MammalSpecies.SPECIES_DUCK: 0.672,
+	# Storybook duck rest bounds, including bill/tail; live scaling is tested separately.
+	MammalSpecies.SPECIES_DUCK: 2.128,
 }
 
 
@@ -15,7 +15,7 @@ func test_archived_hendrik_duck_retains_authored_metric_scale() -> void:
 	for species: StringName in EXPECTED_LARGEST_AXIS_M:
 		var host := Node3D.new()
 		(Engine.get_main_loop() as SceneTree).root.add_child(host)
-		var model := preload("res://assets/birds/mallard/walking.glb").instantiate() as Node3D
+		var model := preload("res://assets/storybook/duck.glb").instantiate() as Node3D
 		host.add_child(model)
 		assert_true(model != null)
 		var meshes := model.find_children("*", "MeshInstance3D", true, false)
@@ -36,5 +36,9 @@ func test_archived_hendrik_duck_retains_authored_metric_scale() -> void:
 		host.free()
 
 func test_hendrik_sparrow_is_used_for_the_house_sparrow_perched_pose() -> void:
-	assert_true(BirdAssets.has_authored_pose(BirdSpecies.SPECIES_HOUSE_SPARROW, BirdSpecies.POSE_PERCHED))
-	assert_true(BirdAssets.mesh_for_pose(BirdSpecies.SPECIES_HOUSE_SPARROW, BirdSpecies.POSE_PERCHED) != null)
+	assert_true(
+		BirdAssets.has_authored_pose(BirdSpecies.SPECIES_HOUSE_SPARROW, BirdSpecies.POSE_PERCHED)
+	)
+	assert_true(
+		BirdAssets.mesh_for_pose(BirdSpecies.SPECIES_HOUSE_SPARROW, BirdSpecies.POSE_PERCHED) != null
+	)

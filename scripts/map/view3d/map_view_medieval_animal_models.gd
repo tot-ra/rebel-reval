@@ -54,7 +54,7 @@ const MODEL_PATHS: Dictionary = {
 	MammalSpecies.SPECIES_HARE: "res://assets/storybook/hare.glb",
 	MammalSpecies.SPECIES_WILD_BOAR: "res://assets/storybook/boar.glb",
 	MammalSpecies.SPECIES_DUCK: "res://assets/storybook/duck.glb",
-	MammalSpecies.SPECIES_GOOSE: "res://assets/birds/greylag_goose/walking.glb",
+	MammalSpecies.SPECIES_GOOSE: "res://assets/storybook/goose.glb",
 	&"goat": "res://assets/storybook/goat.glb",
 	MammalSpecies.SPECIES_COW: "res://assets/storybook/cow.glb",
 	MammalSpecies.SPECIES_PIG: "res://assets/storybook/pig.glb",
@@ -71,8 +71,8 @@ const MODEL_PATHS: Dictionary = {
 ## ambient actors are turned toward by `look_at` while walking. The cat rig is
 ## and grounded replacement GLBs face +Z. The retained cattle and horse face
 ## -X; each entry corrects its own authored axis so they walk nose-first.
-# The greylag walking GLB is about 1.42 m tall in mesh space. Domestic yard
-# geese must sit beside hens, not beside cattle, so they share the same
+# The relocated greylag gait GLB is about 1.05 m tall in mesh space. Domestic
+# yard geese must sit beside hens, not beside cattle, so they share the same
 # down-scale pattern as duck/chicken.
 # The authored hen GLB is exported at its real 0.44 m standing height, so it
 # only needs the project's 2-world-units-per-1.82 m character conversion.

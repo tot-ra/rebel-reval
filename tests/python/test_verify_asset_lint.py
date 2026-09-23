@@ -316,7 +316,7 @@ class VerifyAssetLintTest(unittest.TestCase):
             _write_valid_fixture(root)
             with mock.patch(
                 "verify_asset_lint.validate_fauna_glb_pbr",
-                return_value=["assets/birds/mallard/standing.glb: material 'body' missing metallicRoughnessTexture"],
+                return_value=["assets/birds/house_sparrow/perched.glb: material 'body' missing metallicRoughnessTexture"],
             ):
                 rules = _issue_rules(validate(root=root))
             self.assertIn("ASSET_LINT_FAUNA_PBR", rules)

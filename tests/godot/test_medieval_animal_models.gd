@@ -105,10 +105,10 @@ func test_legacy_chicken_is_procedural_and_uses_articulated_animation_clips() ->
 	host.free()
 
 
-func test_domestic_goose_uses_the_detailed_authored_greylag_model() -> void:
+func test_domestic_goose_uses_the_relocated_storybook_greylag_model() -> void:
 	assert_eq(
 		Models.MODEL_PATHS[MammalSpecies.SPECIES_GOOSE],
-		"res://assets/birds/greylag_goose/walking.glb"
+		"res://assets/storybook/goose.glb"
 	)
 	var host := Node3D.new()
 	var model := Models.add_model(host, MammalSpecies.SPECIES_GOOSE)

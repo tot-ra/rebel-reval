@@ -10,31 +10,9 @@ func test_catalog_uses_only_the_reviewed_authored_glbs() -> void:
 	# Static poses plus P2-034 gulls, P2-035 waterfowl, P2-036 waders,
 	# P2-037 raptors, P2-038 corvids, and P2-039/P2-040 songbirds.
 	var authored_static := {
-		BirdSpecies.SPECIES_MUTE_SWAN: BirdSpecies.POSE_STANDING,
-		BirdSpecies.SPECIES_MALLARD: BirdSpecies.POSE_STANDING,
-		BirdSpecies.SPECIES_GREYLAG_GOOSE: BirdSpecies.POSE_STANDING,
-		BirdSpecies.SPECIES_GREAT_CORMORANT: BirdSpecies.POSE_STANDING,
-		BirdSpecies.SPECIES_GREY_HERON: BirdSpecies.POSE_STANDING,
-		BirdSpecies.SPECIES_NORTHERN_LAPWING: BirdSpecies.POSE_STANDING,
-		BirdSpecies.SPECIES_COMMON_SNIPE: BirdSpecies.POSE_STANDING,
-		BirdSpecies.SPECIES_WHITE_TAILED_EAGLE: BirdSpecies.POSE_GLIDING,
-		BirdSpecies.SPECIES_OSPREY: BirdSpecies.POSE_GLIDING,
-		BirdSpecies.SPECIES_HOODED_CROW: BirdSpecies.POSE_PERCHED,
-		BirdSpecies.SPECIES_ROOK: BirdSpecies.POSE_PERCHED,
-		BirdSpecies.SPECIES_WESTERN_JACKDAW: BirdSpecies.POSE_PERCHED,
-		BirdSpecies.SPECIES_EURASIAN_MAGPIE: BirdSpecies.POSE_PERCHED,
-		BirdSpecies.SPECIES_GREAT_TIT: BirdSpecies.POSE_PERCHED,
-		BirdSpecies.SPECIES_EUROPEAN_ROBIN: BirdSpecies.POSE_PERCHED,
-		BirdSpecies.SPECIES_SONG_THRUSH: BirdSpecies.POSE_PERCHED,
-		BirdSpecies.SPECIES_YELLOWHAMMER: BirdSpecies.POSE_PERCHED,
 		BirdSpecies.SPECIES_HOUSE_SPARROW: BirdSpecies.POSE_PERCHED,
-		BirdSpecies.SPECIES_HERRING_GULL: BirdSpecies.POSE_GLIDING,
 	}
-	var authored_flap: Array[StringName] = [
-		BirdSpecies.SPECIES_HERRING_GULL,
-		BirdSpecies.SPECIES_WHITE_TAILED_EAGLE,
-		BirdSpecies.SPECIES_OSPREY,
-	]
+	var authored_flap: Array[StringName] = []
 	for species in BirdSpecies.ALL_SPECIES:
 		for pose in BirdSpecies.ALL_POSES:
 			assert_eq(
@@ -63,7 +41,6 @@ func test_catalog_uses_revised_cached_anatomy_for_all_default_poses() -> void:
 
 func test_harbour_gull_flap_cycle_keeps_eight_frames() -> void:
 	BirdMeshes.reset_cache()
-	assert_true(BirdAssets.has_complete_flap_cycle(BirdSpecies.SPECIES_HERRING_GULL))
 	var cycle := BirdMeshes.flap_cycle(BirdSpecies.SPECIES_HERRING_GULL)
 	assert_eq(cycle.size(), BirdAssets.FLAP_FRAME_COUNT)
 	for mesh in cycle:
