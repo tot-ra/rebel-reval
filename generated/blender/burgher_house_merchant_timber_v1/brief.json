@@ -1,17 +1,32 @@
 {
   "approval": "task-authorized",
   "dimensions_m": {
-    "depth": 18.0,
-    "frontage": 8.6,
+    "depth": 8.4,
+    "frontage": 8.4,
     "typical_storeys": 2
   },
   "features": {
+    "board_clad_gable": true,
+    "decorative_fachwerk": false,
     "default_hoist": false,
     "late_gothic_facade": false,
     "optional_stone_cellar": true,
     "shingle_forward_roof": true,
+    "shop_counter_shutter": true,
     "small_shuttered_openings": true,
-    "timber_or_plastered_front": true
+    "steep_gable_to_street": true,
+    "timber_or_plastered_front": true,
+    "upper_loading_hatch": true,
+    "weathering": [
+      "rising_damp",
+      "fallen_daub_exposing_wattle",
+      "silver_weathered_oak",
+      "sagging_ridge",
+      "patched_shingles",
+      "roof_moss",
+      "flue_soot",
+      "skewed_shutter"
+    ]
   },
   "id": "prop.architecture.house.merchant_timber",
   "kind": "rigid_architecture",
@@ -24,11 +39,16 @@
   "target": "res://assets/props/architecture/houses/merchant_timber/merchant_timber.glb",
   "textures": {
     "albedo": 512,
-    "embedded": true
+    "embedded": true,
+    "normal": 512
   },
   "tier": "merchant_timber",
   "triangles": {
-    "max": 9000,
-    "target": 4500
+    "max": 16000,
+    "target": 9000
+  },
+  "variants": {
+    "horizontal_log": "res://assets/props/architecture/houses/merchant_timber/merchant_timber_log.glb",
+    "timber_frame": "res://assets/props/architecture/houses/merchant_timber/merchant_timber.glb"
   }
 }

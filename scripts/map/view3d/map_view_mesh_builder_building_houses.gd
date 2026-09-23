@@ -16,6 +16,7 @@ const _ProductionStone := preload(
 const _ProductionBoda := preload(
 	"res://scripts/map/view3d/map_view_burgher_house_craft_boda_models.gd"
 )
+const _ServiceBuildings := preload("res://scripts/map/view3d/map_view_service_building_models.gd")
 const TOWN_HALL_ARCADE_THICKNESS := 0.62
 const TOWN_HALL_CORRIDOR_DEPTH := 1.5
 ## How far the door leaf stands off the gallery back wall, so the dark doorway
@@ -102,6 +103,8 @@ static func add_production_model(
 		return _ProductionStone.add_model(root, building, size, height)
 	if _ProductionBoda.is_production_tier(building):
 		return _ProductionBoda.add_model(root, building, size, height)
+	if _ServiceBuildings.is_service_building(building):
+		return _ServiceBuildings.add_model(root, building, size)
 	return null
 
 static func add_historic_building_details(

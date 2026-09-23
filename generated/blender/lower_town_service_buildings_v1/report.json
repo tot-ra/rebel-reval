@@ -1,0 +1,146 @@
+{
+  "assets": {
+    "prop.architecture.building.brewhouse": {
+      "asset_id": "prop.architecture.building.brewhouse",
+      "body_m": [
+        9.0,
+        5.6,
+        8.0
+      ],
+      "checks": {
+        "body_centred": true,
+        "grounded": true,
+        "non_empty": true,
+        "triangles_in_budget": true,
+        "wear_vertex_colours": true
+      },
+      "dimensions_m": [
+        10.2453,
+        10.016,
+        12.1242
+      ],
+      "features": {
+        "kegs": 4,
+        "steam_louvre": true,
+        "storeys": 2,
+        "variant": "brewhouse"
+      },
+      "profile": "lower_town_service",
+      "ridge_m": 10.7771,
+      "sha256": "d5ab803160a6007bf199fe5bb36a3ca60a91c2ba3586515153d3981628d37ee3",
+      "smoke_outlet_m": [
+        -0.68,
+        11.8771,
+        -1.92
+      ],
+      "surfaces": 8,
+      "triangles": 10220,
+      "variant": "brewhouse"
+    },
+    "prop.architecture.building.log_barn": {
+      "asset_id": "prop.architecture.building.log_barn",
+      "body_m": [
+        8.0,
+        3.15,
+        6.0
+      ],
+      "checks": {
+        "body_centred": true,
+        "grounded": true,
+        "non_empty": true,
+        "triangles_in_budget": true,
+        "wear_vertex_colours": true
+      },
+      "dimensions_m": [
+        9.2,
+        7.9995,
+        8.7153
+      ],
+      "features": {
+        "hay_loft": true,
+        "storeys": 1,
+        "variant": "log_barn"
+      },
+      "profile": "lower_town_service",
+      "ridge_m": 8.2201,
+      "sha256": "33ab4dc259e1b7ad750c5d70a2a6d28c9901b52a799c10dbb32cb7c0639d2074",
+      "smoke_outlet_m": null,
+      "surfaces": 9,
+      "triangles": 7344,
+      "variant": "log_barn"
+    },
+    "prop.architecture.building.public_bath": {
+      "asset_id": "prop.architecture.building.public_bath",
+      "body_m": [
+        6.0,
+        2.75,
+        8.0
+      ],
+      "checks": {
+        "body_centred": true,
+        "grounded": true,
+        "non_empty": true,
+        "triangles_in_budget": true,
+        "wear_vertex_colours": true
+      },
+      "dimensions_m": [
+        7.3476,
+        9.6229,
+        6.3708
+      ],
+      "features": {
+        "flue": false,
+        "smoke_vents": 3,
+        "storeys": 1,
+        "variant": "public_bath"
+      },
+      "profile": "lower_town_service",
+      "ridge_m": 6.2612,
+      "sha256": "3c47b7080f69a1ccc6d084124d202c8d971de774288c5895e9b60aab81b3d85a",
+      "smoke_outlet_m": [
+        -3.3,
+        2.55,
+        -1.25
+      ],
+      "surfaces": 9,
+      "triangles": 8024,
+      "variant": "public_bath"
+    },
+    "prop.architecture.building.stone_storehouse": {
+      "asset_id": "prop.architecture.building.stone_storehouse",
+      "body_m": [
+        11.0,
+        8.1,
+        8.0
+      ],
+      "checks": {
+        "body_centred": true,
+        "grounded": true,
+        "non_empty": true,
+        "triangles_in_budget": true,
+        "wear_vertex_colours": true
+      },
+      "dimensions_m": [
+        11.6,
+        10.2,
+        15.2073
+      ],
+      "features": {
+        "heated": false,
+        "hoist_beam": true,
+        "storeys": 3,
+        "variant": "stone_storehouse"
+      },
+      "profile": "lower_town_service",
+      "ridge_m": 14.5073,
+      "sha256": "fd848279c806cb164a250fcedc794aab412749550749a6f277258b6638d9e679",
+      "smoke_outlet_m": null,
+      "surfaces": 9,
+      "triangles": 11816,
+      "variant": "stone_storehouse"
+    }
+  },
+  "blender": "Blender 5.2 LTS",
+  "generator": "burgher_house_kit_v2",
+  "historical_basis": "history/dossiers/architecture/burgher-house-plan.md"
+}

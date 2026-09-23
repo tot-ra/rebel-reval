@@ -1,20 +1,32 @@
 {
   "approval": "task-authorized",
   "dimensions_m": {
-    "depth": 19.5,
-    "frontage": 9.4,
+    "depth": 9.6,
+    "frontage": 9.0,
     "typical_storeys": 3
   },
   "features": {
+    "coped_parapet_gable": true,
     "large_ground_opening": true,
     "late_gothic_facade": false,
     "limestone_or_mixed_front": true,
     "protruding_hoist_beam": true,
+    "putlog_holes": true,
     "raised_cellar_neck": true,
     "steep_gable_to_street": true,
     "street_portal": true,
     "tile_roof_band": true,
-    "upper_loading_hatches": true
+    "upper_loading_hatches": true,
+    "weathering": [
+      "rising_damp",
+      "flaking_lime_render",
+      "lost_coping_stone",
+      "sagging_ridge",
+      "roof_moss_and_lichen",
+      "flue_soot",
+      "skewed_shutter",
+      "cracked_step"
+    ]
   },
   "id": "prop.architecture.house.merchant_stone",
   "kind": "rigid_architecture",
@@ -27,11 +39,16 @@
   "target": "res://assets/props/architecture/houses/merchant_stone/merchant_stone.glb",
   "textures": {
     "albedo": 512,
-    "embedded": true
+    "embedded": true,
+    "normal": 512
   },
   "tier": "merchant_stone",
   "triangles": {
-    "max": 9000,
-    "target": 6000
+    "max": 16000,
+    "target": 9000
+  },
+  "variants": {
+    "coursed_rubble": "res://assets/props/architecture/houses/merchant_stone/merchant_stone.glb",
+    "lime_rendered_wide": "res://assets/props/architecture/houses/merchant_stone/merchant_stone_rendered.glb"
   }
 }

@@ -24,7 +24,7 @@ func test_merchant_stone_production_kit_has_profile_and_budget_evidence() -> voi
 	assert_true(bool(features.get("raised_cellar_neck", false)))
 	assert_true(bool(features.get("tile_roof_band", false)))
 	assert_false(bool(features.get("late_gothic_facade", true)))
-	assert_eq(report.get("generator"), "burgher_house_kit_v1")
+	assert_eq(report.get("generator"), "burgher_house_kit_v2")
 	assert_true(bool(state.get("complete", false)), "generated kit evidence must pass all mesh checks")
 	assert_true(report.get("assets", {}).has("prop.architecture.house.merchant_stone"))
 

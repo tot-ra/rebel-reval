@@ -2,27 +2,92 @@
   "assets": {
     "prop.architecture.house.merchant_stone": {
       "asset_id": "prop.architecture.house.merchant_stone",
+      "body_m": [
+        9.0,
+        8.55,
+        9.6
+      ],
       "checks": {
+        "body_centred": true,
         "grounded": true,
         "non_empty": true,
-        "triangles_in_budget": true
+        "triangles_in_budget": true,
+        "wear_vertex_colours": true
       },
       "dimensions_m": [
-        10.5649,
-        22.36,
-        15.2199
+        9.64,
+        11.945,
+        15.0367
       ],
+      "features": {
+        "hatch_column": 3,
+        "hoist_beam": true,
+        "roof": "monk_and_nun_tile",
+        "storeys": 3,
+        "variant": "coursed_rubble",
+        "wall_finish": "rubble"
+      },
       "hoist_default": true,
       "limestone_front": true,
       "profile": "merchant_stone",
       "raised_cellar_neck": true,
+      "ridge_m": 13.8467,
       "roof_default": "tile",
-      "sha256": "973163027f55f8b6aa710f679f2dab45c7dba05407d9e6bc70b9eed679fa8947",
-      "surfaces": 97,
-      "triangles": 3828
+      "sha256": "e0c961b2b11bb19ae6a896067d00b82ac9331f94bc24588be7410ec5d8ee7fb7",
+      "smoke_outlet_m": [
+        0.57,
+        15.0967,
+        -1.152
+      ],
+      "surfaces": 9,
+      "triangles": 12532,
+      "variant": "coursed_rubble"
+    },
+    "prop.architecture.house.merchant_stone.rendered": {
+      "asset_id": "prop.architecture.house.merchant_stone.rendered",
+      "body_m": [
+        11.0,
+        6.1,
+        9.6
+      ],
+      "checks": {
+        "body_centred": true,
+        "grounded": true,
+        "non_empty": true,
+        "triangles_in_budget": true,
+        "wear_vertex_colours": true
+      },
+      "dimensions_m": [
+        11.64,
+        11.945,
+        13.6973
+      ],
+      "features": {
+        "hatch_column": 2,
+        "hoist_beam": true,
+        "roof": "monk_and_nun_tile",
+        "storeys": 2,
+        "variant": "lime_rendered_wide",
+        "wall_finish": "render"
+      },
+      "hoist_default": true,
+      "limestone_front": true,
+      "profile": "merchant_stone",
+      "raised_cellar_neck": true,
+      "ridge_m": 12.5073,
+      "roof_default": "tile",
+      "sha256": "c9af54e3d4daf1e700192d3aaad673b1ec67ac9230e932d1323803ef284ae13c",
+      "smoke_outlet_m": [
+        0.57,
+        13.7573,
+        -1.152
+      ],
+      "surfaces": 10,
+      "triangles": 12112,
+      "variant": "lime_rendered_wide"
     }
   },
   "blender": "Blender 5.2 LTS",
-  "generator": "burgher_house_kit_v1",
+  "generator": "burgher_house_kit_v2",
   "historical_basis": "history/dossiers/architecture/burgher-house-plan.md"
 }

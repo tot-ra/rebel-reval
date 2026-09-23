@@ -1,20 +1,31 @@
 {
   "approval": "task-authorized",
   "dimensions_m": {
-    "depth": 11.5,
-    "frontage": 6.6,
+    "depth": 6.6,
+    "frontage": 8.2,
     "typical_storeys": 1
   },
   "features": {
     "compact_two_room_workshop_dwelling": true,
     "granary_crane": false,
     "hoist_beam": false,
+    "horizontal_log_walls": true,
     "hypocaust": false,
     "late_gothic_facade": false,
     "minimal_rear_yard_mass": true,
     "modest_street_openings": true,
     "single_hearth_implication": true,
-    "thatch_or_shingle_roof": true
+    "thatch_or_shingle_roof": true,
+    "thatch_ridge_riders": true,
+    "weathering": [
+      "rising_damp",
+      "silver_weathered_logs",
+      "sagging_ridge",
+      "thatch_moss",
+      "smoke_vent_soot",
+      "patched_shingles",
+      "skewed_shutter"
+    ]
   },
   "id": "prop.architecture.house.craft_boda",
   "kind": "rigid_architecture",
@@ -27,11 +38,16 @@
   "target": "res://assets/props/architecture/houses/craft_boda/craft_boda.glb",
   "textures": {
     "albedo": 512,
-    "embedded": true
+    "embedded": true,
+    "normal": 512
   },
   "tier": "craft_boda",
   "triangles": {
-    "max": 9000,
-    "target": 2500
+    "max": 16000,
+    "target": 7000
+  },
+  "variants": {
+    "log_shingle_pentice": "res://assets/props/architecture/houses/craft_boda/craft_boda_pentice.glb",
+    "log_thatch": "res://assets/props/architecture/houses/craft_boda/craft_boda.glb"
   }
 }

@@ -1,0 +1,9 @@
+{
+  "complete": true,
+  "outputs": {
+    "prop.architecture.building.brewhouse": "d5ab803160a6007bf199fe5bb36a3ca60a91c2ba3586515153d3981628d37ee3",
+    "prop.architecture.building.log_barn": "33ab4dc259e1b7ad750c5d70a2a6d28c9901b52a799c10dbb32cb7c0639d2074",
+    "prop.architecture.building.public_bath": "3c47b7080f69a1ccc6d084124d202c8d971de774288c5895e9b60aab81b3d85a",
+    "prop.architecture.building.stone_storehouse": "fd848279c806cb164a250fcedc794aab412749550749a6f277258b6638d9e679"
+  }
+}

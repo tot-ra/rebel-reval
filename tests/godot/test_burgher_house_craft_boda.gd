@@ -24,12 +24,15 @@ func test_craft_boda_production_kit_has_compact_profile_and_budget_evidence() ->
 	assert_false(bool(features.get("hoist_beam", true)))
 	assert_false(bool(features.get("granary_crane", true)))
 	assert_false(bool(features.get("late_gothic_facade", true)))
-	assert_eq(report.get("generator"), "burgher_house_kit_v1")
+	assert_eq(report.get("generator"), "burgher_house_kit_v2")
 	assert_true(
 		bool(state.get("complete", false)), "generated kit evidence must pass all mesh checks"
 	)
 	var asset: Dictionary = report.get("assets", {}).get("prop.architecture.house.craft_boda", {})
-	assert_true(asset.get("triangles", 10000) < 9000)
+	assert_true(
+		asset.get("triangles", 20000) <= 16000,
+		"craft_boda must stay inside the v2 kit budget"
+	)
 	assert_false(bool(asset.get("hoist_default", true)))
 	assert_eq(asset.get("roof_default"), "thatch")
 

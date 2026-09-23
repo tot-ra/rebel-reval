@@ -2,27 +2,90 @@
   "assets": {
     "prop.architecture.house.craft_boda": {
       "asset_id": "prop.architecture.house.craft_boda",
+      "body_m": [
+        8.2,
+        2.7,
+        6.6
+      ],
       "checks": {
+        "body_centred": true,
         "grounded": true,
         "non_empty": true,
-        "triangles_in_budget": true
+        "triangles_in_budget": true,
+        "wear_vertex_colours": true
       },
       "dimensions_m": [
-        7.4849,
-        12.26,
-        7.615
+        9.575,
+        7.8284,
+        8.3888
       ],
+      "features": {
+        "flue": false,
+        "roof": "water_reed_thatch",
+        "storeys": 1,
+        "variant": "log_thatch",
+        "wall_finish": "moss_caulked_logs"
+      },
       "hoist_default": false,
       "profile": "craft_boda",
+      "ridge_m": 7.8812,
       "roof_default": "thatch",
-      "sha256": "01103b6bf98bfb5f5b54cef691471fd095585a4d391e8d40a74f55b7cf937b11",
+      "sha256": "3dcf910a906c103a9e2f13f92d0f8dc6356f0da07703082ed58ddaddc7cf74fa",
       "single_hearth": true,
+      "smoke_outlet_m": [
+        0.0,
+        5.2,
+        3.65
+      ],
       "storeys": 1,
-      "surfaces": 22,
-      "triangles": 776
+      "surfaces": 9,
+      "triangles": 9268,
+      "variant": "log_thatch"
+    },
+    "prop.architecture.house.craft_boda.pentice": {
+      "asset_id": "prop.architecture.house.craft_boda.pentice",
+      "body_m": [
+        9.4,
+        2.8,
+        7.0
+      ],
+      "checks": {
+        "body_centred": true,
+        "grounded": true,
+        "non_empty": true,
+        "triangles_in_budget": true,
+        "wear_vertex_colours": true
+      },
+      "dimensions_m": [
+        10.7976,
+        8.9159,
+        8.8892
+      ],
+      "features": {
+        "flue": true,
+        "roof": "split_shingle",
+        "storeys": 1,
+        "variant": "log_shingle_pentice",
+        "wall_finish": "moss_caulked_logs"
+      },
+      "hoist_default": false,
+      "profile": "craft_boda",
+      "ridge_m": 8.1992,
+      "roof_default": "shingle",
+      "sha256": "b74c63cc4bb459b474515a86bd7c1c699e3a7b9500ee52ec3906184a57c278d4",
+      "single_hearth": true,
+      "smoke_outlet_m": [
+        0.72,
+        8.9492,
+        -1.54
+      ],
+      "storeys": 1,
+      "surfaces": 11,
+      "triangles": 10364,
+      "variant": "log_shingle_pentice"
     }
   },
   "blender": "Blender 5.2 LTS",
-  "generator": "burgher_house_kit_v1",
+  "generator": "burgher_house_kit_v2",
   "historical_basis": "history/dossiers/architecture/burgher-house-plan.md"
 }

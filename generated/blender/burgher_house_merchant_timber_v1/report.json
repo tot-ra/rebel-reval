@@ -2,27 +2,88 @@
   "assets": {
     "prop.architecture.house.merchant_timber": {
       "asset_id": "prop.architecture.house.merchant_timber",
+      "body_m": [
+        8.4,
+        6.1,
+        8.4
+      ],
       "checks": {
+        "body_centred": true,
         "grounded": true,
         "non_empty": true,
-        "triangles_in_budget": true
+        "triangles_in_budget": true,
+        "wear_vertex_colours": true
       },
       "dimensions_m": [
-        9.6449,
-        19.12,
-        11.7756
+        9.6053,
+        9.9359,
+        12.0339
       ],
+      "features": {
+        "roof": "split_shingle",
+        "storeys": 2,
+        "variant": "timber_frame",
+        "wall_finish": "limewashed_wattle_and_daub"
+      },
       "hoist_default": false,
       "profile": "merchant_timber",
+      "ridge_m": 10.9439,
       "roof_default": "shingle",
-      "sha256": "ec35e038cafa12f6e25ec1ec7b06fb38ec3cd71d5c876553c123ae4477bfae16",
+      "sha256": "0363140f84f0d0a81328ca1e119fbcc1cef274a6a84594db6ca0c39057a1c21a",
+      "smoke_outlet_m": [
+        -0.58,
+        12.0939,
+        -1.512
+      ],
       "stone_cellar_base": true,
-      "surfaces": 56,
-      "timber_frame": true,
-      "triangles": 2112
+      "surfaces": 11,
+      "timber_front": true,
+      "triangles": 12876,
+      "variant": "timber_frame"
+    },
+    "prop.architecture.house.merchant_timber.log": {
+      "asset_id": "prop.architecture.house.merchant_timber.log",
+      "body_m": [
+        10.0,
+        5.65,
+        8.4
+      ],
+      "checks": {
+        "body_centred": true,
+        "grounded": true,
+        "non_empty": true,
+        "triangles_in_budget": true,
+        "wear_vertex_colours": true
+      },
+      "dimensions_m": [
+        11.3476,
+        9.8144,
+        12.4224
+      ],
+      "features": {
+        "roof": "split_shingle",
+        "storeys": 2,
+        "variant": "horizontal_log",
+        "wall_finish": "moss_caulked_logs"
+      },
+      "hoist_default": false,
+      "profile": "merchant_timber",
+      "ridge_m": 11.3824,
+      "roof_default": "shingle",
+      "sha256": "744aa1a5d222da93079ac33756356cfc94a28224025167c892e2b5c400da7bc5",
+      "smoke_outlet_m": [
+        0.67,
+        12.4824,
+        -1.68
+      ],
+      "stone_cellar_base": true,
+      "surfaces": 11,
+      "timber_front": true,
+      "triangles": 15656,
+      "variant": "horizontal_log"
     }
   },
   "blender": "Blender 5.2 LTS",
-  "generator": "burgher_house_kit_v1",
+  "generator": "burgher_house_kit_v2",
   "historical_basis": "history/dossiers/architecture/burgher-house-plan.md"
 }

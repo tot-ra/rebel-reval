@@ -1,0 +1,35 @@
+{
+  "approval": "task-authorized",
+  "features": {
+    "barn_thatch": true,
+    "brewhouse_steam_louvre": true,
+    "late_gothic_facade": false,
+    "public_bath_timber_not_saunatorn": true,
+    "steep_gable_to_street": true,
+    "storehouse_hoist_beam": true,
+    "storehouse_unheated": true
+  },
+  "id": "prop.architecture.building.lower_town_service",
+  "kind": "rigid_architecture",
+  "style_refs": [
+    "history/dossiers/architecture/burgher-house-plan.md",
+    "history/dossiers/topography/pikk-lai-frontage-materials-1340s.md",
+    "history/dossiers/topography/public-bath-locations-1343.md",
+    "history/dossiers/economy/reval-brewery-ordinances-1340s.md",
+    "docs/ART_BIBLE.md"
+  ],
+  "textures": {
+    "albedo": 512,
+    "embedded": true,
+    "normal": 512
+  },
+  "triangles": {
+    "max": 16000
+  },
+  "variants": {
+    "brewhouse": "prop.architecture.building.brewhouse",
+    "log_barn": "prop.architecture.building.log_barn",
+    "public_bath": "prop.architecture.building.public_bath",
+    "stone_storehouse": "prop.architecture.building.stone_storehouse"
+  }
+}

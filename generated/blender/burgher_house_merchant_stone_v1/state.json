@@ -1,6 +1,7 @@
 {
   "complete": true,
   "outputs": {
-    "prop.architecture.house.merchant_stone": "973163027f55f8b6aa710f679f2dab45c7dba05407d9e6bc70b9eed679fa8947"
+    "prop.architecture.house.merchant_stone": "e0c961b2b11bb19ae6a896067d00b82ac9331f94bc24588be7410ec5d8ee7fb7",
+    "prop.architecture.house.merchant_stone.rendered": "c9af54e3d4daf1e700192d3aaad673b1ec67ac9230e932d1323803ef284ae13c"
   }
 }

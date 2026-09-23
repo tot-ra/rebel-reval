@@ -20,7 +20,7 @@ func test_merchant_timber_production_kit_has_profile_and_budget_evidence() -> vo
 	assert_true(bool(brief.get("features", {}).get("shingle_forward_roof", false)))
 	assert_false(bool(brief.get("features", {}).get("late_gothic_facade", true)))
 	assert_false(bool(brief.get("features", {}).get("default_hoist", true)))
-	assert_eq(report.get("generator"), "burgher_house_kit_v1")
+	assert_eq(report.get("generator"), "burgher_house_kit_v2")
 	assert_true(bool(state.get("complete", false)), "generated kit evidence must pass all mesh checks")
 	assert_true(report.get("assets", {}).has("prop.architecture.house.merchant_timber"))
 
