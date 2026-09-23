@@ -228,9 +228,9 @@ SPECS = {
         # hump, a hanging roman muzzle, a throat bell, and palmate antlers.
         "source": None,
         "output": RUNTIME / "medieval_elk.glb",
-        "dimensions_m": (2.58, 2.08, 0.96),
-        "triangles": 12_000,
-        "voxel_divisor": 82.0,
+        "dimensions_m": (2.55, 1.78, 0.80),
+        "triangles": 11_000,
+        "voxel_divisor": 88.0,
         "base_color": (0.16, 0.09, 0.05),
         "accent_color": (0.34, 0.24, 0.16),
         "seed": 208744137,
@@ -238,7 +238,7 @@ SPECS = {
         "route": "deterministic_procedural_closed_anatomy_remesh",
         "source_license": "project-authored procedural geometry",
         "anatomy_decision": "remeshed_eurasian_elk_hump_hanging_muzzle_bell_palmate_antlers_long_legs_and_cloven_hooves",
-        "scale_basis": "2.58 m nose-to-rump; 2.08 m standing height including palmate antlers; 0.96 m body width",
+        "scale_basis": "2.55 m nose-to-rump; 1.78 m shoulder height; 0.80 m body width; palmate antlers are Neck details",
     },
 }
 
@@ -656,10 +656,9 @@ def apply_elk_fur_displacement(obj: bpy.types.Object, *, strength: float = 0.028
     fur_indices = []
     for vertex in obj.data.vertices:
         point = vertex.co
-        antler = point.z > 1.38 and (abs(point.y) > 0.16 or point.x < -0.55)
-        hoof = point.z < 0.14
-        muzzle = point.x < -1.12
-        if not antler and not hoof and not muzzle:
+        hoof = point.z < 0.16
+        muzzle = point.x < -1.20
+        if not hoof and not muzzle:
             fur_indices.append(vertex.index)
     if fur_indices:
         fur_group.add(fur_indices, 1.0, "REPLACE")
@@ -1052,6 +1051,14 @@ def assign_pbr_material(
     roughness_node.image = roughness
     links.new(roughness_node.outputs["Color"], shader.inputs["Roughness"])
     shader.inputs["Metallic"].default_value = 0.0
+    if name == "pack_horse":
+        # A fully matte hide reads as clay. Short coat needs a soft highlight.
+        if "Specular IOR Level" in shader.inputs:
+            shader.inputs["Specular IOR Level"].default_value = 0.40
+        if "Sheen Weight" in shader.inputs:
+            shader.inputs["Sheen Weight"].default_value = 0.20
+        if "Sheen Roughness" in shader.inputs:
+            shader.inputs["Sheen Roughness"].default_value = 0.42
     obj.data.materials.clear()
     obj.data.materials.append(material)
 
@@ -1653,97 +1660,263 @@ def create_pig_mesh() -> bpy.types.Object:
     return obj
 
 
-def create_pack_horse_mesh() -> bpy.types.Object:
-    """Build a stocky draft horse from closed volumes for the existing quadruped rig.
+def _loft_frame(tangent: Vector) -> tuple[Vector, Vector]:
+    tangent = tangent.normalized()
+    reference = Vector((0.0, 0.0, 1.0))
+    if abs(tangent.dot(reference)) > 0.82:
+        reference = Vector((0.0, 1.0, 0.0))
+    side = tangent.cross(reference).normalized()
+    up = side.cross(tangent).normalized()
+    return side, up
 
-    WHY: preserve-topology decimation of the Hunyuan shell left a faceted body and
-    a torn mane and tail. These volumes are authored in the same -X-facing meter
-    space as the pack-horse bones so normalization does not walk the eyes off the skull.
+
+def _append_loft(
+    bm: bmesh.types.BMesh,
+    stations: list[tuple[Vector, float, float]],
+    sides: int,
+) -> None:
+    """Bridge elliptical rings into one closed solid. Voxel remesh unions overlaps."""
+    rings: list[list] = []
+    count = len(stations)
+    for index, (center, radius_a, radius_b) in enumerate(stations):
+        if index == 0:
+            tangent = stations[1][0] - center
+        elif index == count - 1:
+            tangent = center - stations[index - 1][0]
+        else:
+            tangent = stations[index + 1][0] - stations[index - 1][0]
+        if tangent.length < 1e-8:
+            tangent = Vector((1.0, 0.0, 0.0))
+        side, up = _loft_frame(tangent)
+        ring = []
+        for step in range(sides):
+            angle = (step / sides) * math.tau
+            ring.append(
+                bm.verts.new(
+                    center
+                    + side * (math.cos(angle) * radius_a)
+                    + up * (math.sin(angle) * radius_b)
+                )
+            )
+        rings.append(ring)
+    for ring_index in range(count - 1):
+        current = rings[ring_index]
+        nxt = rings[ring_index + 1]
+        for step in range(sides):
+            following = (step + 1) % sides
+            bm.faces.new((current[step], current[following], nxt[following], nxt[step]))
+    bm.faces.new(tuple(rings[0]))
+    bm.faces.new(tuple(reversed(rings[-1])))
+
+
+def _horse_leg_stations(
+    x: float,
+    y: float,
+    profile: tuple[tuple[float, float, float], ...],
+) -> list[tuple[Vector, float, float]]:
+    stations = [
+        (Vector((x + shift_x, y, z)), radius, radius) for z, radius, shift_x in profile
+    ]
+    # The last ring is the hoof: longer in the direction of travel than it is wide.
+    center, radius_a, radius_b = stations[-1]
+    stations[-1] = (center, radius_a * 1.35, radius_b * 1.08)
+    return stations
+
+
+def refine_horse_surface(obj: bpy.types.Object) -> None:
+    """Push equine landmarks back after voxel smoothing.
+
+    WHY: even a lofted remesh melts the crest, belly tuck, cannons, and hooves
+    into one sausage. These displacements are a few centimetres, in the same
+    grounded meter space as the pack-horse bones.
+    """
+    leg_axes = (
+        Vector((-0.58, 0.22, 0.0)),
+        Vector((-0.58, -0.22, 0.0)),
+        Vector((0.64, 0.22, 0.0)),
+        Vector((0.64, -0.22, 0.0)),
+    )
+    for vertex in obj.data.vertices:
+        point = vertex.co
+        if -0.05 < point.x < 0.38 and point.z < 1.02 and abs(point.y) < 0.24:
+            target = 0.86 + 0.10 * abs(point.x - 0.12)
+            if point.z < target:
+                lift = (target - point.z) * 0.42 * (1.0 - abs(point.y) / 0.24)
+                point.z += lift
+                point.y *= 0.90
+        ear = point.z > 1.48 and point.x < -0.75
+        if not ear and -0.92 < point.x < -0.12 and abs(point.y) < 0.09 and point.z > 1.08:
+            central = 1.0 - abs(point.y) / 0.09
+            point.z += 0.05 * central
+            point.y *= 1.0 - 0.22 * central
+        if -0.32 < point.x < -0.08 and abs(point.y) < 0.10 and point.z > 1.12:
+            point.z += 0.026 * (1.0 - abs(point.y) / 0.10)
+        if -1.10 < point.x < -0.82 and abs(point.y) < 0.12 and 1.05 < point.z < 1.30:
+            under = max(0.0, (1.28 - point.z) / 0.23)
+            point.z -= 0.028 * under * (1.0 - abs(point.y) / 0.12)
+        if point.x < -1.02:
+            point.x -= 0.02
+            point.y *= 0.92
+        for sign in (1.0, -1.0):
+            eye = Vector((-0.94, 0.135 * sign, 1.36))
+            eye_distance = (point - eye).length
+            if eye_distance < 0.055:
+                point.y -= sign * 0.014 * (1.0 - eye_distance / 0.055)
+            nostril = Vector((-1.10, 0.045 * sign, 1.20))
+            nostril_distance = (point - nostril).length
+            if nostril_distance < 0.04:
+                point.x += 0.012 * (1.0 - nostril_distance / 0.04)
+        if -0.50 < point.x < -0.22 and 0.85 < point.z < 1.22 and 0.10 < abs(point.y) < 0.32:
+            point.y += math.copysign(0.016, point.y)
+        if 0.32 < point.x < 0.72 and 0.90 < point.z < 1.28 and abs(point.y) > 0.08:
+            point.y += math.copysign(0.018, point.y)
+        nearest = min(leg_axes, key=lambda axis: math.hypot(point.x - axis.x, point.y - axis.y))
+        radial = math.hypot(point.x - nearest.x, point.y - nearest.y)
+        if radial < 0.15 and radial > 1e-5:
+            scale = 1.0
+            if 0.20 < point.z < 0.46:
+                scale = 0.76
+            elif 0.50 < point.z < 0.66:
+                scale = 1.12
+            elif 0.10 < point.z < 0.18:
+                scale = 1.16
+            elif point.z < 0.09:
+                scale = 1.20
+            if scale != 1.0:
+                point.x = nearest.x + (point.x - nearest.x) * scale
+                point.y = nearest.y + (point.y - nearest.y) * scale
+            if point.z < 0.09:
+                forward = (0.09 - point.z) / 0.09
+                point.x += (-0.016 if nearest.x < 0.0 else 0.014) * forward
+    min_z = min(vertex.co.z for vertex in obj.data.vertices)
+    for vertex in obj.data.vertices:
+        vertex.co.z -= min_z
+        if vertex.co.z < 0.0:
+            vertex.co.z = 0.0
+    obj.data.update()
+
+
+def create_pack_horse_mesh() -> bpy.types.Object:
+    """Loft a draft horse in the same meter space as the existing quadruped rig.
+
+    WHY: stacked spheres smoothed into a clay sausage with no muzzle, crest, or
+    cannons. These closed sections overlap so voxel remesh stays one hide, while
+    the eye line stays near (-0.94, ±0.14, 1.38) and the legs stay on the bones.
     """
     parts: list[bpy.types.Object] = []
 
-    def sphere(
+    def loft(
         part_name: str,
-        location: tuple[float, float, float],
-        scale: tuple[float, float, float],
-        segments: int = 20,
-        ring_count: int = 12,
-    ) -> bpy.types.Object:
-        bpy.ops.mesh.primitive_uv_sphere_add(
-            segments=segments, ring_count=ring_count, location=location
-        )
-        part = bpy.context.object
-        part.name = part_name
-        part.scale = scale
-        bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+        stations: list[tuple[Vector, float, float]],
+        sides: int = 16,
+    ) -> None:
+        mesh = bpy.data.meshes.new(part_name)
+        bm = bmesh.new()
+        _append_loft(bm, stations, sides)
+        bm.to_mesh(mesh)
+        bm.free()
+        part = bpy.data.objects.new(part_name, mesh)
+        bpy.context.collection.objects.link(part)
         parts.append(part)
-        return part
 
-    def segment(
-        part_name: str,
-        start: tuple[float, float, float],
-        end: tuple[float, float, float],
-        start_radius: float,
-        end_radius: float,
-        vertices: int = 12,
-    ) -> bpy.types.Object:
-        start_v = Vector(start)
-        end_v = Vector(end)
-        direction = end_v - start_v
-        bpy.ops.mesh.primitive_cone_add(
-            vertices=vertices,
-            radius1=end_radius,
-            radius2=start_radius,
-            depth=direction.length,
-            location=(start_v + end_v) * 0.5,
-        )
-        part = bpy.context.object
-        part.name = part_name
-        part.rotation_euler = direction.to_track_quat("Z", "Y").to_euler()
-        bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
-        parts.append(part)
-        return part
-
-    # Volumes overlap on purpose. A gap at the throat or hoof becomes a separate
-    # island after voxel remesh, which is what split the previous horse.
-    # Coordinates are already near the post-normalize rig: nose -X, eyes near
-    # (-0.94, ±0.14, 1.38), front legs x=-0.58, hind legs x=0.64.
-    sphere("HorseBarrel", (0.08, 0.0, 1.02), (0.55, 0.32, 0.30), 28, 16)
-    sphere("HorseChest", (-0.36, 0.0, 1.04), (0.32, 0.28, 0.28), 22, 12)
-    sphere("HorseRump", (0.58, 0.0, 1.06), (0.36, 0.30, 0.28), 22, 12)
-    sphere("HorseBelly", (0.10, 0.0, 0.84), (0.40, 0.22, 0.18), 20, 12)
-    sphere("HorseWithers", (-0.22, 0.0, 1.22), (0.24, 0.16, 0.16), 16, 10)
-
-    # Overlapping spheres, not cones. Cone end-caps were remeshing into a hard shelf
-    # between the chest and the skull.
-    for index, (x, z, radius) in enumerate((
-        (-0.22, 1.10, 0.24),
-        (-0.42, 1.22, 0.21),
-        (-0.62, 1.32, 0.18),
-        (-0.82, 1.38, 0.16),
-        (-1.00, 1.36, 0.15),
-    )):
-        sphere(f"HorseNeck{index}", (x, 0.0, z), (radius, radius * 0.82, radius), 16, 10)
-        sphere(
-            f"HorseMane{index}",
-            (x - 0.02, 0.0, z + radius * 0.72),
-            (radius * 0.38, radius * 0.22, radius * 0.42),
-            12,
+    # (center, half-width, half-height). Nose is -X so normalization cannot
+    # swap the skull onto the dock.
+    loft(
+        "HorseBody",
+        [
+            (Vector((-1.14, 0.0, 1.20)), 0.036, 0.032),
+            (Vector((-1.06, 0.0, 1.22)), 0.066, 0.058),
+            (Vector((-1.00, 0.0, 1.26)), 0.084, 0.092),
+            (Vector((-0.94, 0.0, 1.32)), 0.150, 0.130),
+            (Vector((-0.86, 0.0, 1.40)), 0.124, 0.114),
+            (Vector((-0.78, 0.0, 1.34)), 0.130, 0.155),
+            (Vector((-0.64, 0.0, 1.24)), 0.155, 0.175),
+            (Vector((-0.50, 0.0, 1.14)), 0.190, 0.205),
+            (Vector((-0.34, 0.0, 1.04)), 0.250, 0.245),
+            (Vector((-0.16, 0.0, 0.98)), 0.300, 0.275),
+            (Vector((0.04, 0.0, 0.97)), 0.280, 0.255),
+            (Vector((0.24, 0.0, 1.02)), 0.230, 0.210),
+            (Vector((0.44, 0.0, 1.05)), 0.300, 0.260),
+            (Vector((0.64, 0.0, 1.07)), 0.220, 0.195),
+            (Vector((0.84, 0.0, 1.08)), 0.100, 0.105),
+            (Vector((1.14, 0.0, 1.06)), 0.030, 0.032),
+        ],
+        18,
+    )
+    loft(
+        "HorseJaw",
+        [
+            (Vector((-1.08, 0.0, 1.14)), 0.050, 0.040),
+            (Vector((-0.98, 0.0, 1.16)), 0.088, 0.070),
+            (Vector((-0.86, 0.0, 1.20)), 0.072, 0.058),
+        ],
+        12,
+    )
+    loft(
+        "HorseCrest",
+        [
+            (Vector((-0.88, 0.0, 1.50)), 0.030, 0.048),
+            (Vector((-0.72, 0.0, 1.54)), 0.032, 0.058),
+            (Vector((-0.56, 0.0, 1.46)), 0.034, 0.052),
+            (Vector((-0.40, 0.0, 1.36)), 0.030, 0.044),
+            (Vector((-0.24, 0.0, 1.28)), 0.026, 0.036),
+        ],
+        10,
+    )
+    for side, y_sign in (("Left", 1.0), ("Right", -1.0)):
+        loft(
+            f"HorseEar{side}",
+            [
+                (Vector((-0.86, 0.05 * y_sign, 1.44)), 0.032, 0.046),
+                (Vector((-0.84, 0.065 * y_sign, 1.55)), 0.024, 0.034),
+                (Vector((-0.82, 0.075 * y_sign, 1.66)), 0.014, 0.018),
+            ],
             8,
         )
-
-    sphere("HorseHead", (-1.00, 0.0, 1.34), (0.20, 0.13, 0.13), 18, 10)
-    sphere("HorseMuzzle", (-1.16, 0.0, 1.24), (0.14, 0.075, 0.075), 16, 10)
-    sphere("HorseJaw", (-1.02, 0.0, 1.18), (0.14, 0.09, 0.08), 14, 8)
-    segment("HorseEarLeft", (-0.98, 0.04, 1.46), (-0.94, 0.06, 1.64), 0.05, 0.02, 8)
-    segment("HorseEarRight", (-0.98, -0.04, 1.46), (-0.94, -0.06, 1.64), 0.05, 0.02, 8)
-    segment("HorseTailDock", (0.86, 0.0, 1.14), (1.16, 0.0, 1.24), 0.09, 0.04, 10)
-
-    for side, y in (("Left", 0.20), ("Right", -0.20)):
-        for end, x in (("Front", -0.58), ("Back", 0.64)):
-            segment(f"Horse{end}{side}Upper", (x, y, 1.08), (x, y, 0.50), 0.13, 0.085)
-            segment(f"Horse{end}{side}Cannon", (x, y, 0.58), (x, y, 0.08), 0.075, 0.05, 10)
-            sphere(f"Horse{end}{side}Hoof", (x, y, 0.055), (0.09, 0.07, 0.055), 12, 8)
+        loft(
+            f"HorseShoulder{side}",
+            [
+                (Vector((-0.40, 0.16 * y_sign, 1.10)), 0.11, 0.12),
+                (Vector((-0.52, 0.20 * y_sign, 0.90)), 0.09, 0.10),
+            ],
+            12,
+        )
+        loft(
+            f"HorseFront{side}",
+            _horse_leg_stations(
+                -0.58,
+                0.22 * y_sign,
+                (
+                    (1.14, 0.12, 0.0),
+                    (0.96, 0.095, 0.0),
+                    (0.78, 0.072, 0.0),
+                    (0.62, 0.086, 0.0),
+                    (0.46, 0.050, 0.0),
+                    (0.30, 0.044, 0.0),
+                    (0.16, 0.060, 0.0),
+                    (0.045, 0.070, -0.02),
+                ),
+            ),
+            12,
+        )
+        loft(
+            f"HorseHind{side}",
+            _horse_leg_stations(
+                0.64,
+                0.22 * y_sign,
+                (
+                    (1.16, 0.13, 0.0),
+                    (0.98, 0.105, 0.02),
+                    (0.80, 0.078, 0.02),
+                    (0.62, 0.092, 0.045),
+                    (0.46, 0.050, 0.02),
+                    (0.30, 0.044, 0.0),
+                    (0.16, 0.058, 0.01),
+                    (0.045, 0.068, 0.025),
+                ),
+            ),
+            12,
+        )
 
     bpy.ops.object.select_all(action="DESELECT")
     for part in parts:
@@ -1959,135 +2132,74 @@ def create_elk_mesh() -> bpy.types.Object:
         parts.append(part)
         return part
 
-    # High barrel on long legs. The hump, not a horse withers line, is the
-    # distance read for a Baltic moose.
-    sphere("ElkBarrel", (0.10, 0.0, 1.12), (0.68, 0.36, 0.34), 28, 16)
-    sphere("ElkBelly", (0.12, 0.0, 0.88), (0.52, 0.32, 0.24), 24, 14)
-    sphere("ElkShoulders", (-0.42, 0.0, 1.20), (0.38, 0.38, 0.40), 24, 14)
-    sphere("ElkHump", (-0.36, 0.0, 1.48), (0.28, 0.20, 0.22), 22, 12)
-    sphere("ElkBrisket", (-0.52, 0.0, 0.92), (0.24, 0.30, 0.28), 20, 12)
-    sphere("ElkRump", (0.62, 0.0, 1.16), (0.38, 0.36, 0.36), 24, 14)
-    sphere("ElkTopline", (0.08, 0.0, 1.36), (0.52, 0.22, 0.14), 20, 12)
-    sphere("ElkHaunchLeft", (0.56, 0.26, 1.00), (0.20, 0.16, 0.24), 16, 10)
-    sphere("ElkHaunchRight", (0.56, -0.26, 1.00), (0.20, 0.16, 0.24), 16, 10)
+    # Slim high barrel on long cannons. Antlers stay off this remesh: voxel
+    # fusion turned the first palms into withers potatoes.
+    sphere("ElkBarrel", (0.12, 0.0, 1.28), (0.62, 0.28, 0.26), 28, 16)
+    sphere("ElkLoin", (0.08, 0.0, 1.36), (0.40, 0.22, 0.16), 20, 12)
+    sphere("ElkBelly", (0.14, 0.0, 1.02), (0.48, 0.24, 0.18), 22, 12)
+    sphere("ElkShoulders", (-0.40, 0.0, 1.38), (0.32, 0.32, 0.30), 22, 12)
+    sphere("ElkHump", (-0.32, 0.0, 1.62), (0.22, 0.16, 0.18), 20, 11)
+    sphere("ElkBrisket", (-0.50, 0.0, 1.10), (0.20, 0.24, 0.20), 18, 10)
+    sphere("ElkRump", (0.62, 0.0, 1.32), (0.30, 0.28, 0.26), 22, 12)
+    sphere("ElkHaunchLeft", (0.56, 0.22, 1.12), (0.16, 0.14, 0.20), 14, 8)
+    sphere("ElkHaunchRight", (0.56, -0.22, 1.12), (0.16, 0.14, 0.20), 14, 8)
 
-    # Short thick neck sloping down into the hanging head. The bell is the
-    # species cue at street range.
-    segment("ElkNeck", (-0.48, 0.0, 1.22), (-0.82, 0.0, 1.08), 0.30, 0.22)
-    sphere("ElkNeckMass", (-0.62, 0.0, 1.12), (0.22, 0.20, 0.20), 18, 10)
-    sphere("ElkThroat", (-0.72, 0.0, 0.92), (0.16, 0.14, 0.12), 16, 10)
-    sphere("ElkBell", (-0.68, 0.0, 0.78), (0.10, 0.08, 0.18), 16, 10)
+    # Neck stays clear of the chest so remesh cannot swallow the hanging head.
+    segment("ElkNeck", (-0.46, 0.0, 1.36), (-0.92, 0.0, 1.18), 0.22, 0.16)
+    sphere("ElkNeckMass", (-0.68, 0.0, 1.24), (0.16, 0.14, 0.14), 16, 9)
+    sphere("ElkThroat", (-0.80, 0.0, 1.04), (0.12, 0.10, 0.10), 14, 8)
+    sphere("ElkBell", (-0.78, 0.0, 0.86), (0.07, 0.06, 0.14), 14, 8)
 
-    # Roman skull and an overhanging prehensile muzzle, not a cattle wedge.
-    sphere("ElkSkull", (-0.92, 0.0, 1.12), (0.22, 0.20, 0.20), 22, 12)
-    sphere("ElkForehead", (-1.00, 0.0, 1.18), (0.16, 0.16, 0.14), 18, 10)
-    sphere("ElkCheekLeft", (-1.02, 0.14, 1.02), (0.16, 0.12, 0.14), 16, 9)
-    sphere("ElkCheekRight", (-1.02, -0.14, 1.02), (0.16, 0.12, 0.14), 16, 9)
-    sphere("ElkMuzzle", (-1.22, 0.0, 0.94), (0.22, 0.14, 0.12), 22, 12)
-    sphere("ElkNose", (-1.40, 0.0, 0.88), (0.12, 0.12, 0.10), 18, 10)
-    sphere("ElkLip", (-1.46, 0.0, 0.82), (0.08, 0.10, 0.07), 14, 8)
-    sphere("ElkJaw", (-1.10, 0.0, 0.86), (0.18, 0.12, 0.10), 16, 9)
-    sphere("ElkEarLeft", (-0.88, 0.22, 1.28), (0.05, 0.14, 0.12), 14, 8)
-    sphere("ElkEarRight", (-0.88, -0.22, 1.28), (0.05, 0.14, 0.12), 14, 8)
-    segment("ElkTailDock", (0.92, 0.0, 1.12), (1.08, 0.0, 0.96), 0.08, 0.03, 10)
+    sphere("ElkSkull", (-1.05, 0.0, 1.16), (0.18, 0.16, 0.16), 20, 11)
+    sphere("ElkForehead", (-1.14, 0.0, 1.22), (0.12, 0.13, 0.11), 16, 9)
+    sphere("ElkCheekLeft", (-1.14, 0.12, 1.08), (0.12, 0.09, 0.11), 14, 8)
+    sphere("ElkCheekRight", (-1.14, -0.12, 1.08), (0.12, 0.09, 0.11), 14, 8)
+    sphere("ElkMuzzle", (-1.34, 0.0, 0.98), (0.20, 0.11, 0.10), 20, 11)
+    sphere("ElkNose", (-1.52, 0.0, 0.92), (0.10, 0.10, 0.08), 16, 9)
+    sphere("ElkLip", (-1.58, 0.0, 0.86), (0.07, 0.08, 0.06), 12, 7)
+    sphere("ElkJaw", (-1.22, 0.0, 0.92), (0.14, 0.10, 0.08), 14, 8)
+    segment("ElkTailDock", (0.88, 0.0, 1.28), (1.00, 0.0, 1.14), 0.06, 0.025, 8)
 
-    # Palmate antlers stay thick enough for the ~3 cm voxel. Thin tines vanish.
-    for side, y_sign in (("Left", 1.0), ("Right", -1.0)):
-        segment(
-            f"ElkAntler{side}Pedicle",
-            (-0.88, 0.06 * y_sign, 1.28),
-            (-0.82, 0.14 * y_sign, 1.46),
-            0.055,
-            0.048,
-            10,
-        )
-        segment(
-            f"ElkAntler{side}Beam",
-            (-0.84, 0.12 * y_sign, 1.42),
-            (-0.70, 0.32 * y_sign, 1.62),
-            0.050,
-            0.042,
-            10,
-        )
-        sphere(
-            f"ElkAntler{side}Palm",
-            (-0.66, 0.36 * y_sign, 1.64),
-            (0.18, 0.10, 0.16),
-            16,
-            10,
-        )
-        sphere(
-            f"ElkAntler{side}PalmFront",
-            (-0.80, 0.34 * y_sign, 1.60),
-            (0.12, 0.08, 0.12),
-            14,
-            8,
-        )
-        sphere(
-            f"ElkAntler{side}PalmBack",
-            (-0.52, 0.38 * y_sign, 1.66),
-            (0.12, 0.08, 0.12),
-            14,
-            8,
-        )
-        for tine_index, (dx, dz) in enumerate(((-0.10, 0.16), (0.02, 0.18), (0.12, 0.14))):
-            segment(
-                f"ElkAntler{side}Tine{tine_index}",
-                (-0.66 + dx * 0.30, 0.36 * y_sign, 1.64),
-                (-0.66 + dx, 0.38 * y_sign, 1.64 + dz),
-                0.042,
-                0.022,
-                8,
-            )
-        segment(
-            f"ElkAntler{side}Brow",
-            (-0.82, 0.16 * y_sign, 1.48),
-            (-1.02, 0.20 * y_sign, 1.52),
-            0.040,
-            0.022,
-            8,
-        )
-
-    # Long cannons and cloven hooves planted at Z=0 before normalization.
-    for side, y in (("Left", 0.24), ("Right", -0.24)):
-        sphere(f"ElkFront{side}Shoulder", (-0.44, y, 0.96), (0.15, 0.13, 0.20), 16, 9)
-        sphere(f"ElkBack{side}Hip", (0.58, y, 0.98), (0.17, 0.14, 0.22), 16, 9)
-        for end, x, knee_dx in (("Front", -0.44, -0.03), ("Back", 0.58, 0.06)):
+    # Long thin legs. The first pass used cattle cannons and read as a fat pony.
+    for side, y in (("Left", 0.20), ("Right", -0.20)):
+        sphere(f"ElkFront{side}Shoulder", (-0.42, y, 1.14), (0.13, 0.11, 0.16), 14, 8)
+        sphere(f"ElkBack{side}Hip", (0.56, y, 1.16), (0.15, 0.12, 0.18), 14, 8)
+        for end, x, knee_dx in (("Front", -0.42, -0.03), ("Back", 0.56, 0.05)):
             segment(
                 f"Elk{end}{side}UpperLeg",
-                (x, y, 0.98),
-                (x + knee_dx, y, 0.52),
-                0.120,
-                0.082,
+                (x, y, 1.16),
+                (x + knee_dx, y, 0.62),
+                0.090,
+                0.055,
             )
             segment(
                 f"Elk{end}{side}LowerLeg",
-                (x + knee_dx, y, 0.54),
-                (x, y, 0.16),
-                0.082,
+                (x + knee_dx, y, 0.64),
+                (x, y, 0.14),
                 0.055,
+                0.038,
             )
             segment(
                 f"Elk{end}{side}Pastern",
-                (x, y, 0.17),
-                (x - 0.02, y, 0.06),
-                0.055,
-                0.042,
+                (x, y, 0.15),
+                (x - 0.02, y, 0.05),
+                0.038,
+                0.030,
                 10,
             )
             sphere(
                 f"Elk{end}{side}HoofOuter",
-                (x - 0.03, y + 0.028, 0.042),
-                (0.090, 0.046, 0.042),
-                14,
-                8,
+                (x - 0.03, y + 0.024, 0.038),
+                (0.080, 0.040, 0.038),
+                12,
+                7,
             )
             sphere(
                 f"Elk{end}{side}HoofInner",
-                (x - 0.03, y - 0.028, 0.042),
-                (0.090, 0.046, 0.042),
-                14,
-                8,
+                (x - 0.03, y - 0.024, 0.038),
+                (0.080, 0.040, 0.038),
+                12,
+                7,
             )
 
     bpy.ops.object.select_all(action="DESELECT")
@@ -2145,7 +2257,7 @@ def build(name: str, spec: dict) -> dict:
                     0.48
                     if elk_surface
                     else (
-                        0.62
+                        0.30
                         if horse_surface
                         else (0.50 if name == "cattle" else (0.58 if name == "goat" else 0.72))
                     )
@@ -2157,7 +2269,7 @@ def build(name: str, spec: dict) -> dict:
                 else (
                     4
                     if elk_surface
-                    else (8 if horse_surface else (5 if name == "cattle" else (7 if name == "goat" else 12)))
+                    else (3 if horse_surface else (5 if name == "cattle" else (7 if name == "goat" else 12)))
                 )
             ),
         )
@@ -2166,7 +2278,7 @@ def build(name: str, spec: dict) -> dict:
         if name == "brown_bear":
             apply_bear_fur_displacement(obj, strength=0.072)
         if name == "elk":
-            apply_elk_fur_displacement(obj, strength=0.028)
+            apply_elk_fur_displacement(obj, strength=0.040)
         discarded_before = 0
     else:
         assert source is not None
@@ -2201,6 +2313,9 @@ def build(name: str, spec: dict) -> dict:
     if name == "pig":
         discarded_before = 0
     normalize_dimensions(obj, spec["dimensions_m"])
+    if name == "pack_horse":
+        # Landmark push runs after metric scale so crest and cannons match the rig.
+        refine_horse_surface(obj)
     make_uv(obj)
     profile = SURFACE_PROFILES[name]
     if name in {"cattle", "pack_horse", "brown_bear", "elk"}:

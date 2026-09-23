@@ -410,7 +410,7 @@ def create_pack_horse_rig(obj: bpy.types.Object) -> tuple[bpy.types.Object, list
     """Surface-fitted procedural pack-horse rig with compact, seated eyes."""
     eye_left = snap_point_to_mesh_surface(obj, Vector((-0.94, 0.14, 1.38)), outward=-0.010)
     eye_right = snap_point_to_mesh_surface(obj, Vector((-0.94, -0.14, 1.38)), outward=-0.010)
-    return create_quadruped_rig(
+    armature, details = create_quadruped_rig(
         obj,
         "PackHorseRig",
         (0.0, 0.0, 0.55),
@@ -444,8 +444,40 @@ def create_pack_horse_rig(obj: bpy.types.Object) -> tuple[bpy.types.Object, list
             ("Left", eye_left.y, eye_left.z, "EyeLeft"),
             ("Right", eye_right.y, eye_right.z, "EyeRight"),
         ],
-        tail_specs=((0.70, 0.0, 0.95), (1.02, 0.0, 0.52), 0.055, 0.028),
+        tail_specs=((0.72, 0.0, 0.98), (1.06, 0.0, 0.40), 0.042, 0.016),
     )
+    # One cone reads as a stick. Extra locks parented to the same tail bone
+    # give the dock a hair mass without a second skeleton.
+    hair = obj.data.materials[0]
+    for strand_name, end in (
+        ("TailStrandLeft", (1.12, 0.06, 0.32)),
+        ("TailStrandRight", (1.12, -0.06, 0.32)),
+        ("TailStrandCenter", (1.16, 0.0, 0.24)),
+    ):
+        strand = add_tapered_segment(
+            strand_name,
+            Vector((0.80, end[1] * 0.2, 0.92)),
+            Vector(end),
+            0.024,
+            0.008,
+            hair,
+        )
+        parent_to_bone(strand, armature, "Tail")
+        details.append(strand)
+    nose_material = create_flat_material("packhorserig_nostril", (0.035, 0.022, 0.016, 1.0))
+    for side, probe_y in (("Left", 0.05), ("Right", -0.05)):
+        anchor = snap_point_to_mesh_surface(
+            obj, Vector((-1.10, probe_y, 1.20)), outward=0.003
+        )
+        nostril = add_uv_sphere(
+            f"Nostril{side}",
+            tuple(anchor),
+            (0.020, 0.014, 0.012),
+            nose_material,
+        )
+        parent_to_bone(nostril, armature, "Neck")
+        details.append(nostril)
+    return armature, details
 
 
 def create_pig_rig(obj: bpy.types.Object) -> tuple[bpy.types.Object, list[bpy.types.Object]]:
@@ -834,6 +866,252 @@ def create_livestock_animations(armature: bpy.types.Object) -> None:
     bpy.context.scene.frame_end = 61
 
 
+def create_brown_bear_rig(obj: bpy.types.Object) -> tuple[bpy.types.Object, list[bpy.types.Object]]:
+    """Heavy ursine rig with fitted eyes, nostrils, and a short docked tail."""
+    eye_left = snap_point_to_mesh_surface(obj, Vector((-0.88, 0.16, 0.98)), outward=-0.006)
+    eye_right = snap_point_to_mesh_surface(obj, Vector((-0.88, -0.16, 0.98)), outward=-0.006)
+    nostril_left = snap_point_to_mesh_surface(obj, Vector((-1.10, 0.06, 0.80)), outward=0.003)
+    nostril_right = snap_point_to_mesh_surface(obj, Vector((-1.10, -0.06, 0.80)), outward=0.003)
+    armature, details = create_quadruped_rig(
+        obj,
+        "BrownBearRig",
+        (0.0, 0.0, 0.42),
+        (0.0, 0.0, 0.90),
+        {
+            "Neck": ((-0.36, 0.0, 0.82), (-0.82, 0.0, 0.96)),
+            "Tail": ((0.72, 0.0, 0.78), (0.94, 0.0, 0.64)),
+            "FrontLeftLeg": ((-0.38, 0.24, 0.68), (-0.42, 0.24, 0.06)),
+            "FrontRightLeg": ((-0.38, -0.24, 0.68), (-0.42, -0.24, 0.06)),
+            "BackLeftLeg": ((0.50, 0.24, 0.68), (0.52, 0.24, 0.06)),
+            "BackRightLeg": ((0.50, -0.24, 0.68), (0.52, -0.24, 0.06)),
+            "EyeLeft": (
+                tuple(eye_left),
+                (eye_left.x, eye_left.y, eye_left.z + 0.06),
+            ),
+            "EyeRight": (
+                tuple(eye_right),
+                (eye_right.x, eye_right.y, eye_right.z + 0.06),
+            ),
+        },
+        {
+            "neck_x": -0.34,
+            "neck_z": 0.60,
+            "tail_x": 0.68,
+            "tail_z": 0.54,
+            "tail_y": 0.22,
+            "leg_z": 0.66,
+            "front_leg_x": -0.14,
+            "back_leg_x": 0.22,
+            "eye_x": abs(eye_left.x),
+            "eye_scale": (0.028, 0.014, 0.024),
+            "pupil_scale": (0.013, 0.007, 0.014),
+            "pupil_offset": 0.007,
+            "tail_tuft_scale": (0.055, 0.045, 0.060),
+        },
+        eye_specs=[
+            ("Left", eye_left.y, eye_left.z, "EyeLeft"),
+            ("Right", eye_right.y, eye_right.z, "EyeRight"),
+        ],
+        tail_specs=((0.72, 0.0, 0.78), (0.94, 0.0, 0.64), 0.045, 0.022),
+    )
+    nose_material = create_flat_material("brownbearrig_nostril", (0.030, 0.018, 0.012, 1.0))
+    for side, anchor in (("Left", nostril_left), ("Right", nostril_right)):
+        nostril = add_uv_sphere(
+            f"Nostril{side}",
+            tuple(anchor),
+            (0.018, 0.010, 0.012),
+            nose_material,
+        )
+        parent_to_bone(nostril, armature, "Neck")
+        details.append(nostril)
+    # Remesh melts ears and claws into the hull. Keep them as fitted details so
+    # the plantigrade read survives the single-surface body contract.
+    ear_material = create_flat_material("brownbearrig_ear", (0.10, 0.055, 0.028, 1.0))
+    for side, y_sign in (("Left", 1.0), ("Right", -1.0)):
+        ear_anchor = snap_point_to_mesh_surface(
+            obj, Vector((-0.90, 0.22 * y_sign, 1.04)), outward=0.008
+        )
+        ear = add_uv_sphere(
+            f"Ear{side}",
+            tuple(ear_anchor),
+            (0.035, 0.070, 0.055),
+            ear_material,
+        )
+        parent_to_bone(ear, armature, "Neck")
+        details.append(ear)
+    claw_material = create_flat_material("brownbearrig_claw", (0.045, 0.028, 0.016, 1.0))
+    for y_sign, bone_name in (
+        (1.0, "FrontLeftLeg"),
+        (-1.0, "FrontRightLeg"),
+        (1.0, "BackLeftLeg"),
+        (-1.0, "BackRightLeg"),
+    ):
+        front = bone_name.startswith("Front")
+        pad = snap_point_to_mesh_surface(
+            obj,
+            Vector((-0.50 if front else 0.58, 0.24 * y_sign, 0.04)),
+            outward=0.002,
+        )
+        for claw_index, claw_y in enumerate((-0.035, -0.012, 0.012, 0.035)):
+            start = pad + Vector((0.012, claw_y, 0.010))
+            end = start + Vector((-0.09, claw_y * 0.12, -0.016))
+            claw = add_tapered_segment(
+                f"{bone_name}Claw{claw_index}",
+                start,
+                end,
+                0.014,
+                0.005,
+                claw_material,
+            )
+            parent_to_bone(claw, armature, bone_name)
+            details.append(claw)
+    armature["procedural_brown_bear"] = True
+    armature["surface_snapped_face"] = True
+    return armature, details
+
+
+def create_elk_rig(obj: bpy.types.Object) -> tuple[bpy.types.Object, list[bpy.types.Object]]:
+    """Long-legged elk rig with fitted face, ears, and palmate antler details."""
+    eye_left = snap_point_to_mesh_surface(obj, Vector((-1.08, 0.13, 1.18)), outward=-0.005)
+    eye_right = snap_point_to_mesh_surface(obj, Vector((-1.08, -0.13, 1.18)), outward=-0.005)
+    nostril_left = snap_point_to_mesh_surface(obj, Vector((-1.50, 0.05, 0.92)), outward=0.003)
+    nostril_right = snap_point_to_mesh_surface(obj, Vector((-1.50, -0.05, 0.92)), outward=0.003)
+    armature, details = create_quadruped_rig(
+        obj,
+        "ElkRig",
+        (0.0, 0.0, 0.62),
+        (0.0, 0.0, 1.32),
+        {
+            "Neck": ((-0.42, 0.0, 1.34), (-0.95, 0.0, 1.18)),
+            "Tail": ((0.68, 0.0, 1.30), (0.96, 0.0, 1.14)),
+            "FrontLeftLeg": ((-0.42, 0.20, 1.10), (-0.44, 0.20, 0.05)),
+            "FrontRightLeg": ((-0.42, -0.20, 1.10), (-0.44, -0.20, 0.05)),
+            "BackLeftLeg": ((0.56, 0.20, 1.12), (0.56, 0.20, 0.05)),
+            "BackRightLeg": ((0.56, -0.20, 1.12), (0.56, -0.20, 0.05)),
+            "EyeLeft": (
+                tuple(eye_left),
+                (eye_left.x, eye_left.y, eye_left.z + 0.06),
+            ),
+            "EyeRight": (
+                tuple(eye_right),
+                (eye_right.x, eye_right.y, eye_right.z + 0.06),
+            ),
+        },
+        {
+            "neck_x": -0.36,
+            "neck_z": 0.68,
+            "tail_x": 0.66,
+            "tail_z": 0.62,
+            "tail_y": 0.22,
+            "leg_z": 0.72,
+            "front_leg_x": -0.16,
+            "back_leg_x": 0.24,
+            "eye_x": abs(eye_left.x),
+            "eye_scale": (0.032, 0.016, 0.026),
+            "pupil_scale": (0.014, 0.007, 0.015),
+            "pupil_offset": 0.009,
+            "tail_tuft_scale": (0.050, 0.042, 0.058),
+        },
+        eye_specs=[
+            ("Left", eye_left.y, eye_left.z, "EyeLeft"),
+            ("Right", eye_right.y, eye_right.z, "EyeRight"),
+        ],
+        tail_specs=((0.68, 0.0, 1.30), (0.96, 0.0, 1.14), 0.040, 0.018),
+    )
+    nose_material = create_flat_material("elkrig_nostril", (0.045, 0.028, 0.020, 1.0))
+    for side, anchor in (("Left", nostril_left), ("Right", nostril_right)):
+        nostril = add_uv_sphere(
+            f"Nostril{side}",
+            tuple(anchor),
+            (0.020, 0.011, 0.013),
+            nose_material,
+        )
+        parent_to_bone(nostril, armature, "Neck")
+        details.append(nostril)
+    # Remesh melts ears and palms into the hull. Keep them as Neck details so
+    # the moose read survives the single-surface body contract.
+    ear_material = create_flat_material("elkrig_ear", (0.28, 0.16, 0.08, 1.0))
+    keratin = create_flat_material("elkrig_antler", (0.22, 0.14, 0.08, 1.0))
+    for side, y_sign in (("Left", 1.0), ("Right", -1.0)):
+        ear_anchor = snap_point_to_mesh_surface(
+            obj, Vector((-1.00, 0.14 * y_sign, 1.26)), outward=0.010
+        )
+        ear = add_uv_sphere(
+            f"Ear{side}",
+            tuple(ear_anchor + Vector((0.02, 0.09 * y_sign, 0.10))),
+            (0.028, 0.130, 0.090),
+            ear_material,
+        )
+        parent_to_bone(ear, armature, "Neck")
+        details.append(ear)
+        poll = snap_point_to_mesh_surface(
+            obj, Vector((-1.04, 0.09 * y_sign, 1.30)), outward=0.014
+        )
+        beam_end = poll + Vector((0.06, 0.26 * y_sign, 0.38))
+        beam = add_tapered_segment(
+            f"Antler{side}Beam",
+            poll,
+            beam_end,
+            0.038,
+            0.026,
+            keratin,
+        )
+        parent_to_bone(beam, armature, "Neck")
+        details.append(beam)
+        palm = add_uv_sphere(
+            f"Antler{side}Palm",
+            tuple(beam_end + Vector((0.02, 0.05 * y_sign, 0.04))),
+            (0.18, 0.032, 0.15),
+            keratin,
+        )
+        parent_to_bone(palm, armature, "Neck")
+        details.append(palm)
+        palm_front = add_uv_sphere(
+            f"Antler{side}PalmFront",
+            tuple(beam_end + Vector((-0.12, 0.03 * y_sign, 0.00))),
+            (0.12, 0.028, 0.10),
+            keratin,
+        )
+        parent_to_bone(palm_front, armature, "Neck")
+        details.append(palm_front)
+        palm_back = add_uv_sphere(
+            f"Antler{side}PalmBack",
+            tuple(beam_end + Vector((0.14, 0.04 * y_sign, 0.03))),
+            (0.12, 0.028, 0.10),
+            keratin,
+        )
+        parent_to_bone(palm_back, armature, "Neck")
+        details.append(palm_back)
+        for tine_index, offset in enumerate(
+            (Vector((-0.04, 0.02 * y_sign, 0.16)), Vector((0.06, 0.03 * y_sign, 0.18)), Vector((0.14, 0.02 * y_sign, 0.12)))
+        ):
+            tine_start = beam_end + Vector((0.02, 0.04 * y_sign, 0.04))
+            tine = add_tapered_segment(
+                f"Antler{side}Tine{tine_index}",
+                tine_start,
+                tine_start + offset,
+                0.028,
+                0.010,
+                keratin,
+            )
+            parent_to_bone(tine, armature, "Neck")
+            details.append(tine)
+        brow = add_tapered_segment(
+            f"Antler{side}Brow",
+            poll + Vector((-0.02, 0.04 * y_sign, 0.06)),
+            poll + Vector((-0.18, 0.08 * y_sign, 0.10)),
+            0.028,
+            0.010,
+            keratin,
+        )
+        parent_to_bone(brow, armature, "Neck")
+        details.append(brow)
+    armature["procedural_elk"] = True
+    armature["surface_snapped_face"] = True
+    armature["palmate_antlers"] = True
+    return armature, details
+
+
 RIG_BUILDERS = {
     "cattle": create_cattle_rig,
     "dog": create_dog_rig,
@@ -841,4 +1119,6 @@ RIG_BUILDERS = {
     "pig": create_pig_rig,
     "sheep": create_sheep_rig,
     "pack_horse": create_pack_horse_rig,
+    "brown_bear": create_brown_bear_rig,
+    "elk": create_elk_rig,
 }

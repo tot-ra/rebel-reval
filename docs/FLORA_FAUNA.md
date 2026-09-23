@@ -162,7 +162,7 @@ Bird tests: [`test_map_view_bird_species.gd`](../tests/godot/test_map_view_bird_
 
 | Mammal | Runtime ID | Group | Runtime owner | Status |
 |---|---|---|---|---|
-| Brown bear | `fauna.brown_bear` | bear | wild margin | modeled (catalog) |
+| Brown bear | `fauna.brown_bear` | bear | wild margin | runtime (production GLB) |
 | Wolf | `fauna.wolf` | canid | wild margin | modeled (catalog) |
 | Red fox | `fauna.red_fox` | canid | wild margin | modeled (catalog) |
 | Eurasian lynx | `fauna.lynx` | felid | wild margin | modeled (catalog) |
