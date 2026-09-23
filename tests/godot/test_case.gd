@@ -21,6 +21,16 @@ func assert_eq(actual: Variant, expected: Variant, message: String = "") -> void
 		var detail := "Expected <%s> but got <%s>" % [str(expected), str(actual)]
 		fail(_format_message(message, detail))
 
+func assert_almost_eq(
+	actual: float, expected: float, tolerance: float, message: String = ""
+) -> void:
+	if absf(actual - expected) > tolerance:
+		var detail := (
+			"Expected <%s> +/- <%s> but got <%s>"
+			% [str(expected), str(tolerance), str(actual)]
+		)
+		fail(_format_message(message, detail))
+
 func assert_ne(actual: Variant, expected: Variant, message: String = "") -> void:
 	if actual == expected:
 		var detail := "Expected value different from <%s>" % str(expected)

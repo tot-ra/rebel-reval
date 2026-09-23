@@ -4,6 +4,7 @@ const SkyWeather := preload("res://scripts/map/view3d/sky_weather_3d.gd")
 const MapTypesContract := preload("res://scripts/map/map_types.gd")
 const WaterMaterials := preload("res://scripts/map/view3d/map_view_water_materials.gd")
 const MaterialsFacade := preload("res://scripts/map/view3d/map_view_materials.gd")
+const WaterTestSupport := preload("res://tests/godot/r715_water_test_support.gd")
 
 const MAP_VIEW_SOURCE := "res://scripts/map/view3d/map_view_3d.gd"
 const SESSION_STATE_SOURCE := "res://scripts/session/session_state.gd"
@@ -23,7 +24,7 @@ func test_one_weather_snapshot_updates_every_water_profile() -> void:
 	sky.set_weather(SkyWeather.WEATHER_STORM)
 	sky.advance(SkyWeather.TRANSITION_SECONDS)
 	var storm_night := sky.presentation_snapshot(0.0, 0.0)
-	WaterMaterials.apply_weather_presentation(storm_night, MaterialsFacade.WATER_WAVE_BASE)
+	WaterTestSupport.apply_weather_presentation(storm_night, MaterialsFacade.WATER_WAVE_BASE)
 
 	for terrain_id: StringName in WATER_TERRAINS:
 		var material := WaterMaterials.water_surface(terrain_id, MaterialsFacade.WATER_WAVE_BASE)
@@ -61,7 +62,7 @@ func test_one_weather_snapshot_updates_every_water_profile() -> void:
 	sky.set_weather(SkyWeather.WEATHER_CLEAR)
 	sky.advance(SkyWeather.TRANSITION_SECONDS)
 	var clear_day := sky.presentation_snapshot(0.5, 1.0)
-	WaterMaterials.apply_weather_presentation(clear_day, MaterialsFacade.WATER_WAVE_BASE)
+	WaterTestSupport.apply_weather_presentation(clear_day, MaterialsFacade.WATER_WAVE_BASE)
 	assert_true(
 		float(river.get_shader_parameter("wave_speed")) < storm_speed,
 		"clear weather must reduce wave speed through the same adapter",
@@ -81,7 +82,7 @@ func test_rain_shelter_changes_emitter_only_not_water_state() -> void:
 	sky.set_weather(SkyWeather.WEATHER_RAIN)
 	sky.advance(SkyWeather.TRANSITION_SECONDS)
 	var outside := sky.presentation_snapshot(0.25, 0.5)
-	WaterMaterials.apply_weather_presentation(outside, MaterialsFacade.WATER_WAVE_BASE)
+	WaterTestSupport.apply_weather_presentation(outside, MaterialsFacade.WATER_WAVE_BASE)
 	var outside_parameters := _water_parameters(MapTypesContract.TERRAIN_SHALLOW_WATER)
 
 	sky.rain_suppressed = true
@@ -92,7 +93,7 @@ func test_rain_shelter_changes_emitter_only_not_water_state() -> void:
 		outside.rain_intensity,
 		"rain shelter must not mutate the shared weather intensity",
 	)
-	WaterMaterials.apply_weather_presentation(sheltered, MaterialsFacade.WATER_WAVE_BASE)
+	WaterTestSupport.apply_weather_presentation(sheltered, MaterialsFacade.WATER_WAVE_BASE)
 	assert_eq(
 		_water_parameters(MapTypesContract.TERRAIN_SHALLOW_WATER),
 		outside_parameters,
@@ -118,9 +119,13 @@ func test_saved_weather_handoff_restores_identical_water_uniforms() -> void:
 	)
 	var source_presentation := source.presentation_snapshot(0.75, 0.35)
 	var restored_presentation := restored.presentation_snapshot(0.75, 0.35)
-	WaterMaterials.apply_weather_presentation(source_presentation, MaterialsFacade.WATER_WAVE_BASE)
+	WaterTestSupport.apply_weather_presentation(
+		source_presentation, MaterialsFacade.WATER_WAVE_BASE
+	)
 	var source_parameters := _water_parameters(MapTypesContract.TERRAIN_DEEP_WATER)
-	WaterMaterials.apply_weather_presentation(restored_presentation, MaterialsFacade.WATER_WAVE_BASE)
+	WaterTestSupport.apply_weather_presentation(
+		restored_presentation, MaterialsFacade.WATER_WAVE_BASE
+	)
 	assert_eq(
 		_water_parameters(MapTypesContract.TERRAIN_DEEP_WATER),
 		source_parameters,
@@ -164,9 +169,17 @@ func test_environment_binding_keeps_one_cross_map_owner() -> void:
 	var water_source := FileAccess.get_file_as_string(
 		"res://scripts/map/view3d/map_view_water_materials.gd"
 	)
+	var support_source := FileAccess.get_file_as_string(
+		"res://tests/godot/r715_water_test_support.gd"
+	)
 	assert_true(
-		water_source.contains("static func apply_weather_presentation("),
-		"water must expose one snapshot adapter",
+		water_source.contains("static func apply_sea_weather(")
+		and water_source.contains("static func apply_water_lighting("),
+		"water must expose the composable weather adapters",
+	)
+	assert_true(
+		support_source.contains("static func apply_weather_presentation("),
+		"tests must keep one snapshot adapter for R-715 fixtures",
 	)
 	assert_false(water_source.contains("var weather"), "water must not own a second weather state")
 	assert_false(

@@ -210,7 +210,8 @@ func test_forge_cat_stops_and_faces_player_during_dialogue() -> void:
 	var player := CharacterBody2D.new()
 	cat.global_position = Vector2(200, 200)
 	player.global_position = Vector2(260, 200)
-	cat._set_state(ForgeCat.RoutineState.WALKING, 0.0)
+	cat._routine_active = true
+	cat._activity_mode = ForgeCat.ActivityMode.WALKING
 	cat.velocity = Vector2(ForgeCat.WALK_SPEED, 0.0)
 
 	cat.set_conversation_partner(player)
@@ -251,7 +252,8 @@ func test_dialogue_runner_pauses_host_npc_during_forge_talk() -> void:
 	root.add_child(runner)
 	runner.configure(db, GameState.new(), box, controller)
 
-	cat._set_state(ForgeCat.RoutineState.WALKING, 0.0)
+	cat._routine_active = true
+	cat._activity_mode = ForgeCat.ActivityMode.WALKING
 	cat.velocity = Vector2(ForgeCat.WALK_SPEED, 0.0)
 
 	assert_true(runner.start(CAT_DIALOGUE_ID, cat))
@@ -353,7 +355,9 @@ func test_keyboard_advance_works_while_cat_interactable_is_focused() -> void:
 
 
 func _spawn_interactable(parent: Node) -> Interactable:
-	var interactable: Interactable = preload("res://scenes/interaction/interactable.tscn").instantiate()
+	var interactable: Interactable = (
+		preload("res://scenes/interaction/interactable.tscn").instantiate()
+	)
 	interactable.interaction_kind = InteractionKinds.TALK
 	parent.add_child(interactable)
 	return interactable

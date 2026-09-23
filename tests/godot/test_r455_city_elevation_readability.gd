@@ -18,6 +18,9 @@ const LowerTownSliceDefinition := preload(
 const MapBuilder := preload("res://scripts/map/map_builder.gd")
 const MapTypes := preload("res://scripts/map/map_types.gd")
 const MapViewMeshBuilder := preload("res://scripts/map/view3d/map_view_mesh_builder.gd")
+const MapViewMeshBuilderConfig := preload(
+	"res://scripts/map/view3d/map_view_mesh_builder_config.gd"
+)
 
 # R-455 acceptance coverage is intentionally data-first: visual readability is
 # only marked PASS when the runtime exposes measurable geometry/metadata.
@@ -86,7 +89,9 @@ func _assert_water_mesh_offset(label: String, definition, grid) -> void:
 	var terrain := MapViewMeshBuilder.build_terrain(definition, grid)
 	var water_nodes := terrain.find_children("Terrain_*", "MeshInstance3D", true, false)
 	var found_water_mesh := false
-	var expected_surface_y := MapViewMeshBuilder.water_surface_height()
+	var expected_surface_y := (
+		-MapViewMeshBuilderConfig.WATER_RECESS + MapViewMeshBuilderConfig.WATER_SURFACE_LIFT
+	)
 	for node in water_nodes:
 		if not String(node.name).begins_with("Terrain_") or node.name == "Terrain_Ground":
 			continue
@@ -163,7 +168,7 @@ func test_r455_recessed_water_and_shoreline_have_runtime_cells() -> void:
 		Vector2(water_cell) + Vector2(0.5, 0.5)
 	)
 	assert_true(
-		absf(bed_height + MapViewMeshBuilder.water_recess_depth()) <= 0.0001,
+		absf(bed_height + MapViewMeshBuilderConfig.WATER_RECESS) <= 0.0001,
 		"Harbor North water bed must use the recessed ground offset"
 	)
 

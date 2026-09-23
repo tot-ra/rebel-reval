@@ -5,6 +5,7 @@ const MapTypesContract := preload("res://scripts/map/map_types.gd")
 const SkyWeather := preload("res://scripts/map/view3d/sky_weather_3d.gd")
 const WaterMaterials := preload("res://scripts/map/view3d/map_view_water_materials.gd")
 const MaterialsFacade := preload("res://scripts/map/view3d/map_view_materials.gd")
+const WaterTestSupport := preload("res://tests/godot/r715_water_test_support.gd")
 
 const REPORT_PATH := "res://docs/reports/r715_water_save_envelope.md"
 const SAVE_SENTINEL := &"flag.r715_save_sentinel"
@@ -71,9 +72,13 @@ func test_storm_night_environment_survives_game_state_json_round_trip() -> void:
 	assert_true(absf(source_presentation.tide_level) > 0.001, "night fixture must carry a tide input")
 
 	WaterMaterials.reset()
-	WaterMaterials.apply_weather_presentation(source_presentation, MaterialsFacade.WATER_WAVE_BASE)
+	WaterTestSupport.apply_weather_presentation(
+		source_presentation, MaterialsFacade.WATER_WAVE_BASE
+	)
 	var source_uniforms := _all_water_uniforms()
-	WaterMaterials.apply_weather_presentation(restored_presentation, MaterialsFacade.WATER_WAVE_BASE)
+	WaterTestSupport.apply_weather_presentation(
+		restored_presentation, MaterialsFacade.WATER_WAVE_BASE
+	)
 	var restored_uniforms := _all_water_uniforms()
 	assert_eq(
 		restored_uniforms,

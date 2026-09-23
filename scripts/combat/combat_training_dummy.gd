@@ -17,6 +17,8 @@ var last_result: CombatHitResult
 var combat_vitals := CombatVitals.new()
 var defense_pose := CombatDefensePose.open()
 var display_name := "Dummy"
+var hostile_to_source := true
+var _stagger := CombatStaggerEffect.new()
 
 func _ready() -> void:
 	add_to_group(&"combat_damageable")
@@ -27,6 +29,7 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	combat_vitals.tick(delta)
+	_stagger.tick(delta)
 
 
 func configure_resources(
@@ -56,6 +59,22 @@ func set_dodging(dodging: bool) -> void:
 func clear_hit_invulnerability() -> void:
 	combat_vitals.tick(combat_vitals.hit_invulnerability_sec + 0.05)
 	combat_vitals.reset_swing_tracking()
+
+
+func is_hostile_to(_source: Node) -> bool:
+	return hostile_to_source
+
+
+func apply_stagger(duration_sec: float) -> void:
+	_stagger.apply(duration_sec)
+
+
+func is_staggered() -> bool:
+	return _stagger.is_active()
+
+
+func stagger_remaining_sec() -> float:
+	return _stagger.remaining_duration_sec()
 
 
 func take_damage(
