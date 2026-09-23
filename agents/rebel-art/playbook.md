@@ -18,6 +18,7 @@ This file contains lessons specific to the Art role.
 - After adding fauna or prop GLBs, run a headless Godot import before tests. Update bird authored-mesh allowlists in the same change as new `assets/birds/**` GLBs.
 - Verification-only captures can overwrite tracked evidence PNGs. Check `git status` immediately and restore pre-existing outputs before committing.
 - When cleaning generated assets, remove only the exact newly created paths. A broad glob can delete another worker's artifacts.
+- Batch runtime GLB cleanup uses `tools/assets/cleanup_runtime_glb.py` (helper removal + Z snap). After rigged exports, do not trust Blender re-import for `Icosphere` audits; parse the GLB JSON chunk or run Godot ground-contact tests instead.
 
 ### Materials, export, and provenance
 - Blender glTF export with packed textures still yields Godot-extracted albedo, normal, and roughness sidecars. Register those derived paths.
