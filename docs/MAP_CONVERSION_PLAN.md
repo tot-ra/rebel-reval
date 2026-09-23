@@ -86,6 +86,7 @@ Roles `level`, `map`, and `event` have full conversion specifications later in t
 | `scenes/map_prototype/smithy_courtyard.tscn` | level | `retain` | `loc.smithy_courtyard` authoring spike | Developer-only P0-042 prototype; not an active destination | `scripts/map/smithy_courtyard_definition.gd` |
 | `scenes/menu/main_menu.tscn` | ui | `retain` | Main menu and Start flow | Active UI, not a map | not a map definition |
 | `scenes/menu/credits.tscn` | ui | `retain` | Credits roll overlay | Opened from main menu; not a map destination | not a map definition |
+| `scenes/menu/assets_library.tscn` | ui | `retain` | Main-menu 3D asset library | Authoring browser for imported GLB/GLTF; not a map destination | not a map definition |
 | `scenes/ui/forge_commission_overlay.tscn` | ui | `retain` | Forge commission flow overlay | P1-019a smithy commission UI; blocks movement until closed | not a map definition |
 | `scenes/ui/inventory_overlay.tscn` | ui | `retain` | Session bag overlay | Demo D-003 inventory UI; persists via `GameState` | not a map definition |
 | `scenes/ui/journal_overlay.tscn` | ui | `retain` | Quest journal overlay | P1-016 objective and evidence UI; toggles with quick-access menu or `J` | not a map definition |

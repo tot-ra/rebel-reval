@@ -75,15 +75,27 @@ func test_every_slice_action_has_keyboard_mouse_and_gamepad_defaults() -> void:
 	for definition: Dictionary in BindingSettings.action_definitions():
 		var action: StringName = definition["id"]
 		catalog_actions.append(action)
-		assert_false(bindings.events_for(action, BindingSettings.DEVICE_KEYBOARD_MOUSE).is_empty(), "%s needs keyboard/mouse" % action)
-		assert_false(bindings.events_for(action, BindingSettings.DEVICE_GAMEPAD).is_empty(), "%s needs gamepad" % action)
-	assert_eq(catalog_actions, EXPECTED_SLICE_ACTIONS, "binding catalog must cover every shipped slice action exactly once")
+		assert_false(
+			bindings.events_for(action, BindingSettings.DEVICE_KEYBOARD_MOUSE).is_empty(),
+			"%s needs keyboard/mouse" % action
+		)
+		assert_false(
+			bindings.events_for(action, BindingSettings.DEVICE_GAMEPAD).is_empty(),
+			"%s needs gamepad" % action
+		)
+	assert_eq(
+		catalog_actions,
+		EXPECTED_SLICE_ACTIONS,
+		"binding catalog must cover every shipped slice action exactly once"
+	)
 
 func test_rebinding_replaces_one_device_and_applies_to_input_map() -> void:
 	var bindings = BindingSettings.default_settings()
 	var key := InputEventKey.new()
 	key.physical_keycode = KEY_R
-	assert_true(bindings.replace_device_binding(&"interact", BindingSettings.DEVICE_KEYBOARD_MOUSE, key))
+	assert_true(
+		bindings.replace_device_binding(&"interact", BindingSettings.DEVICE_KEYBOARD_MOUSE, key)
+	)
 	bindings.apply_to_input_map()
 	var keyboard_events := bindings.events_for(&"interact", BindingSettings.DEVICE_KEYBOARD_MOUSE)
 	assert_eq(keyboard_events.size(), 1)
@@ -101,11 +113,17 @@ func test_input_bindings_round_trip_without_overwriting_dialogue_settings() -> v
 	var bindings = store.load_input_bindings()
 	var button := InputEventJoypadButton.new()
 	button.button_index = JOY_BUTTON_START
-	assert_true(bindings.replace_device_binding(&"toggle_inventory", BindingSettings.DEVICE_GAMEPAD, button))
+	assert_true(
+		bindings.replace_device_binding(&"toggle_inventory", BindingSettings.DEVICE_GAMEPAD, button)
+	)
 	assert_true(store.save_input_bindings(bindings))
 	assert_eq(store.load_dialogue_settings().text_speed, "fast")
 	var loaded = store.load_input_bindings()
-	assert_eq((loaded.events_for(&"toggle_inventory", BindingSettings.DEVICE_GAMEPAD)[0] as InputEventJoypadButton).button_index, JOY_BUTTON_START)
+	var loaded_event := (
+		loaded.events_for(&"toggle_inventory", BindingSettings.DEVICE_GAMEPAD)[0]
+		as InputEventJoypadButton
+	)
+	assert_eq(loaded_event.button_index, JOY_BUTTON_START)
 
 
 func test_controls_overlay_exposes_two_column_focus_navigation() -> void:
@@ -121,7 +139,11 @@ func test_controls_overlay_exposes_two_column_focus_navigation() -> void:
 	assert_true(first_gamepad != null)
 	assert_true(second_keyboard != null)
 	assert_eq(first_keyboard.focus_mode, Control.FOCUS_ALL)
-	assert_eq(tree.root.gui_get_focus_owner(), first_keyboard, "opening controls must seed keyboard/gamepad focus")
+	assert_eq(
+		tree.root.gui_get_focus_owner(),
+		first_keyboard,
+		"opening controls must seed keyboard/gamepad focus"
+	)
 	assert_eq(first_keyboard.get_node(first_keyboard.focus_neighbor_right), first_gamepad)
 	assert_eq(first_keyboard.get_node(first_keyboard.focus_neighbor_bottom), second_keyboard)
 	overlay.free()
@@ -159,7 +181,12 @@ func test_controls_overlay_captures_mouse_binding_before_gui_consumes_click() ->
 	mouse.pressed = true
 	tree.root.push_input(mouse, true)
 	assert_eq(owner.rebind_calls, 1)
-	assert_eq(owner.input_bindings.binding_text(&"player_guard", BindingSettings.DEVICE_KEYBOARD_MOUSE), "Mouse Middle")
+	assert_eq(
+		owner.input_bindings.binding_text(
+			&"player_guard", BindingSettings.DEVICE_KEYBOARD_MOUSE
+		),
+		"Mouse Middle"
+	)
 	assert_eq(binding_button.text, "Mouse Middle")
 	overlay.free()
 	owner.free()
@@ -197,8 +224,16 @@ func test_rebound_keyboard_mouse_navigation_and_confirm_complete_focus_flow() ->
 	move_down.physical_keycode = KEY_R
 	var confirm := InputEventMouseButton.new()
 	confirm.button_index = MOUSE_BUTTON_MIDDLE
-	assert_true(bindings.replace_device_binding(&"ui_down", BindingSettings.DEVICE_KEYBOARD_MOUSE, move_down))
-	assert_true(bindings.replace_device_binding(&"ui_accept", BindingSettings.DEVICE_KEYBOARD_MOUSE, confirm))
+	assert_true(
+		bindings.replace_device_binding(
+			&"ui_down", BindingSettings.DEVICE_KEYBOARD_MOUSE, move_down
+		)
+	)
+	assert_true(
+		bindings.replace_device_binding(
+			&"ui_accept", BindingSettings.DEVICE_KEYBOARD_MOUSE, confirm
+		)
+	)
 	bindings.apply_to_input_map()
 
 	var buttons := VBoxContainer.new()
@@ -239,6 +274,7 @@ func test_main_menu_start_and_exit_are_in_gamepad_focus_ring() -> void:
 	var start := menu.get_node("Start label") as Control
 	var load := menu.get_node("Load label") as Control
 	var credits := menu.get_node("Credits label") as Control
+	var library := menu.get_node("Assets library label") as Control
 	var exit := menu.get_node("Exit label") as Control
 	assert_eq(start.focus_mode, Control.FOCUS_ALL)
 	assert_eq(exit.focus_mode, Control.FOCUS_ALL)
@@ -250,8 +286,10 @@ func test_main_menu_start_and_exit_are_in_gamepad_focus_ring() -> void:
 	else:
 		assert_eq(start.focus_neighbor_bottom, NodePath("../Credits label"))
 		assert_eq(credits.focus_neighbor_top, NodePath("../Start label"))
-	assert_eq(credits.focus_neighbor_bottom, NodePath("../Exit label"))
-	assert_eq(exit.focus_neighbor_top, NodePath("../Credits label"))
+	assert_eq(credits.focus_neighbor_bottom, NodePath("../Assets library label"))
+	assert_eq(library.focus_neighbor_top, NodePath("../Credits label"))
+	assert_eq(library.focus_neighbor_bottom, NodePath("../Exit label"))
+	assert_eq(exit.focus_neighbor_top, NodePath("../Assets library label"))
 	assert_eq(exit.focus_neighbor_bottom, NodePath("../Start label"))
 	menu.free()
 

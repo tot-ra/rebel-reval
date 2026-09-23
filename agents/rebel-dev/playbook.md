@@ -28,6 +28,7 @@ This file contains lessons specific to the Dev role.
 - Temporary Godot probes must live under `res://`, call `quit()` on SceneTree (not `get_tree()`), and use `Input.parse_input_event`. Keep them until every planned rerun is done.
 - Godot 4.7 headless dummy renderer does not round-trip `MultiMesh.get_instance_transform()` after `set_instance_transform()`. Assert authored transforms before commit.
 - When a Godot preload cannot resolve an existing script, run that script directly to expose the first parse error. After clearing it, rerun immediately: dependent compile and shader defects only surface once the first error is gone.
+- Runtime-built UI cannot use `%UniqueName` until `owner` is an ancestor already in the tree. Keep member refs or `find_child(name, true, false)`. `Camera3D.look_at()` also requires in-tree; use `look_at_from_position()` while assembling a SubViewport.
 
 ### Map and runtime integration
 - A new `view_landmark` kind needs `MapDefinition.VIEW_LANDMARK_KINDS`, the `_compile_landmark` field copy, and `LANDMARK_OVERRIDE_KEYS`. A new typed style key also needs `map_blueprint_compiler_build.gd` and expand-geometry validation.

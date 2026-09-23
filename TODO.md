@@ -14,10 +14,14 @@ This file remains the durable/legacy ID index expected by `README.md`, `AGENTS.m
 <!-- Quick-reference counts updated on every structural change -->
 | Priority | Open | Done | Notes |
 |----------|-----:|-----:|-------|
-| P0 |    16  |    27  | Baseline, storage, materials, historical audit |
+| P0 |    16  |    28  | Baseline, storage, materials, historical audit |
 | P2 |     1  |     4  | Vertical-slice production (playable MVP) |
 | P4 |     0  |     2  | Act 1: The Simmering City |
 
+
+## Main-menu asset library
+
+- [x] P0-217 | deps: none | deliverable: main-menu Assets library listing every imported GLB/GLTF under `assets/` with orbit preview, clip playback, and path/size details for improvement prompts | allowed files: `scenes/menu/main_menu.tscn`, `scenes/menu/assets_library.tscn`, `scenes/menu/assets_library.gd`, `scenes/menu/assets_library_label.gd`, `scripts/ui/asset_library_catalog.gd`, matching UID files, `scripts/global/music_director.gd`, `tests/godot/test_asset_library.gd`, `tests/godot/test_input_bindings.gd`, `tests/godot/test_main_menu_load.gd`, `docs/MAP_CONVERSION_PLAN.md`, `docs/reports/scene_inventory.md`, `TODO.md` | constraints: no map, save, combat, or runtime asset replacement; filesystem-backed catalog only; keep Start/Load/Credits/Exit focus ring valid when Load is hidden | verify: focused `test_asset_library` plus main-menu focus tests; conversion-plan and scene-inventory coverage for the new UI scene
 
 ## Sky and weather realism
 

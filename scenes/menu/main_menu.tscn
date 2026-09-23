@@ -1,8 +1,9 @@
-[gd_scene load_steps=9 format=3 uid="uid://dyl726xerhjhg"]
+[gd_scene load_steps=10 format=3 uid="uid://dyl726xerhjhg"]
 
 [ext_resource type="Script" path="res://scripts/demo/packaged_demo_walkthrough.gd" id="1_packaged_walkthrough"]
 [ext_resource type="Script" path="res://scripts/demo/packaged_platform_smoke.gd" id="8_platform_smoke"]
 [ext_resource type="Script" path="res://scenes/menu/credits_label.gd" id="7_credits"]
+[ext_resource type="Script" path="res://scenes/menu/assets_library_label.gd" id="9_assets_library"]
 
 [ext_resource type="Texture2D" uid="uid://bysfalwbeyasb" path="res://scenes/menu/intro-hq.jpg" id="1_kiqgm"]
 [ext_resource type="Texture2D" uid="uid://s3dc3n3tlc3s" path="res://scenes/menu/logo256.png" id="2_kiqgm"]
@@ -94,14 +95,14 @@ offset_right = 1094.0
 offset_bottom = 884.0
 focus_mode = 2
 focus_neighbor_top = NodePath("../Load label")
-focus_neighbor_bottom = NodePath("../Exit label")
+focus_neighbor_bottom = NodePath("../Assets library label")
 theme_override_colors/default_color = Color(0.980392, 0.839216, 0.0313726, 1)
 theme_override_font_sizes/normal_font_size = 30
 text = "Credits"
 horizontal_alignment = 1
 script = ExtResource("7_credits")
 
-[node name="Exit label" type="RichTextLabel" parent="."]
+[node name="Assets library label" type="RichTextLabel" parent="."]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 0
 offset_left = 735.0
@@ -110,6 +111,22 @@ offset_right = 1094.0
 offset_bottom = 940.0
 focus_mode = 2
 focus_neighbor_top = NodePath("../Credits label")
+focus_neighbor_bottom = NodePath("../Exit label")
+theme_override_colors/default_color = Color(0.980392, 0.839216, 0.0313726, 1)
+theme_override_font_sizes/normal_font_size = 30
+text = "Assets library"
+horizontal_alignment = 1
+script = ExtResource("9_assets_library")
+
+[node name="Exit label" type="RichTextLabel" parent="."]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 0
+offset_left = 735.0
+offset_top = 944.0
+offset_right = 1094.0
+offset_bottom = 996.0
+focus_mode = 2
+focus_neighbor_top = NodePath("../Assets library label")
 focus_neighbor_bottom = NodePath("../Start label")
 theme_override_colors/default_color = Color(0.980392, 0.839216, 0.0313726, 1)
 theme_override_font_sizes/normal_font_size = 30

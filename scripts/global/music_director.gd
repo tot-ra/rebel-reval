@@ -11,6 +11,7 @@ const DEFAULT_VOLUME_DB := -8.0
 const NIGHT_VOLUME_LINEAR := 0.5
 const SCENE_THEME_ROUTES: Dictionary = {
 	"res://scenes/menu/main_menu.tscn": &"menu",
+	"res://scenes/menu/assets_library.tscn": &"menu",
 	"res://scenes/reval_east/forge/forge.tscn": &"forge",
 	"res://scenes/reval_east/reval_east.tscn": &"town",
 	"res://scenes/reval_east/viru_gate_foreland/viru_gate_foreland.tscn": &"town",

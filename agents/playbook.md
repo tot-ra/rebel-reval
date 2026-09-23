@@ -28,7 +28,7 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 
 ### Git and commits
 - Inspect `git status` before commit. Unstage unrelated index entries (`M ` in column 1).
-- `git commit --only <paths>`: keep every `-m` before `--`. It commits working-tree bytes of those paths, not a prepared index snapshot. For a HEAD-plus-scope commit in a dirty file, keep the scoped bytes in the path through the commit, or commit a temporary index without `--only`.
+- `git commit --only <paths>`: keep every `-m` before `--`. It commits working-tree bytes of those paths, not a prepared index snapshot. Untracked paths must be `git add`ed first; `--only` cannot create a commit from unknown files. For a HEAD-plus-scope commit in a dirty file, keep the scoped bytes in the path through the commit, or commit a temporary index without `--only`.
 - In a dirty shared worktree, build a HEAD-plus-scope tree with a temporary `GIT_INDEX_FILE` when the working file has concurrent WIP. Normalize `diff --git`, `---`, and `+++` paths before `git apply --cached`.
 - `git diff --no-index` status 1 is a valid new-file diff. Run whitespace checks separately.
 - `git diff --cached --check` rejects Markdown hard-break spaces and an extra blank line at EOF. Strip trailing spaces; keep exactly one trailing newline. Scope the pathspec so unrelated dirty files cannot block the check.

@@ -82,6 +82,7 @@ Inventory row count (data rows in the table below): **127**.
 | 34 | `scenes/map_prototype/smithy_courtyard.tscn` | partial | P0-042 deterministic programmatic map-authoring spike; developer-only and not in the active transition manifest. |
 | 35 | `scenes/menu/main_menu.tscn` | working | `run/main_scene`; Start/Exit UI, video, audio; P0-017 smoke pass. |
 | 36 | `scenes/menu/credits.tscn` | working | Credits roll overlay opened from the main menu. |
+| 128 | `scenes/menu/assets_library.tscn` | working | Main-menu 3D model browser with orbit preview and clip playback. |
 | 37 | `scenes/reval_center/market_civic_quarter/olaf_guild_hall.tscn` | partial | Inactive programmatic guild hall interior prototype; not in active destinations. |
 | 91 | `scenes/reval_north/oleviste_church/oleviste_church.tscn` | partial | Inactive St. Olaf's Church interior prototype; developer traversal from Monastery District. |
 | 77 | `scenes/reval_archbishops_garden/reval_archbishops_garden.tscn` | partial | Inactive Archbishop's Garden western Toompea prototype; developer traversal only. |
