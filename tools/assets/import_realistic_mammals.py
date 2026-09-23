@@ -40,6 +40,26 @@ CONFIG={
 }
 
 
+def ensure_lit_principled(material):
+ tree=material.node_tree
+ bs=tree.nodes.get('Principled BSDF')
+ if bs:return bs
+ output=next((n for n in tree.nodes if n.type=='OUTPUT_MATERIAL'),None)
+ if output is None:output=tree.nodes.new('ShaderNodeOutputMaterial')
+ albedo=None
+ for node in tree.nodes:
+  if node.type=='TEX_IMAGE' and node.image:
+   albedo=node;break
+  if node.type=='EMISSION' and node.inputs['Color'].links:
+   src=node.inputs['Color'].links[0].from_node
+   if src.type=='TEX_IMAGE':albedo=src;break
+ bs=tree.nodes.new('ShaderNodeBsdfPrincipled');bs.name='Principled BSDF'
+ if albedo:tree.links.new(albedo.outputs['Color'],bs.inputs['Base Color'])
+ for link in list(output.inputs['Surface'].links):tree.links.remove(link)
+ tree.links.new(bs.outputs['BSDF'],output.inputs['Surface'])
+ return bs
+
+
 def clear():
  bpy.ops.wm.read_factory_settings(use_empty=True)
 
@@ -96,9 +116,10 @@ def load_surface(species):
   if image.type=='IMAGE' and max(image.size)>1024:
    factor=1024/max(image.size);image.scale(round(image.size[0]*factor),round(image.size[1]*factor))
  for m in bpy.data.materials:
-  if not m.use_nodes:continue
-  bs=m.node_tree.nodes.get('Principled BSDF')
-  if not bs:continue
+  if not m.use_nodes:m.use_nodes=True
+  # Sketchfab game-ready coats can arrive as KHR_materials_unlit / Emission.
+  # Keep the albedo map, but ship a dielectric so night lighting can darken them.
+  bs=ensure_lit_principled(m)
   bs.inputs['Metallic'].default_value=0
   for link in list(bs.inputs['Metallic'].links):m.node_tree.links.remove(link)
   bs.inputs['Emission Strength'].default_value=0

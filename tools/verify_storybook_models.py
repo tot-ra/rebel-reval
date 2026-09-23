@@ -114,6 +114,7 @@ def verify(mammals_only=False):
                 for primitive in mesh['primitives']:
                     material=doc['materials'][primitive['material']]
                     pbr=material['pbrMetallicRoughness']
+                    assert 'KHR_materials_unlit' not in material.get('extensions', {}), f'{name}: unlit coat ignores night lighting'
                     assert pbr.get('metallicFactor',1)==0, f'{name}: nonmetallic tissue'
                     assert pbr.get('roughnessFactor',1)>=.2, f'{name}: surface response'
                     if 'baseColorTexture' in pbr:

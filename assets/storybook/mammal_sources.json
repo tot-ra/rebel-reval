@@ -61,7 +61,7 @@
       "staging_path": "build/animal_redo/sources/dog.glb",
       "output": "assets/storybook/dog.glb",
       "notes": "shaggy dog; used as generic village phenotype, not a historical breed attribution",
-      "adaptations": "Scaled and oriented for runtime; UV and sculpted surfaces preserved; textures capped at 1024; rough dielectric materials; measured limb rig and six clips."
+      "adaptations": "Scaled and oriented for runtime; UV and sculpted surfaces preserved; textures capped at 1024; rough dielectric materials; KHR_materials_unlit removed so night lighting darkens the coat; measured limb rig and six clips."
     },
     "boar": {
       "author": "iRahulRajput (rt699448)",
