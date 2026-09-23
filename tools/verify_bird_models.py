@@ -2,7 +2,7 @@
 """Verify ambient bird poses and the complete domestic bird-gait set.
 
 Ambient poses are checked against ``MapViewBirdSpecies`` and ``SOURCES.csv``.
-Walking chicken, mallard and greylag-goose assets additionally require one
+Walking mallard and greylag-goose assets additionally require one
 skinned mesh, weighted legs, Idle/Walk clips, ground contact and real Walk
 leg deformation.
 
@@ -53,7 +53,6 @@ GROUP_WING_SPAN = {
 # These walking assets are livestock runtime models, not three new entries in the
 # 30-species ambient catalog. Keep their structural contract separate.
 GAIT_SPECS = {
-    "chicken": {"scale_m": 0.34},
     "mallard": {"scale_m": 0.56},
     "greylag_goose": {"scale_m": 0.82},
 }
@@ -83,32 +82,37 @@ def _catalog_entry(block: str) -> dict[str, float] | None:
 
 
 def parse_bird_catalog(path: Path = BIRD_SPECIES_GD) -> dict[str, dict[str, float]]:
-    text = path.read_text(encoding="utf-8")
     catalog: dict[str, dict[str, float]] = {}
-
-    # Current profiles are multiline. The fallback retains compatibility with
-    # historical one-line fixtures used by downstream tooling.
-    profile_text = (
-        text[text.find(PROFILES_DECLARATION) :]
-        if PROFILES_DECLARATION in text
-        else ""
-    )
-    blocks = re.finditer(
-        r"^\s*SPECIES_(\w+):\s*\n\s*\{(.*?)(?=^\s*SPECIES_\w+:|^\})",
-        profile_text,
-        re.MULTILINE | re.DOTALL,
-    )
-    for match in blocks:
-        entry = _catalog_entry(match.group(2))
-        if entry is not None:
-            catalog[match.group(1).lower()] = entry
+    profile_paths = sorted(path.parent.glob("map_view_bird_species_*.gd"))
+    for profile_path in profile_paths:
+        text = profile_path.read_text(encoding="utf-8")
+        if PROFILES_DECLARATION not in text:
+            continue
+        profile_text = text[text.find(PROFILES_DECLARATION) :]
+        blocks = re.finditer(
+            r'&"([a-z0-9_]+)":\s*\n\s*\{(.*?)(?=^\s*&"[a-z0-9_]+":|\n\})',
+            profile_text,
+            re.MULTILINE | re.DOTALL,
+        )
+        for match in blocks:
+            entry = _catalog_entry(match.group(2))
+            if entry is not None:
+                catalog[match.group(1)] = entry
 
     if not catalog:
-        for line in text.splitlines():
-            match = PROFILE_LINE_RE.match(line)
-            if not match:
-                continue
-            entry = _catalog_entry(line)
+        text = path.read_text(encoding="utf-8")
+        profile_text = (
+            text[text.find(PROFILES_DECLARATION) :]
+            if PROFILES_DECLARATION in text
+            else ""
+        )
+        blocks = re.finditer(
+            r"^\s*SPECIES_(\w+):\s*\n\s*\{(.*?)(?=^\s*SPECIES_\w+:|^\})",
+            profile_text,
+            re.MULTILINE | re.DOTALL,
+        )
+        for match in blocks:
+            entry = _catalog_entry(match.group(2))
             if entry is not None:
                 catalog[match.group(1).lower()] = entry
 
@@ -430,7 +434,7 @@ def main() -> int:
     glb_count = sum(1 for _ in args.birds_dir.rglob("*.glb"))
     print(
         "bird model verification passed "
-        f"(catalog=30; gait_models=3; authored_glbs={glb_count})"
+        f"(catalog=30; gait_models=2; authored_glbs={glb_count})"
     )
     return 0
 

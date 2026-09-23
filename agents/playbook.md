@@ -72,3 +72,4 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 - Do not commit provenance for untracked WIP assets. Do not overwrite `build/act1/rr.dmg`.
 - Tracked `generated/` is not uniformly disposable. Classify into runtime, rebuild inputs, retained evidence, and disposable intermediates before deleting.
 - `Path.write_text()` in this environment has no `newline=` keyword. Normalize line endings in the content or use `open(..., newline="\n")`.
+- Retiring superseded fauna GLBs requires the same sweep as adding them: update `MODEL_PATHS`, bird authored-pose expectations, `SOURCES.csv` (parent GLB plus Godot-extracted sidecars), gait allowlists, and asset-library tests that still filter `animals/` instead of `storybook/`. Relocate still-live livestock into `assets/storybook/` before deleting `assets/animals/medieval/`.

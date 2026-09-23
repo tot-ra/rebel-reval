@@ -3,7 +3,7 @@ extends "res://tests/godot/test_case.gd"
 const Catalog := preload("res://scripts/ui/asset_library_catalog.gd")
 const LibraryScene := preload("res://scenes/menu/assets_library.tscn")
 const MainMenuScene := preload("res://scenes/menu/main_menu.tscn")
-const DOG_PATH := "res://assets/animals/medieval/medieval_dog.glb"
+const DOG_PATH := "res://assets/storybook/dog.glb"
 const ANVIL_PATH := "res://assets/props/forge/smithy_anvil.glb"
 
 
@@ -15,7 +15,7 @@ func test_catalog_lists_imported_models_by_folder() -> void:
 	for entry in entries:
 		paths.append(String(entry["path"]))
 		categories.append(String(entry["category"]))
-	assert_true(paths.has(DOG_PATH), "medieval dog should be in the catalog")
+	assert_true(paths.has(DOG_PATH), "storybook dog should be in the catalog")
 	assert_true(paths.has(ANVIL_PATH), "smithy anvil should be in the catalog")
 	assert_true(categories.has("animals"), "animals category should exist")
 	assert_true(categories.has("props"), "props category should exist")
@@ -23,9 +23,9 @@ func test_catalog_lists_imported_models_by_folder() -> void:
 
 func test_catalog_filter_matches_name_and_category() -> void:
 	var entries: Array[Dictionary] = Catalog.list_models()
-	var dogs := Catalog.filter_entries(entries, "dog", "animals")
-	assert_true(dogs.size() >= 1, "dog filter should return animal models")
-	assert_eq(String(dogs[0]["category"]), "animals")
+	var dogs := Catalog.filter_entries(entries, "dog", "storybook")
+	assert_true(dogs.size() >= 1, "dog filter should return storybook fauna models")
+	assert_eq(String(dogs[0]["category"]), "storybook")
 	var empty := Catalog.filter_entries(entries, "definitely-not-a-model", "")
 	assert_eq(empty.size(), 0)
 

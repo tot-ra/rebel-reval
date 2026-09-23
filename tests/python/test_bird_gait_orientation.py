@@ -19,7 +19,6 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 
 GAIT_MODELS = {
-    "chicken": ROOT / "assets" / "birds" / "chicken" / "walking.glb",
     "mallard": ROOT / "assets" / "birds" / "mallard" / "walking.glb",
     "greylag_goose": ROOT / "assets" / "birds" / "greylag_goose" / "walking.glb",
 }
@@ -142,7 +141,7 @@ class BirdGaitOrientationTest(unittest.TestCase):
 
     def test_gait_reports_record_the_applied_orientation(self) -> None:
         reports = ROOT / "generated" / "bird_gaits_v1" / "reports"
-        for species in GAIT_MODELS:
+        for species in ("mallard", "greylag_goose"):
             with self.subTest(species=species):
                 report = json.loads((reports / f"{species}.json").read_text(encoding="utf-8"))
                 self.assertTrue(report["faces_gltf_minus_z"])

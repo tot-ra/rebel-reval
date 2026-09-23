@@ -40,7 +40,7 @@ Historical P0-210 notes and captures are retained in [the Kalev report](../../do
 
 Run `godot --path .` and choose Start. Kalev and Mart in the forge, the forge cat, named cast scenes and Aita’s demo actor now use the new bodies. The hammer and sword inventory items mount the new grip-oriented props while retaining their stable IDs and combat profiles. Health rings, facing, interactions and routines use the existing runtime APIs.
 
-The shared animal loader supplies pig, sheep, goat, dog, cat, rat, fox, hare, boar, hen and duck to existing prop and ambient placements. Bird flight uses the new skinned robin, crow, gull and mallard with Fly/Glide transitions. Mallard ground/flight size is consistent. Existing cattle, horse, goose and unrepresented species/cast retain their authored models. No new maps or animal spawn locations are activated.
+The shared animal loader supplies pig, sheep, goat, dog, cat, rat, fox, hare, boar, hen, duck, cow and horse to existing prop and ambient placements. Bird flight uses the new skinned robin, crow, gull and mallard with Fly/Glide transitions. Mallard ground/flight size is consistent. Greylag goose and unrepresented species/cast retain their authored models. No new maps or animal spawn locations are activated.
 
 ## Try the models
 

@@ -19,32 +19,21 @@ func test_catalog_uses_only_the_reviewed_authored_glbs() -> void:
 		BirdSpecies.SPECIES_COMMON_SNIPE: BirdSpecies.POSE_STANDING,
 		BirdSpecies.SPECIES_WHITE_TAILED_EAGLE: BirdSpecies.POSE_GLIDING,
 		BirdSpecies.SPECIES_OSPREY: BirdSpecies.POSE_GLIDING,
-		BirdSpecies.SPECIES_COMMON_BUZZARD: BirdSpecies.POSE_GLIDING,
-		BirdSpecies.SPECIES_COMMON_KESTREL: BirdSpecies.POSE_GLIDING,
 		BirdSpecies.SPECIES_HOODED_CROW: BirdSpecies.POSE_PERCHED,
 		BirdSpecies.SPECIES_ROOK: BirdSpecies.POSE_PERCHED,
 		BirdSpecies.SPECIES_WESTERN_JACKDAW: BirdSpecies.POSE_PERCHED,
 		BirdSpecies.SPECIES_EURASIAN_MAGPIE: BirdSpecies.POSE_PERCHED,
-		BirdSpecies.SPECIES_COMMON_CHAFFINCH: BirdSpecies.POSE_PERCHED,
 		BirdSpecies.SPECIES_GREAT_TIT: BirdSpecies.POSE_PERCHED,
 		BirdSpecies.SPECIES_EUROPEAN_ROBIN: BirdSpecies.POSE_PERCHED,
-		BirdSpecies.SPECIES_COMMON_BLACKBIRD: BirdSpecies.POSE_PERCHED,
 		BirdSpecies.SPECIES_SONG_THRUSH: BirdSpecies.POSE_PERCHED,
-		BirdSpecies.SPECIES_COMMON_NIGHTINGALE: BirdSpecies.POSE_PERCHED,
 		BirdSpecies.SPECIES_YELLOWHAMMER: BirdSpecies.POSE_PERCHED,
 		BirdSpecies.SPECIES_HOUSE_SPARROW: BirdSpecies.POSE_PERCHED,
 		BirdSpecies.SPECIES_HERRING_GULL: BirdSpecies.POSE_GLIDING,
-		BirdSpecies.SPECIES_COMMON_GULL: BirdSpecies.POSE_GLIDING,
-		BirdSpecies.SPECIES_COMMON_TERN: BirdSpecies.POSE_GLIDING,
 	}
 	var authored_flap: Array[StringName] = [
 		BirdSpecies.SPECIES_HERRING_GULL,
-		BirdSpecies.SPECIES_COMMON_GULL,
-		BirdSpecies.SPECIES_COMMON_TERN,
 		BirdSpecies.SPECIES_WHITE_TAILED_EAGLE,
 		BirdSpecies.SPECIES_OSPREY,
-		BirdSpecies.SPECIES_COMMON_BUZZARD,
-		BirdSpecies.SPECIES_COMMON_KESTREL,
 	]
 	for species in BirdSpecies.ALL_SPECIES:
 		for pose in BirdSpecies.ALL_POSES:
@@ -90,13 +79,18 @@ func test_harbour_flap_frames_move_both_wing_halves() -> void:
 	BirdMeshes.reset_cache()
 	var cycle := BirdMeshes.flap_cycle(BirdSpecies.SPECIES_HERRING_GULL)
 	assert_eq(cycle.size(), BirdAssets.FLAP_FRAME_COUNT)
-	var neutral_vertices: PackedVector3Array = (cycle[2] as ArrayMesh).surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
-	var down_vertices: PackedVector3Array = (cycle[4] as ArrayMesh).surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
+	var neutral_mesh := cycle[2] as ArrayMesh
+	var down_mesh := cycle[4] as ArrayMesh
+	var neutral_vertices: PackedVector3Array = neutral_mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
+	var down_vertices: PackedVector3Array = down_mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
 	var left_delta := _mean_wing_lift(neutral_vertices, down_vertices, -1.0)
 	var right_delta := _mean_wing_lift(neutral_vertices, down_vertices, 1.0)
 	assert_true(left_delta > 0.01, "left wing must move during a flap frame")
 	assert_true(right_delta > 0.01, "right wing must move during a flap frame")
-	assert_true(absf(left_delta - right_delta) <= 0.01, "both wing halves should use the same flap amplitude")
+	assert_true(
+		absf(left_delta - right_delta) <= 0.01,
+		"both wing halves should use the same flap amplitude"
+	)
 
 
 
@@ -104,13 +98,20 @@ func test_procedural_flap_cycle_sweeps_wings_fore_and_aft() -> void:
 	BirdMeshes.reset_cache()
 	var cycle := BirdMeshes.flap_cycle(BirdSpecies.SPECIES_BARN_SWALLOW)
 	assert_eq(cycle.size(), BirdMeshes.FLAP_KEYFRAMES.size())
-	var early_vertices: PackedVector3Array = (cycle[0] as ArrayMesh).surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
-	var late_vertices: PackedVector3Array = (cycle[4] as ArrayMesh).surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
+	var early_mesh := cycle[0] as ArrayMesh
+	var late_mesh := cycle[4] as ArrayMesh
+	var early_vertices: PackedVector3Array = early_mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
+	var late_vertices: PackedVector3Array = late_mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
 	var sweep_delta := _mean_wing_depth_delta(early_vertices, late_vertices)
-	assert_true(sweep_delta > 0.002, "procedural flap frames should sweep the wings through the stroke")
+	assert_true(
+		sweep_delta > 0.002,
+		"procedural flap frames should sweep the wings through the stroke"
+	)
 
 
-func _mean_wing_depth_delta(early_vertices: PackedVector3Array, late_vertices: PackedVector3Array) -> float:
+func _mean_wing_depth_delta(
+	early_vertices: PackedVector3Array, late_vertices: PackedVector3Array
+) -> float:
 	var total := 0.0
 	var count := 0
 	for index in early_vertices.size():

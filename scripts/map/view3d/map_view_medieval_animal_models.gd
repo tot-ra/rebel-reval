@@ -56,10 +56,10 @@ const MODEL_PATHS: Dictionary = {
 	MammalSpecies.SPECIES_DUCK: "res://assets/storybook/duck.glb",
 	MammalSpecies.SPECIES_GOOSE: "res://assets/birds/greylag_goose/walking.glb",
 	&"goat": "res://assets/storybook/goat.glb",
-	MammalSpecies.SPECIES_COW: "res://assets/animals/medieval/medieval_cattle.glb",
+	MammalSpecies.SPECIES_COW: "res://assets/storybook/cow.glb",
 	MammalSpecies.SPECIES_PIG: "res://assets/storybook/pig.glb",
 	MammalSpecies.SPECIES_SHEEP: "res://assets/storybook/sheep.glb",
-	MammalSpecies.SPECIES_HORSE: "res://assets/animals/medieval/medieval_pack_horse.glb",
+	MammalSpecies.SPECIES_HORSE: "res://assets/storybook/horse.glb",
 	# The Lower Town street dog uses the rebuilt shaggy village-dog surface.
 	# Its shared six-clip rig supplies Idle, Walk, Run and Graze aliases.
 	MammalSpecies.SPECIES_DOG: "res://assets/storybook/dog.glb",

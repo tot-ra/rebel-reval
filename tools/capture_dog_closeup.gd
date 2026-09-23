@@ -1,6 +1,6 @@
 extends SceneTree
 
-## Close-up render of the P2-024 street dog production GLB (medieval_dog.glb).
+## Close-up render of the P0-209 street dog production GLB (storybook/dog.glb).
 ## Reuses the P0-118 reference stage lighting. Run with a rendering-capable
 ## Godot process (headless hits the dummy renderer):
 ## /Applications/Godot.app/Contents/MacOS/Godot --path . \
@@ -62,7 +62,7 @@ func _dog_instance(view_rotation_degrees: Vector3) -> Node3D:
 	var root_3d := Node3D.new()
 	root_3d.name = "Dog"
 	var model := MedievalAnimalModels.add_model(root_3d, MammalSpecies.SPECIES_DOG)
-	assert(model != null, "medieval_dog.glb must be imported before the closeup capture")
+	assert(model != null, "storybook/dog.glb must be imported before the closeup capture")
 	model.rotation_degrees = view_rotation_degrees
 	return root_3d
 
