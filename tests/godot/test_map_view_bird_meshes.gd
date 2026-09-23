@@ -65,7 +65,7 @@ func test_catalog_uses_revised_cached_anatomy_for_all_default_poses() -> void:
 	for species in BirdSpecies.ALL_SPECIES:
 		var mesh := BirdMeshes.mesh_for(species)
 		assert_true(mesh is ArrayMesh, "%s needs a mesh" % species)
-		assert_eq(mesh.get_meta(&"bird_catalog_revision", 0), 212)
+		assert_eq(mesh.get_meta(&"bird_catalog_revision", 0), 213)
 		assert_false(BirdMeshes.uses_authored_mesh(species))
 		var stats := BirdMeshes.geometry_stats(species)
 		assert_true(int(stats.get("triangles", 0)) >= 2000)

@@ -27,16 +27,20 @@ authored planting, cached procedural meshes and GL Compatibility renderer.
 Original geometry only; this revises existing vegetation presentation without
 adding a biome, gameplay mechanic or imported game assets.
 
-## Bird realism (P0-207 / P0-212)
+## Bird realism (P0-207 / P0-212 / P0-216)
 
 Maintainer-directed September 2026: existing birds move toward natural anatomy
 and material detail, with The Witcher 3 as a fidelity reference. The five skinned
 birds retain P0-207 assets. All 30 ambient catalogue species use original cached
 geometry with continuous torso/neck/skull surfaces, layered feather vanes,
-species markings, feet and bills. Feather, keratin and eye response share one
-lit material; ambient meshes remain below 8,000 triangles. Ecology, stable IDs
-and world placement are unchanged. This is an incremental realism pass, not a
-claim of finished AAA animal fidelity. See the [catalogue evidence](reports/bird_catalog_realism_2026-09-12.md).
+species markings, feet and bills. P0-216 keeps that budget and rig, and replaces
+the smooth wing sleeve with overlapping folded vanes, a keeled body, flattened
+bills, separated flight primaries and a coarser feather shader. Feather, keratin
+and eye response share one lit material; ambient meshes remain below 8,000
+triangles. Ecology, stable IDs and world placement are unchanged. This is an
+incremental realism pass, not a claim of finished AAA animal fidelity. See the
+[catalogue evidence](reports/bird_catalog_realism_2026-09-12.md) and the
+[contour pass](reports/bird_model_pass_2026-09-23.md).
 
 ## Production foundation
 

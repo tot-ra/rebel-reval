@@ -15,6 +15,7 @@ var radius: Vector3
 var head: Vector3
 var head_size: float
 var pattern := 0.0
+var section_flatten := 1.0
 var rig_part := 0
 var rig_regions := PackedInt32Array()
 var rig_anchors: Dictionary = {}
@@ -83,7 +84,7 @@ func _build(id: StringName, pose: StringName, lift: float, sweep: float) -> Arra
 		_material = ShaderMaterial.new()
 		_material.shader = Plumage
 	mesh.surface_set_material(0, _material)
-	mesh.set_meta(&"bird_catalog_revision", 212)
+	mesh.set_meta(&"bird_catalog_revision", 213)
 	mesh.set_meta(&"bird_rig_regions", rig_regions)
 	mesh.set_meta(&"bird_rig_anchors", rig_anchors)
 	return mesh
@@ -118,7 +119,17 @@ func hull(neck_points: Array[Vector3]) -> void:
 			var ring := PackedVector3Array()
 			for i in 25:
 				var angle := TAU * float(i) / 24
-				ring.append(at + Vector3.RIGHT * cos(angle) * size.x + up * sin(angle) * size.y)
+				var cx := cos(angle)
+				var cy := sin(angle)
+				# Body rings were circles, so every species read as an egg.
+				# A deeper keel and flatter back keep the head round.
+				if segment <= 2:
+					if cy < 0.0:
+						cx *= lerpf(1.0, 0.76, -cy)
+						cy *= lerpf(1.0, 1.1, -cy)
+					else:
+						cy *= lerpf(1.0, 0.88, cy)
+				ring.append(at + Vector3.RIGHT * cx * size.x + up * cy * size.y)
 			rings.append(ring)
 	for j in rings.size() - 1:
 		for i in 24:
@@ -139,6 +150,7 @@ func pigment(p: Vector3, base: Color, region: int) -> Color:
 		var q := (p - center) / radius
 		var belly_mix := smoothstep(0.3, -0.5, q.y)
 		var result := base.lerp(breast, belly_mix)
+		result = result.darkened(smoothstep(0.05, 0.8, q.y) * 0.1)
 		if species == &"great_tit" and absf(q.x) < 0.18 and q.y < 0.05:
 			result = Color("25272a")
 		if species == &"northern_lapwing" and q.y < -0.05: result = Color("d1d0c0")
@@ -213,7 +225,7 @@ func curve_tube(a: Vector3, b: Vector3, c: Vector3, d: Vector3, ra: float, rb: f
 			var r := lerpf(ra, rb, t)
 			for i in segments + 1:
 				var angle := TAU * i / segments
-				var n := right * cos(angle) + up * sin(angle)
+				var n := (right * cos(angle) + up * sin(angle) * section_flatten).normalized()
 				points.append(p + n * r)
 				normals.append(n)
 		for i in segments:
@@ -234,12 +246,16 @@ func bill(length: float) -> void:
 	if species == &"great_cormorant": color = Color("827f68")
 	if group in [&"corvid", &"songbird", &"swallow", &"woodpecker"] and species != &"common_blackbird": color = Color("524b3e")
 	if broad:
-		oval(base + Vector3(0, -head_size * 0.03, -length * 0.34), Vector3(width, head_size * 0.16, length * 0.66), color, 16, 8, -1, 0.6)
+		oval(base + Vector3(0, -head_size * 0.03, -length * 0.34), Vector3(width, head_size * 0.1, length * 0.66), color, 16, 8, -1, 0.6)
 	else:
 		var tip := base + Vector3(0, -length * (0.36 if hooked else 0.04), -length)
+		# Flatten keeps the culmen from reading as a round hose. Legs reset this.
+		section_flatten = 0.52
 		curve_tube(base, base + Vector3(0, head_size * 0.20, -length * 0.38), tip + Vector3(0, length * 0.23 if hooked else 0.0, 0), tip, width, head_size * 0.012, color, 6, 8, 0.6)
 		var lower := base + Vector3(0, -head_size * 0.16, 0)
+		section_flatten = 0.48
 		tube(lower, lower + Vector3(0, 0, -length * 0.8), width * 0.62, head_size * 0.015, color.darkened(0.18))
+		section_flatten = 1.0
 	for sign_value in [-1.0, 1.0]:
 		oval(base + Vector3(sign_value * width * 0.83, head_size * 0.035, -length * 0.15), Vector3(head_size * 0.026, head_size * 0.025, head_size * 0.065), Color("292523"), 8, 4, -1, 0.6)
 
@@ -254,15 +270,16 @@ func eyes() -> void:
 		if species == &"western_jackdaw": iris = Color("a2b6b9")
 		if group == &"raptor": iris = Color("ac8141")
 		if species == &"common_blackbird": iris = Color("c89942")
-		oval(at, Vector3.ONE * r * 0.97, iris, 12, 8, -1, 0.6)
+		oval(at, Vector3.ONE * r * 0.97, iris, 10, 6, -1, 0.6)
 		var outward := Vector3(side * 0.8, 0.08, -0.65).normalized() if group != &"owl" else Vector3.FORWARD
-		oval(at + outward * r * 0.45, Vector3.ONE * r * 0.84, Color("0c1012"), 12, 8, -1, 1.0)
+		oval(at + outward * r * 0.45, Vector3.ONE * r * 0.84, Color("0c1012"), 10, 6, -1, 1.0)
+		oval(at + outward * r * 0.82 + Vector3(0, r * 0.28, 0), Vector3.ONE * r * 0.2, Color("f3f0e8"), 6, 3, -1, 1.0)
 
 func owl_face() -> void:
 	for side in [-1.0, 1.0]:
 		oval(head + Vector3(side * head_size * 0.36, -head_size * 0.06, -head_size * 0.72), Vector3(head_size * 0.48, head_size * 0.69, head_size * 0.25), Color("aa9679"), 16, 10)
 
-func feather(a: Vector3, b: Vector3, width: float, color: Color, normal: Vector3 = Vector3.UP, marking: float = 0.0) -> void:
+func feather(a: Vector3, b: Vector3, width: float, color: Color, normal: Vector3 = Vector3.UP, marking: float = 0.0, notch: float = 0.0) -> void:
 	var axis := (b - a).normalized()
 	var side := axis.cross(normal).normalized()
 	if side.length_squared() < 0.1: side = Vector3.RIGHT
@@ -271,18 +288,25 @@ func feather(a: Vector3, b: Vector3, width: float, color: Color, normal: Vector3
 	for j in 7:
 		for column in 2:
 			var points: Array[Vector3] = []
+			var normals: Array[Vector3] = []
 			var uvs: Array[Vector2] = []
 			for corner: Vector2 in [Vector2(column, j), Vector2(column + 1, j), Vector2(column + 1, j + 1), Vector2(column, j + 1)]:
 				var uv := Vector2(corner.x / 2.0, rows[int(corner.y)])
 				var t := uv.y
 				var x := uv.x * 2.0 - 1.0
 				var breadth := pow(maxf(0.0, sin(PI * (0.19 + t * 0.81))), 0.6)
-				var p := a.lerp(b, t) + side * x * width * breadth * (0.83 if x < 0 else 1.0)
-				p += up * (sin(t * PI) * width * 0.16 + (1.0 - absf(x)) * width * 0.07)
+				# Notch cuts the distal outer vane so primaries separate into fingers.
+				var outer := 1.0
+				if x > 0.0:
+					outer = lerpf(1.0, 0.34, notch * smoothstep(0.4, 0.78, t))
+				var p := a.lerp(b, t) + side * x * width * breadth * (0.78 if x < 0.0 else outer)
+				p += up * (sin(t * PI) * width * 0.24 + (1.0 - absf(x)) * width * 0.1)
+				p += side * x * notch * sin(t * PI) * width * 0.08
 				points.append(p)
+				normals.append((up * (1.0 - t * 0.2) + axis * t * 0.42 + side * x * 0.34).normalized())
 				uvs.append(uv)
 			for index in [0, 1, 2, 0, 2, 3]:
-				vertex(points[index], up, uvs[index], color, 0.0, marking)
+				vertex(points[index], normals[index], uvs[index], color, 0.0, marking)
 
 func wing_color(t: float) -> Color:
 	var result := colors[1].darkened(0.06 + t * 0.10)
@@ -295,6 +319,8 @@ func wing_color(t: float) -> Color:
 	if species == &"grey_heron": result = Color("75828b")
 	if species == &"european_robin": result = colors[0].darkened(0.08)
 	if species == &"common_nightingale": result = Color("825738")
+	if group not in [&"gull", &"tern"]:
+		result = result.darkened(smoothstep(0.62, 1.0, t) * 0.16)
 	return result
 
 func wings(span: float, chord: float, flying: bool, lift: float, sweep: float) -> void:
@@ -307,18 +333,24 @@ func wings(span: float, chord: float, flying: bool, lift: float, sweep: float) -
 			var wrist := shoulder + Vector3(s * half * 0.54, lift * half * 0.40, -chord * 0.15 + sweep * half * 0.35)
 			rig_anchors["left_shoulder" if s < 0 else "right_shoulder"] = shoulder
 			rig_anchors["left_elbow" if s < 0 else "right_elbow"] = wrist
-			oval(shoulder.lerp(wrist, 0.42) + Vector3(0, 0, chord * 0.12), Vector3(half * 0.32, radius.y * 0.22, chord * 0.28), wing_color(0.2), 12, 6)
+			# Thin arm core. Coverts carry the silhouette so the limb is not a paddle.
+			oval(shoulder.lerp(wrist, 0.42) + Vector3(0, 0, chord * 0.08), Vector3(half * 0.16, radius.y * 0.1, chord * 0.16), wing_color(0.2), 8, 4)
 			for i in 12:
 				var t := float(i) / 11
 				var root := shoulder.lerp(wrist, t)
-				feather(root, root + Vector3(s * half * 0.04, -half * 0.025, chord * (0.86 - t * 0.1)), half * 0.057, wing_color(t * 0.55), Vector3.UP, pattern)
+				feather(root, root + Vector3(s * half * 0.04, -half * 0.025, chord * (0.86 - t * 0.1)), half * 0.064, wing_color(t * 0.55), Vector3.UP, pattern)
 			rig_part = 2 if s < 0 else 4
 			for i in 10:
 				var t := float(i) / 9
 				var root := wrist + Vector3(s * half * t * 0.14, lift * half * t * 0.08, chord * t * 0.15)
 				var length_factor := sin((0.25 + t * 0.67) * PI)
-				var tip := wrist + Vector3(s * half * (0.38 + 0.08 * length_factor - t * 0.26), lift * half * 0.27, chord * (0.10 + t * 0.90) + sweep * half * 0.16)
-				feather(root, tip, half * (0.046 if group in [&"raptor", &"corvid"] else 0.058), wing_color(0.6 + (1.0 - t) * 0.4), Vector3.UP, pattern)
+				var notch := smoothstep(0.35, 1.0, t)
+				var tip := wrist + Vector3(s * half * (0.38 + 0.08 * length_factor - t * 0.26 + notch * 0.06), lift * half * 0.27, chord * (0.10 + t * 0.90) + sweep * half * 0.16)
+				feather(root, tip, half * (0.05 if group in [&"raptor", &"corvid"] else 0.062) * lerpf(1.12, 0.7, notch), wing_color(0.6 + (1.0 - t) * 0.4), Vector3.UP, pattern, notch)
+			for i in 3:
+				var t := float(i) / 2.0
+				var root := wrist + Vector3(s * half * 0.02, radius.y * 0.06, -chord * (0.02 + t * 0.08))
+				feather(root, root + Vector3(s * half * 0.1, lift * half * 0.08, -chord * 0.22), half * 0.028, wing_color(0.15), Vector3.UP, pattern, 0.35)
 			for i in 10:
 				var t := float(i) / 9
 				var root := wrist + Vector3(s * half * (t * 0.26 - 0.025), lift * half * t * 0.16 + radius.y * 0.03, chord * t * 0.20)
@@ -332,20 +364,24 @@ func wings(span: float, chord: float, flying: bool, lift: float, sweep: float) -
 					feather(root, root + Vector3(s * half * 0.03, 0, chord * 0.36), half * 0.048, wing_color(t * 0.5).lightened(0.03 * row), Vector3.UP, pattern)
 		else:
 			var wing_center := center + Vector3(s * radius.x * 0.87, radius.y * 0.16, radius.z * 0.08)
-			oval(wing_center, Vector3(radius.x * 0.13, radius.y * 0.58, radius.z * 0.76), wing_color(0.25), 12, 8)
+			oval(wing_center, Vector3(radius.x * 0.07, radius.y * 0.22, radius.z * 0.34), wing_color(0.25), 8, 4)
 			var normal := Vector3(s, 0.3, 0).normalized()
+			for i in 3:
+				var t := float(i) / 2.0
+				var root := wing_center + Vector3(s * radius.x * 0.04, radius.y * (0.48 - t * 0.12), -radius.z * (0.42 + t * 0.06))
+				feather(root, root + Vector3(s * radius.x * 0.2, radius.y * 0.14, -radius.z * 0.22), radius.y * 0.07, wing_color(0.12), normal, pattern, 0.25)
 			for i in 10:
 				var t := float(i) / 9
 				var root := wing_center + Vector3(s * radius.x * (0.14 - absf(t - 0.5) * 0.15), radius.y * (0.42 - t * 0.77), -radius.z * 0.25)
 				var tip := center + Vector3(s * radius.x * (0.78 - t * 0.08), radius.y * (-0.05 - t * 0.44), radius.z * (1.35 - t * 0.32))
-				feather(root, tip, radius.y * 0.12, wing_color(0.4 + t * 0.6), normal, pattern)
+				feather(root, tip, radius.y * 0.15, wing_color(0.4 + t * 0.6), normal, pattern, smoothstep(0.55, 1.0, t) * 0.45)
 			for row in 2:
 				for i in 9:
 					var t := float(i) / 8
 					var root := wing_center + Vector3(s * radius.x * (0.17 + 0.018 * row - pow((t - 0.5) * 2, 2) * 0.12), radius.y * (0.51 - t * 0.95), radius.z * (-0.70 + row * 0.47))
 					var color := wing_color(t * 0.4).lightened(0.025)
 					if row == 1 and species in [&"common_chaffinch", &"great_tit", &"great_spotted_woodpecker", &"eurasian_magpie"]: color = Color("c9c9bc")
-					feather(root, root + Vector3(0, -radius.y * 0.07, radius.z * 0.67), radius.y * 0.115, color, normal, pattern)
+					feather(root, root + Vector3(0, -radius.y * 0.07, radius.z * 0.67), radius.y * 0.145, color, normal, pattern)
 
 	rig_part = 0
 
@@ -355,7 +391,7 @@ func tail(length: float) -> void:
 	for i in 12:
 		var t := (float(i) / 11) * 2.0 - 1.0
 		var extent := length * (0.48 + 0.52 * pow(absf(t), 2)) if forked else length * (1.0 - absf(t) * 0.12)
-		var tip := root + Vector3(t * radius.x * 0.66, -radius.y * 0.20, extent)
+		var tip := root + Vector3(t * radius.x * 0.72, -radius.y * 0.08 + length * 0.06 * (1.0 - absf(t)), extent)
 		var color := Color("d3d0bf") if species == &"white_tailed_eagle" else wing_color(0.6)
 		feather(root + Vector3(t * radius.x * 0.25, 0, 0), tip, radius.x * 0.105, color, Vector3.UP, pattern)
 

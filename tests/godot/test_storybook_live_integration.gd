@@ -103,7 +103,7 @@ func test_live_catalogue_flight_uses_the_revised_anatomy_and_plumage() -> void:
 	assert_false(bird.has_meta(&"flight_player"))
 	assert_true(bird.has_node("WingRootL/WingElbowL"))
 	var body := bird.get_node("Body") as MeshInstance3D
-	assert_eq(body.mesh.get_meta(&"bird_catalog_revision", 0), 212)
+	assert_eq(body.mesh.get_meta(&"bird_catalog_revision", 0), 213)
 	var material := body.mesh.surface_get_material(0) as ShaderMaterial
 	assert_true(material != null)
 	assert_eq(material.shader.resource_path, "res://assets/birds/catalog_plumage.gdshader")
