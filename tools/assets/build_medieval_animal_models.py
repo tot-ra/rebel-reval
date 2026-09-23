@@ -193,7 +193,7 @@ SPECS = {
         "source": None,
         "output": RUNTIME / "medieval_pack_horse.glb",
         "dimensions_m": (2.35, 1.65, 0.78),
-        "triangles": 16_000,
+        "triangles": 22_000,
         "voxel_divisor": 132.0,
         "base_color": (0.42, 0.175, 0.062),
         "accent_color": (0.16, 0.07, 0.035),
@@ -1747,8 +1747,8 @@ def refine_horse_surface(obj: bpy.types.Object) -> None:
         ear = point.z > 1.48 and point.x < -0.75
         if not ear and -0.92 < point.x < -0.12 and abs(point.y) < 0.09 and point.z > 1.08:
             central = 1.0 - abs(point.y) / 0.09
-            point.z += 0.05 * central
-            point.y *= 1.0 - 0.22 * central
+            point.z += 0.028 * central
+            point.y *= 1.0 - 0.08 * central
         if -0.32 < point.x < -0.08 and abs(point.y) < 0.10 and point.z > 1.12:
             point.z += 0.026 * (1.0 - abs(point.y) / 0.10)
         if -1.10 < point.x < -0.82 and abs(point.y) < 0.12 and 1.05 < point.z < 1.30:
@@ -1775,7 +1775,7 @@ def refine_horse_surface(obj: bpy.types.Object) -> None:
         if radial < 0.15 and radial > 1e-5:
             scale = 1.0
             if 0.20 < point.z < 0.46:
-                scale = 0.76
+                scale = 0.90
             elif 0.50 < point.z < 0.66:
                 scale = 1.12
             elif 0.10 < point.z < 0.18:
@@ -1797,11 +1797,11 @@ def refine_horse_surface(obj: bpy.types.Object) -> None:
 
 
 def create_pack_horse_mesh() -> bpy.types.Object:
-    """Loft a draft horse in the same meter space as the existing quadruped rig.
+    """Loft a draft horse, then let voxel remesh fuse the overlapping sections.
 
-    WHY: stacked spheres smoothed into a clay sausage with no muzzle, crest, or
-    cannons. These closed sections overlap so voxel remesh stays one hide, while
-    the eye line stays near (-0.94, ±0.14, 1.38) and the legs stay on the bones.
+    WHY: separate metaballs stayed a string of balls. Closed sections in the
+    rig's meter space (eyes near (-0.94, ±0.14, 1.38), legs on the bones) remesh
+    into one hide when they overlap.
     """
     parts: list[bpy.types.Object] = []
 
@@ -1809,10 +1809,13 @@ def create_pack_horse_mesh() -> bpy.types.Object:
         part_name: str,
         stations: list[tuple[Vector, float, float]],
         sides: int = 16,
+        stiffness: float = 1.45,
     ) -> None:
+        del stiffness
         mesh = bpy.data.meshes.new(part_name)
         bm = bmesh.new()
         _append_loft(bm, stations, sides)
+        bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
         bm.to_mesh(mesh)
         bm.free()
         part = bpy.data.objects.new(part_name, mesh)
@@ -1830,14 +1833,14 @@ def create_pack_horse_mesh() -> bpy.types.Object:
             (Vector((-0.94, 0.0, 1.32)), 0.150, 0.130),
             (Vector((-0.86, 0.0, 1.40)), 0.124, 0.114),
             (Vector((-0.78, 0.0, 1.34)), 0.130, 0.155),
-            (Vector((-0.64, 0.0, 1.24)), 0.155, 0.175),
-            (Vector((-0.50, 0.0, 1.14)), 0.190, 0.205),
+            (Vector((-0.64, 0.0, 1.24)), 0.240, 0.190),
+            (Vector((-0.50, 0.0, 1.14)), 0.280, 0.220),
             (Vector((-0.34, 0.0, 1.04)), 0.250, 0.245),
             (Vector((-0.16, 0.0, 0.98)), 0.300, 0.275),
             (Vector((0.04, 0.0, 0.97)), 0.280, 0.255),
             (Vector((0.24, 0.0, 1.02)), 0.230, 0.210),
             (Vector((0.44, 0.0, 1.05)), 0.300, 0.260),
-            (Vector((0.64, 0.0, 1.07)), 0.220, 0.195),
+            (Vector((0.64, 0.0, 1.07)), 0.300, 0.220),
             (Vector((0.84, 0.0, 1.08)), 0.100, 0.105),
             (Vector((1.14, 0.0, 1.06)), 0.030, 0.032),
         ],
@@ -1852,34 +1855,15 @@ def create_pack_horse_mesh() -> bpy.types.Object:
         ],
         12,
     )
-    loft(
-        "HorseCrest",
-        [
-            (Vector((-0.88, 0.0, 1.50)), 0.030, 0.048),
-            (Vector((-0.72, 0.0, 1.54)), 0.032, 0.058),
-            (Vector((-0.56, 0.0, 1.46)), 0.034, 0.052),
-            (Vector((-0.40, 0.0, 1.36)), 0.030, 0.044),
-            (Vector((-0.24, 0.0, 1.28)), 0.026, 0.036),
-        ],
-        10,
-    )
     for side, y_sign in (("Left", 1.0), ("Right", -1.0)):
         loft(
             f"HorseEar{side}",
             [
-                (Vector((-0.86, 0.05 * y_sign, 1.44)), 0.032, 0.046),
-                (Vector((-0.84, 0.065 * y_sign, 1.55)), 0.024, 0.034),
-                (Vector((-0.82, 0.075 * y_sign, 1.66)), 0.014, 0.018),
+                (Vector((-0.86, 0.06 * y_sign, 1.42)), 0.048, 0.055),
+                (Vector((-0.84, 0.07 * y_sign, 1.54)), 0.036, 0.042),
+                (Vector((-0.82, 0.08 * y_sign, 1.64)), 0.022, 0.026),
             ],
             8,
-        )
-        loft(
-            f"HorseShoulder{side}",
-            [
-                (Vector((-0.40, 0.16 * y_sign, 1.10)), 0.11, 0.12),
-                (Vector((-0.52, 0.20 * y_sign, 0.90)), 0.09, 0.10),
-            ],
-            12,
         )
         loft(
             f"HorseFront{side}",
@@ -1887,7 +1871,8 @@ def create_pack_horse_mesh() -> bpy.types.Object:
                 -0.58,
                 0.22 * y_sign,
                 (
-                    (1.14, 0.12, 0.0),
+                    (1.18, 0.11, 0.0),
+                    (1.00, 0.09, 0.0),
                     (0.96, 0.095, 0.0),
                     (0.78, 0.072, 0.0),
                     (0.62, 0.086, 0.0),
@@ -1905,7 +1890,8 @@ def create_pack_horse_mesh() -> bpy.types.Object:
                 0.64,
                 0.22 * y_sign,
                 (
-                    (1.16, 0.13, 0.0),
+                    (1.18, 0.12, 0.0),
+                    (1.00, 0.10, 0.0),
                     (0.98, 0.105, 0.02),
                     (0.80, 0.078, 0.02),
                     (0.62, 0.092, 0.045),
@@ -1925,13 +1911,11 @@ def create_pack_horse_mesh() -> bpy.types.Object:
     bpy.ops.object.join()
     obj = bpy.context.view_layer.objects.active
     obj.name = "AnimalMesh"
-    obj.location = (0.0, 0.0, 0.0)
     bpy.ops.object.mode_set(mode="EDIT")
     bpy.ops.mesh.select_all(action="SELECT")
-    bpy.ops.mesh.quads_convert_to_tris(quad_method="BEAUTY", ngon_method="BEAUTY")
+    bpy.ops.mesh.normals_make_consistent(inside=False)
     bpy.ops.object.mode_set(mode="OBJECT")
-    for polygon in obj.data.polygons:
-        polygon.use_smooth = True
+    bpy.ops.object.shade_smooth()
     obj["procedural_anatomy"] = True
     return obj
 
@@ -2257,7 +2241,7 @@ def build(name: str, spec: dict) -> dict:
                     0.48
                     if elk_surface
                     else (
-                        0.30
+                        0.46
                         if horse_surface
                         else (0.50 if name == "cattle" else (0.58 if name == "goat" else 0.72))
                     )
@@ -2269,10 +2253,24 @@ def build(name: str, spec: dict) -> dict:
                 else (
                     4
                     if elk_surface
-                    else (3 if horse_surface else (5 if name == "cattle" else (7 if name == "goat" else 12)))
+                    else (5 if horse_surface else (5 if name == "cattle" else (7 if name == "goat" else 12)))
                 )
             ),
         )
+        if name == "pack_horse":
+            # Voxel remesh keeps the leg-to-chest shelf. One subdivision pass
+            # rounds it before the triangle budget is applied again.
+            subsurf = obj.modifiers.new("RoundHide", "SUBSURF")
+            subsurf.levels = 1
+            bpy.context.view_layer.objects.active = obj
+            bpy.ops.object.modifier_apply(modifier=subsurf.name)
+            current_triangles = topology(obj)["triangles"]
+            if current_triangles > spec["triangles"]:
+                decimate = obj.modifiers.new("ProductionTriangleBudget", "DECIMATE")
+                decimate.ratio = spec["triangles"] / current_triangles
+                decimate.use_collapse_triangulate = True
+                bpy.ops.object.modifier_apply(modifier=decimate.name)
+            bpy.ops.object.shade_smooth()
         if name == "sheep":
             apply_fleece_displacement(obj, strength=0.052)
         if name == "brown_bear":
@@ -2309,7 +2307,8 @@ def build(name: str, spec: dict) -> dict:
                     polygon.use_smooth = True
     # Pack-horse scans retain tack islands; discard more aggressively before rigging.
     if name == "pack_horse":
-        remove_tiny_islands(obj, 0.0025)
+        # Drop unfused ear/crest nubs. The hide itself is the large island.
+        remove_tiny_islands(obj, 0.012)
     if name == "pig":
         discarded_before = 0
     normalize_dimensions(obj, spec["dimensions_m"])

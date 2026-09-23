@@ -444,26 +444,8 @@ def create_pack_horse_rig(obj: bpy.types.Object) -> tuple[bpy.types.Object, list
             ("Left", eye_left.y, eye_left.z, "EyeLeft"),
             ("Right", eye_right.y, eye_right.z, "EyeRight"),
         ],
-        tail_specs=((0.72, 0.0, 0.98), (1.06, 0.0, 0.40), 0.042, 0.016),
+        tail_specs=((0.72, 0.0, 0.98), (1.08, 0.0, 0.36), 0.055, 0.022),
     )
-    # One cone reads as a stick. Extra locks parented to the same tail bone
-    # give the dock a hair mass without a second skeleton.
-    hair = obj.data.materials[0]
-    for strand_name, end in (
-        ("TailStrandLeft", (1.12, 0.06, 0.32)),
-        ("TailStrandRight", (1.12, -0.06, 0.32)),
-        ("TailStrandCenter", (1.16, 0.0, 0.24)),
-    ):
-        strand = add_tapered_segment(
-            strand_name,
-            Vector((0.80, end[1] * 0.2, 0.92)),
-            Vector(end),
-            0.024,
-            0.008,
-            hair,
-        )
-        parent_to_bone(strand, armature, "Tail")
-        details.append(strand)
     nose_material = create_flat_material("packhorserig_nostril", (0.035, 0.022, 0.016, 1.0))
     for side, probe_y in (("Left", 0.05), ("Right", -0.05)):
         anchor = snap_point_to_mesh_surface(
