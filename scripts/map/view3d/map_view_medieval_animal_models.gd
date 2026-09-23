@@ -69,6 +69,7 @@ const MODEL_PATHS: Dictionary = {
 	MammalSpecies.SPECIES_ELK: "res://assets/animals/medieval/medieval_elk.glb",
 	MammalSpecies.SPECIES_WOLF: "res://assets/animals/medieval/medieval_wolf.glb",
 	MammalSpecies.SPECIES_LYNX: "res://assets/animals/medieval/medieval_lynx.glb",
+	MammalSpecies.SPECIES_SQUIRREL: "res://assets/animals/medieval/medieval_squirrel.glb",
 }
 
 ## Yaw applied to a model so its nose points along -Z, which is the direction
@@ -102,6 +103,7 @@ const MODEL_YAW: Dictionary = {
 	MammalSpecies.SPECIES_ELK: -PI * 0.5,
 	MammalSpecies.SPECIES_WOLF: -PI * 0.5,
 	MammalSpecies.SPECIES_LYNX: -PI * 0.5,
+	MammalSpecies.SPECIES_SQUIRREL: -PI * 0.5,
 }
 
 
@@ -133,6 +135,7 @@ static func add_model(parent: Node3D, species: StringName) -> Node3D:
 		or species == MammalSpecies.SPECIES_ELK
 		or species == MammalSpecies.SPECIES_WOLF
 		or species == MammalSpecies.SPECIES_LYNX
+		or species == MammalSpecies.SPECIES_SQUIRREL
 	):
 		_enable_vertex_coat(model)
 	# Animation selection runs on the visual actor rather than the imported model.
