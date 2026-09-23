@@ -93,10 +93,23 @@ func test_central_and_south_districts_limit_cobble_to_main_routes() -> void:
 
 	var south: MapDefinition = SouthQuarterDefinition.create()
 	var south_grid := MapBuilder.build(south)
-	var south_counts := _surface_counts(south, south_grid)
-	var south_total: int = south.size_cells.x * south.size_cells.y
-	assert_true(int(south_counts[MapTypes.TERRAIN_COBBLESTONE]) <= int(south_total * 0.05), "South-quarter cobble must stay on gate and through-road axes")
-	assert_true(_permeable_count(south_counts) >= int(south_total * 0.85), "Ordinary southern plots and lanes must remain permeable")
+	var south_surface: Dictionary = MapCompositionAudit.measure(south, south_grid)["surface_shares"]
+	assert_true(
+		float(south_surface["cobblestone_pct"]) <= 5.0,
+		"South-quarter cobble must stay on gate and through-road axes"
+	)
+	assert_true(
+		float(south_surface["stone_pct"]) >= 25.0 and float(south_surface["stone_pct"]) <= 40.0,
+		"South Quarter stone closes must satisfy the frozen P4-024 band"
+	)
+	assert_true(
+		float(south_surface["earth_pct"]) >= 40.0 and float(south_surface["earth_pct"]) <= 55.0,
+		"South Quarter packed-earth lanes and yards must satisfy the frozen P4-024 band"
+	)
+	assert_true(
+		float(south_surface["grass_pct"]) >= 15.0 and float(south_surface["grass_pct"]) <= 30.0,
+		"South Quarter grass and service vegetation must satisfy the frozen P4-024 band"
+	)
 	assert_eq(south_grid.get_terrain(Vector2i(240, 56)), MapTypes.TERRAIN_COBBLESTONE, "Karja Gate keeps a paved major approach")
 	assert_eq(south_grid.get_terrain(Vector2i(213, 21)), MapTypes.TERRAIN_MUD, "Dunkri remains a muddy secondary lane")
 
