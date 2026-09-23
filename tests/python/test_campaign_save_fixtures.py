@@ -56,17 +56,26 @@ class TestCampaignSaveFixtures(unittest.TestCase):
                 game_state = payload.get("game_state")
                 self.assertIsInstance(game_state, dict)
                 self.assertEqual(game_state.get("phase"), fixture["expected_phase"])
-                self.assertEqual(
-                    game_state.get("version"),
-                    fixture["expected_game_state_version"],
-                )
 
                 source_version = fixture.get("source_game_state_version")
                 if source_version is not None:
-                    self.assertNotEqual(
+                    # Raw legacy rows stay at the source schema. Godot
+                    # SaveEnvelope tests cover the migration path to
+                    # expected_game_state_version.
+                    self.assertEqual(
                         game_state.get("version"),
                         source_version,
-                        "legacy fixture must remain a migration input",
+                        "legacy fixture must remain a raw migration input",
+                    )
+                    self.assertNotEqual(
+                        source_version,
+                        fixture["expected_game_state_version"],
+                        "source and post-migration versions must differ",
+                    )
+                else:
+                    self.assertEqual(
+                        game_state.get("version"),
+                        fixture["expected_game_state_version"],
                     )
 
     def test_act1_boundary_fixtures_cover_distinct_branch_outcomes(self) -> None:

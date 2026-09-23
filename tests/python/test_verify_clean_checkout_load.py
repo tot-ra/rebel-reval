@@ -36,6 +36,8 @@ class VerifyCleanCheckoutLoadTest(unittest.TestCase):
             "test_map_view_3d_mesh",
             "test_map_view_3d_runtime",
             "run_godot_checked.sh",
+            "GODOT_BIN is not an executable Godot binary",
+            "resolve Godot binary",
         ):
             self.assertIn(required, text)
         self.assertIn("worktree remove --force", text)
@@ -68,7 +70,9 @@ class VerifyCleanCheckoutLoadTest(unittest.TestCase):
             )
             self.assertNotEqual(completed.returncode, 0)
             self.assertTrue(marker.exists())
+            self.assertIn("GODOT_BIN is not an executable Godot binary", completed.stderr)
             self.assertIn("Clean-checkout load gate failed", completed.stderr)
+            self.assertIn("resolve Godot binary", completed.stderr)
             self.assertNotIn("git worktree", completed.stderr.lower())
 
     def test_checked_runner_requires_non_empty_summary(self) -> None:

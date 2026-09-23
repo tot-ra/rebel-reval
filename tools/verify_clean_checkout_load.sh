@@ -26,6 +26,18 @@ cleanup() {
 }
 trap cleanup EXIT
 
+# Reject a missing binary before `git worktree add`. The cleanup contract test
+# used to spend minutes materializing a detached checkout only to fail at import.
+CURRENT_STAGE="resolve Godot binary"
+if [[ ! -x "$GODOT_BIN" ]]; then
+	if command -v "$GODOT_BIN" >/dev/null 2>&1; then
+		GODOT_BIN="$(command -v "$GODOT_BIN")"
+	else
+		echo "GODOT_BIN is not an executable Godot binary: $GODOT_BIN" >&2
+		exit 1
+	fi
+fi
+
 run_stage() {
 	local stage="$1"
 	shift

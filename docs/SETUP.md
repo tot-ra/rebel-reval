@@ -113,11 +113,15 @@ What the hook runs (path-aware on staged files):
 |--------------|--------|
 | any commit | `git diff --cached --check` |
 | `.gd` files | `gdlint` via `python3 -m gdtoolkit.linter` (same toolkit pin as CI: `4.5.0`) |
-| `content/` or content validators | content schema examples, `test_validate_content`, example corpus |
-| asset provenance / storage tools | `validate_asset_sources.py`, `verify_storage_hygiene.py` |
+| only `tests/godot/test_*.gd` | focused Godot harness filter when `GODOT_BIN`, `godot`, or the macOS Godot.app is available |
+| `content/` or content validators | content schema examples, `test_validate_content`, example corpus; `content/demo` also runs the demo corpus |
+| staged `tests/python/test_*.py` or `tools/*.py` with a matching `test_<basename>.py` | path-aware `python3 -m unittest` |
+| hook installer / runner / `.pre-commit-config.yaml` | `tests.python.test_pre_commit_hooks` |
+| `content/saves/` | `tests.python.test_campaign_save_fixtures` |
+| asset provenance / storage tools | `validate_asset_sources.py`, `verify_storage_hygiene.py`, `verify_asset_lint.py` |
 | `README.md`, `AGENTS.md`, `docs/CANON.md`, active-doc report/generator | `generate_active_docs_report.py --check` (run manually before push for other doc edits; CI always runs it) |
-| map scripts / map tools / `MAP_AUTHORING.md` | map audit/activation/conversion gates; blueprint validation when `godot` is on `PATH` |
-| `.godot-version` / `project.godot` / `export_presets.cfg` | CI Godot pin and icon/bundle parity |
+| map scripts / map tools / `MAP_AUTHORING.md` | map audit/activation/conversion gates; blueprint validation when Godot is resolved |
+| `.godot-version` / `project.godot` / `export_presets.cfg` | CI Godot pin and icon/bundle parity plus `test_project_configuration` |
 
 Manual and escape hatches:
 
@@ -246,9 +250,24 @@ Run the schema fixture checks, semantic validator tests, and complete example co
 python3 tools/validate_content_examples.py
 python3 -m unittest tests.python.test_validate_content -v
 python3 tools/validate_content.py content/examples/valid content/examples/support
+python3 tools/validate_content.py content/demo content/examples/support content/examples/valid
 ```
 
-`tools/validate_content.py` recursively validates JSON records and reports stable diagnostic codes for schema errors, references, reachability, duplicate IDs, unsupported conditions/effects, invalid inputs, and missing `res://` scene assets. CI invokes all three commands.
+`tools/validate_content.py` recursively validates JSON records and reports stable diagnostic codes for schema errors, references, reachability, duplicate IDs, unsupported conditions/effects, invalid inputs, and missing `res://` scene assets. CI invokes the example-corpus commands in the main workflow and adds the demo corpus in the content-validation job.
+
+Fast Python contract tests used by the on-commit hook and CI:
+
+```bash
+python3 -m unittest \
+  tests.python.test_pre_commit_hooks \
+  tests.python.test_project_configuration \
+  tests.python.test_test_commands \
+  tests.python.test_campaign_save_fixtures \
+  tests.python.test_verify_clean_checkout_load \
+  -v
+```
+
+`python3 -m unittest discover -s tests/python` remains the architecture-sensitive full suite from [`docs/ARCHITECTURE.md`](./ARCHITECTURE.md). Keep it out of the default commit path: several live-inventory modules still fail on unrelated scene, fingerprint, or dossier drift.
 
 To run the active Markdown link and canon consistency report:
 

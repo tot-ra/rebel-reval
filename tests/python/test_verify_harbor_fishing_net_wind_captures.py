@@ -9,6 +9,7 @@ import tempfile
 import unittest
 import zlib
 from pathlib import Path
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[2]
 TOOLS = ROOT / "tools"
@@ -54,8 +55,14 @@ class VerifyHarborFishingNetWindCapturesTest(unittest.TestCase):
             errors = validate(root=root)
             self.assertTrue(any("missing harbor fishing-net wind capture" in error for error in errors))
 
-    def test_main_exits_zero_on_current_repository(self) -> None:
-        self.assertEqual(main(), 0)
+    def test_main_maps_validate_errors_to_nonzero_exit(self) -> None:
+        # Avoid a second 12-PNG scan of the live capture set; the repository
+        # contract is already covered by test_current_repository_passes.
+        with mock.patch(
+            "verify_harbor_fishing_net_wind_captures.validate",
+            return_value=["missing harbor fishing-net wind capture"],
+        ):
+            self.assertEqual(main(), 1)
 
 
 if __name__ == "__main__":

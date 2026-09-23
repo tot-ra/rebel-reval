@@ -5,6 +5,7 @@ This file contains lessons specific to the Qa role.
 
 ## Role-specific lessons
 - Keep content-only CI jobs scoped to content validators and their direct fixtures. Broad `unittest discover` can collect release, map, and legacy task-ledger tests that require artifacts or deleted files owned by another workflow; run those gates in their dedicated CI job instead.
+- 2026-09-23: The main CI job should run the fast Python contract subset (`test_pre_commit_hooks`, `test_project_configuration`, `test_test_commands`, `test_campaign_save_fixtures`, `test_verify_clean_checkout_load`), not full `unittest discover`. Discover still includes live-inventory modules that fail on baseline drift.
 - For evidence-only acceptance gates, capture expected-failing command statuses separately and make log/path probes non-fatal; a missing temporary log or no-match `grep` can otherwise obscure the actual blocker.
 - When an evidence audit requires exact acceptance vocabulary, add those terms explicitly to the report; semantically equivalent prose may still fail a contract smoke check.
 - Blender glTF export with packed textures still yields Godot-extracted `*_albedo.png` / `*_normal.png` / `*_roughness.png` sidecars; register those derived paths in `assets/SOURCES.csv` or provenance validation fails.

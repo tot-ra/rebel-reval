@@ -52,6 +52,16 @@ jobs:
       - name: Install GDScript toolkit
         run: python3 -m pip install "gdtoolkit==4.5.0"
 
+      - name: Python contract tests
+        run: |
+          python3 -m unittest \
+            tests.python.test_pre_commit_hooks \
+            tests.python.test_project_configuration \
+            tests.python.test_test_commands \
+            tests.python.test_campaign_save_fixtures \
+            tests.python.test_verify_clean_checkout_load \
+            -v
+
       - name: Lint GDScript
         run: gdlint scripts/**/*.gd
 
