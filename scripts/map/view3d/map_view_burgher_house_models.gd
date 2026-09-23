@@ -37,12 +37,18 @@ static func add_model(
 	)
 	model.rotation.y = _frontage_rotation(building.get("door_side", &"south"))
 	root.add_child(model)
-	# Keep the ordinary renderer's Walls/Roof contract nodes for diagnostics and
-	# tests, but hide their placeholder geometry when the authored GLB is active.
-	for child in root.get_children():
-		if child != model:
-			child.visible = false
+	prune_placeholder_geometry(root, model)
 	return model
+
+
+## Keep ordinary-renderer contract nodes for diagnostics and tests, but hide
+## their placeholder geometry once an authored exterior GLB is active.
+static func prune_placeholder_geometry(root: Node3D, keep: Node3D) -> void:
+	if root == null or keep == null:
+		return
+	for child in root.get_children():
+		if child != keep:
+			child.visible = false
 
 
 static func _frontage_rotation(door_side: StringName) -> float:

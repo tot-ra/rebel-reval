@@ -137,6 +137,12 @@ static func _collect(
 		var child_3d := child as Node3D
 		if child_3d == null:
 			continue
+		# Hidden placeholders (production-house Walls/Roof/Chimney) must stay
+		# out of the merge. Their children still have visible=true, so walking
+		# them bakes the procedural chimney back onto the visible building root
+		# at the computed roof height, which then floats above the authored GLB.
+		if not child_3d.visible:
+			continue
 		# A scripted node owns its own subtree and may rebuild or animate it.
 		if child_3d.get_script() != null or preserved_names.has(child_3d.name):
 			continue

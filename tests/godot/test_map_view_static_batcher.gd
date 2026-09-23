@@ -98,6 +98,61 @@ func _colored_quad_mesh() -> ArrayMesh:
 	return surface.commit()
 
 
+func test_merge_does_not_rematerialize_hidden_chimney_subtree() -> void:
+	var root := Node3D.new()
+	var chimney := Node3D.new()
+	chimney.name = "Chimney"
+	chimney.visible = false
+	root.add_child(chimney)
+	var stone := MapViewMaterials.role(&"stone")
+	for index in 3:
+		var course := MeshInstance3D.new()
+		course.name = "Wall%d" % index
+		var box := BoxMesh.new()
+		box.size = Vector3(0.36, 1.35, 0.07)
+		course.mesh = box
+		course.material_override = stone
+		course.position = Vector3(0.0, 4.0 + float(index) * 0.4, 0.0)
+		chimney.add_child(course)
+	var removed := Batcher.merge(root, {})
+	assert_eq(removed, 0, "hidden chimney courses must not be consumed by the batcher")
+	assert_false(
+		root.has_node("Batched00"),
+		"hidden chimney must not reappear as visible batched mesh"
+	)
+	assert_eq(
+		chimney.get_child_count(),
+		3,
+		"hidden chimney children must stay on the placeholder node"
+	)
+	assert_false(chimney.visible, "placeholder chimney must remain hidden")
+	root.free()
+
+
+func test_merge_does_not_detach_production_house_chimney() -> void:
+	var building := {
+		"id": &"preview_merchant_timber_batch",
+		"kind": MapTypes.BUILDING_KIND_HOUSE,
+		"house_tier": &"merchant_timber",
+		"footprint": Rect2(0.0, 0.0, 8.0 * 32.0, 8.0 * 32.0),
+		"wall_height": 112.0,
+		"door_side": &"south",
+	}
+	var house := MapViewMeshBuilder.build_building(building, MapTypes.DEFAULT_CELL_SIZE)
+	var chimney := house.get_node_or_null("Chimney") as Node3D
+	assert_true(chimney != null, "production house keeps a contract chimney node")
+	var chimney_children := chimney.get_child_count()
+	assert_false(chimney.visible, "production GLB must hide the procedural chimney")
+	Batcher.merge(house)
+	assert_false(chimney.visible, "batching must not un-hide the procedural chimney")
+	assert_eq(
+		chimney.get_child_count(),
+		chimney_children,
+		"batching must not steal hidden chimney meshes onto the visible house root"
+	)
+	house.free()
+
+
 func test_gate_arch_keeps_triplanar_mass_after_merge() -> void:
 	var landmark := {
 		"id": &"gate.test",
