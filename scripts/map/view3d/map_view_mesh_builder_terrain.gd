@@ -387,6 +387,10 @@ static func cell_tone(x: int, y: int, noise_seed: int, style_variant: StringName
 ## emitted every triangle corner separately and recalculated its terrain blend,
 ## turning a 176 x 112 map into more than one million vertices during every scene
 ## change. The visual 3 x 3 grid is unchanged; each shared vertex is evaluated once.
+##
+## CUSTOM0 carries a per-corner layer pair and blend weight so the blended-ground
+## shader can resolve finished albedo at each vertex before raster interpolation.
+## Flat per-triangle layer indices caused paving-fringe wedges along stroke borders.
 static func _build_blended_ground_mesh(
 	field: Dictionary, grid: MapTerrainGrid, noise_seed: int
 ) -> ArrayMesh:
