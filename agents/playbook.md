@@ -41,6 +41,8 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 
 ### Godot and Python verification
 - Export `GODOT_BIN` in a preceding command (macOS: `/Applications/Godot.app/Contents/MacOS/Godot`). Inline `GODOT_BIN=... "$GODOT_BIN"` expands the old empty value and exits 127.
+- Stale Godot tests often fail parse before runtime when APIs move: check enum renames (`RoutineState` -> `ActivityMode`), removed static helpers (`water_surface_height()` -> `MapViewMeshBuilderConfig` constants), and harness helpers (`assert_almost_eq`, `_assert_true` in custom RefCounted tests).
+- Pre-commit runs `verify_map_audit.py` for any staged `scripts/map/**` file. When map audit is already red on `main`, keep production fixes in tests or non-map modules, or repair audit inventory first.
 - `tools/run_godot_checked.sh [--require-test-summary] <log-basename> -- <godot-command>`. The log name is a basename, not `/tmp/...`. `--filter` goes after `--`.
 - The harness is `tools/run_godot_tests.gd`. `--filter` matches `test_*.gd` file stems, not method names. Pass one `--filter=stem1,stem2` token. Repeated `--filter name` flags are ignored and the full suite runs.
 - Fresh worktrees need `godot --headless --path . --import` before tests (global class cache).
