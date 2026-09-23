@@ -48,6 +48,8 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 - A green focused summary can still fail the checked runner on unrelated parse errors. Report the scoped result separately from the baseline blocker.
 - Visual capture helpers can exit 0 despite `SCRIPT ERROR`. Treat output as invalid until the log is clean.
 - `gdlint -d` only outside the repo. A root `gdlintrc` shadows `.gdlintrc`.
+- CI runs `gdlint scripts/**/*.gd` in bash without globstar, so only `scripts/*/*.gd` is linted. Keep that depth-2 set clean; a passing staged-file hook does not prove the CI glob is green.
+- `python3 tools/manage_lfs_assets.py verify` compares indexed LFS pointers to `docs/lfs_assets.json`. After a research plate is recompressed or replaced, update that row's `size_bytes` / `sha256` / `lfs_oid` from `git show :path`. Fetched `plates.csv` rows join the snapshot only when the pointer SHA already matches the CSV.
 - `python3 -m unittest discover -s tests/python` collects live-inventory modules that fail on baseline drift. Run the documented fast contract subset on commit.
 - Piping unittest to `tail` hides exit status. Use `PIPESTATUS` or a dedicated failure runner.
 - Campaign save fixtures with `source_game_state_version` are raw migration inputs. Assert the raw version, or run the `SaveEnvelope` migration path. Do not require raw JSON to equal the current envelope version.

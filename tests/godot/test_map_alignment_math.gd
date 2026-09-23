@@ -168,7 +168,7 @@ func test_editor_portfolio_contains_accepted_campaign_greyboxes() -> void:
 		"holy_spirit_church": Vector2i(30, 22),
 		"world_harju": Vector2i(52, 30),
 		"world_kanavere": Vector2i(54, 30),
-		"world_padise": Vector2i(50, 30),
+		"world_padise": Vector2i(140, 90),
 		"world_paide": Vector2i(50, 30),
 		"world_parnu": Vector2i(50, 28),
 		"world_poide": Vector2i(50, 30),

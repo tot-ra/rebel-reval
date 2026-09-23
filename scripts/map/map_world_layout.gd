@@ -192,7 +192,9 @@ static func _validate_seam(
 	return {"errors": errors, "record": record}
 
 
-static func _validate_overlaps(locations: Array[Dictionary], seams: Array[Dictionary]) -> Array[String]:
+static func _validate_overlaps(
+	locations: Array[Dictionary], seams: Array[Dictionary]
+) -> Array[String]:
 	var errors: Array[String] = []
 	for first_index in locations.size():
 		var first: Dictionary = locations[first_index]
@@ -214,7 +216,9 @@ static func _validate_overlaps(locations: Array[Dictionary], seams: Array[Dictio
 	return errors
 
 
-static func _locations_share_seam(first_id: StringName, second_id: StringName, seams: Array[Dictionary]) -> bool:
+static func _locations_share_seam(
+	first_id: StringName, second_id: StringName, seams: Array[Dictionary]
+) -> bool:
 	for seam in seams:
 		if (
 			(seam["base_map_id"] == first_id and seam["neighbor_map_id"] == second_id)

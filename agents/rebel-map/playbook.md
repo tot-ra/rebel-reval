@@ -20,6 +20,7 @@ This file contains lessons specific to the Map role.
 - Edge greenery can sit against wall or gate-house footprints. Do not require a bush center to be walkable; prove non-blocking behavior through route reachability.
 - Before asserting an rrmap style name at runtime, inspect compiler output: resolved building dictionaries can retain `primitive` while dropping the authored `style`.
 - Frontage width: `north` / `south` use `w`, `east` / `west` use `h`.
+- `test_editor_portfolio_contains_accepted_campaign_greyboxes` asserts `definition.size_cells` against the `map` header. After resizing a campaign greybox rrmap, update that Vector2i in the same change.
 - Outdoor night crushed to black after ADR 0018 is usually ambient/fill and night multipliers, not the 20% post-grade luminance proxy alone.
 - The lightweight Godot `test_case.gd` harness does not provide `assert_almost_eq`. Use an explicit `absf` tolerance.
 - When carving a narrow smithy commit, reset `kalev_smithy.rrmap`, `kalev_smithy_domestic_life.json`, and `content/routines/kalev_smithy.json` together to a matched baseline.

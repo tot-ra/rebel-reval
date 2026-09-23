@@ -9,7 +9,9 @@ extends RefCounted
 const SIDES: Array[StringName] = [&"north", &"south", &"east", &"west"]
 
 
-static func find_transition_pairs(base: MapDefinition, neighbor: MapDefinition) -> Array[Dictionary]:
+static func find_transition_pairs(
+	base: MapDefinition, neighbor: MapDefinition
+) -> Array[Dictionary]:
 	var pairs: Array[Dictionary] = []
 	if base == null or neighbor == null:
 		return pairs

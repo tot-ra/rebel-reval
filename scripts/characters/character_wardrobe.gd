@@ -1,5 +1,5 @@
-extends RefCounted
 class_name CharacterWardrobe
+extends RefCounted
 
 const SLOTS: Array[String] = ["torso", "outerwear", "legs", "feet", "hands", "head", "back"]
 var _outfits: Dictionary = {}
@@ -14,7 +14,11 @@ func equip(rig: SharedCharacterRig, wearable: CharacterWearable) -> bool:
 		return false
 	# Reject misspelled coverage before replacing the current outfit.
 	for prefix: StringName in wearable.covered_meshes:
-		if not (String(prefix).begins_with("Clothing_") or String(prefix).begins_with("Anatomy_") or String(prefix).begins_with("Hair_")):
+		if not (
+			String(prefix).begins_with("Clothing_")
+			or String(prefix).begins_with("Anatomy_")
+			or String(prefix).begins_with("Hair_")
+		):
 			return false
 		var found := false
 		for node: Node in rig.find_children("*", "MeshInstance3D", true, false):
