@@ -65,12 +65,6 @@ const MODEL_PATHS: Dictionary = {
 	MammalSpecies.SPECIES_DOG: "res://assets/storybook/dog.glb",
 	# Town cats are the same production cat as Kalev's, dressed in another coat.
 	MammalSpecies.SPECIES_CAT: "res://assets/storybook/forge_cat.tscn",
-	MammalSpecies.SPECIES_BROWN_BEAR: "res://assets/animals/medieval/medieval_brown_bear.glb",
-	MammalSpecies.SPECIES_ELK: "res://assets/animals/medieval/medieval_elk.glb",
-	MammalSpecies.SPECIES_WOLF: "res://assets/animals/medieval/medieval_wolf.glb",
-	MammalSpecies.SPECIES_LYNX: "res://assets/animals/medieval/medieval_lynx.glb",
-	MammalSpecies.SPECIES_SQUIRREL: "res://assets/animals/medieval/medieval_squirrel.glb",
-	MammalSpecies.SPECIES_HEDGEHOG: "res://assets/animals/medieval/medieval_hedgehog.glb",
 }
 
 ## Yaw applied to a model so its nose points along -Z, which is the direction
@@ -100,12 +94,6 @@ const MODEL_YAW: Dictionary = {
 	MammalSpecies.SPECIES_HORSE: -PI * 0.5,
 	MammalSpecies.SPECIES_DOG: PI,
 	&"goat": PI,
-	MammalSpecies.SPECIES_BROWN_BEAR: -PI * 0.5,
-	MammalSpecies.SPECIES_ELK: -PI * 0.5,
-	MammalSpecies.SPECIES_WOLF: -PI * 0.5,
-	MammalSpecies.SPECIES_LYNX: -PI * 0.5,
-	MammalSpecies.SPECIES_SQUIRREL: -PI * 0.5,
-	MammalSpecies.SPECIES_HEDGEHOG: -PI * 0.5,
 }
 
 
@@ -130,16 +118,7 @@ static func add_model(parent: Node3D, species: StringName) -> Node3D:
 	model.set_meta(&"species", species)
 	# The coat is stored in COLOR_0. Godot leaves vertex_color_use_as_albedo off
 	# on glTF import, so horns, hooves, the mane, and the muzzle would not show.
-	if (
-		species == MammalSpecies.SPECIES_COW
-		or species == MammalSpecies.SPECIES_HORSE
-		or species == MammalSpecies.SPECIES_BROWN_BEAR
-		or species == MammalSpecies.SPECIES_ELK
-		or species == MammalSpecies.SPECIES_WOLF
-		or species == MammalSpecies.SPECIES_LYNX
-		or species == MammalSpecies.SPECIES_SQUIRREL
-		or species == MammalSpecies.SPECIES_HEDGEHOG
-	):
+	if species == MammalSpecies.SPECIES_COW or species == MammalSpecies.SPECIES_HORSE:
 		_enable_vertex_coat(model)
 	# Animation selection runs on the visual actor rather than the imported model.
 	# Store species there as well so direct placements and tests get dog states.
@@ -212,13 +191,11 @@ static func sync_animation(actor: Node3D, previous_position: Vector3, delta: flo
 
 
 static func _enable_vertex_coat(model: Node3D) -> void:
-	# AnimalMesh is the hide. SpineMantle is the hedgehog keratin coat, which is
-	# a second surface so voxel remesh cannot melt the quills into the body.
 	for node in model.find_children("*", "MeshInstance3D", true, false):
 		var mesh_instance := node as MeshInstance3D
 		if mesh_instance == null:
 			continue
-		if mesh_instance.name != "AnimalMesh" and mesh_instance.name != "SpineMantle":
+		if mesh_instance.name != "AnimalMesh":
 			continue
 		if mesh_instance.mesh == null or mesh_instance.mesh.get_surface_count() < 1:
 			continue

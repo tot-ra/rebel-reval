@@ -162,11 +162,11 @@ Bird tests: [`test_map_view_bird_species.gd`](../tests/godot/test_map_view_bird_
 
 | Mammal | Runtime ID | Group | Runtime owner | Status |
 |---|---|---|---|---|
-| Brown bear | `fauna.brown_bear` | bear | wild margin | runtime (production GLB) |
-| Wolf | `fauna.wolf` | canid | wild margin | runtime (production GLB) |
+| Brown bear | `fauna.brown_bear` | bear | wild margin | modeled (catalog) |
+| Wolf | `fauna.wolf` | canid | wild margin | modeled (catalog) |
 | Red fox | `fauna.red_fox` | canid | wild margin | modeled (catalog) |
-| Eurasian lynx | `fauna.lynx` | felid | wild margin | runtime (production GLB) |
-| Elk | `fauna.elk` | ungulate | wild margin | runtime (production GLB) |
+| Eurasian lynx | `fauna.lynx` | felid | wild margin | modeled (catalog) |
+| Elk | `fauna.elk` | ungulate | wild margin | modeled (catalog) |
 | Red deer | `fauna.red_deer` | ungulate | wild margin | modeled (catalog) |
 | Roe deer | `fauna.roe_deer` | ungulate | wild margin | modeled (catalog) |
 | Wild boar | `fauna.wild_boar` | ungulate | wild margin | modeled (catalog) |
@@ -177,8 +177,8 @@ Bird tests: [`test_map_view_bird_species.gd`](../tests/godot/test_map_view_bird_
 | Pine marten | `fauna.pine_marten` | mustelid | woodland margin | modeled (catalog) |
 | European polecat | `fauna.polecat` | mustelid | wild margin | modeled (catalog) |
 | European hare | `fauna.hare` | lagomorph | foreland margin | modeled (catalog) |
-| Red squirrel | `fauna.squirrel` | rodent | garden/woodland | runtime (production GLB) |
-| European hedgehog | `fauna.hedgehog` | insectivore | garden margin | runtime (production GLB) |
+| Red squirrel | `fauna.squirrel` | rodent | garden/woodland | modeled (catalog) |
+| European hedgehog | `fauna.hedgehog` | insectivore | garden margin | modeled (catalog) |
 | Grey seal | `fauna.grey_seal` | seal | harbour margin | modeled (catalog) |
 | Ringed seal | `fauna.ringed_seal` | seal | harbour/wetland | modeled (catalog) |
 | Common bat | `fauna.common_bat` | bat | night margin | modeled (catalog) |
