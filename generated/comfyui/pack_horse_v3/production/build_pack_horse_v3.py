@@ -1,4 +1,8 @@
-"""Production rebuild for the pack-horse v3 runtime model.
+"""Production rebuild for the pack-horse runtime model.
+
+The Hunyuan candidate path below `_retired_hunyuan_import` is no longer called.
+`main` delegates to the closed procedural horse in the shared livestock builder.
+
 
 Run from the repository root:
 
@@ -170,6 +174,34 @@ def sync_textures_to_staging() -> list[str]:
 
 
 def main() -> None:
+    # WHY: the Hunyuan candidate remained faceted, with a torn mane and tail.
+    # The live runtime horse is the closed procedural body in the shared builder.
+    # This entry point must not import that candidate back over the runtime GLB.
+    spec = builder.SPECS["pack_horse"]
+    report = builder.build("pack_horse", spec)
+    STAGING_OUTPUT.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(RUNTIME_OUTPUT, STAGING_OUTPUT)
+    delegated = {
+        "asset_id": "creature.pack_horse.v3",
+        "route": spec.get("route"),
+        "decision": "delegates to tools/assets/build_medieval_animal_models.py pack_horse",
+        "output": report.get("output"),
+        "output_sha256": report.get("output_sha256"),
+        "production": report.get("production"),
+    }
+    REPORT.parent.mkdir(parents=True, exist_ok=True)
+    REPORT.write_text(json.dumps(delegated, indent=2) + "\n")
+    print(
+        "ASSET_METRICS="
+        + json.dumps(
+            {"asset": "pack_horse_v3", "delegated": True, "sha256": report.get("output_sha256")},
+            separators=(",", ":"),
+        )
+    )
+
+
+def _retired_hunyuan_import() -> None:
+    """Retired. Kept unreachable so the torn candidate is not the production path."""
     if not CANDIDATE.exists():
         raise FileNotFoundError(f"Missing pack-horse v3 candidate: {CANDIDATE}")
 

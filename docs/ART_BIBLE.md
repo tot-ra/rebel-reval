@@ -64,6 +64,13 @@ actual paws/hooves, coat UVs and species silhouettes. Dogs use a shaggy village
 phenotype; do not imply a modern Labrador or an attested medieval breed. See
 `assets/storybook/mammal_sources.json` for provenance and source limitations.
 The rabbit-derived hare remains a documented species-fidelity limitation.
+Live cattle, the pack horse, and the Eurasian elk are closed procedural bodies
+on the existing livestock rig. Their coats are vertex colors (hooves, horns or
+mane, muzzle, palmate antlers), because a smart-projected albedo atlas breaks
+those small regions into dots. The elk is Alces alces: long legs, scapular hump,
+hanging roman muzzle, throat bell, and palmate antlers. Witcher 3 is the
+fidelity reference only; do not copy game assets. The standalone
+`medieval_horse.glb` copy is not the live fauna model.
 
 ### Must remain evidence-led
 

@@ -1,57 +1,85 @@
 {
   "asset_id": "creature.pack_horse",
-  "route": "leonardo_reference_to_floating_cleanup_to_hunyuan3d_to_blender_cleanup",
-  "decision": "v3 regenerates from a floating mid-gray reference so Hunyuan does not emit a ground disc, then preserves topology with collapse decimate only (voxel remesh collapsed open AI surfaces to a paper shell).",
-  "source": "generated/comfyui/pack_horse_v3/pack_horse_candidate.glb",
-  "source_sha256": "174b8c8f41aa219d2a8e20856bece07e38a09b3b4f901cf0ad919c50cab50483",
+  "route": "deterministic_procedural_closed_anatomy_remesh",
+  "source_license": "project-authored procedural geometry",
+  "anatomy_decision": "remeshed_draft_horse_barrel_arched_neck_mane_crest_muzzle_ears_four_legs_and_hooves",
+  "scale_basis": "2.35 m nose-to-rump; 1.65 m standing height; 0.78 m width",
+  "source": "procedural:create_pack_horse_mesh",
+  "source_sha256": null,
   "output": "assets/animals/medieval/medieval_pack_horse.glb",
-  "staging_output": "generated/comfyui/pack_horse_v3/pack_horse_v3.glb",
-  "output_sha256": "f2923f32cf835c120e5ebfb6f889a38236c76e96daa73a1f3a88a6f6e11c453b",
+  "output_sha256": "24cf3ad98f97da9e05d03ef60b9289775d80eabb8b74ab16f5b716c34ea94eff",
   "raw": {
-    "vertices": 100661,
-    "polygons": 206936,
-    "triangles": 206936,
-    "components": 1,
+    "vertices": 3420,
+    "polygons": 6708,
+    "triangles": 6708,
+    "components": 33,
     "component_vertices": [
-      100661
+      422,
+      244,
+      244,
+      222,
+      164,
+      146,
+      146,
+      146,
+      146,
+      146,
+      146,
+      146,
+      100,
+      86,
+      86,
+      86,
+      86,
+      86,
+      86,
+      86,
+      86,
+      86,
+      24,
+      24,
+      24,
+      24,
+      20,
+      20,
+      20,
+      20,
+      20,
+      16,
+      16
     ],
-    "boundary_edges": 35,
-    "non_manifold_edges": 7365,
+    "boundary_edges": 0,
+    "non_manifold_edges": 0,
     "loose_vertices": 0
   },
   "production": {
-    "vertices": 6501,
-    "polygons": 18527,
-    "triangles": 18527,
+    "vertices": 5002,
+    "polygons": 10000,
+    "triangles": 10000,
     "components": 1,
     "component_vertices": [
-      6501
+      5002
     ],
-    "boundary_edges": 132,
-    "non_manifold_edges": 7439,
+    "boundary_edges": 0,
+    "non_manifold_edges": 0,
     "loose_vertices": 0
   },
-  "contact_trim": {
-    "cut_z": -0.7707449677586555,
-    "height_fraction": 0.015,
-    "deleted_disc_faces": 721
-  },
-  "discarded_loose_fragments": 0,
+  "discarded_raw_noise_components": 0,
   "metric_dimensions_m_y_up": [
     2.35,
     1.65,
     0.78
   ],
   "ground_min_y": 0.0,
-  "mesh_volume_m3": 0.627416767618919,
   "uv_sets": 1,
   "materials": 1,
   "texture_size": 512,
   "textures": [
-    "generated/comfyui/medieval_animals_v1/production/textures/pack_horse_albedo.png",
-    "generated/comfyui/medieval_animals_v1/production/textures/pack_horse_normal.png",
-    "generated/comfyui/medieval_animals_v1/production/textures/pack_horse_roughness.png"
+    "pack_horse_albedo.png",
+    "pack_horse_normal.png",
+    "pack_horse_roughness.png"
   ],
+  "static_prop": true,
   "rigged": true,
   "animations": [
     "Idle-loop",
@@ -59,6 +87,10 @@
     "Trot-loop",
     "Graze-loop"
   ],
-  "anatomy_decision": "approved_four_separate_weight_bearing_legs_no_ground_disc",
-  "scale_basis": "2.35 m nose-to-rump; 1.65 m standing height; 0.78 m width"
+  "animated_parts": [
+    "legs",
+    "neck",
+    "tail",
+    "eyes"
+  ]
 }

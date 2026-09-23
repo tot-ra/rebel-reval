@@ -47,10 +47,11 @@ SURFACE_PROFILES: dict[str, dict] = {
     "cattle": {
         "noise_scale": 38.0,
         "noise_detail": 3.5,
-        "bump_strength": 0.22,
+        # Low bump: a small udder UV island magnifies high-frequency noise into speckle.
+        "bump_strength": 0.08,
         "rough_min": 0.78,
         "rough_max": 0.90,
-        "normal_strength": 0.65,
+        "normal_strength": 0.28,
     },
     "goat": {
         "noise_scale": 62.0,
@@ -77,12 +78,32 @@ SURFACE_PROFILES: dict[str, dict] = {
         "normal_strength": 0.95,
     },
     "pack_horse": {
-        "noise_scale": 55.0,
-        "noise_detail": 4.0,
-        "bump_strength": 0.26,
-        "rough_min": 0.74,
-        "rough_max": 0.86,
-        "normal_strength": 0.70,
+        # Short summer coat: fine hair grain and a soft sheen, not clay.
+        "noise_scale": 148.0,
+        "noise_detail": 6.0,
+        "bump_strength": 0.16,
+        "rough_min": 0.50,
+        "rough_max": 0.72,
+        "normal_strength": 0.48,
+    },
+    "brown_bear": {
+        # High-frequency guard-hair breakup so the remeshed hull does not read as clay.
+        "noise_scale": 92.0,
+        "noise_detail": 5.2,
+        "bump_strength": 0.42,
+        "rough_min": 0.82,
+        "rough_max": 0.96,
+        "normal_strength": 0.92,
+    },
+    "elk": {
+        # Long winter guard hair on a Baltic moose. Coarser than cattle hide so
+        # the remeshed barrel does not read as a wet clay horse.
+        "noise_scale": 78.0,
+        "noise_detail": 4.8,
+        "bump_strength": 0.36,
+        "rough_min": 0.80,
+        "rough_max": 0.94,
+        "normal_strength": 0.86,
     },
 }
 
@@ -166,22 +187,58 @@ SPECS = {
         "scale_basis": "1.25 m nose-to-rump; 0.90 m standing height; 0.55 m fleece width",
     },
     "pack_horse": {
-        # WHY: rebuild only through pack_horse_v3/production/build_pack_horse_v3.py.
-        # The shared voxel remesh collapses this open AI surface to a paper shell,
-        # and older v1/v2 candidates still carry fused ground discs.
-        "source": ROOT / "generated/comfyui/pack_horse_v3/pack_horse_candidate.glb",
+        # WHY: the Hunyuan candidate stayed a faceted open shell. Its mane and tail
+        # tore under decimation, and a flat UV noise coat hid hooves and the crest.
+        # Closed volumes remesh into one hide that can sit on the existing rig.
+        "source": None,
         "output": RUNTIME / "medieval_pack_horse.glb",
         "dimensions_m": (2.35, 1.65, 0.78),
-        "triangles": 10_000,
-        "voxel_divisor": 110.0,
-        "base_color": (0.27, 0.17, 0.085),
-        "accent_color": (0.49, 0.34, 0.16),
+        "triangles": 16_000,
+        "voxel_divisor": 132.0,
+        "base_color": (0.42, 0.175, 0.062),
+        "accent_color": (0.16, 0.07, 0.035),
         "seed": 208744133,
         "animated": True,
-        "preserve_topology": True,
-        "route": "leonardo_reference_to_floating_cleanup_to_hunyuan3d_to_blender_cleanup",
-        "anatomy_decision": "use_generated/comfyui/pack_horse_v3/production/build_pack_horse_v3.py",
+        "route": "deterministic_procedural_closed_anatomy_remesh",
+        "source_license": "project-authored procedural geometry",
+        "anatomy_decision": "lofted_draft_horse_deep_chest_tucked_belly_arched_crest_long_head_cannons_and_hooves",
         "scale_basis": "2.35 m nose-to-rump; 1.65 m standing height; 0.78 m width",
+    },
+    "brown_bear": {
+        # WHY: the catalog bear is a 6-segment ellipsoid loaf. A Witcher-scale
+        # Eurasian brown bear needs a scapular hump, dish face, plantigrade paws,
+        # and a shaggy coat that reads at street range on the foreland margin.
+        "source": None,
+        "output": RUNTIME / "medieval_brown_bear.glb",
+        "dimensions_m": (2.28, 1.52, 1.18),
+        "triangles": 13_000,
+        "voxel_divisor": 96.0,
+        "base_color": (0.26, 0.15, 0.07),
+        "accent_color": (0.44, 0.28, 0.14),
+        "seed": 208744136,
+        "animated": True,
+        "route": "deterministic_procedural_closed_anatomy_remesh",
+        "source_license": "project-authored procedural geometry",
+        "anatomy_decision": "remeshed_ursine_barrel_scapular_hump_dish_face_plantigrade_paws_and_shaggy_coat",
+        "scale_basis": "2.28 m nose-to-rump; 1.52 m standing height including hump; 1.18 m body width",
+    },
+    "elk": {
+        # WHY: the catalog elk is a 1.55 m ellipsoid loaf with two cone posts.
+        # A Witcher-scale Eurasian elk (Alces alces) needs long legs, a scapular
+        # hump, a hanging roman muzzle, a throat bell, and palmate antlers.
+        "source": None,
+        "output": RUNTIME / "medieval_elk.glb",
+        "dimensions_m": (2.58, 2.08, 0.96),
+        "triangles": 12_000,
+        "voxel_divisor": 82.0,
+        "base_color": (0.16, 0.09, 0.05),
+        "accent_color": (0.34, 0.24, 0.16),
+        "seed": 208744137,
+        "animated": True,
+        "route": "deterministic_procedural_closed_anatomy_remesh",
+        "source_license": "project-authored procedural geometry",
+        "anatomy_decision": "remeshed_eurasian_elk_hump_hanging_muzzle_bell_palmate_antlers_long_legs_and_cloven_hooves",
+        "scale_basis": "2.58 m nose-to-rump; 2.08 m standing height including palmate antlers; 0.96 m body width",
     },
 }
 
@@ -537,6 +594,111 @@ def apply_fleece_displacement(obj: bpy.types.Object, *, strength: float = 0.030)
     bpy.ops.object.shade_smooth()
 
 
+def apply_bear_fur_displacement(obj: bpy.types.Object, *, strength: float = 0.038) -> None:
+    """Push shaggy guard-hair undulation into the remeshed ursine hull.
+
+    WHY: a smooth remesh reads as a clay toy. Low-frequency displace on the
+    cape, ruff, and flanks keeps one manifold surface while breaking the
+    silhouette the way a Witcher-scale brown bear coat should.
+    """
+    fur_group = obj.vertex_groups.new(name="BearFurDisplace")
+    fur_indices = [
+        vertex.index
+        for vertex in obj.data.vertices
+        if vertex.co.z > 0.14 and not (vertex.co.x < -0.92 and vertex.co.z > 0.62)
+    ]
+    if fur_indices:
+        fur_group.add(fur_indices, 1.0, "REPLACE")
+
+    texture = bpy.data.textures.new("BearFurNoise", type="CLOUDS")
+    texture.noise_scale = 0.13
+    texture.noise_depth = 5
+    texture.nabla = 0.028
+    displace = obj.modifiers.new("BearFurDisplace", "DISPLACE")
+    displace.texture = texture
+    displace.texture_coords = "LOCAL"
+    displace.vertex_group = fur_group.name
+    displace.strength = strength
+    displace.mid_level = 0.5
+    bpy.context.view_layer.objects.active = obj
+    bpy.ops.object.modifier_apply(modifier=displace.name)
+
+    fine = bpy.data.textures.new("BearFurFine", type="CLOUDS")
+    fine.noise_scale = 0.055
+    fine.noise_depth = 4
+    fine_displace = obj.modifiers.new("BearFurFineDisplace", "DISPLACE")
+    fine_displace.texture = fine
+    fine_displace.texture_coords = "LOCAL"
+    fine_displace.vertex_group = fur_group.name
+    fine_displace.strength = strength * 0.40
+    fine_displace.mid_level = 0.5
+    bpy.ops.object.modifier_apply(modifier=fine_displace.name)
+    min_z = min(vertex.co.z for vertex in obj.data.vertices)
+    if min_z < 0.0:
+        for vertex in obj.data.vertices:
+            vertex.co.z -= min_z
+        obj.data.update()
+    weighted = obj.modifiers.new("BearWeightedNormals", "WEIGHTED_NORMAL")
+    weighted.keep_sharp = False
+    weighted.weight = 50
+    bpy.ops.object.modifier_apply(modifier=weighted.name)
+    bpy.ops.object.shade_smooth()
+
+
+def apply_elk_fur_displacement(obj: bpy.types.Object, *, strength: float = 0.028) -> None:
+    """Push winter guard-hair undulation into the remeshed elk hull.
+
+    WHY: a smooth remesh reads as a clay horse. Low-frequency displace on the
+    barrel and hump keeps one manifold surface, but antlers, hooves, and the
+    hanging muzzle must stay keratin-hard or the species read collapses.
+    """
+    fur_group = obj.vertex_groups.new(name="ElkFurDisplace")
+    fur_indices = []
+    for vertex in obj.data.vertices:
+        point = vertex.co
+        antler = point.z > 1.38 and (abs(point.y) > 0.16 or point.x < -0.55)
+        hoof = point.z < 0.14
+        muzzle = point.x < -1.12
+        if not antler and not hoof and not muzzle:
+            fur_indices.append(vertex.index)
+    if fur_indices:
+        fur_group.add(fur_indices, 1.0, "REPLACE")
+
+    texture = bpy.data.textures.new("ElkFurNoise", type="CLOUDS")
+    texture.noise_scale = 0.16
+    texture.noise_depth = 4
+    texture.nabla = 0.030
+    displace = obj.modifiers.new("ElkFurDisplace", "DISPLACE")
+    displace.texture = texture
+    displace.texture_coords = "LOCAL"
+    displace.vertex_group = fur_group.name
+    displace.strength = strength
+    displace.mid_level = 0.5
+    bpy.context.view_layer.objects.active = obj
+    bpy.ops.object.modifier_apply(modifier=displace.name)
+
+    fine = bpy.data.textures.new("ElkFurFine", type="CLOUDS")
+    fine.noise_scale = 0.062
+    fine.noise_depth = 3
+    fine_displace = obj.modifiers.new("ElkFurFineDisplace", "DISPLACE")
+    fine_displace.texture = fine
+    fine_displace.texture_coords = "LOCAL"
+    fine_displace.vertex_group = fur_group.name
+    fine_displace.strength = strength * 0.38
+    fine_displace.mid_level = 0.5
+    bpy.ops.object.modifier_apply(modifier=fine_displace.name)
+    min_z = min(vertex.co.z for vertex in obj.data.vertices)
+    if min_z < 0.0:
+        for vertex in obj.data.vertices:
+            vertex.co.z -= min_z
+        obj.data.update()
+    weighted = obj.modifiers.new("ElkWeightedNormals", "WEIGHTED_NORMAL")
+    weighted.keep_sharp = False
+    weighted.weight = 50
+    bpy.ops.object.modifier_apply(modifier=weighted.name)
+    bpy.ops.object.shade_smooth()
+
+
 def paint_sheep_region_vertex_colors(obj: bpy.types.Object) -> None:
     """Mark bare face and hoof regions so albedo bake can darken them."""
     color_layer = obj.data.color_attributes.new(
@@ -597,6 +759,257 @@ def bake_sheep_region_albedo(obj: bpy.types.Object, base_albedo: bpy.types.Image
     return image
 
 
+def _mesh_bounds(obj: bpy.types.Object) -> dict[str, float]:
+    points = [vertex.co for vertex in obj.data.vertices]
+    return {
+        "min_x": min(point.x for point in points),
+        "max_x": max(point.x for point in points),
+        "max_y": max(abs(point.y) for point in points),
+        "min_z": min(point.z for point in points),
+        "max_z": max(point.z for point in points),
+    }
+
+
+def _coat_wobble(color: tuple[float, float, float], point: Vector, scale: float) -> tuple[float, float, float]:
+    """Break a flat hide with object-space variation so UV islands cannot tile blocks."""
+    wave = 0.5 + 0.5 * math.sin(point.x * 7.5 + point.z * 5.0 + point.y * 11.0)
+    span = 1.0 - scale + (2.0 * scale * wave)
+    return tuple(max(0.0, min(1.0, channel * span)) for channel in color)
+
+
+def livestock_region_color(name: str, point: Vector, bounds: dict[str, float]) -> tuple[float, float, float]:
+    """Pick hoof, horn, muzzle, mane, and belly colors from the normalized body."""
+    length = max(bounds["max_x"] - bounds["min_x"], 1e-6)
+    height = max(bounds["max_z"] - bounds["min_z"], 1e-6)
+    # nx is 0 at the nose and 1 at the rump. Both species face -X.
+    nose_to_rump = (point.x - bounds["min_x"]) / length
+    height_ratio = (point.z - bounds["min_z"]) / height
+    side_ratio = abs(point.y) / max(bounds["max_y"], 1e-6)
+    if name == "brown_bear":
+        # Dark Eurasian coat: black-brown stockings, tan muzzle, grizzled cape.
+        if height_ratio < 0.080:
+            return (0.035, 0.022, 0.014)
+        if height_ratio < 0.34 and (nose_to_rump < 0.40 or nose_to_rump > 0.60):
+            return _coat_wobble((0.07, 0.038, 0.018), point, 0.04)
+        if nose_to_rump < 0.09 and height_ratio < 0.70:
+            return (0.38, 0.28, 0.18)
+        if nose_to_rump < 0.18 and 0.56 < height_ratio < 0.88 and side_ratio > 0.18:
+            return (0.055, 0.032, 0.018)
+        if side_ratio < 0.30 and height_ratio < 0.40 and nose_to_rump < 0.36:
+            return _coat_wobble((0.22, 0.14, 0.07), point, 0.05)
+        if height_ratio > 0.70 and 0.16 < nose_to_rump < 0.55:
+            return _coat_wobble((0.30, 0.18, 0.08), point, 0.09)
+        return _coat_wobble((0.14, 0.075, 0.035), point, 0.06)
+    if name == "elk":
+        # Eurasian moose: dark chocolate body, pale stockings, cream muzzle,
+        # keratin antlers. Small UV islands stay in COLOR_0, not the atlas.
+        if height_ratio < 0.055:
+            return (0.055, 0.035, 0.022)
+        if height_ratio > 0.78 and (side_ratio > 0.26 or nose_to_rump < 0.34):
+            return _coat_wobble((0.20, 0.13, 0.08), point, 0.04)
+        if nose_to_rump < 0.12 and height_ratio < 0.70:
+            return (0.46, 0.38, 0.28)
+        if height_ratio < 0.34 and (nose_to_rump < 0.42 or nose_to_rump > 0.60):
+            return _coat_wobble((0.34, 0.24, 0.16), point, 0.05)
+        if height_ratio > 0.60 and 0.20 < nose_to_rump < 0.52:
+            return _coat_wobble((0.10, 0.055, 0.032), point, 0.06)
+        return _coat_wobble((0.17, 0.095, 0.052), point, 0.07)
+    if name == "cattle":
+        if height_ratio < 0.055:
+            return (0.07, 0.045, 0.03)
+        if height_ratio > 0.88 and side_ratio > 0.48 and nose_to_rump < 0.34:
+            return _coat_wobble((0.62, 0.48, 0.32), point, 0.04)
+        if nose_to_rump < 0.09 and height_ratio < 0.64:
+            return (0.15, 0.08, 0.065)
+        if 0.50 < nose_to_rump < 0.74 and height_ratio < 0.34 and side_ratio < 0.42:
+            return (0.58, 0.34, 0.30)
+        if height_ratio < 0.30 and side_ratio < 0.32:
+            return _coat_wobble((0.42, 0.22, 0.13), point, 0.05)
+        return _coat_wobble((0.32, 0.12, 0.05), point, 0.07)
+    if name == "pack_horse":
+        return _bay_horse_color(point)
+    if height_ratio < 0.055:
+        return (0.05, 0.035, 0.028)
+    if height_ratio < 0.26 and (nose_to_rump < 0.40 or nose_to_rump > 0.64):
+        return _coat_wobble((0.09, 0.055, 0.035), point, 0.04)
+    if nose_to_rump < 0.11 and height_ratio < 0.78:
+        return (0.13, 0.07, 0.05)
+    if side_ratio < 0.18 and height_ratio > 0.64 and nose_to_rump < 0.58:
+        return (0.045, 0.03, 0.025)
+    if nose_to_rump > 0.88 and side_ratio < 0.30:
+        return (0.045, 0.03, 0.025)
+    return _coat_wobble((0.36, 0.17, 0.07), point, 0.06)
+
+
+def _mix_color(
+    start: tuple[float, float, float],
+    end: tuple[float, float, float],
+    weight: float,
+) -> tuple[float, float, float]:
+    blend = max(0.0, min(1.0, weight))
+    return tuple(start[channel] * (1.0 - blend) + end[channel] * blend for channel in range(3))
+
+
+def _bay_horse_color(point: Vector) -> tuple[float, float, float]:
+    """Dark-bay coat with black points, the readable medieval draft colour.
+
+    WHY: a single brown reads as clay at street distance. Black legs, mane,
+    muzzle, and tail plus a lighter barrel are what make a horse read as a horse.
+    """
+    bay = (0.40, 0.16, 0.055)
+    bay_light = (0.56, 0.26, 0.095)
+    black = (0.04, 0.026, 0.02)
+    dark = (0.11, 0.05, 0.03)
+    sun = 0.5 + 0.5 * math.sin(point.x * 1.35 + point.z * 0.55)
+    upper = max(0.0, min(1.0, (point.z - 0.95) / 0.40))
+    color = _mix_color(bay, bay_light, 0.38 * sun * upper)
+    color = _coat_wobble(color, point, 0.04)
+    on_leg = (point.x < -0.32 or point.x > 0.38) and abs(point.y) > 0.06
+    if on_leg:
+        stocking = max(0.0, min(1.0, (0.48 - point.z) / 0.32))
+        color = _mix_color(color, dark, stocking * 0.9)
+    hoof = max(0.0, min(1.0, (0.09 - point.z) / 0.09))
+    color = _mix_color(color, black, hoof)
+    if -0.95 < point.x < 0.08:
+        crest_y = max(0.0, 1.0 - abs(point.y) / 0.065)
+        crest_z = max(0.0, min(1.0, (point.z - 1.16) / 0.28))
+        color = _mix_color(color, black, crest_y * crest_z * 0.95)
+    if point.z > 1.48 and point.x < -0.70:
+        color = _mix_color(color, black, 0.8)
+    if point.x < -0.98:
+        muzzle = max(0.0, min(1.0, (-0.98 - point.x) / 0.18))
+        color = _mix_color(color, (0.09, 0.05, 0.035), muzzle)
+    if point.x > 0.78 and abs(point.y) < 0.16:
+        dock = max(0.0, min(1.0, (point.x - 0.78) / 0.18))
+        color = _mix_color(color, black, dock)
+    if abs(point.y) < 0.16 and 0.70 < point.z < 0.98 and -0.15 < point.x < 0.45:
+        color = _mix_color(color, (0.50, 0.25, 0.11), 0.28)
+    if -0.78 < point.x < -0.42 and abs(point.y) < 0.08 and 0.95 < point.z < 1.22:
+        color = _mix_color(color, dark, 0.4)
+    return color
+
+
+def _fill_coat_triangle(
+    buffer: np.ndarray,
+    cover: np.ndarray,
+    uvs: list[tuple[float, float]],
+    colors: list[np.ndarray],
+) -> None:
+    size = buffer.shape[0]
+    points = np.array(uvs, dtype=np.float64)
+    points[:, 0] *= size - 1
+    points[:, 1] *= size - 1
+    min_x = max(int(np.floor(points[:, 0].min())), 0)
+    max_x = min(int(np.ceil(points[:, 0].max())), size - 1)
+    min_y = max(int(np.floor(points[:, 1].min())), 0)
+    max_y = min(int(np.ceil(points[:, 1].max())), size - 1)
+    if min_x > max_x or min_y > max_y:
+        return
+    edge_u = points[1] - points[0]
+    edge_v = points[2] - points[0]
+    denom = edge_u[0] * edge_v[1] - edge_v[0] * edge_u[1]
+    if abs(denom) < 1e-6:
+        return
+    xs = np.arange(min_x, max_x + 1)
+    ys = np.arange(min_y, max_y + 1)
+    grid_x, grid_y = np.meshgrid(xs, ys)
+    offset_x = grid_x - points[0, 0]
+    offset_y = grid_y - points[0, 1]
+    weight_u = (offset_x * edge_v[1] - edge_v[0] * offset_y) / denom
+    weight_v = (edge_u[0] * offset_y - offset_x * edge_u[1]) / denom
+    weight_origin = 1.0 - weight_u - weight_v
+    mask = (weight_origin >= -0.02) & (weight_u >= -0.02) & (weight_v >= -0.02)
+    if not np.any(mask):
+        return
+    painted = (
+        weight_origin[..., None] * colors[0]
+        + weight_u[..., None] * colors[1]
+        + weight_v[..., None] * colors[2]
+    )
+    target = buffer[min_y : max_y + 1, min_x : max_x + 1]
+    target[mask] = painted[mask]
+    cover[min_y : max_y + 1, min_x : max_x + 1][mask] = True
+
+
+def _dilate_coat(buffer: np.ndarray, cover: np.ndarray, radius: int) -> None:
+    """Bleed filled texels into empty UV padding so island seams do not flash black."""
+    filled = buffer
+    mask = cover
+    for _step in range(radius):
+        grown = mask.copy()
+        color = filled.copy()
+        for shift_y, shift_x in ((0, 1), (0, -1), (1, 0), (-1, 0)):
+            shifted_mask = np.zeros_like(mask)
+            shifted_color = np.zeros_like(filled)
+            if shift_y == 1:
+                shifted_mask[:-1, :] = mask[1:, :]
+                shifted_color[:-1, :] = filled[1:, :]
+            elif shift_y == -1:
+                shifted_mask[1:, :] = mask[:-1, :]
+                shifted_color[1:, :] = filled[:-1, :]
+            elif shift_x == 1:
+                shifted_mask[:, :-1] = mask[:, 1:]
+                shifted_color[:, :-1] = filled[:, 1:]
+            else:
+                shifted_mask[:, 1:] = mask[:, :-1]
+                shifted_color[:, 1:] = filled[:, :-1]
+            take = (~grown) & shifted_mask
+            color[take] = shifted_color[take]
+            grown[take] = True
+        filled = color
+        mask = grown
+    buffer[:] = filled
+    cover[:] = mask
+
+
+def _rasterize_region_colors(obj: bpy.types.Object, layer_name: str) -> np.ndarray:
+    mesh = obj.data
+    uv_data = mesh.uv_layers.active.data
+    color_data = mesh.color_attributes[layer_name].data
+    buffer = np.zeros((TEXTURE_SIZE, TEXTURE_SIZE, 3), dtype=np.float32)
+    cover = np.zeros((TEXTURE_SIZE, TEXTURE_SIZE), dtype=bool)
+    for polygon in mesh.polygons:
+        loop_ids = polygon.loop_indices
+        if len(loop_ids) < 3:
+            continue
+        for start in range(1, len(loop_ids) - 1):
+            triangle = (loop_ids[0], loop_ids[start], loop_ids[start + 1])
+            uvs: list[tuple[float, float]] = []
+            colors: list[np.ndarray] = []
+            for loop_index in triangle:
+                uv = uv_data[loop_index].uv
+                uvs.append((float(uv.x), float(uv.y)))
+                vertex_index = mesh.loops[loop_index].vertex_index
+                colors.append(np.array(color_data[vertex_index].color[:3], dtype=np.float64))
+            _fill_coat_triangle(buffer, cover, uvs, colors)
+    _dilate_coat(buffer, cover, 8)
+    return buffer
+
+
+def bake_livestock_region_albedo(obj: bpy.types.Object, name: str) -> bpy.types.Image:
+    """Paint hoof, horn, muzzle, and mane colors straight into the UV atlas.
+
+    WHY: a UV-space sine texture ignores anatomy, and a Cycles emit bake of the
+    same vertex colors collapsed small islands into a dot grid on the udder.
+    """
+    bounds = _mesh_bounds(obj)
+    layer_name = f"{name}_regions"
+    color_layer = obj.data.color_attributes.new(name=layer_name, type="BYTE_COLOR", domain="POINT")
+    for index, vertex in enumerate(obj.data.vertices):
+        red, green, blue = livestock_region_color(name, vertex.co, bounds)
+        color_layer.data[index].color = (red, green, blue, 1.0)
+
+    rgb = np.clip(_rasterize_region_colors(obj, layer_name), 0.0, 1.0)
+    rgba = np.concatenate([rgb, np.ones((TEXTURE_SIZE, TEXTURE_SIZE, 1), dtype=np.float32)], axis=2)
+    image = bpy.data.images.new(f"{name}_albedo", TEXTURE_SIZE, TEXTURE_SIZE, alpha=False)
+    image.colorspace_settings.name = "sRGB"
+    image.pixels.foreach_set(rgba.astype(np.float32).ravel())
+    image.filepath_raw = str(TEXTURES / f"{name}_albedo.png")
+    image.file_format = "PNG"
+    image.save()
+    return image
+
+
 def assign_pbr_material(
     obj: bpy.types.Object,
     name: str,
@@ -616,9 +1029,17 @@ def assign_pbr_material(
     shader = nodes.new("ShaderNodeBsdfPrincipled")
     links.new(shader.outputs["BSDF"], output.inputs["Surface"])
 
-    albedo_node = nodes.new("ShaderNodeTexImage")
-    albedo_node.image = albedo
-    links.new(albedo_node.outputs["Color"], shader.inputs["Base Color"])
+    region_name = f"{name}_regions"
+    if obj.data.color_attributes.get(region_name) is not None:
+        # Godot displays this attribute only after vertex_color_use_as_albedo is set.
+        # A UV atlas of the same colors breaks horns and the udder into dots.
+        attribute = nodes.new("ShaderNodeAttribute")
+        attribute.attribute_name = region_name
+        links.new(attribute.outputs["Color"], shader.inputs["Base Color"])
+    else:
+        albedo_node = nodes.new("ShaderNodeTexImage")
+        albedo_node.image = albedo
+        links.new(albedo_node.outputs["Color"], shader.inputs["Base Color"])
 
     normal_node = nodes.new("ShaderNodeTexImage")
     normal_node.image = normal
@@ -744,27 +1165,31 @@ def create_cattle_mesh() -> bpy.types.Object:
     sphere("CattleNose", (-1.39, 0.0, 0.94), (0.13, 0.23, 0.13), 18, 10)
     sphere("CattleJaw", (-1.12, 0.0, 0.86), (0.21, 0.21, 0.14), 18, 10)
     sphere("CattleDewlap", (-0.71, 0.0, 0.69), (0.24, 0.20, 0.25), 18, 10)
-    segment("CattleEarLeft", (-0.94, 0.19, 1.26), (-0.88, 0.43, 1.24), 0.095, 0.025, 10)
-    segment("CattleEarRight", (-0.94, -0.19, 1.26), (-0.88, -0.43, 1.24), 0.095, 0.025, 10)
+    # Lateral ears are flat paddles below the horn line. Thin cones remeshed into
+    # extra horn nubs and made the poll unreadable.
+    sphere("CattleEarLeft", (-0.98, 0.36, 1.14), (0.05, 0.18, 0.11), 14, 8)
+    sphere("CattleEarRight", (-0.98, -0.36, 1.14), (0.05, 0.18, 0.11), 14, 8)
     for side, y_sign in (("Left", 1.0), ("Right", -1.0)):
-        # Short outward-upward horns suit practical medieval cows and survive the
-        # remesh better than thin crescents.
+        # Thick enough to survive the voxel size, curved out then forward so the
+        # pair reads as horns instead of broken posts.
+        # The tip starts inside the base so remesh fuses one curve, not a branch.
         segment(
             f"CattleHorn{side}Base",
-            (-0.88, 0.18 * y_sign, 1.34),
-            (-0.83, 0.34 * y_sign, 1.44),
-            0.075,
-            0.045,
+            (-0.90, 0.08 * y_sign, 1.30),
+            (-0.76, 0.24 * y_sign, 1.50),
+            0.090,
+            0.055,
             12,
         )
         segment(
             f"CattleHorn{side}Tip",
-            (-0.83, 0.34 * y_sign, 1.44),
-            (-0.90, 0.43 * y_sign, 1.53),
-            0.046,
-            0.014,
+            (-0.82, 0.16 * y_sign, 1.42),
+            (-0.96, 0.32 * y_sign, 1.62),
+            0.060,
+            0.026,
             10,
         )
+    segment("CattleTailDock", (0.92, 0.0, 1.00), (1.12, 0.0, 0.72), 0.10, 0.035, 10)
 
     # Hip/shoulder caps and articulated-looking limb volumes prevent the remesh
     # from creating spindly poles. Every cloven toe ends at Z=0 before normalization.
@@ -811,9 +1236,9 @@ def create_cattle_mesh() -> bpy.types.Object:
 
     # A restrained udder identifies the animal as a cow without becoming a comic
     # focal point. Four short teats remain connected through remesh.
-    sphere("CattleUdder", (0.39, 0.0, 0.49), (0.24, 0.24, 0.16), 18, 10)
-    for index, (x, y) in enumerate(((0.31, 0.10), (0.31, -0.10), (0.47, 0.10), (0.47, -0.10))):
-        segment(f"CattleTeat{index}", (x, y, 0.48), (x, y, 0.36), 0.040, 0.026, 10)
+    # One udder mass. Separate teats remesh into a speckled lump whose UV islands
+    # sample padding instead of the pink coat.
+    sphere("CattleUdder", (0.39, 0.0, 0.46), (0.22, 0.20, 0.14), 18, 10)
 
     bpy.ops.object.select_all(action="DESELECT")
     for part in parts:
@@ -832,7 +1257,7 @@ def create_cattle_mesh() -> bpy.types.Object:
     obj["procedural_anatomy"] = True
     obj["cloven_hoof_toes"] = 8
     obj["horn_count"] = 2
-    obj["udder_teat_count"] = 4
+    obj["udder_teat_count"] = 0
     return obj
 
 
@@ -1227,31 +1652,521 @@ def create_pig_mesh() -> bpy.types.Object:
         polygon.use_smooth = True
     return obj
 
+
+def create_pack_horse_mesh() -> bpy.types.Object:
+    """Build a stocky draft horse from closed volumes for the existing quadruped rig.
+
+    WHY: preserve-topology decimation of the Hunyuan shell left a faceted body and
+    a torn mane and tail. These volumes are authored in the same -X-facing meter
+    space as the pack-horse bones so normalization does not walk the eyes off the skull.
+    """
+    parts: list[bpy.types.Object] = []
+
+    def sphere(
+        part_name: str,
+        location: tuple[float, float, float],
+        scale: tuple[float, float, float],
+        segments: int = 20,
+        ring_count: int = 12,
+    ) -> bpy.types.Object:
+        bpy.ops.mesh.primitive_uv_sphere_add(
+            segments=segments, ring_count=ring_count, location=location
+        )
+        part = bpy.context.object
+        part.name = part_name
+        part.scale = scale
+        bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+        parts.append(part)
+        return part
+
+    def segment(
+        part_name: str,
+        start: tuple[float, float, float],
+        end: tuple[float, float, float],
+        start_radius: float,
+        end_radius: float,
+        vertices: int = 12,
+    ) -> bpy.types.Object:
+        start_v = Vector(start)
+        end_v = Vector(end)
+        direction = end_v - start_v
+        bpy.ops.mesh.primitive_cone_add(
+            vertices=vertices,
+            radius1=end_radius,
+            radius2=start_radius,
+            depth=direction.length,
+            location=(start_v + end_v) * 0.5,
+        )
+        part = bpy.context.object
+        part.name = part_name
+        part.rotation_euler = direction.to_track_quat("Z", "Y").to_euler()
+        bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
+        parts.append(part)
+        return part
+
+    # Volumes overlap on purpose. A gap at the throat or hoof becomes a separate
+    # island after voxel remesh, which is what split the previous horse.
+    # Coordinates are already near the post-normalize rig: nose -X, eyes near
+    # (-0.94, ±0.14, 1.38), front legs x=-0.58, hind legs x=0.64.
+    sphere("HorseBarrel", (0.08, 0.0, 1.02), (0.55, 0.32, 0.30), 28, 16)
+    sphere("HorseChest", (-0.36, 0.0, 1.04), (0.32, 0.28, 0.28), 22, 12)
+    sphere("HorseRump", (0.58, 0.0, 1.06), (0.36, 0.30, 0.28), 22, 12)
+    sphere("HorseBelly", (0.10, 0.0, 0.84), (0.40, 0.22, 0.18), 20, 12)
+    sphere("HorseWithers", (-0.22, 0.0, 1.22), (0.24, 0.16, 0.16), 16, 10)
+
+    # Overlapping spheres, not cones. Cone end-caps were remeshing into a hard shelf
+    # between the chest and the skull.
+    for index, (x, z, radius) in enumerate((
+        (-0.22, 1.10, 0.24),
+        (-0.42, 1.22, 0.21),
+        (-0.62, 1.32, 0.18),
+        (-0.82, 1.38, 0.16),
+        (-1.00, 1.36, 0.15),
+    )):
+        sphere(f"HorseNeck{index}", (x, 0.0, z), (radius, radius * 0.82, radius), 16, 10)
+        sphere(
+            f"HorseMane{index}",
+            (x - 0.02, 0.0, z + radius * 0.72),
+            (radius * 0.38, radius * 0.22, radius * 0.42),
+            12,
+            8,
+        )
+
+    sphere("HorseHead", (-1.00, 0.0, 1.34), (0.20, 0.13, 0.13), 18, 10)
+    sphere("HorseMuzzle", (-1.16, 0.0, 1.24), (0.14, 0.075, 0.075), 16, 10)
+    sphere("HorseJaw", (-1.02, 0.0, 1.18), (0.14, 0.09, 0.08), 14, 8)
+    segment("HorseEarLeft", (-0.98, 0.04, 1.46), (-0.94, 0.06, 1.64), 0.05, 0.02, 8)
+    segment("HorseEarRight", (-0.98, -0.04, 1.46), (-0.94, -0.06, 1.64), 0.05, 0.02, 8)
+    segment("HorseTailDock", (0.86, 0.0, 1.14), (1.16, 0.0, 1.24), 0.09, 0.04, 10)
+
+    for side, y in (("Left", 0.20), ("Right", -0.20)):
+        for end, x in (("Front", -0.58), ("Back", 0.64)):
+            segment(f"Horse{end}{side}Upper", (x, y, 1.08), (x, y, 0.50), 0.13, 0.085)
+            segment(f"Horse{end}{side}Cannon", (x, y, 0.58), (x, y, 0.08), 0.075, 0.05, 10)
+            sphere(f"Horse{end}{side}Hoof", (x, y, 0.055), (0.09, 0.07, 0.055), 12, 8)
+
+    bpy.ops.object.select_all(action="DESELECT")
+    for part in parts:
+        part.select_set(True)
+    bpy.context.view_layer.objects.active = parts[0]
+    bpy.ops.object.join()
+    obj = bpy.context.view_layer.objects.active
+    obj.name = "AnimalMesh"
+    obj.location = (0.0, 0.0, 0.0)
+    bpy.ops.object.mode_set(mode="EDIT")
+    bpy.ops.mesh.select_all(action="SELECT")
+    bpy.ops.mesh.quads_convert_to_tris(quad_method="BEAUTY", ngon_method="BEAUTY")
+    bpy.ops.object.mode_set(mode="OBJECT")
+    for polygon in obj.data.polygons:
+        polygon.use_smooth = True
+    obj["procedural_anatomy"] = True
+    return obj
+
+
+def create_brown_bear_mesh() -> bpy.types.Object:
+    """Build a heavy Eurasian brown bear from closed anatomical volumes.
+
+    WHY: the catalog primitive is a loaf with a tube snout. Witcher-scale
+    readability comes from a scapular hump, dish-faced short muzzle, thick
+    ruff, plantigrade paws, and overlapping fur hulls that remesh into one coat.
+    """
+    parts: list[bpy.types.Object] = []
+
+    def sphere(
+        part_name: str,
+        location: tuple[float, float, float],
+        scale: tuple[float, float, float],
+        segments: int = 22,
+        ring_count: int = 12,
+    ) -> bpy.types.Object:
+        bpy.ops.mesh.primitive_uv_sphere_add(
+            segments=segments, ring_count=ring_count, location=location
+        )
+        part = bpy.context.object
+        part.name = part_name
+        part.scale = scale
+        bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+        parts.append(part)
+        return part
+
+    def segment(
+        part_name: str,
+        start: tuple[float, float, float],
+        end: tuple[float, float, float],
+        start_radius: float,
+        end_radius: float,
+        vertices: int = 14,
+    ) -> bpy.types.Object:
+        start_v = Vector(start)
+        end_v = Vector(end)
+        direction = end_v - start_v
+        bpy.ops.mesh.primitive_cone_add(
+            vertices=vertices,
+            radius1=end_radius,
+            radius2=start_radius,
+            depth=direction.length,
+            location=(start_v + end_v) * 0.5,
+        )
+        part = bpy.context.object
+        part.name = part_name
+        part.rotation_euler = direction.to_track_quat("Z", "Y").to_euler()
+        bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
+        parts.append(part)
+        return part
+
+    # A long rectangular barrel, not a sheep loaf. Front mass sits lower than
+    # the scapular peak so the silhouette rises into a Witcher-style hump.
+    sphere("BearBarrel", (0.18, 0.0, 0.64), (0.78, 0.40, 0.30), 28, 16)
+    sphere("BearLoin", (0.08, 0.0, 0.70), (0.42, 0.36, 0.22), 22, 12)
+    sphere("BearBelly", (0.12, 0.0, 0.44), (0.62, 0.38, 0.20), 24, 14)
+    sphere("BearShoulders", (-0.48, 0.0, 0.78), (0.40, 0.48, 0.36), 24, 14)
+    # Tall, narrow scapular peak. Soft remesh melted the first 12 cm bump.
+    sphere("BearHump", (-0.36, 0.0, 1.34), (0.20, 0.16, 0.34), 20, 12)
+    sphere("BearHumpFront", (-0.50, 0.0, 1.16), (0.18, 0.18, 0.22), 18, 10)
+    sphere("BearHumpRidge", (-0.16, 0.0, 1.12), (0.26, 0.15, 0.18), 18, 10)
+    sphere("BearFurCape", (-0.28, 0.0, 1.00), (0.36, 0.34, 0.16), 20, 11)
+    sphere("BearRump", (0.68, 0.0, 0.74), (0.36, 0.40, 0.32), 22, 12)
+    sphere("BearHaunchLeft", (0.62, 0.26, 0.62), (0.22, 0.18, 0.24), 16, 10)
+    sphere("BearHaunchRight", (0.62, -0.26, 0.62), (0.22, 0.18, 0.24), 16, 10)
+    sphere("BearFlankLeft", (0.10, 0.40, 0.60), (0.46, 0.12, 0.20), 16, 10)
+    sphere("BearFlankRight", (0.10, -0.40, 0.60), (0.46, 0.12, 0.20), 16, 10)
+    for index, (x, z, radius) in enumerate((
+        (-0.42, 0.96, 0.16),
+        (-0.22, 0.90, 0.15),
+        (-0.04, 0.86, 0.14),
+        (0.16, 0.82, 0.13),
+        (-0.56, 0.78, 0.15),
+        (0.40, 0.78, 0.13),
+    )):
+        sphere(f"BearGuardLock{index}", (x, 0.0, z), (radius, radius * 0.72, radius * 0.55), 14, 8)
+
+    # A neck almost as thick as the skull, with a hanging winter ruff.
+    segment("BearNeck", (-0.52, 0.0, 0.82), (-0.92, 0.0, 0.86), 0.38, 0.32)
+    sphere("BearRuff", (-0.70, 0.0, 0.70), (0.32, 0.40, 0.32), 20, 12)
+    sphere("BearThroatFur", (-0.78, 0.0, 0.52), (0.24, 0.24, 0.20), 16, 10)
+    sphere("BearChestBlaze", (-0.54, 0.0, 0.50), (0.22, 0.26, 0.16), 16, 10)
+
+    # Large wide skull, short boxy muzzle, ears on the sides not the crown.
+    sphere("BearSkull", (-1.02, 0.0, 0.90), (0.28, 0.26, 0.24), 22, 12)
+    sphere("BearForehead", (-1.10, 0.0, 0.96), (0.16, 0.20, 0.12), 18, 10)
+    sphere("BearCheekLeft", (-1.04, 0.18, 0.82), (0.16, 0.12, 0.16), 16, 9)
+    sphere("BearCheekRight", (-1.04, -0.18, 0.82), (0.16, 0.12, 0.16), 16, 9)
+    sphere("BearMuzzle", (-1.26, 0.0, 0.76), (0.16, 0.15, 0.11), 20, 11)
+    sphere("BearNose", (-1.38, 0.0, 0.74), (0.07, 0.08, 0.06), 14, 8)
+    sphere("BearJaw", (-1.12, 0.0, 0.68), (0.18, 0.14, 0.10), 16, 9)
+    sphere("BearEarLeft", (-0.96, 0.24, 1.02), (0.05, 0.09, 0.08), 12, 8)
+    sphere("BearEarRight", (-0.96, -0.24, 1.02), (0.05, 0.09, 0.08), 12, 8)
+    segment("BearTailDock", (0.98, 0.0, 0.70), (1.10, 0.0, 0.58), 0.07, 0.035, 10)
+
+    # Forelegs stay thicker than the hinds. Plantigrade pads sit ahead of the
+    # cannon so the animal walks on its soles, not on hoof-like nubs.
+    for side, y in (("Left", 0.24), ("Right", -0.24)):
+        for end, x, knee_dx, upper, lower in (
+            ("Front", -0.46, -0.02, 0.175, 0.130),
+            ("Back", 0.60, 0.03, 0.150, 0.110),
+        ):
+            sphere(f"Bear{end}{side}Shoulder", (x, y, 0.66), (0.18, 0.16, 0.22), 14, 8)
+            segment(
+                f"Bear{end}{side}UpperLeg",
+                (x, y, 0.68),
+                (x + knee_dx, y, 0.34),
+                upper,
+                lower,
+            )
+            segment(
+                f"Bear{end}{side}LowerLeg",
+                (x + knee_dx, y, 0.36),
+                (x - 0.04, y, 0.12),
+                lower,
+                0.095,
+            )
+            sphere(
+                f"Bear{end}{side}Paw",
+                (x - 0.10, y, 0.055),
+                (0.18, 0.11, 0.055),
+                14,
+                8,
+            )
+
+    bpy.ops.object.select_all(action="DESELECT")
+    for part in parts:
+        part.select_set(True)
+    bpy.context.view_layer.objects.active = parts[0]
+    bpy.ops.object.join()
+    obj = bpy.context.view_layer.objects.active
+    obj.name = "AnimalMesh"
+    obj.location = (0.0, 0.0, 0.0)
+    bpy.ops.object.mode_set(mode="EDIT")
+    bpy.ops.mesh.select_all(action="SELECT")
+    bpy.ops.mesh.quads_convert_to_tris(quad_method="BEAUTY", ngon_method="BEAUTY")
+    bpy.ops.object.mode_set(mode="OBJECT")
+    for polygon in obj.data.polygons:
+        polygon.use_smooth = True
+    obj["procedural_anatomy"] = True
+    obj["plantigrade_paws"] = True
+    obj["scapular_hump"] = True
+    return obj
+
+
+def create_elk_mesh() -> bpy.types.Object:
+    """Build a Eurasian elk (Alces alces) from closed anatomical volumes.
+
+    WHY: the catalog primitive is a loaf with two cone posts. Witcher-scale
+    readability comes from long legs, a scapular hump, a hanging roman muzzle,
+    a throat bell, and palmate antlers thick enough to survive voxel remesh.
+    """
+    parts: list[bpy.types.Object] = []
+
+    def sphere(
+        part_name: str,
+        location: tuple[float, float, float],
+        scale: tuple[float, float, float],
+        segments: int = 22,
+        ring_count: int = 12,
+    ) -> bpy.types.Object:
+        bpy.ops.mesh.primitive_uv_sphere_add(
+            segments=segments, ring_count=ring_count, location=location
+        )
+        part = bpy.context.object
+        part.name = part_name
+        part.scale = scale
+        bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+        parts.append(part)
+        return part
+
+    def segment(
+        part_name: str,
+        start: tuple[float, float, float],
+        end: tuple[float, float, float],
+        start_radius: float,
+        end_radius: float,
+        vertices: int = 14,
+    ) -> bpy.types.Object:
+        start_v = Vector(start)
+        end_v = Vector(end)
+        direction = end_v - start_v
+        bpy.ops.mesh.primitive_cone_add(
+            vertices=vertices,
+            radius1=end_radius,
+            radius2=start_radius,
+            depth=direction.length,
+            location=(start_v + end_v) * 0.5,
+        )
+        part = bpy.context.object
+        part.name = part_name
+        part.rotation_euler = direction.to_track_quat("Z", "Y").to_euler()
+        bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
+        parts.append(part)
+        return part
+
+    # High barrel on long legs. The hump, not a horse withers line, is the
+    # distance read for a Baltic moose.
+    sphere("ElkBarrel", (0.10, 0.0, 1.12), (0.68, 0.36, 0.34), 28, 16)
+    sphere("ElkBelly", (0.12, 0.0, 0.88), (0.52, 0.32, 0.24), 24, 14)
+    sphere("ElkShoulders", (-0.42, 0.0, 1.20), (0.38, 0.38, 0.40), 24, 14)
+    sphere("ElkHump", (-0.36, 0.0, 1.48), (0.28, 0.20, 0.22), 22, 12)
+    sphere("ElkBrisket", (-0.52, 0.0, 0.92), (0.24, 0.30, 0.28), 20, 12)
+    sphere("ElkRump", (0.62, 0.0, 1.16), (0.38, 0.36, 0.36), 24, 14)
+    sphere("ElkTopline", (0.08, 0.0, 1.36), (0.52, 0.22, 0.14), 20, 12)
+    sphere("ElkHaunchLeft", (0.56, 0.26, 1.00), (0.20, 0.16, 0.24), 16, 10)
+    sphere("ElkHaunchRight", (0.56, -0.26, 1.00), (0.20, 0.16, 0.24), 16, 10)
+
+    # Short thick neck sloping down into the hanging head. The bell is the
+    # species cue at street range.
+    segment("ElkNeck", (-0.48, 0.0, 1.22), (-0.82, 0.0, 1.08), 0.30, 0.22)
+    sphere("ElkNeckMass", (-0.62, 0.0, 1.12), (0.22, 0.20, 0.20), 18, 10)
+    sphere("ElkThroat", (-0.72, 0.0, 0.92), (0.16, 0.14, 0.12), 16, 10)
+    sphere("ElkBell", (-0.68, 0.0, 0.78), (0.10, 0.08, 0.18), 16, 10)
+
+    # Roman skull and an overhanging prehensile muzzle, not a cattle wedge.
+    sphere("ElkSkull", (-0.92, 0.0, 1.12), (0.22, 0.20, 0.20), 22, 12)
+    sphere("ElkForehead", (-1.00, 0.0, 1.18), (0.16, 0.16, 0.14), 18, 10)
+    sphere("ElkCheekLeft", (-1.02, 0.14, 1.02), (0.16, 0.12, 0.14), 16, 9)
+    sphere("ElkCheekRight", (-1.02, -0.14, 1.02), (0.16, 0.12, 0.14), 16, 9)
+    sphere("ElkMuzzle", (-1.22, 0.0, 0.94), (0.22, 0.14, 0.12), 22, 12)
+    sphere("ElkNose", (-1.40, 0.0, 0.88), (0.12, 0.12, 0.10), 18, 10)
+    sphere("ElkLip", (-1.46, 0.0, 0.82), (0.08, 0.10, 0.07), 14, 8)
+    sphere("ElkJaw", (-1.10, 0.0, 0.86), (0.18, 0.12, 0.10), 16, 9)
+    sphere("ElkEarLeft", (-0.88, 0.22, 1.28), (0.05, 0.14, 0.12), 14, 8)
+    sphere("ElkEarRight", (-0.88, -0.22, 1.28), (0.05, 0.14, 0.12), 14, 8)
+    segment("ElkTailDock", (0.92, 0.0, 1.12), (1.08, 0.0, 0.96), 0.08, 0.03, 10)
+
+    # Palmate antlers stay thick enough for the ~3 cm voxel. Thin tines vanish.
+    for side, y_sign in (("Left", 1.0), ("Right", -1.0)):
+        segment(
+            f"ElkAntler{side}Pedicle",
+            (-0.88, 0.06 * y_sign, 1.28),
+            (-0.82, 0.14 * y_sign, 1.46),
+            0.055,
+            0.048,
+            10,
+        )
+        segment(
+            f"ElkAntler{side}Beam",
+            (-0.84, 0.12 * y_sign, 1.42),
+            (-0.70, 0.32 * y_sign, 1.62),
+            0.050,
+            0.042,
+            10,
+        )
+        sphere(
+            f"ElkAntler{side}Palm",
+            (-0.66, 0.36 * y_sign, 1.64),
+            (0.18, 0.10, 0.16),
+            16,
+            10,
+        )
+        sphere(
+            f"ElkAntler{side}PalmFront",
+            (-0.80, 0.34 * y_sign, 1.60),
+            (0.12, 0.08, 0.12),
+            14,
+            8,
+        )
+        sphere(
+            f"ElkAntler{side}PalmBack",
+            (-0.52, 0.38 * y_sign, 1.66),
+            (0.12, 0.08, 0.12),
+            14,
+            8,
+        )
+        for tine_index, (dx, dz) in enumerate(((-0.10, 0.16), (0.02, 0.18), (0.12, 0.14))):
+            segment(
+                f"ElkAntler{side}Tine{tine_index}",
+                (-0.66 + dx * 0.30, 0.36 * y_sign, 1.64),
+                (-0.66 + dx, 0.38 * y_sign, 1.64 + dz),
+                0.042,
+                0.022,
+                8,
+            )
+        segment(
+            f"ElkAntler{side}Brow",
+            (-0.82, 0.16 * y_sign, 1.48),
+            (-1.02, 0.20 * y_sign, 1.52),
+            0.040,
+            0.022,
+            8,
+        )
+
+    # Long cannons and cloven hooves planted at Z=0 before normalization.
+    for side, y in (("Left", 0.24), ("Right", -0.24)):
+        sphere(f"ElkFront{side}Shoulder", (-0.44, y, 0.96), (0.15, 0.13, 0.20), 16, 9)
+        sphere(f"ElkBack{side}Hip", (0.58, y, 0.98), (0.17, 0.14, 0.22), 16, 9)
+        for end, x, knee_dx in (("Front", -0.44, -0.03), ("Back", 0.58, 0.06)):
+            segment(
+                f"Elk{end}{side}UpperLeg",
+                (x, y, 0.98),
+                (x + knee_dx, y, 0.52),
+                0.120,
+                0.082,
+            )
+            segment(
+                f"Elk{end}{side}LowerLeg",
+                (x + knee_dx, y, 0.54),
+                (x, y, 0.16),
+                0.082,
+                0.055,
+            )
+            segment(
+                f"Elk{end}{side}Pastern",
+                (x, y, 0.17),
+                (x - 0.02, y, 0.06),
+                0.055,
+                0.042,
+                10,
+            )
+            sphere(
+                f"Elk{end}{side}HoofOuter",
+                (x - 0.03, y + 0.028, 0.042),
+                (0.090, 0.046, 0.042),
+                14,
+                8,
+            )
+            sphere(
+                f"Elk{end}{side}HoofInner",
+                (x - 0.03, y - 0.028, 0.042),
+                (0.090, 0.046, 0.042),
+                14,
+                8,
+            )
+
+    bpy.ops.object.select_all(action="DESELECT")
+    for part in parts:
+        part.select_set(True)
+    bpy.context.view_layer.objects.active = parts[0]
+    bpy.ops.object.join()
+    obj = bpy.context.view_layer.objects.active
+    obj.name = "AnimalMesh"
+    obj.location = (0.0, 0.0, 0.0)
+    bpy.ops.object.mode_set(mode="EDIT")
+    bpy.ops.mesh.select_all(action="SELECT")
+    bpy.ops.mesh.quads_convert_to_tris(quad_method="BEAUTY", ngon_method="BEAUTY")
+    bpy.ops.object.mode_set(mode="OBJECT")
+    for polygon in obj.data.polygons:
+        polygon.use_smooth = True
+    obj["procedural_anatomy"] = True
+    obj["cloven_hoof_toes"] = 8
+    obj["palmate_antlers"] = True
+    obj["scapular_hump"] = True
+    return obj
+
+
 def build(name: str, spec: dict) -> dict:
     source: Path | None = spec.get("source")
     if source is not None and not source.exists():
         raise FileNotFoundError(f"Missing approved candidate: {source}")
     clear_scene()
-    if name in {"cattle", "goat", "sheep"}:
+    if name in {"cattle", "goat", "sheep", "pack_horse", "brown_bear", "elk"}:
         mesh_builders = {
             "cattle": create_cattle_mesh,
             "goat": create_goat_mesh,
             "sheep": create_sheep_mesh,
+            "pack_horse": create_pack_horse_mesh,
+            "brown_bear": create_brown_bear_mesh,
+            "elk": create_elk_mesh,
         }
         obj = mesh_builders[name]()
         raw = topology(obj)
         # WHY: without remesh the joined anatomical volumes stay as separate
         # islands. Species-tuned smoothing fuses them into a coherent silhouette
-        # while retaining cattle joints or sheep fleece relief.
+        # while retaining cattle joints or sheep fleece relief. The horse uses
+        # fewer smooth passes so the neck crest and cannons are not melted flat.
+        horse_surface = name == "pack_horse"
+        bear_surface = name == "brown_bear"
+        elk_surface = name == "elk"
         rebuild_surface(
             obj,
             spec["voxel_divisor"],
             spec["triangles"],
-            smooth_factor=0.58 if name in {"cattle", "goat"} else 0.72,
-            smooth_iterations=7 if name in {"cattle", "goat"} else 12,
+            smooth_factor=(
+                0.28
+                if bear_surface
+                else (
+                    0.48
+                    if elk_surface
+                    else (
+                        0.62
+                        if horse_surface
+                        else (0.50 if name == "cattle" else (0.58 if name == "goat" else 0.72))
+                    )
+                )
+            ),
+            smooth_iterations=(
+                3
+                if bear_surface
+                else (
+                    4
+                    if elk_surface
+                    else (8 if horse_surface else (5 if name == "cattle" else (7 if name == "goat" else 12)))
+                )
+            ),
         )
         if name == "sheep":
             apply_fleece_displacement(obj, strength=0.052)
+        if name == "brown_bear":
+            apply_bear_fur_displacement(obj, strength=0.072)
+        if name == "elk":
+            apply_elk_fur_displacement(obj, strength=0.028)
         discarded_before = 0
     else:
         assert source is not None
@@ -1288,7 +2203,12 @@ def build(name: str, spec: dict) -> dict:
     normalize_dimensions(obj, spec["dimensions_m"])
     make_uv(obj)
     profile = SURFACE_PROFILES[name]
-    albedo = create_albedo(name, spec)
+    if name in {"cattle", "pack_horse", "brown_bear", "elk"}:
+        # Position bake replaces UV noise. create_albedo's sine field is what drew
+        # rectangular patches across the cattle hide and the horse coat.
+        albedo = bake_livestock_region_albedo(obj, name)
+    else:
+        albedo = create_albedo(name, spec)
     if name == "sheep":
         # WHY: a single flat coat makes the remeshed body read as clay. Region bake
         # keeps one production surface while darkening the bare face and hooves.
@@ -1302,6 +2222,18 @@ def build(name: str, spec: dict) -> dict:
     if spec.get("animated", False):
         rig_builder = RIG_BUILDERS.get(name, create_cattle_rig)
         armature, details = rig_builder(obj)
+        if name == "pack_horse":
+            # The hanging tail is a separate mesh parented to the tail bone. Give it
+            # a dark hair material so it does not sample the bay body atlas.
+            tail_material = bpy.data.materials.new("pack_horse_tail")
+            tail_material.use_nodes = True
+            tail_shader = tail_material.node_tree.nodes.get("Principled BSDF")
+            tail_shader.inputs["Base Color"].default_value = (0.04, 0.028, 0.022, 1.0)
+            tail_shader.inputs["Roughness"].default_value = 0.84
+            for detail in details:
+                if detail.name.startswith("Tail"):
+                    detail.data.materials.clear()
+                    detail.data.materials.append(tail_material)
     output: Path = spec["output"]
     export_glb(obj, output, armature, details)
 

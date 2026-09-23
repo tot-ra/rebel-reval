@@ -65,6 +65,8 @@ const MODEL_PATHS: Dictionary = {
 	MammalSpecies.SPECIES_DOG: "res://assets/storybook/dog.glb",
 	# Town cats are the same production cat as Kalev's, dressed in another coat.
 	MammalSpecies.SPECIES_CAT: "res://assets/storybook/forge_cat.tscn",
+	MammalSpecies.SPECIES_BROWN_BEAR: "res://assets/animals/medieval/medieval_brown_bear.glb",
+	MammalSpecies.SPECIES_ELK: "res://assets/animals/medieval/medieval_elk.glb",
 }
 
 ## Yaw applied to a model so its nose points along -Z, which is the direction
@@ -94,6 +96,8 @@ const MODEL_YAW: Dictionary = {
 	MammalSpecies.SPECIES_HORSE: -PI * 0.5,
 	MammalSpecies.SPECIES_DOG: PI,
 	&"goat": PI,
+	MammalSpecies.SPECIES_BROWN_BEAR: -PI * 0.5,
+	MammalSpecies.SPECIES_ELK: -PI * 0.5,
 }
 
 
@@ -116,6 +120,15 @@ static func add_model(parent: Node3D, species: StringName) -> Node3D:
 	model.scale *= float(MODEL_SCALE.get(species, 1.0))
 	model.set_meta(&"production_animal_model", true)
 	model.set_meta(&"species", species)
+	# The coat is stored in COLOR_0. Godot leaves vertex_color_use_as_albedo off
+	# on glTF import, so horns, hooves, the mane, and the muzzle would not show.
+	if (
+		species == MammalSpecies.SPECIES_COW
+		or species == MammalSpecies.SPECIES_HORSE
+		or species == MammalSpecies.SPECIES_BROWN_BEAR
+		or species == MammalSpecies.SPECIES_ELK
+	):
+		_enable_vertex_coat(model)
 	# Animation selection runs on the visual actor rather than the imported model.
 	# Store species there as well so direct placements and tests get dog states.
 	parent.set_meta(&"species", species)
@@ -186,6 +199,26 @@ static func sync_animation(actor: Node3D, previous_position: Vector3, delta: flo
 		player.speed_scale = 1.0
 
 
+static func _enable_vertex_coat(model: Node3D) -> void:
+	var mesh_instance := model.find_child("AnimalMesh", true, false) as MeshInstance3D
+	if mesh_instance == null or mesh_instance.mesh == null:
+		return
+	if mesh_instance.mesh.get_surface_count() < 1:
+		return
+	var format_flags: int = mesh_instance.mesh.surface_get_format(0)
+	if (format_flags & Mesh.ARRAY_FORMAT_COLOR) == 0:
+		return
+	var source := mesh_instance.mesh.surface_get_material(0) as StandardMaterial3D
+	if source == null:
+		return
+	# Keep the imported material. A surface override is reported as null by the
+	# headless dummy renderer and fails the livestock suite.
+	source.vertex_color_use_as_albedo = true
+	source.albedo_color = Color.WHITE
+	# The extracted atlas is a dot grid on small islands. Vertex color is the coat.
+	source.albedo_texture = null
+
+
 static func _configure_animation(parent: Node3D, model: Node3D) -> void:
 	var players := model.find_children("*", "AnimationPlayer", true, false)
 	if players.is_empty():
@@ -206,7 +239,9 @@ static func _has_anatomical_gait(actor: Node3D) -> bool:
 	return actor.has_meta(WALK_REFERENCE_SPEED_META) and actor.has_meta(RUN_REFERENCE_SPEED_META)
 
 
-static func _configure_anatomical_gait(parent: Node3D, model: Node3D, player: AnimationPlayer) -> void:
+static func _configure_anatomical_gait(
+	parent: Node3D, model: Node3D, player: AnimationPlayer
+) -> void:
 	# Imported sculpted rigs publish their measured support speeds. Their rest
 	# flexion and authored clip durations differ; body-height guesses cause skating.
 	var rig_nodes: Array[Node] = [model]
@@ -232,7 +267,10 @@ static func _configure_anatomical_gait(parent: Node3D, model: Node3D, player: An
 		# heights. During support, root translation must cancel sole translation.
 		var height := skeleton.get_bone_global_rest(body).origin.y
 		var hare := String(parent.get_meta(&"species", "")) == "hare"
-		var walk_speed := height * (0.50 if hare else 0.48) / (0.72 if hare else 0.68) / player.get_animation("Walk").length
+		var walk_cycle := 0.72 if hare else 0.68
+		var walk_speed := (
+			height * (0.50 if hare else 0.48) / walk_cycle / player.get_animation("Walk").length
+		)
 		var run_speed := height * (0.60 if hare else 0.65) / 0.58 / player.get_animation("Run").length
 		if walk_speed > 0.0 and run_speed > 0.0:
 			parent.set_meta(GAIT_SKELETON_META, skeleton)
@@ -304,7 +342,12 @@ static func _sync_procedural_gait(
 ## canonical names shared with the character rigs. Accept either.
 static func _clip_name(player: AnimationPlayer, canonical: StringName) -> String:
 	var aliases := {TROT_ANIMATION: "Run", SNIFF_ANIMATION: "Graze", GRAZE_ANIMATION: "Peck"}
-	for candidate in [String(canonical), String(canonical).to_lower(), String(aliases.get(canonical, ""))]:
+	var candidates: Array[String] = [
+		String(canonical),
+		String(canonical).to_lower(),
+		String(aliases.get(canonical, "")),
+	]
+	for candidate in candidates:
 		if player.has_animation(candidate):
 			return candidate
 	return ""
