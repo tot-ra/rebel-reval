@@ -42,7 +42,7 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 ### Godot and Python verification
 - Export `GODOT_BIN` in a preceding command (macOS: `/Applications/Godot.app/Contents/MacOS/Godot`). Inline `GODOT_BIN=... "$GODOT_BIN"` expands the old empty value and exits 127.
 - `tools/run_godot_checked.sh [--require-test-summary] <log-basename> -- <godot-command>`. The log name is a basename, not `/tmp/...`. `--filter` goes after `--`.
-- The harness is `tools/run_godot_tests.gd`. `--filter` matches `test_*.gd` file stems, not method names.
+- The harness is `tools/run_godot_tests.gd`. `--filter` matches `test_*.gd` file stems, not method names. Pass one `--filter=stem1,stem2` token. Repeated `--filter name` flags are ignored and the full suite runs.
 - Fresh worktrees need `godot --headless --path . --import` before tests (global class cache).
 - Do not run ordinary Node or RefCounted scripts with `--script`; they do not quit. Use the harness.
 - A green focused summary can still fail the checked runner on unrelated parse errors. Report the scoped result separately from the baseline blocker.
@@ -64,7 +64,7 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 - Do not regenerate `docs/reports/active_markdown_report.md` from a scoped dirty worktree. Unrelated Markdown WIP changes the excluded-file count.
 - Rights-sensitive media requires record-level commercial terms or written permission. Regional metadata or CC BY-NC is not enough. Preserve the verified fallback.
 - Prefer dated face plates under `docs/reports/images/characters/face_*.png` over older `closeup_*.png`.
-- Never rewrite all of `assets/SOURCES.csv`. Append or replace only target rows. SHA-256 lives in `prompt_or_url`.
+- Never rewrite all of `assets/SOURCES.csv`. Append or replace only target rows. SHA-256 lives in `prompt_or_url`. `csv.writer` defaults to CRLF even on macOS; pass a Unix `lineterminator` when appending.
 - Do not commit provenance for untracked WIP assets. Do not overwrite `build/act1/rr.dmg`.
 - Tracked `generated/` is not uniformly disposable. Classify into runtime, rebuild inputs, retained evidence, and disposable intermediates before deleting.
 - `Path.write_text()` in this environment has no `newline=` keyword. Normalize line endings in the content or use `open(..., newline="\n")`.

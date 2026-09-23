@@ -13,6 +13,7 @@ This file contains lessons specific to the Art role.
 - Blender `mathutils.Vector` uses `(a - b).length`. Flatten matrix rows before scalar comparison. `bpy_prop_collection` does not support non-unit slices.
 - Blender-authored generators import `bpy`. Invoke them through Blender, not repository `python3`.
 - When Leonardo, ComfyUI, or Hunyuan3D is unavailable, ship deterministic Blender generators instead of blocking. Leonardo may reject an unsupported `preset_style`; retry with the field empty.
+- Extra house wall/roof maps belong in `assets/materials/pbr/building_variants/` from `tools/generate_building_surface_variants.py`. Do not mutate imported GLB materials; duplicate onto surface overrides keyed by stable building id.
 - Never open `assets/SOURCES.csv` with mode `w` until the replacement row list is fully built. Prefer write-to-temp then rename. Parse with `csv.DictReader`. The primary key is `asset_id`; SHA-256 belongs in `prompt_or_url`.
 - After adding fauna or prop GLBs, run a headless Godot import before tests. Update bird authored-mesh allowlists in the same change as new `assets/birds/**` GLBs.
 - Verification-only captures can overwrite tracked evidence PNGs. Check `git status` immediately and restore pre-existing outputs before committing.

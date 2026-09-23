@@ -13,6 +13,10 @@ extends RefCounted
 ## included) into the gameplay wall height, which left 0.5 m doors and flat
 ## roofs; storeys, doors and roof pitch must stay true to people on the street.
 
+const SurfaceVariety := preload(
+	"res://scripts/map/view3d/map_view_burgher_house_surface_variety.gd"
+)
+
 ## Vertical scale band around the frontage fit. Narrow plots still keep doors
 ## above head height; wide plots do not grow extra-tall storeys.
 const MIN_VERTICAL_SCALE := 0.85
@@ -83,6 +87,8 @@ static func add_variant_model(
 	model.scale = fit["scale"]
 	model.rotation.y = _frontage_rotation(building.get("door_side", &"south"))
 	enable_baked_wear(model)
+	# Shared kit albedos would otherwise clone across a same-footprint street.
+	SurfaceVariety.apply(model, StringName(String(building.get("id", ""))))
 	root.add_child(model)
 	prune_placeholder_geometry(root, model)
 	_attach_smoke(root, model, variant)
