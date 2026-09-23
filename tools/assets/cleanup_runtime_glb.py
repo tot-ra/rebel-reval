@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
 """In-place cleanup for reviewed runtime fauna/livestock GLBs.
 
-Removes authoring preview helpers (Icosphere/Cube/Camera/Light), drops orphan
-non-mesh scene nodes, and snaps the combined mesh bounds to Blender Z=0 so the
-exported Y-up GLB keeps feet on the ground. Preserves armatures, skin weights,
-and animation actions.
+Removes authored preview helpers (Icosphere/Camera/Light/Plane or an exact Cube),
+drops orphan non-mesh scene nodes, and snaps the combined mesh bounds to
+Blender Z=0 so the exported Y-up GLB keeps feet on the ground. Preserves
+armatures, skin weights, and animation actions.
+
+JSON-audit first. Blender may fabricate a phantom Icosphere that is not in the
+file; do not re-export those. KayKit body meshes are named Cube.NNN and must
+stay. Shared-rig character LODs keep their bind-pose sole clearance; snap only
+after a real helper is removed.
 
 Run from the repository root:
     blender --background --factory-startup --python tools/assets/cleanup_runtime_glb.py -- \\
@@ -26,9 +31,13 @@ import bpy
 from mathutils import Vector
 
 ROOT = Path(__file__).resolve().parents[2]
+_ASSETS_TOOLS = Path(__file__).resolve().parent
+if str(_ASSETS_TOOLS) not in sys.path:
+    sys.path.insert(0, str(_ASSETS_TOOLS))
+from glb_runtime_audit import authored_helper_names, is_helper_name  # noqa: E402
+
 REPORT_DIR = ROOT / "build" / "fauna_cleanup"
 GROUND_EPS = 0.002
-HELPER_NAMES = frozenset({"icosphere", "cube", "camera", "light", "plane"})
 
 
 def _arguments() -> tuple[list[Path], Path | None]:
@@ -44,7 +53,7 @@ def _arguments() -> tuple[list[Path], Path | None]:
             manifest = Path(tokens[index + 1])
             index += 2
             continue
-        paths.append(ROOT / token)
+        paths.append(ROOT / token.removeprefix("res://"))
         index += 1
     if manifest is not None:
         for line in manifest.read_text(encoding="utf-8").splitlines():
@@ -59,10 +68,7 @@ def _arguments() -> tuple[list[Path], Path | None]:
 
 
 def _is_helper_mesh(obj: bpy.types.Object) -> bool:
-    if obj.type != "MESH":
-        return False
-    name = obj.name.lower()
-    return name in HELPER_NAMES or name.startswith("cube")
+    return obj.type == "MESH" and is_helper_name(obj.name)
 
 
 def _world_bounds() -> tuple[Vector, Vector]:
@@ -112,6 +118,21 @@ def cleanup_glb(path: Path) -> dict[str, object]:
         return {"path": str(path.relative_to(ROOT)), "updated": False, "error": "missing"}
 
     before_sha = hashlib.sha256(path.read_bytes()).hexdigest()
+    authored_helpers = authored_helper_names(path)
+    if not authored_helpers:
+        # WHY: Blender import can invent an Icosphere that is not in the GLB.
+        # Re-export would churn SHA, materials, and shared-rig LOD bind pose.
+        return {
+            "path": str(path.relative_to(ROOT)),
+            "updated": False,
+            "skipped": True,
+            "reason": "no authored helpers in GLB JSON",
+            "before_sha256": before_sha,
+            "after_sha256": before_sha,
+            "removed_helpers": [],
+            "removed_orphans": [],
+        }
+
     bpy.ops.wm.read_factory_settings(use_empty=True)
     bpy.ops.import_scene.gltf(filepath=str(path))
 
@@ -187,20 +208,31 @@ def main() -> int:
     REPORT_DIR.mkdir(parents=True, exist_ok=True)
     reports: list[dict[str, object]] = []
     updated = 0
+    skipped = 0
     for path in paths:
         report = cleanup_glb(path)
         reports.append(report)
         if report.get("updated"):
             updated += 1
+        if report.get("skipped"):
+            skipped += 1
         print(json.dumps(report, separators=(",", ":")))
 
     summary_path = REPORT_DIR / "cleanup_report.json"
     summary_path.write_text(
-        json.dumps({"processed": len(reports), "updated": updated, "reports": reports}, indent=2)
+        json.dumps(
+            {
+                "processed": len(reports),
+                "updated": updated,
+                "skipped": skipped,
+                "reports": reports,
+            },
+            indent=2,
+        )
         + "\n",
         encoding="utf-8",
     )
-    print(f"cleanup complete: {updated}/{len(reports)} updated")
+    print(f"cleanup complete: {updated}/{len(reports)} updated, {skipped} skipped")
     return 0
 
 

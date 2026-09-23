@@ -18,7 +18,7 @@ This file contains lessons specific to the Art role.
 - After adding fauna or prop GLBs, run a headless Godot import before tests. Update bird authored-mesh allowlists in the same change as new `assets/birds/**` GLBs.
 - Verification-only captures can overwrite tracked evidence PNGs. Check `git status` immediately and restore pre-existing outputs before committing.
 - When cleaning generated assets, remove only the exact newly created paths. A broad glob can delete another worker's artifacts.
-- Batch runtime GLB cleanup uses `tools/assets/cleanup_runtime_glb.py` (helper removal + Z snap). After rigged exports, do not trust Blender re-import for `Icosphere` audits; parse the GLB JSON chunk or run Godot ground-contact tests instead.
+- Batch runtime GLB cleanup uses `tools/assets/cleanup_runtime_glb.py` after a JSON-chunk audit (`tools/assets/glb_runtime_audit.py`). Blender's glTF importer can fabricate a phantom `Icosphere` that is not in the file; do not re-export those. Decide helpers from node/object names, not mesh datablock names: songbird `Leg_L` keeps data named `Cylinder`, and KayKit cape/shield keep `Plane.NNN` / `Cylinder.NNN`. Treat `Icosphere`/`Camera`/`Light` (any suffix) and only exact unused `Cube`/`Plane`/`Cylinder` objects as helpers. After a real helper is removed, snap livestock/fauna to Z=0; do not independently snap shared-rig character LOD GLBs, because `SharedCharacterRig` remounts those meshes onto the live skeleton. Verify helpers from the GLB JSON chunk or Godot ground-contact tests, not a Blender re-import.
 
 ### Materials, export, and provenance
 - Blender glTF export with packed textures still yields Godot-extracted albedo, normal, and roughness sidecars. Register those derived paths.
