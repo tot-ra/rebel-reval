@@ -21,6 +21,18 @@ This file contains lessons specific to the Art role.
 - When cleaning generated assets, remove only the exact newly created paths. A broad glob can delete another worker's artifacts.
 - Batch runtime GLB cleanup uses `tools/assets/cleanup_runtime_glb.py` after a JSON-chunk audit (`tools/assets/glb_runtime_audit.py`). Blender's glTF importer can fabricate a phantom `Icosphere` that is not in the file; do not re-export those. Decide helpers from node/object names, not mesh datablock names: songbird `Leg_L` keeps data named `Cylinder`, and KayKit cape/shield keep `Plane.NNN` / `Cylinder.NNN`. Treat `Icosphere`/`Camera`/`Light` (any suffix) and only exact unused `Cube`/`Plane`/`Cylinder` objects as helpers. After a real helper is removed, snap livestock/fauna to Z=0; do not independently snap shared-rig character LOD GLBs, because `SharedCharacterRig` remounts those meshes onto the live skeleton. Verify helpers from the GLB JSON chunk or Godot ground-contact tests, not a Blender re-import.
 
+### Diagnosing a rendering artifact
+- Identify the offending surface before editing anything. Three debug renders answer almost every "what is that?" question, and each costs one capture run: replace `ALBEDO` with a constant (artifact gone means it is albedo, not lighting or geometry), enable `Viewport.DEBUG_DRAW_WIREFRAME` (shows whether the shape is one mesh, a decal quad, or a MultiMesh), and write the suspect values into `EMISSION` channels with `ALBEDO = vec3(0.0)` so a script can sample exact values from the PNG.
+- Do not confirm a suspect material by setting its albedo uniform to magenta. A transparent overlay that derives its colour from `EMISSION` or from a screen sample ignores albedo entirely and stays innocent-looking. Force `EMISSION` instead.
+- Hard-edged triangular wedges in ground or terrain are a `flat` varying, not a texture. Layer indices that are flat per triangle while the blend weight interpolates make the provoking vertex paint the whole triangle; no fragment-side noise, contrast or tone change can remove them.
+- A node dump that walks `MapView3D` children misses terrain and scatter: chunks are built on demand and are not in the tree until the viewport has rendered. Dump from inside the capture tool after the warm-up frames, and handle `MultiMeshInstance3D` separately from `MeshInstance3D`.
+- `hint_screen_texture` is unreliable for transparent decals under the shipped GL Compatibility renderer; it returned white and turned puddles into pale shards. Prefer a darkening film plus fresnel sheen, which is also cheaper than a per-decal back-buffer copy.
+
+### Material scale
+- Derive tiling from the physical size of the thing, not from what looks busy. One world unit is about 0.87 m, so a limestone rubble course is about 0.3 m and a brick course about 0.1 m. The masonry repeats before P0-218 packed roughly six times that many courses into a wall, which is exactly what makes stone read as printed wallpaper.
+- Flat surfaces without a normal map are the main reason large architecture looks like painted cardboard. `Image.bump_map_to_normal_map()` on the same grayscale plate that produced the albedo is enough, and its cache key must include the plate seed and size.
+- An authored RGB plate excluded from palette tinting will drift out of the value range of everything it borders. Either tint it or check its lit value against its neighbours.
+
 ### Materials, export, and provenance
 - Blender glTF export with packed textures still yields Godot-extracted albedo, normal, and roughness sidecars. Register those derived paths.
 - A material created via `bpy.data.materials.new()` has `use_nodes = False`. The exporter then writes default grey. Untextured materials still need Principled BSDF.
