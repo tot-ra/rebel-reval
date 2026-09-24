@@ -84,6 +84,24 @@ The M5 run remains explicitly supplementary. Its non-zero GPU counters and compl
 | Instrumentation limitation | Fidelity flags and shutdown diagnostics preserved in manifest | **PASS as metadata** |
 | Minimum-hardware acceptance | No valid declared-target run | **BLOCKED** - next owner `R-865` |
 
+### R-865 independent final acceptance gate
+
+**Checked:** `2026-09-24T07:00:26Z`
+**Task:** `R-865 / P0-040-N04`
+**Verdict:** **BLOCKED for declared-target acceptance; independent verification packet complete**
+
+| R-865 field | Result | Acceptance interpretation |
+|---|---|---|
+| R-862 reconciliation | R-575 packet reconciled; host/target boundary preserved | **PASS** |
+| R-863 hardware gate | No declared-target renderer run executed | **BLOCKED** - Apple M5 Pro host cannot substitute for Intel UHD 620 |
+| R-864 ledger validation | Manifest/report agreement on revision, SHA-256, renderer, samples, and GPU counters | **PASS** |
+| Focused evidence tests | `tests.python.test_r653_minimum_hardware_evidence`, `test_r653_minimum_hardware_evidence_manifest`, `test_r575_minimum_hardware_evidence` | **PASS** - 19/19 |
+| Report links and hashes | Ledger, manifest, R-575 packet, and minimum-hardware profile | **PASS** |
+| Independent declared-target verdict | No valid Intel UHD 620 run | **BLOCKED** |
+| Next owner | `R-563` | Acquire or access the physical Intel UHD 620 host for the next capture attempt |
+
+R-865 confirms the R-653 evidence packet is internally coherent and provenance-checked, but it does not accept the supplementary Apple M5 Pro run as declared-target evidence. R-653 remains open until `R-563` delivers a real Intel UHD 620 capture or a maintainer records an explicit instrumentation-limitation acceptance in this packet.
+
 ### Material family values
 
 The technical freeze uses the following `style-lock-v1.1` material families and masters. These are albedo/reference colors, not emitted light values:

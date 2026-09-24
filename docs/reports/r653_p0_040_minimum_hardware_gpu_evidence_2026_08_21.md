@@ -232,6 +232,53 @@ git diff --check -- docs/reports/r653_p0_040_minimum_hardware_gpu_evidence_2026_
 PASS
 ```
 
+## R-865 independent final acceptance gate
+
+**Checked:** `2026-09-24T07:00:26Z`
+**Task:** `R-865 / P0-040-N04`
+**Parent:** `R-653 / P0-040`
+**Verdict:** **BLOCKED for declared-target acceptance; independent verification packet complete**
+
+### Child-task criterion review
+
+| Criterion | Source | Result |
+|---|---|---|
+| R-862 reconciliation | `R-575` manifest/report; host/target boundary | **PASS** - supplementary Apple M5 run reconciled; declared Intel UHD 620 target not measured |
+| R-863 hardware gate | availability check before capture | **BLOCKED** - no x86_64 Intel UHD 620 host; no substitute run executed |
+| R-864 ledger validation | manifest/report agreement | **PASS** - revision, SHA-256, renderer, resolution, 120-sample distribution, and GPU counters agree |
+| Non-headless execution | manifest `headless=false` | **PASS as supplementary instrumentation** - does not repair host mismatch |
+| GPU memory instrumentation | `texture_memory_bytes` / `render_video_memory_bytes` | **PASS as supplementary instrumentation** - non-zero counters recorded |
+| Frame-time distribution | 120 samples with median/p95/p99/max | **PASS as supplementary instrumentation** |
+| No Apple M5/headless substitution as target evidence | R-862/R-863/R-864 policy | **PASS** - supplementary run retained only; no relabeling |
+| Report/manifest/approval-packet links | linked artifacts in this packet | **PASS** - all paths resolve in current checkout |
+| Focused evidence tests | R-653/R-575 audit suites | **PASS** - 19/19 tests |
+
+### Independent decision
+
+| Field | Record |
+|---|---|
+| Declared-target acceptance | **BLOCKED** |
+| Supplementary instrumentation packet | **COMPLETE** |
+| R-653 parent closure | **NOT PERMITTED** - declared-target hardware evidence still missing |
+| Owner for next capture attempt | `R-563` |
+| Blocker reason | No Intel Core i5-8250U / Intel UHD Graphics 620 / 8 GiB / 1920x1080 host is available in this environment |
+
+### Verification commands
+
+```text
+python3 -m unittest tests.python.test_r653_minimum_hardware_evidence tests.python.test_r653_minimum_hardware_evidence_manifest tests.python.test_r575_minimum_hardware_evidence -v
+PASS - 19/19 tests
+
+python3 tools/generate_p038_comparison_report.py --check
+PASS - P0-038 comparison report is up to date
+
+python3 -m unittest tests.python.test_generate_p038_comparison_report -v
+PASS - 5/5 tests
+
+git diff --check -- docs/reports/r653_p0_040_minimum_hardware_gpu_evidence_2026_08_21.md docs/reports/data/r653_minimum_hardware_gpu_evidence_manifest.json docs/reports/p0_040_maintainer_approval_packet.md
+PASS
+```
+
 ## Sources
 
 - [`tools/benchmarks/minimum-hardware.json`](../../tools/benchmarks/minimum-hardware.json)

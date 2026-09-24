@@ -91,11 +91,26 @@
     "raw_report_provenance": "PASS - SHA-256 fddda43c820383c4c247d5b2b9e85a4dd3be0541f9a3f9adad30ddc771604e04 recorded; live /tmp file absent on audit host",
     "report_manifest_agreement": "PASS"
   },
+  "r865_audit": {
+    "task": "R-865",
+    "checked_utc": "2026-09-24T07:00:26Z",
+    "checked_revision": "73d3492107b2c2ed16bb1aed071867d28fb1ec52",
+    "result": "BLOCKED_INDEPENDENT_VERIFICATION_COMPLETE",
+    "r862_reconciliation": "PASS - R-575 packet reconciled; host/target boundary preserved",
+    "r863_hardware_gate": "BLOCKED_TARGET_HARDWARE_UNAVAILABLE",
+    "r864_ledger_validation": "PASS",
+    "focused_tests": "PASS - 19/19 R-653/R-575 evidence tests",
+    "report_links_and_hashes": "PASS - all linked artifacts resolve; SHA-256 matches manifest",
+    "declared_target_run": "BLOCKED - no Intel UHD 620 host measured",
+    "independent_verdict": "BLOCKED for declared-target acceptance; verification packet complete",
+    "next_owner": "R-563"
+  },
   "acceptance": {
     "target_run": "BLOCKED",
     "supplementary_m5_run": "PASS as instrumentation only",
     "ledger_validation": "PASS - R-864 published checked manifest/report packet",
-    "p0_040_approval": "PENDING/BLOCKED - no maintainer decision",
-    "next_owner": "R-865"
+    "independent_verification": "PASS - R-865 independent gate recorded BLOCKED verdict with complete provenance",
+    "p0_040_approval": "PENDING/BLOCKED - no maintainer decision; declared-target hardware still required",
+    "next_owner": "R-563"
   }
 }

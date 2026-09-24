@@ -1,4 +1,4 @@
-"""Deterministic R-863/R-864 audit for the R-653 minimum-hardware GPU evidence packet."""
+"""Deterministic R-863/R-864/R-865 audit for the R-653 minimum-hardware GPU evidence packet."""
 
 from __future__ import annotations
 
@@ -87,7 +87,20 @@ class R653MinimumHardwareEvidenceManifestTests(unittest.TestCase):
         self.assertEqual(audit["r863_hardware_gate"], "BLOCKED_TARGET_HARDWARE_UNAVAILABLE")
         self.assertEqual(audit["report_manifest_agreement"], "PASS")
         self.assertEqual(acceptance["ledger_validation"], "PASS - R-864 published checked manifest/report packet")
-        self.assertEqual(acceptance["next_owner"], "R-865")
+
+    def test_manifest_records_r865_independent_verification_and_handoff(self) -> None:
+        manifest = _load_json(MANIFEST)
+        audit = manifest["r865_audit"]
+        acceptance = manifest["acceptance"]
+
+        self.assertEqual(audit["task"], "R-865")
+        self.assertEqual(audit["result"], "BLOCKED_INDEPENDENT_VERIFICATION_COMPLETE")
+        self.assertEqual(audit["r864_ledger_validation"], "PASS")
+        self.assertEqual(audit["declared_target_run"], "BLOCKED - no Intel UHD 620 host measured")
+        self.assertEqual(audit["next_owner"], "R-563")
+        self.assertIn("19/19", audit["focused_tests"])
+        self.assertIn("independent_verification", acceptance)
+        self.assertEqual(acceptance["next_owner"], "R-563")
 
     def test_report_links_manifest_and_records_r864_validation(self) -> None:
         text = REPORT.read_text(encoding="utf-8")
@@ -95,6 +108,7 @@ class R653MinimumHardwareEvidenceManifestTests(unittest.TestCase):
         self.assertIn("r653_minimum_hardware_gpu_evidence_manifest.json", text)
         self.assertIn("R-863", text)
         self.assertIn("R-864", text)
+        self.assertIn("R-865", text)
         self.assertIn(EXPECTED_RAW_SHA256, text)
         self.assertIn("BLOCKED", text)
 
