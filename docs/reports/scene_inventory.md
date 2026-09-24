@@ -217,7 +217,8 @@ Both commands should print `96` on a clean checkout at this revision.
 | 120 | `assets/storybook/henning.tscn` | partial | Model and equipment review; P0-206. |
 | 121 | `assets/storybook/jurgen.tscn` | partial | Model and equipment review; P0-206. |
 | 122 | `assets/storybook/kaja.tscn` | partial | Model and equipment review; P0-206. |
-| 123 | `assets/storybook/kalev.tscn` | partial | Model and equipment review; P0-206. |
+| 128 | `assets/characters/kalev_rebuild/kalev_fresh.tscn` | partial | Rebuild review rig; P0-214. |
+| 129 | `assets/characters/kalev_rebuild/preview.tscn` | partial | Rebuild review scene; P0-214. |
 | 124 | `assets/storybook/mart.tscn` | partial | Model and equipment review; P0-206. |
 | 125 | `assets/storybook/watchman.tscn` | partial | Model and equipment review; P0-206. |
 | 126 | `scenes/debug/storybook_showcase.tscn` | partial | Model and equipment review; P0-206. |

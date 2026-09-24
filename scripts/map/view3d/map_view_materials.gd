@@ -495,8 +495,8 @@ static func grass_blades() -> ShaderMaterial:
 	if _cache.has(key):
 		return _cache[key]
 	var material := ShaderMaterial.new()
-	material.shader = MapViewMaterialShaders.shader(
-		"grass_character", MapViewMaterialShaders.GRASS_SHADER_CODE
+	material.shader = MapViewMaterialShaders.shader_resource(
+		"grass_character", MapViewMaterialShaders.GRASS_SHADER
 	)
 	material.set_shader_parameter("base_color", Color8(104, 130, 62))
 	# Interaction starts off so maps without a player keep pure wind sway.
@@ -537,8 +537,8 @@ static func canopy(kind: StringName) -> ShaderMaterial:
 	if _cache.has(key):
 		return _cache[key]
 	var material := ShaderMaterial.new()
-	material.shader = MapViewMaterialShaders.shader(
-		"canopy", MapViewMaterialShaders.CANOPY_SHADER_CODE
+	material.shader = MapViewMaterialShaders.shader_resource(
+		"canopy", MapViewMaterialShaders.CANOPY_SHADER
 	)
 	match kind:
 		&"spruce":

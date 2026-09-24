@@ -4,7 +4,7 @@ const MapViewMaterialShaders := preload("res://scripts/map/view3d/map_view_mater
 
 
 func test_grass_shader_declares_character_interaction_uniforms() -> void:
-	var code := MapViewMaterialShaders.GRASS_SHADER_CODE
+	var code := MapViewMaterialShaders.GRASS_SHADER.code
 	assert_true(code.contains("interact_center"), "grass shader must sample character world XZ")
 	assert_true(code.contains("interact_strength"), "grass shader must scale tip parting")
 	assert_true(code.contains("interact_push"), "grass shader must lean with movement wake")

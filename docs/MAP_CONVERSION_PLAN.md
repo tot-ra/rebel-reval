@@ -157,7 +157,8 @@ Roles `level`, `map`, and `event` have full conversion specifications later in t
 | `assets/storybook/henning.tscn` | test | `retain` | Model and equipment review | P0-206 asset integration; no map activation | not a map definition |
 | `assets/storybook/jurgen.tscn` | test | `retain` | Model and equipment review | P0-206 asset integration; no map activation | not a map definition |
 | `assets/storybook/kaja.tscn` | test | `retain` | Model and equipment review | P0-206 asset integration; no map activation | not a map definition |
-| `assets/storybook/kalev.tscn` | test | `retain` | Model and equipment review | P0-206 asset integration; no map activation | not a map definition |
+| `assets/characters/kalev_rebuild/kalev_fresh.tscn` | test | `retain` | Model and equipment review | P0-214 rebuild review; no map activation | not a map definition |
+| `assets/characters/kalev_rebuild/preview.tscn` | test | `retain` | Model and equipment review | P0-214 rebuild review; no map activation | not a map definition |
 | `assets/storybook/mart.tscn` | test | `retain` | Model and equipment review | P0-206 asset integration; no map activation | not a map definition |
 | `assets/storybook/watchman.tscn` | test | `retain` | Model and equipment review | P0-206 asset integration; no map activation | not a map definition |
 | `scenes/debug/storybook_showcase.tscn` | test | `retain` | Model and equipment review | P0-206 asset integration; no map activation | not a map definition |
