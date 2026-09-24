@@ -19,12 +19,11 @@ const PLAYER_FILL_LIGHT_COLOR := Color8(255, 226, 196)
 const PLAYER_FILL_LIGHT_ENERGY := 0.65
 const PLAYER_FILL_LIGHT_RANGE := 3.5
 const CLICK_INPUT_SCRIPT_PATH := "res://scripts/map/map_click_input_controller.gd"
-const DayNightCycle := preload("res://scripts/global/day_night_cycle.gd")
-const GameCalendarScript := preload("res://scripts/global/game_calendar.gd")
 const RuntimeCamera := preload("res://scripts/map/view3d/map_view_runtime_camera.gd")
 const RuntimeActors := preload("res://scripts/map/view3d/map_view_runtime_actors.gd")
 const RuntimeAmbient := preload("res://scripts/map/view3d/map_view_runtime_ambient.gd")
 const RuntimeTimeFlow := preload("res://scripts/map/view3d/map_view_runtime_time_flow.gd")
+const RuntimeEnvironment := preload("res://scripts/map/view3d/map_view_runtime_environment.gd")
 ## Compatibility aliases keep the runtime's public locomotion thresholds stable.
 const WALK_ANIMATION_MIN_SPEED := RuntimeActors.WALK_ANIMATION_MIN_SPEED
 const RUN_ANIMATION_MIN_SPEED := RuntimeActors.RUN_ANIMATION_MIN_SPEED
@@ -61,24 +60,6 @@ const TIME_SPEED_LADDER: Array[float] = RuntimeTimeFlow.TIME_SPEED_LADDER
 const TIME_SPEED_DEFAULT := RuntimeTimeFlow.TIME_SPEED_DEFAULT
 
 var view: MapView3D
-## Dev pacing: one in-game day every DayNightCycle.CYCLE_DURATION_SECONDS.
-var cycle_enabled := true
-var cycle_progress := DayNightCycle.DEFAULT_PROGRESS
-var cycle_elapsed_days := 0
-
-var _definition: MapDefinition
-var _player: CharacterBody2D
-var _player_rig: SharedCharacterRig
-var _camera: Camera3D
-var _camera_controller: MapViewRuntimeCamera = RuntimeCamera.new()
-var _actor_controller = RuntimeActors.new()
-var _ambient_controller = RuntimeAmbient.new()
-var _time_flow = RuntimeTimeFlow.new()
-## Compatibility aliases for integration tests that inspect the current binding.
-var _equipment_state: GameState
-var _session_state: Node
-var _session_content_db: ContentDB
-var _click_input: Node
 
 var time_speed: float:
 	get:
@@ -93,10 +74,45 @@ var time_paused: bool:
 	set(value):
 		_time_flow.set_time_paused(value)
 
+## Dev pacing: one in-game day every DayNightCycle.CYCLE_DURATION_SECONDS.
+var cycle_enabled: bool:
+	get:
+		return _environment.cycle_enabled
+	set(value):
+		_environment.cycle_enabled = value
+
+var cycle_progress: float:
+	get:
+		return _environment.cycle_progress
+	set(value):
+		_environment.cycle_progress = value
+
+var cycle_elapsed_days: int:
+	get:
+		return _environment.cycle_elapsed_days
+	set(value):
+		_environment.cycle_elapsed_days = value
+
+var _definition: MapDefinition
+var _player: CharacterBody2D
+var _player_rig: SharedCharacterRig
+var _camera: Camera3D
+var _camera_controller: MapViewRuntimeCamera = RuntimeCamera.new()
+var _actor_controller = RuntimeActors.new()
+var _ambient_controller = RuntimeAmbient.new()
+var _time_flow = RuntimeTimeFlow.new()
+var _environment = RuntimeEnvironment.new()
+## Compatibility aliases for integration tests that inspect the current binding.
+var _equipment_state: GameState
+var _session_state: Node
+var _session_content_db: ContentDB
+var _click_input: Node
+
 
 
 func _init() -> void:
 	_time_flow.configure(self, Callable(self, "_emit_time_flow_changed"))
+	_environment.configure(self)
 
 
 static func install(
@@ -275,10 +291,7 @@ func logic_position_at_screen(screen_position: Vector2) -> Vector2:
 
 
 func set_time_of_day(next_time: StringName) -> void:
-	cycle_enabled = false
-	view.set_time_of_day(next_time)
-	cycle_progress = 0.5 if next_time == MapView3D.TIME_DAY else 0.0
-	_sync_music_cycle()
+	_environment.set_time_of_day(next_time)
 
 
 ## The multiplier actually applied this frame: 0 while paused, otherwise the
@@ -321,46 +334,27 @@ func _emit_time_flow_changed(speed: float, paused: bool) -> void:
 
 
 func _bind_environment_runtime() -> void:
-	var session_state := get_node_or_null("/root/SessionState")
-	if session_state == null or not session_state.has_method(&"bind_environment_runtime"):
-		view.apply_environment_presentation()
-		return
-	session_state.call("bind_environment_runtime", self)
+	_environment.bind_environment_runtime()
 
 
 func environment_snapshot() -> Dictionary:
-	if view == null or view.sky_weather() == null:
-		return {}
-	return view.sky_weather().snapshot_state(cycle_progress, cycle_elapsed_days).to_dict()
+	return _environment.snapshot()
 
 
 func restore_environment_snapshot(snapshot: Dictionary) -> bool:
-	if view == null or view.sky_weather() == null:
-		return false
-	if not bool(view.sky_weather().restore_state(snapshot)):
-		return false
-	cycle_progress = float(snapshot.get("cycle_progress", cycle_progress))
-	cycle_elapsed_days = int(snapshot.get("elapsed_days", cycle_elapsed_days))
-	return true
+	return _environment.restore_snapshot(snapshot)
 
 
 func apply_environment_presentation() -> void:
-	if view == null:
-		return
-	view.activate_environment_binding()
-	view.set_weather_rain_suppressed(
-		_definition != null and _definition.suppresses_exterior_surroundings()
-	)
-	view.apply_cycle_progress(cycle_progress)
+	_environment.apply_presentation()
 
 
 func deactivate_environment_binding() -> void:
-	if view != null:
-		view.deactivate_environment_binding()
+	_environment.deactivate_binding()
 
 
 func environment_weather() -> Node:
-	return view.sky_weather() if view != null else null
+	return _environment.weather_node()
 
 
 func _process(delta: float) -> void:
@@ -368,15 +362,7 @@ func _process(delta: float) -> void:
 	# the sky's own cloud/weather/lightning stepping so they stay in lockstep.
 	var scaled_delta := _time_flow.scaled_delta(delta)
 	_time_flow.apply_weather_time_scale()
-	if cycle_enabled:
-		var clock_advance := DayNightCycle.advance_clock(cycle_progress, scaled_delta)
-		cycle_progress = float(clock_advance["progress"])
-		var completed_days := int(clock_advance["completed_days"])
-		if completed_days > 0:
-			cycle_elapsed_days += completed_days
-			view.set_calendar_date(_current_calendar_date())
-		view.apply_cycle_progress(cycle_progress)
-		_sync_music_cycle()
+	_environment.advance_cycle(scaled_delta, Callable(self, "_current_calendar_date"))
 	if _player == null or not is_instance_valid(_player):
 		return
 	_ambient_controller.sync(delta, cycle_progress)
@@ -535,37 +521,12 @@ func rotate_view_degrees(delta_degrees: float) -> void:
 	_configure_screen_relative_movement()
 
 
-func _music_director() -> Node:
-	# Unit-level runtime instances can advance their local clock before entering a
-	# SceneTree. Resolve the autoload through the tree root only when one exists,
-	# instead of issuing an invalid absolute NodePath lookup on a detached node.
-	if not is_inside_tree():
-		return null
-	return get_tree().root.get_node_or_null("MusicDirector")
-
-
 func _restore_cycle_from_music_director() -> void:
-	var music_director := _music_director()
-	if music_director == null:
-		return
-	if (
-		music_director.has_method(&"is_cycle_active")
-		and not bool(music_director.call(&"is_cycle_active"))
-	):
-		return
-	if not music_director.has_method(&"get_cycle_progress"):
-		return
-	cycle_progress = float(music_director.call(&"get_cycle_progress"))
-	if music_director.has_method(&"get_cycle_elapsed_days"):
-		cycle_elapsed_days = int(music_director.call(&"get_cycle_elapsed_days"))
+	_environment.restore_from_music_director()
 
 
 func _sync_music_cycle() -> void:
-	var music_director := _music_director()
-	if music_director != null:
-		music_director.call("set_cycle_progress", cycle_progress)
-		if music_director.has_method(&"set_cycle_elapsed_days"):
-			music_director.call(&"set_cycle_elapsed_days", cycle_elapsed_days)
+	_environment.sync_music_cycle()
 
 
 func _sync_player(snap: bool, delta: float = 0.0) -> void:
@@ -580,8 +541,7 @@ func _exit_tree() -> void:
 	var session_state := get_node_or_null("/root/SessionState")
 	if session_state != null and session_state.has_method(&"unbind_environment_runtime"):
 		session_state.call("unbind_environment_runtime", self)
-	if view != null:
-		view.deactivate_environment_binding()
+	_environment.deactivate_binding()
 	if (
 		_session_state != null
 		and _session_state.is_connected(&"state_replaced", _on_state_replaced)
@@ -608,18 +568,11 @@ func _on_state_replaced(_previous: GameState, current: GameState, _reason: Strin
 
 
 func _on_phase_changed(_previous: StringName, next: StringName) -> void:
-	cycle_elapsed_days = 0
-	view.set_calendar_date(GameCalendarScript.date_for_phase(next))
-	var music_director := _music_director()
-	if music_director != null and music_director.has_method(&"set_cycle_elapsed_days"):
-		music_director.call(&"set_cycle_elapsed_days", cycle_elapsed_days)
+	_environment.on_phase_changed(next)
 
 
 func _current_calendar_date() -> Dictionary:
-	var base_date := GameCalendarScript.DEFAULT_DATE
-	if _equipment_state != null:
-		base_date = GameCalendarScript.date_for_phase(_equipment_state.get_phase())
-	return GameCalendarScript.add_days(base_date, cycle_elapsed_days)
+	return _environment.current_calendar_date(_equipment_state)
 
 
 func _bind_equipment_state(current: GameState = null) -> void:

@@ -15,6 +15,9 @@ Coordination note (2026-08-13 R-454): high-complexity parent **R-454** (historic
 <!-- P0-181 completed in current session -->
 Coordination note (2026-08-28 P0-181): research reference plate retention landed in `docs/data/reference_plate_retention.json`, `docs/ASSET_STORAGE_POLICY.md`, `tools/optimize_reference_plates.py`, and retention caps inside `tools/research/fetch_reference_plates.py --verify`. Optimized 50 plates (273904275 -> 39090195 bytes in the touched set, -234814080); zero `history/reference/**` rasters remain over 8 MiB. Verified: `python3 tools/research/fetch_reference_plates.py --verify`, `python3 -m unittest tests.python.test_fetch_reference_plates -v`. Next size claim: **P0-180** music takes or **P0-182** runtime audio budget.
 
+<!-- P0-185 environment peel extracted in current session -->
+Coordination note (2026-09-24 P0-185): `map_view_runtime_environment.gd` now owns the shared sky clock, calendar date, MusicDirector sync, SessionState weather binding, and interior rain suppression. `map_view_runtime.gd` keeps the public cycle/environment API as thin delegates and dropped from 703 to 656 lines. Verified: `--filter=test_map_view_3d_runtime`, `--filter=test_debug_overlay`, `--filter=test_r715_water_map_handoff` (15/15). Next P0-185 claim: further `map_view_materials` review or additional runtime peels.
+
 <!-- P0-185 time-flow controls peel extracted in current session -->
 Coordination note (2026-09-24 P0-185): `map_view_runtime_time_flow.gd` now owns the day/night speed ladder, pause state, and weather time-scale notification. `map_view_runtime.gd` keeps the public signal/API as thin delegates and dropped from 714 to 703 lines. Verified: `--filter=test_map_view_3d_runtime`, `--filter=test_debug_overlay` (time-flow and overlay controls). Next P0-185 claim: further `map_view_materials` review or additional runtime peels.
 
