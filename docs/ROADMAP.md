@@ -4,6 +4,9 @@ Coordination notes, delivery order, and planning context formerly embedded in `T
 Executable open work stays in [`TODO.md`](../TODO.md).
 Aged coordination history lives in [`ROADMAP_COORDINATION_ARCHIVE_2026-08-13.md`](./ROADMAP_COORDINATION_ARCHIVE_2026-08-13.md).
 
+<!-- P0-185 runtime bootstrap peel extracted in current session -->
+Coordination note (2026-09-24 P0-185): `map_view_runtime_bootstrap.gd` now owns `MapViewRuntime.install()` district wiring and the player readability fill light. `map_view_runtime.gd` keeps the public facade and dropped from 524 to 439 lines. Verified: `--filter=test_map_view_3d_runtime`, `--filter=test_debug_overlay`, `--filter=test_session_state_replacement`, `--filter=test_r715_water_map_handoff`, `--filter=test_map_click_input_controller`, `--filter=test_map_view_runtime_camera` (36/36). Next P0-185 claim: further camera/movement facade trims from `map_view_runtime.gd`.
+
 <!-- P0-185 runtime input peel extracted in current session -->
 Coordination note (2026-09-24 P0-185): `map_view_runtime_input.gd` now owns MapClickInput install, camera zoom/gesture routing, and the dev backslash time-reset shortcut. `map_view_runtime.gd` keeps the public camera/movement API as thin delegates and dropped from 580 to 524 lines. Verified: `--filter=test_map_view_3d_runtime`, `--filter=test_debug_overlay`, `--filter=test_session_state_replacement`, `--filter=test_r715_water_map_handoff`, `--filter=test_map_click_input_controller`, `--filter=test_map_view_runtime_camera` (36/36). Next P0-185 claim: further camera/movement facade trims from `map_view_runtime.gd`.
 

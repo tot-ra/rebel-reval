@@ -13,11 +13,9 @@ signal time_flow_changed(speed: float, paused: bool)
 ## follows the player with a gameplay-scale camera. Positions flow one way,
 ## logic to view, through MapViewBridge.
 
-const PLAYER_RIG_SCENE := preload("res://assets/characters/kalev/kalev.tscn")
-const PLAYER_LIGHT_LAYER := 20
-const PLAYER_FILL_LIGHT_COLOR := Color8(255, 226, 196)
-const PLAYER_FILL_LIGHT_ENERGY := 0.65
-const PLAYER_FILL_LIGHT_RANGE := 3.5
+const RuntimeBootstrap := preload("res://scripts/map/view3d/map_view_runtime_bootstrap.gd")
+## Re-exported so tests and tooling keep a stable MapViewRuntime install contract.
+const PLAYER_LIGHT_LAYER := RuntimeBootstrap.PLAYER_LIGHT_LAYER
 const RuntimeCamera := preload("res://scripts/map/view3d/map_view_runtime_camera.gd")
 const RuntimeInput := preload("res://scripts/map/view3d/map_view_runtime_input.gd")
 const RuntimeActors := preload("res://scripts/map/view3d/map_view_runtime_actors.gd")
@@ -122,90 +120,7 @@ func _init() -> void:
 static func install(
 	scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasItem, player: CharacterBody2D
 ) -> MapViewRuntime:
-	var runtime := MapViewRuntime.new()
-	runtime.name = "MapViewRuntime"
-	runtime._definition = bootstrap["definition"]
-	runtime._player = player
-	runtime._input.configure(runtime, player)
-	runtime.view = MapView3D.create(bootstrap["definition"], bootstrap["grid"])
-	runtime.add_child(runtime.view)
-
-	map_root.visible = false
-	RuntimeFlatMap.hide_visuals(bootstrap)
-	RuntimeFlatMap.bind_streamed_visual_hiding(bootstrap)
-	RuntimeActors.hide_player_canvas(player)
-
-	runtime._player_rig = PLAYER_RIG_SCENE.instantiate()
-	runtime._player_rig.name = "PlayerRig"
-	runtime._player_rig.add_to_group(&"player_view_rig")
-	runtime.add_child(runtime._player_rig)
-
-	runtime._camera = runtime.view.view_camera()
-	runtime._camera.size = CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE
-	runtime._camera_controller.configure(
-		runtime._camera, runtime._player_rig, runtime.view, runtime._player
-	)
-	runtime._actor_controller.configure(
-		runtime,
-		runtime._definition,
-		runtime._player,
-		runtime._player_rig,
-		runtime.view,
-		runtime._camera_controller.follow_player,
-		runtime._camera_controller.logic_direction_toward_camera
-	)
-	runtime._actor_controller.set_screen_shake_callback(runtime._camera_controller.add_screen_shake)
-	if player.has_method("set_mud_wetness_provider"):
-		player.call("set_mud_wetness_provider", runtime.view.mud_wetness)
-
-	scene_root.add_child(runtime)
-	# The rig's _ready() creates distance LOD meshes; assign the isolated light
-	# layer only after the runtime enters the tree so every generated visual gets it.
-	runtime._player_rig.add_visual_layer(PLAYER_LIGHT_LAYER)
-	runtime._install_player_fill_light()
-	# Created at runtime, so enable input explicitly before the first frame.
-	runtime.set_process_unhandled_input(true)
-	runtime._session.bind_session_state()
-	runtime._actor_controller.register_view_actors(scene_root)
-	runtime._configure_screen_relative_movement()
-	runtime._sync_player(true)
-
-	runtime._actor_controller.bind_player_health_ring()
-	# WHY: Each district used to restart at DEFAULT_PROGRESS, so harbor kept a
-	# moving sun while Workers' District (and any fresh map) snapped morning.
-	# MusicDirector holds both clock fractions and completed solar days so scene
-	# transitions cannot rewind the date or lunar phase.
-	runtime._restore_cycle_from_music_director()
-	runtime.view.set_calendar_date(runtime._session.current_calendar_date())
-	runtime.view.apply_cycle_progress(runtime.cycle_progress)
-	runtime._sync_music_cycle()
-	# `SessionState` owns the canonical weather snapshot; this runtime only binds
-	# its renderer after the shared clock has been restored.
-	runtime._bind_environment_runtime()
-	runtime._ambient_controller.configure(
-		runtime,
-		runtime._definition,
-		runtime._player,
-		runtime._camera,
-		runtime.view
-	)
-	runtime._ambient_controller.install()
-	runtime._input.install_click_input()
-	return runtime
-
-
-func _install_player_fill_light() -> void:
-	# A layer-isolated fill keeps Kalev readable when his front faces away from
-	# the sun, without flattening authored map lighting or illuminating NPCs.
-	var fill := OmniLight3D.new()
-	fill.name = "ReadabilityFill"
-	fill.position = Vector3(0.0, 1.35, 0.75)
-	fill.light_color = PLAYER_FILL_LIGHT_COLOR
-	fill.light_energy = PLAYER_FILL_LIGHT_ENERGY
-	fill.omni_range = PLAYER_FILL_LIGHT_RANGE
-	fill.shadow_enabled = false
-	fill.light_cull_mask = 1 << (PLAYER_LIGHT_LAYER - 1)
-	_player_rig.add_child(fill)
+	return RuntimeBootstrap.install(scene_root, bootstrap, map_root, player)
 
 
 func configure_click_input(world_items: Node = null) -> void:
