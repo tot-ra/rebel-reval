@@ -255,8 +255,21 @@ def check_accessibility(root: Path = ROOT) -> CheckResult:
     )
 
 
+def _project_godot_feature_version(project_file: Path) -> str | None:
+    if not project_file.is_file():
+        return None
+    content = project_file.read_text(encoding="utf-8")
+    match = re.search(
+        r'^config/features=PackedStringArray\("([^"]+)"',
+        content,
+        flags=re.MULTILINE,
+    )
+    return match.group(1) if match else None
+
+
 def check_platform(root: Path = ROOT) -> CheckResult:
     godot_version_file = root / ".godot-version"
+    project_file = root / "project.godot"
     export_presets = root / "export_presets.cfg"
     platform_manifest = root / "docs" / "data" / "slice_platform_manifest.json"
     platform_report_tool = root / "tools" / "report_slice_platform.py"
@@ -264,6 +277,8 @@ def check_platform(root: Path = ROOT) -> CheckResult:
     verify_script = root / "tools" / "verify_supported_platform.sh"
     details: list[str] = []
     checks: list[tuple[str, bool]] = []
+    version = ""
+    has_supported_version = False
 
     if not godot_version_file.is_file():
         checks.append((".godot-version present", False))
@@ -286,6 +301,43 @@ def check_platform(root: Path = ROOT) -> CheckResult:
                 f"Godot version must be {SUPPORTED_GODOT_VERSION_FAMILY}.x or {SUPPORTED_GODOT_VERSION_FAMILY}, "
                 f"got {version or '<empty>'}"
             )
+
+    feature_version = _project_godot_feature_version(project_file)
+    if not project_file.is_file():
+        checks.append(("project.godot present", False))
+        details.append("project.godot missing")
+    else:
+        checks.append(("project.godot present", True))
+        has_feature = feature_version is not None
+        checks.append(("project.godot config/features declared", has_feature))
+        if has_feature:
+            details.append(f"project.godot config/features primary pin: {feature_version}")
+        else:
+            details.append("project.godot is missing config/features primary pin")
+
+        if version and has_feature:
+            features_match_pin = feature_version == version
+            checks.append(("project.godot features match .godot-version pin", features_match_pin))
+            if features_match_pin:
+                details.append("project.godot config/features matches .godot-version")
+            else:
+                details.append(
+                    f"project.godot config/features ({feature_version}) must match "
+                    f".godot-version ({version})"
+                )
+        elif has_feature:
+            feature_family = godot_version_family(feature_version or "")
+            features_supported = feature_family == SUPPORTED_GODOT_VERSION_FAMILY
+            checks.append(("project.godot features use supported Godot family", features_supported))
+            if features_supported:
+                details.append(
+                    f"Godot {SUPPORTED_GODOT_VERSION_FAMILY} version family is declared in project.godot"
+                )
+            else:
+                details.append(
+                    f"project.godot config/features must use {SUPPORTED_GODOT_VERSION_FAMILY}, "
+                    f"got {feature_version or '<empty>'}"
+                )
 
     if not export_presets.is_file():
         checks.append(("export_presets.cfg present", False))

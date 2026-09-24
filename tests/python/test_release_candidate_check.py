@@ -187,6 +187,10 @@ class ReleaseCandidateCheckTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
             (root / ".godot-version").write_text("4.7\n", encoding="utf-8")
+            (root / "project.godot").write_text(
+                'config/features=PackedStringArray("4.7", "GL Compatibility")\n',
+                encoding="utf-8",
+            )
             (root / "export_presets.cfg").write_text(
                 "\n".join(
                     [
@@ -270,6 +274,37 @@ class ReleaseCandidateCheckTest(unittest.TestCase):
 
             self.assertFalse(result.passed)
             self.assertIn("Godot version must be 4.7.x or 4.7, got 4.7.x", result.details)
+
+    def test_platform_checks_reject_mismatched_project_features(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            (root / ".godot-version").write_text("4.7\n", encoding="utf-8")
+            (root / "project.godot").write_text(
+                'config/features=PackedStringArray("4.6", "GL Compatibility")\n',
+                encoding="utf-8",
+            )
+
+            result = check_platform(root)
+
+            self.assertFalse(result.passed)
+            self.assertIn(
+                "project.godot config/features (4.6) must match .godot-version (4.7)",
+                result.details,
+            )
+
+    def test_platform_checks_accept_matching_project_features(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            (root / ".godot-version").write_text("4.7.1\n", encoding="utf-8")
+            (root / "project.godot").write_text(
+                'config/features=PackedStringArray("4.7.1", "GL Compatibility")\n',
+                encoding="utf-8",
+            )
+
+            result = check_platform(root)
+
+            self.assertIn("project.godot config/features matches .godot-version", result.details)
+            self.assertIn("Godot 4.7 version family is supported", result.details)
 
     def test_ci_checks_workflow_and_runner_scripts(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
