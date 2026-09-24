@@ -14,11 +14,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `104`
-- Markdown files excluded as archive/reference/out of active scope: `670`
-- Local/external links inspected: `634`
-- Links to active Markdown docs: `300`
-- Links to existing archive/reference/non-active local docs: `133`
+- Active Markdown files scanned: `106`
+- Markdown files excluded as archive/reference/out of active scope: `702`
+- Local/external links inspected: `647`
+- Links to active Markdown docs: `308`
+- Links to existing archive/reference/non-active local docs: `138`
 - External links skipped for reachability: `38`
 - Issues found: `0`
 
@@ -58,6 +58,7 @@ No active Markdown documentation issues found.
 - `docs/adr/0017-legacy-design-reintroduction.md`
 - `docs/adr/0018-saturated-hdr-fantasy-anime-visual-direction.md`
 - `docs/adr/0019-seamless-contiguous-location-streaming.md`
+- `docs/adr/0020-kalev-character-realism.md`
 - `docs/AGENT_LOOPS.md`
 - `docs/ARCHITECTURE.md`
 - `docs/ART_BIBLE.md`
@@ -127,6 +128,7 @@ No active Markdown documentation issues found.
 - `docs/SCENES/the-price-of-a-name.md`
 - `docs/SETUP.md`
 - `docs/SKY_WEATHER_STATE_CONTRACT.md`
+- `docs/SOUND_EFFECTS_TOP_100.md`
 - `docs/STORAGE_SIZE_BACKLOG.md`
 - `docs/SYSTEMS/COMBAT_NIGHT.md`
 - `docs/SYSTEMS/LIVING_CITY.md`
