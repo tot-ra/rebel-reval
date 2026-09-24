@@ -14,7 +14,7 @@ This file remains the durable/legacy ID index expected by `README.md`, `AGENTS.m
 <!-- Quick-reference counts updated on every structural change -->
 | Priority | Open | Done | Notes |
 |----------|-----:|-----:|-------|
-| P0 |    21  |    31  | Baseline, storage, materials, historical audit |
+| P0 |    20  |    32  | Baseline, storage, materials, historical audit |
 | P2 |     1  |     4  | Vertical-slice production (playable MVP) |
 | P4 |     0  |     2  | Act 1: The Simmering City |
 
@@ -43,7 +43,7 @@ Reference: [Three.js Water Pro](https://docs.threejswaterpro.com/). The game sta
 
 - [x] P0-222 | deps: none | deliverable: replace the flat sine sheet with a choppy three-cascade Gerstner field so crests peak and harbor water bobs in place | allowed files: `scripts/map/view3d/map_view_water.gdshader`, `scripts/map/view3d/map_view_water_materials.gd`, `scripts/map/view3d/map_view_materials.gd`, `scripts/map/view3d/boat_float_3d.gd`, `tests/godot/test_r715_water_material_contract.gd`, `tests/godot/test_coastal_sea_3d.gd`, `docs/ART_BIBLE.md`, `docs/reports/water_realism_2026-09-24.md`, `TODO.md` | constraints: keep GL Compatibility, one shared shader, optical/tide/flow roles, no planar reflection, no map content or save schema changes; ripples stay in the detail normal because the 1/3-cell grid aliases capillary waves | verify: `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_r715_water_material_contract,test_boat_float_3d,test_coastal_sea_3d,test_r715_water_surface_geometry`
 
-- [ ] P0-223 | deps: P0-222 | deliverable: Jacobian whitecaps on breaking crests, separate from the existing shoreline breaker bands, with a short decay so foam lingers behind the crest | allowed files: `scripts/map/view3d/map_view_water.gdshader`, `scripts/map/view3d/map_view_water_materials.gd`, `scripts/map/view3d/map_view_materials.gd`, `tests/godot/test_r715_water_material_contract.gd`, `TODO.md` | constraints: foam must stay off rivers' grass bed and off the pinned shoreline seam; no new textures; keep GL blend_mix | verify: focused water material contract; crest foam rises with choppiness and wind, shoreline foam remains
+- [x] P0-223 | deps: P0-222 | deliverable: Jacobian whitecaps on breaking crests, separate from the existing shoreline breaker bands, with a short decay so foam lingers behind the crest | allowed files: `scripts/map/view3d/map_view_water.gdshader`, `scripts/map/view3d/map_view_water_materials.gd`, `scripts/map/view3d/map_view_materials.gd`, `tests/godot/test_r715_water_material_contract.gd`, `TODO.md` | constraints: foam must stay off rivers' grass bed and off the pinned shoreline seam; no new textures; keep GL blend_mix | verify: focused water material contract; crest foam rises with choppiness and wind, shoreline foam remains
 
 - [ ] P0-224 | deps: P0-222 | deliverable: crest subsurface glow so thin wave peaks transmit a warm-teal highlight instead of staying the same opaque albedo as the trough | allowed files: `scripts/map/view3d/map_view_water.gdshader`, `scripts/map/view3d/map_view_water_materials.gd`, `tests/godot/test_r715_water_material_contract.gd`, `docs/ART_BIBLE.md`, `TODO.md` | constraints: keep Baltic `#168FAA` / `#14617C` identity; glow dies at night with the existing sun envelope; no bloom-pass dependency | verify: focused water contract; shader transmits more light on positive crest fold than in troughs
 

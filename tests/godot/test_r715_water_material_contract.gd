@@ -188,3 +188,24 @@ func test_water_field_is_choppy_gerstner_not_a_sine_sheet() -> void:
 		float(deep.get_shader_parameter("wave_height")) > 0.1,
 		"deep water displacement must be large enough to read from the gameplay camera",
 	)
+
+
+func test_water_shader_uses_jacobian_crest_whitecaps_separate_from_shore_breakers() -> void:
+	var source := ShaderSources.WATER_SHADER.code
+	for feature in [
+		"_water_jacobian",
+		"jacobian_now",
+		"jacobian_trail",
+		"breaker_band",
+		"edge_foam",
+		"flow_strength <= 0.001",
+	]:
+		assert_true(feature in source, "water shader must retain %s" % feature)
+	assert_true(
+		"crest_fold *= choppiness" in source,
+		"crest whitecaps must scale with choppiness",
+	)
+	assert_true(
+		"crest_fold *= smoothstep(0.14, 0.48, shore_factor)" in source,
+		"crest whitecaps must stay off the pinned shoreline seam",
+	)

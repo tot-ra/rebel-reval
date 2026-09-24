@@ -147,6 +147,70 @@ void _water_field(vec2 position, float time, out vec3 displacement, out vec3 nor
 	normal_terms *= amplitude_variation;
 }
 
+// Horizontal displacement Jacobian for crest whitecaps. Mirrors _water_field warp
+// and wave trains; warp derivatives are omitted like common FFT-ocean stand-ins.
+void _accumulate_wave_jacobian(
+	vec2 position,
+	vec2 direction,
+	float frequency,
+	float speed,
+	float amplitude,
+	float time,
+	vec2 warp,
+	float phase_offset,
+	inout vec4 jacobian_terms
+) {
+	vec2 heading = normalize(direction);
+	float spatial = dot(position + warp, heading) * frequency + phase_offset;
+	float phase_travel = spatial - time * speed;
+	float standing = clamp(standing_wave_ratio, 0.0, 1.0);
+	float d_spatial_dx = heading.x * frequency;
+	float d_spatial_dz = heading.y * frequency;
+	float travel_ds_dx = cos(phase_travel) * d_spatial_dx;
+	float travel_ds_dz = cos(phase_travel) * d_spatial_dz;
+	float travel_dc_dx = -sin(phase_travel) * d_spatial_dx;
+	float travel_dc_dz = -sin(phase_travel) * d_spatial_dz;
+	float stand_ds_dx = cos(spatial) * sin(time * speed) * d_spatial_dx;
+	float stand_ds_dz = cos(spatial) * sin(time * speed) * d_spatial_dz;
+	float stand_dc_dx = -sin(spatial) * sin(time * speed) * d_spatial_dx;
+	float stand_dc_dz = -sin(spatial) * sin(time * speed) * d_spatial_dz;
+	float ds_dx = mix(travel_ds_dx, stand_ds_dx, standing);
+	float ds_dz = mix(travel_ds_dz, stand_ds_dz, standing);
+	float dc_dx = mix(travel_dc_dx, stand_dc_dx, standing);
+	float dc_dz = mix(travel_dc_dz, stand_dc_dz, standing);
+	float chop = max(choppiness, 0.0) * (1.0 - standing * 0.65);
+	float ax = chop * amplitude * heading.x;
+	float az = chop * amplitude * heading.y;
+	jacobian_terms.x += ax * dc_dx;
+	jacobian_terms.y += ax * dc_dz;
+	jacobian_terms.z += az * dc_dx;
+	jacobian_terms.w += az * dc_dz;
+}
+
+float _water_jacobian(vec2 position, float time) {
+	vec2 drift = vec2(time * 0.035, -time * 0.021);
+	vec2 warp_position = position * 0.115 + drift;
+	vec2 warp = vec2(
+		_noise(warp_position + vec2(17.2, -8.4)),
+		_noise(warp_position * 0.83 + vec2(-11.7, 23.9))
+	) - vec2(0.5);
+	vec2 fine_warp = vec2(
+		_noise(position * 0.31 + vec2(-time * 0.052, time * 0.018) + vec2(43.1, 7.6)),
+		_noise(position * 0.27 + vec2(time * 0.024, time * 0.047) + vec2(-19.4, 31.8))
+	) - vec2(0.5);
+	warp = (warp * 2.8 + fine_warp * 0.65) * wave_chaos;
+	float amplitude_noise = _noise(position * 0.16 + drift * 1.7 + vec2(5.3, 41.2));
+	float amplitude_variation = mix(0.72, 1.22, amplitude_noise);
+	vec4 jacobian_terms = vec4(0.0);
+	_accumulate_wave_jacobian(position, vec2(1.0, 0.28), 0.62, 0.48, 0.62, time, warp, 0.3, jacobian_terms);
+	_accumulate_wave_jacobian(position, vec2(0.82, 0.55), 0.91, 0.61, 0.28, time, warp * 0.8, 1.7, jacobian_terms);
+	_accumulate_wave_jacobian(position, vec2(0.36, 1.0), 1.85, 1.05, 0.16, time, warp * 0.72, 2.1, jacobian_terms);
+	_accumulate_wave_jacobian(position, vec2(-0.55, 0.84), 2.70, 1.40, 0.08, time, fine_warp * wave_chaos, 4.2, jacobian_terms);
+	jacobian_terms *= amplitude_variation;
+	return (1.0 + jacobian_terms.x) * (1.0 + jacobian_terms.w)
+		- jacobian_terms.y * jacobian_terms.z;
+}
+
 // A finite-difference slope is a small procedural stand-in for a sampled normal
 // map. Keeping the samples in world space makes detail continuous across the
 // separate water meshes generated for each terrain cell.
@@ -402,6 +466,24 @@ void fragment() {
 	float edge_foam = shore * smoothstep(0.52, 0.88, foam_noise * 0.70 + foam_ribbon * 0.30);
 	float foam = edge_foam * foam_intensity + breaker_band * breaker_intensity;
 	foam *= smoothstep(0.012, 0.08, geometric_depth);
+
+	// Jacobian whitecaps on open sea: folding Gerstner crests, not shoreline bands.
+	// A short time lag leaves foam behind the advancing crest without a foam buffer.
+	if (flow_strength <= 0.001) {
+		float jacobian_now = _water_jacobian(wave_sample_xz - flow_advection, TIME * wave_speed);
+		float jacobian_trail = _water_jacobian(
+			wave_sample_xz - flow_advection,
+			TIME * wave_speed - 0.42
+		);
+		float crest_fold = max(
+			smoothstep(0.92, 0.55, jacobian_now),
+			smoothstep(0.92, 0.55, jacobian_trail) * 0.68
+		);
+		crest_fold *= choppiness * foam_intensity * 1.35;
+		crest_fold *= smoothstep(0.14, 0.48, shore_factor);
+		crest_fold *= smoothstep(0.03, 0.10, geometric_depth);
+		foam += crest_fold;
+	}
 
 	// Downstream foam streaks for flowing rivers. The along-current coordinate
 	// scrolls with time so the ribbons travel toward the far bank, while the
