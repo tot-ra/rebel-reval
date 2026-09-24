@@ -67,3 +67,5 @@ This file contains lessons specific to the Art role.
 - Bone-level proportion changes shift `BODY_STATURE`. Update `SharedCharacterRig.HEROIC_MODEL_SCALE` to `2.0 / BODY_STATURE` and regenerate LODs.
 - Iterate character pose work on the skeleton intermediate plus a numeric audit. Only run the full body rebuild once the numbers land.
 - Indoor wall banners hang from a wall-parallel top rod with UV.y hem sway. Banner cloth authored in XY with a -Z lit face needs `rotation.y = +PI/2`.
+- Render every component of a procedural prop kit before shipping it. Primitive-assembly generators emit numerically valid but physically disconnected parts: levers extruded along the wrong axis, roofs seated above the wall head they should rest on, repeated elements spaced along their own length so the array collapses into one clump. A clean export, a component count, and a green self-check prove nothing about whether the pieces touch.
+- Assert kit invariants inside the generator, not only in its report. A report field that records `ground_contact: false` and still writes the GLB will ship a prop that sinks through the map floor.
