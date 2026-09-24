@@ -75,6 +75,26 @@ func test_one_weather_snapshot_updates_every_water_profile() -> void:
 	sky.free()
 
 
+func test_weather_presentation_pushes_wind_heading_to_water() -> void:
+	WaterMaterials.reset()
+	var sky := SkyWeather.new()
+	sky.auto_weather = false
+	sky.set_weather(SkyWeather.WEATHER_STORM)
+	sky.advance(SkyWeather.TRANSITION_SECONDS)
+	var presentation := sky.presentation_snapshot(0.4, 0.6)
+	WaterTestSupport.apply_weather_presentation(presentation, MaterialsFacade.WATER_WAVE_BASE)
+	var material := WaterMaterials.water_surface(
+		MapTypesContract.TERRAIN_DEEP_WATER, MaterialsFacade.WATER_WAVE_BASE
+	)
+	assert_true(
+		(material.get_shader_parameter("wind_direction") as Vector2).is_equal_approx(
+			presentation.wind_direction.normalized()
+		),
+		"the shared weather snapshot must steer cached water swell heading",
+	)
+	sky.free()
+
+
 func test_rain_shelter_changes_emitter_only_not_water_state() -> void:
 	WaterMaterials.reset()
 	var sky := SkyWeather.new()
@@ -126,7 +146,7 @@ func test_saved_weather_handoff_restores_identical_water_uniforms() -> void:
 	WaterTestSupport.apply_weather_presentation(
 		restored_presentation, MaterialsFacade.WATER_WAVE_BASE
 	)
-	assert_eq(
+	_assert_water_parameters_match(
 		_water_parameters(MapTypesContract.TERRAIN_DEEP_WATER),
 		source_parameters,
 		"save/load and map handoff must restore deterministic water uniforms",
@@ -188,11 +208,35 @@ func test_environment_binding_keeps_one_cross_map_owner() -> void:
 	)
 
 
+func _assert_water_parameters_match(
+	got: Dictionary, expected: Dictionary, message: String
+) -> void:
+	for key: String in expected.keys():
+		var a: Variant = expected[key]
+		var b: Variant = got.get(key)
+		if a is float:
+			assert_almost_eq(float(b), float(a), 0.00001, "%s: %s" % [message, key])
+		elif a is Vector2:
+			assert_true(
+				(a as Vector2).is_equal_approx(b as Vector2),
+				"%s: %s" % [message, key],
+			)
+		elif a is Vector3:
+			assert_true(
+				(a as Vector3).is_equal_approx(b as Vector3),
+				"%s: %s" % [message, key],
+			)
+		else:
+			assert_eq(b, a, "%s: %s" % [message, key])
+
+
 func _water_parameters(terrain_id: StringName) -> Dictionary:
 	var material := WaterMaterials.water_surface(terrain_id, MaterialsFacade.WATER_WAVE_BASE)
 	return {
+		"wind_direction": material.get_shader_parameter("wind_direction"),
 		"wave_height": material.get_shader_parameter("wave_height"),
 		"wave_chaos": material.get_shader_parameter("wave_chaos"),
+		"choppiness": material.get_shader_parameter("choppiness"),
 		"wave_speed": material.get_shader_parameter("wave_speed"),
 		"foam_intensity": material.get_shader_parameter("foam_intensity"),
 		"sun_visibility": material.get_shader_parameter("sun_visibility"),

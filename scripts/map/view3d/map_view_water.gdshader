@@ -62,6 +62,9 @@ uniform float tide_level = 0.0;
 uniform float tide_height = 0.0;
 uniform float tide_shore_retreat = 0.0;
 uniform float tide_optical_depth = 0.0;
+// Shared SkyWeather heading. Default matches the authored primary swell axis so
+// calm seas keep the pre-P0-226 look until apply_sea_weather() pushes live wind.
+uniform vec2 wind_direction = vec2(0.9578, 0.2873);
 
 varying vec3 water_world_position;
 varying vec2 wave_sample_xz;
@@ -117,6 +120,16 @@ void _accumulate_wave(
 	normal_terms.z += heading.y * slope;
 }
 
+vec2 _wave_heading(vec2 base_direction) {
+	vec2 ref = normalize(vec2(1.0, 0.28));
+	vec2 wind = wind_direction / max(length(wind_direction), 0.001);
+	float angle = atan(wind.y, wind.x) - atan(ref.y, ref.x);
+	float c = cos(angle);
+	float s = sin(angle);
+	vec2 dir = normalize(base_direction);
+	return vec2(dir.x * c - dir.y * s, dir.x * s + dir.y * c);
+}
+
 // Three bands stand in for a JONSWAP FFT on GL Compatibility: swell and wind
 // waves displace the mesh, ripples stay in the detail normal. Wavelengths stay
 // longer than the 1/3-cell water grid so crests are geometric, not aliased.
@@ -138,11 +151,11 @@ void _water_field(vec2 position, float time, out vec3 displacement, out vec3 nor
 	displacement = vec3(0.0);
 	normal_terms = vec3(0.0);
 	// Swell: ~9 m and ~6 m, the scale a harbor camera can actually read.
-	_accumulate_wave(position, vec2(1.0, 0.28), 0.62, 0.48, 0.62, time, warp, 0.3, displacement, normal_terms);
-	_accumulate_wave(position, vec2(0.82, 0.55), 0.91, 0.61, 0.28, time, warp * 0.8, 1.7, displacement, normal_terms);
+	_accumulate_wave(position, _wave_heading(vec2(1.0, 0.28)), 0.62, 0.48, 0.62, time, warp, 0.3, displacement, normal_terms);
+	_accumulate_wave(position, _wave_heading(vec2(0.82, 0.55)), 0.91, 0.61, 0.28, time, warp * 0.8, 1.7, displacement, normal_terms);
 	// Wind waves: a few meters, still sampled by the subdivided water grid.
-	_accumulate_wave(position, vec2(0.36, 1.0), 1.85, 1.05, 0.16, time, warp * 0.72, 2.1, displacement, normal_terms);
-	_accumulate_wave(position, vec2(-0.55, 0.84), 2.70, 1.40, 0.08, time, fine_warp * wave_chaos, 4.2, displacement, normal_terms);
+	_accumulate_wave(position, _wave_heading(vec2(0.36, 1.0)), 1.85, 1.05, 0.16, time, warp * 0.72, 2.1, displacement, normal_terms);
+	_accumulate_wave(position, _wave_heading(vec2(-0.55, 0.84)), 2.70, 1.40, 0.08, time, fine_warp * wave_chaos, 4.2, displacement, normal_terms);
 	displacement *= amplitude_variation;
 	normal_terms *= amplitude_variation;
 }
@@ -202,10 +215,10 @@ float _water_jacobian(vec2 position, float time) {
 	float amplitude_noise = _noise(position * 0.16 + drift * 1.7 + vec2(5.3, 41.2));
 	float amplitude_variation = mix(0.72, 1.22, amplitude_noise);
 	vec4 jacobian_terms = vec4(0.0);
-	_accumulate_wave_jacobian(position, vec2(1.0, 0.28), 0.62, 0.48, 0.62, time, warp, 0.3, jacobian_terms);
-	_accumulate_wave_jacobian(position, vec2(0.82, 0.55), 0.91, 0.61, 0.28, time, warp * 0.8, 1.7, jacobian_terms);
-	_accumulate_wave_jacobian(position, vec2(0.36, 1.0), 1.85, 1.05, 0.16, time, warp * 0.72, 2.1, jacobian_terms);
-	_accumulate_wave_jacobian(position, vec2(-0.55, 0.84), 2.70, 1.40, 0.08, time, fine_warp * wave_chaos, 4.2, jacobian_terms);
+	_accumulate_wave_jacobian(position, _wave_heading(vec2(1.0, 0.28)), 0.62, 0.48, 0.62, time, warp, 0.3, jacobian_terms);
+	_accumulate_wave_jacobian(position, _wave_heading(vec2(0.82, 0.55)), 0.91, 0.61, 0.28, time, warp * 0.8, 1.7, jacobian_terms);
+	_accumulate_wave_jacobian(position, _wave_heading(vec2(0.36, 1.0)), 1.85, 1.05, 0.16, time, warp * 0.72, 2.1, jacobian_terms);
+	_accumulate_wave_jacobian(position, _wave_heading(vec2(-0.55, 0.84)), 2.70, 1.40, 0.08, time, fine_warp * wave_chaos, 4.2, jacobian_terms);
 	jacobian_terms *= amplitude_variation;
 	return (1.0 + jacobian_terms.x) * (1.0 + jacobian_terms.w)
 		- jacobian_terms.y * jacobian_terms.z;

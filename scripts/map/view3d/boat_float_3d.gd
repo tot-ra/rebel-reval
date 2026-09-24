@@ -9,6 +9,7 @@ const SkyWeather3D := preload("res://scripts/map/view3d/sky_weather_3d.gd")
 
 ## Harbor enclosed water (TERRAIN_WATER) standing ratio from MapViewMaterials.
 const HARBOR_STANDING_WAVE_RATIO := 0.42
+const SWELL_REFERENCE := Vector2(0.957826718346, 0.287348015604)
 ## Fishing-boat hull extents in local space (+X bow, +Z starboard).
 const DEFAULT_HULL_HALF_LENGTH := 1.45
 const DEFAULT_HULL_HALF_BEAM := 0.55
@@ -67,7 +68,13 @@ func _process(_delta: float) -> void:
 	if _host.is_inside_tree():
 		world_xz = Vector2(_host.global_position.x, _host.global_position.z)
 	var hull := sample_hull_attitude(
-		world_xz, time, _standing_wave_ratio, _hull_half_length, _hull_half_beam, _rest_basis
+		world_xz,
+		time,
+		_standing_wave_ratio,
+		_hull_half_length,
+		_hull_half_beam,
+		_rest_basis,
+		wind_dir,
 	)
 	var heave := hull.x * BASE_HEAVE * sea
 	var pitch := clampf(hull.y * BASE_PITCH_RAD * sea, -BASE_PITCH_RAD * 2.2, BASE_PITCH_RAD * 2.2)
@@ -95,7 +102,8 @@ static func sample_hull_attitude(
 	standing_wave_ratio: float,
 	hull_half_length: float,
 	hull_half_beam: float,
-	rest_basis: Basis
+	rest_basis: Basis,
+	wind_direction: Vector2 = Vector2(1.0, 0.28)
 ) -> Vector3:
 	var local_samples: Array[Vector3] = [
 		Vector3.ZERO,
@@ -109,7 +117,7 @@ static func sample_hull_attitude(
 	for index in local_samples.size():
 		var world_offset := rest_basis * local_samples[index]
 		var sample_xz := world_origin + Vector2(world_offset.x, world_offset.z)
-		heights[index] = sample_wave(sample_xz, time, standing_wave_ratio).x
+		heights[index] = sample_wave(sample_xz, time, standing_wave_ratio, wind_direction).x
 	var center := heights[0]
 	var bow := heights[1]
 	var stern := heights[2]
@@ -127,7 +135,10 @@ static func sample_hull_attitude(
 ## Matches the water shader's primary wave trains so hulls crest with the surface
 ## instead of bobbing on an unrelated sine. Returns height plus X/Z slopes.
 static func sample_wave(
-	position: Vector2, time: float, standing_wave_ratio: float = HARBOR_STANDING_WAVE_RATIO
+	position: Vector2,
+	time: float,
+	standing_wave_ratio: float = HARBOR_STANDING_WAVE_RATIO,
+	wind_direction: Vector2 = Vector2(1.0, 0.28)
 ) -> Vector3:
 	var warp := (
 		Vector2(
@@ -146,16 +157,48 @@ static func sample_wave(
 	var standing := clampf(standing_wave_ratio, 0.0, 1.0)
 	# Lockstep with map_view_water.gdshader swell + wind trains.
 	var shape := _wave(
-		position, Vector2(1.0, 0.28), 0.62, 0.48, 0.62, time, warp, 0.3, standing
+		position,
+		_rotate_wave_direction(Vector2(1.0, 0.28), wind_direction),
+		0.62,
+		0.48,
+		0.62,
+		time,
+		warp,
+		0.3,
+		standing
 	)
 	shape += _wave(
-		position, Vector2(0.82, 0.55), 0.91, 0.61, 0.28, time, warp * 0.8, 1.7, standing
+		position,
+		_rotate_wave_direction(Vector2(0.82, 0.55), wind_direction),
+		0.91,
+		0.61,
+		0.28,
+		time,
+		warp * 0.8,
+		1.7,
+		standing
 	)
 	shape += _wave(
-		position, Vector2(0.36, 1.0), 1.85, 1.05, 0.16, time, warp * 0.72, 2.1, standing
+		position,
+		_rotate_wave_direction(Vector2(0.36, 1.0), wind_direction),
+		1.85,
+		1.05,
+		0.16,
+		time,
+		warp * 0.72,
+		2.1,
+		standing
 	)
 	shape += _wave(
-		position, Vector2(-0.55, 0.84), 2.70, 1.40, 0.08, time, warp * 0.35, 4.2, standing
+		position,
+		_rotate_wave_direction(Vector2(-0.55, 0.84), wind_direction),
+		2.70,
+		1.40,
+		0.08,
+		time,
+		warp * 0.35,
+		4.2,
+		standing
 	)
 	var amplitude_noise := _noise(
 		position * 0.16 + Vector2(time * 0.035, -time * 0.021) * 1.7 + Vector2(5.3, 41.2)
@@ -185,6 +228,16 @@ static func _wave(
 	var wave_c := lerpf(travel_c, standing_c, standing)
 	var slope := frequency * amplitude * wave_c
 	return Vector3(amplitude * wave_s, heading.x * slope, heading.y * slope)
+
+
+static func _rotate_wave_direction(base_direction: Vector2, wind_direction: Vector2) -> Vector2:
+	var wind := wind_direction
+	if wind.length_squared() < 0.0001:
+		wind = SWELL_REFERENCE
+	else:
+		wind = wind.normalized()
+	var angle := wind.angle() - SWELL_REFERENCE.angle()
+	return base_direction.rotated(angle)
 
 
 static func _hash(p: Vector2) -> float:

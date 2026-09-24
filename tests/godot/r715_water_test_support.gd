@@ -12,7 +12,10 @@ static func apply_weather_presentation(
 	if presentation == null:
 		return
 	WaterMaterials.apply_sea_weather(
-		presentation.wind_strength, presentation.rain_intensity, wave_profiles
+		presentation.wind_strength,
+		presentation.rain_intensity,
+		wave_profiles,
+		presentation.wind_direction,
 	)
 	WaterMaterials.apply_water_lighting(
 		presentation.sun_visibility, presentation.day_blend, wave_profiles

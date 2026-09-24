@@ -74,6 +74,7 @@ static func water_surface(terrain_id: StringName, wave_profiles: Dictionary) -> 
 	material.set_shader_parameter("bed_vegetation", float(wave.get("bed_vegetation", 1.0)))
 	material.set_shader_parameter("flow_direction", Vector2.ZERO)
 	material.set_shader_parameter("flow_strength", 0.0)
+	material.set_shader_parameter("wind_direction", Vector2(1.0, 0.28).normalized())
 	# Two detail layers provide the broken reflection pattern seen in realistic
 	# water demos. Keep the river's detail tighter and stronger so its current is
 	# legible without changing the shared displacement used by boat buoyancy.
@@ -103,14 +104,25 @@ static func water_surface(terrain_id: StringName, wave_profiles: Dictionary) -> 
 
 ## Scales cached water materials from SkyWeather wind/rain. Safe to call every
 ## frame; only shader uniforms change, never the cached material instances.
-static func apply_sea_weather(wind: float, rain: float, wave_profiles: Dictionary) -> void:
+static func apply_sea_weather(
+	wind: float,
+	rain: float,
+	wave_profiles: Dictionary,
+	wind_direction: Vector2 = Vector2(1.0, 0.28)
+) -> void:
 	var wind_state := clampf(wind, 0.0, 1.0)
 	var rain_state := clampf(rain, 0.0, 1.0)
-	var height_mul := lerpf(0.82, 2.15, wind_state) * lerpf(1.0, 1.45, rain_state)
+	# Height follows wind and rain; chop tracks wind harder (Water Pro choppiness split).
+	var height_mul := lerpf(0.82, 1.95, wind_state) * lerpf(1.0, 1.45, rain_state)
 	var chaos_mul := lerpf(0.88, 1.65, wind_state) * lerpf(1.0, 1.35, rain_state)
-	var chop_mul := lerpf(0.85, 1.35, wind_state) * lerpf(1.0, 1.15, rain_state)
+	var chop_mul := lerpf(0.85, 2.35, wind_state) * lerpf(1.0, 1.08, rain_state)
 	var speed := lerpf(0.72, 1.62, wind_state) * lerpf(1.0, 1.18, rain_state)
 	var breaker_mul := lerpf(0.72, 1.75, wind_state) * lerpf(1.0, 1.45, rain_state)
+	var heading := wind_direction
+	if heading.length_squared() < 0.0001:
+		heading = Vector2(1.0, 0.28)
+	else:
+		heading = heading.normalized()
 	for terrain_id in wave_profiles.keys():
 		var material := water_surface(terrain_id as StringName, wave_profiles)
 		var wave: Dictionary = wave_profiles[terrain_id]
@@ -124,6 +136,7 @@ static func apply_sea_weather(wind: float, rain: float, wave_profiles: Dictionar
 		material.set_shader_parameter(
 			"foam_intensity", float(wave["foam"]) * lerpf(0.9, 1.35, rain_state)
 		)
+		material.set_shader_parameter("wind_direction", heading)
 
 
 ## Pushes sky sun-disk visibility and day/night blend into cached water

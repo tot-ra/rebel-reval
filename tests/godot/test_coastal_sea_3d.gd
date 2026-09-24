@@ -1,5 +1,6 @@
 extends "res://tests/godot/test_case.gd"
 
+const BoatFloat := preload("res://scripts/map/view3d/boat_float_3d.gd")
 const HarborNorthDefinition := preload(
 	"res://scripts/map/definitions/outdoor/reval_harbor_north_definition.gd"
 )
@@ -74,6 +75,52 @@ func test_weather_changes_wave_speed_height_and_breakers() -> void:
 	assert_true(storm_speed > calm_speed * 1.5, "storm weather must drive a faster sea")
 	assert_true(storm_breakers > calm_breakers * 2.0, "storm weather must strengthen breaking surf")
 	MapViewMaterials.apply_sea_weather(0.22, 0.0)
+
+
+func test_storm_wind_raises_chop_more_than_wave_height() -> void:
+	MapViewMaterials.reset()
+	MapViewMaterials.apply_sea_weather(0.18, 0.0)
+	var shallow := MapViewMaterials.water_surface(MapTypes.TERRAIN_SHALLOW_WATER)
+	var calm_height := float(shallow.get_shader_parameter("wave_height"))
+	var calm_chop := float(shallow.get_shader_parameter("choppiness"))
+	MapViewMaterials.apply_sea_weather(0.92, 0.0)
+	var storm_height := float(shallow.get_shader_parameter("wave_height"))
+	var storm_chop := float(shallow.get_shader_parameter("choppiness"))
+	var height_ratio := storm_height / maxf(calm_height, 0.0001)
+	var chop_ratio := storm_chop / maxf(calm_chop, 0.0001)
+	assert_true(
+		chop_ratio > height_ratio * 1.08,
+		"storm wind must sharpen crests faster than it scales wave height",
+	)
+	MapViewMaterials.apply_sea_weather(0.18, 0.0)
+
+
+func test_swell_heading_follows_wind_direction() -> void:
+	MapViewMaterials.reset()
+	var east := Vector2(1.0, 0.0)
+	var north := Vector2(0.0, 1.0)
+	MapViewMaterials.apply_sea_weather(0.35, 0.0, east)
+	var shallow := MapViewMaterials.water_surface(MapTypes.TERRAIN_DEEP_WATER)
+	assert_true(
+		(shallow.get_shader_parameter("wind_direction") as Vector2).is_equal_approx(east),
+		"deep water must receive the live wind heading",
+	)
+	var origin := Vector2(20.0, 11.0)
+	var time := 1.75
+	var standing := BoatFloat.HARBOR_STANDING_WAVE_RATIO
+	var east_along := BoatFloat.sample_wave(origin + east * 2.4, time, standing, east).x
+	var east_across := BoatFloat.sample_wave(origin + north * 2.4, time, standing, east).x
+	MapViewMaterials.apply_sea_weather(0.35, 0.0, north)
+	assert_true(
+		(shallow.get_shader_parameter("wind_direction") as Vector2).is_equal_approx(north),
+		"swell heading must track wind_direction_xz",
+	)
+	var north_along := BoatFloat.sample_wave(origin + north * 2.4, time, standing, north).x
+	var north_across := BoatFloat.sample_wave(origin + east * 2.4, time, standing, north).x
+	assert_true(
+		absf(east_along - east_across) > 0.002 or absf(north_along - north_across) > 0.002,
+		"rotating wind must change which axis carries the primary swell",
+	)
 
 
 func test_water_shader_contains_advancing_shore_breakers() -> void:

@@ -201,7 +201,11 @@ func _within_smoke_view(to_camera: Transform3D, world_position: Vector3) -> bool
 func _sync_sea_weather() -> void:
 	if _sky_weather == null:
 		return
-	MapViewMaterials.apply_sea_weather(_sky_weather.wind_strength(), _sky_weather.rain_intensity())
+	MapViewMaterials.apply_sea_weather(
+		_sky_weather.wind_strength(),
+		_sky_weather.rain_intensity(),
+		_sky_weather.wind_direction_xz(),
+	)
 	MapViewMaterials.apply_mud_wetness(_sky_weather.mud_wetness())
 	# Vegetation, sails, and tower pennants share the same weather wind field as
 	# floating hulls so a storm leans the whole harbor one way.

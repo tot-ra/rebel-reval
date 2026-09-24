@@ -220,7 +220,9 @@ static func apply_weather_presentation(
 ) -> void:
 	if presentation == null:
 		return
-	apply_sea_weather(presentation.wind_strength, presentation.rain_intensity)
+	apply_sea_weather(
+		presentation.wind_strength, presentation.rain_intensity, presentation.wind_direction
+	)
 	apply_mud_wetness(presentation.puddle_wetness)
 	apply_world_wind(presentation.wind_direction, presentation.wind_strength)
 
@@ -235,8 +237,10 @@ static func water_surface(terrain_id: StringName) -> ShaderMaterial:
 	return WATER_MATERIALS.water_surface(terrain_id, WATER_WAVE_BASE)
 
 
-static func apply_sea_weather(wind: float, rain: float) -> void:
-	WATER_MATERIALS.apply_sea_weather(wind, rain, WATER_WAVE_BASE)
+static func apply_sea_weather(
+	wind: float, rain: float, wind_direction: Vector2 = Vector2(1.0, 0.28)
+) -> void:
+	WATER_MATERIALS.apply_sea_weather(wind, rain, WATER_WAVE_BASE, wind_direction)
 
 
 static func apply_water_lighting(sun_visibility: float, day_blend: float) -> void:
