@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dh5y73bxcc0q4"
-path.s3tc="res://.godot/imported/blacksmith_hammer_PolishedToolEdge_roughness.png-cacbd0c369de38410cb5162112f1da0b.s3tc.ctex"
-path.etc2="res://.godot/imported/blacksmith_hammer_PolishedToolEdge_roughness.png-cacbd0c369de38410cb5162112f1da0b.etc2.ctex"
+path.s3tc="res://.godot/imported/blacksmith_hammer_PolishedToolEdge_roughness.png-670da95e15eb0e53972b5b7be038b25e.s3tc.ctex"
+path.etc2="res://.godot/imported/blacksmith_hammer_PolishedToolEdge_roughness.png-670da95e15eb0e53972b5b7be038b25e.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -15,8 +15,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/tools/blacksmith_hammer_PolishedToolEdge_roughness.png"
-dest_files=["res://.godot/imported/blacksmith_hammer_PolishedToolEdge_roughness.png-cacbd0c369de38410cb5162112f1da0b.s3tc.ctex", "res://.godot/imported/blacksmith_hammer_PolishedToolEdge_roughness.png-cacbd0c369de38410cb5162112f1da0b.etc2.ctex"]
+source_file="res://assets/props/tools/blacksmith_hammer/blacksmith_hammer_PolishedToolEdge_roughness.png"
+dest_files=["res://.godot/imported/blacksmith_hammer_PolishedToolEdge_roughness.png-670da95e15eb0e53972b5b7be038b25e.s3tc.ctex", "res://.godot/imported/blacksmith_hammer_PolishedToolEdge_roughness.png-670da95e15eb0e53972b5b7be038b25e.etc2.ctex"]
 
 [params]
 

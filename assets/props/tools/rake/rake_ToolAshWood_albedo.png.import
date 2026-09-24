@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b6d0vuai62jo3"
-path.s3tc="res://.godot/imported/rake_ToolAshWood_albedo.png-da21b10d413bb23779422c7f33e59aa6.s3tc.ctex"
-path.etc2="res://.godot/imported/rake_ToolAshWood_albedo.png-da21b10d413bb23779422c7f33e59aa6.etc2.ctex"
+path.s3tc="res://.godot/imported/rake_ToolAshWood_albedo.png-b755d313b44efa431321590396f9856a.s3tc.ctex"
+path.etc2="res://.godot/imported/rake_ToolAshWood_albedo.png-b755d313b44efa431321590396f9856a.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -15,8 +15,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/tools/rake_ToolAshWood_albedo.png"
-dest_files=["res://.godot/imported/rake_ToolAshWood_albedo.png-da21b10d413bb23779422c7f33e59aa6.s3tc.ctex", "res://.godot/imported/rake_ToolAshWood_albedo.png-da21b10d413bb23779422c7f33e59aa6.etc2.ctex"]
+source_file="res://assets/props/tools/rake/rake_ToolAshWood_albedo.png"
+dest_files=["res://.godot/imported/rake_ToolAshWood_albedo.png-b755d313b44efa431321590396f9856a.s3tc.ctex", "res://.godot/imported/rake_ToolAshWood_albedo.png-b755d313b44efa431321590396f9856a.etc2.ctex"]
 
 [params]
 

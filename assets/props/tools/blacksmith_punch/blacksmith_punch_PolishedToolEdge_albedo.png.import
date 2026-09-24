@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://wpttdym8c8rx"
-path.s3tc="res://.godot/imported/blacksmith_punch_PolishedToolEdge_albedo.png-7b44419e3f038cd981b1b5ff36d8de68.s3tc.ctex"
-path.etc2="res://.godot/imported/blacksmith_punch_PolishedToolEdge_albedo.png-7b44419e3f038cd981b1b5ff36d8de68.etc2.ctex"
+path.s3tc="res://.godot/imported/blacksmith_punch_PolishedToolEdge_albedo.png-f8032bdd12919417ddff277ac143bca2.s3tc.ctex"
+path.etc2="res://.godot/imported/blacksmith_punch_PolishedToolEdge_albedo.png-f8032bdd12919417ddff277ac143bca2.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -15,8 +15,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/tools/blacksmith_punch_PolishedToolEdge_albedo.png"
-dest_files=["res://.godot/imported/blacksmith_punch_PolishedToolEdge_albedo.png-7b44419e3f038cd981b1b5ff36d8de68.s3tc.ctex", "res://.godot/imported/blacksmith_punch_PolishedToolEdge_albedo.png-7b44419e3f038cd981b1b5ff36d8de68.etc2.ctex"]
+source_file="res://assets/props/tools/blacksmith_punch/blacksmith_punch_PolishedToolEdge_albedo.png"
+dest_files=["res://.godot/imported/blacksmith_punch_PolishedToolEdge_albedo.png-f8032bdd12919417ddff277ac143bca2.s3tc.ctex", "res://.godot/imported/blacksmith_punch_PolishedToolEdge_albedo.png-f8032bdd12919417ddff277ac143bca2.etc2.ctex"]
 
 [params]
 

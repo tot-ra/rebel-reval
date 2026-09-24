@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://rryc8gqngv4x"
-path.s3tc="res://.godot/imported/blacksmith_hammer_HammeredToolIron_albedo.png-f63c02601ae1feff454320747ccde324.s3tc.ctex"
-path.etc2="res://.godot/imported/blacksmith_hammer_HammeredToolIron_albedo.png-f63c02601ae1feff454320747ccde324.etc2.ctex"
+path.s3tc="res://.godot/imported/blacksmith_hammer_HammeredToolIron_albedo.png-9d4d485ef24bb378729cd3c8ee0c196f.s3tc.ctex"
+path.etc2="res://.godot/imported/blacksmith_hammer_HammeredToolIron_albedo.png-9d4d485ef24bb378729cd3c8ee0c196f.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -15,8 +15,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/tools/blacksmith_hammer_HammeredToolIron_albedo.png"
-dest_files=["res://.godot/imported/blacksmith_hammer_HammeredToolIron_albedo.png-f63c02601ae1feff454320747ccde324.s3tc.ctex", "res://.godot/imported/blacksmith_hammer_HammeredToolIron_albedo.png-f63c02601ae1feff454320747ccde324.etc2.ctex"]
+source_file="res://assets/props/tools/blacksmith_hammer/blacksmith_hammer_HammeredToolIron_albedo.png"
+dest_files=["res://.godot/imported/blacksmith_hammer_HammeredToolIron_albedo.png-9d4d485ef24bb378729cd3c8ee0c196f.s3tc.ctex", "res://.godot/imported/blacksmith_hammer_HammeredToolIron_albedo.png-9d4d485ef24bb378729cd3c8ee0c196f.etc2.ctex"]
 
 [params]
 

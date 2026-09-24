@@ -30,6 +30,10 @@ GENERATOR_VERSION = "medieval_hand_tools_v2"
 TEXTURE_SIZE = 512
 
 
+def hand_tool_glb(slug: str) -> Path:
+    return ROOT / "assets" / "props" / "tools" / slug / f"{slug}.glb"
+
+
 @dataclass(frozen=True)
 class AssetSpec:
     asset_id: str
@@ -67,7 +71,7 @@ SPECS = (
         "prop.blacksmith_tongs",
         "blacksmith_tongs",
         "BlacksmithTongs",
-        ROOT / "assets" / "props" / "tools" / "blacksmith_tongs.glb",
+        hand_tool_glb("blacksmith_tongs"),
         "res://content/maps/kalev_smithy.rrmap#forge_tongs",
         (0.42, 0.77, 0.15),
         1400,
@@ -79,7 +83,7 @@ SPECS = (
         "prop.pitchfork",
         "pitchfork",
         "Pitchfork",
-        ROOT / "assets" / "props" / "tools" / "pitchfork.glb",
+        hand_tool_glb("pitchfork"),
         "res://content/maps/viru_gate_foreland.rrmap#west.pitchfork",
         (0.44, 2.02, 0.19),
         1800,
@@ -91,7 +95,7 @@ SPECS = (
         "prop.scythe",
         "scythe",
         "Scythe",
-        ROOT / "assets" / "props" / "tools" / "scythe.glb",
+        hand_tool_glb("scythe"),
         "res://content/maps/viru_gate_foreland.rrmap#east.scythe",
         (1.02, 1.54, 0.31),
         1800,
@@ -103,7 +107,7 @@ SPECS = (
         "prop.blacksmith_hammer",
         "blacksmith_hammer",
         "BlacksmithHammer",
-        ROOT / "assets" / "props" / "tools" / "blacksmith_hammer.glb",
+        hand_tool_glb("blacksmith_hammer"),
         "res://content/maps/kalev_smithy.rrmap#forge_hammer",
         (0.17, 0.38, 0.10),
         1000,
@@ -115,7 +119,7 @@ SPECS = (
         "prop.blacksmith_punch",
         "blacksmith_punch",
         "BlacksmithPunch",
-        ROOT / "assets" / "props" / "tools" / "blacksmith_punch.glb",
+        hand_tool_glb("blacksmith_punch"),
         "res://content/maps/kalev_smithy.rrmap#forge_punch",
         (0.06, 0.23, 0.06),
         700,
@@ -127,7 +131,7 @@ SPECS = (
         "prop.sickle",
         "sickle",
         "Sickle",
-        ROOT / "assets" / "props" / "tools" / "sickle.glb",
+        hand_tool_glb("sickle"),
         "res://content/maps/viru_gate_foreland.rrmap#west.sickle",
         (0.42, 0.48, 0.10),
         1200,
@@ -139,7 +143,7 @@ SPECS = (
         "prop.rake",
         "rake",
         "Rake",
-        ROOT / "assets" / "props" / "tools" / "rake.glb",
+        hand_tool_glb("rake"),
         "res://content/maps/viru_gate_foreland.rrmap#east.rake",
         (0.65, 1.72, 0.13),
         1600,
@@ -151,7 +155,7 @@ SPECS = (
         "prop.wooden_shovel",
         "wooden_shovel",
         "WoodenShovel",
-        ROOT / "assets" / "props" / "tools" / "wooden_shovel.glb",
+        hand_tool_glb("wooden_shovel"),
         "res://content/maps/viru_gate_foreland.rrmap#east.wooden_shovel",
         (0.28, 1.50, 0.12),
         1200,

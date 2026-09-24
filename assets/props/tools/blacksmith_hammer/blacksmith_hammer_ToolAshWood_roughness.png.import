@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://boa4i02cp18ew"
-path.s3tc="res://.godot/imported/blacksmith_hammer_ToolAshWood_roughness.png-bc7548e33055cc04b233cc1f087762bc.s3tc.ctex"
-path.etc2="res://.godot/imported/blacksmith_hammer_ToolAshWood_roughness.png-bc7548e33055cc04b233cc1f087762bc.etc2.ctex"
+path.s3tc="res://.godot/imported/blacksmith_hammer_ToolAshWood_roughness.png-7d6c0d09d3b4db5e9956522bb376f1b7.s3tc.ctex"
+path.etc2="res://.godot/imported/blacksmith_hammer_ToolAshWood_roughness.png-7d6c0d09d3b4db5e9956522bb376f1b7.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -15,8 +15,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/tools/blacksmith_hammer_ToolAshWood_roughness.png"
-dest_files=["res://.godot/imported/blacksmith_hammer_ToolAshWood_roughness.png-bc7548e33055cc04b233cc1f087762bc.s3tc.ctex", "res://.godot/imported/blacksmith_hammer_ToolAshWood_roughness.png-bc7548e33055cc04b233cc1f087762bc.etc2.ctex"]
+source_file="res://assets/props/tools/blacksmith_hammer/blacksmith_hammer_ToolAshWood_roughness.png"
+dest_files=["res://.godot/imported/blacksmith_hammer_ToolAshWood_roughness.png-7d6c0d09d3b4db5e9956522bb376f1b7.s3tc.ctex", "res://.godot/imported/blacksmith_hammer_ToolAshWood_roughness.png-7d6c0d09d3b4db5e9956522bb376f1b7.etc2.ctex"]
 
 [params]
 

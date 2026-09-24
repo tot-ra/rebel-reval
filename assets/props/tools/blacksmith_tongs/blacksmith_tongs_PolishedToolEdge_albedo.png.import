@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bcbwb6dlii844"
-path="res://.godot/imported/blacksmith_tongs_PolishedToolEdge_albedo.png-881388a2a09ccc4342890497386c85a8.ctex"
+path="res://.godot/imported/blacksmith_tongs_PolishedToolEdge_albedo.png-f2e7af3e1f4d167e42847e6b6c0c1b26.ctex"
 metadata={
 "vram_texture": false
 }
@@ -13,8 +13,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/tools/blacksmith_tongs_PolishedToolEdge_albedo.png"
-dest_files=["res://.godot/imported/blacksmith_tongs_PolishedToolEdge_albedo.png-881388a2a09ccc4342890497386c85a8.ctex"]
+source_file="res://assets/props/tools/blacksmith_tongs/blacksmith_tongs_PolishedToolEdge_albedo.png"
+dest_files=["res://.godot/imported/blacksmith_tongs_PolishedToolEdge_albedo.png-f2e7af3e1f4d167e42847e6b6c0c1b26.ctex"]
 
 [params]
 

@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://coidhoyf1yvod"
-path="res://.godot/imported/blacksmith_tongs.glb-c5eb8e5614bd4b0b01e000be725bbd97.scn"
+path="res://.godot/imported/blacksmith_tongs.glb-48ae02f1ccf2e7a4cf660666b950406f.scn"
 
 [deps]
 
-source_file="res://assets/props/tools/blacksmith_tongs.glb"
-dest_files=["res://.godot/imported/blacksmith_tongs.glb-c5eb8e5614bd4b0b01e000be725bbd97.scn"]
+source_file="res://assets/props/tools/blacksmith_tongs/blacksmith_tongs.glb"
+dest_files=["res://.godot/imported/blacksmith_tongs.glb-48ae02f1ccf2e7a4cf660666b950406f.scn"]
 
 [params]
 

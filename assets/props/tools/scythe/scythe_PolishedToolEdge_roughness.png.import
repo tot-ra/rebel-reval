@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bbb4m64wnx5lk"
-path="res://.godot/imported/scythe_PolishedToolEdge_roughness.png-84cdba2bb18909d3427956844c7fe860.ctex"
+path="res://.godot/imported/scythe_PolishedToolEdge_roughness.png-2d30509dc3bb996cfb6d2c01d915b3a5.ctex"
 metadata={
 "vram_texture": false
 }
@@ -13,8 +13,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/tools/scythe_PolishedToolEdge_roughness.png"
-dest_files=["res://.godot/imported/scythe_PolishedToolEdge_roughness.png-84cdba2bb18909d3427956844c7fe860.ctex"]
+source_file="res://assets/props/tools/scythe/scythe_PolishedToolEdge_roughness.png"
+dest_files=["res://.godot/imported/scythe_PolishedToolEdge_roughness.png-2d30509dc3bb996cfb6d2c01d915b3a5.ctex"]
 
 [params]
 

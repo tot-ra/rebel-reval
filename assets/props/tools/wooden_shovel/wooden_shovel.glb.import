@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://bdmll4o0vsdpk"
-path="res://.godot/imported/wooden_shovel.glb-71a5b1b07ff7a3ceb66176e6ffe8341f.scn"
+path="res://.godot/imported/wooden_shovel.glb-5abb63da04837401155920db17301bc1.scn"
 
 [deps]
 
-source_file="res://assets/props/tools/wooden_shovel.glb"
-dest_files=["res://.godot/imported/wooden_shovel.glb-71a5b1b07ff7a3ceb66176e6ffe8341f.scn"]
+source_file="res://assets/props/tools/wooden_shovel/wooden_shovel.glb"
+dest_files=["res://.godot/imported/wooden_shovel.glb-5abb63da04837401155920db17301bc1.scn"]
 
 [params]
 

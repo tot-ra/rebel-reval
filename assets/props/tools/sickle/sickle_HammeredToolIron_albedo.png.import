@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dhb4jkmywcine"
-path.s3tc="res://.godot/imported/sickle_HammeredToolIron_albedo.png-19e44533d997786573242d452a6ac06f.s3tc.ctex"
-path.etc2="res://.godot/imported/sickle_HammeredToolIron_albedo.png-19e44533d997786573242d452a6ac06f.etc2.ctex"
+path.s3tc="res://.godot/imported/sickle_HammeredToolIron_albedo.png-624c53c84e4f2ede89c1a5e81a2861da.s3tc.ctex"
+path.etc2="res://.godot/imported/sickle_HammeredToolIron_albedo.png-624c53c84e4f2ede89c1a5e81a2861da.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -15,8 +15,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/tools/sickle_HammeredToolIron_albedo.png"
-dest_files=["res://.godot/imported/sickle_HammeredToolIron_albedo.png-19e44533d997786573242d452a6ac06f.s3tc.ctex", "res://.godot/imported/sickle_HammeredToolIron_albedo.png-19e44533d997786573242d452a6ac06f.etc2.ctex"]
+source_file="res://assets/props/tools/sickle/sickle_HammeredToolIron_albedo.png"
+dest_files=["res://.godot/imported/sickle_HammeredToolIron_albedo.png-624c53c84e4f2ede89c1a5e81a2861da.s3tc.ctex", "res://.godot/imported/sickle_HammeredToolIron_albedo.png-624c53c84e4f2ede89c1a5e81a2861da.etc2.ctex"]
 
 [params]
 

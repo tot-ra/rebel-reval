@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ba5ror5ckpmpi"
-path="res://.godot/imported/pitchfork_ToolAshWood_roughness.png-eebc1a0347f016f7797fc837674cdc68.ctex"
+path="res://.godot/imported/pitchfork_ToolAshWood_roughness.png-52ba19326e7841643a59cc410f087e7e.ctex"
 metadata={
 "vram_texture": false
 }
@@ -13,8 +13,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/tools/pitchfork_ToolAshWood_roughness.png"
-dest_files=["res://.godot/imported/pitchfork_ToolAshWood_roughness.png-eebc1a0347f016f7797fc837674cdc68.ctex"]
+source_file="res://assets/props/tools/pitchfork/pitchfork_ToolAshWood_roughness.png"
+dest_files=["res://.godot/imported/pitchfork_ToolAshWood_roughness.png-52ba19326e7841643a59cc410f087e7e.ctex"]
 
 [params]
 

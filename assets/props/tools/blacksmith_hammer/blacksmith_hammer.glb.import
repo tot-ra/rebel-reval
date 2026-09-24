@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://b7fedkcowft7l"
-path="res://.godot/imported/blacksmith_hammer.glb-64b2c188b48ea41470a752ff39e7660b.scn"
+path="res://.godot/imported/blacksmith_hammer.glb-ac67e5546726fb36ebe8b9c7873a943b.scn"
 
 [deps]
 
-source_file="res://assets/props/tools/blacksmith_hammer.glb"
-dest_files=["res://.godot/imported/blacksmith_hammer.glb-64b2c188b48ea41470a752ff39e7660b.scn"]
+source_file="res://assets/props/tools/blacksmith_hammer/blacksmith_hammer.glb"
+dest_files=["res://.godot/imported/blacksmith_hammer.glb-ac67e5546726fb36ebe8b9c7873a943b.scn"]
 
 [params]
 

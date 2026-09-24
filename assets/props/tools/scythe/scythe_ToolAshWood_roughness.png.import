@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dkn4a7oyduop5"
-path="res://.godot/imported/scythe_ToolAshWood_roughness.png-135cfcba0718a5a2b8cb8766d79ca893.ctex"
+path="res://.godot/imported/scythe_ToolAshWood_roughness.png-a9014a29a1a7f7c3d116f4da16aa2e93.ctex"
 metadata={
 "vram_texture": false
 }
@@ -13,8 +13,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/tools/scythe_ToolAshWood_roughness.png"
-dest_files=["res://.godot/imported/scythe_ToolAshWood_roughness.png-135cfcba0718a5a2b8cb8766d79ca893.ctex"]
+source_file="res://assets/props/tools/scythe/scythe_ToolAshWood_roughness.png"
+dest_files=["res://.godot/imported/scythe_ToolAshWood_roughness.png-a9014a29a1a7f7c3d116f4da16aa2e93.ctex"]
 
 [params]
 

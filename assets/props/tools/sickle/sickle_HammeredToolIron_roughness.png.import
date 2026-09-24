@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://os5nw4ltqp7g"
-path.s3tc="res://.godot/imported/sickle_HammeredToolIron_roughness.png-2df7f64ce6aafb6b8797d77c0087ab11.s3tc.ctex"
-path.etc2="res://.godot/imported/sickle_HammeredToolIron_roughness.png-2df7f64ce6aafb6b8797d77c0087ab11.etc2.ctex"
+path.s3tc="res://.godot/imported/sickle_HammeredToolIron_roughness.png-ab19bd2a354476ee40c5e7c76cf9487a.s3tc.ctex"
+path.etc2="res://.godot/imported/sickle_HammeredToolIron_roughness.png-ab19bd2a354476ee40c5e7c76cf9487a.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -15,8 +15,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/tools/sickle_HammeredToolIron_roughness.png"
-dest_files=["res://.godot/imported/sickle_HammeredToolIron_roughness.png-2df7f64ce6aafb6b8797d77c0087ab11.s3tc.ctex", "res://.godot/imported/sickle_HammeredToolIron_roughness.png-2df7f64ce6aafb6b8797d77c0087ab11.etc2.ctex"]
+source_file="res://assets/props/tools/sickle/sickle_HammeredToolIron_roughness.png"
+dest_files=["res://.godot/imported/sickle_HammeredToolIron_roughness.png-ab19bd2a354476ee40c5e7c76cf9487a.s3tc.ctex", "res://.godot/imported/sickle_HammeredToolIron_roughness.png-ab19bd2a354476ee40c5e7c76cf9487a.etc2.ctex"]
 
 [params]
 

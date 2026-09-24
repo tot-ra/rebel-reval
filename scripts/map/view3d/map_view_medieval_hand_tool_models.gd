@@ -4,15 +4,17 @@ extends RefCounted
 ## Reusable authored hand tools for forge and farm dressing. Gameplay footprints
 ## stay map-owned; these GLBs provide only historically legible view geometry.
 
+const TOOL_GLB_ROOT := "res://assets/props/tools/"
+
 const SCENE_PATHS: Dictionary = {
-	MapTypes.PROP_KIND_BLACKSMITH_TONGS: "res://assets/props/tools/blacksmith_tongs.glb",
-	MapTypes.PROP_KIND_BLACKSMITH_HAMMER: "res://assets/props/tools/blacksmith_hammer.glb",
-	MapTypes.PROP_KIND_BLACKSMITH_PUNCH: "res://assets/props/tools/blacksmith_punch.glb",
-	MapTypes.PROP_KIND_PITCHFORK: "res://assets/props/tools/pitchfork.glb",
-	MapTypes.PROP_KIND_SCYTHE: "res://assets/props/tools/scythe.glb",
-	MapTypes.PROP_KIND_SICKLE: "res://assets/props/tools/sickle.glb",
-	MapTypes.PROP_KIND_RAKE: "res://assets/props/tools/rake.glb",
-	MapTypes.PROP_KIND_WOODEN_SHOVEL: "res://assets/props/tools/wooden_shovel.glb",
+	MapTypes.PROP_KIND_BLACKSMITH_TONGS: TOOL_GLB_ROOT + "blacksmith_tongs/blacksmith_tongs.glb",
+	MapTypes.PROP_KIND_BLACKSMITH_HAMMER: TOOL_GLB_ROOT + "blacksmith_hammer/blacksmith_hammer.glb",
+	MapTypes.PROP_KIND_BLACKSMITH_PUNCH: TOOL_GLB_ROOT + "blacksmith_punch/blacksmith_punch.glb",
+	MapTypes.PROP_KIND_PITCHFORK: TOOL_GLB_ROOT + "pitchfork/pitchfork.glb",
+	MapTypes.PROP_KIND_SCYTHE: TOOL_GLB_ROOT + "scythe/scythe.glb",
+	MapTypes.PROP_KIND_SICKLE: TOOL_GLB_ROOT + "sickle/sickle.glb",
+	MapTypes.PROP_KIND_RAKE: TOOL_GLB_ROOT + "rake/rake.glb",
+	MapTypes.PROP_KIND_WOODEN_SHOVEL: TOOL_GLB_ROOT + "wooden_shovel/wooden_shovel.glb",
 }
 const NODE_NAMES: Dictionary = {
 	MapTypes.PROP_KIND_BLACKSMITH_TONGS: "BlacksmithTongsModel",

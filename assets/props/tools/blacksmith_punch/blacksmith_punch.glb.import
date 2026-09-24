@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://4djmdhsu5nxy"
-path="res://.godot/imported/blacksmith_punch.glb-02e4bfc82057c7da64fde6820e94e1d6.scn"
+path="res://.godot/imported/blacksmith_punch.glb-59fdbd83725f393eb45bdc20aeb500ab.scn"
 
 [deps]
 
-source_file="res://assets/props/tools/blacksmith_punch.glb"
-dest_files=["res://.godot/imported/blacksmith_punch.glb-02e4bfc82057c7da64fde6820e94e1d6.scn"]
+source_file="res://assets/props/tools/blacksmith_punch/blacksmith_punch.glb"
+dest_files=["res://.godot/imported/blacksmith_punch.glb-59fdbd83725f393eb45bdc20aeb500ab.scn"]
 
 [params]
 

@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cvhfm4ojxtc2s"
-path="res://.godot/imported/blacksmith_tongs_PolishedToolEdge_roughness.png-668cf1af6e7ba394279335f6456de8dc.ctex"
+path="res://.godot/imported/blacksmith_tongs_PolishedToolEdge_roughness.png-dc6f4d00c2c814feff9532cc1c3d795a.ctex"
 metadata={
 "vram_texture": false
 }
@@ -13,8 +13,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/tools/blacksmith_tongs_PolishedToolEdge_roughness.png"
-dest_files=["res://.godot/imported/blacksmith_tongs_PolishedToolEdge_roughness.png-668cf1af6e7ba394279335f6456de8dc.ctex"]
+source_file="res://assets/props/tools/blacksmith_tongs/blacksmith_tongs_PolishedToolEdge_roughness.png"
+dest_files=["res://.godot/imported/blacksmith_tongs_PolishedToolEdge_roughness.png-dc6f4d00c2c814feff9532cc1c3d795a.ctex"]
 
 [params]
 

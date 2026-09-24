@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://f3kd6pu7i81m"
-path.s3tc="res://.godot/imported/rake_ToolAshWood_roughness.png-f86f3559608e4383d78acd6a459986ec.s3tc.ctex"
-path.etc2="res://.godot/imported/rake_ToolAshWood_roughness.png-f86f3559608e4383d78acd6a459986ec.etc2.ctex"
+path.s3tc="res://.godot/imported/rake_ToolAshWood_roughness.png-81ef0a6a86e371299a303b286b54ca0d.s3tc.ctex"
+path.etc2="res://.godot/imported/rake_ToolAshWood_roughness.png-81ef0a6a86e371299a303b286b54ca0d.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -15,8 +15,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/tools/rake_ToolAshWood_roughness.png"
-dest_files=["res://.godot/imported/rake_ToolAshWood_roughness.png-f86f3559608e4383d78acd6a459986ec.s3tc.ctex", "res://.godot/imported/rake_ToolAshWood_roughness.png-f86f3559608e4383d78acd6a459986ec.etc2.ctex"]
+source_file="res://assets/props/tools/rake/rake_ToolAshWood_roughness.png"
+dest_files=["res://.godot/imported/rake_ToolAshWood_roughness.png-81ef0a6a86e371299a303b286b54ca0d.s3tc.ctex", "res://.godot/imported/rake_ToolAshWood_roughness.png-81ef0a6a86e371299a303b286b54ca0d.etc2.ctex"]
 
 [params]
 

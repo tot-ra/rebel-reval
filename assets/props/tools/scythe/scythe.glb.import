@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://b4av5r0nht0pr"
-path="res://.godot/imported/scythe.glb-8510e15a6843f0ad0715987332fc275a.scn"
+path="res://.godot/imported/scythe.glb-9b32a17aeb600e961807b7639d1c5293.scn"
 
 [deps]
 
-source_file="res://assets/props/tools/scythe.glb"
-dest_files=["res://.godot/imported/scythe.glb-8510e15a6843f0ad0715987332fc275a.scn"]
+source_file="res://assets/props/tools/scythe/scythe.glb"
+dest_files=["res://.godot/imported/scythe.glb-9b32a17aeb600e961807b7639d1c5293.scn"]
 
 [params]
 

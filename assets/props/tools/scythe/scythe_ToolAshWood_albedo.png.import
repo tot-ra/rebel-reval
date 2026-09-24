@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bah4uks7f5v24"
-path="res://.godot/imported/scythe_ToolAshWood_albedo.png-07ce5cff8e7edc30e6e8f93219a13d66.ctex"
+path="res://.godot/imported/scythe_ToolAshWood_albedo.png-696ebaca40ce46e8cdf34732961699f3.ctex"
 metadata={
 "vram_texture": false
 }
@@ -13,8 +13,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/tools/scythe_ToolAshWood_albedo.png"
-dest_files=["res://.godot/imported/scythe_ToolAshWood_albedo.png-07ce5cff8e7edc30e6e8f93219a13d66.ctex"]
+source_file="res://assets/props/tools/scythe/scythe_ToolAshWood_albedo.png"
+dest_files=["res://.godot/imported/scythe_ToolAshWood_albedo.png-696ebaca40ce46e8cdf34732961699f3.ctex"]
 
 [params]
 

@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://baax4mjclp7mt"
-path="res://.godot/imported/pitchfork_ToolAshWood_albedo.png-b5de27845fd766e1384342754b438326.ctex"
+path="res://.godot/imported/pitchfork_ToolAshWood_albedo.png-288ef5392ed84de415aae620045378f3.ctex"
 metadata={
 "vram_texture": false
 }
@@ -13,8 +13,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/tools/pitchfork_ToolAshWood_albedo.png"
-dest_files=["res://.godot/imported/pitchfork_ToolAshWood_albedo.png-b5de27845fd766e1384342754b438326.ctex"]
+source_file="res://assets/props/tools/pitchfork/pitchfork_ToolAshWood_albedo.png"
+dest_files=["res://.godot/imported/pitchfork_ToolAshWood_albedo.png-288ef5392ed84de415aae620045378f3.ctex"]
 
 [params]
 

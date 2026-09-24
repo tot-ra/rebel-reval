@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://dxwr4fquthw7y"
-path="res://.godot/imported/sickle.glb-c4997acd012dfb311a798e1252e37bde.scn"
+path="res://.godot/imported/sickle.glb-5a9149b7531e5c1638a6e739f472be18.scn"
 
 [deps]
 
-source_file="res://assets/props/tools/sickle.glb"
-dest_files=["res://.godot/imported/sickle.glb-c4997acd012dfb311a798e1252e37bde.scn"]
+source_file="res://assets/props/tools/sickle/sickle.glb"
+dest_files=["res://.godot/imported/sickle.glb-5a9149b7531e5c1638a6e739f472be18.scn"]
 
 [params]
 

@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://xu4hps0u1dbk"
-path.s3tc="res://.godot/imported/sickle_ToolAshWood_roughness.png-f80358a8bf7b6e240796701680ebd92b.s3tc.ctex"
-path.etc2="res://.godot/imported/sickle_ToolAshWood_roughness.png-f80358a8bf7b6e240796701680ebd92b.etc2.ctex"
+path.s3tc="res://.godot/imported/sickle_ToolAshWood_roughness.png-cfda0e4742dcc7e772af266e1eeff926.s3tc.ctex"
+path.etc2="res://.godot/imported/sickle_ToolAshWood_roughness.png-cfda0e4742dcc7e772af266e1eeff926.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -15,8 +15,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/tools/sickle_ToolAshWood_roughness.png"
-dest_files=["res://.godot/imported/sickle_ToolAshWood_roughness.png-f80358a8bf7b6e240796701680ebd92b.s3tc.ctex", "res://.godot/imported/sickle_ToolAshWood_roughness.png-f80358a8bf7b6e240796701680ebd92b.etc2.ctex"]
+source_file="res://assets/props/tools/sickle/sickle_ToolAshWood_roughness.png"
+dest_files=["res://.godot/imported/sickle_ToolAshWood_roughness.png-cfda0e4742dcc7e772af266e1eeff926.s3tc.ctex", "res://.godot/imported/sickle_ToolAshWood_roughness.png-cfda0e4742dcc7e772af266e1eeff926.etc2.ctex"]
 
 [params]
 

@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://wv3e050n2n0k"
-path.s3tc="res://.godot/imported/sickle_ToolAshWood_albedo.png-a1b8cc76dd435a31fa65d6406b1ea7b5.s3tc.ctex"
-path.etc2="res://.godot/imported/sickle_ToolAshWood_albedo.png-a1b8cc76dd435a31fa65d6406b1ea7b5.etc2.ctex"
+path.s3tc="res://.godot/imported/sickle_ToolAshWood_albedo.png-39a5b7b0a69821044c95738e36bf8b90.s3tc.ctex"
+path.etc2="res://.godot/imported/sickle_ToolAshWood_albedo.png-39a5b7b0a69821044c95738e36bf8b90.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -15,8 +15,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/tools/sickle_ToolAshWood_albedo.png"
-dest_files=["res://.godot/imported/sickle_ToolAshWood_albedo.png-a1b8cc76dd435a31fa65d6406b1ea7b5.s3tc.ctex", "res://.godot/imported/sickle_ToolAshWood_albedo.png-a1b8cc76dd435a31fa65d6406b1ea7b5.etc2.ctex"]
+source_file="res://assets/props/tools/sickle/sickle_ToolAshWood_albedo.png"
+dest_files=["res://.godot/imported/sickle_ToolAshWood_albedo.png-39a5b7b0a69821044c95738e36bf8b90.s3tc.ctex", "res://.godot/imported/sickle_ToolAshWood_albedo.png-39a5b7b0a69821044c95738e36bf8b90.etc2.ctex"]
 
 [params]
 

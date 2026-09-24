@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ccnib40scjnfd"
-path.s3tc="res://.godot/imported/blacksmith_hammer_HammeredToolIron_roughness.png-59f0f590302301c9a056cab9c0a698af.s3tc.ctex"
-path.etc2="res://.godot/imported/blacksmith_hammer_HammeredToolIron_roughness.png-59f0f590302301c9a056cab9c0a698af.etc2.ctex"
+path.s3tc="res://.godot/imported/blacksmith_hammer_HammeredToolIron_roughness.png-fa6fb0f3217c8ae3512a6fb42b871063.s3tc.ctex"
+path.etc2="res://.godot/imported/blacksmith_hammer_HammeredToolIron_roughness.png-fa6fb0f3217c8ae3512a6fb42b871063.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -15,8 +15,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/tools/blacksmith_hammer_HammeredToolIron_roughness.png"
-dest_files=["res://.godot/imported/blacksmith_hammer_HammeredToolIron_roughness.png-59f0f590302301c9a056cab9c0a698af.s3tc.ctex", "res://.godot/imported/blacksmith_hammer_HammeredToolIron_roughness.png-59f0f590302301c9a056cab9c0a698af.etc2.ctex"]
+source_file="res://assets/props/tools/blacksmith_hammer/blacksmith_hammer_HammeredToolIron_roughness.png"
+dest_files=["res://.godot/imported/blacksmith_hammer_HammeredToolIron_roughness.png-fa6fb0f3217c8ae3512a6fb42b871063.s3tc.ctex", "res://.godot/imported/blacksmith_hammer_HammeredToolIron_roughness.png-fa6fb0f3217c8ae3512a6fb42b871063.etc2.ctex"]
 
 [params]
 

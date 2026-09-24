@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ddvslvs3erp35"
-path="res://.godot/imported/blacksmith_tongs_HammeredToolIron_roughness.png-e6bbaa85a26e805cd46be0308cc3f62a.ctex"
+path="res://.godot/imported/blacksmith_tongs_HammeredToolIron_roughness.png-c6069b40f4b0696bfdd8898282c897c4.ctex"
 metadata={
 "vram_texture": false
 }
@@ -13,8 +13,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/tools/blacksmith_tongs_HammeredToolIron_roughness.png"
-dest_files=["res://.godot/imported/blacksmith_tongs_HammeredToolIron_roughness.png-e6bbaa85a26e805cd46be0308cc3f62a.ctex"]
+source_file="res://assets/props/tools/blacksmith_tongs/blacksmith_tongs_HammeredToolIron_roughness.png"
+dest_files=["res://.godot/imported/blacksmith_tongs_HammeredToolIron_roughness.png-c6069b40f4b0696bfdd8898282c897c4.ctex"]
 
 [params]
 

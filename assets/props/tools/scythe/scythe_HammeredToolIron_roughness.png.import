@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cfx4s7s7lscqy"
-path="res://.godot/imported/scythe_HammeredToolIron_roughness.png-3a71d9cb0618a4073b29c436be0b0668.ctex"
+path="res://.godot/imported/scythe_HammeredToolIron_roughness.png-de8edc3256a1e534e92d652bd2f739eb.ctex"
 metadata={
 "vram_texture": false
 }
@@ -13,8 +13,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/tools/scythe_HammeredToolIron_roughness.png"
-dest_files=["res://.godot/imported/scythe_HammeredToolIron_roughness.png-3a71d9cb0618a4073b29c436be0b0668.ctex"]
+source_file="res://assets/props/tools/scythe/scythe_HammeredToolIron_roughness.png"
+dest_files=["res://.godot/imported/scythe_HammeredToolIron_roughness.png-de8edc3256a1e534e92d652bd2f739eb.ctex"]
 
 [params]
 
