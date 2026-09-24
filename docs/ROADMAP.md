@@ -4,6 +4,9 @@ Coordination notes, delivery order, and planning context formerly embedded in `T
 Executable open work stays in [`TODO.md`](../TODO.md).
 Aged coordination history lives in [`ROADMAP_COORDINATION_ARCHIVE_2026-08-13.md`](./ROADMAP_COORDINATION_ARCHIVE_2026-08-13.md).
 
+<!-- P0-185 terrain materials peel extracted in current session -->
+Coordination note (2026-09-24 P0-185): `map_view_terrain_materials.gd` now owns dry-terrain caches, blended-ground splat arrays, cobble layers, and mud-wetness updates. `map_view_materials.gd` keeps the public facade and dropped from 653 to 453 lines. Verified: `--filter=test_map_view_material_resolution`, `--filter=test_map_terrain_chunks`, `--filter=test_map_view_3d_core`, `--filter=test_natural_ground_variation`, `--filter=test_street_and_masonry_realism`, `--filter=test_vegetation_realism`, `--filter=test_grass_interaction` (51/51). Next P0-185 claim: additional `map_view_runtime.gd` peels or further facade-only trims.
+
 <!-- P0-185 wind materials peel extracted in current session -->
 Coordination note (2026-09-24 P0-185): `map_view_wind_materials.gd` now owns wind-driven grass, canopy, sail, pennant, banner, and fishing-net shader caches plus `apply_world_wind` / grass-interaction updates. `map_view_materials.gd` keeps the public facade and dropped from 836 to 653 lines. Verified: `--filter=test_grass_interaction`, `--filter=test_vegetation_realism`, `--filter=test_fishing_nets`, `--filter=test_faction_heraldry`, `--filter=test_boat_float_3d`, `--filter=test_map_view_material_resolution` (37/37). Next P0-185 claim: further terrain-ground peel from `map_view_materials.gd` or additional `map_view_runtime.gd` peels.
 
