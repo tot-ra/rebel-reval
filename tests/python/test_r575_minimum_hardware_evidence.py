@@ -1,4 +1,4 @@
-"""Deterministic R-862 audit for the R-575 minimum-hardware crowd evidence packet."""
+"""Deterministic R-862/R-863 audit for the R-575 minimum-hardware crowd evidence packet."""
 
 from __future__ import annotations
 
@@ -41,7 +41,7 @@ class R575MinimumHardwareEvidenceTests(unittest.TestCase):
         self.assertFalse(host["headless"])
         self.assertEqual(audit["result"], "BLOCKED_FOR_TARGET_ACCEPTANCE")
         self.assertEqual(manifest["acceptance"]["target_run"], "BLOCKED")
-        self.assertEqual(manifest["acceptance"]["next_owner"], "R-863")
+        self.assertEqual(manifest["acceptance"]["next_owner"], "R-864")
 
     def test_manifest_preserves_crowd_distribution_and_gpu_counters(self) -> None:
         manifest = _load_json(MANIFEST)
@@ -67,7 +67,20 @@ class R575MinimumHardwareEvidenceTests(unittest.TestCase):
 
         self.assertIn("r575_minimum_hardware_crowd_evidence_manifest.json", text)
         self.assertIn("R-862", text)
+        self.assertIn("R-863", text)
         self.assertIn("BLOCKED", text)
+
+    def test_manifest_records_r863_hardware_blocker_without_substitution(self) -> None:
+        manifest = _load_json(MANIFEST)
+        audit = manifest["r863_audit"]
+
+        self.assertEqual(audit["task"], "R-863")
+        self.assertEqual(audit["result"], "BLOCKED_TARGET_HARDWARE_UNAVAILABLE")
+        self.assertFalse(audit["target_hardware_available"])
+        self.assertFalse(audit["declared_target_run_executed"])
+        self.assertIn("BENCHMARK_HEADLESS=0", audit["required_command"])
+        self.assertIn("TARGET_HARDWARE=tools/benchmarks/minimum-hardware.json", audit["required_command"])
+        self.assertNotIn("--quick", audit["required_command"])
 
 
 if __name__ == "__main__":

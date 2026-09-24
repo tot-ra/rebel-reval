@@ -115,3 +115,52 @@ PASS - manifest parses
 ```
 
 Sources: [`tools/benchmarks/minimum-hardware.json`](../../tools/benchmarks/minimum-hardware.json), [`docs/PERFORMANCE_REPORT.md`](../PERFORMANCE_REPORT.md), [`tools/benchmarks/run_large_map_benchmark.sh`](../../tools/benchmarks/run_large_map_benchmark.sh).
+
+## R-863 declared-target capture attempt
+
+**Checked:** `2026-09-24T00:31:21Z`
+**Task:** `R-863 / P0-040-N02`
+**Parent:** `R-653 / P0-040`
+**Verdict:** **BLOCKED - declared Intel UHD 620 hardware unavailable; no substitute run executed**
+
+### Availability gate
+
+| Field | Value |
+|---|---|
+| Repository revision | `32d7faeeaeaaf0e3632b289414d5178d20e7c974` |
+| Live host | Apple MacBook Pro `Mac17,8`, Apple M5 Pro, `arm64`, 48 GiB RAM, macOS `26.3` |
+| Declared target | Intel Core i5-8250U / Intel UHD Graphics 620 / `x86_64` / 8 GiB / `1920x1080` |
+| Compatible target host present | **NO** |
+| Declared-target command executed | **NO** - stopped before launch per task contract |
+
+The required non-headless command remains:
+
+```bash
+export GODOT_BIN=/Applications/Godot.app/Contents/MacOS/Godot
+TARGET_HARDWARE=tools/benchmarks/minimum-hardware.json \
+  BENCHMARK_HEADLESS=0 \
+  tools/run_performance_report.sh \
+  build/benchmarks/performance-minimum-hardware.json
+```
+
+No Apple M-series, headless, emulated, or otherwise non-matching result was substituted. The retained `R-575` supplementary capture and the `R-653` renderer-comparison ledger remain supplementary instrumentation only.
+
+### Handoff
+
+| Owner | Responsibility |
+|---|---|
+| `R-864` | Publish and validate the GPU evidence ledger once a declared-target raw report exists |
+| `R-563` | Acquire or access the physical Intel UHD 620 host for the next capture attempt |
+
+### Verification commands
+
+```text
+python3 -m unittest tests.python.test_r575_minimum_hardware_evidence -v
+PASS - 6/6 tests
+
+python3 -m json.tool tools/benchmarks/minimum-hardware.json
+PASS - declared profile parses
+
+python3 -m json.tool docs/reports/data/r575_minimum_hardware_crowd_evidence_manifest.json
+PASS - manifest parses; r863_audit.next_owner=R-864
+```

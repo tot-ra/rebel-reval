@@ -61,9 +61,21 @@
     "quick_mode_limitation": "BLOCKED for target acceptance - --quick uses 20 frame samples, not the 120-sample minimum-hardware contract",
     "minimum_hardware_verdict": "BLOCKED - no valid declared-target run was executed"
   },
+  "r863_audit": {
+    "task": "R-863",
+    "checked_utc": "2026-09-24T00:31:21Z",
+    "checked_revision": "32d7faeeaeaaf0e3632b289414d5178d20e7c974",
+    "result": "BLOCKED_TARGET_HARDWARE_UNAVAILABLE",
+    "target_hardware_available": false,
+    "declared_target_run_executed": false,
+    "host_identity": "Apple M5 Pro / arm64 / macOS 26.3 / 48 GiB",
+    "blocker": "No x86_64 Intel Core i5-8250U / Intel UHD Graphics 620 / 8 GiB host or configured remote runner is available in this environment.",
+    "required_command": "TARGET_HARDWARE=tools/benchmarks/minimum-hardware.json BENCHMARK_HEADLESS=0 tools/run_performance_report.sh build/benchmarks/performance-minimum-hardware.json",
+    "substitution_policy": "Do not substitute Apple M-series, headless, emulated, or otherwise non-matching hosts."
+  },
   "acceptance": {
     "target_run": "BLOCKED",
     "supplementary_m5_run": "PASS as instrumentation only",
-    "next_owner": "R-863"
+    "next_owner": "R-864"
   }
 }
