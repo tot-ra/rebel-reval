@@ -209,3 +209,22 @@ func test_water_shader_uses_jacobian_crest_whitecaps_separate_from_shore_breaker
 		"crest_fold *= smoothstep(0.14, 0.48, shore_factor)" in source,
 		"crest whitecaps must stay off the pinned shoreline seam",
 	)
+
+
+func test_water_shader_boosts_transmission_on_crest_fold_not_troughs() -> void:
+	var source := ShaderSources.WATER_SHADER.code
+	for feature in [
+		"crest_subsurface",
+		"max(normal_terms.y, 0.0)",
+		"crest_sss_visibility = twilight_water_light * day_blend",
+		"crest_transmit_tint",
+	]:
+		assert_true(feature in source, "water shader must retain %s" % feature)
+	assert_true(
+		"crest_subsurface *= choppiness" in source,
+		"crest subsurface glow must scale with open-water chop",
+	)
+	assert_true(
+		"crest_subsurface *= choppiness * smoothstep(0.14, 0.48, shore_factor)" in source,
+		"crest subsurface must fade near the pinned shoreline seam",
+	)

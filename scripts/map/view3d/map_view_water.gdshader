@@ -411,6 +411,17 @@ void fragment() {
 	float caustics = _bed_caustics(water_world_position.xz, TIME * wave_speed);
 	water_color += highlight_color * caustics * caustic_visibility * caustic_strength;
 
+	// Thin crests transmit more Baltic teal than troughs; fades with the same solar
+	// envelope as floor caustics so night water stays dark without a bloom pass.
+	float crest_subsurface = smoothstep(0.0, 0.30, max(normal_terms.y, 0.0));
+	crest_subsurface *= choppiness * smoothstep(0.14, 0.48, shore_factor);
+	float crest_sss_visibility = twilight_water_light * day_blend;
+	vec3 crest_transmit_tint = mix(shallow_color, highlight_color, 0.58);
+	water_color += crest_transmit_tint
+		* crest_subsurface
+		* crest_sss_visibility
+		* (0.18 + (1.0 - absorption) * 0.22);
+
 	// Schlick Fresnel plus the PBR specular lobe produces stable sky reflection
 	// and narrow sun glints at the shallow isometric viewing angle.
 	float facing = clamp(dot(view_normal, normalize(VIEW)), 0.0, 1.0);

@@ -209,7 +209,10 @@ and wind waves move vertices, and capillary ripples stay in the detail normal.
 Harbor water bobs (high standing-wave ratio, low chop). The open Baltic peaks
 harder. Rivers stay a tighter current. Crest height must stay readable from the
 gameplay camera (deep water above about 0.1 world units before weather) without
-a compute FFT, clipmap ocean, or planar reflection pass. Evidence:
+a compute FFT, clipmap ocean, or planar reflection pass. Thin wave crests pick
+up a warm-teal subsurface pass (`#168FAA` / `#14617C` family) that troughs do
+not share; the glow tracks `day_blend` and the caustic twilight envelope, not a
+post bloom. Evidence:
 [`water_realism_2026-09-24.md`](reports/water_realism_2026-09-24.md).
 
 ## Medieval Reval shape language
