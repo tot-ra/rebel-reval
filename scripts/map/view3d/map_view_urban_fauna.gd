@@ -11,7 +11,6 @@ const GroundWander := preload("res://scripts/map/view3d/map_view_ground_wander.g
 const MapViewBridge := preload("res://scripts/map/view3d/map_view_bridge.gd")
 const MammalMeshes := preload("res://scripts/map/view3d/map_view_mammal_meshes.gd")
 const MedievalAnimalModels := preload("res://scripts/map/view3d/map_view_medieval_animal_models.gd")
-const CatCoats := preload("res://assets/characters/cat/cat_coat_variants.gd")
 const MammalSpecies := preload("res://scripts/map/view3d/map_view_mammal_species.gd")
 const MAX_CONCURRENT_FAUNA := 8
 const FLEE_RADIUS := 5.5
@@ -234,11 +233,7 @@ func _make_actor(index: int, placement: Dictionary) -> Node3D:
 		# Same mesh and rig as Kalev's cat, different coat and build, so a town
 		# with several cats does not read as one cat copied around.
 		var coat_seed := hash_seed(_map_id, index, 71)
-		var coat: Variant = (
-			model.apply_coat(coat_seed)
-			if model.has_method("apply_coat")
-			else CatCoats.apply(model, coat_seed)
-		)
+		var coat: Variant = model.apply_coat(coat_seed) if model.has_method("apply_coat") else &""
 		actor.set_meta(&"coat", coat)
 	if model == null:
 		var mesh := MammalMeshes.mesh_for(species, pose)

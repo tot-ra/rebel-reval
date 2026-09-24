@@ -1,12 +1,10 @@
 class_name CatRig
 extends SharedCharacterRig
 
-## Runtime adapter for the game-ready forge cat GLB.
+## SharedCharacterRig adapter for the storybook forge-cat GLB.
 ##
-## The imported model provides an organic manifold mesh, one PBR fur material,
-## a quadruped skeleton, and all canonical ambient clips. Keeping this adapter
-## small makes the Blender build the single source of truth for geometry and
-## animation while preserving the SharedCharacterRig API used by map actors.
+## `assets/storybook/storybook_cat.gd` extends this script for clip-name mapping
+## and town-coat tinting; forge and map actors instance the same mesh.
 
 const REQUIRED_ANIMATIONS: Array[StringName] = [
 	&"idle",
@@ -47,7 +45,7 @@ func _ready() -> void:
 	# equipment, and head-scale setup while retaining its orientation helpers.
 	var model := get_node_or_null("Model") as Node3D
 	if model == null:
-		push_error("Cat rig has no production model")
+		push_error("Cat rig has no model child")
 		return
 	_animation_player = _find_animation_player(model)
 	_skeleton = _find_skeleton(model)

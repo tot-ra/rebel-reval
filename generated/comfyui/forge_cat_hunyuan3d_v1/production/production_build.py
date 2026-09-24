@@ -22,12 +22,12 @@ ASSET = os.path.abspath("generated/comfyui/forge_cat_hunyuan3d_v1")
 SRC = os.path.join(ASSET, "forge_cat_hunyuan3d_v1.glb")
 OUT = os.path.join(ASSET, "production")
 TEX = os.path.join(OUT, "tex")
-# WHY: accepted runtime meshes/coats live under assets/ so generated/ can later
-# be export-isolated without breaking cat_rig.tscn or town-coat swaps.
-RUNTIME = os.path.abspath("assets/characters/cat")
+# WHY: runtime uses assets/storybook/forge_cat.glb; rebuild outputs stay in
+# generated/ so export isolation does not depend on this pipeline.
+RUNTIME = os.path.join(OUT, "runtime")
 RUNTIME_TEX = os.path.join(RUNTIME, "tex")
 COATS_DIR = os.path.join(RUNTIME_TEX, "coats")
-LOD = RUNTIME
+LOD = os.path.join(OUT, "lod")
 REP = os.path.join(OUT, "reports")
 PROD_GLB = os.path.join(RUNTIME, "forge_cat_production_v1.glb")
 # Nose-to-rump length in metres over the source mesh span. Sized as a large
@@ -1350,7 +1350,7 @@ def main():
                        "materials": [m.name for m in face.data.materials]},
         "textures": ["forge_cat_albedo.png", "forge_cat_normal.png",
                      "forge_cat_roughness.png", "forge_cat_ao.png"],
-        "runtime_glb": "assets/characters/cat/forge_cat_production_v1.glb",
+        "runtime_glb": "generated/comfyui/forge_cat_hunyuan3d_v1/production/runtime/forge_cat_production_v1.glb",
         "pipeline_lods": [
             "generated/comfyui/forge_cat_hunyuan3d_v1/production/lod/forge_cat_lod1.glb",
             "generated/comfyui/forge_cat_hunyuan3d_v1/production/lod/forge_cat_lod2.glb",

@@ -34,7 +34,7 @@ class GlbRuntimeAuditTests(unittest.TestCase):
             ROOT / "assets/storybook/dog.glb",
             ROOT / "assets/storybook/goose.glb",
             ROOT / "assets/storybook/hen.glb",
-            ROOT / "assets/characters/cat/forge_cat_production_v1.glb",
+            ROOT / "assets/storybook/forge_cat.glb",
             ROOT / "assets/characters/shared/kaykit_barbarian.glb",
             ROOT / "assets/characters/shared/watchman.glb",
             ROOT / "assets/characters/shared/watchman_lod1.glb",

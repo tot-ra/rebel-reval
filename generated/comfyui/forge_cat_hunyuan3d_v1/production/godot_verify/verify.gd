@@ -6,7 +6,10 @@ extends Node3D
 # writes a JSON report and quits. This verifies the integrated production asset.
 
 # Load the runtime production GLB directly (no duplicated copy in generated/).
-const GLB_PATH := "res://assets/characters/cat/forge_cat_production_v1.glb"
+const GLB_PATH := (
+	"res://generated/comfyui/forge_cat_hunyuan3d_v1/"
+	+ "production/runtime/forge_cat_production_v1.glb"
+)
 const PREVIEW_DIR := "res://generated/comfyui/forge_cat_hunyuan3d_v1/production"
 const SHOT_PATH := PREVIEW_DIR + "/previews/godot_preview.png"
 const REPORT := PREVIEW_DIR + "/godot_verify/godot_verify.json"

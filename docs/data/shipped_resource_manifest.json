@@ -28,7 +28,7 @@
     "res://scripts/map/view3d/third_party/d3_celestial_BSD_3_CLAUSE.txt",
     "res://content/transitions/active_destinations.json",
     "res://assets/characters/cat/cat_rig.tscn",
-    "res://assets/characters/cat/forge_cat_production_v1.glb",
+    "res://assets/storybook/forge_cat.glb",
     "res://characters/rebels/martin.png",
     "res://character/image.png",
     "res://music/menu/Menu.mp3",
@@ -89,7 +89,7 @@
   ],
   "notes": {
     "music": "Keep the full music/ library in Git. Optional build-time playlist selection is a later P0-180 discussion, not this export cut.",
-    "generated": "Forge-cat runtime lives under assets/characters/cat/. generated/ remains rebuild/evidence only and is .gdignored plus export-excluded.",
+    "generated": "Forge-cat runtime is assets/storybook/forge_cat.glb via cat_rig.tscn. Hunyuan rebuild outputs stay under generated/ only.",
     "characters": "characters/ and character/ hold runtime dialogue portraits; do not exclude them.",
     "diagnostic": "rr-diagnostic keeps tests/ and tools/ for packaged acceptance that must run inside a pack. Release presets exclude those trees."
   }
