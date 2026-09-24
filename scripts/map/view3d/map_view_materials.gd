@@ -74,42 +74,15 @@ const PATTERN_BARK := &"bark"
 const PATTERN_BIRCH_BARK := &"birch_bark"
 const PATTERN_CHERRY_BARK := &"cherry_bark"
 
-## Deterministic building-surface weathering bands for P0-053. Each stable
-## building ID maps to one variant so adjacent houses do not share treatment.
-const WEATHER_FRESH := &"fresh"
-const WEATHER_WORN := &"worn"
-const WEATHER_DAMP := &"damp"
-const WEATHER_REPAIRED := &"repaired"
-const BUILDING_WEATHER_VARIANTS: Array[StringName] = [
-	WEATHER_WORN,
-	WEATHER_FRESH,
-	WEATHER_DAMP,
-	WEATHER_REPAIRED,
-]
-
-## BoxMesh and CylinderMesh map UV 0-1 across each face. Without extra
-## repeats, one procedural tile spans an entire house wall and bricks read
-## billboard-sized. Values are tuned for typical 3-6 unit footprints at the
-## frozen 32 px/cell scale (character height 2.0 units).
-## Stretcher courses need more vertical UV repeats than horizontal ones so each
-## block reads wider than tall (running bond, not soldier/stack bond).
-const BUILDING_UV_SCALE := {
-	PATTERN_BRICK: Vector3(0.8, 1.4, 0.8),
-	PATTERN_LIMESTONE: Vector3(1.0, 1.1, 1.0),
-	PATTERN_PLANK: Vector3(5.0, 3.0, 5.0),
-	PATTERN_PLASTER: Vector3(3.5, 2.5, 3.5),
-	PATTERN_ROOF_TILE: Vector3(4.0, 2.5, 4.0),
-	PATTERN_SHINGLE: Vector3(5.0, 3.0, 5.0),
-	PATTERN_LOG: Vector3(4.0, 3.0, 4.0),
-	PATTERN_STRAW: Vector3(3.0, 2.0, 3.0),
-	## Dense along-slope repeats so reed courses stay readable on fishing-hut
-	## roofs at the dimetric gameplay distance.
-	PATTERN_THATCH: Vector3(4.5, 5.5, 4.5),
-}
-## Reference box size the fixed BUILDING_UV_SCALE repeats were tuned against.
-## building_uv_scale() scales repeats proportionally so long fortification
-## walls keep brick and stone courses the same world size as house facades.
-const BUILDING_UV_REFERENCE_SIZE := Vector3(4.0, 3.5, 4.0)
+## Building weathering bands and UV repeat tables live in BUILDING_MATERIALS.
+## Re-exported here so tests and pattern code keep the stable MapViewMaterials API.
+const WEATHER_FRESH := BUILDING_MATERIALS.WEATHER_FRESH
+const WEATHER_WORN := BUILDING_MATERIALS.WEATHER_WORN
+const WEATHER_DAMP := BUILDING_MATERIALS.WEATHER_DAMP
+const WEATHER_REPAIRED := BUILDING_MATERIALS.WEATHER_REPAIRED
+const BUILDING_WEATHER_VARIANTS: Array[StringName] = BUILDING_MATERIALS.BUILDING_WEATHER_VARIANTS
+const BUILDING_UV_SCALE := BUILDING_MATERIALS.BUILDING_UV_SCALE
+const BUILDING_UV_REFERENCE_SIZE := BUILDING_MATERIALS.BUILDING_UV_REFERENCE_SIZE
 
 ## Shader sources live in MapViewMaterialShaders; procedural textures in MapViewMaterialPatterns.
 

@@ -14,6 +14,7 @@ const PATTERN_PLASTER := &"plaster"
 const PATTERN_THATCH := &"thatch"
 const PATTERN_SHINGLE := &"shingle"
 const PATTERN_LOG := &"log"
+const PATTERN_STRAW := &"straw"
 
 const WEATHER_FRESH := &"fresh"
 const WEATHER_WORN := &"worn"
@@ -44,6 +45,7 @@ const BUILDING_UV_SCALE := {
 	PATTERN_ROOF_TILE: Vector3(4.0, 2.5, 4.0),
 	PATTERN_SHINGLE: Vector3(5.0, 3.0, 5.0),
 	PATTERN_LOG: Vector3(4.0, 3.0, 4.0),
+	PATTERN_STRAW: Vector3(3.0, 2.0, 3.0),
 	PATTERN_THATCH: Vector3(4.5, 5.5, 4.5),
 }
 const BUILDING_UV_REFERENCE_SIZE := Vector3(4.0, 3.5, 4.0)
