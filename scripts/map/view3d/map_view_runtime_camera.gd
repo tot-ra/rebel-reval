@@ -11,6 +11,9 @@ enum CameraMode {
 
 const CameraSafety := preload("res://scripts/map/view3d/map_view_runtime_camera_safety.gd")
 const CameraTarget := preload("res://scripts/map/view3d/map_view_runtime_camera_target.gd")
+const CameraPerspective := preload(
+	"res://scripts/map/view3d/map_view_runtime_camera_perspective.gd"
+)
 ## Re-exported so camera safety tests keep a stable MapViewRuntimeCamera API.
 const GROUND_CLEARANCE := CameraSafety.GROUND_CLEARANCE
 const INTERIOR_FLOOR_EDGE_MARGIN := CameraTarget.INTERIOR_FLOOR_EDGE_MARGIN
@@ -51,18 +54,13 @@ const FIRST_PERSON_MAX_PITCH_DEGREES := 80.0
 const FIRST_PERSON_FOV_DEGREES := 75.0
 const FIRST_PERSON_NEAR := 0.05
 const TOP_DOWN_NEAR := 0.05
-## Frozen practical-camera attributes (P0-143). Orthographic top-down clears them so
-## the overview stays fully sharp and does not fight the fixed ortho size.
-const PERSPECTIVE_AUTO_EXPOSURE_ENABLED := true
-const PERSPECTIVE_AUTO_EXPOSURE_SCALE := 0.35
-const PERSPECTIVE_AUTO_EXPOSURE_SPEED := 0.5
-const PERSPECTIVE_EXPOSURE_SENSITIVITY := 100.0
-const THIRD_PERSON_DOF_BLUR_AMOUNT := 0.032
-const THIRD_PERSON_DOF_FAR_DISTANCE := 10.0
-const THIRD_PERSON_DOF_FAR_TRANSITION := 6.0
-const FIRST_PERSON_DOF_BLUR_AMOUNT := 0.028
-const FIRST_PERSON_DOF_FAR_DISTANCE := 14.0
-const FIRST_PERSON_DOF_FAR_TRANSITION := 8.0
+## Re-exported so camera attribute tests keep a stable MapViewRuntimeCamera API.
+const PERSPECTIVE_AUTO_EXPOSURE_SCALE := CameraPerspective.PERSPECTIVE_AUTO_EXPOSURE_SCALE
+const PERSPECTIVE_EXPOSURE_SENSITIVITY := CameraPerspective.PERSPECTIVE_EXPOSURE_SENSITIVITY
+const THIRD_PERSON_DOF_BLUR_AMOUNT := CameraPerspective.THIRD_PERSON_DOF_BLUR_AMOUNT
+const THIRD_PERSON_DOF_FAR_DISTANCE := CameraPerspective.THIRD_PERSON_DOF_FAR_DISTANCE
+const FIRST_PERSON_DOF_BLUR_AMOUNT := CameraPerspective.FIRST_PERSON_DOF_BLUR_AMOUNT
+const FIRST_PERSON_DOF_FAR_DISTANCE := CameraPerspective.FIRST_PERSON_DOF_FAR_DISTANCE
 const OCCLUSION_PROBE_HEIGHTS: Array[float] = [0.5, 1.1, 1.8]
 const SHAKE_DECAY_RATE := 3.5
 const SHAKE_MAX_OFFSET := 0.14
@@ -83,9 +81,9 @@ var _mouse_rotation_armed := false
 var _last_mouse_position := Vector2.ZERO
 var _top_down_size := CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE
 var _third_person_distance := THIRD_PERSON_DISTANCE
-var _perspective_attributes: CameraAttributesPractical
 var _safety := CameraSafety.new()
 var _target := CameraTarget.new()
+var _perspective := CameraPerspective.new()
 
 
 func configure(
@@ -100,7 +98,6 @@ func configure(
 	player = runtime_player
 	_top_down_size = camera.size
 	_third_person_distance = THIRD_PERSON_DISTANCE
-	_perspective_attributes = CameraAttributesPractical.new()
 	# Enclosed building scenes start overhead so perspective camera booms cannot
 	# collide with perimeter walls. Players may still cycle to either perspective mode.
 	camera_mode = (
@@ -110,6 +107,7 @@ func configure(
 	)
 	_safety.configure(self)
 	_target.configure(self)
+	_perspective.configure(self)
 	_apply_camera_mode()
 
 
@@ -118,7 +116,7 @@ func player_inside_occluder() -> bool:
 
 
 func perspective_camera_attributes() -> CameraAttributesPractical:
-	return _perspective_attributes
+	return _perspective.perspective_camera_attributes()
 
 
 func third_person_follow_distance() -> float:
@@ -353,55 +351,6 @@ func set_camera_mode(next_mode: CameraMode) -> void:
 	_apply_camera_mode()
 
 
-func _apply_perspective_camera_attributes() -> void:
-	if _perspective_attributes == null:
-		return
-	if _supports_auto_exposure():
-		_perspective_attributes.auto_exposure_enabled = PERSPECTIVE_AUTO_EXPOSURE_ENABLED
-		_perspective_attributes.auto_exposure_scale = PERSPECTIVE_AUTO_EXPOSURE_SCALE
-		_perspective_attributes.auto_exposure_speed = PERSPECTIVE_AUTO_EXPOSURE_SPEED
-		_perspective_attributes.exposure_sensitivity = PERSPECTIVE_EXPOSURE_SENSITIVITY
-	if not _supports_depth_of_field():
-		# Compatibility does not implement DOF and logs a warning when blur is enabled.
-		# Keep practical exposure attributes active while leaving unsupported blur off.
-		_perspective_attributes.dof_blur_near_enabled = false
-		_perspective_attributes.dof_blur_far_enabled = false
-		camera.attributes = _perspective_attributes
-		return
-	_perspective_attributes.dof_blur_near_enabled = false
-	_perspective_attributes.dof_blur_far_enabled = true
-	match camera_mode:
-		CameraMode.THIRD_PERSON:
-			_perspective_attributes.dof_blur_amount = THIRD_PERSON_DOF_BLUR_AMOUNT
-			_perspective_attributes.dof_blur_far_distance = THIRD_PERSON_DOF_FAR_DISTANCE
-			_perspective_attributes.dof_blur_far_transition = THIRD_PERSON_DOF_FAR_TRANSITION
-		CameraMode.FIRST_PERSON:
-			_perspective_attributes.dof_blur_amount = FIRST_PERSON_DOF_BLUR_AMOUNT
-			_perspective_attributes.dof_blur_far_distance = FIRST_PERSON_DOF_FAR_DISTANCE
-			_perspective_attributes.dof_blur_far_transition = FIRST_PERSON_DOF_FAR_TRANSITION
-		_:
-			return
-	camera.attributes = _perspective_attributes
-
-
-func _supports_auto_exposure() -> bool:
-	return (
-		str(ProjectSettings.get_setting("rendering/renderer/rendering_method", ""))
-		== "forward_plus"
-	)
-
-
-func _supports_depth_of_field() -> bool:
-	var rendering_method := str(
-		ProjectSettings.get_setting("rendering/renderer/rendering_method", "")
-	)
-	return rendering_method in ["forward_plus", "mobile"]
-
-
-func _clear_camera_attributes() -> void:
-	camera.attributes = null
-
-
 func _apply_camera_mode() -> void:
 	match camera_mode:
 		CameraMode.THIRD_PERSON:
@@ -409,19 +358,19 @@ func _apply_camera_mode() -> void:
 			camera.fov = THIRD_PERSON_FOV_DEGREES
 			camera.near = THIRD_PERSON_NEAR
 			camera.rotation_degrees.x = THIRD_PERSON_PITCH_DEGREES
-			_apply_perspective_camera_attributes()
+			_perspective.apply_for_perspective_mode(camera_mode)
 		CameraMode.FIRST_PERSON:
 			camera.projection = Camera3D.PROJECTION_PERSPECTIVE
 			camera.fov = FIRST_PERSON_FOV_DEGREES
 			camera.near = FIRST_PERSON_NEAR
 			camera.rotation_degrees.x = FIRST_PERSON_PITCH_DEGREES
-			_apply_perspective_camera_attributes()
+			_perspective.apply_for_perspective_mode(camera_mode)
 		CameraMode.TOP_DOWN:
 			camera.projection = Camera3D.PROJECTION_ORTHOGONAL
 			camera.size = _top_down_size
 			camera.near = TOP_DOWN_NEAR
 			camera.rotation_degrees.x = MapView3D.CAMERA_PITCH_DEGREES
-			_clear_camera_attributes()
+			_perspective.clear_for_top_down()
 	player_rig.visible = not first_person
 	# Close perspective cameras need the ceiling shell and nearby micro detail;
 	# only the distant top-down view uses the readability cutaway.
