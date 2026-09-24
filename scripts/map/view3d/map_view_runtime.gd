@@ -18,8 +18,8 @@ const PLAYER_LIGHT_LAYER := 20
 const PLAYER_FILL_LIGHT_COLOR := Color8(255, 226, 196)
 const PLAYER_FILL_LIGHT_ENERGY := 0.65
 const PLAYER_FILL_LIGHT_RANGE := 3.5
-const CLICK_INPUT_SCRIPT_PATH := "res://scripts/map/map_click_input_controller.gd"
 const RuntimeCamera := preload("res://scripts/map/view3d/map_view_runtime_camera.gd")
+const RuntimeInput := preload("res://scripts/map/view3d/map_view_runtime_input.gd")
 const RuntimeActors := preload("res://scripts/map/view3d/map_view_runtime_actors.gd")
 const RuntimeAmbient := preload("res://scripts/map/view3d/map_view_runtime_ambient.gd")
 const RuntimeTimeFlow := preload("res://scripts/map/view3d/map_view_runtime_time_flow.gd")
@@ -105,11 +105,11 @@ var _ambient_controller = RuntimeAmbient.new()
 var _time_flow = RuntimeTimeFlow.new()
 var _environment = RuntimeEnvironment.new()
 var _session = RuntimeSession.new()
+var _input = RuntimeInput.new()
 ## Compatibility alias for integration tests that inspect the current binding.
 var _equipment_state: GameState:
 	get:
 		return _session.equipment_state
-var _click_input: Node
 
 
 
@@ -126,6 +126,7 @@ static func install(
 	runtime.name = "MapViewRuntime"
 	runtime._definition = bootstrap["definition"]
 	runtime._player = player
+	runtime._input.configure(runtime, player)
 	runtime.view = MapView3D.create(bootstrap["definition"], bootstrap["grid"])
 	runtime.add_child(runtime.view)
 
@@ -189,7 +190,7 @@ static func install(
 		runtime.view
 	)
 	runtime._ambient_controller.install()
-	runtime._install_click_input(scene_root)
+	runtime._input.install_click_input()
 	return runtime
 
 
@@ -208,10 +209,7 @@ func _install_player_fill_light() -> void:
 
 
 func configure_click_input(world_items: Node = null) -> void:
-	if _click_input == null:
-		return
-	if world_items != null:
-		_click_input.call("set_world_items", world_items)
+	_input.configure_click_input(world_items)
 
 
 func set_bird_audio_enabled(enabled: bool) -> void:
@@ -269,18 +267,6 @@ func set_crowd_enabled(enabled: bool) -> void:
 func crowd_active_count() -> int:
 	return _ambient_controller.crowd_active_count()
 
-
-func _install_click_input(_scene_root: Node2D) -> void:
-	# Keep gameplay click routing out of the editor-time map dependency graph.
-	# MapViewRuntime is loaded by import tooling before gameplay autoloads exist.
-	var click_input_script := load(CLICK_INPUT_SCRIPT_PATH) as Script
-	if click_input_script == null:
-		push_error("MapViewRuntime could not load the click input controller")
-		return
-	_click_input = click_input_script.new() as Node
-	_click_input.name = "MapClickInput"
-	add_child(_click_input)
-	_click_input.call("setup", _player, self)
 
 
 ## Projects a screen point through the gameplay camera onto the logic plane,
@@ -390,49 +376,7 @@ func register_view_actor(actor: Node2D) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed(&"toggle_camera_view") and not event.is_echo():
-		toggle_camera_view()
-		get_viewport().set_input_as_handled()
-		return
-	if event is InputEventKey and event.is_pressed() and not event.is_echo():
-		if _handle_time_control_key((event as InputEventKey).keycode):
-			get_viewport().set_input_as_handled()
-			return
-	if event is InputEventKey:
-		return
-	if event is InputEventMagnifyGesture:
-		zoom_from_magnify_factor((event as InputEventMagnifyGesture).factor)
-		get_viewport().set_input_as_handled()
-		return
-	if event is InputEventPanGesture:
-		zoom_from_pan_delta((event as InputEventPanGesture).delta)
-		get_viewport().set_input_as_handled()
-		return
-	if event is InputEventMouseButton:
-		var mouse_button := event as InputEventMouseButton
-		var wheel_steps := 0.0
-		var wheel_factor := mouse_button.factor if mouse_button.factor > 0.0 else 1.0
-		if mouse_button.button_index == MOUSE_BUTTON_WHEEL_UP:
-			wheel_steps = wheel_factor
-		elif mouse_button.button_index == MOUSE_BUTTON_WHEEL_DOWN:
-			wheel_steps = -wheel_factor
-		else:
-			return
-		zoom_view_steps(wheel_steps)
-		get_viewport().set_input_as_handled()
-
-
-## Dev/playtest time controls, handled as raw keys so they need no input-map
-## entries: backslash restores real-time. Comma/period/P were removed in favor of
-## the DebugOverlay visual controls (accessible via QuickAccessMenu).
-## Returns true when the key was a control.
-func _handle_time_control_key(keycode: Key) -> bool:
-	match keycode:
-		KEY_BACKSLASH:
-			reset_time_flow()
-		_:
-			return false
-	return true
+	_input.handle_unhandled_input(event)
 
 
 func toggle_camera_view() -> void:
