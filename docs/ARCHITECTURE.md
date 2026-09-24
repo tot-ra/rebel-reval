@@ -243,9 +243,8 @@ Soft readability target for new or extracted runtime helpers: **under 600 lines*
 
 | File | Lines | Decision and regression gate |
 | --- | ---: | --- |
-| `scripts/map/view3d/map_view_tree_meshes.gd` | 1143 | **Extract (P0-185).** Split species profile tables from procedural wood/canopy/fruit mesh emitters behind the existing `wood_mesh` / `canopy_mesh` / `fruit_mesh` facade. Protect with `test_map_view_3d_mesh`, `test_map_view_tree_species`, foliage filters, and outdoor captures. |
-| `scripts/map/view3d/sky_weather_3d.gd` | 1049 | **Keep.** This is the cohesive sky/weather presentation owner after the `SkyWeatherResources` extraction; do not split by LOC until a separate weather concern changes independently. Protect with `test_sky_weather_3d`, `test_sky_weather_state`, `test_r713_sky_weather_continuity`, lighting, and boat-float filters. |
 | `scripts/map/view3d/map_view_mesh_builder_prop_models.gd` | 1018 | **Extract (P0-185).** Keep the `build_prop` facade; peel smithy-kit builders and outdoor/boat/fauna branches into typed helpers. Protect with `test_map_view_3d_mesh`, `test_forge_prop_meshes`, `test_boat_float_3d`, and authored prop/fauna filters. |
+| `scripts/map/view3d/sky_weather_3d.gd` | 1049 | **Keep.** This is the cohesive sky/weather presentation owner after the `SkyWeatherResources` extraction; do not split by LOC until a separate weather concern changes independently. Protect with `test_sky_weather_3d`, `test_sky_weather_state`, `test_r713_sky_weather_continuity`, lighting, and boat-float filters. |
 | `scripts/state/game_state.gd` | 906 | **Keep.** Preserve the canonical campaign-state owner and public persistence API; extract only an independently changing state concern behind a typed boundary and focused tests, never a second state store. Protect with `test_game_state`, session-state replacement, save-envelope, and vertical-slice save-matrix suites. |
 | `scripts/map/view3d/map_view_runtime.gd` | 883 | **Extract (P0-185).** Actors and camera are already separate; next peel ambient installers (birds/fauna/insects/crowd/music) and/or time-flow controls behind the same `MapViewRuntime` facade. Protect with `test_map_view_3d_runtime`, runtime-camera, click, crowd, fauna, and session-state replacement filters. |
 | `scripts/map/view3d/map_view_3d.gd` | 878 | **Keep.** Retain this as the integration owner; extract lighting or streaming only when that axis changes independently behind a stable facade. Protect with `test_map_view_3d_core`, `test_map_view_3d_lighting`, camera, object-streaming, and capture filters. |
@@ -255,7 +254,8 @@ Soft readability target for new or extracted runtime helpers: **under 600 lines*
 
 | File (lines) | Decision and regression gate |
 | --- | --- |
-| `scripts/map/view3d/map_view_material_shaders.gd` (791) | **Extract or relocate (P0-185, partial).** Keep the shader cache facade and move remaining large inline shader sources only when each resource has a focused owner. Gate: `test_map_view_decals`, `test_map_view_material_resolution`, `test_map_view_3d_lighting`, water/terrain mesh filters. |
+| `scripts/map/view3d/map_view_tree_meshes.gd` (659) | **Partial extract closed (P0-185).** Species growth profiles live in `map_view_tree_mesh_profiles.gd`; this file keeps procedural wood/canopy/fruit emitters behind `wood_mesh` / `canopy_mesh` / `fruit_mesh`. Gate: `test_map_view_tree_species`, `test_vegetation_realism`, `test_map_view_3d_mesh`. |
+| `scripts/map/view3d/map_view_tree_mesh_profiles.gd` (457) | **Keep** data shard beside the tree mesh facade. Gate: same tree/vegetation filters. |
 | `scripts/map/view3d/map_view_mesh_builder_scatter.gd` (741) | **Keep** species-batched scatter catalog until a second caller needs pure tables. Gate: mesh/core outdoor tests. |
 | `scripts/map/view3d/map_view_material_patterns.gd` (730) | **Keep** deterministic surface-pattern generator beside the materials facade. Gate: `test_map_view_material_resolution`, building-surface-weathering, and terrain-material filters. |
 | `scripts/map/view3d/map_view_bird_meshes.gd` (712) | **Keep** mesh catalog beside bird species data. Gate: `test_map_view_bird_meshes`, bird species, and bird-flight filters. |
@@ -292,7 +292,7 @@ Non-`scripts/` files over 400 lines (scenes/tests/debug) are outside this runtim
 
 ### Scheduled follow-up
 
-**P0-185** performs justified extractions only for the four current extraction targets in the 800+ table (`map_view_tree_meshes`, `map_view_mesh_builder_prop_models`, `map_view_runtime`, and any independently justified concern in `map_view_materials`/`game_state` after review). `sky_weather_3d` and `map_view_3d` remain cohesive integration owners; the bird and mammal species catalog shards are closed. Do not open broad LOC-driven rewrites of the 400-799 bands. Documentation/agent readability slim-downs for `docs/MAP_AUTHORING.md`, `docs/ROADMAP.md`, and offline `tools/` generators are tracked beside storage work in [`docs/STORAGE_SIZE_BACKLOG.md`](./STORAGE_SIZE_BACKLOG.md) and the 2026-08-13 readability report; they are not runtime architecture extractions.
+**P0-185** performs justified extractions only for the remaining extraction targets in the 800+ table (`map_view_mesh_builder_prop_models`, `map_view_runtime`, and any independently justified concern in `map_view_materials`/`game_state` after review). `map_view_tree_meshes` profile tables are closed in `map_view_tree_mesh_profiles.gd`; `sky_weather_3d` and `map_view_3d` remain cohesive integration owners; the bird, mammal, and material-shader catalog shards are closed. Do not open broad LOC-driven rewrites of the 400-799 bands. Documentation/agent readability slim-downs for `docs/MAP_AUTHORING.md`, `docs/ROADMAP.md`, and offline `tools/` generators are tracked beside storage work in [`docs/STORAGE_SIZE_BACKLOG.md`](./STORAGE_SIZE_BACKLOG.md) and the 2026-08-13 readability report; they are not runtime architecture extractions.
 
 ## Verification baseline
 
