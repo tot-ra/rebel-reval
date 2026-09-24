@@ -5,17 +5,20 @@ extends RefCounted
 ## MapViewMaterials exposes this module through its stable public API. This
 ## keeps prop visual treatment separate from terrain, water, and building rules.
 
-const PATTERN_GRASS := &"grass"
-const PATTERN_SPECKLE := &"speckle"
-const PATTERN_COBBLE := &"cobble"
-const PATTERN_LIMESTONE := &"limestone"
-const PATTERN_PLANK := &"plank"
-const PATTERN_PLASTER := &"plaster"
-const PATTERN_STRAW := &"straw"
-const PATTERN_ROCK := &"rock"
-const PATTERN_BARK := &"bark"
-const PATTERN_BIRCH_BARK := &"birch_bark"
-const PATTERN_CHERRY_BARK := &"cherry_bark"
+const PATTERN_FAMILIES := preload(
+	"res://scripts/map/view3d/map_view_material_pattern_families.gd"
+)
+const PATTERN_GRASS := PATTERN_FAMILIES.PATTERN_GRASS
+const PATTERN_SPECKLE := PATTERN_FAMILIES.PATTERN_SPECKLE
+const PATTERN_COBBLE := PATTERN_FAMILIES.PATTERN_COBBLE
+const PATTERN_LIMESTONE := PATTERN_FAMILIES.PATTERN_LIMESTONE
+const PATTERN_PLANK := PATTERN_FAMILIES.PATTERN_PLANK
+const PATTERN_PLASTER := PATTERN_FAMILIES.PATTERN_PLASTER
+const PATTERN_STRAW := PATTERN_FAMILIES.PATTERN_STRAW
+const PATTERN_ROCK := PATTERN_FAMILIES.PATTERN_ROCK
+const PATTERN_BARK := PATTERN_FAMILIES.PATTERN_BARK
+const PATTERN_BIRCH_BARK := PATTERN_FAMILIES.PATTERN_BIRCH_BARK
+const PATTERN_CHERRY_BARK := PATTERN_FAMILIES.PATTERN_CHERRY_BARK
 const HAY_FIBER_TEXTURE := preload("res://assets/materials/production/hay_fibers.png")
 
 const EMBER_COLOR := Color8(224, 108, 48)

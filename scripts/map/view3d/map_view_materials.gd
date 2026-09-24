@@ -29,6 +29,9 @@ const TERRAIN_MATERIALS := preload("res://scripts/map/view3d/map_view_terrain_ma
 const SKY_WEATHER := preload("res://scripts/map/view3d/sky_weather_3d.gd")
 const BUILDING_MATERIALS := preload("res://scripts/map/view3d/map_view_building_materials.gd")
 const PROP_MATERIALS := preload("res://scripts/map/view3d/map_view_prop_materials.gd")
+const PATTERN_FAMILIES := preload(
+	"res://scripts/map/view3d/map_view_material_pattern_families.gd"
+)
 ## Re-exported so water contract tests and builders keep a stable facade API.
 const WATER_WAVE_BASE := WATER_MATERIALS.WATER_WAVE_BASE
 
@@ -48,31 +51,25 @@ const TERRAIN_PATTERN := TERRAIN_MATERIALS.TERRAIN_PATTERN
 const TERRAIN_UV_SCALE := TERRAIN_MATERIALS.TERRAIN_UV_SCALE
 const BLEND_TERRAIN_ORDER: Array[StringName] = TERRAIN_MATERIALS.BLEND_TERRAIN_ORDER
 
-## Pattern families for terrain and building surfaces.
-const PATTERN_GRASS := &"grass"
-const PATTERN_SPECKLE := &"speckle"
-const PATTERN_MUD := &"mud"
-## Packed-earth streets and yards. Separate from PATTERN_SPECKLE so sand and ash
-## keep their fine even grain while trodden earth gains gravel, ruts and cracks.
-const PATTERN_EARTH := &"earth"
-const PATTERN_COBBLE := &"cobble"
-const PATTERN_BRICK := &"brick"
-const PATTERN_PLANK := &"plank"
-const PATTERN_LIMESTONE := &"limestone"
-## Weathered boulders and shoreline scatter: organic mottling without ashlar
-## courses so sphere meshes do not read as brick bands at lake/sea edges.
-const PATTERN_ROCK := &"rock"
-const PATTERN_ROOF_TILE := &"roof_tile"
-const PATTERN_PLASTER := &"plaster"
-const PATTERN_STRAW := &"straw"
-## Layered reed/straw thatch courses for roofs. Distinct from PATTERN_STRAW so
-## hay/terrain scatter keeps its soft field look while roofs read as bundled reed.
-const PATTERN_THATCH := &"thatch"
-const PATTERN_SHINGLE := &"shingle"
-const PATTERN_LOG := &"log"
-const PATTERN_BARK := &"bark"
-const PATTERN_BIRCH_BARK := &"birch_bark"
-const PATTERN_CHERRY_BARK := &"cherry_bark"
+## Pattern family IDs live in PATTERN_FAMILIES; re-exported for the stable facade.
+const PATTERN_GRASS := PATTERN_FAMILIES.PATTERN_GRASS
+const PATTERN_SPECKLE := PATTERN_FAMILIES.PATTERN_SPECKLE
+const PATTERN_MUD := PATTERN_FAMILIES.PATTERN_MUD
+const PATTERN_EARTH := PATTERN_FAMILIES.PATTERN_EARTH
+const PATTERN_COBBLE := PATTERN_FAMILIES.PATTERN_COBBLE
+const PATTERN_BRICK := PATTERN_FAMILIES.PATTERN_BRICK
+const PATTERN_PLANK := PATTERN_FAMILIES.PATTERN_PLANK
+const PATTERN_LIMESTONE := PATTERN_FAMILIES.PATTERN_LIMESTONE
+const PATTERN_ROCK := PATTERN_FAMILIES.PATTERN_ROCK
+const PATTERN_ROOF_TILE := PATTERN_FAMILIES.PATTERN_ROOF_TILE
+const PATTERN_PLASTER := PATTERN_FAMILIES.PATTERN_PLASTER
+const PATTERN_STRAW := PATTERN_FAMILIES.PATTERN_STRAW
+const PATTERN_THATCH := PATTERN_FAMILIES.PATTERN_THATCH
+const PATTERN_SHINGLE := PATTERN_FAMILIES.PATTERN_SHINGLE
+const PATTERN_LOG := PATTERN_FAMILIES.PATTERN_LOG
+const PATTERN_BARK := PATTERN_FAMILIES.PATTERN_BARK
+const PATTERN_BIRCH_BARK := PATTERN_FAMILIES.PATTERN_BIRCH_BARK
+const PATTERN_CHERRY_BARK := PATTERN_FAMILIES.PATTERN_CHERRY_BARK
 
 ## Building weathering bands and UV repeat tables live in BUILDING_MATERIALS.
 ## Re-exported here so tests and pattern code keep the stable MapViewMaterials API.

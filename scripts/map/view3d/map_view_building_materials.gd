@@ -6,15 +6,18 @@ extends RefCounted
 ## weathering and UV rules here isolates building visuals from terrain, water,
 ## and prop material concerns without changing callers.
 
-const PATTERN_BRICK := &"brick"
-const PATTERN_PLANK := &"plank"
-const PATTERN_LIMESTONE := &"limestone"
-const PATTERN_ROOF_TILE := &"roof_tile"
-const PATTERN_PLASTER := &"plaster"
-const PATTERN_THATCH := &"thatch"
-const PATTERN_SHINGLE := &"shingle"
-const PATTERN_LOG := &"log"
-const PATTERN_STRAW := &"straw"
+const PATTERN_FAMILIES := preload(
+	"res://scripts/map/view3d/map_view_material_pattern_families.gd"
+)
+const PATTERN_BRICK := PATTERN_FAMILIES.PATTERN_BRICK
+const PATTERN_PLANK := PATTERN_FAMILIES.PATTERN_PLANK
+const PATTERN_LIMESTONE := PATTERN_FAMILIES.PATTERN_LIMESTONE
+const PATTERN_ROOF_TILE := PATTERN_FAMILIES.PATTERN_ROOF_TILE
+const PATTERN_PLASTER := PATTERN_FAMILIES.PATTERN_PLASTER
+const PATTERN_THATCH := PATTERN_FAMILIES.PATTERN_THATCH
+const PATTERN_SHINGLE := PATTERN_FAMILIES.PATTERN_SHINGLE
+const PATTERN_LOG := PATTERN_FAMILIES.PATTERN_LOG
+const PATTERN_STRAW := PATTERN_FAMILIES.PATTERN_STRAW
 
 const WEATHER_FRESH := &"fresh"
 const WEATHER_WORN := &"worn"

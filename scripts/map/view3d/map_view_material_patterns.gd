@@ -11,6 +11,9 @@ const COBBLE_STONES_Y := 28
 const LIMESTONE_RUBBLE_PATH := (
 	"res://assets/materials/pbr/limestone_rubble/limestone_rubble_albedo.png"
 )
+const PATTERN_FAMILIES := preload(
+	"res://scripts/map/view3d/map_view_material_pattern_families.gd"
+)
 
 static var _cache: Dictionary = {}
 
@@ -26,9 +29,9 @@ static func pattern_texture(pattern: StringName, noise_seed: int) -> ImageTextur
 ## masonry fills every wall and tower face at close range, so both need more
 ## source detail than secondary families such as thatch or straw.
 static func pattern_source_size(pattern: StringName) -> int:
-	if pattern == MapViewMaterials.PATTERN_COBBLE:
+	if pattern == PATTERN_FAMILIES.PATTERN_COBBLE:
 		return MapViewMaterials.COBBLE_TEXTURE_SIZE
-	if pattern in [MapViewMaterials.PATTERN_LIMESTONE, MapViewMaterials.PATTERN_BRICK]:
+	if pattern in [PATTERN_FAMILIES.PATTERN_LIMESTONE, PATTERN_FAMILIES.PATTERN_BRICK]:
 		return MapViewMaterials.MASONRY_TEXTURE_SIZE
 	return MapViewMaterials.TEXTURE_SIZE
 
@@ -184,42 +187,42 @@ static func _pattern_image_at_size(
 ) -> Image:
 	var image := Image.create(texture_size, texture_size, false, Image.FORMAT_RGB8)
 	match pattern:
-		MapViewMaterials.PATTERN_COBBLE:
+		PATTERN_FAMILIES.PATTERN_COBBLE:
 			_paint_cobble(image, noise_seed)
-		MapViewMaterials.PATTERN_BRICK:
+		PATTERN_FAMILIES.PATTERN_BRICK:
 			_paint_brick(image, noise_seed)
-		MapViewMaterials.PATTERN_BARK:
+		PATTERN_FAMILIES.PATTERN_BARK:
 			_paint_bark(image, noise_seed)
-		MapViewMaterials.PATTERN_BIRCH_BARK:
+		PATTERN_FAMILIES.PATTERN_BIRCH_BARK:
 			_paint_birch_bark(image, noise_seed)
-		MapViewMaterials.PATTERN_CHERRY_BARK:
+		PATTERN_FAMILIES.PATTERN_CHERRY_BARK:
 			_paint_cherry_bark(image, noise_seed)
-		MapViewMaterials.PATTERN_PLANK:
+		PATTERN_FAMILIES.PATTERN_PLANK:
 			_paint_plank(image, noise_seed)
-		MapViewMaterials.PATTERN_LIMESTONE:
+		PATTERN_FAMILIES.PATTERN_LIMESTONE:
 			var authored := _authored_plate_image(LIMESTONE_RUBBLE_PATH, texture_size)
 			if authored.get_width() == texture_size:
 				return authored
 			_paint_limestone(image, noise_seed)
-		MapViewMaterials.PATTERN_ROCK:
+		PATTERN_FAMILIES.PATTERN_ROCK:
 			_paint_rock(image, noise_seed)
-		MapViewMaterials.PATTERN_ROOF_TILE:
+		PATTERN_FAMILIES.PATTERN_ROOF_TILE:
 			_paint_roof_tile(image, noise_seed)
-		MapViewMaterials.PATTERN_STRAW:
+		PATTERN_FAMILIES.PATTERN_STRAW:
 			_paint_straw(image, noise_seed)
-		MapViewMaterials.PATTERN_THATCH:
+		PATTERN_FAMILIES.PATTERN_THATCH:
 			_paint_thatch(image, noise_seed)
-		MapViewMaterials.PATTERN_SHINGLE:
+		PATTERN_FAMILIES.PATTERN_SHINGLE:
 			_paint_shingle(image, noise_seed)
-		MapViewMaterials.PATTERN_LOG:
+		PATTERN_FAMILIES.PATTERN_LOG:
 			_paint_log(image, noise_seed)
-		MapViewMaterials.PATTERN_SPECKLE:
+		PATTERN_FAMILIES.PATTERN_SPECKLE:
 			_paint_speckle(image, noise_seed)
-		MapViewMaterials.PATTERN_MUD:
+		PATTERN_FAMILIES.PATTERN_MUD:
 			_paint_mud(image, noise_seed)
-		MapViewMaterials.PATTERN_EARTH:
+		PATTERN_FAMILIES.PATTERN_EARTH:
 			_paint_earth(image, noise_seed)
-		MapViewMaterials.PATTERN_PLASTER:
+		PATTERN_FAMILIES.PATTERN_PLASTER:
 			_paint_plaster(image, noise_seed)
 		_:
 			_paint_grass(image, noise_seed)
