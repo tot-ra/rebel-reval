@@ -24,6 +24,8 @@ const RuntimeActors := preload("res://scripts/map/view3d/map_view_runtime_actors
 const RuntimeAmbient := preload("res://scripts/map/view3d/map_view_runtime_ambient.gd")
 const RuntimeTimeFlow := preload("res://scripts/map/view3d/map_view_runtime_time_flow.gd")
 const RuntimeEnvironment := preload("res://scripts/map/view3d/map_view_runtime_environment.gd")
+const RuntimeFlatMap := preload("res://scripts/map/view3d/map_view_runtime_flat_map.gd")
+const RuntimeSession := preload("res://scripts/map/view3d/map_view_runtime_session.gd")
 ## Compatibility aliases keep the runtime's public locomotion thresholds stable.
 const WALK_ANIMATION_MIN_SPEED := RuntimeActors.WALK_ANIMATION_MIN_SPEED
 const RUN_ANIMATION_MIN_SPEED := RuntimeActors.RUN_ANIMATION_MIN_SPEED
@@ -102,10 +104,11 @@ var _actor_controller = RuntimeActors.new()
 var _ambient_controller = RuntimeAmbient.new()
 var _time_flow = RuntimeTimeFlow.new()
 var _environment = RuntimeEnvironment.new()
-## Compatibility aliases for integration tests that inspect the current binding.
-var _equipment_state: GameState
-var _session_state: Node
-var _session_content_db: ContentDB
+var _session = RuntimeSession.new()
+## Compatibility alias for integration tests that inspect the current binding.
+var _equipment_state: GameState:
+	get:
+		return _session.equipment_state
 var _click_input: Node
 
 
@@ -113,6 +116,7 @@ var _click_input: Node
 func _init() -> void:
 	_time_flow.configure(self, Callable(self, "_emit_time_flow_changed"))
 	_environment.configure(self)
+	_session.configure(self, _actor_controller, _environment)
 
 
 static func install(
@@ -126,8 +130,8 @@ static func install(
 	runtime.add_child(runtime.view)
 
 	map_root.visible = false
-	_hide_flat_map_visuals(bootstrap)
-	_bind_streamed_flat_visual_hiding(bootstrap)
+	RuntimeFlatMap.hide_visuals(bootstrap)
+	RuntimeFlatMap.bind_streamed_visual_hiding(bootstrap)
 	RuntimeActors.hide_player_canvas(player)
 
 	runtime._player_rig = PLAYER_RIG_SCENE.instantiate()
@@ -160,7 +164,7 @@ static func install(
 	runtime._install_player_fill_light()
 	# Created at runtime, so enable input explicitly before the first frame.
 	runtime.set_process_unhandled_input(true)
-	runtime._bind_session_state()
+	runtime._session.bind_session_state()
 	runtime._actor_controller.register_view_actors(scene_root)
 	runtime._configure_screen_relative_movement()
 	runtime._sync_player(true)
@@ -171,7 +175,7 @@ static func install(
 	# MusicDirector holds both clock fractions and completed solar days so scene
 	# transitions cannot rewind the date or lunar phase.
 	runtime._restore_cycle_from_music_director()
-	runtime.view.set_calendar_date(runtime._current_calendar_date())
+	runtime.view.set_calendar_date(runtime._session.current_calendar_date())
 	runtime.view.apply_cycle_progress(runtime.cycle_progress)
 	runtime._sync_music_cycle()
 	# `SessionState` owns the canonical weather snapshot; this runtime only binds
@@ -357,12 +361,16 @@ func environment_weather() -> Node:
 	return _environment.weather_node()
 
 
+func _current_calendar_date() -> Dictionary:
+	return _session.current_calendar_date()
+
+
 func _process(delta: float) -> void:
 	# The time controls scale (or pause) the world clock and, through the view,
 	# the sky's own cloud/weather/lightning stepping so they stay in lockstep.
 	var scaled_delta := _time_flow.scaled_delta(delta)
 	_time_flow.apply_weather_time_scale()
-	_environment.advance_cycle(scaled_delta, Callable(self, "_current_calendar_date"))
+	_environment.advance_cycle(scaled_delta, Callable(_session, "current_calendar_date"))
 	if _player == null or not is_instance_valid(_player):
 		return
 	_ambient_controller.sync(delta, cycle_progress)
@@ -542,57 +550,10 @@ func _exit_tree() -> void:
 	if session_state != null and session_state.has_method(&"unbind_environment_runtime"):
 		session_state.call("unbind_environment_runtime", self)
 	_environment.deactivate_binding()
-	if (
-		_session_state != null
-		and _session_state.is_connected(&"state_replaced", _on_state_replaced)
-	):
-		_session_state.disconnect(&"state_replaced", _on_state_replaced)
-	_disconnect_equipment_state()
+	_session.disconnect_session()
 	# Actor rigs and the map view share ShaderMaterials; strip before free so the
 	# headless dummy renderer does not emit material_get_instance_shader_parameters.
 	MapView3D._strip_geometry_materials(self)
-
-
-func _bind_session_state() -> void:
-	_session_state = get_node_or_null("/root/SessionState")
-	if _session_state == null:
-		return
-	_session_content_db = _session_state.get("content_db") as ContentDB
-	_bind_equipment_state(_session_state.get("state") as GameState)
-	if not _session_state.is_connected(&"state_replaced", _on_state_replaced):
-		_session_state.connect(&"state_replaced", _on_state_replaced)
-
-
-func _on_state_replaced(_previous: GameState, current: GameState, _reason: StringName) -> void:
-	_bind_equipment_state(current)
-
-
-func _on_phase_changed(_previous: StringName, next: StringName) -> void:
-	_environment.on_phase_changed(next)
-
-
-func _current_calendar_date() -> Dictionary:
-	return _environment.current_calendar_date(_equipment_state)
-
-
-func _bind_equipment_state(current: GameState = null) -> void:
-	_disconnect_equipment_state()
-	_equipment_state = current
-	view.set_calendar_date(_current_calendar_date())
-	_actor_controller.bind_equipment_state(_equipment_state, _session_content_db)
-	if _equipment_state == null:
-		return
-	if not _equipment_state.phase_changed.is_connected(_on_phase_changed):
-		_equipment_state.phase_changed.connect(_on_phase_changed)
-
-
-func _disconnect_equipment_state() -> void:
-	if _equipment_state == null:
-		return
-	_actor_controller.disconnect_equipment_state()
-	if _equipment_state.phase_changed.is_connected(_on_phase_changed):
-		_equipment_state.phase_changed.disconnect(_on_phase_changed)
-	_equipment_state = null
 
 
 func _update_occlusion_ghost() -> void:
@@ -614,43 +575,6 @@ func _configure_screen_relative_movement() -> void:
 	_player.call("set_screen_movement_basis", logic_right, logic_down)
 
 
+## Compatibility delegate for tests and callers that still target the old helper.
 static func _hide_flat_map_visuals(bootstrap: Dictionary) -> void:
-	# Buildings and props are hosted under Actors so their 2D collision remains
-	# Y-sorted with the player. Hide the render nodes explicitly; CanvasItem
-	# visibility does not disable the StaticBody2D collision used by gameplay.
-	var assembled: Dictionary = bootstrap.get("assembled", {})
-	for key: String in ["terrain", "buildings", "props", "view_landmarks"]:
-		var value: Variant = assembled.get(key)
-		if value is CanvasItem:
-			(value as CanvasItem).visible = false
-		elif value is Array:
-			for item: Variant in value as Array:
-				_hide_flat_map_object(item)
-
-
-static func _bind_streamed_flat_visual_hiding(bootstrap: Dictionary) -> void:
-	var assembled: Dictionary = bootstrap.get("assembled", {})
-	var streamer: Variant = assembled.get("object_streamer")
-	if streamer == null or not streamer.has_signal(&"object_loaded"):
-		return
-	if not streamer.object_loaded.is_connected(_on_streamed_flat_map_object_loaded):
-		streamer.object_loaded.connect(_on_streamed_flat_map_object_loaded)
-	for object_id in streamer.loaded_object_ids():
-		_hide_flat_map_object(streamer.loaded_instance(object_id))
-
-
-static func _on_streamed_flat_map_object_loaded(_handle: Dictionary, instance: Node) -> void:
-	_hide_flat_map_object(instance)
-
-
-static func _hide_flat_map_object(item: Variant) -> void:
-	if item == null or not item is Node:
-		return
-	var node := item as Node
-	if node is StaticBody2D:
-		var visuals := node.get_node_or_null("Visuals") as CanvasItem
-		if visuals != null:
-			visuals.visible = false
-		return
-	if node is CanvasItem:
-		(node as CanvasItem).visible = false
+	RuntimeFlatMap.hide_visuals(bootstrap)
