@@ -116,6 +116,10 @@ func test_harbour_location_and_world_state_survive_clean_save_reload() -> void:
 	original.set_flag(&"flag.p0_169_shore_seen", true)
 	original.map_world_state.set_location_metadata(&"reval_harbor_north", "shoreline-acceptance-fingerprint")
 	assert_true(original.map_world_state.record_object_delta(&"reval_harbor_north", &"salvage.route.anchor", {"status": "reachable", "confidence": "reconstructed"}))
+	# Save load hydrates default magic resources; seed them before the snapshot so
+	# the acceptance compares harbour state rather than serializer defaults.
+	original.set_magic_resource(GameState.MAGIC_RESOURCE_WILLPOWER, 0)
+	original.set_magic_resource(GameState.MAGIC_RESOURCE_PIETY, 0)
 	var expected_payload := MapParitySnapshot.serialize_value(original.save_payload())
 	assert_true(service.save_game(original), "shoreline acceptance save must succeed")
 	var loaded := service.load_game()

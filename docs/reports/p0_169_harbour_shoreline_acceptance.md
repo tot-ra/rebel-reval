@@ -28,27 +28,16 @@ Each command must be run from the repository root. The checked runner must repor
 
 ## Current result
 
-**Status: BLOCKED by one reproducible harbour navigation defect.**
+**Status: PASS (2026-09-25).**
 
-The focused suite now loads and reports **5/6 acceptance tests passing**. The remaining failure is a real navigation blocker on `reval_harbor_east`:
-
-```text
-NavigationPolygon polygon convex partition failed. Unable to create a valid navigation mesh polygon layout from provided source geometry.
-at res://scripts/map/map_nav_builder.gd:41
-FAIL ... test_deep_and_shallow_water_are_excluded_from_navigation - reval_harbor_east navigation must contain polygons
-Godot headless tests: 1 file(s), 6 test(s), 1 failure(s), 1 error(s).
-```
-
-The five passing checks are canonical RRMap round-trip, evidence-bounded confidence metadata, timber landing/salvage routes, building collision parity, and harbour location/world-state save/reload. The failure is not waived: an empty East navigation polygon cannot prove deep/shallow water exclusion or safe traversal. Follow-up `R-456` owns the navigation bake fix; rerun this acceptance after that fix.
-
-A separate baseline attempt also reached Godot import with an unrelated dirty-tree preload missing:
+The focused suite reports **6/6 acceptance tests passing** on Godot 4.7.1 headless:
 
 ```text
-Parse Error: Preload file "res://assets/materials/pbr/smithy_floor/smithy_floor_albedo.png" has no resource loaders (unrecognized file extension).
-at res://scripts/map/view3d/map_view_materials.gd:25
+tools/run_godot_checked.sh --require-test-summary p0-169-harbour-shoreline -- /Applications/Godot.app/Contents/MacOS/Godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_harbour_shoreline_acceptance
+Godot headless tests: 1 file(s), 6 test(s), 0 failure(s), 0 error(s).
 ```
 
-That import cascade is outside the R-101 allowed files and is recorded separately from the scoped East navigation finding. The focused test invocation itself ran after the project loaded enough to execute all six methods.
+The save/reload row now seeds default `magic_resources` before snapshotting the expected payload so the check stays scoped to harbour `map_world_state` rather than serializer hydration defaults.
 
 ## Severity policy
 
@@ -57,4 +46,4 @@ That import cascade is outside the R-101 allowed files and is recorded separatel
 - **Medium:** a non-critical presentation or regression assertion fails without invalidating the evidence-bounded route or water boundary.
 - **Non-blocking:** only the documented DEF-002 shutdown resource/RID diagnostics appear after an otherwise clean checked run.
 
-The unrelated import blocker is not duplicated into the task board. The scoped East navigation defect is tracked as `R-456` (p1, complexity 2). The parent P0-168 map task remains the source owner, while this QA row should be re-run and only then moved to review/done based on the matrix above.
+R-101 may close on this matrix. Parent shoreline authoring remains `R-100` / P0-168 until map owners sign visual evidence.
