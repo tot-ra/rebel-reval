@@ -32,6 +32,7 @@ This file contains lessons specific to the Dev role.
 - Runtime-built UI cannot use `%UniqueName` until `owner` is an ancestor already in the tree. Keep member refs or `find_child(name, true, false)`. `Camera3D.look_at()` also requires in-tree; use `look_at_from_position()` while assembling a SubViewport.
 
 ### Map and runtime integration
+- P0-185 shader peel: move inline `*_SHADER_CODE` bodies to sibling `*.gdshader`, preload them in `map_view_material_shaders.gd`, and switch consumers to `shader_resource()`. Contract tests should read `WATER_SHADER.code`, not a removed string const. When `sed`-extracting from triple-quoted GDScript, skip the `const NAME := """` header and trailing `"""`; map edits trigger pre-commit `verify_map_audit.py`, so regenerate missing `docs/reports/images/map_audit/*.png` with `tools/capture_map_audit.gd -- --maps=id1,id2` before committing.
 - A new `view_landmark` kind needs `MapDefinition.VIEW_LANDMARK_KINDS`, the `_compile_landmark` field copy, and `LANDMARK_OVERRIDE_KEYS`. A new typed style key also needs `map_blueprint_compiler_build.gd` and expand-geometry validation.
 - RRMap walls with `openings=` compile into `<id>/segment.NNN` buildings. `exclude` rects create blocked cells; keep reserved footprints clear of every anchor centre.
 - `test_map_composition_audit` indexes thresholds by every blueprint-registry id. Add a card (`enforce: false` for developer-only interiors) with each new registry entry.
