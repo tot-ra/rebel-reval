@@ -162,10 +162,10 @@ These beats inform **P2-058** activity points and **P2-059** vignettes. None imp
 
 | Stable prop ID | Kind | Asset / variant | Reuse decision |
 |---|---|---|---|
-| `bed` | `bed` | `assets/props/furniture/smithy_bed.glb` | **Reuse** |
+| `bed` | `bed` | `assets/props/furniture/smithy_bed/smithy_bed.glb` | **Reuse** |
 | `chest` | `chest` | `chest.burgher` GLB via `MapViewChestModels` | **Reuse** |
 | `food_table` | `table` | generic table mesh builder | **Reuse** (add place settings in P2-055) |
-| `work_chair` | `chair` | `assets/props/furniture/smithy_chair.glb` | **Reuse** |
+| `work_chair` | `chair` | `assets/props/furniture/smithy_chair/smithy_chair.glb` | **Reuse** |
 | `table_candle` | `candle` | medieval lighting kit `artisan_tallow` | **Reuse** |
 | `forge_ledger` | `ledger` | procedural / interior ledger mesh | **Reuse** |
 | `cloak_banner` | `banner` | faction `black_cloaks` | **Reuse** |

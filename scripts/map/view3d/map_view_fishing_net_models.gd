@@ -4,7 +4,7 @@ extends RefCounted
 ## Shared access to the authored fishing net rack. The rrmap still owns placement,
 ## footprint, collision, and navigation; this helper supplies visual geometry only.
 
-const FISHING_NETS_SCENE_PATH := "res://assets/props/crafts/fishing_nets.glb"
+const FISHING_NETS_SCENE_PATH := "res://assets/props/crafts/fishing_nets/fishing_nets.glb"
 const _ANIMATED_PARTS := {
 	&"Netting": &"hemp",
 	&"OutlineRope": &"hemp",

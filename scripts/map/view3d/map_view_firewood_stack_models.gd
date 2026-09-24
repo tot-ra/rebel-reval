@@ -4,7 +4,7 @@ extends RefCounted
 ## Shared access to the authored yard firewood stack. The rrmap still owns the
 ## two-cell anchor and footprint; this helper replaces only the visual geometry.
 
-const SCENE_PATH := "res://assets/props/crafts/yard_firewood_stack.glb"
+const SCENE_PATH := "res://assets/props/crafts/yard_firewood_stack/yard_firewood_stack.glb"
 
 
 static func add_model(parent: Node3D) -> Node3D:

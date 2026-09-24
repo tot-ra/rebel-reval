@@ -4,7 +4,7 @@ extends RefCounted
 ## Shared access to the authored rope coil. Runtime placement remains owned by
 ## the rrmap anchor and one-cell footprint; this helper replaces only visuals.
 
-const ROPE_COIL_SCENE_PATH := "res://assets/props/crafts/rope_coil.glb"
+const ROPE_COIL_SCENE_PATH := "res://assets/props/crafts/rope_coil/rope_coil.glb"
 
 
 static func add_model(parent: Node3D) -> Node3D:

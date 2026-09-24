@@ -4,7 +4,7 @@ extends RefCounted
 ## Shared access to the authored salt pile. The rrmap still owns the
 ## one-cell anchor and footprint; this helper replaces only the visual geometry.
 
-const SALT_PILE_SCENE_PATH := "res://assets/props/crafts/salt_pile.glb"
+const SALT_PILE_SCENE_PATH := "res://assets/props/crafts/salt_pile/salt_pile.glb"
 
 
 static func add_model(parent: Node3D) -> Node3D:

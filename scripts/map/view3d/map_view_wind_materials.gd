@@ -7,13 +7,13 @@ extends RefCounted
 ## facade so existing builders and tests do not change call sites.
 
 const FISHING_NET_HEMP_TEXTURE := preload(
-	"res://assets/props/crafts/fishing_nets_TarredHempNet_albedo.png"
+	"res://assets/props/crafts/fishing_nets/fishing_nets_TarredHempNet_albedo.png"
 )
 const FISHING_NET_FLOAT_TEXTURE := preload(
-	"res://assets/props/crafts/fishing_nets_BarkCorkFloats_albedo.png"
+	"res://assets/props/crafts/fishing_nets/fishing_nets_BarkCorkFloats_albedo.png"
 )
 const FISHING_NET_SINKER_TEXTURE := preload(
-	"res://assets/props/crafts/fishing_nets_PiercedStoneSinkers_albedo.png"
+	"res://assets/props/crafts/fishing_nets/fishing_nets_PiercedStoneSinkers_albedo.png"
 )
 const BLACK_CLOAKS_BANNER_TEXTURE := preload("res://assets/heraldry/black_cloaks_banner.png")
 

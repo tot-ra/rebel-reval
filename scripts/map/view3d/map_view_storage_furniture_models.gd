@@ -11,9 +11,12 @@ const ELITE_ARMARIUM := &"shelf.elite_armarium"
 
 const DEFAULT_VARIANT := COMMON_OPEN
 const SCENE_PATHS: Dictionary = {
-	COMMON_OPEN: "res://assets/props/furniture/medieval_storage/common_open_rack.glb",
-	BURGHER_CUPBOARD: "res://assets/props/furniture/medieval_storage/burgher_cupboard.glb",
-	ELITE_ARMARIUM: "res://assets/props/furniture/medieval_storage/elite_armarium.glb",
+	COMMON_OPEN:
+	"res://assets/props/furniture/medieval_storage/common_open_rack/common_open_rack.glb",
+	BURGHER_CUPBOARD:
+	"res://assets/props/furniture/medieval_storage/burgher_cupboard/burgher_cupboard.glb",
+	ELITE_ARMARIUM:
+	"res://assets/props/furniture/medieval_storage/elite_armarium/elite_armarium.glb",
 }
 
 

@@ -11,7 +11,9 @@ const MedievalLightingModels := preload(
 	"res://scripts/map/view3d/map_view_medieval_lighting_models.gd"
 )
 
-const TABLE_KIT_SCENE_PATH := "res://assets/props/furniture/tables/medieval_table_kit.glb"
+const TABLE_KIT_SCENE_PATH := (
+	"res://assets/props/furniture/tables/medieval_table_kit/medieval_table_kit.glb"
+)
 const BASE_ROOT_NAMES: Dictionary = {
 	MapPropStyleVariants.TABLE_COMMON_HOUSEHOLD: &"CommonHouseholdTable",
 	MapPropStyleVariants.TABLE_TRESTLE_WORK: &"TrestleWorkTable",

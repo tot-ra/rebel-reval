@@ -4,7 +4,7 @@ extends RefCounted
 ## Shared access to the authored hide stretching frame. Runtime placement remains
 ## owned by the rrmap prop anchor and footprint; this helper only supplies visuals.
 
-const TANNING_FRAME_SCENE_PATH := "res://assets/props/crafts/tanning_frame.glb"
+const TANNING_FRAME_SCENE_PATH := "res://assets/props/crafts/tanning_frame/tanning_frame.glb"
 
 
 static func add_model(parent: Node3D) -> Node3D:

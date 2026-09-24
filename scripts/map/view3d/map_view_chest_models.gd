@@ -8,10 +8,12 @@ extends RefCounted
 const PropStyleVariants := preload("res://scripts/map/map_prop_style_variants.gd")
 
 const SCENE_PATH_BY_VARIANT: Dictionary = {
-	PropStyleVariants.CHEST_PLAIN_COFFER: "res://assets/props/furniture/chest_poor_household.glb",
-	PropStyleVariants.CHEST_BURGHER: "res://assets/props/furniture/chest_burgher_household.glb",
+	PropStyleVariants.CHEST_PLAIN_COFFER:
+	"res://assets/props/furniture/chest_poor_household/chest_poor_household.glb",
+	PropStyleVariants.CHEST_BURGHER:
+	"res://assets/props/furniture/chest_burgher_household/chest_burgher_household.glb",
 	PropStyleVariants.CHEST_MERCHANT_STRONGBOX:
-	"res://assets/props/furniture/chest_merchant_strongbox.glb",
+	"res://assets/props/furniture/chest_merchant_strongbox/chest_merchant_strongbox.glb",
 }
 const MODEL_NAME_BY_VARIANT: Dictionary = {
 	PropStyleVariants.CHEST_PLAIN_COFFER: "PlainCofferModel",

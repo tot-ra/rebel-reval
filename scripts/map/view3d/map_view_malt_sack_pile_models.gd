@@ -4,7 +4,7 @@ extends RefCounted
 ## Shared access to the authored brewery malt sacks. The rrmap still owns the
 ## one-cell anchor and footprint; this helper replaces only the visual geometry.
 
-const MALT_SACK_PILE_SCENE_PATH := "res://assets/props/crafts/malt_sack_pile.glb"
+const MALT_SACK_PILE_SCENE_PATH := "res://assets/props/crafts/malt_sack_pile/malt_sack_pile.glb"
 
 
 static func add_model(parent: Node3D) -> Node3D:
