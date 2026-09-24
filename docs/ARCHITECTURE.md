@@ -248,12 +248,12 @@ Soft readability target for new or extracted runtime helpers: **under 600 lines*
 | `scripts/state/game_state.gd` | 906 | **Keep.** Preserve the canonical campaign-state owner and public persistence API; extract only an independently changing state concern behind a typed boundary and focused tests, never a second state store. Protect with `test_game_state`, session-state replacement, save-envelope, and vertical-slice save-matrix suites. |
 | `scripts/map/view3d/map_view_runtime.gd` | 656 | **Partial extract closed (P0-185).** Ambient installers live in `map_view_runtime_ambient.gd`; time-flow controls in `map_view_runtime_time_flow.gd`; sky clock, calendar, MusicDirector sync, and SessionState weather binding in `map_view_runtime_environment.gd`. Actors and camera remain in sibling helpers. Gate: `test_map_view_3d_runtime`, `test_debug_overlay`, `test_r715_water_map_handoff`, runtime-camera, click, crowd, fauna, and session-state replacement filters. |
 | `scripts/map/view3d/map_view_3d.gd` | 878 | **Keep.** Retain this as the integration owner; extract lighting or streaming only when that axis changes independently behind a stable facade. Protect with `test_map_view_3d_core`, `test_map_view_3d_lighting`, camera, object-streaming, and capture filters. |
-| `scripts/map/view3d/map_view_materials.gd` | 822 | **Keep.** Retain the material-resolution facade over focused patterns/shaders modules; do not split the cohesive resolver for LOC alone. Protect with `test_map_view_material_resolution`, `test_map_view_3d_lighting`, decal, water, and terrain-material filters. |
 
 ### 600-799 line band (keep unless a second reason appears)
 
 | File (lines) | Decision and regression gate |
 | --- | --- |
+| `scripts/map/view3d/map_view_materials.gd` (653) | **Partial extract closed (P0-185).** Wind-driven grass, canopy, cloth, banner, and fishing-net materials live in `map_view_wind_materials.gd`; water, building, and prop caches remain in sibling modules. This file keeps terrain, blended-ground, and weather-presentation facades. Gate: `test_map_view_material_resolution`, `test_grass_interaction`, `test_vegetation_realism`, `test_fishing_nets`, `test_faction_heraldry`, `test_boat_float_3d`. |
 | `scripts/map/view3d/map_view_tree_meshes.gd` (659) | **Partial extract closed (P0-185).** Species growth profiles live in `map_view_tree_mesh_profiles.gd`; this file keeps procedural wood/canopy/fruit emitters behind `wood_mesh` / `canopy_mesh` / `fruit_mesh`. Gate: `test_map_view_tree_species`, `test_vegetation_realism`, `test_map_view_3d_mesh`. |
 | `scripts/map/view3d/map_view_tree_mesh_profiles.gd` (457) | **Keep** data shard beside the tree mesh facade. Gate: same tree/vegetation filters. |
 | `scripts/map/view3d/map_view_mesh_builder_scatter.gd` (741) | **Keep** species-batched scatter catalog until a second caller needs pure tables. Gate: mesh/core outdoor tests. |
@@ -289,6 +289,7 @@ Non-`scripts/` files over 400 lines (scenes/tests/debug) are outside this runtim
 - P0-185 (partial): `map_view_hanging_banner_cloth.gdshader` relocated; the shader facade remains in the 600-799 audit band. Gate: `test_faction_heraldry`, `test_map_view_material_resolution`.
 - P0-185 (partial): `map_view_fishing_net_wind.gdshader` relocated; the shader facade remains in the 600-799 audit band. Gate: `test_fishing_nets`, `test_map_view_material_resolution`.
 - P0-185 (partial): `map_view_grass.gdshader` and `map_view_canopy.gdshader` relocated; the shader facade dropped to 680 lines and remains in the 600-799 audit band. Gate: `test_grass_interaction`, `test_vegetation_realism`, `test_map_view_material_resolution`.
+- P0-185 (partial): `map_view_wind_materials.gd` now owns wind-driven grass, canopy, sail, pennant, banner, and fishing-net shader caches; `map_view_materials.gd` dropped from 836 to 653 lines and remains the public facade. Gate: `test_grass_interaction`, `test_vegetation_realism`, `test_fishing_nets`, `test_faction_heraldry`, `test_boat_float_3d`, `test_map_view_material_resolution`.
 
 ### Scheduled follow-up
 
