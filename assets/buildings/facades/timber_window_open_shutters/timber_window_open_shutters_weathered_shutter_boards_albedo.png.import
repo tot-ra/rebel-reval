@@ -2,19 +2,19 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cl512wwv3xixh"
-path="res://.godot/imported/timber_window_closed_shutters_aged_structural_oak_albedo.png-efb74c2f9cd58b8cccc1cdd10522cb4c.ctex"
+uid="uid://br2wts65et18w"
+path="res://.godot/imported/timber_window_open_shutters_weathered_shutter_boards_albedo.png-8cd95e0b11ddc1ea4cdc2de9565f19b9.ctex"
 metadata={
 "vram_texture": false
 }
 generator_parameters={
-"md5": "16d2be70c38c6652171a4f697f3cc6a9"
+"md5": "5b355a9a8e42f92a0f2a02bdd09d71e7"
 }
 
 [deps]
 
-source_file="res://assets/buildings/facades/timber_window_closed_shutters_aged_structural_oak_albedo.png"
-dest_files=["res://.godot/imported/timber_window_closed_shutters_aged_structural_oak_albedo.png-efb74c2f9cd58b8cccc1cdd10522cb4c.ctex"]
+source_file="res://assets/buildings/facades/timber_window_open_shutters/timber_window_open_shutters_weathered_shutter_boards_albedo.png"
+dest_files=["res://.godot/imported/timber_window_open_shutters_weathered_shutter_boards_albedo.png-8cd95e0b11ddc1ea4cdc2de9565f19b9.ctex"]
 
 [params]
 

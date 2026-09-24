@@ -8,7 +8,7 @@ path="res://.godot/imported/stone_pointed_window_open_shutters.glb-2db350e154fff
 
 [deps]
 
-source_file="res://assets/buildings/facades/stone_pointed_window_open_shutters.glb"
+source_file="res://assets/buildings/facades/stone_pointed_window_open_shutters/stone_pointed_window_open_shutters.glb"
 dest_files=["res://.godot/imported/stone_pointed_window_open_shutters.glb-2db350e154fff850d6e58c08af2394b6.scn"]
 
 [params]

@@ -8,7 +8,7 @@ path="res://.godot/imported/timber_window_closed_shutters.glb-112320bcb918795b9b
 
 [deps]
 
-source_file="res://assets/buildings/facades/timber_window_closed_shutters.glb"
+source_file="res://assets/buildings/facades/timber_window_closed_shutters/timber_window_closed_shutters.glb"
 dest_files=["res://.godot/imported/timber_window_closed_shutters.glb-112320bcb918795b9b3e00562076d449.scn"]
 
 [params]

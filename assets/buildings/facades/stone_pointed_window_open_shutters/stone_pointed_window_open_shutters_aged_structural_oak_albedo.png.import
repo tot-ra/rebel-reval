@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dpgqegmoypa2u"
-path="res://.godot/imported/timber_window_open_shutters_aged_structural_oak_albedo.png-ade9a7413e64d5087c8e4ca610e926bb.ctex"
+uid="uid://bvf21ucek5jr"
+path="res://.godot/imported/stone_pointed_window_open_shutters_aged_structural_oak_albedo.png-87c63b6bac06486516882e247bca9d77.ctex"
 metadata={
 "vram_texture": false
 }
@@ -13,8 +13,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/buildings/facades/timber_window_open_shutters_aged_structural_oak_albedo.png"
-dest_files=["res://.godot/imported/timber_window_open_shutters_aged_structural_oak_albedo.png-ade9a7413e64d5087c8e4ca610e926bb.ctex"]
+source_file="res://assets/buildings/facades/stone_pointed_window_open_shutters/stone_pointed_window_open_shutters_aged_structural_oak_albedo.png"
+dest_files=["res://.godot/imported/stone_pointed_window_open_shutters_aged_structural_oak_albedo.png-87c63b6bac06486516882e247bca9d77.ctex"]
 
 [params]
 

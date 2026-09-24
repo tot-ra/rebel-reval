@@ -30,9 +30,30 @@ const MammalSpecies := preload("res://scripts/map/view3d/map_view_mammal_species
 const MedievalAnimalModels := preload("res://scripts/map/view3d/map_view_medieval_animal_models.gd")
 const CART_SCENE_PATH := "res://assets/props/vehicles/wooden_cart.glb"
 const FACADE_ASSETS: Array[Dictionary] = [
-	{"label": "STONE POINTED WINDOW", "path": "res://assets/buildings/facades/stone_pointed_window_open_shutters.glb"},
-	{"label": "TIMBER WINDOW OPEN", "path": "res://assets/buildings/facades/timber_window_open_shutters.glb"},
-	{"label": "TIMBER WINDOW CLOSED", "path": "res://assets/buildings/facades/timber_window_closed_shutters.glb"},
+	{
+		"label": "STONE POINTED WINDOW",
+		"path": (
+			"res://assets/buildings/facades/"
+			+ "stone_pointed_window_open_shutters/"
+			+ "stone_pointed_window_open_shutters.glb"
+		),
+	},
+	{
+		"label": "TIMBER WINDOW OPEN",
+		"path": (
+			"res://assets/buildings/facades/"
+			+ "timber_window_open_shutters/"
+			+ "timber_window_open_shutters.glb"
+		),
+	},
+	{
+		"label": "TIMBER WINDOW CLOSED",
+		"path": (
+			"res://assets/buildings/facades/"
+			+ "timber_window_closed_shutters/"
+			+ "timber_window_closed_shutters.glb"
+		),
+	},
 ]
 const HUMANOID_ANIMATION_SPACING := 5.5
 const CHARACTER_VARIANT_SPACING := 5.0

@@ -62,8 +62,14 @@ class AssetSpec:
     triangle_max: int
 
     @property
+    def stem(self) -> str:
+        return Path(self.filename).stem
+
+    @property
     def output(self) -> Path:
-        return OUTPUT_DIR / self.filename
+        # Keep each GLB with its Godot-extracted sidecars in a dedicated folder,
+        # matching birds/<species>/ and animals/<vendor>/<species>/.
+        return OUTPUT_DIR / self.stem / self.filename
 
 
 ASSETS = (
@@ -93,7 +99,7 @@ ASSETS = (
 BRIEF = {
     "id": "building.facade_window_set",
     "kind": "modular_architecture_set",
-    "targets": [f"res://assets/buildings/facades/{spec.filename}" for spec in ASSETS],
+    "targets": [f"res://{spec.output.relative_to(ROOT).as_posix()}" for spec in ASSETS],
     "mount": {"origin": "sill_center", "plane_blender_y": 0.0, "outward": "-Y"},
     "opening_m": [0.6, 0.75],
     "triangles": {spec.variant: {"target": spec.triangle_target, "max": spec.triangle_max} for spec in ASSETS},
@@ -339,7 +345,7 @@ def _export(
     root.select_set(True)
     obj.select_set(True)
     bpy.context.view_layer.objects.active = root
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    spec.output.parent.mkdir(parents=True, exist_ok=True)
     bpy.ops.export_scene.gltf(
         filepath=str(spec.output),
         export_format="GLB",
