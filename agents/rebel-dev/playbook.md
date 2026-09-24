@@ -66,3 +66,5 @@ This file contains lessons specific to the Dev role.
 - Blender-authored generators import `bpy`. Invoke them through Blender's bundled Python, not repository `python3`.
 - Blender glTF export with packed textures still yields Godot-extracted `*_albedo.png` / `*_normal.png` / `*_roughness.png` sidecars. Register those derived paths in `assets/SOURCES.csv`.
 - When `git push` ends with `broken pipe`, compare `git ls-remote` with local `HEAD`. If GitHub SSH port 22 is closed, retry once through `ssh.github.com:443`.
+- A runtime script error in a headless SceneTree probe stops before `quit()` and hangs the process. Always wrap probes in a watchdog. Imported PNG texture arrays load as `CompressedTexture2DArray`, so type them as `TextureLayered`, not `Texture2DArray`.
+- Before implementing contract physics literally, check sign conventions against an observable property (for example, the Jacobian must drop on crests so foam sits on crests). Record any deviation in the contract's final-parameters section and the output manifest.

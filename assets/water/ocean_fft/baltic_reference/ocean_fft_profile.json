@@ -1,0 +1,139 @@
+{
+  "tool": "tools/bake_ocean_fft.py",
+  "tool_version": "1.0.0",
+  "profile": "baltic_reference",
+  "seed": 1343,
+  "unit_amplitude": false,
+  "sea_state": {
+    "wind_speed": 9.0,
+    "fetch": 40000.0,
+    "depth": 20.0,
+    "swell": 0.25,
+    "spread_blend": 0.85,
+    "spectrum_scale": 1.0
+  },
+  "g": 9.81,
+  "depth_m": 20.0,
+  "jonswap": {
+    "alpha": 0.011750597,
+    "omega_p": 1.417211014,
+    "gamma": 3.3
+  },
+  "meters_per_world_unit": 0.87,
+  "wind_direction": "+X (runtime rotates the lookup)",
+  "conventions": {
+    "atlas_layout": "vertical strip; frame f is rows f*N..f*N+N-1; row = +Z, column = +X",
+    "disp_rgba": [
+      "dx",
+      "dy",
+      "dz",
+      "foam"
+    ],
+    "deriv_rgba": [
+      "dy_dx",
+      "dy_dz",
+      "dx_dx",
+      "dz_dz"
+    ],
+    "signed_encoding": "byte = round(clamp(0.5 + v / (2*scale), 0, 1) * 255)",
+    "horizontal_displacement": "x' = x + lambda * D with D = IFFT(+i*k_hat*h); crests compress",
+    "choppiness_baked": 1.0,
+    "foam_reference_choppiness": 0.9,
+    "foam_amplitude_equivalence": 2.0,
+    "foam_lambda_rule": "lambda0 * amplitude_equivalence * sigma_total_divergence / sigma_cascade_divergence",
+    "foam": {
+      "bias": 0.58,
+      "gain": 3.0,
+      "decay": 0.35,
+      "add": 2.5
+    },
+    "short_wave_damping_m": 0.01,
+    "amplitude_normalisation": "spatial variance = one-sided band energy m0; Hs = 4*sqrt(m0)"
+  },
+  "cascades": [
+    {
+      "name": "c0",
+      "patch_m": 128.0,
+      "n": 128,
+      "wavelength_long_m": 128.0,
+      "wavelength_short_m": 16.0,
+      "k_low": 0.049087385,
+      "k_high": 0.392699082,
+      "period_s": 25.6,
+      "frames": 64,
+      "channel_scales": {
+        "dx": 0.71570001,
+        "dy": 0.832930254,
+        "dz": 0.441199529,
+        "dy_dx": 0.172657431,
+        "dy_dz": 0.097238595,
+        "dx_dx": 0.158893553,
+        "dz_dz": 0.063399259
+      },
+      "foam_encoding": "linear 0..1 in disp alpha",
+      "foam_lambda": 3.86973756,
+      "foam_loops_simulated": 2,
+      "foam_loop_drift": 0.000110252,
+      "hs_m": 1.129978,
+      "files": {
+        "c0_disp.png": "c3782667dc227a30cbb9921015ec0ddc401985515a2554d7fac236a2c2c05652",
+        "c0_deriv.png": "9d28b277fce0e89180bd362d82ac220f4e26149bf6f1a931a8cc99d3ddc595d6"
+      }
+    },
+    {
+      "name": "c1",
+      "patch_m": 32.0,
+      "n": 128,
+      "wavelength_long_m": 16.0,
+      "wavelength_short_m": 4.0,
+      "k_low": 0.392699082,
+      "k_high": 1.570796327,
+      "period_s": 12.8,
+      "frames": 64,
+      "channel_scales": {
+        "dx": 0.335236186,
+        "dy": 0.419535948,
+        "dz": 0.242505941,
+        "dy_dx": 0.221556497,
+        "dy_dz": 0.179322561,
+        "dx_dx": 0.202440924,
+        "dz_dz": 0.146748246
+      },
+      "foam_encoding": "linear 0..1 in disp alpha",
+      "foam_lambda": 2.998726595,
+      "foam_loops_simulated": 3,
+      "foam_loop_drift": 8.7004e-05,
+      "hs_m": 0.532384,
+      "files": {
+        "c1_disp.png": "41c0f159e133b94c91ed98f69d660e454a26e11c115e96a13f57d7bcd91f1b4b",
+        "c1_deriv.png": "338f2157e0de4ec2e8e47b38374b45326a2a7ad3b4543f798c1c98d67b126c32"
+      }
+    },
+    {
+      "name": "c2",
+      "patch_m": 8.0,
+      "n": 64,
+      "wavelength_long_m": 4.0,
+      "wavelength_short_m": 1.0,
+      "k_low": 1.570796327,
+      "k_high": 6.283185307,
+      "period_s": 6.4,
+      "frames": 64,
+      "channel_scales": {
+        "dy_dx": 0.223808016,
+        "dy_dz": 0.18767415,
+        "dx_dx": 0.19864045,
+        "dz_dz": 0.159796499
+      },
+      "foam_encoding": "not baked (no disp atlas)",
+      "foam_lambda": 2.766509171,
+      "foam_loops_simulated": 4,
+      "foam_loop_drift": 0.00080154,
+      "hs_m": 0.161921,
+      "files": {
+        "c2_deriv.png": "52636e19e319eeb332e3509014e4b569b59565a2eb6dc3918c3fb95728bf9453"
+      }
+    }
+  ],
+  "hs_m": 1.259564
+}
