@@ -32,8 +32,10 @@ const PROP_MATERIALS := preload("res://scripts/map/view3d/map_view_prop_material
 const WATER_WAVE_BASE := {
 	MapTypes.TERRAIN_SHALLOW_WATER:
 	{
-		"height": 0.026,
+		"height": 0.070,
 		"chaos": 0.78,
+		"choppiness": 0.85,
+		"standing": 0.18,
 		"foam": 0.24,
 		"breakers": 0.52,
 		"absorption": 5.0,
@@ -43,8 +45,10 @@ const WATER_WAVE_BASE := {
 	},
 	MapTypes.TERRAIN_DEEP_WATER:
 	{
-		"height": 0.044,
+		"height": 0.120,
 		"chaos": 1.18,
+		"choppiness": 1.05,
+		"standing": 0.08,
 		"foam": 0.12,
 		"breakers": 0.10,
 		"absorption": 9.0,
@@ -54,8 +58,10 @@ const WATER_WAVE_BASE := {
 	},
 	MapTypes.TERRAIN_WATER:
 	{
-		"height": 0.030,
+		"height": 0.080,
 		"chaos": 0.96,
+		"choppiness": 0.55,
+		"standing": 0.42,
 		"foam": 0.18,
 		"breakers": 0.22,
 		"absorption": 7.0,
@@ -70,8 +76,10 @@ const WATER_WAVE_BASE := {
 	# the surface colour - the Pirita should read as a river, not a green shallow.
 	MapTypes.TERRAIN_RIVER_WATER:
 	{
-		"height": 0.024,
+		"height": 0.045,
 		"chaos": 0.72,
+		"choppiness": 0.35,
+		"standing": 0.05,
 		"foam": 0.12,
 		"breakers": 0.08,
 		"absorption": 6.0,

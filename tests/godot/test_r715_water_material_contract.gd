@@ -159,3 +159,32 @@ func test_water_shader_declares_reflection_inputs_and_safe_compatibility_fallbac
 		"planar_reflection" in source.to_lower(),
 		"water must not depend on a planar reflection pass",
 	)
+
+
+func test_water_field_is_choppy_gerstner_not_a_sine_sheet() -> void:
+	MaterialsFacade.reset()
+	var source := ShaderSources.WATER_SHADER.code
+	for feature in ["choppiness", "standing_wave_ratio", "VERTEX.x +=", "VERTEX.z +=", "crest_lift"]:
+		assert_true(feature in source, "water shader must retain %s" % feature)
+	var deep := MaterialsFacade.water_surface(MapTypesContract.TERRAIN_DEEP_WATER)
+	var enclosed := MaterialsFacade.water_surface(MapTypesContract.TERRAIN_WATER)
+	var river := MaterialsFacade.water_surface(MapTypesContract.TERRAIN_RIVER_WATER)
+	assert_true(
+		float(deep.get_shader_parameter("choppiness"))
+			> float(enclosed.get_shader_parameter("choppiness")),
+		"open sea must peak harder than sheltered harbor water",
+	)
+	assert_true(
+		float(enclosed.get_shader_parameter("standing_wave_ratio"))
+			> float(deep.get_shader_parameter("standing_wave_ratio")),
+		"harbor water must bob more than it travels",
+	)
+	assert_true(
+		float(river.get_shader_parameter("choppiness"))
+			< float(deep.get_shader_parameter("choppiness")),
+		"river chop must stay below open-sea chop",
+	)
+	assert_true(
+		float(deep.get_shader_parameter("wave_height")) > 0.1,
+		"deep water displacement must be large enough to read from the gameplay camera",
+	)

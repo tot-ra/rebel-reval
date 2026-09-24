@@ -23,6 +23,11 @@ uniform vec3 foam_color : source_color = vec3(0.72, 0.80, 0.78);
 uniform float wave_height = 0.032;
 uniform float wave_chaos = 1.0;
 uniform float wave_speed = 1.0;
+// Horizontal Gerstner sharpening. 0 is a sine sheet; ~1 peaks crests the way
+// an FFT ocean's choppiness does, without a compute FFT on GL Compatibility.
+uniform float choppiness = 0.85;
+// 0 travels with the wind; ~0.4 bobs in place for sheltered harbors.
+uniform float standing_wave_ratio = 0.12;
 uniform float depth_absorption = 7.0;
 uniform float refraction_strength = 0.012;
 uniform float foam_intensity = 0.22;
@@ -59,6 +64,7 @@ uniform float tide_shore_retreat = 0.0;
 uniform float tide_optical_depth = 0.0;
 
 varying vec3 water_world_position;
+varying vec2 wave_sample_xz;
 varying float shore_factor;
 
 float _hash(vec2 p) {
@@ -76,10 +82,10 @@ float _noise(vec2 p) {
 	);
 }
 
-// Returns height plus its X/Z derivatives. Position-dependent phase warping
-// bends otherwise regular wave trains, while the local amplitude field breaks
-// up long repeating crests without introducing a visibly scrolling noise tile.
-vec3 _wave(
+// Gerstner train. displacement is (dx, height, dz) before wave_height.
+// normal_terms is (dh/dx, crest fold, dh/dz), also before wave_height.
+// Keep the wavelengths and phases locked with BoatFloat3D.sample_wave.
+void _accumulate_wave(
 	vec2 position,
 	vec2 direction,
 	float frequency,
@@ -87,18 +93,34 @@ vec3 _wave(
 	float amplitude,
 	float time,
 	vec2 warp,
-	float phase_offset
+	float phase_offset,
+	inout vec3 displacement,
+	inout vec3 normal_terms
 ) {
 	vec2 heading = normalize(direction);
-	float phase = dot(position + warp, heading) * frequency - time * speed + phase_offset;
-	float slope = cos(phase) * frequency * amplitude;
-	return vec3(sin(phase) * amplitude, heading.x * slope, heading.y * slope);
+	float spatial = dot(position + warp, heading) * frequency + phase_offset;
+	float travel_s = sin(spatial - time * speed);
+	float travel_c = cos(spatial - time * speed);
+	float standing_s = sin(spatial) * sin(time * speed);
+	float standing_c = cos(spatial) * sin(time * speed);
+	float standing = clamp(standing_wave_ratio, 0.0, 1.0);
+	float wave_s = mix(travel_s, standing_s, standing);
+	float wave_c = mix(travel_c, standing_c, standing);
+	// Sheltered water bobs more than it shears, so chop falls as standing rises.
+	float chop = max(choppiness, 0.0) * (1.0 - standing * 0.65);
+	displacement.x += chop * amplitude * heading.x * wave_c;
+	displacement.y += amplitude * wave_s;
+	displacement.z += chop * amplitude * heading.y * wave_c;
+	float slope = frequency * amplitude * wave_c;
+	normal_terms.x += heading.x * slope;
+	normal_terms.y += chop * frequency * amplitude * wave_s;
+	normal_terms.z += heading.y * slope;
 }
 
-vec3 _water_shape(vec2 position, float time) {
-	// Two unrelated, slowly drifting noise fields domain-warp all wave scales.
-	// Their non-integer scales and offsets avoid a shared repeat interval across
-	// the large uninterrupted water regions visible from the isometric camera.
+// Three bands stand in for a JONSWAP FFT on GL Compatibility: swell and wind
+// waves displace the mesh, ripples stay in the detail normal. Wavelengths stay
+// longer than the 1/3-cell water grid so crests are geometric, not aliased.
+void _water_field(vec2 position, float time, out vec3 displacement, out vec3 normal_terms) {
 	vec2 drift = vec2(time * 0.035, -time * 0.021);
 	vec2 warp_position = position * 0.115 + drift;
 	vec2 warp = vec2(
@@ -113,12 +135,16 @@ vec3 _water_shape(vec2 position, float time) {
 
 	float amplitude_noise = _noise(position * 0.16 + drift * 1.7 + vec2(5.3, 41.2));
 	float amplitude_variation = mix(0.72, 1.22, amplitude_noise);
-	vec3 shape = _wave(position, vec2(1.0, 0.28), 0.97, 0.68, 0.46, time, warp, 0.3);
-	shape += _wave(position, vec2(0.36, 1.0), 2.11, 1.03, 0.23, time, warp * 0.72, 2.1);
-	shape += _wave(position, vec2(-0.72, 1.0), 4.37, 1.67, 0.09, time, fine_warp * wave_chaos, 4.7);
-	shape += _wave(position, vec2(1.0, -0.62), 7.79, 2.31, 0.028, time, warp * 0.24, 1.4);
-	shape *= amplitude_variation;
-	return shape;
+	displacement = vec3(0.0);
+	normal_terms = vec3(0.0);
+	// Swell: ~9 m and ~6 m, the scale a harbor camera can actually read.
+	_accumulate_wave(position, vec2(1.0, 0.28), 0.62, 0.48, 0.62, time, warp, 0.3, displacement, normal_terms);
+	_accumulate_wave(position, vec2(0.82, 0.55), 0.91, 0.61, 0.28, time, warp * 0.8, 1.7, displacement, normal_terms);
+	// Wind waves: a few meters, still sampled by the subdivided water grid.
+	_accumulate_wave(position, vec2(0.36, 1.0), 1.85, 1.05, 0.16, time, warp * 0.72, 2.1, displacement, normal_terms);
+	_accumulate_wave(position, vec2(-0.55, 0.84), 2.70, 1.40, 0.08, time, fine_warp * wave_chaos, 4.2, displacement, normal_terms);
+	displacement *= amplitude_variation;
+	normal_terms *= amplitude_variation;
 }
 
 // A finite-difference slope is a small procedural stand-in for a sampled normal
@@ -196,20 +222,26 @@ vec2 _equatorial_uv(vec3 direction) {
 }
 
 void vertex() {
-	water_world_position = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+	vec3 undisplaced_world = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+	wave_sample_xz = undisplaced_world.xz;
 	shore_factor = clamp(COLOR.r, 0.0, 1.0);
 	// Advect the wave field downstream so ripples travel along the current.
 	vec2 flow_advection = flow_direction * (flow_strength * TIME * wave_speed * 0.6);
-	vec3 shape = _water_shape(water_world_position.xz - flow_advection, TIME * wave_speed);
+	vec3 displacement = vec3(0.0);
+	vec3 normal_terms = vec3(0.0);
+	_water_field(wave_sample_xz - flow_advection, TIME * wave_speed, displacement, normal_terms);
 	// Low tide withdraws the clipped coastal edge instead of requiring a second
 	// authored shoreline mesh. High tide reaches the original maximum contour.
-	// The fragment stage clips the retreat band; vertices only change elevation.
+	// The fragment stage clips the retreat band. Vertices rise and also shift
+	// horizontally so crests peak instead of staying a displaced sine sheet.
 	// Keep clipped patch seams pinned, but let the crest rise almost all the way
 	// into the shallows. The old broad fade erased waves before they reached land.
 	float displacement_fade = smoothstep(0.0, 0.16, shore_factor);
 	float shoaling = mix(1.32, 1.0, smoothstep(0.0, 0.65, shore_factor));
-	float displacement = shape.x * wave_height * displacement_fade * shoaling;
-	VERTEX.y += tide_height * tide_level + displacement;
+	displacement *= wave_height * displacement_fade * shoaling;
+	VERTEX.x += displacement.x;
+	VERTEX.y += tide_height * tide_level + displacement.y;
+	VERTEX.z += displacement.z;
 	water_world_position = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 }
 
@@ -218,10 +250,18 @@ void fragment() {
 	if (shore_factor < tide_coverage) {
 		discard;
 	}
-	// Advect the wave field downstream so ripples travel along the current.
+	// Sample the undisplaced XZ. Evaluating Gerstner at the chopped position
+	// feeds the displacement back into itself and swims the normal off the crest.
 	vec2 flow_advection = flow_direction * (flow_strength * TIME * wave_speed * 0.6);
-	vec3 shape = _water_shape(water_world_position.xz - flow_advection, TIME * wave_speed);
-	vec3 world_normal = normalize(vec3(-shape.y * wave_height, 1.0, -shape.z * wave_height));
+	vec3 displacement = vec3(0.0);
+	vec3 normal_terms = vec3(0.0);
+	_water_field(wave_sample_xz - flow_advection, TIME * wave_speed, displacement, normal_terms);
+	float crest_lift = max(1.0 - normal_terms.y * wave_height, 0.15);
+	vec3 world_normal = normalize(vec3(
+		-normal_terms.x * wave_height,
+		crest_lift,
+		-normal_terms.z * wave_height
+	));
 	// Layer two independently scrolling detail normals over the broad wave normal.
 	// The low-sun relief clamp still applies below, preventing sharp glint bands at
 	// sunrise while preserving the small-scale broken reflection at daytime angles.

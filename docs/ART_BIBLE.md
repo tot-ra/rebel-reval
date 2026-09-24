@@ -201,6 +201,17 @@ gameplay readability. Implementation and comparison evidence live in
 - Rain deepens albedo and increases selective wet highlights. Snow, lightning, sunrise, and sunset must use authored color scripts rather than neutral exposure changes alone.
 - Gameplay prompts, silhouettes, routes, and hazards remain above background value noise in every phase.
 
+## Baltic water
+
+Open water is a choppy Gerstner surface, not a flat animated normal (**P0-222**).
+Three bands stand in for a JONSWAP ocean on the GL Compatibility renderer: swell
+and wind waves move vertices, and capillary ripples stay in the detail normal.
+Harbor water bobs (high standing-wave ratio, low chop). The open Baltic peaks
+harder. Rivers stay a tighter current. Crest height must stay readable from the
+gameplay camera (deep water above about 0.1 world units before weather) without
+a compute FFT, clipmap ocean, or planar reflection pass. Evidence:
+[`water_realism_2026-09-24.md`](reports/water_realism_2026-09-24.md).
+
 ## Medieval Reval shape language
 
 - Lower Town buildings use compact gables, lime plaster, visible timber or plank structure where sourced, small openings, dark doors, and period roof materials.

@@ -14,7 +14,7 @@ This file remains the durable/legacy ID index expected by `README.md`, `AGENTS.m
 <!-- Quick-reference counts updated on every structural change -->
 | Priority | Open | Done | Notes |
 |----------|-----:|-----:|-------|
-| P0 |    16  |    30  | Baseline, storage, materials, historical audit |
+| P0 |    21  |    31  | Baseline, storage, materials, historical audit |
 | P2 |     1  |     4  | Vertical-slice production (playable MVP) |
 | P4 |     0  |     2  | Act 1: The Simmering City |
 
@@ -36,6 +36,22 @@ This file remains the durable/legacy ID index expected by `README.md`, `AGENTS.m
 ## Urban companion motion (maintainer request, 2026-09-24)
 
 - [x] P0-221 | deps: P2-024 | deliverable: town cats and dogs move with purpose (hunt, play, groom, investigate) and play matching locomotion or activity clips instead of holding a static Idle pose | allowed files: `scripts/map/view3d/map_view_companion_intent.gd`, matching UID, `scripts/map/view3d/map_view_urban_fauna.gd`, `scripts/map/view3d/map_view_ground_wander.gd`, `scripts/map/view3d/map_view_medieval_animal_models.gd`, `tests/godot/test_map_view_companion_intent.gd`, matching UID, `tests/godot/test_medieval_dog_model.gd`, `tests/godot/test_medieval_animal_models.gd`, `docs/FLORA_FAUNA.md`, `TODO.md` | constraints: visual-only ambient actors; no GameState writes, collision, map content, save schema or new asset classes; keep eight-actor cap, species IDs and penned/livestock clip contracts | verify: focused companion-intent, urban-fauna, dog and medieval-animal tests; companions travel, stay in yard, and play Walk/LookAround/Groom/Stretch/Run clips
+
+## Baltic water realism (Three.js Water Pro reference, 2026-09-24)
+
+Reference: [Three.js Water Pro](https://docs.threejswaterpro.com/). The game stays on GL Compatibility, so a WebGPU FFT ocean and an infinite clipmap are out of scope. The portable stand-in is a three-band Gerstner field (swell, wind waves, ripple normals) plus the existing depth, tide, river, and sky-glint path.
+
+- [x] P0-222 | deps: none | deliverable: replace the flat sine sheet with a choppy three-cascade Gerstner field so crests peak and harbor water bobs in place | allowed files: `scripts/map/view3d/map_view_water.gdshader`, `scripts/map/view3d/map_view_water_materials.gd`, `scripts/map/view3d/map_view_materials.gd`, `scripts/map/view3d/boat_float_3d.gd`, `tests/godot/test_r715_water_material_contract.gd`, `tests/godot/test_coastal_sea_3d.gd`, `docs/ART_BIBLE.md`, `docs/reports/water_realism_2026-09-24.md`, `TODO.md` | constraints: keep GL Compatibility, one shared shader, optical/tide/flow roles, no planar reflection, no map content or save schema changes; ripples stay in the detail normal because the 1/3-cell grid aliases capillary waves | verify: `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_r715_water_material_contract,test_boat_float_3d,test_coastal_sea_3d,test_r715_water_surface_geometry`
+
+- [ ] P0-223 | deps: P0-222 | deliverable: Jacobian whitecaps on breaking crests, separate from the existing shoreline breaker bands, with a short decay so foam lingers behind the crest | allowed files: `scripts/map/view3d/map_view_water.gdshader`, `scripts/map/view3d/map_view_water_materials.gd`, `scripts/map/view3d/map_view_materials.gd`, `tests/godot/test_r715_water_material_contract.gd`, `TODO.md` | constraints: foam must stay off rivers' grass bed and off the pinned shoreline seam; no new textures; keep GL blend_mix | verify: focused water material contract; crest foam rises with choppiness and wind, shoreline foam remains
+
+- [ ] P0-224 | deps: P0-222 | deliverable: crest subsurface glow so thin wave peaks transmit a warm-teal highlight instead of staying the same opaque albedo as the trough | allowed files: `scripts/map/view3d/map_view_water.gdshader`, `scripts/map/view3d/map_view_water_materials.gd`, `tests/godot/test_r715_water_material_contract.gd`, `docs/ART_BIBLE.md`, `TODO.md` | constraints: keep Baltic `#168FAA` / `#14617C` identity; glow dies at night with the existing sun envelope; no bloom-pass dependency | verify: focused water contract; shader transmits more light on positive crest fold than in troughs
+
+- [ ] P0-225 | deps: P0-222 | deliverable: multi-point hull sampling (bow, stern, port, starboard, center) so moored boats heel with the shared Gerstner field instead of one exaggerated sine | allowed files: `scripts/map/view3d/boat_float_3d.gd`, `tests/godot/test_boat_float_3d.gd`, `TODO.md` | constraints: visual transform only; do not move gameplay collision or prop anchors; harbor standing ratio must match enclosed water | verify: focused boat-float tests; bow and stern samples differ along a swell
+
+- [ ] P0-226 | deps: P0-222 | deliverable: sea-state response where wind direction turns the swell and storm wind raises chop independently of wave height, matching Water Pro's windSpeed / choppiness split | allowed files: `scripts/map/view3d/map_view_water_materials.gd`, `scripts/map/view3d/map_view_materials.gd`, `scripts/map/view3d/map_view_3d.gd`, `tests/godot/test_coastal_sea_3d.gd`, `tests/godot/test_r715_water_weather_sync.gd`, `TODO.md` | constraints: reuse SkyWeather wind; do not add a second weather system or save fields | verify: focused coastal-sea and weather-sync tests; swell heading follows wind_direction_xz
+
+- [ ] P0-227 | deps: P0-224 | deliverable: a bounded above-water fresnel reflection of the existing sky dome and a short underwater tint/fog path if the camera ever crosses the surface | allowed files: `scripts/map/view3d/map_view_water.gdshader`, `scripts/map/view3d/map_view_water_materials.gd`, `tests/godot/test_r715_water_material_contract.gd`, `TODO.md` | constraints: no planar reflection pass and no WebGPU SSR; isometric gameplay camera stays above water unless a later task submerges it | verify: focused water contract still rejects planar reflections; fresnel keeps the current sky-glint path
 
 ## Sky and weather realism
 

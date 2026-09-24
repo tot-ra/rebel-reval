@@ -231,6 +231,7 @@ func test_coastal_tide_changes_shore_and_depth_without_affecting_rivers() -> voi
 
 
 func test_all_water_terrain_ids_use_shared_approved_material_profile() -> void:
+	MapViewMaterials.reset()
 	assert_eq(
 		MapViewMaterials.WATER_TERRAINS,
 		MapTypes.WATER_TERRAINS,

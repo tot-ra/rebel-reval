@@ -67,6 +67,8 @@ static func water_surface(terrain_id: StringName, wave_profiles: Dictionary) -> 
 	)
 	material.set_shader_parameter("wave_height", float(wave["height"]))
 	material.set_shader_parameter("wave_chaos", float(wave["chaos"]))
+	material.set_shader_parameter("choppiness", float(wave.get("choppiness", 0.85)))
+	material.set_shader_parameter("standing_wave_ratio", float(wave.get("standing", 0.12)))
 	material.set_shader_parameter("foam_intensity", float(wave["foam"]))
 	material.set_shader_parameter("breaker_intensity", float(wave["breakers"]))
 	material.set_shader_parameter("bed_vegetation", float(wave.get("bed_vegetation", 1.0)))
@@ -106,6 +108,7 @@ static func apply_sea_weather(wind: float, rain: float, wave_profiles: Dictionar
 	var rain_state := clampf(rain, 0.0, 1.0)
 	var height_mul := lerpf(0.82, 2.15, wind_state) * lerpf(1.0, 1.45, rain_state)
 	var chaos_mul := lerpf(0.88, 1.65, wind_state) * lerpf(1.0, 1.35, rain_state)
+	var chop_mul := lerpf(0.85, 1.35, wind_state) * lerpf(1.0, 1.15, rain_state)
 	var speed := lerpf(0.72, 1.62, wind_state) * lerpf(1.0, 1.18, rain_state)
 	var breaker_mul := lerpf(0.72, 1.75, wind_state) * lerpf(1.0, 1.45, rain_state)
 	for terrain_id in wave_profiles.keys():
@@ -113,6 +116,9 @@ static func apply_sea_weather(wind: float, rain: float, wave_profiles: Dictionar
 		var wave: Dictionary = wave_profiles[terrain_id]
 		material.set_shader_parameter("wave_height", float(wave["height"]) * height_mul)
 		material.set_shader_parameter("wave_chaos", float(wave["chaos"]) * chaos_mul)
+		material.set_shader_parameter(
+			"choppiness", float(wave.get("choppiness", 0.85)) * chop_mul
+		)
 		material.set_shader_parameter("wave_speed", speed)
 		material.set_shader_parameter("breaker_intensity", float(wave["breakers"]) * breaker_mul)
 		material.set_shader_parameter(

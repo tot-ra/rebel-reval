@@ -90,8 +90,15 @@ static func sample_wave(position: Vector2, time: float) -> Vector3:
 		- Vector2(0.5, 0.5)
 	)
 	warp *= 2.8
-	var shape := _wave(position, Vector2(1.0, 0.28), 0.97, 0.68, 0.46, time, warp, 0.3)
-	shape += _wave(position, Vector2(0.36, 1.0), 2.11, 1.03, 0.23, time, warp * 0.72, 2.1)
+	# Lockstep with map_view_water.gdshader swell + wind trains (traveling part).
+	var shape := _wave(position, Vector2(1.0, 0.28), 0.62, 0.48, 0.62, time, warp, 0.3)
+	shape += _wave(position, Vector2(0.82, 0.55), 0.91, 0.61, 0.28, time, warp * 0.8, 1.7)
+	shape += _wave(
+		position, Vector2(0.36, 1.0), 1.85, 1.05, 0.16, time, warp * 0.72, 2.1
+	)
+	shape += _wave(
+		position, Vector2(-0.55, 0.84), 2.70, 1.40, 0.08, time, warp * 0.35, 4.2
+	)
 	var amplitude_noise := _noise(
 		position * 0.16 + Vector2(time * 0.035, -time * 0.021) * 1.7 + Vector2(5.3, 41.2)
 	)
