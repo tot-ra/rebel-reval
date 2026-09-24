@@ -5,6 +5,7 @@ extends Node3D
 ## only: no collision, gameplay interaction, or GameState writes.
 
 const BirdAmbientAudio := preload("res://scripts/map/view3d/map_view_bird_ambient_audio.gd")
+const CompanionIntent := preload("res://scripts/map/view3d/map_view_companion_intent.gd")
 const FaunaContext := preload("res://scripts/map/view3d/map_view_fauna_context.gd")
 const GroundWander := preload("res://scripts/map/view3d/map_view_ground_wander.gd")
 const MapViewBridge := preload("res://scripts/map/view3d/map_view_bridge.gd")
@@ -31,6 +32,8 @@ const BEHAVIOR_TETHER := &"tether"
 const BEHAVIOR_WANDER := &"wander"
 const BEHAVIOR_IDLE := &"idle"
 const BEHAVIOR_FLEE := &"flee"
+const BEHAVIOR_HUNT := &"hunt"
+const BEHAVIOR_PLAY := &"play"
 ## Authored Lower Town placements in map cell coordinates beside service yards and
 ## patrol spines. Radii stay inside yards so actors never overlap quest anchors.
 const LOWER_TOWN_PLACEMENTS: Array[Dictionary] = [
@@ -43,7 +46,7 @@ const LOWER_TOWN_PLACEMENTS: Array[Dictionary] = [
 	{
 		"cell": Vector2i(74, 56),
 		"species": MammalSpecies.SPECIES_DOG,
-		"behavior": BEHAVIOR_WANDER,
+		"behavior": BEHAVIOR_PLAY,
 		"radius": 3.6
 	},
 	{
@@ -61,8 +64,8 @@ const LOWER_TOWN_PLACEMENTS: Array[Dictionary] = [
 	{
 		"cell": Vector2i(85, 58),
 		"species": MammalSpecies.SPECIES_CAT,
-		"behavior": BEHAVIOR_IDLE,
-		"radius": 1.2
+		"behavior": BEHAVIOR_HUNT,
+		"radius": 1.8
 	},
 	{
 		"cell": Vector2i(72, 54),
@@ -109,7 +112,7 @@ const MAP_PLACEMENTS: Dictionary = {
 	&"lower_town_slice": LOWER_TOWN_PLACEMENTS,
 	&"south_quarter": SOUTH_QUARTER_PLACEMENTS,
 }
-const CAT_WANDER_SPEED := 0.34
+const CAT_WANDER_SPEED := 0.48
 
 var _actors: Array[Node3D] = []
 var _fauna_enabled := true
@@ -212,6 +215,8 @@ func _rebuild_actors() -> void:
 		_actors.append(actor)
 		if _definition != null:
 			snap_actor_visual_to_ground(actor, _ground_height_at(actor.position))
+	for actor in _actors:
+		CompanionIntent.refresh_focus(actor, _map_id, _actors)
 
 
 ## Cats amble; they do not trot around a yard like a working dog.
@@ -228,7 +233,13 @@ func _make_actor(index: int, placement: Dictionary) -> Node3D:
 	if model != null and species == MammalSpecies.SPECIES_CAT:
 		# Same mesh and rig as Kalev's cat, different coat and build, so a town
 		# with several cats does not read as one cat copied around.
-		actor.set_meta(&"coat", model.apply_coat(hash_seed(_map_id, index, 71)) if model.has_method("apply_coat") else CatCoats.apply(model, hash_seed(_map_id, index, 71)))
+		var coat_seed := hash_seed(_map_id, index, 71)
+		var coat: Variant = (
+			model.apply_coat(coat_seed)
+			if model.has_method("apply_coat")
+			else CatCoats.apply(model, coat_seed)
+		)
+		actor.set_meta(&"coat", coat)
 	if model == null:
 		var mesh := MammalMeshes.mesh_for(species, pose)
 		var proxy := MeshInstance3D.new()
@@ -246,6 +257,7 @@ func _make_actor(index: int, placement: Dictionary) -> Node3D:
 	var wander_config := _wander_config(behavior, home, radius, species)
 	wander_config["blocked_rects"] = _blocked_rects(species)
 	GroundWander.setup(actor, _map_id, index, wander_config)
+	CompanionIntent.setup(actor, _map_id, index)
 	return actor
 
 
@@ -264,20 +276,44 @@ static func _wander_config(
 			config["pause_range"] = Vector2(0.6, 2.0)
 			config["flee_speed"] = FLEE_SPEED
 			config["flee_radius"] = FLEE_RADIUS
+		BEHAVIOR_HUNT:
+			config["speed"] = (
+				CompanionIntent.CAT_STALK_SPEED
+				if species == MammalSpecies.SPECIES_CAT
+				else CompanionIntent.DOG_INVESTIGATE_SPEED
+			)
+			config["roam_scale"] = 0.88
+			config["pause_range"] = Vector2(0.25, 0.8)
+		BEHAVIOR_PLAY:
+			config["speed"] = (
+				CompanionIntent.CAT_PLAY_SPEED
+				if species == MammalSpecies.SPECIES_CAT
+				else CompanionIntent.DOG_PLAY_SPEED
+			)
+			config["roam_scale"] = 0.90
+			config["pause_range"] = Vector2(0.15, 0.55)
 		BEHAVIOR_IDLE:
-			# Resting cats hold their pose; a dozing animal that slides around
-			# reads worse than one that simply sits still.
-			config["speed"] = 0.0
+			# Companions still rest, but rest is one phase of their intent cycle.
+			# Horses and other stock keep a planted pose.
+			if species == MammalSpecies.SPECIES_CAT or species == MammalSpecies.SPECIES_DOG:
+				config["speed"] = (
+					CAT_WANDER_SPEED if species == MammalSpecies.SPECIES_CAT else WANDER_SPEED
+				)
+				config["roam_scale"] = 0.70
+				config["pause_range"] = Vector2(0.5, 1.6)
+			else:
+				config["speed"] = 0.0
 		_:
 			config["speed"] = (
 				CAT_WANDER_SPEED if species == MammalSpecies.SPECIES_CAT else WANDER_SPEED
 			)
 			config["roam_scale"] = 0.82
-			config["pause_range"] = Vector2(0.9, 3.2)
+			config["pause_range"] = Vector2(0.45, 1.5)
 	return config
 
 
 func _advance_actor(actor: Node3D, listener_position: Vector3, delta: float) -> void:
+	CompanionIntent.advance(actor, _map_id, _actors, delta)
 	var previous_position := actor.position
 	GroundWander.advance(actor, _map_id, listener_position, delta)
 	if _definition != null:

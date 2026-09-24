@@ -14,7 +14,7 @@ This file remains the durable/legacy ID index expected by `README.md`, `AGENTS.m
 <!-- Quick-reference counts updated on every structural change -->
 | Priority | Open | Done | Notes |
 |----------|-----:|-----:|-------|
-| P0 |    16  |    29  | Baseline, storage, materials, historical audit |
+| P0 |    16  |    30  | Baseline, storage, materials, historical audit |
 | P2 |     1  |     4  | Vertical-slice production (playable MVP) |
 | P4 |     0  |     2  | Act 1: The Simmering City |
 
@@ -32,6 +32,10 @@ This file remains the durable/legacy ID index expected by `README.md`, `AGENTS.m
 ## Kalev surface and motion defects (maintainer request, 2026-09-24)
 
 - [x] P0-220 | deps: P0-215 | deliverable: remove the torn projection seam, ghost features and smeared side band from the live Kalev skin by baking one seamless unwrapped atlas, and replace the mannequin-stiff authored idle/walk/run with grounded cycles that swing the arms and hinge the elbows | allowed files: `tools/assets/kalev_rebuild/build_character.py`, `assets/characters/kalev_rebuild/kalev_fresh.glb`, `assets/characters/kalev_rebuild/{linen_shirt,wool_tunic,mail_shirt,smith_apron,hose,boots}.glb`, `assets/characters/kalev_rebuild/materials/skin_atlas.jpg`, `assets/characters/kalev_rebuild/kalev_fresh_skin_atlas.jpg`, `assets/characters/kalev_rebuild/source/kalev_fresh.blend`, `assets/characters/kalev_rebuild/README.md`, associated import sidecars, `assets/SOURCES.csv`, `docs/reports/kalev_surface_and_motion_2026-09-24.md`, `docs/reports/images/kalev_surface_motion/`, `agents/rebel-art/playbook.md`, `TODO.md` | constraints: keep stable `char.kalev` identity, the 41-bone skeleton names, 76 clip names, 8 body regions, the `handslot.r` socket, wardrobe fit id `kalev_fresh` and the shared rest skeleton; no gameplay, map, inventory, combat or save changes | verify: `python3 tools/assets/kalev_rebuild/verify_asset.py`; `godot --headless --path . --script tools/run_godot_tests.gd`; `python3 tools/validate_asset_sources.py`; measured sole clearance per cycle; before/after turnaround, portrait and motion captures
+
+## Urban companion motion (maintainer request, 2026-09-24)
+
+- [x] P0-221 | deps: P2-024 | deliverable: town cats and dogs move with purpose (hunt, play, groom, investigate) and play matching locomotion or activity clips instead of holding a static Idle pose | allowed files: `scripts/map/view3d/map_view_companion_intent.gd`, matching UID, `scripts/map/view3d/map_view_urban_fauna.gd`, `scripts/map/view3d/map_view_ground_wander.gd`, `scripts/map/view3d/map_view_medieval_animal_models.gd`, `tests/godot/test_map_view_companion_intent.gd`, matching UID, `tests/godot/test_medieval_dog_model.gd`, `tests/godot/test_medieval_animal_models.gd`, `docs/FLORA_FAUNA.md`, `TODO.md` | constraints: visual-only ambient actors; no GameState writes, collision, map content, save schema or new asset classes; keep eight-actor cap, species IDs and penned/livestock clip contracts | verify: focused companion-intent, urban-fauna, dog and medieval-animal tests; companions travel, stay in yard, and play Walk/LookAround/Groom/Stretch/Run clips
 
 ## Sky and weather realism
 

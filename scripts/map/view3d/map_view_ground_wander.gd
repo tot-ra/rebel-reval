@@ -94,6 +94,36 @@ static func hash_seed(seed_key: StringName, placement_index: int, salt: int = 0)
 	return hash([String(seed_key), placement_index, salt])
 
 
+## Point a walking actor at a world location, clamped to its yard and walls.
+## Used by hunt/play intents so a cat stalks a rat instead of circling home.
+static func aim_toward(actor: Node3D, world_point: Vector3) -> void:
+	var home: Vector3 = actor.get_meta(&"home", actor.position)
+	var radius := float(actor.get_meta(&"radius", 1.0))
+	var roam_scale := float(actor.get_meta(&"roam_scale", 0.8))
+	var desired := Vector3(world_point.x, home.y, world_point.z)
+	var offset := desired - home
+	offset.y = 0.0
+	var max_distance := maxf(radius * roam_scale, 0.2)
+	if offset.length() > max_distance:
+		desired = home + offset.normalized() * max_distance
+	if _is_blocked(actor, desired):
+		var fallback := home
+		for step: int in range(8):
+			var candidate: Vector3 = home.lerp(desired, 1.0 - float(step + 1) / 8.0)
+			candidate.y = home.y
+			if not _is_blocked(actor, candidate):
+				fallback = candidate
+				break
+		desired = fallback
+	actor.set_meta(&"target", desired)
+	actor.set_meta(&"pause_remaining", 0.0)
+
+
+static func select_next_target(actor: Node3D, seed_key: StringName) -> void:
+	_select_next_target(actor, seed_key)
+	actor.set_meta(&"pause_remaining", 0.0)
+
+
 static func _select_next_target(actor: Node3D, seed_key: StringName) -> void:
 	var waypoint_index := int(actor.get_meta(&"waypoint_index", 0)) + 1
 	actor.set_meta(&"waypoint_index", waypoint_index)

@@ -12,6 +12,11 @@ const WALK_ANIMATION := &"Walk"
 const TROT_ANIMATION := &"Trot"
 const GRAZE_ANIMATION := &"Graze"
 const SNIFF_ANIMATION := &"Sniff"
+const LOOK_AROUND_ANIMATION := &"LookAround"
+const ALERT_ANIMATION := &"Alert"
+const GROOM_ANIMATION := &"Groom"
+const SLEEP_ANIMATION := &"Sleep"
+const STRETCH_ANIMATION := &"Stretch"
 const ANIMATION_PLAYER_META := &"animal_animation_player"
 const ANIMATION_STATE_META := &"animal_animation_state"
 const WALK_REFERENCE_SPEED_META := &"animal_walk_reference_speed"
@@ -21,6 +26,8 @@ const IDLE_VARIATION_TIME_META := &"animal_idle_variation_time"
 const DOG_TROT_SPEED := 1.0
 const DOG_TROT_REFERENCE_SPEED := 1.35
 const DOG_SNIFF_INTERVAL := 5.5
+const CAT_LOOK_INTERVAL := 3.0
+const CAT_GROOM_INTERVAL := 5.5
 const LIVESTOCK_GRAZE_INTERVAL := 7.0
 const LIVESTOCK_TROT_SPEED := 1.2
 const LIVESTOCK_TROT_REFERENCE_SPEED := 0.95
@@ -143,27 +150,15 @@ static func sync_animation(actor: Node3D, previous_position: Vector3, delta: flo
 		return
 	var speed := displacement.length() / maxf(delta, 0.0001)
 	var species: StringName = actor.get_meta(&"species", &"")
+	var intent: StringName = actor.get_meta(&"companion_intent", &"")
 	var wanted_canonical := IDLE_ANIMATION
 	if speed > 0.001:
-		wanted_canonical = (
-			TROT_ANIMATION
-			if (
-				(species == MammalSpecies.SPECIES_DOG and speed >= DOG_TROT_SPEED)
-				or (species != MammalSpecies.SPECIES_DOG and speed >= LIVESTOCK_TROT_SPEED)
-			)
-			else WALK_ANIMATION
-		)
+		wanted_canonical = _locomotion_clip(species, speed, intent)
 		actor.set_meta(IDLE_VARIATION_TIME_META, 0.0)
 	else:
 		var idle_time := float(actor.get_meta(IDLE_VARIATION_TIME_META, 0.0)) + delta
 		actor.set_meta(IDLE_VARIATION_TIME_META, idle_time)
-		# Deterministic long idle variants make herds feel alive without random
-		# animation churn. Dogs sniff; livestock periodically lower their heads.
-		if species == MammalSpecies.SPECIES_DOG:
-			if fmod(idle_time, DOG_SNIFF_INTERVAL * 2.0) >= DOG_SNIFF_INTERVAL:
-				wanted_canonical = SNIFF_ANIMATION
-		elif fmod(idle_time, LIVESTOCK_GRAZE_INTERVAL * 2.0) >= LIVESTOCK_GRAZE_INTERVAL:
-			wanted_canonical = GRAZE_ANIMATION
+		wanted_canonical = _idle_clip(species, intent, idle_time)
 	var wanted := _clip_name(player, wanted_canonical)
 	if wanted.is_empty():
 		wanted = _clip_name(player, WALK_ANIMATION if speed > 0.001 else IDLE_ANIMATION)
@@ -221,8 +216,19 @@ static func _configure_animation(parent: Node3D, model: Node3D) -> void:
 		return
 	var player := players[0] as AnimationPlayer
 	# Loops are explicit for imported GLBs, including the new skeletal fowl.
+	# Groom/Sleep/LookAround keep companions alive while they pause in a yard.
 	for clip: StringName in player.get_animation_list():
-		if clip in [&"Idle", &"Walk", &"Run", &"Graze", &"Peck", &"LookAround", &"Alert"]:
+		if clip in [
+			&"Idle",
+			&"Walk",
+			&"Run",
+			&"Graze",
+			&"Peck",
+			&"LookAround",
+			&"Alert",
+			&"Groom",
+			&"Sleep",
+		]:
 			player.get_animation(clip).loop_mode = Animation.LOOP_LINEAR
 	parent.set_meta(ANIMATION_PLAYER_META, player)
 	_configure_anatomical_gait(parent, model, player)
@@ -334,10 +340,69 @@ static func _sync_procedural_gait(
 	gait_pivot.rotation.z = FOWL_WADDLE_ANGLE * stride * weight
 
 
+static func _locomotion_clip(
+	species: StringName, speed: float, intent: StringName
+) -> StringName:
+	var dog_trot := species == MammalSpecies.SPECIES_DOG and (
+		speed >= DOG_TROT_SPEED or intent == &"play"
+	)
+	var cat_dash := species == MammalSpecies.SPECIES_CAT and intent == &"play"
+	var livestock_trot := (
+		species != MammalSpecies.SPECIES_DOG
+		and species != MammalSpecies.SPECIES_CAT
+		and speed >= LIVESTOCK_TROT_SPEED
+	)
+	if dog_trot or cat_dash or livestock_trot:
+		return TROT_ANIMATION
+	return WALK_ANIMATION
+
+
+static func _idle_clip(species: StringName, intent: StringName, idle_time: float) -> StringName:
+	# Intent clips first: a hunting cat must look alert, not loaf, while it waits.
+	match intent:
+		&"groom":
+			return GROOM_ANIMATION if species == MammalSpecies.SPECIES_CAT else SNIFF_ANIMATION
+		&"rest":
+			return SLEEP_ANIMATION if species == MammalSpecies.SPECIES_CAT else IDLE_ANIMATION
+		&"hunt":
+			return ALERT_ANIMATION if species == MammalSpecies.SPECIES_DOG else LOOK_AROUND_ANIMATION
+		&"play":
+			return STRETCH_ANIMATION if species == MammalSpecies.SPECIES_CAT else LOOK_AROUND_ANIMATION
+		&"investigate":
+			return SNIFF_ANIMATION
+		&"wander":
+			if species == MammalSpecies.SPECIES_CAT:
+				var cat_phase := fmod(idle_time, CAT_GROOM_INTERVAL + 2.4)
+				if cat_phase < CAT_LOOK_INTERVAL:
+					return LOOK_AROUND_ANIMATION
+				if cat_phase < CAT_GROOM_INTERVAL:
+					return GROOM_ANIMATION
+			elif species == MammalSpecies.SPECIES_DOG:
+				if fmod(idle_time, DOG_SNIFF_INTERVAL * 2.0) >= DOG_SNIFF_INTERVAL:
+					return SNIFF_ANIMATION
+				return LOOK_AROUND_ANIMATION
+	# Deterministic long idle variants make herds feel alive without random
+	# animation churn. Dogs sniff; livestock periodically lower their heads.
+	if species == MammalSpecies.SPECIES_DOG:
+		if fmod(idle_time, DOG_SNIFF_INTERVAL * 2.0) >= DOG_SNIFF_INTERVAL:
+			return SNIFF_ANIMATION
+	elif (
+		species != MammalSpecies.SPECIES_CAT
+		and fmod(idle_time, LIVESTOCK_GRAZE_INTERVAL * 2.0) >= LIVESTOCK_GRAZE_INTERVAL
+	):
+		return GRAZE_ANIMATION
+	return IDLE_ANIMATION
+
+
 ## Livestock GLBs ship capitalised clip names; the cat rig ships the lowercase
 ## canonical names shared with the character rigs. Accept either.
 static func _clip_name(player: AnimationPlayer, canonical: StringName) -> String:
-	var aliases := {TROT_ANIMATION: "Run", SNIFF_ANIMATION: "Graze", GRAZE_ANIMATION: "Peck"}
+	var aliases := {
+		TROT_ANIMATION: "Run",
+		SNIFF_ANIMATION: "Graze",
+		GRAZE_ANIMATION: "Peck",
+		GROOM_ANIMATION: "lick",
+	}
 	var candidates: Array[String] = [
 		String(canonical),
 		String(canonical).to_lower(),

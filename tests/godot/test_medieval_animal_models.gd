@@ -353,6 +353,29 @@ func test_livestock_exposes_idle_walk_trot_and_graze_clips() -> void:
 		host.free()
 
 
+func test_town_cat_plays_alive_clips_for_hunt_groom_and_play() -> void:
+	var host := Node3D.new()
+	(Engine.get_main_loop() as SceneTree).root.add_child(host)
+	var model := Models.add_model(host, MammalSpecies.SPECIES_CAT)
+	assert_true(model != null, "Town cat needs the production rig")
+	var player := host.get_meta(Models.ANIMATION_PLAYER_META) as AnimationPlayer
+	assert_true(player != null)
+	host.set_meta(&"companion_intent", &"hunt")
+	Models.sync_animation(host, host.position - Vector3(0.05, 0.0, 0.0), 0.1)
+	assert_eq(player.current_animation, Models._clip_name(player, Models.WALK_ANIMATION))
+	Models.sync_animation(host, host.position, 0.1)
+	assert_eq(player.current_animation, Models._clip_name(player, Models.LOOK_AROUND_ANIMATION))
+	host.set_meta(&"companion_intent", &"groom")
+	Models.sync_animation(host, host.position, 0.1)
+	assert_eq(player.current_animation, Models._clip_name(player, Models.GROOM_ANIMATION))
+	host.set_meta(&"companion_intent", &"play")
+	Models.sync_animation(host, host.position - Vector3(0.1, 0.0, 0.0), 0.1)
+	assert_eq(player.current_animation, Models._clip_name(player, Models.TROT_ANIMATION))
+	Models.sync_animation(host, host.position, 0.1)
+	assert_eq(player.current_animation, Models._clip_name(player, Models.STRETCH_ANIMATION))
+	host.free()
+
+
 func _bounds(node: Node3D, transform: Transform3D = Transform3D.IDENTITY) -> AABB:
 	var box := AABB()
 	var first := true
