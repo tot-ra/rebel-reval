@@ -252,7 +252,7 @@ def author_locomotion(rig):
                 pb.rotation_mode='QUATERNION';pb.matrix_basis=Matrix.Identity(4)
                 side=1 if pb.name.endswith('.l') else -1
                 offset=0.0 if side==1 else math.pi
-                swing=math.sin(phase+offset);stride=math.cos(phase+offset)
+                swing=math.sin(phase+offset)
                 world=Matrix.Identity(3)
                 drop=Matrix.Rotation(math.radians(-cycle['arm']*swing),3,'X')@Matrix.Rotation(math.radians(side*(ARM_DROP+4)),3,'Y')
                 if pb.name.startswith('upperleg.'):
@@ -262,9 +262,12 @@ def author_locomotion(rig):
                     # at the pass, so it never locks straight mid-cycle.
                     world=Matrix.Rotation(math.radians(cycle['knee']*(.12+.88*max(0.0,-swing)**.75)),3,'X')
                 elif pb.name.startswith('foot.'):
-                    world=Matrix.Rotation(math.radians(cycle['ankle']*stride),3,'X')
+                    # Ankle roll follows the hip, not a quarter-cycle offset: the toe
+                    # points at toe-off, when the leg is furthest back, and lifts for
+                    # heel strike, when it is furthest forward.
+                    world=Matrix.Rotation(math.radians(cycle['ankle']*swing),3,'X')
                 elif pb.name.startswith('toes.'):
-                    world=Matrix.Rotation(math.radians(-cycle['ankle']*.7*min(0.0,stride)),3,'X')
+                    world=Matrix.Rotation(math.radians(-cycle['ankle']*.7*max(0.0,swing)),3,'X')
                 elif pb.name.startswith('upperarm.'):
                     world=drop
                 elif pb.name.startswith('lowerarm.'):
@@ -310,13 +313,10 @@ def anatomical_weights(sculpt, rig):
     bpy.ops.object.mode_set(mode='OBJECT')
     bpy.ops.object.select_all(action='DESELECT');sculpt.select_set(True);temp.select_set(True);bpy.context.view_layer.objects.active=temp
     bpy.ops.object.parent_set(type='ARMATURE_AUTO')
-    # The skeleton has no clavicle, so heat binding leaves a hard chest/upperarm
-    # border that pinches the deltoid and the inner elbow on the retargeted CC0
-    # clips. A short smoothing pass widens those borders without moving limits.
-    activate(sculpt)
-    bpy.ops.object.mode_set(mode='EDIT');bpy.ops.mesh.select_all(action='SELECT')
-    bpy.ops.object.vertex_group_smooth(group_select_mode='ALL',factor=.5,repeat=4,expand=0.0)
-    bpy.ops.object.mode_set(mode='OBJECT')
+    # Do not smooth these groups. The skeleton has no clavicle, so a blanket
+    # vertex_group_smooth pass spreads chest weight onto upperarm and back, and
+    # bind() then keeps only the four largest influences; the shoulder tears open
+    # along a hard crease. Heat binding alone deforms better here.
     group_names={g.index:g.name for g in sculpt.vertex_groups}
     for name in A:
         attr=sculpt.data.attributes.new('skin_'+name,'FLOAT','POINT')
