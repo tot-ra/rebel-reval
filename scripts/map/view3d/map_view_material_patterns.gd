@@ -24,6 +24,13 @@ const ROOF_TILE_COLUMNS := 8
 const ROOF_TILE_COURSES := 8
 ## Monk (convex cover) half-width as a fraction of one column.
 const ROOF_TILE_MONK_HALF := 0.22
+## Shingle width and course height in source pixels. 8 divides the 128 px plate
+## so the wrap is seamless; 7 px left a half-shingle seam every repeat.
+const SHINGLE_WIDTH_PX := 8
+const SHINGLE_COURSE_PX := 8
+## Thatch course height in source pixels. The plate is not an integer number of
+## courses; dressing geometry carries the visible bundle courses.
+const THATCH_COURSE_PX := 12
 
 static var _cache: Dictionary = {}
 
@@ -957,7 +964,7 @@ static func _paint_straw(image: Image, noise_seed: int) -> void:
 ## coastal huts read as bundled reed rather than flat hay terrain.
 static func _paint_thatch(image: Image, noise_seed: int) -> void:
 	var size := image.get_width()
-	var course := 12
+	var course := THATCH_COURSE_PX
 	for y in size:
 		var row := floori(float(y) / float(course))
 		var in_course := y % course
@@ -990,8 +997,8 @@ static func _paint_thatch(image: Image, noise_seed: int) -> void:
 ## The dominant historic roof cover of 1343 Reval's timber town.
 static func _paint_shingle(image: Image, noise_seed: int) -> void:
 	var size := image.get_width()
-	var course := 8
-	var shingle_w := 7
+	var course := SHINGLE_COURSE_PX
+	var shingle_w := SHINGLE_WIDTH_PX
 	for y in size:
 		var row := floori(float(y) / float(course))
 		var in_course := y % course

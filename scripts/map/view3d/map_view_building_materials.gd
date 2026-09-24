@@ -62,11 +62,22 @@ const FORTIFICATION_MASONRY_DENSITY := Vector3(0.42, 0.53, 0.42)
 ## across their 45-degree faces.
 const FORTIFICATION_TRIPLANAR_SHARPNESS := 8.0
 
-## Gabled roof meshes emit UVs in world units (see gabled_roof_mesh), so tile
-## density is repeats per unit, not per box face. One plate holds 8 x 8 monk/nun
-## tiles: ~0.2 m wide covers on ~0.25 m exposed courses. The per-face reference
-## scale (4 x 2.5) packed roughly fifty tiles into every metre of roof.
+## One world unit is about 0.87 m at the frozen 32 px/cell character-height scale.
+const METERS_PER_WORLD_UNIT := 0.87
+
+## Gabled roof meshes emit UVs in world units (see gabled_roof_mesh), so cover
+## density is repeats per unit, not per box face. One tile plate holds 8 x 8
+## monk/nun tiles: ~0.2 m wide covers on ~0.25 m exposed courses. The per-face
+## reference scale (4 x 2.5) packed roughly fifty tiles into every metre of roof.
 const ROOF_TILE_WORLD_DENSITY := Vector3(0.62, 0.5, 1.0)
+## Wooden shingles: ~0.12 m exposed width on ~0.2 m courses. After the 8 px
+## integer wrap, one 128 px plate holds 16 x 16 shingles. The former per-face
+## scale (5 x 3) packed about ninety shingles into every metre.
+const ROOF_SHINGLE_WORLD_DENSITY := Vector3(0.45, 0.27, 1.0)
+## Reed thatch: ~0.27 m courses and ~0.2 m along-ridge bundles. The 128 px plate
+## holds 12 px courses (~10.7 per plate). Ridge and eaves dressing keep 0-1 UVs
+## and the per-face plate scale; only world-UV gabled meshes use this density.
+const ROOF_THATCH_WORLD_DENSITY := Vector3(0.24, 0.30, 1.0)
 ## Tile roofs share a few painted plates; per-building tint and weathering still
 ## vary. One unique 256 px plate plus normal map per tile roof was load-heavy.
 const ROOF_TILE_PLATE_VARIANTS := 6
@@ -155,9 +166,8 @@ static func roof_surface_for_building(
 	var material := _building_surface_weathered(
 		"roof_building", surface_id, _weathered_albedo(color, weathering), pattern, weathering
 	)
-	if pattern == PATTERN_ROOF_TILE:
-		# Every caller puts this on a world-unit gabled roof mesh.
-		material.uv1_scale = ROOF_TILE_WORLD_DENSITY
+	# Every caller puts this on a world-unit gabled roof mesh.
+	material.uv1_scale = roof_cover_world_density(pattern)
 	return material
 
 
@@ -245,13 +255,31 @@ static func roof(color: Color) -> StandardMaterial3D:
 ## wooden shingle and reed/straw thatch; ceramic tile marked churches and the
 ## few rich stone houses, so tile stays the explicit (not default-everywhere) choice.
 static func roof_surface(family: StringName, color: Color) -> StandardMaterial3D:
+	var pattern := PATTERN_ROOF_TILE
+	var prefix := "roof_tile"
 	match family:
 		&"shingle":
-			return _building_surface("roof_shingle", color, PATTERN_SHINGLE)
+			pattern = PATTERN_SHINGLE
+			prefix = "roof_shingle"
 		&"thatch", &"straw":
-			return _building_surface("roof_thatch", color, PATTERN_THATCH)
+			pattern = PATTERN_THATCH
+			prefix = "roof_thatch"
+	var material := _building_surface(prefix, color, pattern)
+	# World-UV gabled meshes are the only roof_surface callers.
+	material.uv1_scale = roof_cover_world_density(pattern)
+	return material
+
+
+## Repeats per world unit for gabled roof covers. BoxMesh walls still use
+## building_uv_scale(); CylinderMesh and BoxMesh tile helpers keep roof().
+static func roof_cover_world_density(pattern: StringName) -> Vector3:
+	match pattern:
+		PATTERN_SHINGLE:
+			return ROOF_SHINGLE_WORLD_DENSITY
+		PATTERN_THATCH:
+			return ROOF_THATCH_WORLD_DENSITY
 		_:
-			return _building_surface("roof_tile", color, PATTERN_ROOF_TILE)
+			return ROOF_TILE_WORLD_DENSITY
 
 
 ## UV repeat density per world unit. Triplanar materials use this directly so

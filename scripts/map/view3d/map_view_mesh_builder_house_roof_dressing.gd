@@ -117,6 +117,13 @@ static func _add_thatch_dressing(
 	var slope_half := (size.y if along_ridge_x else size.x) * 0.5 + overhang
 	var rise := slope_half * MapViewMeshBuilderConfig.THATCH_ROOF_PITCH
 	var thatch_mat := _Styles.house_roof_material(building)
+	# Ridge and eaves fringe keep 0-1 UVs and the old per-face plate scale.
+	# The gabled Roof mesh uses world-unit density from roof_surface_for_building.
+	var dressing_mat := thatch_mat.duplicate() as StandardMaterial3D
+	dressing_mat.uv1_scale = MapViewMaterials.building_uv_scale(
+		MapViewMaterials.PATTERN_THATCH,
+		MapViewMaterials.BUILDING_UV_REFERENCE_SIZE
+	)
 	var ridge_r := MapViewMeshBuilderConfig.THATCH_RIDGE_RADIUS
 	var ridge_span := (size.x if along_ridge_x else size.y) + overhang * 2.0
 
@@ -139,10 +146,10 @@ static func _add_thatch_dressing(
 		height + rise + MapViewMeshBuilderConfig.THATCH_COVER_THICKNESS * 0.55 + ridge_r * 0.35,
 		0.0
 	)
-	ridge.material_override = thatch_mat
+	ridge.material_override = dressing_mat
 	root.add_child(ridge)
 
-	_add_thatch_reed_slopes(root, size, height, along_ridge_x, thatch_mat)
+	_add_thatch_reed_slopes(root, size, height, along_ridge_x, dressing_mat)
 	_add_thatch_gable_infill(root, building, size, height, along_ridge_x)
 	_add_thatch_gable_framing(root, size, height, along_ridge_x)
 

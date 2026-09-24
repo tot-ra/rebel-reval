@@ -131,4 +131,6 @@ static func house_roof_material(building: Dictionary) -> StandardMaterial3D:
 			MapViewMeshBuilderConfig.THATCH_TONE, 0.45 if building.has("roof_material") else 0.55
 		)
 	var surface_id: StringName = building.get("id", &"")
+	# Gabled roofs emit world-unit UVs; roof_surface_for_building applies the
+	# cover-family world density (tile, shingle, or thatch).
 	return MapViewMaterials.roof_surface_for_building(surface_id, style, color)

@@ -68,6 +68,10 @@ const WEATHER_REPAIRED := BUILDING_MATERIALS.WEATHER_REPAIRED
 const BUILDING_WEATHER_VARIANTS: Array[StringName] = BUILDING_MATERIALS.BUILDING_WEATHER_VARIANTS
 const BUILDING_UV_SCALE := BUILDING_MATERIALS.BUILDING_UV_SCALE
 const BUILDING_UV_REFERENCE_SIZE := BUILDING_MATERIALS.BUILDING_UV_REFERENCE_SIZE
+const METERS_PER_WORLD_UNIT := BUILDING_MATERIALS.METERS_PER_WORLD_UNIT
+const ROOF_TILE_WORLD_DENSITY := BUILDING_MATERIALS.ROOF_TILE_WORLD_DENSITY
+const ROOF_SHINGLE_WORLD_DENSITY := BUILDING_MATERIALS.ROOF_SHINGLE_WORLD_DENSITY
+const ROOF_THATCH_WORLD_DENSITY := BUILDING_MATERIALS.ROOF_THATCH_WORLD_DENSITY
 
 ## Shader sources live in MapViewMaterialShaders; procedural textures in MapViewMaterialPatterns.
 
@@ -276,6 +280,10 @@ static func roof(color: Color) -> StandardMaterial3D:
 
 static func roof_surface(family: StringName, color: Color) -> StandardMaterial3D:
 	return BUILDING_MATERIALS.roof_surface(family, color)
+
+
+static func roof_cover_world_density(pattern: StringName) -> Vector3:
+	return BUILDING_MATERIALS.roof_cover_world_density(pattern)
 
 
 static func fortification_masonry(color: Color) -> StandardMaterial3D:
