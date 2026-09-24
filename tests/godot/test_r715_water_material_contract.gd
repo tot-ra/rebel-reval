@@ -228,3 +228,36 @@ func test_water_shader_boosts_transmission_on_crest_fold_not_troughs() -> void:
 		"crest_subsurface *= choppiness * smoothstep(0.14, 0.48, shore_factor)" in source,
 		"crest subsurface must fade near the pinned shoreline seam",
 	)
+
+
+func test_water_shader_reflects_bounded_sky_dome_without_planar_pass() -> void:
+	var source := ShaderSources.WATER_SHADER.code
+	for feature in [
+		"_sky_dome_gradient",
+		"day_top_color",
+		"day_horizon_color",
+		"sunset_factor",
+		"sky_reflection_weight",
+		"reflected_sky_ray",
+		"sun_glint",
+	]:
+		assert_true(feature in source, "water shader must retain %s" % feature)
+	assert_true(
+		"clamp(" in source and "0.88" in source,
+		"sky reflection must stay bounded away from a full planar replacement",
+	)
+	assert_false(
+		"planar_reflection" in source.to_lower(),
+		"water must not depend on a planar reflection pass",
+	)
+
+
+func test_water_shader_exposes_short_underwater_fog_when_camera_submerges() -> void:
+	var source := ShaderSources.WATER_SHADER.code
+	for feature in [
+		"camera_submerge",
+		"underwater_fog_density",
+		"underwater_fog_strength",
+		"INV_VIEW_MATRIX",
+	]:
+		assert_true(feature in source, "water shader must retain %s" % feature)

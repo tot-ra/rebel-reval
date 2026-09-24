@@ -176,8 +176,17 @@ static func apply_water_sky_reflection(
 	observer_latitude: float,
 	sidereal_angle: float,
 	sun_color: Color,
-	wave_profiles: Dictionary
+	wave_profiles: Dictionary,
+	sunset_factor: float = 0.0,
+	cloud_darken: float = 0.0,
+	day_top_color: Color = Color(0.18, 0.38, 0.65),
+	day_horizon_color: Color = Color(0.67, 0.75, 0.81),
+	night_top_color: Color = Color(0.020, 0.045, 0.130),
+	night_horizon_color: Color = Color(0.050, 0.100, 0.220),
+	sunset_color: Color = Color(0.98, 0.45, 0.18)
 ) -> void:
+	var sunset := clampf(sunset_factor, 0.0, 1.0)
+	var clouds := clampf(cloud_darken, 0.0, 1.0)
 	for terrain_id in wave_profiles.keys():
 		var material := water_surface(terrain_id as StringName, wave_profiles)
 		material.set_shader_parameter("star_map", star_map)
@@ -189,3 +198,21 @@ static func apply_water_sky_reflection(
 		material.set_shader_parameter("observer_latitude", observer_latitude)
 		material.set_shader_parameter("sidereal_angle", sidereal_angle)
 		material.set_shader_parameter("sun_reflection_color", sun_color)
+		material.set_shader_parameter("sunset_factor", sunset)
+		material.set_shader_parameter("cloud_darken", clouds)
+		material.set_shader_parameter(
+			"day_top_color", Vector3(day_top_color.r, day_top_color.g, day_top_color.b)
+		)
+		material.set_shader_parameter(
+			"day_horizon_color", Vector3(day_horizon_color.r, day_horizon_color.g, day_horizon_color.b)
+		)
+		material.set_shader_parameter(
+			"night_top_color", Vector3(night_top_color.r, night_top_color.g, night_top_color.b)
+		)
+		material.set_shader_parameter(
+			"night_horizon_color",
+			Vector3(night_horizon_color.r, night_horizon_color.g, night_horizon_color.b)
+		)
+		material.set_shader_parameter(
+			"sunset_color", Vector3(sunset_color.r, sunset_color.g, sunset_color.b)
+		)

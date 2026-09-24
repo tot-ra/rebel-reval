@@ -56,6 +56,18 @@ uniform float moon_visibility = 0.0;
 uniform float star_visibility = 0.0;
 uniform float observer_latitude = 1.0371;
 uniform float sidereal_angle = 3.8101;
+// Sky-dome gradient uniforms mirror sky_weather_3d defaults so reflected water
+// matches the visible dome without a planar reflection pass.
+uniform vec3 day_top_color : source_color = vec3(0.18, 0.38, 0.65);
+uniform vec3 day_horizon_color : source_color = vec3(0.67, 0.75, 0.81);
+uniform vec3 night_top_color : source_color = vec3(0.020, 0.045, 0.130);
+uniform vec3 night_horizon_color : source_color = vec3(0.050, 0.100, 0.220);
+uniform vec3 sunset_color : source_color = vec3(0.98, 0.45, 0.18);
+uniform float sunset_factor = 0.0;
+uniform float cloud_darken = 0.0;
+// Short underwater fog when the camera dips below the surface (rare in isometric play).
+uniform float underwater_fog_density = 2.8;
+uniform float underwater_fog_strength = 0.72;
 // Coastal terrain receives the live equilibrium tide. River water keeps zero
 // response, while shallow/deep sea tune shoreline retreat and optical depth.
 uniform float tide_level = 0.0;
@@ -298,6 +310,25 @@ vec2 _equatorial_uv(vec3 direction) {
 	return vec2(fract(right_ascension / TAU), 0.5 - declination / PI);
 }
 
+// Bounded analytic sky-dome color for reflected rays. Matches the sky shader's
+// gradient path (without marching clouds) so fresnel reflections track the dome.
+vec3 _sky_dome_gradient(vec3 dir) {
+	float height = dir.y;
+	vec3 top = mix(night_top_color, day_top_color, day_blend);
+	vec3 horizon = mix(night_horizon_color, day_horizon_color, day_blend);
+	float sun_amount = max(dot(dir, normalize(sun_direction)), 0.0);
+	horizon = mix(horizon, sunset_color, sunset_factor * pow(sun_amount, 2.0) * 0.8);
+	float air_mass = 1.0 / max(height + 0.12, 0.12);
+	float haze = 1.0 - exp(-air_mass * (0.10 + cloud_darken * 0.12));
+	vec3 color = mix(top, horizon, haze);
+	float forward_scatter = pow(sun_amount, 12.0) * (0.06 + haze * 0.20);
+	color += mix(sun_reflection_color, sunset_color, sunset_factor)
+		* forward_scatter * day_blend * (1.0 - cloud_darken * 0.8);
+	color = mix(color, horizon * vec3(0.83, 0.87, 0.93), cloud_darken * 0.38);
+	color = mix(color, horizon * 0.55, clamp(-height * 3.0, 0.0, 1.0));
+	return color;
+}
+
 void vertex() {
 	vec3 undisplaced_world = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	wave_sample_xz = undisplaced_world.xz;
@@ -439,22 +470,25 @@ void fragment() {
 	// and narrow sun glints at the shallow isometric viewing angle.
 	float facing = clamp(dot(view_normal, normalize(VIEW)), 0.0, 1.0);
 	float fresnel = 0.02 + 0.98 * pow(1.0 - facing, 5.0);
-	vec3 day_sky = mix(highlight_color, vec3(0.72, 0.82, 0.88), 0.32);
-	vec3 night_sky = vec3(0.05, 0.07, 0.12);
-	vec3 sky_reflection = mix(night_sky, day_sky, day_blend);
+	vec3 world_view = normalize((INV_VIEW_MATRIX * vec4(normalize(VIEW), 0.0)).xyz);
+	vec3 reflection_normal = normalize(mix(vec3(0.0, 1.0, 0.0), world_normal, 0.38));
+	vec3 reflected_sky_ray = normalize(reflect(-world_view, reflection_normal));
+	float reflected_above_horizon = smoothstep(-0.01, 0.06, reflected_sky_ray.y);
+	vec3 sky_reflection = _sky_dome_gradient(reflected_sky_ray) * reflected_above_horizon;
 	// Keep the reflection legible from the gameplay camera. Fresnel still makes
 	// grazing angles brightest, while this base share stops the shallow bed from
 	// overpowering sky and sun reflections on broad, calm water.
-	water_color = mix(water_color, sky_reflection, 0.34 + fresnel * mix(0.44, 0.62, day_blend));
+	float sky_reflection_weight = clamp(
+		0.34 + fresnel * mix(0.44, 0.62, day_blend),
+		0.0,
+		0.88
+	);
+	water_color = mix(water_color, sky_reflection, sky_reflection_weight);
 
 	// WHY: DayNightCycle packs a solar day into 60s. Reflecting the catalog and
 	// sun/moon through fully animated wave normals turns that race into frantic
 	// pre-dawn sparkles on open sea. Celestial samples use a calmer normal so
 	// waves still displace while glints stay readable instead of strobing.
-	vec3 world_view = normalize((INV_VIEW_MATRIX * vec4(normalize(VIEW), 0.0)).xyz);
-	vec3 reflection_normal = normalize(mix(vec3(0.0, 1.0, 0.0), world_normal, 0.38));
-	vec3 reflected_sky_ray = normalize(reflect(-world_view, reflection_normal));
-	float reflected_above_horizon = smoothstep(-0.01, 0.06, reflected_sky_ray.y);
 	vec3 reflected_stars = texture(star_map, _equatorial_uv(reflected_sky_ray)).rgb;
 	// Drop star glitter as soon as the sun disk begins to rise so dawn does not
 	// stack racing constellations on top of the emerging sun path.
@@ -525,6 +559,20 @@ void fragment() {
 		foam += current_foam * 0.30;
 	}
 	water_color = mix(water_color, foam_color, clamp(foam, 0.0, 0.72));
+
+	// Gameplay camera stays above water; this path only tints when a cinematic
+	// or debug view crosses the surface so refraction does not read as dry air.
+	vec3 camera_world = (INV_VIEW_MATRIX * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
+	float camera_submerge = max(0.0, water_world_position.y - camera_world.y);
+	if (camera_submerge > 0.0) {
+		float underwater_fog = 1.0 - exp(-camera_submerge * underwater_fog_density);
+		vec3 underwater_tint = mix(deep_color, deep_bed_color, 0.52);
+		water_color = mix(
+			water_color,
+			underwater_tint,
+			clamp(underwater_fog * underwater_fog_strength, 0.0, 0.92)
+		);
+	}
 
 	ALBEDO = water_color;
 	float day_roughness = mix(0.09, 0.22, clamp(foam + absorption * 0.18, 0.0, 1.0));

@@ -14,7 +14,7 @@ This file remains the durable/legacy ID index expected by `README.md`, `AGENTS.m
 <!-- Quick-reference counts updated on every structural change -->
 | Priority | Open | Done | Notes |
 |----------|-----:|-----:|-------|
-| P0 |    20  |    32  | Baseline, storage, materials, historical audit |
+| P0 |    19  |    33  | Baseline, storage, materials, historical audit |
 | P2 |     1  |     4  | Vertical-slice production (playable MVP) |
 | P4 |     0  |     2  | Act 1: The Simmering City |
 
@@ -51,7 +51,7 @@ Reference: [Three.js Water Pro](https://docs.threejswaterpro.com/). The game sta
 
 - [x] P0-226 | deps: P0-222 | deliverable: sea-state response where wind direction turns the swell and storm wind raises chop independently of wave height, matching Water Pro's windSpeed / choppiness split | allowed files: `scripts/map/view3d/map_view_water_materials.gd`, `scripts/map/view3d/map_view_materials.gd`, `scripts/map/view3d/map_view_3d.gd`, `tests/godot/test_coastal_sea_3d.gd`, `tests/godot/test_r715_water_weather_sync.gd`, `TODO.md` | constraints: reuse SkyWeather wind; do not add a second weather system or save fields | verify: focused coastal-sea and weather-sync tests; swell heading follows wind_direction_xz
 
-- [ ] P0-227 | deps: P0-224 | deliverable: a bounded above-water fresnel reflection of the existing sky dome and a short underwater tint/fog path if the camera ever crosses the surface | allowed files: `scripts/map/view3d/map_view_water.gdshader`, `scripts/map/view3d/map_view_water_materials.gd`, `tests/godot/test_r715_water_material_contract.gd`, `TODO.md` | constraints: no planar reflection pass and no WebGPU SSR; isometric gameplay camera stays above water unless a later task submerges it | verify: focused water contract still rejects planar reflections; fresnel keeps the current sky-glint path
+- [x] P0-227 | deps: P0-224 | deliverable: a bounded above-water fresnel reflection of the existing sky dome and a short underwater tint/fog path if the camera ever crosses the surface | allowed files: `scripts/map/view3d/map_view_water.gdshader`, `scripts/map/view3d/map_view_water_materials.gd`, `tests/godot/test_r715_water_material_contract.gd`, `TODO.md` | constraints: no planar reflection pass and no WebGPU SSR; isometric gameplay camera stays above water unless a later task submerges it | verify: focused water contract still rejects planar reflections; fresnel keeps the current sky-glint path
 
 ## Sky and weather realism
 
