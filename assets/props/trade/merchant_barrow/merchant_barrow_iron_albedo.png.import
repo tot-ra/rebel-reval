@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cobivgo0fxtma"
-path="res://.godot/imported/merchant_barrow_iron_albedo.png-0331ad94e5e7d399faa30c61d3e5727e.ctex"
+path="res://.godot/imported/merchant_barrow_iron_albedo.png-b7cca1342b0604a79bc811d0690e725c.ctex"
 metadata={
 "vram_texture": false
 }
@@ -13,8 +13,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/trade/merchant_barrow_iron_albedo.png"
-dest_files=["res://.godot/imported/merchant_barrow_iron_albedo.png-0331ad94e5e7d399faa30c61d3e5727e.ctex"]
+source_file="res://assets/props/trade/merchant_barrow/merchant_barrow_iron_albedo.png"
+dest_files=["res://.godot/imported/merchant_barrow_iron_albedo.png-b7cca1342b0604a79bc811d0690e725c.ctex"]
 
 [params]
 

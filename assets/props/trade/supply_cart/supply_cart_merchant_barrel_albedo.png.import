@@ -2,21 +2,21 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bud55tfykdoaq"
-path.s3tc="res://.godot/imported/supply_cart_willow_wicker_lattice_albedo.png-b384e44b2859756145143f368575e82e.s3tc.ctex"
-path.etc2="res://.godot/imported/supply_cart_willow_wicker_lattice_albedo.png-b384e44b2859756145143f368575e82e.etc2.ctex"
+uid="uid://7l4nwdp0no10"
+path.s3tc="res://.godot/imported/supply_cart_merchant_barrel_albedo.png-9b1b0c673d3e4e9c40f822453c966c4f.s3tc.ctex"
+path.etc2="res://.godot/imported/supply_cart_merchant_barrel_albedo.png-9b1b0c673d3e4e9c40f822453c966c4f.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
-"md5": "ae74f7dd548cf1aab77e5c3a83fee786"
+"md5": "10b49aa49d2cb8d8c3988f9a36bac720"
 }
 
 [deps]
 
-source_file="res://assets/props/trade/supply_cart_willow_wicker_lattice_albedo.png"
-dest_files=["res://.godot/imported/supply_cart_willow_wicker_lattice_albedo.png-b384e44b2859756145143f368575e82e.s3tc.ctex", "res://.godot/imported/supply_cart_willow_wicker_lattice_albedo.png-b384e44b2859756145143f368575e82e.etc2.ctex"]
+source_file="res://assets/props/trade/supply_cart/supply_cart_merchant_barrel_albedo.png"
+dest_files=["res://.godot/imported/supply_cart_merchant_barrel_albedo.png-9b1b0c673d3e4e9c40f822453c966c4f.s3tc.ctex", "res://.godot/imported/supply_cart_merchant_barrel_albedo.png-9b1b0c673d3e4e9c40f822453c966c4f.etc2.ctex"]
 
 [params]
 

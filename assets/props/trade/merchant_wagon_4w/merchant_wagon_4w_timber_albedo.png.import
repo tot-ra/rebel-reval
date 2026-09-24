@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bxxgk4ek63hu1"
-path="res://.godot/imported/merchant_wagon_4w_timber_albedo.png-7f08628c0c13cf948c95cb6ec43a67b3.ctex"
+path="res://.godot/imported/merchant_wagon_4w_timber_albedo.png-bc88d20c1f1525ff5cf837c978386818.ctex"
 metadata={
 "vram_texture": false
 }
@@ -13,8 +13,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/trade/merchant_wagon_4w_timber_albedo.png"
-dest_files=["res://.godot/imported/merchant_wagon_4w_timber_albedo.png-7f08628c0c13cf948c95cb6ec43a67b3.ctex"]
+source_file="res://assets/props/trade/merchant_wagon_4w/merchant_wagon_4w_timber_albedo.png"
+dest_files=["res://.godot/imported/merchant_wagon_4w_timber_albedo.png-bc88d20c1f1525ff5cf837c978386818.ctex"]
 
 [params]
 

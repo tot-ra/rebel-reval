@@ -2,19 +2,19 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b2d01yihqjuye"
-path="res://.godot/imported/merchant_wagon_4w_iron_albedo.png-784f46f23ed4fd52802f0b06d53a7fb1.ctex"
+uid="uid://yu2x1ndnltj0"
+path="res://.godot/imported/merchant_barrow_oak_albedo.png-e8b0bbf65f7558cf6a7b2bd3d208f697.ctex"
 metadata={
 "vram_texture": false
 }
 generator_parameters={
-"md5": "6e18a01cb2c5f397340a571a31c9e0ef"
+"md5": "3a4f285cdf866e1b9f9f5025b09cc653"
 }
 
 [deps]
 
-source_file="res://assets/props/trade/merchant_wagon_4w_iron_albedo.png"
-dest_files=["res://.godot/imported/merchant_wagon_4w_iron_albedo.png-784f46f23ed4fd52802f0b06d53a7fb1.ctex"]
+source_file="res://assets/props/trade/merchant_barrow/merchant_barrow_oak_albedo.png"
+dest_files=["res://.godot/imported/merchant_barrow_oak_albedo.png-e8b0bbf65f7558cf6a7b2bd3d208f697.ctex"]
 
 [params]
 

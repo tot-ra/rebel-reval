@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cohrl3tywu7wk"
-path="res://.godot/imported/merchant_barrow_linen_albedo.png-545777e1be9d5c5448020df133968f6d.ctex"
+path="res://.godot/imported/merchant_barrow_linen_albedo.png-0c38b11db80ba451ca407948fa1c6044.ctex"
 metadata={
 "vram_texture": false
 }
@@ -13,8 +13,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/trade/merchant_barrow_linen_albedo.png"
-dest_files=["res://.godot/imported/merchant_barrow_linen_albedo.png-545777e1be9d5c5448020df133968f6d.ctex"]
+source_file="res://assets/props/trade/merchant_barrow/merchant_barrow_linen_albedo.png"
+dest_files=["res://.godot/imported/merchant_barrow_linen_albedo.png-0c38b11db80ba451ca407948fa1c6044.ctex"]
 
 [params]
 

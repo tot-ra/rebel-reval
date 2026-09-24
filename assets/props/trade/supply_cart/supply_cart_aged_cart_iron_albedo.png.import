@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ccmuuqm2abaei"
-path.s3tc="res://.godot/imported/supply_cart_aged_cart_iron_albedo.png-ee786bf6dce2e0495d2b4a881bb5de49.s3tc.ctex"
-path.etc2="res://.godot/imported/supply_cart_aged_cart_iron_albedo.png-ee786bf6dce2e0495d2b4a881bb5de49.etc2.ctex"
+path.s3tc="res://.godot/imported/supply_cart_aged_cart_iron_albedo.png-6027879c038cc00d26b1d1b0264789d0.s3tc.ctex"
+path.etc2="res://.godot/imported/supply_cart_aged_cart_iron_albedo.png-6027879c038cc00d26b1d1b0264789d0.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -15,8 +15,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/trade/supply_cart_aged_cart_iron_albedo.png"
-dest_files=["res://.godot/imported/supply_cart_aged_cart_iron_albedo.png-ee786bf6dce2e0495d2b4a881bb5de49.s3tc.ctex", "res://.godot/imported/supply_cart_aged_cart_iron_albedo.png-ee786bf6dce2e0495d2b4a881bb5de49.etc2.ctex"]
+source_file="res://assets/props/trade/supply_cart/supply_cart_aged_cart_iron_albedo.png"
+dest_files=["res://.godot/imported/supply_cart_aged_cart_iron_albedo.png-6027879c038cc00d26b1d1b0264789d0.s3tc.ctex", "res://.godot/imported/supply_cart_aged_cart_iron_albedo.png-6027879c038cc00d26b1d1b0264789d0.etc2.ctex"]
 
 [params]
 

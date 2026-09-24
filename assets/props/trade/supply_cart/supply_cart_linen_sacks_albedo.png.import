@@ -2,21 +2,21 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bhhiiob4tgfda"
-path.s3tc="res://.godot/imported/supply_cart_weathered_oak_planks_albedo.png-632427237b030b516f50a0dd32d5555a.s3tc.ctex"
-path.etc2="res://.godot/imported/supply_cart_weathered_oak_planks_albedo.png-632427237b030b516f50a0dd32d5555a.etc2.ctex"
+uid="uid://b1yujm11iqeg2"
+path.s3tc="res://.godot/imported/supply_cart_linen_sacks_albedo.png-a224c40ce38ea87941c4791b01faa410.s3tc.ctex"
+path.etc2="res://.godot/imported/supply_cart_linen_sacks_albedo.png-a224c40ce38ea87941c4791b01faa410.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
-"md5": "3f0ac071f973d0ff955392f02291d4ee"
+"md5": "ce3c66a2aed9ff460a48f157bf5e4231"
 }
 
 [deps]
 
-source_file="res://assets/props/trade/supply_cart_weathered_oak_planks_albedo.png"
-dest_files=["res://.godot/imported/supply_cart_weathered_oak_planks_albedo.png-632427237b030b516f50a0dd32d5555a.s3tc.ctex", "res://.godot/imported/supply_cart_weathered_oak_planks_albedo.png-632427237b030b516f50a0dd32d5555a.etc2.ctex"]
+source_file="res://assets/props/trade/supply_cart/supply_cart_linen_sacks_albedo.png"
+dest_files=["res://.godot/imported/supply_cart_linen_sacks_albedo.png-a224c40ce38ea87941c4791b01faa410.s3tc.ctex", "res://.godot/imported/supply_cart_linen_sacks_albedo.png-a224c40ce38ea87941c4791b01faa410.etc2.ctex"]
 
 [params]
 

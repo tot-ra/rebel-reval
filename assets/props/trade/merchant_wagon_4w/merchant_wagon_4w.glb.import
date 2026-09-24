@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://duer8dbkwhpml"
-path="res://.godot/imported/merchant_wagon_4w.glb-102ac01abe3b426a07a37a4568b823ac.scn"
+path="res://.godot/imported/merchant_wagon_4w.glb-f8ad3a885f1920c0cde6441c021748ec.scn"
 
 [deps]
 
-source_file="res://assets/props/trade/merchant_wagon_4w.glb"
-dest_files=["res://.godot/imported/merchant_wagon_4w.glb-102ac01abe3b426a07a37a4568b823ac.scn"]
+source_file="res://assets/props/trade/merchant_wagon_4w/merchant_wagon_4w.glb"
+dest_files=["res://.godot/imported/merchant_wagon_4w.glb-f8ad3a885f1920c0cde6441c021748ec.scn"]
 
 [params]
 

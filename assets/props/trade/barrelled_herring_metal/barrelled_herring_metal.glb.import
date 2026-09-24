@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://dtcdupijvb662"
-path="res://.godot/imported/supply_cart.glb-b37b6d0ff2fe367f8573dfcc94a1af43.scn"
+uid="uid://d0ppy22s8ck6a"
+path="res://.godot/imported/barrelled_herring_metal.glb-f8e82805e8a9c851ccf1f5b86aed1e5c.scn"
 
 [deps]
 
-source_file="res://assets/props/trade/supply_cart.glb"
-dest_files=["res://.godot/imported/supply_cart.glb-b37b6d0ff2fe367f8573dfcc94a1af43.scn"]
+source_file="res://assets/props/trade/barrelled_herring_metal/barrelled_herring_metal.glb"
+dest_files=["res://.godot/imported/barrelled_herring_metal.glb-f8e82805e8a9c851ccf1f5b86aed1e5c.scn"]
 
 [params]
 
@@ -41,5 +41,5 @@ materials/extract_format=0
 materials/extract_path=""
 _subresources={}
 gltf/naming_version=2
-gltf/embedded_image_handling=1
+gltf/embedded_image_handling=3
 gltf/texture_map_mode=1

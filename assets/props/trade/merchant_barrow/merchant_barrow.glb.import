@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://i1kag7xowa1l"
-path="res://.godot/imported/eastern_furs_wax.glb-1c91e15854d1b313ad961bddf780365f.scn"
+uid="uid://dj0g20ym8d1vk"
+path="res://.godot/imported/merchant_barrow.glb-35af2d701dad965cfbabd22b10658c82.scn"
 
 [deps]
 
-source_file="res://assets/props/trade/eastern_furs_wax.glb"
-dest_files=["res://.godot/imported/eastern_furs_wax.glb-1c91e15854d1b313ad961bddf780365f.scn"]
+source_file="res://assets/props/trade/merchant_barrow/merchant_barrow.glb"
+dest_files=["res://.godot/imported/merchant_barrow.glb-35af2d701dad965cfbabd22b10658c82.scn"]
 
 [params]
 
@@ -41,5 +41,5 @@ materials/extract_format=0
 materials/extract_path=""
 _subresources={}
 gltf/naming_version=2
-gltf/embedded_image_handling=3
+gltf/embedded_image_handling=1
 gltf/texture_map_mode=1

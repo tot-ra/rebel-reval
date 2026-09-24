@@ -2,21 +2,21 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://7l4nwdp0no10"
-path.s3tc="res://.godot/imported/supply_cart_merchant_barrel_albedo.png-b8b1687d2c56f4f26742aec5859b5781.s3tc.ctex"
-path.etc2="res://.godot/imported/supply_cart_merchant_barrel_albedo.png-b8b1687d2c56f4f26742aec5859b5781.etc2.ctex"
+uid="uid://onb66nub815o"
+path.s3tc="res://.godot/imported/supply_cart_ash_timber_albedo.png-39ac9cbb029a902da04ae73f24e9599b.s3tc.ctex"
+path.etc2="res://.godot/imported/supply_cart_ash_timber_albedo.png-39ac9cbb029a902da04ae73f24e9599b.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
-"md5": "10b49aa49d2cb8d8c3988f9a36bac720"
+"md5": "718c5c4d89cf2775a9fdbcdb88e0e9b5"
 }
 
 [deps]
 
-source_file="res://assets/props/trade/supply_cart_merchant_barrel_albedo.png"
-dest_files=["res://.godot/imported/supply_cart_merchant_barrel_albedo.png-b8b1687d2c56f4f26742aec5859b5781.s3tc.ctex", "res://.godot/imported/supply_cart_merchant_barrel_albedo.png-b8b1687d2c56f4f26742aec5859b5781.etc2.ctex"]
+source_file="res://assets/props/trade/supply_cart/supply_cart_ash_timber_albedo.png"
+dest_files=["res://.godot/imported/supply_cart_ash_timber_albedo.png-39ac9cbb029a902da04ae73f24e9599b.s3tc.ctex", "res://.godot/imported/supply_cart_ash_timber_albedo.png-39ac9cbb029a902da04ae73f24e9599b.etc2.ctex"]
 
 [params]
 

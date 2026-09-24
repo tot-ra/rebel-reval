@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://d0ppy22s8ck6a"
-path="res://.godot/imported/barrelled_herring_metal.glb-782e7745f2470c957a8b8c67496b416d.scn"
+uid="uid://i1kag7xowa1l"
+path="res://.godot/imported/eastern_furs_wax.glb-e1eb13ee565b7fb9b21b670c7c3e2bb1.scn"
 
 [deps]
 
-source_file="res://assets/props/trade/barrelled_herring_metal.glb"
-dest_files=["res://.godot/imported/barrelled_herring_metal.glb-782e7745f2470c957a8b8c67496b416d.scn"]
+source_file="res://assets/props/trade/eastern_furs_wax/eastern_furs_wax.glb"
+dest_files=["res://.godot/imported/eastern_furs_wax.glb-e1eb13ee565b7fb9b21b670c7c3e2bb1.scn"]
 
 [params]
 

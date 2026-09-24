@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://b14lh8tiirq63"
-path="res://.godot/imported/livonian_grain_flax.glb-6a77e4d5ef33ed93f7eab562b63ab99d.scn"
+path="res://.godot/imported/livonian_grain_flax.glb-932c518dcf8ad979aaa5b946a4171da0.scn"
 
 [deps]
 
-source_file="res://assets/props/trade/livonian_grain_flax.glb"
-dest_files=["res://.godot/imported/livonian_grain_flax.glb-6a77e4d5ef33ed93f7eab562b63ab99d.scn"]
+source_file="res://assets/props/trade/livonian_grain_flax/livonian_grain_flax.glb"
+dest_files=["res://.godot/imported/livonian_grain_flax.glb-932c518dcf8ad979aaa5b946a4171da0.scn"]
 
 [params]
 

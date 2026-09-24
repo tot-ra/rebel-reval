@@ -2,21 +2,21 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://onb66nub815o"
-path.s3tc="res://.godot/imported/supply_cart_ash_timber_albedo.png-7d3b7949cfa0f9585e9123fd9ef43374.s3tc.ctex"
-path.etc2="res://.godot/imported/supply_cart_ash_timber_albedo.png-7d3b7949cfa0f9585e9123fd9ef43374.etc2.ctex"
+uid="uid://bud55tfykdoaq"
+path.s3tc="res://.godot/imported/supply_cart_willow_wicker_lattice_albedo.png-815ae8482a520b5430d7892601d6a91b.s3tc.ctex"
+path.etc2="res://.godot/imported/supply_cart_willow_wicker_lattice_albedo.png-815ae8482a520b5430d7892601d6a91b.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
-"md5": "718c5c4d89cf2775a9fdbcdb88e0e9b5"
+"md5": "ae74f7dd548cf1aab77e5c3a83fee786"
 }
 
 [deps]
 
-source_file="res://assets/props/trade/supply_cart_ash_timber_albedo.png"
-dest_files=["res://.godot/imported/supply_cart_ash_timber_albedo.png-7d3b7949cfa0f9585e9123fd9ef43374.s3tc.ctex", "res://.godot/imported/supply_cart_ash_timber_albedo.png-7d3b7949cfa0f9585e9123fd9ef43374.etc2.ctex"]
+source_file="res://assets/props/trade/supply_cart/supply_cart_willow_wicker_lattice_albedo.png"
+dest_files=["res://.godot/imported/supply_cart_willow_wicker_lattice_albedo.png-815ae8482a520b5430d7892601d6a91b.s3tc.ctex", "res://.godot/imported/supply_cart_willow_wicker_lattice_albedo.png-815ae8482a520b5430d7892601d6a91b.etc2.ctex"]
 
 [params]
 

@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://dv5to0idy15dd"
-path="res://.godot/imported/western_cloth_salt.glb-5bbb66340b44d29f609ad5f8b5d484c6.scn"
+uid="uid://dtcdupijvb662"
+path="res://.godot/imported/supply_cart.glb-e8f17bae4c661b6a28f69705aa583093.scn"
 
 [deps]
 
-source_file="res://assets/props/trade/western_cloth_salt.glb"
-dest_files=["res://.godot/imported/western_cloth_salt.glb-5bbb66340b44d29f609ad5f8b5d484c6.scn"]
+source_file="res://assets/props/trade/supply_cart/supply_cart.glb"
+dest_files=["res://.godot/imported/supply_cart.glb-e8f17bae4c661b6a28f69705aa583093.scn"]
 
 [params]
 
@@ -41,5 +41,5 @@ materials/extract_format=0
 materials/extract_path=""
 _subresources={}
 gltf/naming_version=2
-gltf/embedded_image_handling=3
+gltf/embedded_image_handling=1
 gltf/texture_map_mode=1
