@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://dvwneavapsjtx"
-path="res://.godot/imported/smithy_charcoal_storage.glb-51f9ad4c52275ab9d099eab780aa7e13.scn"
+path="res://.godot/imported/smithy_charcoal_storage.glb-46b827225a1c51f3b3521a587cc213ed.scn"
 
 [deps]
 
-source_file="res://assets/props/forge/smithy_charcoal_storage.glb"
-dest_files=["res://.godot/imported/smithy_charcoal_storage.glb-51f9ad4c52275ab9d099eab780aa7e13.scn"]
+source_file="res://assets/props/forge/smithy_charcoal_storage/smithy_charcoal_storage.glb"
+dest_files=["res://.godot/imported/smithy_charcoal_storage.glb-46b827225a1c51f3b3521a587cc213ed.scn"]
 
 [params]
 

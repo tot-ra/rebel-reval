@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://g8cm54vcksy"
-path="res://.godot/imported/smithy_anvil_hammered_forge_iron_albedo.png-50190170dea34300aaae17db0de22aed.ctex"
+path="res://.godot/imported/smithy_anvil_hammered_forge_iron_albedo.png-0b93643ce911c8de5fc59181bccb3176.ctex"
 metadata={
 "vram_texture": false
 }
@@ -13,8 +13,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/forge/smithy_anvil_hammered_forge_iron_albedo.png"
-dest_files=["res://.godot/imported/smithy_anvil_hammered_forge_iron_albedo.png-50190170dea34300aaae17db0de22aed.ctex"]
+source_file="res://assets/props/forge/smithy_anvil/smithy_anvil_hammered_forge_iron_albedo.png"
+dest_files=["res://.godot/imported/smithy_anvil_hammered_forge_iron_albedo.png-0b93643ce911c8de5fc59181bccb3176.ctex"]
 
 [params]
 

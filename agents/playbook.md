@@ -28,6 +28,7 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 
 ### Git and commits
 - Inspect `git status` before commit. Unstage unrelated index entries (`M ` in column 1).
+- Repo-wide path rewrites must skip `.worktrees/` and `build/`. Prefer scoped `tools/assets/relocate_*_per_model.py` helpers over ad-hoc `rglob` sweeps when colocating GLBs into per-model folders.
 - `git commit --only <paths>`: keep every `-m` before `--`. It commits working-tree bytes of those paths, not a prepared index snapshot. Untracked paths must be `git add`ed first; `--only` cannot create a commit from unknown files. For a HEAD-plus-scope commit in a dirty file, keep the scoped bytes in the path through the commit, or commit a temporary index without `--only`.
 - In a dirty shared worktree, build a HEAD-plus-scope tree with a temporary `GIT_INDEX_FILE` when the working file has concurrent WIP. Normalize `diff --git`, `---`, and `+++` paths before `git apply --cached`.
 - `git diff --no-index` status 1 is a valid new-file diff. Run whitespace checks separately.
@@ -38,7 +39,7 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 - Do not `git checkout HEAD --` a hot shared file while other dirty scripts already call its new APIs. Do not mid-task `git stash` with fragile pathspecs.
 - After a temporary-index commit, move only the branch ref. Do not `git reset --soft` in the live checkout.
 - If a path-limited commit exits silently, inspect `HEAD` and hooks separately before retrying.
-- Cursor or A2gent agent shells may lack GitHub SSH keys (`Permission denied (publickey)` on `git push`). Report the blocked push; the human runs push locally or wires HTTPS/credential helper for automation.
+- When several agents relocate GLB folders in one worktree, expect `.git/index.lock`, half-finished `git mv`, and empty asset dirs. Do not `git checkout HEAD -- assets/props/<area>/` until the lock is gone; restore from `origin/main` for that subtree, consolidate duplicates with a filesystem move, then stage only the scoped pathspec before commit.
 
 ### Godot and Python verification
 - Export `GODOT_BIN` in a preceding command (macOS: `/Applications/Godot.app/Contents/MacOS/Godot`). Inline `GODOT_BIN=... "$GODOT_BIN"` expands the old empty value and exits 127.

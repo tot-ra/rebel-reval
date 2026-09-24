@@ -4,7 +4,7 @@ const Catalog := preload("res://scripts/ui/asset_library_catalog.gd")
 const LibraryScene := preload("res://scenes/menu/assets_library.tscn")
 const MainMenuScene := preload("res://scenes/menu/main_menu.tscn")
 const DOG_PATH := "res://assets/storybook/dog/dog.glb"
-const ANVIL_PATH := "res://assets/props/forge/smithy_anvil.glb"
+const ANVIL_PATH := "res://assets/props/forge/smithy_anvil/smithy_anvil.glb"
 
 
 func test_catalog_lists_imported_models_by_folder() -> void:

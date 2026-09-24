@@ -26,7 +26,7 @@ if str(TOOLS_DIR) not in sys.path:
 from assets.prop_orm_baking import wire_orm_maps
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "assets" / "props" / "forge" / "smithy_quench_bucket.glb"
+OUTPUT = ROOT / "assets" / "props" / "forge" / "smithy_quench_bucket" / "smithy_quench_bucket.glb"
 EVIDENCE_DIR = ROOT / "generated" / "blender" / "smithy_quench_bucket_v1"
 DEFAULT_PREVIEW = EVIDENCE_DIR / "preview.png"
 BRIEF_PATH = EVIDENCE_DIR / "brief.json"
@@ -43,7 +43,7 @@ WATER_SRGB = (0x2D / 255.0, 0x62 / 255.0, 0x68 / 255.0)
 BRIEF = {
     "id": ASSET_ID,
     "kind": "rigid_prop",
-    "target": "res://assets/props/forge/smithy_quench_bucket.glb",
+    "target": "res://assets/props/forge/smithy_quench_bucket/smithy_quench_bucket.glb",
     "scene": "res://content/maps/kalev_smithy.rrmap#quench",
     "dimensions_m": [0.76, 0.66, 0.86],
     "triangles": {"target": 2200, "max": 4000},

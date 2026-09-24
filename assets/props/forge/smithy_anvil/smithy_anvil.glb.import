@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://0a7pg1nqoaa"
-path="res://.godot/imported/smithy_anvil.glb-0fa311e3d77b481bb73a47c8d56ff99a.scn"
+path="res://.godot/imported/smithy_anvil.glb-d8e3f39f6f5674fedbb4ab9125cf0b23.scn"
 
 [deps]
 
-source_file="res://assets/props/forge/smithy_anvil.glb"
-dest_files=["res://.godot/imported/smithy_anvil.glb-0fa311e3d77b481bb73a47c8d56ff99a.scn"]
+source_file="res://assets/props/forge/smithy_anvil/smithy_anvil.glb"
+dest_files=["res://.godot/imported/smithy_anvil.glb-d8e3f39f6f5674fedbb4ab9125cf0b23.scn"]
 
 [params]
 

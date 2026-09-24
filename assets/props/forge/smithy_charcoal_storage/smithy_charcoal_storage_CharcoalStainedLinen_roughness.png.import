@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://de7h12xve0oan"
-path.s3tc="res://.godot/imported/smithy_charcoal_storage_CharcoalStainedLinen_roughness.png-351e674a42b80c09c8f07fdbcb364cff.s3tc.ctex"
-path.etc2="res://.godot/imported/smithy_charcoal_storage_CharcoalStainedLinen_roughness.png-351e674a42b80c09c8f07fdbcb364cff.etc2.ctex"
+path.s3tc="res://.godot/imported/smithy_charcoal_storage_CharcoalStainedLinen_roughness.png-849e810106027d96a2cbbd73be898dd6.s3tc.ctex"
+path.etc2="res://.godot/imported/smithy_charcoal_storage_CharcoalStainedLinen_roughness.png-849e810106027d96a2cbbd73be898dd6.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -15,8 +15,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/forge/smithy_charcoal_storage_CharcoalStainedLinen_roughness.png"
-dest_files=["res://.godot/imported/smithy_charcoal_storage_CharcoalStainedLinen_roughness.png-351e674a42b80c09c8f07fdbcb364cff.s3tc.ctex", "res://.godot/imported/smithy_charcoal_storage_CharcoalStainedLinen_roughness.png-351e674a42b80c09c8f07fdbcb364cff.etc2.ctex"]
+source_file="res://assets/props/forge/smithy_charcoal_storage/smithy_charcoal_storage_CharcoalStainedLinen_roughness.png"
+dest_files=["res://.godot/imported/smithy_charcoal_storage_CharcoalStainedLinen_roughness.png-849e810106027d96a2cbbd73be898dd6.s3tc.ctex", "res://.godot/imported/smithy_charcoal_storage_CharcoalStainedLinen_roughness.png-849e810106027d96a2cbbd73be898dd6.etc2.ctex"]
 
 [params]
 

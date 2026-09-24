@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://btdcgmqpbbfju"
-path="res://.godot/imported/smithy_bellows.glb-297b5da721473c84828446043d35fbd6.scn"
+path="res://.godot/imported/smithy_bellows.glb-aa9ce2298822d9a1c8e3cbae78a98346.scn"
 
 [deps]
 
-source_file="res://assets/props/forge/smithy_bellows.glb"
-dest_files=["res://.godot/imported/smithy_bellows.glb-297b5da721473c84828446043d35fbd6.scn"]
+source_file="res://assets/props/forge/smithy_bellows/smithy_bellows.glb"
+dest_files=["res://.godot/imported/smithy_bellows.glb-aa9ce2298822d9a1c8e3cbae78a98346.scn"]
 
 [params]
 

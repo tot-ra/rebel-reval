@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://csrktm0j6ibud"
-path="res://.godot/imported/smithy_anvil_polished_anvil_face_normal.png-59032d54441789bf7d7c9916e8d006c5.ctex"
+path="res://.godot/imported/smithy_anvil_polished_anvil_face_normal.png-e83449d68a6682626db2eb62a3d8dbe4.ctex"
 metadata={
 "vram_texture": false
 }
@@ -13,8 +13,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/forge/smithy_anvil_polished_anvil_face_normal.png"
-dest_files=["res://.godot/imported/smithy_anvil_polished_anvil_face_normal.png-59032d54441789bf7d7c9916e8d006c5.ctex"]
+source_file="res://assets/props/forge/smithy_anvil/smithy_anvil_polished_anvil_face_normal.png"
+dest_files=["res://.godot/imported/smithy_anvil_polished_anvil_face_normal.png-e83449d68a6682626db2eb62a3d8dbe4.ctex"]
 
 [params]
 

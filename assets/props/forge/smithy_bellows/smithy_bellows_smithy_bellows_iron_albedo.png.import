@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://biry46mho65r7"
-path="res://.godot/imported/smithy_bellows_smithy_bellows_iron_albedo.png-93c2403c5cbb7058c20ba77daab77bdc.ctex"
+path="res://.godot/imported/smithy_bellows_smithy_bellows_iron_albedo.png-355a918431ad5351b1f0da42fd758ed7.ctex"
 metadata={
 "vram_texture": false
 }
@@ -13,8 +13,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/forge/smithy_bellows_smithy_bellows_iron_albedo.png"
-dest_files=["res://.godot/imported/smithy_bellows_smithy_bellows_iron_albedo.png-93c2403c5cbb7058c20ba77daab77bdc.ctex"]
+source_file="res://assets/props/forge/smithy_bellows/smithy_bellows_smithy_bellows_iron_albedo.png"
+dest_files=["res://.godot/imported/smithy_bellows_smithy_bellows_iron_albedo.png-355a918431ad5351b1f0da42fd758ed7.ctex"]
 
 [params]
 

@@ -4,7 +4,7 @@ extends RefCounted
 ## Shared access to Kalev's authored charcoal stock. The rrmap still owns the
 ## one-cell anchor and footprint; this helper replaces only coal_store visuals.
 
-const SCENE_PATH := "res://assets/props/forge/smithy_charcoal_storage.glb"
+const SCENE_PATH := "res://assets/props/forge/smithy_charcoal_storage/smithy_charcoal_storage.glb"
 const PROP_ID := &"coal_store"
 
 

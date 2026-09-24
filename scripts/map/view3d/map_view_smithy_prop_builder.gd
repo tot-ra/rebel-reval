@@ -6,13 +6,13 @@ const Primitives := preload("res://scripts/map/view3d/map_view_mesh_builder_prim
 
 # Runtime loading avoids a clean-clone bootstrap cycle where GDScript parses
 # before Godot has registered the first GLB import.
-const _ANVIL_SCENE_PATH := "res://assets/props/forge/smithy_anvil.glb"
+const _ANVIL_SCENE_PATH := "res://assets/props/forge/smithy_anvil/smithy_anvil.glb"
 const ANVIL_PROP_ID := &"forge_anvil"
-const _FURNACE_SCENE_PATH := "res://assets/props/forge/smithy_furnace.glb"
+const _FURNACE_SCENE_PATH := "res://assets/props/forge/smithy_furnace/smithy_furnace.glb"
 const FURNACE_PROP_ID := &"forge_furnace"
-const _BELLOWS_SCENE_PATH := "res://assets/props/forge/smithy_bellows.glb"
+const _BELLOWS_SCENE_PATH := "res://assets/props/forge/smithy_bellows/smithy_bellows.glb"
 const BELLOWS_PROP_ID := &"forge_bellows"
-const _CHAIR_SCENE_PATH := "res://assets/props/furniture/smithy_chair.glb"
+const _CHAIR_SCENE_PATH := "res://assets/props/furniture/smithy_chair/smithy_chair.glb"
 const CHAIR_PROP_ID := &"work_chair"
 ## Seating in Kalev's dwelling shares the one authored chair GLB. Town Hall and
 ## other civic chairs stay on the neutral fallback until they get their own art.
@@ -22,9 +22,9 @@ const CHAIR_PROP_IDS: Array[StringName] = [
 	&"table_stool_west",
 	&"table_stool_east",
 ]
-const _QUENCH_SCENE_PATH := "res://assets/props/forge/smithy_quench_bucket.glb"
+const _QUENCH_SCENE_PATH := "res://assets/props/forge/smithy_quench_bucket/smithy_quench_bucket.glb"
 const QUENCH_PROP_ID := &"quench"
-const _BED_SCENE_PATH := "res://assets/props/furniture/smithy_bed.glb"
+const _BED_SCENE_PATH := "res://assets/props/furniture/smithy_bed/smithy_bed.glb"
 const BED_PROP_ID := &"bed"
 
 ## Authored Kalev smithy workstation props and procedural fallbacks for other maps.

@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://5nmkxvnw58kc"
-path="res://.godot/imported/smithy_anvil_smoke_darkened_oak_stump_roughness.png-9a452a621734b441931ccfdbea73d2f8.ctex"
+path="res://.godot/imported/smithy_anvil_smoke_darkened_oak_stump_roughness.png-d6334845092f0f657ba76204c8a7bc7f.ctex"
 metadata={
 "vram_texture": false
 }
@@ -13,8 +13,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/forge/smithy_anvil_smoke_darkened_oak_stump_roughness.png"
-dest_files=["res://.godot/imported/smithy_anvil_smoke_darkened_oak_stump_roughness.png-9a452a621734b441931ccfdbea73d2f8.ctex"]
+source_file="res://assets/props/forge/smithy_anvil/smithy_anvil_smoke_darkened_oak_stump_roughness.png"
+dest_files=["res://.godot/imported/smithy_anvil_smoke_darkened_oak_stump_roughness.png-d6334845092f0f657ba76204c8a7bc7f.ctex"]
 
 [params]
 

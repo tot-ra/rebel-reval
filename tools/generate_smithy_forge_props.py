@@ -68,7 +68,7 @@ class AssetSpec:
 FURNACE = AssetSpec(
     asset_id="prop.smithy_furnace",
     slug="smithy_furnace",
-    output=ROOT / "assets" / "props" / "forge" / "smithy_furnace.glb",
+    output=ROOT / "assets" / "props" / "forge" / "smithy_furnace" / "smithy_furnace.glb",
     dimensions=(2.61, 1.70, 4.075),
     triangle_target=2700,
     triangle_max=8000,
@@ -80,7 +80,7 @@ FURNACE = AssetSpec(
 BELLOWS = AssetSpec(
     asset_id="prop.smithy_bellows",
     slug="smithy_bellows",
-    output=ROOT / "assets" / "props" / "forge" / "smithy_bellows.glb",
+    output=ROOT / "assets" / "props" / "forge" / "smithy_bellows" / "smithy_bellows.glb",
     dimensions=(2.01, 0.77, 1.5575),
     triangle_target=6050,
     triangle_max=6500,

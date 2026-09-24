@@ -28,7 +28,7 @@ if str(TOOLS_DIR) not in sys.path:
 from assets.prop_orm_baking import wire_orm_maps
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "assets" / "props" / "forge" / "smithy_charcoal_storage.glb"
+OUTPUT = ROOT / "assets" / "props" / "forge" / "smithy_charcoal_storage" / "smithy_charcoal_storage.glb"
 EVIDENCE_DIR = ROOT / "generated" / "blender" / "smithy_charcoal_storage_v1"
 DEFAULT_PREVIEW = EVIDENCE_DIR / "preview.png"
 BRIEF_PATH = EVIDENCE_DIR / "brief.json"
@@ -46,7 +46,7 @@ WOOD_SRGB = (0x68 / 255.0, 0x43 / 255.0, 0x27 / 255.0)
 BRIEF = {
     "id": ASSET_ID,
     "kind": "rigid_prop",
-    "target": "res://assets/props/forge/smithy_charcoal_storage.glb",
+    "target": "res://assets/props/forge/smithy_charcoal_storage/smithy_charcoal_storage.glb",
     "scene": "res://content/maps/kalev_smithy.rrmap#coal_store",
     "dimensions_m": [1.10, 0.72, 0.72],
     "triangles": {"target": 1800, "max": 3000},

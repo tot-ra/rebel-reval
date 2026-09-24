@@ -26,7 +26,7 @@ if str(TOOLS_DIR) not in sys.path:
 from assets.prop_orm_baking import wire_orm_maps
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "assets" / "props" / "forge" / "smithy_anvil.glb"
+OUTPUT = ROOT / "assets" / "props" / "forge" / "smithy_anvil" / "smithy_anvil.glb"
 EVIDENCE_DIR = ROOT / "generated" / "blender" / "smithy_anvil_v1"
 DEFAULT_PREVIEW = EVIDENCE_DIR / "preview.png"
 BRIEF_PATH = EVIDENCE_DIR / "brief.json"
@@ -43,7 +43,7 @@ WOOD_SRGB = (0x77 / 255.0, 0x4D / 255.0, 0x2D / 255.0)
 BRIEF = {
     "id": ASSET_ID,
     "kind": "rigid_prop",
-    "target": "res://assets/props/forge/smithy_anvil.glb",
+    "target": "res://assets/props/forge/smithy_anvil/smithy_anvil.glb",
     "scene": "res://content/maps/kalev_smithy.rrmap#forge_anvil",
     "dimensions_m": [1.48, 0.7, 1.01],
     "triangles": {"target": 1800, "max": 4000},

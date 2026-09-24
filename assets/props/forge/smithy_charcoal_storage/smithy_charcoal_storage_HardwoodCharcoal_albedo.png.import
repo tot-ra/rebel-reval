@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cae7art38c77d"
-path.s3tc="res://.godot/imported/smithy_charcoal_storage_HardwoodCharcoal_albedo.png-dc12e3188f6065882d8138cc0793e39a.s3tc.ctex"
-path.etc2="res://.godot/imported/smithy_charcoal_storage_HardwoodCharcoal_albedo.png-dc12e3188f6065882d8138cc0793e39a.etc2.ctex"
+path.s3tc="res://.godot/imported/smithy_charcoal_storage_HardwoodCharcoal_albedo.png-f5d6ba9e077d907e7092d600daf69261.s3tc.ctex"
+path.etc2="res://.godot/imported/smithy_charcoal_storage_HardwoodCharcoal_albedo.png-f5d6ba9e077d907e7092d600daf69261.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -15,8 +15,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/forge/smithy_charcoal_storage_HardwoodCharcoal_albedo.png"
-dest_files=["res://.godot/imported/smithy_charcoal_storage_HardwoodCharcoal_albedo.png-dc12e3188f6065882d8138cc0793e39a.s3tc.ctex", "res://.godot/imported/smithy_charcoal_storage_HardwoodCharcoal_albedo.png-dc12e3188f6065882d8138cc0793e39a.etc2.ctex"]
+source_file="res://assets/props/forge/smithy_charcoal_storage/smithy_charcoal_storage_HardwoodCharcoal_albedo.png"
+dest_files=["res://.godot/imported/smithy_charcoal_storage_HardwoodCharcoal_albedo.png-f5d6ba9e077d907e7092d600daf69261.s3tc.ctex", "res://.godot/imported/smithy_charcoal_storage_HardwoodCharcoal_albedo.png-f5d6ba9e077d907e7092d600daf69261.etc2.ctex"]
 
 [params]
 
