@@ -156,28 +156,3 @@ func test_town_cat_wears_a_coat_over_the_production_rig() -> void:
 		)
 	assert_eq(faces, 1, "production cat must carry its eyes/whiskers face mesh")
 	cat.queue_free()
-
-
-func test_cat_runtime_lods_load_beside_the_production_glb() -> void:
-	const LOD1 := "res://assets/characters/cat/forge_cat_lod1.glb"
-	const LOD2 := "res://assets/characters/cat/forge_cat_lod2.glb"
-	assert_true(ResourceLoader.exists(LOD1), "missing cat LOD1 %s" % LOD1)
-	assert_true(ResourceLoader.exists(LOD2), "missing cat LOD2 %s" % LOD2)
-	var lod1 := load(LOD1) as PackedScene
-	var lod2 := load(LOD2) as PackedScene
-	assert_true(lod1 != null, "cat LOD1 must import as a PackedScene")
-	assert_true(lod2 != null, "cat LOD2 must import as a PackedScene")
-	var node1 := lod1.instantiate() as Node
-	var node2 := lod2.instantiate() as Node
-	assert_true(node1 != null)
-	assert_true(node2 != null)
-	assert_true(
-		node1.find_children("*", "MeshInstance3D", true, false).size() > 0,
-		"cat LOD1 must carry a mesh"
-	)
-	assert_true(
-		node2.find_children("*", "MeshInstance3D", true, false).size() > 0,
-		"cat LOD2 must carry a mesh"
-	)
-	node1.free()
-	node2.free()

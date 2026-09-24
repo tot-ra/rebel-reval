@@ -20,9 +20,9 @@ adapter preserves the existing `SharedCharacterRig` gameplay contract.
 - `assets/characters/cat/forge_cat_production_v1.glb` - LOD0 mesh + `forge_cat`
   material + 22-bone quadruped armature + `idle`, `walk`, `sleep`, `lick`, and
   `stretch` animations (single-file GLB, textures embedded).
-- `assets/characters/cat/forge_cat_lod1.glb`,
-  `assets/characters/cat/forge_cat_lod2.glb` - decimated distance LODs
-  (mesh + UV, shared-material placeholder, no embedded textures).
+- `production/lod/forge_cat_lod1.glb`, `production/lod/forge_cat_lod2.glb` -
+  decimated distance LODs kept in the pipeline bundle only (not shipped under
+  `assets/`; the cat rig uses LOD0 at runtime).
 - Staging `tex/forge_cat_albedo.png` and `tex/forge_cat_ao.png` stay in this
   bundle as rebuild inputs. Runtime `forge_cat_normal.png`,
   `forge_cat_roughness.png`, and `tex/coats/forge_cat_albedo_*.png` live under

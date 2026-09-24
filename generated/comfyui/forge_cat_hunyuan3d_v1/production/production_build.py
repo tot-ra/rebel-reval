@@ -1351,9 +1351,9 @@ def main():
         "textures": ["forge_cat_albedo.png", "forge_cat_normal.png",
                      "forge_cat_roughness.png", "forge_cat_ao.png"],
         "runtime_glb": "assets/characters/cat/forge_cat_production_v1.glb",
-        "runtime_lods": [
-            "assets/characters/cat/forge_cat_lod1.glb",
-            "assets/characters/cat/forge_cat_lod2.glb",
+        "pipeline_lods": [
+            "generated/comfyui/forge_cat_hunyuan3d_v1/production/lod/forge_cat_lod1.glb",
+            "generated/comfyui/forge_cat_hunyuan3d_v1/production/lod/forge_cat_lod2.glb",
         ],
         "coats": [c["id"] for c in COATS],
         "texture_size": TEX_SIZE,

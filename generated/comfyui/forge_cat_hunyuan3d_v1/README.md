@@ -29,7 +29,6 @@ This directory contains the visually approved base-shape source for Kalev's smit
 - `mesh_audit.json` and `audit_and_render.py` - reproducible topology audit and preview renderer.
 - `PRODUCTION_PLAN.md` - production requirements implemented under `production/`.
 - Runtime outputs (rebuild with `production/production_build.py`):
-  `assets/characters/cat/forge_cat_production_v1.glb`,
-  `assets/characters/cat/forge_cat_lod1.glb`,
-  `assets/characters/cat/forge_cat_lod2.glb`,
-  and town-coat / shared normal+roughness maps under `assets/characters/cat/tex/`.
+  `assets/characters/cat/forge_cat_production_v1.glb`, town-coat / shared
+  normal+roughness maps under `assets/characters/cat/tex/`, and optional
+  pipeline-only LOD meshes under `production/lod/`.
