@@ -4,6 +4,9 @@ Coordination notes, delivery order, and planning context formerly embedded in `T
 Executable open work stays in [`TODO.md`](../TODO.md).
 Aged coordination history lives in [`ROADMAP_COORDINATION_ARCHIVE_2026-08-13.md`](./ROADMAP_COORDINATION_ARCHIVE_2026-08-13.md).
 
+<!-- P0-185 material resolution constants peel extracted in current session -->
+Coordination note (2026-09-24 P0-185 / R-878): `map_view_material_resolution_constants.gd` now owns procedural texture raster sizes; `map_view_materials.gd` re-exports for contract tests and dropped from 370 to 366 lines. Verified: `--filter=test_map_view_material_resolution`, `--filter=test_map_terrain_chunks` (15/15). Next P0-185 claim: further justified facade trims on `map_view_materials.gd` or `map_view_runtime_camera.gd`.
+
 <!-- P0-185 role_for_size peel extracted in current session -->
 Coordination note (2026-09-24 P0-185 / R-877): `map_view_prop_materials.gd` now owns size-aware `role_for_size` beside `role()`; `map_view_materials.gd` keeps a one-line facade delegate and dropped from 380 to 370 lines. Verified: `--filter=test_map_view_material_resolution`, `--filter=test_street_and_masonry_realism`, `--filter=test_map_view_3d_fortification`, `--filter=test_direction_sign_3d`. Next P0-185 claim: keep `apply_weather_presentation` on the facade until a second caller needs a dedicated weather-material adapter; optional texture-size constant shard.
 

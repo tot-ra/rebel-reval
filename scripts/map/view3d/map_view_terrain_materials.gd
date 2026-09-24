@@ -5,9 +5,11 @@ extends RefCounted
 ## Terrain pattern arrays, cobble layers, and the splat shader live here so
 ## MapViewMaterials can remain the stable public facade for builders and tests.
 
-const TEXTURE_SIZE := 128
-const COBBLE_TEXTURE_SIZE := 512
-const NATURAL_GROUND_TEXTURE_SIZE := 512
+const RESOLUTION := preload(
+	"res://scripts/map/view3d/map_view_material_resolution_constants.gd"
+)
+const TEXTURE_SIZE := RESOLUTION.TEXTURE_SIZE
+const COBBLE_TEXTURE_SIZE := RESOLUTION.COBBLE_TEXTURE_SIZE
 const MUD_ALBEDO_PATH := "res://assets/materials/pbr/mud/mud_albedo.png"
 const HAY_ALBEDO_PATH := "res://assets/materials/pbr/hay/hay_albedo.png"
 

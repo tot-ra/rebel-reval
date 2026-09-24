@@ -14,6 +14,9 @@ const LIMESTONE_RUBBLE_PATH := (
 const PATTERN_FAMILIES := preload(
 	"res://scripts/map/view3d/map_view_material_pattern_families.gd"
 )
+const RESOLUTION := preload(
+	"res://scripts/map/view3d/map_view_material_resolution_constants.gd"
+)
 
 static var _cache: Dictionary = {}
 
@@ -30,10 +33,10 @@ static func pattern_texture(pattern: StringName, noise_seed: int) -> ImageTextur
 ## source detail than secondary families such as thatch or straw.
 static func pattern_source_size(pattern: StringName) -> int:
 	if pattern == PATTERN_FAMILIES.PATTERN_COBBLE:
-		return MapViewMaterials.COBBLE_TEXTURE_SIZE
+		return RESOLUTION.COBBLE_TEXTURE_SIZE
 	if pattern in [PATTERN_FAMILIES.PATTERN_LIMESTONE, PATTERN_FAMILIES.PATTERN_BRICK]:
-		return MapViewMaterials.MASONRY_TEXTURE_SIZE
-	return MapViewMaterials.TEXTURE_SIZE
+		return RESOLUTION.MASONRY_TEXTURE_SIZE
+	return RESOLUTION.TEXTURE_SIZE
 
 
 ## Tangent-space normal derived from the same grayscale plate that produces the
@@ -140,7 +143,7 @@ static func pattern_texture_weathered(
 	pattern: StringName,
 	noise_seed: int,
 	weathering: StringName,
-	texture_size: int = MapViewMaterials.TEXTURE_SIZE
+	texture_size: int = RESOLUTION.TEXTURE_SIZE
 ) -> ImageTexture:
 	var key := (
 		"pattern:%s:%d:%s:%d" % [String(pattern), noise_seed, String(weathering), texture_size]
@@ -564,10 +567,10 @@ static func _paint_cobble(image: Image, noise_seed: int) -> void:
 ## - B: stone mask (0 compacted joint, 1 stone)
 ## - A: deterministic per-stone palette selector
 static func cobble_surface_texture(noise_seed: int) -> ImageTexture:
-	var key := "cobble_surface:%d:%d" % [noise_seed, MapViewMaterials.COBBLE_TEXTURE_SIZE]
+	var key := "cobble_surface:%d:%d" % [noise_seed, RESOLUTION.COBBLE_TEXTURE_SIZE]
 	if _cache.has(key):
 		return _cache[key]
-	var size := MapViewMaterials.COBBLE_TEXTURE_SIZE
+	var size := RESOLUTION.COBBLE_TEXTURE_SIZE
 	var image := Image.create(size, size, false, Image.FORMAT_RGBA8)
 	for y in size:
 		for x in size:
