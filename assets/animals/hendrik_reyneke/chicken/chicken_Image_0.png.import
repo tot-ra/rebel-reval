@@ -2,19 +2,19 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bbj5ufwfaaohu"
-path="res://.godot/imported/chicken_Image_1.png-13d78457b357ae7dc140abfdd6fb6454.ctex"
+uid="uid://bbvb0bkbiitet"
+path="res://.godot/imported/chicken_Image_0.png-e8e69273b7742847afe514ceebe5642c.ctex"
 metadata={
 "vram_texture": false
 }
 generator_parameters={
-"md5": "57eedef2c5fcd593ad34b36d9c76835b"
+"md5": "4672e875414dafa3a8ea31ecf75e8c2d"
 }
 
 [deps]
 
-source_file="res://assets/animals/hendrik_reyneke/chicken_Image_1.png"
-dest_files=["res://.godot/imported/chicken_Image_1.png-13d78457b357ae7dc140abfdd6fb6454.ctex"]
+source_file="res://assets/animals/hendrik_reyneke/chicken/chicken_Image_0.png"
+dest_files=["res://.godot/imported/chicken_Image_0.png-e8e69273b7742847afe514ceebe5642c.ctex"]
 
 [params]
 

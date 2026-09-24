@@ -40,7 +40,7 @@ REPORT_DIR = ROOT / "generated" / "bird_gaits_v1" / "reports"
 # expressed in the corrected space).
 SPECS = {
     "chicken": {
-        "source": ROOT / "assets" / "animals" / "hendrik_reyneke" / "chicken.glb",
+        "source": ROOT / "assets" / "animals" / "hendrik_reyneke" / "chicken" / "chicken.glb",
         "output": ROOT / "assets" / "birds" / "chicken" / "walking.glb",
         "orient_axis": "Z",
         "leg_materials": (),

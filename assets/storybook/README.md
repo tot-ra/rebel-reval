@@ -2,7 +2,7 @@
 
 The storybook catalogue now contains seven human models, nine mammals and five birds. Kalev's active body is `res://assets/characters/kalev_rebuild/kalev_fresh.glb`; the superseded `storybook/kalev.glb` and its fitted equipment were removed. His live scene is `res://assets/characters/kalev/kalev.tscn`.
 
-The hen is derived from the licensed authored `assets/animals/hendrik_reyneke/chicken.glb`, preserving its sculpt, UVs and PBR maps while adding a 16-bone articulated rig and eight named animations. Rebuild **only the hen** with:
+The hen is derived from the licensed authored `assets/animals/hendrik_reyneke/chicken/chicken.glb`, preserving its sculpt, UVs and PBR maps while adding a 16-bone articulated rig and eight named animations. Rebuild **only the hen** with:
 
 ```sh
 blender -b --python-exit-code 1 --python tools/assets/import_authored_birds.py -- --only hen --publish

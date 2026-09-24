@@ -13,7 +13,7 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/animals/hendrik_reyneke/goat_goat_roughness.png"
+source_file="res://assets/animals/hendrik_reyneke/goat/goat_goat_roughness.png"
 dest_files=["res://.godot/imported/goat_goat_roughness.png-b404c919e6fb80d588ae12169af5d724.ctex"]
 
 [params]

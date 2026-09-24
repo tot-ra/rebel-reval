@@ -34,7 +34,7 @@ from mammal_limb_anatomy import foot_path  # noqa: E402  (generic planted-gait c
 # of the same species does not need new hand-tuned numbers.
 CONFIG = {
     "hen": dict(
-        source="assets/animals/hendrik_reyneke/chicken.glb",
+        source="assets/animals/hendrik_reyneke/chicken/chicken.glb",
         source_sha256="657adc065eda83691c5447f69145dbc3ada95b1bf99156369e85a74efe1873dc",
         author="hendrikReyneke (https://sketchfab.com/hendrikReyneke)",
         url="https://sketchfab.com/3d-models/chicken-ce17aabc51ba47bfbc7342a963b095e9",

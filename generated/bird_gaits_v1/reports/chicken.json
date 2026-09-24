@@ -1,6 +1,6 @@
 {
   "species": "chicken",
-  "source": "assets/animals/hendrik_reyneke/chicken.glb",
+  "source": "assets/animals/hendrik_reyneke/chicken/chicken.glb",
   "output": "assets/birds/chicken/walking.glb",
   "skeleton": [
     "Root",

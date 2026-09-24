@@ -2,19 +2,19 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c1eag7q2m4qce"
-path="res://.godot/imported/chicken_chicken_roughness.png-d60d4935b8af360d438eee085cd0057e.ctex"
+uid="uid://32pbcgy5j0in"
+path="res://.godot/imported/goat_Image_0.jpg-935235502547e46156a460db45c14111.ctex"
 metadata={
 "vram_texture": false
 }
 generator_parameters={
-"md5": "4e9c575d675d988f501dbed450718e38"
+"md5": "983d671ce7358594cd994906701882ef"
 }
 
 [deps]
 
-source_file="res://assets/animals/hendrik_reyneke/chicken_chicken_roughness.png"
-dest_files=["res://.godot/imported/chicken_chicken_roughness.png-d60d4935b8af360d438eee085cd0057e.ctex"]
+source_file="res://assets/animals/hendrik_reyneke/goat/goat_Image_0.jpg"
+dest_files=["res://.godot/imported/goat_Image_0.jpg-935235502547e46156a460db45c14111.ctex"]
 
 [params]
 

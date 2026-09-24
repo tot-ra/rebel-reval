@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://ckfyuxswdd4sl"
-path="res://.godot/imported/goat.glb-4ed16ab2766e6cae84338a64305634ef.scn"
+uid="uid://de008januy1hg"
+path="res://.godot/imported/chicken.glb-67aeb62e138404602f6cccc49bae1e53.scn"
 
 [deps]
 
-source_file="res://assets/animals/hendrik_reyneke/goat.glb"
-dest_files=["res://.godot/imported/goat.glb-4ed16ab2766e6cae84338a64305634ef.scn"]
+source_file="res://assets/animals/hendrik_reyneke/chicken/chicken.glb"
+dest_files=["res://.godot/imported/chicken.glb-67aeb62e138404602f6cccc49bae1e53.scn"]
 
 [params]
 
