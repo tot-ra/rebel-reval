@@ -16,6 +16,7 @@ const CameraPerspective := preload(
 )
 const CameraShake := preload("res://scripts/map/view3d/map_view_runtime_camera_shake.gd")
 const CameraZoom := preload("res://scripts/map/view3d/map_view_runtime_camera_zoom.gd")
+const CameraOrbit := preload("res://scripts/map/view3d/map_view_runtime_camera_orbit.gd")
 ## Re-exported so camera safety tests keep a stable MapViewRuntimeCamera API.
 const GROUND_CLEARANCE := CameraSafety.GROUND_CLEARANCE
 const INTERIOR_FLOOR_EDGE_MARGIN := CameraTarget.INTERIOR_FLOOR_EDGE_MARGIN
@@ -36,20 +37,21 @@ const PAN_SCROLL_ZOOM_SENSITIVITY := CameraZoom.PAN_SCROLL_ZOOM_SENSITIVITY
 const THIRD_PERSON_DISTANCE := CameraZoom.THIRD_PERSON_DISTANCE
 const THIRD_PERSON_MIN_DISTANCE := CameraZoom.THIRD_PERSON_MIN_DISTANCE
 const THIRD_PERSON_MAX_DISTANCE := CameraZoom.THIRD_PERSON_MAX_DISTANCE
-const ROTATE_SPEED_DEGREES := 120.0
-const MOUSE_ROTATE_DEGREES_PER_PIXEL := 0.3
+## Re-exported so runtime and camera tests keep a stable MapViewRuntimeCamera API.
+const ROTATE_SPEED_DEGREES := CameraOrbit.ROTATE_SPEED_DEGREES
+const MOUSE_ROTATE_DEGREES_PER_PIXEL := CameraOrbit.MOUSE_ROTATE_DEGREES_PER_PIXEL
 const THIRD_PERSON_TARGET_HEIGHT := 1.15
 const THIRD_PERSON_PITCH_DEGREES := -12.0
 ## Follow-camera pitch band: look down toward the character/ground, or raise the
 ## boom enough to inspect ceilings without crossing the vertical poles.
-const THIRD_PERSON_MIN_PITCH_DEGREES := -55.0
-const THIRD_PERSON_MAX_PITCH_DEGREES := 35.0
+const THIRD_PERSON_MIN_PITCH_DEGREES := CameraOrbit.THIRD_PERSON_MIN_PITCH_DEGREES
+const THIRD_PERSON_MAX_PITCH_DEGREES := CameraOrbit.THIRD_PERSON_MAX_PITCH_DEGREES
 const THIRD_PERSON_FOV_DEGREES := 65.0
 const THIRD_PERSON_NEAR := 0.05
 const FIRST_PERSON_EYE_HEIGHT := 1.65
 const FIRST_PERSON_PITCH_DEGREES := -10.0
-const FIRST_PERSON_MIN_PITCH_DEGREES := -80.0
-const FIRST_PERSON_MAX_PITCH_DEGREES := 80.0
+const FIRST_PERSON_MIN_PITCH_DEGREES := CameraOrbit.FIRST_PERSON_MIN_PITCH_DEGREES
+const FIRST_PERSON_MAX_PITCH_DEGREES := CameraOrbit.FIRST_PERSON_MAX_PITCH_DEGREES
 const FIRST_PERSON_FOV_DEGREES := 75.0
 const FIRST_PERSON_NEAR := 0.05
 const TOP_DOWN_NEAR := 0.05
@@ -72,13 +74,12 @@ var first_person: bool:
 	get:
 		return camera_mode == CameraMode.FIRST_PERSON
 
-var _mouse_rotation_armed := false
-var _last_mouse_position := Vector2.ZERO
 var _safety := CameraSafety.new()
 var _target := CameraTarget.new()
 var _perspective := CameraPerspective.new()
 var _shake := CameraShake.new()
 var _zoom := CameraZoom.new()
+var _orbit := CameraOrbit.new()
 
 
 func configure(
@@ -92,6 +93,7 @@ func configure(
 	view = runtime_view
 	player = runtime_player
 	_zoom.configure(self)
+	_orbit.configure(self)
 	# Enclosed building scenes start overhead so perspective camera booms cannot
 	# collide with perimeter walls. Players may still cycle to either perspective mode.
 	camera_mode = (
@@ -170,69 +172,28 @@ func _follow_target() -> Vector3:
 
 
 func apply_view_rotation(delta: float) -> void:
-	apply_mouse_rotation_drag()
-	var direction := 0.0
-	if Input.is_key_pressed(KEY_PAGEUP):
-		direction += 1.0
-	if Input.is_key_pressed(KEY_PAGEDOWN):
-		direction -= 1.0
-	if direction == 0.0:
-		return
-	rotate_view_degrees(direction * ROTATE_SPEED_DEGREES * delta)
+	_orbit.apply_view_rotation(delta)
 
 
 func apply_mouse_rotation_drag() -> void:
-	apply_mouse_rotation_from_position(
-		camera.get_viewport().get_mouse_position(),
-		Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT)
-	)
+	_orbit.apply_mouse_rotation_drag()
 
 
 func apply_mouse_rotation_from_position(mouse_position: Vector2, button_pressed: bool) -> void:
-	if button_pressed:
-		if _mouse_rotation_armed:
-			var mouse_delta := mouse_position - _last_mouse_position
-			if not is_zero_approx(mouse_delta.x):
-				rotate_view_degrees(-mouse_delta.x * MOUSE_ROTATE_DEGREES_PER_PIXEL)
-			# Perspective modes share vertical orbit; top-down keeps its authored pitch.
-			if camera_mode != CameraMode.TOP_DOWN and not is_zero_approx(mouse_delta.y):
-				look_pitch_degrees(-mouse_delta.y * MOUSE_ROTATE_DEGREES_PER_PIXEL)
-		_mouse_rotation_armed = true
-		drag_rotating_view = true
-	else:
-		_mouse_rotation_armed = false
-		drag_rotating_view = false
-	_last_mouse_position = mouse_position
+	_orbit.apply_mouse_rotation_from_position(mouse_position, button_pressed)
 
 
 func rotate_view_degrees(delta_degrees: float) -> void:
-	camera.rotation_degrees.y = wrapf(camera.rotation_degrees.y + delta_degrees, -180.0, 180.0)
-	follow_player(true, 0.0)
-	_sync_player_facing_to_camera()
+	_orbit.rotate_view_degrees(delta_degrees)
 
 
 func look_pitch_degrees(delta_degrees: float) -> void:
-	if camera_mode == CameraMode.TOP_DOWN:
-		return
-	var min_pitch := FIRST_PERSON_MIN_PITCH_DEGREES
-	var max_pitch := FIRST_PERSON_MAX_PITCH_DEGREES
-	if camera_mode == CameraMode.THIRD_PERSON:
-		min_pitch = THIRD_PERSON_MIN_PITCH_DEGREES
-		max_pitch = THIRD_PERSON_MAX_PITCH_DEGREES
-	# Avoid crossing the vertical poles, which would make yaw and movement flip.
-	camera.rotation_degrees.x = clampf(
-		camera.rotation_degrees.x + delta_degrees, min_pitch, max_pitch
-	)
-	if camera_mode == CameraMode.THIRD_PERSON:
-		# Pitch changes the orbit boom; snap so the follow distance stays exact.
-		follow_player(true, 0.0)
+	_orbit.look_pitch_degrees(delta_degrees)
 
 
 ## Compatibility wrapper for callers that only intend first-person free look.
 func look_first_person_degrees(delta_degrees: float) -> void:
-	if not first_person:
-		return
-	look_pitch_degrees(delta_degrees)
+	_orbit.look_first_person_degrees(delta_degrees)
 
 
 func zoom_view_steps(steps: float) -> void:
