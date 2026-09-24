@@ -11,10 +11,10 @@ const VARIANT_LIVONIAN_GRAIN_FLAX := &"livonian_grain_flax"
 const VARIANT_BARRELLED_HERRING_METAL := &"barrelled_herring_metal"
 
 const MODEL_PATHS: Dictionary = {
-	VARIANT_EASTERN_FURS_WAX: "res://assets/props/trade/eastern_furs_wax.glb",
-	VARIANT_WESTERN_CLOTH_SALT: "res://assets/props/trade/western_cloth_salt.glb",
-	VARIANT_LIVONIAN_GRAIN_FLAX: "res://assets/props/trade/livonian_grain_flax.glb",
-	VARIANT_BARRELLED_HERRING_METAL: "res://assets/props/trade/barrelled_herring_metal.glb",
+	VARIANT_EASTERN_FURS_WAX: "res://assets/props/trade/eastern_furs_wax/eastern_furs_wax.glb",
+	VARIANT_WESTERN_CLOTH_SALT: "res://assets/props/trade/western_cloth_salt/western_cloth_salt.glb",
+	VARIANT_LIVONIAN_GRAIN_FLAX: "res://assets/props/trade/livonian_grain_flax/livonian_grain_flax.glb",
+	VARIANT_BARRELLED_HERRING_METAL: "res://assets/props/trade/barrelled_herring_metal/barrelled_herring_metal.glb",
 }
 const VARIANT_ORDER: Array[StringName] = [
 	VARIANT_EASTERN_FURS_WAX,

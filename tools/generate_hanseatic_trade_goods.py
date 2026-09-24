@@ -60,7 +60,9 @@ VARIANTS = {
 BRIEF = {
     "id": "prop.hanseatic_trade_goods_kit",
     "kind": "rigid_prop_kit",
-    "targets": [f"res://assets/props/trade/{variant}.glb" for variant in VARIANTS],
+    "targets": [
+        f"res://assets/props/trade/{variant}/{variant}.glb" for variant in VARIANTS
+    ],
     "scenes": [
         "res://content/maps/reval_harbor_north.rrmap",
         "res://content/maps/north_quarter.rrmap",
@@ -594,8 +596,9 @@ def _metrics(variant: str, obj: bpy.types.Object, output: Path) -> dict[str, obj
 
 
 def _export(variant: str, root: bpy.types.Object, obj: bpy.types.Object) -> dict[str, object]:
-    output = OUTPUT_DIR / f"{variant}.glb"
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    variant_dir = OUTPUT_DIR / variant
+    output = variant_dir / f"{variant}.glb"
+    variant_dir.mkdir(parents=True, exist_ok=True)
     bpy.ops.object.select_all(action="DESELECT")
     root.select_set(True)
     obj.select_set(True)
@@ -716,7 +719,9 @@ def _write_evidence(metrics: dict[str, dict[str, object]], preview_rendered: boo
         "route": "deterministic_blender",
         "stage": "integrated",
         "cache_key": report["cache_key"],
-        "selected_glbs": [f"assets/props/trade/{variant}.glb" for variant in VARIANTS],
+        "selected_glbs": [
+            f"assets/props/trade/{variant}/{variant}.glb" for variant in VARIANTS
+        ],
         "sha256": {variant: values["sha256"] for variant, values in metrics.items()},
         "decision": "integrate",
         "defects": [],

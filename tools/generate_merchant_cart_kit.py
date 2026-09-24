@@ -186,20 +186,20 @@ def main() -> None:
         "generator": "tools/generate_merchant_cart_kit.py",
         "blender_version": BLENDER_VERSION,
         "classes": {
-            "cart_2w": {"path": "assets/props/trade/supply_cart.glb", "status": "existing_authored_asset", "wheel_count": 2},
+            "cart_2w": {"path": "assets/props/trade/supply_cart/supply_cart.glb", "status": "existing_authored_asset", "wheel_count": 2},
         },
     }
     wagon = create_wagon(materials)
-    wagon_metrics = export(wagon, ASSET_DIR / "merchant_wagon_4w.glb")
-    report["classes"]["wagon_4w"] = {"path": "assets/props/trade/merchant_wagon_4w.glb", **wagon_metrics}
+    wagon_metrics = export(wagon, ASSET_DIR / "merchant_wagon_4w" / "merchant_wagon_4w.glb")
+    report["classes"]["wagon_4w"] = {"path": "assets/props/trade/merchant_wagon_4w/merchant_wagon_4w.glb", **wagon_metrics}
     clear_scene()
     materials = {name: make_material(name, color) for name, color in MATERIAL_COLORS.items()}
     barrow = create_barrow(materials)
-    barrow_metrics = export(barrow, ASSET_DIR / "merchant_barrow.glb")
-    report["classes"]["barrow"] = {"path": "assets/props/trade/merchant_barrow.glb", **barrow_metrics}
+    barrow_metrics = export(barrow, ASSET_DIR / "merchant_barrow" / "merchant_barrow.glb")
+    report["classes"]["barrow"] = {"path": "assets/props/trade/merchant_barrow/merchant_barrow.glb", **barrow_metrics}
     (EVIDENCE_DIR / "report.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     (EVIDENCE_DIR / "brief.json").write_text(json.dumps({"vehicle_classes": ["cart_2w", "wagon_4w", "barrow"], "load_props": ["grain_sack", "beer_barrel", "salt_keg", "iron_bar_bundle", "charcoal_sack", "hemp_flax_bale", "hide_bundle"], "approval": "task-authorized"}, indent=2) + "\n", encoding="utf-8")
-    (EVIDENCE_DIR / "state.json").write_text(json.dumps({"generator": "merchant_cart_kit_v1", "deterministic": True, "outputs": ["assets/props/trade/merchant_wagon_4w.glb", "assets/props/trade/merchant_barrow.glb"]}, indent=2) + "\n", encoding="utf-8")
+    (EVIDENCE_DIR / "state.json").write_text(json.dumps({"generator": "merchant_cart_kit_v1", "deterministic": True, "outputs": ["assets/props/trade/merchant_wagon_4w/merchant_wagon_4w.glb", "assets/props/trade/merchant_barrow/merchant_barrow.glb"]}, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(report, indent=2))
 
 

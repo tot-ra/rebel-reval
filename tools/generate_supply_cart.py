@@ -27,7 +27,7 @@ import bpy
 from mathutils import Matrix, Vector
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "assets" / "props" / "trade" / "supply_cart.glb"
+OUTPUT = ROOT / "assets" / "props" / "trade" / "supply_cart" / "supply_cart.glb"
 EVIDENCE_DIR = ROOT / "generated" / "blender" / "supply_cart_v1"
 DEFAULT_PREVIEW = EVIDENCE_DIR / "preview.png"
 BRIEF_PATH = EVIDENCE_DIR / "brief.json"
@@ -52,7 +52,7 @@ AXLE_REAR_Y = -0.53
 BRIEF = {
     "id": ASSET_ID,
     "kind": "rigid_prop",
-    "target": "res://assets/props/trade/supply_cart.glb",
+    "target": "res://assets/props/trade/supply_cart/supply_cart.glb",
     "scene": "economy.merchant-cart-and-transport-1340s.01",
     "dimensions_m": [1.47, 2.46, 1.18],
     "wheel_track_m": 1.30,

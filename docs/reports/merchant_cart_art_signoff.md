@@ -19,7 +19,7 @@ The documentation pack and the authored `cart_2w` production study establish the
 | `docs/reports/images/merchant_carts/reference_wagon_4w.png` | Present | A-010 documentation-only heavy-wagon study |
 | `docs/reports/images/merchant_carts/reference_barrow.png` | Present | A-010 documentation-only hand-barrow study |
 | `generated/blender/supply_cart_v1/preview.png` | Present | Deterministic Blender production preview; not a gameplay capture |
-| `assets/props/trade/supply_cart.glb` | Present | A-004 production `cart_2w` asset; A-004 remains `in_review` |
+| `assets/props/trade/supply_cart/supply_cart.glb` | Present | A-004 production `cart_2w` asset; A-004 remains `in_review` |
 | `generated/blender/supply_cart_v1/report.json` | Present | 3,492 triangles, 1.30 m wheel track, 2 wheels, 12 spokes, zero floating objects, ground contact, open front, wicker lattice, hinged rear gate, and merchant load variant |
 | Authored `wagon_4w` and `barrow` runtime kit | Missing | Owned by P2-068 / R-206, currently `todo` |
 | Vanaturg, harbour, and Viru gameplay-camera day/night captures | Missing | Corridor placement is owned by P2-069 / R-207, currently `todo`; no substitute image is accepted |
