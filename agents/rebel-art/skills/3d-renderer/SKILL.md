@@ -24,7 +24,7 @@ Produce one verified asset with the fewest LLM decisions, context reads, and gen
 Read only the binding art rules, relevant asset/location brief, one comparable asset, and target scene. Save decisions once in a `brief.json` of at most 20 lines:
 
 ```json
-{"id":"prop.smithy_chair","kind":"rigid_prop","target":"res://assets/props/furniture/smithy_chair.glb","scene":"res://scenes/reval_east/forge/forge.tscn","dimensions_m":[0.56,1.05,0.52],"triangles":{"target":2000,"max":3000},"textures":{"albedo":512},"style_refs":["docs/ART_BIBLE.md","docs/MATERIAL_STYLE_LOCK_KIT.md"],"approval":"task-authorized"}
+{"id":"prop.smithy_chair","kind":"rigid_prop","target":"res://assets/props/furniture/smithy_chair/smithy_chair.glb","scene":"res://scenes/reval_east/forge/forge.tscn","dimensions_m":[0.56,1.05,0.52],"triangles":{"target":2000,"max":3000},"textures":{"albedo":512},"style_refs":["docs/ART_BIBLE.md","docs/MATERIAL_STYLE_LOCK_KIT.md"],"approval":"task-authorized"}
 ```
 
 Reference this path instead of repeating the brief.

@@ -18,7 +18,8 @@ from pathlib import Path
 import bpy
 
 ROOT = Path(__file__).resolve().parents[3]
-SOURCE = ROOT / "assets/animals/medieval/medieval_pack_horse.glb"
+# Live fauna mesh relocated to storybook; standalone cart/draught export keeps the A-002 path.
+SOURCE = ROOT / "assets/storybook/horse/horse.glb"
 OUTPUT = ROOT / "assets/animals/medieval/medieval_horse.glb"
 REPORT = Path(__file__).resolve().parent / "report.json"
 
