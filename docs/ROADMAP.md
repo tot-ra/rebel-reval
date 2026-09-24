@@ -4,6 +4,9 @@ Coordination notes, delivery order, and planning context formerly embedded in `T
 Executable open work stays in [`TODO.md`](../TODO.md).
 Aged coordination history lives in [`ROADMAP_COORDINATION_ARCHIVE_2026-08-13.md`](./ROADMAP_COORDINATION_ARCHIVE_2026-08-13.md).
 
+<!-- P0-185 role_for_size peel extracted in current session -->
+Coordination note (2026-09-24 P0-185 / R-877): `map_view_prop_materials.gd` now owns size-aware `role_for_size` beside `role()`; `map_view_materials.gd` keeps a one-line facade delegate and dropped from 380 to 370 lines. Verified: `--filter=test_map_view_material_resolution`, `--filter=test_street_and_masonry_realism`, `--filter=test_map_view_3d_fortification`, `--filter=test_direction_sign_3d`. Next P0-185 claim: keep `apply_weather_presentation` on the facade until a second caller needs a dedicated weather-material adapter; optional texture-size constant shard.
+
 <!-- P0-185 pattern-family constants peel extracted in current session -->
 Coordination note (2026-09-24 P0-185): `map_view_material_pattern_families.gd` now owns the closed `PATTERN_*` family ID table; terrain, building, prop caches and `map_view_material_patterns.gd` import it directly while `map_view_materials.gd` re-exports for the stable facade. Verified: `--filter=test_building_surface_weathering`, `--filter=test_map_view_3d_mesh`, `--filter=test_thatch_roof_dressing`, `--filter=test_map_view_material_resolution`, `--filter=test_street_and_masonry_realism`, `--filter=test_natural_ground_variation`, `--filter=test_map_terrain_chunks`. Next P0-185 claim: texture-size constants peel from `map_view_materials.gd` or further `map_view_runtime_camera.gd` facade trims.
 

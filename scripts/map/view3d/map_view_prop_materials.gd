@@ -5,6 +5,9 @@ extends RefCounted
 ## MapViewMaterials exposes this module through its stable public API. This
 ## keeps prop visual treatment separate from terrain, water, and building rules.
 
+const BUILDING_MATERIALS := preload(
+	"res://scripts/map/view3d/map_view_building_materials.gd"
+)
 const PATTERN_FAMILIES := preload(
 	"res://scripts/map/view3d/map_view_material_pattern_families.gd"
 )
@@ -79,6 +82,22 @@ static func role(role_name: StringName) -> StandardMaterial3D:
 			material.emission = EMBER_COLOR
 			material.emission_energy_multiplier = EMBER_ENERGY
 	_cache[key] = material
+	return material
+
+
+## Size-aware role materials for lintels, door frames, and sign planks. UV repeat
+## follows building surface rules so timber and limestone stay readable at mesh scale.
+static func role_for_size(role_name: StringName, size: Vector3) -> StandardMaterial3D:
+	var material := role(role_name).duplicate()
+	var pattern := PATTERN_PLASTER
+	match role_name:
+		&"wood", &"timber":
+			pattern = PATTERN_PLANK
+		&"stone":
+			pattern = PATTERN_LIMESTONE
+		_:
+			return material
+	material.uv1_scale = BUILDING_MATERIALS.building_uv_scale(pattern, size)
 	return material
 
 

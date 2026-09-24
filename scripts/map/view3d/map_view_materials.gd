@@ -327,17 +327,7 @@ static func leather() -> StandardMaterial3D:
 
 
 static func role_for_size(role_name: StringName, size: Vector3) -> StandardMaterial3D:
-	var material := role(role_name).duplicate()
-	var pattern := PATTERN_PLASTER
-	match role_name:
-		&"wood", &"timber":
-			pattern = PATTERN_PLANK
-		&"stone":
-			pattern = PATTERN_LIMESTONE
-		_:
-			return material
-	material.uv1_scale = building_uv_scale(pattern, size)
-	return material
+	return PROP_MATERIALS.role_for_size(role_name, size)
 
 
 static func door_wood(noise_seed: int) -> StandardMaterial3D:
