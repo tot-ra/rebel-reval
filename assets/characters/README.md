@@ -7,6 +7,8 @@ Production proof: [`docs/reports/character_rig_production_p0_037.md`](../../docs
 
 This folder owns the shared humanoid rig contract used by Kalev and NPC variants. It deliberately does not edit the 2D player controller, map definitions, collision, navigation, or the P0-052 view layer.
 
+**Live Kalev** keeps stable paths in [`kalev/kalev.tscn`](kalev/kalev.tscn) and [`kalev/kalev_variant.tres`](kalev/kalev_variant.tres) while the rebuilt body, forge wardrobe, and art pipeline live in [`kalev_rebuild/`](kalev_rebuild/). See [`kalev/README.md`](kalev/README.md).
+
 **Creating new characters** (variants, props, garments, whole new bodies) is specified in [`docs/CHARACTER_GENERATION.md`](../../docs/CHARACTER_GENERATION.md); body parameters live in [`tools/character_specs.py`](../../tools/character_specs.py) (`innkeeper` is the committed worked example).
 
 ## Pipeline: our mesh, CC0 motion
