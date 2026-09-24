@@ -62,6 +62,7 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 - `tasks.next` does not honor complexity or role filters. Restore a wrongly claimed row with its full body, then claim the exact ref.
 - Create dependency chains sequentially and verify each returned ref. An empty `body` on update erases the contract. If a mutation times out, query the exact ref before retrying.
 - When the `tasks` tool is unavailable in Cursor, read or update the project board through `~/.local/share/aagent/aagent.db` with the session `project_id`; do not infer open work from `TODO.md` alone.
+- Before coding an open `R-*` row, grep `TODO.md` for the product ID (`P0-226`); if it is already `[x]`, run the task `verify` clause headlessly and close the board row instead of re-implementing.
 
 ### Documentation, provenance, and evidence
 - `tools/validate_content.py` validates JSON corpus roots, not Markdown reports.
