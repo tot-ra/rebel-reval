@@ -14,6 +14,7 @@ const CameraTarget := preload("res://scripts/map/view3d/map_view_runtime_camera_
 const CameraPerspective := preload(
 	"res://scripts/map/view3d/map_view_runtime_camera_perspective.gd"
 )
+const CameraShake := preload("res://scripts/map/view3d/map_view_runtime_camera_shake.gd")
 ## Re-exported so camera safety tests keep a stable MapViewRuntimeCamera API.
 const GROUND_CLEARANCE := CameraSafety.GROUND_CLEARANCE
 const INTERIOR_FLOOR_EDGE_MARGIN := CameraTarget.INTERIOR_FLOOR_EDGE_MARGIN
@@ -62,8 +63,6 @@ const THIRD_PERSON_DOF_FAR_DISTANCE := CameraPerspective.THIRD_PERSON_DOF_FAR_DI
 const FIRST_PERSON_DOF_BLUR_AMOUNT := CameraPerspective.FIRST_PERSON_DOF_BLUR_AMOUNT
 const FIRST_PERSON_DOF_FAR_DISTANCE := CameraPerspective.FIRST_PERSON_DOF_FAR_DISTANCE
 const OCCLUSION_PROBE_HEIGHTS: Array[float] = [0.5, 1.1, 1.8]
-const SHAKE_DECAY_RATE := 3.5
-const SHAKE_MAX_OFFSET := 0.14
 
 var camera: Camera3D
 var player_rig: SharedCharacterRig
@@ -75,8 +74,6 @@ var first_person: bool:
 	get:
 		return camera_mode == CameraMode.FIRST_PERSON
 
-var _shake_trauma := 0.0
-var _shake_phase := 0.0
 var _mouse_rotation_armed := false
 var _last_mouse_position := Vector2.ZERO
 var _top_down_size := CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE
@@ -84,6 +81,7 @@ var _third_person_distance := THIRD_PERSON_DISTANCE
 var _safety := CameraSafety.new()
 var _target := CameraTarget.new()
 var _perspective := CameraPerspective.new()
+var _shake := CameraShake.new()
 
 
 func configure(
@@ -145,10 +143,10 @@ func follow_player(snap: bool, delta: float) -> void:
 	)
 	var camera_was_below_ground := _safety.camera_is_below_ground()
 	if snap or camera.position.distance_to(target) > SNAP_DISTANCE_WORLD:
-		camera.position = _apply_screen_shake(delta, target)
+		camera.position = _shake.apply(delta, target)
 	else:
 		var lerped := camera.position.lerp(target, clampf(FOLLOW_LERP_WEIGHT * delta, 0.0, 1.0))
-		camera.position = _apply_screen_shake(delta, lerped)
+		camera.position = _shake.apply(delta, lerped)
 	_safety.enforce_camera_safety(
 		camera_was_inside_occluder, camera_and_player_shared_occluder, camera_was_below_ground
 	)
@@ -156,38 +154,7 @@ func follow_player(snap: bool, delta: float) -> void:
 
 
 func add_screen_shake(amount: float = 0.35) -> void:
-	if not _screen_shake_enabled():
-		return
-	_shake_trauma = clampf(_shake_trauma + amount, 0.0, 1.0)
-
-
-func _apply_screen_shake(delta: float, position: Vector3) -> Vector3:
-	if _shake_trauma <= 0.0:
-		return position
-	_shake_trauma = maxf(_shake_trauma - SHAKE_DECAY_RATE * delta, 0.0)
-	var amount := _shake_trauma * _shake_trauma
-	_shake_phase += delta * 42.0
-	var offset := Vector3(
-		sin(_shake_phase * 1.7) * SHAKE_MAX_OFFSET * amount,
-		sin(_shake_phase * 2.3) * SHAKE_MAX_OFFSET * amount * 0.45,
-		cos(_shake_phase * 1.3) * SHAKE_MAX_OFFSET * amount
-	)
-	return position + offset
-
-
-func _screen_shake_enabled() -> bool:
-	var tree := Engine.get_main_loop() as SceneTree
-	if tree == null or not tree.root.has_node("/root/UserSettings"):
-		return true
-	var settings: Node = tree.root.get_node("/root/UserSettings")
-	if not ("gameplay" in settings) or not ("dialogue" in settings):
-		return true
-	var gameplay: Variant = settings.get("gameplay")
-	var dialogue: Variant = settings.get("dialogue")
-	if gameplay == null or not gameplay.has_method("allows_screenshake"):
-		return true
-	var reduced_motion := bool(dialogue.reduced_motion) if dialogue != null else false
-	return bool(gameplay.allows_screenshake(reduced_motion))
+	_shake.add(amount)
 
 
 func _follow_target() -> Vector3:

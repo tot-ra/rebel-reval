@@ -4,6 +4,9 @@ Coordination notes, delivery order, and planning context formerly embedded in `T
 Executable open work stays in [`TODO.md`](../TODO.md).
 Aged coordination history lives in [`ROADMAP_COORDINATION_ARCHIVE_2026-08-13.md`](./ROADMAP_COORDINATION_ARCHIVE_2026-08-13.md).
 
+<!-- P0-185 runtime camera shake peel extracted in current session -->
+Coordination note (2026-09-24 P0-185): `map_view_runtime_camera_shake.gd` now owns trauma decay, accessibility-gated shake requests, and follow-position offset. `map_view_runtime_camera.gd` keeps modes, zoom, orbit, and follow and dropped from 407 to 374 lines. Verified: `--filter=test_map_view_runtime_camera`, `--filter=test_map_camera_modes`. Next P0-185 claim: zoom continuum peel from `map_view_runtime_camera.gd` or `map_view_materials` review.
+
 <!-- P0-185 runtime camera perspective peel extracted in current session -->
 Coordination note (2026-09-24 P0-185): `map_view_runtime_camera_perspective.gd` now owns practical-camera exposure and depth-of-field for perspective modes. `map_view_runtime_camera.gd` keeps modes, zoom, orbit, and follow and dropped from 454 to 406 lines. Verified: `--filter=test_map_view_runtime_camera`, `--filter=test_map_camera_modes`. Next P0-185 claim: further `map_view_runtime_camera.gd` facade trims (screen shake or zoom) or `map_view_materials` review.
 
