@@ -38,6 +38,7 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 - Do not `git checkout HEAD --` a hot shared file while other dirty scripts already call its new APIs. Do not mid-task `git stash` with fragile pathspecs.
 - After a temporary-index commit, move only the branch ref. Do not `git reset --soft` in the live checkout.
 - If a path-limited commit exits silently, inspect `HEAD` and hooks separately before retrying.
+- Cursor or A2gent agent shells may lack GitHub SSH keys (`Permission denied (publickey)` on `git push`). Report the blocked push; the human runs push locally or wires HTTPS/credential helper for automation.
 
 ### Godot and Python verification
 - Export `GODOT_BIN` in a preceding command (macOS: `/Applications/Godot.app/Contents/MacOS/Godot`). Inline `GODOT_BIN=... "$GODOT_BIN"` expands the old empty value and exits 127.
