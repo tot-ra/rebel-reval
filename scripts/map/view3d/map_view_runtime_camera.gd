@@ -10,8 +10,10 @@ enum CameraMode {
 }
 
 const CameraSafety := preload("res://scripts/map/view3d/map_view_runtime_camera_safety.gd")
+const CameraTarget := preload("res://scripts/map/view3d/map_view_runtime_camera_target.gd")
 ## Re-exported so camera safety tests keep a stable MapViewRuntimeCamera API.
 const GROUND_CLEARANCE := CameraSafety.GROUND_CLEARANCE
+const INTERIOR_FLOOR_EDGE_MARGIN := CameraTarget.INTERIOR_FLOOR_EDGE_MARGIN
 const BUILDING_PULL_ITERATIONS := CameraSafety.BUILDING_PULL_ITERATIONS
 const BUILDING_PULL_STEP := CameraSafety.BUILDING_PULL_STEP
 const VISIBILITY_PULL_STEP := CameraSafety.VISIBILITY_PULL_STEP
@@ -32,11 +34,6 @@ const PAN_SCROLL_ZOOM_SENSITIVITY := 1.0
 const THIRD_PERSON_DISTANCE := 6.0
 ## Closest boom before scroll-zoom flips into first-person.
 const THIRD_PERSON_MIN_DISTANCE := 2.0
-## Interior follow targets this close to the floor edge count as wall clips. The
-## authored perimeter walls occupy a full cell, so leave that cell plus a small
-## lens/mesh buffer between the camera and the room boundary. Without this
-## clearance, the safety pass alternates between the wall AABB and the boom target.
-const INTERIOR_FLOOR_EDGE_MARGIN := 1.05
 ## Farthest boom before scroll-zoom flips into the orthographic top-down overview.
 const THIRD_PERSON_MAX_DISTANCE := 12.0
 const THIRD_PERSON_TARGET_HEIGHT := 1.15
@@ -88,6 +85,7 @@ var _top_down_size := CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE
 var _third_person_distance := THIRD_PERSON_DISTANCE
 var _perspective_attributes: CameraAttributesPractical
 var _safety := CameraSafety.new()
+var _target := CameraTarget.new()
 
 
 func configure(
@@ -111,7 +109,12 @@ func configure(
 		else CameraMode.THIRD_PERSON
 	)
 	_safety.configure(self)
+	_target.configure(self)
 	_apply_camera_mode()
+
+
+func player_inside_occluder() -> bool:
+	return _safety.player_inside_occluder()
 
 
 func perspective_camera_attributes() -> CameraAttributesPractical:
@@ -189,65 +192,12 @@ func _screen_shake_enabled() -> bool:
 	return bool(gameplay.allows_screenshake(reduced_motion))
 
 
-func _resolve_third_person_target(target: Vector3) -> Vector3:
-	if view == null or view.definition == null:
-		return target
-	var anchor := player_rig.position + Vector3.UP * THIRD_PERSON_TARGET_HEIGHT
-	var direction := target - anchor
-	var distance := direction.length()
-	if is_zero_approx(distance):
-		return target
-	direction /= distance
-	# Interior maps enforce floor-edge margins so the boom stays inside the room.
-	# Exterior maps pull the target out of any building/landmark AABB it enters.
-	if view.definition.suppresses_exterior_surroundings():
-		while distance > THIRD_PERSON_MIN_DISTANCE and _third_person_target_clips(target):
-			distance = maxf(THIRD_PERSON_MIN_DISTANCE, distance * 0.75)
-			target = anchor + direction * distance
-	else:
-		# A visual mass can legitimately contain the actor endpoint (for example
-		# an open facade or an interior-facing spawn). There is no valid outward
-		# direction in that case, so let the authored follow target remain exact.
-		if not _safety.player_inside_occluder():
-			while distance > THIRD_PERSON_MIN_DISTANCE and view.is_point_inside_occluder(target):
-				distance = maxf(THIRD_PERSON_MIN_DISTANCE, distance * 0.75)
-				target = anchor + direction * distance
-	if view.definition.suppresses_exterior_surroundings():
-		# A minimum boom can still leave a player near a perimeter wall with the
-		# lens inside that wall's AABB. Clamp the final target to the walkable room
-		# envelope so the next-frame safety pass cannot pull it back and forth.
-		return _clamp_interior_target(target)
-	return target
-
-
-func _clamp_interior_target(target: Vector3) -> Vector3:
-	var size := view.definition.size_cells
-	var min_edge := INTERIOR_FLOOR_EDGE_MARGIN
-	var max_x := maxf(min_edge, float(size.x) - min_edge)
-	var max_z := maxf(min_edge, float(size.y) - min_edge)
-	target.x = clampf(target.x, min_edge, max_x)
-	target.z = clampf(target.z, min_edge, max_z)
-	return target
-
-
-func _third_person_target_clips(target: Vector3) -> bool:
-	if view.is_point_inside_occluder(target):
-		return true
-	var size := view.definition.size_cells
-	return (
-		target.x < INTERIOR_FLOOR_EDGE_MARGIN
-		or target.x > float(size.x) - INTERIOR_FLOOR_EDGE_MARGIN
-		or target.z < INTERIOR_FLOOR_EDGE_MARGIN
-		or target.z > float(size.y) - INTERIOR_FLOOR_EDGE_MARGIN
-	)
-
-
 func _follow_target() -> Vector3:
 	match camera_mode:
 		CameraMode.FIRST_PERSON:
 			return player_rig.position + Vector3.UP * FIRST_PERSON_EYE_HEIGHT
 		CameraMode.THIRD_PERSON:
-			return _resolve_third_person_target(
+			return _target.resolve_third_person_target(
 				(
 					player_rig.position
 					+ Vector3.UP * THIRD_PERSON_TARGET_HEIGHT

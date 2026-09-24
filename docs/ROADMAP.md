@@ -4,6 +4,9 @@ Coordination notes, delivery order, and planning context formerly embedded in `T
 Executable open work stays in [`TODO.md`](../TODO.md).
 Aged coordination history lives in [`ROADMAP_COORDINATION_ARCHIVE_2026-08-13.md`](./ROADMAP_COORDINATION_ARCHIVE_2026-08-13.md).
 
+<!-- P0-185 runtime camera target peel extracted in current session -->
+Coordination note (2026-09-24 P0-185): `map_view_runtime_camera_target.gd` now owns third-person follow-target resolution, interior floor-edge clamping, and occluder pull-back. `map_view_runtime_camera.gd` keeps modes, zoom, and follow and dropped from 508 to 454 lines. Verified: `--filter=test_map_view_runtime_camera`, `--filter=test_map_camera_modes` (12/12). Next P0-185 claim: further `map_view_runtime_camera.gd` facade trims or `map_view_materials` review.
+
 <!-- P0-185 runtime camera safety peel extracted in current session -->
 Coordination note (2026-09-24 P0-185): `map_view_runtime_camera_safety.gd` now owns ground clamp, building pull-out, visibility recovery, and occlusion ghost. `map_view_runtime_camera.gd` keeps modes, zoom, and follow and dropped from 678 to 508 lines. Verified: `--filter=test_map_view_3d_runtime`, `--filter=test_map_view_runtime_camera`, `--filter=test_map_camera_modes`, `--filter=test_debug_overlay`, `--filter=test_map_click_input_controller` (43/43). Next P0-185 claim: third-person target resolution peel from `map_view_runtime_camera.gd` or further `map_view_materials` review.
 
