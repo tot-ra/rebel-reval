@@ -45,6 +45,7 @@ This file contains lessons specific to the Dev role.
 - RRMap walls with `openings=` compile into `<id>/segment.NNN` buildings. `exclude` rects create blocked cells; keep reserved footprints clear of every anchor centre.
 - `test_map_composition_audit` indexes thresholds by every blueprint-registry id. Add a card (`enforce: false` for developer-only interiors) with each new registry entry.
 - RRMap stable IDs are lowercase-only. Production house GLBs hide procedural Walls/Roof/Chimney; skip invisible subtrees before collecting merge leaves or chimneys bake at the wrong height.
+- When peeling RefCounted helpers off `MapViewRuntimeCamera`, call `_safety.configure(self)` before `_apply_camera_mode()` because mode apply runs `follow_player()` immediately.
 - Penned fauna `configure` must receive the compiled `MapDefinition`. Building footprints are logic pixels; actor positions are world XZ. Convert with `MapViewBridge.logic_rect_to_world_xz`.
 - Shared quadruped livestock GLBs are authored facing -X, while ambient `look_at` walks along -Z. Keep `MODEL_YAW = -PI * 0.5` on the imported model root.
 - New Game places the player via DoorNavigator spawn `smithy_start`, not `definition.player_spawn`. Keep `transition smithy_start_spawn` on the same wake cell as `ap.sleep.wake`.

@@ -9,6 +9,14 @@ enum CameraMode {
 	TOP_DOWN,
 }
 
+const CameraSafety := preload("res://scripts/map/view3d/map_view_runtime_camera_safety.gd")
+## Re-exported so camera safety tests keep a stable MapViewRuntimeCamera API.
+const GROUND_CLEARANCE := CameraSafety.GROUND_CLEARANCE
+const BUILDING_PULL_ITERATIONS := CameraSafety.BUILDING_PULL_ITERATIONS
+const BUILDING_PULL_STEP := CameraSafety.BUILDING_PULL_STEP
+const VISIBILITY_PULL_STEP := CameraSafety.VISIBILITY_PULL_STEP
+const VISIBILITY_PULL_ITERATIONS := CameraSafety.VISIBILITY_PULL_ITERATIONS
+
 const FOLLOW_LERP_WEIGHT := 8.0
 const SNAP_DISTANCE_WORLD := 6.0
 const ZOOM_STEP_FACTOR := 0.9
@@ -58,15 +66,6 @@ const THIRD_PERSON_DOF_FAR_TRANSITION := 6.0
 const FIRST_PERSON_DOF_BLUR_AMOUNT := 0.028
 const FIRST_PERSON_DOF_FAR_DISTANCE := 14.0
 const FIRST_PERSON_DOF_FAR_TRANSITION := 8.0
-## Safety: prevent camera from clipping through terrain, buildings, or losing
-## sight of the player. Ground clamping pulls the camera above the terrain
-## height map; building collision slides it out of building AABBs toward the
-## player; visibility safety snaps closer when the player is fully occluded.
-const GROUND_CLEARANCE := 0.3
-const BUILDING_PULL_ITERATIONS := 4
-const BUILDING_PULL_STEP := 0.6
-const VISIBILITY_PULL_STEP := 0.6
-const VISIBILITY_PULL_ITERATIONS := 4
 const OCCLUSION_PROBE_HEIGHTS: Array[float] = [0.5, 1.1, 1.8]
 const SHAKE_DECAY_RATE := 3.5
 const SHAKE_MAX_OFFSET := 0.14
@@ -88,6 +87,8 @@ var _last_mouse_position := Vector2.ZERO
 var _top_down_size := CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE
 var _third_person_distance := THIRD_PERSON_DISTANCE
 var _perspective_attributes: CameraAttributesPractical
+var _safety := CameraSafety.new()
+
 
 func configure(
 	runtime_camera: Camera3D,
@@ -109,6 +110,7 @@ func configure(
 		if view.definition != null and view.definition.suppresses_exterior_surroundings()
 		else CameraMode.THIRD_PERSON
 	)
+	_safety.configure(self)
 	_apply_camera_mode()
 
 
@@ -138,15 +140,15 @@ func follow_player(snap: bool, delta: float) -> void:
 	var target := _follow_target()
 	var camera_was_inside_occluder := view != null and view.is_point_inside_occluder(camera.position)
 	var camera_and_player_shared_occluder := (
-		camera_was_inside_occluder and _camera_and_player_share_occluder()
+		camera_was_inside_occluder and _safety.camera_and_player_share_occluder()
 	)
-	var camera_was_below_ground := _camera_is_below_ground()
+	var camera_was_below_ground := _safety.camera_is_below_ground()
 	if snap or camera.position.distance_to(target) > SNAP_DISTANCE_WORLD:
 		camera.position = _apply_screen_shake(delta, target)
 	else:
 		var lerped := camera.position.lerp(target, clampf(FOLLOW_LERP_WEIGHT * delta, 0.0, 1.0))
 		camera.position = _apply_screen_shake(delta, lerped)
-	_enforce_camera_safety(
+	_safety.enforce_camera_safety(
 		camera_was_inside_occluder, camera_and_player_shared_occluder, camera_was_below_ground
 	)
 	view.update_terrain_detail_focus(player_rig.position)
@@ -206,7 +208,7 @@ func _resolve_third_person_target(target: Vector3) -> Vector3:
 		# A visual mass can legitimately contain the actor endpoint (for example
 		# an open facade or an interior-facing spawn). There is no valid outward
 		# direction in that case, so let the authored follow target remain exact.
-		if not _player_inside_occluder():
+		if not _safety.player_inside_occluder():
 			while distance > THIRD_PERSON_MIN_DISTANCE and view.is_point_inside_occluder(target):
 				distance = maxf(THIRD_PERSON_MIN_DISTANCE, distance * 0.75)
 				target = anchor + direction * distance
@@ -238,19 +240,6 @@ func _third_person_target_clips(target: Vector3) -> bool:
 		or target.z < INTERIOR_FLOOR_EDGE_MARGIN
 		or target.z > float(size.y) - INTERIOR_FLOOR_EDGE_MARGIN
 	)
-
-
-func _player_inside_occluder() -> bool:
-	return view != null and player_rig != null and view.is_point_inside_occluder(player_rig.position)
-
-
-func _camera_and_player_share_occluder() -> bool:
-	if view == null or player_rig == null:
-		return false
-	for bounds in view._occluder_bounds:
-		if bounds.has_point(camera.position) and bounds.has_point(player_rig.position):
-			return true
-	return false
 
 
 func _follow_target() -> Vector3:
@@ -515,164 +504,5 @@ func mode_label() -> String:
 			return "Top-down view"
 
 
-## Post-follow safety: clamp above ground, pull out of buildings, and ensure
-## the camera can still see the player. Called every frame after position is
-## set so both snap and lerp paths stay safe.
-func _enforce_camera_safety(
-	camera_was_inside_occluder: bool,
-	camera_and_player_shared_occluder: bool,
-	camera_was_below_ground: bool
-) -> void:
-	_clamp_above_ground(camera_was_below_ground)
-	_pull_out_of_buildings(camera_was_inside_occluder and not camera_and_player_shared_occluder)
-	_ensure_player_visible()
-
-
-## Prevent the camera from sinking below the terrain height field. The margin
-## (GROUND_CLEARANCE) avoids z-fighting and gives a comfortable buffer above
-## grass/paving relief that the height field alone does not capture.
-func _clamp_above_ground(camera_was_below_ground: bool) -> void:
-	if view == null or view.definition == null:
-		return
-	# Preserve an authored third-person orbit even when its elevated target is
-	# below the terrain sample at steep pitch. A manually underground camera is
-	# still clamped before the orbit target can be used.
-	if camera_mode == CameraMode.THIRD_PERSON and not camera_was_below_ground:
-		return
-	var world_xz := Vector2(camera.position.x, camera.position.z)
-	var terrain_y := MapViewMeshBuilder.ground_height(view.definition, world_xz)
-	var min_y := terrain_y + GROUND_CLEARANCE
-	if camera.position.y < min_y:
-		camera.position.y = min_y
-
-
-## When the camera lands inside a building/landmark AABB (e.g. after a sharp
-## pitch orbit or lerp through geometry), slide it toward the player until it
-## exits the occluder. Keeps the player visible and avoids interior-flicker.
-func _pull_out_of_buildings(camera_was_inside_occluder: bool) -> void:
-	if view == null or not camera_was_inside_occluder:
-		return
-	# First-person is an exact eye-height target. A third-person camera can be
-	# inside a facade before the mode switch, but that stale position must not
-	# displace the new first-person lens.
-	if camera_mode == CameraMode.FIRST_PERSON:
-		return
-	# A visual mass may contain the player and the authored boom target. Recover
-	# only a camera that was already clipped before follow, so valid orbit targets
-	# are not pulled merely because the player stands inside a facade mass.
-	for _pass in range(BUILDING_PULL_ITERATIONS):
-		if not view.is_point_inside_occluder(camera.position):
-			return
-		var candidate := _best_occluder_exit(camera.position)
-		if candidate.is_equal_approx(camera.position):
-			return
-		camera.position = candidate
-
-
-func _best_occluder_exit(point: Vector3) -> Vector3:
-	var best := point
-	var best_count := view._occluder_bounds.size() + 1
-	var best_distance := 1.0e20
-	for bounds: AABB in view._occluder_bounds:
-		if not bounds.has_point(point):
-			continue
-		var candidates: Array[Vector3] = [
-			Vector3(bounds.position.x - 0.01, point.y, point.z),
-			Vector3(bounds.end.x + 0.01, point.y, point.z),
-			Vector3(point.x, bounds.position.y - 0.01, point.z),
-			Vector3(point.x, bounds.end.y + 0.01, point.z),
-			Vector3(point.x, point.y, bounds.position.z - 0.01),
-			Vector3(point.x, point.y, bounds.end.z + 0.01),
-		]
-		for candidate: Vector3 in candidates:
-			var containing_count := 0
-			for other_bounds: AABB in view._occluder_bounds:
-				if other_bounds.has_point(candidate):
-					containing_count += 1
-			var distance := point.distance_squared_to(candidate)
-			if (
-				containing_count < best_count
-				or (containing_count == best_count and distance < best_distance)
-			):
-				best = candidate
-				best_count = containing_count
-				best_distance = distance
-	return best
-
-
-func _camera_is_below_ground() -> bool:
-	if view == null or view.definition == null:
-		return false
-	var terrain_y := MapViewMeshBuilder.ground_height(
-		view.definition, Vector2(camera.position.x, camera.position.z)
-	)
-	return camera.position.y < terrain_y
-
-
-## Final safety net: if the camera-to-player segment is fully occluded by
-## buildings/terrain (e.g. camera ended up behind a wall), pull the camera
-## closer until the line-of-sight is clear. In top-down mode the occlusion
-## ghost overlay handles the visual; this mostly fires for third-person.
-func _ensure_player_visible() -> void:
-	if view == null:
-		return
-	# A visual mass may contain the actor endpoint, so a blocked segment does not
-	# identify a camera-side wall. Avoid replacing an exact mode target with the
-	# generic third-person fallback in that ambiguous case.
-	if _player_inside_occluder():
-		return
-	# Enclosed interiors have authored perimeter walls by design. The camera and
-	# player are both constrained to the same room envelope, so treating a wall
-	# as outdoor line-of-sight occlusion would pull the lens back toward the actor
-	# every frame and fight the stable interior target above.
-	if view.definition != null and view.definition.suppresses_exterior_surroundings():
-		return
-	var player_pos := player_rig.position
-	if not view.is_segment_occluded(camera.position, player_pos):
-		return
-	# Top-down mode intentionally allows occlusion (shows skeleton ghost);
-	# only correct third-person and first-person to avoid disorientation.
-	if camera_mode == CameraMode.TOP_DOWN:
-		return
-	var dir := camera.position - player_pos
-	var distance := dir.length()
-	if distance < 0.1:
-		return
-	dir /= distance
-	for i in range(VISIBILITY_PULL_ITERATIONS):
-		distance *= VISIBILITY_PULL_STEP
-		if distance < THIRD_PERSON_MIN_DISTANCE:
-			break
-		var candidate := player_pos + dir * distance
-		if not view.is_segment_occluded(candidate, player_pos):
-			camera.position = candidate
-			return
-	# Last resort: place the camera at the player's eye level so at least the
-	# player is visible; ground/building clamping will re-correct on next tick.
-	camera.position = player_pos + Vector3.UP * THIRD_PERSON_TARGET_HEIGHT
-
-
 func update_occlusion_ghost() -> void:
-	# First-person hides the rig. Enclosed interiors keep the silhouette off:
-	# the follow boom often clips perimeter walls/ceilings, and the X-ray ghost
-	# reads as a constant "skeleton" rather than helpful outdoor occlusion.
-	if (
-		first_person
-		or (
-			view != null
-			and view.definition != null
-			and view.definition.suppresses_exterior_surroundings()
-		)
-	):
-		player_rig.set_occlusion_ghost(false)
-		return
-	# Probe from body samples to the real camera, not to camera+height. The old
-	# offset aimed above the lens and false-triggered room ceilings indoors.
-	var to_camera := camera.position
-	var occluded := false
-	for height in OCCLUSION_PROBE_HEIGHTS:
-		var from := player_rig.position + Vector3.UP * height
-		if view.is_segment_occluded(from, to_camera):
-			occluded = true
-			break
-	player_rig.set_occlusion_ghost(occluded)
+	_safety.update_occlusion_ghost()
