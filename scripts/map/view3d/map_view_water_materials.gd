@@ -12,6 +12,70 @@ const OPTICAL_DEPTH_BY_TERRAIN := {
 	MapTypes.TERRAIN_DEEP_WATER: 0.38,
 }
 
+## Closed per-terrain wave profile catalog consumed by water_surface() and the
+## weather, lighting, tide, and sky-reflection updaters. MapViewMaterials
+## re-exports this as WATER_WAVE_BASE so tests and builders keep one facade.
+const WATER_WAVE_BASE := {
+	MapTypes.TERRAIN_SHALLOW_WATER:
+	{
+		"height": 0.070,
+		"chaos": 0.78,
+		"choppiness": 0.85,
+		"standing": 0.18,
+		"foam": 0.24,
+		"breakers": 0.52,
+		"absorption": 5.0,
+		"tide_height": 0.004,
+		"tide_shore_retreat": 0.13,
+		"tide_optical_depth": 0.055,
+	},
+	MapTypes.TERRAIN_DEEP_WATER:
+	{
+		"height": 0.120,
+		"chaos": 1.18,
+		"choppiness": 1.05,
+		"standing": 0.08,
+		"foam": 0.12,
+		"breakers": 0.10,
+		"absorption": 9.0,
+		"tide_height": 0.004,
+		"tide_shore_retreat": 0.0,
+		"tide_optical_depth": 0.025,
+	},
+	MapTypes.TERRAIN_WATER:
+	{
+		"height": 0.080,
+		"chaos": 0.96,
+		"choppiness": 0.55,
+		"standing": 0.42,
+		"foam": 0.18,
+		"breakers": 0.22,
+		"absorption": 7.0,
+		"bed_vegetation": 1.0,
+		"tide_height": 0.0,
+		"tide_shore_retreat": 0.0,
+		"tide_optical_depth": 0.0,
+	},
+	# Fast river water uses tighter, livelier ripples than ponds or open sea and
+	# drops the sheltered-water algae layer. Absorption sits higher than the old
+	# clear-shallow tuning so the blue water column, not the warm bed, dominates
+	# the surface colour - the Pirita should read as a river, not a green shallow.
+	MapTypes.TERRAIN_RIVER_WATER:
+	{
+		"height": 0.045,
+		"chaos": 0.72,
+		"choppiness": 0.35,
+		"standing": 0.05,
+		"foam": 0.12,
+		"breakers": 0.08,
+		"absorption": 6.0,
+		"bed_vegetation": 0.0,
+		"tide_height": 0.0,
+		"tide_shore_retreat": 0.0,
+		"tide_optical_depth": 0.0,
+	},
+}
+
 static var _cache: Dictionary = {}
 
 
