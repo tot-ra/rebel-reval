@@ -669,8 +669,8 @@ static func _fishing_net_wind_material(
 	if _cache.has(key):
 		return _cache[key]
 	var material := ShaderMaterial.new()
-	material.shader = MapViewMaterialShaders.shader(
-		"fishing_net_wind", MapViewMaterialShaders.FISHING_NET_WIND_SHADER_CODE
+	material.shader = MapViewMaterialShaders.shader_resource(
+		"fishing_net_wind", MapViewMaterialShaders.FISHING_NET_WIND_SHADER
 	)
 	material.set_shader_parameter("albedo_texture", albedo)
 	material.set_shader_parameter("sway_strength", sway_strength)

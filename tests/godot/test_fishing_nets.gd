@@ -75,6 +75,14 @@ func test_fishing_nets_follow_shared_weather_wind() -> void:
 	MapViewMaterials.apply_world_wind(Vector2(0.0, 1.0), 0.84)
 	assert_eq(net.get_shader_parameter("wind_direction"), Vector2(0.0, 1.0), "net must follow harbor wind direction")
 	assert_eq(net.get_shader_parameter("wind_strength"), 0.84, "net must strengthen with storm wind")
-	assert_true(MapViewMaterialShaders.FISHING_NET_WIND_SHADER_CODE.contains("smoothstep(pin_height - pin_fade, pin_height, VERTEX.y)"), "shader must pin the upper edge by vertex height")
-	assert_true(MapViewMaterialShaders.FISHING_NET_WIND_SHADER_CODE.contains("instance uniform float motion_phase"), "each rack needs an independent wind phase")
+	var shader := net.shader
+	assert_true(shader != null, "fishing net must use a wind shader")
+	assert_true(
+		shader.code.contains("smoothstep(pin_height - pin_fade, pin_height, VERTEX.y)"),
+		"shader must pin the upper edge by vertex height"
+	)
+	assert_true(
+		shader.code.contains("instance uniform float motion_phase"),
+		"each rack needs an independent wind phase"
+	)
 	MapViewMaterials.apply_world_wind(Vector2(0.9285, 0.3714), 0.22)

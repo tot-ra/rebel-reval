@@ -287,6 +287,7 @@ Non-`scripts/` files over 400 lines (scenes/tests/debug) are outside this runtim
 - P0-185 (partial): `map_view_wear_decal.gdshader` extracted from `MapViewMaterialShaders`; cache API gained `shader_resource()`. Gate: `test_map_view_decals`.
 - P0-185 (partial): `map_view_puddle.gdshader` and `map_view_cloth.gdshader` relocated; the shader facade remains in the 600-799 audit band. Gate: `test_map_view_3d_core` puddle optics, `test_boat_float_3d`, `test_faction_heraldry`, `test_merchant_boat_model`.
 - P0-185 (partial): `map_view_hanging_banner_cloth.gdshader` relocated; the shader facade remains in the 600-799 audit band. Gate: `test_faction_heraldry`, `test_map_view_material_resolution`.
+- P0-185 (partial): `map_view_fishing_net_wind.gdshader` relocated; the shader facade remains in the 600-799 audit band. Gate: `test_fishing_nets`, `test_map_view_material_resolution`.
 
 ### Scheduled follow-up
 
