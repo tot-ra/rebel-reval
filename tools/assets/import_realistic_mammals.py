@@ -29,7 +29,12 @@ from mammal_limb_anatomy import Limb, foot_path, pose_points
 # Height includes ears/horns. Joint heights describe the actual source surfaces,
 # in fractions of that height; feet are measured from each source mesh below.
 CONFIG={
- 'dog': dict(height=.54,front=(.72,.45,.16),back=(.75,.50,.29),fy=-.13,by=.28,head=(-.25,.76),tail=(.40,.62),body=.63,rotation=-math.pi/2),
+ # run_gait: springy trot. Diagonal pairs with the hind paw landing slightly first,
+ # brief three-paw overlaps (never under two: see test_mammal_limb_anatomy),
+ # trunk bounce/roll, scapular reach and folded swing paws.
+ 'dog': dict(height=.54,front=(.72,.45,.16),back=(.75,.50,.29),fy=-.13,by=.28,head=(-.25,.76),tail=(.40,.62),body=.63,rotation=-math.pi/2,
+             run_gait=dict(phases={'RB':0,'LF':.03,'LB':.5,'RF':.53},duty=.54,stride=.78,clearance=.15,
+                           bob=.045,scapula=.22,pitch=.02,roll=.03,fold=(.95,.45),head=(.10,.05),tail=(-.12,.22))),
  'forge_cat': dict(height=.40,front=(.68,.43,.15),back=(.77,.49,.27),fy=-.13,by=.23,head=(-.25,.69),tail=(.30,.72),body=.65),
  'sheep': dict(height=.77,front=(.73,.46,.18),back=(.78,.55,.31),fy=-.15,by=.29,head=(-.29,.79),tail=(.43,.73),body=.64),
  'goat': dict(height=.94,front=(.58,.37,.14),back=(.64,.43,.24),fy=-.12,by=.30,head=(-.27,.63),tail=(.41,.64),body=.53),
@@ -219,6 +224,60 @@ def reachable_stride(limbs,stride,clearance):
  raise ValueError('Source limb cannot execute a grounded stride')
 
 
+def run_trunk(rest,phase,gait,bz):
+ """Armature-space Body matrix for the trot: lowest at each diagonal
+ mid-stance, back at rest height at the pair exchange, rolling onto the loaded diagonal."""
+ lead=sum(gait['phases'].values())/4-.25
+ mid=phase-lead-gait['duty']/2
+ # Sink below rest only: the source forelegs are near full extension at rest,
+ # so any rise above it leaves the touchdown paw out of reach.
+ bob=-gait['bob']*bz*(1+math.cos(math.tau*2*mid))
+ pitch=gait['pitch']*math.sin(math.tau*2*mid)
+ roll=gait['roll']*math.cos(math.tau*mid)
+ pivot=rest.to_translation()
+ return (Matrix.Translation((0,0,bob))@Matrix.Translation(pivot)@Euler((pitch,roll,0)).to_matrix().to_4x4()
+         @Matrix.Translation(-pivot)@rest)
+
+
+def run_limb(limb,phase,stride,clearance,gait,trunk_delta):
+ """Planted paw stays fixed on the ground while the trunk moves; in swing the
+ carpus/hock flexes so the paw folds back instead of hovering rigidly."""
+ local=(phase-gait['phases'][limb.suffix])%1
+ travel,lift,_=foot_path(local,stride,clearance,gait['duty'])
+ # The scapula glides with the foreleg (no clavicle), lengthening reach.
+ slide=0 if limb.hind else gait['scapula']*travel
+ rest_root=limb.points[0]
+ root=tuple(trunk_delta@Vector((rest_root[0],rest_root[1]+slide,rest_root[2])))
+ root_,joint,ankle,ball,toe=pose_points(limb,travel,lift,root=root)
+ if local>gait['duty']:
+  # sin^2 matches the lift curve, so the folding paw never dips at lift-off.
+  angle=gait['fold'][1 if limb.hind else 0]*math.sin(math.pi*(local-gait['duty'])/(1-gait['duty']))**2
+  c,s=math.cos(angle),math.sin(angle)
+  def fold(p):
+   dy,dz=p[1]-ankle[1],p[2]-ankle[2]
+   return (p[0],ankle[1]+dy*c-dz*s,ankle[2]+dy*s+dz*c)
+  ball,toe=fold(ball),fold(toe)
+ return (root_,joint,ankle,ball,toe)
+
+
+def reachable_run(limbs,rest,gait,bz):
+ stride=bz*gait['stride']
+ for _ in range(35):
+  try:
+   for f in range(97):
+    delta=run_trunk(rest,f/96,gait,bz)@rest.inverted()
+    for limb in limbs:
+     points=run_limb(limb,f/96,stride,bz*gait['clearance'],gait,delta)
+     # Same probe as test_mammal_limb_anatomy: the ground point under the rest
+     # paw pad, carried by the posed Foot bone.
+     rest_ball,rest_toe=Vector(limb.points[3]),Vector(limb.points[4])
+     turn=(rest_toe-rest_ball).rotation_difference(Vector(points[4])-Vector(points[3]))
+     if (Vector(points[3])+turn@Vector((0,0,-rest_ball.z))).z< -1e-4:raise ValueError('Folded paw below ground')
+   return stride
+  except ValueError:stride*=.94
+ raise ValueError('Source limb cannot execute the run gait')
+
+
 def create_rig(meshes,species):
  cfg=CONFIG[species];h=cfg['height'];feet,length=measure_feet(meshes,cfg)
  skeleton=bpy.data.armatures.new('AnatomicalRig');rig=bpy.data.objects.new('AnatomicalRig',skeleton);bpy.context.collection.objects.link(rig)
@@ -265,9 +324,15 @@ def create_rig(meshes,species):
 def animate(rig,limbs,species,bz):
  rig.animation_data_create();cfg=CONFIG[species];h=cfg['height']
  walk_stride=reachable_stride(limbs,bz*(.50 if species=='hare' else .48),bz*.075)
- run_stride=reachable_stride(limbs,bz*(.60 if species=='hare' else .65),bz*.11)
+ gait=cfg.get('run_gait');body_rest=rig.data.bones['Body'].matrix_local.copy()
+ if gait:
+  run_stride=reachable_run(limbs,body_rest,gait,bz)
+  # Runtime playback divides ground speed by this support speed; keep paws planted.
+  rig['run_reference_speed']=run_stride/gait['duty']
+ else:
+  run_stride=reachable_stride(limbs,bz*(.60 if species=='hare' else .65),bz*.11)
+  rig['run_reference_speed']=run_stride/.58
  rig['walk_reference_speed']=walk_stride/(.72 if species=='hare' else .68)
- rig['run_reference_speed']=run_stride/.58
  clips=['Idle','Walk','LookAround','Run','Graze','Alert']+(['Sleep','Groom','Stretch'] if species=='forge_cat' else [])
  for clip in clips:
   action=bpy.data.actions.new(clip);action.use_fake_user=True;rig.animation_data.action=action
@@ -286,16 +351,25 @@ def animate(rig,limbs,species,bz):
    rig.pose.bones['Tail'].rotation_quaternion=Euler((.018*math.sin(t),.045*math.sin(t),0)).to_quaternion()
    drop= -.12 if clip=='Sleep' else -.07 if clip=='Groom' else -.025*(1-math.cos(t))*.5 if clip=='Stretch' else 0.0
    rig.pose.bones['Body'].location.y=drop
+   running=clip=='Run' and gait
+   if running:
+    trunk=run_trunk(body_rest,phase,gait,bz);rig.pose.bones['Body'].matrix_basis=body_rest.inverted()@trunk
+    # Head is carried low and nods against the bounce; tail wags once per cycle.
+    hp,hn=gait['head'];tr,tw=gait['tail']
+    rig.pose.bones['Head'].rotation_quaternion=Euler((hp+hn*math.cos(math.tau*2*(phase-.23)),0,.02*math.sin(t))).to_quaternion()
+    rig.pose.bones['Tail'].rotation_quaternion=Euler((tr+.04*math.cos(t*2),0,tw*math.sin(t))).to_quaternion()
    poses={'Body':rig.data.bones['Body'].matrix_local@rig.pose.bones['Body'].matrix_basis}
    for limb in limbs:
     travel=lift=0
-    if clip in ('Walk','Run'):
+    if running:
+     points=run_limb(limb,phase,run_stride,bz*gait['clearance'],gait,poses['Body']@body_rest.inverted())
+    elif clip in ('Walk','Run'):
      run=clip=='Run';phases={'LB':0,'LF':.25,'RB':.5,'RF':.75} if not run else {'LF':0,'RB':0,'RF':.5,'LB':.5}
      if species=='hare':phases={'LB':0,'RB':.025,'LF':.46,'RF':.52}
      duty=.58 if run else .72 if species=='hare' else .68
      stride=run_stride if run else walk_stride
      travel,lift,_=foot_path(phase-phases[limb.suffix],stride,bz*(.11 if run else .075),duty)
-    points=pose_points(limb,travel,lift,body_drop=drop)
+    if not running:points=pose_points(limb,travel,lift,body_drop=drop)
     for i,n in enumerate(limb.bones):
      pb=rig.pose.bones[n];rest=pb.bone.matrix_local;start,end=map(Vector,points[i:i+2])
      rotation=(pb.bone.tail_local-pb.bone.head_local).rotation_difference(end-start).to_matrix().to_4x4()

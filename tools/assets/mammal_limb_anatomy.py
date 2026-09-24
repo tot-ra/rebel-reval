@@ -97,9 +97,10 @@ def foot_path(phase, stride, clearance, duty=.68):
     return (stride/2-stride*smooth,clearance*math.sin(math.pi*t)**2,False)
 
 
-def pose_points(limb, travel=0, lift=0, body_drop=0):
-    root,joint,ankle,ball,toe=limb.points
-    root=(root[0],root[1],root[2]+body_drop)
+def pose_points(limb, travel=0, lift=0, body_drop=0, root=None):
+    rest_root,joint,ankle,ball,toe=limb.points
+    # A moving trunk (bob/pitch/roll) passes its posed limb root explicitly.
+    root=root or (rest_root[0],rest_root[1],rest_root[2]+body_drop)
     # The distal segment keeps its support angle; the proximal joints flex.
     ankle=(ankle[0],ankle[1]+travel,ankle[2]+lift)
     ball=(ball[0],ball[1]+travel,ball[2]+lift)

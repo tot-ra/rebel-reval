@@ -58,6 +58,7 @@ This file contains lessons specific to the Art role.
 - Rights-blocked media: preserve the verified fallback. Never download or register an asset from metadata or a CC BY-NC page alone.
 
 ### Anatomy and generators
+- Quadruped gait bounce in `import_realistic_mammals.py` must only sink the trunk below rest. Sourced forelegs stand near full extension, so a body rise at touchdown leaves the paw out of reach, and `reachable_*` silently shrinks the stride until the legs barely move. Mirror the Godot test contracts inside the builder: always keep at least two paws planted in Walk/Run, and probe the pad contact point for ground penetration. Ramp swing-paw folding with the same sin^2 curve as the lift. Render a side-view before/after sheet over a floor before publishing.
 - Shared quadruped livestock GLBs face -X. Fix `MODEL_YAW` before rebuilding `dimensions_m`. Measure world height through the actor host transform, not the raw mesh AABB.
 - Joined procedural volumes without voxel remesh ship as a bubble cloud. Remesh and unify-smooth before rigging. Start legs inside the barrel. Keep ears inside the skull height budget.
 - Facial detail spheres must snap to the remeshed surface. Claws and eyes authored in pre-normalize world space float after `normalize_dimensions`.
