@@ -39,7 +39,7 @@ func _capture() -> void:
 		fill.light_color = Color("9cbedb")
 		fill.light_energy = 0.45
 		view.add_child(fill)
-		var model := (load("res://assets/storybook/%s.glb" % ids[i]) as PackedScene).instantiate() as Node3D
+		var model := (load("res://assets/storybook/%s/%s.glb" % [ids[i], ids[i]]) as PackedScene).instantiate() as Node3D
 		view.add_child(model)
 		var player := model.find_child("AnimationPlayer", true, false) as AnimationPlayer
 		var flying := flight_review or motion_review or i == 5

@@ -172,7 +172,7 @@ const MODEL_CLIPS: Dictionary = {
 
 func test_imported_models_have_skinned_meshes_and_playable_clips() -> void:
 	for id: String in MODEL_CLIPS:
-		var packed := load("res://assets/storybook/%s.glb" % id) as PackedScene
+		var packed := load("res://assets/storybook/%s/%s.glb" % [id, id]) as PackedScene
 		assert_true(packed != null, "%s imports" % id)
 		var model := packed.instantiate() as Node3D
 		Engine.get_main_loop().root.add_child(model)
@@ -201,7 +201,7 @@ func test_imported_models_have_skinned_meshes_and_playable_clips() -> void:
 
 func test_bird_pigmentation_and_pbr_survive_godot_import() -> void:
 	for id: String in ["robin", "hooded_crow", "gull", "hen", "duck"]:
-		var model := (load("res://assets/storybook/%s.glb" % id) as PackedScene).instantiate()
+		var model := (load("res://assets/storybook/%s/%s.glb" % [id, id]) as PackedScene).instantiate()
 		var found_plumage := false
 		for instance: MeshInstance3D in model.find_children("*", "MeshInstance3D", true, false):
 			for surface: int in instance.mesh.get_surface_count():
@@ -222,7 +222,7 @@ func test_bird_pigmentation_and_pbr_survive_godot_import() -> void:
 
 func test_humans_retain_shared_motion_and_attachment_names() -> void:
 	for id: String in ["mart", "aita", "ellen", "watchman", "henning", "jurgen", "kaja"]:
-		var model := (load("res://assets/storybook/%s.glb" % id) as PackedScene).instantiate()
+		var model := (load("res://assets/storybook/%s/%s.glb" % [id, id]) as PackedScene).instantiate()
 		var skeleton := model.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
 		var player := model.find_child("AnimationPlayer", true, false) as AnimationPlayer
 		var clips := player.get_animation_list()
@@ -257,7 +257,7 @@ func test_showcase_group_controls_switch_all_models_and_pause() -> void:
 
 func test_all_humans_use_existing_wardrobe_with_fitted_armor_and_hand_props() -> void:
 	for id: String in ["mart", "aita", "ellen", "watchman", "henning", "jurgen", "kaja"]:
-		var rig := (load("res://assets/storybook/%s.tscn" % id) as PackedScene).instantiate() as SharedCharacterRig
+		var rig := (load("res://assets/storybook/%s/%s.tscn" % [id, id]) as PackedScene).instantiate() as SharedCharacterRig
 		Engine.get_main_loop().root.add_child(rig)
 		var skeleton := rig.skeleton()
 		var player := rig.animation_player()
@@ -334,7 +334,7 @@ func test_birds_spread_articulated_wings_and_complete_flight_sequence() -> void:
 	scene.free()
 
 func test_mart_arm_chain_is_shorter_and_does_not_stretch_in_motion() -> void:
-	var model := (load("res://assets/storybook/mart.glb") as PackedScene).instantiate()
+	var model := (load("res://assets/storybook/mart/mart.glb") as PackedScene).instantiate()
 	Engine.get_main_loop().root.add_child(model)
 	var skeleton := model.find_children("*","Skeleton3D",true,false)[0] as Skeleton3D
 	var player := model.find_child("AnimationPlayer",true,false) as AnimationPlayer
@@ -395,7 +395,7 @@ func test_review_cases_restore_equipment_and_play_real_clips() -> void:
 
 func test_mammals_have_compact_stance_and_bending_lower_legs() -> void:
 	for id: String in ["pig", "dog", "sheep", "goat", "boar", "fox", "hare", "forge_cat"]:
-		var model := (load("res://assets/storybook/%s.glb" % id) as PackedScene).instantiate()
+		var model := (load("res://assets/storybook/%s/%s.glb" % [id, id]) as PackedScene).instantiate()
 		Engine.get_main_loop().root.add_child(model)
 		var skeleton := model.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
 		var player := model.find_child("AnimationPlayer", true, false) as AnimationPlayer

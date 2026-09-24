@@ -1,6 +1,6 @@
 # Forge cat Hunyuan3D candidate v1
 
-This directory contains the visually approved base-shape source for Kalev's smithy cat. The raw files remain staging material. Shipped runtime uses `assets/storybook/forge_cat.glb` via `assets/characters/cat/cat_rig.tscn`; Hunyuan cleanup outputs rebuild under `production/runtime/` only.
+This directory contains the visually approved base-shape source for Kalev's smithy cat. The raw files remain staging material. Shipped runtime uses `assets/storybook/forge_cat/forge_cat.glb` via `assets/characters/cat/cat_rig.tscn`; Hunyuan cleanup outputs rebuild under `production/runtime/` only.
 
 ## Decision
 

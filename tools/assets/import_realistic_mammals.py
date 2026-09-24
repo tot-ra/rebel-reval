@@ -321,13 +321,16 @@ def build(species,out):
   clear();runpy.run_path(str(Path(__file__).with_name('import_authored_rat.py')),run_name='__main__')
   subprocess.run(['/usr/bin/python3',str(Path(__file__).with_name('pack_authored_rat.py'))],check=True)
   out.mkdir(parents=True,exist_ok=True)
-  if out.resolve()!=(BUILD/'candidates').resolve():shutil.copy2(BUILD/'candidates/rat.glb',out/'rat.glb')
+  if out.resolve()!=(BUILD/'candidates').resolve():
+   folder=out/'rat';folder.mkdir(parents=True,exist_ok=True)
+   shutil.copy2(BUILD/'candidates/rat.glb',folder/'rat.glb')
   return
  clear();meshes=load_surface(species);rig,limbs,bz=create_rig(meshes,species);animate(rig,limbs,species,bz)
  rig['source_author']=manifest['author'];rig['source_url']=manifest['url'];rig['license']=manifest['license'];rig['source_sha256']=manifest['sha256']
  bpy.context.scene.frame_set(0);bpy.context.view_layer.update()
- out.mkdir(parents=True,exist_ok=True)
- bpy.ops.export_scene.gltf(filepath=str(out/f'{species}.glb'),export_format='GLB',export_animations=True,export_animation_mode='ACTIONS',export_skins=True,export_def_bones=False,export_extras=True,export_yup=True)
+ out.mkdir(parents=True, exist_ok=True)
+ folder=out/species;folder.mkdir(parents=True,exist_ok=True)
+ bpy.ops.export_scene.gltf(filepath=str(folder/f'{species}.glb'),export_format='GLB',export_animations=True,export_animation_mode='ACTIONS',export_skins=True,export_def_bones=False,export_extras=True,export_yup=True)
  bpy.ops.wm.save_as_mainfile(filepath=str(BUILD/'candidates'/f'{species}.blend'))
  (BUILD/'candidates'/f'{species}_rig.json').write_text(json.dumps({'body_height':bz,'limbs':{l.suffix:l.points for l in limbs}},indent=2))
 

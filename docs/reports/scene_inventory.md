@@ -44,7 +44,7 @@ Inventory row count (data rows in the table below): **127**.
 |---|------------|-------|-------|
 | 1 | `game.tscn` | archive | Legacy editor wrapper instancing `main_menu`; not `run/main_scene`. |
 | 2 | `player.tscn` | working | Full player rig, greybox visual, inline HealthBar/StaminaBar, and hidden legacy HUD instance; instanced by all district scenes. |
-| 3 | `assets/characters/cat/cat_rig.tscn` | working | Ambient forge-cat rig; instances `assets/storybook/forge_cat.glb`; five canonical ambient clips via `storybook_cat.gd`. |
+| 3 | `assets/characters/cat/cat_rig.tscn` | working | Ambient forge-cat rig; instances `assets/storybook/forge_cat/forge_cat.glb`; five canonical ambient clips via `storybook_cat.gd`. |
 | 4 | `assets/characters/kalev/kalev.tscn` | working | Kalev variant on `shared_character_rig.tscn`; P0-037 player presentation. |
 | 5 | `assets/characters/shared/hammer.tscn` | working | Shared hammer equipment mesh for rig attachment. |
 | 6 | `assets/characters/shared/shared_character_rig.tscn` | working | Shared low-poly rig base with animation library; P0-037 foundation. |
@@ -208,18 +208,18 @@ Both commands should print `96` on a clean checkout at this revision.
 | 111 | `scenes/reval_monastery/nunnatorn_interior.tscn` | partial | Inactive declarative Nunnatorn tower prototype. |
 | 112 | `scenes/reval_north/rentenitorn_interior.tscn` | partial | Inactive declarative Rentenitorn tower prototype. |
 | 113 | `tools/benchmarks/renderer_comparison_benchmark.tscn` | partial | Developer-only renderer comparison host. |
-| 114 | `assets/storybook/aita.tscn` | partial | Model and equipment review; P0-206. |
-| 115 | `assets/storybook/ellen.tscn` | partial | Model and equipment review; P0-206. |
+| 114 | `assets/storybook/aita/aita.tscn` | partial | Model and equipment review; P0-206. |
+| 115 | `assets/storybook/ellen/ellen.tscn` | partial | Model and equipment review; P0-206. |
 | 116 | `assets/storybook/equipment/hammer.tscn` | working | Grounded live actor or held prop; P0-206. |
 | 117 | `assets/storybook/equipment/shield.tscn` | working | Grounded live actor or held prop; P0-206. |
 | 118 | `assets/storybook/equipment/sword.tscn` | working | Grounded live actor or held prop; P0-206. |
-| 119 | `assets/storybook/forge_cat.tscn` | working | Grounded live actor or held prop; P0-206. |
-| 120 | `assets/storybook/henning.tscn` | partial | Model and equipment review; P0-206. |
-| 121 | `assets/storybook/jurgen.tscn` | partial | Model and equipment review; P0-206. |
-| 122 | `assets/storybook/kaja.tscn` | partial | Model and equipment review; P0-206. |
+| 119 | `assets/storybook/forge_cat/forge_cat.tscn` | working | Grounded live actor or held prop; P0-206. |
+| 120 | `assets/storybook/henning/henning.tscn` | partial | Model and equipment review; P0-206. |
+| 121 | `assets/storybook/jurgen/jurgen.tscn` | partial | Model and equipment review; P0-206. |
+| 122 | `assets/storybook/kaja/kaja.tscn` | partial | Model and equipment review; P0-206. |
 | 128 | `assets/characters/kalev_fresh/kalev_fresh.tscn` | partial | Rebuild review rig; P0-214. |
 | 129 | `assets/characters/kalev_fresh/preview.tscn` | partial | Rebuild review scene; P0-214. |
-| 124 | `assets/storybook/mart.tscn` | partial | Model and equipment review; P0-206. |
-| 125 | `assets/storybook/watchman.tscn` | partial | Model and equipment review; P0-206. |
+| 124 | `assets/storybook/mart/mart.tscn` | partial | Model and equipment review; P0-206. |
+| 125 | `assets/storybook/watchman/watchman.tscn` | partial | Model and equipment review; P0-206. |
 | 126 | `scenes/debug/storybook_showcase.tscn` | partial | Model and equipment review; P0-206. |
 | 127 | `assets/characters/showcase/modular_character_showcase.tscn` | partial | Model and equipment review; P0-206. |

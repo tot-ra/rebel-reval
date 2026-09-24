@@ -11,7 +11,7 @@
       "sha256": "2a8632783137dc2f10a0b80644937c771d74e713d21bfdadddebb7440b5733cb",
       "source_bytes": 2544316,
       "staging_path": "build/animal_redo/sources/goat.glb",
-      "output": "assets/storybook/goat.glb",
+      "output": "assets/storybook/goat/goat.glb",
       "notes": "authored mesh",
       "adaptations": "Scaled and oriented for runtime; UV and sculpted surfaces preserved; textures capped at 1024; rough dielectric materials; measured limb rig and six clips."
     },
@@ -23,7 +23,7 @@
       "sha256": "a029a0ec3f45a809f15b6f71a9a413c054cd3f0cb4d4137dc46f9504471cf9e5",
       "source_bytes": 2197304,
       "staging_path": "build/animal_redo/sources/pig.glb",
-      "output": "assets/storybook/pig.glb",
+      "output": "assets/storybook/pig/pig.glb",
       "notes": "authored mesh",
       "adaptations": "Scaled and oriented for runtime; UV and sculpted surfaces preserved; textures capped at 1024; rough dielectric materials; measured limb rig and six clips."
     },
@@ -35,7 +35,7 @@
       "sha256": "d6a5caea71c63db6cae98472fcc9a34b531e19a77d3802358267e27113c20bf6",
       "source_bytes": 2118888,
       "staging_path": "build/animal_redo/sources/sheep.glb",
-      "output": "assets/storybook/sheep.glb",
+      "output": "assets/storybook/sheep/sheep.glb",
       "notes": "authored mesh",
       "adaptations": "Scaled and oriented for runtime; UV and sculpted surfaces preserved; textures capped at 1024; rough dielectric materials; measured limb rig and six clips."
     },
@@ -47,7 +47,7 @@
       "sha256": "0007dee476db39757e2ede2f5b68422b35efac4b10a899612dde929e97b67a96",
       "source_bytes": 24544432,
       "staging_path": "build/animal_redo/sources/forge_cat.glb",
-      "output": "assets/storybook/forge_cat.glb",
+      "output": "assets/storybook/forge_cat/forge_cat.glb",
       "notes": "Meshy AI source (source filename)",
       "adaptations": "Scaled and oriented for runtime; UV and sculpted surfaces preserved; textures capped at 1024; rough dielectric materials; measured limb rig and six clips."
     },
@@ -59,7 +59,7 @@
       "sha256": "41d7213a7fb9d8891ee8b8f2a7479ff9d9115885c75f1d249fe8f7f05c558450",
       "source_bytes": 2471180,
       "staging_path": "build/animal_redo/sources/dog.glb",
-      "output": "assets/storybook/dog.glb",
+      "output": "assets/storybook/dog/dog.glb",
       "notes": "shaggy dog; used as generic village phenotype, not a historical breed attribution",
       "adaptations": "Scaled and oriented for runtime; UV and sculpted surfaces preserved; textures capped at 1024; rough dielectric materials; KHR_materials_unlit removed so night lighting darkens the coat; measured limb rig and six clips."
     },
@@ -71,7 +71,7 @@
       "sha256": "3edfc616aee19387b740bdfcd1b406fa293742fc25cf652d8393da20b23a403e",
       "source_bytes": 43787884,
       "staging_path": "build/animal_redo/sources/boar.glb",
-      "output": "assets/storybook/boar.glb",
+      "output": "assets/storybook/boar/boar.glb",
       "notes": "source production method unspecified",
       "adaptations": "Scaled and oriented for runtime; UV and sculpted surfaces preserved; textures capped at 1024; rough dielectric materials; measured limb rig and six clips."
     },
@@ -83,7 +83,7 @@
       "sha256": "5802c4bff0f483a3da2cd26f71ec3f689696e574b4ac402314e023d2281f80e4",
       "source_bytes": 43932120,
       "staging_path": "build/animal_redo/sources/fox.glb",
-      "output": "assets/storybook/fox.glb",
+      "output": "assets/storybook/fox/fox.glb",
       "notes": "Tripo source (mesh names)",
       "adaptations": "Scaled and oriented for runtime; UV and sculpted surfaces preserved; textures capped at 1024; rough dielectric materials; measured limb rig and six clips."
     },
@@ -95,7 +95,7 @@
       "sha256": "5c2e0fafd5dcd6ad678ebe573ba024ae1969e8ce503c4907d418f31fe5da5cf4",
       "source_bytes": 6911084,
       "staging_path": "build/animal_redo/sources/hare.glb",
-      "output": "assets/storybook/hare.glb",
+      "output": "assets/storybook/hare/hare.glb",
       "notes": "rabbit source; long-eared lagomorph proxy, not species-exact European hare",
       "adaptations": "Scaled and oriented for runtime; UV and sculpted surfaces preserved; textures capped at 1024; rough dielectric materials; measured limb rig and six clips."
     },
@@ -107,7 +107,7 @@
       "sha256": "23b24f6e89c3f6dad517146d1950ac21b576be6758fb61b715548f4a362e28f2",
       "source_bytes": 33580924,
       "staging_path": "build/animal_redo/sources/rat.glb",
-      "output": "assets/storybook/rat.glb",
+      "output": "assets/storybook/rat/rat.glb",
       "notes": "authored rig and animation retained",
       "adaptations": "Original authored rig and six animation aliases; unused bones pruned; textures capped at1024; normal UV rebaked; scaled to0.42m; bind-pose import fixed."
     }

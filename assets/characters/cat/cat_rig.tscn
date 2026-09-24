@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://assets/storybook/storybook_cat.gd" id="1_cat"]
-[ext_resource type="PackedScene" path="res://assets/storybook/forge_cat.glb" id="2_model"]
+[ext_resource type="PackedScene" path="res://assets/storybook/forge_cat/forge_cat.glb" id="2_model"]
 
 [node name="CatRig" type="Node3D"]
 script = ExtResource("1_cat")

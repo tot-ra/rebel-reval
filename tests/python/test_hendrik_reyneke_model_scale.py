@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 MODELS = {
     "assets/animals/hendrik_reyneke/chicken/chicken.glb": 0.46,
-    "assets/storybook/duck.glb": 2.127819299697876,
+    "assets/storybook/duck/duck.glb": 2.127819299697876,
     "assets/animals/hendrik_reyneke/goat/goat.glb": 1.20,
     "assets/birds/house_sparrow/perched.glb": 0.16,
 }

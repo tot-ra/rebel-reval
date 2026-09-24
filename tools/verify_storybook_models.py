@@ -42,7 +42,7 @@ def verify(mammals_only=False):
     for name, count in EXPECTED.items():
         if mammals_only and name not in MAMMALS:
             continue
-        path = ROOT / 'assets/storybook' / f'{name}.glb'
+        path = ROOT / 'assets/storybook' / name / f'{name}.glb'
         doc, binary = read_glb(path)
         assert path.stat().st_size < 10 * 1024**2, f'{name}: size budget'
         assert len(doc.get('skins', [])) == 1, f'{name}: skin required'

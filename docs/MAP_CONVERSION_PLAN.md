@@ -148,19 +148,19 @@ Roles `level`, `map`, and `event` have full conversion specifications later in t
 | `scenes/reval_north/rentenitorn_interior.tscn` | level | `convert` | `loc.lower_town.rentenitorn_interior` | `active=false` tower prototype; developer traversal only until a separate approval artifact | `scripts/map/definitions/prototypes/rentenitorn_interior_definition.gd` |
 | `tools/benchmarks/renderer_comparison_benchmark.tscn` | test | `retain` | Renderer comparison benchmark host | Developer-only renderer probe; never release-playable | not a map definition |
 
-| `assets/storybook/aita.tscn` | test | `retain` | Model and equipment review | P0-206 asset integration; no map activation | not a map definition |
-| `assets/storybook/ellen.tscn` | test | `retain` | Model and equipment review | P0-206 asset integration; no map activation | not a map definition |
+| `assets/storybook/aita/aita.tscn` | test | `retain` | Model and equipment review | P0-206 asset integration; no map activation | not a map definition |
+| `assets/storybook/ellen/ellen.tscn` | test | `retain` | Model and equipment review | P0-206 asset integration; no map activation | not a map definition |
 | `assets/storybook/equipment/hammer.tscn` | actor | `retain` | Grounded live actor or held prop | P0-206 asset integration; no map activation | not a map definition |
 | `assets/storybook/equipment/shield.tscn` | actor | `retain` | Grounded live actor or held prop | P0-206 asset integration; no map activation | not a map definition |
 | `assets/storybook/equipment/sword.tscn` | actor | `retain` | Grounded live actor or held prop | P0-206 asset integration; no map activation | not a map definition |
-| `assets/storybook/forge_cat.tscn` | actor | `retain` | Grounded live actor or held prop | P0-206 asset integration; no map activation | not a map definition |
-| `assets/storybook/henning.tscn` | test | `retain` | Model and equipment review | P0-206 asset integration; no map activation | not a map definition |
-| `assets/storybook/jurgen.tscn` | test | `retain` | Model and equipment review | P0-206 asset integration; no map activation | not a map definition |
-| `assets/storybook/kaja.tscn` | test | `retain` | Model and equipment review | P0-206 asset integration; no map activation | not a map definition |
+| `assets/storybook/forge_cat/forge_cat.tscn` | actor | `retain` | Grounded live actor or held prop | P0-206 asset integration; no map activation | not a map definition |
+| `assets/storybook/henning/henning.tscn` | test | `retain` | Model and equipment review | P0-206 asset integration; no map activation | not a map definition |
+| `assets/storybook/jurgen/jurgen.tscn` | test | `retain` | Model and equipment review | P0-206 asset integration; no map activation | not a map definition |
+| `assets/storybook/kaja/kaja.tscn` | test | `retain` | Model and equipment review | P0-206 asset integration; no map activation | not a map definition |
 | `assets/characters/kalev_fresh/kalev_fresh.tscn` | test | `retain` | Model and equipment review | P0-214 rebuild review; no map activation | not a map definition |
 | `assets/characters/kalev_fresh/preview.tscn` | test | `retain` | Model and equipment review | P0-214 rebuild review; no map activation | not a map definition |
-| `assets/storybook/mart.tscn` | test | `retain` | Model and equipment review | P0-206 asset integration; no map activation | not a map definition |
-| `assets/storybook/watchman.tscn` | test | `retain` | Model and equipment review | P0-206 asset integration; no map activation | not a map definition |
+| `assets/storybook/mart/mart.tscn` | test | `retain` | Model and equipment review | P0-206 asset integration; no map activation | not a map definition |
+| `assets/storybook/watchman/watchman.tscn` | test | `retain` | Model and equipment review | P0-206 asset integration; no map activation | not a map definition |
 | `scenes/debug/storybook_showcase.tscn` | test | `retain` | Model and equipment review | P0-206 asset integration; no map activation | not a map definition |
 | `assets/characters/showcase/modular_character_showcase.tscn` | test | `retain` | Model and equipment review | P0-206 asset integration; no map activation | not a map definition |
 

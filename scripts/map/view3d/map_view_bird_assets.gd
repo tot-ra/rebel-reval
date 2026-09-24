@@ -19,6 +19,16 @@ const STATIC_POSE_FILES: Dictionary = {
 	BirdSpecies.POSE_GLIDING: "gliding.glb",
 }
 
+## The five higher-detail skinned assets remain active in live flight. All other
+## catalogue species use P0-212 anatomy through ``MapViewBirdMeshes``.
+const ANIMATED_MODELS := {
+	&"european_robin": "res://assets/storybook/robin/robin.glb",
+	&"hooded_crow": "res://assets/storybook/hooded_crow/hooded_crow.glb",
+	&"herring_gull": "res://assets/storybook/gull/gull.glb",
+	&"common_gull": "res://assets/storybook/gull/gull.glb",
+	&"mallard": "res://assets/storybook/duck/duck.glb",
+}
+
 static var _mesh_cache: Dictionary = {}
 
 
@@ -117,16 +127,6 @@ static func _load_mesh(scene_path: String) -> ArrayMesh:
 	var mesh := source_mesh.duplicate() as ArrayMesh
 	_mesh_cache[scene_path] = mesh
 	return mesh
-
-## The five higher-detail skinned assets remain active in live flight. All other
-## catalogue species use P0-212 anatomy through ``MapViewBirdMeshes``.
-const ANIMATED_MODELS := {
-	&"european_robin": "res://assets/storybook/robin.glb",
-	&"hooded_crow": "res://assets/storybook/hooded_crow.glb",
-	&"herring_gull": "res://assets/storybook/gull.glb",
-	&"common_gull": "res://assets/storybook/gull.glb",
-	&"mallard": "res://assets/storybook/duck.glb",
-}
 
 static func has_animated_model(species: StringName) -> bool:
 	return ANIMATED_MODELS.has(species)

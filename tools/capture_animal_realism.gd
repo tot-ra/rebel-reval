@@ -49,7 +49,7 @@ func _run() -> void:
 		fill.light_energy = 0.40
 		scene.add_child(fill)
 		# GLTFDocument also loads ignored before assets without changing imports.
-		var path := ("res://build/animal_redo/candidates/" if candidate else "res://build/animal_realism/legs_before/" if legs_before else "res://build/animal_realism/before/" if before else "res://assets/storybook/") + species + ".glb"
+		var path := ("res://build/animal_redo/candidates/" if candidate else "res://build/animal_realism/legs_before/" if legs_before else "res://build/animal_realism/before/" if before else "res://assets/storybook/%s/" % species) + species + ".glb"
 		var model: Node3D
 		if before or candidate:
 			var document := GLTFDocument.new()

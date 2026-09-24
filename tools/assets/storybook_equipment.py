@@ -110,10 +110,11 @@ def build_wearables(a, name, p):
         wearable_resource(a,name,kind,slot,covered)
         for obj in objects:bpy.data.objects.remove(obj,do_unlink=True)
     # Thin wrapper uses the real runtime rig, with neutral proportions.
-    (a.OUT/f'{name}.tscn').write_text(f'''[gd_scene load_steps=5 format=3]
+        (a.OUT / name).mkdir(parents=True, exist_ok=True)
+    (a.OUT/name/f'{name}.tscn').write_text(f'''[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://assets/storybook/storybook_character.gd" id="1"]
-[ext_resource type="PackedScene" path="res://assets/storybook/{name}.glb" id="2"]
+[ext_resource type="PackedScene" path="res://assets/storybook/{name}/{name}.glb" id="2"]
 
 [ext_resource type="Script" path="res://assets/characters/shared/character_variant.gd" id="3"]
 

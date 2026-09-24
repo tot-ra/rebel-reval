@@ -3,7 +3,7 @@ extends "res://tests/godot/test_case.gd"
 const Catalog := preload("res://scripts/ui/asset_library_catalog.gd")
 const LibraryScene := preload("res://scenes/menu/assets_library.tscn")
 const MainMenuScene := preload("res://scenes/menu/main_menu.tscn")
-const DOG_PATH := "res://assets/storybook/dog.glb"
+const DOG_PATH := "res://assets/storybook/dog/dog.glb"
 const ANVIL_PATH := "res://assets/props/forge/smithy_anvil.glb"
 
 

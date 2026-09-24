@@ -59,7 +59,7 @@ func _capture(species: String, clip: String) -> Image:
 	fill.light_energy = 0.40
 	scene.add_child(fill)
 
-	var packed := load("res://assets/storybook/%s.glb" % species) as PackedScene
+	var packed := load("res://assets/storybook/%s/%s.glb" % [species, species]) as PackedScene
 	var model := packed.instantiate() as Node3D
 	scene.add_child(model)
 	var players := model.find_children("*", "AnimationPlayer", true, false)

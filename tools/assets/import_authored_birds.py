@@ -460,8 +460,10 @@ def build(species: str, out: Path) -> None:
     out.mkdir(parents=True, exist_ok=True)
     BUILD.mkdir(parents=True, exist_ok=True)
     (BUILD / ".gdignore").touch()
+    folder = out / species
+    folder.mkdir(parents=True, exist_ok=True)
     bpy.ops.export_scene.gltf(
-        filepath=str(out / f"{species}.glb"),
+        filepath=str(folder / f"{species}.glb"),
         export_format="GLB",
         export_animations=True,
         export_animation_mode="ACTIONS",

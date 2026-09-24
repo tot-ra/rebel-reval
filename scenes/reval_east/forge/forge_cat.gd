@@ -19,7 +19,7 @@ enum ActivityMode {
 }
 
 @export var stable_id: StringName = &"char.forge_cat"
-@export var rig_scene: PackedScene = preload("res://assets/storybook/forge_cat.tscn")
+@export var rig_scene: PackedScene = preload("res://assets/storybook/forge_cat/forge_cat.tscn")
 
 @onready var navigation_agent: NavigationAgent2D = get_node_or_null("NavigationAgent2D") as NavigationAgent2D
 

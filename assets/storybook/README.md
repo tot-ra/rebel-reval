@@ -1,6 +1,6 @@
 # Storybook model inventory
 
-The storybook catalogue now contains seven human models, nine mammals and five birds. Kalev's active body is `res://assets/characters/kalev_fresh/kalev_fresh/kalev_fresh.glb`; the superseded `storybook/kalev.glb` and its fitted equipment were removed. His live scene is `res://assets/characters/kalev/kalev.tscn`.
+The storybook catalogue now contains seven human models, nine mammals and five birds. Each runtime GLB lives in its own folder (`assets/storybook/<id>/<id>.glb`) with Godot sidecars colocated beside it. Shared rig scripts, the bird plumage shader, mammal source manifest, and fitted equipment stay at the catalogue root.
 
 The hen is derived from the licensed authored `assets/animals/hendrik_reyneke/chicken/chicken.glb`, preserving its sculpt, UVs and PBR maps while adding a 16-bone articulated rig and eight named animations. Rebuild **only the hen** with:
 
@@ -59,7 +59,7 @@ For people, try **Work clothes / Mail armour**, **Empty hand / Hammer / Sword**,
 Every human exports separate `Clothing_Torso`, `Clothing_Sleeve`, `Clothing_Cuffs`, `Clothing_Outerwear`, `Clothing_Legs`, `Clothing_Feet`, `Hair_Scalp`, `Character_Head`, and `Anatomy_Hands` mesh sections. Bearded bodies also have `Hair_Beard`. Clothing is replaced through the project's existing `CharacterWearable` and `CharacterWardrobe`, and props use the existing `SharedCharacterRig` attachment API.
 
 ```gdscript
-var person := preload("res://assets/storybook/mart.tscn").instantiate() as SharedCharacterRig
+var person := preload("res://assets/storybook/mart/mart.tscn").instantiate() as SharedCharacterRig
 add_child(person)
 person.equip_wearable(preload("res://assets/storybook/equipment/mart_mail.tres"))
 person.equip_wearable(preload("res://assets/storybook/equipment/mart_helmet.tres"))

@@ -4,7 +4,7 @@
 Godot turns ambient actors with `look_at`, so a walking bird travels along its
 own -Z. The reviewed greylag source mesh was authored facing +Z and stored
 upside down. `tools/assets/build_bird_gaits.py` baked the corrective rotation
-into the runtime asset now shipped as ``assets/storybook/goose.glb``.
+into the runtime asset now shipped as ``assets/storybook/goose/goose.glb``.
 """
 
 from __future__ import annotations

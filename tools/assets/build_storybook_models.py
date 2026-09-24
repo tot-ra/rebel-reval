@@ -2,7 +2,7 @@
 """Original grounded stylized candidates; run with Blender -b --python this_file.
 
 Meshes are authored here. Humans retain the project's retargeted CC0 motion.
-Outputs: assets/storybook/*.glb; editable sources and plates in build/storybook.
+Outputs: assets/storybook/<model>/<model>.glb; editable sources and plates in build/storybook.
 Rebuilds retain existing runtime model paths. Dimensions are Blender metres.
 """
 from __future__ import annotations
@@ -20,6 +20,12 @@ sys.path.insert(0, str(ROOT / 'tools'))
 sys.path.insert(0, str(Path(__file__).parent))
 OUT = ROOT / 'assets/storybook'
 BUILD = ROOT / 'build/storybook'
+
+
+def storybook_glb(name: str) -> Path:
+    folder = OUT / name
+    folder.mkdir(parents=True, exist_ok=True)
+    return folder / f'{name}.glb'
 PARTS = []
 RIG = None
 from storybook_anatomy import HUMANS as LEGACY_HUMANS, BIRDS, MAMMALS, human_head, limb
@@ -495,7 +501,7 @@ def export(name):
         pb.matrix_basis.identity()
     bpy.context.scene.frame_set(1)
     bird_colors = dict(export_vertex_color='NAME', export_vertex_color_name='Plumage', export_all_vertex_colors=False) if name in BIRDS else {}
-    bpy.ops.export_scene.gltf(filepath=str(OUT/f'{name}.glb'),export_format='GLB',
+    bpy.ops.export_scene.gltf(filepath=str(storybook_glb(name)),export_format='GLB',
         export_animations=True,export_animation_mode='ACTIONS',export_skins=True,
         export_def_bones=False,export_yup=True, **bird_colors)
     # Blender source opens in the same default outfit as the runtime wrapper.
@@ -535,7 +541,7 @@ def gallery():
     for name,loc,scale in entries:
         before=set(bpy.data.objects)
         before_actions=set(bpy.data.actions)
-        bpy.ops.import_scene.gltf(filepath=str(OUT/f'{name}.glb'))
+        bpy.ops.import_scene.gltf(filepath=str(storybook_glb(name)))
         imported=set(bpy.data.objects)-before
         root=bpy.data.objects.new(name+' display',None); bpy.context.collection.objects.link(root)
         for o in imported:

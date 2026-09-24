@@ -69,7 +69,7 @@ func _ready() -> void:
 	add_child(_camera)
 	for i: int in IDS.size():
 		var extension := "tscn" if IDS[i] in HUMANS else "glb"
-		var packed := load("res://assets/storybook/%s.%s" % [IDS[i], extension]) as PackedScene
+		var packed := load("res://assets/storybook/%s/%s.%s" % [IDS[i], IDS[i], extension]) as PackedScene
 		var model := packed.instantiate() as Node3D
 		model.position = Vector3((i % 6 - 2.5) * 1.85, 0, (i / 6 - 1.5) * 2.1)
 		model.scale = Vector3.ONE * DISPLAY_SCALES[i]

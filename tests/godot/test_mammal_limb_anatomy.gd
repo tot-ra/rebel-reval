@@ -5,7 +5,7 @@ const LIMBS: Array[String] = ["LF", "RF", "LB", "RB"]
 
 func test_imported_fore_and_hind_limb_landmarks() -> void:
 	for species in SPECIES:
-		var model := (load("res://assets/storybook/%s.glb" % species) as PackedScene).instantiate()
+		var model := (load("res://assets/storybook/%s/%s.glb" % [species, species]) as PackedScene).instantiate()
 		Engine.get_main_loop().root.add_child(model)
 		var skeleton := model.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
 		for suffix in LIMBS:
@@ -32,7 +32,7 @@ func test_imported_fore_and_hind_limb_landmarks() -> void:
 
 func test_imported_feet_keep_ground_support_through_complete_clips() -> void:
 	for species in SPECIES:
-		var model := (load("res://assets/storybook/%s.glb" % species) as PackedScene).instantiate()
+		var model := (load("res://assets/storybook/%s/%s.glb" % [species, species]) as PackedScene).instantiate()
 		Engine.get_main_loop().root.add_child(model)
 		var skeleton := model.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
 		var player := model.find_child("AnimationPlayer", true, false) as AnimationPlayer

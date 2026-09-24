@@ -22,7 +22,7 @@ ASSET = os.path.abspath("generated/comfyui/forge_cat_hunyuan3d_v1")
 SRC = os.path.join(ASSET, "forge_cat_hunyuan3d_v1.glb")
 OUT = os.path.join(ASSET, "production")
 TEX = os.path.join(OUT, "tex")
-# WHY: runtime uses assets/storybook/forge_cat.glb; rebuild outputs stay in
+# WHY: runtime uses assets/storybook/forge_cat/forge_cat.glb; rebuild outputs stay in
 # generated/ so export isolation does not depend on this pipeline.
 RUNTIME = os.path.join(OUT, "runtime")
 RUNTIME_TEX = os.path.join(RUNTIME, "tex")

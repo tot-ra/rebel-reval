@@ -6,7 +6,7 @@ extends "res://tests/godot/test_case.gd"
 
 func test_mammal_coats_receive_scene_lighting() -> void:
 	for id: String in ["forge_cat", "sheep", "dog", "pig", "goat", "boar", "fox", "hare", "rat"]:
-		var model := (load("res://assets/storybook/%s.glb" % id) as PackedScene).instantiate()
+		var model := (load("res://assets/storybook/%s/%s.glb" % [id, id]) as PackedScene).instantiate()
 		var found_coat := false
 		for mesh: MeshInstance3D in model.find_children("*", "MeshInstance3D", true, false):
 			for surface: int in mesh.mesh.get_surface_count():

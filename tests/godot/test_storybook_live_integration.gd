@@ -30,7 +30,7 @@ func test_live_cast_retains_identity_health_and_fitted_equipment() -> void:
 
 
 func test_forge_cat_routines_use_new_skinned_clips_and_coats_preserve_face() -> void:
-	var cat := (load("res://assets/storybook/forge_cat.tscn") as PackedScene).instantiate() as CatRig
+	var cat := (load("res://assets/storybook/forge_cat/forge_cat.tscn") as PackedScene).instantiate() as CatRig
 	(Engine.get_main_loop() as SceneTree).root.add_child(cat)
 	var before: Dictionary = {}
 	for mesh: MeshInstance3D in cat.find_children("*", "MeshInstance3D", true, false):
