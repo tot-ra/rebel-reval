@@ -14,12 +14,12 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `106`
+- Active Markdown files scanned: `122`
 - Markdown files excluded as archive/reference/out of active scope: `711`
-- Local/external links inspected: `650`
-- Links to active Markdown docs: `308`
+- Local/external links inspected: `692`
+- Links to active Markdown docs: `349`
 - Links to existing archive/reference/non-active local docs: `139`
-- External links skipped for reachability: `39`
+- External links skipped for reachability: `40`
 - Issues found: `0`
 
 ## Issue counts
@@ -136,6 +136,22 @@ No active Markdown documentation issues found.
 - `docs/SYSTEMS/NATURAL.md`
 - `docs/SYSTEMS/PSYCHE.md`
 - `docs/TASK_ARCHIVE.md`
+- `docs/tasks/water_sky/README.md`
+- `docs/tasks/water_sky/WS-01_refracted_water_column.md`
+- `docs/tasks/water_sky/WS-02_ggx_sun_glint.md`
+- `docs/tasks/water_sky/WS-03_fft_ocean_bake_tool.md`
+- `docs/tasks/water_sky/WS-04_fft_ocean_shader.md`
+- `docs/tasks/water_sky/WS-05_boat_float_fft_parity.md`
+- `docs/tasks/water_sky/WS-06_fft_foam_whitecaps.md`
+- `docs/tasks/water_sky/WS-07_baked_caustics.md`
+- `docs/tasks/water_sky/WS-08_shore_swash.md`
+- `docs/tasks/water_sky/WS-09_atmosphere_static_luts.md`
+- `docs/tasks/water_sky/WS-10_sky_view_lut_runtime.md`
+- `docs/tasks/water_sky/WS-11_sky_driven_water_and_fog.md`
+- `docs/tasks/water_sky/WS-12_cloud_shadow_map.md`
+- `docs/tasks/water_sky/WS-13_underwater_view_pass.md`
+- `docs/tasks/water_sky/WS-14_swim_dive_adr.md`
+- `docs/tasks/water_sky/WS-15_interactive_ripples_wake.md`
 - `docs/TEXTURE_AI_GENERATION.md`
 - `docs/THIRD_PARTY_NOTICES.md`
 - `docs/TOURIST_LANDMARKS.md`

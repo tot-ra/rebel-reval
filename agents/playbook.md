@@ -26,6 +26,9 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 - `code_execution` may isolate helpers and imports. Keep diagnostics inline or use project `python3` via bash.
 - Stateful browser actions cannot run through a parallel wrapper.
 
+### TODO hygiene
+- For the current `TODO.md` sectioned format, run `python3 tools/prune_completed_todo.py` to append completed rows to `docs/TASK_ARCHIVE.md` and keep map-conversion validator contracts in place. Do not run `tools/condense_todo.py` unless deliberately migrating to the condensed open-only layout (it rewrites `docs/ROADMAP.md`).
+
 ### Git and commits
 - Inspect `git status` before commit. Unstage unrelated index entries (`M ` in column 1).
 - Repo-wide path rewrites must skip `.worktrees/` and `build/`. Prefer scoped `tools/assets/relocate_*_per_model.py` helpers over ad-hoc `rglob` sweeps when colocating GLBs into per-model folders.
