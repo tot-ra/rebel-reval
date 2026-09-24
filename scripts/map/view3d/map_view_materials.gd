@@ -17,8 +17,6 @@ const TEXTURE_SIZE := RESOLUTION.TEXTURE_SIZE
 const COBBLE_TEXTURE_SIZE := RESOLUTION.COBBLE_TEXTURE_SIZE
 const NATURAL_GROUND_TEXTURE_SIZE := RESOLUTION.NATURAL_GROUND_TEXTURE_SIZE
 const MASONRY_TEXTURE_SIZE := RESOLUTION.MASONRY_TEXTURE_SIZE
-const EMBER_COLOR := Color8(224, 108, 48)
-const EMBER_ENERGY := 1.6
 const WATER_MATERIALS := preload("res://scripts/map/view3d/map_view_water_materials.gd")
 const WIND_MATERIALS := preload("res://scripts/map/view3d/map_view_wind_materials.gd")
 const TERRAIN_MATERIALS := preload("res://scripts/map/view3d/map_view_terrain_materials.gd")
@@ -30,13 +28,7 @@ const PATTERN_FAMILIES := preload(
 )
 ## Re-exported so water contract tests and builders keep a stable facade API.
 const WATER_WAVE_BASE := WATER_MATERIALS.WATER_WAVE_BASE
-
-const WATER_TERRAINS: Array[StringName] = [
-	MapTypes.TERRAIN_WATER,
-	MapTypes.TERRAIN_RIVER_WATER,
-	MapTypes.TERRAIN_SHALLOW_WATER,
-	MapTypes.TERRAIN_DEEP_WATER,
-]
+const WATER_TERRAINS := WATER_MATERIALS.WATER_TERRAINS
 
 ## Dry-terrain repeat and blend tables remain on the facade for mesh builders
 ## and tests. Implementation and caches live in TERRAIN_MATERIALS.

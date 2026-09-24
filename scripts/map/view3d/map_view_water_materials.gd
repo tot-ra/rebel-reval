@@ -5,6 +5,10 @@ extends RefCounted
 ## This owns water-only shader state so MapViewMaterials can remain the stable
 ## public facade for terrain, building, foliage, and water material consumers.
 
+## Stable water terrain IDs for material and mesh builders. Re-exported on the
+## MapViewMaterials facade so rollout inventory tests keep one public entry point.
+const WATER_TERRAINS: Array[StringName] = MapTypes.WATER_TERRAINS
+
 const OPTICAL_DEPTH_BY_TERRAIN := {
 	MapTypes.TERRAIN_SHALLOW_WATER: 0.075,
 	MapTypes.TERRAIN_RIVER_WATER: 0.14,

@@ -4,6 +4,9 @@ Coordination notes, delivery order, and planning context formerly embedded in `T
 Executable open work stays in [`TODO.md`](../TODO.md).
 Aged coordination history lives in [`ROADMAP_COORDINATION_ARCHIVE_2026-08-13.md`](./ROADMAP_COORDINATION_ARCHIVE_2026-08-13.md).
 
+<!-- P0-185 water terrain ID peel extracted in current session -->
+Coordination note (2026-09-24 P0-185 / R-880): `map_view_water_materials.gd` now owns the `WATER_TERRAINS` alias beside `WATER_WAVE_BASE`; `map_view_materials.gd` re-exports it and shed duplicate ember constants (366 → 358 lines). Verified: `--filter=test_map_view_material_resolution`, `--filter=test_r715_water_material_contract`, `--filter=test_r715_water_rollout_inventory`, `--filter=test_coastal_sea_3d`, `--filter=test_map_terrain_chunks`. Next P0-185 claim: keep `apply_weather_presentation` on the facade until a second caller needs a weather-material adapter; further `map_view_runtime_camera.gd` trims if needed.
+
 <!-- P0-185 material resolution constants peel extracted in current session -->
 Coordination note (2026-09-24 P0-185 / R-878): `map_view_material_resolution_constants.gd` now owns procedural texture raster sizes; `map_view_materials.gd` re-exports for contract tests and dropped from 370 to 366 lines. Verified: `--filter=test_map_view_material_resolution`, `--filter=test_map_terrain_chunks` (15/15). Next P0-185 claim: further justified facade trims on `map_view_materials.gd` or `map_view_runtime_camera.gd`.
 

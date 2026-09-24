@@ -22,12 +22,7 @@ const SMITHY_FLOOR_ALBEDO_TEXTURE := preload(
 	"res://assets/materials/pbr/smithy_floor/smithy_floor_albedo.png"
 )
 
-const WATER_TERRAINS: Array[StringName] = [
-	MapTypes.TERRAIN_WATER,
-	MapTypes.TERRAIN_RIVER_WATER,
-	MapTypes.TERRAIN_SHALLOW_WATER,
-	MapTypes.TERRAIN_DEEP_WATER,
-]
+const WATER_TERRAINS := MapTypes.WATER_TERRAINS
 
 ## World units covered by one repeat of the terrain detail texture. Terrain
 ## meshes emit world-space UVs divided by this, so patterns run seamlessly
