@@ -15,6 +15,9 @@ Coordination note (2026-08-13 R-454): high-complexity parent **R-454** (historic
 <!-- P0-181 completed in current session -->
 Coordination note (2026-08-28 P0-181): research reference plate retention landed in `docs/data/reference_plate_retention.json`, `docs/ASSET_STORAGE_POLICY.md`, `tools/optimize_reference_plates.py`, and retention caps inside `tools/research/fetch_reference_plates.py --verify`. Optimized 50 plates (273904275 -> 39090195 bytes in the touched set, -234814080); zero `history/reference/**` rasters remain over 8 MiB. Verified: `python3 tools/research/fetch_reference_plates.py --verify`, `python3 -m unittest tests.python.test_fetch_reference_plates -v`. Next size claim: **P0-180** music takes or **P0-182** runtime audio budget.
 
+<!-- P0-185 time-flow controls peel extracted in current session -->
+Coordination note (2026-09-24 P0-185): `map_view_runtime_time_flow.gd` now owns the day/night speed ladder, pause state, and weather time-scale notification. `map_view_runtime.gd` keeps the public signal/API as thin delegates and dropped from 714 to 703 lines. Verified: `--filter=test_map_view_3d_runtime`, `--filter=test_debug_overlay` (time-flow and overlay controls). Next P0-185 claim: further `map_view_materials` review or additional runtime peels.
+
 <!-- P0-185 runtime ambient peel extracted in current session -->
 Coordination note (2026-09-24 P0-185): `map_view_runtime_ambient.gd` now owns bird/insect audio, bird flight, urban/penned fauna, music-zone binding, and crowd rendering installers plus per-frame sync. `map_view_runtime.gd` keeps the public facade and dropped from 883 to 714 lines. Verified: `--filter=test_map_view_3d_runtime`, `--filter=test_map_view_urban_fauna`, `--filter=test_map_view_penned_fauna`, `--filter=test_map_view_crowd_renderer` (62/62). Next P0-185 claim: time-flow controls peel from `map_view_runtime.gd` or further `map_view_materials` review.
 

@@ -24,6 +24,7 @@ const GameCalendarScript := preload("res://scripts/global/game_calendar.gd")
 const RuntimeCamera := preload("res://scripts/map/view3d/map_view_runtime_camera.gd")
 const RuntimeActors := preload("res://scripts/map/view3d/map_view_runtime_actors.gd")
 const RuntimeAmbient := preload("res://scripts/map/view3d/map_view_runtime_ambient.gd")
+const RuntimeTimeFlow := preload("res://scripts/map/view3d/map_view_runtime_time_flow.gd")
 ## Compatibility aliases keep the runtime's public locomotion thresholds stable.
 const WALK_ANIMATION_MIN_SPEED := RuntimeActors.WALK_ANIMATION_MIN_SPEED
 const RUN_ANIMATION_MIN_SPEED := RuntimeActors.RUN_ANIMATION_MIN_SPEED
@@ -55,20 +56,15 @@ const FIRST_PERSON_MAX_PITCH_DEGREES := RuntimeCamera.FIRST_PERSON_MAX_PITCH_DEG
 const FIRST_PERSON_FOV_DEGREES := RuntimeCamera.FIRST_PERSON_FOV_DEGREES
 const FIRST_PERSON_NEAR := RuntimeCamera.FIRST_PERSON_NEAR
 const OCCLUSION_PROBE_HEIGHTS := RuntimeCamera.OCCLUSION_PROBE_HEIGHTS
-## Shared time controls for the day/night clock and the sky (sun, clouds, weather,
-## lightning). `time_speed` is the chosen multiplier; `time_paused` freezes flow
-## without losing the chosen speed. The ladder gives predictable slow-mo and
-## fast-forward steps; 1.0 must stay on it as the neutral default.
-const TIME_SPEED_LADDER: Array[float] = [0.1, 0.25, 0.5, 1.0, 2.0, 4.0, 8.0, 20.0]
-const TIME_SPEED_DEFAULT := 1.0
+## Re-exported time-flow constants so tests and UI keep a stable MapViewRuntime API.
+const TIME_SPEED_LADDER: Array[float] = RuntimeTimeFlow.TIME_SPEED_LADDER
+const TIME_SPEED_DEFAULT := RuntimeTimeFlow.TIME_SPEED_DEFAULT
 
 var view: MapView3D
 ## Dev pacing: one in-game day every DayNightCycle.CYCLE_DURATION_SECONDS.
 var cycle_enabled := true
 var cycle_progress := DayNightCycle.DEFAULT_PROGRESS
 var cycle_elapsed_days := 0
-var time_speed := TIME_SPEED_DEFAULT
-var time_paused := false
 
 var _definition: MapDefinition
 var _player: CharacterBody2D
@@ -77,11 +73,31 @@ var _camera: Camera3D
 var _camera_controller: MapViewRuntimeCamera = RuntimeCamera.new()
 var _actor_controller = RuntimeActors.new()
 var _ambient_controller = RuntimeAmbient.new()
+var _time_flow = RuntimeTimeFlow.new()
 ## Compatibility aliases for integration tests that inspect the current binding.
 var _equipment_state: GameState
 var _session_state: Node
 var _session_content_db: ContentDB
 var _click_input: Node
+
+var time_speed: float:
+	get:
+		return _time_flow.time_speed
+	set(value):
+		_time_flow.set_time_speed(value)
+
+
+var time_paused: bool:
+	get:
+		return _time_flow.time_paused
+	set(value):
+		_time_flow.set_time_paused(value)
+
+
+
+func _init() -> void:
+	_time_flow.configure(self, Callable(self, "_emit_time_flow_changed"))
+
 
 static func install(
 	scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasItem, player: CharacterBody2D
@@ -268,67 +284,40 @@ func set_time_of_day(next_time: StringName) -> void:
 ## The multiplier actually applied this frame: 0 while paused, otherwise the
 ## chosen speed.
 func effective_time_speed() -> float:
-	return 0.0 if time_paused else time_speed
+	return _time_flow.effective_time_speed()
 
 
 ## Freezes or resumes the flow of time without discarding the chosen speed.
 func toggle_time_pause() -> void:
-	set_time_paused(not time_paused)
+	_time_flow.toggle_time_pause()
 
 
 func set_time_paused(paused: bool) -> void:
-	if time_paused == paused:
-		return
-	time_paused = paused
-	_notify_time_flow()
+	_time_flow.set_time_paused(paused)
 
 
 ## Steps one rung up the speed ladder (faster). Snaps an off-ladder speed to the
 ## next rung above it. Resumes if paused, so tapping faster always does something.
 func time_speed_up() -> void:
-	_step_time_speed(1)
+	_time_flow.time_speed_up()
 
 
 ## Steps one rung down the speed ladder (slower).
 func time_speed_down() -> void:
-	_step_time_speed(-1)
+	_time_flow.time_speed_down()
 
 
 func set_time_speed(speed: float) -> void:
-	time_speed = clampf(speed, TIME_SPEED_LADDER[0], TIME_SPEED_LADDER[-1])
-	_notify_time_flow()
+	_time_flow.set_time_speed(speed)
 
 
 ## Returns to real-time pacing and unpauses.
 func reset_time_flow() -> void:
-	time_speed = TIME_SPEED_DEFAULT
-	time_paused = false
-	_notify_time_flow()
+	_time_flow.reset_time_flow()
 
 
-func _step_time_speed(direction: int) -> void:
-	time_paused = false
-	var index := _nearest_ladder_index()
-	index = clampi(index + direction, 0, TIME_SPEED_LADDER.size() - 1)
-	time_speed = TIME_SPEED_LADDER[index]
-	_notify_time_flow()
-
-
-func _nearest_ladder_index() -> int:
-	var best := 0
-	var best_gap := absf(TIME_SPEED_LADDER[0] - time_speed)
-	for i in range(1, TIME_SPEED_LADDER.size()):
-		var gap := absf(TIME_SPEED_LADDER[i] - time_speed)
-		if gap < best_gap:
-			best_gap = gap
-			best = i
-	return best
-
-
-func _notify_time_flow() -> void:
-	if view != null:
-		view.set_weather_time_scale(effective_time_speed())
-	time_flow_changed.emit(effective_time_speed(), time_paused)
+func _emit_time_flow_changed(speed: float, paused: bool) -> void:
+	time_flow_changed.emit(speed, paused)
 
 
 func _bind_environment_runtime() -> void:
@@ -377,8 +366,8 @@ func environment_weather() -> Node:
 func _process(delta: float) -> void:
 	# The time controls scale (or pause) the world clock and, through the view,
 	# the sky's own cloud/weather/lightning stepping so they stay in lockstep.
-	var scaled_delta := delta * effective_time_speed()
-	view.set_weather_time_scale(effective_time_speed())
+	var scaled_delta := _time_flow.scaled_delta(delta)
+	_time_flow.apply_weather_time_scale()
 	if cycle_enabled:
 		var clock_advance := DayNightCycle.advance_clock(cycle_progress, scaled_delta)
 		cycle_progress = float(clock_advance["progress"])
