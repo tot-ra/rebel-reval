@@ -146,6 +146,92 @@ The declared target remains unavailable in this environment. The live host repor
 
 **Verdict:** **BLOCKED** - the required target command was not run, because this host cannot provide declared-target evidence. No Apple, headless, emulated, or otherwise non-matching result was substituted. The existing Apple M5 Pro non-headless capture remains supplementary instrumentation only; R-563 remains responsible for obtaining the real Intel UHD 620 run.
 
+## R-863 declared-target capture attempt
+
+**Checked:** `2026-09-24T02:00:56Z`
+**Task:** `R-863 / P0-040-N02`
+**Parent:** `R-653 / P0-040`
+**Verdict:** **BLOCKED - declared Intel UHD 620 hardware unavailable; no substitute run executed**
+
+### Availability gate
+
+| Field | Value |
+|---|---|
+| Repository revision | `1b18b0243c66ddc264ec84b4828af61726642365` |
+| Live host | Apple MacBook Pro `Mac17,8`, Apple M5 Pro, `arm64`, 48 GiB RAM, macOS `26.3` |
+| Declared target | Intel Core i5-8250U / Intel UHD Graphics 620 / `x86_64` / 8 GiB / `1920x1080` |
+| Compatible target host present | **NO** |
+| Declared-target command executed | **NO** - stopped before launch per task contract |
+
+The required non-headless renderer-comparison command remains:
+
+```bash
+export GODOT_BIN=/Applications/Godot.app/Contents/MacOS/Godot
+"$GODOT_BIN" --path . \
+  --rendering-method gl_compatibility --rendering-driver opengl3 \
+  --resolution 1920x1080 \
+  res://tools/benchmarks/renderer_comparison_benchmark.tscn \
+  -- --output=/tmp/r653-renderer-comparison.json \
+  --renderer-requested=gl_compatibility
+```
+
+No Apple M-series, headless, emulated, or otherwise non-matching result was substituted. The retained Apple M5 Pro supplementary capture from `2026-08-21` remains supplementary instrumentation only.
+
+## R-864 GPU evidence ledger validation
+
+**Checked:** `2026-09-24T02:00:56Z`
+**Task:** `R-864 / P0-040-N03`
+**Parent:** `R-653 / P0-040`
+**Verdict:** **BLOCKED for declared-target acceptance; ledger published and validated**
+
+### Ledger reconciliation
+
+| Field | Manifest | Report | Agreement |
+|---|---|---|---|
+| Capture revision | `847c9277320983c0398d25a5199e18f005b39d99` | `847c9277320983c0398d25a5199e18f005b39d99` | **PASS** |
+| Raw report SHA-256 | `fddda43c820383c4c247d5b2b9e85a4dd3be0541f9a3f9adad30ddc771604e04` | `fddda43c820383c4c247d5b2b9e85a4dd3be0541f9a3f9adad30ddc771604e04` | **PASS** |
+| Renderer / resolution | `gl_compatibility`, `opengl3`, `1920x1080` | `gl_compatibility`, `opengl3`, `1920x1080` | **PASS** |
+| Frame samples | `120` | `120` | **PASS** |
+| Frame-time median / p95 / p99 / max | `9.737 / 68.674 / 187.46 / 2085.971 ms` | `9.737 / 68.674 / 187.460 / 2085.971 ms` | **PASS** |
+| Texture memory | `442222135` bytes | `442222135` bytes | **PASS** |
+| Video memory | `671481419` bytes | `671481419` bytes | **PASS** |
+
+### Pass/blocker status
+
+| Metric family | Supplementary instrumentation | Declared-target acceptance |
+|---|---|---|
+| Frame-time distribution | **PASS** - 120 samples with median/p95/p99/max present | **BLOCKED** - Apple M5 Pro host only |
+| Texture memory | **PASS** - non-zero counter recorded | **BLOCKED** - host-specific, not Intel UHD 620 |
+| Video memory | **PASS** - non-zero counter recorded | **BLOCKED** - host-specific, not Intel UHD 620 |
+| Instrumentation limitation | **PASS as metadata** - fidelity flags and shutdown diagnostics preserved | **BLOCKED** - does not repair host mismatch |
+| R-709 target-identity audit | preserved unchanged | **BLOCKED** |
+| R-863 hardware gate | no declared-target run executed | **BLOCKED** |
+
+The live raw JSON at `/tmp/r653-renderer-comparison.json` is absent on this audit host. The manifest SHA-256, complete measured fields, and R-709 audit remain the authoritative provenance record.
+
+### Handoff
+
+| Owner | Responsibility |
+|---|---|
+| `R-865` | Independent final acceptance gate for R-653 after this ledger publication |
+| `R-563` | Acquire or access the physical Intel UHD 620 host for the next capture attempt |
+
+### Verification commands
+
+```text
+python3 -m unittest tests.python.test_r653_minimum_hardware_evidence tests.python.test_r653_minimum_hardware_evidence_manifest -v
+PASS - audit and manifest contract tests
+
+python3 tools/generate_p038_comparison_report.py --check
+PASS - P0-038 comparison report is up to date
+
+python3 -m json.tool docs/reports/data/r653_minimum_hardware_gpu_evidence_manifest.json
+PASS - manifest parses; r864_audit.next_owner=R-865
+
+git diff --check -- docs/reports/r653_p0_040_minimum_hardware_gpu_evidence_2026_08_21.md docs/reports/data/r653_minimum_hardware_gpu_evidence_manifest.json
+PASS
+```
+
 ## Sources
 
 - [`tools/benchmarks/minimum-hardware.json`](../../tools/benchmarks/minimum-hardware.json)

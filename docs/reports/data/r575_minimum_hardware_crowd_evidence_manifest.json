@@ -76,6 +76,6 @@
   "acceptance": {
     "target_run": "BLOCKED",
     "supplementary_m5_run": "PASS as instrumentation only",
-    "next_owner": "R-864"
+    "next_owner": "R-865"
   }
 }

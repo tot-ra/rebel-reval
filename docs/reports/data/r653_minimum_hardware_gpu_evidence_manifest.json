@@ -64,9 +64,38 @@
     "gpu_memory": "PASS as supplementary instrumentation - both counters are non-zero",
     "minimum_hardware_verdict": "BLOCKED - no valid declared-target run was executed"
   },
+  "r863_audit": {
+    "task": "R-863",
+    "checked_utc": "2026-09-24T02:00:56Z",
+    "checked_revision": "1b18b0243c66ddc264ec84b4828af61726642365",
+    "result": "BLOCKED_TARGET_HARDWARE_UNAVAILABLE",
+    "target_hardware_available": false,
+    "declared_target_run_executed": false,
+    "host_identity": "Apple M5 Pro / arm64 / macOS 26.3 / 48 GiB",
+    "blocker": "No x86_64 Intel Core i5-8250U / Intel UHD Graphics 620 / 8 GiB host or configured remote runner is available in this environment.",
+    "required_command": "export GODOT_BIN=/Applications/Godot.app/Contents/MacOS/Godot; \"$GODOT_BIN\" --path . --rendering-method gl_compatibility --rendering-driver opengl3 --resolution 1920x1080 res://tools/benchmarks/renderer_comparison_benchmark.tscn -- --output=/tmp/r653-renderer-comparison.json --renderer-requested=gl_compatibility",
+    "substitution_policy": "Do not substitute Apple M-series, headless, emulated, or otherwise non-matching hosts."
+  },
+  "r864_audit": {
+    "task": "R-864",
+    "checked_utc": "2026-09-24T02:00:56Z",
+    "checked_revision": "1b18b0243c66ddc264ec84b4828af61726642365",
+    "result": "BLOCKED_LEDGER_PUBLISHED",
+    "ledger_validation": "PASS",
+    "r709_audit_preserved": true,
+    "r863_hardware_gate": "BLOCKED_TARGET_HARDWARE_UNAVAILABLE",
+    "frame_time_status": "PASS as supplementary instrumentation / BLOCKED for target acceptance",
+    "texture_memory_status": "PASS as supplementary instrumentation / BLOCKED for target acceptance",
+    "video_memory_status": "PASS as supplementary instrumentation / BLOCKED for target acceptance",
+    "instrumentation_limitation": "renderer fidelity flags note SSAO/SSIL/SDFGI/SSR/volumetric fog unavailable; Patrol_viru_watch missing-rig warning and shutdown ObjectDB/resource-leak diagnostics",
+    "raw_report_provenance": "PASS - SHA-256 fddda43c820383c4c247d5b2b9e85a4dd3be0541f9a3f9adad30ddc771604e04 recorded; live /tmp file absent on audit host",
+    "report_manifest_agreement": "PASS"
+  },
   "acceptance": {
     "target_run": "BLOCKED",
     "supplementary_m5_run": "PASS as instrumentation only",
-    "p0_040_approval": "PENDING/BLOCKED - no maintainer decision"
+    "ledger_validation": "PASS - R-864 published checked manifest/report packet",
+    "p0_040_approval": "PENDING/BLOCKED - no maintainer decision",
+    "next_owner": "R-865"
   }
 }

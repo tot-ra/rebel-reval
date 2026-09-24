@@ -149,7 +149,7 @@ No Apple M-series, headless, emulated, or otherwise non-matching result was subs
 
 | Owner | Responsibility |
 |---|---|
-| `R-864` | Publish and validate the GPU evidence ledger once a declared-target raw report exists |
+| `R-865` | Independent final acceptance gate for R-653 after the R-864 ledger publication |
 | `R-563` | Acquire or access the physical Intel UHD 620 host for the next capture attempt |
 
 ### Verification commands
@@ -162,5 +162,5 @@ python3 -m json.tool tools/benchmarks/minimum-hardware.json
 PASS - declared profile parses
 
 python3 -m json.tool docs/reports/data/r575_minimum_hardware_crowd_evidence_manifest.json
-PASS - manifest parses; r863_audit.next_owner=R-864
+PASS - manifest parses; acceptance.next_owner=R-865
 ```

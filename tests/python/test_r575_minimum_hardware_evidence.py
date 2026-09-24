@@ -41,7 +41,7 @@ class R575MinimumHardwareEvidenceTests(unittest.TestCase):
         self.assertFalse(host["headless"])
         self.assertEqual(audit["result"], "BLOCKED_FOR_TARGET_ACCEPTANCE")
         self.assertEqual(manifest["acceptance"]["target_run"], "BLOCKED")
-        self.assertEqual(manifest["acceptance"]["next_owner"], "R-864")
+        self.assertEqual(manifest["acceptance"]["next_owner"], "R-865")
 
     def test_manifest_preserves_crowd_distribution_and_gpu_counters(self) -> None:
         manifest = _load_json(MANIFEST)

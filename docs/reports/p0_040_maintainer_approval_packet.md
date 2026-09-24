@@ -26,7 +26,7 @@ A source-level reconciliation or a passing headless development check is not its
 | [`p0_040_lighting_grade_style_lock.md`](p0_040_lighting_grade_style_lock.md) | R-568 lighting, grade, day/night, value hierarchy, and material matrix | Contract and calibration are documented, but current lighting integration has failures/errors and approval is not claimed. |
 | [`p0_038_3d_view_comparison.md`](p0_038_3d_view_comparison.md) | P0-038 performance and renderer evidence | Headless development baseline only; its zero-byte texture readings are not GPU evidence. |
 | [`r653_p0_040_minimum_hardware_gpu_evidence_2026_08_21.md`](r653_p0_040_minimum_hardware_gpu_evidence_2026_08_21.md) | R-653 non-headless GPU evidence ledger | Supplementary Apple M5 Pro instrumentation with non-zero texture/video-memory values; declared Intel UHD 620 acceptance remains blocked and this artifact does not substitute for it. |
-| [`data/r653_minimum_hardware_gpu_evidence_manifest.json`](data/r653_minimum_hardware_gpu_evidence_manifest.json) | R-709 raw-evidence provenance and audit manifest | Preserves the raw report path/hash, revision, host/target identity, command, 120-sample distribution, GPU instrumentation status, and explicit BLOCKED target verdict; it is not a target-run result. |
+| [`data/r653_minimum_hardware_gpu_evidence_manifest.json`](data/r653_minimum_hardware_gpu_evidence_manifest.json) | R-709/R-864 raw-evidence provenance and audit manifest | Preserves the raw report path/hash, revision, host/target identity, command, 120-sample distribution, GPU instrumentation status, R-863 hardware gate, R-864 ledger validation, and explicit BLOCKED target verdict; it is not a target-run result. |
 | [`p0_040_decomposition_verification.md`](p0_040_decomposition_verification.md) | R-570 parent-readiness verification | Recommends keeping R-111/P0-040 blocked. |
 | [`../ART_BIBLE.md`](../ART_BIBLE.md) | Normative v2 visual direction | Direction is accepted through ADR 0018; technical production freeze remains gated. |
 | [`../adr/0013-authorial-visual-direction-without-blind-ux-panels.md`](../adr/0013-authorial-visual-direction-without-blind-ux-panels.md) | Approval-process authority | Blind-panel gate cancelled; maintainer review plus P0-038 evidence govern. |
@@ -68,6 +68,21 @@ The linked [`R-653 ledger`](r653_p0_040_minimum_hardware_gpu_evidence_2026_08_21
 | Minimum-hardware acceptance | No valid declared-target run | **BLOCKED** - keep P0-040 pending |
 
 The M5 run remains explicitly supplementary. Its non-zero GPU counters and complete frame distribution do not change renderer settings, performance caps, or the maintainer decision boundary.
+
+### R-864 ledger validation addendum
+
+**Checked:** `2026-09-24T02:00:56Z`
+**Task:** `R-864 / P0-040-N03`
+**Verdict:** **BLOCKED for declared-target acceptance; ledger published and validated**
+
+| R-864 field | Result | Acceptance interpretation |
+|---|---|---|
+| R-863 hardware gate | No declared-target renderer run executed | **BLOCKED** - Apple M5 Pro host cannot substitute for Intel UHD 620 |
+| Ledger/report/manifest agreement | Revision, SHA-256, renderer, resolution, samples, frame-time distribution, and GPU counters match | **PASS** |
+| Frame-time distribution | 120 samples; median `9.737 ms`, p95 `68.674 ms`, p99 `187.460 ms`, max `2085.971 ms` | **PASS as supplementary instrumentation** |
+| Texture/video memory | `442222135` / `671481419` bytes | **PASS as supplementary instrumentation** |
+| Instrumentation limitation | Fidelity flags and shutdown diagnostics preserved in manifest | **PASS as metadata** |
+| Minimum-hardware acceptance | No valid declared-target run | **BLOCKED** - next owner `R-865` |
 
 ### Material family values
 
