@@ -40,7 +40,10 @@ static func interior_shell_wall_height_world(definition: MapDefinition) -> float
 
 
 static func build_landmark(
-	landmark: Dictionary, cell_size: int, wall_height_world: float = -1.0
+	landmark: Dictionary,
+	cell_size: int,
+	wall_height_world: float = -1.0,
+	wall_footprints: Array[Rect2] = []
 ) -> Node3D:
 	var root := Node3D.new()
 	root.name = "Landmark_%s" % String(landmark["id"])
@@ -51,7 +54,7 @@ static func build_landmark(
 	root.position = Vector3(center.x, 0.0, center.y)
 	match landmark.get("kind", &""):
 		&"gate_arch":
-			_add_gate_arch(root, landmark, size, scale)
+			_add_gate_arch(root, landmark, size, scale, wall_footprints)
 		&"interior_window":
 			var resolved_wall_height := wall_height_world
 			if resolved_wall_height <= 0.0:
@@ -70,6 +73,53 @@ static func build_landmark(
 			# view-only landmark path is the one boundary that guarantees that.
 			MapViewMonasticModels.add_cloister_walk(root, landmark, size)
 	return root
+
+
+## Gate-arch rectangles in map px. Fortification seals must not grow into them.
+static func gate_passage_rects(definition: MapDefinition) -> Array[Rect2]:
+	var rects: Array[Rect2] = []
+	for landmark in definition.view_landmarks:
+		if landmark.get("kind", &"") == &"gate_arch":
+			rects.append(landmark["rect"])
+	return rects
+
+
+## Fortification wall footprints in map px. They carry the collision that
+## actually bounds a gate road, so the view arch fits its opening to them.
+static func fortification_wall_footprints(definition: MapDefinition) -> Array[Rect2]:
+	var rects: Array[Rect2] = []
+	for building in definition.buildings:
+		if building.get("kind", &"") == MapTypes.BUILDING_KIND_WALL:
+			rects.append(building["footprint"])
+	return rects
+
+
+## Half-width of the walkable gate road measured from the arch centre. Gate
+## landmarks are often authored wider than the collision throat (the Viru arch
+## is 6 cells over a 4-cell road), and fitting jambs, voussoirs and leaves to
+## the landmark rectangle instead buried the open leaves inside the curtain.
+## Without wall footprints the authored jamb thickness still applies.
+static func _gate_clear_half(
+	landmark: Dictionary, size: Vector2, scale: float, passage_along_x: bool,
+	wall_footprints: Array[Rect2]
+) -> float:
+	var footprint_half := (size.y if passage_along_x else size.x) * 0.5
+	var clear_half := maxf(footprint_half - MapViewMeshBuilderConfig.GATE_JAMB_THICKNESS, 0.4)
+	var rect: Rect2 = landmark["rect"]
+	var world_rect := Rect2(rect.position * scale, rect.size * scale)
+	var center := world_rect.get_center()
+	for wall_px in wall_footprints:
+		var wall := Rect2(wall_px.position * scale, wall_px.size * scale)
+		if not wall.intersects(world_rect):
+			continue
+		var low := wall.position.y if passage_along_x else wall.position.x
+		var high := wall.end.y if passage_along_x else wall.end.x
+		var mid := center.y if passage_along_x else center.x
+		if high <= mid:
+			clear_half = minf(clear_half, mid - high)
+		elif low >= mid:
+			clear_half = minf(clear_half, low - mid)
+	return maxf(clear_half, 0.4)
 
 
 ## Gate passages follow the street axis, not the landmark rectangle aspect ratio.
@@ -230,12 +280,22 @@ static func _interior_window_side(landmark: Dictionary, cell_size: int) -> Strin
 	return &"east"
 
 
-static func _add_gate_arch(root: Node3D, landmark: Dictionary, size: Vector2, scale: float) -> void:
+static func _add_gate_arch(
+	root: Node3D,
+	landmark: Dictionary,
+	size: Vector2,
+	scale: float,
+	wall_footprints: Array[Rect2] = []
+) -> void:
 	var color := Color(landmark.get("wall_color", MapViewMeshBuilderConfig.DEFAULT_WALL_COLOR))
 	var top := MapTypes.resolved_landmark_top_px(landmark) * scale
 	var span_height := maxf(top - MapViewMeshBuilderConfig.GATE_ARCH_CLEARANCE, 0.6)
 	var passage_along_x := _gate_passage_along_x(landmark, size)
-	var limestone := MapViewMaterials.wall_surface_triplanar(&"limestone", color)
+	# World-space masonry matches the adjoining curtain, so the arch's deliberate
+	# overlaps with jamb walls and towers no longer flicker between two phases.
+	var limestone := MapViewMaterials.fortification_masonry(color)
+	var clear_half := _gate_clear_half(landmark, size, scale, passage_along_x, wall_footprints)
+	var jamb_thickness := (size.y if passage_along_x else size.x) * 0.5 - clear_half
 
 	var bridge := MeshInstance3D.new()
 	bridge.name = "Bridge"
@@ -253,22 +313,22 @@ static func _add_gate_arch(root: Node3D, landmark: Dictionary, size: Vector2, sc
 	if passage_along_x:
 		for side_index in 2:
 			var side := -1.0 if side_index == 0 else 1.0
-			var z := side * (half.y - MapViewMeshBuilderConfig.GATE_JAMB_THICKNESS * 0.5)
+			var z := side * (half.y - jamb_thickness * 0.5)
 			_add_gate_masonry_box(
 				root,
 				"Jamb%d" % side_index,
-				Vector3(size.x, jamb_height, MapViewMeshBuilderConfig.GATE_JAMB_THICKNESS),
+				Vector3(size.x, jamb_height, jamb_thickness),
 				Vector3(0.0, jamb_height * 0.5, z),
 				limestone
 			)
 	else:
 		for side_index in 2:
 			var side := -1.0 if side_index == 0 else 1.0
-			var x := side * (half.x - MapViewMeshBuilderConfig.GATE_JAMB_THICKNESS * 0.5)
+			var x := side * (half.x - jamb_thickness * 0.5)
 			_add_gate_masonry_box(
 				root,
 				"Jamb%d" % side_index,
-				Vector3(MapViewMeshBuilderConfig.GATE_JAMB_THICKNESS, jamb_height, size.y),
+				Vector3(jamb_thickness, jamb_height, size.y),
 				Vector3(x, jamb_height * 0.5, 0.0),
 				limestone
 			)
@@ -279,11 +339,11 @@ static func _add_gate_arch(root: Node3D, landmark: Dictionary, size: Vector2, sc
 		Vector3(
 			MapViewMeshBuilderConfig.GATE_THRESHOLD_WIDTH,
 			MapViewMeshBuilderConfig.GATE_THRESHOLD_HEIGHT,
-			maxf(size.y - MapViewMeshBuilderConfig.GATE_JAMB_THICKNESS, 1.0)
+			maxf(clear_half * 2.0, 1.0)
 		)
 		if passage_along_x
 		else Vector3(
-			maxf(size.x - MapViewMeshBuilderConfig.GATE_JAMB_THICKNESS, 1.0),
+			maxf(clear_half * 2.0, 1.0),
 			MapViewMeshBuilderConfig.GATE_THRESHOLD_HEIGHT,
 			MapViewMeshBuilderConfig.GATE_THRESHOLD_WIDTH
 		)
@@ -297,16 +357,16 @@ static func _add_gate_arch(root: Node3D, landmark: Dictionary, size: Vector2, sc
 	threshold.material_override = MapViewMaterials.role_for_size(&"stone", threshold_size)
 	root.add_child(threshold)
 
-	_add_gate_arch_head(root, size, passage_along_x, limestone)
+	_add_gate_arch_head(root, size, passage_along_x, limestone, clear_half)
 
 	var gate_variant: StringName = landmark.get(
 		"gate_variant", landmark.get("door_material", &"wood")
 	)
 	var grille_variant: StringName = landmark.get("grille_variant", &"none")
 	if gate_variant not in [&"none", &""]:
-		_add_gate_asset(root, size, passage_along_x, gate_variant, false)
+		_add_gate_asset(root, size, passage_along_x, gate_variant, false, clear_half)
 	if grille_variant == &"portcullis":
-		_add_gate_asset(root, size, passage_along_x, grille_variant, true)
+		_add_gate_asset(root, size, passage_along_x, grille_variant, true, clear_half)
 
 	MapViewMeshBuilderBuildings.add_battlements(
 		root,
@@ -325,12 +385,10 @@ static func _add_gate_arch(root: Node3D, landmark: Dictionary, size: Vector2, sc
 ## material and the authored clear opening is never narrowed - each band starts
 ## at the widest point of the span it covers.
 static func _add_gate_arch_head(
-	root: Node3D, size: Vector2, passage_along_x: bool, material: Material
+	root: Node3D, size: Vector2, passage_along_x: bool, material: Material, clear_half: float
 ) -> void:
 	var footprint_half := (size.y if passage_along_x else size.x) * 0.5
-	var opening_half := maxf(
-		footprint_half - MapViewMeshBuilderConfig.GATE_JAMB_THICKNESS, 0.4
-	)
+	var opening_half := clear_half
 	var crown := MapViewMeshBuilderConfig.GATE_ARCH_CLEARANCE
 	var springing := crown * MapViewMeshBuilderConfig.GATE_ARCH_SPRINGING_RATIO
 	var rise := crown - springing
@@ -388,7 +446,12 @@ static func _add_gate_masonry_box(
 ## clear opening. All assets stay parked open or raised, so view geometry never
 ## contradicts the immutable walkable passage and collision grid.
 static func _add_gate_asset(
-	root: Node3D, size: Vector2, passage_along_x: bool, variant: StringName, is_grille: bool
+	root: Node3D,
+	size: Vector2,
+	passage_along_x: bool,
+	variant: StringName,
+	is_grille: bool,
+	clear_half: float
 ) -> void:
 	var resolved_variant := variant
 	if variant in [&"wood", &"oak"]:
@@ -410,13 +473,7 @@ static func _add_gate_asset(
 	instance.set_meta(&"gate_state", &"raised" if is_grille else &"open")
 	if not is_grille and resolved_variant == &"ironbound":
 		instance.set_meta(&"gate_material", &"metal")
-	var opening_width := maxf(
-		(
-			(size.y if passage_along_x else size.x)
-			- MapViewMeshBuilderConfig.GATE_JAMB_THICKNESS * 2.0
-		),
-		1.2
-	)
+	var opening_width := maxf(clear_half * 2.0, 1.2)
 	var width_scale := minf(opening_width / float(GATE_ASSET_WIDTHS[resolved_variant]), 1.0)
 	var height_limit := (
 		MapViewMeshBuilderConfig.GATE_ARCH_CLEARANCE - 0.08
@@ -451,10 +508,36 @@ static func _add_gate_asset(
 		# Very shallow garden arches cannot contain fully opened leaves. Uniformly
 		# shrink rather than clipping the imported mesh through the masonry.
 		instance.scale *= passage_depth / model_depth
+	_apply_gate_surface_materials(instance)
 	root.add_child(instance)
 	instance.set_meta(&"source_asset", GATE_ASSET_PATHS[resolved_variant])
 	if not is_grille and resolved_variant == &"ironbound":
 		_expose_authored_gate_leaf_contract(root, instance)
+
+
+## The gate kit GLBs carry flat sinusoidal albedo plates without relief, so the
+## leaves read as dark painted slabs next to normal-mapped masonry. Keep the
+## authored geometry (boards, rails, braces, straps, nails) and swap its three
+## kit materials for the shared hewn-oak and forged-iron surfaces by name.
+static func _apply_gate_surface_materials(instance: Node3D) -> void:
+	for child in instance.find_children("*", "MeshInstance3D", true, false):
+		var mesh_instance := child as MeshInstance3D
+		if mesh_instance == null or mesh_instance.mesh == null:
+			continue
+		for surface_index in mesh_instance.mesh.get_surface_count():
+			var authored := mesh_instance.mesh.surface_get_material(surface_index)
+			if authored == null:
+				continue
+			var replacement: Material = null
+			match authored.resource_name:
+				"GateOak":
+					replacement = MapViewMaterials.hewn_timber(false, 0)
+				"GateDarkOak":
+					replacement = MapViewMaterials.hewn_timber(false, 2)
+				"GateWroughtIron":
+					replacement = MapViewMaterials.door_iron()
+			if replacement != null:
+				mesh_instance.set_surface_override_material(surface_index, replacement)
 
 
 static func _expose_authored_gate_leaf_contract(root: Node3D, instance: Node3D) -> void:
@@ -488,7 +571,7 @@ static func _expose_authored_gate_leaf_contract(root: Node3D, instance: Node3D) 
 		root.add_child(authored_part)
 		authored_part.transform = authored_transform
 		authored_part.name = "GateDoor%d" % leaf_index
-		authored_part.material_override = MapViewMaterials.role(&"metal")
+		authored_part.material_override = MapViewMaterials.door_iron()
 		authored_part.set_meta(&"gate_state", &"open")
 		authored_part.set_meta(&"gate_material", &"metal")
 		authored_part.set_meta(&"authored_source_node", authored_source_node)

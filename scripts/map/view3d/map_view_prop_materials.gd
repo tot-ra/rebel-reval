@@ -124,6 +124,53 @@ static func door_wood(noise_seed: int) -> StandardMaterial3D:
 	return material
 
 
+## Weathered hewn oak for fortification posts, rails, braces and gate leaves.
+## Grey-brown silvered oak rather than the saturated red-brown clean-painted
+## timber role, with longitudinal grain plus a relief normal so beams read as
+## adzed timber instead of flat painted sticks. grain_along_u picks the texture
+## orientation that matches the beam's long axis on BoxMesh side faces.
+static func hewn_timber(grain_along_u: bool, noise_seed: int = 0) -> StandardMaterial3D:
+	var variant := posmod(noise_seed, 3)
+	var key := "hewn_timber:%s:%d" % [grain_along_u, variant]
+	if _cache.has(key):
+		return _cache[key]
+	var material := StandardMaterial3D.new()
+	material.albedo_color = Color8(122, 101, 80).darkened(float(variant) * 0.05)
+	material.albedo_texture = MapViewMaterialPatterns.beam_wood_texture(variant, grain_along_u)
+	material.normal_enabled = true
+	material.normal_texture = MapViewMaterialPatterns.beam_wood_normal_texture(
+		variant, grain_along_u
+	)
+	material.normal_scale = 0.7
+	material.roughness = 0.9
+	material.metallic = 0.0
+	material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	_cache[key] = material
+	return material
+
+
+## Hewn oak fitted to one BoxMesh beam. BoxMesh packs faces into a 3 x 2 UV
+## atlas, so repeats are scaled per face: grain repeats about every 2 units
+## along the beam and one texture spans ~0.35 units across it. Scales are
+## bucketed so the handful of distinct wall lengths share cached materials and
+## still batch together.
+static func hewn_timber_for_size(size: Vector3, noise_seed: int = 0) -> StandardMaterial3D:
+	var length := maxf(size.y, maxf(size.x, size.z))
+	var grain_along_u := size.y < length - 0.001
+	var thickness := size.y if grain_along_u else maxf(size.x, size.z)
+	var along := maxf(snappedf(3.0 * length / 2.0, 0.5), 0.5)
+	var across := maxf(snappedf(2.0 * thickness / 0.35, 0.25), 0.25)
+	var uv := Vector3(along, across, 1.0) if grain_along_u else Vector3(across * 1.5, along / 1.5, 1.0)
+	var key := "hewn_timber_size:%s:%d:%s" % [grain_along_u, posmod(noise_seed, 3), uv]
+	if _cache.has(key):
+		return _cache[key]
+	var material := hewn_timber(grain_along_u, noise_seed).duplicate() as StandardMaterial3D
+	material.uv1_scale = uv
+	_cache[key] = material
+	return material
+
+
 ## Hand-forged iron is dark, uneven-looking, and rough rather than polished chrome.
 static func door_iron() -> StandardMaterial3D:
 	var key := "door_iron"

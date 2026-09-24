@@ -112,6 +112,11 @@ var _first_person_terrain_detail := false
 var _terrain_detail_focus_cell := Vector2i(2147483647, 2147483647)
 var _decals_node: Node3D
 var _mud_footprints: MudFootprints3D
+## Lazily derived from the definition: gate passages that wall seals must not
+## grow into, and wall footprints that bound each gate's clear opening.
+var _gate_passages: Array[Rect2] = []
+var _wall_footprints: Array[Rect2] = []
+var _gate_fit_ready := false
 
 static func create(
 	map_definition: MapDefinition, built_grid: MapTerrainGrid, initial_time: StringName = TIME_DAY
@@ -702,6 +707,14 @@ func _create_streamed_object(record: Dictionary) -> Node:
 	return node
 
 
+func _ensure_gate_fit() -> void:
+	if _gate_fit_ready:
+		return
+	_gate_passages = MapViewMeshBuilder.gate_passage_rects(definition)
+	_wall_footprints = MapViewMeshBuilder.fortification_wall_footprints(definition)
+	_gate_fit_ready = true
+
+
 func _build_streamed_object(record: Dictionary) -> Node:
 	var source := record["source"] as Dictionary
 	match record["kind"] as StringName:
@@ -710,11 +723,13 @@ func _build_streamed_object(record: Dictionary) -> Node:
 			for transition in definition.transitions:
 				if transition.get("building_id", &"") == source.get("id", &""):
 					entrances.append(transition)
+			_ensure_gate_fit()
 			var building_node := MapViewMeshBuilder.build_building(
 				source,
 				definition.cell_size,
 				entrances,
-				Rect2(Vector2.ZERO, definition.world_size())
+				Rect2(Vector2.ZERO, definition.world_size()),
+				_gate_passages
 			)
 			building_node.position.y = MapViewMeshBuilder.ground_height(
 				definition, Vector2(building_node.position.x, building_node.position.z)
@@ -724,10 +739,12 @@ func _build_streamed_object(record: Dictionary) -> Node:
 			# Interior windows size their opening infill from the wall height;
 			# without it they fall back to the default and leave a sky gap
 			# between the infill top and the ceiling on taller walls.
+			_ensure_gate_fit()
 			var landmark_node := MapViewMeshBuilder.build_landmark(
 				source,
 				definition.cell_size,
-				MapViewMeshBuilder.interior_shell_wall_height_world(definition)
+				MapViewMeshBuilder.interior_shell_wall_height_world(definition),
+				_wall_footprints
 			)
 			landmark_node.position.y = MapViewMeshBuilder.ground_height(
 				definition, Vector2(landmark_node.position.x, landmark_node.position.z)

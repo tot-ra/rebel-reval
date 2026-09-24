@@ -17,3 +17,7 @@ const NATURAL_GROUND_TEXTURE_SIZE := 512
 ## a few metres away, so masonry needs a denser source than secondary materials
 ## to keep rubble courses, joints and chipped arrises legible.
 const MASONRY_TEXTURE_SIZE := 512
+## Clay roof tiles carry curved monk/nun profiles and course lips that feed a
+## relief normal map. 128 px left only ~10 px per tile, which read as flat
+## scales; 256 px keeps 32 px per tile while roof plates stay per-variant cached.
+const ROOF_TILE_TEXTURE_SIZE := 256

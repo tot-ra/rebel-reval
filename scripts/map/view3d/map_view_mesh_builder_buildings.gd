@@ -15,7 +15,8 @@ static func build_building(
 	building: Dictionary,
 	cell_size: int,
 	entrances: Array[Dictionary] = [],
-	map_bounds: Rect2 = Rect2()
+	map_bounds: Rect2 = Rect2(),
+	gate_passages: Array[Rect2] = []
 ) -> Node3D:
 	if _Registry.is_exceptional(building):
 		return build_exceptional_building(building, cell_size, entrances, map_bounds)
@@ -74,11 +75,9 @@ static func build_building(
 		drum.height = passage_floor_y if tower_passage else height
 		drum.radial_segments = 24
 		walls.mesh = drum
-		walls.material_override = MapViewMaterials.wall_surface_for_size(
-			&"limestone",
-			wall_color.lightened(0.08),
-			Vector3(TAU * drum.top_radius, drum.height, TAU * drum.top_radius)
-		)
+		# World-space triplanar, like the curtain: CylinderMesh side UVs only span
+		# part of V, which made drum stones about twice as tall as the wall's.
+		walls.material_override = MapViewMaterials.fortification_masonry(wall_color.lightened(0.08))
 		walls.position = Vector3(0.0, drum.height * 0.5, 0.0)
 		if tower_passage:
 			MapViewMeshBuilderBuildingFortification.add_tower_wall_walk_passage(
@@ -92,8 +91,13 @@ static func build_building(
 	else:
 		var wall_mesh := BoxMesh.new()
 		var mesh_size := Vector3(size.x, height, size.y)
+		var seal_shift := Vector2.ZERO
 		if fortification:
-			mesh_size = MapViewMeshBuilderBuildingFortification.sealed_wall_size(mesh_size)
+			var sealed := MapViewMeshBuilderBuildingFortification.sealed_wall_footprint(
+				Rect2(footprint.position * scale, size), _scaled_rects(gate_passages, scale)
+			)
+			mesh_size = Vector3(sealed.size.x, height, sealed.size.y)
+			seal_shift = sealed.get_center() - footprint.get_center() * scale
 		# WHY: a primitive with an open ground-floor gallery cannot be a single
 		# solid box. The mass is pulled back from the facade and the strip it
 		# vacates is rebuilt as arcade wall, end walls, and vault by the
@@ -109,9 +113,7 @@ static func build_building(
 				building, wall_color, wall_mesh.size
 			)
 		elif kind == MapTypes.BUILDING_KIND_WALL:
-			walls.material_override = MapViewMaterials.wall_surface_triplanar(
-				&"limestone", wall_color
-			)
+			walls.material_override = MapViewMaterials.fortification_masonry(wall_color)
 		elif kind == MapTypes.BUILDING_KIND_INTERIOR_WALL:
 			walls.material_override = (
 				MapViewMeshBuilderBuildingInteriorWalls
@@ -119,7 +121,7 @@ static func build_building(
 			)
 		else:
 			walls.material_override = MapViewMaterials.wall_for_size(wall_color, wall_mesh.size)
-		walls.position = Vector3(0.0, height * 0.5, gallery_inset * 0.5)
+		walls.position = Vector3(seal_shift.x, height * 0.5, gallery_inset * 0.5 + seal_shift.y)
 	root.add_child(walls)
 
 	if kind == MapTypes.BUILDING_KIND_HOUSE:
@@ -172,11 +174,7 @@ static func build_building(
 		ring.radial_segments = 18
 		cap.mesh = ring
 		cap.position = Vector3(0.0, height + MapViewMeshBuilderConfig.CAP_HEIGHT, 0.0)
-		cap.material_override = MapViewMaterials.wall_surface_for_size(
-			&"limestone",
-			wall_color.lightened(0.16),
-			Vector3(TAU * ring.top_radius, ring.height, TAU * ring.top_radius)
-		)
+		cap.material_override = MapViewMaterials.fortification_masonry(wall_color.lightened(0.16))
 		root.add_child(cap)
 		# Conical red-tile roof is the Tallinn skyline for every circular drum,
 		# including incomplete tower=false stubs that still read as wall towers.
@@ -205,10 +203,12 @@ static func build_building(
 				cap_mesh.size
 			)
 		else:
-			cap.material_override = MapViewMaterials.wall_surface_for_size(
-				&"limestone" if kind == MapTypes.BUILDING_KIND_WALL else &"plaster",
-				wall_color.lightened(0.12),
-				cap_mesh.size
+			cap.material_override = (
+				MapViewMaterials.fortification_masonry(wall_color.lightened(0.12))
+				if kind == MapTypes.BUILDING_KIND_WALL
+				else MapViewMaterials.wall_surface_for_size(
+					&"plaster", wall_color.lightened(0.12), cap_mesh.size
+				)
 			)
 		root.add_child(cap)
 		if fortification:
@@ -218,6 +218,13 @@ static func build_building(
 			MapViewMeshBuilderBuildingFortification.add_battlements(root, building, size, height)
 			MapViewMeshBuilderBuildingFortification.add_wall_walk_roof(root, size, height)
 	return root
+
+
+static func _scaled_rects(rects: Array[Rect2], scale: float) -> Array[Rect2]:
+	var scaled: Array[Rect2] = []
+	for rect in rects:
+		scaled.append(Rect2(rect.position * scale, rect.size * scale))
+	return scaled
 
 
 static func is_st_marys_construction(building: Dictionary) -> bool:
@@ -316,7 +323,9 @@ static func _add_open_three_aisle_nave(
 	var bay_count := 5
 	var pier_height := height * 0.66
 	for bay_index in bay_count:
-		var bay_x := nave_x - nave_length * 0.42 + nave_length * 0.84 * float(bay_index) / float(bay_count - 1)
+		var bay_x := (
+			nave_x - nave_length * 0.42 + nave_length * 0.84 * float(bay_index) / float(bay_count - 1)
+		)
 		for side: float in [-1.0, 1.0]:
 			_add_limestone_mass(
 				nave,

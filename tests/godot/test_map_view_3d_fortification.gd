@@ -1,4 +1,5 @@
 extends "res://tests/godot/map_view_3d_test_base.gd"
+# gdlint: disable=max-line-length
 
 const EXPECTED_LOWER_TOWN_BOUNDARY_TRANSITION_IDS: Array[StringName] = [
 	&"to_reval_south",
@@ -153,10 +154,10 @@ func test_town_wall_gets_battlements_and_gate_arch_clears_character() -> void:
 	assert_false(karja_arch.has_node("Door"), "Karja Gate must not fall back to an ordinary-house door")
 	var karja_door := karja_arch.get_node("GateDoor0") as MeshInstance3D
 	assert_true(karja_door.has_meta(&"authored_source_node"), "GateDoor0 must expose authored leaf geometry")
-	var metal_mat := MapViewMaterials.role(&"metal")
+	var metal_mat := MapViewMaterials.door_iron()
 	assert_true(
 		(karja_door.material_override as StandardMaterial3D).albedo_color.is_equal_approx(metal_mat.albedo_color),
-		"Karja Gate doors should use metal"
+		"Karja Gate doors should use hand-forged iron"
 	)
 	karja_arch.free()
 

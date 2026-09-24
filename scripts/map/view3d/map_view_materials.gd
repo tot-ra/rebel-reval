@@ -278,6 +278,18 @@ static func roof_surface(family: StringName, color: Color) -> StandardMaterial3D
 	return BUILDING_MATERIALS.roof_surface(family, color)
 
 
+static func fortification_masonry(color: Color) -> StandardMaterial3D:
+	return BUILDING_MATERIALS.fortification_masonry(color)
+
+
+static func roof_tile_world(color: Color) -> StandardMaterial3D:
+	return BUILDING_MATERIALS.roof_tile_world(color)
+
+
+static func tower_roof_tiles(surface_id: StringName, color: Color) -> StandardMaterial3D:
+	return BUILDING_MATERIALS.tower_roof_tiles(surface_id, color)
+
+
 static func building_uv_density(pattern: StringName) -> Vector3:
 	return BUILDING_MATERIALS.building_uv_density(pattern)
 
@@ -324,6 +336,14 @@ static func door_wood(noise_seed: int) -> StandardMaterial3D:
 
 static func door_iron() -> StandardMaterial3D:
 	return PROP_MATERIALS.door_iron()
+
+
+static func hewn_timber(grain_along_u: bool, noise_seed: int = 0) -> StandardMaterial3D:
+	return PROP_MATERIALS.hewn_timber(grain_along_u, noise_seed)
+
+
+static func hewn_timber_for_size(size: Vector3, noise_seed: int = 0) -> StandardMaterial3D:
+	return PROP_MATERIALS.hewn_timber_for_size(size, noise_seed)
 
 
 static func foliage_tuft() -> StandardMaterial3D:

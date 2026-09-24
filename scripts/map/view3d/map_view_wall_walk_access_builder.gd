@@ -15,12 +15,8 @@ static func add_to(
 	var scale := MapViewBridge.world_scale(cell_size)
 	var size := footprint.size * scale
 	if MapWallWalkAccess.is_platform_prop(prop):
-		MapViewMeshBuilderPrimitives.box(
-			root,
-			"WallWalkPlatform",
-			Vector3(size.x, 0.14, size.y),
-			Vector3(0.0, target, 0.0),
-			&"wood"
+		_add_timber_box(
+			root, "WallWalkPlatform", Vector3(size.x, 0.14, size.y), Vector3(0.0, target, 0.0)
 		)
 		return
 
@@ -51,9 +47,7 @@ static func add_to(
 				width, MapViewMeshBuilderConfig.WALL_WALK_ACCESS_TREAD_THICKNESS, tread + 0.03
 			)
 		)
-		MapViewMeshBuilderPrimitives.box(
-			root, "WallStairStep%d" % step_index, tread_size, center, &"wood"
-		)
+		_add_timber_box(root, "WallStairStep%d" % step_index, tread_size, center)
 
 	var landing_length := run * (1.0 - MapViewMeshBuilderConfig.WALL_WALK_ACCESS_CLIMB_FRACTION)
 	var landing_along := run * 0.5 - landing_length * 0.5
@@ -65,9 +59,7 @@ static func add_to(
 	var landing_position := (
 		Vector3(landing_along, target, 0.0) if along_x else Vector3(0.0, target, landing_along)
 	)
-	MapViewMeshBuilderPrimitives.box(
-		root, "WallStairLanding", landing_size, landing_position, &"wood"
-	)
+	_add_timber_box(root, "WallStairLanding", landing_size, landing_position)
 
 	var direction := Vector3(facing.x, 0.0, facing.y)
 	var cross := Vector3(-direction.z, 0.0, direction.x)
@@ -115,5 +107,18 @@ static func _add_access_beam(
 	beam.position = (from + to) * 0.5
 	var up := Vector3.RIGHT if absf(direction.normalized().dot(Vector3.UP)) > 0.98 else Vector3.UP
 	beam.basis = Basis.looking_at(direction.normalized(), up)
-	beam.material_override = MapViewMaterials.role(&"timber")
+	beam.material_override = MapViewMaterials.hewn_timber_for_size(mesh.size, name.hash())
 	root.add_child(beam)
+
+
+## Stair treads, landings and platforms are hewn oak like the gallery above them;
+## the flat clean-painted wood role read as bright orange plastic against stone.
+static func _add_timber_box(root: Node3D, name: String, size: Vector3, position: Vector3) -> void:
+	var instance := MeshInstance3D.new()
+	instance.name = name
+	var mesh := BoxMesh.new()
+	mesh.size = size
+	instance.mesh = mesh
+	instance.position = position
+	instance.material_override = MapViewMaterials.hewn_timber_for_size(size, name.hash())
+	root.add_child(instance)

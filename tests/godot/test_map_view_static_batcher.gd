@@ -153,7 +153,9 @@ func test_merge_does_not_detach_production_house_chimney() -> void:
 	house.free()
 
 
-func test_gate_arch_keeps_triplanar_mass_after_merge() -> void:
+## Gate masonry is world-space triplanar (it must shade identically where it
+## overlaps the curtain), so baking transforms cannot re-tile it: it may batch.
+func test_gate_arch_world_triplanar_masonry_batches_without_retiling() -> void:
 	var landmark := {
 		"id": &"gate.test",
 		"kind": &"gate_arch",
@@ -162,12 +164,21 @@ func test_gate_arch_keeps_triplanar_mass_after_merge() -> void:
 		"passage_axis": &"z",
 	}
 	var gate := MapViewMeshBuilder.build_landmark(landmark, 32)
+	var masonry := (gate.get_node("Bridge") as MeshInstance3D).material_override as StandardMaterial3D
+	assert_true(
+		masonry.uv1_triplanar and masonry.uv1_world_triplanar,
+		"gate masonry must use world-space triplanar mapping"
+	)
+	assert_false(
+		Batcher._material_breaks_when_merged(masonry),
+		"world-space masonry must stay batchable"
+	)
 	Batcher.merge(gate, {})
-	assert_true(gate.has_node("Bridge"), "gate bridge must survive batching")
-	assert_true(gate.has_node("Jamb0"), "gate jambs must survive batching")
 	assert_true(gate.has_node("GateLeaves"), "generated gate model root must survive batching")
-	var bridge := gate.get_node("Bridge") as MeshInstance3D
-	var jamb := gate.get_node("Jamb0") as MeshInstance3D
-	assert_true(bridge.mesh != null, "gate bridge must keep its masonry mesh")
-	assert_true(jamb.mesh != null, "gate jambs must keep their masonry mesh")
+	var batched_masonry := false
+	for child in gate.get_children():
+		var mesh_instance := child as MeshInstance3D
+		if mesh_instance != null and mesh_instance.material_override == masonry:
+			batched_masonry = batched_masonry or mesh_instance.mesh != null
+	assert_true(batched_masonry, "gate masonry must still render after batching")
 	gate.free()

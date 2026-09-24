@@ -42,9 +42,10 @@ static func build_building(
 	building: Dictionary,
 	cell_size: int,
 	entrances: Array[Dictionary] = [],
-	map_bounds: Rect2 = Rect2()
+	map_bounds: Rect2 = Rect2(),
+	gate_passages: Array[Rect2] = []
 ) -> Node3D:
-	return _Buildings.build_building(building, cell_size, entrances, map_bounds)
+	return _Buildings.build_building(building, cell_size, entrances, map_bounds, gate_passages)
 
 
 static func is_exceptional_building(building: Dictionary) -> bool:
@@ -69,9 +70,22 @@ static func interior_shell_wall_height_world(definition: MapDefinition) -> float
 
 
 static func build_landmark(
-	landmark: Dictionary, cell_size: int, wall_height_world: float = -1.0
+	landmark: Dictionary,
+	cell_size: int,
+	wall_height_world: float = -1.0,
+	wall_footprints: Array[Rect2] = []
 ) -> Node3D:
-	return _Landmarks.build_landmark(landmark, cell_size, wall_height_world)
+	return _Landmarks.build_landmark(landmark, cell_size, wall_height_world, wall_footprints)
+
+
+## Gate-arch rectangles (map px) that fortification wall seals must not grow into.
+static func gate_passage_rects(definition: MapDefinition) -> Array[Rect2]:
+	return _Landmarks.gate_passage_rects(definition)
+
+
+## Fortification wall footprints (map px) that bound each gate's clear opening.
+static func fortification_wall_footprints(definition: MapDefinition) -> Array[Rect2]:
+	return _Landmarks.fortification_wall_footprints(definition)
 
 
 static func transition_uses_landmark_visual(

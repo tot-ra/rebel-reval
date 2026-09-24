@@ -1,4 +1,5 @@
 extends "res://tests/godot/map_view_3d_test_base.gd"
+# gdlint: disable=max-line-length
 
 const MarketCivicQuarterDefinition := preload("res://scripts/map/definitions/prototypes/market_civic_quarter_definition.gd")
 
@@ -336,7 +337,9 @@ func test_building_uv_scale_grows_with_wall_span() -> void:
 
 func test_city_wall_masonry_uses_direction_independent_triplanar_scale() -> void:
 	var definition := LowerTownSlice.create()
-	var expected_density := MapViewMaterials.building_uv_density(MapViewMaterials.PATTERN_LIMESTONE)
+	var expected_density: Vector3 = (
+		MapViewMaterials.BUILDING_MATERIALS.FORTIFICATION_MASONRY_DENSITY
+	)
 	var wall_ids: Array[StringName] = [&"city_wall_north", &"city_wall_bend_d"]
 	var checked := 0
 	for building in definition.buildings:
@@ -346,7 +349,9 @@ func test_city_wall_masonry_uses_direction_independent_triplanar_scale() -> void
 		var walls := node.get_node("Walls") as MeshInstance3D
 		var material := walls.material_override as StandardMaterial3D
 		assert_true(material.uv1_triplanar, "%s must not use direction-dependent BoxMesh UVs" % building["id"])
-		assert_false(material.uv1_world_triplanar, "%s projection must stay anchored to the wall" % building["id"])
+		# World space: seals, jambs and bends overlap on shared planes and must
+		# shade identically there, and courses must run on across segment joints.
+		assert_true(material.uv1_world_triplanar, "%s masonry must share one world phase" % building["id"])
 		assert_true(
 			material.uv1_scale.is_equal_approx(expected_density),
 			"%s must keep constant masonry density on both wall axes" % building["id"]

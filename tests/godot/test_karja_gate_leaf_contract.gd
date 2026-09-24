@@ -31,5 +31,6 @@ func test_karja_gate_exposes_open_metal_leaf_state() -> void:
 		assert_true(leaf.has_meta(&"authored_source_node"))
 		var material := leaf.material_override as StandardMaterial3D
 		assert_true(material != null, "GateDoor%d needs an explicit material" % leaf_index)
-		assert_eq(material.albedo_color, MapViewMaterials.role(&"metal").albedo_color)
+		# Hand-forged iron, not the blue-grey clean-painted metal role.
+		assert_eq(material, MapViewMaterials.door_iron())
 	gate.free()

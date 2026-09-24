@@ -17,6 +17,13 @@ const PATTERN_FAMILIES := preload(
 const RESOLUTION := preload(
 	"res://scripts/map/view3d/map_view_material_resolution_constants.gd"
 )
+## Tile columns and courses per roof plate. Integer divisors of every plate size
+## keep the pattern seamless at the wrap; the former 10 px tiles on a 128 px plate
+## left a visible half-tile seam every repeat.
+const ROOF_TILE_COLUMNS := 8
+const ROOF_TILE_COURSES := 8
+## Monk (convex cover) half-width as a fraction of one column.
+const ROOF_TILE_MONK_HALF := 0.22
 
 static var _cache: Dictionary = {}
 
@@ -36,6 +43,8 @@ static func pattern_source_size(pattern: StringName) -> int:
 		return RESOLUTION.COBBLE_TEXTURE_SIZE
 	if pattern in [PATTERN_FAMILIES.PATTERN_LIMESTONE, PATTERN_FAMILIES.PATTERN_BRICK]:
 		return RESOLUTION.MASONRY_TEXTURE_SIZE
+	if pattern == PATTERN_FAMILIES.PATTERN_ROOF_TILE:
+		return RESOLUTION.ROOF_TILE_TEXTURE_SIZE
 	return RESOLUTION.TEXTURE_SIZE
 
 
@@ -81,6 +90,36 @@ static func door_wood_normal_texture(noise_seed: int) -> ImageTexture:
 	# The grayscale grain doubles as a shallow bump source. Converting it here
 	# keeps the procedural texture portable through Godot's PBR material path.
 	image.bump_map_to_normal_map(1.35)
+	image.generate_mipmaps()
+	var texture := ImageTexture.create_from_image(image)
+	_cache[key] = texture
+	return texture
+
+
+## Hewn structural oak for posts, rails, braces and gallery eaves. Reuses the
+## close-range door grain (fibres run along V) and rotates it when the beam's
+## long axis maps to U, so grain always follows the timber instead of crossing
+## it the way the horizontal PATTERN_PLANK courses did on vertical posts.
+static func beam_wood_texture(noise_seed: int, grain_along_u: bool) -> ImageTexture:
+	return _beam_wood(noise_seed, grain_along_u, false)
+
+
+static func beam_wood_normal_texture(noise_seed: int, grain_along_u: bool) -> ImageTexture:
+	return _beam_wood(noise_seed, grain_along_u, true)
+
+
+static func _beam_wood(noise_seed: int, grain_along_u: bool, as_normal: bool) -> ImageTexture:
+	var variant_seed := posmod(noise_seed, 3) * 977 + 1291
+	var key := "beam_wood:%d:%s:%s" % [variant_seed, grain_along_u, as_normal]
+	if _cache.has(key):
+		return _cache[key]
+	var image := Image.create(256, 256, false, Image.FORMAT_RGB8)
+	_paint_door_wood(image, variant_seed)
+	if grain_along_u:
+		image.rotate_90(CLOCKWISE)
+	if as_normal:
+		# Hewn beams carry deeper checks and adze facets than planed door boards.
+		image.bump_map_to_normal_map(1.9)
 	image.generate_mipmaps()
 	var texture := ImageTexture.create_from_image(image)
 	_cache[key] = texture
@@ -210,7 +249,13 @@ static func _pattern_image_at_size(
 		PATTERN_FAMILIES.PATTERN_ROCK:
 			_paint_rock(image, noise_seed)
 		PATTERN_FAMILIES.PATTERN_ROOF_TILE:
-			_paint_roof_tile(image, noise_seed)
+			# Roof plates are shared by tens of tile roofs and their normal maps;
+			# painting is cached per seed so weathering bands only re-tone a copy.
+			var image_key := "roof_tile_image:%d:%d" % [noise_seed, texture_size]
+			if not _cache.has(image_key):
+				_paint_roof_tile(image, noise_seed)
+				_cache[image_key] = image
+			return (_cache[image_key] as Image).duplicate()
 		PATTERN_FAMILIES.PATTERN_STRAW:
 			_paint_straw(image, noise_seed)
 		PATTERN_FAMILIES.PATTERN_THATCH:
@@ -835,27 +880,62 @@ static func _paint_limestone(image: Image, noise_seed: int) -> void:
 			_fill_value(image, x, y, value)
 
 
-## Overlapping tile courses: each row shades darker toward its lower edge and
-## staggers its vertical joints, reading as hand-laid clay tiles.
+## Monk-and-nun clay roofing, the Baltic Hanseatic cover on Reval's towers and
+## rich stone houses: convex cover tiles sit over the joints between concave pan
+## tiles, and each course tucks under the lip of the course above. The grayscale
+## doubles as the relief height, so the normal map shows real rounded covers and
+## course steps instead of the former flat printed scales.
 static func _paint_roof_tile(image: Image, noise_seed: int) -> void:
 	var size := image.get_width()
-	var course := 10
-	var tile_w := 10
+	var scale := float(size) / 128.0
+	var tile_w := size / ROOF_TILE_COLUMNS
+	var course_h := size / ROOF_TILE_COURSES
+	var grain_period := maxi(floori(float(size) / (3.0 * scale)), 2)
 	for y in size:
-		var row := floori(float(y) / float(course))
-		var in_course := y % course
+		var row := floori(float(y) / float(course_h))
+		var local_y := float(y % course_h) / float(course_h)
 		for x in size:
-			var offset := floori(float((row % 2) * tile_w) / 2.0)
-			var column := floori(float(x + offset) / float(tile_w))
-			var in_tile := (x + offset) % tile_w
-			var tone := _hash01(column, row, noise_seed)
-			# Curved tile profile: brighter crown at tile center.
-			var profile := sin(float(in_tile) / float(tile_w) * PI)
-			var value := 0.72 + profile * 0.20 + (tone - 0.5) * 0.14
-			# Overlap shadow at the bottom of each course.
-			value -= clampf(1.0 - float(in_course) / 5.0, 0.0, 1.0) * 0.22
-			if in_tile < 1:
+			# Columns stay continuous down the roof (water channels), but the pan
+			# joint sits on the column centre and the monk covers the boundary.
+			var column_f := float(x) / float(tile_w)
+			var local_x := column_f - floorf(column_f)
+			var boundary_distance := minf(local_x, 1.0 - local_x)
+			var monk_column := posmod(roundi(column_f), ROOF_TILE_COLUMNS)
+			var pan_column := floori(column_f)
+			var height := 0.0
+			var tone := 0.0
+			if boundary_distance < ROOF_TILE_MONK_HALF:
+				var t := boundary_distance / ROOF_TILE_MONK_HALF
+				height = 0.66 + 0.34 * sqrt(maxf(1.0 - t * t, 0.0))
+				tone = _hash01(monk_column, row, noise_seed + 5) - 0.5
+			else:
+				var t := (boundary_distance - ROOF_TILE_MONK_HALF) / (0.5 - ROOF_TILE_MONK_HALF)
+				# Concave pan: lowest at the column centre, darkened where the
+				# neighbouring cover occludes it.
+				height = 0.40 - 0.10 * sin(t * PI * 0.5) - 0.14 * exp(-t * 7.0)
+				tone = _hash01(pan_column, row, noise_seed + 11) - 0.5
+			# Each tile thickens toward its exposed lower lip.
+			height += 0.12 * local_y
+			var value := 0.36 + height * 0.46 + tone * 0.14
+			# Occasional over- or under-fired replacement tile.
+			var flash := _hash01(monk_column * 3 + pan_column, row, noise_seed + 29)
+			if flash > 0.95:
 				value -= 0.12
+			elif flash < 0.04:
+				value += 0.07
+			var grain := _lattice(
+				float(x) / (3.0 * scale), float(y) / (3.0 * scale), grain_period, noise_seed + 41
+			)
+			value += (grain - 0.5) * 0.06
+			# Lichen and moss flecks gather low on the course where water lingers.
+			if local_y > 0.55 and _hash01(x, y, noise_seed + 53) > 0.985:
+				value += 0.10
+			# The course above overhangs this one: a deep tuck shadow under its lip,
+			# then a bright rounded lip edge at the bottom of this course.
+			if local_y < 0.18:
+				value *= lerpf(0.52, 1.0, local_y / 0.18)
+			elif local_y > 0.93:
+				value += 0.05
 			_fill_value(image, x, y, value)
 
 

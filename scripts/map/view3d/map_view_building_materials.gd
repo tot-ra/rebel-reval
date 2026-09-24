@@ -53,6 +53,24 @@ const BUILDING_UV_SCALE := {
 }
 const BUILDING_UV_REFERENCE_SIZE := Vector3(4.0, 3.5, 4.0)
 
+## City walls, towers and gates: plate repeats per world unit. The authored
+## rubble plate carries about ten courses, so this gives ~0.17 m courses and
+## 0.3-0.5 m stones - the hand-split Reval curtain. The former house-derived
+## density left stones about a fifth of a character tall.
+const FORTIFICATION_MASONRY_DENSITY := Vector3(0.42, 0.53, 0.42)
+## High triplanar sharpness keeps round drums from smearing two projections
+## across their 45-degree faces.
+const FORTIFICATION_TRIPLANAR_SHARPNESS := 8.0
+
+## Gabled roof meshes emit UVs in world units (see gabled_roof_mesh), so tile
+## density is repeats per unit, not per box face. One plate holds 8 x 8 monk/nun
+## tiles: ~0.2 m wide covers on ~0.25 m exposed courses. The per-face reference
+## scale (4 x 2.5) packed roughly fifty tiles into every metre of roof.
+const ROOF_TILE_WORLD_DENSITY := Vector3(0.62, 0.5, 1.0)
+## Tile roofs share a few painted plates; per-building tint and weathering still
+## vary. One unique 256 px plate plus normal map per tile roof was load-heavy.
+const ROOF_TILE_PLATE_VARIANTS := 6
+
 ## Families whose plates describe real relief (recessed joints, pitted faces,
 ## board gaps). They receive a matching normal map so light reveals the surface
 ## instead of treating every wall as a perfectly flat plane.
@@ -62,6 +80,7 @@ const RELIEF_PATTERNS: Array[StringName] = [
 	PATTERN_PLASTER,
 	PATTERN_PLANK,
 	PATTERN_LOG,
+	PATTERN_ROOF_TILE,
 ]
 const RELIEF_NORMAL_SCALE := {
 	PATTERN_BRICK: 0.85,
@@ -69,6 +88,7 @@ const RELIEF_NORMAL_SCALE := {
 	PATTERN_PLASTER: 0.45,
 	PATTERN_PLANK: 0.55,
 	PATTERN_LOG: 0.80,
+	PATTERN_ROOF_TILE: 1.1,
 }
 
 static var _cache: Dictionary = {}
@@ -132,9 +152,55 @@ static func roof_surface_for_building(
 		&"thatch", &"straw":
 			pattern = PATTERN_THATCH
 	var weathering := surface_weathering_variant(surface_id)
-	return _building_surface_weathered(
+	var material := _building_surface_weathered(
 		"roof_building", surface_id, _weathered_albedo(color, weathering), pattern, weathering
 	)
+	if pattern == PATTERN_ROOF_TILE:
+		# Every caller puts this on a world-unit gabled roof mesh.
+		material.uv1_scale = ROOF_TILE_WORLD_DENSITY
+	return material
+
+
+## City wall, tower and gate masonry. World-space triplanar projection is what
+## stops seam flicker: wall segments, seals, jambs and arch bands deliberately
+## overlap, and object-space mapping gave each overlapping box a different
+## texture phase on the same plane, so depth ties flickered between them. In
+## world space coplanar overlaps shade identically and courses run continuously
+## across segment joints and around drums.
+static func fortification_masonry(color: Color) -> StandardMaterial3D:
+	var key := "fortification_masonry:%s" % color.to_html()
+	if _cache.has(key):
+		return _cache[key]
+	var material := wall_surface(&"limestone", color).duplicate() as StandardMaterial3D
+	material.uv1_triplanar = true
+	material.uv1_world_triplanar = true
+	material.uv1_triplanar_sharpness = FORTIFICATION_TRIPLANAR_SHARPNESS
+	material.uv1_scale = FORTIFICATION_MASONRY_DENSITY
+	_cache[key] = material
+	return material
+
+
+## Tile cover for world-unit gabled meshes such as the wall-walk gallery roofs.
+static func roof_tile_world(color: Color) -> StandardMaterial3D:
+	var key := "roof_tile_world:%s" % color.to_html()
+	if _cache.has(key):
+		return _cache[key]
+	var material := roof(color).duplicate() as StandardMaterial3D
+	material.uv1_scale = ROOF_TILE_WORLD_DENSITY
+	_cache[key] = material
+	return material
+
+
+## Weathered tile cover for conical tower roofs. The cone mesh maps one tile
+## course per ring band and a whole number of tiles per ring, so the material
+## keeps unit UV scale.
+static func tower_roof_tiles(surface_id: StringName, color: Color) -> StandardMaterial3D:
+	var weathering := surface_weathering_variant(surface_id)
+	var material := _building_surface_weathered(
+		"tower_roof", surface_id, _weathered_albedo(color, weathering), PATTERN_ROOF_TILE, weathering
+	)
+	material.uv1_scale = Vector3.ONE
+	return material
 
 
 ## Stable weathering band from a building or landmark ID.
@@ -235,6 +301,8 @@ static func _building_surface_weathered(
 	if _cache.has(key):
 		return _cache[key]
 	var seed := building_pattern_seed(surface_id, pattern)
+	if pattern == PATTERN_ROOF_TILE:
+		seed = posmod(seed, ROOF_TILE_PLATE_VARIANTS)
 	var material := _make_weathered_material(color, pattern, seed, weathering)
 	material.uv1_scale = building_uv_scale(pattern, BUILDING_UV_REFERENCE_SIZE)
 	_cache[key] = material

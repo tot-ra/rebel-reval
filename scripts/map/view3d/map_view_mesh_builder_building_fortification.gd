@@ -3,11 +3,59 @@ extends RefCounted
 
 ## Fortification towers, battlements, and wall-walk dressing.
 
+## Slant length of one tile course on conical tower roofs (world units).
+const TOWER_ROOF_COURSE_LENGTH := 0.26
+## How far each course lip steps out over the course below it.
+const TOWER_ROOF_COURSE_LIP := 0.035
+## Target width of one monk/nun tile column at a course's lower edge.
+const TOWER_ROOF_TILE_WIDTH := 0.2
+const TOWER_ROOF_SEGMENTS := 36
+## Oak rafters under wall-walk gallery roofs.
+const GALLERY_RAFTER_SPACING := 0.9
+const GALLERY_RAFTER_SIZE := 0.09
+
+static var _cone_cache: Dictionary = {}
+
 
 static func sealed_wall_size(size: Vector3) -> Vector3:
 	if size.x <= size.z:
 		return Vector3(size.x + MapViewMeshBuilderConfig.WALL_SEAL_OVERHANG * 2.0, size.y, size.z)
 	return Vector3(size.x, size.y, size.z + MapViewMeshBuilderConfig.WALL_SEAL_OVERHANG * 2.0)
+
+
+## World-space footprint of a sealed fortification prism. Like sealed_wall_size
+## it pads the short axis on both sides, but never grows a side into a gate
+## passage: the padding on the Viru throat jambs narrowed the rendered 4-unit
+## road to ~3 units, buried the open gate leaves inside the masonry, and left
+## the visible wall disagreeing with the collision the player walks against.
+static func sealed_wall_footprint(footprint: Rect2, gate_passages: Array[Rect2]) -> Rect2:
+	var overhang := MapViewMeshBuilderConfig.WALL_SEAL_OVERHANG
+	var grow_x := footprint.size.x <= footprint.size.y
+	var result := footprint
+	for side: float in [-1.0, 1.0]:
+		var strip := (
+			Rect2(
+				footprint.position.x - overhang if side < 0.0 else footprint.end.x,
+				footprint.position.y,
+				overhang,
+				footprint.size.y
+			)
+			if grow_x
+			else Rect2(
+				footprint.position.x,
+				footprint.position.y - overhang if side < 0.0 else footprint.end.y,
+				footprint.size.x,
+				overhang
+			)
+		)
+		var blocked := false
+		for passage in gate_passages:
+			if passage.intersects(strip):
+				blocked = true
+				break
+		if not blocked:
+			result = result.merge(strip)
+	return result
 
 
 static func add_tower_wall_walk_passage(
@@ -34,9 +82,7 @@ static func add_tower_wall_walk_passage(
 	upper_drum.sides = 24
 	upper_drum.smooth_faces = true
 	upper_drum.position.y = passage_floor_y + upper_height * 0.5
-	upper_drum.material = MapViewMaterials.wall_surface_triplanar(
-		&"limestone", wall_color.lightened(0.08)
-	)
+	upper_drum.material = MapViewMaterials.fortification_masonry(wall_color.lightened(0.08))
 	root.add_child(upper_drum)
 
 	var opening := CSGBox3D.new()
@@ -145,18 +191,15 @@ static func add_tower_roof(
 	root: Node3D, radius: float, height: float, building: Dictionary = {}
 ) -> void:
 	var roof_radius := radius + 0.34
+	var cone_height := roof_radius * MapViewMeshBuilderConfig.TOWER_ROOF_PITCH
 	var roof := MeshInstance3D.new()
 	roof.name = "TowerRoof"
-	var cone := CylinderMesh.new()
-	cone.top_radius = 0.0
-	cone.bottom_radius = roof_radius
-	cone.height = roof_radius * MapViewMeshBuilderConfig.TOWER_ROOF_PITCH
-	cone.radial_segments = 18
-	roof.mesh = cone
-	roof.position = Vector3(
-		0.0, height + MapViewMeshBuilderConfig.CAP_HEIGHT * 2.0 + cone.height * 0.5, 0.0
+	roof.mesh = tower_cone_roof_mesh(roof_radius, cone_height)
+	roof.position = Vector3(0.0, height + MapViewMeshBuilderConfig.CAP_HEIGHT * 2.0, 0.0)
+	roof.material_override = MapViewMaterials.tower_roof_tiles(
+		StringName(String(building.get("id", "tower_roof"))),
+		MapViewMeshBuilderConfig.TOWER_ROOF_COLOR
 	)
-	roof.material_override = MapViewMaterials.roof(MapViewMeshBuilderConfig.TOWER_ROOF_COLOR)
 	root.add_child(roof)
 	var finial := MeshInstance3D.new()
 	finial.name = "Finial"
@@ -164,7 +207,7 @@ static func add_tower_roof(
 	knob.radius = 0.09
 	knob.height = 0.18
 	finial.mesh = knob
-	var finial_y := height + MapViewMeshBuilderConfig.CAP_HEIGHT * 2.0 + cone.height + 0.06
+	var finial_y := height + MapViewMeshBuilderConfig.CAP_HEIGHT * 2.0 + cone_height + 0.06
 	finial.position = Vector3(0.0, finial_y, 0.0)
 	finial.material_override = MapViewMaterials.role(&"metal")
 	root.add_child(finial)
@@ -174,6 +217,84 @@ static func add_tower_roof(
 	var faction := FactionHeraldry.resolve(building)
 	if FactionHeraldry.shows_flag(faction):
 		_add_tower_pennant(root, finial_y, faction)
+
+
+## Stepped conical tile roof. A smooth CylinderMesh cone could only fake tile
+## relief with a texture, so the roof read flatter than the masonry below it.
+## Here every tile course is its own frustum band whose lower edge steps out and
+## down over the next course: the silhouette gains real serrated course lips and
+## sunlight breaks into shaded bands. Each band maps exactly one plate course and
+## a whole number of tiles, so tiles taper toward the apex like a laid cone and
+## the ring seam always falls on a tile joint. Base sits at local y = 0.
+static func tower_cone_roof_mesh(radius: float, height: float) -> ArrayMesh:
+	var key := "tower_cone:%.3f:%.3f" % [radius, height]
+	if _cone_cache.has(key):
+		return _cone_cache[key]
+	var slant := sqrt(radius * radius + height * height)
+	var courses := maxi(6, roundi(slant / TOWER_ROOF_COURSE_LENGTH))
+	var plate_courses := MapViewMaterialPatterns.ROOF_TILE_COURSES
+	var plate_columns := float(MapViewMaterialPatterns.ROOF_TILE_COLUMNS)
+	var surface := SurfaceTool.new()
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for band in courses:
+		var t0 := float(band) / float(courses)
+		var t1 := float(band + 1) / float(courses)
+		var r_top := radius * t0
+		var y_top := height * (1.0 - t0)
+		# The lip steps outward and down so it overlaps the band below it.
+		var r_bottom := radius * t1 + TOWER_ROOF_COURSE_LIP
+		var y_bottom := height * (1.0 - t1) - TOWER_ROOF_COURSE_LIP * 0.7
+		var profile_normal := Vector2(y_top - y_bottom, r_bottom - r_top).normalized()
+		# Whole plates per ring: the monk cover straddling the ring seam then
+		# samples one tile on both sides instead of two different tones.
+		var plates := maxi(1, roundi(TAU * r_bottom / TOWER_ROOF_TILE_WIDTH / plate_columns))
+		var u_span := float(plates)
+		var row := posmod(band, plate_courses)
+		var v_top := float(row) / float(plate_courses)
+		var v_bottom := float(row + 1) / float(plate_courses)
+		for segment in TOWER_ROOF_SEGMENTS:
+			var a0 := TAU * float(segment) / float(TOWER_ROOF_SEGMENTS)
+			var a1 := TAU * float(segment + 1) / float(TOWER_ROOF_SEGMENTS)
+			var d0 := Vector3(sin(a0), 0.0, cos(a0))
+			var d1 := Vector3(sin(a1), 0.0, cos(a1))
+			var n0 := (d0 * profile_normal.x + Vector3.UP * profile_normal.y).normalized()
+			var n1 := (d1 * profile_normal.x + Vector3.UP * profile_normal.y).normalized()
+			var u0 := u_span * float(segment) / float(TOWER_ROOF_SEGMENTS)
+			var u1 := u_span * float(segment + 1) / float(TOWER_ROOF_SEGMENTS)
+			var top0 := d0 * r_top + Vector3.UP * y_top
+			var top1 := d1 * r_top + Vector3.UP * y_top
+			var bottom0 := d0 * r_bottom + Vector3.UP * y_bottom
+			var bottom1 := d1 * r_bottom + Vector3.UP * y_bottom
+			_cone_vertex(surface, top0, n0, Vector2(u0, v_top))
+			_cone_vertex(surface, top1, n1, Vector2(u1, v_top))
+			_cone_vertex(surface, bottom1, n1, Vector2(u1, v_bottom))
+			_cone_vertex(surface, top0, n0, Vector2(u0, v_top))
+			_cone_vertex(surface, bottom1, n1, Vector2(u1, v_bottom))
+			_cone_vertex(surface, bottom0, n0, Vector2(u0, v_bottom))
+	# Soffit disc closes the eaves when the roof is seen from the wall walk.
+	var eave_y := -TOWER_ROOF_COURSE_LIP * 0.7
+	var eave_radius := radius + TOWER_ROOF_COURSE_LIP
+	for segment in TOWER_ROOF_SEGMENTS:
+		var a0 := TAU * float(segment) / float(TOWER_ROOF_SEGMENTS)
+		var a1 := TAU * float(segment + 1) / float(TOWER_ROOF_SEGMENTS)
+		var p0 := Vector3(sin(a0), 0.0, cos(a0)) * eave_radius + Vector3.UP * eave_y
+		var p1 := Vector3(sin(a1), 0.0, cos(a1)) * eave_radius + Vector3.UP * eave_y
+		var center := Vector3.UP * eave_y
+		_cone_vertex(surface, center, Vector3.DOWN, Vector2(0.5, 0.5))
+		_cone_vertex(surface, p1, Vector3.DOWN, Vector2(0.5, 0.5))
+		_cone_vertex(surface, p0, Vector3.DOWN, Vector2(0.5, 0.5))
+	surface.generate_tangents()
+	var mesh := surface.commit()
+	_cone_cache[key] = mesh
+	return mesh
+
+
+static func _cone_vertex(
+	surface: SurfaceTool, position: Vector3, normal: Vector3, uv: Vector2
+) -> void:
+	surface.set_normal(normal)
+	surface.set_uv(uv)
+	surface.add_vertex(position)
 
 
 static func _add_tower_pennant(root: Node3D, finial_y: float, faction_id: StringName) -> void:
@@ -263,7 +384,7 @@ static func add_wall_walk_roof(root: Node3D, size: Vector2, height: float) -> vo
 		Vector2(length, span) if along_x else Vector2(span, length), along_x
 	)
 	roof.position = Vector3(0.0, deck_y + clear_height, 0.0)
-	roof.material_override = MapViewMaterials.roof(MapViewMeshBuilderConfig.WALL_ROOF_COLOR)
+	roof.material_override = MapViewMaterials.roof_tile_world(MapViewMeshBuilderConfig.WALL_ROOF_COLOR)
 	root.add_child(roof)
 
 	var post_count := maxi(2, ceili(length / MapViewMeshBuilderConfig.WALL_WALK_POST_SPACING))
@@ -276,15 +397,14 @@ static func add_wall_walk_roof(root: Node3D, size: Vector2, height: float) -> vo
 			var post_position := Vector3(along, deck_y + post_height * 0.5, offset)
 			if not along_x:
 				post_position = Vector3(offset, post_position.y, along)
-			MapViewMeshBuilderPrimitives.box(
+			_timber_box(
 				root,
 				"RoofPost%d_%d" % [post_index, int(side)],
 				(
 					Vector3.ONE * MapViewMeshBuilderConfig.WALL_WALK_POST_SIZE
 					+ Vector3(0.0, post_height - MapViewMeshBuilderConfig.WALL_WALK_POST_SIZE, 0.0)
 				),
-				post_position,
-				&"timber"
+				post_position
 			)
 
 	# Continuous rails and eaves beams make the top read as a usable timber
@@ -313,12 +433,11 @@ static func add_wall_walk_roof(root: Node3D, size: Vector2, height: float) -> vo
 				if along_x
 				else Vector3(offset, deck_y + rail_y, 0.0)
 			)
-			MapViewMeshBuilderPrimitives.box(
+			_timber_box(
 				root,
 				"GalleryRail%d_%d" % [int(side), int(rail_y * 100.0)],
 				rail_size,
-				rail_position,
-				&"timber"
+				rail_position
 			)
 		var eaves_size := (
 			Vector3(
@@ -338,9 +457,9 @@ static func add_wall_walk_roof(root: Node3D, size: Vector2, height: float) -> vo
 			if along_x
 			else Vector3(offset, deck_y + clear_height, 0.0)
 		)
-		MapViewMeshBuilderPrimitives.box(
-			root, "GalleryEaves%d" % int(side), eaves_size, eaves_position, &"timber"
-		)
+		_timber_box(root, "GalleryEaves%d" % int(side), eaves_size, eaves_position)
+
+	_add_gallery_rafters(root, along_x, length, span, deck_y + clear_height)
 
 	# Short diagonal brackets visibly transfer the projecting gallery load back
 	# into the masonry instead of leaving the deck visually unsupported.
@@ -358,6 +477,41 @@ static func add_wall_walk_roof(root: Node3D, size: Vector2, height: float) -> vo
 			_add_timber_beam(root, "GalleryBracket%d_%d" % [int(end), int(side)], lower, upper, 0.1)
 
 
+## Rafter pairs and a ridge beam under the gallery roof. Seen from the wall
+## walk the roof underside was a bare tile plane; a medieval covered walk shows
+## its oak rafters. Rafters sit just under the gabled_roof_mesh slope (default
+## overhang and pitch) so they never poke through the tiles.
+static func _add_gallery_rafters(
+	root: Node3D, along_x: bool, length: float, span: float, eaves_y: float
+) -> void:
+	var half_span := span * 0.5 + MapViewMeshBuilderConfig.ROOF_OVERHANG
+	var rise := half_span * MapViewMeshBuilderConfig.ROOF_PITCH
+	var drop := GALLERY_RAFTER_SIZE * 0.9
+	var count := maxi(2, ceili(length / GALLERY_RAFTER_SPACING))
+	for index in count + 1:
+		var along := (float(index) / float(count) - 0.5) * (length - 0.3)
+		for side: float in [-1.0, 1.0]:
+			var eave := Vector3(along, eaves_y - drop, side * (half_span - 0.12))
+			var ridge := Vector3(along, eaves_y + rise - drop * 1.4, side * 0.05)
+			if not along_x:
+				eave = Vector3(eave.z, eave.y, eave.x)
+				ridge = Vector3(ridge.z, ridge.y, ridge.x)
+			_add_timber_beam(
+				root, "GalleryRafter%d_%d" % [index, int(side)], eave, ridge, GALLERY_RAFTER_SIZE
+			)
+	var ridge_size := (
+		Vector3(length, GALLERY_RAFTER_SIZE * 1.3, GALLERY_RAFTER_SIZE * 1.3)
+		if along_x
+		else Vector3(GALLERY_RAFTER_SIZE * 1.3, GALLERY_RAFTER_SIZE * 1.3, length)
+	)
+	_timber_box(
+		root,
+		"GalleryRidgeBeam",
+		ridge_size,
+		Vector3(0.0, eaves_y + rise - drop * 2.2, 0.0)
+	)
+
+
 static func add_base_arcades(
 	root: Node3D, building: Dictionary, size: Vector2, world_bounds: Rect2 = Rect2()
 ) -> void:
@@ -373,7 +527,7 @@ static func add_base_arcades(
 		Color(building.get("wall_color", MapViewMeshBuilderConfig.DEFAULT_WALL_COLOR))
 		. lightened(0.1)
 	)
-	var material := MapViewMaterials.wall_surface(&"limestone", stone_color)
+	var material := MapViewMaterials.fortification_masonry(stone_color)
 	var pier_transforms: Array[Transform3D] = []
 	var pier_colors: Array[Color] = []
 	var arc_transforms: Array[Transform3D] = []
@@ -477,8 +631,21 @@ static func _add_timber_beam(
 	beam.position = (from + to) * 0.5
 	var up := Vector3.RIGHT if absf(direction.normalized().dot(Vector3.UP)) > 0.98 else Vector3.UP
 	beam.basis = Basis.looking_at(direction.normalized(), up)
-	beam.material_override = MapViewMaterials.role(&"timber")
+	beam.material_override = MapViewMaterials.hewn_timber_for_size(mesh.size, name.hash())
 	root.add_child(beam)
+
+
+## Hewn-oak gallery member. Grain follows the long axis of the box so posts,
+## rails and eaves read as adzed timber rather than painted sticks.
+static func _timber_box(root: Node3D, name: String, size: Vector3, position: Vector3) -> void:
+	var instance := MeshInstance3D.new()
+	instance.name = name
+	var mesh := BoxMesh.new()
+	mesh.size = size
+	instance.mesh = mesh
+	instance.position = position
+	instance.material_override = MapViewMaterials.hewn_timber_for_size(size, name.hash())
+	root.add_child(instance)
 
 
 static func add_battlements(
@@ -516,12 +683,9 @@ static func add_battlements(
 		merlon_mesh,
 		transforms,
 		colors,
-		MapViewMaterials.wall_surface(
-			&"limestone",
-			(
-				Color(building.get("wall_color", MapViewMeshBuilderConfig.DEFAULT_WALL_COLOR))
-				. lightened(0.12)
-			)
+		MapViewMaterials.fortification_masonry(
+			Color(building.get("wall_color", MapViewMeshBuilderConfig.DEFAULT_WALL_COLOR))
+			. lightened(0.12)
 		),
 		Vector3.ZERO
 	)
