@@ -2,19 +2,19 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c577j3qwlflff"
-path="res://.godot/imported/sacred_grove_ancient_oak_ancient_oak_heartwood_albedo.png-8e89acfe264749a6c59d292cc4cedc14.ctex"
+uid="uid://bc56bjmce5xl"
+path="res://.godot/imported/sacred_grove_ancient_oak_ancient_oak_leaf_albedo.png-21650b82eb138a0a51e0dd8d3fa225a2.ctex"
 metadata={
 "vram_texture": false
 }
 generator_parameters={
-"md5": "a2b8c688c790d241f0659e3bc4cc639b"
+"md5": "96d1ae3ef0955351d7d9b01ee2cd2f1e"
 }
 
 [deps]
 
-source_file="res://assets/props/environment/sacred_grove_ancient_oak_ancient_oak_heartwood_albedo.png"
-dest_files=["res://.godot/imported/sacred_grove_ancient_oak_ancient_oak_heartwood_albedo.png-8e89acfe264749a6c59d292cc4cedc14.ctex"]
+source_file="res://assets/props/environment/sacred_grove_ancient_oak/sacred_grove_ancient_oak_ancient_oak_leaf_albedo.png"
+dest_files=["res://.godot/imported/sacred_grove_ancient_oak_ancient_oak_leaf_albedo.png-21650b82eb138a0a51e0dd8d3fa225a2.ctex"]
 
 [params]
 

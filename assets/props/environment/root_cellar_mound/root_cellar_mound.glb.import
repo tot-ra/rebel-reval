@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://b5t1lt23nnyol"
-path="res://.godot/imported/root_cellar_mound.glb-6b43ce71e1c1839e5ec277069698b989.scn"
+path="res://.godot/imported/root_cellar_mound.glb-80678bcee9198b4effa2ba211993bfd2.scn"
 
 [deps]
 
-source_file="res://assets/props/environment/root_cellar_mound.glb"
-dest_files=["res://.godot/imported/root_cellar_mound.glb-6b43ce71e1c1839e5ec277069698b989.scn"]
+source_file="res://assets/props/environment/root_cellar_mound/root_cellar_mound.glb"
+dest_files=["res://.godot/imported/root_cellar_mound.glb-80678bcee9198b4effa2ba211993bfd2.scn"]
 
 [params]
 

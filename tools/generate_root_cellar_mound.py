@@ -26,7 +26,7 @@ import bpy
 from mathutils import Matrix, Vector
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "assets" / "props" / "environment" / "root_cellar_mound.glb"
+OUTPUT = ROOT / "assets" / "props" / "environment" / "root_cellar_mound" / "root_cellar_mound.glb"
 EVIDENCE_DIR = ROOT / "generated" / "blender" / "root_cellar_mound_v1"
 DEFAULT_PREVIEW = EVIDENCE_DIR / "preview.png"
 BRIEF_PATH = EVIDENCE_DIR / "brief.json"
@@ -46,7 +46,7 @@ VOID_SRGB = (0x20 / 255.0, 0x1D / 255.0, 0x19 / 255.0)
 BRIEF = {
     "id": ASSET_ID,
     "kind": "rigid_prop",
-    "target": "res://assets/props/environment/root_cellar_mound.glb",
+    "target": "res://assets/props/environment/root_cellar_mound/root_cellar_mound.glb",
     "scene": "res://content/maps/viru_gate_foreland.rrmap#west.root_cellar",
     "dimensions_m": [1.96, 0.74, 1.73],
     "triangles": {"target": 700, "max": 1800},

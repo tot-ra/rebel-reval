@@ -4,7 +4,8 @@ extends RefCounted
 ## Shared access to the authored turf-covered root cellar. Runtime loading avoids
 ## a clean-clone bootstrap cycle where GDScript parses before Godot imports the GLB.
 
-const ROOT_CELLAR_SCENE_PATH := "res://assets/props/environment/root_cellar_mound.glb"
+# gdlint: ignore=max-line-length
+const ROOT_CELLAR_SCENE_PATH := "res://assets/props/environment/root_cellar_mound/root_cellar_mound.glb"
 
 
 static func add_model(parent: Node3D) -> Node3D:

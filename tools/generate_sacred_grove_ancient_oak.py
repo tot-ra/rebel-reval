@@ -29,7 +29,7 @@ from sacred_grove_oak.geometry import (  # noqa: E402
     build_wood_mesh,
 )
 from sacred_grove_oak.materials import create_materials  # noqa: E402
-OUTPUT = ROOT / "assets" / "props" / "environment" / "sacred_grove_ancient_oak.glb"
+OUTPUT = ROOT / "assets" / "props" / "environment" / "sacred_grove_ancient_oak" / "sacred_grove_ancient_oak.glb"
 EVIDENCE_DIR = ROOT / "generated" / "blender" / "sacred_grove_ancient_oak_v1"
 DEFAULT_PREVIEW = EVIDENCE_DIR / "preview.png"
 BRIEF_PATH = EVIDENCE_DIR / "brief.json"
@@ -43,7 +43,7 @@ SEED = 1343
 BRIEF = {
     "id": ASSET_ID,
     "kind": "organic_hero_landmark",
-    "target": "res://assets/props/environment/sacred_grove_ancient_oak.glb",
+    "target": "res://assets/props/environment/sacred_grove_ancient_oak/sacred_grove_ancient_oak.glb",
     "scene": "res://content/maps/world_sacred_grove.rrmap#ancient_oak",
     "dimensions_m": [30.5, 26.5, 21.0],
     "triangles": {"target": 50000, "max": 70000},

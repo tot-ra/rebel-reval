@@ -1,5 +1,7 @@
 extends "res://tests/godot/test_case.gd"
 
+# gdlint: disable=max-line-length,comparison-with-itself
+
 
 func test_local_species_catalog_covers_woodland_and_orchard_trees() -> void:
 	assert_eq(MapViewTreeSpecies.ALL_SPECIES.size(), 20)
@@ -134,7 +136,7 @@ func test_ancient_oak_landmark_uses_custom_production_model() -> void:
 	assert_eq(node.get_meta(&"tree_model"), &"sacred_grove_ancient_oak_glb")
 	assert_eq(
 		node.get_meta(&"tree_asset_path"),
-		"res://assets/props/environment/sacred_grove_ancient_oak.glb"
+		"res://assets/props/environment/sacred_grove_ancient_oak/sacred_grove_ancient_oak.glb"
 	)
 	assert_eq(node.get_meta(&"tree_species"), MapViewTreeSpecies.SPECIES_OAK)
 	assert_eq(node.get_meta(&"tree_size"), MapViewTreeSpecies.SIZE_LARGE)

@@ -2,21 +2,21 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://wogjfpey75oq"
-path.s3tc="res://.godot/imported/root_cellar_mound_root_cellar_aged_oak_albedo.png-2354d40ad1814cf6692eee355cf3afe5.s3tc.ctex"
-path.etc2="res://.godot/imported/root_cellar_mound_root_cellar_aged_oak_albedo.png-2354d40ad1814cf6692eee355cf3afe5.etc2.ctex"
+uid="uid://bg3kh5kfd8pia"
+path.s3tc="res://.godot/imported/root_cellar_mound_root_cellar_exposed_earth_albedo.png-d8ab145170cbae93c9beca263b2aa26b.s3tc.ctex"
+path.etc2="res://.godot/imported/root_cellar_mound_root_cellar_exposed_earth_albedo.png-d8ab145170cbae93c9beca263b2aa26b.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
-"md5": "fd934de1de7b9910d8a89cee768c0505"
+"md5": "0240de2816236a0303ae32997501b4f9"
 }
 
 [deps]
 
-source_file="res://assets/props/environment/root_cellar_mound_root_cellar_aged_oak_albedo.png"
-dest_files=["res://.godot/imported/root_cellar_mound_root_cellar_aged_oak_albedo.png-2354d40ad1814cf6692eee355cf3afe5.s3tc.ctex", "res://.godot/imported/root_cellar_mound_root_cellar_aged_oak_albedo.png-2354d40ad1814cf6692eee355cf3afe5.etc2.ctex"]
+source_file="res://assets/props/environment/root_cellar_mound/root_cellar_mound_root_cellar_exposed_earth_albedo.png"
+dest_files=["res://.godot/imported/root_cellar_mound_root_cellar_exposed_earth_albedo.png-d8ab145170cbae93c9beca263b2aa26b.s3tc.ctex", "res://.godot/imported/root_cellar_mound_root_cellar_exposed_earth_albedo.png-d8ab145170cbae93c9beca263b2aa26b.etc2.ctex"]
 
 [params]
 

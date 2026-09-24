@@ -63,7 +63,7 @@ Binary extensions with individual files over 500 KiB dominate clone cost: `.mp3`
 
 | File | Size | Note |
 |------|-----:|------|
-| `assets/props/environment/sacred_grove_ancient_oak.glb` | 9.52 MiB | Landmark hingepuu; near 10 MiB LFS threshold |
+| `assets/props/environment/sacred_grove_ancient_oak/sacred_grove_ancient_oak.glb` | 9.52 MiB | Landmark hingepuu; near 10 MiB LFS threshold |
 | `assets/characters/shared/*.glb` (heroic set) | ~5.2-5.5 MiB each | Multiple named NPC / shared rig exports |
 | `assets/UI/estonia_world_map.png` | 2.95 MiB | UI raster |
 
