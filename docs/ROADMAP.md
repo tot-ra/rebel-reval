@@ -15,6 +15,9 @@ Coordination note (2026-08-13 R-454): high-complexity parent **R-454** (historic
 <!-- P0-181 completed in current session -->
 Coordination note (2026-08-28 P0-181): research reference plate retention landed in `docs/data/reference_plate_retention.json`, `docs/ASSET_STORAGE_POLICY.md`, `tools/optimize_reference_plates.py`, and retention caps inside `tools/research/fetch_reference_plates.py --verify`. Optimized 50 plates (273904275 -> 39090195 bytes in the touched set, -234814080); zero `history/reference/**` rasters remain over 8 MiB. Verified: `python3 tools/research/fetch_reference_plates.py --verify`, `python3 -m unittest tests.python.test_fetch_reference_plates -v`. Next size claim: **P0-180** music takes or **P0-182** runtime audio budget.
 
+<!-- P0-185 smithy prop builders extracted in current session -->
+Coordination note (2026-09-24 P0-185): `map_view_smithy_prop_builder.gd` now owns Kalev smithy workstation GLBs, furnace fire/particle helpers, and procedural fallbacks for anvil, bed, chair, bellows, and quench props. `map_view_mesh_builder_prop_models.gd` keeps the `build_prop` facade and dropped from 1018 to 503 lines. Verified: `--filter=test_map_view_3d_mesh`, `--filter=test_environment_kit_catalog`, `--filter=test_street_and_masonry_realism` (36/36). Next P0-185 claim: runtime ambient peel from `map_view_runtime.gd`.
+
 <!-- P0-185 tree mesh profiles extracted in current session -->
 Coordination note (2026-09-24 P0-185): `map_view_tree_mesh_profiles.gd` now owns the 20-species growth profile tables; `map_view_tree_meshes.gd` keeps the procedural wood/canopy/fruit emitters and public `wood_mesh` / `canopy_mesh` / `fruit_mesh` facade. The mesh builder dropped from 1110 to 659 lines. Verified: `--filter=test_map_view_tree_species`, `--filter=test_vegetation_realism`, `--filter=test_map_view_3d_mesh` (35/35). Next P0-185 claim: prop models or runtime ambient peel.
 
