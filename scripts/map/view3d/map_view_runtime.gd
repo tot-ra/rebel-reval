@@ -23,16 +23,7 @@ const DayNightCycle := preload("res://scripts/global/day_night_cycle.gd")
 const GameCalendarScript := preload("res://scripts/global/game_calendar.gd")
 const RuntimeCamera := preload("res://scripts/map/view3d/map_view_runtime_camera.gd")
 const RuntimeActors := preload("res://scripts/map/view3d/map_view_runtime_actors.gd")
-const BirdAmbientAudio := preload("res://scripts/map/view3d/map_view_bird_ambient_audio.gd")
-const BirdContext := preload("res://scripts/map/view3d/map_view_bird_context.gd")
-const BirdFlight := preload("res://scripts/map/view3d/map_view_bird_flight.gd")
-const FaunaContext := preload("res://scripts/map/view3d/map_view_fauna_context.gd")
-const UrbanFauna := preload("res://scripts/map/view3d/map_view_urban_fauna.gd")
-const PennedFauna := preload("res://scripts/map/view3d/map_view_penned_fauna.gd")
-const InsectAmbientAudio := preload("res://scripts/map/view3d/map_view_insect_ambient_audio.gd")
-const InsectContext := preload("res://scripts/map/view3d/map_view_insect_context.gd")
-const MapMusicZoneBinder := preload("res://scripts/map/map_music_zone_binder.gd")
-const CrowdRenderer := preload("res://scripts/map/view3d/map_view_crowd_renderer.gd")
+const RuntimeAmbient := preload("res://scripts/map/view3d/map_view_runtime_ambient.gd")
 ## Compatibility aliases keep the runtime's public locomotion thresholds stable.
 const WALK_ANIMATION_MIN_SPEED := RuntimeActors.WALK_ANIMATION_MIN_SPEED
 const RUN_ANIMATION_MIN_SPEED := RuntimeActors.RUN_ANIMATION_MIN_SPEED
@@ -85,24 +76,12 @@ var _player_rig: SharedCharacterRig
 var _camera: Camera3D
 var _camera_controller: MapViewRuntimeCamera = RuntimeCamera.new()
 var _actor_controller = RuntimeActors.new()
+var _ambient_controller = RuntimeAmbient.new()
 ## Compatibility aliases for integration tests that inspect the current binding.
 var _equipment_state: GameState
 var _session_state: Node
 var _session_content_db: ContentDB
 var _click_input: Node
-var _bird_audio
-var _bird_audio_enabled := true
-var _bird_flight
-var _bird_flight_enabled := true
-var _urban_fauna
-var _urban_fauna_enabled := true
-var _penned_fauna
-var _penned_fauna_enabled := true
-var _insect_audio
-var _insect_audio_enabled := true
-var _music_zone_binder
-var _crowd_renderer: MapViewCrowdRenderer
-var _crowd_enabled := true
 
 static func install(
 	scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasItem, player: CharacterBody2D
@@ -166,13 +145,14 @@ static func install(
 	# `SessionState` owns the canonical weather snapshot; this runtime only binds
 	# its renderer after the shared clock has been restored.
 	runtime._bind_environment_runtime()
-	runtime._install_bird_audio()
-	runtime._install_bird_flight()
-	runtime._install_urban_fauna()
-	runtime._install_penned_fauna()
-	runtime._install_insect_audio()
-	runtime._install_music_zone_binder()
-	runtime._install_crowd_renderer()
+	runtime._ambient_controller.configure(
+		runtime,
+		runtime._definition,
+		runtime._player,
+		runtime._camera,
+		runtime.view
+	)
+	runtime._ambient_controller.install()
 	runtime._install_click_input(scene_root)
 	return runtime
 
@@ -199,150 +179,59 @@ func configure_click_input(world_items: Node = null) -> void:
 
 
 func set_bird_audio_enabled(enabled: bool) -> void:
-	_bird_audio_enabled = enabled
-	if _bird_audio != null:
-		_bird_audio.set_audio_enabled(enabled)
+	_ambient_controller.set_bird_audio_enabled(enabled)
 
 
 func bird_audio_active_voice_count() -> int:
-	if _bird_audio == null:
-		return 0
-	return _bird_audio.active_voice_count()
+	return _ambient_controller.bird_audio_active_voice_count()
 
 
 func set_bird_flight_enabled(enabled: bool) -> void:
-	_bird_flight_enabled = enabled
-	if _bird_flight != null:
-		_bird_flight.set_flight_enabled(enabled)
+	_ambient_controller.set_bird_flight_enabled(enabled)
 
 
 func bird_flight_active_count() -> int:
-	if _bird_flight == null:
-		return 0
-	return _bird_flight.active_bird_count()
+	return _ambient_controller.bird_flight_active_count()
 
 
 func set_urban_fauna_enabled(enabled: bool) -> void:
-	_urban_fauna_enabled = enabled
-	if _urban_fauna != null:
-		_urban_fauna.set_fauna_enabled(enabled)
+	_ambient_controller.set_urban_fauna_enabled(enabled)
 
 
 func urban_fauna_active_count() -> int:
-	if _urban_fauna == null:
-		return 0
-	return _urban_fauna.active_fauna_count()
+	return _ambient_controller.urban_fauna_active_count()
 
 
 func set_penned_fauna_enabled(enabled: bool) -> void:
-	_penned_fauna_enabled = enabled
-	if _penned_fauna != null:
-		_penned_fauna.set_fauna_enabled(enabled)
+	_ambient_controller.set_penned_fauna_enabled(enabled)
 
 
 func penned_fauna_active_count() -> int:
-	if _penned_fauna == null:
-		return 0
-	return _penned_fauna.active_fauna_count()
-
-
-func _install_bird_flight() -> void:
-	_bird_flight = BirdFlight.new()
-	_bird_flight.name = "BirdFlight"
-	add_child(_bird_flight)
-	var context := BirdContext.context_for_map(_definition.map_id)
-	_bird_flight.configure(_definition.map_id, context, _definition.size_cells)
-
-
-func _install_urban_fauna() -> void:
-	_urban_fauna = UrbanFauna.new()
-	_urban_fauna.name = "UrbanFauna"
-	add_child(_urban_fauna)
-	var context := FaunaContext.context_for_map(_definition.map_id)
-	_urban_fauna.configure(_definition.map_id, context, _definition.cell_size, _definition)
-
-
-func _install_penned_fauna() -> void:
-	_penned_fauna = PennedFauna.new()
-	_penned_fauna.name = "PennedFauna"
-	add_child(_penned_fauna)
-	var context := FaunaContext.context_for_map(_definition.map_id)
-	_penned_fauna.configure(_definition.map_id, context, _definition.cell_size, _definition)
-
-
-func _install_bird_audio() -> void:
-	_bird_audio = BirdAmbientAudio.new()
-	_bird_audio.name = "BirdAmbientAudio"
-	add_child(_bird_audio)
-	var context := BirdContext.context_for_map(_definition.map_id)
-	_bird_audio.configure(_definition.map_id, context)
+	return _ambient_controller.penned_fauna_active_count()
 
 
 func set_insect_audio_enabled(enabled: bool) -> void:
-	_insect_audio_enabled = enabled
-	if _insect_audio != null:
-		_insect_audio.set_audio_enabled(enabled)
+	_ambient_controller.set_insect_audio_enabled(enabled)
 
 
 func insect_audio_active_voice_count() -> int:
-	if _insect_audio == null:
-		return 0
-	return _insect_audio.active_voice_count()
-
-
-func _install_insect_audio() -> void:
-	_insect_audio = InsectAmbientAudio.new()
-	_insect_audio.name = "InsectAmbientAudio"
-	add_child(_insect_audio)
-	var context := InsectContext.context_for_map(_definition.map_id)
-	_insect_audio.configure(_definition.map_id, context)
-
-
-func _install_music_zone_binder() -> void:
-	_music_zone_binder = MapMusicZoneBinder.new()
-	_music_zone_binder.name = "MapMusicZoneBinder"
-	add_child(_music_zone_binder)
-	_music_zone_binder.configure(_definition, _player)
-
-
-func _install_crowd_renderer() -> void:
-	_crowd_renderer = CrowdRenderer.new()
-	_crowd_renderer.name = "CrowdRenderer"
-	add_child(_crowd_renderer)
-	# Capacity defaults to 200; maps with battle scenes can override via
-	# configure_crowd() after install.
-	# Positional args only: GDScript 4.7 rejects `name = value` in call sites
-	# as assignment-in-expression (P0-172 / P4-043-F01).
-	_crowd_renderer.configure(200, hash(_definition.map_id))
+	return _ambient_controller.insect_audio_active_voice_count()
 
 
 func configure_crowd(max_instances: int, seed_value: int) -> void:
-	if _crowd_renderer != null:
-		_crowd_renderer.clear_actors()
-		remove_child(_crowd_renderer)
-		_crowd_renderer.queue_free()
-		_crowd_renderer = null
-	_crowd_renderer = CrowdRenderer.new()
-	_crowd_renderer.name = "CrowdRenderer"
-	add_child(_crowd_renderer)
-	_crowd_renderer.configure(max_instances, seed_value)
-	_crowd_renderer.set_crowd_enabled(_crowd_enabled)
+	_ambient_controller.configure_crowd(max_instances, seed_value)
 
 
 func get_crowd_renderer() -> MapViewCrowdRenderer:
-	return _crowd_renderer
+	return _ambient_controller.get_crowd_renderer()
 
 
 func set_crowd_enabled(enabled: bool) -> void:
-	_crowd_enabled = enabled
-	if _crowd_renderer != null:
-		_crowd_renderer.set_crowd_enabled(enabled)
+	_ambient_controller.set_crowd_enabled(enabled)
 
 
 func crowd_active_count() -> int:
-	if _crowd_renderer == null:
-		return 0
-	return _crowd_renderer.active_count()
+	return _ambient_controller.crowd_active_count()
 
 
 func _install_click_input(_scene_root: Node2D) -> void:
@@ -501,11 +390,7 @@ func _process(delta: float) -> void:
 		_sync_music_cycle()
 	if _player == null or not is_instance_valid(_player):
 		return
-	_sync_bird_audio(delta)
-	_sync_bird_flight(delta)
-	_sync_urban_fauna(delta)
-	_sync_penned_fauna(delta)
-	_sync_insect_audio(delta)
+	_ambient_controller.sync(delta, cycle_progress)
 	_apply_view_rotation(delta)
 	_sync_player(false, delta)
 	_actor_controller.sync_view_actors(delta)
@@ -692,60 +577,6 @@ func _sync_music_cycle() -> void:
 		music_director.call("set_cycle_progress", cycle_progress)
 		if music_director.has_method(&"set_cycle_elapsed_days"):
 			music_director.call(&"set_cycle_elapsed_days", cycle_elapsed_days)
-
-
-func _sync_bird_audio(delta: float) -> void:
-	if _bird_audio == null or _definition == null or view == null:
-		return
-	if _definition.suppresses_exterior_surroundings():
-		_bird_audio.sync(&"", cycle_progress, Vector3.ZERO, delta, false)
-		return
-	var context := BirdContext.context_for_map(_definition.map_id)
-	var listener := _camera.global_position if _camera != null else Vector3.ZERO
-	_bird_audio.sync(context, cycle_progress, listener, delta, _bird_audio_enabled)
-
-
-func _sync_bird_flight(delta: float) -> void:
-	if _bird_flight == null or _definition == null:
-		return
-	if _definition.suppresses_exterior_surroundings():
-		_bird_flight.sync(&"", cycle_progress, delta, false)
-		return
-	var context := BirdContext.context_for_map(_definition.map_id)
-	_bird_flight.sync(context, cycle_progress, delta, _bird_flight_enabled)
-
-
-func _sync_urban_fauna(delta: float) -> void:
-	if _urban_fauna == null or _definition == null:
-		return
-	if _definition.suppresses_exterior_surroundings():
-		_urban_fauna.sync(&"", delta, Vector3.ZERO, false)
-		return
-	var context := FaunaContext.context_for_map(_definition.map_id)
-	var listener := _camera.global_position if _camera != null else Vector3.ZERO
-	_urban_fauna.sync(context, delta, listener, _urban_fauna_enabled)
-
-
-func _sync_penned_fauna(delta: float) -> void:
-	if _penned_fauna == null or _definition == null:
-		return
-	if _definition.suppresses_exterior_surroundings():
-		_penned_fauna.sync(&"", delta, Vector3.ZERO, false)
-		return
-	var context := FaunaContext.context_for_map(_definition.map_id)
-	var listener := _camera.global_position if _camera != null else Vector3.ZERO
-	_penned_fauna.sync(context, delta, listener, _penned_fauna_enabled)
-
-
-func _sync_insect_audio(delta: float) -> void:
-	if _insect_audio == null or _definition == null or view == null:
-		return
-	if _definition.suppresses_exterior_surroundings():
-		_insect_audio.sync(&"", cycle_progress, Vector3.ZERO, delta, false)
-		return
-	var context := InsectContext.context_for_map(_definition.map_id)
-	var listener := _camera.global_position if _camera != null else Vector3.ZERO
-	_insect_audio.sync(context, cycle_progress, listener, delta, _insect_audio_enabled)
 
 
 func _sync_player(snap: bool, delta: float = 0.0) -> void:
