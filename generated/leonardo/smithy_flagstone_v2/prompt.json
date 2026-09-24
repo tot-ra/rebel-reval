@@ -1,0 +1,27 @@
+{
+  "id": "material.smithy_floor.albedo",
+  "family": "smithy_floor",
+  "map_type": "albedo",
+  "kind": "leonardo_material_plate",
+  "target": "assets/materials/pbr/smithy_floor/smithy_floor_albedo.png",
+  "source": "generated/leonardo/smithy_flagstone_v2/candidate_1.jpg",
+  "candidates": [
+    "generated/leonardo/smithy_flagstone_v2/candidate_1.jpg",
+    "generated/leonardo/smithy_flagstone_v2/candidate_2.jpg"
+  ],
+  "prompt": "Orthographic top-down seamless tileable PBR albedo of a fourteenth-century Baltic smithy floor. Irregular hand-laid fieldstone flagstones of different sizes and thickness, worn foot-polished centers, chipped edges, broad uneven joints filled with soot, iron scale, ash and damp earth. Muted charcoal, warm grey and limestone-blue #9EADB9, never a regular polygonal cartoon grout grid. Sharp mineral and ash detail, high micro-contrast, even overcast diffuse light, no baked fire glow, no anvil, no tools, no horizon, perfectly tileable on all four edges, square 1:1 material plate.",
+  "negative_prompt": "cartoon cobble, black grout grid, regular polygons, modern slate tiles, bathroom stone, brick courses, ashlar, baked fire light, anvil, tools, horizon, characters, text, logo, watermark, border, visible seam, blurry, low contrast",
+  "model_id": "05ce0082-2d80-4a2d-8653-4d1c85e2418e",
+  "model_name": "Leonardo configured realism model",
+  "width": 1024,
+  "height": 1024,
+  "tiling": true,
+  "generation_id": "326c48e6-7882-45d1-80e0-cd8a49aa4f60",
+  "selected_candidate": 1,
+  "processor": "tools/process_leonardo_terrain_textures.py",
+  "style_refs": [
+    "docs/ART_BIBLE.md",
+    "docs/MATERIAL_STYLE_LOCK_KIT.md"
+  ],
+  "notes": "Replace the cartoon black-grout paver plate with sooty irregular flags."
+}

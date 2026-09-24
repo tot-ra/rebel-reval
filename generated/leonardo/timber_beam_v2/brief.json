@@ -1,0 +1,15 @@
+{
+  "id": "material.timber.albedo",
+  "family": "timber",
+  "map_type": "albedo",
+  "kind": "leonardo_material_plate",
+  "target": "assets/materials/pbr/timber/timber_albedo.png",
+  "output_dir": "generated/leonardo/timber_beam_v2",
+  "processor": "tools/process_leonardo_terrain_textures.py",
+  "width": 1024,
+  "height": 1024,
+  "num_images": 2,
+  "notes": "Replace the modern decking plate with hand-hewn structural oak.",
+  "prompt": "Orthographic close-up seamless tileable PBR albedo of a hand-hewn fourteenth-century Baltic oak structural beam face. Uneven adze and saw marks, deep checks, wormholes, raised grain, grey weathered heartwood and warmer cut oak #A2693F, master bark-oak #6B3F35, tar-dark cracks #342B30. Boards of irregular width, not a regular deck. Dust and old soot in the splits. Sharp fiber detail, high micro-contrast, even overcast diffuse light, no baked shadows, no hardware, no nails as a pattern, no horizon, perfectly tileable on all four edges, square 1:1 material plate.",
+  "negative_prompt": "modern decking, laminate, parquet, engineered hardwood, IKEA furniture, vinyl plank, identical board widths, glossy varnish, studio product photo, baked sunlight, perspective, furniture, hardware grid, text, logo, watermark, border, visible seam, blurry, low contrast"
+}

@@ -1,0 +1,15 @@
+{
+  "id": "material.hay.albedo",
+  "family": "hay",
+  "map_type": "albedo",
+  "kind": "leonardo_material_plate",
+  "target": "assets/materials/pbr/hay/hay_albedo.png",
+  "output_dir": "generated/leonardo/hay_thatch_v2",
+  "processor": "tools/process_leonardo_terrain_textures.py",
+  "width": 1024,
+  "height": 1024,
+  "num_images": 2,
+  "notes": "Replace the woven doormat plate with loose bundled straw.",
+  "prompt": "Orthographic top-down seamless tileable PBR albedo of loose fourteenth-century Baltic hay and thatch. Unwoven bundled rye and barley straw, harvest gold #E3B83F, straw #C99732, sunlit #F2CE62, with darker damp stalks and broken seed heads. Fibers run in irregular clumps, not a woven fabric or checker. Sharp individual stalks, high micro-contrast, even overcast diffuse light, no baked shadows, no horizon, no figures, perfectly tileable on all four edges, square 1:1 material plate.",
+  "negative_prompt": "woven doormat, coir mat, fabric weave, checker pattern, basket weave, modern thatch product photo, lawn, flowers, baked sunlight, perspective roof, characters, text, logo, watermark, border, visible seam, blurry, low contrast"
+}

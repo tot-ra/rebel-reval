@@ -1,0 +1,15 @@
+{
+  "id": "material.mud.albedo",
+  "family": "mud",
+  "map_type": "albedo",
+  "kind": "leonardo_material_plate",
+  "target": "assets/materials/pbr/mud/mud_albedo.png",
+  "output_dir": "generated/leonardo/mud_yard_v2",
+  "processor": "tools/process_leonardo_terrain_textures.py",
+  "width": 1024,
+  "height": 1024,
+  "num_images": 2,
+  "notes": "v1 dried into a grey desert playa. Need wet brown Baltic yard mud.",
+  "prompt": "Orthographic top-down seamless tileable PBR albedo of a wet fourteenth-century Baltic courtyard yard in Reval. Soft brown churned mud, amber earth #9A5A3F, umber #663B38, ochre grit #C9873D, trodden street #6A6154. Smeared cart ruts, hoof scuffs, pressed straw fibers, manure flecks, pale drying crust only on a few raised clods, cool dark silt in hollows. This is wet clay-loam, not a cracked dry lake. Sharp grit and fiber, high micro-contrast, even overcast diffuse light, no mirror puddles, no horizon, no figures, perfectly tileable on all four edges, square 1:1 material plate.",
+  "negative_prompt": "dry lake bed, playa, hexagonal desiccation cracks, grey concrete, laterite red clay, desert, baked puddle reflections, standing water mirror, asphalt, horizon, characters, animals, text, logo, watermark, border, visible seam, blurry, low contrast, uniform brown noise"
+}

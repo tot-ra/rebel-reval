@@ -6,12 +6,17 @@ uniform sampler2DArray cobble_patterns;
 uniform sampler2D cobble_surface : filter_linear_mipmap, repeat_enable;
 uniform sampler2D grass_albedo : source_color, filter_linear_mipmap, repeat_enable;
 uniform sampler2D mud_albedo : source_color, filter_linear_mipmap, repeat_enable;
+uniform sampler2D timber_floor_albedo : source_color, filter_linear_mipmap, repeat_enable;
+uniform sampler2D hay_albedo : source_color, filter_linear_mipmap, repeat_enable;
 uniform float use_authored_mud = 0.0;
+uniform float use_authored_hay = 0.0;
 uniform float pattern_layers = 1.0;
 uniform int cobblestone_layer = 12;
 uniform int castle_paving_layer = 13;
 uniform int timber_floor_layer = 15;
 uniform int mud_layer = 8;
+uniform int hay_layer = 4;
+uniform int straw_layer = 5;
 // Inclusive layer band covering trodden ground (farm soil through ash). These
 // surfaces receive world-space relief so streets and yards stop reading as a
 // single flat colour field between the paved strokes.
@@ -96,6 +101,23 @@ vec3 sample_authored_mud(vec2 base_uv) {
 	return texture(mud_albedo, fract(mud_uv)).rgb;
 }
 
+vec3 sample_authored_timber_floor(vec2 base_uv) {
+	// Boards must stay mostly straight. A light warp hides the 512 px seam
+	// without turning the floor into rubber wood.
+	vec2 timber_uv = base_uv * timber_floor_uv_scale;
+	vec2 warped = natural_warp(timber_uv);
+	return texture(timber_floor_albedo, fract(mix(timber_uv, warped, 0.18))).rgb;
+}
+
+vec3 sample_authored_hay(vec2 base_uv) {
+	vec2 hay_uv = natural_warp(base_uv * 1.6);
+	return texture(hay_albedo, fract(hay_uv)).rgb;
+}
+
+bool is_hay_field_layer(int layer) {
+	return layer == hay_layer || layer == straw_layer;
+}
+
 vec3 sample_terrain_pattern(int layer, vec2 uv) {
 	if (layer == cobblestone_layer) {
 		return vec3(texture(cobble_patterns, vec3(uv, 0.0)).r);
@@ -109,6 +131,12 @@ vec3 sample_terrain_pattern(int layer, vec2 uv) {
 	if (layer == mud_layer && use_authored_mud > 0.5) {
 		return sample_authored_mud(uv);
 	}
+	if (layer == timber_floor_layer) {
+		return sample_authored_timber_floor(uv);
+	}
+	if (is_hay_field_layer(layer) && use_authored_hay > 0.5) {
+		return sample_authored_hay(uv);
+	}
 	return texture(terrain_patterns, vec3(terrain_pattern_uv(layer, uv), float(layer))).rgb;
 }
 
@@ -121,8 +149,10 @@ bool uses_realistic_albedo(int layer) {
 	// paving and earth it borders, so every stone apron produced pale wedges along
 	// the triangulated terrain boundary. Tinting it by the stone palette entry puts
 	// outdoor limestone flags back in the same value range as the street.
-	return layer == 0 || layer == 1 || layer == 2 || layer == 3 || layer == 15
-		|| (layer == mud_layer && use_authored_mud > 0.5);
+	return layer == 0 || layer == 1 || layer == 2 || layer == 3
+		|| layer == timber_floor_layer
+		|| (layer == mud_layer && use_authored_mud > 0.5)
+		|| (is_hay_field_layer(layer) && use_authored_hay > 0.5);
 }
 
 vec3 terrain_pattern_albedo(int layer, vec2 uv, vec3 palette_tint) {

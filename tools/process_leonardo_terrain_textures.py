@@ -18,30 +18,48 @@ ROOT = Path(__file__).resolve().parents[1]
 GENERATED = ROOT / "generated" / "leonardo"
 OUTPUTS = {
     "grass": (
-        GENERATED / "grass_meadow_v2" / "candidate_1.jpg",
+        GENERATED / "grass_meadow_v3" / "candidate_2.jpg",
         ROOT / "assets/materials/pbr/grass/grass_albedo.png",
     ),
     "mud": (
-        GENERATED / "mud_yard_v1" / "candidate_2.jpg",
+        GENERATED / "mud_yard_v2" / "candidate_2.jpg",
         ROOT / "assets/materials/pbr/mud/mud_albedo.png",
     ),
     "limestone_rubble": (
         GENERATED / "city_wall_limestone_v1" / "candidate_1.jpg",
         ROOT / "assets/materials/pbr/limestone_rubble/limestone_rubble_albedo.png",
     ),
+    "timber": (
+        GENERATED / "timber_beam_v2" / "candidate_2.jpg",
+        ROOT / "assets/materials/pbr/timber/timber_albedo.png",
+    ),
     "timber_floor": (
-        GENERATED / "85f90518-4e44-4457-aa49-bc744568f807-1.jpg",
+        GENERATED / "timber_floor_v2" / "candidate_1.jpg",
         ROOT / "assets/materials/pbr/timber_floor/timber_floor_albedo.png",
     ),
+    "cobble": (
+        GENERATED / "cobble_street_v3" / "candidate_2.jpg",
+        ROOT / "assets/materials/pbr/cobble/cobble_albedo.png",
+    ),
     "smithy_floor": (
-        GENERATED / "3713e478-8edb-4e36-87c1-88a14fce5b24-1.jpg",
+        GENERATED / "smithy_flagstone_v3" / "candidate_2.jpg",
         ROOT / "assets/materials/pbr/smithy_floor/smithy_floor_albedo.png",
+    ),
+    "hay": (
+        GENERATED / "hay_thatch_v2" / "candidate_2.jpg",
+        ROOT / "assets/materials/pbr/hay/hay_albedo.png",
     ),
 }
 TARGET_SIZE = 512
-# Masonry courses are horizontal structure. A half-tile phase shift moves the
-# original wrap seam into the middle of the wall face and reads as a fault line.
-KEEP_SOURCE_PHASE = {"limestone_rubble"}
+# Directional or coursed plates must keep their authored phase. A half-tile
+# shift moves the original wrap seam into the middle of a wall face or board.
+KEEP_SOURCE_PHASE = {
+    "limestone_rubble",
+    "timber",
+    "timber_floor",
+    "cobble",
+    "smithy_floor",
+}
 
 
 def _weld_edges(image: Image.Image, *, phase_shift: bool) -> Image.Image:

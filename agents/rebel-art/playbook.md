@@ -13,10 +13,11 @@ This file contains lessons specific to the Art role.
 - Blender `mathutils.Vector` uses `(a - b).length`. Flatten matrix rows before scalar comparison. `bpy_prop_collection` does not support non-unit slices.
 - Blender-authored generators import `bpy`. Invoke them through Blender, not repository `python3`.
 - When Leonardo, ComfyUI, or Hunyuan3D is unavailable, ship deterministic Blender generators instead of blocking. Leonardo may reject an unsupported `preset_style`; retry with the field empty.
+- Leonardo's configured realism model still defaults to modern lawn, hardwood catalog, regular setts, hexagonal dry mud and woven mats. Name those product categories in the negative prompt and require soil, wear or mixed sizes as a large share of the plate. Even then, stone families usually stay CG pavers: keep the P0-218 procedural cobble shader instead of wiring a rejected plate.
 - Cursor CLI does not expose `leonardo_generate_image`. Call Leonardo REST through `tools/generate_leonardo_material.py` and store the full prompt in `prompt.json` beside the plate. The CDN returns 403 to bare urllib; send a browser User-Agent.
 - Do not downscale authored grass or mud into the 128 px terrain array. Sample those plates at native 512 px. The shared array stays small so procedural families do not pay a 16x paint cost.
 - City walls need coursed limestone rubble, not the even ashlar `stone` family. Keep the generation prompt with the plate so the next pass can sharpen joints instead of guessing.
-- Do not half-tile-offset a coursed masonry plate before welding. That move puts the original wrap seam across the middle of the wall face.
+- Do not half-tile-offset a coursed masonry, board, or large-stone plate before welding. That move puts the original wrap seam across the middle of the wall face, splits floorboards, or stamps a diamond into cobble.
 - Extra house wall/roof maps belong in `assets/materials/pbr/building_variants/` from `tools/generate_building_surface_variants.py`. Do not mutate imported GLB materials; duplicate onto surface overrides keyed by stable building id.
 - Never open `assets/SOURCES.csv` with mode `w` until the replacement row list is fully built. Prefer write-to-temp then rename. Parse with `csv.DictReader`. The primary key is `asset_id`; SHA-256 belongs in `prompt_or_url`.
 - After adding fauna or prop GLBs, run a headless Godot import before tests. Update bird authored-mesh allowlists in the same change as new `assets/birds/**` GLBs.

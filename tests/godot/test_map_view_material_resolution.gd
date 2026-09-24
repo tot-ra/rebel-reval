@@ -15,6 +15,23 @@ func test_grass_and_mud_sample_native_authored_plates() -> void:
 		var mud: Texture2D = material.get_shader_parameter("mud_albedo")
 		assert_true(mud != null, "mud must sample its authored plate when present")
 		assert_eq(mud.get_width(), MapViewMaterials.NATURAL_GROUND_TEXTURE_SIZE)
+	var timber: Texture2D = material.get_shader_parameter("timber_floor_albedo")
+	assert_true(timber != null, "timber floors must sample the authored plank plate")
+	assert_eq(timber.get_width(), MapViewMaterials.NATURAL_GROUND_TEXTURE_SIZE)
+	assert_eq(timber.get_height(), MapViewMaterials.NATURAL_GROUND_TEXTURE_SIZE)
+	if ResourceLoader.exists("res://assets/materials/pbr/hay/hay_albedo.png"):
+		assert_eq(material.get_shader_parameter("use_authored_hay"), 1.0)
+		var hay: Texture2D = material.get_shader_parameter("hay_albedo")
+		assert_true(hay != null, "hay and straw must sample the authored thatch plate")
+		assert_eq(hay.get_width(), MapViewMaterials.NATURAL_GROUND_TEXTURE_SIZE)
+		assert_eq(
+			material.get_shader_parameter("hay_layer"),
+			MapViewMaterials.terrain_blend_index(MapTypes.TERRAIN_HAY)
+		)
+		assert_eq(
+			material.get_shader_parameter("straw_layer"),
+			MapViewMaterials.terrain_blend_index(MapTypes.TERRAIN_STRAW)
+		)
 
 
 func test_natural_ground_repeat_matches_character_scale() -> void:

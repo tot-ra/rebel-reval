@@ -1,0 +1,15 @@
+{
+  "id": "material.timber_floor.albedo",
+  "family": "timber_floor",
+  "map_type": "albedo",
+  "kind": "leonardo_material_plate",
+  "target": "assets/materials/pbr/timber_floor/timber_floor_albedo.png",
+  "output_dir": "generated/leonardo/timber_floor_v2",
+  "processor": "tools/process_leonardo_terrain_textures.py",
+  "width": 1024,
+  "height": 1024,
+  "num_images": 4,
+  "notes": "Replace modern hardwood flooring with worn medieval oak boards.",
+  "prompt": "Orthographic top-down seamless tileable PBR albedo of a worn fourteenth-century Reval timber floor. Wide hand-sawn Baltic oak boards of unequal widths, pale worn walking paths down the board centers, dark dusty seams, wooden trenails, soot and iron dust near a hearth, raised grain, splits, and old water stains. Colors stay in oak #6B3F35, cut wood #A2693F, tar #342B30. Sharp fiber and knot detail, high micro-contrast, even overcast diffuse light, no baked sunlight, no varnish shine, no perspective, no furniture, perfectly tileable on all four edges, square 1:1 material plate.",
+  "negative_prompt": "modern hardwood, parquet herringbone, laminate, vinyl plank, IKEA floor, showroom oak, identical board widths, high-gloss varnish, studio lighting, baked shadows, perspective room, furniture, text, logo, watermark, border, visible seam, blurry, low contrast"
+}

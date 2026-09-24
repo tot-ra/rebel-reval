@@ -1,0 +1,15 @@
+{
+  "id": "material.smithy_floor.albedo",
+  "family": "smithy_floor",
+  "map_type": "albedo",
+  "kind": "leonardo_material_plate",
+  "target": "assets/materials/pbr/smithy_floor/smithy_floor_albedo.png",
+  "output_dir": "generated/leonardo/smithy_flagstone_v3",
+  "processor": "tools/process_leonardo_terrain_textures.py",
+  "width": 1024,
+  "height": 1024,
+  "num_images": 4,
+  "notes": "v2 produced bathroom checkers and cartoon mosaics. Need irregular sooty flags.",
+  "prompt": "Photogrammetry ortho of a ruined Baltic forge floor, seamless tileable PBR albedo. A few large irregular limestone and fieldstone flags, 25-70cm, random shapes, worn foot-polished centers, chipped broken edges. Joints are wide, uneven, filled with black soot, iron scale, ash and damp earth, not a grout grid. Some stones missing so packed ash shows through. Muted charcoal and limestone-blue #9EADB9. Even overcast light, no fire glow, no anvil, no tools, no checkerboard, no mosaic filler stones, perfectly tileable square 1:1 plate.",
+  "negative_prompt": "checkerboard, bathroom tiles, mosaic, terrazzo, regular grid, cartoon cobble, black grout network, identical squares, modern slate, brick courses, ashlar, baked fire, anvil, tools, horizon, characters, text, logo, watermark, border, visible seam, blurry"
+}

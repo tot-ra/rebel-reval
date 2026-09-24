@@ -188,11 +188,13 @@ then weld them with `python3 tools/process_leonardo_terrain_textures.py`. Verify
 The complete PBR sets under `assets/materials/pbr/` remain source/reference material for
 family-by-family migration. Grass, meadow, forest-floor, and bog sample
 `grass/grass_albedo.png` at native 512 px. Mud samples `mud/mud_albedo.png` the same way
-when that plate is present. City walls and other limestone masonry use
-`limestone_rubble/limestone_rubble_albedo.png` at the 512 px masonry tier. Timber floors
-and the smithy flagstone layer stay in the shared 128 px terrain array. All other terrain
-layers retain the procedural grayscale fallback until a scoped visual pass approves their
-replacement.
+when that plate is present. Timber floors and hay/straw fields sample their authored
+512 px plates the same way. City walls and other limestone masonry use
+`limestone_rubble/limestone_rubble_albedo.png` at the 512 px masonry tier. The smithy
+flagstone layer stays in the shared 128 px terrain array. Runtime cobble stays on the
+P0-218 procedural path; the cobble albedo plate is library/reference only. All other
+terrain layers retain the procedural grayscale fallback until a scoped visual pass
+approves their replacement.
 
 The existing `style_lock/` albedo-only textures are retained as reference material for
 the style-lock kit verification pipeline.
@@ -204,6 +206,16 @@ the style-lock kit verification pipeline.
 - City walls use `limestone_rubble` at the 512 px masonry tier with anisotropic
   filtering. The even ashlar `stone` family stays as a reference set only.
 - Evidence: `docs/reports/images/street_realism/*_textures.png`.
+
+## Terrain plate refresh (2026-09-24, P0-229)
+
+The v2 grass plate still read as a golf lawn. Leonardo v3 candidate 2 is a mixed
+Baltic meadow with soil and clover. Timber, timber-floor, mud and hay albedos were
+regenerated in the same pass. Timber-floor and hay now sample native 512 px like
+grass. Directional wood and large-stone plates keep their authored phase; a
+half-tile weld shift splits boards and stamps a diamond into cobble. Runtime
+streets stay on the P0-218 procedural cobble shader because every Leonardo cobble
+candidate remained a modern paver set.
 
 ## Verification
 

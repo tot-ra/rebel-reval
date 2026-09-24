@@ -1,0 +1,15 @@
+{
+  "id": "material.grass.albedo",
+  "family": "grass",
+  "map_type": "albedo",
+  "kind": "leonardo_material_plate",
+  "target": "assets/materials/pbr/grass/grass_albedo.png",
+  "output_dir": "generated/leonardo/grass_meadow_v3",
+  "processor": "tools/process_leonardo_terrain_textures.py",
+  "width": 1024,
+  "height": 1024,
+  "num_images": 4,
+  "notes": "v3. Reject the v2 golf-lawn plate. Soil and mixed weeds must occupy a large share of the tile.",
+  "prompt": "Orthographic top-down seamless tileable PBR albedo of an ungrazed fourteenth-century Baltic meadow patch outside Reval, year 1343. This is NOT a lawn. About one third of the plate is dark damp soil, moss and last-year thatch showing between irregular tussocks. Mixed wild grasses of different widths and lengths, some blades bent, some dry straw-yellow, some pine-dark #277052, some spring #72AF4E, master moss-green #4F954F. Scattered plantain rosettes, clover leaves, tiny seed heads, a few brown seed stalks. Sharp individual blade edges, high micro-contrast, photogrammetry of real neglected meadow, perfectly tileable on all four edges, square 1:1, even overcast diffuse light, no cast shadows, no horizon, no flowers as a bouquet, no figures.",
+  "negative_prompt": "golf course, football pitch, suburban lawn, mown grass, turf roll, astroturf, plastic grass, even carpet of identical blades, modern lawn photograph, 3D grass texture pack, jungle, tropical, desert, flowers bouquet, baked sunlight, hard shadows, perspective, horizon, characters, animals, text, logo, watermark, border, visible seam, blurry, gaussian blur, low contrast"
+}

@@ -1,0 +1,15 @@
+{
+  "id": "material.cobble.albedo",
+  "family": "cobble",
+  "map_type": "albedo",
+  "kind": "leonardo_material_plate",
+  "target": "assets/materials/pbr/cobble/cobble_albedo.png",
+  "output_dir": "generated/leonardo/cobble_street_v3",
+  "processor": "tools/process_leonardo_terrain_textures.py",
+  "width": 1024,
+  "height": 1024,
+  "num_images": 4,
+  "notes": "v2 still produced modern setts. Demand mixed sizes and packed earth, not a sett grid.",
+  "prompt": "Photogrammetry ortho of a real worn medieval northern-European street fragment, seamless tileable PBR albedo. Stones of wildly different sizes: a few large 20-30cm worn limestone slabs, many small 4-8cm river cobbles, broken wedges, packed amber earth #6A6154 and moss in deep irregular joints. Surfaces are scuffed, pitted, foot-polished, stained. Limestone-blue #9EADB9 mixed with warm dirt. No repeating grid, no identical pebbles, no modern granite setts. Even overcast light, no horizon, no figures, perfectly tileable square 1:1 plate.",
+  "negative_prompt": "modern granite setts, regular pebble grid, identical stones, landscaping pavers, crazy paving polygons, herringbone, brick, asphalt, concrete, bathroom tiles, studio CG texture pack, baked sunlight, perspective, cars, characters, text, logo, watermark, border, visible seam, blurry"
+}

@@ -1,0 +1,15 @@
+{
+  "id": "material.cobble.albedo",
+  "family": "cobble",
+  "map_type": "albedo",
+  "kind": "leonardo_material_plate",
+  "target": "assets/materials/pbr/cobble/cobble_albedo.png",
+  "output_dir": "generated/leonardo/cobble_street_v2",
+  "processor": "tools/process_leonardo_terrain_textures.py",
+  "width": 1024,
+  "height": 1024,
+  "num_images": 2,
+  "notes": "Replace modern polygonal landscaping pavers with worn rounded cobbles.",
+  "prompt": "Orthographic top-down seamless tileable PBR albedo of a worn fourteenth-century Reval cobblestone street. Rounded river cobbles and split fieldstones of many sizes, not a regular polygonal paving pattern. Deep dirt and moss joints, chipped arrises, foot-polished grey and limestone-blue #9EADB9 tops, warm earth #6A6154 packed in the gaps. Sharp mineral grain, high micro-contrast, even overcast diffuse light, no baked shadows, no horizon, no figures, perfectly tileable on all four edges, square 1:1 material plate.",
+  "negative_prompt": "modern landscaping pavers, crazy paving, regular polygons, identical stones, clean grout, herringbone brick, asphalt, concrete slabs, studio product photo, baked sunlight, perspective street, cars, characters, text, logo, watermark, border, visible seam, blurry, low contrast"
+}

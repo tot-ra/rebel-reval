@@ -9,9 +9,10 @@ const TEXTURE_SIZE := 128
 const COBBLE_TEXTURE_SIZE := 512
 const NATURAL_GROUND_TEXTURE_SIZE := 512
 const MUD_ALBEDO_PATH := "res://assets/materials/pbr/mud/mud_albedo.png"
+const HAY_ALBEDO_PATH := "res://assets/materials/pbr/hay/hay_albedo.png"
 
-const HAY_FIBER_TEXTURE := preload("res://assets/materials/production/hay_fibers.png")
 const GRASS_ALBEDO_TEXTURE := preload("res://assets/materials/pbr/grass/grass_albedo.png")
+const HAY_ALBEDO_TEXTURE := preload("res://assets/materials/pbr/hay/hay_albedo.png")
 const TIMBER_FLOOR_ALBEDO_TEXTURE := preload(
 	"res://assets/materials/pbr/timber_floor/timber_floor_albedo.png"
 )
@@ -177,9 +178,9 @@ static func terrain_pattern_array(noise_seed: int) -> Texture2DArray:
 			# limestone ashlar pattern, which reads as a tiled brick grid at gameplay zoom.
 			image = smithy_floor_albedo_image()
 		elif terrain_id in [MapTypes.TERRAIN_HAY, MapTypes.TERRAIN_STRAW]:
-			# Both harvested field layers use the same production fiber source; their
-			# distinct palette tints still separate fresh hay from weathered stubble.
-			image = HAY_FIBER_TEXTURE.get_image()
+			# Keep a 128 px family copy in the shared array. The blend shader
+			# samples the native 512 px hay plate so fields stay sharp.
+			image = HAY_ALBEDO_TEXTURE.get_image()
 			if image.get_width() != TEXTURE_SIZE or image.get_height() != TEXTURE_SIZE:
 				image.resize(TEXTURE_SIZE, TEXTURE_SIZE, Image.INTERPOLATE_LANCZOS)
 			image.generate_mipmaps()
@@ -259,11 +260,19 @@ static func blended_ground(noise_seed: int) -> ShaderMaterial:
 	# Sample authored plates at native resolution. The shared terrain array stays
 	# at 128 px so procedural families do not pay a 16x paint cost.
 	material.set_shader_parameter("grass_albedo", GRASS_ALBEDO_TEXTURE)
+	material.set_shader_parameter("timber_floor_albedo", TIMBER_FLOOR_ALBEDO_TEXTURE)
 	if ResourceLoader.exists(MUD_ALBEDO_PATH):
 		material.set_shader_parameter("mud_albedo", load(MUD_ALBEDO_PATH))
 		material.set_shader_parameter("use_authored_mud", 1.0)
 	else:
 		material.set_shader_parameter("use_authored_mud", 0.0)
+	if ResourceLoader.exists(HAY_ALBEDO_PATH):
+		material.set_shader_parameter("hay_albedo", load(HAY_ALBEDO_PATH))
+		material.set_shader_parameter("use_authored_hay", 1.0)
+		material.set_shader_parameter("hay_layer", terrain_blend_index(MapTypes.TERRAIN_HAY))
+		material.set_shader_parameter("straw_layer", terrain_blend_index(MapTypes.TERRAIN_STRAW))
+	else:
+		material.set_shader_parameter("use_authored_hay", 0.0)
 	_cache[key] = material
 	return material
 
