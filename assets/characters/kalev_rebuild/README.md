@@ -40,4 +40,4 @@ These regeneration steps replace the preserved sculpt. The generation graph and 
 
 The generated surface is not a hand-retopologized digital double. Facial animation, individual finger articulation and garment cloth simulation are later production work. The review captures are the evidence for the current geometry and material quality; the concept images alone are not evidence of the game model.
 
-Visual acceptance remains open: side projection seams, shoulder tailoring, hem joins and hand grips still need work before this meets the requested Witcher 3 level. See the report and actual engine captures.
+Skin now ships as one seamless unwrapped atlas (`materials/skin_atlas.jpg`); the earlier front/back projection split and its side seam are retired. Visual acceptance remains open for shoulder tailoring, hem joins and hand grips before this meets the requested Witcher 3 level. See `docs/reports/kalev_surface_and_motion_2026-09-24.md` and the engine captures under `docs/reports/images/kalev_surface_motion/`.

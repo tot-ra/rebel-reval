@@ -2,21 +2,21 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://u3odrmdsbu8e"
-path.s3tc="res://.godot/imported/mail_shirt_mail_albedo.png-e604562abe142495d79ed8d5b2beb883.s3tc.ctex"
-path.etc2="res://.godot/imported/mail_shirt_mail_albedo.png-e604562abe142495d79ed8d5b2beb883.etc2.ctex"
+uid="uid://1cgs02wnrga5"
+path.s3tc="res://.godot/imported/kalev_fresh_skin_atlas.jpg-eda142e53fe83c221f4cfd68e288d350.s3tc.ctex"
+path.etc2="res://.godot/imported/kalev_fresh_skin_atlas.jpg-eda142e53fe83c221f4cfd68e288d350.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
-"md5": "2605c9eb686489375d31dc8ec5088d7f"
+"md5": "65914dfe7779056f48ea3d5b41efc5f2"
 }
 
 [deps]
 
-source_file="res://assets/characters/kalev_rebuild/mail_shirt_mail_albedo.png"
-dest_files=["res://.godot/imported/mail_shirt_mail_albedo.png-e604562abe142495d79ed8d5b2beb883.s3tc.ctex", "res://.godot/imported/mail_shirt_mail_albedo.png-e604562abe142495d79ed8d5b2beb883.etc2.ctex"]
+source_file="res://assets/characters/kalev_rebuild/kalev_fresh_skin_atlas.jpg"
+dest_files=["res://.godot/imported/kalev_fresh_skin_atlas.jpg-eda142e53fe83c221f4cfd68e288d350.s3tc.ctex", "res://.godot/imported/kalev_fresh_skin_atlas.jpg-eda142e53fe83c221f4cfd68e288d350.etc2.ctex"]
 
 [params]
 

@@ -33,6 +33,10 @@ This file contains lessons specific to the Art role.
 - Flat surfaces without a normal map are the main reason large architecture looks like painted cardboard. `Image.bump_map_to_normal_map()` on the same grayscale plate that produced the albedo is enough, and its cache key must include the plate seed and size.
 - An authored RGB plate excluded from palette tinting will drift out of the value range of everything it borders. Either tint it or check its lit value against its neighbours.
 
+### Character skin projection
+- Per-face front/back material switches on a single mesh leave a torn silhouette seam and smear reference plates across every side-facing surface, because planar XZ projection collapses texel density wherever the normal turns away from the camera. Bake one smart-projected atlas instead: blend the original plates per texel by a cubed facing term, diffuse low-confidence grazing texels, and retire the old projection sidecars in the same change as the GLB rebuild.
+- Locomotion that only keys hips and a flat shoulder swing reads as a mannequin slide. Conjugate lower-arm rotations through each shoulder's rest drop so elbow keys hinge correctly, and ground each cycle with sole probes plus a pelvis offset so the lowest heel/ball/toe contact stays on the floor.
+
 ### Materials, export, and provenance
 - Blender glTF export with packed textures still yields Godot-extracted albedo, normal, and roughness sidecars. Register those derived paths.
 - A material created via `bpy.data.materials.new()` has `use_nodes = False`. The exporter then writes default grey. Untextured materials still need Principled BSDF.

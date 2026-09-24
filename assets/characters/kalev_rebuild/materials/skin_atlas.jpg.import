@@ -2,19 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bihsl22qxqf2i"
-path="res://.godot/imported/kalev_fresh_skin_projection_face.jpg-8c238dedf946cc97e13182d994d22261.ctex"
+uid="uid://cgaj5afj1i0p0"
+path="res://.godot/imported/skin_atlas.jpg-0587b0871741344f189ff68b2e6076b4.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "ab93450dd06a25d733b36551ab487fcf"
 }
 
 [deps]
 
-source_file="res://assets/characters/kalev_rebuild/kalev_fresh_skin_projection_face.jpg"
-dest_files=["res://.godot/imported/kalev_fresh_skin_projection_face.jpg-8c238dedf946cc97e13182d994d22261.ctex"]
+source_file="res://assets/characters/kalev_rebuild/materials/skin_atlas.jpg"
+dest_files=["res://.godot/imported/skin_atlas.jpg-0587b0871741344f189ff68b2e6076b4.ctex"]
 
 [params]
 
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

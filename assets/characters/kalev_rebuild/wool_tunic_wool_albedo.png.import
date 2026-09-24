@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://gvdfry3j1sel"
-path="res://.godot/imported/wool_tunic_wool_albedo.png-6e751cd46e6118601fdc0f7dc4e8dd5e.ctex"
+path.s3tc="res://.godot/imported/wool_tunic_wool_albedo.png-6e751cd46e6118601fdc0f7dc4e8dd5e.s3tc.ctex"
+path.etc2="res://.godot/imported/wool_tunic_wool_albedo.png-6e751cd46e6118601fdc0f7dc4e8dd5e.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "9e604273bf27e0afcb47423a46b91cdc"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/characters/kalev_rebuild/wool_tunic_wool_albedo.png"
-dest_files=["res://.godot/imported/wool_tunic_wool_albedo.png-6e751cd46e6118601fdc0f7dc4e8dd5e.ctex"]
+dest_files=["res://.godot/imported/wool_tunic_wool_albedo.png-6e751cd46e6118601fdc0f7dc4e8dd5e.s3tc.ctex", "res://.godot/imported/wool_tunic_wool_albedo.png-6e751cd46e6118601fdc0f7dc4e8dd5e.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0
