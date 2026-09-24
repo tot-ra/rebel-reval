@@ -356,8 +356,8 @@ static func blended_ground(noise_seed: int) -> ShaderMaterial:
 	if _cache.has(key):
 		return _cache[key]
 	var material := ShaderMaterial.new()
-	material.shader = MapViewMaterialShaders.shader(
-		"terrain_blend", MapViewMaterialShaders.TERRAIN_BLEND_SHADER_CODE
+	material.shader = MapViewMaterialShaders.shader_resource(
+		"terrain_blend", MapViewMaterialShaders.TERRAIN_BLEND_SHADER
 	)
 	material.set_shader_parameter("terrain_patterns", terrain_pattern_array(noise_seed))
 	material.set_shader_parameter("cobble_patterns", cobble_pattern_array(noise_seed))

@@ -20,6 +20,12 @@ func test_natural_ground_shader_uses_continuous_variation() -> void:
 
 
 func test_natural_ground_variation_is_applied_to_all_grass_family_layers() -> void:
-	var shader_source := MapViewMaterialShaders.TERRAIN_BLEND_SHADER_CODE
-	assert_true(shader_source.contains("layer >= 0 && layer <= 3"), "grass, meadow, forest floor, and bog share the varied sampler")
-	assert_true(shader_source.contains("natural_ground_uv_scale"), "natural ground keeps the authored repeat control")
+	var shader_source := MapViewMaterialShaders.TERRAIN_BLEND_SHADER.code
+	assert_true(
+		shader_source.contains("layer >= 0 && layer <= 3"),
+		"grass, meadow, forest floor, and bog share the varied sampler"
+	)
+	assert_true(
+		shader_source.contains("natural_ground_uv_scale"),
+		"natural ground keeps the authored repeat control"
+	)

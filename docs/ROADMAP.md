@@ -15,6 +15,9 @@ Coordination note (2026-08-13 R-454): high-complexity parent **R-454** (historic
 <!-- P0-181 completed in current session -->
 Coordination note (2026-08-28 P0-181): research reference plate retention landed in `docs/data/reference_plate_retention.json`, `docs/ASSET_STORAGE_POLICY.md`, `tools/optimize_reference_plates.py`, and retention caps inside `tools/research/fetch_reference_plates.py --verify`. Optimized 50 plates (273904275 -> 39090195 bytes in the touched set, -234814080); zero `history/reference/**` rasters remain over 8 MiB. Verified: `python3 tools/research/fetch_reference_plates.py --verify`, `python3 -m unittest tests.python.test_fetch_reference_plates -v`. Next size claim: **P0-180** music takes or **P0-182** runtime audio budget.
 
+<!-- P0-185 water and terrain_blend shaders relocated in current session -->
+Coordination note (2026-09-24 P0-185): `map_view_water.gdshader` and `map_view_terrain_blend.gdshader` now own the water and ground-splat shaders; consumers use `MapViewMaterialShaders.shader_resource()` with the shared preload constants. `map_view_material_shaders.gd` dropped from 680 to 45 lines. Verified: focused coastal-sea, water-contract, water-rollout-inventory, natural-ground, terrain-chunk, map-view-core, and material-resolution filters (57/57). Next P0-185 claim: tree meshes / prop models / runtime ambient peel.
+
 <!-- P0-185 grass and canopy shaders relocated in current session -->
 Coordination note (2026-09-24 P0-185): `map_view_grass.gdshader` and `map_view_canopy.gdshader` now own the vegetation wind shaders; consumers use `MapViewMaterialShaders.shader_resource()` with the shared preload constants. `map_view_material_shaders.gd` dropped from 780 to 680 lines. Verified: `--filter=test_grass_interaction`, `--filter=test_vegetation_realism`, `--filter=test_map_view_material_resolution`. Next P0-185 claim: relocate `water` / `terrain_blend` inline shaders, then tree meshes / prop models / runtime ambient peel.
 

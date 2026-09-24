@@ -48,8 +48,8 @@ static func water_surface(terrain_id: StringName, wave_profiles: Dictionary) -> 
 		return _cache[key]
 	var base := OutdoorTerrainPalette.color(terrain_id)
 	var material := ShaderMaterial.new()
-	material.shader = MapViewMaterialShaders.shader(
-		"water", MapViewMaterialShaders.WATER_SHADER_CODE
+	material.shader = MapViewMaterialShaders.shader_resource(
+		"water", MapViewMaterialShaders.WATER_SHADER
 	)
 	material.set_shader_parameter("shallow_color", base.lightened(0.18))
 	material.set_shader_parameter("deep_color", base.darkened(0.42))

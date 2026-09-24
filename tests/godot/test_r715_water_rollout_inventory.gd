@@ -130,4 +130,4 @@ func test_water_owner_modules_and_shader_contract_are_present() -> void:
 	assert_true(water_mesh.has_method("add_water_cell_quad"))
 	assert_true(shoreline.has_method("build"))
 	for feature in ["fresnel", "sky", "TIME", "depth_absorption", "flow_direction", "tide_level"]:
-		assert_true(feature in ShaderSources.WATER_SHADER_CODE, "water shader must retain %s" % feature)
+		assert_true(feature in ShaderSources.WATER_SHADER.code, "water shader must retain %s" % feature)

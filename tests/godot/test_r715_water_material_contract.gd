@@ -12,7 +12,7 @@ func test_all_water_ids_use_one_approved_shader_family() -> void:
 		MapTypesContract.WATER_TERRAINS,
 		"the public facade must cover every stable water terrain ID",
 	)
-	var source := ShaderSources.WATER_SHADER_CODE
+	var source := ShaderSources.WATER_SHADER.code
 	var shared_shader: Shader = null
 	for terrain_id: StringName in MapTypesContract.WATER_TERRAINS:
 		var material := MaterialsFacade.water_surface(terrain_id)
@@ -114,7 +114,7 @@ func test_water_prioritizes_reflection_and_hides_terrestrial_bed_detail() -> voi
 		float(deep.get_shader_parameter("optical_depth")) >= 0.38,
 		"deep water must retain the strongest visual depth treatment",
 	)
-	var source := ShaderSources.WATER_SHADER_CODE
+	var source := ShaderSources.WATER_SHADER.code
 	for safeguard in [
 		"bed_vegetation * 0.22",
 		"bed_detail_visibility = exp(-water_depth * 9.5) * 0.18",
@@ -123,7 +123,7 @@ func test_water_prioritizes_reflection_and_hides_terrestrial_bed_detail() -> voi
 		assert_true(safeguard in source, "water shader must retain %s" % safeguard)
 
 func test_water_shader_declares_reflection_inputs_and_safe_compatibility_fallbacks() -> void:
-	var source := ShaderSources.WATER_SHADER_CODE
+	var source := ShaderSources.WATER_SHADER.code
 	for feature in [
 		"hint_screen_texture",
 		"hint_depth_texture",

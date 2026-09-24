@@ -77,7 +77,7 @@ func test_weather_changes_wave_speed_height_and_breakers() -> void:
 
 
 func test_water_shader_contains_advancing_shore_breakers() -> void:
-	var source := MapViewMaterialShaders.WATER_SHADER_CODE
+	var source := MapViewMaterialShaders.WATER_SHADER.code
 	assert_true("breaker_intensity" in source, "weather must be able to strengthen breaking waves")
 	assert_true("breaker_phase" in source, "surf bands must advance through the shoreline contour")
 	assert_true("shoaling" in source, "waves must rise as they enter shallow water")
@@ -85,7 +85,7 @@ func test_water_shader_contains_advancing_shore_breakers() -> void:
 
 
 func test_water_shader_has_dual_scrolling_detail_normals() -> void:
-	var source := MapViewMaterialShaders.WATER_SHADER_CODE
+	var source := MapViewMaterialShaders.WATER_SHADER.code
 	for feature in [
 		"detail_normal_strength",
 		"detail_normal_scale",
@@ -107,7 +107,7 @@ func test_water_shader_has_dual_scrolling_detail_normals() -> void:
 
 
 func test_river_water_advects_detail_normals_without_changing_tide_logic() -> void:
-	var source := MapViewMaterialShaders.WATER_SHADER_CODE
+	var source := MapViewMaterialShaders.WATER_SHADER.code
 	var river := MapViewMaterials.water_surface(MapTypes.TERRAIN_RIVER_WATER)
 	var sea := MapViewMaterials.water_surface(MapTypes.TERRAIN_SHALLOW_WATER)
 	assert_eq(
@@ -146,7 +146,7 @@ func test_river_water_advects_detail_normals_without_changing_tide_logic() -> vo
 
 
 func test_water_shader_layers_seabed_materials_by_depth() -> void:
-	var source := MapViewMaterialShaders.WATER_SHADER_CODE
+	var source := MapViewMaterialShaders.WATER_SHADER.code
 	for uniform_name in ["sand_bed_color", "stone_bed_color", "algae_bed_color", "deep_bed_color"]:
 		assert_true(uniform_name in source, "water needs a %s seabed layer" % uniform_name)
 	assert_true("_seabed_layers" in source, "seabed masks must be stable procedural layers")
@@ -197,7 +197,7 @@ func test_authored_water_families_keep_distinct_optical_depths() -> void:
 
 
 func test_coastal_tide_changes_shore_and_depth_without_affecting_rivers() -> void:
-	var source := MapViewMaterialShaders.WATER_SHADER_CODE
+	var source := MapViewMaterialShaders.WATER_SHADER.code
 	for feature in ["tide_level", "tide_shore_retreat", "tide_optical_depth", "discard"]:
 		assert_true(feature in source, "coastal water shader needs %s tide behavior" % feature)
 	MapViewMaterials.apply_coastal_tide(-0.72)
@@ -236,7 +236,7 @@ func test_all_water_terrain_ids_use_shared_approved_material_profile() -> void:
 		MapTypes.WATER_TERRAINS,
 		"the view registry must cover every stable water terrain ID",
 	)
-	var source := MapViewMaterialShaders.WATER_SHADER_CODE
+	var source := MapViewMaterialShaders.WATER_SHADER.code
 	var profile_signatures: Dictionary = {}
 	for terrain_id: StringName in MapTypes.WATER_TERRAINS:
 		var material := MapViewMaterials.water_surface(terrain_id)
