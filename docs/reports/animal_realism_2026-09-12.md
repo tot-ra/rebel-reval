@@ -32,7 +32,7 @@ Blender 5.2 and Godot 4.7.1 were used. Rat packing requires external Python with
 - All nine portable model checks pass: normalized skin weights, valid joint indices, UV textures, nonmetallic materials, animation names/durations/loop seams, triangle and 10 MiB per-file budgets. Largest file is the rat, approximately 9.45 MiB.
 - Focused Godot suite: **9 files, 81 tests, 0 failures, 0 errors**. Existing teardown resource-leak warnings remain.
 - Independent reviewer inspected actual deformed meshes. Major cat/dog/boar tears were found and fixed. The cited cat centerline edge fell from 125 mm to 2.42 mm after correction; final sampled residual maximum was 12.61 mm at a local joint transition. Dog/boar retain modest local joint creasing, without the previous major splits. Hare’s hidden-helper-induced 103 mm floating offset was fixed.
-- `git diff --check` passes. Asset provenance has no missing mammal entries; global validation still reports unrelated concurrent `assets/characters/kalev_rebuild/` assets. The active-doc check retains nine unrelated issues and a stale generated report. Godot import reports unrelated character texture UID fallbacks.
+- `git diff --check` passes. Asset provenance has no missing mammal entries; global validation still reports unrelated concurrent `assets/characters/kalev_fresh/` assets. The active-doc check retains nine unrelated issues and a stale generated report. Godot import reports unrelated character texture UID fallbacks.
 
 ## Remaining visual limits
 

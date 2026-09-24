@@ -1,0 +1,15 @@
+{
+  "body_triangles": 51998,
+  "garments": {
+    "linen_shirt": 9507,
+    "wool_tunic": 9507,
+    "mail_shirt": 9507,
+    "smith_apron": 3704,
+    "hose": 6500,
+    "boots": 6850
+  },
+  "animations": 76,
+  "height_m": 1.82,
+  "source": "/Users/artjomkurapov/git/rebel-reval/assets/characters/kalev_fresh/reference/sculpt.glb",
+  "input_policy": "Only new imagegen references/Hunyuan sculpt; geometry-stripped KayKit CC0 skeleton and clips."
+}

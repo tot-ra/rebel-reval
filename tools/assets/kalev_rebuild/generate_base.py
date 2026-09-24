@@ -14,9 +14,9 @@ ROOT=Path(__file__).resolve().parents[3]
 
 def main():
     parser=argparse.ArgumentParser();parser.add_argument('--server',default='http://127.0.0.1:8190');opts=parser.parse_args()
-    folder=ROOT/'build/kalev_rebuild';inputs=folder/'comfy_input';inputs.mkdir(parents=True,exist_ok=True)
+    folder=ROOT/'build/kalev_fresh';inputs=folder/'comfy_input';inputs.mkdir(parents=True,exist_ok=True)
     for view in ('front','back'):
-        shutil.copy2(ROOT/f'assets/characters/kalev_rebuild/reference/{view}.png', inputs/f'{view}.png')
+        shutil.copy2(ROOT/f'assets/characters/kalev_fresh/reference/{view}.png', inputs/f'{view}.png')
     graph={
         '1':{'class_type':'ImageOnlyCheckpointLoader','inputs':{'ckpt_name':'hunyuan3d-dit-v2-mv_fp16.safetensors'}},
         '2':{'class_type':'LoadImage','inputs':{'image':'front.png'}},

@@ -4,7 +4,7 @@ This is a Blender material bake, not editing the generated character images.
 """
 from pathlib import Path
 import bpy,math
-ROOT=Path(__file__).resolve().parents[3];OUT=ROOT/'assets/characters/kalev_rebuild/materials'
+ROOT=Path(__file__).resolve().parents[3];OUT=ROOT/'assets/characters/kalev_fresh/materials'
 OUT.mkdir(exist_ok=True)
 bpy.ops.wm.read_factory_settings(use_empty=True)
 s=bpy.context.scene;s.render.engine='CYCLES';s.cycles.samples=1;s.render.threads_mode='FIXED';s.render.threads=4
@@ -20,7 +20,7 @@ def make_map(name,kind,color):
     if kind=='cloth':
         weave=n.new('ShaderNodeTexWave');weave.wave_type='BANDS';weave.bands_direction='X';weave.inputs['Scale'].default_value=100;weave.inputs['Distortion'].default_value=1.5;l.new(uv.outputs['UV'],weave.inputs['Vector']);height=weave.outputs['Color']
     if kind=='mail':
-        tex=n.new('ShaderNodeTexImage');tex.image=bpy.data.images.load(str(ROOT/'assets/characters/kalev_rebuild/reference/mail.png'));l.new(uv.outputs['UV'],tex.inputs['Vector']);base=tex.outputs['Color']
+        tex=n.new('ShaderNodeTexImage');tex.image=bpy.data.images.load(str(ROOT/'assets/characters/kalev_fresh/reference/mail.png'));l.new(uv.outputs['UV'],tex.inputs['Vector']);base=tex.outputs['Color']
         luminance=n.new('ShaderNodeRGBToBW');l.new(base,luminance.inputs[0]);height=luminance.outputs[0]
     bump=n.new('ShaderNodeBump');bump.inputs['Strength'].default_value=.5;bump.inputs['Distance'].default_value=.014 if kind=='mail' else .003;l.new(height,bump.inputs['Height']);l.new(bump.outputs['Normal'],p.inputs['Normal'])
     emit=n.new('ShaderNodeEmission');l.new(base,emit.inputs['Color']);l.new(emit.outputs[0],n.get('Material Output').inputs['Surface'])

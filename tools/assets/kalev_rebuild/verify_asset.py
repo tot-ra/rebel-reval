@@ -1,7 +1,7 @@
 """Structural verification of the independent reconstruction and fitted layers."""
 import json,struct,math,hashlib
 from pathlib import Path
-ROOT=Path(__file__).resolve().parents[3];OUT=ROOT/'assets/characters/kalev_rebuild'
+ROOT=Path(__file__).resolve().parents[3];OUT=ROOT/'assets/characters/kalev_fresh'
 
 
 def glb(path):
@@ -26,7 +26,7 @@ def longest_edge(doc,data,primitive):
 
 
 def main():
-    body,data=glb(OUT/'kalev_fresh.glb');triangles=0;regions=set()
+    body,data=glb(OUT/'kalev_fresh/kalev_fresh.glb');triangles=0;regions=set()
     for mesh in body['meshes']:
         regions.add(mesh.get('name',''))
         for p in mesh['primitives']:
@@ -48,7 +48,7 @@ def main():
         assert moving>=4,(name,moving)
     garments={}
     for name in ('linen_shirt','wool_tunic','mail_shirt','smith_apron','hose','boots'):
-        d,b=glb(OUT/f'{name}.glb');assert skeleton(d)==skeleton(body),name
+        d,b=glb(OUT/f'{name}/{name}.glb');assert skeleton(d)==skeleton(body),name
         count=0
         for mesh in d['meshes']:
             for p in mesh['primitives']:
@@ -59,7 +59,7 @@ def main():
         garments[name]=count
     for file in OUT.rglob('*'):
         if file.suffix in ('.glb','.blend','.png','.jpg'):assert file.stat().st_size<10*1024*1024,('Storage threshold',str(file),file.stat().st_size)
-    result={'body_triangles':triangles,'body_regions':sorted(regions),'animations':len(animations),'garments':garments,'body_sha256':hashlib.sha256((OUT/'kalev_fresh.glb').read_bytes()).hexdigest()}
+    result={'body_triangles':triangles,'body_regions':sorted(regions),'animations':len(animations),'garments':garments,'body_sha256':hashlib.sha256((OUT/'kalev_fresh/kalev_fresh.glb').read_bytes()).hexdigest()}
     print(json.dumps(result,indent=2));return result
 
 if __name__=='__main__':main()

@@ -34,7 +34,7 @@ same assets run the existing preview capture:
 ```bash
 /Applications/Godot.app/Contents/MacOS/Godot --path . \
   --rendering-method gl_compatibility --rendering-driver opengl3 \
-  --script tools/capture_kalev_rebuild.gd
+  --script tools/capture_kalev_fresh.gd
 ```
 
 ## What changed and why
@@ -75,7 +75,7 @@ same assets run the existing preview capture:
   `a9e241582371c150e0ac5ab1b94cd9ed87e6ef1e953312dd08bb09948b6b6383`.
 - `python3 tools/validate_asset_sources.py` - schema ok; atlas rows registered.
 - Focused Godot suite
-  `--filter=test_kalev_rebuild,test_kalev_live_integration,test_character_rig,test_character_wardrobe`:
+  `--filter=test_kalev_fresh,test_kalev_live_integration,test_character_rig,test_character_wardrobe`:
   4 files, 52 tests, 0 failures.
 - Sole clearance, measured on the evaluated foot meshes over 13 samples per cycle
   (lowest vertex height in metres, rest pose sole is Z=0):

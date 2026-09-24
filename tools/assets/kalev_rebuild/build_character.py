@@ -10,8 +10,8 @@ from mathutils import Vector, Matrix
 from mathutils.kdtree import KDTree
 
 ROOT=Path(__file__).resolve().parents[3]
-OUT=ROOT/'assets/characters/kalev_rebuild'
-WORK=ROOT/'build/kalev_rebuild'
+OUT=ROOT/'assets/characters/kalev_fresh'
+WORK=ROOT/'build/kalev_fresh'
 REF=OUT/'reference'
 HEIGHT=1.82
 
@@ -779,8 +779,11 @@ def main():
     # Blender's imported action slots retain the original target; ACTIONS mode
     # exports every compatible skeletal action while garments carry only binds.
     rig.data.pose_position='POSE'
-    export(OUT/'kalev_fresh.glb',[rig]+bodies,animations=True)
-    for name,objects in garments.items():export(OUT/f'{name}.glb',[rig]+objects)
+    (OUT/'kalev_fresh').mkdir(parents=True, exist_ok=True)
+    export(OUT/'kalev_fresh/kalev_fresh.glb',[rig]+bodies,animations=True)
+    for name,objects in garments.items():
+        (OUT/name).mkdir(parents=True, exist_ok=True)
+        export(OUT/f'{name}/{name}.glb',[rig]+objects)
     for objects in garments.values():
         for o in objects:o.hide_render=True;o.hide_set(True)
     rig.data.pose_position='POSE'

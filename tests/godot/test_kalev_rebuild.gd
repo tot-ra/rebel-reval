@@ -1,6 +1,6 @@
 extends "res://tests/godot/test_case.gd"
 
-const DIR := "res://assets/characters/kalev_rebuild/"
+const DIR := "res://assets/characters/kalev_fresh/"
 var rig: SharedCharacterRig
 
 func before_each() -> void:
@@ -29,7 +29,8 @@ func test_fresh_body_keeps_character_identity_and_all_runtime_motions() -> void:
 		player.seek(player.current_animation_length * 0.4, true)
 		assert_eq(rig.current_canonical_animation(), motion)
 		for i: int in rig.skeleton().get_bone_count():
-			assert_true(rig.skeleton().get_bone_global_pose(i).is_finite(), "Finite pose: %s bone %d" % [motion, i])
+			var pose := rig.skeleton().get_bone_global_pose(i)
+			assert_true(pose.is_finite(), "Finite pose: %s bone %d" % [motion, i])
 
 func test_fitted_layers_swap_without_replacing_body_or_animation() -> void:
 	var skeleton_id := rig.skeleton().get_instance_id()
@@ -66,11 +67,11 @@ func test_overlap_coverage_and_invalid_fit_preserve_equipment() -> void:
 	assert_true(_visible("Anatomy_Feet"))
 
 func test_weapon_swaps_use_same_live_hand_socket() -> void:
-	var first := rig.equip(&"right_hand", load(DIR + "hammer.glb") as PackedScene)
+	var first := rig.equip(&"right_hand", load(DIR + "hammer/hammer.glb") as PackedScene)
 	assert_true(first != null)
 	var socket := first.get_parent() as BoneAttachment3D
 	assert_eq(socket.bone_name, "handslot.r")
-	var second := rig.equip(&"right_hand", load(DIR + "sword.glb") as PackedScene)
+	var second := rig.equip(&"right_hand", load(DIR + "sword/sword.glb") as PackedScene)
 	assert_true(second != null)
 	assert_eq(second.get_parent(), socket)
 	assert_eq(rig.equipped(&"right_hand"), second)
@@ -79,7 +80,7 @@ func test_weapon_swaps_use_same_live_hand_socket() -> void:
 
 func test_wardrobe_meshes_have_identical_rest_skeleton_and_named_bindings() -> void:
 	for garment: String in ["linen_shirt", "wool_tunic", "mail_shirt", "smith_apron", "hose", "boots"]:
-		var source := (load(DIR + garment + ".glb") as PackedScene).instantiate()
+		var source := (load(DIR + garment + "/" + garment + ".glb") as PackedScene).instantiate()
 		var skeleton := rig._find_skeleton(source)
 		assert_true(skeleton != null)
 		assert_eq(skeleton.get_bone_count(), rig.skeleton().get_bone_count())

@@ -1,6 +1,6 @@
 # Storybook model inventory
 
-The storybook catalogue now contains seven human models, nine mammals and five birds. Kalev's active body is `res://assets/characters/kalev_rebuild/kalev_fresh.glb`; the superseded `storybook/kalev.glb` and its fitted equipment were removed. His live scene is `res://assets/characters/kalev/kalev.tscn`.
+The storybook catalogue now contains seven human models, nine mammals and five birds. Kalev's active body is `res://assets/characters/kalev_fresh/kalev_fresh/kalev_fresh.glb`; the superseded `storybook/kalev.glb` and its fitted equipment were removed. His live scene is `res://assets/characters/kalev/kalev.tscn`.
 
 The hen is derived from the licensed authored `assets/animals/hendrik_reyneke/chicken/chicken.glb`, preserving its sculpt, UVs and PBR maps while adding a 16-bone articulated rig and eight named animations. Rebuild **only the hen** with:
 
@@ -34,7 +34,7 @@ Birds have separate shoulder and wing-tip joints. Wings fold at rest and extend 
 
 The maintainer’s 2026-09-12 direction moves Kalev toward naturalistic RPG fidelity. His live body now has a sculpted face with small inset eyes, a tapered neck, groomed scalp/stubble, separate textile/leather materials with portable albedo/normal/roughness maps, fitted collar and boots, and a tunic hem that follows the thighs. Mail, helmet and cape are rebuilt against the unchanged skeleton. The 76 clips and clothing/weapon APIs above remain compatible. This is a more detailed procedural model, still below The Witcher 3’s finished character fidelity; facial animation, independently rigged fingers and cloth simulation are not supplied by this pass.
 
-Historical P0-210 notes and captures are retained in [the Kalev report](../../docs/reports/kalev_realism_2026-09-12.md). That generator and its storybook output were superseded by `kalev_rebuild`; do not run the former `--only kalev` rebuild command.
+Historical P0-210 notes and captures are retained in [the Kalev report](../../docs/reports/kalev_realism_2026-09-12.md). That generator and its storybook output were superseded by `kalev_fresh`; do not run the former `--only kalev` rebuild command.
 
 ## Live game
 

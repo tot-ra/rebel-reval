@@ -8,13 +8,19 @@ func _initialize() -> void:
 
 func _capture() -> void:
 	root.size = Vector2i(1280, 1280)
-	preview = load("res://assets/characters/kalev_rebuild/preview.tscn").instantiate() as Node3D
+	preview = load("res://assets/characters/kalev_fresh/preview.tscn").instantiate() as Node3D
 	root.add_child(preview)
 	await process_frame
 	preview.hud.hide()
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT))
 	preview.set_outfit(0)
-	for shot: Array in [["body_front", 0.0], ["body_three_quarter", 0.55], ["body_profile", PI / 2.0], ["body_back", PI]]:
+	var body_shots: Array = [
+		["body_front", 0.0],
+		["body_three_quarter", 0.55],
+		["body_profile", PI / 2.0],
+		["body_back", PI],
+	]
+	for shot: Array in body_shots:
 		preview.orbit = shot[1]
 		preview._update_camera()
 		await _save(shot[0], 0.0)

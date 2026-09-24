@@ -1,7 +1,7 @@
 extends "res://tests/godot/test_case.gd"
 
 const LIVE_KALEV := preload("res://assets/characters/kalev/kalev.tscn")
-const FRESH_DIR := "res://assets/characters/kalev_rebuild/"
+const FRESH_DIR := "res://assets/characters/kalev_fresh/"
 
 var rig: SharedCharacterRig
 
@@ -46,10 +46,10 @@ func test_live_kalev_starts_in_fitted_forge_outfit() -> void:
 func test_live_outfit_survives_animation_and_weapon_hot_swap() -> void:
 	var skeleton_id := rig.skeleton().get_instance_id()
 	assert_true(rig.play_animation(&"run", 0.0))
-	var hammer := rig.equip(&"right_hand", load(FRESH_DIR + "hammer.glb") as PackedScene)
+	var hammer := rig.equip(&"right_hand", load(FRESH_DIR + "hammer/hammer.glb") as PackedScene)
 	assert_true(hammer != null)
 	assert_eq(rig.equipped_wearable(&"torso").stable_id, &"wearable.kalev_fresh.linen_shirt")
-	var sword := rig.equip(&"right_hand", load(FRESH_DIR + "sword.glb") as PackedScene)
+	var sword := rig.equip(&"right_hand", load(FRESH_DIR + "sword/sword.glb") as PackedScene)
 	assert_true(sword != null)
 	assert_eq(rig.equipped(&"right_hand"), sword)
 	assert_eq(rig.skeleton().get_instance_id(), skeleton_id)

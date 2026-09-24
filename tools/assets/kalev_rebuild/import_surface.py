@@ -10,4 +10,4 @@ bpy.ops.wm.ply_import(filepath=str(Path(args.ply).resolve()))
 mesh=bpy.context.object
 assert mesh is not None and mesh.type=='MESH'
 for polygon in mesh.data.polygons:polygon.use_smooth=True
-bpy.ops.export_scene.gltf(filepath=str(root/'assets/characters/kalev_rebuild/reference/sculpt.glb'),export_format='GLB',use_selection=True,export_animations=False)
+bpy.ops.export_scene.gltf(filepath=str(root/'assets/characters/kalev_fresh/reference/sculpt.glb'),export_format='GLB',use_selection=True,export_animations=False)

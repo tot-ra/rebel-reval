@@ -2,7 +2,7 @@
 
 ## Result
 
-The stable player-view scene `res://assets/characters/kalev/kalev.tscn` now instantiates `kalev_fresh.glb`. Every map runtime that loads the stable scene therefore uses the rebuilt character without map edits. The live rig retains stable identity `char.kalev`, the shared health-ring presentation, canonical animation names, the `handslot.r` equipment socket, and the existing inventory-driven weapon synchronization.
+The stable player-view scene `res://assets/characters/kalev/kalev.tscn` now instantiates `kalev_fresh/kalev_fresh.glb`. Every map runtime that loads the stable scene therefore uses the rebuilt character without map edits. The live rig retains stable identity `char.kalev`, the shared health-ring presentation, canonical animation names, the `handslot.r` equipment socket, and the existing inventory-driven weapon synchronization.
 
 Kalev starts in fitted forge clothing: linen shirt, smith apron, hose, and boots. The former cape and permanent variant hammer were removed from the live variant. Weapons now appear only when equipment state supplies one, and clothing or armor swaps reuse the same skeleton and animation player.
 

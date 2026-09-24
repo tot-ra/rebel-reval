@@ -2,7 +2,7 @@
 from pathlib import Path
 import bpy,math
 from mathutils import Vector
-ROOT=Path(__file__).resolve().parents[3];OUT=ROOT/'assets/characters/kalev_rebuild'
+ROOT=Path(__file__).resolve().parents[3];OUT=ROOT/'assets/characters/kalev_fresh'
 bpy.ops.wm.read_factory_settings(use_empty=True)
 
 def mat(name,color,rough,metal):
@@ -23,7 +23,8 @@ def cylinder(name,pos,radius,depth,material):
 def export(name,objects):
     bpy.ops.object.select_all(action='DESELECT')
     for o in objects:o.select_set(True)
-    bpy.ops.export_scene.gltf(filepath=str(OUT/f'{name}.glb'),export_format='GLB',use_selection=True,export_animations=False)
+    (OUT / name).mkdir(parents=True, exist_ok=True)
+    bpy.ops.export_scene.gltf(filepath=str(OUT/f'{name}/{name}.glb'),export_format='GLB',use_selection=True,export_animations=False)
     for o in objects:bpy.data.objects.remove(o,do_unlink=True)
 
 hammer=[cylinder('AshHaft',(0,0,.085),.015,.42,wood),cube('HammerFace',(-.004,0,.285),(.165,.065,.073),steel,.008),cylinder('HaftFerrule',(0,0,.232),.019,.035,steel)]

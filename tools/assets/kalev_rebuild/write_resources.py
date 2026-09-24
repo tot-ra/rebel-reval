@@ -1,6 +1,6 @@
 """Write small resource wrappers using the existing wardrobe and equipment API."""
 from pathlib import Path
-ROOT=Path(__file__).resolve().parents[3];OUT=ROOT/'assets/characters/kalev_rebuild';RES='res://assets/characters/kalev_rebuild'
+ROOT=Path(__file__).resolve().parents[3];OUT=ROOT/'assets/characters/kalev_fresh';RES='res://assets/characters/kalev_fresh'
 wearables={
  'linen_shirt':('torso',['Anatomy_Torso','Anatomy_Arms']),
  'wool_tunic':('torso',['Anatomy_Torso','Anatomy_Arms']),
@@ -14,7 +14,7 @@ for name,(slot,coverage) in wearables.items():
     (OUT/f'{name}.tres').write_text(f'''[gd_resource type="Resource" script_class="CharacterWearable" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/characters/character_wearable.gd" id="1"]
-[ext_resource type="PackedScene" path="{RES}/{name}.glb" id="2"]
+[ext_resource type="PackedScene" path="{RES}/{name}/{name}.glb" id="2"]
 
 [resource]
 script = ExtResource("1")
@@ -27,7 +27,7 @@ covered_meshes = Array[StringName]([{quoted}])
 (OUT/'kalev_fresh.tscn').write_text(f'''[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="{RES}/fresh_rig.gd" id="1"]
-[ext_resource type="PackedScene" path="{RES}/kalev_fresh.glb" id="2"]
+[ext_resource type="PackedScene" path="{RES}/kalev_fresh/kalev_fresh.glb" id="2"]
 [ext_resource type="Script" path="res://assets/characters/shared/character_variant.gd" id="3"]
 
 [sub_resource type="Resource" id="Variant"]

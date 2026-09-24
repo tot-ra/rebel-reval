@@ -1,7 +1,7 @@
 """Refresh only this task's provenance rows, preserving all other bytes."""
 import csv,hashlib,io,os
 from pathlib import Path
-ROOT=Path(__file__).resolve().parents[3];OUT=ROOT/'assets/characters/kalev_rebuild';MANIFEST=ROOT/'assets/SOURCES.csv';PREFIX='assets.characters.kalev_rebuild.'
+ROOT=Path(__file__).resolve().parents[3];OUT=ROOT/'assets/characters/kalev_fresh';MANIFEST=ROOT/'assets/SOURCES.csv';PREFIX='assets.characters.kalev_fresh.'
 
 def main():
     rows=[]
@@ -15,7 +15,7 @@ def main():
         retained=''.join(line for line in lines if not line.startswith(PREFIX))
         result=(retained+('' if retained.endswith('\n') else '\n')+buf.getvalue()).encode()
         if MANIFEST.read_bytes()!=original:continue
-        tmp=MANIFEST.with_name('SOURCES.kalev_rebuild.tmp');tmp.write_bytes(result)
+        tmp=MANIFEST.with_name('SOURCES.kalev_fresh.tmp');tmp.write_bytes(result)
         if MANIFEST.read_bytes()!=original:tmp.unlink();continue
         os.replace(tmp,MANIFEST);print('Registered',len(rows),'fresh character source rows; unrelated lines preserved.');return
     raise RuntimeError('Concurrent provenance edits; retry after other writer finishes')
