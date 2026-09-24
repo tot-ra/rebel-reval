@@ -18,6 +18,7 @@ const CameraShake := preload("res://scripts/map/view3d/map_view_runtime_camera_s
 const CameraZoom := preload("res://scripts/map/view3d/map_view_runtime_camera_zoom.gd")
 const CameraOrbit := preload("res://scripts/map/view3d/map_view_runtime_camera_orbit.gd")
 const CameraModes := preload("res://scripts/map/view3d/map_view_runtime_camera_modes.gd")
+const CameraFollow := preload("res://scripts/map/view3d/map_view_runtime_camera_follow.gd")
 ## Re-exported so camera safety tests keep a stable MapViewRuntimeCamera API.
 const GROUND_CLEARANCE := CameraSafety.GROUND_CLEARANCE
 const INTERIOR_FLOOR_EDGE_MARGIN := CameraTarget.INTERIOR_FLOOR_EDGE_MARGIN
@@ -26,8 +27,9 @@ const BUILDING_PULL_STEP := CameraSafety.BUILDING_PULL_STEP
 const VISIBILITY_PULL_STEP := CameraSafety.VISIBILITY_PULL_STEP
 const VISIBILITY_PULL_ITERATIONS := CameraSafety.VISIBILITY_PULL_ITERATIONS
 
-const FOLLOW_LERP_WEIGHT := 8.0
-const SNAP_DISTANCE_WORLD := 6.0
+## Re-exported so runtime tests keep a stable MapViewRuntimeCamera API.
+const FOLLOW_LERP_WEIGHT := CameraFollow.FOLLOW_LERP_WEIGHT
+const SNAP_DISTANCE_WORLD := CameraFollow.SNAP_DISTANCE_WORLD
 ## Re-exported so runtime and camera tests keep a stable MapViewRuntimeCamera API.
 const ZOOM_STEP_FACTOR := CameraZoom.ZOOM_STEP_FACTOR
 const ZOOM_MIN_FACTOR := CameraZoom.ZOOM_MIN_FACTOR
@@ -83,6 +85,7 @@ var _shake := CameraShake.new()
 var _zoom := CameraZoom.new()
 var _orbit := CameraOrbit.new()
 var _modes := CameraModes.new()
+var _follow := CameraFollow.new()
 
 
 func configure(
@@ -98,6 +101,7 @@ func configure(
 	_zoom.configure(self)
 	_orbit.configure(self)
 	_modes.configure(self)
+	_follow.configure(self)
 	_safety.configure(self)
 	_target.configure(self)
 	_perspective.configure(self)
@@ -134,41 +138,11 @@ func character_follows_camera() -> bool:
 
 
 func follow_player(snap: bool, delta: float) -> void:
-	var target := _follow_target()
-	var camera_was_inside_occluder := view != null and view.is_point_inside_occluder(camera.position)
-	var camera_and_player_shared_occluder := (
-		camera_was_inside_occluder and _safety.camera_and_player_share_occluder()
-	)
-	var camera_was_below_ground := _safety.camera_is_below_ground()
-	if snap or camera.position.distance_to(target) > SNAP_DISTANCE_WORLD:
-		camera.position = _shake.apply(delta, target)
-	else:
-		var lerped := camera.position.lerp(target, clampf(FOLLOW_LERP_WEIGHT * delta, 0.0, 1.0))
-		camera.position = _shake.apply(delta, lerped)
-	_safety.enforce_camera_safety(
-		camera_was_inside_occluder, camera_and_player_shared_occluder, camera_was_below_ground
-	)
-	view.update_terrain_detail_focus(player_rig.position)
+	_follow.follow_player(snap, delta)
 
 
 func add_screen_shake(amount: float = 0.35) -> void:
 	_shake.add(amount)
-
-
-func _follow_target() -> Vector3:
-	match camera_mode:
-		CameraMode.FIRST_PERSON:
-			return player_rig.position + Vector3.UP * FIRST_PERSON_EYE_HEIGHT
-		CameraMode.THIRD_PERSON:
-			return _target.resolve_third_person_target(
-				(
-					player_rig.position
-					+ Vector3.UP * THIRD_PERSON_TARGET_HEIGHT
-					+ camera.transform.basis.z * _zoom.third_person_distance()
-				)
-			)
-		_:
-			return player_rig.position + camera.transform.basis.z * MapView3D.CAMERA_DISTANCE
 
 
 func apply_view_rotation(delta: float) -> void:
