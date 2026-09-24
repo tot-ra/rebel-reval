@@ -46,7 +46,7 @@ SPECS = (
     {
         "key": "poor",
         "asset_id": "prop.chest.poor_household",
-        "output": "chest_poor_household.glb",
+        "output": "chest_poor_household/chest_poor_household.glb",
         "root_name": "PoorHouseholdChest",
         "purpose": "linens, food vessels, and ordinary household tools",
         "wealth": "poor household",
@@ -63,7 +63,7 @@ SPECS = (
     {
         "key": "common",
         "asset_id": "prop.chest.burgher_household",
-        "output": "chest_burgher_household.glb",
+        "output": "chest_burgher_household/chest_burgher_household.glb",
         "root_name": "BurgherHouseholdChest",
         "purpose": "clothing, account papers, tools, and mixed household goods",
         "wealth": "artisan or burgher household",
@@ -80,7 +80,7 @@ SPECS = (
     {
         "key": "rich",
         "asset_id": "prop.chest.merchant_strongbox",
-        "output": "chest_merchant_strongbox.glb",
+        "output": "chest_merchant_strongbox/chest_merchant_strongbox.glb",
         "root_name": "MerchantStrongbox",
         "purpose": "coin, charters, seals, and high-value merchant goods",
         "wealth": "wealthy merchant, guild, or civic treasury",

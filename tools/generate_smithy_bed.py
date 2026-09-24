@@ -22,7 +22,7 @@ import bpy
 from mathutils import Vector
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "assets" / "props" / "furniture" / "smithy_bed.glb"
+OUTPUT = ROOT / "assets" / "props" / "furniture" / "smithy_bed" / "smithy_bed.glb"
 STAGING = ROOT / "generated" / "blender" / "smithy_bed"
 BRIEF_PATH = STAGING / "brief.json"
 REPORT_PATH = STAGING / "report.json"
@@ -467,7 +467,7 @@ def _write_evidence(metrics: dict[str, object]) -> None:
     brief = {
         "id": ASSET_ID,
         "kind": "rigid_prop",
-        "target": "res://assets/props/furniture/smithy_bed.glb",
+        "target": "res://assets/props/furniture/smithy_bed/smithy_bed.glb",
         "scene": "res://content/maps/kalev_smithy.rrmap",
         "dimensions_m": [2.4, 1.05, 1.35],
         "triangles": {"target": 4000, "max": 6000},
@@ -492,7 +492,7 @@ def _write_evidence(metrics: dict[str, object]) -> None:
         "route": "deterministic_blender",
         "stage": "integrated",
         "cache_key": cache_key,
-        "selected_glb": "assets/props/furniture/smithy_bed.glb",
+        "selected_glb": "assets/props/furniture/smithy_bed/smithy_bed.glb",
         "sha256": output_hash,
         "decision": "integrated",
         "defects": [],

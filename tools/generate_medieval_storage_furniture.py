@@ -35,9 +35,9 @@ COMMON_VARIANT = "shelf.common_open"
 BURGHER_VARIANT = "shelf.burgher_cupboard"
 ELITE_VARIANT = "shelf.elite_armarium"
 VARIANT_OUTPUTS = {
-    COMMON_VARIANT: OUTPUT_DIR / "common_open_rack.glb",
-    BURGHER_VARIANT: OUTPUT_DIR / "burgher_cupboard.glb",
-    ELITE_VARIANT: OUTPUT_DIR / "elite_armarium.glb",
+    COMMON_VARIANT: OUTPUT_DIR / "common_open_rack" / "common_open_rack.glb",
+    BURGHER_VARIANT: OUTPUT_DIR / "burgher_cupboard" / "burgher_cupboard.glb",
+    ELITE_VARIANT: OUTPUT_DIR / "elite_armarium" / "elite_armarium.glb",
 }
 
 COMMON_WOOD_SRGB = (0x78 / 255.0, 0x59 / 255.0, 0x38 / 255.0)

@@ -23,7 +23,15 @@ import bpy
 from mathutils import Euler, Matrix, Vector
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "assets" / "props" / "furniture" / "tables" / "medieval_table_kit.glb"
+OUTPUT = (
+    ROOT
+    / "assets"
+    / "props"
+    / "furniture"
+    / "tables"
+    / "medieval_table_kit"
+    / "medieval_table_kit.glb"
+)
 EVIDENCE_DIR = ROOT / "generated" / "blender" / "medieval_table_kit_v1"
 BRIEF_PATH = EVIDENCE_DIR / "brief.json"
 REPORT_PATH = EVIDENCE_DIR / "report.json"
@@ -45,7 +53,7 @@ COMPONENT_ROOTS = {
 BRIEF = {
     "id": ASSET_ID,
     "kind": "rigid_prop_modular_kit",
-    "target": "res://assets/props/furniture/tables/medieval_table_kit.glb",
+    "target": "res://assets/props/furniture/tables/medieval_table_kit/medieval_table_kit.glb",
     "scene": "res://content/maps/reval_harbor_east.rrmap#fish_splitting_smoke",
     "variants": list(COMPONENT_ROOTS),
     "dimensions_m_max": [2.32, 0.84, 0.83],

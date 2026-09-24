@@ -21,7 +21,7 @@ import bpy
 from mathutils import Matrix, Vector
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "assets" / "props" / "furniture" / "smithy_chair.glb"
+OUTPUT = ROOT / "assets" / "props" / "furniture" / "smithy_chair" / "smithy_chair.glb"
 DEFAULT_PREVIEW = Path("/tmp/rebel_reval_smithy_chair_preview.png")
 ASSET_ID = "prop.smithy_chair"
 BLENDER_VERSION = "Blender 5.2 LTS"
