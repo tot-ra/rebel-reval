@@ -15,6 +15,7 @@ const CameraPerspective := preload(
 	"res://scripts/map/view3d/map_view_runtime_camera_perspective.gd"
 )
 const CameraShake := preload("res://scripts/map/view3d/map_view_runtime_camera_shake.gd")
+const CameraZoom := preload("res://scripts/map/view3d/map_view_runtime_camera_zoom.gd")
 ## Re-exported so camera safety tests keep a stable MapViewRuntimeCamera API.
 const GROUND_CLEARANCE := CameraSafety.GROUND_CLEARANCE
 const INTERIOR_FLOOR_EDGE_MARGIN := CameraTarget.INTERIOR_FLOOR_EDGE_MARGIN
@@ -25,21 +26,18 @@ const VISIBILITY_PULL_ITERATIONS := CameraSafety.VISIBILITY_PULL_ITERATIONS
 
 const FOLLOW_LERP_WEIGHT := 8.0
 const SNAP_DISTANCE_WORLD := 6.0
-const ZOOM_STEP_FACTOR := 0.9
-const ZOOM_MIN_FACTOR := 0.3
-const ZOOM_MAX_FACTOR := 1.5
-const ZOOM_MIN_ORTHOGRAPHIC_SIZE := CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE * ZOOM_MIN_FACTOR
-const ZOOM_MAX_ORTHOGRAPHIC_SIZE := CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE * ZOOM_MAX_FACTOR
+## Re-exported so runtime and camera tests keep a stable MapViewRuntimeCamera API.
+const ZOOM_STEP_FACTOR := CameraZoom.ZOOM_STEP_FACTOR
+const ZOOM_MIN_FACTOR := CameraZoom.ZOOM_MIN_FACTOR
+const ZOOM_MAX_FACTOR := CameraZoom.ZOOM_MAX_FACTOR
+const ZOOM_MIN_ORTHOGRAPHIC_SIZE := CameraZoom.ZOOM_MIN_ORTHOGRAPHIC_SIZE
+const ZOOM_MAX_ORTHOGRAPHIC_SIZE := CameraZoom.ZOOM_MAX_ORTHOGRAPHIC_SIZE
+const PAN_SCROLL_ZOOM_SENSITIVITY := CameraZoom.PAN_SCROLL_ZOOM_SENSITIVITY
+const THIRD_PERSON_DISTANCE := CameraZoom.THIRD_PERSON_DISTANCE
+const THIRD_PERSON_MIN_DISTANCE := CameraZoom.THIRD_PERSON_MIN_DISTANCE
+const THIRD_PERSON_MAX_DISTANCE := CameraZoom.THIRD_PERSON_MAX_DISTANCE
 const ROTATE_SPEED_DEGREES := 120.0
 const MOUSE_ROTATE_DEGREES_PER_PIXEL := 0.3
-## macOS trackpad two-finger scroll arrives as InputEventPanGesture with small
-## deltas (~0.5-1.5 per tick) instead of mouse-wheel buttons.
-const PAN_SCROLL_ZOOM_SENSITIVITY := 1.0
-const THIRD_PERSON_DISTANCE := 6.0
-## Closest boom before scroll-zoom flips into first-person.
-const THIRD_PERSON_MIN_DISTANCE := 2.0
-## Farthest boom before scroll-zoom flips into the orthographic top-down overview.
-const THIRD_PERSON_MAX_DISTANCE := 12.0
 const THIRD_PERSON_TARGET_HEIGHT := 1.15
 const THIRD_PERSON_PITCH_DEGREES := -12.0
 ## Follow-camera pitch band: look down toward the character/ground, or raise the
@@ -76,12 +74,11 @@ var first_person: bool:
 
 var _mouse_rotation_armed := false
 var _last_mouse_position := Vector2.ZERO
-var _top_down_size := CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE
-var _third_person_distance := THIRD_PERSON_DISTANCE
 var _safety := CameraSafety.new()
 var _target := CameraTarget.new()
 var _perspective := CameraPerspective.new()
 var _shake := CameraShake.new()
+var _zoom := CameraZoom.new()
 
 
 func configure(
@@ -94,8 +91,7 @@ func configure(
 	player_rig = runtime_player_rig
 	view = runtime_view
 	player = runtime_player
-	_top_down_size = camera.size
-	_third_person_distance = THIRD_PERSON_DISTANCE
+	_zoom.configure(self)
 	# Enclosed building scenes start overhead so perspective camera booms cannot
 	# collide with perimeter walls. Players may still cycle to either perspective mode.
 	camera_mode = (
@@ -118,7 +114,7 @@ func perspective_camera_attributes() -> CameraAttributesPractical:
 
 
 func third_person_follow_distance() -> float:
-	return _third_person_distance
+	return _zoom.third_person_distance()
 
 
 func logic_direction_toward_camera() -> Vector2:
@@ -166,7 +162,7 @@ func _follow_target() -> Vector3:
 				(
 					player_rig.position
 					+ Vector3.UP * THIRD_PERSON_TARGET_HEIGHT
-					+ camera.transform.basis.z * _third_person_distance
+					+ camera.transform.basis.z * _zoom.third_person_distance()
 				)
 			)
 		_:
@@ -240,55 +236,15 @@ func look_first_person_degrees(delta_degrees: float) -> void:
 
 
 func zoom_view_steps(steps: float) -> void:
-	if is_zero_approx(steps):
-		return
-	match camera_mode:
-		CameraMode.TOP_DOWN:
-			# Same continuum as the follow boom: zoom-in past the close ortho
-			# threshold restores third-person at the farthest boom.
-			var next_size := camera.size * pow(ZOOM_STEP_FACTOR, steps)
-			if next_size < ZOOM_MIN_ORTHOGRAPHIC_SIZE and steps > 0.0:
-				_third_person_distance = THIRD_PERSON_MAX_DISTANCE
-				set_camera_mode(CameraMode.THIRD_PERSON)
-				return
-			camera.size = clampf(next_size, ZOOM_MIN_ORTHOGRAPHIC_SIZE, ZOOM_MAX_ORTHOGRAPHIC_SIZE)
-			_top_down_size = camera.size
-		CameraMode.THIRD_PERSON:
-			# Same wheel polarity as top-down: positive steps pull the boom closer.
-			var next_distance := _third_person_distance * pow(ZOOM_STEP_FACTOR, steps)
-			if next_distance < THIRD_PERSON_MIN_DISTANCE:
-				# Crossing the close threshold enters eye-height first-person.
-				_third_person_distance = THIRD_PERSON_MIN_DISTANCE
-				set_camera_mode(CameraMode.FIRST_PERSON)
-				return
-			if next_distance > THIRD_PERSON_MAX_DISTANCE:
-				# Crossing the far threshold enters the orthographic overview.
-				_third_person_distance = THIRD_PERSON_MAX_DISTANCE
-				set_camera_mode(CameraMode.TOP_DOWN)
-				return
-			_third_person_distance = clampf(
-				next_distance, THIRD_PERSON_MIN_DISTANCE, THIRD_PERSON_MAX_DISTANCE
-			)
-			follow_player(true, 0.0)
-		CameraMode.FIRST_PERSON:
-			# Scroll-out restores the closest third-person boom; scroll-in is a no-op.
-			if steps < 0.0:
-				_third_person_distance = THIRD_PERSON_MIN_DISTANCE
-				set_camera_mode(CameraMode.THIRD_PERSON)
+	_zoom.apply_view_steps(steps)
 
 
 func zoom_from_magnify_factor(factor: float) -> void:
-	if is_equal_approx(factor, 1.0):
-		return
-	# Pinch spread (factor > 1) must match wheel-up zoom-in semantics.
-	zoom_view_steps(-log(factor) / log(ZOOM_STEP_FACTOR))
+	_zoom.apply_magnify_factor(factor)
 
 
 func zoom_from_pan_delta(delta: Vector2) -> void:
-	if is_zero_approx(delta.y):
-		return
-	# Negative delta.y is trackpad scroll-up on macOS; wheel-up uses positive steps.
-	zoom_view_steps(-delta.y * PAN_SCROLL_ZOOM_SENSITIVITY)
+	_zoom.apply_pan_delta(delta)
 
 
 func cycle_camera_mode() -> void:
@@ -313,7 +269,7 @@ func set_camera_mode(next_mode: CameraMode) -> void:
 	if camera_mode == next_mode:
 		return
 	if camera_mode == CameraMode.TOP_DOWN:
-		_top_down_size = camera.size
+		_zoom.capture_top_down_size_from_camera()
 	camera_mode = next_mode
 	_apply_camera_mode()
 
@@ -334,7 +290,7 @@ func _apply_camera_mode() -> void:
 			_perspective.apply_for_perspective_mode(camera_mode)
 		CameraMode.TOP_DOWN:
 			camera.projection = Camera3D.PROJECTION_ORTHOGONAL
-			camera.size = _top_down_size
+			camera.size = _zoom.top_down_size()
 			camera.near = TOP_DOWN_NEAR
 			camera.rotation_degrees.x = MapView3D.CAMERA_PITCH_DEGREES
 			_perspective.clear_for_top_down()
