@@ -60,6 +60,7 @@ jobs:
             tests.python.test_test_commands \
             tests.python.test_campaign_save_fixtures \
             tests.python.test_verify_clean_checkout_load \
+            tests.python.test_verify_texture_prompts \
             -v
 
       - name: Lint GDScript
@@ -173,6 +174,7 @@ jobs:
         run: |
           python3 tools/validate_asset_sources.py
           python3 tools/verify_slice_surface_assets.py
+          python3 tools/verify_texture_prompts.py
           python3 tools/verify_asset_lint.py
           python3 tools/verify_slice_surface_captures.py
           python3 tools/quarantine_assets.py --check

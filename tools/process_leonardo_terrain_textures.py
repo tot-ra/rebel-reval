@@ -18,8 +18,16 @@ ROOT = Path(__file__).resolve().parents[1]
 GENERATED = ROOT / "generated" / "leonardo"
 OUTPUTS = {
     "grass": (
-        GENERATED / "76bae8e4-00a6-406f-9471-5f8133eca660-1.jpg",
+        GENERATED / "grass_meadow_v2" / "candidate_1.jpg",
         ROOT / "assets/materials/pbr/grass/grass_albedo.png",
+    ),
+    "mud": (
+        GENERATED / "mud_yard_v1" / "candidate_2.jpg",
+        ROOT / "assets/materials/pbr/mud/mud_albedo.png",
+    ),
+    "limestone_rubble": (
+        GENERATED / "city_wall_limestone_v1" / "candidate_1.jpg",
+        ROOT / "assets/materials/pbr/limestone_rubble/limestone_rubble_albedo.png",
     ),
     "timber_floor": (
         GENERATED / "85f90518-4e44-4457-aa49-bc744568f807-1.jpg",
@@ -31,11 +39,15 @@ OUTPUTS = {
     ),
 }
 TARGET_SIZE = 512
+# Masonry courses are horizontal structure. A half-tile phase shift moves the
+# original wrap seam into the middle of the wall face and reads as a fault line.
+KEEP_SOURCE_PHASE = {"limestone_rubble"}
 
 
-def _weld_edges(image: Image.Image) -> Image.Image:
-    """Relocate the candidate's strongest seam, then make both wrap edges equal."""
-    image = ImageChops.offset(image, TARGET_SIZE // 2, TARGET_SIZE // 2)
+def _weld_edges(image: Image.Image, *, phase_shift: bool) -> Image.Image:
+    """Make both wrap edges equal. Optionally move the original seam off the border."""
+    if phase_shift:
+        image = ImageChops.offset(image, TARGET_SIZE // 2, TARGET_SIZE // 2)
     pixels = image.load()
     for y in range(TARGET_SIZE):
         edge = tuple((pixels[0, y][channel] + pixels[TARGET_SIZE - 1, y][channel]) // 2 for channel in range(3))
@@ -49,15 +61,20 @@ def _weld_edges(image: Image.Image) -> Image.Image:
 
 
 def main() -> int:
+    prepared = 0
     for family, (source, destination) in OUTPUTS.items():
         if not source.is_file():
-            raise FileNotFoundError(source)
+            print(f"skip {family}: missing {source.relative_to(ROOT)}")
+            continue
         image = Image.open(source).convert("RGB")
         image = image.resize((TARGET_SIZE, TARGET_SIZE), Image.Resampling.LANCZOS)
-        image = _weld_edges(image)
+        image = _weld_edges(image, phase_shift=family not in KEEP_SOURCE_PHASE)
         destination.parent.mkdir(parents=True, exist_ok=True)
         image.save(destination, "PNG", optimize=True)
+        prepared += 1
         print(f"prepared {family}: {destination.relative_to(ROOT)}")
+    if prepared == 0:
+        raise FileNotFoundError("no Leonardo terrain sources were available")
     return 0
 
 

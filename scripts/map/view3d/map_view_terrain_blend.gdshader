@@ -4,6 +4,9 @@ render_mode cull_disabled, diffuse_burley;
 uniform sampler2DArray terrain_patterns;
 uniform sampler2DArray cobble_patterns;
 uniform sampler2D cobble_surface : filter_linear_mipmap, repeat_enable;
+uniform sampler2D grass_albedo : source_color, filter_linear_mipmap, repeat_enable;
+uniform sampler2D mud_albedo : source_color, filter_linear_mipmap, repeat_enable;
+uniform float use_authored_mud = 0.0;
 uniform float pattern_layers = 1.0;
 uniform int cobblestone_layer = 12;
 uniform int castle_paving_layer = 13;
@@ -71,12 +74,14 @@ vec2 natural_warp(vec2 uv) {
 // prevents its 2 m repeat from reading as a checkerboard across the whole meadow.
 vec3 sample_natural_ground(int layer, vec2 base_uv) {
 	vec2 grass_uv = natural_warp(base_uv * natural_ground_uv_scale);
-	vec3 primary = texture(terrain_patterns, vec3(fract(grass_uv), float(layer))).rgb;
+	// Sample the native grass plate. The shared terrain array is only a 128 px
+	// fallback and was the source of the meadow blur.
+	vec3 primary = texture(grass_albedo, fract(grass_uv)).rgb;
 	vec2 macro_uv = vec2(
 		dot(grass_uv, vec2(0.61, 0.19)),
 		dot(grass_uv, vec2(-0.17, 0.67))
 	) * 0.58 + vec2(0.23, 0.41);
-	vec3 macro = texture(terrain_patterns, vec3(fract(macro_uv), float(layer))).rgb;
+	vec3 macro = texture(grass_albedo, fract(macro_uv)).rgb;
 	float patch = natural_noise(base_uv * 0.34 + vec2(4.8, 19.2));
 	float fine = natural_noise(base_uv * 1.7 + vec2(31.4, 7.7));
 	float variation = clamp(natural_ground_variation, 0.0, 1.0);
@@ -84,6 +89,11 @@ vec3 sample_natural_ground(int layer, vec2 base_uv) {
 	vec3 result = mix(primary, macro, macro_mix);
 	result *= 1.0 + (fine - 0.5) * 0.20 * variation;
 	return result;
+}
+
+vec3 sample_authored_mud(vec2 base_uv) {
+	vec2 mud_uv = natural_warp(base_uv * 1.35);
+	return texture(mud_albedo, fract(mud_uv)).rgb;
 }
 
 vec3 sample_terrain_pattern(int layer, vec2 uv) {
@@ -95,6 +105,9 @@ vec3 sample_terrain_pattern(int layer, vec2 uv) {
 	}
 	if (layer >= 0 && layer <= 3) {
 		return sample_natural_ground(layer, uv);
+	}
+	if (layer == mud_layer && use_authored_mud > 0.5) {
+		return sample_authored_mud(uv);
 	}
 	return texture(terrain_patterns, vec3(terrain_pattern_uv(layer, uv), float(layer))).rgb;
 }
@@ -108,7 +121,8 @@ bool uses_realistic_albedo(int layer) {
 	// paving and earth it borders, so every stone apron produced pale wedges along
 	// the triangulated terrain boundary. Tinting it by the stone palette entry puts
 	// outdoor limestone flags back in the same value range as the street.
-	return layer == 0 || layer == 1 || layer == 2 || layer == 3 || layer == 15;
+	return layer == 0 || layer == 1 || layer == 2 || layer == 3 || layer == 15
+		|| (layer == mud_layer && use_authored_mud > 0.5);
 }
 
 vec3 terrain_pattern_albedo(int layer, vec2 uv, vec3 palette_tint) {

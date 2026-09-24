@@ -163,26 +163,56 @@ The PBR textures live under `assets/materials/pbr/<family>/` with the naming con
 
 **Leonardo generation IDs:** 1c85cef0, 151628c8, 3ca9a967
 
+## Prompt sidecars
+
+Every generated runtime plate keeps its full prompt next to the PNG so later passes can
+iterate instead of reconstructing the brief from a dated report.
+
+```
+assets/materials/pbr/<family>/
+  <family>_albedo.png
+  prompt.json
+generated/leonardo/<slug>/
+  brief.json
+  prompt.json
+  candidate_1.jpg
+```
+
+`prompt.json` must include `id`, `family`, `prompt`, and `target`. Generate new plates with
+`python3 tools/generate_leonardo_material.py --spec generated/leonardo/<slug>/brief.json`,
+then weld them with `python3 tools/process_leonardo_terrain_textures.py`. Verify with
+`python3 tools/verify_texture_prompts.py`.
+
 ## Runtime integration
 
 The complete PBR sets under `assets/materials/pbr/` remain source/reference material for
-future family-by-family migration. This pass wires three selected Leonardo albedo plates into
-the existing runtime terrain texture array: `grass/grass_albedo.png` backs grass, meadow,
-forest-floor, and bog layers; `timber_floor/timber_floor_albedo.png` backs timber floors;
-`smithy_floor/smithy_floor_albedo.png` backs the irregular flagstone `stone` layer used by
-Kalev's forge. They are resized to the existing 128px terrain tier at load time, while the
-terrain shader preserves their RGB albedo and applies only a restrained palette tint. All
-other terrain layers retain the procedural grayscale fallback until a scoped visual pass
-approves their replacement.
+family-by-family migration. Grass, meadow, forest-floor, and bog sample
+`grass/grass_albedo.png` at native 512 px. Mud samples `mud/mud_albedo.png` the same way
+when that plate is present. City walls and other limestone masonry use
+`limestone_rubble/limestone_rubble_albedo.png` at the 512 px masonry tier. Timber floors
+and the smithy flagstone layer stay in the shared 128 px terrain array. All other terrain
+layers retain the procedural grayscale fallback until a scoped visual pass approves their
+replacement.
 
 The existing `style_lock/` albedo-only textures are retained as reference material for
 the style-lock kit verification pipeline.
+
+## Grass, mud, and city-wall pass (2026-09-24)
+
+- Grass and mud now sample native 512 px Leonardo plates instead of the 128 px
+  terrain array. The full prompt for each plate lives in `prompt.json`.
+- City walls use `limestone_rubble` at the 512 px masonry tier with anisotropic
+  filtering. The even ashlar `stone` family stays as a reference set only.
+- Evidence: `docs/reports/images/street_realism/*_textures.png`.
 
 ## Verification
 
 ```bash
 # Check PBR texture presence and dimensions
 python3 tools/verify_pbr_textures.py
+
+# Check every generated family kept its prompt sidecar
+python3 tools/verify_texture_prompts.py
 
 # Check style-lock albedo references still pass
 python3 tools/verify_slice_surface_assets.py

@@ -1,0 +1,14 @@
+{
+  "id": "material.stone.albedo",
+  "family": "stone",
+  "map_type": "albedo",
+  "kind": "leonardo_material_plate",
+  "target": "assets/materials/pbr/stone/stone_albedo.png",
+  "source": "generated/leonardo/72c9eec1-f240-463f-86e2-fa255eac2201-1.jpg",
+  "prompt": "Seamless tileable medieval limestone wall texture, cut ashlar blocks, light grey stone with subtle mortar joints, weathered surface, PBR albedo map, photorealistic, top-down view, 512x512 tileable pattern",
+  "model_name": "Lucid Realism",
+  "generation_id": "72c9eec1-f240-463f-86e2-fa255eac2201",
+  "processor": "tools/apply_pbr_textures.py",
+  "style_refs": ["docs/ART_BIBLE.md", "docs/MATERIAL_STYLE_LOCK_KIT.md"],
+  "notes": "Reference ashlar set. City walls use limestone_rubble, not this even machine grid."
+}

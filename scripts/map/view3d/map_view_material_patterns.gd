@@ -8,6 +8,9 @@ const COBBLE_STONES_X := 20
 const COBBLE_STONES_Y := 28
 
 ## Procedural grayscale detail textures multiplied with palette albedo tints.
+const LIMESTONE_RUBBLE_PATH := (
+	"res://assets/materials/pbr/limestone_rubble/limestone_rubble_albedo.png"
+)
 
 static var _cache: Dictionary = {}
 
@@ -162,6 +165,20 @@ static func _pattern_texture_at_size(
 	return texture
 
 
+static func _authored_plate_image(path: String, texture_size: int) -> Image:
+	if not ResourceLoader.exists(path):
+		return Image.new()
+	var texture := load(path) as Texture2D
+	if texture == null:
+		return Image.new()
+	var image := texture.get_image()
+	if image == null or image.get_width() < 2:
+		return Image.new()
+	if image.get_width() != texture_size or image.get_height() != texture_size:
+		image.resize(texture_size, texture_size, Image.INTERPOLATE_LANCZOS)
+	return image
+
+
 static func _pattern_image_at_size(
 	pattern: StringName, noise_seed: int, texture_size: int
 ) -> Image:
@@ -180,6 +197,9 @@ static func _pattern_image_at_size(
 		MapViewMaterials.PATTERN_PLANK:
 			_paint_plank(image, noise_seed)
 		MapViewMaterials.PATTERN_LIMESTONE:
+			var authored := _authored_plate_image(LIMESTONE_RUBBLE_PATH, texture_size)
+			if authored.get_width() == texture_size:
+				return authored
 			_paint_limestone(image, noise_seed)
 		MapViewMaterials.PATTERN_ROCK:
 			_paint_rock(image, noise_seed)

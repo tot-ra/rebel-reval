@@ -1,0 +1,13 @@
+{
+  "id": "material.smithy_floor.albedo",
+  "family": "smithy_floor",
+  "map_type": "albedo",
+  "kind": "leonardo_material_plate",
+  "target": "assets/materials/pbr/smithy_floor/smithy_floor_albedo.png",
+  "source": "generated/leonardo/3713e478-8edb-4e36-87c1-88a14fce5b24-1.jpg",
+  "prompt": "Seamless tileable top-down material plate for a fourteenth-century Baltic smithy forge floor: irregular hand-laid local fieldstone flagstones, naturally varied polygonal grey and warm charcoal stones, broad uneven joints filled with dark soot, iron dust, ash and a little damp earth, chipped edges, worn foot-polished centers, subtle realistic mineral variation, muted cool grey-brown palette, physically based game texture albedo, flat even diffuse lighting, no baked cast shadows, no perspective, no objects, no architecture, no brick courses, no regular grid, no text, perfectly tileable on all edges",
+  "model_name": "default integration model",
+  "generation_id": "3713e478-8edb-4e36-87c1-88a14fce5b24",
+  "processor": "tools/process_leonardo_terrain_textures.py",
+  "style_refs": ["docs/ART_BIBLE.md", "docs/MATERIAL_STYLE_LOCK_KIT.md"]
+}

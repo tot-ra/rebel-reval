@@ -84,6 +84,30 @@ func test_masonry_courses_match_real_stone_sizes() -> void:
 		)
 
 
+func test_city_walls_use_authored_limestone_rubble_plate() -> void:
+	assert_true(
+		ResourceLoader.exists(MapViewMaterialPatterns.LIMESTONE_RUBBLE_PATH),
+		"city walls need the authored limestone rubble plate"
+	)
+	var image := (
+		MapViewMaterialPatterns
+		. pattern_texture(MapViewMaterials.PATTERN_LIMESTONE, 8123)
+		. get_image()
+	)
+	assert_eq(image.get_width(), MapViewMaterials.MASONRY_TEXTURE_SIZE)
+	var minimum := 1.0
+	var maximum := 0.0
+	for y in range(0, image.get_height(), 4):
+		for x in range(0, image.get_width(), 4):
+			var value := image.get_pixel(x, y).r
+			minimum = minf(minimum, value)
+			maximum = maxf(maximum, value)
+	assert_true(
+		maximum - minimum > 0.18,
+		"limestone rubble must keep joint and face contrast (range %.2f)" % (maximum - minimum)
+	)
+
+
 func test_masonry_carries_relief_normals_at_masonry_resolution() -> void:
 	for family: StringName in [&"limestone", &"brick"]:
 		var material := MapViewMaterials.wall_surface(family, Color(0.56, 0.55, 0.50))

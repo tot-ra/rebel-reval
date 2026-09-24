@@ -1,0 +1,15 @@
+{
+  "id": "material.limestone_rubble.albedo",
+  "family": "limestone_rubble",
+  "map_type": "albedo",
+  "kind": "leonardo_material_plate",
+  "target": "assets/materials/pbr/limestone_rubble/limestone_rubble_albedo.png",
+  "output_dir": "generated/leonardo/city_wall_limestone_v1",
+  "processor": "tools/process_leonardo_terrain_textures.py",
+  "width": 1024,
+  "height": 1024,
+  "num_images": 2,
+  "notes": "Replace the printed dark brick-grid city wall with coursed Tallinn limestone rubble.",
+  "prompt": "Seamless tileable front-facing PBR albedo of a fourteenth-century Reval city wall: coursed Baltic limestone rubble masonry. Roughly levelled horizontal bands of irregular hand-split warm grey-buff limestone blocks in wide pale lime mortar, chipped arrises, pitting, lichen, rain streaks and darker damp joints. Stones are large and readable, not a fine printed brick grid and not machine-cut ashlar. Sharp stone edges and mortar grain, high micro-contrast, orthographic wall plate, neutral even diffuse lighting, no baked sunlight, no towers, no merlons, no sky, no figures, perfectly tileable on all four edges, square 1:1 material plate.",
+  "negative_prompt": "blurry, gaussian blur, soft focus, printed wallpaper, machine ashlar, regular brick grid, dark grey Lego bricks, modern concrete, castle merlons, battlements, sky, horizon, characters, flags, text, logo, watermark, border, baked cast shadows, visible tile seam"
+}

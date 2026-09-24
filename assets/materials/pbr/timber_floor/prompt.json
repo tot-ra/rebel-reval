@@ -1,0 +1,13 @@
+{
+  "id": "material.timber_floor.albedo",
+  "family": "timber_floor",
+  "map_type": "albedo",
+  "kind": "leonardo_material_plate",
+  "target": "assets/materials/pbr/timber_floor/timber_floor_albedo.png",
+  "source": "generated/leonardo/85f90518-4e44-4457-aa49-bc744568f807-1.jpg",
+  "prompt": "Seamless tileable medieval Baltic oak plank floor, hand-hewn boards, longitudinal grain, worn polish, soot and iron dust near hearth. Neutral top-down material plate, no baked lighting, scene, horizon, or figures.",
+  "model_name": "Lucid Realism",
+  "generation_id": "85f90518-4e44-4457-aa49-bc744568f807",
+  "processor": "tools/process_leonardo_terrain_textures.py",
+  "style_refs": ["docs/ART_BIBLE.md", "docs/MATERIAL_STYLE_LOCK_KIT.md"]
+}

@@ -198,14 +198,18 @@ if any_staged_path "content" \
 fi
 
 if any_staged_path "assets/SOURCES.csv" \
+  "assets/materials/pbr" \
   "tools/validate_asset_sources.py" \
   "tools/verify_asset_lint.py" \
   "tools/verify_storage_hygiene.py" \
+  "tools/verify_texture_prompts.py" \
+  "tests/python/test_verify_texture_prompts.py" \
   "docs/storage_binary_exceptions.json" \
   "docs/lfs_assets.json"; then
   run_step "asset provenance manifest" python3 tools/validate_asset_sources.py
   run_step "storage hygiene" python3 tools/verify_storage_hygiene.py
   run_step "asset lint" python3 tools/verify_asset_lint.py
+  run_step "texture prompt sidecars" python3 tools/verify_texture_prompts.py
 fi
 
 # Active-doc check walks the live worktree. Trigger only on the report inputs /

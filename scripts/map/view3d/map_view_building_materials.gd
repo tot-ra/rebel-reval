@@ -268,6 +268,8 @@ static func _make_weathered_material(
 	material.metallic = 0.0
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	material.vertex_color_use_as_albedo = true
+	# Distant wall faces otherwise smear 512 px masonry into a printed grid.
+	material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
 	# Weathering only re-tones the plate, so the relief is shared with the base
 	# pattern seed and does not multiply normal-map memory per weathering band.
 	_apply_relief(material, pattern, noise_seed)
@@ -309,5 +311,6 @@ static func _make_material(base: Color, pattern: StringName, noise_seed: int) ->
 	# Terrain cells and scatter instances carry per-cell tone in vertex/instance
 	# colors; meshes without a color attribute stay white so nothing shifts.
 	material.vertex_color_use_as_albedo = true
+	material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
 	_apply_relief(material, pattern, noise_seed)
 	return material

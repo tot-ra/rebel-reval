@@ -7,6 +7,8 @@ extends RefCounted
 
 const TEXTURE_SIZE := 128
 const COBBLE_TEXTURE_SIZE := 512
+const NATURAL_GROUND_TEXTURE_SIZE := 512
+const MUD_ALBEDO_PATH := "res://assets/materials/pbr/mud/mud_albedo.png"
 
 const HAY_FIBER_TEXTURE := preload("res://assets/materials/production/hay_fibers.png")
 const GRASS_ALBEDO_TEXTURE := preload("res://assets/materials/pbr/grass/grass_albedo.png")
@@ -151,9 +153,15 @@ static func terrain_pattern_array(noise_seed: int) -> Texture2DArray:
 				MapTypes.TERRAIN_BOG
 			]
 		):
-			# Leonardo's grass albedo supplies the shared outdoor family while the
-			# existing palette tint still differentiates meadow, bog, and woodland.
+			# Keep a low-res family copy in the shared array for fallbacks. The
+			# blend shader samples the native 512 px grass plate directly so
+			# meadows stay sharp at gameplay range.
 			image = GRASS_ALBEDO_TEXTURE.get_image()
+			if image.get_width() != TEXTURE_SIZE or image.get_height() != TEXTURE_SIZE:
+				image.resize(TEXTURE_SIZE, TEXTURE_SIZE, Image.INTERPOLATE_LANCZOS)
+			image.generate_mipmaps()
+		elif terrain_id == MapTypes.TERRAIN_MUD and ResourceLoader.exists(MUD_ALBEDO_PATH):
+			image = (load(MUD_ALBEDO_PATH) as Texture2D).get_image()
 			if image.get_width() != TEXTURE_SIZE or image.get_height() != TEXTURE_SIZE:
 				image.resize(TEXTURE_SIZE, TEXTURE_SIZE, Image.INTERPOLATE_LANCZOS)
 			image.generate_mipmaps()
@@ -248,6 +256,14 @@ static func blended_ground(noise_seed: int) -> ShaderMaterial:
 	material.set_shader_parameter("natural_ground_uv_scale", TERRAIN_GRASS_UV_SCALE)
 	material.set_shader_parameter("natural_ground_variation", 0.72)
 	material.set_shader_parameter("timber_floor_uv_scale", TERRAIN_TIMBER_FLOOR_UV_SCALE)
+	# Sample authored plates at native resolution. The shared terrain array stays
+	# at 128 px so procedural families do not pay a 16x paint cost.
+	material.set_shader_parameter("grass_albedo", GRASS_ALBEDO_TEXTURE)
+	if ResourceLoader.exists(MUD_ALBEDO_PATH):
+		material.set_shader_parameter("mud_albedo", load(MUD_ALBEDO_PATH))
+		material.set_shader_parameter("use_authored_mud", 1.0)
+	else:
+		material.set_shader_parameter("use_authored_mud", 0.0)
 	_cache[key] = material
 	return material
 

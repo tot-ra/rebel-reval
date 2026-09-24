@@ -13,6 +13,10 @@ This file contains lessons specific to the Art role.
 - Blender `mathutils.Vector` uses `(a - b).length`. Flatten matrix rows before scalar comparison. `bpy_prop_collection` does not support non-unit slices.
 - Blender-authored generators import `bpy`. Invoke them through Blender, not repository `python3`.
 - When Leonardo, ComfyUI, or Hunyuan3D is unavailable, ship deterministic Blender generators instead of blocking. Leonardo may reject an unsupported `preset_style`; retry with the field empty.
+- Cursor CLI does not expose `leonardo_generate_image`. Call Leonardo REST through `tools/generate_leonardo_material.py` and store the full prompt in `prompt.json` beside the plate. The CDN returns 403 to bare urllib; send a browser User-Agent.
+- Do not downscale authored grass or mud into the 128 px terrain array. Sample those plates at native 512 px. The shared array stays small so procedural families do not pay a 16x paint cost.
+- City walls need coursed limestone rubble, not the even ashlar `stone` family. Keep the generation prompt with the plate so the next pass can sharpen joints instead of guessing.
+- Do not half-tile-offset a coursed masonry plate before welding. That move puts the original wrap seam across the middle of the wall face.
 - Extra house wall/roof maps belong in `assets/materials/pbr/building_variants/` from `tools/generate_building_surface_variants.py`. Do not mutate imported GLB materials; duplicate onto surface overrides keyed by stable building id.
 - Never open `assets/SOURCES.csv` with mode `w` until the replacement row list is fully built. Prefer write-to-temp then rename. Parse with `csv.DictReader`. The primary key is `asset_id`; SHA-256 belongs in `prompt_or_url`.
 - After adding fauna or prop GLBs, run a headless Godot import before tests. Update bird authored-mesh allowlists in the same change as new `assets/birds/**` GLBs.
@@ -36,6 +40,10 @@ This file contains lessons specific to the Art role.
 ### Character skin projection
 - Per-face front/back material switches on a single mesh leave a torn silhouette seam and smear reference plates across every side-facing surface, because planar XZ projection collapses texel density wherever the normal turns away from the camera. Bake one smart-projected atlas instead: blend the original plates per texel by a cubed facing term, diffuse low-confidence grazing texels, and retire the old projection sidecars in the same change as the GLB rebuild.
 - Locomotion that only keys hips and a flat shoulder swing reads as a mannequin slide. Conjugate lower-arm rotations through each shoulder's rest drop so elbow keys hinge correctly, and ground each cycle with sole probes plus a pelvis offset so the lowest heel/ball/toe contact stays on the floor.
+- Diffusing a texture fill across an unwrapped atlas in UV space cannot work: islands are packed arbitrarily, so a texel's neighbour may be hair, an unrelated limb or background, and relaxation that averages uncovered texels drags island borders to black. Bin by world position and weight every contribution by the facing term instead.
+- Which arm folds matters. In a run the lead arm closes toward the chest and the trailing arm opens behind the hip; fold them the other way and both hands park in front, which `test_character_rig` catches as a contralateral-swing failure.
+- Ankle and toe rotation ride the same sine as the hip, not a quarter-cycle cosine. On a cosine the foot is neutral at both heel strike and toe-off and points through mid-stance, so the character walks on its toes. Render the cycle over a floor plane; foot contact is not judgeable against empty background.
+- Do not run a blanket `vertex_group_smooth` over a heat bind on a clavicle-less skeleton. It spreads chest weight onto upperarm and back, `bind()` then keeps only the four largest influences, and the shoulder tears open along a hard crease. Judge such a change by rendering an unchanged CC0 clip before and after, and by the mean pixel delta, not by eye.
 
 ### Materials, export, and provenance
 - Blender glTF export with packed textures still yields Godot-extracted albedo, normal, and roughness sidecars. Register those derived paths.

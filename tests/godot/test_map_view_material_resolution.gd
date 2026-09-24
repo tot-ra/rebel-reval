@@ -4,11 +4,29 @@ extends "res://tests/godot/test_case.gd"
 ## detail than secondary terrain materials without inflating their texture array.
 
 
+func test_grass_and_mud_sample_native_authored_plates() -> void:
+	var material := MapViewMaterials.blended_ground(731)
+	var grass: Texture2D = material.get_shader_parameter("grass_albedo")
+	assert_true(grass != null, "meadow layers must sample the authored grass plate")
+	assert_eq(grass.get_width(), MapViewMaterials.NATURAL_GROUND_TEXTURE_SIZE)
+	assert_eq(grass.get_height(), MapViewMaterials.NATURAL_GROUND_TEXTURE_SIZE)
+	if ResourceLoader.exists("res://assets/materials/pbr/mud/mud_albedo.png"):
+		assert_eq(material.get_shader_parameter("use_authored_mud"), 1.0)
+		var mud: Texture2D = material.get_shader_parameter("mud_albedo")
+		assert_true(mud != null, "mud must sample its authored plate when present")
+		assert_eq(mud.get_width(), MapViewMaterials.NATURAL_GROUND_TEXTURE_SIZE)
+
+
 func test_natural_ground_repeat_matches_character_scale() -> void:
-	var expected_repeat := MapViewMaterials.TERRAIN_TEXTURE_WORLD_SIZE / MapViewMaterials.TERRAIN_GRASS_UV_SCALE
+	var expected_repeat := (
+		MapViewMaterials.TERRAIN_TEXTURE_WORLD_SIZE / MapViewMaterials.TERRAIN_GRASS_UV_SCALE
+	)
 	assert_eq(expected_repeat, 2.0, "grass repeat should match the frozen 2.0-unit character height")
 	var material := MapViewMaterials.blended_ground(731)
-	assert_eq(material.get_shader_parameter("natural_ground_uv_scale"), MapViewMaterials.TERRAIN_GRASS_UV_SCALE)
+	assert_eq(
+		material.get_shader_parameter("natural_ground_uv_scale"),
+		MapViewMaterials.TERRAIN_GRASS_UV_SCALE
+	)
 
 
 func test_cobblestone_uses_a_dedicated_high_resolution_texture_array() -> void:
@@ -19,7 +37,11 @@ func test_cobblestone_uses_a_dedicated_high_resolution_texture_array() -> void:
 	assert_eq(terrain_patterns.get_height(), MapViewMaterials.TEXTURE_SIZE)
 	assert_eq(cobble_patterns.get_width(), MapViewMaterials.COBBLE_TEXTURE_SIZE)
 	assert_eq(cobble_patterns.get_height(), MapViewMaterials.COBBLE_TEXTURE_SIZE)
-	assert_eq(cobble_patterns.get_layers(), 2, "cobblestone and castle paving need high-resolution layers")
+	assert_eq(
+		cobble_patterns.get_layers(),
+		2,
+		"cobblestone and castle paving need high-resolution layers"
+	)
 	assert_true(
 		cobble_patterns.get_width() > terrain_patterns.get_width(),
 		"cobblestone source resolution must exceed the general terrain resolution"
@@ -42,7 +64,10 @@ func test_stone_layer_uses_authored_smithy_floor_albedo() -> void:
 	assert_eq(stone_layer, 14, "stone layer index must remain stable for terrain arrays")
 	assert_eq(expected.get_width(), MapViewMaterials.TEXTURE_SIZE)
 	assert_eq(expected.get_height(), MapViewMaterials.TEXTURE_SIZE)
-	assert_true(terrain_patterns.get_layers() > stone_layer, "stone layer must be present in terrain array")
+	assert_true(
+		terrain_patterns.get_layers() > stone_layer,
+		"stone layer must be present in terrain array"
+	)
 
 
 func test_timber_floor_blended_ground_repeat_is_doubled() -> void:
@@ -61,8 +86,12 @@ func test_timber_floor_blended_ground_repeat_is_doubled() -> void:
 
 
 func test_natural_rock_pattern_avoids_masonry_horizontal_banding() -> void:
-	var rock := MapViewMaterialPatterns.pattern_texture(MapViewMaterials.PATTERN_ROCK, 9041).get_image()
-	var limestone := MapViewMaterialPatterns.pattern_texture(MapViewMaterials.PATTERN_LIMESTONE, 9041).get_image()
+	var rock := MapViewMaterialPatterns.pattern_texture(
+		MapViewMaterials.PATTERN_ROCK, 9041
+	).get_image()
+	var limestone := MapViewMaterialPatterns.pattern_texture(
+		MapViewMaterials.PATTERN_LIMESTONE, 9041
+	).get_image()
 	var rock_anisotropy := _banding_anisotropy(rock)
 	var limestone_anisotropy := _banding_anisotropy(limestone)
 	assert_true(
@@ -89,10 +118,16 @@ func test_cobblestone_high_resolution_texture_remains_seamless() -> void:
 	var internal_horizontal_peak := 0.0
 	for boundary in range(1, boundaries_x):
 		var pixel_x := roundi(float(boundary) * cell_width)
-		internal_vertical_peak = maxf(internal_vertical_peak, _vertical_delta(image, pixel_x - 1, pixel_x))
+		internal_vertical_peak = maxf(
+			internal_vertical_peak,
+			_vertical_delta(image, pixel_x - 1, pixel_x)
+		)
 	for boundary in range(1, boundaries_y):
 		var pixel_y := roundi(float(boundary) * cell_height)
-		internal_horizontal_peak = maxf(internal_horizontal_peak, _horizontal_delta(image, pixel_y - 1, pixel_y))
+		internal_horizontal_peak = maxf(
+			internal_horizontal_peak,
+			_horizontal_delta(image, pixel_y - 1, pixel_y)
+		)
 
 	assert_true(
 		_vertical_delta(image, image.get_width() - 1, 0) <= internal_vertical_peak * 1.05,

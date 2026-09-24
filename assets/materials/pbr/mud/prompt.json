@@ -1,0 +1,17 @@
+{
+  "id": "material.mud.albedo",
+  "family": "mud",
+  "map_type": "albedo",
+  "kind": "leonardo_material_plate",
+  "target": "assets/materials/pbr/mud/mud_albedo.png",
+  "source": "generated/leonardo/mud_yard_v1/candidate_2.jpg",
+  "prompt": "Seamless tileable top-down PBR albedo of wet fourteenth-century Baltic courtyard mud in Reval. Churned cart ruts, hoof prints, straw scraps, grit, drying pale crust on raised clumps and cool dark silt in hollows. Sharp grit, cracks and fiber detail, high micro-contrast, no uniform brown noise. Neutral even diffuse lighting, no baked puddle reflections, no standing water as a mirror, no horizon, no figures, perfectly tileable on all four edges, square 1:1 material plate.",
+  "negative_prompt": "blurry, gaussian blur, soft focus, low contrast, uniform brown noise, baked puddles, mirror reflections, sky, horizon, characters, animals, modern asphalt, red laterite clay, text, logo, watermark, border, visible tile seam",
+  "model_id": "05ce0082-2d80-4a2d-8653-4d1c85e2418e",
+  "model_name": "Leonardo configured realism model",
+  "generation_id": "9e80c107-c739-4eb7-af46-a7a0542ee044",
+  "selected_candidate": 2,
+  "processor": "tools/process_leonardo_terrain_textures.py",
+  "style_refs": ["docs/ART_BIBLE.md", "docs/MATERIAL_STYLE_LOCK_KIT.md"],
+  "notes": "Selected the drying-yard plate. The wet candidate baked specular puddles and a circular hero clump."
+}

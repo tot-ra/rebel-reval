@@ -1,0 +1,13 @@
+{
+  "id": "material.roof_tile.albedo",
+  "family": "roof_tile",
+  "map_type": "albedo",
+  "kind": "leonardo_material_plate",
+  "target": "assets/materials/pbr/roof_tile/roof_tile_albedo.png",
+  "source": "generated/leonardo/9c66006f-5ddc-457c-9252-8458968387f0-1.jpg",
+  "prompt": "Seamless tileable medieval clay roof shingle texture, dark red-brown curved tiles overlapping, weathered ceramic surface, PBR albedo map, photorealistic, top-down view, 512x512 tileable pattern",
+  "model_name": "Lucid Realism",
+  "generation_id": "9c66006f-5ddc-457c-9252-8458968387f0",
+  "processor": "tools/apply_pbr_textures.py",
+  "style_refs": ["docs/ART_BIBLE.md", "docs/MATERIAL_STYLE_LOCK_KIT.md"]
+}

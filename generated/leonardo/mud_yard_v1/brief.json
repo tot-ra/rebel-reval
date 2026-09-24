@@ -1,0 +1,15 @@
+{
+  "id": "material.mud.albedo",
+  "family": "mud",
+  "map_type": "albedo",
+  "kind": "leonardo_material_plate",
+  "target": "assets/materials/pbr/mud/mud_albedo.png",
+  "output_dir": "generated/leonardo/mud_yard_v1",
+  "processor": "tools/process_leonardo_terrain_textures.py",
+  "width": 1024,
+  "height": 1024,
+  "num_images": 2,
+  "notes": "Author a sharp wet-yard mud plate so runtime mud stops using the 128 px procedural clump noise.",
+  "prompt": "Seamless tileable top-down PBR albedo of wet fourteenth-century Baltic courtyard mud in Reval. Churned cart ruts, hoof prints, straw scraps, grit, drying pale crust on raised clumps and cool dark silt in hollows. Sharp grit, cracks and fiber detail, high micro-contrast, no uniform brown noise. Neutral even diffuse lighting, no baked puddle reflections, no standing water as a mirror, no horizon, no figures, perfectly tileable on all four edges, square 1:1 material plate.",
+  "negative_prompt": "blurry, gaussian blur, soft focus, low contrast, uniform brown noise, baked puddles, mirror reflections, sky, horizon, characters, animals, modern asphalt, red laterite clay, text, logo, watermark, border, visible tile seam"
+}

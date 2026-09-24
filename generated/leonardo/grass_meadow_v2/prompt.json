@@ -1,0 +1,27 @@
+{
+  "id": "material.grass.albedo",
+  "family": "grass",
+  "map_type": "albedo",
+  "kind": "leonardo_material_plate",
+  "target": "assets/materials/pbr/grass/grass_albedo.png",
+  "source": "generated/leonardo/grass_meadow_v2/candidate_1.jpg",
+  "candidates": [
+    "generated/leonardo/grass_meadow_v2/candidate_1.jpg",
+    "generated/leonardo/grass_meadow_v2/candidate_2.jpg"
+  ],
+  "prompt": "Seamless tileable top-down PBR albedo of fourteenth-century Baltic meadow turf for a historically grounded Reval, 1343. Mixed fine wild-grass blades, clover, plantain, dry seed stalks and damp mossy soil showing between clumps. Sharp individual blade edges and high micro-contrast, not a blurred lawn photograph. Neutral even diffuse lighting, no baked cast shadows, no horizon, no figures, no flowers as a scene, no modern mown grass, perfectly tileable on all four edges, square 1:1 material plate.",
+  "negative_prompt": "blurry, gaussian blur, soft focus, low contrast, modern lawn, golf turf, plastic grass, baked shadows, baked sunlight, perspective scene, horizon, characters, animals, flowers bouquet, text, logo, watermark, border, visible tile seam, neon, desert, tropical jungle",
+  "model_id": "05ce0082-2d80-4a2d-8653-4d1c85e2418e",
+  "model_name": "Leonardo configured realism model",
+  "width": 1024,
+  "height": 1024,
+  "tiling": true,
+  "generation_id": "29f8e5ba-3324-4da6-a9e9-bcaea494d967",
+  "selected_candidate": 1,
+  "processor": "tools/process_leonardo_terrain_textures.py",
+  "style_refs": [
+    "docs/ART_BIBLE.md",
+    "docs/MATERIAL_STYLE_LOCK_KIT.md"
+  ],
+  "notes": "Replace the soft modern lawn plate. Keep individual blades and soil gaps sharp after the 512 px weld."
+}
