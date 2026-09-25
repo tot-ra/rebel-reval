@@ -87,3 +87,5 @@ This file contains lessons specific to the Dev role.
 - Name generated view helpers under a map's `Terrain` root outside the `Terrain_*` pattern unless they are real water/ground family surfaces; contract tests enumerate `Terrain_*` meshes.
 - A shader effect driven by the absolute `ocean_time` clock must not change its period with weather: the phase scrolls by `t * dP / P^2`. Fix the period and quantise it to divide `OCEAN_TIME_WRAP_SECONDS`.
 - In zsh, a renderer-flags string passed as `$1` is not word-split; use `${=VAR}` or literal flags, or a capture silently falls back to the default Compatibility renderer.
+- Before tuning a shader threshold that reads baked data (foam, masks, LUTs), measure the data's distribution in Python first (mean, p90, share above the threshold, lifetime per texel). Contract starting values assume a different texture mean; plates alone hide whether the mask or the detail texture is the limit. A debug `--set=` override with an extreme coverage shows where the mask is non-zero.
+- `tools/run_performance_report.sh` calls `godot` from PATH unless `GODOT_BIN` is exported in the environment of that process (exit 127 otherwise).
