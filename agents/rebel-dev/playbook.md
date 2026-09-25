@@ -19,6 +19,7 @@ This file contains lessons specific to the Dev role.
 - Hard-to-wrap `max-line-length` lines can use `# gdlint: ignore=max-line-length` on the previous line. Do not insert a one-method regression into a large legacy `test_*.gd` that already exceeds the cap; put it in its own file.
 - Do not silence unused-arg warnings by renaming `setup` parameters to match member fields. That shadows members and can leave them null.
 - Morning ground mist `fog_light_color` must follow `day_blend`. A constant pale `FOG_MORNING_COLOR` paints the harbour as a light-grey sheet from `FOG_HOURS_BEFORE_SUNRISE` through first light. Keep rain-only haze on the old pale-to-rain lerp when mist is absent.
+- Godot exponential height fog at y=0 is `1-exp(-(fog_height-y)*height_density)`. `FOG_MAX_HEIGHT_DENSITY` 1.1 at height 3.5 is ~0.98 cover and hides boats; keep peak waterline cover in 0.25-0.55. Reuse `tools/capture_ws02_glint.gd` for harbour fog plates, then copy to the task's `fog_dawn_*` names so leftover `ws02_*` files stay with WS-02.
 
 ### Harness, import, and capture
 - On-commit Godot resolution should honor `GODOT_BIN`, then `godot` on PATH, then `/Applications/Godot.app/Contents/MacOS/Godot`.

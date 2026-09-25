@@ -98,6 +98,55 @@ func test_night_ground_mist_stays_darker_than_night_ambient_and_pales_toward_sun
 	)
 
 
+func test_peak_dawn_mist_keeps_the_waterline_readable() -> void:
+	var sunrise := 5.0
+	var dawn := _mist_presentation(0.5, sunrise, sunrise)
+	var environment := Environment.new()
+	Lighting.apply_ground_mist(environment, dawn, false)
+	assert_true(environment.fog_enabled, "peak dawn on a fog-prone morning must still raise mist")
+	assert_true(
+		is_equal_approx(environment.fog_density, Lighting.FOG_MAX_DENSITY),
+		"dry dawn density must stay the capped distance veil"
+	)
+	assert_true(
+		is_equal_approx(environment.fog_height_density, Lighting.FOG_MAX_HEIGHT_DENSITY),
+		"dry dawn height density must stay the capped waterline term"
+	)
+	var cover := Lighting.waterline_height_fog_cover(1.0)
+	assert_true(
+		cover >= Lighting.FOG_WATERLINE_COVER_MIN,
+		"dawn mist must still read as ground haze, not clear air"
+	)
+	assert_true(
+		cover <= Lighting.FOG_WATERLINE_COVER_MAX,
+		"dawn mist must leave boats and the waterline readable"
+	)
+	var night := _mist_presentation(0.0, sunrise - 2.0, sunrise)
+	Lighting.apply_ground_mist(environment, night, false)
+	assert_true(environment.fog_enabled, "pre-dawn night must keep the thinner dark haze")
+	assert_true(
+		environment.fog_height_density < Lighting.FOG_MAX_HEIGHT_DENSITY,
+		"night height density must stay below the dawn peak"
+	)
+
+
+func test_rain_haze_density_is_unchanged_when_morning_mist_is_absent() -> void:
+	var noon_rain := _mist_presentation(1.0, 12.0, 5.0)
+	noon_rain.rain_intensity = 1.0
+	noon_rain.fog_potential = 0.0
+	var environment := Environment.new()
+	Lighting.apply_ground_mist(environment, noon_rain, false)
+	assert_true(environment.fog_enabled, "noon rain must still add distant haze")
+	assert_true(
+		is_equal_approx(environment.fog_density, 0.0035),
+		"rain-only haze density must stay on the previous 0.0035 term"
+	)
+	assert_true(
+		is_equal_approx(environment.fog_height_density, 0.0),
+		"rain-only haze must not add height fog"
+	)
+
+
 func test_rain_haze_color_is_unchanged_when_morning_mist_is_absent() -> void:
 	var noon_rain := _mist_presentation(1.0, 12.0, 5.0)
 	noon_rain.rain_intensity = 1.0

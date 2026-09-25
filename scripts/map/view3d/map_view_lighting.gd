@@ -39,9 +39,14 @@ const LIGHTNING_AMBIENT_ENERGY := 0.9
 ## from FOG_HOURS_BEFORE_SUNRISE through first light.
 const FOG_NIGHT_COLOR := Color8(30, 38, 56)
 const FOG_MORNING_COLOR := Color8(200, 210, 220)
-const FOG_MAX_DENSITY := 0.018
+## Distance fog stays a light veil. Peak cover comes from height fog at the
+## waterline; 1.1 made Godot's 1-exp(-height*density) ~0.98 and hid the harbour.
+const FOG_MAX_DENSITY := 0.010
 const FOG_HEIGHT := 3.5
-const FOG_MAX_HEIGHT_DENSITY := 1.1
+const FOG_MAX_HEIGHT_DENSITY := 0.20
+## Peak waterline cover from height fog: 1-exp(-FOG_HEIGHT*FOG_MAX_HEIGHT_DENSITY).
+const FOG_WATERLINE_COVER_MIN := 0.25
+const FOG_WATERLINE_COVER_MAX := 0.55
 const FOG_HOURS_BEFORE_SUNRISE := 3.0
 const FOG_HOURS_AFTER_SUNRISE := 2.5
 ## Raising the onset from 0.6 to 0.8 cuts eligible mornings from roughly two in
@@ -275,3 +280,10 @@ static func morning_mist_factor(hour: float, sunrise: float) -> float:
 	if hour < sunrise:
 		return smoothstep(start, sunrise, hour)
 	return 1.0 - smoothstep(sunrise, stop, hour)
+
+
+## Godot exponential height fog at y=0 is 1-exp(-(fog_height-y)*height_density).
+## Tests use this so peak dawn mist stays a veil instead of a solid sheet.
+static func waterline_height_fog_cover(mist: float) -> float:
+	var density := FOG_MAX_HEIGHT_DENSITY * clampf(mist, 0.0, 1.0)
+	return 1.0 - exp(-FOG_HEIGHT * density)
