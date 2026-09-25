@@ -110,6 +110,32 @@
       "output": "assets/storybook/rat/rat.glb",
       "notes": "authored rig and animation retained",
       "adaptations": "Original authored rig and six animation aliases; unused bones pruned; textures capped at1024; normal UV rebaked; scaled to0.42m; bind-pose import fixed."
+    },
+    "cow": {
+      "title": "Brown Cow 3d model",
+      "author": "iRahulRajput (rt699448)",
+      "url": "https://sketchfab.com/3d-models/brown-cow-3d-model-14a5bf64cd93490682e841292b318d1b",
+      "license": "CC-BY-4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "sha256": "9580e18634803f2d984cdaf511ed64f8069f4479a7f50176605cc0af915d40fc",
+      "source_bytes": 28514480,
+      "staging_path": "build/animal_redo/sources/cow.glb",
+      "output": "assets/storybook/cow/cow.glb",
+      "notes": "Sketchfab download brown-cow-3d-model.zip, source/model.glb; default brown landrace-like coat for Reval livestock",
+      "adaptations": "Scaled to 1.50 world units and oriented for runtime; decimated to about 38k triangles; UV and sculpted surfaces preserved; textures capped at 1024; rough dielectric materials; measured limb rig and six clips."
+    },
+    "cow_holstein": {
+      "title": "Realistic Holstein Cow - Game Ready Asset",
+      "author": "3Dima (Hdjusj)",
+      "url": "https://sketchfab.com/3d-models/realistic-holstein-cow-game-ready-asset-0bd2f1c0c79a4b5b9d36e67f0f700c5e",
+      "license": "CC-BY-4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "sha256": "d4a40f1441434d42262572f6ec1fb78c7980bef970a4325722cf934dd04b5086",
+      "source_bytes": 3849148,
+      "staging_path": "build/animal_redo/sources/cow_holstein.glb",
+      "output": "assets/storybook/cow_holstein/cow_holstein.glb",
+      "notes": "Sketchfab download realistic-holstein-cow-game-ready-asset.zip, source/scene 15.glb; pied coat variant used as generic village phenotype, not a historical breed attribution",
+      "adaptations": "Scaled to 1.50 world units and oriented for runtime; UV and sculpted surfaces preserved; texture capped at 1024; unlit source material rebuilt as rough dielectric; measured limb rig and six clips."
     }
   }
 }

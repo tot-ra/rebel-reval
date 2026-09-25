@@ -31,6 +31,7 @@ class GlbRuntimeAuditTests(unittest.TestCase):
     def test_reviewed_runtime_glbs_have_no_authored_helpers(self) -> None:
         samples = [
             ROOT / "assets/storybook/cow/cow.glb",
+            ROOT / "assets/storybook/cow_holstein/cow_holstein.glb",
             ROOT / "assets/storybook/dog/dog.glb",
             ROOT / "assets/storybook/goose/goose.glb",
             ROOT / "assets/storybook/hen/hen.glb",

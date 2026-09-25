@@ -7,7 +7,7 @@ import struct
 ROOT = Path(__file__).resolve().parents[1]
 HUMANS = ('mart', 'aita', 'ellen', 'watchman', 'henning', 'jurgen', 'kaja')
 BIRDS = ('robin', 'hooded_crow', 'gull', 'hen', 'duck')
-MAMMALS = ('forge_cat', 'sheep', 'dog', 'pig', 'goat', 'boar', 'fox', 'hare', 'rat')
+MAMMALS = ('forge_cat', 'sheep', 'dog', 'pig', 'goat', 'boar', 'fox', 'hare', 'rat', 'cow', 'cow_holstein')
 EXPECTED = {**dict.fromkeys(HUMANS, 76), **dict.fromkeys(MAMMALS, 6), **dict.fromkeys(BIRDS, 8)}
 EXPECTED["forge_cat"] = 9
 SIZES = {'SCALAR': 1, 'VEC2': 2, 'VEC3': 3, 'VEC4': 4, 'MAT4': 16}

@@ -2,19 +2,19 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cjmvv2i68uljs"
-path="res://.godot/imported/cow_cattle_normal.png-f82a434049e38df073bbbeefba210531.ctex"
+uid="uid://1xcs8jq3t0jj"
+path="res://.godot/imported/cow_holstein_Image_0.jpg-fe6735ec57b3553d66b48932e4a26894.ctex"
 metadata={
 "vram_texture": false
 }
 generator_parameters={
-"md5": "5017315d2bb5cd573ee622d3106d3fac"
+"md5": "1fb349d77733075e49f020e16990bfc3"
 }
 
 [deps]
 
-source_file="res://assets/storybook/cow/cow_cattle_normal.png"
-dest_files=["res://.godot/imported/cow_cattle_normal.png-f82a434049e38df073bbbeefba210531.ctex"]
+source_file="res://assets/storybook/cow_holstein/cow_holstein_Image_0.jpg"
+dest_files=["res://.godot/imported/cow_holstein_Image_0.jpg-fe6735ec57b3553d66b48932e4a26894.ctex"]
 
 [params]
 

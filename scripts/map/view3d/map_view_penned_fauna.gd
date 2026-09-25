@@ -315,7 +315,7 @@ func _make_actor(index: int, placement: Dictionary) -> Node3D:
 	)
 	var actor := Node3D.new()
 	actor.name = "PennedFauna%d" % index
-	if MedievalAnimalModels.add_model(actor, species) == null:
+	if MedievalAnimalModels.add_model(actor, species, hash_seed(_map_id, index, 53)) == null:
 		var mesh := MammalMeshes.mesh_for(species, pose)
 		var model := MeshInstance3D.new()
 		model.name = "Model"

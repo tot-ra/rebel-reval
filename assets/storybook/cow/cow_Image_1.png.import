@@ -2,19 +2,19 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://iql7flff7jw"
-path="res://.godot/imported/cow_cattle_roughness.png-2fdffac421de28849fd0dd5d2eec36da.ctex"
+uid="uid://dtfjxlptv5mvt"
+path="res://.godot/imported/cow_Image_1.png-b521e2e8128b606dab43283d7f0c80c6.ctex"
 metadata={
 "vram_texture": false
 }
 generator_parameters={
-"md5": "5fc967195e5263cebfc1959427911761"
+"md5": "fe67f54c58f0a8259fd7067d48a6d85b"
 }
 
 [deps]
 
-source_file="res://assets/storybook/cow/cow_cattle_roughness.png"
-dest_files=["res://.godot/imported/cow_cattle_roughness.png-2fdffac421de28849fd0dd5d2eec36da.ctex"]
+source_file="res://assets/storybook/cow/cow_Image_1.png"
+dest_files=["res://.godot/imported/cow_Image_1.png-b521e2e8128b606dab43283d7f0c80c6.ctex"]
 
 [params]
 

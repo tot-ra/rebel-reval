@@ -133,79 +133,41 @@ func test_domestic_goose_uses_the_relocated_storybook_greylag_model() -> void:
 	host.free()
 
 
-func test_cattle_has_procedural_rigged_anatomy_and_locomotion_clips() -> void:
-	var host := Node3D.new()
-	var model := Models.add_model(host, MammalSpecies.SPECIES_COW)
-	assert_true(model != null)
-	var mesh := model.find_child("AnimalMesh", true, false) as MeshInstance3D
-	assert_true(mesh != null)
-	var aabb := mesh.get_aabb()
-	assert_true(
-		aabb.size.x >= 2.60 and aabb.size.x <= 2.70,
-		"Procedural cattle needs a plausible nose-to-rump length"
-	)
-	assert_true(
-		aabb.size.y >= 1.67 and aabb.size.y <= 1.77,
-		"Procedural cattle must stand on four full-height legs"
-	)
-	assert_true(aabb.size.z >= 1.15, "Cattle must keep a broad, readable body silhouette")
-	assert_true(
-		aabb.position.y >= -0.001,
-		"Procedural cattle must not contain a generated ground sheet"
-	)
-	assert_true(
-		is_equal_approx(model.rotation.y, -PI * 0.5),
-		"Cattle needs livestock yaw so look_at walks nose-first"
-	)
-	# Authored muzzle is on mesh -X; after MODEL_YAW that axis must lead walk -Z.
-	# Prefer a local basis check so the orphan host need not enter the SceneTree.
-	var nose_after_yaw := model.transform.basis * Vector3(-1.0, 0.0, 0.0)
-	assert_true(
-		nose_after_yaw.z < -0.5,
-		"Cattle nose must point along walk -Z after livestock yaw"
-	)
-	assert_eq(
-		mesh.mesh.get_surface_count(),
-		1,
-		"Procedural cattle anatomy must remain one skinned production surface"
-	)
-	var cattle_arrays := mesh.mesh.surface_get_arrays(0)
-	var cattle_vertices: PackedVector3Array = cattle_arrays[Mesh.ARRAY_VERTEX]
-	assert_true(
-		cattle_vertices.size() >= 3500,
-		"Procedural cattle needs a remeshed anatomical body, not joined primitive islands"
-	)
-	for detail_name in [
-		"EyeLeft", "EyeRight", "PupilLeft", "PupilRight", "NostrilLeft", "NostrilRight"
-	]:
+func test_cattle_variants_are_sculpted_rigged_and_walk_nose_first() -> void:
+	# Two licensed sculpts share the storybook mammal rig. Seeds pick the coat;
+	# both must stand beside the 1.65-unit horse and walk nose-first.
+	var seen_paths := {}
+	for variant_seed in 2:
+		var host := Node3D.new()
+		var model := Models.add_model(host, MammalSpecies.SPECIES_COW, variant_seed)
+		assert_true(model != null)
+		var path := Models.model_path(MammalSpecies.SPECIES_COW, variant_seed)
+		seen_paths[path] = true
+		var aabb := _bounds(model)
 		assert_true(
-			model.find_child(detail_name, true, false) != null,
-			"Cattle is missing fitted facial detail %s" % detail_name
+			aabb.size.y >= 1.40 and aabb.size.y <= 1.60,
+			"%s must keep small landrace cattle height: %s" % [path, aabb.size.y]
 		)
-	assert_true(model.find_child("TailTuft", true, false) != null, "Cattle needs an articulated tail")
-	var skeletons := model.find_children("*", "Skeleton3D", true, false)
-	assert_true(skeletons.size() >= 1, "Cattle needs a procedural quadruped skeleton")
-	var skeleton := skeletons[0] as Skeleton3D
-	for bone_name: StringName in [
-		&"Neck",
-		&"Tail",
-		&"FrontLeftLeg",
-		&"FrontRightLeg",
-		&"BackLeftLeg",
-		&"BackRightLeg",
-	]:
-		assert_true(skeleton.find_bone(bone_name) >= 0, "Cattle is missing %s anatomy" % bone_name)
-	var players := model.find_children("*", "AnimationPlayer", true, false)
-	assert_true(players.size() >= 1, "Cattle needs imported skeletal animation")
-	var player := players[0] as AnimationPlayer
-	assert_true(player.has_animation(Models.IDLE_ANIMATION), "Idle must animate tail, head, and eyes")
-	assert_true(player.has_animation(Models.WALK_ANIMATION), "Walk must animate legs and tail")
-	assert_eq(player.current_animation, Models.IDLE_ANIMATION)
-	Models.sync_animation(host, host.position - Vector3(0.1, 0.0, 0.0), 0.1)
-	assert_eq(player.current_animation, Models.WALK_ANIMATION)
-	Models.sync_animation(host, host.position, 0.1)
-	assert_eq(player.current_animation, Models.IDLE_ANIMATION)
-	host.free()
+		assert_true(
+			aabb.size.z >= 2.2 and aabb.size.z <= 2.8,
+			"%s needs a plausible nose-to-tail length along walk Z: %s" % [path, aabb.size.z]
+		)
+		assert_true(absf(aabb.position.y) < 0.035, "%s hooves must touch Y=0" % path)
+		assert_true(is_equal_approx(model.rotation.y, PI), "Cattle shares grounded mammal yaw")
+		# Sculpted sources are exported with the muzzle on mesh +Z; yaw leads walk -Z.
+		var nose_after_yaw := model.transform.basis * Vector3(0.0, 0.0, 1.0)
+		assert_true(nose_after_yaw.z < -0.5, "Cattle nose must point along walk -Z")
+		var skeleton := model.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
+		for bone_name: StringName in [&"Body", &"Head", &"Tail", &"Foot.LF", &"Foot.RB"]:
+			assert_true(skeleton.find_bone(bone_name) >= 0, "Cattle is missing %s" % bone_name)
+		var player := host.get_meta(Models.ANIMATION_PLAYER_META) as AnimationPlayer
+		assert_eq(player.current_animation, Models.IDLE_ANIMATION)
+		Models.sync_animation(host, host.position - Vector3(0.1, 0.0, 0.0), 0.1)
+		assert_eq(player.current_animation, Models.WALK_ANIMATION)
+		Models.sync_animation(host, host.position, 0.1)
+		assert_eq(player.current_animation, Models.IDLE_ANIMATION)
+		host.free()
+	assert_eq(seen_paths.size(), Models.COW_VARIANT_PATHS.size(), "Both cattle coats are reachable")
 
 
 func test_pack_horse_has_tall_rigged_body_tail_and_locomotion_clips() -> void:

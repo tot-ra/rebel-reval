@@ -42,7 +42,12 @@ CONFIG={
  'boar': dict(height=.86,front=(.72,.46,.18),back=(.71,.47,.30),fy=-.08,by=.31,head=(-.25,.65),tail=(.44,.63),body=.65),
  'fox': dict(height=.53,front=(.70,.46,.15),back=(.76,.49,.30),fy=-.18,by=.13,head=(-.29,.79),tail=(.23,.65),body=.64,rotation=-math.pi/2),
  'hare': dict(height=.46,front=(.45,.29,.09),back=(.53,.31,.09),fy=-.20,by=.19,head=(-.24,.54),tail=(.37,.40),body=.42),
+ # Cattle heights are world units (1.1 per metre, like the retained horse), so
+ # a small unimproved cow still reads beside the 1.65-unit horse in a pen.
+ 'cow': dict(height=1.50,front=(.55,.22,.07),back=(.64,.41,.26),fy=-.15,by=.36,head=(-.28,.70),tail=(.41,.86),body=.58),
+ 'cow_holstein': dict(height=1.50,front=(.59,.24,.08),back=(.65,.43,.27),fy=-.13,by=.39,head=(-.28,.76),tail=(.46,.86),body=.60,rotation=-math.pi/2),
 }
+HOOFED=('sheep','goat','pig','boar','cow','cow_holstein')
 
 
 def ensure_lit_principled(material):
@@ -300,7 +305,7 @@ def create_rig(meshes,species):
   ankle=(x,y+(.08*h if hind else .015*h),hs[2]*h)
   if species=='hare' and hind:ankle=(x,rear+.015*h,hs[2]*h)
   ball=(x,y,z);toe=(x,min(front,y-.035*h),z*.7)
-  limb=Limb(suffix,(root,knee,ankle,ball,toe),.03*h,.035*h,.035*h,2 if species in ('sheep','goat','pig','boar') else 4,species in ('sheep','goat','pig','boar'))
+  limb=Limb(suffix,(root,knee,ankle,ball,toe),.03*h,.035*h,.035*h,2 if species in HOOFED else 4,species in HOOFED)
   parent='Body'
   for i,n in enumerate(limb.bones):bone(n,limb.points[i],limb.points[i+1],parent);parent=n
   limbs.append(limb)

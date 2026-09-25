@@ -1,6 +1,6 @@
 extends "res://tests/godot/test_case.gd"
 
-const SPECIES: Array[String] = ["forge_cat", "sheep", "dog", "pig", "goat", "boar", "fox", "hare"]
+const SPECIES: Array[String] = ["forge_cat", "sheep", "dog", "pig", "goat", "boar", "fox", "hare", "cow", "cow_holstein"]
 const LIMBS: Array[String] = ["LF", "RF", "LB", "RB"]
 
 func test_imported_fore_and_hind_limb_landmarks() -> void:
@@ -58,11 +58,13 @@ func test_imported_feet_keep_ground_support_through_complete_clips() -> void:
 
 func test_runtime_stride_rate_matches_exported_support_velocity() -> void:
 	var models := preload("res://scripts/map/view3d/map_view_medieval_animal_models.gd")
-	var aliases := {"forge_cat": &"cat", "fox": &"red_fox", "boar": &"wild_boar"}
+	var aliases := {"forge_cat": &"cat", "fox": &"red_fox", "boar": &"wild_boar", "cow_holstein": &"cow"}
+	# Cattle coats are placement variants of one species; the seed picks the GLB.
+	var variant_seeds := {"cow": 0, "cow_holstein": 1}
 	for species in SPECIES:
 		var host := Node3D.new()
 		Engine.get_main_loop().root.add_child(host)
-		var model := models.add_model(host, aliases.get(species, StringName(species)))
+		var model := models.add_model(host, aliases.get(species, StringName(species)), variant_seeds.get(species, 0))
 		var skeleton := model.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
 		var player := host.get_meta(models.ANIMATION_PLAYER_META) as AnimationPlayer
 		for clip: String in ["Walk", "Run"]:

@@ -69,6 +69,25 @@ Source: eBiodiversity / elurikkus.ee (PlutoF), University of Tartu. Used for amb
 - *Tettigonia cantans* - recorded by Külli Kalamees. CC BY-SA 4.0. eBiodiversity occurrence 16343661. Source: https://s3.hpc.ut.ee/plutof-public/original/a047505f-3b67-4405-855b-bcbf5eb5ec03.m4a
 - Great Green Bush-cricket (*Tettigonia viridissima*) - recorded by Veljo Runnel. CC BY-SA 4.0. eBiodiversity occurrence 18493652. Source: https://s3.hpc.ut.ee/plutof-public/original/aa7f711a-2755-4af8-b16d-e71664a4baf4.m4a
 
+## 3D animal models
+
+Source: Sketchfab. Each model was rescaled, reoriented, re-rigged and animated for the game; textures were resized and materials adjusted.
+
+- Cat - "Cat In Motion 3d Model Free" by iRahulRajput (rt699448). CC BY 4.0. Source: https://sketchfab.com/3d-models/cat-in-motion-3d-model-free-baa1120483c844e6bce9744f3f868c63
+- Chicken - "Chicken" by hendrikReyneke. CC BY 4.0. Source: https://sketchfab.com/3d-models/chicken-ce17aabc51ba47bfbc7342a963b095e9
+- Cow (brown coat) - "Brown Cow 3d model" by iRahulRajput (rt699448). CC BY 4.0. Source: https://sketchfab.com/3d-models/brown-cow-3d-model-14a5bf64cd93490682e841292b318d1b
+- Cow (pied coat) - "Realistic Holstein Cow - Game Ready Asset" by 3Dima (Hdjusj). CC BY 4.0. Source: https://sketchfab.com/3d-models/realistic-holstein-cow-game-ready-asset-0bd2f1c0c79a4b5b9d36e67f0f700c5e
+- Dog - "Realistic Terrier Dog Game Ready Asset" by 3Dima (Hdjusj). CC BY 4.0. Source: https://sketchfab.com/3d-models/realistic-terrier-dog-game-ready-asset-51f498df96c049cbb9e600b0a88c5838
+- Duck - "Duck" by hendrikReyneke. CC BY 4.0. Source: https://sketchfab.com/3d-models/duck-74d6f61c73fd4dcd9607694fc3241e06
+- Fox - "Red Fox Standing Pose Realistic" by Pigcraft (s8819296). CC BY 4.0. Source: https://sketchfab.com/3d-models/red-fox-standing-pose-realistic-3278bddb17024f3287aa374cc1e9f6f6
+- Goat - "Goat" by hendrikReyneke. CC BY 4.0. Source: https://sketchfab.com/3d-models/goat-2624ac2ce2364930ba2d5f70eb7aa1ea
+- Hare - "Rabbit" by Dakota.Hinkle. CC BY 4.0. Source: https://sketchfab.com/3d-models/rabbit-073eef14ae3c4d06808498c3ba895e67
+- House sparrow - "Sparrow" by hendrikReyneke. CC BY 4.0. Source: https://sketchfab.com/3d-models/sparrow-fc347fa4d3b84a3c99df887a36c4e2fe
+- Pig - "Pig" by hendrikReyneke. CC BY 4.0. Source: https://sketchfab.com/3d-models/pig-041ea96fc6ae4839bf9ce16f8ea4ad68
+- Rat - "Black Rat Free Download" by Nestaeric. CC BY 4.0. Source: https://sketchfab.com/3d-models/black-rat-free-download-3db3acb4140d4de8bd62a171212bad9c
+- Sheep - "Sheep" by hendrikReyneke. CC BY 4.0. Source: https://sketchfab.com/3d-models/sheep-67abff7459f34afca11e3effab62c761
+- Wild boar - "Bristled Wild Boar 3d Model Free" by iRahulRajput (rt699448). CC BY 4.0. Source: https://sketchfab.com/3d-models/bristled-wild-boar-3d-model-free-1c243598b9e54606a0bf1d8f5bf0a8b1
+
 ## Licenses
 
 - CC0 1.0: https://creativecommons.org/publicdomain/zero/1.0/
@@ -77,11 +96,3 @@ Source: eBiodiversity / elurikkus.ee (PlutoF), University of Tartu. Used for amb
 - CC BY-SA 3.0: https://creativecommons.org/licenses/by-sa/3.0/
 
 ShareAlike note: recordings under a CC BY-SA license that we edited remain available under the same CC BY-SA license; this does not affect the licensing of the rest of the game.
-
-## 3D animal models
-
-- Pig - created by [hendrikReyneke](https://sketchfab.com/hendrikReyneke), licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Source: https://sketchfab.com/3d-models/pig-041ea96fc6ae4839bf9ce16f8ea4ad68. Modified for Rebel Reval through metric normalization, UV/material restyling, rigging, and idle/walk animation.
-- Chicken - created by [hendrikReyneke](https://sketchfab.com/hendrikReyneke), licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Source: https://sketchfab.com/3d-models/chicken-ce17aabc51ba47bfbc7342a963b095e9. Modified through metric normalization and ground alignment.
-- Duck - created by [hendrikReyneke](https://sketchfab.com/hendrikReyneke), licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Source: https://sketchfab.com/3d-models/duck-74d6f61c73fd4dcd9607694fc3241e06. Modified through metric normalization and used for domestic duck and standing mallard visuals.
-- Goat - created by [hendrikReyneke](https://sketchfab.com/hendrikReyneke), licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Source: https://sketchfab.com/3d-models/goat-2624ac2ce2364930ba2d5f70eb7aa1ea. Modified through metric normalization and ground alignment.
-- Sparrow - created by [hendrikReyneke](https://sketchfab.com/hendrikReyneke), licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Source: https://sketchfab.com/3d-models/sparrow-fc347fa4d3b84a3c99df887a36c4e2fe. Modified through metric normalization and used for the perched house-sparrow visual.

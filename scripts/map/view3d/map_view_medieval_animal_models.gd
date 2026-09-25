@@ -74,10 +74,18 @@ const MODEL_PATHS: Dictionary = {
 	MammalSpecies.SPECIES_CAT: "res://assets/storybook/forge_cat/forge_cat.tscn",
 }
 
+# Cattle ship two licensed sculpts on the same rig and clip set. MODEL_PATHS
+# keeps the brown cow as the canonical path; placements pick a coat by seed so
+# a pen does not read as one cow copied around.
+const COW_VARIANT_PATHS: Array[String] = [
+	"res://assets/storybook/cow/cow.glb",
+	"res://assets/storybook/cow_holstein/cow_holstein.glb",
+]
+
 ## Yaw applied to a model so its nose points along -Z, which is the direction
 ## ambient actors are turned toward by `look_at` while walking. The cat rig is
-## and grounded replacement GLBs face +Z. The retained cattle and horse face
-## -X; each entry corrects its own authored axis so they walk nose-first.
+## and grounded replacement GLBs face +Z. The retained horse faces -X; each
+## entry corrects its own authored axis so they walk nose-first.
 # The relocated greylag gait GLB is about 1.05 m tall in mesh space. Domestic
 # yard geese must sit beside hens, not beside cattle, so they share the same
 # down-scale pattern as duck/chicken.
@@ -97,7 +105,7 @@ const MODEL_YAW: Dictionary = {
 	MammalSpecies.SPECIES_HARE: PI,
 	MammalSpecies.SPECIES_WILD_BOAR: PI,
 	MammalSpecies.SPECIES_CAT: PI,
-	MammalSpecies.SPECIES_COW: -PI * 0.5,
+	MammalSpecies.SPECIES_COW: PI,
 	MammalSpecies.SPECIES_PIG: PI,
 	MammalSpecies.SPECIES_SHEEP: PI,
 	MammalSpecies.SPECIES_HORSE: -PI * 0.5,
@@ -110,8 +118,15 @@ static func has_model(species: StringName) -> bool:
 	return MODEL_PATHS.has(species)
 
 
-static func add_model(parent: Node3D, species: StringName) -> Node3D:
-	var path := String(MODEL_PATHS.get(species, ""))
+static func model_path(species: StringName, variant_seed: int = 0) -> String:
+	if species == MammalSpecies.SPECIES_COW:
+		return COW_VARIANT_PATHS[posmod(variant_seed, COW_VARIANT_PATHS.size())]
+	return String(MODEL_PATHS.get(species, ""))
+
+
+## `variant_seed` selects a coat for species with several models (cattle).
+static func add_model(parent: Node3D, species: StringName, variant_seed: int = 0) -> Node3D:
+	var path := model_path(species, variant_seed)
 	if path.is_empty():
 		return null
 	var scene := load(path) as PackedScene
@@ -125,9 +140,9 @@ static func add_model(parent: Node3D, species: StringName) -> Node3D:
 	model.scale *= float(MODEL_SCALE.get(species, 1.0))
 	model.set_meta(&"production_animal_model", true)
 	model.set_meta(&"species", species)
-	# The coat is stored in COLOR_0. Godot leaves vertex_color_use_as_albedo off
-	# on glTF import, so horns, hooves, the mane, and the muzzle would not show.
-	if species == MammalSpecies.SPECIES_COW or species == MammalSpecies.SPECIES_HORSE:
+	# The horse coat is stored in COLOR_0. Godot leaves vertex_color_use_as_albedo
+	# off on glTF import, so its hooves, mane, and muzzle would not show.
+	if species == MammalSpecies.SPECIES_HORSE:
 		_enable_vertex_coat(model)
 	# Animation selection runs on the visual actor rather than the imported model.
 	# Store species there as well so direct placements and tests get dog states.

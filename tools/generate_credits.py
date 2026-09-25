@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
-"""Generate CREDITS.md from the audio attribution manifests.
+"""Generate CREDITS.md from the audio and 3D model attribution manifests.
 
 Why: every field recording we ship is Creative Commons licensed and therefore
 carries an attribution (BY) obligation. This script is the single source of
 truth that turns the machine-readable manifests (sounds/birds/manifest.csv and
-sounds/insects/manifest.csv) into the human-readable CREDITS.md that is both
+sounds/insects/manifest.csv) and the CC BY animal model manifest
+(assets/storybook/mammal_sources.json) into the human-readable CREDITS.md that is both
 committed to the repo and displayed in-game (Main Menu -> Credits).
 
-Re-run after adding/removing any audio asset:
+Re-run after adding/removing any audio asset or licensed animal model:
     python3 tools/generate_credits.py
 """
 import csv
+import json
 import os
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -24,6 +26,25 @@ LICENSE_NAMES = {
     "https://creativecommons.org/licenses/by-sa/3.0/": "CC BY-SA 3.0",
 }
 
+# Runtime ids that differ from the in-game animal name.
+MODEL_LABELS = {
+    "forge_cat": "Cat",
+    "boar": "Wild boar",
+    "cow": "Cow (brown coat)",
+    "cow_holstein": "Cow (pied coat)",
+}
+
+# Licensed models imported before mammal_sources.json existed. Keep their
+# attribution here so regenerating CREDITS.md never drops an obligation.
+LEGACY_MODEL_CREDITS = [
+    ("Chicken", "Chicken", "hendrikReyneke",
+     "https://sketchfab.com/3d-models/chicken-ce17aabc51ba47bfbc7342a963b095e9"),
+    ("Duck", "Duck", "hendrikReyneke",
+     "https://sketchfab.com/3d-models/duck-74d6f61c73fd4dcd9607694fc3241e06"),
+    ("House sparrow", "Sparrow", "hendrikReyneke",
+     "https://sketchfab.com/3d-models/sparrow-fc347fa4d3b84a3c99df887a36c4e2fe"),
+]
+
 
 def license_name(url: str) -> str:
     return LICENSE_NAMES.get(url.strip(), url.strip())
@@ -36,6 +57,43 @@ def titleize(slug: str) -> str:
 def read_csv(path: str):
     with open(path, newline="", encoding="utf-8") as f:
         return list(csv.DictReader(f))
+
+
+def model_title(model: dict) -> str:
+    # Older manifest rows predate the title field; recover it from the page slug.
+    if model.get("title"):
+        return model["title"]
+    slug = model["url"].rstrip("/").rsplit("/", 1)[-1].rsplit("-", 1)[0]
+    return " ".join(w.capitalize() for w in slug.split("-"))
+
+
+def model_lines() -> list:
+    path = os.path.join(ROOT, "assets/storybook/mammal_sources.json")
+    if not os.path.exists(path):
+        return []
+    with open(path, encoding="utf-8") as f:
+        models = json.load(f)["models"]
+    lines = ["## 3D animal models", ""]
+    lines.append(
+        "Source: Sketchfab. Each model was rescaled, reoriented, re-rigged and "
+        "animated for the game; textures were resized and materials adjusted."
+    )
+    lines.append("")
+    entries = [
+        (
+            MODEL_LABELS.get(model_id, model_id.replace("_", " ").capitalize()),
+            model_title(m),
+            m["author"],
+            license_name(m.get("license_url", "")),
+            m["url"],
+        )
+        for model_id, m in models.items()
+    ]
+    entries += [(label, title, author, "CC BY 4.0", url) for label, title, author, url in LEGACY_MODEL_CREDITS]
+    for label, title, author, lic, url in sorted(entries, key=lambda e: e[0].lower()):
+        lines.append(f"- {label} - \"{title}\" by {author}. {lic}. Source: {url}")
+    lines.append("")
+    return lines
 
 
 def main() -> None:
@@ -91,6 +149,8 @@ def main() -> None:
             )
         lines.append("")
 
+    lines.extend(model_lines())
+
     # --- License references ---------------------------------------------
     lines.append("## Licenses")
     lines.append("")
@@ -109,7 +169,7 @@ def main() -> None:
     out = os.path.join(ROOT, "CREDITS.md")
     with open(out, "w", encoding="utf-8") as f:
         f.write("\n".join(lines))
-    print(f"Wrote {out} ({len(birds)} birds, {len(insects)} insects)")
+    print(f"Wrote {out} ({len(birds)} birds, {len(insects)} insects, 3D model credits)")
 
 
 if __name__ == "__main__":

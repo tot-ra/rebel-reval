@@ -394,7 +394,7 @@ func test_review_cases_restore_equipment_and_play_real_clips() -> void:
 	scene.free()
 
 func test_mammals_have_compact_stance_and_bending_lower_legs() -> void:
-	for id: String in ["pig", "dog", "sheep", "goat", "boar", "fox", "hare", "forge_cat"]:
+	for id: String in ["pig", "dog", "sheep", "goat", "boar", "fox", "hare", "forge_cat", "cow", "cow_holstein"]:
 		var model := (load("res://assets/storybook/%s/%s.glb" % [id, id]) as PackedScene).instantiate()
 		Engine.get_main_loop().root.add_child(model)
 		var skeleton := model.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D

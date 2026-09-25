@@ -130,9 +130,18 @@ blender -b --python tools/assets/build_storybook_models.py -- --mammals-only
 python3 tools/verify_storybook_models.py --mammals-only
 ```
 
-`tools/assets/import_realistic_mammals.py` replaces the rejected primitive surface builder. Nine mammals now retain licensed source meshes and UVs. [mammal_sources.json](mammal_sources.json) records every author, CC BY 4.0 link, source checksum and staging path. Download the matching source GLBs before rebuilding; the importer refuses missing or mismatched sources. Original source bulk stays outside Git; the runtime GLBs are self-contained.
+`tools/assets/import_realistic_mammals.py` replaces the rejected primitive surface builder. Nine mammals and two cattle coats now retain licensed source meshes and UVs. [mammal_sources.json](mammal_sources.json) records every author, CC BY 4.0 link, source checksum and staging path. Download the matching source GLBs before rebuilding; the importer refuses missing or mismatched sources. Original source bulk stays outside Git; the runtime GLBs are self-contained.
 
 The dog uses 3Dima’s shaggy dog as a generic village animal, without claiming a historically attested breed. A Labrador candidate was discarded. The hare uses Dakota.Hinkle’s rabbit as a lagomorph proxy and still needs a species-exact hare sculpt. The cat source is Meshy-generated and fox source has Tripo identifiers; those origins are recorded rather than described as hand-sculpted work.
+
+## Cattle
+
+The rejected procedural cow is replaced by two licensed sculpts on the shared mammal rig and six clips: iRahulRajput's *Brown Cow 3d model* (`cow/`, canonical path) and 3Dima's *Realistic Holstein Cow* (`cow_holstein/`). Both are CC BY 4.0 and credited in the in-game Credits screen (`python3 tools/generate_credits.py`). The pied coat is a generic village phenotype, not a claim that Holsteins lived in medieval Reval. Both stand 1.50 world units tall beside the 1.65-unit horse. `MedievalAnimalModels.model_path()` picks the coat from each placement's stable seed, so a pen mixes both coats and every cow keeps its coat across reloads.
+
+```sh
+blender -b --python-exit-code 1 --python tools/assets/import_realistic_mammals.py -- --only cow --publish
+blender -b --python-exit-code 1 --python tools/assets/import_realistic_mammals.py -- --only cow_holstein --publish
+```
 
 Eight models use measured limb chains with forelimb elbows and hindlimb stifle/hock articulation. Source foot surfaces remain intact. The rat retains Nestaeric’s authored rig and motions, with original clip durations and measured playback speeds. Its source motion has some foot slip; it is not a perfect contact-locked gait. Cat routines retain their existing clip names.
 

@@ -228,7 +228,7 @@ func _make_actor(index: int, placement: Dictionary) -> Node3D:
 	var home := MapViewBridge.cell_center_to_world(cell, _cell_size, _ground_height_for_cell(cell))
 	var actor := Node3D.new()
 	actor.name = "UrbanFauna%d" % index
-	var model := MedievalAnimalModels.add_model(actor, species)
+	var model := MedievalAnimalModels.add_model(actor, species, hash_seed(_map_id, index, 53))
 	if model != null and species == MammalSpecies.SPECIES_CAT:
 		# Same mesh and rig as Kalev's cat, different coat and build, so a town
 		# with several cats does not read as one cat copied around.

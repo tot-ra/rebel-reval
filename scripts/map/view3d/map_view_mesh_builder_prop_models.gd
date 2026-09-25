@@ -229,7 +229,7 @@ static func build_prop(
 		MapTypes.PROP_KIND_TIMBER_FENCE:
 			_add_timber_fence(root, prop, cell_size)
 		MapTypes.PROP_KIND_CATTLE:
-			_add_cattle(root)
+			_add_cattle(root, prop)
 		MapTypes.PROP_KIND_SHEEP:
 			_add_sheep(root)
 		MapTypes.PROP_KIND_HORSE:
@@ -400,8 +400,10 @@ static func _add_timber_fence(root: Node3D, prop: Dictionary, cell_size: int) ->
 		)
 
 
-static func _add_cattle(root: Node3D) -> void:
-	MedievalAnimalModels.add_model(root, MammalSpecies.SPECIES_COW)
+static func _add_cattle(root: Node3D, prop: Dictionary) -> void:
+	# Stable prop IDs keep each placed cow's coat identical across reloads.
+	var variant_seed := hash(String(prop.get("id", &"cattle")))
+	MedievalAnimalModels.add_model(root, MammalSpecies.SPECIES_COW, variant_seed)
 
 
 static func _add_sheep(root: Node3D) -> void:
