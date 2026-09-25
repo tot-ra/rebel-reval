@@ -214,6 +214,89 @@ def _validate_magic_persistent_area(context: RecordValidationContext) -> None:
         )
 
 
+_AREA_PULSE_DELIVERY_FIELDS = {"kind", "radius"}
+_AREA_PULSE_IMPACT_KINDS = {"stagger", "damage"}
+# Keep area control a short interrupt, never a lock: an enemy's REACT beat is
+# held for the full stagger window (MAGIC.md 5.3).
+_MAX_STAGGER_SEC = 3.0
+
+
+def _validate_magic_area_pulse(context: RecordValidationContext) -> None:
+    """Immediate area pulses carry a radius and one stagger or damage impact."""
+    effect = context.record.get("effect")
+    if not isinstance(effect, dict):
+        return
+    delivery = effect.get("delivery")
+    if not isinstance(delivery, dict):
+        return
+    impact = effect.get("impact")
+    impact_kind = impact.get("kind") if isinstance(impact, dict) else None
+    if delivery.get("kind") != "area_pulse":
+        if impact_kind == "stagger":
+            # Only MagicAreaPulse2D applies CombatStaggerEffect; any other
+            # adapter would silently drop the module.
+            context.diagnose(
+                "MAGIC_EFFECT",
+                "$.effect.impact.kind",
+                "stagger is only delivered by area_pulse effects",
+            )
+        return
+    if not _is_positive_number(delivery.get("radius")):
+        context.diagnose(
+            "MAGIC_EFFECT",
+            "$.effect.delivery.radius",
+            "area_pulse requires a positive radius",
+        )
+    extra = sorted(key for key in delivery if key not in _AREA_PULSE_DELIVERY_FIELDS)
+    if extra:
+        context.diagnose(
+            "MAGIC_EFFECT",
+            "$.effect.delivery",
+            "area_pulse takes no projectile, summon, or lifetime fields: " + ", ".join(extra),
+        )
+    if effect.get("area") is not None:
+        context.diagnose(
+            "MAGIC_EFFECT",
+            "$.effect.area",
+            "area_pulse effects must not define a second area",
+        )
+    if impact_kind not in _AREA_PULSE_IMPACT_KINDS:
+        context.diagnose(
+            "MAGIC_EFFECT",
+            "$.effect.impact",
+            "area_pulse requires a stagger or damage impact",
+        )
+        return
+    if impact_kind == "damage":
+        if not _is_positive_number(impact.get("amount")):
+            context.diagnose(
+                "MAGIC_EFFECT",
+                "$.effect.impact.amount",
+                "area_pulse damage requires a positive amount",
+            )
+        return
+    duration = impact.get("duration_sec")
+    if not _is_positive_number(duration):
+        context.diagnose(
+            "MAGIC_EFFECT",
+            "$.effect.impact.duration_sec",
+            "stagger requires a positive duration_sec",
+        )
+    elif duration > _MAX_STAGGER_SEC:
+        context.diagnose(
+            "MAGIC_EFFECT",
+            "$.effect.impact.duration_sec",
+            f"stagger duration_sec must not exceed {_MAX_STAGGER_SEC:g}",
+        )
+    for field in ("amount", "damage_type", "tick_interval_sec"):
+        if field in impact:
+            context.diagnose(
+                "MAGIC_EFFECT",
+                f"$.effect.impact.{field}",
+                f"stagger does not carry {field}",
+            )
+
+
 def _is_positive_number(value: Any) -> bool:
     return isinstance(value, (int, float)) and not isinstance(value, bool) and value > 0
 
@@ -231,6 +314,7 @@ def validate_magic(context: RecordValidationContext) -> None:
         _validate_magic_summon_effect(context)
         _validate_magic_self_modifier(context)
         _validate_magic_persistent_area(context)
+        _validate_magic_area_pulse(context)
 
     if record_type == "spell":
         if record.get("school") != "school.pagan":

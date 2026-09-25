@@ -22,6 +22,10 @@ var health_ratio: float = 1.0
 
 var _attack_impact_emitted := false
 var _dead := false
+## Timed stagger window (R-724). REACT is held until both the archetype's own
+## react beat and any applied stagger have elapsed, so an area stagger reuses
+## the existing hit-react phase instead of adding a parallel state.
+var _stagger := CombatStaggerEffect.new()
 
 
 func configure(next_archetype: EnemyArchetype) -> void:
@@ -35,6 +39,7 @@ func reset() -> void:
 	target_distance = INF
 	target_in_sight = false
 	health_ratio = 1.0
+	_stagger.clear()
 	_set_state(EnemyCombatState.State.PATROL)
 
 
@@ -42,6 +47,7 @@ func tick(delta: float) -> void:
 	if delta <= 0.0 or _dead:
 		return
 	state_elapsed_sec += delta
+	_stagger.tick(delta)
 	match state:
 		EnemyCombatState.State.PATROL:
 			_tick_patrol()
@@ -90,10 +96,31 @@ func apply_hit() -> void:
 	_set_state(EnemyCombatState.State.REACT)
 
 
+## Interrupts any phase, including a telegraphed or in-flight attack whose
+## impact has not landed, and holds REACT for `duration_sec`. Overlapping
+## staggers keep the longer remaining window; they never stack additively.
+func apply_stagger(duration_sec: float) -> bool:
+	if _dead or state == EnemyCombatState.State.DEAD:
+		return false
+	if not _stagger.apply(duration_sec):
+		return false
+	_set_state(EnemyCombatState.State.REACT)
+	return true
+
+
+func is_staggered() -> bool:
+	return not is_dead() and _stagger.is_active()
+
+
+func stagger_remaining_sec() -> float:
+	return 0.0 if is_dead() else _stagger.remaining_duration_sec()
+
+
 func mark_dead() -> void:
 	if _dead:
 		return
 	_dead = true
+	_stagger.clear()
 	_set_state(EnemyCombatState.State.DEAD)
 	died.emit()
 
@@ -157,6 +184,8 @@ func _tick_attack() -> void:
 
 
 func _tick_react() -> void:
+	if _stagger.is_active():
+		return
 	if state_elapsed_sec >= archetype.react_duration_sec:
 		if _should_lose_target():
 			_set_state(EnemyCombatState.State.DISENGAGE)

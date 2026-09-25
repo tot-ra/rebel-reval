@@ -163,6 +163,21 @@ Ticks are deterministic and frame-rate independent: one 6 s step applies the sam
 
 **Save boundary:** like timed modifiers, areas and per-target heal state are transient and never saved.
 
+### 5.3 Area pulses and stagger (R-724)
+
+An area pulse uses `effect.delivery.kind: "area_pulse"` plus exactly one `effect.impact` module of kind `stagger` or `damage`. The runtime spawns `MagicAreaPulse2D` (`scripts/magic/magic_area_pulse_2d.gd`) on the caster, resolves it once in the same frame, and frees it. It never names a spell.
+
+| Field | Rule |
+|---|---|
+| `delivery.radius` | Positive; targets on the boundary are included. The only other delivery field is `kind` |
+| Targets | Actors in `combat_damageable` with `take_damage`, excluding the caster, actors whose `is_hostile_to(caster)` is false, and dead AI hosts (`is_combat_dead()`) |
+| `impact.kind: stagger` | `0 < duration_sec <= 3`; no `amount`, `damage_type` or `tick_interval_sec`. NATURAL scaling applies to `duration_sec` |
+| `impact.kind: damage` | Positive `amount`, optional `damage_type` |
+
+Stagger lands through the shared `CombatStaggerEffect.apply_to` contract (`apply_stagger(duration_sec)`). `CombatRoomEnemy` forwards it to `EnemyCombatStateMachine.apply_stagger`, which interrupts any phase (an unlanded telegraph or attack is cancelled) and holds `REACT` until both the archetype's react beat and the stagger window have elapsed; the enemy then re-evaluates chase, attack or retreat. Overlapping staggers keep the longer remaining window and never add up. The validator rejects `stagger` on any delivery other than `area_pulse` (the projectile adapter would drop it), a pulse without a radius or supported impact, foreign placement fields, and a second `area`.
+
+**Save boundary:** stagger is transient combat state; `reset_actor()`, death, and scene rebuilds clear it.
+
 ---
 
 ## 6. NATURAL aspect coupling
@@ -239,7 +254,7 @@ These are design stubs, not shipped balance.
 | `spell.pagan.spark` | pagan | `[fire]` | Minor fire projectile | optional |
 | `spell.pagan.reinforce` | pagan | `[metal]` | Short self armor buff | optional |
 | `spell.pagan.iron_skin` | pagan | `[earth, metal]` | Self damage reduction (35%, 8 s, recast replaces); shipped example (R-725) | optional |
-| `spell.pagan.tremor` | pagan | `[earth]` | Short foot stagger pulse | optional |
+| `spell.pagan.earth_tremor` | pagan | `[earth]` | Hostile stagger pulse (96 radius, 1.5 s, 1 willpower); shipped example (R-724) | optional |
 | `spell.pagan.healing_mist` | pagan | `[water, life]` | Ally heal area (80 radius, 6 s, 4 health per second per ally); shipped example (R-721) | optional |
 | `spell.pagan.forgefire_weapon` | pagan | `[fire, metal, mind]` | Temporary fire on melee strikes | `conduit.forge_spell` |
 | `spell.pagan.earthen_wall` | pagan | `[earth, metal, life]` | Short blocking earth segment | `conduit.forge_spell` |

@@ -57,6 +57,10 @@ func _is_valid_target(candidate: Node2D) -> bool:
 		return false
 	if not candidate.has_method("take_damage"):
 		return false
+	# Dead AI hosts stay in the damageable group for outcome bookkeeping; a
+	# pulse must not report them as affected.
+	if candidate.has_method("is_combat_dead") and bool(candidate.call("is_combat_dead")):
+		return false
 	# Faction-aware actors opt into the same hostile filter. Actors without a
 	# faction marker retain the combat-room default of being hostile targets.
 	if candidate.has_method("is_hostile_to") and not bool(candidate.call("is_hostile_to", source)):

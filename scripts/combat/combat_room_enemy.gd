@@ -136,6 +136,22 @@ func tick_ai(delta: float, target: Node2D = null) -> void:
 	_refresh_label()
 
 
+## Shared CombatStaggerEffect.apply_to contract used by area magic (R-724).
+func apply_stagger(duration_sec: float) -> void:
+	if not machine.apply_stagger(duration_sec):
+		return
+	feedback_event.emit("%s: staggered %.1fs" % [display_name, duration_sec])
+	_refresh_label()
+
+
+func is_staggered() -> bool:
+	return machine.is_staggered()
+
+
+func stagger_remaining_sec() -> float:
+	return machine.stagger_remaining_sec()
+
+
 func take_damage(
 	amount: float,
 	_source: Node = null,
