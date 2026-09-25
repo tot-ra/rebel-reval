@@ -94,10 +94,12 @@ character.unequip_garment(&"cape")
 ```bash
 tools/rebuild_hero_character.sh
 godot --headless --path . --script tools/run_godot_tests.gd
-godot --path . --script tools/capture_character_closeup.gd          # portrait-distance proportion audit
-godot --path . --resolution 1600x900 assets/characters/showcase/character_rig_showcase.tscn -- --capture-p0-037
+tools/godot_render.sh --script tools/capture_character_closeup.gd   # portrait-distance proportion audit
+tools/godot_render.sh --resolution 1600x900 res://assets/characters/showcase/character_rig_showcase.tscn -- --capture-p0-037
 python3 tools/validate_asset_sources.py
 ```
+
+Captures go through `tools/godot_render.sh` (minimized, unfocused window). Agents must not run Godot without `--headless` or the wrapper.
 
 All `test_character_rig.gd` cases must pass: contract completeness, transform-driven facing, contralateral run swing, 64 px scale, neutral modifier, data-only variant, equipment slots, skinned garments, occlusion ghost.
 

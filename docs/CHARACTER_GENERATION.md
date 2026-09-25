@@ -232,7 +232,7 @@ populated to prevent black exported normal maps and zero roughness. Rebuilding
 now fails on Blender errors, refreshes distance LODs, imports, registers extracted
 textures and runs asset lint.
 
-Run the interactive comparison scene with:
+Humans can open the interactive comparison scene (agents: use the headless `--verify-controls` line, never a visible window):
 
 ```bash
 godot --path . assets/characters/showcase/modular_character_showcase.tscn

@@ -23,7 +23,7 @@ python3 tools/assets/kalev_rebuild/write_resources.py
 godot --headless --path . --editor --import
 python3 tools/assets/kalev_rebuild/verify_asset.py
 godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_kalev_rebuild
-godot --path . --script tools/capture_kalev_fresh.gd --resolution 1280x1280
+tools/godot_render.sh --resolution 1280x1280 --script tools/capture_kalev_fresh.gd  # GPU capture, minimized window
 ```
 
 The geometry-stripped CC0 motion source is extracted before Blender imports it. It supplies skeleton names and animations only. To regenerate the AI sculpt instead of rebuilding the preserved one, use `generate_base.py` with a local ComfyUI server that has `hunyuan3d-dit-v2-mv_fp16.safetensors`, then prepare oriented points and repair its surface before binding:

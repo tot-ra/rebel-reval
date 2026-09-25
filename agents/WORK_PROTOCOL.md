@@ -16,6 +16,17 @@ Use five lenses throughout production:
 
 A small complete slice that satisfies these lenses outranks broad disconnected output.
 
+## Running Godot without windows
+
+Agents must never open a visible Godot window on the user's desktop.
+
+- Tests, imports, validators, probes and anything that does not read rendered pixels: `godot --headless --path . ...` (or `/Applications/Godot.app/Contents/MacOS/Godot --headless ...`).
+- Captures, render probes and windowed benchmarks that need a real GPU renderer: `tools/godot_render.sh [renderer flags] --script tools/<tool>.gd -- ...`. It starts Godot minimized without focus through a temporary shadow project; output is pixel-identical. Do not pass `--path`, and never add `override.cfg` to the repository.
+- A Godot command line without `--headless` must start with `tools/godot_render.sh`. Never run `godot -e`, `godot --path .` or a `.tscn` showcase directly; those are for humans. `GODOT_RENDER_VISIBLE=1` is for a human debugging a capture, not for agents.
+- `--headless` uses the dummy renderer: viewport textures are empty. If a headless capture yields blank images, switch to the wrapper; do not drop `--headless` on a bare command.
+
+See `docs/SETUP.md` for the verification record and renderer flags.
+
 ## Decision rights
 
 - The **Producer** decides priority, scope, dependency order, and task readiness. It does not decide historical truth or implement deliverables.

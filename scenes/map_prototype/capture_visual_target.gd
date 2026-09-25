@@ -6,7 +6,10 @@ const SCENE_PATH := "res://scenes/map_prototype/smithy_courtyard.tscn"
 func _init() -> void:
 	var args := OS.get_cmdline_user_args()
 	if args.size() != 3:
-		push_error("Usage: godot --path . --script capture_visual_target.gd -- <target> <day|night> <png>")
+		push_error(
+			"Usage: tools/godot_render.sh --script "
+			+ "res://scenes/map_prototype/capture_visual_target.gd -- <target> <day|night> <png>"
+		)
 		quit(2)
 		return
 
@@ -26,7 +29,9 @@ func _init() -> void:
 	await process_frame
 
 	var image := root.get_texture().get_image()
-	var output_path := ProjectSettings.globalize_path(args[2]) if args[2].begins_with("res://") else args[2]
+	var output_path: String = args[2]
+	if output_path.begins_with("res://"):
+		output_path = ProjectSettings.globalize_path(output_path)
 	var error := image.save_png(output_path)
 	if error != OK:
 		push_error("Could not save P0-036 capture: %s" % error_string(error))
