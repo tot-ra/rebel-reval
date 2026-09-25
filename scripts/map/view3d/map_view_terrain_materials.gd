@@ -254,6 +254,12 @@ static func blended_ground(noise_seed: int) -> ShaderMaterial:
 	)
 	material.set_shader_parameter("earth_layer_max", terrain_blend_index(MapTypes.TERRAIN_ASH))
 	material.set_shader_parameter("mud_wetness", 0.0)
+	# WS-08 wet sand: only the two beach layers darken behind the swash.
+	material.set_shader_parameter("sand_layer", terrain_blend_index(MapTypes.TERRAIN_SAND))
+	material.set_shader_parameter(
+		"coast_sand_layer", terrain_blend_index(MapTypes.TERRAIN_COAST_SAND)
+	)
+	material.set_shader_parameter("shore_field_valid", 0.0)
 	material.set_shader_parameter("natural_ground_uv_scale", TERRAIN_GRASS_UV_SCALE)
 	material.set_shader_parameter("natural_ground_variation", 0.72)
 	material.set_shader_parameter("timber_floor_uv_scale", TERRAIN_TIMBER_FLOOR_UV_SCALE)
@@ -275,6 +281,16 @@ static func blended_ground(noise_seed: int) -> ShaderMaterial:
 		material.set_shader_parameter("use_authored_hay", 0.0)
 	_cache[key] = material
 	return material
+
+
+## Every cached blended-ground material, for per-map uniforms such as the WS-08
+## shore field that must reach all ground materials at once.
+static func blended_ground_materials() -> Array[ShaderMaterial]:
+	var materials: Array[ShaderMaterial] = []
+	for key: Variant in _cache.keys():
+		if String(key).begins_with("blended_ground:"):
+			materials.append(_cache[key] as ShaderMaterial)
+	return materials
 
 
 static func apply_mud_wetness(wetness: float) -> void:

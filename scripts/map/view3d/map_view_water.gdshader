@@ -82,6 +82,15 @@ uniform vec2 wind_direction = vec2(0.9578, 0.2873);
 // sea on GPU and CPU: MapViewRuntimeEnvironment accumulates the scaled world
 // delta into ocean_time, so time controls pause waves and boats read the same t.
 global uniform float ocean_time;
+// WS-08 shore swash (wave sets, breaking bore, run-up sheet, wall slosh).
+#include "res://scripts/map/view3d/shore_swash.gdshaderinc"
+// True only on the generated beach film (ShoreSwashSheet). It shares every
+// other uniform with its source water family through MapViewMaterials.
+uniform bool swash_sheet = false;
+// Shore wave geometry budget, like fft_geometry_scale: the water column above
+// the recessed bed is only a few hundredths of a unit, so crests are compressed
+// while foam, turbidity and run-up keep the physical wave.
+uniform float shore_geometry_scale = 0.12;
 uniform bool use_fft = false;
 // Every atlas shares one filter/repeat hint because Godot rejects a sampler
 // argument (_fft_sample) fed textures with differing hints. The disp atlases
@@ -539,6 +548,8 @@ void vertex() {
 	vec3 undisplaced_world = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	wave_sample_xz = undisplaced_world.xz;
 	shore_factor = clamp(COLOR.r, 0.0, 1.0);
+	// Processor functions cannot return early; the sheet restores this at the end.
+	vec3 rest_vertex = VERTEX;
 	// Advect the wave field downstream so ripples travel along the current.
 	vec2 flow_advection = flow_direction * (flow_strength * TIME * wave_speed * 0.6);
 	vec3 displacement = vec3(0.0);
@@ -577,16 +588,86 @@ void vertex() {
 		float ripple_h = textureLod(ripple_state, ripple_uv, 0.0).r * ripple_vertex_amplitude;
 		displacement.y += max(ripple_h * _ripple_weight(ripple_uv), 0.0);
 	}
+	if (shore_field_valid > 0.5 && shore_strength > 0.0) {
+		ShoreState shore = shore_state(undisplaced_world.xz, ocean_time, shore_sea());
+		// Crests and the wall slosh only rise: a trough would expose the recessed
+		// bed, so the slosh reads as water climbing the wall and falling back to
+		// rest. The crest top curls towards land.
+		float shore_lift = (shore.height + max(shore.slosh, 0.0)) * shore_geometry_scale;
+		displacement.y += shore_lift * shore.valid;
+		displacement.xz += shore.to_land * shore.curl * shore_geometry_scale * shore.valid;
+	}
 	VERTEX.x += displacement.x;
 	VERTEX.y += tide_height * tide_level + displacement.y;
 	VERTEX.z += displacement.z;
 	water_world_position = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+	if (swash_sheet) {
+		// The film lies on the sand; the ocean displacement must not lift it.
+		VERTEX = rest_vertex;
+		fft_foam = 0.0;
+		water_world_position = undisplaced_world;
+	}
 }
 
 void fragment() {
+	// WS-08 beach film. Processor functions cannot return early, so the film is
+	// shaded into locals here and replaces the ocean outputs at the end.
+	ShoreState sheet;
+	vec3 sheet_normal = vec3(0.0, 0.0, 1.0);
+	vec3 sheet_albedo = vec3(0.0);
+	float sheet_alpha = 0.0;
+	float sheet_roughness = 0.06;
+	if (swash_sheet) {
+		// WS-08 beach film: exists only where the analytic swash currently covers
+		// the sand. It is a thin, mostly transparent layer: the wet sand below is
+		// already darkened by the terrain pass, so the film adds the extinction
+		// tint, a strong Fresnel sky reflection, the sun glint and the front foam.
+		sheet = shore_state(water_world_position.xz, ocean_time, shore_sea());
+		if (sheet.valid * sheet.beach < 0.01 || sheet.wet < 0.5) {
+			discard;
+		}
+		vec3 film_normal = normalize(mix(
+			vec3(0.0, 1.0, 0.0), _water_detail_normal(water_world_position.xz, TIME * wave_speed), 0.35
+		));
+		vec3 film_view_normal = normalize((VIEW_MATRIX * vec4(film_normal, 0.0)).xyz);
+		sheet_normal = film_view_normal;
+		float film_facing = clamp(dot(film_view_normal, normalize(VIEW)), 0.0, 1.0);
+		float film_fresnel = 0.02 + 0.98 * pow(1.0 - film_facing, 5.0);
+		vec3 film_world_view = normalize((INV_VIEW_MATRIX * vec4(normalize(VIEW), 0.0)).xyz);
+		vec3 film_sky_ray = normalize(reflect(-film_world_view, film_normal));
+		vec3 film_sky = _sky_dome_gradient(film_sky_ray) * smoothstep(-0.01, 0.06, film_sky_ray.y);
+		// Spectral extinction over the sheet thickness (metres -> world units).
+		vec3 film_transmission = exp(
+			-(sheet.sheet_thickness / SHORE_METERS_PER_UNIT) * depth_absorption * vec3(1.28, 0.72, 0.40) * 6.0
+		);
+		vec3 film_color = mix(shallow_color * 0.55, sand_bed_color * 0.7, film_transmission);
+		film_color = mix(film_color, film_sky, clamp(0.30 + film_fresnel * 0.9, 0.0, 0.9));
+		float film_glint = pow(max(dot(film_sky_ray, normalize(sun_direction)), 0.0), 220.0);
+		film_color += sun_reflection_color * film_glint * sun_reflection_visibility * 0.8;
+		// Meniscus: the last SHORE_MENISCUS units bend down to the sand, so the edge
+		// fades and darkens instead of ending on a cut polygon line.
+		float meniscus = smoothstep(0.0, SHORE_MENISCUS, sheet.front_distance);
+		film_color *= mix(0.78, 1.0, meniscus);
+		float film_alpha = clamp(0.28 + sheet.sheet_thickness * 9.0 + film_fresnel * 0.45, 0.0, 0.8);
+		film_alpha *= meniscus;
+		float film_foam = clamp(sheet.front_foam * 1.2, 0.0, 1.0);
+		film_foam *= smoothstep(0.0, 0.03, sheet.front_distance);
+		sheet_albedo = mix(film_color, mix(foam_color, vec3(0.93, 0.95, 0.94), 0.6), film_foam);
+		sheet_alpha = max(film_alpha, film_foam * 0.92);
+		sheet_roughness = mix(0.06, 0.5, film_foam);
+	}
 	float tide_coverage = tide_shore_retreat * max(-tide_level, 0.0);
 	if (shore_factor < tide_coverage) {
 		discard;
+	}
+	// WS-08: one shore evaluation per fragment feeds the surf turbidity and the
+	// bore / wall foam below. Rivers (shore_strength 0) and maps without a sea
+	// shoreline keep the previous breaker bands.
+	bool shore_live = shore_field_valid > 0.5 && shore_strength > 0.0;
+	float swash_bore = 0.0;
+	ShoreState shore_now;
+	if (shore_live) {
+		shore_now = shore_state(wave_sample_xz, ocean_time, shore_sea());
 	}
 	// Sample the undisplaced XZ. Evaluating Gerstner at the chopped position
 	// feeds the displacement back into itself and swims the normal off the crest.
@@ -706,6 +787,10 @@ void fragment() {
 	vec3 transmitted = seabed * spectral_transmission;
 	vec3 water_color = transmitted + deep_color * (vec3(1.0) - spectral_transmission) * 0.82;
 	water_color = mix(water_color, shallow_color, (1.0 - absorption) * 0.12);
+	if (shore_live) {
+		// Breaking waves stir sand into the surf zone.
+		water_color = mix(water_color, sand_bed_color * 0.9, SHORE_TURBIDITY * shore_now.surf_zone * shore_now.valid);
+	}
 
 	// Caustics belong to the floor, so they fade with both depth and night. Keeping
 	// the pattern in world space avoids UV seams between separate water materials.
@@ -780,6 +865,16 @@ void fragment() {
 	float breaker_a = pow(max(sin(breaker_phase + breaker_warp), 0.0), 5.0);
 	float breaker_b = pow(max(sin(breaker_phase * 0.62 + breaker_warp * 0.7 + 2.4), 0.0), 7.0);
 	float breaker_band = (breaker_a + breaker_b * 0.55) * smoothstep(0.04, 0.92, shore);
+	if (shore_live) {
+		// The analytic bore replaces the travelling sin() bands; hard edges throw
+		// foam at the foot of the wall instead of running up.
+		float swash_foam = shore_now.bore_foam * mix(0.45, 1.0, _swash_patch(water_world_position.xz, TIME));
+		swash_foam += shore_now.wall_foam * mix(0.35, 1.0, _swash_patch(water_world_position.xz * 1.3, TIME));
+		breaker_band = mix(breaker_band, 0.0, shore_now.valid);
+		// Broken water is aerated white, unlike the tinted edge foam: add it after the
+		// breaker scale so the bore reads from the gameplay camera.
+		swash_bore = clamp(swash_foam * shore_now.valid, 0.0, 1.0);
+	}
 	vec2 foam_uv = water_world_position.xz * 3.4 + vec2(-TIME * 0.22, TIME * 0.09) * wave_speed;
 	float foam_noise = _noise(foam_uv + _noise(foam_uv * 0.47) * 2.2);
 	float foam_ribbon = 0.5 + 0.5 * sin(
@@ -840,6 +935,8 @@ void fragment() {
 	}
 	water_color = mix(water_color, highlight_color, clamp(ripple_slope_length * ripple_sheen, 0.0, 0.25));
 	water_color = mix(water_color, foam_color, clamp(foam, 0.0, 0.72));
+	// WS-08 surf bore on top of the tinted foam: brighter and whiter than edge foam.
+	water_color = mix(water_color, mix(foam_color, vec3(0.93, 0.95, 0.94), 0.6), swash_bore * 0.85);
 
 	// Gameplay camera stays above water; this path only tints when a cinematic
 	// or debug view crosses the surface so refraction does not read as dry air.
@@ -863,4 +960,11 @@ void fragment() {
 	ROUGHNESS = mix(mix(0.32, 0.42, clamp(foam, 0.0, 1.0)), day_roughness, sun_visibility);
 	// Godot maps SPECULAR to dielectric F0; 0.25 is approximately water's 0.02.
 	SPECULAR = mix(0.05, 0.25, sun_visibility);
+	if (swash_sheet) {
+		NORMAL = sheet_normal;
+		ALBEDO = sheet_albedo;
+		ALPHA = sheet_alpha;
+		ROUGHNESS = sheet_roughness;
+		SPECULAR = mix(0.05, 0.5, sun_visibility);
+	}
 }

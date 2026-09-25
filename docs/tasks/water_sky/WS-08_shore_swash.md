@@ -150,3 +150,27 @@ gets wet.
   ```text
   - [ ] WS-08 | deps: WS-04 | deliverable: runtime shore distance field + generated beach swash sheet with analytic wave sets, shoaling/breaking bore, run-up/backwash with bead/trail foam and meniscus fade, surf turbidity, wall slosh, and deterministic wet-sand drying with residue line | allowed files: `scripts/map/view3d/shore_swash.gdshaderinc`, `scripts/map/view3d/map_view_water.gdshader`, `scripts/map/view3d/map_view_terrain_blend.gdshader`, `scripts/map/view3d/map_view_mesh_builder_terrain_water.gd`, `scripts/map/view3d/map_view_water_materials.gd`, `scripts/map/view3d/map_view_materials.gd`, `tests/godot/test_shore_distance_field.gd`, `tests/godot/test_r715_water_material_contract.gd`, `tests/godot/test_r715_water_surface_geometry.gd`, `docs/MAP_AUTHORING.md`, `docs/reports/images/ws08_*.png`, `TODO.md` | verify: shore field tests; map validation/audit/activation; reval_harbor_east clear/storm/night captures and 20 s clip show breaking sets, run-up sheet with fading edge, drying wet sand, and wall slosh
   ```
+
+## Final parameters and decisions (2026-09-25, R-893)
+
+- Field: RGBAF built from packed floats and converted to `FORMAT_RGBAH` (filterable half float on
+  GLES3). Seeds are the exact sub-texel contour crossings; a two-pass vector distance transform
+  carries the nearest seed point, which keeps distances within 0.1 cell (tested). Rivers are left
+  out of the field; beach = `sand`/`coast_sand` against `shallow_water`/`deep_water` only, so pond
+  banks slosh. Bake time: 0.29 s on `reval_harbor_east`, 0.42-0.48 s on the largest maps.
+- Sheet: every terrain triangle within 3 units inland (0.35 seaward margin) is split at its edge
+  midpoints, so the film lies in the terrain plane + 0.01 with 18 rows across the reach.
+- Period: fixed ~9.002 s (1638.4 s `ocean_time` wrap / 182 waves, 26 seven-wave sets) instead of
+  `9 * mix(1.2, 0.8, sea)`, because a weather-dependent period scrolls the phase on an absolute
+  clock. The seven-wave set envelope (0.62..1.0) gives the drying band; lookback is 8 waves.
+- Run-up: `R = runup * H_b * 1.8 / 0.87 * shore_runup_gain (3.2)`, clamped to 2.9 units.
+  `shore_geometry_scale` 0.12 compresses crest geometry; crests and slosh only rise.
+- Tide: offset `-ebb * tide_shore_retreat * 1.6` units (0 at high water).
+- Sheet material: a duplicate of the source water family material with `swash_sheet = true`;
+  `MapViewMaterials` mirrors every other uniform on each weather sync.
+- Evidence: `docs/reports/images/ws08_{metal,opengl3}_*` from `tools/capture_ws08_shore_swash.gd`.
+  `tools/run_performance_report.sh --quick` stays within budget (lower_town scene p95 13.6 ms of
+  16.67), but its maps have no beach, so harbour swash cost is not yet measured. Human visual
+  review is still open.
+- The sheet node is `ShoreSwashSheet`, not `Terrain_*`: existing contracts treat every
+  `Terrain_*` mesh as a recessed water family surface.

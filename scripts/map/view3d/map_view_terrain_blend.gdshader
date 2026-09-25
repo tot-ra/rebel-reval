@@ -26,6 +26,11 @@ uniform float mud_wetness = 0.0;
 uniform float natural_ground_uv_scale = 2.0;
 uniform float natural_ground_variation = 0.72;
 uniform float timber_floor_uv_scale = 2.0;
+// WS-08 wet sand behind the swash. Only these two beach layers react.
+uniform int sand_layer = 9;
+uniform int coast_sand_layer = 10;
+global uniform float ocean_time;
+#include "res://scripts/map/view3d/shore_swash.gdshaderinc"
 
 // CUSTOM0 is only readable in vertex(). Layer indices cannot be interpolated
 // directly, so each corner resolves its own finished albedo and material
@@ -34,6 +39,7 @@ varying vec3 vertex_albedo;
 varying float vertex_cobble_weight;
 varying float vertex_earth_weight;
 varying float vertex_mud_weight;
+varying float vertex_sand_weight;
 varying vec2 blend_mix;
 varying vec2 terrain_world_xz;
 
@@ -247,6 +253,11 @@ void vertex() {
 	vertex_cobble_weight = mix(cobble_layer_weight(layers.x), cobble_layer_weight(layers.y), raw_blend);
 	vertex_earth_weight = mix(earth_layer_weight(layers.x), earth_layer_weight(layers.y), raw_blend);
 	vertex_mud_weight = mix(float(layers.x == mud_layer), float(layers.y == mud_layer), raw_blend);
+	vertex_sand_weight = mix(
+		float(layers.x == sand_layer || layers.x == coast_sand_layer),
+		float(layers.y == sand_layer || layers.y == coast_sand_layer),
+		raw_blend
+	);
 }
 
 void fragment() {
@@ -277,4 +288,17 @@ void fragment() {
 	ROUGHNESS = mix(0.96, mix(0.99, 0.93, stone), cobble_weight);
 	ROUGHNESS = mix(ROUGHNESS, mix(0.42, 0.20, mud_pool), mud_film_weight);
 	SPECULAR = mix(0.12, 0.30, mud_film_weight);
+
+	// WS-08: the same analytic swash as the water decides when this sand was last
+	// covered; it darkens, turns glossy and dries over dryTime (28 s), and the
+	// highest reach of each wave leaves a thin foam residue for residueLife (5 s).
+	if (shore_field_valid > 0.5 && vertex_sand_weight > 0.01) {
+		ShoreState shore = shore_state(terrain_world_xz, ocean_time, shore_sea());
+		float sand = shore.valid * shore.beach * vertex_sand_weight;
+		float wet = exp(-shore.time_since_wet / SHORE_DRY_TIME) * sand;
+		ALBEDO *= 1.0 - 0.45 * wet;
+		ROUGHNESS = mix(ROUGHNESS, 0.25, wet);
+		SPECULAR = mix(SPECULAR, 0.42, wet);
+		ALBEDO = mix(ALBEDO, vec3(0.80, 0.82, 0.78), clamp(shore.residue * sand, 0.0, 1.0) * 0.55);
+	}
 }

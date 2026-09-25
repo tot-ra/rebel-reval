@@ -362,6 +362,8 @@ static func build_terrain(definition: MapDefinition, grid: MapTerrainGrid) -> No
 		instance.mesh = mesh
 		instance.material_override = MapViewMaterials.water_surface(terrain_id)
 		root.add_child(instance)
+	# WS-08: shore distance field for the swash shaders plus the beach swash sheet.
+	MapViewMeshBuilderTerrainWater.add_shore_swash(root, field, grid)
 	return root
 
 

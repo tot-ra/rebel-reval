@@ -135,6 +135,29 @@ WS-15 implementation landed (R-900, in review). Decisions (2026-09-25), evidence
    Metal is vsync-bound. Plates use the WS-04 `--fft` hook.
 5. **Scope additions:** the capture tool and the evidence report, listed above.
 
+- [ ] WS-08 | deps: WS-04 | deliverable: runtime shore distance field + generated beach swash sheet with analytic wave sets, shoaling/breaking bore, run-up/backwash with bead/trail foam and meniscus fade, surf turbidity, wall slosh, and deterministic wet-sand drying with residue line | allowed files: `scripts/map/view3d/shore_swash.gdshaderinc`, `scripts/map/view3d/map_view_water.gdshader`, `scripts/map/view3d/map_view_terrain_blend.gdshader`, `scripts/map/view3d/map_view_mesh_builder_terrain_water.gd`, `scripts/map/view3d/map_view_mesh_builder_terrain.gd`, `scripts/map/view3d/map_view_water_materials.gd`, `scripts/map/view3d/map_view_materials.gd`, `scripts/map/view3d/map_view_terrain_materials.gd`, `tests/godot/test_shore_distance_field.gd`, `tests/godot/test_r715_water_material_contract.gd`, `tests/godot/test_r715_water_surface_geometry.gd`, `tools/capture_ws08_shore_swash.gd`, `docs/MAP_AUTHORING.md`, `docs/tasks/water_sky/WS-08_shore_swash.md`, `docs/reports/images/ws08_*.png`, `TODO.md` | verify: shore field tests; map validation/audit/activation; reval_harbor_east clear/storm/night captures and 20 s clip show breaking sets, run-up sheet with fading edge, drying wet sand, and wall slosh
+
+WS-08 implementation landed (R-893, in review). Decisions (2026-09-25), also in the contract's
+"Final parameters and decisions" section:
+
+1. **Fixed, quantised period.** `ocean_time` is an absolute clock that wraps every 1638.4 s, so a
+   period that follows the sea state would scroll the phase by `t * dP / P^2` during every weather
+   transition. The period is ~9.002 s (182 waves = 26 seven-wave sets per wrap, seamless). Sea
+   state drives height, break point, run-up and foam instead.
+2. **Tide.** High water fills the authored contour exactly, so the swash origin only moves seaward
+   on the ebb (`-ebb * tide_shore_retreat * 1.6` units), never inland.
+3. **Visibility levers (ADR 0018).** Physical run-up of a Baltic breaker is ~0.4 m, so
+   `shore_runup_gain` 3.2 keeps it readable (calm ~0.9, storm ~1.6 units). Shore crest geometry is
+   compressed by `shore_geometry_scale` 0.12 and only rises (the bed sits 0.074 units below), and
+   the bore is a whiter foam added after the tinted edge foam.
+4. **Scope additions:** `map_view_mesh_builder_terrain.gd` (one hook in `build_terrain`),
+   `map_view_terrain_materials.gd` (sand layer indices and a material list for the field) and the
+   capture tool were not in the contract's allowed files and are listed above. `apply_shore_field`
+   re-binds on every terrain tree entry because the materials are shared by all map views.
+5. **Minimum tier** is chosen with `MapViewMaterials.set_shore_swash_quality_tier()` at build time
+   (like the FFT tier); production does not yet call either tier setter, so both default to
+   recommended.
+
 ## Storybook model set
 
 - [ ] P0-209b | deps: P0-209a | deliverable: replace the visually rejected procedural mammals from scratch with convincingly realistic sculpted or scanned source geometry and textured surfaces | allowed files: `tools/assets/realistic_mammals.py`, `tools/assets/mammal_limb_anatomy.py`, `tools/assets/build_storybook_models.py`, `tools/assets/import_realistic_mammals.py`, `tools/assets/import_authored_rat.py`, `tools/assets/pack_authored_rat.py`, `tools/verify_storybook_models.py`, `tools/capture_animal_realism.gd`, `scripts/map/view3d/map_view_medieval_animal_models.gd`, `tests/python/test_mammal_limb_anatomy.py`, `tests/godot/test_mammal_limb_anatomy.gd`, `tests/godot/test_storybook_models.gd`, `tests/godot/test_storybook_live_integration.gd`, `assets/storybook/`, `assets/SOURCES.csv`, `docs/ART_BIBLE.md`, `docs/reports/animal_realism_2026-09-12.md`, `docs/reports/images/animal_realism/`, `TODO.md` | constraints: licensed commercial-use sources; no ripped game assets; preserve species IDs, runtime paths and behavior; replace failed geometry instead of polishing primitive unions; preserve unrelated WIP | verify: inspect replacement source silhouettes and materials; Godot imports and fauna tests; real runtime captures; provenance and independent visual review; do not close on technical tests alone; replacement implementation and 81 focused tests complete; maintainer visual acceptance remains open

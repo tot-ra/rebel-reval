@@ -64,6 +64,15 @@ The current harbour envelopes author S1-S2 on `reval_harbor_east` and S3-S4 on
 maps and must remain evidence references rather than speculative wet geometry or
 walkable interaction anchors.
 
+### Shore swash is generated view output (WS-08)
+
+The shore distance field and the `ShoreSwashSheet` beach sheet are built by the 3D view from
+the compiled water contour; they are not map content. Author beaches only by painting `sand` or
+`coast_sand` against `shallow_water` or `deep_water`; any other bank (stone, timber, grass) is a
+hard edge that sloshes instead of running up, and `river_water` gets no swash. The sheet has no
+stable ID, no collision and no navigation effect, and never changes walkable cells or the map
+fingerprint. Fix a wrong swash by changing the terrain, not by editing generated nodes.
+
 ## Architecture and terminology
 
 ```text
