@@ -7,6 +7,7 @@ extends RefCounted
 ## trees, and actor sync so everything sits on the same rolling ground.
 static var _height_fields: Dictionary = {}
 static var _height_field_keys_by_definition: Dictionary = {}
+static var _seabed_material: StandardMaterial3D
 
 
 static func ensure_height_field(definition: MapDefinition, grid: MapTerrainGrid) -> Dictionary:
@@ -52,6 +53,8 @@ static func ensure_height_field(definition: MapDefinition, grid: MapTerrainGrid)
 	_height_fields[key] = field
 	_height_field_keys_by_definition[_definition_height_key(definition)] = key
 	bake_vertices(field)
+	_bake_basin_cells(field, grid)
+	bake_bed_vertices(field)
 	return field
 
 
@@ -302,6 +305,211 @@ static func bake_vertices(field: Dictionary) -> void:
 	field["vertex_columns"] = columns
 
 
+## Rendered seabed height (world units) at a world XZ position: the gameplay bed
+## minus the WS-13b sea basin. Equals `ground_height` away from open sea cells.
+## View only (underwater cameras, captures, later swimming); gameplay keeps
+## `ground_height`.
+static func view_bed_height(definition: MapDefinition, world_xz: Vector2) -> float:
+	var field_key := String(
+		_height_field_keys_by_definition.get(_definition_height_key(definition), "")
+	)
+	var field: Dictionary = _height_fields.get(field_key, {})
+	if field.is_empty():
+		return 0.0
+	var height := field_height(field, world_xz)
+	var cell := Vector2i(floori(world_xz.x), floori(world_xz.y))
+	if field["water"].has(cell):
+		height -= basin_extra_depth(field, world_xz)
+	return height
+
+
+## WS-13b per-cell basin inputs: the target depth of each sea cell and the chamfer
+## distance (cells, centre to centre) to the nearest natural and hard dry cell.
+## Cells outside the map count as water, so a basin stays deep up to the border and
+## meets the surroundings seabed apron instead of shelving up at every map edge.
+static func _bake_basin_cells(field: Dictionary, grid: MapTerrainGrid) -> void:
+	if field.get("flat_floor", false):
+		return
+	var size: Vector2i = grid.size_cells
+	var count := size.x * size.y
+	if count <= 0:
+		return
+	var targets := PackedFloat32Array()
+	var natural := PackedFloat32Array()
+	var hard := PackedFloat32Array()
+	targets.resize(count)
+	natural.resize(count)
+	hard.resize(count)
+	var far := float(size.x + size.y)
+	var has_basin := false
+	for y in size.y:
+		for x in size.x:
+			var index := y * size.x + x
+			var terrain := grid.get_terrain(Vector2i(x, y))
+			natural[index] = far
+			hard[index] = far
+			if MapViewMaterials.WATER_TERRAINS.has(terrain):
+				targets[index] = float(MapViewMeshBuilderConfig.SEA_BASIN_DEPTH.get(terrain, 0.0))
+				has_basin = has_basin or targets[index] > 0.0
+			elif terrain in MapViewMeshBuilderConfig.NATURAL_SHORE_TERRAINS:
+				natural[index] = 0.0
+			else:
+				hard[index] = 0.0
+	if not has_basin:
+		return
+	_chamfer_distance(natural, size)
+	_chamfer_distance(hard, size)
+	field["basin_targets"] = targets
+	field["basin_natural"] = natural
+	field["basin_hard"] = hard
+
+
+## Two-pass 3x3 chamfer transform (1 and sqrt 2): Euclidean enough for a bank
+## profile and linear in the cell count, so startup stays cheap on 160-cell maps.
+static func _chamfer_distance(distances: PackedFloat32Array, size: Vector2i) -> void:
+	var diagonal := sqrt(2.0)
+	for y in size.y:
+		for x in size.x:
+			var index := y * size.x + x
+			var best := distances[index]
+			if x > 0:
+				best = minf(best, distances[index - 1] + 1.0)
+			if y > 0:
+				best = minf(best, distances[index - size.x] + 1.0)
+				if x > 0:
+					best = minf(best, distances[index - size.x - 1] + diagonal)
+				if x < size.x - 1:
+					best = minf(best, distances[index - size.x + 1] + diagonal)
+			distances[index] = best
+	for y in range(size.y - 1, -1, -1):
+		for x in range(size.x - 1, -1, -1):
+			var index := y * size.x + x
+			var best := distances[index]
+			if x < size.x - 1:
+				best = minf(best, distances[index + 1] + 1.0)
+			if y < size.y - 1:
+				best = minf(best, distances[index + size.x] + 1.0)
+				if x < size.x - 1:
+					best = minf(best, distances[index + size.x + 1] + diagonal)
+				if x > 0:
+					best = minf(best, distances[index + size.x - 1] + diagonal)
+			distances[index] = best
+
+
+## Extra view depth below the gameplay bed at a world XZ position: the cell target,
+## limited by the bank profile. Distances are bilinear between cell centres, so a
+## straight shore gives the exact edge distance and the bed stays smooth.
+static func basin_extra_depth(field: Dictionary, position: Vector2) -> float:
+	if not field.has("basin_targets"):
+		return 0.0
+	var size: Vector2i = field["size"]
+	var target := _cell_bilinear(field["basin_targets"], size, position)
+	var natural := maxf(_cell_bilinear(field["basin_natural"], size, position) - 0.5, 0.0)
+	var hard := maxf(_cell_bilinear(field["basin_hard"], size, position) - 0.5, 0.0)
+	var bank := minf(
+		natural * MapViewMeshBuilderConfig.SEA_BASIN_NATURAL_SLOPE,
+		hard * MapViewMeshBuilderConfig.SEA_BASIN_HARD_SLOPE
+	)
+	return maxf(minf(target, bank), 0.0)
+
+
+static func _cell_bilinear(values: PackedFloat32Array, size: Vector2i, position: Vector2) -> float:
+	var q := position - Vector2(0.5, 0.5)
+	var x0 := clampi(floori(q.x), 0, size.x - 1)
+	var y0 := clampi(floori(q.y), 0, size.y - 1)
+	var x1 := mini(x0 + 1, size.x - 1)
+	var y1 := mini(y0 + 1, size.y - 1)
+	var fx := clampf(q.x - float(x0), 0.0, 1.0)
+	var fy := clampf(q.y - float(y0), 0.0, 1.0)
+	var top := lerpf(values[y0 * size.x + x0], values[y0 * size.x + x1], fx)
+	var bottom := lerpf(values[y1 * size.x + x0], values[y1 * size.x + x1], fx)
+	return lerpf(top, bottom, fy)
+
+
+## WS-13b rendered bed: a copy of the shared vertices where every subvertex inside
+## open sea drops by `basin_extra_depth`. `positions` stays the gameplay bed because
+## the water surface, the swash sheet and scatter read it. Vertices on the waterline
+## (touching any dry cell) and their normals are unchanged, so every triangle that
+## can rise above the surface keeps its exact shape and shading.
+static func bake_bed_vertices(field: Dictionary) -> void:
+	var positions: PackedVector3Array = field["positions"]
+	var offsets := PackedFloat32Array()
+	offsets.resize(positions.size())
+	if not field.has("basin_targets"):
+		field["bed_offsets"] = offsets
+		field["bed_positions"] = positions
+		field["bed_normals"] = field["normals"]
+		return
+	var columns: int = field["vertex_columns"]
+	var rows := positions.size() / columns
+	var size: Vector2i = field["size"]
+	var targets: PackedFloat32Array = field["basin_targets"]
+	var subdivisions := MapViewMeshBuilderConfig.TERRAIN_SUBDIVISIONS
+	var bed := positions.duplicate()
+	var visited := PackedByteArray()
+	visited.resize(positions.size())
+	var deepened := PackedInt32Array()
+	# Only sea cells can deepen, and only subvertices on a cell edge can touch a dry
+	# neighbour, which keeps this pass a small share of the height-field bake.
+	for cell_y in size.y:
+		for cell_x in size.x:
+			if targets[cell_y * size.x + cell_x] <= 0.0:
+				continue
+			for sub_y in subdivisions + 1:
+				for sub_x in subdivisions + 1:
+					var vx := cell_x * subdivisions + sub_x
+					var vy := cell_y * subdivisions + sub_y
+					var index := vy * columns + vx
+					if visited[index] != 0:
+						continue
+					visited[index] = 1
+					var on_cell_edge := (
+						sub_x == 0 or sub_y == 0 or sub_x == subdivisions or sub_y == subdivisions
+					)
+					if on_cell_edge and subvertex_touches_dry(field, vx, vy):
+						continue
+					var vertex := bed[index]
+					var extra := basin_extra_depth(field, Vector2(vertex.x, vertex.z))
+					if extra <= 0.0:
+						continue
+					vertex.y -= extra
+					bed[index] = vertex
+					offsets[index] = extra
+					deepened.append(index)
+	var bed_normals: PackedVector3Array = (field["normals"] as PackedVector3Array).duplicate()
+	for index in deepened:
+		var vx := index % columns
+		var vy := index / columns
+		var left := bed[vy * columns + maxi(vx - 1, 0)].y
+		var right := bed[vy * columns + mini(vx + 1, columns - 1)].y
+		var up := bed[maxi(vy - 1, 0) * columns + vx].y
+		var down := bed[mini(vy + 1, rows - 1) * columns + vx].y
+		bed_normals[index] = Vector3(left - right, 2.0, up - down).normalized()
+	field["bed_positions"] = bed
+	field["bed_normals"] = bed_normals
+	field["bed_offsets"] = offsets
+
+
+## True when any in-map cell around a subvertex is dry. Out-of-map samples do not
+## count, so border vertices of a sea cell can still deepen.
+static func subvertex_touches_dry(field: Dictionary, vx: int, vy: int) -> bool:
+	var water: Dictionary = field["water"]
+	var size: Vector2i = field["size"]
+	var base := Vector2(vx, vy) / float(MapViewMeshBuilderConfig.TERRAIN_SUBDIVISIONS)
+	for nudge: Vector2 in [
+		Vector2(-0.001, -0.001),
+		Vector2(0.001, -0.001),
+		Vector2(-0.001, 0.001),
+		Vector2(0.001, 0.001)
+	]:
+		var sample: Vector2 = base + nudge
+		if sample.x < 0.0 or sample.y < 0.0 or sample.x >= size.x or sample.y >= size.y:
+			continue
+		if not water.has(Vector2i(floori(sample.x), floori(sample.y))):
+			return true
+	return false
+
+
 ## Sample each side of a subvertex so shoreline vertices are shared by the
 ## recessed water and its bank while interior water vertices stay level.
 
@@ -364,7 +572,72 @@ static func build_terrain(definition: MapDefinition, grid: MapTerrainGrid) -> No
 		root.add_child(instance)
 	# WS-08: shore distance field for the swash shaders plus the beach swash sheet.
 	MapViewMeshBuilderTerrainWater.add_shore_swash(root, field, grid)
+	var apron := build_seabed_apron_mesh(field)
+	if apron != null:
+		var apron_instance := MeshInstance3D.new()
+		# Not "Terrain_*": that prefix marks water surface meshes for tests and tools.
+		apron_instance.name = "SeaBedApron"
+		apron_instance.mesh = apron
+		apron_instance.material_override = _seabed_apron_material()
+		apron_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		root.add_child(apron_instance)
 	return root
+
+
+## WS-13b: flat strips extruded outward from every map-border segment whose bed
+## vertices are deepened. The inner edge reuses the border bed vertices, so the
+## apron meets the basin without a crack; land borders get nothing, which keeps
+## the floor away from the near-plane clip of the whole-map overview camera.
+static func build_seabed_apron_mesh(field: Dictionary) -> ArrayMesh:
+	if not field.has("basin_targets"):
+		return null
+	var positions: PackedVector3Array = field["bed_positions"]
+	var offsets: PackedFloat32Array = field["bed_offsets"]
+	var columns: int = field["vertex_columns"]
+	var rows := positions.size() / columns
+	var reach := MapViewMeshBuilderConfig.SEA_BASIN_APRON_REACH
+	var surface := SurfaceTool.new()
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var added := 0
+	# Each side: vertex index along the edge -> buffer index, and the outward step.
+	var sides: Array = [
+		[columns, func(i: int) -> int: return i, Vector3(0.0, 0.0, -reach)],
+		[columns, func(i: int) -> int: return (rows - 1) * columns + i, Vector3(0.0, 0.0, reach)],
+		[rows, func(i: int) -> int: return i * columns, Vector3(-reach, 0.0, 0.0)],
+		[rows, func(i: int) -> int: return i * columns + columns - 1, Vector3(reach, 0.0, 0.0)],
+	]
+	for side: Array in sides:
+		var count: int = side[0]
+		var index_of: Callable = side[1]
+		var outward: Vector3 = side[2]
+		for i in count - 1:
+			var a: int = index_of.call(i)
+			var b: int = index_of.call(i + 1)
+			if offsets[a] <= 0.0 or offsets[b] <= 0.0:
+				continue
+			var inner_a := positions[a]
+			var inner_b := positions[b]
+			var outer_a := inner_a + outward
+			var outer_b := inner_b + outward
+			# Winding differs per side; the material draws both faces.
+			for vertex: Vector3 in [inner_a, inner_b, outer_b, inner_a, outer_b, outer_a]:
+				surface.set_normal(Vector3.UP)
+				surface.add_vertex(vertex)
+			added += 1
+	if added == 0:
+		return null
+	return surface.commit()
+
+
+static func _seabed_apron_material() -> StandardMaterial3D:
+	if _seabed_material == null:
+		_seabed_material = StandardMaterial3D.new()
+		_seabed_material.albedo_color = OutdoorTerrainPalette.color(
+			MapViewMeshBuilderConfig.SEA_BASIN_BED_TERRAIN
+		)
+		_seabed_material.roughness = 1.0
+		_seabed_material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	return _seabed_material
 
 
 ## Deterministic per-cell brightness: fine jitter over a broad patch drift.
@@ -399,8 +672,10 @@ static func _build_blended_ground_mesh(
 	if grid.size_cells.x <= 0 or grid.size_cells.y <= 0:
 		return null
 	var columns: int = field["vertex_columns"]
-	var positions: PackedVector3Array = field["positions"]
-	var normals: PackedVector3Array = field["normals"]
+	# WS-13b: the rendered ground is the deepened sea bed; see bake_bed_vertices.
+	var positions: PackedVector3Array = field["bed_positions"]
+	var normals: PackedVector3Array = field["bed_normals"]
+	var bed_offsets: PackedFloat32Array = field["bed_offsets"]
 	var rows := grid.size_cells.y * MapViewMeshBuilderConfig.TERRAIN_SUBDIVISIONS + 1
 	var vertex_count := columns * rows
 	var colors := PackedColorArray()
@@ -421,6 +696,8 @@ static func _build_blended_ground_mesh(
 			var blend := terrain_blend_at(
 				field, grid, spot, noise_seed, source_cell.x, source_cell.y
 			)
+			if bed_offsets[vertex_index] > 0.0:
+				blend = _seabed_blend(spot, noise_seed, blend)
 			var primary_tint := OutdoorTerrainPalette.color(blend["primary"])
 			var secondary_tint := OutdoorTerrainPalette.color(blend["secondary"])
 			colors[vertex_index] = primary_tint.lerp(secondary_tint, float(blend["weight"]))
@@ -458,6 +735,23 @@ static func _build_blended_ground_mesh(
 	)
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays, [], {}, custom_format)
 	return mesh
+
+
+## WS-13b: open-sea bed below the waterline is sand with broad silt patches. The
+## old fallback (the first dry neighbour, else grass) was hidden under a 9 mm
+## column, but reads as a drowned meadow from an underwater camera.
+static func _seabed_blend(sample: Vector2, noise_seed: int, base: Dictionary) -> Dictionary:
+	var primary := MapViewMeshBuilderConfig.SEA_BASIN_BED_TERRAIN
+	var secondary := MapViewMeshBuilderConfig.SEA_BASIN_SILT_TERRAIN
+	var silt := smoothstep(0.42, 0.72, value_noise(sample / 5.5, noise_seed + 18233))
+	return {
+		"primary": primary,
+		"secondary": secondary,
+		"weight": silt * 0.8,
+		"tone": float(base["tone"]),
+		"primary_index": MapViewMaterials.terrain_blend_index(primary),
+		"secondary_index": MapViewMaterials.terrain_blend_index(secondary),
+	}
 
 
 static func terrain_blend_at(

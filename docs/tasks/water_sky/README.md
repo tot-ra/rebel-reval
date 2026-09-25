@@ -75,11 +75,12 @@ Don't switch the project renderer inside any of these tasks. That would be a sep
 | WS-11 | [WS-11_sky_driven_water_and_fog.md](WS-11_sky_driven_water_and_fog.md) | Water reflection, fog, sun and ambient colour come from the atmosphere | WS-10, WS-02 |
 | WS-12 | [WS-12_cloud_shadow_map.md](WS-12_cloud_shadow_map.md) | Moving cloud shadows on ground and water | none |
 | WS-13 | [WS-13_underwater_view_pass.md](WS-13_underwater_view_pass.md) | Underwater fog, light shafts, Snell's window and a waterline split across the lens | WS-01, WS-05, WS-07 |
+| WS-13b | [WS-13b_harbour_basin_depth.md](WS-13b_harbour_basin_depth.md) | Real rendered depth under open sea (flat gameplay bed kept), seabed apron, top-down parity | WS-13 |
 | WS-14 | [WS-14_swim_dive_adr.md](WS-14_swim_dive_adr.md) | ADR and design for swimming and diving (scope change) | WS-13 |
 | WS-15 | [WS-15_interactive_ripples_wake.md](WS-15_interactive_ripples_wake.md) | Ripples and wakes around moving bodies, simulated in render targets | WS-04 |
 
 Recommended order: WS-01 → WS-02 → WS-03 → WS-04 → WS-05 → WS-06 → WS-09 → WS-10 → WS-11 →
-WS-07 → WS-12 → WS-08 → WS-13 → WS-14 → WS-15. WS-01, WS-02, WS-03, WS-09 and WS-12 have no
+WS-07 → WS-12 → WS-08 → WS-13 → WS-13b → WS-14 → WS-15. WS-01, WS-02, WS-03, WS-09 and WS-12 have no
 dependencies and can run in parallel.
 
 ## Rules for every task

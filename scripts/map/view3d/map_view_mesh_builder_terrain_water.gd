@@ -229,6 +229,11 @@ static func _add_water_vertex(surface: SurfaceTool, source: Vector3, coverage: f
 	surface.set_normal(Vector3.UP)
 	surface.set_uv(Vector2(vertex.x, vertex.z) / MapViewMaterials.TERRAIN_TEXTURE_WORLD_SIZE)
 	surface.set_color(Color(interior_coverage, interior_coverage, interior_coverage, 1.0))
+	# WS-13b: UV2 = (1, flat gameplay bed y in model space). The shader maps a
+	# deeper rendered sea bed back to this plane for its optical depth, so the
+	# top-down look ignores the basin. Surroundings planes and the swash sheet
+	# have no UV2 (reads as 0) and keep the raw scene depth.
+	surface.set_uv2(Vector2(1.0, -MapViewMeshBuilderConfig.WATER_RECESS))
 	surface.add_vertex(vertex)
 
 

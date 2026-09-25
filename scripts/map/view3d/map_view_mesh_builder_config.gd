@@ -14,6 +14,27 @@ const WATER_RECESS := 0.08
 ## Water sits just above the recessed bed. Keeping the lift tiny avoids z-fighting
 ## with the continuous ground mesh without making the shoreline look elevated.
 const WATER_SURFACE_LIFT := 0.006
+## WS-13b: view-only sea basin below the gameplay bed, in world units (0.87 m each).
+## The gameplay bed (`ground_height`, collision, props, the water surface) stays at
+## -WATER_RECESS; only the rendered ground under open sea cells drops, so an
+## underwater camera sees metres of water. The water shader maps the deeper column
+## back to the flat-bed optical depth, so the top-down look does not change.
+## Rivers, ponds and ditches (TERRAIN_WATER, TERRAIN_RIVER_WATER) keep the flat bed.
+const SEA_BASIN_DEPTH := {
+	MapTypes.TERRAIN_SHALLOW_WATER: 1.0,
+	MapTypes.TERRAIN_DEEP_WATER: 3.6,
+}
+## Extra depth gained per cell away from the nearest dry cell. Natural banks shelve
+## gently; hard edges (timber piers, stone landings, paving) drop like a crib face.
+const SEA_BASIN_NATURAL_SLOPE := 0.45
+const SEA_BASIN_HARD_SLOPE := 2.4
+## Deepened ground reads as sand with silt patches, not as the neighbouring meadow.
+const SEA_BASIN_BED_TERRAIN := MapTypes.TERRAIN_COAST_SAND
+const SEA_BASIN_SILT_TERRAIN := MapTypes.TERRAIN_MUD
+## Reach of the seabed apron extruded outward from border basin cells, so rays
+## leaving the basin through a map edge (and underwater views) meet a floor under
+## the surroundings sea. An underwater view has faded to the medium well before it.
+const SEA_BASIN_APRON_REACH := 24.0
 const ROOF_PITCH := 0.9
 const ROOF_OVERHANG := 0.15
 const CAP_HEIGHT := 0.12

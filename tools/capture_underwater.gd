@@ -9,6 +9,7 @@ extends SceneTree
 ## Shots (map defaults to reval_harbor_north, output docs/reports/images/ws13_<shot>[_suffix].png):
 ##   under_horizontal  UNDER, level view towards the nearest quay/bank, clear day
 ##   under_up          UNDER, looking straight up (Snell's window), clear day
+##   under_sun         UNDER, facing the refracted sun, SUN_PITCH_BELOW degrees under it (shafts)
 ##   straddle          lens on the surface, level view (waterline split), clear day
 ##   under_night       as under_horizontal at night
 ##   under_storm       as under_horizontal in a storm
@@ -20,9 +21,11 @@ extends SceneTree
 ##   --bench=<frames> renders 1920x1080 with vsync off and prints the mean frame time with
 ##     and without the pass quad (wall clock; SubViewport GPU timers read 0 on this Mac)
 ##
-## The view water is a thin film (WATER_SURFACE_LIFT 0.006 units above a flat bed), so the
-## camera sits a few millimetres under the surface with a tiny near plane. Shader TIME is
-## frozen (near-zero time rollover) for every still shot so reruns are pixel-comparable.
+## WS-13b: open-sea cells have a real rendered basin (MapViewMeshBuilderConfig.SEA_BASIN_DEPTH),
+## so UNDER shots sit about a metre under the surface, never closer than BED_CLEARANCE to the
+## rendered bed. Rivers and ponds keep the ~9 mm film; there the camera falls back to hugging
+## the surface. Shader TIME is frozen (near-zero time rollover) for every still shot so
+## reruns are pixel-comparable.
 
 const MapAuditRegistry := preload("res://scripts/map/map_audit_registry.gd")
 const MapBuilder := preload("res://scripts/map/map_builder.gd")
@@ -30,22 +33,34 @@ const MapTypesContract := preload("res://scripts/map/map_types.gd")
 const MapView3D := preload("res://scripts/map/view3d/map_view_3d.gd")
 const SkyWeather3D := preload("res://scripts/map/view3d/sky_weather_3d.gd")
 const MeshConfig := preload("res://scripts/map/view3d/map_view_mesh_builder_config.gd")
+const MeshTerrain := preload("res://scripts/map/view3d/map_view_mesh_builder_terrain.gd")
 
 const VIEWPORT_SIZE := Vector2i(1280, 720)
 const WARMUP_FRAMES := 16
 const OUTPUT_PREFIX := "res://docs/reports/images/ws13_"
 const SHOTS: Array[String] = [
-	"under_horizontal", "under_up", "straddle", "under_night", "under_storm", "dip", "overview"
+	"under_horizontal", "under_up", "under_sun", "straddle", "under_night", "under_storm", "dip",
+	"overview"
 ]
-## Camera depth under the rest surface for UNDER shots (world units, ~2 mm).
-const UNDER_DEPTH := 0.0025
-const NEAR_PLANE := 0.0004
+## Shafts scatter forward (HG g = 0.75) and only hold their shape when the view runs
+## close to the refracted sun ray, so the shot faces it, pitched this far below it.
+const SUN_PITCH_BELOW := 20.0
+const WATER_IOR := 1.333
+## Camera depth under the rest surface for UNDER shots (world units, ~1 m).
+const UNDER_DEPTH := 1.2
+## Closest the UNDER camera may get to the rendered bed; thin-film water falls back to
+## FILM_DEPTH (the WS-13 pose) because its bed is only millimetres down.
+const BED_CLEARANCE := 0.35
+const FILM_DEPTH := 0.0025
+## Metres of basin need depth precision; only the thin-film fallback needs a tiny near plane.
+const NEAR_PLANE := 0.01
+const FILM_NEAR_PLANE := 0.0004
 const FAR_PLANE := 240.0
 const DIP_SECONDS := 10.0
 const DIP_SHEET_FRAMES := 8
-## Dip path: surface -> under -> air twice. Down stays above the bed (the column is ~9 mm);
+## Dip path: surface -> under -> air twice. Down goes a hand's depth into the basin;
 ## up clears the crest band (wave_height) so the lens really leaves the water.
-const DIP_DEPTH := 0.004
+const DIP_DEPTH := 0.12
 const DIP_RISE := 0.06
 
 var _args: Dictionary = {}
@@ -119,13 +134,13 @@ func _run() -> void:
 	view.apply_cycle_progress(view.cycle_progress)
 
 	var surface_y := -MeshConfig.WATER_RECESS + MeshConfig.WATER_SURFACE_LIFT
-	var pose := _default_pose(grid, surface_y)
+	var pose := _default_pose(definition, grid, surface_y)
 	# The live tide moves the surface; take the height the pass itself will use.
 	if view.has_method(&"underwater_pass"):
 		var probe: Dictionary = view._underwater_probe(Vector2(pose["pos"].x, pose["pos"].z))
 		if not probe.is_empty():
 			surface_y = float(probe["surface_y"])
-			pose = _default_pose(grid, surface_y)
+			pose = _default_pose(definition, grid, surface_y)
 	var position: Vector3 = _vec3(String(_args["pos"])) if _args.has("pos") else pose["pos"]
 	var target: Vector3 = _vec3(String(_args["look"])) if _args.has("look") else pose["look"]
 	if shot == "under_up" and not _args.has("look"):
@@ -136,7 +151,7 @@ func _run() -> void:
 	if shot != "overview":
 		camera.projection = Camera3D.PROJECTION_PERSPECTIVE
 		camera.fov = 70.0
-		camera.near = NEAR_PLANE
+		camera.near = FILM_NEAR_PLANE if bool(pose.get("film", false)) else NEAR_PLANE
 		camera.far = FAR_PLANE
 		camera.look_at_from_position(position, target, Vector3.UP)
 		# The memory-fog overlay blurs by distance from the (absent) player; it is a
@@ -152,6 +167,18 @@ func _run() -> void:
 			pass_node.pass_material().set_shader_parameter(StringName(kv[0]), float(kv[1]))
 	for _frame in WARMUP_FRAMES:
 		await process_frame
+	if shot == "under_sun" and pass_node != null and not _args.has("look"):
+		# The pass mirrors the water's sun direction (towards the light) every frame.
+		var sun: Vector3 = pass_node.pass_material().get_shader_parameter(&"sun_direction")
+		var azimuth := Vector3(sun.x, 0.0, sun.z).normalized()
+		# Snell: the zenith angle shrinks by the IOR under water.
+		var zenith_air := acos(clampf(sun.normalized().y, -1.0, 1.0))
+		var zenith_water := asin(clampf(sin(zenith_air) / WATER_IOR, -1.0, 1.0))
+		var pitch := PI * 0.5 - zenith_water - deg_to_rad(SUN_PITCH_BELOW)
+		target = position + azimuth * cos(pitch) + Vector3.UP * sin(pitch)
+		camera.look_at_from_position(position, target, Vector3.UP)
+		for _frame in WARMUP_FRAMES:
+			await process_frame
 
 	if _args.has("bench") and pass_node != null:
 		DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
@@ -199,7 +226,7 @@ func _run() -> void:
 
 ## A level view from a water cell towards the nearest dry cell (quay or bank), starting a
 ## few cells out so the foundation fills the middle of the frame.
-func _default_pose(grid: MapTerrainGrid, surface_y: float) -> Dictionary:
+func _default_pose(definition: MapDefinition, grid: MapTerrainGrid, surface_y: float) -> Dictionary:
 	var best_water := Vector2i(-1, -1)
 	var best_dry := Vector2i(-1, -1)
 	for y in grid.size_cells.y:
@@ -214,10 +241,16 @@ func _default_pose(grid: MapTerrainGrid, surface_y: float) -> Dictionary:
 				break
 		if best_water.x >= 0:
 			break
-	var eye_y := surface_y - UNDER_DEPTH
+	var bed_y := MeshTerrain.view_bed_height(
+		definition, Vector2(best_water.x + 0.5, best_water.y + 0.5)
+	)
+	var eye_y := maxf(surface_y - UNDER_DEPTH, bed_y + BED_CLEARANCE)
+	var film := eye_y >= surface_y - FILM_DEPTH
+	if film:
+		eye_y = surface_y - FILM_DEPTH
 	var from := Vector3(best_water.x + 0.5, eye_y, best_water.y + 0.5)
 	var to := Vector3(best_dry.x + 0.5, eye_y, best_dry.y + 0.5)
-	return {"pos": from, "look": to}
+	return {"pos": from, "look": to, "film": film}
 
 
 ## First dry cell exactly `distance` cells away along an axis with water all the way.

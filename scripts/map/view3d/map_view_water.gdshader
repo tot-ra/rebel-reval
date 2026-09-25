@@ -118,6 +118,10 @@ varying float shore_factor;
 // Placeholder crest foam from the baked disp alpha (WS-06 owns final styling).
 // Sampled once per vertex so the fragment stage only pays for slope textures.
 varying float fft_foam;
+// WS-13b: 1 on in-map water whose rendered sea bed may lie below the flat gameplay
+// bed; flat_bed_world_y is that bed plane in world space (from UV2).
+varying float flat_bed_flag;
+varying float flat_bed_world_y;
 
 float _hash(vec2 p) {
 	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
@@ -332,6 +336,31 @@ float _view_depth(vec2 screen_uv, float raw_depth, mat4 inverse_projection) {
 	return -view_position.z / view_position.w;
 }
 
+// WS-13b: view depth where this pixel's eye ray meets the flat gameplay bed plane,
+// decoded through the same raw-depth round trip as a depth-buffer sample so the
+// result matches what the old flat bed wrote (on either renderer). Rays that do
+// not descend (camera under the surface looking up) return a far value.
+float _flat_bed_view_depth(
+	vec3 view_vertex, float bed_world_y, vec2 screen_uv, mat4 projection,
+	mat4 inverse_projection, mat4 inverse_view
+) {
+	bool orthographic = abs(projection[2][3]) < 0.5;
+	vec3 ray = orthographic ? vec3(0.0, 0.0, -1.0) : normalize(view_vertex);
+	float ray_world_y = (inverse_view * vec4(ray, 0.0)).y;
+	float drop = (inverse_view * vec4(view_vertex, 1.0)).y - bed_world_y;
+	if (ray_world_y > -0.0001 || drop <= 0.0) {
+		return 1.0e9;
+	}
+	vec4 clip = projection * vec4(view_vertex + ray * (drop / -ray_world_y), 1.0);
+	float ndc_z = clip.z / clip.w;
+	#if CURRENT_RENDERER == RENDERER_COMPATIBILITY
+	float raw_depth = ndc_z * 0.5 + 0.5;
+	#else
+	float raw_depth = ndc_z;
+	#endif
+	return _view_depth(screen_uv, raw_depth, inverse_projection);
+}
+
 // Kept identical to the sky shader projection so constellations reflected in
 // the water occupy the same astronomical positions as the visible sky dome.
 vec2 _equatorial_uv(vec3 direction) {
@@ -380,6 +409,8 @@ void vertex() {
 	vec3 undisplaced_world = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	wave_sample_xz = undisplaced_world.xz;
 	shore_factor = clamp(COLOR.r, 0.0, 1.0);
+	flat_bed_flag = step(0.5, UV2.x);
+	flat_bed_world_y = (MODEL_MATRIX * vec4(VERTEX.x, UV2.y, VERTEX.z, 1.0)).y;
 	// Processor functions cannot return early; the sheet restores this at the end.
 	vec3 rest_vertex = VERTEX;
 	// Advect the wave field downstream so ripples travel along the current.
@@ -565,6 +596,16 @@ void fragment() {
 	float surface_depth = max(-VERTEX.z, 0.0001);
 	float raw_scene_depth = textureLod(depth_texture, SCREEN_UV, 0.0).r;
 	float scene_depth = _view_depth(SCREEN_UV, raw_scene_depth, INV_PROJECTION_MATRIX);
+	if (flat_bed_flag > 0.5) {
+		// WS-13b: the rendered sea bed lies metres below the flat gameplay bed.
+		// Every optical term below was tuned against that flat bed, so the column
+		// is measured to it: identical top-down water, real depth for cameras
+		// under the surface (UnderwaterPass reads the raw depth buffer).
+		scene_depth = min(scene_depth, _flat_bed_view_depth(
+			VERTEX, flat_bed_world_y, SCREEN_UV, PROJECTION_MATRIX, INV_PROJECTION_MATRIX,
+			INV_VIEW_MATRIX
+		));
+	}
 	float geometric_depth = max(scene_depth - surface_depth, 0.0);
 	// Authored water cells share a flat gameplay bed. Their existing absorption
 	// profiles also select a minimum optical column, so shallow/river/deep water
