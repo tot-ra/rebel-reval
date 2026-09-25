@@ -52,6 +52,33 @@ them:
 `disp` RGB and all four `deriv` channels use the signed encoding `(v − 0.5)·2·scale`. The `disp`
 alpha is foam, linear 0..1 - the sampler does not need it, so don't signed-decode it by accident.
 
+## WS-04 shader conventions (amended 2026-09-25)
+
+WS-04 shipped in commit `531dfd9c`. The mesh the player sees is **not** the physical sea, so hulls
+must follow these shader rules or they will float visibly above the water. The source of truth is
+`_fft_displacement()` and `vertex()` in `scripts/map/view3d/map_view_water.gdshader` and the
+WS-04 decision list in `TODO.md`.
+
+1. **Geometry scale.** The final displacement is multiplied by
+   `ocean_amplitude · fft_geometry_scale / 0.87`, where
+   `fft_geometry_scale = MapViewWaterMaterials.ocean_fft_geometry_scale(terrain height)`
+   (about 0.11 for `TERRAIN_WATER`, 0.10 for shallow and 0.17 for deep water). So the reference
+   crest is about 0.08 to 0.12 world units, not ±0.72. The ±0.72 sanity numbers in amendment 3
+   above describe the physical field before this scale.
+2. **Horizontal chop is halved.** Apply `FFT_HORIZONTAL_GEOMETRY = 0.5` to `λ·D.xz` along with
+   the choppiness and the standing-wave chop reduction.
+3. **Trough floor.** After the shore fade and shoaling, a negative height becomes
+   `-0.0015 · (1 − exp(y / 0.0015))` (`FFT_TROUGH_FLOOR`). Troughs are therefore effectively flat,
+   and hulls should sit on that floor rather than in a physical trough.
+4. **Sea state.** Use `MapViewWaterMaterials.fft_sea_state(wind, rain)` for the weights,
+   choppiness and amplitude. Multiply the choppiness by `ocean_fft_choppiness_ratio(profile)` for
+   the hull's terrain, exactly as `apply_sea_weather()` does.
+5. **Clock.** `MapViewRuntimeEnvironment.ocean_time()` is a static that is already wrapped at
+   `25.6 · 64` s. Tests can set it with `MapViewRuntimeEnvironment.set_ocean_time()`.
+6. **Enablement.** `MapViewWaterMaterials.ocean_fft_supported()` reads
+   `BoatFloat3D.FFT_SUPPORTED` by name. Declaring that constant switches every sea material to the
+   FFT path, and `force_ocean_fft_support` is only for tests and captures.
+
 ## Constraints and non-goals
 
 - **One source of truth.** The CPU sampler must use the same atlases, decode scales, wind rotation,
