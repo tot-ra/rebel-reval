@@ -1,0 +1,95 @@
+{
+  "constants": {
+    "ground_albedo": [
+      0.06,
+      0.08,
+      0.1
+    ],
+    "mie_extinction_per_km": 0.00444,
+    "mie_g": 0.8,
+    "mie_scale_height_km": 1.2,
+    "mie_scattering_per_km": 0.003996,
+    "ozone_absorption_per_km": [
+      0.00065,
+      0.001881,
+      8.5e-05
+    ],
+    "ozone_center_km": 25.0,
+    "ozone_half_width_km": 15.0,
+    "r_ground_km": 6360.0,
+    "r_top_km": 6460.0,
+    "rayleigh_scale_height_km": 8.0,
+    "rayleigh_scattering_per_km": [
+      0.005802,
+      0.013558,
+      0.0331
+    ]
+  },
+  "contract": "docs/tasks/water_sky/WS-09_atmosphere_static_luts.md",
+  "conventions": {
+    "deviation_tidewater_sphere": "multi-scattering integrates a 64-point Fibonacci sphere instead of Tidewater's 8x8 theta/phi grid",
+    "deviation_tidewater_sub_uv": "Tidewater's forward transmittance sub-UV uses W/(W+1) but its bake inverts with W/(W-1); we use the consistent Bruneton pair so lookups hit the baked texel centres",
+    "multiscatter_uv": "u = cos(sun zenith) * 0.5 + 0.5, v = (r - R_ground)/(R_top - R_ground); row 0 is the ground",
+    "sampler": "filter_linear, repeat_disable; import without mipmaps",
+    "sub_uv": "tex = 0.5/N + unit * (N-1)/N on both axes of both LUTs (Bruneton); inverse unit = (tex - 0.5/N) * N/(N-1)",
+    "transmittance_uv": "u from the distance to the top d: (d - d_min)/(d_max - d_min); v = rho/H; row 0 (uv.y = 0) is the ground, column 0 is mu = 1 (zenith), the last column is the ground horizon"
+  },
+  "luts": {
+    "multiscatter": {
+      "directions": 64,
+      "file": "multiscatter.exr",
+      "format": "OpenEXR RGBA half, NO_COMPRESSION, scanline; RGB = Psi_ms, A = 1",
+      "height": 32,
+      "height_clamp": [
+        0.001,
+        0.999
+      ],
+      "sha256": "7639341315c86d10faecb7bd4692a0b547165c5a4df0a6d9cb5afe5b08e3ad0d",
+      "step_offset": 0.3,
+      "steps": 20,
+      "width": 32
+    },
+    "transmittance": {
+      "file": "transmittance.exr",
+      "format": "OpenEXR RGBA half, NO_COMPRESSION, scanline; RGB = transmittance to the top, A = 1",
+      "height": 64,
+      "sha256": "85088e36b6c9a45f8b4017c29485bcfcd7d4a86ccc3bd194f1724d51e3237846",
+      "steps": 40,
+      "width": 256
+    }
+  },
+  "oracles": {
+    "ground_zenith_sun_multiscatter_baked": [
+      0.01728821,
+      0.02667236,
+      0.0411377
+    ],
+    "ground_zenith_sun_multiscatter_texel": [
+      31,
+      0
+    ],
+    "zenith_ground_transmittance_analytic": [
+      0.940359,
+      0.867615,
+      0.762309
+    ],
+    "zenith_ground_transmittance_baked": [
+      0.941406,
+      0.868652,
+      0.763672
+    ],
+    "zenith_ground_transmittance_texel": [
+      0,
+      0
+    ]
+  },
+  "scales": {
+    "mie": 1.0,
+    "ozone": 1.0,
+    "rayleigh": 1.0
+  },
+  "technique": "Hillaire 2020 (EGSR) transmittance + multi-scattering LUTs; Bruneton 2008 transmittance mapping; ported from Tidewater (MIT, notice.code.tidewater)",
+  "tool": "tools/bake_atmosphere_luts.py",
+  "tool_version": "1.0.0",
+  "units": "km; LUT values are dimensionless transmittance and multi-scattering luminance per unit sun illuminance"
+}

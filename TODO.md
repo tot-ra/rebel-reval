@@ -72,6 +72,29 @@ and captures. Decisions recorded during capture review (2026-09-25):
    water budget. `tools/verify_r715_water_performance.py` is still BLOCKED only by its unmeasured
    minimum-tier row, which was already the case before this task.
 
+- [ ] WS-09 | deps: none | deliverable: deterministic offline Hillaire transmittance (256x64) and multi-scattering (32x32) LUTs as half-float EXR with profile manifest, plus atmosphere_common.gdshaderinc GLSL parameterisation | allowed files: `tools/bake_atmosphere_luts.py`, `tests/python/test_bake_atmosphere_luts.py`, `assets/sky/atmosphere/*`, `assets/SOURCES.csv`, `scripts/map/view3d/atmosphere_common.gdshaderinc`, `tests/godot/test_atmosphere_luts.gd`, `TODO.md` | verify: python oracle tests (zenith T = 0.940/0.868/0.762, monotonicity, round-trip, determinism, EXR parse); Godot loads EXRs and matches the oracle texel
+
+WS-09 implementation landed (R-894, in review). Decisions recorded during the bake (2026-09-25),
+also listed in the `conventions` block of `assets/sky/atmosphere/atmosphere_profile.json`:
+
+1. **Consistent sub-UV, not Tidewater's.** Tidewater's forward transmittance lookup scales by
+   W/(W+1) but its bake inverts with W/(W-1), so lookups land up to half a texel off and the
+   contract's 1e-4 round-trip cannot hold. Both directions use the Bruneton pair
+   `0.5/N + x (N-1)/N`. WS-10 must include `atmosphere_common.gdshaderinc` rather than re-port
+   Tidewater's `atmosphereTransmittanceUV`.
+2. **Fibonacci sphere** (64 directions) for the multi-scattering integral, per the contract,
+   instead of Tidewater's 8x8 theta/phi grid. Step offset 0.3 and the 0.001/0.999 height clamp
+   follow Hillaire and Tidewater.
+3. **Sanity band reading.** "0.01-0.1 of the single-scattering order" is tested as
+   `Psi_ms / T_sun` at the ground with the sun at the zenith: (0.018, 0.031, 0.054). Midpoint
+   integration puts the zenith texel at (0.9413, 0.8687, 0.7638) against the analytic
+   (0.9404, 0.8676, 0.7623), inside the 0.005 tolerance.
+4. **Import:** Lossless keeps EXRs as RGBAH; `detect_3d/compress_to=0` stops Godot switching them
+   to VRAM compression when WS-10 first samples them in 3D. The include compiles and samples the
+   baked texels in both Compatibility and Forward+ (checked with a throwaway render probe).
+5. **License:** `notice.code.tidewater` (full MIT text) now exists in
+   `docs/THIRD_PARTY_NOTICES.md`. WS-03 already cited it, so it was added here, ahead of WS-01.
+
 ## Storybook model set
 
 - [ ] P0-209b | deps: P0-209a | deliverable: replace the visually rejected procedural mammals from scratch with convincingly realistic sculpted or scanned source geometry and textured surfaces | allowed files: `tools/assets/realistic_mammals.py`, `tools/assets/mammal_limb_anatomy.py`, `tools/assets/build_storybook_models.py`, `tools/assets/import_realistic_mammals.py`, `tools/assets/import_authored_rat.py`, `tools/assets/pack_authored_rat.py`, `tools/verify_storybook_models.py`, `tools/capture_animal_realism.gd`, `scripts/map/view3d/map_view_medieval_animal_models.gd`, `tests/python/test_mammal_limb_anatomy.py`, `tests/godot/test_mammal_limb_anatomy.gd`, `tests/godot/test_storybook_models.gd`, `tests/godot/test_storybook_live_integration.gd`, `assets/storybook/`, `assets/SOURCES.csv`, `docs/ART_BIBLE.md`, `docs/reports/animal_realism_2026-09-12.md`, `docs/reports/images/animal_realism/`, `TODO.md` | constraints: licensed commercial-use sources; no ripped game assets; preserve species IDs, runtime paths and behavior; replace failed geometry instead of polishing primitive unions; preserve unrelated WIP | verify: inspect replacement source silhouettes and materials; Godot imports and fauna tests; real runtime captures; provenance and independent visual review; do not close on technical tests alone; replacement implementation and 81 focused tests complete; maintainer visual acceptance remains open
