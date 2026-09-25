@@ -1,252 +1,77 @@
 # AGENTS.md
 
-Operational guide for AI agents and contributors working on **Reval Rebel**. Product vision, story, and scope live in [`README.md`](./README.md). Executable work lives in [`TODO.md`](./TODO.md). Until the planned `docs/` tree exists, this README and `AGENTS.md` override conflicting legacy documents.
+Operational guide for AI agents and contributors working on **Reval Rebel**.
+
+- Product vision, story, and scope: [`README.md`](./README.md) (source of truth)
+- Work queue: project task board (`tasks` tool) for claims and progress; [`TODO.md`](./TODO.md) is the durable ID index
+- Architecture and file ownership: [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md)
+- Canon and visual baseline: [`docs/CANON.md`](./docs/CANON.md), [`docs/ART_BIBLE.md`](./docs/ART_BIBLE.md)
+- Setup, headless commands, known issues: [`docs/SETUP.md`](./docs/SETUP.md), [`docs/reports/known_runtime_defects.md`](./docs/reports/known_runtime_defects.md)
+
+README and this file override conflicting legacy documents. `docs/WRITING_GUIDE.md` and `docs/DECISIONS/` are planned (**P0-003**..**P0-005**) but do not exist yet.
 
 ## Repository map
 
-| Path | Role | Notes |
-|------|------|-------|
-| `project.godot` | Godot project entry | Godot **4.7**, GL Compatibility renderer, main scene `res://scenes/menu/main_menu.tscn` |
-| `export_presets.cfg` | Desktop export metadata | One macOS preset named `rr` targeting `./rr.dmg` |
-| `scripts/` | Runtime GDScript | Player, NPC, doors, level base; autoload `DoorNavigator` in `scripts/global/` |
-| `docs/MAP_AUTHORING.md` | Mandatory map-authoring contract | Blueprint primitives, stable IDs, deterministic compilation, parity checks, and migration policy |
-| `scenes/` | Godot scenes and location design notes | 37 `.tscn` files; large markdown index under district folders |
-| `assets/` | Sprites, tiles, UI, props | Prototype art plus `SOURCES.csv` provenance manifest |
-| `characters/` | Character portraits and design prose | Mostly reference and archive material |
-| `music/` | MP3 soundtrack library | Far larger than the vertical-slice budget |
-| `sounds/` | Short SFX | Door and footstep samples |
-| `story/`, `history/` | Narrative and research markdown | Mixed canon status; reconcile before implementing. Start at [`history/RESEARCH_INDEX.md`](history/RESEARCH_INDEX.md) - it indexes every historical dossier and its production hooks |
-| `img/` | README and marketing images | Not runtime gameplay assets |
-| `bin/` | Build artifact storage | Contains `rr.zip`; not a documented toolchain |
-| Root legacy docs | `docs/GAME-PILLARS.md`, `docs/GAMEPLAY.md`, `QUESTS.md`, etc. | Reference only unless reconciled in README and added to `TODO.md` |
-
-### Planned but not present yet
-
-These paths are named in [`README.md`](./README.md) but do not exist in the repository yet:
-
-- `docs/WRITING_GUIDE.md`, `docs/DECISIONS/` - see **P0-003** through **P0-005**
-
-Current architecture boundaries and file ownership are documented in [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md). Canon and the current candidate visual baseline are documented in `docs/CANON.md` and `docs/ART_BIBLE.md`.
-
-### Current runtime surface (evidence-based)
-
-- **Autoload:** `DoorNavigator` (`scripts/global/door_navigator.gd`) - scene cache and transitions via `content/transitions/active_destinations.json` (stable scene/spawn ids), not hard-coded `scene_paths`
-- **Main scene:** `scenes/menu/main_menu.tscn`
-- **Playable demo path:** main menu → Lower Town (`reval_east`) → forge; Mart conversation and anvil spearhead pickup (D-003) work on that loop
-- **Implemented today:** movement, manifest transitions, Interactable focus/prompt, session `GameState`, inventory/journal overlays, quick-access menu, district/world map overlay with click-to-travel, keyboard/gamepad focus travel, and visible focus styling (P1-031 / P1-031a / P1-031b / P1-031c, `M` / Districts), phase director hooks, content validation, map pipeline, save service APIs with tests, packaged macOS demo export with D-004 / D-004a proof
-- **Open after packaging:** optional D-004b human video capture and D-004c in-binary packaged walkthrough; vertical-slice combat foundation through P1-026b is in place, night host P2-009 still blocked on forge/investigation deps
-
-### Coding conventions observed in the repository
-
-- GDScript with `class_name` where used (`Player` in `scripts/player.gd`)
-- Scene resources use Godot 4 `uid://` references
-- Godot import sidecars (`*.import`) are tracked; local editor cache `.godot/` is gitignored
-- New production work should use **typed GDScript**, small reusable scenes, and composition as described in README; do not hand-edit giant city `.tscn` files unless the task includes visual verification
-- Stable content IDs should follow forms such as `quest.bitter_brew`, `char.aita`, `flag.aita_detained` once `content/` exists
-- Map work must follow [`docs/MAP_AUTHORING.md`](./docs/MAP_AUTHORING.md) and [ADR 0009](./docs/adr/0009-map-blueprint-authoring-architecture.md); generated scene nodes are not authored map content
-- Task tracking format in `TODO.md`: `ID | deps | deliverable | verify`
-
-## Setup
-
-### Prerequisites
-
-| Requirement | Status |
-|-------------|--------|
-| Git | Required to clone the repository |
-| Godot 4.x editor matching project features | Pinned to **4.7** in [`.godot-version`](./.godot-version) and `project.godot` `config/features` |
-| Pinned install instructions and CI alignment | [`docs/SETUP.md`](./docs/SETUP.md) (version pin and editor install; headless commands remain **P0-016**) |
-
-### Clone
-
-```bash
-git clone <repository-url> rebel-reval
-cd rebel-reval
-```
-
-### Install Godot
-
-Pinned version: **4.7** ([`.godot-version`](./.godot-version), confirmed by `project.godot` `config/features`).
-
-Follow [`docs/SETUP.md`](./docs/SETUP.md) for platform install steps, version verification, and opening `project.godot` in the editor. CI does not override this pin; [`.github/workflows/ci.yml`](./.github/workflows/ci.yml) checks `.godot-version` and `project.godot` before installing Godot 4.7.1 for automation.
-
-## Import
-
-Godot generates import metadata for binary assets. Runtime assets keep their matching `*.import` sidecars, but reference/evidence images under `docs/reports/images/` are excluded from the live Godot filesystem with [`docs/reports/images/.gdignore`](./docs/reports/images/.gdignore), so opening the editor does not create sidecars for documentation output.
-
-| Action | Command or procedure | Status |
-|--------|----------------------|--------|
-| Import via editor | Open `project.godot` in Godot 4.7; the editor imports resources on load | Supported (manual) |
-| Headless import on clean clone | Documented copy-paste shell command | **Supported** - see [`docs/SETUP.md`](./docs/SETUP.md) and [`docs/reports/startup_baseline.md`](./docs/reports/startup_baseline.md) |
-| Import cache policy | Documented `.godot/` regeneration and `.gdignore` exclusions | **Supported** - see [`docs/reports/godot_import_cache_policy_p0_023.md`](./docs/reports/godot_import_cache_policy_p0_023.md) |
-| Large binary sources | Follow [`docs/ASSET_STORAGE_POLICY.md`](./docs/ASSET_STORAGE_POLICY.md); enforce with `python3 tools/verify_storage_hygiene.py` | **Supported** - **P0-025**, **P0-064** |
-
-## Startup
-
-| Action | Command or procedure | Status |
-|--------|----------------------|--------|
-| Run from editor | Open project in Godot, press **F5** or use **Project -> Run** | Supported (manual); starts `scenes/menu/main_menu.tscn` |
-| Headless parser or startup check | Documented shell command that reaches a playable room without errors | **Supported** with workaround - `--check-only` hangs (`DEF-001`); use playable-room smoke in [`docs/SETUP.md`](./docs/SETUP.md) |
-| Known-defect reproduction list | `docs/` or report with repro steps | **Supported** - [`docs/reports/known_runtime_defects.md`](./docs/reports/known_runtime_defects.md) (P0-019; critical/high defects with repro steps) |
-
-Expected manual path today: main menu → Lower Town → forge using `DoorNavigator` manifest transitions. D-003 demo interaction (Mart talk + spearhead pickup into the bag) works on that path. Do not assume full combat, night consequence, or faction-ledger loops are complete.
-
-## Tests
-
-| Action | Status | TODO dependency |
-|--------|--------|-----------------|
-| Unit or integration test command | `godot --headless --script tools/run_godot_tests.gd` discovers `tests/godot/test_*.gd`, reports failures, and exits 0/1 | **P1-002** (minimal harness) |
-| Scene transition automated test | **Supported at API level** - `tests/godot/test_transition_manifest.gd`; full scene transition tests remain future work | **P0-022**, **P1-002** |
-| Combat or input state-machine tests | **Supported** - `tests/godot/test_player_action_state_machine.gd`, `tests/godot/test_combat_vitals.gd`, `tests/godot/test_forge_technique_iron.gd`, `tests/godot/test_combat_room.gd` | **P1-024** (integrated room) |
-| Save round-trip and validation tests | `godot --headless --script tools/run_godot_tests.gd` (`tests/godot/test_save_service.gd`, `tests/godot/test_save_envelope.gd`) | **P1-008** |
-| Repeatable performance report | `tools/run_performance_report.sh [build/benchmarks/report.json] [--quick]`; methodology and hardware-profile contract in `docs/PERFORMANCE_REPORT.md` | **P1-030** |
-
-**No visible Godot windows.** Agents must pass `--headless` to every Godot command that does not need real rendering. Render captures (`tools/capture_*.gd`, render probes) need a GPU, so run them as `tools/godot_render.sh --script <tool>.gd`; the window starts minimized and never takes focus. See [`docs/SETUP.md`](./docs/SETUP.md#rendering-captures-without-a-visible-window).
-
-Decision: P1-002 uses a small repository-owned headless GDScript harness instead of adding GUT or another addon. This keeps CI dependency-free while the project only needs discoverable unit/integration tests for early runtime foundations. Add new test scripts under `tests/godot/` with filenames `test_*.gd` and zero-argument methods named `test_*`. Shared assertions live in `tests/godot/test_case.gd`.
-
-## Validation
-
-| Action | Status | TODO dependency |
-|--------|--------|-----------------|
-| JSON schema validation for `content/` | `python3 tools/validate_content_examples.py` | **P1-003** |
-| Python content validator (schemas, references, reachability, IDs, conditions, assets) | `python3 tools/validate_content.py content/examples/valid content/examples/support`; tests: `python3 -m unittest tests.python.test_validate_content -v` | **P1-004** |
-| Active Markdown link and canon consistency report | `python3 tools/generate_active_docs_report.py --check` | **P0-031** |
-| Speculative scene and NPC markdown archive headers | `python3 tools/archive_speculative_docs.py --dry-run` (no output when complete) | **P0-032** |
-| Asset provenance manifest schema and coverage | `python3 tools/validate_asset_sources.py` | **P0-028** |
-| Asset lint (dimensions, pivots, manifest rows) | `python3 tools/verify_asset_lint.py` | **P1-029** |
-| Map composition audit (P0-072 surface/density/landmark bands) | `python3 tools/verify_map_composition.py` | **P1-036** |
-
-Content schemas and the Python validator are now available. Add runtime JSON under `content/` only when it passes `tools/validate_content.py` as part of a complete corpus.
-
-### Mandatory map-authoring workflow
-
-Before creating, changing, reviewing, or migrating map content, agents **must read** [`docs/MAP_AUTHORING.md`](./docs/MAP_AUTHORING.md) and follow [ADR 0009](./docs/adr/0009-map-blueprint-authoring-architecture.md).
-
-- Prefer `MapBlueprint` primitives and reviewed prefabs for new or migrated content. Until the compiler is implemented, do not invent a parallel source format or use the target API as if it already exists.
-- Do not add direct giant `MapDefinition` dictionary factories. Existing direct factories are migration inputs and may receive narrow fixes only when the task requires them.
-- Preserve map, transition, spawn, anchor, patrol, prop, structure, landmark, prefab-instance, and prefab-local stable IDs. Moving or reordering content, changing generated nodes, and runtime chunk assignment must not rename IDs.
-- Use explicit typed primitive placement for one-off geometry and allowlisted prefab-child overrides for exceptions. Do not add raw runtime dictionaries as an escape hatch.
-- Treat generated terrain, geometry, collision, navigation, marker, and view nodes as disposable output. Fix their blueprint/compiler input rather than hand-editing generated scene nodes.
-- Keep large-map chunking in a separate runtime layer that consumes compiled `MapDefinition` data and preserves authored IDs.
-- Run the validation and parity checks documented in `docs/MAP_AUTHORING.md`. Current map changes require the Godot suite plus map audit, activation, conversion-plan, and active-doc checks. A migration is incomplete until the compiler-specific deterministic, semantic snapshot, collision/navigation, scene, and visual parity checks exist and pass.
-
-## Export
-
-`export_presets.cfg` defines one runnable preset:
-
-| Field | Value |
-|-------|-------|
-| Preset name | `rr` |
-| Platform | macOS |
-| Output | `./rr.dmg` |
-| Architecture | universal |
-
-| Action | Status | TODO dependency |
-|--------|--------|-----------------|
-| Documented headless export command | `mkdir -p build && godot --headless --export-release "rr" ./build/rr.dmg` | **P0-016** |
-| CI export smoke test | `.github/workflows/ci.yml` macOS `desktop-export-smoke` job checks `build/rr.dmg` exists and is non-empty | **P1-001** |
-| Codesigning / notarization procedure | Not configured in preset | Out of scope until export baseline lands |
-
-P1-001 adds CI coverage for export smoke only. Full install, start, save, load, exit support remains **P3-012**.
-
-## Scope constraints
-
-Agents must treat [`README.md`](./README.md) as the product source of truth.
-
-The product is a three-act faction RPG per [ADR 0008](./docs/adr/0008-three-act-campaign-and-faction-scope.md) as amended by [ADR 0017](./docs/adr/0017-legacy-design-reintroduction.md); delivery order is strict: demo → vertical-slice MVP → Act 1 → Act 2 → Act 3. Legacy design reintroduction is tracked in **P7** and [`docs/LEGACY_REINTRODUCTION.md`](./docs/LEGACY_REINTRODUCTION.md).
-
-### In scope (act-gated per TODO.md tracks)
-
-- Kalev as fixed protagonist; forge as hub
-- Commission, investigation, modification, consequence, reflection loop
-- One dense Lower Town district for the slice; further districts and world locations activate only through their P4+/P5+/P6 tasks and the parity/activation gates
-- Seven slice-core characters, plus expanding faction casts promoted from `characters/` through `docs/CHARACTERS/` (ADR 0017 / P7-009); authored offline dialogue
-- Eight launch factions with ledger-based standing (P4-016+) and Living City Hope/Fear pressure (P7-004 / P7-012); night mission templates (P5-004+)
-- Hammer combat, forge techniques, dual-school magic, NATURAL aspects, and Hingepuu psyche play (P7 design before implementation)
-- Deterministic state; no runtime LLM
-
-### Explicitly out of scope
-
-- Open world or seamless full Reval; playable campaigns in other cities
-- Runtime LLM, procedural quests, or free-text NPC chat
-- Party control, army/fleet battle simulation, survival sims
-- Tower-capture strategic loops and naval/castle-building mini-games until a later ADR accepts them
-- Activating any map before its TODO.md task and gates pass, regardless of ADR 0008 / 0017
-- Shipping legacy pixel sprites or superseded NATURAL/element HUD art as production runtime assets (inspiration only; new models/UI required)
-- Universal good/evil morality score detached from faction ledger and Living City pressure
-
-### Legacy and documentation rules
-
-- Do not implement concepts from root or `scenes/` legacy markdown unless reconciled with README / ADR 0017 and added as a strict `TODO.md` entry (prefer P7 inventory rows)
-- Named historical claims require confidence labels in `docs/CANON.md` (**P0-008**)
-- Do not add new major frameworks, event buses, or giant scene edits without a task that names allowed files and verification
-
-### Scope-change rule
-
-A new major system, mechanic, playable area, or content pillar may enter production only when all of the following hold:
-
-1. **Equivalent scope removal** - an item from README "Explicitly excluded from the first campaign" or an approved slice task of comparable production cost is removed or deferred; the removed scope must be named in the approval artifact.
-2. **Written approval artifact** - add a decision record before implementation begins. File it as the next numbered ADR in [`docs/adr/`](./docs/adr/) using the Status / Context / Decision / Alternatives / Consequences format (see ADR 0001). After **P0-005** lands `docs/DECISIONS/`, file new scope decisions there as `NNNN-short-slug.md` instead.
-3. **TODO entry** - add or update a strict `TODO.md` entry with allowed files, dependencies, and verification before coding starts.
-
-Agents must not implement scope expansions without the approval artifact merged or explicitly accepted by a human maintainer.
-
-### Asset pipeline freeze
-
-Until **P0-040** delivers `docs/ART_BIBLE.md` and the approved visual-style decision, **do not add or replace runtime assets** in the blocked classes below. Bug fixes to existing shipped assets are allowed only when a `TODO.md` task names the exact files.
-
-Blocked asset classes (linked to **P0-040**):
-
-- **Current isometric assets** - tiles, props, and characters authored for the legacy isometric projection or scale
-- **Pixel-frame animation pipeline assets** - sprite sheets and animations produced for the superseded frame-by-frame pixel pipeline
-- **Superseded HUD and system assets** - old pixel NATURAL aspects, 21-element, and ruler/rebel balance HUD frames. New UI for ADR 0017 systems must be authored under the art bible, not restored from those assets.
-
-New production art must wait for the art-bible baseline from **P0-040** unless a `TODO.md` task explicitly names allowed files and verification.
-
-## Task contract
-
-Every delegated task must be independently verifiable. Vague tasks such as "improve combat" or "make the city alive" are invalid.
-
-Each task states:
-
-1. **Player-facing goal** - what the player can do when done
-2. **Allowed files** - exact paths that may change
-3. **Dependencies** - `TODO.md` IDs and stable content IDs affected
-4. **Constraints and non-goals** - what must not change
-5. **Deliverable** - concrete artifact or behavior
-6. **Verification** - exact command, test, or observable result; for visual work, screenshot or expected scene state
-7. **Documentation updates** - canon, localization, `assets/SOURCES.csv`, or docs touched
-
-`TODO.md` entry format:
-
-```text
-- [ ] ID | deps: ID,ID or none | deliverable: ... | verify: ...
-```
-
-When picking work, prefer tasks whose dependencies are already complete. Update stable IDs and active docs in the same change when behavior or canon changes.
-
-## Definition of done
-
-A production task is complete only when all of the following hold:
-
-- Behavior is **player-visible** and satisfies the task's `verify` line in `TODO.md`
-- **Automated tests or validators** cover state transitions and failure modes, once the relevant harness exists for that area
-- A **clean clone** can exercise the behavior using documented commands, once **P0-015** through **P0-017** land
-- **Keyboard/mouse and gamepad** paths are checked where the feature accepts input
-- **Save/load** around the behavior is verified when the feature touches persistent state
-- **Active documentation and stable IDs** are updated
-- **New assets** include source, rights, and approval metadata in `assets/SOURCES.csv` once **P0-028** exists
-- **Visual changes** include screenshots or captured states
-- **No unrelated system or speculative abstraction** was added
-- A **second reviewer** (human or agent) confirms correctness, simplicity, and scope
-
-If verification commands are still marked **not yet available** above, the task may still close when its `verify` clause does not depend on those commands, or when it explicitly delivers the command or doc that unblocks them (for example **P0-016**).
-
-## Map blueprint pre-commit validation
-
-Every `MapBlueprint` factory must be listed explicitly in `scripts/map/map_blueprint_registry.gd`; add mandatory gameplay anchors to that entry. Do not discover blueprints by walking the filesystem. Treat `MapBlueprintDiagnostic.code` as an API for editor and AI automation: preserve stable codes, use `error` for rejected output and `warning` for reviewable compiled output.
-
-Before committing any blueprint, prefab, map compiler/validator, transition registry, map audit requirement, or `MAP_AUTHORING.md` change, run exactly:
+| Path | Role |
+|------|------|
+| `project.godot` | Godot **4.7** (pinned in [`.godot-version`](./.godot-version)), GL Compatibility, main scene `res://scenes/menu/main_menu.tscn` |
+| `export_presets.cfg` | One macOS preset `rr` (universal) |
+| `scripts/` | Runtime GDScript; autoload `DoorNavigator` (`scripts/global/door_navigator.gd`) |
+| `scenes/` | Godot scenes plus legacy location notes |
+| `content/` | Validated runtime JSON (transitions in `content/transitions/active_destinations.json`) |
+| `assets/` | Runtime art; provenance in `assets/SOURCES.csv` |
+| `tests/godot/`, `tests/python/` | Automated tests |
+| `tools/` | Validators, capture, export, and CI helpers |
+| `docs/` | Active docs; ADRs in `docs/adr/`; reports in `docs/reports/` |
+| `story/`, `history/` | Narrative and research, mixed canon status. Start at [`history/RESEARCH_INDEX.md`](history/RESEARCH_INDEX.md) |
+| `characters/`, `img/`, `music/`, `sounds/`, `bin/` | Reference art, marketing images, audio library, legacy build artifact |
+
+**Playable today:** main menu → Lower Town (`reval_east`) → forge, with Mart conversation and anvil spearhead pickup. Also implemented: movement, manifest transitions, interactables, session `GameState`, inventory/journal, quick menu, district map with click-to-travel, phase director hooks, save service, combat foundation (through P1-026b), packaged macOS export. Do not assume full combat, night consequence, or faction-ledger loops exist.
+
+## Conventions
+
+- Typed GDScript, `class_name` where useful, small reusable scenes, composition
+- Scenes use `uid://` references. Commit `*.import` sidecars; `.godot/` is gitignored. `docs/reports/images/` is excluded from import via `.gdignore`
+- Do not hand-edit giant city `.tscn` files without visual verification
+- Stable content IDs look like `quest.bitter_brew`, `char.aita`, `flag.aita_detained`
+- Large binaries follow [`docs/ASSET_STORAGE_POLICY.md`](./docs/ASSET_STORAGE_POLICY.md)
+
+## Commands
+
+Install Godot 4.7 per [`docs/SETUP.md`](./docs/SETUP.md). **Never open visible Godot windows:** pass `--headless` to every Godot command. Render captures that need a GPU run as `tools/godot_render.sh --script <tool>.gd` (minimized window, no focus).
+
+| Purpose | Command |
+|---------|---------|
+| Headless import / startup smoke | See `docs/SETUP.md` (`--check-only` hangs, `DEF-001`) |
+| Godot tests | `godot --headless --path . --script tools/run_godot_tests.gd` (runs `tests/godot/test_*.gd`) |
+| Content validator | `python3 tools/validate_content.py content/examples/valid content/examples/support` |
+| Content validator tests | `python3 -m unittest tests.python.test_validate_content -v` |
+| Content schema examples | `python3 tools/validate_content_examples.py` |
+| Active docs / links | `python3 tools/generate_active_docs_report.py --check` |
+| Asset provenance / lint | `python3 tools/validate_asset_sources.py`, `python3 tools/verify_asset_lint.py` |
+| Storage hygiene | `python3 tools/verify_storage_hygiene.py` |
+| Map composition audit | `python3 tools/verify_map_composition.py` |
+| Legacy archive headers | `python3 tools/archive_speculative_docs.py --dry-run` (no output = OK) |
+| Performance report | `tools/run_performance_report.sh [out.json] [--quick]` (see `docs/PERFORMANCE_REPORT.md`) |
+| Pre-commit gates | `tools/run_pre_commit_checks.sh [staged\|all]` |
+| Export | `mkdir -p build && godot --headless --export-release "rr" ./build/rr.dmg` |
+
+Tests use the repository's own harness (no GUT). Add `tests/godot/test_*.gd` files with zero-argument `test_*` methods; shared assertions are in `tests/godot/test_case.gd`. Add runtime JSON under `content/` only when it passes `tools/validate_content.py`. CI (`.github/workflows/ci.yml`) runs these checks plus a macOS export smoke. Codesigning is not configured.
+
+## Map authoring (mandatory)
+
+Before touching map content, read [`docs/MAP_AUTHORING.md`](./docs/MAP_AUTHORING.md) and [ADR 0009](./docs/adr/0009-map-blueprint-authoring-architecture.md).
+
+- Author through `MapBlueprint` primitives and reviewed prefabs (`scripts/map/prefabs/urban_prefab_package.gd`). Do not add new giant `MapDefinition` dictionary factories. Existing ones get only narrow fixes.
+- Register every blueprint explicitly in `scripts/map/map_blueprint_registry.gd` with its required gameplay anchors. Do not discover blueprints by walking the filesystem.
+- Preserve every stable ID (map, transition, spawn, anchor, patrol, prop, structure, landmark, prefab instance, prefab-local). Moving, reordering, regenerating, or chunking must not rename IDs.
+- Use typed primitive placement for one-off geometry and allowlisted prefab-child overrides for exceptions. Do not use raw runtime dictionaries.
+- Generated terrain, collision, navigation, marker, and view nodes are disposable output. Fix the blueprint or compiler, not the nodes.
+- Preview, runtime, chunking, navigation, and 3D must consume the same compiled `MapDefinition` fingerprint. Never persist chunk coordinates, node paths, or instance IDs.
+- `MapBlueprintDiagnostic.code` values are a stable API. `error` rejects output. Review `warning` diagnostics (e.g. `MAP_GEOMETRY_OVERLAP`) with an explicit decision. Do not hide them.
+- Migrate one map at a time. A migration is not done until the deterministic, semantic snapshot, collision/navigation, scene, and visual parity checks pass. Do not regenerate parity fixtures just to get green.
+
+**Pre-commit gate** for any blueprint, prefab, compiler/validator, transition registry, map audit, or `MAP_AUTHORING.md` change:
 
 ```bash
 godot --headless --path . --script tools/validate_map_blueprints.gd
@@ -258,38 +83,38 @@ python3 tools/generate_active_docs_report.py --check
 git diff --check
 ```
 
-The first command validates all registered blueprints and fails CI on error diagnostics. Warnings such as `MAP_GEOMETRY_OVERLAP` and `MAP_CHUNK_BOUNDARY_AMBIGUOUS` do not fail CI, but must be reviewed rather than hidden. See [`docs/MAP_AUTHORING.md`](./docs/MAP_AUTHORING.md) for the complete code table and semantic rules.
+Pipeline stages: `tools/run_map_pipeline_ci.sh parser|compiler|audit|persistence|parity|routes|benchmark-smoke`. Review `build/benchmarks/large-map-ci-smoke.json` after benchmark runs.
 
-## Copy-paste AI map workflow
+## Scope
 
-Do not bulk-migrate maps. Scope one map and preserve its stable IDs and parity fixture.
+The game is a three-act faction RPG ([ADR 0008](./docs/adr/0008-three-act-campaign-and-faction-scope.md), amended by [ADR 0017](./docs/adr/0017-legacy-design-reintroduction.md)). Delivery order is strict: demo → vertical-slice MVP → Act 1 → Act 2 → Act 3. Legacy reintroduction is tracked in **P7** and [`docs/LEGACY_REINTRODUCTION.md`](./docs/LEGACY_REINTRODUCTION.md).
 
-```bash
-# 1. Inspect existing visual vocabulary and reusable compositions before editing.
-sed -n '1,240p' docs/MAP_AUTHORING.md
-sed -n '1,240p' scripts/map/prefabs/urban_prefab_package.gd
-grep -R "define_style\|\.style(" scripts/map/definitions scripts/map/prefabs
+**In scope (gated by their tasks):** Kalev as fixed protagonist with the forge as hub. The commission → investigation → modification → consequence → reflection loop. One dense Lower Town district for the slice. Seven core characters plus faction casts. Authored offline dialogue. Eight factions with ledger standing and Living City Hope/Fear. Night missions. Hammer combat, forge techniques, dual-school magic, NATURAL aspects, Hingepuu psyche. All state is deterministic.
 
-# 2. Author one MapBlueprint factory or safe content/maps/<map>.rrmap source.
-# Register its source/factory and required anchors in scripts/map/map_blueprint_registry.gd.
+**Out of scope:** open world or seamless full Reval. Other cities. Runtime LLM, procedural quests, or free-text chat. Party control, army or fleet battles, survival sims. Tower capture, naval, and castle-building mini-games (need an ADR first). Activating a map before its task and gates pass. Shipping legacy pixel sprites or old HUD art. A universal good/evil morality score.
 
-# 3. Validate parser, compiler, semantics, and complete registry headlessly.
-tools/run_map_pipeline_ci.sh parser
-tools/run_map_pipeline_ci.sh compiler
-tools/run_map_pipeline_ci.sh audit
+**Rules:**
 
-# 4. Open the small host scene in Godot 4.7.1. Rebuild MapBlueprintEditorPreview,
-# enable stable-ID/anchor/navigation/chunk overlays, and review Preview Status.
+- Do not implement ideas from legacy root or `scenes/` markdown unless README / ADR 0017 reconciles them and they have a task.
+- Named historical claims need confidence labels in `docs/CANON.md`.
+- Do not add major frameworks, event buses, or giant scene edits without a task that names the allowed files and verification.
+- **Scope change** (new major system, mechanic, area, or pillar) needs all three: (1) removal of equivalent-cost scope, named explicitly; (2) the next numbered ADR in `docs/adr/` (Status / Context / Decision / Alternatives / Consequences); (3) a task with allowed files, dependencies, and verification. The ADR must be merged or human-approved before coding.
+- **Asset freeze (P0-040):** do not add or replace legacy isometric tiles/props/characters, pixel-frame animation assets, or superseded HUD/NATURAL/element art. New production art needs a task naming the exact files. Fixes to shipped assets need the same.
 
-# 5. Prove canonical output, map parity, required routes, and save compatibility.
-tools/run_map_pipeline_ci.sh persistence
-tools/run_map_pipeline_ci.sh parity
-tools/run_map_pipeline_ci.sh routes
+## Task contract
 
-# 6. Review every generated diagnostic and the benchmark report. Warnings need an
-# explicit map decision; do not hide them or regenerate parity just to get green.
-tools/run_map_pipeline_ci.sh benchmark-smoke
-cat build/benchmarks/large-map-ci-smoke.json
-```
+Every delegated task must be independently verifiable ("improve combat" is invalid). Each task states: player-facing goal, allowed files, dependencies (task IDs and content IDs), constraints and non-goals, deliverable, exact verification (command, test, or screenshot), and doc updates.
 
-Preview, runtime bootstrap, chunk indexing/rendering, navigation, and 3D must receive the same compiled `MapDefinition` fingerprint. Never edit generated preview/runtime nodes as map content. Never serialize chunk coordinates, node paths, or instance IDs as persistent identity. Before switching a runtime adapter, add map-specific parity and route tests and inspect the full fixture diff. See [`docs/MAP_AUTHORING.md`](./docs/MAP_AUTHORING.md) for budgets, limitations, and guarded fixture regeneration.
+`TODO.md` format: `- [ ] ID | deps: ID,ID or none | deliverable: ... | verify: ...`. Prefer tasks whose dependencies are done.
+
+## Definition of done
+
+- Player-visible behavior satisfies the task's `verify` line
+- Tests or validators cover state transitions and failure modes
+- Keyboard/mouse and gamepad paths are checked where input applies
+- Save/load is verified when persistent state is touched
+- Active docs and stable IDs are updated in the same change
+- New assets have source, rights, and approval rows in `assets/SOURCES.csv`
+- Visual changes include screenshots or captured states
+- No unrelated systems or speculative abstractions were added
+- A second reviewer (human or agent) confirms correctness, simplicity, and scope
