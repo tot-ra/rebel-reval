@@ -5,7 +5,7 @@ extends SceneTree
 ## gameplay orthographic scale. The same focus and camera contract is used for
 ## both day and night so a reviewer can compare silhouette and value readability.
 ## Requires a rendering-capable run (not --headless):
-##   /Applications/Godot.app/Contents/MacOS/Godot --path . \
+##   tools/godot_render.sh \
 ##     --rendering-method gl_compatibility --rendering-driver opengl3 \
 ##     --script tools/capture_st_olaf_r281.gd
 

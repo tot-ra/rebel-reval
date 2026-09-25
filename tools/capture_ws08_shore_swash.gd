@@ -2,9 +2,9 @@ extends SceneTree
 
 ## WS-08 shore swash evidence on reval_harbor_east (coast sand beach plus timber piers).
 ##
-## One plate per process. Needs a real renderer, never --headless:
-##   /Applications/Godot.app/Contents/MacOS/Godot --path . \
-##     --rendering-method mobile --rendering-driver metal \
+## One plate per process. Needs a real renderer (not --headless), so run it through
+## the minimized-window wrapper:
+##   tools/godot_render.sh --rendering-method mobile --rendering-driver metal \
 ##     --script tools/capture_ws08_shore_swash.gd -- --scenario=clear --time=day
 ## Compatibility: replace the renderer flags with --rendering-driver opengl3.
 ##

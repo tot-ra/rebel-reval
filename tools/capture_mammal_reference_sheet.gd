@@ -3,7 +3,7 @@ extends SceneTree
 ## Reproducible P0-118 silhouette sheet. This tool renders all catalog mammals from
 ## procedural geometry only; it does not instantiate runtime spawning or behavior.
 ## Run with a rendering-capable Godot process (no --headless):
-## /Applications/Godot.app/Contents/MacOS/Godot --path . \
+## tools/godot_render.sh \
 ##   --script tools/capture_mammal_reference_sheet.gd
 
 const MammalSpecies := preload("res://scripts/map/view3d/map_view_mammal_species.gd")

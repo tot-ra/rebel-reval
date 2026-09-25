@@ -252,7 +252,7 @@ func _write_report(manifest: Dictionary) -> void:
 		"",
 		"```sh",
 		"/Applications/Godot.app/Contents/MacOS/Godot --path . --editor --headless --import",
-		"/Applications/Godot.app/Contents/MacOS/Godot --path . --rendering-method mobile --rendering-driver metal --script tools/capture_lower_town_population.gd",
+		"tools/godot_render.sh --rendering-method mobile --rendering-driver metal --script tools/capture_lower_town_population.gd",
 		"```",
 		"",
 		"The second command requires a rendering-capable session. The JSON manifest records the exact profile inputs and output dimensions.",

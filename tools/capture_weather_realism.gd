@@ -1,7 +1,7 @@
 extends SceneTree
 
 ## Reproducible sky plates with the production lighting and weather presenter.
-## godot --path . --script tools/capture_weather_realism.gd -- --before
+## tools/godot_render.sh --script tools/capture_weather_realism.gd -- --before
 const Weather := preload("res://scripts/map/view3d/sky_weather_3d.gd")
 const Lighting := preload("res://scripts/map/view3d/map_view_lighting.gd")
 const OUTPUT := "res://docs/reports/images/weather_realism/"

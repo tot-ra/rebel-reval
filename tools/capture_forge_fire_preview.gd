@@ -2,7 +2,7 @@ extends SceneTree
 
 ## Close-up capture of the smithy furnace hearth fire (flame tongues, sparks,
 ## smoke, ember bed). Run without --headless so the GPU renderer is live:
-##   godot --path . --script tools/capture_forge_fire_preview.gd
+##   tools/godot_render.sh --script tools/capture_forge_fire_preview.gd
 
 const OUTPUT := "res://build/previews/forge_fire_preview.png"
 const VIEW_SIZE := Vector2i(1024, 1024)

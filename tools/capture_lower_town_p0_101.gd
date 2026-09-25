@@ -2,7 +2,7 @@ extends SceneTree
 
 ## R-560 / P0-101f. Deterministic gameplay-scale Lower Town route evidence.
 ## Requires a rendering-capable run (no --headless):
-##   /Applications/Godot.app/Contents/MacOS/Godot --path . \
+##   tools/godot_render.sh \
 ##     --rendering-method gl_compatibility --rendering-driver opengl3 \
 ##     --script tools/capture_lower_town_p0_101.gd
 ##

@@ -48,10 +48,12 @@ The raw `profiles` section retains per-run distributions, node/collision counts,
 ## GPU render probe (draw-call attribution)
 
 The report above runs headless, so it cannot see GPU-side cost. For that, run the
-render probe non-headlessly against the same Lower Town (workers district) scene:
+render probe non-headlessly against the same Lower Town (workers district) scene. The wrapper
+keeps the window minimized and unfocused; the root viewport still renders at full size (see
+`docs/SETUP.md`, "Rendering captures without a visible window"):
 
 ```bash
-/Applications/Godot.app/Contents/MacOS/Godot --path . \
+tools/godot_render.sh \
   res://tools/benchmarks/lower_town_render_probe.tscn \
   -- --output=user://probe.json --screenshot=/tmp/probe.png
 ```
@@ -94,7 +96,7 @@ Use this checklist only for the declared target run owned by R-563. It does not 
 
 ```bash
 export GODOT_BIN=/Applications/Godot.app/Contents/MacOS/Godot
-"$GODOT_BIN" --path . \
+tools/godot_render.sh \
   --rendering-method gl_compatibility --rendering-driver opengl3 \
   --resolution 1920x1080 \
   res://tools/benchmarks/renderer_comparison_benchmark.tscn \

@@ -2,7 +2,7 @@ extends SceneTree
 
 ## P0-157 evidence: before/after orthographic captures of a synthetic courtyard
 ## with and without soot/mud/blood projected wear decals.
-## Run (needs a display): godot --path . --script tools/capture_map_view_decals.gd
+## Run (needs a display): tools/godot_render.sh --script tools/capture_map_view_decals.gd
 
 const MapBuilder := preload("res://scripts/map/map_builder.gd")
 const MapView3D := preload("res://scripts/map/view3d/map_view_3d.gd")

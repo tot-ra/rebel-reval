@@ -1,7 +1,7 @@
 extends SceneTree
 
 ## Compatibility wrapper. Prefer the host scene so autoloads resolve:
-##   godot --path . res://tools/capture_demo_walkthrough_host.tscn
+##   tools/godot_render.sh res://tools/capture_demo_walkthrough_host.tscn
 ## This entry point only redirects for older docs that still pass --script.
 
 func _initialize() -> void:

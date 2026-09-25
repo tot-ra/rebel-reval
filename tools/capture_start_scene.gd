@@ -3,7 +3,7 @@ extends SceneTree
 ## D-001 evidence capture: reproduces the post-menu Start flow (spawn at
 ## smithy_start in Kalev's forge) and saves day and night gameplay-view
 ## PNGs. Requires a rendering-capable run (no --headless):
-## godot --path . --script tools/capture_start_scene.gd
+## tools/godot_render.sh --script tools/capture_start_scene.gd
 
 const OUTPUT_DIR := "res://docs/reports/images/view3d"
 const SETTLE_FRAMES := 30

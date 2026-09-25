@@ -2,7 +2,7 @@ extends SceneTree
 
 ## P0-102m.3 evidence capture for the brewery environment-kit module.
 ## Requires a rendering-capable run (no --headless):
-##   godot --path . --rendering-driver metal --script \
+##   tools/godot_render.sh --rendering-driver metal --script \
 ##     tools/capture_brewery_environment_kit.gd
 ##
 ## WHY: the acceptance needs a matched gameplay-scale pair for the brewery,

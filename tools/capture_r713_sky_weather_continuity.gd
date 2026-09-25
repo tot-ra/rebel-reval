@@ -4,7 +4,7 @@ extends SceneTree
 ##
 ## Run with a real renderer because SubViewport readback is not available on the
 ## headless dummy renderer:
-##   /Applications/Godot.app/Contents/MacOS/Godot --path . \\
+##   tools/godot_render.sh \\
 ##     --rendering-method mobile --rendering-driver metal \\
 ##     --script tools/capture_r713_sky_weather_continuity.gd
 ##

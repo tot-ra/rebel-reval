@@ -2,7 +2,7 @@ extends SceneTree
 
 ## Reproducible sword acceptance plates. Run with a rendering-capable Godot
 ## process (no --headless):
-## godot --path . --script tools/capture_sword_equipment.gd
+## tools/godot_render.sh --script tools/capture_sword_equipment.gd
 
 const KALEV_SCENE := preload("res://assets/characters/kalev/kalev.tscn")
 const SWORD_SCENE := preload("res://assets/characters/shared/sword.tscn")

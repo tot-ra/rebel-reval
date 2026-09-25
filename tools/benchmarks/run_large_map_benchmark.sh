@@ -10,9 +10,14 @@ SCENE_OUTPUT="$(mktemp -t lower-town-scene-baseline).json"
 trap 'rm -f "$SCENE_OUTPUT"' EXIT
 mkdir -p "$(dirname "$OUTPUT")"
 
-COMMON_ARGS=(--path "$ROOT")
+# Windowed runs need a real GPU renderer; tools/godot_render.sh keeps the window minimized and
+# unfocused so nothing pops up. Headless runs use the dummy renderer and open no window.
 if [[ "${BENCHMARK_HEADLESS:-1}" != "0" ]]; then
-  COMMON_ARGS=(--headless "${COMMON_ARGS[@]}")
+  GODOT_RUN=("$GODOT_BIN" --headless --path "$ROOT")
+else
+  # The wrapper resolves GODOT_BIN, then `godot` on PATH, then Godot.app.
+  command -v "$GODOT_BIN" >/dev/null 2>&1 && export GODOT_BIN || unset GODOT_BIN
+  GODOT_RUN=("$ROOT/tools/godot_render.sh")
 fi
 USER_ARGS=(--output="$SCENE_OUTPUT")
 if [[ "$MODE" == "--quick" ]]; then
@@ -20,7 +25,7 @@ if [[ "$MODE" == "--quick" ]]; then
 fi
 
 # Both phases use ordinary scenes so project autoloads match production startup.
-"$GODOT_BIN" "${COMMON_ARGS[@]}" \
+"${GODOT_RUN[@]}" \
   res://tools/benchmarks/lower_town_scene_benchmark.tscn \
   -- "${USER_ARGS[@]}"
 
@@ -28,7 +33,7 @@ RUNNER_ARGS=(--output="$OUTPUT" --scene-baseline="$SCENE_OUTPUT" --target-hardwa
 if [[ "$MODE" == "--quick" ]]; then
   RUNNER_ARGS+=(--quick)
 fi
-"$GODOT_BIN" "${COMMON_ARGS[@]}" \
+"${GODOT_RUN[@]}" \
   res://tools/benchmarks/large_map_benchmark.tscn \
   -- "${RUNNER_ARGS[@]}"
 

@@ -2,7 +2,7 @@ extends SceneTree
 
 ## Reproducible in-engine review capture for the production fishing net rack.
 ## Run with a rendering-capable Godot process:
-## /Applications/Godot.app/Contents/MacOS/Godot --path . --script tools/capture_fishing_nets.gd
+## tools/godot_render.sh --script tools/capture_fishing_nets.gd
 
 const FishingNetModels := preload("res://scripts/map/view3d/map_view_fishing_net_models.gd")
 const OUTPUT := "res://generated/blender/fishing_nets_v1/godot_preview.png"

@@ -2,7 +2,7 @@ extends SceneTree
 
 ## Reproducible in-engine review capture for the production rope coil.
 ## Run with a rendering-capable Godot process:
-## godot --path . --script tools/capture_rope_coil.gd
+## tools/godot_render.sh --script tools/capture_rope_coil.gd
 
 const RopeCoilModels := preload("res://scripts/map/view3d/map_view_rope_coil_models.gd")
 const OUTPUT := "res://generated/blender/rope_coil_v1/godot_preview.png"

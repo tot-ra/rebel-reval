@@ -2,7 +2,7 @@ extends Node
 
 ## Host entry for D-004 walkthrough capture. Run with a normal project main
 ## loop so autoloads such as SessionState are visible to scene scripts:
-##   godot --path . res://tools/capture_demo_walkthrough_host.tscn
+##   tools/godot_render.sh res://tools/capture_demo_walkthrough_host.tscn
 ## WHY: DoorNavigator.go_to_scene defers change_scene; this host changes scenes
 ## synchronously and waits for frame_post_draw so PNG captures are not stale.
 
@@ -249,7 +249,7 @@ func _write_report() -> void:
 		"```bash",
 		"tools/verify_packaged_demo.sh",
 		"# or refresh frames and the animated capture only:",
-		"godot --path . res://tools/capture_demo_walkthrough_host.tscn",
+		"tools/godot_render.sh res://tools/capture_demo_walkthrough_host.tscn",
 		"tools/build_demo_walkthrough_gif.sh",
 		"```",
 		"",

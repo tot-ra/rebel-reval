@@ -3,7 +3,7 @@ extends SceneTree
 ## WS-10 physical-sky evidence: one plate per process, looking along the horizon towards the
 ## sun (left half) and away from it (right half) over reval_harbor_north, with the sun placed
 ## at a fixed elevation through SkyWeather3D.apply_sky_state. Needs a real renderer:
-##   /Applications/Godot.app/Contents/MacOS/Godot --path . \
+##   tools/godot_render.sh \
 ##     [--rendering-method mobile --rendering-driver metal] \
 ##     --script tools/capture_ws10_sky_elevations.gd -- --elevation=5 [--weather=clear] [--gradient]
 ##     [--tier=minimum|recommended]

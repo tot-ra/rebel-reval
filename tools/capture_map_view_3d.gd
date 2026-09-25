@@ -3,7 +3,8 @@ extends SceneTree
 ## P0-053 evidence capture: renders the playable slice maps through the 3D
 ## orthographic view layer and saves day/night PNGs under
 ## docs/reports/images/view3d/. Requires a rendering-capable run (no
-## --headless): godot --path . --script tools/capture_map_view_3d.gd
+## --headless), minimized through the wrapper:
+##   tools/godot_render.sh --script tools/capture_map_view_3d.gd
 
 const Registry := preload("res://scripts/map/map_audit_registry.gd")
 const OUTPUT_DIR := "res://docs/reports/images/view3d"

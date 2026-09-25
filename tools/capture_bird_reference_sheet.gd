@@ -4,7 +4,7 @@ extends SceneTree
 ## when present (P2-033) and otherwise from procedural geometry. This tool does
 ## not instantiate runtime spawning or flight.
 ## Run with a rendering-capable Godot process (no --headless):
-## /Applications/Godot.app/Contents/MacOS/Godot --path . \
+## tools/godot_render.sh \
 ##   --script tools/capture_bird_reference_sheet.gd
 
 const BirdSpecies := preload("res://scripts/map/view3d/map_view_bird_species.gd")

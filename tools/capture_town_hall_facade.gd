@@ -3,7 +3,7 @@ extends SceneTree
 ## Design-review capture for the Town Hall facade and its arcade gallery.
 ## Saves one PNG per camera under docs/reports/images/view3d/town_hall_review/.
 ## Requires a rendering-capable run (no --headless):
-## godot --path . --script tools/capture_town_hall_facade.gd
+## tools/godot_render.sh --script tools/capture_town_hall_facade.gd
 
 const OUTPUT_DIR := "res://docs/reports/images/view3d/town_hall_review"
 const VIEWPORT_SIZE := Vector2i(1280, 720)

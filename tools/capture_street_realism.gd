@@ -9,7 +9,7 @@ extends SceneTree
 ## are directly comparable.
 ##
 ## Requires a rendering-capable run (no --headless):
-##   /Applications/Godot.app/Contents/MacOS/Godot --path . \
+##   tools/godot_render.sh \
 ##     --rendering-method gl_compatibility --rendering-driver opengl3 \
 ##     --script tools/capture_street_realism.gd -- --label before
 

@@ -2,7 +2,7 @@ extends SceneTree
 
 ## Reproducible in-engine review capture for the production tanning frame.
 ## Run with a rendering-capable Godot process:
-## godot --path . --script tools/capture_tanning_frame.gd
+## tools/godot_render.sh --script tools/capture_tanning_frame.gd
 
 const TanningFrameModels := preload("res://scripts/map/view3d/map_view_tanning_frame_models.gd")
 const OUTPUT := "res://generated/blender/tanning_frame_v1/godot_preview.png"

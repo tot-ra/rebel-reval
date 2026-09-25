@@ -2,7 +2,7 @@ extends SceneTree
 
 ## Close-up capture of the 3D well prop (stone ring, windlass, bucket, gabled
 ## roof). Run without --headless so the GPU renderer is live:
-##   godot --path . --script tools/capture_well_preview.gd
+##   tools/godot_render.sh --script tools/capture_well_preview.gd
 
 const OUTPUT := "res://build/previews/well_preview.png"
 const VIEW_SIZE := Vector2i(1024, 1024)

@@ -7,7 +7,7 @@ extends SceneTree
 ## houses without house_tier so the gabled mesh is the visible cover.
 ##
 ## Requires a rendering-capable run (no --headless):
-##   /Applications/Godot.app/Contents/MacOS/Godot --path . \
+##   tools/godot_render.sh \
 ##     --rendering-method gl_compatibility --rendering-driver opengl3 \
 ##     --script tools/capture_roof_cover_density.gd -- --label before
 

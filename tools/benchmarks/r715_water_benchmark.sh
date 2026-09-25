@@ -26,15 +26,20 @@ if [[ -z "$OUTPUT" ]]; then
 fi
 mkdir -p "$(dirname "$OUTPUT")"
 
-ARGS=(--path "$ROOT")
+# Windowed runs need a real GPU renderer; tools/godot_render.sh keeps the window minimized and
+# unfocused so nothing pops up. Headless runs use the dummy renderer and open no window.
 if [[ "${R715_WATER_HEADLESS:-0}" == "1" ]]; then
-  ARGS=(--headless "${ARGS[@]}")
+  GODOT_RUN=("$GODOT_BIN" --headless --path "$ROOT")
+else
+  # The wrapper resolves GODOT_BIN, then `godot` on PATH, then Godot.app.
+  command -v "$GODOT_BIN" >/dev/null 2>&1 && export GODOT_BIN || unset GODOT_BIN
+  GODOT_RUN=("$ROOT/tools/godot_render.sh")
 fi
 
 # A profile ID is asserted separately from detected architecture/GPU. The
 # runner still compares all fields and marks mismatched/headless runs as
 # supplementary, never as target acceptance.
-"$GODOT_BIN" "${ARGS[@]}" \
+"${GODOT_RUN[@]}" \
   --script res://tools/benchmarks/r715_water_benchmark.gd -- \
   --config="$CONFIG" --tier="$TIER" --samples="$SAMPLES" --output="$OUTPUT"
 

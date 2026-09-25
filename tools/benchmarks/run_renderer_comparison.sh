@@ -9,9 +9,14 @@ EVIDENCE_JSON="$OUTPUT_DIR/renderer_evaluation_evidence.json"
 CAPTURE_DIR="$ROOT/docs/reports/images/renderer_evaluation"
 mkdir -p "$OUTPUT_DIR" "$CAPTURE_DIR"
 
-COMMON_ARGS=(--path "$ROOT")
+# Windowed runs need a real GPU renderer; tools/godot_render.sh keeps the window minimized and
+# unfocused so nothing pops up. Headless runs use the dummy renderer and open no window.
 if [[ "${BENCHMARK_HEADLESS:-1}" != "0" ]]; then
-  COMMON_ARGS=(--headless "${COMMON_ARGS[@]}")
+  GODOT_RUN=("$GODOT_BIN" --headless --path "$ROOT")
+else
+  # The wrapper resolves GODOT_BIN, then `godot` on PATH, then Godot.app.
+  command -v "$GODOT_BIN" >/dev/null 2>&1 && export GODOT_BIN || unset GODOT_BIN
+  GODOT_RUN=("$ROOT/tools/godot_render.sh")
 fi
 
 USER_ARGS=(--quick)
@@ -28,12 +33,12 @@ RESULTS=()
 for renderer in "${RENDERERS[@]}"; do
   RUN_OUTPUT="$(mktemp -t renderer-comparison-${renderer}).json"
   CAPTURE_PATH="res://docs/reports/images/renderer_evaluation/${renderer}_lower_town_day.png"
-  ARGS=(--rendering-method "$renderer" "${COMMON_ARGS[@]}" \
+  ARGS=(--rendering-method "$renderer" \
     res://tools/benchmarks/renderer_comparison_benchmark.tscn -- \
     --output="$RUN_OUTPUT" --capture="$CAPTURE_PATH" --renderer-requested="$renderer")
   ARGS+=("${USER_ARGS[@]}")
   echo "Running renderer comparison for $renderer ..."
-  "$GODOT_BIN" "${ARGS[@]}"
+  "${GODOT_RUN[@]}" "${ARGS[@]}"
   RESULTS+=("$(cat "$RUN_OUTPUT")")
   rm -f "$RUN_OUTPUT"
 done

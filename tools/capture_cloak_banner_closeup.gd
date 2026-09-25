@@ -3,7 +3,7 @@ extends SceneTree
 ## Close-up of the smithy Black Cloaks wall banner after the vertical hang fix.
 ## Uses the smithy definition only (not MapAuditRegistry) so dirty distant maps
 ## cannot abort the plate.
-##   GODOT_BIN=... $GODOT_BIN --path . --script tools/capture_cloak_banner_closeup.gd
+##   GODOT_BIN=... tools/godot_render.sh --script tools/capture_cloak_banner_closeup.gd
 
 const KalevSmithyDefinition := preload("res://scripts/map/definitions/lower_town/kalev_smithy_definition.gd")
 const OUTPUT_PATH := "res://docs/reports/images/kalev_smithy_domestic_life/cloak_banner_closeup.png"

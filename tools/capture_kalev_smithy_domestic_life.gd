@@ -2,7 +2,7 @@ extends SceneTree
 
 ## Day/night readability captures for the smithy domestic-life acceptance pass.
 ## Requires a rendering-capable Godot run (no --headless):
-##   godot --path . --script tools/capture_kalev_smithy_domestic_life.gd
+##   tools/godot_render.sh --script tools/capture_kalev_smithy_domestic_life.gd
 
 const Registry := preload("res://scripts/map/map_audit_registry.gd")
 const MapView3D := preload("res://scripts/map/view3d/map_view_3d.gd")

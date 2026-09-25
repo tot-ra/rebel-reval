@@ -2,7 +2,7 @@ extends SceneTree
 
 ## Visual review captures for Kalamaja net-yard wind animation on reval_harbor_east.
 ## Saves orthographic gameplay-angle stills for clear, coastal, and storm wind.
-## Run: /Applications/Godot.app/Contents/MacOS/Godot --path . --script tools/capture_harbor_east_fishing_net_wind.gd
+## Run: tools/godot_render.sh --script tools/capture_harbor_east_fishing_net_wind.gd
 
 const HarborEastDefinition := preload("res://scripts/map/definitions/outdoor/reval_harbor_east_definition.gd")
 const SkyWeather := preload("res://scripts/map/view3d/sky_weather_3d.gd")

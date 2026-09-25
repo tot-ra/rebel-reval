@@ -3,7 +3,7 @@ extends SceneTree
 ## Scoped evidence capture for the Padise rework. Parses the .rrmap source
 ## directly instead of walking MapAuditRegistry so a dirty worktree elsewhere
 ## cannot abort the run. Requires a rendering-capable process:
-##   godot --path . --rendering-driver metal --script tools/capture_padise_view.gd
+##   tools/godot_render.sh --rendering-driver metal --script tools/capture_padise_view.gd
 
 const MAP_PATH := "res://content/maps/world_padise.rrmap"
 const OUTPUT_DIR := "res://docs/reports/images/view3d"

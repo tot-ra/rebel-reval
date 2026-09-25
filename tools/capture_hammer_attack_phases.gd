@@ -2,7 +2,7 @@ extends SceneTree
 
 ## Renders the four authored presentation phases for light and charged hammer
 ## attacks. Run with a rendering-capable Godot process (no --headless):
-## godot --path . --script tools/capture_hammer_attack_phases.gd
+## tools/godot_render.sh --script tools/capture_hammer_attack_phases.gd
 
 const KALEV_SCENE := preload("res://assets/characters/kalev/kalev.tscn")
 const OUTPUT_DIR := "res://docs/reports/images/combat"

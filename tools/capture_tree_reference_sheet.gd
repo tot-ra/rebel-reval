@@ -3,7 +3,7 @@ extends SceneTree
 ## Reproducible P0-103 / P0-114 tree silhouette sheet. Renders every catalog species
 ## from procedural geometry only (no map scatter or gameplay placement).
 ## Run with a rendering-capable Godot process (no --headless):
-## /Applications/Godot.app/Contents/MacOS/Godot --path . \
+## tools/godot_render.sh \
 ##   --script tools/capture_tree_reference_sheet.gd
 
 const TreeSpecies := preload("res://scripts/map/view3d/map_view_tree_species.gd")

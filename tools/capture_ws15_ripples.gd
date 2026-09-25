@@ -2,7 +2,7 @@ extends SceneTree
 
 ## WS-15 interactive-ripple evidence over reval_harbor_north. One plate per process; needs a
 ## real renderer:
-##   /Applications/Godot.app/Contents/MacOS/Godot --path . \
+##   tools/godot_render.sh \
 ##     [--rendering-method mobile --rendering-driver metal] \
 ##     --script tools/capture_ws15_ripples.gd -- --scenario=rain [--off]
 ## Scenarios:

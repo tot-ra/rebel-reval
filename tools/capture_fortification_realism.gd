@@ -9,7 +9,7 @@ extends SceneTree
 ## the gameplay camera pitch, because roofs are mostly read from above.
 ##
 ## Requires a rendering-capable run (no --headless):
-##   /Applications/Godot.app/Contents/MacOS/Godot --path . \
+##   tools/godot_render.sh \
 ##     --rendering-method gl_compatibility --rendering-driver opengl3 \
 ##     --script tools/capture_fortification_realism.gd -- --label before
 

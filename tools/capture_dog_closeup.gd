@@ -3,7 +3,7 @@ extends SceneTree
 ## Close-up render of the P0-209 street dog production GLB (storybook/dog.glb).
 ## Reuses the P0-118 reference stage lighting. Run with a rendering-capable
 ## Godot process (headless hits the dummy renderer):
-## /Applications/Godot.app/Contents/MacOS/Godot --path . \
+## tools/godot_render.sh \
 ##   --rendering-driver metal --script tools/capture_dog_closeup.gd
 
 const MammalSpecies := preload("res://scripts/map/view3d/map_view_mammal_species.gd")

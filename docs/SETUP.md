@@ -253,6 +253,10 @@ GODOT_RENDER_VISIBLE=1 tools/godot_render.sh --script tools/capture_door_preview
 
 The wrapper runs Godot against a temporary shadow project (symlinks to the repo plus an `override.cfg` with `display/window/size/mode=1` and `no_focus=true`), so the window starts minimized, never flashes, and never steals focus. Output is pixel-identical to a visible run. Do not pass `--path`, and never add `override.cfg` to the real project root: an open editor or a normal game run would pick it up.
 
+Renderer flags pass straight through (`tools/godot_render.sh --rendering-method mobile --rendering-driver metal --script ...` for Metal plates). Verified on macOS (2026-09-25) with a `CGWindowListCopyWindowInfo` poller: a direct run kept a window on screen for about 24 s of a capture, and the wrapper showed none on Compatibility or Metal. The minimized window still draws its root viewport at full size (a probe read 119 drawn frames and the correct pixel at 1920x1080), so windowed benchmarks and render probes stay valid. Positioning the window off-screen does not work instead: macOS moves it back onto the display.
+
+The GPU benchmark scripts (`tools/benchmarks/r715_water_benchmark.sh`, and `run_large_map_benchmark.sh` / `run_renderer_comparison.sh` with `BENCHMARK_HEADLESS=0`) already route their windowed runs through the wrapper. Every `tools/capture_*.gd` usage header shows the wrapper command. Copy it rather than calling the Godot binary. Rule of thumb: a Godot command line without `--headless` must start with `tools/godot_render.sh`. The only exception is a human deliberately opening the editor or an interactive showcase.
+
 ### Validation
 
 Run the schema fixture checks, semantic validator tests, and complete example corpus validation:

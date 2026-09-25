@@ -1,7 +1,7 @@
 extends SceneTree
 
 ## ADR 0018 visual-calibration evidence. Capture one frame per process:
-##   godot --path . --script tools/capture_adr0018_visual_calibration.gd -- \
+##   tools/godot_render.sh --script tools/capture_adr0018_visual_calibration.gd -- \
 ##     --map=kalev_smithy --camera=third_person --time=day
 
 const Registry := preload("res://scripts/map/map_audit_registry.gd")

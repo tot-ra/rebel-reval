@@ -109,7 +109,8 @@ dependencies and can run in parallel.
    ```
    Also run any task-specific commands listed in the task.
 7. Visual tasks must attach before and after captures of the same plate (map, time and weather)
-   from `tools/capture_r715_water_acceptance.gd`, run with
+   from `tools/capture_r715_water_acceptance.gd`, run through `tools/godot_render.sh` (never the
+   bare Godot binary, which pops up a window) with
    `--rendering-method mobile --rendering-driver metal` and also with the default Compatibility
    renderer.
 8. Another agent may be committing at the same time. Stage files by explicit path only.

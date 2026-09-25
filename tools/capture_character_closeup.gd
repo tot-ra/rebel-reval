@@ -4,7 +4,7 @@ extends SceneTree
 ## portrait distance from the gameplay isometric angle plus front/profile
 ## turnaround views so silhouette changes can be judged before the gameplay
 ## scale hides them. Requires a rendering-capable run (no --headless):
-## godot --path . --script tools/capture_character_closeup.gd \
+## tools/godot_render.sh --script tools/capture_character_closeup.gd \
 ##   [-- --output-dir=PATH --scene=res://path/to/rig.tscn]
 
 const KALEV_SCENE := preload("res://assets/characters/kalev/kalev.tscn")

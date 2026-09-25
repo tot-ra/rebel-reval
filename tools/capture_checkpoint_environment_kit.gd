@@ -2,7 +2,7 @@ extends SceneTree
 
 ## P0-102m.4 evidence capture for the checkpoint environment-kit module.
 ## Requires a rendering-capable run (no --headless):
-##   godot --path . --rendering-driver metal --script \
+##   tools/godot_render.sh --rendering-driver metal --script \
 ##     tools/capture_checkpoint_environment_kit.gd
 ##
 ## WHY: the acceptance needs a matched gameplay-scale pair for the checkpoint,

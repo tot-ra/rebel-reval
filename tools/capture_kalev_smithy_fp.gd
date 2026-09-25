@@ -2,7 +2,7 @@ extends SceneTree
 
 ## Temporary evidence capture for the Kalev smithy first-person start view.
 ## Renders the smithy interior from the player spawn at four yaws and saves
-## PNGs. Run: godot --path . --script tools/capture_kalev_smithy_fp.gd
+## PNGs. Run: tools/godot_render.sh --script tools/capture_kalev_smithy_fp.gd
 
 const OUTPUT_DIR := "res://docs/reports/images/view3d/smithy_fp"
 const VIEWPORT_SIZE := Vector2i(1280, 720)

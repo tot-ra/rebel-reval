@@ -5,7 +5,7 @@ extends SceneTree
 ## hair/beard seams can only be judged at portrait scale - see
 ## docs/reports/face_realism_research.md. Requires a rendering-capable run
 ## (no --headless):
-##   godot --path . --script tools/capture_face_closeup.gd \
+##   tools/godot_render.sh --script tools/capture_face_closeup.gd \
 ##     [-- --output-dir=PATH --scene=res://path/to/rig.tscn --prefix=face]
 
 const KALEV_SCENE := preload("res://assets/characters/kalev/kalev.tscn")

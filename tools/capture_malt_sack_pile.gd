@@ -2,7 +2,7 @@ extends SceneTree
 
 ## Reproducible in-engine review capture for the production malt sack pile.
 ## Run with a rendering-capable Godot process:
-## godot --path . --script tools/capture_malt_sack_pile.gd
+## tools/godot_render.sh --script tools/capture_malt_sack_pile.gd
 
 const MaltSackPileModels := preload("res://scripts/map/view3d/map_view_malt_sack_pile_models.gd")
 const OUTPUT := "res://generated/blender/malt_sack_pile_v1/godot_preview.png"

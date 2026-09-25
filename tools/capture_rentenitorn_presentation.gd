@@ -6,7 +6,7 @@ extends SceneTree
 ## use identical focus and camera settings so reviewers can compare values without
 ## mistaking a framing change for a lighting change.
 ## Requires a rendering-capable run (not --headless):
-##   /Applications/Godot.app/Contents/MacOS/Godot --path . \
+##   tools/godot_render.sh \
 ##     --rendering-method gl_compatibility --rendering-driver opengl3 \
 ##     --script tools/capture_rentenitorn_presentation.gd
 

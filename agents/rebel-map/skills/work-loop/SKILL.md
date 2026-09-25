@@ -16,6 +16,12 @@ Use the `tasks` tool as the operational queue:
 3. When you discover a concrete downstream need, call `tasks.create` with status `idea` rather than leaving it only in a prose handoff. Include the parent task/ref, role, slice, player/production value, exact deliverable, allowed files, dependencies, constraints/non-goals, verification, and handoff; add `follow-up` plus role tags.
 4. Use a markdown work request only when the need is not yet executable or requires a Producer/Canon/rights decision. Do not claim or implement another role's follow-up.
 
+## Godot runs (no pop-up windows)
+
+- Every Godot command passes `--headless` (tests, imports, validators, smokes, probes).
+- Anything that needs real rendering (captures, render probes, GPU benchmarks, Metal plates) runs as `tools/godot_render.sh [--rendering-method mobile --rendering-driver metal] --script <tool>.gd -- <args>`. The window stays minimized and unfocused, and the root viewport still renders at full size.
+- Never run the bare Godot binary without `--headless`, and never pass `--path` to the wrapper. See `docs/SETUP.md`, "Rendering captures without a visible window".
+
 ## Deliver mode
 
 1. Select the highest-priority ready `role: map` row. Preflight Godot/map tools, exact source paths, resolved research and art dependencies, and path overlap before claiming with a lease.

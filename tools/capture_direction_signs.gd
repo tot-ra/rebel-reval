@@ -2,7 +2,7 @@ extends SceneTree
 
 ## Focused evidence capture for extramural wooden direction signs on the Lower
 ## Town slice. Requires a rendering-capable run (no --headless):
-## godot --path . --script tools/capture_direction_signs.gd
+## tools/godot_render.sh --script tools/capture_direction_signs.gd
 
 const LowerTownSliceDefinition := preload(
 	"res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd"

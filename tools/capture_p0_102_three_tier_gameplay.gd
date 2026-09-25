@@ -2,7 +2,7 @@ extends SceneTree
 
 ## R-667 / P0-102. Three-tier gameplay evidence on one authored Lower Town route.
 ## Requires a rendering-capable run (no --headless):
-##   /Applications/Godot.app/Contents/MacOS/Godot --path . \
+##   tools/godot_render.sh \
 ##     --rendering-method gl_compatibility --rendering-driver opengl3 \
 ##     --script tools/capture_p0_102_three_tier_gameplay.gd
 ##

@@ -18,6 +18,7 @@ Produce one verified asset with the fewest LLM decisions, context reads, and gen
 5. Cache immutable stages by hashes. Resume from `state.json`, not chat history.
 6. Ask for one visual approval only when human judgment is required.
 7. Final responses contain paths, hashes, metrics, checks, and unresolved defects only.
+8. Godot imports and tests use `--headless`. In-scene previews and renders use `tools/godot_render.sh --script <tool>.gd` (minimized, unfocused), never the bare Godot binary, which pops up a window.
 
 ## 1. Compact brief and route
 

@@ -4,7 +4,7 @@ extends SceneTree
 ##
 ## This runner deliberately captures exactly one matrix plate per process. Run it
 ## with a display-capable renderer (Metal on macOS), never with --headless:
-##   /Applications/Godot.app/Contents/MacOS/Godot --path . \
+##   tools/godot_render.sh \
 ##     --rendering-method mobile --rendering-driver metal \
 ##     --script tools/capture_r715_water_acceptance.gd -- \
 ##     --map=reval_harbor_north --scenario=storm --time=night

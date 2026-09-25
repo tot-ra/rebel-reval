@@ -2,7 +2,8 @@ extends SceneTree
 
 ## R-628 evidence capture for the developer-only Nunnatorn presentation packet.
 ## Run with a real renderer, not --headless:
-##   godot --path . --rendering-driver opengl3 --script tools/capture_nunnatorn_presentation.gd
+##   tools/godot_render.sh --rendering-driver opengl3 \
+##     --script tools/capture_nunnatorn_presentation.gd
 
 const NunnatornDefinition := preload(
 	"res://scripts/map/definitions/prototypes/nunnatorn_interior_definition.gd"

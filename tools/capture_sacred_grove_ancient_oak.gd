@@ -1,7 +1,7 @@
 extends SceneTree
 
 ## Reproducible in-engine review capture for the Sacred Grove hero oak.
-## Run: godot --path . --script tools/capture_sacred_grove_ancient_oak.gd
+## Run: tools/godot_render.sh --script tools/capture_sacred_grove_ancient_oak.gd
 
 const Registry := preload("res://scripts/map/map_audit_registry.gd")
 const OUTPUT_DIR := "res://generated/blender/sacred_grove_ancient_oak_v1/godot"
