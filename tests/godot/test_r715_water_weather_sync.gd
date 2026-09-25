@@ -95,6 +95,54 @@ func test_weather_presentation_pushes_wind_heading_to_water() -> void:
 	sky.free()
 
 
+## WS-04: one weather change must move the FFT cascade weights, amplitude, and
+## wave heading in the same update, so the sea never steepens on a stale wind.
+func test_weather_change_moves_fft_cascade_weights_with_wind_heading() -> void:
+	WaterMaterials.reset()
+	WaterMaterials.force_ocean_fft_support = true
+	var sky := SkyWeather.new()
+	sky.auto_weather = false
+	sky.set_weather(SkyWeather.WEATHER_CLEAR)
+	sky.advance(SkyWeather.TRANSITION_SECONDS)
+	var calm := sky.presentation_snapshot(0.5, 0.0)
+	WaterTestSupport.apply_weather_presentation(calm, MaterialsFacade.WATER_WAVE_BASE)
+	var material := WaterMaterials.water_surface(
+		MapTypesContract.TERRAIN_DEEP_WATER, MaterialsFacade.WATER_WAVE_BASE
+	)
+	assert_true(bool(material.get_shader_parameter("use_fft")), "deep sea takes the FFT path")
+	var calm_cascades: PackedVector4Array = material.get_shader_parameter("fft_cascade")
+	var calm_amplitude := float(material.get_shader_parameter("ocean_amplitude"))
+
+	sky.set_weather(SkyWeather.WEATHER_STORM)
+	sky.advance(SkyWeather.TRANSITION_SECONDS)
+	var storm := sky.presentation_snapshot(0.5, 0.0)
+	WaterTestSupport.apply_weather_presentation(storm, MaterialsFacade.WATER_WAVE_BASE)
+	var storm_cascades: PackedVector4Array = material.get_shader_parameter("fft_cascade")
+	for index in 3:
+		assert_true(
+			storm_cascades[index].w > calm_cascades[index].w,
+			"storm must raise cascade %d weight" % index,
+		)
+	assert_true(
+		float(material.get_shader_parameter("ocean_amplitude")) > calm_amplitude,
+		"storm must raise the FFT amplitude",
+	)
+	assert_true(
+		(material.get_shader_parameter("wind_direction") as Vector2).is_equal_approx(
+			storm.wind_direction.normalized()
+		),
+		"the same update must steer the FFT trains to the storm heading",
+	)
+	var expected := WaterMaterials.fft_sea_state(storm.wind_strength, storm.rain_intensity)
+	assert_almost_eq(
+		storm_cascades[0].w, float(expected["weights"][0]), 0.00001,
+		"material weights come from the shared fft_sea_state() mapping",
+	)
+	WaterMaterials.force_ocean_fft_support = false
+	WaterMaterials.reset()
+	sky.free()
+
+
 func test_rain_shelter_changes_emitter_only_not_water_state() -> void:
 	WaterMaterials.reset()
 	var sky := SkyWeather.new()

@@ -88,6 +88,8 @@ const QUALITY_TIERS: Dictionary = {
 		"memory_budget_mib": 8.0,
 		"particle_budget": 700,
 		"shader_sample_budget": 80,
+		# WS-04: C2 slopes off; the procedural detail normal covers the ripples.
+		"ocean_fft_cascades": 2,
 	},
 	QUALITY_RECOMMENDED: {
 		"cloud_noise_resolution": SKY_RESOURCES.CLOUD_NOISE_RESOLUTION_RECOMMENDED,
@@ -102,6 +104,7 @@ const QUALITY_TIERS: Dictionary = {
 		"memory_budget_mib": 24.0,
 		"particle_budget": 2200,
 		"shader_sample_budget": 140,
+		"ocean_fft_cascades": 3,
 	},
 }
 

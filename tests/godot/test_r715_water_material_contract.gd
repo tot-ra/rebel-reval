@@ -215,7 +215,9 @@ func test_water_shader_boosts_transmission_on_crest_fold_not_troughs() -> void:
 	var source := ShaderSources.WATER_SHADER.code
 	for feature in [
 		"crest_subsurface",
-		"max(normal_terms.y, 0.0)",
+		# WS-04: the glow reads one crest term, Gerstner fold or FFT Jacobian.
+		"max(crest_term, 0.0)",
+		"crest_term = normal_terms.y;",
 		"crest_sss_visibility = twilight_water_light * day_blend",
 		"crest_transmit_tint",
 	]:

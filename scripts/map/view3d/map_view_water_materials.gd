@@ -80,11 +80,238 @@ const WATER_WAVE_BASE := {
 	},
 }
 
+const SKY_WEATHER := preload("res://scripts/map/view3d/sky_weather_3d.gd")
+
+## WS-04 baked FFT ocean (WS-03 output). The profile JSON is the source of truth
+## for patch sizes, loop periods, frame counts, and channel decode scales.
+const OCEAN_FFT_DIR := "res://assets/water/ocean_fft/baltic_reference/"
+const OCEAN_FFT_PROFILE_PATH := OCEAN_FFT_DIR + "ocean_fft_profile.json"
+const OCEAN_FFT_CASCADES := 3
+const OCEAN_FFT_DISP_CASCADES := 2
+## Uniform name -> atlas file. C2 has no displacement atlas (and no foam).
+const OCEAN_FFT_ATLASES := {
+	"fft_c0_disp": "c0_disp.png",
+	"fft_c0_deriv": "c0_deriv.png",
+	"fft_c1_disp": "c1_disp.png",
+	"fft_c1_deriv": "c1_deriv.png",
+	"fft_c2_deriv": "c2_deriv.png",
+}
+const OCEAN_FFT_DERIV_KEYS: Array[String] = ["dy_dx", "dy_dz", "dx_dx", "dz_dz"]
+const OCEAN_FFT_DISP_KEYS: Array[String] = ["dx", "dy", "dz"]
+## Open sea, coastal shallows, and harbour basins take the FFT path. Rivers keep
+## Gerstner because FFT trains only travel with the wind, never downstream.
+## TERRAIN_WATER basins emulate their standing waves in the shader (step 6a).
+const OCEAN_FFT_TERRAINS: Array[StringName] = [
+	MapTypes.TERRAIN_SHALLOW_WATER,
+	MapTypes.TERRAIN_WATER,
+	MapTypes.TERRAIN_DEEP_WATER,
+]
+const BOAT_FLOAT_SCRIPT_PATH := "res://scripts/map/view3d/boat_float_3d.gd"
+
+## Sea-state table for the FFT path, keyed by the scalar from fft_sea_state_scalar()
+## (wind plus 0.4 x rain, so a rain squall reads rougher than the same dry wind).
+## Knots are interpolated piecewise-linearly and clamp outside the range, so a
+## weather transition (already blended over SkyWeather3D.TRANSITION_SECONDS)
+## never jumps. Weights are per cascade C0 (swell), C1 (wind sea), C2 (ripples).
+##
+## The reference row is the physical bake: weights 1.0 and ocean_amplitude 1.0
+## give Hs 1.26 m (WS-03 amendment 3). Cascade Hs add in quadrature, so the
+## Hs multiplier is amplitude * sqrt(sum(w_c^2 * Hs_c^2)) / 1.26. Final table
+## (WS-04 capture review, 2026-09-25), per SkyWeather regime at its profile wind:
+##   clear    sea 0.20 (calm row)     -> 0.13 x reference, Hs 0.16 m
+##   cloudy   sea 0.52                -> 1.08 x reference, Hs 1.36 m
+##   overcast sea 0.58                -> 1.32 x reference, Hs 1.67 m
+##   storm    sea 0.79 (wind 0.70, rain 0.22) -> 2.39 x reference, Hs 3.01 m
+##   rain     sea 1.32 (storm row)    -> 2.76 x reference, Hs 3.48 m
+## These are shading (slope/Jacobian) sea states; mesh displacement is further
+## compressed by fft_geometry_scale to fit the view's water column.
+const OCEAN_FFT_SEA_STATES: Array[Dictionary] = [
+	{"sea_state": 0.20, "weights": [0.15, 0.45, 0.8], "choppiness": 0.6, "amplitude": 0.5},
+	{"sea_state": 0.50, "weights": [1.0, 1.0, 1.0], "choppiness": 0.9, "amplitude": 1.0},
+	{"sea_state": 0.85, "weights": [1.8, 1.4, 1.2], "choppiness": 1.15, "amplitude": 1.6},
+]
+const OCEAN_FFT_REFERENCE_SEA_STATE := 0.50
+## Crest excursion of the reference C0+C1 sea (2 sigma of Hs 1.25 m = 0.63 m).
+## fft_geometry_scale maps it onto the terrain's Gerstner "height" budget, so the
+## reference FFT sea displaces the mesh as far as the tuned Gerstner sea did and
+## storms grow from there through ocean_amplitude and the cascade weights.
+const OCEAN_FFT_REFERENCE_CREST_M := 0.63
+
 static var _cache: Dictionary = {}
+static var _ocean_fft_profile: Dictionary = {}
+static var _ocean_fft_textures: Dictionary = {}
+static var _ocean_fft_quality_tier: StringName = SKY_WEATHER.QUALITY_RECOMMENDED
+## Test and capture hook. Production enablement waits for BoatFloat3D.FFT_SUPPORTED
+## (WS-05) so hulls never float on a sea they cannot sample.
+static var force_ocean_fft_support := false
 
 
 static func reset() -> void:
 	_cache.clear()
+
+
+## True when water materials may enable the FFT path. Reads the WS-05 constant by
+## name so this file does not break before BoatFloat3D declares it.
+static func ocean_fft_supported() -> bool:
+	if force_ocean_fft_support:
+		return true
+	var boat_script := load(BOAT_FLOAT_SCRIPT_PATH) as Script
+	if boat_script == null:
+		return false
+	return bool(boat_script.get_script_constant_map().get("FFT_SUPPORTED", false))
+
+
+static func uses_ocean_fft(terrain_id: StringName) -> bool:
+	return (
+		OCEAN_FFT_TERRAINS.has(terrain_id)
+		and ocean_fft_supported()
+		and not ocean_fft_profile().is_empty()
+	)
+
+
+## Changing the tier only applies to materials built afterwards; callers rebuild
+## the map view (reset()) to switch, matching the other quality resources.
+static func set_ocean_fft_quality_tier(requested: Variant) -> void:
+	_ocean_fft_quality_tier = SKY_WEATHER.resolve_quality_tier(requested)
+
+
+static func ocean_fft_cascade_count() -> int:
+	return int(SKY_WEATHER.quality_settings(_ocean_fft_quality_tier)["ocean_fft_cascades"])
+
+
+## Loaded once and cached; an empty dictionary means the bake is missing and every
+## material stays on the Gerstner fallback.
+static func ocean_fft_profile() -> Dictionary:
+	if not _ocean_fft_profile.is_empty():
+		return _ocean_fft_profile
+	if not FileAccess.file_exists(OCEAN_FFT_PROFILE_PATH):
+		return {}
+	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(OCEAN_FFT_PROFILE_PATH))
+	if not parsed is Dictionary:
+		push_error("WS-04: unreadable ocean FFT profile %s" % OCEAN_FFT_PROFILE_PATH)
+		return {}
+	_ocean_fft_profile = parsed
+	return _ocean_fft_profile
+
+
+## The atlases import as CompressedTexture2DArray; they are typed as
+## TextureLayered because a Texture2DArray-typed assignment fails at runtime
+## (WS-03 amendment 4).
+static func ocean_fft_textures() -> Dictionary:
+	if not _ocean_fft_textures.is_empty():
+		return _ocean_fft_textures
+	for uniform_name: String in OCEAN_FFT_ATLASES:
+		var texture := load(OCEAN_FFT_DIR + String(OCEAN_FFT_ATLASES[uniform_name])) as TextureLayered
+		if texture == null:
+			push_error("WS-04: missing ocean FFT atlas %s" % OCEAN_FFT_ATLASES[uniform_name])
+			return {}
+		_ocean_fft_textures[uniform_name] = texture
+	return _ocean_fft_textures
+
+
+## Static cascade uniforms from the profile: x = patch world size, y = loop period,
+## z = frame count, w = weight (reference 1.0 until weather overrides it).
+static func ocean_fft_cascade_uniforms(weights: Array = [1.0, 1.0, 1.0]) -> PackedVector4Array:
+	var profile := ocean_fft_profile()
+	var meters_per_unit := float(profile.get("meters_per_world_unit", 0.87))
+	var cascades: Array = profile.get("cascades", [])
+	var result := PackedVector4Array()
+	for index in OCEAN_FFT_CASCADES:
+		var cascade: Dictionary = cascades[index] if index < cascades.size() else {}
+		result.append(
+			Vector4(
+				float(cascade.get("patch_m", 1.0)) / meters_per_unit,
+				float(cascade.get("period_s", 1.0)),
+				float(cascade.get("frames", 1)),
+				float(weights[index]),
+			)
+		)
+	return result
+
+
+static func _ocean_fft_scales(cascade_count: int, keys: Array[String]) -> PackedVector4Array:
+	var cascades: Array = ocean_fft_profile().get("cascades", [])
+	var result := PackedVector4Array()
+	for index in cascade_count:
+		var scales: Dictionary = (cascades[index] as Dictionary).get("channel_scales", {})
+		var packed := Vector4.ZERO
+		for channel in keys.size():
+			packed[channel] = float(scales.get(keys[channel], 0.0))
+		result.append(packed)
+	return result
+
+
+## Scalar sea state from the same wind/rain inputs as the Gerstner mapping.
+static func fft_sea_state_scalar(wind: float, rain: float) -> float:
+	return clampf(wind, 0.0, 1.0) + clampf(rain, 0.0, 1.0) * 0.4
+
+
+## Single source of the FFT sea state. apply_sea_weather() sends these values to
+## the shader; WS-05's CPU sampler must consume the same function.
+static func fft_sea_state(wind: float, rain: float) -> Dictionary:
+	var state := fft_sea_state_scalar(wind, rain)
+	var lower: Dictionary = OCEAN_FFT_SEA_STATES[0]
+	var upper: Dictionary = OCEAN_FFT_SEA_STATES[OCEAN_FFT_SEA_STATES.size() - 1]
+	var t := 0.0
+	if state >= float(upper["sea_state"]):
+		lower = upper
+	elif state > float(lower["sea_state"]):
+		for index in range(1, OCEAN_FFT_SEA_STATES.size()):
+			upper = OCEAN_FFT_SEA_STATES[index]
+			if state <= float(upper["sea_state"]):
+				lower = OCEAN_FFT_SEA_STATES[index - 1]
+				t = inverse_lerp(float(lower["sea_state"]), float(upper["sea_state"]), state)
+				break
+	var weights: Array[float] = []
+	for index in OCEAN_FFT_CASCADES:
+		weights.append(
+			lerpf(float(lower["weights"][index]), float(upper["weights"][index]), t)
+		)
+	return {
+		"weights": weights,
+		"choppiness": lerpf(float(lower["choppiness"]), float(upper["choppiness"]), t),
+		"amplitude": lerpf(float(lower["amplitude"]), float(upper["amplitude"]), t),
+	}
+
+
+## Mesh displacement per metre of baked sea, in the same units as the shader's
+## fft_geometry_scale. WS-05 hull sampling must multiply by the same factor.
+static func ocean_fft_geometry_scale(wave_height: float) -> float:
+	var meters_per_unit := float(ocean_fft_profile().get("meters_per_world_unit", 0.87))
+	return wave_height / (OCEAN_FFT_REFERENCE_CREST_M / meters_per_unit)
+
+
+## The table choppiness is the open-sea value. Sheltered terrains keep their
+## authored chop ratio to deep water, so harbour basins and shallows peak less
+## than the open Baltic on both the Gerstner and the FFT path.
+static func ocean_fft_choppiness_ratio(wave: Dictionary) -> float:
+	var deep: Dictionary = WATER_WAVE_BASE[MapTypes.TERRAIN_DEEP_WATER]
+	return float(wave.get("choppiness", 0.85)) / float(deep["choppiness"])
+
+
+static func _apply_ocean_fft_uniforms(material: ShaderMaterial, wave: Dictionary) -> void:
+	var wave_height := float(wave["height"])
+	var textures := ocean_fft_textures()
+	if textures.is_empty():
+		material.set_shader_parameter("use_fft", false)
+		return
+	for uniform_name: String in textures:
+		material.set_shader_parameter(uniform_name, textures[uniform_name])
+	material.set_shader_parameter("use_fft", true)
+	material.set_shader_parameter("fft_cascade", ocean_fft_cascade_uniforms())
+	material.set_shader_parameter(
+		"fft_disp_scale", _ocean_fft_scales(OCEAN_FFT_DISP_CASCADES, OCEAN_FFT_DISP_KEYS)
+	)
+	material.set_shader_parameter(
+		"fft_deriv_scale", _ocean_fft_scales(OCEAN_FFT_CASCADES, OCEAN_FFT_DERIV_KEYS)
+	)
+	material.set_shader_parameter("ocean_amplitude", 1.0)
+	material.set_shader_parameter("fft_cascade_count", ocean_fft_cascade_count())
+	material.set_shader_parameter("fft_geometry_scale", ocean_fft_geometry_scale(wave_height))
+	var reference := fft_sea_state(OCEAN_FFT_REFERENCE_SEA_STATE, 0.0)
+	material.set_shader_parameter(
+		"choppiness", float(reference["choppiness"]) * ocean_fft_choppiness_ratio(wave)
+	)
 
 
 static func puddle_surface() -> ShaderMaterial:
@@ -166,6 +393,9 @@ static func water_surface(terrain_id: StringName, wave_profiles: Dictionary) -> 
 		material.set_shader_parameter("flow_strength", 0.6)
 		material.set_shader_parameter("detail_normal_strength", 0.36)
 		material.set_shader_parameter("detail_normal_scale", 1.28)
+	material.set_shader_parameter("use_fft", false)
+	if uses_ocean_fft(terrain_id):
+		_apply_ocean_fft_uniforms(material, wave)
 	_cache[key] = material
 	return material
 
@@ -191,14 +421,25 @@ static func apply_sea_weather(
 		heading = Vector2(1.0, 0.28)
 	else:
 		heading = heading.normalized()
+	var sea := fft_sea_state(wind_state, rain_state)
+	var cascade_uniforms := ocean_fft_cascade_uniforms(sea["weights"])
 	for terrain_id in wave_profiles.keys():
 		var material := water_surface(terrain_id as StringName, wave_profiles)
 		var wave: Dictionary = wave_profiles[terrain_id]
 		material.set_shader_parameter("wave_height", float(wave["height"]) * height_mul)
 		material.set_shader_parameter("wave_chaos", float(wave["chaos"]) * chaos_mul)
-		material.set_shader_parameter(
-			"choppiness", float(wave.get("choppiness", 0.85)) * chop_mul
-		)
+		if bool(material.get_shader_parameter("use_fft")):
+			# The FFT path takes chop and height from the sea-state table; the
+			# Gerstner uniforms above stay primed for a fallback rebuild.
+			material.set_shader_parameter(
+				"choppiness", float(sea["choppiness"]) * ocean_fft_choppiness_ratio(wave)
+			)
+			material.set_shader_parameter("ocean_amplitude", float(sea["amplitude"]))
+			material.set_shader_parameter("fft_cascade", cascade_uniforms)
+		else:
+			material.set_shader_parameter(
+				"choppiness", float(wave.get("choppiness", 0.85)) * chop_mul
+			)
 		material.set_shader_parameter("wave_speed", speed)
 		material.set_shader_parameter("breaker_intensity", float(wave["breakers"]) * breaker_mul)
 		material.set_shader_parameter(

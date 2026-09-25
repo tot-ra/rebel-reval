@@ -78,9 +78,54 @@ uniform float tide_optical_depth = 0.0;
 // calm seas keep the pre-P0-226 look until apply_sea_weather() pushes live wind.
 uniform vec2 wind_direction = vec2(0.9578, 0.2873);
 
+// WS-04 baked FFT ocean (tools/bake_ocean_fft.py, WS-03). One clock drives the
+// sea on GPU and CPU: MapViewRuntimeEnvironment accumulates the scaled world
+// delta into ocean_time, so time controls pause waves and boats read the same t.
+global uniform float ocean_time;
+uniform bool use_fft = false;
+// Every atlas shares one filter/repeat hint because Godot rejects a sampler
+// argument (_fft_sample) fed textures with differing hints. The disp atlases
+// always sample LOD 0, so the mipmap filter changes nothing for them.
+uniform sampler2DArray fft_c0_disp : filter_linear_mipmap, repeat_enable;
+uniform sampler2DArray fft_c0_deriv : filter_linear_mipmap, repeat_enable;
+uniform sampler2DArray fft_c1_disp : filter_linear_mipmap, repeat_enable;
+uniform sampler2DArray fft_c1_deriv : filter_linear_mipmap, repeat_enable;
+uniform sampler2DArray fft_c2_deriv : filter_linear_mipmap, repeat_enable;
+// Per cascade: x = patch size in world units (patch_m / 0.87), y = loop period s,
+// z = frames, w = weather weight.
+uniform vec4 fft_cascade[3];
+// Dx, Dy, Dz decode scale in metres; w unused.
+uniform vec4 fft_disp_scale[2];
+// dDy/dx, dDy/dz, dDx/dx, dDz/dz decode scale.
+uniform vec4 fft_deriv_scale[3];
+// 1 = the baked physical reference sea state (Hs 1.26 m).
+uniform float ocean_amplitude = 1.0;
+// Quality tier: 3 recommended, 2 minimum (C2 slopes off, detail normal only).
+uniform int fft_cascade_count = 3;
+// WHY: the view mesh keeps water only WATER_RECESS - WATER_SURFACE_LIFT (0.074
+// units) above a flat bed, so a physical 1.26 m sea (troughs near -0.72 units)
+// would expose the bed everywhere. Geometry is compressed to the per-terrain
+// Gerstner height budget; slopes, Jacobian and foam stay physical, so shading
+// still reads the baked sea state. 1.0 would be the physical geometric sea.
+uniform float fft_geometry_scale = 1.0;
+// Horizontal bake axis is metres, world units are 0.87 m (profile key
+// meters_per_world_unit). Vertical offsets convert with the same factor.
+const float FFT_METERS_PER_WORLD_UNIT = 0.87;
+// Deepest geometric trough. WATER_SURFACE_LIFT (0.006) minus the lowest tide
+// offset (tide_height 0.004) leaves 0.002 units above the recessed bed.
+const float FFT_TROUGH_FLOOR = 0.0015;
+// Horizontal mesh chop relative to the vertical geometry. Separate view meshes
+// (in-map cells vs surroundings planes) displace their borders differently, so
+// full-size chop opens hairline cracks; crest sharpness still comes from the
+// Jacobian in the shading normal.
+const float FFT_HORIZONTAL_GEOMETRY = 0.5;
+
 varying vec3 water_world_position;
 varying vec2 wave_sample_xz;
 varying float shore_factor;
+// Placeholder crest foam from the baked disp alpha (WS-06 owns final styling).
+// Sampled once per vertex so the fragment stage only pays for slope textures.
+varying float fft_foam;
 
 float _hash(vec2 p) {
 	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
@@ -329,6 +374,136 @@ vec3 _sky_dome_gradient(vec3 dir) {
 	return color;
 }
 
+// ---- WS-04 FFT path ---------------------------------------------------------
+// The bake blows the wind along +X. Rotating the lookup, not the bake, lets the
+// live SkyWeather heading steer the wave trains without a second atlas.
+vec2 _fft_wind_axis() {
+	return wind_direction / max(length(wind_direction), 0.001);
+}
+
+// R(-angle(wind)) * p: world XZ into the bake frame.
+vec2 _fft_to_wind(vec2 p, vec2 axis) {
+	return vec2(p.x * axis.x + p.y * axis.y, -p.x * axis.y + p.y * axis.x);
+}
+
+// R(+angle(wind)) * v: bake-frame vectors back to world XZ.
+vec2 _fft_from_wind(vec2 v, vec2 axis) {
+	return vec2(v.x * axis.x - v.y * axis.y, v.x * axis.y + v.y * axis.x);
+}
+
+// Linear blend between the two bracketing baked frames. i1 wraps to frame 0,
+// and the bake is periodic, so the 25.6 s / 12.8 s / 6.4 s loops never pop.
+vec4 _fft_sample(sampler2DArray tex, vec2 uv, vec4 c, float lod) {
+	float f = fract(ocean_time / c.y) * c.z;
+	float i0 = floor(f);
+	float i1 = mod(i0 + 1.0, c.z);
+	vec4 a = textureLod(tex, vec3(uv, i0), lod);
+	vec4 b = textureLod(tex, vec3(uv, i1), lod);
+	return mix(a, b, f - i0);
+}
+
+vec4 _fft_signed(vec4 encoded, vec4 scale) {
+	return (encoded - vec4(0.5)) * 2.0 * scale;
+}
+
+// Weighted C0 + C1 displacement in metres, bake frame. w carries foam (linear
+// 0..1, never signed-decoded). p is already in the bake frame.
+vec4 _fft_displacement_at(vec2 p) {
+	vec4 c0 = fft_cascade[0];
+	vec4 c1 = fft_cascade[1];
+	vec4 s0 = _fft_sample(fft_c0_disp, p / c0.x, c0, 0.0);
+	vec4 s1 = _fft_sample(fft_c1_disp, p / c1.x, c1, 0.0);
+	vec3 d = _fft_signed(s0, fft_disp_scale[0]).xyz * c0.w
+		+ _fft_signed(s1, fft_disp_scale[1]).xyz * c1.w;
+	float foam = max(s0.a * min(c0.w, 1.0), s1.a * min(c1.w, 1.0));
+	return vec4(d, foam);
+}
+
+// Returns world-unit displacement (xyz, before shore fade) and foam (w). The
+// surface point is x' = x + lambda * D (WS-03 amendment 1: crests compress).
+vec4 _fft_displacement(vec2 world_xz) {
+	vec2 axis = _fft_wind_axis();
+	vec2 p = _fft_to_wind(world_xz, axis);
+	vec4 d = _fft_displacement_at(p);
+	float standing = clamp(standing_wave_ratio, 0.0, 1.0);
+	// Two equal trains in opposite directions sum to a standing wave. The mirror
+	// train is F(-p) with horizontal displacement negated back; height and foam
+	// keep their sign. Branch on the uniform so open sea pays nothing.
+	if (standing > 0.01) {
+		vec4 o = _fft_displacement_at(-p);
+		o.xz = -o.xz;
+		d = mix(d, 0.5 * (d + o), standing);
+	}
+	float chop = max(choppiness, 0.0) * (1.0 - standing * 0.65);
+	vec3 world_d = vec3(0.0);
+	world_d.xz = _fft_from_wind(d.xz * chop * FFT_HORIZONTAL_GEOMETRY, axis);
+	world_d.y = d.y;
+	return vec4(world_d * (ocean_amplitude * fft_geometry_scale / FFT_METERS_PER_WORLD_UNIT), d.w);
+}
+
+// Explicit layer indices stop some GL drivers from choosing mips, so the LOD is
+// derived from the world-space pixel footprint (texels per pixel, log2).
+float _fft_lod(float footprint, vec4 c, float texels) {
+	return max(log2(max(footprint / c.x * texels, 1e-4)), 0.0);
+}
+
+// Slopes (xy) and Jacobian diagonal (zw) of one cascade, weighted, bake frame.
+vec4 _fft_derivatives_cascade(sampler2DArray tex, vec2 p, vec4 c, vec4 scale, float lod) {
+	return _fft_signed(_fft_sample(tex, p / c.x, c, lod), scale) * c.w;
+}
+
+// The gameplay camera is orthographic at a fixed 90-unit distance, so camera
+// distance never changes texel density; the Tidewater oceanLOD distance fade is
+// driven by the pixel footprint instead. Weight fades to zero while a cascade's
+// shortest wave (2 texels) shrinks towards one pixel, before it can alias.
+float _fft_cascade_fade(float footprint, vec4 c, float texels) {
+	float texels_per_pixel = footprint / c.x * texels;
+	return 1.0 - smoothstep(0.55, 1.6, texels_per_pixel);
+}
+
+vec4 _fft_derivatives_at(vec2 p, float footprint) {
+	vec4 c0 = fft_cascade[0];
+	vec4 c1 = fft_cascade[1];
+	vec4 c2 = fft_cascade[2];
+	float n0 = float(textureSize(fft_c0_deriv, 0).x);
+	float n1 = float(textureSize(fft_c1_deriv, 0).x);
+	float n2 = float(textureSize(fft_c2_deriv, 0).x);
+	vec4 sum = _fft_derivatives_cascade(fft_c0_deriv, p, c0, fft_deriv_scale[0], _fft_lod(footprint, c0, n0));
+	float fade1 = _fft_cascade_fade(footprint, c1, n1);
+	if (fade1 > 0.001) {
+		sum += _fft_derivatives_cascade(fft_c1_deriv, p, c1, fft_deriv_scale[1], _fft_lod(footprint, c1, n1)) * fade1;
+	}
+	float fade2 = _fft_cascade_fade(footprint, c2, n2);
+	if (fft_cascade_count > 2 && fade2 > 0.001) {
+		sum += _fft_derivatives_cascade(fft_c2_deriv, p, c2, fft_deriv_scale[2], _fft_lod(footprint, c2, n2)) * fade2;
+	}
+	return sum;
+}
+
+// World-space normal and crest fold from the summed slopes. Evaluated at the
+// undisplaced XZ like the Gerstner path. Derivative channels are decoded with
+// no sign flip (WS-03 amendment 2), so 1 + J drops below 1 on compressed crests.
+vec3 _fft_normal(vec2 world_xz, float footprint, out float crest) {
+	vec2 axis = _fft_wind_axis();
+	vec2 p = _fft_to_wind(world_xz, axis);
+	vec4 d = _fft_derivatives_at(p, footprint);
+	float standing = clamp(standing_wave_ratio, 0.0, 1.0);
+	if (standing > 0.01) {
+		// Mirror train: slopes of F(-p) negate, the Jacobian of -D(-p) does not.
+		vec4 o = _fft_derivatives_at(-p, footprint);
+		o.xy = -o.xy;
+		d = mix(d, 0.5 * (d + o), standing);
+	}
+	float chop = max(choppiness, 0.0) * (1.0 - standing * 0.65);
+	vec2 slope = d.xy * ocean_amplitude;
+	vec2 jacobian = d.zw * chop * ocean_amplitude;
+	vec2 fold = max(vec2(1.0) + jacobian, vec2(0.15));
+	crest = clamp(1.0 - fold.x * fold.y, 0.0, 1.0);
+	vec3 n_wind = vec3(-slope.x / fold.x, 1.0, -slope.y / fold.y);
+	vec2 n_xz = _fft_from_wind(n_wind.xz, axis);
+	return normalize(vec3(n_xz.x, 1.0, n_xz.y));
+}
+
 void vertex() {
 	vec3 undisplaced_world = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	wave_sample_xz = undisplaced_world.xz;
@@ -337,7 +512,16 @@ void vertex() {
 	vec2 flow_advection = flow_direction * (flow_strength * TIME * wave_speed * 0.6);
 	vec3 displacement = vec3(0.0);
 	vec3 normal_terms = vec3(0.0);
-	_water_field(wave_sample_xz - flow_advection, TIME * wave_speed, displacement, normal_terms);
+	fft_foam = 0.0;
+	if (use_fft) {
+		// FFT replaces wave_height; wave_height stays the Gerstner amplitude only.
+		vec4 fft = _fft_displacement(wave_sample_xz);
+		displacement = fft.xyz;
+		fft_foam = fft.w;
+	} else {
+		_water_field(wave_sample_xz - flow_advection, TIME * wave_speed, displacement, normal_terms);
+		displacement *= wave_height;
+	}
 	// Low tide withdraws the clipped coastal edge instead of requiring a second
 	// authored shoreline mesh. High tide reaches the original maximum contour.
 	// The fragment stage clips the retreat band. Vertices rise and also shift
@@ -346,7 +530,17 @@ void vertex() {
 	// into the shallows. The old broad fade erased waves before they reached land.
 	float displacement_fade = smoothstep(0.0, 0.16, shore_factor);
 	float shoaling = mix(1.32, 1.0, smoothstep(0.0, 0.65, shore_factor));
-	displacement *= wave_height * displacement_fade * shoaling;
+	displacement *= displacement_fade * shoaling;
+	if (use_fft) {
+		// WHY: the recessed bed sits only WATER_SURFACE_LIFT (0.006 units) below
+		// the rest surface, so any trough exposes it. Troughs ease into a floor
+		// just above the bed while crests keep their full height: broad troughs,
+		// sharp crests. The shading normal still carries the full trough slope.
+		// WS-05 hull sampling must apply the same floor to stay seated.
+		if (displacement.y < 0.0) {
+			displacement.y = -FFT_TROUGH_FLOOR * (1.0 - exp(displacement.y / FFT_TROUGH_FLOOR));
+		}
+	}
 	VERTEX.x += displacement.x;
 	VERTEX.y += tide_height * tide_level + displacement.y;
 	VERTEX.z += displacement.z;
@@ -363,13 +557,27 @@ void fragment() {
 	vec2 flow_advection = flow_direction * (flow_strength * TIME * wave_speed * 0.6);
 	vec3 displacement = vec3(0.0);
 	vec3 normal_terms = vec3(0.0);
-	_water_field(wave_sample_xz - flow_advection, TIME * wave_speed, displacement, normal_terms);
-	float crest_lift = max(1.0 - normal_terms.y * wave_height, 0.15);
-	vec3 world_normal = normalize(vec3(
-		-normal_terms.x * wave_height,
-		crest_lift,
-		-normal_terms.z * wave_height
-	));
+	vec3 world_normal = vec3(0.0, 1.0, 0.0);
+	// Crest fold feeding the crest SSS glow: Gerstner normal_terms.y on the
+	// fallback path, the FFT Jacobian 1 - (1 + Jx)(1 + Jz) on the FFT path.
+	float crest_term = 0.0;
+	// Pixel footprint in world units, taken in uniform control flow so the FFT
+	// LOD and cascade fade stay valid inside the branch below.
+	vec2 pixel_footprint = fwidth(wave_sample_xz);
+	if (use_fft) {
+		world_normal = _fft_normal(
+			wave_sample_xz, max(pixel_footprint.x, pixel_footprint.y), crest_term
+		);
+	} else {
+		_water_field(wave_sample_xz - flow_advection, TIME * wave_speed, displacement, normal_terms);
+		float crest_lift = max(1.0 - normal_terms.y * wave_height, 0.15);
+		world_normal = normalize(vec3(
+			-normal_terms.x * wave_height,
+			crest_lift,
+			-normal_terms.z * wave_height
+		));
+		crest_term = normal_terms.y;
+	}
 	// Layer two independently scrolling detail normals over the broad wave normal.
 	// The low-sun relief clamp still applies below, preventing sharp glint bands at
 	// sunrise while preserving the small-scale broken reflection at daytime angles.
@@ -457,7 +665,7 @@ void fragment() {
 
 	// Thin crests transmit more Baltic teal than troughs; fades with the same solar
 	// envelope as floor caustics so night water stays dark without a bloom pass.
-	float crest_subsurface = smoothstep(0.0, 0.30, max(normal_terms.y, 0.0));
+	float crest_subsurface = smoothstep(0.0, 0.30, max(crest_term, 0.0));
 	crest_subsurface *= choppiness * smoothstep(0.14, 0.48, shore_factor);
 	float crest_sss_visibility = twilight_water_light * day_blend;
 	vec3 crest_transmit_tint = mix(shallow_color, highlight_color, 0.58);
@@ -527,7 +735,16 @@ void fragment() {
 
 	// Jacobian whitecaps on open sea: folding Gerstner crests, not shoreline bands.
 	// A short time lag leaves foam behind the advancing crest without a foam buffer.
-	if (flow_strength <= 0.001) {
+	if (use_fft) {
+		// Placeholder only: WS-06 styles lingering whitecaps from this channel.
+		// Foam was baked at the reference sea; scale it with the live amplitude so
+		// calm water clears and storms whiten until WS-06 re-derives coverage.
+		float fft_whitecap = smoothstep(0.2, 0.75, fft_foam * ocean_amplitude);
+		fft_whitecap *= foam_intensity * 1.35;
+		fft_whitecap *= smoothstep(0.14, 0.48, shore_factor);
+		fft_whitecap *= smoothstep(0.03, 0.10, geometric_depth);
+		foam += fft_whitecap;
+	} else if (flow_strength <= 0.001) {
 		float jacobian_now = _water_jacobian(wave_sample_xz - flow_advection, TIME * wave_speed);
 		float jacobian_trail = _water_jacobian(
 			wave_sample_xz - flow_advection,

@@ -39,6 +39,39 @@ in the WS-04, WS-05 and WS-06 contracts; see "Final parameters and decisions" in
 [`WS-03`](docs/tasks/water_sky/WS-03_fft_ocean_bake_tool.md) and the `conventions` block of
 `assets/water/ocean_fft/baltic_reference/ocean_fft_profile.json`.
 
+- [ ] WS-04 | deps: WS-03 | deliverable: water shader FFT path sampling baked C0/C1 displacement and C0-C2 derivatives with frame blending, wind rotation, distance LOD, ocean_time global clock and weather-driven cascade weights; Gerstner kept for rivers/standing basins/fallback | allowed files: `scripts/map/view3d/map_view_water.gdshader`, `scripts/map/view3d/map_view_water_materials.gd`, `scripts/map/view3d/map_view_runtime_environment.gd`, `scripts/map/view3d/sky_weather_3d.gd`, `project.godot`, `tests/godot/test_r715_water_material_contract.gd`, `tests/godot/test_r715_water_weather_sync.gd`, `tests/godot/test_ocean_fft_material.gd`, `docs/reports/images/ws04_*.png`, `TODO.md` | verify: headless suite incl. new FFT material test; harbor clear/overcast/storm captures show no tiling, no loop seam, wind-steered trains; performance report within water budget
+
+WS-04 implementation landed (R-889, in review). The FFT path stays off in play until WS-05 adds
+`BoatFloat3D.FFT_SUPPORTED`; `MapViewWaterMaterials.force_ocean_fft_support` turns it on for tests
+and captures. Decisions recorded during capture review (2026-09-25):
+
+1. **Geometry is compressed, shading is physical.** The view mesh keeps water only
+   `WATER_SURFACE_LIFT` (0.006 units) above the recessed bed, so the physical sea (troughs near
+   -0.72 units) exposed the bed everywhere. `fft_geometry_scale = terrain height / (0.63 m / 0.87)`
+   maps the reference crest onto each terrain's Gerstner height budget, troughs ease into a
+   0.0015-unit floor (`FFT_TROUGH_FLOOR`, which leaves room for the low-tide offset), and
+   horizontal mesh chop is halved (`FFT_HORIZONTAL_GEOMETRY`) to close hairline cracks against
+   the flat surroundings planes. Slopes, Jacobian and foam stay physical (`ocean_amplitude = 1`
+   is still the Hs 1.26 m reference). WS-05 hull sampling must apply the same scale, floor and
+   horizontal factor.
+2. **LOD uses pixel footprint, not camera distance.** The gameplay camera is orthographic at a
+   fixed 90-unit distance, so C1/C2 fade by texels per pixel instead of the 40/160-unit distances.
+   The atlases import without mipmaps (`mipmaps/generate=false`), so the manual LOD clamps to
+   level 0 today and the fade does the anti-aliasing.
+3. **One sampler hint.** All five atlases bind as `filter_linear_mipmap, repeat_enable`, because
+   Godot rejects one sampler parameter fed textures with differing hints.
+4. **Sea-state scalar** is `wind + 0.4 x rain` with knots calm 0.20, reference 0.50, storm 0.85
+   (the final Hs table lives above `OCEAN_FFT_SEA_STATES`). FFT choppiness keeps each terrain's
+   authored ratio to deep water, so basins and shallows peak less than the open sea.
+5. **Evidence:** `docs/reports/images/ws04_*` (Compatibility and Metal, clear/overcast/storm day
+   at gameplay zoom 33.75, storm at zoom-out 114, a wind-turn pair, a loop-wrap strip across
+   `ocean_time` 1638.4 -> 0, and the Gerstner baseline). Frame-to-frame difference across the
+   wrap was 0.91 against a 0.88 median, so there is no pop. On an Apple M5 Pro at 2560x1440 storm,
+   whole-frame time went Metal 5.91 -> 4.93 ms and Compatibility 8.52 -> 8.26 ms at gameplay zoom
+   (zoom-out: Metal 10.33 -> 9.40 ms, Compatibility 15.0 -> 15.2 ms). That is inside the existing
+   water budget. `tools/verify_r715_water_performance.py` is still BLOCKED only by its unmeasured
+   minimum-tier row, which was already the case before this task.
+
 ## Storybook model set
 
 - [ ] P0-209b | deps: P0-209a | deliverable: replace the visually rejected procedural mammals from scratch with convincingly realistic sculpted or scanned source geometry and textured surfaces | allowed files: `tools/assets/realistic_mammals.py`, `tools/assets/mammal_limb_anatomy.py`, `tools/assets/build_storybook_models.py`, `tools/assets/import_realistic_mammals.py`, `tools/assets/import_authored_rat.py`, `tools/assets/pack_authored_rat.py`, `tools/verify_storybook_models.py`, `tools/capture_animal_realism.gd`, `scripts/map/view3d/map_view_medieval_animal_models.gd`, `tests/python/test_mammal_limb_anatomy.py`, `tests/godot/test_mammal_limb_anatomy.gd`, `tests/godot/test_storybook_models.gd`, `tests/godot/test_storybook_live_integration.gd`, `assets/storybook/`, `assets/SOURCES.csv`, `docs/ART_BIBLE.md`, `docs/reports/animal_realism_2026-09-12.md`, `docs/reports/images/animal_realism/`, `TODO.md` | constraints: licensed commercial-use sources; no ripped game assets; preserve species IDs, runtime paths and behavior; replace failed geometry instead of polishing primitive unions; preserve unrelated WIP | verify: inspect replacement source silhouettes and materials; Godot imports and fauna tests; real runtime captures; provenance and independent visual review; do not close on technical tests alone; replacement implementation and 81 focused tests complete; maintainer visual acceptance remains open

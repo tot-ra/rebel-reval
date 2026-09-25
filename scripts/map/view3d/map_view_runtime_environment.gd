@@ -6,6 +6,16 @@ extends RefCounted
 
 const DayNightCycle := preload("res://scripts/global/day_night_cycle.gd")
 const GameCalendarScript := preload("res://scripts/global/game_calendar.gd")
+## WS-04: the ocean clock wraps at 64 loops of the longest baked cascade
+## (25.6 s). Every cascade period divides it, so the wrap is seamless, and float
+## precision never degrades over long sessions.
+const OCEAN_TIME_WRAP_SECONDS := 25.6 * 64.0
+const OCEAN_TIME_GLOBAL := &"ocean_time"
+
+## One sea clock shared by the water shader (global uniform) and CPU wave queries
+## (WS-05 boats). Static because only one map runtime drives the sea at a time and
+## CPU readers must not depend on a scene path to the host.
+static var _ocean_time := 0.0
 
 var cycle_enabled := true
 var cycle_progress := DayNightCycle.DEFAULT_PROGRESS
@@ -43,6 +53,9 @@ func sync_music_cycle() -> void:
 
 
 func advance_cycle(scaled_delta: float, calendar_date_provider: Callable) -> void:
+	# The sea keeps moving when the day clock is pinned (set_time_of_day), but it
+	# follows the same scaled delta, so pausing the world also freezes the waves.
+	advance_ocean_time(scaled_delta)
 	if not cycle_enabled:
 		return
 	var map_view := _map_view()
@@ -56,6 +69,21 @@ func advance_cycle(scaled_delta: float, calendar_date_provider: Callable) -> voi
 		map_view.set_calendar_date(calendar_date_provider.call())
 	map_view.apply_cycle_progress(cycle_progress)
 	sync_music_cycle()
+
+
+static func advance_ocean_time(scaled_delta: float) -> void:
+	set_ocean_time(_ocean_time + maxf(scaled_delta, 0.0))
+
+
+## Publishes the wrapped clock to the `ocean_time` shader global. Tests and
+## capture tools use this to hold the sea at a fixed phase.
+static func set_ocean_time(seconds: float) -> void:
+	_ocean_time = fposmod(seconds, OCEAN_TIME_WRAP_SECONDS)
+	RenderingServer.global_shader_parameter_set(OCEAN_TIME_GLOBAL, _ocean_time)
+
+
+static func ocean_time() -> float:
+	return _ocean_time
 
 
 func set_time_of_day(next_time: StringName) -> void:

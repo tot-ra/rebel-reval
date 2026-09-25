@@ -150,3 +150,10 @@ textures/vram_compression/import_etc2_astc=true
 lights_and_shadows/directional_shadow/16_bits=false
 anti_aliasing/quality/msaa_3d=2
 environment/defaults/default_clear_color=Color(0, 0, 0, 1)
+
+[shader_globals]
+
+ocean_time={
+"type": "float",
+"value": 0.0
+}
