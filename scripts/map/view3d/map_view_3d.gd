@@ -8,6 +8,7 @@ const SkyWeather3D := preload("res://scripts/map/view3d/sky_weather_3d.gd")
 const TerrainDetails := preload("res://scripts/map/view3d/map_view_terrain_details.gd")
 const MudFootprints3D := preload("res://scripts/map/view3d/mud_footprints_3d.gd")
 const WaterRippleSimScript := preload("res://scripts/map/view3d/water_ripple_sim.gd")
+const UnderwaterPassScript := preload("res://scripts/map/view3d/underwater_pass.gd")
 ## P0-052 3D orthographic view layer (ADR 0007). Assembles terrain, building,
 ## and prop geometry from an immutable MapDefinition, framed by a fixed
 ## dimetric orthographic camera under a deterministic day/night sun.
@@ -116,6 +117,7 @@ var _terrain_detail_focus_cell := Vector2i(2147483647, 2147483647)
 var _decals_node: Node3D
 var _mud_footprints: MudFootprints3D
 var _water_ripple_sim: WaterRippleSimScript
+var _underwater_pass: UnderwaterPassScript
 ## Lazily derived from the definition: gate passages that wall seals must not
 ## grow into, and wall footprints that bound each gate's clear opening.
 var _gate_passages: Array[Rect2] = []
@@ -164,6 +166,8 @@ func _process(delta: float) -> void:
 	_sync_sea_weather()
 	_sync_puddle_visibility()
 	_cull_offscreen_smoke(delta)
+	if _underwater_pass != null:
+		_underwater_pass.update(delta)
 	if _fog_of_war == null:
 		return
 	var player_rig := get_tree().get_first_node_in_group(&"player_view_rig") as Node3D
@@ -521,6 +525,51 @@ func _create_water_ripple_sim() -> void:
 	_sky_weather.ripple_sim = _water_ripple_sim
 
 
+## WS-13 underwater view pass, or null indoors and on maps without water.
+func underwater_pass() -> UnderwaterPassScript:
+	return _underwater_pass
+
+
+func _create_underwater_pass() -> void:
+	var indoor := definition != null and definition.suppresses_exterior_surroundings()
+	if not UnderwaterPassScript.should_create(indoor, _has_water()):
+		return
+	_underwater_pass = UnderwaterPassScript.new()
+	add_child(_underwater_pass)
+	_underwater_pass.configure(_camera, _underwater_probe, _sky_weather.quality_tier)
+
+
+## Water under world XZ for the underwater pass: the rest surface height (recessed mesh
+## plus the live tide on that material) and the material to mirror, or {} over dry land.
+## Outside the map, a water surroundings side counts as open deep water.
+func _underwater_probe(world_xz: Vector2) -> Dictionary:
+	var terrain_id: StringName = &""
+	if grid != null and definition != null:
+		var cell_size := definition.cell_size
+		var logic := MapViewBridge.world_to_logic(Vector3(world_xz.x, 0.0, world_xz.y), cell_size)
+		var cell := Vector2i(floori(logic.x / cell_size), floori(logic.y / cell_size))
+		terrain_id = grid.get_terrain(cell)
+		if terrain_id == &"" and definition.resolved_surroundings_sides().values().has(&"water"):
+			terrain_id = MapTypes.TERRAIN_DEEP_WATER
+	if not MapTypes.WATER_TERRAINS.has(terrain_id):
+		return {}
+	var material := MapViewMaterials.water_surface(terrain_id)
+	# Unset uniforms read back as null until the first tide update.
+	var tide_height: Variant = material.get_shader_parameter("tide_height")
+	var tide_level: Variant = material.get_shader_parameter("tide_level")
+	var tide := 0.0
+	if tide_height != null and tide_level != null:
+		tide = float(tide_height) * float(tide_level)
+	return {
+		"surface_y": (
+			-MapViewMeshBuilderConfig.WATER_RECESS + MapViewMeshBuilderConfig.WATER_SURFACE_LIFT + tide
+		),
+		# The FFT geometry is compressed onto this per-terrain Gerstner height budget.
+		"wave_margin": float(material.get_shader_parameter("wave_height")),
+		"material": material,
+	}
+
+
 func _bind_water_ripples(texture: Texture2D, window: Vector4, texel_count: float) -> void:
 	MapViewMaterials.WATER_MATERIALS.apply_water_ripples(
 		texture, window, texel_count, MapViewMaterials.WATER_WAVE_BASE
@@ -749,6 +798,7 @@ func _assemble() -> void:
 		definition != null and definition.suppresses_exterior_surroundings()
 	)
 	_create_water_ripple_sim()
+	_create_underwater_pass()
 	_mud_footprints = MudFootprints3D.new()
 	_mud_footprints.name = "MudFootprints"
 	add_child(_mud_footprints)

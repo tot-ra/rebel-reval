@@ -184,7 +184,11 @@ func test_ocean_clock_wraps_seamlessly_on_every_cascade_period() -> void:
 
 
 func test_shader_keeps_gerstner_fallback_and_fft_sign_conventions() -> void:
-	var source := FileAccess.get_file_as_string(WATER_SHADER_PATH)
+	# WS-13 moved the FFT uniforms and sampling into a shared include.
+	var source := (
+		FileAccess.get_file_as_string(WATER_SHADER_PATH)
+		+ FileAccess.get_file_as_string("res://scripts/map/view3d/ocean_fft_common.gdshaderinc")
+	)
 	assert_true(source.contains("global uniform float ocean_time;"), "one global ocean clock")
 	assert_true(source.contains("uniform bool use_fft = false;"), "FFT is opt-in per material")
 	assert_true(

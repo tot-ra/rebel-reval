@@ -152,3 +152,29 @@ task. It is a rendering task only. Moving the player under water is WS-14.
   ```text
   - [ ] WS-13 | deps: WS-01, WS-05, WS-07 | deliverable: UnderwaterPass (AIR/STRADDLE/UNDER from FFT camera height) screen pass with per-pixel FFT waterline and meniscus, Beer-Lambert medium with HG sun in-scatter, submerged caustics and marched light shafts; water back-face Snell's window with total internal reflection; SFX low-pass; wet lens on surfacing; P0-227 tint removed | allowed files: `scripts/map/view3d/underwater_pass.gd`, `scripts/map/view3d/underwater_pass.gdshader`, `scripts/map/view3d/ocean_fft_common.gdshaderinc`, `scripts/map/view3d/map_view_water.gdshader`, `scripts/map/view3d/map_view_3d.gd`, `audio/default_bus_layout.tres`, `tools/capture_underwater.gd`, `tests/godot/test_underwater_pass.gd`, `tests/godot/test_r715_water_material_contract.gd`, `docs/reports/images/ws13_*.png`, `TODO.md` | verify: state/bus/lens tests; include refactor pixel-identical; under/up/straddle/night/storm captures and dip clip; pass <= 1.0 ms under water and 0 in air
   ```
+
+## Final parameters and decisions (2026-09-25, R-898)
+
+- Landed before WS-01, WS-05 and WS-07. Stand-ins: `WATER_IOR` 1.333 and
+  `WATER_SIGMA_T_PER_M` (0.36, 0.075, 0.062) /m live in `ocean_fft_common.gdshaderinc` for WS-01
+  to adopt; the camera surface is the rest plane plus tide (WS-05 swaps in
+  `OceanFftSampler.height_at`); `_uw_caustic()` in the pass is a procedural stand-in (WS-07
+  replaces its body). Storms raise sigma_t by up to 2.4x with `cloud_darken`.
+- States: band = two near half-heights; the AIR side also adds the terrain crest budget
+  (`wave_height`), because crests rise above the rest plane while troughs are floored 1.5 mm below
+  it. Hysteresis = max(25 % of the band, 0.0005). The orthographic overview is always AIR.
+- `hint_screen_texture` holds only the opaque scene and must not be passed to a function (it
+  binds a default texture). The pass shades surface-from-below pixels itself through the shared
+  `_uw_window()` / `_uw_below_color()`.
+- The water underside branch keys on `camera.y < surface.y`, not `FRONT_FACING` (some map-edge
+  water meshes are wound the other way).
+- Depth: Godot 4.7 uses reverse Z on Compatibility too (near NDC +1, empty depth 0).
+- `SkyWeather3D` feeds `sun_reflection_color` on a 0..255 scale; `_uw_lighting()` uses only its
+  tint. Night keeps 25 % of the day water tint (ADR 0018 cobalt nights; AgX crushes less to black).
+- Evidence: `docs/reports/images/ws13_{under_horizontal,under_up,straddle,under_night,under_storm,dip}_{gl,metal}.png`.
+  Include refactor: harbour `clear/day` overview before/after differs only on the bobbing boats,
+  the same noise as two runs of one build (shader TIME pinned via `time_rollover_secs`).
+  Cost (`--bench=600`, 1080p, wall clock): pass delta within noise, under 0.3 ms on Metal and
+  Compatibility (Compatibility is vsync-bound at 16.7 ms); 0 in AIR (quad hidden).
+- Limitation: the view water column is ~9 mm, so there is no visible metres-scale depth yet.
+  Follow-ups: real basin depth before WS-14, submerge/emerge SFX, and the 0..255 sun colour.

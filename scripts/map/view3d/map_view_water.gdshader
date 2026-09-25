@@ -65,9 +65,6 @@ uniform vec3 night_horizon_color : source_color = vec3(0.050, 0.100, 0.220);
 uniform vec3 sunset_color : source_color = vec3(0.98, 0.45, 0.18);
 uniform float sunset_factor = 0.0;
 uniform float cloud_darken = 0.0;
-// Short underwater fog when the camera dips below the surface (rare in isometric play).
-uniform float underwater_fog_density = 2.8;
-uniform float underwater_fog_strength = 0.72;
 // Coastal terrain receives the live equilibrium tide. River water keeps zero
 // response, while shallow/deep sea tune shoreline retreat and optical depth.
 uniform float tide_level = 0.0;
@@ -91,43 +88,8 @@ uniform bool swash_sheet = false;
 // the recessed bed is only a few hundredths of a unit, so crests are compressed
 // while foam, turbidity and run-up keep the physical wave.
 uniform float shore_geometry_scale = 0.12;
-uniform bool use_fft = false;
-// Every atlas shares one filter/repeat hint because Godot rejects a sampler
-// argument (_fft_sample) fed textures with differing hints. The disp atlases
-// always sample LOD 0, so the mipmap filter changes nothing for them.
-uniform sampler2DArray fft_c0_disp : filter_linear_mipmap, repeat_enable;
-uniform sampler2DArray fft_c0_deriv : filter_linear_mipmap, repeat_enable;
-uniform sampler2DArray fft_c1_disp : filter_linear_mipmap, repeat_enable;
-uniform sampler2DArray fft_c1_deriv : filter_linear_mipmap, repeat_enable;
-uniform sampler2DArray fft_c2_deriv : filter_linear_mipmap, repeat_enable;
-// Per cascade: x = patch size in world units (patch_m / 0.87), y = loop period s,
-// z = frames, w = weather weight.
-uniform vec4 fft_cascade[3];
-// Dx, Dy, Dz decode scale in metres; w unused.
-uniform vec4 fft_disp_scale[2];
-// dDy/dx, dDy/dz, dDx/dx, dDz/dz decode scale.
-uniform vec4 fft_deriv_scale[3];
-// 1 = the baked physical reference sea state (Hs 1.26 m).
-uniform float ocean_amplitude = 1.0;
-// Quality tier: 3 recommended, 2 minimum (C2 slopes off, detail normal only).
-uniform int fft_cascade_count = 3;
-// WHY: the view mesh keeps water only WATER_RECESS - WATER_SURFACE_LIFT (0.074
-// units) above a flat bed, so a physical 1.26 m sea (troughs near -0.72 units)
-// would expose the bed everywhere. Geometry is compressed to the per-terrain
-// Gerstner height budget; slopes, Jacobian and foam stay physical, so shading
-// still reads the baked sea state. 1.0 would be the physical geometric sea.
-uniform float fft_geometry_scale = 1.0;
-// Horizontal bake axis is metres, world units are 0.87 m (profile key
-// meters_per_world_unit). Vertical offsets convert with the same factor.
-const float FFT_METERS_PER_WORLD_UNIT = 0.87;
-// Deepest geometric trough. WATER_SURFACE_LIFT (0.006) minus the lowest tide
-// offset (tide_height 0.004) leaves 0.002 units above the recessed bed.
-const float FFT_TROUGH_FLOOR = 0.0015;
-// Horizontal mesh chop relative to the vertical geometry. Separate view meshes
-// (in-map cells vs surroundings planes) displace their borders differently, so
-// full-size chop opens hairline cracks; crest sharpness still comes from the
-// Jacobian in the shading normal.
-const float FFT_HORIZONTAL_GEOMETRY = 0.5;
+// WS-04 FFT uniforms and sampling live in the shared include (WS-13).
+#include "res://scripts/map/view3d/ocean_fft_common.gdshaderinc"
 
 // WS-15 interactive ripples (WaterRippleSim): R = height, G = previous height, B = aeration,
 // on a camera-following window. ripple_window = (origin x, origin z, size, valid); valid 0
@@ -402,136 +364,6 @@ vec3 _sky_dome_gradient(vec3 dir) {
 	color = mix(color, horizon * vec3(0.83, 0.87, 0.93), cloud_darken * 0.38);
 	color = mix(color, horizon * 0.55, clamp(-height * 3.0, 0.0, 1.0));
 	return color;
-}
-
-// ---- WS-04 FFT path ---------------------------------------------------------
-// The bake blows the wind along +X. Rotating the lookup, not the bake, lets the
-// live SkyWeather heading steer the wave trains without a second atlas.
-vec2 _fft_wind_axis() {
-	return wind_direction / max(length(wind_direction), 0.001);
-}
-
-// R(-angle(wind)) * p: world XZ into the bake frame.
-vec2 _fft_to_wind(vec2 p, vec2 axis) {
-	return vec2(p.x * axis.x + p.y * axis.y, -p.x * axis.y + p.y * axis.x);
-}
-
-// R(+angle(wind)) * v: bake-frame vectors back to world XZ.
-vec2 _fft_from_wind(vec2 v, vec2 axis) {
-	return vec2(v.x * axis.x - v.y * axis.y, v.x * axis.y + v.y * axis.x);
-}
-
-// Linear blend between the two bracketing baked frames. i1 wraps to frame 0,
-// and the bake is periodic, so the 25.6 s / 12.8 s / 6.4 s loops never pop.
-vec4 _fft_sample(sampler2DArray tex, vec2 uv, vec4 c, float lod) {
-	float f = fract(ocean_time / c.y) * c.z;
-	float i0 = floor(f);
-	float i1 = mod(i0 + 1.0, c.z);
-	vec4 a = textureLod(tex, vec3(uv, i0), lod);
-	vec4 b = textureLod(tex, vec3(uv, i1), lod);
-	return mix(a, b, f - i0);
-}
-
-vec4 _fft_signed(vec4 encoded, vec4 scale) {
-	return (encoded - vec4(0.5)) * 2.0 * scale;
-}
-
-// Weighted C0 + C1 displacement in metres, bake frame. w carries foam (linear
-// 0..1, never signed-decoded). p is already in the bake frame.
-vec4 _fft_displacement_at(vec2 p) {
-	vec4 c0 = fft_cascade[0];
-	vec4 c1 = fft_cascade[1];
-	vec4 s0 = _fft_sample(fft_c0_disp, p / c0.x, c0, 0.0);
-	vec4 s1 = _fft_sample(fft_c1_disp, p / c1.x, c1, 0.0);
-	vec3 d = _fft_signed(s0, fft_disp_scale[0]).xyz * c0.w
-		+ _fft_signed(s1, fft_disp_scale[1]).xyz * c1.w;
-	float foam = max(s0.a * min(c0.w, 1.0), s1.a * min(c1.w, 1.0));
-	return vec4(d, foam);
-}
-
-// Returns world-unit displacement (xyz, before shore fade) and foam (w). The
-// surface point is x' = x + lambda * D (WS-03 amendment 1: crests compress).
-vec4 _fft_displacement(vec2 world_xz) {
-	vec2 axis = _fft_wind_axis();
-	vec2 p = _fft_to_wind(world_xz, axis);
-	vec4 d = _fft_displacement_at(p);
-	float standing = clamp(standing_wave_ratio, 0.0, 1.0);
-	// Two equal trains in opposite directions sum to a standing wave. The mirror
-	// train is F(-p) with horizontal displacement negated back; height and foam
-	// keep their sign. Branch on the uniform so open sea pays nothing.
-	if (standing > 0.01) {
-		vec4 o = _fft_displacement_at(-p);
-		o.xz = -o.xz;
-		d = mix(d, 0.5 * (d + o), standing);
-	}
-	float chop = max(choppiness, 0.0) * (1.0 - standing * 0.65);
-	vec3 world_d = vec3(0.0);
-	world_d.xz = _fft_from_wind(d.xz * chop * FFT_HORIZONTAL_GEOMETRY, axis);
-	world_d.y = d.y;
-	return vec4(world_d * (ocean_amplitude * fft_geometry_scale / FFT_METERS_PER_WORLD_UNIT), d.w);
-}
-
-// Explicit layer indices stop some GL drivers from choosing mips, so the LOD is
-// derived from the world-space pixel footprint (texels per pixel, log2).
-float _fft_lod(float footprint, vec4 c, float texels) {
-	return max(log2(max(footprint / c.x * texels, 1e-4)), 0.0);
-}
-
-// Slopes (xy) and Jacobian diagonal (zw) of one cascade, weighted, bake frame.
-vec4 _fft_derivatives_cascade(sampler2DArray tex, vec2 p, vec4 c, vec4 scale, float lod) {
-	return _fft_signed(_fft_sample(tex, p / c.x, c, lod), scale) * c.w;
-}
-
-// The gameplay camera is orthographic at a fixed 90-unit distance, so camera
-// distance never changes texel density; the Tidewater oceanLOD distance fade is
-// driven by the pixel footprint instead. Weight fades to zero while a cascade's
-// shortest wave (2 texels) shrinks towards one pixel, before it can alias.
-float _fft_cascade_fade(float footprint, vec4 c, float texels) {
-	float texels_per_pixel = footprint / c.x * texels;
-	return 1.0 - smoothstep(0.55, 1.6, texels_per_pixel);
-}
-
-vec4 _fft_derivatives_at(vec2 p, float footprint) {
-	vec4 c0 = fft_cascade[0];
-	vec4 c1 = fft_cascade[1];
-	vec4 c2 = fft_cascade[2];
-	float n0 = float(textureSize(fft_c0_deriv, 0).x);
-	float n1 = float(textureSize(fft_c1_deriv, 0).x);
-	float n2 = float(textureSize(fft_c2_deriv, 0).x);
-	vec4 sum = _fft_derivatives_cascade(fft_c0_deriv, p, c0, fft_deriv_scale[0], _fft_lod(footprint, c0, n0));
-	float fade1 = _fft_cascade_fade(footprint, c1, n1);
-	if (fade1 > 0.001) {
-		sum += _fft_derivatives_cascade(fft_c1_deriv, p, c1, fft_deriv_scale[1], _fft_lod(footprint, c1, n1)) * fade1;
-	}
-	float fade2 = _fft_cascade_fade(footprint, c2, n2);
-	if (fft_cascade_count > 2 && fade2 > 0.001) {
-		sum += _fft_derivatives_cascade(fft_c2_deriv, p, c2, fft_deriv_scale[2], _fft_lod(footprint, c2, n2)) * fade2;
-	}
-	return sum;
-}
-
-// World-space normal and crest fold from the summed slopes. Evaluated at the
-// undisplaced XZ like the Gerstner path. Derivative channels are decoded with
-// no sign flip (WS-03 amendment 2), so 1 + J drops below 1 on compressed crests.
-vec3 _fft_normal(vec2 world_xz, float footprint, out float crest) {
-	vec2 axis = _fft_wind_axis();
-	vec2 p = _fft_to_wind(world_xz, axis);
-	vec4 d = _fft_derivatives_at(p, footprint);
-	float standing = clamp(standing_wave_ratio, 0.0, 1.0);
-	if (standing > 0.01) {
-		// Mirror train: slopes of F(-p) negate, the Jacobian of -D(-p) does not.
-		vec4 o = _fft_derivatives_at(-p, footprint);
-		o.xy = -o.xy;
-		d = mix(d, 0.5 * (d + o), standing);
-	}
-	float chop = max(choppiness, 0.0) * (1.0 - standing * 0.65);
-	vec2 slope = d.xy * ocean_amplitude;
-	vec2 jacobian = d.zw * chop * ocean_amplitude;
-	vec2 fold = max(vec2(1.0) + jacobian, vec2(0.15));
-	crest = clamp(1.0 - fold.x * fold.y, 0.0, 1.0);
-	vec3 n_wind = vec3(-slope.x / fold.x, 1.0, -slope.y / fold.y);
-	vec2 n_xz = _fft_from_wind(n_wind.xz, axis);
-	return normalize(vec3(n_xz.x, 1.0, n_xz.y));
 }
 
 vec2 _ripple_uv(vec2 world_xz) {
@@ -938,20 +770,6 @@ void fragment() {
 	// WS-08 surf bore on top of the tinted foam: brighter and whiter than edge foam.
 	water_color = mix(water_color, mix(foam_color, vec3(0.93, 0.95, 0.94), 0.6), swash_bore * 0.85);
 
-	// Gameplay camera stays above water; this path only tints when a cinematic
-	// or debug view crosses the surface so refraction does not read as dry air.
-	vec3 camera_world = (INV_VIEW_MATRIX * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
-	float camera_submerge = max(0.0, water_world_position.y - camera_world.y);
-	if (camera_submerge > 0.0) {
-		float underwater_fog = 1.0 - exp(-camera_submerge * underwater_fog_density);
-		vec3 underwater_tint = mix(deep_color, deep_bed_color, 0.52);
-		water_color = mix(
-			water_color,
-			underwater_tint,
-			clamp(underwater_fog * underwater_fog_strength, 0.0, 0.92)
-		);
-	}
-
 	ALBEDO = water_color;
 	float day_roughness = mix(0.09, 0.22, clamp(foam + absorption * 0.18, 0.0, 1.0));
 	// WHY: DirectionalLight still tracks the sun a few degrees past the visual
@@ -960,6 +778,41 @@ void fragment() {
 	ROUGHNESS = mix(mix(0.32, 0.42, clamp(foam, 0.0, 1.0)), day_roughness, sun_visibility);
 	// Godot maps SPECULAR to dielectric F0; 0.25 is approximately water's 0.02.
 	SPECULAR = mix(0.05, 0.25, sun_visibility);
+	// WS-13: the surface seen from below. The old P0-227 fog tint is gone; the
+	// UnderwaterPass fogs everything between the lens and this surface, so the
+	// branch only resolves what the surface itself shows: Snell's window inside
+	// the critical angle, total internal reflection (a silver-green mirror of the
+	// lit water) outside it. Unshaded via EMISSION so the sun cannot light the
+	// underside a second time.
+	// WHY not FRONT_FACING: some view water meshes (map-edge strips) are wound the
+	// other way, so their top reads as a back face from the gameplay camera. The
+	// camera being below the surface point is the robust test.
+	vec3 camera_world = INV_VIEW_MATRIX[3].xyz;
+	bool seen_from_below = camera_world.y < water_world_position.y;
+	if (seen_from_below && !swash_sheet) {
+		vec3 uw_ambient;
+		vec3 uw_sun;
+		_uw_lighting(
+			mix(shallow_color, deep_color, 0.35), sun_reflection_color, sun_direction,
+			day_blend, cloud_darken, uw_ambient, uw_sun
+		);
+		NORMAL = -NORMAL;
+		ALBEDO = vec3(0.0);
+		UwWindow uw = _uw_window(
+			SCREEN_UV, VIEW_MATRIX, -world_view, normalize(mix(vec3(0.0, 1.0, 0.0), world_normal, 0.6))
+		);
+		vec3 uw_air = vec3(
+			textureLod(screen_texture, clamp(uw.uv + uw.fringe, vec2(0.001), vec2(0.999)), 0.0).r,
+			textureLod(screen_texture, uw.uv, 0.0).g,
+			textureLod(screen_texture, clamp(uw.uv - uw.fringe, vec2(0.001), vec2(0.999)), 0.0).b
+		);
+		EMISSION = _uw_below_color(
+			uw, uw_air, -world_view, uw_ambient, uw_sun, sun_direction, _uw_sigma_t(cloud_darken),
+			deep_bed_color
+		);
+		ROUGHNESS = 1.0;
+		SPECULAR = 0.0;
+	}
 	if (swash_sheet) {
 		NORMAL = sheet_normal;
 		ALBEDO = sheet_albedo;

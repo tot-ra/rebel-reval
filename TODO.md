@@ -158,6 +158,28 @@ WS-08 implementation landed (R-893, in review). Decisions (2026-09-25), also in 
    (like the FFT tier); production does not yet call either tier setter, so both default to
    recommended.
 
+- [ ] WS-13 | deps: WS-01, WS-05, WS-07 | deliverable: UnderwaterPass (AIR/STRADDLE/UNDER from the camera height) screen pass with per-pixel FFT waterline and meniscus, Beer-Lambert medium with HG sun in-scatter, submerged caustics and marched light shafts; water underside Snell's window with total internal reflection; SFX low-pass; wet lens on surfacing; P0-227 tint removed | allowed files: `scripts/map/view3d/underwater_pass.gd`, `scripts/map/view3d/underwater_pass.gdshader`, `scripts/map/view3d/ocean_fft_common.gdshaderinc`, `scripts/map/view3d/map_view_water.gdshader`, `scripts/map/view3d/map_view_3d.gd`, `audio/default_bus_layout.tres`, `tools/capture_underwater.gd`, `tests/godot/test_underwater_pass.gd`, `tests/godot/test_r715_water_material_contract.gd`, `tests/godot/test_ocean_fft_material.gd`, `docs/tasks/water_sky/WS-13_underwater_view_pass.md`, `docs/reports/images/ws13_*.png`, `TODO.md` | verify: state/bus/lens tests; include refactor pixel-identical; under/up/straddle/night/storm captures and dip clip; pass <= 1.0 ms under water and 0 in air
+
+WS-13 implementation landed (R-898, in review) ahead of its dependencies. Decisions (2026-09-25),
+also in the contract's "Final parameters and decisions" section:
+
+1. **Dependency stand-ins.** WS-01 is not in: the shared include now owns `WATER_IOR` and the
+   per-channel `WATER_SIGMA_T_PER_M` for WS-01 to adopt. WS-05 is not in: the camera surface is the
+   rest plane plus tide, and the STRADDLE band is widened on the AIR side by the terrain's crest
+   budget (`wave_height`). WS-07 is not in: `_uw_caustic()` is a procedural stand-in with the
+   final call sites.
+2. **Surface from below in the pass too.** `hint_screen_texture` is copied before the transparent
+   pass, so it never contains the water; pixels whose eye ray meets the surface first are shaded
+   in the pass with the same `_uw_window()` / `_uw_below_color()` as the water underside.
+3. **Underside test is the camera height**, not `FRONT_FACING`: map-edge water strips are wound
+   the other way and read as back faces from the gameplay camera.
+4. **Reverse Z everywhere.** Godot 4.7 Compatibility also uses reverse Z (near NDC z = +1, empty
+   depth 0) with a -1..1 NDC range.
+5. **Thin view water.** The view water column is ~9 mm (bed recessed 0.08, surface lift 0.006 plus
+   tide), so the under-water plates show the medium, Snell's window, waterline and lens, but no
+   metres of fading distance. Real underwater depth is a follow-up before WS-14.
+6. **Tests file** `test_ocean_fft_material.gd` (reads the include too) was added to the allowed files.
+
 ## Storybook model set
 
 - [ ] P0-209b | deps: P0-209a | deliverable: replace the visually rejected procedural mammals from scratch with convincingly realistic sculpted or scanned source geometry and textured surfaces | allowed files: `tools/assets/realistic_mammals.py`, `tools/assets/mammal_limb_anatomy.py`, `tools/assets/build_storybook_models.py`, `tools/assets/import_realistic_mammals.py`, `tools/assets/import_authored_rat.py`, `tools/assets/pack_authored_rat.py`, `tools/verify_storybook_models.py`, `tools/capture_animal_realism.gd`, `scripts/map/view3d/map_view_medieval_animal_models.gd`, `tests/python/test_mammal_limb_anatomy.py`, `tests/godot/test_mammal_limb_anatomy.gd`, `tests/godot/test_storybook_models.gd`, `tests/godot/test_storybook_live_integration.gd`, `assets/storybook/`, `assets/SOURCES.csv`, `docs/ART_BIBLE.md`, `docs/reports/animal_realism_2026-09-12.md`, `docs/reports/images/animal_realism/`, `TODO.md` | constraints: licensed commercial-use sources; no ripped game assets; preserve species IDs, runtime paths and behavior; replace failed geometry instead of polishing primitive unions; preserve unrelated WIP | verify: inspect replacement source silhouettes and materials; Godot imports and fauna tests; real runtime captures; provenance and independent visual review; do not close on technical tests alone; replacement implementation and 81 focused tests complete; maintainer visual acceptance remains open

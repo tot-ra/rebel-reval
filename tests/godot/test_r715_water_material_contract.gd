@@ -254,12 +254,31 @@ func test_water_shader_reflects_bounded_sky_dome_without_planar_pass() -> void:
 	)
 
 
-func test_water_shader_exposes_short_underwater_fog_when_camera_submerges() -> void:
+func test_water_shader_shares_fft_include_and_draws_snells_window_from_below() -> void:
+	# WS-13: the UnderwaterPass fogs the view under water, so the P0-227 tint on the
+	# surface pixels is gone and the back face resolves Snell's window instead.
 	var source := ShaderSources.WATER_SHADER.code
-	for feature in [
-		"camera_submerge",
-		"underwater_fog_density",
-		"underwater_fog_strength",
-		"INV_VIEW_MATRIX",
-	]:
-		assert_true(feature in source, "water shader must retain %s" % feature)
+	assert_true(
+		source.contains('#include "res://scripts/map/view3d/ocean_fft_common.gdshaderinc"'),
+		"the water shader and the underwater pass share one FFT sampling include",
+	)
+	assert_false(source.contains("vec4 _fft_sample("), "FFT sampling lives only in the include")
+	for removed in ["camera_submerge", "underwater_fog_density", "underwater_fog_strength"]:
+		assert_false(removed in source, "the P0-227 tint (%s) is replaced by the pass" % removed)
+	assert_true(
+		source.contains("bool seen_from_below = camera_world.y < water_world_position.y;"),
+		"the underside branch keys on the camera height, not mesh winding",
+	)
+	assert_true(
+		source.contains("if (seen_from_below && !swash_sheet)"), "the underside has its own branch"
+	)
+	assert_true(source.contains("_uw_below_color("), "the back face draws Snell's window")
+	var include := FileAccess.get_file_as_string(
+		"res://scripts/map/view3d/ocean_fft_common.gdshaderinc"
+	)
+	assert_true(
+		include.contains("float k = 1.0 - WATER_IOR * WATER_IOR * (1.0 - cos_in * cos_in);"),
+		"the window edge is the critical angle of total internal reflection",
+	)
+	assert_true(include.contains("refract(ray_up, -surface_up, WATER_IOR)"), "air is refracted in")
+	assert_false(include.contains("sampler2D screen"), "screen samplers never enter a function")
