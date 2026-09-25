@@ -242,6 +242,17 @@ tools/run_godot_checked.sh --require-test-summary focused-map-view \
   --filter=test_map_view_3d_mesh,test_map_camera_modes
 ```
 
+### Rendering captures without a visible window
+
+Always pass `--headless` for tests, imports, validators, and startup smokes: it opens no window. Render captures (`tools/capture_*.gd`, `tools/benchmarks/*render*`, any script that reads a viewport texture) cannot run headless because the dummy renderer returns empty textures. Godot 4.7 has no CLI flag for a hidden window, so run them through the wrapper instead of calling Godot directly:
+
+```bash
+tools/godot_render.sh --script tools/capture_door_preview.gd
+GODOT_RENDER_VISIBLE=1 tools/godot_render.sh --script tools/capture_door_preview.gd  # debug with a visible window
+```
+
+The wrapper runs Godot against a temporary shadow project (symlinks to the repo plus an `override.cfg` with `display/window/size/mode=1` and `no_focus=true`), so the window starts minimized, never flashes, and never steals focus. Output is pixel-identical to a visible run. Do not pass `--path`, and never add `override.cfg` to the real project root: an open editor or a normal game run would pick it up.
+
 ### Validation
 
 Run the schema fixture checks, semantic validator tests, and complete example corpus validation:

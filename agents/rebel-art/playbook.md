@@ -6,7 +6,7 @@ This file contains lessons specific to the Art role.
 ## Role-specific lessons
 
 ### Capture and tooling
-- Headless dummy rendering cannot read a SubViewport texture. Use the Metal driver and verify PNG header and dimensions.
+- Headless dummy rendering cannot read a SubViewport texture. Run captures via `tools/godot_render.sh --script <tool>.gd` (real GPU, no visible window) and verify PNG header and dimensions.
 - Host Blender 5.2 exposes EEVEE as `BLENDER_EEVEE`, not `BLENDER_EEVEE_NEXT`. Factory-startup may leave `scene.world` unset; create an explicit world before writing world color.
 - Blender's bundled Python often lacks Pillow. Compose contact sheets with host `python3` after Blender writes per-species previews.
 - `blender_run_script` may not mount the project at `/workspace`. Pass absolute GLB paths to `bpy.ops.import_scene.gltf`.

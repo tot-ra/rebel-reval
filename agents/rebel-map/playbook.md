@@ -13,7 +13,7 @@ This file contains lessons specific to the Map role.
 - New Game places the player via DoorNavigator spawn `smithy_start`, not `definition.player_spawn`. Keep `transition smithy_start_spawn` on the same wake cell as `ap.sleep.wake`.
 - An NPC "standing on the smithy anvil" is usually an authored anvil-bound activity (`ap.visitor.inspect` / `ap.forge.anvil`), not a stray spawn. Spoken "кавальня" usually means outdoor `courtyard_anvil`.
 - Retiring a stable outdoor prop ID requires regenerating `lower_town_slice.parity.json` in the same change.
-- Headless dummy rendering cannot read a SubViewport texture. Use Metal. Prop close-ups must zero `build_prop` world position. Day/night calibration needs one Godot process per plate.
+- Headless dummy rendering cannot read a SubViewport texture. Render captures via `tools/godot_render.sh` (real GPU, no visible window). Prop close-ups must zero `build_prop` world position. Day/night calibration needs one Godot process per plate.
 - When a close-up needs different framing, re-aim the shipped camera along its own `basis.z`. An orthographic isometric camera offset in world XZ slides into sky.
 - Keep RRMap Editor Edit map and Align maps as separate modes. Prop kinds should be a filtered OptionButton over `MapTypes.ALL_PROP_KINDS`.
 - Focused Lower Town contracts should inspect compiled `MapDefinition` records. RRMap prop footprints are optional. Decals are view-only and must not alter terrain fingerprints.

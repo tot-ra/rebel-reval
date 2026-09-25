@@ -100,6 +100,8 @@ Expected manual path today: main menu → Lower Town → forge using `DoorNaviga
 | Save round-trip and validation tests | `godot --headless --script tools/run_godot_tests.gd` (`tests/godot/test_save_service.gd`, `tests/godot/test_save_envelope.gd`) | **P1-008** |
 | Repeatable performance report | `tools/run_performance_report.sh [build/benchmarks/report.json] [--quick]`; methodology and hardware-profile contract in `docs/PERFORMANCE_REPORT.md` | **P1-030** |
 
+**No visible Godot windows.** Agents must pass `--headless` to every Godot command that does not need real rendering. Render captures (`tools/capture_*.gd`, render probes) need a GPU, so run them as `tools/godot_render.sh --script <tool>.gd`; the window starts minimized and never takes focus. See [`docs/SETUP.md`](./docs/SETUP.md#rendering-captures-without-a-visible-window).
+
 Decision: P1-002 uses a small repository-owned headless GDScript harness instead of adding GUT or another addon. This keeps CI dependency-free while the project only needs discoverable unit/integration tests for early runtime foundations. Add new test scripts under `tests/godot/` with filenames `test_*.gd` and zero-argument methods named `test_*`. Shared assertions live in `tests/godot/test_case.gd`.
 
 ## Validation
