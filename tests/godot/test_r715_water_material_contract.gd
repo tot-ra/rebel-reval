@@ -3,6 +3,7 @@ extends "res://tests/godot/test_case.gd"
 const MapTypesContract := preload("res://scripts/map/map_types.gd")
 const MaterialsFacade := preload("res://scripts/map/view3d/map_view_materials.gd")
 const ShaderSources := preload("res://scripts/map/view3d/map_view_material_shaders.gd")
+const WaterMaterials := preload("res://scripts/map/view3d/map_view_water_materials.gd")
 
 
 func test_all_water_ids_use_one_approved_shader_family() -> void:
@@ -208,6 +209,97 @@ func test_water_shader_uses_jacobian_crest_whitecaps_separate_from_shore_breaker
 	assert_true(
 		"crest_fold *= smoothstep(0.14, 0.48, shore_factor)" in source,
 		"crest whitecaps must stay off the pinned shoreline seam",
+	)
+
+
+func test_fft_whitecaps_come_from_baked_foam_and_the_foam_tile() -> void:
+	# WS-06: the FFT path styles the baked foam; the Jacobian stays on the fallback only.
+	var source := ShaderSources.WATER_SHADER.code
+	var start := source.find("float whitecap_fresh = 0.0;")
+	var end := source.find("// Thin crests transmit more Baltic teal", start)
+	assert_true(start > 0 and end > start, "the WS-06 whitecap block exists before the crest glow")
+	var whitecap_block := source.substr(start, end - start)
+	assert_false(whitecap_block.contains("_water_jacobian("), "FFT whitecaps never call the Jacobian")
+	assert_true(
+		source.contains("if (!use_fft && flow_strength <= 0.001) {"),
+		"the Gerstner Jacobian whitecaps run only on the fallback path",
+	)
+	assert_true(
+		whitecap_block.contains(
+			"vec2 whitecap_uv = _fft_to_wind(wave_sample_xz, _fft_wind_axis()) * foam_tile_scale;"
+		),
+		"the foam tile is sampled at the undisplaced wave_sample_xz so it rides the surface",
+	)
+	assert_eq(whitecap_block.count("texture(foam_tile"), 2, "at most two extra samples per fragment")
+	assert_true(
+		whitecap_block.contains(
+			"whitecap = clamp((foam_mask - (1.0 - foam_texture)) * foam_sharpness, 0.0, 1.0);"
+		),
+		"coverage threshold follows the Tidewater foam formula",
+	)
+	assert_true(
+		whitecap_block.contains(
+			"min(fft_foam.x * storm_foam_coverage * foam_coverage, FOAM_MASK_CAP)"
+		),
+		"the weighted baked mask scales with weather and coverage",
+	)
+	assert_true(
+		source.contains("sky_reflection_weight *= 1.0 - whitecap_fresh;"),
+		"fresh foam suppresses the sky mirror",
+	)
+	assert_true(
+		source.contains("crest_subsurface *= 1.0 - whitecap_fresh;"), "foam dims the crest glow"
+	)
+	assert_true(source.contains("ROUGHNESS = mix(ROUGHNESS, 0.6, whitecap_fresh);"), "foam is rough")
+	assert_false(source.contains("EMISSION = foam"), "foam is lit, never emissive")
+	var include := FileAccess.get_file_as_string(
+		"res://scripts/map/view3d/ocean_fft_common.gdshaderinc"
+	)
+	# Amendment 1: foam is linear 0..1 in the disp alpha, read raw (no signed decode).
+	assert_true(
+		include.contains("foam = vec3(s0.a * c0.w + s1.a * c1.w, max(s0.a, s1.a), s0.a * c0.w);"),
+		"the foam mask reads the raw disp alpha of C0 and C1",
+	)
+	assert_false(include.contains("_fft_signed(s0, fft_disp_scale[0]).a"), "foam is never decoded")
+	assert_true(source.contains("_fft_normal_gust("), "gusts and slicks scale the ripple cascade")
+	assert_true(
+		source.contains("clamp(detail_normal_strength * sea_gust, 0.0, 1.0)"),
+		"gusts and slicks scale the detail normal",
+	)
+
+
+func test_fft_foam_drifts_are_seamless_over_the_ocean_clock_wrap() -> void:
+	var source := ShaderSources.WATER_SHADER.code
+	var wrap := float(MapViewRuntimeEnvironment.OCEAN_TIME_WRAP_SECONDS)
+	assert_true(
+		source.contains("const float OCEAN_TIME_WRAP_SECONDS = %.1f;" % wrap),
+		"the shader mirrors the runtime ocean clock wrap",
+	)
+	for constant: String in [
+		"FOAM_DRIFT_A_TILES_PER_WRAP = 40.0",
+		"FOAM_DRIFT_B_TILES_PER_WRAP = 100.0",
+		"GUST_DRIFT_CELLS_PER_WRAP = 64.0",
+		"GUST_PERIOD_CELLS = 16.0",
+	]:
+		assert_true(source.contains(constant), "drift constant %s is a whole period count" % constant)
+	assert_eq(fmod(64.0, 16.0), 0.0, "the gust drift is a whole number of noise periods per wrap")
+
+
+func test_fft_foam_follows_sea_weather() -> void:
+	MaterialsFacade.reset()
+	var calm := WaterMaterials.fft_sea_state(0.2, 0.0)
+	var reference := WaterMaterials.fft_sea_state(0.5, 0.0)
+	var storm := WaterMaterials.fft_sea_state(0.85, 0.3)
+	assert_almost_eq(float(calm["foam_coverage"]), 0.2, 0.001, "calm seas barely whiten")
+	assert_almost_eq(float(storm["foam_coverage"]), 1.8, 0.001, "storms whiten hard")
+	assert_true(
+		float(calm["foam_coverage"]) < float(reference["foam_coverage"]),
+		"coverage rises with the sea state",
+	)
+	assert_eq(float(calm["streaks"]), 0.0, "no wind streaks on calm water")
+	assert_eq(float(storm["streaks"]), 1.0, "storm seas are streaked")
+	assert_true(
+		ResourceLoader.exists(WaterMaterials.OCEAN_FOAM_TILE_PATH), "the foam tile is imported"
 	)
 
 

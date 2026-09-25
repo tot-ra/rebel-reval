@@ -79,39 +79,53 @@ vec4 _fft_signed(vec4 encoded, vec4 scale) {
 	return (encoded - vec4(0.5)) * 2.0 * scale;
 }
 
-// Weighted C0 + C1 displacement in metres, bake frame. w carries foam (linear
-// 0..1, never signed-decoded). p is already in the bake frame.
-vec4 _fft_displacement_at(vec2 p) {
+// Weighted C0 + C1 displacement in metres, bake frame. p is already in the bake
+// frame. WS-06 foam terms read the disp alpha raw (linear 0..1, never signed-
+// decoded, WS-03 amendment 1): x = weather-weighted mask w0*a0 + w1*a1,
+// y = freshness max(a0, a1) (the bake decays foam, so high = just broken),
+// z = the C0 share alone, a 1 m/texel coarse mask that connects wind streaks.
+vec3 _fft_displacement_at(vec2 p, out vec3 foam) {
 	vec4 c0 = fft_cascade[0];
 	vec4 c1 = fft_cascade[1];
 	vec4 s0 = _fft_sample(fft_c0_disp, p / c0.x, c0, 0.0);
 	vec4 s1 = _fft_sample(fft_c1_disp, p / c1.x, c1, 0.0);
 	vec3 d = _fft_signed(s0, fft_disp_scale[0]).xyz * c0.w
 		+ _fft_signed(s1, fft_disp_scale[1]).xyz * c1.w;
-	float foam = max(s0.a * min(c0.w, 1.0), s1.a * min(c1.w, 1.0));
-	return vec4(d, foam);
+	foam = vec3(s0.a * c0.w + s1.a * c1.w, max(s0.a, s1.a), s0.a * c0.w);
+	return d;
 }
 
-// Returns world-unit displacement (xyz, before shore fade) and foam (w). The
-// surface point is x' = x + lambda * D (WS-03 amendment 1: crests compress).
-vec4 _fft_displacement(vec2 world_xz) {
+// World-unit displacement (before shore fade) plus the WS-06 foam terms of
+// _fft_displacement_at. The surface point is x' = x + lambda * D (WS-03
+// amendment 1: crests compress).
+vec3 _fft_displacement_foam(vec2 world_xz, out vec3 foam) {
 	vec2 axis = _fft_wind_axis();
 	vec2 p = _fft_to_wind(world_xz, axis);
-	vec4 d = _fft_displacement_at(p);
+	vec3 d = _fft_displacement_at(p, foam);
 	float standing = clamp(standing_wave_ratio, 0.0, 1.0);
 	// Two equal trains in opposite directions sum to a standing wave. The mirror
 	// train is F(-p) with horizontal displacement negated back; height and foam
 	// keep their sign. Branch on the uniform so open sea pays nothing.
 	if (standing > 0.01) {
-		vec4 o = _fft_displacement_at(-p);
+		vec3 mirror_foam;
+		vec3 o = _fft_displacement_at(-p, mirror_foam);
 		o.xz = -o.xz;
 		d = mix(d, 0.5 * (d + o), standing);
+		foam = mix(foam, 0.5 * (foam + mirror_foam), standing);
 	}
 	float chop = max(choppiness, 0.0) * (1.0 - standing * 0.65);
 	vec3 world_d = vec3(0.0);
 	world_d.xz = _fft_from_wind(d.xz * chop * FFT_HORIZONTAL_GEOMETRY, axis);
 	world_d.y = d.y;
-	return vec4(world_d * (ocean_amplitude * fft_geometry_scale / FFT_METERS_PER_WORLD_UNIT), d.w);
+	return world_d * (ocean_amplitude * fft_geometry_scale / FFT_METERS_PER_WORLD_UNIT);
+}
+
+// Displacement only (xyz) with the foam mask in w, for callers that need no
+// WS-06 styling terms (UnderwaterPass waterline).
+vec4 _fft_displacement(vec2 world_xz) {
+	vec3 foam;
+	vec3 d = _fft_displacement_foam(world_xz, foam);
+	return vec4(d, foam.x);
 }
 
 // Explicit layer indices stop some GL drivers from choosing mips, so the LOD is
@@ -134,7 +148,8 @@ float _fft_cascade_fade(float footprint, vec4 c, float texels) {
 	return 1.0 - smoothstep(0.55, 1.6, texels_per_pixel);
 }
 
-vec4 _fft_derivatives_at(vec2 p, float footprint) {
+// c2_gain scales the ripple cascade per pixel: WS-06 gust/slick patches.
+vec4 _fft_derivatives_at(vec2 p, float footprint, float c2_gain) {
 	vec4 c0 = fft_cascade[0];
 	vec4 c1 = fft_cascade[1];
 	vec4 c2 = fft_cascade[2];
@@ -148,7 +163,7 @@ vec4 _fft_derivatives_at(vec2 p, float footprint) {
 	}
 	float fade2 = _fft_cascade_fade(footprint, c2, n2);
 	if (fft_cascade_count > 2 && fade2 > 0.001) {
-		sum += _fft_derivatives_cascade(fft_c2_deriv, p, c2, fft_deriv_scale[2], _fft_lod(footprint, c2, n2)) * fade2;
+		sum += _fft_derivatives_cascade(fft_c2_deriv, p, c2, fft_deriv_scale[2], _fft_lod(footprint, c2, n2)) * fade2 * c2_gain;
 	}
 	return sum;
 }
@@ -156,14 +171,14 @@ vec4 _fft_derivatives_at(vec2 p, float footprint) {
 // World-space normal and crest fold from the summed slopes. Evaluated at the
 // undisplaced XZ like the Gerstner path. Derivative channels are decoded with
 // no sign flip (WS-03 amendment 2), so 1 + J drops below 1 on compressed crests.
-vec3 _fft_normal(vec2 world_xz, float footprint, out float crest) {
+vec3 _fft_normal_gust(vec2 world_xz, float footprint, float c2_gain, out float crest) {
 	vec2 axis = _fft_wind_axis();
 	vec2 p = _fft_to_wind(world_xz, axis);
-	vec4 d = _fft_derivatives_at(p, footprint);
+	vec4 d = _fft_derivatives_at(p, footprint, c2_gain);
 	float standing = clamp(standing_wave_ratio, 0.0, 1.0);
 	if (standing > 0.01) {
 		// Mirror train: slopes of F(-p) negate, the Jacobian of -D(-p) does not.
-		vec4 o = _fft_derivatives_at(-p, footprint);
+		vec4 o = _fft_derivatives_at(-p, footprint, c2_gain);
 		o.xy = -o.xy;
 		d = mix(d, 0.5 * (d + o), standing);
 	}
@@ -175,6 +190,10 @@ vec3 _fft_normal(vec2 world_xz, float footprint, out float crest) {
 	vec3 n_wind = vec3(-slope.x / fold.x, 1.0, -slope.y / fold.y);
 	vec2 n_xz = _fft_from_wind(n_wind.xz, axis);
 	return normalize(vec3(n_xz.x, 1.0, n_xz.y));
+}
+
+vec3 _fft_normal(vec2 world_xz, float footprint, out float crest) {
+	return _fft_normal_gust(world_xz, footprint, 1.0, crest);
 }
 
 // ---- Shared water medium constants ------------------------------------------

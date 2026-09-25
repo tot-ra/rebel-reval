@@ -136,3 +136,44 @@ cannot be retuned from the shader.
   ```text
   - [ ] WS-06 | deps: WS-04 | deliverable: FFT-path whitecaps from baked persistent foam with a seamless bubble foam tile, fresh/old foam shading, storm wind streaks, and gust/slick modulation; Gerstner Jacobian foam kept only on fallback | allowed files: `scripts/map/view3d/map_view_water.gdshader`, `scripts/map/view3d/map_view_water_materials.gd`, `tools/bake_ocean_fft.py`, `tests/python/test_bake_ocean_fft.py`, `assets/water/ocean_fft/foam_tile.png`, `assets/SOURCES.csv`, `tests/godot/test_r715_water_material_contract.gd`, `docs/reports/images/ws06_*.png`, `TODO.md` | verify: foam tile seam test; contract test; clear/overcast/storm/storm-night captures and a 10 s clip show lingering, textured, wind-streaked foam that rides its wave
   ```
+
+## Final parameters and decisions (2026-09-25, R-891)
+
+Evidence: `docs/reports/images/ws06_*.png` from `tools/capture_ws06_whitecaps.gd` (Metal and
+Compatibility; harbour basin and east coast; `--close --aim=` for the bubble close-ups and `--clip`
+for a 10 s strip at 1 s steps).
+
+1. **Foam tile.** `python3 tools/bake_ocean_fft.py foam-tile --out assets/water/ocean_fft/foam_tile.png --seed 1343`,
+   256x256 RGBA8, 183 KiB, imported lossless with mipmaps. R is two periodic Worley layers (22 and
+   51 cells) with bright rims, a dim core and a foam film where cells meet, grouped by a
+   low-frequency cluster envelope (mean 0.40). G is value-noise speckle. B is ridged value noise on
+   a 4x24 lattice (6:1 along +X) with a gentle cross-wind warp. Every channel is exactly periodic
+   in tile space, so the Python test checks the wrap at u = 1 and v = 1.
+2. **Mask.** The shared include returns three foam terms per vertex: the weighted mask
+   `w0*a0 + w1*a1` (raw alpha, no signed decode), freshness `max(a0, a1)` and the C0 share. The
+   fragment adds exactly two foam-tile samples (both scales, in the wind frame at the undisplaced
+   `wave_sample_xz`).
+3. **Coverage.** `foam_coverage` is 1.0, not 0.5: the capped mask needed the full value for
+   scattered overcast whitecaps. `storm_foam_coverage` comes from the sea-state table (calm 0.2,
+   reference 0.8, storm 1.8; the storm regime at sea 0.79 gets 1.62, overcast 1.03, clear 0.2).
+   The effective mask is capped at 1.0 (`FOAM_MASK_CAP`) so even storm foam keeps bubble holes.
+4. **Fresh vs old.** Freshness is `smoothstep(0.35, 0.8, max(a0, a1) * storm_foam_coverage)`: the
+   bake only broke where the reference sea broke, so a rougher sea also lowers the bar for foam to
+   count as freshly broken. Old foam is `mix(shallow_color, foam_color, 0.4)` at 60% under the
+   sky reflection. A trail term (`smoothstep(0.06, 0.3, mask)` over the brightest bubble rims)
+   keeps the decayed tail of the bake visible for its 3-4 s instead of about 1 s.
+5. **Lighting.** WS-02 has not landed, so fresh foam sets `ROUGHNESS` 0.6 and `SPECULAR` 0.1,
+   removes the sky reflection and sun glint under it, and dims the crest glow. Foam is only in
+   `ALBEDO`, so the storm/night plates show it dim, not emissive.
+6. **Streaks.** `streak_amount` is 0.6: at 0.3 the lines disappeared under the storm sky
+   reflection. The link uses the C0 foam share (`smoothstep(0.02, 0.3, ...)`) instead of a coarser
+   mip because the disp atlases import without mipmaps. Streaks are laid on as surface foam.
+7. **Gusts and slicks.** A wind-frame value-noise field (60 units, periodic every 16 cells along
+   the wind, drifting ~2.3 units/s) scales the C2 ripple cascade and the detail normal between 0.4
+   and 1.4. From the steep gameplay camera that alone barely changes a uniform sky, so, like
+   `ripple_sheen`, the gain also scales the sky reflection weight and darkens catspaws slightly.
+8. **Seamless drift.** Foam tiles drift 40 and 100 tiles and the gust field 64 cells per
+   1638.4 s ocean-clock wrap, so the wrap never pops. The contract test pins those constants.
+9. **Scope additions:** `scripts/map/view3d/ocean_fft_common.gdshaderinc` (foam terms and the C2
+   gain; the UnderwaterPass keeps calling `_fft_displacement` / `_fft_normal` unchanged), the
+   capture tool and this contract.

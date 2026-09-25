@@ -124,5 +124,44 @@ class OceanFftBakeTests(unittest.TestCase):
             self.assertLess(path.stat().st_size, bake.MAX_OUTPUT_BYTES, path.name)
 
 
+class FoamTileTests(unittest.TestCase):
+    """WS-06 foam detail tile: seamless wrap, determinism, channel layout, size budget."""
+
+    def test_edges_wrap_within_one_byte(self) -> None:
+        # The tile is the function sampled at i/N; its next sample past the edge (u = 1)
+        # must reproduce column 0 so a repeat sampler shows no seam.
+        size = 64
+        coords = np.arange(size + 1, dtype=np.float64) / size
+        u, v = np.meshgrid(coords, coords)
+        encoded = bake.encode_unit(bake.foam_tile_channels(u, v, 1343)).astype(np.int16)
+        self.assertLessEqual(int(np.max(np.abs(encoded[:, -1] - encoded[:, 0]))), 1, "u wrap")
+        self.assertLessEqual(int(np.max(np.abs(encoded[-1, :] - encoded[0, :]))), 1, "v wrap")
+
+    def test_tile_is_deterministic_and_seeded(self) -> None:
+        first = bake.foam_tile_image(1343, 64)
+        self.assertTrue(np.array_equal(first, bake.foam_tile_image(1343, 64)))
+        self.assertFalse(np.array_equal(first, bake.foam_tile_image(7, 64)))
+        self.assertEqual(first.shape, (64, 64, 4))
+        self.assertTrue(np.all(first[..., 3] == 255), "alpha is constant 1")
+        for channel in range(3):
+            self.assertGreater(int(first[..., channel].max()) - int(first[..., channel].min()), 128, channel)
+
+    def test_streak_channel_is_stretched_along_x(self) -> None:
+        tile = bake.foam_tile_image(1343).astype(np.float64)[..., 2]
+        along = float(np.mean(np.abs(np.diff(tile, axis=1))))
+        across = float(np.mean(np.abs(np.diff(tile, axis=0))))
+        self.assertGreater(across, along * 3.0, "streaks vary much faster across the wind than along it")
+
+    def test_committed_tile_matches_generator_and_budget(self) -> None:
+        committed = ROOT / "assets" / "water" / "ocean_fft" / "foam_tile.png"
+        if not committed.is_file():
+            self.skipTest("foam tile not committed yet")
+        with tempfile.TemporaryDirectory() as tmp:
+            fresh = Path(tmp) / "foam_tile.png"
+            self.assertEqual(bake.main(["foam-tile", "--out", str(fresh), "--seed", "1343"]), 0)
+            self.assertEqual(fresh.read_bytes(), committed.read_bytes())
+        self.assertLess(committed.stat().st_size, 300 * 1024)
+
+
 if __name__ == "__main__":
     unittest.main()

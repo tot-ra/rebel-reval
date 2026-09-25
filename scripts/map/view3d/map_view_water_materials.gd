@@ -96,6 +96,9 @@ const OCEAN_FFT_ATLASES := {
 	"fft_c1_deriv": "c1_deriv.png",
 	"fft_c2_deriv": "c2_deriv.png",
 }
+## WS-06 seamless foam detail tile (`bake_ocean_fft.py foam-tile`), shared by every
+## FFT water material. Missing it leaves the shader's black default: no whitecaps.
+const OCEAN_FOAM_TILE_PATH := "res://assets/water/ocean_fft/foam_tile.png"
 const OCEAN_FFT_DERIV_KEYS: Array[String] = ["dy_dx", "dy_dz", "dx_dx", "dz_dz"]
 const OCEAN_FFT_DISP_KEYS: Array[String] = ["dx", "dy", "dz"]
 ## Open sea, coastal shallows, and harbour basins take the FFT path. Rivers keep
@@ -125,10 +128,33 @@ const BOAT_FLOAT_SCRIPT_PATH := "res://scripts/map/view3d/boat_float_3d.gd"
 ##   rain     sea 1.32 (storm row)    -> 2.76 x reference, Hs 3.48 m
 ## These are shading (slope/Jacobian) sea states; mesh displacement is further
 ## compressed by fft_geometry_scale to fit the view's water column.
+## WS-06: foam_coverage scales the baked whitecap mask (calm 0.2 .. storm 1.8) and
+## streaks is the storm share that turns on wind-aligned foam streaks.
 const OCEAN_FFT_SEA_STATES: Array[Dictionary] = [
-	{"sea_state": 0.20, "weights": [0.15, 0.45, 0.8], "choppiness": 0.6, "amplitude": 0.5},
-	{"sea_state": 0.50, "weights": [1.0, 1.0, 1.0], "choppiness": 0.9, "amplitude": 1.0},
-	{"sea_state": 0.85, "weights": [1.8, 1.4, 1.2], "choppiness": 1.15, "amplitude": 1.6},
+	{
+		"sea_state": 0.20,
+		"weights": [0.15, 0.45, 0.8],
+		"choppiness": 0.6,
+		"amplitude": 0.5,
+		"foam_coverage": 0.2,
+		"streaks": 0.0,
+	},
+	{
+		"sea_state": 0.50,
+		"weights": [1.0, 1.0, 1.0],
+		"choppiness": 0.9,
+		"amplitude": 1.0,
+		"foam_coverage": 0.8,
+		"streaks": 0.0,
+	},
+	{
+		"sea_state": 0.85,
+		"weights": [1.8, 1.4, 1.2],
+		"choppiness": 1.15,
+		"amplitude": 1.6,
+		"foam_coverage": 1.8,
+		"streaks": 1.0,
+	},
 ]
 const OCEAN_FFT_REFERENCE_SEA_STATE := 0.50
 ## Crest excursion of the reference C0+C1 sea (2 sigma of Hs 1.25 m = 0.63 m).
@@ -272,6 +298,8 @@ static func fft_sea_state(wind: float, rain: float) -> Dictionary:
 		"weights": weights,
 		"choppiness": lerpf(float(lower["choppiness"]), float(upper["choppiness"]), t),
 		"amplitude": lerpf(float(lower["amplitude"]), float(upper["amplitude"]), t),
+		"foam_coverage": lerpf(float(lower["foam_coverage"]), float(upper["foam_coverage"]), t),
+		"streaks": lerpf(float(lower["streaks"]), float(upper["streaks"]), t),
 	}
 
 
@@ -313,6 +341,13 @@ static func _apply_ocean_fft_uniforms(material: ShaderMaterial, wave: Dictionary
 	material.set_shader_parameter(
 		"choppiness", float(reference["choppiness"]) * ocean_fft_choppiness_ratio(wave)
 	)
+	material.set_shader_parameter("storm_foam_coverage", float(reference["foam_coverage"]))
+	material.set_shader_parameter("storm_streaks", float(reference["streaks"]))
+	var foam_tile := load(OCEAN_FOAM_TILE_PATH) as Texture2D
+	if foam_tile == null:
+		push_warning("WS-06: missing foam tile %s; FFT whitecaps stay off" % OCEAN_FOAM_TILE_PATH)
+	else:
+		material.set_shader_parameter("foam_tile", foam_tile)
 
 
 static func puddle_surface() -> ShaderMaterial:
@@ -441,6 +476,8 @@ static func apply_sea_weather(
 			)
 			material.set_shader_parameter("ocean_amplitude", float(sea["amplitude"]))
 			material.set_shader_parameter("fft_cascade", cascade_uniforms)
+			material.set_shader_parameter("storm_foam_coverage", float(sea["foam_coverage"]))
+			material.set_shader_parameter("storm_streaks", float(sea["streaks"]))
 		else:
 			material.set_shader_parameter(
 				"choppiness", float(wave.get("choppiness", 0.85)) * chop_mul

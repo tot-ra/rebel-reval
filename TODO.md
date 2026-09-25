@@ -158,6 +158,25 @@ WS-08 implementation landed (R-893, in review). Decisions (2026-09-25), also in 
    (like the FFT tier); production does not yet call either tier setter, so both default to
    recommended.
 
+- [ ] WS-06 | deps: WS-04 | deliverable: FFT-path whitecaps from baked persistent foam with a seamless bubble foam tile, fresh/old foam shading, storm wind streaks, and gust/slick modulation; Gerstner Jacobian foam kept only on fallback | allowed files: `scripts/map/view3d/map_view_water.gdshader`, `scripts/map/view3d/map_view_water_materials.gd`, `scripts/map/view3d/ocean_fft_common.gdshaderinc`, `tools/bake_ocean_fft.py`, `tests/python/test_bake_ocean_fft.py`, `assets/water/ocean_fft/foam_tile.png`, `assets/SOURCES.csv`, `tests/godot/test_r715_water_material_contract.gd`, `tools/capture_ws06_whitecaps.gd`, `docs/tasks/water_sky/WS-06_fft_foam_whitecaps.md`, `docs/reports/images/ws06_*.png`, `TODO.md` | verify: foam tile seam test; contract test; clear/overcast/storm/storm-night captures and a 10 s clip show lingering, textured, wind-streaked foam that rides its wave
+
+WS-06 implementation landed (R-891, in review). Decisions (2026-09-25), also in the contract's
+"Final parameters and decisions" section:
+
+1. **Coverage.** `foam_coverage` ends at 1.0, not 0.5: with the capped mask the reference sea
+   needed the full value to show scattered overcast whitecaps. The weather table carries
+   `foam_coverage` calm 0.2 / reference 0.8 / storm 1.8 and `streaks` 0 / 0 / 1.
+2. **Storms break more than the bake.** The baked foam only exists where the reference sea broke,
+   so the weather scale also lowers the freshness bar and the mask is capped at 1.0 so storm foam
+   keeps bubble holes. A thin trail term keeps the decayed tail visible for its few seconds.
+3. **Scales.** Foam tile 0.0783 tiles per unit (Tidewater 0.09 per metre x 0.87), streak amount
+   0.6 (0.3 was invisible). Streaks and the coarse link use the C0 foam share; the disp atlases
+   have no mips, so there is no coarser mip to read.
+4. **Seamless drift.** Foam tiles and the gust field move a whole number of tiles or lattice
+   periods per 1638.4 s ocean-clock wrap.
+5. **Scope additions:** the shared FFT include (foam terms and a C2 gain), the capture tool and
+   the contract doc are listed above.
+
 - [ ] WS-13 | deps: WS-01, WS-05, WS-07 | deliverable: UnderwaterPass (AIR/STRADDLE/UNDER from the camera height) screen pass with per-pixel FFT waterline and meniscus, Beer-Lambert medium with HG sun in-scatter, submerged caustics and marched light shafts; water underside Snell's window with total internal reflection; SFX low-pass; wet lens on surfacing; P0-227 tint removed | allowed files: `scripts/map/view3d/underwater_pass.gd`, `scripts/map/view3d/underwater_pass.gdshader`, `scripts/map/view3d/ocean_fft_common.gdshaderinc`, `scripts/map/view3d/map_view_water.gdshader`, `scripts/map/view3d/map_view_3d.gd`, `audio/default_bus_layout.tres`, `tools/capture_underwater.gd`, `tests/godot/test_underwater_pass.gd`, `tests/godot/test_r715_water_material_contract.gd`, `tests/godot/test_ocean_fft_material.gd`, `docs/tasks/water_sky/WS-13_underwater_view_pass.md`, `docs/reports/images/ws13_*.png`, `TODO.md` | verify: state/bus/lens tests; include refactor pixel-identical; under/up/straddle/night/storm captures and dip clip; pass <= 1.0 ms under water and 0 in air
 
 WS-13 implementation landed (R-898, in review) ahead of its dependencies. Decisions (2026-09-25),

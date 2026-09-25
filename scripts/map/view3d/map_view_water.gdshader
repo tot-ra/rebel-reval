@@ -107,6 +107,43 @@ uniform float ripple_foam_strength = 0.85;
 // Art-direction lever: under flat overcast light a bent normal alone barely changes the
 // reflected sky, so ring flanks also catch a little highlight colour (rain reads on water).
 uniform float ripple_sheen = 2.0;
+// WS-06 whitecaps from the baked foam channel (FFT path only; the Gerstner fallback
+// keeps the P0-223 Jacobian foam). foam_tile is the seamless bubble/speckle/streak
+// detail from `bake_ocean_fft.py foam-tile`; unset it reads black, so no whitecaps.
+uniform sampler2D foam_tile : hint_default_black, filter_linear_mipmap, repeat_enable;
+// Tiles per world unit: Tidewater foamScale 0.09 per metre x 0.87 m per unit
+// (one tile spans ~11 m). The second layer is 2.3x finer.
+uniform float foam_tile_scale = 0.0783;
+// Tidewater foamCoverage. The two cascade channels both carry full-sea whitecap
+// statistics (WS-03 amendment 2), so the contract started at 0.5; with the capped
+// mask the overcast/day plate needed the full 1.0 for scattered whitecaps.
+uniform float foam_coverage = 1.0;
+uniform float foam_sharpness = 2.2;
+// Weather scale of the baked mask (apply_sea_weather: calm 0.2 .. storm 1.8).
+uniform float storm_foam_coverage = 0.8;
+// Wind streaks: storm share (0 calm .. 1 storm) times streak_amount. Tidewater's
+// 0.3 vanished under the storm sky reflection on the gameplay camera.
+uniform float storm_streaks = 0.0;
+uniform float streak_amount = 0.6;
+// Catspaws (gust) and glassy slicks: a slow, wind-borne field that scales the
+// ripple cascade and the detail normal on every sea state.
+uniform float gust_amount = 1.0;
+uniform float slick_amount = 1.0;
+// One gust lattice cell per ~60 world units.
+uniform float gust_scale = 0.0167;
+// MapViewRuntimeEnvironment.OCEAN_TIME_WRAP_SECONDS. Every drift below moves a whole
+// number of tiles or lattice periods per wrap, so the ocean clock wrap never pops.
+const float OCEAN_TIME_WRAP_SECONDS = 1638.4;
+// Foam tile drift downwind: ~0.27 m/s and ~0.29 m/s, slow against the wave phase
+// speed, so a foam patch still rides its crest.
+const float FOAM_DRIFT_A_TILES_PER_WRAP = 40.0;
+const float FOAM_DRIFT_B_TILES_PER_WRAP = 100.0;
+// Gust field period along the wind (lattice cells) and its drift (~2.3 units/s).
+const float GUST_PERIOD_CELLS = 16.0;
+const float GUST_DRIFT_CELLS_PER_WRAP = 64.0;
+// Highest effective whitecap mask. At 1.0 the darker half of the tile stays open, so the
+// freshest foam still reads as clustered bubbles.
+const float FOAM_MASK_CAP = 1.0;
 // Fraction of the window over which ripples fade out, so the window edge never shows a seam.
 const float RIPPLE_EDGE_FADE = 0.1;
 // Steepest ripple facet the shading normal may take (about 31 degrees).
@@ -115,9 +152,9 @@ const float RIPPLE_MAX_SLOPE = 0.6;
 varying vec3 water_world_position;
 varying vec2 wave_sample_xz;
 varying float shore_factor;
-// Placeholder crest foam from the baked disp alpha (WS-06 owns final styling).
-// Sampled once per vertex so the fragment stage only pays for slope textures.
-varying float fft_foam;
+// WS-06 foam terms from the baked disp alpha, sampled once per vertex so the fragment
+// stage only pays for the foam tile: x = weighted mask, y = freshness, z = C0 mask.
+varying vec3 fft_foam;
 // WS-13b: 1 on in-map water whose rendered sea bed may lie below the flat gameplay
 // bed; flat_bed_world_y is that bed plane in world space (from UV2).
 varying float flat_bed_flag;
@@ -125,6 +162,21 @@ varying float flat_bed_world_y;
 
 float _hash(vec2 p) {
 	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+}
+
+// Value noise that repeats every `period` lattice cells along x, so a drift of a
+// whole number of periods is invisible (WS-06 gust field and the ocean clock wrap).
+float _noise_periodic_x(vec2 p, float period) {
+	vec2 i = floor(p);
+	vec2 f = fract(p);
+	vec2 u = f * f * (3.0 - 2.0 * f);
+	float x0 = mod(i.x, period);
+	float x1 = mod(i.x + 1.0, period);
+	return mix(
+		mix(_hash(vec2(x0, i.y)), _hash(vec2(x1, i.y)), u.x),
+		mix(_hash(vec2(x0, i.y + 1.0)), _hash(vec2(x1, i.y + 1.0)), u.x),
+		u.y
+	);
 }
 
 float _noise(vec2 p) {
@@ -395,6 +447,20 @@ vec3 _sky_dome_gradient(vec3 dir) {
 	return color;
 }
 
+// WS-06 catspaws and slicks: gain for the ripple cascade and the detail normal.
+// Above 1 a gust roughens the water into a dark patch; below 1 a slick flattens it
+// into a glassy streak that mirrors the sky. Lives in the wind frame and drifts
+// downwind, so the patches cross the water with the wind.
+float _sea_gust(vec2 world_xz) {
+	vec2 p = _fft_to_wind(world_xz, _fft_wind_axis()) * gust_scale;
+	float drift = ocean_time * GUST_DRIFT_CELLS_PER_WRAP / OCEAN_TIME_WRAP_SECONDS;
+	float n = _noise_periodic_x(p - vec2(drift, 0.0), GUST_PERIOD_CELLS) * 0.7
+		+ _noise_periodic_x(p * 3.0 - vec2(drift * 3.0, 0.0) + vec2(0.0, 7.3), GUST_PERIOD_CELLS * 3.0) * 0.3;
+	float gust = smoothstep(0.52, 0.72, n);
+	float slick = 1.0 - smoothstep(0.30, 0.46, n);
+	return 1.0 + gust_amount * 0.4 * gust - slick_amount * 0.6 * slick;
+}
+
 vec2 _ripple_uv(vec2 world_xz) {
 	return (world_xz - ripple_window.xy) / max(ripple_window.z, 0.001);
 }
@@ -417,12 +483,10 @@ void vertex() {
 	vec2 flow_advection = flow_direction * (flow_strength * TIME * wave_speed * 0.6);
 	vec3 displacement = vec3(0.0);
 	vec3 normal_terms = vec3(0.0);
-	fft_foam = 0.0;
+	fft_foam = vec3(0.0);
 	if (use_fft) {
 		// FFT replaces wave_height; wave_height stays the Gerstner amplitude only.
-		vec4 fft = _fft_displacement(wave_sample_xz);
-		displacement = fft.xyz;
-		fft_foam = fft.w;
+		displacement = _fft_displacement_foam(wave_sample_xz, fft_foam);
 	} else {
 		_water_field(wave_sample_xz - flow_advection, TIME * wave_speed, displacement, normal_terms);
 		displacement *= wave_height;
@@ -467,7 +531,7 @@ void vertex() {
 	if (swash_sheet) {
 		// The film lies on the sand; the ocean displacement must not lift it.
 		VERTEX = rest_vertex;
-		fft_foam = 0.0;
+		fft_foam = vec3(0.0);
 		water_world_position = undisplaced_world;
 	}
 }
@@ -544,9 +608,12 @@ void fragment() {
 	// Pixel footprint in world units, taken in uniform control flow so the FFT
 	// LOD and cascade fade stay valid inside the branch below.
 	vec2 pixel_footprint = fwidth(wave_sample_xz);
+	// WS-06 gust/slick gain; 1 on the Gerstner fallback (rivers, ponds).
+	float sea_gust = 1.0;
 	if (use_fft) {
-		world_normal = _fft_normal(
-			wave_sample_xz, max(pixel_footprint.x, pixel_footprint.y), crest_term
+		sea_gust = _sea_gust(wave_sample_xz);
+		world_normal = _fft_normal_gust(
+			wave_sample_xz, max(pixel_footprint.x, pixel_footprint.y), sea_gust, crest_term
 		);
 	} else {
 		_water_field(wave_sample_xz - flow_advection, TIME * wave_speed, displacement, normal_terms);
@@ -562,7 +629,7 @@ void fragment() {
 	// The low-sun relief clamp still applies below, preventing sharp glint bands at
 	// sunrise while preserving the small-scale broken reflection at daytime angles.
 	vec3 detail_normal = _water_detail_normal(water_world_position.xz, TIME * wave_speed);
-	world_normal = normalize(mix(world_normal, detail_normal, clamp(detail_normal_strength, 0.0, 1.0)));
+	world_normal = normalize(mix(world_normal, detail_normal, clamp(detail_normal_strength * sea_gust, 0.0, 1.0)));
 	// WS-15: ripple slopes from central differences, added on top of the FFT and detail
 	// normals so rings bend reflections and glints. Aeration feeds the foam mask below.
 	float ripple_aeration = 0.0;
@@ -677,10 +744,53 @@ void fragment() {
 	float caustics = _bed_caustics(water_world_position.xz, TIME * wave_speed);
 	water_color += highlight_color * caustics * caustic_visibility * caustic_strength;
 
+	// WS-06 whitecaps. The baked mask decides where foam is; the foam tile, sampled at
+	// the undisplaced wave_sample_xz (in the wind frame) so it rides the surface,
+	// decides what it looks like: bubble clusters appear first where the tile is
+	// bright, and the patch thins back into them as the baked foam decays.
+	float whitecap = 0.0;
+	float whitecap_fresh = 0.0;
+	float wind_streak = 0.0;
+	if (use_fft && !swash_sheet) {
+		vec2 whitecap_uv = _fft_to_wind(wave_sample_xz, _fft_wind_axis()) * foam_tile_scale;
+		vec2 foam_drift_a = vec2(ocean_time * FOAM_DRIFT_A_TILES_PER_WRAP / OCEAN_TIME_WRAP_SECONDS, 0.0);
+		vec2 foam_drift_b = vec2(ocean_time * FOAM_DRIFT_B_TILES_PER_WRAP / OCEAN_TIME_WRAP_SECONDS, 0.0);
+		vec4 tile_a = texture(foam_tile, whitecap_uv - foam_drift_a);
+		vec4 tile_b = texture(foam_tile, whitecap_uv * 2.3 + vec2(0.37, 0.61) - foam_drift_b);
+		float foam_texture = mix(tile_a.r, tile_b.r, 0.5) * mix(0.7, 1.0, tile_a.g);
+		// Capped so even a storm crest keeps bubble holes instead of a flat white sheet.
+		float foam_mask = min(fft_foam.x * storm_foam_coverage * foam_coverage, FOAM_MASK_CAP);
+		whitecap = clamp((foam_mask - (1.0 - foam_texture)) * foam_sharpness, 0.0, 1.0);
+		// Storm streaks: the tile's B channel is stretched 6:1 along +X, which is
+		// downwind in the wind frame. The coarse C0 mask links them to whitecaps.
+		float streak_link = smoothstep(0.02, 0.3, fft_foam.z * storm_foam_coverage);
+		float open_water = smoothstep(0.14, 0.48, shore_factor) * smoothstep(0.03, 0.10, geometric_depth);
+		// Streak foam floats on the surface, so it is laid on as white foam below
+		// instead of the sunk tint of old whitecap foam.
+		wind_streak = clamp(tile_a.b * streak_amount * storm_streaks * streak_link, 0.0, 1.0) * open_water;
+		whitecap *= open_water;
+		// The bake decays foam over time: a high raw value just broke (bright,
+		// opaque), a low one is old foam, thin and sunk under the surface.
+		// A rougher sea breaks more often than the reference bake, so the weather scale
+		// also lowers the bar for foam to count as freshly broken.
+		whitecap_fresh = whitecap * smoothstep(0.35, 0.8, fft_foam.y * storm_foam_coverage);
+		// The decayed tail of the baked foam falls below the whitecap threshold within
+		// about a second; this thin lace over the brightest bubble rims keeps it
+		// visible for the few seconds the bake still carries it.
+		float foam_trail = smoothstep(0.06, 0.3, foam_mask) * smoothstep(0.35, 0.75, foam_texture) * open_water;
+		float whitecap_old = max(whitecap - whitecap_fresh, foam_trail * 0.9);
+		water_color = mix(water_color, mix(shallow_color, foam_color, 0.4), whitecap_old * 0.6);
+		water_color = mix(water_color, mix(foam_color, vec3(0.93, 0.95, 0.94), 0.6), whitecap_fresh);
+		water_color = mix(water_color, foam_color, wind_streak);
+		whitecap_fresh = max(whitecap_fresh, wind_streak);
+	}
+
 	// Thin crests transmit more Baltic teal than troughs; fades with the same solar
 	// envelope as floor caustics so night water stays dark without a bloom pass.
 	float crest_subsurface = smoothstep(0.0, 0.30, max(crest_term, 0.0));
 	crest_subsurface *= choppiness * smoothstep(0.14, 0.48, shore_factor);
+	// Fresh foam is opaque: no light comes through the crest under it.
+	crest_subsurface *= 1.0 - whitecap_fresh;
 	float crest_sss_visibility = twilight_water_light * day_blend;
 	vec3 crest_transmit_tint = mix(shallow_color, highlight_color, 0.58);
 	water_color += crest_transmit_tint
@@ -705,7 +815,16 @@ void fragment() {
 		0.0,
 		0.88
 	);
+	// Fresh foam is rough and diffuse, so it does not mirror the sky. Old foam lies
+	// under the surface and keeps the reflection on top of it.
+	sky_reflection_weight *= 1.0 - whitecap_fresh;
+	// WS-06 art-direction lever, like ripple_sheen: seen from the steep gameplay camera
+	// a flatter or rougher normal barely changes a uniform sky, so a glassy slick also
+	// mirrors a little more of it and a catspaw a little less, then reads darker.
+	float gust_tone = sea_gust - 1.0;
+	sky_reflection_weight = clamp(sky_reflection_weight * (1.0 - gust_tone * 0.5), 0.0, 0.92);
 	water_color = mix(water_color, sky_reflection, sky_reflection_weight);
+	water_color *= 1.0 - max(gust_tone, 0.0) * 0.3;
 
 	// WHY: DayNightCycle packs a solar day into 60s. Reflecting the catalog and
 	// sun/moon through fully animated wave normals turns that race into frantic
@@ -726,7 +845,7 @@ void fragment() {
 	float sun_glint = pow(sun_alignment, 220.0) * sun_reflection_visibility * mix(0.2, 1.0, low_sun_glitter);
 	float moon_alignment = max(dot(reflected_sky_ray, normalize(moon_direction)), 0.0);
 	float moon_glint = pow(moon_alignment, 320.0) * moon_visibility;
-	water_color += sun_reflection_color * sun_glint * (0.45 + fresnel * 1.2);
+	water_color += sun_reflection_color * sun_glint * (0.45 + fresnel * 1.2) * (1.0 - whitecap_fresh);
 	water_color += vec3(0.66, 0.72, 0.86) * moon_glint * (0.25 + fresnel * 0.75);
 
 	// COLOR.r is baked from the same smooth contour that clips the mesh. A pair
@@ -757,18 +876,10 @@ void fragment() {
 	float foam = edge_foam * foam_intensity + breaker_band * breaker_intensity;
 	foam *= smoothstep(0.012, 0.08, geometric_depth);
 
-	// Jacobian whitecaps on open sea: folding Gerstner crests, not shoreline bands.
+	// Jacobian whitecaps on the Gerstner fallback: folding crests, not shoreline bands.
 	// A short time lag leaves foam behind the advancing crest without a foam buffer.
-	if (use_fft) {
-		// Placeholder only: WS-06 styles lingering whitecaps from this channel.
-		// Foam was baked at the reference sea; scale it with the live amplitude so
-		// calm water clears and storms whiten until WS-06 re-derives coverage.
-		float fft_whitecap = smoothstep(0.2, 0.75, fft_foam * ocean_amplitude);
-		fft_whitecap *= foam_intensity * 1.35;
-		fft_whitecap *= smoothstep(0.14, 0.48, shore_factor);
-		fft_whitecap *= smoothstep(0.03, 0.10, geometric_depth);
-		foam += fft_whitecap;
-	} else if (flow_strength <= 0.001) {
+	// The FFT path styles its baked, lingering foam above (WS-06 whitecap).
+	if (!use_fft && flow_strength <= 0.001) {
 		float jacobian_now = _water_jacobian(wave_sample_xz - flow_advection, TIME * wave_speed);
 		float jacobian_trail = _water_jacobian(
 			wave_sample_xz - flow_advection,
@@ -819,6 +930,10 @@ void fragment() {
 	ROUGHNESS = mix(mix(0.32, 0.42, clamp(foam, 0.0, 1.0)), day_roughness, sun_visibility);
 	// Godot maps SPECULAR to dielectric F0; 0.25 is approximately water's 0.02.
 	SPECULAR = mix(0.05, 0.25, sun_visibility);
+	// WS-06: fresh foam is a rough diffuse scatterer. It takes its brightness from
+	// the lights through ALBEDO, so it dims with the night instead of glowing.
+	ROUGHNESS = mix(ROUGHNESS, 0.6, whitecap_fresh);
+	SPECULAR = mix(SPECULAR, 0.1, whitecap_fresh);
 	// WS-13: the surface seen from below. The old P0-227 fog tint is gone; the
 	// UnderwaterPass fogs everything between the lens and this surface, so the
 	// branch only resolves what the surface itself shows: Snell's window inside

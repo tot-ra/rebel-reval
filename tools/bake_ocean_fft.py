@@ -505,6 +505,140 @@ def write_preview(bakes: list[CascadeBake], path: Path, tile: int = 128) -> None
     Image.fromarray(np.concatenate(rows, axis=0)).save(path, format="PNG")
 
 
+# --- WS-06 foam tile -------------------------------------------------------------------------
+#
+# One seamless RGBA8 detail texture for FFT whitecaps (docs/tasks/water_sky/WS-06_*.md).
+# Every channel is a function of tile coordinates (u, v) that is exactly periodic with
+# period 1, so sampling u = 0 and u = 1 gives the same bytes and the tile wraps with no
+# seam. R = bubble clusters, G = fine speckle, B = wind streaks stretched 6:1 along +X
+# (the bake frame's downwind axis), A = 1.
+
+FOAM_TILE_SIZE = 256
+# Worley lattices for the two bubble scales (cells per tile).
+FOAM_BUBBLE_CELLS = (22, 51)
+# Anisotropic value-noise lattice for the streak channel: 4 cells along X, 24 along Y
+# makes each cell 6x longer downwind than across.
+FOAM_STREAK_LATTICE = ((4, 24), (8, 48), (16, 96))
+
+
+def _lattice_hash(ix: np.ndarray, iy: np.ndarray, salt: int) -> np.ndarray:
+    """Deterministic integer hash -> [0, 1). Pure integer maths, so it is platform stable."""
+    h = (ix.astype(np.uint64) * np.uint64(0x9E3779B1)) ^ (iy.astype(np.uint64) * np.uint64(0x85EBCA77))
+    h ^= np.uint64(salt & 0xFFFFFFFF) * np.uint64(0xC2B2AE3D)
+    h &= np.uint64(0xFFFFFFFF)
+    h ^= h >> np.uint64(15)
+    h = (h * np.uint64(0x2C1B3C6D)) & np.uint64(0xFFFFFFFF)
+    h ^= h >> np.uint64(12)
+    h = (h * np.uint64(0x297A2D39)) & np.uint64(0xFFFFFFFF)
+    h ^= h >> np.uint64(15)
+    return (h & np.uint64(0xFFFFFF)).astype(np.float64) / float(1 << 24)
+
+
+def _periodic_value_noise(u: np.ndarray, v: np.ndarray, nx: int, ny: int, salt: int) -> np.ndarray:
+    """Smooth value noise on an nx-by-ny lattice that wraps once per unit tile."""
+    x = u * nx
+    y = v * ny
+    x0 = np.floor(x)
+    y0 = np.floor(y)
+    fx = x - x0
+    fy = y - y0
+    fx = fx * fx * (3.0 - 2.0 * fx)
+    fy = fy * fy * (3.0 - 2.0 * fy)
+    ix0 = np.mod(x0, nx).astype(np.int64)
+    iy0 = np.mod(y0, ny).astype(np.int64)
+    ix1 = np.mod(ix0 + 1, nx)
+    iy1 = np.mod(iy0 + 1, ny)
+    a = _lattice_hash(ix0, iy0, salt)
+    b = _lattice_hash(ix1, iy0, salt)
+    c = _lattice_hash(ix0, iy1, salt)
+    d = _lattice_hash(ix1, iy1, salt)
+    return (a * (1.0 - fx) + b * fx) * (1.0 - fy) + (c * (1.0 - fx) + d * fx) * fy
+
+
+def _periodic_worley(u: np.ndarray, v: np.ndarray, cells: int, salt: int) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """F1, F2 (in cell units) and the random radius of the nearest feature point."""
+    x = u * cells
+    y = v * cells
+    cx = np.floor(x)
+    cy = np.floor(y)
+    f1 = np.full(x.shape, 9.0)
+    f2 = np.full(x.shape, 9.0)
+    radius = np.zeros(x.shape)
+    for oy in (-1, 0, 1):
+        for ox in (-1, 0, 1):
+            gx = cx + ox
+            gy = cy + oy
+            ix = np.mod(gx, cells).astype(np.int64)
+            iy = np.mod(gy, cells).astype(np.int64)
+            px = gx + _lattice_hash(ix, iy, salt)
+            py = gy + _lattice_hash(ix, iy, salt + 1)
+            r = _lattice_hash(ix, iy, salt + 2)
+            dist = np.hypot(x - px, y - py)
+            closer = dist < f1
+            f2 = np.where(closer, f1, np.minimum(f2, dist))
+            radius = np.where(closer, r, radius)
+            f1 = np.where(closer, dist, f1)
+    return f1, f2, radius
+
+
+def _bubble_layer(u: np.ndarray, v: np.ndarray, cells: int, salt: int) -> np.ndarray:
+    """Inverted Worley F1 thresholded into rims: bright bubble walls, darker cores,
+    and a foam film filling the gaps where cells meet (F2 - F1 small)."""
+    f1, f2, rand_r = _periodic_worley(u, v, cells, salt)
+    radius = 0.28 + 0.22 * rand_r
+    inv_f1 = np.clip(1.0 - f1 / radius, 0.0, 1.0)
+    rim = np.exp(-(((f1 - radius) / 0.07) ** 2))
+    core = 0.35 * inv_f1
+    film = np.clip(1.0 - (f2 - f1) / 0.18, 0.0, 1.0) * 0.55
+    return np.clip(np.maximum(rim, film) + core, 0.0, 1.0)
+
+
+def foam_tile_channels(u: np.ndarray, v: np.ndarray, seed: int) -> np.ndarray:
+    """Float RGBA in 0..1 at tile coordinates (u, v); periodic with period 1 in both."""
+    salt = int(seed) * 97
+    # Clusters: a low-frequency envelope groups bubbles into patches instead of an even
+    # carpet, so the shader threshold uncovers clumps first as the whitecap mask rises.
+    cluster = 0.6 * _periodic_value_noise(u, v, 6, 6, salt + 11) + 0.4 * _periodic_value_noise(u, v, 13, 13, salt + 12)
+    big = _bubble_layer(u, v, FOAM_BUBBLE_CELLS[0], salt + 20)
+    small = _bubble_layer(u, v, FOAM_BUBBLE_CELLS[1], salt + 30)
+    bubbles = np.maximum(big, small * 0.85)
+    red = np.clip(bubbles * (0.45 + 1.1 * cluster**1.5), 0.0, 1.0)
+    speckle = 0.65 * _periodic_value_noise(u, v, 96, 96, salt + 40) + 0.35 * _periodic_value_noise(u, v, 173, 173, salt + 41)
+    green = np.clip((speckle - 0.5) * 1.6 + 0.5, 0.0, 1.0)
+    # Ridged anisotropic noise gives thin lines along +X; a gentle periodic warp across
+    # the wind makes them meander instead of running as ruler-straight bands.
+    warp = 0.025 * (_periodic_value_noise(u, v, 3, 5, salt + 49) - 0.5)
+    streak = np.zeros(u.shape)
+    weight = 0.0
+    for octave, (nx, ny) in enumerate(FOAM_STREAK_LATTICE):
+        amplitude = 0.5**octave
+        ridge = 1.0 - np.abs(2.0 * _periodic_value_noise(u, v + warp, nx, ny, salt + 50 + octave) - 1.0)
+        streak += amplitude * ridge
+        weight += amplitude
+    streak /= weight
+    blue = np.clip((streak - 0.62) / 0.25, 0.0, 1.0) ** 1.5
+    alpha = np.ones(u.shape)
+    return np.stack([red, green, blue, alpha], axis=-1)
+
+
+def foam_tile_image(seed: int, size: int = FOAM_TILE_SIZE) -> np.ndarray:
+    coords = np.arange(size, dtype=np.float64) / size
+    u, v = np.meshgrid(coords, coords)
+    return encode_unit(foam_tile_channels(u, v, seed))
+
+
+def foam_tile_main(argv: list[str]) -> int:
+    parser = argparse.ArgumentParser(prog="bake_ocean_fft.py foam-tile", description="WS-06 seamless foam detail tile")
+    parser.add_argument("--out", type=Path, required=True, help="output PNG path")
+    parser.add_argument("--seed", type=int, default=1343)
+    parser.add_argument("--size", type=int, default=FOAM_TILE_SIZE)
+    args = parser.parse_args(argv)
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+    write_png(args.out, foam_tile_image(args.seed, args.size))
+    print(f"wrote foam tile {args.out} ({args.out.stat().st_size} bytes, sha256 {sha256(args.out)})")
+    return 0
+
+
 # --- CLI ------------------------------------------------------------------------------------
 
 
@@ -549,6 +683,10 @@ def resolve(args: argparse.Namespace) -> tuple[SeaState, tuple[CascadeSpec, ...]
 
 
 def main(argv: list[str] | None = None) -> int:
+    argv = sys.argv[1:] if argv is None else argv
+    # WS-06: the foam tile is a separate subcommand so the cascade flags stay unchanged.
+    if argv and argv[0] == "foam-tile":
+        return foam_tile_main(argv[1:])
     args = build_parser().parse_args(argv)
     sea, cascades, seed = resolve(args)
     default_out = Path(__file__).resolve().parent.parent / "assets" / "water" / "ocean_fft" / args.profile
