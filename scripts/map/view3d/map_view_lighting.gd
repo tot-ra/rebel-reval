@@ -34,7 +34,10 @@ const LIGHTNING_SUN_ENERGY := 1.6
 const LIGHTNING_AMBIENT_ENERGY := 0.9
 
 ## Morning ground mist uses basic height-biased fog because the GL Compatibility
-## renderer has no volumetric fog.
+## renderer has no volumetric fog. Night uses a darker moonlit haze: the pale
+## morning colour ignored day_blend and painted harbours as a flat light sheet
+## from FOG_HOURS_BEFORE_SUNRISE through first light.
+const FOG_NIGHT_COLOR := Color8(30, 38, 56)
 const FOG_MORNING_COLOR := Color8(200, 210, 220)
 const FOG_MAX_DENSITY := 0.018
 const FOG_HEIGHT := 3.5
@@ -243,14 +246,24 @@ static func apply_ground_mist(
 		return
 	environment.fog_enabled = true
 	environment.fog_mode = Environment.FOG_MODE_EXPONENTIAL
-	var rain_color := Color8(34, 42, 58).lerp(Color8(145, 157, 168), presentation.day_blend)
-	environment.fog_light_color = FOG_MORNING_COLOR.lerp(rain_color, rain_haze)
+	environment.fog_light_color = ground_mist_light_color(presentation.day_blend, mist, rain_haze)
 	environment.fog_sun_scatter = 0.2
 	environment.fog_sky_affect = 0.08
 	environment.fog_aerial_perspective = 0.0
 	environment.fog_density = FOG_MAX_DENSITY * mist + 0.0035 * rain_haze
 	environment.fog_height = FOG_HEIGHT
 	environment.fog_height_density = FOG_MAX_HEIGHT_DENSITY * mist * (1.0 - rain_haze)
+
+
+## Dry morning mist follows day_blend so night haze stays darker than night
+## ambient. Rain-only haze keeps the previous pale-to-rain lerp (mist == 0).
+static func ground_mist_light_color(day_blend: float, mist: float, rain_haze: float) -> Color:
+	var blend := clampf(day_blend, 0.0, 1.0)
+	var rain_color := Color8(34, 42, 58).lerp(Color8(145, 157, 168), blend)
+	var dry_fog := FOG_MORNING_COLOR
+	if mist > 0.001:
+		dry_fog = FOG_NIGHT_COLOR.lerp(FOG_MORNING_COLOR, blend)
+	return dry_fog.lerp(rain_color, clampf(rain_haze, 0.0, 1.0))
 
 
 ## Mist rises during the pre-dawn window and burns off after sunrise.
