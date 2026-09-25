@@ -30,6 +30,34 @@ gets steep and confused in a storm. There is no visible repeating four-wave patt
   step 8.
 - Stable IDs: none. The water terrain IDs are unchanged.
 
+## WS-03 bake conventions (amended 2026-09-25)
+
+WS-03 shipped in commit `3cc7967f` with four deliberate deviations from its own contract text. They
+are authoritative here. The source of truth is "Final parameters and decisions" in
+[WS-03](WS-03_fft_ocean_bake_tool.md) and the `conventions` block of
+`assets/water/ocean_fft/baltic_reference/ocean_fft_profile.json`.
+
+1. **Displacement sign is positive.** The surface point is `x' = x + λ·D` with
+   `D = IFFT(+i·k̂·h)`, so crests compress (Horvath/Acerola convention). Do **not** subtract `D`
+   and do not flip its sign.
+2. **The derivative channels are already negative.** They are the true derivatives of that `D`:
+   `∂Dx/∂x = IFFT(−kx²/|k|·h)`, `∂Dz/∂z = IFFT(−kz²/|k|·h)`. Decode them as-is and use them
+   directly in `J`; the baked signs are what make the Jacobian drop below 1 on crests and put foam
+   on crests. Any extra negation moves foam into the troughs.
+3. **Baked heights are physical, not art-scaled.** Measured `Hs = 1.26 m` total
+   (C0 1.13 m, C1 0.53 m, C2 0.16 m), which is half of Tidewater's amplitude because WS-03
+   normalised `h0` to the band energy `m0`. So the reference row of the weather table below
+   (all weights `1.0`, `ocean_amplitude = 1.0`) is the physical Baltic sea state - keep those
+   defaults and only raise them if a capture review asks for a taller sea. Do not re-bake to
+   change amplitude; per-cascade weights and `ocean_amplitude` own all art scaling.
+4. **The atlases are `CompressedTexture2DArray`.** In the shader they bind to `sampler2DArray` as
+   written below, but the GDScript side must type them as `TextureLayered` (not `Texture2DArray`)
+   when it loads and assigns them, or the assignment fails at runtime.
+
+Profile keys this task reads: `hs_m`, `meters_per_world_unit` (0.87), and per cascade `patch_m`,
+`period_s`, `frames`, `channel_scales{dx,dy,dz,dy_dx,dy_dz,dx_dx,dz_dz}` (C2 has the four
+derivative scales only). C2 has no disp atlas and therefore no `dx/dy/dz` scale and no foam channel.
+
 ## Constraints and non-goals
 
 - Keep the existing Gerstner path (`_water_field`) as the **fallback**. Rivers
@@ -53,7 +81,7 @@ gets steep and confused in a storm. There is no visible repeating four-wave patt
    instead of `TIME` on the FFT path. WS-05 reads the same value on the CPU, which fixes today's
    drift between `TIME` in the shader and `Time.get_ticks_msec()` in `BoatFloat3D`.
 2. **Uniforms** (set by `map_view_water_materials.gd` from `ocean_fft_profile.json`, loaded once
-   and cached in a static):
+   and cached in a static; hold the loaded atlases as `TextureLayered`, see amendment 4):
    ```glsl
    uniform bool use_fft = false;
    uniform sampler2DArray fft_c0_disp  : filter_linear, repeat_enable;
@@ -83,15 +111,18 @@ gets steep and confused in a storm. There is no visible repeating four-wave patt
        return mix(a, b, f - i0);
    }
    ```
-   `uv = p' / c.x` (world units ÷ patch world size). Decode each channel as `(v − 0.5)·2·scale`.
+   `uv = p' / c.x` (world units ÷ patch world size). Decode the signed channels as
+   `(v − 0.5)·2·scale`: RGB of `disp` and all four channels of `deriv`. The **disp alpha is foam,
+   encoded linear 0..1** - use it raw, with no signed decode and no scale.
    The disp textures use `lod = 0`. The deriv textures in `fragment()` compute a LOD by hand from
    `fwidth(uv)·N`, because sampler arrays with explicit layers don't pick mip levels automatically in
    every GL driver.
 5. **Vertex stage (FFT path):**
-   `D = Σ_{c<2} w_c·decode(c_disp)`. Scale horizontal by `choppiness`. Convert metres to world units
-   (`/ 0.87`) and multiply by `ocean_amplitude`. Apply the existing `displacement_fade` and
-   `shoaling`. **Replace** `wave_height` on this path. `wave_height` stays the Gerstner amplitude
-   only.
+   `D = Σ_{c<2} w_c·decode(c_disp)`. Scale horizontal by `choppiness` (that is λ). Convert metres to
+   world units (`/ 0.87`) and multiply by `ocean_amplitude`. The displaced surface point is
+   **`x' = x + λ·D`** (amendment 1): add the horizontal components, don't subtract them. Apply the
+   existing `displacement_fade` and `shoaling`. **Replace** `wave_height` on this path.
+   `wave_height` stays the Gerstner amplitude only.
 6. **Fragment stage (FFT path):** sum the slopes and Jacobian derivatives of all active cascades at
    the *undisplaced* `wave_sample_xz` (same reasoning as today's comment about the swimming normal):
    ```glsl
@@ -99,6 +130,8 @@ gets steep and confused in a storm. There is no visible repeating four-wave patt
    vec2 J = Σ w_c·(dDx/dx, dDz/dz) * choppiness;
    vec3 n = normalize(vec3(-S.x / (1.0 + J.x), 1.0, -S.y / (1.0 + J.y)));
    ```
+   `J` uses the decoded `dDx/dx` and `dDz/dz` with **no sign flip** (amendment 2), so `1 + J`
+   goes below 1 on compressed crests.
    Fade C2, then C1, towards zero weight with camera distance (Tidewater `oceanLOD`). Start about
    40 world units for C2 and about 160 for C1, and tune on the capture. Let the existing detail
    normal take over what the fade removes. Replace the Gerstner `normal_terms.y` crest term used by
@@ -120,8 +153,10 @@ gets steep and confused in a storm. There is no visible repeating four-wave patt
    | reference (wind ≈ 0.5) | 1.0 | 1.0 | 1.0 | 0.9 | 1.0 |
    | storm (storm chop 1) | 1.8 | 1.4 | 1.2 | 1.15 | 1.6 |
 
-   Interpolate smoothly, with no jump when the weather changes. Weather transitions already blend
-   over `SkyWeather3D.TRANSITION_SECONDS`.
+   The reference row is the physical bake (amendment 3): weights `1.0` and `ocean_amplitude = 1.0`
+   give `Hs = 1.26 m`. Judge the storm and calm rows against that, and record the measured `Hs`
+   multiplier you settle on next to the table. Interpolate smoothly, with no jump when the weather
+   changes. Weather transitions already blend over `SkyWeather3D.TRANSITION_SECONDS`.
 8. **Enablement.** `water_surface()` sets `use_fft = true` only for open sea and coastal terrains
    (look at `MapTypes.WATER_TERRAINS` and `OPTICAL_DEPTH_BY_TERRAIN` for the IDs) **and** only when
    `BoatFloat3D` reports FFT support (a constant WS-05 adds). Until WS-05 lands that constant is
@@ -136,6 +171,8 @@ gets steep and confused in a storm. There is no visible repeating four-wave patt
 1. The headless Godot suite passes. New `test_ocean_fft_material.gd`:
    - the profile JSON loads, and the cascade uniforms equal `patch_m/0.87`, the period and the frame
      count
+   - the five atlases load and are `TextureLayered` with 64 layers (amendment 4)
+   - the reference sea state leaves every cascade weight and `ocean_amplitude` at 1.0 (amendment 3)
    - sea terrains get `use_fft` (with a test hook that forces the WS-05 support flag) and rivers
      don't
    - the weather table is monotonic from calm to storm
@@ -148,6 +185,9 @@ gets steep and confused in a storm. There is no visible repeating four-wave patt
    - no seam or pop when the 25.6 s loop wraps (watch a fixed spot across the wrap)
    - storm waves are visibly steeper and more confused than calm ones
    - changing the wind heading turns the wave trains
+   - crests are sharp and troughs broad, and the placeholder foam sits **on crests**, not in
+     troughs. Foam in the troughs means the displacement or derivative sign was flipped
+     (amendments 1 and 2).
 4. Performance: `tools/run_performance_report.sh --quick` and
    `python3 tools/verify_r715_water_performance.py`. The FFT path costs about 4 array samples per
    vertex and about 6 per fragment. Report the frame-time change on the harbour benchmark. It must

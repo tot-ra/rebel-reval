@@ -37,6 +37,31 @@ right.
   diffuse share from `light()`.
 - Stable IDs: none.
 
+## WS-03 bake conventions (amended 2026-09-25)
+
+WS-03 shipped in commit `3cc7967f` with deliberate deviations from its contract text; see
+"Final parameters and decisions" in [WS-03](WS-03_fft_ocean_bake_tool.md) and the `conventions`
+block of `ocean_fft_profile.json`. Three of them change this task:
+
+1. **Foam is linear `0..1` in the `disp` alpha channel.** It does **not** use the signed
+   `(v − 0.5)·2·scale` encoding that the RGB and `deriv` channels use, and it has no entry in
+   `channel_scales`. Read the alpha raw.
+2. **Each cascade's foam already carries full-sea statistics.** WS-03 had to make every cascade's
+   foam loop with its own patch and period, so it scaled the foam Jacobian per cascade
+   (`λ_c = λ₀·2·σ_total/σ_c`, giving C0 3.87 and C1 3.00). Each channel is therefore an estimate of
+   the whitecaps of the *whole* sea, not of its own band. `w0·foam_c0 + w1·foam_c1` consequently
+   roughly doubles the intended coverage, so **start `foam_coverage` at about 0.5** instead of 1.0
+   and tune it on the captures. About 4% of texels generate foam per frame in the reference bake, so
+   the reference sea should read as scattered whitecaps, not a covered sea.
+3. **C2 has no foam and no disp atlas.** Only C0 and C1 contribute to the mask, as the formula in
+   step 2 already assumes. C2 still exists as a derivative-only cascade for the gust/slick
+   modulation in step 6.
+
+The atlases are `CompressedTexture2DArray`: `sampler2DArray` in the shader, `TextureLayered` on the
+GDScript side. The foam constants baked into the loop are `foamBias 0.58`, `foamGain 3`,
+`foamDecay 0.35`, `foamAdd 2.5` at reference choppiness `λ₀ = 0.9`; they are fixed in the data and
+cannot be retuned from the shader.
+
 ## Constraints and non-goals
 
 - Shoreline breaker bands, edge foam and river current streaks stay as they are (WS-08 owns the
@@ -57,7 +82,7 @@ right.
    300 KiB.
 2. **Foam mask** on the FFT path, replacing the `_water_jacobian` call:
    ```glsl
-   float mask = w0 * foam_c0 + w1 * foam_c1;            // baked alpha channels, same frame blend
+   float mask = w0 * foam_c0 + w1 * foam_c1;            // baked alpha channels, linear 0..1, same frame blend
    mask *= storm_foam_coverage;                         // from apply_sea_weather (calm ≈ 0.2, storm ≈ 1.4)
    ```
    Sample the foam tile at the **undisplaced** `wave_sample_xz`, so the texture rides with the
@@ -66,7 +91,9 @@ right.
    float t = mix(tile_a.r, tile_b.r, 0.5) * mix(0.7, 1.0, tile_a.g);
    float foam_vis = clamp((mask * foam_coverage - (1.0 - t)) * foam_sharpness, 0.0, 1.0);
    ```
-   `foam_sharpness` should be 2.2 and `foam_coverage` 1.0 as uniforms.
+   `foam_sharpness` should be 2.2, and `foam_coverage` starts at about **0.5** as uniforms - not
+   Tidewater's 1.0, because the two cascade channels double-count the same whitecaps (amendment 2).
+   Tune it on the `overcast/day` capture and record the final value in the code comment.
 3. **Fresh vs old foam.** The baked value decays over time, so a high mask means fresh foam and a
    low mask means old foam. Fresh foam is bright, opaque and rough. Old foam is thinner, bluish and
    partly *under* the surface: tint it towards `mix(shallow_color, foam_color, 0.4)` at about 50%
@@ -91,7 +118,8 @@ right.
 
 1. The Python test covers the foam tile's seamlessness (edges wrap within 1/255) and determinism.
 2. The headless Godot suite passes. The contract test asserts that the FFT path contains no
-   `_water_jacobian(` call and that `foam_tile` is sampled at `wave_sample_xz`.
+   `_water_jacobian(` call, that `foam_tile` is sampled at `wave_sample_xz`, and that the foam mask
+   reads the `disp` alpha without the signed decode (amendment 1).
 3. Captures (Metal and Compatibility), harbour and open coast:
    - `clear/day`: there are few or no whitecaps, and gust and slick patches are visible.
    - `overcast/day`: scattered whitecaps with trailing thin foam.

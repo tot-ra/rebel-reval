@@ -27,13 +27,39 @@ into a crest. Every boat reacts to the same sea, with no per-boat random phase.
   `OceanFftSampler.height_at`).
 - Stable IDs: boat prop IDs are unchanged. Save data doesn't store boat pose, and this must stay true.
 
+## WS-03 bake conventions (amended 2026-09-25)
+
+WS-03 shipped in commit `3cc7967f` with four deliberate deviations from its contract text; see
+"Final parameters and decisions" in [WS-03](WS-03_fft_ocean_bake_tool.md) and the `conventions`
+block of `ocean_fft_profile.json`. The CPU sampler must match the shader, so it inherits all of
+them:
+
+1. **Displacement sign is positive.** The surface point is `x' = x + λ·D` with
+   `D = IFFT(+i·k̂·h)`. `displacement_at` returns that `D`, and `height_at`'s fixed-point iteration
+   (`x0 = world_xz − d.xz`) is the correct inverse of `x + λ·D` - keep it as written and do not
+   flip any sign to "match" WS-03's original step 8.
+2. **Derivative channels are already negative** (`∂Dx/∂x = IFFT(−kx²/|k|·h)`). If a caller ever
+   needs slopes or the Jacobian from this sampler, decode them as-is, exactly like WS-04's `J`.
+3. **Baked heights are physical**: `hs_m = 1.26 m` total, from C0 1.13 m, C1 0.53 m and C2 0.16 m.
+   Cascade `Hs` add in quadrature (the bands are independent), so the C0 + C1 field this sampler
+   loads is `Hs = 1.25 m`: a standard deviation of 0.31 m, and crest-to-trough excursions around
+   ±0.63 m (±0.72 world units) in the reference sea. The reference sea state leaves every cascade
+   weight and `ocean_amplitude` at 1.0. Use these numbers as the sanity scale in the boat test.
+4. **The atlases load as `CompressedTexture2DArray`.** Type the loaded resources as
+   `TextureLayered` and call `TextureLayered.get_layer_data(i)`; `Texture2DArray` is the wrong
+   static type and will fail the assignment.
+
+`disp` RGB and all four `deriv` channels use the signed encoding `(v − 0.5)·2·scale`. The `disp`
+alpha is foam, linear 0..1 - the sampler does not need it, so don't signed-decode it by accident.
+
 ## Constraints and non-goals
 
 - **One source of truth.** The CPU sampler must use the same atlases, decode scales, wind rotation,
   standing-wave blend, cascade weights, choppiness, amplitude and `ocean_time` as the shader. Only
   C0 and C1 matter here. C2 (under 4 m) has no effect on hulls.
 - No GPU readback. Decode the atlas bytes on the CPU once, at load.
-- Memory: keep the raw bytes (`PackedByteArray`, about 3 MiB per cascade). Don't expand to floats.
+- Memory: keep the raw bytes (`PackedByteArray`). C0 and C1 are both 128×128×64 frames of RGBA8, so
+  that is 4 MiB each, 8 MiB for the two cascades. Don't expand to floats.
 - Keep `sample_hull_attitude` as the public API shape so the existing callers and tests keep working.
   The Gerstner `sample_wave` stays for rivers and fallback maps.
 
@@ -41,17 +67,18 @@ into a crest. Every boat reacts to the same sea, with no per-boat random phase.
 
 1. **`OceanFftSampler`** (a static, lazily loaded cache):
    - `load_profile()` reads `ocean_fft_profile.json`. For each of C0 and C1 it loads the imported
-     `Texture2DArray` resource (in exports the source PNGs are gone, so don't read them) and calls
-     `get_layer_data(i)` for every frame. It keeps `Image.get_data()` bytes in one
-     `PackedByteArray` laid out `[frame][y][x][rgba]`.
+     texture array resource as `TextureLayered` (it is a `CompressedTexture2DArray`; in exports the
+     source PNGs are gone, so don't read them) and calls `get_layer_data(i)` for every frame. It
+     keeps `Image.get_data()` bytes in one `PackedByteArray` laid out `[frame][y][x][rgba]`.
    - `set_sea_state(weights: PackedFloat32Array, choppiness, amplitude, wind_dir, standing_ratio)`.
      `map_view_water_materials.apply_sea_weather` calls this with the **same** values it sends to
      the shader. Refactor so one static function computes those values, and both the material and
      the sampler consume it.
    - `displacement_at(world_xz: Vector2, time: float) -> Vector3`: wind-rotate, bilinear-sample the
      four texels of two frames per cascade, blend frames, decode, weight, apply the standing-wave
-     blend, rotate back, and convert metres to world units (`/ 0.87`). This mirrors WS-04's shader
-     code line by line. Put a `# Keep in lockstep with map_view_water.gdshader _fft_*` comment on
+     blend, rotate back, and convert metres to world units (`/ 0.87`). Signed channels decode as
+     `(v − 0.5)·2·scale`. This mirrors WS-04's shader code line by line, including the positive
+     displacement sign. Put a `# Keep in lockstep with map_view_water.gdshader _fft_*` comment on
      both sides.
    - `height_at(world_xz: Vector2, time: float) -> float`: the surface height **at a fixed world
      point**. Horizontal displacement moves surface points, so invert it with a fixed-point
@@ -95,6 +122,10 @@ into a crest. Every boat reacts to the same sea, with no per-boat random phase.
    - `height_at` inversion residual under 1e-3 world units over 200 random points
    - standing ratio 1 returns exactly `0.5·(F(p′) + F_opposite)` from the WS-04 formula, and ratio 0 returns `F(p′)`
    - calm vs storm sea states scale the amplitude monotonically
+   - in the reference sea state (all weights and `ocean_amplitude` at 1.0), sampling a grid over one
+     loop gives `4·sqrt(var(height))·0.87 ≈ 1.25 m`, the C0 + C1 quadrature sum of the profile's
+     per-cascade `hs_m`, within a few per cent. This catches a missing or doubled amplitude
+     normalisation (amendment 3).
    - load time for both cascades under 300 ms. Measure one `height_at` call over 10k calls and
      record the number in the test output. GDScript does about 400 byte reads per call, so expect
      tens of µs.
