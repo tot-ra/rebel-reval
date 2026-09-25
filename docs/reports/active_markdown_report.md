@@ -14,10 +14,10 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `123`
+- Active Markdown files scanned: `124`
 - Markdown files excluded as archive/reference/out of active scope: `713`
-- Local/external links inspected: `691`
-- Links to active Markdown docs: `352`
+- Local/external links inspected: `694`
+- Links to active Markdown docs: `355`
 - Links to existing archive/reference/non-active local docs: `139`
 - External links skipped for reachability: `40`
 - Issues found: `0`
@@ -59,6 +59,7 @@ No active Markdown documentation issues found.
 - `docs/adr/0018-saturated-hdr-fantasy-anime-visual-direction.md`
 - `docs/adr/0019-seamless-contiguous-location-streaming.md`
 - `docs/adr/0020-kalev-character-realism.md`
+- `docs/adr/0021-swimming-and-diving.md`
 - `docs/AGENT_LOOPS.md`
 - `docs/ARCHITECTURE.md`
 - `docs/ART_BIBLE.md`
