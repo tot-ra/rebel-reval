@@ -141,6 +141,7 @@ static var _cache: Dictionary = {}
 static var _ocean_fft_profile: Dictionary = {}
 static var _ocean_fft_textures: Dictionary = {}
 static var _ocean_fft_quality_tier: StringName = SKY_WEATHER.QUALITY_RECOMMENDED
+static var _ripple_off_texture: ImageTexture
 ## Test and capture hook. Production enablement waits for BoatFloat3D.FFT_SUPPORTED
 ## (WS-05) so hulls never float on a sea they cannot sample.
 static var force_ocean_fft_support := false
@@ -394,6 +395,10 @@ static func water_surface(terrain_id: StringName, wave_profiles: Dictionary) -> 
 		material.set_shader_parameter("detail_normal_strength", 0.36)
 		material.set_shader_parameter("detail_normal_scale", 1.28)
 	material.set_shader_parameter("use_fft", false)
+	# WS-15: an unset sampler2D defaults to white (h = 1), so every water material starts
+	# on the flat 1x1 state with the window marked invalid until a WaterRippleSim binds.
+	material.set_shader_parameter("ripple_state", ripple_off_texture())
+	material.set_shader_parameter("ripple_window", Vector4(0.0, 0.0, 64.0, 0.0))
 	if uses_ocean_fft(terrain_id):
 		_apply_ocean_fft_uniforms(material, wave)
 	_cache[key] = material
@@ -459,6 +464,30 @@ static func apply_water_lighting(
 		var material := water_surface(terrain_id as StringName, wave_profiles)
 		material.set_shader_parameter("sun_visibility", visibility)
 		material.set_shader_parameter("day_blend", blend)
+
+
+## WS-15 flat ripple state for materials without a live sim (indoors, minimum tier).
+static func ripple_off_texture() -> Texture2D:
+	if _ripple_off_texture == null:
+		var image := Image.create_empty(1, 1, false, Image.FORMAT_RGBAH)
+		image.fill(Color(0.0, 0.0, 0.0, 1.0))
+		_ripple_off_texture = ImageTexture.create_from_image(image)
+	return _ripple_off_texture
+
+
+## Binds the newest WaterRippleSim state to every cached water material. The sim swaps its
+## ping-pong target each step, so this runs once per step; only uniforms change. A null
+## texture or window.w == 0 restores the flat, disabled state.
+static func apply_water_ripples(
+	texture: Texture2D, window: Vector4, texel_count: float, wave_profiles: Dictionary
+) -> void:
+	var state := texture if texture != null and window.w > 0.5 else ripple_off_texture()
+	var bound_window := window if texture != null else Vector4(window.x, window.y, window.z, 0.0)
+	for terrain_id in wave_profiles.keys():
+		var material := water_surface(terrain_id as StringName, wave_profiles)
+		material.set_shader_parameter("ripple_state", state)
+		material.set_shader_parameter("ripple_window", bound_window)
+		material.set_shader_parameter("ripple_texel_count", maxf(texel_count, 1.0))
 
 
 ## Applies a shared astronomical tide to coastal water families. The generic

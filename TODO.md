@@ -115,6 +115,26 @@ WS-10 implementation landed (R-895, in review). Decisions (2026-09-25), evidence
 4. **Scope additions:** the capture/benchmark/day-sweep tool and the evidence report were not in
    the contract's allowed files and are listed above.
 
+- [ ] WS-15 | deps: WS-04 | deliverable: camera-following 64x64-unit ping-pong SubViewport wave-equation ripple sim (float or packed-16) with impulse queue, deterministic rain droplets, moving-body bow/stern wake and aeration foam, sampled by the water shader for height/normal/foam | allowed files: `scripts/map/view3d/water_ripple_sim.gd`, `scripts/map/view3d/water_ripple_sim.gdshader`, `scripts/map/view3d/map_view_water.gdshader`, `scripts/map/view3d/map_view_water_materials.gd`, `scripts/map/view3d/map_view_3d.gd`, `scripts/map/view3d/sky_weather_3d.gd`, `tests/godot/test_water_ripple_sim.gd`, `docs/reports/images/ws15_*.png`, `docs/reports/ws15_ripple_sim.md`, `tools/capture_ws15_ripples.gd`, `TODO.md` | verify: sim logic tests; 600-frame max-rain stability; rain/storm/moving-body captures and clip without window seams; <= 0.4 ms
+
+WS-15 implementation landed (R-900, in review). Decisions (2026-09-25), evidence in
+[`docs/reports/ws15_ripple_sim.md`](docs/reports/ws15_ripple_sim.md):
+
+1. **Float targets, no packed-16.** A probe read signed half-float values back exactly from a
+   `use_hdr_2d` SubViewport in both canvas_item and spatial shaders, on Compatibility and on
+   Metal. The water shader needs no sRGB workaround.
+2. **Slower, smoother waves than the contract sketch.** `c^2` is 0.02 (about 2.1 units/s), not
+   0.25, so rain reads as rings and a rowing-pace hull outruns the waves and draws a V. A
+   Kelvin-Voigt velocity-Laplacian term (0.07) damps grid-scale chatter. Every impulse is a
+   zero-volume Laplacian-of-Gaussian, so rain cannot pile up a standing offset.
+3. **Rain has its own 40-slot array**, so the 32-per-step gameplay cap never loses wake slots.
+   Aeration comes only from hull forcing. The vertex lift is crest-only, and the shading slope is
+   clamped at 0.6.
+4. **Evidence.** 600 steps at maximum rain peak at |h| 0.2496 on both renderers. The 10 s storm
+   pan shows no window seam. Compatibility costs +0.04 ms at 2560x1440, inside the run noise.
+   Metal is vsync-bound. Plates use the WS-04 `--fft` hook.
+5. **Scope additions:** the capture tool and the evidence report, listed above.
+
 ## Storybook model set
 
 - [ ] P0-209b | deps: P0-209a | deliverable: replace the visually rejected procedural mammals from scratch with convincingly realistic sculpted or scanned source geometry and textured surfaces | allowed files: `tools/assets/realistic_mammals.py`, `tools/assets/mammal_limb_anatomy.py`, `tools/assets/build_storybook_models.py`, `tools/assets/import_realistic_mammals.py`, `tools/assets/import_authored_rat.py`, `tools/assets/pack_authored_rat.py`, `tools/verify_storybook_models.py`, `tools/capture_animal_realism.gd`, `scripts/map/view3d/map_view_medieval_animal_models.gd`, `tests/python/test_mammal_limb_anatomy.py`, `tests/godot/test_mammal_limb_anatomy.gd`, `tests/godot/test_storybook_models.gd`, `tests/godot/test_storybook_live_integration.gd`, `assets/storybook/`, `assets/SOURCES.csv`, `docs/ART_BIBLE.md`, `docs/reports/animal_realism_2026-09-12.md`, `docs/reports/images/animal_realism/`, `TODO.md` | constraints: licensed commercial-use sources; no ripped game assets; preserve species IDs, runtime paths and behavior; replace failed geometry instead of polishing primitive unions; preserve unrelated WIP | verify: inspect replacement source silhouettes and materials; Godot imports and fauna tests; real runtime captures; provenance and independent visual review; do not close on technical tests alone; replacement implementation and 81 focused tests complete; maintainer visual acceptance remains open

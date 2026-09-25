@@ -120,6 +120,27 @@ const float FFT_TROUGH_FLOOR = 0.0015;
 // Jacobian in the shading normal.
 const float FFT_HORIZONTAL_GEOMETRY = 0.5;
 
+// WS-15 interactive ripples (WaterRippleSim): R = height, G = previous height, B = aeration,
+// on a camera-following window. ripple_window = (origin x, origin z, size, valid); valid 0
+// (indoors, minimum tier, no sim) turns the whole path off.
+uniform sampler2D ripple_state : filter_linear, repeat_disable;
+uniform vec4 ripple_window = vec4(0.0, 0.0, 64.0, 0.0);
+uniform float ripple_texel_count = 256.0;
+// Shading slope per unit of height difference between neighbouring texels.
+uniform float ripple_normal_strength = 25.0;
+// Geometric lift per unit height. Kept tiny and crest-only: the FFT trough floor leaves just
+// 0.0015 units above the recessed bed, and any ripple dip below it z-fights the bed on Metal
+// (dark dashed rows in the wake). The normal carries the visible ring and its troughs.
+uniform float ripple_vertex_amplitude = 0.004;
+uniform float ripple_foam_strength = 0.85;
+// Art-direction lever: under flat overcast light a bent normal alone barely changes the
+// reflected sky, so ring flanks also catch a little highlight colour (rain reads on water).
+uniform float ripple_sheen = 2.0;
+// Fraction of the window over which ripples fade out, so the window edge never shows a seam.
+const float RIPPLE_EDGE_FADE = 0.1;
+// Steepest ripple facet the shading normal may take (about 31 degrees).
+const float RIPPLE_MAX_SLOPE = 0.6;
+
 varying vec3 water_world_position;
 varying vec2 wave_sample_xz;
 varying float shore_factor;
@@ -504,6 +525,16 @@ vec3 _fft_normal(vec2 world_xz, float footprint, out float crest) {
 	return normalize(vec3(n_xz.x, 1.0, n_xz.y));
 }
 
+vec2 _ripple_uv(vec2 world_xz) {
+	return (world_xz - ripple_window.xy) / max(ripple_window.z, 0.001);
+}
+
+// 0 outside the window or with the sim off, 1 inside, fading near the window edge.
+float _ripple_weight(vec2 uv) {
+	vec2 edge = min(uv, vec2(1.0) - uv);
+	return ripple_window.w * smoothstep(0.0, RIPPLE_EDGE_FADE, min(edge.x, edge.y));
+}
+
 void vertex() {
 	vec3 undisplaced_world = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	wave_sample_xz = undisplaced_world.xz;
@@ -540,6 +571,11 @@ void vertex() {
 		if (displacement.y < 0.0) {
 			displacement.y = -FFT_TROUGH_FLOOR * (1.0 - exp(displacement.y / FFT_TROUGH_FLOOR));
 		}
+	}
+	if (ripple_window.w > 0.5) {
+		vec2 ripple_uv = _ripple_uv(wave_sample_xz);
+		float ripple_h = textureLod(ripple_state, ripple_uv, 0.0).r * ripple_vertex_amplitude;
+		displacement.y += max(ripple_h * _ripple_weight(ripple_uv), 0.0);
 	}
 	VERTEX.x += displacement.x;
 	VERTEX.y += tide_height * tide_level + displacement.y;
@@ -583,6 +619,26 @@ void fragment() {
 	// sunrise while preserving the small-scale broken reflection at daytime angles.
 	vec3 detail_normal = _water_detail_normal(water_world_position.xz, TIME * wave_speed);
 	world_normal = normalize(mix(world_normal, detail_normal, clamp(detail_normal_strength, 0.0, 1.0)));
+	// WS-15: ripple slopes from central differences, added on top of the FFT and detail
+	// normals so rings bend reflections and glints. Aeration feeds the foam mask below.
+	float ripple_aeration = 0.0;
+	float ripple_slope_length = 0.0;
+	if (ripple_window.w > 0.5) {
+		vec2 ripple_uv = _ripple_uv(wave_sample_xz);
+		float ripple_weight = _ripple_weight(ripple_uv);
+		vec2 ripple_du = vec2(1.0 / max(ripple_texel_count, 1.0), 0.0);
+		float ripple_hx = textureLod(ripple_state, ripple_uv + ripple_du.xy, 0.0).r
+			- textureLod(ripple_state, ripple_uv - ripple_du.xy, 0.0).r;
+		float ripple_hz = textureLod(ripple_state, ripple_uv + ripple_du.yx, 0.0).r
+			- textureLod(ripple_state, ripple_uv - ripple_du.yx, 0.0).r;
+		vec2 ripple_slope = vec2(ripple_hx, ripple_hz) * (0.5 * ripple_normal_strength * ripple_weight);
+		// A hull crest can be several times a raindrop ring; unbounded slopes lay the normal
+		// flat and mirror the dark lower hemisphere as black streaks.
+		ripple_slope /= max(1.0, length(ripple_slope) / RIPPLE_MAX_SLOPE);
+		world_normal = normalize(world_normal + vec3(-ripple_slope.x, 0.0, -ripple_slope.y));
+		ripple_slope_length = length(ripple_slope);
+		ripple_aeration = textureLod(ripple_state, ripple_uv, 0.0).b * ripple_weight;
+	}
 	// Low-angle sunlight turns tiny animated normal changes into long, fast
 	// specular bands. Keep the physical wave displacement, but reduce only the
 	// shading normal relief near the horizon; the blend widens the sunrise and
@@ -775,6 +831,14 @@ void fragment() {
 		current_foam *= smoothstep(0.012, 0.08, geometric_depth);
 		foam += current_foam * 0.30;
 	}
+	// WS-15 churned water behind hulls: broken into bubbly clumps rather than a flat sheet.
+	if (ripple_aeration > 0.001) {
+		float bubbles = _noise(water_world_position.xz * 7.5 + vec2(TIME * 0.3, -TIME * 0.2));
+		bubbles = smoothstep(0.25, 0.75, bubbles * 0.6 + ripple_aeration * 0.6);
+		foam += ripple_aeration * ripple_foam_strength * bubbles
+			* smoothstep(0.012, 0.08, geometric_depth);
+	}
+	water_color = mix(water_color, highlight_color, clamp(ripple_slope_length * ripple_sheen, 0.0, 0.25));
 	water_color = mix(water_color, foam_color, clamp(foam, 0.0, 0.72));
 
 	// Gameplay camera stays above water; this path only tints when a cinematic

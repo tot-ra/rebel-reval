@@ -95,6 +95,8 @@ const QUALITY_TIERS: Dictionary = {
 		# WS-10: half-size sky-view LUT rendered every second frame.
 		"sky_lut_size": SkyAtmosphereLutScript.SIZE_MINIMUM,
 		"sky_lut_every_n_frames": 2,
+		# WS-15: interactive ripple sim off; water keeps the FFT and detail normals.
+		"ripple_sim_size": 0,
 	},
 	QUALITY_RECOMMENDED: {
 		"cloud_noise_resolution": SKY_RESOURCES.CLOUD_NOISE_RESOLUTION_RECOMMENDED,
@@ -113,6 +115,8 @@ const QUALITY_TIERS: Dictionary = {
 		# WS-10: the compressed day moves the sun ~6 deg/s, so the LUT renders every frame.
 		"sky_lut_size": SkyAtmosphereLutScript.SIZE_RECOMMENDED,
 		"sky_lut_every_n_frames": 1,
+		# WS-15: 256^2 texels over the 64 x 64-unit ripple window (0.25 units per texel).
+		"ripple_sim_size": 256,
 	},
 }
 
@@ -293,6 +297,9 @@ class WeatherPresentation extends RefCounted:
 	var star_map: Texture2D
 	var sun_reflection_color := Color.WHITE
 	var rain_suppressed := false
+## WS-15: optional WaterRippleSim that receives rain droplets. Duck-typed (set_rain) because
+## the sim preloads this script for its quality tiers.
+var ripple_sim: Node = null
 
 
 var weather: StringName = WEATHER_CLEAR
@@ -1079,6 +1086,9 @@ func set_roof_audio_enabled(enabled: bool) -> void:
 
 
 func _update_rain(delta: float = 0.0) -> void:
+	# WS-15 rain rings follow the same intensity as the particles, and stop under a roof.
+	if ripple_sim != null and is_instance_valid(ripple_sim):
+		ripple_sim.call(&"set_rain", 0.0 if rain_suppressed else rain_intensity())
 	# Headless tests drive advance() without configure(); no emitter exists then.
 	if _rain == null:
 		return

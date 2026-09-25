@@ -7,6 +7,7 @@ const Lighting := preload("res://scripts/map/view3d/map_view_lighting.gd")
 const SkyWeather3D := preload("res://scripts/map/view3d/sky_weather_3d.gd")
 const TerrainDetails := preload("res://scripts/map/view3d/map_view_terrain_details.gd")
 const MudFootprints3D := preload("res://scripts/map/view3d/mud_footprints_3d.gd")
+const WaterRippleSimScript := preload("res://scripts/map/view3d/water_ripple_sim.gd")
 ## P0-052 3D orthographic view layer (ADR 0007). Assembles terrain, building,
 ## and prop geometry from an immutable MapDefinition, framed by a fixed
 ## dimetric orthographic camera under a deterministic day/night sun.
@@ -22,6 +23,8 @@ const StaticBatcher := preload("res://scripts/map/view3d/map_view_static_batcher
 ## margin hides the seam, so per-frame checks would only add cost.
 const SMOKE_CULL_INTERVAL := 0.25
 const SMOKE_CULL_MARGIN := 12.0
+## WS-15: farthest the ripple window centre may sit from the camera along its view ray.
+const RIPPLE_FOCUS_MAX_REACH := 24.0
 const ALL_TIMES: Array[StringName] = [TIME_DAY, TIME_NIGHT]
 ## Classic isometric framing per ADR 0007; final values freeze in ART_BIBLE v2 (P0-040).
 const CAMERA_PITCH_DEGREES := -30.0
@@ -112,6 +115,7 @@ var _first_person_terrain_detail := false
 var _terrain_detail_focus_cell := Vector2i(2147483647, 2147483647)
 var _decals_node: Node3D
 var _mud_footprints: MudFootprints3D
+var _water_ripple_sim: WaterRippleSimScript
 ## Lazily derived from the definition: gate passages that wall seals must not
 ## grow into, and wall footprints that bound each gate's clear opening.
 var _gate_passages: Array[Rect2] = []
@@ -494,6 +498,67 @@ func sky_weather() -> SkyWeather3D:
 	return _sky_weather
 
 
+## WS-15 interactive ripple sim, or null indoors, on maps without water, or on tiers that
+## turn it off. Moving vessels and the swimmer feed it through add_moving_body/add_impulse.
+func water_ripple_sim() -> WaterRippleSimScript:
+	return _water_ripple_sim
+
+
+## The tier is read once at build time, like the FFT cascades: switching quality rebuilds the
+## map view. Materials are cached across views, so a view without a sim resets them to flat.
+func _create_water_ripple_sim() -> void:
+	var indoor := definition != null and definition.suppresses_exterior_surroundings()
+	var tier := _sky_weather.quality_tier
+	if not WaterRippleSimScript.should_create(tier, indoor, _has_water()):
+		_bind_water_ripples(null, Vector4(0.0, 0.0, WaterRippleSimScript.WINDOW_WORLD_SIZE, 0.0), 1.0)
+		return
+	_water_ripple_sim = WaterRippleSimScript.new()
+	_water_ripple_sim.name = "WaterRippleSim"
+	add_child(_water_ripple_sim)
+	_water_ripple_sim.configure(WaterRippleSimScript.sim_size_for_tier(tier))
+	_water_ripple_sim.focus_provider = _ripple_focus
+	_water_ripple_sim.bind_callback = _bind_water_ripples
+	_sky_weather.ripple_sim = _water_ripple_sim
+
+
+func _bind_water_ripples(texture: Texture2D, window: Vector4, texel_count: float) -> void:
+	MapViewMaterials.WATER_MATERIALS.apply_water_ripples(
+		texture, window, texel_count, MapViewMaterials.WATER_WAVE_BASE
+	)
+
+
+func _has_water() -> bool:
+	if grid != null:
+		for terrain_id in grid.used_terrain_ids():
+			if MapTypes.WATER_TERRAINS.has(terrain_id):
+				return true
+	if definition != null:
+		return definition.resolved_surroundings_sides().values().has(&"water")
+	return false
+
+
+## Camera focus on the water plane: where the view ray meets y = 0. A perspective camera
+## (third/first person) caps the reach so a level view keeps the window near the player
+## instead of at the horizon; the orthographic overview always uses the exact hit point.
+func _ripple_focus() -> Vector3:
+	if _camera == null or not _camera.is_inside_tree():
+		return Vector3.ZERO
+	var origin := _camera.global_position
+	var forward := -_camera.global_transform.basis.z
+	var reach := RIPPLE_FOCUS_MAX_REACH
+	if forward.y < -0.01:
+		var hit := origin + forward * (-origin.y / forward.y)
+		if _camera.projection == Camera3D.PROJECTION_ORTHOGONAL:
+			return hit
+		var offset := Vector2(hit.x - origin.x, hit.z - origin.z).limit_length(reach)
+		return Vector3(origin.x + offset.x, 0.0, origin.z + offset.y)
+	var flat := Vector2(forward.x, forward.z)
+	if flat.length_squared() < 0.0001:
+		return Vector3(origin.x, 0.0, origin.z)
+	var ahead := flat.normalized() * reach
+	return Vector3(origin.x + ahead.x, 0.0, origin.z + ahead.y)
+
+
 func environment_weather() -> SkyWeather3D:
 	return _sky_weather
 
@@ -683,6 +748,7 @@ func _assemble() -> void:
 	_sky_weather.rain_suppressed = (
 		definition != null and definition.suppresses_exterior_surroundings()
 	)
+	_create_water_ripple_sim()
 	_mud_footprints = MudFootprints3D.new()
 	_mud_footprints.name = "MudFootprints"
 	add_child(_mud_footprints)
