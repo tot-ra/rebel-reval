@@ -24,6 +24,9 @@ var parry_window_sec: float = DEFAULT_PARRY_WINDOW_SEC
 var guard_stamina_per_damage: float = DEFAULT_GUARD_STAMINA_PER_DAMAGE
 var parry_stamina_cost: float = DEFAULT_PARRY_STAMINA_COST
 
+## Timed stat modifiers (R-725 Iron Skin and future buffs). Transient: not saved.
+var modifiers := CombatTimedModifiers.new()
+
 var _invuln_remaining_sec: float = 0.0
 var _dead: bool = false
 ## Swing ids already applied to this actor. Prevents duplicate damage from one melee pulse.
@@ -40,12 +43,15 @@ func configure(
 	_dead = health <= 0.0 and max_health > 0.0
 	_invuln_remaining_sec = 0.0
 	_resolved_swing_ids.clear()
+	# A (re)configured actor starts without buffs, e.g. after respawn or load.
+	modifiers.clear()
 
 
 func tick(delta: float) -> void:
 	if delta <= 0.0:
 		return
 	_invuln_remaining_sec = maxf(0.0, _invuln_remaining_sec - delta)
+	modifiers.tick(delta)
 
 
 func is_dead() -> bool:
@@ -100,19 +106,23 @@ func resolve_hit(
 			)
 		)
 
+	# Damage reduction applies to hits that land (open or guarded), after
+	# invulnerability and parry; requested_damage keeps the unreduced amount.
+	var landed := modifiers.reduce_incoming_damage(amount)
+
 	# Iron (and future jam techniques): a braced guard outside the parry window
 	# is forced open. Timed parries above still beat the jam.
 	if pierces_guard and defense.is_guarding:
-		return _resolve_open_hit(amount, swing_id, true)
+		return _resolve_open_hit(amount, swing_id, true, landed)
 
 	if defense.is_guarding:
-		return _resolve_guarded(amount, swing_id)
+		return _resolve_guarded(amount, swing_id, landed)
 
-	return _resolve_open_hit(amount, swing_id)
+	return _resolve_open_hit(amount, swing_id, false, landed)
 
 
-func _resolve_guarded(amount: float, swing_id: int) -> CombatHitResult:
-	var stamina_need := amount * maxf(0.0, guard_stamina_per_damage)
+func _resolve_guarded(amount: float, swing_id: int, landed: float) -> CombatHitResult:
+	var stamina_need := landed * maxf(0.0, guard_stamina_per_damage)
 	var stamina_taken := minf(stamina, stamina_need)
 	stamina = maxf(0.0, stamina - stamina_taken)
 	var uncovered := 0.0
@@ -142,10 +152,10 @@ func _resolve_guarded(amount: float, swing_id: int) -> CombatHitResult:
 
 
 func _resolve_open_hit(
-	amount: float, swing_id: int, pierced_guard: bool = false
+	amount: float, swing_id: int, pierced_guard: bool, landed: float
 ) -> CombatHitResult:
 	var previous_health := health
-	health = clampf(health - amount, 0.0, max_health)
+	health = clampf(health - landed, 0.0, max_health)
 	var health_taken := previous_health - health
 	var became_dead := _check_death()
 	_mark_swing(swing_id)

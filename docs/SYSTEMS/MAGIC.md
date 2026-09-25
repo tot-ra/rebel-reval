@@ -130,6 +130,22 @@ Stable failure codes for tests and UI:
 
 Grant / revoke must be explicit content ops (`magic.grant`, `magic.revoke`) so P7-010 can test them without shipping a full spell list.
 
+### 5.1 Timed modifiers (self buffs, R-725)
+
+Self buffs use `effect.delivery.kind: "self"` plus exactly one `effect.modifier` module. The runtime applies the module to the caster's `CombatVitals.modifiers` (`scripts/combat/combat_timed_modifiers.gd`); combat code never names a spell.
+
+| Field | Rule |
+|---|---|
+| `kind` | `damage_reduction` (fraction of landed damage removed; open and guarded hits, not parries or invulnerable frames) |
+| `modifier_id` | `modifier.<slug>`; identity for replacement and stacking, distinct from the spell ID |
+| `amount` | `0 < amount <= 0.8` per stack; NATURAL scaling applies |
+| `duration_sec` | `0 < duration_sec <= 60`; NATURAL scaling applies |
+| `stacking` | `replace` - a recast replaces magnitude and restarts the timer; `stack` - independently timed stacks up to `max_stacks` (2..5), at the cap the stack closest to expiry is refreshed |
+
+Reductions combine multiplicatively across stacks and modifiers, and the total is capped at 80%, so no buff mix grants invulnerability. The validator rejects a modifier on a non-self delivery, a self delivery without a modifier or with `impact`/`area`, and stacking fields that contradict the policy.
+
+**Save boundary:** timed modifiers are transient combat state. They are not written to `GameState` or save payloads, and an actor rebuilt by load, respawn, or scene transition starts without them. The willpower spent on the cast stays spent.
+
 ---
 
 ## 6. NATURAL aspect coupling
@@ -205,6 +221,7 @@ These are design stubs, not shipped balance.
 |---|---|---|---|---|
 | `spell.pagan.spark` | pagan | `[fire]` | Minor fire projectile | optional |
 | `spell.pagan.reinforce` | pagan | `[metal]` | Short self armor buff | optional |
+| `spell.pagan.iron_skin` | pagan | `[earth, metal]` | Self damage reduction (35%, 8 s, recast replaces); shipped example (R-725) | optional |
 | `spell.pagan.tremor` | pagan | `[earth]` | Short foot stagger pulse | optional |
 | `spell.pagan.healing_mist` | pagan | `[water, life]` | Small ally heal area | optional |
 | `spell.pagan.forgefire_weapon` | pagan | `[fire, metal, mind]` | Temporary fire on melee strikes | `conduit.forge_spell` |

@@ -115,7 +115,8 @@
               "enum": [
                 "projectile",
                 "area_pulse",
-                "summon"
+                "summon",
+                "self"
               ]
             },
             "speed": {
@@ -215,6 +216,47 @@
                   "pattern": "^[a-z][a-z0-9_]*$"
                 }
               }
+            }
+          }
+        },
+        "modifier": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "modifier_id",
+            "amount",
+            "duration_sec",
+            "stacking"
+          ],
+          "properties": {
+            "kind": {
+              "const": "damage_reduction"
+            },
+            "modifier_id": {
+              "type": "string",
+              "pattern": "^modifier\\.[a-z][a-z0-9_]*$"
+            },
+            "amount": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 0.8
+            },
+            "duration_sec": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 60
+            },
+            "stacking": {
+              "enum": [
+                "replace",
+                "stack"
+              ]
+            },
+            "max_stacks": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5
             }
           }
         }

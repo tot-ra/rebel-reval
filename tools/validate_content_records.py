@@ -67,6 +67,59 @@ def _validate_magic_summon_effect(context: RecordValidationContext) -> None:
         )
 
 
+def _validate_magic_self_modifier(context: RecordValidationContext) -> None:
+    """Self delivery carries exactly one timed modifier and nothing that hits others."""
+    effect = context.record.get("effect")
+    if not isinstance(effect, dict):
+        return
+    delivery = effect.get("delivery")
+    is_self = isinstance(delivery, dict) and delivery.get("kind") == "self"
+    modifier = effect.get("modifier")
+    if not is_self:
+        if modifier is not None:
+            context.diagnose(
+                "MAGIC_EFFECT",
+                "$.effect.modifier",
+                "timed modifiers are only delivered by self effects",
+            )
+        return
+    if not isinstance(modifier, dict):
+        context.diagnose(
+            "MAGIC_EFFECT",
+            "$.effect.modifier",
+            "self delivery requires an authored timed modifier",
+        )
+    else:
+        stacking = modifier.get("stacking")
+        max_stacks = modifier.get("max_stacks")
+        if stacking == "stack" and not (isinstance(max_stacks, int) and max_stacks >= 2):
+            context.diagnose(
+                "MAGIC_EFFECT",
+                "$.effect.modifier.max_stacks",
+                "stack modifiers require max_stacks of at least 2",
+            )
+        if stacking == "replace" and max_stacks not in (None, 1):
+            context.diagnose(
+                "MAGIC_EFFECT",
+                "$.effect.modifier.max_stacks",
+                "replace modifiers cannot declare more than one stack",
+            )
+    for field in ("impact", "area"):
+        if effect.get(field) is not None:
+            context.diagnose(
+                "MAGIC_EFFECT",
+                f"$.effect.{field}",
+                f"self effects must not define {field}",
+            )
+    extra = sorted(key for key in delivery if key != "kind")
+    if extra:
+        context.diagnose(
+            "MAGIC_EFFECT",
+            "$.effect.delivery",
+            "self delivery takes no placement fields: " + ", ".join(extra),
+        )
+
+
 def _is_positive_number(value: Any) -> bool:
     return isinstance(value, (int, float)) and not isinstance(value, bool) and value > 0
 
@@ -82,6 +135,7 @@ def validate_magic(context: RecordValidationContext) -> None:
 
     if record_type in {"spell", "rite"}:
         _validate_magic_summon_effect(context)
+        _validate_magic_self_modifier(context)
 
     if record_type == "spell":
         if record.get("school") != "school.pagan":

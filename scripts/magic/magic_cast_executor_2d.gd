@@ -34,7 +34,23 @@ static func execute(
 		return _execute_area_pulse(cast_result, caster, parent, effect_dict)
 	if delivery_kind == "summon":
 		return _execute_summon(cast_result, caster, direction, parent, effect_dict)
+	if delivery_kind == "self":
+		return _execute_self(cast_result, caster, effect_dict)
 	return null
+
+
+## Self delivery spawns nothing: the authored modifier module lands on the
+## caster's own vitals. Returns the caster on success so callers can treat the
+## result like any other delivery that entered the world.
+static func _execute_self(cast_result: Dictionary, caster: Node2D, effect: Dictionary) -> Node2D:
+	var module: Variant = effect.get("modifier", {})
+	if not module is Dictionary:
+		return null
+	if not CombatTimedModifiers.apply_module_to(
+		caster, module as Dictionary, StringName(String(cast_result.get("target_id", "")))
+	):
+		return null
+	return caster
 
 
 static func _execute_projectile(
