@@ -14,11 +14,11 @@ const BANDIT_RIG_SCENE := preload("res://assets/characters/variants/bandit.tscn"
 @export var retreat_speed: float = 150.0
 @export var retreat_distance: float = 180.0
 
+## MapViewRuntime reads this common field for locomotion scaling on every actor.
+var velocity: Vector2 = Vector2.ZERO
 var _last_facing := Vector2.LEFT
 var _bandit_target: Node2D
 var _home_position := Vector2.ZERO
-## MapViewRuntime reads this common field for locomotion scaling on every actor.
-var velocity: Vector2 = Vector2.ZERO
 
 @onready var navigation_agent: NavigationAgent2D = get_node_or_null("NavigationAgent2D")
 
@@ -65,11 +65,24 @@ func _update_motion(delta: float) -> void:
 				away = global_position - _home_position
 			if away.is_zero_approx():
 				away = Vector2.LEFT
-			_move_toward_position(global_position + away.normalized() * retreat_distance, retreat_speed, delta)
+			_move_toward_position(
+				global_position + away.normalized() * retreat_distance, retreat_speed, delta
+			)
 		_:
 			pass
 	if not velocity.is_zero_approx():
 		_last_facing = velocity.normalized()
+
+
+## Snap a magic shove back onto the district navmesh so the bandit is never
+## pushed into a wall or off the walkable street (R-722).
+func _constrain_knockback_position(_from: Vector2, to: Vector2) -> Vector2:
+	if navigation_agent == null:
+		return to
+	var map := navigation_agent.get_navigation_map()
+	if not map.is_valid() or NavigationServer2D.map_get_iteration_id(map) == 0:
+		return to
+	return NavigationServer2D.map_get_closest_point(map, to)
 
 
 func _move_toward_position(destination: Vector2, speed: float, delta: float) -> void:

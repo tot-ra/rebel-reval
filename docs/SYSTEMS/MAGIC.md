@@ -178,6 +178,21 @@ Stagger lands through the shared `CombatStaggerEffect.apply_to` contract (`apply
 
 **Save boundary:** stagger is transient combat state; `reset_actor()`, death, and scene rebuilds clear it.
 
+### 5.4 Knockback and pulse cones (R-722)
+
+`knockback` is a third `area_pulse` impact module. `MagicAreaPulse2D` pushes each target away from the caster (a target standing on the caster is pushed along the cast direction) through the shared `CombatKnockbackEffect.apply_to(target, displacement, duration_sec)` contract (`apply_knockback`). It never names a spell.
+
+| Field | Rule |
+|---|---|
+| `delivery.arc_deg` | Optional on any `area_pulse`, `0 < arc_deg <= 360`, default full circle. The cone is centred on the cast direction; targets on its edge are included |
+| `impact.distance` | `0 < distance <= 160` px. Placement, not magnitude: NATURAL never scales it |
+| `impact.duration_sec` | `0 < duration_sec <= 1`; the REACT hold. NATURAL scaling applies |
+| other impact fields | No `amount`, `damage_type` or `tick_interval_sec`; `stagger` must not carry `distance` |
+
+`CombatRoomEnemy.apply_knockback` reuses the stagger interrupt for its hold (an unlanded telegraph or attack is cancelled) and slides the actor over `CombatKnockbackEffect.SLIDE_SEC` (0.2 s, ease-out) inside `tick_ai`. The slide is frame-rate independent. A new knockback replaces an unfinished slide instead of adding to it, so overlapping casts never exceed one authored distance. Dead actors do not slide. Hosts with walls override `_constrain_knockback_position`; `WorkersDistrictBandit` snaps the shove to its navmesh and fails open while the map has not synced. The validator rejects `knockback` on any delivery other than `area_pulse`.
+
+**Save boundary:** knockback is transient combat state; `reset_actor()`, death, and scene rebuilds clear it.
+
 ---
 
 ## 6. NATURAL aspect coupling
@@ -255,6 +270,7 @@ These are design stubs, not shipped balance.
 | `spell.pagan.reinforce` | pagan | `[metal]` | Short self armor buff | optional |
 | `spell.pagan.iron_skin` | pagan | `[earth, metal]` | Self damage reduction (35%, 8 s, recast replaces); shipped example (R-725) | optional |
 | `spell.pagan.earth_tremor` | pagan | `[earth]` | Hostile stagger pulse (96 radius, 1.5 s, 1 willpower); shipped example (R-724) | optional |
+| `spell.pagan.air_gust` | pagan | `[air]` | Hostile knockback cone (112 radius, 90 deg arc, 96 px push, 0.6 s hold, 1 willpower); shipped example (R-722). `element.air` stays outside the slice-safe default grants: the example is unlocked only by the explicit `magic.grant.starter_air_gust` op and counts against the Act 1 optional band | optional |
 | `spell.pagan.healing_mist` | pagan | `[water, life]` | Ally heal area (80 radius, 6 s, 4 health per second per ally); shipped example (R-721) | optional |
 | `spell.pagan.forgefire_weapon` | pagan | `[fire, metal, mind]` | Temporary fire on melee strikes | `conduit.forge_spell` |
 | `spell.pagan.earthen_wall` | pagan | `[earth, metal, life]` | Short blocking earth segment | `conduit.forge_spell` |

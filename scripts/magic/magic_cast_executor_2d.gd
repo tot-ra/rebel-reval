@@ -31,7 +31,7 @@ static func execute(
 	if delivery_kind == "projectile":
 		return _execute_projectile(cast_result, caster, direction, parent, effect_dict)
 	if delivery_kind == "area_pulse":
-		return _execute_area_pulse(cast_result, caster, parent, effect_dict)
+		return _execute_area_pulse(cast_result, caster, direction, parent, effect_dict)
 	if delivery_kind == "persistent_area":
 		return _execute_persistent_area(cast_result, caster, parent, effect_dict)
 	if delivery_kind == "summon":
@@ -79,6 +79,7 @@ static func _execute_projectile(
 static func _execute_area_pulse(
 	cast_result: Dictionary,
 	caster: Node2D,
+	direction: Vector2,
 	parent: Node,
 	effect: Dictionary
 ) -> Node2D:
@@ -92,7 +93,9 @@ static func _execute_area_pulse(
 		caster,
 		StringName(String(cast_result.get("target_id", ""))),
 		float(delivery.get("radius", 0.0)),
-		pulse_effect
+		pulse_effect,
+		direction,
+		float(delivery.get("arc_deg", 360.0))
 	):
 		pulse.free()
 		return null

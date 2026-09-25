@@ -132,6 +132,11 @@
               "type": "number",
               "exclusiveMinimum": 0
             },
+            "arc_deg": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 360
+            },
             "summon_kind": {
               "const": "illusionary_double"
             },
@@ -179,8 +184,13 @@
               "enum": [
                 "damage",
                 "stagger",
-                "heal_over_time"
+                "heal_over_time",
+                "knockback"
               ]
+            },
+            "distance": {
+              "type": "number",
+              "exclusiveMinimum": 0
             },
             "amount": {
               "type": "number",

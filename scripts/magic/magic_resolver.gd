@@ -178,7 +178,10 @@ static func _scale_effect(effect: Dictionary, multiplier: float) -> void:
 			var kind := String(module.get("kind", ""))
 			# Tick cadence (tick_interval_sec) and area placement are never scaled;
 			# NATURAL raises per-tick magnitude and the per-target heal duration.
-			if kind in ["damage", "heal", "heal_over_time", "control", "stagger", "damage_reduction"]:
+			# Knockback distance counts as placement: only its REACT hold scales.
+			if kind in [
+				"damage", "heal", "heal_over_time", "control", "stagger", "damage_reduction", "knockback"
+			]:
 				for magnitude_key in ["amount", "magnitude", "duration_sec"]:
 					if module.has(magnitude_key):
 						module[magnitude_key] = float(module[magnitude_key]) * multiplier

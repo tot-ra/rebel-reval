@@ -19,6 +19,7 @@ var defense_pose := CombatDefensePose.open()
 var display_name := "Dummy"
 var hostile_to_source := true
 var _stagger := CombatStaggerEffect.new()
+var _knockback := CombatKnockbackEffect.new()
 
 func _ready() -> void:
 	add_to_group(&"combat_damageable")
@@ -30,6 +31,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	combat_vitals.tick(delta)
 	_stagger.tick(delta)
+	global_position += _knockback.step(delta)
 
 
 func configure_resources(
@@ -67,6 +69,15 @@ func is_hostile_to(_source: Node) -> bool:
 
 func apply_stagger(duration_sec: float) -> void:
 	_stagger.apply(duration_sec)
+
+
+func apply_knockback(displacement: Vector2, duration_sec: float) -> void:
+	_stagger.apply(duration_sec)
+	_knockback.apply(displacement)
+
+
+func is_knocked_back() -> bool:
+	return _knockback.is_active()
 
 
 func is_staggered() -> bool:

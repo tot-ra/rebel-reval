@@ -35,7 +35,7 @@ func test_cast_fails_closed_for_unknown_and_locked_records() -> void:
 	var db := _make_db()
 	state.set_magic_resource(GameState.MAGIC_RESOURCE_WILLPOWER, 2)
 
-	var unknown := MagicResolver.cast(state, db, &"", [&"element.air"])
+	var unknown := MagicResolver.cast(state, db, &"", [&"element.chaos"])
 	assert_false(unknown["ok"])
 	assert_eq(unknown["reason"], MagicResolver.FAILURE_UNKNOWN_SEQUENCE)
 

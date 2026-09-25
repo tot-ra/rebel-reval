@@ -214,15 +214,21 @@ def _validate_magic_persistent_area(context: RecordValidationContext) -> None:
         )
 
 
-_AREA_PULSE_DELIVERY_FIELDS = {"kind", "radius"}
-_AREA_PULSE_IMPACT_KINDS = {"stagger", "damage"}
+_AREA_PULSE_DELIVERY_FIELDS = {"kind", "radius", "arc_deg"}
+_AREA_PULSE_IMPACT_KINDS = {"stagger", "damage", "knockback"}
+# Control modules only MagicAreaPulse2D applies; other adapters would drop them.
+_AREA_PULSE_ONLY_IMPACT_KINDS = {"stagger", "knockback"}
 # Keep area control a short interrupt, never a lock: an enemy's REACT beat is
 # held for the full stagger window (MAGIC.md 5.3).
 _MAX_STAGGER_SEC = 3.0
+# Knockback is a shove, not a launch: the push stays inside a typical combat
+# lane and its REACT hold stays shorter than a stagger (MAGIC.md 5.4).
+_MAX_KNOCKBACK_DISTANCE = 160.0
+_MAX_KNOCKBACK_SEC = 1.0
 
 
 def _validate_magic_area_pulse(context: RecordValidationContext) -> None:
-    """Immediate area pulses carry a radius and one stagger or damage impact."""
+    """Immediate area pulses carry a radius and one stagger, damage, or knockback impact."""
     effect = context.record.get("effect")
     if not isinstance(effect, dict):
         return
@@ -232,13 +238,13 @@ def _validate_magic_area_pulse(context: RecordValidationContext) -> None:
     impact = effect.get("impact")
     impact_kind = impact.get("kind") if isinstance(impact, dict) else None
     if delivery.get("kind") != "area_pulse":
-        if impact_kind == "stagger":
-            # Only MagicAreaPulse2D applies CombatStaggerEffect; any other
-            # adapter would silently drop the module.
+        if impact_kind in _AREA_PULSE_ONLY_IMPACT_KINDS:
+            # Only MagicAreaPulse2D applies CombatStaggerEffect and
+            # CombatKnockbackEffect; any other adapter would silently drop them.
             context.diagnose(
                 "MAGIC_EFFECT",
                 "$.effect.impact.kind",
-                "stagger is only delivered by area_pulse effects",
+                f"{impact_kind} is only delivered by area_pulse effects",
             )
         return
     if not _is_positive_number(delivery.get("radius")):
@@ -254,6 +260,14 @@ def _validate_magic_area_pulse(context: RecordValidationContext) -> None:
             "$.effect.delivery",
             "area_pulse takes no projectile, summon, or lifetime fields: " + ", ".join(extra),
         )
+    if "arc_deg" in delivery:
+        arc = delivery.get("arc_deg")
+        if not _is_positive_number(arc) or arc > 360:
+            context.diagnose(
+                "MAGIC_EFFECT",
+                "$.effect.delivery.arc_deg",
+                "area_pulse arc_deg must be in (0, 360]",
+            )
     if effect.get("area") is not None:
         context.diagnose(
             "MAGIC_EFFECT",
@@ -264,7 +278,7 @@ def _validate_magic_area_pulse(context: RecordValidationContext) -> None:
         context.diagnose(
             "MAGIC_EFFECT",
             "$.effect.impact",
-            "area_pulse requires a stagger or damage impact",
+            "area_pulse requires a stagger, damage, or knockback impact",
         )
         return
     if impact_kind == "damage":
@@ -275,25 +289,47 @@ def _validate_magic_area_pulse(context: RecordValidationContext) -> None:
                 "area_pulse damage requires a positive amount",
             )
         return
+    max_duration = _MAX_STAGGER_SEC
+    if impact_kind == "knockback":
+        max_duration = _MAX_KNOCKBACK_SEC
+        distance = impact.get("distance")
+        if not _is_positive_number(distance):
+            context.diagnose(
+                "MAGIC_EFFECT",
+                "$.effect.impact.distance",
+                "knockback requires a positive distance",
+            )
+        elif distance > _MAX_KNOCKBACK_DISTANCE:
+            context.diagnose(
+                "MAGIC_EFFECT",
+                "$.effect.impact.distance",
+                f"knockback distance must not exceed {_MAX_KNOCKBACK_DISTANCE:g}",
+            )
+    elif "distance" in impact:
+        context.diagnose(
+            "MAGIC_EFFECT",
+            "$.effect.impact.distance",
+            "stagger does not carry distance",
+        )
     duration = impact.get("duration_sec")
     if not _is_positive_number(duration):
         context.diagnose(
             "MAGIC_EFFECT",
             "$.effect.impact.duration_sec",
-            "stagger requires a positive duration_sec",
+            f"{impact_kind} requires a positive duration_sec",
         )
-    elif duration > _MAX_STAGGER_SEC:
+    elif duration > max_duration:
         context.diagnose(
             "MAGIC_EFFECT",
             "$.effect.impact.duration_sec",
-            f"stagger duration_sec must not exceed {_MAX_STAGGER_SEC:g}",
+            f"{impact_kind} duration_sec must not exceed {max_duration:g}",
         )
     for field in ("amount", "damage_type", "tick_interval_sec"):
         if field in impact:
             context.diagnose(
                 "MAGIC_EFFECT",
                 f"$.effect.impact.{field}",
-                f"stagger does not carry {field}",
+                f"{impact_kind} does not carry {field}",
             )
 
 

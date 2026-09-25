@@ -33,6 +33,8 @@ var _label: Label
 var _target: Node2D
 var _swing_counter := 9000
 var _signals_wired := false
+## Magic knockback slide (R-722); advanced in tick_ai alongside the AI.
+var _knockback := CombatKnockbackEffect.new()
 
 ## MapViewRuntime mirrors combat actors through the same shared rigs as the player.
 ## The scene is selected from the archetype so watchmen and sergeants retain their
@@ -67,6 +69,7 @@ func reset_actor() -> void:
 	defense_pose = CombatDefensePose.open()
 	combat_vitals.configure(health, max_health, stamina, max_stamina)
 	machine.reset()
+	_knockback.clear()
 	_target = null
 	_refresh_label()
 
@@ -124,8 +127,10 @@ func tick_ai(delta: float, target: Node2D = null) -> void:
 	if target != null:
 		_target = target
 	if machine.is_dead():
+		_knockback.clear()
 		_refresh_label()
 		return
+	_step_knockback(delta)
 	if _target != null and is_instance_valid(_target):
 		var distance := global_position.distance_to(_target.global_position)
 		machine.set_perception(true, distance)
@@ -148,8 +153,36 @@ func is_staggered() -> bool:
 	return machine.is_staggered()
 
 
+## Shared CombatKnockbackEffect.apply_to contract used by area magic (R-722).
+## The shove reuses the stagger interrupt for its REACT hold, so a pushed enemy
+## cannot land an attack mid-slide, then slides over the next tick_ai steps.
+func apply_knockback(displacement: Vector2, duration_sec: float) -> void:
+	if not machine.apply_stagger(duration_sec):
+		return
+	_knockback.apply(displacement)
+	feedback_event.emit("%s: knocked back %.0fpx" % [display_name, displacement.length()])
+	_refresh_label()
+
+
+func is_knocked_back() -> bool:
+	return not machine.is_dead() and _knockback.is_active()
+
+
 func stagger_remaining_sec() -> float:
 	return machine.stagger_remaining_sec()
+
+
+## Hosts with walls or a navigation map override this to keep a shove from
+## pushing the logic proxy somewhere it could never walk out of.
+func _constrain_knockback_position(_from: Vector2, to: Vector2) -> Vector2:
+	return to
+
+
+func _step_knockback(delta: float) -> void:
+	var offset := _knockback.step(delta)
+	if offset.is_zero_approx():
+		return
+	global_position = _constrain_knockback_position(global_position, global_position + offset)
 
 
 func take_damage(
