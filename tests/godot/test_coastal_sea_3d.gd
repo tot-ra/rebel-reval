@@ -86,6 +86,17 @@ func test_storm_wind_raises_chop_more_than_wave_height() -> void:
 	MapViewMaterials.apply_sea_weather(0.92, 0.0)
 	var storm_height := float(shallow.get_shader_parameter("wave_height"))
 	var storm_chop := float(shallow.get_shader_parameter("choppiness"))
+	if bool(shallow.get_shader_parameter("use_fft")):
+		# WS-05 enabled the FFT sea: chop and height come from the sea-state table
+		# (OCEAN_FFT_SEA_STATES), where storm crests sharpen and the sea grows.
+		MapViewMaterials.apply_sea_weather(0.18, 0.0)
+		var calm_amplitude := float(shallow.get_shader_parameter("ocean_amplitude"))
+		MapViewMaterials.apply_sea_weather(0.92, 0.0)
+		var storm_amplitude := float(shallow.get_shader_parameter("ocean_amplitude"))
+		assert_true(storm_chop > calm_chop * 1.5, "storm wind must sharpen FFT crests")
+		assert_true(storm_amplitude > calm_amplitude, "storm wind must raise the FFT sea")
+		MapViewMaterials.apply_sea_weather(0.18, 0.0)
+		return
 	var height_ratio := storm_height / maxf(calm_height, 0.0001)
 	var chop_ratio := storm_chop / maxf(calm_chop, 0.0001)
 	assert_true(

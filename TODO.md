@@ -72,6 +72,35 @@ and captures. Decisions recorded during capture review (2026-09-25):
    water budget. `tools/verify_r715_water_performance.py` is still BLOCKED only by its unmeasured
    minimum-tier row, which was already the case before this task.
 
+- [ ] WS-05 | deps: WS-04 | deliverable: OceanFftSampler (CPU decode of C0/C1 atlases, shared sea-state mapping, fixed-point height_at) and BoatFloat3D heave/pitch/roll/surge from five FFT hull samples with the shared ocean_time clock | allowed files: `scripts/map/view3d/ocean_fft_sampler.gd`, `scripts/map/view3d/boat_float_3d.gd`, `scripts/map/view3d/map_view_water_materials.gd`, `tests/godot/test_ocean_fft_sampler.gd`, `tests/godot/test_boat_float_3d.gd`, `docs/reports/images/ws05_*.png`, `TODO.md` | verify: sampler decode/periodicity/inversion/perf tests; boat FFT attitude tests; harbor clip shows hulls seated at the waterline in clear and storm
+
+WS-05 implementation landed (R-890, in review). `BoatFloat3D.FFT_SUPPORTED` is declared, so the
+WS-04 FFT path is now on in play for sea, shallow and harbour water. Decisions (2026-09-25):
+
+1. **Atlases are parsed from the imported `.ctexarray`, not read with `get_layer_data()`.** The
+   headless/dummy renderer returns null layers and on Compatibility the call is a GPU readback. The
+   file holds the lossless WebP layers the GPU uploads, so texels match byte for byte (test against
+   the source PNG) and exports work. Load 34 ms, 8 MiB raw RGBA8.
+2. **Per-terrain surface terms** (geometry scale, chop ratio, standing ratio) are passed per query
+   (`OceanFftSampler.terrain_surface()`); a hull looks its terrain up once from the owning map
+   view's grid. `apply_sea_weather()` pushes the same `fft_sea_state()` values to the sampler.
+3. **Frame budget:** six harbour hulls cost 0.47 ms/frame with three fixed-point steps, too close to
+   0.5 ms, so hull points use one step (`FFT_HULL_ITERATIONS`, 0.26 ms; error vs three steps under
+   0.2 mm heave). `height_at()` keeps three steps (residual 0.00076 units on the physical sea at
+   chop 1.2) for camera/swimmer queries; 14.6 us per call.
+4. **Spring 0.2 s instead of ~0.35 s:** longer lag opens a waterline gap on the ~3 s C1 wave.
+   Pitch now rotates about the beam axis and roll about the keel on the FFT path (the Gerstner
+   fallback keeps its old axes).
+5. **Evidence:** `docs/reports/images/ws05_metal_{clear,storm}_{cog,landing}_clip.png`
+   (`tools/capture_ws05_boat_waterline.gd`, 12 moments 0.5 s apart): hulls stay seated with no
+   visible gap or sinking at gameplay zoom. The waterline error was not measured in pixels.
+   Reference sea Hs measured 1.21 m against the baked 1.25 m. Quick performance report with FFT on:
+   frame p95 10.83 ms (`build/benchmarks/ws05-performance-quick.json`).
+6. **Known limit:** the shader's shore-band fade (vertex `COLOR.r`) is not visible to the CPU, so a
+   hull moored within ~1.5 units of land (the landing boats) may clip slightly.
+7. **Scope additions:** `tests/godot/test_coastal_sea_3d.gd` (its chop-vs-height check now reads
+   the FFT sea-state table when FFT is on) and the capture tool.
+
 - [ ] WS-09 | deps: none | deliverable: deterministic offline Hillaire transmittance (256x64) and multi-scattering (32x32) LUTs as half-float EXR with profile manifest, plus atmosphere_common.gdshaderinc GLSL parameterisation | allowed files: `tools/bake_atmosphere_luts.py`, `tests/python/test_bake_atmosphere_luts.py`, `assets/sky/atmosphere/*`, `assets/SOURCES.csv`, `scripts/map/view3d/atmosphere_common.gdshaderinc`, `tests/godot/test_atmosphere_luts.gd`, `TODO.md` | verify: python oracle tests (zenith T = 0.940/0.868/0.762, monotonicity, round-trip, determinism, EXR parse); Godot loads EXRs and matches the oracle texel
 
 WS-09 implementation landed (R-894, in review). Decisions recorded during the bake (2026-09-25),

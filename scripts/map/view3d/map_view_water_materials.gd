@@ -168,8 +168,8 @@ static var _ocean_fft_profile: Dictionary = {}
 static var _ocean_fft_textures: Dictionary = {}
 static var _ocean_fft_quality_tier: StringName = SKY_WEATHER.QUALITY_RECOMMENDED
 static var _ripple_off_texture: ImageTexture
-## Test and capture hook. Production enablement waits for BoatFloat3D.FFT_SUPPORTED
-## (WS-05) so hulls never float on a sea they cannot sample.
+## Test and capture hook. Production enablement follows BoatFloat3D.FFT_SUPPORTED
+## (declared by WS-05) so hulls never float on a sea they cannot sample.
 static var force_ocean_fft_support := false
 
 
@@ -463,6 +463,20 @@ static func apply_sea_weather(
 		heading = heading.normalized()
 	var sea := fft_sea_state(wind_state, rain_state)
 	var cascade_uniforms := ocean_fft_cascade_uniforms(sea["weights"])
+	# WS-05: CPU hulls read the same sea the FFT uniforms below describe. Keep in
+	# lockstep with OceanFftSampler; per-terrain chop ratio, geometry scale and
+	# standing ratio come from OceanFftSampler.terrain_surface(). The default
+	# standing ratio is the harbour basin's, where boats are moored.
+	var harbour: Dictionary = wave_profiles.get(
+		MapTypes.TERRAIN_WATER, WATER_WAVE_BASE[MapTypes.TERRAIN_WATER]
+	)
+	OceanFftSampler.set_sea_state(
+		PackedFloat32Array(sea["weights"]),
+		float(sea["choppiness"]),
+		float(sea["amplitude"]),
+		heading,
+		float(harbour.get("standing", 0.42))
+	)
 	for terrain_id in wave_profiles.keys():
 		var material := water_surface(terrain_id as StringName, wave_profiles)
 		var wave: Dictionary = wave_profiles[terrain_id]

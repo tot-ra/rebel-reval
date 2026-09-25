@@ -4,8 +4,30 @@ extends Node
 ## Moored fishing boats and merchant cogs ride the same world-space wave field
 ## as the water shader, then heel into weather wind. Authored prop anchors stay
 ## fixed; only the view transform bobbles so logic collision never moves.
+##
+## WS-05: when the baked FFT ocean is available, hulls sample OceanFftSampler (the
+## CPU mirror of the shader's FFT displacement) on the shared ocean_time clock.
+## The Gerstner sample_wave() path stays for rivers and bake-less fallbacks.
 
 const SkyWeather3D := preload("res://scripts/map/view3d/sky_weather_3d.gd")
+const MapViewWaterMaterialsScript := preload("res://scripts/map/view3d/map_view_water_materials.gd")
+
+## Read by name in MapViewWaterMaterials.ocean_fft_supported(): declaring it
+## switches every sea material to the FFT path, because hulls can now sample it.
+const FFT_SUPPORTED := true
+## Critically damped smoothing of every FFT output. The C1 frame blend is only
+## C0-continuous (slope kinks every 0.2 s), which reads as mast jitter unsmoothed.
+## WHY 0.2 s instead of the contract's "about 0.35 s": the spring lags the sea, and
+## on the ~3 s C1 wave 0.35 s of lag opens a visible waterline gap; 0.2 s already
+## hides the kinks.
+const FFT_SPRING_SECONDS := 0.2
+## A hull does not follow the water particle orbit completely.
+const FFT_SURGE_FOLLOW := 0.5
+## WS-05 frame budget fallback: hull points use one fixed-point step instead of
+## three. Six harbour hulls cost ~0.47 ms/frame with three steps, too close to the
+## 0.5 ms budget; averaging over the hull hides the sub-millimetre error, which
+## test_ocean_fft_sampler measures. Camera and swimmer queries keep three.
+const FFT_HULL_ITERATIONS := 1
 
 ## Harbor enclosed water (TERRAIN_WATER) standing ratio from MapViewMaterials.
 const HARBOR_STANDING_WAVE_RATIO := 0.42
@@ -21,6 +43,14 @@ const BASE_PITCH_RAD := deg_to_rad(2.4)
 const BASE_ROLL_RAD := deg_to_rad(3.2)
 const WIND_HEEL_RAD := deg_to_rad(5.5)
 const SURGE_METERS := 0.045
+## Unit hull sample offsets: centre, bow (+X), stern, port (-Z), starboard (+Z).
+const HULL_SAMPLE_OFFSETS: Array[Vector3] = [
+	Vector3.ZERO,
+	Vector3(1.0, 0.0, 0.0),
+	Vector3(-1.0, 0.0, 0.0),
+	Vector3(0.0, 0.0, -1.0),
+	Vector3(0.0, 0.0, 1.0),
+]
 
 var _host: Node3D
 var _rest_position := Vector3.ZERO
@@ -31,6 +61,14 @@ var _hull_half_length := DEFAULT_HULL_HALF_LENGTH
 var _hull_half_beam := DEFAULT_HULL_HALF_BEAM
 var _standing_wave_ratio := HARBOR_STANDING_WAVE_RATIO
 var _sky: SkyWeather3D
+## FFT surface terms of the water under the hull (OceanFftSampler.terrain_surface).
+## Moored boats sit in harbour basins, so TERRAIN_WATER is the default.
+var _fft_surface := Vector3.ZERO
+var _fft_primed := false
+var _terrain_resolved := false
+## Spring state: value and velocity for heave, pitch, roll, surge x, surge z.
+var _fft_value := PackedFloat32Array([0.0, 0.0, 0.0, 0.0, 0.0])
+var _fft_velocity := PackedFloat32Array([0.0, 0.0, 0.0, 0.0, 0.0])
 
 
 func configure(host: Node3D, motion_scale: float, phase_seed: int) -> void:
@@ -45,13 +83,27 @@ func configure(host: Node3D, motion_scale: float, phase_seed: int) -> void:
 	_hull_half_length = DEFAULT_HULL_HALF_LENGTH * hull_scale
 	_hull_half_beam = DEFAULT_HULL_HALF_BEAM * lerpf(1.0, 1.35, 1.0 - clampf(motion_scale, 0.0, 1.0))
 	_sky = _find_sky_weather()
+	set_water_terrain(MapTypes.TERRAIN_WATER)
 
 
-func _process(_delta: float) -> void:
+## Which water family the hull floats on, so the hull uses that material's
+## geometry scale, chop ratio and standing-wave ratio.
+func set_water_terrain(terrain_id: StringName) -> void:
+	_fft_surface = OceanFftSampler.terrain_surface(terrain_id)
+
+
+func uses_fft() -> bool:
+	return FFT_SUPPORTED and OceanFftSampler.ensure_loaded()
+
+
+func _process(delta: float) -> void:
 	if _host == null or not is_instance_valid(_host):
 		return
 	if _sky == null or not is_instance_valid(_sky):
 		_sky = _find_sky_weather()
+	if uses_fft():
+		_process_fft(delta)
+		return
 	var wind := 0.28
 	var rain := 0.0
 	var wind_dir := Vector2(1.0, 0.35).normalized()
@@ -93,6 +145,102 @@ func _process(_delta: float) -> void:
 		surge = parent_node.global_transform.basis.inverse() * surge
 	_host.position = _rest_position + Vector3(surge.x, heave, surge.z)
 	_host.basis = _rest_basis * Basis.from_euler(Vector3(pitch, 0.0, roll))
+
+
+## WS-05 FFT path. No per-boat phase: boats differ because they sit in different
+## places on one sea. Sea state (weights, chop, amplitude, heading) is whatever
+## apply_sea_weather() last sent to both the shader and OceanFftSampler.
+##
+## Shore band caveat: the shader fades displacement towards land with the vertex
+## COLOR.r shore factor, which the hull cannot see (the baked contour field is not
+## kept at runtime). A boat moored within ~1.5 units of land may clip slightly.
+func _process_fft(delta: float) -> void:
+	if not _terrain_resolved and _host.is_inside_tree():
+		_resolve_water_terrain()
+	var wind := 0.28
+	var wind_dir := Vector2(1.0, 0.35).normalized()
+	if _sky != null:
+		wind = _sky.wind_strength()
+		wind_dir = _sky.wind_direction_xz()
+	var world_xz := Vector2(_host.position.x, _host.position.z)
+	if _host.is_inside_tree():
+		world_xz = Vector2(_host.global_position.x, _host.global_position.z)
+	var time := OceanFftSampler.ocean_time()
+	var hull := sample_fft_hull_attitude(
+		world_xz, time, _hull_half_length, _hull_half_beam, _rest_basis, _fft_surface, FFT_HULL_ITERATIONS
+	)
+	var heave := hull.x * _motion_scale
+	var pitch := clampf(hull.y, -BASE_PITCH_RAD * 2.2, BASE_PITCH_RAD * 2.2)
+	var roll := clampf(hull.z, -BASE_ROLL_RAD * 2.2, BASE_ROLL_RAD * 2.2)
+	# Wind heel in the hull frame: the lee side (downwind +Z) dips, a following
+	# wind presses the bow down a little.
+	var local_wind := _rest_basis.inverse() * Vector3(wind_dir.x, 0.0, wind_dir.y)
+	roll += local_wind.z * WIND_HEEL_RAD * wind * _motion_scale
+	pitch -= local_wind.x * WIND_HEEL_RAD * 0.45 * wind * _motion_scale
+	var drift := OceanFftSampler.displacement_at(world_xz, time, _fft_surface)
+	var surge := Vector3(drift.x, 0.0, drift.z) * FFT_SURGE_FOLLOW
+	var target := PackedFloat32Array([heave, pitch, roll, surge.x, surge.z])
+	_smooth_fft(target, delta)
+	surge = Vector3(_fft_value[3], 0.0, _fft_value[4])
+	var parent_node := _host.get_parent() as Node3D
+	if parent_node != null and parent_node.is_inside_tree():
+		surge = parent_node.global_transform.basis.inverse() * surge
+	_host.position = _rest_position + Vector3(surge.x, _fft_value[0], surge.z)
+	# Local +X is the bow and +Z starboard: pitch turns about Z (positive raises
+	# the bow), roll about X (positive raises port).
+	_host.basis = _rest_basis * Basis.from_euler(Vector3(_fft_value[2], 0.0, _fft_value[1]))
+
+
+## Critically damped spring (Game Programming Gems 4, SmoothCD). The first frame
+## snaps so a freshly built harbour does not rise out of its rest pose.
+func _smooth_fft(target: PackedFloat32Array, delta: float) -> void:
+	if not _fft_primed or delta <= 0.0:
+		_fft_value = target.duplicate()
+		_fft_velocity = PackedFloat32Array([0.0, 0.0, 0.0, 0.0, 0.0])
+		_fft_primed = true
+		return
+	var omega := 2.0 / FFT_SPRING_SECONDS
+	var x := omega * delta
+	var decay := 1.0 / (1.0 + x + 0.48 * x * x + 0.235 * x * x * x)
+	for index in target.size():
+		var change := _fft_value[index] - target[index]
+		var temp := (_fft_velocity[index] + omega * change) * delta
+		_fft_velocity[index] = (_fft_velocity[index] - omega * temp) * decay
+		_fft_value[index] = target[index] + (change + temp) * decay
+
+
+## Five FFT hull samples (centre, bow, stern, port, starboard) of the rendered
+## surface. Returns (mean height, pitch rad, roll rad): the mean is a hull-length
+## low-pass, so long cogs ride short waves less. Pitch is positive bow-up, roll
+## positive port-up.
+static func sample_fft_hull_attitude(
+	world_origin: Vector2,
+	time: float,
+	hull_half_length: float,
+	hull_half_beam: float,
+	rest_basis: Basis,
+	surface: Vector3,
+	iterations: int = OceanFftSampler.HEIGHT_ITERATIONS
+) -> Vector3:
+	var heights := PackedFloat32Array()
+	heights.resize(HULL_SAMPLE_OFFSETS.size())
+	var total := 0.0
+	for index in HULL_SAMPLE_OFFSETS.size():
+		var offset: Vector3 = HULL_SAMPLE_OFFSETS[index]
+		var world_offset := rest_basis * Vector3(
+			offset.x * hull_half_length, 0.0, offset.z * hull_half_beam
+		)
+		heights[index] = OceanFftSampler.surface_height_at(
+			world_origin + Vector2(world_offset.x, world_offset.z), time, surface, iterations
+		)
+		total += heights[index]
+	var pitch := 0.0
+	if hull_half_length > 0.001:
+		pitch = atan2(heights[1] - heights[2], hull_half_length * 2.0)
+	var roll := 0.0
+	if hull_half_beam > 0.001:
+		roll = atan2(heights[3] - heights[4], hull_half_beam * 2.0)
+	return Vector3(total / float(heights.size()), pitch, roll)
 
 
 ## Five-point hull sampling: center heave plus bow/stern pitch and port/starboard roll.
@@ -253,6 +401,30 @@ static func _noise(p: Vector2) -> float:
 		lerpf(_hash(i + Vector2(0.0, 1.0)), _hash(i + Vector2(1.0, 1.0)), u.x),
 		u.y
 	)
+
+
+## Offshore cogs float on deep water and jetty boats on shallows; each family has
+## its own geometry scale, chop ratio and standing ratio. The map view owning the
+## hull knows the terrain grid, so look the cell up once instead of threading the
+## terrain through the prop builders. Keeps TERRAIN_WATER when no grid is found.
+func _resolve_water_terrain() -> void:
+	_terrain_resolved = true
+	var node: Node = _host
+	while node != null:
+		if "grid" in node and "definition" in node:
+			var grid := node.get("grid") as MapTerrainGrid
+			var definition := node.get("definition") as MapDefinition
+			if grid == null or definition == null:
+				return
+			var cell_size := definition.cell_size
+			var logic := MapViewBridge.world_to_logic(_host.global_position, cell_size)
+			var terrain_id := grid.get_terrain(
+				Vector2i(floori(logic.x / cell_size), floori(logic.y / cell_size))
+			)
+			if MapViewWaterMaterialsScript.OCEAN_FFT_TERRAINS.has(terrain_id):
+				set_water_terrain(terrain_id)
+			return
+		node = node.get_parent()
 
 
 func _find_sky_weather() -> SkyWeather3D:

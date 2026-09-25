@@ -2,6 +2,7 @@ extends "res://tests/godot/test_case.gd"
 
 const BoatFloat := preload("res://scripts/map/view3d/boat_float_3d.gd")
 const SkyWeather := preload("res://scripts/map/view3d/sky_weather_3d.gd")
+const WaterMaterials := preload("res://scripts/map/view3d/map_view_water_materials.gd")
 
 
 func test_boat_props_attach_float_controllers() -> void:
@@ -149,3 +150,130 @@ func test_world_wind_drives_vegetation_and_cloth_uniforms() -> void:
 	)
 	# Restore calm defaults for later material-sensitive tests.
 	MapViewMaterials.apply_world_wind(Vector2(0.9285, 0.3714), 0.22)
+
+
+# --- WS-05 FFT path -------------------------------------------------------------
+
+
+func _fft_boat(position: Vector3, phase_seed: int) -> Node3D:
+	var host := Node3D.new()
+	host.position = position
+	var floater: BoatFloat = BoatFloat.new()
+	floater.configure(host, 1.0, phase_seed)
+	host.add_child(floater)
+	return host
+
+
+func test_fft_path_is_declared_and_loaded() -> void:
+	assert_true(BoatFloat.FFT_SUPPORTED, "WS-05 declares FFT hull support for WS-04 enablement")
+	assert_true(WaterMaterials.ocean_fft_supported(), "sea materials follow the boat constant")
+	var host := _fft_boat(Vector3.ZERO, 1)
+	assert_true((host.get_node("BoatFloat") as BoatFloat).uses_fft(), "boats ride the baked FFT sea")
+	host.free()
+
+
+func test_fft_heave_follows_the_hull_mean_surface_height() -> void:
+	OceanFftSampler.reset_sea_state()
+	OceanFftSampler.set_time_override(4.2)
+	var rest := Vector3(21.0, 0.05, 9.0)
+	var host := _fft_boat(rest, 7)
+	(host.get_node("BoatFloat") as BoatFloat)._process(0.016)
+	var hull := BoatFloat.sample_fft_hull_attitude(
+		Vector2(rest.x, rest.z),
+		4.2,
+		BoatFloat.DEFAULT_HULL_HALF_LENGTH,
+		BoatFloat.DEFAULT_HULL_HALF_BEAM,
+		Basis.IDENTITY,
+		OceanFftSampler.terrain_surface(MapTypes.TERRAIN_WATER),
+		BoatFloat.FFT_HULL_ITERATIONS
+	)
+	assert_almost_eq(host.position.y - rest.y, hull.x, 1e-5, "heave is the five-point mean height")
+	var centre := OceanFftSampler.surface_height_at(
+		Vector2(rest.x, rest.z), 4.2, OceanFftSampler.terrain_surface(MapTypes.TERRAIN_WATER)
+	)
+	# The hull-length mean is a low-pass, not an unrelated number.
+	assert_true(absf(hull.x - centre) < 0.1, "hull heave stays on the local surface")
+	OceanFftSampler.clear_time_override()
+	host.free()
+
+
+func test_fft_crest_at_the_bow_pitches_the_bow_up() -> void:
+	# Storm sea: harbour crests are only ~0.1 units, so a calm hull pitches less
+	# than the wind heel term and the sign test would measure the wind instead.
+	var storm := WaterMaterials.fft_sea_state(0.85, 0.0)
+	OceanFftSampler.set_sea_state(
+		PackedFloat32Array(storm["weights"]),
+		float(storm["choppiness"]),
+		float(storm["amplitude"]),
+		Vector2(1.0, 0.28),
+		0.42
+	)
+	var surface := OceanFftSampler.terrain_surface(MapTypes.TERRAIN_WATER)
+	var half_length := BoatFloat.DEFAULT_HULL_HALF_LENGTH
+	var found := false
+	for probe in 400:
+		var origin := Vector2(float(probe % 20) * 3.1, float(probe / 20) * 2.3)
+		var t := float(probe) * 0.37
+		var hull := BoatFloat.sample_fft_hull_attitude(
+			origin, t, half_length, BoatFloat.DEFAULT_HULL_HALF_BEAM, Basis.IDENTITY, surface, 1
+		)
+		# Clear the wind heel term (a fraction of a degree) before judging the sign.
+		if hull.y < deg_to_rad(1.5):
+			continue
+		found = true
+		var bow := OceanFftSampler.surface_height_at(origin + Vector2(half_length, 0.0), t, surface, 1)
+		var stern := OceanFftSampler.surface_height_at(origin - Vector2(half_length, 0.0), t, surface, 1)
+		assert_true(bow > stern, "positive pitch means the crest is at the bow")
+		OceanFftSampler.set_time_override(t)
+		var host := _fft_boat(Vector3(origin.x, 0.0, origin.y), 3)
+		(host.get_node("BoatFloat") as BoatFloat)._process(0.016)
+		assert_true(
+			(host.basis * Vector3(half_length, 0.0, 0.0)).y > 0.0, "the bow rises onto the crest"
+		)
+		host.free()
+		break
+	OceanFftSampler.clear_time_override()
+	OceanFftSampler.reset_sea_state()
+	assert_true(found, "a storm sea must lift a bow somewhere in the probe grid")
+
+
+func test_fft_boats_share_one_sea_without_phase_offsets() -> void:
+	OceanFftSampler.reset_sea_state()
+	OceanFftSampler.set_time_override(11.0)
+	var a := _fft_boat(Vector3(33.0, 0.0, 17.0), 11)
+	var b := _fft_boat(Vector3(33.0, 0.0, 17.0), 90210)
+	(a.get_node("BoatFloat") as BoatFloat)._process(0.016)
+	(b.get_node("BoatFloat") as BoatFloat)._process(0.016)
+	assert_true(a.transform.is_equal_approx(b.transform), "same place and time give the same pose")
+	var c := _fft_boat(Vector3(61.0, 0.0, 4.0), 11)
+	(c.get_node("BoatFloat") as BoatFloat)._process(0.016)
+	assert_false(a.transform.is_equal_approx(c.transform), "different berths ride different water")
+	OceanFftSampler.clear_time_override()
+	a.free()
+	b.free()
+	c.free()
+
+
+func test_fft_spring_smooths_a_sudden_sea_change() -> void:
+	OceanFftSampler.reset_sea_state()
+	OceanFftSampler.set_time_override(2.0)
+	var rest := Vector3(9.0, 0.0, 30.0)
+	var host := _fft_boat(rest, 5)
+	var floater := host.get_node("BoatFloat") as BoatFloat
+	floater._process(0.016)
+	var before := host.position.y
+	# Jump the clock half a C1 loop: the target moves, the hull eases towards it.
+	OceanFftSampler.set_time_override(8.4)
+	floater._process(0.016)
+	var target := BoatFloat.sample_fft_hull_attitude(
+		Vector2(rest.x, rest.z), 8.4, BoatFloat.DEFAULT_HULL_HALF_LENGTH,
+		BoatFloat.DEFAULT_HULL_HALF_BEAM, Basis.IDENTITY,
+		OceanFftSampler.terrain_surface(MapTypes.TERRAIN_WATER), BoatFloat.FFT_HULL_ITERATIONS
+	).x
+	var step := absf(host.position.y - before)
+	assert_true(step < absf(target - before), "one frame must not snap to a jumped target")
+	for i in 120:
+		floater._process(0.016)
+	assert_almost_eq(host.position.y, rest.y + target, 1e-3, "the spring settles on the surface")
+	OceanFftSampler.clear_time_override()
+	host.free()
