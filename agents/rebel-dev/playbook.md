@@ -28,6 +28,9 @@ This file contains lessons specific to the Dev role.
 - ADR 0018 day/night plates need one Godot process per plate. Add `Camera3D` to the tree before `look_at()`.
 - Temporary Godot probes must live under `res://`, call `quit()` on SceneTree (not `get_tree()`), and use `Input.parse_input_event`. Keep them until every planned rerun is done.
 - Godot 4.7 headless dummy renderer does not round-trip `MultiMesh.get_instance_transform()` after `set_instance_transform()`. Assert authored transforms before commit.
+- MapView3D `_process` pushes the weather uniforms to the water materials every frame. A capture that overrides material uniforms (wind, foam, debug colours) must call `view.set_process(false)` after warm-up, or the overrides are silently overwritten. `viewport_get_measured_render_time_gpu` returns 0 for SubViewports on this Mac. To compare shader cost, measure wall-clock frame time with vsync off at 2560x1440.
+- The headless suite compiles shaders on the dummy renderer, so a `[test] … shader_set_code` diagnostic is a real shader error. Godot rejects a `sampler2DArray` function parameter that is fed textures with different filter or repeat hints, so give every texture passed to one helper the same hint.
+- View water sits only `WATER_SURFACE_LIFT` (0.006 units) above a bed recessed by 0.08. Any vertex displacement that pushes water down exposes the bed. Budget wave geometry against that column, not against physical wave heights.
 - When a Godot preload cannot resolve an existing script, run that script directly to expose the first parse error. After clearing it, rerun immediately: dependent compile and shader defects only surface once the first error is gone.
 - Runtime-built UI cannot use `%UniqueName` until `owner` is an ancestor already in the tree. Keep member refs or `find_child(name, true, false)`. `Camera3D.look_at()` also requires in-tree; use `look_at_from_position()` while assembling a SubViewport.
 
