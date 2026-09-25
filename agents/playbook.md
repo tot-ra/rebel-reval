@@ -27,7 +27,8 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 - Stateful browser actions cannot run through a parallel wrapper.
 
 ### TODO hygiene
-- For the current `TODO.md` sectioned format, run `python3 tools/prune_completed_todo.py` to append completed rows to `docs/TASK_ARCHIVE.md` and keep map-conversion validator contracts in place. Do not run `tools/condense_todo.py` unless deliberately migrating to the condensed open-only layout (it rewrites `docs/ROADMAP.md`).
+- For the current `TODO.md` sectioned format, run `python3 tools/prune_completed_todo.py` to append completed rows to `docs/TASK_ARCHIVE.md`. Do not run `tools/condense_todo.py` unless deliberately migrating to the condensed open-only layout (it rewrites `docs/ROADMAP.md`).
+- Map-conversion strict-task IDs (`P0-043`..`P0-046`, `P2-018`..`P2-021`, `P4-014`, `P4-015`) and the `P2-012` -> `P2-021` gate may live in `docs/TASK_ARCHIVE.md`. The audit and conversion-plan validators treat archived full-contract rows as completed. Do not copy archived rows back into `TODO.md` to go green.
 
 ### Git and commits
 - Inspect `git status` before commit. Unstage unrelated index entries (`M ` in column 1).

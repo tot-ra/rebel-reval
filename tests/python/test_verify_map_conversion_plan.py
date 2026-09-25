@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import contextlib
+import io
 import sys
 import tempfile
 import unittest
@@ -16,6 +18,7 @@ if str(TOOLS_DIR) not in sys.path:
 from verify_map_conversion_plan import (  # noqa: E402
     PLAN,
     SCENE_INVENTORY,
+    TASK_ARCHIVE,
     TODO,
     main,
     parse_plan,
@@ -68,15 +71,49 @@ class VerifyMapConversionPlanTest(unittest.TestCase):
         original = TODO.read_text(encoding="utf-8")
         task_line = next(
             line for line in original.splitlines()
-            if line.startswith(("- [ ] P2-020 |", "- [x] P2-020 |"))
+            if line.startswith(("- [ ] P2-021 |", "- [x] P2-021 |"))
         )
-        errors = self._validate_with(todo=original.replace(task_line + "\n", "", 1))
+        # Isolate from TASK_ARCHIVE.md so an archived copy cannot satisfy the check.
+        errors = self._validate_with(
+            todo=original.replace(task_line + "\n", "", 1),
+            archive="# empty archive\n",
+        )
+        self.assertTrue(any("missing strict TODO task `P2-021`" in error.message for error in errors))
+
+    def test_archived_strict_tasks_count_as_present(self) -> None:
+        original = TODO.read_text(encoding="utf-8")
+        live_parity = next(
+            line for line in original.splitlines()
+            if line.startswith(("- [ ] P2-021 |", "- [x] P2-021 |"))
+        )
+        errors = self._validate_with(todo=live_parity + "\n")
+        missing = [
+            error.message for error in errors if error.message.startswith("missing strict TODO task")
+        ]
+        self.assertEqual(missing, [])
+
+    def test_named_archive_file_is_consulted(self) -> None:
+        errors = self._validate_with(archive="# empty custom_task_archive\n")
         self.assertTrue(any("missing strict TODO task `P2-020`" in error.message for error in errors))
 
+    def test_main_uses_named_archive_basename(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            archive = Path(tmp) / "custom_task_archive.md"
+            archive.write_text(TASK_ARCHIVE.read_text(encoding="utf-8"), encoding="utf-8")
+            stdout = io.StringIO()
+            with contextlib.redirect_stdout(stdout):
+                code = main(["--archive", str(archive)])
+            self.assertEqual(code, 0)
+            self.assertIn("custom_task_archive.md", stdout.getvalue())
+
     def test_slice_gate_must_depend_on_parity_gate(self) -> None:
+        # Live TODO.md wins over the archived P2-012 row that already lists P2-021.
         original = TODO.read_text(encoding="utf-8")
-        bad = original.replace(",P2-021 | deliverable: complete 30-45 minute vertical-slice flow", " | deliverable: complete 30-45 minute vertical-slice flow", 1)
-        errors = self._validate_with(todo=bad)
+        bad_gate = (
+            "- [ ] P2-012 | deps: P2-006 | deliverable: complete 30-45 minute "
+            "vertical-slice flow | allowed files: `TODO.md` | constraints: none | verify: none"
+        )
+        errors = self._validate_with(todo=original + "\n" + bad_gate + "\n")
         self.assertTrue(any("P2-012` must depend on parity gate `P2-021" in error.message for error in errors))
 
     def test_inventory_drift_is_reported(self) -> None:
@@ -100,7 +137,12 @@ class VerifyMapConversionPlanTest(unittest.TestCase):
         self.assertTrue(any("duplicate scene inventory rows" in error.message for error in errors))
 
     def _validate_with(
-        self, *, plan: str | None = None, inventory: str | None = None, todo: str | None = None
+        self,
+        *,
+        plan: str | None = None,
+        inventory: str | None = None,
+        todo: str | None = None,
+        archive: str | None = None,
     ) -> list:
         with tempfile.TemporaryDirectory() as tmp:
             temp = Path(tmp)
@@ -112,11 +154,16 @@ class VerifyMapConversionPlanTest(unittest.TestCase):
                 inventory or SCENE_INVENTORY.read_text(encoding="utf-8"), encoding="utf-8"
             )
             todo_path.write_text(todo or TODO.read_text(encoding="utf-8"), encoding="utf-8")
+            archive_path = None
+            if archive is not None:
+                archive_path = temp / "TASK_ARCHIVE.md"
+                archive_path.write_text(archive, encoding="utf-8")
             return validate_map_conversion_plan(
                 root=ROOT,
                 plan_path=plan_path,
                 inventory_path=inventory_path,
                 todo_path=todo_path,
+                archive_path=archive_path,
             )
 
 

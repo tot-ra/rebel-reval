@@ -48,20 +48,35 @@ class VerifyMapAuditTest(unittest.TestCase):
         errors = self._validate(payload, require_captures=True)
         self.assertTrue(any("missing visual capture" in error.message for error in errors))
 
+    def test_empty_named_archive_reports_missing_strict_tasks(self) -> None:
+        errors = self._validate(archive="# empty custom_task_archive\n")
+        self.assertTrue(any("missing strict TODO task `P2-020`" in error.message for error in errors))
+
     @staticmethod
     def _payload() -> dict:
         return json.loads(MANIFEST.read_text(encoding="utf-8"))
 
-    def _validate(self, payload: dict | None = None, *, require_captures: bool = False) -> list:
+    def _validate(
+        self,
+        payload: dict | None = None,
+        *,
+        require_captures: bool = False,
+        archive: str | None = None,
+    ) -> list:
         with tempfile.TemporaryDirectory() as temp_dir:
             manifest = Path(temp_dir) / "manifest.json"
             manifest.write_text(json.dumps(payload or self._payload()), encoding="utf-8")
+            archive_path = None
+            if archive is not None:
+                archive_path = Path(temp_dir) / "custom_task_archive.md"
+                archive_path.write_text(archive, encoding="utf-8")
             return validate_map_audit(
                 root=ROOT,
                 manifest_path=manifest,
                 plan_path=PLAN,
                 inventory_path=SCENE_INVENTORY,
                 todo_path=TODO,
+                archive_path=archive_path,
                 require_captures=require_captures,
             )
 

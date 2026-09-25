@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PLAN = ROOT / "docs" / "MAP_CONVERSION_PLAN.md"
 SCENE_INVENTORY = ROOT / "docs" / "reports" / "scene_inventory.md"
 TODO = ROOT / "TODO.md"
+TASK_ARCHIVE = ROOT / "docs" / "TASK_ARCHIVE.md"
 
 VALID_ROLES = frozenset({"level", "map", "event", "support", "actor", "ui", "test"})
 VALID_STATUSES = frozenset({"convert", "archive", "retain"})
@@ -38,6 +39,10 @@ INVENTORY_ROW = re.compile(
 TASK_ROW = re.compile(
     r"^- \[(?:x| )\](?: \[x\])?\s+(?P<id>P[0-9]+-[0-9]+) \| deps: (?P<deps>[^|]+) \| deliverable: (?P<deliverable>.*?) "
     r"\| allowed files: (?P<allowed>.*?) \| constraints: (?P<constraints>.*?) \| verify: (?P<verify>.*)$"
+)
+SLICE_GATE_ROW = re.compile(
+    r"^- \[(?:x| )\](?: \[x\])?\s+P2-012 \| deps: (?P<deps>[^|]+) \|",
+    re.MULTILINE,
 )
 CODE_PATH = re.compile(r"`([^`]+)`")
 
@@ -112,14 +117,29 @@ def parse_plan(path: Path) -> tuple[list[PlanRow], list[DetailRow]]:
     return index_rows, detail_rows
 
 
-def parse_tasks(path: Path) -> dict[str, dict[str, str]]:
+def parse_tasks(*paths: Path) -> dict[str, dict[str, str]]:
+    """Parse strict task rows. Earlier paths win so live TODO.md overrides the archive."""
     tasks: dict[str, dict[str, str]] = {}
-    for line in path.read_text(encoding="utf-8").splitlines():
-        match = TASK_ROW.match(line)
-        if match:
-            values = {key: value.strip() for key, value in match.groupdict().items()}
-            tasks[values["id"]] = values
+    for path in paths:
+        if not path.is_file():
+            continue
+        for line in path.read_text(encoding="utf-8").splitlines():
+            match = TASK_ROW.match(line)
+            if match:
+                values = {key: value.strip() for key, value in match.groupdict().items()}
+                tasks.setdefault(values["id"], values)
     return tasks
+
+
+def _first_slice_gate_deps(*paths: Path) -> set[str] | None:
+    """Return P2-012 deps from the first matching file. Live TODO.md wins over the archive."""
+    for path in paths:
+        if not path.is_file():
+            continue
+        match = SLICE_GATE_ROW.search(path.read_text(encoding="utf-8"))
+        if match:
+            return {dep.strip() for dep in match.group("deps").split(",") if dep.strip()}
+    return None
 
 
 def _duplicates(values: list[str]) -> list[str]:
@@ -137,14 +157,23 @@ def _format_paths(paths: set[str] | list[str]) -> str:
 
 
 def validate_map_conversion_plan(
-    *, root: Path, plan_path: Path, inventory_path: Path, todo_path: Path
+    *,
+    root: Path,
+    plan_path: Path,
+    inventory_path: Path,
+    todo_path: Path,
+    archive_path: Path | None = None,
 ) -> list[ValidationError]:
     errors: list[ValidationError] = []
     repo_scenes = repository_scenes(root)
     inventory_rows = parse_inventory(inventory_path)
     inventory_scenes = set(inventory_rows)
     index_rows, detail_rows = parse_plan(plan_path)
-    tasks = parse_tasks(todo_path)
+    # Completed map-conversion contracts now live in TASK_ARCHIVE.md. Count those
+    # archived full-contract rows as present so prune does not have to copy them
+    # back into TODO.md just to keep this validator green.
+    resolved_archive = TASK_ARCHIVE if archive_path is None else archive_path
+    tasks = parse_tasks(todo_path, resolved_archive)
 
     index_scenes = [row.scene for row in index_rows]
     detail_scenes = [row.scene for row in detail_rows]
@@ -263,9 +292,8 @@ def validate_map_conversion_plan(
             if "active=false" not in scope or "approval artifact" not in scope:
                 errors.append(ValidationError(f"prototype `{scene}` lacks activation gate"))
 
-    todo_text = todo_path.read_text(encoding="utf-8")
-    slice_gate = re.search(r"^- \[(?:x| )\](?: \[x\])?\s+P2-012 \| deps: (?P<deps>[^|]+) \|", todo_text, re.MULTILINE)
-    if slice_gate is None or "P2-021" not in {dep.strip() for dep in slice_gate.group("deps").split(",")}:
+    slice_deps = _first_slice_gate_deps(todo_path, resolved_archive)
+    if slice_deps is None or "P2-021" not in slice_deps:
         errors.append(ValidationError("vertical-slice gate `P2-012` must depend on parity gate `P2-021`"))
 
     return errors
@@ -277,6 +305,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--plan", type=Path, default=PLAN)
     parser.add_argument("--inventory", type=Path, default=SCENE_INVENTORY)
     parser.add_argument("--todo", type=Path, default=TODO)
+    parser.add_argument("--archive", type=Path, default=TASK_ARCHIVE)
     args = parser.parse_args(argv)
 
     errors = validate_map_conversion_plan(
@@ -284,6 +313,7 @@ def main(argv: list[str] | None = None) -> int:
         plan_path=args.plan,
         inventory_path=args.inventory,
         todo_path=args.todo,
+        archive_path=args.archive,
     )
     if errors:
         print("map conversion plan verification failed:", file=sys.stderr)
@@ -291,7 +321,10 @@ def main(argv: list[str] | None = None) -> int:
             print(f"  - {error.message}", file=sys.stderr)
         return 1
 
-    print(f"map conversion plan verification passed ({len(repository_scenes(args.root))} scenes)")
+    print(
+        "map conversion plan verification passed "
+        f"({len(repository_scenes(args.root))} scenes, archive {args.archive.name})"
+    )
     return 0
 
 

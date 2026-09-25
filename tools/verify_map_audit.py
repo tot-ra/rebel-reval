@@ -14,6 +14,7 @@ from pathlib import Path
 from verify_map_conversion_plan import (
     PLAN,
     SCENE_INVENTORY,
+    TASK_ARCHIVE,
     TODO,
     parse_inventory,
     parse_plan,
@@ -90,6 +91,7 @@ def validate_map_audit(
     plan_path: Path,
     inventory_path: Path,
     todo_path: Path,
+    archive_path: Path | None = None,
     require_captures: bool = True,
 ) -> list[ValidationError]:
     errors = [ValidationError(error.message) for error in validate_map_conversion_plan(
@@ -97,6 +99,7 @@ def validate_map_audit(
         plan_path=plan_path,
         inventory_path=inventory_path,
         todo_path=todo_path,
+        archive_path=archive_path,
     )]
 
     try:
@@ -244,6 +247,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--plan", type=Path, default=PLAN)
     parser.add_argument("--inventory", type=Path, default=SCENE_INVENTORY)
     parser.add_argument("--todo", type=Path, default=TODO)
+    parser.add_argument("--archive", type=Path, default=TASK_ARCHIVE)
     parser.add_argument("--skip-captures", action="store_true")
     args = parser.parse_args(argv)
 
@@ -253,6 +257,7 @@ def main(argv: list[str] | None = None) -> int:
         plan_path=args.plan,
         inventory_path=args.inventory,
         todo_path=args.todo,
+        archive_path=args.archive,
         require_captures=not args.skip_captures,
     )
     if errors:
