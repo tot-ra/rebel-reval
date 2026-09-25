@@ -67,6 +67,7 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 ### Task board
 - Identity is the internal `R-*` ref, not a product ID (`P0-122f`) or a prose label (`R-454a`). Resolve with `tasks.list` before `tasks.get`.
 - `tasks.next` does not honor complexity or role filters. Restore a wrongly claimed row with its full body, then claim the exact ref.
+- If `tasks.create` fails with `UNIQUE constraint failed: tasks.project_id, tasks.ref (2067)` (2067 is the SQLite code, not a ref), the project's `max(seq)` lags its highest `R-*` ref. Check `select ref, seq from tasks where project_id=... order by seq desc limit 3` in `aagent.db`, set the top row's `seq` to its ref number, and retry. Never create board rows in parallel.
 - Create dependency chains sequentially and verify each returned ref. An empty `body` on update erases the contract. If a mutation times out, query the exact ref before retrying.
 - When the `tasks` tool is unavailable in Cursor, read or update the project board through `~/.local/share/aagent/aagent.db` with the session `project_id`; do not infer open work from `TODO.md` alone.
 - Before coding an open `R-*` row, grep `TODO.md` for the product ID (`P0-226`); if it is already `[x]`, run the task `verify` clause headlessly and close the board row instead of re-implementing.
