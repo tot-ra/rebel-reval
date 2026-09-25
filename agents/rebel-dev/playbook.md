@@ -18,6 +18,7 @@ This file contains lessons specific to the Dev role.
 - Keep `.gdlintrc` `class-definitions-order` aligned with gdtoolkit defaults (`signals`, `enums`, then `consts`).
 - Hard-to-wrap `max-line-length` lines can use `# gdlint: ignore=max-line-length` on the previous line. Do not insert a one-method regression into a large legacy `test_*.gd` that already exceeds the cap; put it in its own file.
 - Do not silence unused-arg warnings by renaming `setup` parameters to match member fields. That shadows members and can leave them null.
+- Morning ground mist `fog_light_color` must follow `day_blend`. A constant pale `FOG_MORNING_COLOR` paints the harbour as a light-grey sheet from `FOG_HOURS_BEFORE_SUNRISE` through first light. Keep rain-only haze on the old pale-to-rain lerp when mist is absent.
 
 ### Harness, import, and capture
 - On-commit Godot resolution should honor `GODOT_BIN`, then `godot` on PATH, then `/Applications/Godot.app/Contents/MacOS/Godot`.
