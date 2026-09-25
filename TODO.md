@@ -95,6 +95,26 @@ also listed in the `conventions` block of `assets/sky/atmosphere/atmosphere_prof
 5. **License:** `notice.code.tidewater` (full MIT text) now exists in
    `docs/THIRD_PARTY_NOTICES.md`. WS-03 already cited it, so it was added here, ahead of WS-01.
 
+- [ ] WS-10 | deps: WS-09 | deliverable: per-frame Hillaire sky-view LUT in a SubViewport (HDR or RGBM) driving the sky dome background, transmittance-coloured limb-darkened sun disk and physically lit clouds, with art-direction exposure/tint/sunset-boost and gradient fallback | allowed files: `scripts/map/view3d/sky_atmosphere_lut.gd`, `scripts/map/view3d/sky_view_lut.gdshader`, `scripts/map/view3d/sky_weather_3d.gdshader`, `scripts/map/view3d/sky_weather_3d.gd`, `scripts/map/view3d/atmosphere_common.gdshaderinc`, `tests/godot/test_sky_atmosphere_lut.gd`, `tests/godot/test_sky_weather_3d.gd`, `docs/SKY_WEATHER_STATE_CONTRACT.md`, `docs/reports/images/ws10_*.png`, `docs/reports/ws10_physical_sky.md`, `tools/capture_ws10_sky_elevations.gd`, `TODO.md` | verify: LUT node/throttle/fallback tests; six-elevation clear captures show blue zenith, red low sun, Earth-shadow band, twilight into stars; R-713 continuity verifiers pass; 60 s day clip without flicker or banding
+
+WS-10 implementation landed (R-895, in review). Decisions (2026-09-25), evidence in
+[`docs/reports/ws10_physical_sky.md`](docs/reports/ws10_physical_sky.md):
+
+1. **HDR, not RGBM.** `SubViewport.use_hdr_2d` gives a float target on both renderers (probe read
+   back an exact 3.5: RGBAF on Compatibility, RGBAH on Metal), so radiance is stored directly.
+2. **Backend quirks.** The kernel indexes texels with `FRAGCOORD` (memory order on every
+   backend). On GL Compatibility a 3D/sky shader sampling the ViewportTexture receives
+   sRGB-decoded values, so the kernel pre-encodes with the exact inverse curve there
+   (`encode_srgb`, keyed on `gl_compatibility`); Metal reads the stored radiance.
+3. **Art controls.** `sky_exposure` 0.7 puts the 60-degree horizon within 1% of the old gradient
+   luminance on Compatibility. Added `sky_adaptation` (0.6, max gain 4) - a partial eye
+   adaptation from the LUT zenith luminance, computed on the GPU - because the fixed scene grade
+   left the physical dusk sky about 10x darker than noon. `sun_disk_scale` 0.218 keeps the noon
+   disk at the old 2.4 peak; `cloud_sun_scale` 0.08 keeps noon cloud tops near white; the art
+   dusk ramp on clouds is kept at `sunset_boost * 2` weight.
+4. **Scope additions:** the capture/benchmark/day-sweep tool and the evidence report were not in
+   the contract's allowed files and are listed above.
+
 ## Storybook model set
 
 - [ ] P0-209b | deps: P0-209a | deliverable: replace the visually rejected procedural mammals from scratch with convincingly realistic sculpted or scanned source geometry and textured surfaces | allowed files: `tools/assets/realistic_mammals.py`, `tools/assets/mammal_limb_anatomy.py`, `tools/assets/build_storybook_models.py`, `tools/assets/import_realistic_mammals.py`, `tools/assets/import_authored_rat.py`, `tools/assets/pack_authored_rat.py`, `tools/verify_storybook_models.py`, `tools/capture_animal_realism.gd`, `scripts/map/view3d/map_view_medieval_animal_models.gd`, `tests/python/test_mammal_limb_anatomy.py`, `tests/godot/test_mammal_limb_anatomy.gd`, `tests/godot/test_storybook_models.gd`, `tests/godot/test_storybook_live_integration.gd`, `assets/storybook/`, `assets/SOURCES.csv`, `docs/ART_BIBLE.md`, `docs/reports/animal_realism_2026-09-12.md`, `docs/reports/images/animal_realism/`, `TODO.md` | constraints: licensed commercial-use sources; no ripped game assets; preserve species IDs, runtime paths and behavior; replace failed geometry instead of polishing primitive unions; preserve unrelated WIP | verify: inspect replacement source silhouettes and materials; Godot imports and fauna tests; real runtime captures; provenance and independent visual review; do not close on technical tests alone; replacement implementation and 81 focused tests complete; maintainer visual acceptance remains open

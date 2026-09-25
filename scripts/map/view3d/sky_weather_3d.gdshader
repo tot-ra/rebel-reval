@@ -1,6 +1,7 @@
 shader_type sky;
 
-// Sky dome for the 3D map view (ADR 0007 view layer): day/night gradient,
+// Sky dome for the 3D map view (ADR 0007 view layer): WS-10 physical sky from
+// the Hillaire sky-view LUT (gradient fallback when the LUT is unavailable),
 // Hipparcos stars positioned for Reval in 1343, sun disk with halo, moon,
 // procedural clouds, and a warm horizon band for sunrise/sunset. All dynamics
 // are script-driven uniforms (no TIME), so the sky stays deterministic and
@@ -69,6 +70,77 @@ uniform vec2 wind_dir = vec2(0.928, 0.371);
 uniform sampler2D star_map : filter_nearest, repeat_enable;
 uniform float observer_latitude = 1.0371;
 uniform float sidereal_angle = 3.8101;
+
+// WS-10 physical sky. SkyAtmosphereLut renders the Hillaire sky-view LUT every (other) frame;
+// when it or the WS-09 transmittance LUT is missing, sky_lut_available stays false and the
+// hand-tuned gradient above is used unchanged (fail closed, like cloud_fallback).
+#include "res://scripts/map/view3d/atmosphere_common.gdshaderinc"
+uniform bool sky_lut_available = false;
+uniform sampler2D sky_view_lut : filter_linear, repeat_disable;
+uniform sampler2D atmosphere_transmittance_lut : filter_linear, repeat_disable;
+uniform vec2 sky_lut_size = vec2(192.0, 108.0);
+// Art direction wins over physics (ADR 0018): exposure and tint scale the LUT radiance.
+// 0.7 puts the 60-degree-sun horizon at the old day_horizon_color luminance.
+uniform float sky_exposure : hint_range(0.0, 4.0) = 0.7;
+uniform vec4 sky_tint : source_color = vec4(1.0, 1.0, 1.0, 1.0);
+// Partial eye adaptation: the fixed scene grade would leave the physical dusk sky ~10x dimmer
+// than noon. Gain = clamp((reference / zenith luminance)^sky_adaptation, 1, max_gain), where
+// the reference is the raw LUT zenith luminance at a 60-degree sun (gain 1 at the calibration
+// point). Computed per pixel from one azimuth-independent LUT fetch; no CPU readback.
+uniform float sky_adaptation : hint_range(0.0, 1.0) = 0.6;
+uniform float sky_adaptation_max_gain : hint_range(1.0, 16.0) = 4.0;
+uniform float sky_adaptation_reference = 0.155;
+// Share of the old art sunset band (sunset_color * sunset_factor) kept on top of the LUT.
+uniform float sunset_boost : hint_range(0.0, 1.0) = 0.25;
+// Must match SkyAtmosphereLut.SUN_ILLUMINANCE (the LUT is already multiplied by it).
+uniform float sun_illuminance = 11.0;
+// Disk radiance = sun_illuminance * T(ground, mu_sun) * scale; 0.218 keeps the noon disk at
+// the old 2.4 peak so glow and AgX see the same highlight.
+uniform float sun_disk_scale : hint_range(0.0, 1.0) = 0.218;
+// Cloud sunlight = sun_illuminance * T(cloud base, mu_sun) * scale; 0.08 keeps noon cloud tops
+// near the old near-white sun_lit tone once the LUT ambient is added.
+uniform float cloud_sun_scale : hint_range(0.0, 0.5) = 0.08;
+
+// Tidewater viewHeight 6360.002 km; the LUT was rendered from this height.
+const float SKY_VIEW_HEIGHT_KM = 6360.002;
+// Cloud base altitude used for the physical cloud sun colour (contract: R_ground + 1.5 km).
+const float CLOUD_HEIGHT_KM = 1.5;
+
+
+// Inverse of the sky_view_lut.gdshader mapping (Hillaire SkyViewLutParamsToUv), sky half only:
+// below-horizon rays clamp to the last sky row so bilinear filtering never blends the ground
+// half into the horizon (the map, not the LUT, draws everything below it).
+vec2 sky_view_uv(vec3 dir) {
+	float r = SKY_VIEW_HEIGHT_KM;
+	float v_horizon = sqrt(r * r - ATMO_RG * ATMO_RG);
+	float beta = acos(v_horizon / r);
+	float zh = ATMO_PI - beta;
+	float view_zenith = min(acos(clamp(dir.y, -1.0, 1.0)), zh);
+	float unit_y = (1.0 - sqrt(max(1.0 - view_zenith / zh, 0.0))) * 0.5;
+	float last_sky_row = (sky_lut_size.y * 0.5 - 1.0) / (sky_lut_size.y - 1.0);
+	unit_y = min(unit_y, last_sky_row);
+	vec2 view_h = dir.xz;
+	vec2 sun_h = sun_direction.xz;
+	float cos_light_view = 1.0;
+	if (dot(view_h, view_h) > 1e-8 && dot(sun_h, sun_h) > 1e-8) {
+		cos_light_view = clamp(dot(normalize(view_h), normalize(sun_h)), -1.0, 1.0);
+	}
+	float unit_x = sqrt(clamp(-cos_light_view * 0.5 + 0.5, 0.0, 1.0));
+	return vec2(
+		atmosphere_unit_to_sub_uv(unit_x, sky_lut_size.x),
+		atmosphere_unit_to_sub_uv(unit_y, sky_lut_size.y));
+}
+
+
+vec3 sky_lut_radiance(vec3 dir) {
+	return texture(sky_view_lut, sky_view_uv(dir)).rgb;
+}
+
+
+vec3 sun_transmittance_at(float altitude_km) {
+	float r = ATMO_RG + altitude_km;
+	return texture(atmosphere_transmittance_lut, transmittance_uv(r, sun_direction.y)).rgb;
+}
 
 
 float remap(float v, float lo, float hi, float nlo, float nhi) {
@@ -318,20 +390,45 @@ void sky() {
 	vec3 dir = EYEDIR;
 	float height = dir.y;
 
-	vec3 top = mix(night_top_color.rgb, day_top_color.rgb, day_blend);
-	vec3 horizon = mix(night_horizon_color.rgb, day_horizon_color.rgb, day_blend);
-	// Warm dusk/dawn band hugging the horizon on the sun side.
 	float sun_amount = max(dot(dir, sun_direction), 0.0);
-	horizon = mix(horizon, sunset_color.rgb, sunset_factor * pow(sun_amount, 2.0) * 0.8);
-
 	// Longer optical paths desaturate the horizon; forward scattering is
 	// concentrated toward the sun rather than a uniform blue gradient.
 	float air_mass = 1.0 / max(height + 0.12, 0.12);
 	float haze = 1.0 - exp(-air_mass * (0.10 + cloud_darken * 0.12));
-	vec3 color = mix(top, horizon, haze);
-	float forward_scatter = pow(sun_amount, 12.0) * (0.06 + haze * 0.20);
-	color += mix(sun_color.rgb, sunset_color.rgb, sunset_factor)
-		* forward_scatter * day_blend * (1.0 - cloud_darken * 0.8);
+	vec3 horizon;
+	vec3 color;
+	// Physical sky only: LUT ambient for cloud shadows (zenith + horizon average).
+	vec3 cloud_ambient = vec3(0.0);
+	if (sky_lut_available) {
+		// Background radiance straight from the sky-view LUT: blue zenith, hazy horizon,
+		// Mie glow around the sun, and the Earth shadow with its pink band at twilight.
+		vec3 lut_zenith = sky_lut_radiance(vec3(0.0, 1.0, 0.0));
+		float zenith_luminance = dot(lut_zenith, vec3(0.2126, 0.7152, 0.0722));
+		float adaptation = clamp(
+			pow(sky_adaptation_reference / max(zenith_luminance, 1e-6), sky_adaptation),
+			1.0, sky_adaptation_max_gain);
+		vec3 art = sky_exposure * sky_tint.rgb * adaptation;
+		lut_zenith *= art;
+		vec3 lut_horizon = sky_lut_radiance(normalize(vec3(dir.x, 0.0, dir.z) + vec3(0.0, 0.0, 1e-5))) * art;
+		cloud_ambient = 0.5 * (lut_zenith + lut_horizon);
+		// The sun-lit sky goes to ~0 below civil twilight; the old night gradient stays
+		// as the moonlit/airglow floor so nights look as before.
+		float night = 1.0 - day_blend;
+		horizon = lut_horizon + night_horizon_color.rgb * night;
+		color = sky_lut_radiance(dir) * art
+			+ mix(night_top_color.rgb, night_horizon_color.rgb, haze) * night;
+		// Art-controlled warm band on the sun side, now a small boost over the LUT sunset.
+		color += sunset_color.rgb * sunset_factor * pow(sun_amount, 2.0) * haze * sunset_boost;
+	} else {
+		vec3 top = mix(night_top_color.rgb, day_top_color.rgb, day_blend);
+		horizon = mix(night_horizon_color.rgb, day_horizon_color.rgb, day_blend);
+		// Warm dusk/dawn band hugging the horizon on the sun side.
+		horizon = mix(horizon, sunset_color.rgb, sunset_factor * pow(sun_amount, 2.0) * 0.8);
+		color = mix(top, horizon, haze);
+		float forward_scatter = pow(sun_amount, 12.0) * (0.06 + haze * 0.20);
+		color += mix(sun_color.rgb, sunset_color.rgb, sunset_factor)
+			* forward_scatter * day_blend * (1.0 - cloud_darken * 0.8);
+	}
 	color = mix(color, horizon * vec3(0.83, 0.87, 0.93), cloud_darken * 0.38);
 	// Below the horizon fade into darker haze so the map edge reads as ground fog.
 	color = mix(color, horizon * 0.55, clamp(-height * 3.0, 0.0, 1.0));
@@ -350,8 +447,19 @@ void sky() {
 	// Sun disk plus halo, hidden once the sun dips below the horizon.
 	float sun_visibility = smoothstep(-0.05, 0.05, sun_direction.y);
 	vec3 sun_tint = mix(sun_color.rgb, sunset_color.rgb, sunset_factor * 0.55);
-	float disk = 1.0 - smoothstep(0.0042, 0.0053, length(dir - sun_direction));
+	float sun_distance = length(dir - sun_direction);
+	float disk = 1.0 - smoothstep(0.0042, 0.0053, sun_distance);
 	float halo = pow(sun_amount, 350.0) * 0.18;
+	if (sky_lut_available) {
+		// Same disk and halo, coloured by the air mass: sun_illuminance * T(ground, mu_sun)
+		// turns the disk orange-red at the horizon without an art ramp. Divided by the old
+		// 2.4 peak so the disk * 2.4 + halo weighting below stays unchanged.
+		sun_tint = sun_illuminance * sun_transmittance_at(SKY_VIEW_HEIGHT_KM - ATMO_RG)
+			* sun_disk_scale / 2.4;
+		// Limb darkening 1 - 0.6 * (1 - sqrt(1 - (d/r)^2)).
+		float d_over_r = clamp(sun_distance / 0.0053, 0.0, 1.0);
+		disk *= 1.0 - 0.6 * (1.0 - sqrt(1.0 - d_over_r * d_over_r));
+	}
 	color += sun_tint * (disk * 2.4 + halo) * sun_visibility * (1.0 - clouds * 0.95);
 
 	// Moon: opaque shaded sphere sampled from a NASA near-side albedo photo.
@@ -484,12 +592,21 @@ void sky() {
 	// graduation is what makes a real sunset glow instead of tinting every cloud
 	// the same flat orange.
 	vec3 sun_lit = mix(vec3(1.0, 1.0, 1.0), sun_color.rgb, 0.3);
+	vec3 cloud_sun_color = sun_color.rgb;
+	// Share of the art dusk ramp below; the physical sky keeps only part of it.
+	float dusk_ramp = sunset_factor;
+	if (sky_lut_available) {
+		// Physical sun at cloud height plus LUT skylight replaces the constant sun_color mix.
+		cloud_sun_color = sun_illuminance * sun_transmittance_at(CLOUD_HEIGHT_KM) * cloud_sun_scale;
+		sun_lit = cloud_sun_color + cloud_ambient;
+		dusk_ramp = sunset_factor * clamp(sunset_boost * 2.0, 0.0, 1.0);
+	}
 	float sun_prox = pow(sun_amount, 1.5);
 	vec3 dusk_hot = vec3(1.15, 0.92, 0.60);
 	vec3 dusk_far = vec3(0.74, 0.44, 0.56);
 	vec3 dusk_lit = mix(dusk_far, sunset_color.rgb, smoothstep(0.12, 0.5, sun_prox));
 	dusk_lit = mix(dusk_lit, dusk_hot, smoothstep(0.55, 0.95, sun_prox));
-	sun_lit = mix(sun_lit, dusk_lit * 1.15, sunset_factor);
+	sun_lit = mix(sun_lit, dusk_lit * 1.15, dusk_ramp);
 	vec3 cloud_top = mix(vec3(0.09, 0.11, 0.16), sun_lit, day_blend);
 	// Shadowed sides: cool blue by day, dusky violet at sunset (skylight, not sun).
 	// Storm cells darken further so a heavy raining cell reads dark under the sky.
@@ -498,7 +615,7 @@ void sky() {
 	vec3 cloud_shadow = mix(day_shadow, dusk_shadow, sunset_factor);
 	vec3 cloud_col = mix(cloud_shadow, cloud_top, cloud_light);
 	// Hot rim where a lit cloud faces the low sun — the fiery sunset edge.
-	vec3 rim = mix(sun_color.rgb, dusk_hot, sunset_factor);
+	vec3 rim = mix(cloud_sun_color, dusk_hot, sunset_factor);
 	cloud_col += rim * pow(sun_amount, 5.0) * cloud_light * (0.12 + 0.40 * sunset_factor) * sun_visibility;
 	// Anvil crown: the icy top of a tall storm cell catches light as a bright,
 	// cool-white cap high over its dark base — the giveaway of a thunderhead.

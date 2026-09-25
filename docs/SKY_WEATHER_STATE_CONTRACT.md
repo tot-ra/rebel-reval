@@ -44,7 +44,9 @@
 
 `SkyWeather3D.snapshot_state()` fills all 26 keys above. `SkyWeather3D.apply_state()` restores every presenter-owned field: weather transition data, weather flags, calendar date, cloud and wetness accumulators, gust/lightning timers, RNG streams, and both profiles. `cycle_progress` and `elapsed_days` are intentionally snapshot inputs owned by the shared day clock, so `apply_state()` does not overwrite that clock. `quality_tier`, renderer resources, and derived presentation values are not persisted.
 
-Renderer-only objects such as `Environment`, `Sky`, `Camera3D`, particles, audio players, and scene nodes are intentionally excluded. This keeps save/load and map transitions independent from renderer lifetime.
+Since WS-10 the clear-sky background radiance and the sun disk colour come from the physical atmosphere: `SkyAtmosphereLut` renders a Hillaire sky-view LUT from the sun direction that `apply_sky_state()` already receives, and falls back to the old gradient when the WS-09 LUT assets are missing. The LUT is derived presentation state, rebuilt from the sun direction every (other) frame, so the state contract above is unchanged: no key was added and `snapshot_state()` / `apply_state()` keep their format.
+
+Renderer-only objects such as `Environment`, `Sky`, `SkyAtmosphereLut`, `Camera3D`, particles, audio players, and scene nodes are intentionally excluded. This keeps save/load and map transitions independent from renderer lifetime.
 
 ## Validation and migration
 

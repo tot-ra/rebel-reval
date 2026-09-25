@@ -3,13 +3,15 @@ extends Node3D
 
 ## Sky dome, sun/moon placement, real stars for medieval Reval, and a
 ## deterministic weather cycle for the MapView3D view layer. Owns the
-## Environment sky (gradient + procedural clouds via sky_weather_3d.gdshader),
+## Environment sky (WS-10 physical sky-view LUT via SkyAtmosphereLut, falling back to the
+## gradient, + procedural clouds via sky_weather_3d.gdshader),
 ## blends clear/cloudy/rain profiles, and reports lighting multipliers back to
 ## MapView3D so sun and ambient follow the sky. Weather randomness comes from a
 ## fixed seed: the sequence repeats identically every run, keeping the
 ## deterministic-state rule intact.
 
 const SKY_SHADER := preload("res://scripts/map/view3d/sky_weather_3d.gdshader")
+const SkyAtmosphereLutScript := preload("res://scripts/map/view3d/sky_atmosphere_lut.gd")
 const SKY_RESOURCES := preload("res://scripts/map/view3d/sky_weather_resources.gd")
 const SkyWeatherRoofAudioScript := preload("res://scripts/map/view3d/sky_weather_roof_audio.gd")
 const SkyWeatherStateScript := preload("res://scripts/map/view3d/sky_weather_state.gd")
@@ -90,6 +92,9 @@ const QUALITY_TIERS: Dictionary = {
 		"shader_sample_budget": 80,
 		# WS-04: C2 slopes off; the procedural detail normal covers the ripples.
 		"ocean_fft_cascades": 2,
+		# WS-10: half-size sky-view LUT rendered every second frame.
+		"sky_lut_size": SkyAtmosphereLutScript.SIZE_MINIMUM,
+		"sky_lut_every_n_frames": 2,
 	},
 	QUALITY_RECOMMENDED: {
 		"cloud_noise_resolution": SKY_RESOURCES.CLOUD_NOISE_RESOLUTION_RECOMMENDED,
@@ -105,6 +110,9 @@ const QUALITY_TIERS: Dictionary = {
 		"particle_budget": 2200,
 		"shader_sample_budget": 140,
 		"ocean_fft_cascades": 3,
+		# WS-10: the compressed day moves the sun ~6 deg/s, so the LUT renders every frame.
+		"sky_lut_size": SkyAtmosphereLutScript.SIZE_RECOMMENDED,
+		"sky_lut_every_n_frames": 1,
 	},
 }
 
@@ -342,6 +350,7 @@ var _environment: Environment
 var _rain: GPUParticles3D
 var _roof_audio: SkyWeatherRoofAudio
 var _cloud_resources_available := false
+var _atmosphere_lut: SkyAtmosphereLutScript
 
 
 ## Maps user-facing tier requests to a named minimum/recommended row. Auto and
@@ -394,8 +403,38 @@ func _apply_quality_resources() -> void:
 	)
 	_material.set_shader_parameter(&"lightning_density", float(settings["lightning_density"]))
 	_material.set_shader_parameter(&"cloud_fallback", not _cloud_resources_available)
+	_apply_atmosphere_lut(settings)
 	if _rain != null:
 		_rain.amount = int(settings["rain_particles"])
+
+
+## WS-10: sizes the sky-view LUT for the tier and binds it, or keeps the gradient sky when the
+## WS-09 LUT assets are missing (same fail-closed rule as cloud_fallback).
+func _apply_atmosphere_lut(settings: Dictionary) -> void:
+	var available := false
+	if _atmosphere_lut != null and _atmosphere_lut.is_available():
+		_atmosphere_lut.set_tier(
+			settings["sky_lut_size"] as Vector2i, int(settings["sky_lut_every_n_frames"])
+		)
+		available = true
+		_material.set_shader_parameter(&"sky_view_lut", _atmosphere_lut.sky_view_texture())
+		_material.set_shader_parameter(
+			&"atmosphere_transmittance_lut", _atmosphere_lut.transmittance_texture()
+		)
+		_material.set_shader_parameter(&"sky_lut_size", Vector2(_atmosphere_lut.lut_size))
+		_material.set_shader_parameter(
+			&"sun_illuminance", SkyAtmosphereLutScript.SUN_ILLUMINANCE
+		)
+	_material.set_shader_parameter(&"sky_lut_available", available)
+
+
+## True when the sky dome draws from the physical sky-view LUT rather than the gradient.
+func uses_atmosphere_lut() -> bool:
+	return _atmosphere_lut != null and _atmosphere_lut.is_available()
+
+
+func atmosphere_lut() -> SkyAtmosphereLutScript:
+	return _atmosphere_lut
 
 
 func _init() -> void:
@@ -534,6 +573,14 @@ func configure(camera: Camera3D, environment: Environment) -> void:
 	_camera = camera
 	_material = ShaderMaterial.new()
 	_material.shader = SKY_SHADER
+	if _atmosphere_lut == null:
+		_atmosphere_lut = SkyAtmosphereLutScript.new()
+		_atmosphere_lut.name = "SkyAtmosphereLut"
+		add_child(_atmosphere_lut)
+	var lut_settings := _quality_settings()
+	_atmosphere_lut.configure(
+		lut_settings["sky_lut_size"] as Vector2i, int(lut_settings["sky_lut_every_n_frames"])
+	)
 	_apply_quality_resources()
 	_material.set_shader_parameter(
 		&"lunar_albedo_map", SKY_RESOURCES.build_lunar_albedo_map(WEATHER_SEED)
@@ -712,6 +759,8 @@ func apply_sky_state(progress: float, day_blend: float, sun_direction: Vector3) 
 	_material.set_shader_parameter(&"day_blend", day_blend)
 	_material.set_shader_parameter(&"sunset_factor", sunset_factor)
 	_material.set_shader_parameter(&"sidereal_angle", sidereal_angle_for_progress(progress))
+	if _atmosphere_lut != null:
+		_atmosphere_lut.update(sun_direction, Engine.get_process_frames())
 
 
 ## Builds one immutable-in-practice presentation handoff from the current weather
