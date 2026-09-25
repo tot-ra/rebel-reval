@@ -20,10 +20,14 @@ func _make_db() -> ContentDB:
 
 func test_loads_validated_example_corpus() -> void:
 	var db := _make_db()
+	# Derived from the on-disk JSON set so adding example records does not
+	# break this smoke test, while a partial load still fails the count.
+	var expected_records := _count_json_files(_example_dirs())
 
 	assert_true(db.is_loaded())
 	assert_eq(db.get_load_errors().size(), 0)
-	assert_eq(db.get_record_count(), 55)
+	assert_true(expected_records > 0, "example corpus should contain JSON records")
+	assert_eq(db.get_record_count(), expected_records)
 	assert_true(db.has_record(CHAR_KALEV))
 	assert_true(db.has_record(QUEST_MAKERS_MARK))
 	assert_true(db.has_record(ITEM_SEIZED_SPEARHEAD))
@@ -136,6 +140,31 @@ func test_load_rejects_malformed_record_shape() -> void:
 	assert_eq(db.get_record_count(), 0)
 	assert_true(db.get_load_errors().size() > 0)
 	_remove_tree(temp_root)
+
+
+func _count_json_files(directories: Array[String]) -> int:
+	var count := 0
+	for directory in directories:
+		count += _count_json_files_in(directory)
+	return count
+
+
+func _count_json_files_in(directory: String) -> int:
+	var dir := DirAccess.open(directory)
+	assert_true(dir != null, "example corpus directory should exist: %s" % directory)
+	var count := 0
+	dir.list_dir_begin()
+	var entry := dir.get_next()
+	while not entry.is_empty():
+		if entry != "." and entry != "..":
+			var path := directory.path_join(entry)
+			if dir.current_is_dir():
+				count += _count_json_files_in(path)
+			elif entry.ends_with(".json"):
+				count += 1
+		entry = dir.get_next()
+	dir.list_dir_end()
+	return count
 
 
 func _write_json(path: String, body: Dictionary) -> void:
