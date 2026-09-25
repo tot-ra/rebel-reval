@@ -1,0 +1,48 @@
+{
+  "type": "spell",
+  "id": "spell.pagan.healing_mist",
+  "name": "Healing Mist",
+  "school": "school.pagan",
+  "sequence": [
+    "element.water",
+    "element.life"
+  ],
+  "resolution": "authored_lookup",
+  "runtime_combination_allowed": false,
+  "requires_conduit": "none",
+  "cost": {
+    "resource": "resource.willpower",
+    "amount": 3
+  },
+  "effect_summary": "Kalev breathes a low mist over the ground where he stands. Allies who stay inside it slowly mend; hostiles gain nothing from it.",
+  "effect": {
+    "delivery": {
+      "kind": "persistent_area",
+      "radius": 80.0,
+      "duration_sec": 6.0,
+      "target_policy": "ally"
+    },
+    "impact": {
+      "kind": "heal_over_time",
+      "amount": 4.0,
+      "tick_interval_sec": 1.0,
+      "duration_sec": 6.0
+    }
+  },
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "R-721 Healing Mist prototype"
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Authored gameplay ally heal area for the water plus life forge sequence, seeded by the legacy pagan catalog; not an attested historical rite.",
+      "citations": [
+        "docs/SYSTEMS/MAGIC.md",
+        "character/PAGAN-MAGIC.md"
+      ]
+    }
+  ]
+}

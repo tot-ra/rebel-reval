@@ -146,6 +146,23 @@ Reductions combine multiplicatively across stacks and modifiers, and the total i
 
 **Save boundary:** timed modifiers are transient combat state. They are not written to `GameState` or save payloads, and an actor rebuilt by load, respawn, or scene transition starts without them. The willpower spent on the cast stays spent.
 
+### 5.2 Persistent areas and healing over time (R-721)
+
+A persistent area uses `effect.delivery.kind: "persistent_area"` plus exactly one `effect.impact` module of kind `heal_over_time`. The runtime spawns `MagicPersistentArea2D` (`scripts/magic/magic_persistent_area_2d.gd`) at the cast point; each target inside it gets its own `MagicHealingOverTime` (`scripts/magic/magic_healing_over_time.gd`). Neither script names a spell.
+
+| Field | Rule |
+|---|---|
+| `delivery.radius` | Positive; the area does not move after the cast |
+| `delivery.duration_sec` | `0 < duration_sec <= 30`; area lifetime, not NATURAL-scaled |
+| `delivery.target_policy` | `ally` - the caster and actors whose `is_hostile_to(caster)` is false; `hostile` - actors hostile to the caster (actors without `is_hostile_to` count as hostile, like area pulses). Healing areas must use `ally` |
+| `impact.amount` | Health restored per tick; NATURAL scaling applies |
+| `impact.tick_interval_sec` | Positive and at most `impact.duration_sec`; cadence is never scaled |
+| `impact.duration_sec` | Per-target heal budget, counted only while the target stands inside; NATURAL scaling applies |
+
+Ticks are deterministic and frame-rate independent: one 6 s step applies the same ticks as many small steps. A target that leaves and re-enters resumes its own budget. Healing is capped at max health and never revives a dead actor (`CombatVitals.heal`). Actors that mirror vitals into their own fields implement `receive_magic_heal(amount) -> float` (the player does, to keep the health ring in step). The validator rejects `duration_sec`/`target_policy` on other deliveries, `heal_over_time` on other deliveries, a persistent area without a `heal_over_time` impact, projectile or summon fields on the area, and a hostile healing area.
+
+**Save boundary:** like timed modifiers, areas and per-target heal state are transient and never saved.
+
 ---
 
 ## 6. NATURAL aspect coupling
@@ -223,7 +240,7 @@ These are design stubs, not shipped balance.
 | `spell.pagan.reinforce` | pagan | `[metal]` | Short self armor buff | optional |
 | `spell.pagan.iron_skin` | pagan | `[earth, metal]` | Self damage reduction (35%, 8 s, recast replaces); shipped example (R-725) | optional |
 | `spell.pagan.tremor` | pagan | `[earth]` | Short foot stagger pulse | optional |
-| `spell.pagan.healing_mist` | pagan | `[water, life]` | Small ally heal area | optional |
+| `spell.pagan.healing_mist` | pagan | `[water, life]` | Ally heal area (80 radius, 6 s, 4 health per second per ally); shipped example (R-721) | optional |
 | `spell.pagan.forgefire_weapon` | pagan | `[fire, metal, mind]` | Temporary fire on melee strikes | `conduit.forge_spell` |
 | `spell.pagan.earthen_wall` | pagan | `[earth, metal, life]` | Short blocking earth segment | `conduit.forge_spell` |
 | `rite.blessing` | divine | tags `faith` | Short self damage buff | optional / hammer symbol allowed |

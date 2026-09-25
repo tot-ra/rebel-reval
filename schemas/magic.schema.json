@@ -116,7 +116,8 @@
                 "projectile",
                 "area_pulse",
                 "summon",
-                "self"
+                "self",
+                "persistent_area"
               ]
             },
             "speed": {
@@ -153,6 +154,17 @@
             "spawn_offset": {
               "type": "number",
               "minimum": 0
+            },
+            "duration_sec": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 30
+            },
+            "target_policy": {
+              "enum": [
+                "ally",
+                "hostile"
+              ]
             }
           }
         },
@@ -166,7 +178,8 @@
             "kind": {
               "enum": [
                 "damage",
-                "stagger"
+                "stagger",
+                "heal_over_time"
               ]
             },
             "amount": {
@@ -178,6 +191,10 @@
               "pattern": "^[a-z][a-z0-9_]*$"
             },
             "duration_sec": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "tick_interval_sec": {
               "type": "number",
               "exclusiveMinimum": 0
             }

@@ -120,6 +120,100 @@ def _validate_magic_self_modifier(context: RecordValidationContext) -> None:
         )
 
 
+_PERSISTENT_AREA_DELIVERY_FIELDS = {"kind", "radius", "duration_sec", "target_policy"}
+
+
+def _validate_magic_persistent_area(context: RecordValidationContext) -> None:
+    """Persistent areas pair placement, lifetime, and targeting with one timed impact."""
+    effect = context.record.get("effect")
+    if not isinstance(effect, dict):
+        return
+    delivery = effect.get("delivery")
+    if not isinstance(delivery, dict):
+        return
+    impact = effect.get("impact")
+    is_area = delivery.get("kind") == "persistent_area"
+    heal_over_time = isinstance(impact, dict) and impact.get("kind") == "heal_over_time"
+    if not is_area:
+        for field in ("duration_sec", "target_policy"):
+            if field in delivery:
+                context.diagnose(
+                    "MAGIC_EFFECT",
+                    f"$.effect.delivery.{field}",
+                    f"{field} is only valid on persistent_area delivery",
+                )
+        if heal_over_time:
+            context.diagnose(
+                "MAGIC_EFFECT",
+                "$.effect.impact.kind",
+                "heal_over_time is only delivered by persistent_area effects",
+            )
+        return
+    for field in ("radius", "duration_sec"):
+        if not _is_positive_number(delivery.get(field)):
+            context.diagnose(
+                "MAGIC_EFFECT",
+                f"$.effect.delivery.{field}",
+                f"persistent_area requires a positive {field}",
+            )
+    policy = delivery.get("target_policy")
+    if policy not in {"ally", "hostile"}:
+        context.diagnose(
+            "MAGIC_EFFECT",
+            "$.effect.delivery.target_policy",
+            "persistent_area requires target_policy ally or hostile",
+        )
+    extra = sorted(key for key in delivery if key not in _PERSISTENT_AREA_DELIVERY_FIELDS)
+    if extra:
+        context.diagnose(
+            "MAGIC_EFFECT",
+            "$.effect.delivery",
+            "persistent_area takes no projectile or summon fields: " + ", ".join(extra),
+        )
+    if effect.get("area") is not None:
+        context.diagnose(
+            "MAGIC_EFFECT",
+            "$.effect.area",
+            "persistent_area effects must not define a second area",
+        )
+    if not heal_over_time:
+        # The runtime area only knows timed healing today; other timed modules
+        # need their own adapter before content may author them.
+        context.diagnose(
+            "MAGIC_EFFECT",
+            "$.effect.impact",
+            "persistent_area requires a heal_over_time impact",
+        )
+        return
+    for field in ("amount", "duration_sec", "tick_interval_sec"):
+        if not _is_positive_number(impact.get(field)):
+            context.diagnose(
+                "MAGIC_EFFECT",
+                f"$.effect.impact.{field}",
+                f"heal_over_time requires a positive {field}",
+            )
+    interval = impact.get("tick_interval_sec")
+    duration = impact.get("duration_sec")
+    if _is_positive_number(interval) and _is_positive_number(duration) and interval > duration:
+        context.diagnose(
+            "MAGIC_EFFECT",
+            "$.effect.impact.tick_interval_sec",
+            "heal_over_time must tick at least once within its duration",
+        )
+    if "damage_type" in impact:
+        context.diagnose(
+            "MAGIC_EFFECT",
+            "$.effect.impact.damage_type",
+            "heal_over_time does not carry a damage_type",
+        )
+    if policy == "hostile":
+        context.diagnose(
+            "MAGIC_EFFECT",
+            "$.effect.delivery.target_policy",
+            "healing areas must target allies, not hostiles",
+        )
+
+
 def _is_positive_number(value: Any) -> bool:
     return isinstance(value, (int, float)) and not isinstance(value, bool) and value > 0
 
@@ -136,6 +230,7 @@ def validate_magic(context: RecordValidationContext) -> None:
     if record_type in {"spell", "rite"}:
         _validate_magic_summon_effect(context)
         _validate_magic_self_modifier(context)
+        _validate_magic_persistent_area(context)
 
     if record_type == "spell":
         if record.get("school") != "school.pagan":

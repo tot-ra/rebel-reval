@@ -62,6 +62,19 @@ func is_hit_invulnerable() -> bool:
 	return _invuln_remaining_sec > 0.0
 
 
+## Restores health up to the cap and returns the amount actually restored.
+## Healing never revives: a dead actor stays dead until it is reconfigured.
+func heal(amount: float) -> float:
+	if amount <= 0.0 or _dead or health <= 0.0:
+		return 0.0
+	var previous_health := health
+	health = minf(max_health, health + amount)
+	var restored := health - previous_health
+	if restored > 0.0:
+		health_changed.emit(health, max_health)
+	return restored
+
+
 func reset_swing_tracking() -> void:
 	_resolved_swing_ids.clear()
 

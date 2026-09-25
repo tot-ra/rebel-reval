@@ -400,6 +400,19 @@ func take_damage(
 	return result.health_damage
 
 
+## Shared heal hook for timed magic effects: keeps the mirrored fields and the
+## health ring in step with vitals. Returns the health actually restored.
+func receive_magic_heal(amount: float) -> float:
+	_sync_vitals_from_fields()
+	var restored := combat_vitals.heal(amount)
+	if restored <= 0.0:
+		return 0.0
+	_sync_fields_from_vitals()
+	_sync_resource_bars()
+	health_changed.emit(health, max_health)
+	return restored
+
+
 func last_hit_result() -> CombatHitResult:
 	return _last_hit_result
 

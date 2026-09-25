@@ -32,6 +32,8 @@ static func execute(
 		return _execute_projectile(cast_result, caster, direction, parent, effect_dict)
 	if delivery_kind == "area_pulse":
 		return _execute_area_pulse(cast_result, caster, parent, effect_dict)
+	if delivery_kind == "persistent_area":
+		return _execute_persistent_area(cast_result, caster, parent, effect_dict)
 	if delivery_kind == "summon":
 		return _execute_summon(cast_result, caster, direction, parent, effect_dict)
 	if delivery_kind == "self":
@@ -98,6 +100,32 @@ static func _execute_area_pulse(
 	pulse.global_position = caster.global_position
 	pulse.call("pulse")
 	return pulse
+
+
+## Persistent areas stay at the cast point and advance on their own _process.
+static func _execute_persistent_area(
+	cast_result: Dictionary,
+	caster: Node2D,
+	parent: Node,
+	effect: Dictionary
+) -> Node2D:
+	var delivery := effect.get("delivery", {}) as Dictionary
+	var impact: Variant = effect.get("impact", {})
+	if not impact is Dictionary:
+		return null
+	var area := MagicPersistentArea2D.new()
+	if not area.configure(
+		caster,
+		StringName(String(cast_result.get("target_id", ""))),
+		float(delivery.get("radius", 0.0)),
+		delivery,
+		impact as Dictionary
+	):
+		area.free()
+		return null
+	parent.add_child(area)
+	area.global_position = caster.global_position
+	return area
 
 
 static func _execute_summon(
