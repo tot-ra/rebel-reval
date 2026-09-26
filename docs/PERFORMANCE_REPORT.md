@@ -60,8 +60,9 @@ Per map (`lower_town_slice`, `kalev_smithy`, `reval_harbor_east`) it records:
 - `staged.frame_ms`, `max_frame_ms`, `frames_over_budget` - main-thread milliseconds per process frame while `assemble_async()` builds a detached view, plus `mount_add_child_ms` for the final `add_child`;
 - `staged.units_over_budget` - every single work unit (stage plus chunk or stable object ID) whose cost alone exceeds the budget; a unit is atomic, so these units set the frame-time floor;
 - `navigation.synchronous_ms` vs `navigation.threaded_main_thread_ms` - the `MapNavBuilder` bake on the calling thread against the main-thread cost of starting the WorkerThreadPool bake.
+- `cold_staged` (WB-07b) - `frames`, `max_frame_ms`, `stages_ms` and `units_over_budget` of a staged build that runs before anything caches the map, so the cold height-field bake and first-use material costs show up.
 
-The budget comes from the project setting `world_host/location_assembly_frame_budget_ms` (default `4.0`). Staged assembly and threaded navigation and scene loading stay behind `world_host/async_location_assembly_enabled` (default `false`). Headless numbers are CPU scene-construction cost under the dummy renderer. Use `BENCHMARK_HEADLESS=0` for a GPU-backed trace. Findings: [`docs/reports/async_assembly_2026-09-26.md`](./reports/async_assembly_2026-09-26.md).
+The budget comes from the project setting `world_host/location_assembly_frame_budget_ms` (default `4.0`). Staged assembly and threaded navigation and scene loading stay behind `world_host/async_location_assembly_enabled` (default `false`). Headless numbers are CPU scene-construction cost under the dummy renderer. Use `BENCHMARK_HEADLESS=0` for a GPU-backed trace. Findings: [`docs/reports/async_assembly_2026-09-26.md`](./reports/async_assembly_2026-09-26.md). Worker-thread terrain, surroundings and height-field bakes (WB-07b, R-1005): [`docs/reports/async_assembly_2026-09-27.md`](./reports/async_assembly_2026-09-27.md).
 
 ## GPU render probe (draw-call attribution)
 

@@ -33,9 +33,15 @@ static var _materials: Dictionary = {}
 
 ## Returns a `PierCribs` node, or null when the map has no timber deck beside a sea basin.
 static func build(field: Dictionary) -> Node3D:
+	return build_from_arrays(crib_arrays(field))
+
+
+## WB-07b (R-1005): the crib geometry as plain surface arrays ({} when there is
+## nothing to build). Pure; staged assembly bakes it on a worker thread.
+static func crib_arrays(field: Dictionary) -> Dictionary:
 	var faces := crib_faces(field)
 	if faces.is_empty():
-		return null
+		return {}
 	var logs := SurfaceTool.new()
 	logs.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var rubble := SurfaceTool.new()
@@ -74,16 +80,32 @@ static func build(field: Dictionary) -> Node3D:
 			)
 			pile_count += 1
 	if log_count == 0 and pile_count == 0:
+		return {}
+	return {
+		"logs": logs.commit_to_arrays() if log_count > 0 else [],
+		"rubble": rubble.commit_to_arrays() if log_count > 0 and rubble_count > 0 else [],
+		"piles": piles.commit_to_arrays() if pile_count > 0 else [],
+	}
+
+
+## Main-thread half of build(): meshes, materials and nodes from crib_arrays().
+## No custom channels are used, so add_surface_from_arrays() equals commit().
+static func build_from_arrays(arrays: Dictionary) -> Node3D:
+	if arrays.is_empty():
 		return null
 	var root := Node3D.new()
 	root.name = "PierCribs"
-	if log_count > 0:
-		var log_mesh: ArrayMesh = logs.commit()
-		if rubble_count > 0:
-			rubble.commit(log_mesh)
-		root.add_child(_instance_logs(log_mesh, rubble_count > 0))
-	if pile_count > 0:
-		root.add_child(_instance("PierCribPiles", piles, 1))
+	var log_arrays: Array = arrays["logs"]
+	if not log_arrays.is_empty():
+		var log_mesh := ArrayMesh.new()
+		log_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, log_arrays)
+		var rubble_arrays: Array = arrays["rubble"]
+		if not rubble_arrays.is_empty():
+			log_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, rubble_arrays)
+		root.add_child(_instance_logs(log_mesh, not rubble_arrays.is_empty()))
+	var pile_arrays: Array = arrays["piles"]
+	if not pile_arrays.is_empty():
+		root.add_child(_instance("PierCribPiles", pile_arrays, 1))
 	return root
 
 
@@ -674,10 +696,12 @@ static func _instance_logs(log_mesh: ArrayMesh, has_rubble: bool) -> MeshInstanc
 	return instance
 
 
-static func _instance(node_name: String, surface: SurfaceTool, variant: int) -> MeshInstance3D:
+static func _instance(node_name: String, arrays: Array, variant: int) -> MeshInstance3D:
 	var instance := MeshInstance3D.new()
 	instance.name = node_name
-	instance.mesh = surface.commit()
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	instance.mesh = mesh
 	instance.material_override = wet_timber(variant)
 	# Under water the sun shadow of the deck mound already darkens the face; crib
 	# shadows would only add cost and speckle the top-down bed through the surface.

@@ -808,9 +808,9 @@ func _finish_staged_assembly() -> void:
 	assembly_completed.emit()
 
 
-func _stage_height_field() -> void:
+func _stage_height_field() -> Array[Dictionary]:
 	_apply_building_map_seed()
-	MapViewMeshBuilder.ensure_height_field(definition, grid)
+	return MapViewMeshBuilder.height_field_units(definition, grid)
 
 
 ## WHY: library stems hash (map_seed, building id) through one shared static seed. Re-apply
@@ -820,12 +820,12 @@ func _apply_building_map_seed() -> void:
 		MapViewMaterials.apply_building_map_seed(definition.map_id)
 
 
-func _stage_surroundings() -> void:
-	add_child(MapViewMeshBuilder.build_surroundings(definition))
+func _stage_surroundings() -> Array[Dictionary]:
+	return MapViewMeshBuilder.surroundings_units(definition, self)
 
 
-func _stage_terrain_mesh() -> void:
-	add_child(MapViewMeshBuilder.build_terrain(definition, grid))
+func _stage_terrain_mesh() -> Array[Dictionary]:
+	return MapViewMeshBuilder.terrain_units(definition, grid, self)
 
 
 func _stage_interior_shell() -> void:

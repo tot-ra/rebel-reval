@@ -103,6 +103,31 @@ static func combined_water_coverage_at(field: Dictionary, sample: Vector2) -> fl
 	return coverage
 
 
+## WB-07b: one water family's clipped surface as SurfaceTool arrays, empty when
+## no cell of that family produced a triangle. Pure; runs on a worker in staged
+## assembly. ArrayMesh.add_surface_from_arrays() with no flags then matches what
+## SurfaceTool.commit() built before (no custom channels, no material).
+static func water_surface_arrays(
+	field: Dictionary, grid: MapTerrainGrid, terrain_id: StringName
+) -> Array:
+	var surface := SurfaceTool.new()
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var cells := 0
+	for y in grid.size_cells.y:
+		for x in grid.size_cells.x:
+			if not cell_near_terrain(field, Vector2i(x, y), terrain_id):
+				continue
+			add_water_cell_quad(surface, field, grid, x, y, terrain_id)
+			cells += 1
+	if cells == 0:
+		return []
+	var arrays := surface.commit_to_arrays()
+	var vertices: Variant = arrays[Mesh.ARRAY_VERTEX] if arrays.size() > 0 else null
+	if not vertices is PackedVector3Array or (vertices as PackedVector3Array).is_empty():
+		return []
+	return arrays
+
+
 static func cell_near_terrain(field: Dictionary, cell: Vector2i, terrain_id: StringName) -> bool:
 	for probe in [
 		Vector2(cell),
@@ -250,12 +275,22 @@ static func _add_water_vertex(surface: SurfaceTool, source: Vector3, coverage: f
 static func bake_shore_field(field: Dictionary, grid: MapTerrainGrid) -> Dictionary:
 	if field.has("shore_field"):
 		return field["shore_field"]
-	var shore := _bake_shore_field(field, grid)
+	var shore := finish_shore_field(compute_shore_field(field, grid))
 	field["shore_field"] = shore
 	return shore
 
 
-static func _bake_shore_field(field: Dictionary, grid: MapTerrainGrid) -> Dictionary:
+## WB-07b: turns the worker-baked image into the shader texture. Main thread.
+static func finish_shore_field(shore: Dictionary) -> Dictionary:
+	if shore.has("image"):
+		shore["texture"] = ImageTexture.create_from_image(shore["image"])
+		shore.erase("image")
+	return shore
+
+
+## WB-07b: the shore bake as a pure function of the field and grid (no texture,
+## no cache write), so it may run on a worker. finish_shore_field() completes it.
+static func compute_shore_field(field: Dictionary, grid: MapTerrainGrid) -> Dictionary:
 	var columns := grid.size_cells.x
 	var rows := grid.size_cells.y
 	var contours: Array[Dictionary] = []
@@ -405,7 +440,7 @@ static func _bake_shore_field(field: Dictionary, grid: MapTerrainGrid) -> Dictio
 	)
 	image.convert(Image.FORMAT_RGBAH)
 	return {
-		"texture": ImageTexture.create_from_image(image),
+		"image": image,
 		"origin": Vector2.ZERO,
 		"size": Vector2(columns, rows),
 		"width": width,
@@ -516,10 +551,21 @@ static func _shore_bilinear(
 ## exactly in the terrain plane (+ lift) at twice the terrain density: 18 rows
 ## across a 3-unit reach. Returns null when the map has no beach.
 static func build_swash_sheet_mesh(field: Dictionary, shore: Dictionary) -> ArrayMesh:
+	var arrays := swash_sheet_arrays(field, shore)
+	if arrays.is_empty():
+		return null
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	return mesh
+
+
+## WB-07b: the swash sheet surface arrays, empty when there is no beach band.
+## Pure; staged assembly bakes them on a worker.
+static func swash_sheet_arrays(field: Dictionary, shore: Dictionary) -> Array:
 	if shore.is_empty() or not bool(shore.get("has_beach", false)):
-		return null
+		return []
 	if not field.has("positions"):
-		return null
+		return []
 	var columns: int = field["vertex_columns"]
 	var positions: PackedVector3Array = field["positions"]
 	var normals: PackedVector3Array = field["normals"]
@@ -552,7 +598,7 @@ static func build_swash_sheet_mesh(field: Dictionary, shore: Dictionary) -> Arra
 							vertices, vertex_normals, shore, positions, normals, triangle
 						)
 	if vertices.is_empty():
-		return null
+		return []
 	var colors := PackedColorArray()
 	colors.resize(vertices.size())
 	# COLOR.r is the water shader's shore factor; the sheet sits past the contour.
@@ -570,9 +616,7 @@ static func build_swash_sheet_mesh(field: Dictionary, shore: Dictionary) -> Arra
 	arrays[Mesh.ARRAY_NORMAL] = vertex_normals
 	arrays[Mesh.ARRAY_COLOR] = colors
 	arrays[Mesh.ARRAY_TEX_UV] = uvs
-	var mesh := ArrayMesh.new()
-	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-	return mesh
+	return arrays
 
 
 static func _add_sheet_triangle(
@@ -627,6 +671,17 @@ static func _add_sheet_triangle(
 ## the tree without being rebuilt.
 static func add_shore_swash(root: Node3D, field: Dictionary, grid: MapTerrainGrid) -> void:
 	var shore := {} if field.get("flat_floor", false) else bake_shore_field(field, grid)
+	var sheet_arrays: Array = []
+	if MapViewMaterials.shore_swash_sheet_enabled():
+		sheet_arrays = swash_sheet_arrays(field, shore)
+	attach_shore_swash(root, grid, shore, sheet_arrays)
+
+
+## Main-thread half of add_shore_swash(): binds a finished shore field and adds
+## the sheet built from swash_sheet_arrays() (empty arrays add no sheet).
+static func attach_shore_swash(
+	root: Node3D, grid: MapTerrainGrid, shore: Dictionary, sheet_arrays: Array
+) -> void:
 	var texture: Texture2D = shore.get("texture", null)
 	var origin: Vector2 = shore.get("origin", Vector2.ZERO)
 	var extent: Vector2 = shore.get("size", Vector2.ONE)
@@ -634,11 +689,10 @@ static func add_shore_swash(root: Node3D, field: Dictionary, grid: MapTerrainGri
 	root.tree_entered.connect(
 		func() -> void: MapViewMaterials.apply_shore_field(texture, origin, extent)
 	)
-	if not MapViewMaterials.shore_swash_sheet_enabled():
+	if sheet_arrays.is_empty():
 		return
-	var mesh := build_swash_sheet_mesh(field, shore)
-	if mesh == null:
-		return
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, sheet_arrays)
 	var sheet_terrain := MapTypes.TERRAIN_SHALLOW_WATER
 	var used := grid.used_terrain_ids()
 	if not used.has(sheet_terrain) and used.has(MapTypes.TERRAIN_DEEP_WATER):

@@ -30,11 +30,7 @@ func test_staged_assembly_matches_synchronous_tree() -> void:
 		var staged := MapView3D.create_staged(definition, grid)
 		assert_false(staged.is_assembly_complete(), "staged view must start unbuilt")
 		assert_eq(staged.get_child_count(), 0, "create_staged must not build anything up front")
-		var guard := 0
-		while not staged.step_assembly(BUDGET_USEC):
-			guard += 1
-			if guard > 100000:
-				break
+		_drain_staged(staged)
 		assert_true(staged.is_assembly_complete(), "%s staged assembly finishes" % definition.map_id)
 		var expected := _tree_signature(synchronous)
 		var actual := _tree_signature(staged)
@@ -52,6 +48,16 @@ func test_staged_assembly_matches_synchronous_tree() -> void:
 		)
 		_free_view(synchronous)
 		_free_view(staged)
+
+
+## WB-07b: a step that only awaits a worker job returns at once, so drain by
+## wall time and sleep briefly between steps instead of counting steps.
+func _drain_staged(staged: MapView3D, timeout_msec := 180000) -> void:
+	var deadline := Time.get_ticks_msec() + timeout_msec
+	while not staged.step_assembly(BUDGET_USEC):
+		if Time.get_ticks_msec() > deadline:
+			break
+		OS.delay_usec(200)
 
 
 func test_every_stage_is_timed_in_order_on_both_paths() -> void:
@@ -140,6 +146,75 @@ func test_cancel_mid_assembly_leaks_no_nodes_or_handles() -> void:
 		[],
 		"freeing a cancelled view releases every node it built"
 	)
+
+
+## WB-07b (R-1005): a height field no view has baked yet is computed on a worker
+## and published by a later unit; the terrain then fans its array bakes out to the
+## pool. A reseeded definition gets its own cache key, so the staged build below
+## is cold. The synchronous build afterwards reads the published field, and both
+## trees and every terrain surface array must match.
+func test_cold_height_field_and_terrain_bake_on_workers() -> void:
+	var definition: MapDefinition = HarborEastDefinition.create()
+	definition.seed += 7919
+	var grid: MapTerrainGrid = MapBuilder.build(definition)
+	assert_true(
+		MapViewMeshBuilderTerrain.cached_height_field(definition, grid).is_empty(),
+		"the reseeded field starts cold"
+	)
+	var staged := MapView3D.create_staged(definition, grid)
+	_drain_staged(staged)
+	assert_true(staged.is_assembly_complete(), "cold staged assembly finishes")
+	var labels: Array[String] = []
+	for unit in staged.assembly_unit_timings():
+		labels.append("%s/%s" % [unit["stage"], unit["label"]])
+	for expected: String in [
+		"height_field/await_height_field",
+		"height_field/publish_height_field",
+		"terrain_mesh/await_ground_bands",
+		"terrain_mesh/ground_publish",
+		"terrain_mesh/await_shore_swash",
+		"terrain_mesh/await_pier_cribs",
+		"surroundings/await_tree_band",
+	]:
+		assert_true(labels.has(expected), "unit %s runs" % expected)
+	assert_false(
+		MapViewMeshBuilderTerrain.cached_height_field(definition, grid).is_empty(),
+		"the worker-baked field is published"
+	)
+	var synchronous := MapView3D.create(definition, grid)
+	assert_eq(_tree_signature(staged), _tree_signature(synchronous), "cold staged tree")
+	assert_eq(
+		_surface_hashes(staged.get_node("Terrain")),
+		_surface_hashes(synchronous.get_node("Terrain")),
+		"worker-baked terrain arrays equal the synchronous ones"
+	)
+	_free_view(synchronous)
+	_free_view(staged)
+
+
+## Cancelling while worker jobs are in flight joins them: nothing is published,
+## nothing leaks, and a later build still bakes the field.
+func test_cancel_with_worker_jobs_in_flight_joins_them() -> void:
+	var definition: MapDefinition = HarborEastDefinition.create()
+	definition.seed += 104729
+	var grid: MapTerrainGrid = MapBuilder.build(definition)
+	var orphans_before := _orphan_ids()
+	var staged := MapView3D.create_staged(definition, grid)
+	staged.step_assembly(0)
+	assert_eq(
+		staged.assembly_unit_timings()[0]["label"], "height_field", "the bake has started"
+	)
+	staged.cancel_assembly()
+	assert_true(staged.is_assembly_cancelled())
+	assert_true(
+		MapViewMeshBuilderTerrain.cached_height_field(definition, grid).is_empty(),
+		"a cancelled bake is never published"
+	)
+	_free_view(staged)
+	assert_eq(_unreleased_orphans(orphans_before), [], "a cancelled cold view leaks no nodes")
+	var terrain := MapViewMeshBuilder.build_terrain(definition, grid)
+	assert_true(terrain.get_node_or_null("Terrain_Ground") != null, "a later build still bakes")
+	terrain.free()
 
 
 func test_threaded_nav_bake_is_byte_identical_to_synchronous() -> void:
@@ -247,6 +322,21 @@ static func _polygon_bytes(polygon: NavigationPolygon) -> PackedByteArray:
 
 ## Path, class, transform, visibility, mesh bounds and stable ID for every node,
 ## in tree order. Enough to prove the staged build is the synchronous build.
+## Path and surface-array hash of every ArrayMesh surface below root.
+static func _surface_hashes(root: Node) -> Array[String]:
+	var hashes: Array[String] = []
+	for node in root.find_children("*", "MeshInstance3D", true, false):
+		var mesh := (node as MeshInstance3D).mesh as ArrayMesh
+		if mesh == null:
+			continue
+		for surface in mesh.get_surface_count():
+			hashes.append(
+				"%s#%d:%d"
+				% [root.get_path_to(node), surface, hash(var_to_bytes(mesh.surface_get_arrays(surface)))]
+			)
+	return hashes
+
+
 static func _tree_signature(root: Node) -> Array[String]:
 	var lines: Array[String] = []
 	_append_signature(root, root, lines)

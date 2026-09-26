@@ -8,6 +8,9 @@ const _Buildings := preload("res://scripts/map/view3d/map_view_mesh_builder_buil
 const _PropModels := preload("res://scripts/map/view3d/map_view_mesh_builder_prop_models.gd")
 const _Scatter := preload("res://scripts/map/view3d/map_view_mesh_builder_scatter.gd")
 const _Batcher := preload("res://scripts/map/view3d/map_view_static_batcher.gd")
+const _Assembly := preload("res://scripts/map/view3d/map_view_assembly.gd")
+const _Job := preload("res://scripts/map/view3d/map_view_worker_job.gd")
+const STAGE := &"surroundings"
 ## At max zoom-out the rotated orthographic ground footprint reaches about 66
 ## cells past an edge on a 16:9 viewport. Keep a generous margin for wider
 ## viewports so every visible urban structure comes from the authored neighbor.
@@ -18,14 +21,23 @@ const NEIGHBOR_GROUND_Y := -0.025
 static func build_surroundings(definition: MapDefinition) -> Node3D:
 	var root := Node3D.new()
 	root.name = "Surroundings"
+	_Assembly.drain(surroundings_units(definition, root))
+	return root
+
+
+## WB-07b (R-1005): the surroundings ring as budgeted assembly units filling
+## `root`. Neighbor definitions, their terrain grids and preview terrain arrays,
+## and the tree band placement are pure data baked on WorkerThreadPool; every
+## node, mesh and material is created by a main-thread unit, one building, prop
+## or merge at a time, in the order of the old single build_surroundings() call.
+static func surroundings_units(definition: MapDefinition, root: Node3D) -> Array[Dictionary]:
 	if definition.suppresses_exterior_surroundings():
-		return root
+		return []
 	var sides: Dictionary = definition.resolved_surroundings_sides()
 	if sides.is_empty():
-		return root
-	var map_size := Vector2(definition.size_cells)
-	var previewed_sides: Dictionary = {}
-	var preview_count_by_side: Dictionary = {}
+		return []
+	var state := {"previewed_sides": {}, "preview_count_by_side": {}}
+	var units: Array[Dictionary] = []
 	for transition in definition.transitions:
 		# Travel links are gameplay routes, not physically adjoining districts. In
 		# particular, the outer-wall road must not place Workers' District east of
@@ -40,25 +52,28 @@ static func build_surroundings(definition: MapDefinition) -> Node3D:
 		var side := _transition_side(definition, transition)
 		if side.is_empty():
 			continue
-		var neighbor := _NeighborRegistry.create_definition(
-			transition.get("destination_scene_id", &"")
+		var scene_id: StringName = transition.get("destination_scene_id", &"")
+		# All neighbors bake concurrently; their previews are still added in order.
+		var job: RefCounted = _Job.run(
+			func() -> Dictionary: return _neighbor_preview_data(definition, scene_id, transition, side),
+			"surroundings neighbor %s" % String(scene_id)
 		)
-		if neighbor == null:
-			continue
-		var preview := _neighbor_preview(definition, neighbor, transition, side)
-		if preview == null:
-			continue
-		var preview_count := int(preview_count_by_side.get(side, 0))
-		if preview_count > 0:
-			# A wide edge may border multiple authored districts. Keep the first
-			# stable legacy name and give later previews deterministic unique names.
-			preview.name = "Neighbor_%s_%s" % [String(side), String(neighbor.map_id)]
-		root.add_child(preview)
-		preview_count_by_side[side] = preview_count + 1
-		previewed_sides[side] = true
+		var label := "neighbor_%s" % String(scene_id)
+		units.append(_Assembly.await_job(STAGE, label, job))
+		units.append(
+			_Assembly.unit(STAGE, label, _neighbor_preview_units.bind(job, side, root, state))
+		)
+	units.append(_Assembly.unit(STAGE, "backdrops", _add_backdrops.bind(definition, sides, root)))
+	units.append(
+		_Assembly.unit(STAGE, "tree_band", _start_tree_band.bind(definition, sides, root, state))
+	)
+	return units
 
-	# Natural and water backdrops may extend beyond authored maps. Urban sides do
-	# not receive any filler: their visible continuation must come from a neighbor.
+
+## Natural and water backdrops may extend beyond authored maps. Urban sides do
+## not receive any filler: their visible continuation must come from a neighbor.
+static func _add_backdrops(definition: MapDefinition, sides: Dictionary, root: Node3D) -> void:
+	var map_size := Vector2(definition.size_cells)
 	for side in MapDefinition.WORLD_SIDES:
 		match sides.get(side):
 			&"water":
@@ -66,6 +81,27 @@ static func build_surroundings(definition: MapDefinition) -> Node3D:
 			&"woodland":
 				root.add_child(_woodland_apron(definition, map_size, side))
 
+
+## The band skips previewed sides, so it starts once every preview resolved.
+static func _start_tree_band(
+	definition: MapDefinition, sides: Dictionary, root: Node3D, state: Dictionary
+) -> Array[Dictionary]:
+	var previewed_sides: Dictionary = (state["previewed_sides"] as Dictionary).duplicate()
+	var job: RefCounted = _Job.run(
+		func() -> Dictionary: return _tree_band_data(definition, sides, previewed_sides),
+		"surroundings tree band"
+	)
+	return [
+		_Assembly.await_job(STAGE, "tree_band", job),
+		_Assembly.unit(STAGE, "tree_band_publish", _publish_tree_band.bind(job, root)),
+	]
+
+
+## Pure tree and boulder placement for the woodland band. Runs on a worker.
+static func _tree_band_data(
+	definition: MapDefinition, sides: Dictionary, previewed_sides: Dictionary
+) -> Dictionary:
+	var map_size := Vector2(definition.size_cells)
 	var tree_batches: Dictionary = {}
 	var boulders: Array[Transform3D] = []
 	var boulder_colors: Array[Color] = []
@@ -154,6 +190,14 @@ static func build_surroundings(definition: MapDefinition) -> Node3D:
 				MapViewMeshBuilderPrimitives.hash01(gx, gy, definition.seed + 2221)
 			)
 
+	return {"trees": tree_batches, "boulders": boulders, "boulder_colors": boulder_colors}
+
+
+static func _publish_tree_band(job: RefCounted, root: Node3D) -> void:
+	var data: Dictionary = job.value()
+	var tree_batches: Dictionary = data["trees"]
+	var boulders: Array[Transform3D] = data["boulders"]
+	var boulder_colors: Array[Color] = data["boulder_colors"]
 	if not tree_batches.is_empty():
 		_Scatter._emit_tree_batches(root, tree_batches)
 		# Stable names expected by mesh/wind regression tests.
@@ -177,7 +221,6 @@ static func build_surroundings(definition: MapDefinition) -> Node3D:
 				Vector3.ZERO
 			)
 		)
-	return root
 
 
 static func _alias_tree_layer(root: Node3D, from_name: String, to_name: String) -> void:
@@ -303,13 +346,41 @@ static func _distance_outside(spot: Vector2, map_size: Vector2) -> float:
 static func _neighbor_preview(
 	definition: MapDefinition, neighbor: MapDefinition, transition: Dictionary, side: StringName
 ) -> Node3D:
-	if neighbor.cell_size != definition.cell_size:
+	var data := _preview_data_for(definition, neighbor, transition, side)
+	if data.is_empty():
 		return null
+	var holder := Node3D.new()
+	_Assembly.drain(
+		_neighbor_preview_units(
+			_Job.done(data), side, holder, {"previewed_sides": {}, "preview_count_by_side": {}}
+		)
+	)
+	var preview := holder.get_child(0) as Node3D
+	holder.remove_child(preview)
+	holder.free()
+	return preview
+
+
+## WB-07b: everything a preview needs that is plain data - the neighbor
+## definition, its terrain grid, per-terrain quad arrays and the shifted building
+## and prop records. Pure; runs on a worker. Empty when no preview applies.
+static func _neighbor_preview_data(
+	definition: MapDefinition, scene_id: StringName, transition: Dictionary, side: StringName
+) -> Dictionary:
+	var neighbor := _NeighborRegistry.create_definition(scene_id)
+	if neighbor == null:
+		return {}
+	return _preview_data_for(definition, neighbor, transition, side)
+
+
+static func _preview_data_for(
+	definition: MapDefinition, neighbor: MapDefinition, transition: Dictionary, side: StringName
+) -> Dictionary:
+	if neighbor.cell_size != definition.cell_size:
+		return {}
 	var reciprocal := _reciprocal_transition(neighbor, transition.get("destination_spawn_id", &""))
 	if reciprocal.is_empty():
-		return null
-	var root := Node3D.new()
-	root.name = "Neighbor_%s" % side
+		return {}
 	var offset := _neighbor_offset(definition, neighbor, transition, reciprocal, side)
 	var bounds := _neighbor_strip(neighbor.size_cells, side)
 	var grid := MapBuilder.build(neighbor)
@@ -322,21 +393,13 @@ static func _neighbor_preview(
 				surface.begin(Mesh.PRIMITIVE_TRIANGLES)
 				surfaces[terrain] = surface
 			_add_preview_quad(surfaces[terrain], Vector2(x, y) + offset, terrain)
+	# [terrain, arrays] in first-seen order, the old per-terrain child order.
+	var terrain_arrays: Array = []
 	for terrain in surfaces:
-		var instance := MeshInstance3D.new()
-		instance.name = "Terrain_%s" % String(terrain)
-		instance.mesh = (surfaces[terrain] as SurfaceTool).commit()
-		instance.material_override = (
-			MapViewMaterials.water_surface(terrain)
-			if MapTypes.WATER_TERRAINS.has(terrain)
-			else MapViewMaterials.terrain(terrain, neighbor.seed)
-		)
-		root.add_child(instance)
+		terrain_arrays.append([terrain, (surfaces[terrain] as SurfaceTool).commit_to_arrays()])
 	var source_world_bounds := neighbor.cell_rect_to_world_rect(bounds)
 	var offset_px := offset * float(neighbor.cell_size)
-	var buildings := Node3D.new()
-	buildings.name = "Buildings"
-	root.add_child(buildings)
+	var buildings: Array[Dictionary] = []
 	for source in neighbor.buildings:
 		if not source_world_bounds.intersects(source["footprint"]):
 			continue
@@ -344,36 +407,105 @@ static func _neighbor_preview(
 		building["footprint"] = Rect2(
 			source["footprint"].position + offset_px, source["footprint"].size
 		)
-		var building_node := _Buildings.build_building(building, neighbor.cell_size)
-		_simplify_neighbor_building(building_node)
-		buildings.add_child(building_node)
-	var props := Node3D.new()
-	props.name = "Props"
-	root.add_child(props)
+		buildings.append(building)
+	var props: Array[Dictionary] = []
 	for source in neighbor.props:
 		if not source_world_bounds.has_point(source["position"]):
 			continue
 		var prop: Dictionary = source.duplicate(true)
 		prop["position"] = source["position"] + offset_px
 		if prop.has("footprint"):
-			prop["footprint"] = Rect2(
-				prop["footprint"].position + offset_px, prop["footprint"].size
-			)
-		props.add_child(_PropModels.build_prop(prop, neighbor.cell_size))
+			prop["footprint"] = Rect2(prop["footprint"].position + offset_px, prop["footprint"].size)
+		props.append(prop)
+	return {"neighbor": neighbor, "terrain": terrain_arrays, "buildings": buildings, "props": props}
+
+
+## A preview renders the complete visible terrain and structures from the
+## adjoining map, but never its gameplay bodies or navigation. It is aligned by
+## reciprocal spawn IDs, so changing either authored district updates the seam on
+## next load. WHY: the old shallow strip exposed procedural filler houses at
+## normal zoom; the preview now covers the maximum gameplay camera footprint.
+## WB-07b: the preview root is added at once; each building, prop and merge
+## is its own main-thread unit.
+static func _neighbor_preview_units(
+	job: RefCounted, side: StringName, root: Node3D, state: Dictionary
+) -> Array[Dictionary]:
+	var data: Dictionary = job.value()
+	if data.is_empty():
+		return []
+	var neighbor: MapDefinition = data["neighbor"]
+	var preview := Node3D.new()
+	preview.name = "Neighbor_%s" % side
+	var preview_count_by_side: Dictionary = state["preview_count_by_side"]
+	var preview_count := int(preview_count_by_side.get(side, 0))
+	if preview_count > 0:
+		# A wide edge may border multiple authored districts. Keep the first
+		# stable legacy name and give later previews deterministic unique names.
+		preview.name = "Neighbor_%s_%s" % [String(side), String(neighbor.map_id)]
+	root.add_child(preview)
+	preview_count_by_side[side] = preview_count + 1
+	(state["previewed_sides"] as Dictionary)[side] = true
+	for entry: Array in data["terrain"]:
+		var terrain: StringName = entry[0]
+		var mesh := ArrayMesh.new()
+		mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, entry[1])
+		var instance := MeshInstance3D.new()
+		instance.name = "Terrain_%s" % String(terrain)
+		instance.mesh = mesh
+		instance.material_override = (
+			MapViewMaterials.water_surface(terrain)
+			if MapTypes.WATER_TERRAINS.has(terrain)
+			else MapViewMaterials.terrain(terrain, neighbor.seed)
+		)
+		preview.add_child(instance)
+	var buildings := Node3D.new()
+	buildings.name = "Buildings"
+	preview.add_child(buildings)
+	var props := Node3D.new()
+	props.name = "Props"
+	preview.add_child(props)
+	var units: Array[Dictionary] = []
+	var cell_size := neighbor.cell_size
+	for building: Dictionary in data["buildings"]:
+		var add_building := func() -> void:
+			var building_node := _Buildings.build_building(building, cell_size)
+			_simplify_neighbor_building(building_node)
+			buildings.add_child(building_node)
+		units.append(
+			_Assembly.unit(STAGE, "neighbor_building_%s" % building.get("id", ""), add_building)
+		)
+	for prop: Dictionary in data["props"]:
+		var add_prop := func() -> void: props.add_child(_PropModels.build_prop(prop, cell_size))
+		units.append(_Assembly.unit(STAGE, "neighbor_prop_%s" % prop.get("id", ""), add_prop))
 	# A neighbor preview is an out-of-bounds backdrop the player can never reach,
 	# yet it was built with full interactive detail: it accounted for ~60% of the
 	# district's mesh instances plus its own smoke, lights, and shadow casters.
 	# Stripping the dressing and merging the silhouette keeps the skyline while
 	# collapsing thousands of draw calls into a handful.
-	_Batcher.strip_backdrop_dressing(root)
-	# Merge each silhouette independently. Keeping every building's authored root as
-	# the batching origin prevents detached roof or chimney geometry when neighbor
-	# previews are shifted to their seam position.
-	for building_node in buildings.get_children():
-		_Batcher.merge(building_node as Node3D, {})
-	for prop_node in props.get_children():
-		_Batcher.merge(prop_node as Node3D, {})
-	return root
+	units.append(
+		_Assembly.unit(
+			STAGE, "neighbor_strip", func() -> void: _Batcher.strip_backdrop_dressing(preview)
+		)
+	)
+	units.append(
+		_Assembly.unit(STAGE, "neighbor_merge", _merge_units.bind(buildings, props))
+	)
+	return units
+
+
+## Merge each silhouette independently. Keeping every building's authored root as
+## the batching origin prevents detached roof or chimney geometry when neighbor
+## previews are shifted to their seam position.
+static func _merge_units(buildings: Node3D, props: Node3D) -> Array[Dictionary]:
+	var units: Array[Dictionary] = []
+	for child in buildings.get_children() + props.get_children():
+		var node := child as Node3D
+		units.append(
+			_Assembly.unit(
+				STAGE, "neighbor_merge_%s" % node.name, func() -> void: _Batcher.merge(node, {})
+			)
+		)
+	return units
 
 
 ## Neighbor previews are unreachable backdrop geometry, not playable buildings.

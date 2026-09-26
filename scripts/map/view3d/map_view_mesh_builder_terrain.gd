@@ -3,6 +3,12 @@ extends RefCounted
 
 ## Terrain height field and ground mesh generation.
 
+const _Assembly := preload("res://scripts/map/view3d/map_view_assembly.gd")
+const _Staged := preload("res://scripts/map/view3d/map_view_mesh_builder_terrain_staged.gd")
+## WB-07b: vertex rows per blended-ground bake band. Small enough that the pool
+## spreads a district over the group threads, large enough to keep task overhead low.
+const GROUND_BAND_ROWS := 16
+
 ## Deterministic per-map height field shared by the terrain mesh, scatter,
 ## trees, and actor sync so everything sits on the same rolling ground.
 static var _height_fields: Dictionary = {}
@@ -11,9 +17,35 @@ static var _seabed_material: StandardMaterial3D
 
 
 static func ensure_height_field(definition: MapDefinition, grid: MapTerrainGrid) -> Dictionary:
+	var cached := cached_height_field(definition, grid)
+	if not cached.is_empty():
+		return cached
+	return publish_height_field(definition, grid, compute_height_field(definition, grid))
+
+
+## The published field, or empty when it has not been baked yet. Main thread.
+static func cached_height_field(definition: MapDefinition, grid: MapTerrainGrid) -> Dictionary:
+	return _height_fields.get(_height_field_key(definition, grid), {})
+
+
+## WB-07b: stores a field baked by compute_height_field() in the shared caches.
+## Main thread only; the first published field for a key wins, so a synchronous
+## bake that raced a staged one never replaces the dictionary callers hold.
+static func publish_height_field(
+	definition: MapDefinition, grid: MapTerrainGrid, field: Dictionary
+) -> Dictionary:
 	var key := _height_field_key(definition, grid)
 	if _height_fields.has(key):
 		return _height_fields[key]
+	_height_fields[key] = field
+	_height_field_keys_by_definition[_definition_height_key(definition)] = key
+	return field
+
+
+## WB-07b: the whole height-field bake as a pure function of the definition and
+## grid. It reads them and writes only the returned dictionary, so it may run on
+## a WorkerThreadPool thread; publish_height_field() then shares it.
+static func compute_height_field(definition: MapDefinition, grid: MapTerrainGrid) -> Dictionary:
 	var scale := MapViewBridge.world_scale(definition.cell_size)
 	var rects: Array[Rect2] = []
 	for building in definition.buildings:
@@ -53,8 +85,6 @@ static func ensure_height_field(definition: MapDefinition, grid: MapTerrainGrid)
 		# outdoor relief would lift props and actors off the floor in 3D view.
 		"flat_floor": definition.suppresses_exterior_surroundings(),
 	}
-	_height_fields[key] = field
-	_height_field_keys_by_definition[_definition_height_key(definition)] = key
 	bake_vertices(field)
 	_bake_basin_cells(field, grid)
 	bake_bed_vertices(field)
@@ -558,57 +588,15 @@ static func subvertex_touches_water(field: Dictionary, vx: int, vy: int) -> bool
 
 
 ## One unified dry-ground mesh with per-vertex terrain splatting plus separate
-## water-family meshes recessed under animated surfaces.
+## water-family meshes recessed under animated surfaces. WB-07b: built by the
+## same units staged assembly runs (MapViewMeshBuilderTerrainStaged), drained here
+## in one call, so both paths produce the same tree.
 
 
 static func build_terrain(definition: MapDefinition, grid: MapTerrainGrid) -> Node3D:
 	var root := Node3D.new()
 	root.name = "Terrain"
-	var field := ensure_height_field(definition, grid)
-	var ground_mesh := _build_blended_ground_mesh(field, grid, definition.seed)
-	if ground_mesh != null:
-		var ground := MeshInstance3D.new()
-		ground.name = "Terrain_Ground"
-		ground.mesh = ground_mesh
-		ground.material_override = MapViewMaterials.blended_ground(definition.seed)
-		root.add_child(ground)
-	for terrain_id in grid.used_terrain_ids():
-		if not MapViewMaterials.WATER_TERRAINS.has(terrain_id):
-			continue
-		var surface := SurfaceTool.new()
-		surface.begin(Mesh.PRIMITIVE_TRIANGLES)
-		for y in grid.size_cells.y:
-			for x in grid.size_cells.x:
-				if not MapViewMeshBuilderTerrainWater.cell_near_terrain(
-					field, Vector2i(x, y), terrain_id
-				):
-					continue
-				MapViewMeshBuilderTerrainWater.add_water_cell_quad(
-					surface, field, grid, x, y, terrain_id
-				)
-		var instance := MeshInstance3D.new()
-		instance.name = "Terrain_%s" % String(terrain_id)
-		var mesh := surface.commit()
-		if mesh == null or mesh.get_surface_count() == 0:
-			continue
-		instance.mesh = mesh
-		instance.material_override = MapViewMaterials.water_surface(terrain_id)
-		root.add_child(instance)
-	# WS-08: shore distance field for the swash shaders plus the beach swash sheet.
-	MapViewMeshBuilderTerrainWater.add_shore_swash(root, field, grid)
-	var apron := build_seabed_apron_mesh(field)
-	if apron != null:
-		var apron_instance := MeshInstance3D.new()
-		# Not "Terrain_*": that prefix marks water surface meshes for tests and tools.
-		apron_instance.name = "SeaBedApron"
-		apron_instance.mesh = apron
-		apron_instance.material_override = _seabed_apron_material()
-		apron_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		root.add_child(apron_instance)
-	# WS-13d: timber crib cladding on the steep bed face beside landing decks.
-	var cribs := MapViewPierCribBuilder.build(field)
-	if cribs != null:
-		root.add_child(cribs)
+	_Assembly.drain(_Staged.terrain_units(definition, grid, root))
 	return root
 
 
@@ -617,8 +605,19 @@ static func build_terrain(definition: MapDefinition, grid: MapTerrainGrid) -> No
 ## apron meets the basin without a crack; land borders get nothing, which keeps
 ## the floor away from the near-plane clip of the whole-map overview camera.
 static func build_seabed_apron_mesh(field: Dictionary) -> ArrayMesh:
-	if not field.has("basin_targets"):
+	var arrays := seabed_apron_arrays(field)
+	if arrays.is_empty():
 		return null
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	return mesh
+
+
+## WB-07b: apron surface arrays, empty when no border bed vertex is deepened.
+## Pure; staged assembly bakes them on a worker.
+static func seabed_apron_arrays(field: Dictionary) -> Array:
+	if not field.has("basin_targets"):
+		return []
 	var positions: PackedVector3Array = field["bed_positions"]
 	var offsets: PackedFloat32Array = field["bed_offsets"]
 	var columns: int = field["vertex_columns"]
@@ -653,8 +652,12 @@ static func build_seabed_apron_mesh(field: Dictionary) -> ArrayMesh:
 				surface.add_vertex(vertex)
 			added += 1
 	if added == 0:
-		return null
-	return surface.commit()
+		return []
+	return surface.commit_to_arrays()
+
+
+static func seabed_apron_material() -> StandardMaterial3D:
+	return _seabed_apron_material()
 
 
 static func _seabed_apron_material() -> StandardMaterial3D:
@@ -699,22 +702,47 @@ static func _build_blended_ground_mesh(
 ) -> ArrayMesh:
 	if grid.size_cells.x <= 0 or grid.size_cells.y <= 0:
 		return null
+	var rows := ground_vertex_rows(grid)
+	var bands: Array = []
+	for band in ground_band_count(rows):
+		bands.append(ground_band(field, grid, noise_seed, band))
+	return ground_mesh_from_arrays(ground_arrays(field, bands))
+
+
+## WB-07b: vertex rows of the blended ground (one more than subvertex rows).
+static func ground_vertex_rows(grid: MapTerrainGrid) -> int:
+	return grid.size_cells.y * MapViewMeshBuilderConfig.TERRAIN_SUBDIVISIONS + 1
+
+
+static func ground_band_count(rows: int) -> int:
+	return ceili(float(rows) / float(GROUND_BAND_ROWS))
+
+
+## WB-07b: per-vertex splat data and triangle indices for one band of vertex rows.
+## Every vertex is independent of the others, so bands can bake on worker
+## threads in any order; ground_arrays() joins them in band order, which gives
+## exactly the arrays of a single pass.
+static func ground_band(
+	field: Dictionary, grid: MapTerrainGrid, noise_seed: int, band: int
+) -> Dictionary:
 	var columns: int = field["vertex_columns"]
 	# WS-13b: the rendered ground is the deepened sea bed; see bake_bed_vertices.
 	var positions: PackedVector3Array = field["bed_positions"]
-	var normals: PackedVector3Array = field["bed_normals"]
 	var bed_offsets: PackedFloat32Array = field["bed_offsets"]
-	var rows := grid.size_cells.y * MapViewMeshBuilderConfig.TERRAIN_SUBDIVISIONS + 1
-	var vertex_count := columns * rows
+	var rows := ground_vertex_rows(grid)
+	var row_start := band * GROUND_BAND_ROWS
+	var row_end := mini(row_start + GROUND_BAND_ROWS, rows)
+	var vertex_count := (row_end - row_start) * columns
 	var colors := PackedColorArray()
 	var uvs := PackedVector2Array()
 	var custom := PackedFloat32Array()
 	colors.resize(vertex_count)
 	uvs.resize(vertex_count)
 	custom.resize(vertex_count * 4)
-	for vertex_y in rows:
+	for vertex_y in range(row_start, row_end):
 		for vertex_x in columns:
 			var vertex_index := vertex_y * columns + vertex_x
+			var local_index := vertex_index - row_start * columns
 			var vertex := positions[vertex_index]
 			var spot := Vector2(vertex.x, vertex.z)
 			var source_cell := Vector2i(
@@ -728,17 +756,19 @@ static func _build_blended_ground_mesh(
 				blend = _seabed_blend(spot, noise_seed, blend)
 			var primary_tint := OutdoorTerrainPalette.color(blend["primary"])
 			var secondary_tint := OutdoorTerrainPalette.color(blend["secondary"])
-			colors[vertex_index] = primary_tint.lerp(secondary_tint, float(blend["weight"]))
-			uvs[vertex_index] = spot / MapViewMaterials.TERRAIN_TEXTURE_WORLD_SIZE
-			var custom_index := vertex_index * 4
+			colors[local_index] = primary_tint.lerp(secondary_tint, float(blend["weight"]))
+			uvs[local_index] = spot / MapViewMaterials.TERRAIN_TEXTURE_WORLD_SIZE
+			var custom_index := local_index * 4
 			custom[custom_index] = float(blend["primary_index"])
 			custom[custom_index + 1] = float(blend["secondary_index"])
 			custom[custom_index + 2] = float(blend["weight"])
 			custom[custom_index + 3] = float(blend["tone"])
+	# Patch rows start at every vertex row of the band except the last row overall.
+	var patch_end := mini(row_end, rows - 1)
 	var indices := PackedInt32Array()
-	indices.resize((rows - 1) * (columns - 1) * 6)
+	indices.resize(maxi(patch_end - row_start, 0) * (columns - 1) * 6)
 	var write_index := 0
-	for patch_y in rows - 1:
+	for patch_y in range(row_start, patch_end):
 		for patch_x in columns - 1:
 			var top_left := patch_y * columns + patch_x
 			var bottom_left := top_left + columns
@@ -749,14 +779,34 @@ static func _build_blended_ground_mesh(
 			indices[write_index + 4] = bottom_left + 1
 			indices[write_index + 5] = bottom_left
 			write_index += 6
+	return {"colors": colors, "uvs": uvs, "custom": custom, "indices": indices}
+
+
+## Joins ground_band() results in band order into ArrayMesh surface arrays.
+## Pure; runs on a worker in staged assembly.
+static func ground_arrays(field: Dictionary, bands: Array) -> Array:
+	var colors := PackedColorArray()
+	var uvs := PackedVector2Array()
+	var custom := PackedFloat32Array()
+	var indices := PackedInt32Array()
+	for band: Dictionary in bands:
+		colors.append_array(band["colors"])
+		uvs.append_array(band["uvs"])
+		custom.append_array(band["custom"])
+		indices.append_array(band["indices"])
 	var arrays := []
 	arrays.resize(Mesh.ARRAY_MAX)
-	arrays[Mesh.ARRAY_VERTEX] = positions
-	arrays[Mesh.ARRAY_NORMAL] = normals
+	arrays[Mesh.ARRAY_VERTEX] = field["bed_positions"]
+	arrays[Mesh.ARRAY_NORMAL] = field["bed_normals"]
 	arrays[Mesh.ARRAY_COLOR] = colors
 	arrays[Mesh.ARRAY_TEX_UV] = uvs
 	arrays[Mesh.ARRAY_CUSTOM0] = custom
 	arrays[Mesh.ARRAY_INDEX] = indices
+	return arrays
+
+
+## CUSTOM0 carries a per-corner layer pair and blend weight (see below). Main thread.
+static func ground_mesh_from_arrays(arrays: Array) -> ArrayMesh:
 	var mesh := ArrayMesh.new()
 	var custom_format := (
 		RenderingServer.ARRAY_CUSTOM_RGBA_FLOAT << RenderingServer.ARRAY_FORMAT_CUSTOM0_SHIFT

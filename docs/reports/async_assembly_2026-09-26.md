@@ -86,6 +86,8 @@ Frame-time trace: `staged.frame_ms` in the JSON has one value per frame. Before 
 
 ## Open gap: units over budget
 
+Update 2026-09-27: R-1005 (WB-07b) moved the `terrain_mesh`, `surroundings` and cold `height_field` array work to worker threads. See [`async_assembly_2026-09-27.md`](async_assembly_2026-09-27.md).
+
 A unit is atomic, so any unit that alone costs more than the budget sets the frame floor:
 
 | Unit | Cost | Why it is still one unit | Owner |

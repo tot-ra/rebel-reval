@@ -5,7 +5,8 @@ extends SceneTree
 ## - the staged build driven by assemble_async() over real process frames (the
 ##   "after"), with per-frame main-thread cost and every unit over the budget,
 ## - per-stage totals for both paths (MapViewAssembly STAGES keys),
-## - navigation: synchronous bake time vs the main-thread cost of a threaded bake.
+## - navigation: synchronous bake time vs the main-thread cost of a threaded bake,
+## - WB-07b: a cold staged build first, which pays the height-field bake.
 ##
 ## Usage:
 ##   godot --headless --path . --script tools/benchmarks/async_assembly_trace.gd \
@@ -81,6 +82,14 @@ func _run() -> void:
 func _trace_map(map_id: StringName, budget_ms: float) -> Dictionary:
 	var definition: MapDefinition = load(String(MAP_SCRIPTS[map_id])).create()
 	var grid: MapTerrainGrid = MapBuilder.build(definition)
+	# WB-07b: first a cold staged build, before anything cached this map's height
+	# field, so the cold height-field bake shows up as units and frames.
+	var cold := MapView3D.create_staged(definition, grid)
+	var cold_completed: bool = await cold.assemble_async(budget_ms)
+	var cold_report := _staged_summary(cold, budget_ms)
+	cold_report["completed"] = cold_completed
+	_free_view(cold)
+	await process_frame
 	# Warm shared static caches (materials, prefab templates, height field) so the
 	# before/after comparison measures the same work on both paths.
 	_free_view(MapView3D.create(definition, grid))
@@ -141,6 +150,7 @@ func _trace_map(map_id: StringName, budget_ms: float) -> Dictionary:
 
 	return {
 		"map_id": String(map_id),
+		"cold_staged": cold_report,
 		"synchronous": {"total_ms": _ms(sync_total), "stages_ms": sync_stages},
 		"staged": {
 			"completed": completed,
@@ -159,6 +169,26 @@ func _trace_map(map_id: StringName, budget_ms: float) -> Dictionary:
 			"threaded_main_thread_ms": _ms(nav_main),
 			"threaded_frames_until_ready": nav_frames,
 		},
+	}
+
+
+## Frame and unit summary of a finished staged view (cold run).
+static func _staged_summary(view: MapView3D, budget_ms: float) -> Dictionary:
+	var budget_usec := int(budget_ms * 1000.0)
+	var max_frame := 0
+	for frame_usec in view.assembly_frame_timings_usec():
+		max_frame = maxi(max_frame, frame_usec)
+	var over_budget: Array[Dictionary] = []
+	for unit in view.assembly_unit_timings():
+		if int(unit["usec"]) > budget_usec:
+			over_budget.append(
+				{"stage": String(unit["stage"]), "label": unit["label"], "ms": _ms(unit["usec"])}
+			)
+	return {
+		"frames": view.assembly_frame_timings_usec().size(),
+		"max_frame_ms": _ms(max_frame),
+		"stages_ms": _stage_ms(view.assembly_stage_timings_usec()),
+		"units_over_budget": over_budget,
 	}
 
 

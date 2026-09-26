@@ -20,6 +20,7 @@ const _Landmarks := preload("res://scripts/map/view3d/map_view_mesh_builder_land
 const _Props := preload("res://scripts/map/view3d/map_view_mesh_builder_props.gd")
 const _Surroundings := preload("res://scripts/map/view3d/map_view_mesh_builder_surroundings.gd")
 const _Interior := preload("res://scripts/map/view3d/map_view_mesh_builder_interior.gd")
+const _TerrainStaged := preload("res://scripts/map/view3d/map_view_mesh_builder_terrain_staged.gd")
 
 # Re-export frequently referenced constants for backward compatibility.
 const TERRAIN_SUBDIVISIONS := _Config.TERRAIN_SUBDIVISIONS
@@ -36,6 +37,27 @@ static func ground_height(definition: MapDefinition, world_xz: Vector2) -> float
 
 static func build_terrain(definition: MapDefinition, grid: MapTerrainGrid) -> Node3D:
 	return _Terrain.build_terrain(definition, grid)
+
+
+## WB-07b (R-1005) budgeted assembly units (MapViewAssembly format). The staged
+## entry points add their root ("Terrain" / "Surroundings") to `parent` at once
+## and fill it through follow-up units; build_* drain the same units in one call.
+static func height_field_units(
+	definition: MapDefinition, grid: MapTerrainGrid
+) -> Array[Dictionary]:
+	return _TerrainStaged.height_field_units(definition, grid)
+
+
+static func terrain_units(
+	definition: MapDefinition, grid: MapTerrainGrid, parent: Node
+) -> Array[Dictionary]:
+	return _TerrainStaged.terrain_units(definition, grid, _TerrainStaged.add_root(parent, "Terrain"))
+
+
+static func surroundings_units(definition: MapDefinition, parent: Node) -> Array[Dictionary]:
+	return _Surroundings.surroundings_units(
+		definition, _TerrainStaged.add_root(parent, "Surroundings")
+	)
 
 
 static func build_building(

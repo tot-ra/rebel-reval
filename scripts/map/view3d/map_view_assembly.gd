@@ -56,6 +56,21 @@ static func unit(stage: StringName, label: String, run: Callable) -> Dictionary:
 	return {"stage": stage, "label": label, "run": run}
 
 
+## WB-07b (R-1005): a unit that waits for a MapViewWorkerJob. Staged assembly
+## gives the rest of the frame back while the worker runs, so waiting costs no
+## main-thread time; the synchronous path blocks on it instead. The unit that
+## publishes the result follows it in the queue.
+static func await_job(stage: StringName, label: String, job: RefCounted) -> Dictionary:
+	return {"stage": stage, "label": "await_%s" % label, "job": job}
+
+
+## Drains builder units outside a view (the public build_* entry points), with
+## the same follow-up and job semantics as the view queue.
+static func drain(plan: Array[Dictionary]) -> void:
+	var queue: RefCounted = new()
+	queue.run_all(plan)
+
+
 ## Ordered work units for one view. Order matches the pre-WB-07 monolithic
 ## MapView3D._assemble() exactly; object chunks follow MapObjectChunkStreamer's
 ## sorted load order, so the staged tree is node-for-node the synchronous tree.
@@ -111,7 +126,9 @@ func step(budget_usec: int) -> bool:
 		return false
 	var started := Time.get_ticks_usec()
 	while not units.is_empty():
-		run_next()
+		# A worker job is still running: yield the frame instead of blocking on it.
+		if not run_next():
+			break
 		if Time.get_ticks_usec() - started >= budget_usec:
 			break
 	return units.is_empty()
@@ -119,10 +136,20 @@ func step(budget_usec: int) -> bool:
 
 ## A unit may return an Array of follow-up units (an object chunk expanding into
 ## one unit per object); they run next, ahead of everything already queued.
-func run_next() -> void:
+## Returns false, without running anything, when the next unit awaits a worker
+## job that has not finished during a staged assembly.
+func run_next() -> bool:
 	var next: Dictionary = units.pop_front()
+	var job: RefCounted = next.get("job")
+	if job != null and state == State.RUNNING and not job.is_done():
+		units.push_front(next)
+		return false
 	var started := Time.get_ticks_usec()
-	var follow_ups: Variant = (next["run"] as Callable).call()
+	var follow_ups: Variant = null
+	if job != null:
+		job.wait()
+	else:
+		follow_ups = (next["run"] as Callable).call()
 	var elapsed := Time.get_ticks_usec() - started
 	if follow_ups is Array:
 		var expanded: Array = follow_ups
@@ -131,11 +158,32 @@ func run_next() -> void:
 	var stage: StringName = next["stage"]
 	stage_usec[stage] = int(stage_usec.get(stage, 0)) + elapsed
 	unit_log.append({"stage": stage, "label": next["label"], "usec": elapsed})
+	return true
 
 
 func cancel() -> bool:
 	if state != State.RUNNING:
 		return false
+	_join_queued_jobs()
 	units.clear()
 	state = State.CANCELLED
 	return true
+
+
+## Every started worker job has an await unit queued behind it. Joining them on
+## cancel or when the view is freed mid-assembly keeps no task un-waited in the
+## pool; their results are dropped.
+func _join_queued_jobs() -> void:
+	for queued in units:
+		var job: RefCounted = queued.get("job")
+		if job != null:
+			job.wait()
+
+
+func _notification(what: int) -> void:
+	# Inlined: GDScript cannot call own methods during PREDELETE of a RefCounted.
+	if what == NOTIFICATION_PREDELETE:
+		for queued in units:
+			var job: RefCounted = queued.get("job")
+			if job != null:
+				job.wait()
