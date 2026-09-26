@@ -43,12 +43,14 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 - `git commit --only` exports `GIT_INDEX_FILE` into hooks. Fixture-repo Git tests must clear `GIT_DIR` / `GIT_INDEX_FILE` / `GIT_WORK_TREE`.
 - Do not `git checkout HEAD --` a hot shared file while other dirty scripts already call its new APIs. Do not mid-task `git stash` with fragile pathspecs.
 - After a temporary-index commit, move only the branch ref. Do not `git reset --soft` in the live checkout.
+- After that commit, `unset GIT_INDEX_FILE` and `git restore --staged -- <your paths>` on the live index. The shared index can still hold those paths as staged deletes or leftover adds; the next shared commit would then revert the files you just pushed.
 - If a path-limited commit exits silently, inspect `HEAD` and hooks separately before retrying.
 - When several agents relocate GLB folders in one worktree, expect `.git/index.lock`, half-finished `git mv`, and empty asset dirs. Do not `git checkout HEAD -- assets/props/<area>/` until the lock is gone; restore from `origin/main` for that subtree, consolidate duplicates with a filesystem move, then stage only the scoped pathspec before commit.
 
 ### Godot and Python verification
 - Export `GODOT_BIN` in a preceding command (macOS: `/Applications/Godot.app/Contents/MacOS/Godot`). Inline `GODOT_BIN=... "$GODOT_BIN"` expands the old empty value and exits 127.
 - Stale Godot tests often fail parse before runtime when APIs move: check enum renames (`RoutineState` -> `ActivityMode`), removed static helpers (`water_surface_height()` -> `MapViewMeshBuilderConfig` constants), and harness helpers (`assert_almost_eq`, `_assert_true` in custom RefCounted tests).
+- Typed GDScript parse failures: a later `:=` in a loop (`entry := dir.get_next()`) is illegal after the first declaration, use `=`. Annotate chained `.to_dict()` after `snapshot_state()` as `Dictionary`; that helper returns `RefCounted` and `:=` cannot infer the type.
 - Pre-commit runs `verify_map_audit.py` for any staged `scripts/map/**` file. When map audit is already red on `main`, keep production fixes in tests or non-map modules, or repair audit inventory first.
 - `tools/run_godot_checked.sh [--require-test-summary] <log-basename> -- <godot-command>`. The log name is a basename, not `/tmp/...`. The command after `--` must start with `"$GODOT_BIN"` (usually `--headless --path .`). Harness `--filter=stem` must come after a second `--` so `OS.get_cmdline_user_args()` sees it; otherwise the full suite runs.
 - The harness is `tools/run_godot_tests.gd`. `--filter` matches `test_*.gd` file stems, not method names. Pass one `--filter=stem1,stem2` token. Repeated `--filter name` flags are ignored and the full suite runs.

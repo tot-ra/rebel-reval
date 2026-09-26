@@ -84,3 +84,9 @@ Until then, exit 2 from the aggregate verifier is the expected fail-closed resul
 `test_five_regime_transition_and_shelter_matrix` in `tests/godot/test_sky_weather_3d.gd` now drives `clear`, `cloudy`, `overcast`, `rain`, and `storm` through `set_weather` / `advance`. It asserts settled profile rain, wind, coverage, lighting, and storm terms, mid-transition interpolation, and roof `rain_suppressed` hiding the local emitter without mutating the outdoor field. This is structural coverage only. Visual review of the R-738 continuity packet stays a separate gate.
 
 Verify: `--filter=test_sky_weather_3d,test_r713_sky_weather_continuity`.
+
+## R-854 save-load-transition continuity (2026-09-26)
+
+`tests/godot/test_r713_save_load_transition_continuity.gd` snapshots mid-transition rain on the `reval_harbor_north` presenter, serializes it through the SessionState `SaveService` path, restores the envelope, and binds the `reval_harbor_east` presenter to the same canonical snapshot. The fixture asserts weather identity, transition progress, cloud offsets, wetness/rain accumulators, calendar/time values, deterministic continuation, and one environment owner. Malformed environment payloads stay fail-closed. This is structural coverage only; named visual review of the R-738 packet remains a separate gate.
+
+Verify: `--filter=test_r713_save_load_transition_continuity,test_save_envelope,test_save_service`.
