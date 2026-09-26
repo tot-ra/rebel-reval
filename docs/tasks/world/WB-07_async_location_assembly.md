@@ -2,6 +2,17 @@
 
 Board row: **R-979**. Priority: high. Depends on: **R-977**.
 
+## Status
+
+**Partial, 2026-09-26.** Scheduler, per-object chunk units, threaded navigation bake, threaded
+scene loading, cancellation, per-stage timings and GL Compatibility and Metal parity plates are in,
+behind `world_host/async_location_assembly_enabled` (default off). The frame-budget gate is not met:
+`terrain_mesh` and `surroundings` are still single multi-second builder calls outside this row's
+allowed files. That gap moved to **R-1005** (terrain, surroundings, cold height field) and
+**R-1006** (heavy single objects, scatter chunks, GPU trace on both tiers). R-977 (ADR 0019
+acceptance) was still open, so everything ships flag-off as ADR 0019 requires. Evidence:
+[`docs/reports/async_assembly_2026-09-26.md`](../../reports/async_assembly_2026-09-26.md).
+
 ## Player-facing goal
 
 None visible yet, and that is the point: mounting a neighbouring location must never produce a

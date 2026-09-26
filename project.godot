@@ -157,3 +157,8 @@ ocean_time={
 "type": "float",
 "value": 0.0
 }
+
+[world_host]
+
+async_location_assembly_enabled=false
+location_assembly_frame_budget_ms=4.0

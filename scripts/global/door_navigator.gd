@@ -4,6 +4,9 @@ signal on_trigger_player_spawn
 
 const TRANSITION_MANIFEST_PATH := "res://content/transitions/active_destinations.json"
 const MAX_CACHE_SIZE := 5
+## WB-07: when on, go_to_scene() waits for a threaded load across frames instead of
+## blocking the frame that triggered the door. Off by default (ADR 0019 flags).
+const ASYNC_SCENE_LOAD_SETTING := "world_host/async_location_assembly_enabled"
 
 var pending_spawn_scene_id: StringName = &""
 var pending_spawn_id: StringName = &""
@@ -15,6 +18,9 @@ var cache_order: Array[StringName] = []
 
 var _manifest_loaded := false
 var _scenes := {}
+## Scene path -> true while a ResourceLoader threaded request is outstanding.
+## Keyed by path, not ID, so a forced manifest reload cannot orphan a request.
+var _threaded_requests := {}
 
 func _ready() -> void:
 	load_manifest()
@@ -141,12 +147,68 @@ func go_to_scene(scene_id, spawn_id) -> void:
 	pending_spawn_scene_id = scene_key
 	pending_spawn_id = spawn_key
 	spawn_door_tag = null
+	if (
+		bool(ProjectSettings.get_setting(ASYNC_SCENE_LOAD_SETTING, false))
+		and not scene_cache.has(scene_key)
+	):
+		_change_scene_when_loaded(scene_key)
+		return
 	var scene_resource: PackedScene = _get_scene_resource(scene_key)
 	if scene_resource == null:
 		push_error("Transition scene failed to load: " + get_scene_path(scene_key))
 		clear_pending_spawn()
 		return
 
+	get_tree().call_deferred("change_scene_to_packed", scene_resource)
+
+
+## Starts a background load of an active scene without blocking. Returns false when
+## the scene is unknown or its path is missing. A later _get_scene_resource() call
+## collects the result into the LRU cache.
+func request_scene_preload(scene_id) -> bool:
+	var scene_key := StringName(String(scene_id))
+	if scene_cache.has(scene_key):
+		return true
+	var scene_path := get_scene_path(scene_key)
+	if scene_path.is_empty() or not ResourceLoader.exists(scene_path):
+		return false
+	if _threaded_requests.has(scene_path):
+		return true
+	if ResourceLoader.load_threaded_request(scene_path, "PackedScene") != OK:
+		return false
+	_threaded_requests[scene_path] = true
+	return true
+
+
+## True when _get_scene_resource() for this scene would not block.
+func is_scene_resource_ready(scene_id) -> bool:
+	var scene_key := StringName(String(scene_id))
+	if scene_cache.has(scene_key):
+		return true
+	var scene_path := get_scene_path(scene_key)
+	if not _threaded_requests.has(scene_path):
+		return false
+	return (
+		ResourceLoader.load_threaded_get_status(scene_path)
+		!= ResourceLoader.THREAD_LOAD_IN_PROGRESS
+	)
+
+
+func _change_scene_when_loaded(scene_key: StringName) -> void:
+	if not request_scene_preload(scene_key):
+		push_error("Transition scene failed to load: " + get_scene_path(scene_key))
+		clear_pending_spawn()
+		return
+	while not is_scene_resource_ready(scene_key):
+		await get_tree().process_frame
+	# A newer door may have replaced the pending target while this one loaded.
+	if pending_spawn_scene_id != scene_key:
+		return
+	var scene_resource := _get_scene_resource(scene_key)
+	if scene_resource == null:
+		push_error("Transition scene failed to load: " + get_scene_path(scene_key))
+		clear_pending_spawn()
+		return
 	get_tree().call_deferred("change_scene_to_packed", scene_resource)
 
 
@@ -212,7 +274,14 @@ func _get_scene_resource(scene_id: StringName) -> PackedScene:
 		push_error("Transition scene path does not exist: " + scene_path)
 		return null
 
-	var scene_resource := load(scene_path) as PackedScene
+	# Threaded request instead of load(): an already-running preload is joined
+	# rather than restarted, and the load itself runs off the main thread.
+	if not _threaded_requests.has(scene_path):
+		if ResourceLoader.load_threaded_request(scene_path, "PackedScene") != OK:
+			return null
+		_threaded_requests[scene_path] = true
+	var scene_resource := ResourceLoader.load_threaded_get(scene_path) as PackedScene
+	_threaded_requests.erase(scene_path)
 	if scene_resource == null:
 		return null
 

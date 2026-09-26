@@ -45,6 +45,24 @@ The top-level `headline` summarizes the production Lower Town profile:
 
 The raw `profiles` section retains per-run distributions, node/collision counts, startup and pipeline timings, semantic counts, and existing map-budget observations.
 
+## Location assembly (WB-07)
+
+A third phase runs `tools/benchmarks/async_assembly_trace.gd` and merges its output under `location_assembly` (`--quick` traces `lower_town_slice` only). It can also run on its own:
+
+```bash
+godot --headless --path . --script tools/benchmarks/async_assembly_trace.gd \
+  -- --output=res://build/benchmarks/async_assembly.json [--budget-ms=4.0] [--quick]
+```
+
+Per map (`lower_town_slice`, `kalev_smithy`, `reval_harbor_east`) it records:
+
+- `synchronous.total_ms` and `synchronous.stages_ms` - one-call `MapView3D.create()` cost, keyed by the stable `STAGES` names in `scripts/map/view3d/map_view_assembly.gd` (`height_field`, `surroundings`, `terrain_mesh`, `interior_shell`, `decals`, `object_index`, `buildings_props`, `scatter`, `chunk_finalize`, `transition_visuals`, `anchors`, `lighting`, `sky_weather`, `view_effects`);
+- `staged.frame_ms`, `max_frame_ms`, `frames_over_budget` - main-thread milliseconds per process frame while `assemble_async()` builds a detached view, plus `mount_add_child_ms` for the final `add_child`;
+- `staged.units_over_budget` - every single work unit (stage plus chunk or stable object ID) whose cost alone exceeds the budget; a unit is atomic, so these units set the frame-time floor;
+- `navigation.synchronous_ms` vs `navigation.threaded_main_thread_ms` - the `MapNavBuilder` bake on the calling thread against the main-thread cost of starting the WorkerThreadPool bake.
+
+The budget comes from the project setting `world_host/location_assembly_frame_budget_ms` (default `4.0`). Staged assembly and threaded navigation and scene loading stay behind `world_host/async_location_assembly_enabled` (default `false`). Headless numbers are CPU scene-construction cost under the dummy renderer. Use `BENCHMARK_HEADLESS=0` for a GPU-backed trace. Findings: [`docs/reports/async_assembly_2026-09-26.md`](./reports/async_assembly_2026-09-26.md).
+
 ## GPU render probe (draw-call attribution)
 
 The report above runs headless, so it cannot see GPU-side cost. For that, run the

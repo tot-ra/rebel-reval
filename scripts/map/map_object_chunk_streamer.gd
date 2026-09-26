@@ -27,15 +27,32 @@ func configure(
 
 
 func load_chunk(coordinates: Vector2i) -> void:
+	for record in begin_chunk_load(coordinates):
+		load_record(record)
+
+
+## WB-07: split form of load_chunk() for budgeted assembly. Marks the chunk
+## resident and returns its streamed records in load order; the caller then
+## passes each to load_record(), possibly across frames. Empty when the chunk is
+## already resident.
+func begin_chunk_load(coordinates: Vector2i) -> Array[Dictionary]:
+	var records: Array[Dictionary] = []
 	if index == null or _loaded_chunks.has(coordinates):
-		return
+		return records
 	_loaded_chunks[coordinates] = true
 	for record in index.records_consumed_by(coordinates):
 		if (
 			record.get("residency", MapChunkRuntimeIndex.RESIDENCY_STREAMED)
 			== MapChunkRuntimeIndex.RESIDENCY_STREAMED
 		):
-			_ensure_loaded(record)
+			records.append(record)
+	return records
+
+
+## Instantiates one record from begin_chunk_load(); a no-op when a neighbouring
+## chunk already loaded the same boundary-spanning object.
+func load_record(record: Dictionary) -> Node:
+	return _ensure_loaded(record)
 
 
 func unload_chunk(coordinates: Vector2i) -> void:

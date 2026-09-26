@@ -28,7 +28,13 @@ static func assemble(
 		terrain.follow(terrain_focus)
 		if object_streamer != null:
 			object_streamer.update_active_chunks(terrain.loaded_chunk_coordinates())
-	var nav := MapNavBuilder.create_navigation_region(definition, grid)
+	# WB-07: behind the async-assembly flag the bake runs on a worker thread and
+	# publishes atomically; default off keeps the synchronous region.
+	var nav := (
+		MapNavBuilder.create_navigation_region_threaded(definition, grid)
+		if MapView3D.Assembly.enabled()
+		else MapNavBuilder.create_navigation_region(definition, grid)
+	)
 	nav.name = "Navigation"
 	host.add_child(nav)
 	var world_bounds := _create_world_bounds(definition, host)

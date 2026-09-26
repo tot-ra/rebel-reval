@@ -1,6 +1,10 @@
 class_name MapView3D
 extends Node3D
 
+## WB-07: staged assembly finished, or cancel_assembly() stopped it.
+signal assembly_completed
+signal assembly_cancelled
+
 const DirectionSignBuilder := preload("res://scripts/map/view3d/direction_sign_3d.gd")
 const DayNightCycle := preload("res://scripts/global/day_night_cycle.gd")
 const Lighting := preload("res://scripts/map/view3d/map_view_lighting.gd")
@@ -9,6 +13,7 @@ const TerrainDetails := preload("res://scripts/map/view3d/map_view_terrain_detai
 const MudFootprints3D := preload("res://scripts/map/view3d/mud_footprints_3d.gd")
 const WaterRippleSimScript := preload("res://scripts/map/view3d/water_ripple_sim.gd")
 const UnderwaterPassScript := preload("res://scripts/map/view3d/underwater_pass.gd")
+const Assembly := preload("res://scripts/map/view3d/map_view_assembly.gd")
 ## P0-052 3D orthographic view layer (ADR 0007). Assembles terrain, building,
 ## and prop geometry from an immutable MapDefinition, framed by a fixed
 ## dimetric orthographic camera under a deterministic day/night sun.
@@ -123,6 +128,8 @@ var _underwater_pass: UnderwaterPassScript
 var _gate_passages: Array[Rect2] = []
 var _wall_footprints: Array[Rect2] = []
 var _gate_fit_ready := false
+var _assembly := Assembly.new()
+var _assembly_initial_time: StringName = TIME_DAY
 
 static func create(
 	map_definition: MapDefinition, built_grid: MapTerrainGrid, initial_time: StringName = TIME_DAY
@@ -134,6 +141,79 @@ static func create(
 	view._assemble()
 	view.set_time_of_day(initial_time)
 	return view
+
+
+## WB-07: same view as create(), but nothing is built yet. The caller pays the
+## assembly cost in slices through step_assembly() or assemble_async(), so a
+## neighbouring location can mount without one multi-second main-thread stall.
+## Every unit runs the same builder code in the same order as create(), which
+## keeps the finished node tree identical to the synchronous one.
+static func create_staged(
+	map_definition: MapDefinition, built_grid: MapTerrainGrid, initial_time: StringName = TIME_DAY
+) -> MapView3D:
+	var view := MapView3D.new()
+	view.name = "MapView3D_%s" % String(map_definition.map_id)
+	view.definition = map_definition
+	view.grid = built_grid
+	view._begin_staged_assembly(initial_time)
+	return view
+
+
+## Runs pending units until budget_usec is spent; see MapViewAssembly.step().
+## Returns true once assembly is complete.
+func step_assembly(budget_usec: int) -> bool:
+	if _assembly.step(budget_usec):
+		_finish_staged_assembly()
+	return is_assembly_complete()
+
+
+## Drives step_assembly() once per process frame with the project budget. Returns
+## false when cancelled, so callers can drop the view instead of mounting it.
+## Assemble detached and mount on completion: nothing simulates or renders early.
+func assemble_async(budget_msec: float = -1.0) -> bool:
+	var budget := Assembly.frame_budget_msec() if budget_msec < 0.0 else budget_msec
+	var tree := Engine.get_main_loop() as SceneTree
+	while _assembly.state == Assembly.State.RUNNING:
+		var started := Time.get_ticks_usec()
+		step_assembly(int(budget * 1000.0))
+		_assembly.frame_usec.append(Time.get_ticks_usec() - started)
+		if _assembly.state == Assembly.State.RUNNING:
+			await tree.process_frame
+	return is_assembly_complete()
+
+
+## Stops a staged assembly. Everything already built is a child of this view, so
+## freeing the view releases it all; nothing is registered elsewhere before completion.
+func cancel_assembly() -> void:
+	if _assembly.cancel():
+		assembly_cancelled.emit()
+
+
+func is_assembly_complete() -> bool:
+	return _assembly.state == Assembly.State.COMPLETE
+
+
+func is_assembly_cancelled() -> bool:
+	return _assembly.state == Assembly.State.CANCELLED
+
+
+func pending_assembly_unit_count() -> int:
+	return _assembly.units.size()
+
+
+## Stage name -> accumulated microseconds, in stage order. Filled by both paths.
+func assembly_stage_timings_usec() -> Dictionary:
+	return _assembly.stage_usec.duplicate()
+
+
+## One entry per work unit: {"stage", "label", "usec"}, in execution order.
+func assembly_unit_timings() -> Array[Dictionary]:
+	return _assembly.unit_log.duplicate(true)
+
+
+## Main-thread microseconds spent per frame by assemble_async().
+func assembly_frame_timings_usec() -> PackedInt64Array:
+	return _assembly.frame_usec.duplicate()
 
 
 func _exit_tree() -> void:
@@ -707,28 +787,62 @@ func activate_all_chunks() -> void:
 	_update_active_chunks(chunks)
 
 
+## Synchronous path: drains the same unit plan as the staged path in one call,
+## so the two can never drift apart. Timings are recorded here too.
 func _assemble() -> void:
-	# WHY: library stems hash (map_seed, building id). Apply the map-id salt
-	# before the interior shell and streamed houses, or every map keeps seed 0.
+	_assembly.run_all(Assembly.plan_for(self, _initial_active_chunks()))
+
+
+func _begin_staged_assembly(initial_time: StringName) -> void:
+	_assembly_initial_time = initial_time
+	_assembly.start(Assembly.plan_for(self, _initial_active_chunks()))
+	# _process tolerates missing nodes, but there is nothing to animate until the
+	# sky and camera exist; completion restores the environment binding state.
+	set_process(false)
+
+
+func _finish_staged_assembly() -> void:
+	_assembly.state = Assembly.State.COMPLETE
+	set_time_of_day(_assembly_initial_time)
+	set_process(_environment_binding_active)
+	assembly_completed.emit()
+
+
+func _stage_height_field() -> void:
+	_apply_building_map_seed()
+	MapViewMeshBuilder.ensure_height_field(definition, grid)
+
+
+## WHY: library stems hash (map_seed, building id) through one shared static seed. Re-apply
+## it before each house build: a staged view spans frames another view may seed.
+func _apply_building_map_seed() -> void:
 	if definition != null:
 		MapViewMaterials.apply_building_map_seed(definition.map_id)
+
+
+func _stage_surroundings() -> void:
 	add_child(MapViewMeshBuilder.build_surroundings(definition))
+
+
+func _stage_terrain_mesh() -> void:
 	add_child(MapViewMeshBuilder.build_terrain(definition, grid))
+
+
+func _stage_interior_shell() -> void:
+	_apply_building_map_seed()
 	add_child(MapViewMeshBuilder.build_interior_shell(definition))
 
+
+## Streamed-object parents are created here, before the decals, to keep the
+## historical child order: Scatter, Buildings, Landmarks, Props, Decals, DirectionSigns.
+func _stage_containers_and_decals() -> void:
 	_scatter_root = Node3D.new()
 	_scatter_root.name = "Scatter"
 	add_child(_scatter_root)
-
-	var buildings := Node3D.new()
-	buildings.name = "Buildings"
-	add_child(buildings)
-	var landmarks := Node3D.new()
-	landmarks.name = "Landmarks"
-	add_child(landmarks)
-	var props := Node3D.new()
-	props.name = "Props"
-	add_child(props)
+	for container_name in ["Buildings", "Landmarks", "Props"]:
+		var container := Node3D.new()
+		container.name = container_name
+		add_child(container)
 	# P0-157: projected decals (soot, mud, blood) from map data.
 	_decals_node = MapViewDecals.build_decals(definition, definition.cell_size)
 	add_child(_decals_node)
@@ -736,6 +850,8 @@ func _assemble() -> void:
 	direction_signs.name = "DirectionSigns"
 	add_child(direction_signs)
 
+
+func _stage_object_index() -> void:
 	_object_index = MapChunkRuntimeIndex.build(definition, grid.chunk_size_cells)
 	_object_streamer = MapObjectChunkStreamer.new()
 	_object_streamer.name = "ObjectStreamer"
@@ -746,15 +862,40 @@ func _assemble() -> void:
 			_object_index,
 			_create_streamed_object,
 			{
-				&"building": buildings,
-				&"landmark": landmarks,
-				&"prop": props,
-				&"direction_sign": direction_signs,
+				&"building": get_node("Buildings"),
+				&"landmark": get_node("Landmarks"),
+				&"prop": get_node("Props"),
+				&"direction_sign": get_node("DirectionSigns"),
 			}
 		)
 	)
-	_update_active_chunks(_initial_active_chunks())
 
+
+## Marks the chunk resident and returns one unit per streamed object, in the
+## same order MapObjectChunkStreamer.load_chunk() would instantiate them.
+func _expand_object_chunk(chunk: Vector2i) -> Array[Dictionary]:
+	var units: Array[Dictionary] = []
+	for record in _object_streamer.begin_chunk_load(chunk):
+		var load_record := _load_object_record.bind(record)
+		units.append(Assembly.unit(&"buildings_props", String(record["id"]), load_record))
+	return units
+
+
+func _load_object_record(record: Dictionary) -> void:
+	_object_streamer.load_record(record)
+
+
+## The tail of _update_active_chunks() once every initial chunk is resident.
+func _stage_chunk_finalize(chunks: Array[Vector2i]) -> void:
+	_active_chunks = chunks.duplicate()
+	_sync_puddle_visibility(true)
+	_rebuild_terrain_details()
+	_rebuild_occluder_bounds()
+	_update_chimney_smokes()
+	_update_window_lights()
+
+
+func _stage_transition_visuals() -> void:
 	var transition_markers := Node3D.new()
 	transition_markers.name = "TransitionMarkers"
 	add_child(transition_markers)
@@ -787,6 +928,8 @@ func _assemble() -> void:
 				)
 			)
 
+
+func _stage_anchors() -> void:
 	var anchors := Node3D.new()
 	anchors.name = "Anchors"
 	add_child(anchors)
@@ -797,6 +940,8 @@ func _assemble() -> void:
 		marker.set_meta("anchor_id", anchor["id"])
 		anchors.add_child(marker)
 
+
+func _stage_lighting() -> void:
 	_sun = DirectionalLight3D.new()
 	_sun.name = "Sun"
 	_configure_sun_shadows(_sun)
@@ -814,6 +959,8 @@ func _assemble() -> void:
 	_camera = _create_camera()
 	add_child(_camera)
 
+
+func _stage_sky_weather() -> void:
 	# Sky dome + weather cycle; replaces the flat background color with a real
 	# sky the first-person camera can see, and feeds lighting modifiers above.
 	_sky_weather = SkyWeather3D.new()
@@ -828,6 +975,9 @@ func _assemble() -> void:
 	)
 	# Cached house materials already exist; the toggle updates them in place.
 	MapViewMaterials.set_building_quality_tier(_sky_weather.quality_tier)
+
+
+func _stage_view_effects() -> void:
 	_create_water_ripple_sim()
 	_create_underwater_pass()
 	_mud_footprints = MudFootprints3D.new()
@@ -844,6 +994,7 @@ func _assemble() -> void:
 
 
 func _create_streamed_object(record: Dictionary) -> Node:
+	_apply_building_map_seed()
 	var node := _build_streamed_object(record)
 	if node is Node3D:
 		var node_3d := node as Node3D
@@ -954,16 +1105,19 @@ func _update_scatter_chunks(chunks: Array[Vector2i]) -> void:
 		_scatter_root.remove_child(stale)
 		stale.free()
 	for coordinates in chunks:
-		if _loaded_scatter_chunks.has(coordinates):
-			continue
-		var scatter := MapViewMeshBuilder.build_scatter(
-			definition, grid, grid.chunk_bounds(coordinates)
-		)
-		scatter.name = "Chunk_%d_%d" % [coordinates.x, coordinates.y]
-		_scatter_root.add_child(scatter)
-		_loaded_scatter_chunks[coordinates] = scatter
+		_load_scatter_chunk(coordinates)
 	_sync_puddle_visibility(true)
 	_rebuild_terrain_details()
+
+
+## One scatter chunk; also a staged-assembly work unit.
+func _load_scatter_chunk(coordinates: Vector2i) -> void:
+	if _loaded_scatter_chunks.has(coordinates):
+		return
+	var scatter := MapViewMeshBuilder.build_scatter(definition, grid, grid.chunk_bounds(coordinates))
+	scatter.name = "Chunk_%d_%d" % [coordinates.x, coordinates.y]
+	_scatter_root.add_child(scatter)
+	_loaded_scatter_chunks[coordinates] = scatter
 
 
 func _rebuild_terrain_details() -> void:
