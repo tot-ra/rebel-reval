@@ -19,6 +19,36 @@ Decision record: [ADR 0022](../adr/0022-realistic-human-characters.md). Procedur
   (Gugel with shoulder cape), `kettle_hat`; outfits `forge`, `street`, `travel`, `armed`,
   `undress` in `outfits.json`. Weapons use the unchanged `handslot` sockets.
 
+### Named cast and NPCs
+
+Twelve more humans now use the pipeline and replace their live scenes in
+`assets/characters/variants/` (identity resources, health rings, held props and
+walk overrides kept; scenes written by `write_scenes.py`), dressed by rank from the
+clothing dossier:
+
+| Character | Build | Default outfit |
+|---|---|---|
+| Mart (apprentice, 16) | slight teen | oversized tan short tunic, no belt knife, hose, shoes |
+| Henning (watch captain, 48) | broad, grey-flecked beard | blue-grey aketon, mail, kettle hat |
+| Jürgen (Hanseatic merchant, 52) | portly, clean-shaven | madder mid-calf tunic, parti-coloured hose, hood, purse |
+| Kaja (courier, 26) | lean | woad work gown, linen headscarf |
+| Aita (alewife, 42) | sturdy | russet work gown, linen apron, headscarf |
+| Ellen (midwife, 63) | slight, aged | dark ankle gown, dark headscarf |
+| Townswoman (burgher wife) | — | woad gown, linen coif and veil, belt |
+| Watchman (militia) | lean, beard | padded jack, iron hat, spear |
+| Sergeant | broader, beard | aketon, mail, iron hat |
+| Danish man-at-arms | strong, fair beard | aketon, mail, red surcoat, iron hat, spear |
+| Bandit (Harju rebel) | wiry, scruffy beard | coarse short tunic, hood, sword |
+| Innkeeper | heavy, clean-shaven | russet tunic, linen apron |
+
+New garment types: gowns (ankle and mid-calf), headscarf, coif and veil, waist
+apron, surcoat (worn over mail in the `back` slot), long and short tunics and
+parti-coloured hose. Crowd bodies (`crowd_townsman_*`, `crowd_townswoman_*`) are
+still the procedural P0-153 generator and are the next migration step (they need a
+Tier 2 budget: MakeHuman proxy topology plus LODs).
+
+![Cast](images/realistic_humans/cast_engine.png)
+
 ## Evidence (Godot, GL Compatibility capture stage)
 
 ![Outfits](images/realistic_humans/kalev_outfits_engine.png)
@@ -44,6 +74,6 @@ Decision record: [ADR 0022](../adr/0022-realistic-human-characters.md). Procedur
   wrinkle normal in the face region) is the next Kalev polish item.
 - Cloth is skinned, not simulated; sleeves still hint at biceps in the full-sleeve tunic.
 - Hands are a baked loose fist (no finger bones in the shared rig); no facial animation.
-- Named cast, NPCs and crowds are not yet migrated; `kalev_fresh` assets remain for its preview
-  scene and tests until retired.
+- Crowds are not yet migrated; `kalev_fresh` and storybook human assets remain for their
+  preview scenes and tests until retired.
 - The environment post-grade was tuned for ADR 0018 and still needs naturalistic recalibration.

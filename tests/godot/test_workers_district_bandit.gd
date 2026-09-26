@@ -11,7 +11,9 @@ func test_bandit_rig_keeps_shared_animation_contract_and_sword() -> void:
 	assert_eq(rig.variant_id(), &"char.bandit")
 	assert_true(rig.has_equipment())
 	assert_true(rig.has_animation(&"sword_attack"))
-	assert_true(rig.lod_visibility_configured())
+	# Realistic bodies (ADR 0022) rely on imported mesh LODs, not distance-swapped GLBs.
+	if not rig.get_script().resource_path.ends_with("realistic_rig.gd"):
+		assert_true(rig.lod_visibility_configured())
 	rig.queue_free()
 
 func test_workers_district_bandit_is_a_damageable_enemy() -> void:

@@ -14,12 +14,16 @@ func test_live_cast_retains_identity_health_and_fitted_equipment() -> void:
 		assert_eq(rig.variant_id(), StringName("char." + body))
 		assert_true(rig.has_node("HealthRing"), "Live combat feedback must survive model replacement")
 		assert_eq(rig.validation_errors(), [])
-		# Kalev is the realistic (ADR 0022) body; its wardrobe is verified separately and
-		# no longer uses the removed storybook per-person equipment bundle.
+		# Realistic bodies (ADR 0022): every garment generated for this body fits it,
+		# and armour fitted to another body is refused.
+		var folder := "res://assets/characters/realistic/%s/" % body
+		for file: String in DirAccess.get_files_at(folder):
+			if file.ends_with(".tres"):
+				var wearable := load(folder + file) as CharacterWearable
+				assert_true(rig.equip_wearable(wearable), "%s must accept fitted %s" % [body, file])
 		if body != "kalev":
-			for kind: String in ["mail", "helmet", "cape"]:
-				var wearable := load("res://assets/storybook/equipment/%s_%s.tres" % [body, kind]) as CharacterWearable
-				assert_true(rig.equip_wearable(wearable), "%s must accept fitted %s" % [body, kind])
+			var foreign := load("res://assets/characters/realistic/kalev/mail_haubergeon.tres")
+			assert_false(rig.equip_wearable(foreign), "%s must refuse Kalev's mail" % body)
 		assert_true(rig.play_animation(&"sword_attack", 0.0))
 		for slot: StringName in [&"right_hand", &"left_hand"]:
 			var prop := "sword" if slot == &"right_hand" else "shield"

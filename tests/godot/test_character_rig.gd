@@ -604,8 +604,10 @@ func test_watchman_and_sergeant_are_distinguishable_without_color_cues() -> void
 	assert_eq(watchman.variant_id(), &"char.watchman")
 	assert_eq(sergeant.variant_id(), &"char.sergeant")
 	assert_true(watchman.has_equipment(), "watchman carries a spear for gameplay-scale read")
-	assert_false(sergeant.has_equipment(), "sergeant relies on pauldrons and helmet, not a polearm")
-	assert_true(sergeant.has_garment(&"hat"), "sergeant wears the generated helmet garment")
+	assert_false(sergeant.has_equipment(), "sergeant relies on mail and helmet, not a polearm")
+	assert_true(sergeant.equipped_wearable(&"head") != null, "sergeant wears an iron hat")
+	assert_true(sergeant.equipped_wearable(&"outerwear") != null, "sergeant's mail reads as rank")
+	assert_eq(watchman.equipped_wearable(&"outerwear"), null, "militia wear no mail")
 
 	var watchman_shoulders := _shoulder_span(watchman)
 	var sergeant_shoulders := _shoulder_span(sergeant)
@@ -1078,7 +1080,9 @@ static func _color_distance(a: Color, b: Color) -> float:
 
 
 func test_anatomical_muscle_volume_responds_to_joint_bend() -> void:
-	var warrior := _instantiate(DANISH_WARRIOR_SCENE)
+	# Procedural (PartBuilder) crowd bodies still carry pose-driven muscle
+	# volume; realistic MakeHuman bodies (ADR 0022) deform through authored weights.
+	var warrior := _instantiate(load("res://assets/characters/variants/crowd_townsman_01.tscn"))
 	var skeleton := warrior.skeleton()
 	var muscles := skeleton.get_node("AnatomicalMuscles")
 	var elbow := skeleton.find_bone("lowerarm.l")

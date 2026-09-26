@@ -1,19 +1,25 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=10 format=3]
 
-[ext_resource type="Script" path="res://assets/storybook/storybook_character.gd" id="1_rig"]
-[ext_resource type="PackedScene" path="res://assets/storybook/henning/henning.glb" id="2_model"]
+[ext_resource type="Script" path="res://assets/characters/realistic/realistic_rig.gd" id="1_rig"]
+[ext_resource type="PackedScene" path="res://assets/characters/realistic/henning/henning.glb" id="2_model"]
 [ext_resource type="Resource" path="res://assets/characters/variants/henning_variant.tres" id="3_variant"]
-
 [ext_resource type="Script" path="res://scripts/ui/character_health_ring_3d.gd" id="4_health_ring"]
+[ext_resource type="Resource" path="res://assets/characters/realistic/henning/gambeson.tres" id="5_gambeson"]
+[ext_resource type="Resource" path="res://assets/characters/realistic/henning/mail_haubergeon.tres" id="6_mail_haubergeon"]
+[ext_resource type="Resource" path="res://assets/characters/realistic/henning/kettle_hat.tres" id="7_kettle_hat"]
+[ext_resource type="Resource" path="res://assets/characters/realistic/henning/hose.tres" id="8_hose"]
+[ext_resource type="Resource" path="res://assets/characters/realistic/henning/boots.tres" id="9_boots"]
 
 [node name="Henning" type="Node3D"]
 script = ExtResource("1_rig")
 variant = ExtResource("3_variant")
+model_scale = Vector3(1.1111111, 1.1111111, 1.1111111)
 use_anatomical_muscles = false
+default_outfit = Array[Resource]([ExtResource("5_gambeson"), ExtResource("6_mail_haubergeon"), ExtResource("7_kettle_hat"), ExtResource("8_hose"), ExtResource("9_boots")])
 
 [node name="Model" type="Node3D" parent="."]
 
-[node name="ImportedHumanoid" parent="Model" instance=ExtResource("2_model")]
+[node name="HenningBody" parent="Model" instance=ExtResource("2_model")]
 
 [node name="HealthRing" type="Node3D" parent="."]
 script = ExtResource("4_health_ring")

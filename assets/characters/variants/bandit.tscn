@@ -1,14 +1,21 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=9 format=3]
 
-[ext_resource type="Script" path="res://assets/characters/shared/shared_character_rig.gd" id="1_rig"]
-[ext_resource type="PackedScene" path="res://assets/characters/shared/bandit.glb" id="2_model"]
+[ext_resource type="Script" path="res://assets/characters/realistic/realistic_rig.gd" id="1_rig"]
+[ext_resource type="PackedScene" path="res://assets/characters/realistic/bandit/bandit.glb" id="2_model"]
 [ext_resource type="Resource" path="res://assets/characters/variants/bandit_variant.tres" id="3_variant"]
+[ext_resource type="Script" path="res://scripts/ui/character_health_ring_3d.gd" id="4_health_ring"]
+[ext_resource type="Resource" path="res://assets/characters/realistic/bandit/short_tunic.tres" id="5_short_tunic"]
+[ext_resource type="Resource" path="res://assets/characters/realistic/bandit/hood.tres" id="6_hood"]
+[ext_resource type="Resource" path="res://assets/characters/realistic/bandit/hose.tres" id="7_hose"]
+[ext_resource type="Resource" path="res://assets/characters/realistic/bandit/boots.tres" id="8_boots"]
 
 [node name="Bandit" type="Node3D"]
 script = ExtResource("1_rig")
 variant = ExtResource("3_variant")
+model_scale = Vector3(1.1111111, 1.1111111, 1.1111111)
+use_anatomical_muscles = false
+default_outfit = Array[Resource]([ExtResource("5_short_tunic"), ExtResource("6_hood"), ExtResource("7_hose"), ExtResource("8_boots")])
 
 [node name="Model" type="Node3D" parent="."]
-scale = Vector3(1.1621, 1.1621, 1.1621)
 
-[node name="ImportedHumanoid" parent="Model" instance=ExtResource("2_model")]
+[node name="BanditBody" parent="Model" instance=ExtResource("2_model")]

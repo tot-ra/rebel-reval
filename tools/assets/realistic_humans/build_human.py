@@ -107,10 +107,13 @@ def create_mpfb_body(spec):
     targets_dir = LocationService.get_mpfb_data("targets")
     body = HumanService.create_human(macro_detail_dict=spec["macros"], scale=0.1)
     for name, weight in spec["targets"].items():
-        found = list(Path(targets_dir).glob(f"*/{name}.target.gz"))
-        if not found:
-            raise SystemExit(f"unknown MakeHuman target {name}")
-        TargetService.load_target(body, str(found[0]), weight=weight, name=name)
+        # Sided targets (l-/r-) may be named once and apply symmetrically.
+        variants = [name] if list(Path(targets_dir).glob(f"*/{name}.target.gz")) else [f"l-{name}", f"r-{name}"]
+        for variant in variants:
+            found = list(Path(targets_dir).glob(f"*/{variant}.target.gz"))
+            if not found:
+                raise SystemExit(f"unknown MakeHuman target {name}")
+            TargetService.load_target(body, str(found[0]), weight=weight, name=variant)
     HumanService.add_builtin_rig(body, "game_engine", import_weights=True)
     sources = {"Anatomy_Head_Eyes": ("Eyes", "eyes/high-poly/high-poly.mhclo"),
                "Anatomy_Head_Brows": ("Eyebrows", f"eyebrows/{spec['eyebrows']}/{spec['eyebrows']}.mhclo"),
@@ -438,7 +441,8 @@ def surface_character(spec, body, proxies, shared, collar, targets, data, textur
         hair_texture = surfaces.recolor_hair(card, spec["hair_color"], texture_dir / f"{spec['fit']}_hair.png")
     skin_dir = Path(data) / "skins" / spec["skin"]
     albedo = next(skin_dir.glob("*diffuse*.png"))
-    maps = surfaces.bake_skin(body, spec, lm, regions_of_vertex, albedo, texture_dir)
+    size = 2048 if spec.get("tier", 1) == 0 else 1024
+    maps = surfaces.bake_skin(body, spec, lm, regions_of_vertex, albedo, texture_dir, size=size)
     skin = surfaces.pbr_material(f"{spec['fit']}_skin", maps["albedo"], maps["normal"], maps["roughness"],
                                  specular=0.45)
     surfaces.assign(body, skin)
@@ -466,14 +470,14 @@ def surface_character(spec, body, proxies, shared, collar, targets, data, textur
                                               roughness=0.72, alpha_clip=True, specular=0.3))
     grooming = []
     if spec.get("hair") and (spec.get("scalp_fur") or "Hair_Scalp" not in proxies):
-        fur = surfaces.scalp_shells(body, lm, spec, texture_dir)
+        fur = surfaces.scalp_shells(body, lm, spec, texture_dir, size=size)
         if "Hair_Scalp" not in proxies:
             # Without cards the fur is the hair and takes the wardrobe's
             # Hair_Scalp name, so hoods and helmets still hide it.
             fur.name = fur.data.name = "Hair_Scalp"
         grooming.append(fur)
     if spec.get("beard"):
-        grooming.append(surfaces.beard_shells(body, lm, spec, texture_dir))
+        grooming.append(surfaces.beard_shells(body, lm, spec, texture_dir, size=size))
     decimate(proxies["Anatomy_Head_Teeth"], 0.3)
     return grooming, lm
 
@@ -537,7 +541,7 @@ def link_textures(path, directories):
                 MAKEHUMAN_TEXTURES.mkdir(parents=True, exist_ok=True)
                 target = MAKEHUMAN_TEXTURES / source.name
                 if not target.exists():
-                    target.write_bytes(source.read_bytes())
+                    copy_texture(source, target, 1024)
         if target is None or "bufferView" not in image:
             continue
         view = image.pop("bufferView")
@@ -563,6 +567,19 @@ def prune_makehuman_textures():
         if png.resolve() not in used:
             png.unlink()
             Path(str(png) + ".import").unlink(missing_ok=True)
+
+
+def copy_texture(source, target, max_px):
+    """Copy a CC0 map, downscaled to the Tier 1 cap so any tier may share it."""
+    img = bpy.data.images.load(str(source), check_existing=False)
+    if max(img.size) > max_px:
+        img.scale(max_px, max_px)
+        img.filepath_raw = str(target)
+        img.file_format = "PNG"
+        img.save()
+    else:
+        target.write_bytes(source.read_bytes())
+    bpy.data.images.remove(img)
 
 
 def write_wearable(spec, name, garment, slot, covered):

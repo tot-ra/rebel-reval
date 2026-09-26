@@ -1,14 +1,22 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=10 format=3]
 
-[ext_resource type="Script" path="res://assets/characters/shared/shared_character_rig.gd" id="1_rig"]
-[ext_resource type="PackedScene" path="res://assets/characters/shared/sergeant.glb" id="2_model"]
+[ext_resource type="Script" path="res://assets/characters/realistic/realistic_rig.gd" id="1_rig"]
+[ext_resource type="PackedScene" path="res://assets/characters/realistic/sergeant/sergeant.glb" id="2_model"]
 [ext_resource type="Resource" path="res://assets/characters/variants/sergeant_variant.tres" id="3_variant"]
+[ext_resource type="Script" path="res://scripts/ui/character_health_ring_3d.gd" id="4_health_ring"]
+[ext_resource type="Resource" path="res://assets/characters/realistic/sergeant/gambeson.tres" id="5_gambeson"]
+[ext_resource type="Resource" path="res://assets/characters/realistic/sergeant/mail_haubergeon.tres" id="6_mail_haubergeon"]
+[ext_resource type="Resource" path="res://assets/characters/realistic/sergeant/kettle_hat.tres" id="7_kettle_hat"]
+[ext_resource type="Resource" path="res://assets/characters/realistic/sergeant/hose.tres" id="8_hose"]
+[ext_resource type="Resource" path="res://assets/characters/realistic/sergeant/boots.tres" id="9_boots"]
 
 [node name="Sergeant" type="Node3D"]
 script = ExtResource("1_rig")
 variant = ExtResource("3_variant")
+model_scale = Vector3(1.1111111, 1.1111111, 1.1111111)
+use_anatomical_muscles = false
+default_outfit = Array[Resource]([ExtResource("5_gambeson"), ExtResource("6_mail_haubergeon"), ExtResource("7_kettle_hat"), ExtResource("8_hose"), ExtResource("9_boots")])
 
 [node name="Model" type="Node3D" parent="."]
-scale = Vector3(1.1621, 1.1621, 1.1621)
 
-[node name="ImportedHumanoid" parent="Model" instance=ExtResource("2_model")]
+[node name="SergeantBody" parent="Model" instance=ExtResource("2_model")]

@@ -43,8 +43,9 @@ func test_outfit_replaces_all_lods_and_restores_the_default_clothes() -> void:
 
 func test_mismatched_body_and_invalid_replacement_preserve_current_outfit() -> void:
 	var mart := _rig(MART)
+	var own_torso := mart.equipped_wearable(&"torso")
 	assert_false(mart.equip_wearable(MAIL), "sharing bones does not make Kalev's armor fit Mart")
-	assert_eq(mart.equipped_wearable(&"torso"), null)
+	assert_eq(mart.equipped_wearable(&"torso"), own_torso, "a rejected fit keeps Mart's own tunic")
 	var rig := _rig()
 	assert_true(rig.equip_wearable(MAIL))
 	var invalid := MAIL.duplicate() as CharacterWearable

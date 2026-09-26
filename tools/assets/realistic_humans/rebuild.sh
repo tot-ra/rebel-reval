@@ -19,6 +19,7 @@ for character in "$@"; do
   "$BLENDER" --background --python-exit-code 1 --python tools/assets/realistic_humans/build_human.py -- \
     --character="$character"
 done
+python3 tools/assets/realistic_humans/write_scenes.py
 "$GODOT" --headless --path . --import
 python3 tools/assets/realistic_humans/register_sources.py
 python3 tools/validate_asset_sources.py

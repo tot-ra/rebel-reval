@@ -1,17 +1,21 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=9 format=3]
 
-[ext_resource type="Script" path="res://assets/characters/shared/shared_character_rig.gd" id="1_rig"]
-[ext_resource type="PackedScene" path="res://assets/characters/shared/innkeeper.glb" id="2_model"]
+[ext_resource type="Script" path="res://assets/characters/realistic/realistic_rig.gd" id="1_rig"]
+[ext_resource type="PackedScene" path="res://assets/characters/realistic/innkeeper/innkeeper.glb" id="2_model"]
 [ext_resource type="Resource" path="res://assets/characters/variants/innkeeper_variant.tres" id="3_variant"]
+[ext_resource type="Script" path="res://scripts/ui/character_health_ring_3d.gd" id="4_health_ring"]
+[ext_resource type="Resource" path="res://assets/characters/realistic/innkeeper/wool_tunic.tres" id="5_wool_tunic"]
+[ext_resource type="Resource" path="res://assets/characters/realistic/innkeeper/waist_apron.tres" id="6_waist_apron"]
+[ext_resource type="Resource" path="res://assets/characters/realistic/innkeeper/hose.tres" id="7_hose"]
+[ext_resource type="Resource" path="res://assets/characters/realistic/innkeeper/boots.tres" id="8_boots"]
 
 [node name="Innkeeper" type="Node3D"]
 script = ExtResource("1_rig")
 variant = ExtResource("3_variant")
+model_scale = Vector3(1.1111111, 1.1111111, 1.1111111)
+use_anatomical_muscles = false
+default_outfit = Array[Resource]([ExtResource("5_wool_tunic"), ExtResource("6_waist_apron"), ExtResource("7_hose"), ExtResource("8_boots")])
 
 [node name="Model" type="Node3D" parent="."]
-# Same uniform scale as the hero body: both are authored in the same
-# skeleton units, so sharing the scale preserves their relative statures
-# (the innkeeper stands naturally shorter than 2.0 world units).
-scale = Vector3(1.1621, 1.1621, 1.1621)
 
-[node name="ImportedHumanoid" parent="Model" instance=ExtResource("2_model")]
+[node name="InnkeeperBody" parent="Model" instance=ExtResource("2_model")]

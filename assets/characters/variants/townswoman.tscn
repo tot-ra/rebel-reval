@@ -1,16 +1,20 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=8 format=3]
 
-[ext_resource type="Script" path="res://assets/characters/shared/shared_character_rig.gd" id="1_rig"]
-[ext_resource type="PackedScene" path="res://assets/characters/shared/townswoman.glb" id="2_model"]
+[ext_resource type="Script" path="res://assets/characters/realistic/realistic_rig.gd" id="1_rig"]
+[ext_resource type="PackedScene" path="res://assets/characters/realistic/townswoman/townswoman.glb" id="2_model"]
 [ext_resource type="Resource" path="res://assets/characters/variants/townswoman_variant.tres" id="3_variant"]
+[ext_resource type="Script" path="res://scripts/ui/character_health_ring_3d.gd" id="4_health_ring"]
+[ext_resource type="Resource" path="res://assets/characters/realistic/townswoman/gown.tres" id="5_gown"]
+[ext_resource type="Resource" path="res://assets/characters/realistic/townswoman/veil.tres" id="6_veil"]
+[ext_resource type="Resource" path="res://assets/characters/realistic/townswoman/boots.tres" id="7_boots"]
 
 [node name="Townswoman" type="Node3D"]
 script = ExtResource("1_rig")
 variant = ExtResource("3_variant")
+model_scale = Vector3(1.1111111, 1.1111111, 1.1111111)
+use_anatomical_muscles = false
+default_outfit = Array[Resource]([ExtResource("5_gown"), ExtResource("6_veil"), ExtResource("7_boots")])
 
 [node name="Model" type="Node3D" parent="."]
-# All generated bodies use the shared skeleton units. Keeping the same scale
-# preserves her authored slighter stature relative to Kalev.
-scale = Vector3(1.1621, 1.1621, 1.1621)
 
-[node name="ImportedHumanoid" parent="Model" instance=ExtResource("2_model")]
+[node name="TownswomanBody" parent="Model" instance=ExtResource("2_model")]

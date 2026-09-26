@@ -216,7 +216,8 @@ def complexion_fields(body, lm, spec, regions_of_vertex):
         flush += 0.8 * np.exp(-np.sum((co - ear) ** 2, axis=1) / (0.025 ** 2))
     flush = np.clip(flush, 0, 1) * comp.get("flush", 0.3)
     soot = (forearm * smoothstep(0.5, 0.7, elbow_x) + (regions_of_vertex == 3)) * comp.get("soot_forearms", 0.0)
-    beard = beard_mask(co, lm, spec.get("beard")) if spec.get("beard") else np.zeros(n)
+    groomed = spec.get("beard") or spec.get("stubble")
+    beard = beard_mask(co, lm, groomed) if groomed else np.zeros(n)
     beard = beard * head
     scalp = group_weights(body, "scalp")
     oily = np.exp(-np.sum((co - lm["nose_tip"]) ** 2, axis=1) / (0.03 ** 2))
@@ -254,6 +255,63 @@ def _save(path, rgb, colorspace="sRGB"):
     path.parent.mkdir(parents=True, exist_ok=True)
     img.save()
     return img
+
+
+def project_face_photo(photo, raster, lin, lm, size, beard):
+    """Front-project an original face portrait onto the face (hero polish).
+
+    `photo` = {"path": repo-relative image, "landmarks": {"eye_l", "eye_r",
+    "nose_tip", "mouth": [u, v] pixels}}; the character's left eye (+X) is on
+    the image's right. A least-squares affine maps rest-space (x, z) onto the
+    photo; blending fades by facing angle and a face oval, keeps the eye
+    sockets on the base skin, and colour-matches the photo to the skin around
+    it. Returns the new linear albedo and a high-pass detail height field.
+    """
+    root = Path(__file__).resolve().parents[3]
+    img = bpy.data.images.load(str(root / photo["path"]), check_existing=True)
+    w, h = img.size
+    px = np.array(img.pixels[:], dtype=np.float32).reshape(h, w, 4)[..., :3]
+    marks = photo["landmarks"]
+    src = np.array([[lm[k][0], lm[k][2], 1.0] for k in ("eye_l", "eye_r", "nose_tip", "mouth")])
+    dst = np.array([marks[k] for k in ("eye_l", "eye_r", "nose_tip", "mouth")], dtype=np.float64)
+    affine, *_ = np.linalg.lstsq(src, dst, rcond=None)
+    p = raster[..., 0:3].astype(np.float64)
+    uv = np.stack([p[..., 0], p[..., 2], np.ones(p.shape[:2])], axis=-1) @ affine
+    col = np.clip(uv[..., 0], 0, w - 1).astype(int)
+    row = np.clip(h - 1 - uv[..., 1], 0, h - 1).astype(int)  # Blender pixel rows start at the bottom
+    sample = px[row, col]
+
+    # Facing: rest-space surface normal from the position map.
+    dpx = np.gradient(p, axis=1)
+    dpy = np.gradient(p, axis=0)
+    normal = np.cross(dpx, dpy)
+    normal /= np.linalg.norm(normal, axis=-1, keepdims=True) + 1e-9
+    facing = np.abs(normal[..., 1])  # atlas winding may flip the sign; the front mask limits it
+    eyes_mid = (lm["eye_l"] + lm["eye_r"]) / 2
+    eye_span = np.linalg.norm(lm["eye_l"] - lm["eye_r"])
+    rel_x = (p[..., 0] - eyes_mid[0]) / (eye_span * 1.05)
+    rel_z = (p[..., 2] - (eyes_mid[2] + lm["chin"][2]) / 2) / ((eyes_mid[2] - lm["chin"][2]) * 1.2)
+    oval = smoothstep(1.0, 0.72, np.sqrt(rel_x ** 2 + rel_z ** 2))
+    front = (p[..., 1] < eyes_mid[1] + 0.035).astype(np.float64)
+    weight = oval * front * smoothstep(0.45, 0.8, facing)
+    for eye in (lm["eye_l"], lm["eye_r"]):
+        weight *= smoothstep(0.009, 0.016, np.linalg.norm(p - eye, axis=-1))
+    # The fur shells own the beard; the photo's beard edges only smear there.
+    weight *= 1.0 - smoothstep(0.1, 0.5, beard)
+    photo_lin = srgb_to_linear(sample.astype(np.float64)) if img.colorspace_settings.name != "Linear Rec.709" \
+        else sample.astype(np.float64)
+    # Colour-match on the blend band so photo and base skin meet without a seam.
+    band = (weight > 0.2) & (weight < 0.7)
+    if band.any():
+        gain = np.median(lin[band], axis=0) / np.maximum(np.median(photo_lin[band], axis=0), 1e-4)
+        photo_lin = photo_lin * np.clip(gain, 0.6, 1.6)
+    out = lin * (1 - weight[..., None]) + photo_lin * weight[..., None]
+    lum = photo_lin @ np.array([0.2126, 0.7152, 0.0722])
+    blur = lum.copy()
+    for _ in range(6):
+        blur = (blur + np.roll(blur, 1, 0) + np.roll(blur, -1, 0) + np.roll(blur, 1, 1) + np.roll(blur, -1, 1)) / 5
+    detail = (lum - blur) / (blur + 0.05) * weight * 1.2
+    return out, detail
 
 
 def recolor_hair(path, color, out_path, size=1024):
@@ -315,10 +373,11 @@ def bake_skin(body, spec, lm, regions_of_vertex, base_albedo_path, out_dir, size
     lin *= (0.94 + 0.12 * mottle)[..., None]
     freckle = smoothstep(0.78, 0.9, value_noise(p, 900.0, seed=11)) * (tan * 0.6 + 0.1)
     lin *= (1 - 0.18 * freckle)[..., None]
-    beard_spec = spec.get("beard") or {}
+    beard_spec = spec.get("beard") or spec.get("stubble") or {}
     hair_lin = srgb_to_linear(np.array(beard_spec.get("color", spec.get("hair_color", (0.2, 0.15, 0.1)))))
     follicle = smoothstep(0.35, 0.75, value_noise(p, 2600.0, seed=5))
-    shadow = np.clip(beard * (0.55 + 0.45 * follicle), 0, 1) * 0.75
+    # A full beard hides the skin; stubble is only a shadow of `amount`.
+    shadow = np.clip(beard * (0.55 + 0.45 * follicle), 0, 1) * beard_spec.get("amount", 0.75)
     lin = lin * (1 - shadow[..., None]) + hair_lin * 0.55 * shadow[..., None]
     # Under the hair cards the scalp is painted as hair (streaked along the
     # combing direction), so gaps between cards never show pale skin.
@@ -328,6 +387,9 @@ def bake_skin(body, spec, lm, regions_of_vertex, base_albedo_path, out_dir, size
     lin = lin * (1 - cover[..., None]) + scalp_hair * streak[..., None] * cover[..., None]
     grime = smoothstep(0.35, 0.8, fbm(p, 28.0, 4, seed=7)) * soot
     lin = lin * (1 - 0.75 * grime[..., None]) + np.array([0.035, 0.03, 0.028]) * 0.75 * grime[..., None]
+    photo_detail = np.zeros_like(tan)
+    if spec.get("face_photo"):
+        lin, photo_detail = project_face_photo(spec["face_photo"], raster, lin, lm, size, beard)
     albedo = linear_to_srgb(lin)
 
     # Height field in metres-equivalent units; converted to tangent normals.
@@ -351,7 +413,7 @@ def bake_skin(body, spec, lm, regions_of_vertex, base_albedo_path, out_dir, size
             corner = lm["mouth"] + np.array([s * 0.026, 0.004, -0.004])
             d = segment_distance(p, wing, corner)
             lines += -np.exp(-(d / 0.0028) ** 2) * head * 2.2 * (0.4 + age_amount)
-    height = pores * 0.35 + fine * 0.5 + lines
+    height = pores * 0.35 + fine * 0.5 + lines + photo_detail
     height = np.where(lips > 0.3, fine * 0.8 + np.cos(p[..., 0] * 2 * math.pi / 0.0016) * 0.25, height)
 
     # Texel size in metres from the position map, for scale-correct slopes.

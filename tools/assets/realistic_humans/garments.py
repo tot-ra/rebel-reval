@@ -422,7 +422,9 @@ def solidify(obj, thickness):
     mod.thickness = thickness
     mod.offset = -1.0
     mod.use_rim = True
-    mod.use_even_offset = True
+    # Even offset turns folded or tiny faces into metre-long spikes.
+    mod.use_even_offset = False
+    mod.use_quality_normals = True
     activate(obj)
     bpy.ops.object.modifier_apply(modifier=mod.name)
 
@@ -598,20 +600,31 @@ def bisect_neck(ctx, obj, raise_by):
     bisect(obj, point, normal)
 
 
-def tunic(ctx, key, sleeve="full"):
-    """Knee-length gored wool tunic (Rock). `sleeve`: full (to wrist) or rolled."""
+def hem_height(ctx, hem):
     t = ctx.t
-    color = ctx.palette("wool_tunic", textiles_color("undyed"))
+    knee = t["lowerleg.l"].z
+    return {"thigh": knee + 0.14, "knee": knee + 0.03, "calf": knee - 0.17,
+            "ankle": t["foot.l"].z + 0.035}[hem]
+
+
+def tunic(ctx, key, sleeve="full", hem="knee", extra_ease=0.0, belted=True, color_key="wool_tunic",
+          flare=1.55, folds=16, family="wool"):
+    """Gored wool tunic (Rock) or gown (Kleid).
+
+    `sleeve`: full (to wrist), rolled (pushed up for work) or none; `hem`: thigh,
+    knee, calf or ankle (status by length, per the clothing dossier)."""
+    t = ctx.t
+    color = ctx.palette(color_key, textiles_color("undyed"))
     wrist = t["wrist.l"].x + 0.012
     elbow = t["lowerarm.l"].x
-    sleeve_end = wrist if sleeve == "full" else elbow + 0.06
+    sleeve_end = {"full": wrist, "rolled": elbow + 0.06, "none": t["upperarm.l"].x + 0.035}[sleeve]
     waist_z = t["spine"].z - 0.02
     hip_cut = t["hips"].z + 0.02
-    knee_z = t["lowerleg.l"].z + 0.03
-    ease = lambda p: 0.018 + 0.012 * surfaces.smoothstep(t["chest"].z, waist_z, p.z) + \
-        (0.008 if abs(p.x) > t["upperarm.l"].x + 0.02 else 0.0)
+    ease = lambda p: 0.018 + extra_ease + 0.012 * surfaces.smoothstep(t["chest"].z, waist_z, p.z) + \
+        (0.008 + extra_ease * 0.5 if abs(p.x) > t["upperarm.l"].x + 0.02 else 0.0)
     obj = bodice(ctx, f"Garment_{key}", ease, sleeve_end, hip_cut)
-    loft_skirt(ctx, obj, knee_z, flare=1.55, fold_depth=0.018, folds=16, seed=3)
+    loft_skirt(ctx, obj, hem_height(ctx, hem), flare=flare, fold_depth=0.018 * flare / 1.55,
+               folds=folds, seed=3, rings=10 if hem in ("thigh", "knee") else 16)
     # Blouse slightly over the belt.
     for v in obj.data.vertices:
         bump = math.exp(-((v.co.z - (waist_z + 0.03)) / 0.03) ** 2)
@@ -619,14 +632,15 @@ def tunic(ctx, key, sleeve="full"):
             radial = Vector((v.co.x, v.co.y - t["hips"].y, 0))
             if radial.length > 1e-4:
                 v.co += radial.normalized() * 0.008 * bump
-    grain_uv(ctx, obj, "wool")
-    hems = hem_rolls(ctx, obj, 0.0035, "wool_tunic", "wool", color)
-    parts = [finish(ctx, obj, "wool", color, "wool_tunic", thickness=0.003)]
-    parts += [finish_hem(ctx, h, "wool", color, "wool_tunic") for h in hems]
+    grain_uv(ctx, obj, family)
+    hems = hem_rolls(ctx, obj, 0.0035, color_key, family, color)
+    parts = [finish(ctx, obj, family, color, color_key, thickness=0.003)]
+    parts += [finish_hem(ctx, h, family, color, color_key) for h in hems]
     if sleeve == "rolled":
         for s, sign in (("l", 1), ("r", -1)):
             parts.append(sleeve_roll(ctx, s, sign, sleeve_end, color))
-    parts += belt(ctx, waist_z)
+    if belted:
+        parts += belt(ctx, waist_z, knife=belted != "plain")
     return parts
 
 
@@ -680,7 +694,7 @@ def torus(name, centre, axis, major, minor, segments=32, sides=10):
     return obj
 
 
-def belt(ctx, waist_z):
+def belt(ctx, waist_z, knife=True):
     """Leather belt with iron buckle, purse and knife (plausible composite)."""
     t = ctx.t
     leather = ctx.palette("belt", (0.20, 0.12, 0.07))
@@ -701,9 +715,10 @@ def belt(ctx, waist_z):
     purse_at = points[36] + Vector((0, 0, -0.07))
     parts.append(rigid_box(ctx, "Garment_purse", purse_at, (0.03, 0.11, 0.12), "hips", "leather", leather,
                            "belt_leather"))
-    knife_at = points[8] + Vector((0.0, 0, -0.10))
-    parts.append(rigid_box(ctx, "Garment_knife_sheath", knife_at, (0.018, 0.035, 0.2), "hips", "leather",
-                           (0.12, 0.07, 0.04), "sheath_leather"))
+    if knife:
+        knife_at = points[8] + Vector((0.0, 0, -0.10))
+        parts.append(rigid_box(ctx, "Garment_knife_sheath", knife_at, (0.018, 0.035, 0.2), "hips",
+                               "leather", (0.12, 0.07, 0.04), "sheath_leather"))
     return parts
 
 
@@ -767,6 +782,12 @@ def linen_shirt(ctx):
     return [finish(ctx, obj, "linen", color, "linen", 0.002)] + [finish_hem(ctx, h, "linen", color, "linen") for h in hems]
 
 
+def surcoat(ctx):
+    """Sleeveless wool surcoat over mail (crown retainer colours, no invented heraldry)."""
+    return tunic(ctx, "surcoat", sleeve="none", hem="knee", extra_ease=0.05, belted="plain",
+                 color_key="surcoat", flare=1.45)
+
+
 def gambeson(ctx):
     """Quilted linen aketon: high collar, fitted sleeves, skirt to mid-thigh."""
     t = ctx.t
@@ -801,7 +822,17 @@ def hose(ctx):
     hull_fit(ctx, obj, constant(0.003), frames=("leg.l", "leg.r", "foot.l", "foot.r"))
     relax(ctx, obj, 4, constant(0.0025), strength=0.35, drape=6)
     grain_uv(ctx, obj, "wool")
-    return [finish(ctx, obj, "wool", ctx.palette("hose", (0.22, 0.20, 0.17)), "hose")]
+    color = ctx.palette("hose", (0.22, 0.20, 0.17))
+    right = ctx.spec.get("palette", {}).get("hose_right")
+    if not right:
+        return [finish(ctx, obj, "wool", color, "hose")]
+    # Parti-coloured hose (wealthy burghers): each leg its own dye.
+    mesh = obj.data
+    finish(ctx, obj, "wool", color, "hose")
+    mesh.materials.append(textile_material(ctx, "wool", tuple(right), "hose_right"))
+    for poly in mesh.polygons:
+        poly.material_index = 1 if poly.center.x < 0 else 0
+    return [obj]
 
 
 def boots(ctx):
@@ -884,10 +915,23 @@ def transfer_weights(ctx, obj):
 
 def smith_apron(ctx):
     """Heavy leather forge apron from chest to below the knee (Schurz)."""
+    return apron(ctx, "Garment_smith_apron", "apron_leather", "leather",
+                 ctx.palette("smith_apron", (0.26, 0.15, 0.08)), bib=True, over="work_tunic")
+
+
+def waist_apron(ctx):
+    """Linen work apron from the waist to below the knee (alewife, innkeeper)."""
+    return apron(ctx, "Garment_waist_apron", "waist_apron", "linen",
+                 ctx.palette("waist_apron", (0.80, 0.76, 0.66)), bib=False,
+                 over=ctx.spec.get("apron_over", "wool_tunic"))
+
+
+def apron(ctx, name, key, family, color, bib, over):
     t = ctx.t
-    top_z = t["chest"].z + 0.10
+    top_z = t["chest"].z + 0.10 if bib else t["spine"].z - 0.03
     hem_z = t["lowerleg.l"].z - 0.08
     half = 0.2
+    ctx.apron_layer = over
     cols, rows = 16, 30
     bm = bmesh.new()
     deform = bm.verts.layers.deform.verify()
@@ -907,10 +951,10 @@ def smith_apron(ctx):
     for r in range(rows):
         for c in range(cols):
             bm.faces.new((verts[r][c], verts[r][c + 1], verts[r + 1][c + 1], verts[r + 1][c]))
-    mesh = bpy.data.meshes.new("Garment_smith_apron")
+    mesh = bpy.data.meshes.new(name)
     bm.to_mesh(mesh)
     bm.free()
-    obj = bpy.data.objects.new("Garment_smith_apron", mesh)
+    obj = bpy.data.objects.new(name, mesh)
     bpy.context.scene.collection.objects.link(obj)
     groups = {b: obj.vertex_groups.new(name=b) for b in obj_groups}
     for v in obj.data.vertices:
@@ -924,8 +968,21 @@ def smith_apron(ctx):
         else:
             for bone, w in skirt_weights(ctx, p, t["hips"].z, hem_z).items():
                 groups[bone].add([v.index], w, "REPLACE")
-    grain_uv(ctx, obj, "leather", override=lambda p: "torso")
-    parts = [finish(ctx, obj, "leather", ctx.palette("smith_apron", (0.26, 0.15, 0.08)), "apron_leather", 0.005)]
+    grain_uv(ctx, obj, family, override=lambda p: "torso")
+    parts = [finish(ctx, obj, family, color, key, 0.005 if family == "leather" else 0.002)]
+    if not bib:
+        tie = []
+        for k in range(49):
+            a = k / 48 * 2 * math.pi
+            direction = Vector((math.sin(a), -math.cos(a), 0))
+            origin = Vector((0, t["hips"].y, top_z + 0.01))
+            layer = ctx.layers.get(over, ctx.bvh)
+            hit = layer.ray_cast(origin + direction * 0.4, -direction)
+            r = ((hit[0] - origin).length if hit[0] else 0.16) + 0.006
+            tie.append(origin + direction * r)
+        parts.append(strap_tube(ctx, f"{name}_tie", tie, 0.014, {"spine": 0.5, "hips": 0.5},
+                                closed=True, family=family, color=color, key=key))
+        return parts
     # Neck strap and waist tie.
     neck = [Vector((0.55 * half * side, front_surface_y(ctx, top_z, 0.55 * half * side, half) - 0.012, top_z))
             for side in (-1,)]
@@ -947,8 +1004,9 @@ def smith_apron(ctx):
 
 def front_surface_y(ctx, z, x, width):
     """Most forward point of body or worn layers at height z across the apron."""
-    # The forge apron is worn over the work tunic only.
-    trees = [ctx.bvh] + [ctx.layers[k] for k in ("work_tunic",) if k in ctx.layers]
+    # An apron is worn over one named torso layer (forge: the work tunic).
+    over = getattr(ctx, "apron_layer", "work_tunic")
+    trees = [ctx.bvh] + [ctx.layers[k] for k in (over,) if k in ctx.layers]
     best, local_best = None, None
     for tree in trees:
         for dx in np.linspace(-width, width, 9):
@@ -997,6 +1055,26 @@ def trunk_bvh(ctx):
 
 
 def hood(ctx):
+    return head_wrap(ctx, "Garment_hood", "hood_wool", "wool", ctx.palette("hood", (0.20, 0.27, 0.36)),
+                     hem_below_neck=0.25)
+
+
+def headscarf(ctx):
+    """Linen headscarf (Estonian women: always covered): brow to jaw, short drape."""
+    return head_wrap(ctx, "Garment_headscarf", "headscarf", "linen",
+                     ctx.palette("headscarf", (0.74, 0.70, 0.60)), head_ease=0.011, hem_below_neck=0.05,
+                     face=(46, 5, -56), cape_ease=0.016, hair=False, open_front=105, folds=0.006)
+
+
+def veil(ctx):
+    """Burgher wife's linen coif and veil falling to the shoulders."""
+    return head_wrap(ctx, "Garment_veil", "veil", "linen", ctx.palette("veil", (0.86, 0.84, 0.78)),
+                     head_ease=0.012, hem_below_neck=0.22, face=(54, 10, -85), cape_ease=0.03, hair=False,
+                     open_front=80, folds=0.01)
+
+
+def head_wrap(ctx, name, key, family, color, head_ease=0.028, hem_below_neck=0.25, face=(50, 24, -50),
+              cape_ease=0.03, hair=True, open_front=0, folds=0.004):
     """Wool hood with shoulder cape (Gugel), worn up, face opening framed.
 
     Parametric: a (theta, v) grid wraps the head (rays from the skull centre)
@@ -1006,13 +1084,13 @@ def hood(ctx):
     """
     t, lm = ctx.t, ctx.lm
     targets = [trunk_bvh(ctx)]
-    hair = bpy.data.objects.get("Hair_Scalp")
+    hair = bpy.data.objects.get("Hair_Scalp") if hair else None
     if hair is not None:
         targets.append(BVHTree.FromObject(hair, bpy.context.evaluated_depsgraph_get()))
     eyes_mid = Vector(((lm["eye_l"] + lm["eye_r"]) / 2).tolist())
     centre = Vector((0, t["head"].y + 0.01, eyes_mid.z + 0.01))
     neck_z = ctx.collar(t["head"].y)
-    hem_z = t["upperarm.l"].z - 0.16
+    hem_z = neck_z - hem_below_neck
     columns = 64
     head_rows, cape_rows = 22, 12
 
@@ -1034,13 +1112,13 @@ def hood(ctx):
             if r <= head_rows:
                 elevation = math.radians(88 - (88 + 62) * r / head_rows)
                 direction = horizontal * math.cos(elevation) + Vector((0, 0, math.sin(elevation)))
-                radius = outer(centre, direction) + 0.028
+                radius = outer(centre, direction) + head_ease
                 row.append(centre + direction * radius)
             else:
                 s = (r - head_rows) / cape_rows
                 z = neck_z + (hem_z - neck_z) * s
                 origin = Vector((0, t["hips"].y, z))
-                radius = outer(origin, horizontal) + 0.03
+                radius = outer(origin, horizontal) + cape_ease
                 row.append(origin + horizontal * radius)
         grid.append(row)
     # Cloth hangs: below the chin every column's radius only grows downward.
@@ -1052,6 +1130,19 @@ def hood(ctx):
             if rh < ra:
                 flat = Vector((here.x, here.y - t["hips"].y, 0)).normalized()
                 grid[r][c] = Vector((0, t["hips"].y, here.z)) + flat * (ra + 0.004)
+    # Soft folds: shallow at the crown, deepening toward the hem as cloth hangs.
+    rng = np.random.default_rng(len(name))
+    phase = rng.uniform(0, 2 * math.pi, 2)
+    for r in range(len(grid)):
+        depth = folds * surfaces.smoothstep(head_rows * 0.35, len(grid) - 1, r)
+        for c in range(columns):
+            theta = c / columns * 2 * math.pi
+            wave = 0.65 * math.sin(theta * 11 + phase[0]) + 0.35 * math.sin(theta * 23 + phase[1] + r * 0.3)
+            p = grid[r][c]
+            radial = Vector((p.x, p.y - t["hips"].y, 0)) if r > head_rows else (p - centre)
+            if radial.length > 1e-5:
+                grid[r][c] = p + radial.normalized() * depth * wave
+    floor = [[(p - centre).length if r <= head_rows else None for p in row] for r, row in enumerate(grid)]
     # Smooth the grid in parameter space to read as felted wool.
     for _ in range(6):
         smoothed = []
@@ -1067,6 +1158,12 @@ def hood(ctx):
                 row.append(acc / n if 0 < r < len(grid) - 1 else grid[r][c])
             smoothed.append(row)
         grid = smoothed
+        # Smoothing may never pull the cloth back under an ear or the skull.
+        for r in range(head_rows + 1):
+            for c in range(columns):
+                d = grid[r][c] - centre
+                if d.length < floor[r][c]:
+                    grid[r][c] = centre + d.normalized() * floor[r][c]
     bm = bmesh.new()
     verts = [[bm.verts.new(p) for p in row] for row in grid]
     for r in range(len(grid) - 1):
@@ -1074,16 +1171,18 @@ def hood(ctx):
             theta = (c + 0.5) / columns * 2 * math.pi
             front = min(theta, 2 * math.pi - theta)
             elevation = 88 - (88 + 62) * (r + 0.5) / head_rows
-            if r < head_rows and front < math.radians(50) and -50 < elevation < 24:
+            if r < head_rows and front < math.radians(face[0]) and face[2] < elevation < face[1]:
                 continue  # face opening
+            if r >= head_rows - 2 and front < math.radians(open_front):
+                continue  # scarves and veils fall at the sides and back, not over the chest
             bm.faces.new((verts[r][c], verts[r][(c + 1) % columns],
                           verts[r + 1][(c + 1) % columns], verts[r + 1][c]))
     bmesh.ops.delete(bm, geom=[v for v in bm.verts if not v.link_faces], context="VERTS")
     bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
-    mesh = bpy.data.meshes.new("Garment_hood")
+    mesh = bpy.data.meshes.new(name)
     bm.to_mesh(mesh)
     bm.free()
-    obj = bpy.data.objects.new("Garment_hood", mesh)
+    obj = bpy.data.objects.new(name, mesh)
     bpy.context.scene.collection.objects.link(obj)
     head = obj.vertex_groups.new(name="head")
     chest = obj.vertex_groups.new(name="chest")
@@ -1091,8 +1190,9 @@ def hood(ctx):
         w = surfaces.smoothstep(neck_z - 0.04, lm["chin"][2] + 0.01, v.co.z)
         head.add([v.index], float(w), "REPLACE")
         chest.add([v.index], float(1 - w), "REPLACE")
-    grain_uv(ctx, obj, "wool", override=lambda p: "torso")
-    return [finish(ctx, obj, "wool", ctx.palette("hood", (0.20, 0.27, 0.36)), "hood_wool", 0.004)]
+    grain_uv(ctx, obj, family, override=lambda p: "torso")
+    hems = hem_rolls(ctx, obj, 0.003, key, family, color)
+    return [finish(ctx, obj, family, color, key, 0.003)] + [finish_hem(ctx, h, family, color, key) for h in hems]
 
 
 def kettle_hat(ctx):
@@ -1166,4 +1266,21 @@ WARDROBE = {
     "boots": ("feet", ["Anatomy_Feet"], boots),
     "hood": ("head", ["Hair_Scalp"], hood),
     "kettle_hat": ("head", [], kettle_hat),
+    "headscarf": ("head", ["Hair_Scalp"], headscarf),
+    "veil": ("head", ["Hair_Scalp"], veil),
+    "waist_apron": ("outerwear", [], waist_apron),
+    # Worn over mail (outerwear), so it takes the otherwise unused "back" slot.
+    "surcoat": ("back", [], surcoat),
+    # Tunic variants by rank: length signals status (dossier "Male dress by status tier").
+    "long_tunic": ("torso", ["Anatomy_Torso", "Anatomy_Arms", "Anatomy_Forearms"],
+                   lambda c: tunic(c, "long_tunic", hem="calf", color_key="long_tunic", flare=1.7, folds=18)),
+    "short_tunic": ("torso", ["Anatomy_Torso", "Anatomy_Arms", "Anatomy_Forearms"],
+                    lambda c: tunic(c, "short_tunic", hem="thigh", color_key="short_tunic",
+                                    extra_ease=c.spec.get("tunic_ease", 0.0), belted=c.spec.get("belted", True))),
+    "gown": ("torso", ["Anatomy_Torso", "Anatomy_Arms", "Anatomy_Forearms", "Anatomy_Legs", "Anatomy_Calves"],
+             lambda c: tunic(c, "gown", hem="ankle", color_key="gown", flare=2.2, folds=22,
+                             belted=c.spec.get("belted", "plain"))),
+    "work_gown": ("torso", ["Anatomy_Torso", "Anatomy_Arms", "Anatomy_Forearms", "Anatomy_Legs"],
+                  lambda c: tunic(c, "work_gown", hem="calf", color_key="work_gown", flare=1.9, folds=20,
+                                  belted=c.spec.get("belted", "plain"))),
 }

@@ -40,6 +40,20 @@ static func _prepare_groom_materials(root: Node) -> void:
 				mesh_instance.set_surface_override_material(surface, material)
 
 
+## Legacy show_cape/show_hat flags mount garments fitted to the retired
+## procedural hero; realistic bodies dress only through fitted wearables.
+func _apply_variant() -> void:
+	if variant == null:
+		return
+	_apply_material_stack($Model, variant.material_tint)
+	if skeleton() == null:
+		return
+	if variant.equipment != null:
+		equip(&"right_hand", variant.equipment)
+	for wearable: CharacterWearable in variant.wearables:
+		equip_wearable(wearable)
+
+
 func _install_proportion_modifiers() -> void:
 	pass
 

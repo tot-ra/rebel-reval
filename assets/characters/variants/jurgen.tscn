@@ -1,19 +1,24 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=9 format=3]
 
-[ext_resource type="Script" path="res://assets/storybook/storybook_character.gd" id="1_rig"]
-[ext_resource type="PackedScene" path="res://assets/storybook/jurgen/jurgen.glb" id="2_model"]
+[ext_resource type="Script" path="res://assets/characters/realistic/realistic_rig.gd" id="1_rig"]
+[ext_resource type="PackedScene" path="res://assets/characters/realistic/jurgen/jurgen.glb" id="2_model"]
 [ext_resource type="Resource" path="res://assets/characters/variants/jurgen_variant.tres" id="3_variant"]
-
 [ext_resource type="Script" path="res://scripts/ui/character_health_ring_3d.gd" id="4_health_ring"]
+[ext_resource type="Resource" path="res://assets/characters/realistic/jurgen/long_tunic.tres" id="5_long_tunic"]
+[ext_resource type="Resource" path="res://assets/characters/realistic/jurgen/hose.tres" id="6_hose"]
+[ext_resource type="Resource" path="res://assets/characters/realistic/jurgen/boots.tres" id="7_boots"]
+[ext_resource type="Resource" path="res://assets/characters/realistic/jurgen/hood.tres" id="8_hood"]
 
 [node name="Jurgen" type="Node3D"]
 script = ExtResource("1_rig")
 variant = ExtResource("3_variant")
+model_scale = Vector3(1.1111111, 1.1111111, 1.1111111)
 use_anatomical_muscles = false
+default_outfit = Array[Resource]([ExtResource("5_long_tunic"), ExtResource("6_hose"), ExtResource("7_boots"), ExtResource("8_hood")])
 
 [node name="Model" type="Node3D" parent="."]
 
-[node name="ImportedHumanoid" parent="Model" instance=ExtResource("2_model")]
+[node name="JurgenBody" parent="Model" instance=ExtResource("2_model")]
 
 [node name="HealthRing" type="Node3D" parent="."]
 script = ExtResource("4_health_ring")
