@@ -17,6 +17,9 @@ static func build_definition(blueprint: MapBlueprint, expanded: Dictionary) -> M
 	definition.cell_size = blueprint.cell_size
 	definition.ground_elevation = blueprint.ground_elevation
 	definition.elevation_profiles = blueprint.elevation_profiles.duplicate(true)
+	var relief: Dictionary = expanded.get("relief", {})
+	definition.relief_features.assign(relief.get("features", []))
+	definition.relief_heights = relief.get("heights", PackedFloat32Array())
 
 	var terrain: Array = expanded["terrain"]
 	terrain.sort_custom(MapBlueprintCompiler._compare_terrain)
@@ -290,6 +293,10 @@ static func _fingerprint(definition: MapDefinition) -> String:
 		"cell_size": definition.cell_size,
 		"base_terrain": definition.base_terrain,
 		"ground_elevation": definition.ground_elevation,
+		"relief_features": definition.relief_features,
+		# Hash of the raw float32 bytes: the quantised field is exact, so this is
+		# stable across platforms and keeps the payload small for large maps.
+		"relief_heights": definition.relief_heights.to_byte_array().hex_encode().sha256_text(),
 		"zones": definition.zones,
 		"buildings": definition.buildings,
 		"props": definition.props,

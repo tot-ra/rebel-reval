@@ -40,6 +40,9 @@ static func ensure_height_field(definition: MapDefinition, grid: MapTerrainGrid)
 	var field := {
 		"seed": definition.seed,
 		"ground_elevation": definition.ground_elevation,
+		# ADR 0023: the compiled relief is the authoritative base under the
+		# procedural detail below. Empty for maps authoring no relief_* statement.
+		"relief_heights": definition.relief_heights,
 		"size": grid.size_cells,
 		"rects": rects,
 		"rects_by_cell": _index_flatten_rects(rects, grid.size_cells),
@@ -176,8 +179,13 @@ static func field_height(field: Dictionary, position: Vector2) -> float:
 		+ broad * MapViewMeshBuilderConfig.HEIGHT_BROAD_AMPLITUDE
 		+ fine * MapViewMeshBuilderConfig.HEIGHT_FINE_AMPLITUDE
 	)
+	# Same function as MapDefinition.height_at_cell_space: tapered datum plus the
+	# compiled relief, so view and gameplay read one ground height.
 	var base_elevation := (
 		float(field.get("ground_elevation", 0.0)) * elevation_factor(field, position)
+		+ MapDefinition.sample_relief(
+			field.get("relief_heights", PackedFloat32Array()), size, position
+		)
 	)
 	return (
 		base_elevation + relief * minf(pad_factor(field, position), water_factor(field, position))

@@ -7,6 +7,19 @@ const VIEW_LANDMARK_KINDS: Array[StringName] = [&"gate_arch", &"interior_window"
 const WORLD_SIDES: Array[StringName] = [&"north", &"south", &"east", &"west"]
 const SURROUNDINGS_KINDS: Array[StringName] = [&"town", &"water", &"woodland"]
 const ELEVATION_PROFILE_KINDS: Array[StringName] = [&"grade", &"area", &"ramp"]
+## ADR 0023 relief contract. Heights are 3D world units; one cell is one unit
+## horizontally (MapViewBridge.WORLD_UNITS_PER_CELL).
+const RELIEF_KINDS: Array[StringName] = [
+	&"hill", &"ridge", &"ditch", &"terrace", &"cliff", &"noise"
+]
+const RELIEF_MIN_HEIGHT := -8.0
+const RELIEF_MAX_HEIGHT := 32.0
+const RELIEF_QUANTUM := 1.0 / 64.0
+## 35 degrees in radians: the ADR 0023 walkable limit between 4-neighbour cells.
+const RELIEF_MAX_WALKABLE_SLOPE := 0.6108652381980153
+## Must equal MapViewMeshBuilderConfig.ELEVATION_SLOPE_CELLS so the compiled
+## datum and the rendered datum stay one function (test_map_relief_field pins it).
+const DATUM_TAPER_CELLS := 10.0
 
 ## Declarative map data used by MapBuilder. Zones are applied in array order.
 
@@ -21,6 +34,11 @@ var ground_elevation: float = 0.0
 ## View-only authored relief. Coordinates remain in canonical cell space and never
 ## reach collision, navigation, terrain IDs, or other gameplay systems.
 var elevation_profiles: Array[Dictionary] = []
+## Compiled ADR 0023 relief: the authored primitives and their quantised per-cell
+## sum (row-major, cell centres). Empty heights mean zero relief everywhere, which
+## is every map authoring no relief_* statement. Gameplay reads it from WB-03 on.
+var relief_features: Array[Dictionary] = []
+var relief_heights: PackedFloat32Array = PackedFloat32Array()
 var zones: Array[Dictionary] = []
 var buildings: Array[Dictionary] = []
 var props: Array[Dictionary] = []
@@ -61,6 +79,73 @@ func is_world_travel_location() -> bool:
 	return String(map_id).begins_with("world.")
 
 
+## Ground height at a cell centre: tapered `elevation=` datum plus compiled relief.
+func height_at(cell: Vector2i) -> float:
+	return height_at_cell_space(Vector2(cell) + Vector2(0.5, 0.5))
+
+
+## Ground height at a 2D gameplay position in world pixels (bilinear relief).
+func height_at_world(world_position: Vector2) -> float:
+	if cell_size <= 0:
+		return 0.0
+	return height_at_cell_space(world_position / float(cell_size))
+
+
+## Ground slope in radians at a 2D gameplay position in world pixels, from a
+## central difference half a cell either side.
+func slope_at_world(world_position: Vector2) -> float:
+	if cell_size <= 0:
+		return 0.0
+	var position := world_position / float(cell_size)
+	var gx := (
+		height_at_cell_space(position + Vector2(0.5, 0.0))
+		- height_at_cell_space(position - Vector2(0.5, 0.0))
+	)
+	var gy := (
+		height_at_cell_space(position + Vector2(0.0, 0.5))
+		- height_at_cell_space(position - Vector2(0.0, 0.5))
+	)
+	return atan(Vector2(gx, gy).length())
+
+
+## Height at a position measured in cells (3D view XZ space).
+func height_at_cell_space(position: Vector2) -> float:
+	return datum_at_cell_space(position) + sample_relief(relief_heights, size_cells, position)
+
+
+## The legacy `elevation=` plateau, eased to zero over DATUM_TAPER_CELLS at every
+## map edge so reciprocal transition edges meet on a zero datum.
+func datum_at_cell_space(position: Vector2) -> float:
+	if ground_elevation == 0.0:
+		return 0.0
+	var border := minf(
+		minf(position.x, float(size_cells.x) - position.x),
+		minf(position.y, float(size_cells.y) - position.y)
+	)
+	return ground_elevation * smoothstep(0.0, DATUM_TAPER_CELLS, border)
+
+
+## Bilinear relief between cell centres, clamped at the map edge. Static so the
+## view height field can sample its cached copy without holding the definition.
+static func sample_relief(
+	heights: PackedFloat32Array, size: Vector2i, position: Vector2
+) -> float:
+	if heights.is_empty() or heights.size() != size.x * size.y:
+		return 0.0
+	var q := position - Vector2(0.5, 0.5)
+	var x0 := floori(q.x)
+	var y0 := floori(q.y)
+	var fx := clampf(q.x - float(x0), 0.0, 1.0)
+	var fy := clampf(q.y - float(y0), 0.0, 1.0)
+	var xa := clampi(x0, 0, size.x - 1)
+	var xb := clampi(x0 + 1, 0, size.x - 1)
+	var ya := clampi(y0, 0, size.y - 1)
+	var yb := clampi(y0 + 1, 0, size.y - 1)
+	var top := lerpf(heights[ya * size.x + xa], heights[ya * size.x + xb], fx)
+	var bottom := lerpf(heights[yb * size.x + xa], heights[yb * size.x + xb], fx)
+	return lerpf(top, bottom, fy)
+
+
 func cell_rect_to_world_rect(cell_rect: Rect2i) -> Rect2:
 	var pixel_size := Vector2(float(cell_size), float(cell_size))
 	return Rect2(Vector2(cell_rect.position) * pixel_size, Vector2(cell_rect.size) * pixel_size)
@@ -84,6 +169,18 @@ func validate() -> Array[String]:
 		errors.append("ground_elevation must be finite and between 0 and 8 world units")
 	for index in elevation_profiles.size():
 		errors.append_array(_validate_elevation_profile(elevation_profiles[index], index))
+	if not relief_heights.is_empty() and relief_heights.size() != size_cells.x * size_cells.y:
+		errors.append("relief_heights must be empty or hold one value per cell")
+	for index in relief_heights.size():
+		if not is_finite(relief_heights[index]):
+			errors.append("relief_heights[%d] must be finite" % index)
+			break
+	for index in relief_features.size():
+		if not RELIEF_KINDS.has(relief_features[index].get("kind", &"")):
+			errors.append(
+				"relief_features[%d].kind is unknown: %s"
+				% [index, str(relief_features[index].get("kind", ""))]
+			)
 
 	if not MapTypes.ALL_TERRAINS.has(base_terrain):
 		errors.append("unknown base_terrain: %s" % String(base_terrain))

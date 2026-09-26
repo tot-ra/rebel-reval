@@ -7,6 +7,11 @@ extends RefCounted
 
 const FUTURE_CHUNK_SIZE_CELLS := 16
 const TRANSITION_MANIFEST_PATH := "res://content/transitions/active_destinations.json"
+## A footprint whose ground varies more than this (world units, about 43 cm) needs
+## a terrace or a stepped plinth; the house mesh stays level.
+const RELIEF_MAX_BUILDING_SPAN := 0.5
+## Reciprocal physical seams must meet within this height (world units).
+const RELIEF_SEAM_TOLERANCE := 0.05
 
 
 static func validate(
@@ -26,6 +31,7 @@ static func validate(
 	_validate_navigation(definition, required_anchor_ids, diagnostics)
 	_validate_overlaps(definition, diagnostics)
 	_validate_chunk_boundaries(definition, diagnostics)
+	_validate_relief(definition, diagnostics)
 	diagnostics.sort_custom(_compare_diagnostics)
 	return diagnostics
 
@@ -298,6 +304,203 @@ static func _warn_if_crosses_chunk(
 		path,
 		subject,
 		{"rect": str(rect), "chunk_size_cells": FUTURE_CHUNK_SIZE_CELLS}
+	)
+
+
+## ADR 0023 single-map relief checks. Maps without relief_* statements compile to
+## the legacy datum only and are left untouched, so no existing map gains noise.
+static func _validate_relief(
+	definition: MapDefinition, diagnostics: Array[MapBlueprintDiagnostic]
+) -> void:
+	if definition.relief_features.is_empty():
+		return
+	var size := definition.size_cells
+	if definition.suppresses_exterior_surroundings():
+		_add(
+			diagnostics,
+			&"MAP_RELIEF_RANGE",
+			MapBlueprintDiagnostic.SEVERITY_ERROR,
+			"enclosed interior shells keep a flat floor; relief_* statements are not allowed",
+			definition.map_id,
+			"relief_features"
+		)
+		return
+	var heights := PackedFloat32Array()
+	heights.resize(size.x * size.y)
+	var out_of_range: Array[Vector2i] = []
+	for y in size.y:
+		for x in size.x:
+			var height := definition.height_at(Vector2i(x, y))
+			heights[y * size.x + x] = height
+			if height < MapDefinition.RELIEF_MIN_HEIGHT or height > MapDefinition.RELIEF_MAX_HEIGHT:
+				out_of_range.append(Vector2i(x, y))
+	if not out_of_range.is_empty():
+		_add(
+			diagnostics,
+			&"MAP_RELIEF_RANGE",
+			MapBlueprintDiagnostic.SEVERITY_ERROR,
+			(
+				"%d cell(s) leave the ADR 0023 height range %s..%s, first at %s"
+				% [
+					out_of_range.size(),
+					MapDefinition.RELIEF_MIN_HEIGHT,
+					MapDefinition.RELIEF_MAX_HEIGHT,
+					out_of_range[0],
+				]
+			),
+			definition.map_id,
+			"relief_heights",
+			&"",
+			{"cells": out_of_range.size(), "first": str(out_of_range[0])}
+		)
+	_validate_relief_slope(definition, heights, diagnostics)
+	for index in definition.buildings.size():
+		var building: Dictionary = definition.buildings[index]
+		var footprint := _world_rect_to_cells(building["footprint"], definition.cell_size)
+		var low := INF
+		var high := -INF
+		for y in range(maxi(footprint.position.y, 0), mini(footprint.end.y, size.y)):
+			for x in range(maxi(footprint.position.x, 0), mini(footprint.end.x, size.x)):
+				low = minf(low, heights[y * size.x + x])
+				high = maxf(high, heights[y * size.x + x])
+		if high - low > RELIEF_MAX_BUILDING_SPAN:
+			_add(
+				diagnostics,
+				&"MAP_RELIEF_UNDER_BUILDING",
+				MapBlueprintDiagnostic.SEVERITY_WARNING,
+				(
+					"building ground spans %.2f world units (limit %.2f); add a terrace under it"
+					% [high - low, RELIEF_MAX_BUILDING_SPAN]
+				),
+				definition.map_id,
+				"buildings[%d]" % index,
+				StringName(building.get("id", &"")),
+				{"span": snappedf(high - low, 0.001)}
+			)
+
+
+## One warning per map listing the steep 4-neighbour faces that no relief_cliff
+## explains; an authored cliff makes the same face intentional.
+static func _validate_relief_slope(
+	definition: MapDefinition, heights: PackedFloat32Array, diagnostics: Array[MapBlueprintDiagnostic]
+) -> void:
+	var size := definition.size_cells
+	var cliff_masks: Array[PackedByteArray] = []
+	for feature in definition.relief_features:
+		if feature.get("kind") == &"cliff":
+			cliff_masks.append(MapBlueprintCompilerExpandTerrain.cliff_lowered_mask(feature, size))
+	var max_rise := tan(MapDefinition.RELIEF_MAX_WALKABLE_SLOPE)
+	var steep: Array[String] = []
+	for y in size.y:
+		for x in size.x:
+			var here := y * size.x + x
+			for neighbor in [Vector2i(x + 1, y), Vector2i(x, y + 1)]:
+				if neighbor.x >= size.x or neighbor.y >= size.y:
+					continue
+				var there: int = neighbor.y * size.x + neighbor.x
+				if absf(heights[here] - heights[there]) <= max_rise + 0.0001:
+					continue
+				var authored := false
+				for mask in cliff_masks:
+					if mask[here] != mask[there]:
+						authored = true
+						break
+				if not authored:
+					steep.append("%s-%s" % [Vector2i(x, y), neighbor])
+	if steep.is_empty():
+		return
+	_add(
+		diagnostics,
+		&"MAP_RELIEF_SLOPE",
+		MapBlueprintDiagnostic.SEVERITY_WARNING,
+		(
+			"%d cell face(s) exceed the %d degree walkable slope without a relief_cliff, first %s"
+			% [steep.size(), roundi(rad_to_deg(MapDefinition.RELIEF_MAX_WALKABLE_SLOPE)), steep[0]]
+		),
+		definition.map_id,
+		"relief_heights",
+		&"",
+		{"faces": steep.size(), "first": steep[0]}
+	)
+
+
+## Cross-map ADR 0023 check: every physical (non-travel, opposite-side) reciprocal
+## transition must meet its neighbour at the same height along the shared edge.
+## Needs all compiled definitions, so tools/validate_map_blueprints.gd calls it.
+static func validate_relief_seams(
+	definitions: Array[MapDefinition]
+) -> Array[MapBlueprintDiagnostic]:
+	var diagnostics: Array[MapBlueprintDiagnostic] = []
+	for base_index in definitions.size():
+		var base := definitions[base_index]
+		for neighbor_index in range(base_index + 1, definitions.size()):
+			var neighbor := definitions[neighbor_index]
+			for pair in MapAlignmentMath.find_transition_pairs(base, neighbor):
+				_validate_seam_pair(base, neighbor, pair, diagnostics)
+	diagnostics.sort_custom(_compare_diagnostics)
+	return diagnostics
+
+
+static func _validate_seam_pair(
+	base: MapDefinition,
+	neighbor: MapDefinition,
+	pair: Dictionary,
+	diagnostics: Array[MapBlueprintDiagnostic]
+) -> void:
+	var base_side := StringName(pair["base_side"])
+	var opposite := {&"north": &"south", &"south": &"north", &"east": &"west", &"west": &"east"}
+	if opposite.get(base_side) != StringName(pair["neighbor_side"]):
+		return
+	var base_transition: Dictionary = pair["base"]
+	var offset := MapAlignmentMath.aligned_neighbor_offset(
+		base, neighbor, base_transition, pair["neighbor"]
+	)
+	var rect: Rect2 = base_transition["rect"]
+	var world := base.world_size()
+	var along_x := base_side in [&"north", &"south"]
+	var span := rect.size.x if along_x else rect.size.y
+	var samples := maxi(1, ceili(span / float(base.cell_size)))
+	var worst := 0.0
+	var worst_point := Vector2.ZERO
+	for index in samples:
+		var t := (float(index) + 0.5) / float(samples)
+		var point: Vector2
+		match base_side:
+			&"north":
+				point = Vector2(rect.position.x + span * t, 0.0)
+			&"south":
+				point = Vector2(rect.position.x + span * t, world.y)
+			&"west":
+				point = Vector2(0.0, rect.position.y + span * t)
+			_:
+				point = Vector2(world.x, rect.position.y + span * t)
+		var neighbor_point := point - offset
+		var neighbor_world := neighbor.world_size()
+		if (
+			neighbor_point.x < 0.0
+			or neighbor_point.y < 0.0
+			or neighbor_point.x > neighbor_world.x
+			or neighbor_point.y > neighbor_world.y
+		):
+			continue
+		var delta := absf(base.height_at_world(point) - neighbor.height_at_world(neighbor_point))
+		if delta > worst:
+			worst = delta
+			worst_point = point
+	if worst <= RELIEF_SEAM_TOLERANCE:
+		return
+	_add(
+		diagnostics,
+		&"MAP_RELIEF_SEAM",
+		MapBlueprintDiagnostic.SEVERITY_ERROR,
+		(
+			"height differs by %.3f world units from %s at the shared edge (tolerance %.2f)"
+			% [worst, String(neighbor.map_id), RELIEF_SEAM_TOLERANCE]
+		),
+		base.map_id,
+		"transitions",
+		StringName(base_transition.get("id", &"")),
+		{"neighbor": String(neighbor.map_id), "delta": snappedf(worst, 0.001), "at": str(worst_point)}
 	)
 
 

@@ -79,3 +79,28 @@ get green - a parity change must be explained cell by cell.
 
 `docs/MAP_AUTHORING.md`: the six new statements in the EBNF grammar and the primitive mapping table,
 the new compiler version, the height range, and a replacement for the "view-layer only" paragraph.
+
+## Implementation notes and decisions (2026-09-26)
+
+Status: implemented, **in review**. ADR 0023 is drafted and merged as *Proposed*; the maintainer
+acceptance line in its `Status` section is still open, so R-974 stays `in_review` until it is signed.
+
+- **Legacy lowering is zero.** Audit during implementation: `grade`, `elevation_area` and
+  `elevation_ramp` were parsed and validated but never evaluated by any renderer or gameplay code.
+  The only authored height ever drawn was `elevation=` times the 10-cell edge taper. Lowering the
+  profiles as real height would have silently reshaped nine maps, so they lower to zero relief and
+  keep their `r454.*` IDs. `test_registered_maps_keep_pre_relief_heights` pins every registered
+  map (28, not 29 - the registry holds 28 blueprints) to the pre-change datum.
+- **Field layout.** `MapDefinition.relief_heights` is empty for maps without `relief_*` statements
+  and otherwise one quantised (`1/64`) value per cell centre. Ground height = tapered datum + relief.
+  The view field adds `MapDefinition.sample_relief` to its unchanged datum, so rendered ground is
+  bit-identical for every existing map.
+- **Primitive semantics.** Hill/ridge falloff `smooth|linear|plateau`; ditches use a plateau (flat
+  bed) profile; terrace edges use Chebyshev rings so corners are no steeper than sides; cliffs lower
+  the right-hand side of `start -> end` in screen orientation (y down) within the segment's span.
+- **Diagnostics scope.** `MAP_RELIEF_RANGE`, `MAP_RELIEF_SLOPE` and `MAP_RELIEF_UNDER_BUILDING` run
+  only on maps that author relief, so no existing map gains warnings. `MAP_RELIEF_SEAM` needs two
+  compiled maps and runs in `tools/validate_map_blueprints.gd` via
+  `MapBlueprintSemanticValidator.validate_relief_seams` - one allowed-file deviation (the gate tool
+  itself), required so the pre-commit gate can raise the error.
+- **Compiler version** 9 -> 10. No committed fixture pins a fingerprint, so no parity file changed.

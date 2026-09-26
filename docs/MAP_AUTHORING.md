@@ -582,6 +582,10 @@ Errors reject compiler output and make headless validation exit non-zero. Warnin
 | `MAP_ANCHOR_BLOCKED`, `MAP_REQUIRED_ANCHOR_MISSING`, `MAP_REQUIRED_ANCHOR_UNREACHABLE` | error | An anchor is blocked, absent from a registry requirement, or unreachable from the exact player spawn. |
 | `MAP_GEOMETRY_OVERLAP` | warning | Blocking footprints fully overlap and require author review. |
 | `MAP_CHUNK_BOUNDARY_AMBIGUOUS` | warning | Gameplay/blocking geometry crosses the future 16x16-cell planning grid without explicit ownership. |
+| `MAP_RELIEF_RANGE` | error | Compiled ground height (datum plus relief) leaves the ADR 0023 range `-8 .. +32` world units, or an enclosed interior authors relief. |
+| `MAP_RELIEF_SLOPE` | warning | A 4-neighbour cell face exceeds the 35 degree walkable slope and no `relief_cliff` explains it. One warning per map with the face count. |
+| `MAP_RELIEF_SEAM` | error | A physical (non-`travel`, opposite-side) reciprocal transition does not meet its neighbour map within 0.05 world units along the shared edge. Checked across maps by `tools/validate_map_blueprints.gd`. |
+| `MAP_RELIEF_UNDER_BUILDING` | warning | A building footprint spans more than 0.5 world units of ground height; author a `relief_terrace` under it. |
 | `MAP_COMPILE_ERROR`, `MAP_RUNTIME_CONTRACT`, `MAP_TRANSITION_REGISTRY_INVALID` | error | A lower-level compiler/runtime contract or validation registry failed. |
 
 ### Owned `MAP_CHUNK_BOUNDARY_AMBIGUOUS` decisions (P0-067a)
@@ -792,6 +796,8 @@ file          = trivia, "rrmap", WS, "1", EOL,
 trivia        = { blank_line | comment_line } ;
 statement     = source | surroundings | camera | style
               | terrain | terrain_rects | stroke | grade | elevation_area | elevation_ramp
+              | relief_hill | relief_ridge | relief_ditch | relief_terrace
+              | relief_cliff | relief_noise
               | building | wall | prop
               | spawn | transition | anchor | patrol | exclude | fade | decal
               | sign | landmark | package | prefab | override ;
@@ -819,6 +825,15 @@ elevation_area = "elevation_area", ID, INT, INT, NUMBER, NUMBER,
                 [ "falloff=", NUMBER ] ;
 elevation_ramp = "elevation_ramp", ID, INT, INT, INT, INT, NUMBER, NUMBER,
                  [ "width=", NUMBER ] ;
+FALLOFF       = "smooth" | "linear" | "plateau" ;
+relief_hill   = "relief_hill", ID, INT, INT, NUMBER, NUMBER,
+                [ "falloff=", FALLOFF ] ;
+relief_ridge  = "relief_ridge", ID, INT, INT, INT, INT, NUMBER, NUMBER,
+                [ "falloff=", FALLOFF ] ;
+relief_ditch  = "relief_ditch", ID, INT, INT, INT, INT, NUMBER, NUMBER ;
+relief_terrace = "relief_terrace", ID, RECT, NUMBER, [ "edge=", INT ] ;
+relief_cliff  = "relief_cliff", ID, INT, INT, INT, INT, NUMBER ;
+relief_noise  = "relief_noise", ID, RECT, NUMBER, [ "seed=", INT ] ;
 building      = "building", ID, BUILDING_KIND, RECT,
                 [ "style=", ID ], { typed_option } ;
 wall          = "wall", ID, INT, INT, INT, INT,
@@ -858,12 +873,48 @@ BOOL          = "true" | "false" ;
 NUMBER        = [ "-" ], INT, [ ".", INT ] ;
 ```
 
-`elevation` is an authored view-layer plateau height in 3D world units. It must
-be finite and between `0` and `8`; the terrain mesh tapers the value to zero
-near map boundaries so connected streets remain readable. It does not change
-2D collision, navigation, stable IDs, transition placement, or save identity.
-The compiler version is `4` because elevation participates in the canonical
-fingerprint. Toompea currently uses `elevation=2.8`.
+### Relief and the compiled height field (ADR 0023)
+
+[ADR 0023](./adr/0023-terrain-relief-as-gameplay.md) makes ground height compiled
+map data. Each map compiles `MapDefinition.relief_heights`, one signed value per
+cell sampled at cell centres, by summing its `relief_*` statements in authored
+order. Values are quantised to `1/64` world unit. Ground height is
+`datum + relief`, where the datum is the map's `elevation=` value (finite,
+`0 .. 8`) eased to zero over the outer 10 cells so reciprocal transition edges
+meet. The total must stay within `-8 .. +32` world units (`MAP_RELIEF_RANGE`).
+One cell is one world unit horizontally.
+
+| Statement | Shape |
+|---|---|
+| `relief_hill ID x y radius height [falloff=]` | Radial mound around a cell. `smooth` (default), `linear`, or `plateau` (flat inner half). |
+| `relief_ridge ID x0 y0 x1 y1 width height [falloff=]` | Crest along a segment, `width` cells across. |
+| `relief_ditch ID x0 y0 x1 y1 width depth` | Flat-bedded cut `depth` below grade (moat, drain, hollow way). |
+| `relief_terrace ID x y w h height [edge=N]` | Signed plateau over a rect. Its worked edge falls linearly over `N` Chebyshev rings (default 2, `0` = vertical face). |
+| `relief_cliff ID x0 y0 x1 y1 drop` | Intentional face. Cells to the right of `start -> end`, as the map reads on screen (y down), and within the segment's span drop by `drop`. |
+| `relief_noise ID x y w h amplitude [seed=N]` | Bounded value-noise undulation that fades in over 3 cells from the rect edge. Without `seed` the seed derives from the map seed and the ID. |
+
+Heights, radii, widths, depths, drops and amplitudes are finite. Hill and ridge
+heights, depths, drops and amplitudes are positive; a terrace height may be
+negative (quarry step). Relief IDs share one namespace with `grade` /
+`elevation_*` profile IDs.
+
+Legacy `grade`, `elevation_area` and `elevation_ramp` statements stay valid and
+keep their `r454.*` IDs on `elevation_profiles`, but they were never evaluated by
+any renderer and they contribute **zero** relief. Every map that authors no
+`relief_*` statement therefore compiles to exactly the heights it rendered before
+ADR 0023. WB-04 (R-976) replaces individual profiles with relief primitives.
+
+Sampling API on `MapDefinition`: `height_at(cell)`, `height_at_world(pixels)`
+(bilinear between cell centres, clamped at the edge), `slope_at_world(pixels)`
+in radians, and `height_at_cell_space(cells)` for the 3D view. The view height
+field (`MapViewMeshBuilderTerrain.field_height`) uses the same datum plus relief
+as its base and keeps its procedural noise, pad flattening and water recess as
+sub-cell detail only. Until WB-03 (R-975) lands, collision, navigation, movement
+and save identity still ignore height; height is never persisted.
+
+The compiler version is `10`: `relief_features` and a hash of `relief_heights`
+participate in the canonical fingerprint. Toompea currently uses
+`elevation=2.8`.
 
 ### Exact primitive mappings
 
@@ -892,6 +943,9 @@ fingerprint. Toompea currently uses `elevation=2.8`.
 | `package urban 1` | `use_prefab_package(UrbanPrefabPackage.create())` |
 | `prefab` | `prefab_instance()` with `MapTransform` |
 | `override` | `override_object()` |
+| `grade` / `elevation_area` / `elevation_ramp` | `grade()` / `elevation_area()` / `elevation_ramp()` |
+| `relief_hill` / `relief_ridge` / `relief_ditch` | `relief_hill()` / `relief_ridge()` / `relief_ditch()` |
+| `relief_terrace` / `relief_cliff` / `relief_noise` | `relief_terrace()` / `relief_cliff()` / `relief_noise()` |
 
 `placement_row` and arbitrary prefab definitions are intentionally not exposed in v1. They remain typed GDScript capabilities because a safe compact grammar has not demonstrated a readability benefit for them.
 

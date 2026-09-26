@@ -72,7 +72,7 @@ available - nothing drives it.
 
 | Row | Local id | Deps | Theme | Summary |
 |---|---|---|---|---|
-| R-973 | WB-01 | none | Relief | ADR 0023: terrain relief becomes gameplay, with the removed scope named |
+| R-973 | WB-01 | none | Relief | [ADR 0023](../../adr/0023-terrain-relief-as-gameplay.md): terrain relief becomes gameplay, with the removed scope named |
 | R-974 | WB-02 | R-973 | Relief | Signed relief primitives and a compiled gameplay heightfield in `.rrmap` |
 | R-975 | WB-03 | R-974 | Relief | Relief drives player/NPC height, slope limits, navigation and camera |
 | R-976 | WB-04 | R-975 | Relief | Re-author Toompea, Lower Town and the Viru foreland with real relief |

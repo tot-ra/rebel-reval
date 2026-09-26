@@ -7,7 +7,8 @@ extends RefCounted
 ## Primitive expansion and MapDefinition assembly live in focused modules;
 ## this class keeps validation helpers and the public compile entry points.
 
-const COMPILER_VERSION := 9
+## 10: ADR 0023 relief_features/relief_heights join the canonical fingerprint.
+const COMPILER_VERSION := 10
 const ID_PATTERN := "^[a-z0-9_.-]+$"
 
 const COMMON_STYLE_KEYS: Array[StringName] = [&"enabled"]
@@ -150,6 +151,7 @@ static func compile_with_diagnostics(
 	_validate_metadata(blueprint, result.errors)
 	_validate_deterministic_value(blueprint.styles, "styles", result.errors)
 	_validate_deterministic_value(blueprint.elevation_profiles, "elevation_profiles", result.errors)
+	_validate_deterministic_value(blueprint.relief_features, "relief_features", result.errors)
 	_validate_deterministic_value(blueprint.primitives, "primitives", result.errors)
 	_validate_deterministic_value(blueprint.object_overrides, "object_overrides", result.errors)
 	var prefab_expansion := MapPrefabExpander.expand(blueprint, result.errors)
@@ -160,6 +162,7 @@ static func compile_with_diagnostics(
 		blueprint, resolved_styles, global_overrides, result.errors, prefab_expansion
 	)
 	_validate_unused_overrides(global_overrides, expanded["resolved_ids"], result.errors)
+	expanded["relief"] = MapBlueprintCompilerExpandTerrain.compile_relief(blueprint, result.errors)
 	var spawn_count: int = expanded["spawns"].size()
 	if spawn_count != 1:
 		result.errors.append(

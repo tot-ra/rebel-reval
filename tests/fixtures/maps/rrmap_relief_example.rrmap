@@ -1,0 +1,11 @@
+# ADR 0023 / WB-02 fixture: one of every relief_* statement on a flat datum.
+# Not registered and never activated; test_map_relief_field.gd pins its heights.
+rrmap 1
+map rrmap_relief_example loc.rrmap_relief_example 48 40 grass scope=prototype active=false palette=clean_painted seed=2023 cell_size=32
+relief_hill relief.hill 10 10 8 3
+relief_ridge relief.ridge 20 4 36 4 6 1.5 falloff=linear
+relief_ditch relief.ditch 4 34 44 34 8 0.9
+relief_terrace relief.terrace 30 12 6 6 2 edge=3
+relief_cliff relief.cliff 40 20 40 12 2
+relief_noise relief.noise 2 22 16 6 0.4 seed=7
+spawn spawn.main 24 16

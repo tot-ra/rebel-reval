@@ -69,6 +69,18 @@ func parse_statement(tokens: Array[Dictionary], line: int) -> void:
 			_parse_elevation_area(tokens, line)
 		"elevation_ramp":
 			_parse_elevation_ramp(tokens, line)
+		"relief_hill":
+			_parse_relief_hill(tokens, line)
+		"relief_ridge":
+			_parse_relief_ridge(tokens, line)
+		"relief_ditch":
+			_parse_relief_ditch(tokens, line)
+		"relief_terrace":
+			_parse_relief_terrace(tokens, line)
+		"relief_cliff":
+			_parse_relief_cliff(tokens, line)
+		"relief_noise":
+			_parse_relief_noise(tokens, line)
 		"style":
 			_parse_style(tokens, line)
 		"terrain":
@@ -285,6 +297,114 @@ func _parse_elevation_ramp(tokens: Array[Dictionary], line: int) -> void:
 	_parser._blueprint.elevation_ramp(
 		StringName(tokens[1]["text"]), start, end, start_height, end_height, width
 	)
+
+
+func _parse_relief_hill(tokens: Array[Dictionary], line: int) -> void:
+	if not _tokens.arity(
+		tokens, line, 6, "relief_hill <id> <x> <y> <radius> <height> [falloff=smooth|linear|plateau]"
+	):
+		return
+	var center = _tokens.vector_from_tokens(tokens, line, 2)
+	var radius = _tokens.float_value(tokens[4]["text"], line, tokens[4]["column"])
+	var height = _tokens.float_value(tokens[5]["text"], line, tokens[5]["column"])
+	var options = _tokens.options(tokens, line, 6, ["falloff"])
+	if center == null or radius == null or height == null or options == null:
+		return
+	var falloff = _relief_falloff(options, tokens, line)
+	if falloff == null:
+		return
+	_parser._blueprint.relief_hill(StringName(tokens[1]["text"]), center, radius, height, falloff)
+
+
+func _parse_relief_ridge(tokens: Array[Dictionary], line: int) -> void:
+	if not _tokens.arity(
+		tokens,
+		line,
+		8,
+		"relief_ridge <id> <x0> <y0> <x1> <y1> <width> <height> [falloff=smooth|linear|plateau]"
+	):
+		return
+	var start = _tokens.vector_from_tokens(tokens, line, 2)
+	var end = _tokens.vector_from_tokens(tokens, line, 4)
+	var width = _tokens.float_value(tokens[6]["text"], line, tokens[6]["column"])
+	var height = _tokens.float_value(tokens[7]["text"], line, tokens[7]["column"])
+	var options = _tokens.options(tokens, line, 8, ["falloff"])
+	if start == null or end == null or width == null or height == null or options == null:
+		return
+	var falloff = _relief_falloff(options, tokens, line)
+	if falloff == null:
+		return
+	_parser._blueprint.relief_ridge(
+		StringName(tokens[1]["text"]), start, end, width, height, falloff
+	)
+
+
+func _parse_relief_ditch(tokens: Array[Dictionary], line: int) -> void:
+	if not _tokens.exact_arity(
+		tokens, line, 8, "relief_ditch <id> <x0> <y0> <x1> <y1> <width> <depth>"
+	):
+		return
+	var start = _tokens.vector_from_tokens(tokens, line, 2)
+	var end = _tokens.vector_from_tokens(tokens, line, 4)
+	var width = _tokens.float_value(tokens[6]["text"], line, tokens[6]["column"])
+	var depth = _tokens.float_value(tokens[7]["text"], line, tokens[7]["column"])
+	if start == null or end == null or width == null or depth == null:
+		return
+	_parser._blueprint.relief_ditch(StringName(tokens[1]["text"]), start, end, width, depth)
+
+
+func _parse_relief_terrace(tokens: Array[Dictionary], line: int) -> void:
+	if not _tokens.arity(tokens, line, 7, "relief_terrace <id> <x> <y> <w> <h> <height> [edge=N]"):
+		return
+	var rect = _tokens.rect_from_tokens(tokens, line, 2)
+	var height = _tokens.float_value(tokens[6]["text"], line, tokens[6]["column"])
+	var options = _tokens.options(tokens, line, 7, ["edge"])
+	if rect == null or height == null or options == null:
+		return
+	var edge: int = _tokens.int_option(options, "edge", 2, tokens, line)
+	if _parser._line_has_errors(line):
+		return
+	_parser._blueprint.relief_terrace(StringName(tokens[1]["text"]), rect, height, edge)
+
+
+func _parse_relief_cliff(tokens: Array[Dictionary], line: int) -> void:
+	if not _tokens.exact_arity(tokens, line, 7, "relief_cliff <id> <x0> <y0> <x1> <y1> <drop>"):
+		return
+	var start = _tokens.vector_from_tokens(tokens, line, 2)
+	var end = _tokens.vector_from_tokens(tokens, line, 4)
+	var drop = _tokens.float_value(tokens[6]["text"], line, tokens[6]["column"])
+	if start == null or end == null or drop == null:
+		return
+	_parser._blueprint.relief_cliff(StringName(tokens[1]["text"]), start, end, drop)
+
+
+func _parse_relief_noise(tokens: Array[Dictionary], line: int) -> void:
+	if not _tokens.arity(tokens, line, 7, "relief_noise <id> <x> <y> <w> <h> <amplitude> [seed=N]"):
+		return
+	var rect = _tokens.rect_from_tokens(tokens, line, 2)
+	var amplitude = _tokens.float_value(tokens[6]["text"], line, tokens[6]["column"])
+	var options = _tokens.options(tokens, line, 7, ["seed"])
+	if rect == null or amplitude == null or options == null:
+		return
+	var noise_seed = null
+	if options.has("seed"):
+		noise_seed = _tokens.int_value(options["seed"], line, _tokens.option_column(tokens, "seed"))
+		if noise_seed == null:
+			return
+	_parser._blueprint.relief_noise(StringName(tokens[1]["text"]), rect, amplitude, noise_seed)
+
+
+func _relief_falloff(options: Dictionary, tokens: Array[Dictionary], line: int) -> Variant:
+	var text: String = options.get("falloff", "smooth")
+	if text not in ["smooth", "linear", "plateau"]:
+		_parser._error(
+			line,
+			_tokens.option_column(tokens, "falloff"),
+			&"invalid_falloff",
+			"falloff must be smooth, linear or plateau, got '%s'" % text
+		)
+		return null
+	return StringName(text)
 
 
 func _parse_style(tokens: Array[Dictionary], line: int) -> void:

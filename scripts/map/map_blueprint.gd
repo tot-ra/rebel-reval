@@ -24,6 +24,9 @@ var ground_elevation: float = 0.0
 ## Ordered, view-only elevation profiles. The compiler preserves this order so
 ## overlapping authored features remain deterministic.
 var elevation_profiles: Array[Dictionary] = []
+## Ordered signed relief primitives (ADR 0023). The compiler sums them in this
+## order into MapDefinition.relief_heights; legacy elevation_profiles add nothing.
+var relief_features: Array[Dictionary] = []
 
 var primitives: Array[Dictionary] = []
 var styles: Array[Dictionary] = []
@@ -145,6 +148,100 @@ func elevation_ramp(
 			}
 		)
 	)
+	return self
+
+
+## Radial mound. falloff is &"smooth", &"linear" or &"plateau" (flat inner half).
+func relief_hill(
+	relief_id: StringName,
+	center_cell: Vector2i,
+	radius: float,
+	height: float,
+	falloff: StringName = &"smooth"
+) -> MapBlueprint:
+	relief_features.append(
+		{
+			"id": relief_id,
+			"kind": &"hill",
+			"center": center_cell,
+			"radius": radius,
+			"height": height,
+			"falloff": falloff,
+		}
+	)
+	return self
+
+
+## Linear crest of full width `width` cells, e.g. an escarpment or street bank.
+func relief_ridge(
+	relief_id: StringName,
+	start_cell: Vector2i,
+	end_cell: Vector2i,
+	width: float,
+	height: float,
+	falloff: StringName = &"smooth"
+) -> MapBlueprint:
+	relief_features.append(
+		{
+			"id": relief_id,
+			"kind": &"ridge",
+			"start": start_cell,
+			"end": end_cell,
+			"width": width,
+			"height": height,
+			"falloff": falloff,
+		}
+	)
+	return self
+
+
+## Flat-bedded cut of positive `depth` below grade: moats, drains, hollow ways.
+func relief_ditch(
+	relief_id: StringName, start_cell: Vector2i, end_cell: Vector2i, width: float, depth: float
+) -> MapBlueprint:
+	relief_features.append(
+		{
+			"id": relief_id,
+			"kind": &"ditch",
+			"start": start_cell,
+			"end": end_cell,
+			"width": width,
+			"depth": depth,
+		}
+	)
+	return self
+
+
+## Signed plateau over `rect` whose worked edge slopes out over `edge` cells.
+func relief_terrace(
+	relief_id: StringName, rect: Rect2i, height: float, edge: int = 2
+) -> MapBlueprint:
+	relief_features.append(
+		{"id": relief_id, "kind": &"terrace", "rect": rect, "height": height, "edge": edge}
+	)
+	return self
+
+
+## Intentional impassable face: cells right of start->end (in map view, y down)
+## and within the segment's span drop by `drop`.
+func relief_cliff(
+	relief_id: StringName, start_cell: Vector2i, end_cell: Vector2i, drop: float
+) -> MapBlueprint:
+	relief_features.append(
+		{"id": relief_id, "kind": &"cliff", "start": start_cell, "end": end_cell, "drop": drop}
+	)
+	return self
+
+
+## Bounded deterministic undulation. Without `seed` the compiler derives one from
+## the map seed and the stable ID, so the key is stored only when authored.
+func relief_noise(
+	relief_id: StringName, rect: Rect2i, amplitude: float, noise_seed: Variant = null
+) -> MapBlueprint:
+	var feature := {"id": relief_id, "kind": &"noise", "rect": rect, "amplitude": amplitude}
+	if noise_seed != null:
+		feature["seed"] = int(noise_seed)
+	relief_features.append(feature)
 	return self
 
 

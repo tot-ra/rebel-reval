@@ -65,3 +65,10 @@ lowers into the new representation without re-authoring `r454.harbor_*` IDs.
 ## Doc updates
 
 Link the ADR from `docs/MAP_AUTHORING.md` and from this pack's README row table.
+
+## Status (2026-09-26)
+
+Drafted: [`docs/adr/0023-terrain-relief-as-gameplay.md`](../../adr/0023-terrain-relief-as-gameplay.md),
+status *Proposed*. Open items for this row: maintainer acceptance with an ISO date in the ADR
+`Status` section, and a second reviewer confirming the removed scope (tower-capture, naval and
+castle-building mini-games made permanently out of scope) is named and costed.

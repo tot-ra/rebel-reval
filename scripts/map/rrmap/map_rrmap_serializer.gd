@@ -54,6 +54,8 @@ static func canonical_print(blueprint: MapBlueprint, format_version: int = 1) ->
 		lines.append("camera %s" % _rect_text(blueprint.authored_camera_bounds))
 	for profile in blueprint.elevation_profiles:
 		lines.append(_print_elevation_profile(profile))
+	for feature in blueprint.relief_features:
+		lines.append(_print_relief_feature(feature))
 	for package in blueprint.prefab_packages:
 		lines.append("package %s %d" % [package.package_id, package.version])
 	for primitive in blueprint.primitives:
@@ -292,6 +294,72 @@ static func _print_elevation_profile(profile: Dictionary) -> String:
 				_option_suffix(options),
 			]
 	return "# unsupported elevation profile %s" % profile_id
+
+
+## Defaults (falloff=smooth, edge=2, derived noise seed) are omitted so the
+## canonical text matches what an author writes by hand.
+static func _print_relief_feature(feature: Dictionary) -> String:
+	var relief_id = feature["id"]
+	var options: Array[String] = []
+	match feature.get("kind", &""):
+		&"hill":
+			var center: Vector2i = feature["center"]
+			if feature["falloff"] != &"smooth":
+				options.append("falloff=%s" % feature["falloff"])
+			return "relief_hill %s %d %d %s %s%s" % [
+				relief_id,
+				center.x,
+				center.y,
+				_number_text(feature["radius"]),
+				_number_text(feature["height"]),
+				_option_suffix(options),
+			]
+		&"ridge":
+			if feature["falloff"] != &"smooth":
+				options.append("falloff=%s" % feature["falloff"])
+			return "relief_ridge %s %s %s %s%s" % [
+				relief_id,
+				_segment_text(feature),
+				_number_text(feature["width"]),
+				_number_text(feature["height"]),
+				_option_suffix(options),
+			]
+		&"ditch":
+			return "relief_ditch %s %s %s %s" % [
+				relief_id,
+				_segment_text(feature),
+				_number_text(feature["width"]),
+				_number_text(feature["depth"]),
+			]
+		&"terrace":
+			if int(feature["edge"]) != 2:
+				options.append("edge=%d" % int(feature["edge"]))
+			return "relief_terrace %s %s %s%s" % [
+				relief_id,
+				_rect_text(feature["rect"]),
+				_number_text(feature["height"]),
+				_option_suffix(options),
+			]
+		&"cliff":
+			return "relief_cliff %s %s %s" % [
+				relief_id, _segment_text(feature), _number_text(feature["drop"])
+			]
+		&"noise":
+			if feature.has("seed"):
+				options.append("seed=%d" % int(feature["seed"]))
+			return "relief_noise %s %s %s%s" % [
+				relief_id,
+				_rect_text(feature["rect"]),
+				_number_text(feature["amplitude"]),
+				_option_suffix(options),
+			]
+	return "# unsupported relief feature %s" % relief_id
+
+
+static func _segment_text(feature: Dictionary) -> String:
+	var start: Vector2i = feature["start"]
+	var end: Vector2i = feature["end"]
+	return "%d %d %d %d" % [start.x, start.y, end.x, end.y]
 
 
 static func _print_prefab(instance: Dictionary) -> String:
