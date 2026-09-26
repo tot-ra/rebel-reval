@@ -324,6 +324,166 @@ func test_weather_reaches_every_regime() -> void:
 	sky.free()
 
 
+func test_five_regime_transition_and_shelter_matrix() -> void:
+	# R-855: settle every public regime by API, not only by seeded reachability.
+	var sky = SkyWeather.new()
+	sky.auto_weather = false
+	var previous: StringName = SkyWeather.WEATHER_CLEAR
+	_assert_settled_regime(sky, previous)
+	_assert_shelter_preserves_outdoor_field(sky)
+	var sequence: Array[StringName] = [
+		SkyWeather.WEATHER_CLOUDY,
+		SkyWeather.WEATHER_OVERCAST,
+		SkyWeather.WEATHER_RAIN,
+		SkyWeather.WEATHER_STORM,
+		SkyWeather.WEATHER_CLEAR,
+	]
+	for regime in sequence:
+		sky.set_weather(regime)
+		sky.advance(SkyWeather.TRANSITION_SECONDS * 0.5)
+		_assert_transition_between(sky, previous, regime)
+		sky.advance(SkyWeather.TRANSITION_SECONDS)
+		_assert_settled_regime(sky, regime)
+		_assert_shelter_preserves_outdoor_field(sky)
+		previous = regime
+	sky.free()
+
+
+func _assert_settled_regime(sky: SkyWeather, regime: StringName) -> void:
+	var profile: Dictionary = SkyWeather.PROFILES[regime]
+	assert_eq(sky.weather, regime, "settled presenter must report %s" % regime)
+	assert_almost_eq(
+		sky.rain_intensity(), float(profile["rain"]), 0.001,
+		"%s rain intensity must match the authored profile" % regime
+	)
+	assert_almost_eq(
+		sky.cloud_coverage(), float(profile["coverage"]), 0.001,
+		"%s cloud coverage must match the authored profile" % regime
+	)
+	assert_almost_eq(
+		sky.storm_intensity(), float(profile["storm"]), 0.001,
+		"%s storm intensity must match the authored profile" % regime
+	)
+	assert_almost_eq(
+		sky.storm_locality(), float(profile["locality"]), 0.001,
+		"%s storm locality must match the authored profile" % regime
+	)
+	assert_almost_eq(
+		sky.wind_strength() - sky.wind_gust(), float(profile["wind"]), 0.001,
+		"%s sustained wind must match the profile under any transient gust" % regime
+	)
+	assert_true(
+		sky.wind_direction_xz().is_equal_approx(SkyWeather.CLOUD_DRIFT_PER_SECOND.normalized()),
+		"%s wind direction must stay the authored cloud-drift bearing" % regime
+	)
+	var modifiers: Dictionary = sky.lighting_modifiers()
+	assert_almost_eq(
+		float(modifiers["sun_energy"]), float(profile["sun_energy"]), 0.001,
+		"%s sun energy must match the profile at noon" % regime
+	)
+	assert_almost_eq(
+		float(modifiers["ambient_energy"]), float(profile["ambient_energy"]), 0.001,
+		"%s ambient energy must match the profile at noon" % regime
+	)
+	assert_almost_eq(
+		float(modifiers["overcast"]), float(profile["gray"]), 0.001,
+		"%s lighting overcast must follow the profile gray term" % regime
+	)
+	var raining := float(profile["rain"]) > 0.02
+	assert_eq(
+		sky.rain_emitter_visible(), raining,
+		"%s outdoor rain emitter must follow the profile rain term" % regime
+	)
+	if regime == SkyWeather.WEATHER_STORM:
+		assert_true(sky.storm_locality() > 0.7, "storm must stay a localized cell")
+		assert_true(
+			sky.rain_intensity() > 0.0 and sky.rain_intensity() < 0.5,
+			"storm rain must stay a cell shower, not a full front"
+		)
+	elif regime == SkyWeather.WEATHER_RAIN:
+		assert_true(sky.storm_locality() < 0.3, "rain must stay a widespread front")
+		assert_eq(sky.rain_intensity(), 1.0, "rain must reach full intensity")
+	else:
+		assert_eq(sky.rain_intensity(), 0.0, "%s must stay dry" % regime)
+		assert_eq(float(profile["thunder"]), 0.0, "%s must not author thunder" % regime)
+
+
+func _assert_transition_between(
+	sky: SkyWeather, from_weather: StringName, to_weather: StringName
+) -> void:
+	assert_eq(sky.weather, to_weather, "set_weather must name the target during the blend")
+	var from_profile: Dictionary = SkyWeather.PROFILES[from_weather]
+	var to_profile: Dictionary = SkyWeather.PROFILES[to_weather]
+	var samples: Dictionary = {
+		"rain": sky.rain_intensity(),
+		"coverage": sky.cloud_coverage(),
+		"storm": sky.storm_intensity(),
+		"locality": sky.storm_locality(),
+		"sun_energy": float(sky.lighting_modifiers()["sun_energy"]),
+		"ambient_energy": float(sky.lighting_modifiers()["ambient_energy"]),
+		"gray": float(sky.lighting_modifiers()["overcast"]),
+	}
+	for key in samples.keys():
+		var actual := float(samples[key])
+		var start := float(from_profile[key])
+		var target := float(to_profile[key])
+		var lo := minf(start, target) - 0.001
+		var hi := maxf(start, target) + 0.001
+		assert_true(
+			actual >= lo and actual <= hi,
+			"%s -> %s %s must stay inside the blend range" % [from_weather, to_weather, key]
+		)
+		if absf(target - start) > 0.08:
+			assert_true(
+				actual > minf(start, target) + 0.01 and actual < maxf(start, target) - 0.01,
+				"%s -> %s %s must interpolate, not snap" % [from_weather, to_weather, key]
+			)
+	var blended_wind := lerpf(float(from_profile["wind"]), float(to_profile["wind"]), 0.5)
+	assert_true(
+		sky.wind_strength() + 0.001 >= blended_wind,
+		"%s -> %s wind must keep at least the blended profile under gusts" % [from_weather, to_weather]
+	)
+
+
+func _assert_shelter_preserves_outdoor_field(sky: SkyWeather) -> void:
+	var before_weather: StringName = sky.weather
+	var before_rain := sky.rain_intensity()
+	var before_wind := sky.wind_strength()
+	var before_gust := sky.wind_gust()
+	var before_cover := sky.cloud_coverage()
+	var before_storm := sky.storm_intensity()
+	var before_locality := sky.storm_locality()
+	var before_modifiers: Dictionary = sky.lighting_modifiers().duplicate()
+	var outdoor_visible := sky.rain_emitter_visible()
+	sky.rain_suppressed = true
+	assert_eq(sky.weather, before_weather, "shelter must not change the outdoor regime")
+	assert_almost_eq(sky.rain_intensity(), before_rain, 0.0001, "shelter must keep outdoor rain intensity")
+	assert_almost_eq(sky.wind_strength(), before_wind, 0.0001, "shelter must keep outdoor wind")
+	assert_almost_eq(sky.wind_gust(), before_gust, 0.0001, "shelter must keep the gust envelope")
+	assert_almost_eq(sky.cloud_coverage(), before_cover, 0.0001, "shelter must keep cloud cover")
+	assert_almost_eq(sky.storm_intensity(), before_storm, 0.0001, "shelter must keep storm intensity")
+	assert_almost_eq(sky.storm_locality(), before_locality, 0.0001, "shelter must keep storm locality")
+	var after_modifiers: Dictionary = sky.lighting_modifiers()
+	for key in before_modifiers.keys():
+		assert_almost_eq(
+			float(after_modifiers[key]), float(before_modifiers[key]), 0.0001,
+			"shelter must keep lighting modifier %s" % key
+		)
+	assert_false(sky.rain_emitter_visible(), "a roof must hide local rain presentation")
+	var presentation := sky.presentation_snapshot(0.25, 1.0)
+	assert_true(presentation.rain_suppressed, "the snapshot must record roof suppression")
+	assert_eq(presentation.weather, before_weather, "the snapshot weather must stay the outdoor regime")
+	assert_almost_eq(
+		presentation.rain_intensity, before_rain, 0.0001,
+		"the snapshot must keep outdoor rain intensity under a roof"
+	)
+	sky.rain_suppressed = false
+	assert_eq(
+		sky.rain_emitter_visible(), outdoor_visible,
+		"leaving shelter must restore the outdoor rain emitter"
+	)
+
+
 func test_isolated_storm_is_localized_while_rain_front_is_uniform() -> void:
 	var sky = SkyWeather.new()
 	sky.auto_weather = false

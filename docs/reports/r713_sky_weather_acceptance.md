@@ -78,3 +78,9 @@ Do not request final human sign-off until all of the following are complete:
 6. `python3 tools/verify_r713_sky_weather_acceptance.py` returns `R713_SKY_WEATHER_ACCEPTANCE_PASS`, then the maintainer signs this report.
 
 Until then, exit 2 from the aggregate verifier is the expected fail-closed result, not a waived failure.
+
+## R-855 five-regime matrix (2026-09-26)
+
+`test_five_regime_transition_and_shelter_matrix` in `tests/godot/test_sky_weather_3d.gd` now drives `clear`, `cloudy`, `overcast`, `rain`, and `storm` through `set_weather` / `advance`. It asserts settled profile rain, wind, coverage, lighting, and storm terms, mid-transition interpolation, and roof `rain_suppressed` hiding the local emitter without mutating the outdoor field. This is structural coverage only. Visual review of the R-738 continuity packet stays a separate gate.
+
+Verify: `--filter=test_sky_weather_3d,test_r713_sky_weather_continuity`.
