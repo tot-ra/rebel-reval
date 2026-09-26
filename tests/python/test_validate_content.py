@@ -218,14 +218,82 @@ class ValidateContentTests(unittest.TestCase):
             diagnostics = validate_corpus([content], project_root=root)
             self.assertEqual(diagnostics, [])
 
+    def test_magic_grant_revoke_records_validate(self) -> None:
+        fixtures = [
+            ROOT / "content/examples/valid/spell.pagan.spark.json",
+            ROOT / "content/examples/valid/rite.blessing.json",
+            ROOT / "content/examples/valid/magic.grant.starter_spark.json",
+            ROOT / "content/examples/valid/magic.revoke.starter_spark.json",
+            ROOT / "content/examples/valid/magic.grant.starter_blessing.json",
+            ROOT / "content/examples/valid/magic.revoke.starter_blessing.json",
+        ]
+        diagnostics = validate_corpus(fixtures, project_root=ROOT)
+        self.assertEqual(diagnostics, [])
+
+        records = [json.loads(path.read_text(encoding="utf-8")) for path in fixtures]
+        self.assertEqual(
+            [record["id"] for record in records],
+            [
+                "spell.pagan.spark",
+                "rite.blessing",
+                "magic.grant.starter_spark",
+                "magic.revoke.starter_spark",
+                "magic.grant.starter_blessing",
+                "magic.revoke.starter_blessing",
+            ],
+        )
+        self.assertEqual({records[2]["operation"], records[3]["operation"]}, {"grant", "revoke"})
+        self.assertEqual(records[4]["target_id"], "rite.blessing")
+        self.assertEqual(records[5]["target_id"], "rite.blessing")
+        self.assertFalse(records[0]["runtime_combination_allowed"])
+        self.assertTrue(records[1]["fixed_liturgy"])
+
+    def test_magic_runtime_combination_and_overlong_sequence_are_rejected(self) -> None:
+        invalid_root = ROOT / "content/examples/invalid"
+        for name, needle in (
+            ("spell.pagan.runtime_combo.json", "authored_lookup"),
+            ("spell.pagan.four_element_sequence.json", "more than 3 items"),
+        ):
+            diagnostics = validate_corpus([invalid_root / name], project_root=ROOT)
+            self.assertIn("SCHEMA", {diagnostic.code for diagnostic in diagnostics}, name)
+            self.assertTrue(
+                any(needle in diagnostic.message for diagnostic in diagnostics),
+                diagnostics,
+            )
+
+    def test_magic_grant_unknown_target_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            content = root / "content"
+            grant = json.loads(
+                (
+                    ROOT / "content/examples/valid/magic.grant.starter_spark.json"
+                ).read_text(encoding="utf-8")
+            )
+            grant["target_id"] = "spell.pagan.missing_cookbook"
+            _write(content / "grant.json", grant)
+
+            diagnostics = validate_corpus([content], project_root=root)
+            self.assertIn("REFERENCE", {diagnostic.code for diagnostic in diagnostics})
+            self.assertTrue(
+                any("spell.pagan.missing_cookbook" in diagnostic.message for diagnostic in diagnostics),
+                diagnostics,
+            )
+
     def test_magic_contract_rejects_cross_school_and_operation_mismatch(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             content = root / "content"
 
+            spark = json.loads(
+                (ROOT / "content/examples/valid/spell.pagan.spark.json").read_text(encoding="utf-8")
+            )
+            _write(content / "spark.json", spark)
+
             spell = json.loads(
                 (ROOT / "content/examples/valid/spell.pagan.spark.json").read_text(encoding="utf-8")
             )
+            spell["id"] = "spell.pagan.cross_school"
             spell["school"] = "school.divine"
             spell.pop("sequence")
             _write(content / "spell.json", spell)

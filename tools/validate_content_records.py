@@ -407,6 +407,11 @@ def validate_magic(context: RecordValidationContext) -> None:
                 "$.target_id",
                 "magic operations must target a spell or rite record",
             )
+        else:
+            # WHY: schema accepts any spell.*/rite.* id. A grant or revoke that
+            # names a missing cookbook entry would otherwise leave unlocks dangling.
+            expected_type = "spell" if target_id.startswith("spell.") else "rite"
+            context.require_ref("$.target_id", target_id, expected_type)
         grant_flag = record.get("grant_flag")
         if not isinstance(grant_flag, str) or not grant_flag.startswith("flag.magic."):
             context.diagnose(

@@ -1,0 +1,34 @@
+{
+  "type": "spell",
+  "id": "spell.pagan.four_element_sequence",
+  "name": "Four Element Sequence",
+  "school": "school.pagan",
+  "sequence": [
+    "element.fire",
+    "element.metal",
+    "element.earth",
+    "element.water"
+  ],
+  "resolution": "authored_lookup",
+  "runtime_combination_allowed": false,
+  "requires_conduit": "none",
+  "cost": {
+    "resource": "resource.willpower",
+    "amount": 1
+  },
+  "effect_summary": "P7-010 ships sequences of length 1..3 only; a fourth chip must fail closed.",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft"
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Negative fixture for the shipped sequence-length cap.",
+      "citations": [
+        "docs/SYSTEMS/MAGIC.md"
+      ]
+    }
+  ]
+}
