@@ -71,6 +71,9 @@ var _domestic_interactables: Dictionary = {}
 var _domestic_vignette_seconds := 0.0
 var _domestic_vignette_activity := &""
 var _last_domestic_time_band := &"any"
+# State whose forge conduit this scene bound. Kept so leaving the smithy clears
+# that exact state even if SessionState already swapped in a loaded save.
+var _forge_conduit_state: GameState
 
 
 func _ready() -> void:
@@ -305,6 +308,11 @@ func _setup_kalev_domestic_presentation(definition: MapDefinition) -> void:
 	)
 	if not _kalev_routine.presentation_changed.is_connected(_on_kalev_presentation_changed):
 		_kalev_routine.presentation_changed.connect(_on_kalev_presentation_changed)
+	if not _kalev_routine.activity_began.is_connected(_on_kalev_activity_began):
+		_kalev_routine.activity_began.connect(_on_kalev_activity_began)
+	if SessionState.state != null and SessionState.state.is_forge_conduit_bound():
+		# A smithy save restored the binding; adopt it so leaving still clears it.
+		_forge_conduit_state = SessionState.state
 	if SessionState.state != null:
 		_kalev_routine.restore_prop_variants_from_state(SessionState.state, definition)
 	_apply_phase_entry_domestic_presentation()
@@ -419,6 +427,25 @@ func _domestic_story_blocks_player() -> bool:
 	if commission != null and commission.has_method("is_active") and commission.call("is_active"):
 		return true
 	return false
+
+
+## Anvil work binds the forge conduit until Kalev leaves the smithy, so
+## conduit-gated recipes resolve here even with the hammer stowed. The binding
+## outlives the short anvil vignette because Kalev cannot cast while locked in it.
+func _on_kalev_activity_began(actor_id: StringName, activity_id: StringName) -> void:
+	if not SmithyRoutineController.binds_forge_conduit(actor_id, activity_id):
+		return
+	if not has_node("/root/SessionState") or SessionState.state == null:
+		return
+	_forge_conduit_state = SessionState.state
+	_forge_conduit_state.set_forge_conduit_bound(true)
+
+
+func _exit_tree() -> void:
+	# The binding is local to the smithy; hammer equip remains the portable conduit.
+	if _forge_conduit_state != null:
+		_forge_conduit_state.set_forge_conduit_bound(false)
+		_forge_conduit_state = null
 
 
 func _on_domestic_interact(_actor: Node, activity_id: StringName) -> void:

@@ -4,7 +4,7 @@
 **Approval basis:** [ADR 0017](../adr/0017-legacy-design-reintroduction.md), [ADR 0003](../adr/0003-authored-offline-dialogue-and-prohibit-runtime-llm.md)  
 **Canon labels:** Dual-school magic is playable **`folklore`** / **`invented`** per [`docs/CANON.md`](../CANON.md). Never present spells or rites as attested 1343 historical practice.  
 **Legacy seeds (reference only):** [`character/MAGIC-ELEMENTS.md`](../../character/MAGIC-ELEMENTS.md), [`character/PAGAN-MAGIC.md`](../../character/PAGAN-MAGIC.md), [`character/CHRISTIAN-MAGIC.md`](../../character/CHRISTIAN-MAGIC.md)  
-**Runtime implementation:** **P7-010** (schemas, GameState, forge-conduit hooks, tests). This file is not runtime truth until that row verifies.
+**Runtime implementation:** **P7-010** foundation verified (R-332): `schemas/magic.schema.json`, `MagicResolver`, GameState willpower/piety/health, grants and conduit save fields, hammer-equip and smithy-anvil conduit hooks, and `tests/godot/test_magic_runtime.gd` covering grant/revoke and every `magic.fail.*` code. Section 8 remains the partial-ship bar.
 
 ---
 
@@ -105,6 +105,7 @@ Constraints:
 
 - Hammer conduit does **not** invent new hammer combat techniques by itself. Combat technique expansion stays on combat/P7-005 rows.
 - Conduit state is saveable (`flag` / equipment / grant), never inferred from opaque LLM narrative.
+- Runtime hooks (P7-010): the hammer in the `right_hand` slot is the portable conduit. Kalev starting the `ap.forge.anvil` activity at his own smithy sets the saved `forge_conduit_bound` field, which lasts until he leaves the smithy scene. Mart or a visitor at the anvil never binds it.
 - Non-Kalev casters (future NPCs) use their own authored conduits or none; they do not silently share Kalev's forge bridge.
 
 ---
@@ -247,7 +248,7 @@ Partial ship (P7-010 acceptance bar):
 
 1. Schemas + validator accept example `spell.*` / `rite.*` / grant ops.
 2. GameState fields for willpower, piety, and known grants round-trip in save tests.
-3. Forge-conduit hooks exist on Kalev hammer equip / smithy interaction.
+3. Forge-conduit hooks exist on Kalev hammer equip / smithy interaction (anvil work binds the conduit until Kalev leaves the smithy; `test_forge_conduit_binding`).
 4. At most the starter budget in section 3.2 is granted in example content.
 5. Demo path (menu → Lower Town → forge → Mart / spearhead loop) does not require casting.
 6. **P4-007 Root and Ember** remains valid: quest stays understandable without literal magic confirmation. Later packages may add optional literal branches behind flags without rewriting that quest's historical verify line.
@@ -276,7 +277,7 @@ These are design stubs, not shipped balance.
 | `spell.pagan.earth_tremor` | pagan | `[earth]` | Hostile stagger pulse (96 radius, 1.5 s, 1 willpower); shipped example (R-724) | optional |
 | `spell.pagan.air_gust` | pagan | `[air]` | Hostile knockback cone (112 radius, 90 deg arc, 96 px push, 0.6 s hold, 1 willpower); shipped example (R-722). `element.air` stays outside the slice-safe default grants: the example is unlocked only by the explicit `magic.grant.starter_air_gust` op and counts against the Act 1 optional band | optional |
 | `spell.pagan.healing_mist` | pagan | `[water, life]` | Ally heal area (80 radius, 6 s, 4 health per second per ally); shipped example (R-721) | optional |
-| `spell.pagan.forgefire_weapon` | pagan | `[fire, metal, mind]` | Temporary fire on melee strikes | `conduit.forge_spell` |
+| `spell.pagan.forgefire_weapon` | pagan | `[fire, metal, mind]` | Hotter melee strikes: self `damage_bonus` (20%, 8 s, recast replaces, 3 willpower); shipped conduit-gated example (P7-010), unlocked only by `magic.grant.forge_forgefire_weapon` and not seeded by the demo | `conduit.forge_spell` (`requires_conduit: hammer`) |
 | `spell.pagan.earthen_wall` | pagan | `[earth, metal, life]` | Short blocking earth segment | `conduit.forge_spell` |
 | `rite.blessing` | divine | tags `faith` | Short self outgoing-damage buff (25%, 6 s, recast replaces); shipped example (R-718) | optional / hammer symbol allowed |
 | `rite.blood_for_belief` | divine | tags `sacrifice`, `faith` | Spend health for ally area heal | `conduit.forge_rite` preferred |

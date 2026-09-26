@@ -1,0 +1,23 @@
+{
+  "type": "rite",
+  "id": "rite.test_martyrdom",
+  "name": "Test Martyrdom",
+  "school": "school.divine",
+  "tags": [
+    "element.sacrifice"
+  ],
+  "resolution": "authored_lookup",
+  "fixed_liturgy": true,
+  "runtime_combination_allowed": false,
+  "allows_hammer_symbol": true,
+  "cost": {
+    "resource": "resource.health",
+    "amount": 10
+  },
+  "effect_summary": "Test-only health-cost rite so magic.fail.insufficient_health is covered without shipping a martyrdom rite past the slice budget.",
+  "effect": {
+    "delivery": {
+      "kind": "self"
+    }
+  }
+}

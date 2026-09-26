@@ -11,6 +11,10 @@ const REVOKE_SPARK := &"magic.revoke.starter_spark"
 const GRANT_BLESSING := &"magic.grant.starter_blessing"
 const REVOKE_BLESSING := &"magic.revoke.starter_blessing"
 const HAMMER := &"item.forge_hammer"
+const SPELL_FORGEFIRE := &"spell.pagan.forgefire_weapon"
+const GRANT_FORGEFIRE := &"magic.grant.forge_forgefire_weapon"
+const RITE_MARTYRDOM := &"rite.test_martyrdom"
+const HEALTH_FIXTURE_DIR := "res://tests/godot/fixtures/magic"
 
 
 func _make_db() -> ContentDB:
@@ -139,3 +143,88 @@ func test_magic_fields_round_trip_with_legacy_defaults() -> void:
 	assert_eq(legacy.get_magic_resource(GameState.MAGIC_RESOURCE_WILLPOWER), 0)
 	assert_false(legacy.has_magic_grant(SPELL_SPARK))
 	assert_false(legacy.is_forge_conduit_bound())
+
+
+func test_conduit_gated_recipe_needs_hammer_or_smithy_binding() -> void:
+	var state := GameState.new()
+	var db := _make_db()
+	state.set_magic_resource(GameState.MAGIC_RESOURCE_WILLPOWER, 9)
+	assert_true(MagicResolver.apply_grant_operation(state, db, GRANT_FORGEFIRE))
+	assert_true(state.get_flag(&"flag.magic.taught_forgefire"))
+
+	var bare := MagicResolver.cast(state, db, SPELL_FORGEFIRE)
+	assert_false(bare["ok"])
+	assert_eq(bare["reason"], MagicResolver.FAILURE_NEEDS_HAMMER)
+	assert_eq(
+		state.get_magic_resource(GameState.MAGIC_RESOURCE_WILLPOWER),
+		9,
+		"a conduit failure must not spend willpower"
+	)
+
+	state.bag.try_add(HAMMER)
+	assert_true(state.equip_from_bag(&"right_hand", HAMMER))
+	var by_sequence := MagicResolver.cast(
+		state, db, &"", [&"element.fire", &"element.metal", &"element.mind"]
+	)
+	assert_true(by_sequence["ok"])
+	assert_eq(by_sequence["target_id"], SPELL_FORGEFIRE)
+	assert_eq(state.get_magic_resource(GameState.MAGIC_RESOURCE_WILLPOWER), 6)
+
+	# Stowing the hammer drops the portable conduit; anvil work at the smithy
+	# binds the forge conduit instead (MAGIC.md section 4).
+	assert_true(state.unequip_to_bag(&"right_hand"))
+	assert_eq(
+		MagicResolver.cast(state, db, SPELL_FORGEFIRE)["reason"],
+		MagicResolver.FAILURE_NEEDS_HAMMER
+	)
+	state.set_forge_conduit_bound(true)
+	assert_true(MagicResolver.cast(state, db, SPELL_FORGEFIRE)["ok"])
+	assert_eq(state.get_magic_resource(GameState.MAGIC_RESOURCE_WILLPOWER), 3)
+
+
+func test_hammer_symbol_rite_does_not_require_a_conduit() -> void:
+	var state := GameState.new()
+	var db := _make_db()
+	assert_true(MagicResolver.apply_grant_operation(state, db, GRANT_BLESSING))
+	state.set_magic_resource(GameState.MAGIC_RESOURCE_PIETY, 1)
+	assert_false(state.is_forge_conduit_available())
+	assert_true(MagicResolver.cast(state, db, RITE_BLESSING)["ok"])
+
+
+func test_suppressed_cast_fails_before_lookup_or_spend() -> void:
+	var state := GameState.new()
+	var db := _make_db()
+	state.set_magic_resource(GameState.MAGIC_RESOURCE_WILLPOWER, 2)
+	assert_true(MagicResolver.apply_grant_operation(state, db, GRANT_SPARK))
+
+	var result := MagicResolver.cast(state, db, SPELL_SPARK, [], &"", true)
+	assert_false(result["ok"])
+	assert_eq(result["reason"], MagicResolver.FAILURE_SUPPRESSED)
+	assert_eq(state.get_magic_resource(GameState.MAGIC_RESOURCE_WILLPOWER), 2)
+
+
+func test_health_cost_rite_fails_closed_without_enough_health() -> void:
+	var state := GameState.new()
+	var db := ContentDB.new()
+	var dirs: Array[String] = [CONTENT_DIRS[0], CONTENT_DIRS[1], HEALTH_FIXTURE_DIR]
+	assert_true(db.load_from_directories(dirs), "health-cost fixture should load")
+	assert_true(state.grant_magic(RITE_MARTYRDOM, &"flag.magic.test_martyrdom"))
+	state.set_magic_resource(GameState.MAGIC_RESOURCE_HEALTH, 9)
+
+	var short := MagicResolver.cast(state, db, RITE_MARTYRDOM)
+	assert_false(short["ok"])
+	assert_eq(short["reason"], MagicResolver.FAILURE_INSUFFICIENT_HEALTH)
+	assert_eq(state.get_magic_resource(GameState.MAGIC_RESOURCE_HEALTH), 9)
+
+	state.set_magic_resource(GameState.MAGIC_RESOURCE_HEALTH, 10)
+	assert_true(MagicResolver.cast(state, db, RITE_MARTYRDOM)["ok"])
+	assert_eq(state.get_magic_resource(GameState.MAGIC_RESOURCE_HEALTH), 0)
+
+
+func test_only_kalev_anvil_work_binds_the_forge_conduit() -> void:
+	assert_true(SmithyRoutineController.binds_forge_conduit(&"char.kalev", &"ap.forge.anvil"))
+	assert_false(SmithyRoutineController.binds_forge_conduit(&"char.mart", &"ap.forge.anvil"))
+	assert_false(
+		SmithyRoutineController.binds_forge_conduit(&"char.henning", &"ap.visitor.inspect")
+	)
+	assert_false(SmithyRoutineController.binds_forge_conduit(&"char.kalev", &"ap.forge.bellows"))

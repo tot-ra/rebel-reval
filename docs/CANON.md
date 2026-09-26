@@ -239,7 +239,7 @@ Per [ADR 0017](./adr/0017-legacy-design-reintroduction.md), the following return
 
 * **Dual-school magic (pagan combinatorial elements + Christian divine rites)** - **`folklore`** / **`invented`**
   * Playable; never presented as attested 1343 historical practice.
-  * Active contract: [`docs/SYSTEMS/MAGIC.md`](./SYSTEMS/MAGIC.md) (P7-002). Runtime remains **P7-010**.
+  * Active contract: [`docs/SYSTEMS/MAGIC.md`](./SYSTEMS/MAGIC.md) (P7-002). Runtime foundation verified under **P7-010** (R-332); full spell lists stay act-gated.
 * **NATURAL aspects and Hingepuu psyche play** - **`invented`** / **`folklore`**
   * Extends the existing Hingepuu reflection concept into progression and inner-world locations.
   * Active contracts: [`docs/SYSTEMS/NATURAL.md`](./SYSTEMS/NATURAL.md) and [`docs/SYSTEMS/PSYCHE.md`](./SYSTEMS/PSYCHE.md) (P7-003). Runtime remains **P7-011**.

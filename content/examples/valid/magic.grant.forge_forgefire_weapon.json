@@ -1,0 +1,25 @@
+{
+  "type": "magic_grant",
+  "id": "magic.grant.forge_forgefire_weapon",
+  "name": "Teach Forgefire Weapon",
+  "operation": "grant",
+  "target_id": "spell.pagan.forgefire_weapon",
+  "grant_flag": "flag.magic.taught_forgefire",
+  "resolution": "authored_lookup",
+  "runtime_combination_allowed": false,
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P7-010 conduit fixture"
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Explicit authored unlock for the conduit-gated Forgefire Weapon recipe; not seeded by the demo session.",
+      "citations": [
+        "docs/SYSTEMS/MAGIC.md"
+      ]
+    }
+  ]
+}

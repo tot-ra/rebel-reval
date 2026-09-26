@@ -1,0 +1,46 @@
+{
+  "type": "spell",
+  "id": "spell.pagan.forgefire_weapon",
+  "name": "Forgefire Weapon",
+  "school": "school.pagan",
+  "sequence": [
+    "element.fire",
+    "element.metal",
+    "element.mind"
+  ],
+  "resolution": "authored_lookup",
+  "runtime_combination_allowed": false,
+  "requires_conduit": "hammer",
+  "cost": {
+    "resource": "resource.willpower",
+    "amount": 3
+  },
+  "effect_summary": "Kalev drives forge heat through his hammer so his next blows land hotter for a short time. Needs the hammer in hand or anvil work at his own forge. Recasting refreshes the heat instead of stacking it.",
+  "effect": {
+    "delivery": {
+      "kind": "self"
+    },
+    "modifier": {
+      "kind": "damage_bonus",
+      "modifier_id": "modifier.forgefire",
+      "amount": 0.2,
+      "duration_sec": 8.0,
+      "stacking": "replace"
+    }
+  },
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P7-010 conduit fixture"
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Authored conduit-gated starter recipe from the MAGIC.md section 9 stub; it exercises conduit.forge_spell and is not an attested historical practice.",
+      "citations": [
+        "docs/SYSTEMS/MAGIC.md"
+      ]
+    }
+  ]
+}

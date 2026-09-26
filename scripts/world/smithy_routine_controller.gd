@@ -20,6 +20,9 @@ const FLAG_MART_MISSING := &"mart_missing"
 const KALEV_ID := &"char.kalev"
 const SMITHY_LOCATION_ID := &"loc.kalev_smithy"
 const STATION_TOLERANCE_PX := float(MapTypes.DEFAULT_CELL_SIZE) * 0.35
+## MAGIC.md section 4 `conduit.forge_spell`: anvil work at Kalev's own forge is
+## the smithy interaction that binds the hammer conduit.
+const FORGE_CONDUIT_ACTIVITY := &"ap.forge.anvil"
 
 const PointScript := preload("res://scripts/world/smithy_activity_point.gd")
 const DefinitionScript := preload("res://scripts/world/smithy_routine_definition.gd")
@@ -336,6 +339,12 @@ func _actor_present(actor_id: StringName, context: Dictionary) -> bool:
 		if phase_id != GameState.PHASE_PROLOGUE_DAY and not visitor_allowed:
 			return false
 	return true
+
+
+## Only Kalev binds his own forge bridge; Mart or a visitor at the anvil never
+## grants Kalev a conduit (MAGIC.md: non-Kalev casters do not share it).
+static func binds_forge_conduit(actor_id: StringName, activity_id: StringName) -> bool:
+	return actor_id == KALEV_ID and activity_id == FORGE_CONDUIT_ACTIVITY
 
 
 static func time_band_for_cycle_progress(progress: float) -> StringName:
