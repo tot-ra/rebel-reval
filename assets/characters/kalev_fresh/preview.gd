@@ -2,6 +2,7 @@ extends Node3D
 ## Small isolated art-review scene. Does not alter inventory, saves or live maps.
 const DIR := "res://assets/characters/kalev_fresh/"
 const OUTFITS: Array[String] = ["Body", "Forge", "Travel", "Mail"]
+const WEAPONS: Array[String] = ["Unarmed", "Hammer", "Sword"]
 const MOTIONS: Array[StringName] = [&"idle", &"walk", &"run", &"guard", &"hammer_attack"]
 var rig: SharedCharacterRig
 var camera: Camera3D
@@ -98,7 +99,7 @@ func set_outfit(index: int) -> void:
 	_update_status()
 
 func set_weapon(index: int) -> void:
-	weapon_index = posmod(index, 3)
+	weapon_index = posmod(index, WEAPONS.size())
 	if weapon_index == 0:
 		rig.unequip(&"right_hand")
 	else:
@@ -115,7 +116,7 @@ func set_motion(index: int) -> void:
 
 func _update_status() -> void:
 	if status != null:
-		var weapon_label := ["Unarmed", "Hammer", "Sword"][weapon_index]
+		var weapon_label: String = WEAPONS[weapon_index]
 		status.text = "%s  ·  %s  ·  %s" % [OUTFITS[outfit_index], weapon_label, MOTIONS[motion_index]]
 
 func _update_camera() -> void:

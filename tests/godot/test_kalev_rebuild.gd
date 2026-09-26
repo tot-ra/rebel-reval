@@ -125,6 +125,7 @@ func test_preview_keyboard_and_gamepad_equipment_paths() -> void:
 	key.keycode = KEY_W
 	preview._unhandled_input(key)
 	assert_true(preview.rig.has_equipment())
+	assert_true(String(preview.status.text).contains("Hammer"))
 	var button := InputEventJoypadButton.new()
 	button.pressed = true
 	button.button_index = JOY_BUTTON_A
@@ -133,6 +134,7 @@ func test_preview_keyboard_and_gamepad_equipment_paths() -> void:
 	button.button_index = JOY_BUTTON_Y
 	preview._unhandled_input(button)
 	assert_eq(preview.weapon_index, 2)
+	assert_true(String(preview.status.text).contains("Sword"))
 	button.button_index = JOY_BUTTON_RIGHT_SHOULDER
 	preview._unhandled_input(button)
 	assert_eq(preview.rig.current_canonical_animation(), &"walk")
