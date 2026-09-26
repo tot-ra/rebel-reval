@@ -27,8 +27,20 @@ static func interior_wall_material(
 	)
 	# Interior wall strips are thin along one axis; triplanar keeps plaster
 	# courses readable when a segment runs north-south instead of east-west.
+	# wall_surface_for_building sizes uv1_scale for the BoxMesh 3x2 atlas
+	# (length * density). Triplanar reads that scale as repeats per world
+	# unit, so long rooms such as Kalev's smithy over-tiled. Keep plate-metre
+	# density and drop the length-dependent box factor (R-997).
 	material.uv1_triplanar = true
 	material.uv1_world_triplanar = false
+	if material.has_meta(MapViewMaterials.BUILDING_MATERIALS.LIBRARY_STEM_META):
+		material.uv1_scale = MapViewMaterials.BUILDING_MATERIALS.library_world_uv_density(
+			String(material.get_meta(MapViewMaterials.BUILDING_MATERIALS.LIBRARY_STEM_META))
+		)
+	else:
+		material.uv1_scale = MapViewMaterials.building_uv_density(
+			MapViewMaterials.BUILDING_MATERIALS._wall_pattern(pattern_family)
+		)
 	if authored_family == &"smoked_plaster":
 		material.roughness = 0.96
 	return material

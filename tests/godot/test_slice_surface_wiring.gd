@@ -30,6 +30,22 @@ func test_kalev_smithy_interior_walls_use_weathered_textures() -> void:
 			"%s: interior walls must not share one baked albedo map" % building["id"]
 		)
 		textures[recipe] = building["id"]
+		var walls_mesh := walls.mesh as BoxMesh
+		assert_true(walls_mesh != null, "%s: interior wall uses a BoxMesh" % building["id"])
+		var materials := MapViewMaterials.BUILDING_MATERIALS
+		if material.has_meta(materials.LIBRARY_STEM_META):
+			var stem := String(material.get_meta(materials.LIBRARY_STEM_META))
+			var expected := materials.library_world_uv_density(stem)
+			assert_true(
+				material.uv1_scale.is_equal_approx(expected),
+				"%s: interior triplanar density is independent of wall length" % building["id"]
+			)
+			assert_false(
+				material.uv1_scale.is_equal_approx(
+					materials.library_box_uv_scale(stem, walls_mesh.size)
+				),
+				"%s: interior walls must not keep the BoxMesh atlas scale" % building["id"]
+			)
 		node.free()
 	assert_true(textures.size() >= 3, "smithy interior must expose multiple distinct wall textures")
 

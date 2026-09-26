@@ -161,6 +161,60 @@ func test_box_uv_scale_matches_plate_metres_through_the_box_atlas() -> void:
 	assert_almost_eq(scale.y, 20.0, 0.01)
 
 
+func test_interior_wall_triplanar_density_is_independent_of_wall_length() -> void:
+	MapViewMaterials.reset()
+	var building := {"id": &"r997.interior", "wall_material": &"plaster"}
+	var color := Color8(180, 157, 119)
+	var short := MapViewMeshBuilderBuildingInteriorWalls.interior_wall_material(
+		building, color, Vector3(2.0, 2.4, 0.2)
+	)
+	var long := MapViewMeshBuilderBuildingInteriorWalls.interior_wall_material(
+		building, color, Vector3(18.0, 2.4, 0.2)
+	)
+	assert_true(short.uv1_triplanar, "interior walls stay triplanar")
+	assert_true(
+		short.has_meta(BuildingMaterials.LIBRARY_STEM_META),
+		"plaster interior walls use the AR-03 library"
+	)
+	var stem := String(short.get_meta(BuildingMaterials.LIBRARY_STEM_META))
+	var expected := BuildingMaterials.library_world_uv_density(stem)
+	assert_true(
+		short.uv1_scale.is_equal_approx(expected),
+		"short interior wall must use plate-metre triplanar density"
+	)
+	assert_true(
+		long.uv1_scale.is_equal_approx(short.uv1_scale),
+		"interior wall density must not grow with wall length"
+	)
+	var box_scale := BuildingMaterials.library_box_uv_scale(stem, Vector3(18.0, 2.4, 0.2))
+	assert_false(
+		long.uv1_scale.is_equal_approx(box_scale),
+		"triplanar interiors must drop the BoxMesh 3x2 atlas scale"
+	)
+
+
+func test_interior_wall_fallback_density_ignores_wall_length() -> void:
+	MapViewMaterials.reset()
+	var building := {"id": &"r997.fallback", "wall_material": &"unknown_interior_family"}
+	var color := Color8(180, 157, 119)
+	var short := MapViewMeshBuilderBuildingInteriorWalls.interior_wall_material(
+		building, color, Vector3(2.0, 2.4, 0.2)
+	)
+	var long := MapViewMeshBuilderBuildingInteriorWalls.interior_wall_material(
+		building, color, Vector3(18.0, 2.4, 0.2)
+	)
+	assert_false(
+		short.has_meta(BuildingMaterials.LIBRARY_STEM_META),
+		"unknown families stay on the procedural fallback"
+	)
+	var expected := MapViewMaterials.building_uv_density(BuildingMaterials.PATTERN_PLASTER)
+	assert_true(short.uv1_scale.is_equal_approx(expected), "fallback uses plaster density")
+	assert_true(
+		long.uv1_scale.is_equal_approx(short.uv1_scale),
+		"fallback density must not grow with wall length"
+	)
+
+
 func _assert_library_material(material: StandardMaterial3D, label: String) -> void:
 	assert_true(material != null, "%s needs a material" % label)
 	if material == null:
