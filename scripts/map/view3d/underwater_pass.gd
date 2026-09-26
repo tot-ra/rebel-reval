@@ -8,6 +8,9 @@ extends Node3D
 ## SFX bus with a low-pass while the camera is under water. Technique after Tidewater's
 ## underwater modules. Ported from Tidewater (MIT), see notice.code.tidewater.
 ##
+## WS-13c: one-shot submerge/emerge cues on AIR<->UNDER crossings. Emerge waits until the
+## low-pass has opened so the splash is not still sitting under the 700 Hz cutoff.
+##
 ## Cost: in AIR, with no wet lens left, the quad is hidden, so the renderer skips it and
 ## update() does one water probe. Rendering only: no gameplay state, nothing is persisted.
 ##
@@ -17,6 +20,9 @@ extends Node3D
 ##   far below the hysteresis band. The shader still draws the displaced per-pixel waterline.
 ## - WS-07 caustic tiles: the shader uses a procedural stand-in (_uw_caustic).
 
+signal cue_played(cue_id: StringName)
+
+const AudioBusServiceScript := preload("res://scripts/settings/audio_bus_service.gd")
 const PASS_SHADER := preload("res://scripts/map/view3d/underwater_pass.gdshader")
 
 const STATE_AIR := 0
@@ -37,6 +43,11 @@ const LOWPASS_CUTOFF_HZ := 700.0
 const LOWPASS_OPEN_HZ := 20000.0
 const LOWPASS_FADE_SECONDS := 0.15
 const SHAFT_SAMPLES_BY_TIER := {&"minimum": 4, &"recommended": 8}
+const CUE_SUBMERGE := &"submerge"
+const CUE_EMERGE := &"emerge"
+const SUBMERGE_STREAM := preload("res://sounds/water/submerge.mp3")
+const EMERGE_STREAM := preload("res://sounds/water/emerge.mp3")
+const EMERGE_UNFILTERED_MIX := 0.001
 ## Water material uniforms the pass mirrors from the material under the camera, so the
 ## shared FFT include and the underwater light match the surface exactly.
 const MIRRORED_UNIFORMS: Array[StringName] = [
@@ -76,9 +87,15 @@ var water_probe: Callable
 var camera: Camera3D
 var quality_tier: StringName = &"recommended"
 
+## Test-visible cue log. One entry per AIR->UNDER or completed UNDER->AIR crossing.
+var played_cues: Array[StringName] = []
+
 var _material: ShaderMaterial
 var _quad: MeshInstance3D
+var _submerge_player: AudioStreamPlayer
+var _emerge_player: AudioStreamPlayer
 var _submerged_since_air := false
+var _emerge_pending := false
 var _lens_age := 0.0
 
 
@@ -134,6 +151,8 @@ func configure(view_camera: Camera3D, probe: Callable, tier: StringName) -> void
 	_quad.extra_cull_margin = 16384.0
 	_quad.visible = false
 	add_child(_quad)
+	_submerge_player = _make_player("SubmergeSfx", SUBMERGE_STREAM)
+	_emerge_player = _make_player("EmergeSfx", EMERGE_STREAM)
 
 
 func is_pass_visible() -> bool:
@@ -146,8 +165,13 @@ func pass_material() -> ShaderMaterial:
 
 func _exit_tree() -> void:
 	# The bus layout is global; never leave the world muffled after this view goes away.
+	_emerge_pending = false
 	lowpass_mix = 0.0
 	_apply_lowpass()
+	if _submerge_player != null:
+		_submerge_player.stop()
+	if _emerge_player != null:
+		_emerge_player.stop()
 
 
 ## Called every frame by MapView3D.
@@ -173,12 +197,16 @@ func advance(delta: float, depth: float, probe: Dictionary = {}) -> void:
 		var crest := float(probe.get("wave_margin", 0.0))
 		state = classify(depth, band, state, hysteresis_for_band(band), crest)
 	if state == STATE_UNDER:
+		if previous != STATE_UNDER:
+			_emerge_pending = false
+			_play_cue(CUE_SUBMERGE)
 		_submerged_since_air = true
 	if state == STATE_AIR and previous != STATE_AIR and _submerged_since_air:
 		_submerged_since_air = false
 		if perspective:
 			wet_lens_remaining = WET_LENS_SECONDS
 			_lens_age = 0.0
+			_emerge_pending = true
 	elif wet_lens_remaining > 0.0:
 		wet_lens_remaining = maxf(wet_lens_remaining - delta, 0.0)
 		_lens_age += delta
@@ -187,6 +215,9 @@ func advance(delta: float, depth: float, probe: Dictionary = {}) -> void:
 	var target := 1.0 if state == STATE_UNDER else 0.0
 	lowpass_mix = move_toward(lowpass_mix, target, delta / LOWPASS_FADE_SECONDS)
 	_apply_lowpass()
+	if _emerge_pending and lowpass_mix <= EMERGE_UNFILTERED_MIX:
+		_emerge_pending = false
+		_play_cue(CUE_EMERGE)
 	var show := state != STATE_AIR or wet_lens_remaining > 0.0
 	if _quad != null:
 		_quad.visible = show
@@ -252,6 +283,27 @@ func _apply_lowpass() -> void:
 	var effect := AudioServer.get_bus_effect(bus, index) as AudioEffectLowPassFilter
 	# Exponential sweep so the fade sounds even across octaves.
 	effect.cutoff_hz = LOWPASS_OPEN_HZ * pow(LOWPASS_CUTOFF_HZ / LOWPASS_OPEN_HZ, lowpass_mix)
-	var enabled := lowpass_mix > 0.001
+	var enabled := lowpass_mix > EMERGE_UNFILTERED_MIX
 	if AudioServer.is_bus_effect_enabled(bus, index) != enabled:
 		AudioServer.set_bus_effect_enabled(bus, index, enabled)
+
+
+func _make_player(player_name: String, stream: AudioStream) -> AudioStreamPlayer:
+	var player := AudioStreamPlayer.new()
+	player.name = player_name
+	player.stream = stream
+	if stream is AudioStreamMP3:
+		(stream as AudioStreamMP3).loop = false
+	AudioBusServiceScript.assign_bus(player, AudioBusServiceScript.BUS_SFX)
+	add_child(player)
+	return player
+
+
+func _play_cue(cue_id: StringName) -> void:
+	played_cues.append(cue_id)
+	cue_played.emit(cue_id)
+	var player := _submerge_player if cue_id == CUE_SUBMERGE else _emerge_player
+	if player == null or player.stream == null:
+		return
+	player.stop()
+	player.play()

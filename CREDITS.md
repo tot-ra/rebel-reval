@@ -88,6 +88,13 @@ Source: Sketchfab. Each model was rescaled, reoriented, re-rigged and animated f
 - Sheep - "Sheep" by hendrikReyneke. CC BY 4.0. Source: https://sketchfab.com/3d-models/sheep-67abff7459f34afca11e3effab62c761
 - Wild boar - "Bristled Wild Boar 3d Model Free" by iRahulRajput (rt699448). CC BY 4.0. Source: https://sketchfab.com/3d-models/bristled-wild-boar-3d-model-free-1c243598b9e54606a0bf1d8f5bf0a8b1
 
+## Water crossing sound effects
+
+In-house one-shots for the underwater camera pass. Synthesized Foley, not wildlife field recordings.
+
+- Harbour emerge splash - synthesized by project maintainer. AGPL-3.0-or-later (project author). Source: tools/audio/generate_water_cross_clips.py
+- Harbour submerge splash - synthesized by project maintainer. AGPL-3.0-or-later (project author). Source: tools/audio/generate_water_cross_clips.py
+
 ## Licenses
 
 - CC0 1.0: https://creativecommons.org/publicdomain/zero/1.0/

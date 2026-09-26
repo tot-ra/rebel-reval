@@ -246,6 +246,14 @@ also in the contract's "Final parameters and decisions" section:
    metres of fading distance. Real underwater depth is a follow-up before WS-14.
 6. **Tests file** `test_ocean_fft_material.gd` (reads the include too) was added to the allowed files.
 
+- [ ] WS-13c | deps: WS-13 | deliverable: CC0/attributed submerge and emerge one-shots through the audio attribution pipeline, played from UnderwaterPass on AIR->UNDER and UNDER->AIR; emerge is unfiltered after the SFX low-pass opens | allowed files: `scripts/map/view3d/underwater_pass.gd`, `sounds/water/*`, `tools/audio/generate_water_cross_clips.py`, `tools/verify_water_cross_clips.py`, `tools/generate_credits.py`, `CREDITS.md`, `assets/SOURCES.csv`, `tests/godot/test_underwater_pass.gd`, `tests/python/test_verify_water_cross_clips.py`, `TODO.md` | verify: `--filter=test_underwater_pass`; `python3 tools/verify_water_cross_clips.py`; credits generator and asset provenance validators pass
+
+WS-13c implementation landed (R-903). Decisions (2026-09-26):
+
+1. **In-house synthesis, not a field recording.** `tools/audio/generate_water_cross_clips.py` bakes two deterministic mono MP3 one-shots (lavfi seeds 903101-903203) so the row stays commercially usable without an external recordist. Attribution still goes manifest -> `generate_credits.py` -> CREDITS.md.
+2. **One cue per crossing.** AIR->UNDER plays `submerge` immediately. UNDER->AIR queues `emerge` and plays it only after `lowpass_mix` reaches 0, so the splash is not still under the 700 Hz cutoff. STRADDLE and hysteresis bobbing fire nothing. Diving again during the fade cancels the pending emerge.
+3. **Evidence:** `test_underwater_pass` crossing and cancel cases; `python3 tools/verify_water_cross_clips.py`. Follow-up R-915 replaces the synthetic Foley with a real harbour splash when sourced.
+
 - [ ] WS-13b | deps: WS-13 | deliverable: view-only sea basin under open-sea cells (shallow 1.0, deep 3.6 units below the flat gameplay bed; natural banks shelve, pier/stone edges drop), sand/silt seabed, border seabed apron, water shader measures its optical column to the flat bed so the top-down look is unchanged | allowed files: see `docs/tasks/water_sky/WS-13b_harbour_basin_depth.md` | verify: `--filter=test_ws13b_sea_basin_depth` and the water suites; harbour overview parity plates; `tools/capture_underwater.gd` under/up/sun/straddle/night/storm/dip plates on Metal and Compatibility
 
 WS-13b implementation landed (R-901, in review). Decisions (2026-09-25), full list in the task file:

@@ -3,10 +3,11 @@
 
 Why: every field recording we ship is Creative Commons licensed and therefore
 carries an attribution (BY) obligation. This script is the single source of
-truth that turns the machine-readable manifests (sounds/birds/manifest.csv and
-sounds/insects/manifest.csv) and the CC BY animal model manifest
-(assets/storybook/mammal_sources.json) into the human-readable CREDITS.md that is both
-committed to the repo and displayed in-game (Main Menu -> Credits).
+truth that turns the machine-readable manifests (sounds/birds/manifest.csv,
+sounds/insects/manifest.csv, and sounds/water/manifest.csv) and the CC BY animal
+model manifest (assets/storybook/mammal_sources.json) into the human-readable
+CREDITS.md that is both committed to the repo and displayed in-game
+(Main Menu -> Credits).
 
 Re-run after adding/removing any audio asset or licensed animal model:
     python3 tools/generate_credits.py
@@ -151,6 +152,28 @@ def main() -> None:
 
     lines.extend(model_lines())
 
+    # --- Water-crossing one-shots (WS-13c) ------------------------------
+    water_path = os.path.join(ROOT, "sounds/water/manifest.csv")
+    water = read_csv(water_path) if os.path.exists(water_path) else []
+    if water:
+        lines.append("## Water crossing sound effects")
+        lines.append("")
+        lines.append(
+            "In-house one-shots for the underwater camera pass. Synthesized "
+            "Foley, not wildlife field recordings."
+        )
+        lines.append("")
+        for row in sorted(water, key=lambda item: item.get("title") or item.get("clip_id") or ""):
+            title = (row.get("title") or row.get("clip_id") or "Untitled clip").strip()
+            author = (row.get("author") or "Unknown author").strip()
+            lic = license_name(row.get("license") or "")
+            src = (row.get("page") or "").strip()
+            line = f"- {title} - synthesized by {author}. {lic}."
+            if src:
+                line += f" Source: {src}"
+            lines.append(line)
+        lines.append("")
+
     # --- License references ---------------------------------------------
     lines.append("## Licenses")
     lines.append("")
@@ -169,7 +192,10 @@ def main() -> None:
     out = os.path.join(ROOT, "CREDITS.md")
     with open(out, "w", encoding="utf-8") as f:
         f.write("\n".join(lines))
-    print(f"Wrote {out} ({len(birds)} birds, {len(insects)} insects, 3D model credits)")
+    print(
+        f"Wrote {out} ({len(birds)} birds, {len(insects)} insects, "
+        f"{len(water)} water clips, 3D model credits)"
+    )
 
 
 if __name__ == "__main__":

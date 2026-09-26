@@ -203,6 +203,59 @@ func test_pass_exists_outdoors_over_water_and_not_in_interiors() -> void:
 	smithy_view.free()
 
 
+func test_submerge_and_emerge_cues_fire_once_per_crossing() -> void:
+	var pass_node := _make_pass()
+	pass_node.advance(FRAME, -1.0)
+	pass_node.advance(FRAME, 0.0)
+	assert_eq(pass_node.played_cues.size(), 0, "STRADDLE without UNDER is not a crossing")
+	pass_node.advance(FRAME, 1.0)
+	assert_eq(pass_node.played_cues, [UnderwaterPassScript.CUE_SUBMERGE], "AIR->UNDER plays submerge once")
+	# A camera bobbing on the UNDER threshold must not fire a second splash.
+	var band := UnderwaterPassScript.straddle_band(pass_node.camera)
+	var hyst := UnderwaterPassScript.hysteresis_for_band(band)
+	pass_node.advance(FRAME, band + hyst * 0.25)
+	pass_node.advance(FRAME, band - hyst * 0.25)
+	assert_eq(pass_node.played_cues.size(), 1, "hysteresis bobbing must not retrigger submerge")
+	assert_eq(pass_node.state, UNDER, "the bob stays UNDER")
+	pass_node.advance(FRAME, -1.0)
+	assert_eq(pass_node.played_cues.size(), 1, "emerge waits until the SFX low-pass has opened")
+	assert_true(UnderwaterPassScript.is_lowpass_enabled(), "the fade is still closing when AIR starts")
+	pass_node.advance(UnderwaterPassScript.LOWPASS_FADE_SECONDS, -1.0)
+	assert_eq(
+		pass_node.played_cues,
+		[UnderwaterPassScript.CUE_SUBMERGE, UnderwaterPassScript.CUE_EMERGE],
+		"UNDER->AIR plays emerge once after the low-pass opens"
+	)
+	assert_false(UnderwaterPassScript.is_lowpass_enabled(), "emerge is unfiltered")
+	var emerge_player := pass_node.get_node("EmergeSfx") as AudioStreamPlayer
+	assert_eq(emerge_player.bus, "SFX", "emerge still uses the SFX bus")
+	pass_node.advance(FRAME, 1.0)
+	assert_eq(pass_node.played_cues.size(), 3, "a second dive plays submerge again")
+	assert_eq(pass_node.played_cues[2], UnderwaterPassScript.CUE_SUBMERGE, "the third cue is the second dive")
+	_drop(pass_node)
+
+
+func test_ortho_and_cancelled_emerge_never_play_water_cues() -> void:
+	var ortho := _make_pass(Camera3D.PROJECTION_ORTHOGONAL)
+	ortho.advance(FRAME, 5.0)
+	ortho.advance(UnderwaterPassScript.LOWPASS_FADE_SECONDS, 5.0)
+	assert_eq(ortho.played_cues.size(), 0, "the orthographic overview never plays water cues")
+	_drop(ortho)
+	var pass_node := _make_pass()
+	pass_node.advance(FRAME, 1.0)
+	pass_node.advance(UnderwaterPassScript.LOWPASS_FADE_SECONDS, 1.0)
+	assert_true(UnderwaterPassScript.is_lowpass_enabled(), "a held dive muffles the SFX bus")
+	pass_node.advance(FRAME, -1.0)
+	assert_eq(pass_node.played_cues, [UnderwaterPassScript.CUE_SUBMERGE], "emerge is still pending during the fade")
+	assert_true(pass_node.lowpass_mix > UnderwaterPassScript.EMERGE_UNFILTERED_MIX, "one AIR frame does not finish the fade")
+	pass_node.advance(FRAME, 1.0)
+	assert_eq(pass_node.played_cues.size(), 2, "diving again cancels the pending emerge")
+	assert_eq(pass_node.played_cues[1], UnderwaterPassScript.CUE_SUBMERGE, "the second cue is another submerge")
+	pass_node.advance(UnderwaterPassScript.LOWPASS_FADE_SECONDS, 1.0)
+	assert_eq(pass_node.played_cues.size(), 2, "staying UNDER after a cancelled emerge plays nothing")
+	_drop(pass_node)
+
+
 func test_shaders_share_the_fft_include_and_draw_the_medium() -> void:
 	var code := (load(PASS_SHADER_PATH) as Shader).code
 	assert_true(code.contains('#include "res://scripts/map/view3d/ocean_fft_common.gdshaderinc"'), "the pass samples the same FFT waterline as the surface")

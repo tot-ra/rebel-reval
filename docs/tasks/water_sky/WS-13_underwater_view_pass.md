@@ -177,4 +177,5 @@ task. It is a rendering task only. Moving the player under water is WS-14.
   Cost (`--bench=600`, 1080p, wall clock): pass delta within noise, under 0.3 ms on Metal and
   Compatibility (Compatibility is vsync-bound at 16.7 ms); 0 in AIR (quad hidden).
 - Limitation: the view water column is ~9 mm, so there is no visible metres-scale depth yet.
-  Follow-ups: real basin depth before WS-14, submerge/emerge SFX, and the 0..255 sun colour.
+  Follow-ups: real basin depth before WS-14, and the 0..255 sun colour.
+  Submerge/emerge SFX landed as WS-13c / R-903.

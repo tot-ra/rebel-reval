@@ -23,7 +23,8 @@ This file contains lessons specific to the Dev role.
 
 ### Harness, import, and capture
 - On-commit Godot resolution should honor `GODOT_BIN`, then `godot` on PATH, then `/Applications/Godot.app/Contents/MacOS/Godot`.
-- After adding a `class_name` or new GLB, run a headless import before tests. `ResourceLoader.exists` stays false until `.import` sidecars exist.
+- After adding a `class_name`, new GLB, or new runtime audio file, run a headless import before tests. `ResourceLoader.exists` stays false until `.import` sidecars exist. Do not invent a placeholder `path=` / `dest_files=` hash in a new sidecar: Godot tries to load that dest on the first `--import`, and `preload()` of the audio then fails the whole script graph. Let import rewrite the sidecar, then commit that file.
+- Tests for fade-gated SFX (emerge after a low-pass opens) must hold the muffled state until the mix actually reaches 1. A one-frame dip leaves `lowpass_mix` near 0, so the unfiltered cue fires on the next AIR frame; that is correct runtime behaviour, not a cancelled pending cue.
 - `verify_clean_checkout_load.sh` must reject a missing `GODOT_BIN` before `git worktree add`.
 - Headless SubViewport captures hit the dummy renderer. Take PNG evidence through `tools/godot_render.sh` (add `--rendering-method mobile --rendering-driver metal` for Metal plates) and never with the bare Godot binary, which pops up a window. The minimized wrapper window still renders the root viewport at full size, so windowed benchmarks are valid through it too. Do not pipe the checked runner through `tail` while it is still running.
 - A follow-up that reuses a capture tool still writes that tool's `wsNN_*` filenames. Copy the new plates to the follow-up names first, then `git restore --source=HEAD` the tracked originals. Leaving the predecessor path dirty folds new evidence into the wrong task.
