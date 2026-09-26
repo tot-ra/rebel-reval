@@ -11,6 +11,7 @@ func before_each() -> void:
 func after_each() -> void:
 	SharedCharacterRig._detach_render_geometry(rig)
 	rig.free()
+	super.after_each()
 
 func _visible(prefix: String) -> bool:
 	for found: Node in rig.find_children("*", "MeshInstance3D", true, false):

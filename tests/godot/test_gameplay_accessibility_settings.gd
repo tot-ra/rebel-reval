@@ -17,7 +17,7 @@ func after_each() -> void:
 	PlayerInputScript.reset_guard_toggle()
 	if _tree().root.has_node("/root/UserSettings"):
 		UserSettings.reload_gameplay_accessibility_settings()
-
+	super.after_each()
 
 func test_gameplay_accessibility_settings_round_trip_persists_all_fields() -> void:
 	var store = _store()

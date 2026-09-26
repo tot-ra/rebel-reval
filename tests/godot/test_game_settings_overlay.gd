@@ -3,6 +3,7 @@ extends "res://tests/godot/test_case.gd"
 const AudioBusServiceScript := preload("res://scripts/settings/audio_bus_service.gd")
 const ControllerScript := preload("res://scripts/ui/game_settings_controller.gd")
 const OverlayScript := preload("res://scripts/ui/game_settings_overlay.gd")
+const PlayerInputScript := preload("res://scripts/player/player_action_input.gd")
 const StoreScript := preload("res://scripts/settings/user_settings_store.gd")
 
 
@@ -13,9 +14,14 @@ func before_each() -> void:
 
 func after_each() -> void:
 	_cleanup_temp_dir()
+	# WHY: overlay tests apply guard-toggle and other live UserSettings. Reloading
+	# only audio/dialogue left gameplay accessibility on later combat files.
+	UserSettings.store.settings_directory = StoreScript.DEFAULT_DIRECTORY
 	UserSettings.reload_audio_settings()
 	UserSettings.reload_dialogue_settings()
-
+	UserSettings.reload_gameplay_accessibility_settings()
+	PlayerInputScript.reset_guard_toggle()
+	super.after_each()
 
 func test_overlay_starts_hidden_and_esc_closes_when_open() -> void:
 	var controller = await _make_controller()

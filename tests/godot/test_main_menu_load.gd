@@ -20,7 +20,7 @@ func after_each() -> void:
 	if not _save_directory.is_empty():
 		_remove_tree(_save_directory)
 	_save_directory = ""
-
+	super.after_each()
 
 func test_load_label_hidden_without_saves() -> void:
 	var menu := MainMenuScene.instantiate()

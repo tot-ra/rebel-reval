@@ -16,7 +16,7 @@ const CELL_TOLERANCE := 0.1
 func after_each() -> void:
 	MapViewMaterials.set_shore_swash_quality_tier(SkyWeather.QUALITY_RECOMMENDED)
 	MapViewMaterials.apply_shore_field(null, Vector2.ZERO, Vector2.ONE)
-
+	super.after_each()
 
 func test_signed_distance_matches_the_water_contour() -> void:
 	var grid := MapBuilder.build(_shore_definition())

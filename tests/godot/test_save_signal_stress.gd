@@ -26,7 +26,7 @@ func before_each() -> void:
 
 func after_each() -> void:
 	_cleanup_temp_dir()
-
+	super.after_each()
 
 func test_repeated_combat_signals_can_save_without_interrupting_resolution() -> void:
 	var state := GameState.new()

@@ -21,7 +21,7 @@ func before_each() -> void:
 
 func after_each() -> void:
 	_remove_tree(_test_root)
-
+	super.after_each()
 
 func test_night_and_crackdown_reduce_civilians_reposition_them_and_raise_watch() -> void:
 	var day := ProfileScript.day(PHASE_DAY, DATE_OFF_DAY, REPLAY_SEED)

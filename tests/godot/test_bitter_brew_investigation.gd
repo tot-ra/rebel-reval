@@ -20,6 +20,12 @@ const SITE_SUPPLY := &"interact.bitter_brew.supply"
 const SITE_CHECKPOINT := &"interact.bitter_brew.checkpoint"
 
 
+func after_each() -> void:
+	# WHY: load-in-place of examples/valid can leave a narrower corpus on the
+	# same ContentDB object. Force the demo corpus back for later files.
+	restore_demo_session(true)
+
+
 func test_bitter_brew_quest_content_defines_four_evidence_facts() -> void:
 	var db := ContentDB.new()
 	assert_true(db.load_from_directories([VALID_DIR, SUPPORT_DIR]))

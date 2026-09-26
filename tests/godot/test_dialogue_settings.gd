@@ -12,7 +12,7 @@ func before_each() -> void:
 
 func after_each() -> void:
 	_cleanup_temp_dir()
-
+	super.after_each()
 
 func test_dialogue_settings_round_trip_persists_all_fields() -> void:
 	var store = _store()

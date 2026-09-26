@@ -15,7 +15,7 @@ func before_each() -> void:
 
 func after_each() -> void:
 	_remove_tree(_test_root)
-
+	super.after_each()
 
 func test_state_round_trips_and_outcome_is_immutable() -> void:
 	var state := GameState.new()

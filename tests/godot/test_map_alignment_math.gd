@@ -9,7 +9,7 @@ var _definitions: Array[MapDefinition] = []
 func after_each() -> void:
 	# Releasing the strong references is sufficient for RefCounted definitions.
 	_definitions.clear()
-
+	super.after_each()
 
 func _definition(path: String) -> MapDefinition:
 	var parsed := MapRrmapParser.parse_file(path)

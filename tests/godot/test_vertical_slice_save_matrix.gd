@@ -14,7 +14,7 @@ func before_each() -> void:
 
 func after_each() -> void:
 	_cleanup_save_directory()
-
+	super.after_each()
 
 func test_save_matrix_preserves_state_at_every_checkpoint_for_each_branch() -> void:
 	for branch_id in FlowModel.branch_ids():

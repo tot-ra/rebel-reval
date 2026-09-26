@@ -14,7 +14,7 @@ func before_each() -> void:
 
 func after_each() -> void:
 	_remove_tree(_test_root)
-
+	super.after_each()
 
 func test_rrmaps_preserve_evidence_bounded_shore_contract() -> void:
 	for path in [NORTH_RRMAP_PATH, EAST_RRMAP_PATH]:

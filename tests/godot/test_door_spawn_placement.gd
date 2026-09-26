@@ -5,7 +5,7 @@ const KalevSmithy := preload("res://scripts/map/definitions/lower_town/kalev_smi
 
 func after_each() -> void:
 	DoorNavigator.clear_pending_spawn()
-
+	super.after_each()
 
 func test_place_player_keeps_courtyard_door_spawn_after_pending_clears() -> void:
 	# Regression: scenes used to treat cleared pending_spawn_id as "use player_spawn",

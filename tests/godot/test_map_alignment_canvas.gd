@@ -11,7 +11,7 @@ func before_each() -> void:
 func after_each() -> void:
 	_canvas.free()
 	_canvas = null
-
+	super.after_each()
 
 func test_background_transform_and_visibility_define_world_bounds() -> void:
 	var image := Image.create(40, 20, false, Image.FORMAT_RGBA8)

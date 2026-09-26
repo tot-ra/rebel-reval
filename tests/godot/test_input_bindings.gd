@@ -67,7 +67,7 @@ func before_each() -> void:
 func after_each() -> void:
 	BindingSettings.default_settings().apply_to_input_map()
 	_cleanup_temp_dir()
-
+	super.after_each()
 
 func test_every_slice_action_has_keyboard_mouse_and_gamepad_defaults() -> void:
 	var bindings = BindingSettings.default_settings()

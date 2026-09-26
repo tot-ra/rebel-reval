@@ -19,7 +19,7 @@ func before_each() -> void:
 
 func after_each() -> void:
 	_cleanup_temp_dir()
-
+	super.after_each()
 
 func test_fresh_entry_creates_stable_state_and_round_trips_through_save_service() -> void:
 	var state := GameState.new()

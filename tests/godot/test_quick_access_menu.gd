@@ -12,7 +12,7 @@ func before_each() -> void:
 
 func after_each() -> void:
 	SessionState.state.set_equipped_forge_technique(&"")
-
+	super.after_each()
 
 func test_menu_exposes_named_player_actions() -> void:
 	var menu := QuickAccessMenu.new()

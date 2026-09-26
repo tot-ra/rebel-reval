@@ -4,6 +4,12 @@ const PLAYER_SCENE := preload("res://player.tscn")
 const TEST_DELTA := 1.0
 
 
+func after_each() -> void:
+	# WHY: the mixed demo+examples corpus still has isolation sentinels, so an
+	# unforced restore leaves the narrower records loaded for later files.
+	restore_demo_session(true)
+
+
 func test_encumbrance_reduces_run_speed() -> void:
 	_bootstrap_session()
 	SessionState.state.bag.try_add(&"item.forge_hammer")
@@ -45,7 +51,7 @@ func _bootstrap_session() -> void:
 
 
 func _teardown_session() -> void:
-	restore_demo_session()
+	restore_demo_session(true)
 
 
 func _create_player() -> Player:

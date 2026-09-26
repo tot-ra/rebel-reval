@@ -15,7 +15,7 @@ func before_each() -> void:
 func after_each() -> void:
 	SharedCharacterRig._detach_render_geometry(rig)
 	rig.free()
-
+	super.after_each()
 
 func test_stable_live_scene_uses_fresh_body_and_identity() -> void:
 	assert_eq(rig.variant_id(), &"char.kalev")

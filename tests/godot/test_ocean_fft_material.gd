@@ -22,7 +22,7 @@ func after_each() -> void:
 	WaterMaterials.force_ocean_fft_support = false
 	WaterMaterials.set_ocean_fft_quality_tier(SkyWeather.QUALITY_RECOMMENDED)
 	WaterMaterials.reset()
-
+	super.after_each()
 
 func _sea_material(terrain_id: StringName = MapTypesContract.TERRAIN_DEEP_WATER) -> ShaderMaterial:
 	return WaterMaterials.water_surface(terrain_id, MaterialsFacade.WATER_WAVE_BASE)

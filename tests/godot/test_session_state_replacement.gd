@@ -39,7 +39,7 @@ func after_each() -> void:
 	if not _save_directory.is_empty():
 		_remove_tree(_save_directory)
 	_save_directory = ""
-
+	super.after_each()
 
 func test_manual_load_rebinds_live_consumers_and_subsequent_saves() -> void:
 	var previous := SessionState.state
