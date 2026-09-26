@@ -60,6 +60,7 @@ func before_each() -> void:
 
 func after_each() -> void:
 	_cleanup_save_directory()
+	restore_demo_session()
 
 
 func test_release_manifest_binds_exact_p4_013_package() -> void:

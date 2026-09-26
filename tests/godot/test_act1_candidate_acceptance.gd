@@ -33,6 +33,7 @@ func before_each() -> void:
 
 func after_each() -> void:
 	_cleanup_save_directory()
+	restore_demo_session()
 
 
 func test_candidate_budget_stays_eight_quests_and_one_climax() -> void:

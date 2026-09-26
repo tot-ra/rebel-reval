@@ -56,6 +56,7 @@ func before_each() -> void:
 
 func after_each() -> void:
 	_cleanup_save_directory()
+	restore_demo_session()
 
 
 func test_supported_input_actions_have_keyboard_mouse_and_gamepad_bindings() -> void:

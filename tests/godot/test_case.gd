@@ -21,7 +21,10 @@ func before_each() -> void:
 	_failures.clear()
 
 func after_each() -> void:
-	pass
+	# WHY: file-level isolate_session_globals() is not the only backstop.
+	# A test that assigned a narrower ContentDB must leave the demo corpus
+	# installed even if a later file skips isolation.
+	restore_demo_session()
 
 
 ## Snapshot autoload/root children once so later files cannot inherit leftover
