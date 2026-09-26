@@ -340,8 +340,10 @@ camera over the harbour and the quay, then a low view towards and away from the 
 
 R-941 implementation landed. The dome samples the sky-view LUT through
 `atmosphere_sky_view_uv(dir, sun_direction, sky_lut_size)` and uses `ATMO_SKY_VIEW_HEIGHT_KM`
-for the sun-disk transmittance height. No visual change intended. Focused tests and the
-Compatibility elevation-5 plate are the remaining verify items.
+for the sun-disk transmittance height. `--filter=test_sky_weather_3d,test_sky_atmosphere_lut`
+35/35. Compatibility `ws10_opengl3_clear_lut_e5.png` vs a HEAD recapture is pixel-identical
+in the top 40% sky (0 differing pixels). Full-frame 1 LSB fails on water/boats: two after
+captures of the same shader also differ there (max 116) while the sky stays 0.
 
 - [ ] WS-07 | deps: WS-01, WS-03 | deliverable: photon-splat caustic tiles (fine/broad) baked from the FFT spectrum and applied as bed light along the refracted sun ray with depth focus, anisotropic-safe gradients, dispersion and cloud/sun gating; sine-lattice caustics removed | allowed files: `tools/bake_ocean_fft.py`, `tests/python/test_bake_ocean_fft.py`, `assets/water/ocean_fft/caustics_fine.png`, `assets/water/ocean_fft/caustics_broad.png`, `assets/SOURCES.csv`, `scripts/map/view3d/map_view_water.gdshader`, `scripts/map/view3d/map_view_water_materials.gd`, `tests/godot/test_r715_water_material_contract.gd`, `docs/reports/images/ws07_*.png`, `TODO.md` | verify: tile seam/energy tests; contract test; noon/sunset/overcast/night captures and an orbit clip show a depth-focused, sun-leaning, shimmer-free caustic net on the bed
 

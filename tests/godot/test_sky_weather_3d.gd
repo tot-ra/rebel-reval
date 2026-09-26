@@ -593,6 +593,22 @@ func test_sky_shader_covers_required_features() -> void:
 		"solar_glare_fade" in source,
 		"near-sun crescents must fade in solar glare instead of sitting on the sun disk"
 	)
+	assert_true(
+		"atmosphere_sky_view_uv(dir, sun_direction, sky_lut_size)" in source,
+		"the dome must share WS-11 sky-view UV with water reflections"
+	)
+	assert_true(
+		"vec2 sky_view_uv(" not in source,
+		"the private sky_view_uv copy must be deleted so the dome cannot drift from water"
+	)
+	assert_true(
+		"const float SKY_VIEW_HEIGHT_KM" not in source,
+		"view height must come from ATMO_SKY_VIEW_HEIGHT_KM"
+	)
+	assert_true(
+		"ATMO_SKY_VIEW_HEIGHT_KM" in source,
+		"sun transmittance altitude must use the shared view-height constant"
+	)
 
 
 func test_clear_weather_is_partly_cloudy_with_moving_banks() -> void:

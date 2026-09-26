@@ -101,39 +101,13 @@ uniform float sun_disk_scale : hint_range(0.0, 1.0) = 0.218;
 // near the old near-white sun_lit tone once the LUT ambient is added.
 uniform float cloud_sun_scale : hint_range(0.0, 0.5) = 0.08;
 
-// Tidewater viewHeight 6360.002 km; the LUT was rendered from this height.
-const float SKY_VIEW_HEIGHT_KM = 6360.002;
 // Cloud base altitude used for the physical cloud sun colour (contract: R_ground + 1.5 km).
 const float CLOUD_HEIGHT_KM = 1.5;
 
 
-// Inverse of the sky_view_lut.gdshader mapping (Hillaire SkyViewLutParamsToUv), sky half only:
-// below-horizon rays clamp to the last sky row so bilinear filtering never blends the ground
-// half into the horizon (the map, not the LUT, draws everything below it).
-vec2 sky_view_uv(vec3 dir) {
-	float r = SKY_VIEW_HEIGHT_KM;
-	float v_horizon = sqrt(r * r - ATMO_RG * ATMO_RG);
-	float beta = acos(v_horizon / r);
-	float zh = ATMO_PI - beta;
-	float view_zenith = min(acos(clamp(dir.y, -1.0, 1.0)), zh);
-	float unit_y = (1.0 - sqrt(max(1.0 - view_zenith / zh, 0.0))) * 0.5;
-	float last_sky_row = (sky_lut_size.y * 0.5 - 1.0) / (sky_lut_size.y - 1.0);
-	unit_y = min(unit_y, last_sky_row);
-	vec2 view_h = dir.xz;
-	vec2 sun_h = sun_direction.xz;
-	float cos_light_view = 1.0;
-	if (dot(view_h, view_h) > 1e-8 && dot(sun_h, sun_h) > 1e-8) {
-		cos_light_view = clamp(dot(normalize(view_h), normalize(sun_h)), -1.0, 1.0);
-	}
-	float unit_x = sqrt(clamp(-cos_light_view * 0.5 + 0.5, 0.0, 1.0));
-	return vec2(
-		atmosphere_unit_to_sub_uv(unit_x, sky_lut_size.x),
-		atmosphere_unit_to_sub_uv(unit_y, sky_lut_size.y));
-}
-
-
+// R-941: share WS-11 atmosphere_sky_view_uv so the dome and water reflections cannot drift.
 vec3 sky_lut_radiance(vec3 dir) {
-	return texture(sky_view_lut, sky_view_uv(dir)).rgb;
+	return texture(sky_view_lut, atmosphere_sky_view_uv(dir, sun_direction, sky_lut_size)).rgb;
 }
 
 
@@ -454,7 +428,7 @@ void sky() {
 		// Same disk and halo, coloured by the air mass: sun_illuminance * T(ground, mu_sun)
 		// turns the disk orange-red at the horizon without an art ramp. Divided by the old
 		// 2.4 peak so the disk * 2.4 + halo weighting below stays unchanged.
-		sun_tint = sun_illuminance * sun_transmittance_at(SKY_VIEW_HEIGHT_KM - ATMO_RG)
+		sun_tint = sun_illuminance * sun_transmittance_at(ATMO_SKY_VIEW_HEIGHT_KM - ATMO_RG)
 			* sun_disk_scale / 2.4;
 		// Limb darkening 1 - 0.6 * (1 - sqrt(1 - (d/r)^2)).
 		float d_over_r = clamp(sun_distance / 0.0053, 0.0, 1.0);
