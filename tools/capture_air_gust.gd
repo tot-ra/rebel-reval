@@ -1,6 +1,6 @@
 extends SceneTree
 
-## R-913 evidence: Air Gust wind cone plus the authored knockback slide.
+## R-913 studio plates plus R-927 in-map gameplay-camera plates.
 ## Run with a rendering-capable process (no --headless):
 ##   tools/godot_render.sh --script tools/capture_air_gust.gd
 
@@ -8,6 +8,11 @@ const KALEV_SCENE := preload("res://assets/characters/kalev/kalev.tscn")
 const WATCHMAN_SCENE := preload("res://assets/characters/variants/watchman.tscn")
 const BANDIT_SCENE := preload("res://assets/characters/variants/bandit.tscn")
 const ENEMY_SCRIPT := preload("res://scripts/combat/combat_room_enemy.gd")
+const LowerTownSlice := preload(
+	"res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd"
+)
+const MapBuilder := preload("res://scripts/map/map_builder.gd")
+const CharacterScale := preload("res://assets/characters/shared/character_scale.gd")
 const CONTENT_DIRS: Array[String] = [
 	"res://content/examples/valid",
 	"res://content/examples/support",
@@ -21,6 +26,8 @@ const CASTER_LOGIC := Vector2.ZERO
 const TARGET_LOGIC := Vector2(64.0, 0.0)
 const CAST_DIR := Vector2.RIGHT
 const MID_SLIDE_SEC := 0.10
+const IN_MAP_FOCUS_ANCHOR := &"street_start"
+const IN_MAP_WARMUP_FRAMES := 16
 const AIR: Array[StringName] = [&"element.air"]
 
 
@@ -30,10 +37,16 @@ func _initialize() -> void:
 
 func _run() -> void:
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
-	if not await _capture_combat_room_watchman():
-		quit(1)
-		return
-	if not await _capture_workers_district_bandit():
+	# WHY: rerunning the in-map pair must not rewrite the accepted R-924 studio plates.
+	var skip_studio := "--skip-studio" in OS.get_cmdline_user_args()
+	if not skip_studio:
+		if not await _capture_combat_room_watchman():
+			quit(1)
+			return
+		if not await _capture_workers_district_bandit():
+			quit(1)
+			return
+	if not await _capture_in_map_lower_town():
 		quit(1)
 		return
 	quit(0)
@@ -87,6 +100,124 @@ func _capture_workers_district_bandit() -> bool:
 	)
 	host.free()
 	return ok
+
+
+func _capture_in_map_lower_town() -> bool:
+	# WHY: R-924 only judged the studio floor. R-927 needs the same cone on a
+	# playable Lower Town street at the shipped gameplay orthographic size.
+	var definition := LowerTownSlice.create()
+	if definition == null or String(definition.map_id) != "lower_town_slice":
+		push_error("R-927 expected lower_town_slice, got %s" % definition.map_id)
+		return false
+	if not MapVerification.has_anchor(definition, IN_MAP_FOCUS_ANCHOR):
+		push_error("R-927 missing anchor %s" % String(IN_MAP_FOCUS_ANCHOR))
+		return false
+	# street_start is the playable Lower Town spawn on the east-west spine.
+	# Midpoint of checkpoint_west -> brewery_door sat inside roof mass.
+	var heading := Vector2.RIGHT
+	var focus_logic := MapVerification.anchor_position(definition, IN_MAP_FOCUS_ANCHOR)
+	var caster_logic := focus_logic - heading * 32.0
+	var target_logic := focus_logic + heading * 32.0
+	var cell_size := definition.cell_size
+	var host := Node2D.new()
+	root.add_child(host)
+	var caster := Node2D.new()
+	host.add_child(caster)
+	caster.global_position = caster_logic
+	var watchman := ENEMY_SCRIPT.new() as CombatRoomEnemy
+	host.add_child(watchman)
+	watchman.configure(EnemyArchetype.watchman(), Color.WHITE)
+	watchman.global_position = target_logic
+	watchman.set_ai_target(caster)
+	watchman.set_process(false)
+	watchman.set_physics_process(false)
+
+	var viewport := SubViewport.new()
+	viewport.size = VIEWPORT_SIZE
+	viewport.own_world_3d = true
+	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	root.add_child(viewport)
+	var view := MapView3D.create(
+		definition, MapBuilder.build(definition), MapView3D.TIME_DAY
+	)
+	viewport.add_child(view)
+	var vfx := MapViewMagicVfx.new()
+	vfx.name = "MagicVfx"
+	view.add_child(vfx)
+	var caster_rig := KALEV_SCENE.instantiate() as SharedCharacterRig
+	var target_rig := WATCHMAN_SCENE.instantiate() as SharedCharacterRig
+	view.add_child(caster_rig)
+	view.add_child(target_rig)
+	caster_rig.add_to_group(&"player_view_rig")
+	_sync_in_map_rig(view, caster_rig, caster_logic, heading)
+	_sync_in_map_rig(view, target_rig, target_logic, -heading)
+	caster_rig.play_animation(&"idle")
+	target_rig.play_animation(&"idle")
+	var camera := view.view_camera()
+	if camera == null:
+		push_error("R-927 MapView3D has no camera")
+		viewport.queue_free()
+		host.free()
+		return false
+	var focus_world := view.world_position(focus_logic, 0.8)
+	_configure_gameplay_camera(camera, focus_world)
+	print(
+		"R-927 focus_logic=%s focus_world=%s caster_y=%.3f"
+		% [focus_logic, focus_world, caster_rig.position.y]
+	)
+	_add_caption(viewport, "in map lower town day")
+	var fog := view.get_node_or_null("FogOfWar")
+	if fog != null:
+		fog.call("update_view", caster_rig.global_position)
+	for _frame in IN_MAP_WARMUP_FRAMES:
+		await process_frame
+
+	if not await _save(viewport, "in_map_lower_town_before"):
+		return false
+	if not _cast_gust(caster, watchman.get_parent(), heading):
+		push_error("Air Gust cast failed for in-map Lower Town")
+		return false
+	var burst := vfx.play_knockback_cone(
+		caster_logic, heading, GUST_RADIUS, GUST_ARC, cell_size
+	)
+	if burst != null:
+		# Street terrain may sit above y=0; keep the studio-authored wedge on the road.
+		burst.position.y = caster_rig.position.y
+	target_rig.play_animation(&"hit")
+	_step_knockback(watchman, caster, MID_SLIDE_SEC)
+	_sync_in_map_rig(view, target_rig, watchman.global_position, -heading)
+	if fog != null:
+		fog.call("update_view", caster_rig.global_position)
+	if not await _save(viewport, "in_map_lower_town_mid"):
+		return false
+	_step_knockback(watchman, caster, CombatKnockbackEffect.SLIDE_SEC)
+	_sync_in_map_rig(view, target_rig, watchman.global_position, -heading)
+	if not await _save(viewport, "in_map_lower_town_after"):
+		return false
+	viewport.queue_free()
+	host.free()
+	await process_frame
+	return true
+
+
+func _configure_gameplay_camera(camera: Camera3D, focus_world: Vector3) -> void:
+	# Studio plates use size 7.0 so the wedge fills the frame. In-map plates
+	# must use the shipped gameplay crop so cobble and foliage stay in shot.
+	camera.rotation_degrees = Vector3(
+		MapView3D.CAMERA_PITCH_DEGREES, MapView3D.CAMERA_YAW_DEGREES, 0.0
+	)
+	camera.size = CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE
+	camera.global_position = (
+		focus_world + camera.global_transform.basis.z * MapView3D.CAMERA_DISTANCE
+	)
+	camera.current = true
+
+
+func _sync_in_map_rig(
+	view: MapView3D, rig: SharedCharacterRig, logic: Vector2, facing: Vector2
+) -> void:
+	view.sync_actor(rig, logic)
+	rig.set_facing(facing)
 
 
 func _capture_pair(
@@ -144,7 +275,7 @@ func _capture_pair(
 	return true
 
 
-func _cast_gust(caster: Node2D, host: Node) -> bool:
+func _cast_gust(caster: Node2D, host: Node, heading: Vector2 = CAST_DIR) -> bool:
 	var db := ContentDB.new()
 	if not db.load_from_directories(CONTENT_DIRS):
 		return false
@@ -155,7 +286,7 @@ func _cast_gust(caster: Node2D, host: Node) -> bool:
 	var result := MagicResolver.cast(state, db, &"", AIR)
 	if not bool(result.get("ok", false)):
 		return false
-	return MagicCastExecutor2D.execute(result, caster, CAST_DIR, host) != null
+	return MagicCastExecutor2D.execute(result, caster, heading, host) != null
 
 
 func _step_knockback(target: CombatRoomEnemy, caster: Node2D, seconds: float) -> void:
@@ -166,8 +297,13 @@ func _step_knockback(target: CombatRoomEnemy, caster: Node2D, seconds: float) ->
 		remaining -= step
 
 
-func _sync_rig(rig: SharedCharacterRig, logic: Vector2, facing: Vector2) -> void:
-	MapViewBridge.sync_actor(rig, logic, CELL_SIZE)
+func _sync_rig(
+	rig: SharedCharacterRig,
+	logic: Vector2,
+	facing: Vector2,
+	cell_size: int = CELL_SIZE
+) -> void:
+	MapViewBridge.sync_actor(rig, logic, cell_size)
 	rig.set_facing(facing)
 
 

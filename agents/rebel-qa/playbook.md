@@ -23,3 +23,4 @@ This file contains lessons specific to the Qa role.
 - `tools/verify_supported_platform.sh` runs packaged-platform smoke before mounting the DMG. A MapViewRuntime parse defect fails that entrypoint and never reaches install/start/save/load/exit.
 - For Act 1 packaging, keep the DMG gitignored and force-add only the small SHA fingerprint sidecars so QA can bind the release without committing a multi-gigabyte binary.
 - After a batch returns non-zero without a reliable summary, inspect every saved per-suite log and classify wrapper failures separately from assertions and engine diagnostics.
+- In-map gameplay-camera captures must focus a named street spawn or street anchor, call `MapView3D.sync_actor`, and set the shipped dimetric rotation explicitly. A long-route midpoint often sits inside roof mass, so actors and VFX vanish. Do not rerun a combined studio+in-map tool without a skip flag: it rewrites accepted studio plates.
