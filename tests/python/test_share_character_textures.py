@@ -17,8 +17,10 @@ if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
 from share_character_textures import (  # noqa: E402
+    SharedTextureMismatch,
     apply_repository,
     canonical_stem,
+    link_exported_character_glb,
     link_glb_to_shared_textures,
     parse_glb,
     verify_repository,
@@ -26,7 +28,7 @@ from share_character_textures import (  # noqa: E402
 )
 
 
-def _png(width: int, height: int, rgb: tuple[int, int, int]) -> bytes:
+def _png(width: int, height: int, rgb: tuple[int, int, int], compress: int = 9) -> bytes:
     def chunk(chunk_type: bytes, data: bytes) -> bytes:
         return (
             struct.pack(">I", len(data))
@@ -40,9 +42,23 @@ def _png(width: int, height: int, rgb: tuple[int, int, int]) -> bytes:
     return (
         b"\x89PNG\r\n\x1a\n"
         + chunk(b"IHDR", ihdr)
-        + chunk(b"IDAT", zlib.compress(raw, 9))
+        + chunk(b"IDAT", zlib.compress(raw, compress))
         + chunk(b"IEND", b"")
     )
+
+
+def _png_with_comment(png: bytes, comment: bytes) -> bytes:
+    """Same pixels, different bytes: insert a tEXt chunk before IEND."""
+    iend = png.rfind(b"IEND")
+    start = iend - 4
+    payload = b"Comment\x00" + comment
+    chunk = (
+        struct.pack(">I", len(payload))
+        + b"tEXt"
+        + payload
+        + struct.pack(">I", zlib.crc32(b"tEXt" + payload) & 0xFFFFFFFF)
+    )
+    return png[:start] + chunk + png[start:]
 
 
 def _write_glb_with_image(path: Path, image_name: str, png: bytes, mesh_pad: bytes) -> None:
@@ -153,6 +169,81 @@ class ShareCharacterTexturesTest(unittest.TestCase):
             self.assertEqual(first["linked"], 1)
             self.assertEqual(second["already"], 1)
             self.assertEqual(second["linked"], 0)
+
+    def test_link_keeps_canonical_on_encoding_only_png(self) -> None:
+        kept = _png(2, 2, (40, 80, 120))
+        harvested = _png_with_comment(kept, b"blender-export")
+        self.assertNotEqual(kept, harvested)
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            shared = root / "assets" / "characters" / "shared"
+            textures = shared / "textures"
+            textures.mkdir(parents=True)
+            glb = shared / "crowd.glb"
+            _write_glb_with_image(glb, "hero_tex_cloth_albedo", harvested, b"\x02" * 16)
+            canonical = textures / "hero_tex_cloth_albedo.png"
+            canonical.write_bytes(kept)
+            result = link_exported_character_glb(glb, root=root)
+            self.assertEqual(canonical.read_bytes(), kept)
+            gltf, _bin = parse_glb(glb)
+            self.assertEqual(gltf["images"][0]["uri"], "textures/hero_tex_cloth_albedo.png")
+            self.assertNotIn("bufferView", gltf["images"][0])
+            self.assertEqual(result["linked"], 1)
+            self.assertEqual(result["canonical"], 0)
+
+    def test_link_refuses_pixel_mismatch_without_opt_in(self) -> None:
+        kept = _png(2, 2, (0, 10, 0))
+        harvested = _png(2, 2, (0, 10, 255))
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            shared = root / "assets" / "characters" / "shared"
+            textures = shared / "textures"
+            textures.mkdir(parents=True)
+            glb = shared / "crowd.glb"
+            _write_glb_with_image(
+                glb,
+                "hero_tex_cloth_ao-hero_tex_cloth_roughness",
+                harvested,
+                b"\x03" * 16,
+            )
+            canonical = textures / "hero_tex_cloth_ao-hero_tex_cloth_roughness.png"
+            canonical.write_bytes(kept)
+            with self.assertRaises(SharedTextureMismatch) as ctx:
+                link_exported_character_glb(glb, root=root)
+            message = str(ctx.exception)
+            self.assertIn("pixel mismatch", message)
+            self.assertIn("--regenerate-shared", message)
+            self.assertEqual(canonical.read_bytes(), kept)
+            gltf, _bin = parse_glb(glb)
+            self.assertIn("bufferView", gltf["images"][0])
+
+    def test_link_regenerate_shared_adopts_export_pixels(self) -> None:
+        kept = _png(2, 2, (0, 10, 0))
+        harvested = _png(2, 2, (0, 10, 255))
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            shared = root / "assets" / "characters" / "shared"
+            textures = shared / "textures"
+            textures.mkdir(parents=True)
+            glb = shared / "crowd.glb"
+            _write_glb_with_image(
+                glb,
+                "hero_tex_cloth_ao-hero_tex_cloth_roughness",
+                harvested,
+                b"\x03" * 16,
+            )
+            canonical = textures / "hero_tex_cloth_ao-hero_tex_cloth_roughness.png"
+            canonical.write_bytes(kept)
+            result = link_exported_character_glb(
+                glb, root=root, regenerate_shared=True
+            )
+            self.assertEqual(canonical.read_bytes(), harvested)
+            self.assertEqual(result["canonical"], 1)
+            gltf, _bin = parse_glb(glb)
+            self.assertEqual(
+                gltf["images"][0]["uri"],
+                "textures/hero_tex_cloth_ao-hero_tex_cloth_roughness.png",
+            )
 
 
 if __name__ == "__main__":

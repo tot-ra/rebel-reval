@@ -14,7 +14,9 @@ This module is the generator and import contract:
    BIN ``bufferView`` embeds.
 3. Leave genuinely distinct maps embedded (hash mismatch for the same glTF
    image name). KayKit build-input stays untouched.
-4. Delete extracted per-body sidecars only after the GLB no longer embeds them,
+4. A single-body export must not rewrite maps other bodies already share.
+   Linking keeps the canonical PNG unless ``--regenerate-shared`` is set.
+5. Delete extracted per-body sidecars only after the GLB no longer embeds them,
    so a later Godot import cannot recreate the copies.
 
 Usage::
@@ -22,6 +24,7 @@ Usage::
     python3 tools/share_character_textures.py --apply
     python3 tools/share_character_textures.py --verify
     python3 tools/share_character_textures.py --link assets/characters/shared/heroic_humanoid.glb
+    python3 tools/share_character_textures.py --link <glb> --regenerate-shared
 """
 
 from __future__ import annotations
@@ -32,7 +35,13 @@ import json
 import struct
 import sys
 from collections import defaultdict
+from io import BytesIO
 from pathlib import Path
+
+try:
+    from PIL import Image
+except ImportError:  # pragma: no cover - fail closed: encoding-only cannot be proven
+    Image = None
 
 ROOT = Path(__file__).resolve().parents[1]
 SHARED = ROOT / "assets" / "characters" / "shared"
@@ -40,6 +49,10 @@ TEXTURE_DIR = SHARED / "textures"
 TEXTURE_URI_PREFIX = "textures/"
 SKIP_GLB_NAMES = frozenset({"kaykit_barbarian.glb"})
 FAMILY_TOKEN = "hero_tex_"
+
+
+class SharedTextureMismatch(RuntimeError):
+    """Harvested embed pixels differ from the committed shared PNG."""
 
 
 def parse_glb(path: Path) -> tuple[dict, bytes]:
@@ -146,19 +159,129 @@ def harvest_shared_images(
     return payloads, conflicts
 
 
-def link_exported_character_glb(path: Path, *, root: Path = ROOT) -> dict[str, int]:
-    """Post-process one Blender export: refresh canonical maps, then URI-link.
+def _png_rgba(blob: bytes) -> tuple[tuple[int, int], bytes] | None:
+    """Decode PNG pixels as RGBA, or None when Pillow is missing or the blob is invalid."""
+    if Image is None:
+        return None
+    try:
+        with Image.open(BytesIO(blob)) as image:
+            converted = image.convert("RGBA")
+            return converted.size, converted.tobytes()
+    except Exception:
+        return None
 
-    WHY: a rebuild must overwrite the shared PNGs from the new embeds. Other
-    bodies already URI-reference those files, so they pick up the new pixels
-    without a full recast and without counting as hash conflicts.
+
+def _channel_means(size: tuple[int, int], pixels: bytes) -> tuple[float, float, float]:
+    count = size[0] * size[1]
+    if count == 0:
+        return (0.0, 0.0, 0.0)
+    view = memoryview(pixels)
+    return (
+        sum(view[0::4]) / count,
+        sum(view[1::4]) / count,
+        sum(view[2::4]) / count,
+    )
+
+
+def describe_png_delta(canonical: bytes, harvested: bytes) -> str:
+    """Human-readable why an export disagrees with the committed PNG."""
+    canon = _png_rgba(canonical)
+    harvest = _png_rgba(harvested)
+    if canon is None or harvest is None:
+        return "undecodable PNG or Pillow missing (treated as pixel mismatch)"
+    canon_size, canon_px = canon
+    harvest_size, harvest_px = harvest
+    if canon_size != harvest_size:
+        return (
+            f"size {canon_size[0]}x{canon_size[1]} vs "
+            f"{harvest_size[0]}x{harvest_size[1]}"
+        )
+    if canon_px == harvest_px:
+        return "encoding-only"
+    before = _channel_means(canon_size, canon_px)
+    after = _channel_means(harvest_size, harvest_px)
+    return (
+        "pixel mismatch RGB mean "
+        f"({before[0]:.1f},{before[1]:.1f},{before[2]:.1f}) -> "
+        f"({after[0]:.1f},{after[1]:.1f},{after[2]:.1f})"
+    )
+
+
+def is_encoding_only_png(canonical: bytes, harvested: bytes) -> bool:
+    """True when bytes differ but decoded pixels match. Fail closed without Pillow."""
+    if canonical == harvested:
+        return True
+    canon = _png_rgba(canonical)
+    harvest = _png_rgba(harvested)
+    if canon is None or harvest is None:
+        return False
+    return canon == harvest
+
+
+def reconcile_canonical_textures(
+    payloads: dict[str, bytes],
+    conflicts: set[str],
+    *,
+    root: Path = ROOT,
+    regenerate_shared: bool = False,
+) -> list[Path]:
+    """Seed missing shared PNGs. Refuse to overwrite real pixel changes."""
+    written: list[Path] = []
+    mismatches: list[str] = []
+    texture_dir = root / "assets" / "characters" / "shared" / "textures"
+    texture_dir.mkdir(parents=True, exist_ok=True)
+    for stem, blob in sorted(payloads.items()):
+        if stem in conflicts:
+            continue
+        path = canonical_path(stem, root=root)
+        if not path.is_file():
+            path.write_bytes(blob)
+            write_import_sidecar(path)
+            written.append(path)
+            continue
+        current = path.read_bytes()
+        if current == blob or is_encoding_only_png(current, blob):
+            continue
+        try:
+            rel = path.relative_to(root).as_posix()
+        except ValueError:
+            rel = path.as_posix()
+        detail = describe_png_delta(current, blob)
+        if regenerate_shared:
+            path.write_bytes(blob)
+            write_import_sidecar(path)
+            written.append(path)
+            continue
+        mismatches.append(f"{rel}: {detail}")
+    if mismatches:
+        raise SharedTextureMismatch(
+            "exported maps differ from canonical shared textures:\n"
+            + "\n".join(f"  - {line}" for line in mismatches)
+            + "\nKeep the committed files, or pass --regenerate-shared to adopt the export."
+        )
+    return written
+
+
+def link_exported_character_glb(
+    path: Path, *, root: Path = ROOT, regenerate_shared: bool = False
+) -> dict[str, int]:
+    """Post-process one Blender export: keep canonical maps, then URI-link.
+
+    WHY: other bodies already URI-reference the shared PNGs. Overwriting them
+    from one machine's Blender/NumPy export silently changes every character.
+    Encoding-only PNG differences still link; real pixel drift fails unless
+    ``regenerate_shared`` is set.
     """
     path = path if path.is_absolute() else root / path
     payloads, conflicts = harvest_shared_images([path])
-    write_canonical_textures(payloads, conflicts, root=root)
-    return link_glb_to_shared_textures(
+    written = reconcile_canonical_textures(
+        payloads, conflicts, root=root, regenerate_shared=regenerate_shared
+    )
+    result = link_glb_to_shared_textures(
         path, payloads=payloads, conflicts=conflicts, root=root
     )
+    result["canonical"] = len(written)
+    return result
 
 
 def _map_kind(stem: str) -> str:
@@ -305,18 +428,16 @@ def write_canonical_textures(
     conflicts: set[str],
     *,
     root: Path = ROOT,
+    regenerate_shared: bool = True,
 ) -> list[Path]:
-    written: list[Path] = []
-    texture_dir = root / "assets" / "characters" / "shared" / "textures"
-    texture_dir.mkdir(parents=True, exist_ok=True)
-    for stem, blob in sorted(payloads.items()):
-        if stem in conflicts:
-            continue
-        path = canonical_path(stem, root=root)
-        path.write_bytes(blob)
-        write_import_sidecar(path)
-        written.append(path)
-    return written
+    """Write harvested embeds to the shared texture directory.
+
+    Default ``regenerate_shared=True`` keeps the historical --apply seed/overwrite
+    behaviour. Single-body linking uses ``reconcile_canonical_textures`` instead.
+    """
+    return reconcile_canonical_textures(
+        payloads, conflicts, root=root, regenerate_shared=regenerate_shared
+    )
 
 
 def _compact_bin(gltf: dict, bin_data: bytes, drop_views: set[int]) -> bytes:
@@ -513,10 +634,14 @@ def verify_repository(*, root: Path = ROOT) -> list[str]:
     return errors
 
 
-def apply_repository(*, root: Path = ROOT, prune: bool = True) -> dict[str, int]:
+def apply_repository(
+    *, root: Path = ROOT, prune: bool = True, regenerate_shared: bool = False
+) -> dict[str, int]:
     glbs = iter_runtime_character_glbs(root=root)
     payloads, conflicts = harvest_shared_images(glbs)
-    written = write_canonical_textures(payloads, conflicts, root=root)
+    written = reconcile_canonical_textures(
+        payloads, conflicts, root=root, regenerate_shared=regenerate_shared
+    )
     linked = 0
     distinct = 0
     already = 0
@@ -561,6 +686,11 @@ def _parser() -> argparse.ArgumentParser:
         action="store_true",
         help="with --apply, leave Godot-extracted per-body PNGs in place",
     )
+    parser.add_argument(
+        "--regenerate-shared",
+        action="store_true",
+        help="overwrite canonical shared PNGs when an export's pixels differ",
+    )
     return parser
 
 
@@ -568,7 +698,13 @@ def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     if args.link is not None:
         path = args.link if args.link.is_absolute() else ROOT / args.link
-        result = link_exported_character_glb(path, root=ROOT)
+        try:
+            result = link_exported_character_glb(
+                path, root=ROOT, regenerate_shared=args.regenerate_shared
+            )
+        except SharedTextureMismatch as exc:
+            print(f"FAIL: {exc}")
+            return 1
         print(
             f"linked {path.name}: {result['linked']} images "
             f"({result['already']} already shared, {result['distinct']} distinct)"
@@ -584,7 +720,15 @@ def main(argv: list[str] | None = None) -> int:
         print("OK: character GLBs reference shared family textures")
         return 0
     if args.apply:
-        result = apply_repository(root=ROOT, prune=not args.keep_extracted)
+        try:
+            result = apply_repository(
+                root=ROOT,
+                prune=not args.keep_extracted,
+                regenerate_shared=args.regenerate_shared,
+            )
+        except SharedTextureMismatch as exc:
+            print(f"FAIL: {exc}")
+            return 1
         print(
             "shared character textures: "
             f"{result['canonical']} canonical files, "

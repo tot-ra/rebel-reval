@@ -78,13 +78,12 @@ python3 tools/build_heroic_humanoid_glb.py crowd_townsman_03
   --python tools/generate_hero_body.py -- --character=crowd_townsman_03
 /Applications/Blender.app/Contents/MacOS/Blender --background --python-exit-code 1 \
   --python tools/generate_character_lods.py -- crowd_townsman_03
-git checkout HEAD -- assets/characters/shared/textures/  # see note below
 godot --headless --path . --import
 ```
 
 Then add the variant `.tres`/`.tscn` pair in `variants/` and the `SOURCES.csv` rows. `assets/characters/variants/crowd_variation_manifest.json` records the resolved parameters. `tests/python/test_character_crowd_variation.py` checks determinism and that the manifest is in sync. `test_seeded_crowd_bodies_are_individuated_and_realise_their_seeds` checks that the built bodies follow their seeded stature order and that every pair differs in at least three of height, build, skin, garment and surface response.
 
-Note: exporting a body re-harvests the shared family PNGs under `assets/characters/shared/textures/`. On a machine whose Blender/NumPy build yields different bytes, that silently rewrites maps every other body uses. Restore them from `HEAD` after a rebuild unless you are deliberately regenerating the shared set. Selective LOD runs merge into `character_lod_manifest.json` rather than replacing it.
+Note: `link_exported_character_glb` compares each harvested embed to the committed PNG under `assets/characters/shared/textures/`. Matching bytes, or the same decoded pixels with different PNG encoding, keep the canonical file and URI-link the GLB. Real pixel drift (including Blender 5.2 packing metallic=1 into ORM B on non-metal families) fails the export unless you pass `--regenerate-shared` to `tools/share_character_textures.py`. That opt-in is the only way a rebuild may rewrite maps every other body uses. Selective LOD runs merge into `character_lod_manifest.json` rather than replacing it.
 
 ## Surfaces: UVs and procedural PBR detail (P0-144/P0-145)
 
@@ -92,7 +91,7 @@ Every generated part gets UVs at build time: `PartBuilder.build()` runs an angle
 
 - Five grayscale families - `cloth` (plain wool weave), `leather` (tanned grain and pores), `skin` (blotch, pores, freckles), `hair` (strand streaks), `metal` (brushed streaks and dents) - each generates 512 px albedo, tangent-space normal, roughness, and AO maps with seeded numpy noise inside Blender.
 - Base color is detail-albedo multiplied by the spec's palette color (exported as `baseColorTexture` x `baseColorFactor`), so palette entries keep working unchanged and one texture family serves every character and garment. Roughness is authored per-pixel from the same relief field instead of leaving cloth and skin at a plastic scalar.
-- Blender's glTF exporter packs each family's roughness into the native G channel of a `metallicRoughnessTexture` and exports AO through the standard `occlusionTexture`. The generator then rewrites those images to URI-reference `assets/characters/shared/textures/hero_tex_<family>_*.png` (packed ORM keeps the `ao-hero_tex_<family>_roughness` stem). Palette, normal scale, metallic, and specular stay per-material inside each GLB.
+- Blender's glTF exporter packs each family's roughness into the native G channel of a `metallicRoughnessTexture` and exports AO through the standard `occlusionTexture`. The generator then rewrites those images to URI-reference `assets/characters/shared/textures/hero_tex_<family>_*.png` (packed ORM keeps the `ao-hero_tex_<family>_roughness` stem). Palette, normal scale, metallic, and specular stay per-material inside each GLB. Non-metal ORM B must stay 0 (metallic=0). Blender 5.2 writes B=255 when Roughness is fed a Color socket instead of a scalar; `hero_body_textures.apply_texture` therefore uses `SeparateColor.Red` and pins Metallic to 0.0 / 0.72.
 - Godot import keeps `gltf/embedded_image_handling=1` so a remaining unique embed can still extract. Shared URI maps are not copied beside each body. Do not delete extracted PNGs unless the GLB no longer embeds them - the next import would recreate the copies.
 - Distinct AO or other maps (byte-hash mismatch for the same glTF image name) stay embedded. UV islands remain mesh attributes. Rig, clip, and LOD contracts are unchanged.
 - Evidence for the share pass: [`docs/reports/character_shared_textures.md`](reports/character_shared_textures.md).
@@ -134,8 +133,9 @@ multiplies the family albedo before export. The GLB therefore carries
 `baseColorTexture` plus `baseColorFactor`, a normal texture, packed glTF
 metallic-roughness, and an occlusion texture. The five zones are shared across
 characters and LODs rather than duplicated per palette. Runtime files live in
-`assets/characters/shared/textures/`; rebuilding one body refreshes those PNGs,
-and every URI-linked GLB picks up the new pixels.
+`assets/characters/shared/textures/`. Rebuilding one body URI-links that GLB to
+those PNGs and leaves the committed pixels in place. To adopt a new shared set
+on purpose, run `python3 tools/share_character_textures.py --apply --regenerate-shared`.
 
 Every shared runtime texture is registered by:
 
