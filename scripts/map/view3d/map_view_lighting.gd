@@ -192,10 +192,24 @@ static func apply_cycle_progress(
 		presentation.star_visibility,
 		deg_to_rad(SkyWeather3D.OBSERVER_LATITUDE_DEGREES),
 		presentation.sidereal_angle,
-		presentation.sun_reflection_color
+		presentation.sun_reflection_color,
+		presentation.sunset_factor,
+		water_cloud_darken(presentation)
 	)
 	apply_post_grade_snapshot(environment, presentation)
 	return presentation.day_blend < 0.5
+
+
+## Active SkyWeather3D profile `darken`. Presentation does not yet carry the
+## blended value (WS-11 will), so lighting reads the named preset. Overcast is
+## 0.72; leaving this at 0 kept every water `cloud_darken` term dead.
+static func water_cloud_darken(presentation: SkyWeather3D.WeatherPresentation) -> float:
+	if presentation == null:
+		return 0.0
+	var profile: Variant = SkyWeather3D.PROFILES.get(presentation.weather)
+	if typeof(profile) != TYPE_DICTIONARY:
+		return 0.0
+	return clampf(float((profile as Dictionary).get("darken", 0.0)), 0.0, 1.0)
 
 
 static func apply_post_grade_snapshot(

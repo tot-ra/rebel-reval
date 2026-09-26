@@ -161,6 +161,51 @@ func test_rain_haze_color_is_unchanged_when_morning_mist_is_absent() -> void:
 	)
 
 
+func test_overcast_lighting_pushes_preset_cloud_darken_to_water() -> void:
+	MapViewMaterials.reset()
+	var definition := SmithyCourtyard.create()
+	var view := MapView3D.create(definition, MapBuilder.build(definition), MapView3D.TIME_DAY)
+	var sky := view.sky_weather()
+	sky.auto_weather = false
+	sky.set_weather(SkyWeather3D.WEATHER_CLEAR)
+	view.apply_cycle_progress(0.5)
+	var water := MapViewMaterials.water_surface(MapTypes.TERRAIN_DEEP_WATER)
+	var clear_darken := float(SkyWeather3D.PROFILES[SkyWeather3D.WEATHER_CLEAR]["darken"])
+	assert_almost_eq(
+		float(water.get_shader_parameter("cloud_darken")),
+		clear_darken,
+		0.0001,
+		"clear noon water must receive the clear preset darken"
+	)
+	assert_almost_eq(
+		float(water.get_shader_parameter("sunset_factor")),
+		sky.sunset_factor,
+		0.0001,
+		"noon water sunset_factor must match the sky snapshot"
+	)
+
+	sky.set_weather(SkyWeather3D.WEATHER_OVERCAST)
+	view.apply_cycle_progress(0.5)
+	var overcast_darken := float(
+		SkyWeather3D.PROFILES[SkyWeather3D.WEATHER_OVERCAST]["darken"]
+	)
+	assert_almost_eq(overcast_darken, 0.72, 0.0001, "overcast preset darken is 0.72")
+	assert_almost_eq(
+		float(water.get_shader_parameter("cloud_darken")),
+		overcast_darken,
+		0.0001,
+		"overcast lighting must push preset darken onto cached water"
+	)
+	assert_almost_eq(
+		Lighting.water_cloud_darken(sky.presentation_snapshot(0.5, 1.0)),
+		overcast_darken,
+		0.0001,
+		"lighting helper must expose the same overcast darken"
+	)
+	view.free()
+	MapViewMaterials.reset()
+
+
 func _mist_presentation(
 	day_blend: float, hour: float, sunrise: float
 ) -> SkyWeather3D.WeatherPresentation:

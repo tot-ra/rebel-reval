@@ -265,8 +265,14 @@ static func apply_water_sky_reflection(
 	star_visibility: float,
 	observer_latitude: float,
 	sidereal_angle: float,
-	sun_color: Color
+	sun_color: Color,
+	sunset_factor: float = 0.0,
+	cloud_darken: float = 0.0
 ) -> void:
+	# WHY: optional weather scalars used to stay at the water-material defaults
+	# (0) because this facade never forwarded them. WS-11a pushes the live
+	# sunset and preset darken so haze, sky reflection and caustic gates track
+	# weather instead of a permanent clear day.
 	WATER_MATERIALS.apply_water_sky_reflection(
 		star_map,
 		sun_direction,
@@ -277,7 +283,9 @@ static func apply_water_sky_reflection(
 		observer_latitude,
 		sidereal_angle,
 		sun_color,
-		WATER_WAVE_BASE
+		WATER_WAVE_BASE,
+		sunset_factor,
+		cloud_darken
 	)
 
 
