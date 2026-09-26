@@ -1,7 +1,7 @@
 # ADR 0018: Saturated HDR-range fantasy/anime visual direction
 
 **Recorded:** 2026-07-30
-**Status:** Accepted (maintainer-directed)
+**Status:** Superseded by [ADR 0022](0022-realistic-human-characters.md) on 2026-09-26 — the fantasy/anime finish is withdrawn; the baseline is realistic and historically accurate (Kingdom Come: Deliverance 2 / The Witcher 3 reference). Kept for history only; item 7 (readability by value and shape, never saturation alone) carries over.
 **Amends:** [ADR 0007](0007-ai-generated-isometric-presentation.md), [ADR 0016](0016-tiered-character-fidelity.md), [`ART_BIBLE.md`](../ART_BIBLE.md), and [`MATERIAL_STYLE_LOCK_KIT.md`](../MATERIAL_STYLE_LOCK_KIT.md)
 
 ## Context

@@ -2,6 +2,7 @@ extends "res://tests/godot/test_case.gd"
 
 const LIVE_KALEV := preload("res://assets/characters/kalev/kalev.tscn")
 const FRESH_DIR := "res://assets/characters/kalev_fresh/"
+const REALISTIC_DIR := "res://assets/characters/realistic/kalev/"
 
 var rig: SharedCharacterRig
 
@@ -17,30 +18,31 @@ func after_each() -> void:
 	rig.free()
 	super.after_each()
 
-func test_stable_live_scene_uses_fresh_body_and_identity() -> void:
+func test_stable_live_scene_uses_realistic_body_and_identity() -> void:
 	assert_eq(rig.variant_id(), &"char.kalev")
-	assert_eq(rig.body_basename(), "kalev_fresh")
+	assert_eq(rig.body_basename(), "kalev")
 	assert_eq(rig.validation_errors(), [])
 	assert_true(rig.get_node_or_null("HealthRing") != null)
 	for old_path: String in [
 		"res://assets/storybook/kalev.glb",
 		"res://assets/characters/shared/heroic_humanoid.glb",
+		"res://assets/characters/kalev_fresh/kalev_fresh/kalev_fresh.glb",
 	]:
 		assert_false(_live_scene_source().contains(old_path), "Live scene must not reference " + old_path)
 
 
 func test_live_kalev_starts_in_fitted_forge_outfit() -> void:
 	var expected := {
-		&"torso": &"wearable.kalev_fresh.linen_shirt",
-		&"outerwear": &"wearable.kalev_fresh.smith_apron",
-		&"legs": &"wearable.kalev_fresh.hose",
-		&"feet": &"wearable.kalev_fresh.boots",
+		&"torso": &"wearable.kalev.work_tunic",
+		&"outerwear": &"wearable.kalev.smith_apron",
+		&"legs": &"wearable.kalev.hose",
+		&"feet": &"wearable.kalev.boots",
 	}
 	for slot: StringName in expected:
 		var wearable := rig.equipped_wearable(slot)
 		assert_true(wearable != null, "Live outfit must fill %s" % slot)
 		assert_eq(wearable.stable_id, expected[slot])
-		assert_eq(wearable.fitted_body, "kalev_fresh")
+		assert_eq(wearable.fitted_body, "kalev")
 
 
 func test_live_outfit_survives_animation_and_weapon_hot_swap() -> void:
@@ -48,7 +50,7 @@ func test_live_outfit_survives_animation_and_weapon_hot_swap() -> void:
 	assert_true(rig.play_animation(&"run", 0.0))
 	var hammer := rig.equip(&"right_hand", load(FRESH_DIR + "hammer/hammer.glb") as PackedScene)
 	assert_true(hammer != null)
-	assert_eq(rig.equipped_wearable(&"torso").stable_id, &"wearable.kalev_fresh.linen_shirt")
+	assert_eq(rig.equipped_wearable(&"torso").stable_id, &"wearable.kalev.work_tunic")
 	var sword := rig.equip(&"right_hand", load(FRESH_DIR + "sword/sword.glb") as PackedScene)
 	assert_true(sword != null)
 	assert_eq(rig.equipped(&"right_hand"), sword)

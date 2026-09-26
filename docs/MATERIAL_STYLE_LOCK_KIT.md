@@ -2,7 +2,7 @@
 
 **Kit version:** `style-lock-v1.1`
 **Recorded:** 2026-07-30
-**Authority:** [ADR 0018](adr/0018-saturated-hdr-fantasy-anime-visual-direction.md)
+**Authority:** [ADR 0022](adr/0022-realistic-human-characters.md) (realistic baseline; supersedes the ADR 0018 fantasy/anime finish this kit was written for — revise prompts toward naturalistic materials when next touched)
 **Palette and detail source:** [ART_BIBLE.md](ART_BIBLE.md)
 **Legacy reference samples:** `assets/materials/style_lock/*.png` (`style-lock-v1.0`, migration evidence only)
 

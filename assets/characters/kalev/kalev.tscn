@@ -1,21 +1,24 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=9 format=3]
 
-[ext_resource type="Script" path="res://assets/characters/kalev_fresh/fresh_rig.gd" id="1_rig"]
-[ext_resource type="PackedScene" path="res://assets/characters/kalev_fresh/kalev_fresh/kalev_fresh.glb" id="2_model"]
+[ext_resource type="Script" path="res://assets/characters/realistic/realistic_rig.gd" id="1_rig"]
+[ext_resource type="PackedScene" path="res://assets/characters/realistic/kalev/kalev.glb" id="2_model"]
 [ext_resource type="Resource" path="res://assets/characters/kalev/kalev_variant.tres" id="3_variant"]
-
 [ext_resource type="Script" path="res://scripts/ui/character_health_ring_3d.gd" id="4_health_ring"]
+[ext_resource type="Resource" path="res://assets/characters/realistic/kalev/work_tunic.tres" id="5_tunic"]
+[ext_resource type="Resource" path="res://assets/characters/realistic/kalev/smith_apron.tres" id="6_apron"]
+[ext_resource type="Resource" path="res://assets/characters/realistic/kalev/hose.tres" id="7_hose"]
+[ext_resource type="Resource" path="res://assets/characters/realistic/kalev/boots.tres" id="8_boots"]
 
 [node name="Kalev" type="Node3D"]
 script = ExtResource("1_rig")
 variant = ExtResource("3_variant")
-model_scale = Vector3(1.0989011, 1.0989011, 1.0989011)
+model_scale = Vector3(1.1111112, 1.1111112, 1.1111112)
 use_anatomical_muscles = false
-use_default_forge_outfit = true
+default_outfit = Array[Resource]([ExtResource("5_tunic"), ExtResource("6_apron"), ExtResource("7_hose"), ExtResource("8_boots")])
 
 [node name="Model" type="Node3D" parent="."]
 
-[node name="KalevFresh" parent="Model" instance=ExtResource("2_model")]
+[node name="KalevBody" parent="Model" instance=ExtResource("2_model")]
 
 [node name="HealthRing" type="Node3D" parent="."]
 script = ExtResource("4_health_ring")

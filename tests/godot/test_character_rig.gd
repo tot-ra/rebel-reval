@@ -158,9 +158,16 @@ func test_running_uses_contralateral_arm_swing() -> void:
 		var start_right_hand_z := (skeleton.get_bone_global_pose(right_hand).origin - hips_pose).dot(forward)
 		var start_left_knee_z := (skeleton.get_bone_global_pose(left_knee).origin - hips_pose).dot(forward)
 		var start_right_knee_z := (skeleton.get_bone_global_pose(right_knee).origin - hips_pose).dot(forward)
+		# Scale "visible" with the body's own reach: anatomical (ADR 0022) shoulders
+		# sit forward of the hip line, so a fixed 10 cm tuned on the old mesh
+		# under-reads the same clip's back swing.
+		var shoulder := skeleton.find_bone("upperarm.l")
+		var hand_rest := skeleton.get_bone_global_rest(left_hand).origin
+		var reach := (hand_rest - skeleton.get_bone_global_rest(shoulder).origin).length()
+		var visible_swing := 0.11 * reach
 		assert_true(
 			start_left_hand_z * start_right_hand_z < 0.0
-			and absf(start_left_hand_z) > 0.10 and absf(start_right_hand_z) > 0.10,
+			and absf(start_left_hand_z) > visible_swing and absf(start_right_hand_z) > visible_swing,
 			"hands must visibly swing to opposite sides of the torso"
 		)
 		assert_true(
@@ -218,9 +225,10 @@ func test_scale_contract_projects_to_sixty_four_pixels() -> void:
 	var kalev := _instantiate(KALEV_SCENE)
 	assert_true(
 		kalev.get_node("Model").scale.is_equal_approx(kalev.model_scale),
-		"runtime must apply the fresh body's authored normalization"
+		"runtime must apply the realistic body's authored normalization"
 	)
-	assert_true(is_equal_approx(kalev.model_scale.y, 1.0989011))
+	# 2.0 world units / 1.80 m authored stature (tools/assets/realistic_humans/specs.py).
+	assert_true(is_equal_approx(kalev.model_scale.y, 1.1111112))
 	kalev.queue_free()
 
 

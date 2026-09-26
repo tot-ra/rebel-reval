@@ -1,7 +1,7 @@
 # Art Bible v2
 
 **Status:** Normative visual direction; technical production freeze remains gated by P0-038 / P0-040
-**Art-direction approval:** [ADR 0018](adr/0018-saturated-hdr-fantasy-anime-visual-direction.md), maintainer-directed 2026-07-30
+**Art-direction approval:** [ADR 0022](adr/0022-realistic-human-characters.md), maintainer-directed 2026-09-26 — realistic, historically accurate (KCD2 / Witcher 3 reference). The saturated fantasy/anime rules below from ADR 0018 (2026-07-30) are superseded wherever they conflict; recalibrating the environment grade toward a naturalistic finish is follow-up work.
 **Technical foundation:** [ADR 0007](adr/0007-ai-generated-isometric-presentation.md), [ADR 0015](adr/0015-default-third-person-camera.md), [ADR 0016](adr/0016-tiered-character-fidelity.md)
 **Material lock:** [`MATERIAL_STYLE_LOCK_KIT.md`](MATERIAL_STYLE_LOCK_KIT.md) (`style-lock-v1.1`)
 

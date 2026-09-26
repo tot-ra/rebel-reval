@@ -14,10 +14,10 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `151`
-- Markdown files excluded as archive/reference/out of active scope: `700`
-- Local/external links inspected: `720`
-- Links to active Markdown docs: `377`
+- Active Markdown files scanned: `166`
+- Markdown files excluded as archive/reference/out of active scope: `701`
+- Local/external links inspected: `756`
+- Links to active Markdown docs: `413`
 - Links to existing archive/reference/non-active local docs: `140`
 - External links skipped for reachability: `40`
 - Issues found: `0`
@@ -60,6 +60,7 @@ No active Markdown documentation issues found.
 - `docs/adr/0019-seamless-contiguous-location-streaming.md`
 - `docs/adr/0020-kalev-character-realism.md`
 - `docs/adr/0021-swimming-and-diving.md`
+- `docs/adr/0022-realistic-human-characters.md`
 - `docs/AGENT_LOOPS.md`
 - `docs/ARCHITECTURE.md`
 - `docs/ART_BIBLE.md`
@@ -137,6 +138,20 @@ No active Markdown documentation issues found.
 - `docs/SYSTEMS/NATURAL.md`
 - `docs/SYSTEMS/PSYCHE.md`
 - `docs/TASK_ARCHIVE.md`
+- `docs/tasks/architecture/AR-01_building_typology_dossier.md`
+- `docs/tasks/architecture/AR-02_adr_architecture_pipeline.md`
+- `docs/tasks/architecture/AR-03_building_surface_pbr.md`
+- `docs/tasks/architecture/AR-04_modular_architecture_kit.md`
+- `docs/tasks/architecture/AR-05_ordinary_house_assembler.md`
+- `docs/tasks/architecture/AR-06_burgher_tier_expansion.md`
+- `docs/tasks/architecture/AR-07_monastery_district_set.md`
+- `docs/tasks/architecture/AR-08_padise_estate_set.md`
+- `docs/tasks/architecture/AR-09_toompea_set.md`
+- `docs/tasks/architecture/AR-10_civic_guild_set.md`
+- `docs/tasks/architecture/AR-11_fortification_set.md`
+- `docs/tasks/architecture/AR-12_rural_harbour_set.md`
+- `docs/tasks/architecture/AR-13_repetition_audit_gate.md`
+- `docs/tasks/architecture/README.md`
 - `docs/tasks/coast/CO-01_coastal_ground_materials.md`
 - `docs/tasks/coast/CO-02_shore_debris_props.md`
 - `docs/tasks/coast/CO-03_shore_silhouette_and_depth.md`

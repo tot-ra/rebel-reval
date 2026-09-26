@@ -1,0 +1,29 @@
+{
+  "forge": [
+    "work_tunic",
+    "smith_apron",
+    "hose",
+    "boots"
+  ],
+  "street": [
+    "wool_tunic",
+    "hose",
+    "boots"
+  ],
+  "travel": [
+    "wool_tunic",
+    "hood",
+    "hose",
+    "boots"
+  ],
+  "armed": [
+    "gambeson",
+    "mail_haubergeon",
+    "kettle_hat",
+    "hose",
+    "boots"
+  ],
+  "undress": [
+    "linen_shirt"
+  ]
+}

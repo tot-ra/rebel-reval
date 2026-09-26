@@ -1,6 +1,34 @@
 # Character generation
 
-Status: **normative** for all new character work. Companion to [`assets/characters/README.md`](../assets/characters/README.md) (runtime rig contract) and [`docs/INVENTORY_MECHANICS.md`](INVENTORY_MECHANICS.md) (equipment placement design).
+Status: **normative** for all new character work. **Humans: since [ADR 0022](adr/0022-realistic-human-characters.md) every new or reworked human uses the realistic MPFB pipeline in the next section; the procedural `PartBuilder` sections below describe the legacy bodies still live until each character migrates.**
+
+## Realistic humans (ADR 0022) — the human pipeline
+
+Code: `tools/assets/realistic_humans/` (`specs.py`, `build_human.py`, `surfaces.py`, `garments.py`, `textiles.py`). Output: `assets/characters/realistic/<name>/` (body GLB, one folder + `CharacterWearable` `.tres` per garment, `outfits.json`, `textures/`), shared `textiles/` and copied CC0 `makehuman/` maps. Runtime: `assets/characters/realistic/realistic_rig.gd`.
+
+```bash
+tools/assets/realistic_humans/install_mpfb.sh          # once per machine: pinned MPFB 2.0.17 + MakeHuman CC0 assets
+tools/assets/realistic_humans/rebuild.sh kalev          # spec -> body, wardrobe, import, provenance, lint
+blender -b build/realistic_humans/kalev.blend --python tools/assets/realistic_humans/render_preview.py -- \
+  --out=build/realistic_humans/preview/kalev --wear=work_tunic,smith_apron,hose,boots   # fast EEVEE plates
+tools/godot_render.sh --resolution 1280x1280 --script tools/capture_realistic_character.gd -- \
+  --scene=res://assets/characters/kalev/kalev.tscn --out=res://build/realistic_captures/kalev   # engine plates
+godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_realistic_kalev,test_kalev_live_integration
+```
+
+**A new character is a spec entry**: MakeHuman macros (`gender`, `age` via `age_years()`, `muscle`, `weight`, `proportions`, `height`), detail `targets` (any MakeHuman target name: nose, jaw, brow, cheek, torso, arms…) for an individual face and build, `height_m`, `skin`/`eyes`/`eyebrows`/`eyelashes`/`hair` asset names from the CC0 pack, `hair_color` (cards are recoloured by luminance), optional `beard` (fur shells: length, colour, grey share, coverage), `complexion` (`tan`, `flush`, `soot_forearms`, optional `grade`), `garments`, `palette` and named `outfits`. Dress by rank from `history/dossiers/dailylife/clothing-and-status-markers.md`.
+
+How it works, and the traps already paid for:
+
+- **Rig**: the MPFB body is posed into the shared rig's T-pose (palms down, loose fist around the handslot barrel) and applied as rest. Shared joints move onto MPFB joints **without changing bone orientation** — every one of the 76 clips keeps its meaning. MakeHuman's authored weights are renamed onto shared bones (`WEIGHT_MAP`); fingers fold into `hand.*`. Put forearm roll on the upper arm/forearm, never on the hand (candy-wrap).
+- **Regions** (stable API for `covered_meshes`): `Anatomy_Head/Torso/Arms/Forearms/Hands/Legs/Calves/Feet`, `Clothing_Braies` (always worn), `Hair_Scalp`, `Hair_Beard`. The skin region stays 3 cm below any neckline so gaps never show the hollow body.
+- **Skin** (`surfaces.py`): the MakeHuman albedo is graded (studio-pale → weathered; measure medians, target ~sRGB 0.64/0.50/0.42 for light skin), then tan/flush/soot/beard shadow, pores and age lines are 3D fields sampled through a rasterised position map, so they never show UV seams.
+- **Fur shells** (beard, optional scalp): glTF has no per-shell cutoff, so texture alpha stores `0.5 + 0.5·length` and vertex alpha `1/(1+h)`; the GLB is patched to a **0.5** cutoff and the rig enables vertex colour. Alpha-tested materials are named `*_cutout` — **never `*_alpha`**: Godot's importer reads that suffix as "force alpha blending" and strips it.
+- **glTF drops Blender multiply nodes**: palette colours are patched into `baseColorFactor` after export (`surfaces.MATERIAL_FACTORS`).
+- **Garments** (`garments.py`): shells lifted onto per-slice **convex hulls** of the body (cloth spans pecs/abs/lumbar instead of clinging), relaxed with a clamped push-out, necklines hug the neck, skirts lofted and flared with folds and hip/thigh weight blending, bound hems, cloth-grain cylindrical UVs with seams where a tailor puts them. Shoes are convex hull → voxel remesh → projected onto foot/leg section hulls (never shrink onto the toes). Hoods are a parametric head/cape grid cast against the trunk only (T-posed arms excluded).
+- **Hair cards**: MakeHuman's `short02` crown tufts render as dark flaps in Godot; prefer flat-lying styles (`short04`) or check the crown shot (`crown` in the engine capture).
+
+Budgets follow ADR 0016 (`tier` in the spec; lint reads it). Kalev: ~55k body triangles, 2048 px skin; garments 1–13k each on shared 1024 px textile tiles. Companion to [`assets/characters/README.md`](../assets/characters/README.md) (runtime rig contract) and [`docs/INVENTORY_MECHANICS.md`](INVENTORY_MECHANICS.md) (equipment placement design).
 
 Every character in the game is **generated by in-repo tooling** - no third-party mesh ships at runtime. Only the skeleton layout and the 76 animation clips derive from the CC0 KayKit rig (motion data, no visual identity). The pipeline exists so that "we need a new character" is a parameter change plus a rebuild, not an art project.
 

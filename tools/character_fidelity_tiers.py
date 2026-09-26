@@ -16,6 +16,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 CHARACTER_SPECS = ROOT / "tools" / "character_specs.py"
+# ADR 0022 realistic (MPFB) humans: specs carry an explicit "tier".
+REALISTIC_SPECS = ROOT / "tools" / "assets" / "realistic_humans" / "specs.py"
 CHARACTERS_DIR = ROOT / "assets" / "characters"
 
 TIER_HERO = 0
@@ -92,6 +94,18 @@ def _load_character_specs(root: Path) -> dict[str, dict]:
     return dict(module.CHARACTERS)
 
 
+def _load_realistic_specs(root: Path) -> dict[str, dict]:
+    specs_path = root / REALISTIC_SPECS.relative_to(ROOT)
+    if not specs_path.is_file():
+        return {}
+    spec = importlib.util.spec_from_file_location("realistic_human_specs", specs_path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"could not import {specs_path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return dict(module.SPECS)
+
+
 def tier_for_spec_name(spec_name: str, entry: dict) -> int:
     if "fidelity_tier" in entry:
         return int(entry["fidelity_tier"])
@@ -108,6 +122,11 @@ def classify_character_glb(rel_path: str, root: Path = ROOT) -> int | None:
     if normalized in GARMENT_GLBS:
         return TIER_HERO
 
+    parts = normalized.split("/")
+    if len(parts) == 5 and parts[:3] == ["assets", "characters", "realistic"] and parts[4] == f"{parts[3]}.glb":
+        realistic = _load_realistic_specs(root)
+        if parts[3] in realistic:
+            return int(realistic[parts[3]].get("tier", TIER_NAMED_NPC))
     specs = _load_character_specs(root)
     for spec_name, entry in specs.items():
         if entry.get("output", "").replace("\\", "/") == normalized:
