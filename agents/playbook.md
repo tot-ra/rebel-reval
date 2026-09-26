@@ -29,6 +29,7 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 - `git log -S --all` can hang on this LFS-heavy repo. Scope pickaxe searches to one path and a recent range (`-n 50`) instead of walking every ref.
 
 ### TODO hygiene
+- Board `todo` rows can be months stale. Before claiming, run the row's `verify` command and `git log -n 50 -S '<unique symbol>' -- <path>`. If it already passes, close it with the commit ref, then pick again. For partly done rows, implement only the gap against the contract's acceptance list.
 - For the current `TODO.md` sectioned format, run `python3 tools/prune_completed_todo.py` to append completed rows to `docs/TASK_ARCHIVE.md`. Do not run `tools/condense_todo.py` unless deliberately migrating to the condensed open-only layout (it rewrites `docs/ROADMAP.md`).
 - Map-conversion strict-task IDs (`P0-043`..`P0-046`, `P2-018`..`P2-021`, `P4-014`, `P4-015`) and the `P2-012` -> `P2-021` gate may live in `docs/TASK_ARCHIVE.md`. The audit and conversion-plan validators treat archived full-contract rows as completed. Do not copy archived rows back into `TODO.md` to go green.
 
