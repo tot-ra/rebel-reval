@@ -344,8 +344,14 @@ static func _append_quad(
 
 
 func _sync_projectile_orb(orb: Node3D) -> bool:
-	var source := orb.get_meta(&"source") as MagicProjectile2D
-	if source == null or not is_instance_valid(source) or not source.active:
+	# Impact and expire queue_free the 2D projectile. `as MagicProjectile2D` on
+	# that freed Object errors ("Trying to cast a freed object"), so validate
+	# the stored Variant first and only then cast.
+	var raw: Variant = orb.get_meta(&"source", null)
+	if not is_instance_valid(raw):
+		return false
+	var source := raw as MagicProjectile2D
+	if source == null or not source.active:
 		return false
 	orb.position = MapViewBridge.logic_to_world(source.global_position, _cell_size, PROJECTILE_HEIGHT)
 	return true

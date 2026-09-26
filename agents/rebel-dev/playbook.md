@@ -32,6 +32,7 @@ This file contains lessons specific to the Dev role.
 - Persistent HUD strips must not share a screen band. Quick Access is bottom-right and 780px wide; its help labels composite through a center overlay and look like a broken font. Keep the spell bar bottom-left and list granted recipes, not the full element catalog.
 - `set_input_as_handled()` does not stop sibling `_input` handlers. Do not bind `spellforge_cast` to LMB: `MapClickInputController` already owns left click for attack / interact / travel. Number keys cast learned slots; the cookbook uses Enter and on-screen buttons.
 - The 3D map hides the 2D logic root, so `MagicProjectile2D._draw` is invisible in play. Mirror deliveries in `MapViewMagicVfx` (orb, pulse ring, knockback cone) without naming a spell.
+- `as ClassName` on a Node stored in meta/array errors after `queue_free` ("Trying to cast a freed object"). Call `is_instance_valid` on the Variant first, then cast. Validity after the cast is too late.
 
 ### Harness, import, and capture
 - On-commit Godot resolution should honor `GODOT_BIN`, then `godot` on PATH, then `/Applications/Godot.app/Contents/MacOS/Godot`.

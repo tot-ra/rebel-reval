@@ -94,6 +94,35 @@ func test_bind_draws_projectile_orb_and_follows_logic_position() -> void:
 	root.free()
 
 
+func test_sync_drops_orb_when_projectile_is_freed() -> void:
+	var tree := Engine.get_main_loop() as SceneTree
+	var root := Node2D.new()
+	tree.root.add_child(root)
+	var vfx := MapViewMagicVfx.new()
+	root.add_child(vfx)
+	vfx.bind(32, root)
+	var caster := Node2D.new()
+	root.add_child(caster)
+	var projectile := MagicProjectile2D.new()
+	assert_true(
+		projectile.configure(
+			caster,
+			&"spell.test",
+			Vector2.RIGHT,
+			{
+				"delivery": {"kind": "projectile", "speed": 320.0, "range": 640.0},
+				"impact": {"kind": "damage", "amount": 1.0, "damage_type": "fire"},
+			}
+		)
+	)
+	root.add_child(projectile)
+	assert_eq(vfx.active_projectile_count(), 1)
+	# Fireball impact/expire free the logic node before the next view _process.
+	projectile.free()
+	assert_eq(vfx.active_projectile_count(), 0)
+	root.free()
+
+
 func test_invalid_cone_is_rejected() -> void:
 	var tree := Engine.get_main_loop() as SceneTree
 	var host := MapViewMagicVfx.new()
