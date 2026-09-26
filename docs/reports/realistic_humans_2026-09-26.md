@@ -55,6 +55,18 @@ instead of the retired procedural normal-scale response.
 
 ![Cast](images/realistic_humans/cast_engine.png)
 
+## In the production Lower Town
+
+Third-person plates under the game's own day lighting
+(`tools/godot_render.sh --resolution 1600x900 --script tools/capture_realistic_cast_in_town.gd`):
+
+![Street](images/realistic_humans/town_group.png)
+
+![Kalev with Mart, Aita, Juergen and the watch](images/realistic_humans/town_kalev_close.png)
+
+The environment grade is still the saturated ADR 0018 calibration; a naturalistic
+recalibration is follow-up work outside this character change.
+
 ## Evidence (Godot, GL Compatibility capture stage)
 
 ![Outfits](images/realistic_humans/kalev_outfits_engine.png)

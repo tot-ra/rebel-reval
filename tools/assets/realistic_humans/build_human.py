@@ -522,6 +522,25 @@ def patch_alpha_modes(path):
     path.write_bytes(header + struct.pack("<II", len(blob), 0x4E4F534A) + blob + rest)
 
 
+def clearance_bvh(body):
+    """Body surface garments keep their ease from, with nipples smoothed flat:
+    cloth spans the breast, it never tents on skin detail."""
+    bm = bmesh.new()
+    bm.from_mesh(body.data)
+    deform = bm.verts.layers.deform.verify()
+    groups = [body.vertex_groups[n].index for n in ("nipple", "nippleTip") if n in body.vertex_groups]
+    ring = {v for v in bm.verts if any(v[deform].get(g, 0.0) > 0.02 for g in groups)}
+    for v in list(ring):
+        ring.update(e.other_vert(v) for e in v.link_edges)
+    if ring:
+        for _ in range(25):
+            bmesh.ops.smooth_vert(bm, verts=list(ring), factor=0.8, use_axis_x=True, use_axis_y=True,
+                                  use_axis_z=True)
+    tree = BVHTree.FromBMesh(bm)
+    bm.free()
+    return tree
+
+
 def finish_glb(path, character_dir):
     patch_alpha_modes(path)
     link_textures(path, [character_dir / "textures", TEXTILES, MAKEHUMAN_TEXTURES])
@@ -651,7 +670,7 @@ def build(name, only_body=False):
     out = OUT_ROOT / name
     grooming, lm = surface_character(spec, body, named_proxies, shared, collar, targets, data, out / "textures")
     ctx = garments.Ctx(spec=spec, body=body, rig=motion, t=targets, lm=lm, collar=collar, out=out)
-    ctx.bvh = BVHTree.FromObject(body, bpy.context.evaluated_depsgraph_get())
+    ctx.bvh = clearance_bvh(body)
     braies = garments.braies(ctx)
     wardrobe = {}
     for garment in spec.get("garments", []):

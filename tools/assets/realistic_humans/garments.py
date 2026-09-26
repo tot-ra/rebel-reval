@@ -73,6 +73,9 @@ BONE_NAMES = {"hips", "spine", "chest", "head"} | {
     ("upperarm", "lowerarm", "wrist", "hand", "upperleg", "lowerleg", "foot", "toes")}
 
 
+NIPPLE_GROUPS = ("nipple", "nippleTip")
+
+
 def extract_shell(ctx, name, keep):
     """Copy the body faces whose vertices all satisfy keep(vertex, bone)."""
     body = ctx.body
@@ -91,7 +94,7 @@ def extract_shell(ctx, name, keep):
     bm.to_mesh(obj.data)
     bm.free()
     for group in list(obj.vertex_groups):
-        if group.name not in BONE_NAMES:
+        if group.name not in BONE_NAMES and group.name not in NIPPLE_GROUPS:
             obj.vertex_groups.remove(group)
     obj.data.materials.clear()
     return obj
@@ -222,9 +225,13 @@ class SectionHull:
         self.ref = (seam - axis * seam.dot(axis)).normalized()
         self.side = axis.cross(self.ref)
         body = ctx.body
+        # Nipples are skin detail, not tailoring points: cloth never tents on them.
+        skip = {body.vertex_groups[n].index for n in ("nipple", "nippleTip") if n in body.vertex_groups}
         pts = []
         for v in body.data.vertices:
             if frame_of_bone(dominant_bone(body, v)) != frame:
+                continue
+            if skip and any(g.group in skip and g.weight > 0.05 for g in v.groups):
                 continue
             p = v.co - origin
             along = p.dot(axis)
@@ -285,6 +292,7 @@ def hull_fit(ctx, obj, ease, frames=("torso", "arm.l", "arm.r", "leg.l", "leg.r"
     """Lift a body shell onto section hulls plus ease (cloth under tension)."""
     hulls = {f: SectionHull(ctx, f) for f in frames}
     mesh = obj.data
+    nipple = {obj.vertex_groups[n].index for n in NIPPLE_GROUPS if n in obj.vertex_groups}
     for v in mesh.vertices:
         frame = frame_of_bone(dominant_bone(obj, v))
         if frame not in hulls:
@@ -293,7 +301,9 @@ def hull_fit(ctx, obj, ease, frames=("torso", "arm.l", "arm.r", "leg.l", "leg.r"
         hull_r, own_r, direction, centre = hulls[frame].radius(v.co)
         if own_r < 1e-5:
             continue
-        target = centre + direction * (max(own_r, hull_r) + ease(v.co))
+        on_nipple = any(g.group in nipple and g.weight > 0.05 for g in v.groups)
+        radius = hull_r if on_nipple else max(own_r, hull_r)
+        target = centre + direction * (radius + ease(v.co))
         if (target - v.co).length < 0.08:
             v.co = target
 

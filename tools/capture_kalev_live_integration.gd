@@ -52,8 +52,8 @@ func _capture() -> void:
 	rig.set_facing(Vector2(0.7, 1.0).normalized())
 	rig.play_animation(&"idle", 0.0)
 	var hammer := rig.equip(&"right_hand", LIVE_HAMMER)
-	if rig.body_basename() != "kalev_fresh" or hammer == null:
-		push_error("Stable Kalev scene did not provide the fresh body and live weapon socket")
+	if rig.body_basename() != "kalev" or hammer == null:
+		push_error("Stable Kalev scene did not provide the realistic body and live weapon socket")
 		quit(1)
 		return
 
