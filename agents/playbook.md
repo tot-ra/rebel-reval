@@ -61,6 +61,8 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 - Do not regenerate `tests/fixtures/maps/lower_town_slice.parity.json` to green the `parity` stage. Current compile is missing the eight contract-owned rear-workshop IDs (`brewery_rear_store` and siblings). Restore those IDs or get an explicit review before touching the fixture.
 - `toompea_small_castle.rrmap` is an unregistered benchmark source (WB-10). Do not register it from a tooling task just to make `test_map_pipeline_hardening` compare discover==registry.
 - Fresh worktrees need `godot --headless --path . --import` before tests (global class cache).
+- Copying only `global_script_class_cache.cfg` into a throwaway worktree is not a substitute for `--import`. The harness summary can go green while `run_godot_checked.sh` fails on missing `.ctex` / `.scn` preloads.
+- A new `elevation_area` / `elevation_ramp` ID on an urban exterior rrmap must land in `URBAN_EXTERIOR_CASES` (`tests/godot/test_r454_elevation_scope.gd`) in the same change.
 - Do not run ordinary Node or RefCounted scripts with `--script`; they do not quit. Use the harness.
 - A shared worktree with Godot `--editor` or another harness is not a valid test host. Copy only the scoped files into a throwaway worktree (HEAD plus your own hunks) and run the focused `--filter=` there.
 - A green focused summary can still fail the checked runner on unrelated parse errors. Report the scoped result separately from the baseline blocker.

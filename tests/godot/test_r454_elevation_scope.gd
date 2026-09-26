@@ -30,6 +30,8 @@ const URBAN_EXTERIOR_CASES := [
 		"r454.south.lower_town_datum",
 		"r454.south.king_to_karja",
 		"r454.south.karja_glacis",
+		# Authored in b55303fb beside karja_glacis; dry Karja opening at -0.10.
+		"r454.south.karja_causeway",
 		"r454.south.garden_seam",
 	]],
 	["toompea_quarter", "res://content/maps/toompea_quarter.rrmap", 2.8, [
