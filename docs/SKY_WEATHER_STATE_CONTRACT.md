@@ -53,3 +53,20 @@ Renderer-only objects such as `Environment`, `Sky`, `SkyAtmosphereLut`, `Camera3
 `schema_version` is required to be `1`. Unknown future versions are rejected by `SkyWeather3D.apply_state()` rather than silently downgraded. Missing fields use deterministic defaults so older payloads can be migrated by `SkyWeatherState.from_dict()` without changing the active renderer. Numeric ranges are normalized at the boundary: time scale is capped at `20.0`, progress is wrapped, wetness and flash values are clamped, and zero lightning vectors receive a safe eastward fallback.
 
 Any schema change must increment `CURRENT_VERSION`, add an explicit migration in `from_dict()`, and extend `tests/godot/test_sky_weather_state.gd` before the new state is used by save/load or map-transition code.
+
+## Beaufort ladder (R-955 / CO-08)
+
+`SkyWeather3D.wind_direction_xz()` is a pure function of weather, the shared day clock, and the live gust envelope. It is not `CLOUD_DRIFT_PER_SECOND.normalized()`. CLEAR at noon (progress 0.25) still matches that historical harbour bearing so existing plates stay valid. Other presets use a fixed heading offset; the clock adds a ±22 deg veer that is zero at noon; a rain-front gust adds up to ±18 deg. Cloud drift, the sky `wind_dir` uniform, water, ripples, boats, rain particles, and chimney smoke all read the same accessor.
+
+Hs is not re-derived from the FFT bake. `MapViewWaterMaterials.BEAUFORT_LADDER` documents the WS-04 capture knots plus the missing force-3 row:
+
+| Weather | `sea_state` | Beaufort | Wind m/s | Hs m | Whitecaps |
+|---|---:|---:|---:|---:|---|
+| clear | 0.20 | 2 | 2.5 | 0.16 | off |
+| breeze | 0.35 | 3 | 5.5 | 0.60 | off |
+| cloudy | 0.52 | 4 | 8.0 | 1.36 | onset |
+| overcast | 0.58 | 5 | 9.5 | 1.67 | on |
+| storm | 0.79 | 6 | 12.5 | 3.01 | on |
+| rain | 1.32 | 7 | 15.5 | 3.48 | on |
+
+`sea_state` is still `wind + 0.4 x rain`. Whitecap onset is force 4. Fetch/shelter reuses the WS-08 signed shore field: land upwind or a tight basin scales FFT amplitude and foam toward 0.38. Gerstner hull motion reads `hull_motion_scale()` from the same Hs band (0.55..1.45). No new persisted key: restore reconstructs heading from the existing weather snapshot plus `cycle_progress`.

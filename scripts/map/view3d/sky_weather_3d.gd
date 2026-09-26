@@ -1,5 +1,6 @@
 class_name SkyWeather3D
 extends Node3D
+# gdlint: disable=max-file-lines
 
 ## Sky dome, sun/moon placement, real stars for medieval Reval, and a
 ## deterministic weather cycle for the MapView3D view layer. Owns the
@@ -36,8 +37,24 @@ const ALL_WEATHERS: Array[StringName] = [
 const WEATHER_SEED := 24217
 const TRANSITION_SECONDS := 12.0
 ## Bank masses cross the dome at this rate; detail churns faster for edge chaos.
+## Speed only: heading comes from wind_direction_xz() (R-955). CLEAR at noon
+## still matches this vector so existing plates stay valid.
 const CLOUD_DRIFT_PER_SECOND := Vector2(0.0011, 0.00044)
 const CLOUD_DETAIL_DRIFT_PER_SECOND := Vector2(0.0019, -0.00075)
+## Degrees added to the cloud-drift bearing per weather. CLEAR stays 0 so the
+## historical (0.93, 0.37) harbour wind is the noon fair-weather reference.
+const WIND_HEADING_OFFSET_DEG: Dictionary = {
+	WEATHER_CLEAR: 0.0,
+	WEATHER_CLOUDY: 55.0,
+	WEATHER_OVERCAST: 110.0,
+	WEATHER_RAIN: -70.0,
+	WEATHER_STORM: 165.0,
+}
+## Slow veer over the day clock. Zero at noon (progress 0.25) so default
+## presenters and tests that never call apply_sky_state keep the weather heading.
+const WIND_DAY_VEER_DEG := 22.0
+## Extra heading shove while a rain-front gust is live, scaled by gust / GUST_PEAK.
+const WIND_GUST_VEER_DEG := 18.0
 
 ## Golden-hour presentation stays with the weather controller because it blends
 ## the live weather profile into MapView3D lighting.
@@ -383,6 +400,11 @@ var _atmosphere_lut: SkyAtmosphereLutScript
 ## WS-11: per-sky smoothing tracker, so two map views never share filter state.
 var _atmosphere_cpu := AtmosphereCpuScript.new()
 var _sky_uniform_defaults: Dictionary = {}
+## Local copy of the shared day clock. apply_state stores the snapshot values so
+## wind_direction_xz() matches immediately after restore; it does not write the
+## clock itself (R-713 ownership).
+var _cycle_progress := 0.25
+var _elapsed_days := 0
 
 
 ## Maps user-facing tier requests to a named minimum/recommended row. Auto and
@@ -483,6 +505,8 @@ func _init() -> void:
 func snapshot_state(
 	cycle_progress: float = 0.25, elapsed_days: int = 0
 ) -> RefCounted:
+	_cycle_progress = wrapf(cycle_progress, 0.0, 1.0)
+	_elapsed_days = elapsed_days
 	var state = SkyWeatherStateScript.new()
 	state.weather = weather
 	state.transition_from_weather = _transition_from_weather
@@ -550,6 +574,8 @@ func apply_state(state: RefCounted) -> bool:
 		_lightning_rng.state = restored.lightning_rng_state
 	_current = _profile_from_state(restored.current_profile, weather)
 	_from = _profile_from_state(restored.transition_from_profile, _transition_from_weather)
+	_cycle_progress = wrapf(float(restored.cycle_progress), 0.0, 1.0)
+	_elapsed_days = int(restored.elapsed_days)
 	_push_cloud_uniforms()
 	_update_rain()
 	return true
@@ -660,8 +686,9 @@ func advance(delta: float) -> void:
 	# Wind carries the clouds: gusts race the sky, calm clear days barely stir.
 	# Bank and detail drift share the multiplier so detail keeps outpacing banks.
 	var wind_scale := WIND_DRIFT_FLOOR + wind_strength() * WIND_DRIFT_GAIN
-	_cloud_offset += CLOUD_DRIFT_PER_SECOND * wind_scale * delta
-	_cloud_detail_offset += CLOUD_DETAIL_DRIFT_PER_SECOND * wind_scale * delta
+	var drift_turn := wind_direction_xz().angle() - CLOUD_DRIFT_PER_SECOND.angle()
+	_cloud_offset += CLOUD_DRIFT_PER_SECOND.rotated(drift_turn) * wind_scale * delta
+	_cloud_detail_offset += CLOUD_DETAIL_DRIFT_PER_SECOND.rotated(drift_turn) * wind_scale * delta
 	if _blend < 1.0:
 		var previous_ease := smoothstep(0.0, 1.0, _blend)
 		_blend = minf(1.0, _blend + delta / TRANSITION_SECONDS)
@@ -781,6 +808,7 @@ func set_calendar_date(date: Dictionary) -> void:
 ## shader. MapView3D uses the same vectors for directional lighting, keeping
 ## disks, moving shadows, and east-to-west travel in agreement.
 func apply_sky_state(progress: float, day_blend: float, sun_direction: Vector3) -> void:
+	_cycle_progress = wrapf(progress, 0.0, 1.0)
 	var elevation := rad_to_deg(asin(clampf(sun_direction.y, -1.0, 1.0)))
 	sunset_factor = clampf(1.0 - absf(elevation) / SUNSET_ELEVATION_BAND_DEG, 0.0, 1.0)
 	var phase := lunar_phase(calendar_date)
@@ -799,9 +827,10 @@ func apply_sky_state(progress: float, day_blend: float, sun_direction: Vector3) 
 ## profile and cycle inputs. Callers should retain this value for the frame rather
 ## than reading individual weather accessors between lighting and material passes.
 func presentation_snapshot(progress: float, day_blend: float) -> WeatherPresentation:
+	_cycle_progress = wrapf(progress, 0.0, 1.0)
 	var snapshot := WeatherPresentation.new()
 	snapshot.weather = weather
-	snapshot.cycle_progress = wrapf(progress, 0.0, 1.0)
+	snapshot.cycle_progress = _cycle_progress
 	snapshot.day_blend = clampf(day_blend, 0.0, 1.0)
 	snapshot.sun_direction = solar_direction(progress, calendar_date)
 	snapshot.moon_direction = lunar_direction(progress, calendar_date)
@@ -999,10 +1028,39 @@ func _lightning_flash_scale() -> float:
 	return float(gameplay.lightning_flash_scale())
 
 
-## Prevailing wind follows the authored cloud drift so smoke, sails, and floating
-## hulls lean the same way as the sky weather field.
+## Prevailing wind. Deterministic from weather, day clock, and the live gust
+## envelope so save/load and map handoff reconstruct the same heading. Consumers
+## keep calling this accessor; they do not need the clock.
 func wind_direction_xz() -> Vector2:
-	return CLOUD_DRIFT_PER_SECOND.normalized()
+	return wind_direction_at(
+		weather, _cycle_progress, _gust, _transition_from_weather, _blend
+	)
+
+
+## Scene-tree-free heading used by tests and by wind_direction_xz().
+static func wind_direction_at(
+	weather_id: StringName,
+	cycle_progress: float,
+	gust: float = 0.0,
+	from_weather: StringName = &"",
+	blend: float = 1.0
+) -> Vector2:
+	var to_id := weather_id if WIND_HEADING_OFFSET_DEG.has(weather_id) else WEATHER_CLEAR
+	var from_id := from_weather if WIND_HEADING_OFFSET_DEG.has(from_weather) else to_id
+	var blend_t := smoothstep(0.0, 1.0, clampf(blend, 0.0, 1.0))
+	var heading := lerp_angle(
+		_weather_heading_rad(from_id), _weather_heading_rad(to_id), blend_t
+	)
+	var progress := wrapf(cycle_progress, 0.0, 1.0)
+	# Zero at noon so the default clock and unset presenters keep the weather bearing.
+	heading += deg_to_rad(WIND_DAY_VEER_DEG) * sin(TAU * (progress - 0.25))
+	heading += deg_to_rad(WIND_GUST_VEER_DEG) * clampf(gust / GUST_PEAK, 0.0, 1.0)
+	return Vector2.from_angle(heading)
+
+
+static func _weather_heading_rad(weather_id: StringName) -> float:
+	var offset := float(WIND_HEADING_OFFSET_DEG.get(weather_id, 0.0))
+	return CLOUD_DRIFT_PER_SECOND.angle() + deg_to_rad(offset)
 
 
 ## Returns the exact catalog texture bound to the sky shader. Water reuses this

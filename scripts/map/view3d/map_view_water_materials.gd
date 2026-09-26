@@ -144,6 +144,9 @@ const BOAT_FLOAT_SCRIPT_PATH := "res://scripts/map/view3d/boat_float_3d.gd"
 ## compressed by fft_geometry_scale to fit the view's water column.
 ## WS-06: foam_coverage scales the baked whitecap mask (calm 0.2 .. storm 1.8) and
 ## streaks is the storm share that turns on wind-aligned foam streaks.
+## The 0.35 row fills the clear-to-cloudy weight gap (force 3) without moving
+## the settled weather knots at 0.20 / 0.50 / 0.85. Hs lives on BEAUFORT_LADDER
+## so documented weather heights stay exact.
 const OCEAN_FFT_SEA_STATES: Array[Dictionary] = [
 	{
 		"sea_state": 0.20,
@@ -151,6 +154,14 @@ const OCEAN_FFT_SEA_STATES: Array[Dictionary] = [
 		"choppiness": 0.6,
 		"amplitude": 0.5,
 		"foam_coverage": 0.2,
+		"streaks": 0.0,
+	},
+	{
+		"sea_state": 0.35,
+		"weights": [0.575, 0.725, 0.9],
+		"choppiness": 0.75,
+		"amplitude": 0.75,
+		"foam_coverage": 0.35,
 		"streaks": 0.0,
 	},
 	{
@@ -171,6 +182,62 @@ const OCEAN_FFT_SEA_STATES: Array[Dictionary] = [
 	},
 ]
 const OCEAN_FFT_REFERENCE_SEA_STATE := 0.50
+## WS-03 physical bake Hs. Ladder Hs and hull motion quote this metre.
+const OCEAN_FFT_REFERENCE_HS_M := 1.26
+## Whitecaps start at Beaufort 4 (cloudy / sea 0.52).
+const WHITECAP_ONSET_BEAUFORT := 4
+## Documented Beaufort / Hs / wind-speed knots. Settled weather scalars match
+## the WS-04 capture table exactly; the 0.35 row is the missing fresh-breeze step.
+const BEAUFORT_LADDER: Array[Dictionary] = [
+	{
+		"sea_state": 0.20,
+		"hs_m": 0.16,
+		"beaufort": 2,
+		"wind_ms": 2.5,
+		"whitecap_onset": 0.0,
+		"label": "clear",
+	},
+	{
+		"sea_state": 0.35,
+		"hs_m": 0.60,
+		"beaufort": 3,
+		"wind_ms": 5.5,
+		"whitecap_onset": 0.0,
+		"label": "breeze",
+	},
+	{
+		"sea_state": 0.52,
+		"hs_m": 1.36,
+		"beaufort": 4,
+		"wind_ms": 8.0,
+		"whitecap_onset": 1.0,
+		"label": "cloudy",
+	},
+	{
+		"sea_state": 0.58,
+		"hs_m": 1.67,
+		"beaufort": 5,
+		"wind_ms": 9.5,
+		"whitecap_onset": 1.0,
+		"label": "overcast",
+	},
+	{
+		"sea_state": 0.79,
+		"hs_m": 3.01,
+		"beaufort": 6,
+		"wind_ms": 12.5,
+		"whitecap_onset": 1.0,
+		"label": "storm",
+	},
+	{
+		"sea_state": 1.32,
+		"hs_m": 3.48,
+		"beaufort": 7,
+		"wind_ms": 15.5,
+		"whitecap_onset": 1.0,
+		"label": "rain",
+	},
+]
 ## Crest excursion of the reference C0+C1 sea (2 sigma of Hs 1.25 m = 0.63 m).
 ## fft_geometry_scale maps it onto the terrain's Gerstner "height" budget, so the
 ## reference FFT sea displaces the mesh as far as the tuned Gerstner sea did and
@@ -310,13 +377,61 @@ static func fft_sea_state(wind: float, rain: float) -> Dictionary:
 		weights.append(
 			lerpf(float(lower["weights"][index]), float(upper["weights"][index]), t)
 		)
+	var ladder := beaufort_at(state)
 	return {
 		"weights": weights,
 		"choppiness": lerpf(float(lower["choppiness"]), float(upper["choppiness"]), t),
 		"amplitude": lerpf(float(lower["amplitude"]), float(upper["amplitude"]), t),
 		"foam_coverage": lerpf(float(lower["foam_coverage"]), float(upper["foam_coverage"]), t),
 		"streaks": lerpf(float(lower["streaks"]), float(upper["streaks"]), t),
+		"hs_m": float(ladder["hs_m"]),
+		"beaufort": float(ladder["beaufort"]),
+		"wind_ms": float(ladder["wind_ms"]),
+		"whitecap_onset": float(ladder["whitecap_onset"]),
+		"sea_state": state,
 	}
+
+
+## Piecewise-linear Beaufort / Hs lookup. Hs is monotonically non-decreasing.
+static func beaufort_at(sea_state: float) -> Dictionary:
+	var state := sea_state
+	var lower: Dictionary = BEAUFORT_LADDER[0]
+	var upper: Dictionary = BEAUFORT_LADDER[BEAUFORT_LADDER.size() - 1]
+	var t := 0.0
+	if state >= float(upper["sea_state"]):
+		lower = upper
+	elif state > float(lower["sea_state"]):
+		for index in range(1, BEAUFORT_LADDER.size()):
+			upper = BEAUFORT_LADDER[index]
+			if state <= float(upper["sea_state"]):
+				lower = BEAUFORT_LADDER[index - 1]
+				t = inverse_lerp(float(lower["sea_state"]), float(upper["sea_state"]), state)
+				break
+	var label: String = String(lower["label"])
+	if t >= 0.5:
+		label = String(upper["label"])
+	return {
+		"sea_state": state,
+		"hs_m": lerpf(float(lower["hs_m"]), float(upper["hs_m"]), t),
+		"beaufort": lerpf(float(lower["beaufort"]), float(upper["beaufort"]), t),
+		"wind_ms": lerpf(float(lower["wind_ms"]), float(upper["wind_ms"]), t),
+		"whitecap_onset": lerpf(float(lower["whitecap_onset"]), float(upper["whitecap_onset"]), t),
+		"label": label,
+	}
+
+
+static func significant_wave_height_m(wind: float, rain: float) -> float:
+	return float(beaufort_at(fft_sea_state_scalar(wind, rain))["hs_m"])
+
+
+## Gerstner hull scale from the same Hs the FFT path uses. Maps the documented
+## 0.16..3.48 m band onto the historical 0.55..1.45 harbour motion range.
+static func hull_motion_scale(wind: float, rain: float) -> float:
+	var hs := significant_wave_height_m(wind, rain)
+	var calm_hs := float(BEAUFORT_LADDER[0]["hs_m"])
+	var storm_hs := float(BEAUFORT_LADDER[BEAUFORT_LADDER.size() - 1]["hs_m"])
+	var wave := clampf(inverse_lerp(calm_hs, storm_hs, hs), 0.0, 1.0)
+	return lerpf(0.55, 1.45, wave)
 
 
 ## Mesh displacement per metre of baked sea, in the same units as the shader's
@@ -564,6 +679,7 @@ static func apply_sea_weather(
 			material.set_shader_parameter("fft_cascade", cascade_uniforms)
 			material.set_shader_parameter("storm_foam_coverage", float(sea["foam_coverage"]))
 			material.set_shader_parameter("storm_streaks", float(sea["streaks"]))
+			material.set_shader_parameter("whitecap_onset", float(sea["whitecap_onset"]))
 		else:
 			material.set_shader_parameter(
 				"choppiness", float(wave.get("choppiness", 0.85)) * chop_mul

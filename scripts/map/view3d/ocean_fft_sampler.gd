@@ -25,6 +25,14 @@ const HORIZONTAL_GEOMETRY := 0.5
 const TROUGH_FLOOR := 0.0015
 const STANDING_CHOP_REDUCTION := 0.65
 const DEFAULT_WIND := Vector2(1.0, 0.28)
+## Upwind probe for the WS-08 signed shore field (world units, ~7 m).
+const FETCH_PROBE_UNITS := 8.0
+## Open-water fetch / basin distance at which shelter eases to 1.
+const FETCH_OPEN_UNITS := 12.0
+## Near-shore basin floor. Signed distance below this still reads as sheltered.
+const SHELTER_NEAR_UNITS := 1.5
+## Amplitude and foam scale in the lee of a quay or headland.
+const SHELTER_LEE_SCALE := 0.38
 ## Per-call surface terms that the shader reads from the material of one water
 ## terrain: x = fft_geometry_scale, y = choppiness ratio to open sea, z = standing
 ## ratio (negative = the sea-state default). PHYSICAL_SURFACE is the unscaled
@@ -428,3 +436,11 @@ static func shore_displacement_scale(shore_factor: float) -> float:
 
 static func shore_scale_from_coverage(coverage: float) -> float:
 	return shore_displacement_scale(shore_factor_from_coverage(coverage))
+
+
+## Cheap fetch/shelter from the WS-08 signed shore field. Positive distance is
+## water. A quay or headland upwind, or a tight basin, lowers the scale.
+static func fetch_shelter_scale(local_distance: float, upwind_distance: float) -> float:
+	var fetch := smoothstep(0.0, FETCH_OPEN_UNITS, upwind_distance)
+	var basin := smoothstep(SHELTER_NEAR_UNITS, FETCH_OPEN_UNITS, local_distance)
+	return lerpf(SHELTER_LEE_SCALE, 1.0, minf(fetch, basin))

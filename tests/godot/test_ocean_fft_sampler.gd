@@ -270,3 +270,13 @@ func test_height_query_cost_and_harbour_frame_budget() -> void:
 	)
 	for host in boats:
 		host.free()
+
+
+func test_fetch_shelter_scale_matches_the_documented_lee_floor() -> void:
+	assert_almost_eq(OceanFftSampler.fetch_shelter_scale(20.0, 20.0), 1.0, 0.001)
+	assert_almost_eq(
+		OceanFftSampler.fetch_shelter_scale(20.0, -8.0),
+		OceanFftSampler.SHELTER_LEE_SCALE,
+		0.001,
+		"land upwind sits on the lee floor"
+	)

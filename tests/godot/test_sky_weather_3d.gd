@@ -373,8 +373,10 @@ func _assert_settled_regime(sky: SkyWeather, regime: StringName) -> void:
 		"%s sustained wind must match the profile under any transient gust" % regime
 	)
 	assert_true(
-		sky.wind_direction_xz().is_equal_approx(SkyWeather.CLOUD_DRIFT_PER_SECOND.normalized()),
-		"%s wind direction must stay the authored cloud-drift bearing" % regime
+		sky.wind_direction_xz().is_equal_approx(
+			SkyWeather.wind_direction_at(regime, 0.25, sky.wind_gust())
+		),
+		"%s wind direction must follow the weather heading at noon" % regime
 	)
 	var modifiers: Dictionary = sky.lighting_modifiers()
 	assert_almost_eq(

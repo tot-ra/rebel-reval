@@ -154,6 +154,9 @@ uniform float foam_coverage = 1.0;
 uniform float foam_sharpness = 2.2;
 // Weather scale of the baked mask (apply_sea_weather: calm 0.2 .. storm 1.8).
 uniform float storm_foam_coverage = 0.8;
+// R-955: 0 below Beaufort 4, 1 at/above. Gates baked whitecaps without retuning
+// the WS-06 foam_coverage art lever on storms.
+uniform float whitecap_onset = 1.0;
 // WS-06b debug: 1 writes the baked foam mask (fft_foam.x) to ALBEDO/EMISSION so
 // Metal vs Compatibility coverage can be compared without lighting or the tile.
 uniform float debug_foam_mask = 0.0;
@@ -576,6 +579,29 @@ float _sea_gust(vec2 world_xz) {
 	return 1.0 + gust_amount * 0.4 * gust - slick_amount * 0.6 * slick;
 }
 
+// R-955 fetch/shelter from the WS-08 signed shore field (positive = water).
+// Short upwind fetch or a tight basin cuts FFT amplitude and foam together.
+float _fetch_shelter(vec2 world_xz) {
+	if (shore_field_valid < 0.5) {
+		return 1.0;
+	}
+	vec2 wind = wind_direction / max(length(wind_direction), 0.001);
+	vec2 extent = max(shore_field_size, vec2(0.001));
+	vec2 uv = (world_xz - shore_field_origin) / extent;
+	if (uv.x < 0.0 || uv.y < 0.0 || uv.x > 1.0 || uv.y > 1.0) {
+		return 1.0;
+	}
+	float local_dist = textureLod(shore_field, uv, 0.0).r;
+	vec2 uv_up = (world_xz - wind * 8.0 - shore_field_origin) / extent;
+	float upwind_dist = 12.0;
+	if (uv_up.x >= 0.0 && uv_up.y >= 0.0 && uv_up.x <= 1.0 && uv_up.y <= 1.0) {
+		upwind_dist = textureLod(shore_field, uv_up, 0.0).r;
+	}
+	float fetch = smoothstep(0.0, 12.0, upwind_dist);
+	float basin = smoothstep(1.5, 12.0, local_dist);
+	return mix(0.38, 1.0, min(fetch, basin));
+}
+
 vec2 _ripple_uv(vec2 world_xz) {
 	return (world_xz - ripple_window.xy) / max(ripple_window.z, 0.001);
 }
@@ -625,6 +651,8 @@ void vertex() {
 		// FFT replaces wave_height; wave_height stays the Gerstner amplitude only.
 		// Foam is resampled in fragment(): GL vertex atlas alpha is not trusted.
 		displacement = _fft_displacement(wave_sample_xz).xyz;
+		// Lee of a quay or headland: reuse the WS-08 signed shore field as fetch.
+		displacement *= _fetch_shelter(wave_sample_xz);
 	} else {
 		_water_field(wave_sample_xz - flow_advection, TIME * wave_speed, displacement, normal_terms);
 		displacement *= wave_height;
@@ -973,7 +1001,7 @@ void fragment() {
 		// Streak foam floats on the surface, so it is laid on as white foam below
 		// instead of the sunk tint of old whitecap foam.
 		wind_streak = clamp(tile_a.b * streak_amount * storm_streaks * streak_link, 0.0, 1.0) * open_water;
-		whitecap *= open_water;
+		whitecap *= open_water * whitecap_onset * _fetch_shelter(wave_sample_xz);
 		// The bake decays foam over time: a high raw value just broke (bright,
 		// opaque), a low one is old foam, thin and sunk under the surface.
 		// A rougher sea breaks more often than the reference bake, so the weather scale

@@ -68,6 +68,7 @@ var _fft_primed := false
 var _terrain_resolved := false
 ## Optional (Vector2) -> float coverage lookup. Empty means open water (scale 1).
 var _coverage_lookup := Callable()
+var _distance_lookup := Callable()
 ## Spring state: value and velocity for heave, pitch, roll, surge x, surge z.
 var _fft_value := PackedFloat32Array([0.0, 0.0, 0.0, 0.0, 0.0])
 var _fft_velocity := PackedFloat32Array([0.0, 0.0, 0.0, 0.0, 0.0])
@@ -100,6 +101,10 @@ func bind_water_coverage(lookup: Callable) -> void:
 	_coverage_lookup = lookup
 
 
+func bind_shore_distance(lookup: Callable) -> void:
+	_distance_lookup = lookup
+
+
 func uses_fft() -> bool:
 	return FFT_SUPPORTED and OceanFftSampler.ensure_loaded()
 
@@ -119,8 +124,10 @@ func _process(delta: float) -> void:
 		wind = _sky.wind_strength()
 		rain = _sky.rain_intensity()
 		wind_dir = _sky.wind_direction_xz()
-	# Clear harbor chop stays gentle; storms push both heave and heel.
-	var sea := lerpf(0.55, 1.45, wind) * lerpf(1.0, 1.4, rain) * _motion_scale
+	# Shared Beaufort Hs ladder, not a second wind/rain curve (R-955).
+	var sea := (
+		MapViewWaterMaterialsScript.hull_motion_scale(wind, rain) * _motion_scale
+	)
 	var time := Time.get_ticks_msec() * 0.001 + _phase
 	# Prefer world XZ so hulls crest with the water shader; fall back to local
 	# pose when a headless test drives _process before the prop enters the tree.
@@ -181,7 +188,8 @@ func _process_fft(delta: float) -> void:
 		_rest_basis,
 		_fft_surface,
 		FFT_HULL_ITERATIONS,
-		_coverage_lookup
+		_coverage_lookup,
+		_distance_lookup
 	)
 	var heave := hull.x * _motion_scale
 	var pitch := clampf(hull.y, -BASE_PITCH_RAD * 2.2, BASE_PITCH_RAD * 2.2)
@@ -237,7 +245,8 @@ static func sample_fft_hull_attitude(
 	rest_basis: Basis,
 	surface: Vector3,
 	iterations: int = OceanFftSampler.HEIGHT_ITERATIONS,
-	coverage_at: Callable = Callable()
+	coverage_at: Callable = Callable(),
+	distance_at: Callable = Callable()
 ) -> Vector3:
 	var heights := PackedFloat32Array()
 	heights.resize(HULL_SAMPLE_OFFSETS.size())
@@ -252,9 +261,17 @@ static func sample_fft_hull_attitude(
 		var coverage := 1.0
 		if coverage_at.is_valid():
 			coverage = float(coverage_at.call(sample_xz))
-		# Shader: displacement *= fade * shoaling, then the trough floor.
+		var shelter := 1.0
+		if distance_at.is_valid():
+			var local_dist := float(distance_at.call(sample_xz))
+			var wind_axis: Vector2 = OceanFftSampler.sea_state()["wind_axis"]
+			var upwind := float(
+				distance_at.call(sample_xz - wind_axis * OceanFftSampler.FETCH_PROBE_UNITS)
+			)
+			shelter = OceanFftSampler.fetch_shelter_scale(local_dist, upwind)
+		# Shader: displacement *= fade * shoaling * fetch, then the trough floor.
 		heights[index] = OceanFftSampler.trough_floor(
-			raw * OceanFftSampler.shore_scale_from_coverage(coverage)
+			raw * OceanFftSampler.shore_scale_from_coverage(coverage) * shelter
 		)
 		total += heights[index]
 	var pitch := 0.0
@@ -448,6 +465,8 @@ func _resolve_water_terrain() -> void:
 				set_water_terrain(terrain_id)
 			if node.has_method(&"water_coverage_at"):
 				_coverage_lookup = Callable(node, &"water_coverage_at")
+			if node.has_method(&"shore_distance_at"):
+				_distance_lookup = Callable(node, &"shore_distance_at")
 			return
 		node = node.get_parent()
 

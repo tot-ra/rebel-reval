@@ -538,6 +538,18 @@ func water_coverage_at(world_xz: Vector2) -> float:
 	return MapViewMeshBuilderTerrainWater.combined_water_coverage_at(field, world_xz)
 
 
+## WS-08 signed shore distance at world XZ. Positive is water. Open default keeps
+## hulls and the FFT fetch term at full scale when a map has no shore field.
+func shore_distance_at(world_xz: Vector2) -> float:
+	if definition == null or grid == null:
+		return 99.0
+	var field := MapViewMeshBuilder.ensure_height_field(definition, grid)
+	var shore := MapViewMeshBuilderTerrainWater.bake_shore_field(field, grid)
+	if shore.is_empty():
+		return 99.0
+	return MapViewMeshBuilderTerrainWater.shore_distance_at(shore, world_xz)
+
+
 ## WS-13 underwater view pass, or null indoors and on maps without water.
 func underwater_pass() -> UnderwaterPassScript:
 	return _underwater_pass
