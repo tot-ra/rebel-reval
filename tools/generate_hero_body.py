@@ -3,7 +3,7 @@
 Runs inside Blender (build-time tool only, never at runtime):
 
     /Applications/Blender.app/Contents/MacOS/Blender --background \
-        --python tools/generate_hero_body.py [-- --character=<spec>]
+        --python tools/generate_hero_body.py [-- --character=<spec>] [--regenerate-shared]
 
 Input:  the character's skeleton intermediate (see tools/character_specs.py)
         with adult proportions and all 76 CC0 animation clips, produced by
@@ -23,10 +23,51 @@ import struct
 import sys
 from pathlib import Path
 
-import bpy
-
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
+
+USAGE = """usage: generate_hero_body.py [-- --character=<spec>] [--regenerate-shared]
+
+Build-time Blender tool. Default --character=hero.
+--regenerate-shared  allow this rebuild to rewrite assets/characters/shared/textures
+                     (off by default; shared-map pixel drift otherwise fails closed)
+"""
+
+
+def _user_args(argv: list[str] | None = None) -> list[str]:
+    args = list(sys.argv if argv is None else argv)
+    if "--" in args:
+        return args[args.index("--") + 1 :]
+    # Plain `python3 tools/generate_hero_body.py --help` has no Blender `--`.
+    if args and args[0].endswith(".py"):
+        return args[1:]
+    return []
+
+
+def parse_hero_body_args(argv: list[str] | None = None) -> tuple[str, bool]:
+    character = "hero"
+    regenerate_shared = False
+    for argument in _user_args(argv):
+        if argument in ("-h", "--help"):
+            print(USAGE, end="")
+            raise SystemExit(0)
+        if argument.startswith("--character="):
+            character = argument.split("=", 1)[1]
+            continue
+        if argument == "--regenerate-shared":
+            regenerate_shared = True
+            continue
+        if argument.startswith("-"):
+            raise SystemExit(f"unknown argument: {argument}")
+    return character, regenerate_shared
+
+
+# WHY: --help must work under plain python3; bpy and the body builders need Blender.
+if __name__ == "__main__" and any(argument in ("-h", "--help") for argument in _user_args()):
+    print(USAGE, end="")
+    raise SystemExit(0)
+
+import bpy
 from character_specs import spec as character_spec  # noqa: E402
 from hero_body_anatomy_builder import (  # noqa: E402
     build_anatomical_limbs,
@@ -189,7 +230,7 @@ def _apply_material_response(material: bpy.types.Material, name: str) -> None:
             node.inputs["Strength"].default_value *= float(factor)
 
 
-def generate(character: str) -> None:
+def generate(character: str, *, regenerate_shared: bool = False) -> None:
     selected = character_spec(character)
     _active_palette.update(selected["palette"])
     _active_material_response.update(selected["material_response"])
@@ -232,15 +273,19 @@ def generate(character: str) -> None:
     )
     print(f"BODY_STATURE={crown.dot(context.frame.up):.4f}")
     print(f"BODY_ACTIONS={len(bpy.data.actions)}")
-    _export(output, animations=True)
+    _export(output, animations=True, regenerate_shared=regenerate_shared)
     print(f"Wrote {output}")
 
-    _export_selected_garments(context, selected["garments"], body_objects)
+    _export_selected_garments(
+        context, selected["garments"], body_objects, regenerate_shared=regenerate_shared
+    )
     if character == "hero":
-        _export_mail_outfit(context, selected)
+        _export_mail_outfit(context, selected, regenerate_shared=regenerate_shared)
 
 
-def _export_mail_outfit(context: BodyContext, selected: dict) -> None:
+def _export_mail_outfit(
+    context: BodyContext, selected: dict, *, regenerate_shared: bool = False
+) -> None:
     """A fitted example, deliberately below the existing 1024-triangle accessory cap."""
     for obj in list(bpy.data.objects):
         if obj.type == "MESH":
@@ -259,7 +304,7 @@ def _export_mail_outfit(context: BodyContext, selected: dict) -> None:
             bpy.context.view_layer.objects.active = obj
             bpy.ops.object.modifier_apply(modifier=modifier.name)
     output = ROOT / "assets/characters/shared/hero_mail.glb"
-    _export(output, animations=False)
+    _export(output, animations=False, regenerate_shared=regenerate_shared)
     print(f"Wrote {output}")
 
 
@@ -267,6 +312,8 @@ def _export_selected_garments(
     context: BodyContext,
     selected_garments: list[str],
     body_objects: list[bpy.types.Object],
+    *,
+    regenerate_shared: bool = False,
 ) -> None:
     if not selected_garments:
         return
@@ -277,12 +324,12 @@ def _export_selected_garments(
         if name not in selected_garments:
             continue
         garment_object = builder.build(context.armature, _material)
-        _export(GARMENT_OUTPUTS[name], animations=False)
+        _export(GARMENT_OUTPUTS[name], animations=False, regenerate_shared=regenerate_shared)
         print(f"Wrote {GARMENT_OUTPUTS[name]}")
         bpy.data.objects.remove(garment_object, do_unlink=True)
 
 
-def _export(path: Path, animations: bool) -> None:
+def _export(path: Path, animations: bool, *, regenerate_shared: bool = False) -> None:
     bpy.ops.export_scene.gltf(
         filepath=str(path),
         export_format="GLB",
@@ -300,7 +347,8 @@ def _export(path: Path, animations: bool) -> None:
     _promote_vertex_colors(path)
     # WHY: Blender always packs family maps into the GLB. Point them at the
     # shared PNG set so Godot cannot extract per-body copies on import.
-    link_exported_character_glb(path)
+    # regenerate_shared stays off unless the operator asked to rewrite those PNGs.
+    link_exported_character_glb(path, regenerate_shared=regenerate_shared)
 
 
 def _promote_vertex_colors(path: Path) -> None:
@@ -417,18 +465,10 @@ def _promote_vertex_colors(path: Path) -> None:
     )
 
 
-def _character_argument() -> str:
-    argv = sys.argv
-    if "--" in argv:
-        for argument in argv[argv.index("--") + 1 :]:
-            if argument.startswith("--character="):
-                return argument.split("=", 1)[1]
-    return "hero"
-
-
 if __name__ == "__main__":
     try:
-        generate(_character_argument())
+        character, regenerate_shared = parse_hero_body_args()
+        generate(character, regenerate_shared=regenerate_shared)
     except Exception:
         import traceback
 

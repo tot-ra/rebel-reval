@@ -9,6 +9,7 @@ Run from the repository root:
 
     blender --background --python tools/generate_character_lods.py
     blender --background --python tools/generate_character_lods.py -- mart
+    blender --background --python tools/generate_character_lods.py -- --regenerate-shared mart
 
 Writes:
   assets/characters/shared/<body>_lod1.glb  (~50% of LOD0 triangles)
@@ -22,10 +23,48 @@ import json
 import sys
 from pathlib import Path
 
-import bpy
-
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
+
+USAGE = """usage: generate_character_lods.py [-- [--regenerate-shared] [name ...]]
+
+Build-time Blender tool. With no names, regenerates every body's LODs.
+--regenerate-shared  allow LOD re-export to rewrite assets/characters/shared/textures
+                     (off by default; shared-map pixel drift otherwise fails closed)
+"""
+
+
+def _user_args(argv: list[str] | None = None) -> list[str]:
+    args = list(sys.argv if argv is None else argv)
+    if "--" in args:
+        return args[args.index("--") + 1 :]
+    if args and args[0].endswith(".py"):
+        return args[1:]
+    return []
+
+
+def parse_lod_args(argv: list[str] | None = None) -> tuple[list[str] | None, bool]:
+    regenerate_shared = False
+    names: list[str] = []
+    for argument in _user_args(argv):
+        if argument in ("-h", "--help"):
+            print(USAGE, end="")
+            raise SystemExit(0)
+        if argument == "--regenerate-shared":
+            regenerate_shared = True
+            continue
+        if argument.startswith("-"):
+            raise SystemExit(f"unknown argument: {argument}")
+        names.append(argument)
+    return (names or None), regenerate_shared
+
+
+# WHY: --help must work under plain python3; bpy and the linker need Blender.
+if __name__ == "__main__" and any(argument in ("-h", "--help") for argument in _user_args()):
+    print(USAGE, end="")
+    raise SystemExit(0)
+
+import bpy
 from character_specs import CHARACTERS  # noqa: E402
 from share_character_textures import link_exported_character_glb  # noqa: E402
 
@@ -139,7 +178,13 @@ def _decimate_copy(source: bpy.types.Object, ratio: float) -> bpy.types.Object:
     return duplicate
 
 
-def _export_lod(path: Path, armature: bpy.types.Object, meshes: list[bpy.types.Object]) -> None:
+def _export_lod(
+    path: Path,
+    armature: bpy.types.Object,
+    meshes: list[bpy.types.Object],
+    *,
+    regenerate_shared: bool = False,
+) -> None:
     bpy.ops.object.select_all(action="DESELECT")
     armature.select_set(True)
     for mesh_obj in meshes:
@@ -155,10 +200,11 @@ def _export_lod(path: Path, armature: bpy.types.Object, meshes: list[bpy.types.O
         export_materials="EXPORT",
     )
     # LOD re-export re-embeds the family maps; restore shared URIs immediately.
-    link_exported_character_glb(path)
+    # regenerate_shared stays off unless the operator asked to rewrite those PNGs.
+    link_exported_character_glb(path, regenerate_shared=regenerate_shared)
 
 
-def _process_body(path: Path) -> dict:
+def _process_body(path: Path, *, regenerate_shared: bool = False) -> dict:
     _clear_scene()
     armature = _import_glb(path)
     if armature is None:
@@ -179,7 +225,7 @@ def _process_body(path: Path) -> dict:
             lod_meshes.append(_decimate_copy(source, ratio))
         lod_tris = sum(_mesh_triangle_count(mesh.data) for mesh in lod_meshes)
         out_path = path.with_name(f"{path.stem}_lod{level}{path.suffix}")
-        _export_lod(out_path, armature, lod_meshes)
+        _export_lod(out_path, armature, lod_meshes, regenerate_shared=regenerate_shared)
         for mesh_obj in lod_meshes:
             mesh_data = mesh_obj.data
             bpy.data.objects.remove(mesh_obj, do_unlink=True)
@@ -198,21 +244,14 @@ def _process_body(path: Path) -> dict:
     return entry
 
 
-def _selected_names(argv: list[str]) -> list[str] | None:
-    if "--" not in argv:
-        return None
-    names = [arg for arg in argv[argv.index("--") + 1 :] if not arg.startswith("-")]
-    return names or None
-
-
 def main() -> None:
-    selected = _selected_names(sys.argv)
+    selected, regenerate_shared = parse_lod_args(sys.argv)
     manifest = {
         "lod_ratios": LOD_RATIOS,
         "bodies": [],
     }
     for path in _body_glb_paths(selected):
-        report = _process_body(path)
+        report = _process_body(path, regenerate_shared=regenerate_shared)
         if report:
             manifest["bodies"].append(report)
     if selected is not None and MANIFEST_PATH.is_file():

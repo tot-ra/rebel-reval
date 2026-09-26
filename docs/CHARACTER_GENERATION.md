@@ -81,9 +81,11 @@ python3 tools/build_heroic_humanoid_glb.py crowd_townsman_03
 godot --headless --path . --import
 ```
 
+A deliberate shared-map refresh adds `--regenerate-shared` after `--` on both generator commands (or on `tools/share_character_textures.py`). Default stays off so a one-body rebuild cannot rewrite maps other bodies URI-link.
+
 Then add the variant `.tres`/`.tscn` pair in `variants/` and the `SOURCES.csv` rows. `assets/characters/variants/crowd_variation_manifest.json` records the resolved parameters. `tests/python/test_character_crowd_variation.py` checks determinism and that the manifest is in sync. `test_seeded_crowd_bodies_are_individuated_and_realise_their_seeds` checks that the built bodies follow their seeded stature order and that every pair differs in at least three of height, build, skin, garment and surface response.
 
-Note: `link_exported_character_glb` compares each harvested embed to the committed PNG under `assets/characters/shared/textures/`. Matching bytes, or the same decoded pixels with different PNG encoding, keep the canonical file and URI-link the GLB. Real pixel drift (including Blender 5.2 packing metallic=1 into ORM B on non-metal families) fails the export unless you pass `--regenerate-shared` to `tools/share_character_textures.py`. That opt-in is the only way a rebuild may rewrite maps every other body uses. Selective LOD runs merge into `character_lod_manifest.json` rather than replacing it.
+Note: `link_exported_character_glb` compares each harvested embed to the committed PNG under `assets/characters/shared/textures/`. Matching bytes, or the same decoded pixels with different PNG encoding, keep the canonical file and URI-link the GLB. Real pixel drift (including Blender 5.2 packing metallic=1 into ORM B on non-metal families) fails the export unless you pass `--regenerate-shared` through `generate_hero_body.py`, `generate_character_lods.py`, or `tools/share_character_textures.py`. That opt-in is the only way a rebuild may rewrite maps every other body uses. Selective LOD runs merge into `character_lod_manifest.json` rather than replacing it.
 
 ## Surfaces: UVs and procedural PBR detail (P0-144/P0-145)
 
