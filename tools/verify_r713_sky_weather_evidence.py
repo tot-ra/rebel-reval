@@ -28,9 +28,17 @@ MANIFEST_PATH = ROOT / "docs" / "reports" / "images" / "r713_sky_weather" / "cap
 REPORT_PATH = ROOT / "docs" / "reports" / "r713_sky_weather_continuity.md"
 EXPECTED_CAPTURE_ID = "r713-sky-weather-continuity-v1"
 EXPECTED_MAPS = ("lower_town_slice", "monastery_quarter")
-EXPECTED_SCENARIOS = ("clear", "overcast", "rain", "storm", "rain_shelter_pair")
+EXPECTED_SCENARIOS = (
+    "clear",
+    "cloudy",
+    "overcast",
+    "rain",
+    "storm",
+    "rain_shelter_pair",
+)
 EXPECTED_WEATHER_BY_SCENARIO = {
     "clear": "clear",
+    "cloudy": "cloudy",
     "overcast": "overcast",
     "rain": "rain",
     "storm": "storm",
@@ -49,6 +57,7 @@ REQUIRED_REPORT_TERMS = (
     "limitations",
     "day/night",
     "clear",
+    "cloudy",
     "overcast",
     "rain",
     "storm",

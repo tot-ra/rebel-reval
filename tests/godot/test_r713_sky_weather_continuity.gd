@@ -8,7 +8,7 @@ const CAPTURE_SOURCE := "res://tools/capture_r713_sky_weather_continuity.gd"
 const MANIFEST_PATH := "res://docs/reports/images/r713_sky_weather/capture_manifest.json"
 const EXPECTED_MAPS: Array[String] = ["lower_town_slice", "monastery_quarter"]
 const EXPECTED_SCENARIOS: Array[String] = [
-	"clear", "overcast", "rain", "storm", "rain_shelter_pair"
+	"clear", "cloudy", "overcast", "rain", "storm", "rain_shelter_pair"
 ]
 const EXPECTED_TIMES: Array[String] = ["day", "night"]
 const EXPECTED_SHELTERS: Array[String] = ["exterior", "sheltered"]
@@ -43,7 +43,9 @@ func test_packet_declares_representative_physical_handoff_and_fixed_viewport() -
 
 func test_source_covers_all_required_weather_and_atmosphere_cases() -> void:
 	var source := _source()
-	for weather_id in ["WEATHER_CLEAR", "WEATHER_OVERCAST", "WEATHER_RAIN", "WEATHER_STORM"]:
+	for weather_id in [
+		"WEATHER_CLEAR", "WEATHER_CLOUDY", "WEATHER_OVERCAST", "WEATHER_RAIN", "WEATHER_STORM"
+	]:
 		assert_true(source.contains(weather_id), "capture source must cover %s" % weather_id)
 	for required_term in [
 		"fog_haze",
@@ -79,9 +81,9 @@ func test_manifest_header_contains_every_weather_time_and_shelter_pair() -> void
 	assert_eq(manifest.get("capture_status"), "captured_pending_review")
 	assert_eq(manifest["physical_handoff"]["status"], "captured")
 	var plates: Array = manifest.get("plates", [])
-	assert_eq(plates.size(), 40, "two maps x five scenarios x day/night x shelter")
+	assert_eq(plates.size(), 48, "two maps x six scenarios x day/night x shelter")
 	assert_eq(
-		manifest.get("handoffs", []).size(), 20, "two maps x five scenarios x day/night x shelter"
+		manifest.get("handoffs", []).size(), 24, "two maps x six scenarios x day/night x shelter"
 	)
 	var identities: Dictionary = {}
 	for plate: Dictionary in plates:

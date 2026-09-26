@@ -14,7 +14,7 @@ The shared worktree was already dirty before this refresh. No pre-existing chang
 
 | Command or evidence | Current result | Interpretation |
 |---|---|---|
-| `python3 tools/verify_r713_sky_weather_evidence.py` | **PASS**, 40/40 PNG plates and 20/20 handoffs | The committed Metal continuity packet is structurally complete, checksum-valid, and preserves state hashes and one environment owner. |
+| `python3 tools/verify_r713_sky_weather_evidence.py` | **PASS**, 48/48 PNG plates and 24/24 handoffs | The committed Metal continuity packet now includes first-class cloudy plates. It is structurally complete, checksum-valid, and preserves state hashes and one environment owner. The pre-R-920 four-weather subset remains 40/40 and 20/20. |
 | `python3 tools/verify_weather_audio_clips.py` | **PASS**, 1 clip | The narrow roof-rain audio contract is healthy; this is not parent visual acceptance. |
 | `python3 -m unittest tests.python.test_verify_weather_audio_clips -v` | **PASS**, 3/3 | Weather-audio verifier fixtures remain fail-closed. |
 | `python3 -m unittest tests.python.test_verify_world_building_visual_gate -v` | **FAIL**, 2/6 | The current registry includes `kuldjala_interior`, but the generic benchmark matrix does not. This ambient R-716/R-726 drift is not repaired or waived by R-713. |
@@ -34,7 +34,7 @@ Previously retained focused evidence remains valid for completed child rows: `te
 | R-735 one environment owner | `done` | Idempotent transition binding and duplicate-owner contract are covered | **CLEARED for owned scope** |
 | R-736 atmosphere/wet-surface synchronization | `todo` | R-773, R-775, and R-774 water-sync are done; R-754 still owns water weather-state closeout | **BLOCKER** |
 | R-737 quality tiers and budgets | `todo` | Tier constants/tests/report exist, but target-specific measurements remain blocked | **BLOCKER** |
-| R-738 adjacent-map continuity captures | `todo` | 40/40 plates and 20/20 handoffs pass structural verification; named human visual review remains pending | **BLOCKER** |
+| R-738 adjacent-map continuity captures | `todo` | 48/48 plates and 24/24 handoffs pass structural verification; named human visual review remains pending | **BLOCKER** |
 | R-774 water reflection synchronization | `done` | `--filter=test_r715_water_weather_sync` 6/6 in `75270401`; rerun 2026-09-26 | **CLEARED** |
 | R-754 water weather synchronization | `todo` | R-715 child still must accept water weather-state closeout | **BLOCKER** |
 | R-714 adjacent-map streaming | `todo` | Streaming traversal and border continuity acceptance must close | **EXTERNAL BLOCKER** |
@@ -51,15 +51,15 @@ Existing owners cover every open dependency. No duplicate implementation follow-
 | Layered moving clouds and scalable quality tiers | R-776 constants/resources, R-777 tier tests, `r713_environment_performance.md` | **IMPLEMENTED; measurement blocked** | R-737 needs accepted minimum/recommended measurements |
 | Clear, overcast, rain, storm, and post-rain controlled transitions | 29/29 weather tests and persisted state contract | **PASS for deterministic behavior** | Human visual acceptance remains separate |
 | Rain direction/intensity, shelter, fog/haze, wet surfaces, and weather-aware water | Shared snapshot and shelter contracts exist | **PARTIAL** | R-774 accepted the adapter test; R-754 still owns water reflection, tide, wind, and wetness closeout |
-| Adjacent maps preserve time, cloud field, lighting, and weather | 20/20 captured handoffs have matching state hashes and one owner | **PASS for captured handoff contract** | R-714 streaming acceptance remains external |
-| Signed matched captures show no lighting/exposure jump | Metal packet has 40/40 valid 1280x720 plates | **BLOCKED** | Named human visual review and R-726 generic matrix acceptance are pending |
+| Adjacent maps preserve time, cloud field, lighting, and weather | 24/24 captured handoffs have matching state hashes and one owner | **PASS for captured handoff contract** | R-714 streaming acceptance remains external |
+| Signed matched captures show no lighting/exposure jump | Metal packet has 48/48 valid 1280x720 plates | **BLOCKED** | Named human visual review and R-726 generic matrix acceptance are pending |
 | Parameters persist through save/load and map transitions | State, envelope, service, and transition-owner suites | **PASS** | No remaining persistence blocker |
 | Automated continuity and duplicate-controller tests | Focused continuity packet and one-owner assertions | **PASS for R-713 packet** | Full adjacent streaming remains R-714-owned |
 | Performance budgets and quality fallbacks measured on minimum/recommended hardware | `r713_environment_performance.md` defines both tiers and keeps host identity separate | **BLOCKED** | Intel UHD 620 minimum run and isolated recommended-host run are unavailable |
 
 ## Captures and performance
 
-The committed continuity packet is no longer missing: it contains 40/40 PNG plates, 20/20 handoffs, matching snapshot hashes, fixed 1280x720 dimensions, Metal renderer metadata, and verified checksums. Its report explicitly says **human visual review pending**, so structural validity cannot be relabeled as signed acceptance.
+The committed continuity packet is no longer missing: it contains 48/48 PNG plates, 24/24 handoffs (the original four-weather subset was 40/40 and 20/20), matching snapshot hashes, fixed 1280x720 dimensions, Metal renderer metadata, and verified checksums. Its report explicitly says **human visual review pending**, so structural validity cannot be relabeled as signed acceptance.
 
 The minimum target remains `minimum-hardware-intel-uhd-620`; an Apple M5 Pro measurement cannot certify it. The recommended target is `development-baseline-m5-pro`, but no retained run isolates the weather presenter. Both rows remain **BLOCKED** in `docs/reports/r713_environment_performance.md`.
 
@@ -73,7 +73,7 @@ Do not request final human sign-off until all of the following are complete:
 
 1. R-774 water-sync is PASS 6/6. R-736 and R-754 still need water-facing closeout.
 2. R-737 records isolated recommended-host measurements and a declared Intel UHD 620-class minimum-target run, preserving `BLOCKED` when unavailable.
-3. A named human reviewer records acceptance or actionable rejection of the 40-plate continuity packet.
+3. A named human reviewer records acceptance or actionable rejection of the 48-plate continuity packet.
 4. R-714, R-715, and R-726 close their external streaming, water, and fixed-matrix contracts.
 5. The generic world-building benchmark matrix includes the current active/candidate registry, including `kuldjala_interior`, and its own acceptance gate passes.
 6. `python3 tools/verify_r713_sky_weather_acceptance.py` returns `R713_SKY_WEATHER_ACCEPTANCE_PASS`, then the maintainer signs this report.
@@ -105,3 +105,19 @@ tools/run_godot_checked.sh --require-test-summary r935-water-weather-sync -- \
 ```
 
 This clears only the R-774 water-sync test gate. R-736/R-754 closeout, named visual review, captures, and the R-714/R-715/R-726 external owners remain blockers.
+
+## R-920 cloudy continuity plates (2026-09-26)
+
+The R-738 packet now includes first-class `cloudy` plates and handoffs on both maps at day/night and exterior/sheltered. Existing Metal IDs for `clear`, `overcast`, `rain`, `storm`, and `rain_shelter_pair` are unchanged. `cloudy` is an extra scenario, not a relabel of overcast.
+
+Verify:
+
+```
+python3 tools/verify_r713_sky_weather_evidence.py
+export GODOT_BIN=/Applications/Godot.app/Contents/MacOS/Godot
+tools/run_godot_checked.sh --require-test-summary r920-sky-weather-continuity -- \
+  "$GODOT_BIN" --headless --path . --script tools/run_godot_tests.gd -- \
+  --filter=test_r713_sky_weather_continuity
+```
+
+Named visual review of the expanded packet remains a separate gate. Do not treat structural PASS as signed acceptance.

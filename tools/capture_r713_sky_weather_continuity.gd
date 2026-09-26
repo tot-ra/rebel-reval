@@ -41,6 +41,13 @@ const SCENARIOS: Array[Dictionary] = [
 		"fog_haze": "low clear-air haze",
 	},
 	{
+		# First-class public regime (R-855). Kept as its own packet ID so
+		# cloudy plates are not a relabel of overcast (R-920).
+		"id": "cloudy",
+		"weather": SkyWeather3D.WEATHER_CLOUDY,
+		"fog_haze": "broken cloud banks and cooler haze",
+	},
+	{
 		"id": "overcast",
 		"weather": SkyWeather3D.WEATHER_OVERCAST,
 		"fog_haze": "continuous overcast haze",
@@ -94,7 +101,7 @@ func _run() -> void:
 			push_error("R-738 representative map is missing from its capture factory: %s" % map_id)
 			quit(1)
 			return
-	_manifest = _manifest_header()
+	_manifest = _seed_manifest()
 	for scenario: Dictionary in SCENARIOS:
 		if not _selection_matches_scenario(scenario):
 			continue
@@ -224,7 +231,7 @@ func _manifest_header() -> Dictionary:
 		},
 		"expected_invariants": [
 			"day/night keeps one sun and one cloud front at the handoff",
-			"clear/overcast/rain/storm preserve weather identity and transition progress",
+			"clear/cloudy/overcast/rain/storm preserve weather identity and transition progress",
 			"wind direction is the shared normalized cloud/water direction",
 			"fog/haze and exposure do not reset at the handoff",
 			"sheltered interior/exterior pairs suppress only visible rain emission",
@@ -236,6 +243,86 @@ func _manifest_header() -> Dictionary:
 			"real renderer/Metal capture and human visual review are required before acceptance"
 		],
 	}
+
+
+func _seed_manifest() -> Dictionary:
+	# Filtered --scenario=/--time=/--shelter= runs must keep already-captured
+	# Metal plates. Rebuilding from the header alone would mark them missing.
+	var header := _manifest_header()
+	if not FileAccess.file_exists(MANIFEST_PATH):
+		return header
+	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(MANIFEST_PATH))
+	if not parsed is Dictionary:
+		return header
+	var existing: Dictionary = parsed
+	var retained: Dictionary = {}
+	for plate_variant in existing.get("plates", []):
+		if not plate_variant is Dictionary:
+			continue
+		var plate: Dictionary = plate_variant
+		if String(plate.get("status", "")) != "captured":
+			continue
+		if not _has_scenario(String(plate.get("scenario_id", ""))):
+			continue
+		retained[_plate_identity(plate)] = plate
+	var plates: Array = header["plates"]
+	for index in plates.size():
+		var planned: Dictionary = plates[index]
+		var identity := _plate_identity(planned)
+		if retained.has(identity):
+			plates[index] = retained[identity]
+	var handoffs: Array = []
+	for handoff_variant in existing.get("handoffs", []):
+		if not handoff_variant is Dictionary:
+			continue
+		var handoff: Dictionary = handoff_variant
+		if _handoff_still_expected(handoff):
+			handoffs.append(handoff)
+	header["handoffs"] = handoffs
+	var physical: Variant = existing.get("physical_handoff", {})
+	if physical is Dictionary and String(physical.get("status", "")) == "captured":
+		header["physical_handoff"]["status"] = "captured"
+		if physical.has("state_hash"):
+			header["physical_handoff"]["state_hash"] = physical["state_hash"]
+	return header
+
+
+func _plate_identity(plate: Dictionary) -> String:
+	return "%s/%s/%s/%s" % [
+		String(plate.get("map_id", "")),
+		String(plate.get("scenario_id", "")),
+		String(plate.get("time_of_day", "")),
+		String(plate.get("shelter", "")),
+	]
+
+
+func _handoff_identity(handoff: Dictionary) -> String:
+	return "%s/%s/%s/%s/%s" % [
+		String(handoff.get("source_map", "")),
+		String(handoff.get("target_map", "")),
+		String(handoff.get("scenario_id", "")),
+		String(handoff.get("time_of_day", "")),
+		String(handoff.get("shelter", "")),
+	]
+
+
+func _handoff_still_expected(handoff: Dictionary) -> bool:
+	return (
+		_has_scenario(String(handoff.get("scenario_id", "")))
+		and String(handoff.get("source_map", "")) == String(MAP_IDS[0])
+		and String(handoff.get("target_map", "")) == String(MAP_IDS[1])
+	)
+
+
+func _upsert_handoff(entry: Dictionary) -> void:
+	var identity := _handoff_identity(entry)
+	var handoffs: Array = _manifest["handoffs"]
+	for index in handoffs.size():
+		var existing: Dictionary = handoffs[index]
+		if _handoff_identity(existing) == identity:
+			handoffs[index] = entry
+			return
+	handoffs.append(entry)
 
 
 func _capture_handoff(
@@ -258,7 +345,7 @@ func _capture_handoff(
 	var target_owner_count := int(target_result["environment_owner_count"])
 	var state_hash_source := snapshot_hash(source_state)
 	var state_hash_target := snapshot_hash(target_result["snapshot"])
-	_manifest["handoffs"].append({
+	_upsert_handoff({
 		"source_map": String(source_id),
 		"target_map": String(target_id),
 		"scenario_id": String(scenario["id"]),
@@ -459,5 +546,5 @@ func _write_manifest() -> Error:
 	if file == null:
 		push_error("Could not open R-738 manifest for writing: %s" % MANIFEST_PATH)
 		return ERR_CANT_OPEN
-	file.store_string(JSON.stringify(_manifest, "\t"))
+	file.store_string(JSON.stringify(_manifest, "\t") + "\n")
 	return OK
