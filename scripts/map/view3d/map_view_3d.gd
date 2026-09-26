@@ -708,6 +708,10 @@ func activate_all_chunks() -> void:
 
 
 func _assemble() -> void:
+	# WHY: library stems hash (map_seed, building id). Apply the map-id salt
+	# before the interior shell and streamed houses, or every map keeps seed 0.
+	if definition != null:
+		MapViewMaterials.apply_building_map_seed(definition.map_id)
 	add_child(MapViewMeshBuilder.build_surroundings(definition))
 	add_child(MapViewMeshBuilder.build_terrain(definition, grid))
 	add_child(MapViewMeshBuilder.build_interior_shell(definition))
@@ -822,6 +826,8 @@ func _assemble() -> void:
 	_sky_weather.rain_suppressed = (
 		definition != null and definition.suppresses_exterior_surroundings()
 	)
+	# Cached house materials already exist; the toggle updates them in place.
+	MapViewMaterials.set_building_quality_tier(_sky_weather.quality_tier)
 	_create_water_ripple_sim()
 	_create_underwater_pass()
 	_mud_footprints = MudFootprints3D.new()

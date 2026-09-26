@@ -62,12 +62,15 @@ Contract: [`docs/tasks/architecture/AR-03_building_surface_pbr.md`](../tasks/arc
   `test_library_roof_plates_keep_real_cover_sizes` keeps the real-cover-size bands.
   These test files are outside the AR-03 allowed-file list; editing them was unavoidable because AR-03
   changes the density model they pin.
-- **Map seed.** Stem selection hashes `(map_seed, surface_id, key)`. The mesh builders and the
-  `MapViewMaterials` facade are outside the allowed files, so nothing calls
-  `MapViewBuildingMaterials.set_map_seed()` yet. All maps use seed 0 (deterministic per building ID).
-  Wiring is a follow-up.
-- **Anti-tiling at `minimum`.** The toggle exists, but switching it from the sky-weather quality tier
-  happens in `map_view_3d.gd` (not allowed here). Follow-up.
+- **Map seed.** Stem selection hashes `(map_seed, surface_id, key)`. R-995 wires
+  `MapViewMaterials.apply_building_map_seed(map_id)` from `MapView3D._assemble`
+  before the interior shell and streamed houses. The salt is `String(map_id).hash()`,
+  not the authored terrain seed (most maps still share `DEFAULT_SEED` 42042) and
+  not a node path or instance ID.
+- **Anti-tiling at `minimum`.** `MapViewMaterials.set_building_quality_tier`
+  turns the detail blend off when the resolved sky-weather tier is `minimum`,
+  the same gate as `set_shore_swash_quality_tier`. `MapView3D` applies it after
+  `SkyWeather3D.configure`; the toggle updates already-cached house materials.
 - **Ashlar selection** is an ID-substring rule, because material helpers receive only the building ID.
   AR-05 / AR-06 should replace it with an explicit building attribute.
 
@@ -82,8 +85,10 @@ Contract: [`docs/tasks/architecture/AR-03_building_surface_pbr.md`](../tasks/arc
 | Storage | `building_variants/` 20 MB total, largest file < 1 MB; storage hygiene passes |
 | Geometry no-op | no file under `content/maps/`, blueprints, map compilers or mesh builders changed. `test_lower_town_slice_map` and `test_map_pipeline_hardening` (the `parity` stage) show the identical failure set before and after. `tools/run_map_pipeline_ci.sh parity` cannot run: its filter `lower_town_slice_map` matches no file (pre-existing). |
 
-The anti-tiling cost is within run-to-run noise on this host (0.2-1.0 ms p95). It should be re-measured
-on the declared minimum hardware before `minimum` keeps it on.
+The anti-tiling cost is within run-to-run noise on this host (0.2-1.0 ms p95). R-995
+turns the blend off at `minimum` so that host never pays it. Re-measure with and
+without the blend on the declared R-653 minimum hardware remains **BLOCKED** here:
+this session has no that host.
 
 ## Evidence
 
@@ -104,7 +109,8 @@ plates change most on procedural houses, the city wall and north_quarter.
 
 ## Not done (blocks closing R-961)
 
-- Compatibility-renderer plates, overcast and rain plates, and the `minimum` tier set.
+- Compatibility-renderer plates, overcast and rain plates, and the `minimum` tier set
+  (R-996).
 - Named human visual review: is stone / lime / tar / clay / reed distinguishable without tint, and does
   any street show a repeating grid?
-- `set_map_seed()` and quality-tier wiring (see Decisions).
+- R-653 host re-measure of anti-tiling cost with the R-995 minimum-tier off switch.

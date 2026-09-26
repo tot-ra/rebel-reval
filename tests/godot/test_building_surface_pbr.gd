@@ -11,7 +11,11 @@ const SurfaceLibrary := preload(
 const LowerTownSlice := preload(
 	"res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd"
 )
+const KalevSmithy := preload(
+	"res://scripts/map/definitions/lower_town/kalev_smithy_definition.gd"
+)
 const MapViewMeshBuilder := preload("res://scripts/map/view3d/map_view_mesh_builder.gd")
+const SkyWeather := preload("res://scripts/map/view3d/sky_weather_3d.gd")
 const MAPS_DIR := "res://content/maps"
 
 ## Distinct Walls/Roof override materials on lower_town_slice, measured as 113
@@ -22,6 +26,7 @@ const LOWER_TOWN_BUILDING_MATERIAL_BUDGET := 113
 
 func after_each() -> void:
 	super()
+	MapViewMaterials.set_building_quality_tier(SkyWeather.QUALITY_RECOMMENDED)
 	BuildingMaterials.set_anti_tiling_enabled(true)
 	BuildingMaterials.set_map_seed(0)
 	MapViewMaterials.reset()
@@ -148,6 +153,56 @@ func test_anti_tiling_detail_blend_toggles() -> void:
 	BuildingMaterials.set_anti_tiling_enabled(true)
 	assert_true(material.detail_enabled)
 	assert_true(material.albedo_color.is_equal_approx(lifted))
+
+
+func test_map_ids_choose_stable_distinct_building_stems() -> void:
+	var building_id := &"seeded.house"
+	var size := Vector3(4.0, 3.0, 5.0)
+	MapViewMaterials.apply_building_map_seed(&"lower_town_slice")
+	var first := MapViewMaterials.wall_surface_for_building(
+		building_id, &"plaster", Color.WHITE, size
+	)
+	var first_stem := String(first.get_meta(BuildingMaterials.LIBRARY_STEM_META))
+	var slice_seed := MapViewMaterials.building_map_seed_for(&"lower_town_slice")
+	assert_eq(BuildingMaterials.map_seed(), slice_seed)
+	MapViewMaterials.apply_building_map_seed(&"lower_town_slice")
+	var again := MapViewMaterials.wall_surface_for_building(
+		building_id, &"plaster", Color.WHITE, size
+	)
+	assert_eq(String(again.get_meta(BuildingMaterials.LIBRARY_STEM_META)), first_stem)
+	var other_changed := 0
+	for other_id in [&"kalev_smithy", &"north_quarter", &"south_quarter"]:
+		MapViewMaterials.apply_building_map_seed(other_id)
+		var other := MapViewMaterials.wall_surface_for_building(
+			building_id, &"plaster", Color.WHITE, size
+		)
+		if String(other.get_meta(BuildingMaterials.LIBRARY_STEM_META)) != first_stem:
+			other_changed += 1
+	assert_true(other_changed > 0, "a different map id must reshuffle the same building id")
+
+
+func test_minimum_quality_tier_disables_building_anti_tiling() -> void:
+	MapViewMaterials.set_building_quality_tier(SkyWeather.QUALITY_MINIMUM)
+	var material := MapViewMaterials.wall_surface_for_building(
+		&"minimum.house", &"limestone", Color.WHITE, Vector3(12.0, 4.0, 6.0)
+	)
+	assert_false(material.detail_enabled, "minimum tier must drop the detail blend")
+	MapViewMaterials.set_building_quality_tier(SkyWeather.QUALITY_RECOMMENDED)
+	assert_true(material.detail_enabled, "leaving minimum must restore cached blends")
+
+
+func test_map_view_create_applies_map_id_seed() -> void:
+	var lower := LowerTownSlice.create()
+	var smithy := KalevSmithy.create()
+	var lower_view := MapView3D.create(lower, MapBuilder.build(lower))
+	var lower_seed := BuildingMaterials.map_seed()
+	assert_eq(lower_seed, MapViewMaterials.building_map_seed_for(lower.map_id))
+	lower_view.free()
+	var smithy_view := MapView3D.create(smithy, MapBuilder.build(smithy))
+	var smithy_seed := BuildingMaterials.map_seed()
+	assert_eq(smithy_seed, MapViewMaterials.building_map_seed_for(smithy.map_id))
+	assert_true(lower_seed != smithy_seed, "distinct map ids must produce distinct seeds")
+	smithy_view.free()
 
 
 func test_box_uv_scale_matches_plate_metres_through_the_box_atlas() -> void:

@@ -214,6 +214,23 @@ static func shore_swash_sheet_enabled() -> bool:
 	return _shore_swash_quality_tier != SKY_WEATHER.QUALITY_MINIMUM
 
 
+## Stable per-map salt for building library stems. Hash the map ID so two maps
+## never share seed 0 just because their authored terrain seed is the default.
+## Never hash node paths or instance IDs.
+static func building_map_seed_for(map_id: StringName) -> int:
+	return String(map_id).hash()
+
+
+static func apply_building_map_seed(map_id: StringName) -> void:
+	BUILDING_MATERIALS.set_map_seed(building_map_seed_for(map_id))
+
+
+## Minimum quality drops the anti-tiling detail blend, matching shore swash.
+static func set_building_quality_tier(requested: Variant) -> void:
+	var tier := SKY_WEATHER.resolve_quality_tier(requested)
+	BUILDING_MATERIALS.set_anti_tiling_enabled(tier != SKY_WEATHER.QUALITY_MINIMUM)
+
+
 ## Water-shader material for the beach film. It mirrors its source water family's
 ## uniforms on every weather sync, so sun, sky, tide and sea state stay identical.
 static func swash_sheet_material(terrain_id: StringName) -> ShaderMaterial:
