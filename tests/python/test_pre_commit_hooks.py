@@ -116,6 +116,69 @@ class PreCommitHooksTest(unittest.TestCase):
             else:
                 os.environ["GIT_INDEX_FILE"] = previous
 
+    def test_runner_rejects_unignored_class_name_under_build_tmp_guard(self) -> None:
+        # Why: R-925's guard runs before the empty-staged exit. Prove it in a
+        # fixture repo so a dirty shared worktree and live build/ stay untouched.
+        with tempfile.TemporaryDirectory() as temp_dir:
+            repo = Path(temp_dir)
+            subprocess.run(["git", "init"], cwd=repo, check=True, capture_output=True)
+            subprocess.run(
+                ["git", "config", "user.email", "test@example.com"],
+                cwd=repo,
+                check=True,
+                capture_output=True,
+            )
+            subprocess.run(
+                ["git", "config", "user.name", "Test"],
+                cwd=repo,
+                check=True,
+                capture_output=True,
+            )
+            tools_dir = repo / "tools"
+            tools_dir.mkdir()
+            runner_copy = tools_dir / "run_pre_commit_checks.sh"
+            runner_copy.write_text(RUNNER.read_text(encoding="utf-8"), encoding="utf-8")
+            runner_copy.chmod(0o755)
+
+            planted = repo / "build" / "tmp_guard" / "tmp_guard_scratch.gd"
+            planted.parent.mkdir(parents=True)
+            planted.write_text(
+                "class_name TmpGuardScratch\nextends Node\n",
+                encoding="utf-8",
+            )
+
+            env = _clean_git_env()
+            failed = subprocess.run(
+                ["bash", str(runner_copy), "staged"],
+                cwd=repo,
+                env=env,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            failed_text = failed.stdout + failed.stderr
+            self.assertNotEqual(failed.returncode, 0, failed_text)
+            self.assertIn("CLASS CACHE GUARD", failed_text)
+            self.assertIn("build/tmp_guard/tmp_guard_scratch.gd", failed_text)
+
+            (planted.parent / ".gdignore").write_text("", encoding="utf-8")
+            self.assertFalse(
+                (repo / "build" / ".gdignore").exists(),
+                "folder .gdignore must clear the guard without ignoring all of build/",
+            )
+            passed = subprocess.run(
+                ["bash", str(runner_copy), "staged"],
+                cwd=repo,
+                env=env,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            passed_text = passed.stdout + passed.stderr
+            self.assertEqual(passed.returncode, 0, passed_text)
+            self.assertIn("No staged files", passed.stdout)
+            self.assertNotIn("CLASS CACHE GUARD", passed_text)
+
     def test_runner_rejects_unknown_mode(self) -> None:
         completed = subprocess.run(
             ["bash", str(RUNNER), "unexpected"],
