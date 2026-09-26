@@ -112,6 +112,7 @@ What the hook runs (path-aware on staged files):
 | Staged paths | Checks |
 |--------------|--------|
 | any commit | `git diff --cached --check` |
+| any commit | class_name scratch guard: unignored `class_name` scripts under `build/`, or cache paths outside `scripts/`, `tests/`, `tools/`, `assets/`, `scenes/`, `addons/` |
 | `.gd` files | `gdlint` via `python3 -m gdtoolkit.linter` (same toolkit pin as CI: `4.5.0`) |
 | only `tests/godot/test_*.gd` | focused Godot harness filter when `GODOT_BIN`, `godot`, or the macOS Godot.app is available |
 | `content/` or content validators | content schema examples, `test_validate_content`, example corpus; `content/demo` also runs the demo corpus |
@@ -133,6 +134,8 @@ PRE_COMMIT_FULL=1 tools/run_pre_commit_checks.sh staged   # optional full Godot 
 ```
 
 The installer writes `.git/hooks/pre-commit` and re-runs `git lfs install --local` so LFS `post-*` / `pre-push` hooks remain in place. Optional [`pre-commit`](https://pre-commit.com/) users can `pre-commit install` against [`.pre-commit-config.yaml`](../.pre-commit-config.yaml); that config calls the same runner and keeps `gdlint` (not `gdformat`) to match CI.
+
+`build/` is gitignored but Godot still scans it as `res://`. Put `class_name` backups under `build/scratch/` (`tools/godot_render.sh` creates that folder and its `.gdignore`) or add `.gdignore` to the scratch folder. Do not add `build/.gdignore` at the root: capture tools read and write `res://build/`, and `--script res://build/...` must keep resolving. If the class cache is already poisoned, add the `.gdignore` and run `Godot --headless --editor --path . --quit-after 2`.
 
 ## CI alignment
 

@@ -4,6 +4,16 @@ const TEST_ROOT := "res://tests/godot"
 const TEST_PREFIX := "test_"
 const TEST_SUFFIX := ".gd"
 const TEST_CASE_PATH := "res://tests/godot/test_case.gd"
+# Why: build/ is gitignored but still scanned as res://. A scratch class_name
+# copy there steals the global class cache. addons/ is allowed; it is first-party.
+const CLASS_CACHE_ALLOWED_PREFIXES: PackedStringArray = [
+	"res://scripts/",
+	"res://tests/",
+	"res://tools/",
+	"res://assets/",
+	"res://scenes/",
+	"res://addons/",
+]
 
 class HarnessLogger:
 	extends Logger
@@ -65,6 +75,10 @@ func _initialize() -> void:
 
 
 func _run() -> void:
+	if _reject_class_cache_poison():
+		_finish(1)
+		return
+
 	var test_files := _discover_tests(TEST_ROOT)
 	var filter_value := _argument_value("--filter=")
 	test_files = _filter_test_files(test_files, filter_value)
@@ -273,3 +287,74 @@ func _has_flag(flag: String) -> bool:
 		if argument == flag:
 			return true
 	return false
+
+
+func _reject_class_cache_poison() -> bool:
+	var offenders := _class_cache_offenders()
+	if offenders.is_empty():
+		return false
+	print(
+		"HARNESS ERROR: class_name scratch is registered outside "
+		+ "scripts/tests/tools/assets/scenes/addons, or sits unignored under build:"
+	)
+	for item in offenders:
+		print("  %s" % item)
+	print("Godot scans build/ as res://. Add .gdignore to that scratch folder, not build/ root.")
+	print("Rebuild the cache with: Godot --headless --editor --path . --quit-after 2")
+	return true
+
+
+func _class_cache_offenders() -> PackedStringArray:
+	var offenders: PackedStringArray = []
+	var project_root := ProjectSettings.globalize_path("res://").rstrip("/")
+	_collect_unignored_build_class_scripts(project_root.path_join("build"), project_root, offenders)
+	var cache_path := project_root.path_join(".godot/global_script_class_cache.cfg")
+	if FileAccess.file_exists(cache_path):
+		var text := FileAccess.get_file_as_string(cache_path)
+		var regex := RegEx.new()
+		regex.compile("\"path\": \"(res://[^\"]+)\"")
+		for match_item: RegExMatch in regex.search_all(text):
+			var path := match_item.get_string(1)
+			if not _class_cache_path_allowed(path):
+				offenders.append("cache:%s" % path)
+	return offenders
+
+
+func _class_cache_path_allowed(path: String) -> bool:
+	for prefix in CLASS_CACHE_ALLOWED_PREFIXES:
+		if path.begins_with(prefix):
+			return true
+	return false
+
+
+func _collect_unignored_build_class_scripts(
+	abs_dir: String,
+	project_root: String,
+	offenders: PackedStringArray
+) -> void:
+	var dir := DirAccess.open(abs_dir)
+	if dir == null:
+		return
+	if FileAccess.file_exists(abs_dir.path_join(".gdignore")):
+		return
+	dir.list_dir_begin()
+	var entry := dir.get_next()
+	while not entry.is_empty():
+		if entry == "." or entry == "..":
+			entry = dir.get_next()
+			continue
+		var path := abs_dir.path_join(entry)
+		if dir.current_is_dir():
+			_collect_unignored_build_class_scripts(path, project_root, offenders)
+		elif entry.ends_with(".gd") and _gd_declares_class_name(path):
+			var relative := path.trim_prefix(project_root).trim_prefix("/")
+			offenders.append(relative)
+		entry = dir.get_next()
+	dir.list_dir_end()
+
+
+func _gd_declares_class_name(abs_path: String) -> bool:
+	var text := FileAccess.get_file_as_string(abs_path)
+	var regex := RegEx.new()
+	regex.compile("(?m)^[ \\t]*class_name[ \\t]+")
+	return regex.search(text) != null

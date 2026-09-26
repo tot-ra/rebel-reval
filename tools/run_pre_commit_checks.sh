@@ -27,10 +27,6 @@ trap 'rm -f "$STAGED_FILE" "$PYTHON_MODULES_FILE"' EXIT
 
 if [[ "$MODE" == "staged" ]]; then
   git diff --cached --name-only --diff-filter=ACMR >"$STAGED_FILE"
-  if [[ ! -s "$STAGED_FILE" ]]; then
-    echo "No staged files; nothing to check."
-    exit 0
-  fi
 else
   git ls-files >"$STAGED_FILE"
 fi
@@ -103,7 +99,92 @@ queue_python_module_for_path() {
   esac
 }
 
+# Fail fast when a scratch class_name script under build/ is visible to Godot,
+# or when the class cache already lists a path outside the allowlist.
+# Do not ignore all of build/: capture tools read and write res://build/.
+check_class_cache_guard() {
+  python3 - "$ROOT_DIR" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+root = Path(sys.argv[1])
+allowed_res = (
+    "res://scripts/",
+    "res://tests/",
+    "res://tools/",
+    "res://assets/",
+    "res://scenes/",
+    "res://addons/",
+)
+offenders: list[str] = []
+
+
+def is_gdignored(path: Path) -> bool:
+    for parent in path.parents:
+        if parent == root:
+            break
+        if (parent / ".gdignore").is_file():
+            return True
+    return False
+
+
+build = root / "build"
+if build.is_dir():
+    for gd_file in build.rglob("*.gd"):
+        if not gd_file.is_file() or is_gdignored(gd_file):
+            continue
+        try:
+            text = gd_file.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        if re.search(r"(?m)^[ \t]*class_name[ \t]+", text):
+            offenders.append(str(gd_file.relative_to(root)))
+
+cache = root / ".godot" / "global_script_class_cache.cfg"
+if cache.is_file():
+    cache_text = cache.read_text(encoding="utf-8", errors="replace")
+    for path in re.findall(r'"path": "(res://[^"]+)"', cache_text):
+        if not path.startswith(allowed_res):
+            offenders.append("cache:%s" % path)
+
+if not offenders:
+    raise SystemExit(0)
+
+print(
+    "CLASS CACHE GUARD: class_name script(s) outside "
+    "scripts/tests/tools/assets/scenes/addons, or unignored under build/:",
+    file=sys.stderr,
+)
+for item in offenders:
+    print("  %s" % item, file=sys.stderr)
+print(
+    "Godot scans build/ as res://. Put scratch under build/scratch/ "
+    "(godot_render.sh creates .gdignore there) or add .gdignore to that folder.",
+    file=sys.stderr,
+)
+print(
+    "Do not add build/.gdignore at the root: capture tools use res://build/.",
+    file=sys.stderr,
+)
+print(
+    "Then rebuild the cache: Godot --headless --editor --path . --quit-after 2",
+    file=sys.stderr,
+)
+raise SystemExit(1)
+PY
+}
+
 echo "Running on-commit checks (mode=$MODE)..."
+
+# Why: build/ is gitignored but Godot still scans it as res://. Catch scratch
+# class_name copies before any Godot process can poison the class cache.
+run_step "class_name scratch guard" check_class_cache_guard
+
+if [[ "$MODE" == "staged" && ! -s "$STAGED_FILE" ]]; then
+  echo "No staged files; nothing to check."
+  exit 0
+fi
 
 # Whitespace / conflict markers on the commit payload (or whole tree in all mode).
 if [[ "$MODE" == "staged" ]]; then

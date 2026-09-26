@@ -22,6 +22,14 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
+# Scratch class_name backups must live under build/scratch/. Do not add
+# build/.gdignore at the root: capture tools read and write res://build/,
+# and `godot_render.sh --script res://build/...` must keep resolving.
+mkdir -p "$ROOT/build/scratch"
+if [[ ! -e "$ROOT/build/scratch/.gdignore" ]]; then
+  : > "$ROOT/build/scratch/.gdignore"
+fi
+
 if [[ -n "${GODOT_BIN:-}" ]]; then
   godot="$GODOT_BIN"
 elif command -v godot >/dev/null 2>&1; then
