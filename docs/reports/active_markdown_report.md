@@ -14,11 +14,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `124`
-- Markdown files excluded as archive/reference/out of active scope: `713`
-- Local/external links inspected: `694`
-- Links to active Markdown docs: `355`
-- Links to existing archive/reference/non-active local docs: `139`
+- Active Markdown files scanned: `125`
+- Markdown files excluded as archive/reference/out of active scope: `715`
+- Local/external links inspected: `701`
+- Links to active Markdown docs: `358`
+- Links to existing archive/reference/non-active local docs: `140`
 - External links skipped for reachability: `40`
 - Issues found: `0`
 
@@ -152,6 +152,7 @@ No active Markdown documentation issues found.
 - `docs/tasks/water_sky/WS-12_cloud_shadow_map.md`
 - `docs/tasks/water_sky/WS-13_underwater_view_pass.md`
 - `docs/tasks/water_sky/WS-13b_harbour_basin_depth.md`
+- `docs/tasks/water_sky/WS-13d_pier_cribs.md`
 - `docs/tasks/water_sky/WS-14_swim_dive_adr.md`
 - `docs/tasks/water_sky/WS-15_interactive_ripples_wake.md`
 - `docs/TEXTURE_AI_GENERATION.md`

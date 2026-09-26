@@ -26,6 +26,9 @@ Confidence: conservative reconstruction, not a measured plan of the 1343 shoreli
 - One main stone/pebble descent from the gate to low, wet cargo ground.
 - Broken sand and mud shoreline instead of a straight dressed-stone quay.
 - Two short timber/rubble landings instead of four regular long stone piers.
+- Under water the landings stand on stone-filled log cribs with guide piles (WS-13d, view only).
+  This is a **reconstruction** that fits the timber/rubble reading, not an attested 1343 Reval
+  structure.
 - Scattered plank warehouses, sheds, fenced cargo yards, rope ground, carts, barrels, and one reversible crane marker.
 - Four merchant cogs remain as a developer-readable roadstead, but are not claimed as an attested vessel count.
 

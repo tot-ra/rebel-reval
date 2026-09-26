@@ -28,6 +28,19 @@ const SEA_BASIN_DEPTH := {
 ## gently; hard edges (timber piers, stone landings, paving) drop like a crib face.
 const SEA_BASIN_NATURAL_SLOPE := 0.45
 const SEA_BASIN_HARD_SLOPE := 2.4
+## WS-13d: timber landing decks stand on a near-vertical log crib, so the bed beside
+## them reaches basin depth within one terrain subvertex (1/3 cell) instead of the
+## 1.5-cell hard bank, and MapViewPierCribBuilder can clad that face with timber.
+const SEA_BASIN_PIER_SLOPE := 12.0
+const SEA_BASIN_PIER_TERRAINS: Array[StringName] = [MapTypes.TERRAIN_TIMBER_FLOOR]
+## WS-13d crib cladding, world units: stacked horizontal logs on the pier face and
+## guide piles in front of them. Every top stays CRIB_TOP_CLEARANCE under the rest
+## surface so the top-down gameplay view keeps its water silhouette.
+const CRIB_LOG_RADIUS := 0.1
+const CRIB_PILE_RADIUS := 0.13
+const CRIB_PILE_SPACING := 1.0
+const CRIB_TOP_CLEARANCE := 0.22
+const CRIB_BED_EMBED := 0.25
 ## Deepened ground reads as sand with silt patches, not as the neighbouring meadow.
 const SEA_BASIN_BED_TERRAIN := MapTypes.TERRAIN_COAST_SAND
 const SEA_BASIN_SILT_TERRAIN := MapTypes.TERRAIN_MUD

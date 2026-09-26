@@ -110,6 +110,7 @@ per in-map water fragment.
 ## Known limitations and follow-ups
 
 - Light shafts readable under water (with WS-07): board R-904 (WS-13c).
-- Pier crib / pile geometry under timber landings: board R-905 (WS-13d).
+- Pier crib / pile geometry under timber landings: board R-905, done in
+  [WS-13d](WS-13d_pier_cribs.md) (timber decks now get their own steeper crib face).
 - Hairline seams between surroundings water planes now show the sand apron instead of the void
   (pre-existing crack, WS-04 note on horizontal chop).

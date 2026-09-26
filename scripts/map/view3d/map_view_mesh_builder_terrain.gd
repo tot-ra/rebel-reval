@@ -324,7 +324,8 @@ static func view_bed_height(definition: MapDefinition, world_xz: Vector2) -> flo
 
 
 ## WS-13b per-cell basin inputs: the target depth of each sea cell and the chamfer
-## distance (cells, centre to centre) to the nearest natural and hard dry cell.
+## distance (cells, centre to centre) to the nearest natural, hard and (WS-13d)
+## timber-pier dry cell.
 ## Cells outside the map count as water, so a basin stays deep up to the border and
 ## meets the surroundings seabed apron instead of shelving up at every map edge.
 static func _bake_basin_cells(field: Dictionary, grid: MapTerrainGrid) -> void:
@@ -337,22 +338,29 @@ static func _bake_basin_cells(field: Dictionary, grid: MapTerrainGrid) -> void:
 	var targets := PackedFloat32Array()
 	var natural := PackedFloat32Array()
 	var hard := PackedFloat32Array()
+	var pier := PackedFloat32Array()
 	targets.resize(count)
 	natural.resize(count)
 	hard.resize(count)
+	pier.resize(count)
 	var far := float(size.x + size.y)
 	var has_basin := false
+	var has_pier := false
 	for y in size.y:
 		for x in size.x:
 			var index := y * size.x + x
 			var terrain := grid.get_terrain(Vector2i(x, y))
 			natural[index] = far
 			hard[index] = far
+			pier[index] = far
 			if MapViewMaterials.WATER_TERRAINS.has(terrain):
 				targets[index] = float(MapViewMeshBuilderConfig.SEA_BASIN_DEPTH.get(terrain, 0.0))
 				has_basin = has_basin or targets[index] > 0.0
 			elif terrain in MapViewMeshBuilderConfig.NATURAL_SHORE_TERRAINS:
 				natural[index] = 0.0
+			elif terrain in MapViewMeshBuilderConfig.SEA_BASIN_PIER_TERRAINS:
+				pier[index] = 0.0
+				has_pier = true
 			else:
 				hard[index] = 0.0
 	if not has_basin:
@@ -362,6 +370,9 @@ static func _bake_basin_cells(field: Dictionary, grid: MapTerrainGrid) -> void:
 	field["basin_targets"] = targets
 	field["basin_natural"] = natural
 	field["basin_hard"] = hard
+	if has_pier:
+		_chamfer_distance(pier, size)
+		field["basin_pier"] = pier
 
 
 ## Two-pass 3x3 chamfer transform (1 and sqrt 2): Euclidean enough for a bank
@@ -410,6 +421,11 @@ static func basin_extra_depth(field: Dictionary, position: Vector2) -> float:
 		natural * MapViewMeshBuilderConfig.SEA_BASIN_NATURAL_SLOPE,
 		hard * MapViewMeshBuilderConfig.SEA_BASIN_HARD_SLOPE
 	)
+	if field.has("basin_pier"):
+		# Timber decks are not in `basin_hard`; their crib face drops almost straight,
+		# while a nearer beach or stone quay still limits the bank as before.
+		var pier := maxf(_cell_bilinear(field["basin_pier"], size, position) - 0.5, 0.0)
+		bank = minf(bank, pier * MapViewMeshBuilderConfig.SEA_BASIN_PIER_SLOPE)
 	return maxf(minf(target, bank), 0.0)
 
 
@@ -581,6 +597,10 @@ static func build_terrain(definition: MapDefinition, grid: MapTerrainGrid) -> No
 		apron_instance.material_override = _seabed_apron_material()
 		apron_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		root.add_child(apron_instance)
+	# WS-13d: timber crib cladding on the steep bed face beside landing decks.
+	var cribs := MapViewPierCribBuilder.build(field)
+	if cribs != null:
+		root.add_child(cribs)
 	return root
 
 

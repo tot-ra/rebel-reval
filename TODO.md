@@ -262,6 +262,13 @@ dark grass stripes where the flat bed poked through FFT troughs are gone; the FF
 kept; readable light shafts were not reached (procedural caustic period equals the march step) and
 move to a follow-up with WS-07.
 
+- [ ] WS-13d | deps: WS-13b | deliverable: view-only stone-filled log crib and guide piles under timber landing decks down to the WS-13b rendered bed (steep pier face in the bed, logs and piles under the surface), no collision/nav/content change | allowed files: see `docs/tasks/water_sky/WS-13d_pier_cribs.md` | verify: `--filter=test_ws13d_pier_cribs` and `--filter=test_ws13b_sea_basin_depth`; `ws13d_under_horizontal_{metal,gl}.png` show the crib; GL overview A/B differs only at the pier tips
+
+WS-13d implementation landed (R-905, in review). Decisions (2026-09-26) are in the task file:
+timber decks leave the hard-bank field for a 12-per-cell crib face; logs follow the jittered
+rendered face; everything stays 0.22 units under the rest surface; the crib is a reconstruction,
+not an attested 1343 structure.
+
 - [ ] WS-14a | deps: WS-13 | deliverable: ADR 0021 swimming and diving naming the removed scope, allowed water/maps, player-only traversal layer, breath/gear/combat/consequence rules, canon note, asset follow-ups and save fields | allowed files: `docs/adr/0021-swimming-and-diving.md`, `TODO.md` | verify: active docs check; maintainer acceptance recorded in ADR status
 - [ ] WS-14b | deps: WS-14a, WS-13, WS-05 | deliverable: PlayerSwimState (walk/wade/swim/dive/climb-out, FFT surface float, player-only swimmable traversal, ADR rules) with input, presentation hooks and save/load | allowed files: per accepted ADR 0021 | verify: swim state + save tests; map audits unchanged; keyboard/gamepad clip of wade/swim/dive/surface/climb-out
 
