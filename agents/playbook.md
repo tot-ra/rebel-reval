@@ -25,6 +25,7 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 - On macOS, GNU `timeout` may be missing (exit 127). Use a Python subprocess watchdog. Never kill unrelated long-running processes.
 - `code_execution` may isolate helpers and imports. Keep diagnostics inline or use project `python3` via bash.
 - Stateful browser actions cannot run through a parallel wrapper.
+- Markdown backticks inside a double-quoted bash string are command substitution. Write SQL or task-board updates with Python or a single-quoted heredoc. A backtick path can execute a file and silently blank the intended text.
 
 ### TODO hygiene
 - For the current `TODO.md` sectioned format, run `python3 tools/prune_completed_todo.py` to append completed rows to `docs/TASK_ARCHIVE.md`. Do not run `tools/condense_todo.py` unless deliberately migrating to the condensed open-only layout (it rewrites `docs/ROADMAP.md`).
