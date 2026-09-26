@@ -307,7 +307,9 @@ func _rebuild_quick_spells() -> void:
 		var button := Button.new()
 		var spell_name := String(row["name"])
 		button.name = "Quick%sSpell" % spell_name.replace(" ", "")
-		button.text = "[%d] %s   WP %d" % [index + 1, spell_name, int(row["cost"])]
+		button.text = "[%d] %s   %s %d" % [
+			index + 1, spell_name, _cost_abbrev(row), int(row["cost"])
+		]
 		button.tooltip_text = String(row["summary"])
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		button.pressed.connect(_on_quick_spell_pressed.bind(StringName(String(row["id"]))))
@@ -359,7 +361,16 @@ func _rebuild_cookbook() -> void:
 func _resource_text() -> String:
 	if _model == null:
 		return "Willpower: unavailable"
-	return "Willpower: %d" % _model.willpower()
+	return "Willpower: %d  Piety: %d" % [_model.willpower(), _model.piety()]
+
+
+static func _cost_abbrev(row: Dictionary) -> String:
+	var resource := String(row.get("resource", "resource.willpower"))
+	if resource == "resource.piety":
+		return "PI"
+	if resource == "resource.health":
+		return "HP"
+	return "WP"
 
 
 func _on_element_pressed(element_id: StringName) -> void:

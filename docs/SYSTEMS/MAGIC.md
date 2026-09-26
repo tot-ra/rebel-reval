@@ -252,6 +252,7 @@ Partial ship (P7-010 acceptance bar):
 5. Demo path (menu → Lower Town → forge → Mart / spearhead loop) does not require casting.
 6. **P4-007 Root and Ember** remains valid: quest stays understandable without literal magic confirmation. Later packages may add optional literal branches behind flags without rewriting that quest's historical verify line.
 7. Playable demo HUD (**R-959**): the bottom-left bar lists **granted** recipes as numbered slots. `1`..`5` or a click casts immediately. `R` opens the cookbook for element forging. Left click is never a cast bind. The 3D map mirrors projectiles and ground pulses through `MapViewMagicVfx` without naming a spell. New sessions seed Fireball, Earth Tremor, and Iron Skin plus 8 willpower; the critical path still never checks those grants.
+8. Divine Blessing (**R-718**) is an executable fixed rite: piety spend, self `damage_bonus` modifier, HUD slot when granted. Demo does not seed it. Cookbook forging stays pagan-only.
 
 Out of partial ship:
 
@@ -277,7 +278,7 @@ These are design stubs, not shipped balance.
 | `spell.pagan.healing_mist` | pagan | `[water, life]` | Ally heal area (80 radius, 6 s, 4 health per second per ally); shipped example (R-721) | optional |
 | `spell.pagan.forgefire_weapon` | pagan | `[fire, metal, mind]` | Temporary fire on melee strikes | `conduit.forge_spell` |
 | `spell.pagan.earthen_wall` | pagan | `[earth, metal, life]` | Short blocking earth segment | `conduit.forge_spell` |
-| `rite.blessing` | divine | tags `faith` | Short self damage buff | optional / hammer symbol allowed |
+| `rite.blessing` | divine | tags `faith` | Short self outgoing-damage buff (25%, 6 s, recast replaces); shipped example (R-718) | optional / hammer symbol allowed |
 | `rite.blood_for_belief` | divine | tags `sacrifice`, `faith` | Spend health for ally area heal | `conduit.forge_rite` preferred |
 
 ---

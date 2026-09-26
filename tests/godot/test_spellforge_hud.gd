@@ -36,6 +36,23 @@ func test_learned_spells_use_demo_slot_order() -> void:
 	assert_eq(model.selected_sequence(), FIRE_AIR)
 
 
+func test_learned_rites_append_after_demo_spell_slots() -> void:
+	var state := GameState.new()
+	var db := _make_db()
+	assert_true(MagicResolver.apply_grant_operation(state, db, GRANT_FIREBALL))
+	assert_true(MagicResolver.apply_grant_operation(state, db, &"magic.grant.starter_earth_tremor"))
+	assert_true(MagicResolver.apply_grant_operation(state, db, &"magic.grant.starter_iron_skin"))
+	assert_true(MagicResolver.apply_grant_operation(state, db, &"magic.grant.starter_blessing"))
+	var model := ModelScript.new() as SpellforgeModel
+	model.configure(state, db)
+	var spells := model.learned_spells()
+	assert_eq(spells.size(), 4)
+	assert_eq(spells[3]["id"], &"rite.blessing")
+	assert_eq(spells[3]["resource"], "resource.piety")
+	assert_true(model.arm_spell(&"rite.blessing"))
+	assert_eq(model.selected_sequence(), [])
+
+
 func test_model_limits_selection_to_learned_elements_and_three_slots() -> void:
 	var state := GameState.new()
 	var db := _make_db()

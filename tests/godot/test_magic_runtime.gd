@@ -91,6 +91,10 @@ func test_divine_rite_uses_piety_and_school_guard() -> void:
 	var success := MagicResolver.cast(state, db, RITE_BLESSING)
 	assert_true(success["ok"])
 	assert_eq(state.get_magic_resource(GameState.MAGIC_RESOURCE_PIETY), 0)
+	var effect: Dictionary = success["effect"]
+	assert_eq(effect["delivery"]["kind"], "self")
+	assert_eq(effect["modifier"]["kind"], "damage_bonus")
+	assert_eq(effect["modifier"]["modifier_id"], "modifier.blessing")
 
 
 func test_hammer_conduit_can_be_equipped_or_bound_at_smithy() -> void:

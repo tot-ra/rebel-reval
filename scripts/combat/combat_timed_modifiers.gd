@@ -13,10 +13,13 @@ signal applied(modifier_id: StringName, stacks: int, remaining_sec: float)
 signal expired(modifier_id: StringName)
 
 const STAT_DAMAGE_REDUCTION := &"damage_reduction"
+const STAT_DAMAGE_BONUS := &"damage_bonus"
 const STACKING_REPLACE := &"replace"
 const STACKING_STACK := &"stack"
 ## Combined incoming-damage reduction never reaches invulnerability.
 const MAX_TOTAL_DAMAGE_REDUCTION := 0.8
+## Combined outgoing-damage bonus stays a short grace, not a double-damage mode.
+const MAX_TOTAL_DAMAGE_BONUS := 0.8
 const MAX_STACKS_CAP := 5
 
 ## modifier_id -> {stat, amount, stacks: Array[float] remaining seconds, source_id}
@@ -135,6 +138,24 @@ func reduce_incoming_damage(amount: float) -> float:
 	return amount * (1.0 - damage_reduction())
 
 
+## Combined fraction added to outgoing melee damage. Stacks add; the total caps.
+func outgoing_damage_bonus() -> float:
+	var total := 0.0
+	for modifier_id in _active:
+		var entry: Dictionary = _active[modifier_id]
+		if entry["stat"] != STAT_DAMAGE_BONUS:
+			continue
+		var per_stack := clampf(float(entry["amount"]), 0.0, MAX_TOTAL_DAMAGE_BONUS)
+		total += per_stack * float((entry["stacks"] as Array).size())
+	return minf(total, MAX_TOTAL_DAMAGE_BONUS)
+
+
+func scale_outgoing_damage(amount: float) -> float:
+	if amount <= 0.0:
+		return amount
+	return amount * (1.0 + outgoing_damage_bonus())
+
+
 ## Adapter for authored effect modules. Any actor exposing a `combat_vitals`
 ## property (player, combat room enemies, test dummies) can receive modifiers.
 static func apply_module_to(target: Node, module: Dictionary, source_id: StringName = &"") -> bool:
@@ -148,7 +169,7 @@ static func apply_module_to(target: Node, module: Dictionary, source_id: StringN
 	if not modifiers is CombatTimedModifiers:
 		return false
 	var stat := StringName(String(module.get("kind", "")))
-	if stat != STAT_DAMAGE_REDUCTION:
+	if stat != STAT_DAMAGE_REDUCTION and stat != STAT_DAMAGE_BONUS:
 		return false
 	return (modifiers as CombatTimedModifiers).apply(
 		StringName(String(module.get("modifier_id", ""))),

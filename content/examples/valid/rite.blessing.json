@@ -14,7 +14,19 @@
     "resource": "resource.piety",
     "amount": 1
   },
-  "effect_summary": "Short authored self damage blessing.",
+  "effect_summary": "Kalev petitions a short grace that strengthens his next blows. Recasting replaces the blessing instead of stacking it.",
+  "effect": {
+    "delivery": {
+      "kind": "self"
+    },
+    "modifier": {
+      "kind": "damage_bonus",
+      "modifier_id": "modifier.blessing",
+      "amount": 0.25,
+      "duration_sec": 6.0,
+      "stacking": "replace"
+    }
+  },
   "confidence": "invented",
   "canon_status": "draft",
   "approval": {

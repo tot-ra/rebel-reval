@@ -178,7 +178,7 @@ func test_malformed_modifiers_and_targets_fail_closed() -> void:
 	var no_vitals := CAST_EXECUTOR.execute(result, plain, Vector2.RIGHT, host)
 	assert_true(no_vitals == null, "caster without vitals must fail")
 	var bad := result.duplicate(true)
-	bad["effect"]["modifier"]["kind"] = "damage_bonus"
+	bad["effect"]["modifier"]["kind"] = "unknown_stat"
 	var caster := _add_dummy(host)
 	var unknown := CAST_EXECUTOR.execute(bad, caster, Vector2.RIGHT, host)
 	assert_true(unknown == null, "unknown modifier kind must fail")

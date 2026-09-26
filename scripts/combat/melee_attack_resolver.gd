@@ -26,6 +26,9 @@ static func strike(
 	var swing_id := _allocate_swing_id()
 	var attack_direction := facing.normalized()
 	var reach_squared := reach_px * reach_px
+	# WHY: outgoing buffs live on the attacker's timed modifiers, not on
+	# AttackProfile, so every melee pulse shares one scaling seam.
+	var resolved_damage := _scale_outgoing_damage(attacker, damage)
 	for candidate_node: Node in attacker.get_tree().get_nodes_in_group(DAMAGEABLE_GROUP):
 		if candidate_node == attacker or not candidate_node is Node2D:
 			continue
@@ -38,7 +41,9 @@ static func strike(
 		if attack_direction.dot(offset.normalized()) < minimum_facing_dot:
 			continue
 		var applied := float(
-			candidate.call("take_damage", damage, attacker, damage_type, swing_id, pierces_guard)
+			candidate.call(
+				"take_damage", resolved_damage, attacker, damage_type, swing_id, pierces_guard
+			)
 		)
 		if applied > 0.0:
 			hits.append(candidate)
@@ -60,6 +65,16 @@ static func strike_with_profile(
 		profile.damage_type,
 		profile.pierces_guard
 	)
+
+
+static func _scale_outgoing_damage(attacker: Node2D, damage: float) -> float:
+	var vitals: Variant = attacker.get("combat_vitals")
+	if not vitals is Object:
+		return damage
+	var modifiers: Variant = (vitals as Object).get("modifiers")
+	if not modifiers is CombatTimedModifiers:
+		return damage
+	return (modifiers as CombatTimedModifiers).scale_outgoing_damage(damage)
 
 
 static func _allocate_swing_id() -> int:

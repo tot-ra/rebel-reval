@@ -258,7 +258,10 @@
           ],
           "properties": {
             "kind": {
-              "const": "damage_reduction"
+              "enum": [
+                "damage_reduction",
+                "damage_bonus"
+              ]
             },
             "modifier_id": {
               "type": "string",

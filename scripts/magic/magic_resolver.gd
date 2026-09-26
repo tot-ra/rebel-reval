@@ -180,7 +180,14 @@ static func _scale_effect(effect: Dictionary, multiplier: float) -> void:
 			# NATURAL raises per-tick magnitude and the per-target heal duration.
 			# Knockback distance counts as placement: only its REACT hold scales.
 			if kind in [
-				"damage", "heal", "heal_over_time", "control", "stagger", "damage_reduction", "knockback"
+				"damage",
+				"heal",
+				"heal_over_time",
+				"control",
+				"stagger",
+				"damage_reduction",
+				"damage_bonus",
+				"knockback",
 			]:
 				for magnitude_key in ["amount", "magnitude", "duration_sec"]:
 					if module.has(magnitude_key):
