@@ -1,19 +1,23 @@
 class_name MapViewMagicVfx
 extends Node3D
 
-## View-only mirror for knockback cones (R-913 / Air Gust). Gameplay stays on
-## MagicAreaPulse2D and CombatKnockbackEffect; this node only draws a wind
-## volume plus a reused smoke burst so the shove reads in the 3D map view.
+## View-only mirror for authored magic deliveries. Gameplay stays on the 2D
+## executor nodes; this node only draws a wind cone, a ground pulse ring, and a
+## following projectile orb so casts read in the 3D map view.
 
 const DEFAULT_CELL_SIZE := 32
 const BURST_DURATION_SEC := 0.55
+const PULSE_DURATION_SEC := 0.4
 const WEDGE_HEIGHT := 1.35
 const WEDGE_SEGMENTS := 10
 const SMOKE_AMOUNT := 36
+const PROJECTILE_HEIGHT := 0.62
+const PROJECTILE_RADIUS := 0.2
 
 var _cell_size: int = DEFAULT_CELL_SIZE
 var _watch_tree: SceneTree
 var _bursts: Array[Node3D] = []
+var _projectile_orbs: Array[Node3D] = []
 
 
 func bind(cell_size: int, watch_root: Node) -> void:
@@ -61,12 +65,87 @@ func play_knockback_cone(
 	return burst
 
 
+func play_area_pulse_ring(logic_origin: Vector2, radius_px: float, cell_size: int = 0) -> Node3D:
+	var used_cell := cell_size if cell_size > 0 else _cell_size
+	if used_cell <= 0 or radius_px <= 0.0:
+		return null
+	var scale := MapViewBridge.world_scale(used_cell)
+	var burst := Node3D.new()
+	burst.name = "AreaPulseBurst"
+	burst.position = MapViewBridge.logic_to_world(logic_origin, used_cell, 0.04)
+	burst.set_meta(&"age", 0.0)
+	burst.set_meta(&"duration", PULSE_DURATION_SEC)
+	burst.set_meta(&"base_alpha", 0.42)
+	add_child(burst)
+	var mesh_instance := MeshInstance3D.new()
+	mesh_instance.name = "PulseRing"
+	var cylinder := CylinderMesh.new()
+	cylinder.top_radius = radius_px * scale
+	cylinder.bottom_radius = radius_px * scale
+	cylinder.height = 0.08
+	cylinder.radial_segments = 20
+	mesh_instance.mesh = cylinder
+	mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	var material := StandardMaterial3D.new()
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	# Dusty ground flash, not a school-element colour and not a wind wedge.
+	material.albedo_color = Color(0.62, 0.48, 0.28, 0.42)
+	mesh_instance.material_override = material
+	burst.add_child(mesh_instance)
+	_bursts.append(burst)
+	return burst
+
+
+func play_projectile_orb(projectile: MagicProjectile2D) -> Node3D:
+	if projectile == null:
+		return null
+	var orb := Node3D.new()
+	orb.name = "MagicProjectileOrb"
+	orb.set_meta(&"source", projectile)
+	var mesh_instance := MeshInstance3D.new()
+	mesh_instance.name = "OrbMesh"
+	var sphere := SphereMesh.new()
+	sphere.radius = PROJECTILE_RADIUS
+	sphere.height = PROJECTILE_RADIUS * 2.0
+	mesh_instance.mesh = sphere
+	mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	var material := StandardMaterial3D.new()
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	# Ember orb, not an element icon. P0-040 forbids new element art.
+	material.albedo_color = Color(1.0, 0.48, 0.14, 0.92)
+	mesh_instance.material_override = material
+	orb.add_child(mesh_instance)
+	add_child(orb)
+	_projectile_orbs.append(orb)
+	_sync_projectile_orb(orb)
+	return orb
+
+
 func active_burst_count() -> int:
 	_prune_bursts()
 	return _bursts.size()
 
 
+func active_projectile_count() -> int:
+	sync_tracked_projectiles(0.0)
+	return _projectile_orbs.size()
+
+
+func sync_tracked_projectiles(_delta: float = 0.0) -> void:
+	for orb: Node3D in _projectile_orbs.duplicate():
+		if not is_instance_valid(orb):
+			_projectile_orbs.erase(orb)
+			continue
+		if not _sync_projectile_orb(orb):
+			_projectile_orbs.erase(orb)
+			orb.queue_free()
+
+
 func _process(delta: float) -> void:
+	sync_tracked_projectiles(delta)
 	if delta <= 0.0 or _bursts.is_empty():
 		return
 	for burst: Node3D in _bursts.duplicate():
@@ -77,23 +156,26 @@ func _process(delta: float) -> void:
 		var duration := float(burst.get_meta(&"duration", BURST_DURATION_SEC))
 		burst.set_meta(&"age", age)
 		var fade := 1.0 - clampf(age / duration, 0.0, 1.0)
-		_apply_wedge_fade(burst, fade)
+		_apply_burst_fade(burst, fade)
 		if age >= duration:
 			_bursts.erase(burst)
 			burst.queue_free()
 
 
 func _on_node_added(node: Node) -> void:
+	var projectile := node as MagicProjectile2D
+	if projectile != null:
+		play_projectile_orb(projectile)
+		return
 	var pulse := node as MagicAreaPulse2D
-	if pulse == null:
+	if pulse == null or pulse.radius <= 0.0:
 		return
-	# Knockback cones are the Air Gust delivery. Full-circle pulses (stagger)
-	# stay undrawn so Earth Tremor does not grow a false wind wedge.
-	if String(pulse.effect.get("kind", "")) != "knockback":
+	# Knockback cones stay the Air Gust wind volume. Other pulses get a short
+	# ground ring so Earth Tremor is visible without a false wind wedge.
+	if String(pulse.effect.get("kind", "")) == "knockback" and pulse.arc_deg < 360.0:
+		play_knockback_cone(pulse.global_position, pulse.direction, pulse.radius, pulse.arc_deg)
 		return
-	if pulse.arc_deg >= 360.0 or pulse.radius <= 0.0:
-		return
-	play_knockback_cone(pulse.global_position, pulse.direction, pulse.radius, pulse.arc_deg)
+	play_area_pulse_ring(pulse.global_position, pulse.radius)
 
 
 func _unbind_watch() -> void:
@@ -261,16 +343,26 @@ static func _append_quad(
 	indices.append(start + 3)
 
 
-func _apply_wedge_fade(burst: Node3D, fade: float) -> void:
-	var wedge := burst.get_node_or_null("WindWedge") as MeshInstance3D
-	if wedge == null:
-		return
-	var material := wedge.material_override as StandardMaterial3D
-	if material == null:
-		return
-	var color := material.albedo_color
-	color.a = 0.58 * fade
-	material.albedo_color = color
+func _sync_projectile_orb(orb: Node3D) -> bool:
+	var source := orb.get_meta(&"source") as MagicProjectile2D
+	if source == null or not is_instance_valid(source) or not source.active:
+		return false
+	orb.position = MapViewBridge.logic_to_world(source.global_position, _cell_size, PROJECTILE_HEIGHT)
+	return true
+
+
+func _apply_burst_fade(burst: Node3D, fade: float) -> void:
+	var base_alpha := float(burst.get_meta(&"base_alpha", 0.58))
+	for child in burst.get_children():
+		var mesh_instance := child as MeshInstance3D
+		if mesh_instance == null:
+			continue
+		var material := mesh_instance.material_override as StandardMaterial3D
+		if material == null:
+			continue
+		var color := material.albedo_color
+		color.a = base_alpha * fade
+		material.albedo_color = color
 
 
 func _prune_bursts() -> void:

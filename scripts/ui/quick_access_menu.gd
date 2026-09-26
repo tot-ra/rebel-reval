@@ -11,15 +11,16 @@ const STATUS_IRON_EQUIPPED := "Iron equipped"
 const STATUS_IRON_CLEARED := "Iron cleared"
 const PANEL_MARGIN := 24.0
 const PANEL_HEIGHT := 118.0
-const PANEL_WIDTH := 1120.0
+const PANEL_WIDTH := 780.0
 const ControlsOverlayScript := preload("res://scripts/ui/controls_overlay.gd")
 ## Click is context-sensitive: in first/third person it acts on what the character
 ## faces, and only the top-down camera treats it as a travel order. Full rules live
 ## in the Controls screen and docs/CONTROLS.md.
 const HELP_TEXT := (
-	"WASD or arrows - move | Click - attack / use ahead (top-down: travel) | E - interact | "
+	"1-5 - cast spells | R - cookbook | WASD - move | "
+	+ "Click - attack / use ahead (top-down: travel) | E - interact | "
 	# gdlint: ignore=max-line-length
-	+ "C - camera | Right - guard, drag to look | N - minimap | M - map | I - inventory | J - journal | K - controls | Esc - settings | Debug"
+	+ "C - camera | Right - guard, drag to look | N - minimap | M - map | I - inventory | J - journal | K - controls | Esc - settings"
 )
 
 var _inventory_controller: InventoryController
@@ -36,6 +37,7 @@ var _camera_button: Button
 var _controls_button: Button
 var _controls_overlay
 var _technique_button: Button
+var _magic_button: Button
 var _save_button: Button
 var _debug_button: Button
 var _status_label: Label
@@ -177,6 +179,12 @@ func _build_ui() -> void:
 	_technique_button.pressed.connect(_on_technique_pressed)
 	actions.add_child(_technique_button)
 
+	_magic_button = _create_action_button(
+		"MagicCookbookButton", "Magic [R]", "Open the spell cookbook"
+	)
+	_magic_button.pressed.connect(_on_magic_pressed)
+	actions.add_child(_magic_button)
+
 	_save_button = _create_action_button("SaveButton", "Save game", "Save to the current slot")
 	_save_button.pressed.connect(_on_save_pressed)
 	actions.add_child(_save_button)
@@ -249,6 +257,8 @@ func _refresh_availability() -> void:
 	_camera_button.disabled = _find_map_view_runtime() == null
 	_controls_button.disabled = not has_node("/root/UserSettings")
 	_technique_button.disabled = not has_node("/root/SessionState")
+	if _magic_button != null:
+		_magic_button.disabled = _find_spellforge_controller() == null
 	_save_button.disabled = not _save_callback.is_valid()
 
 
@@ -376,6 +386,25 @@ func _refresh_binding_hints() -> void:
 		_controls_button.text = (
 			"Controls [%s]" % bindings.binding_text(&"toggle_controls", &"keyboard_mouse")
 		)
+	if _magic_button != null:
+		_magic_button.text = (
+			"Magic [%s]" % bindings.binding_text(&"toggle_spellforge", &"keyboard_mouse")
+		)
+
+
+func _on_magic_pressed() -> void:
+	var controller := _find_spellforge_controller()
+	if controller == null:
+		return
+	controller.toggle()
+	_status_label.text = "Spell cookbook opened" if controller.is_open() else STATUS_READY
+
+
+func _find_spellforge_controller() -> SpellforgeController:
+	var owner_node := get_parent()
+	if owner_node == null:
+		return null
+	return owner_node.get_node_or_null("SpellforgeController") as SpellforgeController
 
 
 func _on_technique_pressed() -> void:

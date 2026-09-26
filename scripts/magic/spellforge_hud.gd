@@ -5,6 +5,7 @@ extends CanvasLayer
 ## element sprites while remaining readable with keyboard, mouse, and gamepad.
 
 signal element_requested(element_id: StringName)
+signal learned_spell_requested(spell_id: StringName)
 signal remove_requested
 signal cast_requested
 signal close_requested
@@ -13,7 +14,8 @@ const PANEL_SIZE := Vector2(720.0, 620.0)
 
 var _model: SpellforgeModel
 var _collection_root: Control
-var _quick_element_row: HBoxContainer
+var _quick_spell_column: VBoxContainer
+var _quick_willpower_label: Label
 var _quick_sequence_label: Label
 var _quick_feedback_label: Label
 var _element_row: HBoxContainer
@@ -73,8 +75,10 @@ func refresh() -> void:
 	_feedback_label.text = _model.feedback_text()
 	_quick_feedback_label.text = _model.feedback_text()
 	_resource_label.text = _resource_text()
+	if _quick_willpower_label != null:
+		_quick_willpower_label.text = _resource_text()
 	_rebuild_elements()
-	_rebuild_quick_elements()
+	_rebuild_quick_spells()
 	_rebuild_cookbook()
 	_cast_button.disabled = _model.selected_sequence().is_empty()
 
@@ -211,11 +215,19 @@ func _build_ui() -> void:
 
 
 func _build_quick_hud() -> void:
+	# WHY: Quick Access already owns the bottom-right band. A center strip
+	# composites on top of its help labels and looks like a broken font.
 	var margin := MarginContainer.new()
 	margin.name = "QuickSpellHud"
-	margin.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
-	margin.position = Vector2(-310.0, -150.0)
-	margin.custom_minimum_size = Vector2(620.0, 118.0)
+	margin.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
+	margin.anchor_left = 0.0
+	margin.anchor_top = 1.0
+	margin.anchor_right = 0.0
+	margin.anchor_bottom = 1.0
+	margin.offset_left = 16.0
+	margin.offset_top = -236.0
+	margin.offset_right = 348.0
+	margin.offset_bottom = -16.0
 	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(margin)
 
@@ -234,17 +246,34 @@ func _build_quick_hud() -> void:
 	layout.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	padding.add_child(layout)
 
+	var header := HBoxContainer.new()
+	header.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layout.add_child(header)
+
 	var title := Label.new()
-	title.text = "QUICK SPELL  •  number keys add elements  •  LMB casts  •  Backspace removes"
+	title.text = "SPELLS"
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title.add_theme_color_override("font_color", Color(0.96, 0.67, 0.3))
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	layout.add_child(title)
+	header.add_child(title)
 
-	_quick_element_row = HBoxContainer.new()
-	_quick_element_row.name = "QuickElementSlots"
-	_quick_element_row.add_theme_constant_override("separation", 12)
-	_quick_element_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	layout.add_child(_quick_element_row)
+	_quick_willpower_label = Label.new()
+	_quick_willpower_label.name = "QuickWillpowerLabel"
+	_quick_willpower_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	header.add_child(_quick_willpower_label)
+
+	var hint := Label.new()
+	hint.text = "1-5 or click to cast  •  R cookbook"
+	hint.add_theme_font_size_override("font_size", 12)
+	hint.add_theme_color_override("font_color", Color(0.75, 0.79, 0.84))
+	hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layout.add_child(hint)
+
+	_quick_spell_column = VBoxContainer.new()
+	_quick_spell_column.name = "QuickSpellSlots"
+	_quick_spell_column.add_theme_constant_override("separation", 4)
+	_quick_spell_column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layout.add_child(_quick_spell_column)
 
 	_quick_sequence_label = Label.new()
 	_quick_sequence_label.name = "QuickSequenceLabel"
@@ -253,26 +282,36 @@ func _build_quick_hud() -> void:
 
 	_quick_feedback_label = Label.new()
 	_quick_feedback_label.name = "QuickSpellFeedback"
+	_quick_feedback_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_quick_feedback_label.add_theme_color_override("font_color", Color(0.84, 0.9, 0.72))
 	_quick_feedback_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	layout.add_child(_quick_feedback_label)
 
 
-func _rebuild_quick_elements() -> void:
-	for child in _quick_element_row.get_children():
+func _rebuild_quick_spells() -> void:
+	if _quick_spell_column == null or _model == null:
+		return
+	for child in _quick_spell_column.get_children():
 		child.queue_free()
-	var learned := _model.learned_elements()
-	var catalog := _model.catalog_elements()
-	for index in catalog.size():
-		var element_id := catalog[index]
-		var label := Label.new()
-		label.name = "Quick%sElement" % SpellforgeModel.display_element(element_id).replace(" ", "")
-		label.text = "[%d] %s" % [index + 1, SpellforgeModel.display_element(element_id)]
-		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		label.add_theme_color_override(
-			"font_color", Color(0.9, 0.92, 0.96) if learned.has(element_id) else Color(0.4, 0.42, 0.46)
-		)
-		_quick_element_row.add_child(label)
+	var spells := _model.learned_spells()
+	if spells.is_empty():
+		var empty := Label.new()
+		empty.name = "QuickEmptySpells"
+		empty.text = "No spells learned yet. Magic is optional."
+		empty.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		empty.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_quick_spell_column.add_child(empty)
+		return
+	for index in spells.size():
+		var row: Dictionary = spells[index]
+		var button := Button.new()
+		var spell_name := String(row["name"])
+		button.name = "Quick%sSpell" % spell_name.replace(" ", "")
+		button.text = "[%d] %s   WP %d" % [index + 1, spell_name, int(row["cost"])]
+		button.tooltip_text = String(row["summary"])
+		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		button.pressed.connect(_on_quick_spell_pressed.bind(StringName(String(row["id"]))))
+		_quick_spell_column.add_child(button)
 
 func _rebuild_elements() -> void:
 	for child in _element_row.get_children():
@@ -325,3 +364,7 @@ func _resource_text() -> String:
 
 func _on_element_pressed(element_id: StringName) -> void:
 	element_requested.emit(element_id)
+
+
+func _on_quick_spell_pressed(spell_id: StringName) -> void:
+	learned_spell_requested.emit(spell_id)

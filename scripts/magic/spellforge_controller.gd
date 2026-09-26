@@ -2,8 +2,8 @@ class_name SpellforgeController
 extends Node
 
 ## Connects remappable player input and the HUD to the existing deterministic
-## resolver/executor pipeline. The cookbook is optional; quick forging stays active
-## during ordinary gameplay.
+## resolver/executor pipeline. Number keys cast learned recipes; the cookbook is
+## optional forging.
 
 const TOGGLE_ACTION := &"toggle_spellforge"
 const SELECT_ACTIONS: Dictionary = {
@@ -31,6 +31,7 @@ func _ready() -> void:
 	_hud.configure(_model)
 	add_child(_hud)
 	_hud.element_requested.connect(_on_element_requested)
+	_hud.learned_spell_requested.connect(_on_learned_spell_requested)
 	_hud.remove_requested.connect(_on_remove_requested)
 	_hud.cast_requested.connect(_on_cast_requested)
 	if not SessionState.state_replaced.is_connected(_on_state_replaced):
@@ -45,22 +46,20 @@ func _exit_tree() -> void:
 func _input(event: InputEvent) -> void:
 	if not event.is_pressed() or event.is_echo():
 		return
+	# WHY: gamepad face/shoulder buttons already attack, guard, and dodge.
+	# World casts are keyboard slots and HUD clicks; the cookbook stays mouseable.
+	if not is_open() and _is_joypad_event(event):
+		return
+	if not is_open() and _gameplay_input_blocked():
+		return
+	if not _is_joypad_event(event):
+		for action: StringName in SELECT_ACTIONS:
+			if event.is_action_pressed(action):
+				_cast_learned_slot(int(SELECT_ACTIONS[action]))
+				get_viewport().set_input_as_handled()
+				return
 	if is_open():
 		_handle_cookbook_input(event)
-		return
-	if _gameplay_input_blocked():
-		return
-	for action: StringName in SELECT_ACTIONS:
-		if event.is_action_pressed(action):
-			_select_catalog_index(int(SELECT_ACTIONS[action]))
-			get_viewport().set_input_as_handled()
-			return
-	if event.is_action_pressed(&"spellforge_remove"):
-		_on_remove_requested()
-		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed(&"spellforge_cast") and not _model.selected_sequence().is_empty():
-		_on_cast_requested(_mouse_aim_direction(event))
-		get_viewport().set_input_as_handled()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -108,6 +107,13 @@ func _on_element_requested(element_id: StringName) -> void:
 	_hud.refresh()
 
 
+func _on_learned_spell_requested(spell_id: StringName) -> void:
+	if not _model.arm_spell(spell_id):
+		_hud.refresh()
+		return
+	_on_cast_requested()
+
+
 func _on_remove_requested() -> void:
 	_model.remove_last()
 	_hud.refresh()
@@ -123,33 +129,23 @@ func _on_cast_requested(aim_direction := Vector2.ZERO) -> void:
 	_hud.refresh()
 
 
-func _select_catalog_index(index: int) -> void:
-	var elements := _model.catalog_elements()
-	if index < 0 or index >= elements.size():
+func _cast_learned_slot(index: int) -> void:
+	var spells := _model.learned_spells()
+	if index < 0 or index >= spells.size():
+		_model.notify_empty_slot()
+		_hud.refresh()
 		return
-	_model.select_element(elements[index])
-	_hud.refresh()
+	_on_learned_spell_requested(StringName(String(spells[index]["id"])))
 
 
 func _handle_cookbook_input(event: InputEvent) -> void:
-	for action: StringName in SELECT_ACTIONS:
-		if event.is_action_pressed(action):
-			_select_catalog_index(int(SELECT_ACTIONS[action]))
-			get_viewport().set_input_as_handled()
-			return
 	if event.is_action_pressed(&"spellforge_remove"):
 		_on_remove_requested()
 		get_viewport().set_input_as_handled()
-	# A left click belongs to cookbook buttons while the collection is open.
+	# A left click belongs to cookbook and HUD buttons, never to world combat.
 	elif event.is_action_pressed(&"spellforge_cast") and not _is_left_click(event):
 		_on_cast_requested()
 		get_viewport().set_input_as_handled()
-
-
-func _mouse_aim_direction(event: InputEvent) -> Vector2:
-	if not _is_left_click(event) or _caster == null:
-		return Vector2.ZERO
-	return _caster.get_global_mouse_position() - _caster.global_position
 
 
 func _gameplay_input_blocked() -> bool:
@@ -167,6 +163,10 @@ static func _is_left_click(event: InputEvent) -> bool:
 		return false
 	var button := event as InputEventMouseButton
 	return button.button_index == MOUSE_BUTTON_LEFT and button.pressed
+
+
+static func _is_joypad_event(event: InputEvent) -> bool:
+	return event is InputEventJoypadButton or event is InputEventJoypadMotion
 
 
 func _close_sibling_overlays() -> void:

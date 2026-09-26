@@ -86,6 +86,11 @@ button charges instead of repeating the swing.
 | World map | `M` | D-pad down |
 | Controls | `K` | Start |
 | Back / close | `Esc` | B |
+| Cast learned spell 1-5 | `1` `2` `3` `4` `5` | Cookbook (D-pad right), then on-screen slots |
+| Spell cookbook | `R` | D-pad right |
+| Cast forged cookbook spell | `Enter` (cookbook only) | A (cookbook only) |
+
+Left click never casts. It stays attack / interact / travel as described above. Number keys cast the learned recipes shown on the bottom-left spell bar (Fireball, Earth Tremor, Iron Skin in a new demo). Gamepad face buttons stay combat verbs; open the cookbook to pick a spell with the mouse or focus.
 
 Bindings are stored per device and persist outside campaign save slots.
 

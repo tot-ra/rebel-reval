@@ -6,6 +6,12 @@ extends RefCounted
 
 const MAX_SEQUENCE_LENGTH := 3
 const TYPE_SPELL := "spell"
+## Demo HUD slot order. Unlisted learned spells sort after these by id.
+const QUICK_SLOT_ORDER: Array[StringName] = [
+	&"spell.pagan.fireball",
+	&"spell.pagan.earth_tremor",
+	&"spell.pagan.iron_skin",
+]
 
 const FAILURE_TEXT: Dictionary = {
 	MagicResolver.FAILURE_UNKNOWN_SEQUENCE: "No authored spell matches that sequence.",
@@ -43,6 +49,44 @@ func willpower() -> int:
 	if _state == null:
 		return 0
 	return _state.get_magic_resource(GameState.MAGIC_RESOURCE_WILLPOWER)
+
+
+func learned_spells() -> Array[Dictionary]:
+	var rows: Array[Dictionary] = []
+	if _state == null or _content_db == null:
+		return rows
+	for spell_id in _content_db.get_ids_by_type(TYPE_SPELL):
+		if not _state.has_magic_grant(spell_id):
+			continue
+		var record := _content_db.get_spell(spell_id)
+		rows.append(
+			{
+				"id": spell_id,
+				"name": String(record.get("name", spell_id)),
+				"sequence": _record_sequence(record),
+				"cost": _spell_cost(record),
+				"summary": String(record.get("effect_summary", "")),
+			}
+		)
+	rows.sort_custom(_learned_spell_less)
+	return rows
+
+
+func arm_spell(spell_id: StringName) -> bool:
+	for row in learned_spells():
+		if row["id"] != spell_id:
+			continue
+		_sequence.clear()
+		for element_id in row["sequence"]:
+			_sequence.append(element_id)
+		_feedback = "Armed %s." % String(row["name"])
+		return true
+	_feedback = "That recipe has not been learned."
+	return false
+
+
+func notify_empty_slot() -> void:
+	_feedback = "No learned spell in that slot."
 
 
 func learned_elements() -> Array[StringName]:
@@ -178,3 +222,23 @@ static func _record_sequence(record: Dictionary) -> Array[StringName]:
 	for raw_element in raw_sequence as Array:
 		result.append(StringName(String(raw_element)))
 	return result
+
+
+static func _spell_cost(record: Dictionary) -> int:
+	var cost: Variant = record.get("cost", {})
+	if not cost is Dictionary:
+		return 0
+	return int((cost as Dictionary).get("amount", 0))
+
+
+static func _learned_spell_less(left: Dictionary, right: Dictionary) -> bool:
+	var left_rank := _quick_slot_rank(StringName(String(left.get("id", ""))))
+	var right_rank := _quick_slot_rank(StringName(String(right.get("id", ""))))
+	if left_rank != right_rank:
+		return left_rank < right_rank
+	return String(left.get("id", "")) < String(right.get("id", ""))
+
+
+static func _quick_slot_rank(spell_id: StringName) -> int:
+	var index := QUICK_SLOT_ORDER.find(spell_id)
+	return index if index >= 0 else QUICK_SLOT_ORDER.size() + 1

@@ -28,6 +28,11 @@ This file contains lessons specific to the Dev role.
 - The gameplay camera is orthographic and its mirror direction points north-west at 30 deg. Sun or moon glints appear only when the body is low in the north-west (evening; a moon about 8 deg up), never at noon. Scan `SkyAstronomy` directions against the camera before choosing capture times.
 - Water `cloud_darken` is a pale overcast veil (`mix` toward `horizon * (0.83, 0.87, 0.93)`), not a luminance multiply. An isolated `--set=cloud_darken:0` off pair can be darker than the on plate while weather-overcast still reads much darker than clear noon. Do not retune the veil to force "on darker than off".
 
+### HUD and magic input
+- Persistent HUD strips must not share a screen band. Quick Access is bottom-right and 780px wide; its help labels composite through a center overlay and look like a broken font. Keep the spell bar bottom-left and list granted recipes, not the full element catalog.
+- `set_input_as_handled()` does not stop sibling `_input` handlers. Do not bind `spellforge_cast` to LMB: `MapClickInputController` already owns left click for attack / interact / travel. Number keys cast learned slots; the cookbook uses Enter and on-screen buttons.
+- The 3D map hides the 2D logic root, so `MagicProjectile2D._draw` is invisible in play. Mirror deliveries in `MapViewMagicVfx` (orb, pulse ring, knockback cone) without naming a spell.
+
 ### Harness, import, and capture
 - On-commit Godot resolution should honor `GODOT_BIN`, then `godot` on PATH, then `/Applications/Godot.app/Contents/MacOS/Godot`.
 - `tools/run_godot_tests.gd --filter=` takes exact comma-separated file stems. `--reverse` after the user `--` runs the same set newest-name-first so SessionState leaks can be proven in both orders.

@@ -25,7 +25,7 @@ func test_knockback_cone_spawns_wedge_and_smoke() -> void:
 	host.free()
 
 
-func test_bind_draws_knockback_cone_and_ignores_stagger_circle() -> void:
+func test_bind_draws_knockback_cone_and_stagger_ground_ring() -> void:
 	var tree := Engine.get_main_loop() as SceneTree
 	var root := Node2D.new()
 	tree.root.add_child(root)
@@ -50,7 +50,47 @@ func test_bind_draws_knockback_cone_and_ignores_stagger_circle() -> void:
 		caster, &"spell.test", 96.0, {"kind": "stagger", "duration_sec": 1.5}
 	))
 	root.add_child(stagger)
-	assert_eq(vfx.active_burst_count(), 1, "full-circle stagger must not grow a wind wedge")
+	assert_eq(
+		vfx.active_burst_count(),
+		2,
+		"stagger pulse draws a ground ring, not a second wind wedge"
+	)
+	assert_true(vfx.find_child("AreaPulseBurst", true, false) is Node3D)
+	assert_true(vfx.find_child("AirGustBurst", true, false) is Node3D)
+	root.free()
+
+
+func test_bind_draws_projectile_orb_and_follows_logic_position() -> void:
+	var tree := Engine.get_main_loop() as SceneTree
+	var root := Node2D.new()
+	tree.root.add_child(root)
+	var vfx := MapViewMagicVfx.new()
+	root.add_child(vfx)
+	vfx.bind(32, root)
+	var caster := Node2D.new()
+	root.add_child(caster)
+	var projectile := MagicProjectile2D.new()
+	assert_true(
+		projectile.configure(
+			caster,
+			&"spell.test",
+			Vector2.RIGHT,
+			{
+				"delivery": {"kind": "projectile", "speed": 320.0, "range": 640.0},
+				"impact": {"kind": "damage", "amount": 1.0, "damage_type": "fire"},
+			}
+		)
+	)
+	projectile.global_position = Vector2(64.0, 0.0)
+	root.add_child(projectile)
+	assert_eq(vfx.active_projectile_count(), 1)
+	var orb := vfx.find_child("MagicProjectileOrb", true, false) as Node3D
+	assert_true(orb != null)
+	var start := orb.position
+	projectile.advance(0.1)
+	vfx.sync_tracked_projectiles(0.1)
+	assert_true(orb.position.x > start.x)
+	assert_almost_eq(orb.position.y, MapViewMagicVfx.PROJECTILE_HEIGHT, 0.001)
 	root.free()
 
 

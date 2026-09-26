@@ -23,13 +23,13 @@ const ACTION_DEFINITIONS: Array[Dictionary] = [
 	{"id": &"player_guard", "label": "Guard", "category": "Combat"},
 	{"id": &"player_dodge", "label": "Dodge", "category": "Combat"},
 	{"id": &"toggle_spellforge", "label": "Spell cookbook", "category": "Magic"},
-	{"id": &"spellforge_element_1", "label": "Spell element 1", "category": "Magic"},
-	{"id": &"spellforge_element_2", "label": "Spell element 2", "category": "Magic"},
-	{"id": &"spellforge_element_3", "label": "Spell element 3", "category": "Magic"},
-	{"id": &"spellforge_element_4", "label": "Spell element 4", "category": "Magic"},
-	{"id": &"spellforge_element_5", "label": "Spell element 5", "category": "Magic"},
-	{"id": &"spellforge_remove", "label": "Remove spell element", "category": "Magic"},
-	{"id": &"spellforge_cast", "label": "Cast current spell", "category": "Magic"},
+	{"id": &"spellforge_element_1", "label": "Cast learned spell 1", "category": "Magic"},
+	{"id": &"spellforge_element_2", "label": "Cast learned spell 2", "category": "Magic"},
+	{"id": &"spellforge_element_3", "label": "Cast learned spell 3", "category": "Magic"},
+	{"id": &"spellforge_element_4", "label": "Cast learned spell 4", "category": "Magic"},
+	{"id": &"spellforge_element_5", "label": "Cast learned spell 5", "category": "Magic"},
+	{"id": &"spellforge_remove", "label": "Remove forged element", "category": "Magic"},
+	{"id": &"spellforge_cast", "label": "Cast forged cookbook spell", "category": "Magic"},
 	{"id": &"toggle_inventory", "label": "Inventory", "category": "Views"},
 	{"id": &"toggle_journal", "label": "Journal", "category": "Views"},
 	{"id": &"toggle_camera_view", "label": "Camera view", "category": "Views"},
@@ -141,7 +141,9 @@ static func default_settings() -> InputBindingSettings:
 		},
 		"spellforge_cast":
 		{
-			DEVICE_KEYBOARD_MOUSE: [_key(KEY_ENTER), _mouse_button(MOUSE_BUTTON_LEFT)],
+			# WHY: LMB is attack / interact / travel. A second _input consumer
+			# cannot steal it; set_input_as_handled() does not stop other _input.
+			DEVICE_KEYBOARD_MOUSE: [_key(KEY_ENTER)],
 			DEVICE_GAMEPAD: [_joy_button(JOY_BUTTON_A)],
 		},
 		"toggle_inventory":

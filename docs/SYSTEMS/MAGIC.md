@@ -251,6 +251,7 @@ Partial ship (P7-010 acceptance bar):
 4. At most the starter budget in section 3.2 is granted in example content.
 5. Demo path (menu → Lower Town → forge → Mart / spearhead loop) does not require casting.
 6. **P4-007 Root and Ember** remains valid: quest stays understandable without literal magic confirmation. Later packages may add optional literal branches behind flags without rewriting that quest's historical verify line.
+7. Playable demo HUD (**R-959**): the bottom-left bar lists **granted** recipes as numbered slots. `1`..`5` or a click casts immediately. `R` opens the cookbook for element forging. Left click is never a cast bind. The 3D map mirrors projectiles and ground pulses through `MapViewMagicVfx` without naming a spell. New sessions seed Fireball, Earth Tremor, and Iron Skin plus 8 willpower; the critical path still never checks those grants.
 
 Out of partial ship:
 

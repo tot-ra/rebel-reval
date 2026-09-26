@@ -25,6 +25,7 @@ func test_menu_exposes_named_player_actions() -> void:
 	var world_map := menu.find_child("WorldMapButton", true, false) as Button
 	var camera := menu.find_child("CameraButton", true, false) as Button
 	var iron := menu.find_child("IronTechniqueButton", true, false) as Button
+	var magic := menu.find_child("MagicCookbookButton", true, false) as Button
 	var controls := menu.find_child("ControlsButton", true, false) as Button
 	var save := menu.find_child("SaveButton", true, false) as Button
 	var debug := menu.find_child("DebugButton", true, false) as Button
@@ -36,6 +37,8 @@ func test_menu_exposes_named_player_actions() -> void:
 	assert_true(world_map != null, "quick access must visibly expose district map")
 	assert_true(camera != null, "quick access must visibly expose camera toggle")
 	assert_true(iron != null, "quick access must visibly expose Iron technique toggle")
+	assert_true(magic != null, "quick access must visibly expose the spell cookbook")
+	assert_eq(magic.text, "Magic [R]")
 	assert_true(controls != null, "quick access must visibly expose remappable controls")
 	assert_eq(controls.focus_mode, Control.FOCUS_ALL)
 	assert_true(save != null, "quick access must visibly expose manual save")
@@ -91,10 +94,19 @@ func test_save_button_calls_existing_save_behavior_and_reports_success() -> void
 
 
 func test_documented_shortcuts_stay_available() -> void:
-	assert_true(_action_has_physical_key(&"toggle_inventory", KEY_I), "inventory shortcut must remain I")
+	assert_true(
+		_action_has_physical_key(&"toggle_inventory", KEY_I),
+		"inventory shortcut must remain I"
+	)
 	assert_true(_action_has_physical_key(&"toggle_journal", KEY_J), "journal shortcut must remain J")
-	assert_true(_action_has_physical_key(&"toggle_camera_view", KEY_C), "camera shortcut must remain C")
-	assert_true(_action_has_physical_key(&"toggle_world_map", KEY_M), "district map shortcut must remain M")
+	assert_true(
+		_action_has_physical_key(&"toggle_camera_view", KEY_C),
+		"camera shortcut must remain C"
+	)
+	assert_true(
+		_action_has_physical_key(&"toggle_world_map", KEY_M),
+		"district map shortcut must remain M"
+	)
 
 
 func test_inventory_and_journal_buttons_reuse_exclusive_overlays() -> void:

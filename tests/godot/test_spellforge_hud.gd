@@ -19,6 +19,23 @@ func _make_db() -> ContentDB:
 	return db
 
 
+func test_learned_spells_use_demo_slot_order() -> void:
+	var state := GameState.new()
+	var db := _make_db()
+	assert_true(MagicResolver.apply_grant_operation(state, db, GRANT_FIREBALL))
+	assert_true(MagicResolver.apply_grant_operation(state, db, &"magic.grant.starter_earth_tremor"))
+	assert_true(MagicResolver.apply_grant_operation(state, db, &"magic.grant.starter_iron_skin"))
+	var model := ModelScript.new() as SpellforgeModel
+	model.configure(state, db)
+	var spells := model.learned_spells()
+	assert_eq(spells.size(), 3)
+	assert_eq(spells[0]["id"], FIREBALL)
+	assert_eq(spells[1]["id"], &"spell.pagan.earth_tremor")
+	assert_eq(spells[2]["id"], &"spell.pagan.iron_skin")
+	assert_true(model.arm_spell(FIREBALL))
+	assert_eq(model.selected_sequence(), FIRE_AIR)
+
+
 func test_model_limits_selection_to_learned_elements_and_three_slots() -> void:
 	var state := GameState.new()
 	var db := _make_db()
@@ -132,29 +149,43 @@ func test_quick_hud_stays_visible_when_cookbook_is_closed() -> void:
 	assert_false(hud.is_open(), "cookbook starts closed without hiding quick casting")
 	assert_true(hud.find_child("QuickSpellHud", true, false) is Control)
 	assert_true(hud.find_child("QuickSequenceLabel", true, false) is Label)
-	assert_eq((hud.find_child("QuickFireElement", true, false) as Label).text, "[4] Fire")
+	assert_true(hud.find_child("QuickWillpowerLabel", true, false) is Label)
+	var fireball := hud.find_child("QuickFireballSpell", true, false) as Button
+	assert_true(fireball != null)
+	assert_true(fireball.text.begins_with("[1] Fireball"))
+	assert_true(hud.find_child("QuickFireElement", true, false) == null)
 	hud.free()
 
 
-func test_catalog_shortcuts_make_four_plus_one_fireball_sequence() -> void:
+func test_number_keys_cast_the_first_learned_spell() -> void:
 	var state := GameState.new()
 	var db := _make_db()
+	state.set_magic_resource(GameState.MAGIC_RESOURCE_WILLPOWER, 2)
 	assert_true(MagicResolver.apply_grant_operation(state, db, GRANT_FIREBALL))
 	var model := ModelScript.new() as SpellforgeModel
 	model.configure(state, db)
 	var controller := ControllerScript.new() as SpellforgeController
 	var hud := HudScript.new() as SpellforgeHud
 	hud.configure(model)
-	(Engine.get_main_loop() as SceneTree).root.add_child(hud)
+	var tree := Engine.get_main_loop() as SceneTree
+	var host := Node2D.new()
+	tree.root.add_child(host)
+	var caster := Node2D.new()
+	host.add_child(caster)
+	hud.configure(model)
+	host.add_child(hud)
 	controller.set("_model", model)
 	controller.set("_hud", hud)
+	controller.set("_caster", caster)
 
-	controller.call("_select_catalog_index", 3)
-	controller.call("_select_catalog_index", 0)
+	controller.call("_cast_learned_slot", 0)
 
-	assert_eq(model.selected_sequence(), FIRE_AIR)
+	assert_eq(state.get_magic_resource(GameState.MAGIC_RESOURCE_WILLPOWER), 0)
+	assert_eq(model.feedback_text(), "Fireball cast.")
+	assert_true(host.get_child_count() >= 2, "slot cast must add projectile delivery")
 	hud.free()
 	controller.free()
+	host.free()
 
 
 func test_spellforge_actions_are_remappable_for_keyboard_and_gamepad() -> void:
@@ -181,7 +212,7 @@ func test_spellforge_actions_are_remappable_for_keyboard_and_gamepad() -> void:
 	for event: InputEvent in cast_events:
 		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 			has_left_click = true
-	assert_true(has_left_click, "quick cast must include the left mouse button")
+	assert_false(has_left_click, "cast must not steal left click from combat")
 
 
 func _cookbook_row(rows: Array[Dictionary], target_id: StringName) -> Dictionary:
