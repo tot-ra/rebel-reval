@@ -1,5 +1,6 @@
 extends RefCounted
 
+const Lighting := preload("res://scripts/map/view3d/map_view_lighting.gd")
 const SkyWeather := preload("res://scripts/map/view3d/sky_weather_3d.gd")
 const WaterMaterials := preload("res://scripts/map/view3d/map_view_water_materials.gd")
 
@@ -21,6 +22,9 @@ static func apply_weather_presentation(
 		presentation.sun_visibility, presentation.day_blend, wave_profiles
 	)
 	WaterMaterials.apply_coastal_tide(presentation.tide_level, wave_profiles)
+	# WHY: WS-11a lighting now forwards sunset_factor and preset darken. The
+	# R-715 helper used the 0 defaults, so weather-sync fixtures stayed on a
+	# permanent clear-day haze while play did not.
 	WaterMaterials.apply_water_sky_reflection(
 		presentation.star_map,
 		presentation.sun_direction,
@@ -31,5 +35,7 @@ static func apply_weather_presentation(
 		deg_to_rad(SkyWeather.OBSERVER_LATITUDE_DEGREES),
 		presentation.sidereal_angle,
 		presentation.sun_reflection_color,
-		wave_profiles
+		wave_profiles,
+		presentation.sunset_factor,
+		Lighting.water_cloud_darken(presentation)
 	)
