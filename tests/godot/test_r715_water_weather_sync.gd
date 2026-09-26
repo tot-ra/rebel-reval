@@ -14,6 +14,7 @@ const WATER_TERRAINS: Array[StringName] = [
 	MapTypesContract.TERRAIN_SHALLOW_WATER,
 	MapTypesContract.TERRAIN_DEEP_WATER,
 ]
+const WATER_PARAM_TOLERANCE := 0.00001
 
 
 func test_one_weather_snapshot_updates_every_water_profile() -> void:
@@ -204,6 +205,30 @@ func test_saved_weather_handoff_restores_identical_water_uniforms() -> void:
 		source_presentation.tide_level,
 		"restored astronomical time must drive the same tide",
 	)
+	assert_almost_eq(
+		float(restored_presentation.puddle_wetness),
+		float(source_presentation.puddle_wetness),
+		WATER_PARAM_TOLERANCE,
+		"save/load must restore retained ground wetness",
+	)
+	assert_almost_eq(
+		float(restored_presentation.rain_intensity),
+		float(source_presentation.rain_intensity),
+		WATER_PARAM_TOLERANCE,
+		"save/load must restore rain intensity for water adapters",
+	)
+	assert_true(
+		restored_presentation.wind_direction.is_equal_approx(
+			source_presentation.wind_direction
+		),
+		"save/load must restore wind heading for water",
+	)
+	assert_true(
+		restored_presentation.sun_reflection_color.is_equal_approx(
+			source_presentation.sun_reflection_color
+		),
+		"save/load must restore the water sun reflection colour",
+	)
 	source.free()
 	restored.free()
 
@@ -256,26 +281,72 @@ func test_environment_binding_keeps_one_cross_map_owner() -> void:
 	)
 
 
+## JSON round-trip can change Variant types while leaving printed numbers
+## identical. Compare components with a tight tolerance and fail on missing
+## keys or a real family mismatch instead of Dictionary ==.
 func _assert_water_parameters_match(
 	got: Dictionary, expected: Dictionary, message: String
 ) -> void:
 	for key: String in expected.keys():
-		var a: Variant = expected[key]
-		var b: Variant = got.get(key)
-		if a is float:
-			assert_almost_eq(float(b), float(a), 0.00001, "%s: %s" % [message, key])
-		elif a is Vector2:
-			assert_true(
-				(a as Vector2).is_equal_approx(b as Vector2),
-				"%s: %s" % [message, key],
-			)
-		elif a is Vector3:
-			assert_true(
-				(a as Vector3).is_equal_approx(b as Vector3),
-				"%s: %s" % [message, key],
-			)
-		else:
-			assert_eq(b, a, "%s: %s" % [message, key])
+		assert_true(got.has(key), "%s: missing water uniform %s" % [message, key])
+	for key: Variant in got.keys():
+		assert_true(
+			expected.has(key),
+			"%s: unexpected water uniform %s" % [message, str(key)],
+		)
+	for key: String in expected.keys():
+		if not got.has(key):
+			continue
+		_assert_water_value_match(got[key], expected[key], "%s: %s" % [message, key])
+
+
+func _assert_water_value_match(got: Variant, expected: Variant, message: String) -> void:
+	if _is_numeric(expected) or _is_numeric(got):
+		if not _is_numeric(expected) or not _is_numeric(got):
+			fail("%s: numeric type mismatch" % message)
+			return
+		assert_almost_eq(
+			float(got), float(expected), WATER_PARAM_TOLERANCE, message
+		)
+		return
+	if expected is Vector2 and got is Vector2:
+		assert_true((expected as Vector2).is_equal_approx(got as Vector2), message)
+		return
+	if expected is Vector3 and got is Vector3:
+		assert_true((expected as Vector3).is_equal_approx(got as Vector3), message)
+		return
+	if expected is Vector4 and got is Vector4:
+		assert_true((expected as Vector4).is_equal_approx(got as Vector4), message)
+		return
+	if expected is Color or got is Color:
+		if not _is_color_like(expected) or not _is_color_like(got):
+			fail("%s: colour type mismatch" % message)
+			return
+		assert_true(
+			_as_color(got).is_equal_approx(_as_color(expected)),
+			message,
+		)
+		return
+	assert_eq(typeof(got), typeof(expected), "%s: type mismatch" % message)
+	assert_eq(got, expected, message)
+
+
+func _is_numeric(value: Variant) -> bool:
+	return value is float or value is int
+
+
+func _is_color_like(value: Variant) -> bool:
+	return value is Color or value is Vector3 or value is Vector4
+
+
+func _as_color(value: Variant) -> Color:
+	if value is Color:
+		return value
+	if value is Vector3:
+		var rgb := value as Vector3
+		return Color(rgb.x, rgb.y, rgb.z)
+	var rgba := value as Vector4
+	return Color(rgba.x, rgba.y, rgba.z, rgba.w)
 
 
 func _water_parameters(terrain_id: StringName) -> Dictionary:
@@ -286,9 +357,12 @@ func _water_parameters(terrain_id: StringName) -> Dictionary:
 		"wave_chaos": material.get_shader_parameter("wave_chaos"),
 		"choppiness": material.get_shader_parameter("choppiness"),
 		"wave_speed": material.get_shader_parameter("wave_speed"),
+		"breaker_intensity": material.get_shader_parameter("breaker_intensity"),
 		"foam_intensity": material.get_shader_parameter("foam_intensity"),
 		"sun_visibility": material.get_shader_parameter("sun_visibility"),
 		"sun_reflection_visibility": material.get_shader_parameter("sun_reflection_visibility"),
+		"sun_reflection_color": material.get_shader_parameter("sun_reflection_color"),
+		"moon_visibility": material.get_shader_parameter("moon_visibility"),
 		"day_blend": material.get_shader_parameter("day_blend"),
 		"tide_level": material.get_shader_parameter("tide_level"),
 		"sun_direction": material.get_shader_parameter("sun_direction"),
