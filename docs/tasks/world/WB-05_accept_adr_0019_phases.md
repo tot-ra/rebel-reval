@@ -64,3 +64,16 @@ confirms the group membership list covers every map in `content/maps/` with no m
 ## Doc updates
 
 Link `docs/SEAMLESS_STREAMING_PLAN.md` from `docs/ARCHITECTURE.md` and from this pack's README.
+
+## Decisions (2026-09-27)
+
+1. **ADR 0019 Status is Accepted** (Artjom Kurapov, 2026-09-27). Flags stay off.
+2. **Interiors stay explicit**, including the forge. They are not outdoor cells.
+3. **`reval_outdoor` has ten maps.** Every `world.*` map is travel. `toompea_small_castle`
+   is an interior even though it is an unregistered benchmark source.
+4. **Phases 3-5 map to R-978, R-979, and R-980.** ADR phase 6 is follow-up after R-980.
+5. **Startup baseline** is 149 ms compact 2D pipeline and 17.3 s full `reval_east`
+   scene under a contended headless run. Warm `MapView3D.create` is 4.2 s. Budget
+   against [`../../reports/seamless_startup_baseline_2026-09-26.md`](../../reports/seamless_startup_baseline_2026-09-26.md).
+6. **R-980 still cannot be demonstrated in play** until an outdoor neighbour of
+   `lower_town_slice` is activated and R-976 lands on the demo seams.

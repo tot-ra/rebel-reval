@@ -76,7 +76,7 @@ available - nothing drives it.
 | R-974 | WB-02 | R-973 | Relief | Signed relief primitives and a compiled gameplay heightfield in `.rrmap` |
 | R-975 | WB-03 | R-974 | Relief | Relief drives player/NPC height, slope limits, navigation and camera |
 | R-976 | WB-04 | R-975 | Relief | Re-author Toompea, Lower Town and the Viru foreland with real relief |
-| R-977 | WB-05 | none | Seamless | Accept ADR 0019, record phases 3-5 and the travel boundary |
+| R-977 | WB-05 | none | Seamless | Accept ADR 0019, record phases 3-5 and the travel boundary. Plan: [`../../SEAMLESS_STREAMING_PLAN.md`](../../SEAMLESS_STREAMING_PLAN.md) |
 | R-978 | WB-06 | R-977 | Seamless | `WorldHost` phase 3 owns player, camera, environment, HUD and navigation |
 | R-979 | WB-07 | R-977 | Seamless | Budgeted async location assembly and threaded navigation bake |
 | R-980 | WB-08 | R-978, R-979 | Seamless | Seam crossing with prefetch and eviction, no loading screen inside Reval |

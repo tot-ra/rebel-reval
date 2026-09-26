@@ -133,6 +133,8 @@ content record -> executable GDScript or runtime LLM call
 
 Chunking is a derived runtime concern. `MapChunkRuntimeIndex`, `MapObjectChunkStreamer`, and terrain chunk residency consume `MapDefinition` and preserve stable IDs. Chunk coordinates are never authored gameplay identity.
 
+[ADR 0019](adr/0019-seamless-contiguous-location-streaming.md) is **accepted**. The phase plan, `reval_outdoor` membership list, interiors decision, and R-980 release criteria live in [`SEAMLESS_STREAMING_PLAN.md`](SEAMLESS_STREAMING_PLAN.md). Runtime still swaps scenes through `DoorNavigator`. `world_host/additive_residency_enabled` stays false until those release criteria pass. This document describes the architecture that exists; it does not turn the flag on.
+
 ### Map invariants
 
 - `.rrmap` or a compact blueprint factory is source. Generated node trees are not source.

@@ -7,7 +7,9 @@
 
 ## Status
 
-Proposed target architecture for contiguous outdoor Reval locations. This ADR records the completed feasibility study and recommended implementation direction; it does not enable runtime behavior. Adoption requires maintainer approval, and implementation must ship behind a disabled feature flag until the acceptance gates below pass. Interiors, long-distance travel locations, scripted battles, and teleports retain explicit transitions.
+**Accepted** (2026-09-27, Artjom Kurapov). This ADR remains the target architecture for contiguous outdoor Reval locations. It still does not enable runtime behavior by itself. Implementation must stay behind disabled feature flags until the [R-980 release criteria](../SEAMLESS_STREAMING_PLAN.md#r-980-release-criteria) pass. Those criteria restate the [acceptance gates](#acceptance-gates) below. Interiors, long-distance travel locations, scripted battles, and teleports retain explicit transitions.
+
+Phase owners, the `reval_outdoor` membership list, and the travel boundary are recorded in [`docs/SEAMLESS_STREAMING_PLAN.md`](../SEAMLESS_STREAMING_PLAN.md) (WB-05 / R-977). The 2026-07-17 Lower Town startup figures in [Current state](#current-state) are superseded by [`docs/reports/seamless_startup_baseline_2026-09-26.md`](../reports/seamless_startup_baseline_2026-09-26.md).
 
 ## Question and answer
 
@@ -269,6 +271,18 @@ Rejected for this decision. It conflicts with the authored travel-event layer, c
 - Terrain height generation, navigation, collision, surroundings, minimap, audio, and quest presenters all need chunk/world-aware contracts.
 - Poor prefetch distance or unbounded main-thread attachment can reintroduce hitches even after background I/O works.
 - Seam geometry that only looks aligned in the editor may still fail collision, elevation, water, or navigation continuity and needs automated validation.
+
+## Task-pack phase mapping (R-977 / 2026-09-27)
+
+The original phases 3-7 stay as the long-term architecture. The world-building pack compresses the next executable work into three rows. Do not treat this table as a rewrite of the Decision section.
+
+| ADR phase | Executable row | Flag that stays off until that row's exit gate | Rollback |
+|---|---|---|---|
+| 3 Persistent `WorldHost` and location packages | R-978 / WB-06 | `world_host/additive_residency_enabled` | Leave the flag false. Location scenes keep today's ownership. |
+| 4-5 Budgeted assembly and remaining `_assemble()` cost | R-979 / WB-07, plus R-1005, R-1006, R-1010 | `world_host/async_location_assembly_enabled` | Leave the flag false. Play stays on synchronous `create()`. |
+| 5-7 World-layout manifest, seam crossing, and rollout | R-980 / WB-08 | Both flags above. Defaults flip on only after the [R-980 release criteria](../SEAMLESS_STREAMING_PLAN.md#r-980-release-criteria) pass | `world_host/scene_swap_fallback_enabled` stays a working path. |
+
+ADR phase 6 (NPC, quest, fauna, audio, and persistence residency) is not a separate pack row. R-980 may land the minimum needed for a two-seam walk. The rest stays follow-up work after the flag default can flip.
 
 ## Godot documentation references
 

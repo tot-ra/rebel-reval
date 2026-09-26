@@ -594,3 +594,15 @@ Completed map-conversion contract rows **P0-043** through **P0-046**, **P2-018**
 ## South Quarter register alignment
 
 - [x] R-1011 | deps: R-1009 | deliverable: South Quarter fabric contract uses the shared R-1009 labels (1325 name B/C, 1343 Dunkri / Cat's Well anchor U, 1375 rebuild later) | allowed files: `docs/reports/south_quarter_1343_fabric_contract.md`, `TODO.md` | verify: no 1375-first-mention line; years match P0-072 and WB-12; `python3 tools/generate_active_docs_report.py --check`
+
+## Seamless streaming (R-977)
+
+- [ ] R-977 | deps: none | deliverable: ADR 0019 Status accepted or rejected with an ISO date, an explicit seamless-group membership list covering every map (including an interiors decision), a phase plan in `docs/SEAMLESS_STREAMING_PLAN.md` mapping phases 3-5 to R-978..R-980 with exit gates and rollback, a re-measured startup baseline, and the map-activation prerequisites | allowed files: per docs/tasks/world/WB-05_accept_adr_0019_phases.md | constraints: no runtime or flag-default change; no map activation | verify: active docs check; baseline reproduces from a named command; second reviewer confirms no map is left unassigned to a group
+
+R-977 implementation landed (2026-09-27). ADR 0019 Status is Accepted (Artjom Kurapov).
+Membership, interiors decision, phases 3-5, and activation prerequisites:
+[`docs/SEAMLESS_STREAMING_PLAN.md`](docs/SEAMLESS_STREAMING_PLAN.md). Baseline:
+[`docs/reports/seamless_startup_baseline_2026-09-26.md`](docs/reports/seamless_startup_baseline_2026-09-26.md)
+(149 ms compact 2D pipeline, 4.2 s warm `MapView3D.create`, 17.3 s contended full
+`reval_east` scene). No runtime or flag-default change. Second-reviewer census is
+**R-1016**.

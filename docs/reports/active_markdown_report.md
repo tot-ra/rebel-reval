@@ -14,11 +14,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `167`
-- Markdown files excluded as archive/reference/out of active scope: `709`
-- Local/external links inspected: `768`
-- Links to active Markdown docs: `416`
-- Links to existing archive/reference/non-active local docs: `149`
+- Active Markdown files scanned: `168`
+- Markdown files excluded as archive/reference/out of active scope: `710`
+- Local/external links inspected: `790`
+- Links to active Markdown docs: `430`
+- Links to existing archive/reference/non-active local docs: `156`
 - External links skipped for reachability: `40`
 - Issues found: `0`
 
@@ -129,6 +129,7 @@ No active Markdown documentation issues found.
 - `docs/SCENES/the-makers-mark.md`
 - `docs/SCENES/the-price-of-a-name-branch-map.md`
 - `docs/SCENES/the-price-of-a-name.md`
+- `docs/SEAMLESS_STREAMING_PLAN.md`
 - `docs/SETUP.md`
 - `docs/SKY_WEATHER_STATE_CONTRACT.md`
 - `docs/SOUND_EFFECTS_TOP_100.md`
