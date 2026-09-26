@@ -18,11 +18,12 @@ extends Node3D
 ## - WS-05 OceanFftSampler: the camera surface height is the rest plane plus tide. The
 ##   view's FFT geometry is compressed to millimetres (fft_geometry_scale), so the error is
 ##   far below the hysteresis band. The shader still draws the displaced per-pixel waterline.
-## - WS-07 caustic tiles: the shader uses a procedural stand-in (_uw_caustic).
+## WS-13f: WS-07 caustic tiles are bound here and sampled in the pass shader.
 
 signal cue_played(cue_id: StringName)
 
 const AudioBusServiceScript := preload("res://scripts/settings/audio_bus_service.gd")
+const WaterMaterials := preload("res://scripts/map/view3d/map_view_water_materials.gd")
 const PASS_SHADER := preload("res://scripts/map/view3d/underwater_pass.gdshader")
 
 const STATE_AIR := 0
@@ -74,6 +75,11 @@ const MIRRORED_UNIFORMS: Array[StringName] = [
 	&"sun_direction",
 	&"day_blend",
 	&"cloud_darken",
+	&"caustics_fine_tex",
+	&"caustics_broad_tex",
+	&"caustic_min_pair_mean",
+	&"caustic_full_quality",
+	&"caustic_pattern_scale",
 ]
 
 var state := STATE_AIR
@@ -139,6 +145,7 @@ func configure(view_camera: Camera3D, probe: Callable, tier: StringName) -> void
 	_material.shader = PASS_SHADER
 	_material.render_priority = RENDER_PRIORITY
 	_material.set_shader_parameter(&"shaft_samples", int(SHAFT_SAMPLES_BY_TIER.get(tier, 8)))
+	_bind_caustic_tiles()
 	var mesh := QuadMesh.new()
 	mesh.size = Vector2(2.0, 2.0)
 	mesh.flip_faces = true
@@ -240,6 +247,26 @@ static func _camera_depth_from(probe: Dictionary, camera_y: float) -> float:
 
 func _camera_depth(probe: Dictionary) -> float:
 	return _camera_depth_from(probe, camera.global_position.y)
+
+
+## Bind the WS-07 tiles even when no water material is mirrored (tests, dry probe).
+## Quality follows this pass's tier so minimum stays at one tile.
+func _bind_caustic_tiles() -> void:
+	if _material == null:
+		return
+	var complete := true
+	for uniform_name: String in WaterMaterials.CAUSTIC_TILE_PATHS:
+		var tile := load(String(WaterMaterials.CAUSTIC_TILE_PATHS[uniform_name])) as Texture2D
+		if tile == null:
+			complete = false
+			continue
+		_material.set_shader_parameter(StringName(uniform_name), tile)
+	if complete:
+		_material.set_shader_parameter(&"caustic_min_pair_mean", WaterMaterials.CAUSTIC_MIN_PAIR_MEAN)
+	else:
+		_material.set_shader_parameter(&"caustic_min_pair_mean", Vector2.ONE)
+	_material.set_shader_parameter(&"caustic_full_quality", quality_tier != &"minimum")
+	_material.set_shader_parameter(&"caustic_pattern_scale", 3.0)
 
 
 func _sync_material(probe: Dictionary) -> void:

@@ -228,20 +228,25 @@ func test_ws02_glints_come_from_a_shadowed_ggx_light_function() -> void:
 
 func test_ws07_caustics_are_baked_tiles_projected_onto_the_bed() -> void:
 	var source := ShaderSources.WATER_SHADER.code
+	var tiles := FileAccess.get_file_as_string("res://scripts/map/view3d/caustics_common.gdshaderinc")
+	assert_true(
+		source.contains('#include "res://scripts/map/view3d/caustics_common.gdshaderinc"'),
+		"water and underwater share the WS-07 tile helpers",
+	)
 	assert_false(source.contains("_bed_caustics"), "the sine-lattice caustics are removed")
 	assert_false(
 		source.contains("water_color += highlight_color * caustics"),
 		"caustics are bed light, not a colour added on top of the water",
 	)
 	assert_true(
-		source.contains("textureGrad(tile, uv_a, gx, gy)"), "caustic tiles sample with textureGrad"
+		tiles.contains("textureGrad(tile, uv_a, gx, gy)"), "caustic tiles sample with textureGrad"
 	)
-	assert_true(source.contains("_caustic_stretch(dFdx(uv_fine), min_len)"), "gradients are stretched")
+	assert_true(tiles.contains("_caustic_stretch(dFdx(uv_fine), min_len)"), "gradients are stretched")
 	assert_true(
 		source.contains("refract(-sun, vec3(0.0, 1.0, 0.0), 1.0 / WATER_IOR)"),
 		"the net is projected along the refracted sun ray",
 	)
-	assert_true(source.contains("smoothstep(0.6, 3.0, h_m)"), "fine to broad focus follows depth")
+	assert_true(tiles.contains("smoothstep(0.6, 3.0, h_m)"), "fine to broad focus follows depth")
 	# Applied to the bed before extinction, so the view path dims it on the way up.
 	var gain_at := source.find("seabed *= _bed_caustic_gain(")
 	assert_true(gain_at > 0, "caustics multiply the seabed")
@@ -255,21 +260,19 @@ func test_ws07_caustics_are_baked_tiles_projected_onto_the_bed() -> void:
 	assert_true(
 		source.contains("smoothstep(0.0, 0.7, sun_direction.y)"), "caustics follow the direct-sun share"
 	)
-	# Sample budget: at most 8 on recommended, 2 on minimum.
-	var body_start := source.find("vec3 _bed_caustic_gain(")
-	var body := source.substr(body_start, source.find("\n}\n", body_start) - body_start)
+	# Sample budget: at most 8 on recommended, 2 on minimum. Lives in the shared include.
+	var body_start := tiles.find("vec3 _caustic_tiles_at(")
+	var body := tiles.substr(body_start, tiles.find("\n}\n", body_start) - body_start)
 	assert_eq(body.count("_caustic_tile("), 4, "two tiles on recommended, one per branch on minimum")
 	assert_true(
-		body.contains(
-			"caustic_full_quality ? sun_az * (h_m * 0.004 / caustic_pattern_scale) : vec2(0.0)"
-		),
+		body.contains("full_quality ? sun_az * (h_m * 0.004 / caustic_pattern_scale) : vec2(0.0)"),
 		"no dispersion on minimum",
 	)
 	# Scrolls must be whole tiles per ocean-clock wrap.
 	for layer: String in ["FINE_A", "FINE_B", "BROAD_A", "BROAD_B"]:
-		var at := source.find("const float CAUSTIC_%s_TILES_PER_WRAP = " % layer)
+		var at := tiles.find("const float CAUSTIC_%s_TILES_PER_WRAP = " % layer)
 		assert_true(at > 0, "%s scroll constant exists" % layer)
-		var value := float(source.substr(at).get_slice("= ", 1).get_slice(";", 0))
+		var value := float(tiles.substr(at).get_slice("= ", 1).get_slice(";", 0))
 		assert_eq(value, roundf(value), "%s scroll wraps seamlessly" % layer)
 
 

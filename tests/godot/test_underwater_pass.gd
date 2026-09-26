@@ -16,6 +16,7 @@ const KalevSmithyDefinition := preload(
 )
 const PASS_SHADER_PATH := "res://scripts/map/view3d/underwater_pass.gdshader"
 const FFT_INCLUDE_PATH := "res://scripts/map/view3d/ocean_fft_common.gdshaderinc"
+const CAUSTICS_INCLUDE_PATH := "res://scripts/map/view3d/caustics_common.gdshaderinc"
 
 # gdlint: disable=max-line-length
 
@@ -268,3 +269,35 @@ func test_shaders_share_the_fft_include_and_draw_the_medium() -> void:
 	assert_true(include.contains("const float WATER_IOR = 1.333;"), "one IOR for WS-01 and WS-13")
 	assert_true(include.contains("const vec3 WATER_SIGMA_T_PER_M"), "one per-channel extinction")
 	assert_true(include.contains("float _uw_hg(float cos_theta, float g)"), "Henyey-Greenstein sun lobe")
+
+
+func test_ws13f_underwater_pass_binds_ws07_caustic_tiles() -> void:
+	var code := (load(PASS_SHADER_PATH) as Shader).code
+	assert_true(
+		code.contains('#include "res://scripts/map/view3d/caustics_common.gdshaderinc"'),
+		"the pass samples the same WS-07 tiles as the water shader",
+	)
+	assert_false(code.contains("_uw_caustic("), "the procedural WS-07 stand-in is gone")
+	assert_false(code.contains("sin(a.x + sin(a.y"), "the sine-lattice body is gone")
+	assert_true(code.contains("caustics_fine_tex"), "fine tile uniform is declared")
+	assert_true(code.contains("_caustic_at(x, false, false)"), "shafts stay on one tile")
+	var tiles := FileAccess.get_file_as_string(CAUSTICS_INCLUDE_PATH)
+	assert_true(tiles.contains("vec3 _caustic_tile("), "tile helper lives in the shared include")
+	assert_true(tiles.contains("vec2 _caustic_stretch("), "stretch helper lives in the shared include")
+	var pass_node := _make_pass()
+	var material := pass_node.pass_material()
+	assert_true(material.get_shader_parameter(&"caustics_fine_tex") is Texture2D, "fine tile is bound")
+	assert_true(material.get_shader_parameter(&"caustics_broad_tex") is Texture2D, "broad tile is bound")
+	assert_true(bool(material.get_shader_parameter(&"caustic_full_quality")), "recommended uses both tiles")
+	_drop(pass_node)
+	var camera := Camera3D.new()
+	camera.projection = Camera3D.PROJECTION_PERSPECTIVE
+	var minimum: UnderwaterPass = UnderwaterPassScript.new()
+	minimum.configure(camera, Callable(), &"minimum")
+	minimum.add_child(camera)
+	_root().add_child(minimum)
+	assert_false(
+		bool(minimum.pass_material().get_shader_parameter(&"caustic_full_quality")),
+		"minimum drops to one tile",
+	)
+	_drop(minimum)

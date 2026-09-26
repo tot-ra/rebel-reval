@@ -257,8 +257,8 @@ also in the contract's "Final parameters and decisions" section:
 1. **Dependency stand-ins.** WS-01 is not in: the shared include now owns `WATER_IOR` and the
    per-channel `WATER_SIGMA_T_PER_M` for WS-01 to adopt. WS-05 is not in: the camera surface is the
    rest plane plus tide, and the STRADDLE band is widened on the AIR side by the terrain's crest
-   budget (`wave_height`). WS-07 is not in: `_uw_caustic()` is a procedural stand-in with the
-   final call sites.
+   budget (`wave_height`). WS-07 tiles are now bound (WS-13f / R-931); the procedural
+   `_uw_caustic()` stand-in is gone.
 2. **Surface from below in the pass too.** `hint_screen_texture` is copied before the transparent
    pass, so it never contains the water; pixels whose eye ray meets the surface first are shaded
    in the pass with the same `_uw_window()` / `_uw_below_color()` as the water underside.
@@ -306,6 +306,13 @@ WS-13e implementation landed (R-921). Decisions are in the WS-13d task file: tip
 saddle notch instead of a round cap; rubble shares the logs node as a second surface; Harbor East
 and Saaremaa keep two MeshInstance children. Evidence: `docs/reports/images/ws13e_*.png`.
 `--filter=test_ws13d_pier_cribs` 9/9.
+
+- [ ] WS-13f | deps: WS-07, WS-13 | deliverable: UnderwaterPass samples the WS-07 caustic tiles instead of the procedural stand-in so submerged surfaces and shafts match the bed net | allowed files: `scripts/map/view3d/underwater_pass.gd`, `scripts/map/view3d/underwater_pass.gdshader`, `scripts/map/view3d/caustics_common.gdshaderinc`, `scripts/map/view3d/map_view_water.gdshader`, `tests/godot/test_underwater_pass.gd`, `tests/godot/test_r715_water_material_contract.gd`, `docs/reports/images/ws13f_*.png`, `TODO.md` | verify: `--filter=test_underwater_pass,test_r715_water_material_contract`; water include move pixel-identical; `tools/capture_underwater.gd` under/up plates show the same net scale as WS-07
+
+WS-13f implementation landed (R-931). `_caustic_stretch` / `_caustic_tile` moved unchanged into
+`caustics_common.gdshaderinc`. The pass binds the WS-07 tiles; shafts stay on one tile (2 samples)
+so the march budget is unchanged. GPU under/up plates are a follow-up while a Godot editor holds
+the worktree.
 
 - [ ] WS-14a | deps: WS-13 | deliverable: ADR 0021 swimming and diving naming the removed scope, allowed water/maps, player-only traversal layer, breath/gear/combat/consequence rules, canon note, asset follow-ups and save fields | allowed files: `docs/adr/0021-swimming-and-diving.md`, `TODO.md` | verify: active docs check; maintainer acceptance recorded in ADR status
 - [ ] WS-14b | deps: WS-14a, WS-13, WS-05 | deliverable: PlayerSwimState (walk/wade/swim/dive/climb-out, FFT surface float, player-only swimmable traversal, ADR rules) with input, presentation hooks and save/load | allowed files: per accepted ADR 0021 | verify: swim state + save tests; map audits unchanged; keyboard/gamepad clip of wade/swim/dive/surface/climb-out

@@ -21,6 +21,13 @@ uniform float standing_wave_ratio = 0.12;
 uniform vec2 wind_direction = vec2(0.9578, 0.2873);
 global uniform float ocean_time;
 #include "res://scripts/map/view3d/ocean_fft_common.gdshaderinc"
+// WS-07 tiles: same helpers as the water shader so the underwater net matches the bed.
+uniform sampler2D caustics_fine_tex : hint_default_white, filter_linear_mipmap, repeat_enable;
+uniform sampler2D caustics_broad_tex : hint_default_white, filter_linear_mipmap, repeat_enable;
+uniform vec2 caustic_min_pair_mean = vec2(1.0, 1.0);
+uniform bool caustic_full_quality = true;
+uniform float caustic_pattern_scale = 3.0;
+#include "res://scripts/map/view3d/caustics_common.gdshaderinc"
 
 // 0 AIR (only the wet lens runs), 1 STRADDLE (per-pixel waterline), 2 UNDER.
 uniform int medium_state = 0;
@@ -63,26 +70,14 @@ float _ign(vec2 pixel) {
 	return fract(52.9829189 * fract(dot(pixel, vec2(0.06711056, 0.00583715))));
 }
 
-// WS-07 stand-in until the FFT caustic tiles land: a two-layer procedural
-// pattern in the water shader's _bed_caustics style, scrolled by ocean_time so
-// it moves with the sea clock. WS-07 replaces the body, not the call sites.
-float _uw_caustic(vec2 surface_xz) {
-	vec2 a = surface_xz * 2.35 + vec2(ocean_time * 0.10, -ocean_time * 0.065);
-	vec2 b = surface_xz * 3.10 + vec2(-ocean_time * 0.083, ocean_time * 0.051);
-	float ca = sin(a.x + sin(a.y * 1.37)) + cos(a.y + sin(a.x * 1.19));
-	float cb = sin(b.x + sin(b.y * 1.21)) + cos(b.y + sin(b.x * 1.43));
-	float la = pow(clamp(1.0 - abs(ca) * 0.56, 0.0, 1.0), 5.0);
-	float lb = pow(clamp(1.0 - abs(cb) * 0.56, 0.0, 1.0), 5.0);
-	// 0..1: bright crossings where both layers focus, dim elsewhere.
-	return clamp(0.5 * (la + lb) + la * lb, 0.0, 1.0);
-}
-
-// Caustic light arriving at `p` (world), found where the refracted sun ray
-// entered the surface above it.
-float _caustic_at(vec3 p, vec3 sun_refr) {
-	float h = max(water_plane_y - p.y, 0.0);
-	vec2 entry = p.xz + sun_refr.xz / max(sun_refr.y, 0.2) * h;
-	return _uw_caustic(entry);
+// WS-07 tiles at `p`. `full_quality` is the water recommended path (2 tiles);
+// shafts pass false so the march stays at 1 tile / 2 samples per step.
+// Intensity is the excess above the baked mean of 1, so average bed light
+// adds nothing and only the bright net lines lift the medium.
+float _caustic_at(vec3 p, bool full_quality, bool screen_grad) {
+	float h_m = max(water_plane_y - p.y, 0.0) * METERS_PER_WORLD_UNIT;
+	vec3 c = _caustic_tiles_at(p.xz, h_m, sun_direction, vec2(0.0), full_quality, screen_grad);
+	return max((c.r + c.g + c.b) * (1.0 / 3.0) - 1.0, 0.0);
 }
 
 float _surface_y(vec2 xz) {
@@ -217,7 +212,7 @@ void fragment() {
 			// Caustics on submerged surfaces, dimmed by the light lost on the way down.
 			float p_depth_m = max(water_plane_y - scene_world.y, 0.0) * METERS_PER_WORLD_UNIT;
 			vec3 t_down_p = exp(-sigma_t * p_depth_m);
-			scene *= vec3(1.0) + highlight_color * _caustic_at(scene_world, sun_refr) * t_down_p * caustic_gain * sun_strength;
+			scene *= vec3(1.0) + highlight_color * _caustic_at(scene_world, caustic_full_quality, true) * t_down_p * caustic_gain * sun_strength;
 		}
 
 		vec3 transmittance = exp(-sigma_t * d_m);
@@ -240,7 +235,10 @@ void fragment() {
 				vec3 x = near_world + ray * t;
 				float x_depth_m = max(water_plane_y - x.y, 0.0) * METERS_PER_WORLD_UNIT;
 				vec3 atten = exp(-sigma_t * (x_depth_m + t * METERS_PER_WORLD_UNIT));
-				shaft += atten * _caustic_at(x, sun_refr);
+				// One dominant tile per step (2 samples): keeps the march budget
+				// and matches the minimum-tier water path. Derivatives stay off
+				// because the sample UV varies with the loop index.
+				shaft += atten * _caustic_at(x, false, false);
 			}
 			float phase = _uw_hg(dot(ray, sun_refr), 0.75);
 			// Mean caustic light along the ray times a saturating single-scatter
