@@ -16,3 +16,6 @@ This file contains lessons specific to the Character role.
 - `SharedCharacterRig.sync_action_presentation` must resolve the Animation via `source_animation_name` and null-check it. After a one-shot ends, `current_animation` can be empty while the canonical attack name is still active.
 - Default session equipment can support charged attacks, which swing on button release. Drive the full press/release pair in click-path tests.
 - When correcting a Blender-imported animal axis, validate the authored head direction against the runtime rig before changing dimensions.
+- A single-body rebuild (`generate_hero_body.py`) re-harvests `assets/characters/shared/textures/*.png` and can rewrite maps every body shares. After a rebuild, run `git status` on that folder and restore it from `HEAD` unless you are deliberately regenerating the shared set (tracked in R-946).
+- `SharedCharacterRig._apply_character_pbr_profile` overrides imported material scalars. A per-body material parameter exported from Blender reaches runtime only if the rig preserves it. Assert the runtime `get_active_material` value in a rig test, not just the GLB JSON.
+- Run `generate_character_lods.py -- <names>` for new bodies only. Without a name list it regenerates every body's LODs.
