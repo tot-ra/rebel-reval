@@ -648,3 +648,11 @@ Required reviewer: maintainer sign-off per [ADR 0014](adr/0014-authorial-accepta
 | Approved for P1-036 and district quality-pass acceptance thresholds | `accepted` | Artjom Kurapov (maintainer) | 2026-07-24 | Signed for automated composition-audit and district environment gates once P1-036 lands; world-travel wrappers remain `active=false` developer destinations until their activation gates pass. |
 
 `python3 tools/verify_historical_dossier.py` reports **human review signed**. P1-036 and district quality passes may now enforce the signed ranges.
+
+## Domestic infrastructure authoring (R-984 / WB-12)
+
+Household water, food, fuel, heat, sanitation, and waste are not signed P0-072
+built/open or surface bands. They live in
+[`docs/reports/reval_domestic_infrastructure_1343.md`](reports/reval_domestic_infrastructure_1343.md).
+That report feeds R-985 plot prefabs and R-986 Lower Town dressing. It does not
+reopen the 2026-07-24 human review gate above.

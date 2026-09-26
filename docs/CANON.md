@@ -217,6 +217,18 @@ Decisions over `story/STORY.md`. Every promoted beat carries a confidence label.
 * **Rural Resentment and Weaponization of Tools** - **`attested`**
   * *Context:* The St. George's Night Uprising was fueled by oppressive taxes and forced labor imposed on the Estonian peasantry by German vassals. 
   * *Actionable hook:* Rural contacts like Kaja bring news of escalating abuses, allowing Kalev the choice to covertly modify everyday agricultural tools (like scythes or billhooks) into rebel polearms right under the authorities' noses.
+* **Yard wells, not harbour drinking water** - **`attested`** (wells exist) / **`plausible composite`** (who shares them)
+  * *Context:* Mid-14th-century Lower Town archaeology records courtyard wells and gutters; the Bishop's Garden and the Dominican close each have a medieval well. Household drinking and wash water are well and cistern water. Harbour, ditch, and moat water are not authored as drink. Well lining, depth, and wells-per-street remain unknown. Full tables: [`docs/reports/reval_domestic_infrastructure_1343.md`](./reports/reval_domestic_infrastructure_1343.md) (R-984).
+  * *Actionable hook:* A dry well, a shared sweep, or a neighbour who controls the yard water is a pressure point without inventing a water-carrier guild.
+* **Rear-yard privy and chip heaps** - **`plausible composite`**
+  * *Context:* Burgher strip plots put the privy, well sweep, and firewood in the rear yard. NUKU courtyard layers include manure and chips. A 1343 municipal dung-cart contract and a Reval cesspit lining are unknown; Tartu 1335 stone latrines stay a foreign comparandum.
+  * *Actionable hook:* Council pressure keeps night soil out of the forum throat. Kalev's ash pile is a neighbour complaint, not a sewer puzzle.
+* **Hearth heat and charcoal at the forge** - **`attested`** (hearth and yard woodpile as types) / **`plausible composite`** (forge charcoal practice)
+  * *Context:* Ordinary houses cook and heat at a corner hearth or hooded fire. A rear-yard woodpile is expected. Kalev's forge burns charcoal in a roofed crib; household winter cordwood volume and a 1343 Reval fire ordinance are unknown. Later brick chimney pots are rejected.
+  * *Actionable hook:* Charcoal shortfalls after 23 April pinch the forge first. Bath *stupa* wood dues in AWB 553 are civic, not a household tax Kalev pays.
+* **Market weekday is not canon** - **`invented`** (runtime fallback only)
+  * *Context:* The civic market is the Raekoja *forum* (attested from 1313). No reviewed AWB or council line names the 1340-1343 weekly market day. `MarketDayModel` Wednesday/Saturday remains an implementation fallback.
+  * *Actionable hook:* Dialogue may say *forum* or *markt*. It must not say "Wednesday market" as history.
 
 ---
 

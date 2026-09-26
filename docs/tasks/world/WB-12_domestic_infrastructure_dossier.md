@@ -91,3 +91,15 @@ the register with their limits.
 ## Doc updates
 
 `history/RESEARCH_INDEX.md` indexes the dossier. `docs/CANON.md` gains the labelled claims.
+
+## Decisions (2026-09-26)
+
+1. Length required a linked report, not an inline HISTORICAL_AUDIT chapter:
+   [`docs/reports/reval_domestic_infrastructure_1343.md`](../../reports/reval_domestic_infrastructure_1343.md).
+2. No new H-register rows. The report cites existing H05, H09-H12, H15, H17-H19
+   plus the already indexed history dossiers.
+3. Foreign or later numbers (Tartu 1335 latrines, Hanse dump fines, smithing
+   charcoal kg/day) stay labelled comparanda and are **U** for Reval household
+   counts. Household firewood volume is **U**.
+4. Second-reviewer spot-check of ten claims is board row **R-992**. The
+   dossier itself is ready for R-985 to consume.
