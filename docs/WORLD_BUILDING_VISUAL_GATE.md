@@ -43,7 +43,12 @@ A map activation or promotion must stop when any of these are missing or non-acc
 - water, atmosphere, vegetation, character, landmark, seam, or performance evidence;
 - fixed-setting capture identity or comparison-sheet revision and ISO-8601 generation timestamp;
 - automated map, transition, capture, or performance checks;
+- the per-map `automated_density` row (WB-10 dressing-and-ground density contract);
 - both minimum and recommended performance evidence with target/host identity;
 - human art review.
 
 This contract records readiness and blockers; it does not claim that the current prototype maps are visually accepted.
+
+## Automated density row (WB-10)
+
+Every map row carries `automated_density`, written by `python3 tools/verify_map_composition.py --write-baseline` from the compiled map: `status` (`pass`, `fail`, or `missing` when the source map is not in `MapBlueprintRegistry`), `evidence` (the dated baseline report), `source_map_id`, `map_class`, and `failing_metrics`. The gate blocks any row whose status is not `pass` and names the failing metrics in the error text and in `density_failures` of the `--json` output. This row measures dressing and ground only (props, decals, prop variety, ground cover, relief, identical adjacent footprints). Building appearance repetition is AR-13's row and is not duplicated here. Thresholds and their derivation: `docs/data/map_composition_thresholds.json` (`density_contract`); author guidance: `docs/MAP_AUTHORING.md`, section "Density and variety contract (WB-10)".

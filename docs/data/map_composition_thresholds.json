@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "source": "docs/HISTORICAL_AUDIT.md",
   "maps": {
     "kalev_smithy": {
@@ -11,7 +11,8 @@
         "stone_pct": [20, 50],
         "earth_pct": [5, 20]
       },
-      "open_floor_pct": [70, 85]
+      "open_floor_pct": [70, 85],
+      "map_class": "interior"
     },
     "lower_town_slice": {
       "enforce": true,
@@ -28,7 +29,8 @@
       "max_style_share_pct": 35,
       "max_empty_region_cells": 1200,
       "elevation_range_min": 0.3,
-      "required_landmark_building_ids": ["st_catherines_church"]
+      "required_landmark_building_ids": ["st_catherines_church"],
+      "map_class": "dense_urban"
     },
     "market_civic_quarter": {
       "enforce": false,
@@ -43,7 +45,8 @@
       "max_style_share_pct": 35,
       "max_empty_region_cells": 8000,
       "elevation_range_min": 0.3,
-      "required_landmark_building_ids": ["town_hall_mass", "holy_spirit_frontage"]
+      "required_landmark_building_ids": ["town_hall_mass", "holy_spirit_frontage"],
+      "map_class": "dense_urban"
     },
     "north_quarter": {
       "enforce": false,
@@ -57,25 +60,29 @@
       "max_cobblestone_pct": 45,
       "max_style_share_pct": 35,
       "max_empty_region_cells": 12000,
-      "elevation_range_min": 0.3
+      "elevation_range_min": 0.3,
+      "map_class": "dense_urban"
     },
     "nunnatorn_interior": {
       "enforce": false,
       "interior": true,
       "source_refs": ["H04-H05"],
-      "note": "Developer-only enterable tower interior. District composition bands do not apply to a single-tower dungeon; authored interior thresholds land with the P4-027f portfolio acceptance."
+      "note": "Developer-only enterable tower interior. District composition bands do not apply to a single-tower dungeon; authored interior thresholds land with the P4-027f portfolio acceptance.",
+      "map_class": "interior"
     },
     "rentenitorn_interior": {
       "enforce": false,
       "interior": true,
       "source_refs": ["H04-H05"],
-      "note": "Developer-only enterable tower interior (P4-027d). District composition bands do not apply to a single-tower dungeon; authored interior thresholds land with the P4-027f portfolio acceptance."
+      "note": "Developer-only enterable tower interior (P4-027d). District composition bands do not apply to a single-tower dungeon; authored interior thresholds land with the P4-027f portfolio acceptance.",
+      "map_class": "interior"
     },
     "kuldjala_interior": {
       "enforce": false,
       "interior": true,
       "source_refs": ["H04-H05"],
-      "note": "Developer-only enterable Golden Leg tower interior (P4-027c). District composition bands do not apply to a single-tower dungeon; authored interior thresholds land with the P4-027f portfolio acceptance."
+      "note": "Developer-only enterable Golden Leg tower interior (P4-027c). District composition bands do not apply to a single-tower dungeon; authored interior thresholds land with the P4-027f portfolio acceptance.",
+      "map_class": "interior"
     },
     "monastery_quarter": {
       "enforce": true,
@@ -89,7 +96,8 @@
       "max_style_share_pct": 55,
       "max_empty_region_cells": 22000,
       "elevation_range_min": 0.3,
-      "required_landmark_building_ids": ["st_olaf_silhouette", "st_michaels_convent"]
+      "required_landmark_building_ids": ["st_olaf_silhouette", "st_michaels_convent"],
+      "map_class": "sparse_urban"
     },
     "archbishops_garden": {
       "enforce": false,
@@ -102,7 +110,8 @@
       "built_density_pct": [2, 8],
       "max_style_share_pct": 60,
       "max_empty_region_cells": 7000,
-      "elevation_range_min": 2.5
+      "elevation_range_min": 2.5,
+      "map_class": "sparse_urban"
     },
     "toompea_quarter": {
       "enforce": false,
@@ -115,7 +124,8 @@
       "built_density_pct": [20, 35],
       "max_style_share_pct": 50,
       "max_empty_region_cells": 26000,
-      "elevation_range_min": 2.5
+      "elevation_range_min": 2.5,
+      "map_class": "sparse_urban"
     },
     "south_quarter": {
       "enforce": true,
@@ -131,7 +141,8 @@
       "max_cobblestone_pct": 40,
       "max_style_share_pct": 35,
       "max_empty_region_cells": 20000,
-      "elevation_range_min": 0.3
+      "elevation_range_min": 0.3,
+      "map_class": "dense_urban"
     },
     "viru_gate_foreland": {
       "enforce": true,
@@ -144,7 +155,8 @@
       "built_density_pct": [2, 8],
       "max_style_share_pct": 55,
       "max_empty_region_cells": 20000,
-      "elevation_range_min": 0.3
+      "elevation_range_min": 0.3,
+      "map_class": "foreland"
     },
     "reval_harbor_north": {
       "enforce": false,
@@ -157,7 +169,8 @@
       "built_density_pct": [5, 15],
       "max_style_share_pct": 75,
       "max_empty_region_cells": 9000,
-      "elevation_range_min": 0.3
+      "elevation_range_min": 0.3,
+      "map_class": "foreland"
     },
     "reval_harbor_east": {
       "enforce": false,
@@ -170,7 +183,8 @@
       "built_density_pct": [5, 15],
       "max_style_share_pct": 70,
       "max_empty_region_cells": 7000,
-      "elevation_range_min": 0.3
+      "elevation_range_min": 0.3,
+      "map_class": "foreland"
     },
     "st_olafs_guild_hall": {
       "enforce": false,
@@ -181,7 +195,8 @@
         "stone_pct": [0, 10],
         "earth_pct": [5, 20]
       },
-      "open_floor_pct": [90, 100]
+      "open_floor_pct": [90, 100],
+      "map_class": "interior"
     },
     "oleviste_church": {
       "enforce": false,
@@ -192,7 +207,8 @@
         "stone_pct": [70, 95],
         "earth_pct": [0, 8]
       },
-      "open_floor_pct": [85, 98]
+      "open_floor_pct": [85, 98],
+      "map_class": "interior"
     },
     "holy_spirit_church": {
       "enforce": false,
@@ -203,7 +219,8 @@
         "stone_pct": [55, 85],
         "earth_pct": [0, 10]
       },
-      "open_floor_pct": [85, 98]
+      "open_floor_pct": [85, 98],
+      "map_class": "interior"
     },
     "town_hall": {
       "enforce": true,
@@ -214,47 +231,146 @@
         "stone_pct": [5, 15],
         "earth_pct": [5, 12]
       },
-      "open_floor_pct": [80, 92]
+      "open_floor_pct": [80, 92],
+      "map_class": "interior"
     },
     "world.sacred_grove": {
       "enforce": false,
-      "source_refs": ["H23"]
+      "source_refs": ["H23"],
+      "map_class": "rural"
     },
     "world.harju": {
       "enforce": false,
-      "source_refs": ["H22"]
+      "source_refs": ["H22"],
+      "map_class": "rural"
     },
     "world.padise": {
       "enforce": false,
-      "source_refs": ["H21"]
+      "source_refs": ["H21"],
+      "map_class": "rural"
     },
     "world.saaremaa": {
       "enforce": false,
-      "source_refs": ["H24"]
+      "source_refs": ["H24"],
+      "map_class": "rural"
     },
     "world.rebel_kings": {
       "enforce": false,
-      "source_refs": ["H20"]
+      "source_refs": ["H20"],
+      "map_class": "rural"
     },
     "world.kanavere": {
       "enforce": false,
-      "source_refs": ["H20"]
+      "source_refs": ["H20"],
+      "map_class": "rural"
     },
     "world.sojamae": {
       "enforce": false,
-      "source_refs": ["H20"]
+      "source_refs": ["H20"],
+      "map_class": "rural"
     },
     "world.paide": {
       "enforce": false,
-      "source_refs": ["H20"]
+      "source_refs": ["H20"],
+      "map_class": "rural"
     },
     "world.parnu": {
       "enforce": false,
-      "source_refs": ["H25"]
+      "source_refs": ["H25"],
+      "map_class": "rural"
     },
     "world.poide": {
       "enforce": false,
-      "source_refs": ["H24"]
+      "source_refs": ["H24"],
+      "map_class": "rural"
+    }
+  },
+  "density_contract": {
+    "task": "R-982 (WB-10)",
+    "doc": "docs/tasks/world/WB-10_authoring_density_contract.md",
+    "scope_note": "Dressing and ground only: props, decals, prop-kind variety, ground cover, relief span and identical adjacent footprints. Building appearance repetition (silhouettes, part reuse) is AR-13 (R-971) and is not measured here.",
+    "metric_definitions": {
+      "walkable_cells": "Non-water cells outside counted building footprints (same denominator as surface_shares).",
+      "props_per_1000": "Dressing props (every prop except tree and bush) per 1000 walkable cells. Vegetation is measured by ground_cover_pct instead, so a floor cannot be met by planting trees.",
+      "decals_per_1000": "Authored decals per 1000 walkable cells.",
+      "distinct_prop_kinds": "Distinct dressing prop kinds.",
+      "max_prop_kind_share_pct": "Largest share of dressing props taken by one kind.",
+      "ground_cover_pct": "Walkable cells on grass-family terrain, under a vegetation style_variant zone, or holding a tree/bush/orchard/garden/field prop.",
+      "relief_span_m": "Sampled height range; the R-951 elevation_range_min mechanism, reported under code MAP_COMPOSITION_ELEVATION_FLAT.",
+      "max_identical_footprint_run": "Largest group of houses with the same whole-cell footprint (rotation-agnostic) standing at most one cell apart along a row or column.",
+      "wealth_tiers / age_tiers": "Distinct wealth_tier / age_tier values on houses. Reported only; judged once R-981 lands and tier_spread_active flips."
+    },
+    "benchmark": {
+      "map_id": "kalev_smithy",
+      "why": "The only shipped, human-accepted dressed space. Measured 2026-09-26 with this audit: 41 dressing props over 286 walkable cells = 143.4 per 1000, 7 decals = 24.5 per 1000, 21 distinct kinds, largest kind share 26.8% (household_clutter).",
+      "props_per_1000": 143.4,
+      "decals_per_1000": 24.5,
+      "distinct_prop_kinds": 21,
+      "max_prop_kind_share_pct": 26.8
+    },
+    "derivation": ["Density floors = benchmark x class fraction f. f is NOT fitted to the current outdoor maps (which are what this contract exists to fix); it is the product of two stated factors.", "interior f=0.5: a working forge is the most cluttered room type of a 1343 burgher house; halls, naves and tower rooms keep at least half of its dressing.", "dense_urban f=0.25 = 0.5 x 0.5: about half of the walkable ground in a burgher district is plot frontage, yard and work area rather than carriageway (R-003 deep narrow plots, ~7 m frontage module), and exterior dressing stands about twice as far apart as room clutter to keep people and carts moving.", "sparse_urban f=0.125 = 0.25 x 0.5: precinct and curia ground (Toompea, the monastery closes, the Archbishop's garden) is about one quarter dressed work area.", "foreland and rural f=0.0625 = 0.125 x 0.5: field, pasture and shore margins dress only farmsteads, landing places and road edges, about one eighth of the ground.", "Variety floors scale less steeply than density because a sparser place still hosts the same trades: distinct kinds = 21 x 0.5 / 0.6 / 0.5 / 0.4 / 0.4 (interior / dense / sparse / foreland / rural), rounded down.", "Kind-share caps: interior and dense_urban 30% (just above the benchmark's 26.8%); sparser classes 35-40% because fewer props make one kind's share noisier.", "Ground-cover floors are the lowest grass_pct band the signed P0-072 dossier gives for a map of that class in docs/HISTORICAL_AUDIT.md: dense_urban 10 (H06-H07 market), sparse_urban 20 (H14 monastery), foreland and rural 50 (H18 Viru foreland).", "Relief floors reuse the dossier-derived elevation_range_min of 0.3 m already set on the P0-072 cards; per-card values (Toompea 2.5 m) keep applying through the P1-036 band audit.", "max_identical_footprint_run 3: R-003 records three house tiers of different frontage and depth, so four or more identical footprints side by side means one tier was stamped without the plot variation the dossier documents."],
+    "enforcement": "Fails only maps whose compiled scope is production and which have no production_grace entry. Prototype maps are reported without failing. Every map, enforced or not, gets a DENSITY_JSON row and an automated_density row in docs/data/world_building_visual_benchmark.json, and the R-716 visual gate blocks promotion of any map whose row is not pass.",
+    "production_grace": {
+      "lower_town_slice": {
+        "until": "R-986 (WB-14)",
+        "reason": "The one active outdoor district measures 2.3 dressing props and 0.7 decals per 1000 walkable cells against floors of 35.9 and 6.1. WB-10 lands the contract and publishes the gap; R-986 raises the map to it and must delete this entry when it closes. The floors are not lowered to make the current map pass."
+      }
+    },
+    "classes": {
+      "interior": {
+        "props_per_1000_min": 71.7,
+        "decals_per_1000_min": 12.2,
+        "distinct_prop_kinds_min": 10,
+        "max_prop_kind_share_pct": 30,
+        "ground_cover_pct_min": null,
+        "elevation_range_min": null,
+        "max_identical_footprint_run": null,
+        "tier_spread_active": false
+      },
+      "dense_urban": {
+        "props_per_1000_min": 35.9,
+        "decals_per_1000_min": 6.1,
+        "distinct_prop_kinds_min": 12,
+        "max_prop_kind_share_pct": 30,
+        "ground_cover_pct_min": 10,
+        "elevation_range_min": 0.3,
+        "max_identical_footprint_run": 3,
+        "min_wealth_tiers": 3,
+        "min_age_tiers": 2,
+        "tier_spread_active": false
+      },
+      "sparse_urban": {
+        "props_per_1000_min": 17.9,
+        "decals_per_1000_min": 3.1,
+        "distinct_prop_kinds_min": 10,
+        "max_prop_kind_share_pct": 35,
+        "ground_cover_pct_min": 20,
+        "elevation_range_min": 0.3,
+        "max_identical_footprint_run": 3,
+        "min_wealth_tiers": 2,
+        "min_age_tiers": 2,
+        "tier_spread_active": false
+      },
+      "foreland": {
+        "props_per_1000_min": 9.0,
+        "decals_per_1000_min": 1.5,
+        "distinct_prop_kinds_min": 8,
+        "max_prop_kind_share_pct": 40,
+        "ground_cover_pct_min": 50,
+        "elevation_range_min": 0.3,
+        "max_identical_footprint_run": 3,
+        "tier_spread_active": false
+      },
+      "rural": {
+        "props_per_1000_min": 9.0,
+        "decals_per_1000_min": 1.5,
+        "distinct_prop_kinds_min": 8,
+        "max_prop_kind_share_pct": 40,
+        "ground_cover_pct_min": 50,
+        "elevation_range_min": 0.3,
+        "max_identical_footprint_run": 3,
+        "tier_spread_active": false
+      }
     }
   }
 }

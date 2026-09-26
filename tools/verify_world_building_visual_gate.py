@@ -64,6 +64,10 @@ REQUIRED_AUTOMATED_CHECKS = (
     "transition_audit",
     "performance_report",
 )
+# WB-10 (R-982): per-map dressing-and-ground density row written by
+# `tools/verify_map_composition.py --write-baseline`. A map cannot be promoted
+# while its compiled content fails the density contract for its map class.
+DENSITY_ROW_KEY = "automated_density"
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 REQUIRED_PERFORMANCE_TIERS = ("minimum", "recommended")
 EXTERIOR_SCENE_EXCLUSIONS = frozenset({
@@ -117,9 +121,11 @@ class GateResult:
     warnings: list[str] = field(default_factory=list)
     expected_map_ids: list[str] = field(default_factory=list)
     manifest_map_ids: list[str] = field(default_factory=list)
+    density_failures: dict[str, list[str]] = field(default_factory=dict)
 
     def as_dict(self) -> dict[str, Any]:
         return {
+            "density_failures": self.density_failures,
             "valid": self.valid,
             "errors": self.errors,
             "warnings": self.warnings,
@@ -328,6 +334,7 @@ def verify_manifest(root: Path, manifest: dict[str, Any]) -> GateResult:
         errors.append("maps must be an array")
         maps = []
     manifest_ids: list[str] = []
+    density_failures: dict[str, list[str]] = {}
     seen: set[str] = set()
     for index, entry in enumerate(maps):
         context = f"maps[{index}]"
@@ -375,6 +382,18 @@ def verify_manifest(root: Path, manifest: dict[str, Any]) -> GateResult:
                 if status != "pass":
                     errors.append(f"{map_id} rubric {criterion} is not accepted: {status}")
 
+        density = entry.get(DENSITY_ROW_KEY)
+        if not isinstance(density, dict):
+            errors.append(f"{map_id} automated density row missing: run verify_map_composition.py --write-baseline")
+            density_failures[map_id] = ["automated_density_missing"]
+        else:
+            status = _check_evidence_entry(root, density, f"{map_id} automated density", errors)
+            if status != "pass":
+                failing = [str(metric) for metric in _as_list(density.get("failing_metrics"))]
+                density_failures[map_id] = failing or [f"status:{status}"]
+                detail = f" (failing metrics: {', '.join(failing)})" if failing else ""
+                errors.append(f"{map_id} automated density is not accepted: {status}{detail}")
+
         human_review = entry.get("human_review")
         if not isinstance(human_review, dict):
             errors.append(f"{map_id} human_review must be an object")
@@ -403,6 +422,7 @@ def verify_manifest(root: Path, manifest: dict[str, Any]) -> GateResult:
         warnings=warnings,
         expected_map_ids=sorted(expected_ids),
         manifest_map_ids=sorted(manifest_ids),
+        density_failures=density_failures,
     )
 
 

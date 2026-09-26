@@ -1,8 +1,19 @@
 #!/usr/bin/env python3
-"""Verify P1-036 map composition audit thresholds and enforced registry maps."""
+"""Verify P1-036 map composition audit thresholds and enforced registry maps.
+
+Also runs the WB-10 (R-982) dressing-and-ground density contract for every
+registry map, prints the per-map baseline table, and with --write-baseline
+publishes docs/reports/map_density_baseline_2026-09-26.md and the per-map
+`automated_density` rows the R-716 visual gate consumes.
+
+Usage:
+    python3 tools/verify_map_composition.py
+    python3 tools/verify_map_composition.py --write-baseline
+"""
 
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import shutil
@@ -17,6 +28,21 @@ LOWER_TOWN_OWNERSHIP = ROOT / "docs" / "data" / "lower_town_authoring_contract.j
 REGISTRY = ROOT / "scripts" / "map" / "map_blueprint_registry.gd"
 DOSSIER = ROOT / "docs" / "HISTORICAL_AUDIT.md"
 TODO = ROOT / "TODO.md"
+BENCHMARK = ROOT / "docs" / "data" / "world_building_visual_benchmark.json"
+BASELINE_REPORT = ROOT / "docs" / "reports" / "map_density_baseline_2026-09-26.md"
+
+DENSITY_CLASSES = ("dense_urban", "sparse_urban", "foreland", "rural", "interior")
+DENSITY_CLASS_KEYS = (
+    "props_per_1000_min",
+    "decals_per_1000_min",
+    "distinct_prop_kinds_min",
+    "max_prop_kind_share_pct",
+    "ground_cover_pct_min",
+    "elevation_range_min",
+    "max_identical_footprint_run",
+    "tier_spread_active",
+)
+DENSITY_LINE_PREFIX = "DENSITY_JSON "
 
 
 def resolve_godot() -> Path | None:
@@ -92,7 +118,184 @@ def validate_threshold_contract() -> list[str]:
             errors.append(f"{map_id}: outdoor map needs surface_shares")
 
     errors.extend(validate_lower_town_enforcement())
+    errors.extend(validate_density_contract(payload))
     return errors
+
+
+def validate_density_contract(payload: dict) -> list[str]:
+    """WB-10: every card names a class, every class states every floor or cap
+    (null means "not applicable to this class", never "forgotten"), and every
+    production grace entry names the task that will remove it."""
+    errors: list[str] = []
+    contract = payload.get("density_contract")
+    if not isinstance(contract, dict):
+        return ["density_contract missing from thresholds file"]
+    classes = contract.get("classes", {})
+    for class_id in DENSITY_CLASSES:
+        card = classes.get(class_id)
+        if not isinstance(card, dict):
+            errors.append(f"density_contract.classes.{class_id} missing")
+            continue
+        for key in DENSITY_CLASS_KEYS:
+            if key not in card:
+                errors.append(f"density_contract.classes.{class_id} must state {key} (null if n/a)")
+    for class_id in classes:
+        if class_id not in DENSITY_CLASSES:
+            errors.append(f"density_contract.classes.{class_id} is not a known map class")
+    benchmark = contract.get("benchmark", {})
+    if not benchmark.get("map_id") or not benchmark.get("why"):
+        errors.append("density_contract.benchmark must name the benchmark map and why")
+    if not contract.get("derivation"):
+        errors.append("density_contract.derivation must justify every floor")
+    maps = payload.get("maps", {})
+    for map_id, card in maps.items():
+        if isinstance(card, dict) and card.get("map_class") not in DENSITY_CLASSES:
+            errors.append(f"{map_id}: map_class must be one of {', '.join(DENSITY_CLASSES)}")
+    for map_id, grace in contract.get("production_grace", {}).items():
+        if map_id not in maps:
+            errors.append(f"density grace names unknown map: {map_id}")
+        if not isinstance(grace, dict) or not grace.get("until") or not grace.get("reason"):
+            errors.append(f"density grace for {map_id} needs `until` (closing task) and `reason`")
+    return errors
+
+
+def parse_density_rows(output: str) -> list[dict]:
+    """Collect the audit tool's one-line-per-map DENSITY_JSON records."""
+    rows: list[dict] = []
+    for line in output.splitlines():
+        if not line.startswith(DENSITY_LINE_PREFIX):
+            continue
+        try:
+            rows.append(json.loads(line[len(DENSITY_LINE_PREFIX):]))
+        except json.JSONDecodeError:
+            continue
+    return rows
+
+
+def _fmt(value: object, digits: int = 1) -> str:
+    if isinstance(value, float):
+        return f"{value:.{digits}f}"
+    return str(value)
+
+
+def format_density_table(rows: list[dict]) -> str:
+    header = (
+        "| Map | Class | Scope | Mode | Walkable | Props/1000 | Decals/1000 | Kinds "
+        "| Max kind share % | Ground cover % | Relief m | Footprint run | Status | Failing metrics |"
+    )
+    lines = [header, "|" + "---|" * 14]
+    for row in rows:
+        metrics = row.get("metrics", {})
+        if row.get("status") == "compile_error":
+            lines.append(f"| `{row['map_id']}` | | | | | | | | | | | | compile_error | |")
+            continue
+        lines.append(
+            "| `{map_id}` | {cls} | {scope} | {mode} | {walk} | {props} | {decals} | {kinds} "
+            "| {share} | {cover} | {relief} | {run} | {status} | {failing} |".format(
+                map_id=row["map_id"],
+                cls=row.get("map_class", ""),
+                scope=row.get("scope", ""),
+                mode=row.get("mode", ""),
+                walk=metrics.get("walkable_cells", 0),
+                props=_fmt(metrics.get("props_per_1000", 0.0)),
+                decals=_fmt(metrics.get("decals_per_1000", 0.0)),
+                kinds=metrics.get("distinct_prop_kinds", 0),
+                share=_fmt(metrics.get("max_prop_kind_share_pct", 0.0)),
+                cover=_fmt(metrics.get("ground_cover_pct", 0.0)),
+                relief=_fmt(metrics.get("relief_span_m", 0.0), 2),
+                run=metrics.get("max_identical_footprint_run", 0),
+                status=row.get("status", ""),
+                failing=", ".join(row.get("failing_metrics", [])),
+            )
+        )
+    return "\n".join(lines)
+
+
+def registry_id_for_source(source_path: str) -> str:
+    """content/maps/world_harju.rrmap -> world.harju; others use the file stem."""
+    stem = Path(source_path).stem
+    return f"world.{stem[6:]}" if stem.startswith("world_") else stem
+
+
+def density_gate_rows(rows: list[dict], benchmark: dict) -> dict[str, dict]:
+    """Build the `automated_density` entry for every visual-gate map row."""
+    by_map = {row["map_id"]: row for row in rows}
+    evidence = str(BASELINE_REPORT.relative_to(ROOT))
+    result: dict[str, dict] = {}
+    for entry in benchmark.get("maps", []):
+        registry_id = registry_id_for_source(entry.get("source_path", ""))
+        row = by_map.get(registry_id)
+        if row is None:
+            result[entry["id"]] = {
+                "status": "missing",
+                "source_map_id": registry_id,
+                "note": "not in MapBlueprintRegistry, so the composition audit cannot measure it",
+            }
+            continue
+        status = row.get("status")
+        result[entry["id"]] = {
+            "status": status if status in ("pass", "fail") else "missing",
+            "evidence": evidence,
+            "source_map_id": registry_id,
+            "map_class": row.get("map_class", ""),
+            "failing_metrics": row.get("failing_metrics", []),
+        }
+    return result
+
+
+def write_baseline(rows: list[dict]) -> None:
+    payload = _load_json(THRESHOLDS)
+    contract = payload.get("density_contract", {})
+    report = [
+        "# Map density baseline (WB-10, R-982) - 2026-09-26",
+        "",
+        "Generated by `python3 tools/verify_map_composition.py --write-baseline` from the compiled",
+        "`MapDefinition` of every `MapBlueprintRegistry` map. Floors, caps and their derivation live in",
+        "`docs/data/map_composition_thresholds.json` under `density_contract`; the contract is",
+        "`docs/tasks/world/WB-10_authoring_density_contract.md`.",
+        "",
+        "`Mode`: `enforced` fails CI, `grace` is a production map with a named closing task,",
+        "`report` is a prototype shown without failing. The R-716 visual gate blocks promotion of any",
+        "map whose status is not `pass`, whatever its mode.",
+        "",
+        "The benchmark is `kalev_smithy`, the only shipped dressed space. Dressing props exclude trees",
+        "and bushes, which count toward ground cover instead.",
+        "",
+        format_density_table(rows),
+        "",
+        "## Class floors",
+        "",
+        "| Class | Props/1000 >= | Decals/1000 >= | Kinds >= | Max kind share % <= | Ground cover % >= | Relief m >= | Footprint run <= |",
+        "|---|---|---|---|---|---|---|---|",
+    ]
+    for class_id in DENSITY_CLASSES:
+        card = contract.get("classes", {}).get(class_id, {})
+        values = [
+            card.get(key)
+            for key in (
+                "props_per_1000_min",
+                "decals_per_1000_min",
+                "distinct_prop_kinds_min",
+                "max_prop_kind_share_pct",
+                "ground_cover_pct_min",
+                "elevation_range_min",
+                "max_identical_footprint_run",
+            )
+        ]
+        report.append(
+            f"| {class_id} | " + " | ".join("n/a" if v is None else str(v) for v in values) + " |"
+        )
+    report.extend(["", "## Production grace", ""])
+    for map_id, grace in contract.get("production_grace", {}).items():
+        report.append(f"- `{map_id}` until {grace.get('until')}: {grace.get('reason')}")
+    BASELINE_REPORT.parent.mkdir(parents=True, exist_ok=True)
+    BASELINE_REPORT.write_text("\n".join(report) + "\n", encoding="utf-8")
+
+    benchmark = _load_json(BENCHMARK)
+    gate_rows = density_gate_rows(rows, benchmark)
+    for entry in benchmark.get("maps", []):
+        entry["automated_density"] = gate_rows[entry["id"]]
+    BENCHMARK.write_text(json.dumps(benchmark, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
 def validate_lower_town_enforcement() -> list[str]:
@@ -170,7 +373,14 @@ def run_godot_audit() -> tuple[int, str]:
     return result.returncode, output
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--write-baseline",
+        action="store_true",
+        help="write the density baseline report and visual-gate automated_density rows",
+    )
+    args = parser.parse_args(argv)
     errors = validate_threshold_contract()
     if errors:
         print("map composition verification failed:")
@@ -179,6 +389,16 @@ def main() -> int:
         return 1
 
     code, output = run_godot_audit()
+    rows = parse_density_rows(output)
+    if rows:
+        print("WB-10 density baseline:")
+        print(format_density_table(rows))
+    if args.write_baseline:
+        if not rows:
+            print("no DENSITY_JSON rows in audit output; baseline not written")
+            return 1
+        write_baseline(rows)
+        print(f"wrote {BASELINE_REPORT.relative_to(ROOT)} and automated_density rows in {BENCHMARK.relative_to(ROOT)}")
     if code != 0:
         print("map composition audit failed:")
         print(output)

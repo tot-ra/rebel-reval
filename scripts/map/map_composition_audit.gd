@@ -13,6 +13,32 @@ const VIOLATION_EMPTY_REGION := &"MAP_COMPOSITION_EMPTY_REGION"
 const VIOLATION_ELEVATION_FLAT := &"MAP_COMPOSITION_ELEVATION_FLAT"
 const VIOLATION_MISSING_LANDMARK := &"MAP_COMPOSITION_MISSING_LANDMARK"
 
+## WB-10 dressing-and-ground density contract (R-982). These codes are a
+## stable API like the ones above. Relief span reuses VIOLATION_ELEVATION_FLAT.
+## Building appearance repetition is AR-13's metric and is deliberately absent.
+const VIOLATION_PROP_DENSITY := &"MAP_COMPOSITION_PROP_DENSITY"
+const VIOLATION_DECAL_DENSITY := &"MAP_COMPOSITION_DECAL_DENSITY"
+const VIOLATION_PROP_VARIETY := &"MAP_COMPOSITION_PROP_VARIETY"
+const VIOLATION_PROP_KIND_SHARE := &"MAP_COMPOSITION_PROP_KIND_SHARE"
+const VIOLATION_GROUND_COVER := &"MAP_COMPOSITION_GROUND_COVER"
+const VIOLATION_FOOTPRINT_RUN := &"MAP_COMPOSITION_FOOTPRINT_RUN"
+const VIOLATION_TIER_SPREAD := &"MAP_COMPOSITION_TIER_SPREAD"
+
+## Vegetation props count toward ground cover, not toward dressing density, so
+## a district cannot meet its prop floor by planting trees.
+const VEGETATION_PROP_KINDS: Array[StringName] = [
+	MapTypes.PROP_KIND_TREE,
+	MapTypes.PROP_KIND_BUSH,
+]
+const GROUND_COVER_PROP_KINDS: Array[StringName] = [
+	MapTypes.PROP_KIND_TREE,
+	MapTypes.PROP_KIND_BUSH,
+	MapTypes.PROP_KIND_ORCHARD_ROW,
+	MapTypes.PROP_KIND_KITCHEN_GARDEN,
+	MapTypes.PROP_KIND_FIELD_STRIP,
+]
+const GROUND_COVER_VARIANT_PREFIXES: Array[String] = ["grass.", "reed.", "bush.", "tree."]
+
 const TerrainBuilder := preload("res://scripts/map/view3d/map_view_mesh_builder_terrain.gd")
 
 const STONE_TERRAINS: Array[StringName] = [
@@ -55,7 +81,11 @@ static func measure(
 	var excluded_open_cells := _excluded_open_region_cells(grid, authoring_contract)
 	var empty_region := _largest_empty_region(grid, occupancy, excluded_open_cells)
 	var elevation := _elevation_range(definition, grid)
+	var dressing := _dressing_metrics(definition, grid, occupancy, surface)
+	dressing["relief_span_m"] = elevation
 	return {
+		"dressing": dressing,
+		"scope": String(definition.scope),
 		"map_id": definition.map_id,
 		"surface_shares": surface,
 		"built_density_pct": density,
@@ -239,6 +269,230 @@ static func format_violation(violation: Dictionary) -> String:
 			", ".join(violation.get("source_refs", [])),
 		]
 	)
+
+
+## WB-10: checks the dressing-and-ground metrics from measure()["dressing"]
+## against one map-class card from map_composition_thresholds.json
+## `density_contract.classes`. Pure over the metrics dictionary so fixtures
+## and the headless tool share one code path. Absent keys are not checked.
+static func audit_density(
+	map_id: String,
+	dressing: Dictionary,
+	class_thresholds: Dictionary,
+	source_refs: Array = [],
+) -> Array[Dictionary]:
+	var violations: Array[Dictionary] = []
+	var floors := [
+		["props_per_1000_min", "props_per_1000", VIOLATION_PROP_DENSITY],
+		["decals_per_1000_min", "decals_per_1000", VIOLATION_DECAL_DENSITY],
+		["distinct_prop_kinds_min", "distinct_prop_kinds", VIOLATION_PROP_VARIETY],
+		["ground_cover_pct_min", "ground_cover_pct", VIOLATION_GROUND_COVER],
+		["elevation_range_min", "relief_span_m", VIOLATION_ELEVATION_FLAT],
+	]
+	for row in floors:
+		if class_thresholds.get(row[0]) == null:
+			continue
+		var floor_value := float(class_thresholds[row[0]])
+		var measured := float(dressing.get(row[1], 0.0))
+		if measured < floor_value:
+			violations.append(
+				_bound_violation(row[2], map_id, row[1], measured, ">= %s" % floor_value, source_refs)
+			)
+	var caps := [
+		["max_prop_kind_share_pct", "max_prop_kind_share_pct", VIOLATION_PROP_KIND_SHARE],
+		["max_identical_footprint_run", "max_identical_footprint_run", VIOLATION_FOOTPRINT_RUN],
+	]
+	for row in caps:
+		if class_thresholds.get(row[0]) == null:
+			continue
+		var cap_value := float(class_thresholds[row[0]])
+		var measured := float(dressing.get(row[1], 0.0))
+		if measured > cap_value:
+			violations.append(
+				_bound_violation(row[2], map_id, row[1], measured, "<= %s" % cap_value, source_refs)
+			)
+	# Wealth/age tiers arrive with R-981 (.rrmap v2 semantic layer). Until the
+	# class card flips tier_spread_active, the spread is reported, never judged.
+	if bool(class_thresholds.get("tier_spread_active", false)):
+		for row in [
+			["min_wealth_tiers", "wealth_tiers"],
+			["min_age_tiers", "age_tiers"],
+		]:
+			if class_thresholds.get(row[0]) == null:
+				continue
+			var tier_floor := float(class_thresholds[row[0]])
+			var tier_count := float(dressing.get(row[1], 0))
+			if tier_count < tier_floor:
+				violations.append(
+					_bound_violation(
+						VIOLATION_TIER_SPREAD,
+						map_id,
+						row[1],
+						tier_count,
+						">= %s" % tier_floor,
+						source_refs,
+					)
+				)
+	return violations
+
+
+static func _bound_violation(
+	code: StringName,
+	map_id: String,
+	metric: String,
+	measured: float,
+	expected: String,
+	source_refs: Array,
+) -> Dictionary:
+	return {
+		"code": code,
+		"map_id": map_id,
+		"metric": metric,
+		"measured": measured,
+		"expected": expected,
+		"source_refs": source_refs,
+		"message": "%s %s measured %s, expected %s" % [map_id, metric, measured, expected],
+	}
+
+
+static func _dressing_metrics(
+	definition: MapDefinition,
+	grid: MapTerrainGrid,
+	occupancy: Dictionary,
+	surface: Dictionary,
+) -> Dictionary:
+	var walkable := int(surface.get("unbuilt_cells", 0))
+	var built_cells: Dictionary = occupancy["built_cells"]
+	var pixel := float(definition.cell_size)
+	var kind_counts: Dictionary = {}
+	var dressing_total := 0
+	var vegetation_props := 0
+	var cover_cells: Dictionary = {}
+	for prop in definition.props:
+		var kind := StringName(prop.get("kind", &""))
+		if GROUND_COVER_PROP_KINDS.has(kind) and prop.get("position") is Vector2:
+			var position: Vector2 = prop["position"]
+			cover_cells[Vector2i(int(floor(position.x / pixel)), int(floor(position.y / pixel)))] = true
+		if VEGETATION_PROP_KINDS.has(kind):
+			vegetation_props += 1
+			continue
+		dressing_total += 1
+		kind_counts[String(kind)] = int(kind_counts.get(String(kind), 0)) + 1
+	var max_kind := ""
+	var max_kind_count := 0
+	for kind_name in kind_counts:
+		var count := int(kind_counts[kind_name])
+		# Tie-break by name so the baseline report is deterministic.
+		if count > max_kind_count or (count == max_kind_count and String(kind_name) < max_kind):
+			max_kind = String(kind_name)
+			max_kind_count = count
+	for zone in definition.zones:
+		var variant := String(zone.get("style_variant", ""))
+		if not _is_ground_cover_variant(variant) or not zone.get("rect") is Rect2i:
+			continue
+		var rect: Rect2i = zone["rect"]
+		for y in range(rect.position.y, rect.end.y):
+			for x in range(rect.position.x, rect.end.x):
+				cover_cells[Vector2i(x, y)] = true
+	var covered := 0
+	for y in grid.size_cells.y:
+		for x in grid.size_cells.x:
+			var cell := Vector2i(x, y)
+			var terrain := grid.get_terrain(cell)
+			if MapTypes.WATER_TERRAINS.has(terrain) or built_cells.has(cell):
+				continue
+			if GRASS_TERRAINS.has(terrain) or cover_cells.has(cell):
+				covered += 1
+	var per_1000 := 1000.0 / float(walkable) if walkable > 0 else 0.0
+	var tiers := _tier_spread(definition)
+	return {
+		"walkable_cells": walkable,
+		"props_total": definition.props.size(),
+		"dressing_props": dressing_total,
+		"vegetation_props": vegetation_props,
+		"decals": definition.decals.size(),
+		"props_per_1000": float(dressing_total) * per_1000,
+		"decals_per_1000": float(definition.decals.size()) * per_1000,
+		"distinct_prop_kinds": kind_counts.size(),
+		"max_prop_kind": max_kind,
+		"max_prop_kind_share_pct":
+		100.0 * float(max_kind_count) / float(dressing_total) if dressing_total > 0 else 0.0,
+		"ground_cover_pct": 100.0 * float(covered) / float(walkable) if walkable > 0 else 0.0,
+		"max_identical_footprint_run": _max_identical_footprint_run(definition),
+		"wealth_tiers": tiers["wealth"],
+		"age_tiers": tiers["age"],
+	}
+
+
+static func _is_ground_cover_variant(variant: String) -> bool:
+	for prefix in GROUND_COVER_VARIANT_PREFIXES:
+		if variant.begins_with(prefix):
+			return true
+	return false
+
+
+## Distinct wealth_tier / age_tier values on counted buildings. Both are 0
+## until R-981 adds the semantic fields; audit_density ignores them until then.
+static func _tier_spread(definition: MapDefinition) -> Dictionary:
+	var wealth: Dictionary = {}
+	var age: Dictionary = {}
+	for building in definition.buildings:
+		if not _counts_toward_density(building, false):
+			continue
+		if building.has("wealth_tier"):
+			wealth[String(building["wealth_tier"])] = true
+		if building.has("age_tier"):
+			age[String(building["age_tier"])] = true
+	return {"wealth": wealth.size(), "age": age.size()}
+
+
+## Largest group of houses that share one footprint size (rotation-agnostic,
+## in whole cells) and stand next to each other along a street: rects at most
+## one cell apart that overlap on the other axis. This is the authoring-side
+## "row of boxes" failure; how the houses look is AR-13's concern, not this.
+static func _max_identical_footprint_run(definition: MapDefinition) -> int:
+	var rects: Array[Rect2i] = []
+	var keys: Array[Vector2i] = []
+	var pixel := float(definition.cell_size)
+	for building in definition.buildings:
+		if not _counts_toward_density(building, false) or not building.get("footprint") is Rect2:
+			continue
+		var footprint: Rect2 = building["footprint"]
+		var rect := Rect2i(
+			int(round(footprint.position.x / pixel)),
+			int(round(footprint.position.y / pixel)),
+			maxi(1, int(round(footprint.size.x / pixel))),
+			maxi(1, int(round(footprint.size.y / pixel))),
+		)
+		rects.append(rect)
+		keys.append(Vector2i(mini(rect.size.x, rect.size.y), maxi(rect.size.x, rect.size.y)))
+	var visited: Array[bool] = []
+	visited.resize(rects.size())
+	var largest := 0
+	for start in rects.size():
+		if visited[start]:
+			continue
+		visited[start] = true
+		var queue: Array[int] = [start]
+		var size := 0
+		while not queue.is_empty():
+			var current: int = queue.pop_back()
+			size += 1
+			for other in rects.size():
+				if visited[other] or keys[other] != keys[current]:
+					continue
+				if _street_neighbours(rects[current], rects[other]):
+					visited[other] = true
+					queue.append(other)
+		largest = maxi(largest, size)
+	return largest
+
+
+static func _street_neighbours(a: Rect2i, b: Rect2i) -> bool:
+	var gap_x := maxi(b.position.x - a.end.x, a.position.x - b.end.x)
+	var gap_y := maxi(b.position.y - a.end.y, a.position.y - b.end.y)
+	# Side by side in a row (y ranges overlap) or stacked in a column.
+	return (gap_y < 0 and gap_x >= 0 and gap_x <= 1) or (gap_x < 0 and gap_y >= 0 and gap_y <= 1)
 
 
 static func _audit_interior(

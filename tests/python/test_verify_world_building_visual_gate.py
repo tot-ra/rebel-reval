@@ -103,6 +103,7 @@ class WorldBuildingVisualGateTests(unittest.TestCase):
                 for review in entry["rubric_reviews"].values():
                     review["status"] = "pass"
                     review["evidence"] = "evidence.txt"
+                entry["automated_density"] = {"status": "pass", "evidence": "evidence.txt"}
                 entry["human_review"] = {
                     "status": "approved",
                     "reviewer": "Maintainer",
@@ -112,6 +113,26 @@ class WorldBuildingVisualGateTests(unittest.TestCase):
 
             result = verify_manifest(root, manifest)
             self.assertTrue(result.valid, result.errors)
+
+    def test_density_row_blocks_promotion_and_names_failing_metric(self) -> None:
+        result = verify_manifest(ROOT, self.manifest)
+        self.assertIn("lower_town_slice", result.density_failures)
+        self.assertIn("props_per_1000", result.density_failures["lower_town_slice"])
+        self.assertTrue(
+            any(
+                error.startswith("lower_town_slice automated density is not accepted: fail")
+                and "props_per_1000" in error
+                for error in result.errors
+            )
+        )
+        self.assertIn("density_failures", result.as_dict())
+
+    def test_missing_density_row_blocks_promotion(self) -> None:
+        manifest = copy.deepcopy(self.manifest)
+        manifest["maps"][0].pop("automated_density", None)
+        result = verify_manifest(ROOT, manifest)
+        map_id = manifest["maps"][0]["id"]
+        self.assertTrue(any(f"{map_id} automated density row missing" in error for error in result.errors))
 
     def test_absolute_evidence_path_is_rejected(self) -> None:
         manifest = copy.deepcopy(self.manifest)

@@ -71,6 +71,75 @@ class VerifyMapCompositionTest(unittest.TestCase):
             verifier.THRESHOLDS = original
         self.assertTrue(any("kalev_smithy" in error for error in errors))
 
+    def _with_thresholds(self, mutate) -> list[str]:
+        payload = json.loads(verifier.THRESHOLDS.read_text(encoding="utf-8"))
+        mutate(payload)
+        return verifier.validate_density_contract(payload)
+
+    def test_density_contract_is_complete(self) -> None:
+        self.assertEqual(verifier.validate_density_contract(self.thresholds), [])
+
+    def test_density_class_must_state_every_key_even_when_null(self) -> None:
+        errors = self._with_thresholds(
+            lambda p: p["density_contract"]["classes"]["dense_urban"].pop("decals_per_1000_min")
+        )
+        self.assertTrue(any("dense_urban must state decals_per_1000_min" in e for e in errors))
+
+    def test_every_card_needs_a_known_map_class(self) -> None:
+        errors = self._with_thresholds(lambda p: p["maps"]["toompea_quarter"].update(map_class="castle"))
+        self.assertTrue(any("toompea_quarter: map_class" in e for e in errors))
+
+    def test_grace_must_name_its_closing_task(self) -> None:
+        errors = self._with_thresholds(
+            lambda p: p["density_contract"]["production_grace"]["lower_town_slice"].pop("until")
+        )
+        self.assertTrue(any("density grace for lower_town_slice" in e for e in errors))
+
+    def test_lower_town_grace_is_closed_by_r986(self) -> None:
+        grace = self.thresholds["density_contract"]["production_grace"]
+        self.assertIn("R-986", grace["lower_town_slice"]["until"])
+
+    def test_floors_are_derived_from_the_interior_benchmark(self) -> None:
+        contract = self.thresholds["density_contract"]
+        benchmark = contract["benchmark"]
+        self.assertEqual(benchmark["map_id"], "kalev_smithy")
+        fractions = {"interior": 0.5, "dense_urban": 0.25, "sparse_urban": 0.125, "foreland": 0.0625, "rural": 0.0625}
+        for class_id, fraction in fractions.items():
+            card = contract["classes"][class_id]
+            self.assertAlmostEqual(card["props_per_1000_min"], round(benchmark["props_per_1000"] * fraction, 1), places=1)
+            self.assertAlmostEqual(card["decals_per_1000_min"], round(benchmark["decals_per_1000"] * fraction, 1), places=1)
+
+    def test_parse_density_rows_ignores_noise(self) -> None:
+        output = "\n".join([
+            "AUDIT kalev_smithy",
+            'DENSITY_JSON {"map_id": "a", "status": "pass", "failing_metrics": []}',
+            "DENSITY_JSON {not json",
+            'ERROR: DENSITY_JSON {"map_id": "b"}',
+        ])
+        rows = verifier.parse_density_rows(output)
+        self.assertEqual([row["map_id"] for row in rows], ["a"])
+
+    def test_gate_rows_map_scene_aliases_and_flag_unregistered_maps(self) -> None:
+        rows = [
+            {"map_id": "market_civic_quarter", "status": "fail", "map_class": "dense_urban", "failing_metrics": ["props_per_1000"]},
+            {"map_id": "world.harju", "status": "pass", "map_class": "rural", "failing_metrics": []},
+        ]
+        benchmark = {"maps": [
+            {"id": "reval_center", "source_path": "content/maps/market_civic_quarter.rrmap"},
+            {"id": "world.harju", "source_path": "content/maps/world_harju.rrmap"},
+            {"id": "toompea_small_castle", "source_path": "content/maps/toompea_small_castle.rrmap"},
+        ]}
+        gate = verifier.density_gate_rows(rows, benchmark)
+        self.assertEqual(gate["reval_center"]["status"], "fail")
+        self.assertEqual(gate["reval_center"]["failing_metrics"], ["props_per_1000"])
+        self.assertEqual(gate["world.harju"]["status"], "pass")
+        self.assertEqual(gate["toompea_small_castle"]["status"], "missing")
+
+    def test_benchmark_carries_a_density_row_for_every_map(self) -> None:
+        benchmark = json.loads(verifier.BENCHMARK.read_text(encoding="utf-8"))
+        for entry in benchmark["maps"]:
+            self.assertIn("automated_density", entry, entry["id"])
+
 
 if __name__ == "__main__":
     unittest.main()

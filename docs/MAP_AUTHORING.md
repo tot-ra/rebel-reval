@@ -547,6 +547,25 @@ For a migration, compare old and compiled definitions using a canonical semantic
 
 An intentional difference must be listed in the migration change and asserted in a test or updated golden artifact. A changed fingerprint alone neither proves parity nor automatically indicates failure: migrated compiler output uses the new canonical fingerprint policy, while semantic parity is checked explicitly.
 
+### 5. Density and variety contract (WB-10)
+
+Before requesting promotion, a map must meet the dressing-and-ground floors for its `map_class` (`dense_urban`, `sparse_urban`, `foreland`, `rural`, `interior`) in `docs/data/map_composition_thresholds.json` under `density_contract`. `MapCompositionAudit` measures the compiled `MapDefinition`:
+
+| Metric | Code | Meaning |
+|---|---|---|
+| `props_per_1000` | `MAP_COMPOSITION_PROP_DENSITY` | Dressing props (all but trees and bushes) per 1000 walkable cells |
+| `decals_per_1000` | `MAP_COMPOSITION_DECAL_DENSITY` | Authored decals per 1000 walkable cells |
+| `distinct_prop_kinds` | `MAP_COMPOSITION_PROP_VARIETY` | Density cannot be met by cloning one barrel |
+| `max_prop_kind_share_pct` | `MAP_COMPOSITION_PROP_KIND_SHARE` | Cap on any single prop kind |
+| `ground_cover_pct` | `MAP_COMPOSITION_GROUND_COVER` | Grass-family terrain, vegetation `style_variant` zones, and tree/bush/orchard/garden/field props on unbuilt land |
+| `relief_span_m` | `MAP_COMPOSITION_ELEVATION_FLAT` | The existing `elevation_range_min` mechanism |
+| `max_identical_footprint_run` | `MAP_COMPOSITION_FOOTPRINT_RUN` | Houses with the same footprint standing side by side along a row or column |
+| `wealth_tiers`, `age_tiers` | `MAP_COMPOSITION_TIER_SPREAD` | Reported only until R-981 adds the semantic fields |
+
+The floors are fractions of the shipped `kalev_smithy` interior, not values fitted to the outdoor maps. The derivation is recorded in the threshold file. Building appearance repetition (silhouettes, part reuse) belongs to AR-13 and is not part of this contract.
+
+`python3 tools/verify_map_composition.py` fails `scope=production` maps without a `production_grace` entry and reports prototypes without failing. `--write-baseline` regenerates `docs/reports/map_density_baseline_2026-09-26.md` and the per-map `automated_density` rows that the R-716 visual gate requires to be `pass`. A grace entry must name the task that removes it. Do not lower a floor to make a map pass.
+
 ## Semantic diagnostics and pre-commit validation
 
 `MapBlueprintCompiler.compile_with_diagnostics()` returns a `MapBlueprintCompileResult` with a canonical `diagnostics` array. Every `MapBlueprintDiagnostic` exposes `code`, `severity`, `message`, `map_id`, `path`, `subject`, and `details`, plus `format()` for humans and `to_dict()` for editor or AI tooling. Diagnostic codes are a compatibility API and must not be renamed to reword a message.

@@ -235,6 +235,16 @@
         "reviewer": "",
         "review_date": "",
         "evidence": ""
+      },
+      "automated_density": {
+        "status": "fail",
+        "evidence": "docs/reports/map_density_baseline_2026-09-26.md",
+        "source_map_id": "lower_town_slice",
+        "map_class": "dense_urban",
+        "failing_metrics": [
+          "props_per_1000",
+          "decals_per_1000"
+        ]
       }
     },
     {
@@ -322,6 +332,16 @@
         "reviewer": "",
         "review_date": "",
         "evidence": ""
+      },
+      "automated_density": {
+        "status": "fail",
+        "evidence": "docs/reports/map_density_baseline_2026-09-26.md",
+        "source_map_id": "lower_town_slice",
+        "map_class": "dense_urban",
+        "failing_metrics": [
+          "props_per_1000",
+          "decals_per_1000"
+        ]
       }
     },
     {
@@ -409,6 +429,17 @@
         "reviewer": "",
         "review_date": "",
         "evidence": ""
+      },
+      "automated_density": {
+        "status": "fail",
+        "evidence": "docs/reports/map_density_baseline_2026-09-26.md",
+        "source_map_id": "market_civic_quarter",
+        "map_class": "dense_urban",
+        "failing_metrics": [
+          "props_per_1000",
+          "decals_per_1000",
+          "ground_cover_pct"
+        ]
       }
     },
     {
@@ -496,6 +527,18 @@
         "reviewer": "",
         "review_date": "",
         "evidence": ""
+      },
+      "automated_density": {
+        "status": "fail",
+        "evidence": "docs/reports/map_density_baseline_2026-09-26.md",
+        "source_map_id": "north_quarter",
+        "map_class": "dense_urban",
+        "failing_metrics": [
+          "props_per_1000",
+          "decals_per_1000",
+          "distinct_prop_kinds",
+          "max_prop_kind_share_pct"
+        ]
       }
     },
     {
@@ -583,6 +626,18 @@
         "reviewer": "",
         "review_date": "",
         "evidence": ""
+      },
+      "automated_density": {
+        "status": "fail",
+        "evidence": "docs/reports/map_density_baseline_2026-09-26.md",
+        "source_map_id": "south_quarter",
+        "map_class": "dense_urban",
+        "failing_metrics": [
+          "props_per_1000",
+          "decals_per_1000",
+          "distinct_prop_kinds",
+          "max_prop_kind_share_pct"
+        ]
       }
     },
     {
@@ -670,6 +725,17 @@
         "reviewer": "",
         "review_date": "",
         "evidence": ""
+      },
+      "automated_density": {
+        "status": "fail",
+        "evidence": "docs/reports/map_density_baseline_2026-09-26.md",
+        "source_map_id": "toompea_quarter",
+        "map_class": "sparse_urban",
+        "failing_metrics": [
+          "props_per_1000",
+          "decals_per_1000",
+          "distinct_prop_kinds"
+        ]
       }
     },
     {
@@ -757,6 +823,15 @@
         "reviewer": "",
         "review_date": "",
         "evidence": ""
+      },
+      "automated_density": {
+        "status": "fail",
+        "evidence": "docs/reports/map_density_baseline_2026-09-26.md",
+        "source_map_id": "world.harju",
+        "map_class": "rural",
+        "failing_metrics": [
+          "decals_per_1000"
+        ]
       }
     },
     {
@@ -844,6 +919,17 @@
         "reviewer": "",
         "review_date": "",
         "evidence": ""
+      },
+      "automated_density": {
+        "status": "fail",
+        "evidence": "docs/reports/map_density_baseline_2026-09-26.md",
+        "source_map_id": "world.kanavere",
+        "map_class": "rural",
+        "failing_metrics": [
+          "props_per_1000",
+          "decals_per_1000",
+          "distinct_prop_kinds"
+        ]
       }
     },
     {
@@ -931,6 +1017,17 @@
         "reviewer": "",
         "review_date": "",
         "evidence": ""
+      },
+      "automated_density": {
+        "status": "fail",
+        "evidence": "docs/reports/map_density_baseline_2026-09-26.md",
+        "source_map_id": "world.padise",
+        "map_class": "rural",
+        "failing_metrics": [
+          "props_per_1000",
+          "decals_per_1000",
+          "ground_cover_pct"
+        ]
       }
     },
     {
@@ -1018,6 +1115,19 @@
         "reviewer": "",
         "review_date": "",
         "evidence": ""
+      },
+      "automated_density": {
+        "status": "fail",
+        "evidence": "docs/reports/map_density_baseline_2026-09-26.md",
+        "source_map_id": "world.paide",
+        "map_class": "rural",
+        "failing_metrics": [
+          "props_per_1000",
+          "decals_per_1000",
+          "distinct_prop_kinds",
+          "ground_cover_pct",
+          "max_prop_kind_share_pct"
+        ]
       }
     },
     {
@@ -1105,6 +1215,18 @@
         "reviewer": "",
         "review_date": "",
         "evidence": ""
+      },
+      "automated_density": {
+        "status": "fail",
+        "evidence": "docs/reports/map_density_baseline_2026-09-26.md",
+        "source_map_id": "world.parnu",
+        "map_class": "rural",
+        "failing_metrics": [
+          "props_per_1000",
+          "decals_per_1000",
+          "distinct_prop_kinds",
+          "ground_cover_pct"
+        ]
       }
     },
     {
@@ -1192,6 +1314,19 @@
         "reviewer": "",
         "review_date": "",
         "evidence": ""
+      },
+      "automated_density": {
+        "status": "fail",
+        "evidence": "docs/reports/map_density_baseline_2026-09-26.md",
+        "source_map_id": "world.poide",
+        "map_class": "rural",
+        "failing_metrics": [
+          "props_per_1000",
+          "decals_per_1000",
+          "distinct_prop_kinds",
+          "ground_cover_pct",
+          "max_prop_kind_share_pct"
+        ]
       }
     },
     {
@@ -1279,6 +1414,17 @@
         "reviewer": "",
         "review_date": "",
         "evidence": ""
+      },
+      "automated_density": {
+        "status": "fail",
+        "evidence": "docs/reports/map_density_baseline_2026-09-26.md",
+        "source_map_id": "world.rebel_kings",
+        "map_class": "rural",
+        "failing_metrics": [
+          "props_per_1000",
+          "decals_per_1000",
+          "distinct_prop_kinds"
+        ]
       }
     },
     {
@@ -1366,6 +1512,15 @@
         "reviewer": "",
         "review_date": "",
         "evidence": ""
+      },
+      "automated_density": {
+        "status": "fail",
+        "evidence": "docs/reports/map_density_baseline_2026-09-26.md",
+        "source_map_id": "world.saaremaa",
+        "map_class": "rural",
+        "failing_metrics": [
+          "decals_per_1000"
+        ]
       }
     },
     {
@@ -1453,6 +1608,18 @@
         "reviewer": "",
         "review_date": "",
         "evidence": ""
+      },
+      "automated_density": {
+        "status": "fail",
+        "evidence": "docs/reports/map_density_baseline_2026-09-26.md",
+        "source_map_id": "world.sacred_grove",
+        "map_class": "rural",
+        "failing_metrics": [
+          "props_per_1000",
+          "decals_per_1000",
+          "distinct_prop_kinds",
+          "max_prop_kind_share_pct"
+        ]
       }
     },
     {
@@ -1540,6 +1707,17 @@
         "reviewer": "",
         "review_date": "",
         "evidence": ""
+      },
+      "automated_density": {
+        "status": "fail",
+        "evidence": "docs/reports/map_density_baseline_2026-09-26.md",
+        "source_map_id": "world.sojamae",
+        "map_class": "rural",
+        "failing_metrics": [
+          "props_per_1000",
+          "decals_per_1000",
+          "distinct_prop_kinds"
+        ]
       }
     },
     {
@@ -1627,6 +1805,17 @@
         "reviewer": "",
         "review_date": "",
         "evidence": ""
+      },
+      "automated_density": {
+        "status": "fail",
+        "evidence": "docs/reports/map_density_baseline_2026-09-26.md",
+        "source_map_id": "market_civic_quarter",
+        "map_class": "dense_urban",
+        "failing_metrics": [
+          "props_per_1000",
+          "decals_per_1000",
+          "ground_cover_pct"
+        ]
       }
     },
     {
@@ -1714,6 +1903,18 @@
         "reviewer": "",
         "review_date": "",
         "evidence": ""
+      },
+      "automated_density": {
+        "status": "fail",
+        "evidence": "docs/reports/map_density_baseline_2026-09-26.md",
+        "source_map_id": "north_quarter",
+        "map_class": "dense_urban",
+        "failing_metrics": [
+          "props_per_1000",
+          "decals_per_1000",
+          "distinct_prop_kinds",
+          "max_prop_kind_share_pct"
+        ]
       }
     },
     {
@@ -1801,6 +2002,16 @@
         "reviewer": "",
         "review_date": "",
         "evidence": ""
+      },
+      "automated_density": {
+        "status": "fail",
+        "evidence": "docs/reports/map_density_baseline_2026-09-26.md",
+        "source_map_id": "monastery_quarter",
+        "map_class": "sparse_urban",
+        "failing_metrics": [
+          "props_per_1000",
+          "decals_per_1000"
+        ]
       }
     },
     {
@@ -1888,6 +2099,17 @@
         "reviewer": "",
         "review_date": "",
         "evidence": ""
+      },
+      "automated_density": {
+        "status": "fail",
+        "evidence": "docs/reports/map_density_baseline_2026-09-26.md",
+        "source_map_id": "reval_harbor_north",
+        "map_class": "foreland",
+        "failing_metrics": [
+          "props_per_1000",
+          "decals_per_1000",
+          "distinct_prop_kinds"
+        ]
       }
     },
     {
@@ -1975,6 +2197,16 @@
         "reviewer": "",
         "review_date": "",
         "evidence": ""
+      },
+      "automated_density": {
+        "status": "fail",
+        "evidence": "docs/reports/map_density_baseline_2026-09-26.md",
+        "source_map_id": "reval_harbor_east",
+        "map_class": "foreland",
+        "failing_metrics": [
+          "props_per_1000",
+          "decals_per_1000"
+        ]
       }
     },
     {
@@ -2062,6 +2294,18 @@
         "reviewer": "",
         "review_date": "",
         "evidence": ""
+      },
+      "automated_density": {
+        "status": "fail",
+        "evidence": "docs/reports/map_density_baseline_2026-09-26.md",
+        "source_map_id": "archbishops_garden",
+        "map_class": "sparse_urban",
+        "failing_metrics": [
+          "props_per_1000",
+          "decals_per_1000",
+          "distinct_prop_kinds",
+          "max_prop_kind_share_pct"
+        ]
       }
     },
     {
@@ -2149,6 +2393,17 @@
         "reviewer": "",
         "review_date": "",
         "evidence": ""
+      },
+      "automated_density": {
+        "status": "fail",
+        "evidence": "docs/reports/map_density_baseline_2026-09-26.md",
+        "source_map_id": "toompea_quarter",
+        "map_class": "sparse_urban",
+        "failing_metrics": [
+          "props_per_1000",
+          "decals_per_1000",
+          "distinct_prop_kinds"
+        ]
       }
     },
     {
@@ -2236,6 +2491,11 @@
         "reviewer": "",
         "review_date": "",
         "evidence": ""
+      },
+      "automated_density": {
+        "status": "missing",
+        "source_map_id": "toompea_small_castle",
+        "note": "not in MapBlueprintRegistry, so the composition audit cannot measure it"
       }
     },
     {
@@ -2323,6 +2583,18 @@
         "reviewer": "",
         "review_date": "",
         "evidence": ""
+      },
+      "automated_density": {
+        "status": "fail",
+        "evidence": "docs/reports/map_density_baseline_2026-09-26.md",
+        "source_map_id": "south_quarter",
+        "map_class": "dense_urban",
+        "failing_metrics": [
+          "props_per_1000",
+          "decals_per_1000",
+          "distinct_prop_kinds",
+          "max_prop_kind_share_pct"
+        ]
       }
     },
     {
@@ -2410,6 +2682,16 @@
         "reviewer": "",
         "review_date": "",
         "evidence": ""
+      },
+      "automated_density": {
+        "status": "fail",
+        "evidence": "docs/reports/map_density_baseline_2026-09-26.md",
+        "source_map_id": "viru_gate_foreland",
+        "map_class": "foreland",
+        "failing_metrics": [
+          "props_per_1000",
+          "decals_per_1000"
+        ]
       }
     },
     {
@@ -2497,6 +2779,18 @@
         "reviewer": "",
         "review_date": "",
         "evidence": ""
+      },
+      "automated_density": {
+        "status": "fail",
+        "evidence": "docs/reports/map_density_baseline_2026-09-26.md",
+        "source_map_id": "oleviste_church",
+        "map_class": "interior",
+        "failing_metrics": [
+          "props_per_1000",
+          "decals_per_1000",
+          "distinct_prop_kinds",
+          "max_prop_kind_share_pct"
+        ]
       }
     },
     {
@@ -2584,6 +2878,18 @@
         "reviewer": "",
         "review_date": "",
         "evidence": ""
+      },
+      "automated_density": {
+        "status": "fail",
+        "evidence": "docs/reports/map_density_baseline_2026-09-26.md",
+        "source_map_id": "st_olafs_guild_hall",
+        "map_class": "interior",
+        "failing_metrics": [
+          "props_per_1000",
+          "decals_per_1000",
+          "distinct_prop_kinds",
+          "max_prop_kind_share_pct"
+        ]
       }
     },
     {
@@ -2671,6 +2977,17 @@
         "reviewer": "",
         "review_date": "",
         "evidence": ""
+      },
+      "automated_density": {
+        "status": "fail",
+        "evidence": "docs/reports/map_density_baseline_2026-09-26.md",
+        "source_map_id": "town_hall",
+        "map_class": "interior",
+        "failing_metrics": [
+          "props_per_1000",
+          "decals_per_1000",
+          "distinct_prop_kinds"
+        ]
       }
     },
     {
@@ -2758,6 +3075,18 @@
         "reviewer": "",
         "review_date": "",
         "evidence": ""
+      },
+      "automated_density": {
+        "status": "fail",
+        "evidence": "docs/reports/map_density_baseline_2026-09-26.md",
+        "source_map_id": "holy_spirit_church",
+        "map_class": "interior",
+        "failing_metrics": [
+          "props_per_1000",
+          "decals_per_1000",
+          "distinct_prop_kinds",
+          "max_prop_kind_share_pct"
+        ]
       }
     },
     {
@@ -2845,6 +3174,18 @@
         "reviewer": "",
         "review_date": "",
         "evidence": ""
+      },
+      "automated_density": {
+        "status": "fail",
+        "evidence": "docs/reports/map_density_baseline_2026-09-26.md",
+        "source_map_id": "kuldjala_interior",
+        "map_class": "interior",
+        "failing_metrics": [
+          "props_per_1000",
+          "decals_per_1000",
+          "distinct_prop_kinds",
+          "max_prop_kind_share_pct"
+        ]
       }
     }
   ]

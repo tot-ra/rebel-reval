@@ -104,3 +104,28 @@ threshold file rather than setting the floors low enough to pass.
 
 `docs/WORLD_BUILDING_VISUAL_GATE.md` documents the new automated rows.
 `docs/MAP_AUTHORING.md` states the density contract an author must meet before requesting promotion.
+
+## Decisions (implementation, 2026-09-26)
+
+- **Walkable cells** are non-water cells outside counted building footprints, the same denominator
+  as the P1-036 `surface_shares`. The benchmark therefore reads 143.4 props / 1000 walkable cells
+  for `kalev_smithy` (41 over 286), not the 112.6 per total cell quoted above.
+- **Trees and bushes are not dressing.** They count toward `ground_cover_pct`, so the prop floor
+  cannot be met by planting trees.
+- **Floors are benchmark x class fraction**: interior 0.5, dense urban 0.25, sparse urban 0.125,
+  foreland and rural 0.0625. The two factors behind each fraction are written into
+  `density_contract.derivation`. Ground-cover floors are the lowest P0-072 dossier grass band for
+  that class; relief reuses the 0.3 m `elevation_range_min`; the footprint-run cap of 3 follows
+  the three R-003 house tiers.
+- **Grace:** only `kalev_smithy` and `lower_town_slice` compile as `scope=production`. The smithy
+  passes; `lower_town_slice` has a `production_grace` entry until R-986, which must delete it.
+- **Gate wiring** is a per-map `automated_density` row in
+  `docs/data/world_building_visual_benchmark.json`, not a global automated check, so the gate
+  names the failing metrics per map. `toompea_small_castle` is a benchmark row without a registry
+  blueprint and is marked `missing`.
+- **Baseline covers 28 maps**, the full `MapBlueprintRegistry`. The "29" above counted
+  `toompea_small_castle`, which is not registered yet.
+- **Tier spread** (`wealth_tiers`, `age_tiers`) is measured and reported but dormant
+  (`tier_spread_active: false`) until R-981 lands the semantic fields.
+- `tests/python/test_verify_world_building_visual_gate.py` is also touched: its complete-fixture
+  test needed the new row, and two tests cover the density row.
