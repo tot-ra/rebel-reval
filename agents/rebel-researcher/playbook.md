@@ -20,3 +20,5 @@ This file contains lessons specific to the Researcher role.
 - Use `tools/research/fetch_reference_plates.py` for plate manifest work. Keep `image_url` / `local_path` / `sha256` empty on link-only rows.
 - In a no-claim research scout, clean index-link and plate checks are enough when open rows are already in review or typed access blockers. Do not invent backlog to fill capacity.
 - Task-pack confidence words (bounded reconstruction, reconstructed, speculative) are not a second canon. Map them onto `docs/CANON.md` (`attested`, `plausible composite`, `folklore`, `invented`) and write `unknown` instead of inventing a number. A later wreck or ethnographic reconstruction stays a labelled comparandum, not a 1343 measurement.
+- A published maststep-to-keelson station is not an LOA fraction when the stem is missing. Publish the station and the wreck-length caveat. Do not divide by excavated wreck length to invent an LOA%.
+- A copyrighted DIGAR viewer or a paywalled museum monograph is an access blocker, not a historical no-hit. Leave the field `unknown` and name the clearing pages. Do not infer a missing fitting from ship-type analogy.

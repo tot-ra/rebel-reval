@@ -112,7 +112,7 @@ Tar and paint: **unknown** on the Reval wrecks. Do not invent a colour scheme he
 | Field | Evidence | Label |
 |---|---|---|
 | Mast count | Single maststep on Lootsi [1]; Peeter keelson and mast base [16]; Lübeck seal silhouette [4] | `attested` as single-masted |
-| Mast position | Lootsi maststep sits in the thickened midships keelson (frames 7-46) [1]. Exact fraction of LOA is **unknown** | position `unknown`; single mast `attested` |
+| Mast position | Lootsi maststep **block** starts **4.40 m** from the keelson forward end and is **2.75 m** long on the **14.95 m** keelson (mortise 58 x 31 x 19 cm) [27]. That is **0.294-0.478 of the keelson**, `attested`. Original LOA is **unknown**: the stem is missing, and **24.5 m** is wreck length, not reconstructed LOA [1], [27]. Do not invent an LOA%. | keelson band `attested`; LOA fraction `unknown` |
 | Mast height | **unknown** on Reval wrecks. Bremen reconstruction **c. 21 m** [11] | Bremen only, `attested` as reconstruction table |
 | Yard length | **unknown** on Reval wrecks. Replica tables for Bremen-class ships give about **14.6-18 m** [17] | `plausible composite` only as a Bremen-class band |
 | Sail | One square sail. Bremen table **c. 200 m²** [11]; Ubena replica listing **150-200 m²** [18] | Reval sail area `unknown` |
@@ -127,7 +127,7 @@ full bank of oars to V1.
 
 | Fitting | 1343 verdict | Label |
 |---|---|---|
-| Rudder | **Stern rudder** on Lootsi (gudgeons on the false stern) [1]. Peeter has a straight stern post in the cog pattern [2]. This is the period of the side-to-stern transition; Reval's excavated large hulls already show the stern hang. | `attested` for Lootsi; Peeter hang **unknown** in the published extract |
+| Rudder | **Stern rudder** on Lootsi: four iron gudgeons about 7 cm on the false stern; the blade was not found [1], [27]. Peeter has a straight stern post [2]. Open plates, the museum page, and Rebane 2023 do not publish Peeter gudgeons or a side rudder [16], [28]. Hang on Peeter stays **unknown**. Do not infer it from cog typology. | `attested` for Lootsi; Peeter hang `unknown` |
 | Tiller | Expected with a stern rudder; not separately measured | `plausible composite` |
 | Anchor | **unknown** (not published from these wrecks in the sources used here) | unknown |
 | Bailer | **unknown** | unknown |
@@ -137,8 +137,9 @@ full bank of oars to V1.
 
 ### What we do not know
 
-Exact 1343 sail area, mast height, yard, shroud count, draught, crew size, paint, and whether
-Peeter carried a side rudder, a stern rudder, or both during its life. Dendro on Lootsi is after
+Exact 1343 sail area, mast height, yard, shroud count, draught, crew size, paint, and the
+original Lootsi LOA (stem missing). Whether Peeter carried a side rudder, a stern rudder,
+or both during its life is still unpublished in readable sources. Dendro on Lootsi is after
 the game date. Typology debate (cog vs a larger transitional hull) is open on Lootsi [6]; keep
 the gameplay name "cog" as the historical class, not as a claim that every feature matches
 Heinsius's checklist.
@@ -555,13 +556,42 @@ later task cites a new primary source and changes CANON.
     `https://spbae.ru/images/sorokin_slavia.pdf`
 26. Mägi, Saaremaa harbour-site work (Tornimäe, later medieval pier near Uuemõisa).
     *Archaeologia Baltica* PDF via `https://e-journals.ku.lt/journal/AB/article/1075/file/pdf`
+27. Reinvars, L. 2023. *Lootsi tänava laevavraki ehitus*. BA thesis, University of Tartu.
+    Open text via `https://hdl.handle.net/10062/92335`. Maststep starts 4.40 m from the
+    keelson forward end; block 2.75 m; mortise 58 x 31 x 19 cm; keelson 14.95 m (the thesis
+    once writes "14,95 cm"; AVE [1] has 14.96 m; both are the same metre figure). Four
+    stern gudgeons about 7 cm; rudder blade not found. Stem missing.
+28. Rebane, K. E. 2023. *Keskaegsete laevade metallist kinnitusvahendite tegemine ja nende
+    kasutamine Lootsi ja Peetri laevade näitel*. University of Tartu Viljandi. Open PDF:
+    `https://dspace.ut.ee/bitstreams/ab1eab79-2076-4fe3-a756-1a5c2695ece9/download`.
+    Field notes on Peeter nails and sintels (May 2023). No rudder hang is published.
+29. Access boundary for Peeter hang: Lätti and Roio, *Koge - keskaegne kaubalaev / The cog -
+    a medieval merchant ship* (2020), DIGAR `nlib-digar:432237`, copyrighted viewer; and
+    Roio and Russow (eds.), *The Kadriorg Cog* (2025), museum shop, not free. Neither body
+    was readable in this pass. Clearing condition: authenticated page read of the stern
+    chapter or display plate that names gudgeons or a side rudder.
+
+## R-991 addendum (2026-09-26)
+
+CO-06 asked for a Lootsi maststep-to-stem fraction of LOA, and for Peeter rudder hang.
+
+**Lootsi mast.** Reinvars [27] publishes the station on the keelson, not on original LOA.
+CO-06 must step a Lootsi-scale mast inside the **4.40-7.15 m** band from the keelson
+forward end (0.294-0.478 of the 14.95 m keelson). The 24.5 m figure is the excavated
+wreck [1], [27]. The stem is missing, so a single LOA% would be invented. Leave that
+field `unknown`.
+
+**Peeter rudder.** Readable sources still do not name side vs stern hardware [2], [16],
+[28]. The 2020 museum book and the 2025 monograph are the likely next pages [29]. Until
+those pages are readable, Peeter hang stays `unknown`. Lootsi's four gudgeons must not be
+copied onto the Peeter-scale roadstead cog as a 1343 fact.
 
 ## Open questions
 
-- Published maststep-to-stem measurement on Lootsi, so CO-06 can set mast position as a
-  fraction of LOA without guessing.
-- Peeter rudder hang (side vs stern) from the Paks Margareeta display notes or the full
-  2015 plates, not only the AVE text extract.
+- Original Lootsi LOA, if a later reconstruction publishes stem-to-stern length rather
+  than wreck length.
+- Peeter rudder hang (side vs stern) from an authenticated read of [29], not from cog
+  typology. Board follow-up: **R-993**.
 - A 14th-c. Estonian or Livonian fishing-boat wreck. Until one exists, V2 and V4 stay
   tradition-banded.
 - Whether lightering at Reval used a *lodi* or only open boats.
