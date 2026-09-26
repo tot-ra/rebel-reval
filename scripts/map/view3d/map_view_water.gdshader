@@ -26,8 +26,8 @@ uniform float optical_depth = 0.075;
 // clear-noon plate. The clear preset's direct-sun gate is 0.70, so 2.8 is ~2.0
 // effective, which reads as a net; revisit when WS-11 moves the reflection out.
 uniform float caustic_strength = 2.8;
-uniform sampler2D caustics_fine_tex : hint_default_white, filter_linear_mipmap, repeat_enable;
-uniform sampler2D caustics_broad_tex : hint_default_white, filter_linear_mipmap, repeat_enable;
+// WS-07 caustic tiles packed by WS-11: R = fine, G = broad (see caustics_common.gdshaderinc).
+uniform sampler2D caustics_tiles : hint_default_white, filter_linear_mipmap, repeat_enable;
 // Mean of min(layer A, layer B) per tile (caustics_profile.json min_pair_mean).
 uniform vec2 caustic_min_pair_mean = vec2(1.0, 1.0);
 // false on the `minimum` tier: dominant tile only, two layers, no dispersion (2 samples).
@@ -82,6 +82,19 @@ uniform vec3 night_horizon_color : source_color = vec3(0.050, 0.100, 0.220);
 uniform vec3 sunset_color : source_color = vec3(0.98, 0.45, 0.18);
 uniform float sunset_factor = 0.0;
 uniform float cloud_darken = 0.0;
+// WS-11: reflections sample the dome's own WS-10 sky-view LUT (HDR, no RGBM decode) with the
+// dome's art exposure/tint, so the sea mirrors the physical sky: the warm sun-side horizon
+// and the Earth-shadow band opposite it. The gradient uniforms above are the fallback when
+// the LUT is missing. Adaptation and sunset boost defaults equal sky_weather_3d.gdshader's.
+uniform bool sky_lut_available = false;
+uniform sampler2D sky_view_lut : filter_linear, repeat_disable;
+uniform vec2 sky_lut_size = vec2(192.0, 108.0);
+uniform float sky_exposure = 0.7;
+uniform vec3 sky_tint : source_color = vec3(1.0);
+uniform float sky_adaptation = 0.6;
+uniform float sky_adaptation_max_gain = 4.0;
+uniform float sky_adaptation_reference = 0.155;
+uniform float sunset_boost = 0.25;
 // Coastal terrain receives the live equilibrium tide. River water keeps zero
 // response, while shallow/deep sea tune shoreline retreat and optical depth.
 uniform float tide_level = 0.0;
@@ -109,6 +122,7 @@ uniform float shore_geometry_scale = 0.12;
 #include "res://scripts/map/view3d/ocean_fft_common.gdshaderinc"
 // WS-07 tile helpers shared with UnderwaterPass so the net matches from above and below.
 #include "res://scripts/map/view3d/caustics_common.gdshaderinc"
+#include "res://scripts/map/view3d/atmosphere_common.gdshaderinc"
 
 // WS-15 interactive ripples (WaterRippleSim): R = height, G = previous height, B = aeration,
 // on a camera-following window. ripple_window = (origin x, origin z, size, valid); valid 0
@@ -515,6 +529,39 @@ vec3 _sky_dome_gradient(vec3 dir) {
 	return color;
 }
 
+vec3 _sky_lut_radiance(vec3 dir) {
+	return texture(sky_view_lut, atmosphere_sky_view_uv(dir, sun_direction, sky_lut_size)).rgb;
+}
+
+// WS-11 reflected sky. Same composition as sky_weather_3d.gdshader's LUT branch: exposure,
+// tint and zenith-driven adaptation, the night gradient added by (1 - day_blend) so moonlit
+// reflections survive after dark, and the small art sunset boost. Clouds are not in the LUT;
+// the existing cloud_darken veil and the below-horizon darkening stay from the gradient path.
+// Ported from Tidewater (MIT), see notice.code.tidewater (frame.horizonColor / sky sampling).
+vec3 _sky_dome_reflection(vec3 dir) {
+	if (!sky_lut_available) {
+		return _sky_dome_gradient(dir);
+	}
+	float height = dir.y;
+	float sun_amount = max(dot(dir, normalize(sun_direction)), 0.0);
+	float air_mass = 1.0 / max(height + 0.12, 0.12);
+	float haze = 1.0 - exp(-air_mass * (0.10 + cloud_darken * 0.12));
+	vec3 lut_zenith = _sky_lut_radiance(vec3(0.0, 1.0, 0.0));
+	float zenith_luminance = dot(lut_zenith, vec3(0.2126, 0.7152, 0.0722));
+	float adaptation = clamp(
+		pow(sky_adaptation_reference / max(zenith_luminance, 1e-6), sky_adaptation),
+		1.0, sky_adaptation_max_gain);
+	vec3 art = sky_exposure * sky_tint * adaptation;
+	vec3 lut_horizon = _sky_lut_radiance(normalize(vec3(dir.x, 0.0, dir.z) + vec3(0.0, 0.0, 1e-5))) * art;
+	float night = 1.0 - day_blend;
+	vec3 horizon = lut_horizon + night_horizon_color * night;
+	vec3 color = _sky_lut_radiance(dir) * art + mix(night_top_color, night_horizon_color, haze) * night;
+	color += sunset_color * sunset_factor * pow(sun_amount, 2.0) * haze * sunset_boost;
+	color = mix(color, horizon * vec3(0.83, 0.87, 0.93), cloud_darken * 0.38);
+	color = mix(color, horizon * 0.55, clamp(-height * 3.0, 0.0, 1.0));
+	return color;
+}
+
 // WS-06 catspaws and slicks: gain for the ripple cascade and the detail normal.
 // Above 1 a gust roughens the water into a dark patch; below 1 a slick flattens it
 // into a glassy streak that mirrors the sky. Lives in the wind frame and drifts
@@ -657,7 +704,7 @@ void fragment() {
 		float film_fresnel = 0.02 + 0.98 * pow(1.0 - film_facing, 5.0);
 		vec3 film_world_view = normalize((INV_VIEW_MATRIX * vec4(normalize(VIEW), 0.0)).xyz);
 		vec3 film_sky_ray = normalize(reflect(-film_world_view, film_normal));
-		vec3 film_sky = _sky_dome_gradient(film_sky_ray) * smoothstep(-0.01, 0.06, film_sky_ray.y);
+		vec3 film_sky = _sky_dome_reflection(film_sky_ray) * smoothstep(-0.01, 0.06, film_sky_ray.y);
 		// Spectral extinction over the sheet thickness (metres -> world units).
 		vec3 film_transmission = exp(
 			-(sheet.sheet_thickness / SHORE_METERS_PER_UNIT) * depth_absorption * vec3(1.28, 0.72, 0.40) * 6.0
@@ -964,7 +1011,7 @@ void fragment() {
 	vec3 reflection_normal = normalize(mix(vec3(0.0, 1.0, 0.0), world_normal, 0.38));
 	vec3 reflected_sky_ray = normalize(reflect(-world_view, reflection_normal));
 	float reflected_above_horizon = smoothstep(-0.01, 0.06, reflected_sky_ray.y);
-	vec3 sky_reflection = _sky_dome_gradient(reflected_sky_ray) * reflected_above_horizon;
+	vec3 sky_reflection = _sky_dome_reflection(reflected_sky_ray) * reflected_above_horizon;
 	// Keep the reflection legible from the gameplay camera. Fresnel still makes
 	// grazing angles brightest, while this base share stops the shallow bed from
 	// overpowering sky and sun reflections on broad, calm water.

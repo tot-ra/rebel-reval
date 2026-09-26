@@ -296,8 +296,11 @@ func test_ws07_water_materials_bind_caustic_tiles_and_quality_tier() -> void:
 	for terrain_id: StringName in terrains:
 		MaterialsFacade.reset()
 		var material := MaterialsFacade.water_surface(terrain_id)
-		assert_true(material.get_shader_parameter("caustics_fine_tex") is Texture2D, "fine tile bound")
-		assert_true(material.get_shader_parameter("caustics_broad_tex") is Texture2D, "broad tile bound")
+		# WS-11 packs both tiles into one RG texture (R fine, G broad) to free a sampler.
+		var packed := material.get_shader_parameter("caustics_tiles") as Texture2D
+		assert_true(packed != null, "packed fine/broad tile bound")
+		if packed != null:
+			assert_eq(packed.get_image().get_format(), Image.FORMAT_RG8, "tiles pack into RG8")
 		assert_true(
 			bool(material.get_shader_parameter("caustic_full_quality")), "recommended is full quality"
 		)

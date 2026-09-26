@@ -102,9 +102,13 @@ const OCEAN_FOAM_TILE_PATH := "res://assets/water/ocean_fft/foam_tile.png"
 ## WS-07 photon-splat caustic tiles (`bake_ocean_fft.py caustics`), shared by every
 ## water material (they need no FFT). Missing tiles read white: no caustics.
 const CAUSTIC_TILE_PATHS := {
-	"caustics_fine_tex": "res://assets/water/ocean_fft/caustics_fine.png",
-	"caustics_broad_tex": "res://assets/water/ocean_fft/caustics_broad.png",
+	"fine": "res://assets/water/ocean_fft/caustics_fine.png",
+	"broad": "res://assets/water/ocean_fft/caustics_broad.png",
 }
+## WS-11: both L8 tiles travel in one RG texture (R fine, G broad) bound to this uniform.
+## GL Compatibility allows 16 fragment samplers and the water shader reached that limit;
+## packing the pair frees the slot the shared sky-view LUT reflection needs.
+const CAUSTIC_TILES_UNIFORM := &"caustics_tiles"
 ## caustics_profile.json `min_pair_mean` (fine, broad): the mean of the shader's
 ## min(layer A, layer B) cross-scroll, divided out so the bed keeps its average light.
 ## test_r715_water_material_contract checks it against the baked profile.
@@ -178,6 +182,8 @@ static var _ocean_fft_profile: Dictionary = {}
 static var _ocean_fft_textures: Dictionary = {}
 static var _ocean_fft_quality_tier: StringName = SKY_WEATHER.QUALITY_RECOMMENDED
 static var _ripple_off_texture: ImageTexture
+static var _caustic_tiles: Texture2D
+static var _caustic_tiles_built := false
 ## Test and capture hook. Production enablement follows BoatFloat3D.FFT_SUPPORTED
 ## (declared by WS-05) so hulls never float on a sea they cannot sample.
 static var force_ocean_fft_support := false
@@ -451,24 +457,56 @@ static func water_surface(terrain_id: StringName, wave_profiles: Dictionary) -> 
 	return material
 
 
+## RG8 texture with the fine tile in R and the broad tile in G, with mipmaps like the
+## imported tiles. Built once per process; null when either tile is missing.
+static func caustic_tiles_texture() -> Texture2D:
+	if _caustic_tiles_built:
+		return _caustic_tiles
+	_caustic_tiles_built = true
+	var fine := _caustic_tile_image(CAUSTIC_TILE_PATHS["fine"])
+	var broad := _caustic_tile_image(CAUSTIC_TILE_PATHS["broad"])
+	if fine == null or broad == null or fine.get_size() != broad.get_size():
+		return null
+	var fine_bytes := fine.get_data()
+	var broad_bytes := broad.get_data()
+	var packed := PackedByteArray()
+	packed.resize(fine_bytes.size() * 2)
+	for i in fine_bytes.size():
+		packed[i * 2] = fine_bytes[i]
+		packed[i * 2 + 1] = broad_bytes[i]
+	var image := Image.create_from_data(
+		fine.get_width(), fine.get_height(), false, Image.FORMAT_RG8, packed
+	)
+	image.generate_mipmaps()
+	_caustic_tiles = ImageTexture.create_from_image(image)
+	return _caustic_tiles
+
+
+static func _caustic_tile_image(path: String) -> Image:
+	var texture := load(path) as Texture2D
+	if texture == null:
+		return null
+	var image := texture.get_image()
+	if image == null:
+		return null
+	image = image.duplicate() as Image
+	if image.is_compressed():
+		image.decompress()
+	image.clear_mipmaps()
+	image.convert(Image.FORMAT_L8)
+	return image
+
+
 ## WS-07: binds the caustic tiles. The `minimum` tier drops to the dominant tile with
 ## no dispersion (2 samples instead of 8); like the FFT tier it applies at build time.
 static func _apply_caustic_uniforms(material: ShaderMaterial) -> void:
-	var complete := true
-	for uniform_name: String in CAUSTIC_TILE_PATHS:
-		var tile := load(CAUSTIC_TILE_PATHS[uniform_name]) as Texture2D
-		if tile == null:
-			complete = false
-			continue
-		material.set_shader_parameter(uniform_name, tile)
-	if not complete:
-		# A half-bound pair would light the bed from one tile at the wrong mean; fall
-		# back to both white defaults with a neutral mean, which is zero caustics.
-		for uniform_name: String in CAUSTIC_TILE_PATHS:
-			material.set_shader_parameter(uniform_name, null)
-		material.set_shader_parameter("caustic_min_pair_mean", Vector2.ONE)
-	else:
-		material.set_shader_parameter("caustic_min_pair_mean", CAUSTIC_MIN_PAIR_MEAN)
+	var tiles := caustic_tiles_texture()
+	# A half-bound pair would light the bed from one tile at the wrong mean; without both
+	# tiles the white default with a neutral mean is zero caustics.
+	material.set_shader_parameter(CAUSTIC_TILES_UNIFORM, tiles)
+	material.set_shader_parameter(
+		"caustic_min_pair_mean", CAUSTIC_MIN_PAIR_MEAN if tiles != null else Vector2.ONE
+	)
 	material.set_shader_parameter(
 		"caustic_full_quality", _ocean_fft_quality_tier != SKY_WEATHER.QUALITY_MINIMUM
 	)
@@ -602,12 +640,15 @@ static func apply_water_sky_reflection(
 	wave_profiles: Dictionary,
 	sunset_factor: float = 0.0,
 	cloud_darken: float = 0.0,
-	day_top_color: Color = Color(0.18, 0.38, 0.65),
-	day_horizon_color: Color = Color(0.67, 0.75, 0.81),
-	night_top_color: Color = Color(0.020, 0.045, 0.130),
-	night_horizon_color: Color = Color(0.050, 0.100, 0.220),
-	sunset_color: Color = Color(0.98, 0.45, 0.18)
+	sky_lut: Texture2D = null,
+	sky_lut_size: Vector2 = Vector2(192.0, 108.0),
+	sky_exposure: float = 0.7,
+	sky_tint: Color = Color.WHITE
 ) -> void:
+	# WS-11: the reflection samples the dome's own sky-view LUT (HDR storage, WS-10 decision 1,
+	# so there is no RGBM decode mode) with the dome's exposure and tint. The sun azimuth
+	# needed by the azimuth-relative LUT lookup travels in sun_direction. Without a LUT the
+	# shader keeps its gradient uniforms, whose defaults mirror sky_weather_3d.gdshader.
 	var sunset := clampf(sunset_factor, 0.0, 1.0)
 	var clouds := clampf(cloud_darken, 0.0, 1.0)
 	for terrain_id in wave_profiles.keys():
@@ -623,19 +664,8 @@ static func apply_water_sky_reflection(
 		material.set_shader_parameter("sun_reflection_color", sun_color)
 		material.set_shader_parameter("sunset_factor", sunset)
 		material.set_shader_parameter("cloud_darken", clouds)
-		material.set_shader_parameter(
-			"day_top_color", Vector3(day_top_color.r, day_top_color.g, day_top_color.b)
-		)
-		material.set_shader_parameter(
-			"day_horizon_color", Vector3(day_horizon_color.r, day_horizon_color.g, day_horizon_color.b)
-		)
-		material.set_shader_parameter(
-			"night_top_color", Vector3(night_top_color.r, night_top_color.g, night_top_color.b)
-		)
-		material.set_shader_parameter(
-			"night_horizon_color",
-			Vector3(night_horizon_color.r, night_horizon_color.g, night_horizon_color.b)
-		)
-		material.set_shader_parameter(
-			"sunset_color", Vector3(sunset_color.r, sunset_color.g, sunset_color.b)
-		)
+		material.set_shader_parameter("sky_lut_available", sky_lut != null)
+		material.set_shader_parameter("sky_view_lut", sky_lut)
+		material.set_shader_parameter("sky_lut_size", sky_lut_size)
+		material.set_shader_parameter("sky_exposure", maxf(sky_exposure, 0.0))
+		material.set_shader_parameter("sky_tint", sky_tint)

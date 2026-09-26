@@ -22,8 +22,8 @@ uniform vec2 wind_direction = vec2(0.9578, 0.2873);
 global uniform float ocean_time;
 #include "res://scripts/map/view3d/ocean_fft_common.gdshaderinc"
 // WS-07 tiles: same helpers as the water shader so the underwater net matches the bed.
-uniform sampler2D caustics_fine_tex : hint_default_white, filter_linear_mipmap, repeat_enable;
-uniform sampler2D caustics_broad_tex : hint_default_white, filter_linear_mipmap, repeat_enable;
+// WS-07 caustic tiles packed by WS-11: R = fine, G = broad (see caustics_common.gdshaderinc).
+uniform sampler2D caustics_tiles : hint_default_white, filter_linear_mipmap, repeat_enable;
 uniform vec2 caustic_min_pair_mean = vec2(1.0, 1.0);
 uniform bool caustic_full_quality = true;
 uniform float caustic_pattern_scale = 3.0;

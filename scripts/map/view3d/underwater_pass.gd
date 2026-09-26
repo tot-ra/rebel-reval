@@ -75,8 +75,7 @@ const MIRRORED_UNIFORMS: Array[StringName] = [
 	&"sun_direction",
 	&"day_blend",
 	&"cloud_darken",
-	&"caustics_fine_tex",
-	&"caustics_broad_tex",
+	&"caustics_tiles",
 	&"caustic_min_pair_mean",
 	&"caustic_full_quality",
 	&"caustic_pattern_scale",
@@ -254,17 +253,12 @@ func _camera_depth(probe: Dictionary) -> float:
 func _bind_caustic_tiles() -> void:
 	if _material == null:
 		return
-	var complete := true
-	for uniform_name: String in WaterMaterials.CAUSTIC_TILE_PATHS:
-		var tile := load(String(WaterMaterials.CAUSTIC_TILE_PATHS[uniform_name])) as Texture2D
-		if tile == null:
-			complete = false
-			continue
-		_material.set_shader_parameter(StringName(uniform_name), tile)
-	if complete:
-		_material.set_shader_parameter(&"caustic_min_pair_mean", WaterMaterials.CAUSTIC_MIN_PAIR_MEAN)
-	else:
-		_material.set_shader_parameter(&"caustic_min_pair_mean", Vector2.ONE)
+	var tiles := WaterMaterials.caustic_tiles_texture()
+	_material.set_shader_parameter(WaterMaterials.CAUSTIC_TILES_UNIFORM, tiles)
+	_material.set_shader_parameter(
+		&"caustic_min_pair_mean",
+		WaterMaterials.CAUSTIC_MIN_PAIR_MEAN if tiles != null else Vector2.ONE
+	)
 	_material.set_shader_parameter(&"caustic_full_quality", quality_tier != &"minimum")
 	_material.set_shader_parameter(&"caustic_pattern_scale", 3.0)
 

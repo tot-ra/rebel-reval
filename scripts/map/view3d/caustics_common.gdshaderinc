@@ -4,8 +4,9 @@
 // moved unchanged from map_view_water.gdshader.
 //
 // The includer must declare, before this include:
-//   uniform sampler2D caustics_fine_tex (hint_default_white, filter_linear_mipmap, repeat);
-//   uniform sampler2D caustics_broad_tex (same hint);
+//   uniform sampler2D caustics_tiles (hint_default_white, filter_linear_mipmap, repeat);
+//     R = fine tile, G = broad tile (MapViewWaterMaterials.caustic_tiles_texture(); one
+//     sampler instead of two keeps the water shader inside GL Compatibility's 16 slots);
 //   uniform vec2 caustic_min_pair_mean;
 //   uniform bool caustic_full_quality;
 //   uniform float caustic_pattern_scale;
@@ -42,19 +43,21 @@ vec2 _caustic_stretch(vec2 g, float min_len) {
 // Layer B is rotated 90 degrees (still exactly periodic) so min() carves moving
 // lines out of two uncorrelated nets instead of doubling one. `rgb_offset` shifts
 // the R and B samples for dispersion; zero skips them (2 samples instead of 6).
+// `channel` selects the tile in the packed RG texture: (1, 0) fine, (0, 1) broad.
 vec3 _caustic_tile(
-	sampler2D tile, vec2 uv, vec2 drift_a, vec2 drift_b, vec2 gx, vec2 gy, vec2 rgb_offset, float min_pair_mean
+	sampler2D tile, vec2 channel, vec2 uv, vec2 drift_a, vec2 drift_b, vec2 gx, vec2 gy, vec2 rgb_offset,
+	float min_pair_mean
 ) {
 	vec2 uv_a = uv - drift_a;
 	vec2 uv_b = vec2(-uv.y, uv.x) + vec2(0.37, 0.61) - drift_b;
 	vec2 gx_b = vec2(-gx.y, gx.x);
 	vec2 gy_b = vec2(-gy.y, gy.x);
-	float g = min(textureGrad(tile, uv_a, gx, gy).r, textureGrad(tile, uv_b, gx_b, gy_b).r);
+	float g = min(dot(textureGrad(tile, uv_a, gx, gy).rg, channel), dot(textureGrad(tile, uv_b, gx_b, gy_b).rg, channel));
 	vec3 c = vec3(g);
 	if (rgb_offset != vec2(0.0)) {
 		vec2 off_b = vec2(-rgb_offset.y, rgb_offset.x);
-		float red = min(textureGrad(tile, uv_a + rgb_offset, gx, gy).r, textureGrad(tile, uv_b + off_b, gx_b, gy_b).r);
-		float blue = min(textureGrad(tile, uv_a - rgb_offset, gx, gy).r, textureGrad(tile, uv_b - off_b, gx_b, gy_b).r);
+		float red = min(dot(textureGrad(tile, uv_a + rgb_offset, gx, gy).rg, channel), dot(textureGrad(tile, uv_b + off_b, gx_b, gy_b).rg, channel));
+		float blue = min(dot(textureGrad(tile, uv_a - rgb_offset, gx, gy).rg, channel), dot(textureGrad(tile, uv_b - off_b, gx_b, gy_b).rg, channel));
 		// The net's lines are 1-2 texels wide, so fully split channels separate into a
 		// rainbow; a partial blend leaves the faint fringe of real caustics.
 		c.rb = mix(vec2(g), vec2(red, blue), CAUSTIC_DISPERSION_BLEND);
@@ -124,20 +127,20 @@ vec3 _caustic_tiles_at(
 		// recommended: 4 base samples, +4 for R/B on the dominant tile (8 total).
 		bool broad_dominant = broad_weight > 0.5;
 		vec3 fine = _caustic_tile(
-			caustics_fine_tex, uv_fine, fine_a, fine_b, gx_f, gy_f,
+			caustics_tiles, vec2(1.0, 0.0), uv_fine, fine_a, fine_b, gx_f, gy_f,
 			broad_dominant ? vec2(0.0) : dispersion, caustic_min_pair_mean.x
 		);
 		vec3 broad = _caustic_tile(
-			caustics_broad_tex, uv_broad, broad_a, broad_b, gx_b, gy_b,
+			caustics_tiles, vec2(0.0, 1.0), uv_broad, broad_a, broad_b, gx_b, gy_b,
 			broad_dominant ? dispersion : vec2(0.0),
 			caustic_min_pair_mean.y
 		);
 		c = mix(fine, broad, broad_weight);
 	} else if (broad_weight > 0.5) {
 		// minimum: the dominant tile only (2 samples).
-		c = _caustic_tile(caustics_broad_tex, uv_broad, broad_a, broad_b, gx_b, gy_b, vec2(0.0), caustic_min_pair_mean.y);
+		c = _caustic_tile(caustics_tiles, vec2(0.0, 1.0), uv_broad, broad_a, broad_b, gx_b, gy_b, vec2(0.0), caustic_min_pair_mean.y);
 	} else {
-		c = _caustic_tile(caustics_fine_tex, uv_fine, fine_a, fine_b, gx_f, gy_f, vec2(0.0), caustic_min_pair_mean.x);
+		c = _caustic_tile(caustics_tiles, vec2(1.0, 0.0), uv_fine, fine_a, fine_b, gx_f, gy_f, vec2(0.0), caustic_min_pair_mean.x);
 	}
 	return c;
 }

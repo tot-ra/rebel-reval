@@ -12,6 +12,7 @@ extends Node3D
 
 const SKY_SHADER := preload("res://scripts/map/view3d/sky_weather_3d.gdshader")
 const SkyAtmosphereLutScript := preload("res://scripts/map/view3d/sky_atmosphere_lut.gd")
+const AtmosphereCpuScript := preload("res://scripts/map/view3d/atmosphere_cpu.gd")
 const SKY_RESOURCES := preload("res://scripts/map/view3d/sky_weather_resources.gd")
 const SkyWeatherRoofAudioScript := preload("res://scripts/map/view3d/sky_weather_roof_audio.gd")
 const SkyWeatherStateScript := preload("res://scripts/map/view3d/sky_weather_state.gd")
@@ -297,6 +298,27 @@ class WeatherPresentation extends RefCounted:
 	var star_map: Texture2D
 	var sun_reflection_color := Color.WHITE
 	var rain_suppressed := false
+	## WS-11 AtmosphereCpu (4 Hz, smoothed); false without WS-09 LUTs (legacy colours).
+	var atmosphere_available := false
+	## Direct sun colour, sRGB like any Godot light Color; brightest channel 1.
+	var physical_sun_color := Color.WHITE
+	## Sun luminance relative to today's local noon, 0..1.
+	var physical_sun_energy := 1.0
+	## Weather sun multiplier without SUNSET_ENERGY_DIM, which physics replaces.
+	var weather_sun_energy := 1.0
+	## Linear, LUT scale: hemisphere irradiance, 2-degree horizon (8-azimuth, towards sun).
+	var sky_irradiance := Color(0.0, 0.0, 0.0)
+	var horizon_color := Color(0.0, 0.0, 0.0)
+	var horizon_sun_color := Color(0.0, 0.0, 0.0)
+	## Linear horizon as the dome draws it (AtmosphereCpu.displayed_horizon); fog hue.
+	var horizon_display_color := Color(0.0, 0.0, 0.0)
+	## Dome sky-view LUT (null on the gradient sky) and art exposure/tint for water.
+	var sky_lut: Texture2D
+	var sky_lut_size := Vector2(192.0, 108.0)
+	var sky_exposure := 0.7
+	var sky_tint := Color.WHITE
+	## Sun compass azimuth in radians, measured from -Z (north) towards +X (east).
+	var sun_azimuth := 0.0
 ## WS-15: optional WaterRippleSim that receives rain droplets. Duck-typed (set_rain) because
 ## the sim preloads this script for its quality tiers.
 var ripple_sim: Node = null
@@ -358,6 +380,9 @@ var _rain: GPUParticles3D
 var _roof_audio: SkyWeatherRoofAudio
 var _cloud_resources_available := false
 var _atmosphere_lut: SkyAtmosphereLutScript
+## WS-11: per-sky smoothing tracker, so two map views never share filter state.
+var _atmosphere_cpu := AtmosphereCpuScript.new()
+var _sky_uniform_defaults: Dictionary = {}
 
 
 ## Maps user-facing tier requests to a named minimum/recommended row. Auto and
@@ -804,11 +829,61 @@ func presentation_snapshot(progress: float, day_blend: float) -> WeatherPresenta
 	snapshot.tide_level = tide_level(progress, calendar_date)
 	snapshot.sidereal_angle = sidereal_angle_for_progress(progress)
 	snapshot.star_map = star_map_texture()
-	snapshot.sun_reflection_color = Color(255, 243, 222).lerp(
-		Color(255, 148, 64), snapshot.sunset_tint
+	# Color8: Color(255, ...) is a 0..255 float colour that blew the water's sky
+	# reflection out to white whenever the sun stood ahead of the camera.
+	snapshot.sun_reflection_color = Color8(255, 243, 222).lerp(
+		Color8(255, 148, 64), snapshot.sunset_tint
 	)
 	snapshot.rain_suppressed = rain_suppressed
+	snapshot.weather_sun_energy = float(_current["sun_energy"])
+	snapshot.sun_azimuth = atan2(snapshot.sun_direction.x, -snapshot.sun_direction.z)
+	_fill_atmosphere(snapshot)
 	return snapshot
+
+
+## WS-11: physical sun/sky/horizon colours and the dome's LUT binding. The water's sun colour
+## becomes the physical one, so the disk, the light and the glitter share one hue.
+func _fill_atmosphere(snapshot: WeatherPresentation) -> void:
+	if uses_atmosphere_lut():
+		snapshot.sky_lut = _atmosphere_lut.sky_view_texture()
+		snapshot.sky_lut_size = Vector2(_atmosphere_lut.lut_size)
+	snapshot.sky_exposure = float(_sky_uniform(&"sky_exposure", snapshot.sky_exposure))
+	var tint: Variant = _sky_uniform(&"sky_tint", snapshot.sky_tint)
+	snapshot.sky_tint = tint if tint is Color else Color.WHITE
+	if not _atmosphere_cpu.sample(snapshot.sun_direction, Time.get_ticks_usec()):
+		return
+	snapshot.atmosphere_available = true
+	snapshot.physical_sun_color = _atmosphere_cpu.sun_color.linear_to_srgb()
+	# Relative to today's culmination, not the zenith: SUN_DAY_ENERGY was tuned at game noon,
+	# so noon keeps its authored energy and only the rest of the day follows transmittance.
+	var noon_energy := AtmosphereCpuScript.sun_energy_for(solar_direction(0.5, calendar_date))
+	snapshot.physical_sun_energy = clampf(
+		_atmosphere_cpu.sun_energy / maxf(noon_energy, 1e-6), 0.0, 1.0
+	)
+	snapshot.sky_irradiance = _atmosphere_cpu.sky_irradiance
+	snapshot.horizon_color = _atmosphere_cpu.horizon_color
+	snapshot.horizon_sun_color = _atmosphere_cpu.horizon_sun_color
+	snapshot.horizon_display_color = _atmosphere_cpu.displayed_horizon(
+		snapshot.sky_exposure, snapshot.sky_tint, snapshot.day_blend, _sky_uniform
+	)
+	snapshot.sun_reflection_color = snapshot.physical_sun_color
+
+
+## Live sky-shader uniform, or the shader's own default when the script never set it, so
+## the dome shader stays the single source of the art exposure and tint.
+func _sky_uniform(uniform_name: StringName, fallback: Variant) -> Variant:
+	if _material != null:
+		var value: Variant = _material.get_shader_parameter(uniform_name)
+		if value != null:
+			return value
+	# Defaults are cached: presentation_snapshot runs every frame and the RenderingServer
+	# lookup is not free.
+	if not _sky_uniform_defaults.has(uniform_name):
+		_sky_uniform_defaults[uniform_name] = RenderingServer.shader_get_parameter_default(
+			SKY_SHADER.get_rid(), uniform_name
+		)
+	var default_value: Variant = _sky_uniform_defaults[uniform_name]
+	return default_value if default_value != null else fallback
 
 
 ## Multipliers/tints MapView3D applies on top of its day/night lerp. Overcast

@@ -226,6 +226,37 @@ WS-06 implementation landed (R-891, in review). Decisions (2026-09-25), also in 
 5. **Scope additions:** the shared FFT include (foam terms and a C2 gain), the capture tool and
    the contract doc are listed above.
 
+- [ ] WS-02 | deps: none | deliverable: water light() with GGX + Smith visibility + exact dielectric Fresnel, shadow-attenuated, slope-variance roughness; hand-made pow() sun/moon glints removed | allowed files: `scripts/map/view3d/map_view_water.gdshader`, `scripts/map/view3d/map_view_water_materials.gd`, `tests/godot/test_r715_water_material_contract.gd`, `docs/reports/images/ws02_*.png`, `TODO.md` | verify: contract test; noon/sunset/storm/night harbor captures show sea-state-dependent glitter path, no glint in quay shadow, no strobing on the 60 s day cycle
+
+WS-02 implementation landed (R-887, in review). Decisions (2026-09-25), plates in
+`docs/reports/images/ws02_*.png` from `tools/capture_ws02_glint.gd`:
+
+1. **Blocker fixed first.** `SkyWeather3D` sent `sun_reflection_color` as `Color(255, 243, 222)`,
+   a 0..255 float colour. The water's sky-dome forward scatter multiplied it and turned the whole
+   sea white whenever the sun stood ahead of the camera (every afternoon and sunset). It is now
+   `Color8`. The WS-13 underwater tint normalises the colour, so it is unaffected.
+2. **One light, two bodies.** The DirectionalLight3D is the sun by day and the moon by night, so
+   the moon path is the same GGX lobe. The directional gate keeps `sun_reflection_visibility` and
+   `low_sun_glitter` for the sun and uses `moon_visibility` for the moon; the moon share fades
+   out quadratically over MapViewLighting's -6..0 deg handoff. Local lights keep their glint
+   except under foam. No analytic moon lobe was needed.
+3. **Diffuse share stays 1.0, not ~0.02.** ALBEDO is the composited bed plus sky reflection that
+   was tuned under built-in diffuse; the noon plate matches the WS-06 one. Physical ~0.02 needs
+   the sky reflection moved out of ALBEDO, which is WS-11.
+4. **Camera geometry.** The gameplay camera's mirror direction points north-west at 30 deg, so
+   the noon sun (south) never glints; the path shows from late afternoon. Evidence uses
+   `evening` (sun 14.6 deg) and `sunset` (5.1 deg) instead of noon, plus `*_baseline` plates of
+   the old shader: the old pow() glint drew no sunset path at all. Hull shadows cut the path
+   (quay shadow check). Moon plate: 3 May 1343 01:55 (moon 8 deg, NW), `--no-mist` because the
+   pre-dawn mist hides the sea.
+5. **No strobing.** 120 frames of the 60 s day cycle at sunset: mean frame-to-frame water
+   luminance change 0.0014-0.0016 (old shader 0.0007-0.0016), worst 0.0026. Quick performance
+   report (`build/benchmarks/ws02-performance-quick.json`, taken while the headless suite ran):
+   Lower Town scene p95 13.86 ms against 13.23 ms for WS-06, inside the 16.67 ms budget.
+6. **Scope additions:** `scripts/map/view3d/sky_weather_3d.gd` (the colour fix),
+   `scripts/map/view3d/ocean_fft_common.gdshaderinc` (stale comment), `tests/godot/test_map_view_3d_core.gd`
+   (it required the removed `sun_alignment`/`moon_alignment` names) and the capture tool.
+
 - [ ] R-908 | deps: none | deliverable: pre-dawn ground mist uses dark moonlit haze at night and pales toward sunrise without changing rain haze | allowed files: `scripts/map/view3d/map_view_lighting.gd`, `tests/godot/test_map_view_lighting.gd`, `docs/reports/images/fog_night_*.png`, `TODO.md` | verify: `--filter=test_map_view_lighting`; night mist luminance at or below night ambient and monotonic toward sunrise; Metal/Compatibility harbour plates at `--date=3-5 --progress=0.08` and sunrise
 
 R-908 implementation landed. `FOG_NIGHT_COLOR` lerps to `FOG_MORNING_COLOR` by `day_blend` only while morning mist is present; rain-only haze keeps the previous pale-to-rain lerp. Evidence: `docs/reports/images/fog_night_{metal,opengl3}_{night,sunrise}_harbour.png` (3 May 1343; night progress 0.08 mean luma ~13, sunrise 0.157 mean luma ~104).
@@ -239,6 +270,78 @@ R-911 implementation landed. Peak height density 1.1 -> 0.20 so Godot waterline 
 WS-11a implementation landed (R-930). `MapViewLighting.apply_cycle_progress` now forwards `sunset_factor` and `water_cloud_darken()` (named preset `darken`, overcast 0.72). Presentation still has no blended `cloud_darken` field; WS-11 can replace the lookup. `--filter=test_map_view_lighting` 8/8.
 
 R-933 harbour plates (2026-09-26) used `tools/capture_ws02_glint.gd` on Harbor North, then copied to `docs/reports/images/ws11a_*` and restored the `ws02_*` originals. Clear noon, overcast noon, and clear sunset exist on Metal and Compatibility; overcast `--set=cloud_darken:0` off pairs sit beside them. Water-crop luma: Metal clear 123, overcast 81, sunset 68; Compatibility 100 / 59 / 49. Isolated `cloud_darken` is a pale overcast veil, so the on plate is about +7 luma versus off; the weather overcast sea is still about -42 versus clear noon. The R-715 helper now forwards `sunset_factor` and `Lighting.water_cloud_darken()`. `--filter=test_map_view_lighting,test_r715_water_weather_sync` 14/14. WS-07 overcast plates were not retuned.
+
+- [ ] WS-11 | deps: WS-10, WS-02 | deliverable: AtmosphereCpu (sun colour, sky irradiance, horizon colour from static LUT images, 4 Hz, smoothed) driving DirectionalLight colour/energy, ambient and fog, and water reflections sampling the shared sky-view LUT; old colour constants become art tints | allowed files: `scripts/map/view3d/atmosphere_cpu.gd`, `scripts/map/view3d/map_view_lighting.gd`, `scripts/map/view3d/map_view_water_materials.gd`, `scripts/map/view3d/map_view_materials.gd`, `scripts/map/view3d/map_view_water.gdshader`, `scripts/map/view3d/sky_weather_3d.gd`, `scripts/map/view3d/atmosphere_common.gdshaderinc`, `tests/godot/test_atmosphere_cpu.gd`, `tests/godot/test_r715_water_weather_sync.gd`, `tests/godot/test_weather_realism.gd`, `docs/reports/images/ws11_*.png`, `TODO.md` | verify: AtmosphereCpu oracle/perf tests; sunset captures show sun disk, lit walls and sea glitter in one hue and the Earth-shadow band reflected in the sea; 60 s day clip without colour stepping
+
+WS-11 implementation landed (R-896, in review). Decisions (2026-09-26), plates in
+`docs/reports/images/ws11_*.png` from `tools/capture_ws11_sky_lighting.gd` (2x2 sheets: gameplay
+camera over the harbour and the quay, then a low view towards and away from the sun):
+
+1. **Sampler budget.** GL Compatibility links at most 16 fragment samplers and the water shader
+   was at the limit, so the sky-view LUT failed to link (`uses 17 samplers`; the headless suite
+   cannot see this). The WS-07 fine and broad caustic tiles (both 512x512 L8) are now packed at
+   runtime into one RG8 texture (`MapViewWaterMaterials.caustic_tiles_texture()`, uniform
+   `caustics_tiles`, `_caustic_tile(..., channel, ...)`), which also frees the slot WS-12 will
+   need. No asset or bake change.
+2. **Sun colour hand-off.** The physical sun colour (the transmittance that colours the WS-10
+   disk) hands off to `SUN_NIGHT_COLOR` over the same -6..0 degree `sun_light_weight` that turns
+   the light direction, not over `day_blend` (0.74 at 2 degrees would mix in 26% moonlight).
+   At 2 degrees the light, the disk and the water sun colour are the same (1.0, 0.545, 0.146),
+   hue 28.0 on both renderers. Below the horizon the LUT clamps to its horizon column.
+3. **Energy relative to local noon.** `physical_sun_energy` divides by the culmination of the
+   capture date, so noon keeps `SUN_DAY_ENERGY` (existing authored-noon tests stay exact) and it
+   replaces `SUNSET_ENERGY_DIM` in the physical path instead of stacking on it
+   (`weather_sun_energy`). Clamp 0.15-1 as specified.
+4. **Hue physical, luminance calibrated.** Ambient and mist take the physical hue at the linear
+   luminance of `AMBIENT_DAY_COLOR` / `FOG_MORNING_COLOR`, so the ADR 0018 grade, R-908 night
+   mist and R-911 cover stay tuned. Noon ambient (0.50, 0.70, 1.00) against the old
+   (0.66, 0.70, 0.74); civil twilight skylight is violet. `*_ART_TINT` are white.
+5. **Fog follows the horizon the dome draws.** The raw LUT horizon at sunrise is red-orange at
+   every azimuth; the dome looks purple away from the sun only because it adds the night
+   gradient floor. `presentation.horizon_display_color` mirrors that composition (LUT x exposure
+   x CPU eye adaptation + night horizon x (1 - day_blend)) and weights every azimuth's hue
+   equally, because a radiance mean is dominated by the Mie glow (7x) that Godot's
+   `fog_sun_scatter` already draws. First-light mist reads dusty rose (0.63, 0.43, 0.37) where
+   the old mist was slate (0.45, 0.49, 0.54) under a warm sky; its saturation is the main item
+   for the art review (`FOG_ART_TINT`). Rain haze keeps its lerp on top and is unchanged.
+6. **Water.** `_sky_dome_reflection` samples the dome's LUT through the new shared
+   `atmosphere_sky_view_uv` with the dome's exposure, tint, adaptation, night floor and sunset
+   boost; the gradient stays as the fallback. HDR storage (WS-10 decision 1) means no RGBM decode
+   mode. The sun azimuth travels in `sun_direction`; `presentation.sun_azimuth` is informational.
+   The sky shader keeps its private copy of the lookup because it was outside the allowed files.
+7. **Cadence.** Each `SkyWeather3D` owns an `AtmosphereCpu` tracker: evaluation at most every
+   0.25 s of real time, exponential smoothing with tau 0.3 s, snap on the first sample or a sun
+   jump over 10 degrees (captures, save restore). Full evaluation 0.33 ms averaged over 100 runs
+   headless. 60 s day clip (`--day-sweep`, gameplay camera): largest frame-to-frame step of the
+   light colour 0.0054 / ambient 0.0022 on Compatibility and 0.0167 / 0.0039 on Metal. The Metal
+   peak sits in pre-dawn twilight (progress 0.124): the moon-to-sun colour hand-off spans 6
+   degrees, about one second of the compressed day, so it is a fast continuous ramp, not a 4 Hz
+   step (a step would need a >10 degree jump inside one evaluation interval). Quick performance
+   report (`build/benchmarks/ws11-performance-quick.json`): Lower Town scene p95 12.19 ms, inside
+   the 16.67 ms budget; the 4 Hz evaluation costs about 1.3 ms per real second.
+8. **Evidence reading.** Walls, disk and glitter share one hue at 2 degrees on both renderers;
+   noon boat shadows are blue-filled; rain plates match today's rain; the gameplay-camera sea at
+   sunset mirrors the violet-pink twilight sky instead of the old day gradient. The Earth-shadow
+   band opposite the sun is visible in the sky at -3 degrees, but its reflection is barely
+   readable because the low sea is almost black there; the art review should judge it.
+9. **60 degrees is unreachable** at Reval (culmination 53.7 degrees on 21 June 1343); the `e60`
+   plates are noon. `-3` degree gameplay views are near-black in both the physical and the legacy
+   plates: dusk darkness predates WS-11.
+10. **Scope additions:** `scripts/map/view3d/caustics_common.gdshaderinc`,
+   `scripts/map/view3d/underwater_pass.gd`, `scripts/map/view3d/underwater_pass.gdshader`,
+   `tests/godot/test_underwater_pass.gd`, `tests/godot/test_r715_water_material_contract.gd`
+   (sampler packing), `tests/godot/r715_water_test_support.gd` (mirrors the lighting call) and the
+   capture tool. Two uncommitted WS-02 leftovers ship in the same commit because they share
+   files: the `Color8` fix in `sky_weather_3d.gd` (same hunk) and the WS-02 block above.
+   `tests/godot/test_map_view_3d_core.gd` stays with R-887. The old colour constants stay until
+   the review accepts the plates.
+
+- [ ] R-941 | deps: WS-11 | deliverable: sky_weather_3d.gdshader calls shared atmosphere_sky_view_uv and ATMO_SKY_VIEW_HEIGHT_KM; private sky_view_uv / SKY_VIEW_HEIGHT_KM deleted | allowed files: `scripts/map/view3d/sky_weather_3d.gdshader`, `tests/godot/test_sky_weather_3d.gd`, `TODO.md` | verify: `--filter=test_sky_weather_3d,test_sky_atmosphere_lut`; Compatibility `tools/capture_ws10_sky_elevations.gd -- --elevation=5` plate within 1 LSB of the pre-change plate; no `vec2 sky_view_uv(` left
+
+R-941 implementation landed. The dome samples the sky-view LUT through
+`atmosphere_sky_view_uv(dir, sun_direction, sky_lut_size)` and uses `ATMO_SKY_VIEW_HEIGHT_KM`
+for the sun-disk transmittance height. No visual change intended. Focused tests and the
+Compatibility elevation-5 plate are the remaining verify items.
 
 - [ ] WS-07 | deps: WS-01, WS-03 | deliverable: photon-splat caustic tiles (fine/broad) baked from the FFT spectrum and applied as bed light along the refracted sun ray with depth focus, anisotropic-safe gradients, dispersion and cloud/sun gating; sine-lattice caustics removed | allowed files: `tools/bake_ocean_fft.py`, `tests/python/test_bake_ocean_fft.py`, `assets/water/ocean_fft/caustics_fine.png`, `assets/water/ocean_fft/caustics_broad.png`, `assets/SOURCES.csv`, `scripts/map/view3d/map_view_water.gdshader`, `scripts/map/view3d/map_view_water_materials.gd`, `tests/godot/test_r715_water_material_contract.gd`, `docs/reports/images/ws07_*.png`, `TODO.md` | verify: tile seam/energy tests; contract test; noon/sunset/overcast/night captures and an orbit clip show a depth-focused, sun-leaning, shimmer-free caustic net on the bed
 

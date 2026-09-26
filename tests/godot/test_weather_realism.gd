@@ -2,6 +2,7 @@ extends "res://tests/godot/test_case.gd"
 
 const Weather := preload("res://scripts/map/view3d/sky_weather_3d.gd")
 const Lighting := preload("res://scripts/map/view3d/map_view_lighting.gd")
+const Atmosphere := preload("res://scripts/map/view3d/atmosphere_cpu.gd")
 
 
 func test_legacy_linear_transition_resumes_without_a_zero_time_jump() -> void:
@@ -103,3 +104,100 @@ func test_rain_uses_world_wind_and_keeps_shelter_suppression() -> void:
 	sky.advance(0.0)
 	assert_false(rain.visible)
 	sky.free()
+
+
+## WS-11: the sun, skylight and mist take their colour from AtmosphereCpu; the *_ART_TINT
+## constants multiply it and the legacy colours stay the missing-LUT fallback.
+func test_physical_sun_colour_drives_the_light_through_the_art_tint() -> void:
+	var sky := Weather.new()
+	sky.auto_weather = false
+	var low := sky.presentation_snapshot(_evening_progress_for(2.0), 0.74)
+	assert_true(low.atmosphere_available, "the WS-09 LUTs feed the presentation")
+	var light := Lighting.sun_light_color(low, 1.0)
+	assert_true(
+		light.is_equal_approx(low.physical_sun_color * Lighting.SUN_ART_TINT),
+		"a clear horizon sun is the physical colour times the art tint"
+	)
+	assert_true(light.r > light.g and light.g > light.b, "the 2 degree sun is orange-red")
+	assert_true(
+		low.sun_reflection_color.is_equal_approx(low.physical_sun_color),
+		"water glitter uses the same physical sun colour"
+	)
+	var overcast := sky.presentation_snapshot(_evening_progress_for(2.0), 0.74)
+	overcast.overcast = 1.0
+	assert_true(
+		Lighting.sun_light_color(overcast, 1.0).is_equal_approx(Lighting.OVERCAST_LIGHT_COLOR),
+		"overcast stays authoritative on top of physics"
+	)
+	var fallback := sky.presentation_snapshot(0.5, 1.0)
+	fallback.atmosphere_available = false
+	assert_true(
+		Lighting.sun_light_color(fallback, 1.0).is_equal_approx(Lighting.SUN_DAY_COLOR),
+		"without LUTs noon keeps the legacy SUN_DAY_COLOR"
+	)
+	sky.free()
+
+
+func test_noon_sun_keeps_authored_energy_and_low_sun_follows_transmittance() -> void:
+	var sky := Weather.new()
+	sky.auto_weather = false
+	var noon := sky.presentation_snapshot(0.5, 1.0)
+	assert_almost_eq(noon.physical_sun_energy, 1.0, 0.001, "energy is relative to local noon")
+	assert_almost_eq(Lighting.sun_light_energy(noon), Lighting.SUN_DAY_ENERGY, 0.001)
+	var low := sky.presentation_snapshot(_evening_progress_for(2.0), 1.0)
+	assert_true(low.physical_sun_energy < 0.3, "a 2 degree sun loses most of its energy")
+	assert_almost_eq(
+		Lighting.sun_light_energy(low),
+		Lighting.SUN_DAY_ENERGY
+			* clampf(low.physical_sun_energy, Lighting.PHYSICAL_SUN_ENERGY_MIN, 1.0)
+			* low.weather_sun_energy,
+		0.001,
+		"physical energy replaces SUNSET_ENERGY_DIM instead of stacking on it"
+	)
+	sky.free()
+
+
+func test_ambient_takes_the_skylight_hue_at_the_calibrated_luminance() -> void:
+	var sky := Weather.new()
+	sky.auto_weather = false
+	var noon := sky.presentation_snapshot(0.5, 1.0)
+	var ambient := Lighting.ambient_day_color(noon)
+	assert_true(ambient.b > ambient.g and ambient.g > ambient.r, "noon shadows fill with blue sky")
+	assert_almost_eq(
+		Atmosphere.luminance(ambient.srgb_to_linear()),
+		Atmosphere.luminance(Lighting.AMBIENT_DAY_COLOR.srgb_to_linear()),
+		0.002,
+		"only the hue is physical; the tuned ambient luminance stays"
+	)
+	var dusk := sky.presentation_snapshot(_evening_progress_for(-3.0), 0.16)
+	var violet := Lighting.ambient_day_color(dusk)
+	assert_true(violet.r > violet.g and violet.b > violet.g, "civil-twilight skylight is violet")
+	sky.free()
+
+
+func test_mist_takes_the_horizon_hue_but_rain_stays_rain() -> void:
+	var sky := Weather.new()
+	sky.auto_weather = false
+	var sunrise := sky.presentation_snapshot(_evening_progress_for(2.0), 0.74)
+	var physical := Lighting.physical_hue(sunrise.horizon_display_color, Lighting.FOG_MORNING_COLOR)
+	var mist := Lighting.ground_mist_light_color(1.0, 1.0, 0.0, physical)
+	assert_true(mist.is_equal_approx(physical), "day mist is horizon-coloured")
+	assert_true(mist.r > mist.b, "low-sun horizon mist is warm, not grey")
+	var rain := Lighting.ground_mist_light_color(1.0, 0.0, 1.0, physical)
+	assert_true(
+		rain.is_equal_approx(Lighting.ground_mist_light_color(1.0, 0.0, 1.0)),
+		"full rain haze keeps today's rain colour"
+	)
+	sky.free()
+
+
+static func _evening_progress_for(target_deg: float) -> float:
+	var lo := 0.5
+	var hi := 1.0
+	for _i in 40:
+		var mid := (lo + hi) * 0.5
+		if Weather.solar_elevation_degrees(mid, Weather.GAME_CALENDAR.DEFAULT_DATE) > target_deg:
+			lo = mid
+		else:
+			hi = mid
+	return (lo + hi) * 0.5

@@ -1,5 +1,5 @@
 // WS-09 atmosphere parameterisation shared by the physical sky (WS-10) and sky-driven water/fog
-// (WS-11). No runtime user yet; nothing includes this file until WS-10.
+// (WS-11): sky_view_lut.gdshader, sky_weather_3d.gdshader and map_view_water.gdshader include it.
 //
 // Sebastien Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"
 // (EGSR 2020), with the Bruneton and Neyret 2008 transmittance mapping.
@@ -120,4 +120,34 @@ float mie_phase_cornette_shanks(float cos_theta, float g) {
 	float g2 = g * g;
 	return 3.0 / (8.0 * ATMO_PI) * ((1.0 - g2) * (1.0 + cos_theta * cos_theta))
 		/ ((2.0 + g2) * pow(max(1.0 + g2 - 2.0 * g * cos_theta, 1e-4), 1.5));
+}
+
+
+// Tidewater viewHeight 6360.002 km: the WS-10 sky-view LUT is rendered from this height.
+const float ATMO_SKY_VIEW_HEIGHT_KM = 6360.002;
+
+// WS-11 shared sky-view lookup: inverse of the sky_view_lut.gdshader mapping (Hillaire
+// SkyViewLutParamsToUv), sky half only, for any shader that reflects or draws the dome.
+// Below-horizon rays clamp to the last sky row so bilinear filtering never blends the ground
+// half into the horizon. The LUT is azimuth-relative, so the sun's horizontal direction is
+// the only other input; lut_size is the render target size of the current quality tier.
+vec2 atmosphere_sky_view_uv(vec3 dir, vec3 sun_dir, vec2 lut_size) {
+	float r = ATMO_SKY_VIEW_HEIGHT_KM;
+	float v_horizon = sqrt(r * r - ATMO_RG * ATMO_RG);
+	float beta = acos(v_horizon / r);
+	float zh = ATMO_PI - beta;
+	float view_zenith = min(acos(clamp(dir.y, -1.0, 1.0)), zh);
+	float unit_y = (1.0 - sqrt(max(1.0 - view_zenith / zh, 0.0))) * 0.5;
+	float last_sky_row = (lut_size.y * 0.5 - 1.0) / (lut_size.y - 1.0);
+	unit_y = min(unit_y, last_sky_row);
+	vec2 view_h = dir.xz;
+	vec2 sun_h = sun_dir.xz;
+	float cos_light_view = 1.0;
+	if (dot(view_h, view_h) > 1e-8 && dot(sun_h, sun_h) > 1e-8) {
+		cos_light_view = clamp(dot(normalize(view_h), normalize(sun_h)), -1.0, 1.0);
+	}
+	float unit_x = sqrt(clamp(-cos_light_view * 0.5 + 0.5, 0.0, 1.0));
+	return vec2(
+		atmosphere_unit_to_sub_uv(unit_x, lut_size.x),
+		atmosphere_unit_to_sub_uv(unit_y, lut_size.y));
 }

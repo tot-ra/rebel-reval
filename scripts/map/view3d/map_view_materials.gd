@@ -267,7 +267,11 @@ static func apply_water_sky_reflection(
 	sidereal_angle: float,
 	sun_color: Color,
 	sunset_factor: float = 0.0,
-	cloud_darken: float = 0.0
+	cloud_darken: float = 0.0,
+	sky_lut: Texture2D = null,
+	sky_lut_size: Vector2 = Vector2(192.0, 108.0),
+	sky_exposure: float = 0.7,
+	sky_tint: Color = Color.WHITE
 ) -> void:
 	# WHY: optional weather scalars used to stay at the water-material defaults
 	# (0) because this facade never forwarded them. WS-11a pushes the live
@@ -285,7 +289,11 @@ static func apply_water_sky_reflection(
 		sun_color,
 		WATER_WAVE_BASE,
 		sunset_factor,
-		cloud_darken
+		cloud_darken,
+		sky_lut,
+		sky_lut_size,
+		sky_exposure,
+		sky_tint
 	)
 
 

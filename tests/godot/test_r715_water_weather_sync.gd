@@ -370,3 +370,41 @@ func _water_parameters(terrain_id: StringName) -> Dictionary:
 		"star_visibility": material.get_shader_parameter("star_visibility"),
 		"sidereal_angle": material.get_shader_parameter("sidereal_angle"),
 	}
+
+
+## WS-11: the water reflects the dome's own sky-view LUT with the dome's art exposure, and
+## its sun colour is the physical one that also lights the walls.
+func test_weather_presentation_binds_the_sky_view_lut_to_every_water_profile() -> void:
+	MaterialsFacade.reset()
+	var sky := SkyWeather.new()
+	sky.auto_weather = false
+	var presentation := sky.presentation_snapshot(0.8, 0.6)
+	var lut := ImageTexture.create_from_image(Image.create(4, 4, false, Image.FORMAT_RGBAH))
+	presentation.sky_lut = lut
+	presentation.sky_lut_size = Vector2(4.0, 4.0)
+	WaterTestSupport.apply_weather_presentation(presentation, MaterialsFacade.WATER_WAVE_BASE)
+	assert_true(presentation.atmosphere_available, "the WS-09 LUT images feed the presentation")
+	for terrain_id: StringName in WATER_TERRAINS:
+		var material := WaterMaterials.water_surface(terrain_id, MaterialsFacade.WATER_WAVE_BASE)
+		assert_true(bool(material.get_shader_parameter("sky_lut_available")), "%s LUT on" % terrain_id)
+		assert_eq(
+			material.get_shader_parameter("sky_view_lut"), lut, "%s samples the dome LUT" % terrain_id
+		)
+		assert_eq(material.get_shader_parameter("sky_lut_size"), Vector2(4.0, 4.0))
+		assert_almost_eq(
+			float(material.get_shader_parameter("sky_exposure")), presentation.sky_exposure, 1e-6
+		)
+		assert_true(
+			_as_color(material.get_shader_parameter("sun_reflection_color")).is_equal_approx(
+				presentation.physical_sun_color
+			),
+			"%s glitter uses the physical sun colour" % terrain_id
+		)
+	presentation.sky_lut = null
+	WaterTestSupport.apply_weather_presentation(presentation, MaterialsFacade.WATER_WAVE_BASE)
+	var fallback := WaterMaterials.water_surface(WATER_TERRAINS[0], MaterialsFacade.WATER_WAVE_BASE)
+	assert_false(
+		bool(fallback.get_shader_parameter("sky_lut_available")),
+		"without a dome LUT the water keeps its gradient reflection"
+	)
+	sky.free()

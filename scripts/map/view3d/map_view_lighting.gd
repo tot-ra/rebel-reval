@@ -33,6 +33,22 @@ const LIGHTNING_LIGHT_COLOR := Color8(206, 220, 255)
 const LIGHTNING_SUN_ENERGY := 1.6
 const LIGHTNING_AMBIENT_ENERGY := 0.9
 
+## WS-11 art-direction tints. Physics is the base: AtmosphereCpu evaluates the sun colour,
+## the skylight hue and the horizon hue from the same WS-09 LUTs that draw the WS-10 dome,
+## so walls, shadows, mist and the sea agree with the sky. A tint multiplies that physical
+## colour; white means "physical as is". The legacy SUN_DAY_COLOR, SUNSET_LIGHT_COLOR,
+## AMBIENT_DAY_COLOR and FOG_MORNING_COLOR remain the fallback when the LUTs are missing and
+## stay until the WS-11 capture review accepts the physical look. The overcast and lightning
+## lerps still apply on top: weather stays authoritative.
+const SUN_ART_TINT := Color.WHITE
+const AMBIENT_ART_TINT := Color.WHITE
+const FOG_ART_TINT := Color.WHITE
+## Physical sun energy relative to noon, clamped so a horizon sun still models form.
+const PHYSICAL_SUN_ENERGY_MIN := 0.15
+## Mie forward scatter of the fog around the sun: thin in clear dawn air, stronger in haze.
+const FOG_SUN_SCATTER_CLEAR := 0.2
+const FOG_SUN_SCATTER_HAZY := 0.35
+
 ## Morning ground mist uses basic height-biased fog because the GL Compatibility
 ## renderer has no volumetric fog. Night uses a darker moonlit haze: the pale
 ## morning colour ignored day_blend and painted harbours as a flat light sheet
@@ -147,24 +163,12 @@ static func apply_cycle_progress(
 		presentation.sun_direction, sun_light_weight
 	).normalized()
 	sun.basis = Basis.looking_at(-light_direction, Vector3.UP)
-	var sun_color := SUN_NIGHT_COLOR.lerp(SUN_DAY_COLOR, presentation.day_blend)
-	sun_color = sun_color.lerp(SUNSET_LIGHT_COLOR, presentation.sunset_tint)
-	sun_color = sun_color.lerp(OVERCAST_LIGHT_COLOR, presentation.overcast)
-	sun.light_color = sun_color
-
-	var celestial_energy := lerpf(
-		SUN_NIGHT_ENERGY * presentation.lunar_light_strength,
-		SUN_DAY_ENERGY,
-		presentation.day_blend
-	)
-	sun.light_energy = (
-		celestial_energy * presentation.sun_energy
-		+ presentation.lightning * LIGHTNING_SUN_ENERGY
-	)
+	sun.light_color = sun_light_color(presentation, sun_light_weight)
+	sun.light_energy = sun_light_energy(presentation)
 	# Grey overcast diffuses hard shadows; clear skies retain their crisp baseline.
 	sun.shadow_opacity = 1.0 - smoothstep(0.45, 0.96, presentation.cloud_coverage) * 0.97
 
-	var ambient := AMBIENT_NIGHT_COLOR.lerp(AMBIENT_DAY_COLOR, presentation.day_blend)
+	var ambient := AMBIENT_NIGHT_COLOR.lerp(ambient_day_color(presentation), presentation.day_blend)
 	ambient = ambient.lerp(OVERCAST_LIGHT_COLOR, presentation.overcast * 0.5)
 	ambient = ambient.lerp(LIGHTNING_LIGHT_COLOR, presentation.lightning * 0.7)
 	environment.ambient_light_color = ambient
@@ -194,14 +198,68 @@ static func apply_cycle_progress(
 		presentation.sidereal_angle,
 		presentation.sun_reflection_color,
 		presentation.sunset_factor,
-		water_cloud_darken(presentation)
+		water_cloud_darken(presentation),
+		presentation.sky_lut,
+		presentation.sky_lut_size,
+		presentation.sky_exposure,
+		presentation.sky_tint
 	)
 	apply_post_grade_snapshot(environment, presentation)
 	return presentation.day_blend < 0.5
 
 
-## Active SkyWeather3D profile `darken`. Presentation does not yet carry the
-## blended value (WS-11 will), so lighting reads the named preset. Overcast is
+## Directional light colour. Physical path: the AtmosphereCpu sun (the same transmittance
+## that colours the WS-10 sun disk) hands off to the moon colour over the same -6..0 degree
+## `sun_light_weight` that turns the light direction, so at 2 degrees the walls take the
+## disk's orange instead of a day_blend mix with moonlight. Overcast still lerps on top.
+static func sun_light_color(
+	presentation: SkyWeather3D.WeatherPresentation, sun_light_weight: float
+) -> Color:
+	var color: Color
+	if presentation.atmosphere_available:
+		color = SUN_NIGHT_COLOR.lerp(
+			presentation.physical_sun_color * SUN_ART_TINT, clampf(sun_light_weight, 0.0, 1.0)
+		)
+	else:
+		color = SUN_NIGHT_COLOR.lerp(SUN_DAY_COLOR, presentation.day_blend)
+		color = color.lerp(SUNSET_LIGHT_COLOR, presentation.sunset_tint)
+	return color.lerp(OVERCAST_LIGHT_COLOR, presentation.overcast)
+
+
+## Directional light energy. The physical path scales the day energy by the sun's
+## transmitted luminance and drops SUNSET_ENERGY_DIM, which that physics replaces.
+static func sun_light_energy(presentation: SkyWeather3D.WeatherPresentation) -> float:
+	var day_energy := SUN_DAY_ENERGY
+	var weather_energy := presentation.sun_energy
+	if presentation.atmosphere_available:
+		day_energy *= clampf(presentation.physical_sun_energy, PHYSICAL_SUN_ENERGY_MIN, 1.0)
+		weather_energy = presentation.weather_sun_energy
+	var celestial_energy := lerpf(
+		SUN_NIGHT_ENERGY * presentation.lunar_light_strength, day_energy, presentation.day_blend
+	)
+	return celestial_energy * weather_energy + presentation.lightning * LIGHTNING_SUN_ENERGY
+
+
+## Day side of the ambient blend: the physical skylight hue (bluish at noon, violet at
+## dusk) at the calibrated AMBIENT_DAY_COLOR luminance, so exposure stays where the grade
+## was tuned and only the colour becomes physical.
+static func ambient_day_color(presentation: SkyWeather3D.WeatherPresentation) -> Color:
+	if not presentation.atmosphere_available:
+		return AMBIENT_DAY_COLOR
+	return physical_hue(presentation.sky_irradiance, AMBIENT_DAY_COLOR) * AMBIENT_ART_TINT
+
+
+## Rescales a linear physical colour to `reference`'s linear luminance and returns it
+## sRGB-encoded for a Godot Color property. Falls back to `reference` without energy.
+static func physical_hue(linear_color: Color, reference: Color) -> Color:
+	var target := AtmosphereCpu.luminance(reference.srgb_to_linear())
+	var scaled := AtmosphereCpu.with_luminance(linear_color, target, Color(-1.0, 0.0, 0.0))
+	if scaled.r < 0.0:
+		return reference
+	return scaled.linear_to_srgb()
+
+## Active SkyWeather3D profile `darken`. Presentation does not carry a blended
+## value (WS-11 kept this lookup), so lighting reads the named preset. Overcast is
 ## 0.72; leaving this at 0 kept every water `cloud_darken` term dead.
 static func water_cloud_darken(presentation: SkyWeather3D.WeatherPresentation) -> float:
 	if presentation == null:
@@ -265,8 +323,21 @@ static func apply_ground_mist(
 		return
 	environment.fog_enabled = true
 	environment.fog_mode = Environment.FOG_MODE_EXPONENTIAL
-	environment.fog_light_color = ground_mist_light_color(presentation.day_blend, mist, rain_haze)
-	environment.fog_sun_scatter = 0.2
+	var physical_fog := Color(0.0, 0.0, 0.0, 0.0)
+	environment.fog_sun_scatter = FOG_SUN_SCATTER_CLEAR
+	if presentation.atmosphere_available:
+		# Mist and haze take the hue of the horizon the dome actually draws (LUT plus its
+		# night floor); the sun-side glow comes from Godot's fog sun scatter, which already
+		# uses the (physical) directional colour.
+		physical_fog = (
+			physical_hue(presentation.horizon_display_color, FOG_MORNING_COLOR) * FOG_ART_TINT
+		)
+		environment.fog_sun_scatter = lerpf(
+			FOG_SUN_SCATTER_CLEAR, FOG_SUN_SCATTER_HAZY, clampf(mist + rain_haze, 0.0, 1.0)
+		)
+	environment.fog_light_color = ground_mist_light_color(
+		presentation.day_blend, mist, rain_haze, physical_fog
+	)
 	environment.fog_sky_affect = 0.08
 	environment.fog_aerial_perspective = 0.0
 	environment.fog_density = FOG_MAX_DENSITY * mist + 0.0035 * rain_haze
@@ -276,12 +347,17 @@ static func apply_ground_mist(
 
 ## Dry morning mist follows day_blend so night haze stays darker than night
 ## ambient. Rain-only haze keeps the previous pale-to-rain lerp (mist == 0).
-static func ground_mist_light_color(day_blend: float, mist: float, rain_haze: float) -> Color:
+## `physical_day_fog` (WS-11, alpha > 0 when set) replaces FOG_MORNING_COLOR as the day
+## colour; the rain lerp stays on top so rain still reads as today's rain.
+static func ground_mist_light_color(
+	day_blend: float, mist: float, rain_haze: float, physical_day_fog: Color = Color(0, 0, 0, 0)
+) -> Color:
 	var blend := clampf(day_blend, 0.0, 1.0)
 	var rain_color := Color8(34, 42, 58).lerp(Color8(145, 157, 168), blend)
-	var dry_fog := FOG_MORNING_COLOR
+	var day_fog := FOG_MORNING_COLOR if physical_day_fog.a <= 0.0 else physical_day_fog
+	var dry_fog := day_fog
 	if mist > 0.001:
-		dry_fog = FOG_NIGHT_COLOR.lerp(FOG_MORNING_COLOR, blend)
+		dry_fog = FOG_NIGHT_COLOR.lerp(day_fog, blend)
 	return dry_fog.lerp(rain_color, clampf(rain_haze, 0.0, 1.0))
 
 

@@ -37,5 +37,10 @@ static func apply_weather_presentation(
 		presentation.sun_reflection_color,
 		wave_profiles,
 		presentation.sunset_factor,
-		Lighting.water_cloud_darken(presentation)
+		Lighting.water_cloud_darken(presentation),
+		# WS-11: the reflection samples the dome's sky-view LUT like the lighting path.
+		presentation.sky_lut,
+		presentation.sky_lut_size,
+		presentation.sky_exposure,
+		presentation.sky_tint
 	)
