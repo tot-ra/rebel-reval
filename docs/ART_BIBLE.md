@@ -143,6 +143,7 @@ Rules:
 - Detail must be plausible for the material and concentrated around handling, weather exposure, construction joins, and narrative use.
 - Mipmaps/LOD must collapse micro detail cleanly. Distant surfaces may not shimmer, alias, or overpower characters.
 - Repetition is a defect: break identical wear, hue, roughness, and silhouette rhythms across adjacent assets.
+- Building walls and roofs separate stone, lime, tar, clay and reed by roughness and relief, not only by tint: every authored wall/roof family ships albedo + normal + ORM, and long planes carry the macro anti-tiling blend (AR-03, see `docs/MATERIAL_STYLE_LOCK_KIT.md`).
 
 ## Anime/fantasy shape and line language
 

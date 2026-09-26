@@ -19,12 +19,17 @@ func test_kalev_smithy_interior_walls_use_weathered_textures() -> void:
 			material.albedo_texture != null,
 			"%s: interior wall must use a procedural albedo texture" % building["id"]
 		)
-		assert_true(material.uv1_triplanar, "%s: interior wall keeps triplanar projection" % building["id"])
+		assert_true(
+			material.uv1_triplanar, "%s: interior wall keeps triplanar projection" % building["id"]
+		)
+		# AR-03 (R-961): library textures are shared by design; the per-wall
+		# identity is the stem plus its stable UV phase.
+		var recipe := "%s@%s" % [material.albedo_texture.resource_path, material.uv1_offset]
 		assert_false(
-			textures.has(material.albedo_texture),
+			textures.has(recipe),
 			"%s: interior walls must not share one baked albedo map" % building["id"]
 		)
-		textures[material.albedo_texture] = building["id"]
+		textures[recipe] = building["id"]
 		node.free()
 	assert_true(textures.size() >= 3, "smithy interior must expose multiple distinct wall textures")
 

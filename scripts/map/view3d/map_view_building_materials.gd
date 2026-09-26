@@ -18,6 +18,10 @@ const PATTERN_THATCH := PATTERN_FAMILIES.PATTERN_THATCH
 const PATTERN_SHINGLE := PATTERN_FAMILIES.PATTERN_SHINGLE
 const PATTERN_LOG := PATTERN_FAMILIES.PATTERN_LOG
 const PATTERN_STRAW := PATTERN_FAMILIES.PATTERN_STRAW
+## AR-03 shared surface library (albedo + normal + packed ORM per stem).
+const SURFACE_LIBRARY := preload(
+	"res://scripts/map/view3d/map_view_burgher_house_surface_variety.gd"
+)
 
 const WEATHER_FRESH := &"fresh"
 const WEATHER_WORN := &"worn"
@@ -102,11 +106,71 @@ const RELIEF_NORMAL_SCALE := {
 	PATTERN_ROOF_TILE: 1.1,
 }
 
+## Documented fallback roughness for the procedural pattern path (surfaces with
+## no library set, such as cone tower roofs and the generic wall()/roof()
+## helpers). No building family keeps the old constant 1.0 response.
+const PATTERN_ROUGHNESS := {
+	PATTERN_BRICK: 0.82,
+	PATTERN_LIMESTONE: 0.86,
+	PATTERN_PLASTER: 0.92,
+	PATTERN_PLANK: 0.84,
+	PATTERN_LOG: 0.8,
+	PATTERN_ROOF_TILE: 0.68,
+	PATTERN_SHINGLE: 0.8,
+	PATTERN_THATCH: 0.94,
+	PATTERN_STRAW: 0.95,
+}
+
+## AR-03 anti-tiling: a shared low-frequency tone plate multiplied over every
+## library surface at a world-space scale that is not a multiple of any plate,
+## so a long wall or roof no longer shows the plate grid when the camera pulls
+## back. Sampled through world triplanar UV2 so it needs no mesh UV2 and no
+## geometry change. ~27 world units (~23 m) per macro repeat.
+const ANTI_TILING_TEXTURE_PATH := (
+	"res://assets/materials/pbr/building_variants/building_macro_variation.png"
+)
+const ANTI_TILING_WORLD_DENSITY := 0.037
+## The macro plate spans [0.86, 1.0] with mean ~0.93; lift albedo by the mean so
+## switching anti-tiling on or off does not change overall exposure.
+const ANTI_TILING_EXPOSURE_LIFT := 1.075
+## How far the authored building colour still steers the library albedo. The
+## texture carries the material; the authored colour only nudges its hue.
+const LIBRARY_HUE_WEIGHT := 0.25
+const LIBRARY_STEM_META := &"ar03_surface_stem"
+
 static var _cache: Dictionary = {}
+static var _map_seed := 0
+static var _anti_tiling_enabled := true
 
 
 static func reset() -> void:
 	_cache.clear()
+
+
+## Salt for library stem selection. Stems are keyed by (map_seed, surface_id);
+## the default seed 0 keeps selection stable for callers that never set it.
+static func set_map_seed(map_seed: int) -> void:
+	if map_seed != _map_seed:
+		_map_seed = map_seed
+		_cache.clear()
+
+
+static func map_seed() -> int:
+	return _map_seed
+
+
+## Toggle the anti-tiling detail blend on every cached and future building
+## material (the `minimum` quality tier can switch it off).
+static func set_anti_tiling_enabled(enabled: bool) -> void:
+	_anti_tiling_enabled = enabled
+	for material in _cache.values():
+		var standard := material as StandardMaterial3D
+		if standard != null and standard.has_meta(LIBRARY_STEM_META):
+			_apply_anti_tiling(standard)
+
+
+static func anti_tiling_enabled() -> bool:
+	return _anti_tiling_enabled
 
 
 static func wall(color: Color) -> StandardMaterial3D:
@@ -116,6 +180,9 @@ static func wall(color: Color) -> StandardMaterial3D:
 ## Building wall surface in an explicit material family so houses read as
 ## built from something: plastered timber frame, brick, plank, log, or limestone.
 static func wall_surface(family: StringName, color: Color) -> StandardMaterial3D:
+	var library := _shared_library_surface("wall_surface", family, false, color)
+	if library != null:
+		return library
 	match family:
 		&"brick":
 			return _building_surface("wall_brick", color, PATTERN_BRICK)
@@ -135,14 +202,24 @@ static func wall_surface_for_size(
 	family: StringName, color: Color, size: Vector3
 ) -> StandardMaterial3D:
 	var material := wall_surface(family, color).duplicate()
+	if material.has_meta(LIBRARY_STEM_META):
+		material.uv1_scale = library_box_uv_scale(String(material.get_meta(LIBRARY_STEM_META)), size)
+		return material
 	material.uv1_scale = building_uv_scale(_wall_pattern(family), size)
 	return material
 
 
-## Per-building wall material with unique pattern seed and weathering band.
+## Per-building wall material. Authored families with a library set resolve to
+## a shared stem chosen by (map_seed, surface_id); the per-building part is only
+## tint, weathering band and UV phase, so textures are never forked.
 static func wall_surface_for_building(
 	surface_id: StringName, family: StringName, color: Color, size: Vector3
 ) -> StandardMaterial3D:
+	var stem: String = SURFACE_LIBRARY.library_stem(family, false, surface_id, _map_seed)
+	if not stem.is_empty():
+		var library := _library_building_surface("wall_building", surface_id, stem, color)
+		library.uv1_scale = library_box_uv_scale(stem, size)
+		return library
 	var pattern := _wall_pattern(family)
 	var weathering := surface_weathering_variant(surface_id)
 	var material := _building_surface_weathered(
@@ -156,6 +233,12 @@ static func wall_surface_for_building(
 static func roof_surface_for_building(
 	surface_id: StringName, family: StringName, color: Color
 ) -> StandardMaterial3D:
+	var stem: String = SURFACE_LIBRARY.library_stem(family, true, surface_id, _map_seed)
+	if not stem.is_empty():
+		var library := _library_building_surface("roof_building", surface_id, stem, color)
+		# Every caller puts this on a world-unit gabled roof mesh.
+		library.uv1_scale = library_world_uv_density(stem)
+		return library
 	var pattern := PATTERN_ROOF_TILE
 	match family:
 		&"shingle":
@@ -186,6 +269,9 @@ static func fortification_masonry(color: Color) -> StandardMaterial3D:
 	material.uv1_world_triplanar = true
 	material.uv1_triplanar_sharpness = FORTIFICATION_TRIPLANAR_SHARPNESS
 	material.uv1_scale = FORTIFICATION_MASONRY_DENSITY
+	if material.has_meta(LIBRARY_STEM_META):
+		# The rubble plate is sized in metres, so the curtain keeps ~0.2 m courses.
+		material.uv1_scale = library_world_uv_density(String(material.get_meta(LIBRARY_STEM_META)))
 	_cache[key] = material
 	return material
 
@@ -195,8 +281,9 @@ static func roof_tile_world(color: Color) -> StandardMaterial3D:
 	var key := "roof_tile_world:%s" % color.to_html()
 	if _cache.has(key):
 		return _cache[key]
-	var material := roof(color).duplicate() as StandardMaterial3D
-	material.uv1_scale = ROOF_TILE_WORLD_DENSITY
+	var material := roof_surface(&"tile", color).duplicate() as StandardMaterial3D
+	if not material.has_meta(LIBRARY_STEM_META):
+		material.uv1_scale = ROOF_TILE_WORLD_DENSITY
 	_cache[key] = material
 	return material
 
@@ -238,6 +325,8 @@ static func wall_surface_triplanar(family: StringName, color: Color) -> Standard
 	material.uv1_triplanar = true
 	material.uv1_world_triplanar = false
 	material.uv1_scale = building_uv_density(pattern)
+	if material.has_meta(LIBRARY_STEM_META):
+		material.uv1_scale = library_world_uv_density(String(material.get_meta(LIBRARY_STEM_META)))
 	return material
 
 
@@ -255,6 +344,11 @@ static func roof(color: Color) -> StandardMaterial3D:
 ## wooden shingle and reed/straw thatch; ceramic tile marked churches and the
 ## few rich stone houses, so tile stays the explicit (not default-everywhere) choice.
 static func roof_surface(family: StringName, color: Color) -> StandardMaterial3D:
+	var library := _shared_library_surface("roof_surface", family, true, color)
+	if library != null:
+		# World-UV gabled meshes are the only roof_surface callers.
+		library.uv1_scale = library_world_uv_density(String(library.get_meta(LIBRARY_STEM_META)))
+		return library
 	var pattern := PATTERN_ROOF_TILE
 	var prefix := "roof_tile"
 	match family:
@@ -299,6 +393,122 @@ static func building_uv_scale_cylinder(
 	pattern: StringName, radius: float, height: float
 ) -> Vector3:
 	return building_uv_scale(pattern, Vector3(TAU * radius, height, TAU * radius))
+
+
+## Repeats per world unit for a library stem (triplanar and world-UV meshes).
+static func library_world_uv_density(stem: String) -> Vector3:
+	var plate: Vector2 = SURFACE_LIBRARY.stem_plate_metres(stem)
+	return Vector3(
+		METERS_PER_WORLD_UNIT / plate.x,
+		METERS_PER_WORLD_UNIT / plate.y,
+		METERS_PER_WORLD_UNIT / plate.x
+	)
+
+
+## uv1_scale for a BoxMesh of `size` world units. Godot's BoxMesh packs its six
+## faces into a 3 x 2 UV atlas, so one face spans 1/3 of U and 1/2 of V; the
+## scale is multiplied back up so one plate covers its real size in metres.
+## U uses the mean of width and depth because one scale serves all four faces.
+static func library_box_uv_scale(stem: String, size: Vector3) -> Vector3:
+	var density := library_world_uv_density(stem)
+	var run := (size.x + size.z) * 0.5
+	var u := 3.0 * run * density.x
+	return Vector3(u, 2.0 * size.y * density.y, u)
+
+
+## Library material shared by every caller of wall_surface()/roof_surface()
+## with the same family and colour; the stem is chosen from the colour so the
+## few helper surfaces without a building ID stay deterministic.
+static func _shared_library_surface(
+	prefix: String, family: StringName, is_roof: bool, color: Color
+) -> StandardMaterial3D:
+	var stem: String = SURFACE_LIBRARY.library_stem(
+		family, is_roof, StringName("%s:%s" % [prefix, color.to_html()]), _map_seed
+	)
+	if stem.is_empty():
+		return null
+	var key := "%s:%s:%s" % [prefix, stem, color.to_html()]
+	if _cache.has(key):
+		return _cache[key]
+	var material := _make_library_material(stem, _library_tint(color, WEATHER_FRESH))
+	material.uv1_scale = library_box_uv_scale(stem, BUILDING_UV_REFERENCE_SIZE)
+	_cache[key] = material
+	return material
+
+
+## Per-building library material: one cache entry per building surface (the
+## same material count as the former per-building procedural plates), sharing
+## the stem's textures. Weathering re-tones the tint; the UV phase is a stable
+## per-building offset so neighbours using the same stem do not line up.
+static func _library_building_surface(
+	prefix: String, surface_id: StringName, stem: String, color: Color
+) -> StandardMaterial3D:
+	var weathering := surface_weathering_variant(surface_id)
+	var key := "%s:%s:%s:%s" % [prefix, String(surface_id), stem, color.to_html()]
+	if _cache.has(key):
+		return _cache[key]
+	var material := _make_library_material(stem, _library_tint(color, weathering))
+	material.uv1_offset = library_uv_offset(surface_id)
+	_cache[key] = material
+	return material
+
+
+static func library_uv_offset(surface_id: StringName) -> Vector3:
+	var roll := absi(String(surface_id).hash())
+	return Vector3(float(roll % 997) / 997.0, float(int(roll / 997) % 991) / 991.0, 0.0)
+
+
+static func _library_tint(color: Color, weathering: StringName) -> Color:
+	var peak := maxf(maxf(color.r, color.g), maxf(color.b, 0.001))
+	var hue := Color(color.r / peak, color.g / peak, color.b / peak)
+	var tint := _weathered_albedo(Color.WHITE.lerp(hue, LIBRARY_HUE_WEIGHT), weathering)
+	tint.a = 1.0
+	return tint
+
+
+static func _make_library_material(stem: String, tint: Color) -> StandardMaterial3D:
+	var paths: Dictionary = SURFACE_LIBRARY.stem_paths(stem)
+	var material := StandardMaterial3D.new()
+	material.set_meta(LIBRARY_STEM_META, stem)
+	material.set_meta(&"ar03_base_tint", tint)
+	material.albedo_color = tint
+	material.albedo_texture = load(paths["albedo"])
+	material.normal_enabled = true
+	material.normal_texture = load(paths["normal"])
+	material.normal_scale = SURFACE_LIBRARY.stem_normal_scale(stem)
+	var orm: Texture2D = load(paths["orm"])
+	# Packed ORM: G carries roughness, R carries cavity occlusion.
+	material.roughness = 1.0
+	material.roughness_texture = orm
+	material.roughness_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_GREEN
+	material.ao_enabled = true
+	material.ao_texture = orm
+	material.ao_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_RED
+	material.metallic = 0.0
+	material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	# Meshes without a colour attribute stay white, so this is a no-op for the
+	# library albedo and keeps baked wear tones on meshes that carry them.
+	material.vertex_color_use_as_albedo = true
+	material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	_apply_anti_tiling(material)
+	return material
+
+
+static func _apply_anti_tiling(material: StandardMaterial3D) -> void:
+	var base_tint: Color = material.get_meta(&"ar03_base_tint", material.albedo_color)
+	material.detail_enabled = _anti_tiling_enabled
+	if not _anti_tiling_enabled:
+		material.albedo_color = base_tint
+		return
+	material.detail_albedo = load(ANTI_TILING_TEXTURE_PATH)
+	material.detail_blend_mode = BaseMaterial3D.BLEND_MODE_MUL
+	material.detail_uv_layer = BaseMaterial3D.DETAIL_UV_2
+	material.uv2_triplanar = true
+	material.uv2_world_triplanar = true
+	material.uv2_scale = Vector3.ONE * ANTI_TILING_WORLD_DENSITY
+	var lifted := base_tint * ANTI_TILING_EXPOSURE_LIFT
+	lifted.a = 1.0
+	material.albedo_color = lifted
 
 
 static func _building_surface(
@@ -365,7 +575,7 @@ static func _make_weathered_material(
 	material.albedo_texture = MapViewMaterialPatterns.pattern_texture_weathered(
 		pattern, noise_seed, weathering, MapViewMaterialPatterns.pattern_source_size(pattern)
 	)
-	material.roughness = 1.0
+	material.roughness = float(PATTERN_ROUGHNESS.get(pattern, 1.0))
 	material.metallic = 0.0
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	material.vertex_color_use_as_albedo = true
@@ -406,7 +616,7 @@ static func _make_material(base: Color, pattern: StringName, noise_seed: int) ->
 	var material := StandardMaterial3D.new()
 	material.albedo_color = base
 	material.albedo_texture = MapViewMaterialPatterns.pattern_texture(pattern, noise_seed)
-	material.roughness = 1.0
+	material.roughness = float(PATTERN_ROUGHNESS.get(pattern, 1.0))
 	material.metallic = 0.0
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	# Terrain cells and scatter instances carry per-cell tone in vertex/instance

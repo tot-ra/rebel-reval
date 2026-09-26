@@ -68,16 +68,17 @@ func test_roof_surface_callers_use_world_unit_cover_density() -> void:
 			_pattern_for_family(family)
 		)
 		assert_true(
-			shared.uv1_scale.is_equal_approx(expected),
+			shared.uv1_scale.is_equal_approx(_expected_cover_density(shared, expected)),
 			"%s roof_surface must use world-unit cover density" % family
 		)
 		assert_true(
-			building.uv1_scale.is_equal_approx(expected),
+			building.uv1_scale.is_equal_approx(_expected_cover_density(building, expected)),
 			"%s roof_surface_for_building must use world-unit cover density" % family
 		)
+	var tile_world := MapViewMaterials.roof_tile_world(color)
 	assert_true(
-		MapViewMaterials.roof_tile_world(color).uv1_scale.is_equal_approx(
-			MapViewMaterials.ROOF_TILE_WORLD_DENSITY
+		tile_world.uv1_scale.is_equal_approx(
+			_expected_cover_density(tile_world, MapViewMaterials.ROOF_TILE_WORLD_DENSITY)
 		),
 		"tile world helper must keep the monk/nun density"
 	)
@@ -110,7 +111,7 @@ func test_authored_house_roofs_use_world_unit_cover_density() -> void:
 		var roof_mat := roof.material_override as StandardMaterial3D
 		var expected := MapViewMaterials.roof_cover_world_density(_pattern_for_family(family))
 		assert_true(
-			roof_mat.uv1_scale.is_equal_approx(expected),
+			roof_mat.uv1_scale.is_equal_approx(_expected_cover_density(roof_mat, expected)),
 			"%s: gabled cover must use world-unit density" % building["id"]
 		)
 		if family == &"thatch":
@@ -150,3 +151,12 @@ func _pattern_for_family(family: StringName) -> StringName:
 			return MapViewMaterials.PATTERN_THATCH
 		_:
 			return MapViewMaterials.PATTERN_ROOF_TILE
+
+
+## AR-03 (R-961): library surfaces are sized from their plate in metres, so the
+## expected density follows the stem; the procedural fallback keeps its constant.
+func _expected_cover_density(material: StandardMaterial3D, fallback: Vector3) -> Vector3:
+	var materials: Variant = MapViewMaterials.BUILDING_MATERIALS
+	if material.has_meta(materials.LIBRARY_STEM_META):
+		return materials.library_world_uv_density(String(material.get_meta(materials.LIBRARY_STEM_META)))
+	return fallback

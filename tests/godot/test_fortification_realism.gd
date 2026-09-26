@@ -20,9 +20,14 @@ func test_fortification_masonry_is_world_space_and_course_scaled() -> void:
 		material.uv1_world_triplanar,
 		"overlapping wall boxes must share one world-space texture phase (seam flicker)"
 	)
-	# Plate carries ~10 courses; at least 5 plate repeats per 10 units keeps
-	# courses under ~0.2 units instead of fifth-of-a-character boulders.
-	assert_true(material.uv1_scale.y >= 0.5, "masonry courses must be denser than the house plate")
+	# Courses must stay near 0.2 m instead of fifth-of-a-character boulders. The
+	# procedural plate carries ~10 courses; the AR-03 rubble plate ~12.5.
+	var materials: Variant = MapViewMaterials.BUILDING_MATERIALS
+	var courses_per_plate := 12.5 if material.has_meta(materials.LIBRARY_STEM_META) else 10.0
+	var course_m: float = (
+		MapViewMaterials.METERS_PER_WORLD_UNIT / (material.uv1_scale.y * courses_per_plate)
+	)
+	assert_true(course_m <= 0.2, "masonry courses must read ~0.2 m, got %.3f m" % course_m)
 	assert_true(material.normal_enabled, "masonry keeps its relief normal map")
 
 
@@ -81,9 +86,17 @@ func test_roof_tiles_carry_relief_and_world_scaled_density() -> void:
 	)
 	var house := MapViewMaterials.roof_surface_for_building(&"roof.test", &"tile", Color8(150, 66, 48))
 	assert_true(house.uv1_scale.x < 1.0, "tile houses share the world-unit tile density")
+	# AR-03 (R-961): library tile stems are 512 px painted plates; the
+	# procedural fallback keeps its dedicated tile plate resolution.
+	var materials: Variant = MapViewMaterials.BUILDING_MATERIALS
+	var expected_width: int = (
+		512
+		if gabled.has_meta(materials.LIBRARY_STEM_META)
+		else MapViewMaterials.RESOLUTION.ROOF_TILE_TEXTURE_SIZE
+	)
 	assert_eq(
 		gabled.albedo_texture.get_width(),
-		MapViewMaterials.RESOLUTION.ROOF_TILE_TEXTURE_SIZE,
+		expected_width,
 		"roof tiles use the dedicated tile plate resolution"
 	)
 

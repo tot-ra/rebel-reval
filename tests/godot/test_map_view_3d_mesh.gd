@@ -353,7 +353,7 @@ func test_city_wall_masonry_uses_direction_independent_triplanar_scale() -> void
 		# shade identically there, and courses must run on across segment joints.
 		assert_true(material.uv1_world_triplanar, "%s masonry must share one world phase" % building["id"])
 		assert_true(
-			material.uv1_scale.is_equal_approx(expected_density),
+			material.uv1_scale.is_equal_approx(_expected_cover_density(material, expected_density)),
 			"%s must keep constant masonry density on both wall axes" % building["id"]
 		)
 		checked += 1
@@ -626,3 +626,12 @@ func _building_by_id(definition: MapDefinition, building_id: StringName) -> Dict
 		if building["id"] == building_id:
 			return building
 	return {}
+
+
+## AR-03 (R-961): library surfaces are sized from their plate in metres, so the
+## expected density follows the stem; the procedural fallback keeps its constant.
+func _expected_cover_density(material: StandardMaterial3D, fallback: Vector3) -> Vector3:
+	var materials: Variant = MapViewMaterials.BUILDING_MATERIALS
+	if material.has_meta(materials.LIBRARY_STEM_META):
+		return materials.library_world_uv_density(String(material.get_meta(materials.LIBRARY_STEM_META)))
+	return fallback

@@ -72,6 +72,12 @@ func test_town_wall_gets_battlements_and_gate_arch_clears_character() -> void:
 				var cap_mat := cap.material_override as StandardMaterial3D
 				var cap_mesh := cap.mesh as BoxMesh
 				var plank_uv := MapViewMaterials.building_uv_scale(MapViewMaterials.PATTERN_PLANK, cap_mesh.size)
+				# AR-03 (R-961): library plank plates are sized in metres per stem.
+				var materials: Variant = MapViewMaterials.BUILDING_MATERIALS
+				if cap_mat.has_meta(materials.LIBRARY_STEM_META):
+					var stem := String(cap_mat.get_meta(materials.LIBRARY_STEM_META))
+					assert_true(stem.begins_with("plank_"), "wall walk deck must use a plank stem")
+					plank_uv = materials.library_box_uv_scale(stem, cap_mesh.size)
 				assert_true(
 					is_equal_approx(cap_mat.uv1_scale.y, plank_uv.y),
 					"wall walk deck must use plank timber, not limestone coping"

@@ -224,3 +224,11 @@ The `assets/materials/style_lock/*.png` contact sheet proves the old v1.0 tiling
 - World UI and screen-space UI must not inherit world bloom.
 - Fallback procedural materials should use the v1.1 family masters and remain visibly simpler than production textures.
 - If generated output cannot meet both history and style, correct the brief/source or reject it. Do not hide an implausible asset behind saturation and glow.
+
+### Building surface library (AR-03, R-961)
+
+- Procedural building walls and roofs resolve their authored `wall_material` / `roof_material` key to a shared stem in `assets/materials/pbr/building_variants/` (albedo, OpenGL normal, packed ORM with R = AO, G = roughness, B = metallic). Families: `rubble`, `ashlar`, `render`, `limewash`, `soot`, `daub`, `brick`, `plank`, `gable_board`, `logwall`, `log` (GLB bark only), `tile`, `shingle`, `thatch`, `straw`; three stems each.
+- Key map: `limestone` -> rubble (ashlar on church/chapel/convent/castle/guild IDs), `plaster` -> render or limewash, `timber` -> daub, `smoked_plaster` -> soot, `brick`, `plank`, `log` -> logwall; roofs `tile`, `shingle`, `thatch`, `straw` one-to-one.
+- Stems are selected by `hash(map_seed, building_id, key)` and never forked per building; per-building variation is tint, weathering band and a stable UV phase. Plates are sized in real metres (`FAMILY_PLATE_METRES` in `map_view_burgher_house_surface_variety.gd`); box walls compensate for Godot's 3 x 2 BoxMesh UV atlas.
+- Anti-tiling: a shared macro tone plate (`building_macro_variation.png`, values 0.86-1.0) multiplies every library surface through world-triplanar UV2 at ~23 m per repeat. `MapViewBuildingMaterials.set_anti_tiling_enabled(false)` turns it off on cached and new materials.
+- Regenerate with `python3 tools/generate_building_surface_variants.py`; the procedural pattern path remains only as the documented fallback (cone tower roofs, generic `wall()` / `roof()` helpers) with per-family roughness instead of the old constant 1.0.

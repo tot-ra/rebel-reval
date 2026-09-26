@@ -1,6 +1,10 @@
 extends "res://tests/godot/test_case.gd"
 
 ## P0-053: ordinary houses must not share one baked wall/roof albedo map.
+##
+## AR-03 (R-961) moved building surfaces onto a shared texture library that
+## must not fork textures per building, so "distinct" now means a distinct
+## surface recipe: library albedo plus the per-building UV phase.
 
 
 func test_adjacent_houses_get_distinct_wall_textures() -> void:
@@ -10,8 +14,8 @@ func test_adjacent_houses_get_distinct_wall_textures() -> void:
 	var wall_a := MapViewMaterials.wall_surface_for_building(&"house.alpha", &"plaster", color, size)
 	var wall_b := MapViewMaterials.wall_surface_for_building(&"house.beta", &"plaster", color, size)
 	assert_true(
-		wall_a.albedo_texture != wall_b.albedo_texture,
-		"adjacent plaster houses must not share an identical pattern texture"
+		_recipe(wall_a) != _recipe(wall_b),
+		"adjacent plaster houses must not share an identical surface recipe"
 	)
 
 
@@ -115,12 +119,18 @@ func test_lower_town_houses_emit_weathered_wall_materials() -> void:
 			continue
 		var material := walls.material_override as StandardMaterial3D
 		assert_true(material != null, "%s: house walls need a material override" % building["id"])
-		var texture := material.albedo_texture
+		var recipe := _recipe(material)
 		assert_false(
-			textures.has(texture),
-			"%s: must not reuse another house's wall texture" % building["id"]
+			textures.has(recipe),
+			"%s: must not reuse another house's wall surface recipe" % building["id"]
 		)
-		textures[texture] = building["id"]
+		textures[recipe] = building["id"]
 		node.free()
 
-	assert_true(textures.size() >= 3, "Lower Town slice must expose multiple distinct house wall textures")
+	assert_true(
+		textures.size() >= 3, "Lower Town slice must expose multiple distinct house wall textures"
+	)
+
+
+func _recipe(material: StandardMaterial3D) -> String:
+	return "%s@%s" % [material.albedo_texture.resource_path, material.uv1_offset]

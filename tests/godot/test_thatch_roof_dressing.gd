@@ -82,7 +82,7 @@ func test_thatch_roofs_use_slope_reeds_and_framed_gables() -> void:
 		var roof_mat := roof.material_override as StandardMaterial3D
 		assert_true(roof_mat != null, "%s: thatch roof needs a material" % house_id)
 		assert_true(
-			roof_mat.uv1_scale.is_equal_approx(thatch_world_uv),
+			roof_mat.uv1_scale.is_equal_approx(_expected_cover_density(roof_mat, thatch_world_uv)),
 			"%s: thatch roof must use world-unit reed density" % house_id
 		)
 		var ridge := node.get_node("ThatchRidge") as MeshInstance3D
@@ -142,3 +142,12 @@ func test_thatch_roofs_use_slope_reeds_and_framed_gables() -> void:
 		if checked >= 3:
 			break
 	assert_true(checked >= 3, "Lower Town slice must expose authored thatch roofs for this check")
+
+
+## AR-03 (R-961): library surfaces are sized from their plate in metres, so the
+## expected density follows the stem; the procedural fallback keeps its constant.
+func _expected_cover_density(material: StandardMaterial3D, fallback: Vector3) -> Vector3:
+	var materials: Variant = MapViewMaterials.BUILDING_MATERIALS
+	if material.has_meta(materials.LIBRARY_STEM_META):
+		return materials.library_world_uv_density(String(material.get_meta(materials.LIBRARY_STEM_META)))
+	return fallback

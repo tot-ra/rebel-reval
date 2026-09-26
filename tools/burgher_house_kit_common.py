@@ -393,6 +393,121 @@ def _surface_rope(rng: np.random.Generator, size: int) -> tuple[np.ndarray, np.n
     return rgb * (0.9 + 0.1 * _fbm(size, rng, 16, octaves=2))[..., None], 0.5 + 0.4 * twist
 
 
+def _surface_brick(rng: np.random.Generator, size: int) -> tuple[np.ndarray, np.ndarray]:
+    """Hand-moulded Hanseatic brick in lime mortar: 12 courses, running bond.
+
+    AR-03: one plate covers about 1.2 m, so a course is ~0.1 m and a brick
+    ~0.3 m long - the Baltic 'Klosterformat' scale, not modern 65 mm brick.
+    """
+    rows, cols = 12, 4
+    coords = (np.arange(size, dtype=np.float32) + 0.5) / size
+    row_pos = coords * rows
+    row_index = np.floor(row_pos).astype(np.int64)
+    row_frac = row_pos - row_index
+    shift = (row_index % 2).astype(np.float32) * 0.5
+    col_pos = coords[None, :] * cols + shift[:, None]
+    col_index = np.floor(col_pos).astype(np.int64)
+    col_frac = col_pos - col_index
+    joint_u = np.minimum(col_frac, 1.0 - col_frac) * (size / cols)
+    joint_v = np.minimum(row_frac, 1.0 - row_frac)[:, None] * (size / rows)
+    jitter = (_fbm(size, rng, 24, octaves=2) - 0.5) * 1.6
+    edge = np.minimum(joint_u, joint_v) + jitter
+    brick_mask = _smooth(1.6, 3.0, edge)
+    rounded = _smooth(0.0, 7.0, edge)
+    tones = rng.normal(1.0, 0.09, (rows, cols + 1)).astype(np.float32)
+    burnt = rng.random((rows, cols + 1)) < 0.12
+    tone = tones[row_index[:, None] % rows, col_index % (cols + 1)]
+    dark = burnt[row_index[:, None] % rows, col_index % (cols + 1)]
+    base = _rgb(0x8E4A34)[None, None, :] * np.ones((size, size, 3), np.float32)
+    rgb = base * tone[..., None]
+    rgb = np.where(dark[..., None], _rgb(0x5A3226)[None, None, :] * tone[..., None], rgb)
+    grain = _fbm(size, rng, 48, octaves=3)
+    rgb *= (0.8 + 0.22 * grain + 0.1 * rounded)[..., None]
+    mortar = _rgb(0xA8A08E)[None, None, :] * (0.8 + 0.2 * _fbm(size, rng, 32, octaves=2))[..., None]
+    rgb = _mix(mortar, rgb, brick_mask)
+    height = brick_mask * (0.55 + 0.35 * rounded + 0.1 * grain)
+    return rgb, height
+
+
+def _surface_log_courses(
+    rng: np.random.Generator, size: int, base: int = 0x6A5A48, weather: float = 0.75
+) -> tuple[np.ndarray, np.ndarray]:
+    """Horizontal round-log wall face for box walls: 8 logs per plate, moss caulk.
+
+    The existing ``log`` kind is bark and grain only because the burgher GLBs
+    carry real log geometry; flat box walls need the courses painted in.
+    """
+    logs = 8
+    coords = (np.arange(size, dtype=np.float32) + 0.5) / size
+    wobble = (_fbm(size, rng, 6, 2, octaves=2) - 0.5) * 0.18
+    row_pos = coords[:, None] * logs + wobble
+    row_index = np.floor(row_pos).astype(np.int64)
+    row_frac = row_pos - row_index
+    profile = np.sqrt(np.clip(1.0 - (2.0 * row_frac - 1.0) ** 2, 0.0, 1.0))
+    wood_rgb, wood_height = _surface_timber(rng, size, base, 0, weather)
+    # Timber grain runs along v; logs lie horizontally, so turn the grain.
+    wood_rgb = np.transpose(wood_rgb, (1, 0, 2))
+    wood_height = wood_height.T
+    tones = rng.normal(1.0, 0.08, logs + 1).astype(np.float32)
+    rgb = wood_rgb * tones[row_index % (logs + 1)][..., None]
+    rgb *= (0.55 + 0.45 * profile)[..., None]
+    caulk_rgb, _ = _surface_caulk(rng, size)
+    seam = 1.0 - _smooth(0.05, 0.2, profile)
+    rgb = _mix(rgb, caulk_rgb, seam * 0.85)
+    height = profile * (0.75 + 0.25 * wood_height) * (1.0 - seam) + 0.12 * seam
+    return rgb, height
+
+
+def _surface_boards_horizontal(rng: np.random.Generator, size: int) -> tuple[np.ndarray, np.ndarray]:
+    """Horizontal weatherboard: the vertical ``boards`` plate turned 90 degrees."""
+    rgb, height = _surface_timber(rng, size, 0x6A5C4C, 7, 0.8)
+    return np.transpose(rgb, (1, 0, 2)), height.T
+
+
+def _surface_gable_board(rng: np.random.Generator, size: int) -> tuple[np.ndarray, np.ndarray]:
+    """Board-and-batten gable field: narrow upright boards with raised cover strips."""
+    rgb, height = _surface_timber(rng, size, 0x5E5244, 8, 0.95)
+    u = (np.arange(size, dtype=np.float32) + 0.5) / size
+    batten_frac = u * 8.0 - np.floor(u * 8.0)
+    batten = _smooth(0.07, 0.03, np.minimum(batten_frac, 1.0 - batten_frac))
+    rgb *= (1.0 + 0.18 * batten)[None, :, None]
+    height = height + 0.7 * batten[None, :]
+    return rgb, height
+
+
+def _surface_straw(rng: np.random.Generator, size: int) -> tuple[np.ndarray, np.ndarray]:
+    """Long-straw (rye) thatch: paler, finer and more ragged than water reed."""
+    streak = _fbm(size, rng, 256, 4, octaves=3)
+    stems = _smooth(0.3, 0.8, _value_noise(size, 320, 8, rng))
+    coarse = _fbm(size, rng, 16, 3, octaves=3)
+    coords = (np.arange(size, dtype=np.float32) + 0.5) / size
+    course = coords * 8.0 - np.floor(coords * 8.0)
+    ragged = (_fbm(size, rng, 48, 8, octaves=2) - 0.5) * 0.08
+    fringe = 1.0 - 0.28 * (1.0 - _smooth(0.0, 0.12, course[:, None] + ragged))
+    base = _rgb(0xA89468)[None, None, :] * np.ones((size, size, 3), np.float32)
+    rgb = base * (0.62 + 0.3 * streak + 0.22 * stems + 0.12 * coarse)[..., None]
+    rot = _smooth(0.55, 0.8, _fbm(size, rng, 5, octaves=3))
+    rgb = _mix(rgb, _rgb(0x6E6450)[None, None, :] * (0.7 + 0.3 * streak)[..., None], rot * 0.5)
+    rgb *= fringe[..., None]
+    height = (0.25 + 0.4 * streak + 0.3 * stems + 0.1 * coarse) * fringe
+    return rgb, height
+
+
+def _surface_soot(rng: np.random.Generator, size: int) -> tuple[np.ndarray, np.ndarray]:
+    """Smoke-room lime face: limewash over rubble, blackened upward by hearth smoke."""
+    rgb, height = _surface_limewash(rng, size, _surface_coursed(
+        rng, size, 0x8E8C85, 0xA39D8E, (0.04, 0.12), (0.1, 0.34), 4.2, 0.1, 0.35
+    ), 0.28, 4, 0xA8A090)
+    # A plate repeats up the wall, so a bottom-to-top gradient would band at
+    # every repeat. Soot is carried by tileable vertical smoke streaks instead
+    # (fast along u, slow along v); the wall-scale rise belongs to AR-04 decals.
+    plumes = _fbm(size, rng, 6, 2, octaves=4)
+    streaks = _fbm(size, rng, 14, 2, octaves=3)
+    soot = np.clip(_smooth(0.3, 0.75, 0.5 * plumes + 0.5 * streaks) * 0.9 + 0.1, 0.0, 1.0)
+    black = _rgb(0x231E1A)[None, None, :] * (0.8 + 0.4 * plumes)[..., None]
+    return _mix(rgb, black, soot * 0.82), height
+
+
 def _surface_recess(rng: np.random.Generator, size: int) -> tuple[np.ndarray, np.ndarray]:
     rgb = _rgb(0x16120F)[None, None, :] * (0.9 + 0.2 * _fbm(size, rng, 8, octaves=2))[..., None]
     return rgb, np.full((size, size), 0.5, dtype=np.float32)
@@ -435,6 +550,20 @@ def surface_texture(kind: str, rng: np.random.Generator, size: int = TEXTURE_SIZ
         return _surface_iron(rng, size)
     if kind == "rope":
         return _surface_rope(rng, size)
+    if kind == "daub":
+        return _surface_daub(rng, size)
+    if kind == "brick":
+        return _surface_brick(rng, size)
+    if kind == "log_course":
+        return _surface_log_courses(rng, size)
+    if kind == "boards_horizontal":
+        return _surface_boards_horizontal(rng, size)
+    if kind == "gable_board":
+        return _surface_gable_board(rng, size)
+    if kind == "straw":
+        return _surface_straw(rng, size)
+    if kind == "soot":
+        return _surface_soot(rng, size)
     return _surface_recess(rng, size)
 
 
