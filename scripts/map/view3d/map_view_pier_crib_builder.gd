@@ -38,14 +38,28 @@ static func build(field: Dictionary) -> Node3D:
 		return null
 	var logs := SurfaceTool.new()
 	logs.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var rubble := SurfaceTool.new()
+	rubble.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var piles := SurfaceTool.new()
 	piles.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var log_count := 0
+	var rubble_count := 0
 	var pile_count := 0
 	for face: Dictionary in faces:
 		for log_spec: Dictionary in face["logs"]:
-			_add_cylinder(logs, log_spec["from"], log_spec["to"], log_spec["radius"], LOG_SIDES)
+			_add_cylinder(
+				logs,
+				log_spec["from"],
+				log_spec["to"],
+				log_spec["radius"],
+				LOG_SIDES,
+				bool(log_spec.get("notch_from", false)),
+				bool(log_spec.get("notch_to", false)),
+			)
 			log_count += 1
+		for stone: Dictionary in face["rubble"]:
+			_add_box(rubble, stone["center"], stone["half"], float(stone["yaw"]))
+			rubble_count += 1
 		for pile_spec: Dictionary in face["piles"]:
 			_add_cylinder(
 				piles, pile_spec["from"], pile_spec["to"], pile_spec["radius"], PILE_SIDES
@@ -56,7 +70,10 @@ static func build(field: Dictionary) -> Node3D:
 	var root := Node3D.new()
 	root.name = "PierCribs"
 	if log_count > 0:
-		root.add_child(_instance("PierCribLogs", logs, 0))
+		var log_mesh: ArrayMesh = logs.commit()
+		if rubble_count > 0:
+			rubble.commit(log_mesh)
+		root.add_child(_instance_logs(log_mesh, rubble_count > 0))
 	if pile_count > 0:
 		root.add_child(_instance("PierCribPiles", piles, 1))
 	return root
@@ -89,6 +106,10 @@ static func crib_faces(field: Dictionary) -> Array[Dictionary]:
 				var face := _face(field, Vector2i(x, y), side)
 				if not face.is_empty():
 					faces.append(face)
+	_mark_corner_notches(faces)
+	for face: Dictionary in faces:
+		face["rubble"] = _rubble_for_face(face)
+	_add_corner_rubble(faces)
 	return faces
 
 
@@ -147,7 +168,11 @@ static func _face(field: Dictionary, cell: Vector2i, side: Vector2i) -> Dictiona
 		var overhang := along_3d * (log_radius + 0.04 * jitter)
 		var base := start + outward * centre + Vector3.UP * y
 		var log_spec := {
-			"from": base - overhang, "to": base + along_3d + overhang, "radius": log_radius
+			"from": base - overhang,
+			"to": base + along_3d + overhang,
+			"radius": log_radius,
+			"notch_from": false,
+			"notch_to": false,
 		}
 		logs.append(log_spec)
 	if logs.is_empty():
@@ -168,10 +193,12 @@ static func _face(field: Dictionary, cell: Vector2i, side: Vector2i) -> Dictiona
 	return {
 		"cell": cell,
 		"side": side,
+		"start": start,
 		"top_y": top_y,
 		"floor_y": floor_y,
 		"logs": logs,
 		"piles": piles,
+		"rubble": [],
 	}
 
 
@@ -225,9 +252,160 @@ static func _unit_hash(cell: Vector2i, side: Vector2i, index: int) -> float:
 	return float(posmod(h, 1000)) / 999.0
 
 
+## Same-cell perpendicular crib faces meet at a tip corner. Mark those log ends
+## so the builder emits a saddle notch instead of a round saw-cut cap.
+static func _mark_corner_notches(faces: Array[Dictionary]) -> void:
+	for i in faces.size():
+		for j in range(i + 1, faces.size()):
+			var first: Dictionary = faces[i]
+			var second: Dictionary = faces[j]
+			if first["cell"] != second["cell"]:
+				continue
+			var first_side: Vector2i = first["side"]
+			var second_side: Vector2i = second["side"]
+			if first_side.x * second_side.x + first_side.y * second_side.y != 0:
+				continue
+			_notch_face_toward(first, second_side)
+			_notch_face_toward(second, first_side)
+
+
+static func _notch_face_toward(face: Dictionary, other_side: Vector2i) -> void:
+	var side: Vector2i = face["side"]
+	var along := Vector2i(absi(side.y), absi(side.x))
+	var along_dot := other_side.x * along.x + other_side.y * along.y
+	if along_dot == 0:
+		return
+	# Extra overlap past the corner so the saddle sits in the other face's log
+	# instead of stopping as a round pipe end.
+	var extend := Vector3(float(along.x), 0.0, float(along.y)) * 0.16
+	for log_spec: Dictionary in face["logs"]:
+		if along_dot > 0:
+			log_spec["notch_to"] = true
+			log_spec["to"] = (log_spec["to"] as Vector3) + extend
+		else:
+			log_spec["notch_from"] = true
+			log_spec["from"] = (log_spec["from"] as Vector3) - extend
+
+
+## Irregular stones packed between the deck edge and the innermost log so the
+## crib reads as stone-filled rather than a hollow timber cage.
+static func _rubble_for_face(face: Dictionary) -> Array[Dictionary]:
+	var logs: Array = face["logs"]
+	var stones: Array[Dictionary] = []
+	if logs.is_empty():
+		return stones
+	var top_y: float = face["top_y"]
+	var floor_y: float = face["floor_y"]
+	if top_y - floor_y < MapViewMeshBuilderConfig.CRIB_LOG_RADIUS * 3.0:
+		return stones
+	var start: Vector3 = face["start"]
+	var side: Vector2i = face["side"]
+	var cell: Vector2i = face["cell"]
+	var outward := Vector3(float(side.x), 0.0, float(side.y))
+	var along := Vector3(float(absi(side.y)), 0.0, float(absi(side.x)))
+	var inner := INF
+	for log_spec: Dictionary in logs:
+		var mid: Vector3 = (
+			(log_spec["from"] as Vector3) + (log_spec["to"] as Vector3)
+		) * 0.5
+		var radius: float = log_spec["radius"]
+		inner = minf(inner, (mid - start).dot(outward) - radius)
+	if inner <= 0.06:
+		return stones
+	var layers := mini(
+		MapViewMeshBuilderConfig.CRIB_RUBBLE_MAX_LAYERS,
+		maxi(1, int((top_y - floor_y) / 0.7)),
+	)
+	var along_count := MapViewMeshBuilderConfig.CRIB_RUBBLE_ALONG
+	for layer in layers:
+		var y := lerpf(
+			floor_y + 0.1, top_y - 0.1, (float(layer) + 0.5) / float(layers)
+		)
+		for slot in along_count:
+			var jitter := _unit_hash(cell, side, 100 + layer * 10 + slot)
+			var drift := _unit_hash(cell, side, 200 + layer * 10 + slot)
+			var along_t := (float(slot) + 0.5) / float(along_count)
+			along_t = clampf(along_t + (jitter - 0.5) * 0.2, 0.12, 0.88)
+			var out := clampf(inner * (0.45 + 0.4 * drift), 0.07, inner - 0.02)
+			var center := start + along * along_t + outward * out + Vector3.UP * y
+			if center.y + 0.08 >= top_y:
+				continue
+			stones.append(
+				{
+					"center": center,
+					"half": Vector3(
+						0.06 + 0.04 * jitter,
+						0.045 + 0.03 * drift,
+						0.055 + 0.035 * (1.0 - jitter),
+					),
+					"yaw": (jitter - 0.5) * 0.8,
+				}
+			)
+	return stones
+
+
+## Stones in the interior corner of two notched faces, large enough to read through
+## the L-gap on an underwater plate instead of leaving an empty sand pocket.
+static func _add_corner_rubble(faces: Array[Dictionary]) -> void:
+	for i in faces.size():
+		for j in range(i + 1, faces.size()):
+			var first: Dictionary = faces[i]
+			var second: Dictionary = faces[j]
+			if first["cell"] != second["cell"]:
+				continue
+			var first_side: Vector2i = first["side"]
+			var second_side: Vector2i = second["side"]
+			if first_side.x * second_side.x + first_side.y * second_side.y != 0:
+				continue
+			var cell: Vector2i = first["cell"]
+			var top_y: float = minf(float(first["top_y"]), float(second["top_y"]))
+			var floor_y: float = minf(float(first["floor_y"]), float(second["floor_y"]))
+			if top_y - floor_y < 0.35:
+				continue
+			var corner := Vector3(
+				float(cell.x + maxi(first_side.x, 0) + maxi(second_side.x, 0)),
+				0.0,
+				float(cell.y + maxi(first_side.y, 0) + maxi(second_side.y, 0)),
+			)
+			# Sit in the exterior L where the two faces meet so the underwater
+			# plate shows fill among the interlocking ends, not an empty sand pocket.
+			var pocket := Vector3(
+				float(first_side.x + second_side.x),
+				0.0,
+				float(first_side.y + second_side.y),
+			)
+			if pocket.length_squared() > 0.0001:
+				pocket = pocket.normalized()
+			var stones: Array = first["rubble"]
+			for layer in 3:
+				var jitter := _unit_hash(cell, first_side, 400 + layer)
+				var y := lerpf(floor_y + 0.12, top_y - 0.1, (float(layer) + 0.4) / 3.0)
+				if y + 0.1 >= top_y:
+					continue
+				stones.append(
+					{
+						"center": corner + pocket * (0.1 + 0.05 * jitter) + Vector3.UP * y,
+						"half": Vector3(
+							0.09 + 0.03 * jitter,
+							0.06 + 0.02 * jitter,
+							0.08 + 0.03 * (1.0 - jitter),
+						),
+						"yaw": (jitter - 0.5) * 0.9,
+					}
+				)
+			first["rubble"] = stones
+
+
 ## Capped cylinder from `a` to `b`; U runs along the axis so the wood grain follows it.
+## A notched end skips the round cap and adds a saddle so corner joints interlock.
 static func _add_cylinder(
-	surface: SurfaceTool, a: Vector3, b: Vector3, radius: float, sides: int
+	surface: SurfaceTool,
+	a: Vector3,
+	b: Vector3,
+	radius: float,
+	sides: int,
+	notch_a: bool = false,
+	notch_b: bool = false,
 ) -> void:
 	var axis := b - a
 	var length := axis.length()
@@ -256,13 +434,122 @@ static func _add_cylinder(
 			surface.set_normal(quad[corner][1])
 			surface.set_uv(quad[corner][2])
 			surface.add_vertex(quad[corner][0])
-		# End caps as fans; the saw-cut end grain uses the same wood texture.
-		for cap: Array in [[a, -direction, n1, n0], [b, direction, n0, n1]]:
-			var centre: Vector3 = cap[0]
-			for corner: Vector3 in [Vector3.ZERO, cap[2], cap[3]]:
-				surface.set_normal(cap[1])
-				surface.set_uv(Vector2(corner.dot(u_axis), corner.dot(v_axis)) * radius)
-				surface.add_vertex(centre + corner * radius)
+		# One pie slice per side. Notched ends skip the round cap entirely.
+		if not notch_a:
+			_add_disk_cap(surface, a, -direction, n1, n0, u_axis, v_axis, radius)
+		if not notch_b:
+			_add_disk_cap(surface, b, direction, n0, n1, u_axis, v_axis, radius)
+	if notch_a:
+		_add_saddle_notch(surface, a, -direction, radius)
+	if notch_b:
+		_add_saddle_notch(surface, b, direction, radius)
+
+
+static func _add_disk_cap(
+	surface: SurfaceTool,
+	centre: Vector3,
+	normal: Vector3,
+	n0: Vector3,
+	n1: Vector3,
+	u_axis: Vector3,
+	v_axis: Vector3,
+	radius: float,
+) -> void:
+	for corner: Vector3 in [Vector3.ZERO, n0, n1]:
+		surface.set_normal(normal)
+		surface.set_uv(Vector2(corner.dot(u_axis), corner.dot(v_axis)) * radius)
+		surface.add_vertex(centre + corner * radius)
+
+
+## Additive U-channel at a log end: two cheeks and a top lintel leave a seat for
+## the crossing log. No CSG, so the joint stays in the same timber draw.
+static func _add_saddle_notch(
+	surface: SurfaceTool, end: Vector3, axis: Vector3, radius: float
+) -> void:
+	var along := axis.normalized()
+	var cross := Vector3(-along.z, 0.0, along.x)
+	if cross.length_squared() < 0.0001:
+		cross = Vector3.RIGHT
+	cross = cross.normalized()
+	var up := Vector3.UP
+	var throat := radius * 1.05
+	var cheek := radius * 0.38
+	var depth := radius * 0.85
+	var origin := end - along * (depth * 0.15)
+	for sign: float in [-1.0, 1.0]:
+		_add_oriented_box(
+			surface,
+			origin + cross * sign * (throat * 0.5 + cheek * 0.5),
+			Vector3(depth * 0.5, radius, cheek * 0.5),
+			along,
+			up,
+			cross,
+		)
+	_add_oriented_box(
+		surface,
+		origin + up * (radius * 0.55),
+		Vector3(depth * 0.5, radius * 0.45, throat * 0.5),
+		along,
+		up,
+		cross,
+	)
+
+
+static func _add_box(
+	surface: SurfaceTool, center: Vector3, half: Vector3, yaw: float
+) -> void:
+	var x_axis := Vector3(cos(yaw), 0.0, -sin(yaw))
+	var z_axis := Vector3(sin(yaw), 0.0, cos(yaw))
+	_add_oriented_box(surface, center, half, x_axis, Vector3.UP, z_axis)
+
+
+static func _add_oriented_box(
+	surface: SurfaceTool,
+	center: Vector3,
+	half: Vector3,
+	x_axis: Vector3,
+	y_axis: Vector3,
+	z_axis: Vector3,
+) -> void:
+	var hx := x_axis * half.x
+	var hy := y_axis * half.y
+	var hz := z_axis * half.z
+	var quads: Array = [
+		[center + hx, hy, hz, x_axis],
+		[center - hx, hy, -hz, -x_axis],
+		[center + hy, hz, hx, y_axis],
+		[center - hy, hz, -hx, -y_axis],
+		[center + hz, hy, -hx, z_axis],
+		[center - hz, hy, hx, -z_axis],
+	]
+	for quad: Array in quads:
+		var origin: Vector3 = quad[0]
+		var t1: Vector3 = quad[1]
+		var t2: Vector3 = quad[2]
+		var normal: Vector3 = quad[3]
+		var corners: Array[Vector3] = [
+			origin - t1 - t2,
+			origin + t1 - t2,
+			origin + t1 + t2,
+			origin - t1 + t2,
+		]
+		for index in [0, 1, 2, 0, 2, 3]:
+			var point: Vector3 = corners[index]
+			surface.set_normal(normal)
+			surface.set_uv(Vector2((point - origin).dot(t1), (point - origin).dot(t2)))
+			surface.add_vertex(point)
+
+
+static func _instance_logs(log_mesh: ArrayMesh, has_rubble: bool) -> MeshInstance3D:
+	var instance := MeshInstance3D.new()
+	instance.name = "PierCribLogs"
+	instance.mesh = log_mesh
+	if log_mesh.get_surface_count() > 0:
+		log_mesh.surface_set_material(0, wet_timber(0))
+	if has_rubble and log_mesh.get_surface_count() > 1:
+		log_mesh.surface_set_material(1, wet_rubble())
+	instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	return instance
 
 
 static func _instance(node_name: String, surface: SurfaceTool, variant: int) -> MeshInstance3D:
@@ -284,4 +571,20 @@ static func wet_timber(variant: int) -> StandardMaterial3D:
 	material.albedo_color = Color8(74, 70, 52).lerp(material.albedo_color, 0.35)
 	material.roughness = 0.62
 	_materials[variant] = material
+	return material
+
+
+## Wet fieldstone for the crib fill. Shares the logs MeshInstance as a second
+## surface so the map stays on two nodes (logs+rubble, piles).
+static func wet_rubble() -> StandardMaterial3D:
+	if _materials.has("rubble"):
+		return _materials["rubble"]
+	var material := (
+		MapViewMaterials.fortification_masonry(Color8(78, 72, 62)).duplicate()
+		as StandardMaterial3D
+	)
+	material.albedo_color = Color8(68, 64, 56)
+	material.roughness = 0.8
+	material.metallic = 0.0
+	_materials["rubble"] = material
 	return material

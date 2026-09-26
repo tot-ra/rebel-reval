@@ -60,4 +60,33 @@ bed, instead of a smooth earth mound. The top-down gameplay view does not change
 
 - The deep ends of the tip piles reach the deep-water step in front of the shallow crib, so they
   stand slightly proud of the crib bottom in the plate. That is a correct bed contact, not a gap.
-- Log ends at the tip corners show as round cut ends; there is no notched corner joint.
+
+## WS-13e follow-up (R-921, 2026-09-26)
+
+Harbor East (`reval_harbor_east`, 3 timber landings) and Saaremaa (`world.saaremaa`, ferry and
+strait decks) already built cribs; this pass reviews them and closes the two visual gaps above.
+
+### Decisions
+
+1. **Saddle notches, not round caps, at tip corners.** Same-cell perpendicular faces mark
+   `notch_from` / `notch_to` on their logs. Those ends skip the saw-cut disk and add a U-shaped
+   remaining-wood saddle (two cheeks and a lintel) so the joint reads as a notched cabin corner.
+2. **Visible stone fill inside the crib.** Each deep face packs up to
+   `CRIB_RUBBLE_ALONG x CRIB_RUBBLE_MAX_LAYERS` irregular boxes between the deck edge and the
+   innermost log. Stones stay under `CRIB_TOP_CLEARANCE`. They share the `PierCribLogs` node as a
+   second surface (`wet_rubble`, darkened fortification masonry) so the map keeps two MeshInstance
+   children (logs+rubble, piles). Godot issues one extra GPU draw for the stone surface.
+3. **No third child, no shadows, no collision.** Overview water silhouette is unchanged because
+   nothing rises through the rest surface.
+
+### Verification
+
+- `--filter=test_ws13d_pier_cribs` (9 tests): previous WS-13d cases plus tip notches, rubble under
+  the surface, and crib/notch/fill coverage on Harbor East and Saaremaa.
+- Plates (`tools/capture_underwater.gd --shot=under_horizontal`, `state=2` UNDER):
+  Harbor East mid-pier tip `--pos=62.2,-0.85,24.4 --look=64.2,-0.55,26.3` ->
+  `docs/reports/images/ws13e_harbor_east_under_horizontal_{metal,gl}.png`.
+  Saaremaa ferry `--map=world.saaremaa --pos=6.4,-1.0,21.8 --look=8.6,-0.65,24.3` ->
+  `docs/reports/images/ws13e_saaremaa_under_horizontal_{metal,gl}.png`.
+- Overview (GL Compatibility): `docs/reports/images/ws13e_{harbor_east,saaremaa}_overview_gl.png`.
+  Geometry stays under the waterline so the top-down look keeps the WS-13d budget.

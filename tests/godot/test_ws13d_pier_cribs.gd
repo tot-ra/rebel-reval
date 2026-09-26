@@ -10,6 +10,12 @@ const CribBuilder := preload("res://scripts/map/view3d/map_view_pier_crib_builde
 const RevalHarborNorthDefinition := preload(
 	"res://scripts/map/definitions/outdoor/reval_harbor_north_definition.gd"
 )
+const RevalHarborEastDefinition := preload(
+	"res://scripts/map/definitions/outdoor/reval_harbor_east_definition.gd"
+)
+const DistantLocationDefinitions := preload(
+	"res://scripts/map/definitions/outdoor/distant_location_definitions.gd"
+)
 
 ## Synthetic sea as in test_ws13b_sea_basin_depth: deep rows 0-9, shallow rows 10-11,
 ## a grass bank from row 12, a timber pier at x 11-12 out to row 5 and a stone
@@ -136,6 +142,11 @@ func test_terrain_builds_one_shadowless_crib_node_and_inland_maps_none() -> void
 					instance.get_aabb().end.y < SURFACE_Y,
 					"%s must stay under the water surface" % name,
 				)
+		var logs_mesh := cribs.get_node("PierCribLogs").mesh as ArrayMesh
+		assert_true(
+			logs_mesh != null and logs_mesh.get_surface_count() >= 2,
+			"rubble must share the logs node as a second surface",
+		)
 	terrain.free()
 	var pond := _sea_definition(MapTypes.TERRAIN_WATER, MapTypes.TERRAIN_WATER)
 	var inland := TerrainBuilder.build_terrain(pond, MapBuilder.build(pond))
@@ -157,6 +168,97 @@ func test_harbor_north_landings_stand_on_cribs() -> void:
 			east += 1
 	assert_true(west >= 6, "pier.west must stand on crib faces (got %d)" % west)
 	assert_true(east >= 6, "pier.east must stand on crib faces (got %d)" % east)
+
+
+func test_tip_corners_use_saddle_notches() -> void:
+	var definition := _sea_definition()
+	var field := TerrainBuilder.ensure_height_field(definition, MapBuilder.build(definition))
+	var notched := 0
+	for face: Dictionary in CribBuilder.crib_faces(field):
+		var cell: Vector2i = face["cell"]
+		var side: Vector2i = face["side"]
+		var west_tip := cell == PIER.position and (side == Vector2i.LEFT or side == Vector2i.UP)
+		var east_tip := (
+			cell == Vector2i(PIER.end.x - 1, PIER.position.y)
+			and (side == Vector2i.RIGHT or side == Vector2i.UP)
+		)
+		if not west_tip and not east_tip:
+			continue
+		for log_spec: Dictionary in face["logs"]:
+			assert_true(
+				bool(log_spec["notch_from"]) or bool(log_spec["notch_to"]),
+				"tip corner logs must use a saddle notch at %s %s" % [cell, side],
+			)
+			notched += 1
+	assert_true(notched >= 8, "both tip corners must notch stacked logs (got %d)" % notched)
+
+
+func test_crib_faces_carry_rubble_under_the_surface() -> void:
+	var definition := _sea_definition()
+	var field := TerrainBuilder.ensure_height_field(definition, MapBuilder.build(definition))
+	var stones := 0
+	for face: Dictionary in CribBuilder.crib_faces(field):
+		if float(face["floor_y"]) < -1.5:
+			assert_true(
+				(face["rubble"] as Array).size() >= 2,
+				"a deep crib face must show stone fill",
+			)
+		for stone: Dictionary in face["rubble"]:
+			stones += 1
+			var center: Vector3 = stone["center"]
+			var half: Vector3 = stone["half"]
+			assert_true(
+				center.y + half.y < SURFACE_Y - 0.08,
+				"rubble must stay under the surface at %s" % center,
+			)
+	assert_true(stones >= 16, "the synthetic pier must pack rubble (got %d)" % stones)
+
+
+func test_harbor_east_and_saaremaa_landings_stand_on_cribs() -> void:
+	var east_definition := RevalHarborEastDefinition.create()
+	var east_faces := CribBuilder.crib_faces(
+		TerrainBuilder.ensure_height_field(
+			east_definition, MapBuilder.build(east_definition)
+		)
+	)
+	var east_piers := {"west": 0, "mid": 0, "east": 0}
+	var east_notches := 0
+	var east_stones := 0
+	for face: Dictionary in east_faces:
+		var cell: Vector2i = face["cell"]
+		if cell.x >= 26 and cell.x <= 27:
+			east_piers["west"] = int(east_piers["west"]) + 1
+		elif cell.x >= 64 and cell.x <= 65:
+			east_piers["mid"] = int(east_piers["mid"]) + 1
+		elif cell.x >= 111 and cell.x <= 112:
+			east_piers["east"] = int(east_piers["east"]) + 1
+		east_stones += (face["rubble"] as Array).size()
+		for log_spec: Dictionary in face["logs"]:
+			if bool(log_spec.get("notch_from", false)) or bool(log_spec.get("notch_to", false)):
+				east_notches += 1
+	assert_true(int(east_piers["west"]) >= 6, "pier.west on Harbor East")
+	assert_true(int(east_piers["mid"]) >= 6, "pier.mid on Harbor East")
+	assert_true(int(east_piers["east"]) >= 6, "pier.east on Harbor East")
+	assert_true(east_notches >= 8, "Harbor East tip corners must notch")
+	assert_true(east_stones >= 20, "Harbor East cribs must show fill")
+	var saaremaa := DistantLocationDefinitions.create(&"world_saaremaa")
+	assert_true(saaremaa != null, "world_saaremaa definition")
+	var island_faces := CribBuilder.crib_faces(
+		TerrainBuilder.ensure_height_field(saaremaa, MapBuilder.build(saaremaa))
+	)
+	var ferry := 0
+	var strait := 0
+	var island_stones := 0
+	for face: Dictionary in island_faces:
+		var cell: Vector2i = face["cell"]
+		if cell.y >= 24 and cell.y <= 25:
+			ferry += 1
+		elif cell.y >= 36 and cell.y <= 37:
+			strait += 1
+		island_stones += (face["rubble"] as Array).size()
+	assert_true(ferry >= 6, "pier.ferry on Saaremaa (got %d)" % ferry)
+	assert_true(strait >= 6, "pier.strait on Saaremaa (got %d)" % strait)
+	assert_true(island_stones >= 16, "Saaremaa cribs must show fill")
 
 
 func _sea_definition(

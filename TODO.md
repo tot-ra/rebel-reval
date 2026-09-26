@@ -296,6 +296,13 @@ timber decks leave the hard-bank field for a 12-per-cell crib face; logs follow 
 rendered face; everything stays 0.22 units under the rest surface; the crib is a reconstruction,
 not an attested 1343 structure.
 
+- [ ] WS-13e | deps: WS-13d | deliverable: review Harbor East and Saaremaa cribs; add saddle-notched tip corners and visible stone fill under CRIB_TOP_CLEARANCE without a third MeshInstance | allowed files: `scripts/map/view3d/map_view_pier_crib_builder.gd`, `scripts/map/view3d/map_view_mesh_builder_config.gd`, `tests/godot/test_ws13d_pier_cribs.gd`, `docs/tasks/water_sky/WS-13d_pier_cribs.md`, `docs/reports/images/ws13e_*.png`, `TODO.md` | verify: `--filter=test_ws13d_pier_cribs`; Metal/Compatibility `under_horizontal` plates on both maps; GL overview plates stay under the WS-13d waterline budget
+
+WS-13e implementation landed (R-921). Decisions are in the WS-13d task file: tip corners emit a
+saddle notch instead of a round cap; rubble shares the logs node as a second surface; Harbor East
+and Saaremaa keep two MeshInstance children. Evidence: `docs/reports/images/ws13e_*.png`.
+`--filter=test_ws13d_pier_cribs` 9/9.
+
 - [ ] WS-14a | deps: WS-13 | deliverable: ADR 0021 swimming and diving naming the removed scope, allowed water/maps, player-only traversal layer, breath/gear/combat/consequence rules, canon note, asset follow-ups and save fields | allowed files: `docs/adr/0021-swimming-and-diving.md`, `TODO.md` | verify: active docs check; maintainer acceptance recorded in ADR status
 - [ ] WS-14b | deps: WS-14a, WS-13, WS-05 | deliverable: PlayerSwimState (walk/wade/swim/dive/climb-out, FFT surface float, player-only swimmable traversal, ADR rules) with input, presentation hooks and save/load | allowed files: per accepted ADR 0021 | verify: swim state + save tests; map audits unchanged; keyboard/gamepad clip of wade/swim/dive/surface/climb-out
 

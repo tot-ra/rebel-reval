@@ -41,6 +41,12 @@ const CRIB_PILE_RADIUS := 0.13
 const CRIB_PILE_SPACING := 1.0
 const CRIB_TOP_CLEARANCE := 0.22
 const CRIB_BED_EMBED := 0.25
+## WS-13e: visible stone fill stays inside the crib, under CRIB_TOP_CLEARANCE.
+## Two stones along each face and at most two height layers keeps Harbor East
+## and Saaremaa on the existing two MeshInstance draws (logs+rubble share one
+## node as a second surface; piles stay the second node).
+const CRIB_RUBBLE_ALONG := 2
+const CRIB_RUBBLE_MAX_LAYERS := 2
 ## Deepened ground reads as sand with silt patches, not as the neighbouring meadow.
 const SEA_BASIN_BED_TERRAIN := MapTypes.TERRAIN_COAST_SAND
 const SEA_BASIN_SILT_TERRAIN := MapTypes.TERRAIN_MUD
