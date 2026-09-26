@@ -57,6 +57,9 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 - Pre-commit runs `verify_map_audit.py` for any staged `scripts/map/**` file. When map audit is already red on `main`, keep production fixes in tests or non-map modules, or repair audit inventory first.
 - `tools/run_godot_checked.sh [--require-test-summary] <log-basename> -- <godot-command>`. The log name is a basename, not `/tmp/...`. The command after `--` must start with `"$GODOT_BIN"` (usually `--headless --path .`). Harness `--filter=stem` must come after a second `--` so `OS.get_cmdline_user_args()` sees it; otherwise the full suite runs.
 - The harness is `tools/run_godot_tests.gd`. `--filter` matches `test_*.gd` file stems, not method names. Pass one `--filter=stem1,stem2` token. Repeated `--filter name` flags are ignored and the full suite runs.
+- `tools/run_map_pipeline_ci.sh` `run_tests` arguments must be those same stems (`test_lower_town_slice_map`, not `lower_town_slice_map`). The helper prefixes `test_` when omitted. A bare stem matches zero files and fails before any test runs.
+- Do not regenerate `tests/fixtures/maps/lower_town_slice.parity.json` to green the `parity` stage. Current compile is missing the eight contract-owned rear-workshop IDs (`brewery_rear_store` and siblings). Restore those IDs or get an explicit review before touching the fixture.
+- `toompea_small_castle.rrmap` is an unregistered benchmark source (WB-10). Do not register it from a tooling task just to make `test_map_pipeline_hardening` compare discover==registry.
 - Fresh worktrees need `godot --headless --path . --import` before tests (global class cache).
 - Do not run ordinary Node or RefCounted scripts with `--script`; they do not quit. Use the harness.
 - A shared worktree with Godot `--editor` or another harness is not a valid test host. Copy only the scoped files into a throwaway worktree (HEAD plus your own hunks) and run the focused `--filter=` there.

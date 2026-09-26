@@ -13,31 +13,36 @@ run_godot() {
 }
 
 run_tests() {
+  # Why: the harness matches exact test_*.gd stems. A bare
+  # `lower_town_slice_map` finds zero files and exits 1 before any test runs.
   local filter="$1"
-  "$GODOT_CHECKED" --require-test-summary "test-${filter}" \
+  if [[ "$filter" != test_* ]]; then
+    filter="test_${filter}"
+  fi
+  "$GODOT_CHECKED" --require-test-summary "${filter}" \
     "$GODOT_BIN" --headless --path "$ROOT" --script res://tools/run_godot_tests.gd -- --filter="$filter"
 }
 
 case "$MODE" in
   parser)
-    run_tests map_rrmap_parser
+    run_tests test_map_rrmap_parser
     ;;
   compiler)
-    run_tests map_blueprint_compiler
-    run_tests map_blueprint_semantic_validation
+    run_tests test_map_blueprint_compiler
+    run_tests test_map_blueprint_semantic_validation
     ;;
   audit)
     run_godot audit "$GODOT_BIN" --headless --path "$ROOT" --script res://tools/audit_map_blueprints.gd
     ;;
   parity)
-    run_tests lower_town_slice_map
-    run_tests map_pipeline_hardening
+    run_tests test_lower_town_slice_map
+    run_tests test_map_pipeline_hardening
     ;;
   routes)
-    run_tests lower_town_slice_map
+    run_tests test_lower_town_slice_map
     ;;
   persistence)
-    run_tests map_stable_state_store
+    run_tests test_map_stable_state_store
     ;;
   benchmark-smoke)
     "$ROOT/tools/benchmarks/run_large_map_benchmark.sh" \
