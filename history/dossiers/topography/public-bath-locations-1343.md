@@ -25,7 +25,7 @@ You are placing **city-owned public baths** (*Bad* / *Saun*) and **one enclosed 
 2. **Nunne / Stocker (1310)** is the **best-attested dated municipal node** - anchor at **Nunne tn 7** opposite NUKU courtyard; the documentary date is attested in secondary tradition, the local archaeological context is partial, and the **medieval plot boundary is a gap** [1][2][17].
 3. **Oleviste belt (1329)** — bath attested near St Olaf church; place on **Pikk/Lai churchyard fringe**, not inside nave `attested` doc date; exact footprint **uncertain** [3][4].
 4. **Sauna street (by early 14th c.)** — street name proves a bath at **Sauna tn 6–8** near south curtain; operational in 1343 `attested` street tradition; measured plan **gap** [5][6].
-5. **Rataskaevu** — listed in 14th-c. bath inventories but **no dedicated 1343 deed** reviewed; place a **low-confidence** POI on **sub monte** belt west of Toompea descent, **not** on the Cat's Well (that is a drinking well, 1375+) [7][8].
+5. **Rataskaevu** - listed in 14th-c. bath inventories but **no dedicated 1343 deed** reviewed; place a **low-confidence** POI on **sub monte** belt west of Toompea descent, **not** on the Cat's Well (that is a drinking well; 1375 rebuild is later fabric). Shared register with P0-072 / WB-12: **1325** name **B/C**, **1343** exact Dunkri / Cat's Well anchor **U** [7][8].
 6. **South-wall zone** — peripheral municipal baths drain to wet margin; **convent ladies' sauna** sits inside St Michael circular wall (**13th c.** tradition) — **do not merge** with Saunatorn stone turret [9][10].
 7. **Dominican priory bath** — east service yard, friars + guests only; see open question (not mapped as public POI this tick).
 8. **Do not show:** stone **Saunatorn** (1371), **Nuns' Gate** label (1355), **15th-c. syphilis closures**, or **1391 Thursday poor-bath** as 1343 law.
@@ -78,7 +78,7 @@ You are placing **city-owned public baths** (*Bad* / *Saun*) and **one enclosed 
 #### BATH-RATASKAEVU
 
 - Secondary inventories place a public bath on **Rataskaevu** [11][12].
-- Street name from **wheel-well** (*ratas* + *kaev*); first well mention **1325**, rebuilt **1375** — **Cat's Well is not the bath** [7][8].
+- Street name from **wheel-well** (*ratas* + *kaev*). Kuuskemaa 2024 says the *rader strate* / well name is written in **1325** (secondary Postimees synthesis; no TLA folio or AWB number reviewed) **B/C**. The **1375** Cat's Well rebuild is later fabric and is not the earliest name. **Cat's Well is not the bath**. A 1343 well at the modern Dunkri corner remains **U** [7][8].
 - *Sub monte* = slope below Toompea — bath logically on **lane margin**, not forum.
 - **No plot deed** at 1343 reviewed — keep `confidence: low` or omit from hard quest triggers.
 
@@ -149,7 +149,7 @@ You are placing **city-owned public baths** (*Bad* / *Saun*) and **one enclosed 
 4. Saunale.ee. “Eesti alade esimesed linnasaunad” — city ownership, peripheral siting, bath list: https://saunale.ee/eesti-alade-esimesed-linnasaunad/
 5. WikiSort / Tallinn street-name tradition — Sauna tn bath at 6–8, ≤ early 14th c. (Russian-lang secondary; cites [1]).
 6. Tiko, A. 2014. Medieval households Sauna 8/10 (cited in glass-vessels thesis) — street archaeology.
-7. Kuuskemaa, J. 2024. Postimees — Rataskaevu well **1325** mention, *sub monte*: https://arvamus.postimees.ee/7993047/juri-kuuskemaa-rataskaevust-kassikaevuks
+7. Kuuskemaa, J. 2024. Postimees - Rataskaevu well **1325** mention, *sub monte*; paywalled popular synthesis, no folio cited in the public extract: https://arvamus.postimees.ee/7993047/juri-kuuskemaa-rataskaevust-kassikaevuks
 8. [`lower-town-street-plan.md`](./lower-town-street-plan.md) — Rataskaevu *sub monte* 1361; 1343 well anchor uncertain.
 9. Vaatavanalinna.ee. “The Sauna Tower” — 13th-c. convent circular-wall sauna; stone tower **1371+**; 1422 demolition conflict: https://vaatavanalinna.ee/en/sauna-tower/
 10. [`ecclesiastical-precinct-boundaries-1343.md`](../religion/ecclesiastical-precinct-boundaries-1343.md) — St Michael bath zone in precinct polygon.

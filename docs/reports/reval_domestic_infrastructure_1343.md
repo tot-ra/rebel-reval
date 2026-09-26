@@ -59,9 +59,10 @@ Wells are attested in 1343-relevant Reval archaeology and institutional
 descriptions: courtyard wells and gutters in the western Lower Town NUKU
 excavation ([1]), a medieval well in the Bishop's Garden on Toompea ([8]), and a
 courtyard well at the Dominican friary of St Catherine ([11]). Rataskaevu is
-named from a wheel-well; the street-name tradition records a well mention in
-1325 and a rebuild in 1375, so the **name** is earlier than 1343 and the
-standing rebuild is later ([12]).
+named from a wheel-well. Shared R-1009 register with P0-072: **1325** name
+**B/C** (Kuuskemaa 2024 secondary; no folio reviewed), **1343** exact Dunkri /
+Cat's Well anchor **U**, **1375** Cat's Well rebuild later and excluded from
+1343 fabric ([12]).
 
 Construction of a typical 1343 household well (stone-lined shaft versus timber
 box, depth, lining) is **unknown** in the reviewed register. Do not copy a

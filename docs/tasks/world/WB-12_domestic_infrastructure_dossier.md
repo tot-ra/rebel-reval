@@ -140,11 +140,15 @@ Structural gates:
   `plausible composite`; market weekday `invented` fallback. Household
   firewood volume and a 1343 Feuerordnung stay unknown in both places.
 
-Note, not a fail: P0-072 / H10 still say Rataskaev is first mentioned after
-1343 (1375 in later summaries) and keep a 1343 exact-anchor **U**. The report
-follows the public-bath dossier's 1325 mention plus 1375 rebuild and already
-marks the street well **B/C**. That is a register tension, not a silent
-promotion of the 1375 fabric into 1343 fact. Follow-up **R-1009** reconciles
-the H10 sentence with the 1325 citation.
+R-1009 (2026-09-27) closed the register tension. Shared years and labels
+now match P0-072 `south_quarter` landmarks, this water table, and the
+public-bath dossier:
+
+- **1325** wheel-well / *rader strate* name: **B/C** (Kuuskemaa 2024
+  secondary; no reviewed folio).
+- **1343** exact well at the later Cat's Well / Dunkri corner: **U**.
+- **1375** Cat's Well rebuild: later fabric; do not author it in 1343.
+
+H10 stays the Karja Gate row. It does not own the Rataskaevu years.
 
 Result: R-984 verify item for the second reviewer is met. Close R-984.
