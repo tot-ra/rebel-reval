@@ -129,3 +129,79 @@ threshold file rather than setting the floors low enough to pass.
   (`tier_spread_active: false`) until R-981 lands the semantic fields.
 - `tests/python/test_verify_world_building_visual_gate.py` is also touched: its complete-fixture
   test needed the new row, and two tests cover the density row.
+
+## Second review (R-989, 2026-09-26)
+
+Reviewer: Cursor Agent (independent of the R-982 implementation session).
+Verdict: **PASS**. Numeric floors stay. No threshold amendment.
+
+Checked `density_contract` in `docs/data/map_composition_thresholds.json` against this file
+and `docs/reports/map_density_baseline_2026-09-26.md`.
+
+### Floor arithmetic
+
+Benchmark `kalev_smithy`: 143.4 dressing props / 1000 walkable cells, 24.5 decals / 1000,
+21 kinds, largest kind share 26.8%. Confirmed against the 2026-09-26 audit (41 props and
+7 decals over 286 walkable cells).
+
+| Class | f | props | decals | kinds (21 x scale, floored) | kind-share cap |
+|---|---:|---:|---:|---:|---:|
+| interior | 0.50 | 71.7 | 12.2 | 10 (x 0.5) | 30 |
+| dense_urban | 0.25 | 35.9 | 6.1 | 12 (x 0.6) | 30 |
+| sparse_urban | 0.125 | 17.9 | 3.1 | 10 (x 0.5) | 35 |
+| foreland | 0.0625 | 9.0 | 1.5 | 8 (x 0.4) | 40 |
+| rural | 0.0625 | 9.0 | 1.5 | 8 (x 0.4) | 40 |
+
+props/decals match `round(benchmark * f, 1)`. Fraction story (room clutter -> plot/yard
+share -> precinct share -> field/shore share) is written in `derivation` and is not read
+back from outdoor measurements. `lower_town_slice` production grace keeps 2.3 / 0.7 against
+35.9 / 6.1 until R-986; the floors were not lowered to pass the live district.
+
+Relief 0.3 m reuses the existing `elevation_range_min` default. Toompea and
+`archbishops_garden` keep their stricter 2.5 m card values for the P1-036 band audit.
+`max_identical_footprint_run` 3 follows the three R-003 house tiers. Tier-spread keys exist
+and stay dormant (`tier_spread_active: false`) until R-981.
+
+### Ground-cover citations (floors unchanged)
+
+The numbers are justified. Two derivation labels should be read as follows, not as a reason
+to retune:
+
+- dense_urban 10 is the `market_civic_quarter` grass/service-margin band 10-20%
+  (`docs/HISTORICAL_AUDIT.md`, H04, H09). The "H06-H07 market" shorthand points at the
+  Town Hall landmark pair, not that grass band.
+- sparse_urban 20 is the enrolled `monastery_quarter` `grass_pct` lower bound `[20, 35]`.
+  The prose monastery card is 25-40% (H14). The floor follows the machine band, not the
+  outdoor 23.4% cover. Reconciling the 5-point card-vs-prose gap is a P0-072 hygiene item,
+  not a WB-10 retune.
+- foreland/rural 50 is the `viru_gate_foreland` meadow/pasture/field/woodland band 50-70%.
+  Register H18 is livestock bones, not that grass band. Harbour cards sit at 20-35% and
+  30-45% grass/scrub; keeping 50 is the stronger grassy-foreland/rural floor, not a fit to
+  current outdoor maps (`world.padise` fails at 39.0%).
+
+### Map classes
+
+`archbishops_garden` is `sparse_urban` (precinct garden, not a street grid). `world.paide`
+and `world.parnu` are `rural`. Other assignments match the registry: interiors, four dense
+urban wards, monastery/Toompea as sparse urban, both harbours plus Viru as foreland, remaining
+`world.*` as rural.
+
+### Metrics and AR-13 seam
+
+Walkable cells, dressing-only props (trees/bushes excluded), decals, kind share,
+`ground_cover_pct`, relief span, and rotation-agnostic adjacent footprint runs are dressing
+and ground. AR-13 (R-971) still owns appearance repetition, silhouette tuples, part-reuse
+and landmark uniqueness. Nothing here duplicates those.
+
+### Verify
+
+- `python3 -m unittest tests.python.test_verify_map_composition tests.python.test_verify_world_building_visual_gate -v`
+- `python3 tools/verify_map_composition.py` (no `--write-baseline`)
+- `python3 tools/verify_world_building_visual_gate.py` remains `BLOCKED` and names density
+  metrics per map
+- `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_map_composition_density`
+  in an isolated HEAD worktree (shared tree already held Godot `--editor` and another harness)
+
+Recorded 2026-09-26: unittest 25/25; composition verifier exit 0 (28-map table matches the
+checked-in baseline); visual gate `BLOCKED` with 908 findings, including named density
+metrics per map; Godot filter 8/8.
