@@ -153,8 +153,38 @@ func test_water_shader_declares_reflection_inputs_and_safe_compatibility_fallbac
 		"screen UV distortion must be clamped away from texture edges",
 	)
 	assert_true(
-		"max(geometric_depth, terrain_optical_depth)" in source,
+		"max(path_len, terrain_optical_depth)" in source,
 		"water needs a safe optical depth floor",
+	)
+	assert_false(
+		"planar_reflection" in source.to_lower(),
+		"water must not depend on a planar reflection pass",
+	)
+
+
+func test_ws01_extinction_follows_the_snell_refracted_path_to_the_bed() -> void:
+	var source := ShaderSources.WATER_SHADER.code
+	assert_true("refract(" in source, "the view ray must be refracted at the surface")
+	assert_true("WATER_IOR" in source, "refraction must use the shared water index of refraction")
+	assert_true(
+		"float path_len = water_column / transmitted_down" in source,
+		"the optical path must be the vertical column over the refracted cosine",
+	)
+	assert_true(
+		"exp(-sigma_t * path_m)" in source,
+		"Beer-Lambert extinction must be driven by the refracted path length",
+	)
+	assert_true(
+		"RENDERER_COMPATIBILITY" in source and "_view_position(" in source,
+		"bed reconstruction must handle the Compatibility and Mobile depth conventions",
+	)
+	assert_true(
+		"_seabed_layers(water_world_position.xz, bed_column)" in source,
+		"the layered bed must be classified by vertical depth, not the view ray",
+	)
+	assert_false(
+		"refraction_strength" in source or "geometric_depth" in source,
+		"the fixed screen-offset refraction and view-ray depth must be gone",
 	)
 	assert_false(
 		"planar_reflection" in source.to_lower(),

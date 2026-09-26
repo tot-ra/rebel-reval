@@ -29,6 +29,16 @@ P0-208 implementation, 64 focused tests in headless and GL Compatibility, and in
 
 Contracts: [`docs/tasks/water_sky/README.md`](docs/tasks/water_sky/README.md). Task board epic R-885.
 
+- [ ] WS-01 | deps: none | deliverable: water extinction and bed sampling follow the Snell-refracted ray to the depth-buffer bed (vertical column / refracted cosine, one refinement), replacing view-ray geometric depth and the fixed screen-offset refraction | allowed files: `scripts/map/view3d/map_view_water.gdshader`, `scripts/map/view3d/map_view_water_materials.gd`, `tests/godot/test_r715_water_material_contract.gd`, `docs/THIRD_PARTY_NOTICES.md`, `docs/reports/images/ws01_*.png`, `TODO.md` | verify: contract test asserts refract/Beer-Lambert path; harbor clear-day before/after captures show a clear shallow bed with no orbit-dependent darkening and no bank halo
+
+WS-01 implementation landed (R-886, in review). Decisions (2026-09-26): the per-terrain
+`optical_depth` floor still dominates the few-centimetre flat gameplay column, so extinction
+constants were not retuned (Compatibility plate within 3% of the pre-change colour). The old
+`_view_depth` decoded Mobile/Metal depth with the OpenGL -1..1 convention; the shared
+`_view_position` helper fixes that, so the Metal shallow strip now matches Compatibility instead
+of the teal-opaque bed. Seabed layers and caustics use the floored vertical column; edge-foam
+fades use the unfloored vertical column. Evidence: `docs/reports/images/ws01_*.png`.
+
 - [ ] WS-03 | deps: none | deliverable: deterministic tools/bake_ocean_fft.py baking three band-split, time-looping JONSWAP/TMA FFT cascades (disp+foam, derivatives) into Texture2DArray PNG atlases with a profile manifest | allowed files: `tools/bake_ocean_fft.py`, `tests/python/test_bake_ocean_fft.py`, `assets/water/ocean_fft/baltic_reference/*`, `assets/SOURCES.csv`, `TODO.md` | verify: python unittest (periodicity, energy, determinism, foam loop); --check exits 0; storage/provenance/asset-lint validators pass; atlases import as 64-layer arrays
 
 The WS-03 bake landed in commit `3cc7967f` with four recorded deviations from its contract text

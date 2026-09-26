@@ -29,7 +29,6 @@ uniform float choppiness = 0.85;
 // 0 travels with the wind; ~0.4 bobs in place for sheltered harbors.
 uniform float standing_wave_ratio = 0.12;
 uniform float depth_absorption = 7.0;
-uniform float refraction_strength = 0.012;
 uniform float foam_intensity = 0.22;
 uniform float breaker_intensity = 0.35;
 // Water2-style dual normal detail without texture memory: two independent
@@ -137,6 +136,8 @@ uniform float gust_scale = 0.0167;
 // MapViewRuntimeEnvironment.OCEAN_TIME_WRAP_SECONDS. Every drift below moves a whole
 // number of tiles or lattice periods per wrap, so the ocean clock wrap never pops.
 const float OCEAN_TIME_WRAP_SECONDS = 1638.4;
+// WS-01: 1 world unit = 1 map cell = 0.87 m (MapViewBuildingMaterials.METERS_PER_WORLD_UNIT).
+const float WATER_METERS_PER_UNIT = 0.87;
 // Foam tile drift downwind: ~0.27 m/s and ~0.29 m/s, slow against the wave phase
 // speed, so a foam patch still rides its crest.
 const float FOAM_DRIFT_A_TILES_PER_WRAP = 40.0;
@@ -395,11 +396,26 @@ float _bed_caustics(vec2 position, float time) {
 	return pow(clamp(1.0 - abs(crossing) * 0.56, 0.0, 1.0), 5.0);
 }
 
-float _view_depth(vec2 screen_uv, float raw_depth, mat4 inverse_projection) {
-	// GL Compatibility uses OpenGL NDC, whose Z range is -1..1.
-	vec3 ndc = vec3(screen_uv * 2.0 - 1.0, raw_depth * 2.0 - 1.0);
+// WS-01: view-space position of a depth-buffer sample. GL Compatibility uses
+// OpenGL NDC (Z in -1..1); Mobile/Forward+ (the Metal capture path) store NDC Z
+// directly (0..1, reversed). One helper keeps both conventions in one place.
+vec3 _view_position(vec2 screen_uv, float raw_depth, mat4 inverse_projection) {
+	#if CURRENT_RENDERER == RENDERER_COMPATIBILITY
+	vec3 ndc = vec3(screen_uv, raw_depth) * 2.0 - 1.0;
+	#else
+	vec3 ndc = vec3(screen_uv * 2.0 - 1.0, raw_depth);
+	#endif
 	vec4 view_position = inverse_projection * vec4(ndc, 1.0);
-	return -view_position.z / view_position.w;
+	return view_position.xyz / view_position.w;
+}
+
+float _view_depth(vec2 screen_uv, float raw_depth, mat4 inverse_projection) {
+	return -_view_position(screen_uv, raw_depth, inverse_projection).z;
+}
+
+vec2 _world_to_screen_uv(vec3 world_position, mat4 projection, mat4 view) {
+	vec4 clip = projection * (view * vec4(world_position, 1.0));
+	return clip.xy / clip.w * 0.5 + 0.5;
 }
 
 // WS-13b: view depth where this pixel's eye ray meets the flat gameplay bed plane,
@@ -714,41 +730,85 @@ void fragment() {
 			INV_VIEW_MATRIX
 		));
 	}
-	float geometric_depth = max(scene_depth - surface_depth, 0.0);
-	// Authored water cells share a flat gameplay bed. Their existing absorption
-	// profiles also select a minimum optical column, so shallow/river/deep water
-	// remain distinct while geometric depth still controls bank intersections,
-	// refraction safety and edge foam.
+	// WS-01: vertical water column under this pixel, the physical depth. Unlike the
+	// distance along the view ray it does not grow when the camera drops or orbits.
+	vec3 surface_world = (INV_VIEW_MATRIX * vec4(VERTEX, 1.0)).xyz;
+	float water_column = 0.0;
+	if (scene_depth > surface_depth) {
+		vec3 bed_world = (INV_VIEW_MATRIX * vec4(
+			_view_position(SCREEN_UV, raw_scene_depth, INV_PROJECTION_MATRIX), 1.0
+		)).xyz;
+		// WS-13b: optics stay measured to the flat gameplay bed, not the rendered basin.
+		float bed_y = flat_bed_flag > 0.5 ? max(bed_world.y, flat_bed_world_y) : bed_world.y;
+		water_column = max(surface_world.y - bed_y, 0.0);
+	}
+	// Authored water cells share a flat gameplay bed a few centimetres down, so the
+	// per-terrain absorption profile also selects a minimum optical path. This floor,
+	// not the thin real column, is what keeps shallow/river/deep water distinct.
 	float terrain_optical_depth = optical_depth + max(depth_absorption - 5.0, 0.0) * 0.055;
 	// Rising coastal water hides more of the layered bed; ebbing water exposes it.
 	// Rivers use a zero tide_optical_depth profile and remain unchanged.
 	terrain_optical_depth = max(terrain_optical_depth + tide_level * tide_optical_depth, 0.018);
-	float water_depth = max(geometric_depth, terrain_optical_depth);
 
-	// Distort only samples that remain behind the surface. This suppresses the
-	// familiar refraction halo that otherwise pulls dry bank pixels into water.
-	float depth_fade = smoothstep(0.0, 0.11, geometric_depth);
-	vec2 refracted_uv = clamp(
-		SCREEN_UV + view_normal.xy * refraction_strength * depth_fade,
-		vec2(0.001),
-		vec2(0.999)
-	);
-	float refracted_depth = _view_depth(
-		refracted_uv,
-		textureLod(depth_texture, refracted_uv, 0.0).r,
-		INV_PROJECTION_MATRIX
-	);
-	if (refracted_depth <= surface_depth + 0.002) {
-		refracted_uv = SCREEN_UV;
+	// Ported from Tidewater (MIT), see notice.code.tidewater: follow the Snell-refracted
+	// view ray to the bed instead of the straight screen ray, which overestimates the
+	// water path 1.5-2x at the gameplay camera angle and ~10x at grazing angles.
+	// VIEW points at the eye in view space for perspective and orthographic cameras.
+	vec3 eye_world = normalize((INV_VIEW_MATRIX * vec4(VIEW, 0.0)).xyz);
+	// calm_normal, not the detail normal: the path length must not shimmer.
+	vec3 transmitted_ray = refract(-eye_world, calm_normal, 1.0 / WATER_IOR);
+	// Wave facets on the coarse mesh (or total internal reflection from below, which
+	// returns a zero vector) can send the ray upward; keep it heading for the bed.
+	transmitted_ray = normalize(vec3(transmitted_ray.x, min(transmitted_ray.y, -0.08), transmitted_ray.z));
+	// Refracted cosine against the vertical; the floor bounds the path at the horizon.
+	float transmitted_down = max(-transmitted_ray.y, 0.04);
+	float path_len = water_column / transmitted_down;
+	// One refinement against the depth buffer (Tidewater refines twice against a
+	// height function): project the refracted bed hit, re-measure the column there,
+	// and project again. Never accept a sample whose depth is in front of the surface;
+	// that is the refraction halo that pulls dry bank pixels into the water.
+	vec2 refracted_uv = SCREEN_UV;
+	if (water_column > 0.0) {
+		vec2 first_uv = _world_to_screen_uv(surface_world + transmitted_ray * path_len, PROJECTION_MATRIX, VIEW_MATRIX);
+		float first_raw = textureLod(depth_texture, clamp(first_uv, vec2(0.0), vec2(1.0)), 0.0).r;
+		vec3 first_bed = _view_position(first_uv, first_raw, INV_PROJECTION_MATRIX);
+		bool first_valid = all(greaterThanEqual(first_uv, vec2(0.0))) && all(lessThanEqual(first_uv, vec2(1.0)))
+			&& -first_bed.z > surface_depth + 0.002;
+		if (first_valid) {
+			float first_bed_y = (INV_VIEW_MATRIX * vec4(first_bed, 1.0)).y;
+			first_bed_y = flat_bed_flag > 0.5 ? max(first_bed_y, flat_bed_world_y) : first_bed_y;
+			float refined_column = max(surface_world.y - first_bed_y, 0.0);
+			float refined_path = refined_column / transmitted_down;
+			vec2 refined_uv = _world_to_screen_uv(surface_world + transmitted_ray * refined_path, PROJECTION_MATRIX, VIEW_MATRIX);
+			float refined_depth = _view_depth(
+				clamp(refined_uv, vec2(0.0), vec2(1.0)),
+				textureLod(depth_texture, clamp(refined_uv, vec2(0.0), vec2(1.0)), 0.0).r,
+				INV_PROJECTION_MATRIX
+			);
+			bool refined_valid = all(greaterThanEqual(refined_uv, vec2(0.0))) && all(lessThanEqual(refined_uv, vec2(1.0)))
+				&& refined_depth > surface_depth + 0.002;
+			if (refined_valid) {
+				refracted_uv = refined_uv;
+				water_column = refined_column;
+				path_len = refined_path;
+			}
+		}
 	}
+	// A rejected refinement keeps the straight sample and the column measured there.
+	refracted_uv = clamp(refracted_uv, vec2(0.001), vec2(0.999));
 	vec3 floor_color = textureLod(screen_texture, refracted_uv, 0.0).rgb;
+	// Optical path in world units: the refracted path, floored by the terrain profile.
+	float water_depth = max(path_len, terrain_optical_depth);
+	// The layered bed and its caustics are classified by vertical depth (same floor),
+	// so an orbiting camera cannot turn sand into deep-water bed.
+	float bed_column = max(water_column, terrain_optical_depth);
 
 	// Sand dominates illuminated shallows, stones break it into cool patches,
 	// algae occupies sheltered mid-depth water, and the final layer suppresses
 	// all bed detail once little daylight reaches the floor. The actual rendered
 	// floor remains visible below the tint, preserving quays, props and authored
 	// bank materials seen through the surface.
-	vec4 bed_layers = _seabed_layers(water_world_position.xz, water_depth);
+	vec4 bed_layers = _seabed_layers(water_world_position.xz, bed_column);
 	vec3 shallow_bed = (
 		sand_bed_color * bed_layers.x
 		+ stone_bed_color * bed_layers.y
@@ -761,9 +821,12 @@ void fragment() {
 	float bed_detail_visibility = exp(-water_depth * 9.5) * 0.18;
 	vec3 seabed = mix(layered_bed, floor_color * layered_bed * 1.18, bed_detail_visibility);
 
-	// Wavelength-dependent transmission removes red first and blue last. This
-	// creates depth lighting variation rather than uniformly darkening RGB.
-	vec3 spectral_transmission = exp(-water_depth * depth_absorption * vec3(1.28, 0.72, 0.40));
+	// Beer-Lambert along the refracted path. Wavelength-dependent extinction removes
+	// red first and blue last, so depth shifts hue instead of uniformly darkening RGB.
+	// sigma_t is art-scaled: the gameplay column is centimetres, not Baltic metres.
+	vec3 sigma_t = depth_absorption * vec3(1.28, 0.72, 0.40) / WATER_METERS_PER_UNIT;
+	float path_m = water_depth * WATER_METERS_PER_UNIT;
+	vec3 spectral_transmission = exp(-sigma_t * path_m);
 	float absorption = 1.0 - dot(spectral_transmission, vec3(0.333333));
 	vec3 transmitted = seabed * spectral_transmission;
 	vec3 water_color = transmitted + deep_color * (vec3(1.0) - spectral_transmission) * 0.82;
@@ -781,7 +844,7 @@ void fragment() {
 	// envelope keeps the transition visually continuous while the floor still
 	// goes dark at night.
 	float twilight_water_light = smoothstep(-0.25, 0.25, sun_direction.y);
-	float caustic_visibility = exp(-water_depth * 7.0) * (1.0 - bed_layers.w) * twilight_water_light;
+	float caustic_visibility = exp(-bed_column * 7.0) * (1.0 - bed_layers.w) * twilight_water_light;
 	float caustics = _bed_caustics(water_world_position.xz, TIME * wave_speed);
 	water_color += highlight_color * caustics * caustic_visibility * caustic_strength;
 
@@ -806,7 +869,7 @@ void fragment() {
 		// Storm streaks: the tile's B channel is stretched 6:1 along +X, which is
 		// downwind in the wind frame. The coarse C0 mask links them to whitecaps.
 		float streak_link = smoothstep(0.02, 0.3, fft_foam.z * storm_foam_coverage);
-		float open_water = smoothstep(0.14, 0.48, shore_factor) * smoothstep(0.03, 0.10, geometric_depth);
+		float open_water = smoothstep(0.14, 0.48, shore_factor) * smoothstep(0.03, 0.10, water_column);
 		// Streak foam floats on the surface, so it is laid on as white foam below
 		// instead of the sunk tint of old whitecap foam.
 		wind_streak = clamp(tile_a.b * streak_amount * storm_streaks * streak_link, 0.0, 1.0) * open_water;
@@ -918,7 +981,7 @@ void fragment() {
 	);
 	float edge_foam = shore * smoothstep(0.52, 0.88, foam_noise * 0.70 + foam_ribbon * 0.30);
 	float foam = edge_foam * foam_intensity + breaker_band * breaker_intensity;
-	foam *= smoothstep(0.012, 0.08, geometric_depth);
+	foam *= smoothstep(0.012, 0.08, water_column);
 
 	// Jacobian whitecaps on the Gerstner fallback: folding crests, not shoreline bands.
 	// A short time lag leaves foam behind the advancing crest without a foam buffer.
@@ -935,7 +998,7 @@ void fragment() {
 		);
 		crest_fold *= choppiness * foam_intensity * 1.35;
 		crest_fold *= smoothstep(0.14, 0.48, shore_factor);
-		crest_fold *= smoothstep(0.03, 0.10, geometric_depth);
+		crest_fold *= smoothstep(0.03, 0.10, water_column);
 		foam += crest_fold;
 	}
 
@@ -951,7 +1014,7 @@ void fragment() {
 		vec2 streak_uv = vec2(across * 2.1, along * 0.55);
 		float streak = _noise(streak_uv + _noise(streak_uv * 0.6 + vec2(9.1, 2.3)) * 1.4);
 		float current_foam = smoothstep(0.60, 0.92, streak) * flow_strength;
-		current_foam *= smoothstep(0.012, 0.08, geometric_depth);
+		current_foam *= smoothstep(0.012, 0.08, water_column);
 		foam += current_foam * 0.30;
 	}
 	// WS-15 churned water behind hulls: broken into bubbly clumps rather than a flat sheet.
@@ -959,7 +1022,7 @@ void fragment() {
 		float bubbles = _noise(water_world_position.xz * 7.5 + vec2(TIME * 0.3, -TIME * 0.2));
 		bubbles = smoothstep(0.25, 0.75, bubbles * 0.6 + ripple_aeration * 0.6);
 		foam += ripple_aeration * ripple_foam_strength * bubbles
-			* smoothstep(0.012, 0.08, geometric_depth);
+			* smoothstep(0.012, 0.08, water_column);
 	}
 	water_color = mix(water_color, highlight_color, clamp(ripple_slope_length * ripple_sheen, 0.0, 0.25));
 	water_color = mix(water_color, foam_color, clamp(foam, 0.0, 0.72));
