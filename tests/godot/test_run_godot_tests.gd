@@ -32,3 +32,10 @@ func test_filter_accepts_multiple_exact_filename_stems() -> void:
 			"res://tests/godot/nested/test_map.gd",
 		],
 	)
+
+
+func test_reverse_flag_inverts_discovered_file_order() -> void:
+	assert_eq(Harness._apply_file_order(DISCOVERED_FILES, false), DISCOVERED_FILES)
+	var reversed := DISCOVERED_FILES.duplicate()
+	reversed.reverse()
+	assert_eq(Harness._apply_file_order(DISCOVERED_FILES, true), reversed)

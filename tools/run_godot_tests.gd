@@ -69,6 +69,7 @@ func _run() -> void:
 	var filter_value := _argument_value("--filter=")
 	test_files = _filter_test_files(test_files, filter_value)
 	test_files.sort()
+	test_files = _apply_file_order(test_files, _has_flag("--reverse"))
 	if test_files.is_empty():
 		var filter_suffix := " (filter: %s)" % filter_value if not filter_value.is_empty() else ""
 		print("HARNESS ERROR: No Godot tests found under %s matching %s*%s%s" % [
@@ -80,8 +81,17 @@ func _run() -> void:
 		_finish(1)
 		return
 
+	var isolation: Variant = load(TEST_CASE_PATH).new()
+	if isolation.has_method("snapshot_harness_root"):
+		isolation.snapshot_harness_root()
+
 	print("Godot headless tests: discovered %d file(s)." % test_files.size())
 	for path in test_files:
+		# Why: combat/quest files share SessionState, ContentDB, InputMap, and
+		# root hosts. A prior file can leave a narrower corpus or leftover
+		# nodes that make later files fail only in a combined run.
+		if isolation.has_method("isolate_session_globals"):
+			isolation.isolate_session_globals()
 		_run_test_file(path)
 
 	print("Godot headless tests: %d file(s), %d test(s), %d failure(s), %d error(s)." % [
@@ -122,6 +132,13 @@ func _discover_tests(root_path: String) -> Array[String]:
 		entry = dir.get_next()
 	dir.list_dir_end()
 	return discovered
+
+
+static func _apply_file_order(test_files: Array[String], reverse_order: bool) -> Array[String]:
+	var ordered := test_files.duplicate()
+	if reverse_order:
+		ordered.reverse()
+	return ordered
 
 
 static func _filter_test_files(test_files: Array[String], filter_value: String) -> Array[String]:
@@ -249,3 +266,10 @@ func _argument_value(prefix: String) -> String:
 		if argument.begins_with(prefix):
 			return argument.trim_prefix(prefix)
 	return ""
+
+
+func _has_flag(flag: String) -> bool:
+	for argument in OS.get_cmdline_user_args():
+		if argument == flag:
+			return true
+	return false

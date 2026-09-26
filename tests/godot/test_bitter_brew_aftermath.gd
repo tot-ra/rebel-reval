@@ -91,7 +91,7 @@ func _assert_aftermath_family(
 
 
 func _prepare_aftermath_state(record_id: StringName) -> void:
-	if not SessionState.content_db.is_loaded():
+	if not demo_content_ready():
 		assert_true(SessionState.content_db.load_from_directories(SessionState.DEMO_CONTENT_DIRS))
 	SessionState.state = GameState.new()
 	SessionState.state.bag.set_content_db(SessionState.content_db)
@@ -160,6 +160,9 @@ func _free_aftermath(aftermath: Node) -> void:
 	if aftermath == null or not is_instance_valid(aftermath):
 		return
 	var host := aftermath.get_parent()
-	aftermath.queue_free()
+	# Why: the harness does not pump idle frames, so queue_free leaves hosts
+	# on the tree for later combat/quest files.
 	if host != null and is_instance_valid(host):
-		host.queue_free()
+		host.free()
+	elif is_instance_valid(aftermath):
+		aftermath.free()

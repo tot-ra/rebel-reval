@@ -239,8 +239,4 @@ func _free_stub(stub: NightEncounterStub) -> void:
 
 
 func _ensure_content_loaded() -> void:
-	if not SessionState.content_db.is_loaded():
-		assert_true(SessionState.content_db.load_from_directories(SessionState.DEMO_CONTENT_DIRS))
-	if SessionState.state == null:
-		SessionState.state = GameState.new()
-	SessionState.state.bag.set_content_db(SessionState.content_db)
+	assert_true(restore_demo_session(), "night stub needs the demo ContentDB")

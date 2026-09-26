@@ -111,11 +111,7 @@ func test_successful_outcome_clears_checkpoint() -> void:
 
 
 func _mount_room() -> CombatRoom:
-	if not SessionState.content_db.is_loaded():
-		assert_true(SessionState.content_db.load_from_directories(SessionState.DEMO_CONTENT_DIRS))
-	if SessionState.state == null:
-		SessionState.state = GameState.new()
-	SessionState.state.bag.set_content_db(SessionState.content_db)
+	assert_true(restore_demo_session(), "checkpoint room needs the demo ContentDB")
 	SessionState.state.set_quest_state(QUEST_ID, &"")
 	SessionState.state.set_flag(&"flag.watch_checkpoint_resolved", false)
 	var room: CombatRoom = COMBAT_ROOM_SCENE.instantiate() as CombatRoom
