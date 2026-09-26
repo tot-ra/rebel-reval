@@ -24,3 +24,5 @@ This file contains lessons specific to the Map role.
 - Outdoor night crushed to black after ADR 0018 is usually ambient/fill and night multipliers, not the 20% post-grade luminance proxy alone.
 - The lightweight Godot `test_case.gd` harness does not provide `assert_almost_eq`. Use an explicit `absf` tolerance.
 - When carving a narrow smithy commit, reset `kalev_smithy.rrmap`, `kalev_smithy_domestic_life.json`, and `content/routines/kalev_smithy.json` together to a matched baseline.
+- Composition audit must load `ownership_contract` when it is a `docs/data/*.json` path. Deriving `docs/data/<map_id>_authoring_contract.json` misses `lower_town_authoring_contract.json`, and then `largest_empty_region_cells` equals every walkable cell.
+- Do not flip a P1-036 card to `enforce=false` or change `enforcement_state` to skip a red band. Ownership and South Quarter tests require those fields to stay enrolled. Add a `historical_band_grace` row with `until` and `reason` instead of lowering a signed dossier band.

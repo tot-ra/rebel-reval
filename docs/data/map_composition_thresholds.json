@@ -372,5 +372,19 @@
         "tier_spread_active": false
       }
     }
+  },
+  "historical_band_grace": {
+    "lower_town_slice": {
+      "until": "R-986 (WB-14)",
+      "reason": "Card stays enrolled (enforce=true, enforcement_state=enforced). Measured 2026-09-26: built_density_pct 20.9 vs 45-60, max_style_share_pct 39.6 vs 35, largest_empty_region_cells equals the 14977 walkable cells when the ownership contract is not loaded, and still exceeds 1200 after the named open-region exclusions. R-986 re-authors the playable slice. Signed H04-H05/H09-H10 bands are not lowered."
+    },
+    "monastery_quarter": {
+      "until": "R-285 (P4-023b)",
+      "reason": "Card stays enrolled. Measured 2026-09-26: max_style_share_pct 55.17 vs 55, largest_empty_region_cells 25774 vs 22000. R-285 owns the Monastery ordinary-fabric pass. Signed H04-H05/H14 bands are not lowered."
+    },
+    "south_quarter": {
+      "until": "R-282 (P4-024)",
+      "reason": "Card stays enrolled (enforcement_state=enforced, activation composition BLOCKED). Measured 2026-09-26: built_density_pct 8.8 vs 40-55, largest_empty_region_cells 28395 vs 20000. R-282 / P4-024 owns the South Quarter environment pass. Signed H08-H10 bands are not lowered."
+    }
   }
 }

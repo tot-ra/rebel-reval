@@ -119,6 +119,7 @@ def validate_threshold_contract() -> list[str]:
 
     errors.extend(validate_lower_town_enforcement())
     errors.extend(validate_density_contract(payload))
+    errors.extend(validate_historical_band_grace(payload))
     return errors
 
 
@@ -156,6 +157,35 @@ def validate_density_contract(payload: dict) -> list[str]:
             errors.append(f"density grace names unknown map: {map_id}")
         if not isinstance(grace, dict) or not grace.get("until") or not grace.get("reason"):
             errors.append(f"density grace for {map_id} needs `until` (closing task) and `reason`")
+    return errors
+
+
+def validate_historical_band_grace(payload: dict) -> list[str]:
+    """R-990: P1-036 band deferrals name a closing task and keep the card enrolled.
+
+    Cards stay `enforce=true` so ownership tests and activation manifests keep
+    treating the gate as explicit. CI skips failing those bands until the
+    named owner deletes the grace row. Do not use this to lower signed bands.
+    """
+    errors: list[str] = []
+    grace_maps = payload.get("historical_band_grace", {})
+    if grace_maps and not isinstance(grace_maps, dict):
+        return ["historical_band_grace must be an object of map_id -> {until, reason}"]
+    maps = payload.get("maps", {})
+    for map_id, grace in grace_maps.items():
+        card = maps.get(map_id)
+        if not isinstance(card, dict):
+            errors.append(f"historical band grace names unknown map: {map_id}")
+            continue
+        if card.get("enforce") is not True:
+            errors.append(
+                f"historical band grace for {map_id} requires enforce=true; "
+                "do not silently unenroll the card"
+            )
+        if not isinstance(grace, dict) or not grace.get("until") or not grace.get("reason"):
+            errors.append(
+                f"historical band grace for {map_id} needs `until` (closing task) and `reason`"
+            )
     return errors
 
 

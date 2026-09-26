@@ -99,6 +99,34 @@ class VerifyMapCompositionTest(unittest.TestCase):
         grace = self.thresholds["density_contract"]["production_grace"]
         self.assertIn("R-986", grace["lower_town_slice"]["until"])
 
+    def test_historical_band_grace_names_closing_tasks(self) -> None:
+        self.assertEqual(verifier.validate_historical_band_grace(self.thresholds), [])
+        grace = self.thresholds["historical_band_grace"]
+        self.assertIn("R-986", grace["lower_town_slice"]["until"])
+        self.assertIn("R-285", grace["monastery_quarter"]["until"])
+        self.assertIn("R-282", grace["south_quarter"]["until"])
+        for map_id in grace:
+            self.assertTrue(self.thresholds["maps"][map_id]["enforce"])
+
+    def test_historical_band_grace_must_name_its_closing_task(self) -> None:
+        errors = self._with_band_grace(
+            lambda p: p["historical_band_grace"]["lower_town_slice"].pop("until")
+        )
+        self.assertTrue(any("historical band grace for lower_town_slice" in e for e in errors))
+
+    def test_historical_band_grace_keeps_the_card_enrolled(self) -> None:
+        errors = self._with_band_grace(
+            lambda p: p["maps"]["south_quarter"].update(enforce=False)
+        )
+        self.assertTrue(
+            any("historical band grace for south_quarter requires enforce=true" in e for e in errors)
+        )
+
+    def _with_band_grace(self, mutate) -> list[str]:
+        payload = json.loads(verifier.THRESHOLDS.read_text(encoding="utf-8"))
+        mutate(payload)
+        return verifier.validate_historical_band_grace(payload)
+
     def test_floors_are_derived_from_the_interior_benchmark(self) -> None:
         contract = self.thresholds["density_contract"]
         benchmark = contract["benchmark"]

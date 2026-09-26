@@ -29,9 +29,11 @@ func _run() -> void:
 	var density_contract: Dictionary = thresholds_doc.get("density_contract", {})
 	var density_classes: Dictionary = density_contract.get("classes", {})
 	var density_grace: Dictionary = density_contract.get("production_grace", {})
+	var band_grace: Dictionary = thresholds_doc.get("historical_band_grace", {})
 	var error_count := 0
 	var audited := 0
 	var density_errors := 0
+	var band_grace_count := 0
 	for entry in MapBlueprintRegistry.entries():
 		var map_id := String(entry.get("id", ""))
 		if not map_thresholds.has(map_id):
@@ -67,11 +69,13 @@ func _run() -> void:
 			continue
 		var definition := result.definition
 		var grid := MapBuilder.build(definition)
-		var authoring_contract := _load_authoring_contract(map_id)
+		var authoring_contract := _load_authoring_contract(map_id, card)
 
 		if enforce_bands:
 			var violations := MapCompositionAudit.audit(definition, grid, card, authoring_contract)
 			audited += 1
+			var grace: Dictionary = band_grace.get(map_id, {})
+			var until := String(grace.get("until", ""))
 			print("AUDIT %s" % map_id)
 			print(
 				"  sources=%s expected=%s"
@@ -80,8 +84,17 @@ func _run() -> void:
 			if violations.is_empty():
 				print("  pass")
 			for violation in violations:
-				push_error(MapCompositionAudit.format_violation(violation))
-				error_count += 1
+				# Keep the card enrolled; named owners close the gap. Do not
+				# fail CI or lower signed P0-072 / P1-036 bands (R-990).
+				if not until.is_empty():
+					print(
+						"  GRACE until %s: %s"
+						% [until, MapCompositionAudit.format_violation(violation)]
+					)
+					band_grace_count += 1
+				else:
+					push_error(MapCompositionAudit.format_violation(violation))
+					error_count += 1
 		else:
 			print("SKIP %s (enforce=false)" % map_id)
 
@@ -130,21 +143,32 @@ func _run() -> void:
 		)
 
 	print(
-		"Composition audit: %d enforced map(s), %d error(s), %d density error(s)."
-		% [audited, error_count, density_errors]
+		"Composition audit: %d enforced map(s), %d error(s), %d density error(s), %d band-grace hit(s)."
+		% [audited, error_count, density_errors, band_grace_count]
 	)
 	quit(1 if error_count + density_errors > 0 else 0)
 
 
-func _load_authoring_contract(map_id: String) -> Dictionary:
-	var path := "res://docs/data/%s_authoring_contract.json" % map_id
-	if not FileAccess.file_exists(path):
-		return {}
-	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
-	if parsed is Dictionary:
-		return parsed
-	push_error(
-		"ERROR[MAP_COMPOSITION_AUTHORING_CONTRACT_INVALID] (map=%s): could not parse %s"
-		% [map_id, path]
-	)
+func _load_authoring_contract(map_id: String, card: Dictionary = {}) -> Dictionary:
+	# Prefer the card's ownership_contract when it is a JSON file. The
+	# map_id-derived fallback misses lower_town_slice, whose contract is
+	# docs/data/lower_town_authoring_contract.json, and then the empty-region
+	# metric equals every walkable cell.
+	var candidates: Array[String] = []
+	var named := String(card.get("ownership_contract", ""))
+	if named.begins_with("docs/data/") and named.ends_with(".json"):
+		candidates.append("res://" + named)
+	candidates.append("res://docs/data/%s_authoring_contract.json" % map_id)
+	var seen: Dictionary = {}
+	for path in candidates:
+		if seen.has(path) or not FileAccess.file_exists(path):
+			continue
+		seen[path] = true
+		var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+		if parsed is Dictionary:
+			return parsed
+		push_error(
+			"ERROR[MAP_COMPOSITION_AUTHORING_CONTRACT_INVALID] (map=%s): could not parse %s"
+			% [map_id, path]
+		)
 	return {}

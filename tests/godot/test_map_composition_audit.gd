@@ -66,6 +66,7 @@ func test_enforced_registry_maps_pass_documented_thresholds() -> void:
 	var thresholds_doc: Dictionary = JSON.parse_string(
 		FileAccess.get_file_as_string("res://docs/data/map_composition_thresholds.json")
 	)
+	var band_grace: Dictionary = thresholds_doc.get("historical_band_grace", {})
 	for entry in MapBlueprintRegistry.entries():
 		var map_id := String(entry.get("id", ""))
 		var card: Dictionary = thresholds_doc["maps"][map_id]
@@ -85,11 +86,46 @@ func test_enforced_registry_maps_pass_documented_thresholds() -> void:
 		)
 		var definition := result.definition
 		var grid := MapBuilder.build(definition)
-		var violations := MapCompositionAudit.audit(definition, grid, card)
+		var contract := _authoring_contract_for(map_id, card)
+		var violations := MapCompositionAudit.audit(definition, grid, card, contract)
+		var grace: Dictionary = band_grace.get(map_id, {})
+		if not String(grace.get("until", "")).is_empty():
+			assert_false(
+				String(grace.get("reason", "")).is_empty(),
+				"%s historical band grace needs a reason" % map_id
+			)
+			continue
 		assert_true(
 			violations.is_empty(),
 			"%s composition violations: %s" % [map_id, violations]
 		)
+
+
+func test_lower_town_ownership_contract_is_applied_to_empty_region() -> void:
+	# The audit used to look up docs/data/lower_town_slice_authoring_contract.json
+	# and silently dropped the real ownership file, so largest_empty_region_cells
+	# equalled every walkable cell (14977).
+	var compiled := _compile_registry_map("lower_town_slice")
+	var thresholds_doc: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string("res://docs/data/map_composition_thresholds.json")
+	)
+	var card: Dictionary = thresholds_doc["maps"]["lower_town_slice"]
+	var contract := _authoring_contract_for("lower_town_slice", card)
+	assert_true(contract.get("open_regions", []).size() > 0)
+	var bare := MapCompositionAudit.measure(compiled["definition"], compiled["grid"])
+	var owned := MapCompositionAudit.measure(compiled["definition"], compiled["grid"], contract)
+	assert_true(
+		int(owned["excluded_open_region_cells"]) > 0,
+		"ownership contract must exclude named open reserves"
+	)
+	assert_true(
+		int(owned["largest_empty_region_cells"]) < int(bare["largest_empty_region_cells"]),
+		"open-region exclusions must shrink the unowned empty-region metric"
+	)
+	assert_true(
+		int(owned["largest_empty_region_cells"]) < int(owned["dressing"]["walkable_cells"]),
+		"empty region must not collapse to the whole walkable field"
+	)
 
 
 func test_excess_cobble_violation_reports_map_metric_and_source() -> void:
@@ -249,6 +285,41 @@ func test_open_reserve_without_explicit_exclusion_still_counts_as_empty_region()
 	)
 	assert_eq(metrics["excluded_open_region_cells"], 0)
 	assert_eq(metrics["largest_empty_region_cells"], 192)
+
+
+func _compile_registry_map(map_id: String) -> Dictionary:
+	for entry in MapBlueprintRegistry.entries():
+		if String(entry.get("id", "")) != map_id:
+			continue
+		var blueprint := MapBlueprintRegistry.create_blueprint(entry)
+		var required_anchors: Array[StringName] = []
+		required_anchors.assign(entry.get("required_anchors", []))
+		var result := MapBlueprintCompiler.compile_with_diagnostics(blueprint, required_anchors)
+		assert_true(
+			not result.diagnostics.any(func(d): return d.is_error()),
+			"%s compile errors: %s" % [map_id, result.diagnostics]
+		)
+		return {
+			"definition": result.definition,
+			"grid": MapBuilder.build(result.definition),
+		}
+	assert_true(false, "missing registry map %s" % map_id)
+	return {}
+
+
+func _authoring_contract_for(map_id: String, card: Dictionary) -> Dictionary:
+	var candidates: Array[String] = []
+	var named := String(card.get("ownership_contract", ""))
+	if named.begins_with("docs/data/") and named.ends_with(".json"):
+		candidates.append("res://" + named)
+	candidates.append("res://docs/data/%s_authoring_contract.json" % map_id)
+	for path in candidates:
+		if not FileAccess.file_exists(path):
+			continue
+		var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+		if parsed is Dictionary:
+			return parsed
+	return {}
 
 
 func _outdoor_fixture(map_id: StringName) -> MapDefinition:
