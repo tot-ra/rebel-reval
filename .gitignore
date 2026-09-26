@@ -11,6 +11,8 @@
 /sounds/birds/manifest.*.translation
 /sounds/birds/processed_manifest.*.translation
 /sounds/weather/manifest.*.translation
+/sounds/water/manifest.csv.import
+/sounds/water/manifest.*.translation
 # Local export artifacts and generated benchmark reports
 /build/
 /bin/
