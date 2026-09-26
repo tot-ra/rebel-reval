@@ -133,6 +133,10 @@ Roles `level`, `map`, and `event` have full conversion specifications later in t
 | `assets/characters/shared/sword.tscn` | support | `retain` | Shared sword equipment mesh | Equippable weapon component; not a map | not a map definition |
 | `assets/characters/variants/aita.tscn` | actor | `retain` | Aita NPC variant | Shared rig cast variant; no map activation | not a map definition |
 | `assets/characters/variants/bandit.tscn` | actor | `retain` | Bandit NPC variant | Shared rig hostile variant; no map activation | not a map definition |
+| `assets/characters/variants/crowd_townsman_01.tscn` | actor | `retain` | P0-153 crowd townsman 01 variant | Seeded MakeHuman crowd body; not a map destination | not a map definition |
+| `assets/characters/variants/crowd_townsman_02.tscn` | actor | `retain` | P0-153 crowd townsman 02 variant | Seeded MakeHuman crowd body; not a map destination | not a map definition |
+| `assets/characters/variants/crowd_townswoman_01.tscn` | actor | `retain` | P0-153 crowd townswoman 01 variant | Seeded MakeHuman crowd body; not a map destination | not a map definition |
+| `assets/characters/variants/crowd_townswoman_02.tscn` | actor | `retain` | P0-153 crowd townswoman 02 variant | Seeded MakeHuman crowd body; not a map destination | not a map definition |
 | `assets/characters/variants/danish_warrior.tscn` | actor | `retain` | Danish warrior NPC variant | Shared rig hostile variant; no map activation | not a map definition |
 | `assets/characters/variants/ellen.tscn` | actor | `retain` | Ellen NPC variant | Shared rig cast variant; no map activation | not a map definition |
 | `assets/characters/variants/jurgen.tscn` | actor | `retain` | Jurgen NPC variant | Shared rig cast variant; no map activation | not a map definition |

@@ -7,20 +7,20 @@ Reconciled: 2026-09-10 (P0-206 grounded model and equipment integration)
 
 | Classification | Count | Role |
 |----------------|------:|------|
-| `working` | 44 | Active runtime scenes with verified or complete behavior |
-| `partial` | 60 | Substantial content but incomplete integration or dev-only use |
+| `working` | 49 | Active runtime scenes with verified or complete behavior |
+| `partial` | 61 | Substantial content but incomplete integration or dev-only use |
 | `placeholder` | 3 | Reserved stubs or reference-only visuals, not playable |
 | `archive` | 20 | Out of vertical-slice scope; legacy open-world or event shells |
-| **Total** | **127** | Matches repository `.tscn` count |
+| **Total** | **133** | Matches repository `.tscn` count |
 
 Repository count command:
 
 ```bash
 find . -name '*.tscn' -not -path './.git/*' -not -path './.godot/*' -not -path './.a2gent-worktrees/*' | wc -l
-# Expected: 127
+# Expected: 133
 ```
 
-Inventory row count (data rows in the table below): **127**.
+Inventory row count (data rows in the table below): **133**.
 
 ## Classification criteria
 
@@ -145,7 +145,7 @@ Inventory row count (data rows in the table below): **127**.
 | Folder | working | partial | placeholder | archive | Total |
 |--------|--------:|--------:|------------:|--------:|------:|
 | Repository root | 1 | 0 | 0 | 1 | 2 |
-| `assets/characters/` | 9 | 3 | 0 | 0 | 12 |
+| `assets/characters/` | 13 | 3 | 0 | 0 | 16 |
 | `generated/comfyui/` | 0 | 1 | 0 | 0 | 1 |
 | `scenes/comparison_room/` | 0 | 3 | 0 | 0 | 3 |
 | `scenes/elements/` | 7 | 2 | 0 | 0 | 9 |
@@ -169,7 +169,7 @@ Inventory row count (data rows in the table below): **127**.
 | `scenes/world_travel/` | 0 | 10 | 0 | 0 | 10 |
 | `tools/` | 0 | 1 | 0 | 0 | 1 |
 | `tools/benchmarks/` | 0 | 3 | 0 | 0 | 3 |
-| **All** | **28** | **45** | **3** | **20** | **96** |
+| **All** | **32** | **45** | **3** | **20** | **100** |
 
 ## Verification
 
@@ -181,10 +181,11 @@ find . -name '*.tscn' -not -path './.git/*' -not -path './.godot/*' -not -path '
 grep -E '^\| [0-9]+ \|' docs/reports/scene_inventory.md | wc -l
 ```
 
-Both commands should print `96` on a clean checkout at this revision.
+Both commands should print `133` on a clean checkout at this revision.
 
 ## Related tasks
 
+- **R-1002** - register the four P0-153 crowd variant scenes in this inventory and the conversion plan (complete).
 - **P0-055** - reconcile this inventory and `docs/MAP_CONVERSION_PLAN.md` with the full `.tscn` set (complete).
 - **P0-057** - reconcile the four UI overlay scenes added after P0-055 (complete).
 - **P0-112** - reconcile `scenes/ui/reflection_overlay.tscn` after P2-011 (complete).
@@ -194,6 +195,10 @@ Both commands should print `96` on a clean checkout at this revision.
 | 97 | `assets/characters/shared/sword.tscn` | working | Shared equippable sword scene. |
 | 98 | `assets/characters/variants/aita.tscn` | working | Aita cast variant on the shared rig. |
 | 99 | `assets/characters/variants/bandit.tscn` | working | Bandit hostile variant on the shared rig. |
+| 130 | `assets/characters/variants/crowd_townsman_01.tscn` | working | P0-153 seeded crowd townsman 01; MakeHuman body, not a map. |
+| 131 | `assets/characters/variants/crowd_townsman_02.tscn` | working | P0-153 seeded crowd townsman 02; MakeHuman body, not a map. |
+| 132 | `assets/characters/variants/crowd_townswoman_01.tscn` | working | P0-153 seeded crowd townswoman 01; MakeHuman body, not a map. |
+| 133 | `assets/characters/variants/crowd_townswoman_02.tscn` | working | P0-153 seeded crowd townswoman 02; MakeHuman body, not a map. |
 | 100 | `assets/characters/variants/danish_warrior.tscn` | working | Danish warrior hostile variant on the shared rig. |
 | 101 | `assets/characters/variants/ellen.tscn` | working | Ellen cast variant on the shared rig. |
 | 102 | `assets/characters/variants/jurgen.tscn` | working | Jurgen cast variant on the shared rig. |
