@@ -26,6 +26,7 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 - `code_execution` may isolate helpers and imports. Keep diagnostics inline or use project `python3` via bash.
 - Stateful browser actions cannot run through a parallel wrapper.
 - Markdown backticks inside a double-quoted bash string are command substitution. Write SQL or task-board updates with Python or a single-quoted heredoc. A backtick path can execute a file and silently blank the intended text.
+- `git log -S --all` can hang on this LFS-heavy repo. Scope pickaxe searches to one path and a recent range (`-n 50`) instead of walking every ref.
 
 ### TODO hygiene
 - For the current `TODO.md` sectioned format, run `python3 tools/prune_completed_todo.py` to append completed rows to `docs/TASK_ARCHIVE.md`. Do not run `tools/condense_todo.py` unless deliberately migrating to the condensed open-only layout (it rewrites `docs/ROADMAP.md`).

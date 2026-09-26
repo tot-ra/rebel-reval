@@ -333,6 +333,12 @@ decal decal.wet_cistern wet_threshold 104 60 2 2 radius=1.4
 decal decal.grime_yard_cart grime 79 84 2 2 radius=1.1
 decal decal.mud_checkpoint_east mud 109 51 2 2 radius=1.2
 decal decal.mud_street_start mud 83 54 2 2 radius=1.0
+# R-1008: view-only service-yard drainage. Cells sit on the gate opening
+# between the two timber fence runs, the carriers_lane anchor, and the
+# firewood stack. They must not change walkability or the grid fingerprint.
+decal decal.wet_service_gate wet_threshold 66 72 2 1 radius=1.1
+decal decal.mud_carriers_lane mud 66 86 2 2 radius=1.2
+decal decal.grime_service_firewood grime 91 78 2 2 radius=1.0
 # Spawn offsets must clear trigger half-size plus player capsule (r=16,h=32)
 # so arrivals do not immediately re-fire the green transition volumes.
 # District adjacency follows medieval Reval (Tallinn Old Town):

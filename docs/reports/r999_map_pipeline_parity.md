@@ -43,7 +43,8 @@ Isolated HEAD worktree plus these files:
   update
 - `tools/run_map_pipeline_ci.sh parity` and `routes`
 
-`test_lower_town_service_yards` still fails on three missing drainage decals
-(`decal.wet_service_gate`, `decal.mud_carriers_lane`,
-`decal.grime_service_firewood`). Those IDs are outside this row's delta and
-need a follow-up.
+`test_lower_town_service_yards` drainage IDs were restored in **R-1008**
+(`decal.wet_service_gate` on the 66,72 gate opening, `decal.mud_carriers_lane`
+on the 66,86 carriers-lane anchor, `decal.grime_service_firewood` on the
+91,78 firewood stack). They are view-only; the R-999 parity fixture is
+unchanged.
