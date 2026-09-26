@@ -55,12 +55,25 @@ The Knights' complex is a restrained functional cluster for court, lodging, stab
 
 ### Rataskaev well uncertainty
 
-Rataskaev is a required gameplay-scale water-source placeholder, but the reviewed source record first mentions the named wheel well in 1375. A 1343 well at this exact anchor is therefore **U**, not attested. The contract freezes the following reversible decision:
+Rataskaev is a required gameplay-scale water-source placeholder. Shared R-1009
+register with P0-072 `south_quarter` landmarks and the WB-12 water table:
+
+- **1325** wheel-well / *rader strate* name: **B/C** (Kuuskemaa 2024 secondary
+  Postimees synthesis; no TLA folio reviewed). Not attested.
+- **1343** exact well at the later Cat's Well / Dunkri corner: **U**.
+- **1375** Cat's Well rebuild: later fabric; do not author it in 1343.
+
+A 1343 well at this exact gameplay anchor is therefore **U**, not attested.
+The contract freezes the following reversible decision:
 
 - retain stable IDs `rataskaev_well_prop`, `rataskaev_well`, `rataskaev_well_wash`, and `rataskaev_well_buckets` for route and review continuity;
 - present a generic, period-safe water-source/well treatment until a dated review changes the claim;
 - do not describe the exact 1343 location, wheel mechanism, water spirit, or later folklore as historical fact;
-- future day/night evidence must label the feature as `uncertain_1343_water_source`, not as a proven 1375 landmark.
+- do not promote the 1325 name-year to attested;
+- future day/night evidence must label the feature as `uncertain_1343_water_source`, not as the 1375 Cat's Well monument.
+
+Alignment (R-1011, 2026-09-27): years and classes match the P0-072
+`south_quarter` landmark row and the WB-12 water table. No new H-register row.
 
 ### Karja and Harju construction-state walls
 
@@ -109,7 +122,7 @@ The following forms and claims are explicitly excluded from the Spring 1343 cont
 - later Karja/Viru barbicans, foregates, watermill compositions, or later timber water pipes treated as 1343 facts;
 - `saunatorn`, `nunnadetagune`, `loewenschede`, `koismae`, `epping`, `neitsitorn`, `kiek_in_de_kok`, and `fat_margaret` as completed 1343 tower silhouettes or interiors;
 - a finished monumental Order convent, palace, Gothic merchant frontage, or repeated limestone knights compound;
-- a proven 1343 Rataskaev named wheel well or its later folklore as canon evidence;
+- a proven 1343 Rataskaev named wheel well, an attested 1325 first-mention, or the 1375 Cat's Well rebuild and its later folklore as canon evidence;
 - formal glacis landscaping, blanket cobblestone, universal tile roofs, and modern tourist reconstructions;
 - any later monumental form used to make an ordinary South Quarter house read as exceptional.
 
@@ -179,7 +192,7 @@ Every pair must retain the same camera/framing key and map revision, identify vi
 | Service plots and district life | Rear yards, fences, stable/service labor, fuel, craft, and drainage cues are authored without blocking routes. | R-677, R-679 |
 | Road-surface balance | 25-40% stone, 40-55% earth/mud/chips, 15-30% grass/service vegetation; cobble cap and repeated-style cap enforced. | R-676, R-682 |
 | Vegetation and relief | Shallow coastal-lowland fall, wet margins, localized planting, and no formal glacis lawn. | R-676/R-677 |
-| Rataskaev | Reversible generic water-source placeholder; no claim that the named 1375 well is attested in 1343. | R-678, Canon review |
+| Rataskaev | Reversible generic water-source placeholder; 1325 name **B/C**, 1343 Dunkri / Cat's Well anchor **U**, 1375 rebuild later and excluded. | R-678, Canon review |
 | Knights' complex | Restrained functional cluster, distinct from ordinary houses and not a documented barracks or later Order compound. | R-677/R-678 |
 | Karja/Harju fortifications | Construction-state candidates only; no later tower, barbican, watermill, or completed-circuit silhouette. | R-678, R-680 |
 | Anchors, routes, collision, patrols | Required anchors and every authored seam/patrol remain reachable with stable transitions and inactive gating. | R-680 |
