@@ -46,6 +46,7 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 - After a temporary-index commit, move only the branch ref. Do not `git reset --soft` in the live checkout.
 - After that commit, `unset GIT_INDEX_FILE` and `git restore --staged -- <your paths>` on the live index. The shared index can still hold those paths as staged deletes or leftover adds; the next shared commit would then revert the files you just pushed.
 - If a path-limited commit exits silently, inspect `HEAD` and hooks separately before retrying.
+- A long on-commit map audit can fail with `cannot lock ref HEAD` when another agent lands first. After hooks have already passed on the same path set, rebuild the temp index from the new `HEAD` and retry; `SKIP_PRE_COMMIT=1` is justified for that immediate retry only.
 - When several agents relocate GLB folders in one worktree, expect `.git/index.lock`, half-finished `git mv`, and empty asset dirs. Do not `git checkout HEAD -- assets/props/<area>/` until the lock is gone; restore from `origin/main` for that subtree, consolidate duplicates with a filesystem move, then stage only the scoped pathspec before commit.
 
 ### Godot and Python verification
