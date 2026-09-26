@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import os
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -42,6 +44,49 @@ class ActiveDocsReportCommonTest(unittest.TestCase):
             self.assertNotIn(docs_cache_doc, excluded_docs)
             self.assertNotIn(tool_cache_doc, active_docs)
             self.assertNotIn(tool_cache_doc, excluded_docs)
+
+    def test_artifact_and_untracked_markdown_is_not_in_excluded_inventory(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            (root / "docs").mkdir()
+            (root / "README.md").write_text("# Readme\n", encoding="utf-8")
+            (root / "AGENTS.md").write_text("# Agents\n", encoding="utf-8")
+            (root / "TODO.md").write_text("# Todo\n", encoding="utf-8")
+            active_doc = root / "docs" / "guide.md"
+            active_doc.write_text("# Active guide\n", encoding="utf-8")
+            build_doc = root / "build" / "scratch.md"
+            build_doc.parent.mkdir()
+            build_doc.write_text("# Build artifact\n", encoding="utf-8")
+
+            active_docs, excluded_docs = collect_active_docs(root)
+
+            self.assertIn(active_doc, active_docs)
+            self.assertNotIn(build_doc, active_docs)
+            self.assertNotIn(build_doc, excluded_docs)
+
+            story_wip = root / "story" / "wip.md"
+            story_wip.parent.mkdir()
+            story_wip.write_text("# Untracked note\n", encoding="utf-8")
+            (root / ".gitignore").write_text("build/\n", encoding="utf-8")
+            env = {
+                key: value
+                for key, value in os.environ.items()
+                if key not in {"GIT_DIR", "GIT_INDEX_FILE", "GIT_WORK_TREE"}
+            }
+            subprocess.run(["git", "init"], cwd=root, check=True, capture_output=True, env=env)
+            subprocess.run(
+                ["git", "add", "README.md", "AGENTS.md", "TODO.md", "docs/guide.md", ".gitignore"],
+                cwd=root,
+                check=True,
+                capture_output=True,
+                env=env,
+            )
+
+            active_docs, excluded_docs = collect_active_docs(root)
+
+            self.assertIn(active_doc, active_docs)
+            self.assertNotIn(build_doc, excluded_docs)
+            self.assertNotIn(story_wip, excluded_docs)
 
     def test_missing_reference_check_only_matches_explicit_placeholders(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

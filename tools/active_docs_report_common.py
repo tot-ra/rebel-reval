@@ -5,12 +5,17 @@ from __future__ import annotations
 import dataclasses
 import os
 import re
+import subprocess
 from pathlib import Path
 
 ACTIVE_ROOT_DOCS = ("README.md", "AGENTS.md", "TODO.md")
 ACTIVE_DOC_DIRS = ("docs",)
 EXCLUDED_ACTIVE_SUBDIRS = ("docs/reports",)
 TOOL_CACHE_DIRS = frozenset({"__pycache__"})
+# Gitignored artifact roots that still walk as ordinary directories. Counting
+# them in the excluded inventory makes --check disagree between a dirty
+# developer tree and a clean clone.
+ARTIFACT_DIRNAMES = frozenset({"build", "bin"})
 LEGACY_STATUSES = {"archive", "reference", "superseded"}
 REFERENCE_MARKER_RE = re.compile(
     # Match explicit authoring placeholders, not descriptive prose such as
@@ -109,11 +114,35 @@ def iter_markdown_files(root: Path) -> list[Path]:
         dirnames[:] = [
             dirname
             for dirname in dirnames
-            if not dirname.startswith(".") and dirname not in TOOL_CACHE_DIRS
+            if not dirname.startswith(".")
+            and dirname not in TOOL_CACHE_DIRS
+            and dirname not in ARTIFACT_DIRNAMES
         ]
         directory = Path(current_dir)
         discovered.extend(directory / filename for filename in filenames if filename.endswith(".md"))
     return sorted(discovered, key=lambda path: rel(path, root).casefold())
+
+
+def tracked_markdown_files(root: Path) -> list[Path] | None:
+    """Return Git-tracked Markdown paths, or None when Git is unavailable.
+
+    The excluded inventory must match a clean clone. Untracked WIP notes and
+    gitignored artifact Markdown (for example under build/) must not change
+    --check. Fixtures without a .git directory fall back to a filesystem walk.
+    """
+    if not (root / ".git").exists():
+        return None
+    try:
+        result = subprocess.run(
+            ["git", "ls-files", "-z", "--", "*.md"],
+            cwd=root,
+            capture_output=True,
+            check=True,
+        )
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    paths = [root / os.fsdecode(item) for item in result.stdout.split(b"\0") if item]
+    return sorted(paths, key=lambda path: rel(path, root).casefold())
 
 
 def collect_active_docs(root: Path) -> tuple[list[Path], list[Path]]:
@@ -122,6 +151,8 @@ def collect_active_docs(root: Path) -> tuple[list[Path], list[Path]]:
     Active docs are the current product/task root docs plus docs/**/*.md. The
     generated reports directory is excluded to keep the command idempotent, and
     any file declaring legacy status archive/reference/superseded is excluded.
+    The excluded inventory prefers Git-tracked Markdown so local artifact and
+    untracked files cannot stale the committed report.
     """
     candidates: set[Path] = set()
     for doc in ACTIVE_ROOT_DOCS:
@@ -134,7 +165,8 @@ def collect_active_docs(root: Path) -> tuple[list[Path], list[Path]]:
             candidates.update(iter_markdown_files(base))
 
     active: list[Path] = []
-    excluded: set[Path] = set(iter_markdown_files(root))
+    tracked = tracked_markdown_files(root)
+    excluded: set[Path] = set(tracked if tracked is not None else iter_markdown_files(root))
     for path in sorted(candidates, key=lambda p: rel(p, root).casefold()):
         if any(is_under(path, root / excluded_dir) for excluded_dir in EXCLUDED_ACTIVE_SUBDIRS):
             continue
