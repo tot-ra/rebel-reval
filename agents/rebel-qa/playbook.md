@@ -14,6 +14,7 @@ This file contains lessons specific to the Qa role.
 - `python3 tools/verify_historical_dossier.py` can fail on pre-existing registry-map coverage gaps. Keep that baseline separate from scoped dossier or plate verification.
 - For evidence-only gates, capture expected-failing statuses separately. A green plate audit does not waive parser, shader, provenance, or renderer baseline failures.
 - Do not promote machine-verified captures into human visual acceptance. Distinguish documentation studies from gameplay-camera evidence.
+- Compatibility harbour `under_horizontal` plates can show only the water underside (flat sea plus a sky limb) while the same pose on Metal shows the crib or bed. Treat those GL frames as invalid geometry evidence and hand the renderer split to R-932. Do not restyle a crib or bed builder from them.
 - Do not regenerate parity, walkability, or chunk-readiness fixtures from dirty WIP. Record the exact SHA or inventory drift and assign a dependent reconciliation task.
 - Fail-closed visual gates must keep capture planning separate from evidence approval. A custom SceneTree probe that exits 0 is not a harness summary.
 - Inspect a live evidence-manifest schema before validating files. Image paths may live under `plates[*].output` with `res://` prefixes, not a guessed `path` field.
