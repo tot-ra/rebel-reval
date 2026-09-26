@@ -191,6 +191,8 @@ Stagger lands through the shared `CombatStaggerEffect.apply_to` contract (`apply
 
 `CombatRoomEnemy.apply_knockback` reuses the stagger interrupt for its hold (an unlanded telegraph or attack is cancelled) and slides the actor over `CombatKnockbackEffect.SLIDE_SEC` (0.2 s, ease-out) inside `tick_ai`. The slide is frame-rate independent. A new knockback replaces an unfinished slide instead of adding to it, so overlapping casts never exceed one authored distance. Dead actors do not slide. Hosts with walls override `_constrain_knockback_position`; `WorkersDistrictBandit` snaps the shove to its navmesh and fails open while the map has not synced. The validator rejects `knockback` on any delivery other than `area_pulse`.
 
+**3D presentation (R-913):** `MapViewMagicVfx` (`scripts/map/view3d/map_view_magic_vfx.gd`) is a view-only wind volume plus the shared chimney-smoke particle material. `MapViewRuntime` binds it so a knockback cone (`arc_deg < 360`) draws in the 3D map; full-circle stagger pulses stay undrawn. It never names a spell and does not change `CombatKnockbackEffect`. Evidence plates: `docs/reports/images/air_gust/`.
+
 **Save boundary:** knockback is transient combat state; `reset_actor()`, death, and scene rebuilds clear it.
 
 ---

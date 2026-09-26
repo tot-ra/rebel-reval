@@ -13,6 +13,7 @@ const PLAYER_FILL_LIGHT_RANGE := 3.5
 const RuntimeCamera := preload("res://scripts/map/view3d/map_view_runtime_camera.gd")
 const RuntimeActors := preload("res://scripts/map/view3d/map_view_runtime_actors.gd")
 const RuntimeFlatMap := preload("res://scripts/map/view3d/map_view_runtime_flat_map.gd")
+const MagicVfx := preload("res://scripts/map/view3d/map_view_magic_vfx.gd")
 
 
 static func install(
@@ -55,6 +56,13 @@ static func install(
 		player.call("set_mud_wetness_provider", runtime.view.mud_wetness)
 
 	scene_root.add_child(runtime)
+	# WHY: MagicAreaPulse2D still frees in the same frame. The view-only wind
+	# cone has to watch the 2D tree from the installed 3D runtime or Air Gust
+	# stays a debug arc. CombatKnockbackEffect is unchanged.
+	var magic_vfx: Node3D = MagicVfx.new()
+	magic_vfx.name = "MagicVfx"
+	runtime.add_child(magic_vfx)
+	magic_vfx.call("bind", runtime._definition.cell_size, scene_root)
 	# The rig's _ready() creates distance LOD meshes; assign the isolated light
 	# layer only after the runtime enters the tree so every generated visual gets it.
 	runtime._player_rig.add_visual_layer(PLAYER_LIGHT_LAYER)

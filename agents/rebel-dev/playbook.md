@@ -12,6 +12,9 @@ This file contains lessons specific to the Dev role.
 - Shader sampler types are case-sensitive (`sampler2D`, not `sampler2d`).
 - `Dictionary.merged()` is not a constant expression. Shard merges need a lazy static cache, not `const PROFILES = base.merged(shard)`.
 - Do not `preload("res://some/dir/")` a directory. Do not call `has_method()` on preloaded Script classes in contract tests.
+- A brand-new `class_name` is invisible to already-loaded scripts on the first `--import`. In bootstrap/runtime hooks, `preload` the script, type the instance as `Node3D`, and `call("bind", ...)`. Do not write `as NewClassName` until a later Godot run has registered the class.
+- `Camera3D.look_at` requires the node to be in the tree. Add the camera first, then `look_at`. A 1440x810 capture near 20 KiB usually means the camera never aimed at the stage.
+- Isolated capture scripts must not `preload` `combat_room.tscn`. That scene pulls `SessionState` and can fail the render wrapper's first compile; instantiate `CombatRoomEnemy` / the target archetype instead.
 - In RefCounted test scripts, use `(Engine.get_main_loop() as SceneTree).root`, not `get_tree()`.
 - `%` treats an Array RHS as the placeholder argument list. Format one `%s` with `str(value)`.
 - `CONFUSABLE_LOCAL_DECLARATION`: rename the narrower-scope variable. A navigation probe can also fail when a loop iterator is redeclared in the same scope.
@@ -44,7 +47,7 @@ This file contains lessons specific to the Dev role.
 - MapView3D `_process` pushes the weather uniforms to the water materials every frame. A capture that overrides material uniforms (wind, foam, debug colours) must call `view.set_process(false)` after warm-up, or the overrides are silently overwritten. `viewport_get_measured_render_time_gpu` returns 0 for SubViewports on this Mac. To compare shader cost, measure wall-clock frame time with vsync off at 2560x1440.
 - The headless suite compiles shaders on the dummy renderer, so a `[test] … shader_set_code` diagnostic is a real shader error. Godot rejects a `sampler2DArray` function parameter that is fed textures with different filter or repeat hints, so give every texture passed to one helper the same hint.
 - Never pass a `hint_screen_texture` (or depth) sampler into a shader function: Godot 4.7 binds a default texture there and the read comes back near-black. Sample in `fragment()` and pass colours or UVs.
-- Godot 4.7 Compatibility uses reverse Z too: near plane is NDC z = +1, empty depth reads 0. Only the raw-to-NDC map differs (`raw * 2 - 1` on Compatibility, `raw` on Forward/Mobile). Do not test for sky with `raw >= 1`.
+- Godot 4.7 Compatibility uses reverse Z too: near plane is NDC z = +1, empty depth reads 0. Only the raw-to-NDC map differs (`raw * 2 - 1` on Compatibility, `raw` on Forward/Mobile). Do not test for sky with `raw >= 1`. Decode through one `#if CURRENT_RENDERER == RENDERER_COMPATIBILITY` helper (see `_view_position` in the water shader); a hard-coded Compatibility map silently skews every Metal capture plate.
 - `FRONT_FACING` is unreliable on view water: some map-edge strips are wound the other way. Test the camera height against the surface instead.
 - `hint_screen_texture` is copied before the transparent pass, so a screen pass never sees the water surface. `Engine.time_scale = 0` does not stop shader `TIME`; for before/after plates pin it with `ProjectSettings.set_setting("rendering/limits/time/time_rollover_secs", 0.000001)`. Moving boats still differ between runs, so compare against a second run of the same build.
 - Hide `FogOfWar` in perspective lens captures: it blurs by distance from the absent player and smears Metal plates through mip levels.
