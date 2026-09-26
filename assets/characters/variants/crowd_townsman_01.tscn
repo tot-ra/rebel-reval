@@ -1,16 +1,20 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=8 format=3]
 
-[ext_resource type="Script" path="res://assets/characters/shared/shared_character_rig.gd" id="1_rig"]
-[ext_resource type="PackedScene" path="res://assets/characters/shared/crowd_townsman_01.glb" id="2_model"]
+[ext_resource type="Script" path="res://assets/characters/realistic/realistic_rig.gd" id="1_rig"]
+[ext_resource type="PackedScene" path="res://assets/characters/realistic/crowd_townsman_01/crowd_townsman_01.glb" id="2_model"]
 [ext_resource type="Resource" path="res://assets/characters/variants/crowd_townsman_01_variant.tres" id="3_variant"]
+[ext_resource type="Script" path="res://scripts/ui/character_health_ring_3d.gd" id="4_health_ring"]
+[ext_resource type="Resource" path="res://assets/characters/realistic/crowd_townsman_01/wool_tunic.tres" id="5_wool_tunic"]
+[ext_resource type="Resource" path="res://assets/characters/realistic/crowd_townsman_01/hose.tres" id="6_hose"]
+[ext_resource type="Resource" path="res://assets/characters/realistic/crowd_townsman_01/boots.tres" id="7_boots"]
 
 [node name="CrowdTownsman01" type="Node3D"]
 script = ExtResource("1_rig")
 variant = ExtResource("3_variant")
+model_scale = Vector3(1.1111111, 1.1111111, 1.1111111)
+use_anatomical_muscles = false
+default_outfit = Array[Resource]([ExtResource("5_wool_tunic"), ExtResource("6_hose"), ExtResource("7_boots")])
 
 [node name="Model" type="Node3D" parent="."]
-# P0-153 seeded crowd body (tools/character_specs.py). The shared uniform
-# scale keeps its generated stature relative to Kalev.
-scale = Vector3(1.1621, 1.1621, 1.1621)
 
-[node name="ImportedHumanoid" parent="Model" instance=ExtResource("2_model")]
+[node name="CrowdTownsman01Body" parent="Model" instance=ExtResource("2_model")]

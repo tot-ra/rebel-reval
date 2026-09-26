@@ -13,7 +13,6 @@ const WATCHMAN_SCENE := preload("res://assets/characters/variants/watchman.tscn"
 const SERGEANT_SCENE := preload("res://assets/characters/variants/sergeant.tscn")
 const DANISH_WARRIOR_SCENE := preload("res://assets/characters/variants/danish_warrior.tscn")
 const CROWD_MANIFEST_PATH := "res://assets/characters/variants/crowd_variation_manifest.json"
-const CROWD_CLOTH_NORMAL_BASELINE := 0.20
 const REQUIRED_ANIMATIONS: Array[StringName] = [
 	&"idle",
 	&"walk",
@@ -998,15 +997,10 @@ func test_seeded_crowd_bodies_are_individuated_and_realise_their_seeds() -> void
 		assert_eq(character.canonical_animation_names(), kalev.canonical_animation_names())
 		assert_true(character.play_animation(&"walk"))
 		assert_eq(character.animation_player().current_animation, StringName(body["gait"]))
-		var tunic := _active_material_named(character, &"hero_tunic")
-		assert_true(tunic != null, "%s must carry a textured tunic" % body_name)
-		var response: Dictionary = body["material_response"]
-		assert_almost_eq(
-			tunic.normal_scale,
-			CROWD_CLOTH_NORMAL_BASELINE * float(response["cloth"]),
-			0.002,
-			"%s must keep its seeded cloth normal response at runtime" % body_name
-		)
+		# ADR 0022: the seeded roster is realised as realistic bodies dressed in
+		# fitted wearables; the torso garment carries the seeded dye.
+		var tunic := _torso_garment_material(character)
+		assert_true(tunic != null and tunic.albedo_texture != null, "%s must carry a textured tunic" % body_name)
 		var skeleton := character.skeleton()
 		records.append({
 			"name": body_name,
@@ -1014,9 +1008,9 @@ func test_seeded_crowd_bodies_are_individuated_and_realise_their_seeds() -> void
 			"stature": float(body["stature_factor"]),
 			"head": skeleton.get_bone_global_rest(skeleton.find_bone("head")).origin.y,
 			"shoulders": _shoulder_span(character),
-			"skin": _source_albedo(character, &"hero_skin"),
-			"tunic": _source_albedo(character, &"hero_tunic"),
-			"cloth_normal": tunic.normal_scale,
+			"skin": _source_albedo(character, StringName(body_name + "_skin")),
+			"tunic": tunic.albedo_color,
+			"layout": ",".join(_wearable_ids(character)),
 		})
 		character.queue_free()
 	kalev.queue_free()
@@ -1039,7 +1033,7 @@ func test_seeded_crowd_bodies_are_individuated_and_realise_their_seeds() -> void
 			differences += 1 if shoulder_delta > 0.02 * float(a["shoulders"]) else 0
 			differences += 1 if _color_distance(a["skin"], b["skin"]) > 0.02 else 0
 			differences += 1 if _color_distance(a["tunic"], b["tunic"]) > 0.04 else 0
-			differences += 1 if absf(float(a["cloth_normal"]) - float(b["cloth_normal"])) > 0.01 else 0
+			differences += 1 if a["layout"] != b["layout"] else 0
 			assert_true(
 				differences >= 3,
 				"%s and %s must differ in at least three of height/build/skin/garment/surface (got %d)"
@@ -1075,14 +1069,31 @@ func _source_albedo(character: SharedCharacterRig, material_name: StringName) ->
 	return Color.BLACK
 
 
+func _torso_garment_material(character: SharedCharacterRig) -> BaseMaterial3D:
+	for found: Node in character.find_children("Garment_wearable_torso_*", "MeshInstance3D", true, false):
+		var active := (found as MeshInstance3D).get_active_material(0)
+		if active is BaseMaterial3D:
+			return active as BaseMaterial3D
+	return null
+
+
+func _wearable_ids(character: SharedCharacterRig) -> Array[String]:
+	var ids: Array[String] = []
+	for slot: String in CharacterWardrobe.SLOTS:
+		var wearable := character.equipped_wearable(StringName(slot))
+		if wearable != null:
+			ids.append(String(wearable.stable_id).get_extension())
+	return ids
+
+
 static func _color_distance(a: Color, b: Color) -> float:
 	return Vector3(a.r - b.r, a.g - b.g, a.b - b.b).length()
 
 
 func test_anatomical_muscle_volume_responds_to_joint_bend() -> void:
-	# Procedural (PartBuilder) crowd bodies still carry pose-driven muscle
+	# The procedural (PartBuilder) shared rig still carries pose-driven muscle
 	# volume; realistic MakeHuman bodies (ADR 0022) deform through authored weights.
-	var warrior := _instantiate(load("res://assets/characters/variants/crowd_townsman_01.tscn"))
+	var warrior := _instantiate(load("res://assets/characters/shared/shared_character_rig.tscn"))
 	var skeleton := warrior.skeleton()
 	var muscles := skeleton.get_node("AnatomicalMuscles")
 	var elbow := skeleton.find_bone("lowerarm.l")

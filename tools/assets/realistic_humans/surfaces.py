@@ -383,7 +383,7 @@ def bake_skin(body, spec, lm, regions_of_vertex, base_albedo_path, out_dir, size
     # combing direction), so gaps between cards never show pale skin.
     scalp_hair = srgb_to_linear(np.array(spec.get("hair_color", (0.2, 0.15, 0.1))))
     streak = 0.7 + 0.6 * value_noise(p * np.array([1.0, 1.0, 0.15]), 900.0, seed=9)
-    cover = smoothstep(0.15, 0.6, scalp)
+    cover = smoothstep(0.15, 0.6, scalp) * (1.0 if spec.get("hair") else 0.0)  # bald: bare scalp
     lin = lin * (1 - cover[..., None]) + scalp_hair * streak[..., None] * cover[..., None]
     grime = smoothstep(0.35, 0.8, fbm(p, 28.0, 4, seed=7)) * soot
     lin = lin * (1 - 0.75 * grime[..., None]) + np.array([0.035, 0.03, 0.028]) * 0.75 * grime[..., None]

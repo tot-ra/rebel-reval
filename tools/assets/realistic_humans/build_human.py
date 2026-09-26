@@ -443,8 +443,11 @@ def surface_character(spec, body, proxies, shared, collar, targets, data, textur
     albedo = next(skin_dir.glob("*diffuse*.png"))
     size = 2048 if spec.get("tier", 1) == 0 else 1024
     maps = surfaces.bake_skin(body, spec, lm, regions_of_vertex, albedo, texture_dir, size=size)
+    # Crowd skin-tone variation rides on the material factor, so one baked
+    # albedo can serve lighter and darker seeded bodies.
+    tint = tuple(spec.get("complexion", {}).get("skin_tint", (1.0, 1.0, 1.0)))
     skin = surfaces.pbr_material(f"{spec['fit']}_skin", maps["albedo"], maps["normal"], maps["roughness"],
-                                 specular=0.45)
+                                 color=tint, specular=0.45)
     surfaces.assign(body, skin)
     eye_png = Path(data) / "eyes" / "materials" / f"{spec['eyes']}_eye.png"
     surfaces.assign(proxies["Anatomy_Head_Eyes"],
