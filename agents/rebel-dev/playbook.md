@@ -26,6 +26,7 @@ This file contains lessons specific to the Dev role.
 - After adding a `class_name` or new GLB, run a headless import before tests. `ResourceLoader.exists` stays false until `.import` sidecars exist.
 - `verify_clean_checkout_load.sh` must reject a missing `GODOT_BIN` before `git worktree add`.
 - Headless SubViewport captures hit the dummy renderer. Take PNG evidence through `tools/godot_render.sh` (add `--rendering-method mobile --rendering-driver metal` for Metal plates) and never with the bare Godot binary, which pops up a window. The minimized wrapper window still renders the root viewport at full size, so windowed benchmarks are valid through it too. Do not pipe the checked runner through `tail` while it is still running.
+- A follow-up that reuses a capture tool still writes that tool's `wsNN_*` filenames. Copy the new plates to the follow-up names first, then `git restore --source=HEAD` the tracked originals. Leaving the predecessor path dirty folds new evidence into the wrong task.
 - Headless DisplayServer has no pasteboard. `clipboard_get` emits ERROR and fails the harness. Guard `clipboard_set` with `DisplayServer.has_feature(FEATURE_CLIPBOARD)` and assert the composed text, not the OS clipboard.
 - ADR 0018 day/night plates need one Godot process per plate. Add `Camera3D` to the tree before `look_at()`.
 - Temporary Godot probes must live under `res://`, call `quit()` on SceneTree (not `get_tree()`), and use `Input.parse_input_event`. Keep them until every planned rerun is done.

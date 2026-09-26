@@ -277,3 +277,107 @@ func test_fft_spring_smooths_a_sudden_sea_change() -> void:
 	assert_almost_eq(host.position.y, rest.y + target, 1e-3, "the spring settles on the surface")
 	OceanFftSampler.clear_time_override()
 	host.free()
+
+
+# --- WS-05b shore-band fade -----------------------------------------------------
+
+
+func test_shore_scale_matches_shader_fade_and_shoaling() -> void:
+	assert_almost_eq(
+		OceanFftSampler.shore_scale_from_coverage(1.0), 1.0, 1e-5, "open water stays unscaled"
+	)
+	var waterline := MapViewMeshBuilderConfig.WATER_CONTOUR_THRESHOLD
+	assert_almost_eq(
+		OceanFftSampler.shore_scale_from_coverage(waterline),
+		0.0,
+		1e-5,
+		"the clip edge has zero FFT displacement"
+	)
+	var mid := waterline + (1.0 - waterline) * 0.05
+	var factor := OceanFftSampler.shore_factor_from_coverage(mid)
+	var fade := smoothstep(0.0, 0.16, factor)
+	var shoaling := lerpf(1.32, 1.0, smoothstep(0.0, 0.65, factor))
+	assert_almost_eq(
+		OceanFftSampler.shore_scale_from_coverage(mid),
+		fade * shoaling,
+		1e-5,
+		"CPU scale must be the shader fade times shoaling"
+	)
+	assert_true(fade * shoaling < 1.0, "the near-shore fade band must shrink displacement")
+
+
+func _shore_band_map() -> Dictionary:
+	var definition := MapDefinition.new()
+	definition.map_id = &"test_ws05b_shore"
+	definition.size_cells = Vector2i(8, 6)
+	definition.base_terrain = MapTypes.TERRAIN_GRASS
+	definition.player_spawn = Vector2(16.0, 16.0)
+	definition.location = &"test"
+	definition.scope = &"prototype"
+	definition.palette = &"spring"
+	definition.fingerprint = "test-ws05b-shore"
+	definition.zones = [{"rect": Rect2i(0, 0, 4, 6), "terrain": MapTypes.TERRAIN_SHALLOW_WATER}]
+	var grid := MapBuilder.build(definition)
+	var field := MapViewMeshBuilder.ensure_height_field(definition, grid)
+	return {"definition": definition, "grid": grid, "field": field}
+
+
+func _find_shore_band_sample(field: Dictionary) -> Vector2:
+	for xi: int in range(20, 61):
+		for yi: int in range(10, 51):
+			var sample := Vector2(float(xi) * 0.1, float(yi) * 0.1)
+			var coverage := MapViewMeshBuilderTerrainWater.combined_water_coverage_at(field, sample)
+			var scale := OceanFftSampler.shore_scale_from_coverage(coverage)
+			if scale > 0.05 and scale < 0.95:
+				return sample
+	return Vector2.INF
+
+
+func test_fft_shore_band_scales_heave_to_shader_fade() -> void:
+	var pack: Dictionary = _shore_band_map()
+	var field: Dictionary = pack["field"]
+	var sample := _find_shore_band_sample(field)
+	assert_false(sample.is_equal_approx(Vector2.INF), "the grass/water map must expose a fade band")
+	var coverage_at := func(point: Vector2) -> float:
+		return MapViewMeshBuilderTerrainWater.combined_water_coverage_at(field, point)
+	OceanFftSampler.reset_sea_state()
+	OceanFftSampler.set_time_override(6.0)
+	var surface := OceanFftSampler.terrain_surface(MapTypes.TERRAIN_SHALLOW_WATER)
+	var hull := BoatFloat.sample_fft_hull_attitude(
+		sample,
+		6.0,
+		BoatFloat.DEFAULT_HULL_HALF_LENGTH,
+		BoatFloat.DEFAULT_HULL_HALF_BEAM,
+		Basis.IDENTITY,
+		surface,
+		BoatFloat.FFT_HULL_ITERATIONS,
+		coverage_at
+	)
+	var expected := 0.0
+	for offset: Vector3 in BoatFloat.HULL_SAMPLE_OFFSETS:
+		var point := sample + Vector2(
+			offset.x * BoatFloat.DEFAULT_HULL_HALF_LENGTH, offset.z * BoatFloat.DEFAULT_HULL_HALF_BEAM
+		)
+		var raw := OceanFftSampler.height_at(point, 6.0, surface, BoatFloat.FFT_HULL_ITERATIONS)
+		var coverage: float = coverage_at.call(point)
+		expected += OceanFftSampler.trough_floor(
+			raw * OceanFftSampler.shore_scale_from_coverage(coverage)
+		)
+	expected /= float(BoatFloat.HULL_SAMPLE_OFFSETS.size())
+	assert_almost_eq(hull.x, expected, 1e-5, "heave is fade x shoaling times the surface height")
+	var host := _fft_boat(Vector3(sample.x, 0.05, sample.y), 9)
+	var floater := host.get_node("BoatFloat") as BoatFloat
+	floater.set_water_terrain(MapTypes.TERRAIN_SHALLOW_WATER)
+	floater.bind_water_coverage(coverage_at)
+	floater._process(0.016)
+	assert_almost_eq(host.position.y - 0.05, hull.x, 1e-5, "the live hull uses the same scaled heave")
+	var view := MapView3D.create(pack["definition"], pack["grid"])
+	assert_almost_eq(
+		view.water_coverage_at(sample),
+		MapViewMeshBuilderTerrainWater.combined_water_coverage_at(field, sample),
+		1e-5,
+		"MapView3D must expose the same combined coverage the hull samples"
+	)
+	OceanFftSampler.clear_time_override()
+	host.free()
+	view.free()

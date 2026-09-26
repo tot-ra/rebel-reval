@@ -525,6 +525,19 @@ func _create_water_ripple_sim() -> void:
 	_sky_weather.ripple_sim = _water_ripple_sim
 
 
+## Combined water contour at world XZ (one cell = one world unit). Same field the
+## water mesh bakes into COLOR.r. Open-water default 1.0 keeps hulls at full FFT
+## displacement when a map has no water contours.
+func water_coverage_at(world_xz: Vector2) -> float:
+	if definition == null or grid == null:
+		return 1.0
+	var field := MapViewMeshBuilder.ensure_height_field(definition, grid)
+	var contours: Variant = field.get("water_contours", {})
+	if not (contours is Dictionary) or (contours as Dictionary).is_empty():
+		return 1.0
+	return MapViewMeshBuilderTerrainWater.combined_water_coverage_at(field, world_xz)
+
+
 ## WS-13 underwater view pass, or null indoors and on maps without water.
 func underwater_pass() -> UnderwaterPassScript:
 	return _underwater_pass

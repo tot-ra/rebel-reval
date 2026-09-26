@@ -96,10 +96,20 @@ WS-04 FFT path is now on in play for sea, shallow and harbour water. Decisions (
    visible gap or sinking at gameplay zoom. The waterline error was not measured in pixels.
    Reference sea Hs measured 1.21 m against the baked 1.25 m. Quick performance report with FFT on:
    frame p95 10.83 ms (`build/benchmarks/ws05-performance-quick.json`).
-6. **Known limit:** the shader's shore-band fade (vertex `COLOR.r`) is not visible to the CPU, so a
-   hull moored within ~1.5 units of land (the landing boats) may clip slightly.
+6. **Shore fade (R-909 / WS-05b):** hulls now scale FFT displacement by the same
+   `smoothstep(0,0.16,COLOR.r) * mix(1.32,1.0,smoothstep(0,0.65,COLOR.r))` product
+   as the water shader. `MapView3D.water_coverage_at` exposes
+   `combined_water_coverage_at`; `COLOR.r` is `inverse_lerp(threshold, 1, coverage)`.
+   Evidence: `docs/reports/images/ws05b_*.png` from
+   `tools/capture_ws05_boat_waterline.gd --boat=landing`.
 7. **Scope additions:** `tests/godot/test_coastal_sea_3d.gd` (its chop-vs-height check now reads
    the FFT sea-state table when FFT is on) and the capture tool.
+
+- [ ] R-909 | deps: WS-05 | deliverable: hulls within ~1.5 units of land scale sampled FFT displacement by the shader shore fade and shoaling | allowed files: `scripts/map/view3d/boat_float_3d.gd`, `scripts/map/view3d/ocean_fft_sampler.gd`, `scripts/map/view3d/map_view_3d.gd`, `tests/godot/test_boat_float_3d.gd`, `docs/reports/images/ws05b_*.png`, `TODO.md` | verify: `--filter=test_boat_float_3d,test_ocean_fft_sampler`; landing-boat clear/storm clips show no clipping
+
+R-909 implementation landed. `OceanFftSampler.shore_scale_from_coverage` matches the
+WS-04 vertex scale; `BoatFloat3D` binds `MapView3D.water_coverage_at` when the hull
+is under a map view. `--filter=test_boat_float_3d,test_ocean_fft_sampler` 24/24.
 
 - [ ] WS-09 | deps: none | deliverable: deterministic offline Hillaire transmittance (256x64) and multi-scattering (32x32) LUTs as half-float EXR with profile manifest, plus atmosphere_common.gdshaderinc GLSL parameterisation | allowed files: `tools/bake_atmosphere_luts.py`, `tests/python/test_bake_atmosphere_luts.py`, `assets/sky/atmosphere/*`, `assets/SOURCES.csv`, `scripts/map/view3d/atmosphere_common.gdshaderinc`, `tests/godot/test_atmosphere_luts.gd`, `TODO.md` | verify: python oracle tests (zenith T = 0.940/0.868/0.762, monotonicity, round-trip, determinism, EXR parse); Godot loads EXRs and matches the oracle texel
 

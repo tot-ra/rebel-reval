@@ -66,6 +66,8 @@ var _sky: SkyWeather3D
 var _fft_surface := Vector3.ZERO
 var _fft_primed := false
 var _terrain_resolved := false
+## Optional (Vector2) -> float coverage lookup. Empty means open water (scale 1).
+var _coverage_lookup := Callable()
 ## Spring state: value and velocity for heave, pitch, roll, surge x, surge z.
 var _fft_value := PackedFloat32Array([0.0, 0.0, 0.0, 0.0, 0.0])
 var _fft_velocity := PackedFloat32Array([0.0, 0.0, 0.0, 0.0, 0.0])
@@ -90,6 +92,12 @@ func configure(host: Node3D, motion_scale: float, phase_seed: int) -> void:
 ## geometry scale, chop ratio and standing-wave ratio.
 func set_water_terrain(terrain_id: StringName) -> void:
 	_fft_surface = OceanFftSampler.terrain_surface(terrain_id)
+
+
+## Bind the water-mesh coverage field so FFT hull samples use the shader's
+## shore fade and shoaling. Tests can inject a constant or contour lookup.
+func bind_water_coverage(lookup: Callable) -> void:
+	_coverage_lookup = lookup
 
 
 func uses_fft() -> bool:
@@ -151,9 +159,8 @@ func _process(delta: float) -> void:
 ## places on one sea. Sea state (weights, chop, amplitude, heading) is whatever
 ## apply_sea_weather() last sent to both the shader and OceanFftSampler.
 ##
-## Shore band caveat: the shader fades displacement towards land with the vertex
-## COLOR.r shore factor, which the hull cannot see (the baked contour field is not
-## kept at runtime). A boat moored within ~1.5 units of land may clip slightly.
+## Shore band: the shader scales FFT displacement by COLOR.r fade * shoaling.
+## The hull reads the same combined coverage field so landing boats do not clip.
 func _process_fft(delta: float) -> void:
 	if not _terrain_resolved and _host.is_inside_tree():
 		_resolve_water_terrain()
@@ -167,7 +174,14 @@ func _process_fft(delta: float) -> void:
 		world_xz = Vector2(_host.global_position.x, _host.global_position.z)
 	var time := OceanFftSampler.ocean_time()
 	var hull := sample_fft_hull_attitude(
-		world_xz, time, _hull_half_length, _hull_half_beam, _rest_basis, _fft_surface, FFT_HULL_ITERATIONS
+		world_xz,
+		time,
+		_hull_half_length,
+		_hull_half_beam,
+		_rest_basis,
+		_fft_surface,
+		FFT_HULL_ITERATIONS,
+		_coverage_lookup
 	)
 	var heave := hull.x * _motion_scale
 	var pitch := clampf(hull.y, -BASE_PITCH_RAD * 2.2, BASE_PITCH_RAD * 2.2)
@@ -178,6 +192,8 @@ func _process_fft(delta: float) -> void:
 	roll += local_wind.z * WIND_HEEL_RAD * wind * _motion_scale
 	pitch -= local_wind.x * WIND_HEEL_RAD * 0.45 * wind * _motion_scale
 	var drift := OceanFftSampler.displacement_at(world_xz, time, _fft_surface)
+	if _coverage_lookup.is_valid():
+		drift *= OceanFftSampler.shore_scale_from_coverage(float(_coverage_lookup.call(world_xz)))
 	var surge := Vector3(drift.x, 0.0, drift.z) * FFT_SURGE_FOLLOW
 	var target := PackedFloat32Array([heave, pitch, roll, surge.x, surge.z])
 	_smooth_fft(target, delta)
@@ -220,7 +236,8 @@ static func sample_fft_hull_attitude(
 	hull_half_beam: float,
 	rest_basis: Basis,
 	surface: Vector3,
-	iterations: int = OceanFftSampler.HEIGHT_ITERATIONS
+	iterations: int = OceanFftSampler.HEIGHT_ITERATIONS,
+	coverage_at: Callable = Callable()
 ) -> Vector3:
 	var heights := PackedFloat32Array()
 	heights.resize(HULL_SAMPLE_OFFSETS.size())
@@ -230,8 +247,14 @@ static func sample_fft_hull_attitude(
 		var world_offset := rest_basis * Vector3(
 			offset.x * hull_half_length, 0.0, offset.z * hull_half_beam
 		)
-		heights[index] = OceanFftSampler.surface_height_at(
-			world_origin + Vector2(world_offset.x, world_offset.z), time, surface, iterations
+		var sample_xz := world_origin + Vector2(world_offset.x, world_offset.z)
+		var raw := OceanFftSampler.height_at(sample_xz, time, surface, iterations)
+		var coverage := 1.0
+		if coverage_at.is_valid():
+			coverage = float(coverage_at.call(sample_xz))
+		# Shader: displacement *= fade * shoaling, then the trough floor.
+		heights[index] = OceanFftSampler.trough_floor(
+			raw * OceanFftSampler.shore_scale_from_coverage(coverage)
 		)
 		total += heights[index]
 	var pitch := 0.0
@@ -423,6 +446,8 @@ func _resolve_water_terrain() -> void:
 			)
 			if MapViewWaterMaterialsScript.OCEAN_FFT_TERRAINS.has(terrain_id):
 				set_water_terrain(terrain_id)
+			if node.has_method(&"water_coverage_at"):
+				_coverage_lookup = Callable(node, &"water_coverage_at")
 			return
 		node = node.get_parent()
 

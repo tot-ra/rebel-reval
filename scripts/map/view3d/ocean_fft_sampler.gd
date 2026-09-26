@@ -408,3 +408,23 @@ static func surface_height_at(
 ## _fft_trough_floor: troughs ease into a floor just above the recessed bed.
 static func trough_floor(y: float) -> float:
 	return -TROUGH_FLOOR * (1.0 - exp(y / TROUGH_FLOOR)) if y < 0.0 else y
+
+
+## Water-mesh COLOR.r: inverse_lerp of combined coverage from the clip threshold
+## to open water. Matches map_view_mesh_builder_terrain_water._add_water_vertex.
+static func shore_factor_from_coverage(coverage: float) -> float:
+	var threshold := MapViewMeshBuilderConfig.WATER_CONTOUR_THRESHOLD
+	return clampf(inverse_lerp(threshold, 1.0, coverage), 0.0, 1.0)
+
+
+## Shader vertex scale: fade * shoaling. WHY the CPU hull needs the same product:
+## COLOR.r is a mesh vertex colour the sampler cannot see, and landing boats sit
+## inside the last 1.5 units of that band.
+static func shore_displacement_scale(shore_factor: float) -> float:
+	var fade := smoothstep(0.0, 0.16, shore_factor)
+	var shoaling := lerpf(1.32, 1.0, smoothstep(0.0, 0.65, shore_factor))
+	return fade * shoaling
+
+
+static func shore_scale_from_coverage(coverage: float) -> float:
+	return shore_displacement_scale(shore_factor_from_coverage(coverage))
