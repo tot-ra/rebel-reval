@@ -15,8 +15,12 @@ extends SceneTree
 ##   --clip                   10 s contact sheet (11 frames, 1 s apart): foam must ride its wave
 ##   --ocean-time=<seconds>   sea clock for a single plate (default 6.0)
 ##   --set=name:value         water-material uniform override for tuning
+##   --prefix=ws06            filename prefix (use ws06b for the parity follow-up)
+##   --suffix=mask            extra token before .png (debug mask plates)
+##   --debug-foam-mask        unlit baked-mask plate (`--set=debug_foam_mask:1` + suffix mask)
 ## The FFT sea is forced on (play keeps Gerstner until WS-05), as the WS-04 plates did.
-## Writes docs/reports/images/ws06_<renderer>_<scenario>_<time>_<focus>[_close][_clip].png
+## Writes docs/reports/images/<prefix>_<renderer>_<scenario>_<time>_<focus>
+## plus optional _close / _clip / _<suffix> before .png.
 
 const MapAuditRegistry := preload("res://scripts/map/map_audit_registry.gd")
 const MapBuilder := preload("res://scripts/map/map_builder.gd")
@@ -52,6 +56,8 @@ var _aim := Vector2(-1.0, -1.0)
 var _clip := false
 var _ocean_time := 6.0
 var _uniform_overrides: Dictionary = {}
+var _prefix := "ws06"
+var _suffix := ""
 
 
 func _initialize() -> void:
@@ -68,6 +74,14 @@ func _initialize() -> void:
 		elif argument.begins_with("--set="):
 			var pair := argument.trim_prefix("--set=").split(":")
 			_uniform_overrides[StringName(pair[0])] = float(pair[1])
+		elif argument.begins_with("--prefix="):
+			_prefix = argument.trim_prefix("--prefix=")
+		elif argument.begins_with("--suffix="):
+			_suffix = argument.trim_prefix("--suffix=")
+		elif argument == "--debug-foam-mask":
+			_uniform_overrides[&"debug_foam_mask"] = 1.0
+			if _suffix.is_empty():
+				_suffix = "mask"
 		elif argument.begins_with("--aim="):
 			var aim := argument.trim_prefix("--aim=").split(",")
 			_aim = Vector2(float(aim[0]), float(aim[1]))
@@ -147,6 +161,8 @@ func _run() -> void:
 		]
 	)
 	var suffix := "_close" if _close else ""
+	if not _suffix.is_empty():
+		suffix += "_" + _suffix
 	if not _clip:
 		MapViewRuntimeEnvironment.set_ocean_time(_ocean_time)
 		await process_frame
@@ -193,7 +209,8 @@ func _contact_sheet(frames: Array[Image]) -> Image:
 func _save(image: Image, suffix: String) -> void:
 	var renderer := RenderingServer.get_current_rendering_driver_name()
 	var path := (
-		"%s/ws06_%s_%s_%s_%s%s.png" % [OUTPUT_DIR, renderer, _scenario, _time, _focus, suffix]
+		"%s/%s_%s_%s_%s_%s%s.png"
+		% [OUTPUT_DIR, _prefix, renderer, _scenario, _time, _focus, suffix]
 	)
 	var error := image.save_png(ProjectSettings.globalize_path(path))
 	if error != OK:

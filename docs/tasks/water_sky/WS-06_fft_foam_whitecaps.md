@@ -177,3 +177,27 @@ for a 10 s strip at 1 s steps).
 9. **Scope additions:** `scripts/map/view3d/ocean_fft_common.gdshaderinc` (foam terms and the C2
    gain; the UnderwaterPass keeps calling `_fft_displacement` / `_fft_normal` unchanged), the
    capture tool and this contract.
+
+## WS-06b Compatibility vs Metal coverage (2026-09-26, R-907)
+
+Storm/day harbour plates at `--ocean-time=6` disagreed: Metal showed broad foam fields,
+Compatibility only small patches. Overcast plates were closer. Debug `--debug-foam-mask`
+writes `fft_foam.x` to ALBEDO/EMISSION so lighting cannot hide the mask.
+
+**Cause.** Two Compatibility bugs stacked. A vertex `fft_foam` varying sampled the
+`CompressedTexture2DArray` disp atlases: RGB displacement still looked right, but the
+alpha was not trustworthy. Moving the sample to `fragment()` kept the same blob
+*shapes* on both renderers and did not close the coverage gap. Compatibility also
+sRGB-decodes those 8-bit atlas alphas (no `source_color` hint). Foam is stored
+linear 0..1 (WS-03), so mid-tones collapsed and storm `foam_mask` rarely cleared
+the tile threshold.
+
+**Fix.** `_fft_foam_terms()` resamples the same raw C0/C1 alpha (and the standing-train
+mix) in `fragment()`. `_compat_stored_alpha()` restores the stored texel with the
+Godot linear-to-sRGB curve when `OUTPUT_IS_SRGB`. Foam-tile samples stay at two.
+`debug_foam_mask` stays off in play.
+
+**Evidence.** `docs/reports/images/ws06b_*` from `tools/capture_ws06_whitecaps.gd`
+`--prefix=ws06b` (beauty) and `--debug-foam-mask` (unlit mask). Storm and overcast
+day harbour, Metal and `--rendering-driver opengl3`, `--ocean-time=6`. Water-crop
+mask mean luminance: storm 9.9 percent, overcast 3.3 percent (contract 10 percent).

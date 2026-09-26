@@ -120,6 +120,46 @@ vec3 _fft_displacement_foam(vec2 world_xz, out vec3 foam) {
 	return world_d * (ocean_amplitude * fft_geometry_scale / FFT_METERS_PER_WORLD_UNIT);
 }
 
+// WS-06b: GL Compatibility vertex fetches from CompressedTexture2DArray often
+// return a broken alpha while RGB displacement still looks right, so a vertex
+// varying under-counts storm whitecaps on the shipping renderer. Resample the
+// same terms in fragment(); each cascade still costs one blended atlas fetch
+// (two with a standing train), matching _fft_displacement_at's alpha path.
+//
+// Compatibility also sRGB-decodes those 8-bit atlas alphas (no source_color
+// hint). Foam is stored linear 0..1 (WS-03). Restore the texel so Metal and
+// GL share the same mask before weather and the foam tile.
+float _compat_stored_alpha(float sampled) {
+	if (!OUTPUT_IS_SRGB) {
+		return sampled;
+	}
+	float c = clamp(sampled, 0.0, 1.0);
+	return mix(
+		12.92 * c,
+		1.055 * pow(c, 1.0 / 2.4) - 0.055,
+		step(0.0031308, c)
+	);
+}
+
+vec3 _fft_foam_at(vec2 p) {
+	vec4 c0 = fft_cascade[0];
+	vec4 c1 = fft_cascade[1];
+	float a0 = _compat_stored_alpha(_fft_sample(fft_c0_disp, p / c0.x, c0, 0.0).a);
+	float a1 = _compat_stored_alpha(_fft_sample(fft_c1_disp, p / c1.x, c1, 0.0).a);
+	return vec3(a0 * c0.w + a1 * c1.w, max(a0, a1), a0 * c0.w);
+}
+
+vec3 _fft_foam_terms(vec2 world_xz) {
+	vec2 axis = _fft_wind_axis();
+	vec2 p = _fft_to_wind(world_xz, axis);
+	vec3 foam = _fft_foam_at(p);
+	float standing = clamp(standing_wave_ratio, 0.0, 1.0);
+	if (standing > 0.01) {
+		foam = mix(foam, 0.5 * (foam + _fft_foam_at(-p)), standing);
+	}
+	return foam;
+}
+
 // Displacement only (xyz) with the foam mask in w, for callers that need no
 // WS-06 styling terms (UnderwaterPass waterline).
 vec4 _fft_displacement(vec2 world_xz) {
@@ -247,8 +287,8 @@ void _uw_lighting(
 	float day = clamp(daylight, 0.0, 1.0);
 	ambient = water_tint * mix(0.25, 1.0, day) * (1.0 - 0.55 * clouds);
 	float sun_up = smoothstep(-0.02, 0.18, normalize(sun_dir).y);
-	// Only the tint of the reflection colour is used: SkyWeather3D currently feeds
-	// sun_reflection_color on a 0..255 scale, which would blow the medium out.
+	// Only the tint of the reflection colour is used, so the medium stays bounded
+	// whatever scale the reflection colour arrives in.
 	vec3 tint = sun_color / max(max(max(sun_color.r, sun_color.g), sun_color.b), 1.0);
 	sun = tint * sun_up * day * (1.0 - 0.85 * clouds);
 }

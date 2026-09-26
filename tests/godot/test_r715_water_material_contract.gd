@@ -162,6 +162,40 @@ func test_water_shader_declares_reflection_inputs_and_safe_compatibility_fallbac
 	)
 
 
+func test_ws02_glints_come_from_a_shadowed_ggx_light_function() -> void:
+	var source := ShaderSources.WATER_SHADER.code
+	var light_start := source.find("void light()")
+	assert_true(light_start > 0, "water owns its light() so glints are shadowed and lit once")
+	var light_body := source.substr(light_start)
+	for term in [
+		"_d_ggx(n_dot_h, a2)",
+		"_v_smith_ggx_correlated(n_dot_l, n_dot_v, a2)",
+		"_fresnel_dielectric(v_dot_h, WATER_IOR)",
+		"min(glint, GLINT_CLAMP)",
+		"ATTENUATION",
+		"LIGHT_IS_DIRECTIONAL",
+	]:
+		assert_true(light_body.contains(term), "water light() must use %s" % term)
+	# Exact unpolarised Fresnel, not Schlick's pow(1 - c, 5).
+	var fresnel_start := source.find("float _fresnel_dielectric(")
+	var fresnel_body := source.substr(fresnel_start, source.find("}", fresnel_start) - fresnel_start)
+	assert_true(fresnel_body.contains("sqrt(ior * ior - 1.0 + c * c)"), "Fresnel must be exact")
+	assert_false(fresnel_body.contains("pow("), "Fresnel must not be Schlick")
+	assert_true(source.contains("a2 / (PI * d * d)"), "GGX distribution term is present")
+	assert_false(source.contains("pow(sun_alignment, 220.0)"), "hand-made sun glint is removed")
+	assert_false(source.contains("pow(moon_alignment, 320.0)"), "hand-made moon glint is removed")
+	assert_false(source.contains("film_glint"), "the beach film glint is lit, not painted")
+	# Twilight gates survive: the light keeps following the sun past the disk fade.
+	for gate in ["sun_reflection_visibility", "low_sun_glitter", "moon_visibility"]:
+		assert_true(source.contains(gate), "water glint must stay gated by %s" % gate)
+	# Slope-variance roughness keeps glitter wide on rough seas and alias-free far away.
+	assert_true(source.contains("dFdx(world_normal)"), "unresolved wave slope widens the lobe")
+	assert_true(source.contains("choppiness * wave_chaos"), "sea state widens the glitter path")
+	assert_true(source.contains("NORMAL = view_normal;"), "the lit normal stays the calm normal")
+	# Stars are not lights, so their reflected sparkle stays in the fragment colour.
+	assert_true(source.contains("reflected_stars * night_sparkle"), "star sparkle is retained")
+
+
 func test_water_field_is_choppy_gerstner_not_a_sine_sheet() -> void:
 	MaterialsFacade.reset()
 	var source := ShaderSources.WATER_SHADER.code
@@ -232,6 +266,18 @@ func test_fft_whitecaps_come_from_baked_foam_and_the_foam_tile() -> void:
 	)
 	assert_eq(whitecap_block.count("texture(foam_tile"), 2, "at most two extra samples per fragment")
 	assert_true(
+		whitecap_block.contains("fft_foam = _fft_foam_terms(wave_sample_xz);"),
+		"WS-06b resamples baked foam in fragment, not from a vertex varying",
+	)
+	assert_false(
+		source.contains("varying vec3 fft_foam"),
+		"GL vertex atlas alpha is not trusted as a foam varying",
+	)
+	assert_true(
+		source.contains("uniform float debug_foam_mask = 0.0;"),
+		"capture can write the unlit baked mask for Metal vs Compatibility compare",
+	)
+	assert_true(
 		whitecap_block.contains(
 			"whitecap = clamp((foam_mask - (1.0 - foam_texture)) * foam_sharpness, 0.0, 1.0);"
 		),
@@ -259,6 +305,14 @@ func test_fft_whitecaps_come_from_baked_foam_and_the_foam_tile() -> void:
 	assert_true(
 		include.contains("foam = vec3(s0.a * c0.w + s1.a * c1.w, max(s0.a, s1.a), s0.a * c0.w);"),
 		"the foam mask reads the raw disp alpha of C0 and C1",
+	)
+	assert_true(
+		include.contains("vec3 _fft_foam_terms(vec2 world_xz)"),
+		"WS-06b exposes a fragment foam helper that matches the vertex displacement alpha",
+	)
+	assert_true(
+		include.contains("_compat_stored_alpha(") and include.contains("OUTPUT_IS_SRGB"),
+		"Compatibility restores stored linear foam after sRGB-decoding 8-bit atlas alpha",
 	)
 	assert_false(include.contains("_fft_signed(s0, fft_disp_scale[0]).a"), "foam is never decoded")
 	assert_true(source.contains("_fft_normal_gust("), "gusts and slicks scale the ripple cascade")

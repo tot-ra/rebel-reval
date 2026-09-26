@@ -121,6 +121,9 @@ uniform float foam_coverage = 1.0;
 uniform float foam_sharpness = 2.2;
 // Weather scale of the baked mask (apply_sea_weather: calm 0.2 .. storm 1.8).
 uniform float storm_foam_coverage = 0.8;
+// WS-06b debug: 1 writes the baked foam mask (fft_foam.x) to ALBEDO/EMISSION so
+// Metal vs Compatibility coverage can be compared without lighting or the tile.
+uniform float debug_foam_mask = 0.0;
 // Wind streaks: storm share (0 calm .. 1 storm) times streak_amount. Tidewater's
 // 0.3 vanished under the storm sky reflection on the gameplay camera.
 uniform float storm_streaks = 0.0;
@@ -152,13 +155,24 @@ const float RIPPLE_MAX_SLOPE = 0.6;
 varying vec3 water_world_position;
 varying vec2 wave_sample_xz;
 varying float shore_factor;
-// WS-06 foam terms from the baked disp alpha, sampled once per vertex so the fragment
-// stage only pays for the foam tile: x = weighted mask, y = freshness, z = C0 mask.
-varying vec3 fft_foam;
 // WS-13b: 1 on in-map water whose rendered sea bed may lie below the flat gameplay
 // bed; flat_bed_world_y is that bed plane in world space (from UV2).
 varying float flat_bed_flag;
 varying float flat_bed_world_y;
+// WS-02 inputs for light(), written by fragment(). glint_alpha is the GGX alpha
+// (roughness squared) after slope-variance widening. The directional gate covers
+// the one DirectionalLight3D, which is the sun by day and the moon by night
+// (MapViewLighting slerps it between them). Local lights (torches, forge spill)
+// only lose the glint under foam. diffuse_share scales Lambert on ALBEDO.
+varying float glint_alpha;
+varying float directional_glint_gate;
+varying float local_glint_gate;
+varying float diffuse_share;
+
+// Tidewater: glints are clamped to 400x so they stay inside fp16 range.
+const float GLINT_CLAMP = 400.0;
+// sin(-6 deg): MapViewLighting finishes handing the light from moon to sun here.
+const float SUN_LIGHT_HANDOFF_Y = -0.1045;
 
 float _hash(vec2 p) {
 	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
@@ -471,6 +485,29 @@ float _ripple_weight(vec2 uv) {
 	return ripple_window.w * smoothstep(0.0, RIPPLE_EDGE_FADE, min(edge.x, edge.y));
 }
 
+// WS-02 specular terms (Tidewater water material). a2 is GGX alpha squared.
+float _d_ggx(float n_dot_h, float a2) {
+	float d = n_dot_h * n_dot_h * (a2 - 1.0) + 1.0;
+	return a2 / (PI * d * d);
+}
+
+// Height-correlated Smith visibility; already divided by 4 NdL NdV.
+float _v_smith_ggx_correlated(float n_dot_l, float n_dot_v, float a2) {
+	float ggx_v = n_dot_l * sqrt(n_dot_v * n_dot_v * (1.0 - a2) + a2);
+	float ggx_l = n_dot_v * sqrt(n_dot_l * n_dot_l * (1.0 - a2) + a2);
+	return 0.5 / max(ggx_v + ggx_l, 1e-5);
+}
+
+// Exact unpolarised dielectric Fresnel. WHY not Schlick: Schlick overshoots at
+// the grazing angles the gameplay camera sees most of the sea from.
+float _fresnel_dielectric(float cos_theta, float ior) {
+	float c = clamp(cos_theta, 0.0, 1.0);
+	float g = sqrt(ior * ior - 1.0 + c * c);
+	float a = (g - c) / (g + c);
+	float b = (c * (g + c) - 1.0) / (c * (g - c) + 1.0);
+	return 0.5 * a * a * (1.0 + b * b);
+}
+
 void vertex() {
 	vec3 undisplaced_world = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	wave_sample_xz = undisplaced_world.xz;
@@ -483,10 +520,10 @@ void vertex() {
 	vec2 flow_advection = flow_direction * (flow_strength * TIME * wave_speed * 0.6);
 	vec3 displacement = vec3(0.0);
 	vec3 normal_terms = vec3(0.0);
-	fft_foam = vec3(0.0);
 	if (use_fft) {
 		// FFT replaces wave_height; wave_height stays the Gerstner amplitude only.
-		displacement = _fft_displacement_foam(wave_sample_xz, fft_foam);
+		// Foam is resampled in fragment(): GL vertex atlas alpha is not trusted.
+		displacement = _fft_displacement(wave_sample_xz).xyz;
 	} else {
 		_water_field(wave_sample_xz - flow_advection, TIME * wave_speed, displacement, normal_terms);
 		displacement *= wave_height;
@@ -531,19 +568,23 @@ void vertex() {
 	if (swash_sheet) {
 		// The film lies on the sand; the ocean displacement must not lift it.
 		VERTEX = rest_vertex;
-		fft_foam = vec3(0.0);
 		water_world_position = undisplaced_world;
 	}
 }
 
 void fragment() {
+	// WS-06b: per-pixel baked foam. Do not read a vertex varying; GL Compatibility
+	// vertex fetches from the compressed disp arrays often drop the alpha.
+	vec3 fft_foam = vec3(0.0);
 	// WS-08 beach film. Processor functions cannot return early, so the film is
 	// shaded into locals here and replaces the ocean outputs at the end.
 	ShoreState sheet;
 	vec3 sheet_normal = vec3(0.0, 0.0, 1.0);
 	vec3 sheet_albedo = vec3(0.0);
 	float sheet_alpha = 0.0;
-	float sheet_roughness = 0.06;
+	// WS-02: 0.22 is GGX alpha ~0.05, a wet film just rougher than calm sea.
+	float sheet_roughness = 0.22;
+	float sheet_foam = 0.0;
 	if (swash_sheet) {
 		// WS-08 beach film: exists only where the analytic swash currently covers
 		// the sand. It is a thin, mostly transparent layer: the wet sand below is
@@ -569,8 +610,7 @@ void fragment() {
 		);
 		vec3 film_color = mix(shallow_color * 0.55, sand_bed_color * 0.7, film_transmission);
 		film_color = mix(film_color, film_sky, clamp(0.30 + film_fresnel * 0.9, 0.0, 0.9));
-		float film_glint = pow(max(dot(film_sky_ray, normalize(sun_direction)), 0.0), 220.0);
-		film_color += sun_reflection_color * film_glint * sun_reflection_visibility * 0.8;
+		// WS-02: the film's sun glint comes from light() like the sea's.
 		// Meniscus: the last SHORE_MENISCUS units bend down to the sand, so the edge
 		// fades and darkens instead of ending on a cut polygon line.
 		float meniscus = smoothstep(0.0, SHORE_MENISCUS, sheet.front_distance);
@@ -581,7 +621,8 @@ void fragment() {
 		film_foam *= smoothstep(0.0, 0.03, sheet.front_distance);
 		sheet_albedo = mix(film_color, mix(foam_color, vec3(0.93, 0.95, 0.94), 0.6), film_foam);
 		sheet_alpha = max(film_alpha, film_foam * 0.92);
-		sheet_roughness = mix(0.06, 0.5, film_foam);
+		sheet_roughness = mix(0.22, 0.6, film_foam);
+		sheet_foam = film_foam;
 	}
 	float tide_coverage = tide_shore_retreat * max(-tide_level, 0.0);
 	if (shore_factor < tide_coverage) {
@@ -752,6 +793,7 @@ void fragment() {
 	float whitecap_fresh = 0.0;
 	float wind_streak = 0.0;
 	if (use_fft && !swash_sheet) {
+		fft_foam = _fft_foam_terms(wave_sample_xz);
 		vec2 whitecap_uv = _fft_to_wind(wave_sample_xz, _fft_wind_axis()) * foam_tile_scale;
 		vec2 foam_drift_a = vec2(ocean_time * FOAM_DRIFT_A_TILES_PER_WRAP / OCEAN_TIME_WRAP_SECONDS, 0.0);
 		vec2 foam_drift_b = vec2(ocean_time * FOAM_DRIFT_B_TILES_PER_WRAP / OCEAN_TIME_WRAP_SECONDS, 0.0);
@@ -836,17 +878,19 @@ void fragment() {
 	float night_sparkle = star_visibility * (1.0 - sun_reflection_visibility);
 	water_color += reflected_stars * night_sparkle * reflected_above_horizon * fresnel * 0.16;
 
-	// Explicit celestial glints remain visible in GL Compatibility, where the
-	// environment prefilter alone does not reliably preserve tiny sky disks.
-	float sun_alignment = max(dot(reflected_sky_ray, normalize(sun_direction)), 0.0);
-	// Low sun elongates the glitter path; keep a warm dawn cue without a racing
-	// sparkle highway while the disk skims the horizon on a compressed day cycle.
+	// WS-02: sun and moon glints come from light() (GGX x Smith x exact Fresnel),
+	// so the light's shadow removes them behind quays and hulls. These gates keep
+	// the old twilight rules. Low sun elongates the glitter path; keep a warm dawn
+	// cue without a racing sparkle highway while the disk skims the horizon on a
+	// compressed day cycle.
 	float low_sun_glitter = smoothstep(-0.02, 0.22, sun_direction.y);
-	float sun_glint = pow(sun_alignment, 220.0) * sun_reflection_visibility * mix(0.2, 1.0, low_sun_glitter);
-	float moon_alignment = max(dot(reflected_sky_ray, normalize(moon_direction)), 0.0);
-	float moon_glint = pow(moon_alignment, 320.0) * moon_visibility;
-	water_color += sun_reflection_color * sun_glint * (0.45 + fresnel * 1.2) * (1.0 - whitecap_fresh);
-	water_color += vec3(0.66, 0.72, 0.86) * moon_glint * (0.25 + fresnel * 0.75);
+	float sun_glint_gate = sun_reflection_visibility * mix(0.2, 1.0, low_sun_glitter);
+	float sun_light_share = smoothstep(SUN_LIGHT_HANDOFF_Y, 0.0, sun_direction.y);
+	// During the moon-to-sun handoff the light points between the two bodies, so
+	// the moon share fades out quadratically and never paints a glint from nowhere.
+	float moon_glint_gate = moon_visibility * (1.0 - sun_light_share) * (1.0 - sun_light_share);
+	directional_glint_gate = (moon_glint_gate + sun_glint_gate * sun_light_share) * (1.0 - whitecap_fresh);
+	local_glint_gate = 1.0 - whitecap_fresh;
 
 	// COLOR.r is baked from the same smooth contour that clips the mesh. A pair
 	// of advancing breaker bands now travels into that contour, crests, and fades
@@ -923,17 +967,32 @@ void fragment() {
 	water_color = mix(water_color, mix(foam_color, vec3(0.93, 0.95, 0.94), 0.6), swash_bore * 0.85);
 
 	ALBEDO = water_color;
-	float day_roughness = mix(0.09, 0.22, clamp(foam + absorption * 0.18, 0.0, 1.0));
-	// WHY: DirectionalLight still tracks the sun a few degrees past the visual
-	// disk fade (civil twilight). Without gating specular on sun_visibility the
-	// PBR lobe keeps painting a false sun reflection onto sea after sunset.
-	ROUGHNESS = mix(mix(0.32, 0.42, clamp(foam, 0.0, 1.0)), day_roughness, sun_visibility);
+	// WS-02 roughness from wave slope variance (Toksvig-style). Calm water is a
+	// near mirror; rivers and foam are rougher. A rougher sea widens the glitter
+	// path, and slope the pixel cannot resolve (distant waves, the detail normal
+	// that calm_normal flattens at low sun) becomes roughness instead of a
+	// single-pixel sparkle.
+	vec3 normal_dx = dFdx(world_normal);
+	vec3 normal_dy = dFdy(world_normal);
+	float unresolved_slope = clamp(dot(normal_dx, normal_dx) + dot(normal_dy, normal_dy), 0.0, 0.25);
+	float rough_water = max(step(0.001, flow_strength), clamp(foam, 0.0, 1.0));
+	float base_alpha = mix(0.03, 0.08, rough_water);
+	// choppiness x wave_chaos spans ~0.5 (calm) to ~1.9 (storm) under apply_sea_weather.
+	float sea_variance = mix(0.0015, 0.02, smoothstep(0.45, 1.8, choppiness * wave_chaos));
+	ROUGHNESS = sqrt(sqrt(base_alpha * base_alpha + sea_variance + unresolved_slope));
 	// Godot maps SPECULAR to dielectric F0; 0.25 is approximately water's 0.02.
+	// With the custom light() it only scales ambient and reflection-probe specular.
 	SPECULAR = mix(0.05, 0.25, sun_visibility);
 	// WS-06: fresh foam is a rough diffuse scatterer. It takes its brightness from
 	// the lights through ALBEDO, so it dims with the night instead of glowing.
 	ROUGHNESS = mix(ROUGHNESS, 0.6, whitecap_fresh);
 	SPECULAR = mix(SPECULAR, 0.1, whitecap_fresh);
+	glint_alpha = ROUGHNESS * ROUGHNESS;
+	// WHY full Lambert rather than the ~0.02 of physical water: ALBEDO here is the
+	// already composited transmitted bed plus sky reflection, tuned under the old
+	// built-in diffuse. Dropping it to 0.02 would leave the sea lit by ambient
+	// only. Moving the sky reflection out of ALBEDO belongs to WS-11.
+	diffuse_share = 1.0;
 	// WS-13: the surface seen from below. The old P0-227 fog tint is gone; the
 	// UnderwaterPass fogs everything between the lens and this surface, so the
 	// branch only resolves what the surface itself shows: Snell's window inside
@@ -968,6 +1027,10 @@ void fragment() {
 		);
 		ROUGHNESS = 1.0;
 		SPECULAR = 0.0;
+		// light() ignores SPECULAR; the underside is EMISSION only.
+		directional_glint_gate = 0.0;
+		local_glint_gate = 0.0;
+		diffuse_share = 0.0;
 	}
 	if (swash_sheet) {
 		NORMAL = sheet_normal;
@@ -975,5 +1038,38 @@ void fragment() {
 		ALPHA = sheet_alpha;
 		ROUGHNESS = sheet_roughness;
 		SPECULAR = mix(0.05, 0.5, sun_visibility);
+		glint_alpha = sheet_roughness * sheet_roughness;
+		directional_glint_gate = sun_glint_gate * sun_light_share * (1.0 - sheet_foam);
+		local_glint_gate = 1.0 - sheet_foam;
 	}
+	if (debug_foam_mask > 0.5) {
+		// Unlit mask: lighting and the foam tile must not hide renderer coverage.
+		vec3 mask = vec3(fft_foam.x);
+		ALBEDO = mask;
+		EMISSION = mask;
+		ROUGHNESS = 1.0;
+		SPECULAR = 0.0;
+		ALPHA = 1.0;
+		directional_glint_gate = 0.0;
+		local_glint_gate = 0.0;
+		diffuse_share = 0.0;
+	}
+}
+
+// WS-02: GGX x height-correlated Smith x exact dielectric Fresnel for every
+// light. NORMAL is the calm normal from fragment(), so the compressed day cycle
+// does not turn wave detail into racing specular bands. ATTENUATION carries the
+// shadow, so quays and hulls cut the glitter path.
+void light() {
+	vec3 half_vector = normalize(VIEW + LIGHT);
+	float n_dot_l = max(dot(NORMAL, LIGHT), 0.0);
+	float n_dot_v = max(dot(NORMAL, VIEW), 1e-4);
+	float n_dot_h = max(dot(NORMAL, half_vector), 0.0);
+	float v_dot_h = max(dot(VIEW, half_vector), 0.0);
+	float a2 = max(glint_alpha * glint_alpha, 1e-6);
+	float glint = _d_ggx(n_dot_h, a2) * _v_smith_ggx_correlated(n_dot_l, n_dot_v, a2)
+		* _fresnel_dielectric(v_dot_h, WATER_IOR) * n_dot_l;
+	float gate = LIGHT_IS_DIRECTIONAL ? directional_glint_gate : local_glint_gate;
+	SPECULAR_LIGHT += LIGHT_COLOR * ATTENUATION * min(glint, GLINT_CLAMP) * gate;
+	DIFFUSE_LIGHT += LIGHT_COLOR * ATTENUATION * n_dot_l * diffuse_share / PI;
 }
