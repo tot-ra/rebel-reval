@@ -1,0 +1,47 @@
+{
+  "tool": "tools/bake_ocean_fft.py caustics",
+  "tool_version": "1.0.0",
+  "seed": 1343,
+  "sea_state": {
+    "wind_speed": 9.0,
+    "fetch": 40000.0,
+    "depth": 20.0,
+    "swell": 0.25,
+    "spread_blend": 0.85,
+    "spectrum_scale": 1.0
+  },
+  "ior": 1.333,
+  "method": "photon area ratio: vertical sun ray refracted at t = 0, bilinear periodic splat, 1-texel Gaussian, mean 1 after clamp",
+  "encoding": "L8 byte = round(clamp(v, 0, 4) / 4 * 255)",
+  "scale": 4.0,
+  "tiles": [
+    {
+      "name": "caustics_fine",
+      "patch_m": 4.0,
+      "n": 512,
+      "wavelength_long_m": 4.0,
+      "wavelength_short_m": 0.12,
+      "bed_depth_m": 1.2,
+      "surface_slope_rms": 0.139078,
+      "splat_std": 1.296211,
+      "stored_std": 0.793199,
+      "min_pair_mean": 0.6199,
+      "file": "caustics_fine.png",
+      "sha256": "45f0967c23b497161d654c9b31981f5f92b03a30fa839475c5a7a240605892f9"
+    },
+    {
+      "name": "caustics_broad",
+      "patch_m": 16.0,
+      "n": 512,
+      "wavelength_long_m": 16.0,
+      "wavelength_short_m": 0.5,
+      "bed_depth_m": 4.0,
+      "surface_slope_rms": 0.115575,
+      "splat_std": 1.049695,
+      "stored_std": 0.707099,
+      "min_pair_mean": 0.6614,
+      "file": "caustics_broad.png",
+      "sha256": "87147d47292ec7fa7f9c82b7a710a43446a5ef14dbccc8991e5784ec1a03b461"
+    }
+  ]
+}

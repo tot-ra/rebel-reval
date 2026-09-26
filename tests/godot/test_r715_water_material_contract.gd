@@ -226,6 +226,88 @@ func test_ws02_glints_come_from_a_shadowed_ggx_light_function() -> void:
 	assert_true(source.contains("reflected_stars * night_sparkle"), "star sparkle is retained")
 
 
+func test_ws07_caustics_are_baked_tiles_projected_onto_the_bed() -> void:
+	var source := ShaderSources.WATER_SHADER.code
+	assert_false(source.contains("_bed_caustics"), "the sine-lattice caustics are removed")
+	assert_false(
+		source.contains("water_color += highlight_color * caustics"),
+		"caustics are bed light, not a colour added on top of the water",
+	)
+	assert_true(
+		source.contains("textureGrad(tile, uv_a, gx, gy)"), "caustic tiles sample with textureGrad"
+	)
+	assert_true(source.contains("_caustic_stretch(dFdx(uv_fine), min_len)"), "gradients are stretched")
+	assert_true(
+		source.contains("refract(-sun, vec3(0.0, 1.0, 0.0), 1.0 / WATER_IOR)"),
+		"the net is projected along the refracted sun ray",
+	)
+	assert_true(source.contains("smoothstep(0.6, 3.0, h_m)"), "fine to broad focus follows depth")
+	# Applied to the bed before extinction, so the view path dims it on the way up.
+	var gain_at := source.find("seabed *= _bed_caustic_gain(")
+	assert_true(gain_at > 0, "caustics multiply the seabed")
+	assert_true(
+		gain_at < source.find("vec3 transmitted = seabed * spectral_transmission"),
+		"caustic light lands on the bed before Beer-Lambert extinction",
+	)
+	assert_true(
+		source.contains("* sun_reflection_visibility;"), "cloud cover (no direct sun) removes caustics"
+	)
+	assert_true(
+		source.contains("smoothstep(0.0, 0.7, sun_direction.y)"), "caustics follow the direct-sun share"
+	)
+	# Sample budget: at most 8 on recommended, 2 on minimum.
+	var body_start := source.find("vec3 _bed_caustic_gain(")
+	var body := source.substr(body_start, source.find("\n}\n", body_start) - body_start)
+	assert_eq(body.count("_caustic_tile("), 4, "two tiles on recommended, one per branch on minimum")
+	assert_true(
+		body.contains(
+			"caustic_full_quality ? sun_az * (h_m * 0.004 / caustic_pattern_scale) : vec2(0.0)"
+		),
+		"no dispersion on minimum",
+	)
+	# Scrolls must be whole tiles per ocean-clock wrap.
+	for layer: String in ["FINE_A", "FINE_B", "BROAD_A", "BROAD_B"]:
+		var at := source.find("const float CAUSTIC_%s_TILES_PER_WRAP = " % layer)
+		assert_true(at > 0, "%s scroll constant exists" % layer)
+		var value := float(source.substr(at).get_slice("= ", 1).get_slice(";", 0))
+		assert_eq(value, roundf(value), "%s scroll wraps seamlessly" % layer)
+
+
+func test_ws07_water_materials_bind_caustic_tiles_and_quality_tier() -> void:
+	var profile_text := FileAccess.get_file_as_string(
+		"res://assets/water/ocean_fft/caustics_profile.json"
+	)
+	var profile: Dictionary = JSON.parse_string(profile_text)
+	var tiles: Array = profile["tiles"]
+	assert_eq(float(profile["scale"]), 4.0, "the shader decodes the tiles with scale 4")
+	assert_eq(float(tiles[0]["patch_m"]), 4.0, "fine tile patch matches CAUSTIC_FINE_PATCH_M")
+	assert_eq(float(tiles[1]["patch_m"]), 16.0, "broad tile patch matches CAUSTIC_BROAD_PATCH_M")
+	assert_true(
+		absf(float(tiles[0]["min_pair_mean"]) - WaterMaterials.CAUSTIC_MIN_PAIR_MEAN.x) < 0.0005
+			and absf(float(tiles[1]["min_pair_mean"]) - WaterMaterials.CAUSTIC_MIN_PAIR_MEAN.y) < 0.0005,
+		"the material's min-pair means mirror the baked profile",
+	)
+	var terrains: Array[StringName] = [
+		MapTypesContract.TERRAIN_RIVER_WATER, MapTypesContract.TERRAIN_WATER
+	]
+	for terrain_id: StringName in terrains:
+		MaterialsFacade.reset()
+		var material := MaterialsFacade.water_surface(terrain_id)
+		assert_true(material.get_shader_parameter("caustics_fine_tex") is Texture2D, "fine tile bound")
+		assert_true(material.get_shader_parameter("caustics_broad_tex") is Texture2D, "broad tile bound")
+		assert_true(
+			bool(material.get_shader_parameter("caustic_full_quality")), "recommended is full quality"
+		)
+	WaterMaterials.set_ocean_fft_quality_tier(&"minimum")
+	MaterialsFacade.reset()
+	var minimum := MaterialsFacade.water_surface(MapTypesContract.TERRAIN_WATER)
+	assert_false(
+		bool(minimum.get_shader_parameter("caustic_full_quality")), "minimum drops to 2 samples"
+	)
+	WaterMaterials.set_ocean_fft_quality_tier(&"recommended")
+	MaterialsFacade.reset()
+
+
 func test_water_field_is_choppy_gerstner_not_a_sine_sheet() -> void:
 	MaterialsFacade.reset()
 	var source := ShaderSources.WATER_SHADER.code

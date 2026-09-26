@@ -120,3 +120,55 @@ Compute a physically based caustic pattern from a height field with the photon a
   ```text
   - [ ] WS-07 | deps: WS-01, WS-03 | deliverable: photon-splat caustic tiles (fine/broad) baked from the FFT spectrum and applied as bed light along the refracted sun ray with depth focus, anisotropic-safe gradients, dispersion and cloud/sun gating; sine-lattice caustics removed | allowed files: `tools/bake_ocean_fft.py`, `tests/python/test_bake_ocean_fft.py`, `assets/water/ocean_fft/caustics_fine.png`, `assets/water/ocean_fft/caustics_broad.png`, `assets/SOURCES.csv`, `scripts/map/view3d/map_view_water.gdshader`, `scripts/map/view3d/map_view_water_materials.gd`, `tests/godot/test_r715_water_material_contract.gd`, `docs/reports/images/ws07_*.png`, `TODO.md` | verify: tile seam/energy tests; contract test; noon/sunset/overcast/night captures and an orbit clip show a depth-focused, sun-leaning, shimmer-free caustic net on the bed
   ```
+
+## Final parameters and decisions (2026-09-26)
+
+Implementation: `tools/bake_ocean_fft.py caustics`, `_bed_caustic_gain()` in
+`scripts/map/view3d/map_view_water.gdshader`, `_apply_caustic_uniforms()` in
+`scripts/map/view3d/map_view_water_materials.gd`. Plates: `docs/reports/images/ws07_*.png` from
+`tools/capture_ws07_caustics.gd` (fishing-harbour beach shelf of `reval_harbor_east`).
+
+1. **Bands extended to the focusing ripples.** With the contract's short ends (fine 0.5 m, broad
+   2 m) the reference Baltic sea does not focus at 1.2 m / 4 m: the splat histogram's std is 0.18
+   / 0.15, a faint mottle. The short ends are 0.12 m (fine) and 0.5 m (broad); long ends, patches,
+   N and bed depths are as specified. Stored std is 0.79 / 0.71.
+2. **Metadata in `assets/water/ocean_fft/caustics_profile.json`**, not in
+   `baltic_reference/ocean_fft_profile.json`: the cascade bake owns and `--check`s that file, and
+   the tiles live one level up. `--check` works for the caustics subcommand too.
+3. **Cross-scroll normalisation.** `min(a, b)` of two layers has mean 0.62 (fine) / 0.66 (broad),
+   which would darken every bed by a third. The bake records `min_pair_mean` and the shader
+   divides it out; `MapViewWaterMaterials.CAUSTIC_MIN_PAIR_MEAN` mirrors it (contract test).
+   Layer B is layer A rotated 90 degrees, which keeps the tile exactly periodic.
+4. **Apparent depth.** The gameplay water column is centimetres; `sigma_t` is already art-scaled
+   ~15x. The focus and the tile projection use `h_m = column * 0.87 * 15` (terrain optical floors
+   0.075..0.38 units become ~1..5 m); `light_down` uses the real column, like the view path.
+5. **Art knobs (ADR 0018).** `caustic_pattern_scale = 3.0` magnifies the tiles: the physical
+   0.1-0.3 m net cell is 4-5 px at the gameplay camera and the depth mip blur erased it.
+   `caustic_strength = 2.8`, not 0.75: ALBEDO still mixes in the art-weighted sky reflection
+   (>= 0.34 + Fresnel), so 0.75 left a +-4/255 net at clear noon; 2.8 x the clear-sky gate 0.70
+   is ~2.0 effective. Revisit both when WS-11 moves the reflection out of ALBEDO. The gain is
+   floored at 0.35 so dark cells keep their skylight, and dispersion is blended in at 35% because
+   the 1-2 texel lines otherwise split into a rainbow.
+6. **Sun and cloud gate.** `(1 - cloud_darken * 0.85)` has no effect today: `MapViewLighting`
+   never pushes `cloud_darken` (nor `sunset_factor`) to the water, so both stay 0 (follow-up for
+   WS-11). The gate is `twilight_water_light x direct_share^2 x sun_reflection_visibility`, where
+   `direct_share = smoothstep(0, 0.7, sun.y)` (skylight takes over the bed at dusk; zero at night)
+   and `sun_reflection_visibility` is sun disk x (1 - cloud coverage): 0.70 clear, 0.02 overcast.
+7. **Footprint stretch.** Besides the entry-point lean, the tile coordinate along the sun azimuth
+   is compressed by cos(theta_t), so a low sun elongates the net away from the sun.
+
+Evidence:
+
+- Compatibility (shipping renderer), mean |on - off| luminance on the plate: clear noon 2.47/255
+  (p99 25), sunset 0.48, overcast 0.07, night 0 by construction. Metal draws the same net weaker
+  (0.84 at noon) because its water already shows less bed (pre-existing renderer difference).
+- `ws07_*_clear_noon_o70.png`: no shimmer or aliasing after a 70 degree orbit.
+  `ws07_opengl3_clear_clip_sheet.png`: frames 0/5/10/15 of a 16-frame, 1/15 s clip; mean
+  frame-to-frame luminance change 0.0056 with caustics vs 0.0021 without (smooth drift, no strobe).
+- `ws07_opengl3_clear_noon_minimum.png`: the `minimum` tier (dominant tile, 2 samples) still draws
+  the net.
+- The coloured mottle on the Compatibility sunset plates is in the caustics-off plate too
+  (`ws07_opengl3_clear_sunset_off.png`); it is not from WS-07.
+- Quick performance report A/B on the same tree (M5 Pro, Lower Town scene): caustics off p95
+  15.19 ms / median 8.80 ms, on 14.70 / 8.91 ms. The cost is inside run-to-run noise; one on-run
+  hit 17.43 ms p95 from a single hitch (median 8.75).

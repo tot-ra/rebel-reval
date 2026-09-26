@@ -163,5 +163,78 @@ class FoamTileTests(unittest.TestCase):
         self.assertLess(committed.stat().st_size, 300 * 1024)
 
 
+class CausticTileTests(unittest.TestCase):
+    """WS-07 photon-splat caustic tiles (small N; the committed tiles are checked by bytes)."""
+
+    SPEC = bake.CascadeSpec("caustics_test", 4.0, 64, 4.0, 0.25, 1.0, 1, False)
+
+    def tile(self, seed: int = 1343) -> bake.CausticTile:
+        return bake.bake_caustic_tile(self.SPEC, SEA, np.random.default_rng(seed), 1.2)
+
+    def test_splat_conserves_energy(self) -> None:
+        tile = self.tile()
+        # One unit per surface texel before splatting; bilinear weights sum to 1 per texel.
+        self.assertAlmostEqual(float(np.sum(tile.histogram)), self.SPEC.n**2, places=6)
+        blurred = bake.blur_periodic(tile.histogram, bake.CAUSTICS_BLUR_SIGMA_TEXELS)
+        self.assertAlmostEqual(float(np.sum(blurred)), self.SPEC.n**2, places=6)
+
+    def test_flat_surface_gives_uniform_light(self) -> None:
+        flat = np.zeros((16, 16))
+        offsets = bake.caustic_landing_offsets(flat, flat, 1.2)
+        self.assertLess(float(np.max(np.abs(offsets))), 1e-12)
+        self.assertTrue(np.allclose(bake.splat_periodic(offsets), 1.0))
+
+    def test_refraction_bends_toward_the_normal(self) -> None:
+        # Height rising toward +X tilts the normal to -X; the transmitted ray bends between the
+        # incident ray and -N, so it lands downslope (+X). The offset scales with depth.
+        slope = np.full((2, 2), 0.2)
+        zero = np.zeros((2, 2))
+        shallow = bake.caustic_landing_offsets(slope, zero, 1.0)
+        deep = bake.caustic_landing_offsets(slope, zero, 2.0)
+        self.assertTrue(np.all(shallow[..., 0] > 0.0))
+        self.assertTrue(np.allclose(deep, 2.0 * shallow))
+        self.assertTrue(np.allclose(shallow[..., 1], 0.0))
+
+    def test_mean_is_one_and_values_fit_the_encoding(self) -> None:
+        values = self.tile().values
+        self.assertAlmostEqual(float(np.mean(values)), 1.0, delta=0.01)
+        self.assertGreaterEqual(float(np.min(values)), 0.0)
+        self.assertLessEqual(float(np.max(values)), bake.CAUSTICS_ENCODE_SCALE)
+        decoded = bake.encode_caustics(values).astype(np.float64) / 255.0 * bake.CAUSTICS_ENCODE_SCALE
+        self.assertAlmostEqual(float(np.mean(decoded)), 1.0, delta=0.01)
+
+    def test_tile_wraps_without_a_seam(self) -> None:
+        values = self.tile().values
+        step = max(float(np.max(np.abs(np.diff(values, axis=1)))), float(np.max(np.abs(np.diff(values, axis=0)))))
+        self.assertLessEqual(float(np.max(np.abs(values[:, -1] - values[:, 0]))), step + 1e-9)
+        self.assertLessEqual(float(np.max(np.abs(values[-1, :] - values[0, :]))), step + 1e-9)
+        # A shifted copy is the same periodic field: rolling must not change the statistics.
+        rolled = np.roll(values, (17, 29), (0, 1))
+        self.assertAlmostEqual(float(np.std(rolled)), float(np.std(values)), places=12)
+
+    def test_bake_is_deterministic_and_forms_a_net(self) -> None:
+        first = self.tile().values
+        self.assertTrue(np.array_equal(first, self.tile().values))
+        self.assertFalse(np.array_equal(first, self.tile(7).values))
+        self.assertGreater(float(np.std(first)), 0.15)
+
+    def test_reference_tiles_focus_into_a_net(self) -> None:
+        # A focused net, not a faint mottle: the committed bands and depths must keep bright
+        # lines well above the mean (the contract's 0.5 m / 2 m cut-offs gave std < 0.2).
+        with tempfile.TemporaryDirectory() as tmp:
+            profile = bake.bake_caustics(SEA, 1343, Path(tmp))
+        for entry in profile["tiles"]:
+            self.assertGreater(entry["stored_std"], 0.5, entry["name"])
+            self.assertTrue(0.5 < entry["min_pair_mean"] < 1.0, entry["name"])
+
+    def test_committed_tiles_match_generator_and_budget(self) -> None:
+        out = ROOT / "assets" / "water" / "ocean_fft"
+        if not (out / "caustics_fine.png").is_file():
+            self.skipTest("caustic tiles not committed yet")
+        self.assertEqual(bake.main(["caustics", "--check", "--out", str(out)]), 0)
+        for name in ("caustics_fine.png", "caustics_broad.png"):
+            self.assertLess((out / name).stat().st_size, 1024 * 1024, name)
+
+
 if __name__ == "__main__":
     unittest.main()

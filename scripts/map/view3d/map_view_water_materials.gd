@@ -99,6 +99,16 @@ const OCEAN_FFT_ATLASES := {
 ## WS-06 seamless foam detail tile (`bake_ocean_fft.py foam-tile`), shared by every
 ## FFT water material. Missing it leaves the shader's black default: no whitecaps.
 const OCEAN_FOAM_TILE_PATH := "res://assets/water/ocean_fft/foam_tile.png"
+## WS-07 photon-splat caustic tiles (`bake_ocean_fft.py caustics`), shared by every
+## water material (they need no FFT). Missing tiles read white: no caustics.
+const CAUSTIC_TILE_PATHS := {
+	"caustics_fine_tex": "res://assets/water/ocean_fft/caustics_fine.png",
+	"caustics_broad_tex": "res://assets/water/ocean_fft/caustics_broad.png",
+}
+## caustics_profile.json `min_pair_mean` (fine, broad): the mean of the shader's
+## min(layer A, layer B) cross-scroll, divided out so the bed keeps its average light.
+## test_r715_water_material_contract checks it against the baked profile.
+const CAUSTIC_MIN_PAIR_MEAN := Vector2(0.6199, 0.6614)
 const OCEAN_FFT_DERIV_KEYS: Array[String] = ["dy_dx", "dy_dz", "dx_dx", "dz_dz"]
 const OCEAN_FFT_DISP_KEYS: Array[String] = ["dx", "dy", "dz"]
 ## Open sea, coastal shallows, and harbour basins take the FFT path. Rivers keep
@@ -434,10 +444,34 @@ static func water_surface(terrain_id: StringName, wave_profiles: Dictionary) -> 
 	# on the flat 1x1 state with the window marked invalid until a WaterRippleSim binds.
 	material.set_shader_parameter("ripple_state", ripple_off_texture())
 	material.set_shader_parameter("ripple_window", Vector4(0.0, 0.0, 64.0, 0.0))
+	_apply_caustic_uniforms(material)
 	if uses_ocean_fft(terrain_id):
 		_apply_ocean_fft_uniforms(material, wave)
 	_cache[key] = material
 	return material
+
+
+## WS-07: binds the caustic tiles. The `minimum` tier drops to the dominant tile with
+## no dispersion (2 samples instead of 8); like the FFT tier it applies at build time.
+static func _apply_caustic_uniforms(material: ShaderMaterial) -> void:
+	var complete := true
+	for uniform_name: String in CAUSTIC_TILE_PATHS:
+		var tile := load(CAUSTIC_TILE_PATHS[uniform_name]) as Texture2D
+		if tile == null:
+			complete = false
+			continue
+		material.set_shader_parameter(uniform_name, tile)
+	if not complete:
+		# A half-bound pair would light the bed from one tile at the wrong mean; fall
+		# back to both white defaults with a neutral mean, which is zero caustics.
+		for uniform_name: String in CAUSTIC_TILE_PATHS:
+			material.set_shader_parameter(uniform_name, null)
+		material.set_shader_parameter("caustic_min_pair_mean", Vector2.ONE)
+	else:
+		material.set_shader_parameter("caustic_min_pair_mean", CAUSTIC_MIN_PAIR_MEAN)
+	material.set_shader_parameter(
+		"caustic_full_quality", _ocean_fft_quality_tier != SKY_WEATHER.QUALITY_MINIMUM
+	)
 
 
 ## Scales cached water materials from SkyWeather wind/rain. Safe to call every

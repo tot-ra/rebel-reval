@@ -214,7 +214,7 @@ func test_water_shader_layers_seabed_materials_by_depth() -> void:
 		"spectral_transmission" in source,
 		"water lighting must attenuate wavelengths by depth",
 	)
-	assert_true("_bed_caustics" in source, "sunlit shallows need moving floor light")
+	assert_true("_bed_caustic_gain" in source, "sunlit shallows need moving floor light")
 	assert_true("day_blend" in source, "floor caustics must fade at night")
 	assert_true(
 		"twilight_water_light" in source,

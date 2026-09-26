@@ -639,6 +639,194 @@ def foam_tile_main(argv: list[str]) -> int:
     return 0
 
 
+# --- WS-07 caustic tiles ---------------------------------------------------------------------
+#
+# Two static single-channel tiles of the light a flat bed receives under one frame of the
+# WS-03 spectrum (docs/tasks/water_sky/WS-07_baked_caustics.md). Photon area-ratio method:
+# every surface texel refracts a vertical sun ray, lands on a flat bed at depth d, and splats
+# its unit energy bilinearly into a periodic histogram. Unlike the analytic 1/|det J| this has
+# no infinities on the focus lines. Ported in spirit from Tidewater (MIT, see
+# docs/THIRD_PARTY_NOTICES.md `notice.code.tidewater`) causticsFineTex / causticsBroadTex.
+
+WATER_IOR = 1.333
+CAUSTICS_TILE_N = 512
+# Stored byte = round(clamp(v, 0, 4) / 4 * 255); the shader multiplies the sample by 4.
+CAUSTICS_ENCODE_SCALE = 4.0
+CAUSTICS_BLUR_SIGMA_TEXELS = 1.0
+# The contract's short-wave ends (0.5 m fine, 2 m broad) carry too little curvature to focus
+# at 1.2 m / 4 m under the reference sea: the splat histogram's std is only 0.18 / 0.15, a
+# faint mottle instead of a net. Real shallow-water caustic nets come from decimetre ripples,
+# so both bands extend down to where the pattern focuses (std ~1.3 / ~1.0) while the long
+# ends, patches and bed depths stay as specified (decision recorded in the WS-07 task doc).
+CAUSTICS_TILES: tuple[CascadeSpec, ...] = (
+    # period_s/frames are unused (one frame at t = 0); patch = long end keeps the tile periodic.
+    CascadeSpec("caustics_fine", 4.0, CAUSTICS_TILE_N, 4.0, 0.12, 1.0, 1, False),
+    CascadeSpec("caustics_broad", 16.0, CAUSTICS_TILE_N, 16.0, 0.5, 1.0, 1, False),
+)
+CAUSTICS_BED_DEPTH_M = {"caustics_fine": 1.2, "caustics_broad": 4.0}
+CAUSTICS_RENORMALISE_PASSES = 8
+
+
+def caustic_landing_offsets(slope_x: np.ndarray, slope_z: np.ndarray, depth_m: float) -> np.ndarray:
+    """Horizontal landing offset (metres, [z, x, 2] as x/z) of a vertical sun ray refracted
+    through the surface normal (-sx, 1, -sz) and stopped on a flat bed depth_m below."""
+    normal = np.stack([-slope_x, np.ones_like(slope_x), -slope_z], axis=-1)
+    normal /= np.linalg.norm(normal, axis=-1, keepdims=True)
+    eta = 1.0 / WATER_IOR
+    # GLSL refract(I, N, eta) with I = (0, -1, 0): cos_i = -dot(N, I) = N.y.
+    cos_i = normal[..., 1]
+    cos_t = np.sqrt(1.0 - eta * eta * (1.0 - cos_i * cos_i))
+    transmitted = eta * np.array([0.0, -1.0, 0.0]) + (eta * cos_i - cos_t)[..., None] * normal
+    return depth_m * transmitted[..., [0, 2]] / (-transmitted[..., 1:2])
+
+
+def splat_periodic(offset_texels: np.ndarray) -> np.ndarray:
+    """Bilinear splat of one unit of energy per texel onto its landing texel, wrapping."""
+    n = offset_texels.shape[0]
+    zz, xx = np.meshgrid(np.arange(n), np.arange(n), indexing="ij")
+    px = xx + offset_texels[..., 0]
+    pz = zz + offset_texels[..., 1]
+    x0 = np.floor(px)
+    z0 = np.floor(pz)
+    fx = px - x0
+    fz = pz - z0
+    x0 = x0.astype(np.int64) % n
+    z0 = z0.astype(np.int64) % n
+    histogram = np.zeros((n, n))
+    for dz, dx, weight in ((0, 0, (1 - fx) * (1 - fz)), (0, 1, fx * (1 - fz)), (1, 0, (1 - fx) * fz), (1, 1, fx * fz)):
+        np.add.at(histogram, ((z0 + dz) % n, (x0 + dx) % n), weight)
+    return histogram
+
+
+def blur_periodic(values: np.ndarray, sigma_texels: float) -> np.ndarray:
+    """Periodic Gaussian blur through the FFT; the DC term is untouched, so energy is kept."""
+    n = values.shape[0]
+    freq = np.fft.fftfreq(n)
+    fx, fz = np.meshgrid(freq, freq, indexing="xy")
+    kernel = np.exp(-2.0 * (math.pi * sigma_texels) ** 2 * (fx * fx + fz * fz))
+    return np.fft.ifft2(np.fft.fft2(values) * kernel).real
+
+
+def normalise_caustics(values: np.ndarray) -> np.ndarray:
+    """Mean 1.0 after clamping to [0, CAUSTICS_ENCODE_SCALE]: clamping the brightest focus
+    lines lowers the mean, so rescale and re-clamp until it settles."""
+    out = values / float(np.mean(values))
+    for _ in range(CAUSTICS_RENORMALISE_PASSES):
+        out = np.clip(out, 0.0, CAUSTICS_ENCODE_SCALE)
+        out = out / float(np.mean(out))
+    return np.clip(out, 0.0, CAUSTICS_ENCODE_SCALE)
+
+
+@dataclass
+class CausticTile:
+    spec: CascadeSpec
+    depth_m: float
+    histogram: np.ndarray  # raw splat, sum = N^2
+    values: np.ndarray  # blurred, normalised, clamped light gain (mean 1)
+    slope_rms: float
+
+
+def bake_caustic_tile(spec: CascadeSpec, sea: SeaState, rng: np.random.Generator, depth_m: float) -> CausticTile:
+    frame = evaluate(build_cascade(spec, sea, rng), 0.0)
+    offsets_m = caustic_landing_offsets(frame["dy_dx"], frame["dy_dz"], depth_m)
+    histogram = splat_periodic(offsets_m / (spec.patch_m / spec.n))
+    values = normalise_caustics(blur_periodic(histogram, CAUSTICS_BLUR_SIGMA_TEXELS))
+    slope_rms = float(np.sqrt(np.mean(frame["dy_dx"] ** 2 + frame["dy_dz"] ** 2)))
+    return CausticTile(spec, depth_m, histogram, values, slope_rms)
+
+
+def caustic_min_pair_mean(values: np.ndarray) -> float:
+    """Mean of min(layer A, layer B) for the shader's cross-scroll (B = A rotated 90 degrees
+    and shifted), taken over a few shifts because the layers drift against each other."""
+    n = values.shape[0]
+    means = [
+        float(np.mean(np.minimum(values, np.rot90(np.roll(values, (n * i // 7, n * i // 5), (0, 1))))))
+        for i in range(1, 5)
+    ]
+    return float(np.mean(means))
+
+
+def encode_caustics(values: np.ndarray) -> np.ndarray:
+    return encode_unit(values / CAUSTICS_ENCODE_SCALE)
+
+
+def bake_caustics(sea: SeaState, seed: int, out_dir: Path) -> dict:
+    out_dir.mkdir(parents=True, exist_ok=True)
+    # Fine then broad from one RNG: the order is part of the determinism contract.
+    rng = np.random.default_rng(seed)
+    tiles = [bake_caustic_tile(spec, sea, rng, CAUSTICS_BED_DEPTH_M[spec.name]) for spec in CAUSTICS_TILES]
+    entries = []
+    for tile in tiles:
+        path = out_dir / f"{tile.spec.name}.png"
+        # A 2D uint8 array saves as mode "L": Godot imports a one-channel L8 texture, read as .r.
+        Image.fromarray(encode_caustics(tile.values)).save(
+            path, format="PNG", optimize=False, compress_level=PNG_COMPRESS_LEVEL
+        )
+        if path.stat().st_size >= 1024 * 1024:
+            raise SystemExit(f"{path.name} is {path.stat().st_size} bytes; WS-07 caps each tile at 1 MiB")
+        entries.append(
+            {
+                "name": tile.spec.name,
+                "patch_m": tile.spec.patch_m,
+                "n": tile.spec.n,
+                "wavelength_long_m": tile.spec.wavelength_long_m,
+                "wavelength_short_m": tile.spec.wavelength_short_m,
+                "bed_depth_m": tile.depth_m,
+                "surface_slope_rms": round(tile.slope_rms, 6),
+                "splat_std": round(float(np.std(tile.histogram)), 6),
+                "stored_std": round(float(np.std(tile.values)), 6),
+                # The shader crosses two scrolled layers with min(a, b) (layer B rotated 90
+                # degrees); min pulls the mean below 1, so it divides by this to keep the
+                # bed's average light unchanged. MapViewWaterMaterials mirrors the value.
+                "min_pair_mean": round(caustic_min_pair_mean(tile.values), 4),
+                "file": path.name,
+                "sha256": sha256(path),
+            }
+        )
+    profile = {
+        "tool": "tools/bake_ocean_fft.py caustics",
+        "tool_version": TOOL_VERSION,
+        "seed": seed,
+        "sea_state": asdict(sea),
+        "ior": WATER_IOR,
+        "method": "photon area ratio: vertical sun ray refracted at t = 0, bilinear periodic splat, "
+        f"{CAUSTICS_BLUR_SIGMA_TEXELS:g}-texel Gaussian, mean 1 after clamp",
+        "encoding": f"L8 byte = round(clamp(v, 0, {CAUSTICS_ENCODE_SCALE:g}) / {CAUSTICS_ENCODE_SCALE:g} * 255)",
+        "scale": CAUSTICS_ENCODE_SCALE,
+        "tiles": entries,
+    }
+    (out_dir / "caustics_profile.json").write_text(json.dumps(profile, indent=2) + "\n", encoding="utf-8")
+    profile["_tiles"] = tiles  # in-memory only, for tests
+    return profile
+
+
+def caustics_main(argv: list[str]) -> int:
+    parser = argparse.ArgumentParser(prog="bake_ocean_fft.py caustics", description="WS-07 photon-splat caustic tiles")
+    parser.add_argument("--out", type=Path, help="output directory (default assets/water/ocean_fft)")
+    parser.add_argument("--seed", type=int, default=PROFILES["baltic_reference"]["seed"])
+    parser.add_argument("--check", action="store_true", help="re-bake to a temp dir and compare with --out")
+    args = parser.parse_args(argv)
+    sea: SeaState = PROFILES["baltic_reference"]["sea"]
+    out = args.out or Path(__file__).resolve().parent.parent / "assets" / "water" / "ocean_fft"
+    if args.check:
+        with tempfile.TemporaryDirectory() as tmp:
+            bake_caustics(sea, args.seed, Path(tmp))
+            drift = [
+                fresh.name
+                for fresh in sorted(Path(tmp).iterdir())
+                if not (out / fresh.name).is_file() or sha256(out / fresh.name) != sha256(fresh)
+            ]
+        if drift:
+            print(f"caustics bake drift in {out}: {', '.join(drift)}", file=sys.stderr)
+            return 1
+        print(f"caustics bake matches {out}")
+        return 0
+    profile = bake_caustics(sea, args.seed, out)
+    for entry in profile["tiles"]:
+        print(f"wrote {out / entry['file']}: bed {entry['bed_depth_m']} m, std {entry['stored_std']:.3f}")
+    return 0
+
+
 # --- CLI ------------------------------------------------------------------------------------
 
 
@@ -687,6 +875,8 @@ def main(argv: list[str] | None = None) -> int:
     # WS-06: the foam tile is a separate subcommand so the cascade flags stay unchanged.
     if argv and argv[0] == "foam-tile":
         return foam_tile_main(argv[1:])
+    if argv and argv[0] == "caustics":
+        return caustics_main(argv[1:])
     args = build_parser().parse_args(argv)
     sea, cascades, seed = resolve(args)
     default_out = Path(__file__).resolve().parent.parent / "assets" / "water" / "ocean_fft" / args.profile

@@ -234,6 +234,17 @@ R-908 implementation landed. `FOG_NIGHT_COLOR` lerps to `FOG_MORNING_COLOR` by `
 
 R-911 implementation landed. Peak height density 1.1 -> 0.20 so Godot waterline cover is ~0.50 instead of ~0.98; distance density 0.018 -> 0.010. Rain-only haze stays 0.0035. Evidence: `docs/reports/images/fog_dawn_{metal,opengl3}_{sunrise,night}_harbour.png` (3 May 1343; sunrise 0.157 mean luma ~66/64, night 0.08 mean luma ~6/5). `--filter=test_map_view_lighting` 7/7.
 
+- [ ] WS-07 | deps: WS-01, WS-03 | deliverable: photon-splat caustic tiles (fine/broad) baked from the FFT spectrum and applied as bed light along the refracted sun ray with depth focus, anisotropic-safe gradients, dispersion and cloud/sun gating; sine-lattice caustics removed | allowed files: `tools/bake_ocean_fft.py`, `tests/python/test_bake_ocean_fft.py`, `assets/water/ocean_fft/caustics_fine.png`, `assets/water/ocean_fft/caustics_broad.png`, `assets/SOURCES.csv`, `scripts/map/view3d/map_view_water.gdshader`, `scripts/map/view3d/map_view_water_materials.gd`, `tests/godot/test_r715_water_material_contract.gd`, `docs/reports/images/ws07_*.png`, `TODO.md` | verify: tile seam/energy tests; contract test; noon/sunset/overcast/night captures and an orbit clip show a depth-focused, sun-leaning, shimmer-free caustic net on the bed
+
+WS-07 implementation landed (R-892, in review). Decisions are in the contract's "Final parameters
+and decisions": the bands extend to 0.12 m / 0.5 m because the specified cut-offs do not focus;
+`caustics_profile.json` beside the tiles; `min(a, b)` mean divided out; apparent depth x15 like
+`sigma_t`; art knobs `caustic_pattern_scale` 3.0 and `caustic_strength` 2.8 until WS-11 moves the
+sky reflection out of ALBEDO; the cloud gate uses `sun_reflection_visibility` because water never
+receives `cloud_darken`. Scope additions: `tools/capture_ws07_caustics.gd`,
+`assets/water/ocean_fft/caustics_profile.json` and the `.import` sidecars,
+`tests/godot/test_coastal_sea_3d.gd` (it required `_bed_caustics`) and the contract doc.
+
 - [ ] WS-13 | deps: WS-01, WS-05, WS-07 | deliverable: UnderwaterPass (AIR/STRADDLE/UNDER from the camera height) screen pass with per-pixel FFT waterline and meniscus, Beer-Lambert medium with HG sun in-scatter, submerged caustics and marched light shafts; water underside Snell's window with total internal reflection; SFX low-pass; wet lens on surfacing; P0-227 tint removed | allowed files: `scripts/map/view3d/underwater_pass.gd`, `scripts/map/view3d/underwater_pass.gdshader`, `scripts/map/view3d/ocean_fft_common.gdshaderinc`, `scripts/map/view3d/map_view_water.gdshader`, `scripts/map/view3d/map_view_3d.gd`, `audio/default_bus_layout.tres`, `tools/capture_underwater.gd`, `tests/godot/test_underwater_pass.gd`, `tests/godot/test_r715_water_material_contract.gd`, `tests/godot/test_ocean_fft_material.gd`, `docs/tasks/water_sky/WS-13_underwater_view_pass.md`, `docs/reports/images/ws13_*.png`, `TODO.md` | verify: state/bus/lens tests; include refactor pixel-identical; under/up/straddle/night/storm captures and dip clip; pass <= 1.0 ms under water and 0 in air
 
 WS-13 implementation landed (R-898, in review) ahead of its dependencies. Decisions (2026-09-25),

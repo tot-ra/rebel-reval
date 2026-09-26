@@ -17,7 +17,25 @@ uniform vec3 algae_bed_color : source_color = vec3(0.14, 0.28, 0.20);
 uniform float bed_vegetation = 1.0;
 uniform vec3 deep_bed_color : source_color = vec3(0.035, 0.08, 0.11);
 uniform float optical_depth = 0.075;
-uniform float caustic_strength = 0.14;
+// WS-07 bed caustics: photon-splat tiles from `bake_ocean_fft.py caustics` (light gain
+// v/4 in R, mean 1). Unset tiles read white and caustic_min_pair_mean defaults to 1,
+// which is no caustics. Tidewater's CausticsParams.strength is 0.75
+// (notice.code.tidewater), but here ALBEDO still mixes in the art-weighted sky
+// reflection (>= 0.34 + Fresnel, vs ~0.02-0.05 physically at the gameplay camera), so
+// the bed carries a small share of the pixel and 0.75 left a +-4/255 net on the
+// clear-noon plate. The clear preset's direct-sun gate is 0.70, so 2.8 is ~2.0
+// effective, which reads as a net; revisit when WS-11 moves the reflection out.
+uniform float caustic_strength = 2.8;
+uniform sampler2D caustics_fine_tex : hint_default_white, filter_linear_mipmap, repeat_enable;
+uniform sampler2D caustics_broad_tex : hint_default_white, filter_linear_mipmap, repeat_enable;
+// Mean of min(layer A, layer B) per tile (caustics_profile.json min_pair_mean).
+uniform vec2 caustic_min_pair_mean = vec2(1.0, 1.0);
+// false on the `minimum` tier: dominant tile only, two layers, no dispersion (2 samples).
+uniform bool caustic_full_quality = true;
+// Art knob (ADR 0018): the physical net cell is 0.1-0.3 m, 4-5 px at the gameplay camera,
+// where the depth mip blur averages it away. The tiles are magnified horizontally by this
+// factor so the net reads; motion and depth focus stay physical.
+uniform float caustic_pattern_scale = 3.0;
 uniform vec3 highlight_color : source_color = vec3(0.396, 0.694, 0.769);
 uniform vec3 foam_color : source_color = vec3(0.72, 0.80, 0.78);
 uniform float wave_height = 0.032;
@@ -142,6 +160,27 @@ const float WATER_METERS_PER_UNIT = 0.87;
 // speed, so a foam patch still rides its crest.
 const float FOAM_DRIFT_A_TILES_PER_WRAP = 40.0;
 const float FOAM_DRIFT_B_TILES_PER_WRAP = 100.0;
+// WS-07 caustic tiles (caustics_profile.json): patch sizes in metres, resolution and the
+// L8 encoding scale (byte = v / 4).
+const float CAUSTIC_FINE_PATCH_M = 4.0;
+const float CAUSTIC_BROAD_PATCH_M = 16.0;
+const float CAUSTIC_TILE_RES = 512.0;
+const float CAUSTIC_ENCODE_SCALE = 4.0;
+// The gameplay water column is centimetres (a flat bed a few hundredths of a unit
+// down), and sigma_t is already art-scaled ~15x to make it read as Baltic metres.
+// The caustic focus uses the same apparent depth: terrain optical floors of
+// 0.075 .. 0.38 units become ~1 .. 5 m, spanning the fine (1.2 m) and broad (4 m) bakes.
+const float CAUSTIC_APPARENT_SCALE = 15.0;
+// Floor of the bed light gain: the skylight share a caustic shadow cell still receives.
+const float CAUSTIC_MIN_GAIN = 0.35;
+// Share of the dispersed R/B samples mixed into the achromatic net.
+const float CAUSTIC_DISPERSION_BLEND = 0.35;
+// Cross-scroll speeds in whole tiles per ocean-clock wrap: ~0.23 and ~0.16 m/s on
+// both tiles, about the drift of the decimetre ripples that focus the net.
+const float CAUSTIC_FINE_A_TILES_PER_WRAP = 96.0;
+const float CAUSTIC_FINE_B_TILES_PER_WRAP = 64.0;
+const float CAUSTIC_BROAD_A_TILES_PER_WRAP = 24.0;
+const float CAUSTIC_BROAD_B_TILES_PER_WRAP = 16.0;
 // Gust field period along the wind (lattice cells) and its drift (~2.3 units/s).
 const float GUST_PERIOD_CELLS = 16.0;
 const float GUST_DRIFT_CELLS_PER_WRAP = 64.0;
@@ -390,10 +429,104 @@ vec4 _seabed_layers(vec2 position, float water_depth) {
 	return vec4(shallow_layers * shallow_weight, deep_weight);
 }
 
-float _bed_caustics(vec2 position, float time) {
-	vec2 flow = position * 2.35 + vec2(time * 0.10, -time * 0.065);
-	float crossing = sin(flow.x + sin(flow.y * 1.37)) + cos(flow.y + sin(flow.x * 1.19));
-	return pow(clamp(1.0 - abs(crossing) * 0.56, 0.0, 1.0), 5.0);
+// Ported from Tidewater (MIT), see notice.code.tidewater: _causticsStretch. Widening
+// short gradients to a mip-dependent floor keeps the anisotropic grazing-angle footprint
+// from selecting a mip finer than the depth blur, which is what makes caustics shimmer.
+vec2 _caustic_stretch(vec2 g, float min_len) {
+	return g * max(min_len / max(length(g), 1e-9), 1.0);
+}
+
+// One caustic tile at `uv`, crossed from two layers scrolling against each other.
+// Layer B is rotated 90 degrees (still exactly periodic) so min() carves moving
+// lines out of two uncorrelated nets instead of doubling one. `rgb_offset` shifts
+// the R and B samples for dispersion; zero skips them (2 samples instead of 6).
+vec3 _caustic_tile(
+	sampler2D tile, vec2 uv, vec2 drift_a, vec2 drift_b, vec2 gx, vec2 gy, vec2 rgb_offset, float min_pair_mean
+) {
+	vec2 uv_a = uv - drift_a;
+	vec2 uv_b = vec2(-uv.y, uv.x) + vec2(0.37, 0.61) - drift_b;
+	vec2 gx_b = vec2(-gx.y, gx.x);
+	vec2 gy_b = vec2(-gy.y, gy.x);
+	float g = min(textureGrad(tile, uv_a, gx, gy).r, textureGrad(tile, uv_b, gx_b, gy_b).r);
+	vec3 c = vec3(g);
+	if (rgb_offset != vec2(0.0)) {
+		vec2 off_b = vec2(-rgb_offset.y, rgb_offset.x);
+		float red = min(textureGrad(tile, uv_a + rgb_offset, gx, gy).r, textureGrad(tile, uv_b + off_b, gx_b, gy_b).r);
+		float blue = min(textureGrad(tile, uv_a - rgb_offset, gx, gy).r, textureGrad(tile, uv_b - off_b, gx_b, gy_b).r);
+		// The net's lines are 1-2 texels wide, so fully split channels separate into a
+		// rainbow; a partial blend leaves the faint fringe of real caustics.
+		c.rb = mix(vec2(g), vec2(red, blue), CAUSTIC_DISPERSION_BLEND);
+	}
+	// Stored v/4; dividing by the min-pair mean keeps the bed's average light at 1.
+	return c * (CAUSTIC_ENCODE_SCALE / min_pair_mean);
+}
+
+// WS-07: light gain on the bed (1 = none) from the baked caustic tiles, projected onto
+// the bed along the refracted sun ray. bed_xz is where the refracted view ray meets the
+// bed, h_m the apparent bed depth in metres, fft_slope the surface slope (zero off FFT).
+vec3 _bed_caustic_gain(vec2 bed_xz, float h_m, vec3 sun_dir, vec2 fft_slope, vec3 sigma_t, float sun_gate) {
+	vec3 sun = normalize(sun_dir);
+	// Refracted sun ray, pointing down into the water.
+	vec3 ts = refract(-sun, vec3(0.0, 1.0, 0.0), 1.0 / WATER_IOR);
+	float ts_down = max(-ts.y, 0.2);
+	// Walk back up the refracted ray to the surface point the light entered through, so
+	// the net leans away from a low sun and sits on the bed, not on the surface.
+	float h_units = h_m / WATER_METERS_PER_UNIT;
+	vec2 entry_xz = bed_xz - ts.xz * (h_units / ts_down);
+	// An oblique beam spreads its footprint along the sun azimuth by 1 / cos(theta_t).
+	vec2 sun_az = length(sun.xz) > 1e-3 ? normalize(sun.xz) : vec2(1.0, 0.0);
+	vec2 sun_perp = vec2(-sun_az.y, sun_az.x);
+	vec2 p_m = (sun_az * (dot(entry_xz, sun_az) * ts_down) + sun_perp * dot(entry_xz, sun_perp))
+		* WATER_METERS_PER_UNIT;
+	// Passing FFT swells visibly bend the net (surface slope times depth).
+	p_m += fft_slope * h_m * 0.3;
+	vec2 uv_fine = p_m / (CAUSTIC_FINE_PATCH_M * caustic_pattern_scale);
+	vec2 uv_broad = p_m / (CAUSTIC_BROAD_PATCH_M * caustic_pattern_scale);
+	// Shallow beds get the sharp fine net, deep beds the wide soft broad one, and the
+	// mip level blurs with depth.
+	float broad_weight = smoothstep(0.6, 3.0, h_m);
+	float lvl = log2(1.0 + h_m * 1.5);
+	float min_len = exp2(lvl) / CAUSTIC_TILE_RES;
+	vec2 gx_f = _caustic_stretch(dFdx(uv_fine), min_len);
+	vec2 gy_f = _caustic_stretch(dFdy(uv_fine), min_len);
+	vec2 gx_b = _caustic_stretch(dFdx(uv_broad), min_len);
+	vec2 gy_b = _caustic_stretch(dFdy(uv_broad), min_len);
+	// Scrolls: a whole number of tiles per ocean-clock wrap, so the wrap never pops.
+	vec2 wind = length(wind_direction) > 1e-3 ? normalize(wind_direction) : vec2(1.0, 0.0);
+	float wrap_phase = ocean_time / OCEAN_TIME_WRAP_SECONDS;
+	vec2 fine_a = wind * (wrap_phase * CAUSTIC_FINE_A_TILES_PER_WRAP);
+	vec2 fine_b = -wind * (wrap_phase * CAUSTIC_FINE_B_TILES_PER_WRAP);
+	vec2 broad_a = wind * (wrap_phase * CAUSTIC_BROAD_A_TILES_PER_WRAP);
+	vec2 broad_b = -wind * (wrap_phase * CAUSTIC_BROAD_B_TILES_PER_WRAP);
+	// Dispersion: faint colour fringes that widen with depth, along the sun azimuth.
+	// The offset is physical, so it shrinks with the art magnification of the tiles.
+	vec2 dispersion = caustic_full_quality ? sun_az * (h_m * 0.004 / caustic_pattern_scale) : vec2(0.0);
+	vec3 c;
+	if (caustic_full_quality) {
+		// recommended: 4 base samples, +4 for R/B on the dominant tile (8 total).
+		bool broad_dominant = broad_weight > 0.5;
+		vec3 fine = _caustic_tile(
+			caustics_fine_tex, uv_fine, fine_a, fine_b, gx_f, gy_f,
+			broad_dominant ? vec2(0.0) : dispersion, caustic_min_pair_mean.x
+		);
+		vec3 broad = _caustic_tile(
+			caustics_broad_tex, uv_broad, broad_a, broad_b, gx_b, gy_b,
+			broad_dominant ? dispersion : vec2(0.0),
+			caustic_min_pair_mean.y
+		);
+		c = mix(fine, broad, broad_weight);
+	} else if (broad_weight > 0.5) {
+		// minimum: the dominant tile only (2 samples).
+		c = _caustic_tile(caustics_broad_tex, uv_broad, broad_a, broad_b, gx_b, gy_b, vec2(0.0), caustic_min_pair_mean.y);
+	} else {
+		c = _caustic_tile(caustics_fine_tex, uv_fine, fine_a, fine_b, gx_f, gy_f, vec2(0.0), caustic_min_pair_mean.x);
+	}
+	// The light's own path down the column, art-scaled sigma_t per real metre like the
+	// view path (h_m is apparent depth; the real column is h_m / CAUSTIC_APPARENT_SCALE).
+	vec3 light_down = exp(-sigma_t * (h_m / CAUSTIC_APPARENT_SCALE) / ts_down);
+	// With strength above 1 the dark cells between lines would extrapolate below zero;
+	// real caustic cells keep some diffuse sky light, so floor the gain.
+	return max(vec3(1.0) + (c - vec3(1.0)) * caustic_strength * light_down * sun_gate, vec3(CAUSTIC_MIN_GAIN));
 }
 
 // WS-01: view-space position of a depth-buffer sample. GL Compatibility uses
@@ -825,6 +958,33 @@ void fragment() {
 	// red first and blue last, so depth shifts hue instead of uniformly darkening RGB.
 	// sigma_t is art-scaled: the gameplay column is centimetres, not Baltic metres.
 	vec3 sigma_t = depth_absorption * vec3(1.28, 0.72, 0.40) / WATER_METERS_PER_UNIT;
+
+	// WS-07: caustics are light on the bed, applied before extinction, so the view path
+	// dims them again on the way up. They fade with depth (light_down), at night and
+	// under cloud. The sun-disk visibility ramp is intentionally not the gate: it spans
+	// only a few degrees and makes animated nets switch on as a band at sunrise; the
+	// wider solar envelope keeps the transition continuous.
+	float twilight_water_light = smoothstep(-0.25, 0.25, sun_direction.y);
+	// A caustic net only modulates the direct-sun share of the bed light; the skylight
+	// share is uniform. That share falls with sun height, squared because skylight takes
+	// over the bed at dusk (0.05 at a 13-degree sunset sun, none once the sun is down).
+	float caustic_direct_share = smoothstep(0.0, 0.7, sun_direction.y);
+	caustic_direct_share *= caustic_direct_share;
+	// Cloud: the contract's (1 - cloud_darken * 0.85) never acts, because MapViewLighting
+	// does not push cloud_darken to water (it stays 0; WS-11 owns that chain).
+	// sun_reflection_visibility is the direct-sun factor the glint already uses: sun disk
+	// x (1 - cloud coverage), 0.70 clear, 0.34 cloudy, 0.02 overcast. Its narrow horizon
+	// ramp sits where caustic_direct_share is already ~0, so it cannot band at sunrise.
+	float caustic_sun_gate = twilight_water_light * caustic_direct_share * (1.0 - bed_layers.w)
+		* sun_reflection_visibility;
+	// Where the refracted view ray meets the bed (WS-01 path), not the surface point.
+	vec2 caustic_bed_xz = surface_world.xz + transmitted_ray.xz * path_len;
+	vec2 caustic_slope = use_fft ? -world_normal.xz / max(world_normal.y, 0.2) : vec2(0.0);
+	seabed *= _bed_caustic_gain(
+		caustic_bed_xz, bed_column * WATER_METERS_PER_UNIT * CAUSTIC_APPARENT_SCALE, sun_direction,
+		caustic_slope, sigma_t, caustic_sun_gate
+	);
+
 	float path_m = water_depth * WATER_METERS_PER_UNIT;
 	vec3 spectral_transmission = exp(-sigma_t * path_m);
 	float absorption = 1.0 - dot(spectral_transmission, vec3(0.333333));
@@ -835,18 +995,6 @@ void fragment() {
 		// Breaking waves stir sand into the surf zone.
 		water_color = mix(water_color, sand_bed_color * 0.9, SHORE_TURBIDITY * shore_now.surf_zone * shore_now.valid);
 	}
-
-	// Caustics belong to the floor, so they fade with both depth and night. Keeping
-	// the pattern in world space avoids UV seams between separate water materials.
-	// The sun-disk visibility ramp is intentionally not used here: it spans only
-	// a few degrees around the horizon and makes animated wave normals look like
-	// a sudden band of moving illumination at sunrise and sunset. The wider solar
-	// envelope keeps the transition visually continuous while the floor still
-	// goes dark at night.
-	float twilight_water_light = smoothstep(-0.25, 0.25, sun_direction.y);
-	float caustic_visibility = exp(-bed_column * 7.0) * (1.0 - bed_layers.w) * twilight_water_light;
-	float caustics = _bed_caustics(water_world_position.xz, TIME * wave_speed);
-	water_color += highlight_color * caustics * caustic_visibility * caustic_strength;
 
 	// WS-06 whitecaps. The baked mask decides where foam is; the foam tile, sampled at
 	// the undisplaced wave_sample_xz (in the wind frame) so it rides the surface,
