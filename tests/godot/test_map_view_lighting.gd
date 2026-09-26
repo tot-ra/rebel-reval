@@ -161,6 +161,38 @@ func test_rain_haze_color_is_unchanged_when_morning_mist_is_absent() -> void:
 	)
 
 
+func test_civil_twilight_ambient_stays_between_midnight_and_noon() -> void:
+	var date := {"day": 3, "month": 5, "year": 1343}
+	var definition := SmithyCourtyard.create()
+	var view := MapView3D.create(definition, MapBuilder.build(definition), MapView3D.TIME_DAY)
+	view.set_calendar_date(date)
+	var env := (view.get_node("ViewEnvironment") as WorldEnvironment).environment
+	view.apply_cycle_progress(0.0)
+	var midnight := Lighting.ambient_readability(env)
+	view.apply_cycle_progress(0.5)
+	var noon := Lighting.ambient_readability(env)
+	view.apply_cycle_progress(_evening_progress_for(-3.0, date))
+	var twilight := Lighting.ambient_readability(env)
+	assert_true(
+		twilight > midnight + 0.0001,
+		"sun at -3 deg must keep harbour fill above midnight"
+	)
+	assert_true(
+		twilight + 0.0001 < noon,
+		"sun at -3 deg must stay darker than noon"
+	)
+	var previous := -1.0
+	for elevation: float in [-6.0, -4.5, -3.0, -1.5, 0.0]:
+		view.apply_cycle_progress(_evening_progress_for(elevation, date))
+		var metric := Lighting.ambient_readability(env)
+		assert_true(
+			metric + 0.0001 >= previous,
+			"civil-twilight fill must rise monotonically from -6 to 0 deg"
+		)
+		previous = metric
+	view.free()
+
+
 func test_overcast_lighting_pushes_preset_cloud_darken_to_water() -> void:
 	MapViewMaterials.reset()
 	var definition := SmithyCourtyard.create()
@@ -222,3 +254,17 @@ func _mist_presentation(
 
 func _linear_luminance(color: Color) -> float:
 	return color.r * 0.2126 + color.g * 0.7152 + color.b * 0.0722
+
+
+func _evening_progress_for(target_deg: float, date: Dictionary) -> float:
+	if SkyWeather3D.solar_elevation_degrees(0.5, date) <= target_deg:
+		return 0.5
+	var lo := 0.5
+	var hi := 1.0
+	for _step: int in range(40):
+		var mid := (lo + hi) * 0.5
+		if SkyWeather3D.solar_elevation_degrees(mid, date) > target_deg:
+			lo = mid
+		else:
+			hi = mid
+	return (lo + hi) * 0.5

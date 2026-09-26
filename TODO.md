@@ -345,6 +345,23 @@ for the sun-disk transmittance height. `--filter=test_sky_weather_3d,test_sky_at
 in the top 40% sky (0 differing pixels). Full-frame 1 LSB fails on water/boats: two after
 captures of the same shader also differ there (max 116) while the sky stays 0.
 
+- [ ] R-942 | deps: WS-11 | deliverable: civil twilight (sun 0 to -6 deg) keeps harbour ambient readable and brighter than midnight, fading into the ADR 0018 night floor | allowed files: `scripts/map/view3d/map_view_lighting.gd`, `tests/godot/test_map_view_lighting.gd`, `tests/godot/test_map_view_3d_lighting.gd`, `docs/reports/images/twilight_*.png`, `TODO.md` | verify: `--filter=test_map_view_lighting,test_map_view_3d_lighting`; twilight (-3) ambient energy x luminance above midnight and below noon, monotonic from -6 to 0; Metal/Compatibility harbour plates
+
+R-942 implementation landed. Decisions (2026-09-26):
+
+1. **Cause.** `daylight_blend` is a -6..+6 smoothstep, so sun at -3 deg is already
+   ~0.16 and ambient/post-grade crush to night under a still-bright dome.
+2. **Fill only.** Ambient colour/energy and post-grade ease out to the existing
+   horizon blend (0.5) at 0 deg and stay on `daylight_blend` at night (<= -6)
+   and after sunrise. Directional sun energy is unchanged (no new lights).
+   Morning mist stays on `day_blend` (R-908 / R-911).
+3. **Verify.** `--filter=test_map_view_lighting` 9/9, including the new monotonic
+   twilight metric. `--filter=test_map_view_3d_lighting` 13/15: the two failures
+   are `st_catherines_church` authored as `house` without glass panes. That path
+   never calls `MapViewLighting` and is a pre-existing church-mesh gap.
+4. **Plates.** Shared worktree has Godot `--editor`; Metal/Compatibility harbour
+   plates are **R-988**, not taken here.
+
 - [ ] WS-07 | deps: WS-01, WS-03 | deliverable: photon-splat caustic tiles (fine/broad) baked from the FFT spectrum and applied as bed light along the refracted sun ray with depth focus, anisotropic-safe gradients, dispersion and cloud/sun gating; sine-lattice caustics removed | allowed files: `tools/bake_ocean_fft.py`, `tests/python/test_bake_ocean_fft.py`, `assets/water/ocean_fft/caustics_fine.png`, `assets/water/ocean_fft/caustics_broad.png`, `assets/SOURCES.csv`, `scripts/map/view3d/map_view_water.gdshader`, `scripts/map/view3d/map_view_water_materials.gd`, `tests/godot/test_r715_water_material_contract.gd`, `docs/reports/images/ws07_*.png`, `TODO.md` | verify: tile seam/energy tests; contract test; noon/sunset/overcast/night captures and an orbit clip show a depth-focused, sun-leaning, shimmer-free caustic net on the bed
 
 WS-07 implementation landed (R-892, in review). Decisions are in the contract's "Final parameters

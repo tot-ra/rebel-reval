@@ -45,6 +45,11 @@ const AMBIENT_ART_TINT := Color.WHITE
 const FOG_ART_TINT := Color.WHITE
 ## Physical sun energy relative to noon, clamped so a horizon sun still models form.
 const PHYSICAL_SUN_ENERGY_MIN := 0.15
+## Civil twilight still has a bright sky, but daylight_blend is a -6..+6
+## smoothstep so -3 deg is already ~0.16 and the ground goes night-black.
+## Ambient and post-grade ease out to the existing horizon blend (0.5) and
+## leave night (<= -6) and day (>= 0) on the current day_blend path.
+const CIVIL_TWILIGHT_HORIZON_BLEND := 0.5
 ## Mie forward scatter of the fog around the sun: thin in clear dawn air, stronger in haze.
 const FOG_SUN_SCATTER_CLEAR := 0.2
 const FOG_SUN_SCATTER_HAZY := 0.35
@@ -157,7 +162,7 @@ static func apply_cycle_progress(
 	var sun_light_weight := smoothstep(
 		-6.0,
 		0.0,
-		rad_to_deg(asin(clampf(presentation.sun_direction.y, -1.0, 1.0)))
+		sun_elevation_degrees(presentation.sun_direction)
 	)
 	var light_direction := presentation.moon_direction.slerp(
 		presentation.sun_direction, sun_light_weight
@@ -168,12 +173,17 @@ static func apply_cycle_progress(
 	# Grey overcast diffuses hard shadows; clear skies retain their crisp baseline.
 	sun.shadow_opacity = 1.0 - smoothstep(0.45, 0.96, presentation.cloud_coverage) * 0.97
 
-	var ambient := AMBIENT_NIGHT_COLOR.lerp(ambient_day_color(presentation), presentation.day_blend)
+	# Directional sun is already gone below the horizon; lift only sky fill so
+	# the harbour stays readable under the still-bright twilight dome.
+	var fill_blend := twilight_fill_blend(
+		presentation.day_blend, presentation.sun_direction
+	)
+	var ambient := AMBIENT_NIGHT_COLOR.lerp(ambient_day_color(presentation), fill_blend)
 	ambient = ambient.lerp(OVERCAST_LIGHT_COLOR, presentation.overcast * 0.5)
 	ambient = ambient.lerp(LIGHTNING_LIGHT_COLOR, presentation.lightning * 0.7)
 	environment.ambient_light_color = ambient
 	environment.ambient_light_energy = (
-		lerpf(AMBIENT_NIGHT_ENERGY, AMBIENT_DAY_ENERGY, presentation.day_blend)
+		lerpf(AMBIENT_NIGHT_ENERGY, AMBIENT_DAY_ENERGY, fill_blend)
 		* presentation.ambient_energy
 		+ presentation.lightning * LIGHTNING_AMBIENT_ENERGY
 	)
@@ -270,12 +280,38 @@ static func water_cloud_darken(presentation: SkyWeather3D.WeatherPresentation) -
 	return clampf(float((profile as Dictionary).get("darken", 0.0)), 0.0, 1.0)
 
 
+static func sun_elevation_degrees(sun_direction: Vector3) -> float:
+	return rad_to_deg(asin(clampf(sun_direction.y, -1.0, 1.0)))
+
+
+## Ambient/post-grade blend for civil twilight. Night (<= -6) and the geometric
+## horizon (0) stay on daylight_blend; mid-twilight eases out so -3 deg is ~0.375
+## instead of ~0.16. Directional sun energy is not lifted (no new lights).
+static func twilight_fill_blend(day_blend: float, sun_direction: Vector3) -> float:
+	var elevation := sun_elevation_degrees(sun_direction)
+	var t := clampf((elevation + 6.0) / 6.0, 0.0, 1.0)
+	var civil := 1.0 - (1.0 - t) * (1.0 - t)
+	return maxf(clampf(day_blend, 0.0, 1.0), CIVIL_TWILIGHT_HORIZON_BLEND * civil)
+
+
+## energy * sRGB luminance of the applied ambient colour. Tests use this so a
+## twilight harbour stays above midnight and below noon without new lights.
+static func ambient_readability(environment: Environment) -> float:
+	if environment == null:
+		return 0.0
+	var color := environment.ambient_light_color
+	var luma := color.r * 0.2126 + color.g * 0.7152 + color.b * 0.0722
+	return environment.ambient_light_energy * luma
+
+
 static func apply_post_grade_snapshot(
 	environment: Environment, presentation: SkyWeather3D.WeatherPresentation
 ) -> void:
 	if presentation == null:
 		return
-	apply_post_grade(environment, presentation.day_blend)
+	apply_post_grade(
+		environment, twilight_fill_blend(presentation.day_blend, presentation.sun_direction)
+	)
 	# Wet air reduces distant contrast; retain local material color and exposure.
 	environment.adjustment_saturation -= presentation.overcast * 0.12
 	environment.adjustment_contrast -= presentation.overcast * 0.07
