@@ -20,7 +20,7 @@ The shared worktree was already dirty before this refresh. No pre-existing chang
 | `python3 -m unittest tests.python.test_verify_world_building_visual_gate -v` | **FAIL**, 2/6 | The current registry includes `kuldjala_interior`, but the generic benchmark matrix does not. This ambient R-716/R-726 drift is not repaired or waived by R-713. |
 | `python3 tools/verify_world_building_visual_gate.py --json` | **FAIL** | Generic automated checks, capture categories, performance evidence, comparison sheet, and human art review remain pending. |
 | `python3 tools/verify_r713_sky_weather_acceptance.py` | Expected **BLOCKED** (exit 2) | Aggregates artifact integrity and mandatory open gates without turning expected blockers into a false pass. |
-| `test_r715_water_weather_sync` through checked Godot runner | **FAIL**, 3/4 | The save/load handoff assertion reports unequal water-uniform dictionaries even though their formatted float/vector values are identical; R-774 must use serialization-tolerant component comparisons or fix a real hidden type/precision mismatch. |
+| `test_r715_water_weather_sync` through checked Godot runner | **PASS**, 6/6 | Closed in `75270401` (R-774). Save/load compares water uniforms by key set, type family, and component tolerance instead of `Dictionary ==`. Rerun 2026-09-26 with `--filter=test_r715_water_weather_sync`. |
 
 Previously retained focused evidence remains valid for completed child rows: `test_sky_weather_3d` 29/29, `test_sky_weather_state` 5/5, `test_save_envelope` 15/15, `test_save_service` 14/14, and `test_r713_sky_weather_continuity` 4/4. The current refresh reruns focused suites below before status changes are made.
 
@@ -32,13 +32,14 @@ Previously retained focused evidence remains valid for completed child rows: `te
 | R-733 deterministic snapshots | `done` | Snapshot round-trip and deterministic continuation suite is green | **CLEARED** |
 | R-734 save/load persistence | `done` | Envelope and service weather round-trips are green | **CLEARED** |
 | R-735 one environment owner | `done` | Idempotent transition binding and duplicate-owner contract are covered | **CLEARED for owned scope** |
-| R-736 atmosphere/wet-surface synchronization | `in_progress` | R-773 and R-775 are done; R-774 must close water-facing wetness/reflection synchronization with R-754 | **BLOCKER** |
-| R-737 quality tiers and budgets | `in_progress` | Tier constants/tests/report exist, but target-specific measurements remain blocked | **BLOCKER** |
-| R-738 adjacent-map continuity captures | `in_progress` | 40/40 plates and 20/20 handoffs pass structural verification; named human visual review remains pending | **BLOCKER** |
-| R-774 water reflection synchronization | `in_progress` | `test_r715_water_weather_sync` and the shared snapshot adapter must be accepted with R-754 | **BLOCKER** |
-| R-714 adjacent-map streaming | `in_progress` | Streaming traversal and border continuity acceptance must close | **EXTERNAL BLOCKER** |
-| R-715 reflective water rollout | `in_progress` | Water weather synchronization, performance, visual packet, and closeout must close | **EXTERNAL BLOCKER** |
-| R-726 fixed-setting exterior capture matrix | `in_progress` | Generic matrix and human art review must close | **EXTERNAL BLOCKER** |
+| R-736 atmosphere/wet-surface synchronization | `todo` | R-773, R-775, and R-774 water-sync are done; R-754 still owns water weather-state closeout | **BLOCKER** |
+| R-737 quality tiers and budgets | `todo` | Tier constants/tests/report exist, but target-specific measurements remain blocked | **BLOCKER** |
+| R-738 adjacent-map continuity captures | `todo` | 40/40 plates and 20/20 handoffs pass structural verification; named human visual review remains pending | **BLOCKER** |
+| R-774 water reflection synchronization | `done` | `--filter=test_r715_water_weather_sync` 6/6 in `75270401`; rerun 2026-09-26 | **CLEARED** |
+| R-754 water weather synchronization | `todo` | R-715 child still must accept water weather-state closeout | **BLOCKER** |
+| R-714 adjacent-map streaming | `todo` | Streaming traversal and border continuity acceptance must close | **EXTERNAL BLOCKER** |
+| R-715 reflective water rollout | `todo` | Water weather synchronization (R-754), performance, visual packet, and closeout must close | **EXTERNAL BLOCKER** |
+| R-726 fixed-setting exterior capture matrix | `todo` | Generic matrix and human art review must close | **EXTERNAL BLOCKER** |
 
 Existing owners cover every open dependency. No duplicate implementation follow-up is required from R-713.
 
@@ -46,10 +47,10 @@ Existing owners cover every open dependency. No duplicate implementation follow-
 
 | R-713 clause | Artifact or evidence | Result | Remaining owner or blocker |
 |---|---|---|---|
-| Shared physical sky synchronized with sun, ambient, fog, exposure, reflections, and day/night | `SkyWeather3D`, shared presentation snapshots, completed R-773 lighting/fog adapter, focused weather tests | **IMPLEMENTED / structurally green** | R-774 must finish the water-facing synchronization edge |
+| Shared physical sky synchronized with sun, ambient, fog, exposure, reflections, and day/night | `SkyWeather3D`, shared presentation snapshots, completed R-773 lighting/fog adapter, focused weather tests | **IMPLEMENTED / structurally green** | R-774 water-sync is 6/6; R-754 still owns water rollout closeout |
 | Layered moving clouds and scalable quality tiers | R-776 constants/resources, R-777 tier tests, `r713_environment_performance.md` | **IMPLEMENTED; measurement blocked** | R-737 needs accepted minimum/recommended measurements |
 | Clear, overcast, rain, storm, and post-rain controlled transitions | 29/29 weather tests and persisted state contract | **PASS for deterministic behavior** | Human visual acceptance remains separate |
-| Rain direction/intensity, shelter, fog/haze, wet surfaces, and weather-aware water | Shared snapshot and shelter contracts exist | **PARTIAL** | R-774/R-754 must accept water reflection, tide, wind, and wetness agreement |
+| Rain direction/intensity, shelter, fog/haze, wet surfaces, and weather-aware water | Shared snapshot and shelter contracts exist | **PARTIAL** | R-774 accepted the adapter test; R-754 still owns water reflection, tide, wind, and wetness closeout |
 | Adjacent maps preserve time, cloud field, lighting, and weather | 20/20 captured handoffs have matching state hashes and one owner | **PASS for captured handoff contract** | R-714 streaming acceptance remains external |
 | Signed matched captures show no lighting/exposure jump | Metal packet has 40/40 valid 1280x720 plates | **BLOCKED** | Named human visual review and R-726 generic matrix acceptance are pending |
 | Parameters persist through save/load and map transitions | State, envelope, service, and transition-owner suites | **PASS** | No remaining persistence blocker |
@@ -70,7 +71,7 @@ The generic R-716/R-726 world-building gate also remains fail-closed. Its curren
 
 Do not request final human sign-off until all of the following are complete:
 
-1. R-774 and R-754 accept shared wet-surface and water-reflection synchronization.
+1. R-774 water-sync is PASS 6/6. R-736 and R-754 still need water-facing closeout.
 2. R-737 records isolated recommended-host measurements and a declared Intel UHD 620-class minimum-target run, preserving `BLOCKED` when unavailable.
 3. A named human reviewer records acceptance or actionable rejection of the 40-plate continuity packet.
 4. R-714, R-715, and R-726 close their external streaming, water, and fixed-matrix contracts.
@@ -90,3 +91,17 @@ Verify: `--filter=test_sky_weather_3d,test_r713_sky_weather_continuity`.
 `tests/godot/test_r713_save_load_transition_continuity.gd` snapshots mid-transition rain on the `reval_harbor_north` presenter, serializes it through the SessionState `SaveService` path, restores the envelope, and binds the `reval_harbor_east` presenter to the same canonical snapshot. The fixture asserts weather identity, transition progress, cloud offsets, wetness/rain accumulators, calendar/time values, deterministic continuation, and one environment owner. Malformed environment payloads stay fail-closed. This is structural coverage only; named visual review of the R-738 packet remains a separate gate.
 
 Verify: `--filter=test_r713_save_load_transition_continuity,test_save_envelope,test_save_service`.
+
+## R-935 water-sync refresh (2026-09-26)
+
+`test_r715_water_weather_sync` is **PASS 6/6**. R-774 closed in `75270401` by comparing restored water uniforms by key set, type family, and component tolerance instead of `Dictionary ==`. The suite also asserts restored `puddle_wetness`, `rain_intensity`, `wind_direction`, and `sun_reflection_color`.
+
+Rerun (2026-09-26, Godot 4.7.1):
+
+```
+tools/run_godot_checked.sh --require-test-summary r935-water-weather-sync -- \
+  "$GODOT_BIN" --headless --path . --script tools/run_godot_tests.gd -- \
+  --filter=test_r715_water_weather_sync
+```
+
+This clears only the R-774 water-sync test gate. R-736/R-754 closeout, named visual review, captures, and the R-714/R-715/R-726 external owners remain blockers.
