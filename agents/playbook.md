@@ -83,6 +83,7 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 - `tools/validate_content.py` validates JSON corpus roots, not Markdown reports.
 - Hub indexes such as `history/RESEARCH_INDEX.md` have their own heading and link contract, not generic front matter.
 - The active-doc excluded inventory is Git-tracked Markdown only (`build/` and untracked notes must not change it). Still regenerate `docs/reports/active_markdown_report.md` from a clean HEAD worktree when active docs themselves change; never from a dirty tree whose `TODO.md` or `docs/` links would rewrite the committed counts.
+- Staging `TODO.md` does not trigger the on-commit active-docs check. That hook only runs for `README.md`, `AGENTS.md`, `docs/CANON.md`, the report, or the generator. Do not stash `TODO.md` to isolate a red `--check` on a dirty shared tree.
 - Rights-sensitive media requires record-level commercial terms or written permission. Regional metadata or CC BY-NC is not enough. Preserve the verified fallback.
 - Prefer dated face plates under `docs/reports/images/characters/face_*.png` over older `closeup_*.png`.
 - Never rewrite all of `assets/SOURCES.csv`. Append or replace only target rows. SHA-256 lives in `prompt_or_url`. `csv.writer` defaults to CRLF even on macOS; pass a Unix `lineterminator` when appending.
