@@ -14,10 +14,10 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `136`
+- Active Markdown files scanned: `151`
 - Markdown files excluded as archive/reference/out of active scope: `700`
-- Local/external links inspected: `718`
-- Links to active Markdown docs: `375`
+- Local/external links inspected: `720`
+- Links to active Markdown docs: `377`
 - Links to existing archive/reference/non-active local docs: `140`
 - External links skipped for reachability: `40`
 - Issues found: `0`
@@ -166,6 +166,21 @@ No active Markdown documentation issues found.
 - `docs/tasks/water_sky/WS-13d_pier_cribs.md`
 - `docs/tasks/water_sky/WS-14_swim_dive_adr.md`
 - `docs/tasks/water_sky/WS-15_interactive_ripples_wake.md`
+- `docs/tasks/world/README.md`
+- `docs/tasks/world/WB-01_adr_relief_as_gameplay.md`
+- `docs/tasks/world/WB-02_relief_primitives_and_heightfield.md`
+- `docs/tasks/world/WB-03_relief_drives_gameplay.md`
+- `docs/tasks/world/WB-04_reauthor_reval_relief.md`
+- `docs/tasks/world/WB-05_accept_adr_0019_phases.md`
+- `docs/tasks/world/WB-06_world_host_owns_globals.md`
+- `docs/tasks/world/WB-07_async_location_assembly.md`
+- `docs/tasks/world/WB-08_seam_crossing_and_prefetch.md`
+- `docs/tasks/world/WB-09_rrmap_v2_semantic_layer.md`
+- `docs/tasks/world/WB-10_authoring_density_contract.md`
+- `docs/tasks/world/WB-11_rrmap_content_editor.md`
+- `docs/tasks/world/WB-12_domestic_infrastructure_dossier.md`
+- `docs/tasks/world/WB-13_burgher_plot_prefab.md`
+- `docs/tasks/world/WB-14_lower_town_density_pass.md`
 - `docs/TEXTURE_AI_GENERATION.md`
 - `docs/THIRD_PARTY_NOTICES.md`
 - `docs/TOURIST_LANDMARKS.md`
