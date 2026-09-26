@@ -14,10 +14,10 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `125`
+- Active Markdown files scanned: `136`
 - Markdown files excluded as archive/reference/out of active scope: `700`
-- Local/external links inspected: `701`
-- Links to active Markdown docs: `358`
+- Local/external links inspected: `718`
+- Links to active Markdown docs: `375`
 - Links to existing archive/reference/non-active local docs: `140`
 - External links skipped for reachability: `40`
 - Issues found: `0`
@@ -137,6 +137,17 @@ No active Markdown documentation issues found.
 - `docs/SYSTEMS/NATURAL.md`
 - `docs/SYSTEMS/PSYCHE.md`
 - `docs/TASK_ARCHIVE.md`
+- `docs/tasks/coast/CO-01_coastal_ground_materials.md`
+- `docs/tasks/coast/CO-02_shore_debris_props.md`
+- `docs/tasks/coast/CO-03_shore_silhouette_and_depth.md`
+- `docs/tasks/coast/CO-04_coastal_elevation_levels.md`
+- `docs/tasks/coast/CO-05_historical_vessel_research.md`
+- `docs/tasks/coast/CO-06_vessel_asset_fleet.md`
+- `docs/tasks/coast/CO-07_rig_and_oar_dynamics.md`
+- `docs/tasks/coast/CO-08_sea_state_wind_coupling.md`
+- `docs/tasks/coast/CO-09_saaremaa_traversability.md`
+- `docs/tasks/coast/CO-10_swim_dive_drown.md`
+- `docs/tasks/coast/README.md`
 - `docs/tasks/water_sky/README.md`
 - `docs/tasks/water_sky/WS-01_refracted_water_column.md`
 - `docs/tasks/water_sky/WS-02_ggx_sun_glint.md`
