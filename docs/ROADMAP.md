@@ -4,6 +4,9 @@ Coordination notes, delivery order, and planning context formerly embedded in `T
 Executable open work stays in [`TODO.md`](../TODO.md).
 Aged coordination history lives in [`ROADMAP_COORDINATION_ARCHIVE_2026-08-13.md`](./ROADMAP_COORDINATION_ARCHIVE_2026-08-13.md).
 
+<!-- P0-185 / R-923 camera-modes peel closeout -->
+Coordination note (2026-09-26 P0-185 / R-923): re-ran the named camera filters after the stale R-881 modes peel. `map_view_runtime_camera_modes.gd` still owns mode constants, cycling, and `apply_mode`; `map_view_runtime_camera.gd` remains a 211-line facade. Verified on Godot 4.7.1: `--filter=test_map_view_runtime_camera,test_map_camera_modes,test_map_view_3d_runtime` (3 files, 23/23). No camera code changed. R-881 moved to in_review. Next P0-185 claim: keep `apply_weather_presentation` on the `map_view_materials.gd` facade until a second caller needs a weather-material adapter.
+
 <!-- P0-185 runtime camera follow peel extracted in current session -->
 Coordination note (2026-09-25 P0-185 / R-882): `map_view_runtime_camera_follow.gd` now owns snap/lerp follow, mode-specific boom targets, and terrain-detail focus updates; `map_view_runtime_camera.gd` keeps orbit/zoom/mode delegates and re-exports `FOLLOW_LERP_WEIGHT` / `SNAP_DISTANCE_WORLD` (237 → 211 lines). Verified: `--filter=test_map_view_runtime_camera`, `--filter=test_map_camera_modes`, `--filter=test_map_view_3d_runtime` (23/23). Next P0-185 claim: keep `apply_weather_presentation` on the `map_view_materials.gd` facade until a second caller needs a weather-material adapter.
 
