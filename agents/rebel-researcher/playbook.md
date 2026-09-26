@@ -19,3 +19,4 @@ This file contains lessons specific to the Researcher role.
 - GeoJSON probes must inspect `geometry.type` before traversing coordinates. A collection can mix polygons and point anchors.
 - Use `tools/research/fetch_reference_plates.py` for plate manifest work. Keep `image_url` / `local_path` / `sha256` empty on link-only rows.
 - In a no-claim research scout, clean index-link and plate checks are enough when open rows are already in review or typed access blockers. Do not invent backlog to fill capacity.
+- Task-pack confidence words (bounded reconstruction, reconstructed, speculative) are not a second canon. Map them onto `docs/CANON.md` (`attested`, `plausible composite`, `folklore`, `invented`) and write `unknown` instead of inventing a number. A later wreck or ethnographic reconstruction stays a labelled comparandum, not a 1343 measurement.

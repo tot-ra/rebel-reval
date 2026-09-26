@@ -15,7 +15,7 @@ Confidence: conservative reconstruction, not a measured plan of the 1343 shoreli
 
 1. Reppo and Kadakas place the medieval Coastal Gate on a sandstone rise roughly 5-8 m above the historical harbour ground. They support a low northern wall/gate by the mid-fourteenth century and a probable 1311-1340 gate tower. The first written reference to the gate is later, in 1359, and the first barbican remains uncertain. This supports a clear gate-to-lowland descent, not Fat Margaret or a later fortified harbour frontage.
 2. Roio et al. document a ship wrecked east of the Hanseatic town around the second quarter of the fourteenth century and stress how much the shore later moved and was filled. It proves maritime use, but not an exact quay line or a formally separated east fishing district.
-3. The Lootsi Street cog demonstrates that large Baltic cargo vessels were present in Tallinn's fourteenth-century maritime environment. It does not prove that four ships were moored simultaneously to four permanent stone piers. Merchant vessels in these maps therefore sit in open water as a readable roadstead composition.
+3. The Lootsi Street cog demonstrates that large Baltic cargo vessels were present in Tallinn's fourteenth-century maritime environment. It does not prove that four ships were moored simultaneously to four permanent stone piers. Merchant vessels in these maps therefore sit in open water as a readable roadstead composition. Measured hull cards, rigging limits, and the feature reject list now live in [`baltic_vessels_1343.md`](./baltic_vessels_1343.md) (R-952).
 4. Tallinn's official visitor material describes Kalamaja as a former medieval fishing village outside the Old Town. Later summaries place fishermen and boat-related trades there from the fourteenth century; the first commonly cited notice of Kalarand fishermen is 1352, nine years after the game date. For 1343, Kalamaja is therefore a strong bounded reconstruction, not a day-specific attested settlement plan.
 5. Pirita Convent's own history places the founding initiative around 1400, the arrival of Bridgettine advisers in 1407, the start of construction after the 1417 quarry permit, and consecration in 1436. None of this fabric belongs in a 1343 environment.
 
@@ -78,6 +78,7 @@ Decision:
 - Monika Reppo and Villu Kadakas, [Excavations at the Great Coastal Gate of Tallinn](../../history/AVE2019_15_Reppo-Kadakas.pdf).
 - Maili Roio et al., [Medieval ship finds east of Tallinn](../../history/AVE2015_15_Roiojt_Kadriorg.pdf).
 - Estonian Maritime Museum, [Wreck of the Lootsi cog](https://meremuuseum.ee/en/wreck-of-the-lootsi-cog/).
+- Project vessel dossier (R-952): [`baltic_vessels_1343.md`](./baltic_vessels_1343.md).
 - Visit Tallinn, [Kalamaja](https://www.visittallinn.ee/eng/visitor/see-do/neighbourhoods/kalamaja).
 - Pirita Convent, [History](https://www.piritaklooster.ee/history/?lang=en).
 

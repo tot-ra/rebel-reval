@@ -30,6 +30,7 @@ These predate the dossier layout and are progressively being decomposed into it.
 | [`history_image_prompts.md`](history_image_prompts.md) | image prompt notes for art generation | partial |
 | [`../docs/lore/estonian_folklore.md`](../docs/lore/estonian_folklore.md) | folklore compendium | partial |
 | [`../docs/lore/four_kings_act2_lore.md`](../docs/lore/four_kings_act2_lore.md) | Four Kings lore for Act 2 | partial |
+| [`../docs/reports/baltic_vessels_1343.md`](../docs/reports/baltic_vessels_1343.md) | 1343 Baltic vessel cards (cog, two inshore sizes, ferry, *lodi*, Saaremaa strait craft), rigging behaviour, reject list (R-952) | solid for CO-06 |
 
 Local primary/scholarly holdings in `history/` (Estonian-language archaeology yearbooks, AVE
 series, plus `Linnakindlustuste kaardistus.pdf` on town fortifications). Cite these by filename and

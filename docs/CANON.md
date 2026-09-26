@@ -140,6 +140,14 @@ Decisions over `story/STORY.md`. Every promoted beat carries a confidence label.
   * Four Estonian leaders chosen by the rebels to lead the siege of Reval; later treacherously killed by the Livonian Order at Paide.
 * **Hingepuu** - **`invented`** / **`folklore`**
   * The reflection entity in the game, inspired by Baltic animist concepts of the "soul tree" or sacred groves, but formalized as a game mechanic to confront Kalev with his choices.
+* **Harbour vessels (Spring 1343)** - mixed labels; full cards in [`reports/baltic_vessels_1343.md`](./reports/baltic_vessels_1343.md) (R-952)
+  * **Cog / cog-like cargo in the roadstead** - **`attested`** as a type from the Peeter wreck (18.08 x 6.64 m, second-quarter 14th-c. pottery, dendro TPQ 1296) and the Lootsi 8 hull (24.5 x 9 m, timber felled around 1360). Lootsi is a large comparandum, not an April 1343 launch date. Cogs stand off and are lightered; they are not boarded and not beached at Kalamaja.
+  * **Stern rudder on the large local cargo hull** - **`attested`** on Lootsi (gudgeons on the false stern). Side-to-stern transition is underway in this century; do not default a 1343 cog to a steering wheel.
+  * **Kalamaja working boats** - **`plausible composite`**. No published Reval fishing wreck. Open clinker boats in the Nordic 5-10 m tradition; a second, heavier inshore size may use the Gedesby hull (12.5 x 5.2 m, c. 1300) as a ceiling, not as a Reval measurement.
+  * **Open rowing / ferry boat** - **`plausible composite`**. Smaller than Gedesby; oars primary. Exact Reval length is unknown.
+  * **Lighter / Estonian *lodi* (lodja-type)** - **`plausible composite`** as a shoal-draft transfer barge; 14th-c. origin is handbook tradition. Do not use 20th-c. *OAT* / Jõmmu numbers, a steering wheel, or a diesel as 1343 fact.
+  * **Saaremaa strait craft** - **`plausible composite`** as an open beachable clinker boat. Salme I/II are 8th-9th c. and must not be copied as 1343 lengths.
+  * **Rejected 1343 features** - gaff and other later fore-and-aft mainsails, lateen on a cog, multi-masted *kraweel*, ratlines as a shroud ladder, full-carvel cog sides, four stone piers of cogs, *haabjas* as the strait ferry, and 19th-20th-c. *juha* / *lootsik* types. See the report reject list.
 
 ---
 
