@@ -90,10 +90,10 @@ Source: Sketchfab. Each model was rescaled, reoriented, re-rigged and animated f
 
 ## Water crossing sound effects
 
-In-house one-shots for the underwater camera pass. Synthesized Foley, not wildlife field recordings.
+CC0 field-recording one-shots for the underwater camera pass. Trimmed and loudnormed for AIR/UNDER crossings; not synthesized noise.
 
-- Harbour emerge splash - synthesized by project maintainer. AGPL-3.0-or-later (project author). Source: tools/audio/generate_water_cross_clips.py
-- Harbour submerge splash - synthesized by project maintainer. AGPL-3.0-or-later (project author). Source: tools/audio/generate_water_cross_clips.py
+- Harbour emerge splash - recorded by morganveilleux. CC0 1.0 (Public Domain). Source: https://freesound.org/people/morganveilleux/sounds/389987/
+- Harbour submerge splash - recorded by blaukreuz. CC0 1.0 (Public Domain). Source: https://freesound.org/people/blaukreuz/sounds/195877/
 
 ## Licenses
 

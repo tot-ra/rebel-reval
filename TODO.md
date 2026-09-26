@@ -254,6 +254,12 @@ WS-13c implementation landed (R-903). Decisions (2026-09-26):
 2. **One cue per crossing.** AIR->UNDER plays `submerge` immediately. UNDER->AIR queues `emerge` and plays it only after `lowpass_mix` reaches 0, so the splash is not still under the 700 Hz cutoff. STRADDLE and hysteresis bobbing fire nothing. Diving again during the fade cancels the pending emerge.
 3. **Evidence:** `test_underwater_pass` crossing and cancel cases; `python3 tools/verify_water_cross_clips.py`. Follow-up R-915 replaces the synthetic Foley with a real harbour splash when sourced.
 
+R-915 implementation landed. Decisions (2026-09-26):
+
+1. **Field recordings, not lavfi.** `submerge.mp3` is a 1.40 s trim of blaukreuz FS 195877 (Brela harbour jetty jump, CC0). `emerge.mp3` is a 1.10 s trim of morganveilleux FS 389987 (water-lift surface-break, CC0). Same runtime paths, 44.1 kHz mono 128 kbps, loudnorm -18 LUFS.
+2. **HQ preview cache.** Original 24-bit masters need a Freesound login. The public HQ previews live in `sounds/water/source/` behind `.gdignore`; `generate_water_cross_clips.py` rebakes from that cache.
+3. **Evidence:** `python3 tools/verify_water_cross_clips.py`; `--filter=test_underwater_pass`; asset provenance validators. A named harbour-dip listen is still a human check.
+
 - [ ] WS-13b | deps: WS-13 | deliverable: view-only sea basin under open-sea cells (shallow 1.0, deep 3.6 units below the flat gameplay bed; natural banks shelve, pier/stone edges drop), sand/silt seabed, border seabed apron, water shader measures its optical column to the flat bed so the top-down look is unchanged | allowed files: see `docs/tasks/water_sky/WS-13b_harbour_basin_depth.md` | verify: `--filter=test_ws13b_sea_basin_depth` and the water suites; harbour overview parity plates; `tools/capture_underwater.gd` under/up/sun/straddle/night/storm/dip plates on Metal and Compatibility
 
 WS-13b implementation landed (R-901, in review). Decisions (2026-09-25), full list in the task file:

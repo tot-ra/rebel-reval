@@ -159,8 +159,8 @@ def main() -> None:
         lines.append("## Water crossing sound effects")
         lines.append("")
         lines.append(
-            "In-house one-shots for the underwater camera pass. Synthesized "
-            "Foley, not wildlife field recordings."
+            "CC0 field-recording one-shots for the underwater camera pass. "
+            "Trimmed and loudnormed for AIR/UNDER crossings; not synthesized noise."
         )
         lines.append("")
         for row in sorted(water, key=lambda item: item.get("title") or item.get("clip_id") or ""):
@@ -168,7 +168,7 @@ def main() -> None:
             author = (row.get("author") or "Unknown author").strip()
             lic = license_name(row.get("license") or "")
             src = (row.get("page") or "").strip()
-            line = f"- {title} - synthesized by {author}. {lic}."
+            line = f"- {title} - recorded by {author}. {lic}."
             if src:
                 line += f" Source: {src}"
             lines.append(line)
