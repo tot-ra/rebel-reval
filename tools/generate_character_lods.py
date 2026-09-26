@@ -215,6 +215,14 @@ def main() -> None:
         report = _process_body(path)
         if report:
             manifest["bodies"].append(report)
+    if selected is not None and MANIFEST_PATH.is_file():
+        # WHY: a selective run (one new body) must not drop every other body's
+        # LOD record; merge the fresh reports over the committed manifest.
+        fresh = {body["body"]: body for body in manifest["bodies"]}
+        previous = json.loads(MANIFEST_PATH.read_text(encoding="utf-8")).get("bodies", [])
+        merged = {body["body"]: body for body in previous}
+        merged.update(fresh)
+        manifest["bodies"] = [merged[name] for name in sorted(merged)]
     MANIFEST_PATH.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     print(f"Wrote {MANIFEST_PATH.relative_to(ROOT)}")
 

@@ -59,6 +59,33 @@ Then:
 3. Add a SOURCES.csv provenance row (creator `project maintainer`, tool chain, "generated in-repo").
 4. Add/extend a rig-contract test (see `test_innkeeper_body_spec_fulfills_the_rig_contract`).
 
+### Seeded crowd bodies (P0-153)
+
+Townsfolk that must not read as clones come from `crowd_variant_entry(template, seed)` in `tools/character_specs.py`, not from hand-written specs. The same `(template, seed)` pair always yields the same entry (string-seeded `random.Random`, stable across processes). Each seed varies:
+
+- stature (`leg_length`, `arm_length`, `torso_length`; head size stays fixed) and build (`bulk`, shoulder width, `chest_breadth`, `belly`)
+- face knobs, hair and beard style, sleeve/hem/outerwear choice from the template's allowed set
+- complexion between a fair and a weathered endpoint, hair colour, and a garment palette drawn from period commoner dyes (undyed wool, woad, madder, weld, walnut, woad-over-weld green)
+- `material_response`: cloth and leather normal-strength multipliers over the shared family maps, exported as glTF `normalTexture.scale` and kept at runtime by `SharedCharacterRig`. The maps themselves stay shared (P0-200), so this is how a body gets its own PBR response.
+- gait (`Walking_A`/`B`/`C`) through the variant's `animation_overrides`
+
+The committed roster is `CROWD_ROSTER`. It is merged into `CHARACTERS` as Tier-1 specs named `crowd_<template>_<seed:02d>`, so every pipeline tool and the asset lint see it. To add a body, add a row to the roster, then:
+
+```bash
+python3 tools/character_specs.py --write-crowd-manifest
+python3 tools/build_heroic_humanoid_glb.py crowd_townsman_03
+/Applications/Blender.app/Contents/MacOS/Blender --background --python-exit-code 1 \
+  --python tools/generate_hero_body.py -- --character=crowd_townsman_03
+/Applications/Blender.app/Contents/MacOS/Blender --background --python-exit-code 1 \
+  --python tools/generate_character_lods.py -- crowd_townsman_03
+git checkout HEAD -- assets/characters/shared/textures/  # see note below
+godot --headless --path . --import
+```
+
+Then add the variant `.tres`/`.tscn` pair in `variants/` and the `SOURCES.csv` rows. `assets/characters/variants/crowd_variation_manifest.json` records the resolved parameters. `tests/python/test_character_crowd_variation.py` checks determinism and that the manifest is in sync. `test_seeded_crowd_bodies_are_individuated_and_realise_their_seeds` checks that the built bodies follow their seeded stature order and that every pair differs in at least three of height, build, skin, garment and surface response.
+
+Note: exporting a body re-harvests the shared family PNGs under `assets/characters/shared/textures/`. On a machine whose Blender/NumPy build yields different bytes, that silently rewrites maps every other body uses. Restore them from `HEAD` after a rebuild unless you are deliberately regenerating the shared set. Selective LOD runs merge into `character_lod_manifest.json` rather than replacing it.
+
 ## Surfaces: UVs and procedural PBR detail (P0-144/P0-145)
 
 Every generated part gets UVs at build time: `PartBuilder.build()` runs an angle-based `smart_project` unwrap after the subdivision apply, so islands are deterministic and no hand-authored seams exist. Materials then wire the shared procedural detail maps from `tools/hero_body_textures.py`:

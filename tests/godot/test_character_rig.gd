@@ -12,6 +12,8 @@ const TOWNSWOMAN_SCENE := preload("res://assets/characters/variants/townswoman.t
 const WATCHMAN_SCENE := preload("res://assets/characters/variants/watchman.tscn")
 const SERGEANT_SCENE := preload("res://assets/characters/variants/sergeant.tscn")
 const DANISH_WARRIOR_SCENE := preload("res://assets/characters/variants/danish_warrior.tscn")
+const CROWD_MANIFEST_PATH := "res://assets/characters/variants/crowd_variation_manifest.json"
+const CROWD_CLOTH_NORMAL_BASELINE := 0.20
 const REQUIRED_ANIMATIONS: Array[StringName] = [
 	&"idle",
 	&"walk",
@@ -959,6 +961,112 @@ func test_shared_character_no_body_material_is_unshaded() -> void:
 					"%s surface %d must not be unshaded" % [mesh_instance.name, surface_index]
 				)
 	kalev.queue_free()
+
+
+## P0-153: the committed crowd roster is generated from (template, seed) pairs
+## by tools/character_specs.py. The Python side proves same seed -> same spec
+## (tests/python/test_character_crowd_variation.py); this test proves the built
+## bodies realise their recorded seeds and are individuated, not clones.
+func test_seeded_crowd_bodies_are_individuated_and_realise_their_seeds() -> void:
+	var manifest: Variant = JSON.parse_string(FileAccess.get_file_as_string(CROWD_MANIFEST_PATH))
+	assert_true(manifest is Dictionary, "crowd variation manifest must parse")
+	var bodies: Array = (manifest as Dictionary).get("bodies", [])
+	assert_true(bodies.size() >= 4, "the crowd roster must hold at least four seeded bodies")
+	var kalev := _instantiate(KALEV_SCENE)
+	var seeds := {}
+	var records: Array[Dictionary] = []
+	for body: Dictionary in bodies:
+		var body_name := String(body["name"])
+		var seed_key := "%s:%d" % [body["template"], int(body["seed"])]
+		assert_false(seeds.has(seed_key), "%s duplicates seed %s" % [body_name, seed_key])
+		seeds[seed_key] = true
+		var scene_path := "res://assets/characters/variants/%s.tscn" % body_name
+		var character := _instantiate(load(scene_path) as PackedScene)
+		assert_eq(character.validation_errors(), [], "%s must satisfy the rig contract" % body_name)
+		assert_eq(character.variant_id(), StringName("char." + body_name))
+		assert_eq(character.skeleton().get_bone_count(), kalev.skeleton().get_bone_count())
+		assert_eq(character.canonical_animation_names(), kalev.canonical_animation_names())
+		assert_true(character.play_animation(&"walk"))
+		assert_eq(character.animation_player().current_animation, StringName(body["gait"]))
+		var tunic := _active_material_named(character, &"hero_tunic")
+		assert_true(tunic != null, "%s must carry a textured tunic" % body_name)
+		var response: Dictionary = body["material_response"]
+		assert_almost_eq(
+			tunic.normal_scale,
+			CROWD_CLOTH_NORMAL_BASELINE * float(response["cloth"]),
+			0.002,
+			"%s must keep its seeded cloth normal response at runtime" % body_name
+		)
+		var skeleton := character.skeleton()
+		records.append({
+			"name": body_name,
+			"template": String(body["template"]),
+			"stature": float(body["stature_factor"]),
+			"head": skeleton.get_bone_global_rest(skeleton.find_bone("head")).origin.y,
+			"shoulders": _shoulder_span(character),
+			"skin": _source_albedo(character, &"hero_skin"),
+			"tunic": _source_albedo(character, &"hero_tunic"),
+			"cloth_normal": tunic.normal_scale,
+		})
+		character.queue_free()
+	kalev.queue_free()
+
+	for i: int in records.size():
+		for j: int in range(i + 1, records.size()):
+			var a := records[i]
+			var b := records[j]
+			if a["template"] == b["template"]:
+				# Same template: measured skeleton height follows the seeded stature.
+				var stature_delta: float = float(a["stature"]) - float(b["stature"])
+				var head_delta: float = float(a["head"]) - float(b["head"])
+				assert_true(
+					signf(stature_delta) == signf(head_delta),
+					"%s/%s head heights must follow their seeded stature order" % [a["name"], b["name"]]
+				)
+			var differences := 0
+			differences += 1 if absf(float(a["head"]) - float(b["head"])) > 0.015 * float(a["head"]) else 0
+			var shoulder_delta := absf(float(a["shoulders"]) - float(b["shoulders"]))
+			differences += 1 if shoulder_delta > 0.02 * float(a["shoulders"]) else 0
+			differences += 1 if _color_distance(a["skin"], b["skin"]) > 0.02 else 0
+			differences += 1 if _color_distance(a["tunic"], b["tunic"]) > 0.04 else 0
+			differences += 1 if absf(float(a["cloth_normal"]) - float(b["cloth_normal"])) > 0.01 else 0
+			assert_true(
+				differences >= 3,
+				"%s and %s must differ in at least three of height/build/skin/garment/surface (got %d)"
+				% [a["name"], b["name"], differences]
+			)
+
+
+func _active_material_named(
+	character: SharedCharacterRig, material_name: StringName
+) -> BaseMaterial3D:
+	for found: Node in character.get_node("Model").find_children("*", "MeshInstance3D", true, false):
+		var mesh_instance := found as MeshInstance3D
+		if mesh_instance.mesh == null:
+			continue
+		for surface_index: int in mesh_instance.mesh.get_surface_count():
+			var source := mesh_instance.mesh.surface_get_material(surface_index)
+			if source != null and StringName(source.resource_name) == material_name:
+				var active := mesh_instance.get_active_material(surface_index)
+				if active is BaseMaterial3D:
+					return active as BaseMaterial3D
+	return null
+
+
+func _source_albedo(character: SharedCharacterRig, material_name: StringName) -> Color:
+	for found: Node in character.get_node("Model").find_children("*", "MeshInstance3D", true, false):
+		var mesh_instance := found as MeshInstance3D
+		if mesh_instance.mesh == null:
+			continue
+		for surface_index: int in mesh_instance.mesh.get_surface_count():
+			var source := mesh_instance.mesh.surface_get_material(surface_index)
+			if source is BaseMaterial3D and StringName(source.resource_name) == material_name:
+				return (source as BaseMaterial3D).albedo_color
+	return Color.BLACK
+
+
+static func _color_distance(a: Color, b: Color) -> float:
+	return Vector3(a.r - b.r, a.g - b.g, a.b - b.b).length()
 
 
 func test_anatomical_muscle_volume_responds_to_joint_bend() -> void:

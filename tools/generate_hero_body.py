@@ -36,7 +36,7 @@ from hero_body_context import BodyContext  # noqa: E402
 from hero_body_head_builder import build_head, build_head_layers  # noqa: E402
 from hero_body_limb_builder import build_limbs  # noqa: E402
 from hero_body_mesh_builder import PartBuilder, find_armature  # noqa: E402
-from hero_body_textures import apply_texture  # noqa: E402
+from hero_body_textures import MATERIAL_FAMILIES, apply_texture  # noqa: E402
 from hero_body_torso_builder import build_torso, build_torso_layers  # noqa: E402
 from hero_garment_builder import build_garments  # noqa: E402
 from share_character_textures import link_exported_character_glb  # noqa: E402
@@ -91,6 +91,9 @@ PALETTE = {
     "hat": (0.32, 0.36, 0.28, 1.0),
 }
 _active_palette: dict = dict(PALETTE)
+# Per-family normal-strength multipliers from the spec (P0-153 crowd variants).
+# Empty for authored specs, which keeps their exports byte-for-byte unchanged.
+_active_material_response: dict = {}
 
 # Materials exported with glTF alpha blending, and their opacity. Only the
 # cornea qualifies: everything else stays opaque so the GL Compatibility
@@ -168,12 +171,28 @@ def _material(name: str) -> bpy.types.Material:
     # Procedural albedo/normal detail maps (P0-144/P0-145): the flat tint stays
     # as the multiplicative factor, so spec palettes keep working unchanged.
     apply_texture(material, name)
+    _apply_material_response(material, name)
     return material
+
+
+def _apply_material_response(material: bpy.types.Material, name: str) -> None:
+    """Scale the shared family normal map per body: felted vs crisp wool.
+
+    The maps themselves stay shared (P0-200); the exporter carries NormalMap
+    strength as glTF normalTexture.scale, so this is a per-body PBR response.
+    """
+    factor = _active_material_response.get(MATERIAL_FAMILIES.get(name, ""))
+    if factor is None:
+        return
+    for node in material.node_tree.nodes:
+        if node.type == "NORMAL_MAP":
+            node.inputs["Strength"].default_value *= float(factor)
 
 
 def generate(character: str) -> None:
     selected = character_spec(character)
     _active_palette.update(selected["palette"])
+    _active_material_response.update(selected["material_response"])
     source = ROOT / selected["skeleton_intermediate"]
     output = ROOT / selected["output"]
 

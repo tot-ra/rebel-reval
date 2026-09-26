@@ -41,6 +41,78 @@
       }
     },
     {
+      "body": "crowd_townsman_01.glb",
+      "lod0_triangles": 50640,
+      "levels": {
+        "lod1": {
+          "path": "assets/characters/shared/crowd_townsman_01_lod1.glb",
+          "triangles": 25312,
+          "fraction_of_lod0": 0.4998,
+          "target_ratio": 0.5
+        },
+        "lod2": {
+          "path": "assets/characters/shared/crowd_townsman_01_lod2.glb",
+          "triangles": 10117,
+          "fraction_of_lod0": 0.1998,
+          "target_ratio": 0.2
+        }
+      }
+    },
+    {
+      "body": "crowd_townsman_02.glb",
+      "lod0_triangles": 46664,
+      "levels": {
+        "lod1": {
+          "path": "assets/characters/shared/crowd_townsman_02_lod1.glb",
+          "triangles": 23325,
+          "fraction_of_lod0": 0.4998,
+          "target_ratio": 0.5
+        },
+        "lod2": {
+          "path": "assets/characters/shared/crowd_townsman_02_lod2.glb",
+          "triangles": 9326,
+          "fraction_of_lod0": 0.1999,
+          "target_ratio": 0.2
+        }
+      }
+    },
+    {
+      "body": "crowd_townswoman_01.glb",
+      "lod0_triangles": 49744,
+      "levels": {
+        "lod1": {
+          "path": "assets/characters/shared/crowd_townswoman_01_lod1.glb",
+          "triangles": 24864,
+          "fraction_of_lod0": 0.4998,
+          "target_ratio": 0.5
+        },
+        "lod2": {
+          "path": "assets/characters/shared/crowd_townswoman_01_lod2.glb",
+          "triangles": 9942,
+          "fraction_of_lod0": 0.1999,
+          "target_ratio": 0.2
+        }
+      }
+    },
+    {
+      "body": "crowd_townswoman_02.glb",
+      "lod0_triangles": 48148,
+      "levels": {
+        "lod1": {
+          "path": "assets/characters/shared/crowd_townswoman_02_lod1.glb",
+          "triangles": 24065,
+          "fraction_of_lod0": 0.4998,
+          "target_ratio": 0.5
+        },
+        "lod2": {
+          "path": "assets/characters/shared/crowd_townswoman_02_lod2.glb",
+          "triangles": 9621,
+          "fraction_of_lod0": 0.1998,
+          "target_ratio": 0.2
+        }
+      }
+    },
+    {
       "body": "danish_warrior.glb",
       "lod0_triangles": 51864,
       "levels": {

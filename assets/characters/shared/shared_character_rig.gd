@@ -679,7 +679,7 @@ func _apply_character_pbr_profile(material_name: StringName, material: BaseMater
 	# WHY: explicit per-pixel lighting prevents imported fallback flags from
 	# making cloth appear flat/unshaded after the scalar PBR tuning is applied.
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL
-	material.normal_scale = 0.20 if profile.get("family") == "cloth" else 0.24
+	material.normal_scale = _profile_normal_scale(profile, material)
 	material.vertex_color_use_as_albedo = true
 	material.roughness = float(profile["roughness"])
 	material.metallic = float(profile["metallic"])
@@ -691,6 +691,19 @@ func _apply_character_pbr_profile(material_name: StringName, material: BaseMater
 		material.ao_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_RED
 	if material.metallic_texture != null:
 		material.metallic_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_BLUE
+
+
+## WHY (P0-153): seeded crowd bodies export a per-body glTF normalTexture.scale
+## on the shared cloth/leather maps (felted vs crisp wool, supple vs cracked
+## leather). Authored bodies export exactly the family baseline, so keeping the
+## imported value changes nothing for them; metal keeps its fixed runtime value.
+static func _profile_normal_scale(profile: Dictionary, material: BaseMaterial3D) -> float:
+	var family := String(profile.get("family", ""))
+	var baseline := 0.20 if family == "cloth" else 0.24
+	var textured := material.normal_texture != null and material.normal_scale > 0.0
+	if family in ["cloth", "leather"] and textured:
+		return clampf(material.normal_scale, baseline * 0.5, baseline * 2.0)
+	return baseline
 
 
 func _shader_material_for(material_name: StringName, source_material: BaseMaterial3D) -> ShaderMaterial:

@@ -745,6 +745,263 @@ CHARACTERS = {
 }
 
 
+# ---------------------------------------------------------------------------
+# P0-153 procedural crowd variation.
+#
+# Hand-authored specs above give named people. Townsfolk need many bodies that
+# are not clones, so a crowd variant is derived from a neutral template and a
+# seed: `crowd_variant_entry(template, seed)` always returns the same entry for
+# the same pair (string-seeded `random.Random` hashes with SHA-512, so it is
+# stable across processes and Python versions). The committed roster below is
+# merged into CHARACTERS, so the skeleton retarget, body generator, LOD tool,
+# shared-texture linker and asset lint treat every variant like any spec.
+#
+# Surface maps stay the shared palette-neutral family set (P0-200 forbids
+# per-body PNG copies); "PBR texture swaps" are therefore expressed as the
+# palette multiplied over those maps plus a per-variant `material_response`
+# normal-strength multiplier per family (felted vs crisp wool, supple vs
+# cracked leather), which the exporter writes as glTF `normalTexture.scale`.
+# ---------------------------------------------------------------------------
+
+CROWD_OUTPUT_DIR = "assets/characters/shared"
+CROWD_MANIFEST = "assets/characters/variants/crowd_variation_manifest.json"
+
+# Neutral adult frames. Variation multiplies these, so templates stay close to
+# the middle of the range instead of reusing a caricatured named body.
+CROWD_TEMPLATES = {
+    "townsman": {
+        "proportions": {},
+        "shape": {"bulk": 1.0, "chest_breadth": 1.0, "belly": 1.04, "head_scale": 1.0},
+        "stature_range": (0.91, 1.05),
+        "choices": {
+            "hair_style": ("full", "short", "short", "bald"),
+            "beard_style": ("full", "short", "none"),
+            "sleeve_style": ("long", "long", "bare"),
+            "tunic_length": ("long", "short"),
+            "outerwear": ("none", "apron", "vest"),
+        },
+        "grey_hair_chance": 0.2,
+    },
+    "townswoman": {
+        # Same slighter frame as the authored townswoman body.
+        "proportions": {
+            "leg_length": 1.74,
+            "arm_length": 1.18,
+            "torso_length": 0.86,
+            "shoulder_width": 0.64,
+            "hip_socket_width": 0.69,
+            "head_size": 0.30,
+            "hand_size": 0.72,
+        },
+        "shape": {"bulk": 0.90, "chest_breadth": 0.92, "belly": 0.98, "head_scale": 1.0},
+        "stature_range": (0.93, 1.05),
+        "choices": {
+            "hair_style": ("long", "bun", "ponytail"),
+            "beard_style": ("none",),
+            "sleeve_style": ("long",),
+            "tunic_length": ("long",),
+            "outerwear": ("kirtle", "kirtle", "none"),
+        },
+        "grey_hair_chance": 0.15,
+    },
+}
+
+# Complexion endpoints (sRGB) for a Baltic/North German port population:
+# fair indoor skin to wind- and sun-weathered outdoor workers.
+CROWD_SKIN_FAIR = (0.87, 0.69, 0.56)
+CROWD_SKIN_WEATHERED = (0.68, 0.47, 0.34)
+
+CROWD_HAIR = {
+    "flaxen": (0.68, 0.55, 0.34),
+    "light_brown": (0.48, 0.34, 0.21),
+    "dark_brown": (0.25, 0.17, 0.11),
+    "auburn": (0.52, 0.27, 0.14),
+    "grey": (0.57, 0.55, 0.51),
+}
+
+# Commoner cloth colours reachable with 14th-century Baltic dyes: undyed wool,
+# woad, madder, weld, walnut hulls and woad-over-weld green. Deliberately muted:
+# saturated kermes reds and bright blues belonged to wealthier patrons.
+CROWD_DYES = {
+    "undyed_grey": (0.46, 0.44, 0.40),
+    "undyed_brown": (0.36, 0.28, 0.20),
+    "woad_blue": (0.27, 0.35, 0.46),
+    "madder_red": (0.52, 0.25, 0.18),
+    "weld_yellow": (0.60, 0.52, 0.28),
+    "walnut_brown": (0.30, 0.21, 0.14),
+    "woad_weld_green": (0.35, 0.40, 0.28),
+}
+CROWD_LINEN = {
+    "bleached_linen": (0.84, 0.82, 0.76),
+    "raw_linen": (0.72, 0.67, 0.56),
+}
+CROWD_LEATHER = {
+    "tan": (0.50, 0.35, 0.21),
+    "dark": (0.28, 0.20, 0.14),
+    "oiled": (0.38, 0.26, 0.16),
+}
+
+CROWD_GAITS = ("Walking_A", "Walking_B", "Walking_C")
+
+# Normal-strength multipliers per texture family (see hero_body_textures).
+CROWD_MATERIAL_RESPONSE_RANGE = {"cloth": (0.75, 1.35), "leather": (0.8, 1.3)}
+
+# Committed individuated roster: (template, seed). Adding a body is one row
+# here plus `tools/rebuild_hero_character.sh crowd_<template>_<seed:02d>`.
+CROWD_ROSTER = (
+    ("townsman", 1),
+    ("townsman", 2),
+    ("townswoman", 1),
+    ("townswoman", 2),
+)
+
+
+def crowd_variant_name(template: str, seed: int) -> str:
+    return f"crowd_{template}_{seed:02d}"
+
+
+def _jitter(rng, low: float, high: float) -> float:
+    return round(rng.uniform(low, high), 4)
+
+
+def _faded(rng, color: tuple, spread: float = 0.04) -> tuple:
+    """Per-garment wear: sun-bleaching or grime shifts one dye lot slightly."""
+    shift = rng.uniform(-spread, spread)
+    return tuple(round(min(1.0, max(0.0, channel + shift)), 4) for channel in color) + (1.0,)
+
+
+def crowd_variant_entry(template: str, seed: int) -> dict:
+    """Return a CHARACTERS-style entry for one deterministic crowd body."""
+    import random
+
+    if template not in CROWD_TEMPLATES:
+        raise KeyError(f"unknown crowd template '{template}'; known: {sorted(CROWD_TEMPLATES)}")
+    base = CROWD_TEMPLATES[template]
+    rng = random.Random(f"reval-crowd:{template}:{seed}")
+
+    # Stature scales the bone chain lengths the retarget reads, so the whole
+    # animation library follows the new height. Head size is left alone: a
+    # taller adult does not grow a proportionally larger head.
+    stature = _jitter(rng, *base["stature_range"])
+    proportions = {**BASE_PROPORTIONS, **base["proportions"]}
+    varied_proportions = {
+        key: round(proportions[key] * stature, 4)
+        for key in ("leg_length", "arm_length", "torso_length")
+    }
+    build = _jitter(rng, 0.88, 1.14)
+    varied_proportions["shoulder_width"] = round(
+        proportions["shoulder_width"] * (1.0 + (build - 1.0) * 0.6), 4
+    )
+    shape = dict(base["shape"])
+    shape["bulk"] = round(shape["bulk"] * build, 4)
+    shape["chest_breadth"] = round(shape["chest_breadth"] * _jitter(rng, 0.94, 1.08), 4)
+    shape["belly"] = round(shape["belly"] * _jitter(rng, 0.92, 1.22), 4)
+    face = {key: _jitter(rng, 0.93, 1.07) for key in BASE_FACE}
+
+    features = {key: rng.choice(options) for key, options in base["choices"].items()}
+    if features["outerwear"] == "apron" and features["tunic_length"] == "long":
+        # The generated apron is fitted over a hip-length hem only.
+        features["tunic_length"] = "short"
+
+    tone = rng.random()
+    skin = tuple(
+        round(fair + (weathered - fair) * tone, 4)
+        for fair, weathered in zip(CROWD_SKIN_FAIR, CROWD_SKIN_WEATHERED)
+    ) + (1.0,)
+    if rng.random() < base["grey_hair_chance"]:
+        hair_name = "grey"
+    else:
+        hair_name = rng.choice(sorted(name for name in CROWD_HAIR if name != "grey"))
+    hair = CROWD_HAIR[hair_name] + (1.0,)
+    beard = tuple(round(channel * 0.88, 4) for channel in hair[:3]) + (1.0,)
+
+    dye_names = rng.sample(sorted(CROWD_DYES), 4)
+    linen_name = rng.choice(sorted(CROWD_LINEN))
+    boot_name, belt_name = rng.sample(sorted(CROWD_LEATHER), 2)
+    palette = {
+        "skin": skin,
+        "hair": hair,
+        "beard": beard,
+        "tunic": _faded(rng, CROWD_DYES[dye_names[0]]),
+        "outerwear": _faded(rng, CROWD_DYES[dye_names[1]]),
+        "pants": _faded(rng, CROWD_DYES[dye_names[2]], 0.02),
+        "sleeve_band": _faded(rng, CROWD_DYES[dye_names[3]]),
+        "trim": _faded(rng, CROWD_DYES[dye_names[3]], 0.06),
+        "sleeves": _faded(rng, CROWD_LINEN[linen_name], 0.03),
+        "boots": _faded(rng, CROWD_LEATHER[boot_name], 0.02),
+        "belt": _faded(rng, CROWD_LEATHER[belt_name], 0.02),
+    }
+    material_response = {
+        family: _jitter(rng, *bounds)
+        for family, bounds in sorted(CROWD_MATERIAL_RESPONSE_RANGE.items())
+    }
+    # Drawn last so adding it did not shift any body parameter above. Every
+    # generated body ships all 76 clips, so gait variety is data-only.
+    gait = rng.choice(CROWD_GAITS)
+
+    name = crowd_variant_name(template, seed)
+    return {
+        "proportions": {**base["proportions"], **varied_proportions},
+        "shape": shape,
+        "face": face,
+        "features": features,
+        "palette": palette,
+        "material_response": material_response,
+        "output": f"{CROWD_OUTPUT_DIR}/{name}.glb",
+        # Full generated bodies are Tier-1 quality; Tier-2 battle crowds use
+        # the separate MultiMesh path (P0-154) and can bake these later.
+        "fidelity_tier": 1,
+        "garments": [],
+        "crowd": {
+            "template": template,
+            "seed": seed,
+            "stature_factor": stature,
+            "build_factor": build,
+            "gait": gait,
+            "skin_tone": round(tone, 4),
+            "hair": hair_name,
+            "dyes": {
+                "tunic": dye_names[0],
+                "outerwear": dye_names[1],
+                "pants": dye_names[2],
+                "accent": dye_names[3],
+                "sleeves": linen_name,
+                "boots": boot_name,
+                "belt": belt_name,
+            },
+        },
+    }
+
+
+def crowd_manifest() -> dict:
+    """Resolved roster parameters; the committed JSON must equal this."""
+    bodies = []
+    for template, seed in CROWD_ROSTER:
+        entry = crowd_variant_entry(template, seed)
+        bodies.append(
+            {
+                "name": crowd_variant_name(template, seed),
+                "output": entry["output"],
+                **entry["crowd"],
+                "proportions": entry["proportions"],
+                "shape": entry["shape"],
+                "face": entry["face"],
+                "features": entry["features"],
+                "palette": {key: list(value) for key, value in sorted(entry["palette"].items())},
+                "material_response": entry["material_response"],
+            }
+        )
+    return {"generator": "tools/character_specs.py crowd_variant_entry", "bodies": bodies}
+
+
+CHARACTERS.update(
+    {
+        crowd_variant_name(template, seed): crowd_variant_entry(template, seed)
+        for template, seed in CROWD_ROSTER
+    }
+)
+
+
 def spec(name: str) -> dict:
     if name not in CHARACTERS:
         raise KeyError(
@@ -761,5 +1018,33 @@ def spec(name: str) -> dict:
         "output": entry["output"],
         "fidelity_tier": int(entry.get("fidelity_tier", 1)),
         "garments": entry.get("garments", []),
+        "material_response": entry.get("material_response", {}),
         "skeleton_intermediate": f"tools/character_build/{name}_skeleton.glb",
     }
+
+
+def _main(argv: list[str]) -> int:
+    import json
+    from pathlib import Path
+
+    manifest_text = json.dumps(crowd_manifest(), indent=2) + "\n"
+    path = Path(__file__).resolve().parents[1] / CROWD_MANIFEST
+    if argv == ["--write-crowd-manifest"]:
+        with open(path, "w", encoding="utf-8", newline="\n") as handle:
+            handle.write(manifest_text)
+        print(f"Wrote {CROWD_MANIFEST}")
+        return 0
+    if argv == ["--check-crowd-manifest"]:
+        if not path.is_file() or path.read_text(encoding="utf-8") != manifest_text:
+            print(f"{CROWD_MANIFEST} is stale; run --write-crowd-manifest")
+            return 1
+        print(f"{CROWD_MANIFEST} matches the seeded generator")
+        return 0
+    print("usage: character_specs.py --write-crowd-manifest | --check-crowd-manifest")
+    return 2
+
+
+if __name__ == "__main__":
+    import sys
+
+    raise SystemExit(_main(sys.argv[1:]))
