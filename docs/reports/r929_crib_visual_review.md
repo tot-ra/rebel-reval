@@ -63,5 +63,5 @@ R-929 allowlist is review-only. No Godot harness and no builder edit. Plate inve
 
 - R-929: move to done. Named review is this file.
 - WS-13e / R-921: stay in review. Visual acceptance stays fail-closed.
-- Follow-up (crib builder): revise cubic fill and the Saaremaa tip saddle so Metal `under_horizontal` frames read as notched stone-filled landings. Keep two MeshInstance children.
+- Follow-up (crib builder): revise cubic fill and the Saaremaa tip saddle so Metal `under_horizontal` frames read as notched stone-filled landings. Keep two MeshInstance children. Board R-939 implements this: interior irregular stone and a carved U-saddle at shared tip corners.
 - Follow-up (renderer): Compatibility under-water crib invisibility is the same family as board R-932 (Compatibility shows more / different water bed than Metal). Recapture GL `under_horizontal` only after that split is understood, or with a pose that still shows the crib on Compatibility.

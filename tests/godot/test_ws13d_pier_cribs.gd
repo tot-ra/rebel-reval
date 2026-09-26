@@ -185,6 +185,9 @@ func test_tip_corners_use_saddle_notches() -> void:
 		if not west_tip and not east_tip:
 			continue
 		for log_spec: Dictionary in face["logs"]:
+			# Bed-level courses skip the saddle so a U-ring does not sit on the sand.
+			if ((log_spec["from"] as Vector3).y) < float(face["floor_y"]) + 0.28:
+				continue
 			assert_true(
 				bool(log_spec["notch_from"]) or bool(log_spec["notch_to"]),
 				"tip corner logs must use a saddle notch at %s %s" % [cell, side],
@@ -259,6 +262,68 @@ func test_harbor_east_and_saaremaa_landings_stand_on_cribs() -> void:
 	assert_true(ferry >= 6, "pier.ferry on Saaremaa (got %d)" % ferry)
 	assert_true(strait >= 6, "pier.strait on Saaremaa (got %d)" % strait)
 	assert_true(island_stones >= 16, "Saaremaa cribs must show fill")
+
+
+func test_rubble_stays_inside_the_crib_wall() -> void:
+	var definition := _sea_definition()
+	var field := TerrainBuilder.ensure_height_field(definition, MapBuilder.build(definition))
+	var stones := 0
+	var tilt := 0.0
+	for face: Dictionary in CribBuilder.crib_faces(field):
+		var logs: Array = face["logs"]
+		if logs.is_empty():
+			continue
+		var start: Vector3 = face["start"]
+		var side: Vector2i = face["side"]
+		var outward := Vector3(float(side.x), 0.0, float(side.y))
+		var inner := INF
+		for log_spec: Dictionary in logs:
+			var mid: Vector3 = (
+				(log_spec["from"] as Vector3) + (log_spec["to"] as Vector3)
+			) * 0.5
+			inner = minf(inner, (mid - start).dot(outward) - float(log_spec["radius"]))
+		for stone: Dictionary in face["rubble"]:
+			stones += 1
+			var center: Vector3 = stone["center"]
+			var out := (center - start).dot(outward)
+			assert_true(
+				out <= inner + 0.05,
+				"stone at %s must stay inside the crib wall (out=%s inner=%s)"
+				% [center, out, inner],
+			)
+			tilt += absf(float(stone.get("pitch", 0.0))) + absf(float(stone.get("roll", 0.0)))
+	assert_true(stones >= 16, "inside-wall fill must still be present (got %d)" % stones)
+	assert_true(tilt > 1.0, "fill must be tumbled stone, not a box pile (tilt=%s)" % tilt)
+
+
+func test_saaremaa_tip_logs_use_saddle_notches() -> void:
+	var saaremaa := DistantLocationDefinitions.create(&"world_saaremaa")
+	assert_true(saaremaa != null, "world_saaremaa definition")
+	var faces := CribBuilder.crib_faces(
+		TerrainBuilder.ensure_height_field(saaremaa, MapBuilder.build(saaremaa))
+	)
+	var min_x := 999
+	var max_x := -999
+	for face: Dictionary in faces:
+		var cell: Vector2i = face["cell"]
+		if cell.y < 24 or cell.y > 25:
+			continue
+		min_x = mini(min_x, cell.x)
+		max_x = maxi(max_x, cell.x)
+	var notched := 0
+	for face: Dictionary in faces:
+		var cell: Vector2i = face["cell"]
+		if cell.y < 24 or cell.y > 25:
+			continue
+		if cell.x != min_x and cell.x != max_x:
+			continue
+		for log_spec: Dictionary in face["logs"]:
+			if bool(log_spec.get("notch_from", false)) or bool(log_spec.get("notch_to", false)):
+				notched += 1
+	assert_true(
+		notched >= 6,
+		"Saaremaa ferry tips must carve U-saddles (got %d notched logs)" % notched,
+	)
 
 
 func _sea_definition(

@@ -81,12 +81,29 @@ strait decks) already built cribs; this pass reviews them and closes the two vis
 
 ### Verification
 
-- `--filter=test_ws13d_pier_cribs` (9 tests): previous WS-13d cases plus tip notches, rubble under
-  the surface, and crib/notch/fill coverage on Harbor East and Saaremaa.
+- `--filter=test_ws13d_pier_cribs` (11 tests): previous WS-13d cases plus tip notches, rubble under
+  the surface, crib/notch/fill coverage on Harbor East and Saaremaa, interior irregular fill, and
+  Saaremaa ferry-tip saddles.
 - Plates (`tools/capture_underwater.gd --shot=under_horizontal`, `state=2` UNDER):
   Harbor East mid-pier tip `--pos=62.2,-0.85,24.4 --look=64.2,-0.55,26.3` ->
   `docs/reports/images/ws13e_harbor_east_under_horizontal_{metal,gl}.png`.
-  Saaremaa ferry `--map=world.saaremaa --pos=6.4,-1.0,21.8 --look=8.6,-0.65,24.3` ->
+  Saaremaa ferry `--map=world.saaremaa --pos=6.6,-0.85,22.8 --look=8.3,-0.50,24.6` ->
   `docs/reports/images/ws13e_saaremaa_under_horizontal_{metal,gl}.png`.
 - Overview (GL Compatibility): `docs/reports/images/ws13e_{harbor_east,saaremaa}_overview_gl.png`.
   Geometry stays under the waterline so the top-down look keeps the WS-13d budget.
+
+## R-939 follow-up (2026-09-26)
+
+Named review `docs/reports/r929_crib_visual_review.md` rejected the WS-13e extras: Harbor East
+corner fill read as a diamond of boxes, and the Saaremaa tip read as truncated pipes plus a cubic
+stub.
+
+1. **Interior irregular fill.** Face and corner stones are tumbled (yaw/pitch/roll plus vertex
+   jitter) and sit behind the innermost log. Corner stones use the shared tip and the inward
+   bisector, not the exterior L that painted the Harbor East diamond.
+2. **Carved U-saddle.** Perpendicular faces that share a tip point (same cell or a staggered
+   adjacent-cell tip) snap stacked ends to one plane. The full barrel stops short; the lower half
+   continues and a U-trough is carved so the tip camera sees a saddle, not a lintel box.
+3. **Two MeshInstance children, still under `CRIB_TOP_CLEARANCE`.** Rubble stays a second surface
+   on `PierCribLogs`. Compatibility `under_horizontal` frames stay invalid geometry evidence until
+   R-932; do not restyle from those plates.

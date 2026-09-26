@@ -309,6 +309,12 @@ saddle notch instead of a round cap; rubble shares the logs node as a second sur
 and Saaremaa keep two MeshInstance children. Evidence: `docs/reports/images/ws13e_*.png`.
 `--filter=test_ws13d_pier_cribs` 9/9.
 
+R-939 (2026-09-26) revises the extras after `r929_crib_visual_review.md` REJECT: irregular interior
+stone instead of the exterior box diamond, and a carved U-saddle with aligned tip ends so Saaremaa
+does not read as truncated pipes. Compatibility under-water frames stay with R-932.
+`--filter=test_ws13d_pier_cribs` 11/11. Metal plates recaptured; GL overviews still under the
+waterline. QA named review is the handoff.
+
 - [ ] WS-13f | deps: WS-07, WS-13 | deliverable: UnderwaterPass samples the WS-07 caustic tiles instead of the procedural stand-in so submerged surfaces and shafts match the bed net | allowed files: `scripts/map/view3d/underwater_pass.gd`, `scripts/map/view3d/underwater_pass.gdshader`, `scripts/map/view3d/caustics_common.gdshaderinc`, `scripts/map/view3d/map_view_water.gdshader`, `tests/godot/test_underwater_pass.gd`, `tests/godot/test_r715_water_material_contract.gd`, `docs/reports/images/ws13f_*.png`, `TODO.md` | verify: `--filter=test_underwater_pass,test_r715_water_material_contract`; water include move pixel-identical; `tools/capture_underwater.gd` under/up plates show the same net scale as WS-07
 
 WS-13f implementation landed (R-931). `_caustic_stretch` / `_caustic_tile` moved unchanged into
