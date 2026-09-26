@@ -8,6 +8,7 @@ const BirdAmbientAudio := preload("res://scripts/map/view3d/map_view_bird_ambien
 const BirdAssets := preload("res://scripts/map/view3d/map_view_bird_assets.gd")
 const BirdMeshes := preload("res://scripts/map/view3d/map_view_bird_meshes.gd")
 const BirdSpecies := preload("res://scripts/map/view3d/map_view_bird_species.gd")
+const CrowdRenderer := preload("res://scripts/map/view3d/map_view_crowd_renderer.gd")
 
 const MAX_CONCURRENT_BIRDS := 4
 const MIN_SPAWN_INTERVAL_S := 4.0
@@ -32,6 +33,30 @@ const WING_ROOT_ANGLES: Array[float] = [-0.34, -0.18, 0.0, 0.28, 0.48, 0.28, 0.0
 const WING_ELBOW_ANGLES: Array[float] = [-0.10, -0.05, 0.0, 0.12, 0.20, 0.12, 0.0, -0.05]
 const WING_SWEEP_ANGLES: Array[float] = [0.14, 0.08, -0.02, -0.10, -0.16, -0.08, 0.03, 0.10]
 
+## Flock LOD (P0-159). Each spawned bird stays one fully rigged leader (the
+## MAX_CONCURRENT_BIRDS cap and `bird_flight_peak` budget are unchanged);
+## gregarious species bring followers drawn through the P0-152 MultiMesh crowd
+## path in their glide pose, one draw per species part instead of one rigged
+## node tree per bird. Followers never cast shadows.
+const FLOCKING_GROUPS: Array[StringName] = [
+	BirdSpecies.GROUP_GULL,
+	BirdSpecies.GROUP_TERN,
+	BirdSpecies.GROUP_WATERFOWL,
+	BirdSpecies.GROUP_WADER,
+	BirdSpecies.GROUP_CORVID,
+	BirdSpecies.GROUP_SWALLOW,
+]
+const FLOCK_FOLLOWERS_MIN := 3
+const FLOCK_FOLLOWERS_MAX := 9
+## Concurrent cap for instanced followers across all flocks on a map.
+const MAX_FLOCK_FOLLOWERS := 24
+## Rigged leaders and instanced followers share one far cull distance so a
+## flock never loses its leader while the followers are still drawn.
+const BIRD_DETAIL_RANGE := 110.0
+const FLOCK_VISIBILITY_RANGE := 110.0
+const FLOCK_SPACING := 1.15
+const FLOCK_BOB_AMPLITUDE := 0.16
+
 var _birds: Array[Node3D] = []
 var _rng := RandomNumberGenerator.new()
 var _flight_enabled := true
@@ -41,6 +66,7 @@ var _cycle_progress := 0.0
 var _world_max := Vector2.ZERO
 var _seconds_until_spawn := 0.0
 var _spawn_tick := 0
+var _flock_renderers: Dictionary = {}  # species -> MapViewCrowdRenderer
 
 
 func _ready() -> void:
@@ -56,6 +82,28 @@ func set_flight_enabled(enabled: bool) -> void:
 	if not enabled:
 		_hide_all_birds()
 		_seconds_until_spawn = 0.0
+
+
+## Rigged leader birds only; instanced followers are `active_flock_follower_count`.
+func flight_birds() -> Array[Node3D]:
+	return _birds
+
+
+func active_flock_follower_count() -> int:
+	var count := 0
+	for bird in _birds:
+		if bird.visible:
+			count += (bird.get_meta(&"flock_offsets", []) as Array).size()
+	return count
+
+
+## Instanced follower renderer for `species`, or null before its first flock.
+func flock_renderer_for(species: StringName) -> MapViewCrowdRenderer:
+	return _flock_renderers.get(species) as MapViewCrowdRenderer
+
+
+static func is_flocking_species(species: StringName) -> bool:
+	return BirdSpecies.group_for(species) in FLOCKING_GROUPS
 
 
 func configure(map_id: StringName, context: StringName, size_cells: Vector2i) -> void:
@@ -75,6 +123,7 @@ func sync(context: StringName, cycle_progress: float, delta: float, enabled: boo
 		_hide_all_birds()
 		return
 	_advance_active_birds(delta)
+	_sync_flocks()
 	if delta <= 0.0:
 		return
 	_seconds_until_spawn -= delta
@@ -84,6 +133,7 @@ func sync(context: StringName, cycle_progress: float, delta: float, enabled: boo
 		_seconds_until_spawn = MIN_SPAWN_INTERVAL_S
 		return
 	_spawn_bird()
+	_sync_flocks()
 	_spawn_tick += 1
 	_seconds_until_spawn = _next_spawn_delay()
 
@@ -130,7 +180,10 @@ static func weighted_flight_candidates(context: StringName, cycle_progress: floa
 		var time_tag := StringName(song.get("time", &"day"))
 		if not BirdAmbientAudio.matches_song_time(time_tag, cycle_progress):
 			continue
-		if not BirdAssets.has_animated_model(species) and BirdMeshes.mesh_for(species, BirdSpecies.POSE_GLIDING) == null:
+		if (
+			not BirdAssets.has_animated_model(species)
+			and BirdMeshes.mesh_for(species, BirdSpecies.POSE_GLIDING) == null
+		):
 			continue
 		candidates.append({"species": species, "weight": weight})
 	return candidates
@@ -164,6 +217,7 @@ func _advance_active_birds(delta: float) -> void:
 		var path_length := float(bird.get_meta(&"path_length", 1.0))
 		if traveled >= path_length:
 			bird.visible = false
+			bird.remove_meta(&"flock_offsets")
 			continue
 		var t := traveled / path_length
 		var position := _flight_position(bird, t)
@@ -240,6 +294,7 @@ func _make_mesh_node(
 	model.name = node_name
 	model.mesh = mesh
 	model.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+	_apply_detail_range(model)
 	if procedural_material:
 		_apply_mesh_material(model)
 	else:
@@ -343,7 +398,15 @@ func _spawn_bird() -> void:
 	bird.set_meta(&"flap_phase", 2.0)
 	bird.set_meta(&"flap_pause", 0.0)
 	bird.set_meta(&"glide_skip", _glide_skip_for_species(species))
+	bird.set_meta(&"species", species)
 	_apply_wing_pose(bird, 2.0)
+	bird.remove_meta(&"flock_offsets")
+	if is_flocking_species(species) and _ensure_flock_renderer(species) != null:
+		var offsets := flock_offsets(
+			_seed_key, _spawn_tick, MAX_FLOCK_FOLLOWERS - active_flock_follower_count()
+		)
+		if not offsets.is_empty():
+			bird.set_meta(&"flock_offsets", offsets)
 
 
 func _install_species_rig(bird: Node3D, species: StringName) -> bool:
@@ -356,6 +419,8 @@ func _install_species_rig(bird: Node3D, species: StringName) -> bool:
 			child.free()
 		bird.remove_meta(&"wing_rig_frame")
 		bird.add_child(model)
+		for geometry: Node in model.find_children("*", "GeometryInstance3D", true, false):
+			_apply_detail_range(geometry as GeometryInstance3D)
 		bird.set_meta(&"flight_player", model.get_meta(&"flight_player"))
 		bird.set_meta(&"species", species)
 		return true
@@ -458,6 +523,126 @@ func _glide_skip_for_species(species: StringName) -> int:
 func _hide_all_birds() -> void:
 	for bird in _birds:
 		bird.visible = false
+		bird.remove_meta(&"flock_offsets")
+	_sync_flocks()
+
+
+## Deterministic loose chevron behind a leader, in leader-local space (-Z is
+## the flight direction after `look_at`). `budget` is the remaining global
+## follower allowance; the returned array never exceeds it.
+static func flock_offsets(seed_key: StringName, spawn_tick: int, budget: int) -> Array:
+	var offsets: Array = []
+	if budget <= 0:
+		return offsets
+	var rng := RandomNumberGenerator.new()
+	rng.seed = BirdAmbientAudio.hash_seed(seed_key, &"flock", spawn_tick) ^ 0x2545F491
+	var count := mini(rng.randi_range(FLOCK_FOLLOWERS_MIN, FLOCK_FOLLOWERS_MAX), budget)
+	for rank in count:
+		var row := floori(rank / 2.0) + 1
+		var side := -1.0 if rank % 2 == 0 else 1.0
+		offsets.append(
+			Vector3(
+				side * float(row) * FLOCK_SPACING * 0.8 + rng.randf_range(-0.35, 0.35),
+				rng.randf_range(-0.45, 0.45),
+				float(row) * FLOCK_SPACING + rng.randf_range(-0.3, 0.3)
+			)
+		)
+	return offsets
+
+
+## Push every visible leader's followers to its species MultiMesh in one
+## upload per species. Species without an active flock get an empty set, which
+## leaves their renderer drawing nothing.
+func _sync_flocks() -> void:
+	var per_species: Dictionary = {}
+	for species: StringName in _flock_renderers:
+		per_species[species] = {}
+	for bird_index in _birds.size():
+		var bird := _birds[bird_index]
+		if not bird.visible or not bird.has_meta(&"flock_offsets"):
+			continue
+		var species: StringName = bird.get_meta(&"species", &"")
+		if not per_species.has(species):
+			continue
+		var transforms: Dictionary = per_species[species]
+		var leader := bird.transform.orthonormalized()
+		var traveled := float(bird.get_meta(&"traveled", 0.0))
+		var offsets: Array = bird.get_meta(&"flock_offsets")
+		for rank in offsets.size():
+			var offset: Vector3 = offsets[rank]
+			# Per-follower phase keeps the formation breathing instead of
+			# sliding as one rigid block.
+			var phase := traveled * 0.55 + float(rank) * 1.7
+			var bob := Vector3(0.0, sin(phase) * FLOCK_BOB_AMPLITUDE, 0.0)
+			var roll := Basis(Vector3.FORWARD, sin(phase * 0.8) * 0.12)
+			transforms[bird_index * 64 + rank] = Transform3D(
+				leader.basis * roll, leader * offset + bob
+			)
+	for species: StringName in per_species:
+		(_flock_renderers[species] as MapViewCrowdRenderer).replace_actor_transforms(
+			per_species[species]
+		)
+
+
+func _ensure_flock_renderer(species: StringName) -> MapViewCrowdRenderer:
+	if _flock_renderers.has(species):
+		return _flock_renderers[species]
+	var parts := _flock_parts_for(species)
+	if parts.is_empty():
+		return null
+	var renderer := CrowdRenderer.new()
+	renderer.name = "Flock_%s" % species
+	renderer.configure_parts(parts, MAX_FLOCK_FOLLOWERS, 0.0, FLOCK_VISIBILITY_RANGE, false)
+	add_child(renderer)
+	_flock_renderers[species] = renderer
+	return renderer
+
+
+## Followers reuse the leader's own geometry: the skinned storybook model
+## frozen on its Glide clip (legs tucked) where one exists, otherwise the
+## catalogue glide mesh. The clip only evaluates inside the tree; outside it
+## the bind pose (wings spread, legs down) is used.
+func _flock_parts_for(species: StringName) -> Array:
+	if BirdAssets.has_animated_model(species):
+		var model := BirdAssets.create_animated_model(species)
+		if model == null:
+			return []
+		var posed := false
+		if is_inside_tree():
+			add_child(model)
+			var player := model.get_meta(&"flight_player") as AnimationPlayer
+			if player != null and player.has_animation(&"Glide"):
+				player.play(&"Glide")
+				player.seek(0.0, true)
+				posed = true
+		var parts := CrowdRenderer.mesh_parts_from_scene(model, posed)
+		if model.get_parent() != null:
+			remove_child(model)
+		model.free()
+		return parts
+	var mesh := BirdMeshes.mesh_for(species, BirdSpecies.POSE_GLIDING)
+	if mesh == null:
+		return []
+	var holder := MeshInstance3D.new()
+	holder.mesh = mesh
+	if mesh.get_surface_count() > 0 and mesh.surface_get_material(0) != null:
+		_apply_authored_mesh_material(holder)
+	else:
+		_apply_mesh_material(holder)
+	var part := {
+		"mesh": CrowdRenderer.mesh_with_active_materials(holder),
+		"transform": Transform3D.IDENTITY,
+	}
+	if holder.material_override != null:
+		part["material"] = holder.material_override
+	holder.free()
+	return [part]
+
+
+static func _apply_detail_range(geometry: GeometryInstance3D) -> void:
+	geometry.visibility_range_end = BIRD_DETAIL_RANGE
+	geometry.visibility_range_end_margin = CrowdRenderer.FAUNA_RANGE_MARGIN
+	geometry.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_DISABLED
 
 
 func _make_bird_actor(index: int) -> Node3D:

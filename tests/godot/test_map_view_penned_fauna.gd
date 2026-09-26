@@ -30,10 +30,10 @@ func test_penned_fowl_walks_in_straight_segments_instead_of_circling() -> void:
 	var moving_steps: Dictionary = {}
 	var turns: Dictionary = {}
 	for step in 200:
-		for actor in fauna.get_children():
+		for actor in fauna.fauna_actors():
 			previous[actor.name] = actor.position
 		fauna.sync(MammalSpecies.CONTEXT_LOWER_TOWN, 0.1, Vector3.ZERO, true)
-		for actor in fauna.get_children():
+		for actor in fauna.fauna_actors():
 			if actor.get_meta(&"species", &"") not in fowl_species:
 				continue
 			var movement: Vector3 = actor.position - Vector3(previous[actor.name])
@@ -46,7 +46,7 @@ func test_penned_fowl_walks_in_straight_segments_instead_of_circling() -> void:
 			previous_heading[actor.name] = heading
 
 	var checked := 0
-	for actor in fauna.get_children():
+	for actor in fauna.fauna_actors():
 		if actor.get_meta(&"species", &"") not in fowl_species:
 			continue
 		var steps := int(moving_steps.get(actor.name, 0))
@@ -67,7 +67,7 @@ func test_penned_fauna_stays_on_the_ground_plane() -> void:
 	fauna.configure(&"viru_gate_foreland", MammalSpecies.CONTEXT_FORELAND, 32)
 	for step in 64:
 		fauna.sync(MammalSpecies.CONTEXT_FORELAND, 0.1, Vector3.ZERO, true)
-		for actor in fauna.get_children():
+		for actor in fauna.fauna_actors():
 			var home: Vector3 = actor.get_meta(&"home", Vector3.ZERO)
 			assert_true(
 				is_equal_approx(actor.position.y, home.y),
@@ -140,7 +140,7 @@ func test_north_quarter_pen_actors_stay_within_authored_radius() -> void:
 	fauna.configure(&"north_quarter", MammalSpecies.CONTEXT_MARKET, 32)
 	for step in 48:
 		fauna.sync(MammalSpecies.CONTEXT_MARKET, 0.25, Vector3.ZERO, true)
-	for actor in fauna.get_children():
+	for actor in fauna.fauna_actors():
 		var radius := float(actor.get_meta(&"radius", 0.0))
 		assert_true(
 			fauna.actor_offset_from_home(actor) <= radius * 1.05,
@@ -160,7 +160,7 @@ func test_fauna_actors_carry_no_collision_shapes() -> void:
 	var fauna := PennedFauna.new()
 	(Engine.get_main_loop() as SceneTree).root.add_child(fauna)
 	fauna.configure(&"lower_town_slice", MammalSpecies.CONTEXT_LOWER_TOWN, 32)
-	for actor in fauna.get_children():
+	for actor in fauna.fauna_actors():
 		assert_false(fauna.actor_has_collision(actor), "Penned fauna must stay visual-only")
 	fauna.queue_free()
 
@@ -182,7 +182,7 @@ func test_lower_town_penned_livestock_stays_outside_building_volumes() -> void:
 		shed["footprint"], definition.cell_size
 	)
 	var found_cow := false
-	for actor in fauna.get_children():
+	for actor in fauna.fauna_actors():
 		assert_false(
 			_world_point_in_buildings(definition, actor.position),
 			"%s spawned inside a building footprint" % actor.name
@@ -214,7 +214,7 @@ func test_pen_and_tether_actors_stay_within_authored_radius() -> void:
 	fauna.configure(&"lower_town_slice", MammalSpecies.CONTEXT_LOWER_TOWN, 32)
 	for step in 48:
 		fauna.sync(MammalSpecies.CONTEXT_LOWER_TOWN, 0.25, Vector3.ZERO, true)
-	for actor in fauna.get_children():
+	for actor in fauna.fauna_actors():
 		var behavior: StringName = actor.get_meta(&"behavior", &"")
 		if behavior == PennedFauna.BEHAVIOR_FLEE:
 			continue
@@ -231,7 +231,7 @@ func test_wild_margin_actors_flee_listener_on_foreland() -> void:
 	(Engine.get_main_loop() as SceneTree).root.add_child(fauna)
 	fauna.configure(&"viru_gate_foreland", MammalSpecies.CONTEXT_FORELAND, 32)
 	var flee_actor: Node3D = null
-	for actor in fauna.get_children():
+	for actor in fauna.fauna_actors():
 		if actor.get_meta(&"behavior", &"") == PennedFauna.BEHAVIOR_FLEE:
 			flee_actor = actor
 			break
@@ -343,3 +343,78 @@ func _world_point_in_buildings(definition: MapDefinition, world: Vector3) -> boo
 		if MapViewBridge.logic_rect_to_world_xz(footprint, definition.cell_size).has_point(point):
 			return true
 	return false
+
+
+func test_pen_herds_render_companions_through_instanced_path() -> void:
+	var definition: MapDefinition = LowerTownSlice.create()
+	var fauna := PennedFauna.new()
+	(Engine.get_main_loop() as SceneTree).root.add_child(fauna)
+	fauna.configure(
+		definition.map_id, MammalSpecies.CONTEXT_LOWER_TOWN, definition.cell_size, definition
+	)
+	var authored := PennedFauna.herd_count_for_map(&"lower_town_slice")
+	assert_true(authored > 0, "Lower Town pens must author herd companions")
+	assert_true(fauna.herd_companion_count() > 0)
+	assert_true(fauna.herd_companion_count() <= mini(authored, PennedFauna.MAX_HERD_COMPANIONS))
+	var drawn := 0
+	for renderer in fauna.herd_renderers():
+		assert_false(renderer.part_instances().is_empty())
+		for part: MultiMeshInstance3D in renderer.part_instances():
+			assert_eq(part.visibility_range_end, PennedFauna.HERD_VISIBILITY_RANGE)
+		drawn += renderer.drawn_count()
+		for position: Vector3 in renderer._actor_positions.values():
+			assert_false(
+				_world_point_in_buildings(definition, position),
+				"herd companion must stand outside building footprints"
+			)
+	assert_eq(drawn, fauna.herd_companion_count(), "every companion is one MultiMesh instance")
+	fauna.queue_free()
+
+
+func test_herd_companions_stay_inside_their_pen() -> void:
+	var definition: MapDefinition = LowerTownSlice.create()
+	var fauna := PennedFauna.new()
+	(Engine.get_main_loop() as SceneTree).root.add_child(fauna)
+	fauna.configure(
+		definition.map_id, MammalSpecies.CONTEXT_LOWER_TOWN, definition.cell_size, definition
+	)
+	var homes: Array = []
+	for actor in fauna.fauna_actors():
+		if actor.has_meta(&"herd_home"):
+			homes.append(actor.get_meta(&"herd_home"))
+	var max_radius := 0.0
+	for placement: Dictionary in PennedFauna.LOWER_TOWN_PLACEMENTS:
+		max_radius = maxf(max_radius, float(placement.get("radius", 0.0)))
+	for renderer in fauna.herd_renderers():
+		for position: Vector3 in renderer._actor_positions.values():
+			var nearest := INF
+			for home: Vector3 in homes:
+				nearest = minf(nearest, Vector2(position.x - home.x, position.z - home.z).length())
+			assert_true(nearest <= max_radius, "companion strayed outside its pen")
+	fauna.queue_free()
+
+
+func test_fauna_actors_switch_to_instanced_stand_in_past_detail_range() -> void:
+	var fauna := PennedFauna.new()
+	(Engine.get_main_loop() as SceneTree).root.add_child(fauna)
+	fauna.configure(&"lower_town_slice", MammalSpecies.CONTEXT_LOWER_TOWN, 32)
+	fauna.sync(MammalSpecies.CONTEXT_LOWER_TOWN, 0.25, Vector3.ZERO, true)
+	var actors := 0
+	for actor in fauna.fauna_actors():
+		if not actor.has_meta(&"herd_model_key"):
+			continue
+		actors += 1
+		for geometry: GeometryInstance3D in actor.find_children("*", "GeometryInstance3D", true, false):
+			assert_eq(geometry.visibility_range_end, PennedFauna.FAUNA_DETAIL_RANGE)
+	assert_true(actors > 0)
+	var stand_ins := 0
+	for renderer in fauna.herd_renderers():
+		var part := renderer.part_instances()[0]
+		if part.visibility_range_begin <= 0.0:
+			continue
+		assert_eq(part.visibility_range_begin, PennedFauna.FAUNA_DETAIL_RANGE)
+		stand_ins += renderer.drawn_count()
+	assert_eq(stand_ins, actors, "every animated actor needs a far stand-in instance")
+	fauna.set_fauna_enabled(false)
+	assert_eq(fauna.herd_companion_count(), 0, "disabling fauna hides herds")
+	fauna.queue_free()

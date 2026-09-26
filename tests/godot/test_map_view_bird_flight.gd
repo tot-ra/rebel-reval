@@ -3,9 +3,14 @@ extends "res://tests/godot/test_case.gd"
 const BirdContext := preload("res://scripts/map/view3d/map_view_bird_context.gd")
 const BirdFlight := preload("res://scripts/map/view3d/map_view_bird_flight.gd")
 const BirdSpecies := preload("res://scripts/map/view3d/map_view_bird_species.gd")
+const CrowdRenderer := preload("res://scripts/map/view3d/map_view_crowd_renderer.gd")
 const KalevSmithy := preload("res://scripts/map/definitions/lower_town/kalev_smithy_definition.gd")
-const LowerTownSlice := preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd")
-const HarborNorth := preload("res://scripts/map/definitions/outdoor/reval_harbor_north_definition.gd")
+const LowerTownSlice := preload(
+	"res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd"
+)
+const HarborNorth := preload(
+	"res://scripts/map/definitions/outdoor/reval_harbor_north_definition.gd"
+)
 const Foreland := preload("res://scripts/map/definitions/outdoor/viru_gate_foreland_definition.gd")
 
 
@@ -16,7 +21,10 @@ func test_foreland_context_surfaces_distinct_gliding_species() -> void:
 		0.35,
 		48
 	)
-	assert_true(species.size() >= 3, "Viru Gate foreland day cycle should surface at least three gliding species")
+	assert_true(
+		species.size() >= 3,
+		"Viru Gate foreland day cycle should surface at least three gliding species"
+	)
 
 
 func test_lower_town_context_surfaces_distinct_gliding_species() -> void:
@@ -26,7 +34,9 @@ func test_lower_town_context_surfaces_distinct_gliding_species() -> void:
 		0.35,
 		48
 	)
-	assert_true(species.size() >= 3, "Lower Town day cycle should surface at least three gliding species")
+	assert_true(
+		species.size() >= 3, "Lower Town day cycle should surface at least three gliding species"
+	)
 
 
 func test_harbor_context_surfaces_distinct_gliding_species() -> void:
@@ -49,7 +59,10 @@ func test_flight_path_uses_wind_carved_curve() -> void:
 	bird.set_meta(&"sway_frequency", 1.1)
 	var midpoint: Vector3 = flight._flight_position(bird, 0.5)
 	var straight_midpoint: Vector3 = bird.get_meta(&"start").lerp(bird.get_meta(&"end"), 0.5)
-	assert_true(midpoint.distance_to(straight_midpoint) > 0.03, "flight should arc through the wind instead of following a ruler-straight line")
+	assert_true(
+		midpoint.distance_to(straight_midpoint) > 0.03,
+		"flight should arc through the wind instead of following a ruler-straight line"
+	)
 	assert_true(flight._flight_position(bird, 0.0).is_equal_approx(bird.get_meta(&"start")))
 	assert_true(flight._flight_position(bird, 1.0).is_equal_approx(bird.get_meta(&"end")))
 	bird.free()
@@ -97,7 +110,7 @@ func test_active_birds_fly_above_the_ground() -> void:
 	# test map lets that bird cross the opposite edge and despawn.
 	flight.sync(BirdSpecies.CONTEXT_LOWER_TOWN, 0.35, 0.1)
 	var checked := 0
-	for bird in flight.get_children():
+	for bird in flight.flight_birds():
 		if not bird.visible:
 			continue
 		checked += 1
@@ -135,3 +148,98 @@ func test_interior_maps_suppress_bird_flight_via_runtime() -> void:
 
 	var foreland: MapDefinition = Foreland.create()
 	assert_eq(BirdContext.context_for_map(foreland.map_id), BirdSpecies.CONTEXT_FORELAND)
+
+
+func test_flocks_render_followers_through_instanced_path_with_lod() -> void:
+	var flight := _harbour_flight_with_flock()
+	var leader := _first_flock_leader(flight)
+	assert_true(leader != null, "the harbour day cycle must spawn a flocking leader")
+	if leader == null:
+		flight.queue_free()
+		return
+	var species: StringName = leader.get_meta(&"species")
+	var renderer := flight.flock_renderer_for(species)
+	assert_true(renderer is MapViewCrowdRenderer, "followers must use the P0-152 crowd path")
+	var followers := (leader.get_meta(&"flock_offsets") as Array).size()
+	assert_true(
+		followers >= BirdFlight.FLOCK_FOLLOWERS_MIN
+		or followers == BirdFlight.MAX_FLOCK_FOLLOWERS
+	)
+	assert_eq(renderer.drawn_count(), followers, "every follower is one MultiMesh instance")
+	assert_false(renderer.part_instances().is_empty())
+	for part: MultiMeshInstance3D in renderer.part_instances():
+		assert_eq(part.multimesh.visible_instance_count, followers)
+		assert_eq(part.visibility_range_end, BirdFlight.FLOCK_VISIBILITY_RANGE)
+		assert_eq(part.cast_shadow, GeometryInstance3D.SHADOW_CASTING_SETTING_OFF)
+	var leader_geometry := leader.find_children("*", "GeometryInstance3D", true, false)
+	assert_false(leader_geometry.is_empty())
+	for geometry: GeometryInstance3D in leader_geometry:
+		assert_eq(
+			geometry.visibility_range_end,
+			BirdFlight.BIRD_DETAIL_RANGE,
+			"%s must cull by LOD range" % geometry.name
+		)
+	# Followers trail the leader in formation (+Z is behind after look_at).
+	var local_leader := leader.transform.orthonormalized().affine_inverse()
+	for position: Vector3 in renderer._actor_positions.values():
+		var local := local_leader * position
+		assert_true(local.z > 0.0, "followers must trail the leader")
+		assert_true(local.length() < 16.0, "followers must stay close to the leader")
+	flight.queue_free()
+
+
+func test_flock_followers_respect_concurrent_cap() -> void:
+	assert_true(BirdFlight.flock_offsets(&"reval_harbor_north", 3, 0).is_empty())
+	assert_true(BirdFlight.flock_offsets(&"reval_harbor_north", 3, 2).size() <= 2)
+	assert_eq(
+		BirdFlight.flock_offsets(&"reval_harbor_north", 5, 24),
+		BirdFlight.flock_offsets(&"reval_harbor_north", 5, 24),
+		"flock formation must be deterministic for seed and tick"
+	)
+	var flight := BirdFlight.new()
+	(Engine.get_main_loop() as SceneTree).root.add_child(flight)
+	flight.configure(&"reval_harbor_north", BirdSpecies.CONTEXT_HARBOR, Vector2i(160, 120))
+	for _attempt in 40:
+		flight.sync(BirdSpecies.CONTEXT_HARBOR, 0.35, 3.0)
+		assert_true(flight.active_bird_count() <= BirdFlight.MAX_CONCURRENT_BIRDS)
+		assert_true(flight.active_flock_follower_count() <= BirdFlight.MAX_FLOCK_FOLLOWERS)
+		var drawn := 0
+		for child in flight.get_children():
+			if child is MapViewCrowdRenderer:
+				drawn += (child as MapViewCrowdRenderer).drawn_count()
+		assert_eq(drawn, flight.active_flock_follower_count())
+	flight.queue_free()
+
+
+func test_disabling_flight_clears_instanced_followers() -> void:
+	var state := GameState.new()
+	var before := state.save_payload()
+	var flight := _harbour_flight_with_flock()
+	assert_true(flight.active_flock_follower_count() > 0)
+	flight.set_flight_enabled(false)
+	assert_eq(flight.active_flock_follower_count(), 0)
+	for child in flight.get_children():
+		if child is MapViewCrowdRenderer:
+			assert_eq((child as MapViewCrowdRenderer).drawn_count(), 0)
+	assert_eq(state.save_payload(), before)
+	flight.queue_free()
+
+
+func _harbour_flight_with_flock() -> MapViewBirdFlight:
+	var flight := BirdFlight.new()
+	(Engine.get_main_loop() as SceneTree).root.add_child(flight)
+	flight.configure(&"reval_harbor_north", BirdSpecies.CONTEXT_HARBOR, Vector2i(160, 120))
+	# Spawns are deterministic; small steps keep leaders mid-path while the
+	# spawn timer walks the harbour species roll until a gregarious one lands.
+	for _step in 400:
+		flight.sync(BirdSpecies.CONTEXT_HARBOR, 0.35, 0.25)
+		if _first_flock_leader(flight) != null:
+			break
+	return flight
+
+
+func _first_flock_leader(flight: MapViewBirdFlight) -> Node3D:
+	for bird in flight.flight_birds():
+		if bird.visible and bird.has_meta(&"flock_offsets"):
+			return bird
+	return null

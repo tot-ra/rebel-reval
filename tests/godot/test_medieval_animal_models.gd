@@ -272,7 +272,7 @@ func test_ambient_livestock_actors_share_production_models_without_collision() -
 	var penned := PennedFauna.new()
 	(Engine.get_main_loop() as SceneTree).root.add_child(penned)
 	penned.configure(&"north_quarter", MammalSpecies.CONTEXT_MARKET, 32)
-	for actor in penned.get_children():
+	for actor in penned.fauna_actors():
 		assert_true((actor.get_node("Model") as Node3D).get_meta(&"production_animal_model", false))
 		assert_false(penned.actor_has_collision(actor))
 	penned.queue_free()
