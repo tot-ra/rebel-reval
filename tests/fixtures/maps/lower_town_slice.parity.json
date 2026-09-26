@@ -2780,6 +2780,15 @@
       ]
     },
     {
+      "id": "monastery_yard_linden",
+      "kind": "tree",
+      "position": [
+        2192.000000000,
+        592.000000000
+      ],
+      "style_variant": "tree.linden"
+    },
+    {
       "footprint": [
         2720.000000000,
         2432.000000000,
@@ -2981,6 +2990,15 @@
       ]
     },
     {
+      "id": "south_apron_oak",
+      "kind": "tree",
+      "position": [
+        1552.000000000,
+        3856.000000000
+      ],
+      "style_variant": "tree.oak"
+    },
+    {
       "footprint": [
         1376.000000000,
         3872.000000000,
@@ -2994,6 +3012,21 @@
         3904.000000000
       ],
       "style_variant": "bush.bilberry"
+    },
+    {
+      "footprint": [
+        2944.000000000,
+        3872.000000000,
+        64.000000000,
+        64.000000000
+      ],
+      "id": "south_apron_scrub_b",
+      "kind": "bush",
+      "position": [
+        2976.000000000,
+        3904.000000000
+      ],
+      "style_variant": "bush.hawthorn"
     },
     {
       "footprint": [
@@ -3274,7 +3307,7 @@
     "west"
   ],
   "terrain": {
-    "terrain_id_grid_sha256": "8174b29011ee0827976fbaf247bd2aab3d609935bfc34f690c300f5aa0dd859d",
+    "terrain_id_grid_sha256": "67e5905ac7f649d408218073e358f4895ce3b924dda70c5dd66db64d2df5891c",
     "used_terrain_ids": [
       "cobblestone",
       "dirt",

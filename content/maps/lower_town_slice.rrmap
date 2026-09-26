@@ -219,6 +219,17 @@ building potters_house house 76 89 8 6 style=house.north.h104.32 house_tier=craf
 building glassblowers_house house 67 62 8 8 style=house.north.h112.23 house_tier=merchant_timber
 building foaming_mug_brewery house 76 62 9 8 style=house.north.h120.45
 building kalev_smithy house 86 62 10 8 style=house.none.h128.46
+# R-999: restore the P0-100d / P0-101 rear-workshop IDs that the parity
+# fixture and authoring contract still own. Style matches artisan_shed so
+# wall/roof/height compile to the snapshot (log, shingle, 96, north).
+building saddlers_rear_workshop house 16 72 8 4 style=house.north.h96.44 house_tier=craft_boda
+building coopers_rear_workshop house 26 72 7 4 style=house.north.h96.44 house_tier=craft_boda
+building sauna_rear_boda house 35 72 8 4 style=house.north.h96.44 house_tier=craft_boda
+building rope_makers_rear_store house 45 72 8 4 style=house.north.h96.44 house_tier=craft_boda
+building karja_rear_boda house 54 72 6 4 style=house.north.h96.44 house_tier=craft_boda
+building brewery_rear_store house 83 72 5 4 style=house.north.h96.44 house_tier=craft_boda
+building smithy_rear_shed house 94 72 4 4 style=house.north.h96.44 house_tier=craft_boda
+building carriers_barn house 65 80 3 5 style=house.north.h96.44 house_tier=craft_boda
 # The yard fence deliberately embeds one cell into the smithy wall: a flush
 # butt joint would leave coplanar faces that z-fight from the street camera.
 building smithy_yard_fence_north wall 95 62 3 2 style=wall.plain.h56.47
@@ -271,6 +282,19 @@ prop cistern_wash_tub wash_tub 102 61
 prop cooper_yard cooper_staves 24 65
 prop ropeyard_rope rope_coil 43 65
 prop saddler_frame tanning_frame 14 65 rect=2,1
+# R-999: restore contract-owned rear-lane and service-yard dressing. Cell
+# rects come from the parity footprints (cell_size 32).
+prop rear_saddler_frame tanning_frame 19 76 rect=2,1
+prop rear_cooper_staves cooper_staves 29 76 rect=2,1
+prop rear_rope_coil rope_coil 48 76
+prop rear_karja_barrels barrels 55 76 rect=2,1
+prop rear_brewery_barrels barrels 85 76 rect=2,1
+prop service_yard_gate_west timber_fence 60 72 rect=4,1
+prop service_yard_gate_east timber_fence 70 72 rect=4,1
+prop service_yard_firewood firewood_stack 91 78 rect=2,2
+prop service_yard_hay hay_stack 68 80 rect=2,2 style_variant=hay_stack.small
+prop service_yard_scrub_west bush 61 94 rect=2,2 style=bush.bilberry
+prop service_yard_scrub_east bush 99 94 rect=2,2 style=bush.hawthorn
 prop south_apron_cart cart 57 118 rect=2,2
 prop south_apron_barrels barrels 78 116 rect=2,2
 prop south_apron_scrub_a bush 43 121 rect=2,2 style=veg.bush.scrub

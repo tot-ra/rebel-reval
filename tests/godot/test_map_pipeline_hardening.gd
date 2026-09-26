@@ -1,7 +1,11 @@
 extends "res://tests/godot/test_case.gd"
 
-const BLUEPRINT_SCRIPT := preload("res://scripts/map/definitions/lower_town/lower_town_slice_rrmap_factory.gd")
-const DEFINITION_SCRIPT := preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd")
+const BLUEPRINT_SCRIPT := preload(
+	"res://scripts/map/definitions/lower_town/lower_town_slice_rrmap_factory.gd"
+)
+const DEFINITION_SCRIPT := preload(
+	"res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd"
+)
 
 
 func test_registry_audit_discovers_and_compiles_every_blueprint_source() -> void:
@@ -11,7 +15,19 @@ func test_registry_audit_discovers_and_compiles_every_blueprint_source() -> void
 		if diagnostic.is_error():
 			errors.append(diagnostic.format())
 	assert_true(errors.is_empty(), str(errors))
-	assert_eq(MapBlueprintAudit.discover_blueprint_sources().size(), MapBlueprintRegistry.entries().size())
+	assert_eq(
+		MapBlueprintAudit.discover_blueprint_sources().size(),
+		MapBlueprintRegistry.entries().size()
+	)
+	for source in MapBlueprintAudit.UNREGISTERED_BENCHMARK_SOURCES:
+		assert_true(
+			FileAccess.file_exists(source),
+			"WB-10 benchmark source must stay on disk: %s" % source
+		)
+		assert_true(
+			not MapBlueprintAudit.discover_blueprint_sources().has(source),
+			"unregistered benchmark must not join discover: %s" % source
+		)
 
 
 func test_preview_runtime_chunk_navigation_and_3d_share_canonical_definition() -> void:
@@ -33,7 +49,12 @@ func test_preview_runtime_chunk_navigation_and_3d_share_canonical_definition() -
 
 	var grid := MapBuilder.build(canonical)
 	var canonical_snapshot := MapParitySnapshot.serialize(canonical, grid)
-	assert_eq(MapParitySnapshot.serialize(runtime_definition, MapBuilder.build(runtime_definition)), canonical_snapshot)
+	assert_eq(
+		MapParitySnapshot.serialize(
+			runtime_definition, MapBuilder.build(runtime_definition)
+		),
+		canonical_snapshot
+	)
 
 	var chunk_index := MapChunkRuntimeIndex.build(canonical, 32)
 	assert_eq(chunk_index.location_id, canonical.location)
@@ -53,7 +74,11 @@ func test_preview_runtime_chunk_navigation_and_3d_share_canonical_definition() -
 	view._update_active_chunks(all_chunks)
 	assert_eq(view.get_node("Buildings").get_child_count(), canonical.buildings.size())
 	assert_eq(view.get_node("Props").get_child_count(), canonical.props.size())
-	assert_eq(MapParitySnapshot.serialize(canonical, grid), canonical_snapshot, "navigation and 3D consumers must not mutate canonical semantics")
+	assert_eq(
+		MapParitySnapshot.serialize(canonical, grid),
+		canonical_snapshot,
+		"navigation and 3D consumers must not mutate canonical semantics"
+	)
 	navigation.free()
 	view.free()
 

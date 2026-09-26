@@ -7,6 +7,12 @@ extends RefCounted
 
 const BLUEPRINT_ROOT := "res://scripts/map/definitions"
 const RRMAP_ROOTS: Array[String] = ["res://content/maps"]
+## WB-10 benchmark sources that live on disk but must not join the explicit
+## registry yet. Discovery skips them so MAP_REGISTRY_SOURCE_MISSING stays
+## reserved for real orphans. Do not register these from a tooling row.
+const UNREGISTERED_BENCHMARK_SOURCES: Array[String] = [
+	"res://content/maps/toompea_small_castle.rrmap",
+]
 
 
 static func run() -> Array[MapBlueprintDiagnostic]:
@@ -100,8 +106,12 @@ static func discover_blueprint_sources() -> Array[String]:
 	_discover(BLUEPRINT_ROOT, "_blueprint.gd", sources)
 	for root in RRMAP_ROOTS:
 		_discover(root, ".rrmap", sources)
-	sources.sort()
-	return sources
+	var registered_only: Array[String] = []
+	for source in sources:
+		if not UNREGISTERED_BENCHMARK_SOURCES.has(source):
+			registered_only.append(source)
+	registered_only.sort()
+	return registered_only
 
 
 static func _discover(root: String, suffix: String, output: Array[String]) -> void:

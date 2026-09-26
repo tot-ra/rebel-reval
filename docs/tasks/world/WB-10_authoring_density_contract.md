@@ -124,7 +124,10 @@ threshold file rather than setting the floors low enough to pass.
   names the failing metrics per map. `toompea_small_castle` is a benchmark row without a registry
   blueprint and is marked `missing`.
 - **Baseline covers 28 maps**, the full `MapBlueprintRegistry`. The "29" above counted
-  `toompea_small_castle`, which is not registered yet.
+  `toompea_small_castle`, which is not registered yet. R-999 keeps that file as an
+  unregistered benchmark: `MapBlueprintAudit.UNREGISTERED_BENCHMARK_SOURCES` skips it
+  in discover/audit so `MAP_REGISTRY_SOURCE_MISSING` is not raised. Do not register
+  it from a tooling row; WB-10 / P4-039 owns activation.
 - **Tier spread** (`wealth_tiers`, `age_tiers`) is measured and reported but dormant
   (`tier_spread_active: false`) until R-981 lands the semantic fields.
 - `tests/python/test_verify_world_building_visual_gate.py` is also touched: its complete-fixture
