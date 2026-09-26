@@ -8,6 +8,8 @@ const SPELL_SPARK := &"spell.pagan.spark"
 const RITE_BLESSING := &"rite.blessing"
 const GRANT_SPARK := &"magic.grant.starter_spark"
 const REVOKE_SPARK := &"magic.revoke.starter_spark"
+const GRANT_BLESSING := &"magic.grant.starter_blessing"
+const REVOKE_BLESSING := &"magic.revoke.starter_blessing"
 const HAMMER := &"item.forge_hammer"
 
 
@@ -28,6 +30,14 @@ func test_grant_and_revoke_are_explicit_and_persistable() -> void:
 	assert_true(MagicResolver.apply_grant_operation(state, db, REVOKE_SPARK))
 	assert_false(state.has_magic_grant(SPELL_SPARK))
 	assert_false(state.get_flag(&"flag.magic.taught_spark"))
+
+	assert_false(state.has_magic_grant(RITE_BLESSING))
+	assert_true(MagicResolver.apply_grant_operation(state, db, GRANT_BLESSING))
+	assert_true(state.has_magic_grant(RITE_BLESSING))
+	assert_true(state.get_flag(&"flag.magic.taught_blessing"))
+	assert_true(MagicResolver.apply_grant_operation(state, db, REVOKE_BLESSING))
+	assert_false(state.has_magic_grant(RITE_BLESSING))
+	assert_false(state.get_flag(&"flag.magic.taught_blessing"))
 
 
 func test_cast_fails_closed_for_unknown_and_locked_records() -> void:
@@ -67,7 +77,7 @@ func test_pagan_cast_uses_authored_sequence_and_spends_willpower() -> void:
 func test_divine_rite_uses_piety_and_school_guard() -> void:
 	var state := GameState.new()
 	var db := _make_db()
-	state.grant_magic(RITE_BLESSING, &"flag.magic.taught_blessing")
+	assert_true(MagicResolver.apply_grant_operation(state, db, GRANT_BLESSING))
 
 	var wrong_school := MagicResolver.cast(state, db, RITE_BLESSING, [], MagicResolver.SCHOOL_PAGAN)
 	assert_false(wrong_school["ok"])

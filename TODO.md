@@ -477,3 +477,7 @@ Completed map-conversion contract rows **P0-043** through **P0-046**, **P2-018**
 
 - [x] R-925 | deps: none | deliverable: fail-fast class_name scratch guard in on-commit checks and the Godot harness, plus `build/scratch/.gdignore` from `godot_render.sh` | allowed files: `tools/run_pre_commit_checks.sh`, `tools/run_godot_tests.gd`, `tools/godot_render.sh`, `docs/SETUP.md`, `agents/playbook.md`, `TODO.md` | verify: unignored `class_name` copy under `build/tmp_guard/` fails the hook and harness with a clear message; adding `.gdignore` or moving it under `build/scratch/` clears the guard; `godot_render.sh --script res://build/...` still runs; `python3 tools/generate_active_docs_report.py --check`
 - [x] R-926 | deps: R-925 | deliverable: pre-commit fixture that plants an unignored `class_name` under `build/tmp_guard/`, asserts `CLASS CACHE GUARD`, then proves folder `.gdignore` clears the guard | allowed files: `tests/python/test_pre_commit_hooks.py`, `TODO.md` | verify: `python3 -m unittest tests.python.test_pre_commit_hooks -v`
+
+## Magic (P7-010 follow-up)
+
+- [x] R-944 | deps: R-706 | deliverable: blessing grant/revoke in test_magic_runtime uses MagicResolver content ops | allowed files: `tests/godot/test_magic_runtime.gd`, `TODO.md` | verify: `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_magic_runtime`
