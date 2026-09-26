@@ -42,6 +42,7 @@ const PROP_OVERRIDE_KEYS: Array[StringName] = [
 	&"primitive",
 	&"movement_speed_multiplier",
 	&"vehicle_class",
+	&"house_tier",
 	&"faction",
 	&"display_goods",
 	&"table_items",

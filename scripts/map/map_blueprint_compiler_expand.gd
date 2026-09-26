@@ -503,6 +503,22 @@ static func append_prop(
 		return
 	if not MapTypes.ALL_PROP_KINDS.has(values.get("kind", &"")):
 		errors.append("%s prop kind is unknown: %s" % [path, str(values.get("kind", ""))])
+	# P2-066: plot-dressing props carry their host house_tier so merchant-only
+	# loading hardware (R-003) cannot be placed on craft_boda or untiered plots.
+	var house_tier := StringName(values.get("house_tier", &""))
+	if not PropStyleVariants.is_known_house_tier(house_tier):
+		errors.append("%s house_tier is unknown: %s" % [path, String(house_tier)])
+	var prop_kind_for_tier: StringName = values.get("kind", &"")
+	if (
+		prop_kind_for_tier in [MapTypes.PROP_KIND_HOIST_BEAM, MapTypes.PROP_KIND_LOADING_HATCH]
+		and not PropStyleVariants.house_tier_allows_hoist(house_tier)
+	):
+		errors.append(
+			(
+				"%s %s requires merchant_stone or merchant_timber house_tier, got: %s"
+				% [path, String(prop_kind_for_tier), String(house_tier)]
+			)
+		)
 	var cell: Variant = values.get("cell")
 	var placement_rect: Variant = values.get("rect")
 	if placement_rect is Rect2i:
