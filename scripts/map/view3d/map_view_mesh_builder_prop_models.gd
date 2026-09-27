@@ -128,9 +128,8 @@ static func build_prop(
 		root.position.y -= offset.y * scale
 	if prop["kind"] in MapTypes.BOAT_PROP_KINDS and _has_tall_footprint(prop):
 		root.rotation.y = PI * 0.5
-		root.position.y = (
-			-MapViewMeshBuilderConfig.WATER_RECESS + MapViewMeshBuilderConfig.WATER_SURFACE_LIFT
-		)
+		# Static rest only. BoatFloat3D / FFT keep their existing sample sites.
+		root.position.y = _boat_rest_y(definition, Vector2(root.position.x, root.position.z))
 	if MapWallWalkAccess.is_access_prop(prop) or MapWallWalkAccess.is_platform_prop(prop):
 		WallWalkAccessBuilder.add_to(root, prop, cell_size, definition)
 		return root
@@ -278,6 +277,17 @@ static func _add_plot_dressing_component(root: Node3D, kind: StringName) -> void
 static func _has_tall_footprint(prop: Dictionary) -> bool:
 	var footprint: Variant = prop.get("footprint")
 	return footprint is Rect2 and footprint.size.y > footprint.size.x
+
+
+## Still-water rest for a tall boat prop. Maps without relief_* stay at the
+## historic world-zero recess so Harbor North does not move.
+static func _boat_rest_y(definition: MapDefinition, world_xz: Vector2) -> float:
+	var lift := MapViewMeshBuilderConfig.WATER_SURFACE_LIFT
+	if definition == null:
+		return -MapViewMeshBuilderConfig.WATER_RECESS + lift
+	var grid := MapBuilder.build(definition)
+	var field := MapViewMeshBuilderTerrain.ensure_height_field(definition, grid)
+	return MapViewMeshBuilderTerrain.water_gameplay_bed_y(field, world_xz) + lift
 
 
 static func _add_fishing_boat(root: Node3D, prop: Dictionary) -> void:

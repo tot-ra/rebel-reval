@@ -248,17 +248,37 @@ static func _woodland_apron(
 	return apron
 
 
+## Still-water rest Y for a surroundings water side: shore-relative recess at
+## the inside edge, or the historic world-zero recess when the map has no relief.
+static func water_continuation_rest_y(definition: MapDefinition, side: StringName) -> float:
+	var grid := MapBuilder.build(definition)
+	var field := MapViewMeshBuilderTerrain.ensure_height_field(definition, grid)
+	return MapViewMeshBuilderTerrain.water_gameplay_bed_y(
+		field, _edge_water_sample(Vector2(definition.size_cells), side)
+	)
+
+
+static func _edge_water_sample(map_size: Vector2, side: StringName) -> Vector2:
+	match side:
+		&"north":
+			return Vector2(map_size.x * 0.5, 0.5)
+		&"south":
+			return Vector2(map_size.x * 0.5, map_size.y - 0.5)
+		&"west":
+			return Vector2(0.5, map_size.y * 0.5)
+		_:
+			return Vector2(map_size.x - 0.5, map_size.y * 0.5)
+
+
 ## Shallow then deep animated water past one map edge so harbours read as open sea.
-
-
 static func _water_continuation(
-	_definition: MapDefinition, map_size: Vector2, side: StringName
+	definition: MapDefinition, map_size: Vector2, side: StringName
 ) -> Node3D:
 	var root := Node3D.new()
 	root.name = "Water_%s" % side
 	var shallow_depth := MapViewMeshBuilderConfig.SURROUNDINGS_WATER_SHALLOW_DEPTH
 	var deep_depth := MapViewMeshBuilderConfig.SURROUNDINGS_WATER_DEEP_DEPTH
-	var y := -MapViewMeshBuilderConfig.WATER_RECESS
+	var y := water_continuation_rest_y(definition, side)
 	root.add_child(
 		_surroundings_water_plane(
 			"Shallow",

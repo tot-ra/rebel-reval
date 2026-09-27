@@ -5,6 +5,9 @@ extends "res://tests/godot/test_case.gd"
 
 const MeshConfig := preload("res://scripts/map/view3d/map_view_mesh_builder_config.gd")
 const TerrainBuilder := preload("res://scripts/map/view3d/map_view_mesh_builder_terrain.gd")
+const SurroundingsBuilder := preload(
+	"res://scripts/map/view3d/map_view_mesh_builder_surroundings.gd"
+)
 const RevalHarborNorthDefinition := preload(
 	"res://scripts/map/definitions/outdoor/reval_harbor_north_definition.gd"
 )
@@ -164,3 +167,62 @@ func test_harbor_north_gameplay_bed_stays_on_the_historic_recess() -> void:
 		0.0001,
 		"Harbor North ground_height must stay bit-identical"
 	)
+
+
+func test_harbor_north_underwater_probe_stays_on_historic_recess() -> void:
+	var definition: MapDefinition = RevalHarborNorthDefinition.create()
+	var view := MapView3D.new()
+	view.definition = definition
+	view.grid = MapBuilder.build(definition)
+	var probe: Dictionary = view._underwater_probe(Vector2(80.5, 20.5))
+	assert_false(probe.is_empty(), "Harbor North roadstead must probe as water")
+	assert_almost_eq(
+		float(probe["surface_y"]),
+		-MeshConfig.WATER_RECESS + MeshConfig.WATER_SURFACE_LIFT,
+		0.0001,
+		"Harbor North surface_y must stay on the historic recess"
+	)
+	var water_side := _first_water_side(definition)
+	assert_true(water_side != &"", "Harbor North must have a water surroundings side")
+	assert_almost_eq(
+		SurroundingsBuilder.water_continuation_rest_y(definition, water_side),
+		-MeshConfig.WATER_RECESS,
+		0.0001,
+		"Harbor North surroundings water stays on the historic recess"
+	)
+	view.free()
+
+
+func test_relief_moat_underwater_probe_follows_terrace() -> void:
+	var definition := _compile(MOAT_SOURCE, "res://relief_moat_water.rrmap")
+	if definition == null:
+		return
+	var field := _field(definition)
+	var water_at := Vector2(16.5, 12.5)
+	var view := MapView3D.new()
+	view.definition = definition
+	view.grid = MapBuilder.build(definition)
+	var probe: Dictionary = view._underwater_probe(water_at)
+	assert_false(probe.is_empty(), "moat water must probe as water")
+	var expected := (
+		TerrainBuilder.water_gameplay_bed_y(field, water_at) + MeshConfig.WATER_SURFACE_LIFT
+	)
+	assert_almost_eq(
+		float(probe["surface_y"]),
+		expected,
+		0.0001,
+		"moat probe must sit on the terrace recess, not world zero"
+	)
+	assert_true(
+		float(probe["surface_y"]) > 1.0,
+		"moat probe must follow the terrace (got %s)" % probe["surface_y"]
+	)
+	view.free()
+
+
+func _first_water_side(definition: MapDefinition) -> StringName:
+	var sides: Dictionary = definition.resolved_surroundings_sides()
+	for side: StringName in sides:
+		if sides[side] == &"water":
+			return side
+	return &""

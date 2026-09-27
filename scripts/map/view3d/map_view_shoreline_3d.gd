@@ -66,6 +66,7 @@ static func collect_rock_instances(
 	if bounds.size == Vector2i.ZERO:
 		bounds = Rect2i(Vector2i.ZERO, grid.size_cells)
 	bounds = bounds.intersection(Rect2i(Vector2i.ZERO, grid.size_cells))
+	var field := MapViewMeshBuilderTerrain.ensure_height_field(definition, grid)
 	for y in range(bounds.position.y, bounds.end.y):
 		for x in range(bounds.position.x, bounds.end.x):
 			var cell := Vector2i(x, y)
@@ -76,12 +77,12 @@ static func collect_rock_instances(
 				continue
 			if MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 23003) > ROCK_KEEP_RATIO:
 				continue
-			_add_rock(transforms, colors, cell, water_offset, definition.seed, 0)
+			_add_rock(transforms, colors, cell, water_offset, definition.seed, 0, field)
 			if (
 				MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 23131)
 				< ROCK_CLUSTER_CHANCE
 			):
-				_add_rock(transforms, colors, cell, water_offset, definition.seed, 1)
+				_add_rock(transforms, colors, cell, water_offset, definition.seed, 1, field)
 
 
 static func _water_neighbor(grid: MapTerrainGrid, cell: Vector2i, seed: int) -> Vector2i:
@@ -103,7 +104,8 @@ static func _add_rock(
 	cell: Vector2i,
 	water_offset: Vector2i,
 	seed: int,
-	cluster_index: int
+	cluster_index: int,
+	field: Dictionary
 ) -> void:
 	var salt := cluster_index * 977
 	var along := Vector2(-water_offset.y, water_offset.x)
@@ -150,7 +152,8 @@ static func _add_rock(
 	var yaw := MapViewMeshBuilderPrimitives.hash01(cell.x, cell.y, seed + 23971 + salt) * TAU
 	var basis := Basis(Vector3.UP, yaw).scaled(stretch)
 	var water_y := (
-		-MapViewMeshBuilderConfig.WATER_RECESS + MapViewMeshBuilderConfig.WATER_SURFACE_LIFT
+		MapViewMeshBuilderTerrain.water_gameplay_bed_y(field, spot)
+		+ MapViewMeshBuilderConfig.WATER_SURFACE_LIFT
 	)
 	# Sink the lower half so these read as wave-washed natural rocks, not pebbles
 	# balanced on top of the water plane.

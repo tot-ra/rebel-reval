@@ -665,10 +665,14 @@ func _underwater_probe(world_xz: Vector2) -> Dictionary:
 	var tide := 0.0
 	if tide_height != null and tide_level != null:
 		tide = float(tide_height) * float(tide_level)
+	# R-1022: follow the shore-relative recess. World-zero -WATER_RECESS is wrong
+	# once WB-04 authors a raised moat or quay the player can enter.
+	var bed_y := -MapViewMeshBuilderConfig.WATER_RECESS
+	if definition != null and grid != null:
+		var field := MapViewMeshBuilder.ensure_height_field(definition, grid)
+		bed_y = MapViewMeshBuilderTerrain.water_gameplay_bed_y(field, world_xz)
 	return {
-		"surface_y": (
-			-MapViewMeshBuilderConfig.WATER_RECESS + MapViewMeshBuilderConfig.WATER_SURFACE_LIFT + tide
-		),
+		"surface_y": bed_y + MapViewMeshBuilderConfig.WATER_SURFACE_LIFT + tide,
 		# The FFT geometry is compressed onto this per-terrain Gerstner height budget.
 		"wave_margin": float(material.get_shader_parameter("wave_height")),
 		"material": material,
