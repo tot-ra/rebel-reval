@@ -98,6 +98,9 @@ const QUALITY_TIERS: Dictionary = {
 		"cloud_noise_resolution": SKY_RESOURCES.CLOUD_NOISE_RESOLUTION_MINIMUM,
 		"cloud_shape_resolution": SKY_RESOURCES.CLOUD_SHAPE_RESOLUTION_MINIMUM,
 		"cloud_shadow_samples": 2,
+		# WS-12 ground pass. Sky raymarch keeps 2 so the dome stays identical.
+		"cloud_shadow_ground_samples": 1,
+		"cloud_shadow_enabled": true,
 		"rain_shaft_samples": 3,
 		"rain_particles": SKY_RESOURCES.RAIN_PARTICLES_MINIMUM,
 		# This scales rendered flash intensity, not deterministic strike timing.
@@ -120,6 +123,8 @@ const QUALITY_TIERS: Dictionary = {
 		"cloud_noise_resolution": SKY_RESOURCES.CLOUD_NOISE_RESOLUTION_RECOMMENDED,
 		"cloud_shape_resolution": SKY_RESOURCES.CLOUD_SHAPE_RESOLUTION_RECOMMENDED,
 		"cloud_shadow_samples": 4,
+		"cloud_shadow_ground_samples": 3,
+		"cloud_shadow_enabled": true,
 		"rain_shaft_samples": 6,
 		"rain_particles": SKY_RESOURCES.RAIN_PARTICLES_RECOMMENDED,
 		"lightning_density": 1.0,
@@ -281,6 +286,8 @@ const LAST_RAIN_NEVER := INF
 ## race while clear days barely stir. Base drift is the light fair-weather rate.
 const WIND_DRIFT_FLOOR := 0.5
 const WIND_DRIFT_GAIN := 1.6
+## Softer than Tidewater 0.85 so painted town materials stay readable.
+const CLOUD_SHADOW_STRENGTH := 0.55
 
 
 ## Keeping these values together prevents lighting, fog, wet ground, wind, and
@@ -373,6 +380,9 @@ var _state_duration := 60.0
 var _rng := RandomNumberGenerator.new()
 var _cloud_offset := Vector2.ZERO
 var _cloud_detail_offset := Vector2.ZERO
+var _cloud_noise_tex: Texture2D
+var _cloud_shape_tex: Texture2D
+var _sun_direction := Vector3.UP
 ## Starts dry so a fresh map cannot display puddles before rain has fallen.
 var _puddle_wetness := 0.0
 ## Elapsed simulated seconds since rain last reached the ground. INF means this
@@ -447,6 +457,8 @@ func _apply_quality_resources() -> void:
 		WEATHER_SEED, int(settings["cloud_shape_resolution"])
 	)
 	_cloud_resources_available = cloud_noise != null and cloud_shape != null
+	_cloud_noise_tex = cloud_noise
+	_cloud_shape_tex = cloud_shape
 	_material.set_shader_parameter(&"cloud_noise", cloud_noise)
 	_material.set_shader_parameter(&"cloud_shape", cloud_shape)
 	_material.set_shader_parameter(
@@ -809,6 +821,7 @@ func set_calendar_date(date: Dictionary) -> void:
 ## disks, moving shadows, and east-to-west travel in agreement.
 func apply_sky_state(progress: float, day_blend: float, sun_direction: Vector3) -> void:
 	_cycle_progress = wrapf(progress, 0.0, 1.0)
+	_sun_direction = sun_direction
 	var elevation := rad_to_deg(asin(clampf(sun_direction.y, -1.0, 1.0)))
 	sunset_factor = clampf(1.0 - absf(elevation) / SUNSET_ELEVATION_BAND_DEG, 0.0, 1.0)
 	var phase := lunar_phase(calendar_date)
@@ -821,6 +834,7 @@ func apply_sky_state(progress: float, day_blend: float, sun_direction: Vector3) 
 	_material.set_shader_parameter(&"sidereal_angle", sidereal_angle_for_progress(progress))
 	if _atmosphere_lut != null:
 		_atmosphere_lut.update(sun_direction, Engine.get_process_frames())
+	_publish_cloud_shadow_globals()
 
 
 ## Builds one immutable-in-practice presentation handoff from the current weather
@@ -1256,3 +1270,29 @@ func _push_cloud_uniforms() -> void:
 	_material.set_shader_parameter(&"lightning", _effective_lightning())
 	_material.set_shader_parameter(&"lightning_dir", _lightning_dir)
 	_material.set_shader_parameter(&"wind_dir", wind_direction_xz())
+	_publish_cloud_shadow_globals()
+
+
+func cloud_shadow_enabled() -> bool:
+	return bool(_quality_settings()["cloud_shadow_enabled"])
+
+
+func cloud_shadow_ground_samples() -> int:
+	return int(_quality_settings()["cloud_shadow_ground_samples"])
+
+
+func _publish_cloud_shadow_globals() -> void:
+	if _cloud_noise_tex != null:
+		RenderingServer.global_shader_parameter_set(&"cloud_noise_tex", _cloud_noise_tex)
+	if _cloud_shape_tex != null:
+		RenderingServer.global_shader_parameter_set(&"cloud_shape_tex", _cloud_shape_tex)
+	RenderingServer.global_shader_parameter_set(&"cloud_offset_g", _cloud_offset)
+	RenderingServer.global_shader_parameter_set(&"cloud_detail_offset_g", _cloud_detail_offset)
+	# Fold the storm lift into coverage so the ground pass stays in its sample budget.
+	var cover := clampf(cloud_coverage() + storm_intensity() * 0.38, 0.0, 1.0)
+	RenderingServer.global_shader_parameter_set(&"cloud_coverage_g", cover)
+	RenderingServer.global_shader_parameter_set(&"cloud_chaos_g", cloud_chaos())
+	RenderingServer.global_shader_parameter_set(&"storm_intensity_g", storm_intensity())
+	RenderingServer.global_shader_parameter_set(&"storm_locality_g", storm_locality())
+	RenderingServer.global_shader_parameter_set(&"cloud_sun_dir", _sun_direction)
+	RenderingServer.global_shader_parameter_set(&"cloud_shadow_strength", CLOUD_SHADOW_STRENGTH)

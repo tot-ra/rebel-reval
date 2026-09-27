@@ -157,6 +157,46 @@ ocean_time={
 "type": "float",
 "value": 0.0
 }
+cloud_noise_tex={
+"type": "sampler2D",
+"value": ""
+}
+cloud_shape_tex={
+"type": "sampler2D",
+"value": ""
+}
+cloud_offset_g={
+"type": "vec2",
+"value": Vector2(0, 0)
+}
+cloud_detail_offset_g={
+"type": "vec2",
+"value": Vector2(0, 0)
+}
+cloud_coverage_g={
+"type": "float",
+"value": 0.0
+}
+cloud_chaos_g={
+"type": "float",
+"value": 0.0
+}
+storm_intensity_g={
+"type": "float",
+"value": 0.0
+}
+storm_locality_g={
+"type": "float",
+"value": 0.0
+}
+cloud_sun_dir={
+"type": "vec3",
+"value": Vector3(0, 1, 0)
+}
+cloud_shadow_strength={
+"type": "float",
+"value": 0.55
+}
 
 [world_host]
 

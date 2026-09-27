@@ -104,6 +104,37 @@ uniform float cloud_sun_scale : hint_range(0.0, 0.5) = 0.08;
 // Cloud base altitude used for the physical cloud sun colour (contract: R_ground + 1.5 km).
 const float CLOUD_HEIGHT_KM = 1.5;
 
+#include "res://scripts/map/view3d/sky_clouds.gdshaderinc"
+
+
+float remap(float v, float lo, float hi, float nlo, float nhi) {
+	return sky_cloud_remap(v, lo, hi, nlo, nhi);
+}
+
+
+float local_storm_at(vec2 uv) {
+	return sky_cloud_local_storm_at(uv, cloud_shape, storm_intensity, storm_locality);
+}
+
+
+float cloud_bulk(vec2 uv, float cover) {
+	return sky_cloud_bulk(uv, cover, cloud_shape);
+}
+
+
+float cloud_opacity(vec2 uv, float cover) {
+	return sky_cloud_opacity(
+		uv, cover, cloud_shape, cloud_noise, cloud_detail_offset, cloud_chaos
+	);
+}
+
+
+vec2 cloud_uv(vec3 dir, float altitude) {
+	return sky_cloud_uv(dir, altitude, cloud_offset);
+}
+
+// bank_mask lives in sky_clouds.gdshaderinc (open sky between cloud masses).
+
 
 // R-941: share WS-11 atmosphere_sky_view_uv so the dome and water reflections cannot drift.
 vec3 sky_lut_radiance(vec3 dir) {
@@ -114,68 +145,6 @@ vec3 sky_lut_radiance(vec3 dir) {
 vec3 sun_transmittance_at(float altitude_km) {
 	float r = ATMO_RG + altitude_km;
 	return texture(atmosphere_transmittance_lut, transmittance_uv(r, sun_direction.y)).rgb;
-}
-
-
-float remap(float v, float lo, float hi, float nlo, float nhi) {
-	return nlo + (clamp(v, lo, hi) - lo) / max(hi - lo, 1e-4) * (nhi - nlo);
-}
-
-
-// Storm strength at a projected cloud point. A large-scale cell field marks where
-// convection sits; storm_locality blends between spreading the storm evenly over
-// the whole deck (0) and packing it into a few high-cell cores (1). That single
-// field lets one storm read as a solid rain front or as an isolated raining cell
-// in open sky, and lets rain curtains hang under exactly those cells.
-float local_storm_at(vec2 uv) {
-	// Low frequency: a storm cell is a large mass, so an isolated one towers into
-	// a single big thunderhead rather than a field of small dark blobs.
-	float cell = 1.0 - texture(cloud_shape, uv * 0.12 + vec2(0.37, 0.71)).r;
-	float mask = mix(1.0, smoothstep(0.48, 0.8, cell), storm_locality);
-	return storm_intensity * mask;
-}
-
-
-// Coarse cumulus body from rounded cellular heaps, before edge erosion. The
-// silhouette must come from cellular noise: FBM thresholds swirl like marbled
-// ink, cellular gives lumpy cauliflower. Cheap enough to march for self-shadow.
-float cloud_bulk(vec2 uv, float cover) {
-	// Two cellular scales: large discrete banks with open sky between them, and
-	// the smaller heaps that pile up inside each bank.
-	float banks = 1.0 - texture(cloud_shape, uv * 0.42 + vec2(0.13, 0.61)).r;
-	float heaps = 1.0 - texture(cloud_shape, uv).r;
-	float bank_mask = smoothstep(0.30, 0.72, banks);
-	float base = heaps * mix(0.45, 1.0, bank_mask);
-
-	// Coverage raises the cloud floor: low coverage keeps only the densest cores,
-	// high coverage lets the whole heap field become solid overcast.
-	float floor_thr = mix(0.66, 0.04, cover);
-	return clamp(remap(base, floor_thr, floor_thr + 0.58, 0.0, 1.0), 0.0, 1.0);
-}
-
-
-// Full opacity: the cellular body with its edges eroded by a few FBM octaves so
-// heap boundaries are torn and lumpy. cloud_chaos widens the erosion so storms
-// shred harder than clear skies.
-float cloud_opacity(vec2 uv, float cover) {
-	float cloud = cloud_bulk(uv, cover);
-	float detail = texture(cloud_noise, uv * 1.9 + cloud_detail_offset).r * 0.5
-		+ texture(cloud_noise, uv * 4.6 - cloud_detail_offset * 0.6).r * 0.32
-		+ texture(cloud_noise, uv * 9.4 + cloud_detail_offset * 0.3).r * 0.18;
-	cloud = remap(cloud, detail * mix(0.18, 0.42, cloud_chaos), 1.0, 0.0, 1.0);
-	return clamp(cloud, 0.0, 1.0);
-}
-
-
-// Cloud field sampled per view ray. Returns:
-//   x = opacity of cloud along this ray (0..1),
-//   y = light factor (0 = shadowed underside, 1 = sunlit top / anvil crown),
-//   z = local storm strength here (drives shadow depth and rain association).
-// Curvature limits the distance at the horizon, unlike a plane with a pole.
-// The same projection is used for rain sources so curtains follow their banks.
-vec2 cloud_uv(vec3 dir, float altitude) {
-	float distance_to_layer = altitude / sqrt(dir.y * dir.y + 0.012);
-	return dir.xz * distance_to_layer * 0.12 - cloud_offset;
 }
 
 

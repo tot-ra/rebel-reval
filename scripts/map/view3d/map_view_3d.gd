@@ -1,5 +1,6 @@
 class_name MapView3D
 extends Node3D
+# gdlint: disable=max-file-lines
 
 ## WB-07: staged assembly finished, or cancel_assembly() stopped it.
 signal assembly_completed
@@ -24,6 +25,7 @@ const Assembly := preload("res://scripts/map/view3d/map_view_assembly.gd")
 const TIME_DAY := &"day"
 const TIME_NIGHT := &"night"
 const FOG_OF_WAR_SCRIPT := preload("res://scripts/map/view3d/map_fog_of_war.gd")
+const CloudShadowPassScript := preload("res://scripts/map/view3d/cloud_shadow_pass.gd")
 const StaticBatcher := preload("res://scripts/map/view3d/map_view_static_batcher.gd")
 ## Plume culling runs on a coarse timer: the camera pans slowly and the extra
 ## margin hides the seam, so per-frame checks would only add cost.
@@ -110,6 +112,7 @@ var _environment_binding_active := true
 var _camera: Camera3D
 var _smoke_cull_timer := 0.0
 var _fog_of_war: Node3D
+var _cloud_shadow_pass: CloudShadowPassScript
 var _occluder_bounds: Array[AABB] = []
 var _object_index: MapChunkRuntimeIndex
 var _object_streamer: MapObjectChunkStreamer
@@ -248,6 +251,13 @@ func _process(delta: float) -> void:
 	_cull_offscreen_smoke(delta)
 	if _underwater_pass != null:
 		_underwater_pass.update(delta)
+	if _cloud_shadow_pass != null and _sky_weather != null:
+		var day_blend := SkyWeather3D.daylight_blend(
+			cycle_progress, _sky_weather.calendar_date
+		)
+		_cloud_shadow_pass.update_share(
+			_sky_weather.presentation_snapshot(cycle_progress, day_blend)
+		)
 	if _fog_of_war == null:
 		return
 	var player_rig := get_tree().get_first_node_in_group(&"player_view_rig") as Node3D
@@ -635,6 +645,10 @@ func underwater_pass() -> UnderwaterPassScript:
 	return _underwater_pass
 
 
+func cloud_shadow_pass() -> CloudShadowPassScript:
+	return _cloud_shadow_pass
+
+
 func _create_underwater_pass() -> void:
 	var indoor := definition != null and definition.suppresses_exterior_surroundings()
 	if not UnderwaterPassScript.should_create(indoor, _has_water()):
@@ -642,6 +656,16 @@ func _create_underwater_pass() -> void:
 	_underwater_pass = UnderwaterPassScript.new()
 	add_child(_underwater_pass)
 	_underwater_pass.configure(_camera, _underwater_probe, _sky_weather.quality_tier)
+
+
+func _create_cloud_shadow_pass() -> void:
+	var indoor := definition != null and definition.suppresses_exterior_surroundings()
+	var enabled := _sky_weather != null and _sky_weather.cloud_shadow_enabled()
+	if not CloudShadowPassScript.should_create(indoor, enabled):
+		return
+	_cloud_shadow_pass = CloudShadowPassScript.new()
+	add_child(_cloud_shadow_pass)
+	_cloud_shadow_pass.configure(_camera, _sky_weather.cloud_shadow_ground_samples())
 
 
 ## Water under world XZ for the underwater pass: the rest surface height (recessed mesh
@@ -984,6 +1008,7 @@ func _stage_sky_weather() -> void:
 func _stage_view_effects() -> void:
 	_create_water_ripple_sim()
 	_create_underwater_pass()
+	_create_cloud_shadow_pass()
 	_mud_footprints = MudFootprints3D.new()
 	_mud_footprints.name = "MudFootprints"
 	add_child(_mud_footprints)
