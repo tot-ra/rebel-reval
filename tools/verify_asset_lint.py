@@ -66,6 +66,7 @@ from character_fidelity_tiers import (  # noqa: E402
     inspect_glb,
     iter_runtime_character_glbs,
 )
+from architecture_budgets import validate_building_budgets  # noqa: E402
 from fauna_glb_inspect import validate_fauna_glb_pbr  # noqa: E402
 from share_character_textures import (  # noqa: E402
     canonical_stem,
@@ -465,6 +466,10 @@ def validate(*, root: Path = ROOT) -> list[LintIssue]:
 
     for message in validate_fauna_glb_pbr(root=root):
         issues.append(LintIssue("ASSET_LINT_FAUNA_PBR", message))
+
+    # ADR 0025 Decision 3: building triangle/LOD/material/disk caps.
+    for message in validate_building_budgets(root=root):
+        issues.append(LintIssue("ASSET_LINT_ARCHITECTURE_BUDGET", message))
 
     return issues
 

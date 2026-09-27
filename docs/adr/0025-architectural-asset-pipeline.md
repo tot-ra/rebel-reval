@@ -295,13 +295,13 @@ lists: P0-180/P0-182 audio reduction, P0-185 view3d extractions, P0-198 ambient 
   textures.
 - AR-05..AR-12 cite this ADR's tables for their budget lines. Their "within the ADR 0022 budget"
   wording means this file.
-- A follow-up task adds a machine check for Decision 3 to `tools/verify_asset_lint.py`, covering:
-  - K/B triangle caps per LOD and the existence of LOD1/LOD2;
-  - zero embedded images in kit parts;
-  - material slot counts;
-  - file and set byte caps.
-
-  AR-13 adds the per-map variety gate on top.
+- Decision 3 is machine-checked by [`tools/architecture_budgets.py`](../../tools/architecture_budgets.py)
+  (R-1064), invoked from `tools/verify_asset_lint.py`. It covers K/B triangle
+  caps per LOD, LOD1/LOD2 siblings, zero embedded images in kit parts, material
+  slot counts, and file/set byte caps. Tiers are path- or manifest-declared.
+  The three pre-kit GLBs under `assets/buildings/facades/` stay grandfathered
+  until AR-04 rebuilds them as kit parts. AR-13 adds the per-map variety gate
+  on top.
 - AR-09..AR-12 are wave 3 and wait on Decision 5 passes for AR-05..AR-08. P0-194 is superseded.
 - The six stretched monoliths are grandfathered only until AR-06.
 - Minimum-hardware acceptance of any building budget stays blocked on R-653. Development-host
