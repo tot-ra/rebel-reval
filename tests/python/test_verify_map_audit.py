@@ -92,6 +92,28 @@ class VerifyMapAuditTest(unittest.TestCase):
                 {"scenes/live.tscn": "scripts/map/definitions/live_definition.gd"},
             )
 
+    def test_multiline_definition_preload_is_counted(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._write_declarative_scene(
+                root,
+                scene_rel="scenes/harbor.tscn",
+                script_rel="scenes/harbor.gd",
+                definition_rel="scripts/map/definitions/outdoor/harbor_definition.gd",
+                multiline=True,
+            )
+            self._write_declarative_scene(
+                root,
+                scene_rel="scenes/other.tscn",
+                script_rel="scenes/other.gd",
+                definition_rel="scripts/map/view3d/map_view_3d.gd",
+                multiline=True,
+            )
+            self.assertEqual(
+                _declarative_scene_links(root),
+                {"scenes/harbor.tscn": "scripts/map/definitions/outdoor/harbor_definition.gd"},
+            )
+
     @staticmethod
     def _write_declarative_scene(
         root: Path,
@@ -99,6 +121,7 @@ class VerifyMapAuditTest(unittest.TestCase):
         scene_rel: str,
         script_rel: str,
         definition_rel: str,
+        multiline: bool = False,
     ) -> None:
         scene_path = root / scene_rel
         script_path = root / script_rel
@@ -111,10 +134,15 @@ class VerifyMapAuditTest(unittest.TestCase):
             f'[ext_resource type="Script" path="res://{script_rel}" id="1"]\n',
             encoding="utf-8",
         )
-        script_path.write_text(
-            f'const DEFINITION_SCRIPT := preload("res://{definition_rel}")\n',
-            encoding="utf-8",
-        )
+        if multiline:
+            preload = (
+                f'const DEFINITION_SCRIPT := preload(\n'
+                f'\t"res://{definition_rel}"\n'
+                f')\n'
+            )
+        else:
+            preload = f'const DEFINITION_SCRIPT := preload("res://{definition_rel}")\n'
+        script_path.write_text(preload, encoding="utf-8")
         definition_path.write_text("class_name ProbeDefinition\n", encoding="utf-8")
 
     @staticmethod

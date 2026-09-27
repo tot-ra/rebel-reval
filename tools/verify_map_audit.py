@@ -25,7 +25,12 @@ ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "content" / "map_audit_manifest.json"
 REGISTRY = ROOT / "scripts" / "map" / "map_audit_registry.gd"
 DEFINITION_ROOT = ROOT / "scripts" / "map" / "definitions"
-SCENE_DEFINITION = re.compile(r'preload\("res://(?P<path>scripts/map/(?:definitions/[^"\n]+|smithy_courtyard_definition\.gd))"\)')
+# WHY: MapSceneBootstrap scenes wrap the definition preload across lines
+# (`preload(\n\t"res://scripts/map/definitions/...")`). A single-line pattern
+# silently skipped those scripts, so wiring was never checked.
+SCENE_DEFINITION = re.compile(
+    r'preload\(\s*"res://(?P<path>scripts/map/(?:definitions/[^"\n]+|smithy_courtyard_definition\.gd))"\s*\)'
+)
 VALID_DISPOSITIONS = frozenset({"convert", "retain", "archive-prototype"})
 # tools/ is extra vs conversion-plan SKIP_TREE_PARTS: audit discovery must not
 # treat helper scenes under tools/ as declarative map inventory.
