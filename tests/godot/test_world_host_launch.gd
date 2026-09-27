@@ -181,6 +181,126 @@ func test_reval_east_and_forge_launch_through_the_host_when_flag_on() -> void:
 	ProjectSettings.set_setting(WorldHost.ADDITIVE_RESIDENCY_SETTING, previous)
 
 
+## WB-06d: a quest NPC under the scene Actors node must sit on the mounted
+## package origin, not the scene origin. market_civic_quarter is (-114, 0);
+## this fixture uses (-10, 4) so the assertion does not depend on the manifest.
+func test_hosted_npc_follows_nonzero_package_origin() -> void:
+	var scene := _scene_with_player()
+	var actors := scene.get_node("Actors") as Node2D
+	var npc := Marker2D.new()
+	npc.name = "QuestNpc"
+	npc.position = Vector2(96, 64)
+	actors.add_child(npc)
+	var definition := _map()
+	var layout := WorldHost.launch_layout(definition)
+	assert_true(bool(layout.get("valid", false)), str(layout.get("errors", [])))
+	for entry_value in layout["locations"]:
+		(entry_value as Dictionary)["origin_cell"] = Vector2i(-10, 4)
+	var host := WorldHost.launch_scene_location(
+		scene, definition, scene.get_node("Actors/Player"), {"layout": layout}
+	)
+	assert_true(host != null, "host launches with an overridden origin")
+	var origin := host.location_origin_logic_position(&"launch_map")
+	assert_eq(origin, Vector2(-10, 4) * float(CELL))
+	assert_eq(actors.position, origin, "Actors is the equivalent offset node")
+	assert_eq(
+		npc.global_position,
+		origin + Vector2(96, 64),
+		"the NPC shares the package origin"
+	)
+	var logic_root := host.mounted_location_root(&"launch_map", false) as Node2D
+	assert_true(logic_root != null)
+	assert_eq(logic_root.position, origin)
+	var anchors: Array = host.hosted_bootstrap(&"launch_map").get("anchors", [])
+	if not anchors.is_empty():
+		var anchor := anchors[0] as Marker2D
+		npc.position = actors.to_local(anchor.global_position)
+		assert_eq(
+			npc.global_position,
+			anchor.global_position,
+			"an NPC on an anchor cell matches the package anchor"
+		)
+	_dispose(scene)
+
+
+func test_remaining_outdoor_scenes_launch_through_the_host_when_flag_on() -> void:
+	var previous := bool(ProjectSettings.get_setting(WorldHost.ADDITIVE_RESIDENCY_SETTING, false))
+	ProjectSettings.set_setting(WorldHost.ADDITIVE_RESIDENCY_SETTING, true)
+	for case in [
+		{
+			"scene": "res://scenes/reval_center/reval_center.tscn",
+			"scene_id": &"reval_center",
+			"spawn_id": &"from_reval_east",
+		},
+		{
+			"scene": "res://scenes/reval_monastery/reval_monastery.tscn",
+			"scene_id": &"reval_monastery",
+			"spawn_id": &"from_reval_north",
+		},
+		{
+			"scene": "res://scenes/reval_north/reval_north.tscn",
+			"scene_id": &"reval_north",
+			"spawn_id": &"from_monastery",
+		},
+		{
+			"scene": "res://scenes/reval_south/reval_south.tscn",
+			"scene_id": &"reval_south",
+			"spawn_id": &"from_reval_center",
+		},
+		{
+			"scene": "res://scenes/reval_toompea/reval_toompea.tscn",
+			"scene_id": &"reval_toompea",
+			"spawn_id": &"from_reval_center",
+		},
+		{
+			"scene": "res://scenes/reval_archbishops_garden/reval_archbishops_garden.tscn",
+			"scene_id": &"reval_archbishops_garden",
+			"spawn_id": &"from_reval_center",
+		},
+		{
+			"scene": "res://scenes/harbor/harbor_east.tscn",
+			"scene_id": &"reval_harbor_east",
+			"spawn_id": &"from_harbor_north",
+		},
+		{
+			"scene": "res://scenes/harbor/harbor_north.tscn",
+			"scene_id": &"reval_harbor_north",
+			"spawn_id": &"from_reval_north",
+		},
+		{
+			"scene": "res://scenes/reval_east/viru_gate_foreland/viru_gate_foreland.tscn",
+			"scene_id": &"viru_gate_foreland",
+			"spawn_id": &"from_reval_east",
+		},
+	]:
+		DoorNavigator.pending_spawn_scene_id = case["scene_id"]
+		DoorNavigator.pending_spawn_id = case["spawn_id"]
+		var level: Node = (load(case["scene"]) as PackedScene).instantiate()
+		(Engine.get_main_loop() as SceneTree).root.add_child(level)
+		var host := level.get_node_or_null(WorldHost.HOST_NODE_NAME) as WorldHost
+		var label := String(case["scene_id"])
+		assert_true(host != null and host.owns_globals(), "%s launches a host" % label)
+		if host == null:
+			level.free()
+			continue
+		assert_eq(host.global_census(), _one_of_each(), "%s has one global set" % label)
+		assert_eq(level.get_node_or_null("Actors/Player"), null, "%s .tscn player retired" % label)
+		assert_eq(level.get("player"), host.player_owner, "%s script binds the host player" % label)
+		var runtime := level.get_node_or_null("MapViewRuntime") as MapViewRuntime
+		assert_true(runtime != null and runtime.world_host == host, "%s runtime is hosted" % label)
+		var door := DoorNavigator.get_spawn_node(level, case["scene_id"], case["spawn_id"])
+		assert_true(door != null, "%s spawn door lives in the logic package" % label)
+		if door != null:
+			assert_true(
+				(host.player_owner as Node2D).global_position.distance_to(door.spawn.global_position)
+				< 1.0,
+				"%s DoorNavigator placed the host player at the pending spawn" % label
+			)
+		level.free()
+	DoorNavigator.clear_pending_spawn()
+	ProjectSettings.set_setting(WorldHost.ADDITIVE_RESIDENCY_SETTING, previous)
+
+
 func _scene_with_player() -> Node2D:
 	var scene := Node2D.new()
 	scene.name = "LaunchAdapterUnderTest"

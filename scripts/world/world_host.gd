@@ -300,13 +300,9 @@ static func launch_enabled() -> bool:
 	return bool(ProjectSettings.get_setting(ADDITIVE_RESIDENCY_SETTING, false))
 
 
-## WB-06b launch adapter: a scene entry point asks a host to own the location
-## instead of owning Player, camera and MapViewRuntime itself. Adds the host under
-## `scene_root`, creates the globals, seeds the clock from MusicDirector, enters
-## `definition` and retires `scene_player` (the one baked into the .tscn). Returns
-## null, with `scene_player` untouched, when any step fails so the caller can run
-## today's path. `scene_root` must be the tree the doors live in: DoorNavigator
-## resolves pending spawns by walking it.
+## WB-06b launch adapter: the host owns Player, camera and HUD; the scene is a
+## thin entry. Retires the baked `scene_player`. Returns null on failure so the
+## caller can run today's path. `scene_root` is the tree DoorNavigator walks.
 static func launch_scene_location(
 	scene_root: Node, definition: MapDefinition, scene_player: Node = null, options: Dictionary = {}
 ) -> WorldHost:
@@ -318,8 +314,11 @@ static func launch_scene_location(
 	scene_root.add_child(host)
 	var location_id := definition.map_id
 	var grid := MapBuilder.build(definition)
+	var layout: Dictionary = options.get("layout", {}) as Dictionary
+	if not bool(layout.get("valid", false)):
+		layout = launch_layout(definition)
 	if not (
-		host.create_globals(launch_layout(definition), options)
+		host.create_globals(layout, options)
 		and host._seed_clock_from_music_director()
 		and host.enter_location(location_id, definition, grid)
 	):
@@ -337,6 +336,10 @@ static func launch_scene_location(
 		if scene_player.get_parent() != null:
 			scene_player.get_parent().remove_child(scene_player)
 		scene_player.queue_free()
+	# WB-06d: keep Actors under the scene; offset it onto the package origin.
+	var scene_actors := scene_root.get_node_or_null("Actors") as Node2D
+	if scene_actors != null:
+		scene_actors.position = host.location_origin_logic_position(location_id)
 	return host
 
 

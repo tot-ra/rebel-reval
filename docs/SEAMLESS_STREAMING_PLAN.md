@@ -116,10 +116,17 @@ host clock (tick, pinned time, save snapshot restore), DoorNavigator pending and
 default spawns, keyboard, gamepad and click routing, and both real scenes with the
 flag on. Limits kept for later rows: the host lives under the scene, so a door still
 swaps scenes and builds a new host (persistent host and seam-driven streaming are
-**R-1043**); quest NPCs stay under the scene's `Actors` node in location-local
-coordinates, which is only correct because both entry locations sit at origin cell
-(0, 0); both gaps, plus the other `reval_outdoor` entry points, are **R-1049**.
+**R-1043**). Quest NPCs and the other outdoor entry points are **R-1049**.
 Rendered flag-on playthrough plates are **R-1050**.
+
+**R-1049 / WB-06d (2026-09-27).** Every remaining `reval_outdoor` scene
+(`reval_center`, `reval_monastery`, `reval_north`, `reval_south`,
+`reval_toompea`, `reval_archbishops_garden`, `harbor_east`, `harbor_north`,
+`viru_gate_foreland`) is a launch adapter behind the same flag. Scene `Actors`
+nodes stay under the scene so existing `scene_root/Actors` lookups still work,
+but launch offsets them to the mounted package origin so an NPC at a local
+cell matches the package anchor.
+Flag off is unchanged. `--filter=test_world_host_launch`.
 
 **R-1039 (2026-09-27).** Baked `NavigationRegion2D`s keep the flag-off
 `agent_radius = 16` inset, so two real packages leave a 32 px gap at a shared
