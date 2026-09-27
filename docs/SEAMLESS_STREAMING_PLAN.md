@@ -161,7 +161,7 @@ nav byte-identity is unchanged.
   `tests.python.test_verify_world_layout`.
 - Scheduler: `WorldHost.update_streaming()` / `WorldHostResidencyPolicy.plan()` with the defaults below.
 - Handover, travel boundary, fallback, staged mounts and seam saves:
-  `--filter=test_world_seam_crossing` (20 tests).
+  `--filter=test_world_seam_crossing` (21 tests).
 
 | Setting | Default | Derivation |
 |---|---|---|
