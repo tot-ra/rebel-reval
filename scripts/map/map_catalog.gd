@@ -46,11 +46,11 @@ const MAPS: Dictionary = {
 		"scope": "prototype",
 		"active": false
 	},
-	# Developer-only interior; shares the Toompea packed scene until its own
-	# scene activation task lands, so it stays inactive here.
+	# Developer-only interior with its own packed scene; stays inactive here
+	# until a separate activation task flips the catalog flag.
 	"toompea_small_castle":
 	{
-		"path": "res://scenes/reval_toompea/reval_toompea.tscn",
+		"path": "res://scenes/reval_toompea/toompea_small_castle.tscn",
 		"scope": "prototype",
 		"active": false
 	},

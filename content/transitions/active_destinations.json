@@ -299,7 +299,7 @@
     },
     {
       "id": "toompea_small_castle",
-      "path": "res://scenes/reval_toompea/reval_toompea.tscn",
+      "path": "res://scenes/reval_toompea/toompea_small_castle.tscn",
       "active": true,
       "release": false,
       "spawns": [

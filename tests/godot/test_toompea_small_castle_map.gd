@@ -4,6 +4,7 @@ const Definition := preload(
 	"res://scripts/map/definitions/prototypes/toompea_small_castle_definition.gd"
 )
 const SOURCE_PATH := "res://content/maps/toompea_small_castle.rrmap"
+const SCENE_PATH := "res://scenes/reval_toompea/toompea_small_castle.tscn"
 
 const REQUIRED_ZONES: Array[StringName] = [
 	&"sc-forecourt",
@@ -17,6 +18,11 @@ const REQUIRED_ZONES: Array[StringName] = [
 ]
 
 
+func after_each() -> void:
+	DoorNavigator.clear_pending_spawn()
+	super.after_each()
+
+
 func test_toompea_small_castle_map() -> void:
 	var parsed := MapRrmapParser.parse_file(SOURCE_PATH)
 	assert_true(parsed.is_ok(), str(parsed.formatted_diagnostics()))
@@ -27,6 +33,7 @@ func test_toompea_small_castle_map() -> void:
 	assert_eq(definition.map_id, &"toompea_small_castle")
 	assert_eq(definition.scope, &"prototype")
 	assert_false(definition.active, "Small Castle remains inactive until its packed scene gate")
+	assert_eq(definition.get_meta("player_spawn_id"), &"small_castle_entry")
 	assert_eq(definition.size_cells, Vector2i(32, 24))
 	assert_true(MapBuilder.validate(definition).is_empty())
 
@@ -64,6 +71,8 @@ func test_toompea_small_castle_map() -> void:
 	# The manifest must resolve both ends of the reciprocal door pair.
 	assert_true(DoorNavigator.has_spawn(&"reval_toompea", &"from_small_castle"))
 	assert_true(DoorNavigator.has_spawn(&"toompea_small_castle", &"small_castle_entry"))
+	assert_eq(DoorNavigator.get_scene_path(&"toompea_small_castle"), SCENE_PATH)
+	assert_eq(MapCatalog.get_map("toompea_small_castle").get("path"), SCENE_PATH)
 
 
 func test_toompea_small_castle_is_registered_blueprint() -> void:
@@ -103,6 +112,34 @@ func test_toompea_quarter_has_reciprocal_small_castle_door() -> void:
 		),
 		"Small Castle return spawn must reach the castle courtyard"
 	)
+
+
+func test_toompea_small_castle_scene_places_player_at_entry() -> void:
+	DoorNavigator.load_manifest(true)
+	assert_eq(DoorNavigator.get_scene_path(&"toompea_small_castle"), SCENE_PATH)
+	assert_true(ResourceLoader.exists(SCENE_PATH), "dedicated packed scene must exist")
+	DoorNavigator.pending_spawn_scene_id = &"toompea_small_castle"
+	DoorNavigator.pending_spawn_id = &"small_castle_entry"
+	var packed := load(SCENE_PATH) as PackedScene
+	assert_true(packed != null, "Small Castle packed scene must load")
+	if packed == null:
+		return
+	var level: Node = packed.instantiate()
+	(Engine.get_main_loop() as SceneTree).root.add_child(level)
+	var player := level.get_node_or_null("Actors/Player") as Node2D
+	assert_true(player != null, "Small Castle scene must keep its authored player node")
+	var door := DoorNavigator.get_spawn_node(
+		level, &"toompea_small_castle", &"small_castle_entry"
+	)
+	assert_true(
+		door != null and door.spawn != null, "assembled scene must expose small_castle_entry"
+	)
+	if player != null and door != null and door.spawn != null:
+		assert_true(
+			player.global_position.distance_to(door.spawn.global_position) < 1.0,
+			"Toompea door arrival must land on small_castle_entry"
+		)
+	level.free()
 
 
 func _transition_by_id(definition: MapDefinition, transition_id: StringName) -> Dictionary:

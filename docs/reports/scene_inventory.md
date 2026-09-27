@@ -8,19 +8,19 @@ Reconciled: 2026-09-10 (P0-206 grounded model and equipment integration)
 | Classification | Count | Role |
 |----------------|------:|------|
 | `working` | 49 | Active runtime scenes with verified or complete behavior |
-| `partial` | 62 | Substantial content but incomplete integration or dev-only use |
+| `partial` | 63 | Substantial content but incomplete integration or dev-only use |
 | `placeholder` | 3 | Reserved stubs or reference-only visuals, not playable |
 | `archive` | 20 | Out of vertical-slice scope; legacy open-world or event shells |
-| **Total** | **134** | Matches repository `.tscn` count |
+| **Total** | **135** | Matches repository `.tscn` count |
 
 Repository count command:
 
 ```bash
 find . -name '*.tscn' -not -path './.git/*' -not -path './.godot/*' -not -path './.a2gent-worktrees/*' | wc -l
-# Expected: 133
+# Expected: 134
 ```
 
-Inventory row count (data rows in the table below): **133**.
+Inventory row count (data rows in the table below): **134**.
 
 ## Classification criteria
 
@@ -100,6 +100,7 @@ Inventory row count (data rows in the table below): **133**.
 | 45 | `scenes/reval_toompea/reval_toompea.tscn` | partial | Inactive Toompea Upper Town prototype; developer traversal via Lühike Jalg. |
 | 46 | `scenes/reval_toompea/domberg.tscn` | archive | Empty `Node2D`; legacy Toompea castle shell. |
 | 47 | `scenes/reval_toompea/maria_toomkirik.tscn` | archive | Empty `Node2D`; legacy cathedral shell. |
+| 135 | `scenes/reval_toompea/toompea_small_castle.tscn` | partial | Inactive Danish Small Castle interior; developer traversal from Toompea. |
 | 48 | `scenes/tests/font_glyph_render_test.tscn` | partial | Dev-only font glyph verification; not player-facing. |
 | 49 | `scenes/tests/dialogue_ui_test.tscn` | partial | Dev-only dialogue UI and settings review scene (P1-012/P1-013). |
 | 50 | `scenes/tests/dialogue_overflow_test.tscn` | partial | Dev-only pseudo-localization overflow review scene (P1-014). |
@@ -163,14 +164,14 @@ Inventory row count (data rows in the table below): **133**.
 | `scenes/reval_monastery/` | 0 | 1 | 0 | 0 | 1 |
 | `scenes/reval_north/` | 0 | 1 | 0 | 0 | 1 |
 | `scenes/reval_south/` | 0 | 1 | 0 | 0 | 1 |
-| `scenes/reval_toompea/` | 0 | 1 | 0 | 2 | 3 |
+| `scenes/reval_toompea/` | 0 | 2 | 0 | 2 | 4 |
 | `scenes/tests/` | 0 | 5 | 0 | 0 | 5 |
 | `scenes/ui/` | 4 | 0 | 0 | 0 | 4 |
 | `scenes/world/` | 0 | 0 | 0 | 10 | 10 |
 | `scenes/world_travel/` | 0 | 10 | 0 | 0 | 10 |
 | `tools/` | 0 | 2 | 0 | 0 | 2 |
 | `tools/benchmarks/` | 0 | 3 | 0 | 0 | 3 |
-| **All** | **32** | **46** | **3** | **20** | **101** |
+| **All** | **32** | **47** | **3** | **20** | **102** |
 
 ## Verification
 

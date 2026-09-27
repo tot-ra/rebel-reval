@@ -771,10 +771,10 @@
     {
       "id": "toompea_small_castle",
       "location_name": "Danish Small Castle Interior",
-      "scene": "scenes/reval_toompea/domberg.tscn",
+      "scene": "scenes/reval_toompea/toompea_small_castle.tscn",
       "definition": "scripts/map/definitions/prototypes/toompea_small_castle_definition.gd",
       "factory": "ToompeaSmallCastleDefinition.create",
-      "disposition": "archive-prototype",
+      "disposition": "convert",
       "capture": "toompea_small_castle.png",
       "mandatory_anchors": [
         "sc-forecourt",
