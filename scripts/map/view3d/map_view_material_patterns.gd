@@ -71,32 +71,20 @@ static func pattern_normal_texture(
 
 
 static func door_wood_texture(noise_seed: int) -> ImageTexture:
-	var variant_seed := posmod(noise_seed, 3) * 977 + 413
-	var key := "door_wood:%d" % variant_seed
-	if _cache.has(key):
-		return _cache[key]
-	var image := Image.create(256, 256, false, Image.FORMAT_RGB8)
-	_paint_door_wood(image, variant_seed)
-	image.generate_mipmaps()
-	var texture := ImageTexture.create_from_image(image)
-	_cache[key] = texture
-	return texture
+	return _door_wood(noise_seed, false)
 
 
 static func door_wood_normal_texture(noise_seed: int) -> ImageTexture:
-	var variant_seed := posmod(noise_seed, 3) * 977 + 413
-	var key := "door_wood_normal:%d" % variant_seed
+	return _door_wood(noise_seed, true)
+
+
+static func _door_wood(noise_seed: int, as_normal: bool) -> ImageTexture:
+	var request := door_wood_bake_request(noise_seed, as_normal)
+	var key: String = request["key"]
 	if _cache.has(key):
 		return _cache[key]
-	var image := Image.create(256, 256, false, Image.FORMAT_RGB8)
-	_paint_door_wood(image, variant_seed)
-	# The grayscale grain doubles as a shallow bump source. Converting it here
-	# keeps the procedural texture portable through Godot's PBR material path.
-	image.bump_map_to_normal_map(1.35)
-	image.generate_mipmaps()
-	var texture := ImageTexture.create_from_image(image)
-	_cache[key] = texture
-	return texture
+	publish_baked(request, bake_image(request))
+	return _cache[key]
 
 
 ## Hewn structural oak for posts, rails, braces and gallery eaves. Reuses the
@@ -112,21 +100,12 @@ static func beam_wood_normal_texture(noise_seed: int, grain_along_u: bool) -> Im
 
 
 static func _beam_wood(noise_seed: int, grain_along_u: bool, as_normal: bool) -> ImageTexture:
-	var variant_seed := posmod(noise_seed, 3) * 977 + 1291
-	var key := "beam_wood:%d:%s:%s" % [variant_seed, grain_along_u, as_normal]
+	var request := beam_wood_bake_request(noise_seed, grain_along_u, as_normal)
+	var key: String = request["key"]
 	if _cache.has(key):
 		return _cache[key]
-	var image := Image.create(256, 256, false, Image.FORMAT_RGB8)
-	_paint_door_wood(image, variant_seed)
-	if grain_along_u:
-		image.rotate_90(CLOCKWISE)
-	if as_normal:
-		# Hewn beams carry deeper checks and adze facets than planed door boards.
-		image.bump_map_to_normal_map(1.9)
-	image.generate_mipmaps()
-	var texture := ImageTexture.create_from_image(image)
-	_cache[key] = texture
-	return texture
+	publish_baked(request, bake_image(request))
+	return _cache[key]
 
 
 ## Dense longitudinal grain for close-range door boards. Unlike PATTERN_PLANK,
@@ -251,6 +230,35 @@ static func cobble_surface_bake_request(noise_seed: int) -> Dictionary:
 	}
 
 
+## Door-board grain (no rotation). The grayscale plate is also the bump source.
+static func door_wood_bake_request(noise_seed: int, as_normal: bool) -> Dictionary:
+	var variant_seed := posmod(noise_seed, 3) * 977 + 413
+	var key := "door_wood_normal:%d" % variant_seed if as_normal else "door_wood:%d" % variant_seed
+	return {
+		"key": key,
+		"door_wood": true,
+		"seed": variant_seed,
+		"grain_along_u": false,
+		"as_normal": as_normal,
+		"normal_strength": 1.35,
+	}
+
+
+## Hewn beam grain. Same paint as door wood; rotate 90 when the long axis is U.
+static func beam_wood_bake_request(
+	noise_seed: int, grain_along_u: bool, as_normal: bool
+) -> Dictionary:
+	var variant_seed := posmod(noise_seed, 3) * 977 + 1291
+	return {
+		"key": "beam_wood:%d:%s:%s" % [variant_seed, grain_along_u, as_normal],
+		"door_wood": true,
+		"seed": variant_seed,
+		"grain_along_u": grain_along_u,
+		"as_normal": as_normal,
+		"normal_strength": 1.9,
+	}
+
+
 ## The authored plate a pattern reads instead of painting, or "" when it paints.
 ## Staged assembly prefetches it with a threaded load; the plate itself is still
 ## read back on the main thread.
@@ -284,7 +292,14 @@ static func missing_bakes(requests: Array[Dictionary]) -> Array[Dictionary]:
 ## request missing_bakes() returns.
 static func bake_image(request: Dictionary) -> Image:
 	var image: Image
-	if request.get("cobble_surface", false):
+	if request.get("door_wood", false):
+		image = Image.create(256, 256, false, Image.FORMAT_RGB8)
+		_paint_door_wood(image, int(request["seed"]))
+		if bool(request.get("grain_along_u", false)):
+			image.rotate_90(CLOCKWISE)
+		if bool(request.get("as_normal", false)):
+			image.bump_map_to_normal_map(float(request["normal_strength"]))
+	elif request.get("cobble_surface", false):
 		image = _cobble_surface_image(int(request["seed"]))
 	else:
 		image = _pattern_image_at_size(request["pattern"], int(request["seed"]), int(request["size"]))

@@ -27,6 +27,8 @@ const FACE_GAP := 0.02
 ## Stacked logs overlap slightly so no bank shows between them.
 const LOG_STACK_STEP := 1.9
 const SIDES: Array[Vector2i] = [Vector2i.RIGHT, Vector2i.LEFT, Vector2i.DOWN, Vector2i.UP]
+## Shared with staged masonry prefetch so pier_cribs only tints a warm material.
+const WET_RUBBLE_COLOR := Color8(78, 72, 62)
 
 static var _materials: Dictionary = {}
 
@@ -95,18 +97,29 @@ static func build_from_arrays(arrays: Dictionary) -> Node3D:
 		return null
 	var root := Node3D.new()
 	root.name = "PierCribs"
-	var log_arrays: Array = arrays["logs"]
-	if not log_arrays.is_empty():
-		var log_mesh := ArrayMesh.new()
-		log_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, log_arrays)
-		var rubble_arrays: Array = arrays["rubble"]
-		if not rubble_arrays.is_empty():
-			log_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, rubble_arrays)
-		root.add_child(_instance_logs(log_mesh, not rubble_arrays.is_empty()))
-	var pile_arrays: Array = arrays["piles"]
-	if not pile_arrays.is_empty():
-		root.add_child(_instance("PierCribPiles", pile_arrays, 1))
+	add_log_mesh(root, arrays)
+	add_pile_mesh(root, arrays)
 	return root
+
+
+## WB-07e: staged publish splits logs and piles so each unit stays under 4 ms.
+static func add_log_mesh(root: Node3D, arrays: Dictionary) -> void:
+	var log_arrays: Array = arrays.get("logs", [])
+	if log_arrays.is_empty():
+		return
+	var log_mesh := ArrayMesh.new()
+	log_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, log_arrays)
+	var rubble_arrays: Array = arrays.get("rubble", [])
+	if not rubble_arrays.is_empty():
+		log_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, rubble_arrays)
+	root.add_child(_instance_logs(log_mesh, not rubble_arrays.is_empty()))
+
+
+static func add_pile_mesh(root: Node3D, arrays: Dictionary) -> void:
+	var pile_arrays: Array = arrays.get("piles", [])
+	if pile_arrays.is_empty():
+		return
+	root.add_child(_instance("PierCribPiles", pile_arrays, 1))
 
 
 ## One entry per deck cell edge that borders a sea-basin cell: the edge, its outward
@@ -726,7 +739,7 @@ static func wet_rubble() -> StandardMaterial3D:
 	if _materials.has("rubble"):
 		return _materials["rubble"]
 	var material := (
-		MapViewMaterials.fortification_masonry(Color8(78, 72, 62)).duplicate()
+		MapViewMaterials.fortification_masonry(WET_RUBBLE_COLOR).duplicate()
 		as StandardMaterial3D
 	)
 	material.albedo_color = Color8(96, 88, 74)

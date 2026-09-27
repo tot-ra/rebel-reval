@@ -325,6 +325,7 @@ func test_worker_pattern_bakes_are_byte_identical_to_main_thread() -> void:
 			MapViewMaterials.TERRAIN_MATERIALS.terrain_bake_requests(terrain_id, noise_seed)
 		)
 	requests.append_array(MapViewMaterials.PROP_MATERIALS.backdrop_bake_requests())
+	requests.append_array(MapViewMaterials.PROP_MATERIALS.hewn_timber_bake_requests())
 	var bakeable: Array[Dictionary] = []
 	for request in requests:
 		# missing_bakes() filters by cache, so ask for the worker-safe set directly.
@@ -414,6 +415,51 @@ func test_threaded_resource_prefetch_resolves_in_order() -> void:
 		assert_eq(packed.get_data(), main_packed.get_data(), "caustic tiles pack identically")
 		var tiles := water_materials.caustic_tiles_texture()
 		assert_eq(tiles.get_image().get_data(), main_packed.get_data(), "published tiles")
+
+
+## WB-07e (R-1027): crib timber plates go through the same bake units, and the
+## masonry publish unit is always queued so pier_cribs does not paint wood.
+func test_crib_wood_and_masonry_bake_on_workers() -> void:
+	var masonry: Array[Color] = [MapViewPierCribBuilder.WET_RUBBLE_COLOR]
+	var units: Array[Dictionary] = TerrainStaged.building_wood_masonry_units(
+		&"terrain_mesh", "cribs", masonry
+	)
+	var labels: Array[String] = []
+	for unit in units:
+		labels.append(unit["label"])
+	assert_true(labels.has("await_cribs_masonry_plates"), "library plates prefetch")
+	assert_true(labels.has("cribs_building_materials"), "materials publish as one unit")
+	MapView3D.Assembly.drain(units)
+	for variant: int in 3:
+		_assert_published_wood(
+			MapViewMaterialPatterns.door_wood_texture(variant),
+			MapViewMaterialPatterns.door_wood_bake_request(variant, false)
+		)
+		_assert_published_wood(
+			MapViewMaterialPatterns.door_wood_normal_texture(variant),
+			MapViewMaterialPatterns.door_wood_bake_request(variant, true)
+		)
+		for grain_along_u: bool in [false, true]:
+			_assert_published_wood(
+				MapViewMaterialPatterns.beam_wood_texture(variant, grain_along_u),
+				MapViewMaterialPatterns.beam_wood_bake_request(variant, grain_along_u, false)
+			)
+			_assert_published_wood(
+				MapViewMaterialPatterns.beam_wood_normal_texture(variant, grain_along_u),
+				MapViewMaterialPatterns.beam_wood_bake_request(variant, grain_along_u, true)
+			)
+	var masonry_material := MapViewMaterials.fortification_masonry(
+		MapViewPierCribBuilder.WET_RUBBLE_COLOR
+	)
+	assert_true(masonry_material.albedo_texture != null, "crib masonry has an albedo")
+
+
+func _assert_published_wood(texture: Texture2D, request: Dictionary) -> void:
+	assert_eq(
+		texture.get_image().get_data(),
+		MapViewMaterialPatterns.bake_image(request).get_data(),
+		"published %s equals a main-thread paint" % request["key"]
+	)
 
 
 ## A job dropped without wait() joins its task while it is freed, so a cancelled

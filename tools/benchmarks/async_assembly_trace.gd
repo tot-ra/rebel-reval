@@ -31,10 +31,17 @@ func _run() -> void:
 	var budget_ms := float(_argument_value("--budget-ms=", default_budget))
 	var quick := _has_flag("--quick")
 	var maps: Array[Dictionary] = []
+	var only := StringName(_argument_value("--map=", ""))
 	for map_id: StringName in MAP_SCRIPTS:
 		if quick and map_id != &"lower_town_slice":
 			continue
+		if only != &"" and map_id != only:
+			continue
 		maps.append(await _trace_map(map_id, budget_ms))
+	if maps.is_empty():
+		push_error("async_assembly_trace: no maps selected")
+		quit(1)
+		return
 	var report := {
 		"schema": "rr.async_assembly_trace.v1",
 		"renderer": RenderingServer.get_current_rendering_method(),
@@ -179,16 +186,25 @@ static func _staged_summary(view: MapView3D, budget_ms: float) -> Dictionary:
 	for frame_usec in view.assembly_frame_timings_usec():
 		max_frame = maxi(max_frame, frame_usec)
 	var over_budget: Array[Dictionary] = []
+	var focus_ms := {}
 	for unit in view.assembly_unit_timings():
+		var label: String = unit["label"]
 		if int(unit["usec"]) > budget_usec:
 			over_budget.append(
-				{"stage": String(unit["stage"]), "label": unit["label"], "ms": _ms(unit["usec"])}
+				{"stage": String(unit["stage"]), "label": label, "ms": _ms(unit["usec"])}
 			)
+		if (
+			label.begins_with("pier_cribs")
+			or label.begins_with("cribs_")
+			or label.begins_with("await_cribs_")
+		):
+			focus_ms[label] = _ms(unit["usec"])
 	return {
 		"frames": view.assembly_frame_timings_usec().size(),
 		"max_frame_ms": _ms(max_frame),
 		"stages_ms": _stage_ms(view.assembly_stage_timings_usec()),
 		"units_over_budget": over_budget,
+		"crib_units_ms": focus_ms,
 	}
 
 

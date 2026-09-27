@@ -373,3 +373,29 @@ static func backdrop_bake_requests() -> Array[Dictionary]:
 	var requests := _material_bake_requests(PATTERN_GRASS, SURROUNDINGS_GROUND_SEED)
 	requests.append_array(_material_bake_requests(PATTERN_ROCK, NATURAL_ROCK_SEED))
 	return requests
+
+
+## WB-07e (R-1027): every door-board and hewn-beam plate hewn_timber() and the
+## door getters can request. Three variant seeds, both grain orientations, albedo
+## plus normal. Object chunks then hit a warm cache.
+static func hewn_timber_bake_requests() -> Array[Dictionary]:
+	var requests: Array[Dictionary] = []
+	for variant: int in 3:
+		requests.append(MapViewMaterialPatterns.door_wood_bake_request(variant, false))
+		requests.append(MapViewMaterialPatterns.door_wood_bake_request(variant, true))
+		for grain_along_u: bool in [false, true]:
+			requests.append(
+				MapViewMaterialPatterns.beam_wood_bake_request(variant, grain_along_u, false)
+			)
+			requests.append(
+				MapViewMaterialPatterns.beam_wood_bake_request(variant, grain_along_u, true)
+			)
+	return requests
+
+
+## Main-thread materials after the worker plates land, so pier cribs and
+## neighbor timber only duplicate and tint.
+static func publish_hewn_timber_materials() -> void:
+	for variant: int in 3:
+		for grain_along_u: bool in [false, true]:
+			hewn_timber(grain_along_u, variant)

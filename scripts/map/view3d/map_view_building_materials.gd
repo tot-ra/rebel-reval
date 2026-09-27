@@ -260,6 +260,25 @@ static func roof_surface_for_building(
 ## texture phase on the same plane, so depth ties flickered between them. In
 ## world space coplanar overlaps shade identically and courses run continuously
 ## across segment joints and around drums.
+## Imported plates wall_surface(&"limestone") loads for this colour. Empty when
+## the helper falls back to the authored rubble plate (still a main-thread
+## Texture2D.get_image() read, same as R-1010 limestone).
+static func fortification_masonry_resource_paths(color: Color) -> PackedStringArray:
+	var stem: String = SURFACE_LIBRARY.library_stem(
+		&"limestone", false, StringName("wall_surface:%s" % color.to_html()), _map_seed
+	)
+	var paths := PackedStringArray()
+	if stem.is_empty():
+		paths.append(MapViewMaterialPatterns.LIMESTONE_RUBBLE_PATH)
+		return paths
+	var stem_paths: Dictionary = SURFACE_LIBRARY.stem_paths(stem)
+	for slot: String in ["albedo", "normal", "orm"]:
+		paths.append(String(stem_paths[slot]))
+	if _anti_tiling_enabled:
+		paths.append(ANTI_TILING_TEXTURE_PATH)
+	return paths
+
+
 static func fortification_masonry(color: Color) -> StandardMaterial3D:
 	var key := "fortification_masonry:%s" % color.to_html()
 	if _cache.has(key):

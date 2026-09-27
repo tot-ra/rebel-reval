@@ -565,7 +565,36 @@ static func _start_neighbor_materials(
 			dry_ids.append(terrain)
 	var units := _TerrainStaged.terrain_material_units(STAGE, label, dry_ids, neighbor.seed)
 	units.append_array(_TerrainStaged.water_material_units(STAGE, label, water_ids))
+	# WB-07e: neighbor wall timber and curtain masonry before the first
+	# build_building() unit, so those previews do not paint on the main thread.
+	units.append_array(
+		_TerrainStaged.building_wood_masonry_units(
+			STAGE, label, _neighbor_masonry_colors(data.get("buildings", []) as Array)
+		)
+	)
 	materials["units"] = units
+
+
+## Wall colours a neighbor preview will pass to fortification_masonry().
+static func _neighbor_masonry_colors(buildings: Array) -> Array[Color]:
+	var colors: Array[Color] = []
+	for entry in buildings:
+		if typeof(entry) != TYPE_DICTIONARY:
+			continue
+		var building: Dictionary = entry
+		if building.get("kind", MapTypes.BUILDING_KIND_HOUSE) != MapTypes.BUILDING_KIND_WALL:
+			continue
+		var wall_color := Color(
+			building.get("wall_color", MapViewMeshBuilderConfig.DEFAULT_WALL_COLOR)
+		)
+		for tinted: Color in [
+			wall_color,
+			wall_color.lightened(0.08),
+			wall_color.lightened(0.12),
+			wall_color.lightened(0.16),
+		]:
+			colors.append(tinted)
+	return colors
 
 
 static func _neighbor_preview_body(

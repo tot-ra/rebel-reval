@@ -111,6 +111,10 @@ static func _start(
 	# Joined before the shore publish writes the field cache; see the thread rule.
 	units.append(_Assembly.await_job(TERRAIN_STAGE, "seabed_apron", apron))
 	units.append(_Assembly.await_job(TERRAIN_STAGE, "pier_cribs", cribs))
+	# WB-07e: hewn oak and crib masonry bake beside the crib arrays so
+	# pier_cribs only instances meshes. Object chunks reuse the same cache.
+	var crib_masonry: Array[Color] = [MapViewPierCribBuilder.WET_RUBBLE_COLOR]
+	units.append_array(building_wood_masonry_units(TERRAIN_STAGE, "cribs", crib_masonry))
 	units.append(
 		_Assembly.unit(TERRAIN_STAGE, "shore_swash", _publish_shore.bind(field, grid, shore, root))
 	)
@@ -240,6 +244,37 @@ static func _publish_pattern(job: RefCounted, request: Dictionary, index: int) -
 	MapViewMaterialPatterns.publish_baked(request, job.values()[index])
 
 
+## WB-07e (R-1027): door/beam wood plates on workers, then hewn-timber materials
+## and fortification masonry on the main thread. Limestone library plates stay a
+## threaded ResourceLoader prefetch (get_image readback stays synchronous).
+static func building_wood_masonry_units(
+	stage: StringName, label: String, masonry_colors: Array[Color]
+) -> Array[Dictionary]:
+	var requests: Array[Dictionary] = MapViewMaterials.PROP_MATERIALS.hewn_timber_bake_requests()
+	var units := pattern_bake_units(stage, label, requests)
+	var paths := PackedStringArray()
+	var colors: Array[Color] = []
+	var seen := {}
+	for color in masonry_colors:
+		var html := color.to_html()
+		if seen.has(html):
+			continue
+		seen[html] = true
+		colors.append(color)
+		paths.append_array(
+			MapViewMaterials.BUILDING_MATERIALS.fortification_masonry_resource_paths(color)
+		)
+	var plates := _prefetch(paths)
+	units.append(_Assembly.await_job(stage, "%s_masonry_plates" % label, plates))
+	var publish := func() -> void:
+		plates.value()
+		MapViewMaterials.PROP_MATERIALS.publish_hewn_timber_materials()
+		for color in colors:
+			MapViewMaterials.fortification_masonry(color)
+	units.append(_Assembly.unit(stage, "%s_building_materials" % label, publish))
+	return units
+
+
 ## The blended ground material of `noise_seed`: procedural patterns bake on
 ## workers, then one unit per texture-array layer (authored layers read their
 ## plate back on the main thread), the cobble array and the material itself.
@@ -366,7 +401,22 @@ static func _start_caustic_tiles(stage: StringName, label: String) -> Array[Dict
 
 
 ## WS-13d: timber crib cladding on the steep bed face beside landing decks.
-static func _publish_cribs(job: RefCounted, root: Node3D) -> void:
-	var cribs := MapViewPierCribBuilder.build_from_arrays(job.value())
-	if cribs != null:
-		root.add_child(cribs)
+## The parent unit only adds the root; logs and piles are follow-up units so a
+## cold harbor publish stays inside the 4 ms frame budget after R-1027.
+static func _publish_cribs(job: RefCounted, root: Node3D) -> Array[Dictionary]:
+	var arrays: Dictionary = job.value()
+	if arrays.is_empty():
+		return []
+	var cribs := Node3D.new()
+	cribs.name = "PierCribs"
+	root.add_child(cribs)
+	return [
+		_Assembly.unit(
+			TERRAIN_STAGE, "pier_cribs_logs",
+			func() -> void: MapViewPierCribBuilder.add_log_mesh(cribs, arrays)
+		),
+		_Assembly.unit(
+			TERRAIN_STAGE, "pier_cribs_piles",
+			func() -> void: MapViewPierCribBuilder.add_pile_mesh(cribs, arrays)
+		),
+	]

@@ -51,7 +51,7 @@ A third phase runs `tools/benchmarks/async_assembly_trace.gd` and merges its out
 
 ```bash
 godot --headless --path . --script tools/benchmarks/async_assembly_trace.gd \
-  -- --output=res://build/benchmarks/async_assembly.json [--budget-ms=4.0] [--quick]
+  -- --output=res://build/benchmarks/async_assembly.json [--budget-ms=4.0] [--quick] [--map=reval_harbor_east]
 ```
 
 Per map (`lower_town_slice`, `kalev_smithy`, `reval_harbor_east`) it records:
@@ -62,7 +62,7 @@ Per map (`lower_town_slice`, `kalev_smithy`, `reval_harbor_east`) it records:
 - `navigation.synchronous_ms` vs `navigation.threaded_main_thread_ms` - the `MapNavBuilder` bake on the calling thread against the main-thread cost of starting the WorkerThreadPool bake.
 - `cold_staged` (WB-07b) - `frames`, `max_frame_ms`, `stages_ms` and `units_over_budget` of a staged build that runs before anything caches the map, so the cold height-field bake and first-use material costs show up.
 
-The budget comes from the project setting `world_host/location_assembly_frame_budget_ms` (default `4.0`). Staged assembly and threaded navigation and scene loading stay behind `world_host/async_location_assembly_enabled` (default `false`). Headless numbers are CPU scene-construction cost under the dummy renderer. Use `BENCHMARK_HEADLESS=0` for a GPU-backed trace. Findings: [`docs/reports/async_assembly_2026-09-26.md`](./reports/async_assembly_2026-09-26.md). Worker-thread terrain, surroundings and height-field bakes (WB-07b, R-1005): [`docs/reports/async_assembly_2026-09-27.md`](./reports/async_assembly_2026-09-27.md). Cold material and texture generation on workers (WB-07d, R-1010): [`docs/reports/async_assembly_cold_materials_2026-09-27.md`](./reports/async_assembly_cold_materials_2026-09-27.md); `tools/benchmarks/material_texture_hashes.gd` prints per-slot texture hashes for a two-checkout parity diff.
+The budget comes from the project setting `world_host/location_assembly_frame_budget_ms` (default `4.0`). Staged assembly and threaded navigation and scene loading stay behind `world_host/async_location_assembly_enabled` (default `false`). Headless numbers are CPU scene-construction cost under the dummy renderer. Use `BENCHMARK_HEADLESS=0` for a GPU-backed trace. Findings: [`docs/reports/async_assembly_2026-09-26.md`](./reports/async_assembly_2026-09-26.md). Worker-thread terrain, surroundings and height-field bakes (WB-07b, R-1005): [`docs/reports/async_assembly_2026-09-27.md`](./reports/async_assembly_2026-09-27.md). Cold material and texture generation on workers (WB-07d, R-1010): [`docs/reports/async_assembly_cold_materials_2026-09-27.md`](./reports/async_assembly_cold_materials_2026-09-27.md). Door/beam wood and fortification masonry on the same path (WB-07e, R-1027): [`docs/reports/async_assembly_building_materials_2026-09-27.md`](./reports/async_assembly_building_materials_2026-09-27.md). `tools/benchmarks/material_texture_hashes.gd` prints per-slot texture hashes for a two-checkout parity diff. A three-map trace in one process warms shared material caches; `--map=` is the fresh-process cold number for a later map.
 
 ## GPU render probe (draw-call attribution)
 
