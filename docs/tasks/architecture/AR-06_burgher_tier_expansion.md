@@ -120,7 +120,7 @@ tools/run_pre_commit_checks.sh all
   contiguous run of plots in a single shot to prove variety; a facade close-up showing open and closed
   shutters side by side; clear noon and midnight; Compatibility and Metal; both quality tiers.
 - Performance: `lower_town_slice` frame cost, draw calls, materials and triangles before/after, inside
-  the ADR 0022 budget.
+  the ADR 0025 budget.
 - **Named human visual review** of the four frontage plates. Does the shipped street look like a
   Hanseatic Lower Town. Green tests do not close this (P0-209b).
 

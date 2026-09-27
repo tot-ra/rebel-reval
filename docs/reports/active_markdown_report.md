@@ -14,11 +14,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `168`
+- Active Markdown files scanned: `169`
 - Markdown files excluded as archive/reference/out of active scope: `718`
-- Local/external links inspected: `802`
-- Links to active Markdown docs: `428`
-- Links to existing archive/reference/non-active local docs: `163`
+- Local/external links inspected: `827`
+- Links to active Markdown docs: `450`
+- Links to existing archive/reference/non-active local docs: `166`
 - External links skipped for reachability: `46`
 - Issues found: `0`
 
@@ -62,6 +62,7 @@ No active Markdown documentation issues found.
 - `docs/adr/0021-swimming-and-diving.md`
 - `docs/adr/0022-realistic-human-characters.md`
 - `docs/adr/0023-terrain-relief-as-gameplay.md`
+- `docs/adr/0025-architectural-asset-pipeline.md`
 - `docs/AGENT_LOOPS.md`
 - `docs/ARCHITECTURE.md`
 - `docs/ART_BIBLE.md`

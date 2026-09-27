@@ -1,6 +1,6 @@
 # AR-04: modular architecture kit part library
 
-Board row: **R-962**. Priority: high. Depends on: AR-01, AR-02 (**ADR 0022 must be accepted or
+Board row: **R-962**. Priority: high. Depends on: AR-01, AR-02 (**ADR 0025 must be accepted or
 explicitly approved before coding**).
 
 ## Player-facing goal
@@ -55,14 +55,14 @@ which is why 362 house records are served by 6 meshes plus a tint.
    explicit registry (never a filesystem walk - `docs/MAP_AUTHORING.md` forbids discovery by walking),
    mapping part id to path, snap sockets, bounds, surface family and LOD set.
 
-4. **LODs** for every part per the ADR 0022 budget, plus a shared-material rule so a street of assembled
+4. **LODs** for every part per the ADR 0025 budget, plus a shared-material rule so a street of assembled
    buildings does not create one material per part instance.
 
 5. A **reference assembly** proving the kit: one stone Diele house, one timber-frame house, one log
    dwelling and one craft boda, assembled purely from parts, with a side-by-side against the existing
    monolithic `merchant_stone.glb` / `merchant_timber.glb` / `craft_boda.glb`.
 
-6. `assets/SOURCES.csv` rows for every part and texture; provenance per the ADR 0022 rule.
+6. `assets/SOURCES.csv` rows for every part and texture; provenance per the ADR 0025 rule.
 
 ## Allowed files
 
@@ -110,7 +110,7 @@ python3 tools/generate_active_docs_report.py --check
 - `test_architecture_kit.gd` asserts: every catalogue entry loads; every part exposes its declared snap
   sockets; snapped neighbours share a plane within tolerance with no gap and no overlap; no part carries
   a baked material that shadows an AR-03 surface family; every part has its LOD set and is within the
-  ADR 0022 triangle budget; the four reference assemblies build from parts only; assembling the same
+  ADR 0025 triangle budget; the four reference assemblies build from parts only; assembling the same
   building twice from the same inputs gives an identical mesh fingerprint.
 - `test_build_architecture_kit.py` asserts the generator is deterministic and the emitted part list
   matches the documented set exactly - a missing part is a failure, not a warning.
@@ -133,5 +133,5 @@ python3 tools/generate_active_docs_report.py --check
 ## TODO.md line
 
 ```
-- [ ] R-962 | deps: R-959,R-960 | deliverable: assets/buildings/kit part library built by tools/build_architecture_kit.py covering ground, wall-bay (eight material families), storey, gable, roof (four covers at AR-01 pitches), opening and attachment groups on a documented snap module, an explicit architecture_kit_catalogue.gd registry with sockets/bounds/surface family/LODs, an assembler, docs/ARCHITECTURE_KIT.md snap contract, and four reference assemblies (stone Diele, timber frame, log dwelling, craft boda) built from parts only | allowed files: per docs/tasks/architecture/AR-04_modular_architecture_kit.md | verify: python generator unittest; `--filter=test_architecture_kit`; full Godot suite; blueprint validate; asset sources/lint/storage; map audit and activation; active docs; snapped neighbours gapless and non-overlapping with correct winding; every part within the ADR 0022 triangle budget with its LOD set; deterministic assembly fingerprint; emitted part list matches the documented set exactly; unchanged MapDefinition fingerprint and map audit for all 29 maps proving zero runtime change; part contact sheet, four reference assemblies and side-by-side against the three monolithic house GLBs; draw-call/material/triangle comparison; named human review answering whether the kit can carry a district
+- [ ] R-962 | deps: R-959,R-960 | deliverable: assets/buildings/kit part library built by tools/build_architecture_kit.py covering ground, wall-bay (eight material families), storey, gable, roof (four covers at AR-01 pitches), opening and attachment groups on a documented snap module, an explicit architecture_kit_catalogue.gd registry with sockets/bounds/surface family/LODs, an assembler, docs/ARCHITECTURE_KIT.md snap contract, and four reference assemblies (stone Diele, timber frame, log dwelling, craft boda) built from parts only | allowed files: per docs/tasks/architecture/AR-04_modular_architecture_kit.md | verify: python generator unittest; `--filter=test_architecture_kit`; full Godot suite; blueprint validate; asset sources/lint/storage; map audit and activation; active docs; snapped neighbours gapless and non-overlapping with correct winding; every part within the ADR 0025 triangle budget with its LOD set; deterministic assembly fingerprint; emitted part list matches the documented set exactly; unchanged MapDefinition fingerprint and map audit for all 29 maps proving zero runtime change; part contact sheet, four reference assemblies and side-by-side against the three monolithic house GLBs; draw-call/material/triangle comparison; named human review answering whether the kit can carry a district
 ```

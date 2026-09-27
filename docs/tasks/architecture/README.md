@@ -98,7 +98,7 @@ re-scoped from it. **Do not start AR-04 before AR-02 is decided.**
 | # | File | Summary | Depends on | Board |
 |---|------|---------|------------|-------|
 | AR-01 | [AR-01_building_typology_dossier.md](AR-01_building_typology_dossier.md) | Sourced 1343 typology dossier: bays, storeys, gables, openings, pitches, coursing per family | none | **R-959** |
-| AR-02 | [AR-02_adr_architecture_pipeline.md](AR-02_adr_architecture_pipeline.md) | ADR 0022: kit vs bespoke, provenance, triangle/texture budgets, LOD contract, scope trade | AR-01 | **R-960** |
+| AR-02 | [AR-02_adr_architecture_pipeline.md](AR-02_adr_architecture_pipeline.md) | ADR 0025: kit vs bespoke, provenance, triangle/texture budgets, LOD contract, scope trade | AR-01 | **R-960** |
 | AR-03 | [AR-03_building_surface_pbr.md](AR-03_building_surface_pbr.md) | Full albedo+normal+roughness+AO and anti-tiling for every wall and roof family, available to all 362 houses | none | **R-961** |
 | AR-04 | [AR-04_modular_architecture_kit.md](AR-04_modular_architecture_kit.md) | Shared part library: plinths, bays, storey bands, gables, roof planes, eaves, flues, doors, pentices, stairs, galleries | AR-01, AR-02 | **R-962** |
 | AR-05 | [AR-05_ordinary_house_assembler.md](AR-05_ordinary_house_assembler.md) | Deterministic kit assembly replaces box+gable for all 319 untiered houses | AR-03, AR-04 | **R-963** |

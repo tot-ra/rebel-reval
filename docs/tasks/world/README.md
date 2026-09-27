@@ -109,7 +109,7 @@ and must not be merged, but the boundary has to stay sharp because both touch th
 
 Three specific interlocks:
 
-- **ADR numbers.** AR-02 owns `docs/adr/0022-architectural-asset-pipeline.md`. This pack uses
+- **ADR numbers.** AR-02 owns `docs/adr/0025-architectural-asset-pipeline.md` (0022 went to realistic human characters). This pack uses
   **0023** (relief as gameplay, WB-01) and **0024** (semantic authoring layer, WB-09). Whoever
   writes second must re-check the highest merged ADR number before creating a file.
 - **WB-13 and AR-06.** AR-06 grows the burgher *meshes* from 6 to a real street population. WB-13

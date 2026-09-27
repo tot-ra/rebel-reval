@@ -86,7 +86,7 @@ and **not one family ships a roughness map**.
   must be provable as a pure surface change.
 - No map, blueprint, transition, collision or navigation edits. No ID changes.
 - Do not fork the material cache per building. Material count per map must not grow more than the ADR
-  0022 budget allows; if AR-02 has not landed yet, hold the current material count and record the
+  0025 budget allows; if AR-02 has not landed yet, hold the current material count and record the
   measurement so AR-02 can set the number.
 - Do not exceed the storage policy. If the full set does not fit, ship fewer stems per family rather
   than lower channel counts, and say so in the report.

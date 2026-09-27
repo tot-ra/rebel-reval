@@ -1,4 +1,4 @@
-# AR-02: ADR 0022 architectural asset pipeline, fidelity tiers and budget
+# AR-02: ADR 0025 architectural asset pipeline, fidelity tiers and budget
 
 Board row: **R-960**. Priority: high. Depends on: AR-01. Decision document - no code, no assets.
 
@@ -29,7 +29,7 @@ equivalent-cost scope.
 
 ## Deliverable
 
-`docs/adr/0022-architectural-asset-pipeline.md` in the repository ADR format (Status / Context /
+`docs/adr/0025-architectural-asset-pipeline.md` in the repository ADR format (Status / Context /
 Decision / Alternatives / Consequences), deciding at minimum:
 
 1. **Tier split.** Which building families are **kit-assembled** (ordinary fabric, high count, high
@@ -64,7 +64,7 @@ Decision / Alternatives / Consequences), deciding at minimum:
 
 ## Allowed files
 
-- `docs/adr/0022-architectural-asset-pipeline.md` (new)
+- `docs/adr/0025-architectural-asset-pipeline.md` (new)
 - `docs/ART_BIBLE.md` (pointer to the ADR only)
 - `docs/ARCHITECTURE.md` (file-ownership rows for the new pipeline only)
 - `TODO.md`
@@ -84,7 +84,7 @@ Decision / Alternatives / Consequences), deciding at minimum:
 python3 tools/generate_active_docs_report.py --check
 ```
 
-- The ADR has all five required sections and is numbered 0022, following 0021.
+- The ADR has all five required sections and is numbered 0025, following 0024 (0022 and 0023 were taken first).
 - All seven decisions above are answered with a concrete value, not "to be determined". A budget stated
   as a range is acceptable; a budget stated as "reasonable" is not.
 - The scope trade names specific existing task ids and says whether they are removed or deferred.
@@ -96,10 +96,10 @@ python3 tools/generate_active_docs_report.py --check
 
 ## Doc updates
 
-`docs/adr/0022-architectural-asset-pipeline.md`, `docs/ART_BIBLE.md`, `docs/ARCHITECTURE.md`, `TODO.md`.
+`docs/adr/0025-architectural-asset-pipeline.md`, `docs/ART_BIBLE.md`, `docs/ARCHITECTURE.md`, `TODO.md`.
 
 ## TODO.md line
 
 ```
-- [ ] R-960 | deps: R-959 | deliverable: docs/adr/0022-architectural-asset-pipeline.md deciding the kit-vs-bespoke tier split per building family, the provenance rule for external meshes and textures, numeric triangle/texture/material/LOD-distance and on-disk budgets per tier, the instancing and chunk-streaming contract that keeps generated geometry disposable, the named visual acceptance protocol that green tests cannot substitute for (P0-209b precedent), the named equivalent-cost scope trade, and any ADR 0016/0018/0009 amendment notes | allowed files: per docs/tasks/architecture/AR-02_adr_architecture_pipeline.md | verify: active docs check; ADR numbered 0022 with Status/Context/Decision/Alternatives/Consequences; all seven decisions carry concrete values; scope trade names existing task ids; acceptance protocol reproducible without clarification; budgets consistent with PERFORMANCE_REPORT and ASSET_STORAGE_POLICY; Accepted with maintainer named, or Proposed with AR-04 explicitly blocked
+- [ ] R-960 | deps: R-959 | deliverable: docs/adr/0025-architectural-asset-pipeline.md deciding the kit-vs-bespoke tier split per building family, the provenance rule for external meshes and textures, numeric triangle/texture/material/LOD-distance and on-disk budgets per tier, the instancing and chunk-streaming contract that keeps generated geometry disposable, the named visual acceptance protocol that green tests cannot substitute for (P0-209b precedent), the named equivalent-cost scope trade, and any ADR 0016/0018/0009 amendment notes | allowed files: per docs/tasks/architecture/AR-02_adr_architecture_pipeline.md | verify: active docs check; ADR numbered 0025 with Status/Context/Decision/Alternatives/Consequences; all seven decisions carry concrete values; scope trade names existing task ids; acceptance protocol reproducible without clarification; budgets consistent with PERFORMANCE_REPORT and ASSET_STORAGE_POLICY; Accepted with maintainer named, or Proposed with AR-04 explicitly blocked
 ```

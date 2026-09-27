@@ -3,6 +3,7 @@
 **Status:** Normative visual direction; technical production freeze remains gated by P0-038 / P0-040
 **Art-direction approval:** [ADR 0022](adr/0022-realistic-human-characters.md), maintainer-directed 2026-09-26 — realistic, historically accurate (KCD2 / Witcher 3 reference). The saturated fantasy/anime rules below from ADR 0018 (2026-07-30) are superseded wherever they conflict; recalibrating the environment grade toward a naturalistic finish is follow-up work.
 **Technical foundation:** [ADR 0007](adr/0007-ai-generated-isometric-presentation.md), [ADR 0015](adr/0015-default-third-person-camera.md), [ADR 0016](adr/0016-tiered-character-fidelity.md)
+**Buildings:** [ADR 0025](adr/0025-architectural-asset-pipeline.md) (proposed, AR-02) - kit vs bespoke tiers, provenance, triangle/texture/material/disk budgets and the building visual acceptance protocol; AR-04 and later building art wait on its acceptance
 **Material lock:** [`MATERIAL_STYLE_LOCK_KIT.md`](MATERIAL_STYLE_LOCK_KIT.md) (`style-lock-v1.1`)
 
 This document is binding for new art decisions. It replaces the pale/desaturated clean-painted and Fallout-grade targets retained in P0-036 evidence. Existing accepted assets are migration inputs, not the color or detail ceiling for new work.
