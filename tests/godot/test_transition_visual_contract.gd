@@ -3,6 +3,11 @@ extends "res://tests/godot/test_case.gd"
 const Registry := preload("res://scripts/map/map_audit_registry.gd")
 const INTERIOR_WALL_DOORS := {
 	&"kalev_smithy": [&"door_courtyard"],
+	# Tower interiors already author the city-facing wall gap; the exit sits in
+	# that opening and must not grow a freestanding outdoor facade.
+	&"kuldjala_interior": [&"kuldjala_exit"],
+	&"nunnatorn_interior": [&"nunnatorn_exit"],
+	&"rentenitorn_interior": [&"rentenitorn_exit"],
 }
 
 
@@ -15,9 +20,15 @@ func test_functional_transitions_never_render_freestanding_doors() -> void:
 			var context := "%s.%s" % [definition.map_id, transition.get("id", &"")]
 			match visual:
 				MapTypes.TRANSITION_VISUAL_GROUND:
-					assert_true(bool(transition.get("highlight_area", false)), "%s needs a readable ground cue" % context)
+					assert_true(
+						bool(transition.get("highlight_area", false)),
+						"%s needs a readable ground cue" % context
+					)
 				MapTypes.TRANSITION_VISUAL_DOOR:
-					assert_true(_door_has_structural_context(definition, transition), "%s must attach to a facade, wall opening, or gate landmark" % context)
+					assert_true(
+						_door_has_structural_context(definition, transition),
+						"%s must attach to a facade, wall opening, or gate landmark" % context
+					)
 				_:
 					fail("%s must use a contextual door or ground cue" % context)
 
@@ -26,7 +37,12 @@ func _door_has_structural_context(definition: MapDefinition, transition: Diction
 	var building_id := StringName(String(transition.get("building_id", "")))
 	if not building_id.is_empty():
 		var building := MapBuildingEntrance.find_building(definition, transition)
-		return not building.is_empty() and MapBuildingEntrance.approach_aligns_with_facade(building, transition, definition.cell_size)
+		return (
+			not building.is_empty()
+			and MapBuildingEntrance.approach_aligns_with_facade(
+				building, transition, definition.cell_size
+			)
+		)
 	if MapViewMeshBuilder.transition_uses_landmark_visual(definition, transition):
 		return true
 	# Interior wall openings intentionally render their own framed door. Keep the
