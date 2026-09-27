@@ -214,8 +214,8 @@ func test_seam_link_points_sit_inside_each_inset_region() -> void:
 
 func test_baked_packages_have_no_path_until_the_host_adds_seam_links() -> void:
 	var host := _configured_host()
-	assert_true(host.mount_location(&"map_a", _baked_package(_map_a())))
-	assert_true(host.mount_location(&"map_b", _baked_package(_map_b())))
+	assert_true(host.mount_location(&"map_a", MapSceneBootstrap.assemble_location_package(_map_a())))
+	assert_true(host.mount_location(&"map_b", MapSceneBootstrap.assemble_location_package(_map_b())))
 	var map_rid := host.navigation_map()
 	for location_id in [&"map_a", &"map_b"]:
 		var region := _region_of(host, location_id)
@@ -331,19 +331,6 @@ func _flat_region_package(location_id: StringName) -> Node2D:
 	)
 	polygon.add_polygon(PackedInt32Array([0, 1, 2, 3]))
 	region.navigation_polygon = polygon
-	package.add_child(region)
-	return package
-
-
-## Same bake assemble_location_package() uses (R-978), reduced to the region so
-## the seam-link tests isolate navigation.
-func _baked_package(definition: MapDefinition) -> Node2D:
-	var package := Node2D.new()
-	package.name = "BakedPackage_%s" % String(definition.map_id)
-	var region := MapNavBuilder.create_navigation_region(
-		definition, MapBuilder.build(definition)
-	)
-	region.name = "Navigation"
 	package.add_child(region)
 	return package
 
