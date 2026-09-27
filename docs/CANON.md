@@ -149,6 +149,15 @@ Decisions over `story/STORY.md`. Every promoted beat carries a confidence label.
   * **Lighter / Estonian *lodi* (lodja-type)** - **`plausible composite`** as a shoal-draft transfer barge; 14th-c. origin is handbook tradition. Do not use 20th-c. *OAT* / Jõmmu numbers, a steering wheel, or a diesel as 1343 fact.
   * **Saaremaa strait craft** - **`plausible composite`** as an open beachable clinker boat. Salme I/II are 8th-9th c. and must not be copied as 1343 lengths.
   * **Rejected 1343 features** - gaff and other later fore-and-aft mainsails, lateen on a cog, multi-masted *kraweel*, ratlines as a shroud ladder, full-carvel cog sides, four stone piers of cogs, *haabjas* as the strait ferry, and 19th-20th-c. *juha* / *lootsik* types. See the report reject list.
+* **Building families (Spring 1343)** - mixed labels; full cards in [`reports/reval_architecture_typology_1343.md`](./reports/reval_architecture_typology_1343.md) (R-959)
+  * **Diele-dornse merchant house** - **`attested`** as a Reval/Hanseatic type (strip 7-11 m, gable to street, cellar, hoist practice). Per-house wood/stone mix and 1343 hypocaust share are **`plausible composite`**. Door/window metres and roof pitch by cover are **`unknown`**.
+  * **Timber front and craft *boda*** - **`attested`** coexistence of timber and stone; *boda* as a compact rented workshop. Exact 1343 *boda* dimensions **`unknown`**. Decorative diagonal Fachwerk is not a Reval default.
+  * **Log smoke dwelling and two-part barn-dwelling** - **`attested`** types in Estonia; chimneyless. Named 1343 farm plans and museum exteriors are not 1343 fact.
+  * **Parish churches and St Michael / St Catherine precincts** - **`attested`** institutions and dated phases (St Olaf vaults c. 1330, Holy Spirit priest 1316, St Barbara chapel 1342, St Michael ~6.5 ha). Later basilicas, the 1450 St Olaf spire, and 1360 Holy Spirit vaults as finished work are excluded.
+  * **Toompea cathedral enlargement and wooden hill gates** - **`attested`** programme / negatives (no medieval west tower, Pikk Hermann after 1371, stone Long Leg 1380). Small Castle room metres remain **`unknown`**.
+  * **Town Hall by 1322** - **`attested`**. The later tower, full present length, and coats-of-arms gallery are excluded. Runtime arcade thickness is **`invented`** gameplay, not a measurement.
+  * **Wall circuit in the 1340s** - **`attested`** as unfinished work. Curtain ~6 m / 1.3-1.6 m is a **`plausible composite`** mid-century band. Fat Margaret, Viru barbican, and the 15th-c. raise are excluded.
+  * **Padise 1343** - **`attested`** as a Cistercian working estate founded 1310; **`plausible composite`** pre-quadrangle scatter per Kadakas. Later abbey church and gun towers are excluded.
 
 ---
 

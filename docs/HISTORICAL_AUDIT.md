@@ -205,6 +205,21 @@ The numeric ranges below use these definitions:
 | H23 | [Estonian folklore synthesis](lore/estonian_folklore.md) | Sacred groves (hiis), offering stones, soul-tree belief and animist ritual margins outside parish cores | Folklore and chronicle-adjacent belief; no attested 1343 grove coordinates |
 | H24 | [Medieval Heritage - Pöide Castle](https://medievalheritage.eu/en/main-page/heritage/estonia/poide-castle/) | Bishopric stronghold on Saaremaa; island coastal access and siege setting | 1343 mass is partly reconstructed; later rebuilding is excluded |
 | H25 | [Medieval Heritage - Pärnu](https://medievalheritage.eu/en/main-page/heritage/estonia/parnu/) | Hanseatic river-mouth port and modest town fortifications in southern Estonia | Exact 1343 street plan and harbour works are **U**; later town growth is excluded |
+| H26 | [EKA Hidden Heritage - Pikk Street](https://www.artun.ee/en/curricula/cultural-heritage-conservation/hidden-heritage/) | Diele-dornse sequence, mantel chimney, hypocaust at Pikk 69 / Three Sisters | Surviving interiors are later than April 1343; use for type, not a dated house |
+| H27 | [Forgotten Galicia - Merchants' Hoisting Beams in Tallinn](https://forgottengalicia.com/merchants-hoisting-beams-tallinn/) | Facade loading hatches, protruding beam, interior winch on merchant storage floors | Peppersack tradition from the 1370s; April 1343 prevalence is a composite |
+| H28 | Lavi, Ain. Estonian farm-building synthesis (8th-15th c. smoke house) via [`history/dossiers/architecture/rural-smoke-dwelling-and-farmstead-1343.md`](../history/dossiers/architecture/rural-smoke-dwelling-and-farmstead-1343.md) | Oven-heated horizontal-log dwelling, ground-level siting, earth floors, chimneyless smoke path | Wooden remains are fragmentary; not a named 1343 farm plan |
+| H29 | [Estonian Open Air Museum - Rehemaja / exhibition](https://evm.ee/exhibition) | Barn-dwelling type first named in the 14th century; two-part heated room + threshing floor | Extant exteriors and chambers are 17th-19th c.; museum farms are not 1343 facades |
+| H30 | [Kadakas, Archaeological Studies in Padise Monastery, AVE 2011](../history/AVE2011_Kadakas_Padise.pdf) | 1343 Padise as a working estate: stone hall, niched building, timber ranges, mill - not a finished quadrangle | Present abbey church and later fortification are post-1343 |
+| H31 | [Medieval Heritage - St Nicholas, Tallinn](https://medievalheritage.eu/en/main-page/heritage/estonia/tallinn-st-nicholas-church-niguliste-kirik/) | Late-13th-c. hall church, north porch in the first half of the 14th c., St Barbara chapel recorded 1342 | 15th-c. basilica choir and later fittings are excluded |
+| H32 | [Medieval Heritage - St Michael's Cistercian nunnery](https://medievalheritage.eu/en/main-page/heritage/estonia/tallinn-st-michaels-convent/) | Founded 1249; ~6.5 ha close; patronage of St Olaf from 1267; 1340s wall incorporation | Nuns' Gate name is 1355; later conventual show fabric is excluded |
+| H33 | [Walls, gates, and towers dossier (cites TLPA / Nurk 2022 survey)](../history/dossiers/topography/walls-gates-towers.md) | Localises medieval wall, gate and tower positions; survey is a modern base plan | Not a reconstructed April 1343 completion state; inventory is explicitly incomplete |
+| H34 | [Suur-Karja 8 building history](https://suurkarja8.ee/en/hoone/) | Diele half-storey up, chimney-kitchen and stair opposite, street portal | First written early 15th c.; typology only for 1343 |
+| H35 | [Reval fortifications 1343 baseline](reports/reval_fortifications_1343.md) | Conservative four completed Lower Town towers; other mid-century gates as construction candidates | Gameplay registry, not a day-exact 1343 tower census |
+
+Building **form** (bays, storeys, gables, openings, plinths, 1343 exclusions as masses)
+is in [`docs/reports/reval_architecture_typology_1343.md`](reports/reval_architecture_typology_1343.md)
+(R-959 / AR-01). It extends this register only. It does not reopen the 2026-07-24
+human review gate or the signed P0-072 density and surface bands.
 
 ### Shared 1343 constraints
 
