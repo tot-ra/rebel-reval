@@ -9,7 +9,7 @@ related:
   - ../topography/walls-gates-towers.md
   - ../topography/back-lanes-east-of-pikk.md
   - ../power/jurisdictions-of-reval.md
-updated: 2026-07-28
+updated: 2026-09-27
 ---
 
 # Ecclesiastical precinct boundaries (Spring 1343)
@@ -21,7 +21,7 @@ You are blocking **two enclosed monastic polygons** inside the mid-1340s wall ci
 **Ship these decisions:**
 
 1. **Dominican close (~0.45–0.65 ha built core):** Rectangle between **Vene** (west) and the **curtain** (east), church in the **south**, cloister garth north of the church. April 1343 church is **usable stone hall** (c. 1300) but **shorter and simpler** than the late-medieval eight-bay peak (67.7 m) — author **~45–55 m × ~16–18 m** nave block [`religion.ecclesiastical-precinct-boundaries-1343.02`](../../reference/religion/ecclesiastical-precinct-boundaries-1343/religion.ecclesiastical-precinct-boundaries-1343.02.jpg) (linked plan; strip 15th-c. bays).
-2. **St Michael close (~6.5 ha total attested; built core ~1.2–1.8 ha composite):** Large **walled garden precinct** on the western edge, **outside the oldest merchant core** when founded **1249**, being **tied into the new curtain in the 1340s**. Show **scaffold and fresh limestone** on the west/north wall tie-in; **do not label Nuns' Gate** in UI (**1355** name) though an opening may exist [`walls-gates-towers.md`](../topography/walls-gates-towers.md).
+2. **St Michael close (1343 total area unknown; built core ~1.2–1.8 ha composite):** Large **walled garden precinct** on the western edge, **outside the oldest merchant core** when founded **1249**, being **tied into the new curtain in the 1340s**. Show **scaffold and fresh limestone** on the west/north wall tie-in; **do not label Nuns' Gate** in UI (**1355** name) though an opening may exist [`walls-gates-towers.md`](../topography/walls-gates-towers.md).
 3. **Wall-incorporation seam (both sites):** Dominican east wall **is** the city curtain by 1343 `plausible composite` [1][2]. Nunnery **own curtain** merges with city wall on west/north in **Johannes Kanne's 1340s programme** — April state = **active construction**, not finished 1355 closure [3][4].
 4. **Jurisdiction colour:** Dominican yard = **sanctuary / church-law seam** (composite) [`jurisdictions-of-reval.md`](../power/jurisdictions-of-reval.md). Nunnery interior = **enclosed; town Vogt does not patrol inside** without bishop/nunnery consent — composite Hanseatic norm [5].
 5. **Do not fill** either polygon with merchant strip housing. Service lanes (**Katariina käik**, **Müürivahe**, **Suur-Kloostri / Aida**) run **outside** or along precinct edges, not through cloister garths [6][7].
@@ -30,7 +30,7 @@ You are blocking **two enclosed monastic polygons** inside the mid-1340s wall ci
 
 ### Method and limits
 
-No **1343 measured cadastre** survives for either close. Polygons below are **authoring targets** reconciling: Kühnert/Neumann Dominican plans [1], Medieval Heritage wall-phase diagrams [2], nunnery archaeology summaries [3][8], and surviving street alignments [6][7]. Every edge carries a confidence label. **Do not** treat vertices as GIS survey.
+No **1343 measured cadastre** survives for either close. Polygons below are **authoring targets** reconciling: Kühnert/Neumann Dominican plans [1], Medieval Heritage wall-phase diagrams [2], nunnery archaeology summaries [3][8], and surviving street alignments [6][7]. Every edge carries a confidence label. **Do not** treat vertices as GIS survey. The inherited St Michael hectare figure is **unknown** as a 1343 measurement (H32; R-1034).
 
 ### Dominican St Catherine — boundary segments
 
@@ -50,7 +50,7 @@ No **1343 measured cadastre** survives for either close. Polygons below are **au
 
 ### Cistercian St Michael — boundary segments
 
-**Orientation:** Walled **~6.5 ha** close on the **western/northern expansion belt** [3][4]. Patron of **St Olaf** since **1267** [10]. **1301** obligation to fund **city-wall construction** diverted claustrum building funds — expect **unfinished north range** and **construction yard** on the wall line in April 1343 [3][8].
+**Orientation:** Large **walled garden close** on the **western/northern expansion belt** (1343 area **unknown**) [3][4]. Patron of **St Olaf** since **1267** [10]. **1301** obligation to fund **city-wall construction** diverted claustrum building funds — expect **unfinished north range** and **construction yard** on the wall line in April 1343 [3][8].
 
 | Segment | From → To (authoring anchor) | Length target | April 1343 verdict | Confidence |
 |---|---|---:|---|---|
@@ -60,7 +60,7 @@ No **1343 measured cadastre** survives for either close. Polygons below are **au
 | **S1** | SE → SW (Suur-Kloostri / Aida belt) | ~140–200 m | **Convent church + claustral ranges** along southern built core; **Kloostri värav** (Monastery Gate) later formal name — treat as **controlled postern** `plausible composite` [`religion.ecclesiastical-precinct-boundaries-1343.04`](../../reference/religion/ecclesiastical-precinct-boundaries-1343/religion.ecclesiastical-precinct-boundaries-1343.04.jpg) | built core attested; gate nomenclature later [4][7] |
 | **I1** | Internal: church to cloister | church footprint **~40–50 m × ~18–22 m** | **Stone church** with adjacent **east/west claustral wings**; refectory **9.25 × 8.1 m** room attested in north wing archaeology | north refectory room attested [8]; overall plan composite |
 
-**Authoring polygon (full precinct):** **~6.5 ha** total [`religion.ecclesiastical-precinct-boundaries-1343.05`](../../reference/religion/ecclesiastical-precinct-boundaries-1343/religion.ecclesiastical-precinct-boundaries-1343.05.jpg) (linked wall-phase plan). Split interior:
+**Authoring polygon (full precinct):** follow the **western/northern wall-phase enclosure** (1343 area **unknown**; do not treat an inherited hectare figure as a measurement) [`religion.ecclesiastical-precinct-boundaries-1343.05`](../../reference/religion/ecclesiastical-precinct-boundaries-1343/religion.ecclesiastical-precinct-boundaries-1343.05.jpg) (linked wall-phase plan). Split interior:
 
 | Zone | Area share | 1343 content | Confidence |
 |---|---:|---|---|
@@ -76,7 +76,7 @@ No **1343 measured cadastre** survives for either close. Polygons below are **au
         [Toompea / Dome]
               |
     +---------+---------+
-    | ST MICHAEL CLOSE  |  ~6.5 ha (west/north belt)
+    | ST MICHAEL CLOSE  |  west/north belt (area unknown)
     |  garden + convent |
     +---------+---------+
               |  merchant strips (Pikk / Lai)
@@ -98,7 +98,7 @@ Dominican block sits **east of deep Pikk plots** [`back-lanes-east-of-pikk.md`](
 
 ## Production hooks
 
-- **Map:** Block two `monastic_precinct` polygons with `jurisdiction: church_seam`. Dominican: **58×95 m** built core, east edge = `wall_walk` metadata. St Michael: **6.5 ha** outer ring; only **southern 20%** `built_high`; northern/western **garden_grass** 40–55%. Tag **Nuns' opening** as `gate_unnamed_1343`. Set `construction_scaffold: true` on St Michael **W1/N1** segments.
+- **Map:** Block two `monastic_precinct` polygons with `jurisdiction: church_seam`. Dominican: **58×95 m** built core, east edge = `wall_walk` metadata. St Michael: large **walled garden** outer ring (1343 area **unknown**); only **southern 20%** `built_high`; northern/western **garden_grass** 40–55%. Tag **Nuns' opening** as `gate_unnamed_1343`. Set `construction_scaffold: true` on St Michael **W1/N1** segments.
 - **Art:** Dominican cloister = **limestone arcade, square garth, well** [`religion.ecclesiastical-precinct-boundaries-1343.01`](../../reference/religion/ecclesiastical-precinct-boundaries-1343/religion.ecclesiastical-precinct-boundaries-1343.01.jpg). St Michael = **high curtain, orchard rows, smoke from kitchen**, **no** baroque school façade. Katariina käik = **2–3 m** passage [`religion.ecclesiastical-precinct-boundaries-1343.03`](../../reference/religion/ecclesiastical-precinct-boundaries-1343/religion.ecclesiastical-precinct-boundaries-1343.03.jpg).
 - **Quest / Narrative:** **Sanctuary** pursuit stops at Dominican **W1** gate (composite). **Wall labour** quest — nunnery **1301** debt to city wall [8]. **Mill race dispute** on St Michael **N1** garden edge.
 - **Narrative:** Estonian labourers work **garden fences**, not chapter choir; German burghers deal with friars at **fish wharf** east of precinct.
@@ -128,12 +128,13 @@ Dominican block sits **east of deep Pikk plots** [`back-lanes-east-of-pikk.md`](
 - **GeoJSON export** of both authoring polygons for `monastery_quarter` rrmap import — downstream **dev** task (see RESEARCH_INDEX Downstream requests).
 - **Dominican brewery and fish yard** exact south footprint — needs Tallinn archaeology report pass on Vene south plots.
 - **St Michael east fence** vs stone wall — segment **E1** may be wattle in 1343; archaeology thin.
+- **St Michael close area** in hectares remains **unknown** for 1343; do not restore an inherited figure without a live primary or established-historiography source.
 
 ## Sources
 
 1. E. Kühnert, *Das Dominikanerkloster zu Reval*, Reval 1926; summarised at Medieval Heritage, "Tallinn - Dominican Friary," https://medievalheritage.eu/en/main-page/heritage/estonia/tallinn-monastery-of-st-catherine-puha-katariina-klooster/ — plan, phases, 1246 foundation (German/English summary).
 2. Medieval Heritage, "Tallinn - city defensive walls," https://medievalheritage.eu/en/main-page/heritage/estonia/tallinn-city-defensive-walls/ — mid-14th-c. eight-gate scheme, Nuns' Gate position (English).
-3. Estonian Wikipedia, "Tallinna Püha Miikaeli klooster," https://et.wikipedia.org/wiki/Tallinna_P%C3%BCha_Miikaeli_klooster — 1249 foundation, 6.5 ha, 1340s wall (Estonian).
+3. Estonian Wikipedia, "Tallinna Püha Miikaeli klooster," https://et.wikipedia.org/wiki/Tallinna_P%C3%BCha_Miikaeli_klooster — 1249 foundation, 1340s wall (Estonian). The inherited 6.5 ha close is **unknown** as a 1343 measurement (H32 URL 404; R-1034).
 4. [`../topography/walls-gates-towers.md`](../topography/walls-gates-towers.md) — 1340s suburb enclosure, Nuns' Gate 1355 name (English, project dossier).
 5. [`../power/jurisdictions-of-reval.md`](../power/jurisdictions-of-reval.md) — Dominican sanctuary seam (English, project dossier).
 6. [`../topography/back-lanes-east-of-pikk.md`](../topography/back-lanes-east-of-pikk.md) — Katariina käik, Vene, Müürivahe (English, project dossier).

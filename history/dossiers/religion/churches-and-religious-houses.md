@@ -13,7 +13,7 @@ related:
   - ./liturgical-calendar-spring-1343.md
   - ./ecclesiastical-precinct-boundaries-1343.md
   - ../culture/music-and-instruments.md
-updated: 2026-07-28
+updated: 2026-09-27
 ---
 
 # Churches and religious houses (Spring 1343)
@@ -27,7 +27,7 @@ You are dressing **Catholic Reval in April–May 1343**, one week before and thr
 1. **Parish trio (Lower Town):** **St Nicholas** (south-west, wealthy merchant parish), **St Olaf** (north, Scandinavian/craft quarter), **Holy Spirit** (market edge, council-linked parish + almshouse). Each has bells, cemetery, and a German-speaking congregation; Estonians appear mainly as baptised labour and servants, not as council-facing parish officers [1][2][3][4].
 2. **Cathedral (Toompea):** **Dome church** (*Toomkirik*) — diocesan mother church, bishop **Olaf of Roskilde**, chapter, and school; **Gothic nave enlargement active** in April 1343 (scaffolding, masons' yard) [5][6]. Burgher baptisms and marriages normally happen in **parish** churches, not on the hill.
 3. **Dominican priory (St Catherine):** Mendicant friary east of the market since **1246**; stone church largely standing by **c. 1300** but still growing; preaching, confession, schooling, fish-and-beer economy — **not** a parish register church [7][8]. Treat precinct as **sanctuary seam** `plausible composite` [9].
-4. **Cistercian nuns (St Michael):** Founded **1249**; **~6.5 ha** walled close on the western edge; **patron of St Olaf** since **1267**; wall-incorporation work **under way in the 1340s** — show construction, not finished Nuns' Gate nomenclature (**1355** attestation) [10][11][12].
+4. **Cistercian nuns (St Michael):** Founded **1249**; large **walled garden close** on the western edge (1343 area **unknown**); **patron of St Olaf** since **1267**; wall-incorporation work **under way in the 1340s** — show construction, not finished Nuns' Gate nomenclature (**1355** attestation) [10][11][12].
 5. **1343 fabric rules:** St Olaf = **vaulted nave c. 1330**, **no** 1433-fire basilica, **no** record-height spire (tower **1364+**) [13]. St Nicholas = **late-13th-c. hall** + **north porch (first half 14th c.)** + **St Barbara chapel attested 1342**; **not** the 1405–1420 basilica choir [14]. Holy Spirit = **two-aisle hall** with **wooden ceiling or early vault prep** — present star vaults are **1360** [15]. Dominican = large stone hall church, simpler than its 15th-c. peak [7].
 6. **Social colour:** Guild umbrellas hold **side altars and chapels** inside parish churches — St Canute smiths **not** St Olaf umbrella [`guild-structure.md`](../crafts/guild-structure.md) [16]. Dominican brewery and fish trade smell the eastern lanes; nunnery garden and mill lands west of Harju approach [7][10].
 7. **Siege behaviour:** Parish bells ring **hours and alarm** [`watch-duty-and-town-defence.md`](../military/watch-duty-and-town-defence.md); specific 1343 curfew bell names **not attested** [17]. Rebels target **rural clergy and manors**, not Lower Town parish fabric in April [18]. Bishop Olaf is a **pro-Danish political actor** on Toompea [6][19].
@@ -44,7 +44,7 @@ You are dressing **Catholic Reval in April–May 1343**, one week before and thr
 | **St Olaf** (*Oleviste*) | N Lower Town, harbour approach | Standing; **vaults completed c. 1330**; **enclosed in walls** 1st half 14th c. | Second parish; **Scandinavian-settler tradition**; **St Olaf craft umbrella** chapel ties; Cistercian **patronage rights** | attested [13][22] |
 | **Holy Spirit** (*Pühavaimu*) | N of market, Pühavaimu St | Standing; priest **1316/1319**; **second aisle** by early 14th c.; vaulting **1360** | Parish + **almshouse/hospice** complex; **council-facing** worship `plausible composite` | attested priest; almshouse layout composite [15][23] |
 | **Dominican St Catherine** | E Lower Town, Vene–wall belt | Operational since **1246**; stone church **from 1260s**, largely usable **c. 1300** | Friars: preaching, education, confession; **fish trade** and brewery; guild altars later | attested [7][8] |
-| **Cistercian St Michael** (nuns) | W Lower Town, Klostri/Aida belt | Founded **1249**; walled close **~6.5 ha**; wall tie-in **1340s** | Enclosed nuns from **Harju–Viru vassal families**; **patron of St Olaf**; estates and mills | attested [10][11] |
+| **Cistercian St Michael** (nuns) | W Lower Town, Klostri/Aida belt | Founded **1249**; large walled close (area **unknown**); wall tie-in **1340s** | Enclosed nuns from **Harju–Viru vassal families**; **patron of St Olaf**; estates and mills | attested institution [10][11]; close hectares **unknown** |
 | **Padise Cistercian abbey** | Harju west (hinterland) | **Under construction** April 1343; sacked on uprising night | Rural monastic lordship — **not** a city church | attested [18][24] |
 
 ### Dome church (cathedral)
@@ -95,7 +95,7 @@ You are dressing **Catholic Reval in April–May 1343**, one week before and thr
 ### Cistercian nunnery of St Michael
 
 - Founded **1249** (legendary Erik IV vision — treat founding **decision** as attested, miracle story as **folklore**) [10][11]. **attested** / **folklore**
-- Original site **outside** walls; **~6.5 ha** precinct; **patronage over St Olaf** since **1267** [10][22]. **attested**
+- Original site **outside** walls; **patronage over St Olaf** since **1267** [10][22]. Close area in hectares is **unknown** as a 1343 measurement [10]. **attested** patronage; area **unknown**
 - **1340s:** Governor **Johannes Kanne's** wall expansion **incorporates** nunnery curtain into city defences; **Nuns' Gate** (*Porta Monialium*) named **1355** — in April 1343 show **masons tying nunnery wall to new curtain**, gate name unlabelled in UI [11][12]. **attested** programme; April gate name **absent**
 - **Saunatorn** (*tower by the bath*) and western wall line develop in this expansion [`walls-gates-towers.md`](../topography/walls-gates-towers.md) [12]. **attested**
 - **Congregation:** enclosed **Cistercian nuns** from **vassal and upper-town families**; public church access limited; economic power via **St Olaf tithes**, **Kuimetsa/Nabala** manors, and urban mills [10][11]. **attested** framework
@@ -157,6 +157,7 @@ You are dressing **Catholic Reval in April–May 1343**, one week before and thr
 - **Named parish priests** and Dominican prior in **1343** — needs Tallinn City Archives / publication pass.
 - **Holy Spirit almshouse** ground plan and bed count in 1343 — archaeology thin; only block relationship secure.
 - Whether **St Olaf west tower** was already standing in April 1343 or only after **1364** document — stratigraphy ambiguous.
+- **St Michael close area** in hectares remains **unknown** for 1343; do not restore an inherited figure without a live primary or established-historiography source.
 
 ## Sources
 
@@ -169,7 +170,7 @@ You are dressing **Catholic Reval in April–May 1343**, one week before and thr
 7. Medieval Heritage, "Tallinn - Dominican Friary," https://medievalheritage.eu/en/main-page/heritage/estonia/tallinn-monastery-of-st-catherine-puha-katariina-klooster/ — 1246 refoundation, 1260s stone church, economy (English).
 8. MNLL, "De ordine predicatorum de Tolosa in Dacia," https://medieval.wiki.uib.no/De_ordine_predicatorum_de_Tolosa_in_Dacia — 1229 and 1246 foundations, Prior Daniel (English/Latin scholarship).
 9. [`../power/jurisdictions-of-reval.md`](../power/jurisdictions-of-reval.md) — Dominican sanctuary seam flagged as composite (English, project dossier).
-10. Estonian Wikipedia, "Tallinna Püha Miikaeli klooster," https://et.wikipedia.org/wiki/Tallinna_P%C3%BCha_Miikaeli_klooster — 1249 foundation, 6.5 ha, 1340s wall, 1355 gate (Estonian).
+10. Estonian Wikipedia, "Tallinna Püha Miikaeli klooster," https://et.wikipedia.org/wiki/Tallinna_P%C3%BCha_Miikaeli_klooster — 1249 foundation, 1340s wall, 1355 gate (Estonian). The inherited 6.5 ha close is **unknown** as a 1343 measurement (H32 URL 404; R-1034).
 11. Gustav Adolfi Gümnaasium lecture PDF (Inna Graužiniene, 2015), https://gag.ee/wp-content/uploads/2018/12/Klooster_ettekanne-Gustav-Adolfi-p%C3%A4eval_06.11.2015_Inna.pdf — founding legend vs 1249 date (Estonian).
 12. [`../topography/walls-gates-towers.md`](../topography/walls-gates-towers.md) — 1340s suburb enclosure and Nuns' Gate (English, project dossier).
 13. Medieval Heritage, "Tallinn - St Olaf's Church," https://medievalheritage.eu/en/main-page/heritage/estonia/tallinn-st-olafs-church-oleviste-kirik/ — 1330 vault boss, wall incorporation, pre-1433 form (English).
