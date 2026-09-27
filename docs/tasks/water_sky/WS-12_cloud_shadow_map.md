@@ -129,11 +129,11 @@ GPU items 2-4 are owned by **R-1033**.
    - Clear noon without the pass: `ws12_metal_partly_harbour_nopass.png` (real sea).
    - Overcast / night on Metal and Compatibility: `ws12_{metal,opengl3}_{overcast,night}_harbour.png`.
      `sun_share` is 0, overlay hidden, no distinct patches.
-   - Pass-on partly-cloudy plates are **not** evidence. `hint_screen_texture` in this
-     capture path (nested SubViewport or the minimized root window) binds a default
-     buffer: Metal becomes beige mottling, Compatibility becomes RGB noise. Follow-up
-     owns a play-path capture and a shader skip when `sun_share` is 0 (`ALPHA` is 1 today).
-     Board follow-up: **R-1048**.
+   - **R-1048:** the overlay no longer samples `hint_screen_texture`. It
+     `blend_mul`s the live framebuffer and `discard`s when `sun_share` is
+     ~0. Metal pass-on plates keep the real sea and show moving patches.
+     Compatibility is darker than Metal on the same multiply; **R-1051**
+     owns a GL strength match, not a return to the default-buffer resample.
 4. Isolated pass cost: `tools/capture_ws12_cloud_shadows.gd -- --bench` at 1920x1080 on
    Apple M5 Pro Metal: `on_ms=8.606 off_ms=8.634 delta_ms=-0.028` (inside 0.3 ms; the
    pass was not shading the real scene in this path). The quick performance report still

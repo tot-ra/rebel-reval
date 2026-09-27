@@ -62,6 +62,56 @@ func test_sun_share_is_zero_at_night_and_overcast() -> void:
 	sky.free()
 
 
+func test_shader_multiplies_live_framebuffer() -> void:
+	var source := FileAccess.get_file_as_string(
+		"res://scripts/map/view3d/cloud_shadow_pass.gdshader"
+	)
+	assert_false(source.is_empty(), "cloud shadow shader must exist")
+	assert_true(
+		source.contains("blend_mul"),
+		"the pass must multiply the live framebuffer, not replace it"
+	)
+	assert_false(
+		source.contains("uniform sampler2D screen_texture"),
+		"must not resample a screen texture (default-buffer capture path)"
+	)
+	assert_false(
+		source.contains(": hint_screen_texture"),
+		"must not bind the screen-texture hint"
+	)
+	assert_true(
+		source.contains("discard"),
+		"sun_share ~0 must skip the overlay write"
+	)
+	assert_true(
+		source.contains("SUN_SHARE_SKIP"),
+		"shader skip threshold must stay named"
+	)
+
+
+func test_night_share_hides_overlay() -> void:
+	var shadow_pass: Node3D = CloudShadowPassScript.new()
+	var camera := Camera3D.new()
+	shadow_pass.configure(camera, 3)
+	var sky := SkyWeather.new()
+	sky.auto_weather = false
+	sky.set_weather(SkyWeather.WEATHER_CLEAR)
+	sky.advance(SkyWeather.TRANSITION_SECONDS)
+	var overlay := shadow_pass.find_child("CloudShadowOverlay", true, false) as MeshInstance3D
+	assert_true(overlay != null, "configure must spawn the overlay")
+	shadow_pass.update_share(sky.presentation_snapshot(0.5, 1.0))
+	assert_true(overlay.visible, "clear noon must draw the overlay")
+	shadow_pass.update_share(sky.presentation_snapshot(0.0, 0.0))
+	assert_false(overlay.visible, "night share must hide the overlay")
+	sky.set_weather(SkyWeather.WEATHER_OVERCAST)
+	sky.advance(SkyWeather.TRANSITION_SECONDS)
+	shadow_pass.update_share(sky.presentation_snapshot(0.5, 1.0))
+	assert_false(overlay.visible, "overcast share must hide the overlay")
+	shadow_pass.free()
+	camera.free()
+	sky.free()
+
+
 func test_capture_tool_documents_r1033_modes() -> void:
 	var source := FileAccess.get_file_as_string(
 		"res://tools/capture_ws12_cloud_shadows.gd"

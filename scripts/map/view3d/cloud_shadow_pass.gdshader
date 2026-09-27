@@ -1,11 +1,13 @@
 shader_type spatial;
-render_mode unshaded, fog_disabled, depth_draw_never, depth_test_disabled, cull_disabled;
+render_mode unshaded, fog_disabled, depth_draw_never, depth_test_disabled, cull_disabled, blend_mul;
 
 #include "res://scripts/map/view3d/sky_clouds.gdshaderinc"
 
-// Screen colour and depth are sampled in fragment() only. Never pass these
-// hint_* samplers into include helpers (Godot 4.7 binds a default texture).
-uniform sampler2D screen_texture : hint_screen_texture, repeat_disable, filter_linear;
+// WHY no hint_screen_texture: Godot 4.7 binds a default buffer for that hint
+// in SceneTree capture paths (Metal beige mottling, Compatibility RGB noise).
+// Multiply the live framebuffer (dest * factor). blend_mix ALPHA on this
+// unshaded quad did not composite. Compatibility still reads darker than
+// Metal; that is a follow-up, not a return to hint_screen_texture.
 uniform sampler2D depth_texture : hint_depth_texture, repeat_disable, filter_nearest;
 uniform float sun_share : hint_range(0.0, 1.0) = 0.0;
 uniform int shadow_samples : hint_range(1, 3) = 3;
@@ -25,16 +27,21 @@ global uniform float cloud_shadow_strength;
 // 400 world units is about 350 m and keeps readable patches on a district.
 const float CLOUD_LAYER_H = 400.0;
 const float SHADOW_MIP_BIAS = 1.5;
+const float SUN_SHARE_SKIP = 0.01;
 
 void vertex() {
 	POSITION = vec4(VERTEX.xy, 1.0, 1.0);
 }
 
 void fragment() {
+	// Night / full overcast: write nothing so a leftover overlay cannot
+	// replace the sea. The node also hides itself at the same threshold.
+	if (sun_share <= SUN_SHARE_SKIP) {
+		discard;
+	}
 	float depth = textureLod(depth_texture, SCREEN_UV, 0.0).r;
-	vec3 screen = textureLod(screen_texture, SCREEN_UV, 0.0).rgb;
-	vec3 shaded = screen;
-	// Reverse-Z: empty / far-plane sky reads ~0. No return in fragment().
+	float factor = 1.0;
+	// Reverse-Z: empty / far-plane sky reads ~0. Leave those pixels untouched.
 	if (depth >= 0.0001) {
 #if CURRENT_RENDERER == RENDERER_COMPATIBILITY
 		vec3 ndc = vec3(SCREEN_UV, depth) * 2.0 - 1.0;
@@ -63,8 +70,8 @@ void fragment() {
 				SHADOW_MIP_BIAS
 			);
 		}
-		shaded = screen * (1.0 - shadow * cloud_shadow_strength * sun_share);
+		factor = 1.0 - shadow * cloud_shadow_strength * sun_share;
 	}
-	ALBEDO = shaded;
+	ALBEDO = vec3(factor);
 	ALPHA = 1.0;
 }

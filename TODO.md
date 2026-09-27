@@ -349,6 +349,18 @@ delta -0.028 ms at 1080p Metal. Follow-up **R-1048**: play-path screen-texture c
 
 - [ ] R-1048 | deps: R-1033 | deliverable: play-path harbour plates (partly 0.45 / overcast / night, Metal and Compatibility) and a 20 s clip where CloudShadowPass samples the same screen the player sees; optional shader skip when sun_share is 0 | allowed files: `scripts/map/view3d/cloud_shadow_pass.gdshader`, `scripts/map/view3d/cloud_shadow_pass.gd`, `tools/capture_ws12_cloud_shadows.gd`, `docs/reports/images/ws12_*.png`, `docs/tasks/water_sky/WS-12_cloud_shadow_map.md`, `TODO.md` | verify: `--filter=test_cloud_shadow_pass,test_sky_weather_3d`; pass-on vs `--no-pass` differ by shadow darkening on water/ground, not by replacing the sea with beige or noise; clip patches move downwind; overcast/night stay patch-free
 
+R-1048 implementation landed. Decision: drop `hint_screen_texture` and
+`blend_mul` the live framebuffer, then `discard` when `sun_share <= 0.01`.
+That is the play path the player sees; a default-buffer resample cannot
+replace the sea. Overlay hide at the same threshold stays as a second skip.
+`--filter=test_cloud_shadow_pass,test_sky_weather_3d` 40/40. Metal pass-on
+harbour luma 59.8 vs `--no-pass` 96.4, both B>R ~0.94 (real sea, not beige).
+Compatibility is darker on the same multiply; follow-up **R-1051** owns a
+GL strength match. Clip cells change neighbor mean-abs 0.24-0.41 (downwind).
+Overcast and night keep `sun_share=0` and no patches.
+
+- [ ] R-1051 | deps: R-1048 | deliverable: Compatibility cloud-shadow multiply matches Metal harbour readability | allowed files: `scripts/map/view3d/cloud_shadow_pass.gdshader`, `tools/capture_ws12_cloud_shadows.gd`, `docs/reports/images/ws12_opengl3_*.png`, `docs/tasks/water_sky/WS-12_cloud_shadow_map.md`, `TODO.md` | verify: `--filter=test_cloud_shadow_pass,test_sky_weather_3d`; GL pass-on vs `--no-pass` B>R ~0.94 and luma drop comparable to Metal
+
 - [ ] R-941 | deps: WS-11 | deliverable: sky_weather_3d.gdshader calls shared atmosphere_sky_view_uv and ATMO_SKY_VIEW_HEIGHT_KM; private sky_view_uv / SKY_VIEW_HEIGHT_KM deleted | allowed files: `scripts/map/view3d/sky_weather_3d.gdshader`, `tests/godot/test_sky_weather_3d.gd`, `TODO.md` | verify: `--filter=test_sky_weather_3d,test_sky_atmosphere_lut`; Compatibility `tools/capture_ws10_sky_elevations.gd -- --elevation=5` plate within 1 LSB of the pre-change plate; no `vec2 sky_view_uv(` left
 
 R-941 implementation landed. The dome samples the sky-view LUT through

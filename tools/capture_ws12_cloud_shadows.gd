@@ -1,7 +1,7 @@
 extends SceneTree
 
-## WS-12 / R-1033 GPU evidence. One plate or strip per process; needs a real
-## renderer through the minimized wrapper:
+## WS-12 / R-1033 / R-1048 GPU evidence. One plate or strip per process; needs
+## a real renderer through the minimized wrapper:
 ##   tools/godot_render.sh --rendering-method mobile --rendering-driver metal \
 ##     --script tools/capture_ws12_cloud_shadows.gd -- --scenario=partly
 ## Compatibility: `--rendering-driver opengl3`.
@@ -108,9 +108,10 @@ func _run() -> void:
 		root.add_child(nested)
 		host = nested
 	else:
-		# WHY: CloudShadowPass samples hint_screen_texture. A nested
-		# SubViewport binds a default buffer, so Metal plates went beige and
-		# Compatibility plates were RGB noise. The root window is the play path.
+		# WHY: harbour plates must be the play-path root window. A nested
+		# SubViewport is only safe for sky sheets (pass hidden). The overlay
+		# now darkens the live framebuffer with ALPHA, so pass-on plates
+		# keep the real sea instead of a default screen-texture buffer.
 		DisplayServer.window_set_size(BENCH_SIZE if _bench else PLATE_SIZE)
 	var grid := MapBuilder.build(definition)
 	var view := MapView3D.create(definition, grid, MapView3D.TIME_DAY)
@@ -306,8 +307,8 @@ func _sync_share(view: MapView3D) -> void:
 	shadow_pass.call(
 		&"update_share", sky.presentation_snapshot(float(view.cycle_progress), day_blend)
 	)
-	# The pass always writes ALPHA=1 from hint_screen_texture. When share is
-	# ~0, hide the overlay so overcast/night plates are the real scene.
+	# Belt and suspenders with the shader discard: hide the overlay when
+	# share is ~0 so overcast/night plates are the untouched scene.
 	if float(shadow_pass.get("sun_share")) <= 0.01:
 		_set_pass_visible(view, false)
 

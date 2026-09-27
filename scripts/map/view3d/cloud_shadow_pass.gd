@@ -2,7 +2,9 @@ extends Node3D
 
 ## WS-12 outdoor screen pass. Projects the shared sky cloud field along the sun
 ## onto reconstructed world depth so partly cloudy days throw moving patches
-## across town, harbour and sea. Hidden when sun_share is ~0.
+## across town, harbour and sea. The overlay darkens the live framebuffer
+## with ALPHA (no screen-texture hint). Hidden, and the shader discards,
+## when sun_share is ~0 so night/overcast cannot replace the sea.
 
 const PASS_SHADER := preload("res://scripts/map/view3d/cloud_shadow_pass.gdshader")
 const Lighting := preload("res://scripts/map/view3d/map_view_lighting.gd")
@@ -11,6 +13,8 @@ const SkyWeather := preload("res://scripts/map/view3d/sky_weather_3d.gd")
 const RENDER_PRIORITY := 96
 const OVERCAST_FADE_START := 0.45
 const OVERCAST_FADE_END := 0.75
+## Matches SUN_SHARE_SKIP in cloud_shadow_pass.gdshader.
+const SUN_SHARE_SKIP := 0.01
 
 var sun_share := 0.0
 var _material: ShaderMaterial
@@ -62,4 +66,4 @@ func update_share(presentation: SkyWeather.WeatherPresentation) -> void:
 	if _material != null:
 		_material.set_shader_parameter(&"sun_share", sun_share)
 	if _overlay != null:
-		_overlay.visible = sun_share > 0.01
+		_overlay.visible = sun_share > SUN_SHARE_SKIP
