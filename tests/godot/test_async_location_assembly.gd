@@ -379,6 +379,36 @@ func test_worker_pattern_bakes_are_byte_identical_to_main_thread() -> void:
 		)
 
 
+## R-1070: scene-kind workers (Door instantiate / package inspect) wait until
+## compute jobs finish, so the two kinds never share the pool.
+func test_scene_worker_kind_waits_for_compute_jobs() -> void:
+	var events: Array = []
+	var compute: RefCounted = Job.run(
+		func() -> int:
+			events.append(&"compute_start")
+			OS.delay_msec(40)
+			events.append(&"compute_end")
+			return 1
+	)
+	var waited := 0
+	while events.is_empty() and waited < 200:
+		OS.delay_msec(1)
+		waited += 1
+	assert_eq(events, [&"compute_start"], "compute must enter before the scene kind is queued")
+	var scene_id := WorkerThreadPool.add_task(
+		func() -> void:
+			Job.begin_scene_work()
+			events.append(&"scene")
+			Job.end_scene_work(),
+		true,
+		"r1070 scene kind"
+	)
+	compute.wait()
+	WorkerThreadPool.wait_for_task_completion(scene_id)
+	assert_eq(events, [&"compute_start", &"compute_end", &"scene"])
+	assert_eq(compute.value(), 1)
+
+
 ## The staged units of a cold ground material bake its patterns on workers,
 ## publish every texture under the synchronous cache key, and build the same
 ## material the synchronous getter returns afterwards.

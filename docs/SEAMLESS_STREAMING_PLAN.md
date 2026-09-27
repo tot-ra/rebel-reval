@@ -326,8 +326,10 @@ yet**. The remaining causes:
   crossings miss (**R-1072** re-derives the band).
 - One of eleven trace runs crashed (SIGSEGV) inside a worker pattern bake
   (`map_view_material_patterns.gd` `_pattern_image_at_size`) while mounts were
-  staged. It did not reproduce in the next ten runs (**R-1070**; keep the flag
-  off until it closes).
+  staged. **R-1070** serializes compute workers (pattern / mesh bakes) against
+  scene-kind workers (prepare Door instantiate, package inspect) and stops
+  roof-tile paints writing the shared pattern `_cache` from a worker. Keep the
+  streaming flag off until the 30-run trace verify (**R-1076**) lands.
 
 Limits kept for later rows are the items above, plus two more:
 

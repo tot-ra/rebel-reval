@@ -358,13 +358,10 @@ static func _pattern_image_at_size(
 		PATTERN_FAMILIES.PATTERN_ROCK:
 			_paint_rock(image, noise_seed)
 		PATTERN_FAMILIES.PATTERN_ROOF_TILE:
-			# Roof plates are shared by tens of tile roofs and their normal maps;
-			# painting is cached per seed so weathering bands only re-tone a copy.
-			var image_key := "roof_tile_image:%d:%d" % [noise_seed, texture_size]
-			if not _cache.has(image_key):
-				_paint_roof_tile(image, noise_seed)
-				_cache[image_key] = image
-			return (_cache[image_key] as Image).duplicate()
+			# Paint a job-local Image. The old per-seed Image cache wrote the
+			# shared _cache from bake_image(), which workers also call (R-1070).
+			# Texture reuse stays on the main thread through publish_baked().
+			_paint_roof_tile(image, noise_seed)
 		PATTERN_FAMILIES.PATTERN_STRAW:
 			_paint_straw(image, noise_seed)
 		PATTERN_FAMILIES.PATTERN_THATCH:

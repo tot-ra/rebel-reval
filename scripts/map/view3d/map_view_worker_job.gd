@@ -14,6 +14,14 @@ extends RefCounted
 ## for threaded loads and navigation bakes while a neighbour assembles.
 const GROUP_THREADS := 4
 
+## R-1070: Godot 4.7 SIGSEGV'd when a pattern bake overlapped a WorldHost
+## PREPARING task that instantiated Door scenes. Compute jobs (images, packed
+## arrays) may share the pool; scene/script instantiation waits until they
+## finish, and the reverse. One kind at a time, not one thread at a time.
+static var _kind_gate := Mutex.new()
+static var _compute_active := 0
+static var _scene_active := 0
+
 var _task_id := -1
 var _group := false
 var _waited := false
@@ -24,13 +32,58 @@ var _load_paths := PackedStringArray()
 var _slots: Array = []
 
 
+static func begin_compute_work() -> void:
+	_enter_kind(true)
+
+
+static func end_compute_work() -> void:
+	_leave_kind(true)
+
+
+static func begin_scene_work() -> void:
+	_enter_kind(false)
+
+
+static func end_scene_work() -> void:
+	_leave_kind(false)
+
+
+static func _enter_kind(as_compute: bool) -> void:
+	while true:
+		_kind_gate.lock()
+		var other_active := _scene_active if as_compute else _compute_active
+		if other_active == 0:
+			if as_compute:
+				_compute_active += 1
+			else:
+				_scene_active += 1
+			_kind_gate.unlock()
+			return
+		_kind_gate.unlock()
+		OS.delay_msec(1)
+
+
+static func _leave_kind(as_compute: bool) -> void:
+	_kind_gate.lock()
+	if as_compute:
+		_compute_active = maxi(_compute_active - 1, 0)
+	else:
+		_scene_active = maxi(_scene_active - 1, 0)
+	_kind_gate.unlock()
+
+
 ## Runs work() -> Variant on a worker thread.
 static func run(work: Callable, description := "") -> RefCounted:
 	var job: RefCounted = new()
 	var slot := {}
 	job._slots = [slot]
 	job._task_id = WorkerThreadPool.add_task(
-		func() -> void: slot["value"] = work.call(), true, description
+		func() -> void:
+			begin_compute_work()
+			slot["value"] = work.call()
+			end_compute_work(),
+		true,
+		description
 	)
 	return job
 
@@ -47,7 +100,10 @@ static func run_group(work: Callable, count: int, description := "") -> RefCount
 		job._waited = true
 		return job
 	job._task_id = WorkerThreadPool.add_group_task(
-		func(index: int) -> void: slots[index]["value"] = work.call(index),
+		func(index: int) -> void:
+			begin_compute_work()
+			slots[index]["value"] = work.call(index)
+			end_compute_work(),
 		count,
 		GROUP_THREADS,
 		true,

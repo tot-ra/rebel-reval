@@ -322,13 +322,22 @@ func _sorted_ids() -> Array[StringName]:
 	return ids
 
 
-## Worker body. Every input is immutable once compiled and the nodes stay out of
-## the tree, so nothing here races the main thread (see WB-07 navigation bake).
+## Worker body. Door scenes still instantiate here; wait until compute workers
+## (pattern bakes) are idle so the two kinds never overlap (R-1070).
+## Runtime load, not preload: a compile-time edge into map_view_worker_job.gd
+## hides this class_name from world_host.gd (R-1070).
+static func _worker_kind_gate():
+	return load("res://scripts/map/view3d/map_view_worker_job.gd")
+
+
 static func _prepare(pending: PendingMount, provider: Callable, delay_msec: int) -> void:
+	var gate = _worker_kind_gate()
+	gate.begin_scene_work()
 	if delay_msec > 0:
 		OS.delay_msec(delay_msec)
 	var definition := provider.call(pending.location_id) as MapDefinition
 	if definition == null:
+		gate.end_scene_work()
 		return
 	var grid := MapBuilder.build(definition)
 	pending.prepared = {
@@ -336,6 +345,7 @@ static func _prepare(pending: PendingMount, provider: Callable, delay_msec: int)
 		"grid": grid,
 		"logic_package": MapSceneBootstrap.assemble_location_package(definition, grid),
 	}
+	gate.end_scene_work()
 
 
 func _start_verify(pending: PendingMount) -> void:
@@ -345,7 +355,12 @@ func _start_verify(pending: PendingMount) -> void:
 	var view := pending.view
 	pending.task_id = WorkerThreadPool.add_task(
 		func() -> void:
-			pending.inspection = WorldHostPackageInspector.inspect(location_id, logic_package, view),
+			var gate = _worker_kind_gate()
+			gate.begin_scene_work()
+			pending.inspection = WorldHostPackageInspector.inspect(
+				location_id, logic_package, view
+			)
+			gate.end_scene_work(),
 		false,
 		"WorldHost verify %s" % String(location_id)
 	)
