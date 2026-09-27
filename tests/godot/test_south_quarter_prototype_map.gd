@@ -42,9 +42,24 @@ func test_south_quarter_contract_freezes_sources_evidence_and_exclusions() -> vo
 	]:
 		assert_true(contract.contains(excluded_form), "Missing historical exclusion %s" % excluded_form)
 	assert_true(contract.contains("GateDoor0"), "Contract must reserve the Karja GateDoor0 affordance")
+	# R-1014: the old "1375 first mention" line still contained both tokens.
+	# Lock the shared R-1009 / R-1011 classes so a revert cannot pass.
+	assert_true(contract.contains("Rataskaev"), "Rataskaev uncertainty heading must remain")
 	assert_true(
-		contract.contains("Rataskaev") and contract.contains("1375"),
-		"Rataskaev uncertainty must remain explicit",
+		contract.contains("1325") and contract.contains("B/C"),
+		"1325 wheel-well / rader strate name must stay class B/C",
+	)
+	assert_true(
+		contract.contains("1343") and contract.contains("Dunkri") and contract.contains("**U**"),
+		"1343 Dunkri / Cat's Well anchor must stay class U",
+	)
+	assert_true(
+		contract.contains("1375") and contract.contains("later") and contract.contains("rebuild"),
+		"1375 Cat's Well must stay later fabric, not a 1343 first mention",
+	)
+	assert_true(
+		not contract.contains("first mentioned in 1375"),
+		"Contract must not restore the superseded 1375-first-mention line",
 	)
 
 	var thresholds: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(THRESHOLDS_PATH))
