@@ -64,6 +64,7 @@ _DEMO_SEED_BLOCK = re.compile(
 )
 _GRANT_ID = re.compile(r'&"(magic\.grant\.[^"]+)"')
 _VALID_EXAMPLE_PREFIX = "content/examples/valid/"
+_CI_WORKFLOW = ROOT / ".github" / "workflows" / "ci.yml"
 _BUDGET_TRIGGER_PATHS = frozenset(
     {
         "docs/SYSTEMS/MAGIC.md",
@@ -71,6 +72,13 @@ _BUDGET_TRIGGER_PATHS = frozenset(
         "tools/run_pre_commit_checks.sh",
     }
 )
+# R-1019 added this module by hand; R-1020 locks the Python contract-test
+# step so a later workflow edit cannot drop it unnoticed.
+_CI_CONTRACT_STEP = re.compile(
+    r"- name: Python contract tests\n\s+run: \|(.*?)(?:\n      - name:|\n\Z)",
+    re.S,
+)
+_CI_MAGIC_BUDGET_MODULE = "tests.python.test_magic_budget"
 
 
 class SliceBudgetError(AssertionError):
@@ -97,6 +105,20 @@ def magic_budget_paths_trigger(paths: Iterable[str]) -> bool:
         if name.startswith(("magic.grant.", "spell.", "rite.")):
             return True
     return False
+
+
+def ci_contract_step_lists_magic_budget(workflow: str) -> bool:
+    """True when the CI Python contract-test step lists this module.
+
+    WHY: R-1019 is a one-line workflow edit. The pre-commit hook does not
+    read ci.yml, so a later trim of that step can drop the budget check
+    without failing the existing hook tests.
+    """
+
+    match = _CI_CONTRACT_STEP.search(workflow)
+    if match is None:
+        return False
+    return _CI_MAGIC_BUDGET_MODULE in match.group(1)
 
 
 def collect_slice_grant_targets(
@@ -223,6 +245,27 @@ class MagicBudgetTests(unittest.TestCase):
         self.assertIn("magic_budget_paths_trigger", runner)
         self.assertIn("tests.python.test_magic_budget", runner)
         self.assertIn('print("1" if magic_budget_paths_trigger(paths) else "0")', runner)
+
+    def test_ci_contract_step_lists_magic_budget(self) -> None:
+        workflow = _CI_WORKFLOW.read_text(encoding="utf-8")
+        self.assertTrue(
+            ci_contract_step_lists_magic_budget(workflow),
+            "CI Python contract tests must list tests.python.test_magic_budget",
+        )
+
+    def test_ci_contract_step_fails_when_magic_budget_line_is_removed(self) -> None:
+        workflow = _CI_WORKFLOW.read_text(encoding="utf-8")
+        removed_lines = [
+            line
+            for line in workflow.splitlines(keepends=True)
+            if _CI_MAGIC_BUDGET_MODULE not in line
+        ]
+        removed = "".join(removed_lines)
+        self.assertTrue(ci_contract_step_lists_magic_budget(workflow))
+        self.assertFalse(
+            ci_contract_step_lists_magic_budget(removed),
+            "deleting the CI module line must fail the lock-in check",
+        )
 
     def test_slice_granted_elements_stay_inside_six_chip_budget(self) -> None:
         granted: set[str] = set()
