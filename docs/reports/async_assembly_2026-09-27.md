@@ -1,6 +1,6 @@
 # WB-07b worker-thread terrain and surroundings assembly - 2026-09-27
 
-Board row: **R-1005**, follow-up of R-979 ([WB-07 report](async_assembly_2026-09-26.md)). Status: **in review**. The terrain and height-field goal is met. Surroundings is split into units, but a set of single neighbor-preview building and prop builds still cost more than 4 ms each. Those builds are the heavy-single-object class that R-1006 owns (see [Residual gaps](#residual-gaps)).
+Board row: **R-1005**, follow-up of R-979 ([WB-07 report](async_assembly_2026-09-26.md)). Status: **accepted** (R-1012, 2026-09-27). The terrain and height-field goal is met. Surroundings is split into units, but a set of single neighbor-preview building and prop builds still cost more than 4 ms each. Those builds are the heavy-single-object class that R-1006 owns (see [Residual gaps](#residual-gaps)).
 
 ## What changed
 
@@ -87,3 +87,12 @@ GDScript bands share refcounted objects: the grid, the field dictionary and cons
 | Cold material and texture generation on the main thread: `MapViewMaterials.blended_ground(seed)` 2961 ms on first `lower_town_slice` use, per-neighbor-seed terrain materials 0.9-1.1 s per neighbor, cold fortification and wall builds up to 1.1 s | cold only | New follow-up (see board). These are image and texture-array generation, not mesh arrays. |
 
 Concurrency note: `MapView3D.shore_distance_at()` (active view) can call `bake_shore_field()` for a field. If the same map were ever staged while it is also the active view, that write could overlap a staged build's worker reads of the same field. R-980 must not stage the active map. Different maps use different field dictionaries.
+
+## Second-reviewer sign-off (R-1012, 2026-09-27)
+
+Independent review of commit `85943242` against current `origin/main` (`8d90ce91`, after R-1010 / R-1027 layering). Checks ran in an isolated HEAD worktree (`/tmp/r1012-review`) because a Godot `--editor` process owns the shared checkout. Reviewer: Cursor agent (R-1012). Decision: **accept**. No amend.
+
+1. **Thread rule holds.** Worker callables (`compute_height_field`, `ground_band` / `ground_arrays`, `water_surface_arrays`, `compute_shore_field` + `swash_sheet_arrays`, `seabed_apron_arrays`, `crib_arrays`, `_neighbor_preview_data` / `_preview_data_for`, `_tree_band_data`, `_water_continuation_rest_ys`) read the definition, grid or published field and write job-local packed arrays, dictionaries or `SurfaceTool.commit_to_arrays()` output. `ImageTexture`, `ArrayMesh`, nodes and static caches (`publish_height_field`, `finish_shore_field`, `ground_mesh_from_arrays`, crib `add_*_mesh`, neighbor preview publish) stay on the main thread. Neighbor and water-rest workers call `compute_height_field` and do not publish the height-field cache.
+2. **Shore-field write is after joins.** `_start()` queues `await_job` for shore, apron and cribs before `_publish_shore`, which is the only `field["shore_field"]` write. `cancel()` and `MapViewAssembly` PREDELETE join every queued job; `MapViewWorkerJob` PREDELETE also waits a dropped task. The active-view `shore_distance_at()` overlap stays a documented R-980 constraint, not an R-1005 defect.
+3. **Parity and budget.** `--filter=test_async_location_assembly` is 18/18 (the original 12 plus later R-1010 / R-1027 cases). Fresh-process trace (`tools/benchmarks/async_assembly_trace.gd`, Apple M5 Pro, headless Compatibility): no `height_field` or `terrain_mesh` unit over 4 ms on `lower_town_slice`, `reval_harbor_east` or `kalev_smithy` (cold or warm). `ground_publish` is now under budget after R-1010 moved the material bake. Residual over-budget units are neighbor-preview `build_building` / `build_prop` (up to 185 ms cold on Lower Town), `buildings_props` and `scatter` - already owned by R-1006.
+4. **Scope.** `map_view_assembly.gd` (`await_job`), `map_view_pier_crib_builder.gd` (worker arrays) and the two new modules (`map_view_worker_job.gd`, `map_view_mesh_builder_terrain_staged.gd`) are required for the split. Justified.
