@@ -61,6 +61,7 @@ jobs:
             tests.python.test_campaign_save_fixtures \
             tests.python.test_verify_clean_checkout_load \
             tests.python.test_verify_texture_prompts \
+            tests.python.test_magic_budget \
             -v
 
       - name: Lint GDScript
