@@ -79,7 +79,7 @@ func try_handle_logic_click(logic_position: Vector2) -> bool:
 	if hostile != null:
 		return _handle_hostile_click(hostile)
 
-	_player.request_navigation_target(logic_position)
+	_request_nav_on_host_map(logic_position)
 	return true
 
 
@@ -193,7 +193,7 @@ func _handle_interactable_click(interactable: Interactable) -> bool:
 	if interactable.interact(_player):
 		return true
 	_pending_interactable = interactable
-	_player.request_navigation_target(interactable.global_position)
+	_request_nav_on_host_map(interactable.global_position)
 	return true
 
 
@@ -205,7 +205,7 @@ func _handle_hostile_click(hostile: Node2D) -> bool:
 	if in_front == hostile or offset.length() <= PlayerPrimaryAction.HOSTILE_SCAN_PX:
 		if _player.request_primary_attack():
 			return true
-	_player.request_navigation_target(hostile.global_position)
+	_request_nav_on_host_map(hostile.global_position)
 	return true
 
 
@@ -237,6 +237,32 @@ func _try_complete_pending_interaction() -> void:
 		return
 	if _pending_interactable.interact(_player):
 		_pending_interactable = null
+
+
+func _request_nav_on_host_map(logic_position: Vector2) -> void:
+	if _player == null:
+		return
+	var start := _clamp_to_nav_map(_player.global_position)
+	# The 16 px navmesh inset at a seam leaves the agent off-mesh. Snap onto
+	# the host map so a click from that gap can still start a path.
+	if _player.global_position.distance_to(start) > 0.5:
+		_player.global_position = start
+	# Clamp only the start. Clamping the destination pulls a cross-seam click
+	# back onto the current mesh and the agent walks the wrong way.
+	_player.request_navigation_target(logic_position)
+
+
+func _clamp_to_nav_map(point: Vector2) -> Vector2:
+	if _player == null or _player.navigation_agent == null:
+		return point
+	var map_rid: RID = _player.navigation_agent.get_navigation_map()
+	if not map_rid.is_valid():
+		return point
+	# Headless launches query before the first nav iteration; skip until the
+	# host map has synchronized or Godot emits a hard query error.
+	if NavigationServer2D.map_get_iteration_id(map_rid) == 0:
+		return point
+	return NavigationServer2D.map_get_closest_point(map_rid, point)
 
 
 static func _is_left_click(event: InputEvent) -> bool:

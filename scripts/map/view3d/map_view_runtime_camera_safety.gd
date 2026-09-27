@@ -26,7 +26,11 @@ func configure(controller: MapViewRuntimeCamera) -> void:
 func player_inside_occluder() -> bool:
 	var view := _controller.view
 	var player_rig := _controller.player_rig
-	return view != null and player_rig != null and view.is_point_inside_occluder(player_rig.position)
+	return (
+		view != null
+		and player_rig != null
+		and view.is_point_inside_occluder(_in_view(view, player_rig.position))
+	)
 
 
 func camera_and_player_share_occluder() -> bool:
@@ -35,8 +39,10 @@ func camera_and_player_share_occluder() -> bool:
 	var camera := _controller.camera
 	if view == null or player_rig == null:
 		return false
+	var camera_local := _in_view(view, camera.position)
+	var player_local := _in_view(view, player_rig.position)
 	for bounds in view._occluder_bounds:
-		if bounds.has_point(camera.position) and bounds.has_point(player_rig.position):
+		if bounds.has_point(camera_local) and bounds.has_point(player_local):
 			return true
 	return false
 
@@ -47,7 +53,7 @@ func camera_is_below_ground() -> bool:
 	if view == null or view.definition == null:
 		return false
 	var terrain_y := MapViewMeshBuilder.ground_height(
-		view.definition, Vector2(camera.position.x, camera.position.z)
+		view.definition, _view_local_xz(view, Vector2(camera.position.x, camera.position.z))
 	)
 	return camera.position.y < terrain_y
 
@@ -77,10 +83,10 @@ func update_occlusion_ghost() -> void:
 	):
 		player_rig.set_occlusion_ghost(false)
 		return
-	var to_camera := camera.position
+	var to_camera := _in_view(view, camera.position)
 	var occluded := false
 	for height in MapViewRuntimeCamera.OCCLUSION_PROBE_HEIGHTS:
-		var from := player_rig.position + Vector3.UP * height
+		var from := _in_view(view, player_rig.position + Vector3.UP * height)
 		if view.is_segment_occluded(from, to_camera):
 			occluded = true
 			break
@@ -97,7 +103,7 @@ func _clamp_above_ground(camera_was_below_ground: bool) -> void:
 		and not camera_was_below_ground
 	):
 		return
-	var world_xz := Vector2(camera.position.x, camera.position.z)
+	var world_xz := _view_local_xz(view, Vector2(camera.position.x, camera.position.z))
 	var terrain_y := MapViewMeshBuilder.ground_height(view.definition, world_xz)
 	var min_y := terrain_y + GROUND_CLEARANCE
 	if camera.position.y < min_y:
@@ -112,12 +118,13 @@ func _pull_out_of_buildings(camera_was_inside_occluder: bool) -> void:
 	if _controller.camera_mode == MapViewRuntimeCamera.CameraMode.FIRST_PERSON:
 		return
 	for _pass in range(BUILDING_PULL_ITERATIONS):
-		if not view.is_point_inside_occluder(camera.position):
+		if not view.is_point_inside_occluder(_in_view(view, camera.position)):
 			return
-		var candidate := _best_occluder_exit(camera.position)
-		if candidate.is_equal_approx(camera.position):
+		var local_camera := _in_view(view, camera.position)
+		var candidate := _best_occluder_exit(local_camera)
+		if candidate.is_equal_approx(local_camera):
 			return
-		camera.position = candidate
+		camera.position = _from_view(view, candidate)
 
 
 func _best_occluder_exit(point: Vector3) -> Vector3:
@@ -189,10 +196,12 @@ func _ensure_player_visible() -> void:
 ## pull-in recovers from it instead of leaving the camera looking into the slope.
 func _line_of_sight_blocked(from: Vector3, player_pos: Vector3) -> bool:
 	var view := _controller.view
-	if view.is_segment_occluded(from, player_pos):
+	if view.is_segment_occluded(_in_view(view, from), _in_view(view, player_pos)):
 		return true
 	var chest := player_pos + Vector3.UP * TERRAIN_SIGHT_HEIGHT
-	return segment_under_ground(view.definition, from, chest)
+	return segment_under_ground(
+		view.definition, _in_view(view, from), _in_view(view, chest)
+	)
 
 
 ## True when the straight segment dips below the rendered ground anywhere between
@@ -211,3 +220,30 @@ static func segment_under_ground(definition: MapDefinition, from: Vector3, to: V
 		if point.y < ground + TERRAIN_SIGHT_CLEARANCE:
 			return true
 	return false
+
+
+static func _in_view(view: MapView3D, world_point: Vector3) -> Vector3:
+	if view == null:
+		return world_point
+	var parent := view.get_parent() as Node3D
+	if parent == null:
+		return world_point
+	return world_point - parent.position
+
+
+static func _from_view(view: MapView3D, local_point: Vector3) -> Vector3:
+	if view == null:
+		return local_point
+	var parent := view.get_parent() as Node3D
+	if parent == null:
+		return local_point
+	return local_point + parent.position
+
+
+static func _view_local_xz(view: MapView3D, world_xz: Vector2) -> Vector2:
+	if view == null:
+		return world_xz
+	var parent := view.get_parent() as Node3D
+	if parent == null:
+		return world_xz
+	return world_xz - Vector2(parent.position.x, parent.position.z)

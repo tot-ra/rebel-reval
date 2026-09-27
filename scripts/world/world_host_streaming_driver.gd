@@ -42,11 +42,9 @@ static func attach(host: WorldHost) -> WorldHostStreamingDriver:
 	driver._host = host
 	if not host.location_loader.is_valid() and not host.definition_provider.is_valid():
 		host.definition_provider = registry_definition
-	# The scene script, its MapViewRuntime and quest nodes stay bound to the launch
-	# location until owner-scoped rebinding lands (R-1049), so it is never evicted.
-	# That can hold one location above the residency cap.
-	if not host.owning_location_id().is_empty():
-		host.pinned_location_ids = [host.owning_location_id()]
+	# R-1054 rebinds owner-scoped consumers on a crossing, so the launch
+	# location is no longer pinned above the residency cap.
+	host.pinned_location_ids.clear()
 	host.location_mounted.connect(driver._on_location_mounted)
 	host.seam_activation_changed.connect(driver._on_seam_activation_changed)
 	host.scene_swap_fallback_requested.connect(driver._on_scene_swap_fallback_requested)
@@ -149,23 +147,40 @@ func _on_scene_swap_fallback_requested(_location_id: StringName, request: Dictio
 ## crossing reloads at that seam through today's scene path.
 func _on_owning_location_changed(previous_id: StringName, location_id: StringName) -> void:
 	var state = _host.session_owner.get("state") if _host.session_owner != null else null
-	if not state is GameState:
-		return
-	var entry := _host.location_entry(location_id)
-	var player_state := (state as GameState).player
-	player_state.location_id = StringName(entry.get("scene_id", location_id))
-	var seam := _host.seam_between(previous_id, location_id)
-	var arrival_id := StringName(
-		seam.get(
-			"neighbor_transition_id" if seam.get("neighbor_map_id", &"") == location_id
-			else "base_transition_id",
-			&""
+	if state is GameState:
+		var entry := _host.location_entry(location_id)
+		var player_state := (state as GameState).player
+		player_state.location_id = StringName(entry.get("scene_id", location_id))
+		var seam := _host.seam_between(previous_id, location_id)
+		var arrival_id := StringName(
+			seam.get(
+				"neighbor_transition_id" if seam.get("neighbor_map_id", &"") == location_id
+				else "base_transition_id",
+				&""
+			)
 		)
-	)
-	for door in _transition_doors(location_id):
-		if _transition_id(door) == arrival_id and not String(door.get("spawn_id")).is_empty():
-			player_state.spawn_id = StringName(door.get("spawn_id"))
-			return
+		for door in _transition_doors(location_id):
+			if _transition_id(door) == arrival_id and not String(door.get("spawn_id")).is_empty():
+				player_state.spawn_id = StringName(door.get("spawn_id"))
+				break
+	_rebind_owner_consumers(location_id)
+
+
+func _rebind_owner_consumers(location_id: StringName) -> void:
+	var scene := _host.get_parent()
+	if scene == null:
+		return
+	var runtime := scene.get_node_or_null("MapViewRuntime") as MapViewRuntime
+	if runtime != null:
+		runtime.bind_owning_location(location_id)
+	# Do not add a method on the launch scene: reval_east.gd already fails
+	# gdlint, and staging it blocks commit. The binder is a named child.
+	var binder = scene.get_node_or_null("MapPhaseBinder")
+	var bootstrap: Dictionary = _host.hosted_bootstrap(location_id)
+	var definition := bootstrap.get("definition") as MapDefinition
+	if binder != null and definition != null and binder.has_method("setup"):
+		binder.call("setup", StringName("loc.%s" % String(location_id)), definition, runtime)
+	_host.pinned_location_ids.clear()
 
 
 func _neighbor_through(location_id: StringName, transition_id: StringName) -> StringName:

@@ -173,6 +173,17 @@ static func install_hosted(
 	)
 	runtime._ambient_controller.install()
 	runtime._input.install_click_input()
+	# Seed location-space terrain sampling. Full consumer rebind waits for a
+	# seam crossing so launch teardown stays identical to the flag-on path.
+	var origin: Vector2 = host.call(&"location_origin_logic_position", location_id)
+	if player.has_method("configure_map_movement"):
+		player.call(
+			"configure_map_movement",
+			runtime._definition,
+			bootstrap["grid"],
+			origin
+		)
+	runtime._owning_location_id = location_id
 	return runtime
 
 

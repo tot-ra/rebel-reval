@@ -24,6 +24,7 @@ var _actors_without_rig: Dictionary = {}
 var _equipment_state: GameState
 var _content_db: ContentDB
 var _request_screen_shake: Callable
+var _sample_owning_ground := false
 
 
 func configure(
@@ -42,6 +43,12 @@ func configure(
 	_view = map_view
 	_follow_player = follow_player
 	_logic_direction_toward_camera = logic_direction_toward_camera
+
+
+func rebind_view(map_definition: MapDefinition, map_view: MapView3D) -> void:
+	_definition = map_definition
+	_view = map_view
+	_sample_owning_ground = true
 
 
 func set_screen_shake_callback(callback: Callable) -> void:
@@ -93,6 +100,8 @@ func sync_view_actors(delta: float) -> void:
 	# Encounter controllers spawn enemies after install(); rescan the scene root so
 	# those damageable actors become visible in the same frame without requiring
 	# every quest controller to know about 3D presentation internals.
+	if _view == null or not is_instance_valid(_view):
+		return
 	if _host != null:
 		register_view_actors(_host.get_parent())
 	for actor: Node2D in _actor_rigs.keys():
@@ -102,6 +111,8 @@ func sync_view_actors(delta: float) -> void:
 				stale_rig.queue_free()
 			_actor_rigs.erase(actor)
 			_actors_without_rig.erase(actor)
+			continue
+		if _sample_owning_ground and not _actor_in_current_map(actor):
 			continue
 		_sync_view_actor(actor, _actor_rigs[actor] as SharedCharacterRig, false, delta)
 
@@ -113,7 +124,11 @@ func get_actor_rig(actor: Node2D) -> SharedCharacterRig:
 
 
 func sync_player(snap: bool, delta: float = 0.0) -> void:
+	if _view == null or not is_instance_valid(_view):
+		return
 	_view.sync_actor(_player_rig, _player.global_position)
+	if _sample_owning_ground:
+		_apply_owning_ground_height(_player_rig)
 	_follow_player.call(snap, delta)
 	var speed := _player.velocity.length()
 	var moving := speed > WALK_ANIMATION_MIN_SPEED
@@ -124,7 +139,10 @@ func sync_player(snap: bool, delta: float = 0.0) -> void:
 		_last_facing = _logic_direction_toward_camera.call() as Vector2
 	# Grass MultiMeshes share one material; drive tip parting from the live
 	# logic pose so walking through meadow/fern scatter reads as contact.
-	_view.update_grass_interaction(_player.global_position, _player.velocity)
+	if _sample_owning_ground:
+		_view.update_grass_interaction(_local_logic(_player.global_position), _player.velocity)
+	else:
+		_view.update_grass_interaction(_player.global_position, _player.velocity)
 	var facing := _player.velocity if moving else _last_facing
 	if _player.has_method("view_facing"):
 		facing = _player.call("view_facing") as Vector2
@@ -149,10 +167,10 @@ func sync_player(snap: bool, delta: float = 0.0) -> void:
 	if moving:
 		var planted_foot := _player_rig.consume_foot_plant()
 		if not planted_foot.is_empty():
-			_view.add_mud_footprint_at(
-				_player_rig.foot_world_position(planted_foot),
-				_player.velocity.normalized()
-			)
+			var foot := _player_rig.foot_world_position(planted_foot)
+			if _sample_owning_ground:
+				foot = _local_world(foot)
+			_view.add_mud_footprint_at(foot, _player.velocity.normalized())
 	else:
 		_player_rig.consume_foot_plant()
 	_sync_actor_health_ring(_player_rig, _player)
@@ -197,6 +215,8 @@ static func hide_player_canvas(player: CharacterBody2D) -> void:
 
 func _sync_view_actor(actor: Node2D, rig: SharedCharacterRig, snap: bool, delta: float) -> void:
 	_view.sync_actor(rig, actor.global_position)
+	if _sample_owning_ground:
+		_apply_owning_ground_height(rig)
 	_sync_actor_health_ring(rig, actor)
 	var facing := Vector2.DOWN
 	if actor.has_method("view_facing"):
@@ -218,6 +238,51 @@ func _sync_view_actor(actor: Node2D, rig: SharedCharacterRig, snap: bool, delta:
 	rig.set_locomotion_speed(
 		actor_velocity.length() * MapViewBridge.world_scale(_definition.cell_size)
 	)
+
+
+func _actor_in_current_map(actor: Node2D) -> bool:
+	if _definition == null:
+		return true
+	var local := _local_logic(actor.global_position)
+	var size := _definition.world_size()
+	return local.x >= 0.0 and local.y >= 0.0 and local.x < size.x and local.y < size.y
+
+
+func _local_logic(global_position: Vector2) -> Vector2:
+	if _definition == null or _view == null:
+		return global_position
+	var parent := _view.get_parent() as Node3D
+	if parent == null:
+		return global_position
+	return global_position - Vector2(parent.position.x, parent.position.z) * float(
+		_definition.cell_size
+	)
+
+
+func _local_world(world_position: Vector3) -> Vector3:
+	if _view == null:
+		return world_position
+	var parent := _view.get_parent() as Node3D
+	if parent == null:
+		return world_position
+	return world_position - parent.position
+
+
+func _apply_owning_ground_height(rig: Node3D) -> void:
+	if _view == null or _definition == null or rig == null:
+		return
+	var local_xz := Vector2(rig.position.x, rig.position.z)
+	var parent := _view.get_parent() as Node3D
+	if parent != null:
+		local_xz -= Vector2(parent.position.x, parent.position.z)
+	var local_logic := _local_logic(
+		Vector2(rig.position.x, rig.position.z) * float(_definition.cell_size)
+	)
+	var surface_elevation := maxf(
+		MapWallWalkAccess.elevation_at(_definition, local_logic),
+		MapClimbableProps.elevation_at(_definition, local_logic)
+	)
+	rig.position.y = MapViewMeshBuilder.ground_height(_definition, local_xz) + surface_elevation
 
 
 static func _hide_actor_canvas(actor: Node2D) -> void:

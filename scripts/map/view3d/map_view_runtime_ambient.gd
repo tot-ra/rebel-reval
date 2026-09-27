@@ -50,6 +50,35 @@ func configure(
 	_view = map_view
 
 
+func rebind_map(map_definition: MapDefinition, map_view: MapView3D) -> void:
+	var previous_id := _definition.map_id if _definition != null else &""
+	_definition = map_definition
+	_view = map_view
+	if _definition == null or previous_id == _definition.map_id:
+		return
+	var bird_context := BirdContext.context_for_map(_definition.map_id)
+	var fauna_context := FaunaContext.context_for_map(_definition.map_id)
+	if _bird_flight != null:
+		_bird_flight.configure(_definition.map_id, bird_context, _definition.size_cells)
+	if _urban_fauna != null:
+		_urban_fauna.configure(
+			_definition.map_id, fauna_context, _definition.cell_size, _definition
+		)
+	if _penned_fauna != null:
+		_penned_fauna.configure(
+			_definition.map_id, fauna_context, _definition.cell_size, _definition
+		)
+	if _bird_audio != null:
+		_bird_audio.configure(_definition.map_id, bird_context)
+	if _insect_audio != null:
+		var insect_context := InsectContext.context_for_map(_definition.map_id)
+		_insect_audio.configure(_definition.map_id, insect_context)
+	if _music_zone_binder != null:
+		_music_zone_binder.configure(_definition, _player)
+	if _crowd_renderer != null:
+		_crowd_renderer.configure(200, hash(_definition.map_id))
+
+
 func install() -> void:
 	_install_bird_audio()
 	_install_bird_flight()

@@ -180,9 +180,8 @@ streams. The driver:
 - sets `transition_enabled = false` on every door for which
   `is_transition_streamed()` is true, so a streamed seam never runs a
   DoorNavigator scene swap while residency is active;
-- pins the launch location (`WorldHost.pinned_location_ids`), because the scene
-  script and its `MapViewRuntime` stay bound to it until R-1049. This can hold one
-  location above the residency cap.
+- no longer pins the launch location. R-1054 rebinds owner-scoped consumers
+  on `owning_location_changed`, so the residency cap can evict the entry map.
 
 Each package's boundary walls sit just outside its rect, inside the neighbour's
 first column. `MapSceneBootstrap.assemble_location_package()` therefore splits
@@ -229,12 +228,24 @@ It also shows 4.3-6.6 s frames: synchronous mounts of `market_civic_quarter`
 inside the prefetch tick. Those frames are why staged mounts (R-1044) gate any
 flag flip.
 
+**R-1054 (2026-09-27).** On `owning_location_changed` the driver rebinds
+owner-scoped consumers to the new location in location space:
+
+- `Player.configure_map_movement` gets the owning definition, grid and origin
+  so terrain speed samples `global - origin`.
+- `MapViewRuntime.bind_owning_location` retargets the hosted view, camera
+  ground/occlusion (view-local XZ), ambient, and a minimap tracker that
+  reports local logic.
+- The driver retargets the scene `MapPhaseBinder` to `loc.<id>` via
+  `hosted_bootstrap` (no launch-scene method; that file already fails gdlint).
+- Quest controllers stay scene-scoped on Lower Town (ADR phase 6).
+- Off-mesh click starts clamp to the host navigation map. The destination is
+  left alone so a cross-seam click is not snapped back onto the current mesh.
+- `pinned_location_ids` is cleared; far past the eviction band the launch
+  location unmounts.
+
 Limits for later rows:
 
-- Crossing does not rebind owner-scoped consumers: player terrain speed,
-  `MapViewRuntime` and minimap, phase binder, quest and ambience controllers all
-  stay on the entry location.
-- A click from inside the 16 px agent inset at a seam does not start a path.
 - A failing neighbour is retried synchronously every physics frame while it is in
   the band.
 

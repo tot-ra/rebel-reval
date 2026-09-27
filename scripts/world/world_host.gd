@@ -87,7 +87,7 @@ var residency_cap: int
 var location_loader: Callable
 ## Callable(location_id: StringName) -> MapDefinition.
 var definition_provider: Callable
-## WB-08b: never evicted (scene-scoped runtimes stay bound to them; R-1049).
+## Never evicted while listed. R-1054 clears this after owner-scoped rebind.
 var pinned_location_ids: Array[StringName] = []
 
 var _logic_locations: Node

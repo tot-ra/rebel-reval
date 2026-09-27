@@ -1,6 +1,6 @@
 extends "res://tests/godot/test_case.gd"
 
-## WB-08b / R-1043: with the residency flag on, the reval_east launch adapter
+## WB-08b / R-1043 / R-1054: with the residency flag on, the reval_east launch adapter
 ## streams reval_outdoor neighbours from the live host player. Walking through
 ## the Vana turg seam into market_civic_quarter keeps the same Player and camera
 ## and runs no DoorNavigator scene swap; a forced loader failure reaches
@@ -101,16 +101,45 @@ func test_walk_lower_town_into_market_civic_quarter_without_scene_swap() -> void
 	assert_eq(level.get_parent(), (Engine.get_main_loop() as SceneTree).root, "level never swapped")
 	assert_eq(SessionState.state.player.location_id, &"reval_center", "save scope follows owner")
 	assert_eq(SessionState.state.player.spawn_id, &"from_reval_east", "arrival door spawn")
-	# Far inside the market the launch location is past the eviction band but
-	# pinned: the scene-scoped runtime is still bound to its view (R-1049).
-	var loader := host.location_loader
-	host.location_loader = func(_location_id: StringName) -> bool: return false
+	var runtime := level.get_node("MapViewRuntime") as MapViewRuntime
+	assert_eq(runtime.owning_location_id(), &"market_civic_quarter")
+	var market := host.hosted_bootstrap(&"market_civic_quarter")
+	var market_def := market.get("definition") as MapDefinition
+	var market_grid := market.get("grid") as MapTerrainGrid
+	var local := (
+		player.global_position
+		- host.location_origin_logic_position(&"market_civic_quarter")
+	)
+	assert_almost_eq(
+		player.terrain_speed_multiplier(),
+		MapTerrainMovement.speed_multiplier_at(market_def, market_grid, local),
+		0.0001,
+		"terrain speed samples the market grid in location space"
+	)
+	assert_eq(
+		host.minimap_hud.get_location_label().text,
+		"Central District",
+		"minimap follows the owning location"
+	)
+	assert_true(host.pinned_location_ids.is_empty(), "launch location is no longer pinned")
+	var click_input := level.find_child("MapClickInput", true, false)
+	var inset_from := player.global_position
+	player.global_position = Vector2(8.0, start.y)
+	player.velocity = Vector2.ZERO
+	var clicked := (
+		click_input != null
+		and bool(click_input.call("try_handle_logic_click", Vector2(-6.0 * CELL, 53.5 * CELL)))
+	)
+	assert_true(clicked, "a click from the 16 px seam inset starts a path")
+	player.global_position = inset_from
 	var far := host.update_streaming(Vector2(-100.0 * CELL, 53.0 * CELL))
 	assert_eq(host.owning_location_id(), &"market_civic_quarter")
-	assert_false((far["evict"] as Array).is_empty(), "the policy would evict Lower Town")
-	assert_true((far["evicted"] as Array).is_empty(), "the pinned launch location stays")
-	assert_true(host.mounted_location_ids().has(&"lower_town_slice"))
-	host.location_loader = loader
+	assert_false((far["evict"] as Array).is_empty(), "the policy evicts Lower Town")
+	assert_true(
+		(far["evicted"] as Array).has(&"lower_town_slice")
+		or not host.mounted_location_ids().has(&"lower_town_slice"),
+		"unpinned Lower Town leaves residency when past the band"
+	)
 
 	# And back east into Lower Town through the same open seam.
 	for index in 16:

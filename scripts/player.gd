@@ -45,6 +45,7 @@ var _dodge_distance_remaining := 0.0
 var _death_transition_started := false
 var _map_definition: MapDefinition
 var _map_grid: MapTerrainGrid
+var _map_origin := Vector2.ZERO
 var _mud_wetness_provider: Callable
 
 @onready var animation_player: AnimatedSprite2D = get_node_or_null("AnimatedSprite2D")
@@ -76,9 +77,18 @@ func _on_spawn(position: Vector2, direction: String):
 		animation_player.play("walk_" + direction)
 		animation_player.stop()
 
-func configure_map_movement(definition: MapDefinition, grid: MapTerrainGrid) -> void:
+func configure_map_movement(
+	definition: MapDefinition, grid: MapTerrainGrid, origin: Vector2 = Vector2.ZERO
+) -> void:
 	_map_definition = definition
 	_map_grid = grid
+	# Hosted play keeps the player in world-global logic; terrain cells are
+	# authored in location space, so sample at global - origin.
+	_map_origin = origin
+
+
+func terrain_speed_multiplier() -> float:
+	return _get_terrain_speed_multiplier()
 
 
 func set_mud_wetness_provider(provider: Callable) -> void:
@@ -646,7 +656,7 @@ func _get_terrain_speed_multiplier() -> float:
 	if _mud_wetness_provider.is_valid():
 		mud_wetness = float(_mud_wetness_provider.call())
 	return MapTerrainMovement.speed_multiplier_at(
-		_map_definition, _map_grid, global_position, mud_wetness
+		_map_definition, _map_grid, global_position - _map_origin, mud_wetness
 	)
 
 

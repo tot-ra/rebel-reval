@@ -19,7 +19,12 @@ func follow_player(snap: bool, delta: float) -> void:
 	var camera := controller.camera
 	var view := controller.view
 	var target := _follow_target()
-	var camera_was_inside_occluder := view != null and view.is_point_inside_occluder(camera.position)
+	var camera_was_inside_occluder := (
+		view != null
+		and view.is_point_inside_occluder(
+			MapViewRuntimeCameraSafety._in_view(view, camera.position)
+		)
+	)
 	var camera_and_player_shared_occluder := (
 		camera_was_inside_occluder and controller._safety.camera_and_player_share_occluder()
 	)

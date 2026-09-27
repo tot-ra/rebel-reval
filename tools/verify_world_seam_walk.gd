@@ -45,7 +45,7 @@ func _run() -> void:
 	await _walk_into_failed_seam()
 	var failed := _checks.filter(func(check: Dictionary) -> bool: return not check["ok"])
 	var report := {
-		"task": "R-1043",
+		"task": "R-1054",
 		"checks": _checks,
 		"failed": failed.size(),
 		"frame_ms": _frame_ms,
@@ -85,6 +85,22 @@ func _walk_keyboard_gamepad_and_mouse() -> void:
 	print("keyboard %s -> %s" % [before, player.global_position])
 	_check("keyboard crosses into the market", host.owning_location_id() == MARKET)
 	_check("keyboard: player west of the seam", player.global_position.x < 0.0)
+	var market := host.hosted_bootstrap(MARKET)
+	var market_def := market.get("definition") as MapDefinition
+	var market_grid := market.get("grid") as MapTerrainGrid
+	var local := player.global_position - host.location_origin_logic_position(MARKET)
+	_check(
+		"terrain speed matches the market grid",
+		is_equal_approx(
+			player.terrain_speed_multiplier(),
+			MapTerrainMovement.speed_multiplier_at(market_def, market_grid, local)
+		)
+	)
+	_check(
+		"minimap shows the owning location",
+		host.minimap_hud != null
+		and host.minimap_hud.get_location_label().text == "Central District"
+	)
 	_same_globals("keyboard", host, player, camera)
 
 	before = player.global_position
@@ -98,15 +114,14 @@ func _walk_keyboard_gamepad_and_mouse() -> void:
 
 	var click_input := level.find_child("MapClickInput", true, false)
 	var target := Vector2(-6.0 * CELL, 53.5 * CELL)
-	# Start the click from the seam door spawn on the Lower Town navmesh; the
-	# gamepad walk may stop inside the 16 px agent inset, which is off-mesh.
-	player.global_position = start
+	# Start from the 16 px seam inset so the click must snap onto the host map.
+	player.global_position = Vector2(8.0, start.y)
 	player.velocity = Vector2.ZERO
 	await _frames(2)
 	before = player.global_position
 	var clicked := click_input != null and bool(click_input.call("try_handle_logic_click", target))
 	print("mouse click_input=%s clicked=%s" % [click_input, clicked])
-	_check("mouse click accepted on a market point", clicked)
+	_check("mouse click from the seam inset is accepted", clicked)
 	await _until(func() -> bool: return host.owning_location_id() == MARKET)
 	print("mouse %s -> %s" % [before, player.global_position])
 	_check("mouse click-to-move crosses into the market", host.owning_location_id() == MARKET)
