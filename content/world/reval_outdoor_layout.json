@@ -1,0 +1,611 @@
+{
+  "cell_size": 32,
+  "errors": [],
+  "explicit_transitions": [
+    {
+      "alignment": "edge",
+      "destination_location_id": "",
+      "destination_scene_id": "forge",
+      "location_id": "lower_town_slice",
+      "reason": "outside_group",
+      "transition_id": "smithy_door_transition"
+    },
+    {
+      "alignment": "travel",
+      "destination_location_id": "monastery_quarter",
+      "destination_scene_id": "reval_monastery",
+      "location_id": "lower_town_slice",
+      "reason": "travel_alignment",
+      "transition_id": "workers_outer_wall_road"
+    },
+    {
+      "alignment": "edge",
+      "destination_location_id": "",
+      "destination_scene_id": "st_olafs_guild_hall",
+      "location_id": "market_civic_quarter",
+      "reason": "outside_group",
+      "transition_id": "to_guild_hall"
+    },
+    {
+      "alignment": "edge",
+      "destination_location_id": "",
+      "destination_scene_id": "holy_spirit_church",
+      "location_id": "market_civic_quarter",
+      "reason": "outside_group",
+      "transition_id": "to_holy_spirit_church"
+    },
+    {
+      "alignment": "edge",
+      "destination_location_id": "",
+      "destination_scene_id": "town_hall",
+      "location_id": "market_civic_quarter",
+      "reason": "outside_group",
+      "transition_id": "to_town_hall"
+    },
+    {
+      "alignment": "edge",
+      "destination_location_id": "",
+      "destination_scene_id": "kuldjala_interior",
+      "location_id": "monastery_quarter",
+      "reason": "outside_group",
+      "transition_id": "kuldjala_enter"
+    },
+    {
+      "alignment": "edge",
+      "destination_location_id": "",
+      "destination_scene_id": "nunnatorn_interior",
+      "location_id": "monastery_quarter",
+      "reason": "outside_group",
+      "transition_id": "nunnatorn_enter"
+    },
+    {
+      "alignment": "edge",
+      "destination_location_id": "",
+      "destination_scene_id": "oleviste_church",
+      "location_id": "monastery_quarter",
+      "reason": "outside_group",
+      "transition_id": "to_oleviste_church"
+    },
+    {
+      "alignment": "travel",
+      "destination_location_id": "lower_town_slice",
+      "destination_scene_id": "reval_east",
+      "location_id": "monastery_quarter",
+      "reason": "travel_alignment",
+      "transition_id": "to_reval_east_outer"
+    },
+    {
+      "alignment": "travel",
+      "destination_location_id": "north_quarter",
+      "destination_scene_id": "reval_north",
+      "location_id": "monastery_quarter",
+      "reason": "travel_alignment",
+      "transition_id": "to_reval_north_outer"
+    },
+    {
+      "alignment": "edge",
+      "destination_location_id": "",
+      "destination_scene_id": "rentenitorn_interior",
+      "location_id": "north_quarter",
+      "reason": "outside_group",
+      "transition_id": "rentenitorn_enter"
+    },
+    {
+      "alignment": "travel",
+      "destination_location_id": "reval_harbor_north",
+      "destination_scene_id": "reval_harbor_north",
+      "location_id": "north_quarter",
+      "reason": "travel_alignment",
+      "transition_id": "to_harbor_outer"
+    },
+    {
+      "alignment": "travel",
+      "destination_location_id": "monastery_quarter",
+      "destination_scene_id": "reval_monastery",
+      "location_id": "north_quarter",
+      "reason": "travel_alignment",
+      "transition_id": "to_monastery_outer"
+    },
+    {
+      "alignment": "travel",
+      "destination_location_id": "north_quarter",
+      "destination_scene_id": "reval_north",
+      "location_id": "reval_harbor_north",
+      "reason": "travel_alignment",
+      "transition_id": "to_reval_north_outer"
+    },
+    {
+      "alignment": "edge",
+      "destination_location_id": "",
+      "destination_scene_id": "world_saaremaa",
+      "location_id": "reval_harbor_north",
+      "reason": "outside_group",
+      "transition_id": "to_world_saaremaa"
+    },
+    {
+      "alignment": "edge",
+      "destination_location_id": "",
+      "destination_scene_id": "world_sacred_grove",
+      "location_id": "south_quarter",
+      "reason": "outside_group",
+      "transition_id": "to_world_sacred_grove"
+    },
+    {
+      "alignment": "edge",
+      "destination_location_id": "",
+      "destination_scene_id": "world_padise",
+      "location_id": "toompea_quarter",
+      "reason": "outside_group",
+      "transition_id": "to_world_padise"
+    },
+    {
+      "alignment": "edge",
+      "destination_location_id": "",
+      "destination_scene_id": "world_harju",
+      "location_id": "viru_gate_foreland",
+      "reason": "outside_group",
+      "transition_id": "to_world_harju"
+    }
+  ],
+  "fingerprint": "1f78f5c3bfa8135964b560bf4bfb6489a68dfcb755c689b796e4715b1cc761a7",
+  "locations": [
+    {
+      "cell_size": 32,
+      "global_bounds_cells": [
+        -258,
+        80,
+        -114,
+        128
+      ],
+      "location_id": "archbishops_garden",
+      "location_kind": "outdoor_streamed",
+      "map_fingerprint": "fe30f74fecfad7a608704c448fe544f4bc37c7ec58bb2860b3a6ffd7abc192f8",
+      "origin_cell": [
+        -258,
+        80
+      ],
+      "package_path": "res://content/maps/archbishops_garden.rrmap",
+      "placement_parent": "market_civic_quarter",
+      "scene_id": "reval_archbishops_garden",
+      "size_cells": [
+        144,
+        48
+      ],
+      "source_sha256": "74bc631a716db4deff1bb8f9e8a803b39a846251121db564f00b465b627d579f"
+    },
+    {
+      "cell_size": 32,
+      "global_bounds_cells": [
+        0,
+        0,
+        152,
+        128
+      ],
+      "location_id": "lower_town_slice",
+      "location_kind": "outdoor_streamed",
+      "map_fingerprint": "153d578401ab9e128d6e0992630518ffa54153c1c1296c948772033e6529959e",
+      "origin_cell": [
+        0,
+        0
+      ],
+      "package_path": "res://content/maps/lower_town_slice.rrmap",
+      "placement_parent": "",
+      "scene_id": "reval_east",
+      "size_cells": [
+        152,
+        128
+      ],
+      "source_sha256": "0246a103bd93b12dcf4f2e2f15f5495e6e6beefdf95439fb495d337e6ae31a18"
+    },
+    {
+      "cell_size": 32,
+      "global_bounds_cells": [
+        -114,
+        0,
+        0,
+        128
+      ],
+      "location_id": "market_civic_quarter",
+      "location_kind": "outdoor_streamed",
+      "map_fingerprint": "d7df9fe955c3fff666915e9fee88cff74897d97071928f4c4ab5343e6879bb49",
+      "origin_cell": [
+        -114,
+        0
+      ],
+      "package_path": "res://content/maps/market_civic_quarter.rrmap",
+      "placement_parent": "lower_town_slice",
+      "scene_id": "reval_center",
+      "size_cells": [
+        114,
+        128
+      ],
+      "source_sha256": "3ca024120b9cac31a643f2eb533d8f7b65837852bf64456b8488433c5c1f8ef9"
+    },
+    {
+      "cell_size": 32,
+      "global_bounds_cells": [
+        -114,
+        -112,
+        146,
+        0
+      ],
+      "location_id": "monastery_quarter",
+      "location_kind": "outdoor_streamed",
+      "map_fingerprint": "e2dd4787961eda584b5a680a78129ab6acb28d7fc7a5f65accf9b5d32eb9c3dd",
+      "origin_cell": [
+        -114,
+        -112
+      ],
+      "package_path": "res://content/maps/monastery_quarter.rrmap",
+      "placement_parent": "lower_town_slice",
+      "scene_id": "reval_monastery",
+      "size_cells": [
+        260,
+        112
+      ],
+      "source_sha256": "2804d55cbbe7cada1950adf74834a42091e10f8d348a729561107fa23d87385e"
+    },
+    {
+      "cell_size": 32,
+      "global_bounds_cells": [
+        -114,
+        -252,
+        146,
+        -112
+      ],
+      "location_id": "north_quarter",
+      "location_kind": "outdoor_streamed",
+      "map_fingerprint": "99e627b08c8c39c32c68d53f9c72c4e67768d8ea457368bd6dced9f86056d855",
+      "origin_cell": [
+        -114,
+        -252
+      ],
+      "package_path": "res://content/maps/north_quarter.rrmap",
+      "placement_parent": "monastery_quarter",
+      "scene_id": "reval_north",
+      "size_cells": [
+        260,
+        140
+      ],
+      "source_sha256": "ccb3efbbf1c1931ccea04605e9193c38182ad55c76ac5a54e867f2872d24baab"
+    },
+    {
+      "cell_size": 32,
+      "global_bounds_cells": [
+        -255,
+        -340,
+        -111,
+        -260
+      ],
+      "location_id": "reval_harbor_east",
+      "location_kind": "outdoor_streamed",
+      "map_fingerprint": "665ab2726af876a1f573d87709e490defe86c2bd63002ca8f6384b640f3a4626",
+      "origin_cell": [
+        -255,
+        -340
+      ],
+      "package_path": "res://content/maps/reval_harbor_east.rrmap",
+      "placement_parent": "reval_harbor_north",
+      "scene_id": "reval_harbor_east",
+      "size_cells": [
+        144,
+        80
+      ],
+      "source_sha256": "bd2a3b3947ce30d6ba961142bbbdad4f059e8ca59a75a56e9c92107a951272f0"
+    },
+    {
+      "cell_size": 32,
+      "global_bounds_cells": [
+        -111,
+        -360,
+        49,
+        -252
+      ],
+      "location_id": "reval_harbor_north",
+      "location_kind": "outdoor_streamed",
+      "map_fingerprint": "c6961279336c3b4e7e321d04f106e9180bf01eaad769ffaa8b5d937b7e479a03",
+      "origin_cell": [
+        -111,
+        -360
+      ],
+      "package_path": "res://content/maps/reval_harbor_north.rrmap",
+      "placement_parent": "north_quarter",
+      "scene_id": "reval_harbor_north",
+      "size_cells": [
+        160,
+        108
+      ],
+      "source_sha256": "315d30c1bde9cae33114b16f49e35a1bd096fac2f657f3cfbda68566dabc43e7"
+    },
+    {
+      "cell_size": 32,
+      "global_bounds_cells": [
+        -258,
+        128,
+        78,
+        224
+      ],
+      "location_id": "south_quarter",
+      "location_kind": "outdoor_streamed",
+      "map_fingerprint": "99189f7a7b5b3d47b9d19d08ecb9d80cb8278a10822855d556fe1c25620051f9",
+      "origin_cell": [
+        -258,
+        128
+      ],
+      "package_path": "res://content/maps/south_quarter.rrmap",
+      "placement_parent": "lower_town_slice",
+      "scene_id": "reval_south",
+      "size_cells": [
+        336,
+        96
+      ],
+      "source_sha256": "021a3e9325d240db1a50494ede550db990d12f384a931fdc23cbae3aa08f4413"
+    },
+    {
+      "cell_size": 32,
+      "global_bounds_cells": [
+        -258,
+        -112,
+        -114,
+        80
+      ],
+      "location_id": "toompea_quarter",
+      "location_kind": "outdoor_streamed",
+      "map_fingerprint": "30b1fc1ff8d595e85e2f525b8f0da2ea3888f531a99f8b229c4ad09efc1799e0",
+      "origin_cell": [
+        -258,
+        -112
+      ],
+      "package_path": "res://content/maps/toompea_quarter.rrmap",
+      "placement_parent": "market_civic_quarter",
+      "scene_id": "reval_toompea",
+      "size_cells": [
+        144,
+        192
+      ],
+      "source_sha256": "971fc15b0c865e0ccd3f9c4c5810eabed40155cc62e37e3491a1a791c09bef0c"
+    },
+    {
+      "cell_size": 32,
+      "global_bounds_cells": [
+        152,
+        -11,
+        320,
+        109
+      ],
+      "location_id": "viru_gate_foreland",
+      "location_kind": "outdoor_streamed",
+      "map_fingerprint": "5eaf602874c0c2973ed9120ae71ef8471ba593617afb90b8f77cc202c1b322bb",
+      "origin_cell": [
+        152,
+        -11
+      ],
+      "package_path": "res://content/maps/viru_gate_foreland.rrmap",
+      "placement_parent": "lower_town_slice",
+      "scene_id": "viru_gate_foreland",
+      "size_cells": [
+        168,
+        120
+      ],
+      "source_sha256": "767396bb2ca57cabdbd75b821f638615ea1c3c9f3d61bfcdbc80a2be28427bcb"
+    }
+  ],
+  "root_location_id": "lower_town_slice",
+  "schema": "rr.world_layout.v1",
+  "seams": [
+    {
+      "alignment": "physical",
+      "base_map_id": "archbishops_garden",
+      "base_side": "north",
+      "base_span_cells": 10,
+      "base_transition_id": "to_reval_toompea",
+      "diagnostics": [],
+      "id": "archbishops_garden/to_reval_toompea|toompea_quarter/to_archbishops_garden",
+      "neighbor_map_id": "toompea_quarter",
+      "neighbor_side": "south",
+      "neighbor_span_cells": 10,
+      "neighbor_transition_id": "to_archbishops_garden",
+      "status": "streamable"
+    },
+    {
+      "alignment": "physical",
+      "base_map_id": "lower_town_slice",
+      "base_side": "south",
+      "base_span_cells": 14,
+      "base_transition_id": "to_reval_south",
+      "diagnostics": [
+        "MAP_WORLD_SEAM_SPAN_MISMATCH"
+      ],
+      "id": "lower_town_slice/to_reval_south|south_quarter/to_reval_east",
+      "neighbor_map_id": "south_quarter",
+      "neighbor_side": "north",
+      "neighbor_span_cells": 12,
+      "neighbor_transition_id": "to_reval_east",
+      "status": "blocked"
+    },
+    {
+      "alignment": "physical",
+      "base_map_id": "lower_town_slice",
+      "base_side": "west",
+      "base_span_cells": 4,
+      "base_transition_id": "vana_turg_boundary",
+      "diagnostics": [],
+      "id": "lower_town_slice/vana_turg_boundary|market_civic_quarter/to_reval_east",
+      "neighbor_map_id": "market_civic_quarter",
+      "neighbor_side": "east",
+      "neighbor_span_cells": 4,
+      "neighbor_transition_id": "to_reval_east",
+      "status": "streamable"
+    },
+    {
+      "alignment": "physical",
+      "base_map_id": "lower_town_slice",
+      "base_side": "north",
+      "base_span_cells": 3,
+      "base_transition_id": "vene_district_boundary",
+      "diagnostics": [
+        "MAP_WORLD_SEAM_SPAN_MISMATCH"
+      ],
+      "id": "lower_town_slice/vene_district_boundary|monastery_quarter/to_reval_east",
+      "neighbor_map_id": "monastery_quarter",
+      "neighbor_side": "south",
+      "neighbor_span_cells": 11,
+      "neighbor_transition_id": "to_reval_east",
+      "status": "blocked"
+    },
+    {
+      "alignment": "physical",
+      "base_map_id": "lower_town_slice",
+      "base_side": "east",
+      "base_span_cells": 3,
+      "base_transition_id": "viru_road_boundary",
+      "diagnostics": [],
+      "id": "lower_town_slice/viru_road_boundary|viru_gate_foreland/to_reval_east",
+      "neighbor_map_id": "viru_gate_foreland",
+      "neighbor_side": "west",
+      "neighbor_span_cells": 3,
+      "neighbor_transition_id": "to_reval_east",
+      "status": "streamable"
+    },
+    {
+      "alignment": "physical",
+      "base_map_id": "market_civic_quarter",
+      "base_side": "west",
+      "base_span_cells": 8,
+      "base_transition_id": "to_archbishops_garden",
+      "diagnostics": [],
+      "id": "market_civic_quarter/to_archbishops_garden|archbishops_garden/to_reval_center",
+      "neighbor_map_id": "archbishops_garden",
+      "neighbor_side": "east",
+      "neighbor_span_cells": 8,
+      "neighbor_transition_id": "to_reval_center",
+      "status": "streamable"
+    },
+    {
+      "alignment": "physical",
+      "base_map_id": "market_civic_quarter",
+      "base_side": "north",
+      "base_span_cells": 10,
+      "base_transition_id": "to_reval_north",
+      "diagnostics": [
+        "MAP_WORLD_SEAM_SPAN_MISMATCH"
+      ],
+      "id": "market_civic_quarter/to_reval_north|monastery_quarter/to_reval_center",
+      "neighbor_map_id": "monastery_quarter",
+      "neighbor_side": "south",
+      "neighbor_span_cells": 12,
+      "neighbor_transition_id": "to_reval_center",
+      "status": "blocked"
+    },
+    {
+      "alignment": "physical",
+      "base_map_id": "market_civic_quarter",
+      "base_side": "south",
+      "base_span_cells": 12,
+      "base_transition_id": "to_reval_south",
+      "diagnostics": [],
+      "id": "market_civic_quarter/to_reval_south|south_quarter/to_reval_center",
+      "neighbor_map_id": "south_quarter",
+      "neighbor_side": "north",
+      "neighbor_span_cells": 12,
+      "neighbor_transition_id": "to_reval_center",
+      "status": "streamable"
+    },
+    {
+      "alignment": "physical",
+      "base_map_id": "market_civic_quarter",
+      "base_side": "west",
+      "base_span_cells": 8,
+      "base_transition_id": "to_reval_toompea",
+      "diagnostics": [],
+      "id": "market_civic_quarter/to_reval_toompea|toompea_quarter/to_reval_center",
+      "neighbor_map_id": "toompea_quarter",
+      "neighbor_side": "east",
+      "neighbor_span_cells": 8,
+      "neighbor_transition_id": "to_reval_center",
+      "status": "streamable"
+    },
+    {
+      "alignment": "physical",
+      "base_map_id": "monastery_quarter",
+      "base_side": "north",
+      "base_span_cells": 12,
+      "base_transition_id": "to_reval_north",
+      "diagnostics": [],
+      "id": "monastery_quarter/to_reval_north|north_quarter/to_monastery",
+      "neighbor_map_id": "north_quarter",
+      "neighbor_side": "south",
+      "neighbor_span_cells": 12,
+      "neighbor_transition_id": "to_monastery",
+      "status": "streamable"
+    },
+    {
+      "alignment": "physical",
+      "base_map_id": "monastery_quarter",
+      "base_side": "west",
+      "base_span_cells": 12,
+      "base_transition_id": "to_reval_toompea",
+      "diagnostics": [],
+      "id": "monastery_quarter/to_reval_toompea|toompea_quarter/to_reval_north",
+      "neighbor_map_id": "toompea_quarter",
+      "neighbor_side": "east",
+      "neighbor_span_cells": 12,
+      "neighbor_transition_id": "to_reval_north",
+      "status": "streamable"
+    },
+    {
+      "alignment": "physical",
+      "base_map_id": "north_quarter",
+      "base_side": "north",
+      "base_span_cells": 7,
+      "base_transition_id": "to_reval_harbor",
+      "diagnostics": [],
+      "id": "north_quarter/to_reval_harbor|reval_harbor_north/to_reval_north",
+      "neighbor_map_id": "reval_harbor_north",
+      "neighbor_side": "south",
+      "neighbor_span_cells": 7,
+      "neighbor_transition_id": "to_reval_north",
+      "status": "streamable"
+    },
+    {
+      "alignment": "physical",
+      "base_map_id": "reval_harbor_north",
+      "base_side": "west",
+      "base_span_cells": 8,
+      "base_transition_id": "to_harbor_east",
+      "diagnostics": [],
+      "id": "reval_harbor_north/to_harbor_east|reval_harbor_east/to_harbor_north",
+      "neighbor_map_id": "reval_harbor_east",
+      "neighbor_side": "east",
+      "neighbor_span_cells": 8,
+      "neighbor_transition_id": "to_harbor_north",
+      "status": "streamable"
+    },
+    {
+      "alignment": "physical",
+      "base_map_id": "south_quarter",
+      "base_side": "north",
+      "base_span_cells": 10,
+      "base_transition_id": "to_archbishops_garden",
+      "diagnostics": [],
+      "id": "south_quarter/to_archbishops_garden|archbishops_garden/to_reval_south",
+      "neighbor_map_id": "archbishops_garden",
+      "neighbor_side": "south",
+      "neighbor_span_cells": 10,
+      "neighbor_transition_id": "to_reval_south",
+      "status": "streamable"
+    }
+  ],
+  "unplaced": [],
+  "valid": true,
+  "warnings": [
+    "MAP_WORLD_SEAM_SPAN_MISMATCH lower_town_slice/to_reval_south|south_quarter/to_reval_east",
+    "MAP_WORLD_SEAM_SPAN_MISMATCH lower_town_slice/vene_district_boundary|monastery_quarter/to_reval_east",
+    "MAP_WORLD_SEAM_SPAN_MISMATCH market_civic_quarter/to_reval_north|monastery_quarter/to_reval_center",
+    "MAP_WORLD_TRAVEL_ALIGNMENT_MISSING reval_harbor_north/to_world_saaremaa -> world_saaremaa",
+    "MAP_WORLD_TRAVEL_ALIGNMENT_MISSING south_quarter/to_world_sacred_grove -> world_sacred_grove",
+    "MAP_WORLD_TRAVEL_ALIGNMENT_MISSING toompea_quarter/to_world_padise -> world_padise",
+    "MAP_WORLD_TRAVEL_ALIGNMENT_MISSING viru_gate_foreland/to_world_harju -> world_harju"
+  ],
+  "world_group_id": "reval_outdoor"
+}

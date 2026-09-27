@@ -87,3 +87,33 @@ own task and by the world-building visual gate (`R-716`).
 `docs/ARCHITECTURE.md` and `docs/MAP_AUTHORING.md` record that a physical seam between two maps in
 the same world group is now a runtime contract, and that `alignment=travel` is the only way to opt
 a neighbour out.
+
+## Decisions (2026-09-27, slice 1)
+
+1. **Manifest shape.** `content/world/reval_outdoor_layout.json` (`rr.world_layout.v1`) is
+   built by `tools/build_world_layout.gd` from `MapWorldLayout.build_manifest()`. Numbers
+   are integer cells, bounds are half-open, and the sha256 `fingerprint` covers the
+   canonical JSON so `tools/verify_world_layout.py` recomputes it without Godot. Each
+   location stores its `.rrmap` `source_sha256` so a map edit makes the manifest stale.
+   `placement_parent` records the placement tree, which is what "cycle-free" means
+   here: the seam graph of a city has cycles, the origin derivation must not.
+2. **Membership lives in code.** `MapWorldLayout.REVAL_OUTDOOR_MEMBERS` mirrors the
+   accepted streamed table; the verifier fails if the two disagree.
+3. **Blocked seams, not an invalid group.** A seam with a side, span or cell-size
+   diagnostic is `blocked`: the group placement stays valid, the seam never streams,
+   and crossing it requests the explicit transition. Three current seams are blocked
+   by span mismatch (R-1045). An origin conflict or a seam to a non-member is a fatal
+   manifest error.
+4. **No `.rrmap` edits in this row.** The four `world_*` exits authored
+   `alignment=edge` are warnings, not errors, because the destinations are not
+   members and cannot stream (R-1046).
+5. **Policy defaults.** Prefetch 48 cells, eviction 64 cells, residency cap 3, with
+   the derivation in `docs/SEAMLESS_STREAMING_PLAN.md`.
+6. **Handover.** The host never writes the player. A crossing changes only the owning
+   location (`owning_location_changed`); the owner is never evicted. A failed mount or
+   blocked seam emits `scene_swap_fallback_requested` once per edge visit when
+   `world_host/scene_swap_fallback_enabled` is on.
+7. **Deferred** (row stays open): live-player wiring and DoorNavigator fallback
+   (R-1043, after R-1038); staged in-flight mounts and save/load across a seam and
+   mid-mount (R-1044); frame-time trace, clip, relief continuity, performance report
+   and the flag flip, which need an activated outdoor neighbour.

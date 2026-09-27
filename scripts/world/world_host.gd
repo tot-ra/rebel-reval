@@ -14,9 +14,29 @@ signal location_unmounted(location_id: StringName)
 signal seam_activation_changed(seam_id: String, active: bool)
 ## A mount was refused. Each diagnostic is {code, location_id, node_path, detail}.
 signal package_rejected(location_id: StringName, diagnostics: Array)
+## WB-08: the player crossed a streamed seam. Nothing is re-created; only the
+## owning location (save identity, ambience, quest scope) changes.
+signal owning_location_changed(previous_id: StringName, location_id: StringName)
+## WB-08: the player reached a location that could not be mounted. A launch
+## adapter answers with today's DoorNavigator scene swap through `transition_id`.
+signal scene_swap_fallback_requested(location_id: StringName, seam: Dictionary)
 
 const ADDITIVE_RESIDENCY_SETTING := "world_host/additive_residency_enabled"
 const SCENE_SWAP_FALLBACK_SETTING := "world_host/scene_swap_fallback_enabled"
+## WB-08 streaming policy. Derivation (docs/SEAMLESS_STREAMING_PLAN.md): the
+## slowest staged location mount measured by R-979/R-1005 is ~4.7 s wall time
+## (lower_town_slice at a 4 ms budget); a running player covers 240 px/s = 7.5
+## cells/s, so 7.5 x 4.7 x ~1.35 safety = 48 cells of warning before the seam.
+const STREAMING_PREFETCH_BAND_SETTING := "world_host/streaming_prefetch_band_cells"
+## Eviction band = prefetch + 16 cells (about 2 s of running) of hysteresis so
+## pacing along the prefetch line cannot mount/evict the same neighbour per frame.
+const STREAMING_EVICTION_BAND_SETTING := "world_host/streaming_eviction_band_cells"
+## Owner plus the two neighbours of a seam corner. Lower Town alone is already
+## over the ADR 0019 node/memory caps, so a larger cap would only hide that.
+const STREAMING_RESIDENCY_CAP_SETTING := "world_host/streaming_residency_cap"
+const DEFAULT_PREFETCH_BAND_CELLS := 48.0
+const DEFAULT_EVICTION_BAND_CELLS := 64.0
+const DEFAULT_RESIDENCY_CAP := 3
 const LOGIC_LOCATIONS_NAME := "LogicLocations"
 const VIEW_LOCATIONS_NAME := "ViewLocations"
 const SEAM_LINKS_NAME := "SeamLinks"
@@ -56,6 +76,15 @@ var stable_state_store: MapStableStateStore
 ## Host-owned day/night clock (DayNightCycle fraction plus whole days crossed).
 var clock_progress: float = DayNightCycle.DEFAULT_PROGRESS
 var clock_completed_days := 0
+## WB-08 streaming policy (project settings; tests may override per host).
+var prefetch_band_cells: float
+var eviction_band_cells: float
+var residency_cap: int
+## Callable(location_id: StringName) -> bool that builds and mounts a location.
+## Falls back to `definition_provider` + enter_location() when unset.
+var location_loader: Callable
+## Callable(location_id: StringName) -> MapDefinition.
+var definition_provider: Callable
 
 var _logic_locations: Node
 var _view_locations: Node3D
@@ -71,6 +100,9 @@ var _globals_root: Node
 var _navigation_map := RID()
 var _seam_links: Node2D
 var _last_rejection: Array[Dictionary] = []
+var _owning_location_id: StringName = &""
+var _mount_failures: Dictionary = {}
+var _fallback_request: Dictionary = {}
 
 
 func _init() -> void:
@@ -81,6 +113,15 @@ func _init() -> void:
 	)
 	scene_swap_fallback_enabled = bool(
 		ProjectSettings.get_setting(SCENE_SWAP_FALLBACK_SETTING, false)
+	)
+	prefetch_band_cells = float(
+		ProjectSettings.get_setting(STREAMING_PREFETCH_BAND_SETTING, DEFAULT_PREFETCH_BAND_CELLS)
+	)
+	eviction_band_cells = float(
+		ProjectSettings.get_setting(STREAMING_EVICTION_BAND_SETTING, DEFAULT_EVICTION_BAND_CELLS)
+	)
+	residency_cap = int(
+		ProjectSettings.get_setting(STREAMING_RESIDENCY_CAP_SETTING, DEFAULT_RESIDENCY_CAP)
 	)
 
 
@@ -306,8 +347,9 @@ func set_additive_residency_enabled(enabled: bool) -> void:
 
 
 func is_scene_swap_fallback_enabled() -> bool:
-	# This prototype never invokes a fallback. Exposing the flag makes the default
-	# explicit and prevents a later adapter from silently opting into scene swaps.
+	# WB-08: when on, a failed mount at a seam emits scene_swap_fallback_requested
+	# instead of leaving the player at an unloaded edge. Off by default so a later
+	# adapter cannot silently opt into scene swaps.
 	return scene_swap_fallback_enabled
 
 
@@ -519,6 +561,257 @@ func owner_snapshot() -> Dictionary:
 		"camera": camera_owner,
 		"session": session_owner,
 	}
+
+
+## WB-08 pure residency policy. Returns {owner, desired, mount, evict, distances}
+## where distances maps each seam neighbour of `owner_id` to the player's distance
+## (cells) from the shared seam edge. Only layout seams (streamable by
+## construction) are considered, so a travel or interior transition never streams.
+static func plan_residency(
+	layout: Dictionary,
+	owner_id: StringName,
+	global_position: Vector2,
+	resident_ids: Array,
+	prefetch_cells: float,
+	eviction_cells: float,
+	cap: int
+) -> Dictionary:
+	var distances := seam_neighbor_distances(layout, owner_id, global_position)
+	var candidates: Array[StringName] = []
+	for neighbor_value in distances.keys():
+		var neighbor_id := StringName(neighbor_value)
+		var distance := float(distances[neighbor_id])
+		# Hysteresis: an already resident neighbour survives until the wider band.
+		var band := eviction_cells if resident_ids.has(neighbor_id) else prefetch_cells
+		if distance <= band:
+			candidates.append(neighbor_id)
+	candidates.sort_custom(
+		func(left: StringName, right: StringName) -> bool:
+			var left_distance := float(distances[left])
+			var right_distance := float(distances[right])
+			if not is_equal_approx(left_distance, right_distance):
+				return left_distance < right_distance
+			return String(left) < String(right)
+	)
+	var desired: Array[StringName] = []
+	if not owner_id.is_empty():
+		desired.append(owner_id)
+	for neighbor_id in candidates:
+		if desired.size() >= maxi(cap, 1):
+			break
+		desired.append(neighbor_id)
+	var mount: Array[StringName] = []
+	for location_id in desired:
+		if not resident_ids.has(location_id):
+			mount.append(location_id)
+	var evict: Array[StringName] = []
+	for resident_value in resident_ids:
+		var resident_id := StringName(resident_value)
+		if not desired.has(resident_id):
+			evict.append(resident_id)
+	evict.sort_custom(
+		func(left: StringName, right: StringName) -> bool: return String(left) < String(right)
+	)
+	return {
+		"owner": owner_id,
+		"desired": desired,
+		"mount": mount,
+		"evict": evict,
+		"distances": distances,
+	}
+
+
+## Distance in cells from `global_position` to each seam edge `owner_id` shares
+## with a neighbour (the closest edge when two locations share several seams).
+static func seam_neighbor_distances(
+	layout: Dictionary, owner_id: StringName, global_position: Vector2
+) -> Dictionary:
+	var bounds_by_id: Dictionary = {}
+	var cell_size := 0
+	for entry_value in layout.get("locations", []):
+		var entry: Dictionary = entry_value as Dictionary
+		bounds_by_id[StringName(entry.get("location_id", ""))] = entry.get("global_bounds", Rect2())
+		cell_size = int(entry.get("cell_size", cell_size))
+	var distances: Dictionary = {}
+	if cell_size <= 0 or not bounds_by_id.has(owner_id):
+		return distances
+	for seam_value in layout.get("seams", []):
+		var seam: Dictionary = seam_value as Dictionary
+		var neighbor_id: StringName = &""
+		if seam.get("base_map_id", &"") == owner_id:
+			neighbor_id = StringName(seam.get("neighbor_map_id", &""))
+		elif seam.get("neighbor_map_id", &"") == owner_id:
+			neighbor_id = StringName(seam.get("base_map_id", &""))
+		if neighbor_id.is_empty() or not bounds_by_id.has(neighbor_id):
+			continue
+		# The two rects touch along the seam; growing both by a pixel turns that
+		# shared edge into a thin rect, whatever the side.
+		var edge := (bounds_by_id[owner_id] as Rect2).grow(1.0).intersection(
+			(bounds_by_id[neighbor_id] as Rect2).grow(1.0)
+		)
+		if edge.size == Vector2.ZERO:
+			continue
+		var closest := global_position.clamp(edge.position, edge.end)
+		var distance := global_position.distance_to(closest) / float(cell_size)
+		if not distances.has(neighbor_id) or distance < float(distances[neighbor_id]):
+			distances[neighbor_id] = distance
+	return distances
+
+
+## WB-08 streaming tick. Call with the player's global logic position (the host
+## never writes the player). Crossing a seam changes only the owning location;
+## prefetch mounts neighbours inside the band and eviction honours hysteresis and
+## the residency cap. Returns the applied plan plus `mounted`, `evicted`,
+## `failed` and `fallback` (the seam handed to the scene-swap path, or {}).
+func update_streaming(global_position: Vector2) -> Dictionary:
+	var applied := {
+		"owner": _owning_location_id,
+		"mounted": [] as Array[StringName],
+		"evicted": [] as Array[StringName],
+		"failed": [] as Array[StringName],
+		"fallback": {},
+	}
+	if not is_additive_residency_active():
+		return applied
+	var observed := observe_global_logic_position(global_position)
+	if observed.is_empty():
+		# Off every location (outside the city edge): keep the last owner.
+		observed = _owning_location_id
+	if observed != _owning_location_id and not observed.is_empty():
+		if not _owning_location_id.is_empty() and seam_between(_owning_location_id, observed).is_empty():
+			# Blocked seam or no seam: that edge keeps its explicit transition.
+			applied["fallback"] = _request_fallback(observed)
+			return applied
+		if not _mounted_locations.has(observed) and not _load_location(observed):
+			applied["failed"].append(observed)
+			applied["fallback"] = _request_fallback(observed)
+			return applied
+		var previous := _owning_location_id
+		_owning_location_id = observed
+		_fallback_request = {}
+		if not previous.is_empty():
+			owning_location_changed.emit(previous, observed)
+	applied["owner"] = _owning_location_id
+	if observed == _owning_location_id:
+		_fallback_request = {}
+
+	var plan := plan_residency(
+		world_layout,
+		_owning_location_id,
+		global_position,
+		mounted_location_ids(),
+		prefetch_band_cells,
+		eviction_band_cells,
+		residency_cap
+	)
+	# Evict first so a full cap has room for the new neighbour.
+	for location_id in plan["evict"]:
+		if unmount_location(location_id):
+			applied["evicted"].append(location_id)
+	for location_id in plan["mount"]:
+		if _load_location(location_id):
+			applied["mounted"].append(location_id)
+		else:
+			applied["failed"].append(location_id)
+	applied.merge(plan)
+	return applied
+
+
+func owning_location_id() -> StringName:
+	return _owning_location_id
+
+
+## Seed the owner (for example the location the launch adapter entered through).
+func set_owning_location(location_id: StringName) -> void:
+	_owning_location_id = location_id
+
+
+func mount_failure_count(location_id: StringName) -> int:
+	return int(_mount_failures.get(location_id, 0))
+
+
+## The streamable seam between two locations, or {} (blocked seams are absent
+## from a manifest layout, so they always use the explicit transition).
+func seam_between(first_id: StringName, second_id: StringName) -> Dictionary:
+	for seam_value in world_layout.get("seams", []):
+		var seam: Dictionary = seam_value as Dictionary
+		if (
+			(seam.get("base_map_id", &"") == first_id and seam.get("neighbor_map_id", &"") == second_id)
+			or (
+				seam.get("base_map_id", &"") == second_id
+				and seam.get("neighbor_map_id", &"") == first_id
+			)
+		):
+			return seam.duplicate(true)
+	return {}
+
+
+## True when `transition_id` in `location_id` is a streamed seam, so a launch
+## adapter must not run its scene swap while both sides can be resident.
+func is_transition_streamed(location_id: StringName, transition_id: StringName) -> bool:
+	for seam_value in world_layout.get("seams", []):
+		var seam: Dictionary = seam_value as Dictionary
+		if (
+			seam.get("base_map_id", &"") == location_id
+			and StringName(seam.get("base_transition_id", &"")) == transition_id
+		):
+			return true
+		if (
+			seam.get("neighbor_map_id", &"") == location_id
+			and StringName(seam.get("neighbor_transition_id", &"")) == transition_id
+		):
+			return true
+	return false
+
+
+func _load_location(location_id: StringName) -> bool:
+	if _mounted_locations.has(location_id):
+		return true
+	var ok := false
+	if location_loader.is_valid():
+		ok = bool(location_loader.call(location_id))
+	elif definition_provider.is_valid():
+		var definition := definition_provider.call(location_id) as MapDefinition
+		ok = definition != null and enter_location(location_id, definition)
+	ok = ok and _mounted_locations.has(location_id)
+	if not ok:
+		_mount_failures[location_id] = mount_failure_count(location_id) + 1
+	return ok
+
+
+func _request_fallback(location_id: StringName) -> Dictionary:
+	if String(_fallback_request.get("location_id", "")) == String(location_id):
+		# One request per edge visit; the adapter is already swapping scenes.
+		return _fallback_request.duplicate(true)
+	if not scene_swap_fallback_enabled:
+		# No degrade path: the player stays owned by the current location, which
+		# is never evicted, so they are not dropped into unloaded space.
+		return {}
+	var seam := seam_between(_owning_location_id, location_id)
+	if seam.is_empty():
+		for blocked_value in world_layout.get("blocked_seams", []):
+			var blocked: Dictionary = blocked_value as Dictionary
+			var ends := [blocked.get("base_map_id", &""), blocked.get("neighbor_map_id", &"")]
+			if ends.has(_owning_location_id) and ends.has(location_id):
+				seam = blocked.duplicate(true)
+				break
+	var request := {
+		"from_location_id": _owning_location_id,
+		"location_id": location_id,
+		"seam_id": String(seam.get("id", "")),
+		"transition_id": _transition_toward(seam, location_id),
+	}
+	_fallback_request = request.duplicate(true)
+	scene_swap_fallback_requested.emit(location_id, request.duplicate(true))
+	return request
+
+
+func _transition_toward(seam: Dictionary, location_id: StringName) -> StringName:
+	if seam.is_empty():
+		return &""
+	if seam.get("neighbor_map_id", &"") == location_id:
+		return StringName(seam.get("base_transition_id", &""))
+	return StringName(seam.get("neighbor_transition_id", &""))
 
 
 func _notification(what: int) -> void:

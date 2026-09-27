@@ -113,6 +113,35 @@ mounts on that phase-3 host (phase-2 `configure()` stays as a regression).
 `--filter=test_world_host_residency`; `--filter=test_async_location_assembly`
 nav byte-identity is unchanged.
 
+**Phase 5 status (2026-09-27, R-980 slice 1).** Host side landed, flags off:
+
+- Manifest: `content/world/reval_outdoor_layout.json`, built by
+  `godot --headless --path . --script tools/build_world_layout.gd` (`-- --check` fails
+  when stale) and verified by `python3 tools/verify_world_layout.py`. All ten members
+  place from `lower_town_slice`; 14 seams, **11 streamable**, **3 blocked** by
+  `MAP_WORLD_SEAM_SPAN_MISMATCH` (`lower_town_slice/to_reval_south` 14 vs
+  `south_quarter/to_reval_east` 12, `lower_town_slice/vene_district_boundary` 3 vs
+  `monastery_quarter/to_reval_east` 11, `market_civic_quarter/to_reval_north` 10 vs
+  `monastery_quarter/to_reval_center` 12). Blocked seams keep their explicit transition.
+  Four `world_*` exits are authored `alignment=edge` and are reported as
+  `MAP_WORLD_TRAVEL_ALIGNMENT_MISSING` warnings; they cannot stream because the
+  destinations are not members.
+- Scheduler: `WorldHost.update_streaming()` / `plan_residency()` with the defaults below.
+- Handover, travel boundary and fallback: `--filter=test_world_seam_crossing` (14 tests).
+
+| Setting | Default | Derivation |
+|---|---|---|
+| `world_host/streaming_prefetch_band_cells` | 48 | slowest staged mount ~4.7 s (R-1005 `lower_town_slice`, 4 ms budget) x run speed 7.5 cells/s (240 px/s) x ~1.35 safety |
+| `world_host/streaming_eviction_band_cells` | 64 | prefetch + 16 cells (~2 s of running) of hysteresis |
+| `world_host/streaming_residency_cap` | 3 | owner + two neighbours at a seam corner; Lower Town alone already exceeds the node/memory caps |
+
+Still open before the release criteria can pass: live-player wiring and the
+`DoorNavigator` fallback (**R-1043**, after the R-1038 launch adapter); staged
+in-flight mounts and save/load across a seam and mid-mount (**R-1044**); the three
+blocked apertures (**R-1045**); `alignment=travel` on the world exits plus a CI gate
+(**R-1046**); frame-time trace and clip of a two-seam walk; relief continuity
+(R-976); performance report with the cap at its default.
+
 ADR phase 6 (NPC, quest, fauna, audio, persistence residency beyond the two-seam walk)
 is follow-up work after R-980, not a fourth pack row.
 

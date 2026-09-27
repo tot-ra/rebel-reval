@@ -202,3 +202,6 @@ cloud_shadow_strength={
 
 async_location_assembly_enabled=false
 location_assembly_frame_budget_ms=4.0
+streaming_prefetch_band_cells=48.0
+streaming_eviction_band_cells=64.0
+streaming_residency_cap=3

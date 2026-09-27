@@ -51,10 +51,13 @@ static func layout_connected_maps(
 		if definition != null:
 			by_id[definition.map_id] = definition
 	if by_id.is_empty():
-		return {"offsets": {}, "seams": [], "unplaced": []}
+		return {"offsets": {}, "seams": [], "unplaced": [], "parents": {}}
 
 	var root_id := root_map_id if by_id.has(root_map_id) else StringName(by_id.keys()[0])
 	var offsets: Dictionary = {root_id: Vector2.ZERO}
+	# WB-08: which placed map each origin was derived from, so a manifest can prove
+	# the placement tree is rooted and cycle-free.
+	var parents: Dictionary = {}
 	var seams: Array[Dictionary] = []
 	var seam_keys: Dictionary = {}
 	var queue: Array[StringName] = [root_id]
@@ -85,6 +88,7 @@ static func layout_connected_maps(
 				offsets[neighbor_id] = Vector2(offsets[base_id]) + aligned_neighbor_offset(
 					base, neighbor, pair["base"], pair["neighbor"]
 				)
+				parents[neighbor_id] = base_id
 				queue.append(neighbor_id)
 
 	var unplaced: Array[StringName] = []
@@ -93,7 +97,7 @@ static func layout_connected_maps(
 		if not offsets.has(map_id):
 			unplaced.append(map_id)
 	unplaced.sort()
-	return {"offsets": offsets, "seams": seams, "unplaced": unplaced}
+	return {"offsets": offsets, "seams": seams, "unplaced": unplaced, "parents": parents}
 
 
 static func layout_all_maps(
