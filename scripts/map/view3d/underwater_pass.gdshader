@@ -52,13 +52,28 @@ uniform float lens_age = 0.0;
 
 const float METERS_PER_WORLD_UNIT = 0.87;
 const float MAX_MEDIUM_M = 60.0;
-const float MAX_SHAFT_M = 20.0;
 // Tidewater `band 9`: meniscus half-width in pixels, dark line and lip refraction.
 const float MENISCUS_BAND_PX = 9.0;
 const float MENISCUS_LINE_PX = 2.0;
 const float MENISCUS_LIFT_PX = 6.0;
 const int MAX_SHAFT_SAMPLES = 8;
-const float SHAFT_GAIN = 0.35;
+// R-904: readable shafts. The bed net lines are ~2.7 units apart, about one
+// march step, so sampling them along the eye ray averaged every beam into haze.
+// Shafts now read their own prefilter of the broad tile: a 20 m patch at mip 3
+// gives soft ~0.6 m wide spots (tile autocorrelation ~3 % of the patch), and
+// the focus smoothstep keeps only the brightest ~15 % as beams with dark gaps.
+const float SHAFT_PATCH_M = 20.0;
+const float SHAFT_MIP = 3.0;
+const float SHAFT_FOCUS_LO = 1.3;
+const float SHAFT_FOCUS_HI = 2.0;
+// Near-field window: samples are importance-distributed along exp(-t / FALLOFF)
+// so most land in the first metres, where one beam covers many pixels and stays
+// distinct; far beams that would only add haze get little weight.
+const float SHAFT_RANGE_M = 12.0;
+const float SHAFT_FALLOFF_M = 3.5;
+// Milder forward lobe than the medium's 0.75 so beams still read side-on.
+const float SHAFT_PHASE_G = 0.5;
+const float SHAFT_GAIN = 7.0;
 
 void vertex() {
 	// Clip-space quad like map_fog_of_war: follows every camera with no transform.
@@ -78,6 +93,27 @@ float _caustic_at(vec3 p, bool full_quality, bool screen_grad) {
 	float h_m = max(water_plane_y - p.y, 0.0) * METERS_PER_WORLD_UNIT;
 	vec3 c = _caustic_tiles_at(p.xz, h_m, sun_direction, vec2(0.0), full_quality, screen_grad);
 	return max((c.r + c.g + c.b) * (1.0 / 3.0) - 1.0, 0.0);
+}
+
+// R-904 beam mask (0..1) at `x`: walk up the refracted sun ray `sun_refr` to the
+// surface point the light entered through and read the shaft prefilter there,
+// so every point on one beam reads the same spot and beams slant with the sun.
+// The two scrolling layers of _caustic_tile() make the beams drift and flicker.
+float _shaft_beam(vec3 x, vec3 sun_refr) {
+	float depth_units = max(water_plane_y - x.y, 0.0);
+	vec2 entry = x.xz + sun_refr.xz * (depth_units / max(sun_refr.y, 0.2));
+	vec2 uv = entry * METERS_PER_WORLD_UNIT / SHAFT_PATCH_M;
+	vec2 wind = length(wind_direction) > 1e-3 ? normalize(wind_direction) : vec2(1.0, 0.0);
+	float wrap_phase = ocean_time / CAUSTIC_OCEAN_TIME_WRAP_SECONDS;
+	// Constant gradients pin the mip, so the loop takes no derivatives.
+	float g = exp2(SHAFT_MIP) / CAUSTIC_TILE_RES;
+	float v = _caustic_tile(
+		caustics_tiles, vec2(0.0, 1.0), uv,
+		wind * (wrap_phase * CAUSTIC_BROAD_A_TILES_PER_WRAP),
+		-wind * (wrap_phase * CAUSTIC_BROAD_B_TILES_PER_WRAP),
+		vec2(g, 0.0), vec2(0.0, g), vec2(0.0), caustic_min_pair_mean.y
+	).g;
+	return smoothstep(SHAFT_FOCUS_LO, SHAFT_FOCUS_HI, v);
 }
 
 float _surface_y(vec2 xz) {
@@ -219,32 +255,34 @@ void fragment() {
 		vec3 inscatter = _uw_inscatter(ray, camera_depth_m, ambient, sun, sun_direction, sigma_t);
 		color = scene * transmittance + inscatter * (vec3(1.0) - transmittance);
 
-		// Light shafts: march the eye ray, reading the caustic light that entered
-		// the surface above each sample along the refracted sun ray.
-		float march_m = min(d_m, MAX_SHAFT_M);
+		// Light shafts: march the eye ray, reading the beam mask where the light
+		// that reaches each sample entered the surface (see _shaft_beam()).
+		float march_m = min(d_m, SHAFT_RANGE_M);
 		if (shafts > 0.0 && sun_strength > 0.001 && march_m > 0.01) {
 			int steps = clamp(shaft_samples, 1, MAX_SHAFT_SAMPLES);
-			float step_world = march_m / METERS_PER_WORLD_UNIT / float(steps);
+			// Stratified importance sampling of exp(-t / FALLOFF) over [0, march]:
+			// equal-weight samples, dense near the lens. `span` is the weight the
+			// window holds, so a ray that meets the bed after a metre stays dim.
+			float span = 1.0 - exp(-march_m / SHAFT_FALLOFF_M);
 			float jitter = _ign(FRAGCOORD.xy);
 			vec3 shaft = vec3(0.0);
 			for (int i = 0; i < MAX_SHAFT_SAMPLES; i++) {
 				if (i >= steps) {
 					break;
 				}
-				float t = (float(i) + jitter) * step_world;
-				vec3 x = near_world + ray * t;
+				float u = (float(i) + jitter) / float(steps);
+				float t_m = -SHAFT_FALLOFF_M * log(1.0 - u * span);
+				vec3 x = near_world + ray * (t_m / METERS_PER_WORLD_UNIT);
 				float x_depth_m = max(water_plane_y - x.y, 0.0) * METERS_PER_WORLD_UNIT;
-				vec3 atten = exp(-sigma_t * (x_depth_m + t * METERS_PER_WORLD_UNIT));
-				// One dominant tile per step (2 samples): keeps the march budget
-				// and matches the minimum-tier water path. Derivatives stay off
-				// because the sample UV varies with the loop index.
-				shaft += atten * _caustic_at(x, false, false);
+				vec3 atten = exp(-sigma_t * (x_depth_m + t_m));
+				shaft += atten * _shaft_beam(x, sun_refr);
 			}
-			float phase = _uw_hg(dot(ray, sun_refr), 0.75);
-			// Mean caustic light along the ray times a saturating single-scatter
-			// share (0.08 per metre, art-tuned) so long rays glow but never wash out.
-			float scatter = 1.0 - exp(-0.08 * march_m);
-			color += sun * (shaft / float(steps)) * phase * shafts * SHAFT_GAIN * scatter;
+			float phase = _uw_hg(dot(ray, sun_refr), SHAFT_PHASE_G);
+			// Beams need collimated light: overcast diffuses the sun long before it
+			// stops lighting the medium, so shafts fade out faster than `sun`
+			// (clear 1.0, cloudy ~0.75, storm ~0.1 on top of the dimmer sun).
+			float collimation = 1.0 - smoothstep(0.1, 1.0, cloud_darken);
+			color += sun * (shaft * (span / float(steps))) * phase * collimation * shafts * SHAFT_GAIN;
 		}
 		alpha = 1.0;
 	}

@@ -179,3 +179,35 @@ task. It is a rendering task only. Moving the player under water is WS-14.
 - Limitation: the view water column is ~9 mm, so there is no visible metres-scale depth yet.
   Follow-ups: real basin depth before WS-14, and the 0..255 sun colour.
   Submerge/emerge SFX landed as WS-13c / R-903.
+
+## Readable light shafts (2026-09-27, R-904)
+
+Board R-904 is titled "WS-13c" but is a separate follow-up from the WS-13c SFX row (R-903).
+
+- **Why they were haze.** The shafts marched the bed caustic net, whose lines are ~2.7 units
+  apart - about one step of the old 20 m / 8-sample march - so every eye ray averaged many
+  beams into a uniform glow. A physically long march also weights far beams (many per pixel)
+  as much as near ones (few per pixel, the only ones that read as streaks).
+- **Beam mask (`_shaft_beam`).** Each sample walks up the refracted sun ray to its surface entry
+  point and reads the broad WS-07 tile there at a 20 m patch and a fixed mip 3 (2 samples, no
+  derivatives). The tile's autocorrelation length is ~3 % of the patch at mip 3, so spots are
+  ~0.6 m wide; `smoothstep(1.3, 2.0)` keeps the brightest ~15 % as beams with dark gaps. The two
+  scrolling layers of `_caustic_tile()` make them drift and flicker.
+- **Near-field march.** Samples are stratified importance samples of `exp(-t / 3.5 m)` over at
+  most 12 m (`t = -3.5 ln(1 - u * span)`), equal weight `span / steps`. A ray that meets the bed
+  or surface early keeps only its `span` share. IGN start jitter is kept: a white-noise hash
+  was tried and read as grain.
+- **Phase and weather.** Shafts use HG g = 0.5 (the medium keeps 0.75) so beams still read
+  side-on in level views. Beams need collimated sun, so they also fade with
+  `1 - smoothstep(0.1, 1.0, cloud_darken)` on top of the dimmer `sun`: clear ~1, cloudy ~0.75,
+  storm ~0.1. Night has no sun, so no shafts.
+- **Evidence:** `docs/reports/images/ws13c_{under_sun,under_horizontal,under_night,under_storm}_{gl,metal}.png`
+  and the A/B `ws13c_under_horizontal_noshafts_{gl,metal}.png` (`--param=shafts:0`).
+- **Cost** (`--bench=600`, 1080p, wall clock, `under_sun`): Compatibility -0.09 to 0.59 ms
+  (three runs, inside run-to-run noise), Metal 0.60 to 0.63 ms (three runs); the pre-change
+  shader measured 0.36 to 0.58 ms on Compatibility and 0.42 to 0.51 ms on Metal on the same host,
+  so Metal costs ~0.15 ms more and both stay under the 1.0 ms budget. A mip 2.5 trial cost ~0.5 ms
+  more on Compatibility and was dropped. AIR stays 0 (quad hidden). The minimum tier (4 samples)
+  was not measured on the declared minimum host.
+- The Compatibility vs Metal difference in bed/quay visibility and the noisy Snell's window
+  on Compatibility predate this change (R-932).

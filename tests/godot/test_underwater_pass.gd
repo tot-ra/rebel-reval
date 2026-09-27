@@ -280,7 +280,7 @@ func test_ws13f_underwater_pass_binds_ws07_caustic_tiles() -> void:
 	assert_false(code.contains("_uw_caustic("), "the procedural WS-07 stand-in is gone")
 	assert_false(code.contains("sin(a.x + sin(a.y"), "the sine-lattice body is gone")
 	assert_true(code.contains("caustics_tiles"), "packed fine/broad tile uniform is declared")
-	assert_true(code.contains("_caustic_at(x, false, false)"), "shafts stay on one tile")
+	assert_true(code.contains("_shaft_beam(x, sun_refr)"), "shafts read their own one-tile prefilter")
 	var tiles := FileAccess.get_file_as_string(CAUSTICS_INCLUDE_PATH)
 	assert_true(tiles.contains("vec3 _caustic_tile("), "tile helper lives in the shared include")
 	assert_true(tiles.contains("vec2 _caustic_stretch("), "stretch helper lives in the shared include")
@@ -300,3 +300,25 @@ func test_ws13f_underwater_pass_binds_ws07_caustic_tiles() -> void:
 		"minimum drops to one tile",
 	)
 	_drop(minimum)
+
+
+## WS-13c: shafts must read as distinct beams, so the march samples a coarse, sparse
+## prefilter of the broad tile weighted to the near field instead of the bed net.
+func test_ws13c_shafts_use_near_field_beam_prefilter() -> void:
+	var code := (load(PASS_SHADER_PATH) as Shader).code
+	assert_true(code.contains("float _shaft_beam(vec3 x, vec3 sun_refr)"), "dedicated beam mask")
+	assert_true(code.contains("vec2(0.0, 1.0), uv,"), "beams read the broad tile only (2 samples)")
+	assert_true(code.contains("const float SHAFT_MIP = 3.0;"), "beams are prefiltered at a fixed coarse mip")
+	assert_true(
+		code.contains("smoothstep(SHAFT_FOCUS_LO, SHAFT_FOCUS_HI, v)"),
+		"only the brightest spots become beams, leaving dark gaps",
+	)
+	assert_true(
+		code.contains("-SHAFT_FALLOFF_M * log(1.0 - u * span)"),
+		"samples are importance-distributed towards the lens",
+	)
+	assert_true(code.contains("_ign(FRAGCOORD.xy)"), "the march start stays IGN-jittered per pixel")
+	assert_true(code.contains("smoothstep(0.1, 1.0, cloud_darken)"), "overcast diffuses the beams")
+	assert_false(code.contains("_caustic_at(x, false, false)"), "the bed net is no longer marched for shafts")
+	var shaft_body := code.substr(code.find("float _shaft_beam("), 1200)
+	assert_false(shaft_body.contains("dFdx"), "no derivatives inside the loop-called beam mask")

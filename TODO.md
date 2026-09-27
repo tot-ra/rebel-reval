@@ -417,6 +417,14 @@ dark grass stripes where the flat bed poked through FFT troughs are gone; the FF
 kept; readable light shafts were not reached (procedural caustic period equals the march step) and
 move to a follow-up with WS-07.
 
+- [ ] R-904 | deps: WS-13b, WS-13f | deliverable: readable slanted underwater light shafts over the WS-13b basin (board title "WS-13c"; not the WS-13c SFX row above), dimmed at night and in storms | allowed files: `scripts/map/view3d/underwater_pass.gdshader`, `scripts/map/view3d/ocean_fft_common.gdshaderinc`, `tests/godot/test_underwater_pass.gd`, `tools/capture_underwater.gd`, `docs/tasks/water_sky/WS-13_underwater_view_pass.md`, `docs/reports/images/ws13c_*.png`, `TODO.md` | verify: `ws13c_under_{sun,horizontal}_{gl,metal}.png` show distinct beams (A/B `ws13c_under_horizontal_noshafts_*`); `--filter=test_underwater_pass` green; pass <= 1.0 ms at 1080p (`--bench=600`); AIR cost 0
+
+R-904 implementation landed (in review). Decisions (2026-09-27), details in the WS-13 task file:
+shafts sample their own prefilter of the WS-07 broad tile (20 m patch, mip 3, focus smoothstep
+1.3-2.0) at the surface entry point along the refracted sun, instead of the bed net; the march is
+stratified importance sampling of exp(-t / 3.5 m) over 12 m; shaft phase g = 0.5; overcast removes
+collimation (`1 - smoothstep(0.1, 1.0, cloud_darken)`). IGN jitter kept (white noise was grainier).
+
 - [ ] WS-13d | deps: WS-13b | deliverable: view-only stone-filled log crib and guide piles under timber landing decks down to the WS-13b rendered bed (steep pier face in the bed, logs and piles under the surface), no collision/nav/content change | allowed files: see `docs/tasks/water_sky/WS-13d_pier_cribs.md` | verify: `--filter=test_ws13d_pier_cribs` and `--filter=test_ws13b_sea_basin_depth`; `ws13d_under_horizontal_{metal,gl}.png` show the crib; GL overview A/B differs only at the pier tips
 
 WS-13d implementation landed (R-905, in review). Decisions (2026-09-26) are in the task file:
