@@ -210,12 +210,13 @@ Evidence:
   walls, the prefetch, open gates, owner handover, session scope and pinning on a
   real `reval_east` launch, and the forced loader failure, which reaches
   DoorNavigator with `vana_turg_boundary -> reval_center/from_reval_east`.
-- `godot --headless --path . res://tools/verify_world_seam_walk.tscn` (27 checks,
+- `godot --headless --path . res://tools/verify_world_seam_walk.tscn` (29 checks,
   exit 0): the physical walk over real physics frames. It stays out of the
   harness because it synchronously mounts whole districts mid-walk.
   - Keyboard: `ui_left + ui_up` is logic west.
   - Gamepad: left stick right + down.
-  - Mouse: a `MapClickInput` logic click on a market point.
+  - Mouse: a `MapClickInput` logic click on a market point, after movement is
+    released and the body is clamped onto the host nav mesh (R-1074).
   - Fallback: walking into the sealed door.
   - Every walk keeps one Player and camera and makes no `go_to_scene`.
 - `--filter=test_world_host_residency`: the three seam-path tests that R-1053
@@ -332,7 +333,12 @@ Limits kept for later rows are the items above, plus two more:
 
 - Logic packages still build Door scenes on a worker, which relies on off-tree
   node creation being thread-safe.
-- The R-1043 walk tool's mouse leg is flaky on `main` (**R-1074**).
+- The R-1043 walk tool's mouse leg is deterministic after R-1074: leftover
+  `ui_right`/`ui_down` from the gamepad stick is `action_release`d, and the
+  click starts from the closest host-nav point to `(24, current Y)` instead of
+  the off-mesh `(8, original spawn Y)` inset. Ten consecutive headless runs
+  on `origin/main` plus this change exited 0 with 29/29 checks; every mouse
+  start was `(24.0, 1649.181)` with a zero axis and velocity.
 
 Still open before the release criteria can pass: the 4 ms per-frame gate
 (follow-ups above); a rendered clip of a two-seam walk; relief continuity

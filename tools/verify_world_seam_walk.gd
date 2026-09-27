@@ -8,8 +8,8 @@ extends Node
 ## reval_east adapter at the Vana turg seam and checks:
 ##   keyboard  - hold ui_left until market_civic_quarter owns the player;
 ##   gamepad   - hold D-pad right until lower_town_slice owns it again;
-##   mouse     - MapClickInput logic click on a market point, walked by nav
-##               across the seam NavigationLink2D;
+##   mouse     - MapClickInput logic click on a market point from a settled
+##               on-mesh start, walked by nav across the seam NavigationLink2D;
 ##   fallback  - relaunch with a failing loader; walking into the sealed seam
 ##               door reaches DoorNavigator with the explicit transition.
 ## Every walk must keep one Player and camera and never call go_to_scene.
@@ -27,6 +27,11 @@ const WEST_ACTIONS: Array[StringName] = [&"ui_left", &"ui_up"]
 ## Gamepad movement is the left stick (InputBindingSettings); right + down is
 ## logic east, the mirror of the keyboard's west pair.
 const EAST_STICK_AXES: Array[int] = [JOY_AXIS_LEFT_X, JOY_AXIS_LEFT_Y]
+const MOVE_ACTIONS: Array[StringName] = [&"ui_left", &"ui_right", &"ui_up", &"ui_down"]
+## On-mesh, east of the 16 px seam inset. (8, spawn.y) sat off-mesh so two
+## physics frames pushed the body onto different closest points (R-1074).
+const MOUSE_START_INSET := 24.0
+const SETTLE_FRAMES := 30
 
 var _checks: Array[Dictionary] = []
 var _frame_ms: Array[float] = []
@@ -75,13 +80,11 @@ func _walk_keyboard_gamepad_and_mouse() -> void:
 
 	# The isometric camera maps screen left to logic (-x, +y) and up to (-x, -y);
 	# holding both walks due west through the aperture.
-	var start := player.global_position
-	var before := start
+	var before := player.global_position
 	for action in WEST_ACTIONS:
 		Input.action_press(action)
 	await _until(func() -> bool: return host.owning_location_id() == MARKET)
-	for action in WEST_ACTIONS:
-		Input.action_release(action)
+	_release_movement()
 	print("keyboard %s -> %s" % [before, player.global_position])
 	_check("keyboard crosses into the market", host.owning_location_id() == MARKET)
 	_check("keyboard: player west of the seam", player.global_position.x < 0.0)
@@ -106,7 +109,9 @@ func _walk_keyboard_gamepad_and_mouse() -> void:
 	before = player.global_position
 	_tilt_stick(EAST_STICK_AXES, 1.0)
 	await _until(func() -> bool: return host.owning_location_id() == LOWER_TOWN)
-	_tilt_stick(EAST_STICK_AXES, 0.0)
+	# A 0.0 stick event is not enough: leftover ui_right/ui_down still drive
+	# ScreenDirectionInput and cancel the click path (R-1074).
+	_release_movement()
 	print("gamepad %s -> %s" % [before, player.global_position])
 	_check("gamepad: player east of the seam", player.global_position.x > 0.0)
 	_check("gamepad crosses back into Lower Town", host.owning_location_id() == LOWER_TOWN)
@@ -114,11 +119,12 @@ func _walk_keyboard_gamepad_and_mouse() -> void:
 
 	var click_input := level.find_child("MapClickInput", true, false)
 	var target := Vector2(-6.0 * CELL, 53.5 * CELL)
-	# Start from the 16 px seam inset so the click must snap onto the host map.
-	player.global_position = Vector2(8.0, start.y)
-	player.velocity = Vector2.ZERO
-	await _frames(2)
+	await _settle_mouse_start(player)
 	before = player.global_position
+	print(
+		"mouse start=%s axis=%s vel=%s"
+		% [before, ScreenDirectionInput.read_axis(), player.velocity]
+	)
 	var clicked := click_input != null and bool(click_input.call("try_handle_logic_click", target))
 	print("mouse click_input=%s clicked=%s" % [click_input, clicked])
 	_check("mouse click from the seam inset is accepted", clicked)
@@ -147,8 +153,7 @@ func _walk_into_failed_seam() -> void:
 	for action in WEST_ACTIONS:
 		Input.action_press(action)
 	await _until(func() -> bool: return not driver.last_fallback.is_empty())
-	for action in WEST_ACTIONS:
-		Input.action_release(action)
+	_release_movement()
 	_check(
 		"sealed seam door reaches DoorNavigator with the explicit transition",
 		driver.last_fallback.get("transition_id") == SEAM_TRANSITION
@@ -190,6 +195,62 @@ func _tilt_stick(axes: Array[int], value: float) -> void:
 		motion.axis = axis
 		motion.axis_value = value
 		Input.parse_input_event(motion)
+
+
+func _release_movement() -> void:
+	for action in MOVE_ACTIONS:
+		Input.action_release(action)
+	_tilt_stick(EAST_STICK_AXES, 0.0)
+
+
+func _cancel_navigation(player: Player) -> void:
+	if player.navigation_agent != null:
+		player.navigation_agent.set_target_position(player.global_position)
+	player.velocity = Vector2.ZERO
+
+
+func _clamp_to_host_nav(player: Player, point: Vector2) -> Vector2:
+	if player.navigation_agent == null:
+		return point
+	var map_rid: RID = player.navigation_agent.get_navigation_map()
+	if not map_rid.is_valid():
+		return point
+	# Headless launches can query before the first nav iteration.
+	if NavigationServer2D.map_get_iteration_id(map_rid) == 0:
+		return point
+	return NavigationServer2D.map_get_closest_point(map_rid, point)
+
+
+func _settle_mouse_start(player: Player) -> void:
+	# WHY: the gamepad stick maps to ui_right/ui_down. If those stay pressed,
+	# Player._physics_process cancels click-to-move and walks east. The old
+	# (8, original spawn Y) pose sat in the 16 px off-mesh inset, so two
+	# frames resolved collision onto different closest points.
+	_release_movement()
+	_cancel_navigation(player)
+	for _frame in SETTLE_FRAMES:
+		await _frames(1)
+		_release_movement()
+		if (
+			ScreenDirectionInput.read_axis().is_zero_approx()
+			and player.velocity.is_zero_approx()
+		):
+			break
+	# Keep the aperture Y from the gamepad return; only pin X onto the mesh.
+	var desired := Vector2(MOUSE_START_INSET, player.global_position.y)
+	player.global_position = _clamp_to_host_nav(player, desired)
+	_cancel_navigation(player)
+	var last := player.global_position
+	for _frame in SETTLE_FRAMES:
+		await _frames(1)
+		_release_movement()
+		player.velocity = Vector2.ZERO
+		var now := player.global_position
+		if now.distance_to(last) < 0.25:
+			player.global_position = _clamp_to_host_nav(player, now)
+			if player.global_position.distance_to(last) < 0.25:
+				break
+		last = player.global_position
 
 
 func _until(done: Callable) -> void:

@@ -4,6 +4,7 @@ Read `agents/playbook.md` first for shared workflow, tooling, and Git lessons.
 This file contains lessons specific to the Qa role.
 
 ## Role-specific lessons
+- After a verify tool injects joypad motion into `ui_*` move actions, `action_release` every move action and wait until `ScreenDirectionInput.read_axis()` and velocity are zero before click-to-move. A `0.0` axis event is not enough; leftover `ui_right`/`ui_down` cancels navigation and walks the wrong way (R-1074).
 - Keep content-only CI jobs scoped to content validators and their fixtures. The main CI job should run the fast Python contract subset (`test_pre_commit_hooks`, `test_project_configuration`, `test_test_commands`, `test_campaign_save_fixtures`, `test_verify_clean_checkout_load`), not full `unittest discover`.
 - Do not edit runtime from a QA allowlist. Record reproduction and open a Dev row. Prefer Current focus over a historical report that says "do not start X".
 - Close preflight findings in the gate report itself. Do not rewrite historical gate reports from a later allowlist that only names the new report.
