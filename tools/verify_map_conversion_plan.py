@@ -76,11 +76,15 @@ class ValidationError:
 
 
 def repository_scenes(root: Path) -> set[str]:
-    return {
-        path.relative_to(root).as_posix()
-        for path in root.rglob("*.tscn")
-        if SKIP_TREE_PARTS.isdisjoint(path.parts)
-    }
+    # WHY: skip names must be relative to this checkout. An isolated worktree
+    # rooted at `.worktrees/<name>` still has `.worktrees` in its absolute
+    # path; matching `path.parts` then reports every plan scene as unknown.
+    scenes: set[str] = set()
+    for path in root.rglob("*.tscn"):
+        relative = path.relative_to(root)
+        if SKIP_TREE_PARTS.isdisjoint(relative.parts):
+            scenes.add(relative.as_posix())
+    return scenes
 
 
 def parse_inventory(path: Path) -> list[str]:

@@ -126,6 +126,28 @@ class VerifyMapConversionPlanTest(unittest.TestCase):
         errors = self._validate_with(inventory=original.replace(row + "\n", "", 1))
         self.assertTrue(any("scene inventory missing scene coverage" in error.message for error in errors))
 
+    def test_worktree_root_still_discovers_scenes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            worktree_root = Path(tmp) / ".worktrees" / "probe"
+            scene = worktree_root / "scenes" / "probe.tscn"
+            scene.parent.mkdir(parents=True)
+            scene.write_text("[gd_scene format=3]\n", encoding="utf-8")
+            nested = worktree_root / ".worktrees" / "mirror" / "scenes" / "hidden.tscn"
+            nested.parent.mkdir(parents=True)
+            nested.write_text("[gd_scene format=3]\n", encoding="utf-8")
+            self.assertEqual(repository_scenes(worktree_root), {"scenes/probe.tscn"})
+
+    def test_nested_worktree_mirrors_stay_skipped_from_primary_root(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            primary = Path(tmp)
+            live = primary / "scenes" / "live.tscn"
+            live.parent.mkdir(parents=True)
+            live.write_text("[gd_scene format=3]\n", encoding="utf-8")
+            mirrored = primary / ".worktrees" / "mirror" / "scenes" / "hidden.tscn"
+            mirrored.parent.mkdir(parents=True)
+            mirrored.write_text("[gd_scene format=3]\n", encoding="utf-8")
+            self.assertEqual(repository_scenes(primary), {"scenes/live.tscn"})
+
     def test_duplicate_inventory_row_is_reported(self) -> None:
         original = SCENE_INVENTORY.read_text(encoding="utf-8")
         row = next(
