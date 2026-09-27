@@ -63,7 +63,19 @@ static func surroundings_units(definition: MapDefinition, root: Node3D) -> Array
 		units.append(
 			_Assembly.unit(STAGE, label, _neighbor_preview_units.bind(job, side, root, state))
 		)
-	units.append(_Assembly.unit(STAGE, "backdrops", _add_backdrops.bind(definition, sides, root)))
+	# WHY: R-1022 sampled shore-relative rest Y by rebuilding the playable grid
+	# per water side. Harbour maps author no relief, so that bake was 80-650 ms
+	# for a constant historic recess. Relief maps bake once on a worker.
+	var rest_job: RefCounted = _Job.done({})
+	if sides.values().has(&"water") and not definition.relief_heights.is_empty():
+		rest_job = _Job.run(
+			func() -> Dictionary: return _water_continuation_rest_ys(definition, sides),
+			"surroundings water rest Y"
+		)
+		units.append(_Assembly.await_job(STAGE, "backdrops_rest", rest_job))
+	units.append(
+		_Assembly.unit(STAGE, "backdrops", _add_backdrops.bind(definition, sides, root, rest_job))
+	)
 	units.append(
 		_Assembly.unit(STAGE, "tree_band", _start_tree_band.bind(definition, sides, root, state))
 	)
@@ -72,12 +84,20 @@ static func surroundings_units(definition: MapDefinition, root: Node3D) -> Array
 
 ## Natural and water backdrops may extend beyond authored maps. Urban sides do
 ## not receive any filler: their visible continuation must come from a neighbor.
-static func _add_backdrops(definition: MapDefinition, sides: Dictionary, root: Node3D) -> void:
+static func _add_backdrops(
+	definition: MapDefinition, sides: Dictionary, root: Node3D, rest_job: RefCounted
+) -> void:
 	var map_size := Vector2(definition.size_cells)
+	var rest_ys: Dictionary = {}
+	if rest_job != null:
+		rest_ys = rest_job.value() as Dictionary
 	for side in MapDefinition.WORLD_SIDES:
 		match sides.get(side):
 			&"water":
-				root.add_child(_water_continuation(definition, map_size, side))
+				var rest_y := float(
+					rest_ys.get(side, water_continuation_rest_y(definition, side))
+				)
+				root.add_child(_water_continuation(map_size, side, rest_y))
 			&"woodland":
 				root.add_child(_woodland_apron(definition, map_size, side))
 
@@ -251,11 +271,38 @@ static func _woodland_apron(
 ## Still-water rest Y for a surroundings water side: shore-relative recess at
 ## the inside edge, or the historic world-zero recess when the map has no relief.
 static func water_continuation_rest_y(definition: MapDefinition, side: StringName) -> float:
-	var grid := MapBuilder.build(definition)
-	var field := MapViewMeshBuilderTerrain.ensure_height_field(definition, grid)
 	return MapViewMeshBuilderTerrain.water_gameplay_bed_y(
-		field, _edge_water_sample(Vector2(definition.size_cells), side)
+		_water_continuation_field(definition),
+		_edge_water_sample(Vector2(definition.size_cells), side)
 	)
+
+
+## Empty relief always recesses from world zero. A worker must not publish a
+## height field; isolated tests may bake one on the main thread.
+static func _water_continuation_field(definition: MapDefinition) -> Dictionary:
+	if definition.relief_heights.is_empty():
+		return {}
+	var grid := MapBuilder.build(definition)
+	var cached := MapViewMeshBuilderTerrain.cached_height_field(definition, grid)
+	if not cached.is_empty():
+		return cached
+	return MapViewMeshBuilderTerrain.ensure_height_field(definition, grid)
+
+
+static func _water_continuation_rest_ys(definition: MapDefinition, sides: Dictionary) -> Dictionary:
+	var field := {}
+	if not definition.relief_heights.is_empty():
+		field = MapViewMeshBuilderTerrain.compute_height_field(
+			definition, MapBuilder.build(definition)
+		)
+	var rest_ys := {}
+	var map_size := Vector2(definition.size_cells)
+	for side in MapDefinition.WORLD_SIDES:
+		if sides.get(side) == &"water":
+			rest_ys[side] = MapViewMeshBuilderTerrain.water_gameplay_bed_y(
+				field, _edge_water_sample(map_size, side)
+			)
+	return rest_ys
 
 
 static func _edge_water_sample(map_size: Vector2, side: StringName) -> Vector2:
@@ -271,14 +318,12 @@ static func _edge_water_sample(map_size: Vector2, side: StringName) -> Vector2:
 
 
 ## Shallow then deep animated water past one map edge so harbours read as open sea.
-static func _water_continuation(
-	definition: MapDefinition, map_size: Vector2, side: StringName
-) -> Node3D:
+static func _water_continuation(map_size: Vector2, side: StringName, rest_y: float) -> Node3D:
 	var root := Node3D.new()
 	root.name = "Water_%s" % side
 	var shallow_depth := MapViewMeshBuilderConfig.SURROUNDINGS_WATER_SHALLOW_DEPTH
 	var deep_depth := MapViewMeshBuilderConfig.SURROUNDINGS_WATER_DEEP_DEPTH
-	var y := water_continuation_rest_y(definition, side)
+	var y := rest_y
 	root.add_child(
 		_surroundings_water_plane(
 			"Shallow",

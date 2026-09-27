@@ -33,6 +33,14 @@ terrain pond water 6 4 12 8 order=1
 spawn spawn.main 2 2
 """
 
+const RAISED_SEA_SOURCE := """rrmap 1
+map relief_raised_sea loc.relief_raised_sea 24 16 grass seed=3
+relief_terrace plateau 0 0 24 16 2 edge=0
+terrain basin deep_water 0 0 24 8 order=1
+surroundings north water
+spawn spawn.main 12 12
+"""
+
 
 func _compile(source: String, path: String) -> MapDefinition:
 	var parsed := MapRrmapParser.parse(source, path)
@@ -170,6 +178,14 @@ func test_harbor_north_gameplay_bed_stays_on_the_historic_recess() -> void:
 
 
 func test_harbor_north_underwater_probe_stays_on_historic_recess() -> void:
+	# Shared water materials keep live tide after a harbor assembly in the same
+	# process (the async filter runs first). Pin tide so this asserts the recess.
+	for terrain_id: StringName in [
+		MapTypes.TERRAIN_SHALLOW_WATER, MapTypes.TERRAIN_DEEP_WATER
+	]:
+		var material := MapViewMaterials.water_surface(terrain_id)
+		material.set_shader_parameter("tide_height", 0.0)
+		material.set_shader_parameter("tide_level", 0.0)
 	var definition: MapDefinition = RevalHarborNorthDefinition.create()
 	var view := MapView3D.new()
 	view.definition = definition
@@ -191,6 +207,51 @@ func test_harbor_north_underwater_probe_stays_on_historic_recess() -> void:
 		"Harbor North surroundings water stays on the historic recess"
 	)
 	view.free()
+
+
+func test_flat_map_water_rest_y_skips_grid_rebuild() -> void:
+	var definition: MapDefinition = RevalHarborNorthDefinition.create()
+	assert_true(definition.relief_heights.is_empty(), "Harbor North authors no relief")
+	var water_side := _first_water_side(definition)
+	assert_true(water_side != &"", "Harbor North must have a water surroundings side")
+	SurroundingsBuilder.water_continuation_rest_y(definition, water_side)
+	var started := Time.get_ticks_usec()
+	for _index in 8:
+		assert_almost_eq(
+			SurroundingsBuilder.water_continuation_rest_y(definition, water_side),
+			-MeshConfig.WATER_RECESS,
+			0.0001,
+			"flat rest Y must stay on the historic recess"
+		)
+	var elapsed := Time.get_ticks_usec() - started
+	assert_true(
+		elapsed < 8000,
+		"flat rest Y must not rebuild the harbour grid (got %d usec)" % elapsed
+	)
+
+
+func test_raised_sea_surroundings_water_follows_terrace() -> void:
+	var definition := _compile(RAISED_SEA_SOURCE, "res://relief_raised_sea.rrmap")
+	if definition == null:
+		return
+	assert_eq(
+		definition.resolved_surroundings_sides().get(&"north"),
+		&"water",
+		"raised sea must expose a north water surroundings side"
+	)
+	var field := _field(definition)
+	var sample := Vector2(12.5, 0.5)
+	var expected := TerrainBuilder.water_gameplay_bed_y(field, sample)
+	assert_almost_eq(
+		SurroundingsBuilder.water_continuation_rest_y(definition, &"north"),
+		expected,
+		0.0001,
+		"raised-sea continuation must sit on the terrace recess"
+	)
+	assert_true(
+		expected > 1.0,
+		"raised-sea rest Y must follow the terrace (got %s)" % expected
+	)
 
 
 func test_relief_moat_underwater_probe_follows_terrace() -> void:

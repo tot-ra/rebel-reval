@@ -192,6 +192,25 @@ func test_cold_height_field_and_terrain_bake_on_workers() -> void:
 	_free_view(staged)
 
 
+## R-1024: harbour water rest Y must not rebuild the playable grid inside
+## surroundings/backdrops. First-process water shader parse (tens of ms) is
+## R-1006; this file already warmed those materials in earlier harbor builds.
+func test_harbor_east_water_backdrops_stay_under_frame_budget() -> void:
+	var definition: MapDefinition = HarborEastDefinition.create()
+	var grid: MapTerrainGrid = MapBuilder.build(definition)
+	var staged := MapView3D.create_staged(definition, grid)
+	_drain_staged(staged)
+	assert_true(staged.is_assembly_complete(), "harbor east staged assembly finishes")
+	var overruns: Array[String] = []
+	for unit in staged.assembly_unit_timings():
+		if unit["stage"] != &"surroundings" or String(unit["label"]) != "backdrops":
+			continue
+		if int(unit["usec"]) > BUDGET_USEC:
+			overruns.append("backdrops %d usec" % int(unit["usec"]))
+	assert_eq(overruns, [], "harbor east backdrops must stay under 4 ms once water shaders are warm")
+	_free_view(staged)
+
+
 ## Cancelling while worker jobs are in flight joins them: nothing is published,
 ## nothing leaks, and a later build still bakes the field.
 func test_cancel_with_worker_jobs_in_flight_joins_them() -> void:

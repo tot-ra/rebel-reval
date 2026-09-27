@@ -610,3 +610,5 @@ Membership, interiors decision, phases 3-5, and activation prerequisites:
 (149 ms compact 2D pipeline, 4.2 s warm `MapView3D.create`, 17.3 s contended full
 `reval_east` scene). No runtime or flag-default change. Second-reviewer census is
 **R-1016**.
+
+- [x] R-1024 | deps: R-1022 | deliverable: `surroundings/backdrops` water rest Y reads empty-relief historic recess without `MapBuilder.build()`, or one worker bake for all water sides on relief maps | allowed files: `scripts/map/view3d/map_view_mesh_builder_surroundings.gd`, `tests/godot/test_map_relief_water.gd`, `tests/godot/test_async_location_assembly.gd`, `TODO.md` | verify: `--filter=test_map_relief_water,test_async_location_assembly`
