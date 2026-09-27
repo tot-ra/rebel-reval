@@ -131,6 +131,14 @@
       "transition_id": "to_world_sacred_grove"
     },
     {
+      "alignment": "edge",
+      "destination_location_id": "",
+      "destination_scene_id": "toompea_small_castle",
+      "location_id": "toompea_quarter",
+      "reason": "outside_group",
+      "transition_id": "to_small_castle"
+    },
+    {
       "alignment": "travel",
       "destination_location_id": "",
       "destination_scene_id": "world_padise",
@@ -147,7 +155,7 @@
       "transition_id": "to_world_harju"
     }
   ],
-  "fingerprint": "0f08b9f135e49818dfcd381867a0137813d557e5cdcc49b6b1a767c27a46264a",
+  "fingerprint": "26c169d25413e4e605996bbebde64af432688b649cb90e65074d7fcf8174a762",
   "locations": [
     {
       "cell_size": 32,
@@ -351,7 +359,7 @@
       ],
       "location_id": "toompea_quarter",
       "location_kind": "outdoor_streamed",
-      "map_fingerprint": "fe3353f8ef446ccd0a2c14e8baef53ac3854b935a644096a30fe8fe8ca618506",
+      "map_fingerprint": "a7300ede934efcf97389001b51a11588e272f4ef24fcb1ca6d118ecff4dfd3f7",
       "origin_cell": [
         -258,
         -112
@@ -363,7 +371,7 @@
         144,
         192
       ],
-      "source_sha256": "2d870a8608a1cb354c7619ceb850226ee44418d3a75a73054c8ca6fec7ec905f"
+      "source_sha256": "0364b018b184ff4c5b3ae7a2fc4738c0e91d2385e6d039f1aa9550b4b434df3e"
     },
     {
       "cell_size": 32,

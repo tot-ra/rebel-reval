@@ -46,6 +46,14 @@ const MAPS: Dictionary = {
 		"scope": "prototype",
 		"active": false
 	},
+	# Developer-only interior; shares the Toompea packed scene until its own
+	# scene activation task lands, so it stays inactive here.
+	"toompea_small_castle":
+	{
+		"path": "res://scenes/reval_toompea/reval_toompea.tscn",
+		"scope": "prototype",
+		"active": false
+	},
 	"reval_south":
 	{"path": "res://scenes/reval_south/reval_south.tscn", "scope": "prototype", "active": false},
 	"st_olafs_guild_hall":

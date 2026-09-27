@@ -15,15 +15,16 @@ and bushes, which count toward ground cover instead.
 | Map | Class | Scope | Mode | Walkable | Props/1000 | Decals/1000 | Kinds | Max kind share % | Ground cover % | Relief m | Footprint run | Status | Failing metrics |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | `kalev_smithy` | interior | production | enforced | 286 | 143.4 | 24.5 | 21 | 26.8 | 2.8 | 0.00 | 0 | pass |  |
-| `lower_town_slice` | dense_urban | production | grace | 14977 | 2.3 | 0.7 | 17 | 22.9 | 33.1 | 1.48 | 2 | fail | props_per_1000, decals_per_1000 |
+| `lower_town_slice` | dense_urban | production | grace | 14778 | 3.0 | 0.9 | 18 | 18.2 | 32.7 | 1.48 | 2 | fail | props_per_1000, decals_per_1000 |
 | `market_civic_quarter` | dense_urban | prototype | report | 7590 | 2.5 | 0.0 | 12 | 26.3 | 3.8 | 1.03 | 1 | fail | props_per_1000, decals_per_1000, ground_cover_pct |
 | `north_quarter` | dense_urban | prototype | report | 25683 | 1.0 | 0.0 | 10 | 38.5 | 21.0 | 1.50 | 1 | fail | props_per_1000, decals_per_1000, distinct_prop_kinds, max_prop_kind_share_pct |
-| `monastery_quarter` | sparse_urban | prototype | report | 25774 | 0.8 | 0.0 | 14 | 19.0 | 23.4 | 1.48 | 1 | fail | props_per_1000, decals_per_1000 |
+| `monastery_quarter` | sparse_urban | prototype | report | 23309 | 1.9 | 0.0 | 14 | 17.8 | 25.3 | 1.42 | 2 | fail | props_per_1000, decals_per_1000 |
 | `nunnatorn_interior` | interior | prototype | report | 233 | 38.6 | 0.0 | 5 | 33.3 | 0.0 | 0.00 | 0 | fail | props_per_1000, decals_per_1000, distinct_prop_kinds, max_prop_kind_share_pct |
 | `kuldjala_interior` | interior | prototype | report | 288 | 34.7 | 0.0 | 5 | 40.0 | 0.0 | 0.38 | 0 | fail | props_per_1000, decals_per_1000, distinct_prop_kinds, max_prop_kind_share_pct |
 | `rentenitorn_interior` | interior | prototype | report | 324 | 30.9 | 0.0 | 4 | 40.0 | 0.0 | 0.14 | 0 | fail | props_per_1000, decals_per_1000, distinct_prop_kinds, max_prop_kind_share_pct |
 | `archbishops_garden` | sparse_urban | prototype | report | 6740 | 1.5 | 0.0 | 6 | 40.0 | 100.0 | 3.38 | 1 | fail | props_per_1000, decals_per_1000, distinct_prop_kinds, max_prop_kind_share_pct |
 | `toompea_quarter` | sparse_urban | prototype | report | 25845 | 0.3 | 0.0 | 5 | 33.3 | 42.7 | 3.77 | 1 | fail | props_per_1000, decals_per_1000, distinct_prop_kinds |
+| `toompea_small_castle` | interior | prototype | report | 416 | 9.6 | 0.0 | 4 | 25.0 | 0.0 | 0.00 | 1 | fail | props_per_1000, decals_per_1000, distinct_prop_kinds |
 | `south_quarter` | dense_urban | prototype | report | 28395 | 0.5 | 0.0 | 8 | 33.3 | 21.2 | 1.72 | 1 | fail | props_per_1000, decals_per_1000, distinct_prop_kinds, max_prop_kind_share_pct |
 | `viru_gate_foreland` | foreland | prototype | report | 17518 | 1.8 | 0.0 | 22 | 12.9 | 100.0 | 1.48 | 1 | fail | props_per_1000, decals_per_1000 |
 | `reval_harbor_north` | foreland | prototype | report | 8183 | 2.1 | 0.0 | 6 | 23.5 | 60.9 | 1.53 | 1 | fail | props_per_1000, decals_per_1000, distinct_prop_kinds |

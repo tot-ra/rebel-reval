@@ -2493,9 +2493,15 @@
         "evidence": ""
       },
       "automated_density": {
-        "status": "missing",
+        "status": "fail",
+        "evidence": "docs/reports/map_density_baseline_2026-09-26.md",
         "source_map_id": "toompea_small_castle",
-        "note": "not in MapBlueprintRegistry, so the composition audit cannot measure it"
+        "map_class": "interior",
+        "failing_metrics": [
+          "props_per_1000",
+          "decals_per_1000",
+          "distinct_prop_kinds"
+        ]
       }
     },
     {

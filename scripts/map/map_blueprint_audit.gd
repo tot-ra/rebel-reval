@@ -10,9 +10,8 @@ const RRMAP_ROOTS: Array[String] = ["res://content/maps"]
 ## WB-10 benchmark sources that live on disk but must not join the explicit
 ## registry yet. Discovery skips them so MAP_REGISTRY_SOURCE_MISSING stays
 ## reserved for real orphans. Do not register these from a tooling row.
-const UNREGISTERED_BENCHMARK_SOURCES: Array[String] = [
-	"res://content/maps/toompea_small_castle.rrmap",
-]
+## P4-039 registered toompea_small_castle, so the list is currently empty.
+const UNREGISTERED_BENCHMARK_SOURCES: Array[String] = []
 
 
 static func run() -> Array[MapBlueprintDiagnostic]:

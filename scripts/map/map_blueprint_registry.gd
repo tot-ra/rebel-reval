@@ -34,6 +34,9 @@ const MarketCivicQuarter := preload(
 const ToompeaQuarter := preload(
 	"res://scripts/map/definitions/prototypes/toompea_quarter_rrmap_factory.gd"
 )
+const ToompeaSmallCastle := preload(
+	"res://scripts/map/definitions/prototypes/toompea_small_castle_rrmap_factory.gd"
+)
 const SouthQuarter := preload(
 	"res://scripts/map/definitions/prototypes/south_quarter_rrmap_factory.gd"
 )
@@ -187,6 +190,23 @@ static func entries() -> Array[Dictionary]:
 				&"castle_courtyard",
 				&"cathedral_frontage",
 				&"luhike_jalg_gate",
+			],
+		},
+		{
+			"id": &"toompea_small_castle",
+			"source": "res://content/maps/toompea_small_castle.rrmap",
+			"factory": ToompeaSmallCastle,
+			# R-035 zone IDs; lowercase because RRMap anchor IDs are lowercase.
+			"required_anchors":
+			[
+				&"sc-forecourt",
+				&"sc-gate-tower",
+				&"sc-viceroy-audience",
+				&"sc-viceroy-private",
+				&"sc-castle-chapel",
+				&"sc-service-cellar",
+				&"ob-courtyard",
+				&"ob-east-gate",
 			],
 		},
 		{

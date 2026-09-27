@@ -127,7 +127,9 @@ threshold file rather than setting the floors low enough to pass.
   `toompea_small_castle`, which is not registered yet. R-999 keeps that file as an
   unregistered benchmark: `MapBlueprintAudit.UNREGISTERED_BENCHMARK_SOURCES` skips it
   in discover/audit so `MAP_REGISTRY_SOURCE_MISSING` is not raised. Do not register
-  it from a tooling row; WB-10 / P4-039 owns activation.
+  it from a tooling row; WB-10 / P4-039 owns activation. **Update (R-297 / P4-039):** the
+  Small Castle is now registered (29 maps) with an `enforce: false` interior threshold card,
+  so its density row reports measured metrics instead of `missing`.
 - **Tier spread** (`wealth_tiers`, `age_tiers`) is measured and reported but dormant
   (`tier_spread_active: false`) until R-981 lands the semantic fields.
 - `tests/python/test_verify_world_building_visual_gate.py` is also touched: its complete-fixture

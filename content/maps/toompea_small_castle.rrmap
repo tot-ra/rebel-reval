@@ -46,6 +46,6 @@ anchor ob-courtyard 16 20 rect=2,2 kind=zone
 anchor ob-east-gate 29 20 rect=2,2 kind=zone
 # Developer return to the Danish hill host. This remains data-only until the
 # dedicated interior scene activation task supplies a separate packed scene.
-transition to_toompea_quarter 14 21 4 2 to=reval_toompea destination_spawn=from_small_castle spawn=from_small_castle spawn_offset_px=0,-128 transition_visual=ground
+transition to_toompea_quarter 14 21 4 2 to=reval_toompea destination_spawn=from_small_castle spawn=from_small_castle spawn_offset_px=0,-128 highlight_area=true transition_visual=ground
 fade castle_interior_readability 1 1 30 22
 camera 0 0 32 24
