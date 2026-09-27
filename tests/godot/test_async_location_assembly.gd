@@ -14,6 +14,8 @@ const HarborEastDefinition := preload(
 	"res://scripts/map/definitions/outdoor/reval_harbor_east_definition.gd"
 )
 const MapBuilder := preload("res://scripts/map/map_builder.gd")
+const Job := preload("res://scripts/map/view3d/map_view_worker_job.gd")
+const TerrainStaged := preload("res://scripts/map/view3d/map_view_mesh_builder_terrain_staged.gd")
 
 const BUDGET_USEC := 4000
 const NAV_RUNS := 10
@@ -307,6 +309,136 @@ func test_door_navigator_uses_threaded_requests_and_keeps_lru() -> void:
 	assert_eq(DoorNavigator._threaded_requests, {}, "collected requests are released")
 	assert_false(DoorNavigator.request_scene_preload(&"no_such_scene"))
 	DoorNavigator.load_manifest(true)
+
+
+## WB-07d (R-1010): a pattern painted on a worker is byte-identical to the same
+## request painted on the main thread, for every family the staged terrain,
+## neighbor-preview and backdrop materials bake (including normal maps and the
+## RGBA cobble surface). Only the pixel painting moves; the bytes do not change.
+func test_worker_pattern_bakes_are_byte_identical_to_main_thread() -> void:
+	var noise_seed := 7_340_033
+	var requests: Array[Dictionary] = (
+		MapViewMaterials.TERRAIN_MATERIALS.blended_ground_bake_requests(noise_seed)
+	)
+	for terrain_id in MapViewMaterials.BLEND_TERRAIN_ORDER:
+		requests.append_array(
+			MapViewMaterials.TERRAIN_MATERIALS.terrain_bake_requests(terrain_id, noise_seed)
+		)
+	requests.append_array(MapViewMaterials.PROP_MATERIALS.backdrop_bake_requests())
+	var bakeable: Array[Dictionary] = []
+	for request in requests:
+		# missing_bakes() filters by cache, so ask for the worker-safe set directly.
+		if request.get("pattern", &"") != MapViewMaterials.PATTERN_FAMILIES.PATTERN_LIMESTONE:
+			bakeable.append(request)
+	var job: RefCounted = Job.run_group(
+		func(index: int) -> Image: return MapViewMaterialPatterns.bake_image(bakeable[index]),
+		bakeable.size(),
+		"test pattern bakes"
+	)
+	var worker_images: Array = job.values()
+	for index in bakeable.size():
+		var main_image := MapViewMaterialPatterns.bake_image(bakeable[index])
+		var worker_image: Image = worker_images[index]
+		assert_eq(worker_image.get_format(), main_image.get_format(), bakeable[index]["key"])
+		assert_true(worker_image.has_mipmaps(), "%s has mipmaps" % bakeable[index]["key"])
+		assert_eq(
+			worker_image.get_data(), main_image.get_data(), "%s bytes" % bakeable[index]["key"]
+		)
+
+
+## The staged units of a cold ground material bake its patterns on workers,
+## publish every texture under the synchronous cache key, and build the same
+## material the synchronous getter returns afterwards.
+func test_cold_ground_material_bakes_on_workers() -> void:
+	var noise_seed := 5_767_169
+	var terrain_materials := MapViewMaterials.TERRAIN_MATERIALS
+	assert_false(terrain_materials.has_blended_ground(noise_seed), "the seed starts cold")
+	var units: Array[Dictionary] = TerrainStaged.blended_ground_units(&"terrain_mesh", noise_seed)
+	var labels: Array[String] = []
+	for unit in units:
+		labels.append(unit["label"])
+	assert_true(labels.has("await_ground_material_patterns"), "patterns bake on a worker")
+	assert_true(labels.has("ground_material"), "the material is its own unit")
+	MapView3D.Assembly.drain(units)
+	assert_true(terrain_materials.has_blended_ground(noise_seed), "the material is published")
+	for request in terrain_materials.blended_ground_bake_requests(noise_seed):
+		var texture: Texture2D = (
+			MapViewMaterialPatterns.cobble_surface_texture(request["seed"])
+			if request.get("cobble_surface", false)
+			else MapViewMaterialPatterns.pattern_texture_at_size(
+				request["pattern"], request["seed"], request["size"]
+			)
+		)
+		assert_eq(
+			texture.get_image().get_data(),
+			MapViewMaterialPatterns.bake_image(request).get_data(),
+			"published %s equals a main-thread paint" % request["key"]
+		)
+	var material := MapViewMaterials.blended_ground(noise_seed)
+	var layers: Texture2DArray = material.get_shader_parameter("terrain_patterns")
+	# The headless dummy renderer cannot read Texture2DArray layers back; the layer
+	# images come from the textures checked above through the synchronous code.
+	assert_eq(layers.get_layers(), MapViewMaterials.BLEND_TERRAIN_ORDER.size())
+	assert_eq(layers, MapViewMaterials.terrain_pattern_array(noise_seed), "one cached array")
+	assert_eq(TerrainStaged.blended_ground_units(&"terrain_mesh", noise_seed), [], "warm: no units")
+
+
+## Water materials prefetch their cold resources with threaded loads and pack
+## the caustic tiles on a worker; a threaded load job resolves to the resources
+## in path order and joins safely when waited more than once.
+func test_threaded_resource_prefetch_resolves_in_order() -> void:
+	var paths := PackedStringArray(
+		[
+			MapViewMaterials.TERRAIN_MATERIALS.MUD_ALBEDO_PATH,
+			MapViewMaterials.TERRAIN_MATERIALS.HAY_ALBEDO_PATH,
+		]
+	)
+	var job: RefCounted = Job.load_resources(paths)
+	var loaded: Array = job.value()
+	job.wait()
+	assert_eq(loaded.size(), 2)
+	for index in paths.size():
+		assert_true(loaded[index] is Texture2D, "%s loads" % paths[index])
+		assert_eq((loaded[index] as Resource).resource_path, paths[index], "path order")
+	var water_materials := MapViewMaterials.WATER_MATERIALS
+	var sources: Array = water_materials.caustic_tile_sources()
+	var packed_job: RefCounted = Job.run(
+		func() -> Image: return water_materials.pack_caustic_tiles(sources[0], sources[1]),
+		"test caustic pack"
+	)
+	var packed: Image = packed_job.value()
+	var main_packed: Image = water_materials.pack_caustic_tiles(sources[0], sources[1])
+	if main_packed == null:
+		assert_true(packed == null, "missing tiles pack to null on both threads")
+	else:
+		assert_eq(packed.get_data(), main_packed.get_data(), "caustic tiles pack identically")
+		var tiles := water_materials.caustic_tiles_texture()
+		assert_eq(tiles.get_image().get_data(), main_packed.get_data(), "published tiles")
+
+
+## A job dropped without wait() joins its task while it is freed, so a cancelled
+## assembly never leaves an un-waited task behind, even for a bake whose await
+## unit was not queued yet.
+func test_dropped_worker_job_joins_its_task() -> void:
+	var finished := [false, false]
+	var job: RefCounted = Job.run(
+		func() -> int:
+			OS.delay_msec(50)
+			finished[0] = true
+			return 1,
+		"test dropped job"
+	)
+	var group: RefCounted = Job.run_group(
+		func(_index: int) -> int:
+			OS.delay_msec(50)
+			finished[1] = true
+			return 1,
+		2,
+		"test dropped group"
+	)
+	job = null
+	group = null
+	assert_eq(finished, [true, true], "freeing an unwaited job waits for its task")
 
 
 static func _orphan_ids() -> Dictionary:

@@ -17,6 +17,8 @@ const GROUP_THREADS := 4
 var _task_id := -1
 var _group := false
 var _waited := false
+## WB-07d (R-1010): paths of a threaded ResourceLoader prefetch; empty otherwise.
+var _load_paths := PackedStringArray()
 ## Single task: the callable's return value. Group task: one entry per index, in
 ## index order. Each index writes only its own slot object, never a shared one.
 var _slots: Array = []
@@ -62,8 +64,26 @@ static func done(value: Variant) -> RefCounted:
 	return job
 
 
+## WB-07d (R-1010): loads resources through ResourceLoader's threaded requests.
+## value() is the Array of loaded resources in path order (null for a failed
+## load). Holding it keeps them in the resource cache, so a later load() of the
+## same path on the main thread returns at once instead of reading the file.
+static func load_resources(paths: PackedStringArray) -> RefCounted:
+	var job: RefCounted = new()
+	job._slots = [{}]
+	job._load_paths = paths
+	for path in paths:
+		ResourceLoader.load_threaded_request(path)
+	return job
+
+
 func is_done() -> bool:
 	if _waited:
+		return true
+	if not _load_paths.is_empty():
+		for path in _load_paths:
+			if ResourceLoader.load_threaded_get_status(path) == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
+				return false
 		return true
 	if _group:
 		return WorkerThreadPool.is_group_task_completed(_task_id)
@@ -76,9 +96,34 @@ func wait() -> void:
 	if _waited:
 		return
 	_waited = true
+	if not _load_paths.is_empty():
+		# load_threaded_get() blocks until done and must be called once per request.
+		var loaded: Array = []
+		for path in _load_paths:
+			loaded.append(ResourceLoader.load_threaded_get(path))
+		_slots[0]["value"] = loaded
+		return
 	if _group:
 		WorkerThreadPool.wait_for_group_task_completion(_task_id)
 	else:
+		WorkerThreadPool.wait_for_task_completion(_task_id)
+
+
+## WB-07d (R-1010): a job dropped without wait() still joins its task, because
+## the pool must be waited once per task. This covers bakes that were started but
+## whose await unit had not been queued yet when a staged assembly was cancelled
+## (neighbor-preview material bakes start one pass before their previews).
+## Inlined: a RefCounted cannot call its own methods during PREDELETE.
+func _notification(what: int) -> void:
+	if what != NOTIFICATION_PREDELETE or _waited:
+		return
+	_waited = true
+	if not _load_paths.is_empty():
+		for path in _load_paths:
+			ResourceLoader.load_threaded_get(path)
+	elif _group:
+		WorkerThreadPool.wait_for_group_task_completion(_task_id)
+	elif _task_id >= 0:
 		WorkerThreadPool.wait_for_task_completion(_task_id)
 
 

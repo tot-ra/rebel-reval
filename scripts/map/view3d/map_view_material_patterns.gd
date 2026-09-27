@@ -62,16 +62,12 @@ static func pattern_source_size(pattern: StringName) -> int:
 static func pattern_normal_texture(
 	pattern: StringName, noise_seed: int, strength: float = 2.2
 ) -> ImageTexture:
-	var texture_size := pattern_source_size(pattern)
-	var key := "pattern_normal:%s:%d:%d:%.2f" % [String(pattern), noise_seed, texture_size, strength]
+	var request := pattern_normal_bake_request(pattern, noise_seed, strength)
+	var key: String = request["key"]
 	if _cache.has(key):
 		return _cache[key]
-	var image := _pattern_image_at_size(pattern, noise_seed, texture_size)
-	image.bump_map_to_normal_map(strength)
-	image.generate_mipmaps()
-	var texture := ImageTexture.create_from_image(image)
-	_cache[key] = texture
-	return texture
+	publish_baked(request, bake_image(request))
+	return _cache[key]
 
 
 static func door_wood_texture(noise_seed: int) -> ImageTexture:
@@ -207,14 +203,103 @@ static func pattern_texture_weathered(
 static func _pattern_texture_at_size(
 	pattern: StringName, noise_seed: int, texture_size: int
 ) -> ImageTexture:
-	var key := "pattern:%s:%d:%d" % [String(pattern), noise_seed, texture_size]
+	var request := pattern_bake_request(pattern, noise_seed, texture_size)
+	var key: String = request["key"]
 	if _cache.has(key):
 		return _cache[key]
-	var image := _pattern_image_at_size(pattern, noise_seed, texture_size)
+	publish_baked(request, bake_image(request))
+	return _cache[key]
+
+
+## WB-07d (R-1010): cold pattern textures cost up to 1.7 s of GDScript painting
+## each (the 512 px cobble plates). A bake request names one cached texture; a
+## worker paints its Image with bake_image() and a main-thread unit publishes it
+## with publish_baked(). The synchronous getters run the same two calls, so a
+## worker-baked texture is byte-identical to a synchronously built one and keeps
+## the same cache key.
+static func pattern_bake_request(
+	pattern: StringName, noise_seed: int, texture_size: int
+) -> Dictionary:
+	return {
+		"key": "pattern:%s:%d:%d" % [String(pattern), noise_seed, texture_size],
+		"pattern": pattern,
+		"seed": noise_seed,
+		"size": texture_size,
+	}
+
+
+## pattern_normal_texture() at the pattern's source size.
+static func pattern_normal_bake_request(
+	pattern: StringName, noise_seed: int, strength: float = 2.2
+) -> Dictionary:
+	var texture_size := pattern_source_size(pattern)
+	return {
+		"key":
+		"pattern_normal:%s:%d:%d:%.2f" % [String(pattern), noise_seed, texture_size, strength],
+		"pattern": pattern,
+		"seed": noise_seed,
+		"size": texture_size,
+		"normal_strength": strength,
+	}
+
+
+static func cobble_surface_bake_request(noise_seed: int) -> Dictionary:
+	return {
+		"key": "cobble_surface:%d:%d" % [noise_seed, RESOLUTION.COBBLE_TEXTURE_SIZE],
+		"cobble_surface": true,
+		"seed": noise_seed,
+	}
+
+
+## The authored plate a pattern reads instead of painting, or "" when it paints.
+## Staged assembly prefetches it with a threaded load; the plate itself is still
+## read back on the main thread.
+static func authored_plate_path(pattern: StringName) -> String:
+	if pattern == PATTERN_FAMILIES.PATTERN_LIMESTONE:
+		return LIMESTONE_RUBBLE_PATH
+	return ""
+
+
+## Main thread only (reads the cache). Requests that are not cached yet and can
+## be painted off the main thread, deduplicated by key, in first-seen order.
+## Limestone reads an authored plate back through Texture2D.get_image(), and the
+## roof-tile painter writes this cache; both stay on the synchronous path.
+static func missing_bakes(requests: Array[Dictionary]) -> Array[Dictionary]:
+	var missing: Array[Dictionary] = []
+	var seen := {}
+	for request in requests:
+		var key: String = request["key"]
+		if _cache.has(key) or seen.has(key):
+			continue
+		if request.get("pattern", &"") in [
+			PATTERN_FAMILIES.PATTERN_LIMESTONE, PATTERN_FAMILIES.PATTERN_ROOF_TILE
+		]:
+			continue
+		seen[key] = true
+		missing.append(request)
+	return missing
+
+
+## Pure: paints a job-local Image with mipmaps. Safe on a worker for every
+## request missing_bakes() returns.
+static func bake_image(request: Dictionary) -> Image:
+	var image: Image
+	if request.get("cobble_surface", false):
+		image = _cobble_surface_image(int(request["seed"]))
+	else:
+		image = _pattern_image_at_size(request["pattern"], int(request["seed"]), int(request["size"]))
+		if request.has("normal_strength"):
+			image.bump_map_to_normal_map(float(request["normal_strength"]))
 	image.generate_mipmaps()
-	var texture := ImageTexture.create_from_image(image)
-	_cache[key] = texture
-	return texture
+	return image
+
+
+## Main thread only. The first publisher of a key wins, so a texture that a
+## synchronous caller built while the worker ran is kept, not replaced.
+static func publish_baked(request: Dictionary, image: Image) -> void:
+	var key: String = request["key"]
+	if not _cache.has(key):
+		_cache[key] = ImageTexture.create_from_image(image)
 
 
 static func _authored_plate_image(path: String, texture_size: int) -> Image:
@@ -621,9 +706,16 @@ static func _paint_cobble(image: Image, noise_seed: int) -> void:
 ## - B: stone mask (0 compacted joint, 1 stone)
 ## - A: deterministic per-stone palette selector
 static func cobble_surface_texture(noise_seed: int) -> ImageTexture:
-	var key := "cobble_surface:%d:%d" % [noise_seed, RESOLUTION.COBBLE_TEXTURE_SIZE]
+	var request := cobble_surface_bake_request(noise_seed)
+	var key: String = request["key"]
 	if _cache.has(key):
 		return _cache[key]
+	publish_baked(request, bake_image(request))
+	return _cache[key]
+
+
+## Pure (worker-safe) body of cobble_surface_texture(), without mipmaps.
+static func _cobble_surface_image(noise_seed: int) -> Image:
 	var size := RESOLUTION.COBBLE_TEXTURE_SIZE
 	var image := Image.create(size, size, false, Image.FORMAT_RGBA8)
 	for y in size:
@@ -639,10 +731,7 @@ static func cobble_surface_texture(noise_seed: int) -> ImageTexture:
 			image.set_pixel(
 				x, y, Color(normal.x * 0.5 + 0.5, normal.y * 0.5 + 0.5, sample.g, sample.b)
 			)
-	image.generate_mipmaps()
-	var texture := ImageTexture.create_from_image(image)
-	_cache[key] = texture
-	return texture
+	return image
 
 
 ## Returns one sample from a seamless, staggered rounded-rectangle lattice.

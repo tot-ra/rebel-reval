@@ -10,6 +10,9 @@ const _Scatter := preload("res://scripts/map/view3d/map_view_mesh_builder_scatte
 const _Batcher := preload("res://scripts/map/view3d/map_view_static_batcher.gd")
 const _Assembly := preload("res://scripts/map/view3d/map_view_assembly.gd")
 const _Job := preload("res://scripts/map/view3d/map_view_worker_job.gd")
+const _TerrainStaged := preload(
+	"res://scripts/map/view3d/map_view_mesh_builder_terrain_staged.gd"
+)
 const STAGE := &"surroundings"
 ## At max zoom-out the rotated orthographic ground footprint reaches about 66
 ## cells past an edge on a 16:9 viewport. Keep a generous margin for wider
@@ -38,6 +41,15 @@ static func surroundings_units(definition: MapDefinition, root: Node3D) -> Array
 		return []
 	var state := {"previewed_sides": {}, "preview_count_by_side": {}}
 	var units: Array[Dictionary] = []
+	# WB-07d (R-1010): every neighbor's material bake starts as soon as its data
+	# lands, before the first preview is built, so the bakes of all neighbors
+	# overlap on the pool. Previews still follow in transition order.
+	var previews: Array[Dictionary] = []
+	# The apron ground and boulder textures are seed-constant; their bake overlaps
+	# the neighbor jobs and is published before the backdrops need them.
+	var backdrop_patterns := _TerrainStaged.pattern_bake_units(
+		STAGE, "backdrops", MapViewMaterials.PROP_MATERIALS.backdrop_bake_requests()
+	)
 	for transition in definition.transitions:
 		# Travel links are gameplay routes, not physically adjoining districts. In
 		# particular, the outer-wall road must not place Workers' District east of
@@ -59,10 +71,25 @@ static func surroundings_units(definition: MapDefinition, root: Node3D) -> Array
 			"surroundings neighbor %s" % String(scene_id)
 		)
 		var label := "neighbor_%s" % String(scene_id)
+		var materials := {"units": [] as Array[Dictionary]}
 		units.append(_Assembly.await_job(STAGE, label, job))
 		units.append(
-			_Assembly.unit(STAGE, label, _neighbor_preview_units.bind(job, side, root, state))
+			_Assembly.unit(
+				STAGE, "%s_materials" % label, _start_neighbor_materials.bind(job, label, materials)
+			)
 		)
+		previews.append(
+			_Assembly.unit(
+				STAGE, label, _neighbor_preview_units.bind(job, side, root, state, materials)
+			)
+		)
+	units.append_array(previews)
+	units.append_array(backdrop_patterns)
+	if sides.values().has(&"water"):
+		var backdrop_water: Array[StringName] = [
+			MapTypes.TERRAIN_SHALLOW_WATER, MapTypes.TERRAIN_DEEP_WATER
+		]
+		units.append_array(_TerrainStaged.water_material_units(STAGE, "backdrops", backdrop_water))
 	# WHY: R-1022 sampled shore-relative rest Y by rebuilding the playable grid
 	# per water side. Harbour maps author no relief, so that bake was 80-650 ms
 	# for a constant historic recess. Relief maps bake once on a worker.
@@ -493,6 +520,44 @@ static func _preview_data_for(
 ## WB-07b: the preview root is added at once; each building, prop and merge
 ## is its own main-thread unit.
 static func _neighbor_preview_units(
+	job: RefCounted, side: StringName, root: Node3D, state: Dictionary, materials := {}
+) -> Array[Dictionary]:
+	var material_units: Array[Dictionary] = materials.get("units", [] as Array[Dictionary])
+	if material_units.is_empty():
+		return _neighbor_preview_body(job, side, root, state)
+	var units: Array[Dictionary] = material_units.duplicate()
+	units.append(
+		_Assembly.unit(
+			STAGE, "neighbor_preview", _neighbor_preview_body.bind(job, side, root, state)
+		)
+	)
+	return units
+
+
+## WB-07d (R-1010): starts the worker bake of the preview's cold terrain and
+## water materials and stores their publish units for the preview unit. The
+## per-seed pattern textures cost 0.9-1.1 s per neighbor on the main thread.
+static func _start_neighbor_materials(
+	job: RefCounted, label: String, materials: Dictionary
+) -> void:
+	var data: Dictionary = job.value()
+	if data.is_empty():
+		return
+	var neighbor: MapDefinition = data["neighbor"]
+	var dry_ids: Array[StringName] = []
+	var water_ids: Array[StringName] = []
+	for entry: Array in data["terrain"]:
+		var terrain: StringName = entry[0]
+		if MapTypes.WATER_TERRAINS.has(terrain):
+			water_ids.append(terrain)
+		else:
+			dry_ids.append(terrain)
+	var units := _TerrainStaged.terrain_material_units(STAGE, label, dry_ids, neighbor.seed)
+	units.append_array(_TerrainStaged.water_material_units(STAGE, label, water_ids))
+	materials["units"] = units
+
+
+static func _neighbor_preview_body(
 	job: RefCounted, side: StringName, root: Node3D, state: Dictionary
 ) -> Array[Dictionary]:
 	var data: Dictionary = job.value()

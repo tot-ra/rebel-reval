@@ -39,6 +39,11 @@ const TERRAIN_GRASS_UV_SCALE := 2.0
 ## blended-ground path aligned with the regular terrain material's 2x repeat.
 const TERRAIN_TIMBER_FLOOR_UV_SCALE := 2.0
 
+## Cobble is a seamless material family rather than authored map state: one
+## high-resolution source seed serves every map, so transitions do not
+## regenerate it per map seed.
+const COBBLE_PLATE_SEED := 8219
+
 const PATTERN_FAMILIES := preload(
 	"res://scripts/map/view3d/map_view_material_pattern_families.gd"
 )
@@ -113,16 +118,73 @@ static func terrain(terrain_id: StringName, noise_seed: int) -> StandardMaterial
 	if _cache.has(key):
 		return _cache[key]
 	var base := OutdoorTerrainPalette.color(terrain_id)
-	var pattern: StringName = TERRAIN_PATTERN.get(terrain_id, PATTERN_GRASS)
-	if WATER_TERRAINS.has(terrain_id):
-		pattern = PATTERN_PLASTER
-	var material := _make_material(base, pattern, noise_seed + int(terrain_id.hash()))
+	var material := _make_material(
+		base, _terrain_material_pattern(terrain_id), noise_seed + int(terrain_id.hash())
+	)
 	var uv := float(TERRAIN_UV_SCALE.get(terrain_id, 1.0))
 	material.uv1_scale = Vector3(uv, uv, 1.0)
 	if WATER_TERRAINS.has(terrain_id):
 		material.roughness = 0.15
 	_cache[key] = material
 	return material
+
+
+static func _terrain_material_pattern(terrain_id: StringName) -> StringName:
+	if WATER_TERRAINS.has(terrain_id):
+		return PATTERN_PLASTER
+	return TERRAIN_PATTERN.get(terrain_id, PATTERN_GRASS)
+
+
+static func has_terrain(terrain_id: StringName, noise_seed: int) -> bool:
+	return _cache.has("terrain:%s:%d" % [String(terrain_id), noise_seed])
+
+
+static func has_blended_ground(noise_seed: int) -> bool:
+	return _cache.has("blended_ground:%d" % noise_seed)
+
+
+## WB-07d (R-1010): the pattern textures terrain(terrain_id, noise_seed) paints,
+## as MapViewMaterialPatterns bake requests. Built from the same helpers as
+## terrain(), so a pre-baked texture is exactly the one terrain() looks up.
+static func terrain_bake_requests(terrain_id: StringName, noise_seed: int) -> Array[Dictionary]:
+	var pattern := _terrain_material_pattern(terrain_id)
+	return [
+		MapViewMaterialPatterns.pattern_bake_request(
+			pattern,
+			noise_seed + int(terrain_id.hash()),
+			MapViewMaterialPatterns.pattern_source_size(pattern)
+		)
+	]
+
+
+## Authored plates terrain(terrain_id, ...) loads, for a threaded prefetch.
+static func terrain_resource_paths(terrain_id: StringName) -> PackedStringArray:
+	var paths := PackedStringArray()
+	var path := MapViewMaterialPatterns.authored_plate_path(_terrain_material_pattern(terrain_id))
+	if not path.is_empty():
+		paths.append(path)
+	return paths
+
+
+## Authored plates blended_ground() loads outside the preloaded constants.
+static func blended_ground_resource_paths() -> PackedStringArray:
+	var paths := PackedStringArray()
+	for path: String in [MUD_ALBEDO_PATH, HAY_ALBEDO_PATH]:
+		if ResourceLoader.exists(path):
+			paths.append(path)
+	return paths
+
+
+## Every procedural texture blended_ground(noise_seed) paints: the procedural
+## array layers plus the seed-independent cobble plate and cobble surface.
+static func blended_ground_bake_requests(noise_seed: int) -> Array[Dictionary]:
+	var requests: Array[Dictionary] = []
+	for terrain_id in BLEND_TERRAIN_ORDER:
+		if _procedural_layer(terrain_id):
+			requests.append(_procedural_layer_request(terrain_id, noise_seed))
+	requests.append(_cobble_plate_request())
+	requests.append(MapViewMaterialPatterns.cobble_surface_bake_request(COBBLE_PLATE_SEED))
+	return requests
 
 
 static func terrain_blend_index(terrain_id: StringName) -> int:
@@ -144,60 +206,106 @@ static func terrain_pattern_array(noise_seed: int) -> Texture2DArray:
 		return _cache[key]
 	var images: Array[Image] = []
 	for terrain_id in BLEND_TERRAIN_ORDER:
-		var image: Image
-		if (
-			terrain_id
-			in [
-				MapTypes.TERRAIN_GRASS,
-				MapTypes.TERRAIN_MEADOW,
-				MapTypes.TERRAIN_FOREST_FLOOR,
-				MapTypes.TERRAIN_BOG
-			]
-		):
-			# Keep a low-res family copy in the shared array for fallbacks. The
-			# blend shader samples the native 512 px grass plate directly so
-			# meadows stay sharp at gameplay range.
-			image = _copied_texture_image(GRASS_ALBEDO_TEXTURE)
-			if image.get_width() != TEXTURE_SIZE or image.get_height() != TEXTURE_SIZE:
-				image.resize(TEXTURE_SIZE, TEXTURE_SIZE, Image.INTERPOLATE_LANCZOS)
-			image.generate_mipmaps()
-		elif terrain_id == MapTypes.TERRAIN_MUD and ResourceLoader.exists(MUD_ALBEDO_PATH):
-			image = _copied_texture_image(load(MUD_ALBEDO_PATH) as Texture2D)
-			if image.get_width() != TEXTURE_SIZE or image.get_height() != TEXTURE_SIZE:
-				image.resize(TEXTURE_SIZE, TEXTURE_SIZE, Image.INTERPOLATE_LANCZOS)
-			image.generate_mipmaps()
-		elif terrain_id == MapTypes.TERRAIN_TIMBER_FLOOR:
-			# Interior/pier floors use the same texture-array tier as outdoor ground;
-			# a separate source avoids stretching the directional grain across cells.
-			image = _copied_texture_image(TIMBER_FLOOR_ALBEDO_TEXTURE)
-			if image.get_width() != TEXTURE_SIZE or image.get_height() != TEXTURE_SIZE:
-				image.resize(TEXTURE_SIZE, TEXTURE_SIZE, Image.INTERPOLATE_LANCZOS)
-			image.generate_mipmaps()
-		elif terrain_id == MapTypes.TERRAIN_STONE:
-			# The smithy floor uses irregular flagstones rather than the procedural
-			# limestone ashlar pattern, which reads as a tiled brick grid at gameplay zoom.
-			image = smithy_floor_albedo_image()
-		elif terrain_id in [MapTypes.TERRAIN_HAY, MapTypes.TERRAIN_STRAW]:
-			# Keep a 128 px family copy in the shared array. The blend shader
-			# samples the native 512 px hay plate so fields stay sharp.
-			image = _copied_texture_image(HAY_ALBEDO_TEXTURE)
-			if image.get_width() != TEXTURE_SIZE or image.get_height() != TEXTURE_SIZE:
-				image.resize(TEXTURE_SIZE, TEXTURE_SIZE, Image.INTERPOLATE_LANCZOS)
-			image.generate_mipmaps()
-		else:
-			var pattern: StringName = TERRAIN_PATTERN.get(terrain_id, PATTERN_GRASS)
-			image = (
-				MapViewMaterialPatterns
-				. pattern_texture_at_size(
-					pattern, noise_seed + int(terrain_id.hash()), TEXTURE_SIZE
-				)
-				. get_image()
-			)
-		images.append(image)
+		images.append(terrain_pattern_layer_image(terrain_id, noise_seed))
+	publish_terrain_pattern_array(noise_seed, images)
+	return _cache[key]
+
+
+## WB-07d: one layer of terrain_pattern_array(). Main thread: authored layers
+## read their plate back with Texture2D.get_image() and procedural layers read
+## their cached pattern texture. Staged assembly runs one layer per unit.
+static func terrain_pattern_layer_image(terrain_id: StringName, noise_seed: int) -> Image:
+	var image: Image
+	if (
+		terrain_id
+		in [
+			MapTypes.TERRAIN_GRASS,
+			MapTypes.TERRAIN_MEADOW,
+			MapTypes.TERRAIN_FOREST_FLOOR,
+			MapTypes.TERRAIN_BOG
+		]
+	):
+		# Keep a low-res family copy in the shared array for fallbacks. The
+		# blend shader samples the native 512 px grass plate directly so
+		# meadows stay sharp at gameplay range.
+		image = _copied_texture_image(GRASS_ALBEDO_TEXTURE)
+		if image.get_width() != TEXTURE_SIZE or image.get_height() != TEXTURE_SIZE:
+			image.resize(TEXTURE_SIZE, TEXTURE_SIZE, Image.INTERPOLATE_LANCZOS)
+		image.generate_mipmaps()
+	elif terrain_id == MapTypes.TERRAIN_MUD and ResourceLoader.exists(MUD_ALBEDO_PATH):
+		image = _copied_texture_image(load(MUD_ALBEDO_PATH) as Texture2D)
+		if image.get_width() != TEXTURE_SIZE or image.get_height() != TEXTURE_SIZE:
+			image.resize(TEXTURE_SIZE, TEXTURE_SIZE, Image.INTERPOLATE_LANCZOS)
+		image.generate_mipmaps()
+	elif terrain_id == MapTypes.TERRAIN_TIMBER_FLOOR:
+		# Interior/pier floors use the same texture-array tier as outdoor ground;
+		# a separate source avoids stretching the directional grain across cells.
+		image = _copied_texture_image(TIMBER_FLOOR_ALBEDO_TEXTURE)
+		if image.get_width() != TEXTURE_SIZE or image.get_height() != TEXTURE_SIZE:
+			image.resize(TEXTURE_SIZE, TEXTURE_SIZE, Image.INTERPOLATE_LANCZOS)
+		image.generate_mipmaps()
+	elif terrain_id == MapTypes.TERRAIN_STONE:
+		# The smithy floor uses irregular flagstones rather than the procedural
+		# limestone ashlar pattern, which reads as a tiled brick grid at gameplay zoom.
+		image = smithy_floor_albedo_image()
+	elif terrain_id in [MapTypes.TERRAIN_HAY, MapTypes.TERRAIN_STRAW]:
+		# Keep a 128 px family copy in the shared array. The blend shader
+		# samples the native 512 px hay plate so fields stay sharp.
+		image = _copied_texture_image(HAY_ALBEDO_TEXTURE)
+		if image.get_width() != TEXTURE_SIZE or image.get_height() != TEXTURE_SIZE:
+			image.resize(TEXTURE_SIZE, TEXTURE_SIZE, Image.INTERPOLATE_LANCZOS)
+		image.generate_mipmaps()
+	else:
+		var request := _procedural_layer_request(terrain_id, noise_seed)
+		image = (
+			MapViewMaterialPatterns
+			. pattern_texture_at_size(request["pattern"], request["seed"], request["size"])
+			. get_image()
+		)
+	return image
+
+
+## Main thread. The first publisher of a seed wins.
+static func publish_terrain_pattern_array(noise_seed: int, images: Array[Image]) -> void:
+	var key := "terrain_pattern_array:%d" % noise_seed
+	if _cache.has(key):
+		return
 	var array := Texture2DArray.new()
 	array.create_from_images(images)
 	_cache[key] = array
-	return array
+
+
+## Layers terrain_pattern_layer_image() paints procedurally rather than reading
+## an authored plate. Must mirror its branches.
+static func _procedural_layer(terrain_id: StringName) -> bool:
+	if terrain_id == MapTypes.TERRAIN_MUD:
+		return not ResourceLoader.exists(MUD_ALBEDO_PATH)
+	return (
+		terrain_id
+		not in [
+			MapTypes.TERRAIN_GRASS,
+			MapTypes.TERRAIN_MEADOW,
+			MapTypes.TERRAIN_FOREST_FLOOR,
+			MapTypes.TERRAIN_BOG,
+			MapTypes.TERRAIN_TIMBER_FLOOR,
+			MapTypes.TERRAIN_STONE,
+			MapTypes.TERRAIN_HAY,
+			MapTypes.TERRAIN_STRAW,
+		]
+	)
+
+
+static func _procedural_layer_request(terrain_id: StringName, noise_seed: int) -> Dictionary:
+	var pattern: StringName = TERRAIN_PATTERN.get(terrain_id, PATTERN_GRASS)
+	return MapViewMaterialPatterns.pattern_bake_request(
+		pattern, noise_seed + int(terrain_id.hash()), TEXTURE_SIZE
+	)
+
+
+static func _cobble_plate_request() -> Dictionary:
+	return MapViewMaterialPatterns.pattern_bake_request(
+		PATTERN_COBBLE, COBBLE_PLATE_SEED, COBBLE_TEXTURE_SIZE
+	)
 
 
 ## High-resolution paving layers are kept in a focused array so increasing
@@ -206,13 +314,12 @@ static func cobble_pattern_array(_noise_seed: int) -> Texture2DArray:
 	var key := "cobble_pattern_array"
 	if _cache.has(key):
 		return _cache[key]
+	var request := _cobble_plate_request()
 	var image := (
 		MapViewMaterialPatterns
-		. pattern_texture_at_size(PATTERN_COBBLE, 8219, COBBLE_TEXTURE_SIZE)
+		. pattern_texture_at_size(request["pattern"], request["seed"], request["size"])
 		. get_image()
 	)
-	# Cobble is a seamless material family rather than authored map state. Reuse
-	# one high-resolution source so transitions do not regenerate it per map seed.
 	var images: Array[Image] = [image, image]
 	var array := Texture2DArray.new()
 	array.create_from_images(images)
@@ -233,7 +340,7 @@ static func blended_ground(noise_seed: int) -> ShaderMaterial:
 	material.set_shader_parameter("terrain_patterns", terrain_pattern_array(noise_seed))
 	material.set_shader_parameter("cobble_patterns", cobble_pattern_array(noise_seed))
 	material.set_shader_parameter(
-		"cobble_surface", MapViewMaterialPatterns.cobble_surface_texture(8219)
+		"cobble_surface", MapViewMaterialPatterns.cobble_surface_texture(COBBLE_PLATE_SEED)
 	)
 	material.set_shader_parameter("pattern_layers", float(BLEND_TERRAIN_ORDER.size()))
 	material.set_shader_parameter(

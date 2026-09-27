@@ -504,6 +504,10 @@ static func puddle_surface() -> ShaderMaterial:
 ## raise both the water mesh and floating hulls together.
 
 
+static func has_water_surface(terrain_id: StringName) -> bool:
+	return _cache.has("water_surface:%s" % String(terrain_id))
+
+
 static func water_surface(terrain_id: StringName, wave_profiles: Dictionary) -> ShaderMaterial:
 	var key := "water_surface:%s" % String(terrain_id)
 	if _cache.has(key):
@@ -577,9 +581,31 @@ static func water_surface(terrain_id: StringName, wave_profiles: Dictionary) -> 
 static func caustic_tiles_texture() -> Texture2D:
 	if _caustic_tiles_built:
 		return _caustic_tiles
-	_caustic_tiles_built = true
-	var fine := _caustic_tile_image(CAUSTIC_TILE_PATHS["fine"])
-	var broad := _caustic_tile_image(CAUSTIC_TILE_PATHS["broad"])
+	var sources := caustic_tile_sources()
+	publish_caustic_tiles(pack_caustic_tiles(sources[0], sources[1]))
+	return _caustic_tiles
+
+
+## WB-07d (R-1010): the tile pair split for staged assembly. The main thread reads
+## the imported tiles back (Texture2D.get_image() is a renderer call), a worker
+## packs them (a per-byte GDScript loop, about 10 ms), and the main thread creates
+## the texture. caustic_tiles_texture() runs the same three calls.
+static func caustic_tiles_built() -> bool:
+	return _caustic_tiles_built
+
+
+## Main thread. [fine, broad] raw images; an entry is null when its tile is missing.
+static func caustic_tile_sources() -> Array:
+	return [
+		_caustic_tile_source(CAUSTIC_TILE_PATHS["fine"]),
+		_caustic_tile_source(CAUSTIC_TILE_PATHS["broad"]),
+	]
+
+
+## Pure and worker-safe: works on copies. Null when either tile is missing.
+static func pack_caustic_tiles(fine_source: Image, broad_source: Image) -> Image:
+	var fine := _caustic_tile_image(fine_source)
+	var broad := _caustic_tile_image(broad_source)
 	if fine == null or broad == null or fine.get_size() != broad.get_size():
 		return null
 	var fine_bytes := fine.get_data()
@@ -593,18 +619,48 @@ static func caustic_tiles_texture() -> Texture2D:
 		fine.get_width(), fine.get_height(), false, Image.FORMAT_RG8, packed
 	)
 	image.generate_mipmaps()
-	_caustic_tiles = ImageTexture.create_from_image(image)
-	return _caustic_tiles
+	return image
 
 
-static func _caustic_tile_image(path: String) -> Image:
+## Main thread. The first publisher wins; a null image leaves the tiles unbound.
+static func publish_caustic_tiles(image: Image) -> void:
+	if _caustic_tiles_built:
+		return
+	_caustic_tiles_built = true
+	if image != null:
+		_caustic_tiles = ImageTexture.create_from_image(image)
+
+
+## Main thread. Resources the first water_surface() call would otherwise load
+## synchronously (the FFT atlases alone take about 100 ms), for a threaded
+## prefetch. Empty once they are loaded and held.
+static func cold_resource_paths() -> PackedStringArray:
+	var paths := PackedStringArray()
+	if _ocean_fft_textures.is_empty() and ocean_fft_supported():
+		for uniform_name: String in OCEAN_FFT_ATLASES:
+			paths.append(OCEAN_FFT_DIR + String(OCEAN_FFT_ATLASES[uniform_name]))
+		paths.append(OCEAN_FOAM_TILE_PATH)
+	if not _caustic_tiles_built:
+		for tile: String in CAUSTIC_TILE_PATHS:
+			paths.append(String(CAUSTIC_TILE_PATHS[tile]))
+	var cold := PackedStringArray()
+	for path in paths:
+		if ResourceLoader.exists(path) and not ResourceLoader.has_cached(path):
+			cold.append(path)
+	return cold
+
+
+static func _caustic_tile_source(path: String) -> Image:
 	var texture := load(path) as Texture2D
 	if texture == null:
 		return null
-	var image := texture.get_image()
-	if image == null:
+	return texture.get_image()
+
+
+static func _caustic_tile_image(source: Image) -> Image:
+	if source == null:
 		return null
-	image = image.duplicate() as Image
+	var image := source.duplicate() as Image
 	if image.is_compressed():
 		image.decompress()
 	image.clear_mipmaps()

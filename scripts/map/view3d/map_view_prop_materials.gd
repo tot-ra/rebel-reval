@@ -26,6 +26,9 @@ const HAY_FIBER_TEXTURE := preload("res://assets/materials/production/hay_fibers
 
 const EMBER_COLOR := Color8(224, 108, 48)
 const EMBER_ENERGY := 1.6
+const NATURAL_ROCK_SEED := 9041
+const SURROUNDINGS_GROUND_SEED := 8117
+const ROCK_NORMAL_STRENGTH := 1.8
 
 static var _cache: Dictionary = {}
 
@@ -194,7 +197,7 @@ static func natural_rock() -> StandardMaterial3D:
 	var base := MapVisualStyle.role_color(
 		&"stone", MapVisualStyle.TARGET_CLEAN_PAINTED, MapVisualStyle.TIME_DAY
 	)
-	var material := _make_material(base, PATTERN_ROCK, 9041)
+	var material := _make_material(base, PATTERN_ROCK, NATURAL_ROCK_SEED)
 	material.uv1_triplanar = true
 	material.uv1_world_triplanar = false
 	material.uv1_scale = Vector3(2.4, 2.4, 2.4)
@@ -282,7 +285,7 @@ static func surroundings_ground() -> StandardMaterial3D:
 	var key := "surroundings_ground"
 	if _cache.has(key):
 		return _cache[key]
-	var material := _make_material(Color8(74, 88, 60), PATTERN_GRASS, 8117)
+	var material := _make_material(Color8(74, 88, 60), PATTERN_GRASS, SURROUNDINGS_GROUND_SEED)
 	material.uv1_scale = Vector3(96.0, 96.0, 1.0)
 	_cache[key] = material
 	return material
@@ -341,7 +344,32 @@ static func _make_material(base: Color, pattern: StringName, noise_seed: int) ->
 	if pattern == PATTERN_ROCK:
 		material.normal_enabled = true
 		material.normal_texture = MapViewMaterialPatterns.pattern_normal_texture(
-			pattern, noise_seed, 1.8
+			pattern, noise_seed, ROCK_NORMAL_STRENGTH
 		)
 		material.normal_scale = 1.0
 	return material
+
+
+## WB-07d (R-1010): the pattern textures _make_material() paints for one
+## pattern and seed, as MapViewMaterialPatterns bake requests.
+static func _material_bake_requests(pattern: StringName, noise_seed: int) -> Array[Dictionary]:
+	var requests: Array[Dictionary] = [
+		MapViewMaterialPatterns.pattern_bake_request(
+			pattern, noise_seed, MapViewMaterialPatterns.pattern_source_size(pattern)
+		)
+	]
+	if pattern == PATTERN_ROCK:
+		requests.append(
+			MapViewMaterialPatterns.pattern_normal_bake_request(
+				pattern, noise_seed, ROCK_NORMAL_STRENGTH
+			)
+		)
+	return requests
+
+
+## Textures of the surroundings backdrop materials: the woodland apron ground
+## and the tree-band boulders.
+static func backdrop_bake_requests() -> Array[Dictionary]:
+	var requests := _material_bake_requests(PATTERN_GRASS, SURROUNDINGS_GROUND_SEED)
+	requests.append_array(_material_bake_requests(PATTERN_ROCK, NATURAL_ROCK_SEED))
+	return requests
