@@ -283,8 +283,11 @@ anchor monastery_outer_wall_road 237 104 rect=2,2
 anchor from_reval_toompea 8 34 rect=2,2
 transition to_reval_north 98 0 12 2 to=reval_north destination_spawn=from_monastery spawn=from_reval_north spawn_offset_px=0,96 highlight_area=true transition_visual=ground
 transition to_reval_north_outer 228 0 8 2 to=reval_north destination_spawn=from_monastery_outer spawn=outer_monastery_exit spawn_offset_px=0,96 highlight_area=true transition_visual=ground alignment=travel
-transition to_reval_center 33 108 12 4 to=reval_center destination_spawn=to_reval_north spawn=from_reval_center spawn_offset_px=0,-128 highlight_area=true transition_visual=ground
-transition to_reval_east 134 108 11 4 to=reval_east destination_spawn=vene_district_boundary spawn=from_reval_east spawn_offset_px=0,-128 highlight_area=true transition_visual=ground
+# R-1045: match market_civic_quarter/to_reval_north (10) at the same center.
+transition to_reval_center 34 108 10 4 to=reval_center destination_spawn=to_reval_north spawn=from_reval_center spawn_offset_px=0,-128 highlight_area=true transition_visual=ground
+# R-1045: Vene/Lai is a lane. Match lower_town_slice/vene_district_boundary (3)
+# at the same center so monastery origin stays stacked on the civic forum.
+transition to_reval_east 138 108 3 4 to=reval_east destination_spawn=vene_district_boundary spawn=from_reval_east spawn_offset_px=0,-128 highlight_area=true transition_visual=ground
 transition to_reval_east_outer 228 43 8 4 to=reval_east destination_spawn=workers_outer_exit spawn=outer_workers_entry spawn_offset_px=160,0 highlight_area=true transition_visual=ground alignment=travel
 transition to_reval_toompea 0 28 3 12 to=reval_toompea destination_spawn=from_reval_north spawn=from_reval_toompea spawn_offset_px=96,0 highlight_area=true transition_visual=ground view_landmark_id=monastery_west_gate_arch
 sign sign.merchant "to merchant district" 106 6 north

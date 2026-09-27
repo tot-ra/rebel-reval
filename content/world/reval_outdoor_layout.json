@@ -147,7 +147,7 @@
       "transition_id": "to_world_harju"
     }
   ],
-  "fingerprint": "f6ad9f5e83069d1e88ab8fe15f6c9231b8bb0fdcad9d86d07631689f46a24a99",
+  "fingerprint": "0f08b9f135e49818dfcd381867a0137813d557e5cdcc49b6b1a767c27a46264a",
   "locations": [
     {
       "cell_size": 32,
@@ -231,7 +231,7 @@
       ],
       "location_id": "monastery_quarter",
       "location_kind": "outdoor_streamed",
-      "map_fingerprint": "e2dd4787961eda584b5a680a78129ab6acb28d7fc7a5f65accf9b5d32eb9c3dd",
+      "map_fingerprint": "85fae1bf65fcabe1d920a02a0ec59173b2ca708ebb6e9f2b353a37a6dbcf9e04",
       "origin_cell": [
         -114,
         -112
@@ -243,7 +243,7 @@
         260,
         112
       ],
-      "source_sha256": "2804d55cbbe7cada1950adf74834a42091e10f8d348a729561107fa23d87385e"
+      "source_sha256": "3ea82df70d9169b4e253a3dacdc947c3697901652b8a3266d897258dc278e283"
     },
     {
       "cell_size": 32,
@@ -327,7 +327,7 @@
       ],
       "location_id": "south_quarter",
       "location_kind": "outdoor_streamed",
-      "map_fingerprint": "9ca2a40bf87dc2b215a746f4b4651bdf86fe5c8a07745e061fac13bd89c46bda",
+      "map_fingerprint": "eaa82126bf3317c6be0e443c5bae8bbf369d5e9e14d39e6403a270f6dbe5c2b2",
       "origin_cell": [
         -258,
         128
@@ -339,7 +339,7 @@
         336,
         96
       ],
-      "source_sha256": "9070dd25f4fba8392e6b72ff475b9867747b243c90eafaa6b6f4aaaecabc605d"
+      "source_sha256": "82fc3e0c6010ecdc51c7dedb0e024697dd93447366df0b14c2f994e0d9a83980"
     },
     {
       "cell_size": 32,
@@ -413,15 +413,13 @@
       "base_side": "south",
       "base_span_cells": 14,
       "base_transition_id": "to_reval_south",
-      "diagnostics": [
-        "MAP_WORLD_SEAM_SPAN_MISMATCH"
-      ],
+      "diagnostics": [],
       "id": "lower_town_slice/to_reval_south|south_quarter/to_reval_east",
       "neighbor_map_id": "south_quarter",
       "neighbor_side": "north",
-      "neighbor_span_cells": 12,
+      "neighbor_span_cells": 14,
       "neighbor_transition_id": "to_reval_east",
-      "status": "blocked"
+      "status": "streamable"
     },
     {
       "alignment": "physical",
@@ -443,15 +441,13 @@
       "base_side": "north",
       "base_span_cells": 3,
       "base_transition_id": "vene_district_boundary",
-      "diagnostics": [
-        "MAP_WORLD_SEAM_SPAN_MISMATCH"
-      ],
+      "diagnostics": [],
       "id": "lower_town_slice/vene_district_boundary|monastery_quarter/to_reval_east",
       "neighbor_map_id": "monastery_quarter",
       "neighbor_side": "south",
-      "neighbor_span_cells": 11,
+      "neighbor_span_cells": 3,
       "neighbor_transition_id": "to_reval_east",
-      "status": "blocked"
+      "status": "streamable"
     },
     {
       "alignment": "physical",
@@ -487,15 +483,13 @@
       "base_side": "north",
       "base_span_cells": 10,
       "base_transition_id": "to_reval_north",
-      "diagnostics": [
-        "MAP_WORLD_SEAM_SPAN_MISMATCH"
-      ],
+      "diagnostics": [],
       "id": "market_civic_quarter/to_reval_north|monastery_quarter/to_reval_center",
       "neighbor_map_id": "monastery_quarter",
       "neighbor_side": "south",
-      "neighbor_span_cells": 12,
+      "neighbor_span_cells": 10,
       "neighbor_transition_id": "to_reval_center",
-      "status": "blocked"
+      "status": "streamable"
     },
     {
       "alignment": "physical",
@@ -598,10 +592,6 @@
   ],
   "unplaced": [],
   "valid": true,
-  "warnings": [
-    "MAP_WORLD_SEAM_SPAN_MISMATCH lower_town_slice/to_reval_south|south_quarter/to_reval_east",
-    "MAP_WORLD_SEAM_SPAN_MISMATCH lower_town_slice/vene_district_boundary|monastery_quarter/to_reval_east",
-    "MAP_WORLD_SEAM_SPAN_MISMATCH market_civic_quarter/to_reval_north|monastery_quarter/to_reval_center"
-  ],
+  "warnings": [],
   "world_group_id": "reval_outdoor"
 }

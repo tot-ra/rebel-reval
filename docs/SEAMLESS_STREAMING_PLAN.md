@@ -118,11 +118,12 @@ nav byte-identity is unchanged.
 - Manifest: `content/world/reval_outdoor_layout.json`, built by
   `godot --headless --path . --script tools/build_world_layout.gd` (`-- --check` fails
   when stale) and verified by `python3 tools/verify_world_layout.py`. All ten members
-  place from `lower_town_slice`; 14 seams, **11 streamable**, **3 blocked** by
-  `MAP_WORLD_SEAM_SPAN_MISMATCH` (`lower_town_slice/to_reval_south` 14 vs
-  `south_quarter/to_reval_east` 12, `lower_town_slice/vene_district_boundary` 3 vs
-  `monastery_quarter/to_reval_east` 11, `market_civic_quarter/to_reval_north` 10 vs
-  `monastery_quarter/to_reval_center` 12). Blocked seams keep their explicit transition.
+  place from `lower_town_slice`; 14 seams, **14 streamable**. R-1045 matched the
+  three former `MAP_WORLD_SEAM_SPAN_MISMATCH` apertures without moving their
+  centers, so world origins stay put: Karja keeps the Lower Town 14-cell opening
+  (`south_quarter/to_reval_east` 12 -> 14), Vene/Lai stays the 3-cell lane
+  (`monastery_quarter/to_reval_east` 11 -> 3), and the Pikk/Puhavaimu civic seam
+  keeps the forum 10-cell throat (`monastery_quarter/to_reval_center` 12 -> 10).
   Four `world_*` exits (`reval_harbor_north/to_world_saaremaa`,
   `south_quarter/to_world_sacred_grove`, `toompea_quarter/to_world_padise`,
   `viru_gate_foreland/to_world_harju`) are authored `alignment=travel` so they
@@ -141,9 +142,9 @@ nav byte-identity is unchanged.
 
 Still open before the release criteria can pass: live-player wiring and the
 `DoorNavigator` fallback (**R-1043**, after the R-1038 launch adapter); staged
-in-flight mounts and save/load across a seam and mid-mount (**R-1044**); the three
-blocked apertures (**R-1045**); frame-time trace and clip of a two-seam walk;
-relief continuity (R-976); performance report with the cap at its default.
+in-flight mounts and save/load across a seam and mid-mount (**R-1044**);
+frame-time trace and clip of a two-seam walk; relief continuity (R-976);
+performance report with the cap at its default.
 
 ADR phase 6 (NPC, quest, fauna, audio, persistence residency beyond the two-seam walk)
 is follow-up work after R-980, not a fourth pack row.
