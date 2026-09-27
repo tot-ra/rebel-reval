@@ -320,6 +320,34 @@ if any_staged_path "README.md" "AGENTS.md" "docs/CANON.md" \
     python3 tools/generate_active_docs_report.py --check
 fi
 
+# R-1046: keep the checked-in reval_outdoor manifest in lockstep with group
+# member sources. Travel-only world.* maps are not members and do not trigger.
+if any_staged_path \
+  "content/maps/archbishops_garden.rrmap" \
+  "content/maps/lower_town_slice.rrmap" \
+  "content/maps/market_civic_quarter.rrmap" \
+  "content/maps/monastery_quarter.rrmap" \
+  "content/maps/north_quarter.rrmap" \
+  "content/maps/reval_harbor_east.rrmap" \
+  "content/maps/reval_harbor_north.rrmap" \
+  "content/maps/south_quarter.rrmap" \
+  "content/maps/toompea_quarter.rrmap" \
+  "content/maps/viru_gate_foreland.rrmap" \
+  "content/world/reval_outdoor_layout.json" \
+  "scripts/map/map_world_layout.gd" \
+  "tools/build_world_layout.gd" \
+  "tools/verify_world_layout.py"; then
+  if GODOT_BIN_RESOLVED="$(resolve_godot)"; then
+    run_step "reval_outdoor world-layout --check" \
+      "$GODOT_BIN_RESOLVED" --headless --path . --script tools/build_world_layout.gd -- --check
+  else
+    echo "godot not on PATH and GODOT_BIN unset; skipping world-layout --check." >&2
+    echo "Manifest changes still require tools/build_world_layout.gd -- --check before push." >&2
+  fi
+  run_step "reval_outdoor world-layout verify" python3 tools/verify_world_layout.py
+  queue_python_module "tests.python.test_verify_world_layout"
+fi
+
 if any_staged_path "scripts/map" "content/maps" \
   "tools/run_map_pipeline_ci.sh" \
   "tools/validate_map_blueprints.gd" \

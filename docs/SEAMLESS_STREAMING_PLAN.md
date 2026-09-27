@@ -123,9 +123,13 @@ nav byte-identity is unchanged.
   `south_quarter/to_reval_east` 12, `lower_town_slice/vene_district_boundary` 3 vs
   `monastery_quarter/to_reval_east` 11, `market_civic_quarter/to_reval_north` 10 vs
   `monastery_quarter/to_reval_center` 12). Blocked seams keep their explicit transition.
-  Four `world_*` exits are authored `alignment=edge` and are reported as
-  `MAP_WORLD_TRAVEL_ALIGNMENT_MISSING` warnings; they cannot stream because the
-  destinations are not members.
+  Four `world_*` exits (`reval_harbor_north/to_world_saaremaa`,
+  `south_quarter/to_world_sacred_grove`, `toompea_quarter/to_world_padise`,
+  `viru_gate_foreland/to_world_harju`) are authored `alignment=travel` so they
+  stay explicit hops (R-1046). `find_transition_pairs` and neighbour previews
+  skip travel pairs. CI and path-aware pre-commit run
+  `tools/build_world_layout.gd -- --check`, `tools/verify_world_layout.py`, and
+  `tests.python.test_verify_world_layout`.
 - Scheduler: `WorldHost.update_streaming()` / `plan_residency()` with the defaults below.
 - Handover, travel boundary and fallback: `--filter=test_world_seam_crossing` (14 tests).
 
@@ -138,9 +142,8 @@ nav byte-identity is unchanged.
 Still open before the release criteria can pass: live-player wiring and the
 `DoorNavigator` fallback (**R-1043**, after the R-1038 launch adapter); staged
 in-flight mounts and save/load across a seam and mid-mount (**R-1044**); the three
-blocked apertures (**R-1045**); `alignment=travel` on the world exits plus a CI gate
-(**R-1046**); frame-time trace and clip of a two-seam walk; relief continuity
-(R-976); performance report with the cap at its default.
+blocked apertures (**R-1045**); frame-time trace and clip of a two-seam walk;
+relief continuity (R-976); performance report with the cap at its default.
 
 ADR phase 6 (NPC, quest, fauna, audio, persistence residency beyond the two-seam walk)
 is follow-up work after R-980, not a fourth pack row.

@@ -115,39 +115,39 @@
       "transition_id": "to_reval_north_outer"
     },
     {
-      "alignment": "edge",
+      "alignment": "travel",
       "destination_location_id": "",
       "destination_scene_id": "world_saaremaa",
       "location_id": "reval_harbor_north",
-      "reason": "outside_group",
+      "reason": "travel_alignment",
       "transition_id": "to_world_saaremaa"
     },
     {
-      "alignment": "edge",
+      "alignment": "travel",
       "destination_location_id": "",
       "destination_scene_id": "world_sacred_grove",
       "location_id": "south_quarter",
-      "reason": "outside_group",
+      "reason": "travel_alignment",
       "transition_id": "to_world_sacred_grove"
     },
     {
-      "alignment": "edge",
+      "alignment": "travel",
       "destination_location_id": "",
       "destination_scene_id": "world_padise",
       "location_id": "toompea_quarter",
-      "reason": "outside_group",
+      "reason": "travel_alignment",
       "transition_id": "to_world_padise"
     },
     {
-      "alignment": "edge",
+      "alignment": "travel",
       "destination_location_id": "",
       "destination_scene_id": "world_harju",
       "location_id": "viru_gate_foreland",
-      "reason": "outside_group",
+      "reason": "travel_alignment",
       "transition_id": "to_world_harju"
     }
   ],
-  "fingerprint": "1f78f5c3bfa8135964b560bf4bfb6489a68dfcb755c689b796e4715b1cc761a7",
+  "fingerprint": "f6ad9f5e83069d1e88ab8fe15f6c9231b8bb0fdcad9d86d07631689f46a24a99",
   "locations": [
     {
       "cell_size": 32,
@@ -303,7 +303,7 @@
       ],
       "location_id": "reval_harbor_north",
       "location_kind": "outdoor_streamed",
-      "map_fingerprint": "c6961279336c3b4e7e321d04f106e9180bf01eaad769ffaa8b5d937b7e479a03",
+      "map_fingerprint": "ed883b00c8866596d9504722fcb3fd7b60793ab20961e39ad6825ae976533990",
       "origin_cell": [
         -111,
         -360
@@ -315,7 +315,7 @@
         160,
         108
       ],
-      "source_sha256": "315d30c1bde9cae33114b16f49e35a1bd096fac2f657f3cfbda68566dabc43e7"
+      "source_sha256": "99c4863e0c66c18297422908470fe4bdcc5751d22c722bbf4362a221be0b9d52"
     },
     {
       "cell_size": 32,
@@ -327,7 +327,7 @@
       ],
       "location_id": "south_quarter",
       "location_kind": "outdoor_streamed",
-      "map_fingerprint": "99189f7a7b5b3d47b9d19d08ecb9d80cb8278a10822855d556fe1c25620051f9",
+      "map_fingerprint": "9ca2a40bf87dc2b215a746f4b4651bdf86fe5c8a07745e061fac13bd89c46bda",
       "origin_cell": [
         -258,
         128
@@ -339,7 +339,7 @@
         336,
         96
       ],
-      "source_sha256": "021a3e9325d240db1a50494ede550db990d12f384a931fdc23cbae3aa08f4413"
+      "source_sha256": "9070dd25f4fba8392e6b72ff475b9867747b243c90eafaa6b6f4aaaecabc605d"
     },
     {
       "cell_size": 32,
@@ -351,7 +351,7 @@
       ],
       "location_id": "toompea_quarter",
       "location_kind": "outdoor_streamed",
-      "map_fingerprint": "30b1fc1ff8d595e85e2f525b8f0da2ea3888f531a99f8b229c4ad09efc1799e0",
+      "map_fingerprint": "fe3353f8ef446ccd0a2c14e8baef53ac3854b935a644096a30fe8fe8ca618506",
       "origin_cell": [
         -258,
         -112
@@ -363,7 +363,7 @@
         144,
         192
       ],
-      "source_sha256": "971fc15b0c865e0ccd3f9c4c5810eabed40155cc62e37e3491a1a791c09bef0c"
+      "source_sha256": "2d870a8608a1cb354c7619ceb850226ee44418d3a75a73054c8ca6fec7ec905f"
     },
     {
       "cell_size": 32,
@@ -375,7 +375,7 @@
       ],
       "location_id": "viru_gate_foreland",
       "location_kind": "outdoor_streamed",
-      "map_fingerprint": "5eaf602874c0c2973ed9120ae71ef8471ba593617afb90b8f77cc202c1b322bb",
+      "map_fingerprint": "6ca9a68a5217599e251432788c0ecf0e10f4e143a5f8c38493df15a18cfa371b",
       "origin_cell": [
         152,
         -11
@@ -387,7 +387,7 @@
         168,
         120
       ],
-      "source_sha256": "767396bb2ca57cabdbd75b821f638615ea1c3c9f3d61bfcdbc80a2be28427bcb"
+      "source_sha256": "1a7681c5a7ba972c536d9c8c2a12c7d7e47fc7b40ac7c8297afff7bd22c4cfbe"
     }
   ],
   "root_location_id": "lower_town_slice",
@@ -601,11 +601,7 @@
   "warnings": [
     "MAP_WORLD_SEAM_SPAN_MISMATCH lower_town_slice/to_reval_south|south_quarter/to_reval_east",
     "MAP_WORLD_SEAM_SPAN_MISMATCH lower_town_slice/vene_district_boundary|monastery_quarter/to_reval_east",
-    "MAP_WORLD_SEAM_SPAN_MISMATCH market_civic_quarter/to_reval_north|monastery_quarter/to_reval_center",
-    "MAP_WORLD_TRAVEL_ALIGNMENT_MISSING reval_harbor_north/to_world_saaremaa -> world_saaremaa",
-    "MAP_WORLD_TRAVEL_ALIGNMENT_MISSING south_quarter/to_world_sacred_grove -> world_sacred_grove",
-    "MAP_WORLD_TRAVEL_ALIGNMENT_MISSING toompea_quarter/to_world_padise -> world_padise",
-    "MAP_WORLD_TRAVEL_ALIGNMENT_MISSING viru_gate_foreland/to_world_harju -> world_harju"
+    "MAP_WORLD_SEAM_SPAN_MISMATCH market_civic_quarter/to_reval_north|monastery_quarter/to_reval_center"
   ],
   "world_group_id": "reval_outdoor"
 }

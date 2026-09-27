@@ -51,6 +51,7 @@ Install Godot 4.7 per [`docs/SETUP.md`](./docs/SETUP.md). **Never open visible G
 | Asset provenance / lint | `python3 tools/validate_asset_sources.py`, `python3 tools/verify_asset_lint.py` |
 | Storage hygiene | `python3 tools/verify_storage_hygiene.py` |
 | Map composition audit | `python3 tools/verify_map_composition.py` |
+| World-layout manifest | `godot --headless --path . --script tools/build_world_layout.gd -- --check`; `python3 tools/verify_world_layout.py`; `python3 -m unittest tests.python.test_verify_world_layout` |
 | Legacy archive headers | `python3 tools/archive_speculative_docs.py --dry-run` (no output = OK) |
 | Performance report | `tools/run_performance_report.sh [out.json] [--quick]` (see `docs/PERFORMANCE_REPORT.md`) |
 | Pre-commit gates | `tools/run_pre_commit_checks.sh [staged\|all]` |
@@ -76,6 +77,8 @@ Before touching map content, read [`docs/MAP_AUTHORING.md`](./docs/MAP_AUTHORING
 ```bash
 godot --headless --path . --script tools/validate_map_blueprints.gd
 godot --headless --path . --script tools/run_godot_tests.gd
+godot --headless --path . --script tools/build_world_layout.gd -- --check
+python3 tools/verify_world_layout.py
 python3 tools/verify_map_audit.py
 python3 tools/verify_map_activation.py
 python3 tools/verify_map_conversion_plan.py
