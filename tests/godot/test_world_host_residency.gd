@@ -1,9 +1,193 @@
 extends "res://tests/godot/test_case.gd"
 
+## WB-06 / R-978: WorldHost phase 3 owns exactly one set of globals across any
+## number of mounted locations, rejects packages that create a global or repeat a
+## stable handle, and attaches every location navigation region to one map.
 ## WB-06c / R-1039: real baked location regions are inset by agent_radius, so
 ## the host must bridge each active seam with a deterministic NavigationLink2D.
 
 const CELL := 32
+
+
+func test_flag_defaults_off_in_project_settings() -> void:
+	assert_false(
+		bool(ProjectSettings.get_setting(WorldHost.ADDITIVE_RESIDENCY_SETTING, false)),
+		"phase 3 ships behind a default-off flag"
+	)
+	var host := WorldHost.new()
+	assert_false(host.additive_residency_enabled)
+	assert_false(host.owns_globals())
+	assert_eq(host.view_globals(), {})
+	host.free()
+
+
+func test_two_mounted_locations_share_one_global_set() -> void:
+	var host := _hosted()
+	assert_true(host.owns_globals())
+	assert_true(host.enter_location(&"map_a", _map_a()))
+	assert_true(host.enter_location(&"map_b", _map_b()))
+	assert_eq(host.mounted_location_ids(), [&"map_a", &"map_b"])
+	assert_eq(host.global_census(), _one_of_each())
+
+	var camera := host.camera_owner
+	var player := host.player_owner
+	for location_id in [&"map_a", &"map_b"]:
+		var view := _hosted_view(host, location_id)
+		assert_true(view != null and view.is_hosted(), "%s mounts a hosted view" % location_id)
+		assert_eq(view.view_camera(), camera, "%s draws through the host camera" % location_id)
+		assert_eq(view.environment_node(), host.world_environment)
+		assert_eq(view.environment_weather(), host.sky_weather)
+		assert_eq(
+			host.validate_location_package(location_id, host.mounted_location_root(location_id)),
+			[] as Array[Dictionary]
+		)
+
+	# Unmounting a location leaves every global alive and unique.
+	assert_true(host.unmount_location(&"map_b"))
+	assert_eq(host.mounted_location_ids(), [&"map_a"])
+	assert_eq(host.global_census(), _one_of_each())
+	assert_true(is_instance_valid(camera) and camera.is_inside_tree())
+	assert_true(is_instance_valid(player) and player.is_inside_tree())
+	assert_eq(host.world_environment.environment, host.environment)
+	_dispose(host)
+
+
+func test_package_that_creates_a_global_is_rejected_with_named_diagnostic() -> void:
+	var host := _hosted()
+	var rejected: Array = []
+	host.package_rejected.connect(
+		func(location_id: StringName, diagnostics: Array) -> void:
+			rejected.append([location_id, diagnostics])
+	)
+	var view_package := Node3D.new()
+	view_package.name = "RoguePackage"
+	var rogue_camera := Camera3D.new()
+	rogue_camera.name = "RogueCamera"
+	view_package.add_child(rogue_camera)
+
+	assert_false(host.mount_location(&"map_a", null, view_package))
+	var diagnostics := host.last_rejection()
+	assert_eq(diagnostics.size(), 1)
+	assert_eq(diagnostics[0]["code"], WorldHost.DIAG_PACKAGE_CREATES_GLOBAL)
+	assert_eq(diagnostics[0]["detail"], "camera")
+	assert_eq(diagnostics[0]["node_path"], "RogueCamera")
+	assert_eq(rejected.size(), 1)
+	assert_eq(host.mounted_location_ids(), [] as Array[StringName])
+	view_package.free()
+
+	# A self-contained (non-hosted) view creates its own sun, environment, camera
+	# and sky, so it is exactly the package phase 3 must refuse.
+	var definition := _map_a()
+	var standalone := MapView3D.create(definition, MapBuilder.build(definition))
+	assert_false(host.mount_location(&"map_a", null, standalone))
+	var kinds: Array[String] = []
+	for diagnostic in host.last_rejection():
+		assert_eq(diagnostic["code"], WorldHost.DIAG_PACKAGE_CREATES_GLOBAL)
+		kinds.append(String(diagnostic["detail"]))
+	kinds.sort()
+	assert_eq(kinds, ["camera", "sky_weather", "sun", "world_environment"] as Array[String])
+	assert_eq(host.global_census(), _one_of_each())
+	standalone.free()
+	_dispose(host)
+
+
+func test_duplicate_stable_handles_are_rejected() -> void:
+	var host := _hosted()
+	var definition := _map_a()
+	assert_true(host.enter_location(&"map_a", definition))
+	assert_true(host.stable_handle_count() > 0, "doors and anchors carry stable handles")
+	# The same authored package mounted a second time repeats every
+	# {location_id, object_id} handle and must not mount.
+	var repeat := MapSceneBootstrap.assemble_location_package(definition)
+	assert_false(host.mount_location(&"map_b", repeat))
+	var diagnostics := host.last_rejection()
+	assert_eq(diagnostics.size(), 1)
+	assert_eq(diagnostics[0]["code"], WorldHost.DIAG_DUPLICATE_STABLE_HANDLE)
+	assert_eq(diagnostics[0]["detail"], "map_a/transition:to_map_b")
+	assert_eq(host.mounted_location_ids(), [&"map_a"])
+	repeat.free()
+	_dispose(host)
+
+
+func test_location_regions_share_one_navigation_map_and_path_crosses_seam() -> void:
+	var host := _hosted()
+	assert_true(host.mount_location(&"map_a", _flat_region_package(&"map_a")))
+	assert_true(host.mount_location(&"map_b", _flat_region_package(&"map_b")))
+	var map_rid := host.navigation_map()
+	for location_id in [&"map_a", &"map_b"]:
+		var region := _region_of(host, location_id)
+		assert_eq(region.get_navigation_map(), map_rid, "%s region on host map" % location_id)
+	await _sync_navigation()
+	assert_eq(NavigationServer2D.map_get_regions(map_rid).size(), 2)
+
+	# map_b sits four cells east of map_a in the layout, so this route starts in
+	# map_a and ends in map_b on the one host map.
+	var start := Vector2(1.5 * CELL, 2.0 * CELL)
+	var goal := Vector2(6.5 * CELL, 2.0 * CELL)
+	assert_eq(host.observe_global_logic_position(start), &"map_a")
+	assert_eq(host.observe_global_logic_position(goal), &"map_b")
+	var path := NavigationServer2D.map_get_path(map_rid, start, goal, true)
+	assert_true(path.size() >= 2, "a path exists across the seam")
+	assert_true(path[path.size() - 1].distance_to(goal) < 0.5, "path reaches map_b")
+
+	assert_true(host.unmount_location(&"map_b"))
+	await _sync_navigation()
+	assert_eq(NavigationServer2D.map_get_regions(map_rid).size(), 1)
+	_dispose(host)
+
+
+func test_built_location_package_navigation_joins_host_map() -> void:
+	var host := _hosted()
+	assert_true(host.enter_location(&"map_a", _map_a()))
+	var region := _region_of(host, &"map_a")
+	assert_true(region != null, "logic package carries its navigation region")
+	assert_eq(region.get_navigation_map(), host.navigation_map())
+	await _sync_navigation()
+	assert_eq(NavigationServer2D.map_get_regions(host.navigation_map()).size(), 1)
+	_dispose(host)
+
+
+func test_host_clock_drives_every_mounted_view() -> void:
+	var host := _hosted()
+	assert_true(host.enter_location(&"map_a", _map_a()))
+	assert_true(host.enter_location(&"map_b", _map_b()))
+	host.set_clock_progress(0.95)
+	host.advance_clock(DayNightCycle.CYCLE_DURATION_SECONDS * 0.1)
+	assert_eq(host.clock_completed_days, 1)
+	assert_true(absf(host.clock_progress - 0.05) < 0.0001)
+	for location_id in [&"map_a", &"map_b"]:
+		assert_true(absf(_hosted_view(host, location_id).cycle_progress - host.clock_progress) < 0.0001)
+	_dispose(host)
+
+
+func test_save_identity_is_host_owned_and_unchanged() -> void:
+	var host := _hosted()
+	assert_true(host.enter_location(&"map_a", _map_a()))
+	var door := host.stable_handle_owner(
+		{"location_id": "map_a", "object_id": "transition:to_map_b"}
+	)
+	assert_true(door is Area2D, "stable handle resolves to the mounted door")
+	var store := host.stable_state_store
+	assert_true(store != null)
+	var handle := store.stable_handle(&"map_a", &"transition:to_map_b")
+	assert_eq(handle, door.get_meta(&"stable_handle"))
+	assert_true(store.record_object_delta(&"map_a", &"transition:to_map_b", {"locked": true}))
+	var payload := store.save_payload()
+	var reloaded := MapStableStateStore.new()
+	assert_eq(reloaded.load_payload(payload), [] as Array[String])
+	assert_eq(reloaded.object_delta(&"map_a", &"transition:to_map_b"), {"locked": true})
+	assert_eq(reloaded.canonical_text(), store.canonical_text())
+	_dispose(host)
+
+
+func test_flag_off_host_keeps_globals_but_mounts_nothing() -> void:
+	var host := _hosted(false)
+	assert_true(host.owns_globals())
+	assert_false(host.enter_location(&"map_a", _map_a()))
+	assert_eq(host.last_rejection()[0]["code"], WorldHost.DIAG_RESIDENCY_INACTIVE)
+	assert_eq(host.mounted_location_ids(), [] as Array[StringName])
+	assert_eq(host.global_census(), _one_of_each())
+	_dispose(host)
 
 
 func test_seam_link_points_sit_inside_each_inset_region() -> void:
@@ -29,7 +213,7 @@ func test_seam_link_points_sit_inside_each_inset_region() -> void:
 
 
 func test_baked_packages_have_no_path_until_the_host_adds_seam_links() -> void:
-	var host := _hosted()
+	var host := _configured_host()
 	assert_true(host.mount_location(&"map_a", _baked_package(_map_a())))
 	assert_true(host.mount_location(&"map_b", _baked_package(_map_b())))
 	var map_rid := host.navigation_map()
@@ -71,7 +255,18 @@ func test_flag_off_bake_bytes_stay_identical() -> void:
 	assert_eq(first.agent_radius, MapNavBuilder.AGENT_RADIUS)
 
 
-func _hosted() -> WorldHost:
+func _hosted(enabled: bool = true) -> WorldHost:
+	var host := WorldHost.new()
+	host.name = "WorldHostUnderTest"
+	host.additive_residency_enabled = enabled
+	(Engine.get_main_loop() as SceneTree).root.add_child(host)
+	var layout := MapWorldLayout.build([_map_a(), _map_b()], &"map_a", &"test_outdoor")
+	assert_true(host.create_globals(layout), "host creates its globals")
+	return host
+
+
+## Phase 2 host: configure() binds owners created elsewhere; no create_globals().
+func _configured_host() -> WorldHost:
 	var host := WorldHost.new()
 	host.name = "WorldHostSeamNav"
 	host.additive_residency_enabled = true
@@ -94,6 +289,26 @@ func _dispose(host: WorldHost) -> void:
 	host.free()
 
 
+func _one_of_each() -> Dictionary:
+	return {
+		"player": 1,
+		"player_rig": 1,
+		"camera": 1,
+		"world_environment": 1,
+		"sun": 1,
+		"sky_weather": 1,
+		"hud": 1,
+	}
+
+
+func _hosted_view(host: WorldHost, location_id: StringName) -> MapView3D:
+	var root := host.mounted_location_root(location_id, true)
+	for child in root.get_children():
+		if child is MapView3D:
+			return child as MapView3D
+	return null
+
+
 func _region_of(host: WorldHost, location_id: StringName) -> NavigationRegion2D:
 	var root := host.mounted_location_root(location_id, false)
 	if root == null:
@@ -102,8 +317,26 @@ func _region_of(host: WorldHost, location_id: StringName) -> NavigationRegion2D:
 	return found.front() as NavigationRegion2D if not found.is_empty() else null
 
 
-## Same bake assemble_location_package() uses (R-978). The package is only a
-## region so this row does not depend on that uncommitted helper.
+## A package whose region covers the full 4x4-cell map with no agent-radius
+## inset, so the two regions share the seam edge exactly.
+func _flat_region_package(location_id: StringName) -> Node2D:
+	var package := Node2D.new()
+	package.name = "FlatPackage_%s" % location_id
+	var region := NavigationRegion2D.new()
+	region.name = "Navigation"
+	var polygon := NavigationPolygon.new()
+	var size := float(4 * CELL)
+	polygon.vertices = PackedVector2Array(
+		[Vector2.ZERO, Vector2(size, 0.0), Vector2(size, size), Vector2(0.0, size)]
+	)
+	polygon.add_polygon(PackedInt32Array([0, 1, 2, 3]))
+	region.navigation_polygon = polygon
+	package.add_child(region)
+	return package
+
+
+## Same bake assemble_location_package() uses (R-978), reduced to the region so
+## the seam-link tests isolate navigation.
 func _baked_package(definition: MapDefinition) -> Node2D:
 	var package := Node2D.new()
 	package.name = "BakedPackage_%s" % String(definition.map_id)

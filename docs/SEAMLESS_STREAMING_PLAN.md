@@ -90,6 +90,16 @@ travel transition that is authored as a physical seam.
 | 4 Budgeted assembly | R-979 / WB-07 (R-1005, R-1006, R-1010 close the remaining over-budget units) | `--filter=test_async_location_assembly`; staged tree equals synchronous; nav bake is byte-identical; cancel leaks nothing; per-stage timings stay inside the 4 ms frame budget on the named maps | `world_host/async_location_assembly_enabled=false` | Leave the flag false. Play stays on synchronous `MapView3D.create()` |
 | 5 Seam crossing | R-980 / WB-08 | See [R-980 release criteria](#r-980-release-criteria) | Both flags above. Defaults flip **on** only after those criteria pass | `world_host/scene_swap_fallback_enabled` remains a working path |
 
+**Phase 3 status (2026-09-27).** R-978 landed the host side, flag off:
+`WorldHost.create_globals()` owns the single player, rig, camera, environment, sun, sky,
+clock, HUD, session/music binding, `MapStableStateStore`, and navigation map;
+`enter_location()` mounts `MapSceneBootstrap.assemble_location_package()` plus
+`MapView3D.create_hosted()`; packages that create a global are rejected with
+`WORLD_HOST_PACKAGE_CREATES_GLOBAL` and repeated handles with
+`WORLD_HOST_DUPLICATE_STABLE_HANDLE`. One item remains before the phase 3 gate closes:
+**R-1038** (scenes become launch adapters, hosted `MapViewRuntime`, input, and the
+menu-to-forge playthrough in both flag states).
+
 **R-1039 (2026-09-27).** Baked `NavigationRegion2D`s keep the flag-off
 `agent_radius = 16` inset, so two real packages leave a 32 px gap at a shared
 edge. `WorldHost` attaches those regions to one map and installs a deterministic

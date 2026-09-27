@@ -133,6 +133,10 @@ var _wall_footprints: Array[Rect2] = []
 var _gate_fit_ready := false
 var _assembly := Assembly.new()
 var _assembly_initial_time: StringName = TIME_DAY
+## WB-06: set only by create_hosted(). A hosted view binds the WorldHost's single
+## sun, environment, camera and sky instead of creating its own, so two mounted
+## locations never duplicate a global. Empty keeps today's self-contained view.
+var _host_globals: Dictionary = {}
 
 static func create(
 	map_definition: MapDefinition, built_grid: MapTerrainGrid, initial_time: StringName = TIME_DAY
@@ -144,6 +148,47 @@ static func create(
 	view._assemble()
 	view.set_time_of_day(initial_time)
 	return view
+
+
+## WB-06: same view as create(), but lighting, camera and sky are the WorldHost's
+## (keys `sun`, `environment`, `world_environment`, `camera`, `sky_weather`; see
+## WorldHost.view_globals()). The view never parents them, so unmounting it leaves
+## the globals alive. Only the additive-residency path calls this.
+static func create_hosted(
+	map_definition: MapDefinition,
+	built_grid: MapTerrainGrid,
+	host_globals: Dictionary,
+	initial_time: StringName = TIME_DAY
+) -> MapView3D:
+	var view := MapView3D.new()
+	view.name = "MapView3D_%s" % String(map_definition.map_id)
+	view.definition = map_definition
+	view.grid = built_grid
+	view._host_globals = host_globals.duplicate()
+	view._assemble()
+	view.set_time_of_day(initial_time)
+	return view
+
+
+func is_hosted() -> bool:
+	return not _host_globals.is_empty()
+
+
+## The lighting nodes a self-contained view creates, in the order it adds them.
+## WorldHost builds its single global set through the same function so hosted and
+## non-hosted lighting cannot drift apart.
+static func create_global_lighting() -> Dictionary:
+	var sun := DirectionalLight3D.new()
+	sun.name = "Sun"
+	_configure_sun_shadows(sun)
+	var environment := Environment.new()
+	environment.background_mode = Environment.BG_COLOR
+	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	Lighting.configure_post_process(environment)
+	var world_environment := WorldEnvironment.new()
+	world_environment.name = "ViewEnvironment"
+	world_environment.environment = environment
+	return {"sun": sun, "environment": environment, "world_environment": world_environment}
 
 
 ## WB-07: same view as create(), but nothing is built yet. The caller pays the
@@ -747,6 +792,9 @@ func environment_weather() -> SkyWeather3D:
 func activate_environment_binding() -> void:
 	_environment_binding_active = true
 	set_process(true)
+	if is_hosted():
+		# A hosted view must not rebind or blank the host's single environment.
+		return
 	if _world_environment != null:
 		_world_environment.environment = _environment
 	if _sky_weather != null:
@@ -756,6 +804,8 @@ func activate_environment_binding() -> void:
 func deactivate_environment_binding() -> void:
 	_environment_binding_active = false
 	set_process(false)
+	if is_hosted():
+		return
 	if _world_environment != null:
 		_world_environment.environment = null
 	if _sky_weather != null:
@@ -967,18 +1017,18 @@ func _stage_anchors() -> void:
 
 
 func _stage_lighting() -> void:
-	_sun = DirectionalLight3D.new()
-	_sun.name = "Sun"
-	_configure_sun_shadows(_sun)
+	if is_hosted():
+		# WB-06: bind, never parent. The host keeps these alive across unmounts.
+		_sun = _host_globals.get("sun") as DirectionalLight3D
+		_environment = _host_globals.get("environment") as Environment
+		_world_environment = _host_globals.get("world_environment") as WorldEnvironment
+		_camera = _host_globals.get("camera") as Camera3D
+		return
+	var lighting := create_global_lighting()
+	_sun = lighting["sun"] as DirectionalLight3D
 	add_child(_sun)
-
-	_environment = Environment.new()
-	_environment.background_mode = Environment.BG_COLOR
-	_environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	Lighting.configure_post_process(_environment)
-	_world_environment = WorldEnvironment.new()
-	_world_environment.name = "ViewEnvironment"
-	_world_environment.environment = _environment
+	_environment = lighting["environment"] as Environment
+	_world_environment = lighting["world_environment"] as WorldEnvironment
 	add_child(_world_environment)
 
 	_camera = _create_camera()
@@ -986,6 +1036,11 @@ func _stage_lighting() -> void:
 
 
 func _stage_sky_weather() -> void:
+	if is_hosted():
+		# The host configured its sky once against its own camera and environment.
+		# Per-location rain suppression under a shared sky is seam work (R-980).
+		_sky_weather = _host_globals.get("sky_weather") as SkyWeather3D
+		return
 	# Sky dome + weather cycle; replaces the flat background color with a real
 	# sky the first-person camera can see, and feeds lighting modifiers above.
 	_sky_weather = SkyWeather3D.new()

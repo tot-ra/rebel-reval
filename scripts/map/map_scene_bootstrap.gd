@@ -68,6 +68,50 @@ static func assemble(
 	}
 
 
+## WB-06: the disposable logic package WorldHost mounts under LogicLocations.
+## Same collision, navigation and gameplay nodes as assemble(), built in the same
+## order by the same helpers, but no player, no minimap HUD and no flat 2D map:
+## those are host globals (ADR 0019 section 2). The navigation region is left on
+## the default map; WorldHost.mount_location() moves it onto the one host map.
+## Doors and anchors carry a `stable_handle` so the host rejects duplicates.
+static func assemble_location_package(
+	definition: MapDefinition, grid: MapTerrainGrid = null
+) -> Node2D:
+	var built_grid := grid if grid != null else MapBuilder.build(definition)
+	var package := Node2D.new()
+	package.name = "LocationPackage_%s" % String(definition.map_id)
+	var nav := MapNavBuilder.create_navigation_region(definition, built_grid)
+	nav.name = "Navigation"
+	package.add_child(nav)
+	_create_world_bounds(definition, package)
+	_create_water_blocks(definition, built_grid, package)
+	_create_relief_blocks(definition, package)
+	_create_excluded_area_blocks(definition, package)
+
+	var gameplay := Node2D.new()
+	gameplay.name = "Gameplay"
+	package.add_child(gameplay)
+	for door in _create_doors(definition, gameplay):
+		var transition_id := String(door.name).trim_prefix("door_")
+		door.set_meta(&"stable_handle", _package_handle(definition, "transition", transition_id))
+	for marker in _create_anchor_markers(definition, gameplay):
+		marker.set_meta(&"stable_handle", _package_handle(definition, "anchor", String(marker.name)))
+	_create_fade_areas(definition, gameplay)
+	return package
+
+
+## Location-scoped handle, the same {location_id, object_id} identity
+## MapStableStateStore persists. The kind prefix keeps a transition and an anchor
+## that share an authored id from colliding inside one location.
+static func _package_handle(
+	definition: MapDefinition, kind: String, object_id: String
+) -> Dictionary:
+	return {
+		"location_id": String(definition.map_id),
+		"object_id": "%s:%s" % [kind, object_id],
+	}
+
+
 static func configure_player_movement(player: Node, bootstrap: Dictionary) -> void:
 	if player == null or not player.has_method("configure_map_movement"):
 		return
