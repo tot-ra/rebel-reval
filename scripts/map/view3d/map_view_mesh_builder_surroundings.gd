@@ -90,6 +90,10 @@ static func surroundings_units(definition: MapDefinition, root: Node3D) -> Array
 			MapTypes.TERRAIN_SHALLOW_WATER, MapTypes.TERRAIN_DEEP_WATER
 		]
 		units.append_array(_TerrainStaged.water_material_units(STAGE, "backdrops", backdrop_water))
+		# WHY: R-1028 - the first MeshInstance that binds a water ShaderMaterial
+		# pays shader parse (tens of ms on a cold process). Do that here so the
+		# named backdrops unit only places WORLD_SIDES planes.
+		units.append(_Assembly.unit(STAGE, "backdrops_water_warm", _warm_backdrop_water_shaders))
 	# WHY: R-1022 sampled shore-relative rest Y by rebuilding the playable grid
 	# per water side. Harbour maps author no relief, so that bake was 80-650 ms
 	# for a constant historic recess. Relief maps bake once on a worker.
@@ -107,6 +111,23 @@ static func surroundings_units(definition: MapDefinition, root: Node3D) -> Array
 		_Assembly.unit(STAGE, "tree_band", _start_tree_band.bind(definition, sides, root, state))
 	)
 	return units
+
+
+## Bind each backdrop water material to a throwaway mesh so Compatibility
+## shader parse lands in `backdrops_water_warm`. The dummy is never parented
+## to Surroundings, so WORLD_SIDES child order stays part of the tree signature.
+static func _warm_backdrop_water_shaders() -> void:
+	for terrain_id in [MapTypes.TERRAIN_SHALLOW_WATER, MapTypes.TERRAIN_DEEP_WATER]:
+		var instance := MeshInstance3D.new()
+		var mesh := PlaneMesh.new()
+		mesh.size = Vector2(0.01, 0.01)
+		instance.mesh = mesh
+		instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		instance.material_override = MapViewMaterials.water_surface(terrain_id)
+		# Touch the RIDs the dummy renderer compiles on first mesh bind.
+		instance.get_aabb()
+		instance.material_override.get_rid()
+		instance.free()
 
 
 ## Natural and water backdrops may extend beyond authored maps. Urban sides do

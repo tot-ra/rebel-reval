@@ -194,22 +194,54 @@ func test_cold_height_field_and_terrain_bake_on_workers() -> void:
 	_free_view(staged)
 
 
-## R-1024: harbour water rest Y must not rebuild the playable grid inside
-## surroundings/backdrops. First-process water shader parse (tens of ms) is
-## R-1006; this file already warmed those materials in earlier harbor builds.
+## R-1024 / R-1028: harbour water rest Y must not rebuild the playable grid
+## inside surroundings/backdrops, and shader parse must land in
+## backdrops_water_warm so the named backdrops unit stays under 4 ms. Dummy
+## warm meshes are never parented to Surroundings, so WORLD_SIDES order stays
+## the tree signature.
 func test_harbor_east_water_backdrops_stay_under_frame_budget() -> void:
 	var definition: MapDefinition = HarborEastDefinition.create()
 	var grid: MapTerrainGrid = MapBuilder.build(definition)
 	var staged := MapView3D.create_staged(definition, grid)
 	_drain_staged(staged)
 	assert_true(staged.is_assembly_complete(), "harbor east staged assembly finishes")
+	var labels: Array[String] = []
 	var overruns: Array[String] = []
 	for unit in staged.assembly_unit_timings():
-		if unit["stage"] != &"surroundings" or String(unit["label"]) != "backdrops":
+		if unit["stage"] != &"surroundings":
 			continue
-		if int(unit["usec"]) > BUDGET_USEC:
+		var label := String(unit["label"])
+		labels.append(label)
+		if label == "backdrops" and int(unit["usec"]) > BUDGET_USEC:
 			overruns.append("backdrops %d usec" % int(unit["usec"]))
-	assert_eq(overruns, [], "harbor east backdrops must stay under 4 ms once water shaders are warm")
+	assert_true(
+		labels.has("backdrops_water_warm"),
+		"harbor east must warm water shaders before backdrops"
+	)
+	assert_true(
+		labels.find("backdrops_water_warm") < labels.find("backdrops"),
+		"backdrops_water_warm must run before the named backdrops unit"
+	)
+	assert_eq(overruns, [], "harbor east backdrops must stay under 4 ms after water shader warm")
+	var surroundings := staged.find_child("Surroundings", true, false)
+	assert_true(surroundings != null, "harbor east builds Surroundings")
+	var water_children: Array[String] = []
+	for child in surroundings.get_children():
+		assert_false(
+			String(child.name).begins_with("WaterWarm"),
+			"shader-warm dummies must not stay under Surroundings"
+		)
+		if String(child.name).begins_with("Water_"):
+			water_children.append(String(child.name).trim_prefix("Water_"))
+	var side_order: Array[String] = []
+	for side in MapDefinition.WORLD_SIDES:
+		if water_children.has(String(side)):
+			side_order.append(String(side))
+	assert_eq(
+		water_children,
+		side_order,
+		"water backdrop children must follow WORLD_SIDES, not shader-warm order"
+	)
 	_free_view(staged)
 
 
