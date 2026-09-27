@@ -49,7 +49,7 @@ are named as such; they do not upgrade a field to `attested`.
 | H29 | Open-air museum: barn-dwelling type named in the 14th c.; exteriors much later |
 | H30 | Kadakas AVE 2011: Padise 1343 as a working estate, not a finished quadrangle |
 | H31 | St Nicholas late-13th-c. hall + 1342 St Barbara chapel; later choir excluded |
-| H32 | St Michael nunnery founded 1249; ~6.5 ha close; 1340s wall incorporation |
+| H32 | St Michael nunnery founded 1249; 1340s wall incorporation; 1343 close area unknown |
 | H33 | TLPA fortification survey: localisation only, not a 1343 completion plan |
 | H34 | Suur-Karja 8 layout (first written early 15th c.) - typology, not a 1343 date |
 | H35 | Project 1343 tower registry: four completed Lower Town towers, rest construction |
@@ -87,7 +87,7 @@ material mix `plausible composite` (H04, H26).
 | Frontage | 7-11 m merchant-quarter median | A/B | H04 |
 | Plot depth | up to ~100 m including yard | A/B | H04 |
 | Example depth used in plans | 28 m on a 9 m frontage | B / `plausible composite` | H26 + street-plan dossier |
-| Storeys | 2-3 occupied + steep roof void | A | H04, H26 |
+| Storeys | 2-3 occupied + steep roof void | A/B | H04 (type); H26 later survivals |
 | Eave / ridge | unknown metres; tall narrow gable | U / C | H26 (later survivals) |
 | Bay module | the strip frontage *is* the module | A/B | H04 |
 | Ground split | diele 55-65% of footprint depth from street; dornse 35-45% to yard | B | H26, H34 |
@@ -162,7 +162,8 @@ plaster tourist cottages, museum hipped silhouettes as mandatory medieval form
 
 ## 4. Craft *boda* / booth
 
-**Family confidence:** `attested` type (H04); exact 1343 dimensions `unknown`.
+**Family confidence:** `attested` type (H04 names *boda*; AWB 508 *bodarum*
+by the consistorium, 1341); exact 1343 dimensions `unknown`.
 
 | Field | 1343 authoring value | Label | Source |
 |---|---|---|---|
@@ -170,8 +171,8 @@ plaster tourist cottages, museum hipped silhouettes as mandatory medieval form
 | Storeys | 1-2 | A | H04, H26 |
 | Plan | workroom/diele + sleeping nook; no full merchant dornse | A (type) | H04 |
 | Pentice / shutter counter | plausible on the street opening; depth unknown | B / U | H04; WB-12 |
-| Hoist | forbidden | A (contract) | H26 |
-| Hypocaust | forbidden | A (contract) | H26 |
+| Hoist | forbidden | D (authoring contract) | H26; burgher typology contract |
+| Hypocaust | forbidden | D (authoring contract) | H26; burgher typology contract |
 | Roof | thatch or shingle | B | H04 |
 | Tenure | often rented from a wealthier burgher | A (type) | H04 |
 
@@ -250,12 +251,13 @@ pre-quadrangle state.
 
 ### St Michael (Lower Town nuns)
 
-Founded **1249**; walled close **~6.5 ha**; patronage of St Olaf since **1267**;
-1340s wall expansion ties the nunnery curtain into the town (H32). Nuns' Gate
-name is **1355** - show masons, not a finished labelled gate. Claustral range
-width, dorter/refectory/chapter metres, and vault bay are **unknown**. Author
-enclosed ranges around a garden, an oratory, and a service wing - not a 15th-c.
-show cloister.
+Founded **1249**; patronage of St Olaf since **1267**; 1340s wall expansion
+ties the nunnery curtain into the town (H32). The inherited **~6.5 ha** close
+is **unknown** as a 1343 measurement (H32 URL 404; do not treat it as
+attested). Nuns' Gate name is **1355** - show masons, not a finished labelled
+gate. Claustral range width, dorter/refectory/chapter metres, and vault bay
+are **unknown**. Author enclosed ranges around a garden, an oratory, and a
+service wing - not a 15th-c. show cloister.
 
 Dominican St Catherine (mendicant, not Cistercian) is the eastern counterpart:
 stone church and east wing largely up by **c. 1300** (H15). Peak footprint
@@ -416,6 +418,38 @@ quadrangle; rural chimneys and 17th-c. chambers; decorative Fachwerk default.
 - Zobel 2008 primary pages for Small Castle interiors (existing R-787 blocker).
 - Padise stone-hall storey heights as excavated numbers, not only "taller than timber".
 
+## R-1034 attested ledger
+
+Second-reader list of every CANON / family `attested` claim and its H-row.
+`pass` means the label stands. `changed` is the R-1034 delta.
+
+| Claim | H-row | Verdict |
+|---|---|---|
+| Diele-dornse as a Reval/Hanseatic type (gable to street, cellar) | H04, H26 | pass |
+| 7-11 m strip as attested measurement | H04 (analogical band) | changed: `plausible composite` |
+| Hoist practice as attested 1343 default | H27 | changed: type later-survival; 1343 prevalence `plausible composite` |
+| Timber/stone coexistence; *boda* as named two-room rented workshop | H04; AWB 508 | pass (dims remain unknown) |
+| Log smoke dwelling and barn-dwelling as Estonian types | H22, H28, H29 | pass |
+| St Olaf recorded 1267 / vaults c. 1330 | H14 | pass |
+| Holy Spirit priest 1316 / church 1319 | H07 | pass |
+| St Barbara chapel 1342 | H31 | pass |
+| St Michael founded 1249; St Olaf patronage 1267; 1340s wall tie-in | H32 | pass |
+| St Michael close ~6.5 ha as attested 1343 area | H32 (URL 404) | changed: unknown measurement |
+| St Catherine site 1246 / stone church-east wing by c. 1300 | H15 | pass |
+| Town Hall recorded 1322 | H06 | pass |
+| *Forum* from 1313 | civic card / CANON market note | pass |
+| Cathedral consecrated 1240; no medieval west tower | H13 | pass |
+| Wooden hill gates; stone Long Leg 1380; Pikk Hermann after 1371 | H08; Toompea / walls dossiers | pass |
+| Wall circuit as unfinished 1340s programme | H08 | pass |
+| Coastal Gate 5-8 m above harbour ground | H11 | pass |
+| Padise founded 1310 as a Cistercian estate | H21 | pass |
+| Padise 1343 pre-quadrangle scatter | H30 | pass as `plausible composite` |
+| Rear service buildings on strip plots | H04, H05 | pass |
+| Civic *stupa* in AWB 553 | WB-12 / AWB | pass (civic, not a plot toy) |
+| *Boda* hoist / hypocaust forbidden as attested fact | authoring contract | changed: D, not A |
+
+Door/window metres and a per-cover pitch table were not invented.
+
 ## Decisions
 
 | Date | Decision |
@@ -423,3 +457,4 @@ quadrangle; rural chimneys and 17th-c. chambers; decorative Fachwerk default.
 | 2026-09-27 | AR-04 uses one steep-roof band until a pitch-by-cover row exists. Do not mint four invented degree rows to fill the kit table. |
 | 2026-09-27 | Town Hall arcade thickness stays a runtime constant and is labelled `invented` here so AR-10 cannot treat 0.62 units as historiography. |
 | 2026-09-27 | Canon review of `attested` labels is follow-up **R-1034**. This row does not mark any new institution as attested beyond H06-H15, H21, and the dated negatives already in those rows. |
+| 2026-09-27 | **R-1034** second-reader pass. Institutions and dated phases stay on H06-H15, H21, H31-H32. Label changes: 7-11 m and hoist leave the CANON `attested` parenthetical (H04 band / H27 later survival); St Michael ~6.5 ha is unknown, not attested; *boda* hoist/hypocaust bans are D contracts, not A facts; Diele storeys 2-3 are A/B. Door/window metres and a per-cover pitch table remain unknown. |

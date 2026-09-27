@@ -8,3 +8,4 @@ This file contains lessons specific to the Canon Keeper role.
 - Closing a research `R-###` dossier does not put historically accurate fabric into the game. Producer follow-up rows must name the target map anachronism and Brief ship decisions.
 - Renaming a `docs/CANON.md` heading breaks auto-generated anchors (`BROKEN_ANCHOR`). Keep a stable HTML `<a id="...">` alias for the old slug when widening a section, then rerun `python3 tools/generate_active_docs_report.py --check`.
 - A canon task that changes TODO structure can make `docs/reports/active_markdown_report.md` stale. If the task allowlist excludes the generated report, keep the scoped change and report the refresh as a separate follow-up.
+- An inherited hectare or metre is not `attested` when the cited URL 404s or the live page no longer states the figure. Relabel `unknown` and keep the institution. Do not retain the number to avoid a gap.
