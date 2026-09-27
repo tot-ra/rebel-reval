@@ -62,6 +62,25 @@ func test_sun_share_is_zero_at_night_and_overcast() -> void:
 	sky.free()
 
 
+func test_capture_tool_documents_r1033_modes() -> void:
+	var source := FileAccess.get_file_as_string(
+		"res://tools/capture_ws12_cloud_shadows.gd"
+	)
+	assert_false(source.is_empty(), "R-1033 capture tool must exist")
+	for token in [
+		"--scenario=partly",
+		"--clip",
+		"--sky",
+		"--bench",
+		"0.45",
+		"reval_harbor_north",
+	]:
+		assert_true(
+			source.contains(token),
+			"capture tool must document %s" % token
+		)
+
+
 func test_cloud_shadow_globals_are_registered() -> void:
 	var project := FileAccess.get_file_as_string("res://project.godot")
 	for name in [

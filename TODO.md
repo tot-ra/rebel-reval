@@ -338,9 +338,16 @@ camera over the harbour and the quay, then a low view towards and away from the 
 
 - [ ] WS-12 | deps: none | deliverable: shared sky_clouds.gdshaderinc cloud field published via global uniforms and a screen-space cloud-shadow pass that projects it along the sun onto world depth, scaled by direct-sun share, outdoor only | allowed files: `scripts/map/view3d/sky_clouds.gdshaderinc`, `scripts/map/view3d/sky_weather_3d.gdshader`, `scripts/map/view3d/sky_weather_3d.gd`, `scripts/map/view3d/cloud_shadow_pass.gd`, `scripts/map/view3d/cloud_shadow_pass.gdshader`, `scripts/map/view3d/map_view_3d.gd`, `project.godot`, `tests/godot/test_cloud_shadow_pass.gd`, `tests/godot/test_sky_weather_3d.gd`, `docs/reports/images/ws12_*.png`, `TODO.md` | verify: pass lifecycle/sun-share tests; sky byte-identical after include move; partly-cloudy clip shows soft downwind patches that kill water glint, none when overcast or at night; pass <= 0.3 ms
 
-WS-12 implementation landed (R-897). Headless `--filter=test_cloud_shadow_pass,test_sky_weather_3d`
-33/33. GPU harbour plates and the 0.3 ms pass-cost measurement are a follow-up: a Godot
-`--editor` already held the shared worktree.
+WS-12 headless pass landed (R-897, `752e7c5b`). GPU verify items 2-4 are **R-1033**.
+
+- [ ] R-1033 | deps: R-897 | deliverable: harbour GPU plates, sky include-parity plates, 20 s partly-cloudy clip, and isolated 1080p pass-cost measurement for WS-12 | allowed files: `tools/capture_ws12_cloud_shadows.gd`, matching UID, `docs/reports/images/ws12_*.png`, `docs/tasks/water_sky/WS-12_cloud_shadow_map.md`, `tests/godot/test_cloud_shadow_pass.gd`, `TODO.md` | verify: `--filter=test_cloud_shadow_pass,test_sky_weather_3d`; Metal/Compatibility harbour partly/overcast/night plus clip; sky 3x3 plates; `--bench` delta <= 0.3 ms at 1080p
+
+R-1033 capture tool landed. Headless 38/38. Valid plates: clear `--no-pass`, overcast and night
+on Metal and Compatibility, plus `ws12_metal_clear_sky_e20.png`. Pass-on partly-cloudy harbour
+plates are blocked: `hint_screen_texture` in the capture path is a default buffer. Bench
+delta -0.028 ms at 1080p Metal. Follow-up **R-1048**: play-path screen-texture capture.
+
+- [ ] R-1048 | deps: R-1033 | deliverable: play-path harbour plates (partly 0.45 / overcast / night, Metal and Compatibility) and a 20 s clip where CloudShadowPass samples the same screen the player sees; optional shader skip when sun_share is 0 | allowed files: `scripts/map/view3d/cloud_shadow_pass.gdshader`, `scripts/map/view3d/cloud_shadow_pass.gd`, `tools/capture_ws12_cloud_shadows.gd`, `docs/reports/images/ws12_*.png`, `docs/tasks/water_sky/WS-12_cloud_shadow_map.md`, `TODO.md` | verify: `--filter=test_cloud_shadow_pass,test_sky_weather_3d`; pass-on vs `--no-pass` differ by shadow darkening on water/ground, not by replacing the sea with beige or noise; clip patches move downwind; overcast/night stay patch-free
 
 - [ ] R-941 | deps: WS-11 | deliverable: sky_weather_3d.gdshader calls shared atmosphere_sky_view_uv and ATMO_SKY_VIEW_HEIGHT_KM; private sky_view_uv / SKY_VIEW_HEIGHT_KM deleted | allowed files: `scripts/map/view3d/sky_weather_3d.gdshader`, `tests/godot/test_sky_weather_3d.gd`, `TODO.md` | verify: `--filter=test_sky_weather_3d,test_sky_atmosphere_lut`; Compatibility `tools/capture_ws10_sky_elevations.gd -- --elevation=5` plate within 1 LSB of the pre-change plate; no `vec2 sky_view_uv(` left
 

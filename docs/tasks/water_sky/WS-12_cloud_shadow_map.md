@@ -112,3 +112,36 @@ task projects that same field onto the world.
   ```text
   - [ ] WS-12 | deps: none | deliverable: shared sky_clouds.gdshaderinc cloud field published via global uniforms and a screen-space cloud-shadow pass that projects it along the sun onto world depth, scaled by direct-sun share, outdoor only | allowed files: `scripts/map/view3d/sky_clouds.gdshaderinc`, `scripts/map/view3d/sky_weather_3d.gdshader`, `scripts/map/view3d/sky_weather_3d.gd`, `scripts/map/view3d/cloud_shadow_pass.gd`, `scripts/map/view3d/cloud_shadow_pass.gdshader`, `scripts/map/view3d/map_view_3d.gd`, `project.godot`, `tests/godot/test_cloud_shadow_pass.gd`, `tests/godot/test_sky_weather_3d.gd`, `docs/reports/images/ws12_*.png`, `TODO.md` | verify: pass lifecycle/sun-share tests; sky byte-identical after include move; partly-cloudy clip shows soft downwind patches that kill water glint, none when overcast or at night; pass <= 0.3 ms
   ```
+
+## Status (R-897 + R-1033)
+
+Headless lifecycle, sun-share and include-ownership tests landed in R-897 (`752e7c5b`).
+GPU items 2-4 are owned by **R-1033**.
+
+### GPU verify checklist
+
+1. Headless: `--filter=test_cloud_shadow_pass,test_sky_weather_3d` 38/38 (R-897 plus the
+   R-1033 capture-tool contract).
+2. Sky include peel is already on `main` (`752e7c5b`). Current-sky sheet:
+   `docs/reports/images/ws12_metal_clear_sky_e20.png` (sun toward / away). A live
+   before/after of the include wrappers still needs `752e7c5b^`.
+3. Harbour, gameplay camera, `reval_harbor_north`:
+   - Clear noon without the pass: `ws12_metal_partly_harbour_nopass.png` (real sea).
+   - Overcast / night on Metal and Compatibility: `ws12_{metal,opengl3}_{overcast,night}_harbour.png`.
+     `sun_share` is 0, overlay hidden, no distinct patches.
+   - Pass-on partly-cloudy plates are **not** evidence. `hint_screen_texture` in this
+     capture path (nested SubViewport or the minimized root window) binds a default
+     buffer: Metal becomes beige mottling, Compatibility becomes RGB noise. Follow-up
+     owns a play-path capture and a shader skip when `sun_share` is 0 (`ALPHA` is 1 today).
+     Board follow-up: **R-1048**.
+4. Isolated pass cost: `tools/capture_ws12_cloud_shadows.gd -- --bench` at 1920x1080 on
+   Apple M5 Pro Metal: `on_ms=8.606 off_ms=8.634 delta_ms=-0.028` (inside 0.3 ms; the
+   pass was not shading the real scene in this path). The quick performance report still
+   does not isolate this pass (R-737).
+
+Capture command:
+
+```bash
+tools/godot_render.sh --rendering-method mobile --rendering-driver metal \
+  --script tools/capture_ws12_cloud_shadows.gd -- --scenario=partly
+```
