@@ -304,16 +304,13 @@ func _within_smoke_view(to_camera: Transform3D, world_position: Vector3) -> bool
 func _sync_sea_weather() -> void:
 	if _sky_weather == null:
 		return
-	MapViewMaterials.apply_sea_weather(
-		_sky_weather.wind_strength(),
-		_sky_weather.rain_intensity(),
-		_sky_weather.wind_direction_xz(),
+	# One frame snapshot for water, mud, and wind. Separate accessors here used
+	# to re-sample mid-transition and disagree with lighting's presentation.
+	var day_blend := SkyWeather3D.daylight_blend(
+		cycle_progress, _sky_weather.calendar_date
 	)
-	MapViewMaterials.apply_mud_wetness(_sky_weather.mud_wetness())
-	# Vegetation, sails, and tower pennants share the same weather wind field as
-	# floating hulls so a storm leans the whole harbor one way.
-	MapViewMaterials.apply_world_wind(
-		_sky_weather.wind_direction_xz(), _sky_weather.wind_strength()
+	MapViewMaterials.apply_weather_presentation(
+		_sky_weather.presentation_snapshot(cycle_progress, day_blend)
 	)
 
 

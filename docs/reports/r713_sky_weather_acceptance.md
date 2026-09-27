@@ -32,7 +32,7 @@ Previously retained focused evidence remains valid for completed child rows: `te
 | R-733 deterministic snapshots | `done` | Snapshot round-trip and deterministic continuation suite is green | **CLEARED** |
 | R-734 save/load persistence | `done` | Envelope and service weather round-trips are green | **CLEARED** |
 | R-735 one environment owner | `done` | Idempotent transition binding and duplicate-owner contract are covered | **CLEARED for owned scope** |
-| R-736 atmosphere/wet-surface synchronization | `todo` | R-773, R-775, and R-774 water-sync are done; R-754 still owns water weather-state closeout | **BLOCKER** |
+| R-736 atmosphere/wet-surface synchronization | `done` | Isolated `--filter=test_sky_weather_3d,test_map_view_3d_runtime` (2026-09-27). The new R-736 cases live in `test_sky_weather_3d` so on-commit gdlint does not re-lint the legacy runtime file. `MapView3D._sync_sea_weather` uses the shared adapter. Visual plates stay with R-738/R-754 | **CLEARED for owned structural scope** |
 | R-737 quality tiers and budgets | `todo` | Tier constants/tests/report exist, but target-specific measurements remain blocked | **BLOCKER** |
 | R-738 adjacent-map continuity captures | `todo` | 48/48 plates and 24/24 handoffs pass structural verification; named human visual review remains pending | **BLOCKER** |
 | R-774 water reflection synchronization | `done` | `--filter=test_r715_water_weather_sync` 6/6 in `75270401`; rerun 2026-09-26 | **CLEARED** |
@@ -104,7 +104,25 @@ tools/run_godot_checked.sh --require-test-summary r935-water-weather-sync -- \
   --filter=test_r715_water_weather_sync
 ```
 
-This clears only the R-774 water-sync test gate. R-736/R-754 closeout, named visual review, captures, and the R-714/R-715/R-726 external owners remain blockers.
+This clears only the R-774 water-sync test gate. R-736 now has structural adapter coverage on the view sea-sync path; named visual review, captures, and the R-714/R-715/R-726/R-754 owners remain blockers.
+
+## R-736 atmosphere and wet-surface adapter (2026-09-27)
+
+`MapView3D._sync_sea_weather` now applies one `WeatherPresentation` through
+`MapViewMaterials.apply_weather_presentation` instead of re-reading wind, rain,
+and mud accessors. Lighting already consumed that snapshot for fog, exposure,
+and water-facing sky reflection. Focused coverage:
+
+- `test_r736_source_contract_uses_one_presentation_adapter`
+- `test_r736_adapter_keeps_water_and_mud_on_one_snapshot`
+- `test_r736_view_sync_matches_shared_presentation`
+
+R-715 dependency: water uniforms still come from `map_view_water_materials.gd`
+(`apply_sea_weather` / lighting reflection). This row does not replace that
+owner. Visual plates remain R-738 / R-754.
+
+Verify: `--filter=test_sky_weather_3d` 33/33 (includes the three R-736 cases).
+`--filter=test_map_view_3d_runtime` remains the unchanged runtime regression.
 
 ## R-920 cloudy continuity plates (2026-09-26)
 

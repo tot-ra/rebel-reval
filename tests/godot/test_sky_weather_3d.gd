@@ -3,6 +3,7 @@ extends "res://tests/godot/test_case.gd"
 const SkyWeather := preload("res://scripts/map/view3d/sky_weather_3d.gd")
 const SkyWeatherState := preload("res://scripts/map/view3d/sky_weather_state.gd")
 const Lighting := preload("res://scripts/map/view3d/map_view_lighting.gd")
+const WaterMaterials := preload("res://scripts/map/view3d/map_view_water_materials.gd")
 
 # gdlint: disable=max-line-length
 
@@ -826,3 +827,132 @@ func test_quality_tier_does_not_change_weather_state_digest() -> void:
 	)
 	minimum.free()
 	recommended.free()
+
+
+func test_r736_source_contract_uses_one_presentation_adapter() -> void:
+	# R-736: lighting, fog, wet ground, wind, and water must consume one snapshot.
+	# The R-715 helper is the water-uniform fan-out; play uses MapViewMaterials.
+	var view_source := FileAccess.get_file_as_string(
+		"res://scripts/map/view3d/map_view_3d.gd"
+	)
+	var lighting_source := FileAccess.get_file_as_string(
+		"res://scripts/map/view3d/map_view_lighting.gd"
+	)
+	var materials_source := FileAccess.get_file_as_string(
+		"res://scripts/map/view3d/map_view_materials.gd"
+	)
+	var shader_source := FileAccess.get_file_as_string(
+		"res://scripts/map/view3d/sky_weather_3d.gdshader"
+	)
+	assert_true(
+		view_source.contains("MapViewMaterials.apply_weather_presentation("),
+		"MapView3D sea sync must fan out through the shared adapter"
+	)
+	assert_true(
+		not view_source.contains("apply_sea_weather("),
+		"the view must not re-sample sea weather beside the adapter"
+	)
+	assert_true(
+		lighting_source.contains("presentation_snapshot("),
+		"lighting must freeze one WeatherPresentation per cycle apply"
+	)
+	assert_true(
+		lighting_source.contains("apply_ground_mist(environment, presentation"),
+		"fog/haze must take the same presentation as lighting"
+	)
+	assert_true(
+		lighting_source.contains("apply_water_sky_reflection("),
+		"water-facing sky reflection is an R-715 lighting consumer of the snapshot"
+	)
+	assert_true(
+		lighting_source.contains("apply_post_grade_snapshot(environment, presentation"),
+		"exposure/grade must stay on the captured presentation"
+	)
+	assert_true(
+		materials_source.contains("apply_mud_wetness(presentation.puddle_wetness)"),
+		"wet ground must come from the snapshot, not a later accessor"
+	)
+	assert_true(
+		shader_source.contains("uniform float sky_exposure"),
+		"sky exposure is a shader contract input from the presenter"
+	)
+	assert_true(
+		shader_source.contains("uniform vec2 wind_dir"),
+		"rain/cloud wind direction is a shader contract input"
+	)
+	assert_true(
+		shader_source.contains("uniform float cloud_darken"),
+		"overcast darken is a shader contract input shared with water"
+	)
+
+
+func test_r736_adapter_keeps_water_and_mud_on_one_snapshot() -> void:
+	WaterMaterials.reset()
+	var sky := SkyWeather.new()
+	sky.auto_weather = false
+	sky.set_weather(SkyWeather.WEATHER_RAIN)
+	sky.advance(SkyWeather.TRANSITION_SECONDS + 1.0)
+	var presentation := sky.presentation_snapshot(0.5, 1.0)
+	# Cache the ground material first so apply_mud_wetness can update it.
+	var ground := MapViewMaterials.blended_ground(1)
+	MapViewMaterials.apply_weather_presentation(presentation)
+	var water: ShaderMaterial = WaterMaterials.water_surface(
+		MapTypes.TERRAIN_WATER, MapViewMaterials.WATER_WAVE_BASE
+	)
+	var wind: Vector2 = water.get_shader_parameter("wind_direction")
+	assert_true(
+		wind.is_equal_approx(presentation.wind_direction),
+		"water wind must match the presentation the adapter applied"
+	)
+	assert_true(
+		float(water.get_shader_parameter("wave_speed")) > 0.0,
+		"settled rain must push a non-zero sea state through the adapter"
+	)
+	assert_true(
+		is_equal_approx(
+			float(ground.get_shader_parameter("mud_wetness")),
+			presentation.puddle_wetness
+		),
+		"mud wetness must match the same snapshot as water wind"
+	)
+	sky.set_weather(SkyWeather.WEATHER_CLEAR)
+	sky.advance(0.05)
+	MapViewMaterials.apply_weather_presentation(presentation)
+	assert_true(
+		is_equal_approx(
+			float(ground.get_shader_parameter("mud_wetness")),
+			presentation.puddle_wetness
+		),
+		"re-applying a captured snapshot must not pick up a later dry frame"
+	)
+	sky.free()
+
+
+func test_r736_view_sync_matches_shared_presentation() -> void:
+	var SmithyCourtyard := preload("res://scripts/map/smithy_courtyard_definition.gd")
+	var MapBuilder := preload("res://scripts/map/map_builder.gd")
+	var tree := Engine.get_main_loop() as SceneTree
+	var definition := SmithyCourtyard.create()
+	var view := MapView3D.create(definition, MapBuilder.build(definition))
+	tree.root.add_child(view)
+	var weather := view.sky_weather()
+	weather.auto_weather = false
+	weather.set_weather(SkyWeather.WEATHER_RAIN)
+	weather.advance(SkyWeather.TRANSITION_SECONDS + 1.0)
+	view._sync_sea_weather()
+	var day_blend := SkyWeather.daylight_blend(view.cycle_progress, weather.calendar_date)
+	var presentation := weather.presentation_snapshot(view.cycle_progress, day_blend)
+	var water: ShaderMaterial = WaterMaterials.water_surface(
+		MapTypes.TERRAIN_WATER, MapViewMaterials.WATER_WAVE_BASE
+	)
+	var wind: Vector2 = water.get_shader_parameter("wind_direction")
+	assert_true(
+		wind.is_equal_approx(presentation.wind_direction),
+		"view sea sync must apply the same wind as lighting's snapshot"
+	)
+	assert_true(
+		is_equal_approx(view.mud_wetness(), presentation.puddle_wetness),
+		"view mud wetness must stay on the shared snapshot"
+	)
+	MapView3D._strip_geometry_materials(view)
+	view.free()
