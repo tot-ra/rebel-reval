@@ -911,6 +911,17 @@ field (`MapViewMeshBuilderTerrain.field_height`) uses the same datum plus relief
 as its base and keeps its procedural noise, pad flattening and water recess as
 sub-cell detail only. Height is never persisted.
 
+Water is the one exception to "recess is world-zero detail". On a map that
+authors any `relief_*` statement, each connected water body stores a still-water
+base equal to the lowest dry 4-neighbour's compiled height (datum + relief).
+The gameplay bed and the water surface sit `WATER_RECESS` (then
+`WATER_SURFACE_LIFT`) below that base, and the WS-13b basin is measured from
+that same bed. A moat therefore fills inside its `relief_ditch` instead of
+dropping to world zero. Open sea whose own compiled relief is at or below the
+datum stays at datum, so a raised quay does not lift the harbour. Maps that
+author no `relief_*` statement keep the historic `-WATER_RECESS` path byte for
+byte, including Harbor North.
+
 #### Relief is authoritative for gameplay (WB-03, R-975)
 
 Gameplay stays on the 2D logic plane; relief acts on it through these rules,

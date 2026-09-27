@@ -180,11 +180,11 @@ static func add_water_cell_quad(
 					)
 				)
 			if (vertex_x + vertex_y) % 2 == 0:
-				_add_clipped_water_triangle(surface, corners[0], corners[1], corners[2])
-				_add_clipped_water_triangle(surface, corners[0], corners[2], corners[3])
+				_add_clipped_water_triangle(surface, field, corners[0], corners[1], corners[2])
+				_add_clipped_water_triangle(surface, field, corners[0], corners[2], corners[3])
 			else:
-				_add_clipped_water_triangle(surface, corners[0], corners[1], corners[3])
-				_add_clipped_water_triangle(surface, corners[1], corners[2], corners[3])
+				_add_clipped_water_triangle(surface, field, corners[0], corners[1], corners[3])
+				_add_clipped_water_triangle(surface, field, corners[1], corners[2], corners[3])
 
 
 static func _water_contour_sample(contour: Dictionary, cell: Vector2i) -> float:
@@ -205,7 +205,11 @@ static func _water_contour_sample(contour: Dictionary, cell: Vector2i) -> float:
 
 
 static func _add_clipped_water_triangle(
-	surface: SurfaceTool, first: Dictionary, second: Dictionary, third: Dictionary
+	surface: SurfaceTool,
+	field: Dictionary,
+	first: Dictionary,
+	second: Dictionary,
+	third: Dictionary
 ) -> void:
 	var polygon: Array[Dictionary] = [first, second, third]
 	var clipped: Array[Dictionary] = []
@@ -236,29 +240,34 @@ static func _add_clipped_water_triangle(
 	if clipped.size() < 3:
 		return
 	for index in range(1, clipped.size() - 1):
-		_add_water_vertex(surface, clipped[0]["position"], float(clipped[0]["coverage"]))
-		_add_water_vertex(surface, clipped[index]["position"], float(clipped[index]["coverage"]))
+		_add_water_vertex(surface, field, clipped[0]["position"], float(clipped[0]["coverage"]))
 		_add_water_vertex(
-			surface, clipped[index + 1]["position"], float(clipped[index + 1]["coverage"])
+			surface, field, clipped[index]["position"], float(clipped[index]["coverage"])
+		)
+		_add_water_vertex(
+			surface, field, clipped[index + 1]["position"], float(clipped[index + 1]["coverage"])
 		)
 
 
-static func _add_water_vertex(surface: SurfaceTool, source: Vector3, coverage: float) -> void:
+static func _add_water_vertex(
+	surface: SurfaceTool, field: Dictionary, source: Vector3, coverage: float
+) -> void:
+	# Look up the still-water bed from XZ. Clipped shoreline vertices lerp Y
+	# toward the bank, which must not tilt the surface out of the water body.
+	var bed_y := MapViewMeshBuilderTerrain.water_gameplay_bed_y(
+		field, Vector2(source.x, source.z)
+	)
 	var vertex := Vector3(
-		source.x,
-		-MapViewMeshBuilderConfig.WATER_RECESS + MapViewMeshBuilderConfig.WATER_SURFACE_LIFT,
-		source.z
+		source.x, bed_y + MapViewMeshBuilderConfig.WATER_SURFACE_LIFT, source.z
 	)
 	var threshold := MapViewMeshBuilderConfig.WATER_CONTOUR_THRESHOLD
 	var interior_coverage := inverse_lerp(threshold, 1.0, coverage)
 	surface.set_normal(Vector3.UP)
 	surface.set_uv(Vector2(vertex.x, vertex.z) / MapViewMaterials.TERRAIN_TEXTURE_WORLD_SIZE)
 	surface.set_color(Color(interior_coverage, interior_coverage, interior_coverage, 1.0))
-	# WS-13b: UV2 = (1, flat gameplay bed y in model space). The shader maps a
-	# deeper rendered sea bed back to this plane for its optical depth, so the
-	# top-down look ignores the basin. Surroundings planes and the swash sheet
-	# have no UV2 (reads as 0) and keep the raw scene depth.
-	surface.set_uv2(Vector2(1.0, -MapViewMeshBuilderConfig.WATER_RECESS))
+	# WS-13b: UV2 = (1, gameplay bed y). Maps without relief keep -WATER_RECESS.
+	# The shader maps a deeper rendered sea bed back to this plane.
+	surface.set_uv2(Vector2(1.0, bed_y))
 	surface.add_vertex(vertex)
 
 

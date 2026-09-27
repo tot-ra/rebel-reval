@@ -85,6 +85,10 @@ static func compute_height_field(definition: MapDefinition, grid: MapTerrainGrid
 		# outdoor relief would lift props and actors off the floor in 3D view.
 		"flat_floor": definition.suppresses_exterior_surroundings(),
 	}
+	# WHY: water Y used to be the world-zero recess. A moat on a terrace or a
+	# quay above the sea would then ignore the compiled relief under it. Shore
+	# bases are baked first so bake_vertices and the basin share one level.
+	_bake_water_surface_bases(field)
 	bake_vertices(field)
 	_bake_basin_cells(field, grid)
 	bake_bed_vertices(field)
@@ -184,7 +188,7 @@ static func field_height(field: Dictionary, position: Vector2) -> float:
 		return 0.0
 	var cell := Vector2i(floori(position.x), floori(position.y))
 	if field["water"].has(cell):
-		return -MapViewMeshBuilderConfig.WATER_RECESS
+		return water_gameplay_bed_y(field, position)
 	var noise_seed: int = field["seed"]
 	var macro := (
 		(
@@ -293,6 +297,106 @@ static func water_factor(field: Dictionary, position: Vector2) -> float:
 	return factors[cell.y * size.x + cell.x]
 
 
+## Gameplay bed under water: shore-relative recess when the map authors relief,
+## otherwise the historic world-zero recess so maps without relief_* stay identical.
+static func water_gameplay_bed_y(field: Dictionary, position: Vector2) -> float:
+	return water_surface_base_at(field, position) - MapViewMeshBuilderConfig.WATER_RECESS
+
+
+## Compiled still-water level for the water body under `position` (datum + relief
+## at the lowest dry neighbour), or 0 when the map has no authored relief_*.
+static func water_surface_base_at(field: Dictionary, position: Vector2) -> float:
+	if not field.has("water_surface_bases"):
+		return 0.0
+	var bases: PackedFloat32Array = field["water_surface_bases"]
+	var water: Dictionary = field["water"]
+	var size: Vector2i = field["size"]
+	if bases.size() != size.x * size.y:
+		return 0.0
+	var cell := Vector2i(floori(position.x), floori(position.y))
+	if (
+		cell.x >= 0
+		and cell.y >= 0
+		and cell.x < size.x
+		and cell.y < size.y
+		and water.has(cell)
+	):
+		return bases[cell.y * size.x + cell.x]
+	var found := INF
+	for oy in range(-1, 2):
+		for ox in range(-1, 2):
+			var next := cell + Vector2i(ox, oy)
+			if next.x < 0 or next.y < 0 or next.x >= size.x or next.y >= size.y:
+				continue
+			if water.has(next):
+				found = minf(found, bases[next.y * size.x + next.x])
+	return 0.0 if is_inf(found) else found
+
+
+## Per connected water body: recess from the lowest dry neighbour. Sea cells
+## whose own compiled relief is at or below the datum stay at 0 so a raised quay
+## does not lift the harbour. Maps with empty relief_heights skip this bake.
+static func _bake_water_surface_bases(field: Dictionary) -> void:
+	var water: Dictionary = field["water"]
+	var heights: PackedFloat32Array = field.get("relief_heights", PackedFloat32Array())
+	if water.is_empty() or heights.is_empty():
+		return
+	var size: Vector2i = field["size"]
+	if heights.size() != size.x * size.y:
+		return
+	var bases := PackedFloat32Array()
+	bases.resize(size.x * size.y)
+	var visited := PackedByteArray()
+	visited.resize(size.x * size.y)
+	var dirs: Array[Vector2i] = [
+		Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)
+	]
+	for y in size.y:
+		for x in size.x:
+			var start := Vector2i(x, y)
+			var start_index := y * size.x + x
+			if not water.has(start) or visited[start_index] != 0:
+				continue
+			var stack: Array[Vector2i] = [start]
+			var component: Array[Vector2i] = []
+			var shore := INF
+			var water_min := INF
+			visited[start_index] = 1
+			while not stack.is_empty():
+				var cell: Vector2i = stack.pop_back()
+				component.append(cell)
+				water_min = minf(water_min, _compiled_ground_at_cell(field, cell))
+				for dir: Vector2i in dirs:
+					var next := cell + dir
+					if next.x < 0 or next.y < 0 or next.x >= size.x or next.y >= size.y:
+						continue
+					if water.has(next):
+						var next_index := next.y * size.x + next.x
+						if visited[next_index] == 0:
+							visited[next_index] = 1
+							stack.append(next)
+					else:
+						shore = minf(shore, _compiled_ground_at_cell(field, next))
+			if is_inf(shore):
+				shore = 0.0
+			var surface_base := shore
+			if water_min <= 0.0:
+				surface_base = minf(shore, 0.0)
+			for member: Vector2i in component:
+				bases[member.y * size.x + member.x] = surface_base
+	field["water_surface_bases"] = bases
+
+
+static func _compiled_ground_at_cell(field: Dictionary, cell: Vector2i) -> float:
+	var position := Vector2(cell) + Vector2(0.5, 0.5)
+	return (
+		float(field.get("ground_elevation", 0.0)) * elevation_factor(field, position)
+		+ MapDefinition.sample_relief(
+			field.get("relief_heights", PackedFloat32Array()), field["size"], position
+		)
+	)
+
+
 ## Shared sub-cell vertex positions and normals: lateral jitter bends terrain
 ## borders while neighboring patches reuse identical vertices, keeping the
 ## ground watertight. Vertices touching water drop to the recess depth.
@@ -324,7 +428,7 @@ static func bake_vertices(field: Dictionary) -> void:
 					jitter = Vector2.ZERO
 				spot = base + jitter
 			var height := (
-				-MapViewMeshBuilderConfig.WATER_RECESS
+				water_gameplay_bed_y(field, spot)
 				if subvertex_touches_water(field, vx, vy)
 				else field_height(field, spot)
 			)
