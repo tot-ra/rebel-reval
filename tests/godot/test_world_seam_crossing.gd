@@ -315,6 +315,29 @@ func test_blocked_seam_crossing_uses_its_explicit_transition() -> void:
 	_dispose(host)
 
 
+func test_repeated_navigation_bake_and_free_leaves_no_objects() -> void:
+	var definition := _strip_a()
+	var grid: MapTerrainGrid = MapBuilder.build(definition)
+	for _warmup in 2:
+		MapNavBuilder.release_navigation_region(
+			MapNavBuilder.create_navigation_region(definition, grid)
+		)
+	MapNavBuilder.flush_deferred_bakes()
+	var before := int(Performance.get_monitor(Performance.OBJECT_COUNT))
+	for _bake in 5:
+		MapNavBuilder.release_navigation_region(
+			MapNavBuilder.create_navigation_region(definition, grid)
+		)
+	MapNavBuilder.flush_deferred_bakes()
+	var after := int(Performance.get_monitor(Performance.OBJECT_COUNT))
+	assert_eq(
+		after,
+		before,
+		"bake+free must release the region RID and NavigationPolygon (delta %+d)"
+		% (after - before)
+	)
+
+
 func test_flag_off_streaming_is_inert() -> void:
 	var host := _strip_host()
 	host.set_additive_residency_enabled(false)

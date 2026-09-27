@@ -30,6 +30,30 @@ static func create_navigation_region(
 	return region
 
 
+## Drops the baked polygon, then frees the region.
+## WHY: Node.free() only queues the NavigationServer2D region RID. The server
+## keeps the NavigationPolygon alive until that command flushes, so an
+## immediate Performance.OBJECT_COUNT read stays +2 (RID + polygon). Clearing
+## the property first lets the flush release both. Source geometry is local to
+## bake_navigation_polygon and is not retained.
+static func release_navigation_region(region: NavigationRegion2D) -> void:
+	if region == null or not is_instance_valid(region):
+		return
+	region.navigation_polygon = null
+	region.free()
+
+
+## Flushes queued NavigationServer2D region frees.
+## WHY: there is no public flush_queries. map_force_update processes the
+## global command queue. Do not iterate get_maps(): a just-freed WorldHost map
+## can still appear there and mutex-crash. A scratch map is enough. Play
+## already flushes on the physics tick.
+static func flush_deferred_bakes() -> void:
+	var scratch := NavigationServer2D.map_create()
+	NavigationServer2D.map_force_update(scratch)
+	NavigationServer2D.free_rid(scratch)
+
+
 ## WB-07: same region, but the bake runs on a WorkerThreadPool task. The region is
 ## returned immediately with no polygon and a publisher child that assigns the
 ## finished polygon in one step, so pathing never sees a partial mesh. Tests and

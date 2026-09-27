@@ -280,7 +280,7 @@ func test_threaded_nav_bake_is_byte_identical_to_synchronous() -> void:
 			reference,
 			"%s synchronous region keeps the reference polygon" % definition.map_id
 		)
-		synchronous_region.free()
+		MapNavBuilder.release_navigation_region(synchronous_region)
 		var jobs: Array = []
 		for run in NAV_RUNS:
 			jobs.append(MapNavBuilder.start_bake(definition, grid))
@@ -307,7 +307,7 @@ func test_threaded_region_publishes_atomically() -> void:
 		_polygon_bytes(MapNavBuilder.bake_navigation_polygon(definition, grid)),
 		"published polygon equals the synchronous bake"
 	)
-	region.free()
+	MapNavBuilder.release_navigation_region(region)
 
 
 func test_freeing_threaded_region_before_publish_joins_the_worker() -> void:
@@ -317,7 +317,7 @@ func test_freeing_threaded_region_before_publish_joins_the_worker() -> void:
 		definition, MapBuilder.build(definition)
 	)
 	var job := MapNavBuilder.bake_job_of(region)
-	region.free()
+	MapNavBuilder.release_navigation_region(region)
 	assert_true(job.is_done(), "a cancelled bake is joined, not abandoned")
 	assert_eq(_unreleased_orphans(orphans_before), [], "the region and publisher are released")
 
