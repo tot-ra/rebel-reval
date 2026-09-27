@@ -53,6 +53,7 @@ const DOMESTIC_INTERACT_PROMPTS := {
 @onready var cat: ForgeCat = $Actors/Cat
 
 var _bootstrap: Dictionary = {}
+var _world_host: WorldHost
 var _map_definition: MapDefinition
 var _view_runtime: MapViewRuntime
 var _world_items: WorldItemController
@@ -79,7 +80,7 @@ var _forge_conduit_state: GameState
 func _ready() -> void:
 	var definition: MapDefinition = DEFINITION_SCRIPT.create()
 	_map_definition = definition
-	_bootstrap = MapSceneBootstrap.assemble(self, definition, actors, map_root)
+	_bootstrap = _launch_location(definition)
 	DoorNavigator.place_player(self, player, definition.player_spawn)
 	_wire_player_navigation()
 	MapSceneBootstrap.configure_player_movement(player, _bootstrap)
@@ -88,7 +89,7 @@ func _ready() -> void:
 	_wire_cat_navigation()
 	if player == null:
 		player = _find_player(get_tree().root)
-	_view_runtime = MapViewRuntime.install(self, _bootstrap, map_root, player)
+	_view_runtime = _install_view_runtime(definition)
 	_build_interaction_prompt()
 	_setup_dialogue_encounter(definition)
 	_setup_phase_binder(definition)
@@ -597,3 +598,22 @@ func smithy_domestic_telemetry() -> Dictionary:
 		"presentation": _domestic_presenter.telemetry() if _domestic_presenter != null else {},
 		"active_activity": String(_domestic_vignette_activity),
 	}
+
+
+## WB-06b: behind `world_host/additive_residency_enabled` a WorldHost owns the
+## Player, camera, environment, HUD and navigation map and this scene is only a
+## launch adapter; `player` is rebound to the host's. Flag off (the default) runs
+## exactly today's MapSceneBootstrap path, as does a failed host launch.
+func _launch_location(definition: MapDefinition) -> Dictionary:
+	if WorldHost.launch_enabled():
+		_world_host = WorldHost.launch_scene_location(self, definition, player)
+		if _world_host != null:
+			player = _world_host.player_owner as Player
+			return _world_host.hosted_bootstrap(definition.map_id)
+	return MapSceneBootstrap.assemble(self, definition, actors, map_root)
+
+
+func _install_view_runtime(definition: MapDefinition) -> MapViewRuntime:
+	if _world_host != null:
+		return MapViewRuntime.install_hosted(self, _world_host, definition.map_id)
+	return MapViewRuntime.install(self, _bootstrap, map_root, player)

@@ -60,6 +60,10 @@ const TIME_SPEED_LADDER: Array[float] = RuntimeTimeFlow.TIME_SPEED_LADDER
 const TIME_SPEED_DEFAULT := RuntimeTimeFlow.TIME_SPEED_DEFAULT
 
 var view: MapView3D
+## WB-06b: set only by install_hosted(). When set, the view, player, rig and
+## camera belong to this host and the host clock drives the day/night cycle.
+## Untyped for the same early-compile reason as MapViewRuntimeEnvironment.
+var world_host = null
 
 var time_speed: float:
 	get:
@@ -121,6 +125,18 @@ static func install(
 	scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasItem, player: CharacterBody2D
 ) -> MapViewRuntime:
 	return RuntimeBootstrap.install(scene_root, bootstrap, map_root, player)
+
+
+## WB-06b: bind a runtime to a WorldHost-mounted location instead of creating
+## a view, rig and camera. Only the additive-residency launch path calls this.
+static func install_hosted(
+	scene_root: Node2D, host: Node, location_id: StringName
+) -> MapViewRuntime:
+	return RuntimeBootstrap.install_hosted(scene_root, host, location_id)
+
+
+func is_hosted() -> bool:
+	return world_host != null
 
 
 func configure_click_input(world_items: Node = null) -> void:

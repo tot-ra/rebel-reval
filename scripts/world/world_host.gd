@@ -44,6 +44,8 @@ const GLOBALS_NAME := "Globals"
 const LOGIC_GLOBALS_NAME := "LogicGlobals"
 const VIEW_GLOBALS_NAME := "ViewGlobals"
 const HUD_NAME := "HUD"
+## WB-06b: node name a launch adapter gives the host under its scene root.
+const HOST_NODE_NAME := "WorldHost"
 const PLAYER_SCENE_PATH := "res://player.tscn"
 const PLAYER_RIG_SCENE_PATH := "res://assets/characters/kalev/kalev.tscn"
 const MINIMAP_HUD_SCENE_PATH := "res://scenes/elements/minimap_hud.tscn"
@@ -280,10 +282,145 @@ func enter_location(
 	var view_package := MapView3D.create_hosted(definition, built_grid, view_globals(), initial_time)
 	view_package.apply_cycle_progress(clock_progress)
 	if mount_location(location_id, logic_package, view_package):
+		# WB-06b: hosted_bootstrap() hands scene scripts the same definition and
+		# grid the packages were built from (never rebuilt, never persisted).
+		_mounted_locations[location_id]["definition"] = definition
+		_mounted_locations[location_id]["grid"] = built_grid
 		return true
 	logic_package.free()
 	view_package.free()
 	return false
+
+
+## WB-06b: true when `scenes/` entry points must launch through a host. Read
+## per call (not cached) so the flag-off path never allocates a host.
+static func launch_enabled() -> bool:
+	return bool(ProjectSettings.get_setting(ADDITIVE_RESIDENCY_SETTING, false))
+
+
+## WB-06b launch adapter: a scene entry point asks a host to own the location
+## instead of owning Player, camera and MapViewRuntime itself. Adds the host under
+## `scene_root`, creates the globals, seeds the clock from MusicDirector, enters
+## `definition` and retires `scene_player` (the one baked into the .tscn). Returns
+## null, with `scene_player` untouched, when any step fails so the caller can run
+## today's path. `scene_root` must be the tree the doors live in: DoorNavigator
+## resolves pending spawns by walking it.
+static func launch_scene_location(
+	scene_root: Node, definition: MapDefinition, scene_player: Node = null, options: Dictionary = {}
+) -> WorldHost:
+	if scene_root == null or definition == null or String(definition.map_id).is_empty():
+		return null
+	var host := WorldHost.new()
+	host.name = HOST_NODE_NAME
+	host.set_additive_residency_enabled(true)
+	scene_root.add_child(host)
+	var location_id := definition.map_id
+	var grid := MapBuilder.build(definition)
+	if not (
+		host.create_globals(launch_layout(definition), options)
+		and host._seed_clock_from_music_director()
+		and host.enter_location(location_id, definition, grid)
+	):
+		push_warning("WorldHost launch failed for %s; using the scene-owned path" % location_id)
+		scene_root.remove_child(host)
+		host.free()
+		return null
+	host.set_owning_location(location_id)
+	if host.minimap_hud != null:
+		host.minimap_hud.configure(definition, grid, host.player_owner as Node2D)
+	if scene_player != null and scene_player != host.player_owner:
+		# The .tscn still bakes a Player for the flag-off path. Under a host it
+		# would be a second player, so it leaves the tree before anything binds it.
+		if scene_player.get_parent() != null:
+			scene_player.get_parent().remove_child(scene_player)
+		scene_player.queue_free()
+	return host
+
+
+## The layout a launch adapter enters: the checked-in reval_outdoor manifest when
+## it lists this location, otherwise a one-location group (interiors such as the
+## forge are not streamed, but still get host-owned globals).
+static func launch_layout(definition: MapDefinition) -> Dictionary:
+	var manifest_layout := MapWorldLayout.layout_from_manifest(MapWorldLayout.load_manifest())
+	if bool(manifest_layout.get("valid", false)):
+		for entry_value in manifest_layout.get("locations", []):
+			if StringName((entry_value as Dictionary).get("location_id", "")) == definition.map_id:
+				return manifest_layout
+	var definitions: Array[MapDefinition] = [definition]
+	return MapWorldLayout.build(
+		definitions, definition.map_id, StringName("%s_solo" % String(definition.map_id))
+	)
+
+
+## The bootstrap dictionary scene scripts already read (`definition`, `grid`,
+## `navigation`, `doors`, `anchors`, `fades`, `minimap_hud`), built from the
+## mounted logic package so flag-on and flag-off scene code share one shape.
+## `world_host` marks it hosted; `assembled` is absent because a hosted location
+## draws no flat 2D map.
+func hosted_bootstrap(location_id: StringName) -> Dictionary:
+	var mounted: Dictionary = _mounted_locations.get(location_id, {}) as Dictionary
+	var logic_root := mounted.get("logic_root") as Node
+	if logic_root == null:
+		return {}
+	var navigation: NavigationRegion2D = null
+	var doors: Array[Area2D] = []
+	var anchors: Array[Marker2D] = []
+	var fades: Array[Area2D] = []
+	for node in logic_root.find_children("*", "", true, false):
+		# Classified by the package's own stable handles, not by class: naming the
+		# Door script here would compile door.gd (and its DoorNavigator autoload
+		# reference) whenever WorldHost is parsed.
+		var object_id := String((node.get_meta(&"stable_handle", {}) as Dictionary).get("object_id", ""))
+		if node is NavigationRegion2D and navigation == null:
+			navigation = node as NavigationRegion2D
+		elif node is Area2D and object_id.begins_with("transition:"):
+			doors.append(node as Area2D)
+		elif node is Marker2D and object_id.begins_with("anchor:"):
+			anchors.append(node as Marker2D)
+		elif node is Area2D and node.get_parent().name == &"FadeVolumes":
+			fades.append(node as Area2D)
+	return {
+		"world_host": self,
+		"location_id": location_id,
+		"definition": mounted.get("definition"),
+		"grid": mounted.get("grid"),
+		"navigation": navigation,
+		"doors": doors,
+		"anchors": anchors,
+		"fades": fades,
+		"location_hud": minimap_hud,
+		"minimap_hud": minimap_hud,
+	}
+
+
+## The hosted MapView3D mounted for `location_id`, or null.
+func hosted_view(location_id: StringName) -> MapView3D:
+	var view_root := mounted_location_root(location_id, true)
+	if view_root == null:
+		return null
+	for child in view_root.get_children():
+		if child is MapView3D:
+			return child as MapView3D
+	return null
+
+
+## Only launch_scene_location() calls this, once, before the first mount, so a
+## hosted scene continues the day/date the previous (possibly flag-off) scene
+## left in MusicDirector. After that the host clock is the authority and runtimes
+## only mirror it back for music.
+func _seed_clock_from_music_director() -> bool:
+	if music_director == null:
+		return true
+	if (
+		music_director.has_method(&"is_cycle_active")
+		and not bool(music_director.call(&"is_cycle_active"))
+	):
+		return true
+	if music_director.has_method(&"get_cycle_progress"):
+		clock_progress = wrapf(float(music_director.call(&"get_cycle_progress")), 0.0, 1.0)
+	if music_director.has_method(&"get_cycle_elapsed_days"):
+		clock_completed_days = int(music_director.call(&"get_cycle_elapsed_days"))
+	return true
 
 
 ## Diagnostics for every node in `package` that a location may not create. A

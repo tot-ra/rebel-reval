@@ -96,9 +96,30 @@ clock, HUD, session/music binding, `MapStableStateStore`, and navigation map;
 `enter_location()` mounts `MapSceneBootstrap.assemble_location_package()` plus
 `MapView3D.create_hosted()`; packages that create a global are rejected with
 `WORLD_HOST_PACKAGE_CREATES_GLOBAL` and repeated handles with
-`WORLD_HOST_DUPLICATE_STABLE_HANDLE`. One item remains before the phase 3 gate closes:
-**R-1038** (scenes become launch adapters, hosted `MapViewRuntime`, input, and the
-menu-to-forge playthrough in both flag states).
+`WORLD_HOST_DUPLICATE_STABLE_HANDLE`.
+
+**R-1038 / WB-06b (2026-09-27).** `reval_east` and `forge` are launch adapters. With
+the flag on, `WorldHost.launch_scene_location()` adds a host under the scene root,
+creates the globals, seeds the host clock once from `MusicDirector`, enters the
+location (the `reval_outdoor` manifest layout when it lists the location, otherwise a
+one-location `<id>_solo` group, which is how the forge interior gets host globals) and
+retires the Player baked into the `.tscn`. `hosted_bootstrap()` returns the same
+dictionary shape scene scripts already read, built from the mounted logic package.
+`MapViewRuntime.install_hosted()` binds the host Player, PlayerRig, camera, hosted
+view and minimap instead of instantiating them, and the host clock replaces the
+per-runtime `MusicDirector` restore (the runtime still writes `MusicDirector` so music
+and flag-off scenes keep the day). `DoorNavigator.place_player` is unchanged: it walks
+the scene root, which now contains the host's doors. Flag off, the scenes call exactly
+today's `MapSceneBootstrap.assemble()` and `MapViewRuntime.install()`.
+`--filter=test_world_host_launch` covers the host census, hosted runtime binding,
+host clock (tick, pinned time, save snapshot restore), DoorNavigator pending and
+default spawns, keyboard, gamepad and click routing, and both real scenes with the
+flag on. Limits kept for later rows: the host lives under the scene, so a door still
+swaps scenes and builds a new host (persistent host and seam-driven streaming are
+**R-1043**); quest NPCs stay under the scene's `Actors` node in location-local
+coordinates, which is only correct because both entry locations sit at origin cell
+(0, 0); both gaps, plus the other `reval_outdoor` entry points, are **R-1049**.
+Rendered flag-on playthrough plates are **R-1050**.
 
 **R-1039 (2026-09-27).** Baked `NavigationRegion2D`s keep the flag-off
 `agent_radius = 16` inset, so two real packages leave a 32 px gap at a shared

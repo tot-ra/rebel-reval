@@ -98,6 +98,84 @@ static func install(
 	return runtime
 
 
+## WB-06b: the same wiring as install(), but the Player, PlayerRig, camera, view,
+## environment and minimap are the WorldHost's. The runtime creates none of them,
+## so it binds instead of instantiating and the host census stays one of each.
+## The runtime itself stays under `scene_root` (WorldHost rejects a runtime inside
+## a location package), and the host clock replaces the MusicDirector restore.
+static func install_hosted(
+	scene_root: Node2D, host: Node, location_id: StringName
+) -> MapViewRuntime:
+	# `host` is a WorldHost, typed Node so this preload chain never compiles it.
+	var bootstrap: Dictionary = host.call(&"hosted_bootstrap", location_id)
+	var hosted_view := host.call(&"hosted_view", location_id) as MapView3D
+	var player := host.get(&"player_owner") as CharacterBody2D
+	var player_rig := host.get(&"player_rig") as SharedCharacterRig
+	if bootstrap.is_empty() or hosted_view == null or player == null or player_rig == null:
+		push_error("MapViewRuntime.install_hosted: %s is not mounted with globals" % location_id)
+		return null
+	var runtime := MapViewRuntime.new()
+	runtime.name = "MapViewRuntime"
+	runtime.world_host = host
+	runtime._environment.world_host = host
+	runtime._definition = bootstrap["definition"]
+	runtime._player = player
+	runtime._input.configure(runtime, player)
+	# Host-owned: never re-parented here, so freeing the runtime leaves it alive.
+	runtime.view = hosted_view
+	RuntimeActors.hide_player_canvas(player)
+	runtime._player_rig = player_rig
+	runtime._camera = host.get(&"camera_owner") as Camera3D
+	runtime._camera.size = CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE
+	runtime._camera_controller.configure(
+		runtime._camera, runtime._player_rig, runtime.view, runtime._player
+	)
+	runtime._actor_controller.configure(
+		runtime,
+		runtime._definition,
+		runtime._player,
+		runtime._player_rig,
+		runtime.view,
+		runtime._camera_controller.follow_player,
+		runtime._camera_controller.logic_direction_toward_camera
+	)
+	runtime._actor_controller.set_screen_shake_callback(runtime._camera_controller.add_screen_shake)
+	if player.has_method("set_mud_wetness_provider"):
+		player.call("set_mud_wetness_provider", runtime.view.mud_wetness)
+
+	scene_root.add_child(runtime)
+	var magic_vfx: Node3D = MagicVfx.new()
+	magic_vfx.name = "MagicVfx"
+	runtime.add_child(magic_vfx)
+	magic_vfx.call("bind", runtime._definition.cell_size, scene_root)
+	# The host rig outlives this runtime; add the light layer and fill only once.
+	if runtime._player_rig.get_node_or_null("ReadabilityFill") == null:
+		runtime._player_rig.add_visual_layer(PLAYER_LIGHT_LAYER)
+		_install_player_fill_light(runtime._player_rig)
+	runtime.set_process_unhandled_input(true)
+	runtime._session.bind_session_state()
+	runtime._actor_controller.register_view_actors(scene_root)
+	runtime._configure_screen_relative_movement()
+	runtime._sync_player(true)
+
+	runtime._actor_controller.bind_player_health_ring()
+	runtime._environment.restore_from_world_host()
+	runtime.view.set_calendar_date(runtime._session.current_calendar_date())
+	host.call(&"set_clock_progress", runtime.cycle_progress)
+	runtime._sync_music_cycle()
+	runtime._bind_environment_runtime()
+	runtime._ambient_controller.configure(
+		runtime,
+		runtime._definition,
+		runtime._player,
+		runtime._camera,
+		runtime.view
+	)
+	runtime._ambient_controller.install()
+	runtime._input.install_click_input()
+	return runtime
+
+
 static func _install_player_fill_light(player_rig: SharedCharacterRig) -> void:
 	# A layer-isolated fill keeps Kalev readable when his front faces away from
 	# the sun, without flattening authored map lighting or illuminating NPCs.

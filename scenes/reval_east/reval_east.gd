@@ -62,6 +62,7 @@ const BANDIT_SPAWN := Vector2(4256.0, 1760.0)
 @onready var player: Player = $Actors/Player
 
 var _bootstrap: Dictionary = {}
+var _world_host: WorldHost
 var _view_runtime: MapViewRuntime
 var _mart_encounter: DemoMartEncounter
 var _bandit_encounter: WorkersDistrictBandit
@@ -93,7 +94,7 @@ var _patrol_controller: MapPatrolController
 func _ready() -> void:
 	super()
 	var definition: MapDefinition = DEFINITION_SCRIPT.create()
-	_bootstrap = MapSceneBootstrap.assemble(self, definition, actors, map_root)
+	_bootstrap = _launch_location(definition)
 	DoorNavigator.place_player(self, player, definition.player_spawn)
 	_wire_player_navigation()
 	MapSceneBootstrap.configure_player_movement(player, _bootstrap)
@@ -112,7 +113,7 @@ func _ready() -> void:
 	if navigation != null:
 		_bandit_encounter.set_navigation_map(navigation.get_navigation_map())
 
-	_view_runtime = MapViewRuntime.install(self, _bootstrap, map_root, player)
+	_view_runtime = _install_view_runtime(definition)
 	_setup_phase_binder(definition)
 	_mart_encounter.wire(self, definition, player, _view_runtime)
 	_bitter_brew_investigation = INVESTIGATION_SCRIPT.new()
@@ -319,3 +320,22 @@ func _wire_player_navigation() -> void:
 	var navigation: NavigationRegion2D = _bootstrap.get("navigation")
 	if player != null and navigation != null and player.navigation_agent != null:
 		player.navigation_agent.set_navigation_map(navigation.get_navigation_map())
+
+
+## WB-06b: behind `world_host/additive_residency_enabled` a WorldHost owns the
+## Player, camera, environment, HUD and navigation map and this scene is only a
+## launch adapter; `player` is rebound to the host's. Flag off (the default) runs
+## exactly today's MapSceneBootstrap path, as does a failed host launch.
+func _launch_location(definition: MapDefinition) -> Dictionary:
+	if WorldHost.launch_enabled():
+		_world_host = WorldHost.launch_scene_location(self, definition, player)
+		if _world_host != null:
+			player = _world_host.player_owner as Player
+			return _world_host.hosted_bootstrap(definition.map_id)
+	return MapSceneBootstrap.assemble(self, definition, actors, map_root)
+
+
+func _install_view_runtime(definition: MapDefinition) -> MapViewRuntime:
+	if _world_host != null:
+		return MapViewRuntime.install_hosted(self, _world_host, definition.map_id)
+	return MapViewRuntime.install(self, _bootstrap, map_root, player)

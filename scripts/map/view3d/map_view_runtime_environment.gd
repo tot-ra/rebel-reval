@@ -20,6 +20,12 @@ static var _ocean_time := 0.0
 var cycle_enabled := true
 var cycle_progress := DayNightCycle.DEFAULT_PROGRESS
 var cycle_elapsed_days := 0
+## WB-06b: when set, this host owns the clock. The runtime mirrors it (and still
+## writes MusicDirector so music and flag-off scenes keep the same day).
+## Untyped on purpose: the rrmap ResourceFormatLoader compiles the map view
+## chain at startup, before autoloads exist. A `WorldHost` type here would pull
+## world_host.gd -> MapSceneBootstrap -> DoorNavigator into that early compile.
+var world_host = null
 
 var _host: MapViewRuntime
 
@@ -44,6 +50,15 @@ func restore_from_music_director() -> void:
 		cycle_elapsed_days = int(music_director.call(&"get_cycle_elapsed_days"))
 
 
+## Hosted replacement for restore_from_music_director(): the host seeded its
+## clock once at launch, so every runtime bound to it starts from the host.
+func restore_from_world_host() -> void:
+	if world_host == null:
+		return
+	cycle_progress = world_host.clock_progress
+	cycle_elapsed_days = world_host.clock_completed_days
+
+
 func sync_music_cycle() -> void:
 	var music_director := _music_director()
 	if music_director != null:
@@ -61,9 +76,18 @@ func advance_cycle(scaled_delta: float, calendar_date_provider: Callable) -> voi
 	var map_view := _map_view()
 	if map_view == null:
 		return
-	var clock_advance := DayNightCycle.advance_clock(cycle_progress, scaled_delta)
-	cycle_progress = float(clock_advance["progress"])
-	var completed_days := int(clock_advance["completed_days"])
+	var completed_days := 0
+	if world_host != null:
+		# The host pushes the new fraction to every mounted view, so two resident
+		# locations can never show different times of day.
+		var days_before: int = world_host.clock_completed_days
+		world_host.advance_clock(scaled_delta)
+		cycle_progress = world_host.clock_progress
+		completed_days = world_host.clock_completed_days - days_before
+	else:
+		var clock_advance := DayNightCycle.advance_clock(cycle_progress, scaled_delta)
+		cycle_progress = float(clock_advance["progress"])
+		completed_days = int(clock_advance["completed_days"])
 	if completed_days > 0:
 		cycle_elapsed_days += completed_days
 		map_view.set_calendar_date(calendar_date_provider.call())
@@ -93,11 +117,14 @@ func set_time_of_day(next_time: StringName) -> void:
 		return
 	map_view.set_time_of_day(next_time)
 	cycle_progress = 0.5 if next_time == MapView3D.TIME_DAY else 0.0
+	_publish_to_world_host()
 	sync_music_cycle()
 
 
 func on_phase_changed(next: StringName) -> void:
 	cycle_elapsed_days = 0
+	if world_host != null:
+		world_host.clock_completed_days = 0
 	var map_view := _map_view()
 	if map_view != null:
 		map_view.set_calendar_date(GameCalendarScript.date_for_phase(next))
@@ -138,6 +165,7 @@ func restore_snapshot(snapshot: Dictionary) -> bool:
 		return false
 	cycle_progress = float(snapshot.get("cycle_progress", cycle_progress))
 	cycle_elapsed_days = int(snapshot.get("elapsed_days", cycle_elapsed_days))
+	_publish_to_world_host()
 	return true
 
 
@@ -162,6 +190,15 @@ func deactivate_binding() -> void:
 func weather_node() -> Node:
 	var map_view := _map_view()
 	return map_view.sky_weather() if map_view != null else null
+
+
+## A pinned time or a restored save changes the runtime clock directly; the host
+## clock must follow or its next advance_clock() would rewind the sky.
+func _publish_to_world_host() -> void:
+	if world_host == null:
+		return
+	world_host.clock_completed_days = cycle_elapsed_days
+	world_host.set_clock_progress(cycle_progress)
 
 
 func _music_director() -> Node:
