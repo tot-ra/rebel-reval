@@ -64,6 +64,7 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 - `toompea_small_castle.rrmap` is an unregistered benchmark source (WB-10). Do not register it from a tooling task just to make `test_map_pipeline_hardening` compare discover==registry.
 - Fresh worktrees need `godot --headless --path . --import` before tests (global class cache).
 - Copying only `global_script_class_cache.cfg` into a throwaway worktree is not a substitute for `--import`. The harness summary can go green while `run_godot_checked.sh` fails on missing `.ctex` / `.scn` preloads.
+- `--editor --quit-after 2` aborts the filesystem scan before authored `.ctex` files land. Rsync the whole `.godot/` from a fully imported checkout, or run a complete `--import` without an early quit.
 - A new `elevation_area` / `elevation_ramp` ID on an urban exterior rrmap must land in `URBAN_EXTERIOR_CASES` (`tests/godot/test_r454_elevation_scope.gd`) in the same change.
 - Do not run ordinary Node or RefCounted scripts with `--script`; they do not quit. Use the harness.
 - A shared worktree with Godot `--editor` or another harness is not a valid test host. Copy only the scoped files into a throwaway worktree (HEAD plus your own hunks) and run the focused `--filter=` there.

@@ -223,9 +223,11 @@ static func _authored_plate_image(path: String, texture_size: int) -> Image:
 	var texture := load(path) as Texture2D
 	if texture == null:
 		return Image.new()
+	# Headless get_image() aliases the stored Image; copy before resize.
 	var image := texture.get_image()
 	if image == null or image.get_width() < 2:
 		return Image.new()
+	image = image.duplicate()
 	if image.get_width() != texture_size or image.get_height() != texture_size:
 		image.resize(texture_size, texture_size, Image.INTERPOLATE_LANCZOS)
 	return image

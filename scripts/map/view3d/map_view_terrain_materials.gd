@@ -131,7 +131,7 @@ static func terrain_blend_index(terrain_id: StringName) -> int:
 
 
 static func smithy_floor_albedo_image() -> Image:
-	var image := SMITHY_FLOOR_ALBEDO_TEXTURE.get_image()
+	var image := _copied_texture_image(SMITHY_FLOOR_ALBEDO_TEXTURE)
 	if image.get_width() != TEXTURE_SIZE or image.get_height() != TEXTURE_SIZE:
 		image.resize(TEXTURE_SIZE, TEXTURE_SIZE, Image.INTERPOLATE_LANCZOS)
 	image.generate_mipmaps()
@@ -157,19 +157,19 @@ static func terrain_pattern_array(noise_seed: int) -> Texture2DArray:
 			# Keep a low-res family copy in the shared array for fallbacks. The
 			# blend shader samples the native 512 px grass plate directly so
 			# meadows stay sharp at gameplay range.
-			image = GRASS_ALBEDO_TEXTURE.get_image()
+			image = _copied_texture_image(GRASS_ALBEDO_TEXTURE)
 			if image.get_width() != TEXTURE_SIZE or image.get_height() != TEXTURE_SIZE:
 				image.resize(TEXTURE_SIZE, TEXTURE_SIZE, Image.INTERPOLATE_LANCZOS)
 			image.generate_mipmaps()
 		elif terrain_id == MapTypes.TERRAIN_MUD and ResourceLoader.exists(MUD_ALBEDO_PATH):
-			image = (load(MUD_ALBEDO_PATH) as Texture2D).get_image()
+			image = _copied_texture_image(load(MUD_ALBEDO_PATH) as Texture2D)
 			if image.get_width() != TEXTURE_SIZE or image.get_height() != TEXTURE_SIZE:
 				image.resize(TEXTURE_SIZE, TEXTURE_SIZE, Image.INTERPOLATE_LANCZOS)
 			image.generate_mipmaps()
 		elif terrain_id == MapTypes.TERRAIN_TIMBER_FLOOR:
 			# Interior/pier floors use the same texture-array tier as outdoor ground;
 			# a separate source avoids stretching the directional grain across cells.
-			image = TIMBER_FLOOR_ALBEDO_TEXTURE.get_image()
+			image = _copied_texture_image(TIMBER_FLOOR_ALBEDO_TEXTURE)
 			if image.get_width() != TEXTURE_SIZE or image.get_height() != TEXTURE_SIZE:
 				image.resize(TEXTURE_SIZE, TEXTURE_SIZE, Image.INTERPOLATE_LANCZOS)
 			image.generate_mipmaps()
@@ -180,7 +180,7 @@ static func terrain_pattern_array(noise_seed: int) -> Texture2DArray:
 		elif terrain_id in [MapTypes.TERRAIN_HAY, MapTypes.TERRAIN_STRAW]:
 			# Keep a 128 px family copy in the shared array. The blend shader
 			# samples the native 512 px hay plate so fields stay sharp.
-			image = HAY_ALBEDO_TEXTURE.get_image()
+			image = _copied_texture_image(HAY_ALBEDO_TEXTURE)
 			if image.get_width() != TEXTURE_SIZE or image.get_height() != TEXTURE_SIZE:
 				image.resize(TEXTURE_SIZE, TEXTURE_SIZE, Image.INTERPOLATE_LANCZOS)
 			image.generate_mipmaps()
@@ -298,6 +298,17 @@ static func apply_mud_wetness(wetness: float) -> void:
 	for key: Variant in _cache.keys():
 		if String(key).begins_with("blended_ground:"):
 			(_cache[key] as ShaderMaterial).set_shader_parameter("mud_wetness", value)
+
+
+## Headless Texture2D.get_image() aliases the stored Image. Resize/mipmap
+## that object and the source plate itself shrinks for later readbacks.
+static func _copied_texture_image(texture: Texture2D) -> Image:
+	if texture == null:
+		return Image.new()
+	var image := texture.get_image()
+	if image == null:
+		return Image.new()
+	return image.duplicate()
 
 
 static func _make_material(base: Color, pattern: StringName, noise_seed: int) -> StandardMaterial3D:
