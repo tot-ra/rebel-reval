@@ -18,7 +18,8 @@ A performance row is accepted only when the recorded run identifies both the dec
 |---|---:|---:|---|
 | Cloud noise resolution | 128 | 256 | Generated cloud-noise texture width and height |
 | Cloud shape resolution | 256 | 512 | Generated cloud-shape texture width and height |
-| Cloud shadow samples | 2 | 4 | Shader shadow integration samples |
+| Cloud shadow samples | 2 | 4 | Sky-dome shadow integration samples |
+| Cloud shadow ground samples | 1 | 3 | WS-12 ground-pass samples; dome count stays 2/4 |
 | Rain shaft samples | 3 | 6 | Shader rain-column samples |
 | Rain particles | 700 | 2,200 | Maximum `GPUParticles3D.amount` for rain |
 | Lightning density | 0.65 | 1.0 | Rendered flash intensity multiplier; strike timing remains deterministic |
@@ -26,6 +27,10 @@ A performance row is accepted only when the recorded run identifies both the dec
 | Shader sample budget | 80 | 140 | Combined weather shader sample allowance |
 | Frame-time budget | 1.50 ms | 2.50 ms | Weather presentation allocation, not the whole-frame budget |
 | Memory budget | 8 MiB | 24 MiB | Weather resources/allocation, not total process memory |
+| Ocean FFT cascades | 2 | 3 | WS-04 slope cascades; C2 is off on minimum |
+| Sky-view LUT size | 96 x 54 | 192 x 108 | WS-10 Hillaire sky-view target |
+| Sky-view LUT cadence | every 2 frames | every frame | Minimum skips a frame; recommended follows the compressed day |
+| Ripple sim size | 0 | 256 | WS-15 interactive window; 0 disables the sim |
 | Missing-resource fallback | `gradient_only_if_resource_missing` | `gradient_only_if_resource_missing` | Fail-soft visual fallback |
 
 The source of truth for these values is `SkyWeather3D.QUALITY_TIERS`. The resource-resolution and rain-particle limits are also defined in [`sky_weather_resources.gd`](../../scripts/map/view3d/sky_weather_resources.gd). The focused contract test checks tier selection, clamping, and deterministic state equivalence in [`test_sky_weather_3d.gd`](../../tests/godot/test_sky_weather_3d.gd).
@@ -86,10 +91,11 @@ Do not mark a row accepted from the headless command or from the generic report 
 
 ## Ownership and next steps
 
-- `R-778` provides the budget contract and fail-closed report template.
+- `R-778` wrote the first budget contract and fail-closed report template.
+- `R-737` (2026-09-27) owns the live `QUALITY_TIERS` table, including later WS-04 / WS-10 / WS-12 / WS-15 keys, and the focused contract that every named key exists on both rows. Isolated GPU cost is still **BLOCKED**.
 - `R-653` owns acquisition of the declared minimum-hardware GPU run. Its Apple M5 measurement remains supplementary.
-- `R-737` owns tier integration and final budget acceptance.
-- The R-713 acceptance ledger must keep these rows blocked until the target/host-separated evidence is retained; no generic whole-scene result should be relabeled as sky/weather proof.
+- `R-822` owns the isolated recommended-host weather-presenter benchmark. Do not relabel a whole-scene `run_performance_report.sh` row as that measurement.
+- The R-713 acceptance ledger must keep the measurement rows blocked until the target/host-separated evidence is retained; no generic whole-scene result should be relabeled as sky/weather proof.
 
 ## Sources
 

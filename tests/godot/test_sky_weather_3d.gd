@@ -2,6 +2,7 @@ extends "res://tests/godot/test_case.gd"
 
 const SkyWeather := preload("res://scripts/map/view3d/sky_weather_3d.gd")
 const SkyWeatherState := preload("res://scripts/map/view3d/sky_weather_state.gd")
+const AtmosphereLut := preload("res://scripts/map/view3d/sky_atmosphere_lut.gd")
 const Lighting := preload("res://scripts/map/view3d/map_view_lighting.gd")
 const WaterMaterials := preload("res://scripts/map/view3d/map_view_water_materials.gd")
 
@@ -785,6 +786,7 @@ func test_quality_tier_clamps_unknown_and_auto_to_named_settings() -> void:
 		recommended["rain_particles"],
 		SkyWeather.SKY_RESOURCES.RAIN_PARTICLES_RECOMMENDED
 	)
+	_assert_quality_tier_budget_row(minimum, recommended)
 	var sky := SkyWeather.new()
 	sky.set_quality_tier(SkyWeather.QUALITY_MINIMUM)
 	assert_eq(
@@ -827,6 +829,16 @@ func test_quality_tier_does_not_change_weather_state_digest() -> void:
 	)
 	minimum.free()
 	recommended.free()
+
+
+func test_quality_tier_ids_are_only_the_named_budget_rows() -> void:
+	assert_eq(SkyWeather.QUALITY_TIER_IDS.size(), 2)
+	assert_eq(SkyWeather.QUALITY_TIER_IDS[0], SkyWeather.QUALITY_MINIMUM)
+	assert_eq(SkyWeather.QUALITY_TIER_IDS[1], SkyWeather.QUALITY_RECOMMENDED)
+	assert_true(
+		not SkyWeather.QUALITY_TIER_IDS.has(SkyWeather.QUALITY_AUTO),
+		"auto is a request alias, not a third budget row"
+	)
 
 
 func test_r736_source_contract_uses_one_presentation_adapter() -> void:
@@ -956,3 +968,61 @@ func test_r736_view_sync_matches_shared_presentation() -> void:
 	)
 	MapView3D._strip_geometry_materials(view)
 	view.free()
+
+
+## R-737: every live QUALITY_TIERS key stays on both named rows so later WS
+## fields cannot silently drop off the budget contract.
+func _assert_quality_tier_budget_row(minimum: Dictionary, recommended: Dictionary) -> void:
+	var required: Array[String] = [
+		"cloud_noise_resolution",
+		"cloud_shape_resolution",
+		"cloud_shadow_samples",
+		"cloud_shadow_ground_samples",
+		"cloud_shadow_enabled",
+		"rain_shaft_samples",
+		"rain_particles",
+		"lightning_density",
+		"fog_quality",
+		"fallback_behavior",
+		"frame_time_budget_ms",
+		"memory_budget_mib",
+		"particle_budget",
+		"shader_sample_budget",
+		"ocean_fft_cascades",
+		"sky_lut_size",
+		"sky_lut_every_n_frames",
+		"ripple_sim_size",
+	]
+	for key in required:
+		assert_true(minimum.has(key), "minimum QUALITY_TIERS must publish %s" % key)
+		assert_true(recommended.has(key), "recommended QUALITY_TIERS must publish %s" % key)
+	assert_eq(minimum["cloud_shadow_samples"], 2)
+	assert_eq(recommended["cloud_shadow_samples"], 4)
+	assert_eq(minimum["cloud_shadow_ground_samples"], 1)
+	assert_eq(recommended["cloud_shadow_ground_samples"], 3)
+	assert_eq(minimum["rain_shaft_samples"], 3)
+	assert_eq(recommended["rain_shaft_samples"], 6)
+	assert_eq(minimum["lightning_density"], 0.65)
+	assert_eq(recommended["lightning_density"], 1.0)
+	assert_eq(minimum["fog_quality"], 0.65)
+	assert_eq(recommended["fog_quality"], 1.0)
+	assert_eq(minimum["fallback_behavior"], &"gradient_only_if_resource_missing")
+	assert_eq(recommended["fallback_behavior"], &"gradient_only_if_resource_missing")
+	assert_eq(minimum["frame_time_budget_ms"], 1.50)
+	assert_eq(recommended["frame_time_budget_ms"], 2.50)
+	assert_eq(minimum["memory_budget_mib"], 8.0)
+	assert_eq(recommended["memory_budget_mib"], 24.0)
+	assert_eq(minimum["particle_budget"], 700)
+	assert_eq(recommended["particle_budget"], 2200)
+	assert_eq(minimum["shader_sample_budget"], 80)
+	assert_eq(recommended["shader_sample_budget"], 140)
+	assert_eq(minimum["ocean_fft_cascades"], 2)
+	assert_eq(recommended["ocean_fft_cascades"], 3)
+	assert_eq(minimum["sky_lut_size"], AtmosphereLut.SIZE_MINIMUM)
+	assert_eq(recommended["sky_lut_size"], AtmosphereLut.SIZE_RECOMMENDED)
+	assert_eq(minimum["sky_lut_every_n_frames"], 2)
+	assert_eq(recommended["sky_lut_every_n_frames"], 1)
+	assert_eq(minimum["ripple_sim_size"], 0)
+	assert_eq(recommended["ripple_sim_size"], 256)
+	assert_true(bool(minimum["cloud_shadow_enabled"]))
+	assert_true(bool(recommended["cloud_shadow_enabled"]))
