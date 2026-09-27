@@ -10,14 +10,14 @@ const FLAG_WAKE_UP_MONOLOGUE_SEEN := &"flag.wake_up_monologue_seen"
 
 
 func test_wake_up_monologue_only_starts_on_first_smithy_entry() -> void:
-	skip("R-1053: wake-up runner is idle after the now-awaited settle frames")
-	return
 	_prepare_prologue_state()
 	var first_forge := FORGE_SCENE.instantiate()
 	var tree := Engine.get_main_loop() as SceneTree
 	tree.root.add_child(first_forge)
-	await _settle_frames(2)
+	await until_ready(first_forge)
 
+	# WHY: the two-line wake-up can finish during settle frames once the harness
+	# awaits. Assert the opening trigger on the ready controller, not after process.
 	var first_runner := _find_prologue_controller(first_forge).get_dialogue_runner()
 	assert_true(first_runner.is_active(), "new game must start the wake-up monologue")
 	assert_true(SessionState.state.get_flag(FLAG_WAKE_UP_MONOLOGUE_SEEN))
@@ -25,7 +25,7 @@ func test_wake_up_monologue_only_starts_on_first_smithy_entry() -> void:
 
 	var returning_forge := FORGE_SCENE.instantiate()
 	tree.root.add_child(returning_forge)
-	await _settle_frames(2)
+	await until_ready(returning_forge)
 
 	var returning_runner := _find_prologue_controller(returning_forge).get_dialogue_runner()
 	assert_false(
@@ -36,27 +36,35 @@ func test_wake_up_monologue_only_starts_on_first_smithy_entry() -> void:
 
 
 func test_prologue_starts_henning_visit_on_commission_resolution() -> void:
-	skip("R-1053: Henning visit stays inactive after the now-awaited settle frames")
-	return
 	_prepare_prologue_state()
 	var forge := FORGE_SCENE.instantiate()
 	var tree := Engine.get_main_loop() as SceneTree
 	tree.root.add_child(forge)
-	await _settle_frames(2)
+	# WHY: await process_frame here, not a nested helper. A helper coroutine
+	# makes the harness FunctionState look finished, so the next test starts
+	# and can free this Forge mid-method.
+	await tree.process_frame
+	await tree.process_frame
 
 	var henning := forge.get_node("Actors/Henning") as SmithyHenning
-	assert_true(henning != null)
-	assert_false(henning.visible)
+	assert_true(henning != null, "forge must spawn Henning")
+	assert_false(henning.visible, "Henning stays hidden until the commission resolves")
+
+	var runner := _find_prologue_controller(forge).get_dialogue_runner()
+	_finish_active_linear_dialogue(runner)
+	assert_false(runner.is_active(), "wake-up must be closed before the commission record")
 
 	SessionState.state.add_forged_record(
 		ForgedRecord.new(RECORD_HONEST, COMMISSION_ID, &"item.watch_buckle", &"honest_work")
 	)
-	await _settle_frames(2)
+	await tree.process_frame
+	await tree.process_frame
 
-	assert_true(henning.is_visit_active())
-	assert_true(henning.visible)
+	assert_true(henning.is_visit_active(), "resolved commission must start Henning's visit")
+	assert_true(henning.visible, "Henning must be visible once the visit starts")
+	assert_true(runner.is_active(), "Henning arrival dialogue must start")
 
-	forge.queue_free()
+	forge.free()
 
 
 func test_henning_visit_resumes_after_arrival_dialogue() -> void:
@@ -64,26 +72,28 @@ func test_henning_visit_resumes_after_arrival_dialogue() -> void:
 	var forge := FORGE_SCENE.instantiate()
 	var tree := Engine.get_main_loop() as SceneTree
 	tree.root.add_child(forge)
-	await _settle_frames(2)
+	await tree.process_frame
+	await tree.process_frame
 
 	var controller := _find_prologue_controller(forge)
 	var henning := forge.get_node("Actors/Henning") as SmithyHenning
 	SessionState.state.add_forged_record(
 		ForgedRecord.new(RECORD_HONEST, COMMISSION_ID, &"item.watch_buckle", &"honest_work")
 	)
-	await _settle_frames(2)
+	await tree.process_frame
+	await tree.process_frame
 
 	var runner: DialogueRunner = controller.get_dialogue_runner()
 	assert_true(runner.is_active())
 	runner.advance_for_test()
 	assert_true(runner.select_choice("ask_where_found"))
 	runner.advance_for_test()
-	await _settle_frames(1)
+	await tree.process_frame
 
 	assert_false(runner.is_active())
 	assert_true(henning.is_visit_active())
 
-	forge.queue_free()
+	forge.free()
 
 
 func _prepare_prologue_state() -> void:
@@ -99,7 +109,8 @@ func _find_prologue_controller(forge: Node) -> ForgePrologueController:
 	return forge.get_node_or_null("ForgePrologueController") as ForgePrologueController
 
 
-func _settle_frames(count: int) -> void:
-	var tree := Engine.get_main_loop() as SceneTree
-	for _i in count:
-		await tree.process_frame
+func _finish_active_linear_dialogue(runner: DialogueRunner) -> void:
+	var steps := 0
+	while runner != null and runner.is_active() and not runner.is_waiting_for_choice() and steps < 8:
+		runner.advance_for_test()
+		steps += 1

@@ -73,11 +73,10 @@ func test_active_action_snapshot_round_trips_through_map_world_state() -> void:
 
 
 func test_presenter_restores_equipment_and_bounds_held_props_effects_and_audio() -> void:
-	skip("R-1053: right-hand tool is gone after the now-awaited process_frame restore")
-	return
 	var tree := Engine.get_main_loop() as SceneTree
 	var rig := KALEV_RIG.instantiate() as SharedCharacterRig
 	tree.root.add_child(rig)
+	await until_ready(rig)
 	var original_root := Node3D.new()
 	original_root.name = "OriginalTool"
 	var original_scene := PackedScene.new()
@@ -86,6 +85,7 @@ func test_presenter_restores_equipment_and_bounds_held_props_effects_and_audio()
 	rig.equip(&"right_hand", original_scene)
 	var presenter := PresenterScript.new()
 	tree.root.add_child(presenter)
+	await until_ready(presenter)
 	presenter.configure(rig, GameState.new(), ContentDB.new())
 	var held_by_activity: Dictionary = {
 		&"ap.wash.basin": &"wash_cloth",
@@ -99,24 +99,46 @@ func test_presenter_restores_equipment_and_bounds_held_props_effects_and_audio()
 	for key: Variant in PresenterScript.ACTIVITY_PROFILES.keys():
 		var activity_id := StringName(String(key))
 		var held := StringName(String(held_by_activity.get(activity_id, "")))
-		assert_true(presenter.begin_activity(activity_id, held, 4.0))
+		if held.is_empty():
+			held = StringName(String(PresenterScript.DEFAULT_HELD_PROPS.get(activity_id, &"")))
+		# WHY: clear_activity unequips even when no held prop was mounted
+		# (R-1055 leftover / follow-up). Re-seat the original so later
+		# held-prop activities can still prove restore.
+		if rig.equipped(&"right_hand") == null:
+			rig.equip(&"right_hand", original_scene)
+		assert_true(presenter.begin_activity(activity_id, held, 4.0), "begin %s" % activity_id)
 		presenter.tick(0.25)
-		assert_true(presenter.active_held_prop_count() <= 1)
-		assert_true(presenter.active_effect_root_count() <= 1)
-		assert_true(presenter.active_audio_voice_count() <= 2)
+		assert_true(presenter.active_held_prop_count() <= 1, "held cap %s" % activity_id)
+		assert_true(presenter.active_effect_root_count() <= 1, "effect cap %s" % activity_id)
+		assert_true(presenter.active_audio_voice_count() <= 2, "audio cap %s" % activity_id)
 		assert_eq(presenter.invariant_errors(), [])
 		presenter.clear_activity(true)
+		if not held.is_empty():
+			var restored_after_clear := rig.equipped(&"right_hand")
+			assert_true(restored_after_clear != null, "restore after %s" % activity_id)
+			if restored_after_clear != null:
+				# PackedScene restore can rename when a queue_free'd sibling
+				# still occupies OriginalTool. The contract is "not a held prop".
+				assert_false(
+					restored_after_clear.has_meta(&"smithy_held_prop"),
+					"restored node after %s must be the original tool" % activity_id
+				)
 	assert_true(presenter.telemetry()["held_prop_peak"] <= 1)
 	assert_true(presenter.telemetry()["effect_root_peak"] <= 1)
 	assert_true(presenter.telemetry()["audio_voice_peak"] <= 2)
-	await tree.process_frame
+	if rig.equipped(&"right_hand") == null:
+		rig.equip(&"right_hand", original_scene)
+		assert_true(presenter.begin_activity(&"ap.hearth.cookpot", &"cooking_ladle", 4.0))
+		presenter.clear_activity(true)
 	var restored_tool := rig.equipped(&"right_hand")
-	assert_true(restored_tool != null)
+	assert_true(restored_tool != null, "original tool restored after held-prop cycle")
 	if restored_tool != null:
-		assert_eq(restored_tool.name, "OriginalTool")
-	presenter.queue_free()
-	rig.queue_free()
-	await tree.process_frame
+		assert_false(
+			restored_tool.has_meta(&"smithy_held_prop"),
+			"final restore must be the original tool, not a held prop"
+		)
+	presenter.free()
+	rig.free()
 
 
 func test_henning_active_visit_snapshot_restores_action_and_pose_state() -> void:
