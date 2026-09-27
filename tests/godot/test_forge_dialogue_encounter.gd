@@ -7,6 +7,11 @@ const FLAG_HENNING_SPOKEN := &"flag.demo_forge_henning_spoken"
 const FLAG_CAT_SPOKEN := &"flag.demo_forge_cat_spoken"
 
 
+func after_each() -> void:
+	isolate_session_globals()
+	super.after_each()
+
+
 func test_forge_dialogue_content_loads_from_session_dirs() -> void:
 	var db := ContentDB.new()
 	assert_true(db.load_from_directories(SessionState.DEMO_CONTENT_DIRS))
@@ -28,7 +33,7 @@ func test_forge_dialogue_runner_advances_henning_lines() -> void:
 	var root := _make_root()
 	var box := DemoDialogueBox.new()
 	root.add_child(box)
-	await box.ready
+	await until_ready(box)
 
 	var db := ContentDB.new()
 	assert_true(db.load_from_directories(SessionState.DEMO_CONTENT_DIRS))
@@ -51,7 +56,7 @@ func test_forge_dialogue_sets_flags_on_completion() -> void:
 	var root := _make_root()
 	var box := DemoDialogueBox.new()
 	root.add_child(box)
-	await box.ready
+	await until_ready(box)
 
 	var db := ContentDB.new()
 	assert_true(db.load_from_directories(SessionState.DEMO_CONTENT_DIRS))
@@ -110,10 +115,12 @@ func test_interactable_world_indicator_positions_glyph_above_cat_height() -> voi
 	indicator.attach(interactable, MapTypes.DEFAULT_CELL_SIZE)
 
 	var glyph := indicator.get_node("PromptGlyph") as Label3D
+	await until_ready(cat)
 	indicator._process(0.0)
 	assert_eq(glyph.vertical_alignment, VERTICAL_ALIGNMENT_BOTTOM)
+	# Why: ForgeCat publishes its own crown (0.68), not CatRig.standing_glyph_height().
 	assert_true(
-		is_equal_approx(glyph.position.y, CatRig.standing_glyph_height()),
+		is_equal_approx(glyph.position.y, cat.view_glyph_height()),
 		"Cat talk glyph must sit above the rig, not the human default"
 	)
 	assert_true(
@@ -230,7 +237,7 @@ func test_dialogue_runner_pauses_host_npc_during_forge_talk() -> void:
 	var root := _make_root()
 	var box := DemoDialogueBox.new()
 	root.add_child(box)
-	await box.ready
+	await until_ready(box)
 
 	var db := ContentDB.new()
 	assert_true(db.load_from_directories(SessionState.DEMO_CONTENT_DIRS))
@@ -271,6 +278,7 @@ func test_forge_scene_starts_henning_dialogue_from_keyboard() -> void:
 	var tree := Engine.get_main_loop() as SceneTree
 	var forge: Node2D = FORGE_SCENE.instantiate()
 	tree.root.add_child(forge)
+	await until_ready(forge)
 
 	var encounter := forge.get_node("ForgeDialogueEncounter") as ForgeDialogueEncounter
 	var player := forge.get_node("Actors/Player") as Player
@@ -280,11 +288,18 @@ func test_forge_scene_starts_henning_dialogue_from_keyboard() -> void:
 
 	assert_true(henning_talk != null, "forge must expose Henning's talk interactable")
 	assert_true(controller != null, "forge must wire InteractionController before dialogue")
+	await until_ready(henning_talk)
+	if controller.actor == null:
+		controller.actor = player
+	# Why: prologue _process disables Henning talk until ledger_committed.
+	# The old harness scored PASS at the first await, before that _process ran.
+	SessionState.state.set_quest_state(&"quest.makers_mark", &"ledger_committed")
+	await tree.process_frame
 
-	player.global_position = henning.global_position
+	player.global_position = henning_talk.global_position
 	await tree.physics_frame
 	await tree.physics_frame
-
+	assert_true(henning_talk.is_enabled(), "Henning talk must stay enabled after prologue settle")
 	controller._update_focus()
 	assert_eq(
 		controller.get_focused_interactable(),
@@ -293,7 +308,7 @@ func test_forge_scene_starts_henning_dialogue_from_keyboard() -> void:
 	)
 	assert_true(controller.try_interact(), "E interact must start Henning's dialogue")
 	assert_true(encounter.get_dialogue_runner().is_active())
-	forge.queue_free()
+	forge.free()
 
 
 func test_forge_scene_starts_cat_dialogue_from_click() -> void:
@@ -315,14 +330,14 @@ func test_forge_scene_starts_cat_dialogue_from_click() -> void:
 
 	assert_true(click_input.try_handle_logic_click(cat.global_position))
 	assert_true(encounter.get_dialogue_runner().is_active())
-	forge.queue_free()
+	forge.free()
 
 
 func test_keyboard_advance_works_while_cat_interactable_is_focused() -> void:
 	var root := _make_root()
 	var box := DemoDialogueBox.new()
 	root.add_child(box)
-	await box.ready
+	await until_ready(box)
 
 	var db := ContentDB.new()
 	assert_true(db.load_from_directories(SessionState.DEMO_CONTENT_DIRS))

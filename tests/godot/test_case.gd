@@ -16,15 +16,33 @@ const ISOLATE_REASON := &"test_isolate"
 
 var _failures: Array[String] = []
 var _harness_root_baseline: Array[Node] = []
+var _skip_reason := ""
 
 func before_each() -> void:
 	_failures.clear()
+	_skip_reason = ""
+
+
+func skip(reason: String) -> void:
+	_skip_reason = reason
+
+
+func _get_skip_reason() -> String:
+	return _skip_reason
 
 func after_each() -> void:
 	# WHY: file-level isolate_session_globals() is not the only backstop.
 	# A test that assigned a narrower ContentDB must leave the demo corpus
 	# installed even if a later file skips isolation.
 	restore_demo_session()
+
+
+## Awaiting Node.ready after the node is already ready waits forever for a
+## second enter-tree. Use this after add_child on an in-tree parent.
+func until_ready(node: Node) -> void:
+	if node == null or node.is_node_ready():
+		return
+	await node.ready
 
 
 ## Snapshot autoload/root children once so later files cannot inherit leftover

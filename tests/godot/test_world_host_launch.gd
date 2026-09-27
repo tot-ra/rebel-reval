@@ -114,6 +114,10 @@ func test_door_navigator_places_the_host_player() -> void:
 
 
 func test_keyboard_and_gamepad_move_the_host_player() -> void:
+	# Why: a scene launched in the harness never runs the menu binding install.
+	# Gamepad move is the left stick, not the D-pad (InputBindingSettings).
+	var bindings: Variant = load("res://scripts/settings/input_binding_settings.gd")
+	bindings.default_settings().apply_to_input_map()
 	var scene := _scene_with_player()
 	var host := WorldHost.launch_scene_location(scene, _map(), scene.get_node("Actors/Player"))
 	MapViewRuntime.install_hosted(scene, host, &"launch_map")
@@ -129,15 +133,9 @@ func test_keyboard_and_gamepad_move_the_host_player() -> void:
 	player.global_position = start
 	player.velocity = Vector2.ZERO
 	await _physics_frames(2)
-	var pad := InputEventJoypadButton.new()
-	pad.button_index = JOY_BUTTON_DPAD_RIGHT
-	pad.pressed = true
-	Input.parse_input_event(pad)
-	Input.flush_buffered_events()
+	_tilt_left_stick_x(1.0)
 	await _physics_frames(6)
-	pad.pressed = false
-	Input.parse_input_event(pad)
-	Input.flush_buffered_events()
+	_tilt_left_stick_x(0.0)
 	assert_true(player.global_position.distance_to(start) > 1.0, "gamepad moves the host player")
 	_dispose(scene)
 
@@ -203,6 +201,14 @@ func _dispose(scene: Node) -> void:
 	if scene.get_parent() != null:
 		scene.get_parent().remove_child(scene)
 	scene.free()
+
+
+func _tilt_left_stick_x(value: float) -> void:
+	var pad := InputEventJoypadMotion.new()
+	pad.axis = JOY_AXIS_LEFT_X
+	pad.axis_value = value
+	Input.parse_input_event(pad)
+	Input.flush_buffered_events()
 
 
 func _physics_frames(count: int) -> void:

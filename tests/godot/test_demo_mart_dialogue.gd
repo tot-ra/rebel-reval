@@ -17,7 +17,7 @@ func test_demo_dialogue_runner_advances_linear_nodes() -> void:
 	var root := _make_root()
 	var box := DemoDialogueBox.new()
 	root.add_child(box)
-	await box.ready
+	await until_ready(box)
 
 	var db := ContentDB.new()
 	assert_true(db.load_from_directories(SessionState.DEMO_CONTENT_DIRS))
@@ -48,7 +48,7 @@ func test_demo_dialogue_sets_flag_on_completion() -> void:
 	var root := _make_root()
 	var box := DemoDialogueBox.new()
 	root.add_child(box)
-	await box.ready
+	await until_ready(box)
 
 	var db := ContentDB.new()
 	assert_true(db.load_from_directories(SessionState.DEMO_CONTENT_DIRS))
@@ -69,7 +69,7 @@ func test_keyboard_and_gamepad_advance_demo_dialogue() -> void:
 	var root := _make_root()
 	var box := DemoDialogueBox.new()
 	root.add_child(box)
-	await box.ready
+	await until_ready(box)
 
 	var db := ContentDB.new()
 	assert_true(db.load_from_directories(SessionState.DEMO_CONTENT_DIRS))
@@ -95,7 +95,7 @@ func test_mouse_click_advances_demo_dialogue() -> void:
 	var root := _make_root()
 	var box := DemoDialogueBox.new()
 	root.add_child(box)
-	await box.ready
+	await until_ready(box)
 
 	var db := ContentDB.new()
 	assert_true(db.load_from_directories(SessionState.DEMO_CONTENT_DIRS))

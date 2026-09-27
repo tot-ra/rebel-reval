@@ -4,6 +4,11 @@ const TEST_ROOT := "res://tests/godot"
 const TEST_PREFIX := "test_"
 const TEST_SUFFIX := ".gd"
 const TEST_CASE_PATH := "res://tests/godot/test_case.gd"
+# Why: Godot 4.7 Object.call() of a coroutine returns this class, but the
+# name is not in the GDScript global scope. Detect with get_class().
+const FUNCTION_STATE_CLASS := "GDScriptFunctionState"
+const EXPECT_FAIL_STEMS: PackedStringArray = ["test_harness_await_fail"]
+const DEFAULT_TEST_TIMEOUT_SEC := 180.0
 # Why: build/ is gitignored but still scanned as res://. A scratch class_name
 # copy there steals the global class cache. addons/ is allowed; it is first-party.
 const CLASS_CACHE_ALLOWED_PREFIXES: PackedStringArray = [
@@ -100,13 +105,16 @@ func _run() -> void:
 		isolation.snapshot_harness_root()
 
 	print("Godot headless tests: discovered %d file(s)." % test_files.size())
+	if not await _prove_awaited_failure_is_counted():
+		_finish(1)
+		return
 	for path in test_files:
 		# Why: combat/quest files share SessionState, ContentDB, InputMap, and
 		# root hosts. A prior file can leave a narrower corpus or leftover
 		# nodes that make later files fail only in a combined run.
 		if isolation.has_method("isolate_session_globals"):
 			isolation.isolate_session_globals()
-		_run_test_file(path)
+		await _run_test_file(path)
 
 	print("Godot headless tests: %d file(s), %d test(s), %d failure(s), %d error(s)." % [
 		_results["files"],
@@ -157,7 +165,10 @@ static func _apply_file_order(test_files: Array[String], reverse_order: bool) ->
 
 static func _filter_test_files(test_files: Array[String], filter_value: String) -> Array[String]:
 	if filter_value.is_empty():
-		return test_files
+		return test_files.filter(func(path: String) -> bool:
+			var filename_stem := path.get_file().trim_suffix(TEST_SUFFIX)
+			return not EXPECT_FAIL_STEMS.has(filename_stem)
+		)
 
 	var filters := filter_value.split(",", false)
 	return test_files.filter(func(path: String) -> bool:
@@ -193,7 +204,7 @@ func _run_test_file(path: String) -> void:
 	_results["files"] += 1
 	print("RUN %s (%d test(s))" % [path, methods.size()])
 	for method_name in methods:
-		_run_test_method(path, instance, method_name)
+		await _run_test_method(path, instance, method_name)
 
 
 func _discover_test_methods(instance: Object) -> Array[String]:
@@ -214,15 +225,26 @@ func _run_test_method(path: String, instance: Object, method_name: String) -> vo
 	var method_diagnostics: Array[Dictionary] = []
 
 	if instance.has_method("before_each"):
-		method_diagnostics.append_array(_call_and_capture(instance, "before_each", "before_each"))
+		method_diagnostics.append_array(
+			await _call_and_capture(instance, "before_each", "before_each")
+		)
 
 	# A failed setup makes the test body unsafe to run, but teardown still gets a
 	# chance to release anything setup created before it was interrupted.
 	if method_diagnostics.is_empty():
-		method_diagnostics.append_array(_call_and_capture(instance, method_name, "test"))
+		method_diagnostics.append_array(
+			await _call_and_capture(instance, method_name, "test")
+		)
 
 	if instance.has_method("after_each"):
-		method_diagnostics.append_array(_call_and_capture(instance, "after_each", "after_each"))
+		method_diagnostics.append_array(
+			await _call_and_capture(instance, "after_each", "after_each")
+		)
+
+	var skip_reason := _get_instance_skip_reason(instance)
+	if not skip_reason.is_empty():
+		print("  SKIP %s - %s" % [method_name, skip_reason])
+		return
 
 	var failures := _get_instance_failures(instance)
 	var new_failures := failures.slice(before_failures)
@@ -246,11 +268,75 @@ func _run_test_method(path: String, instance: Object, method_name: String) -> vo
 
 func _call_and_capture(instance: Object, method_name: String, phase: String) -> Array[Dictionary]:
 	var diagnostic_mark := _logger.mark()
-	instance.call(method_name)
+	var result: Variant = instance.call(method_name)
+	if _is_function_state(result):
+		var timed_out := await _await_function_state(result as Object, _test_timeout_sec())
+		if timed_out:
+			return [{
+				"code": "timed out after %.1fs" % _test_timeout_sec(),
+				"function": method_name,
+				"file": "",
+				"line": 0,
+				"rationale": "coroutine did not emit completed",
+				"phase": phase,
+			}]
 	var captured := _logger.since(diagnostic_mark)
 	for diagnostic in captured:
 		diagnostic["phase"] = phase
 	return captured
+
+
+func _is_function_state(value: Variant) -> bool:
+	return (
+		value is Object
+		and is_instance_valid(value)
+		and String((value as Object).get_class()) == FUNCTION_STATE_CLASS
+	)
+
+
+func _await_function_state(state: Object, timeout_sec: float) -> bool:
+	# Why: instance.call() already started the coroutine. Await the state from
+	# a method, or poll is_valid(). A lambda `await state` never resumes here,
+	# and the completed signal did not fire on this SceneTree --script path.
+	var deadline_msec := Time.get_ticks_msec() + int(timeout_sec * 1000.0)
+	while is_instance_valid(state):
+		if state.has_method("is_valid") and not bool(state.call("is_valid")):
+			return false
+		if Time.get_ticks_msec() >= deadline_msec:
+			return true
+		await process_frame
+	return false
+
+
+func _test_timeout_sec() -> float:
+	var raw := _argument_value("--timeout=")
+	if raw.is_empty():
+		return DEFAULT_TEST_TIMEOUT_SEC
+	var parsed := raw.to_float()
+	return parsed if parsed > 0.0 else DEFAULT_TEST_TIMEOUT_SEC
+
+
+func _prove_awaited_failure_is_counted() -> bool:
+	print("HARNESS SELF-TEST: proving awaited FAIL is counted")
+	var probe_path := "res://tests/godot/test_harness_await_fail.gd"
+	var probe_script := load(probe_path) as Script
+	if probe_script == null:
+		print("HARNESS SELF-TEST ERROR: could not load %s" % probe_path)
+		return false
+	var probe: Variant = probe_script.new()
+	if probe == null:
+		print("HARNESS SELF-TEST ERROR: could not instantiate %s" % probe_path)
+		return false
+	var saved := _results.duplicate(true)
+	_results = {"files": 0, "tests": 0, "failures": 0, "errors": 0}
+	await _run_test_method(probe_path, probe, "test_awaited_assertion_fails")
+	var counted := int(_results["failures"]) >= 1 and int(_results["errors"]) == 0
+	_results = saved
+	if counted:
+		print("HARNESS SELF-TEST: awaited failing assertion reported FAIL")
+		return true
+	print("HARNESS SELF-TEST ERROR: awaited failing assertion was not counted as FAIL")
+	return false
 
 
 func _print_diagnostics(diagnostics: Array[Dictionary], default_phase: String) -> void:
@@ -273,6 +359,12 @@ func _get_instance_failures(instance: Object) -> Array[String]:
 	if instance.has_method("_get_failures"):
 		return instance.call("_get_failures")
 	return []
+
+
+func _get_instance_skip_reason(instance: Object) -> String:
+	if instance.has_method("_get_skip_reason"):
+		return String(instance.call("_get_skip_reason"))
+	return ""
 
 
 func _argument_value(prefix: String) -> String:

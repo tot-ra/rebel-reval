@@ -192,7 +192,7 @@ func _spawn_lower_town() -> Node:
 	var east: Node = LOWER_TOWN_SCENE.instantiate()
 	var tree := Engine.get_main_loop() as SceneTree
 	tree.root.add_child(east)
-	await east.ready
+	await until_ready(east)
 	await _settle_frames(2)
 	return east
 

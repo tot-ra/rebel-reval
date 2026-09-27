@@ -109,7 +109,8 @@ func test_save_list_overlay_lists_every_slot() -> void:
 	menu.add_child(overlay)
 	await (Engine.get_main_loop() as SceneTree).process_frame
 
-	var entry_list := overlay.get_node("%EntryList") as VBoxContainer
+	# Why: %UniqueName needs owner in-tree. A runtime-built overlay has none.
+	var entry_list := overlay.find_child("EntryList", true, false) as VBoxContainer
 	assert_eq(entry_list.get_child_count(), 1)
 	var load_btn := entry_list.get_child(0).get_node("HBox/LoadBtn") as Button
 	assert_true(load_btn != null)
