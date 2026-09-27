@@ -3,7 +3,7 @@
 Recorded: 2026-08-29
 Parent: R-715, reflective water rollout across authored maps
 Scope: map-specific water exceptions, gameplay-topology parity, and external ownership boundaries
-Status: **13/13 green for this verification slice; parent closeout remains blocked by external owners**
+Status: **14/14 green for this verification slice; parent closeout remains blocked by R-713 weather evidence**
 
 ## Decision boundary
 
@@ -19,6 +19,7 @@ The focused exception test uses the exact 13 definitions listed in this report (
 |---|---|---|---|---|
 | `smithy_courtyard` | `water` | `enclosed` | no | green |
 | `lower_town_slice` | `water` | `enclosed` | no | green |
+| `monastery_quarter` | `water` | `enclosed` | no | green |
 | `south_quarter` | `water` | `enclosed` | no | green |
 | `viru_gate_foreland` | `river_water` | `river` | no | green |
 | `reval_harbor_north` | `shallow_water`, `deep_water` | `shallow_coastal`, `deep_coastal`, `harbour` | yes | green |
@@ -31,15 +32,15 @@ The focused exception test uses the exact 13 definitions listed in this report (
 | `world.padise` | `water`, `river_water`, `shallow_water` | `enclosed`, `river`, `shallow_coastal`, `shoreline` | yes | green |
 | `world.saaremaa` | `shallow_water`, `deep_water` | `shallow_coastal`, `deep_coastal`, `shoreline` | yes | green |
 
-The 13 rows above are the complete compiled water-bearing inventory. Prototype rows remain inactive where their authored definitions declare `active=false`; this matrix does not promote them. The two Reval harbour rows retain blocked water cells and map-owned landing/navigation boundaries. `world.padise` intentionally keeps pond, river, and shallow-water families together instead of collapsing them into one generic coastal category.
+The 14 rows above are the complete compiled water-bearing inventory. Prototype rows remain inactive where their authored definitions declare `active=false`; this matrix does not promote them. The two Reval harbour rows retain blocked water cells and map-owned landing/navigation boundaries. `world.padise` intentionally keeps pond, river, and shallow-water families together instead of collapsing them into one generic coastal category.
 
-## Intentionally excluded map and external ownership
+## External ownership
 
-| Map ID | Exclusion | Owner | Status |
+| Map ID | Note | Owner | Status |
 |---|---|---|---|
-| `monastery_quarter` | intentionally excluded from the 13-map rollout matrix; its pre-existing east-ditch regression is not waived by this report | **R-529 external map blocker** | blocked externally |
+| `monastery_quarter` | east ditch is now an `enclosed` row; travel openings stay dry | **R-529 resolved** | structurally green |
 
-- **R-529 is the external map blocker.** It owns the pre-existing Monastery east-ditch regression. Do not repair, reclassify, or waive it in R-715 water rollout work.
+- **R-529 is resolved.** The Monastery east ditch stays in the authored water mask. A dirt causeway and the two outer travel openings are dry both as terrain IDs and as contour samples. See [`r529_monastery_east_ditch.md`](r529_monastery_east_ditch.md).
 - **R-713 is the weather/presentation owner.** It owns unified sky/weather continuity and water-facing synchronization evidence. This report verifies topology only and does not duplicate or accept that presentation gate.
 - R-755 remains the owner of renderer budget and target-hardware evidence; no headless result in this handoff is performance acceptance.
 
@@ -54,13 +55,13 @@ export GODOT_BIN="/Applications/Godot.app/Contents/MacOS/Godot"
 
 The test enumerates `MapAuditRegistry.all()`, builds every compiled water-bearing definition, compares the closed family against this matrix, and checks that `MapView3D.create` preserves `MapTerrainGrid.fingerprint()` and the complete walkability signature. It also requires every matrix row and both external-owner markers in this report.
 
-Relevant external regression command:
+Relevant east-ditch command:
 
 ```bash
 export GODOT_BIN="/Applications/Godot.app/Contents/MacOS/Godot"
-"$GODOT_BIN" --headless --path . --script tools/run_godot_tests.gd -- --filter=test_r529
+"$GODOT_BIN" --headless --path . --script tools/run_godot_tests.gd -- --filter=test_r529_monastery_east_ditch
 ```
 
-Result in this checkout: **not run - no `test_r529` test file or map-specific R-529 test was available in the repository**. This is recorded only as a handoff fact; R-529 remains external and is not changed by this task.
+Result in this checkout: R-529 is structurally resolved. Visual/performance packets may still omit monastery plates.
 
 Report links resolve to repository files, and this report is intentionally separate from the visual acceptance packet: structural green status is not visual, weather, or performance acceptance.

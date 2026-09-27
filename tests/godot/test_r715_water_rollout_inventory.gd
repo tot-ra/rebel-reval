@@ -97,12 +97,12 @@ func test_external_water_row_is_explicitly_documented() -> void:
 		"the report must list the Monastery water-bearing definition",
 	)
 	assert_true(
-		report.contains("excluded from the 13-row rollout matrix"),
-		"the Monastery exception must remain outside the rollout matrix",
+		report.contains("14-row rollout matrix"),
+		"the Monastery east ditch must sit in the structural rollout matrix",
 	)
 	assert_true(
 		report.contains("R-529"),
-		"the excluded Monastery row must retain its external owner",
+		"the Monastery row must name the R-529 closeout",
 	)
 
 

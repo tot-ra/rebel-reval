@@ -8,6 +8,9 @@ const SmithyCourtyard := preload("res://scripts/map/smithy_courtyard_definition.
 const LowerTownSlice := preload(
 	"res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd"
 )
+const MonasteryQuarter := preload(
+	"res://scripts/map/definitions/prototypes/monastery_quarter_definition.gd"
+)
 const SouthQuarter := preload(
 	"res://scripts/map/definitions/prototypes/south_quarter_definition.gd"
 )
@@ -36,6 +39,11 @@ const EXPECTED_EXCEPTION_MATRIX := {
 		"shoreline": false,
 	},
 	&"lower_town_slice": {
+		"water_ids": [&"water"],
+		"classes": [&"enclosed"],
+		"shoreline": false,
+	},
+	&"monastery_quarter": {
 		"water_ids": [&"water"],
 		"classes": [&"enclosed"],
 		"shoreline": false,
@@ -96,9 +104,6 @@ const EXPECTED_EXCEPTION_MATRIX := {
 		"shoreline": true,
 	},
 }
-
-const EXTERNALLY_EXCLUDED_MAP := &"monastery_quarter"
-
 
 func test_water_exceptions_are_closed_and_preserve_gameplay_topology() -> void:
 	var found: Dictionary = {}
@@ -172,14 +177,14 @@ func test_water_exception_handoff_is_fail_closed() -> void:
 				report.contains("`%s`" % String(exception_class)),
 				"exception report must classify %s as %s" % [map_id, exception_class],
 			)
-	assert_true(report.contains("13/13 green"), "handoff must state the green exception count")
+	assert_true(report.contains("14/14 green"), "handoff must state the green exception count")
 	assert_true(
-		report.contains("monastery_quarter") and report.contains("intentionally excluded"),
-		"handoff must keep the Monastery map explicitly excluded",
+		report.contains("monastery_quarter") and report.contains("enclosed"),
+		"handoff must keep the Monastery east ditch as enclosed water",
 	)
 	assert_true(
-		report.contains("R-529") and report.contains("external map blocker"),
-		"handoff must name R-529 as the external map blocker",
+		report.contains("R-529") and report.contains("resolved"),
+		"handoff must record R-529 as structurally resolved",
 	)
 	assert_true(
 		report.contains("R-713") and report.contains("weather/presentation owner"),
@@ -188,11 +193,12 @@ func test_water_exception_handoff_is_fail_closed() -> void:
 
 
 func _water_definitions() -> Array[MapDefinition]:
-	# Keep this list aligned with the 13 report rows so unrelated invalid prototype
+	# Keep this list aligned with the 14 report rows so unrelated invalid prototype
 	# definitions cannot mask the water exception and topology checks.
 	return [
 		SmithyCourtyard.create(),
 		LowerTownSlice.create(),
+		MonasteryQuarter.create(),
 		SouthQuarter.create(),
 		ViruGateForeland.create(),
 		RevalHarborNorth.create(),

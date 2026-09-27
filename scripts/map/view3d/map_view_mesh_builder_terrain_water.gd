@@ -71,6 +71,17 @@ static func bake_water_contour(grid: MapTerrainGrid, terrain_id: StringName) -> 
 				value += horizontal[sample_y * columns + x] * kernel[offset + radius]
 			values[y * columns + x] = value
 			max_coverage = maxf(max_coverage, value)
+	# WHY: the radius-4 Gaussian fills a short dirt causeway between two
+	# stretches of still water (R-529 monastery east ditch). Enclosed ponds,
+	# ditches and moats must keep authored dry interruptions dry. River and
+	# sea keep the broad field so stair-stepped banks can still round.
+	if terrain_id == MapTypes.TERRAIN_WATER:
+		max_coverage = 0.0
+		for index in values.size():
+			if source[index] < 0.5:
+				values[index] = 0.0
+			else:
+				max_coverage = maxf(max_coverage, values[index])
 	return {
 		"values": values,
 		"source": source,
@@ -115,7 +126,7 @@ static func water_surface_arrays(
 	var cells := 0
 	for y in grid.size_cells.y:
 		for x in grid.size_cells.x:
-			if not cell_near_terrain(field, Vector2i(x, y), terrain_id):
+			if not cell_near_terrain(field, Vector2i(x, y), terrain_id, grid):
 				continue
 			add_water_cell_quad(surface, field, grid, x, y, terrain_id)
 			cells += 1
@@ -128,7 +139,11 @@ static func water_surface_arrays(
 	return arrays
 
 
-static func cell_near_terrain(field: Dictionary, cell: Vector2i, terrain_id: StringName) -> bool:
+static func cell_near_terrain(
+	field: Dictionary, cell: Vector2i, terrain_id: StringName, grid: MapTerrainGrid
+) -> bool:
+	if terrain_id == MapTypes.TERRAIN_WATER and grid.get_terrain(cell) != terrain_id:
+		return false
 	for probe in [
 		Vector2(cell),
 		Vector2(cell) + Vector2(1.0, 0.0),

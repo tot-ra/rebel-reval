@@ -29,6 +29,7 @@ This file contains lessons specific to the Dev role.
 - A custom spatial `light()` receives fragment-to-light varyings. `LIGHT_COLOR` already includes PI: Lambert is `NdL * ATTENUATION * LIGHT_COLOR / PI`, and ALBEDO is multiplied after `light()`. `SPECULAR` then only scales ambient/probe specular, so gate branches (for example seen-from-below) through varyings.
 - The gameplay camera is orthographic and its mirror direction points north-west at 30 deg. Sun or moon glints appear only when the body is low in the north-west (evening; a moon about 8 deg up), never at noon. Scan `SkyAstronomy` directions against the camera before choosing capture times.
 - Water `cloud_darken` is a pale overcast veil (`mix` toward `horizon * (0.83, 0.87, 0.93)`), not a luminance multiply. An isolated `--set=cloud_darken:0` off pair can be darker than the on plate while weather-overcast still reads much darker than clear noon. Do not retune the veil to force "on darker than off".
+- Enclosed still-water contours (`TERRAIN_WATER` ponds, ditches, moats) must clip the radius-4 Gaussian to the authored water mask. Otherwise a short dirt causeway and its travel opening fill in (R-529 monastery east ditch). River and sea keep the broad field so stair-stepped banks can still round.
 
 ### HUD and magic input
 - Persistent HUD strips must not share a screen band. Quick Access is bottom-right and 780px wide; its help labels composite through a center overlay and look like a broken font. Keep the spell bar bottom-left and list granted recipes, not the full element catalog.

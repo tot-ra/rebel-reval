@@ -10,6 +10,7 @@ const MapTypesContract := preload("res://scripts/map/map_types.gd")
 const EXPECTED_WATER_MAP_IDS: Array[StringName] = [
 	&"smithy_courtyard",
 	&"lower_town_slice",
+	&"monastery_quarter",
 	&"south_quarter",
 	&"viru_gate_foreland",
 	&"reval_harbor_north",

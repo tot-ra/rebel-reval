@@ -16,7 +16,7 @@ The runnable protocol is [`r715_water_benchmark.sh`](../../tools/benchmarks/r715
 
 Run `tools/benchmarks/r715_water_benchmark.sh recommended` or `tools/benchmarks/r715_water_benchmark.sh minimum`. Each tier requires at least 120 samples and writes the corresponding `build/benchmarks/r715-water-<tier>.json` artifact. Target hardware, detected measurement host, and renderer identity are separate fields. A headless run or a host whose profile, architecture, or GPU differs from the declared target is retained as `SUPPLEMENTARY` and cannot certify acceptance. The `compatibility_water_surface` fallback remains explicit.
 
-The protocol consumes the 13-map inventory below but does not duplicate R-713 weather ownership or include the R-529 Monastery east-ditch exception. It defines measurement and schema only; target-host runs and independent acceptance remain owned by R-800, R-801, and R-795.
+The protocol consumes the 14-map inventory below but does not duplicate R-713 weather ownership. The Monastery east ditch is an enclosed row after R-529. It defines measurement and schema only; target-host runs and independent acceptance remain owned by R-800, R-801, and R-795.
 
 R-731 (`R-715a` shared water material coverage audit) is complete and remains the upstream material baseline. R-715 remains open because rollout, synchronization, budgets, captures, and independent closeout are not accepted.
 
@@ -35,7 +35,7 @@ The list is owned by [`scripts/map/map_types.gd`](../../scripts/map/map_types.gd
 
 ## Water-bearing map definitions
 
-The focused test builds every definition returned by [`MapAuditRegistry.all()`](../../scripts/map/map_audit_registry.gd), ignores only invalid empty definitions returned after an already-failed parser dependency, and records every compiled definition containing one or more closed water IDs. The complete result is 14 definitions: 13 rollout rows plus the explicitly excluded `monastery_quarter` row owned by R-529.
+The focused test builds every definition returned by [`MapAuditRegistry.all()`](../../scripts/map/map_audit_registry.gd), ignores only invalid empty definitions returned after an already-failed parser dependency, and records every compiled definition containing one or more closed water IDs. The complete result is 14 definitions in the 14-row rollout matrix, including `monastery_quarter` after the R-529 east-ditch closeout.
 
 | Compiled map ID | Authored definition/source | Water terrain IDs |
 |---|---|---|
@@ -54,7 +54,7 @@ The focused test builds every definition returned by [`MapAuditRegistry.all()`](
 | `world.padise` | [`content/maps/world_padise.rrmap`](../../content/maps/world_padise.rrmap) via [`DistantLocationDefinitions`](../../scripts/map/definitions/outdoor/distant_location_definitions.gd) | `water`, `river_water`, `shallow_water` |
 | `world.saaremaa` | [`content/maps/world_saaremaa.rrmap`](../../content/maps/world_saaremaa.rrmap) via [`DistantLocationDefinitions`](../../scripts/map/definitions/outdoor/distant_location_definitions.gd) | `shallow_water`, `deep_water` |
 
-`monastery_quarter` is inventoried because its authored `outer_wall.ditch` contains `water`, but it is excluded from the 13-row rollout matrix pending the R-529 east-ditch regression. This is an explicit external blocker, not an omitted water-bearing definition.
+`monastery_quarter` is inventoried because its authored `outer_wall.ditch` contains `water`. R-529 keeps that ditch inside the authored mask so the dirt causeway and outer travel openings stay dry.
 
 The two sacred-grove and two Saaremaa rows are intentionally separate: `prototype.*` definitions are event/prototype packages, while `world.*` definitions are the developer-traversable RRMap layer. Stable map IDs are not merged or renamed.
 
@@ -62,12 +62,13 @@ The two sacred-grove and two Saaremaa rows are intentionally separate: `prototyp
 
 The rollout uses the existing `MapView3D.create` path for every row below. `MapViewMeshBuilderTerrain` discovers each water ID from the compiled grid, builds one `Terrain_<terrain_id>` surface, and assigns `MapViewMaterials.water_surface(terrain_id)`. No authored `.rrmap` or prototype activation flag is changed by this rollout.
 
-The focused exception and handoff audit is [`tests/godot/test_r715_water_exceptions.gd`](../../tests/godot/test_r715_water_exceptions.gd), with its fail-closed matrix and external-owner status recorded in [`r715_water_exceptions.md`](r715_water_exceptions.md). It covers the 13 rollout rows while making enclosed, river, shallow/deep coastal, harbour, shoreline, and intentionally excluded Monastery cases explicit.
+The focused exception and handoff audit is [`tests/godot/test_r715_water_exceptions.gd`](../../tests/godot/test_r715_water_exceptions.gd), with its fail-closed matrix and owner status recorded in [`r715_water_exceptions.md`](r715_water_exceptions.md). It covers the 14-row rollout matrix while making enclosed, river, shallow/deep coastal, harbour, and shoreline cases explicit.
 
 | Map ID | Water IDs | Shared view path | Gameplay topology |
 |---|---|---|---|
 | `smithy_courtyard` | `water` | `Terrain/Terrain_water` | unchanged; enclosed-water exception retained |
 | `lower_town_slice` | `water` | `Terrain/Terrain_water` | unchanged; stable terrain and transition IDs retained |
+| `monastery_quarter` | `water` | `Terrain/Terrain_water` | unchanged; east-ditch causeway and outer travel openings stay dry (R-529) |
 | `south_quarter` | `water` | `Terrain/Terrain_water` | unchanged; ditch gameplay remains map-owned |
 | `viru_gate_foreland` | `river_water` | `Terrain/Terrain_river_water` | unchanged; river flow remains presentation-only |
 | `reval_harbor_north` | `shallow_water`, `deep_water` | `Terrain/Terrain_shallow_water` + `Terrain/Terrain_deep_water` | unchanged; landing and navigation remain map-owned |
@@ -82,7 +83,7 @@ The focused exception and handoff audit is [`tests/godot/test_r715_water_excepti
 
 Focused coverage is [`tests/godot/test_r715_water_map_rollout.gd`](../../tests/godot/test_r715_water_map_rollout.gd). It enumerates the registry rather than hard-coding view construction per map, verifies the shared material for each generated surface, asserts exactly one `ViewEnvironment` and one `SkyWeather3D`, and compares terrain fingerprints plus walkability signatures before and after view construction.
 
-R-529 handoff: the pre-existing Monastery east-ditch regression remains owned by its existing task and is not folded into this rollout. Re-run that map-specific regression before final R-715 closeout.
+R-529 closeout: the Monastery east ditch is in the structural rollout. Contour clip and `test_r529_monastery_east_ditch` keep the causeway and outer travel openings dry. Visual/performance packets may still omit monastery plates.
 
 R-713 handoff: unified sky/weather acceptance and water-facing synchronization evidence remain blocked upstream. This rollout consumes the existing shared presenter; it does not create a second weather/environment controller or claim the missing visual acceptance.
 
@@ -126,7 +127,7 @@ Existing board rows own the next bounded steps; R-748 does not duplicate them:
 | R-756 | Produce matched visual evidence; this inventory supplies the map/terrain matrix but does not sign captures. |
 | R-757 | Independently rerun the complete rollout, map, weather, performance, capture, and report gates. |
 
-External blockers recorded for downstream coordination are **R-529** (pre-existing Monastery east-ditch water regression) and **R-713** (unified sky/weather acceptance still blocked, including water-facing synchronization evidence). They are not repaired or reclassified by this audit.
+R-529 is structurally closed. The remaining external blocker recorded for downstream coordination is **R-713** (unified sky/weather acceptance still blocked, including water-facing synchronization evidence). This audit does not claim that presentation gate.
 
 The inventory contract itself is [`tests/godot/test_r715_water_rollout_inventory.gd`](../../tests/godot/test_r715_water_rollout_inventory.gd); its report marker check keeps this document and the 14-row full inventory synchronized.
 
