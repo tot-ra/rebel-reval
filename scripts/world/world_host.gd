@@ -13,6 +13,7 @@ const ADDITIVE_RESIDENCY_SETTING := "world_host/additive_residency_enabled"
 const SCENE_SWAP_FALLBACK_SETTING := "world_host/scene_swap_fallback_enabled"
 const LOGIC_LOCATIONS_NAME := "LogicLocations"
 const VIEW_LOCATIONS_NAME := "ViewLocations"
+const SEAM_LINKS_NAME := "SeamLinks"
 
 var additive_residency_enabled: bool
 var scene_swap_fallback_enabled: bool
@@ -30,6 +31,8 @@ var _duplicate_stable_handles: Array[Dictionary] = []
 var _last_global_logic_position := Vector2.ZERO
 var _last_location_id: StringName = &""
 var _configured := false
+var _navigation_map := RID()
+var _seam_links: Node2D
 
 
 func _init() -> void:
@@ -153,6 +156,7 @@ func mount_location(
 	_logic_locations.add_child(logic_root)
 	if logic_package != null:
 		logic_root.add_child(logic_package)
+		_attach_navigation_regions(logic_package)
 
 	var view_root := Node3D.new()
 	view_root.name = String(location_id)
@@ -180,10 +184,15 @@ func unmount_location(location_id: StringName) -> bool:
 	var mounted: Dictionary = _mounted_locations[location_id] as Dictionary
 	var logic_root := mounted.get("logic_root") as Node
 	var view_root := mounted.get("view_root") as Node
-	if logic_root != null:
-		logic_root.queue_free()
-	if view_root != null:
-		view_root.queue_free()
+	# Detach before freeing so navigation regions leave the host map now,
+	# not at the end of the frame.
+	for root in [logic_root, view_root]:
+		var node := root as Node
+		if node == null:
+			continue
+		if node.get_parent() != null:
+			node.get_parent().remove_child(node)
+		node.queue_free()
 	_mounted_locations.erase(location_id)
 	_rebuild_stable_handle_registry()
 	location_unmounted.emit(location_id)
@@ -277,6 +286,29 @@ func owner_snapshot() -> Dictionary:
 	}
 
 
+## One NavigationServer2D map for every mounted location region and seam link.
+## Created lazily so a configure-only host does not allocate a map.
+func navigation_map() -> RID:
+	if not _navigation_map.is_valid():
+		_navigation_map = NavigationServer2D.map_create()
+		NavigationServer2D.map_set_cell_size(
+			_navigation_map,
+			float(ProjectSettings.get_setting("navigation/2d/default_cell_size", 1.0))
+		)
+		NavigationServer2D.map_set_edge_connection_margin(
+			_navigation_map,
+			float(ProjectSettings.get_setting("navigation/2d/default_edge_connection_margin", 1.0))
+		)
+		NavigationServer2D.map_set_active(_navigation_map, true)
+	return _navigation_map
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_PREDELETE and _navigation_map.is_valid():
+		NavigationServer2D.free_rid(_navigation_map)
+		_navigation_map = RID()
+
+
 func _ensure_mount_roots() -> void:
 	if _logic_locations == null:
 		_logic_locations = Node.new()
@@ -309,6 +341,44 @@ func _refresh_seam_activation() -> void:
 		var active := _seam_is_active(seam)
 		if not seam_id.is_empty():
 			seam_activation_changed.emit(seam_id, active)
+	_rebuild_seam_links()
+
+
+func _attach_navigation_regions(node: Node) -> void:
+	if node is NavigationRegion2D:
+		(node as NavigationRegion2D).set_navigation_map(navigation_map())
+	for child in node.get_children():
+		_attach_navigation_regions(child)
+
+
+func _rebuild_seam_links() -> void:
+	_ensure_seam_links()
+	for child in _seam_links.get_children():
+		_seam_links.remove_child(child)
+		child.free()
+	var map_rid := navigation_map()
+	for seam in active_seams():
+		var points := MapWorldLayout.seam_navigation_link_points(
+			world_layout, seam, MapNavBuilder.AGENT_RADIUS
+		)
+		if points.size() < 2:
+			continue
+		var seam_id := String(seam.get("id", "seam"))
+		MapNavBuilder.install_seam_link(
+			_seam_links,
+			map_rid,
+			points[0],
+			points[1],
+			"link_%s" % seam_id.replace("/", "_").replace("|", "_")
+		)
+
+
+func _ensure_seam_links() -> void:
+	if _seam_links != null:
+		return
+	_seam_links = Node2D.new()
+	_seam_links.name = SEAM_LINKS_NAME
+	add_child(_seam_links)
 
 
 func _packages_have_unique_handles(

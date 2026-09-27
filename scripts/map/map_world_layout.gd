@@ -122,6 +122,64 @@ static func location_at_global_cell(result: Dictionary, global_cell: Vector2i) -
 	return &""
 
 
+## Endpoints for a host NavigationLink2D that bridges the agent-radius inset
+## at a physical seam. Start sits inside the base bake, end inside the
+## neighbor bake. Empty when the walkable interiors do not overlap.
+static func seam_navigation_link_points(
+	result: Dictionary,
+	seam: Dictionary,
+	agent_radius: float = 16.0
+) -> PackedVector2Array:
+	var base := location(result, StringName(seam.get("base_map_id", &"")))
+	var neighbor := location(result, StringName(seam.get("neighbor_map_id", &"")))
+	if base.is_empty() or neighbor.is_empty():
+		return PackedVector2Array()
+	var base_bounds: Rect2 = base["global_bounds"]
+	var neighbor_bounds: Rect2 = neighbor["global_bounds"]
+	# Walkable interiors do not touch (that is the inset gap). Use the
+	# overlapping span along the seam, then step inward on each side.
+	var inset := agent_radius + 1.0
+	var side := StringName(seam.get("base_side", &""))
+	var start := Vector2.ZERO
+	var end := Vector2.ZERO
+	match side:
+		&"east", &"west":
+			var y0 := maxf(
+				base_bounds.position.y + agent_radius, neighbor_bounds.position.y + agent_radius
+			)
+			var y1 := minf(
+				base_bounds.end.y - agent_radius, neighbor_bounds.end.y - agent_radius
+			)
+			if y1 <= y0:
+				return PackedVector2Array()
+			var y := (y0 + y1) * 0.5
+			var seam_x := (
+				base_bounds.end.x if side == &"east" else base_bounds.position.x
+			)
+			var inward := -inset if side == &"east" else inset
+			start = Vector2(seam_x + inward, y)
+			end = Vector2(seam_x - inward, y)
+		&"south", &"north":
+			var x0 := maxf(
+				base_bounds.position.x + agent_radius, neighbor_bounds.position.x + agent_radius
+			)
+			var x1 := minf(
+				base_bounds.end.x - agent_radius, neighbor_bounds.end.x - agent_radius
+			)
+			if x1 <= x0:
+				return PackedVector2Array()
+			var x := (x0 + x1) * 0.5
+			var seam_y := (
+				base_bounds.end.y if side == &"south" else base_bounds.position.y
+			)
+			var inward := -inset if side == &"south" else inset
+			start = Vector2(x, seam_y + inward)
+			end = Vector2(x, seam_y - inward)
+		_:
+			return PackedVector2Array()
+	return PackedVector2Array([start, end])
+
+
 static func _definitions_by_id(definitions: Array[MapDefinition]) -> Dictionary:
 	var by_id: Dictionary = {}
 	for definition in definitions:

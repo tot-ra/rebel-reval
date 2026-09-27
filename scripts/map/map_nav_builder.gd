@@ -122,6 +122,22 @@ static func _rect_outline(rect: Rect2) -> PackedVector2Array:
 	return outline
 
 
+## Host-only seam bridge. The bake stays byte-identical; the link lives on the
+## WorldHost map and closes the 2 * AGENT_RADIUS gap at a shared edge.
+static func install_seam_link(
+	parent: Node, map_rid: RID, start: Vector2, end: Vector2, link_name: String
+) -> NavigationLink2D:
+	var link := NavigationLink2D.new()
+	link.name = link_name
+	link.bidirectional = true
+	link.start_position = start
+	link.end_position = end
+	parent.add_child(link)
+	if map_rid.is_valid():
+		link.set_navigation_map(map_rid)
+	return link
+
+
 ## A navigation bake running on the WorkerThreadPool. The result is written once by
 ## the worker and only read after the task is known to be complete.
 class NavBakeJob:
