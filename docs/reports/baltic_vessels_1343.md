@@ -1,7 +1,7 @@
 # Baltic vessels for Spring 1343 Reval
 
-Recorded: 2026-09-26
-Board: **R-952** / CO-05
+Recorded: 2026-09-26; R-993 addendum 2026-09-28
+Board: **R-952** / CO-05 / **R-993**
 Scope: dimensions and mechanics for the CO-06 fleet. Not art direction (ADR 0018).
 
 This report is the evidence gate for `docs/tasks/coast/CO-06_vessel_asset_fleet.md`.
@@ -127,7 +127,7 @@ full bank of oars to V1.
 
 | Fitting | 1343 verdict | Label |
 |---|---|---|
-| Rudder | **Stern rudder** on Lootsi: four iron gudgeons about 7 cm on the false stern; the blade was not found [1], [27]. Peeter has a straight stern post [2]. Open plates, the museum page, and Rebane 2023 do not publish Peeter gudgeons or a side rudder [16], [28]. Hang on Peeter stays **unknown**. Do not infer it from cog typology. | `attested` for Lootsi; Peeter hang `unknown` |
+| Rudder | **Stern rudder** on Lootsi: four iron gudgeons about 7 cm on the false stern; the blade was not found [1], [27]. Peeter has a straight stern post [2]. Open plates, the museum page, and Rebane 2023 do not publish Peeter gudgeons or a side rudder [16], [28]. R-993 re-checked the two named books: DIGAR is unavailable on both public and NLIB intranet [30], and the 2025 monograph stays shop-only [32]. Hang on Peeter stays **unknown**. Do not infer it from cog typology or from Vlierman's class note in Rebane [28]. | `attested` for Lootsi; Peeter hang `unknown` |
 | Tiller | Expected with a stern rudder; not separately measured | `plausible composite` |
 | Anchor | **unknown** (not published from these wrecks in the sources used here) | unknown |
 | Bailer | **unknown** | unknown |
@@ -139,7 +139,7 @@ full bank of oars to V1.
 
 Exact 1343 sail area, mast height, yard, shroud count, draught, crew size, paint, and the
 original Lootsi LOA (stem missing). Whether Peeter carried a side rudder, a stern rudder,
-or both during its life is still unpublished in readable sources. Dendro on Lootsi is after
+or both during its life is still unpublished in readable sources (R-993). Dendro on Lootsi is after
 the game date. Typology debate (cog vs a larger transitional hull) is open on Lootsi [6]; keep
 the gameplay name "cog" as the historical class, not as a claim that every feature matches
 Heinsius's checklist.
@@ -565,11 +565,25 @@ later task cites a new primary source and changes CANON.
     kasutamine Lootsi ja Peetri laevade näitel*. University of Tartu Viljandi. Open PDF:
     `https://dspace.ut.ee/bitstreams/ab1eab79-2076-4fe3-a756-1a5c2695ece9/download`.
     Field notes on Peeter nails and sintels (May 2023). No rudder hang is published.
-29. Access boundary for Peeter hang: Lätti and Roio, *Koge - keskaegne kaubalaev / The cog -
-    a medieval merchant ship* (2020), DIGAR `nlib-digar:432237`, copyrighted viewer; and
-    Roio and Russow (eds.), *The Kadriorg Cog* (2025), museum shop, not free. Neither body
-    was readable in this pass. Clearing condition: authenticated page read of the stern
-    chapter or display plate that names gudgeons or a side rudder.
+29. Lätti, P. and Roio, M. 2020. *Koge - keskaegne kaubalaev / The cog - a medieval
+    merchant ship*. Eesti Meremuuseum. ISBN 978-9949-740-13-0. DIGAR
+    `nlib-digar:432237`. Likely next page for Peeter hang. Body unread (see [30]).
+30. DIGAR record for [29], checked 2026-09-28: `http://www.digar.ee/id/nlib-digar:432237`.
+    The record states the book is unavailable on the public network **and** on the
+    National Library intranet. This is a physical-copy blocker, not a login retry.
+    Print copies: Raamatukoi (Harju 1) and the maritime-museum shop.
+31. FOG Heritage, "Rats and shoes and conservation talk. Cogge Sive Navis Magna
+    conference part 2" (2023-12-19):
+    `https://www.fogheritage.com/fogblog/2023/12/19/rats-and-shoes-and-conservation-talk-cogge-sive-navis-magna-conference-part-2`.
+    Iron rudder fastenings are named as a **Lootsi** difference of the second wreck.
+    That is not a Peeter hang attestation. Do not read it as a side-rudder claim.
+32. Roio, M. and Russow, E. (eds.) 2025. *The Kadriorg Cog. The Journey of the Wreck
+    from Seabed to Museum*. Eesti Meremuuseum / Muinsuskaitseamet. 336 pp.
+    ISBN 978-9916-9221-3-2. Shop listing (checked 2026-09-28):
+    `https://meremuuseum.100kingitust.ee/the-kadriorg-cog-the-journey-of-the-wreck-from-seabed-to-museum-eng-raamat/`.
+    Shop blurb names construction (*ehitus*). ETIS public chapters are finds catalogue
+    (pp. 256-309), food artefacts (pp. 74-85), other artefacts (pp. 116-123), dendro
+    (pp. 130-135), and animal provisions (pp. 136-147). No open construction folio.
 
 ## R-991 addendum (2026-09-26)
 
@@ -582,16 +596,45 @@ wreck [1], [27]. The stem is missing, so a single LOA% would be invented. Leave 
 field `unknown`.
 
 **Peeter rudder.** Readable sources still do not name side vs stern hardware [2], [16],
-[28]. The 2020 museum book and the 2025 monograph are the likely next pages [29]. Until
-those pages are readable, Peeter hang stays `unknown`. Lootsi's four gudgeons must not be
-copied onto the Peeter-scale roadstead cog as a 1343 fact.
+[28]. The 2020 museum book and the 2025 monograph are the likely next pages [29], [32].
+Until those pages are readable, Peeter hang stays `unknown`. Lootsi's four gudgeons must
+not be copied onto the Peeter-scale roadstead cog as a 1343 fact.
+
+## R-993 addendum (2026-09-28)
+
+R-991 left Peeter hang on a copyrighted-viewer / shop-book blocker. This pass named
+the exact access boundary and re-checked every open source the contract allowed.
+
+**DIGAR [29] / [30].** The 2020 book record is marked unavailable on the public network
+and on the National Library intranet. A library login cannot clear it. The next read is
+a physical copy (Raamatukoi or the museum shop), not another DIGAR fetch.
+
+**2025 monograph [32].** Still shop-only (336 pp). Public ETIS chapters cover artefacts,
+dendro, and fauna. They do not publish gudgeons or a side rudder. The construction
+pages named in the shop blurb were not readable here.
+
+**Open sources, still no hang.** AVE 2015 names a straight stem and stern post, not
+hardware [2]. The Fat Margaret page names the keelson, mast base, and "strait stern"
+as cog traits, not a rudder hang [16]. Rebane 2023 publishes Peeter nails and sintels;
+the only rudder sentence is Vlierman 2021 typology for large cogs in general [28].
+That class note is not a Peeter measurement.
+
+**FOG 2023 [31].** Conservators name impressive iron rudder fastenings as a difference
+of the **Lootsi** wreck versus the earlier Kadriorg project. That supports the already
+`attested` Lootsi stern hang. It does not name Peeter hardware, and it is not a side
+rudder.
+
+**Authoring rule, unchanged.** Peeter hang stays `unknown`. CO-06 must not copy Lootsi's
+four gudgeons onto the 1343 Peeter-scale roadstead cog, and must not invent an LOA%.
+Clearing task: **R-1075** (physical-copy read of [29] or [32], or a display plate that
+names the hang).
 
 ## Open questions
 
 - Original Lootsi LOA, if a later reconstruction publishes stem-to-stern length rather
   than wreck length.
-- Peeter rudder hang (side vs stern) from an authenticated read of [29], not from cog
-  typology. Board follow-up: **R-993**.
+- Peeter rudder hang (side vs stern) from an authenticated physical read of [29] or
+  [32], not from cog typology. Board follow-up: **R-1075**.
 - A 14th-c. Estonian or Livonian fishing-boat wreck. Until one exists, V2 and V4 stay
   tradition-banded.
 - Whether lightering at Reval used a *lodi* or only open boats.
