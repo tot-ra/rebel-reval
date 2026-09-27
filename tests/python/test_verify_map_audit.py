@@ -15,7 +15,7 @@ TOOLS = ROOT / "tools"
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
-from verify_map_audit import MANIFEST, validate_map_audit  # noqa: E402
+from verify_map_audit import MANIFEST, _declarative_scene_links, validate_map_audit  # noqa: E402
 from verify_map_conversion_plan import PLAN, SCENE_INVENTORY, TODO  # noqa: E402
 
 
@@ -51,6 +51,71 @@ class VerifyMapAuditTest(unittest.TestCase):
     def test_empty_named_archive_reports_missing_strict_tasks(self) -> None:
         errors = self._validate(archive="# empty custom_task_archive\n")
         self.assertTrue(any("missing strict TODO task `P2-020`" in error.message for error in errors))
+
+    def test_worktree_root_still_discovers_declarative_links(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            worktree_root = Path(tmp) / ".worktrees" / "probe"
+            self._write_declarative_scene(
+                worktree_root,
+                scene_rel="scenes/probe.tscn",
+                script_rel="scenes/probe.gd",
+                definition_rel="scripts/map/definitions/probe_definition.gd",
+            )
+            self._write_declarative_scene(
+                worktree_root,
+                scene_rel=".worktrees/mirror/scenes/hidden.tscn",
+                script_rel=".worktrees/mirror/scenes/hidden.gd",
+                definition_rel="scripts/map/definitions/hidden_definition.gd",
+            )
+            self.assertEqual(
+                _declarative_scene_links(worktree_root),
+                {"scenes/probe.tscn": "scripts/map/definitions/probe_definition.gd"},
+            )
+
+    def test_nested_worktree_mirrors_stay_skipped_from_primary_root(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            primary = Path(tmp)
+            self._write_declarative_scene(
+                primary,
+                scene_rel="scenes/live.tscn",
+                script_rel="scenes/live.gd",
+                definition_rel="scripts/map/definitions/live_definition.gd",
+            )
+            self._write_declarative_scene(
+                primary,
+                scene_rel=".worktrees/mirror/scenes/hidden.tscn",
+                script_rel=".worktrees/mirror/scenes/hidden.gd",
+                definition_rel="scripts/map/definitions/hidden_definition.gd",
+            )
+            self.assertEqual(
+                _declarative_scene_links(primary),
+                {"scenes/live.tscn": "scripts/map/definitions/live_definition.gd"},
+            )
+
+    @staticmethod
+    def _write_declarative_scene(
+        root: Path,
+        *,
+        scene_rel: str,
+        script_rel: str,
+        definition_rel: str,
+    ) -> None:
+        scene_path = root / scene_rel
+        script_path = root / script_rel
+        definition_path = root / definition_rel
+        scene_path.parent.mkdir(parents=True, exist_ok=True)
+        script_path.parent.mkdir(parents=True, exist_ok=True)
+        definition_path.parent.mkdir(parents=True, exist_ok=True)
+        scene_path.write_text(
+            f'[gd_scene load_steps=2 format=3]\n\n'
+            f'[ext_resource type="Script" path="res://{script_rel}" id="1"]\n',
+            encoding="utf-8",
+        )
+        script_path.write_text(
+            f'const DEFINITION_SCRIPT := preload("res://{definition_rel}")\n',
+            encoding="utf-8",
+        )
+        definition_path.write_text("class_name ProbeDefinition\n", encoding="utf-8")
 
     @staticmethod
     def _payload() -> dict:

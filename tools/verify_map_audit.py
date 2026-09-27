@@ -27,6 +27,9 @@ REGISTRY = ROOT / "scripts" / "map" / "map_audit_registry.gd"
 DEFINITION_ROOT = ROOT / "scripts" / "map" / "definitions"
 SCENE_DEFINITION = re.compile(r'preload\("res://(?P<path>scripts/map/(?:definitions/[^"\n]+|smithy_courtyard_definition\.gd))"\)')
 VALID_DISPOSITIONS = frozenset({"convert", "retain", "archive-prototype"})
+# tools/ is extra vs conversion-plan SKIP_TREE_PARTS: audit discovery must not
+# treat helper scenes under tools/ as declarative map inventory.
+SKIP_TREE_PARTS = frozenset({".git", ".godot", "tools", ".a2gent-worktrees", ".worktrees"})
 
 
 @dataclass(frozen=True)
@@ -53,8 +56,12 @@ def _resolves(root: Path, value: str) -> bool:
 def _declarative_scene_links(root: Path) -> dict[str, str]:
     links: dict[str, str] = {}
     for scene_path in root.rglob("*.tscn"):
-        # Keep local agent worktree mirrors out of inventory/audit discovery.
-        if any(part in {".git", ".godot", "tools", ".a2gent-worktrees", ".worktrees"} for part in scene_path.parts):
+        # WHY: skip names must be relative to this checkout. An isolated
+        # worktree rooted at `.worktrees/<name>` still has `.worktrees` in
+        # its absolute path; matching scene_path.parts then finds zero links
+        # and the audit silently skips scene-to-definition wiring.
+        relative = scene_path.relative_to(root)
+        if not SKIP_TREE_PARTS.isdisjoint(relative.parts):
             continue
         scene_text = scene_path.read_text(encoding="utf-8")
         script_match = re.search(r'path="res://(?P<script>[^"\n]+\.gd)"', scene_text)
