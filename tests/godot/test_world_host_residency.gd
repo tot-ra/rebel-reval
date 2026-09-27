@@ -213,7 +213,9 @@ func test_seam_link_points_sit_inside_each_inset_region() -> void:
 
 
 func test_baked_packages_have_no_path_until_the_host_adds_seam_links() -> void:
-	var host := _configured_host()
+	# R-1041: prove the shared seam-link path on the phase-3 host that owns
+	# globals via create_globals(), not only on the phase-2 configure() host.
+	var host := _hosted()
 	assert_true(host.mount_location(&"map_a", MapSceneBootstrap.assemble_location_package(_map_a())))
 	assert_true(host.mount_location(&"map_b", MapSceneBootstrap.assemble_location_package(_map_b())))
 	var map_rid := host.navigation_map()
@@ -245,6 +247,24 @@ func test_baked_packages_have_no_path_until_the_host_adds_seam_links() -> void:
 	_dispose(host)
 
 
+func test_phase2_configured_host_still_adds_seam_links() -> void:
+	var host := _configured_host()
+	assert_true(host.mount_location(&"map_a", MapSceneBootstrap.assemble_location_package(_map_a())))
+	assert_true(host.mount_location(&"map_b", MapSceneBootstrap.assemble_location_package(_map_b())))
+	var map_rid := host.navigation_map()
+	await _sync_navigation()
+	var start := Vector2(2.0 * CELL, 2.0 * CELL)
+	var goal := Vector2(6.0 * CELL, 2.0 * CELL)
+	assert_eq(host.observe_global_logic_position(start), &"map_a")
+	assert_eq(host.observe_global_logic_position(goal), &"map_b")
+	var links := host.get_node(WorldHost.SEAM_LINKS_NAME).get_children()
+	assert_true(links.size() >= 1, "phase-2 host still installs a seam link")
+	var path := NavigationServer2D.map_get_path(map_rid, start, goal, true)
+	assert_true(path.size() >= 2, "phase-2 path still crosses the baked inset gap")
+	assert_true(path[path.size() - 1].distance_to(goal) < CELL, "path reaches map_b")
+	_dispose(host)
+
+
 func test_flag_off_bake_bytes_stay_identical() -> void:
 	var definition := _map_a()
 	var grid := MapBuilder.build(definition)
@@ -266,6 +286,8 @@ func _hosted(enabled: bool = true) -> WorldHost:
 
 
 ## Phase 2 host: configure() binds owners created elsewhere; no create_globals().
+## R-1039 landed seam links here; R-1041 keeps this helper as a regression that
+## the shared mount_location path still works without owns_globals().
 func _configured_host() -> WorldHost:
 	var host := WorldHost.new()
 	host.name = "WorldHostSeamNav"

@@ -659,6 +659,8 @@ func _attach_navigation_regions(node: Node) -> void:
 		_attach_navigation_regions(child)
 
 
+## Shared by phase-2 configure() and phase-3 create_globals() because both
+## mount through mount_location() -> _refresh_seam_activation().
 func _rebuild_seam_links() -> void:
 	_ensure_seam_links()
 	for child in _seam_links.get_children():

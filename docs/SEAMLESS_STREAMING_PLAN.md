@@ -106,6 +106,13 @@ edge. `WorldHost` attaches those regions to one map and installs a deterministic
 `NavigationLink2D` per active `MapWorldLayout` seam. The bake itself is
 unchanged (R-979 nav parity). `--filter=test_world_host_residency`.
 
+**R-1041 (2026-09-27).** The seam-link helpers live on `mount_location()`, so they
+already run after `create_globals()` / `enter_location()`. The residency suite now
+proves a click path across two `MapSceneBootstrap.assemble_location_package()`
+mounts on that phase-3 host (phase-2 `configure()` stays as a regression).
+`--filter=test_world_host_residency`; `--filter=test_async_location_assembly`
+nav byte-identity is unchanged.
+
 ADR phase 6 (NPC, quest, fauna, audio, persistence residency beyond the two-seam walk)
 is follow-up work after R-980, not a fourth pack row.
 
