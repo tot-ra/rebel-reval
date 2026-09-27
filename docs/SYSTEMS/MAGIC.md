@@ -85,7 +85,11 @@ Canon: every element and spell/rite effect is **`invented`** gameplay framed thr
 - Divine (hammer-as-holy-symbol path): `element.faith`, `element.order`, `element.sacrifice` (tags on rites; not free chips)
 - Shared used by starter recipes: `element.metal`, `element.mind`
 
-Deferred from partial ship (keep in catalog, do not grant by default): `element.chaos`, `element.blood`, `element.beast`, `element.freedom`, `element.death`, `element.spirit`, `element.air`, `element.hope`, `element.dominion`, `element.light`, `element.judgment`, `element.time`, `element.deception`, `element.fear`.
+**Secondary-tag exceptions (R-1015):** `spell.pagan.fireball` may list `element.air` and `spell.pagan.illusionary_double` may list `element.deception` without expanding the six-element grant budget and without moving those recipes to Act 1. Those tags stay catalog metadata on already-allowed primary elements (`fire`, `mind`). They are not default-granted chips and they do not unlock `element.air` or `element.deception` for cookbook forging. `spell.pagan.air_gust` stays in the Act 1 optional band because it is air-primary.
+
+**Slice-band authored castables (8, at cap):** `spell.pagan.spark`, `spell.pagan.fireball`, `spell.pagan.earth_tremor`, `spell.pagan.healing_mist`, `spell.pagan.illusionary_double`, `spell.pagan.iron_skin`, `rite.blessing`, `spell.pagan.forgefire_weapon`. Automated check: `tests/python/test_magic_budget.py`.
+
+Deferred from partial ship as grantable chips (keep in catalog): `element.chaos`, `element.blood`, `element.beast`, `element.freedom`, `element.death`, `element.spirit`, `element.air` (except Fireball's secondary tag), `element.hope`, `element.dominion`, `element.light`, `element.judgment`, `element.time`, `element.deception` (except Illusionary Double's secondary tag), `element.fear`.
 
 Legacy faction spell lists (Metsik, Novgorod, Veiled Council, Black Cloaks, Hanseatic, Livonian Order, Pskov) are **seed catalogs**, not auto-ship content. Promote per act package with teacher flags and ledger consequences.
 
@@ -249,7 +253,7 @@ Partial ship (P7-010 acceptance bar):
 1. Schemas + validator accept example `spell.*` / `rite.*` / grant ops.
 2. GameState fields for willpower, piety, and known grants round-trip in save tests.
 3. Forge-conduit hooks exist on Kalev hammer equip / smithy interaction (anvil work binds the conduit until Kalev leaves the smithy; `test_forge_conduit_binding`).
-4. At most the starter budget in section 3.2 is granted in example content.
+4. At most the starter budget in section 3.2 is granted in example content (`tests/python/test_magic_budget.py`).
 5. Demo path (menu → Lower Town → forge → Mart / spearhead loop) does not require casting.
 6. **P4-007 Root and Ember** remains valid: quest stays understandable without literal magic confirmation. Later packages may add optional literal branches behind flags without rewriting that quest's historical verify line.
 7. Playable demo HUD (**R-959**): the bottom-left bar lists **granted** recipes as numbered slots. `1`..`5` or a click casts immediately. `R` opens the cookbook for element forging. Left click is never a cast bind. The 3D map mirrors projectiles and ground pulses through `MapViewMagicVfx` without naming a spell. New sessions seed Fireball, Earth Tremor, and Iron Skin plus 8 willpower; the critical path still never checks those grants.
@@ -272,11 +276,13 @@ These are design stubs, not shipped balance.
 | ID | School | Sequence / tags | Effect summary | Conduit |
 |---|---|---|---|---|
 | `spell.pagan.spark` | pagan | `[fire]` | Minor fire projectile | optional |
+| `spell.pagan.fireball` | pagan | `[fire, air]` | Explosive fire projectile with an air-expanded area impact; shipped example. `element.air` is a secondary-tag exception (R-1015), not a slice chip | optional |
 | `spell.pagan.reinforce` | pagan | `[metal]` | Short self armor buff | optional |
 | `spell.pagan.iron_skin` | pagan | `[earth, metal]` | Self damage reduction (35%, 8 s, recast replaces); shipped example (R-725) | optional |
 | `spell.pagan.earth_tremor` | pagan | `[earth]` | Hostile stagger pulse (96 radius, 1.5 s, 1 willpower); shipped example (R-724) | optional |
 | `spell.pagan.air_gust` | pagan | `[air]` | Hostile knockback cone (112 radius, 90 deg arc, 96 px push, 0.6 s hold, 1 willpower); shipped example (R-722). `element.air` stays outside the slice-safe default grants: the example is unlocked only by the explicit `magic.grant.starter_air_gust` op and counts against the Act 1 optional band | optional |
 | `spell.pagan.healing_mist` | pagan | `[water, life]` | Ally heal area (80 radius, 6 s, 4 health per second per ally); shipped example (R-721) | optional |
+| `spell.pagan.illusionary_double` | pagan | `[mind, deception]` | Fragile decoy that redirects nearby enemies; shipped example (R-720). `element.deception` is a secondary-tag exception (R-1015), not a slice chip | optional |
 | `spell.pagan.forgefire_weapon` | pagan | `[fire, metal, mind]` | Hotter melee strikes: self `damage_bonus` (20%, 8 s, recast replaces, 3 willpower); shipped conduit-gated example (P7-010), unlocked only by `magic.grant.forge_forgefire_weapon` and not seeded by the demo | `conduit.forge_spell` (`requires_conduit: hammer`) |
 | `spell.pagan.earthen_wall` | pagan | `[earth, metal, life]` | Short blocking earth segment | `conduit.forge_spell` |
 | `rite.blessing` | divine | tags `faith` | Short self outgoing-damage buff (25%, 6 s, recast replaces); shipped example (R-718) | optional / hammer symbol allowed |
