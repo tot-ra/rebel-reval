@@ -103,7 +103,8 @@ class VerifyMapCompositionTest(unittest.TestCase):
         self.assertEqual(verifier.validate_historical_band_grace(self.thresholds), [])
         grace = self.thresholds["historical_band_grace"]
         self.assertIn("R-986", grace["lower_town_slice"]["until"])
-        self.assertIn("R-285", grace["monastery_quarter"]["until"])
+        # R-285 closed the Monastery ordinary-fabric gap; its card must pass unaided.
+        self.assertNotIn("monastery_quarter", grace)
         self.assertIn("R-282", grace["south_quarter"]["until"])
         for map_id in grace:
             self.assertTrue(self.thresholds["maps"][map_id]["enforce"])

@@ -1,0 +1,26 @@
+{
+  "contract_version": 1,
+  "map_id": "monastery_quarter",
+  "source": "content/maps/monastery_quarter.rrmap",
+  "coordinate_space": "cells",
+  "authoring_intent": "Pikk/Lai merchant and craft strip plots with rear yards beside the substantially open St Michael's precinct, plus the extramural wall road east of the curtain (R-285 / P4-023b).",
+  "composition_thresholds": {
+    "path": "docs/data/map_composition_thresholds.json",
+    "map_id": "monastery_quarter",
+    "enforce": true,
+    "enforcement_state": "enforced"
+  },
+  "open_regions": [
+    {
+      "id": "outer_wall_verge_and_road",
+      "bounds_cells": [
+        228,
+        0,
+        32,
+        112
+      ],
+      "reason": "The wet ditch verge and extramural road from the Workers' District gate toward the harbour intentionally stay open and preserve both outer transitions.",
+      "exclude_from_unowned_empty_region": true
+    }
+  ]
+}

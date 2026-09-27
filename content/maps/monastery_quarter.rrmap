@@ -37,6 +37,21 @@ style house.convent.chapel door_side=south ridge_axis=x primitive=st_michaels_ch
 style house.convent.service door_side=north ridge_axis=z primitive=st_michaels_service_wing_1343 roof_color=6b5c40ff roof_material=shingle wall_color=6e6458ff wall_material=plaster wall_height=88
 style house.convent door_side=east ridge_axis=x roof_color=42261fff roof_material=tile wall_color=8c867aff wall_material=limestone wall_height=128
 style house.service door_side=north roof_color=6b5c40ff roof_material=thatch wall_color=5a4f45ff wall_material=log wall_height=88
+# R-285 / P4-023b ordinary fabric: R-003 house tiers for the Pikk/Lai strip plots.
+# Pikk leans merchant_stone with tile, Lai mixes merchant_timber, and the rear
+# service lanes and Vene edge are craft_boda with shingle or thatch. Every style
+# keeps gable-to-street massing: door onto the lane, ridge perpendicular to it.
+style house.pikk.stone.east door_side=east ridge_axis=x house_tier=merchant_stone roof_color=6b3626ff roof_material=tile wall_color=8a8579ff wall_material=limestone wall_height=136
+style house.pikk.stone.west door_side=west ridge_axis=x house_tier=merchant_stone roof_color=6b3626ff roof_material=tile wall_color=857f72ff wall_material=limestone wall_height=136
+style house.pikk.timber.east door_side=east ridge_axis=x house_tier=merchant_timber roof_color=4a3a2cff roof_material=shingle wall_color=6d5d4bff wall_material=plank wall_height=120
+style house.pikk.timber.west door_side=west ridge_axis=x house_tier=merchant_timber roof_color=4a3a2cff roof_material=shingle wall_color=776552ff wall_material=plaster wall_height=120
+style house.lai.timber.west door_side=west ridge_axis=x house_tier=merchant_timber roof_color=46382aff roof_material=shingle wall_color=7a6a58ff wall_material=plaster wall_height=112
+style house.lane.timber.south door_side=south ridge_axis=z house_tier=merchant_timber roof_color=4d3b2bff roof_material=shingle wall_color=6a5a48ff wall_material=plank wall_height=112
+style house.lane.timber.north door_side=north ridge_axis=z house_tier=merchant_timber roof_color=4d3b2bff roof_material=shingle wall_color=72614dff wall_material=plaster wall_height=112
+style house.boda.east door_side=east ridge_axis=x house_tier=craft_boda roof_color=7a6a45ff roof_material=thatch wall_color=5c4f42ff wall_material=log wall_height=88
+style house.boda.west door_side=west ridge_axis=x house_tier=craft_boda roof_color=554434ff roof_material=shingle wall_color=5f5244ff wall_material=log wall_height=88
+style house.boda.north door_side=north ridge_axis=z house_tier=craft_boda roof_color=7a6a45ff roof_material=thatch wall_color=625445ff wall_material=plank wall_height=88
+style house.boda.south door_side=south ridge_axis=z house_tier=craft_boda roof_color=554434ff roof_material=shingle wall_color=5a4d40ff wall_material=log wall_height=88
 style wall.precinct wall_height=112 wall_color=8d897fff
 style wall.city wall_height=192 wall_color=949185ff
 # round_tower keeps the Tallinn circular drum and conical red-tile roof while
@@ -92,6 +107,12 @@ stroke vene_lane mud 153,110|153,94|164,94|179,94|179,110 thickness=3 order=11
 stroke civic_lane dirt 39,110|39,98|86,98|94,98|101,98 thickness=3 order=12
 stroke guild_lane mud 23,54|49,54|49,72|75,72|75,88|101,88 thickness=3 order=13
 stroke convent_lane mud 0,34|23,34|23,54|49,54 thickness=3 order=14
+# R-285: rear-yard ground behind the new strip plots stays trodden mud rather
+# than an unowned dirt field; the service lane links the north-east plots.
+terrain pikk.west.rear_yards mud 70 3 18 26 order=8
+terrain lai.north.rear_yards mud 150 14 48 2 order=8
+terrain vene.block.yards mud 156 105 21 5 order=8
+stroke rear_service_lane mud 150,4|208,4|208,38 thickness=3 order=14
 # Tallinn's medieval wall circuit continues along the exposed west and east
 # sides. The open north/south district seams remain streets rather than walls.
 building monastery_city_wall_west_north wall 0 0 3 20 style=wall.city
@@ -146,6 +167,49 @@ building netmakers_loft house 120 76 10 6 style=house.service
 building shoemakers_guild house 151 34 10 8 style=house.merchant.north
 building market_house_east house 185 66 12 9 style=house.merchant.south
 building convent_almonry house 13 66 14 8 style=house.service
+# R-285 / P4-023b ordinary strip plots. Pikk frontage north of the guild row.
+building pikk_west_plot_n1 house 88 3 10 8 style=house.pikk.stone.east
+building pikk_west_plot_n2 house 89 12 9 7 style=house.pikk.timber.east
+building pikk_west_plot_n3 house 88 20 10 8 style=house.pikk.stone.east
+building pikk_east_plot_n1 house 105 10 9 8 style=house.pikk.timber.west
+building pikk_east_plot_n2 house 104 19 10 8 style=house.pikk.stone.west
+# Lai frontage: merchant timber on the east side, craft booths behind the workshops.
+building lai_east_plot_n1 house 138 2 10 8 style=house.lai.timber.west
+building lai_east_plot_n2 house 138 11 11 7 style=house.boda.west
+building lai_east_plot_n3 house 139 19 9 8 style=house.lai.timber.west
+building lai_west_boda_n1 house 124 1 9 7 style=house.boda.east
+building lai_west_boda_n2 house 123 18 9 8 style=house.boda.east
+# North-east service lane: renter booths between the Lai yards and the curtain wall.
+building service_lane_boda_1 house 152 7 8 7 style=house.boda.north
+building service_lane_boda_2 house 161 7 7 8 style=house.boda.north
+building service_lane_boda_3 house 170 7 9 7 style=house.lane.timber.north
+building service_lane_boda_4 house 182 7 8 8 style=house.boda.north
+building service_lane_boda_5 house 193 7 9 7 style=house.boda.north
+building wall_lane_boda_1 house 211 6 8 9 style=house.boda.west
+building wall_lane_boda_2 house 211 17 8 8 style=house.boda.west
+building wall_lane_boda_3 house 211 27 8 9 style=house.boda.west
+building wall_lane_boda_4 house 198 17 8 8 style=house.boda.east
+building wall_lane_boda_5 house 199 27 7 9 style=house.boda.east
+# Southern Pikk and Lai frontages toward the civic and Workers' seams.
+building pikk_east_plot_s1 house 104 80 9 8 style=house.pikk.stone.west
+building pikk_east_plot_s2 house 105 89 8 7 style=house.pikk.timber.west
+building pikk_east_plot_s3 house 104 97 10 8 style=house.pikk.timber.west
+building lai_west_boda_s1 house 123 84 9 8 style=house.boda.east
+building lai_west_boda_s2 house 124 93 8 7 style=house.boda.east
+building lai_west_boda_s3 house 123 101 9 6 style=house.boda.east
+# Civic-lane row south of the guild lane faces the lane with its gables.
+building civic_lane_plot_1 house 58 90 8 7 style=house.lane.timber.south
+building civic_lane_plot_2 house 67 90 7 7 style=house.boda.south
+building civic_lane_plot_3 house 78 90 9 7 style=house.lane.timber.south
+building civic_lane_plot_4 house 88 90 9 6 style=house.boda.south
+# Vene edge: craft booths inside and beside the Vene lane loop.
+building lai_east_plot_s1 house 139 90 10 8 style=house.lai.timber.west
+building vene_loop_boda_1 house 156 96 9 7 style=house.boda.north
+building vene_loop_boda_2 house 167 96 9 7 style=house.lane.timber.north
+building vene_east_boda_1 house 182 97 8 8 style=house.boda.west
+building vene_east_boda_2 house 183 86 9 7 style=house.boda.west
+building vene_east_boda_3 house 192 98 8 9 style=house.boda.south
+building vene_east_boda_4 house 202 90 9 8 style=house.boda.north
 landmark monastery_west_gate_arch gate_arch 0 28 8 12 wall_color=8f8c80ff top_px=240 passage_axis=x door_material=wood
 prop convent_well well 47 44 rect=2,2
 prop convent_well_herbs herb_drying_rack 43 42 rect=2,1
@@ -175,6 +239,35 @@ prop convent.ash tree 58 48 style=tree.ash
 prop convent.elm tree 8 72 style=tree.elm
 prop convent.linden tree 58 69 style=tree.linden
 prop lai.maple tree 162 70 style=tree.maple
+# R-285: plot edges and rear-yard work for the new strip plots. Fences run along
+# plot boundaries behind the frontages, never across Pikk, Lai, or the lanes.
+prop pikk_west_rear_fence wattle_fence 74 11 rect=12,1
+prop pikk_west_rear_gate yard_gate 86 19
+prop pikk_west_rear_firewood firewood_stack 80 14 rect=2,2
+prop pikk_west_rear_privy privy 72 24 rect=2,1
+prop pikk_west_yard.linden tree 76 5 style=tree.linden
+prop pikk_east_rear_fence wattle_fence 115 18 rect=1,8
+prop pikk_east_rear_tub wash_tub 116 12 rect=1,1
+prop lai_west_boda_herbs herb_drying_rack 122 27 rect=2,1
+prop lai_east_rear_firewood firewood_stack 150 20 rect=2,2
+prop service_lane_fence wattle_fence 152 15 rect=38,1
+prop service_lane_gate yard_gate 190 15
+prop service_lane_lean_to servant_lean_to 186 17 rect=3,2
+prop service_lane_privy privy 164 17 rect=2,1
+prop service_lane_cart farm_cart 176 17 rect=2,2
+prop wall_lane_fence wattle_fence 210 36 rect=10,1
+prop wall_lane_firewood firewood_stack 216 37 rect=2,2
+prop wall_lane.ash tree 203 37 style=tree.ash
+prop pikk_south_rear_fence wattle_fence 114 80 rect=1,6
+prop pikk_south_rear_privy privy 116 81 rect=2,1
+prop lai_south_rear_firewood firewood_stack 119 98 rect=2,2
+prop civic_row_rear_fence wattle_fence 58 89 rect=16,1
+prop civic_row_rear_herbs herb_drying_rack 68 87 rect=2,1
+prop vene_loop_tub wash_tub 162 106 rect=1,1
+prop vene_loop_firewood firewood_stack 172 106 rect=2,2
+prop vene_east_fence wattle_fence 201 99 rect=18,1
+prop vene_east_lean_to servant_lean_to 205 101 rect=3,2
+prop vene_east.elm tree 212 102 style=tree.elm
 spawn spawn.inspection 101 52 rect=2,2
 anchor inspection_spawn 101 52 rect=2,2
 anchor monastery_close 26 52 rect=2,2
