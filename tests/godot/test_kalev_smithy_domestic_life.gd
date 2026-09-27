@@ -96,47 +96,29 @@ func test_presenter_restores_equipment_and_bounds_held_props_effects_and_audio()
 		&"ap.carry.fuel": &"kindling_bundle",
 		&"ap.forge.bellows": &"bellows_handle",
 	}
-	for key: Variant in PresenterScript.ACTIVITY_PROFILES.keys():
-		var activity_id := StringName(String(key))
+	var cycle := _presenter_activity_cycle()
+	assert_eq(cycle[0], &"ap.sleep.wake")
+	for activity_id in cycle:
 		var held := StringName(String(held_by_activity.get(activity_id, "")))
 		if held.is_empty():
-			held = StringName(String(PresenterScript.DEFAULT_HELD_PROPS.get(activity_id, &"")))
-		# WHY: clear_activity unequips even when no held prop was mounted
-		# (R-1055 leftover / follow-up). Re-seat the original so later
-		# held-prop activities can still prove restore.
-		if rig.equipped(&"right_hand") == null:
-			rig.equip(&"right_hand", original_scene)
-		assert_true(presenter.begin_activity(activity_id, held, 4.0), "begin %s" % activity_id)
+			held = StringName(
+				String(PresenterScript.DEFAULT_HELD_PROPS.get(activity_id, &""))
+			)
+		assert_true(
+			presenter.begin_activity(activity_id, held, 4.0),
+			"begin %s" % activity_id
+		)
 		presenter.tick(0.25)
 		assert_true(presenter.active_held_prop_count() <= 1, "held cap %s" % activity_id)
 		assert_true(presenter.active_effect_root_count() <= 1, "effect cap %s" % activity_id)
 		assert_true(presenter.active_audio_voice_count() <= 2, "audio cap %s" % activity_id)
 		assert_eq(presenter.invariant_errors(), [])
 		presenter.clear_activity(true)
-		if not held.is_empty():
-			var restored_after_clear := rig.equipped(&"right_hand")
-			assert_true(restored_after_clear != null, "restore after %s" % activity_id)
-			if restored_after_clear != null:
-				# PackedScene restore can rename when a queue_free'd sibling
-				# still occupies OriginalTool. The contract is "not a held prop".
-				assert_false(
-					restored_after_clear.has_meta(&"smithy_held_prop"),
-					"restored node after %s must be the original tool" % activity_id
-				)
+		_assert_original_right_hand_tool(rig, activity_id)
 	assert_true(presenter.telemetry()["held_prop_peak"] <= 1)
 	assert_true(presenter.telemetry()["effect_root_peak"] <= 1)
 	assert_true(presenter.telemetry()["audio_voice_peak"] <= 2)
-	if rig.equipped(&"right_hand") == null:
-		rig.equip(&"right_hand", original_scene)
-		assert_true(presenter.begin_activity(&"ap.hearth.cookpot", &"cooking_ladle", 4.0))
-		presenter.clear_activity(true)
-	var restored_tool := rig.equipped(&"right_hand")
-	assert_true(restored_tool != null, "original tool restored after held-prop cycle")
-	if restored_tool != null:
-		assert_false(
-			restored_tool.has_meta(&"smithy_held_prop"),
-			"final restore must be the original tool, not a held prop"
-		)
+	_assert_original_right_hand_tool(rig, &"cycle_end")
 	presenter.free()
 	rig.free()
 
@@ -179,6 +161,31 @@ func test_accelerated_twenty_minute_soak_is_deterministic_and_clean() -> void:
 	assert_true(first["max_simultaneous_reservations"] <= 1)
 	assert_eq(first["simulated_seconds"], SOAK_SECONDS)
 	assert_eq(first["visited_phases"], GameState.SLICE_PHASES.size())
+
+
+func _presenter_activity_cycle() -> Array[StringName]:
+	var ordered: Array[StringName] = [&"ap.sleep.wake"]
+	for key: Variant in PresenterScript.ACTIVITY_PROFILES.keys():
+		var activity_id := StringName(String(key))
+		if activity_id == &"ap.sleep.wake":
+			continue
+		ordered.append(activity_id)
+	return ordered
+
+
+func _assert_original_right_hand_tool(
+	rig: SharedCharacterRig,
+	activity_id: StringName
+) -> void:
+	var restored := rig.equipped(&"right_hand")
+	assert_true(restored != null, "restore after %s" % activity_id)
+	if restored == null:
+		return
+	assert_false(
+		restored.has_meta(&"smithy_held_prop"),
+		"restored node after %s must be the original tool" % activity_id
+	)
+	assert_eq(restored.name, "OriginalTool", "authored name after %s" % activity_id)
 
 
 func _run_soak() -> Dictionary:

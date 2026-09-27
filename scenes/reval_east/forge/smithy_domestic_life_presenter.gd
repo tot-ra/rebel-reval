@@ -7,7 +7,9 @@ extends Node3D
 ## restrained station pose correction, and deterministic telemetry.
 
 const HeldPropFactory := preload("res://scenes/reval_east/forge/smithy_held_prop_factory.gd")
-const ContactPoseModifier := preload("res://scenes/reval_east/forge/smithy_contact_pose_modifier.gd")
+const ContactPoseModifier := preload(
+	"res://scenes/reval_east/forge/smithy_contact_pose_modifier.gd"
+)
 
 const EFFECT_ROOT_NAME := &"SmithyActionEffects"
 const HELD_SLOT := &"right_hand"
@@ -116,6 +118,8 @@ var _active_activity: StringName = &""
 var _active_held_prop: StringName = &""
 var _previous_right_hand_scene: PackedScene
 var _previous_right_hand_scene_path := ""
+var _previous_right_hand_name := ""
+var _held_prop_mounted := false
 var _active_effect_root: Node3D
 var _audio_players: Array[AudioStreamPlayer3D] = []
 var _animation_time := 0.0
@@ -329,7 +333,11 @@ func _mount_held_prop(prop_id: StringName) -> void:
 		return
 	var existing := _rig.equipped(HELD_SLOT)
 	if existing != null and not existing.has_meta(&"smithy_held_prop"):
-		_previous_right_hand_scene = _pack_node(existing.duplicate() as Node3D)
+		_previous_right_hand_name = existing.name
+		var packed_original := existing.duplicate() as Node3D
+		if packed_original != null and not _previous_right_hand_name.is_empty():
+			packed_original.name = _previous_right_hand_name
+		_previous_right_hand_scene = _pack_node(packed_original)
 	_previous_right_hand_scene_path = _equipped_scene_path()
 	var temporary := HeldPropFactory.create(prop_id)
 	if temporary == null:
@@ -338,6 +346,7 @@ func _mount_held_prop(prop_id: StringName) -> void:
 	if packed == null:
 		return
 	_rig.equip(HELD_SLOT, packed)
+	_held_prop_mounted = true
 
 
 static func _pack_node(root: Node3D) -> PackedScene:
@@ -359,15 +368,56 @@ static func _set_owner_recursive(node: Node, scene_root: Node) -> void:
 func _restore_right_hand_equipment() -> void:
 	if _rig == null:
 		return
-	_rig.unequip(HELD_SLOT)
+	# WHY: empty-prop activities never call _mount_held_prop. unequip() would
+	# drop the original tool; skip unless a temporary prop actually replaced it.
+	if not _held_prop_mounted:
+		_forget_previous_right_hand()
+		return
+	_held_prop_mounted = false
+	# WHY: SharedCharacterRig.unequip only queue_frees. A queued sibling still
+	# owns the authored name, so instantiate becomes OriginalTool2. Free every
+	# live and queued child now, then restore.
+	_clear_right_hand_slot()
+	var restored: Node3D = null
 	if _previous_right_hand_scene != null:
-		_rig.equip(HELD_SLOT, _previous_right_hand_scene)
+		restored = _rig.equip(HELD_SLOT, _previous_right_hand_scene)
 	elif not _previous_right_hand_scene_path.is_empty():
 		var scene := load(_previous_right_hand_scene_path) as PackedScene
 		if scene != null:
-			_rig.equip(HELD_SLOT, scene)
+			restored = _rig.equip(HELD_SLOT, scene)
+	# WHY: PackedScene.pack of a loose duplicate does not keep the root name.
+	if restored != null and not _previous_right_hand_name.is_empty():
+		restored.name = _previous_right_hand_name
+	_forget_previous_right_hand()
+
+
+func _right_hand_attachment() -> Node:
+	var live := _rig.equipped(HELD_SLOT)
+	if live != null:
+		return live.get_parent()
+	var skeleton := _rig.skeleton()
+	if skeleton == null:
+		return null
+	return skeleton.find_child("Slot_%s" % String(HELD_SLOT), false, false)
+
+
+func _clear_right_hand_slot() -> void:
+	var attachment := _right_hand_attachment()
+	if attachment == null:
+		_rig.unequip(HELD_SLOT)
+		return
+	var children: Array[Node] = []
+	for child: Node in attachment.get_children():
+		children.append(child)
+	for child in children:
+		if is_instance_valid(child):
+			child.free()
+
+
+func _forget_previous_right_hand() -> void:
 	_previous_right_hand_scene = null
 	_previous_right_hand_scene_path = ""
+	_previous_right_hand_name = ""
 
 
 func _equipped_scene_path() -> String:
