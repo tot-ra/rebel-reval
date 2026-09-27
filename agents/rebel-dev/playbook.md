@@ -20,6 +20,7 @@ This file contains lessons specific to the Dev role.
 - `CONFUSABLE_LOCAL_DECLARATION`: rename the narrower-scope variable. A navigation probe can also fail when a loop iterator is redeclared in the same scope.
 - Keep `.gdlintrc` `class-definitions-order` aligned with gdtoolkit defaults (`signals`, `enums`, then `consts`).
 - Hard-to-wrap `max-line-length` lines can use `# gdlint: ignore=max-line-length` on the previous line. Do not insert a one-method regression into a large legacy `test_*.gd` that already exceeds the cap; put it in its own file.
+- Inline rrmap fixtures in `test_*.gd` must keep every source line at or under 100 characters. Put `seed=` on the `map` line and drop default `scope`/`palette`/`active` flags. Do not move those options onto the next line: the parser reads that as a new statement and the fixture fails only at runtime.
 - On-commit gdlint includes staged `tests/**/*.gd`. Do not inline `CAST_EXECUTOR.execute(MagicResolver.cast(...), ...)` on one line; extract a `_cast_on` helper first.
 - Do not silence unused-arg warnings by renaming `setup` parameters to match member fields. That shadows members and can leave them null.
 - `Color(255, 243, 222)` is a float colour 255x too bright. Use `Color8(...)` for 0..255 values. When a plate goes flat white only at some sun angles, print the shader uniforms before blaming the shader under test, and render the HEAD shader at the same state as an A/B baseline.
