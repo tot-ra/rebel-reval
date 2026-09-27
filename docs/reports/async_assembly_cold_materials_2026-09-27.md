@@ -95,3 +95,11 @@ Wall time barely changes: the worker bakes run beside the existing band, water a
 | `tree_band_publish` 14 ms: tree canopy meshes and bark materials | 14 ms cold | R-1006 (scatter and tree batches) |
 | Neighbor-preview `build_building()` / `build_prop()` | 4-1030 ms cold | R-1006 |
 | `terrain_mesh/pier_cribs` in a fresh process: first `hewn_timber()` / `fortification_masonry()` building textures | 416 ms cold on `reval_harbor_east` | **R-1027** |
+
+## Second review (R-1029)
+
+**ACCEPT**, 2026-09-27. Independent review of `e330642d` on `be1b971e`:
+[`r1029_r1010_cold_materials_review.md`](r1029_r1010_cold_materials_review.md).
+Focused suite 31/31. Fresh-process `cold_staged` has no `ground_publish` or
+`backdrops` unit over 4 ms; the only contract-class overrun is the documented
+first water shader parse (~9.3 ms). Close R-1010.
