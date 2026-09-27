@@ -1,6 +1,7 @@
 # Seamless streaming plan
 
-Status: accepted target, flag-off. Board: **R-977** (WB-05), then **R-978**..**R-980**.
+Status: accepted target, flag-off. Board: **R-977** (WB-05, membership census
+accepted on **R-1016**), then **R-978**..**R-980**.
 ADR: [0019](adr/0019-seamless-contiguous-location-streaming.md).
 
 This file is the operational map for ADR 0019. It does not enable runtime streaming.
@@ -171,4 +172,41 @@ Re-measured 2026-09-27. Command and tables:
 [`docs/reports/seamless_startup_baseline_2026-09-26.md`](reports/seamless_startup_baseline_2026-09-26.md).
 Budget streaming against those numbers, not the 2026-07-17 20 ms / 2.93 s pair.
 
-Second-reviewer census of this membership list is **R-1016**.
+## R-1016 census (accepted 2026-09-27)
+
+Second-reviewer check of the three membership tables against every
+`content/maps/*.rrmap` `map <id>` header:
+
+- 29 source maps, 29 plan rows (10 streamed + 9 interiors + 10 travel)
+- no map missing from the plan, no plan id absent from `content/maps/`
+- no double assignment
+- streamed `active` column matches the source headers (`kalev_smithy` and
+  `lower_town_slice` are the only `active=true` maps; the forge stays interior)
+- every table `Source` filename resolves to the same map id
+
+Re-run:
+
+```bash
+python3 - <<'PY'
+from pathlib import Path
+import re
+root = Path('.')
+ids = [re.search(r'^map\s+(\S+)', p.read_text(), re.M).group(1)
+       for p in sorted((root / 'content/maps').glob('*.rrmap'))]
+plan = (root / 'docs/SEAMLESS_STREAMING_PLAN.md').read_text()
+sections = {
+    'streamed': re.search(r'### Streamed:.*?### Interiors:', plan, re.S).group(0),
+    'interiors': re.search(r'### Interiors:.*?### Travel:', plan, re.S).group(0),
+    'travel': re.search(r'### Travel:.*?## Phases', plan, re.S).group(0),
+}
+assigned = []
+for body in sections.values():
+    assigned.extend(re.findall(r'^\|\s*`([^`]+)`\s*\|', body, re.M))
+assert len(ids) == 29 and ids == sorted(set(ids))
+assert len(assigned) == 29 and len(assigned) == len(set(assigned))
+assert set(ids) == set(assigned), set(ids) ^ set(assigned)
+print('ok', len(ids))
+PY
+```
+
+Accept. R-977 membership verify is closed. No interiors or travel rewrite.

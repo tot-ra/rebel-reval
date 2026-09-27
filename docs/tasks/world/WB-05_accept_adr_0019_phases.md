@@ -77,3 +77,8 @@ Link `docs/SEAMLESS_STREAMING_PLAN.md` from `docs/ARCHITECTURE.md` and from this
    against [`../../reports/seamless_startup_baseline_2026-09-26.md`](../../reports/seamless_startup_baseline_2026-09-26.md).
 6. **R-980 still cannot be demonstrated in play** until an outdoor neighbour of
    `lower_town_slice` is activated and R-976 lands on the demo seams.
+7. **R-1016 census accepted (2026-09-27).** Every `content/maps/*.rrmap` `map <id>`
+   appears exactly once in the three membership tables (10 streamed, 9 interiors,
+   10 travel). No missing id, no double assignment. Interiors and travel
+   decisions are unchanged. Re-run lives in
+   [`docs/SEAMLESS_STREAMING_PLAN.md`](../../SEAMLESS_STREAMING_PLAN.md#r-1016-census-accepted-2026-09-27).
