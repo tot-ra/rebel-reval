@@ -237,6 +237,23 @@ if any_staged_path "content/saves" \
   queue_python_module "tests.python.test_campaign_save_fixtures"
 fi
 
+# R-1017: fail-closed 6/8 slice magic budget when grant/spell/rite examples or
+# MAGIC.md change. Other content JSON still runs schema checks, not this module.
+# Print 0/1 so a helper import error is a real hook failure (set -e), not a skip.
+MAGIC_BUDGET_TRIGGER="$(python3 -c '
+import sys
+from pathlib import Path
+
+sys.path.insert(0, sys.argv[1])
+from tests.python.test_magic_budget import magic_budget_paths_trigger
+
+paths = Path(sys.argv[2]).read_text(encoding="utf-8").splitlines()
+print("1" if magic_budget_paths_trigger(paths) else "0")
+' "$ROOT_DIR" "$STAGED_FILE")"
+if [[ "$MAGIC_BUDGET_TRIGGER" == "1" ]]; then
+  queue_python_module "tests.python.test_magic_budget"
+fi
+
 if any_staged_path "tools/verify_clean_checkout_load.sh" \
   "tests/python/test_verify_clean_checkout_load.py"; then
   queue_python_module "tests.python.test_verify_clean_checkout_load"

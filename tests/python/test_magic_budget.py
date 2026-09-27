@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import re
 import unittest
+from collections.abc import Iterable
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -62,6 +63,68 @@ _DEMO_SEED_BLOCK = re.compile(
     re.S,
 )
 _GRANT_ID = re.compile(r'&"(magic\.grant\.[^"]+)"')
+_VALID_EXAMPLE_PREFIX = "content/examples/valid/"
+_BUDGET_TRIGGER_PATHS = frozenset(
+    {
+        "docs/SYSTEMS/MAGIC.md",
+        "tests/python/test_magic_budget.py",
+        "tools/run_pre_commit_checks.sh",
+    }
+)
+
+
+class SliceBudgetError(AssertionError):
+    """A grant or recipe would push the slice band past the 6/8 caps."""
+
+
+def magic_budget_paths_trigger(paths: Iterable[str]) -> bool:
+    """True when staged paths must re-run the slice budget unittest.
+
+    WHY: a new magic.grant JSON can land without staging this module. The
+    on-commit hook queues the check only for grant/spell/rite examples,
+    MAGIC.md, this test, or the hook itself. Other content JSON stays out.
+    """
+
+    for raw in paths:
+        path = raw.replace("\\", "/").lstrip("./")
+        if path in _BUDGET_TRIGGER_PATHS:
+            return True
+        if not path.startswith(_VALID_EXAMPLE_PREFIX) or not path.endswith(".json"):
+            continue
+        name = path[len(_VALID_EXAMPLE_PREFIX) :]
+        if "/" in name:
+            continue
+        if name.startswith(("magic.grant.", "spell.", "rite.")):
+            return True
+    return False
+
+
+def collect_slice_grant_targets(
+    records: dict[str, dict], grants: list[dict]
+) -> set[str]:
+    slice_targets: set[str] = set()
+    for grant in grants:
+        target_id = str(grant["target_id"])
+        if target_id not in records:
+            raise SliceBudgetError(f"{grant['id']} targets missing {target_id}")
+        if target_id in ACT1_CASTABLES:
+            continue
+        if target_id not in SLICE_CASTABLES:
+            raise SliceBudgetError(
+                f"{grant['id']} targets {target_id}, which is outside the slice band"
+            )
+        slice_targets.add(target_id)
+    if slice_targets != SLICE_CASTABLES:
+        raise SliceBudgetError(
+            "slice grants %s do not match the declared band %s"
+            % (sorted(slice_targets), sorted(SLICE_CASTABLES))
+        )
+    if len(slice_targets) > SLICE_CASTABLE_CAP:
+        raise SliceBudgetError(
+            "slice castables %d exceed cap %d"
+            % (len(slice_targets), SLICE_CASTABLE_CAP)
+        )
+    return slice_targets
 
 
 def _load_valid_records() -> dict[str, dict]:
@@ -110,20 +173,56 @@ class MagicBudgetTests(unittest.TestCase):
         self.assertEqual(len(SLICE_CASTABLES), SLICE_CASTABLE_CAP)
 
     def test_grant_targets_resolve_and_stay_inside_declared_bands(self) -> None:
-        slice_targets: set[str] = set()
-        for grant in self.grants:
-            target_id = str(grant["target_id"])
-            self.assertIn(target_id, self.records, grant["id"])
-            if target_id in ACT1_CASTABLES:
-                continue
-            self.assertIn(
-                target_id,
-                SLICE_CASTABLES,
-                f"{grant['id']} targets {target_id}, which is outside the slice band",
-            )
-            slice_targets.add(target_id)
+        slice_targets = collect_slice_grant_targets(self.records, self.grants)
         self.assertEqual(slice_targets, SLICE_CASTABLES)
         self.assertLessEqual(len(slice_targets), SLICE_CASTABLE_CAP)
+
+    def test_ninth_slice_grant_is_rejected(self) -> None:
+        records = dict(self.records)
+        records["spell.pagan.ninth"] = {
+            "id": "spell.pagan.ninth",
+            "sequence": ["element.fire"],
+        }
+        grants = list(self.grants) + [
+            {
+                "id": "magic.grant.slice_ninth",
+                "type": "magic_grant",
+                "operation": "grant",
+                "target_id": "spell.pagan.ninth",
+            }
+        ]
+        with self.assertRaises(SliceBudgetError) as raised:
+            collect_slice_grant_targets(records, grants)
+        self.assertIn("spell.pagan.ninth", str(raised.exception))
+        self.assertIn("outside the slice band", str(raised.exception))
+
+    def test_budget_hook_triggers_on_grant_spell_rite_and_magic_md(self) -> None:
+        for path in (
+            "content/examples/valid/magic.grant.slice_ninth.json",
+            "content/examples/valid/spell.pagan.ninth.json",
+            "content/examples/valid/rite.blessing.json",
+            "docs/SYSTEMS/MAGIC.md",
+            "tests/python/test_magic_budget.py",
+            "tools/run_pre_commit_checks.sh",
+        ):
+            self.assertTrue(magic_budget_paths_trigger([path]), path)
+
+    def test_budget_hook_ignores_non_magic_json(self) -> None:
+        for path in (
+            "content/examples/valid/quest.bitter_brew.json",
+            "content/demo/flag.aita_detained.json",
+            "content/examples/valid/nested/spell.ignored.json",
+            "README.md",
+        ):
+            self.assertFalse(magic_budget_paths_trigger([path]), path)
+
+    def test_pre_commit_runner_queues_budget_via_trigger_helper(self) -> None:
+        runner = (ROOT / "tools" / "run_pre_commit_checks.sh").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("magic_budget_paths_trigger", runner)
+        self.assertIn("tests.python.test_magic_budget", runner)
+        self.assertIn('print("1" if magic_budget_paths_trigger(paths) else "0")', runner)
 
     def test_slice_granted_elements_stay_inside_six_chip_budget(self) -> None:
         granted: set[str] = set()
