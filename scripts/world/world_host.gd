@@ -87,6 +87,8 @@ var residency_cap: int
 var location_loader: Callable
 ## Callable(location_id: StringName) -> MapDefinition.
 var definition_provider: Callable
+## WB-08b: never evicted (scene-scoped runtimes stay bound to them; R-1049).
+var pinned_location_ids: Array[StringName] = []
 
 var _logic_locations: Node
 var _view_locations: Node3D
@@ -326,6 +328,7 @@ static func launch_scene_location(
 		host.free()
 		return null
 	host.set_owning_location(location_id)
+	WorldHostStreamingDriver.attach(host)  # WB-08b: no-op for a solo (interior) layout.
 	if host.minimap_hud != null:
 		host.minimap_hud.configure(definition, grid, host.player_owner as Node2D)
 	if scene_player != null and scene_player != host.player_owner:
@@ -484,9 +487,7 @@ func set_additive_residency_enabled(enabled: bool) -> void:
 
 
 func is_scene_swap_fallback_enabled() -> bool:
-	# WB-08: when on, a failed mount at a seam emits scene_swap_fallback_requested
-	# instead of leaving the player at an unloaded edge. Off by default so a later
-	# adapter cannot silently opt into scene swaps.
+	# WB-08: failed seam mounts emit scene_swap_fallback_requested. Off by default.
 	return scene_swap_fallback_enabled
 
 
@@ -640,20 +641,8 @@ func is_seam_active(seam_id: String) -> bool:
 
 
 func is_seam_active_between(first_id: StringName, second_id: StringName) -> bool:
-	for seam_value in active_seams():
-		var seam: Dictionary = seam_value as Dictionary
-		if (
-			(
-				seam.get("base_map_id", &"") == first_id
-				and seam.get("neighbor_map_id", &"") == second_id
-			)
-			or (
-				seam.get("base_map_id", &"") == second_id
-				and seam.get("neighbor_map_id", &"") == first_id
-			)
-		):
-			return true
-	return false
+	var seam := seam_between(first_id, second_id)
+	return not seam.is_empty() and _seam_is_active(seam)
 
 
 func duplicate_stable_handles() -> Array[Dictionary]:
@@ -817,11 +806,11 @@ func update_streaming(global_position: Vector2) -> Dictionary:
 	if observed != _owning_location_id and not observed.is_empty():
 		if not _owning_location_id.is_empty() and seam_between(_owning_location_id, observed).is_empty():
 			# Blocked seam or no seam: that edge keeps its explicit transition.
-			applied["fallback"] = _request_fallback(observed)
+			applied["fallback"] = request_scene_swap_fallback(observed)
 			return applied
 		if not _mounted_locations.has(observed) and not _load_location(observed):
 			applied["failed"].append(observed)
-			applied["fallback"] = _request_fallback(observed)
+			applied["fallback"] = request_scene_swap_fallback(observed)
 			return applied
 		var previous := _owning_location_id
 		_owning_location_id = observed
@@ -843,7 +832,7 @@ func update_streaming(global_position: Vector2) -> Dictionary:
 	)
 	# Evict first so a full cap has room for the new neighbour.
 	for location_id in plan["evict"]:
-		if unmount_location(location_id):
+		if not pinned_location_ids.has(location_id) and unmount_location(location_id):
 			applied["evicted"].append(location_id)
 	for location_id in plan["mount"]:
 		if _load_location(location_id):
@@ -916,7 +905,8 @@ func _load_location(location_id: StringName) -> bool:
 	return ok
 
 
-func _request_fallback(location_id: StringName) -> Dictionary:
+## Public so a launch adapter can hand over an unresident seam the player touches.
+func request_scene_swap_fallback(location_id: StringName) -> Dictionary:
 	if String(_fallback_request.get("location_id", "")) == String(location_id):
 		# One request per edge visit; the adapter is already swapping scenes.
 		return _fallback_request.duplicate(true)
@@ -1092,14 +1082,17 @@ func _attach_navigation_regions(node: Node) -> void:
 ## Shared by phase-2 configure() and phase-3 create_globals() because both
 ## mount through mount_location() -> _refresh_seam_activation().
 func _rebuild_seam_links() -> void:
-	_ensure_seam_links()
+	if _seam_links == null:
+		_seam_links = Node2D.new()
+		_seam_links.name = SEAM_LINKS_NAME
+		add_child(_seam_links)
 	for child in _seam_links.get_children():
 		_seam_links.remove_child(child)
 		child.free()
 	var map_rid := navigation_map()
 	for seam in active_seams():
 		var points := MapWorldLayout.seam_navigation_link_points(
-			world_layout, seam, MapNavBuilder.AGENT_RADIUS
+			world_layout, seam, MapNavBuilder.AGENT_RADIUS, _seam_aperture_center(seam)
 		)
 		if points.size() < 2:
 			continue
@@ -1113,12 +1106,18 @@ func _rebuild_seam_links() -> void:
 		)
 
 
-func _ensure_seam_links() -> void:
-	if _seam_links != null:
-		return
-	_seam_links = Node2D.new()
-	_seam_links.name = SEAM_LINKS_NAME
-	add_child(_seam_links)
+## WB-08b: centre of the seam's base transition door along the edge, so the
+## link sits in the street aperture, not mid-edge. NAN without a logic package.
+func _seam_aperture_center(seam: Dictionary) -> float:
+	var root := mounted_location_root(StringName(seam.get("base_map_id", &"")), false)
+	var object_id := "transition:%s" % String(seam.get("base_transition_id", ""))
+	for node in root.find_children("*", "Area2D", true, false) if root != null else []:
+		var handle: Dictionary = node.get_meta(&"stable_handle", {}) as Dictionary
+		if String(handle.get("object_id", "")) == object_id:
+			var center := (node as Node2D).global_position
+			var east_west := [&"east", &"west"].has(StringName(seam.get("base_side", &"")))
+			return center.y if east_west else center.x
+	return NAN
 
 
 func _packages_have_unique_handles(

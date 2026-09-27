@@ -110,8 +110,6 @@ func test_duplicate_stable_handles_are_rejected() -> void:
 
 
 func test_location_regions_share_one_navigation_map_and_path_crosses_seam() -> void:
-	skip("R-1053: awaited nav sync; seam path still missing. Owner R-1043")
-	return
 	var host := _hosted()
 	assert_true(host.mount_location(&"map_a", _flat_region_package(&"map_a")))
 	assert_true(host.mount_location(&"map_b", _flat_region_package(&"map_b")))
@@ -215,8 +213,6 @@ func test_seam_link_points_sit_inside_each_inset_region() -> void:
 
 
 func test_baked_packages_have_no_path_until_the_host_adds_seam_links() -> void:
-	skip("R-1053: awaited nav sync; baked inset path still present. Owner R-1043")
-	return
 	# R-1041: prove the shared seam-link path on the phase-3 host that owns
 	# globals via create_globals(), not only on the phase-2 configure() host.
 	var host := _hosted()
@@ -252,8 +248,6 @@ func test_baked_packages_have_no_path_until_the_host_adds_seam_links() -> void:
 
 
 func test_phase2_configured_host_still_adds_seam_links() -> void:
-	skip("R-1053: awaited nav sync; phase-2 seam path still missing. Owner R-1043")
-	return
 	var host := _configured_host()
 	assert_true(host.mount_location(&"map_a", MapSceneBootstrap.assemble_location_package(_map_a())))
 	assert_true(host.mount_location(&"map_b", MapSceneBootstrap.assemble_location_package(_map_b())))
@@ -363,9 +357,13 @@ func _flat_region_package(location_id: StringName) -> Node2D:
 	return package
 
 
+## Godot 4.7 iterates navigation maps asynchronously: the first iteration after
+## a mount can still be empty (closest point (0, 0)), and region polygons land a
+## few physics frames later. Four frames were enough only while the harness never
+## awaited these tests (R-1053); 30 frames covers the observed second iteration.
 func _sync_navigation() -> void:
 	var tree := Engine.get_main_loop() as SceneTree
-	for _frame in 4:
+	for _frame in 30:
 		await tree.physics_frame
 
 

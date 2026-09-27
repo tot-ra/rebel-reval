@@ -73,6 +73,7 @@ This matrix classifies current slice-relevant artifacts for migration toward the
 | `tools/benchmarks/large_map_benchmark.tscn` | `retain` | CI large-map pipeline benchmark host; not player-facing. |
 | `tools/benchmarks/lower_town_scene_benchmark.tscn` | `retain` | CI Lower Town scene-load benchmark host; not player-facing. |
 | `tools/capture_demo_walkthrough_host.tscn` | `retain` | D-004 packaged demo walkthrough capture host; not player-facing. |
+| `tools/verify_world_seam_walk.tscn` | `retain` | R-1043 WorldHost seam-walk verification host; not player-facing. |
 
 ## TileSets
 

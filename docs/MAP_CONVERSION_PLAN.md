@@ -128,6 +128,7 @@ Roles `level`, `map`, and `event` have full conversion specifications later in t
 | `tools/benchmarks/lower_town_scene_benchmark.tscn` | test | `retain` | Lower Town scene benchmark host | Developer and CI slice scene-load probe; never release-playable | not a map definition |
 | `tools/benchmarks/lower_town_render_probe.tscn` | test | `retain` | Lower Town render benchmark host | Developer and CI 3D render probe; never release-playable | not a map definition |
 | `tools/capture_demo_walkthrough_host.tscn` | test | `retain` | Packaged demo walkthrough capture host | Developer/CI host for D-004 frame capture; never release-playable | not a map definition |
+| `tools/verify_world_seam_walk.tscn` | test | `retain` | WorldHost seam-walk verification host | R-1043 flag-on physical seam walk over real physics frames; never release-playable | not a map definition |
 | `generated/comfyui/forge_cat_hunyuan3d_v1/production/godot_verify/verify.tscn` | test | `retain` | Forge cat GLB import verification host | ComfyUI production pipeline smoke only; never release-playable | not a map definition |
 
 | `assets/characters/shared/sword.tscn` | support | `retain` | Shared sword equipment mesh | Equippable weapon component; not a map | not a map definition |

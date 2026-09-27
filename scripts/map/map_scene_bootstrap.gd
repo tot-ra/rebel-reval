@@ -4,6 +4,8 @@ extends RefCounted
 const DOOR_SCENE := preload("res://scenes/elements/door.tscn")
 const MINIMAP_HUD_SCENE := preload("res://scenes/elements/minimap_hud.tscn")
 const GridRegionMergerScript := preload("res://scripts/map/grid_region_merger.gd")
+## WB-08b: marks a package boundary shape that only seals a streamable seam.
+const SEAM_GATE_META := &"seam_gate_transition_id"
 
 ## Wires declarative maps into playable scenes without legacy TileSets.
 
@@ -83,7 +85,7 @@ static func assemble_location_package(
 	var nav := MapNavBuilder.create_navigation_region(definition, built_grid)
 	nav.name = "Navigation"
 	package.add_child(nav)
-	_create_world_bounds(definition, package)
+	_split_seam_gates(definition, _create_world_bounds(definition, package))
 	_create_water_blocks(definition, built_grid, package)
 	_create_relief_blocks(definition, package)
 	_create_excluded_area_blocks(definition, package)
@@ -313,6 +315,102 @@ static func _create_world_bounds(definition: MapDefinition, parent: Node2D) -> S
 		bounds.add_child(collision)
 	parent.add_child(bounds)
 	return bounds
+
+
+## WB-08b: in a location package every wall that an edge transition touches is
+## split so the transition span becomes its own `SeamGate_<transition_id>` shape
+## (meta SEAM_GATE_META). Gates start enabled, so the union still seals the map
+## exactly like assemble(); the WorldHost streaming driver disables a gate only
+## while both sides of its seam are resident, which lets keyboard and gamepad
+## movement walk across. Wall order Boundary0..3 is north, south, west, east.
+static func _split_seam_gates(definition: MapDefinition, bounds: StaticBody2D) -> void:
+	var world := definition.world_size()
+	var thickness := float(definition.cell_size)
+	var gaps_by_wall := {0: [], 1: [], 2: [], 3: []}
+	for transition in definition.transitions:
+		var rect: Rect2 = transition.get("rect", Rect2())
+		var wall := _edge_wall_index(rect, world, thickness)
+		if wall < 0:
+			continue
+		var along := rect.position.x if wall < 2 else rect.position.y
+		var length := rect.size.x if wall < 2 else rect.size.y
+		gaps_by_wall[wall].append(
+			{"id": String(transition.get("id", "")), "from": along, "to": along + length}
+		)
+	for wall in gaps_by_wall.keys():
+		var gaps: Array = gaps_by_wall[wall]
+		if gaps.is_empty():
+			continue
+		gaps.sort_custom(
+			func(left: Dictionary, right: Dictionary) -> bool: return left["from"] < right["from"]
+		)
+		var shape_node := bounds.get_node("Boundary%d" % wall) as CollisionShape2D
+		var size := (shape_node.shape as RectangleShape2D).size
+		var horizontal := int(wall) < 2
+		var length := size.x if horizontal else size.y
+		var middle := shape_node.position.x if horizontal else shape_node.position.y
+		var start := middle - length * 0.5
+		var end := start + length
+		var fixed := shape_node.position.y if horizontal else shape_node.position.x
+		bounds.remove_child(shape_node)
+		shape_node.free()
+		var cursor := start
+		var piece := 0
+		for gap: Dictionary in gaps:
+			var gap_from := clampf(float(gap["from"]), cursor, end)
+			var gap_to := clampf(float(gap["to"]), gap_from, end)
+			if gap_from > cursor:
+				_add_wall_piece(
+					bounds, _wall_piece_name(wall, piece), horizontal, fixed, cursor, gap_from, thickness
+				)
+				piece += 1
+			if gap_to > gap_from:
+				var gate := _add_wall_piece(
+					bounds, "SeamGate_%s" % gap["id"], horizontal, fixed, gap_from, gap_to, thickness
+				)
+				gate.set_meta(SEAM_GATE_META, StringName(gap["id"]))
+			cursor = maxf(cursor, gap_to)
+		if end > cursor:
+			_add_wall_piece(
+				bounds, _wall_piece_name(wall, piece), horizontal, fixed, cursor, end, thickness
+			)
+
+
+## Index of the boundary wall a transition rect lies against (within one cell),
+## or -1 for interior doors such as the forge entrance.
+static func _edge_wall_index(rect: Rect2, world: Vector2, thickness: float) -> int:
+	if rect.size == Vector2.ZERO:
+		return -1
+	var distances := [rect.position.y, world.y - rect.end.y, rect.position.x, world.x - rect.end.x]
+	var best := -1
+	for index in distances.size():
+		if float(distances[index]) <= thickness and (best < 0 or distances[index] < distances[best]):
+			best = index
+	return best
+
+
+static func _wall_piece_name(wall: int, piece: int) -> String:
+	return "Boundary%d" % wall if piece == 0 else "Boundary%d_%d" % [wall, piece]
+
+
+static func _add_wall_piece(
+	bounds: StaticBody2D,
+	piece_name: String,
+	horizontal: bool,
+	fixed: float,
+	from: float,
+	to: float,
+	thickness: float
+) -> CollisionShape2D:
+	var collision := CollisionShape2D.new()
+	collision.name = piece_name
+	var shape := RectangleShape2D.new()
+	shape.size = Vector2(to - from, thickness) if horizontal else Vector2(thickness, to - from)
+	collision.shape = shape
+	var middle := (from + to) * 0.5
+	collision.position = Vector2(middle, fixed) if horizontal else Vector2(fixed, middle)
+	bounds.add_child(collision)
+	return collision
 
 
 static func _create_anchor_markers(definition: MapDefinition, parent: Node2D) -> Array[Marker2D]:

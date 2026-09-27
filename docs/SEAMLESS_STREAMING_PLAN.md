@@ -161,9 +161,78 @@ nav byte-identity is unchanged.
 | `world_host/streaming_eviction_band_cells` | 64 | prefetch + 16 cells (~2 s of running) of hysteresis |
 | `world_host/streaming_residency_cap` | 3 | owner + two neighbours at a seam corner; Lower Town alone already exceeds the node/memory caps |
 
-Still open before the release criteria can pass: live-player wiring and the
-`DoorNavigator` fallback (**R-1043**, after the R-1038 launch adapter); staged
-in-flight mounts and save/load across a seam and mid-mount (**R-1044**);
+**R-1043 (2026-09-27, flag on only).** `WorldHostStreamingDriver` drives the host
+from live play. `WorldHost.launch_scene_location()` attaches it, so every hosted
+launch adapter streams.
+It attaches only to a host whose layout has seams, so the forge solo group never
+streams. The driver:
+
+- defaults `definition_provider` to the registry-compiled definition
+  (`WorldHostStreamingDriver.registry_definition()`);
+- calls `update_streaming(player_owner.global_position)` every physics frame;
+- sets `transition_enabled = false` on every door for which
+  `is_transition_streamed()` is true, so a streamed seam never runs a
+  DoorNavigator scene swap while residency is active;
+- pins the launch location (`WorldHost.pinned_location_ids`), because the scene
+  script and its `MapViewRuntime` stay bound to it until R-1049. This can hold one
+  location above the residency cap.
+
+Each package's boundary walls sit just outside its rect, inside the neighbour's
+first column. `MapSceneBootstrap.assemble_location_package()` therefore splits
+every wall around its edge transitions into `SeamGate_<transition_id>` shapes.
+The gates start sealed, so collision is unchanged. The driver opens both gates of a
+seam only while the seam is active (both sides resident). A failed neighbour keeps
+its gates sealed. When the player touches that seam door, the driver calls
+`WorldHost.request_scene_swap_fallback()`, and
+`DoorNavigator.answer_seam_fallback()` swaps scenes through the door's authored
+destination (found by its `transition:<id>` stable handle). Blocked-seam crossings
+reach DoorNavigator the same way.
+
+`owning_location_changed` writes the new location's `scene_id` and arrival-door
+spawn to `SessionState.state.player`. A save taken after a crossing therefore
+reloads at that seam through today's scene path.
+
+The seam `NavigationLink2D` now sits at the base transition door's centre
+(`MapWorldLayout.seam_navigation_link_points(..., aperture_center)`). Before this
+change it sat at the middle of the shared edge, which on real districts lands on
+buildings, so click paths never crossed. `assemble()` (flag off) is untouched.
+
+Evidence:
+
+- `--filter=test_world_host_streaming`: synchronous. It covers the sealed package
+  walls, the prefetch, open gates, owner handover, session scope and pinning on a
+  real `reval_east` launch, and the forced loader failure, which reaches
+  DoorNavigator with `vana_turg_boundary -> reval_center/from_reval_east`.
+- `godot --headless --path . res://tools/verify_world_seam_walk.tscn` (27 checks,
+  exit 0): the physical walk over real physics frames. It stays out of the
+  harness because it synchronously mounts whole districts mid-walk.
+  - Keyboard: `ui_left + ui_up` is logic west.
+  - Gamepad: left stick right + down.
+  - Mouse: a `MapClickInput` logic click on a market point.
+  - Fallback: walking into the sealed door.
+  - Every walk keeps one Player and camera and makes no `go_to_scene`.
+- `--filter=test_world_host_residency`: the three seam-path tests that R-1053
+  skipped (they failed once the harness really awaited them) run again. The cause
+  was the wait, not the links. Godot 4.7 iterates navigation maps asynchronously,
+  and region polygons land on a later iteration than four physics frames, so
+  `_sync_navigation()` now waits 30 frames.
+
+The trace in `build/world_seam_walk.json` has a p50 of 18 ms and a p95 of 29 ms.
+It also shows 4.3-6.6 s frames: synchronous mounts of `market_civic_quarter`
+inside the prefetch tick. Those frames are why staged mounts (R-1044) gate any
+flag flip.
+
+Limits for later rows:
+
+- Crossing does not rebind owner-scoped consumers: player terrain speed,
+  `MapViewRuntime` and minimap, phase binder, quest and ambience controllers all
+  stay on the entry location.
+- A click from inside the 16 px agent inset at a seam does not start a path.
+- A failing neighbour is retried synchronously every physics frame while it is in
+  the band.
+
+Still open before the release criteria can pass: staged in-flight mounts and
+save/load across a seam and mid-mount (**R-1044**);
 frame-time trace and clip of a two-seam walk; relief continuity (R-976);
 performance report with the cap at its default.
 

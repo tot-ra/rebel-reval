@@ -164,10 +164,14 @@ static func location_at_global_cell(result: Dictionary, global_cell: Vector2i) -
 ## Endpoints for a host NavigationLink2D that bridges the agent-radius inset
 ## at a physical seam. Start sits inside the base bake, end inside the
 ## neighbor bake. Empty when the walkable interiors do not overlap.
+## `aperture_center` (global px along the seam, WB-08b) places the link in the
+## transition's street opening; NAN keeps the middle of the shared edge, which
+## on real districts usually lands on a building and never connects.
 static func seam_navigation_link_points(
 	result: Dictionary,
 	seam: Dictionary,
-	agent_radius: float = 16.0
+	agent_radius: float = 16.0,
+	aperture_center: float = NAN
 ) -> PackedVector2Array:
 	var base := location(result, StringName(seam.get("base_map_id", &"")))
 	var neighbor := location(result, StringName(seam.get("neighbor_map_id", &"")))
@@ -191,7 +195,7 @@ static func seam_navigation_link_points(
 			)
 			if y1 <= y0:
 				return PackedVector2Array()
-			var y := (y0 + y1) * 0.5
+			var y := (y0 + y1) * 0.5 if is_nan(aperture_center) else clampf(aperture_center, y0, y1)
 			var seam_x := (
 				base_bounds.end.x if side == &"east" else base_bounds.position.x
 			)
@@ -207,7 +211,7 @@ static func seam_navigation_link_points(
 			)
 			if x1 <= x0:
 				return PackedVector2Array()
-			var x := (x0 + x1) * 0.5
+			var x := (x0 + x1) * 0.5 if is_nan(aperture_center) else clampf(aperture_center, x0, x1)
 			var seam_y := (
 				base_bounds.end.y if side == &"south" else base_bounds.position.y
 			)

@@ -89,7 +89,7 @@ func get_active_scene_ids() -> Array[StringName]:
 	for scene_id in _scenes.keys():
 		if bool(_scenes[scene_id].get("active", false)):
 			ids.append(scene_id)
-	ids.sort()
+	_sort_ids(ids)
 	return ids
 
 
@@ -115,7 +115,7 @@ func get_scene_spawn_ids(scene_id) -> Array[StringName]:
 		return ids
 	for spawn_id in _scenes[key].get("spawns", {}).keys():
 		ids.append(spawn_id)
-	ids.sort()
+	_sort_ids(ids)
 	return ids
 
 
@@ -160,6 +160,35 @@ func go_to_scene(scene_id, spawn_id) -> void:
 		return
 
 	get_tree().call_deferred("change_scene_to_packed", scene_resource)
+
+
+## WB-08b: answer WorldHost.scene_swap_fallback_requested with today's explicit
+## transition. `location_root` is the mounted logic root of the location the
+## player is leaving (request `from_location_id`); the door is found by its
+## `transition:<id>` stable handle, never by node path, and its authored
+## destination is used unchanged. Returns {transition_id, scene_id, spawn_id,
+## started} or {} when the transition has no door or no destination. `execute`
+## false resolves without swapping scenes (tests and diagnostics).
+func answer_seam_fallback(
+	location_root: Node, request: Dictionary, execute: bool = true
+) -> Dictionary:
+	var transition_id := String(request.get("transition_id", ""))
+	if location_root == null or transition_id.is_empty():
+		return {}
+	var door := _find_transition_door(location_root, "transition:%s" % transition_id)
+	if door == null or String(door.destination_scene_id).is_empty():
+		push_warning("Seam fallback has no explicit transition: %s" % transition_id)
+		return {}
+	var answer := {
+		"transition_id": StringName(transition_id),
+		"scene_id": door.destination_scene_id,
+		"spawn_id": door.destination_spawn_id,
+		"started": false,
+	}
+	if execute:
+		go_to_scene(door.destination_scene_id, door.destination_spawn_id)
+		answer["started"] = pending_spawn_scene_id == door.destination_scene_id
+	return answer
 
 
 ## Starts a background load of an active scene without blocking. Returns false when
@@ -292,6 +321,25 @@ func _get_scene_resource(scene_id: StringName) -> PackedScene:
 	scene_cache[scene_id] = scene_resource
 	cache_order.append(scene_id)
 	return scene_resource
+
+
+## StringName sort() orders by interned pointer, not text; ids returned to tests,
+## saves and UI must be alphabetical.
+static func _sort_ids(ids: Array[StringName]) -> void:
+	ids.sort_custom(
+		func(left: StringName, right: StringName) -> bool: return String(left) < String(right)
+	)
+
+
+func _find_transition_door(node: Node, object_id: String) -> Door:
+	var handle: Variant = node.get_meta(&"stable_handle", {})
+	if node is Door and handle is Dictionary and String(handle.get("object_id", "")) == object_id:
+		return node
+	for child in node.get_children():
+		var found := _find_transition_door(child, object_id)
+		if found != null:
+			return found
+	return null
 
 
 func _find_spawn_door(node: Node, target_spawn_id: StringName) -> Door:
