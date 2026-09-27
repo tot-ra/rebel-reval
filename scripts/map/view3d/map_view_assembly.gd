@@ -39,6 +39,8 @@ var stage_usec: Dictionary = {}
 var unit_log: Array[Dictionary] = []
 ## Main-thread microseconds per frame spent by MapView3D.assemble_async().
 var frame_usec := PackedInt64Array()
+## Stage name -> executed unit count; with stage_usec, the per-stage mean cost.
+var _stage_units: Dictionary = {}
 
 
 ## Whether scene entry points use staged assembly, threaded navigation and
@@ -119,16 +121,25 @@ func start(plan: Array[Dictionary]) -> void:
 
 
 ## Runs units until budget_usec is spent. A unit is never split, so one call may
-## overrun by at most the unit that crossed the budget. Returns true only when
-## this call drained the queue; the owner then finishes the view.
+## overrun by at most the unit that crossed the budget. WB-08c (R-1044): after the
+## first unit of a call, a unit whose stage mean no longer fits the rest of the
+## budget waits for the next frame, so ordinary units stop crossing the budget.
+## The first unit always runs, so a heavy unit still makes progress (and still
+## overruns: those are R-1006's to split). Returns true only when this call
+## drained the queue; the owner then finishes the view.
 func step(budget_usec: int) -> bool:
 	if state != State.RUNNING:
 		return false
 	var started := Time.get_ticks_usec()
+	var ran := 0
 	while not units.is_empty():
+		var elapsed := Time.get_ticks_usec() - started
+		if ran > 0 and elapsed + _expected_usec(units[0]) > budget_usec:
+			break
 		# A worker job is still running: yield the frame instead of blocking on it.
 		if not run_next():
 			break
+		ran += 1
 		if Time.get_ticks_usec() - started >= budget_usec:
 			break
 	return units.is_empty()
@@ -157,8 +168,18 @@ func run_next() -> bool:
 			units.push_front(expanded[index])
 	var stage: StringName = next["stage"]
 	stage_usec[stage] = int(stage_usec.get(stage, 0)) + elapsed
+	_stage_units[stage] = int(_stage_units.get(stage, 0)) + 1
 	unit_log.append({"stage": stage, "label": next["label"], "usec": elapsed})
 	return true
+
+
+## Mean cost of the unit's stage so far; 0 for an await unit or an unseen stage.
+func _expected_usec(next: Dictionary) -> int:
+	if next.get("job") != null:
+		return 0
+	var stage: StringName = next["stage"]
+	var count := int(_stage_units.get(stage, 0))
+	return int(stage_usec.get(stage, 0)) / count if count > 0 else 0
 
 
 func cancel() -> bool:

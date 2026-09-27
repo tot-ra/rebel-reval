@@ -57,6 +57,30 @@ func stable_handle(location_id: StringName, object_id: StringName) -> Dictionary
 	return {"location_id": String(location_id), "object_id": String(object_id)}
 
 
+## Global logic position -> the persisted {global_cell, sub_cell} pair (sub_cell is
+## the 0..1 fraction inside the cell). Same encoding as the R-011 chunk prototype;
+## no chunk or location-local coordinate is involved, so repartitioning and seam
+## ownership changes cannot invalidate a saved position.
+static func persistent_position(global_position: Vector2, cell_size: int) -> Dictionary:
+	assert(cell_size > 0)
+	var global_cell := Vector2i(
+		floori(global_position.x / float(cell_size)), floori(global_position.y / float(cell_size))
+	)
+	var sub_cell := global_position / float(cell_size) - Vector2(global_cell)
+	return {
+		"global_cell": [global_cell.x, global_cell.y],
+		"sub_cell": [sub_cell.x, sub_cell.y],
+	}
+
+
+static func restore_persistent_position(record: Dictionary, cell_size: int) -> Vector2:
+	assert(cell_size > 0)
+	var global_cell: Array = record.get("global_cell", [0, 0])
+	var sub_cell: Array = record.get("sub_cell", [0.0, 0.0])
+	var cell := Vector2(float(global_cell[0]), float(global_cell[1]))
+	return (cell + Vector2(float(sub_cell[0]), float(sub_cell[1]))) * float(cell_size)
+
+
 func record_entity(location_id: StringName, object_id: StringName, snapshot: Dictionary) -> bool:
 	if location_id.is_empty() or object_id.is_empty() or not _valid_position(snapshot):
 		return false

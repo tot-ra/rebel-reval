@@ -89,6 +89,8 @@ var location_loader: Callable
 var definition_provider: Callable
 ## Never evicted while listed. R-1054 clears this after owner-scoped rebind.
 var pinned_location_ids: Array[StringName] = []
+## WB-08c: in-flight neighbour mounts (worker prepare + staged view).
+var mount_queue := WorldHostMountQueue.new()
 
 var _logic_locations: Node
 var _view_locations: Node3D
@@ -105,7 +107,6 @@ var _navigation_map := RID()
 var _seam_links: Node2D
 var _last_rejection: Array[Dictionary] = []
 var _owning_location_id: StringName = &""
-var _mount_failures: Dictionary = {}
 var _fallback_request: Dictionary = {}
 
 
@@ -432,10 +433,7 @@ func _seed_clock_from_music_director() -> bool:
 ## Diagnostics for every node in `package` that a location may not create. A
 ## location package is disposable; the listed kinds are host globals (ADR 0019 s.2).
 func validate_location_package(location_id: StringName, package: Node) -> Array[Dictionary]:
-	var diagnostics: Array[Dictionary] = []
-	if package != null:
-		_collect_global_violations(location_id, package, package, diagnostics)
-	return diagnostics
+	return WorldHostPackageInspector.global_violations(location_id, package)
 
 
 func last_rejection() -> Array[Dictionary]:
@@ -454,7 +452,7 @@ func global_census() -> Dictionary:
 		"sky_weather": 0,
 		"hud": 0,
 	}
-	_count_globals(self, census)
+	WorldHostPackageInspector.count_globals(self, census)
 	return census
 
 
@@ -540,9 +538,14 @@ func global_logic_position(location_id: StringName, local_position: Vector2) -> 
 
 ## Mount a disposable package under both location layers. Packages may be null for
 ## a data-only proof, but any stable handle present in a package must be unique in
-## the entire mounted host.
+## the entire mounted host. `inspection` is a WorldHostPackageInspector.inspect()
+## result a staged mount computed on a worker; without it the packages are walked
+## here.
 func mount_location(
-	location_id: StringName, logic_package: Node = null, view_package: Node = null
+	location_id: StringName,
+	logic_package: Node = null,
+	view_package: Node = null,
+	inspection: Dictionary = {}
 ) -> bool:
 	_last_rejection.clear()
 	if not is_additive_residency_active():
@@ -551,15 +554,19 @@ func mount_location(
 		return _reject(location_id, DIAG_UNKNOWN_LOCATION, "", "not in the world layout")
 	if _mounted_locations.has(location_id):
 		return _reject(location_id, DIAG_ALREADY_MOUNTED, "", "")
-	var violations := validate_location_package(location_id, logic_package)
-	violations.append_array(validate_location_package(location_id, view_package))
+	if inspection.is_empty():
+		inspection = WorldHostPackageInspector.inspect(location_id, logic_package, view_package)
+	var violations: Array[Dictionary] = []
+	violations.assign(inspection["violations"])
 	if not violations.is_empty():
 		# WB-06: a package that creates a global is a hard error, never a silent
 		# second camera or player.
 		_last_rejection = violations
 		package_rejected.emit(location_id, violations.duplicate(true))
 		return false
-	if not _packages_have_unique_handles(location_id, logic_package, view_package):
+	var entries: Array[Dictionary] = []
+	entries.assign(inspection["entries"])
+	if not _entries_are_unique(location_id, entries):
 		package_rejected.emit(location_id, _last_rejection.duplicate(true))
 		return false
 
@@ -587,15 +594,17 @@ func mount_location(
 		"origin_cell": Vector2i(entry.get("origin_cell", Vector2i.ZERO)),
 		"logic_root": logic_root,
 		"view_root": view_root,
+		# Kept so an unmount rebuilds the registry without walking every package.
+		"handle_entries": entries,
 	}
-	_register_package_handles(location_id, logic_package)
-	_register_package_handles(location_id, view_package)
+	_register_entries(entries)
 	location_mounted.emit(location_id)
 	_refresh_seam_activation()
 	return true
 
 
 func unmount_location(location_id: StringName) -> bool:
+	mount_queue.cancel(location_id)  # stops a refining (early-mounted) view
 	if not _mounted_locations.has(location_id):
 		return false
 	var mounted: Dictionary = _mounted_locations[location_id] as Dictionary
@@ -618,6 +627,7 @@ func unmount_location(location_id: StringName) -> bool:
 
 
 func unmount_all() -> void:
+	mount_queue.cancel_all()
 	for location_id in mounted_location_ids():
 		unmount_location(location_id)
 
@@ -653,8 +663,10 @@ func duplicate_stable_handles() -> Array[Dictionary]:
 
 
 func stable_handle_owner(handle: Dictionary) -> Node:
-	var found := _stable_handle_owners.get(_handle_key(handle)) as Node
-	return found if found != null else _stable_handle_owners.get(_world_key(handle)) as Node
+	var found := _stable_handle_owners.get(WorldHostPackageInspector.handle_key(handle)) as Node
+	if found != null:
+		return found
+	return _stable_handle_owners.get(WorldHostPackageInspector.world_key(handle)) as Node
 
 
 func stable_handle_count() -> int:
@@ -692,106 +704,12 @@ func owner_snapshot() -> Dictionary:
 	}
 
 
-## WB-08 pure residency policy. Returns {owner, desired, mount, evict, distances}
-## where distances maps each seam neighbour of `owner_id` to the player's distance
-## (cells) from the shared seam edge. Only layout seams (streamable by
-## construction) are considered, so a travel or interior transition never streams.
-static func plan_residency(
-	layout: Dictionary,
-	owner_id: StringName,
-	global_position: Vector2,
-	resident_ids: Array,
-	prefetch_cells: float,
-	eviction_cells: float,
-	cap: int
-) -> Dictionary:
-	var distances := seam_neighbor_distances(layout, owner_id, global_position)
-	var candidates: Array[StringName] = []
-	for neighbor_value in distances.keys():
-		var neighbor_id := StringName(neighbor_value)
-		var distance := float(distances[neighbor_id])
-		# Hysteresis: an already resident neighbour survives until the wider band.
-		var band := eviction_cells if resident_ids.has(neighbor_id) else prefetch_cells
-		if distance <= band:
-			candidates.append(neighbor_id)
-	candidates.sort_custom(
-		func(left: StringName, right: StringName) -> bool:
-			var left_distance := float(distances[left])
-			var right_distance := float(distances[right])
-			if not is_equal_approx(left_distance, right_distance):
-				return left_distance < right_distance
-			return String(left) < String(right)
-	)
-	var desired: Array[StringName] = []
-	if not owner_id.is_empty():
-		desired.append(owner_id)
-	for neighbor_id in candidates:
-		if desired.size() >= maxi(cap, 1):
-			break
-		desired.append(neighbor_id)
-	var mount: Array[StringName] = []
-	for location_id in desired:
-		if not resident_ids.has(location_id):
-			mount.append(location_id)
-	var evict: Array[StringName] = []
-	for resident_value in resident_ids:
-		var resident_id := StringName(resident_value)
-		if not desired.has(resident_id):
-			evict.append(resident_id)
-	evict.sort_custom(
-		func(left: StringName, right: StringName) -> bool: return String(left) < String(right)
-	)
-	return {
-		"owner": owner_id,
-		"desired": desired,
-		"mount": mount,
-		"evict": evict,
-		"distances": distances,
-	}
-
-
-## Distance in cells from `global_position` to each seam edge `owner_id` shares
-## with a neighbour (the closest edge when two locations share several seams).
-static func seam_neighbor_distances(
-	layout: Dictionary, owner_id: StringName, global_position: Vector2
-) -> Dictionary:
-	var bounds_by_id: Dictionary = {}
-	var cell_size := 0
-	for entry_value in layout.get("locations", []):
-		var entry: Dictionary = entry_value as Dictionary
-		bounds_by_id[StringName(entry.get("location_id", ""))] = entry.get("global_bounds", Rect2())
-		cell_size = int(entry.get("cell_size", cell_size))
-	var distances: Dictionary = {}
-	if cell_size <= 0 or not bounds_by_id.has(owner_id):
-		return distances
-	for seam_value in layout.get("seams", []):
-		var seam: Dictionary = seam_value as Dictionary
-		var neighbor_id: StringName = &""
-		if seam.get("base_map_id", &"") == owner_id:
-			neighbor_id = StringName(seam.get("neighbor_map_id", &""))
-		elif seam.get("neighbor_map_id", &"") == owner_id:
-			neighbor_id = StringName(seam.get("base_map_id", &""))
-		if neighbor_id.is_empty() or not bounds_by_id.has(neighbor_id):
-			continue
-		# The two rects touch along the seam; growing both by a pixel turns that
-		# shared edge into a thin rect, whatever the side.
-		var edge := (bounds_by_id[owner_id] as Rect2).grow(1.0).intersection(
-			(bounds_by_id[neighbor_id] as Rect2).grow(1.0)
-		)
-		if edge.size == Vector2.ZERO:
-			continue
-		var closest := global_position.clamp(edge.position, edge.end)
-		var distance := global_position.distance_to(closest) / float(cell_size)
-		if not distances.has(neighbor_id) or distance < float(distances[neighbor_id]):
-			distances[neighbor_id] = distance
-	return distances
-
-
 ## WB-08 streaming tick. Call with the player's global logic position (the host
 ## never writes the player). Crossing a seam changes only the owning location;
 ## prefetch mounts neighbours inside the band and eviction honours hysteresis and
 ## the residency cap. Returns the applied plan plus `mounted`, `evicted`,
-## `failed` and `fallback` (the seam handed to the scene-swap path, or {}).
+## `failed`, `fallback` (the seam handed to the scene-swap path, or {}) and
+## `waiting` (WB-08c: the in-flight neighbour the player is held in front of).
 func update_streaming(global_position: Vector2) -> Dictionary:
 	var applied := {
 		"owner": _owning_location_id,
@@ -799,9 +717,14 @@ func update_streaming(global_position: Vector2) -> Dictionary:
 		"evicted": [] as Array[StringName],
 		"failed": [] as Array[StringName],
 		"fallback": {},
+		"waiting": &"",
 	}
 	if not is_additive_residency_active():
 		return applied
+	mount_queue.advance_tick()
+	# Finish in-flight mounts first, so one that completes this tick is resident
+	# before the crossing check below and costs no readiness miss.
+	_step_mount_queue(applied)
 	var observed := observe_global_logic_position(global_position)
 	if observed.is_empty():
 		# Off every location (outside the city edge): keep the last owner.
@@ -811,39 +734,60 @@ func update_streaming(global_position: Vector2) -> Dictionary:
 			# Blocked seam or no seam: that edge keeps its explicit transition.
 			applied["fallback"] = request_scene_swap_fallback(observed)
 			return applied
-		if not _mounted_locations.has(observed) and not _load_location(observed):
+		if mount_queue.has_pending(observed):
+			_reach_in_flight_neighbor(observed, applied)
+		elif not _mounted_locations.has(observed) and not _load_location(observed):
 			applied["failed"].append(observed)
 			applied["fallback"] = request_scene_swap_fallback(observed)
 			return applied
-		var previous := _owning_location_id
-		_owning_location_id = observed
-		_fallback_request = {}
-		if not previous.is_empty():
-			owning_location_changed.emit(previous, observed)
+		if _mounted_locations.has(observed):
+			var previous := _owning_location_id
+			_owning_location_id = observed
+			_fallback_request = {}
+			if not previous.is_empty():
+				owning_location_changed.emit(previous, observed)
 	applied["owner"] = _owning_location_id
 	if observed == _owning_location_id:
 		_fallback_request = {}
+	for location_id in mount_queue.in_flight_ids():
+		if location_id != applied["waiting"]:
+			mount_queue.close_miss(location_id)
 
-	var plan := plan_residency(
+	var resident := mounted_location_ids()
+	resident.append_array(mount_queue.in_flight_ids())
+	# Pure policy (WorldHostResidencyPolicy); pending mounts count against the cap.
+	var plan := WorldHostResidencyPolicy.plan(
 		world_layout,
 		_owning_location_id,
 		global_position,
-		mounted_location_ids(),
+		resident,
 		prefetch_band_cells,
 		eviction_band_cells,
 		residency_cap
 	)
-	# Evict first so a full cap has room for the new neighbour.
+	# Evict first so a full cap has room for the new neighbour. Eviction of an
+	# in-flight neighbour cancels it (its worker result is drained, never mounted).
 	for location_id in plan["evict"]:
-		if not pinned_location_ids.has(location_id) and unmount_location(location_id):
+		if pinned_location_ids.has(location_id):
+			continue
+		var cancelled := mount_queue.cancel(location_id)
+		if unmount_location(location_id) or cancelled:
 			applied["evicted"].append(location_id)
 	for location_id in plan["mount"]:
-		if _load_location(location_id):
+		if _stages_mount(location_id):
+			mount_queue.bind_globals(view_globals())
+			mount_queue.start(location_id, definition_provider)
+		elif _load_location(location_id):
 			applied["mounted"].append(location_id)
 		else:
 			applied["failed"].append(location_id)
 	applied.merge(plan)
 	return applied
+
+
+## Locations still preparing or assembling (WB-08c). Never mounted, never owned.
+func pending_location_ids() -> Array[StringName]:
+	return mount_queue.in_flight_ids()
 
 
 func owning_location_id() -> StringName:
@@ -856,7 +800,7 @@ func set_owning_location(location_id: StringName) -> void:
 
 
 func mount_failure_count(location_id: StringName) -> int:
-	return int(_mount_failures.get(location_id, 0))
+	return mount_queue.failure_count(location_id)
 
 
 ## The streamable seam between two locations, or {} (blocked seams are absent
@@ -893,9 +837,67 @@ func is_transition_streamed(location_id: StringName, transition_id: StringName) 
 	return false
 
 
+## WB-08c: neighbours stage when the flag is on and the host builds them itself
+## (an injected `location_loader` mounts synchronously). The owner never stages.
+func _stages_mount(location_id: StringName) -> bool:
+	return (
+		mount_queue.enabled
+		and _owns_globals
+		and not location_loader.is_valid()
+		and definition_provider.is_valid()
+		and location_id != _owning_location_id
+	)
+
+
+func _step_mount_queue(applied: Dictionary) -> void:
+	if not mount_queue.enabled:
+		return
+	var stepped := mount_queue.step(mount_queue.frame_budget_usec)
+	for pending in stepped["ready"]:
+		mount_queue.take_ready(pending)
+		_mount_staged(pending, applied)
+	for pending in stepped["refined"]:
+		# _finish_staged_assembly() reset the view to its initial time of day.
+		(pending.view as MapView3D).apply_cycle_progress(clock_progress)
+	for location_id in stepped["failed"]:
+		mount_queue.record_failure(location_id)
+		applied["failed"].append(location_id)
+
+
+func _mount_staged(pending: WorldHostMountQueue.PendingMount, applied: Dictionary) -> bool:
+	var location_id := pending.location_id
+	pending.view.apply_cycle_progress(clock_progress)
+	if not mount_location(location_id, pending.logic_package, pending.view, pending.inspection):
+		mount_queue.discard(pending)
+		mount_queue.record_failure(location_id)
+		applied["failed"].append(location_id)
+		return false
+	_mounted_locations[location_id]["definition"] = pending.definition
+	_mounted_locations[location_id]["grid"] = pending.grid
+	mount_queue.record_success(location_id)
+	mount_queue.close_miss(location_id)
+	applied["mounted"].append(location_id)
+	return true
+
+
+## WB-08c decision (docs/SEAMLESS_STREAMING_PLAN.md): a player who reaches an
+## in-flight neighbour waits at the seam edge. The seam gates stay sealed until
+## both sides are mounted, so unloaded space is never exposed, and no scene swap
+## is requested for a mount that is still healthy. The miss is recorded. When
+## only decoration is left the package mounts now and refines in place.
+func _reach_in_flight_neighbor(location_id: StringName, applied: Dictionary) -> void:
+	mount_queue.record_miss(location_id, _owning_location_id)
+	var pending := mount_queue.take_early(location_id)
+	if pending == null or not _mount_staged(pending, applied):
+		applied["waiting"] = location_id
+
+
 func _load_location(location_id: StringName) -> bool:
 	if _mounted_locations.has(location_id):
 		return true
+	if not mount_queue.may_retry(location_id):
+		# Backoff: a failing neighbour is not rebuilt every physics frame.
+		return false
 	var ok := false
 	if location_loader.is_valid():
 		ok = bool(location_loader.call(location_id))
@@ -903,8 +905,10 @@ func _load_location(location_id: StringName) -> bool:
 		var definition := definition_provider.call(location_id) as MapDefinition
 		ok = definition != null and enter_location(location_id, definition)
 	ok = ok and _mounted_locations.has(location_id)
-	if not ok:
-		_mount_failures[location_id] = mount_failure_count(location_id) + 1
+	if ok:
+		mount_queue.record_success(location_id)
+	else:
+		mount_queue.record_failure(location_id)
 	return ok
 
 
@@ -945,6 +949,8 @@ func _transition_toward(seam: Dictionary, location_id: StringName) -> StringName
 
 
 func _notification(what: int) -> void:
+	if what == NOTIFICATION_PREDELETE:
+		mount_queue.join_all()  # no worker task outlives the host
 	if what == NOTIFICATION_PREDELETE and _navigation_map.is_valid():
 		NavigationServer2D.free_rid(_navigation_map)
 		_navigation_map = RID()
@@ -972,72 +978,10 @@ func _release_globals() -> void:
 
 
 func _reject(location_id: StringName, code: String, node_path: String, detail: String) -> bool:
-	var diagnostic := _diagnostic(code, location_id, node_path, detail)
+	var diagnostic := WorldHostPackageInspector.diagnostic(code, location_id, node_path, detail)
 	_last_rejection = [diagnostic]
 	package_rejected.emit(location_id, [diagnostic.duplicate(true)])
 	return false
-
-
-static func _diagnostic(
-	code: String, location_id: StringName, node_path: String, detail: String
-) -> Dictionary:
-	return {
-		"code": code,
-		"location_id": String(location_id),
-		"node_path": node_path,
-		"detail": detail,
-	}
-
-
-## The global kind a node represents, or "" for ordinary location content. The
-## rig group is checked because a rig scene's root class is not unique to players.
-static func _global_kind(node: Node) -> String:
-	if node is Player:
-		return "player"
-	if node.is_in_group(&"player_view_rig"):
-		return "player_rig"
-	if node is Camera3D:
-		return "camera"
-	if node is WorldEnvironment:
-		return "world_environment"
-	if node is DirectionalLight3D:
-		return "sun"
-	if node is SkyWeather3D:
-		return "sky_weather"
-	if node is CanvasLayer:
-		return "hud"
-	if node is MapViewRuntime:
-		return "runtime"
-	return ""
-
-
-func _collect_global_violations(
-	location_id: StringName, package: Node, node: Node, diagnostics: Array[Dictionary]
-) -> void:
-	var kind := _global_kind(node)
-	if not kind.is_empty():
-		diagnostics.append(
-			_diagnostic(
-				DIAG_PACKAGE_CREATES_GLOBAL,
-				location_id,
-				String(package.get_path_to(node)) if node != package else ".",
-				kind
-			)
-		)
-		# The whole subtree belongs to that global; one diagnostic is enough.
-		return
-	for child in node.get_children():
-		_collect_global_violations(location_id, package, child, diagnostics)
-
-
-func _count_globals(node: Node, census: Dictionary) -> void:
-	var kind := _global_kind(node)
-	if census.has(kind):
-		census[kind] = int(census[kind]) + 1
-		# A rig or HUD may nest cameras or layers of its own; count the owner only.
-		return
-	for child in node.get_children():
-		_count_globals(child, census)
 
 
 func _ensure_mount_roots() -> void:
@@ -1123,31 +1067,28 @@ func _seam_aperture_center(seam: Dictionary) -> float:
 	return NAN
 
 
-func _packages_have_unique_handles(
-	location_id: StringName, logic_package: Node, view_package: Node
-) -> bool:
+func _entries_are_unique(location_id: StringName, entries: Array[Dictionary]) -> bool:
 	var candidate_keys: Dictionary = {}
-	for package in [logic_package, view_package]:
-		if package == null:
-			continue
-		for entry in _stable_handles_in(package as Node, location_id):
-			var handle: Dictionary = entry["handle"]
-			var key := String(entry["key"])
-			if String(handle.get("object_id", "")).is_empty():
-				_last_rejection = [_diagnostic(DIAG_MISSING_OBJECT_ID, location_id, "", key)]
-				return false
-			if candidate_keys.has(key) or _stable_handle_owners.has(key):
-				_duplicate_stable_handles.append(handle.duplicate(true))
-				_last_rejection = [_diagnostic(DIAG_DUPLICATE_STABLE_HANDLE, location_id, "", key)]
-				return false
-			candidate_keys[key] = true
+	for entry in entries:
+		var handle: Dictionary = entry["handle"]
+		var key := String(entry["key"])
+		if String(handle.get("object_id", "")).is_empty():
+			_last_rejection = [
+				WorldHostPackageInspector.diagnostic(DIAG_MISSING_OBJECT_ID, location_id, "", key)
+			]
+			return false
+		if candidate_keys.has(key) or _stable_handle_owners.has(key):
+			_duplicate_stable_handles.append(handle.duplicate(true))
+			_last_rejection = [
+				WorldHostPackageInspector.diagnostic(DIAG_DUPLICATE_STABLE_HANDLE, location_id, "", key)
+			]
+			return false
+		candidate_keys[key] = true
 	return true
 
 
-func _register_package_handles(location_id: StringName, package: Node) -> void:
-	if package == null:
-		return
-	for entry in _stable_handles_in(package, location_id):
+func _register_entries(entries: Array) -> void:
+	for entry in entries:
 		_stable_handle_owners[String(entry["key"])] = entry["node"]
 
 
@@ -1155,46 +1096,4 @@ func _rebuild_stable_handle_registry() -> void:
 	_stable_handle_owners.clear()
 	_duplicate_stable_handles.clear()
 	for location_id in mounted_location_ids():
-		var mounted: Dictionary = _mounted_locations[location_id] as Dictionary
-		_register_package_handles(location_id, mounted.get("logic_root") as Node)
-		_register_package_handles(location_id, mounted.get("view_root") as Node)
-
-
-## Entries {handle, key, node}. A `stable_handle` dictionary is location-scoped
-## ({location_id, object_id}, the MapStableStateStore identity). A bare
-## `stable_id` is a world-unique content id (for example `char.aita`), so it
-## must exist at most once across every mounted location (ADR 0019 gate).
-func _stable_handles_in(package: Node, location_id: StringName) -> Array[Dictionary]:
-	var entries: Array[Dictionary] = []
-	_collect_stable_handles(package, location_id, entries)
-	return entries
-
-
-func _collect_stable_handles(
-	node: Node, location_id: StringName, entries: Array[Dictionary]
-) -> void:
-	if node.has_meta(&"stable_handle"):
-		var raw_handle: Variant = node.get_meta(&"stable_handle")
-		if raw_handle is Dictionary:
-			var handle := _normalize_handle(raw_handle as Dictionary, location_id)
-			entries.append({"handle": handle, "key": _handle_key(handle), "node": node})
-	elif node.has_meta(&"stable_id"):
-		var handle := _normalize_handle({"object_id": node.get_meta(&"stable_id")}, location_id)
-		entries.append({"handle": handle, "key": _world_key(handle), "node": node})
-	for child in node.get_children():
-		_collect_stable_handles(child, location_id, entries)
-
-
-func _normalize_handle(raw_handle: Dictionary, location_id: StringName) -> Dictionary:
-	return {
-		"location_id": String(raw_handle.get("location_id", location_id)),
-		"object_id": String(raw_handle.get("object_id", "")),
-	}
-
-
-func _handle_key(handle: Dictionary) -> String:
-	return "%s/%s" % [String(handle.get("location_id", "")), String(handle.get("object_id", ""))]
-
-
-func _world_key(handle: Dictionary) -> String:
-	return "*/%s" % String(handle.get("object_id", ""))
+		_register_entries((_mounted_locations[location_id] as Dictionary).get("handle_entries", []))

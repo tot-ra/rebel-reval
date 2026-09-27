@@ -207,6 +207,33 @@ static func create_staged(
 	return view
 
 
+## WB-08c (R-1044): create_staged() for a WorldHost neighbour. Nothing is built yet;
+## the finished view binds the host globals exactly like create_hosted(), because
+## every stage reads `_host_globals` when it runs, not when it is planned.
+static func create_hosted_staged(
+	map_definition: MapDefinition,
+	built_grid: MapTerrainGrid,
+	host_globals: Dictionary,
+	initial_time: StringName = TIME_DAY
+) -> MapView3D:
+	var view := MapView3D.new()
+	view.name = "MapView3D_%s" % String(map_definition.map_id)
+	view.definition = map_definition
+	view.grid = built_grid
+	view._host_globals = host_globals.duplicate()
+	view._begin_staged_assembly(initial_time)
+	return view
+
+
+## Stage of the next pending unit (one of MapViewAssembly.STAGES), or &"" when the
+## assembly is not running. WorldHost uses it to tell ground and buildings from
+## deferrable decoration when a player reaches a seam before the view finished.
+func next_assembly_stage() -> StringName:
+	if _assembly.state != Assembly.State.RUNNING or _assembly.units.is_empty():
+		return &""
+	return StringName(_assembly.units[0].get("stage", &""))
+
+
 ## Runs pending units until budget_usec is spent; see MapViewAssembly.step().
 ## Returns true once assembly is complete.
 func step_assembly(budget_usec: int) -> bool:
@@ -393,6 +420,11 @@ func set_weather_time_scale(scale: float) -> void:
 
 func apply_cycle_progress(progress: float, _sweep_sun_yaw: bool = true) -> void:
 	cycle_progress = wrapf(progress, 0.0, 1.0)
+	if _sky_weather == null:
+		# WB-08c: a WorldHost neighbour mounted before its sky_weather unit ran
+		# (decoration deferred past activation). The host re-applies its clock
+		# when that view completes.
+		return
 	var night := Lighting.apply_cycle_progress(
 		cycle_progress,
 		_sun,

@@ -159,8 +159,9 @@ nav byte-identity is unchanged.
   skip travel pairs. CI and path-aware pre-commit run
   `tools/build_world_layout.gd -- --check`, `tools/verify_world_layout.py`, and
   `tests.python.test_verify_world_layout`.
-- Scheduler: `WorldHost.update_streaming()` / `plan_residency()` with the defaults below.
-- Handover, travel boundary and fallback: `--filter=test_world_seam_crossing` (14 tests).
+- Scheduler: `WorldHost.update_streaming()` / `WorldHostResidencyPolicy.plan()` with the defaults below.
+- Handover, travel boundary, fallback, staged mounts and seam saves:
+  `--filter=test_world_seam_crossing` (20 tests).
 
 | Setting | Default | Derivation |
 |---|---|---|
@@ -244,15 +245,98 @@ owner-scoped consumers to the new location in location space:
 - `pinned_location_ids` is cleared; far past the eviction band the launch
   location unmounts.
 
-Limits for later rows:
+**R-1044 / WB-08c (2026-09-28, both flags on only).** Neighbour mounts are
+staged. With `world_host/async_location_assembly_enabled` on and no injected
+`location_loader`, `WorldHost.update_streaming()` hands every prefetch to
+`WorldHostMountQueue` instead of calling `enter_location()`:
 
-- A failing neighbour is retried synchronously every physics frame while it is in
-  the band.
+| Phase | Where | Work |
+|---|---|---|
+| `PREPARING` | WorkerThreadPool task | compile definition, `MapBuilder.build`, detached logic package (collision, navigation bake, doors) |
+| `ASSEMBLING` | main thread, shared 4 ms budget | `MapView3D.create_hosted_staged()` units |
+| `VERIFYING` | WorkerThreadPool task | `WorldHostPackageInspector.inspect()` of both detached packages (host-global nodes, stable handles) |
+| `READY` | main thread | `mount_location(..., inspection)`: registry check, add to tree |
 
-Still open before the release criteria can pass: staged in-flight mounts and
-save/load across a seam and mid-mount (**R-1044**);
-frame-time trace and clip of a two-seam walk; relief continuity (R-976);
-performance report with the cap at its default.
+- The active (owning) map is never staged. A player who teleports into an
+  unresident location still loads it synchronously.
+- A pending mount counts against `streaming_residency_cap`
+  (`WorldHostResidencyPolicy.plan()` gets mounted plus in-flight ids) and gets the
+  eviction hysteresis. It is never mounted, so no seam is active toward it and its
+  gates stay sealed.
+- Eviction cancels. `PREPARING` / `VERIFYING` results drain without blocking the
+  frame and are freed when their task ends. An assembling view cancels and joins
+  its worker jobs. `test_evicting_an_in_flight_mount_cancels_and_leaks_nothing`
+  checks orphans and the object count.
+- Failed mounts back off: 30 ticks, doubling to 480 (was: retried every frame).
+- `MapViewAssembly.step()` no longer starts a unit whose stage mean cost does not
+  fit the rest of the budget. The first unit of a step always runs.
+- Unmount rebuilds the stable-handle registry from the entries stored at mount,
+  without walking every resident package.
+
+**Decision: crossing into an in-flight neighbour waits at the seam edge.** A
+healthy mount is not a failure, so no scene swap is requested. The driver holds
+the player at the sealed gate (a streamed-door touch toward a pending neighbour
+does not request the fallback). `update_streaming()` returns `waiting` and the
+owner does not change. Each edge visit records one readiness miss
+(`mount_queue.misses()`: phase, logic-package readiness, next stage, pending
+units, ticks waited). This follows ADR 0019's fallback order: when only
+decoration stages remain (`scatter` onwards), the package mounts at once. Its
+collision truth is complete and ground and buildings exist. The remaining view
+units keep running in the tree (`REFINING`), and the miss records
+`early_mounted` plus the deferred stage. A failed mount (prepare returned
+nothing, or still in backoff) takes today's scene-swap fallback.
+
+**Save/load across a seam.** `WorldHostSeamSave` keeps the save identity at
+`{location_id, object_id}` plus global cell / sub-cell. The driver writes the
+player as entity `char.kalev` under the owning location on every tick, together
+with the owner's `scene_id`. The owner is always mounted and never in flight, so
+a save taken mid-mount has no pending state, chunk, or node path. The first
+driver tick of a hosted launch applies a loaded record flagged `resume` after
+DoorNavigator has placed the player at the spawn. A seam crossing, or a host
+leaving the tree, clears `resume` for that location. A later door entry therefore
+uses its spawn. Covered by
+`test_save_on_either_side_of_a_seam_and_mid_mount_round_trips` (SaveService on
+disk, both sides, mid-mount, object delta, quest state).
+
+Two-seam trace:
+`godot --headless --path . res://tools/trace_world_two_seam_walk.tscn [-- --px-per-frame=2]`.
+It walks Lower Town -> market -> south over real physics frames and writes
+`build/world_two_seam_trace.json`. Six runs on the development Mac, driver tick =
+all main-thread streaming work:
+
+| Walk | tick p50 | tick p95 | max | over 4 ms | misses |
+|---|---|---|---|---|---|
+| 2 px/frame (walking) | 0.05 ms | 3.8 ms | 70-75 ms | 163-172 of 3,879 | none; mounts 7.8-8.0 / 3.4 ms |
+| 4 px/frame (running) | 0.06 ms | 4.8 ms | 91-95 ms | 163-167 of ~2,250 | both, early-mounted; ~5 s held at the seams |
+
+The R-1043 synchronous trace had 4.3-6.6 s frames. The 4 ms gate is **not met
+yet**. The remaining causes:
+
+- Atomic view units over 4 ms account for most over-budget ticks while a mount is
+  pending: `surroundings` neighbour orchards and towers up to 67 ms, the Karja
+  gate arch, and some `buildings_props` houses. Splitting them is R-1006.
+- The owner-change rebind (R-1054 consumers) takes 24-70 ms (**R-1071**).
+- Tree entry of a finished view takes ~8 ms on market. Tree exit on eviction
+  takes ~14 ms (**R-1069**).
+- An early mount must inspect the incomplete view on the main thread (~9 ms)
+  (**R-1069**).
+- A staged mount takes ~6.5 s from prefetch to ready on market and south. That
+  is longer than the 48-cell band gives a running player (6.4 s), so running
+  crossings miss (**R-1072** re-derives the band).
+- One of eleven trace runs crashed (SIGSEGV) inside a worker pattern bake
+  (`map_view_material_patterns.gd` `_pattern_image_at_size`) while mounts were
+  staged. It did not reproduce in the next ten runs (**R-1070**; keep the flag
+  off until it closes).
+
+Limits kept for later rows are the items above, plus two more:
+
+- Logic packages still build Door scenes on a worker, which relies on off-tree
+  node creation being thread-safe.
+- The R-1043 walk tool's mouse leg is flaky on `main` (**R-1074**).
+
+Still open before the release criteria can pass: the 4 ms per-frame gate
+(follow-ups above); a rendered clip of a two-seam walk; relief continuity
+(R-976); performance report with the cap at its default.
 
 ADR phase 6 (NPC, quest, fauna, audio, persistence residency beyond the two-seam walk)
 is follow-up work after R-980, not a fourth pack row.

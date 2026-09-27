@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://tools/trace_world_two_seam_walk.gd" id="1_trace"]
+
+[node name="WorldTwoSeamTrace" type="Node"]
+script = ExtResource("1_trace")
