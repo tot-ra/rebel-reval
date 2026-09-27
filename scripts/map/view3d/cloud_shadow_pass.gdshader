@@ -6,8 +6,10 @@ render_mode unshaded, fog_disabled, depth_draw_never, depth_test_disabled, cull_
 // WHY no hint_screen_texture: Godot 4.7 binds a default buffer for that hint
 // in SceneTree capture paths (Metal beige mottling, Compatibility RGB noise).
 // Multiply the live framebuffer (dest * factor). blend_mix ALPHA on this
-// unshaded quad did not composite. Compatibility still reads darker than
-// Metal; that is a follow-up, not a return to hint_screen_texture.
+// unshaded quad did not composite. Compatibility blend_mul stores dest_lin
+// * factor as linear bytes that plates read as sRGB, so the same factor
+// crushes the harbour (R-1048 luma 8.4 vs Metal 59.6). COMPAT_BLEND_GAIN
+// restores dest_srgb * factor. Do not bring the screen-texture hint back.
 uniform sampler2D depth_texture : hint_depth_texture, repeat_disable, filter_nearest;
 uniform float sun_share : hint_range(0.0, 1.0) = 0.0;
 uniform int shadow_samples : hint_range(1, 3) = 3;
@@ -28,6 +30,9 @@ global uniform float cloud_shadow_strength;
 const float CLOUD_LAYER_H = 400.0;
 const float SHADOW_MIP_BIAS = 1.5;
 const float SUN_SHARE_SKIP = 0.01;
+// Mid-grey 0.5 / IEC sRGB linear(0.5)=0.214041. Only the GLES3 write path
+// needs this; the cloud field and QUALITY_TIERS sample counts stay shared.
+const float COMPAT_BLEND_GAIN = 0.5 / 0.21404114048223255;
 
 void vertex() {
 	POSITION = vec4(VERTEX.xy, 1.0, 1.0);
@@ -72,6 +77,9 @@ void fragment() {
 		}
 		factor = 1.0 - shadow * cloud_shadow_strength * sun_share;
 	}
+#if CURRENT_RENDERER == RENDERER_COMPATIBILITY
+	factor *= COMPAT_BLEND_GAIN;
+#endif
 	ALBEDO = vec3(factor);
 	ALPHA = 1.0;
 }

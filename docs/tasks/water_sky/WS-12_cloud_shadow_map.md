@@ -132,8 +132,12 @@ GPU items 2-4 are owned by **R-1033**.
    - **R-1048:** the overlay no longer samples `hint_screen_texture`. It
      `blend_mul`s the live framebuffer and `discard`s when `sun_share` is
      ~0. Metal pass-on plates keep the real sea and show moving patches.
-     Compatibility is darker than Metal on the same multiply; **R-1051**
-     owns a GL strength match, not a return to the default-buffer resample.
+   - **R-1051:** Compatibility `blend_mul` stores dest_lin * factor as
+     linear bytes that plates read as sRGB. `COMPAT_BLEND_GAIN` (0.5 /
+     IEC linear(0.5) ≈ 2.336) applies only on GLES3. GL pass-on luma
+     55.5 vs `--no-pass` 108.3 (ratio 0.51; Metal 59.6/96.4 = 0.62),
+     B>R 0.938. Clip `ws12_opengl3_partly_harbour_clip.png` neighbor
+     mean-abs 0.023-0.159. Do not restore `hint_screen_texture`.
 4. Isolated pass cost: `tools/capture_ws12_cloud_shadows.gd -- --bench` at 1920x1080 on
    Apple M5 Pro Metal: `on_ms=8.606 off_ms=8.634 delta_ms=-0.028` (inside 0.3 ms; the
    pass was not shading the real scene in this path). The quick performance report still

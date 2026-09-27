@@ -361,6 +361,16 @@ Overcast and night keep `sun_share=0` and no patches.
 
 - [ ] R-1051 | deps: R-1048 | deliverable: Compatibility cloud-shadow multiply matches Metal harbour readability | allowed files: `scripts/map/view3d/cloud_shadow_pass.gdshader`, `tools/capture_ws12_cloud_shadows.gd`, `docs/reports/images/ws12_opengl3_*.png`, `docs/tasks/water_sky/WS-12_cloud_shadow_map.md`, `TODO.md` | verify: `--filter=test_cloud_shadow_pass,test_sky_weather_3d`; GL pass-on vs `--no-pass` B>R ~0.94 and luma drop comparable to Metal
 
+R-1051 implementation landed. Compatibility `blend_mul` stores dest_lin *
+factor as linear bytes that plates read as sRGB. `COMPAT_BLEND_GAIN`
+(0.5 / IEC linear(0.5) ≈ 2.336) applies only on
+`RENDERER_COMPATIBILITY`. Cloud-field maths and sample counts stay
+shared. `--filter=test_cloud_shadow_pass,test_sky_weather_3d` 40/40.
+GL pass-on luma 55.5 vs `--no-pass` 108.3 (ratio 0.51; Metal 59.6/96.4
+= 0.62). B>R 0.938. Clip neighbor mean-abs 0.023-0.159 (downwind).
+Overcast and night keep `sun_share=0`. Handoff: QA visual review
+(**R-1052**).
+
 - [ ] R-941 | deps: WS-11 | deliverable: sky_weather_3d.gdshader calls shared atmosphere_sky_view_uv and ATMO_SKY_VIEW_HEIGHT_KM; private sky_view_uv / SKY_VIEW_HEIGHT_KM deleted | allowed files: `scripts/map/view3d/sky_weather_3d.gdshader`, `tests/godot/test_sky_weather_3d.gd`, `TODO.md` | verify: `--filter=test_sky_weather_3d,test_sky_atmosphere_lut`; Compatibility `tools/capture_ws10_sky_elevations.gd -- --elevation=5` plate within 1 LSB of the pre-change plate; no `vec2 sky_view_uv(` left
 
 R-941 implementation landed. The dome samples the sky-view LUT through

@@ -394,3 +394,40 @@ func _save(image: Image, filename: String) -> void:
 		quit(1)
 		return
 	print("WS12_CAPTURED %s" % path)
+	_print_plate_metrics(image, filename)
+
+
+func _print_plate_metrics(image: Image, filename: String) -> void:
+	# R-1051: GL pass-on vs --no-pass must keep B>R (real sea) and a luma
+	# drop in the Metal band (~0.62), not the R-1048 crush (~0.08).
+	var working := image.duplicate()
+	if working.get_format() != Image.FORMAT_RGBA8:
+		working.convert(Image.FORMAT_RGBA8)
+	var width: int = working.get_width()
+	var height: int = working.get_height()
+	if width <= 0 or height <= 0:
+		return
+	var luma_sum := 0.0
+	var red_sum := 0.0
+	var blue_sum := 0.0
+	var blue_gt_red := 0
+	var count := 0
+	for y in range(0, height, 4):
+		for x in range(0, width, 4):
+			var color: Color = working.get_pixel(x, y)
+			red_sum += color.r
+			blue_sum += color.b
+			luma_sum += color.r * 0.2126 + color.g * 0.7152 + color.b * 0.0722
+			if color.b > color.r:
+				blue_gt_red += 1
+			count += 1
+	if count <= 0:
+		return
+	print(
+		"WS12_METRICS file=%s luma=%.1f B_over_R=%.3f BgtR=%.3f" % [
+			filename,
+			(luma_sum / float(count)) * 255.0,
+			blue_sum / maxf(red_sum, 0.0001),
+			float(blue_gt_red) / float(count),
+		]
+	)
