@@ -476,6 +476,13 @@ static func _preview_data_for(
 	var offset := _neighbor_offset(definition, neighbor, transition, reciprocal, side)
 	var bounds := _neighbor_strip(neighbor.size_cells, side)
 	var grid := MapBuilder.build(neighbor)
+	# WHY: R-1022 left preview water at world-zero -WATER_RECESS. Sample the
+	# neighbor-local shore-relative bed so a raised moat or quay does not flash
+	# a datum strip at the seam. Empty relief skips the bake and stays historic.
+	# Worker-safe: compute only; do not publish the main-thread height cache.
+	var field := {}
+	if not neighbor.relief_heights.is_empty():
+		field = MapViewMeshBuilderTerrain.compute_height_field(neighbor, grid)
 	var surfaces: Dictionary = {}
 	for y in range(bounds.position.y, bounds.end.y):
 		for x in range(bounds.position.x, bounds.end.x):
@@ -484,7 +491,11 @@ static func _preview_data_for(
 				var surface := SurfaceTool.new()
 				surface.begin(Mesh.PRIMITIVE_TRIANGLES)
 				surfaces[terrain] = surface
-			_add_preview_quad(surfaces[terrain], Vector2(x, y) + offset, terrain)
+			var rest_y := NEIGHBOR_GROUND_Y
+			if MapTypes.WATER_TERRAINS.has(terrain):
+				var local := Vector2(float(x) + 0.5, float(y) + 0.5)
+				rest_y = MapViewMeshBuilderTerrain.water_gameplay_bed_y(field, local)
+			_add_preview_quad(surfaces[terrain], Vector2(x, y) + offset, rest_y)
 	# [terrain, arrays] in first-seen order, the old per-terrain child order.
 	var terrain_arrays: Array = []
 	for terrain in surfaces:
@@ -657,18 +668,13 @@ static func _simplify_neighbor_building(building: Node3D) -> void:
 		child.free()
 
 
-static func _add_preview_quad(surface: SurfaceTool, cell: Vector2, terrain: StringName) -> void:
-	var y := (
-		-MapViewMeshBuilderConfig.WATER_RECESS
-		if MapTypes.WATER_TERRAINS.has(terrain)
-		else NEIGHBOR_GROUND_Y
-	)
+static func _add_preview_quad(surface: SurfaceTool, cell: Vector2, rest_y: float) -> void:
 	var points := [cell, cell + Vector2.RIGHT, cell + Vector2.ONE, cell + Vector2.DOWN]
 	for index in [0, 2, 1, 0, 3, 2]:
 		var point: Vector2 = points[index]
 		surface.set_normal(Vector3.UP)
 		surface.set_uv(point / MapViewMaterials.TERRAIN_TEXTURE_WORLD_SIZE)
-		surface.add_vertex(Vector3(point.x, y, point.y))
+		surface.add_vertex(Vector3(point.x, rest_y, point.y))
 
 
 static func _transition_side(definition: MapDefinition, transition: Dictionary) -> StringName:

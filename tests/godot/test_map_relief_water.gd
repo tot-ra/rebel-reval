@@ -11,6 +11,10 @@ const SurroundingsBuilder := preload(
 const RevalHarborNorthDefinition := preload(
 	"res://scripts/map/definitions/outdoor/reval_harbor_north_definition.gd"
 )
+const LowerTownSliceDefinition := preload(
+	"res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd"
+)
+const NeighborRegistry := preload("res://scripts/map/map_neighbor_preview_registry.gd")
 
 const MOAT_SOURCE := """rrmap 1
 map relief_moat_water loc.relief_moat_water 32 24 grass seed=7
@@ -41,6 +45,28 @@ surroundings north water
 spawn spawn.main 12 12
 """
 
+const PREVIEW_HOST_SOURCE := """rrmap 1
+map rel_host loc.rel_host 16 24 grass seed=5
+spawn a 2 12
+transition e.w 0 10 1 4 to=rel_moat destination_spawn=b spawn=a transition_visual=ground
+"""
+
+const PREVIEW_MOAT_SOURCE := """rrmap 1
+map rel_moat loc.rel_moat 32 24 grass seed=7
+relief_terrace plateau 0 0 32 24 2 edge=0
+relief_ditch moat 6 12 26 12 5 0.8
+terrain moat_water water 10 10 12 5 order=1
+spawn b 2 2
+transition e.e 31 10 1 4 to=rel_host destination_spawn=a spawn=b transition_visual=ground
+"""
+
+const PREVIEW_FLAT_SOURCE := """rrmap 1
+map rel_flat loc.rel_flat 32 24 grass seed=7
+terrain pond water 10 10 12 5 order=1
+spawn b 2 2
+transition e.e 31 10 1 4 to=rel_host destination_spawn=a spawn=b transition_visual=ground
+"""
+
 
 func _compile(source: String, path: String) -> MapDefinition:
 	var parsed := MapRrmapParser.parse(source, path)
@@ -48,6 +74,21 @@ func _compile(source: String, path: String) -> MapDefinition:
 	if not parsed.is_ok():
 		return null
 	return parsed.definition
+
+
+## Fixture maps point at each other, so they are not in the production registry.
+func _compile_preview(source: String, path: String) -> MapDefinition:
+	var parsed := MapRrmapParser.parse(source, path)
+	assert_true(
+		parsed.blueprint != null, "%s: %s" % [path, parsed.formatted_diagnostics()]
+	)
+	if parsed.blueprint == null:
+		return null
+	if parsed.definition != null:
+		return parsed.definition
+	var compiled := MapBlueprintCompiler.compile_with_diagnostics(parsed.blueprint)
+	assert_true(compiled.definition != null, "%s: compile produced no definition" % path)
+	return compiled.definition
 
 
 func _field(definition: MapDefinition) -> Dictionary:
@@ -279,6 +320,123 @@ func test_relief_moat_underwater_probe_follows_terrace() -> void:
 		"moat probe must follow the terrace (got %s)" % probe["surface_y"]
 	)
 	view.free()
+
+
+func test_relief_moat_neighbor_preview_water_follows_terrace() -> void:
+	var host := _compile_preview(PREVIEW_HOST_SOURCE, "res://rel_host.rrmap")
+	var neighbor := _compile_preview(PREVIEW_MOAT_SOURCE, "res://rel_moat.rrmap")
+	if host == null or neighbor == null:
+		return
+	var host_exit := _ground_exit(host, &"b")
+	assert_true(not host_exit.is_empty(), "host must author the west ground exit")
+	var ys := _preview_water_ys(host, neighbor, host_exit, &"west")
+	assert_true(not ys.is_empty(), "moat neighbor preview must emit water quads")
+	var expected := TerrainBuilder.water_gameplay_bed_y(_field(neighbor), Vector2(16.5, 12.5))
+	assert_true(expected > 1.0, "moat bed must sit on the terrace (got %s)" % expected)
+	for rest_y in ys:
+		assert_almost_eq(
+			rest_y,
+			expected,
+			0.0001,
+			"moat preview water must sit on the terrace recess, not world zero"
+		)
+
+
+func test_flat_neighbor_preview_water_stays_on_historic_recess() -> void:
+	var host := _compile_preview(PREVIEW_HOST_SOURCE, "res://rel_host.rrmap")
+	var neighbor := _compile_preview(PREVIEW_FLAT_SOURCE, "res://rel_flat.rrmap")
+	if host == null or neighbor == null:
+		return
+	assert_true(neighbor.relief_heights.is_empty(), "flat neighbor authors no relief")
+	var host_exit := _ground_exit(host, &"b")
+	assert_true(not host_exit.is_empty(), "host must author the west ground exit")
+	var ys := _preview_water_ys(host, neighbor, host_exit, &"west")
+	assert_true(not ys.is_empty(), "flat neighbor preview must emit water quads")
+	for rest_y in ys:
+		assert_almost_eq(
+			rest_y,
+			-MeshConfig.WATER_RECESS,
+			0.0001,
+			"flat preview water must stay on the historic recess"
+		)
+
+
+func test_harbor_north_neighbor_preview_water_stays_on_historic_recess() -> void:
+	var definition: MapDefinition = RevalHarborNorthDefinition.create()
+	_assert_production_preview_water_historic(
+		definition, "Harbor North", &"reval_harbor_east", true
+	)
+
+
+func test_lower_town_neighbor_preview_water_stays_on_historic_recess() -> void:
+	var definition: MapDefinition = LowerTownSliceDefinition.create()
+	_assert_production_preview_water_historic(
+		definition, "Lower Town", &"viru_gate_foreland", false
+	)
+
+
+func _assert_production_preview_water_historic(
+	definition: MapDefinition, label: String, only_scene: StringName, require_water: bool
+) -> void:
+	assert_true(definition.relief_heights.is_empty(), "%s authors no relief yet" % label)
+	var found := 0
+	for transition in definition.transitions:
+		if transition.get("alignment", &"edge") == &"travel":
+			continue
+		if (
+			transition.get("transition_visual", MapTypes.TRANSITION_VISUAL_DOOR)
+			!= MapTypes.TRANSITION_VISUAL_GROUND
+		):
+			continue
+		var scene_id: StringName = transition.get("destination_scene_id", &"")
+		if only_scene != &"" and scene_id != only_scene:
+			continue
+		var neighbor := NeighborRegistry.create_definition(scene_id)
+		if neighbor == null:
+			continue
+		var side := SurroundingsBuilder._transition_side(definition, transition)
+		if side.is_empty():
+			continue
+		var ys := _preview_water_ys(definition, neighbor, transition, side)
+		for rest_y in ys:
+			assert_almost_eq(
+				rest_y,
+				-MeshConfig.WATER_RECESS,
+				0.0001,
+				"%s neighbor %s water Y must stay historic" % [label, scene_id]
+			)
+			found += 1
+	if require_water:
+		assert_true(found > 0, "%s must expose neighbor preview water" % label)
+
+
+func _ground_exit(definition: MapDefinition, destination_spawn: StringName) -> Dictionary:
+	for transition in definition.transitions:
+		if transition.get("destination_spawn_id", &"") == destination_spawn:
+			return transition
+	return {}
+
+
+func _preview_water_ys(
+	definition: MapDefinition,
+	neighbor: MapDefinition,
+	transition: Dictionary,
+	side: StringName
+) -> PackedFloat32Array:
+	var data: Dictionary = SurroundingsBuilder._preview_data_for(
+		definition, neighbor, transition, side
+	)
+	var ys := PackedFloat32Array()
+	if data.is_empty():
+		return ys
+	for entry: Array in data["terrain"]:
+		var terrain: StringName = entry[0]
+		if not MapTypes.WATER_TERRAINS.has(terrain):
+			continue
+		var vertices: PackedVector3Array = entry[1][Mesh.ARRAY_VERTEX]
+		for vertex in vertices:
+			ys.append(vertex.y)
+	return ys
 
 
 func _first_water_side(definition: MapDefinition) -> StringName:
