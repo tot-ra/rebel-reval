@@ -10,6 +10,11 @@ const BUILDING_PULL_ITERATIONS := 4
 const BUILDING_PULL_STEP := 0.6
 const VISIBILITY_PULL_STEP := 0.6
 const VISIBILITY_PULL_ITERATIONS := 4
+## Relief line of sight aims at the player's chest (the middle occlusion probe)
+## and treats a sample closer than the clearance to the ground as blocked.
+const TERRAIN_SIGHT_HEIGHT := 1.1
+const TERRAIN_SIGHT_STEP := 0.5
+const TERRAIN_SIGHT_CLEARANCE := 0.05
 
 var _controller: MapViewRuntimeCamera
 
@@ -159,7 +164,7 @@ func _ensure_player_visible() -> void:
 	if view.definition != null and view.definition.suppresses_exterior_surroundings():
 		return
 	var player_pos := player_rig.position
-	if not view.is_segment_occluded(camera.position, player_pos):
+	if not _line_of_sight_blocked(camera.position, player_pos):
 		return
 	if controller.camera_mode == MapViewRuntimeCamera.CameraMode.TOP_DOWN:
 		return
@@ -173,7 +178,36 @@ func _ensure_player_visible() -> void:
 		if distance < MapViewRuntimeCamera.THIRD_PERSON_MIN_DISTANCE:
 			break
 		var candidate := player_pos + dir * distance
-		if not view.is_segment_occluded(candidate, player_pos):
+		if not _line_of_sight_blocked(candidate, player_pos):
 			camera.position = candidate
 			return
 	camera.position = player_pos + Vector3.UP * MapViewRuntimeCamera.THIRD_PERSON_TARGET_HEIGHT
+
+
+## Buildings occlude through the view's occluder boxes. On relief (ADR 0023,
+## WB-03) a rising bank between camera and player occludes too, so the same
+## pull-in recovers from it instead of leaving the camera looking into the slope.
+func _line_of_sight_blocked(from: Vector3, player_pos: Vector3) -> bool:
+	var view := _controller.view
+	if view.is_segment_occluded(from, player_pos):
+		return true
+	var chest := player_pos + Vector3.UP * TERRAIN_SIGHT_HEIGHT
+	return segment_under_ground(view.definition, from, chest)
+
+
+## True when the straight segment dips below the rendered ground anywhere between
+## its ends. Samples every TERRAIN_SIGHT_STEP world units, excluding both ends
+## (the target sits above the player's feet, which legitimately touch the
+## ground). Flat maps return false without sampling, so their camera behaviour is
+## unchanged.
+static func segment_under_ground(definition: MapDefinition, from: Vector3, to: Vector3) -> bool:
+	if definition == null or not MapTerrainMovement.has_relief(definition):
+		return false
+	var length := from.distance_to(to)
+	var steps := int(ceil(length / TERRAIN_SIGHT_STEP))
+	for step in range(1, steps):
+		var point := from.lerp(to, float(step) / float(steps))
+		var ground := MapViewMeshBuilder.ground_height(definition, Vector2(point.x, point.z))
+		if point.y < ground + TERRAIN_SIGHT_CLEARANCE:
+			return true
+	return false

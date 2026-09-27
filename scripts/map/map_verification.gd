@@ -42,6 +42,10 @@ static func is_walkable_cell(
 		return false
 	if blocked_cells(definition).has(cell):
 		return false
+	# ADR 0023 (WB-03): relief is authoritative for walkability, so flood-fill
+	# audits, placement and navigation agree on which banks are impassable.
+	if MapTerrainMovement.is_relief_blocked_cell(definition, cell):
+		return false
 	return true
 
 

@@ -83,6 +83,8 @@ static func bake_navigation_polygon(
 	)
 	for rect in water_rects:
 		_source_add_obstruction(source, definition.cell_rect_to_world_rect(rect))
+	for rect in relief_obstruction_rects(definition):
+		_source_add_obstruction(source, definition.cell_rect_to_world_rect(rect))
 
 	var nav_polygon := NavigationPolygon.new()
 	# Match the player's physics capsule so click paths cannot cut through
@@ -90,6 +92,19 @@ static func bake_navigation_polygon(
 	nav_polygon.agent_radius = AGENT_RADIUS
 	NavigationServer2D.bake_from_source_geometry_data(nav_polygon, source)
 	return nav_polygon
+
+
+## ADR 0023 (WB-03): cells steeper than the walkable slope and both sides of every
+## relief_cliff face, merged into rects. Empty on maps whose ground cannot block,
+## so their bake input is unchanged. Thread-safe (pure reads of the definition).
+static func relief_obstruction_rects(definition: MapDefinition) -> Array[Rect2i]:
+	if not MapTerrainMovement.relief_can_block(definition):
+		return [] as Array[Rect2i]
+	return GridRegionMergerScript.merge_matching_cells(
+		definition.size_cells,
+		func(cell: Vector2i) -> bool:
+			return MapTerrainMovement.is_relief_blocked_cell(definition, cell)
+	)
 
 
 static func _source_add_obstruction(

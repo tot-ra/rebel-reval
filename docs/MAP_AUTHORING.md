@@ -909,8 +909,44 @@ Sampling API on `MapDefinition`: `height_at(cell)`, `height_at_world(pixels)`
 in radians, and `height_at_cell_space(cells)` for the 3D view. The view height
 field (`MapViewMeshBuilderTerrain.field_height`) uses the same datum plus relief
 as its base and keeps its procedural noise, pad flattening and water recess as
-sub-cell detail only. Until WB-03 (R-975) lands, collision, navigation, movement
-and save identity still ignore height; height is never persisted.
+sub-cell detail only. Height is never persisted.
+
+#### Relief is authoritative for gameplay (WB-03, R-975)
+
+Gameplay stays on the 2D logic plane; relief acts on it through these rules,
+all owned by `MapTerrainMovement` and reading only the compiled definition:
+
+- **Walkable slope.** The maximum is **35 degrees** between 4-neighbour cell
+  centres (`MapDefinition.RELIEF_MAX_WALKABLE_SLOPE`, rise `tan(35) ~= 0.70`
+  world units per cell, with the validator's `0.0001` tolerance). A cell that
+  shares a steeper face with any neighbour is impassable, and so is every cell on
+  either side of a `relief_cliff` face, whatever its drop. Both sides of a face
+  are blocked, so a cliff is a band nobody stands in, not a one-way ledge.
+- **Movement cost.** Speed is multiplied by `cos(slope)` of
+  `slope_at_world()`, clamped at the walkable limit (never below `~0.82`). The
+  ADR curve is direction-free and monotonic in slope; it composes with terrain,
+  mud and prop multipliers before the usual clamp.
+- **Navigation and collision.** `MapNavBuilder.relief_obstruction_rects()`
+  merges the blocked cells into rects. The navigation bake obstructs them, and
+  `MapSceneBootstrap` mirrors the same rects as the `ReliefBlocks` static body
+  (group `map_relief_collision`), so keyboard and gamepad movement cannot climb
+  what click-to-move routes around. Collision resolution is one cell.
+  `MapVerification.is_walkable_cell()` applies the same rule, so every flood-fill
+  audit, placement and anchor check sees the same banks.
+- **Actor height.** Player, NPC, crowd and fauna Y come from
+  `MapViewMeshBuilder.ground_height()`: `height_at_world()` plus view detail.
+  The smoothing window is the bilinear interpolation between cell centres, so
+  crossing a cell boundary never steps.
+- **Camera.** `MapViewRuntimeCameraSafety` treats a rising bank between the
+  camera and the player's chest as occlusion and pulls the camera in, exactly
+  like a building.
+- **Flat maps.** Relief can block a cell only when the map compiles
+  `relief_heights` or its `elevation=` datum taper rises faster than the limit
+  (`1.5 * datum / 10 > 0.70`, i.e. a datum above ~4.67). Today no registered
+  map does, so every walkable-cell census is unchanged
+  ([report](./reports/relief_traversal_2026-09-26.md)). A transition, spawn or
+  anchor that a later relief edit makes unwalkable is a failure, not a prompt to
+  move the ID.
 
 The compiler version is `10`: `relief_features` and a hash of `relief_heights`
 participate in the canonical fingerprint. Toompea currently uses

@@ -39,6 +39,7 @@ static func assemble(
 	host.add_child(nav)
 	var world_bounds := _create_world_bounds(definition, host)
 	var water_blocks := _create_water_blocks(definition, grid, host)
+	var relief_blocks := _create_relief_blocks(definition, host)
 	var excluded_blocks := _create_excluded_area_blocks(definition, host)
 
 	var gameplay := Node2D.new()
@@ -56,6 +57,7 @@ static func assemble(
 		"navigation": nav,
 		"world_bounds": world_bounds,
 		"water_blocks": water_blocks,
+		"relief_blocks": relief_blocks,
 		"excluded_blocks": excluded_blocks,
 		"doors": doors,
 		"anchors": anchors,
@@ -185,6 +187,31 @@ static func _create_water_blocks(
 	if water_rects.is_empty():
 		body.free()
 		return null
+	parent.add_child(body)
+	return body
+
+
+## ADR 0023 (WB-03): gameplay collision stays on the 2D plane, so the ground
+## follows the compiled field at one-cell resolution: every cell steeper than the
+## walkable slope (and both sides of a relief_cliff) is a physical block, the same
+## rects MapNavBuilder obstructs, so keyboard/gamepad movement cannot climb a bank
+## that click-to-move routes around. Returns null on maps whose ground cannot block.
+static func _create_relief_blocks(definition: MapDefinition, parent: Node2D) -> StaticBody2D:
+	var relief_rects := MapNavBuilder.relief_obstruction_rects(definition)
+	if relief_rects.is_empty():
+		return null
+	var body := StaticBody2D.new()
+	body.name = "ReliefBlocks"
+	body.add_to_group(&"map_relief_collision")
+	for index in relief_rects.size():
+		var world_rect := definition.cell_rect_to_world_rect(relief_rects[index])
+		var collision := CollisionShape2D.new()
+		collision.name = "Relief%d" % index
+		var shape := RectangleShape2D.new()
+		shape.size = world_rect.size
+		collision.shape = shape
+		collision.position = world_rect.get_center()
+		body.add_child(collision)
 	parent.add_child(body)
 	return body
 
