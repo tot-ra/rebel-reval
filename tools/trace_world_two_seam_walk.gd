@@ -80,12 +80,15 @@ func _run() -> void:
 		if player.global_position.distance_to(target) < 0.5:
 			target_index += 1
 		var owner := String(host.owning_location_id())
-		if owners.is_empty() or owners[-1] != owner:
+		var owner_changed := owners.is_empty() or owners[-1] != owner
+		if owner_changed:
 			owners.append(owner)
 		_frames.append({
 			"frame_ms": float(now - last_usec) / 1000.0,
 			"tick_ms": float(driver.tick_usec[-1]) / 1000.0,
 			"owner": owner,
+			"owner_changed": owner_changed and owners.size() > 1,
+			"owner_rebind_ms": float(driver.last_owner_rebind_usec) / 1000.0,
 			"waiting": String(result.get("waiting", &"")),
 			"mounted": _strings(result.get("mounted", [])),
 			"evicted": _strings(result.get("evicted", [])),
@@ -147,16 +150,27 @@ static func _door_center(
 
 func _report(host: WorldHost, owners: Array[String], waiting_frames: int) -> Dictionary:
 	var ticks: Array[float] = []
+	var owner_ticks: Array[float] = []
 	var over: Array[Dictionary] = []
+	var owner_over: Array[Dictionary] = []
 	for index in _frames.size():
 		var tick_ms: float = _frames[index]["tick_ms"]
 		ticks.append(tick_ms)
+		if bool(_frames[index].get("owner_changed", false)):
+			var rebind_ms: float = float(_frames[index].get("owner_rebind_ms", tick_ms))
+			owner_ticks.append(rebind_ms)
+			if rebind_ms > BUDGET_MSEC:
+				var owner_frame := _frames[index].duplicate()
+				owner_frame["frame"] = index
+				owner_over.append(owner_frame)
 		if tick_ms > BUDGET_MSEC:
 			var frame := _frames[index].duplicate()
 			frame["frame"] = index
 			over.append(frame)
 	var sorted_ticks := ticks.duplicate()
 	sorted_ticks.sort()
+	var sorted_owner := owner_ticks.duplicate()
+	sorted_owner.sort()
 	var visited_all := owners == (ROUTE.map(func(id: StringName) -> String: return String(id)))
 	var summary := {
 		"frames": _frames.size(),
@@ -165,6 +179,11 @@ func _report(host: WorldHost, owners: Array[String], waiting_frames: int) -> Dic
 		"tick_ms_p95": _percentile(sorted_ticks, 0.95),
 		"tick_ms_max": sorted_ticks[-1] if not sorted_ticks.is_empty() else 0.0,
 		"ticks_over_budget": over.size(),
+		"owner_change_ticks": owner_ticks.size(),
+		"owner_change_tick_ms_max": (
+			sorted_owner[-1] if not sorted_owner.is_empty() else 0.0
+		),
+		"owner_change_ticks_over_budget": owner_over.size(),
 		"budget_ms": BUDGET_MSEC,
 		"px_per_frame": _px_per_frame,
 		"waiting_frames": waiting_frames,

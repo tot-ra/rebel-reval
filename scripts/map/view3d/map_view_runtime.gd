@@ -99,6 +99,7 @@ var cycle_elapsed_days: int:
 
 var _definition: MapDefinition
 var _owning_location_id: StringName = &""
+var _owning_grid: MapTerrainGrid
 var _minimap_logic_tracker: Node2D
 var _player: CharacterBody2D
 var _player_rig: SharedCharacterRig
@@ -145,9 +146,12 @@ func owning_location_id() -> StringName:
 	return _owning_location_id
 
 
-## WB-08d: retarget terrain, view, ambient, camera and minimap to the location
-## that now owns the player. The Player, camera and HUD instances stay put.
-func bind_owning_location(location_id: StringName) -> bool:
+## WB-08d / R-1071: retarget gameplay truth (owner, terrain, camera view,
+## minimap label) on the crossing frame. Ambient fauna/audio is deferred so the
+## owning_location_changed tick stays inside the 4 ms streaming budget.
+func bind_owning_location(
+	location_id: StringName, include_presentation: bool = true
+) -> bool:
 	if world_host == null or location_id.is_empty():
 		return false
 	var bootstrap: Dictionary = world_host.call(&"hosted_bootstrap", location_id)
@@ -158,6 +162,7 @@ func bind_owning_location(location_id: StringName) -> bool:
 		return false
 	_owning_location_id = location_id
 	_definition = definition
+	_owning_grid = grid
 	view = hosted_view
 	var origin: Vector2 = world_host.call(&"location_origin_logic_position", location_id)
 	if _player != null and _player.has_method("configure_map_movement"):
@@ -166,9 +171,33 @@ func bind_owning_location(location_id: StringName) -> bool:
 		_player.call("set_mud_wetness_provider", view.mud_wetness)
 	_camera_controller.view = view
 	_actor_controller.rebind_view(definition, view)
-	_ambient_controller.rebind_map(definition, view)
-	_bind_minimap(definition, grid)
+	_bind_minimap_label(definition)
+	if include_presentation:
+		bind_owning_location_presentation()
 	return true
+
+
+## Ambient birds/fauna/music and the minimap texture for the already-bound owner.
+func bind_owning_location_presentation() -> void:
+	if _definition == null or view == null:
+		return
+	_ambient_controller.rebind_map(_definition, view)
+	if _owning_grid != null:
+		_bind_minimap(_definition, _owning_grid)
+
+
+func _bind_minimap_label(definition: MapDefinition) -> void:
+	if world_host == null:
+		return
+	var minimap: Node = world_host.get("minimap_hud") as Node
+	if minimap == null or not minimap.has_method("get_location_label"):
+		return
+	var label := minimap.call("get_location_label") as Label
+	if label == null:
+		return
+	var location_name := LocationHud.display_name_for(definition)
+	label.text = location_name
+	label.visible = not location_name.is_empty()
 
 
 func _bind_minimap(definition: MapDefinition, grid: MapTerrainGrid) -> void:

@@ -101,6 +101,7 @@ func test_walk_lower_town_into_market_civic_quarter_without_scene_swap() -> void
 	assert_eq(level.get_parent(), (Engine.get_main_loop() as SceneTree).root, "level never swapped")
 	assert_eq(SessionState.state.player.location_id, &"reval_center", "save scope follows owner")
 	assert_eq(SessionState.state.player.spawn_id, &"from_reval_east", "arrival door spawn")
+	driver.flush_owner_rebinds()
 	var runtime := level.get_node("MapViewRuntime") as MapViewRuntime
 	assert_eq(runtime.owning_location_id(), &"market_civic_quarter")
 	var market := host.hosted_bootstrap(&"market_civic_quarter")
@@ -150,6 +151,58 @@ func test_walk_lower_town_into_market_civic_quarter_without_scene_swap() -> void
 	assert_eq(SessionState.state.player.location_id, &"reval_east")
 	assert_eq(SessionState.state.player.spawn_id, SEAM_TRANSITION)
 	assert_eq(DoorNavigator.pending_spawn_scene_id, &"")
+	_dispose(level, launched)
+
+
+func test_owner_rebind_defers_ambient_and_phase_off_the_crossing_tick() -> void:
+	var launched := _launch_lower_town()
+	var level: Node = launched["level"]
+	var host: WorldHost = launched["host"]
+	var driver: WorldHostStreamingDriver = launched["driver"]
+	if driver == null:
+		_dispose(level, launched)
+		return
+	var player := host.player_owner as Player
+	var start := player.global_position
+	var step := Vector2(-0.5 * CELL, 0.0)
+	var crossed := false
+	for index in 16:
+		player.global_position = start + step * float(index + 1)
+		driver.tick()
+		if host.owning_location_id() == &"market_civic_quarter":
+			crossed = true
+			break
+	assert_true(crossed, "the walk reaches the market seam")
+	assert_true(
+		driver.has_pending_owner_rebinds(),
+		"ambient and phase presenter wait for a later tick"
+	)
+	assert_true(
+		driver.last_owner_rebind_usec <= 4000,
+		"crossing-frame rebind stayed under 4 ms (%d us)" % driver.last_owner_rebind_usec
+	)
+	var runtime := level.get_node("MapViewRuntime") as MapViewRuntime
+	assert_eq(runtime.owning_location_id(), &"market_civic_quarter")
+	assert_eq(
+		host.minimap_hud.get_location_label().text,
+		"Central District",
+		"minimap label is gameplay truth and switches on the crossing tick"
+	)
+	var market := host.hosted_bootstrap(&"market_civic_quarter")
+	var market_def := market.get("definition") as MapDefinition
+	var market_grid := market.get("grid") as MapTerrainGrid
+	var local := (
+		player.global_position
+		- host.location_origin_logic_position(&"market_civic_quarter")
+	)
+	assert_almost_eq(
+		player.terrain_speed_multiplier(),
+		MapTerrainMovement.speed_multiplier_at(market_def, market_grid, local),
+		0.0001,
+		"terrain speed switches on the crossing tick"
+	)
+	driver.flush_owner_rebinds()
+	assert_false(driver.has_pending_owner_rebinds())
 	_dispose(level, launched)
 
 

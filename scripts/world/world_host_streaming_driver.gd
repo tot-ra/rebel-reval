@@ -28,12 +28,18 @@ var execute_fallback := true
 var last_fallback: Dictionary = {}
 ## Main-thread microseconds of each tick() (the WB-08c streaming-work trace).
 var tick_usec := PackedInt64Array()
+## Microseconds of the last owning_location_changed handler (R-1071).
+var last_owner_rebind_usec := 0
 
 var _host: WorldHost
 var _resume_checked := false
 ## The GameState this driver mirrored into. A save loaded mid-play replaces the
 ## session state before this scene is freed; only this one may be released.
 var _mirrored_state: GameState
+## R-1071: ambient + phase presenter queued after a crossing. Gameplay truth
+## (movement, owner, session, minimap) already switched on that frame.
+var _pending_owner_presentation: StringName = &""
+var _pending_owner_phase: StringName = &""
 
 
 ## Attach to `host` when it can stream. Seeds `definition_provider` with the
@@ -89,6 +95,9 @@ func tick() -> Dictionary:
 	var player := _host.player_owner as Node2D if _host != null else null
 	if player == null:
 		return {}
+	# Drain one leftover from the previous crossing before timing this tick so
+	# an owning_location_changed frame does not also pay ambient/phase cost.
+	_step_deferred_owner_rebind()
 	var started := Time.get_ticks_usec()
 	var state := _session_game_state()
 	if not _resume_checked:
@@ -101,6 +110,16 @@ func tick() -> Dictionary:
 		_mirrored_state = state
 	tick_usec.append(Time.get_ticks_usec() - started)
 	return result
+
+
+func has_pending_owner_rebinds() -> bool:
+	return not _pending_owner_presentation.is_empty() or not _pending_owner_phase.is_empty()
+
+
+## Tests and tools that inspect ambient or phase state after a crossing.
+func flush_owner_rebinds() -> void:
+	while has_pending_owner_rebinds():
+		_step_deferred_owner_rebind()
 
 
 func _exit_tree() -> void:
@@ -181,6 +200,7 @@ func _on_scene_swap_fallback_requested(_location_id: StringName, request: Dictio
 ## spawn of the door the player arrived through, so a save taken after a seam
 ## crossing reloads at that seam through today's scene path.
 func _on_owning_location_changed(previous_id: StringName, location_id: StringName) -> void:
+	var started := Time.get_ticks_usec()
 	var state := _session_game_state()
 	WorldHostSeamSave.release(state, previous_id)
 	if state != null:
@@ -200,6 +220,7 @@ func _on_owning_location_changed(previous_id: StringName, location_id: StringNam
 				player_state.spawn_id = StringName(door.get("spawn_id"))
 				break
 	_rebind_owner_consumers(location_id)
+	last_owner_rebind_usec = Time.get_ticks_usec() - started
 
 
 func _rebind_owner_consumers(location_id: StringName) -> void:
@@ -208,15 +229,41 @@ func _rebind_owner_consumers(location_id: StringName) -> void:
 		return
 	var runtime := scene.get_node_or_null("MapViewRuntime") as MapViewRuntime
 	if runtime != null:
-		runtime.bind_owning_location(location_id)
-	# Do not add a method on the launch scene: reval_east.gd already fails
-	# gdlint, and staging it blocks commit. The binder is a named child.
+		# Crossing-frame gameplay only. Ambient and MapPhaseBinder.setup wait
+		# for later ticks (R-1071).
+		runtime.bind_owning_location(location_id, false)
+	_host.pinned_location_ids.clear()
+	_pending_owner_presentation = location_id
+	_pending_owner_phase = location_id
+
+
+func _step_deferred_owner_rebind() -> void:
+	if not _pending_owner_presentation.is_empty():
+		var runtime := _hosted_runtime()
+		if runtime != null:
+			runtime.bind_owning_location_presentation()
+		_pending_owner_presentation = &""
+		return
+	if _pending_owner_phase.is_empty():
+		return
+	var location_id := _pending_owner_phase
+	_pending_owner_phase = &""
+	var scene := _host.get_parent() if _host != null else null
+	if scene == null:
+		return
 	var binder = scene.get_node_or_null("MapPhaseBinder")
 	var bootstrap: Dictionary = _host.hosted_bootstrap(location_id)
 	var definition := bootstrap.get("definition") as MapDefinition
+	var runtime := _hosted_runtime()
 	if binder != null and definition != null and binder.has_method("setup"):
 		binder.call("setup", StringName("loc.%s" % String(location_id)), definition, runtime)
-	_host.pinned_location_ids.clear()
+
+
+func _hosted_runtime() -> MapViewRuntime:
+	var scene := _host.get_parent() if _host != null else null
+	if scene == null:
+		return null
+	return scene.get_node_or_null("MapViewRuntime") as MapViewRuntime
 
 
 func _neighbor_through(location_id: StringName, transition_id: StringName) -> StringName:

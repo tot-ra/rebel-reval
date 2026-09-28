@@ -184,6 +184,7 @@ static func install_hosted(
 			origin
 		)
 	runtime._owning_location_id = location_id
+	runtime._owning_grid = bootstrap["grid"] as MapTerrainGrid
 	return runtime
 
 
