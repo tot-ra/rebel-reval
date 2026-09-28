@@ -173,8 +173,9 @@ func test_south_quarter_district_life_dressing() -> void:
 
 # R-282 / R-677: strip-plot ordinary fabric fills the ward without roofing over
 # the owned courts, keeps the R-003 tiers below landmark height, and holds the
-# frozen surface, material and empty-region bands. Whole-map density is still
-# under historical_band_grace (inside-wall band vs whole-map metric).
+# frozen surface, material and empty-region bands. Whole-map density can still
+# sit under the inside-wall H-band; R-1086 measures built density on the named
+# intramural and glacis zones.
 func test_south_quarter_ordinary_fabric_plots() -> void:
 	var definition: MapDefinition = SouthQuarterDefinition.create()
 	var cell := float(definition.cell_size)

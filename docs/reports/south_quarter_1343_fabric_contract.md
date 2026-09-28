@@ -247,16 +247,31 @@ P1-036 `built_density_pct` is opt-in by zone. Cards without `built_density_zone`
 
 South Quarter zones live in [`../data/south_quarter_authoring_contract.json`](../data/south_quarter_authoring_contract.json):
 
-| Zone | Role | Measured 2026-09-28 | Signed band |
-|---|---|---:|---:|
-| `inside_wall` | Intramural cells to the east curtain and south glacis, minus the R-677 western-pasture reserve | **35.6%** | 40-55% |
-| `outside_wall` | Western pasture / extramural fields, south-wall/Karja glacis, east verge | **8.1%** | 10-25% |
-| `eastern_ward` | Diagnostic `south.eastern_ward` terrain band | **45.2%** | denser than connector |
-| `western_connector` | Diagnostic `south.western_connector` terrain band | **26.8%** | looser than eastern ward |
+| Zone | Role | R-1082 | R-1086 | Signed band |
+|---|---|---:|---:|---:|
+| `inside_wall` | Intramural cells to the east curtain and south glacis, minus the R-677 western-pasture reserve | 35.6% | in 40-55% | 40-55% |
+| `outside_wall` | Western pasture / extramural fields, south-wall/Karja glacis, east verge | 8.1% | in 10-25% | 10-25% |
+| `eastern_ward` | Diagnostic `south.eastern_ward` terrain band | 45.2% | denser than connector | denser than connector |
+| `western_connector` | Diagnostic `south.western_connector` terrain band | 26.8% | looser than eastern ward | looser than eastern ward |
 
-Decision: eastern ward plus western connector do **not** replace the inside-wall H-band. The central Rataskaev / King / Knights strip is intramural frontage. The western pasture is already signed as outside-wall service, so it is excluded from `inside_wall`. Whole-map density stays 29.5% and is no longer the enforced denominator.
+Eastern ward plus western connector do **not** replace the inside-wall H-band. The central Rataskaev / King / Knights strip is intramural frontage. The western pasture is already signed as outside-wall service, so it is excluded from `inside_wall`. Whole-map density stays below the inside-wall band and is no longer the enforced denominator.
 
-`inside_wall` 35.6 and `outside_wall` 8.1 are still short of the signed bands, so `historical_band_grace.south_quarter` stays. R-1086 owns the missing intramural houses and sparse extramural barns. Empty-region, surface, style, and elevation bands already pass.
+R-1086 closed the leftover H-band gap. `historical_band_grace.south_quarter` is removed; the card stays enrolled (`enforce=true`). Empty-region, surface, style, and elevation bands still pass. WB-10 `props_per_1000` / decals remain report-only for this prototype.
+
+`inside_wall` 35.6 and `outside_wall` 8.1 were still short of the signed bands after R-1082, so `historical_band_grace.south_quarter` stayed. R-1086 owns the leftover intramural houses and sparse extramural barns. Empty-region, surface, style, and elevation bands already passed at that measurement.
+
+## R-1086 leftover frontage (2026-09-28)
+
+**Board:** R-1086 under R-1082 / R-282. **Status:** authored; map stays `active=false`.
+
+### What was authored
+
+- **Central strip.** Terraced north-edge fronts along Rataskaev/King (south doors, mixed plaster/timber/stone footprints), Dunkri/King service houses, and Niguliste-south sheds. Owned courts, the civic transition at x202, and patrol/street cells stay open.
+- **Western leftover rears.** Rear ranges on `w_upper_a.03/04` and `w_upper_b.01/03/05` that R-677 left without a second building. Lower-s yards keep their R-677 props instead of being roofed over.
+- **Viru intramural.** Three small fronts on the east curtain side, still below `knights_hall` height and outside the knights' court.
+- **Extramural barns.** Two sparse steadings (`w_pasture_c`, `w_pasture_d`) south of the unfinished west wall, offset from the R-677 barn row so the identical-footprint run stays at 3.
+
+Eastern ward stays denser than the western connector. Signed H08-H10 bands are not lowered.
 
 ## Machine-readable contract links
 

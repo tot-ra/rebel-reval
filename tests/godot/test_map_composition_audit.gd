@@ -376,12 +376,13 @@ func test_south_quarter_zone_density_stays_above_the_diluted_whole_map() -> void
 		float(zones["eastern_ward"]) > float(zones["western_connector"]),
 		"eastern ward must stay denser than the western connector"
 	)
-	# R-1082 ledger: intramural frontage is still short of the signed H-band.
-	assert_true(float(zones["inside_wall"]) > 35.0)
-	assert_true(float(zones["inside_wall"]) < 40.0)
+	# R-1086: intramural and glacis H-bands after the leftover frontage pass.
+	assert_true(float(zones["inside_wall"]) >= 40.0)
+	assert_true(float(zones["inside_wall"]) <= 55.0)
 	assert_true(float(zones["eastern_ward"]) >= 40.0)
 	assert_true(float(zones["eastern_ward"]) <= 55.0)
-	assert_true(float(zones["outside_wall"]) < 10.0)
+	assert_true(float(zones["outside_wall"]) >= 10.0)
+	assert_true(float(zones["outside_wall"]) <= 25.0)
 	assert_true(int(zoned["largest_empty_region_cells"]) <= 20000)
 
 

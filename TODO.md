@@ -662,6 +662,7 @@ Completed map-conversion contract rows **P0-043** through **P0-046**, **P2-018**
 ## South Quarter register alignment
 
 - [x] R-1011 | deps: R-1009 | deliverable: South Quarter fabric contract uses the shared R-1009 labels (1325 name B/C, 1343 Dunkri / Cat's Well anchor U, 1375 rebuild later) | allowed files: `docs/reports/south_quarter_1343_fabric_contract.md`, `TODO.md` | verify: no 1375-first-mention line; years match P0-072 and WB-12; `python3 tools/generate_active_docs_report.py --check`
+- [x] R-1086 | deps: R-1082 | deliverable: intramural Rataskaev/King/Knights frontage plus sparse extramural barns so South Quarter zone H-bands pass without lowering H08-H10 | allowed files: `content/maps/south_quarter.rrmap`, `docs/data/south_quarter_authoring_contract.json`, `tests/godot/test_south_quarter_prototype_map.gd`, `tests/godot/test_map_composition_audit.gd`, `docs/data/map_composition_thresholds.json`, `docs/reports/south_quarter_1343_fabric_contract.md`, `TODO.md` | constraints: no parity-fixture regen; no `enforce=false`; do not roof owned courts or move stable IDs | verify: `--filter=test_map_composition_audit,test_south_quarter_prototype_map`; `python3 tools/verify_map_composition.py`; inside_wall 40-55 and outside_wall 10-25
 
 ## Seamless streaming (R-977)
 
