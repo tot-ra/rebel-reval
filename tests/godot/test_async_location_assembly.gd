@@ -524,6 +524,35 @@ func _assert_published_wood(texture: Texture2D, request: Dictionary) -> void:
 	)
 
 
+## R-1079: after a main-thread warmup, a compute worker only reads the tint
+## cache. It must match the main-thread colors and must not first-load species
+## catalogs (that path called /root.propagate_notification and SIGSEGV'd).
+func test_worker_ground_color_tint_matches_warmed_cache() -> void:
+	TerrainVegetation.warmup_ground_color_tints()
+	var variants: Array[StringName] = [
+		&"",
+		&"grass.flowers",
+		&"plant.nettle",
+		&"bush.bilberry",
+		&"tree.oak",
+	]
+	var expected: Dictionary = {}
+	for variant in variants:
+		expected[variant] = TerrainVegetation.ground_color_tint(variant)
+	var job: RefCounted = Job.run(
+		func() -> Dictionary:
+			var got := {}
+			for variant in variants:
+				got[variant] = TerrainVegetation.ground_color_tint(variant)
+			return got,
+		"r1079 ground color tints"
+	)
+	var got: Dictionary = job.value()
+	for variant in variants:
+		assert_eq(got[variant], expected[variant], String(variant))
+	assert_eq(expected[&"grass.flowers"], Color(0.98, 1.03, 0.9))
+
+
 ## A job dropped without wait() joins its task while it is freed, so a cancelled
 ## assembly never leaves an un-waited task behind, even for a bake whose await
 ## unit was not queued yet.

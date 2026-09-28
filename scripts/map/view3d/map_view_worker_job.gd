@@ -21,6 +21,9 @@ const GROUP_THREADS := 4
 static var _kind_gate := Mutex.new()
 static var _compute_active := 0
 static var _scene_active := 0
+## R-1079: first worker Image.create can make /root.propagate_notification()
+## and SIGSEGV. Prime the Image API on the main thread before any compute task.
+static var _image_api_primed := false
 
 var _task_id := -1
 var _group := false
@@ -72,8 +75,20 @@ static func _leave_kind(as_compute: bool) -> void:
 	_kind_gate.unlock()
 
 
+static func _prime_image_api_on_main() -> void:
+	if _image_api_primed:
+		return
+	if OS.get_thread_caller_id() != OS.get_main_thread_id():
+		return
+	var image := Image.create(4, 4, false, Image.FORMAT_RGB8)
+	image.fill(Color.BLACK)
+	image.generate_mipmaps()
+	_image_api_primed = true
+
+
 ## Runs work() -> Variant on a worker thread.
 static func run(work: Callable, description := "") -> RefCounted:
+	_prime_image_api_on_main()
 	var job: RefCounted = new()
 	var slot := {}
 	job._slots = [slot]
@@ -90,6 +105,7 @@ static func run(work: Callable, description := "") -> RefCounted:
 
 ## Runs work(index) -> Variant for index in [0, count) across the worker pool.
 static func run_group(work: Callable, count: int, description := "") -> RefCounted:
+	_prime_image_api_on_main()
 	var job: RefCounted = new()
 	var slots: Array = []
 	for index in count:

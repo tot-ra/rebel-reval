@@ -342,6 +342,32 @@ yet**. The remaining causes:
   `propagate_notification` call; the next run on the same tip exited 0. That
   leftover is **R-1079**, not a reopen of this 30-run verify.
 
+**R-1079** (2026-09-28): worker terrain/vegetation colour reads stay off the
+SceneTree Node API. `TerrainVegetation.ground_color_tint` warms a tint cache on
+the main thread and, on a compute worker, only reads that cache or a hardcoded
+style table (no plant/bush/tree catalog first-load). `MapViewWorkerJob` primes
+`Image.create` on the main thread before `add_task`. `pattern_bake_units` paints
+one 32 px plate per distinct pattern on the main thread before the group task
+(4 px hits `posmod(0)` in lattice painters).
+
+Crash stacks that motivated the warmup:
+
+- After R-1069: `terrain_vegetation.gd:163 ground_color_tint` <-
+  `cell_tone` / `ground_band` <- `map_view_worker_job.gd:105`. Engine:
+  `/root: The caller thread can't call propagate_notification()`. Intermittent.
+- During the first 10-run probe on this change: same engine error, but the
+  stack was `_pattern_image_at_size` / `_paint_rock` <- `bake_image` <-
+  `pattern_bake_units` worker lambda. A leftover `world_two_seam_trace.json`
+  from the previous successful run must not be scored when exit is nonzero.
+
+Ledger (isolated worktree at `8eab04c9` plus this change): 30/30
+`--px-per-frame=2 --stability` exit 0. `signal 11` / `SIGSEGV` /
+`propagate_notification` grep empty across every log. Every walk visited
+Lower Town -> market -> south with no scene swap. `tick_ms_max` 103-114 ms
+and over-budget ticks 146-233; those remain R-1006 / R-1069 / R-1071.
+`--filter=test_async_location_assembly` 20/20. Streaming flag defaults stay
+false.
+
 **R-1069 / WB-08e (2026-09-28, both flags on only).** Tree entry, tree exit
 and the early-mount walk are sliced:
 

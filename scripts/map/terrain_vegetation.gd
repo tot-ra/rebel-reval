@@ -3,6 +3,7 @@ extends RefCounted
 
 const PlantSpecies := preload("res://scripts/map/view3d/map_view_plant_species.gd")
 const BushSpecies := preload("res://scripts/map/view3d/map_view_bush_species.gd")
+const TreeSpecies := preload("res://scripts/map/view3d/map_view_tree_species.gd")
 
 ## Vegetation is layered deliberately: the terrain material supplies continuous
 ## ground cover while only a minority of cells receive small grass, large grass,
@@ -70,6 +71,12 @@ const DEFAULT_TREE_PROP_SPEED := 0.9
 const MIN_SPEED_MULTIPLIER := 0.35
 const MAX_SPEED_MULTIPLIER := 1.0
 
+## R-1079: first worker touch of a vegetation class_name can make /root
+## propagate_notification() from a compute thread and SIGSEGV. Workers only
+## read this cache or the hardcoded style table; catalogs warm on the main thread.
+static var _tint_cache: Dictionary = {}
+static var _tints_warmed := false
+
 
 static func resolved_variant(style_id: StringName, values: Dictionary) -> StringName:
 	var explicit: Variant = values.get("style_variant", &"")
@@ -86,12 +93,12 @@ static func is_known_variant(variant: StringName) -> bool:
 	if BushSpecies.is_known_variant(variant):
 		return true
 	# tree.oak.large / tree.birch.small are valid authored size pins.
-	var parsed: Dictionary = MapViewTreeSpecies.parse_variant(variant)
+	var parsed: Dictionary = TreeSpecies.parse_variant(variant)
 	return not parsed.is_empty()
 
 
 static func is_tree_variant(variant: StringName) -> bool:
-	return not MapViewTreeSpecies.parse_variant(variant).is_empty()
+	return not TreeSpecies.parse_variant(variant).is_empty()
 
 
 static func object_density_multiplier(is_urban: bool, variant: StringName) -> float:
@@ -138,7 +145,43 @@ static func resolved_prop_speed(kind: StringName, authored: Variant) -> float:
 	return clamp_speed_multiplier(default_speed_for_prop_kind(kind))
 
 
+## Main thread only. Fills `_tint_cache` so staged ground bands never first-load
+## plant/bush/tree catalogs from a WorkerThreadPool task.
+static func warmup_ground_color_tints() -> void:
+	if _tints_warmed:
+		return
+	if OS.get_thread_caller_id() != OS.get_main_thread_id():
+		return
+	_cached_ground_color_tint(&"")
+	for variant in ALL_VARIANTS:
+		_cached_ground_color_tint(variant)
+	for variant in PlantSpecies.ALL_VARIANTS:
+		_cached_ground_color_tint(variant)
+	for variant in BushSpecies.ALL_VARIANTS:
+		_cached_ground_color_tint(variant)
+	for species in TreeSpecies.ALL_SPECIES:
+		_cached_ground_color_tint(StringName("tree.%s" % String(species)))
+	_tints_warmed = true
+
+
 static func ground_color_tint(variant: StringName) -> Color:
+	if _tint_cache.has(variant):
+		return _tint_cache[variant]
+	# Worker miss: no catalog parse, no class_name first-load, no SceneTree.
+	if OS.get_thread_caller_id() != OS.get_main_thread_id():
+		return _style_ground_color_tint(variant)
+	return _cached_ground_color_tint(variant)
+
+
+static func _cached_ground_color_tint(variant: StringName) -> Color:
+	if _tint_cache.has(variant):
+		return _tint_cache[variant]
+	var tint := _compute_ground_color_tint(variant)
+	_tint_cache[variant] = tint
+	return tint
+
+
+static func _compute_ground_color_tint(variant: StringName) -> Color:
 	var plant_parsed := PlantSpecies.parse_variant(variant)
 	if not plant_parsed.is_empty():
 		var plant_color: Color = PlantSpecies.profile_for(plant_parsed["species"])["color"]
@@ -155,6 +198,11 @@ static func ground_color_tint(variant: StringName) -> Color:
 			lerpf(0.94, 1.06, bush_color.g),
 			lerpf(0.80, 0.98, bush_color.b)
 		)
+	return _style_ground_color_tint(variant)
+
+
+## Hardcoded style tints. Safe on a compute worker: no species catalogs.
+static func _style_ground_color_tint(variant: StringName) -> Color:
 	match variant:
 		VARIANT_GRASS_SHORT:
 			return Color(1.04, 1.02, 0.94)
@@ -181,7 +229,7 @@ static func ground_color_tint(variant: StringName) -> Color:
 		VARIANT_TREE_APPLE, VARIANT_TREE_CHERRY, VARIANT_TREE_ORCHARD:
 			return Color(0.94, 1.04, 0.82)
 		_:
-			if is_tree_variant(variant):
+			if String(variant).begins_with("tree."):
 				return Color(0.9, 1.0, 0.84)
 			return Color.WHITE
 
@@ -234,7 +282,7 @@ static func scatter_profile(variant: StringName) -> Dictionary:
 					"bush_chance": 0.28,
 					"bush_variant": bush_variant,
 				}
-	var tree_parsed: Dictionary = MapViewTreeSpecies.parse_variant(variant)
+	var tree_parsed: Dictionary = TreeSpecies.parse_variant(variant)
 	if not tree_parsed.is_empty():
 		var tree_chance := 0.2
 		if tree_parsed.get("group", &"") == &"orchard" or variant == VARIANT_TREE_ORCHARD:

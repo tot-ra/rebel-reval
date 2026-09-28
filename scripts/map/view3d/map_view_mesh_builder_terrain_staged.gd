@@ -68,6 +68,8 @@ static func _start(
 	for terrain_id in grid.used_terrain_ids():
 		if MapViewMaterials.WATER_TERRAINS.has(terrain_id):
 			water_ids.append(terrain_id)
+	# R-1079: warm vegetation tints before ground_band workers call cell_tone.
+	TerrainVegetation.warmup_ground_color_tints()
 	if grid.size_cells.x > 0 and grid.size_cells.y > 0:
 		var bands: RefCounted = _Job.run_group(
 			func(band: int) -> Dictionary:
@@ -223,6 +225,19 @@ static func pattern_bake_units(
 	var missing := MapViewMaterialPatterns.missing_bakes(requests)
 	if missing.is_empty():
 		return []
+	# R-1079: first worker _paint_rock / Image.create called
+	# /root.propagate_notification() and SIGSEGV'd. Prime each distinct
+	# painter on the main thread; workers then only fill job-local plates.
+	# 32 px is enough for size/18 lattice periods; 4 px hits posmod(0).
+	var primed := {}
+	for request in missing:
+		var pattern: StringName = request.get("pattern", &"")
+		if pattern == &"" or primed.has(pattern):
+			continue
+		primed[pattern] = true
+		MapViewMaterialPatterns.bake_image(
+			{"pattern": pattern, "seed": int(request.get("seed", 0)), "size": 32}
+		)
 	var job: RefCounted = _Job.run_group(
 		func(index: int) -> Image: return MapViewMaterialPatterns.bake_image(missing[index]),
 		missing.size(),
