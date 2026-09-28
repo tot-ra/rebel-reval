@@ -17,6 +17,14 @@ Format: `ID | deps | deliverable | verify`.
 
 - [ ] P0-189 | deps: P0-188 | role: art/dev | deliverable: enable and prove `vertex_color_use_as_albedo` (or equivalent runtime material flag) for generated head/beard/skin surfaces that export COLOR_0 complexion/fibre tints, so Godot no longer leaves beard/skin vertex tint unused on the first head surface | verify: Godot-side `Mesh.ARRAY_COLOR` non-flat on head surfaces; before/after face plates under `docs/reports/images/characters/`; `--filter=test_character_rig` green; asset lint green
 
+P0-189 implementation landed (2026-09-28). ADR 0022 moved complexion onto the
+baked skin albedo, so `Anatomy_Head` has no COLOR_0 tint. `SharedCharacterRig`
+now opts in `vertex_color_use_as_albedo` for every surface whose COLOR_0 is
+non-white (beard/scalp fur strand length and root shade). Verify:
+`--filter=test_character_vertex_albedo,test_realistic_kalev,test_character_rig`;
+`python3 tools/verify_asset_lint.py`; plates in
+`docs/reports/images/characters/p0_189/`. Beard cheek shelf remains **P0-190**.
+
 - [ ] P0-190 | deps: P0-189 | role: art | deliverable: soften the beard cheek-crossing hard edge and keep fibre tint continuous across the jaw/cheek boundary without breaking the head-bone weight contract or Tier-0 triangle cap | verify: rebuilt hero + at least one bearded named body; face closeups show no hard shelf along the cheek; `python3 tools/verify_asset_lint.py` and `--filter=test_character_rig` green
 
 - [ ] P0-191 | deps: P0-188 | role: art | deliverable: remove or hide hair-shell ring terracing and procedural UV-island block reads on hero/named Tier-0/1 hair materials (azimuth fibre + unwrap/texture fix) | verify: face/three-quarter plates no longer show horizontal terrace bands or hard UV islands at dialogue distance; asset lint + character rig tests green; triangle/texture caps unchanged

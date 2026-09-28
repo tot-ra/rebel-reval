@@ -624,6 +624,13 @@ P0-185 shore peel (2026-09-28, **R-1080**): `map_view_shore_materials.gd` owns W
 See [`docs/CHARACTER_REALISM_BACKLOG.md`](docs/CHARACTER_REALISM_BACKLOG.md) for full deliverable/verify contracts. Review: [`docs/reports/character_visual_realism_review_2026-08-12.md`](docs/reports/character_visual_realism_review_2026-08-12.md).
 
 - [ ] P0-189 | deps: P0-188 | deliverable: Godot vertex-colour albedo path for head/beard/skin tints | verify: face plates + character rig + asset lint
+
+P0-189 implementation landed (2026-09-28). Runtime opt-in is by non-white
+`ARRAY_COLOR`, not the `_fur_cutout` suffix. ADR 0022 complexion is the albedo
+bake; beard fur COLOR_0 drives strand cut-off. Evidence:
+`docs/reports/images/characters/p0_189/`.
+Verify: `--filter=test_character_vertex_albedo,test_realistic_kalev,test_character_rig`
+and `python3 tools/verify_asset_lint.py`.
 - [ ] P0-190 | deps: P0-189 | deliverable: soften beard cheek hard edge / fibre continuity | verify: rebuilt bodies + face plates + lint
 - [ ] P0-191 | deps: P0-188 | deliverable: fix hair-shell terracing and UV-island blocks | verify: dialogue plates + lint + rig tests
 - [ ] P0-192 | deps: P0-189 | deliverable: GL-Compat wrap skin + cornea/iris specular response | verify: day/night face plates + material/rig tests

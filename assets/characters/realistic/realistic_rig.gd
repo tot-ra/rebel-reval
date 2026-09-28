@@ -8,36 +8,19 @@ extends SharedCharacterRig
 
 func _ready() -> void:
 	super._ready()
-	_prepare_groom_materials($Model)
 	for wearable: CharacterWearable in default_outfit:
 		if not equip_wearable(wearable):
 			push_error("%s could not equip default wearable %s" % [name, wearable.stable_id])
+	# Default outfit can add skinned meshes after the shared _ready walk.
+	enable_authored_vertex_color_albedo($Model)
 
 
 func equip_garment(garment_id: StringName, scene: PackedScene) -> bool:
 	if not super.equip_garment(garment_id, scene):
 		return false
 	for mesh_instance: MeshInstance3D in _garments.get(garment_id, []):
-		_prepare_groom_materials(mesh_instance)
+		enable_authored_vertex_color_albedo(mesh_instance)
 	return true
-
-
-## Fur shells (beard, scalp) encode strand length in vertex-colour alpha; glTF
-## import leaves vertex colour unused unless the material opts in.
-static func _prepare_groom_materials(root: Node) -> void:
-	for found: Node in root.find_children("*", "MeshInstance3D", true, false) + [root]:
-		var mesh_instance := found as MeshInstance3D
-		if mesh_instance == null or mesh_instance.mesh == null:
-			continue
-		for surface: int in mesh_instance.mesh.get_surface_count():
-			var material := mesh_instance.get_active_material(surface) as BaseMaterial3D
-			if material == null:
-				continue
-			var material_name := material.resource_name
-			if material_name.ends_with("_fur_cutout"):
-				material = material.duplicate() as BaseMaterial3D
-				material.vertex_color_use_as_albedo = true
-				mesh_instance.set_surface_override_material(surface, material)
 
 
 ## Legacy show_cape/show_hat flags mount garments fitted to the retired

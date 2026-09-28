@@ -108,10 +108,14 @@ Hair and beard now also carry a fibre tint (azimuth-quantised, so strands run
 down the skull; quantising world axes instead produced horizontal terracing).
 
 Remaining known gaps, in the order they cost the most: the beard is still a
-smooth shell with a hard crossing edge along the cheek, the hair shell shows
-ring terracing and UV-island blocks from the procedural hair texture, and
-Godot's importer leaves `vertex_color_use_as_albedo` off for the head's first
-surface (`hero_beard`), so the beard tint is exported but unused.
+smooth shell with a hard crossing edge along the cheek, and the hair shell shows
+ring terracing and UV-island blocks from the procedural hair texture.
+
+P0-189 (2026-09-28): `SharedCharacterRig.enable_authored_vertex_color_albedo`
+opts in COLOR_0 on any surface that is not flat white. ADR 0022 complexion is
+the skin albedo bake, so `Anatomy_Head` has no unused vertex tint; beard fur
+still needs the flag for strand-length alpha. Plates:
+`docs/reports/images/characters/p0_189/`.
 
 Claimable follow-ups for these gaps (plus animation/living-motion rows) live in
 [`docs/CHARACTER_REALISM_BACKLOG.md`](../CHARACTER_REALISM_BACKLOG.md)

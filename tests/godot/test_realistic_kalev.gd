@@ -108,6 +108,10 @@ func test_fur_shells_read_strand_length_from_vertex_colour() -> void:
 		)
 		assert_eq(material.transparency, BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR)
 		assert_almost_eq(material.alpha_scissor_threshold, 0.5, 0.001)
+		assert_true(
+			SharedCharacterRig.surface_carries_vertex_tint(mesh.mesh, 0),
+			"%s COLOR_0 must be a non-white strand tint" % name
+		)
 
 
 func _mesh(mesh_name: String) -> MeshInstance3D:

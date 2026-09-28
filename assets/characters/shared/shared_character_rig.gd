@@ -173,6 +173,8 @@ func _ready() -> void:
 		call_deferred("_apply_variant_and_distance_lods")
 	else:
 		_apply_variant_and_distance_lods()
+	# P0-189: glTF import leaves COLOR_0 unused until the material opts in.
+	enable_authored_vertex_color_albedo($Model)
 	play_animation(start_animation)
 
 
@@ -180,11 +182,55 @@ func _apply_variant_and_distance_lods() -> void:
 	if variant == null:
 		return
 	_apply_variant()
+	enable_authored_vertex_color_albedo($Model)
 	if _distance_lods_installed:
 		return
 	_distance_lods_installed = true
 	_install_distance_lods()
 	_wardrobe.refresh(self)
+
+
+## P0-189: Godot only multiplies COLOR_0 into albedo when the material asks.
+## Fur shells encode strand length in alpha; imported skin/beard tints are
+## otherwise dropped on the first head surface. ADR 0022 complexion lives in
+## the albedo map, so this walk only opts in surfaces that actually carry a
+## non-white vertex tint.
+static func surface_carries_vertex_tint(mesh: Mesh, surface: int) -> bool:
+	if mesh == null:
+		return false
+	var arrays := mesh.surface_get_arrays(surface)
+	if arrays.is_empty() or arrays.size() <= Mesh.ARRAY_COLOR:
+		return false
+	var colors: Variant = arrays[Mesh.ARRAY_COLOR]
+	if colors == null:
+		return false
+	var packed := colors as PackedColorArray
+	if packed.is_empty():
+		return false
+	for color: Color in packed:
+		if not color.is_equal_approx(Color.WHITE):
+			return true
+	return false
+
+
+static func enable_authored_vertex_color_albedo(root: Node) -> void:
+	if root == null:
+		return
+	var nodes: Array[Node] = root.find_children("*", "MeshInstance3D", true, false)
+	nodes.append(root)
+	for found: Node in nodes:
+		var mesh_instance := found as MeshInstance3D
+		if mesh_instance == null or mesh_instance.mesh == null:
+			continue
+		for surface: int in mesh_instance.mesh.get_surface_count():
+			if not surface_carries_vertex_tint(mesh_instance.mesh, surface):
+				continue
+			var material := mesh_instance.get_active_material(surface) as BaseMaterial3D
+			if material == null or material.vertex_color_use_as_albedo:
+				continue
+			material = material.duplicate() as BaseMaterial3D
+			material.vertex_color_use_as_albedo = true
+			mesh_instance.set_surface_override_material(surface, material)
 
 
 func _exit_tree() -> void:
