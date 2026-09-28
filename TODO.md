@@ -617,6 +617,8 @@ See [`docs/STORAGE_SIZE_BACKLOG.md`](docs/STORAGE_SIZE_BACKLOG.md) for full deli
 - [ ] P0-183 | deps: P0-177 | deliverable: oversized runtime GLB budgets (oak + shared characters) | verify: asset lint + focused Godot filters
 - [ ] P0-185 | deps: P0-184 | deliverable: justified view3d hotspot extractions only | verify: named focused filters
 
+P0-185 shore peel (2026-09-28, **R-1080**): `map_view_shore_materials.gd` owns WS-08 shore-field, swash sheets, and quality gating; `MapViewMaterials` keeps the public API and `apply_weather_presentation`. Gate: `--filter=test_shore_distance_field,test_r715_water_material_contract,test_r715_water_weather_sync,test_map_view_material_resolution`. Next optional peel is idea **R-1081** (hosted-location rebinding). Prefer leftover **R-1079** if claiming crash-stability work.
+
 ## Character visual realism (active)
 
 See [`docs/CHARACTER_REALISM_BACKLOG.md`](docs/CHARACTER_REALISM_BACKLOG.md) for full deliverable/verify contracts. Review: [`docs/reports/character_visual_realism_review_2026-08-12.md`](docs/reports/character_visual_realism_review_2026-08-12.md).

@@ -18,6 +18,7 @@ const COBBLE_TEXTURE_SIZE := RESOLUTION.COBBLE_TEXTURE_SIZE
 const NATURAL_GROUND_TEXTURE_SIZE := RESOLUTION.NATURAL_GROUND_TEXTURE_SIZE
 const MASONRY_TEXTURE_SIZE := RESOLUTION.MASONRY_TEXTURE_SIZE
 const WATER_MATERIALS := preload("res://scripts/map/view3d/map_view_water_materials.gd")
+const SHORE_MATERIALS := preload("res://scripts/map/view3d/map_view_shore_materials.gd")
 const WIND_MATERIALS := preload("res://scripts/map/view3d/map_view_wind_materials.gd")
 const TERRAIN_MATERIALS := preload("res://scripts/map/view3d/map_view_terrain_materials.gd")
 const SKY_WEATHER := preload("res://scripts/map/view3d/sky_weather_3d.gd")
@@ -73,26 +74,10 @@ const ROOF_TILE_WORLD_DENSITY := BUILDING_MATERIALS.ROOF_TILE_WORLD_DENSITY
 const ROOF_SHINGLE_WORLD_DENSITY := BUILDING_MATERIALS.ROOF_SHINGLE_WORLD_DENSITY
 const ROOF_THATCH_WORLD_DENSITY := BUILDING_MATERIALS.ROOF_THATCH_WORLD_DENSITY
 
-## WS-08 shore swash strength per water family. Open sea runs up beaches; ponds and
-## moats only slosh at their banks; rivers keep their own bank treatment.
-const SHORE_STRENGTH_BY_TERRAIN := {
-	MapTypes.TERRAIN_WATER: 0.3,
-	MapTypes.TERRAIN_SHALLOW_WATER: 1.0,
-	MapTypes.TERRAIN_DEEP_WATER: 1.0,
-	MapTypes.TERRAIN_RIVER_WATER: 0.0,
-}
-## World units of retreat per unit of the water shader's shore-factor tide clip.
-## High tide fills the authored contour exactly; only the ebb moves the waterline
-## (seaward), so the swash origin follows the water's own tide_shore_retreat.
-const SHORE_TIDE_SHIFT := 1.6
-## Uniforms a swash sheet must not inherit from its source water material.
-const SWASH_SHEET_OWN_UNIFORMS: Array[StringName] = [
-	&"swash_sheet", &"ripple_state", &"ripple_window", &"ripple_texel_count"
-]
-
-## Beach swash sheets reuse the water shader; one material per source water family.
-static var _swash_sheet_materials: Dictionary = {}
-static var _shore_swash_quality_tier: StringName = SKY_WEATHER.QUALITY_RECOMMENDED
+## WS-08 shore tables live in SHORE_MATERIALS. Re-exported so tests and docs
+## keep the stable MapViewMaterials facade.
+const SHORE_STRENGTH_BY_TERRAIN := SHORE_MATERIALS.SHORE_STRENGTH_BY_TERRAIN
+const SHORE_TIDE_SHIFT := SHORE_MATERIALS.SHORE_TIDE_SHIFT
 
 ## Shader sources live in MapViewMaterialShaders; procedural textures in MapViewMaterialPatterns.
 
@@ -101,11 +86,11 @@ static func reset() -> void:
 	MapViewMaterialShaders.reset()
 	MapViewMaterialPatterns.reset()
 	WATER_MATERIALS.reset()
+	SHORE_MATERIALS.reset()
 	WIND_MATERIALS.reset()
 	TERRAIN_MATERIALS.reset()
 	BUILDING_MATERIALS.reset()
 	PROP_MATERIALS.reset()
-	_swash_sheet_materials.clear()
 
 
 ## Dry-terrain and blended-ground APIs remain here for existing builders and
@@ -169,9 +154,7 @@ static func apply_sea_weather(
 	WATER_MATERIALS.apply_sea_weather(wind, rain, WATER_WAVE_BASE, wind_direction)
 	# WS-08: the shore wave sets read the same scalar sea state as the FFT table,
 	# so a storm lengthens run-up on the water and the wet band on the sand together.
-	var sea := clampf(WATER_MATERIALS.fft_sea_state_scalar(wind, rain), 0.0, 1.0)
-	_set_shore_uniform(&"shore_sea_state", sea)
-	_sync_swash_sheets()
+	SHORE_MATERIALS.apply_sea_state(wind, rain)
 
 
 static func apply_water_lighting(sun_visibility: float, day_blend: float) -> void:
@@ -180,38 +163,23 @@ static func apply_water_lighting(sun_visibility: float, day_blend: float) -> voi
 
 static func apply_coastal_tide(level: float) -> void:
 	WATER_MATERIALS.apply_coastal_tide(level, WATER_WAVE_BASE)
-	# The swash rides on top of the current tide line.
-	var retreat := float(WATER_WAVE_BASE[MapTypes.TERRAIN_SHALLOW_WATER]["tide_shore_retreat"])
-	var ebb := maxf(-clampf(level, -1.0, 1.0), 0.0)
-	_set_shore_uniform(&"shore_tide_offset", -ebb * retreat * SHORE_TIDE_SHIFT)
-	_sync_swash_sheets()
+	SHORE_MATERIALS.apply_tide(level)
 
 
 ## WS-08: binds one map's shore distance field to every material that draws the
 ## shore. A null texture (no sea, interiors) turns every swash path off.
 static func apply_shore_field(texture: Texture2D, origin: Vector2, size: Vector2) -> void:
-	var valid := 1.0 if texture != null else 0.0
-	var extent := Vector2(maxf(size.x, 0.001), maxf(size.y, 0.001))
-	for material in _shore_materials():
-		if texture != null:
-			material.set_shader_parameter("shore_field", texture)
-		material.set_shader_parameter("shore_field_origin", origin)
-		material.set_shader_parameter("shore_field_size", extent)
-		material.set_shader_parameter("shore_field_valid", valid)
-	for terrain_id: StringName in WATER_WAVE_BASE.keys():
-		water_surface(terrain_id).set_shader_parameter(
-			"shore_strength", float(SHORE_STRENGTH_BY_TERRAIN.get(terrain_id, 0.0))
-		)
+	SHORE_MATERIALS.apply_shore_field(texture, origin, size)
 
 
 ## Minimum tier drops the sheet mesh but keeps the bore foam and wet sand. Like the
 ## FFT cascades, the tier applies to map views built afterwards.
 static func set_shore_swash_quality_tier(requested: Variant) -> void:
-	_shore_swash_quality_tier = SKY_WEATHER.resolve_quality_tier(requested)
+	SHORE_MATERIALS.set_shore_swash_quality_tier(requested)
 
 
 static func shore_swash_sheet_enabled() -> bool:
-	return _shore_swash_quality_tier != SKY_WEATHER.QUALITY_MINIMUM
+	return SHORE_MATERIALS.shore_swash_sheet_enabled()
 
 
 ## Stable per-map salt for building library stems. Hash the map ID so two maps
@@ -234,43 +202,7 @@ static func set_building_quality_tier(requested: Variant) -> void:
 ## Water-shader material for the beach film. It mirrors its source water family's
 ## uniforms on every weather sync, so sun, sky, tide and sea state stay identical.
 static func swash_sheet_material(terrain_id: StringName) -> ShaderMaterial:
-	if _swash_sheet_materials.has(terrain_id):
-		return _swash_sheet_materials[terrain_id]
-	var source := water_surface(terrain_id)
-	var material := source.duplicate() as ShaderMaterial
-	material.set_shader_parameter("swash_sheet", true)
-	material.set_shader_parameter("ripple_state", WATER_MATERIALS.ripple_off_texture())
-	material.set_shader_parameter("ripple_window", Vector4(0.0, 0.0, 64.0, 0.0))
-	material.render_priority = 1
-	_swash_sheet_materials[terrain_id] = material
-	return material
-
-
-static func _sync_swash_sheets() -> void:
-	for terrain_id: StringName in _swash_sheet_materials.keys():
-		var source := water_surface(terrain_id)
-		var sheet := _swash_sheet_materials[terrain_id] as ShaderMaterial
-		for uniform: Dictionary in source.shader.get_shader_uniform_list():
-			var uniform_name := StringName(uniform["name"])
-			if uniform_name in SWASH_SHEET_OWN_UNIFORMS:
-				continue
-			var value: Variant = source.get_shader_parameter(uniform_name)
-			if value != null:
-				sheet.set_shader_parameter(uniform_name, value)
-
-
-static func _set_shore_uniform(uniform_name: StringName, value: Variant) -> void:
-	for material in _shore_materials():
-		material.set_shader_parameter(uniform_name, value)
-
-
-static func _shore_materials() -> Array[ShaderMaterial]:
-	var materials: Array[ShaderMaterial] = TERRAIN_MATERIALS.blended_ground_materials()
-	for terrain_id: StringName in WATER_WAVE_BASE.keys():
-		materials.append(water_surface(terrain_id))
-	for sheet: ShaderMaterial in _swash_sheet_materials.values():
-		materials.append(sheet)
-	return materials
+	return SHORE_MATERIALS.swash_sheet_material(terrain_id)
 
 
 static func apply_water_sky_reflection(
