@@ -238,8 +238,8 @@ owner-scoped consumers to the new location in location space:
 - `MapViewRuntime.bind_owning_location` retargets the hosted view, camera
   ground/occlusion (view-local XZ), ambient, and a minimap tracker that
   reports local logic.
-- The driver retargets the scene `MapPhaseBinder` to `loc.<id>` via
-  `hosted_bootstrap` (no launch-scene method; that file already fails gdlint).
+- ~~The driver retargets the scene `MapPhaseBinder` to `loc.<id>`.~~ Reverted
+  by R-1059: the binder keeps its launch-location scope (see below).
 - Quest controllers stay scene-scoped on Lower Town (ADR phase 6).
 - Off-mesh click starts clamp to the host navigation map. The destination is
   left alone so a cross-seam click is not snapped back onto the current mesh.
@@ -441,6 +441,43 @@ Still open before the release criteria can pass: the 4 ms per-frame gate
 
 ADR phase 6 (NPC, quest, fauna, audio, persistence residency beyond the two-seam walk)
 is follow-up work after R-980, not a fourth pack row.
+
+**R-1059 (2026-09-28, flag on only).** Launch-location residents follow its
+residency instead of outliving its package. `WorldHostLaunchResidents`
+(`scripts/world/world_host_launch_residents.gd`) is created by the driver for
+the location the adapter launched:
+
+- On `location_unmounted` of that location every scene-scoped resident is
+  suspended: the `Actors` layer (Mart, bandit, `viru_watch` patrol body, quest
+  NPCs) is hidden with its mirrored 3D rigs, and `Actors`, the quest / phase /
+  patrol / market controllers and the scene-root interactable areas get
+  `PROCESS_MODE_DISABLED`, which also takes their bodies and areas out of physics.
+- On `location_mounted` of that location the exact previous process modes and
+  visibility come back.
+- Not residents: the WorldHost, `MapViewRuntime`, CanvasLayer UI, flat
+  scaffolding (`MapRoot`, `Camera2D`) and any child holding the player's
+  `InteractionController` (it serves every mounted location).
+- GameState signals still reach suspended controllers, so quest and phase
+  state keep advancing; the NPC and patrol writes land on the hidden layer and
+  are already correct on return.
+- **Decision:** the scene `MapPhaseBinder` is no longer retargeted to the owner
+  on a crossing. Its NPCs, patrol and props are Lower Town residents; the R-1054
+  retarget applied market rules, market anchors and market district pressure to
+  them. Phase presentation (cycle) is location independent and still reaches
+  the owner's view through the shared runtime.
+
+Evidence: `--filter=test_world_host_streaming` (a far eviction of Lower Town
+suspends every resident, keeps the runtime, host and interaction input live,
+and the walk back resumes them with their previous modes; a synthetic scene
+proves exact restore and the exclusions), plus `test_world_host_launch`,
+`test_world_host_residency`, `test_world_host`, `test_world_seam_crossing`,
+`test_phase_transitions`, `test_phase_advance_triggers` (74 tests) and
+`verify_world_seam_walk.tscn` (29 checks). Flag off nothing attaches.
+
+Still open: prop visibility that Lower Town controllers push through
+`MapViewRuntime.view` targets the owner's view after a crossing, and a freshly
+remounted Lower Town view does not replay it; an actor spawned into `Actors`
+while suspended gets a visible rig from the runtime rescan.
 
 ## R-980 release criteria
 

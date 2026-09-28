@@ -18,6 +18,9 @@ extends Node
 ##   into the session GameState every tick (WorldHostSeamSave), and on its first
 ##   tick resumes a loaded save's exact position after DoorNavigator placed the
 ##   player at the saved spawn.
+## - R-1059: the launch adapter's own residents (quest controllers, patrols,
+##   NPCs, interactables) are suspended while the launch location is unmounted
+##   and resumed when it mounts again (WorldHostLaunchResidents).
 ## Flag off, no driver exists (only a launched host attaches one).
 
 const NODE_NAME := "StreamingDriver"
@@ -34,6 +37,8 @@ var _resume_checked := false
 ## The GameState this driver mirrored into. A save loaded mid-play replaces the
 ## session state before this scene is freed; only this one may be released.
 var _mirrored_state: GameState
+## Scene-scoped residents of the location the adapter launched (R-1059).
+var _launch_residents: WorldHostLaunchResidents
 
 
 ## Attach to `host` when it can stream. Seeds `definition_provider` with the
@@ -50,12 +55,16 @@ static func attach(host: WorldHost) -> WorldHostStreamingDriver:
 	var driver := WorldHostStreamingDriver.new()
 	driver.name = NODE_NAME
 	driver._host = host
+	driver._launch_residents = WorldHostLaunchResidents.new(
+		host.get_parent(), host, host.owning_location_id()
+	)
 	if not host.location_loader.is_valid() and not host.definition_provider.is_valid():
 		host.definition_provider = registry_definition
 	# R-1054 rebinds owner-scoped consumers on a crossing, so the launch
 	# location is no longer pinned above the residency cap.
 	host.pinned_location_ids.clear()
 	host.location_mounted.connect(driver._on_location_mounted)
+	host.location_unmounted.connect(driver._on_location_unmounted)
 	host.seam_activation_changed.connect(driver._on_seam_activation_changed)
 	host.scene_swap_fallback_requested.connect(driver._on_scene_swap_fallback_requested)
 	host.owning_location_changed.connect(driver._on_owning_location_changed)
@@ -114,8 +123,21 @@ func _session_game_state() -> GameState:
 	return state as GameState if state is GameState else null
 
 
+## Residents of the launch location, or null for a driver attached by hand.
+func launch_residents() -> WorldHostLaunchResidents:
+	return _launch_residents
+
+
 func _on_location_mounted(location_id: StringName) -> void:
 	_bind_location(location_id)
+	if _launch_residents != null and location_id == _launch_residents.location_id:
+		_launch_residents.resume()
+
+
+func _on_location_unmounted(location_id: StringName) -> void:
+	# The package is gone; its scene-scoped controllers must not keep acting on it.
+	if _launch_residents != null and location_id == _launch_residents.location_id:
+		_launch_residents.suspend()
 
 
 ## Disable the scene swap on every streamed door of a freshly mounted location
@@ -209,13 +231,11 @@ func _rebind_owner_consumers(location_id: StringName) -> void:
 	var runtime := scene.get_node_or_null("MapViewRuntime") as MapViewRuntime
 	if runtime != null:
 		runtime.bind_owning_location(location_id)
-	# Do not add a method on the launch scene: reval_east.gd already fails
-	# gdlint, and staging it blocks commit. The binder is a named child.
-	var binder = scene.get_node_or_null("MapPhaseBinder")
-	var bootstrap: Dictionary = _host.hosted_bootstrap(location_id)
-	var definition := bootstrap.get("definition") as MapDefinition
-	if binder != null and definition != null and binder.has_method("setup"):
-		binder.call("setup", StringName("loc.%s" % String(location_id)), definition, runtime)
+	# R-1059: the scene MapPhaseBinder is not retargeted. Every NPC, patrol and
+	# prop it holds is a launch-location resident, so its `loc.*` rules, anchor
+	# definition and district pressure stay the launch location's. Its phase
+	# presentation (cycle) is location independent and already reaches the
+	# owner's view through the shared runtime.
 	_host.pinned_location_ids.clear()
 
 

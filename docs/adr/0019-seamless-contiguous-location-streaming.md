@@ -193,6 +193,8 @@ Replace whole-location terrain, height-field, surroundings, decals, transition v
 
 Make NPCs, quests, phases, fauna, crowd, audio, fog, minimap, and music respond to simulation/view residency. Prove unload/save/load/reload identity and no duplicate dynamic entity after repeated crossings.
 
+Note (R-1059): launch-scene NPCs, quest controllers, patrols and interactables are suspended while their launch location is unmounted and resumed on remount (`WorldHostLaunchResidents`); the scene phase binder keeps its launch-location scope. See `docs/SEAMLESS_STREAMING_PLAN.md`.
+
 ### Phase 7 - Roll out one outdoor world group
 
 Enable seamless mode for the connected Reval outdoor graph after performance, soak, save, and visual gates pass. Keep the old scene transition path as a feature-flag fallback for at least one save-version cycle. Evaluate Pirita and other physically contiguous outskirts separately. Do not silently include long-distance world travel.
