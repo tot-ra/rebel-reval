@@ -310,6 +310,15 @@ if any_staged_path "assets/SOURCES.csv" \
   run_step "texture prompt sidecars" python3 tools/verify_texture_prompts.py
 fi
 
+if any_staged_path "music" "sounds" \
+  "docs/data/runtime_audio_budget.json" \
+  "tools/verify_runtime_audio_budget.py" \
+  "tools/optimize_runtime_audio.py" \
+  "tests/python/test_verify_runtime_audio_budget.py"; then
+  run_step "runtime audio budget" python3 tools/verify_runtime_audio_budget.py
+  queue_python_module "tests.python.test_verify_runtime_audio_budget"
+fi
+
 # Active-doc check walks the live worktree. Trigger only on the report inputs /
 # generator that CI treats as the contract, not on every docs/** edit, so an
 # unrelated dirty report cannot block an otherwise scoped commit.

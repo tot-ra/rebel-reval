@@ -3089,9 +3089,9 @@
     },
     {
       "path": "sounds/birds/great_spotted_woodpecker/great_spotted_woodpecker_XC995604.mp3",
-      "size_bytes": 10503962,
-      "sha256": "a0ab01a048b72e7babf03242f412013ffbdb7e0097f1c91576e32991a4ae605e",
-      "lfs_oid": "sha256:a0ab01a048b72e7babf03242f412013ffbdb7e0097f1c91576e32991a4ae605e",
+      "size_bytes": 584768,
+      "sha256": "2961eb7e8c7c723792f39abdb0d86bb0cfbe5c1a1235dd4310c8092f2dd1ac6f",
+      "lfs_oid": "sha256:2961eb7e8c7c723792f39abdb0d86bb0cfbe5c1a1235dd4310c8092f2dd1ac6f",
       "owner": "Noé Ferrari",
       "license": "CC BY 4.0 (or source version)",
       "approval": "approved - P0-122 commercial-friendly field recording",

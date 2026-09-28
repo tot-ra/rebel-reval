@@ -175,6 +175,23 @@ python3 tools/research/fetch_reference_plates.py --verify
 python3 tools/optimize_reference_plates.py
 ```
 
+## Runtime audio (`music/` and `sounds/`)
+
+Runtime cues and soundtrack files are encoded for playback, not as studio masters. Caps live in [`docs/data/runtime_audio_budget.json`](./data/runtime_audio_budget.json). Owned exceptions must be listed in that manifest `exceptions` array with a task id.
+
+| Class | Encode ceiling | Per-file cap | Encode target on optimize |
+|------|------:|------:|------|
+| `music/` | 256 kbps average | 12 MiB | 192 kbps CBR |
+| Lossy `sounds/` (`.mp3` / `.ogg` / `.opus` / `.aac`) | 192 kbps average | 2 MiB | 128 kbps CBR |
+| PCM source takes (`.wav` / `.flac`) | 1536 kbps | 4 MiB | leave as PCM |
+
+New runtime cues must ship as MP3 at the encode target. Average bitrate is payload bytes over duration: do not trust the first MPEG frame (VBR often starts at 320 kbps). Some historical `.mp3` files were PCM WAVE payloads; the verifier sniffs `RIFF`/`WAVE` before MPEG.
+
+```bash
+python3 tools/verify_runtime_audio_budget.py
+python3 tools/optimize_runtime_audio.py
+```
+
 ## Verification
 
 Run from the repository root:
@@ -185,6 +202,7 @@ tools/restore_lfs_assets.sh runtime
 python3 tools/verify_storage_hygiene.py
 python3 tools/verify_evidence_image_retention.py
 python3 tools/research/fetch_reference_plates.py --verify
+python3 tools/verify_runtime_audio_budget.py
 python3 tools/validate_asset_sources.py
 python3 tools/generate_asset_inventory.py --check
 godot --headless --editor --quit

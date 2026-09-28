@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Verify P0-123 processed bird clips resolve every catalog cue.
 
-Checks that each ``song.cue`` in ``map_view_bird_species.gd`` maps to an on-disk
+Checks that each ``song.cue`` in ``map_view_bird_species*.gd`` maps to an on-disk
 processed ``.mp3`` with a Godot ``.import`` sidecar and a provenance row in
 ``sounds/birds/processed_manifest.csv`` back to the P0-122 source clip.
 
@@ -26,16 +26,20 @@ if str(AUDIO_TOOLS) not in sys.path:
 from fetch_bird_songs import SPECIES  # noqa: E402
 from process_bird_clips import cue_id_for, processed_path  # noqa: E402
 
-BIRD_SPECIES_GD = ROOT / "scripts" / "map" / "view3d" / "map_view_bird_species.gd"
+BIRD_SPECIES_DIR = ROOT / "scripts" / "map" / "view3d"
 CUE_RE = re.compile(r'"cue":\s*&"([^"]+)"')
 
 
 def extract_catalog_cues() -> list[str]:
-    text = BIRD_SPECIES_GD.read_text(encoding="utf-8")
-    cues = CUE_RE.findall(text)
+    # P0-185 moved profiles into map_view_bird_species_*.gd shards; the facade
+    # no longer contains cue literals.
+    texts: list[str] = []
+    for path in sorted(BIRD_SPECIES_DIR.glob("map_view_bird_species*.gd")):
+        texts.append(path.read_text(encoding="utf-8"))
+    cues = CUE_RE.findall("\n".join(texts))
     if len(cues) != len(SPECIES):
         raise ValueError(
-            f"expected {len(SPECIES)} catalog cues, found {len(cues)} in {BIRD_SPECIES_GD}"
+            f"expected {len(SPECIES)} catalog cues, found {len(cues)} under {BIRD_SPECIES_DIR}"
         )
     return cues
 
