@@ -120,8 +120,7 @@ func _run() -> void:
 	if _benchmark:
 		await _run_benchmark(view, camera, grid, sky, progress, day_blend, sun_dir, azimuth)
 		return
-	var focus_cell := _open_water_cell(grid)
-	var origin := view.world_position(Vector2(focus_cell) + Vector2(0.5, 0.5), CAMERA_HEIGHT)
+	var origin := _horizon_origin(view, grid)
 	var halves: Array[Image] = []
 	for toward_sun in [true, false]:
 		var flat := Vector3(azimuth.x, 0.0, azimuth.y) * (1.0 if toward_sun else -1.0)
@@ -151,8 +150,7 @@ func _run_benchmark(
 	progress: float, day_blend: float, sun_dir: Vector3, azimuth: Vector2
 ) -> void:
 	DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
-	var water := Vector2(_open_water_cell(grid)) + Vector2(0.5, 0.5)
-	var origin := view.world_position(water, CAMERA_HEIGHT)
+	var origin := _horizon_origin(view, grid)
 	var look := Vector3(azimuth.x, 0.0, azimuth.y) * cos(deg_to_rad(CAMERA_PITCH_DEG))
 	look.y = sin(deg_to_rad(CAMERA_PITCH_DEG))
 	camera.look_at_from_position(origin, origin + look, Vector3.UP)
@@ -192,8 +190,7 @@ func _run_day_sweep(view: MapView3D, viewport: SubViewport, grid: MapTerrainGrid
 	camera.current = true
 	camera.fov = CAMERA_FOV
 	camera.far = 4000.0
-	var water := Vector2(_open_water_cell(grid)) + Vector2(0.5, 0.5)
-	var origin := view.world_position(water, CAMERA_HEIGHT)
+	var origin := _horizon_origin(view, grid)
 	var look := Vector3(cos(deg_to_rad(CAMERA_PITCH_DEG)), sin(deg_to_rad(CAMERA_PITCH_DEG)), 0.0)
 	camera.look_at_from_position(origin, origin + look, Vector3.UP)
 	var thumb_size := Vector2i(HALF_SIZE.x / 4, HALF_SIZE.y / 4)
@@ -252,6 +249,21 @@ func _morning_progress_for(target_deg: float) -> float:
 		else:
 			hi = mid
 	return (lo + hi) * 0.5
+
+
+func _horizon_origin(view: MapView3D, grid: MapTerrainGrid) -> Vector3:
+	var cell := _open_water_cell(grid)
+	# world_position takes logic pixels, not cells. Passing a cell lands the
+	# camera at cell/cell_size, near the origin, instead of open water (R-1091).
+	var origin := view.world_position(
+		(Vector2(cell) + Vector2(0.5, 0.5)) * float(view.definition.cell_size),
+		CAMERA_HEIGHT
+	)
+	print(
+		"WS10_SKY_FOCUS map=%s cell=%s,%s world=%.3f,%.3f"
+		% [view.definition.map_id, cell.x, cell.y, origin.x, origin.z]
+	)
+	return origin
 
 
 func _open_water_cell(grid: MapTerrainGrid) -> Vector2i:

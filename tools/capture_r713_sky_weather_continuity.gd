@@ -396,11 +396,18 @@ func _capture_plate(
 	viewport.add_child(view)
 	var camera := view.view_camera()
 	camera.current = true
-	camera.position = (
-		view.world_position(MAP_FOCUS_CELLS[map_id], 0.8)
-		+ camera.transform.basis.z * MapView3D.CAMERA_DISTANCE
+	# world_position takes logic pixels, not cells. MAP_FOCUS_CELLS values are
+	# cell centres; without * cell_size the camera sits near the origin (R-1091).
+	var focus_cell: Vector2 = MAP_FOCUS_CELLS[map_id]
+	var focus := view.world_position(
+		focus_cell * float(definition.cell_size), 0.8
 	)
-	camera.look_at(view.world_position(MAP_FOCUS_CELLS[map_id], 0.8), Vector3.UP)
+	print(
+		"R713_SKY_FOCUS map=%s cell=%.2f,%.2f world=%.3f,%.3f"
+		% [map_id, focus_cell.x, focus_cell.y, focus.x, focus.z]
+	)
+	camera.position = focus + camera.transform.basis.z * MapView3D.CAMERA_DISTANCE
+	camera.look_at(focus, Vector3.UP)
 	var sky := view.sky_weather()
 	if sky == null:
 		push_error("R-738 map view has no SkyWeather3D: %s" % map_id)

@@ -136,8 +136,16 @@ func _run() -> void:
 	camera.projection = Camera3D.PROJECTION_PERSPECTIVE
 	camera.fov = CAMERA_FOV
 	camera.far = 4000.0
+	# world_position takes logic pixels, not cells. Passing a cell lands the
+	# camera at cell/cell_size, near the origin, instead of open water (R-1091).
 	var water_cell := Vector2(_open_water_cell(grid)) + Vector2(0.5, 0.5)
-	var origin := view.world_position(water_cell, CAMERA_HEIGHT)
+	var origin := view.world_position(
+		water_cell * float(definition.cell_size), CAMERA_HEIGHT
+	)
+	print(
+		"WS11_SKY_FOCUS map=%s cell=%.1f,%.1f world=%.3f,%.3f"
+		% [definition.map_id, water_cell.x, water_cell.y, origin.x, origin.z]
+	)
 	for toward_sun: bool in [true, false]:
 		var flat := Vector3(azimuth.x, 0.0, azimuth.y) * (1.0 if toward_sun else -1.0)
 		var look := flat * cos(deg_to_rad(CAMERA_PITCH_DEG))
