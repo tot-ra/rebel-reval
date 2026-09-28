@@ -426,6 +426,30 @@ func test_evicting_an_in_flight_mount_cancels_and_leaks_nothing() -> void:
 # --- WB-08e (R-1069): sliced tree entry and exit ------------------------------
 
 
+func test_geometry_strip_is_only_required_for_multimesh_teardown() -> void:
+	var leaf := MeshInstance3D.new()
+	leaf.mesh = BoxMesh.new()
+	assert_false(
+		WorldHostPackageInspector.needs_geometry_strip(leaf),
+		"a leaf mesh can free without the dummy-renderer mesh-null hitch"
+	)
+	var batch := MultiMeshInstance3D.new()
+	assert_true(
+		WorldHostPackageInspector.needs_geometry_strip(batch),
+		"MultiMesh still strips before free"
+	)
+	var holder := Node3D.new()
+	holder.add_child(batch)
+	assert_true(
+		WorldHostPackageInspector.needs_geometry_strip(holder),
+		"an atomic parent that still owns a MultiMesh must strip"
+	)
+	holder.remove_child(batch)
+	batch.free()
+	leaf.free()
+	holder.free()
+
+
 func test_split_for_entry_rebuilds_the_same_tree_and_keeps_scripted_nodes_whole() -> void:
 	var root := _wide_tree()
 	var before := _tree_signature(root)

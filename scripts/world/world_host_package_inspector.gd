@@ -125,6 +125,20 @@ static func may_split(node: Node) -> bool:
 	return node.get_script() == null and (node.get_class() == "Node3D" or node.get_class() == "Node")
 
 
+## True when sliced teardown must null MultiMesh RIDs before free()
+## (dummy-renderer ShaderMaterial instance-parameter ERRORs). Leaf
+## MeshInstance3D nodes can free without that walk (R-1077).
+static func needs_geometry_strip(node: Node) -> bool:
+	if node is MultiMeshInstance3D:
+		return true
+	if node.get_child_count() == 0:
+		return false
+	for child in node.get_children():
+		if needs_geometry_strip(child):
+			return true
+	return false
+
+
 ## WB-08e: the next node to remove when tearing `root` down in slices: the last
 ## leaf (or atomic subtree) of the last splittable path, so children always leave
 ## before their container and `root` itself goes last. Walks one path, not the tree.

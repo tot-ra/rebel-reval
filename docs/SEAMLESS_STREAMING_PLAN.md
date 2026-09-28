@@ -396,11 +396,13 @@ and the early-mount walk are sliced:
   hidden, renamed (`<id>__evicting_<n>`, so the location can mount again at once)
   and freed one leaf or atomic subtree at a time
   (`WorldHostPackageInspector.next_removal()`), children before their container.
-  The detached logic package is freed the same way. Teardown gets at most half
-  the budget. A cancelled `ENTERING` or unmounted `READY` package uses the same
-  path. Flag off, unmount is unchanged.
+  The detached logic package is freed the same way. Teardown frees one leaf
+  per tick (R-1077): packing half the budget stacked a 4.5-6.4 ms dummy /
+  incremental-GC flush on one batch. A cancelled `ENTERING` or unmounted
+  `READY` package uses the same path. Flag off, unmount is unchanged.
 - Trace breakdown: `queue_ms`, `evict_ms` and `slice_ms` per frame, and
-  `slice_ms_max` / `slice_max_label` in the summary.
+  `slice_ms_max` / `slice_max_label` / `evict_slice_ms_max` /
+  `teardown_tick_ms_max` in the summary.
 
 Same trace, three runs each on the development Mac, against `origin/main` at
 `392754b3` on the same machine:
@@ -416,13 +418,22 @@ Same trace, three runs each on the development Mac, against `origin/main` at
 | Ticks over 4 ms (walking / running) | 193 / 167-192 | 149-150 / 144-151 |
 | tick p95 (walking / running) | 4.00 / 4.62-4.83 ms | 3.63-3.65 / 4.44-4.50 ms |
 
-Residual, not met: in every run exactly one teardown slice takes 4.5-6.4 ms, and
-its tick 5.0-7.9 ms. It is not tied to a node or a resource. A different
-ordinary `MeshInstance3D` or `Node3D` is hit each run. Inside the slice the
-stall moves between `remove_child`, the geometry strip and `free()`. No worker
-mount is in flight at that moment. It looks like a process-wide stall (allocator
-or server lock) and is filed as **R-1077**. Every other over-budget tick is an
-atomic view unit (R-1006) or the owner rebind (R-1071).
+**R-1077 (2026-09-28).** The one 4.5-6.4 ms teardown slice was a process-wide
+dummy-renderer / incremental-GC flush, not a node. It landed on a different
+`MeshInstance3D` each run and moved between `remove_child`, strip and `free()`.
+Priming a timber probe on the first mount did not absorb it. Filling half the
+budget (~1.7 ms of frees per tick) stacked that flush on the batch. One leaf
+per tick keeps eviction slices around 0.1 ms. Leaf `MeshInstance3D` nodes skip
+`_strip_geometry_materials` (only MultiMesh still needs it). Six two-seam
+traces on the development Mac (`--stability`):
+
+| Run | evict_slice_ms_max | teardown_tick_ms_max |
+|---|---:|---:|
+| walk 2 px/frame | 0.086-0.097 | 1.875-1.930 |
+| run 4 px/frame | 0.091-0.098 | 1.911-2.014 |
+
+Every other over-budget tick remains an atomic view unit (R-1006) or the
+owner rebind (R-1071).
 
 Limits kept for later rows are the items above, plus two more:
 

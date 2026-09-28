@@ -102,6 +102,7 @@ func _run() -> void:
 			"mounted": _strings(result.get("mounted", [])),
 			"evicted": _strings(result.get("evicted", [])),
 			"pending": _strings(host.pending_location_ids()),
+			"evicting": host.mount_queue.evicting_count(),
 		})
 		last_usec = now
 	var report := _report(host, owners, waiting_frames)
@@ -186,7 +187,9 @@ func _report(host: WorldHost, owners: Array[String], waiting_frames: int) -> Dic
 		"evict_ms_max": _max_of("evict_ms"),
 		"slice_ms_max": float(host.mount_queue.max_slice_usec) / 1000.0,
 		"slice_max_label": host.mount_queue.max_slice_label,
+		"evict_slice_ms_max": float(host.mount_queue.max_evict_slice_usec) / 1000.0,
 		"tick_slice_ms_max": _max_of("slice_ms"),
+		"teardown_tick_ms_max": _teardown_tick_ms_max(),
 		"stability": _stability,
 	}
 	var walk_ok: bool = visited_all and int(summary["scene_swaps"]) == 0
@@ -198,6 +201,15 @@ func _max_of(key: String) -> float:
 	var peak := 0.0
 	for frame in _frames:
 		peak = maxf(peak, float(frame.get(key, 0.0)))
+	return peak
+
+
+func _teardown_tick_ms_max() -> float:
+	var peak := 0.0
+	for frame in _frames:
+		if int(frame.get("evicting", 0)) <= 0 and (frame.get("evicted", []) as Array).is_empty():
+			continue
+		peak = maxf(peak, float(frame.get("tick_ms", 0.0)))
 	return peak
 
 

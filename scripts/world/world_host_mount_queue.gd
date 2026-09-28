@@ -58,6 +58,8 @@ var prepare_delay_msec := 0
 var max_slice_usec := 0
 ## "enter|evict <class> <name> (<n> nodes)" of that slice.
 var max_slice_label := ""
+## Peak teardown-only slice (R-1077). Entry slices stay in max_slice_usec.
+var max_evict_slice_usec := 0
 ## Entry plus teardown slice microseconds spent in the current tick.
 var tick_slice_usec := 0
 
@@ -363,7 +365,11 @@ func step_evictions(budget_usec: int) -> void:
 		var parent := node.get_parent()
 		if parent != null:
 			parent.remove_child(node)
-		MapView3D._strip_geometry_materials(node)
+		# WHY: MultiMesh still needs the strip to avoid dummy-renderer
+		# material_get_instance_shader_parameters ERRORs. A leaf mesh can
+		# free with its BoxMesh RID intact (R-1077).
+		if WorldHostPackageInspector.needs_geometry_strip(node):
+			MapView3D._strip_geometry_materials(node)
 		node.free()
 		if is_root:
 			_evicting.remove_at(0)
@@ -375,6 +381,8 @@ func step_evictions(budget_usec: int) -> void:
 
 func _record_slice(kind: StringName, node: Node, usec: int, label := "") -> void:
 	tick_slice_usec += usec
+	if kind == &"evict" and usec > max_evict_slice_usec:
+		max_evict_slice_usec = usec
 	if usec <= max_slice_usec:
 		return
 	max_slice_usec = usec

@@ -929,10 +929,11 @@ func _step_mount_queue(applied: Dictionary) -> void:
 	for location_id in stepped["failed"]:
 		mount_queue.record_failure(location_id)
 		applied["failed"].append(location_id)
-	# Teardown is never urgent: it gets what the step left, at most half the
-	# budget (headroom for one slow free), and at least one slice.
-	var left := mini(budget - int(Time.get_ticks_usec() - started), budget / 2)
-	mount_queue.step_evictions(maxi(left, 0))
+	# Teardown is never urgent. Filling half the budget (~1.7 ms of frees)
+	# still produced one 4.5-6.4 ms slice per wave (R-1077): a process-wide
+	# dummy-renderer / incremental-GC flush landed on that batch. One leaf
+	# per tick keeps the flush from stacking on a packed free loop.
+	mount_queue.step_evictions(0)
 
 
 func _mount_staged(pending: WorldHostMountQueue.PendingMount, applied: Dictionary) -> bool:
