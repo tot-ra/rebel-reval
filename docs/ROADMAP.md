@@ -4,6 +4,9 @@ Coordination notes, delivery order, and planning context formerly embedded in `T
 Executable open work stays in [`TODO.md`](../TODO.md).
 Aged coordination history lives in [`ROADMAP_COORDINATION_ARCHIVE_2026-08-13.md`](./ROADMAP_COORDINATION_ARCHIVE_2026-08-13.md).
 
+<!-- P0-185 tree-skeleton peel extracted in current session -->
+Coordination note (2026-09-28 P0-185): `map_view_tree_mesh_skeleton.gd` now owns recursive trunk/branch growth plus the shared `radial_around` / `perpendicular` helpers. `map_view_tree_meshes.gd` keeps wood/canopy/fruit emitters (659 -> 320 lines). Verified: `--filter=test_map_view_tree_species,test_vegetation_realism,test_map_view_3d_mesh`. Next P0-185 claim: keep `apply_weather_presentation` on the `map_view_materials.gd` facade until a second caller needs a weather-material adapter.
+
 <!-- P0-183 runtime GLB budgets closed in current session -->
 Coordination note (2026-09-28 P0-183): runtime GLB byte and triangle caps landed in `docs/data/runtime_glb_budget.json`. Sacred Grove oak dropped 10045452 -> 7868736 bytes by URI-referencing sibling PBR maps (63891 triangles unchanged). Shared character LOD0/1/2 stay under 6 / 2 / 1 MiB with existing LOD siblings. Verified: `python3 tools/verify_runtime_glb_budget.py`, `python3 -m unittest tests.python.test_verify_runtime_glb_budget`, `python3 tools/verify_asset_lint.py`, focused oak/character Godot filters. Follow-up **P0-183b**: storybook mammal GLBs (rat ~9.9 MiB).
 

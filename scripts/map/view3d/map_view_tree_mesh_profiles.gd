@@ -2,7 +2,8 @@ class_name MapViewTreeMeshProfiles
 extends RefCounted
 
 ## Botanical growth profiles for MapViewTreeMeshes (P0-185 shard).
-## Edit species tuning here; procedural wood/canopy/fruit emitters stay on the facade.
+## Edit species tuning here; recursive growth is MapViewTreeMeshSkeleton;
+## wood/canopy/fruit emitters stay on the facade.
 
 const MAX_LEAF_SPRAYS := 110
 const MAX_FRUIT_COUNT := 18
