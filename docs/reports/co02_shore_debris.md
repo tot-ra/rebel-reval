@@ -73,9 +73,9 @@ beach around its footprint.
    sampled local slope and lifted 0.01-0.03 units, so the sand does not clip the rim. The weed
    apron uses alpha scissor, because the WS-13 underwater pass composites from depth and drops
    blended surfaces.
-6. **The existing primitive `CoastalRocks` layer (`map_view_shoreline_3d.gd`) is left alone.** It
-   has its own R-715 tests and is outside the allowed files. Its blue, faceted spheres are now the
-   weakest element on the Kalamaja plates. Retiring it in favour of this family is a follow-up.
+6. **R-1092 retired the primitive `CoastalRocks` SphereMesh layer.** Scatter no longer calls
+   `map_view_shoreline_3d.gd`; harbour dressing is only this CO-02 family. Collision and
+   navigation stay unchanged.
 7. **Saaremaa's `alvar.boulders` terrain paint is untouched** (CO-09 decides).
 
 ## Verification
@@ -141,7 +141,9 @@ defect as R-1087, so no Compatibility underwater plate is published.
 ## Open items
 
 - **R-1093**: named human visual review of the plates. The contract cannot close on green tests.
-- **R-1092**: retire the primitive `CoastalRocks` spheres in favour of this family.
 - **R-1094**: the weed apron reads as flat fronds with angular clump edges; replace it with strand
   cards. This task also covers the corrupted Compatibility underwater frame on Kalamaja.
 - WS-14b (R-910) swimming and boats must treat `shore_debris_blocking_cells()` as solid.
+
+**R-1092 (2026-09-28):** primitive `CoastalRocks` spheres and `map_view_shoreline_3d.gd` are gone.
+`--filter=test_coastal_sea_3d,test_r715_water_surface_geometry,test_r715_water_rollout_inventory,test_shore_debris_scatter`.

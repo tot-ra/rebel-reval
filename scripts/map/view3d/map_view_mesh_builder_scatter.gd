@@ -1,7 +1,6 @@
 class_name MapViewMeshBuilderScatter
 extends RefCounted
 
-const Shoreline3D := preload("res://scripts/map/view3d/map_view_shoreline_3d.gd")
 const PlantSpecies := preload("res://scripts/map/view3d/map_view_plant_species.gd")
 const PlantMeshes := preload("res://scripts/map/view3d/map_view_plant_meshes.gd")
 const BushSpecies := preload("res://scripts/map/view3d/map_view_bush_species.gd")
@@ -380,9 +379,9 @@ static func build_scatter(
 				Vector3(0.0, -0.012, 0.0)
 			)
 		)
-	Shoreline3D.add_to(root, definition, grid, bounds)
 	# CO-02: authored boulders, shingle, wrack and algae placed by distance to the
 	# WS-08 shore field; built with every scatter chunk, not only first person.
+	# R-1092 retired the primitive CoastalRocks SphereMesh layer.
 	var shore_debris := MapViewTerrainDetails.build_shore_debris(definition, grid, bounds)
 	if shore_debris.get_child_count() > 0:
 		root.add_child(shore_debris)

@@ -6,7 +6,7 @@ const MapBuilderContract := preload("res://scripts/map/map_builder.gd")
 const WaterMaterials := preload("res://scripts/map/view3d/map_view_water_materials.gd")
 const MaterialsFacade := preload("res://scripts/map/view3d/map_view_materials.gd")
 const WaterMesh := preload("res://scripts/map/view3d/map_view_mesh_builder_terrain_water.gd")
-const Shoreline := preload("res://scripts/map/view3d/map_view_shoreline_3d.gd")
+const TerrainDetails := preload("res://scripts/map/view3d/map_view_terrain_details.gd")
 const ShaderSources := preload("res://scripts/map/view3d/map_view_material_shaders.gd")
 
 const INVENTORY_REPORT := "res://docs/reports/r715_water_rollout_inventory.md"
@@ -111,7 +111,7 @@ func test_report_names_shared_water_owner_paths() -> void:
 	for owner_path in [
 		"../../scripts/map/view3d/map_view_water_materials.gd)",
 		"../../scripts/map/view3d/map_view_mesh_builder_terrain_water.gd)",
-		"../../scripts/map/view3d/map_view_shoreline_3d.gd)",
+		"../../scripts/map/view3d/map_view_terrain_details.gd)",
 	]:
 		assert_true(
 			report.contains(owner_path),
@@ -122,12 +122,12 @@ func test_report_names_shared_water_owner_paths() -> void:
 func test_water_owner_modules_and_shader_contract_are_present() -> void:
 	var water_materials := WaterMaterials.new()
 	var water_mesh := WaterMesh.new()
-	var shoreline := Shoreline.new()
+	var details := TerrainDetails.new()
 	assert_true(water_materials.has_method("water_surface"))
 	assert_true(water_materials.has_method("apply_sea_weather"))
 	assert_true(water_materials.has_method("apply_coastal_tide"))
 	assert_true(water_mesh.has_method("bake_water_contour"))
 	assert_true(water_mesh.has_method("add_water_cell_quad"))
-	assert_true(shoreline.has_method("build"))
+	assert_true(details.has_method("build_shore_debris"))
 	for feature in ["fresnel", "sky", "TIME", "depth_absorption", "flow_direction", "tide_level"]:
 		assert_true(feature in ShaderSources.WATER_SHADER.code, "water shader must retain %s" % feature)

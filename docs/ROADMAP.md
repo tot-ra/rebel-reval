@@ -4,6 +4,9 @@ Coordination notes, delivery order, and planning context formerly embedded in `T
 Executable open work stays in [`TODO.md`](../TODO.md).
 Aged coordination history lives in [`ROADMAP_COORDINATION_ARCHIVE_2026-08-13.md`](./ROADMAP_COORDINATION_ARCHIVE_2026-08-13.md).
 
+<!-- R-1092 CoastalRocks retired in current session -->
+Coordination note (2026-09-28 R-1092): deleted `map_view_shoreline_3d.gd` SphereMesh `CoastalRocks`. Harbour scatter uses only CO-02 `ShoreDebris`. Gate: `--filter=test_coastal_sea_3d,test_r715_water_surface_geometry,test_r715_water_rollout_inventory,test_shore_debris_scatter`. Follow-ups: R-1093 visual review, R-1094 strand weed apron.
+
 <!-- P0-185 tree-skeleton peel extracted in current session -->
 Coordination note (2026-09-28 P0-185): `map_view_tree_mesh_skeleton.gd` now owns recursive trunk/branch growth plus the shared `radial_around` / `perpendicular` helpers. `map_view_tree_meshes.gd` keeps wood/canopy/fruit emitters (659 -> 320 lines). Verified: `--filter=test_map_view_tree_species,test_vegetation_realism,test_map_view_3d_mesh`. Next P0-185 claim: keep `apply_weather_presentation` on the `map_view_materials.gd` facade until a second caller needs a weather-material adapter.
 

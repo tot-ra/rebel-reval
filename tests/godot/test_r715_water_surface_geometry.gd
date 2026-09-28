@@ -3,7 +3,6 @@ extends "res://tests/godot/test_case.gd"
 const MapBuilder := preload("res://scripts/map/map_builder.gd")
 const TerrainBuilder := preload("res://scripts/map/view3d/map_view_mesh_builder_terrain.gd")
 const WaterBuilder := preload("res://scripts/map/view3d/map_view_mesh_builder_terrain_water.gd")
-const Shoreline := preload("res://scripts/map/view3d/map_view_shoreline_3d.gd")
 
 
 func test_empty_contour_is_a_safe_dry_field() -> void:
@@ -70,56 +69,6 @@ func test_water_mesh_is_deterministic_and_keeps_gameplay_grid_unchanged() -> voi
 	)
 	first.free()
 	second.free()
-
-
-func test_shoreline_details_require_water_adjacency() -> void:
-	var dry_definition := _water_definition()
-	dry_definition.base_terrain = MapTypes.TERRAIN_COAST_SAND
-	dry_definition.zones = []
-	var dry_grid := MapBuilder.build(dry_definition)
-	var dry_details := Shoreline.build(dry_definition, dry_grid)
-	assert_false(
-		dry_details.has_node("CoastalRocks"),
-		"coastal rocks must not appear without an adjacent water cell",
-	)
-	dry_details.free()
-
-	var shore_definition := _water_definition()
-	shore_definition.base_terrain = MapTypes.TERRAIN_GRASS
-	shore_definition.zones = [
-		{"rect": Rect2i(1, 0, 1, 6), "terrain": MapTypes.TERRAIN_COAST_SAND},
-		{"rect": Rect2i(2, 0, 4, 6), "terrain": MapTypes.TERRAIN_DEEP_WATER},
-	]
-	shore_definition.seed = 2
-	var shore_grid := MapBuilder.build(shore_definition)
-	var details := Shoreline.build(shore_definition, shore_grid)
-	var rocks := details.get_node_or_null("CoastalRocks") as MultiMeshInstance3D
-	assert_true(rocks != null, "water-facing coast sand must receive shoreline detail")
-	var transforms: Array[Transform3D] = []
-	var colors: Array[Color] = []
-	Shoreline.collect_rock_instances(
-		shore_definition,
-		shore_grid,
-		Rect2i(Vector2i.ZERO, shore_grid.size_cells),
-		transforms,
-		colors,
-	)
-	assert_eq(
-		transforms.size(),
-		rocks.multimesh.instance_count if rocks != null else 0,
-		"authored shoreline rocks must match the committed multimesh count",
-	)
-	for transform in transforms:
-		var origin := transform.origin
-		assert_true(
-			origin.x >= 1.0 and origin.x < 3.0,
-			"rocks must stay within the authored shore-to-water boundary: %s" % origin,
-		)
-		assert_true(
-			origin.z >= 0.0 and origin.z < 6.0,
-			"rocks must stay inside the authored shore",
-		)
-	details.free()
 
 
 func _water_definition() -> MapDefinition:

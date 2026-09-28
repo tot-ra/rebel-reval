@@ -95,7 +95,7 @@ R-713 handoff: unified sky/weather acceptance and water-facing synchronization e
 | Cached water materials and uniforms | [`map_view_water_materials.gd`](../../scripts/map/view3d/map_view_water_materials.gd) | Owns water-only shader material cache plus `water_surface`, `apply_sea_weather`, `apply_water_lighting`, `apply_coastal_tide`, and `apply_water_sky_reflection`. |
 | Water shader family | [`map_view_material_shaders.gd`](../../scripts/map/view3d/map_view_material_shaders.gd) | Owns the shared animated water shader, depth/bed layers, current advection, Fresnel/celestial response, and safe defaults. R-748 does not alter it. |
 | Water surface geometry | [`map_view_mesh_builder_terrain_water.gd`](../../scripts/map/view3d/map_view_mesh_builder_terrain_water.gd) | Owns smoothed contours, coverage sampling, clipped water triangles, and recessed view-only surface vertices. |
-| Coastal shoreline detail | [`map_view_shoreline_3d.gd`](../../scripts/map/view3d/map_view_shoreline_3d.gd) | Owns deterministic view-only coastal rock scatter on water-facing coast-sand cells; it does not add collision or navigation. |
+| Coastal shoreline detail | [`map_view_terrain_details.gd`](../../scripts/map/view3d/map_view_terrain_details.gd) | Owns CO-02 ShoreDebris (boulders, shingle, wrack, algae) on the WS-08 beach field. R-1092 deleted the primitive `CoastalRocks` SphereMesh layer. Dressing stays view-only; collision and navigation are unchanged. |
 | Terrain compilation and water metadata clearing | [`map_builder.gd`](../../scripts/map/map_builder.gd) | Applies authored zones and clears inherited vegetation metadata when a water overlay wins. |
 | Wind/rain and presentation snapshot | [`sky_weather_3d.gd`](../../scripts/map/view3d/sky_weather_3d.gd) | Owns the runtime weather values consumed by the view; the current checkout has a known parse cascade before this can be reverified. |
 | Astronomical tide calculation | [`sky_astronomy.gd`](../../scripts/map/view3d/sky_astronomy.gd) | Owns the deterministic tide calculation; `MapViewLighting` forwards the presentation tide level to the material facade. |
@@ -139,8 +139,6 @@ Focused coverage: [`tests/godot/test_r715_water_surface_geometry.gd`](../../test
 treat empty or sub-threshold water contours as dry instead of indexing missing samples
 build deterministic recessed water surfaces without mutating gameplay terrain fingerprints
 clip water triangles against smoothed contour coverage and expose shoreline vertex colors for foam
-place coastal rock scatter only on coast-sand cells with adjacent closed water IDs
-verify authored rock origins through collect_rock_instances before multimesh commit
 ```
 
 Expected command:
@@ -150,7 +148,7 @@ export GODOT_BIN="/Applications/Godot.app/Contents/MacOS/Godot"
 "$GODOT_BIN" --headless --path . --script tools/run_godot_tests.gd -- --filter=test_r715_water_surface_geometry
 ```
 
-Headless Godot 4.7.1 returns identity transforms from `MultiMesh.get_instance_transform()` under the dummy renderer, so shoreline placement assertions read the authored transform list from `MapViewShoreline3D.collect_rock_instances()` and only compare the committed instance count on the node. Visual acceptance remains owned by R-756; gameplay collision and navigation remain unchanged.
+R-1092 retired `MapViewShoreline3D`. Harbour rock dressing is CO-02 `ShoreDebris` in `map_view_terrain_details.gd`, gated by `test_coastal_sea_3d` and `test_shore_debris_scatter`. Visual acceptance remains owned by R-756; gameplay collision and navigation remain unchanged.
 
 ## Verification contract
 

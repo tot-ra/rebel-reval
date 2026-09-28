@@ -4,6 +4,7 @@ Read `agents/playbook.md` first for shared workflow, tooling, and Git lessons.
 This file contains lessons specific to the Map role.
 
 ## Role-specific lessons
+- After CO-02, do not keep a second primitive `CoastalRocks` SphereMesh layer. Scatter coastal dressing only through `MapViewTerrainDetails.build_shore_debris`. R-715 inventory and `test_coastal_sea_3d` must follow the `ShoreDebris` node, not `map_view_shoreline_3d.gd`.
 - RRMap `stroke` thickness grows from the start point in +x/+y; it is not centred. Author river and lane strokes from their top-left edge. Polylines are strictly orthogonal; represent angled approaches as stepped axis-aligned segments.
 - Express outdoor buildings as roofed `house` records. Reserve roofless `kind=wall` for burnt-out shells and boundary walls. `kind=interior_wall` renders as a stockade.
 - A new `view_landmark` kind needs `MapDefinition.VIEW_LANDMARK_KINDS`, the `_compile_landmark` field copy, and `LANDMARK_OVERRIDE_KEYS`. A new typed style key also needs compiler build and expand-geometry field copies.

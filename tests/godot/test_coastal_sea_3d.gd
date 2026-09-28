@@ -29,36 +29,44 @@ func test_harbor_coastal_rocks_are_deterministic_and_visible() -> void:
 		var grid := MapBuilder.build(definition)
 		var first := MapViewMeshBuilder.build_scatter(definition, grid)
 		var second := MapViewMeshBuilder.build_scatter(definition, grid)
-		var first_rocks := first.get_node_or_null("CoastalRocks") as MultiMeshInstance3D
-		var second_rocks := second.get_node_or_null("CoastalRocks") as MultiMeshInstance3D
+		var map_id := String(definition.map_id)
 		assert_true(
-			first_rocks != null,
-				"%s needs wave-washed rocks along the beach"
-				% String(definition.map_id),
+			first.get_node_or_null("CoastalRocks") == null,
+			"%s must not keep primitive CoastalRocks spheres" % map_id,
 		)
+		var first_counts := _shore_debris_layer_counts(first)
+		var second_counts := _shore_debris_layer_counts(second)
 		assert_true(
-			second_rocks != null,
-			" %s must reproduce its rock scatter" % String(definition.map_id),
+			not first_counts.is_empty(),
+			"%s needs CO-02 shore debris along the beach" % map_id,
 		)
-		if first_rocks != null and second_rocks != null:
-			assert_true(
-				first_rocks.multimesh.instance_count >= 8,
-				" %s shoreline rocks must be readable at gameplay zoom"
-				% String(definition.map_id),
-			)
-			assert_eq(
-				first_rocks.multimesh.instance_count,
-				second_rocks.multimesh.instance_count,
-				"the map seed must stabilize coastal rock count",
-			)
-			for index in first_rocks.multimesh.instance_count:
-				assert_eq(
-					first_rocks.multimesh.get_instance_transform(index),
-					second_rocks.multimesh.get_instance_transform(index),
-					"the map seed must stabilize every coastal rock transform"
-				)
+		assert_eq(
+			first_counts,
+			second_counts,
+			"%s seed must stabilize ShoreDebris layer counts" % map_id,
+		)
+		var instance_total := 0
+		for count: Variant in first_counts.values():
+			instance_total += int(count)
+		assert_true(
+			instance_total >= 8,
+			"%s shoreline debris must be readable at gameplay zoom" % map_id,
+		)
 		first.free()
 		second.free()
+
+
+func _shore_debris_layer_counts(scatter: Node3D) -> Dictionary:
+	var counts := {}
+	var debris := scatter.get_node_or_null("ShoreDebris") as Node3D
+	if debris == null:
+		return counts
+	for child in debris.get_children():
+		var mesh := child as MultiMeshInstance3D
+		if mesh == null or mesh.multimesh == null:
+			continue
+		counts[String(child.name)] = mesh.multimesh.instance_count
+	return counts
 
 
 func test_weather_changes_wave_speed_height_and_breakers() -> void:
