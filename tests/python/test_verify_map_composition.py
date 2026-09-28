@@ -99,6 +99,22 @@ class VerifyMapCompositionTest(unittest.TestCase):
         grace = self.thresholds["density_contract"]["production_grace"]
         self.assertIn("R-986", grace["lower_town_slice"]["until"])
 
+    def test_south_quarter_density_zones_are_opt_in(self) -> None:
+        self.assertEqual(verifier.validate_density_zones(self.thresholds), [])
+        card = self.thresholds["maps"]["south_quarter"]
+        self.assertEqual(card["built_density_zone"], "inside_wall")
+        self.assertEqual(card["outside_wall_built_density_zone"], "outside_wall")
+        for other_id, other in self.thresholds["maps"].items():
+            if other_id == "south_quarter":
+                continue
+            self.assertNotIn("built_density_zone", other, other_id)
+
+    def test_density_zone_card_must_name_an_authored_zone(self) -> None:
+        payload = json.loads(verifier.THRESHOLDS.read_text(encoding="utf-8"))
+        payload["maps"]["south_quarter"]["built_density_zone"] = "courtyard"
+        errors = verifier.validate_density_zones(payload)
+        self.assertTrue(any("built_density_zone 'courtyard'" in error for error in errors))
+
     def test_historical_band_grace_names_closing_tasks(self) -> None:
         self.assertEqual(verifier.validate_historical_band_grace(self.thresholds), [])
         grace = self.thresholds["historical_band_grace"]

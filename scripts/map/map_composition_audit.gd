@@ -83,7 +83,9 @@ static func measure(
 	var elevation := _elevation_range(definition, grid)
 	var dressing := _dressing_metrics(definition, grid, occupancy, surface)
 	dressing["relief_span_m"] = elevation
-	return {
+	# Whole-map density stays the default so unsigned cards stay byte-identical.
+	# Named density_zones are opt-in extras for wall/glacis bands (R-1082).
+	var measured := {
 		"dressing": dressing,
 		"scope": String(definition.scope),
 		"map_id": definition.map_id,
@@ -97,6 +99,10 @@ static func measure(
 		"developable_cells": occupancy.get("developable_cells", 0),
 		"interior": interior,
 	}
+	var zone_densities := _zone_built_densities(occupancy, grid, authoring_contract)
+	if not zone_densities.is_empty():
+		measured["zone_built_density_pct"] = zone_densities
+	return measured
 
 
 static func audit(
@@ -168,23 +174,26 @@ static func audit(
 				)
 			)
 
-	var density_band: Array = thresholds.get("built_density_pct", [])
-	if not density_band.is_empty():
-		var built_pct := float(metrics.get("built_density_pct", 0.0))
-		if built_pct < float(density_band[0]) or built_pct > float(density_band[1]):
-			(
-				violations
-				. append(
-					_violation(
-						VIOLATION_DENSITY,
-						map_id,
-						"built_density_pct",
-						built_pct,
-						density_band,
-						source_refs,
-					)
-				)
-			)
+	_append_density_band(
+		violations,
+		metrics,
+		thresholds,
+		map_id,
+		source_refs,
+		"built_density_pct",
+		"built_density_zone",
+		"built_density_pct",
+	)
+	_append_density_band(
+		violations,
+		metrics,
+		thresholds,
+		map_id,
+		source_refs,
+		"outside_wall_built_density_pct",
+		"outside_wall_built_density_zone",
+		"outside_wall",
+	)
 
 	var max_style_share: float = float(thresholds.get("max_style_share_pct", 100.0))
 	if float(metrics.get("max_style_share_pct", 0.0)) > max_style_share:
@@ -560,6 +569,37 @@ static func _audit_interior(
 	return violations
 
 
+static func _append_density_band(
+	violations: Array[Dictionary],
+	metrics: Dictionary,
+	thresholds: Dictionary,
+	map_id: String,
+	source_refs: Array,
+	band_key: String,
+	zone_key: String,
+	default_zone_id: String,
+) -> void:
+	var density_band: Array = thresholds.get(band_key, [])
+	if density_band.is_empty():
+		return
+	var zone_id := String(thresholds.get(zone_key, ""))
+	if zone_id.is_empty() and band_key != "built_density_pct":
+		zone_id = default_zone_id
+	var built_pct := _density_for_band(metrics, zone_id)
+	var metric := band_key if zone_id.is_empty() else "%s[%s]" % [band_key, zone_id]
+	if built_pct < float(density_band[0]) or built_pct > float(density_band[1]):
+		violations.append(
+			_violation(VIOLATION_DENSITY, map_id, metric, built_pct, density_band, source_refs)
+		)
+
+
+static func _density_for_band(metrics: Dictionary, zone_id: String) -> float:
+	if zone_id.is_empty():
+		return float(metrics.get("built_density_pct", 0.0))
+	var zones: Dictionary = metrics.get("zone_built_density_pct", {})
+	return float(zones.get(zone_id, 0.0))
+
+
 static func _violation(
 	code: StringName,
 	map_id: String,
@@ -669,6 +709,75 @@ static func _built_density(occupancy: Dictionary) -> float:
 		return 0.0
 	var built_cells: Dictionary = occupancy.get("built_cells", {})
 	return 100.0 * float(built_cells.size()) / float(developable)
+
+
+static func _zone_built_densities(
+	occupancy: Dictionary,
+	grid: MapTerrainGrid,
+	authoring_contract: Dictionary,
+) -> Dictionary:
+	var by_id: Dictionary = {}
+	for zone in authoring_contract.get("density_zones", []):
+		var zone_id := String(zone.get("id", ""))
+		if zone_id.is_empty() or by_id.has(zone_id):
+			continue
+		var cells := _density_zone_cells(grid, authoring_contract, zone_id)
+		by_id[zone_id] = _built_density_in_cells(occupancy, cells)
+	return by_id
+
+
+static func _density_zone_cells(
+	grid: MapTerrainGrid,
+	authoring_contract: Dictionary,
+	zone_id: String,
+) -> Dictionary:
+	var cells: Dictionary = {}
+	if zone_id.is_empty():
+		return cells
+	for zone in authoring_contract.get("density_zones", []):
+		if String(zone.get("id", "")) != zone_id:
+			continue
+		for rect in _bounds_rects(zone.get("bounds_cells", [])):
+			for y in range(rect.position.y, rect.end.y):
+				for x in range(rect.position.x, rect.end.x):
+					var cell := Vector2i(x, y)
+					if not _cell_inside(grid, cell):
+						continue
+					if MapTypes.WATER_TERRAINS.has(grid.get_terrain(cell)):
+						continue
+					cells[cell] = true
+	return cells
+
+
+static func _built_density_in_cells(occupancy: Dictionary, zone_cells: Dictionary) -> float:
+	if zone_cells.is_empty():
+		return 0.0
+	var built_cells: Dictionary = occupancy.get("built_cells", {})
+	var built := 0
+	for cell in zone_cells:
+		if built_cells.has(cell):
+			built += 1
+	return 100.0 * float(built) / float(zone_cells.size())
+
+
+static func _bounds_rects(bounds: Variant) -> Array[Rect2i]:
+	var rects: Array[Rect2i] = []
+	if not bounds is Array:
+		return rects
+	var items: Array = bounds
+	if items.is_empty():
+		return rects
+	if typeof(items[0]) != TYPE_ARRAY:
+		if items.size() == 4:
+			rects.append(
+				Rect2i(int(items[0]), int(items[1]), int(items[2]), int(items[3]))
+			)
+		return rects
+	for item in items:
+		if item is Array and item.size() == 4:
+			var row: Array = item
+			rects.append(Rect2i(int(row[0]), int(row[1]), int(row[2]), int(row[3])))
+	return rects
 
 
 static func _style_distribution(definition: MapDefinition, interior: bool) -> Dictionary:

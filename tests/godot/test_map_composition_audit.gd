@@ -273,6 +273,118 @@ func test_intentional_open_reserve_is_excluded_only_from_empty_region_metric() -
 	assert_true(MapCompositionAudit.audit(definition, grid, thresholds, contract).is_empty())
 
 
+func test_density_zone_opt_in_keeps_default_whole_map_metric() -> void:
+	var definition := _outdoor_fixture(&"fixture.density_zones")
+	definition.size_cells = Vector2i(16, 8)
+	definition.zones.clear()
+	definition.zones.append({"terrain": MapTypes.TERRAIN_DIRT, "rect": Rect2i(0, 0, 16, 8)})
+	definition.buildings.clear()
+	_add_house(definition, &"west_a", Rect2(1, 1, 3, 3), &"plaster")
+	_add_house(definition, &"west_b", Rect2(1, 4, 3, 3), &"log")
+	var grid := MapBuilder.build(definition)
+	var contract := {
+		"density_zones": [
+			{
+				"id": "inside_wall",
+				"bounds_cells": [0, 0, 8, 8],
+				"reason": "left intramural half",
+			},
+			{
+				"id": "outside_wall",
+				"bounds_cells": [8, 0, 8, 8],
+				"reason": "right extramural half",
+			},
+		]
+	}
+	var bare := MapCompositionAudit.measure(definition, grid)
+	var zoned := MapCompositionAudit.measure(definition, grid, contract)
+	assert_false(
+		bare.has("zone_built_density_pct"),
+		"unsigned contracts must not emit zone density keys"
+	)
+	assert_eq(
+		zoned["built_density_pct"],
+		bare["built_density_pct"],
+		"opt-in zones must not change the whole-map density metric"
+	)
+	var zones: Dictionary = zoned["zone_built_density_pct"]
+	assert_true(float(zones["inside_wall"]) > float(zoned["built_density_pct"]))
+	assert_eq(float(zones["outside_wall"]), 0.0)
+	var whole_card := {
+		"source_refs": ["H08-H10"],
+		"built_density_pct": [25, 35],
+		"surface_shares": {"stone_pct": [0, 100], "earth_pct": [0, 100], "grass_pct": [0, 100]},
+	}
+	assert_true(
+		MapCompositionAudit.audit(definition, grid, whole_card, contract).any(
+			func(v): return v["code"] == MapCompositionAudit.VIOLATION_DENSITY
+		),
+		"default density band still uses the whole-map metric"
+	)
+	var zone_card := whole_card.duplicate(true)
+	zone_card["built_density_zone"] = "inside_wall"
+	zone_card["outside_wall_built_density_pct"] = [0, 5]
+	zone_card["outside_wall_built_density_zone"] = "outside_wall"
+	assert_true(
+		MapCompositionAudit.audit(definition, grid, zone_card, contract).is_empty(),
+		"named inside-wall and outside-wall bands must use zone densities"
+	)
+
+
+func test_south_quarter_density_zones_name_wall_and_ward_rects() -> void:
+	var contract: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string("res://docs/data/south_quarter_authoring_contract.json")
+	)
+	assert_eq(contract.get("map_id"), "south_quarter")
+	var by_id: Dictionary = {}
+	for zone in contract.get("density_zones", []):
+		by_id[String(zone.get("id", ""))] = zone
+	assert_true(by_id.has("inside_wall"))
+	assert_true(by_id.has("outside_wall"))
+	assert_true(by_id.has("eastern_ward"))
+	assert_true(by_id.has("western_connector"))
+	assert_eq(_int_bounds(by_id["inside_wall"].get("bounds_cells", [])[0]), [0, 0, 331, 60])
+	assert_eq(_int_bounds(by_id["eastern_ward"].get("bounds_cells", [])), [257, 0, 74, 82])
+	assert_eq(_int_bounds(by_id["western_connector"].get("bounds_cells", [])), [4, 0, 140, 82])
+	var thresholds_doc: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string("res://docs/data/map_composition_thresholds.json")
+	)
+	var card: Dictionary = thresholds_doc["maps"]["south_quarter"]
+	assert_eq(card.get("built_density_zone"), "inside_wall")
+	assert_eq(card.get("outside_wall_built_density_zone"), "outside_wall")
+	var outside_band: Array = card.get("outside_wall_built_density_pct", [])
+	assert_eq(outside_band.size(), 2)
+	assert_eq(int(outside_band[0]), 10)
+	assert_eq(int(outside_band[1]), 25)
+
+
+func test_south_quarter_zone_density_stays_above_the_diluted_whole_map() -> void:
+	var compiled := _compile_registry_map("south_quarter")
+	var contract := _authoring_contract_for("south_quarter", {})
+	assert_true(contract.get("density_zones", []).size() >= 4)
+	var definition: MapDefinition = compiled["definition"]
+	var grid: MapTerrainGrid = compiled["grid"]
+	var bare := MapCompositionAudit.measure(definition, grid)
+	var zoned := MapCompositionAudit.measure(definition, grid, contract)
+	assert_eq(float(zoned["built_density_pct"]), float(bare["built_density_pct"]))
+	var zones: Dictionary = zoned["zone_built_density_pct"]
+	assert_true(
+		float(zones["inside_wall"]) > float(zoned["built_density_pct"]),
+		"glacis cells must not dilute the intramural density band"
+	)
+	assert_true(
+		float(zones["eastern_ward"]) > float(zones["western_connector"]),
+		"eastern ward must stay denser than the western connector"
+	)
+	# R-1082 ledger: intramural frontage is still short of the signed H-band.
+	assert_true(float(zones["inside_wall"]) > 35.0)
+	assert_true(float(zones["inside_wall"]) < 40.0)
+	assert_true(float(zones["eastern_ward"]) >= 40.0)
+	assert_true(float(zones["eastern_ward"]) <= 55.0)
+	assert_true(float(zones["outside_wall"]) < 10.0)
+	assert_true(int(zoned["largest_empty_region_cells"]) <= 20000)
+
+
 func test_open_reserve_without_explicit_exclusion_still_counts_as_empty_region() -> void:
 	var definition := _outdoor_fixture(&"fixture.unexcluded_reserve")
 	definition.buildings.clear()
@@ -285,6 +397,13 @@ func test_open_reserve_without_explicit_exclusion_still_counts_as_empty_region()
 	)
 	assert_eq(metrics["excluded_open_region_cells"], 0)
 	assert_eq(metrics["largest_empty_region_cells"], 192)
+
+
+func _int_bounds(values: Array) -> Array[int]:
+	var ints: Array[int] = []
+	for value in values:
+		ints.append(int(value))
+	return ints
 
 
 func _compile_registry_map(map_id: String) -> Dictionary:

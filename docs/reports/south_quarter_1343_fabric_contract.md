@@ -234,12 +234,29 @@ The Rataskaev well court, the knights' court (`knights_hall` / `knights_dormitor
 
 ### Decision: whole-map density stays under grace
 
-The frozen band is 40-55% **inside the wall** and 10-25% outside it. `MapCompositionAudit` measures one ratio over the whole map, so the western connector and the extramural pasture pull it down. Neither may be filled to 40%: this contract requires the connector to stay looser and the outside-wall ground to stay 75-90% open. Even filling every free cell in the authored blocks would reach only about 41%, and it would cover the owned courts. So `historical_band_grace.south_quarter` stays until the audit can measure inside-wall and outside-wall density separately (follow-up task). The signed H08-H10 bands are not lowered.
+The frozen band is 40-55% **inside the wall** and 10-25% outside it. R-1082 now measures those bands on named density zones (see below). Neither the western connector nor the extramural pasture may be filled to 40%: this contract requires the connector to stay looser and the outside-wall ground to stay 75-90% open. The signed H08-H10 bands are not lowered.
 
 ### Remaining for R-677 close
 
 - Named human art/historical review of the new fabric at gameplay camera. Day/night plates are owned by R-681.
 - WB-10 `props_per_1000` (2.8 vs 35.9) and decals (0 vs 6.1) are report-only for prototype maps and stay with WB-14 / R-986-style dressing passes.
+
+## R-1082 density zones (2026-09-28)
+
+P1-036 `built_density_pct` is opt-in by zone. Cards without `built_density_zone` still use the whole-map metric, so other maps stay byte-identical.
+
+South Quarter zones live in [`../data/south_quarter_authoring_contract.json`](../data/south_quarter_authoring_contract.json):
+
+| Zone | Role | Measured 2026-09-28 | Signed band |
+|---|---|---:|---:|
+| `inside_wall` | Intramural cells to the east curtain and south glacis, minus the R-677 western-pasture reserve | **35.6%** | 40-55% |
+| `outside_wall` | Western pasture / extramural fields, south-wall/Karja glacis, east verge | **8.1%** | 10-25% |
+| `eastern_ward` | Diagnostic `south.eastern_ward` terrain band | **45.2%** | denser than connector |
+| `western_connector` | Diagnostic `south.western_connector` terrain band | **26.8%** | looser than eastern ward |
+
+Decision: eastern ward plus western connector do **not** replace the inside-wall H-band. The central Rataskaev / King / Knights strip is intramural frontage. The western pasture is already signed as outside-wall service, so it is excluded from `inside_wall`. Whole-map density stays 29.5% and is no longer the enforced denominator.
+
+`inside_wall` 35.6 and `outside_wall` 8.1 are still short of the signed bands, so `historical_band_grace.south_quarter` stays. R-1086 owns the missing intramural houses and sparse extramural barns. Empty-region, surface, style, and elevation bands already pass.
 
 ## Machine-readable contract links
 

@@ -3,7 +3,7 @@
   "map_id": "south_quarter",
   "source": "content/maps/south_quarter.rrmap",
   "coordinate_space": "cells",
-  "authoring_intent": "Dense eastern ward and looser western connector of strip plots (front house, yard, rear range, shed) around the owned Rataskaev well court and knights' court, with the extramural pasture, wet south-wall margin and Karja glacis kept as open service ground (R-282 / R-677). Narrative contract: docs/reports/south_quarter_1343_fabric_contract.md.",
+  "authoring_intent": "Dense eastern ward and looser western connector of strip plots (front house, yard, rear range, shed) around the owned Rataskaev well court and knights' court, with the extramural pasture, wet south-wall margin and Karja glacis kept as open service ground (R-282 / R-677). P1-036 built density is measured on named intramural and glacis zones so the signed H08-H10 inside-wall band is not diluted by that extramural reserve (R-1082). Narrative contract: docs/reports/south_quarter_1343_fabric_contract.md.",
   "composition_thresholds": {
     "path": "docs/data/map_composition_thresholds.json",
     "map_id": "south_quarter",
@@ -22,6 +22,28 @@
       "bounds_cells": [156, 84, 180, 12],
       "reason": "The wet south-wall margin, ditches and the uncertain Karja glacis and causeway are defensive open ground, not missing frontage.",
       "exclude_from_unowned_empty_region": true
+    }
+  ],
+  "density_zones": [
+    {
+      "id": "inside_wall",
+      "bounds_cells": [[0, 0, 331, 60], [0, 60, 4, 24], [156, 60, 175, 24]],
+      "reason": "Intramural cells to the east curtain (x=331) and south glacis (y=84), minus the already-owned western pasture [4,60,152,24]. That pasture is signed as outside-wall service, so it must not dilute the 40-55% H-band. Eastern ward and western connector stay diagnostic sub-zones; the central Rataskaev/King/Knights strip belongs here."
+    },
+    {
+      "id": "outside_wall",
+      "bounds_cells": [[4, 60, 152, 36], [156, 84, 180, 12], [331, 0, 5, 84]],
+      "reason": "The R-677 open reserves (western pasture/extramural fields and the south-wall/Karja glacis) plus the east verge beyond the curtain. Signed outside-wall/glacis band is 10-25%."
+    },
+    {
+      "id": "eastern_ward",
+      "bounds_cells": [257, 0, 74, 82],
+      "reason": "Authored south.eastern_ward terrain band. Diagnostic only: the contract requires this ward to stay denser than the western connector, not to replace the inside-wall H-band."
+    },
+    {
+      "id": "western_connector",
+      "bounds_cells": [4, 0, 140, 82],
+      "reason": "Authored south.western_connector terrain band under Toompea. Diagnostic only: must stay looser than the eastern ward."
     }
   ]
 }

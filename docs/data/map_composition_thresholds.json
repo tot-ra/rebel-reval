@@ -145,6 +145,9 @@
         "grass_pct": [15, 30]
       },
       "built_density_pct": [40, 55],
+      "built_density_zone": "inside_wall",
+      "outside_wall_built_density_pct": [10, 25],
+      "outside_wall_built_density_zone": "outside_wall",
       "max_cobblestone_pct": 40,
       "max_style_share_pct": 35,
       "max_empty_region_cells": 20000,
@@ -387,7 +390,7 @@
     },
     "south_quarter": {
       "until": "R-282 (P4-024)",
-      "reason": "Card stays enrolled (enforcement_state=enforced, activation composition BLOCKED). Measured 2026-09-26: built_density_pct 8.8 vs 40-55, largest_empty_region_cells 28395 vs 20000. Re-measured 2026-09-28 after R-677 strip plots: built_density_pct 29.5 whole map (eastern ward 38.8, western connector 30.7, extramural pasture 10.2); every other band passes. The frozen 40-55 band is inside-wall only, while the audit divides by the whole map including the looser western connector and the 75-90% open extramural ground, so the grace stays until the audit can split inside- and outside-wall density. R-282 / P4-024 owns the South Quarter environment pass. Signed H08-H10 bands are not lowered."
+      "reason": "Card stays enrolled (enforcement_state=enforced, activation composition BLOCKED). R-1082 (2026-09-28) scopes built_density_pct to density zone inside_wall (35.6 vs 40-55) and adds outside_wall 8.1 vs 10-25. largest_empty_region_cells is now 15730 (under 20000) after the R-677 open reserves. Eastern ward 45.2 sits in the H-band; western connector 26.8 stays looser. Grace remains because intramural frontage is still short of the signed inside-wall band; do not lower H08-H10. R-282 / P4-024 owns the missing houses and sparse extramural barns."
     }
   }
 }

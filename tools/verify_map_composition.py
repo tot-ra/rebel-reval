@@ -120,6 +120,7 @@ def validate_threshold_contract() -> list[str]:
     errors.extend(validate_lower_town_enforcement())
     errors.extend(validate_density_contract(payload))
     errors.extend(validate_historical_band_grace(payload))
+    errors.extend(validate_density_zones(payload))
     return errors
 
 
@@ -157,6 +158,68 @@ def validate_density_contract(payload: dict) -> list[str]:
             errors.append(f"density grace names unknown map: {map_id}")
         if not isinstance(grace, dict) or not grace.get("until") or not grace.get("reason"):
             errors.append(f"density grace for {map_id} needs `until` (closing task) and `reason`")
+    return errors
+
+
+def validate_density_zones(payload: dict) -> list[str]:
+    """R-1082: opt-in wall/glacis density bands must name authored zone ids."""
+    errors: list[str] = []
+    maps = payload.get("maps", {})
+    for map_id, card in maps.items():
+        if not isinstance(card, dict):
+            continue
+        zone = card.get("built_density_zone")
+        outside_band = card.get("outside_wall_built_density_pct")
+        outside_zone = card.get("outside_wall_built_density_zone")
+        if zone is None and outside_band is None and outside_zone is None:
+            continue
+        contract_path = ROOT / "docs" / "data" / f"{map_id}_authoring_contract.json"
+        named = card.get("ownership_contract", "")
+        if isinstance(named, str) and named.startswith("docs/data/") and named.endswith(".json"):
+            contract_path = ROOT / named
+        if not contract_path.is_file():
+            errors.append(
+                f"{map_id}: density-zone card needs {contract_path.relative_to(ROOT)}"
+            )
+            continue
+        try:
+            contract = _load_json(contract_path)
+        except ValueError as exc:
+            errors.append(str(exc))
+            continue
+        zone_ids: set[str] = set()
+        for entry in contract.get("density_zones", []):
+            if not isinstance(entry, dict):
+                errors.append(f"{map_id}: density_zones entries must be objects")
+                continue
+            entry_id = entry.get("id")
+            if not entry_id or not entry.get("bounds_cells") or not entry.get("reason"):
+                errors.append(
+                    f"{map_id}: density zone {entry_id or '<unnamed>'} needs id, "
+                    "bounds_cells, and reason"
+                )
+                continue
+            zone_ids.add(str(entry_id))
+        if zone and zone not in zone_ids:
+            errors.append(
+                f"{map_id}: built_density_zone {zone!r} is not in {contract_path.name}"
+            )
+        if outside_band is not None:
+            if not isinstance(outside_band, list) or len(outside_band) != 2:
+                errors.append(
+                    f"{map_id}: outside_wall_built_density_pct must be a [min, max] pair"
+                )
+            named_outside = outside_zone or "outside_wall"
+            if named_outside not in zone_ids:
+                errors.append(
+                    f"{map_id}: outside_wall_built_density_zone {named_outside!r} "
+                    f"is not in {contract_path.name}"
+                )
+        elif outside_zone:
+            errors.append(
+                f"{map_id}: outside_wall_built_density_zone needs "
+                "outside_wall_built_density_pct"
+            )
     return errors
 
 
