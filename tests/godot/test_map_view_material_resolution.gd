@@ -6,15 +6,12 @@ extends "res://tests/godot/test_case.gd"
 
 func test_grass_and_mud_sample_native_authored_plates() -> void:
 	var material := MapViewMaterials.blended_ground(731)
-	var grass: Texture2D = material.get_shader_parameter("grass_albedo")
-	assert_true(grass != null, "meadow layers must sample the authored grass plate")
-	assert_eq(grass.get_width(), MapViewMaterials.NATURAL_GROUND_TEXTURE_SIZE)
-	assert_eq(grass.get_height(), MapViewMaterials.NATURAL_GROUND_TEXTURE_SIZE)
-	if ResourceLoader.exists("res://assets/materials/pbr/mud/mud_albedo.png"):
-		assert_eq(material.get_shader_parameter("use_authored_mud"), 1.0)
-		var mud: Texture2D = material.get_shader_parameter("mud_albedo")
-		assert_true(mud != null, "mud must sample its authored plate when present")
-		assert_eq(mud.get_width(), MapViewMaterials.NATURAL_GROUND_TEXTURE_SIZE)
+	# CO-01 (R-948): grass and mud moved into the 2048 px ground arrays; see
+	# test_terrain_material_channels for the per-family contract.
+	var ground: Texture2DArray = material.get_shader_parameter("ground_albedo")
+	assert_true(ground != null, "meadow and mud layers must sample the authored ground array")
+	assert_true(ground.get_width() > MapViewMaterials.NATURAL_GROUND_TEXTURE_SIZE)
+	assert_eq(material.get_shader_parameter("use_authored_mud"), 1.0)
 	var timber: Texture2D = material.get_shader_parameter("timber_floor_albedo")
 	assert_true(timber != null, "timber floors must sample the authored plank plate")
 	assert_eq(timber.get_width(), MapViewMaterials.NATURAL_GROUND_TEXTURE_SIZE)

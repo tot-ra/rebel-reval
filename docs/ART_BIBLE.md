@@ -28,6 +28,28 @@ authored planting, cached procedural meshes and GL Compatibility renderer.
 Original geometry only; this revises existing vegetation presentation without
 adding a biome, gameplay mechanic or imported game assets.
 
+## Ground materials (CO-01 / R-948)
+
+Natural ground reads as a real surface at both the gameplay camera and a close
+third-person framing: grain, relief and damp/dry roughness, not a tinted plane.
+The five authored ground families (`grass`, `mud`, `sand`, `coast_sand`,
+`shore_shingle`) ship a 2048 px albedo plus 1024 px normal and roughness under
+`assets/materials/pbr/<family>/`. Plates are Baltic 1343 photogrammetry-style,
+overcast diffuse light, no baked shadows or specular glints; wet sheen belongs to
+the shader (`mud_wetness`, WS-08 swash), not the plate.
+
+- Authored plates are sampled per fragment. Never resolve a plate in the
+  terrain `vertex()` stage: at three subdivisions per cell it reads one texel per
+  0.29 world units and turns every plate into a blur.
+- Every family samples two coherent scales (1x and about 0.17x, rotated) under a
+  low-frequency mask so no tile grid shows across a 144-cell band;
+  `ground_detail_strength` is the art control.
+- `OutdoorTerrainPalette` stays the colour authority. Grass and mud keep the
+  16% palette nudge; the sand families are renormalised to their palette tint
+  (`sand_palette_authority`, `sand_palette_value`) so beaches keep their map hue.
+- `shore_shingle` is a material family, not a terrain ID. It appears as storm-line
+  strands inside `coast_sand` (`coast_shingle_amount`) and feeds CO-02 scatter.
+
 ## Bird realism (P0-207 / P0-212 / P0-216)
 
 Maintainer-directed September 2026: existing birds move toward natural anatomy

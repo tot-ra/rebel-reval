@@ -1,0 +1,27 @@
+{
+  "id": "material.coast_sand.albedo",
+  "family": "coast_sand",
+  "map_type": "albedo",
+  "kind": "leonardo_material_plate",
+  "target": "assets/materials/pbr/coast_sand/coast_sand_albedo.png",
+  "source": "generated/leonardo/coast_sand_foreshore_v1/candidate_2.jpg",
+  "candidates": [
+    "generated/leonardo/coast_sand_foreshore_v1/candidate_1.jpg",
+    "generated/leonardo/coast_sand_foreshore_v1/candidate_2.jpg"
+  ],
+  "prompt": "Seamless tileable PBR albedo of damp wave-packed foreshore sand on a cold Baltic beach at Reval, year 1343. Fine grey-beige quartz sand #B8A98A to wet umber #8C7B62, shallow wave-ripple marks running in soft irregular bands, scattered broken white and blue mussel and cockle shell fragments, a few small rounded pebbles, thin strands of dark bladderwrack, darker damp patches in the ripple troughs. Orthographic top-down, perfectly tileable on all four edges, square 1:1 material plate, even overcast diffuse Baltic light, no cast shadows, no horizon, no figures, sharp grain, high micro-contrast, photogrammetry scan of a real surface.",
+  "negative_prompt": "tropical white sand, golden desert dunes, footprints, sandcastle, towel, plastic litter, glass, rope, large rocks, seaweed carpet, baked sunlight, hard cast shadows, perspective, horizon, sky, characters, animals, footprints of shoes with modern soles, text, logo, watermark, border, frame, visible seam, blurry, gaussian blur, low contrast, 3D render, CGI, tropical",
+  "model_id": "05ce0082-2d80-4a2d-8653-4d1c85e2418e",
+  "model_name": "Leonardo configured realism model",
+  "width": 1536,
+  "height": 1536,
+  "tiling": true,
+  "generation_id": "5f848f72-5e36-476b-975f-f05f609a9e5c",
+  "selected_candidate": 2,
+  "processor": "tools/process_leonardo_terrain_textures.py",
+  "style_refs": [
+    "docs/ART_BIBLE.md",
+    "docs/MATERIAL_STYLE_LOCK_KIT.md"
+  ],
+  "notes": "CO-01 v1. Damp wave-packed foreshore of the Kalamaja beach, Reval 1343. Rejected 1 (hero black seaweed tuft repeats as an obvious stamp)."
+}

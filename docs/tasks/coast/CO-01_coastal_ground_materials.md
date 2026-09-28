@@ -69,6 +69,24 @@ Measured on 2026-09-26:
 - Respect `docs/ASSET_STORAGE_POLICY.md`. If five 2048 three-map families breach the size budget,
   stop and record the number in the report rather than silently dropping to 1024.
 
+## Decisions (2026-09-28, implementation)
+
+Details and evidence: [`docs/reports/co01_coastal_ground_materials.md`](../../reports/co01_coastal_ground_materials.md).
+
+1. Root cause was sampling frequency, not resolution. Since P0-219 every authored plate was resolved
+   in the terrain `vertex()` stage (one texel per 0.29 world units). Authored families are now
+   sampled per fragment from per-corner family weights. P0-219's wedge fix is kept.
+2. Albedo ships at 2048 px. Normal and roughness ship at 1024 px because a 2048 derived normal is
+   10-11 MiB as PNG, over the 10 MiB standard-Git limit. The numbers are recorded in the report.
+3. Leonardo generates at most 1536 px. Normal and roughness are derived from the selected albedo
+   by `tools/process_leonardo_terrain_textures.py`, because Leonardo cannot make maps that match a
+   plate it has already generated.
+4. The five families share three `Texture2DArray`s (the GL Compatibility sampler budget).
+5. Allowed-file additions: `generated/leonardo/{coast_sand_foreshore_v1,sand_upper_beach_v1,shore_shingle_v1,mud_tidal_yard_v3,grass_meadow_v4}/`
+   (plate provenance) and `tests/godot/test_map_view_material_resolution.gd` (its `grass_albedo`
+   assertion moved to the ground array).
+6. Cobble, hay and timber floors also sample per fragment. Their plates are unchanged.
+
 ## Verification
 
 ```bash

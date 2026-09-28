@@ -1,0 +1,15 @@
+{
+  "id": "material.coast_sand.albedo",
+  "family": "coast_sand",
+  "target": "assets/materials/pbr/coast_sand/coast_sand_albedo.png",
+  "notes": "CO-01 v1. Damp wave-packed foreshore of the Kalamaja beach, Reval 1343.",
+  "prompt": "Seamless tileable PBR albedo of damp wave-packed foreshore sand on a cold Baltic beach at Reval, year 1343. Fine grey-beige quartz sand #B8A98A to wet umber #8C7B62, shallow wave-ripple marks running in soft irregular bands, scattered broken white and blue mussel and cockle shell fragments, a few small rounded pebbles, thin strands of dark bladderwrack, darker damp patches in the ripple troughs. Orthographic top-down, perfectly tileable on all four edges, square 1:1 material plate, even overcast diffuse Baltic light, no cast shadows, no horizon, no figures, sharp grain, high micro-contrast, photogrammetry scan of a real surface.",
+  "negative_prompt": "tropical white sand, golden desert dunes, footprints, sandcastle, towel, plastic litter, glass, rope, large rocks, seaweed carpet, baked sunlight, hard cast shadows, perspective, horizon, sky, characters, animals, footprints of shoes with modern soles, text, logo, watermark, border, frame, visible seam, blurry, gaussian blur, low contrast, 3D render, CGI, tropical",
+  "map_type": "albedo",
+  "kind": "leonardo_material_plate",
+  "output_dir": "generated/leonardo/coast_sand_foreshore_v1",
+  "processor": "tools/process_leonardo_terrain_textures.py",
+  "width": 1536,
+  "height": 1536,
+  "num_images": 2
+}

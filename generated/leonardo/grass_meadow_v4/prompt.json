@@ -1,0 +1,27 @@
+{
+  "id": "material.grass.albedo",
+  "family": "grass",
+  "map_type": "albedo",
+  "kind": "leonardo_material_plate",
+  "target": "assets/materials/pbr/grass/grass_albedo.png",
+  "source": "generated/leonardo/grass_meadow_v4/candidate_1.jpg",
+  "candidates": [
+    "generated/leonardo/grass_meadow_v4/candidate_1.jpg",
+    "generated/leonardo/grass_meadow_v4/candidate_2.jpg"
+  ],
+  "prompt": "Orthographic top-down seamless tileable PBR albedo of an ungrazed fourteenth-century Baltic meadow patch outside Reval, year 1343. This is NOT a lawn. About one third of the plate is dark damp soil, moss and last-year thatch showing between irregular tussocks. Mixed wild grasses of different widths and lengths, some blades bent, some dry straw-yellow, some pine-dark #277052, some spring #72AF4E, master moss-green #4F954F. Scattered plantain rosettes, clover leaves, tiny seed heads, a few brown seed stalks. Sharp individual blade edges, high micro-contrast, photogrammetry of real neglected meadow, perfectly tileable on all four edges, square 1:1, even overcast diffuse light, no cast shadows, no horizon, no flowers as a bouquet, no figures.",
+  "negative_prompt": "golf course, football pitch, suburban lawn, mown grass, turf roll, astroturf, plastic grass, even carpet of identical blades, modern lawn photograph, 3D grass texture pack, jungle, tropical, desert, flowers bouquet, baked sunlight, hard shadows, perspective, horizon, characters, animals, text, logo, watermark, border, visible seam, blurry, gaussian blur, low contrast",
+  "model_id": "05ce0082-2d80-4a2d-8653-4d1c85e2418e",
+  "model_name": "Leonardo configured realism model",
+  "width": 1536,
+  "height": 1536,
+  "tiling": true,
+  "generation_id": "b6d07376-f252-4d86-8a38-6fe151c007ad",
+  "selected_candidate": 1,
+  "processor": "tools/process_leonardo_terrain_textures.py",
+  "style_refs": [
+    "docs/ART_BIBLE.md",
+    "docs/MATERIAL_STYLE_LOCK_KIT.md"
+  ],
+  "notes": "CO-01 v4. Same prompt as v3, regenerated at the model's native 1536 px for normal and roughness derivation. Rejected 2 (brown pine-needle litter, off the meadow palette)."
+}

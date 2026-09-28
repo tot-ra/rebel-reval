@@ -1,0 +1,27 @@
+{
+  "id": "material.sand.albedo",
+  "family": "sand",
+  "map_type": "albedo",
+  "kind": "leonardo_material_plate",
+  "target": "assets/materials/pbr/sand/sand_albedo.png",
+  "source": "generated/leonardo/sand_upper_beach_v1/candidate_2.jpg",
+  "candidates": [
+    "generated/leonardo/sand_upper_beach_v1/candidate_1.jpg",
+    "generated/leonardo/sand_upper_beach_v1/candidate_2.jpg"
+  ],
+  "prompt": "Seamless tileable PBR albedo of dry wind-drifted upper-beach sand above the tide line on the Baltic coast at Reval, year 1343. Pale dry sand #CDBF9E with warmer #B59F78 streaks, fine wind ripples, loose grains, scattered dry dune-grass litter, a few bleached twigs, tiny shell grit, sparse dark pebbles. Orthographic top-down, perfectly tileable on all four edges, square 1:1 material plate, even overcast diffuse Baltic light, no cast shadows, no horizon, no figures, sharp grain, high micro-contrast, photogrammetry scan of a real surface.",
+  "negative_prompt": "wet sand, puddles, tropical beach, desert dunes, footprints, plastic litter, glass, green grass carpet, baked sunlight, hard cast shadows, perspective, horizon, sky, characters, animals, footprints of shoes with modern soles, text, logo, watermark, border, frame, visible seam, blurry, gaussian blur, low contrast, 3D render, CGI, tropical",
+  "model_id": "05ce0082-2d80-4a2d-8653-4d1c85e2418e",
+  "model_name": "Leonardo configured realism model",
+  "width": 1536,
+  "height": 1536,
+  "tiling": true,
+  "generation_id": "565ecbac-c60e-447a-a131-3bff9bb4be6f",
+  "selected_candidate": 2,
+  "processor": "tools/process_leonardo_terrain_textures.py",
+  "style_refs": [
+    "docs/ART_BIBLE.md",
+    "docs/MATERIAL_STYLE_LOCK_KIT.md"
+  ],
+  "notes": "CO-01 v1. Dry wind-drifted upper beach above the tide line. Rejected 1 (dense twig litter reads as a stamp)."
+}
