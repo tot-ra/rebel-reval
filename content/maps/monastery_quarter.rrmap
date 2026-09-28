@@ -52,6 +52,16 @@ style house.boda.east door_side=east ridge_axis=x house_tier=craft_boda roof_col
 style house.boda.west door_side=west ridge_axis=x house_tier=craft_boda roof_color=554434ff roof_material=shingle wall_color=5f5244ff wall_material=log wall_height=88
 style house.boda.north door_side=north ridge_axis=z house_tier=craft_boda roof_color=7a6a45ff roof_material=thatch wall_color=625445ff wall_material=plank wall_height=88
 style house.boda.south door_side=south ridge_axis=z house_tier=craft_boda roof_color=554434ff roof_material=shingle wall_color=5a4d40ff wall_material=log wall_height=88
+# R-1036 additions: Lai east-side frontages open west onto Lai, the intramural
+# wall lane gets east-facing booths, and rear service ranges (H04-H05 Hinterhaus
+# storehouses, stables and brew/bake sheds) stand at the back of the strip plots.
+style house.lai.timber.east door_side=east ridge_axis=x house_tier=merchant_timber roof_color=4a392aff roof_material=shingle wall_color=746350ff wall_material=plaster wall_height=112
+style house.rear.store.north door_side=north ridge_axis=x roof_color=5e4a34ff roof_material=shingle wall_color=7d776cff wall_material=limestone wall_height=96
+style house.rear.store.south door_side=south ridge_axis=x roof_color=5e4a34ff roof_material=shingle wall_color=78736aff wall_material=limestone wall_height=96
+style house.rear.shed.east door_side=east ridge_axis=z roof_color=7a6a45ff roof_material=thatch wall_color=5b4e40ff wall_material=log wall_height=80
+style house.rear.shed.west door_side=west ridge_axis=z roof_color=6f6040ff roof_material=thatch wall_color=5e5142ff wall_material=log wall_height=80
+style house.rear.shed.north door_side=north ridge_axis=x roof_color=554434ff roof_material=shingle wall_color=615343ff wall_material=plank wall_height=80
+style house.rear.shed.south door_side=south ridge_axis=x roof_color=6f6040ff roof_material=thatch wall_color=5a4d3fff wall_material=log wall_height=80
 style wall.precinct wall_height=112 wall_color=8d897fff
 style wall.city wall_height=192 wall_color=949185ff
 # round_tower keeps the Tallinn circular drum and conical red-tile roof while
@@ -113,6 +123,12 @@ terrain pikk.west.rear_yards mud 70 3 18 26 order=8
 terrain lai.north.rear_yards mud 150 14 48 2 order=8
 terrain vene.block.yards mud 156 105 21 5 order=8
 stroke rear_service_lane mud 150,4|208,4|208,38 thickness=3 order=14
+# R-1036: a cross lane between Pikk and Lai (the patrol already walks it), the
+# yard lane that serves the new plots east of Lai, and the intramural lane inside
+# the east curtain. Trodden earth, like the other secondary lanes.
+stroke pikk_lai_cross_lane mud 103,55|118,55|134,55 thickness=3 order=14
+stroke east_yard_lane mud 137,57|176,57|214,57 thickness=3 order=14
+stroke intramural_wall_lane mud 216,38|216,66|216,96 thickness=3 order=14
 # Tallinn's medieval wall circuit continues along the exposed west and east
 # sides. The open north/south district seams remain streets rather than walls.
 building monastery_city_wall_west_north wall 0 0 3 20 style=wall.city
@@ -210,6 +226,114 @@ building vene_east_boda_1 house 182 97 8 8 style=house.boda.west
 building vene_east_boda_2 house 183 86 9 7 style=house.boda.west
 building vene_east_boda_3 house 192 98 8 9 style=house.boda.south
 building vene_east_boda_4 house 202 90 9 8 style=house.boda.north
+# R-1036 north strip: craft booths between the north seam and the convent precinct wall, doors onto the garden path.
+building north_strip_boda_1 house 14 2 8 6 style=house.boda.south
+building north_strip_boda_2 house 23 2 7 6 style=house.lane.timber.south
+building north_strip_boda_3 house 31 2 9 6 style=house.boda.south
+building north_strip_boda_4 house 41 2 7 6 style=house.boda.south
+building north_strip_boda_5 house 49 2 8 6 style=house.lane.timber.south
+building north_strip_boda_6 house 58 2 6 6 style=house.boda.south
+# R-1036 Pikk west frontage between the guild corner and Pikk, with a rear store behind it.
+building pikk_west_plot_m1 house 89 29 10 8 style=house.pikk.stone.east
+building pikk_west_plot_m2 house 90 38 8 8 style=house.pikk.timber.east
+building pikk_west_rear_store_m house 82 45 7 6 style=house.rear.store.north
+# R-1036 Pikk east and Lai west frontages of the middle block; the cross lane at y 53-57 stays open.
+building pikk_east_plot_m1 house 104 38 10 8 style=house.pikk.stone.west
+building pikk_east_plot_m2 house 105 46 8 7 style=house.pikk.timber.west
+building lai_west_plot_m1 house 124 28 9 8 style=house.lai.timber.east
+building lai_west_boda_m2 house 125 37 8 8 style=house.boda.east
+building lai_west_boda_m3 house 124 59 9 7 style=house.boda.east
+building pikk_east_rear_store_m1 house 115 38 7 6 style=house.rear.store.south
+building pikk_east_rear_shed_m3 house 117 60 5 6 style=house.rear.shed.west
+building lai_west_rear_shed_m1 house 118 29 5 7 style=house.rear.shed.east
+# R-1036 Lai east frontage south of the merchant house, facing Lai.
+building lai_east_plot_m1 house 138 39 10 7 style=house.lai.timber.west
+building lai_east_plot_m2 house 138 46 11 8 style=house.lai.timber.west
+building lai_east_boda_m3 house 138 60 10 8 style=house.boda.west
+# R-1036 east yard lane: strip plots north and south of the new lane, gables to the lane.
+building east_lane_north_1 house 166 45 8 10 style=house.lane.timber.south
+building east_lane_north_2 house 175 46 7 9 style=house.boda.south
+building east_lane_north_3 house 183 45 9 10 style=house.lane.timber.south
+building east_lane_north_4 house 193 46 8 9 style=house.boda.south
+building east_lane_north_5 house 202 45 7 10 style=house.lane.timber.south
+building east_lane_south_1 house 150 59 8 11 style=house.boda.north
+building east_lane_south_2 house 159 59 7 9 style=house.lane.timber.north
+building east_lane_south_3 house 167 59 9 11 style=house.boda.north
+building east_lane_south_4 house 177 59 8 9 style=house.lane.timber.north
+building east_lane_south_5 house 200 59 7 11 style=house.boda.north
+building east_lane_south_6 house 207 59 7 9 style=house.lane.timber.north
+# R-1036 rear ranges behind the east-lane plots.
+building east_lane_north_1_rear house 167 39 6 5 style=house.rear.shed.south
+building east_lane_north_3_rear house 184 39 5 5 style=house.rear.store.south
+building east_lane_north_5_rear house 202 38 6 5 style=house.rear.shed.south
+building east_lane_south_1_rear house 151 71 6 5 style=house.rear.shed.north
+building east_lane_south_3_rear house 167 71 5 5 style=house.rear.store.north
+building east_lane_south_4_rear house 177 70 6 5 style=house.rear.shed.north
+building service_yard_store_1 house 167 28 7 7 style=house.rear.store.south
+building service_yard_store_2 house 176 27 8 6 style=house.rear.shed.south
+building service_yard_store_3 house 186 28 5 6 style=house.rear.store.south
+# R-1036 intramural wall lane: booths with their backs to the east yards.
+building wall_lane_boda_6 house 207 70 7 8 style=house.boda.east
+building wall_lane_plot_7 house 206 79 8 7 style=house.lai.timber.east
+# R-1036 civic lane north side: plots between the convent almonry garden and the civic row, rear sheds behind.
+building civic_lane_north_1 house 12 87 8 9 style=house.boda.south
+building civic_lane_north_2 house 21 89 7 7 style=house.lane.timber.south
+building civic_lane_north_3 house 28 87 7 9 style=house.boda.south
+building civic_lane_north_4 house 43 89 8 7 style=house.lane.timber.south
+building civic_lane_north_5 house 51 87 6 9 style=house.boda.south
+building civic_lane_north_1_rear house 13 79 6 6 style=house.rear.shed.south
+building civic_lane_north_3_rear house 27 78 6 6 style=house.rear.store.south
+building civic_lane_north_4_rear house 45 83 5 4 style=house.rear.shed.south
+# R-1036 civic lane south side: a row facing the lane, set back from the south seam.
+building civic_lane_south_1 house 44 100 8 8 style=house.boda.north
+building civic_lane_south_2 house 53 100 7 7 style=house.lane.timber.north
+building civic_lane_south_3 house 61 101 9 7 style=house.boda.north
+building civic_lane_south_4 house 72 100 8 8 style=house.lane.timber.north
+building civic_lane_south_5 house 82 100 7 8 style=house.boda.north
+building civic_lane_south_6 house 90 101 8 7 style=house.lane.timber.north
+# R-1036 north-east rear ranges between the service-lane booths and the yard stores.
+building service_lane_rear_1 house 152 18 6 6 style=house.rear.shed.north
+building service_lane_rear_2 house 160 19 5 6 style=house.rear.store.north
+building service_lane_rear_3 house 184 20 6 5 style=house.rear.shed.north
+building service_lane_rear_4 house 191 19 5 6 style=house.rear.store.north
+building east_lane_north_4_rear house 193 39 6 5 style=house.rear.shed.south
+# R-1036 guild-lane frontage south of St Olaf's close and the guild corner stores.
+building guild_lane_plot_1 house 78 79 8 8 style=house.lane.timber.south
+building guild_lane_plot_2 house 87 79 9 7 style=house.boda.south
+building guild_close_store house 70 37 8 6 style=house.rear.store.south
+building guild_corner_store house 64 13 6 7 style=house.rear.store.south
+building guild_corner_shed house 64 21 5 6 style=house.rear.shed.east
+# R-1036 rear ranges in the Pikk west and middle-block yards.
+building pikk_west_rear_store_n1 house 79 3 7 6 style=house.rear.store.south
+building pikk_west_rear_shed_n3 house 79 21 6 6 style=house.rear.shed.east
+building pikk_east_rear_store_n house 114 1 8 7 style=house.rear.store.south
+building pikk_east_rear_shed_m2 house 114 45 6 7 style=house.rear.shed.west
+building pikk_south_rear_store house 115 88 6 6 style=house.rear.store.north
+# R-1036 Lai east and Vene yards: a further Lai frontage and rear stores on the old yard grass.
+building lai_east_plot_m4 house 138 79 9 8 style=house.lai.timber.west
+building lai_rear_store_1 house 152 79 7 7 style=house.rear.store.north
+building lai_rear_shed_2 house 161 80 6 6 style=house.rear.shed.west
+building lai_rear_shed_3 house 152 87 6 5 style=house.rear.shed.south
+building vene_west_boda house 145 99 7 8 style=house.boda.east
+building vene_yard_store house 183 77 7 7 style=house.rear.store.south
+building vene_yard_shed house 191 76 5 6 style=house.rear.shed.east
+# R-1036 south-west plots beside the civic lane, set back from the south seam.
+building civic_lane_west_1 house 13 99 8 7 style=house.boda.north
+building civic_lane_west_2 house 22 100 8 6 style=house.lane.timber.north
+# R-1036 further yard ranges: guild close and guild lane stores, a Vene-side booth and wall-lane booths.
+building guild_close_house house 72 44 9 7 style=house.lane.timber.south
+building guild_lane_store house 63 59 8 7 style=house.rear.store.south
+building brotherhood_rear_store house 59 78 7 6 style=house.rear.store.south
+building civic_lane_north_2_rear house 21 80 5 6 style=house.rear.shed.south
+building civic_lane_north_3b house 36 90 6 6 style=house.boda.south
+building north_strip_boda_7 house 66 2 6 6 style=house.boda.south
+building east_lane_south_market house 186 59 8 6 style=house.boda.north
+building tenement_rear_shed house 161 40 5 5 style=house.rear.shed.east
+building wall_lane_rear_shed house 192 27 5 6 style=house.rear.shed.east
+building lai_rear_shed_4 house 160 87 6 5 style=house.rear.shed.south
+building wall_lane_boda_10 house 209 103 8 6 style=house.boda.north
+building wall_lane_shed_11 house 211 88 4 8 style=house.rear.shed.east
+building pikk_west_rear_shed_n2 house 73 13 5 5 style=house.rear.shed.east
 landmark monastery_west_gate_arch gate_arch 0 28 8 12 wall_color=8f8c80ff top_px=240 passage_axis=x door_material=wood
 prop convent_well well 47 44 rect=2,2
 prop convent_well_herbs herb_drying_rack 43 42 rect=2,1
@@ -268,6 +392,562 @@ prop vene_loop_firewood firewood_stack 172 106 rect=2,2
 prop vene_east_fence wattle_fence 201 99 rect=18,1
 prop vene_east_lean_to servant_lean_to 205 101 rect=3,2
 prop vene_east.elm tree 212 102 style=tree.elm
+# R-1036 St Michael's kitchen beds and orchard rows in the convent garden south
+# of the precinct wall (HISTORICAL_AUDIT monastery garden row); no buildings here.
+prop convent_garden_bed_1 kitchen_garden 30 60 rect=2,1
+prop convent_garden_bed_2 kitchen_garden 34 60 rect=2,1
+prop convent_garden_bed_3 kitchen_garden 38 60 rect=2,1
+prop convent_garden_bed_4 kitchen_garden 42 60 rect=2,1
+prop convent_garden_bed_5 kitchen_garden 30 63 rect=2,1
+prop convent_garden_bed_6 kitchen_garden 34 63 rect=2,1
+prop convent_garden_bed_7 kitchen_garden 38 63 rect=2,1
+prop convent_garden_bed_8 kitchen_garden 42 63 rect=2,1
+prop convent_orchard_row_1 orchard_row 30 70 rect=2,1
+prop convent_orchard_row_2 orchard_row 34 70 rect=2,1
+prop convent_orchard_row_3 orchard_row 38 70 rect=2,1
+prop convent_orchard_row_4 orchard_row 42 70 rect=2,1
+prop convent_almonry_hens chicken_run 28 74 rect=2,1
+# R-1036 yard dressing: each ordinary plot keeps its work, fuel, water and
+# storage props in the yard behind the house, never on Pikk, Lai or a lane.
+prop olaf_precinct_west_yard_1 rope_coil 68 75
+prop olaf_precinct_west_yard_2 well_sweep 70 74 rect=2,2
+prop olaf_precinct_west_yard_3 trade_goods 77 75
+prop olaf_precinct_east_yard_1 well_sweep 119 82 rect=2,2
+prop olaf_precinct_east_yard_2 trade_goods 119 80
+prop olaf_precinct_east_yard_3 kitchen_garden 122 82 rect=2,1
+prop brotherhood_wing_yard_1 market_goods_pallet 44 82 rect=2,1
+prop brotherhood_wing_yard_2 barrels 47 82
+prop brotherhood_wing_yard_3 privy 49 82 rect=2,1
+prop blackheads_corner_yard_1 barrels 73 36
+prop blackheads_corner_yard_2 privy 75 36 rect=2,1
+prop blackheads_corner_yard_3 malt_sack_pile 78 36
+prop guild_storehouse_yard_1 privy 73 64 rect=2,1
+prop guild_storehouse_yard_2 malt_sack_pile 76 64
+prop guild_storehouse_yard_3 cargo_crates 73 66
+prop west_lane_house_north_yard_1 malt_sack_pile 40 7
+prop west_lane_house_north_yard_2 cargo_crates 40 5
+prop west_lane_house_south_yard_1 firewood_stack 36 80 rect=2,2
+prop west_lane_house_south_yard_2 brewery_keg_stack 39 81 rect=2,1
+prop west_lane_house_south_yard_3 wash_tub 39 79
+prop pikk_merchant_south_west_yard_1 wash_tub 86 79
+prop pikk_merchant_south_west_yard_2 rope_coil 86 81
+prop pikk_merchant_south_west_yard_3 trade_goods 86 83
+prop pikk_merchant_south_east_yard_1 wash_tub 112 78
+prop pikk_merchant_south_east_yard_2 rope_coil 114 78
+prop pikk_merchant_south_east_yard_3 well_sweep 116 83 rect=2,2
+prop pikk_merchant_mid_west_yard_1 rope_coil 81 44
+prop pikk_merchant_mid_west_yard_2 trade_goods 83 44
+prop pikk_merchant_mid_west_yard_3 kitchen_garden 85 44 rect=2,1
+prop pikk_merchant_mid_east_yard_1 trade_goods 114 38
+prop pikk_merchant_mid_east_yard_2 barrels 114 40
+prop pikk_merchant_mid_east_yard_3 malt_sack_pile 114 42
+prop lai_merchant_south_yard_1 trade_goods 137 78
+prop lai_merchant_south_yard_2 kitchen_garden 139 78 rect=2,1
+prop lai_merchant_south_yard_3 market_goods_pallet 142 78 rect=2,1
+prop lai_merchant_mid_yard_1 kitchen_garden 138 38 rect=2,1
+prop lai_merchant_mid_yard_2 market_goods_pallet 141 38 rect=2,1
+prop lai_merchant_mid_yard_3 barrels 144 38
+prop lai_corner_tenement_yard_1 barrels 158 59
+prop lai_corner_tenement_yard_2 malt_sack_pile 158 61
+prop lai_east_row_mid_yard_1 barrels 179 13
+prop lai_east_row_mid_yard_2 privy 179 11 rect=2,1
+prop lai_east_row_mid_yard_3 malt_sack_pile 181 13
+prop lai_east_row_south_yard_1 privy 172 90 rect=2,1
+prop lai_east_row_south_yard_2 malt_sack_pile 175 90
+prop lai_east_row_south_yard_3 cargo_crates 177 90
+prop workshop_row_west_yard_1 wooden_shovel 120 16
+prop workshop_row_west_yard_2 farm_cart 122 16 rect=2,2
+prop workshop_row_mid_yard_1 farm_cart 122 57 rect=2,2
+prop workshop_row_mid_yard_2 hay_stack 125 57 rect=2,2 style_variant=hay_stack.small
+prop netmakers_loft_yard_1 hay_stack 125 82 rect=2,2 style_variant=hay_stack.small
+prop netmakers_loft_yard_2 root_cellar_mound 128 82 rect=2,1
+prop shoemakers_guild_yard_1 brewery_keg_stack 151 42 rect=2,1
+prop shoemakers_guild_yard_2 wash_tub 154 42
+prop shoemakers_guild_yard_3 rope_coil 156 42
+prop market_house_east_yard_1 wash_tub 185 65
+prop market_house_east_yard_2 rope_coil 187 65
+prop market_house_east_yard_3 well_sweep 194 64 rect=2,2
+prop convent_almonry_yard_1 barrels 13 77
+prop convent_almonry_yard_2 servant_lean_to 15 77 rect=3,2
+prop pikk_west_plot_n1_yard_1 well_sweep 86 3 rect=2,2
+prop pikk_west_plot_n1_yard_2 trade_goods 87 6
+prop pikk_west_plot_n1_yard_3 kitchen_garden 86 8 rect=2,1
+prop pikk_west_plot_n2_yard_1 trade_goods 88 12
+prop pikk_west_plot_n2_yard_2 kitchen_garden 87 14 rect=2,1
+prop pikk_west_plot_n2_yard_3 market_goods_pallet 87 16 rect=2,1
+prop pikk_west_plot_n3_yard_1 kitchen_garden 86 21 rect=2,1
+prop pikk_west_plot_n3_yard_2 market_goods_pallet 86 23 rect=2,1
+prop pikk_west_plot_n3_yard_3 barrels 87 25
+prop pikk_east_plot_n1_yard_1 market_goods_pallet 114 10 rect=2,1
+prop pikk_east_plot_n1_yard_2 barrels 114 12
+prop pikk_east_plot_n1_yard_3 privy 114 14 rect=2,1
+prop pikk_east_plot_n2_yard_1 barrels 117 19
+prop pikk_east_plot_n2_yard_2 privy 117 21 rect=2,1
+prop pikk_east_plot_n2_yard_3 malt_sack_pile 117 23
+prop lai_east_plot_n1_yard_1 privy 148 2 rect=2,1
+prop lai_east_plot_n1_yard_2 malt_sack_pile 148 4
+prop lai_east_plot_n1_yard_3 cargo_crates 148 6
+prop lai_east_plot_n2_yard_1 flax_drying_frame 149 11 rect=2,1
+prop lai_east_plot_n2_yard_2 wooden_shovel 149 13
+prop lai_east_plot_n2_yard_3 iron_scrap_pile 149 15
+prop lai_east_plot_n3_yard_1 cargo_crates 148 19
+prop lai_east_plot_n3_yard_2 firewood_stack 148 23 rect=2,2
+prop lai_east_plot_n3_yard_3 brewery_keg_stack 148 26 rect=2,1
+prop lai_west_boda_n1_yard_1 iron_scrap_pile 123 1
+prop lai_west_boda_n1_yard_2 pitchfork 123 3
+prop lai_west_boda_n1_yard_3 barrels 123 5
+prop lai_west_boda_n2_yard_1 pitchfork 122 19
+prop lai_west_boda_n2_yard_2 barrels 122 21
+prop lai_west_boda_n2_yard_3 firewood_stack 121 23 rect=2,2
+prop service_lane_boda_1_yard_1 barrels 152 17
+prop service_lane_boda_1_yard_2 firewood_stack 158 17 rect=2,2
+prop service_lane_boda_1_yard_3 chicken_run 154 17 rect=2,1
+prop service_lane_boda_2_yard_1 firewood_stack 161 17 rect=2,2
+prop service_lane_boda_2_yard_2 chicken_run 167 17 rect=2,1
+prop service_lane_boda_2_yard_3 wash_tub 165 19
+prop service_lane_boda_3_yard_1 well_sweep 170 17 rect=2,2
+prop service_lane_boda_4_yard_1 wash_tub 182 17
+prop service_lane_boda_4_yard_2 kitchen_garden 182 19 rect=2,1
+prop service_lane_boda_4_yard_3 cooper_staves 184 17
+prop service_lane_boda_5_yard_1 kitchen_garden 193 14 rect=2,1
+prop service_lane_boda_5_yard_2 privy 196 14 rect=2,1
+prop service_lane_boda_5_yard_3 cooper_staves 199 14
+prop wall_lane_boda_4_yard_1 rake 197 17
+prop wall_lane_boda_4_yard_2 charcoal_pile 196 19 rect=2,1
+prop wall_lane_boda_4_yard_3 flax_drying_frame 196 21 rect=2,1
+prop wall_lane_boda_5_yard_1 charcoal_pile 197 27 rect=2,1
+prop wall_lane_boda_5_yard_2 flax_drying_frame 197 29 rect=2,1
+prop wall_lane_boda_5_yard_3 wooden_shovel 198 31
+prop pikk_east_plot_s1_yard_1 firewood_stack 113 87 rect=2,2
+prop pikk_east_plot_s1_yard_2 brewery_keg_stack 116 86 rect=2,1
+prop pikk_east_plot_s2_yard_1 brewery_keg_stack 113 90 rect=2,1
+prop pikk_east_plot_s2_yard_2 wash_tub 113 92
+prop pikk_east_plot_s2_yard_3 rope_coil 113 94
+prop pikk_east_plot_s3_yard_1 wash_tub 114 97
+prop pikk_east_plot_s3_yard_2 rope_coil 114 99
+prop pikk_east_plot_s3_yard_3 well_sweep 114 101 rect=2,2
+prop lai_west_boda_s1_yard_1 pitchfork 122 84
+prop lai_west_boda_s1_yard_2 barrels 122 86
+prop lai_west_boda_s1_yard_3 firewood_stack 121 88 rect=2,2
+prop lai_west_boda_s2_yard_1 barrels 123 93
+prop lai_west_boda_s2_yard_2 firewood_stack 122 95 rect=2,2
+prop lai_west_boda_s2_yard_3 chicken_run 122 98 rect=2,1
+prop lai_west_boda_s3_yard_1 firewood_stack 121 101 rect=2,2
+prop lai_west_boda_s3_yard_2 chicken_run 121 104 rect=2,1
+prop lai_west_boda_s3_yard_3 wash_tub 122 106
+prop civic_lane_plot_1_yard_1 kitchen_garden 58 87 rect=2,1
+prop civic_lane_plot_1_yard_2 market_goods_pallet 61 87 rect=2,1
+prop civic_lane_plot_1_yard_3 barrels 64 87
+prop civic_lane_plot_2_yard_1 wash_tub 71 87
+prop civic_lane_plot_2_yard_2 kitchen_garden 67 85 rect=2,1
+prop civic_lane_plot_2_yard_3 privy 70 85 rect=2,1
+prop civic_lane_plot_3_yard_1 barrels 86 85
+prop civic_lane_plot_4_yard_1 privy 96 85 rect=2,1
+prop lai_east_plot_s1_yard_1 malt_sack_pile 149 90
+prop lai_east_plot_s1_yard_2 cargo_crates 149 92
+prop lai_east_plot_s1_yard_3 firewood_stack 149 94 rect=2,2
+prop vene_loop_boda_1_yard_1 herb_drying_rack 162 103 rect=2,1
+prop vene_loop_boda_1_yard_2 rake 156 103
+prop vene_loop_boda_1_yard_3 charcoal_pile 164 105 rect=2,1
+prop vene_loop_boda_2_yard_1 firewood_stack 167 103 rect=2,2
+prop vene_loop_boda_2_yard_2 brewery_keg_stack 170 103 rect=2,1
+prop vene_loop_boda_2_yard_3 wash_tub 173 103
+prop vene_east_boda_1_yard_1 charcoal_pile 190 97 rect=2,1
+prop vene_east_boda_1_yard_2 flax_drying_frame 190 99 rect=2,1
+prop vene_east_boda_1_yard_3 wooden_shovel 190 101
+prop vene_east_boda_2_yard_1 flax_drying_frame 192 86 rect=2,1
+prop vene_east_boda_2_yard_2 wooden_shovel 192 88
+prop vene_east_boda_2_yard_3 iron_scrap_pile 192 90
+prop vene_east_boda_3_yard_1 wooden_shovel 193 97
+prop vene_east_boda_3_yard_2 iron_scrap_pile 195 97
+prop vene_east_boda_3_yard_3 pitchfork 197 97
+prop vene_east_boda_4_yard_1 iron_scrap_pile 202 101
+prop vene_east_boda_4_yard_2 pitchfork 209 101
+prop vene_east_boda_4_yard_3 barrels 202 103
+prop north_strip_boda_1_yard_1 pitchfork 14 1
+prop north_strip_boda_1_yard_2 barrels 16 1
+prop north_strip_boda_1_yard_3 chicken_run 18 1 rect=2,1
+prop north_strip_boda_2_yard_1 kitchen_garden 23 1 rect=2,1
+prop north_strip_boda_2_yard_2 market_goods_pallet 26 1 rect=2,1
+prop north_strip_boda_2_yard_3 barrels 29 1
+prop north_strip_boda_3_yard_1 chicken_run 31 1 rect=2,1
+prop north_strip_boda_3_yard_2 wash_tub 34 1
+prop north_strip_boda_3_yard_3 kitchen_garden 36 1 rect=2,1
+prop north_strip_boda_4_yard_1 chicken_run 41 1 rect=2,1
+prop north_strip_boda_4_yard_2 wash_tub 44 1
+prop north_strip_boda_4_yard_3 kitchen_garden 46 1 rect=2,1
+prop north_strip_boda_5_yard_1 privy 49 1 rect=2,1
+prop north_strip_boda_5_yard_2 malt_sack_pile 52 1
+prop north_strip_boda_5_yard_3 cargo_crates 54 1
+prop north_strip_boda_6_yard_1 kitchen_garden 58 1 rect=2,1
+prop north_strip_boda_6_yard_2 privy 61 1 rect=2,1
+prop pikk_west_plot_m1_yard_1 cargo_crates 88 29
+prop pikk_west_plot_m1_yard_2 firewood_stack 87 31 rect=2,2
+prop pikk_west_plot_m1_yard_3 brewery_keg_stack 85 29 rect=2,1
+prop pikk_west_plot_m2_yard_1 brewery_keg_stack 88 44 rect=2,1
+prop pikk_west_plot_m2_yard_2 wash_tub 89 38
+prop pikk_west_plot_m2_yard_3 rope_coil 89 40
+prop pikk_west_rear_store_m_yard_1 farm_cart 82 51 rect=2,2
+prop pikk_west_rear_store_m_yard_2 hay_stack 85 51 rect=2,2 style_variant=hay_stack.small
+prop pikk_east_plot_m1_yard_1 wash_tub 114 44
+prop pikk_east_plot_m1_yard_2 rope_coil 116 44
+prop pikk_east_plot_m1_yard_3 trade_goods 118 44
+prop pikk_east_plot_m2_yard_1 rope_coil 113 46
+prop pikk_east_plot_m2_yard_2 trade_goods 113 48
+prop pikk_east_plot_m2_yard_3 kitchen_garden 113 52 rect=2,1
+prop lai_west_plot_m1_yard_1 trade_goods 123 29
+prop lai_west_plot_m1_yard_2 kitchen_garden 119 28 rect=2,1
+prop lai_west_plot_m1_yard_3 barrels 123 31
+prop lai_west_boda_m2_yard_1 wooden_shovel 124 37
+prop lai_west_boda_m2_yard_2 iron_scrap_pile 124 39
+prop lai_west_boda_m2_yard_3 pitchfork 124 41
+prop lai_west_boda_m3_yard_1 iron_scrap_pile 123 60
+prop lai_west_boda_m3_yard_2 pitchfork 123 62
+prop lai_west_boda_m3_yard_3 barrels 123 64
+prop pikk_east_rear_store_m1_yard_1 brewery_keg_stack 117 37 rect=2,1
+prop pikk_east_rear_store_m1_yard_2 malt_sack_pile 120 37
+prop lai_west_rear_shed_m1_yard_1 wooden_shovel 117 29
+prop lai_west_rear_shed_m1_yard_2 barrels 117 31
+prop lai_east_plot_m1_yard_1 malt_sack_pile 148 39
+prop lai_east_plot_m1_yard_2 cargo_crates 148 41
+prop lai_east_plot_m1_yard_3 firewood_stack 148 43 rect=2,2
+prop lai_east_plot_m2_yard_1 cargo_crates 149 46
+prop lai_east_plot_m2_yard_2 firewood_stack 149 48 rect=2,2
+prop lai_east_plot_m2_yard_3 brewery_keg_stack 149 51 rect=2,1
+prop lai_east_boda_m3_yard_1 kitchen_garden 148 60 rect=2,1
+prop lai_east_boda_m3_yard_2 privy 148 62 rect=2,1
+prop lai_east_boda_m3_yard_3 cooper_staves 148 64
+prop east_lane_north_1_yard_1 brewery_keg_stack 166 44 rect=2,1
+prop east_lane_north_1_yard_2 wash_tub 169 44
+prop east_lane_north_1_yard_3 rope_coil 171 44
+prop east_lane_north_2_yard_1 cooper_staves 175 45
+prop east_lane_north_2_yard_2 herb_drying_rack 177 45 rect=2,1
+prop east_lane_north_2_yard_3 rake 180 45
+prop east_lane_north_3_yard_1 rope_coil 183 44
+prop east_lane_north_3_yard_2 well_sweep 189 43 rect=2,2
+prop east_lane_north_3_yard_3 trade_goods 185 44
+prop east_lane_north_4_yard_1 rake 193 45
+prop east_lane_north_4_yard_2 charcoal_pile 195 45 rect=2,1
+prop east_lane_north_4_yard_3 flax_drying_frame 198 45 rect=2,1
+prop east_lane_north_5_yard_1 trade_goods 202 44
+prop east_lane_north_5_yard_2 kitchen_garden 204 44 rect=2,1
+prop east_lane_north_5_yard_3 market_goods_pallet 207 44 rect=2,1
+prop east_lane_south_1_yard_1 flax_drying_frame 150 70 rect=2,1
+prop east_lane_south_1_yard_2 wooden_shovel 153 70
+prop east_lane_south_1_yard_3 iron_scrap_pile 155 70
+prop east_lane_south_2_yard_1 market_goods_pallet 159 68 rect=2,1
+prop east_lane_south_2_yard_2 barrels 162 68
+prop east_lane_south_2_yard_3 privy 164 68 rect=2,1
+prop east_lane_south_3_yard_1 iron_scrap_pile 167 70
+prop east_lane_south_3_yard_2 pitchfork 169 70
+prop east_lane_south_3_yard_3 barrels 171 70
+prop east_lane_south_4_yard_1 privy 177 68 rect=2,1
+prop east_lane_south_4_yard_2 malt_sack_pile 180 68
+prop east_lane_south_4_yard_3 cargo_crates 182 68
+prop east_lane_south_5_yard_1 barrels 200 70
+prop east_lane_south_5_yard_2 firewood_stack 202 70 rect=2,2
+prop east_lane_south_5_yard_3 chicken_run 205 70 rect=2,1
+prop east_lane_south_6_yard_1 cargo_crates 207 68
+prop east_lane_south_6_yard_2 firewood_stack 209 68 rect=2,2
+prop east_lane_south_6_yard_3 brewery_keg_stack 212 68 rect=2,1
+prop east_lane_north_1_rear_yard_1 firewood_stack 167 35 rect=2,2
+prop east_lane_north_1_rear_yard_2 barrels 170 36
+prop east_lane_north_3_rear_yard_1 barrels 184 38
+prop east_lane_north_3_rear_yard_2 servant_lean_to 186 37 rect=3,2
+prop east_lane_north_5_rear_yard_1 malt_sack_pile 205 37
+prop east_lane_south_1_rear_yard_1 brewery_keg_stack 151 76 rect=2,1
+prop east_lane_south_1_rear_yard_2 malt_sack_pile 154 76
+prop east_lane_south_3_rear_yard_1 malt_sack_pile 167 76
+prop east_lane_south_3_rear_yard_2 cart 169 76 rect=2,2
+prop east_lane_south_4_rear_yard_1 cart 177 75 rect=2,2
+prop east_lane_south_4_rear_yard_2 wooden_shovel 180 75
+prop service_yard_store_1_yard_1 wooden_shovel 167 27
+prop service_yard_store_1_yard_2 farm_cart 169 26 rect=2,2
+prop service_yard_store_2_yard_1 farm_cart 182 25 rect=2,2
+prop service_yard_store_2_yard_2 hay_stack 182 22 rect=2,2 style_variant=hay_stack.small
+prop service_yard_store_3_yard_1 hay_stack 186 26 rect=2,2 style_variant=hay_stack.small
+prop service_yard_store_3_yard_2 root_cellar_mound 189 27 rect=2,1
+prop wall_lane_boda_6_yard_1 wooden_shovel 206 72
+prop wall_lane_boda_6_yard_2 iron_scrap_pile 206 74
+prop wall_lane_boda_6_yard_3 pitchfork 206 76
+prop wall_lane_plot_7_yard_1 malt_sack_pile 205 79
+prop wall_lane_plot_7_yard_2 cargo_crates 205 81
+prop wall_lane_plot_7_yard_3 firewood_stack 204 83 rect=2,2
+prop civic_lane_north_1_yard_1 pitchfork 12 86
+prop civic_lane_north_1_yard_2 barrels 14 86
+prop civic_lane_north_1_yard_3 firewood_stack 16 85 rect=2,2
+prop civic_lane_north_2_yard_1 firewood_stack 21 87 rect=2,2
+prop civic_lane_north_2_yard_2 brewery_keg_stack 24 88 rect=2,1
+prop civic_lane_north_2_yard_3 wash_tub 27 88
+prop civic_lane_north_3_yard_1 firewood_stack 28 85 rect=2,2
+prop civic_lane_north_3_yard_2 chicken_run 31 86 rect=2,1
+prop civic_lane_north_3_yard_3 wash_tub 34 86
+prop civic_lane_north_4_yard_1 wash_tub 43 88
+prop civic_lane_north_4_yard_2 rope_coil 45 88
+prop civic_lane_north_4_yard_3 well_sweep 47 87 rect=2,2
+prop civic_lane_north_5_yard_1 wash_tub 51 86
+prop civic_lane_north_5_yard_2 kitchen_garden 53 86 rect=2,1
+prop civic_lane_north_5_yard_3 privy 56 85 rect=2,1
+prop civic_lane_north_3_rear_yard_1 root_cellar_mound 27 77 rect=2,1
+prop civic_lane_north_3_rear_yard_2 barrels 30 77
+prop civic_lane_south_1_yard_1 herb_drying_rack 47 108 rect=2,1
+prop civic_lane_south_1_yard_2 rake 50 108
+prop civic_lane_south_2_yard_1 barrels 53 107
+prop civic_lane_south_2_yard_2 privy 55 107 rect=2,1
+prop civic_lane_south_2_yard_3 malt_sack_pile 58 107
+prop civic_lane_south_3_yard_1 charcoal_pile 61 108 rect=2,1
+prop civic_lane_south_3_yard_2 flax_drying_frame 64 108 rect=2,1
+prop civic_lane_south_3_yard_3 wooden_shovel 67 108
+prop civic_lane_south_4_yard_1 malt_sack_pile 72 108
+prop civic_lane_south_4_yard_2 cargo_crates 74 108
+prop civic_lane_south_4_yard_3 firewood_stack 76 108 rect=2,2
+prop civic_lane_south_5_yard_1 wooden_shovel 82 108
+prop civic_lane_south_5_yard_2 iron_scrap_pile 84 108
+prop civic_lane_south_5_yard_3 pitchfork 86 108
+prop civic_lane_south_6_yard_1 firewood_stack 90 108 rect=2,2
+prop civic_lane_south_6_yard_2 brewery_keg_stack 93 108 rect=2,1
+prop civic_lane_south_6_yard_3 wash_tub 96 108
+prop service_lane_rear_1_yard_1 cart 152 24 rect=2,2
+prop service_lane_rear_1_yard_2 wooden_shovel 155 24
+prop service_lane_rear_2_yard_1 wooden_shovel 160 25
+prop service_lane_rear_2_yard_2 farm_cart 162 25 rect=2,2
+prop service_lane_rear_3_yard_1 farm_cart 184 29 rect=2,2
+prop service_lane_rear_3_yard_2 root_cellar_mound 189 25 rect=2,1
+prop service_lane_rear_4_yard_1 hay_stack 192 25 rect=2,2 style_variant=hay_stack.small
+prop service_lane_rear_4_yard_2 root_cellar_mound 195 25 rect=2,1
+prop east_lane_north_4_rear_yard_1 root_cellar_mound 193 38 rect=2,1
+prop east_lane_north_4_rear_yard_2 firewood_stack 196 37 rect=2,2
+prop guild_close_store_yard_1 servant_lean_to 70 33 rect=3,2
+prop guild_close_store_yard_2 brewery_keg_stack 70 36 rect=2,1
+prop guild_corner_store_yard_1 brewery_keg_stack 64 12 rect=2,1
+prop guild_corner_store_yard_2 malt_sack_pile 67 12
+prop pikk_west_rear_store_n1_yard_1 cart 79 1 rect=2,2
+prop pikk_west_rear_store_n1_yard_2 wooden_shovel 82 2
+prop pikk_west_rear_shed_n3_yard_1 wooden_shovel 78 21
+prop pikk_west_rear_shed_n3_yard_2 farm_cart 77 23 rect=2,2
+prop pikk_east_rear_shed_m2_yard_1 hay_stack 120 45 rect=2,2 style_variant=hay_stack.small
+prop pikk_east_rear_shed_m2_yard_2 root_cellar_mound 120 50 rect=2,1
+prop pikk_south_rear_store_yard_1 root_cellar_mound 115 94 rect=2,1
+prop pikk_south_rear_store_yard_2 firewood_stack 118 94 rect=2,2
+prop lai_east_plot_m4_yard_1 well_sweep 147 79 rect=2,2
+prop lai_east_plot_m4_yard_2 trade_goods 147 82
+prop lai_east_plot_m4_yard_3 kitchen_garden 147 84 rect=2,1
+prop lai_rear_store_1_yard_1 barrels 152 86
+prop lai_rear_store_1_yard_2 brewery_keg_stack 154 86 rect=2,1
+prop lai_rear_shed_2_yard_1 servant_lean_to 167 80 rect=3,2
+prop lai_rear_shed_2_yard_2 brewery_keg_stack 167 83 rect=2,1
+prop lai_rear_shed_3_yard_1 brewery_keg_stack 157 86 rect=2,1
+prop vene_west_boda_yard_1 kitchen_garden 143 99 rect=2,1
+prop vene_west_boda_yard_2 privy 140 99 rect=2,1
+prop vene_west_boda_yard_3 cooper_staves 144 101
+prop vene_yard_store_yard_1 cart 183 75 rect=2,2
+prop vene_yard_store_yard_2 wooden_shovel 186 76
+prop vene_yard_shed_yard_1 wooden_shovel 190 76
+prop vene_yard_shed_yard_2 barrels 190 78
+prop civic_lane_west_1_yard_1 herb_drying_rack 13 106 rect=2,1
+prop civic_lane_west_1_yard_2 rake 16 106
+prop civic_lane_west_1_yard_3 charcoal_pile 18 106 rect=2,1
+prop civic_lane_west_2_yard_1 firewood_stack 22 106 rect=2,2
+prop civic_lane_west_2_yard_2 brewery_keg_stack 25 106 rect=2,1
+prop civic_lane_west_2_yard_3 wash_tub 28 106
+prop guild_close_house_yard_1 brewery_keg_stack 72 43 rect=2,1
+prop guild_close_house_yard_2 wash_tub 75 43
+prop guild_close_house_yard_3 rope_coil 77 43
+prop guild_lane_store_yard_1 firewood_stack 64 57 rect=2,2
+prop guild_lane_store_yard_2 barrels 67 58
+prop brotherhood_rear_store_yard_1 barrels 59 77
+prop brotherhood_rear_store_yard_2 servant_lean_to 64 76 rect=3,2
+prop civic_lane_north_2_rear_yard_1 servant_lean_to 21 78 rect=3,2
+prop civic_lane_north_2_rear_yard_2 brewery_keg_stack 25 79 rect=2,1
+prop north_strip_boda_7_yard_1 barrels 66 1
+prop north_strip_boda_7_yard_2 chicken_run 68 1 rect=2,1
+prop north_strip_boda_7_yard_3 wash_tub 71 1
+prop east_lane_south_market_yard_1 chicken_run 189 65 rect=2,1
+prop east_lane_south_market_yard_2 wash_tub 192 65
+prop tenement_rear_shed_yard_1 wooden_shovel 160 42
+prop tenement_rear_shed_yard_2 farm_cart 159 44 rect=2,2
+prop wall_lane_rear_shed_yard_1 barrels 191 29
+prop wall_lane_rear_shed_yard_2 malt_sack_pile 191 31
+prop lai_rear_shed_4_yard_1 root_cellar_mound 160 86 rect=2,1
+prop lai_rear_shed_4_yard_2 barrels 163 86
+prop wall_lane_boda_10_yard_1 privy 209 109 rect=2,1
+prop wall_lane_boda_10_yard_2 cooper_staves 212 109
+prop wall_lane_boda_10_yard_3 herb_drying_rack 214 109 rect=2,1
+prop wall_lane_shed_11_yard_1 firewood_stack 209 88 rect=2,2
+prop wall_lane_shed_11_yard_2 barrels 207 88
+prop pikk_west_rear_shed_n2_yard_1 barrels 72 13
+prop pikk_west_rear_shed_n2_yard_2 servant_lean_to 70 15 rect=3,2
+# R-1036 view-only wear: door-threshold mud on the lanes, wet ground at tubs
+# and sweeps, grime at privies and pens, soot at charcoal heaps.
+decal decal.olaf_precinct_west_wet_yard_2 wet_threshold 70 74 2 1 radius=1.0
+decal decal.olaf_precinct_west_door_mud mud 73 84 2 1 radius=1.2
+decal decal.olaf_precinct_east_wet_yard_1 wet_threshold 119 82 2 1 radius=1.0
+decal decal.olaf_precinct_east_door_mud mud 123 69 2 1 radius=1.2
+decal decal.great_guild_front_door_mud mud 54 21 2 1 radius=1.2
+decal decal.guild_annex_door_mud mud 52 51 2 1 radius=1.2
+decal decal.brotherhood_wing_grime_yard_3 grime 49 82 2 1 radius=1.0
+decal decal.brotherhood_wing_door_mud mud 51 75 2 1 radius=1.2
+decal decal.blackheads_corner_grime_yard_2 grime 75 36 2 1 radius=1.0
+decal decal.blackheads_corner_door_mud mud 77 27 2 1 radius=1.2
+decal decal.guild_storehouse_grime_yard_1 grime 73 64 2 1 radius=1.0
+decal decal.guild_storehouse_door_mud mud 78 57 2 1 radius=1.2
+decal decal.west_lane_house_north_door_mud mud 39 20 2 1 radius=1.2
+decal decal.west_lane_house_south_wet_yard_3 wet_threshold 39 79 2 1 radius=1.0
+decal decal.pikk_merchant_south_west_wet_yard_1 wet_threshold 86 79 2 1 radius=1.0
+decal decal.pikk_merchant_south_east_wet_yard_1 wet_threshold 112 78 2 1 radius=1.0
+decal decal.pikk_merchant_south_east_wet_yard_3 wet_threshold 116 83 2 1 radius=1.0
+decal decal.pikk_merchant_south_east_door_mud mud 113 69 2 1 radius=1.2
+decal decal.pikk_merchant_mid_west_door_mud mud 85 33 2 1 radius=1.2
+decal decal.pikk_merchant_mid_east_door_mud mud 113 27 2 1 radius=1.2
+decal decal.lai_merchant_south_door_mud mud 140 69 2 1 radius=1.2
+decal decal.lai_merchant_mid_door_mud mud 144 27 2 1 radius=1.2
+decal decal.lai_corner_tenement_door_mud mud 158 45 2 1 radius=1.2
+decal decal.lai_east_row_mid_grime_yard_2 grime 179 11 2 1 radius=1.0
+decal decal.lai_east_row_mid_door_mud mud 177 26 2 1 radius=1.2
+decal decal.lai_east_row_south_grime_yard_1 grime 172 90 2 1 radius=1.0
+decal decal.lai_east_row_south_door_mud mud 177 81 2 1 radius=1.2
+decal decal.shoemakers_guild_wet_yard_2 wet_threshold 154 42 2 1 radius=1.0
+decal decal.shoemakers_guild_door_mud mud 156 33 2 1 radius=1.2
+decal decal.market_house_east_wet_yard_1 wet_threshold 185 65 2 1 radius=1.0
+decal decal.market_house_east_wet_yard_3 wet_threshold 194 64 2 1 radius=1.0
+decal decal.market_house_east_door_mud mud 191 75 2 1 radius=1.2
+decal decal.pikk_west_plot_n1_wet_yard_1 wet_threshold 86 3 2 1 radius=1.0
+decal decal.pikk_west_plot_n1_door_mud mud 98 7 2 1 radius=1.2
+decal decal.pikk_west_plot_n2_door_mud mud 98 15 2 1 radius=1.2
+decal decal.pikk_west_plot_n3_door_mud mud 98 24 2 1 radius=1.2
+decal decal.pikk_east_plot_n1_grime_yard_3 grime 114 14 2 1 radius=1.0
+decal decal.pikk_east_plot_n1_door_mud mud 104 14 2 1 radius=1.2
+decal decal.pikk_east_plot_n2_grime_yard_2 grime 117 21 2 1 radius=1.0
+decal decal.pikk_east_plot_n2_door_mud mud 103 23 2 1 radius=1.2
+decal decal.lai_east_plot_n1_grime_yard_1 grime 148 2 2 1 radius=1.0
+decal decal.lai_east_plot_n1_door_mud mud 137 6 2 1 radius=1.2
+decal decal.lai_east_plot_n2_door_mud mud 137 14 2 1 radius=1.2
+decal decal.lai_east_plot_n3_door_mud mud 138 23 2 1 radius=1.2
+decal decal.lai_west_boda_n1_door_mud mud 133 4 2 1 radius=1.2
+decal decal.lai_west_boda_n2_door_mud mud 132 22 2 1 radius=1.2
+decal decal.service_lane_boda_1_door_mud mud 156 6 2 1 radius=1.2
+decal decal.service_lane_boda_2_wet_yard_3 wet_threshold 165 19 2 1 radius=1.0
+decal decal.service_lane_boda_2_door_mud mud 164 6 2 1 radius=1.2
+decal decal.service_lane_boda_3_wet_yard_1 wet_threshold 170 17 2 1 radius=1.0
+decal decal.service_lane_boda_3_door_mud mud 174 6 2 1 radius=1.2
+decal decal.service_lane_boda_4_wet_yard_1 wet_threshold 182 17 2 1 radius=1.0
+decal decal.service_lane_boda_4_door_mud mud 186 6 2 1 radius=1.2
+decal decal.service_lane_boda_5_grime_yard_2 grime 196 14 2 1 radius=1.0
+decal decal.service_lane_boda_5_door_mud mud 197 6 2 1 radius=1.2
+decal decal.wall_lane_boda_1_door_mud mud 210 10 2 1 radius=1.2
+decal decal.wall_lane_boda_2_door_mud mud 210 21 2 1 radius=1.2
+decal decal.wall_lane_boda_3_door_mud mud 210 31 2 1 radius=1.2
+decal decal.wall_lane_boda_4_soot_yard_2 soot 196 19 2 1 radius=1.1
+decal decal.wall_lane_boda_4_door_mud mud 206 21 2 1 radius=1.2
+decal decal.wall_lane_boda_5_soot_yard_1 soot 197 27 2 1 radius=1.1
+decal decal.wall_lane_boda_5_door_mud mud 206 31 2 1 radius=1.2
+decal decal.pikk_east_plot_s1_door_mud mud 103 84 2 1 radius=1.2
+decal decal.pikk_east_plot_s2_wet_yard_2 wet_threshold 113 92 2 1 radius=1.0
+decal decal.pikk_east_plot_s2_door_mud mud 104 92 2 1 radius=1.2
+decal decal.pikk_east_plot_s3_wet_yard_1 wet_threshold 114 97 2 1 radius=1.0
+decal decal.pikk_east_plot_s3_wet_yard_3 wet_threshold 114 101 2 1 radius=1.0
+decal decal.pikk_east_plot_s3_door_mud mud 103 101 2 1 radius=1.2
+decal decal.lai_west_boda_s1_door_mud mud 132 88 2 1 radius=1.2
+decal decal.lai_west_boda_s2_door_mud mud 132 96 2 1 radius=1.2
+decal decal.lai_west_boda_s3_wet_yard_3 wet_threshold 122 106 2 1 radius=1.0
+decal decal.lai_west_boda_s3_door_mud mud 132 104 2 1 radius=1.2
+decal decal.civic_lane_plot_1_door_mud mud 62 97 2 1 radius=1.2
+decal decal.civic_lane_plot_2_wet_yard_1 wet_threshold 71 87 2 1 radius=1.0
+decal decal.civic_lane_plot_2_grime_yard_3 grime 70 85 2 1 radius=1.0
+decal decal.civic_lane_plot_2_door_mud mud 70 97 2 1 radius=1.2
+decal decal.civic_lane_plot_3_door_mud mud 82 97 2 1 radius=1.2
+decal decal.civic_lane_plot_4_grime_yard_1 grime 96 85 2 1 radius=1.0
+decal decal.civic_lane_plot_4_door_mud mud 92 96 2 1 radius=1.2
+decal decal.lai_east_plot_s1_door_mud mud 138 94 2 1 radius=1.2
+decal decal.vene_loop_boda_1_soot_yard_3 soot 164 105 2 1 radius=1.1
+decal decal.vene_loop_boda_1_door_mud mud 160 95 2 1 radius=1.2
+decal decal.vene_loop_boda_2_wet_yard_3 wet_threshold 173 103 2 1 radius=1.0
+decal decal.vene_loop_boda_2_door_mud mud 171 95 2 1 radius=1.2
+decal decal.vene_east_boda_1_soot_yard_1 soot 190 97 2 1 radius=1.1
+decal decal.vene_east_boda_1_door_mud mud 181 101 2 1 radius=1.2
+decal decal.vene_east_boda_2_door_mud mud 182 89 2 1 radius=1.2
+decal decal.vene_east_boda_3_door_mud mud 196 107 2 1 radius=1.2
+decal decal.vene_east_boda_4_door_mud mud 206 89 2 1 radius=1.2
+decal decal.north_strip_boda_1_door_mud mud 18 8 2 1 radius=1.2
+decal decal.north_strip_boda_2_door_mud mud 26 8 2 1 radius=1.2
+decal decal.north_strip_boda_3_wet_yard_2 wet_threshold 34 1 2 1 radius=1.0
+decal decal.north_strip_boda_3_door_mud mud 35 8 2 1 radius=1.2
+decal decal.north_strip_boda_4_wet_yard_2 wet_threshold 44 1 2 1 radius=1.0
+decal decal.north_strip_boda_4_door_mud mud 44 8 2 1 radius=1.2
+decal decal.north_strip_boda_5_grime_yard_1 grime 49 1 2 1 radius=1.0
+decal decal.north_strip_boda_5_door_mud mud 53 8 2 1 radius=1.2
+decal decal.north_strip_boda_6_grime_yard_2 grime 61 1 2 1 radius=1.0
+decal decal.north_strip_boda_6_door_mud mud 61 8 2 1 radius=1.2
+decal decal.pikk_west_plot_m1_door_mud mud 99 33 2 1 radius=1.2
+decal decal.pikk_west_plot_m2_wet_yard_2 wet_threshold 89 38 2 1 radius=1.0
+decal decal.pikk_west_plot_m2_door_mud mud 98 42 2 1 radius=1.2
+decal decal.pikk_east_plot_m1_wet_yard_1 wet_threshold 114 44 2 1 radius=1.0
+decal decal.pikk_east_plot_m1_door_mud mud 103 42 2 1 radius=1.2
+decal decal.pikk_east_plot_m2_door_mud mud 104 49 2 1 radius=1.2
+decal decal.lai_west_plot_m1_door_mud mud 133 32 2 1 radius=1.2
+decal decal.lai_west_boda_m2_door_mud mud 133 41 2 1 radius=1.2
+decal decal.lai_west_boda_m3_door_mud mud 133 62 2 1 radius=1.2
+decal decal.lai_east_plot_m1_door_mud mud 137 42 2 1 radius=1.2
+decal decal.lai_east_plot_m2_door_mud mud 137 50 2 1 radius=1.2
+decal decal.lai_east_boda_m3_grime_yard_2 grime 148 62 2 1 radius=1.0
+decal decal.lai_east_boda_m3_door_mud mud 137 64 2 1 radius=1.2
+decal decal.east_lane_north_1_wet_yard_2 wet_threshold 169 44 2 1 radius=1.0
+decal decal.east_lane_north_1_door_mud mud 170 55 2 1 radius=1.2
+decal decal.east_lane_north_2_door_mud mud 178 55 2 1 radius=1.2
+decal decal.east_lane_north_3_wet_yard_2 wet_threshold 189 43 2 1 radius=1.0
+decal decal.east_lane_north_3_door_mud mud 187 55 2 1 radius=1.2
+decal decal.east_lane_north_4_soot_yard_2 soot 195 45 2 1 radius=1.1
+decal decal.east_lane_north_4_door_mud mud 197 55 2 1 radius=1.2
+decal decal.east_lane_north_5_door_mud mud 205 55 2 1 radius=1.2
+decal decal.east_lane_south_1_door_mud mud 154 58 2 1 radius=1.2
+decal decal.east_lane_south_2_grime_yard_3 grime 164 68 2 1 radius=1.0
+decal decal.east_lane_south_2_door_mud mud 162 58 2 1 radius=1.2
+decal decal.east_lane_south_3_door_mud mud 171 58 2 1 radius=1.2
+decal decal.east_lane_south_4_grime_yard_1 grime 177 68 2 1 radius=1.0
+decal decal.east_lane_south_4_door_mud mud 181 58 2 1 radius=1.2
+decal decal.east_lane_south_5_door_mud mud 203 58 2 1 radius=1.2
+decal decal.east_lane_south_6_door_mud mud 210 58 2 1 radius=1.2
+decal decal.wall_lane_boda_6_door_mud mud 214 74 2 1 radius=1.2
+decal decal.wall_lane_plot_7_door_mud mud 214 82 2 1 radius=1.2
+decal decal.civic_lane_north_1_door_mud mud 16 96 2 1 radius=1.2
+decal decal.civic_lane_north_2_wet_yard_3 wet_threshold 27 88 2 1 radius=1.0
+decal decal.civic_lane_north_2_door_mud mud 24 96 2 1 radius=1.2
+decal decal.civic_lane_north_3_wet_yard_3 wet_threshold 34 86 2 1 radius=1.0
+decal decal.civic_lane_north_3_door_mud mud 31 96 2 1 radius=1.2
+decal decal.civic_lane_north_4_wet_yard_1 wet_threshold 43 88 2 1 radius=1.0
+decal decal.civic_lane_north_4_wet_yard_3 wet_threshold 47 87 2 1 radius=1.0
+decal decal.civic_lane_north_4_door_mud mud 47 96 2 1 radius=1.2
+decal decal.civic_lane_north_5_wet_yard_1 wet_threshold 51 86 2 1 radius=1.0
+decal decal.civic_lane_north_5_grime_yard_3 grime 56 85 2 1 radius=1.0
+decal decal.civic_lane_north_5_door_mud mud 54 96 2 1 radius=1.2
+decal decal.civic_lane_south_1_door_mud mud 48 99 2 1 radius=1.2
+decal decal.civic_lane_south_2_grime_yard_2 grime 55 107 2 1 radius=1.0
+decal decal.civic_lane_south_2_door_mud mud 56 99 2 1 radius=1.2
+decal decal.civic_lane_south_3_soot_yard_1 soot 61 108 2 1 radius=1.1
+decal decal.civic_lane_south_3_door_mud mud 65 100 2 1 radius=1.2
+decal decal.civic_lane_south_4_door_mud mud 76 99 2 1 radius=1.2
+decal decal.civic_lane_south_5_door_mud mud 85 99 2 1 radius=1.2
+decal decal.civic_lane_south_6_wet_yard_3 wet_threshold 96 108 2 1 radius=1.0
+decal decal.civic_lane_south_6_door_mud mud 94 100 2 1 radius=1.2
+decal decal.guild_lane_plot_1_door_mud mud 82 87 2 1 radius=1.2
+decal decal.guild_lane_plot_2_door_mud mud 91 86 2 1 radius=1.2
+decal decal.lai_east_plot_m4_wet_yard_1 wet_threshold 147 79 2 1 radius=1.0
+decal decal.lai_east_plot_m4_door_mud mud 137 83 2 1 radius=1.2
+decal decal.vene_west_boda_grime_yard_2 grime 140 99 2 1 radius=1.0
+decal decal.vene_west_boda_door_mud mud 152 103 2 1 radius=1.2
+decal decal.civic_lane_west_1_soot_yard_3 soot 18 106 2 1 radius=1.1
+decal decal.civic_lane_west_1_door_mud mud 17 98 2 1 radius=1.2
+decal decal.civic_lane_west_2_wet_yard_3 wet_threshold 28 106 2 1 radius=1.0
+decal decal.civic_lane_west_2_door_mud mud 26 99 2 1 radius=1.2
+decal decal.guild_close_house_wet_yard_2 wet_threshold 75 43 2 1 radius=1.0
+decal decal.guild_close_house_door_mud mud 76 51 2 1 radius=1.2
+decal decal.civic_lane_north_3b_door_mud mud 39 96 2 1 radius=1.2
+decal decal.north_strip_boda_7_wet_yard_3 wet_threshold 71 1 2 1 radius=1.0
+decal decal.north_strip_boda_7_door_mud mud 69 8 2 1 radius=1.2
+decal decal.east_lane_south_market_wet_yard_2 wet_threshold 192 65 2 1 radius=1.0
+decal decal.east_lane_south_market_door_mud mud 190 58 2 1 radius=1.2
+decal decal.wall_lane_boda_10_grime_yard_1 grime 209 109 2 1 radius=1.0
+decal decal.wall_lane_boda_10_door_mud mud 213 102 2 1 radius=1.2
 spawn spawn.inspection 101 52 rect=2,2
 anchor inspection_spawn 101 52 rect=2,2
 anchor monastery_close 26 52 rect=2,2

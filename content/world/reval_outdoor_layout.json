@@ -155,7 +155,7 @@
       "transition_id": "to_world_harju"
     }
   ],
-  "fingerprint": "7fe4dbc6b3e46bd6753e7f1eaed16edcafec0b864d18bcba6b47237b9031f6bd",
+  "fingerprint": "ebb4eb6c0b81238c738def344f53b87c72cccd6554b0311103a5b3afa57077a4",
   "locations": [
     {
       "cell_size": 32,
@@ -239,7 +239,7 @@
       ],
       "location_id": "monastery_quarter",
       "location_kind": "outdoor_streamed",
-      "map_fingerprint": "85fae1bf65fcabe1d920a02a0ec59173b2ca708ebb6e9f2b353a37a6dbcf9e04",
+      "map_fingerprint": "d1c6ce7b3cd2d91575b1c97c70a2e0c2e0bc7757212d377db1891b96916dbf82",
       "origin_cell": [
         -114,
         -112
@@ -251,7 +251,7 @@
         260,
         112
       ],
-      "source_sha256": "3ea82df70d9169b4e253a3dacdc947c3697901652b8a3266d897258dc278e283"
+      "source_sha256": "0b5159a7957301aa4678bcee4ea1a87cc476c27b0d108d0d2193685cb92f699a"
     },
     {
       "cell_size": 32,
