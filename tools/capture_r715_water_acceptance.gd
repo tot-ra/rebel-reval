@@ -142,9 +142,17 @@ func _capture_plate(definition: MapDefinition, plate: Dictionary) -> Dictionary:
 	var camera := view.view_camera()
 	camera.current = true
 	var focus_cell := _first_water_cell(grid)
-	var focus := view.world_position(Vector2(focus_cell) + Vector2(0.5, 0.5), 0.0)
+	# world_position takes logic pixels, not cells. Passing a cell lands the
+	# camera at cell/cell_size, near the origin, instead of the water (R-1090).
+	var focus := view.world_position(
+		(Vector2(focus_cell) + Vector2(0.5, 0.5)) * float(definition.cell_size), 0.0
+	)
 	camera.position = focus + camera.transform.basis.z * MapView3D.CAMERA_DISTANCE
 	camera.look_at(focus, Vector3.UP)
+	print(
+		"R715_WATER_FOCUS map=%s cell=%s,%s world=%.3f,%.3f"
+		% [definition.map_id, focus_cell.x, focus_cell.y, focus.x, focus.z]
+	)
 
 	var sky := view.sky_weather()
 	if sky == null:

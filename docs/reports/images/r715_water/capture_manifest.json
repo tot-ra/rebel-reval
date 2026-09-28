@@ -222,6 +222,75 @@
     "R-529 Monastery east-ditch regression remains external to this packet",
     "R-713 unified sky/weather continuity packet remains blocked upstream"
   ],
+  "r1090_focus_fix": {
+    "recorded": "2026-09-28",
+    "task": "R-1090",
+    "conversion": "world_position((cell + 0.5) * cell_size)",
+    "note": "MapView3D.world_position takes logic pixels. The runner now multiplies the first water cell by definition.cell_size. Origin-water maps were already within 0.5 world units and were not recaptured. Packet stays blocked until the remaining 123 plates and human review land.",
+    "first_water_cells": {
+      "smithy_courtyard": [
+        31,
+        18
+      ],
+      "lower_town_slice": [
+        121,
+        0
+      ],
+      "south_quarter": [
+        331,
+        9
+      ],
+      "viru_gate_foreland": [
+        76,
+        0
+      ],
+      "reval_harbor_north": [
+        0,
+        0
+      ],
+      "reval_harbor_east": [
+        0,
+        0
+      ],
+      "prototype.paldiski_coastal_outpost": [
+        0,
+        0
+      ],
+      "prototype.sacred_grove": [
+        36,
+        7
+      ],
+      "prototype.saaremaa": [
+        0,
+        0
+      ],
+      "prototype.swedish_arrival": [
+        0,
+        0
+      ],
+      "world.sacred_grove": [
+        45,
+        11
+      ],
+      "world.padise": [
+        3,
+        0
+      ],
+      "world.saaremaa": [
+        0,
+        0
+      ]
+    },
+    "recaptured_clear_day_plates": [
+      "lower_town_slice/clear/day",
+      "prototype.sacred_grove/clear/day",
+      "smithy_courtyard/clear/day",
+      "south_quarter/clear/day",
+      "viru_gate_foreland/clear/day",
+      "world.padise/clear/day",
+      "world.sacred_grove/clear/day"
+    ]
+  },
   "plates": [
     {
       "plate_id": "smithy_courtyard/clear/day",
@@ -237,27 +306,44 @@
       "time_of_day": "day",
       "quality": "recommended",
       "renderer_expected": "metal",
-      "renderer_observed": "not_run",
+      "renderer_observed": "macOS",
       "viewport": {
         "width": 1280,
         "height": 720
       },
       "output": "res://docs/reports/images/r715_water/smithy_courtyard_clear_day.png",
-      "status": "blocked",
-      "sha256": "",
+      "status": "captured_pending_review",
+      "sha256": "1270f86e74c275eb0c3245ffa657a4f34fe6c5dd9675d0b36b31ac6069d70f18",
+      "width": 1280,
+      "height": 720,
       "visual_checks": {
-        "reflection_continuity": "blocked",
-        "wave_readability": "blocked",
-        "shoreline_grounding": "blocked",
-        "underwater_depth": "blocked",
-        "night_readability": "blocked",
-        "parity": "blocked"
+        "reflection_continuity": "not_reviewed",
+        "wave_readability": "not_reviewed",
+        "shoreline_grounding": "not_reviewed",
+        "underwater_depth": "not_reviewed",
+        "night_readability": "not_reviewed",
+        "parity": "not_reviewed"
       },
-      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "annotation": "Real-renderer PNG captured; human visual review is still required.",
       "blockers": [
-        "real renderer/Metal capture not run",
         "human visual review not performed"
-      ]
+      ],
+      "presentation": {
+        "moon_visibility": 0.137555067840739,
+        "puddle_wetness": 0.0,
+        "rain_intensity": 0.0,
+        "rain_suppressed": false,
+        "star_visibility": 0.0,
+        "sun_visibility": 1.0,
+        "tide_level": 0.666801425754984,
+        "weather": "clear",
+        "wind_direction": [
+          0.721743226051331,
+          0.692160904407501
+        ],
+        "wind_strength": 0.2
+      },
+      "hardware_host": "macOS/arm64"
     },
     {
       "plate_id": "smithy_courtyard/clear/night",
@@ -598,27 +684,44 @@
       "time_of_day": "day",
       "quality": "recommended",
       "renderer_expected": "metal",
-      "renderer_observed": "not_run",
+      "renderer_observed": "macOS",
       "viewport": {
         "width": 1280,
         "height": 720
       },
       "output": "res://docs/reports/images/r715_water/lower_town_slice_clear_day.png",
-      "status": "blocked",
-      "sha256": "",
+      "status": "captured_pending_review",
+      "sha256": "e39d312c38f9e9756655d4757bbf641f6de7129173dd756b181531e5e8391147",
+      "width": 1280,
+      "height": 720,
       "visual_checks": {
-        "reflection_continuity": "blocked",
-        "wave_readability": "blocked",
-        "shoreline_grounding": "blocked",
-        "underwater_depth": "blocked",
-        "night_readability": "blocked",
-        "parity": "blocked"
+        "reflection_continuity": "not_reviewed",
+        "wave_readability": "not_reviewed",
+        "shoreline_grounding": "not_reviewed",
+        "underwater_depth": "not_reviewed",
+        "night_readability": "not_reviewed",
+        "parity": "not_reviewed"
       },
-      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "annotation": "Real-renderer PNG captured; human visual review is still required.",
       "blockers": [
-        "real renderer/Metal capture not run",
         "human visual review not performed"
-      ]
+      ],
+      "presentation": {
+        "moon_visibility": 0.137555067840739,
+        "puddle_wetness": 0.0,
+        "rain_intensity": 0.0,
+        "rain_suppressed": false,
+        "star_visibility": 0.0,
+        "sun_visibility": 1.0,
+        "tide_level": 0.666801425754984,
+        "weather": "clear",
+        "wind_direction": [
+          0.721743226051331,
+          0.692160904407501
+        ],
+        "wind_strength": 0.2
+      },
+      "hardware_host": "macOS/arm64"
     },
     {
       "plate_id": "lower_town_slice/clear/night",
@@ -968,27 +1071,44 @@
       "time_of_day": "day",
       "quality": "recommended",
       "renderer_expected": "metal",
-      "renderer_observed": "not_run",
+      "renderer_observed": "macOS",
       "viewport": {
         "width": 1280,
         "height": 720
       },
       "output": "res://docs/reports/images/r715_water/south_quarter_clear_day.png",
-      "status": "blocked",
-      "sha256": "",
+      "status": "captured_pending_review",
+      "sha256": "b2702035ae7633e67aec5bf29e8b379b1be98c9fe558f7d6f58f5c5c181ae9be",
+      "width": 1280,
+      "height": 720,
       "visual_checks": {
-        "reflection_continuity": "blocked",
-        "wave_readability": "blocked",
-        "shoreline_grounding": "blocked",
-        "underwater_depth": "blocked",
-        "night_readability": "blocked",
-        "parity": "blocked"
+        "reflection_continuity": "not_reviewed",
+        "wave_readability": "not_reviewed",
+        "shoreline_grounding": "not_reviewed",
+        "underwater_depth": "not_reviewed",
+        "night_readability": "not_reviewed",
+        "parity": "not_reviewed"
       },
-      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "annotation": "Real-renderer PNG captured; human visual review is still required.",
       "blockers": [
-        "real renderer/Metal capture not run",
         "human visual review not performed"
-      ]
+      ],
+      "presentation": {
+        "moon_visibility": 0.137555067840739,
+        "puddle_wetness": 0.0,
+        "rain_intensity": 0.0,
+        "rain_suppressed": false,
+        "star_visibility": 0.0,
+        "sun_visibility": 1.0,
+        "tide_level": 0.666801425754984,
+        "weather": "clear",
+        "wind_direction": [
+          0.721743226051331,
+          0.692160904407501
+        ],
+        "wind_strength": 0.2
+      },
+      "hardware_host": "macOS/arm64"
     },
     {
       "plate_id": "south_quarter/clear/night",
@@ -1338,27 +1458,44 @@
       "time_of_day": "day",
       "quality": "recommended",
       "renderer_expected": "metal",
-      "renderer_observed": "not_run",
+      "renderer_observed": "macOS",
       "viewport": {
         "width": 1280,
         "height": 720
       },
       "output": "res://docs/reports/images/r715_water/viru_gate_foreland_clear_day.png",
-      "status": "blocked",
-      "sha256": "",
+      "status": "captured_pending_review",
+      "sha256": "f2dade195c158550a7dffd18d89deefb6e49aefc519e9537f8ee5fe6e0d1c86c",
+      "width": 1280,
+      "height": 720,
       "visual_checks": {
-        "reflection_continuity": "blocked",
-        "wave_readability": "blocked",
-        "shoreline_grounding": "blocked",
-        "underwater_depth": "blocked",
-        "night_readability": "blocked",
-        "parity": "blocked"
+        "reflection_continuity": "not_reviewed",
+        "wave_readability": "not_reviewed",
+        "shoreline_grounding": "not_reviewed",
+        "underwater_depth": "not_reviewed",
+        "night_readability": "not_reviewed",
+        "parity": "not_reviewed"
       },
-      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "annotation": "Real-renderer PNG captured; human visual review is still required.",
       "blockers": [
-        "real renderer/Metal capture not run",
         "human visual review not performed"
-      ]
+      ],
+      "presentation": {
+        "moon_visibility": 0.137555067840739,
+        "puddle_wetness": 0.0,
+        "rain_intensity": 0.0,
+        "rain_suppressed": false,
+        "star_visibility": 0.0,
+        "sun_visibility": 1.0,
+        "tide_level": 0.666801425754984,
+        "weather": "clear",
+        "wind_direction": [
+          0.721743226051331,
+          0.692160904407501
+        ],
+        "wind_strength": 0.2
+      },
+      "hardware_host": "macOS/arm64"
     },
     {
       "plate_id": "viru_gate_foreland/clear/night",
@@ -2868,27 +3005,44 @@
       "time_of_day": "day",
       "quality": "recommended",
       "renderer_expected": "metal",
-      "renderer_observed": "not_run",
+      "renderer_observed": "macOS",
       "viewport": {
         "width": 1280,
         "height": 720
       },
       "output": "res://docs/reports/images/r715_water/prototype_sacred_grove_clear_day.png",
-      "status": "blocked",
-      "sha256": "",
+      "status": "captured_pending_review",
+      "sha256": "d46a53c0b731b4ad8f51f5099efde1db3d8de5113779153820758e6462755dfb",
+      "width": 1280,
+      "height": 720,
       "visual_checks": {
-        "reflection_continuity": "blocked",
-        "wave_readability": "blocked",
-        "shoreline_grounding": "blocked",
-        "underwater_depth": "blocked",
-        "night_readability": "blocked",
-        "parity": "blocked"
+        "reflection_continuity": "not_reviewed",
+        "wave_readability": "not_reviewed",
+        "shoreline_grounding": "not_reviewed",
+        "underwater_depth": "not_reviewed",
+        "night_readability": "not_reviewed",
+        "parity": "not_reviewed"
       },
-      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "annotation": "Real-renderer PNG captured; human visual review is still required.",
       "blockers": [
-        "real renderer/Metal capture not run",
         "human visual review not performed"
-      ]
+      ],
+      "presentation": {
+        "moon_visibility": 0.137555067840739,
+        "puddle_wetness": 0.0,
+        "rain_intensity": 0.0,
+        "rain_suppressed": false,
+        "star_visibility": 0.0,
+        "sun_visibility": 1.0,
+        "tide_level": 0.666801425754984,
+        "weather": "clear",
+        "wind_direction": [
+          0.721743226051331,
+          0.692160904407501
+        ],
+        "wind_strength": 0.2
+      },
+      "hardware_host": "macOS/arm64"
     },
     {
       "plate_id": "prototype.sacred_grove/clear/night",
@@ -3998,27 +4152,44 @@
       "time_of_day": "day",
       "quality": "recommended",
       "renderer_expected": "metal",
-      "renderer_observed": "not_run",
+      "renderer_observed": "macOS",
       "viewport": {
         "width": 1280,
         "height": 720
       },
       "output": "res://docs/reports/images/r715_water/world_sacred_grove_clear_day.png",
-      "status": "blocked",
-      "sha256": "",
+      "status": "captured_pending_review",
+      "sha256": "7ad7529d626ce3aa7f8e12bba9e1e1343b4df4f674c3039b14c9c0a03b106a40",
+      "width": 1280,
+      "height": 720,
       "visual_checks": {
-        "reflection_continuity": "blocked",
-        "wave_readability": "blocked",
-        "shoreline_grounding": "blocked",
-        "underwater_depth": "blocked",
-        "night_readability": "blocked",
-        "parity": "blocked"
+        "reflection_continuity": "not_reviewed",
+        "wave_readability": "not_reviewed",
+        "shoreline_grounding": "not_reviewed",
+        "underwater_depth": "not_reviewed",
+        "night_readability": "not_reviewed",
+        "parity": "not_reviewed"
       },
-      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "annotation": "Real-renderer PNG captured; human visual review is still required.",
       "blockers": [
-        "real renderer/Metal capture not run",
         "human visual review not performed"
-      ]
+      ],
+      "presentation": {
+        "moon_visibility": 0.137555067840739,
+        "puddle_wetness": 0.0,
+        "rain_intensity": 0.0,
+        "rain_suppressed": false,
+        "star_visibility": 0.0,
+        "sun_visibility": 1.0,
+        "tide_level": 0.666801425754984,
+        "weather": "clear",
+        "wind_direction": [
+          0.721743226051331,
+          0.692160904407501
+        ],
+        "wind_strength": 0.2
+      },
+      "hardware_host": "macOS/arm64"
     },
     {
       "plate_id": "world.sacred_grove/clear/night",
@@ -4371,27 +4542,44 @@
       "time_of_day": "day",
       "quality": "recommended",
       "renderer_expected": "metal",
-      "renderer_observed": "not_run",
+      "renderer_observed": "macOS",
       "viewport": {
         "width": 1280,
         "height": 720
       },
       "output": "res://docs/reports/images/r715_water/world_padise_clear_day.png",
-      "status": "blocked",
-      "sha256": "",
+      "status": "captured_pending_review",
+      "sha256": "5c0a6fede8c5725b238dcbe64db435981f17ac4115c894ff2f28d5ab56110f43",
+      "width": 1280,
+      "height": 720,
       "visual_checks": {
-        "reflection_continuity": "blocked",
-        "wave_readability": "blocked",
-        "shoreline_grounding": "blocked",
-        "underwater_depth": "blocked",
-        "night_readability": "blocked",
-        "parity": "blocked"
+        "reflection_continuity": "not_reviewed",
+        "wave_readability": "not_reviewed",
+        "shoreline_grounding": "not_reviewed",
+        "underwater_depth": "not_reviewed",
+        "night_readability": "not_reviewed",
+        "parity": "not_reviewed"
       },
-      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "annotation": "Real-renderer PNG captured; human visual review is still required.",
       "blockers": [
-        "real renderer/Metal capture not run",
         "human visual review not performed"
-      ]
+      ],
+      "presentation": {
+        "moon_visibility": 0.137555067840739,
+        "puddle_wetness": 0.0,
+        "rain_intensity": 0.0,
+        "rain_suppressed": false,
+        "star_visibility": 0.0,
+        "sun_visibility": 1.0,
+        "tide_level": 0.666801425754984,
+        "weather": "clear",
+        "wind_direction": [
+          0.721743226051331,
+          0.692160904407501
+        ],
+        "wind_strength": 0.2
+      },
+      "hardware_host": "macOS/arm64"
     },
     {
       "plate_id": "world.padise/clear/night",
