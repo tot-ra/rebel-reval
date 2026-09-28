@@ -210,6 +210,77 @@ func test_launch_residents_suspend_and_restore_exactly() -> void:
 	scene.free()
 
 
+func test_launch_prop_visibility_stays_on_location_view() -> void:
+	var launched := _launch_lower_town()
+	var level: Node = launched["level"]
+	var host: WorldHost = launched["host"]
+	var driver: WorldHostStreamingDriver = launched["driver"]
+	if driver == null:
+		_dispose(level, launched)
+		return
+	var runtime := level.get_node("MapViewRuntime") as MapViewRuntime
+	var market := level.get_node("MarketDayController") as MarketDayController
+	var stall := &"market_stall_turg_north"
+	for days in 8:
+		market.sync_for_test(SessionState.state.get_phase(), days)
+		if not market.is_market_day_active():
+			break
+	assert_false(market.is_market_day_active(), "test needs a non-market weekday")
+	var lt_view := runtime.view_for(&"lower_town_slice")
+	assert_true(lt_view != null, "launch location has a hosted view")
+	assert_false(
+		_prop_visible(lt_view, stall),
+		"expanded stalls hide on the Lower Town view"
+	)
+
+	var player := host.player_owner as Player
+	var start := player.global_position
+	var step := Vector2(-0.5 * CELL, 0.0)
+	driver.tick()
+	for index in 16:
+		player.global_position = start + step * float(index + 1)
+		driver.tick()
+	assert_eq(host.owning_location_id(), &"market_civic_quarter")
+	var market_view := runtime.view_for(&"market_civic_quarter")
+	assert_eq(runtime.view, market_view, "owner view follows the crossing")
+	assert_eq(
+		market_view.get_node_or_null("Props/Prop_%s" % String(stall)),
+		null,
+		"Lower Town stall id is not written onto the market view"
+	)
+	lt_view = runtime.view_for(&"lower_town_slice")
+	if lt_view != null:
+		assert_false(_prop_visible(lt_view, stall), "still hidden on Lower Town")
+
+	player.global_position = Vector2(-100.0 * CELL, 53.0 * CELL)
+	host.update_streaming(player.global_position)
+	_assert_launch_residents_follow_residency(level, host, driver.launch_residents())
+	if not host.mounted_location_ids().has(&"lower_town_slice"):
+		var actors := level.get_node("Actors") as Node2D
+		var late := StaticNpcActor.new()
+		late.name = "LateSuspendedNpc"
+		actors.add_child(late)
+		runtime._process(0.016)
+		driver.tick()
+		var late_rig := runtime.get_actor_rig(late)
+		assert_true(late_rig != null, "rescan created a rig for the late actor")
+		if late_rig != null:
+			assert_false(late_rig.visible, "no visible rig while Actors is suspended")
+
+	for index in 16:
+		player.global_position = start + step * float(15 - index)
+		driver.tick()
+	assert_true(host.mounted_location_ids().has(&"lower_town_slice"))
+	var remounted := runtime.view_for(&"lower_town_slice")
+	assert_true(remounted != null, "Lower Town remounted")
+	market._process(0.016)
+	assert_false(
+		_prop_visible(remounted, stall),
+		"remounted Lower Town view replays the hidden stall"
+	)
+	_dispose(level, launched)
+
+
 func test_forced_loader_failure_reaches_door_navigator() -> void:
 	var launched := _launch_lower_town()
 	var level: Node = launched["level"]
@@ -332,6 +403,13 @@ func _dispose(level: Node, launched: Dictionary) -> void:
 	ProjectSettings.set_setting(WorldHost.ADDITIVE_RESIDENCY_SETTING, launched["previous_flag"])
 	SessionState.state.player.location_id = launched["location_id"]
 	SessionState.state.player.spawn_id = launched["spawn_id"]
+
+
+func _prop_visible(view: MapView3D, prop_id: StringName) -> bool:
+	if view == null:
+		return false
+	var node := view.get_node_or_null("Props/Prop_%s" % String(prop_id)) as Node3D
+	return node != null and node.visible
 
 
 func _door(host: WorldHost, location_id: StringName, transition_id: StringName) -> Area2D:

@@ -106,6 +106,26 @@ func resume() -> void:
 	_rig_visibility.clear()
 
 
+## R-1085: `MapViewRuntimeActors.sync_view_actors` can spawn a rig after
+## suspend() ran. Hide those late rigs for the rest of the eviction; resume()
+## restores them as visible so quest NPCs spawned while away are there on return.
+func hide_late_actor_rigs() -> void:
+	if not _suspended:
+		return
+	var actors := _actors()
+	var runtime := _runtime()
+	if actors == null or runtime == null:
+		return
+	for found in actors.find_children("*", "Node2D", true, false):
+		var actor := found as Node2D
+		var rig := runtime.get_actor_rig(actor)
+		if rig == null or not is_instance_valid(rig):
+			continue
+		if not _rig_visibility.has(rig):
+			_rig_visibility[rig] = true
+		rig.visible = false
+
+
 func _is_resident(node: Node) -> bool:
 	if node == _host or node is CanvasLayer or node is Node3D:
 		return false

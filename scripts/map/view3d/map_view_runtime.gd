@@ -145,6 +145,22 @@ func owning_location_id() -> StringName:
 	return _owning_location_id
 
 
+## Location-scoped hosted view. Launch controllers must write props here, not
+## to `view`, which follows the owning location after a seam crossing. Flag-off
+## has no host, so this is the same as `view`. Scene controllers pass `loc.<id>`;
+## WorldHost keys are bare map ids, so the `loc.` prefix is stripped.
+func view_for(location_id: StringName) -> MapView3D:
+	if world_host == null or location_id.is_empty():
+		return view
+	var hosted := world_host.call(&"hosted_view", location_id) as MapView3D
+	if hosted != null:
+		return hosted
+	var text := String(location_id)
+	if text.begins_with("loc."):
+		return world_host.call(&"hosted_view", StringName(text.substr(4))) as MapView3D
+	return null
+
+
 ## WB-08d: retarget terrain, view, ambient, camera and minimap to the location
 ## that now owns the player. The Player, camera and HUD instances stay put.
 func bind_owning_location(location_id: StringName) -> bool:

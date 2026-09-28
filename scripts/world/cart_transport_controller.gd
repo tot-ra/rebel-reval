@@ -46,6 +46,7 @@ var _definition: MapDefinition
 var _view_runtime
 var _state: GameState
 var _sync_key := ""
+var _applied_view_id := 0
 var _active_traffic: Array[Dictionary] = []
 
 
@@ -128,16 +129,29 @@ func _on_phase_changed(_previous: StringName, _next: StringName) -> void:
 	_sync_traffic()
 
 
+func _hosted_view() -> MapView3D:
+	if _view_runtime == null:
+		return null
+	if _view_runtime.has_method(&"view_for"):
+		return _view_runtime.view_for(location_id) as MapView3D
+	return _view_runtime.view as MapView3D
+
+
 func _sync_traffic() -> void:
 	if _state == null or _definition == null:
 		return
+	var hosted := _hosted_view()
+	var view_id := hosted.get_instance_id() if hosted != null else 0
 	var phase_id := _state.get_phase()
 	var inland_active := phase_id != PHASE_ACT1_CLIMAX
 	_state.set_flag(FLAG_SIEGE_INLAND_CART_ACTIVE, inland_active)
 	var next_key := "%s|%s|%s" % [String(location_id), String(phase_id), str(inland_active)]
-	if next_key == _sync_key:
+	if next_key == _sync_key and view_id == _applied_view_id:
+		return
+	if hosted == null:
 		return
 	_sync_key = next_key
+	_applied_view_id = view_id
 	_active_traffic = traffic_for_phase(phase_id, inland_active)
 	var active_ids: Dictionary = {}
 	for descriptor in _active_traffic:
@@ -150,6 +164,7 @@ func _sync_traffic() -> void:
 
 
 func _set_prop_visible(prop_id: StringName, visible_state: bool) -> void:
-	if _view_runtime == null or _view_runtime.view == null:
+	var hosted := _hosted_view()
+	if hosted == null:
 		return
-	_view_runtime.view.set_prop_visible(prop_id, visible_state)
+	hosted.set_prop_visible(prop_id, visible_state)

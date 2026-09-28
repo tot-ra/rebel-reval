@@ -12,6 +12,7 @@ var _district_id: StringName = &""
 var _state: GameState
 var _applied_state := &""
 var _applied_supply := false
+var _applied_view_id := 0
 
 
 func setup(view_runtime: MapViewRuntime, map_location_id: StringName) -> void:
@@ -76,22 +77,30 @@ func _on_faction_event_recorded(_event_id: StringName, _faction_id: StringName) 
 	_sync_visuals()
 
 
+func _hosted_view() -> MapView3D:
+	if _view_runtime == null:
+		return null
+	return _view_runtime.view_for(location_id)
+
+
 func _sync_visuals() -> void:
-	if (
-		_view_runtime == null
-		or _view_runtime.view == null
-		or _district_id.is_empty()
-		or _state == null
-	):
+	var hosted := _hosted_view()
+	if hosted == null or _district_id.is_empty() or _state == null:
 		return
 	var snapshot := ModelScript.resolve_snapshot(_district_id, _state)
 	var consequence_state: StringName = snapshot.get(
 		"consequence_state", ModelScript.STATE_BASELINE
 	)
 	var supply_disrupted := bool(snapshot.get("supply_disrupted", false))
-	if consequence_state == _applied_state and supply_disrupted == _applied_supply:
+	var view_id := hosted.get_instance_id()
+	if (
+		consequence_state == _applied_state
+		and supply_disrupted == _applied_supply
+		and view_id == _applied_view_id
+	):
 		return
 	_applied_state = consequence_state
 	_applied_supply = supply_disrupted
+	_applied_view_id = view_id
 	for prop_id: StringName in ModelScript.all_managed_prop_ids(_district_id):
-		_view_runtime.view.set_prop_visible(prop_id, ModelScript.prop_visible(snapshot, prop_id))
+		hosted.set_prop_visible(prop_id, ModelScript.prop_visible(snapshot, prop_id))

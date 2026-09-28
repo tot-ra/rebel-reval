@@ -40,6 +40,9 @@ var _crowd_layer: CanvasLayer
 var _crowd_label: Label
 var _crowd_timer := 0.0
 var _population_controller: Object
+## Hosted MapView3D instance last written. Remount must replay even if the
+## calendar key is unchanged.
+var _applied_view_id := 0
 
 
 func bind_population_controller(controller: Object) -> void:
@@ -132,13 +135,23 @@ func _on_phase_changed(_previous: StringName, _next: StringName) -> void:
 	_sync_from_calendar()
 
 
+func _hosted_view() -> MapView3D:
+	if _view_runtime == null:
+		return null
+	return _view_runtime.view_for(location_id)
+
+
 func _sync_from_calendar() -> void:
 	if _state == null:
 		return
+	var hosted := _hosted_view()
+	var view_id := hosted.get_instance_id() if hosted != null else 0
 	var phase_id := _state.get_phase()
 	var elapsed_days := _elapsed_days()
 	var date_key := _date_key_for(phase_id, elapsed_days)
-	if date_key == _synced_date_key:
+	if date_key == _synced_date_key and view_id == _applied_view_id:
+		return
+	if hosted == null and _view_runtime != null and _view_runtime.is_hosted():
 		return
 	_synced_date_key = date_key
 	var previous_active := _market_day_active
@@ -216,10 +229,12 @@ func _present_crowd_bark() -> void:
 
 
 func _set_expanded_stalls_visible(visible_state: bool) -> void:
-	if _view_runtime == null or _view_runtime.view == null:
+	var hosted := _hosted_view()
+	if hosted == null:
 		return
 	for prop_id: StringName in ModelScript.EXPANDED_STALL_PROP_IDS:
-		_view_runtime.view.set_prop_visible(prop_id, visible_state)
+		hosted.set_prop_visible(prop_id, visible_state)
+	_applied_view_id = hosted.get_instance_id()
 
 
 func _build_dialogue_stack() -> void:

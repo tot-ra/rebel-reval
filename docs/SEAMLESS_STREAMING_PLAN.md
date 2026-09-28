@@ -474,10 +474,19 @@ proves exact restore and the exclusions), plus `test_world_host_launch`,
 `test_phase_transitions`, `test_phase_advance_triggers` (74 tests) and
 `verify_world_seam_walk.tscn` (29 checks). Flag off nothing attaches.
 
-Still open: prop visibility that Lower Town controllers push through
-`MapViewRuntime.view` targets the owner's view after a crossing, and a freshly
-remounted Lower Town view does not replay it; an actor spawned into `Actors`
-while suspended gets a visible rig from the runtime rescan.
+**R-1085 (2026-09-28, flag on only).** Launch controllers write prop visibility
+through `MapViewRuntime.view_for(location_id)`, not `view`. After a seam
+crossing `view` is the owner's MapView3D (market), so Lower Town stall/cart/
+consequence ids stayed on the wrong mesh and a remounted Lower Town view showed
+authored defaults. `view_for` returns that location's hosted view, or `view`
+when there is no host (flag-off). Controllers replay when the hosted instance
+id changes. While Lower Town is evicted, `WorldHostLaunchResidents.hide_late_actor_rigs()`
+hides rigs spawned into `Actors` after suspend; resume shows them.
+
+Evidence: `--filter=test_world_host_streaming` includes
+`test_launch_prop_visibility_stays_on_location_view` (hidden stall stays on the
+Lower Town view, market has no such prop node, remount replays the hide, a
+late actor has no visible rig while suspended). Flag-off path is unchanged.
 
 ## R-980 release criteria
 

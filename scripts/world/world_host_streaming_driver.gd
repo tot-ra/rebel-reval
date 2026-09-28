@@ -108,6 +108,8 @@ func tick() -> Dictionary:
 	var result := _host.update_streaming(player.global_position)
 	if WorldHostSeamSave.capture(_host, state):
 		_mirrored_state = state
+	if _launch_residents != null and _launch_residents.is_suspended():
+		_launch_residents.hide_late_actor_rigs()
 	tick_usec.append(Time.get_ticks_usec() - started)
 	return result
 

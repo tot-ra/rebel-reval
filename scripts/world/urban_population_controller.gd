@@ -24,6 +24,7 @@ var _state: GameState
 var _replay_seed := DEFAULT_REPLAY_SEED
 var _market_day_active := false
 var _sync_key := ""
+var _applied_view_id := 0
 var _active_profile: Dictionary = {}
 
 
@@ -131,9 +132,19 @@ func _on_pressure_changed(_event_id: StringName, _faction_id: StringName) -> voi
 	_sync_population()
 
 
+func _hosted_view() -> MapView3D:
+	if _view_runtime == null:
+		return null
+	if _view_runtime.has_method(&"view_for"):
+		return _view_runtime.view_for(location_id) as MapView3D
+	return _view_runtime.view as MapView3D
+
+
 func _sync_population() -> void:
 	if _definition == null or _definition.map_id != MapBindingScript.LOWER_TOWN_MAP_ID:
 		return
+	var hosted := _hosted_view()
+	var view_id := hosted.get_instance_id() if hosted != null else 0
 	var phase_id := _current_phase_id()
 	var date := _current_date(phase_id)
 	var context := _profile_context()
@@ -147,16 +158,24 @@ func _sync_population() -> void:
 			_replay_seed,
 		]
 	)
-	if next_key == _sync_key:
+	if next_key == _sync_key and view_id == _applied_view_id:
+		return
+	if hosted == null:
+		_applied_view_id = 0
+		if _view_runtime != null:
+			var renderer: MapViewCrowdRenderer = _view_runtime.get_crowd_renderer()
+			if renderer != null:
+				renderer.clear_actors()
 		return
 	_sync_key = next_key
+	_applied_view_id = view_id
 	var profile := ProfileScript.resolve_for_context(phase_id, date, _replay_seed, context)
 	_active_profile = profile
-	_apply_profile_to_renderer(profile)
+	_apply_profile_to_renderer(hosted, profile)
 
 
-func _apply_profile_to_renderer(profile: Dictionary) -> void:
-	if _view_runtime == null or _view_runtime.view == null:
+func _apply_profile_to_renderer(hosted: MapView3D, profile: Dictionary) -> void:
+	if _view_runtime == null or hosted == null:
 		return
 	var renderer: MapViewCrowdRenderer = _view_runtime.get_crowd_renderer()
 	if renderer == null:
@@ -165,7 +184,7 @@ func _apply_profile_to_renderer(profile: Dictionary) -> void:
 	var placements := PlacementScript.build_placements(_definition, _grid, profile)
 	for placement: Dictionary in placements:
 		var logic_position: Vector2 = placement["position"]
-		var world_position: Vector3 = _view_runtime.view.world_position(logic_position)
+		var world_position: Vector3 = hosted.world_position(logic_position)
 		var ground_y := MeshBuilderScript.ground_height(
 			_definition, Vector2(world_position.x, world_position.z)
 		)
