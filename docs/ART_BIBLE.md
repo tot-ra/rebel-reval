@@ -50,6 +50,24 @@ the shader (`mud_wetness`, WS-08 swash), not the plate.
 - `shore_shingle` is a material family, not a terrain ID. It appears as storm-line
   strands inside `coast_sand` (`coast_shingle_amount`) and feeds CO-02 scatter.
 
+## Shore debris (CO-02 / R-949)
+
+A Baltic shore is littered, not a smooth ramp into the sea. Beach shorelines carry
+glacial granite erratics in the shallows, a crusted and weedy foot at the waterline,
+bladderwrack and reed drift along the swash line, and shingle and loose stones on
+the storm ridge. See [`docs/reports/co02_shore_debris.md`](reports/co02_shore_debris.md).
+
+- Erratics are grey-to-pink rapakivi granite, sea-rounded, with a few flat fracture
+  faces. They are never smooth blobs, and never paving limestone. Loose stones mix
+  granite with pale Ordovician limestone.
+- A stone in the sea must show its crown above the water from the gameplay camera.
+  The barnacle and algae crust sits at the waterline, and weed only below it. Wrack
+  lies within one cell of the line.
+- Flat dressing (shingle, wrack, weed) dissolves into the ground through a faded,
+  ragged rim. A hard cut-out edge on the sand is a defect.
+- One shared material per surface family (`MapViewMaterials.shore_debris`). Debris
+  GLBs carry named slots, not baked colours.
+
 ## Bird realism (P0-207 / P0-212 / P0-216)
 
 Maintainer-directed September 2026: existing birds move toward natural anatomy

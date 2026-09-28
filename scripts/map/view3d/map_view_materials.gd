@@ -79,6 +79,59 @@ const ROOF_THATCH_WORLD_DENSITY := BUILDING_MATERIALS.ROOF_THATCH_WORLD_DENSITY
 const SHORE_STRENGTH_BY_TERRAIN := SHORE_MATERIALS.SHORE_STRENGTH_BY_TERRAIN
 const SHORE_TIDE_SHIFT := SHORE_MATERIALS.SHORE_TIDE_SHIFT
 
+## CO-02 shore debris surface families -> [albedo, normal, roughness] plates.
+## The GLBs carry only named slots so a coast shares one material per family.
+## Shingle reuses the CO-01 shore_shingle plate.
+const SHORE_DEBRIS_DIR := "res://assets/props/environment/shore/"
+const SHORE_DEBRIS_PLATES := {
+	&"shore_granite":
+	[
+		SHORE_DEBRIS_DIR + "shore_granite_albedo.png",
+		SHORE_DEBRIS_DIR + "shore_granite_normal.png",
+		SHORE_DEBRIS_DIR + "shore_granite_roughness.png",
+	],
+	&"shore_barnacle":
+	[
+		SHORE_DEBRIS_DIR + "shore_barnacle_albedo.png",
+		SHORE_DEBRIS_DIR + "shore_barnacle_normal.png",
+		SHORE_DEBRIS_DIR + "shore_barnacle_roughness.png",
+	],
+	&"shore_limestone":
+	[
+		SHORE_DEBRIS_DIR + "shore_limestone_albedo.png",
+		SHORE_DEBRIS_DIR + "shore_limestone_normal.png",
+		SHORE_DEBRIS_DIR + "shore_limestone_roughness.png",
+	],
+	&"shore_shingle":
+	[
+		"res://assets/materials/pbr/shore_shingle/shore_shingle_albedo.png",
+		"res://assets/materials/pbr/shore_shingle/shore_shingle_normal.png",
+		"res://assets/materials/pbr/shore_shingle/shore_shingle_roughness.png",
+	],
+	&"shore_wrack":
+	[
+		SHORE_DEBRIS_DIR + "shore_wrack_albedo.png",
+		SHORE_DEBRIS_DIR + "shore_wrack_normal.png",
+		SHORE_DEBRIS_DIR + "shore_wrack_roughness.png",
+	],
+	&"shore_algae":
+	[
+		SHORE_DEBRIS_DIR + "shore_algae_albedo.png",
+		SHORE_DEBRIS_DIR + "shore_algae_normal.png",
+		SHORE_DEBRIS_DIR + "shore_algae_roughness.png",
+	],
+}
+## Thin drift and weed are single sheets seen from both sides.
+const SHORE_DEBRIS_TWO_SIDED: Array[StringName] = [&"shore_wrack", &"shore_algae"]
+## Flat dressing fades its rim through vertex alpha. Blended, not hashed: the
+## Compatibility renderer resolved the hash to a hard cut-out edge on the sand.
+const SHORE_DEBRIS_ALPHA_RIM: Array[StringName] = [&"shore_shingle", &"shore_wrack"]
+## Weed is seen through the WS-13 underwater pass, which composites from depth:
+## blended surfaces write none and vanish there, so the skirt cuts its ragged lip.
+const SHORE_DEBRIS_ALPHA_CUT: Array[StringName] = [&"shore_algae"]
+
+static var _shore_debris_materials: Dictionary = {}
+
 ## Shader sources live in MapViewMaterialShaders; procedural textures in MapViewMaterialPatterns.
 
 
@@ -91,6 +144,38 @@ static func reset() -> void:
 	TERRAIN_MATERIALS.reset()
 	BUILDING_MATERIALS.reset()
 	PROP_MATERIALS.reset()
+	_shore_debris_materials.clear()
+
+
+## One cached PBR material per shore debris family; unknown families get null so
+## a mistyped slot fails loudly in tests instead of rendering untextured.
+static func shore_debris(surface: StringName) -> StandardMaterial3D:
+	if _shore_debris_materials.has(surface):
+		return _shore_debris_materials[surface]
+	if not SHORE_DEBRIS_PLATES.has(surface):
+		return null
+	var plates: Array = SHORE_DEBRIS_PLATES[surface]
+	var material := StandardMaterial3D.new()
+	material.resource_name = String(surface)
+	material.albedo_texture = load(plates[0]) as Texture2D
+	material.normal_enabled = true
+	material.normal_texture = load(plates[1]) as Texture2D
+	material.normal_scale = 1.0
+	material.roughness = 1.0
+	material.roughness_texture = load(plates[2]) as Texture2D
+	material.roughness_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_GRAYSCALE
+	# MultiMesh instance colours carry the per-stone tint and wetness darkening.
+	material.vertex_color_use_as_albedo = true
+	material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	if surface in SHORE_DEBRIS_TWO_SIDED:
+		material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	if surface in SHORE_DEBRIS_ALPHA_RIM:
+		material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	elif surface in SHORE_DEBRIS_ALPHA_CUT:
+		material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
+		material.alpha_scissor_threshold = 0.4
+	_shore_debris_materials[surface] = material
+	return material
 
 
 ## Dry-terrain and blended-ground APIs remain here for existing builders and

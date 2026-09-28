@@ -210,6 +210,25 @@ These remain valid for broad area dressing and backwards compatibility. Authors 
 | `grass.fern` | fern-rich understory | `fern_frond_mesh()` | cover style; concrete model is `plant.fern` |
 | `reed.shore` | legacy freshwater bank mix | reed stems and cattail bank layer | cover style; concrete models are `plant.reed` and `plant.cattail` |
 
+## Shore debris (CO-02 / R-949)
+
+Beach shorelines (WS-08 `shore_type` beach, never quays) are dressed automatically.
+Nothing is authored in `.rrmap`. The family lives in `assets/props/environment/shore/`
+and is built by `tools/build_shore_debris.py`.
+
+| Layer | Where | Model |
+|---|---|---|
+| Granite erratics (1.2 m, 2.1 m) | Shallows, 0.6-5 cells seaward; crown must clear the water | `shore_boulder_granite_medium`, `_large` |
+| Barnacled erratic (1.6 m) | Just off the line, waterline at the top of its crust | `shore_boulder_granite_barnacled` |
+| Weed apron | Round submerged stones, below the waterline only | `shore_algae_skirt` |
+| Bladderwrack and reed drift | Within one cell of the waterline, along the shore | `shore_wrack_line_a`, `_b` |
+| Shingle lens, stone clusters, small boulders | Beach, 1.2-6 cells landward | `shore_pebble_patch_*`, `shore_stone_cluster_*`, `shore_boulder_granite_small` |
+
+Stones of 1.0 m or wider stand only on sea cells. Their footprints
+(`MapViewTerrainDetails.shore_debris_blocking_cells`) are solid for swimming and boats,
+and they never reduce the walkable region. Freshwater banks keep their reeds and cattails
+and get no marine wrack.
+
 ## Authoring contract
 
 ```rrmap

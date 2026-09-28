@@ -381,6 +381,13 @@ static func build_scatter(
 			)
 		)
 	Shoreline3D.add_to(root, definition, grid, bounds)
+	# CO-02: authored boulders, shingle, wrack and algae placed by distance to the
+	# WS-08 shore field; built with every scatter chunk, not only first person.
+	var shore_debris := MapViewTerrainDetails.build_shore_debris(definition, grid, bounds)
+	if shore_debris.get_child_count() > 0:
+		root.add_child(shore_debris)
+	else:
+		shore_debris.free()
 	return root
 
 
