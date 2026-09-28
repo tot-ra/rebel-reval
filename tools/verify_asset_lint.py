@@ -67,6 +67,7 @@ from character_fidelity_tiers import (  # noqa: E402
     iter_runtime_character_glbs,
 )
 from architecture_budgets import validate_building_budgets  # noqa: E402
+from verify_runtime_glb_budget import validate as validate_runtime_glb_budget  # noqa: E402
 from fauna_glb_inspect import validate_fauna_glb_pbr  # noqa: E402
 from share_character_textures import (  # noqa: E402
     canonical_stem,
@@ -470,6 +471,10 @@ def validate(*, root: Path = ROOT) -> list[LintIssue]:
     # ADR 0025 Decision 3: building triangle/LOD/material/disk caps.
     for message in validate_building_budgets(root=root):
         issues.append(LintIssue("ASSET_LINT_ARCHITECTURE_BUDGET", message))
+
+    # P0-183: oak, shared character LODs, and a just-under-LFS default.
+    for message in validate_runtime_glb_budget(root=root):
+        issues.append(LintIssue("ASSET_LINT_RUNTIME_GLB_BUDGET", message))
 
     return issues
 

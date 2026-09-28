@@ -192,6 +192,27 @@ python3 tools/verify_runtime_audio_budget.py
 python3 tools/optimize_runtime_audio.py
 ```
 
+## Runtime meshes (`assets/**/*.glb`)
+
+Landmark and shared-character GLBs keep triangle caps beside a per-file byte cap so they cannot drift back toward the 10 MiB LFS line. Caps live in [`docs/data/runtime_glb_budget.json`](./data/runtime_glb_budget.json). Owned exceptions must be listed in that manifest `exceptions` array with a task id.
+
+| Class | Byte cap | Triangle cap |
+|------|------:|------:|
+| Sacred Grove oak | 8 MiB | 70 000 |
+| Shared character LOD0 | 6 MiB | 60 000 |
+| Shared character LOD1 | 2 MiB | 28 000 |
+| Shared character LOD2 | 1 MiB | 12 000 |
+| Hero garments | 256 KiB | 1 024 |
+| Other `assets/**/*.glb` | 10 MiB - 1 byte | (none; LFS still owns files at or above 10 MiB) |
+
+The oak generator embeds painted maps; `tools/optimize_runtime_glbs.py` rewrites the GLB to URI-reference the sibling PNGs Godot already extracted. Shared bodies already URI-reference `assets/characters/shared/textures/`.
+
+```bash
+python3 tools/optimize_runtime_glbs.py
+python3 tools/verify_runtime_glb_budget.py
+python3 tools/verify_asset_lint.py
+```
+
 ## Verification
 
 Run from the repository root:
@@ -203,6 +224,7 @@ python3 tools/verify_storage_hygiene.py
 python3 tools/verify_evidence_image_retention.py
 python3 tools/research/fetch_reference_plates.py --verify
 python3 tools/verify_runtime_audio_budget.py
+python3 tools/verify_runtime_glb_budget.py
 python3 tools/validate_asset_sources.py
 python3 tools/generate_asset_inventory.py --check
 godot --headless --editor --quit

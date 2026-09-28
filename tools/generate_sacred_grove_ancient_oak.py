@@ -4,8 +4,9 @@
 Run from the repository root:
     blender --background --factory-startup --python tools/generate_sacred_grove_ancient_oak.py -- --preview
 
-The model is deterministic and ships as a Y-up GLB with embedded painted PBR
-textures. Evidence is written under generated/blender/sacred_grove_ancient_oak_v1/.
+The model is deterministic and ships as a Y-up GLB. Painted PBR maps are
+URI-referenced sibling PNGs (P0-183). Evidence is written under
+generated/blender/sacred_grove_ancient_oak_v1/.
 """
 
 from __future__ import annotations
@@ -147,6 +148,12 @@ def _export(root: bpy.types.Object, meshes: list[bpy.types.Object], authored: di
         export_animations=False,
         export_extras=True,
     )
+    # WHY: Blender packs the painted maps into the BIN (~2 MiB). Godot already
+    # has sibling PNGs; URI-linking them keeps the landmark under the P0-183 cap
+    # without changing triangles or silhouette.
+    from optimize_runtime_glbs import externalize_oak_images  # noqa: E402
+
+    externalize_oak_images(OUTPUT)
     metrics = _mesh_metrics(meshes)
     metrics.update(authored)
     metrics["sha256"] = hashlib.sha256(OUTPUT.read_bytes()).hexdigest()
@@ -222,7 +229,7 @@ def _write_evidence(metrics: dict[str, object], preview: Path | None) -> None:
             "ground_contact": abs(float(metrics["ground_min_z"])) <= 0.05,
             "triangle_cap": int(metrics["triangles"]) <= int(BRIEF["triangles"]["max"]),
             "portable_pbr": True,
-            "embedded_albedo_and_bark_normal": True,
+            "uri_referenced_albedo_and_bark_normal": True,
             "uvs": int(metrics["uv_sets"]) >= 1,
             "floating_geometry": int(metrics["floating_objects"]) == 0,
             "gameplay_collision_unchanged": True,

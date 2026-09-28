@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "owner": "P0-183",
+  "baseline": {
+    "audit_date": "2026-08-11",
+    "named_outlier": "assets/props/environment/sacred_grove_ancient_oak/sacred_grove_ancient_oak.glb",
+    "named_outlier_bytes_before": 10045452,
+    "named_outlier_bytes_after": 7868736,
+    "named_outlier_note": "9.58 MiB landmark with embedded PBR maps; URI-referenced sibling PNGs leave 7.50 MiB of mesh"
+  },
+  "policy": {
+    "roots": ["assets"],
+    "suffixes": [".glb"]
+  },
+  "rules": [
+    {
+      "id": "build_input",
+      "paths": ["assets/characters/shared/kaykit_barbarian.glb"],
+      "skip": true
+    },
+    {
+      "id": "garment",
+      "paths": [
+        "assets/characters/shared/hero_cape.glb",
+        "assets/characters/shared/hero_hat.glb",
+        "assets/characters/shared/hero_mail.glb"
+      ],
+      "max_file_bytes": 262144,
+      "max_triangles": 1024
+    },
+    {
+      "id": "landmark_oak",
+      "paths": [
+        "assets/props/environment/sacred_grove_ancient_oak/sacred_grove_ancient_oak.glb"
+      ],
+      "max_file_bytes": 8388608,
+      "max_triangles": 70000
+    },
+    {
+      "id": "shared_character_lod2",
+      "glob": "assets/characters/shared/*_lod2.glb",
+      "max_file_bytes": 1048576,
+      "max_triangles": 12000
+    },
+    {
+      "id": "shared_character_lod1",
+      "glob": "assets/characters/shared/*_lod1.glb",
+      "max_file_bytes": 2097152,
+      "max_triangles": 28000
+    },
+    {
+      "id": "shared_character_lod0",
+      "glob": "assets/characters/shared/*.glb",
+      "max_file_bytes": 6291456,
+      "max_triangles": 60000
+    },
+    {
+      "id": "runtime_default",
+      "glob": "assets/**/*.glb",
+      "max_file_bytes": 10485759
+    }
+  ],
+  "exceptions": []
+}

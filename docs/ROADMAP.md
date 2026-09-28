@@ -4,6 +4,9 @@ Coordination notes, delivery order, and planning context formerly embedded in `T
 Executable open work stays in [`TODO.md`](../TODO.md).
 Aged coordination history lives in [`ROADMAP_COORDINATION_ARCHIVE_2026-08-13.md`](./ROADMAP_COORDINATION_ARCHIVE_2026-08-13.md).
 
+<!-- P0-183 runtime GLB budgets closed in current session -->
+Coordination note (2026-09-28 P0-183): runtime GLB byte and triangle caps landed in `docs/data/runtime_glb_budget.json`. Sacred Grove oak dropped 10045452 -> 7868736 bytes by URI-referencing sibling PBR maps (63891 triangles unchanged). Shared character LOD0/1/2 stay under 6 / 2 / 1 MiB with existing LOD siblings. Verified: `python3 tools/verify_runtime_glb_budget.py`, `python3 -m unittest tests.python.test_verify_runtime_glb_budget`, `python3 tools/verify_asset_lint.py`, focused oak/character Godot filters. Follow-up **P0-183b**: storybook mammal GLBs (rat ~9.9 MiB).
+
 <!-- P0-185 shore-material peel extracted in current session -->
 Coordination note (2026-09-28 P0-185 / R-1080): `map_view_shore_materials.gd` now owns WS-08 shore-field binds, swash-sheet mirrors, sea-state/tide uniforms, and the minimum-tier sheet gate. `map_view_materials.gd` keeps `apply_weather_presentation` and public shore delegates (520 -> 452 lines). Verified: `--filter=test_shore_distance_field,test_r715_water_material_contract,test_r715_water_weather_sync,test_map_view_material_resolution` (40/40). Next P0-185 claim: keep `apply_weather_presentation` on the facade until a second caller needs a weather-material adapter; optional hosted-location rebinding is idea **R-1081**.
 

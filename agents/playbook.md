@@ -9,6 +9,7 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 
 ### Instruction conflicts
 - When instruction blocks conflict (delegate to sub-agents vs do not call them; `suggest_git_commit` vs commit-and-push), follow the more specific project or session constraint and state the conflict once.
+- Cursor Agent CLI does not expose the A2gent `tasks` board tool. Claim from `TODO.md` using a ready row with allowed files and `verify`, and do not block waiting for `tasks.next`.
 
 ### Edits
 - Never run parallel edits against the same file. Serialize replacements and re-read the saved block.
@@ -47,6 +48,7 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 - Staging `scripts/map/**` triggers the map audit. If the hook fails on unrelated scene or TODO drift after scoped checks pass, use documented `SKIP_PRE_COMMIT=1` / `git commit --only --no-verify`. Do not absorb audit WIP. A current `origin/main` failure mode is `verify_map_audit.py` "unknown scenes" for character/storybook `.tscn` files that are not in the conversion plan; that is inventory drift, not a reason to add those scenes to a navigation or host commit.
 - On-commit gdlint checks every staged `*.gd` file, including `scenes/**`, and lints the whole file, so touching an older test also fails on its pre-existing long lines. Run `python3 -m gdtoolkit.linter <file>` before committing and wrap those rows too. CI only lints `scripts/*/*.gd`, so `SKIP_PRE_COMMIT=1` is for `tests/`, `tools/`, and scene-script drift that CI does not lint.
 - `git commit --only` exports `GIT_INDEX_FILE` into hooks. Fixture-repo Git tests must clear `GIT_DIR` / `GIT_INDEX_FILE` / `GIT_WORK_TREE`.
+- On-commit `validate_asset_sources.py` walks the live worktree inventory, not the `--only` snapshot. Unrelated missing SOURCES rows (for example shore PNGs) fail a scoped asset commit even when `assets/SOURCES.csv` is in the path set. After scoped budget/lint checks pass, use `SKIP_PRE_COMMIT=1`; do not absorb that inventory into the claim.
 - Do not `git checkout HEAD --` a hot shared file while other dirty scripts already call its new APIs. Do not mid-task `git stash` with fragile pathspecs.
 - After a temporary-index commit, move only the branch ref. Do not `git reset --soft` in the live checkout.
 - After that commit, `unset GIT_INDEX_FILE` and `git restore --staged -- <your paths>` on the live index. The shared index can still hold those paths as staged deletes or leftover adds; the next shared commit would then revert the files you just pushed. Persistent agent shells keep the export across later commands, including after a failed hook: `unset` before any later `git status` or `diff --cached`, or you will read the temp tree and think the shared index was replaced.

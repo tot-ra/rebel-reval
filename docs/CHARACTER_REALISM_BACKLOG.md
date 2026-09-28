@@ -53,4 +53,4 @@ non-white (beard/scalp fur strand length and root shade). Verify:
 - Facial FACS blendshapes or HairWorks-class strand simulation.
 - Renderer switch away from GL Compatibility.
 - Broad quest/systems work from the Witcher doc (reputation, investigation, economy) - those stay on their existing P2/P4 IDs.
-- Inflating body GLB bytes without coordinating **P0-183** size budgets.
+- Inflating body GLB bytes past the P0-183 shared-character caps in [`docs/data/runtime_glb_budget.json`](data/runtime_glb_budget.json).

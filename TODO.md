@@ -14,7 +14,7 @@ This file remains the durable/legacy ID index expected by `README.md`, `AGENTS.m
 <!-- Quick-reference counts updated on every structural change -->
 | Priority | Open | Done | Notes |
 |----------|-----:|-----:|-------|
-| P0 |    14  |     2  | Baseline, storage, materials, historical audit |
+| P0 |    14  |     3  | Baseline, storage, materials, historical audit |
 | P2 |     1  |     0  | Vertical-slice production (playable MVP) |
 
 
@@ -616,7 +616,8 @@ See [`docs/STORAGE_SIZE_BACKLOG.md`](docs/STORAGE_SIZE_BACKLOG.md) for full deli
 
 - [x] P0-180 | deps: P0-177 | deliverable: curated music take reduction with MusicDirector proof | verify: soundtrack tests + recorded byte drop | closed: 2026-09-28; `music/` 131/757462289 -> 76/435777018 bytes; unused `(N)` takes and unreferenced district extras in `archive/music/` (LFS-skip); `music/battle/` retained-library note in `docs/data/slice_soundtrack_manifest.json`
 - [x] P0-182 | deps: P0-180 | deliverable: runtime audio bitrate/size budget | verify: lint/validator + audio tests | closed: 2026-09-28; lossy `sounds/` 192 kbps / 2 MiB and `music/` 256 kbps / 12 MiB in `docs/data/runtime_audio_budget.json`; woodpecker source 10503962 -> 584768 bytes; 22 over-budget MP3s recompressed to 128 kbps CBR
-- [ ] P0-183 | deps: P0-177 | deliverable: oversized runtime GLB budgets (oak + shared characters) | verify: asset lint + focused Godot filters
+- [x] P0-183 | deps: P0-177 | deliverable: oversized runtime GLB budgets (oak + shared characters) | verify: asset lint + focused Godot filters | closed: 2026-09-28; oak 10045452 -> 7868736 bytes (URI sibling PBR maps, 63891 tris); shared LOD0/1/2 byte+triangle caps in `docs/data/runtime_glb_budget.json`
+- [ ] P0-183b | deps: P0-183,P0-209b | deliverable: storybook mammal GLB byte cap after P0-209b replacement (rat/boar/cow) | verify: runtime GLB budget + asset lint + storybook/fauna filters
 - [ ] P0-185 | deps: P0-184 | deliverable: justified view3d hotspot extractions only | verify: named focused filters
 
 P0-185 shore peel (2026-09-28, **R-1080**): `map_view_shore_materials.gd` owns WS-08 shore-field, swash sheets, and quality gating; `MapViewMaterials` keeps the public API and `apply_weather_presentation`. Gate: `--filter=test_shore_distance_field,test_r715_water_material_contract,test_r715_water_weather_sync,test_map_view_material_resolution`. Next optional peel is idea **R-1081** (hosted-location rebinding). Prefer leftover **R-1079** if claiming crash-stability work.
