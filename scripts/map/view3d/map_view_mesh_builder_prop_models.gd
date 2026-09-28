@@ -72,6 +72,10 @@ const BARREL_HOOP_PROFILE: Array[Vector2] = [
 ]
 const ANCIENT_TREE_PRIMITIVE := &"ancient_tree"
 
+## Definition key -> published height field; see _boat_rest_field().
+static var _boat_rest_fields: Dictionary = {}
+
+
 static func _add_barrel(parent: Node3D, node_name: String, position: Vector3, yaw: float) -> Node3D:
 	var barrel := Node3D.new()
 	barrel.name = node_name
@@ -254,7 +258,7 @@ static func build_prop(
 
 
 static func _add_plot_dressing_component(root: Node3D, kind: StringName) -> void:
-	var scene := load(PLOT_DRESSING_SCENE_PATH) as PackedScene
+	var scene := MapViewPackedScenes.load_scene(PLOT_DRESSING_SCENE_PATH)
 	assert(scene != null, "Plot dressing GLB must be imported before map assembly")
 	var component_name: StringName = PLOT_DRESSING_COMPONENTS.get(kind, &"")
 	assert(not component_name.is_empty(), "Unknown plot dressing component: %s" % String(kind))
@@ -285,9 +289,22 @@ static func _boat_rest_y(definition: MapDefinition, world_xz: Vector2) -> float:
 	var lift := MapViewMeshBuilderConfig.WATER_SURFACE_LIFT
 	if definition == null:
 		return -MapViewMeshBuilderConfig.WATER_RECESS + lift
-	var grid := MapBuilder.build(definition)
-	var field := MapViewMeshBuilderTerrain.ensure_height_field(definition, grid)
+	var field := _boat_rest_field(definition)
 	return MapViewMeshBuilderTerrain.water_gameplay_bed_y(field, world_xz) + lift
+
+
+## WB-07c (R-1006): rebuilding the playable grid cost ~40 ms per boat (six boats
+## on Harbor East). MapBuilder.build() is deterministic per definition, so the
+## published field is looked up once per definition key and reused.
+static func _boat_rest_field(definition: MapDefinition) -> Dictionary:
+	var key := "%s:%s:%s:%d" % [
+		String(definition.map_id), definition.fingerprint, definition.size_cells, definition.seed
+	]
+	var field: Dictionary = _boat_rest_fields.get(key, {})
+	if field.is_empty():
+		field = MapViewMeshBuilderTerrain.ensure_height_field(definition, MapBuilder.build(definition))
+		_boat_rest_fields[key] = field
+	return field
 
 
 static func _add_fishing_boat(root: Node3D, prop: Dictionary) -> void:
@@ -505,7 +522,7 @@ static func _add_ancient_oak(root: Node3D) -> void:
 	# WHY: the hingepuu is the grove's close hero landmark. Its custom GLB carries
 	# continuous tapered boughs, buttress roots, shaped leaves, bark relief, and
 	# weathering. Collision/navigation remain owned by the unchanged rrmap.
-	var oak_scene := load(SACRED_GROVE_ANCIENT_OAK_SCENE_PATH) as PackedScene
+	var oak_scene := MapViewPackedScenes.load_scene(SACRED_GROVE_ANCIENT_OAK_SCENE_PATH)
 	assert(
 		oak_scene != null,
 		"Sacred Grove ancient oak GLB must be imported before the map view is assembled"

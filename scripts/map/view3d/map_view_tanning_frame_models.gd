@@ -8,7 +8,7 @@ const TANNING_FRAME_SCENE_PATH := "res://assets/props/crafts/tanning_frame/tanni
 
 
 static func add_model(parent: Node3D) -> Node3D:
-	var scene := load(TANNING_FRAME_SCENE_PATH) as PackedScene
+	var scene := MapViewPackedScenes.load_scene(TANNING_FRAME_SCENE_PATH)
 	assert(scene != null, "Tanning frame GLB must be imported before map assembly")
 	var model := scene.instantiate() as Node3D
 	assert(model != null, "Tanning frame GLB root must be Node3D")

@@ -224,6 +224,21 @@ static func orm_path(family: StringName, roll: int) -> String:
 	return "%s/%s_orm.png" % [TEX_DIR, stems[posmod(roll, stems.size())]]
 
 
+## WB-07c (R-1006): every plate apply() can pick for a kit house, so staged
+## assembly can load them on loader threads before the first house is dressed.
+static func kit_texture_paths() -> PackedStringArray:
+	var paths := PackedStringArray()
+	for family in [
+		FAMILY_TILE, FAMILY_SHINGLE, FAMILY_THATCH, FAMILY_RUBBLE,
+		FAMILY_RENDER, FAMILY_LIMEWASH, FAMILY_LOG,
+	]:
+		for roll in 3:
+			for path in [albedo_path(family, roll), normal_path(family, roll), orm_path(family, roll)]:
+				if ResourceLoader.exists(path):
+					paths.append(path)
+	return paths
+
+
 static func is_roof_family(family: StringName) -> bool:
 	return (
 		family == FAMILY_TILE
@@ -331,7 +346,7 @@ static func _vary_material(source: BaseMaterial3D, recipe: Dictionary) -> BaseMa
 	var tint: Color = recipe["roof_tint"] if is_roof_family(family) else recipe["wall_tint"]
 	var albedo := albedo_path(family, roll)
 	if not albedo.is_empty() and ResourceLoader.exists(albedo):
-		material.albedo_texture = load(albedo)
+		material.albedo_texture = MapViewPackedScenes.load_pinned(albedo)
 	var normal := normal_path(family, roll)
 	if (
 		material is StandardMaterial3D
@@ -340,11 +355,11 @@ static func _vary_material(source: BaseMaterial3D, recipe: Dictionary) -> BaseMa
 	):
 		var standard := material as StandardMaterial3D
 		standard.normal_enabled = true
-		standard.normal_texture = load(normal)
+		standard.normal_texture = MapViewPackedScenes.load_pinned(normal)
 	# AR-03: packed ORM gives the kit GLBs varying specular response too.
 	var orm := orm_path(family, roll)
 	if not orm.is_empty() and ResourceLoader.exists(orm):
-		var orm_texture: Texture2D = load(orm)
+		var orm_texture: Texture2D = MapViewPackedScenes.load_pinned(orm)
 		material.roughness_texture = orm_texture
 		material.roughness_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_GREEN
 		material.roughness = 1.0

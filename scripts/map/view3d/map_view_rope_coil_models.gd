@@ -8,7 +8,7 @@ const ROPE_COIL_SCENE_PATH := "res://assets/props/crafts/rope_coil/rope_coil.glb
 
 
 static func add_model(parent: Node3D) -> Node3D:
-	var scene := load(ROPE_COIL_SCENE_PATH) as PackedScene
+	var scene := MapViewPackedScenes.load_scene(ROPE_COIL_SCENE_PATH)
 	assert(scene != null, "Rope coil GLB must be imported before map assembly")
 	var model := scene.instantiate() as Node3D
 	assert(model != null, "Rope coil GLB root must be Node3D")

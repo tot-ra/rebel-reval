@@ -13,7 +13,9 @@ const VARIANT_BARRELLED_HERRING_METAL := &"barrelled_herring_metal"
 const MODEL_PATHS: Dictionary = {
 	VARIANT_EASTERN_FURS_WAX: "res://assets/props/trade/eastern_furs_wax/eastern_furs_wax.glb",
 	VARIANT_WESTERN_CLOTH_SALT: "res://assets/props/trade/western_cloth_salt/western_cloth_salt.glb",
+	# gdlint: ignore=max-line-length
 	VARIANT_LIVONIAN_GRAIN_FLAX: "res://assets/props/trade/livonian_grain_flax/livonian_grain_flax.glb",
+	# gdlint: ignore=max-line-length
 	VARIANT_BARRELLED_HERRING_METAL: "res://assets/props/trade/barrelled_herring_metal/barrelled_herring_metal.glb",
 }
 const VARIANT_ORDER: Array[StringName] = [
@@ -42,7 +44,7 @@ static func variant_for(prop_id: StringName) -> StringName:
 
 static func add_model(parent: Node3D, prop_id: StringName) -> Node3D:
 	var variant := variant_for(prop_id)
-	var scene := load(String(MODEL_PATHS[variant])) as PackedScene
+	var scene := MapViewPackedScenes.load_scene(String(MODEL_PATHS[variant]))
 	assert(scene != null, "Hanseatic trade-goods GLB must be imported before map assembly")
 	var model := scene.instantiate() as Node3D
 	assert(model != null, "Hanseatic trade-goods GLB root must be Node3D")

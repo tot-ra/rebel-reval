@@ -51,7 +51,7 @@ const STATE_PROFILES: Dictionary = {
 
 static func add_model(parent: Node3D, prop: Dictionary) -> Node3D:
 	var state := MapTypes.hearth_state_for_prop(prop)
-	var scene := load(HEARTH_KIT_SCENE_PATH) as PackedScene
+	var scene := MapViewPackedScenes.load_scene(HEARTH_KIT_SCENE_PATH)
 	assert(scene != null, "Medieval hearth GLB must be imported before map assembly")
 	var model := scene.instantiate() as Node3D
 	assert(model != null, "Medieval hearth GLB root must be Node3D")

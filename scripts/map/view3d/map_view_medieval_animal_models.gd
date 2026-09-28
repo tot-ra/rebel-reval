@@ -129,7 +129,7 @@ static func add_model(parent: Node3D, species: StringName, variant_seed: int = 0
 	var path := model_path(species, variant_seed)
 	if path.is_empty():
 		return null
-	var scene := load(path) as PackedScene
+	var scene := MapViewPackedScenes.load_scene(path)
 	if scene == null:
 		push_error("Animal model is not imported: %s" % path)
 		return null

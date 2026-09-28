@@ -464,7 +464,7 @@ func _load_crowd_mesh_variant(lod_level: int) -> ArrayMesh:
 	for path: String in candidates:
 		if not ResourceLoader.exists(path):
 			continue
-		var scene := load(path) as PackedScene
+		var scene := MapViewPackedScenes.load_scene(path)
 		if scene == null:
 			continue
 		var root := scene.instantiate()

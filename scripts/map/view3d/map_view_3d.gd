@@ -1223,11 +1223,15 @@ func _update_scatter_chunks(chunks: Array[Vector2i]) -> void:
 	_rebuild_terrain_details()
 
 
-## One scatter chunk; also a staged-assembly work unit.
-func _load_scatter_chunk(coordinates: Vector2i) -> void:
+## One scatter chunk. Staged assembly passes the chunk its row-band units built.
+func _load_scatter_chunk(coordinates: Vector2i, built: Node3D = null) -> void:
 	if _loaded_scatter_chunks.has(coordinates):
+		if built != null:
+			built.free()
 		return
-	var scatter := MapViewMeshBuilder.build_scatter(definition, grid, grid.chunk_bounds(coordinates))
+	var scatter := built
+	if scatter == null:
+		scatter = MapViewMeshBuilder.build_scatter(definition, grid, grid.chunk_bounds(coordinates))
 	scatter.name = "Chunk_%d_%d" % [coordinates.x, coordinates.y]
 	_scatter_root.add_child(scatter)
 	_loaded_scatter_chunks[coordinates] = scatter

@@ -33,7 +33,7 @@ const BED_PROP_ID := &"bed"
 static func add_smithy_bed(root: Node3D) -> void:
 	# WHY: this close interior rest landmark needs period joinery and soft bedding,
 	# while gameplay collision, navigation, and interaction remain owned by rrmap.
-	var bed_scene := load(_BED_SCENE_PATH) as PackedScene
+	var bed_scene := MapViewPackedScenes.load_scene(_BED_SCENE_PATH)
 	assert(bed_scene != null, "Smithy bed GLB must be imported before the map view is assembled")
 	var bed := bed_scene.instantiate() as Node3D
 	bed.name = "SmithyBedModel"
@@ -58,7 +58,7 @@ static func add_smithy_chair(root: Node3D) -> void:
 	# WHY: the smithy's authored chair is a close, recurring interior prop. A
 	# dedicated GLB gives it readable joinery while collision/navigation remain on
 	# the immutable 2D map definition, just like every other view-only prop.
-	var chair_scene := load(_CHAIR_SCENE_PATH) as PackedScene
+	var chair_scene := MapViewPackedScenes.load_scene(_CHAIR_SCENE_PATH)
 	assert(
 		chair_scene != null, "Smithy chair GLB must be imported before the map view is assembled"
 	)
@@ -88,7 +88,7 @@ static func add_smithy_anvil(root: Node3D) -> void:
 	# WHY: forge_anvil is the close, gameplay-critical smithy workstation. Its
 	# authored GLB improves silhouette and materials while the immutable rrmap
 	# footprint remains the sole collision/navigation authority.
-	var anvil_scene := load(_ANVIL_SCENE_PATH) as PackedScene
+	var anvil_scene := MapViewPackedScenes.load_scene(_ANVIL_SCENE_PATH)
 	assert(
 		anvil_scene != null, "Smithy anvil GLB must be imported before the map view is assembled"
 	)
@@ -119,7 +119,7 @@ static func add_smithy_furnace(root: Node3D) -> void:
 	# WHY: forge_furnace is a close hero prop, but its rrmap footprint must remain
 	# the sole collision/navigation authority. The GLB replaces only the masonry;
 	# live embers, particles, and day/night fire lighting remain engine-driven.
-	var furnace_scene := load(_FURNACE_SCENE_PATH) as PackedScene
+	var furnace_scene := MapViewPackedScenes.load_scene(_FURNACE_SCENE_PATH)
 	assert(
 		furnace_scene != null,
 		"Smithy furnace GLB must be imported before the map view is assembled"
@@ -191,7 +191,7 @@ static func add_furnace_fallback(root: Node3D) -> void:
 static func add_smithy_bellows(root: Node3D) -> void:
 	# The authored mechanism supplies readable leather folds, joinery, tacks, and
 	# a tapered nozzle without changing the declarative smithy prop footprint.
-	var bellows_scene := load(_BELLOWS_SCENE_PATH) as PackedScene
+	var bellows_scene := MapViewPackedScenes.load_scene(_BELLOWS_SCENE_PATH)
 	assert(
 		bellows_scene != null,
 		"Smithy bellows GLB must be imported before the map view is assembled"
@@ -254,7 +254,7 @@ static func add_smithy_quench_bucket(root: Node3D) -> void:
 	# WHY: the smithy's close workstation needs a visibly hollow, metal quench
 	# vessel, while generic map buckets retain the cheap procedural fallback.
 	# The rrmap footprint remains the sole collision/navigation authority.
-	var bucket_scene := load(_QUENCH_SCENE_PATH) as PackedScene
+	var bucket_scene := MapViewPackedScenes.load_scene(_QUENCH_SCENE_PATH)
 	assert(
 		bucket_scene != null,
 		"Smithy quench bucket GLB must be imported before the map view is assembled"

@@ -14,7 +14,7 @@ const _ANIMATED_PARTS := {
 
 
 static func add_model(parent: Node3D) -> Node3D:
-	var scene := load(FISHING_NETS_SCENE_PATH) as PackedScene
+	var scene := MapViewPackedScenes.load_scene(FISHING_NETS_SCENE_PATH)
 	assert(scene != null, "Fishing nets GLB must be imported before map assembly")
 	var model := scene.instantiate() as Node3D
 	assert(model != null, "Fishing nets GLB root must be Node3D")

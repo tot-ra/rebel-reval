@@ -461,7 +461,7 @@ static func _add_gate_asset(
 		resolved_variant = &"ironbound"
 	if not GATE_ASSET_PATHS.has(resolved_variant):
 		return
-	var scene := load(GATE_ASSET_PATHS[resolved_variant]) as PackedScene
+	var scene := MapViewPackedScenes.load_scene(GATE_ASSET_PATHS[resolved_variant])
 	if scene == null:
 		push_error("Could not load gate asset: %s" % GATE_ASSET_PATHS[resolved_variant])
 		return

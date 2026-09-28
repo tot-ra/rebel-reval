@@ -7,11 +7,16 @@ extends RefCounted
 
 enum State { SYNCHRONOUS, RUNNING, COMPLETE, CANCELLED }
 
+const PackedScenes := preload("res://scripts/map/view3d/map_view_packed_scenes.gd")
+const WorkerJob := preload("res://scripts/map/view3d/map_view_worker_job.gd")
+
 ## The flag stays off until the ADR 0019 phase gates pass; the budget is
 ## main-thread milliseconds per frame (a quarter of a 60 Hz frame).
 const ENABLED_SETTING := "world_host/async_location_assembly_enabled"
 const FRAME_BUDGET_SETTING := "world_host/location_assembly_frame_budget_ms"
 const DEFAULT_FRAME_BUDGET_MSEC := 4.0
+## Rows per scatter band unit; see scatter_chunk_units().
+const SCATTER_BAND_ROWS := 4
 ## Stable stage names, in execution order. The performance report and the WB-07
 ## report key their per-stage rows on these strings.
 const STAGES: Array[StringName] = [
@@ -39,8 +44,13 @@ var stage_usec: Dictionary = {}
 var unit_log: Array[Dictionary] = []
 ## Main-thread microseconds per frame spent by MapView3D.assemble_async().
 var frame_usec := PackedInt64Array()
+## WB-07c (R-1006): GLB scenes and kit plates this queue's units loaded (path ->
+## resource), kept for the queue's, and so the owning view's, lifetime.
+var scene_pins: Dictionary = {}
 ## Stage name -> executed unit count; with stage_usec, the per-stage mean cost.
 var _stage_units: Dictionary = {}
+## drain() queues run inside another queue's unit and pin into that queue's set.
+var _owns_scene_pins := true
 
 
 ## Whether scene entry points use staged assembly, threaded navigation and
@@ -70,7 +80,56 @@ static func await_job(stage: StringName, label: String, job: RefCounted) -> Dict
 ## the same follow-up and job semantics as the view queue.
 static func drain(plan: Array[Dictionary]) -> void:
 	var queue: RefCounted = new()
+	queue._owns_scene_pins = false
 	queue.run_all(plan)
+
+
+## WB-07c (R-1006): loads `paths` through threaded ResourceLoader requests that
+## start now, then pins them in the running queue's set. A later builder load()
+## of any of them returns at once instead of reading the GLB on the main thread.
+static func scene_prefetch_units(
+	stage: StringName, label: String, paths: PackedStringArray
+) -> Array[Dictionary]:
+	if paths.is_empty():
+		return []
+	var missing := PackedScenes.uncached(paths)
+	var pin := func(_loads: RefCounted) -> void:
+		for path in paths:
+			PackedScenes.load_pinned(path)
+	var pin_label := "%s_scene_pins" % label
+	if missing.is_empty():
+		return [unit(stage, pin_label, pin.bind(null))]
+	if DisplayServer.get_name() == "headless":
+		return _serial_scene_prefetch_units(stage, label, missing, pin_label, pin)
+	var loads: RefCounted = WorkerJob.load_resources(missing)
+	return [await_job(stage, "%s_scenes" % label, loads), unit(stage, pin_label, pin.bind(loads))]
+
+
+## WHY: the headless dummy renderer's mesh RID_Owner is not thread-safe. A GLB
+## whose meshes load on a loader thread while the main thread or another loader
+## thread creates a mesh corrupts it ("Attempting to initialize the wrong RID").
+## Headless therefore loads one GLB at a time, each started at its own await, so
+## nothing else of this view creates a mesh meanwhile.
+static func _serial_scene_prefetch_units(
+	stage: StringName,
+	label: String,
+	missing: PackedStringArray,
+	pin_label: String,
+	pin: Callable
+) -> Array[Dictionary]:
+	var units: Array[Dictionary] = []
+	for path in missing:
+		var start := func() -> Array[Dictionary]:
+			var job: RefCounted = WorkerJob.load_resources(PackedStringArray([path]))
+			# The bound job keeps the resource cached until load_pinned() pins it.
+			var keep := func(_loads: RefCounted) -> void: PackedScenes.load_pinned(path)
+			return [
+				await_job(stage, "%s_scene" % label, job),
+				unit(stage, "%s_scene_pin" % label, keep.bind(job)),
+			]
+		units.append(unit(stage, "%s_scene_start" % label, start))
+	units.append(unit(stage, pin_label, pin.bind(null)))
+	return units
 
 
 ## Ordered work units for one view. Order matches the pre-WB-07 monolithic
@@ -82,16 +141,30 @@ static func plan_for(view: Node3D, chunks: Array[Vector2i]) -> Array[Dictionary]
 		func(left: Vector2i, right: Vector2i) -> bool:
 			return left.y < right.y or (left.y == right.y and left.x < right.x)
 	)
+	var definition: MapDefinition = view.get("definition")
+	var scene_paths := PackedStringArray()
+	var scenes_key := ""
+	if definition != null:
+		scenes_key = PackedScenes.map_key(definition)
+		scene_paths = PackedScenes.learned_paths(scenes_key)
+		scene_paths.append_array(
+			MapViewMeshBuilderBuildingHouses.production_resource_paths(definition.buildings)
+		)
 	# The height field is a pure, cached derivation that surroundings, terrain,
 	# props and scatter all read; paying it first keeps the terrain unit smaller.
 	var plan: Array[Dictionary] = [
 		unit(&"height_field", "height_field", Callable(view, &"_stage_height_field")),
+	]
+	# The GLB loads start with the plan and are awaited before the neighbor
+	# previews, whose houses, yards and livestock use the same kits.
+	plan.append_array(scene_prefetch_units(&"height_field", "objects", scene_paths))
+	plan.append_array([
 		unit(&"surroundings", "surroundings", Callable(view, &"_stage_surroundings")),
 		unit(&"terrain_mesh", "terrain_mesh", Callable(view, &"_stage_terrain_mesh")),
 		unit(&"interior_shell", "interior_shell", Callable(view, &"_stage_interior_shell")),
 		unit(&"decals", "containers_and_decals", Callable(view, &"_stage_containers_and_decals")),
 		unit(&"object_index", "object_index", Callable(view, &"_stage_object_index")),
-	]
+	])
 	for chunk in ordered:
 		var label := "chunk_%d_%d" % [chunk.x, chunk.y]
 		plan.append(
@@ -99,14 +172,41 @@ static func plan_for(view: Node3D, chunks: Array[Vector2i]) -> Array[Dictionary]
 		)
 	for chunk in chunks:
 		var label := "chunk_%d_%d" % [chunk.x, chunk.y]
-		plan.append(unit(&"scatter", label, Callable(view, &"_load_scatter_chunk").bind(chunk)))
+		plan.append(unit(&"scatter", label, scatter_chunk_units.bind(view, chunk, label)))
 	var finalize := Callable(view, &"_stage_chunk_finalize").bind(chunks)
 	plan.append(unit(&"chunk_finalize", "chunk_finalize", finalize))
 	for stage: StringName in [
 		&"transition_visuals", &"anchors", &"lighting", &"sky_weather", &"view_effects"
 	]:
 		plan.append(unit(stage, String(stage), Callable(view, StringName("_stage_%s" % stage))))
+	if not scenes_key.is_empty():
+		var remember := PackedScenes.remember_active.bind(scenes_key)
+		plan.append(unit(&"view_effects", "remember_scenes", remember))
 	return plan
+
+
+## WB-07c (R-1006): one scatter chunk as row-band units plus two emit units. Each
+## band is SCATTER_BAND_ROWS rows of the per-cell pass (about 1-2 ms warm on
+## Lower Town); the layer and shore units emit, and the shore unit adds the
+## finished chunk to the view.
+static func scatter_chunk_units(view: Node3D, chunk: Vector2i, label: String) -> Array[Dictionary]:
+	var grid: MapTerrainGrid = view.get("grid")
+	var state := MapViewMeshBuilderScatter.begin_scatter(
+		view.get("definition"), grid, grid.chunk_bounds(chunk)
+	)
+	var bounds: Rect2i = state["bounds"]
+	var units: Array[Dictionary] = []
+	var row: int = state["next_row"]
+	while row < bounds.end.y:
+		row = mini(row + SCATTER_BAND_ROWS, bounds.end.y)
+		var band := MapViewMeshBuilderScatter.collect_rows.bind(state, row)
+		units.append(unit(&"scatter", "%s_rows_%d" % [label, row], band))
+	var layers := MapViewMeshBuilderScatter.emit_layers.bind(state)
+	units.append(unit(&"scatter", "%s_layers" % label, layers))
+	var emit := func() -> void:
+		view.call(&"_load_scatter_chunk", chunk, MapViewMeshBuilderScatter.emit_shore(state))
+	units.append(unit(&"scatter", "%s_shore" % label, emit))
+	return units
 
 
 func run_all(plan: Array[Dictionary]) -> void:
@@ -160,7 +260,11 @@ func run_next() -> bool:
 	if job != null:
 		job.wait()
 	else:
+		if _owns_scene_pins:
+			PackedScenes.push_pins(scene_pins)
 		follow_ups = (next["run"] as Callable).call()
+		if _owns_scene_pins:
+			PackedScenes.pop_pins()
 	var elapsed := Time.get_ticks_usec() - started
 	if follow_ups is Array:
 		var expanded: Array = follow_ups

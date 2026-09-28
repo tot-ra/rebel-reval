@@ -16,6 +16,9 @@ const HarborEastDefinition := preload(
 const MapBuilder := preload("res://scripts/map/map_builder.gd")
 const Job := preload("res://scripts/map/view3d/map_view_worker_job.gd")
 const TerrainStaged := preload("res://scripts/map/view3d/map_view_mesh_builder_terrain_staged.gd")
+const PropModels := preload("res://scripts/map/view3d/map_view_mesh_builder_prop_models.gd")
+const PUBLIC_BATH_GLB := "res://assets/props/architecture/buildings/public_bath/public_bath.glb"
+const CLUTTER_KIT_GLB := "res://assets/props/domestic/household/smithy_household_clutter_kit.glb"
 
 const BUDGET_USEC := 4000
 const NAV_RUNS := 10
@@ -659,3 +662,91 @@ static func _rounded(transform: Transform3D) -> String:
 func _free_view(view: MapView3D) -> void:
 	MapView3D._strip_geometry_materials(view)
 	view.free()
+
+
+## WB-07c (R-1006): a scatter chunk collected in row bands and emitted in two
+## units is the same chunk build_scatter() makes in one call.
+func test_scatter_row_bands_match_one_call_build() -> void:
+	for definition: MapDefinition in [LowerTownSlice.create(), HarborEastDefinition.create()]:
+		var grid: MapTerrainGrid = MapBuilder.build(definition)
+		var bounds := grid.chunk_bounds(Vector2i(1, 1))
+		var whole := MapViewMeshBuilderScatter.build_scatter(definition, grid, bounds)
+		var state := MapViewMeshBuilderScatter.begin_scatter(definition, grid, bounds)
+		var row: int = state["next_row"]
+		var done := false
+		while not done:
+			row += 3
+			done = MapViewMeshBuilderScatter.collect_rows(state, row)
+		MapViewMeshBuilderScatter.emit_layers(state)
+		var banded := MapViewMeshBuilderScatter.emit_shore(state)
+		assert_true(whole.get_child_count() > 0, "%s chunk has scatter" % definition.map_id)
+		assert_eq(
+			_scatter_signature(banded),
+			_scatter_signature(whole),
+			"%s banded scatter equals one call" % definition.map_id
+		)
+		whole.free()
+		banded.free()
+
+
+## WB-07c (R-1006): the building GLBs and kit plates a view loads stay pinned for
+## the view's lifetime, and no pin set leaks past the assembly units.
+func test_assembly_pins_production_scenes_for_the_view() -> void:
+	var definition: MapDefinition = LowerTownSlice.create()
+	var staged := MapView3D.create_staged(definition, MapBuilder.build(definition))
+	_drain_staged(staged)
+	var pins: Dictionary = staged._assembly.scene_pins
+	assert_true(pins.has(PUBLIC_BATH_GLB), "the service-building GLB is pinned by the view")
+	assert_true(pins[PUBLIC_BATH_GLB] is PackedScene, "pins hold the loaded scene")
+	var plates := MapViewBurgherHouseSurfaceVariety.kit_texture_paths()
+	assert_true(plates.size() > 0 and pins.has(plates[0]), "kit surface plates are pinned")
+	assert_true(MapViewPackedScenes._pin_stack.is_empty(), "no pin set stays pushed")
+	var labels: Array[String] = []
+	for entry in staged.assembly_unit_timings():
+		labels.append(String(entry["label"]))
+	assert_true(labels.has("objects_scene_pins"), "building GLBs prefetch before object_index")
+	_free_view(staged)
+
+
+## WB-07c (R-1006): prop kits have no path up front; the set a map's assembly
+## pinned is prefetched by the next assembly of the same map.
+func test_learned_scenes_prefetch_on_the_next_assembly() -> void:
+	var definition: MapDefinition = KalevSmithyDefinition.create()
+	var grid: MapTerrainGrid = MapBuilder.build(definition)
+	_free_view(MapView3D.create(definition, grid))
+	var learned := MapViewPackedScenes.learned_paths(MapViewPackedScenes.map_key(definition))
+	assert_true(learned.has(CLUTTER_KIT_GLB), "the smithy clutter kit is remembered")
+	var staged := MapView3D.create_staged(definition, grid)
+	_drain_staged(staged)
+	assert_true(staged._assembly.scene_pins.has(CLUTTER_KIT_GLB), "the next assembly pins it")
+	_free_view(staged)
+
+
+## WB-07c (R-1006): fishing boats no longer rebuild the playable grid per boat;
+## every boat reads one field per definition, the same field the old path used.
+func test_fishing_boats_share_one_rest_field() -> void:
+	var definition: MapDefinition = HarborEastDefinition.create()
+	var boats: Array[Dictionary] = []
+	for prop in definition.props:
+		if prop.get("kind") == MapTypes.PROP_KIND_FISHING_BOAT:
+			boats.append(prop)
+	assert_true(boats.size() >= 2, "Harbor East has several fishing boats")
+	var expected := MapViewMeshBuilderTerrain.ensure_height_field(
+		definition, MapBuilder.build(definition)
+	)
+	for boat in boats:
+		MapViewMeshBuilder.build_prop(boat, definition.cell_size, definition).free()
+	var shared: Dictionary = PropModels._boat_rest_field(definition)
+	assert_true(is_same(shared, expected), "boats reuse the published height field")
+
+
+static func _scatter_signature(root: Node) -> Array[String]:
+	var result: Array[String] = []
+	for child in root.get_children():
+		var line := "%s:%s" % [child.name, child.get_class()]
+		var multi := child as MultiMeshInstance3D
+		if multi != null and multi.multimesh != null:
+			line += ":%d:%d" % [multi.multimesh.instance_count, hash(multi.multimesh.buffer)]
+		line += ":%d" % child.get_child_count()
+		result.append(line)
+	return result

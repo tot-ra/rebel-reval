@@ -8,7 +8,7 @@ const SALT_PILE_SCENE_PATH := "res://assets/props/crafts/salt_pile/salt_pile.glb
 
 
 static func add_model(parent: Node3D) -> Node3D:
-	var scene := load(SALT_PILE_SCENE_PATH) as PackedScene
+	var scene := MapViewPackedScenes.load_scene(SALT_PILE_SCENE_PATH)
 	assert(scene != null, "Salt pile GLB must be imported before map assembly")
 	var model := scene.instantiate() as Node3D
 	assert(model != null, "Salt pile GLB root must be Node3D")

@@ -593,6 +593,12 @@ static func _start_neighbor_materials(
 			STAGE, label, _neighbor_masonry_colors(data.get("buildings", []) as Array)
 		)
 	)
+	# WB-07c (R-1006): the neighbor's house and service GLBs load on loader
+	# threads while the material bakes run; each was a 40-60 ms main-thread load.
+	var scene_paths := MapViewMeshBuilderBuildingHouses.production_resource_paths(
+		data.get("buildings", []) as Array
+	)
+	units.append_array(_Assembly.scene_prefetch_units(STAGE, label, scene_paths))
 	materials["units"] = units
 
 
@@ -659,7 +665,7 @@ static func _neighbor_preview_body(
 	var cell_size := neighbor.cell_size
 	for building: Dictionary in data["buildings"]:
 		var add_building := func() -> void:
-			var building_node := _Buildings.build_building(building, cell_size)
+			var building_node := _Buildings.build_building(building, cell_size, [], Rect2(), [], true)
 			_simplify_neighbor_building(building_node)
 			buildings.add_child(building_node)
 		units.append(

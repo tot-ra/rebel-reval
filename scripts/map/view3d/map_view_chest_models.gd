@@ -31,7 +31,7 @@ static func add_model(parent: Node3D, prop: Dictionary = {}) -> Node3D:
 		SCENE_PATH_BY_VARIANT.has(variant),
 		"Chest style_variant must be validated before map assembly"
 	)
-	var scene := load(String(SCENE_PATH_BY_VARIANT[variant])) as PackedScene
+	var scene := MapViewPackedScenes.load_scene(String(SCENE_PATH_BY_VARIANT[variant]))
 	assert(scene != null, "Chest GLB must be imported before map assembly: %s" % String(variant))
 	var model := scene.instantiate() as Node3D
 	assert(model != null, "Chest GLB root must be Node3D: %s" % String(variant))

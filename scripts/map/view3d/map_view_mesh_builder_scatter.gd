@@ -15,44 +15,94 @@ static func build_scatter(
 	grid: MapTerrainGrid,
 	cell_bounds: Rect2i = Rect2i(Vector2i.ZERO, Vector2i.ZERO)
 ) -> Node3D:
+	var state := begin_scatter(definition, grid, cell_bounds)
+	collect_rows(state, state["bounds"].end.y)
+	return finish_scatter(state)
+
+
+## WB-07c (R-1006): build_scatter() as a resumable job. The per-cell pass was
+## 6-15 ms per chunk in one call; staged assembly now runs it as row bands
+## (collect_rows) and emits the layers once every row is in (finish_scatter).
+## Rows are always visited top to bottom and each band appends to the same
+## arrays, so any band split yields the same instances in the same order.
+static func begin_scatter(
+	definition: MapDefinition,
+	grid: MapTerrainGrid,
+	cell_bounds: Rect2i = Rect2i(Vector2i.ZERO, Vector2i.ZERO)
+) -> Dictionary:
 	var root := Node3D.new()
 	root.name = "Scatter"
-	# Enclosed interiors (smithy, rooms) must not grow outdoor grass/stone clutter
-	# through plank or ashlar floors.
-	if definition.suppresses_exterior_surroundings():
-		return root
-	var blocked := MapViewMeshBuilderPrimitives.building_cell_rects(definition)
-	var field := MapViewMeshBuilderTerrain.ensure_height_field(definition, grid)
 	var bounds := cell_bounds
 	if bounds.size == Vector2i.ZERO:
 		bounds = Rect2i(Vector2i.ZERO, grid.size_cells)
 	bounds = bounds.intersection(Rect2i(Vector2i.ZERO, grid.size_cells))
-	var is_urban := _is_urban_map(definition)
+	var state := {"root": root, "definition": definition, "grid": grid, "bounds": bounds}
+	# Enclosed interiors (smithy, rooms) must not grow outdoor grass/stone clutter
+	# through plank or ashlar floors.
+	state["interior"] = definition.suppresses_exterior_surroundings()
+	state["next_row"] = bounds.end.y if state["interior"] else bounds.position.y
+	if state["interior"]:
+		return state
+	state["blocked"] = MapViewMeshBuilderPrimitives.building_cell_rects(definition)
+	state["field"] = MapViewMeshBuilderTerrain.ensure_height_field(definition, grid)
+	state["is_urban"] = _is_urban_map(definition)
+	state["small_grass"] = [] as Array[Transform3D]
+	state["small_grass_colors"] = [] as Array[Color]
+	state["hay_stubble"] = [] as Array[Transform3D]
+	state["hay_stubble_colors"] = [] as Array[Color]
+	state["large_grass"] = [] as Array[Transform3D]
+	state["large_grass_colors"] = [] as Array[Color]
+	state["bush_batches"] = {}
+	state["tree_batches"] = {}
+	state["reeds"] = [] as Array[Transform3D]
+	state["reed_colors"] = [] as Array[Color]
+	state["cattails"] = [] as Array[Transform3D]
+	state["cattail_colors"] = [] as Array[Color]
+	state["clovers"] = [] as Array[Transform3D]
+	state["clover_colors"] = [] as Array[Color]
+	state["plant_batches"] = {}
+	state["stones"] = [] as Array[Transform3D]
+	state["stone_colors"] = [] as Array[Color]
+	state["puddles"] = [] as Array[Transform3D]
+	state["puddle_colors"] = [] as Array[Color]
+	return state
 
-	var small_grass: Array[Transform3D] = []
-	var small_grass_colors: Array[Color] = []
-	var hay_stubble: Array[Transform3D] = []
-	var hay_stubble_colors: Array[Color] = []
-	var large_grass: Array[Transform3D] = []
-	var large_grass_colors: Array[Color] = []
-	var bush_batches: Dictionary = {}
-	# Batched by silhouette/bark so MultiMesh stays shared across species tints.
-	var tree_batches: Dictionary = {}
-	var reeds: Array[Transform3D] = []
-	var reed_colors: Array[Color] = []
-	var cattails: Array[Transform3D] = []
-	var cattail_colors: Array[Color] = []
-	var clovers: Array[Transform3D] = []
-	var clover_colors: Array[Color] = []
-	# Concrete plant variants batch by species so each botanical profile keeps its
-	# own cached silhouette while authored beds remain cheap to render.
-	var plant_batches: Dictionary = {}
-	var stones: Array[Transform3D] = []
-	var stone_colors: Array[Color] = []
-	var puddles: Array[Transform3D] = []
-	var puddle_colors: Array[Color] = []
 
-	for y in range(bounds.position.y, bounds.end.y):
+## Runs the per-cell pass for rows [next_row, until_row). Returns true once every
+## row of the chunk is collected.
+static func collect_rows(state: Dictionary, until_row: int) -> bool:
+	var bounds: Rect2i = state["bounds"]
+	var first_row: int = state["next_row"]
+	var last_row := mini(until_row, bounds.end.y)
+	state["next_row"] = maxi(first_row, last_row)
+	if first_row >= last_row:
+		return first_row >= bounds.end.y
+	var definition: MapDefinition = state["definition"]
+	var grid: MapTerrainGrid = state["grid"]
+	var blocked: Array[Rect2] = state["blocked"]
+	var field: Dictionary = state["field"]
+	var is_urban: bool = state["is_urban"]
+	var small_grass: Array[Transform3D] = state["small_grass"]
+	var small_grass_colors: Array[Color] = state["small_grass_colors"]
+	var hay_stubble: Array[Transform3D] = state["hay_stubble"]
+	var hay_stubble_colors: Array[Color] = state["hay_stubble_colors"]
+	var large_grass: Array[Transform3D] = state["large_grass"]
+	var large_grass_colors: Array[Color] = state["large_grass_colors"]
+	var bush_batches: Dictionary = state["bush_batches"]
+	var tree_batches: Dictionary = state["tree_batches"]
+	var reeds: Array[Transform3D] = state["reeds"]
+	var reed_colors: Array[Color] = state["reed_colors"]
+	var cattails: Array[Transform3D] = state["cattails"]
+	var cattail_colors: Array[Color] = state["cattail_colors"]
+	var clovers: Array[Transform3D] = state["clovers"]
+	var clover_colors: Array[Color] = state["clover_colors"]
+	var plant_batches: Dictionary = state["plant_batches"]
+	var stones: Array[Transform3D] = state["stones"]
+	var stone_colors: Array[Color] = state["stone_colors"]
+	var puddles: Array[Transform3D] = state["puddles"]
+	var puddle_colors: Array[Color] = state["puddle_colors"]
+
+	for y in range(first_row, last_row):
 		for x in range(bounds.position.x, bounds.end.x):
 			var cell := Vector2i(x, y)
 			if MapViewMeshBuilderPrimitives.cell_blocked(cell, blocked):
@@ -293,6 +343,39 @@ static func build_scatter(
 				stone_colors.append(
 					Color(gray * (0.96 + warmth * 0.10), gray, gray * (1.04 - warmth * 0.12))
 				)
+	return last_row >= bounds.end.y
+
+
+## Emits every collected layer and the shore dressing; returns the chunk root.
+static func finish_scatter(state: Dictionary) -> Node3D:
+	emit_layers(state)
+	return emit_shore(state)
+
+
+## Emits the vegetation, puddle and stone layers under the chunk root.
+static func emit_layers(state: Dictionary) -> void:
+	if state["interior"]:
+		return
+	var root: Node3D = state["root"]
+	var small_grass: Array[Transform3D] = state["small_grass"]
+	var small_grass_colors: Array[Color] = state["small_grass_colors"]
+	var hay_stubble: Array[Transform3D] = state["hay_stubble"]
+	var hay_stubble_colors: Array[Color] = state["hay_stubble_colors"]
+	var large_grass: Array[Transform3D] = state["large_grass"]
+	var large_grass_colors: Array[Color] = state["large_grass_colors"]
+	var bush_batches: Dictionary = state["bush_batches"]
+	var tree_batches: Dictionary = state["tree_batches"]
+	var reeds: Array[Transform3D] = state["reeds"]
+	var reed_colors: Array[Color] = state["reed_colors"]
+	var cattails: Array[Transform3D] = state["cattails"]
+	var cattail_colors: Array[Color] = state["cattail_colors"]
+	var clovers: Array[Transform3D] = state["clovers"]
+	var clover_colors: Array[Color] = state["clover_colors"]
+	var plant_batches: Dictionary = state["plant_batches"]
+	var stones: Array[Transform3D] = state["stones"]
+	var stone_colors: Array[Color] = state["stone_colors"]
+	var puddles: Array[Transform3D] = state["puddles"]
+	var puddle_colors: Array[Color] = state["puddle_colors"]
 
 	_add_grass_layer(
 		root,
@@ -379,6 +462,16 @@ static func build_scatter(
 				Vector3(0.0, -0.012, 0.0)
 			)
 		)
+
+
+## Adds the CO-02 shore debris after the layers; returns the chunk root.
+static func emit_shore(state: Dictionary) -> Node3D:
+	var root: Node3D = state["root"]
+	if state["interior"]:
+		return root
+	var definition: MapDefinition = state["definition"]
+	var grid: MapTerrainGrid = state["grid"]
+	var bounds: Rect2i = state["bounds"]
 	# CO-02: authored boulders, shingle, wrack and algae placed by distance to the
 	# WS-08 shore field; built with every scatter chunk, not only first person.
 	# R-1092 retired the primitive CoastalRocks SphereMesh layer.

@@ -24,7 +24,7 @@ const MODULE_SCALES: Dictionary = {
 
 
 static func add_model(parent: Node3D, prop: Dictionary = {}) -> Node3D:
-	var scene := load(MARKET_STALL_SCENE_PATH) as PackedScene
+	var scene := MapViewPackedScenes.load_scene(MARKET_STALL_SCENE_PATH)
 	assert(scene != null, "Market stall GLB must be imported before map assembly")
 	var model := scene.instantiate() as Node3D
 	assert(model != null, "Market stall GLB root must be Node3D")

@@ -33,7 +33,7 @@ const VARIANT_ROOT_NAMES: Dictionary = {
 
 static func add_model(parent: Node3D, prop: Dictionary) -> Node3D:
 	var variant := MapTypes.household_clutter_variant_for_prop(prop)
-	var scene := load(HOUSEHOLD_CLUTTER_KIT_SCENE_PATH) as PackedScene
+	var scene := MapViewPackedScenes.load_scene(HOUSEHOLD_CLUTTER_KIT_SCENE_PATH)
 	assert(scene != null, "Smithy household clutter GLB must be imported before map assembly")
 	var model := scene.instantiate() as Node3D
 	assert(model != null, "Smithy household clutter GLB root must be Node3D")

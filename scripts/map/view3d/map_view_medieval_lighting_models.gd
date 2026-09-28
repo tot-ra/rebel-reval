@@ -61,7 +61,7 @@ const LIGHT_PROFILES: Dictionary = {
 
 static func add_model(parent: Node3D, prop: Dictionary) -> Node3D:
 	var variant := MapTypes.lighting_variant_for_prop(prop)
-	var scene := load(LIGHTING_KIT_SCENE_PATH) as PackedScene
+	var scene := MapViewPackedScenes.load_scene(LIGHTING_KIT_SCENE_PATH)
 	assert(scene != null, "Medieval lighting GLB must be imported before map assembly")
 	var model := scene.instantiate() as Node3D
 	assert(model != null, "Medieval lighting GLB root must be Node3D")

@@ -71,7 +71,7 @@ static func add_variant_model(
 	var fit := variant_fit(building, size, variants)
 	var variant: Dictionary = fit["variant"]
 	var path := String(variant["path"])
-	var scene := load(path) as PackedScene
+	var scene := MapViewPackedScenes.load_scene(path)
 	assert(scene != null, "%s GLB must be imported before map assembly" % tier)
 	if scene == null:
 		return null

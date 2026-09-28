@@ -11,12 +11,16 @@ const ST_MARYS_ID := &"cathedral_silhouette"
 const ST_MARYS_PRIMITIVE := &"st_marys_construction_1343"
 
 
+## `backdrop` (WB-07c, R-1006) skips the house dressing a neighbor preview strips
+## right after the build (_simplify_neighbor_building keeps only Walls, Roof and
+## the production model), so a backdrop house no longer builds it just to free it.
 static func build_building(
 	building: Dictionary,
 	cell_size: int,
 	entrances: Array[Dictionary] = [],
 	map_bounds: Rect2 = Rect2(),
-	gate_passages: Array[Rect2] = []
+	gate_passages: Array[Rect2] = [],
+	backdrop := false
 ) -> Node3D:
 	if _Registry.is_exceptional(building):
 		return build_exceptional_building(building, cell_size, entrances, map_bounds)
@@ -144,21 +148,11 @@ static func build_building(
 		roof.position = Vector3(0.0, height, 0.0)
 		roof.material_override = MapViewMeshBuilderBuildingHouses.house_roof_material(building)
 		root.add_child(roof)
-		MapViewMeshBuilderBuildingHouses.add_chimney(root, building, size, height, along_ridge_x)
-		MapViewMeshBuilderBuildingHouses.add_house_structure(
-			root, building, size, height, along_ridge_x
-		)
-		if not MapViewMeshBuilderBuildingHouses.authors_own_facade(building):
-			MapViewMeshBuilderBuildingFacade.add_house_facade(
-				root, building, size, height, cell_size, entrances
-			)
-		else:
-			MapViewMeshBuilderBuildingHouses.add_authored_facade(root, building, size, height)
-		MapViewMeshBuilderBuildingHouses.add_historic_building_details(
-			root, building, size, height, along_ridge_x
-		)
+		if not backdrop:
+			_add_house_dressing(root, building, size, height, along_ridge_x, cell_size, entrances)
 		MapViewMeshBuilderBuildingHouses.add_production_model(root, building, size, height)
-		MapViewMeshBuilderBuildingHouses.add_window_lights(root, building)
+		if not backdrop:
+			MapViewMeshBuilderBuildingHouses.add_window_lights(root, building)
 	elif kind == MapTypes.BUILDING_KIND_INTERIOR_WALL:
 		MapViewMeshBuilderBuildingInteriorWalls.add_interior_wall_structure(
 			root, building, size, height
@@ -218,6 +212,28 @@ static func build_building(
 			MapViewMeshBuilderBuildingFortification.add_battlements(root, building, size, height)
 			MapViewMeshBuilderBuildingFortification.add_wall_walk_roof(root, size, height)
 	return root
+
+
+static func _add_house_dressing(
+	root: Node3D,
+	building: Dictionary,
+	size: Vector2,
+	height: float,
+	along_ridge_x: bool,
+	cell_size: int,
+	entrances: Array[Dictionary]
+) -> void:
+	MapViewMeshBuilderBuildingHouses.add_chimney(root, building, size, height, along_ridge_x)
+	MapViewMeshBuilderBuildingHouses.add_house_structure(root, building, size, height, along_ridge_x)
+	if not MapViewMeshBuilderBuildingHouses.authors_own_facade(building):
+		MapViewMeshBuilderBuildingFacade.add_house_facade(
+			root, building, size, height, cell_size, entrances
+		)
+	else:
+		MapViewMeshBuilderBuildingHouses.add_authored_facade(root, building, size, height)
+	MapViewMeshBuilderBuildingHouses.add_historic_building_details(
+		root, building, size, height, along_ridge_x
+	)
 
 
 static func _scaled_rects(rects: Array[Rect2], scale: float) -> Array[Rect2]:

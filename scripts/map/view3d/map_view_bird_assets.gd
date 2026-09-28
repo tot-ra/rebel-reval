@@ -111,7 +111,7 @@ static func _resolve_pose_mesh_path(species: StringName, pose: StringName) -> St
 static func _load_mesh(scene_path: String) -> ArrayMesh:
 	if _mesh_cache.has(scene_path):
 		return _mesh_cache[scene_path]
-	var packed := load(scene_path) as PackedScene
+	var packed := MapViewPackedScenes.load_scene(scene_path)
 	if packed == null:
 		return null
 	var instance := packed.instantiate()
@@ -134,7 +134,7 @@ static func has_animated_model(species: StringName) -> bool:
 static func create_animated_model(species: StringName) -> Node3D:
 	if not has_animated_model(species):
 		return null
-	var packed := load(ANIMATED_MODELS[species]) as PackedScene
+	var packed := MapViewPackedScenes.load_scene(ANIMATED_MODELS[species])
 	if packed == null:
 		return null
 	var model := packed.instantiate() as Node3D

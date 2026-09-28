@@ -26,7 +26,7 @@ static func add_model(parent: Node3D, prop: Dictionary = {}) -> Node3D:
 		variant = DEFAULT_VARIANT
 	assert(SCENE_PATHS.has(variant), "Storage furniture variant must pass the map allowlist")
 	var scene_path := String(SCENE_PATHS[variant])
-	var scene := load(scene_path) as PackedScene
+	var scene := MapViewPackedScenes.load_scene(scene_path)
 	assert(
 		scene != null, "Storage furniture GLB must be imported before map assembly: %s" % scene_path
 	)

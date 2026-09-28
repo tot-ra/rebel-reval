@@ -107,6 +107,36 @@ static func add_production_model(
 		return _ServiceBuildings.add_model(root, building, size)
 	return null
 
+
+## WB-07c (R-1006): every GLB add_production_model() may load for this building,
+## so staged assembly can prefetch them off the main thread. It lists the whole
+## tier, not the fitted variant: an extra kit load is cheap, a miss is not.
+static func production_scene_paths(building: Dictionary) -> PackedStringArray:
+	var variants: Array[Dictionary] = []
+	if _ProductionModels.is_production_tier(building):
+		variants = _ProductionModels.MERCHANT_TIMBER_VARIANTS
+	elif _ProductionStone.is_production_tier(building):
+		variants = _ProductionStone.MERCHANT_STONE_VARIANTS
+	elif _ProductionBoda.is_production_tier(building):
+		variants = _ProductionBoda.CRAFT_BODA_VARIANTS
+	else:
+		variants = _ServiceBuildings.variants_for(building)
+	var paths := PackedStringArray()
+	for variant in variants:
+		paths.append(String(variant["path"]))
+	return paths
+
+
+## Every GLB and surface-variant plate the production models of `buildings` may
+## load; the plates only when at least one building has a production model.
+static func production_resource_paths(buildings: Array) -> PackedStringArray:
+	var paths := PackedStringArray()
+	for building: Dictionary in buildings:
+		paths.append_array(production_scene_paths(building))
+	if not paths.is_empty():
+		paths.append_array(MapViewBurgherHouseSurfaceVariety.kit_texture_paths())
+	return paths
+
 static func add_historic_building_details(
 	root: Node3D, building: Dictionary, size: Vector2, height: float, along_ridge_x: bool
 ) -> void:

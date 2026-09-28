@@ -45,7 +45,7 @@ static func add_model(parent: Node3D, prop: Dictionary = {}) -> Node3D:
 	var item_kinds := MapTypes.parse_table_items(
 		StringName(prop.get("table_items", MapTypes.TABLE_ITEMS_NONE))
 	)
-	var scene := load(TABLE_KIT_SCENE_PATH) as PackedScene
+	var scene := MapViewPackedScenes.load_scene(TABLE_KIT_SCENE_PATH)
 	assert(scene != null, "Medieval table GLB must be imported before map assembly")
 	var model := scene.instantiate() as Node3D
 	assert(model != null, "Medieval table GLB root must be Node3D")

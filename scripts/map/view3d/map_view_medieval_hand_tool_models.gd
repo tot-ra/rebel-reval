@@ -31,7 +31,7 @@ const NODE_NAMES: Dictionary = {
 static func add_model(parent: Node3D, kind: StringName) -> Node3D:
 	var scene_path := String(SCENE_PATHS.get(kind, ""))
 	assert(not scene_path.is_empty(), "Medieval hand-tool kind must have an authored GLB")
-	var packed := load(scene_path) as PackedScene
+	var packed := MapViewPackedScenes.load_scene(scene_path)
 	assert(packed != null, "%s must be imported before hand tools are assembled" % scene_path)
 	var model := packed.instantiate() as Node3D
 	model.name = String(NODE_NAMES.get(kind, "MedievalHandToolModel"))

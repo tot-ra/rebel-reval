@@ -13,7 +13,7 @@ static func applies_to(prop: Dictionary) -> bool:
 
 
 static func add_model(parent: Node3D) -> Node3D:
-	var scene := load(SCENE_PATH) as PackedScene
+	var scene := MapViewPackedScenes.load_scene(SCENE_PATH)
 	assert(scene != null, "Smithy charcoal storage GLB must be imported before map assembly")
 	var model := scene.instantiate() as Node3D
 	assert(model != null, "Smithy charcoal storage GLB root must be Node3D")

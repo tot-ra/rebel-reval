@@ -9,7 +9,7 @@ const WOODEN_CART_SCENE_PATH := "res://assets/props/vehicles/wooden_cart.glb"
 
 
 static func add_model(parent: Node3D) -> Node3D:
-	var scene := load(WOODEN_CART_SCENE_PATH) as PackedScene
+	var scene := MapViewPackedScenes.load_scene(WOODEN_CART_SCENE_PATH)
 	assert(scene != null, "Wooden cart GLB must be imported before map assembly")
 	var model := scene.instantiate() as Node3D
 	assert(model != null, "Wooden cart GLB root must be Node3D")
