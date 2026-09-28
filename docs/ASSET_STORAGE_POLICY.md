@@ -67,7 +67,7 @@ The migration is deliberately current-tree-only. Old standard-Git blobs remain i
 
 ## LFS retrieval and failure behavior
 
-Normal checkouts intentionally leave inactive archive, research, and narrative LFS objects as pointers. Restore the 34 runtime objects, including the shared battle library, before import, test, or export:
+Normal checkouts intentionally leave inactive archive, research, and narrative LFS objects as pointers. Restore the 25 runtime objects, including the shared battle library, before import, test, or export:
 
 ```bash
 tools/restore_lfs_assets.sh runtime

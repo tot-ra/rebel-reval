@@ -38,10 +38,15 @@ func test_all_district_themes_have_loadable_day_tracks() -> void:
 
 
 func test_volume_fades_to_half_at_midnight() -> void:
-	var noon_linear := MusicDirectorScript.volume_linear_for_day_blend(DayNightCycle.day_blend(0.5))
-	var midnight_linear := MusicDirectorScript.volume_linear_for_day_blend(DayNightCycle.day_blend(0.0))
+	var noon_blend := DayNightCycle.day_blend(0.5)
+	var midnight_blend := DayNightCycle.day_blend(0.0)
+	var noon_linear := MusicDirectorScript.volume_linear_for_day_blend(noon_blend)
+	var midnight_linear := MusicDirectorScript.volume_linear_for_day_blend(midnight_blend)
 	assert_true(is_equal_approx(noon_linear, 1.0), "noon should keep full linear volume")
-	assert_true(is_equal_approx(midnight_linear, 0.5), "midnight should duck to 50 percent linear volume")
+	assert_true(
+		is_equal_approx(midnight_linear, 0.5),
+		"midnight should duck to 50 percent linear volume"
+	)
 
 
 func test_volume_db_follows_cycle_progress() -> void:
@@ -56,6 +61,7 @@ func test_volume_db_follows_cycle_progress() -> void:
 
 
 func test_cycle_progress_is_exposed_for_hud_animation() -> void:
+	MusicDirector.clear_cycle_progress()
 	assert_true(is_equal_approx(MusicDirector.get_cycle_progress(), DayNightCycle.DEFAULT_PROGRESS))
 
 
@@ -102,10 +108,12 @@ func test_active_slice_themes_use_manifest_track_lists() -> void:
 
 func test_holy_spirit_church_uses_dedicated_hymn_playlist() -> void:
 	var track_paths := MusicDirectorScript.day_track_paths_for_theme(&"holy_spirit")
-	assert_eq(track_paths.size(), 2, "Holy Spirit chapel should use both hymn tracks")
-	for track_path: String in track_paths:
-		assert_true(track_path.begins_with("res://music/revel_center/holy spirit church/"))
-		assert_true(ResourceLoader.exists(track_path), "hymn track should load: %s" % track_path)
+	assert_eq(track_paths.size(), 1, "Holy Spirit chapel should use the canonical hymn take")
+	assert_eq(
+		track_paths[0],
+		"res://music/revel_center/holy spirit church/Hymn of the Holy Spirit.mp3"
+	)
+	assert_true(ResourceLoader.exists(track_paths[0]), "hymn track should load")
 
 
 func test_active_slice_themes_have_no_night_tracks_yet() -> void:

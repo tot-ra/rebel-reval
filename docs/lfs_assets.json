@@ -272,26 +272,26 @@
       "scope": "archive"
     },
     {
-      "path": "music/battle/Baltic Tempest (1).mp3",
+      "path": "archive/music/battle/Baltic Tempest (1).mp3",
       "size_bytes": 4727793,
       "sha256": "72e9d2e167712feeb2c774db6f2c6ced2465e432fda79ae456cc49fd850fcd1b",
       "lfs_oid": "sha256:72e9d2e167712feeb2c774db6f2c6ced2465e432fda79ae456cc49fd850fcd1b",
-      "owner": "project maintainer - battle soundtrack",
+      "owner": "project maintainer - inactive soundtrack archive",
       "license": "AGPL-3.0-or-later (project author)",
-      "approval": "approved - maintainer AI generation; available for battle-scene routing",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
       "source_reference": "assets/SOURCES.csv:music.harbor.battle.baltic.tempest.1",
-      "scope": "runtime"
+      "scope": "archive"
     },
     {
-      "path": "music/battle/Baltic Tempest (2).mp3",
+      "path": "archive/music/battle/Baltic Tempest (2).mp3",
       "size_bytes": 5015671,
       "sha256": "97a62d43af76c4643e05cd31dfe2c981eb2a5a803fc5c75f75ec58dc635df7af",
       "lfs_oid": "sha256:97a62d43af76c4643e05cd31dfe2c981eb2a5a803fc5c75f75ec58dc635df7af",
-      "owner": "project maintainer - battle soundtrack",
+      "owner": "project maintainer - inactive soundtrack archive",
       "license": "AGPL-3.0-or-later (project author)",
-      "approval": "approved - maintainer AI generation; available for battle-scene routing",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
       "source_reference": "assets/SOURCES.csv:music.harbor.battle.baltic.tempest.2",
-      "scope": "runtime"
+      "scope": "archive"
     },
     {
       "path": "music/battle/Baltic Tempest.mp3",
@@ -382,15 +382,15 @@
       "scope": "runtime"
     },
     {
-      "path": "music/battle/The Guilds at War (1).mp3",
+      "path": "archive/music/battle/The Guilds at War (1).mp3",
       "size_bytes": 5056909,
       "sha256": "f7b71fbf6f761d8f6f17a4fe2cb4a8c824007cb4cd5aad1cf765374350f312ac",
       "lfs_oid": "sha256:f7b71fbf6f761d8f6f17a4fe2cb4a8c824007cb4cd5aad1cf765374350f312ac",
-      "owner": "project maintainer - battle soundtrack",
+      "owner": "project maintainer - inactive soundtrack archive",
       "license": "AGPL-3.0-or-later (project author)",
-      "approval": "approved - maintainer AI generation; available for battle-scene routing",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
       "source_reference": "assets/SOURCES.csv:music.revel.center.battle.the.guilds.at.war.1",
-      "scope": "runtime"
+      "scope": "archive"
     },
     {
       "path": "music/battle/The Guilds at War.mp3",
@@ -404,15 +404,15 @@
       "scope": "runtime"
     },
     {
-      "path": "music/revel_center/holy spirit church/Hymn of the Holy Spirit (1).mp3",
+      "path": "archive/music/revel_center/holy spirit church/Hymn of the Holy Spirit (1).mp3",
       "size_bytes": 5895123,
       "sha256": "4cf4acbd09949ad7b467ea62236b850390ee149903163cdf9a0e9e776519707c",
       "lfs_oid": "sha256:4cf4acbd09949ad7b467ea62236b850390ee149903163cdf9a0e9e776519707c",
-      "owner": "project maintainer - runtime audio",
+      "owner": "project maintainer - inactive soundtrack archive",
       "license": "AGPL-3.0-or-later (project author)",
-      "approval": "approved - maintainer AI generation",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
       "source_reference": "assets/SOURCES.csv:music.revel.center.holy.spirit.church.hymn.of.the.holy.spirit.1",
-      "scope": "runtime"
+      "scope": "archive"
     },
     {
       "path": "music/revel_center/holy spirit church/Hymn of the Holy Spirit.mp3",
@@ -448,15 +448,15 @@
       "scope": "runtime"
     },
     {
-      "path": "music/battle/Ambush on Pikk Street (1).mp3",
+      "path": "archive/music/battle/Ambush on Pikk Street (1).mp3",
       "size_bytes": 6580482,
       "sha256": "7a73898044c83f199e2e59f368792d94580cbf1a973b013a2bdf969c7ca2928d",
       "lfs_oid": "sha256:7a73898044c83f199e2e59f368792d94580cbf1a973b013a2bdf969c7ca2928d",
-      "owner": "project maintainer - battle soundtrack",
+      "owner": "project maintainer - inactive soundtrack archive",
       "license": "AGPL-3.0-or-later (project author)",
-      "approval": "approved - maintainer AI generation; available for battle-scene routing",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
       "source_reference": "assets/SOURCES.csv:music.revel.north.battle.ambush.on.pikk.street.1",
-      "scope": "runtime"
+      "scope": "archive"
     },
     {
       "path": "music/battle/Ambush on Pikk Street.mp3",
@@ -481,15 +481,15 @@
       "scope": "runtime"
     },
     {
-      "path": "music/battle/Blackheads' Charge (1).mp3",
+      "path": "archive/music/battle/Blackheads' Charge (1).mp3",
       "size_bytes": 5522822,
       "sha256": "ad2b19f17e78d6910892fce993326cbead30368107bc1f80a1b9787c5419983e",
       "lfs_oid": "sha256:ad2b19f17e78d6910892fce993326cbead30368107bc1f80a1b9787c5419983e",
-      "owner": "project maintainer - battle soundtrack",
+      "owner": "project maintainer - inactive soundtrack archive",
       "license": "AGPL-3.0-or-later (project author)",
-      "approval": "approved - maintainer AI generation; available for battle-scene routing",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
       "source_reference": "assets/SOURCES.csv:music.revel.north.battle.blackheads.charge.1",
-      "scope": "runtime"
+      "scope": "archive"
     },
     {
       "path": "music/battle/Blackheads' Charge.mp3",
@@ -503,15 +503,15 @@
       "scope": "runtime"
     },
     {
-      "path": "music/battle/Sacking the Nunnery (1).mp3",
+      "path": "archive/music/battle/Sacking the Nunnery (1).mp3",
       "size_bytes": 6222460,
       "sha256": "517fb0d79a964590126150957bef7dc951937066b5b7e776d66821ce5db64b78",
       "lfs_oid": "sha256:517fb0d79a964590126150957bef7dc951937066b5b7e776d66821ce5db64b78",
-      "owner": "project maintainer - battle soundtrack",
+      "owner": "project maintainer - inactive soundtrack archive",
       "license": "AGPL-3.0-or-later (project author)",
-      "approval": "approved - maintainer AI generation; available for battle-scene routing",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
       "source_reference": "assets/SOURCES.csv:music.revel.north.battle.sacking.the.nunnery.1",
-      "scope": "runtime"
+      "scope": "archive"
     },
     {
       "path": "music/battle/Sacking the Nunnery.mp3",
@@ -547,15 +547,15 @@
       "scope": "runtime"
     },
     {
-      "path": "music/revel_north/oleviste/Oleviste's Bells (1).mp3",
+      "path": "archive/music/revel_north/oleviste/Oleviste's Bells (1).mp3",
       "size_bytes": 6465056,
       "sha256": "51fd5ea388e2da6fb47d4800e3bde910a302b35e6028f2387ddc2a680d8e2f25",
       "lfs_oid": "sha256:51fd5ea388e2da6fb47d4800e3bde910a302b35e6028f2387ddc2a680d8e2f25",
-      "owner": "project maintainer",
+      "owner": "project maintainer - inactive soundtrack archive",
       "license": "AGPL-3.0-or-later (project author)",
-      "approval": "approved - maintainer AI generation",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
       "source_reference": "assets/SOURCES.csv:music.revel.north.oleviste.oleviste.s.bells.1",
-      "scope": "runtime"
+      "scope": "archive"
     },
     {
       "path": "music/revel_north/oleviste/Oleviste's Bells.mp3",
@@ -998,15 +998,15 @@
       "scope": "research"
     },
     {
-      "path": "music/domberg/night/Ghosts of the Crown (1).mp3",
+      "path": "archive/music/domberg/night/Ghosts of the Crown (1).mp3",
       "size_bytes": 11213221,
       "sha256": "deb3602c3a5fe9d81e1106c6bd8c584dbc6bb185dd948820d105c4473dd85b97",
       "lfs_oid": "sha256:deb3602c3a5fe9d81e1106c6bd8c584dbc6bb185dd948820d105c4473dd85b97",
-      "owner": "project maintainer - runtime audio",
+      "owner": "project maintainer - inactive soundtrack archive",
       "license": "AGPL-3.0-or-later (project author)",
-      "approval": "approved - maintainer AI generation",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
       "source_reference": "assets/SOURCES.csv:music.domberg.night.ghosts.of.the.crown.1",
-      "scope": "runtime"
+      "scope": "archive"
     },
     {
       "path": "music/battle/Catherine's Prayer.mp3",
@@ -3097,6 +3097,512 @@
       "approval": "approved - P0-122 commercial-friendly field recording",
       "source_reference": "assets/SOURCES.csv:sounds.birds.great_spotted_woodpecker.great_spotted_woodpecker_xc995604",
       "scope": "runtime"
+    },
+    {
+      "path": "archive/music/battle/Apothecary (4).mp3",
+      "size_bytes": 7175122,
+      "sha256": "36db8aca166931ba16df2ff0a99aad58a998e0ca90900c7332a63300fef2370b",
+      "lfs_oid": "sha256:36db8aca166931ba16df2ff0a99aad58a998e0ca90900c7332a63300fef2370b",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.revel.east.battle.apothecary.4",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/battle/Apothecary (5).mp3",
+      "size_bytes": 5982191,
+      "sha256": "8deca905274896af5c74372c60edf99226e27c0e8e0d889405189df212b7095f",
+      "lfs_oid": "sha256:8deca905274896af5c74372c60edf99226e27c0e8e0d889405189df212b7095f",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.revel.east.battle.apothecary.5",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/battle/Cobblestone Jig (1).mp3",
+      "size_bytes": 4260190,
+      "sha256": "1d10a8bee0646e533378faff0207ce225b2c54b331820bb434450b868892de5c",
+      "lfs_oid": "sha256:1d10a8bee0646e533378faff0207ce225b2c54b331820bb434450b868892de5c",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.revel.east.battle.cobblestone.jig.1",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/battle/Viru Gate Skirmish (1).mp3",
+      "size_bytes": 5560266,
+      "sha256": "5d8b52ed8a9745c09d05ef65cd7db57b34503d246dd736594d911234616dc349",
+      "lfs_oid": "sha256:5d8b52ed8a9745c09d05ef65cd7db57b34503d246dd736594d911234616dc349",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.revel.east.battle.viru.gate.skirmish.1",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/domberg/day/Baltic Wind (1).mp3",
+      "size_bytes": 6375328,
+      "sha256": "07d71ab39300a86d2a65763a2a4793e5c60c01600e5674e84136512be5088d5b",
+      "lfs_oid": "sha256:07d71ab39300a86d2a65763a2a4793e5c60c01600e5674e84136512be5088d5b",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.domberg.day.baltic.wind.1",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/domberg/day/Merchants' Whispers (1).mp3",
+      "size_bytes": 7372605,
+      "sha256": "bdabd208ae240043b5878d832026b26f3f403c9a7d88df49f875f1508b4537b0",
+      "lfs_oid": "sha256:bdabd208ae240043b5878d832026b26f3f403c9a7d88df49f875f1508b4537b0",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.domberg.day.merchants.whispers.1",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/domberg/day/Noble Lessons (1).mp3",
+      "size_bytes": 3123327,
+      "sha256": "59c6190efb6299e4e5b4a9052439a915a00bcaeead154025fad58435184c30ae",
+      "lfs_oid": "sha256:59c6190efb6299e4e5b4a9052439a915a00bcaeead154025fad58435184c30ae",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.domberg.day.noble.lessons.1",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/domberg/day/Order's March (1).mp3",
+      "size_bytes": 5935717,
+      "sha256": "39a48c6c2422c2d95b9228dce5ffada7561ee4ac6d62e6d86bd61349a0638f00",
+      "lfs_oid": "sha256:39a48c6c2422c2d95b9228dce5ffada7561ee4ac6d62e6d86bd61349a0638f00",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.domberg.day.order.s.march.1",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/domberg/night/Bones Beneath Stone (1).mp3",
+      "size_bytes": 5889287,
+      "sha256": "87e387e12e9b7e1a4a83714255f540020c82284ab6ce353779d993d6b0edeedd",
+      "lfs_oid": "sha256:87e387e12e9b7e1a4a83714255f540020c82284ab6ce353779d993d6b0edeedd",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.domberg.night.bones.beneath.stone.1",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/domberg/night/The Wailer's Lament (1).mp3",
+      "size_bytes": 9187229,
+      "sha256": "7d5d92e5f3fd6dcccfd4916b8169e0602952d454efe9577b355a13d48da12322",
+      "lfs_oid": "sha256:7d5d92e5f3fd6dcccfd4916b8169e0602952d454efe9577b355a13d48da12322",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.domberg.night.the.wailer.s.lament.1",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/domberg/night/Vanapagan's Dominion (1).mp3",
+      "size_bytes": 6637433,
+      "sha256": "58729e558fa812f16deeef41d79b2f102ea42f665b06362a227e3a41f1755a00",
+      "lfs_oid": "sha256:58729e558fa812f16deeef41d79b2f102ea42f665b06362a227e3a41f1755a00",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.domberg.night.vanapagan.s.dominion.1",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/forge/The Smith's Song.mp3",
+      "size_bytes": 5834607,
+      "sha256": "e9dc9543731757c854772bc5e026f30af0b8e15ca284360a9905a761023d3d46",
+      "lfs_oid": "sha256:e9dc9543731757c854772bc5e026f30af0b8e15ca284360a9905a761023d3d46",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.forge.the.smith.s.song",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/forge/The Smith's Song2.mp3",
+      "size_bytes": 4138845,
+      "sha256": "777f1065a1bc5a7325338f8785fc67be94c57081111a73f054c11ce63e575ed1",
+      "lfs_oid": "sha256:777f1065a1bc5a7325338f8785fc67be94c57081111a73f054c11ce63e575ed1",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.forge.the.smith.s.song2",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/harbor/Harbor Mist (1).mp3",
+      "size_bytes": 7637460,
+      "sha256": "8f278275665450991f543d0ebdc9c264d594355c2c18f7d7ca0febd46840433d",
+      "lfs_oid": "sha256:8f278275665450991f543d0ebdc9c264d594355c2c18f7d7ca0febd46840433d",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.harbor.harbor.mist.1",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/harbor/Song of the Sea Wolves (1).mp3",
+      "size_bytes": 7253871,
+      "sha256": "8dc5d98267ab4733ab20266612e81de02b94eb014668d612806278b783095aef",
+      "lfs_oid": "sha256:8dc5d98267ab4733ab20266612e81de02b94eb014668d612806278b783095aef",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.harbor.song.of.the.sea.wolves.1",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/harbor/The Fisherman's Ballad (1).mp3",
+      "size_bytes": 4239745,
+      "sha256": "ddcc89315d2d42e39fe3a552494f79fe890a673ad265f2e22617d198243c0b6e",
+      "lfs_oid": "sha256:ddcc89315d2d42e39fe3a552494f79fe890a673ad265f2e22617d198243c0b6e",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.harbor.the.fisherman.s.ballad.1",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/harbor/The Lonely Watch (1).mp3",
+      "size_bytes": 4707704,
+      "sha256": "ad8009bbb9ad9280ff97210800208b87ab2c1576e4ae2c2bc0d5217c186d2d25",
+      "lfs_oid": "sha256:ad8009bbb9ad9280ff97210800208b87ab2c1576e4ae2c2bc0d5217c186d2d25",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.harbor.the.lonely.watch.1",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/harbor/The Lonely Watch (2).mp3",
+      "size_bytes": 6412796,
+      "sha256": "2b8faab9768b8d52d12e1e3cb03847403808a0b0215e6f1d80e3c5f75aa795b2",
+      "lfs_oid": "sha256:2b8faab9768b8d52d12e1e3cb03847403808a0b0215e6f1d80e3c5f75aa795b2",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.harbor.the.lonely.watch.2",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/revel_center/A Moment of Peace (1).mp3",
+      "size_bytes": 6436163,
+      "sha256": "30ed6befe8608d0c56163851536498e44c575533f7f29a7a09814e8e4325ed22",
+      "lfs_oid": "sha256:30ed6befe8608d0c56163851536498e44c575533f7f29a7a09814e8e4325ed22",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.revel.center.a.moment.of.peace.1",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/revel_center/A Moment of Peace (2).mp3",
+      "size_bytes": 7090025,
+      "sha256": "5119b256ab01a5aa20a5ee21dac20832f7483e3da5fce3809be0a92c486dcf1d",
+      "lfs_oid": "sha256:5119b256ab01a5aa20a5ee21dac20832f7483e3da5fce3809be0a92c486dcf1d",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.revel.center.a.moment.of.peace.2",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/revel_center/A Moment of Peace (3).mp3",
+      "size_bytes": 6005937,
+      "sha256": "013dde4fc84d40d7a20a8da6edbf3e094ec5186edc3b02c6671468e25db2814f",
+      "lfs_oid": "sha256:013dde4fc84d40d7a20a8da6edbf3e094ec5186edc3b02c6671468e25db2814f",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.revel.center.a.moment.of.peace.3",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/revel_center/The Bard's Tale (1).mp3",
+      "size_bytes": 5700337,
+      "sha256": "200bf462ae2a28cb0bb273a17c874a2ea539b001f74599c615b03217b7e0dbd8",
+      "lfs_oid": "sha256:200bf462ae2a28cb0bb273a17c874a2ea539b001f74599c615b03217b7e0dbd8",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.revel.center.the.bard.s.tale.1",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/revel_east/2.mp3",
+      "size_bytes": 6217692,
+      "sha256": "3ab97714987b256c29f0208deb8c110f01ab63ed63d2354142dff154330b52ad",
+      "lfs_oid": "sha256:3ab97714987b256c29f0208deb8c110f01ab63ed63d2354142dff154330b52ad",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.revel.east.2",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/revel_east/Apothecary (1).mp3",
+      "size_bytes": 4332246,
+      "sha256": "5c4c96c0fc7c131d97db3c893694148742f8c8a9281b81404b44b3fb33da3285",
+      "lfs_oid": "sha256:5c4c96c0fc7c131d97db3c893694148742f8c8a9281b81404b44b3fb33da3285",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.revel.east.apothecary.1",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/revel_east/Apothecary (2).mp3",
+      "size_bytes": 4913929,
+      "sha256": "ee62b788db90e737c7bde313327dc44d57e9f0c89c1248e13cf1a08b6a8c39e0",
+      "lfs_oid": "sha256:ee62b788db90e737c7bde313327dc44d57e9f0c89c1248e13cf1a08b6a8c39e0",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.revel.east.apothecary.2",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/revel_east/Apothecary (3).mp3",
+      "size_bytes": 5189614,
+      "sha256": "16bbc3a43b6afd4854dacbec89196e872d80bb8f338316c3f5277b786ece87ef",
+      "lfs_oid": "sha256:16bbc3a43b6afd4854dacbec89196e872d80bb8f338316c3f5277b786ece87ef",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.revel.east.apothecary.3",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/revel_east/Apothecary (6).mp3",
+      "size_bytes": 7027604,
+      "sha256": "a4c55dc5e0a057ad9496f76ec3155d6ce9b7fbeb5301586ecbd4a537f80a1338",
+      "lfs_oid": "sha256:a4c55dc5e0a057ad9496f76ec3155d6ce9b7fbeb5301586ecbd4a537f80a1338",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.revel.east.apothecary.6",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/revel_east/Apothecary (7).mp3",
+      "size_bytes": 6358400,
+      "sha256": "0986f9b36015adfb084b299b6fe8e755d2b99a74affb8de97e3ead3037a45930",
+      "lfs_oid": "sha256:0986f9b36015adfb084b299b6fe8e755d2b99a74affb8de97e3ead3037a45930",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.revel.east.apothecary.7",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/revel_east/Apothecary (9).mp3",
+      "size_bytes": 5849883,
+      "sha256": "d5d877fed50e5a4b074a98355f31f3c8999ba09545d80b8aaa014b25e7dce49a",
+      "lfs_oid": "sha256:d5d877fed50e5a4b074a98355f31f3c8999ba09545d80b8aaa014b25e7dce49a",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.revel.east.apothecary.9",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/revel_east/The Shaman's Trance (1).mp3",
+      "size_bytes": 3506973,
+      "sha256": "bf4564388194e2e0150915dccf1c6c938ba88ffd2bcf92f9412a7f1965c9c2bb",
+      "lfs_oid": "sha256:bf4564388194e2e0150915dccf1c6c938ba88ffd2bcf92f9412a7f1965c9c2bb",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.revel.east.the.shaman.s.trance.1",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/revel_east/The Shaman's Trance.mp3",
+      "size_bytes": 6273211,
+      "sha256": "a5eef2b5ea71cdd59dd8bdb0ffff489ce28829dab35fb50778dc813af7d8aa07",
+      "lfs_oid": "sha256:a5eef2b5ea71cdd59dd8bdb0ffff489ce28829dab35fb50778dc813af7d8aa07",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.revel.east.the.shaman.s.trance",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/revel_east/intro.mp3",
+      "size_bytes": 5148687,
+      "sha256": "14f82a947fc9f6e649595bd6402bcbea758a99e3a831493791d3bf196638ee79",
+      "lfs_oid": "sha256:14f82a947fc9f6e649595bd6402bcbea758a99e3a831493791d3bf196638ee79",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.revel.east.intro",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/revel_east/monastery/Whispers of the Monastery Garden (1).mp3",
+      "size_bytes": 6817653,
+      "sha256": "c43421d7271eaab2cbadad7bbf0df572532a851b413bad4a7d1e207915502aed",
+      "lfs_oid": "sha256:c43421d7271eaab2cbadad7bbf0df572532a851b413bad4a7d1e207915502aed",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.revel.east.monastery.whispers.of.the.monastery.garden.1",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/revel_east/monastery/Whispers of the Monastery Garden (2).mp3",
+      "size_bytes": 6578160,
+      "sha256": "3793851e786f5bf17ff9539f77deaf7dd666ea0d6c47f360d9002b6444cff4a9",
+      "lfs_oid": "sha256:3793851e786f5bf17ff9539f77deaf7dd666ea0d6c47f360d9002b6444cff4a9",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.revel.east.monastery.whispers.of.the.monastery.garden.2",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/revel_east/monastery/Whispers of the Monastery Garden (3).mp3",
+      "size_bytes": 6745338,
+      "sha256": "a0e11cc2d1be9984a1be75691dfbc8f5718d0e6941dd76135e5c0ccdb9435e69",
+      "lfs_oid": "sha256:a0e11cc2d1be9984a1be75691dfbc8f5718d0e6941dd76135e5c0ccdb9435e69",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.revel.east.monastery.whispers.of.the.monastery.garden.3",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/revel_east/streets.mp3",
+      "size_bytes": 3262748,
+      "sha256": "71ab174da67ed505d47aef3d49132ef4e897dbbda7c651a539bb42f3868570eb",
+      "lfs_oid": "sha256:71ab174da67ed505d47aef3d49132ef4e897dbbda7c651a539bb42f3868570eb",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.revel.east.streets",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/revel_east/streets2.mp3",
+      "size_bytes": 3359075,
+      "sha256": "abffa611df5ede5f8101492872b6089ad7d6c802632acfd10972e1915ff25aab",
+      "lfs_oid": "sha256:abffa611df5ede5f8101492872b6089ad7d6c802632acfd10972e1915ff25aab",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.revel.east.streets2",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/revel_east/tavern/Tavern's Delight (1).mp3",
+      "size_bytes": 5330607,
+      "sha256": "b7719ef6c9ef31c3ca9b461bbbe6903438cc8281ce0df60107cbc2ffaaa00a93",
+      "lfs_oid": "sha256:b7719ef6c9ef31c3ca9b461bbbe6903438cc8281ce0df60107cbc2ffaaa00a93",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.revel.east.tavern.tavern.s.delight.1",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/revel_east/tavern/Tavern's Delight (2).mp3",
+      "size_bytes": 5019028,
+      "sha256": "49037a6bfb5da800a52d5dee9669668f18af3915ef526ae200eeb72afd62ea56",
+      "lfs_oid": "sha256:49037a6bfb5da800a52d5dee9669668f18af3915ef526ae200eeb72afd62ea56",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.revel.east.tavern.tavern.s.delight.2",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/revel_east/tavern/Tavern's Delight.mp3",
+      "size_bytes": 4913116,
+      "sha256": "e1e683da515dac1855699e7bbdb2799bf47cfb356d327c3a812b864bfb3bc9fd",
+      "lfs_oid": "sha256:e1e683da515dac1855699e7bbdb2799bf47cfb356d327c3a812b864bfb3bc9fd",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.revel.east.tavern.tavern.s.delight",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/revel_north/A Journey Through the North (1).mp3",
+      "size_bytes": 7796349,
+      "sha256": "3281a2ef387292f09bfa8cc08ad417664fa76f8cc876582c17bf8243189484f5",
+      "lfs_oid": "sha256:3281a2ef387292f09bfa8cc08ad417664fa76f8cc876582c17bf8243189484f5",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.revel.north.a.journey.through.the.north.1",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/revel_north/A Worker's Toil (1).mp3",
+      "size_bytes": 5139502,
+      "sha256": "8e8b12ea61d6b04f06c1e4ed6629388226568ae1ccfde46ecf980f674c59cb41",
+      "lfs_oid": "sha256:8e8b12ea61d6b04f06c1e4ed6629388226568ae1ccfde46ecf980f674c59cb41",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.revel.north.a.worker.s.toil.1",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/revel_north/The Merchant's Path (1).mp3",
+      "size_bytes": 5627859,
+      "sha256": "342f929632a20a8a0290e3ab6ce10703ee964b139117f65aa810a6524829eb2e",
+      "lfs_oid": "sha256:342f929632a20a8a0290e3ab6ce10703ee964b139117f65aa810a6524829eb2e",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.revel.north.the.merchant.s.path.1",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/revel_north/The Nunnery's Peace (1).mp3",
+      "size_bytes": 5214310,
+      "sha256": "43c5ee26394834fa39447fb93aae92bdf3ff8cf1cb14453328568fd6729e195c",
+      "lfs_oid": "sha256:43c5ee26394834fa39447fb93aae92bdf3ff8cf1cb14453328568fd6729e195c",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.revel.north.the.nunnery.s.peace.1",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/revel_south/The Herbalist's Garden (1).mp3",
+      "size_bytes": 5660232,
+      "sha256": "62046b3343df2476237bf4152ab5bc7e8e84142919944ee68a409e4168f60afb",
+      "lfs_oid": "sha256:62046b3343df2476237bf4152ab5bc7e8e84142919944ee68a409e4168f60afb",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.revel.south.the.herbalist.s.garden.1",
+      "scope": "archive"
+    },
+    {
+      "path": "archive/music/revel_south/Under the Linden Tree (1).mp3",
+      "size_bytes": 5747333,
+      "sha256": "835c99d0344c0a94a2912f85c23e0a0fedc1a0f8e64f8a74a0adeec220c0c3ec",
+      "lfs_oid": "sha256:835c99d0344c0a94a2912f85c23e0a0fedc1a0f8e64f8a74a0adeec220c0c3ec",
+      "owner": "project maintainer - inactive soundtrack archive",
+      "license": "AGPL-3.0-or-later (project author)",
+      "approval": "approved - maintainer AI generation; archived unused take (P0-180)",
+      "source_reference": "assets/SOURCES.csv:music.revel.south.under.the.linden.tree.1",
+      "scope": "archive"
     }
   ]
 }

@@ -14,7 +14,7 @@ This file remains the durable/legacy ID index expected by `README.md`, `AGENTS.m
 <!-- Quick-reference counts updated on every structural change -->
 | Priority | Open | Done | Notes |
 |----------|-----:|-----:|-------|
-| P0 |    16  |     0  | Baseline, storage, materials, historical audit |
+| P0 |    15  |     1  | Baseline, storage, materials, historical audit |
 | P2 |     1  |     0  | Vertical-slice production (playable MVP) |
 
 
@@ -612,7 +612,7 @@ whichever is second re-captures its plates. Full table in
 
 See [`docs/STORAGE_SIZE_BACKLOG.md`](docs/STORAGE_SIZE_BACKLOG.md) for full deliverable/verify contracts.
 
-- [ ] P0-180 | deps: P0-177 | deliverable: curated music take reduction with MusicDirector proof | verify: soundtrack tests + recorded byte drop
+- [x] P0-180 | deps: P0-177 | deliverable: curated music take reduction with MusicDirector proof | verify: soundtrack tests + recorded byte drop | closed: 2026-09-28; `music/` 131/757462289 -> 76/435777018 bytes; unused `(N)` takes and unreferenced district extras in `archive/music/` (LFS-skip); `music/battle/` retained-library note in `docs/data/slice_soundtrack_manifest.json`
 - [ ] P0-182 | deps: P0-180 | deliverable: runtime audio bitrate/size budget | verify: lint/validator + audio tests
 - [ ] P0-183 | deps: P0-177 | deliverable: oversized runtime GLB budgets (oak + shared characters) | verify: asset lint + focused Godot filters
 - [ ] P0-185 | deps: P0-184 | deliverable: justified view3d hotspot extractions only | verify: named focused filters

@@ -54,7 +54,22 @@ func _check_routes(failures: Array[String]) -> void:
 
 func _check_streams(failures: Array[String]) -> void:
 	var director := MusicDirectorScript.new()
-	for theme_id: StringName in [&"menu", &"forge", &"town", &"center", &"raekoda", &"holy_spirit", &"north", &"oleviste", &"monastery", &"harbor", &"toompea", &"garden", &"south"]:
+	var theme_ids: Array[StringName] = [
+		&"menu",
+		&"forge",
+		&"town",
+		&"center",
+		&"raekoda",
+		&"holy_spirit",
+		&"north",
+		&"oleviste",
+		&"monastery",
+		&"harbor",
+		&"toompea",
+		&"garden",
+		&"south",
+	]
+	for theme_id: StringName in theme_ids:
 		if not MusicDirectorScript.has_theme(theme_id):
 			failures.append("Theme %s is routed but not configured" % theme_id)
 			continue
@@ -99,7 +114,6 @@ func _check_streams(failures: Array[String]) -> void:
 
 	var holy_spirit_tracks := MusicDirectorScript.day_track_paths_for_theme(&"holy_spirit")
 	var expected_holy_spirit_tracks := PackedStringArray([
-		"res://music/revel_center/holy spirit church/Hymn of the Holy Spirit (1).mp3",
 		"res://music/revel_center/holy spirit church/Hymn of the Holy Spirit.mp3",
 	])
 	if holy_spirit_tracks != expected_holy_spirit_tracks:
@@ -125,7 +139,10 @@ func _check_autoload_playback(failures: Array[String]) -> void:
 	var scene_changed_signal := scene_changed
 	var change_error := change_scene_to_file("res://scenes/menu/main_menu.tscn")
 	if change_error != OK:
-		failures.append("Main menu could not be loaded for playback verification: %s" % error_string(change_error))
+		failures.append(
+			"Main menu could not be loaded for playback verification: %s"
+			% error_string(change_error)
+		)
 		return
 
 	await scene_changed_signal

@@ -1,7 +1,11 @@
 extends "res://tests/godot/test_case.gd"
 
-const OlevisteChurchDefinition := preload("res://scripts/map/definitions/prototypes/oleviste_church_definition.gd")
-const MonasteryQuarterDefinition := preload("res://scripts/map/definitions/prototypes/monastery_quarter_definition.gd")
+const OlevisteChurchDefinition := preload(
+	"res://scripts/map/definitions/prototypes/oleviste_church_definition.gd"
+)
+const MonasteryQuarterDefinition := preload(
+	"res://scripts/map/definitions/prototypes/monastery_quarter_definition.gd"
+)
 const MusicDirectorScript := preload("res://scripts/global/music_director.gd")
 
 
@@ -19,7 +23,10 @@ func test_church_interior_is_a_valid_reachable_prototype() -> void:
 	assert_false(definition.active)
 	assert_true(MapBuilder.validate(definition).is_empty())
 	for anchor_id: StringName in [&"south_entry", &"nave_center", &"altar_front"]:
-		assert_true(MapVerification.has_anchor(definition, anchor_id), "missing church anchor %s" % anchor_id)
+		assert_true(
+			MapVerification.has_anchor(definition, anchor_id),
+			"missing church anchor %s" % anchor_id
+		)
 		assert_true(
 			MapVerification.route_exists_exact(
 				definition,
@@ -61,13 +68,14 @@ func test_church_is_registered_and_uses_only_its_two_bell_tracks() -> void:
 	assert_true(DoorNavigator.has_spawn(&"oleviste_church", &"from_reval_monastery"))
 	assert_eq(LocationHud.display_name_for_scene(&"oleviste_church"), "St. Olaf's Church")
 	assert_eq(
-		MusicDirectorScript.theme_for_scene("res://scenes/reval_north/oleviste_church/oleviste_church.tscn"),
+		MusicDirectorScript.theme_for_scene(
+			"res://scenes/reval_north/oleviste_church/oleviste_church.tscn"
+		),
 		&"oleviste"
 	)
 	assert_eq(
 		MusicDirectorScript.day_track_paths_for_theme(&"oleviste"),
 		PackedStringArray([
-			"res://music/revel_north/oleviste/Oleviste's Bells (1).mp3",
 			"res://music/revel_north/oleviste/Oleviste's Bells.mp3",
 		])
 	)
