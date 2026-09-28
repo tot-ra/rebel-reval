@@ -10,6 +10,22 @@ const MUD_SATURATED_SPEED_MULTIPLIER := 0.58
 ## Same tolerance as the MAP_RELIEF_SLOPE validator, so a face exactly at the
 ## 1/64-quantised limit is walkable in both places.
 const RELIEF_RISE_EPSILON := 0.0001
+## Point props without a footprint slow inside this world-unit radius.
+const POINT_PROP_RADIUS := 24.0
+const _NEIGHBOR_CELLS: Array[Vector2i] = [
+	Vector2i.ZERO,
+	Vector2i.LEFT,
+	Vector2i.RIGHT,
+	Vector2i.UP,
+	Vector2i.DOWN,
+	Vector2i(-1, -1),
+	Vector2i(1, -1),
+	Vector2i(-1, 1),
+	Vector2i(1, 1),
+]
+
+## Per MapDefinition instance: slowing props bucketed by overlapping cells.
+static var _prop_index_cache: Dictionary = {}
 
 
 static func speed_multiplier_at(
@@ -18,17 +34,45 @@ static func speed_multiplier_at(
 	world_position: Vector2,
 	mud_wetness: float = 0.0
 ) -> float:
+	return _speed_multiplier_at(definition, grid, world_position, mud_wetness, true)
+
+
+## Linear scan used by tests to prove the cell index matches the old loop.
+static func speed_multiplier_at_linear(
+	definition: MapDefinition,
+	grid: MapTerrainGrid,
+	world_position: Vector2,
+	mud_wetness: float = 0.0
+) -> float:
+	return _speed_multiplier_at(definition, grid, world_position, mud_wetness, false)
+
+
+static func slowing_prop_index_size(definition: MapDefinition) -> int:
+	if definition == null:
+		return 0
+	return int(_index_for(definition).get("slowing_count", 0))
+
+
+static func _speed_multiplier_at(
+	definition: MapDefinition,
+	grid: MapTerrainGrid,
+	world_position: Vector2,
+	mud_wetness: float,
+	use_index: bool
+) -> float:
 	if definition == null or grid == null:
 		return 1.0
-	var cell := Vector2i(
-		int(floor(world_position.x / float(definition.cell_size))),
-		int(floor(world_position.y / float(definition.cell_size)))
-	)
+	var cell := _world_to_cell(definition, world_position)
 	var multiplier := grid.get_movement_speed_multiplier(cell)
 	if grid.get_terrain(cell) == MapTypes.TERRAIN_MUD:
 		multiplier = minf(multiplier, mud_speed_multiplier(mud_wetness))
-	for prop in definition.props:
-		multiplier = minf(multiplier, _prop_multiplier_at(prop, world_position))
+	if use_index:
+		multiplier = minf(
+			multiplier, _indexed_prop_multiplier_at(definition, cell, world_position)
+		)
+	else:
+		for prop in definition.props:
+			multiplier = minf(multiplier, _prop_multiplier_at(prop, world_position))
 	multiplier *= slope_speed_multiplier(definition, world_position)
 	return TerrainVegetation.clamp_speed_multiplier(multiplier)
 
@@ -116,7 +160,9 @@ static func mud_speed_multiplier(wetness: float) -> float:
 
 static func _prop_multiplier_at(prop: Dictionary, world_position: Vector2) -> float:
 	var authored: Variant = prop.get("movement_speed_multiplier")
-	var base := TerrainVegetation.resolved_prop_speed(prop.get("kind", &""), authored)
+	var kind_value: Variant = prop.get("kind", &"")
+	var kind: StringName = kind_value
+	var base := TerrainVegetation.resolved_prop_speed(kind, authored)
 	if base >= 1.0:
 		return 1.0
 	if prop.has("footprint"):
@@ -125,6 +171,125 @@ static func _prop_multiplier_at(prop: Dictionary, world_position: Vector2) -> fl
 			return base
 		return 1.0
 	var position: Vector2 = prop.get("position", Vector2.ZERO)
-	if position.distance_squared_to(world_position) <= 24.0 * 24.0:
+	if position.distance_squared_to(world_position) <= POINT_PROP_RADIUS * POINT_PROP_RADIUS:
 		return base
 	return 1.0
+
+
+static func _world_to_cell(definition: MapDefinition, world_position: Vector2) -> Vector2i:
+	var cell_size := float(definition.cell_size)
+	return Vector2i(
+		int(floor(world_position.x / cell_size)),
+		int(floor(world_position.y / cell_size))
+	)
+
+
+static func _indexed_prop_multiplier_at(
+	definition: MapDefinition, cell: Vector2i, world_position: Vector2
+) -> float:
+	var index := _index_for(definition)
+	var cells: Dictionary = index.get("cells", {})
+	var multiplier := 1.0
+	# WHY: index buckets a prop into every overlapping cell; neighbours cover
+	# cell-boundary float error without scanning the whole dressed district.
+	for offset in _NEIGHBOR_CELLS:
+		var bucket: Variant = cells.get(cell + offset)
+		if not (bucket is Array):
+			continue
+		var bucket_props: Array = bucket
+		for prop: Dictionary in bucket_props:
+			multiplier = minf(multiplier, _prop_multiplier_at(prop, world_position))
+	return multiplier
+
+
+static func _index_for(definition: MapDefinition) -> Dictionary:
+	var key := definition.get_instance_id()
+	var cached: Variant = _prop_index_cache.get(key)
+	if cached is Dictionary:
+		var entry: Dictionary = cached
+		var holder_value: Variant = entry.get("holder")
+		var holder := holder_value as WeakRef
+		if (
+			holder != null
+			and holder.get_ref() == definition
+			and String(entry.get("fingerprint", "")) == definition.fingerprint
+			and int(entry.get("prop_count", -1)) == definition.props.size()
+		):
+			return entry
+	var built := _build_prop_index(definition)
+	_prune_prop_index_cache()
+	_prop_index_cache[key] = built
+	return built
+
+
+static func _build_prop_index(definition: MapDefinition) -> Dictionary:
+	var cells := {}
+	var slowing_count := 0
+	var cell_size: int = definition.cell_size
+	for prop in definition.props:
+		var authored: Variant = prop.get("movement_speed_multiplier")
+		var kind_value: Variant = prop.get("kind", &"")
+		var kind: StringName = kind_value
+		if TerrainVegetation.resolved_prop_speed(kind, authored) >= 1.0:
+			continue
+		slowing_count += 1
+		for cell in _cells_for_slowing_prop(prop, cell_size):
+			if not cells.has(cell):
+				var bucket: Array[Dictionary] = []
+				cells[cell] = bucket
+			(cells[cell] as Array).append(prop)
+	return {
+		"holder": weakref(definition),
+		"fingerprint": definition.fingerprint,
+		"prop_count": definition.props.size(),
+		"slowing_count": slowing_count,
+		"cells": cells,
+	}
+
+
+static func _cells_for_slowing_prop(prop: Dictionary, cell_size: int) -> Array[Vector2i]:
+	if cell_size <= 0:
+		return []
+	if prop.has("footprint"):
+		var footprint: Rect2 = prop["footprint"]
+		return _cells_overlapping_world_rect(footprint, cell_size)
+	var position: Vector2 = prop.get("position", Vector2.ZERO)
+	var extent := Vector2(POINT_PROP_RADIUS, POINT_PROP_RADIUS)
+	return _cells_overlapping_world_rect(Rect2(position - extent, extent * 2.0), cell_size)
+
+
+static func _cells_overlapping_world_rect(rect: Rect2, cell_size: int) -> Array[Vector2i]:
+	# Rect2.has_point excludes the right/bottom edges, so the last covered cell
+	# is the one holding (end - epsilon), not the cell of the exclusive end.
+	if rect.size.x <= 0.0 or rect.size.y <= 0.0:
+		return []
+	var scale := float(cell_size)
+	var min_cell := Vector2i(
+		int(floor(rect.position.x / scale)), int(floor(rect.position.y / scale))
+	)
+	var max_cell := Vector2i(
+		int(floor((rect.position.x + rect.size.x - 0.0001) / scale)),
+		int(floor((rect.position.y + rect.size.y - 0.0001) / scale))
+	)
+	var cells: Array[Vector2i] = []
+	for y in range(min_cell.y, max_cell.y + 1):
+		for x in range(min_cell.x, max_cell.x + 1):
+			cells.append(Vector2i(x, y))
+	return cells
+
+
+static func _prune_prop_index_cache() -> void:
+	if _prop_index_cache.size() < 32:
+		return
+	var dead: Array = []
+	for key in _prop_index_cache.keys():
+		var entry: Variant = _prop_index_cache[key]
+		if not (entry is Dictionary):
+			dead.append(key)
+			continue
+		var holder_value: Variant = (entry as Dictionary).get("holder")
+		var holder := holder_value as WeakRef
+		if holder == null or holder.get_ref() == null:
+			dead.append(key)
+	for key in dead:
+		_prop_index_cache.erase(key)
