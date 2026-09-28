@@ -171,6 +171,91 @@ func test_south_quarter_district_life_dressing() -> void:
 		)
 
 
+# R-282 / R-677: strip-plot ordinary fabric fills the ward without roofing over
+# the owned courts, keeps the R-003 tiers below landmark height, and holds the
+# frozen surface, material and empty-region bands. Whole-map density is still
+# under historical_band_grace (inside-wall band vs whole-map metric).
+func test_south_quarter_ordinary_fabric_plots() -> void:
+	var definition: MapDefinition = SouthQuarterDefinition.create()
+	var cell := float(definition.cell_size)
+	var owned_courts := {
+		"rataskaev_well_court": Rect2i(157, 9, 33, 20),
+		"knights_court": Rect2i(238, 13, 42, 33),
+		"karja_gate_approach": Rect2i(234, 56, 13, 40),
+		"niguliste_close": Rect2i(161, 37, 31, 10),
+	}
+	var plot_count := 0
+	var tiers := {}
+	var landmark_height := float(_building_by_id(definition, &"knights_hall").get(&"wall_height", 0.0))
+	for building in definition.buildings:
+		if not String(building["id"]).begins_with("south.plot."):
+			continue
+		plot_count += 1
+		var footprint: Rect2 = building["footprint"]
+		var cells := Rect2i(
+			int(footprint.position.x / cell),
+			int(footprint.position.y / cell),
+			int(footprint.size.x / cell),
+			int(footprint.size.y / cell),
+		)
+		for court_id in owned_courts:
+			assert_false(
+				(owned_courts[court_id] as Rect2i).intersects(cells),
+				"%s must not build over %s" % [building["id"], court_id],
+			)
+		assert_true(
+			float(building.get(&"wall_height", 0.0)) < landmark_height,
+			"%s must stay below the knights' hall height" % building["id"],
+		)
+		var tier := String(building.get(&"house_tier", ""))
+		if not tier.is_empty():
+			tiers[tier] = true
+	assert_true(plot_count >= 140, "South Quarter needs its strip-plot fabric, got %d" % plot_count)
+	for tier in ["merchant_stone", "merchant_timber", "craft_boda"]:
+		assert_true(tiers.has(tier), "Strip plots must use R-003 tier %s" % tier)
+
+	var thresholds: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(THRESHOLDS_PATH))
+	var card: Dictionary = thresholds["maps"]["south_quarter"]
+	var contract: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string("res://docs/data/south_quarter_authoring_contract.json")
+	)
+	var grid := MapBuilder.build(definition)
+	var metrics := MapCompositionAudit.measure(definition, grid, contract)
+	var surface: Dictionary = metrics["surface_shares"]
+	for band_key in ["stone_pct", "earth_pct", "grass_pct"]:
+		var band: Array = card["surface_shares"][band_key]
+		var measured := float(surface[band_key])
+		assert_true(
+			measured >= float(band[0]) and measured <= float(band[1]),
+			"%s %.1f outside %s" % [band_key, measured, band],
+		)
+	assert_true(float(metrics["max_style_share_pct"]) <= float(card["max_style_share_pct"]))
+	assert_true(
+		int(metrics["largest_empty_region_cells"]) <= int(card["max_empty_region_cells"])
+	)
+	# The western connector stays visibly looser than the dense eastern ward.
+	var eastern_ward := _built_share(definition, Rect2i(144, 0, 187, 84))
+	var western_connector := _built_share(definition, Rect2i(3, 0, 141, 60))
+	assert_true(
+		eastern_ward > western_connector,
+		"Eastern ward must be denser than the western connector",
+	)
+
+
+func _built_share(definition: MapDefinition, zone: Rect2i) -> float:
+	var cell := float(definition.cell_size)
+	var built := {}
+	for building in definition.buildings:
+		if building.get("kind", &"") != MapTypes.BUILDING_KIND_HOUSE:
+			continue
+		var footprint: Rect2 = building["footprint"]
+		for y in range(int(footprint.position.y / cell), int(footprint.end.y / cell)):
+			for x in range(int(footprint.position.x / cell), int(footprint.end.x / cell)):
+				if zone.has_point(Vector2i(x, y)):
+					built[Vector2i(x, y)] = true
+	return float(built.size()) / float(zone.get_area())
+
+
 func _building_by_id(definition: MapDefinition, building_id: StringName) -> Dictionary:
 	for building in definition.buildings:
 		if building["id"] == building_id:

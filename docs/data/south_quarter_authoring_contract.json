@@ -1,0 +1,27 @@
+{
+  "contract_version": 1,
+  "map_id": "south_quarter",
+  "source": "content/maps/south_quarter.rrmap",
+  "coordinate_space": "cells",
+  "authoring_intent": "Dense eastern ward and looser western connector of strip plots (front house, yard, rear range, shed) around the owned Rataskaev well court and knights' court, with the extramural pasture, wet south-wall margin and Karja glacis kept as open service ground (R-282 / R-677). Narrative contract: docs/reports/south_quarter_1343_fabric_contract.md.",
+  "composition_thresholds": {
+    "path": "docs/data/map_composition_thresholds.json",
+    "map_id": "south_quarter",
+    "enforce": true,
+    "enforcement_state": "enforced"
+  },
+  "open_regions": [
+    {
+      "id": "western_pasture_and_extramural_fields",
+      "bounds_cells": [4, 60, 152, 36],
+      "reason": "Pasture inside the unfinished western wall line and the extramural fields beyond it stay open service ground with only sparse barns; the contract targets 10-25% built outside the wall.",
+      "exclude_from_unowned_empty_region": true
+    },
+    {
+      "id": "south_wall_margin_and_karja_glacis",
+      "bounds_cells": [156, 84, 180, 12],
+      "reason": "The wet south-wall margin, ditches and the uncertain Karja glacis and causeway are defensive open ground, not missing frontage.",
+      "exclude_from_unowned_empty_region": true
+    }
+  ]
+}

@@ -387,7 +387,7 @@
     },
     "south_quarter": {
       "until": "R-282 (P4-024)",
-      "reason": "Card stays enrolled (enforcement_state=enforced, activation composition BLOCKED). Measured 2026-09-26: built_density_pct 8.8 vs 40-55, largest_empty_region_cells 28395 vs 20000. R-282 / P4-024 owns the South Quarter environment pass. Signed H08-H10 bands are not lowered."
+      "reason": "Card stays enrolled (enforcement_state=enforced, activation composition BLOCKED). Measured 2026-09-26: built_density_pct 8.8 vs 40-55, largest_empty_region_cells 28395 vs 20000. Re-measured 2026-09-28 after R-677 strip plots: built_density_pct 29.5 whole map (eastern ward 38.8, western connector 30.7, extramural pasture 10.2); every other band passes. The frozen 40-55 band is inside-wall only, while the audit divides by the whole map including the looser western connector and the 75-90% open extramural ground, so the grace stays until the audit can split inside- and outside-wall density. R-282 / P4-024 owns the South Quarter environment pass. Signed H08-H10 bands are not lowered."
     }
   }
 }

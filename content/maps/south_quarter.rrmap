@@ -30,6 +30,33 @@ style wall.city wall_height=192 wall_color=949185ff
 # round_tower keeps the Tallinn circular drum and conical red-tile roof while
 # tower=false marks incomplete 1343 fabric (no ground door / arrow slits).
 style wall.tower wall_height=240 wall_color=8c8a80ff round_tower=true
+# R-282 / R-677 ordinary fabric: R-003 house tiers for the strip-plot rows.
+# Front houses put the gable to the street (ridge perpendicular to it);
+# stone fronts stay below the knights' hall and gatehouse heights so no
+# ordinary house reads as a landmark. Rear ranges, stables, sheds and
+# extramural barns are low log, plank or daub service fabric without a tier.
+style house.south.stone.north door_side=north ridge_axis=z house_tier=merchant_stone roof_color=5e3325ff roof_material=tile wall_color=857f73ff wall_material=limestone wall_height=124
+style house.south.timber.north door_side=north ridge_axis=z house_tier=merchant_timber roof_color=4a3a2cff roof_material=shingle wall_color=6d5d4bff wall_material=plank wall_height=112
+style house.south.boda.north door_side=north ridge_axis=z house_tier=craft_boda roof_color=76663fff roof_material=thatch wall_color=5c4f42ff wall_material=log wall_height=88
+style house.south.stone.south door_side=south ridge_axis=z house_tier=merchant_stone roof_color=5e3325ff roof_material=tile wall_color=857f73ff wall_material=limestone wall_height=124
+style house.south.timber.south door_side=south ridge_axis=z house_tier=merchant_timber roof_color=4a3a2cff roof_material=shingle wall_color=6d5d4bff wall_material=plank wall_height=112
+style house.south.boda.south door_side=south ridge_axis=z house_tier=craft_boda roof_color=76663fff roof_material=thatch wall_color=5c4f42ff wall_material=log wall_height=88
+style house.south.stone.east door_side=east ridge_axis=x house_tier=merchant_stone roof_color=5e3325ff roof_material=tile wall_color=857f73ff wall_material=limestone wall_height=124
+style house.south.timber.east door_side=east ridge_axis=x house_tier=merchant_timber roof_color=4a3a2cff roof_material=shingle wall_color=6d5d4bff wall_material=plank wall_height=112
+style house.south.boda.east door_side=east ridge_axis=x house_tier=craft_boda roof_color=76663fff roof_material=thatch wall_color=5c4f42ff wall_material=log wall_height=88
+style house.south.stone.west door_side=west ridge_axis=x house_tier=merchant_stone roof_color=5e3325ff roof_material=tile wall_color=857f73ff wall_material=limestone wall_height=124
+style house.south.timber.west door_side=west ridge_axis=x house_tier=merchant_timber roof_color=4a3a2cff roof_material=shingle wall_color=6d5d4bff wall_material=plank wall_height=112
+style house.south.boda.west door_side=west ridge_axis=x house_tier=craft_boda roof_color=76663fff roof_material=thatch wall_color=5c4f42ff wall_material=log wall_height=88
+style house.south.plaster.north door_side=north ridge_axis=z house_tier=merchant_timber roof_color=46382aff roof_material=shingle wall_color=7a6a58ff wall_material=plaster wall_height=108
+style house.south.plaster.south door_side=south ridge_axis=z house_tier=merchant_timber roof_color=46382aff roof_material=shingle wall_color=7a6a58ff wall_material=plaster wall_height=108
+style house.south.rear.x door_side=north ridge_axis=x roof_color=554434ff roof_material=shingle wall_color=5f5244ff wall_material=log wall_height=80
+style house.south.rear.daub door_side=north ridge_axis=x roof_color=4f4032ff roof_material=shingle wall_color=6e604eff wall_material=timber wall_height=80
+style house.south.rear.z door_side=east ridge_axis=z roof_color=554434ff roof_material=shingle wall_color=645646ff wall_material=plank wall_height=80
+style house.south.shed.daub door_side=south roof_color=6e5e3cff roof_material=thatch wall_color=6a5c4aff wall_material=timber wall_height=64
+style house.south.stable door_side=south ridge_axis=x roof_color=7a6a45ff roof_material=thatch wall_color=5a4d40ff wall_material=timber wall_height=72
+style house.south.shed door_side=south roof_color=6b5c40ff roof_material=thatch wall_color=5a4f45ff wall_material=plank wall_height=64
+style house.south.shed.log door_side=north roof_color=5e5036ff roof_material=shingle wall_color=5c5042ff wall_material=log wall_height=64
+style house.south.barn door_side=south ridge_axis=x roof_color=7a6a45ff roof_material=thatch wall_color=5c5042ff wall_material=log wall_height=88
 # Grass and packed earth fill ordinary plots and yards. Cobble is reserved for
 # the Rataskaev/King approach and the Karja/Viru gate axis; minor lanes use mud
 # or dirt, with compact stone only at institutional thresholds and wall walks.
@@ -61,6 +88,10 @@ terrain north_rataskaev_yard dirt 151 0 31 12 order=7
 terrain north_civic_threshold dirt 226 0 48 16 order=7
 terrain east_viru_threshold sand 302 0 31 12 order=7
 terrain_rects wall_walk_stone stone 156,74,24,6|180,78,28,6|208,82,24,8|262,82,32,8|294,78,16,8|310,72,12,8 order=7
+# R-282 / R-677: pebble-and-rubble verges beside the Karja gate road (H10
+# early rubble/pebble road, B/U). The new plots roof over part of the
+# institutional stone closes, so this keeps the stone share in its band.
+terrain_rects south.karja_approach_verges stone 235,58,4,26|243,58,4,26 order=7
 stroke rataskaev_street cobblestone 144,6|175,6|202,6|226,6 thickness=3 order=8
 stroke dunkri_lane mud 213,0|213,3|213,21|213,40 thickness=2 order=9
 stroke king_street cobblestone 213,0|213,8|233,8|257,8 thickness=3 order=10
@@ -68,6 +99,12 @@ stroke niguliste_lane dirt 144,49|171,49|192,49|192,43|213,43 thickness=3 order=
 stroke karja_lane cobblestone 219,40|219,56|240,56|261,56 thickness=3 order=12
 stroke viru_internal_lane cobblestone 261,56|288,56|328,56|328,40|318,40|318,0 thickness=3 order=13
 stroke karja_gate_road cobblestone 240,56|240,71|240,94 thickness=3 order=14
+# R-282 / R-677: two irregular dirt lanes and a mud cross-lane give the
+# western connector its own looser plot rows under Toompea. Neutral
+# production names (design composite, confidence D), not attested streets.
+stroke south.western_upper_lane dirt 34,6|90,6|90,5|120,5|120,6|143,6 thickness=3 order=8
+stroke south.western_lower_lane dirt 16,41|70,41|70,43|112,43|112,45|136,45|136,49|144,49 thickness=3 order=8
+stroke south.western_cross_lane mud 88,7|88,24|86,24|86,43 thickness=2 order=8
 building city_wall_west_north wall 0 0 3 36 style=wall.city
 building south_wall_tower_northwest wall 0 0 8 8 style=wall.tower tower=false
 building south_wall_tower_southwest wall 31 68 8 8 style=wall.tower tower=false
@@ -131,6 +168,158 @@ building rataskaev_service_house house 160 26 12 8 style=house.artisan
 building western_slope_house house 156 54 10 8 style=house.merchant.north
 building karja_gate_house_west house 223 71 6 8 style=house.gatehouse
 building karja_gate_house_east house 257 71 6 8 style=house.gatehouse
+# R-282 / R-677 strip plots. Each plot is front house, yard, rear range and
+# sometimes a shed; a 2-cell passage every third frontage and a 2-cell yard
+# around every outbuilding keep courts open. Plots never cover the Rataskaev
+# well court, the knights' court, the Karja approach, the inspection square,
+# route bands, anchors, transitions or patrol points.
+building south.plot.w_upper_a.00.front house 40 14 9 5 style=house.south.timber.north
+building south.plot.w_upper_a.00.rear house 42 20 6 5 style=house.south.stable
+building south.plot.w_upper_a.01.front house 49 14 11 4 style=house.south.boda.north
+building south.plot.w_upper_a.02.front house 60 9 6 9 style=house.south.boda.north
+building south.plot.w_upper_a.02.rear house 60 21 7 5 style=house.south.rear.daub
+building south.plot.w_upper_a.03.front house 68 9 10 8 style=house.south.timber.north
+building south.plot.w_upper_a.04.front house 78 9 8 8 style=house.south.boda.north
+building south.plot.w_upper_b.00.front house 91 9 9 7 style=house.south.stone.north
+building south.plot.w_upper_b.00.rear house 93 19 6 6 style=house.south.rear.x
+building south.plot.w_upper_b.01.front house 100 9 7 9 style=house.south.timber.north
+building south.plot.w_upper_b.02.front house 107 9 8 8 style=house.south.plaster.north
+building south.plot.w_upper_b.02.shed house 107 21 5 3 style=house.south.shed
+building south.plot.w_upper_b.03.front house 117 9 11 8 style=house.south.boda.north
+building south.plot.w_upper_b.04.front house 128 9 8 7 style=house.south.timber.north
+building south.plot.w_upper_b.04.rear house 128 19 7 6 style=house.south.rear.daub
+building south.plot.w_upper_b.05.front house 136 9 5 9 style=house.south.boda.north
+building south.plot.w_lower_n_a.00.front house 12 30 13 9 style=house.south.boda.south
+building south.plot.w_lower_n_a.01.front house 25 31 9 8 style=house.south.boda.south
+building south.plot.w_lower_n_a.02.front house 34 31 7 8 style=house.south.plaster.south
+building south.plot.w_lower_n_a.03.front house 43 32 11 7 style=house.south.boda.south
+building south.plot.w_lower_n_a.04.front house 54 30 8 9 style=house.south.boda.south
+building south.plot.w_lower_n_a.05.front house 62 31 8 8 style=house.south.timber.south
+building south.plot.w_lower_n_a.06.front house 72 31 11 8 style=house.south.timber.south
+building south.plot.w_lower_n_b.01.front house 98 33 12 8 style=house.south.boda.south
+building south.plot.w_lower_n_b.02.front house 110 34 7 7 style=house.south.boda.south
+building south.plot.w_lower_n_b.02.rear house 110 28 8 6 style=house.south.rear.daub
+building south.plot.w_lower_n_b.03.front house 119 34 7 9 style=house.south.stone.south
+building south.plot.w_lower_n_b.04.front house 126 35 10 8 style=house.south.boda.south
+building south.plot.w_lower_n_b.05.front house 136 35 5 8 style=house.south.boda.south
+building south.plot.w_lower_s.00.front house 18 44 11 8 style=house.south.timber.north
+building south.plot.w_lower_s.01.front house 29 44 8 7 style=house.south.boda.north
+building south.plot.w_lower_s.02.front house 37 44 11 9 style=house.south.boda.north
+building south.plot.w_lower_s.03.front house 50 44 9 8 style=house.south.boda.north
+building south.plot.w_lower_s.04.front house 59 44 9 8 style=house.south.boda.north
+building south.plot.w_lower_s.05.front house 68 46 9 7 style=house.south.timber.north
+building south.plot.w_lower_s.06.front house 79 46 8 9 style=house.south.stone.north
+building south.plot.w_lower_s.07.front house 87 46 10 8 style=house.south.boda.north
+building south.plot.w_lower_s.08.front house 97 46 10 8 style=house.south.timber.north
+building south.plot.w_lower_s.09.front house 109 48 9 6 style=house.south.boda.north
+building south.plot.w_lower_s.10.front house 118 48 7 8 style=house.south.boda.north
+building south.plot.w_lower_s.11.front house 125 48 8 7 style=house.south.plaster.north
+building south.plot.w_pasture_a.00.barn house 70 64 10 6 style=house.south.barn
+building south.plot.w_pasture_a.00.shed house 72 73 5 4 style=house.south.shed.daub
+building south.plot.w_pasture_a.01.barn house 81 67 10 6 style=house.south.barn
+building south.plot.w_pasture_a.01.shed house 83 76 5 4 style=house.south.shed
+building south.plot.w_pasture_a.02.barn house 92 64 10 6 style=house.south.barn
+building south.plot.w_pasture_a.02.shed house 94 73 5 4 style=house.south.shed.log
+building south.plot.w_pasture_b.00.barn house 112 64 10 6 style=house.south.barn
+building south.plot.w_pasture_b.00.shed house 114 73 5 4 style=house.south.shed.daub
+building south.plot.w_pasture_b.01.barn house 123 67 10 6 style=house.south.barn
+building south.plot.w_pasture_b.01.shed house 125 76 5 4 style=house.south.shed
+building south.plot.w_pasture_b.02.barn house 134 64 10 6 style=house.south.barn
+building south.plot.w_pasture_b.02.shed house 136 73 5 4 style=house.south.shed.daub
+building south.plot.e_hillfoot.00.front house 144 10 9 8 style=house.south.plaster.north
+building south.plot.e_hillfoot.00.rear house 146 21 6 7 style=house.south.rear.x
+building south.plot.e_nig_n.00.front house 144 38 12 8 style=house.south.stone.south
+building south.plot.e_nig_n.00.rear house 146 29 9 5 style=house.south.rear.daub
+building south.plot.e_nig_n.04.rear house 182 30 8 5 style=house.south.rear.daub
+building south.plot.e_nig_s.00.front house 144 52 8 7 style=house.south.stone.north
+building south.plot.e_nig_s.00.rear house 146 62 5 6 style=house.south.rear.x
+building south.plot.e_nig_s.00.shed house 144 70 5 3 style=house.south.shed
+building south.plot.e_nig_s.01.rear house 152 65 12 5 style=house.south.rear.daub
+building south.plot.e_nig_s.02.rear house 165 65 8 6 style=house.south.rear.daub
+building south.plot.e_nig_s.04.front house 183 53 10 7 style=house.south.stone.north
+building south.plot.e_dunkri_w.00.front house 202 18 9 8 style=house.south.boda.east
+building south.plot.e_dunkri_w.00.rear house 194 20 5 5 style=house.south.rear.z
+building south.plot.e_dunkri_w.01.front house 203 26 8 10 style=house.south.stone.east
+building south.plot.e_dunkri_w.01.rear house 193 26 7 9 style=house.south.stable
+building south.plot.e_karja_w.00.front house 196 46 8 8 style=house.south.timber.north
+building south.plot.e_karja_w.01.front house 204 46 11 8 style=house.south.plaster.north
+building south.plot.e_karja_sw.00.front house 194 65 9 5 style=house.south.timber.north
+building south.plot.e_karja_sw.00.shed house 194 70 5 3 style=house.south.shed.log
+building south.plot.e_karja_sw.01.front house 203 65 11 4 style=house.south.timber.north
+building south.plot.e_karja_sw.02.front house 214 59 6 9 style=house.south.boda.north
+building south.plot.e_karja_se.01.front house 252 60 7 9 style=house.south.boda.north
+building south.plot.e_karja_se.02.front house 259 60 8 8 style=house.south.boda.north
+building south.plot.e_viru_s.00.rear house 272 72 10 5 style=house.south.rear.x
+building south.plot.e_viru_s.01.rear house 283 70 8 7 style=house.south.rear.daub
+building south.plot.e_viru_s.02.rear house 292 70 8 5 style=house.south.rear.daub
+building south.plot.e_viru_s.04.front house 312 59 8 9 style=house.south.stone.north
+building south.plot.e_karja_n.00.front house 222 46 7 8 style=house.south.plaster.south
+building south.plot.e_karja_n.01.front house 229 46 12 8 style=house.south.boda.south
+building south.plot.e_dorm_s.00.front house 261 47 11 6 style=house.south.plaster.south
+building south.plot.e_dorm_s.01.front house 272 47 8 7 style=house.south.stone.south
+building south.plot.e_dorm_s.02.front house 280 49 8 4 style=house.south.stone.south
+building south.plot.e_viru_w.00.front house 309 9 7 11 style=house.south.stone.east
+building south.plot.e_viru_w.00.rear house 299 11 6 8 style=house.south.rear.z
+building south.plot.e_viru_w.00.shed house 294 9 3 5 style=house.south.shed.daub
+building south.plot.e_viru_w.01.front house 307 20 9 8 style=house.south.stone.east
+building south.plot.e_viru_w.02.front house 308 28 8 8 style=house.south.timber.east
+building south.plot.e_viru_e.01.front house 321 14 8 10 style=house.south.boda.west
+building south.plot.e_viru_e.02.front house 321 24 8 9 style=house.south.timber.west
+building south.plot.e_king_s.00.front house 216 11 7 8 style=house.south.timber.north
+building south.plot.e_king_s.00.rear house 216 22 6 7 style=house.south.rear.x
+building south.plot.e_king_s.01.rear house 223 22 8 5 style=house.south.rear.daub
+building south.plot.e_knights_service.00.front house 280 16 12 7 style=house.south.boda.north
+building south.plot.e_nig_n.y00.range house 173 29 7 5 style=house.south.rear.daub
+building south.plot.e_dunkri_w.y00.shed house 192 37 6 4 style=house.south.shed
+building south.plot.e_karja_sw.y00.shed house 208 59 4 4 style=house.south.shed.daub
+building south.plot.e_karja_sw.y01.shed house 230 68 4 4 style=house.south.shed
+building south.plot.e_karja_sw.y02.shed house 218 70 4 4 style=house.south.shed.log
+building south.plot.e_karja_se.y00.range house 264 70 6 5 style=house.south.rear.x
+building south.plot.e_karja_se.y01.range house 247 71 7 5 style=house.south.rear.daub
+building south.plot.e_karja_se.y02.range house 264 77 6 5 style=house.south.rear.daub
+building south.plot.e_karja_se.y03.shed house 251 78 5 4 style=house.south.shed.daub
+building south.plot.e_viru_s.y00.shed house 322 60 5 4 style=house.south.shed
+building south.plot.e_viru_s.y01.shed house 302 69 6 4 style=house.south.shed.daub
+building south.plot.e_viru_s.y02.shed house 315 70 4 6 style=house.south.shed
+building south.plot.e_viru_w.y00.range house 298 30 8 6 style=house.south.rear.z
+building south.plot.e_viru_e.y00.shed house 321 8 6 4 style=house.south.shed.log
+building south.plot.e_king_s.y00.range house 233 18 5 6 style=house.south.rear.x
+building south.plot.e_king_s.y01.shed house 233 26 5 4 style=house.south.shed.daub
+building south.plot.e_hillfoot.s00.shed house 154 18 3 5 style=house.south.shed
+building south.plot.e_hillfoot.s01.shed house 153 24 4 4 style=house.south.shed.daub
+building south.plot.e_nig_n.s00.shed house 156 29 3 5 style=house.south.shed
+building south.plot.e_nig_n.s01.shed house 157 35 4 4 style=house.south.shed.log
+building south.plot.e_nig_n.s02.shed house 157 40 4 4 style=house.south.shed.daub
+building south.plot.e_nig_s.s00.shed house 167 52 5 3 style=house.south.shed
+building south.plot.e_nig_s.s01.shed house 173 52 5 3 style=house.south.shed.daub
+building south.plot.e_nig_s.s02.shed house 179 52 3 5 style=house.south.shed
+building south.plot.e_nig_s.s03.shed house 178 58 4 3 style=house.south.shed.log
+building south.plot.e_nig_s.s04.shed house 174 65 3 5 style=house.south.shed.daub
+building south.plot.e_nig_s.s05.shed house 150 71 5 3 style=house.south.shed
+building south.plot.e_dunkri_w.s00.shed house 190 18 3 5 style=house.south.shed.daub
+building south.plot.e_dunkri_w.s01.shed house 199 36 3 5 style=house.south.shed
+building south.plot.e_dunkri_w.s02.shed house 203 37 4 4 style=house.south.shed.log
+building south.plot.e_karja_sw.s00.shed house 221 59 4 4 style=house.south.shed.daub
+building south.plot.e_karja_sw.s01.shed house 221 64 4 4 style=house.south.shed
+building south.plot.e_karja_sw.s02.shed house 204 70 4 4 style=house.south.shed.daub
+building south.plot.e_karja_sw.s03.shed house 209 70 4 4 style=house.south.shed
+building south.plot.e_karja_se.s00.shed house 247 60 4 4 style=house.south.shed.log
+building south.plot.e_karja_se.s01.shed house 247 65 4 4 style=house.south.shed.daub
+building south.plot.e_viru_s.s00.shed house 307 59 4 4 style=house.south.shed
+building south.plot.e_viru_s.s01.shed house 307 64 4 4 style=house.south.shed.daub
+building south.plot.e_viru_s.s02.shed house 271 68 5 3 style=house.south.shed
+building south.plot.e_viru_s.s03.shed house 277 68 5 3 style=house.south.shed.log
+building south.plot.e_viru_s.s04.shed house 309 69 4 4 style=house.south.shed.daub
+building south.plot.e_viru_s.s05.shed house 301 74 4 4 style=house.south.shed
+building south.plot.e_viru_s.s06.shed house 292 76 5 3 style=house.south.shed.daub
+building south.plot.e_viru_w.s00.shed house 294 15 4 4 style=house.south.shed
+building south.plot.e_viru_w.s01.shed house 294 33 3 5 style=house.south.shed.log
+building south.plot.e_viru_w.s02.shed house 298 37 4 3 style=house.south.shed.daub
+building south.plot.e_viru_w.s03.shed house 304 37 5 3 style=house.south.shed
+building south.plot.e_viru_w.s04.shed house 310 37 4 3 style=house.south.shed.daub
+building south.plot.e_viru_e.s00.shed house 321 34 5 3 style=house.south.shed
+building south.plot.e_king_s.s00.shed house 224 18 5 3 style=house.south.shed.log
+building south.plot.e_knights_service.s00.shed house 293 20 4 3 style=house.south.shed.daub
 landmark karja_gate_arch gate_arch 240 88 8 8 wall_color=8f8c80ff top_px=240 passage_axis=z door_material=metal
 landmark garden_descent_gate gate_arch 24 0 10 7 wall_color=8f8c80ff top_px=208 passage_axis=z door_material=wood
 prop rataskaev_well_prop well 168 15 rect=2,2
@@ -149,6 +338,54 @@ prop knights_hall_banner banner 258 26 rect=2,2 faction=livonian_order
 prop knights_court_barrels barrels 270 28 rect=2,2
 prop swordsmith_scrap iron_scrap_pile 284 46 rect=1,1
 prop swordsmith_cart cart 298 54 rect=2,2
+# R-282 / R-677 yard and service dressing inside the new plots.
+prop south.yard.w_upper_a.01.firewood_stack firewood_stack 50 19 rect=2,2
+prop south.yard.w_upper_a.02.privy privy 61 19 rect=2,1
+prop south.yard.w_upper_a.02.wash_tub wash_tub 64 19 rect=1,1
+prop south.yard.w_upper_a.03.kitchen_garden kitchen_garden 69 18 rect=3,2
+prop south.yard.w_upper_a.04.hay_stack hay_stack 79 18 rect=2,2
+prop south.yard.w_upper_b.00.herb_drying_rack herb_drying_rack 92 17 rect=2,1
+prop south.yard.w_upper_b.00.chicken_run chicken_run 95 17 rect=2,1
+prop south.yard.w_upper_b.01.root_cellar_mound root_cellar_mound 101 19 rect=2,1
+prop south.yard.w_upper_b.02.cooper_staves cooper_staves 108 18 rect=2,1
+prop south.yard.w_upper_b.03.pigsty pigsty 118 18 rect=2,2
+prop south.yard.w_upper_b.05.servant_lean_to servant_lean_to 137 19 rect=3,2
+prop south.yard.w_lower_n_a.00.wattle_fence wattle_fence 13 28 rect=4,1
+prop south.yard.w_lower_n_a.01.barrels barrels 26 29 rect=2,1
+prop south.yard.w_lower_n_a.02.tanning_frame tanning_frame 35 29 rect=2,1
+prop south.yard.w_lower_n_a.03.firewood_stack firewood_stack 44 29 rect=2,2
+prop south.yard.w_lower_n_a.04.privy privy 55 28 rect=2,1
+prop south.yard.w_lower_n_a.05.wash_tub wash_tub 63 29 rect=1,1
+prop south.yard.w_lower_n_a.06.kitchen_garden kitchen_garden 73 28 rect=3,2
+prop south.yard.w_lower_n_b.01.hay_stack hay_stack 99 30 rect=2,2
+prop south.yard.w_lower_n_b.03.herb_drying_rack herb_drying_rack 120 32 rect=2,1
+prop south.yard.w_lower_n_b.04.chicken_run chicken_run 127 33 rect=2,1
+prop south.yard.w_lower_n_b.05.root_cellar_mound root_cellar_mound 137 33 rect=2,1
+prop south.yard.w_lower_s.00.cooper_staves cooper_staves 19 53 rect=2,1
+prop south.yard.w_lower_s.01.pigsty pigsty 30 52 rect=2,2
+prop south.yard.w_lower_s.02.servant_lean_to servant_lean_to 38 54 rect=3,2
+prop south.yard.w_lower_s.03.wattle_fence wattle_fence 51 53 rect=4,1
+prop south.yard.w_lower_s.04.barrels barrels 60 53 rect=2,1
+prop south.yard.w_lower_s.05.tanning_frame tanning_frame 69 54 rect=2,1
+prop south.yard.w_lower_s.06.firewood_stack firewood_stack 80 56 rect=2,2
+prop south.yard.w_lower_s.07.privy privy 88 55 rect=2,1
+prop south.yard.w_lower_s.08.wash_tub wash_tub 98 55 rect=1,1
+prop south.yard.w_lower_s.09.kitchen_garden kitchen_garden 110 55 rect=3,2
+prop south.yard.w_lower_s.10.hay_stack hay_stack 119 57 rect=2,2
+prop south.yard.w_lower_s.11.herb_drying_rack herb_drying_rack 126 56 rect=2,1
+prop south.yard.e_hillfoot.00.chicken_run chicken_run 145 19 rect=2,1
+prop south.yard.e_hillfoot.00.root_cellar_mound root_cellar_mound 148 19 rect=2,1
+prop south.yard.e_nig_n.00.cooper_staves cooper_staves 145 36 rect=2,1
+prop south.yard.e_nig_n.00.pigsty pigsty 148 35 rect=2,2
+prop south.yard.e_karja_w.01.servant_lean_to servant_lean_to 208 55 rect=3,2
+prop south.yard.e_karja_n.01.wattle_fence wattle_fence 234 44 rect=4,1
+prop south.yard.e_dorm_s.02.barrels barrels 281 47 rect=2,1
+prop south.yard.e_viru_w.00.tanning_frame tanning_frame 306 10 rect=2,1
+prop south.yard.e_viru_w.00.firewood_stack firewood_stack 306 12 rect=2,2
+prop south.yard.e_king_s.00.privy privy 217 20 rect=2,1
+prop south.yard.e_king_s.00.wash_tub wash_tub 220 20 rect=1,1
+prop south.yard.e_nig_n.y00.kitchen_garden kitchen_garden 174 35 rect=3,2
+prop south.yard.e_karja_se.y00.hay_stack hay_stack 268 67 rect=2,2
 spawn spawn.inspection 226 40 rect=2,2
 anchor inspection_spawn 226 40 rect=2,2
 anchor rataskaev_well 168 15 rect=2,2

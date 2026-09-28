@@ -201,17 +201,58 @@ Every pair must retain the same camera/framing key and map revision, identify vi
 | Day/night evidence | Seven matched gameplay-scale pairs cover routes, ward, service plots, Knights' court, well, gate, causeway, and seams. | R-681/R-682 |
 | Activation | `implementation_delivered=false`, current verdict `RED/BLOCKED`, and RRMap `active=false` remain until every independent gate is green. | R-682/R-683 |
 
+## R-677 ordinary fabric and service plots (2026-09-28)
+
+**Board:** R-677 / P4-024c under R-282. **Status:** authored, automated checks green, human art/historical review pending. The map stays `active=false`.
+
+### What was authored
+
+- **Strip plots.** 147 new `building ... house` records (`south.plot.<block>.<nn>.<role>`) in 21 frontage blocks. Each plot is a front house on the street, a yard, a rear range and, on some plots, a shed. Front houses are terraced, with a 2-cell passage every third frontage. Every outbuilding keeps a 1-2 cell yard around it, so the ward reads as courts and yards and not as one roof field.
+- **R-003 tiers.** Front houses use `merchant_stone`, `merchant_timber` (plank or plaster) or `craft_boda` styles, with the gable to the street. Stone fronts are 124 px tall, below `knights_hall` (128) and the gatehouses (136), so no ordinary house reads as a landmark. Rear ranges (log or timber-framed daub), stables, sheds and extramural barns are low service fabric without a house tier.
+- **Western connector.** Two irregular dirt lanes and a mud cross-lane (`south.western_upper_lane`, `south.western_lower_lane`, `south.western_cross_lane`). These are neutral production names, design composite (**D**), not attested streets. Plots here have no second-pass infill and a rear range only on every other plot, so the connector stays visibly looser than the eastern ward.
+- **Extramural pasture.** Three sparse barn-and-hay-shed steadings (six buildings) past the unfinished western wall line.
+- **Yard dressing.** 47 props in 14 service kinds: firewood, privy, wash tub, kitchen garden, hay, herb rack, chicken run, root cellar, cooper staves, pigsty, servant lean-to, wattle fence, barrels and tanning frame. No animals and no new asset classes.
+- **Stone verges.** `south.karja_approach_verges` adds pebble-and-rubble verges beside the Karja road (H10, **B/U**). The new plots roof over part of the institutional stone closes, and these verges keep the stone share in its band.
+
+### Owned open ground (not built over)
+
+The Rataskaev well court, the knights' court (`knights_hall` / `knights_dormitory` / `knights_stable`), the Karja gate approach, the inspection square around `inspection_spawn`, the Viru threshold, the garden seam and the R-676 Niguliste stone close. Every route band, anchor, transition and patrol point also stays open. The wall margins, the Karja glacis and the extramural pasture are declared open regions in [`../data/south_quarter_authoring_contract.json`](../data/south_quarter_authoring_contract.json), the same pattern as `north_quarter` and `monastery_quarter`.
+
+### Measured result (compiled map, `tools/audit_map_composition.gd`)
+
+| Metric | Before (2026-09-26) | After | Band |
+|---|---:|---:|---:|
+| Built density, whole map | 8.8% | 29.5% | 40-55% (grace) |
+| Eastern ward x144-330, y0-83 | - | 38.8% | inside wall 40-55% |
+| Western connector x3-143, y0-59 | - | 30.7% | looser than the ward |
+| Extramural pasture x4-155, y60-95 | - | 10.2% | outside wall 10-25% |
+| Stone / earth / grass | in band | 25.5 / 49.5 / 25.0% | 25-40 / 40-55 / 15-30 |
+| Max repeated wall-material share (log) | - | 33.1% | 35% |
+| Largest unowned empty region | 28,395 | 15,730 | 20,000 |
+| Distinct prop kinds | 8 | 20 | WB-10 floor 12 |
+| Max identical footprint run | 1 | 3 | WB-10 cap 3 |
+
+### Decision: whole-map density stays under grace
+
+The frozen band is 40-55% **inside the wall** and 10-25% outside it. `MapCompositionAudit` measures one ratio over the whole map, so the western connector and the extramural pasture pull it down. Neither may be filled to 40%: this contract requires the connector to stay looser and the outside-wall ground to stay 75-90% open. Even filling every free cell in the authored blocks would reach only about 41%, and it would cover the owned courts. So `historical_band_grace.south_quarter` stays until the audit can measure inside-wall and outside-wall density separately (follow-up task). The signed H08-H10 bands are not lowered.
+
+### Remaining for R-677 close
+
+- Named human art/historical review of the new fabric at gameplay camera. Day/night plates are owned by R-681.
+- WB-10 `props_per_1000` (2.8 vs 35.9) and decals (0 vs 6.1) are report-only for prototype maps and stay with WB-14 / R-986-style dressing passes.
+
 ## Machine-readable contract links
 
 - Composition thresholds: [`../data/map_composition_thresholds.json#maps.south_quarter`](../data/map_composition_thresholds.json)
 - Location activation ledger: [`../data/location_activation_manifest.json`](../data/location_activation_manifest.json)
 - Map audit inventory: [`../../content/map_audit_manifest.json`](../../content/map_audit_manifest.json)
 - Authored map source: [`../../content/maps/south_quarter.rrmap`](../../content/maps/south_quarter.rrmap)
+- Owned open regions for the empty-region metric: [`../data/south_quarter_authoring_contract.json`](../data/south_quarter_authoring_contract.json)
 - Focused contract/runtime checks: [`../../tests/godot/test_south_quarter_prototype_map.gd`](../../tests/godot/test_south_quarter_prototype_map.gd)
 
 ## Verification record
 
-The contract gate is intentionally narrower than environment acceptance:
+The contract gate is intentionally narrower than environment acceptance. Since R-677, `test_south_quarter_ordinary_fabric_plots` also locks the owned courts, the landmark-height rule, the R-003 tiers and the surface, material and empty-region bands:
 
 ```bash
 python3 -m json.tool docs/data/map_composition_thresholds.json >/dev/null
