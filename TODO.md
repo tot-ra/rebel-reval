@@ -617,6 +617,9 @@ See [`docs/STORAGE_SIZE_BACKLOG.md`](docs/STORAGE_SIZE_BACKLOG.md) for full deli
 - [ ] P0-183 | deps: P0-177 | deliverable: oversized runtime GLB budgets (oak + shared characters) | verify: asset lint + focused Godot filters
 - [ ] P0-185 | deps: P0-184 | deliverable: justified view3d hotspot extractions only | verify: named focused filters
 
+P0-185 hosted peel (2026-09-28): `map_view_runtime_hosted.gd` owns WB-08 `bind_owning_location` and minimap tracker bind/sync; `MapViewRuntime` keeps the public hosted API (514 -> 471 lines). Gate: `--filter=test_world_host_streaming,test_world_host_launch,test_map_view_3d_runtime` 25/25; `--filter=test_debug_overlay,test_session_state_replacement,test_r715_water_map_handoff,test_map_click_input_controller,test_map_view_runtime_camera` 25/25. Next justified claim: keep `apply_weather_presentation` on the materials facade until a second caller needs a weather-material adapter.
+
+
 ## Character visual realism (active)
 
 See [`docs/CHARACTER_REALISM_BACKLOG.md`](docs/CHARACTER_REALISM_BACKLOG.md) for full deliverable/verify contracts. Review: [`docs/reports/character_visual_realism_review_2026-08-12.md`](docs/reports/character_visual_realism_review_2026-08-12.md).

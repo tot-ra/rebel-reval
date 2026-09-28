@@ -24,6 +24,7 @@ const RuntimeTimeFlow := preload("res://scripts/map/view3d/map_view_runtime_time
 const RuntimeEnvironment := preload("res://scripts/map/view3d/map_view_runtime_environment.gd")
 const RuntimeFlatMap := preload("res://scripts/map/view3d/map_view_runtime_flat_map.gd")
 const RuntimeSession := preload("res://scripts/map/view3d/map_view_runtime_session.gd")
+const RuntimeHosted := preload("res://scripts/map/view3d/map_view_runtime_hosted.gd")
 ## Compatibility aliases keep the runtime's public locomotion thresholds stable.
 const WALK_ANIMATION_MIN_SPEED := RuntimeActors.WALK_ANIMATION_MIN_SPEED
 const RUN_ANIMATION_MIN_SPEED := RuntimeActors.RUN_ANIMATION_MIN_SPEED
@@ -109,6 +110,7 @@ var _ambient_controller = RuntimeAmbient.new()
 var _time_flow = RuntimeTimeFlow.new()
 var _environment = RuntimeEnvironment.new()
 var _session = RuntimeSession.new()
+var _hosted = RuntimeHosted.new()
 var _input = RuntimeInput.new()
 ## Compatibility alias for integration tests that inspect the current binding.
 var _equipment_state: GameState:
@@ -121,6 +123,7 @@ func _init() -> void:
 	_time_flow.configure(self, Callable(self, "_emit_time_flow_changed"))
 	_environment.configure(self)
 	_session.configure(self, _actor_controller, _environment)
+	_hosted.configure(self)
 
 
 static func install(
@@ -148,52 +151,7 @@ func owning_location_id() -> StringName:
 ## WB-08d: retarget terrain, view, ambient, camera and minimap to the location
 ## that now owns the player. The Player, camera and HUD instances stay put.
 func bind_owning_location(location_id: StringName) -> bool:
-	if world_host == null or location_id.is_empty():
-		return false
-	var bootstrap: Dictionary = world_host.call(&"hosted_bootstrap", location_id)
-	var hosted_view := world_host.call(&"hosted_view", location_id) as MapView3D
-	var definition := bootstrap.get("definition") as MapDefinition
-	var grid := bootstrap.get("grid") as MapTerrainGrid
-	if bootstrap.is_empty() or hosted_view == null or definition == null or grid == null:
-		return false
-	_owning_location_id = location_id
-	_definition = definition
-	view = hosted_view
-	var origin: Vector2 = world_host.call(&"location_origin_logic_position", location_id)
-	if _player != null and _player.has_method("configure_map_movement"):
-		_player.call("configure_map_movement", definition, grid, origin)
-	if _player != null and _player.has_method("set_mud_wetness_provider"):
-		_player.call("set_mud_wetness_provider", view.mud_wetness)
-	_camera_controller.view = view
-	_actor_controller.rebind_view(definition, view)
-	_ambient_controller.rebind_map(definition, view)
-	_bind_minimap(definition, grid)
-	return true
-
-
-func _bind_minimap(definition: MapDefinition, grid: MapTerrainGrid) -> void:
-	if world_host == null:
-		return
-	var minimap: Node = world_host.get("minimap_hud") as Node
-	if minimap == null or not minimap.has_method("configure"):
-		return
-	if _minimap_logic_tracker == null:
-		_minimap_logic_tracker = Node2D.new()
-		_minimap_logic_tracker.name = "MinimapLogicTracker"
-		add_child(_minimap_logic_tracker)
-	_sync_minimap_tracker()
-	minimap.call("configure", definition, grid, _minimap_logic_tracker)
-
-
-func _sync_minimap_tracker() -> void:
-	if _minimap_logic_tracker == null or world_host == null or _player == null:
-		return
-	if not is_instance_valid(_player):
-		return
-	var origin: Vector2 = world_host.call(
-		&"location_origin_logic_position", _owning_location_id
-	)
-	_minimap_logic_tracker.position = _player.global_position - origin
+	return _hosted.bind_owning_location(location_id)
 
 
 func configure_click_input(world_items: Node = null) -> void:
@@ -351,8 +309,7 @@ func _process(delta: float) -> void:
 	_apply_view_rotation(delta)
 	_sync_player(false, delta)
 	_actor_controller.sync_view_actors(delta)
-	if _minimap_logic_tracker != null:
-		_sync_minimap_tracker()
+	_hosted.sync_minimap_tracker()
 
 
 func get_actor_rig(actor: Node2D) -> SharedCharacterRig:

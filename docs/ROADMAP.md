@@ -4,6 +4,10 @@ Coordination notes, delivery order, and planning context formerly embedded in `T
 Executable open work stays in [`TODO.md`](../TODO.md).
 Aged coordination history lives in [`ROADMAP_COORDINATION_ARCHIVE_2026-08-13.md`](./ROADMAP_COORDINATION_ARCHIVE_2026-08-13.md).
 
+<!-- P0-185 hosted-location rebinding peel extracted in current session -->
+Coordination note (2026-09-28 P0-185): `map_view_runtime_hosted.gd` now owns WB-08 `bind_owning_location` plus minimap tracker bind/sync. `map_view_runtime.gd` keeps the public hosted API as thin delegates (514 -> 471 lines). Verified: `--filter=test_world_host_streaming,test_world_host_launch,test_map_view_3d_runtime` 3/3 files 25/25; `--filter=test_debug_overlay,test_session_state_replacement,test_r715_water_map_handoff,test_map_click_input_controller,test_map_view_runtime_camera` 5/5 files 25/25. Next P0-185 claim: keep `apply_weather_presentation` on the `map_view_materials.gd` facade until a second caller needs a weather-material adapter.
+
+
 <!-- P0-185 / R-923 camera-modes peel closeout -->
 Coordination note (2026-09-26 P0-185 / R-923): re-ran the named camera filters after the stale R-881 modes peel. `map_view_runtime_camera_modes.gd` still owns mode constants, cycling, and `apply_mode`; `map_view_runtime_camera.gd` remains a 211-line facade. Verified on Godot 4.7.1: `--filter=test_map_view_runtime_camera,test_map_camera_modes,test_map_view_3d_runtime` (3 files, 23/23). No camera code changed. R-881 moved to in_review. Next P0-185 claim: keep `apply_weather_presentation` on the `map_view_materials.gd` facade until a second caller needs a weather-material adapter.
 
