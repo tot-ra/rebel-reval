@@ -4,6 +4,9 @@ Coordination notes, delivery order, and planning context formerly embedded in `T
 Executable open work stays in [`TODO.md`](../TODO.md).
 Aged coordination history lives in [`ROADMAP_COORDINATION_ARCHIVE_2026-08-13.md`](./ROADMAP_COORDINATION_ARCHIVE_2026-08-13.md).
 
+<!-- P0-185 shore-debris peel extracted in current session -->
+Coordination note (2026-09-28 P0-185): `map_view_shore_debris.gd` now owns CO-02 scatter, GLB loading, and blocking-cell math. `map_view_terrain_details.gd` keeps first-person grass plus public facade delegates (883 -> 292 lines). Verified: `--filter=test_shore_debris_scatter,test_map_view_terrain_details,test_vegetation_realism,test_r715_water_rollout_inventory`. Next P0-185 claim: keep `apply_weather_presentation` on the `map_view_materials.gd` facade until a second caller needs a weather-material adapter.
+
 <!-- R-1092 CoastalRocks retired in current session -->
 Coordination note (2026-09-28 R-1092): deleted `map_view_shoreline_3d.gd` SphereMesh `CoastalRocks`. Harbour scatter uses only CO-02 `ShoreDebris`. Gate: `--filter=test_coastal_sea_3d,test_r715_water_surface_geometry,test_r715_water_rollout_inventory,test_shore_debris_scatter`. Follow-ups: R-1093 visual review, R-1094 strand weed apron.
 

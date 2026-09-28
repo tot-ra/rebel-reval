@@ -628,6 +628,8 @@ P0-185 shore peel (2026-09-28, **R-1080**): `map_view_shore_materials.gd` owns W
 
 P0-185 tree-skeleton peel (2026-09-28): `map_view_tree_mesh_skeleton.gd` owns recursive trunk/branch growth; `MapViewTreeMeshes` keeps wood/canopy/fruit emitters (659 -> 320 lines). Gate: `--filter=test_map_view_tree_species,test_vegetation_realism,test_map_view_3d_mesh`. Next P0-185 claim: keep `apply_weather_presentation` on the materials facade until a second caller needs a weather-material adapter.
 
+P0-185 shore-debris peel (2026-09-28): `map_view_shore_debris.gd` owns CO-02 scatter, GLB loading, and blocking cells; `MapViewTerrainDetails` keeps first-person grass and public facade delegates (883 -> 292 lines). Gate: `--filter=test_shore_debris_scatter,test_map_view_terrain_details,test_vegetation_realism,test_r715_water_rollout_inventory`. Next P0-185 claim: keep `apply_weather_presentation` on the materials facade until a second caller needs a weather-material adapter.
+
 ## Character visual realism (active)
 
 See [`docs/CHARACTER_REALISM_BACKLOG.md`](docs/CHARACTER_REALISM_BACKLOG.md) for full deliverable/verify contracts. Review: [`docs/reports/character_visual_realism_review_2026-08-12.md`](docs/reports/character_visual_realism_review_2026-08-12.md).
