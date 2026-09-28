@@ -134,7 +134,7 @@ def shader_tokens() -> dict[str, bool]:
         "water_sky_lut_no_source_color": "uniform sampler2D sky_view_lut : filter_linear"
         in water,
         "fft_compat_alpha": "_compat_stored_alpha" in fft,
-        "underwater_sky_is_raw_zero": "raw_depth <= 0.000001" in underwater,
+        "underwater_compat_empty_depth_hit": "COMPAT_EMPTY_DEPTH_HIT_SCALE" in underwater,
         "underwater_hint_depth": "hint_depth_texture" in underwater,
         "underwater_hint_screen": "hint_screen_texture" in underwater,
         "caustics_no_source_color": "uniform sampler2D caustics_tiles : hint_default_white"

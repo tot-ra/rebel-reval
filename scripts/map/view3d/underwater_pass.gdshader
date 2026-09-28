@@ -1,5 +1,9 @@
 shader_type spatial;
-render_mode unshaded, fog_disabled, blend_mix, depth_draw_never, depth_test_disabled, cull_disabled, shadows_disabled;
+// WHY no blend_mix: CloudShadowPass found blend_mix+ALPHA on this unshaded
+// clip-space quad does not composite on Compatibility, so the water underside
+// (seen_from_below) stays on screen. Fog-of-war uses the default blend with
+// ALPHA 1 and actually replaces. Wet-lens ALPHA<1 still mix-blends.
+render_mode unshaded, fog_disabled, depth_draw_never, depth_test_disabled, cull_disabled, shadows_disabled;
 
 // WS-13 underwater view. One screen quad drawn after the water (see
 // UnderwaterPass). Technique after Tidewater's underwater / underwater-composite
@@ -11,8 +15,12 @@ render_mode unshaded, fog_disabled, blend_mix, depth_draw_never, depth_test_disa
 // the water surface. Pixels whose eye ray meets the surface first are resolved
 // here with the same _uw_window()/_uw_below_color() the water back face uses; every
 // other underwater pixel reads the opaque scene and applies the medium.
+//
+// WHY no mipmap on the screen sampler: Compatibility's 8-bit copy plus
+// filter_linear_mipmap is a default/chromatic buffer in capture paths (R-1048,
+// R-932). The water shader still uses mips; this overlay only needs LOD 0.
 
-uniform sampler2D screen_texture : hint_screen_texture, repeat_disable, filter_linear_mipmap;
+uniform sampler2D screen_texture : hint_screen_texture, repeat_disable, filter_linear;
 uniform sampler2D depth_texture : hint_depth_texture, repeat_disable, filter_nearest;
 
 // Required before the shared FFT include; copied from the source water material.
@@ -74,6 +82,11 @@ const float SHAFT_FALLOFF_M = 3.5;
 // Milder forward lobe than the medium's 0.75 so beams still read side-on.
 const float SHAFT_PHASE_G = 0.5;
 const float SHAFT_GAIN = 7.0;
+// R-1068: when Compatibility overlay depth is empty/default, place a dummy
+// opaque hit at this multiple of the vertical water column. Looking up still
+// meets the surface first (Snell's window). A level look at a landing crib
+// has a much larger surface_t, so the pre-transparent colour keeps the crib.
+const float COMPAT_EMPTY_DEPTH_HIT_SCALE = 1.5;
 
 void vertex() {
 	// Clip-space quad like map_fog_of_war: follows every camera with no transform.
@@ -124,10 +137,28 @@ float _surface_y(vec2 xz) {
 	return y;
 }
 
-vec3 _world_at(vec2 screen_uv, float ndc_z, mat4 inv_projection, mat4 inv_view) {
-	vec4 view_position = inv_projection * vec4(screen_uv * 2.0 - 1.0, ndc_z, 1.0);
-	view_position.xyz /= view_position.w;
-	return (inv_view * vec4(view_position.xyz, 1.0)).xyz;
+// Same raw-to-view helper as map_view_water.gdshader (WS-01). Do not reconstruct
+// NDC Z separately: Compatibility needs uv and depth in one *2-1, Metal does not.
+vec3 _view_position(vec2 screen_uv, float raw_depth, mat4 inverse_projection) {
+	#if CURRENT_RENDERER == RENDERER_COMPATIBILITY
+	vec3 ndc = vec3(screen_uv, raw_depth) * 2.0 - 1.0;
+	#else
+	vec3 ndc = vec3(screen_uv * 2.0 - 1.0, raw_depth);
+	#endif
+	vec4 view_position = inverse_projection * vec4(ndc, 1.0);
+	return view_position.xyz / view_position.w;
+}
+
+vec3 _world_from_view(vec3 view_position, mat4 inv_view) {
+	return (inv_view * vec4(view_position, 1.0)).xyz;
+}
+
+vec3 _compat_scene_rgb(vec3 sampled) {
+	return vec3(
+		_compat_stored_alpha(sampled.r),
+		_compat_stored_alpha(sampled.g),
+		_compat_stored_alpha(sampled.b)
+	);
 }
 
 // Procedural drops for the wet lens: one Voronoi seed per cell, sliding down
@@ -162,23 +193,24 @@ void fragment() {
 	vec2 viewport = VIEWPORT_SIZE;
 	vec2 px = 1.0 / viewport;
 	float raw_depth = textureLod(depth_texture, SCREEN_UV, 0.0).r;
-	// Godot 4.7 uses reverse Z on every renderer: the near plane is NDC z = +1 and
-	// an empty (sky) pixel reads raw depth 0. Compatibility keeps OpenGL's -1..1
-	// NDC range, so only the raw-to-NDC mapping differs.
+	// Pixel ray from the camera through this fragment. Compatibility near is
+	// OpenGL NDC z = -1 (raw 0, WS-13); Metal reverse-Z near is raw 1.
 	#if CURRENT_RENDERER == RENDERER_COMPATIBILITY
-	float scene_ndc_z = raw_depth * 2.0 - 1.0;
+	float near_raw = 0.0;
 	#else
-	float scene_ndc_z = raw_depth;
+	float near_raw = 1.0;
 	#endif
-	float near_ndc_z = 1.0;
-	bool sky = raw_depth <= 0.000001;
-	vec3 near_world = _world_at(SCREEN_UV, near_ndc_z, INV_PROJECTION_MATRIX, INV_VIEW_MATRIX);
-	vec3 scene_world = _world_at(SCREEN_UV, scene_ndc_z, INV_PROJECTION_MATRIX, INV_VIEW_MATRIX);
+	vec3 near_view = _view_position(SCREEN_UV, near_raw, INV_PROJECTION_MATRIX);
+	vec3 scene_view = _view_position(SCREEN_UV, raw_depth, INV_PROJECTION_MATRIX);
+	vec3 near_world = _world_from_view(near_view, INV_VIEW_MATRIX);
+	vec3 scene_world = _world_from_view(scene_view, INV_VIEW_MATRIX);
 	vec3 camera_world = INV_VIEW_MATRIX[3].xyz;
-	vec3 ray = normalize(scene_world - near_world);
+	vec3 ray = normalize(near_world - camera_world);
 	if (dot(ray, ray) < 0.5) {
 		ray = normalize((INV_VIEW_MATRIX * vec4(0.0, 0.0, -1.0, 0.0)).xyz);
 	}
+	bool depth_valid = raw_depth > 0.0001 && raw_depth < 0.9999;
+	bool sky = !depth_valid;
 
 	// Per-pixel classification on the near plane. `h` is how far the lens point
 	// sits below the displaced surface; its screen gradient turns it into a
@@ -203,7 +235,7 @@ void fragment() {
 		meniscus = 1.0 - smoothstep(0.0, MENISCUS_LINE_PX, abs(line_px));
 	}
 	uv = clamp(uv, vec2(0.001), vec2(0.999));
-	vec3 scene = textureLod(screen_texture, uv, 0.0).rgb;
+	vec3 scene = _compat_scene_rgb(textureLod(screen_texture, uv, 0.0).rgb);
 
 	float alpha = max(lens_mask, meniscus);
 	vec3 color = scene;
@@ -221,10 +253,21 @@ void fragment() {
 
 		// Distance through the water: the scene, or the surface when the eye ray
 		// climbs into it first (the surface is then shaded here, see header).
-		float scene_d = sky ? MAX_MEDIUM_M / METERS_PER_WORLD_UNIT : distance(near_world, scene_world);
+		float scene_d = sky ? MAX_MEDIUM_M / METERS_PER_WORLD_UNIT : distance(camera_world, scene_world);
+#if CURRENT_RENDERER == RENDERER_COMPATIBILITY
+		// Overlay depth is empty/default on Compatibility (R-932 finding 3).
+		// Dummy hit at 1.5x the vertical column: looking up still hits the
+		// surface first; a level crib look does not, so screen colour shows.
+		if (!depth_valid) {
+			sky = false;
+			float column = max(water_plane_y - camera_world.y, 0.05);
+			scene_d = column * COMPAT_EMPTY_DEPTH_HIT_SCALE;
+			scene_world = camera_world + ray * scene_d;
+		}
+#endif
 		float surface_t = 1e9;
 		if (ray.y > 1e-4) {
-			surface_t = max(water_plane_y - near_world.y, 0.0) / ray.y;
+			surface_t = max(water_plane_y - camera_world.y, 0.0) / ray.y;
 		}
 		bool hits_surface = surface_t < scene_d;
 		float d_world = min(scene_d, surface_t);
@@ -238,11 +281,11 @@ void fragment() {
 			float footprint = surface_t * 1.4 / viewport.y / max(ray.y, 0.05);
 			vec3 surface_up = use_fft ? _fft_normal(hit.xz, footprint, crest) : vec3(0.0, 1.0, 0.0);
 			UwWindow uw = _uw_window(uv, VIEW_MATRIX, ray, normalize(mix(vec3(0.0, 1.0, 0.0), surface_up, 0.6)));
-			vec3 air = vec3(
+			vec3 air = _compat_scene_rgb(vec3(
 				textureLod(screen_texture, clamp(uw.uv + uw.fringe, vec2(0.001), vec2(0.999)), 0.0).r,
 				textureLod(screen_texture, uw.uv, 0.0).g,
 				textureLod(screen_texture, clamp(uw.uv - uw.fringe, vec2(0.001), vec2(0.999)), 0.0).b
-			);
+			));
 			scene = _uw_below_color(uw, air, ray, ambient, sun, sun_direction, sigma_t, deep_bed_color);
 		} else if (!sky) {
 			// Caustics on submerged surfaces, dimmed by the light lost on the way down.

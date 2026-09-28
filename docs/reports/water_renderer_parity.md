@@ -102,6 +102,17 @@ Shader edits were out of scope for R-932. Two follow-up rows own the code:
 1. **R-1067 surface mix (findings 1, 2, and the night luma gap).** Make Compatibility and Metal show the same bed-vs-sky mix on the WS-07 noon and sunset shelf. Likely work: treat `hint_screen_texture` as sRGB on Compatibility (restore like `_compat_stored_alpha`, or drop mips), keep sky-view LUT sampling in one color space on both backends, and stop Mobile probe specular from greying ALBEDO that already contains the sky mix. Pick Compatibility (shipping) as the visual target unless a named review says otherwise. Recapture the WS-07 noon/sunset/night pairs after the change.
 2. **R-1068 underwater overlay (finding 3).** Make `UnderwaterPass` read the same opaque depth and color the water shader sees on Compatibility, so a Harbor East / Saaremaa `under_horizontal` GL plate shows the crib. Do not change crib geometry. Recapture `ws13e_*_under_horizontal_gl.png` (and the WS-13 north-harbour set if the pose is shared).
 
+## R-1068 implementation (2026-09-28)
+
+Code landed; GPU recapture skipped while Godot `--editor` held the shared worktree.
+
+- Clip-space overlay no longer uses `blend_mix` (same CloudShadowPass lesson: mix+ALPHA did not replace the water underside on Compatibility).
+- Scene reconstruction uses the water shader's `_view_position` helper. Compatibility near is OpenGL NDC z = -1 (raw 0), not reverse-Z +1.
+- Empty/default overlay depth on Compatibility is not treated as sky. A dummy opaque hit at `COMPAT_EMPTY_DEPTH_HIT_SCALE` (1.5) times the vertical water column keeps Snell's window when looking up and keeps `hint_screen_texture` (crib) on a level landing look.
+- Screen sampler is LOD 0 only; Compatibility decodes 8-bit screen RGB with `_compat_stored_alpha`.
+
+Old `ws13e_*_under_horizontal_gl.png` plates still show the flat teal band. Recapture is **R-1087**.
+
 A third row is not required. Night luma is the same lighting path as R-1067.
 
 ## Verify for this investigation
