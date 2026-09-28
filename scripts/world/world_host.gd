@@ -37,6 +37,10 @@ const STREAMING_RESIDENCY_CAP_SETTING := "world_host/streaming_residency_cap"
 const DEFAULT_PREFETCH_BAND_CELLS := 48.0
 const DEFAULT_EVICTION_BAND_CELLS := 64.0
 const DEFAULT_RESIDENCY_CAP := 3
+## WB-08e: main-thread time the staged-mount step leaves for the rest of the
+## streaming tick (planning, owner check, driver save mirror), so the whole tick
+## and not only the step fits the frame budget. Measured ~0.1-0.3 ms.
+const STREAMING_TICK_RESERVE_USEC := 400
 const LOGIC_LOCATIONS_NAME := "LogicLocations"
 const VIEW_LOCATIONS_NAME := "ViewLocations"
 const SEAM_LINKS_NAME := "SeamLinks"
@@ -540,12 +544,14 @@ func global_logic_position(location_id: StringName, local_position: Vector2) -> 
 ## a data-only proof, but any stable handle present in a package must be unique in
 ## the entire mounted host. `inspection` is a WorldHostPackageInspector.inspect()
 ## result a staged mount computed on a worker; without it the packages are walked
-## here.
+## here. `entered_view_root` (WB-08e) is the hidden staging root a staged view
+## has already entered in slices; it becomes the view root and is revealed.
 func mount_location(
 	location_id: StringName,
 	logic_package: Node = null,
 	view_package: Node = null,
-	inspection: Dictionary = {}
+	inspection: Dictionary = {},
+	entered_view_root: Node3D = null
 ) -> bool:
 	_last_rejection.clear()
 	if not is_additive_residency_active():
@@ -582,12 +588,12 @@ func mount_location(
 		logic_root.add_child(logic_package)
 		_attach_navigation_regions(logic_package)
 
-	var view_root := Node3D.new()
-	view_root.name = String(location_id)
-	view_root.position = location_origin_world_position(location_id)
-	_view_locations.add_child(view_root)
-	if view_package != null:
-		view_root.add_child(view_package)
+	var view_root := entered_view_root
+	if view_root == null:
+		view_root = _new_view_root(location_id)
+		if view_package != null:
+			view_root.add_child(view_package)
+	view_root.visible = true
 
 	_mounted_locations[location_id] = {
 		"location_id": location_id,
@@ -610,6 +616,19 @@ func unmount_location(location_id: StringName) -> bool:
 	var mounted: Dictionary = _mounted_locations[location_id] as Dictionary
 	var logic_root := mounted.get("logic_root") as Node
 	var view_root := mounted.get("view_root") as Node
+	if mount_queue.enabled:
+		_unmount_sliced(logic_root, view_root as Node3D)
+	else:
+		_unmount_now(logic_root, view_root)
+	_mounted_locations.erase(location_id)
+	_rebuild_stable_handle_registry()
+	location_unmounted.emit(location_id)
+	_refresh_seam_activation()
+	return true
+
+
+## Flag-off teardown: both packages leave and are freed in this frame.
+func _unmount_now(logic_root: Node, view_root: Node) -> void:
 	# Detach before freeing: leaving the tree removes navigation regions from the
 	# host map and stops physics immediately, not at the end of the frame.
 	for root in [logic_root, view_root]:
@@ -619,17 +638,42 @@ func unmount_location(location_id: StringName) -> bool:
 		if node.get_parent() != null:
 			node.get_parent().remove_child(node)
 		node.queue_free()
-	_mounted_locations.erase(location_id)
-	_rebuild_stable_handle_registry()
-	location_unmounted.emit(location_id)
-	_refresh_seam_activation()
-	return true
+
+
+## WB-08e (R-1069): navigation and collision leave now (the logic package exits
+## the tree in this call); freeing it and tearing the hidden view down run in
+## budgeted slices on the next streaming ticks. A whole district's tree exit
+## measured ~14 ms in one frame.
+func _unmount_sliced(logic_root: Node, view_root: Node3D) -> void:
+	if logic_root != null:
+		if logic_root.get_parent() != null:
+			logic_root.get_parent().remove_child(logic_root)
+		mount_queue.evict_detached(logic_root)
+	mount_queue.evict_view_root(view_root)
+
+
+func _new_view_root(location_id: StringName) -> Node3D:
+	_ensure_mount_roots()
+	var view_root := Node3D.new()
+	view_root.name = String(location_id)
+	view_root.position = location_origin_world_position(location_id)
+	_view_locations.add_child(view_root)
+	return view_root
+
+
+## WB-08e: the root a staged view enters before it is mounted. Hidden, so a view
+## that is still entering is never drawn; nothing registers it until mount.
+func _new_staging_view_root(location_id: StringName) -> Node3D:
+	var view_root := _new_view_root(location_id)
+	view_root.visible = false
+	return view_root
 
 
 func unmount_all() -> void:
 	mount_queue.cancel_all()
 	for location_id in mounted_location_ids():
 		unmount_location(location_id)
+	mount_queue.step_evictions(-1)
 
 
 func active_seams() -> Array[Dictionary]:
@@ -710,6 +754,8 @@ func owner_snapshot() -> Dictionary:
 ## the residency cap. Returns the applied plan plus `mounted`, `evicted`,
 ## `failed`, `fallback` (the seam handed to the scene-swap path, or {}) and
 ## `waiting` (WB-08c: the in-flight neighbour the player is held in front of).
+## `queue_usec` / `evict_usec` (WB-08e trace breakdown): main-thread time of the
+## staged-mount step (mounts and sliced teardown) and of this tick's evictions.
 func update_streaming(global_position: Vector2) -> Dictionary:
 	var applied := {
 		"owner": _owning_location_id,
@@ -718,13 +764,17 @@ func update_streaming(global_position: Vector2) -> Dictionary:
 		"failed": [] as Array[StringName],
 		"fallback": {},
 		"waiting": &"",
+		"queue_usec": 0,
+		"evict_usec": 0,
 	}
 	if not is_additive_residency_active():
 		return applied
 	mount_queue.advance_tick()
 	# Finish in-flight mounts first, so one that completes this tick is resident
 	# before the crossing check below and costs no readiness miss.
+	var queue_started := Time.get_ticks_usec()
 	_step_mount_queue(applied)
+	applied["queue_usec"] = Time.get_ticks_usec() - queue_started
 	var observed := observe_global_logic_position(global_position)
 	if observed.is_empty():
 		# Off every location (outside the city edge): keep the last owner.
@@ -767,15 +817,18 @@ func update_streaming(global_position: Vector2) -> Dictionary:
 	)
 	# Evict first so a full cap has room for the new neighbour. Eviction of an
 	# in-flight neighbour cancels it (its worker result is drained, never mounted).
+	var evict_started := Time.get_ticks_usec()
 	for location_id in plan["evict"]:
 		if pinned_location_ids.has(location_id):
 			continue
 		var cancelled := mount_queue.cancel(location_id)
 		if unmount_location(location_id) or cancelled:
 			applied["evicted"].append(location_id)
+	applied["evict_usec"] = Time.get_ticks_usec() - evict_started
 	for location_id in plan["mount"]:
 		if _stages_mount(location_id):
 			mount_queue.bind_globals(view_globals())
+			mount_queue.bind_staging_root_factory(_new_staging_view_root)
 			mount_queue.start(location_id, definition_provider)
 		elif _load_location(location_id):
 			applied["mounted"].append(location_id)
@@ -852,22 +905,42 @@ func _stages_mount(location_id: StringName) -> bool:
 func _step_mount_queue(applied: Dictionary) -> void:
 	if not mount_queue.enabled:
 		return
-	var stepped := mount_queue.step(mount_queue.frame_budget_usec)
-	for pending in stepped["ready"]:
+	var started := Time.get_ticks_usec()
+	var handovers := mount_queue.handovers()
+	for pending in handovers["ready"]:
 		mount_queue.take_ready(pending)
 		_mount_staged(pending, applied)
+	for pending in handovers["early"]:
+		# Stays queued as REFINING: its decoration units run inside the tree.
+		pending.mount_now = false
+		_mount_staged(pending, applied)
+	if not (handovers["ready"].is_empty() and handovers["early"].is_empty()):
+		# A mount tick does nothing else: the first view unit or teardown slice of a
+		# step always runs, and a heavy one would stack on the mount (WB-08e).
+		return
+	# A zero budget (one unit per tick, tests) stays zero.
+	var budget := mount_queue.frame_budget_usec
+	if budget > 0:
+		budget = maxi(budget - STREAMING_TICK_RESERVE_USEC, 1)
+	var stepped := mount_queue.step(budget)
 	for pending in stepped["refined"]:
 		# _finish_staged_assembly() reset the view to its initial time of day.
 		(pending.view as MapView3D).apply_cycle_progress(clock_progress)
 	for location_id in stepped["failed"]:
 		mount_queue.record_failure(location_id)
 		applied["failed"].append(location_id)
+	# Teardown is never urgent: it gets what the step left, at most half the
+	# budget (headroom for one slow free), and at least one slice.
+	var left := mini(budget - int(Time.get_ticks_usec() - started), budget / 2)
+	mount_queue.step_evictions(maxi(left, 0))
 
 
 func _mount_staged(pending: WorldHostMountQueue.PendingMount, applied: Dictionary) -> bool:
 	var location_id := pending.location_id
 	pending.view.apply_cycle_progress(clock_progress)
-	if not mount_location(location_id, pending.logic_package, pending.view, pending.inspection):
+	if not mount_location(
+		location_id, pending.logic_package, pending.view, pending.inspection, pending.view_root
+	):
 		mount_queue.discard(pending)
 		mount_queue.record_failure(location_id)
 		applied["failed"].append(location_id)
@@ -884,12 +957,12 @@ func _mount_staged(pending: WorldHostMountQueue.PendingMount, applied: Dictionar
 ## in-flight neighbour waits at the seam edge. The seam gates stay sealed until
 ## both sides are mounted, so unloaded space is never exposed, and no scene swap
 ## is requested for a mount that is still healthy. The miss is recorded. When
-## only decoration is left the package mounts now and refines in place.
+## only decoration is left the built part is verified on a worker, enters in
+## slices and mounts early (WB-08e); the player keeps waiting until then.
 func _reach_in_flight_neighbor(location_id: StringName, applied: Dictionary) -> void:
 	mount_queue.record_miss(location_id, _owning_location_id)
-	var pending := mount_queue.take_early(location_id)
-	if pending == null or not _mount_staged(pending, applied):
-		applied["waiting"] = location_id
+	mount_queue.request_early(location_id)
+	applied["waiting"] = location_id
 
 
 func _load_location(location_id: StringName) -> bool:

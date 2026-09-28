@@ -400,6 +400,7 @@ func test_evicting_an_in_flight_mount_cancels_and_leaks_nothing() -> void:
 	_run_cancel_cycle(host, WorldHostMountQueue.Phase.ASSEMBLING)
 	host.mount_queue.prepare_delay_msec = 150
 	_run_cancel_cycle(host, WorldHostMountQueue.Phase.PREPARING)
+	_run_cancel_cycle(host, WorldHostMountQueue.Phase.ENTERING)
 	MapNavBuilder.flush_deferred_bakes()
 	var orphans_before := _orphan_ids()
 	var objects_before := Performance.get_monitor(Performance.OBJECT_COUNT)
@@ -408,6 +409,7 @@ func test_evicting_an_in_flight_mount_cancels_and_leaks_nothing() -> void:
 	_run_cancel_cycle(host, WorldHostMountQueue.Phase.ASSEMBLING)
 	host.mount_queue.prepare_delay_msec = 150
 	_run_cancel_cycle(host, WorldHostMountQueue.Phase.PREPARING)
+	_run_cancel_cycle(host, WorldHostMountQueue.Phase.ENTERING)
 	assert_eq(mounts, [] as Array[StringName], "a cancelled mount never mounts")
 	assert_eq(_unreleased_orphans(orphans_before), [] as Array[String], "no node leaks")
 	# Freed navigation regions release their server RID and polygon on the next
@@ -418,6 +420,89 @@ func test_evicting_an_in_flight_mount_cancels_and_leaks_nothing() -> void:
 		0.0,
 		"no object or RID owner leaks"
 	)
+	_dispose(host)
+
+
+# --- WB-08e (R-1069): sliced tree entry and exit ------------------------------
+
+
+func test_split_for_entry_rebuilds_the_same_tree_and_keeps_scripted_nodes_whole() -> void:
+	var root := _wide_tree()
+	var before := _tree_signature(root)
+	var scripted := root.get_node("Busy/Flock")
+	var units := WorldHostPackageInspector.split_for_entry(root, 4)
+	assert_true(units.size() > 4, "a wide tree splits into many slices (%d)" % units.size())
+	assert_eq(units[0], [null, root], "the view itself is the first slice")
+	assert_eq(scripted.get_child_count(), 6, "a scripted subtree enters whole")
+	for unit in units:
+		assert_true(unit[0] != scripted, "no slice starts inside a scripted node")
+	var staging := Node3D.new()
+	for unit in units:
+		(unit[0] if unit[0] != null else staging).add_child(unit[1])
+	assert_eq(_tree_signature(root), before, "re-adding the slices in order rebuilds the tree")
+	staging.free()
+
+
+func test_sliced_entry_stays_hidden_and_mounts_the_synchronous_tree() -> void:
+	var host := _staged_host()
+	host.mount_queue.frame_budget_usec = 0  # one slice (or view unit) per tick
+	host.update_streaming(_at(60))
+	_pump(host, _at(60), func() -> bool:
+		return host.mount_queue.phase_of(&"map_b") == WorldHostMountQueue.Phase.ENTERING)
+	var entering_ticks := 0
+	var exposed := false
+	var staging: Node3D = null
+	while not host.mounted_location_ids().has(&"map_b") and entering_ticks < 5000:
+		var view := host.mount_queue.pending_view(&"map_b")
+		if view != null and view.is_inside_tree():
+			staging = view.get_parent() as Node3D
+			exposed = exposed or staging.is_visible_in_tree()
+			exposed = exposed or host.is_seam_active_between(&"map_a", &"map_b")
+		host.update_streaming(_at(60))
+		entering_ticks += 1
+	assert_true(host.mounted_location_ids().has(&"map_b"), "sliced entry finishes")
+	assert_true(entering_ticks > 1, "the view entered over several ticks (%d)" % entering_ticks)
+	assert_false(exposed, "an entering view is hidden and its seam stays sealed")
+	var mounted_view := host.hosted_view(&"map_b")
+	assert_eq(host.mounted_location_root(&"map_b"), staging, "the staging root becomes the view root")
+	assert_true(mounted_view.is_visible_in_tree(), "the mount reveals the view")
+	var definition := _strip_b()
+	var synchronous := MapView3D.create_hosted(
+		definition, MapBuilder.build(definition), host.view_globals()
+	)
+	assert_eq(_tree_signature(mounted_view), _tree_signature(synchronous), "staged equals synchronous")
+	MapView3D._strip_geometry_materials(synchronous)
+	synchronous.free()
+	_dispose(host)
+
+
+func test_eviction_detaches_gameplay_at_once_and_frees_the_view_in_slices() -> void:
+	var host := _staged_host()
+	host.update_streaming(_at(60))
+	_pump(host, _at(60), func() -> bool: return host.mounted_location_ids().has(&"map_b"))
+	MapNavBuilder.flush_deferred_bakes()
+	var orphans_before := _orphan_ids()
+	var logic_root := host.mounted_location_root(&"map_b", false)
+	var view_root := host.mounted_location_root(&"map_b") as Node3D
+	host.mount_queue.frame_budget_usec = 0  # one slice per tick
+	var result := host.update_streaming(_at(35))
+	assert_array_contains(result["evicted"], &"map_b")
+	assert_false(logic_root.is_inside_tree(), "navigation and collision leave in the evicting tick")
+	assert_false(host.is_seam_active_between(&"map_a", &"map_b"))
+	assert_true(view_root.is_inside_tree() and not view_root.visible, "the view is hidden, not freed")
+	assert_ne(String(view_root.name), "map_b", "the evicting root frees the location name")
+	var ticks := 0
+	while host.mount_queue.evicting_count() > 0 and ticks < 20000:
+		host.update_streaming(_at(35))
+		ticks += 1
+	assert_true(ticks > 1, "teardown ran over several ticks (%d)" % ticks)
+	assert_eq(host.mount_queue.evicting_count(), 0)
+	assert_eq(_unreleased_orphans(orphans_before), [] as Array[String], "no node leaks")
+	host.mount_queue.frame_budget_usec = int(WorldHostMountQueue.Assembly.frame_budget_msec() * 1000.0)
+	host.update_streaming(_at(60))
+	_pump(host, _at(60), func() -> bool: return host.mounted_location_ids().has(&"map_b"))
+	var remounted := host.mounted_location_root(&"map_b")
+	assert_eq(String(remounted.name), "map_b", "remounts under its own name")
 	_dispose(host)
 
 
@@ -461,8 +546,18 @@ func test_only_decoration_left_mounts_early_and_refines_in_place() -> void:
 	host.update_streaming(_at(60))
 	while not WorldHostMountQueue.only_decoration_left(view):
 		host.update_streaming(_at(60))
+	# WB-08e: the built part is verified on a worker and enters in slices first,
+	# so the player waits at the sealed seam for a few more ticks.
 	var result := host.update_streaming(_at(101))
-	assert_eq(result["waiting"], &"")
+	assert_eq(result["waiting"], &"map_b", "the early mount is not walked inside this tick")
+	var paused_units := view.pending_assembly_unit_count()
+	var units_at_mount := [-1]
+	host.location_mounted.connect(
+		func(_location_id: StringName) -> void:
+			units_at_mount[0] = view.pending_assembly_unit_count()
+	)
+	_pump(host, _at(101), func() -> bool: return host.owning_location_id() == &"map_b")
+	assert_eq(units_at_mount[0], paused_units, "decoration paused until the mount")
 	assert_eq(host.owning_location_id(), &"map_b")
 	assert_true(host.is_seam_active_between(&"map_a", &"map_b"), "collision truth is complete")
 	assert_eq(host.hosted_view(&"map_b"), view)
@@ -752,14 +847,66 @@ func _run_cancel_cycle(host: WorldHost, stop_phase: int) -> void:
 			return host.mount_queue.phase_of(&"map_b") == WorldHostMountQueue.Phase.ASSEMBLING)
 		for _unit in 6:  # stop inside the view plan, with nodes already built
 			host.update_streaming(_at(60))
+	elif stop_phase == WorldHostMountQueue.Phase.ENTERING:
+		host.mount_queue.frame_budget_usec = 0  # one slice per tick
+		_pump(host, _at(60), func() -> bool:
+			return host.mount_queue.phase_of(&"map_b") == WorldHostMountQueue.Phase.ENTERING)
+		host.update_streaming(_at(60))  # part of the view is inside the staging root
 	assert_eq(host.mount_queue.phase_of(&"map_b"), stop_phase)
 	var result := host.update_streaming(_at(35))
 	assert_array_contains(result["evicted"], &"map_b", "eviction reports the cancelled mount")
 	assert_eq(host.pending_location_ids(), [] as Array[StringName])
 	assert_eq(host.mounted_location_ids(), [&"map_a"])
-	_pump(host, _at(35), func() -> bool: return host.mount_queue.draining_count() == 0)
+	_pump(host, _at(35), func() -> bool:
+		return host.mount_queue.draining_count() == 0 and host.mount_queue.evicting_count() == 0)
 	host.mount_queue.frame_budget_usec = int(WorldHostMountQueue.Assembly.frame_budget_msec() * 1000.0)
 	host.mount_queue.prepare_delay_msec = 0
+
+
+## Pre-order "depth class name" rows of `root`; generated "@" names are
+## instance-specific, so only their class counts.
+func _tree_signature(root: Node) -> Array[String]:
+	var rows: Array[String] = []
+	_append_signature(root, 0, rows)
+	return rows
+
+
+func _append_signature(node: Node, depth: int, rows: Array[String]) -> void:
+	var node_name := String(node.name)
+	rows.append(
+		"%d %s %s" % [depth, node.get_class(), "" if node_name.begins_with("@") else node_name]
+	)
+	for child in node.get_children():
+		_append_signature(child, depth + 1, rows)
+
+
+## A detached tree with wide plain containers and one scripted, atomic subtree.
+func _wide_tree() -> Node3D:
+	var root := Node3D.new()
+	root.name = "View"
+	var busy := Node3D.new()
+	busy.name = "Busy"
+	root.add_child(busy)
+	for index in 12:
+		var mesh := MeshInstance3D.new()
+		mesh.name = "Mesh%d" % index
+		busy.add_child(mesh)
+	var flock := Node3D.new()
+	flock.name = "Flock"
+	var script := GDScript.new()
+	script.source_code = "extends Node3D\n"
+	script.reload()
+	flock.set_script(script)
+	busy.add_child(flock)
+	for index in 6:
+		var bird := Node3D.new()
+		bird.name = "Bird%d" % index
+		flock.add_child(bird)
+	var quiet := Node3D.new()
+	quiet.name = "Quiet"
+	root.add_child(quiet)
+	quiet.add_child(Node3D.new())
+	return root
 
 
 ## SaveService on disk and back, exactly like a player save and load.

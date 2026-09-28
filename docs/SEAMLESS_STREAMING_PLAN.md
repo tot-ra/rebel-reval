@@ -255,8 +255,9 @@ staged. With `world_host/async_location_assembly_enabled` on and no injected
 |---|---|---|
 | `PREPARING` | WorkerThreadPool task | compile definition, `MapBuilder.build`, detached logic package (collision, navigation bake, doors) |
 | `ASSEMBLING` | main thread, shared 4 ms budget | `MapView3D.create_hosted_staged()` units |
-| `VERIFYING` | WorkerThreadPool task | `WorldHostPackageInspector.inspect()` of both detached packages (host-global nodes, stable handles) |
-| `READY` | main thread | `mount_location(..., inspection)`: registry check, add to tree |
+| `VERIFYING` | WorkerThreadPool task | `WorldHostPackageInspector.inspect()` of both detached packages (host-global nodes, stable handles), then `split_for_entry()` of the view (R-1069) |
+| `ENTERING` | main thread, shared budget | the view enters a hidden host staging root in slices (R-1069) |
+| `READY` | main thread, its own tick | `mount_location(..., inspection, staging_root)`: registry check, logic package into the tree, reveal the view |
 
 - The active (owning) map is never staged. A player who teleports into an
   unresident location still loads it synchronously.
@@ -318,9 +319,9 @@ yet**. The remaining causes:
   gate arch, and some `buildings_props` houses. Splitting them is R-1006.
 - The owner-change rebind (R-1054 consumers) takes 24-70 ms (**R-1071**).
 - Tree entry of a finished view takes ~8 ms on market. Tree exit on eviction
-  takes ~14 ms (**R-1069**).
+  takes ~14 ms (**R-1069**, done below).
 - An early mount must inspect the incomplete view on the main thread (~9 ms)
-  (**R-1069**).
+  (**R-1069**, done below).
 - A staged mount takes ~6.5 s from prefetch to ready on market and south. That
   is longer than the 48-cell band gives a running player (6.4 s), so running
   crossings miss (**R-1072** re-derives the band).
@@ -330,6 +331,62 @@ yet**. The remaining causes:
   scene-kind workers (prepare Door instantiate, package inspect) and stops
   roof-tile paints writing the shared pattern `_cache` from a worker. Keep the
   streaming flag off until the 30-run trace verify (**R-1076**) lands.
+
+**R-1069 / WB-08e (2026-09-28, both flags on only).** Tree entry, tree exit
+and the early-mount walk are sliced:
+
+- **Sliced entry.** The verify worker splits the detached view
+  (`WorldHostPackageInspector.split_for_entry()`, at most 64 nodes per slice).
+  Only plain `Node`/`Node3D` containers and the `MapView3D` root give up their
+  children. Scripted and other native subtrees enter whole, so no `_ready()`
+  sees a partial subtree. `ENTERING` adds the slices back in pre-order into a
+  hidden staging root under the host's view layer. Nothing registers, activates a
+  seam or is drawn until the host mounts. The staging root then becomes the view
+  root and is revealed. The final tree is node-for-node the synchronous tree
+  (`test_sliced_entry_stays_hidden_and_mounts_the_synchronous_tree`).
+- **Mount ticks do nothing else.** Finished entries hand over at the start of
+  the next tick (`handovers()`). In a tick that mounts, no view unit or
+  teardown slice runs: the first unit of a step always runs, and a heavy
+  decoration unit would stack on the mount. The step keeps 0.4 ms of the budget
+  for the rest of the streaming tick (`STREAMING_TICK_RESERVE_USEC`).
+- **Early mount without a main-thread walk.** When the player reaches a
+  neighbour whose remaining units are all decoration, the view pauses. A worker
+  inspects and splits the part already built (`VERIFYING_EARLY`), it enters in
+  slices, and it mounts as `REFINING`. The player waits at the sealed seam for
+  those few ticks. A `VERIFYING` mount at the deadline is no longer joined on the
+  main thread.
+- **Sliced teardown.** `unmount_location()` detaches the logic package at once,
+  so navigation and collision leave in the evicting tick. The view root is
+  hidden, renamed (`<id>__evicting_<n>`, so the location can mount again at once)
+  and freed one leaf or atomic subtree at a time
+  (`WorldHostPackageInspector.next_removal()`), children before their container.
+  The detached logic package is freed the same way. Teardown gets at most half
+  the budget. A cancelled `ENTERING` or unmounted `READY` package uses the same
+  path. Flag off, unmount is unchanged.
+- Trace breakdown: `queue_ms`, `evict_ms` and `slice_ms` per frame, and
+  `slice_ms_max` / `slice_max_label` in the summary.
+
+Same trace, three runs each on the development Mac, against `origin/main` at
+`392754b3` on the same machine:
+
+| Tick | Before (R-1044) | After (R-1069) |
+|---|---|---|
+| Ordinary mount (walking) | 8.7 ms | 1.8-2.7 ms |
+| Early mount (running), streaming step only | ~17 ms (inspect ~9 + entry ~8) | 1.6-2.1 ms |
+| Early mount (running), whole tick | 49-100 ms | 26-72 ms (owner rebind, R-1071) |
+| Eviction tick | 14.3-15.7 ms | 1.2-1.3 ms |
+| Entry ticks | - | 4 per run, max 3.67 ms |
+| Teardown ticks | - | 27-28 per run; all but one at most 2.1 ms |
+| Ticks over 4 ms (walking / running) | 193 / 167-192 | 149-150 / 144-151 |
+| tick p95 (walking / running) | 4.00 / 4.62-4.83 ms | 3.63-3.65 / 4.44-4.50 ms |
+
+Residual, not met: in every run exactly one teardown slice takes 4.5-6.4 ms, and
+its tick 5.0-7.9 ms. It is not tied to a node or a resource. A different
+ordinary `MeshInstance3D` or `Node3D` is hit each run. Inside the slice the
+stall moves between `remove_child`, the geometry strip and `free()`. No worker
+mount is in flight at that moment. It looks like a process-wide stall (allocator
+or server lock) and is filed as **R-1077**. Every other over-budget tick is an
+atomic view unit (R-1006) or the owner rebind (R-1071).
 
 Limits kept for later rows are the items above, plus two more:
 

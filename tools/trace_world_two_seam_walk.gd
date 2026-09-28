@@ -85,6 +85,11 @@ func _run() -> void:
 		_frames.append({
 			"frame_ms": float(now - last_usec) / 1000.0,
 			"tick_ms": float(driver.tick_usec[-1]) / 1000.0,
+			# WB-08e breakdown: staged-mount step (mounts, entry and teardown slices)
+			# and eviction; the rest of the tick is planning and owner handover.
+			"queue_ms": float(result.get("queue_usec", 0)) / 1000.0,
+			"evict_ms": float(result.get("evict_usec", 0)) / 1000.0,
+			"slice_ms": float(host.mount_queue.tick_slice_usec) / 1000.0,
 			"owner": owner,
 			"waiting": String(result.get("waiting", &"")),
 			"mounted": _strings(result.get("mounted", [])),
@@ -170,9 +175,21 @@ func _report(host: WorldHost, owners: Array[String], waiting_frames: int) -> Dic
 		"waiting_frames": waiting_frames,
 		"readiness_misses": host.mount_queue.misses(),
 		"scene_swaps": 0 if DoorNavigator.pending_spawn_scene_id.is_empty() else 1,
+		"queue_ms_max": _max_of("queue_ms"),
+		"evict_ms_max": _max_of("evict_ms"),
+		"slice_ms_max": float(host.mount_queue.max_slice_usec) / 1000.0,
+		"slice_max_label": host.mount_queue.max_slice_label,
+		"tick_slice_ms_max": _max_of("slice_ms"),
 	}
 	summary["ok"] = visited_all and over.is_empty() and summary["scene_swaps"] == 0
-	return {"task": "R-1044", "summary": summary, "over_budget": over, "frames": _frames}
+	return {"task": "R-1069", "summary": summary, "over_budget": over, "frames": _frames}
+
+
+func _max_of(key: String) -> float:
+	var peak := 0.0
+	for frame in _frames:
+		peak = maxf(peak, float(frame.get(key, 0.0)))
+	return peak
 
 
 static func _top_units(units: Array[Dictionary]) -> Array[Dictionary]:

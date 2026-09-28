@@ -6,7 +6,8 @@ extends RefCounted
 ## inspect its finished, still detached packages on a worker thread (Godot lets a
 ## worker read nodes that are outside the tree). WorldHost.mount_location() then
 ## checks the result against its registry instead of walking thousands of view
-## nodes inside the mount frame.
+## nodes inside the mount frame. split_for_entry() is the one function that edits a
+## package, and only while it is detached (WB-08e sliced tree entry).
 
 
 ## {violations, entries}: global-kind diagnostics and stable-handle entries
@@ -97,6 +98,63 @@ static func handle_key(handle: Dictionary) -> String:
 
 static func world_key(handle: Dictionary) -> String:
 	return "*/%s" % String(handle.get("object_id", ""))
+
+
+## WB-08e (R-1069): a finished view enters the tree in slices so no frame pays for
+## the whole district (~8 ms on market_civic_quarter). Runs on a worker while the
+## view is still detached: every container whose subtree exceeds `max_nodes` gives
+## up its children, which become later units. Returns [parent, child] pairs in
+## pre-order; the first pair is [null, view] (null = the host's staging root).
+## Adding the children back in this order rebuilds the same tree, node for node.
+static func split_for_entry(view: Node, max_nodes: int) -> Array[Array]:
+	var sizes := {}
+	_count_subtree(view, sizes)
+	var units: Array[Array] = [[null, view]]
+	_split_subtree(view, sizes, maxi(max_nodes, 1), units)
+	return units
+
+
+## Only plain containers enter without their children: they run no script and no
+## native child logic on enter or ready, so a later child cannot change what they
+## did. MapView3D is the one scripted exception; it has no _ready or _enter_tree
+## (its stages build everything before the view reaches the tree). Anything else
+## (a scripted flock, a skeleton, a body) enters as one atomic unit.
+static func may_split(node: Node) -> bool:
+	if node is MapView3D:
+		return true
+	return node.get_script() == null and (node.get_class() == "Node3D" or node.get_class() == "Node")
+
+
+## WB-08e: the next node to remove when tearing `root` down in slices: the last
+## leaf (or atomic subtree) of the last splittable path, so children always leave
+## before their container and `root` itself goes last. Walks one path, not the tree.
+static func next_removal(root: Node) -> Node:
+	var node := root
+	while node.get_child_count() > 0 and may_split(node):
+		node = node.get_child(node.get_child_count() - 1)
+	return node
+
+
+static func _count_subtree(node: Node, sizes: Dictionary) -> int:
+	var total := 1
+	for child in node.get_children():
+		total += _count_subtree(child, sizes)
+	sizes[node.get_instance_id()] = total
+	return total
+
+
+static func _split_subtree(
+	node: Node, sizes: Dictionary, max_nodes: int, units: Array[Array]
+) -> void:
+	if int(sizes[node.get_instance_id()]) <= max_nodes or not may_split(node):
+		return
+	var children := node.get_children()
+	# Detach from the back: removing the last child shifts nothing.
+	for index in range(children.size() - 1, -1, -1):
+		node.remove_child(children[index])
+	for child in children:
+		units.append([node, child])
+		_split_subtree(child, sizes, max_nodes, units)
 
 
 static func _collect_global_violations(
