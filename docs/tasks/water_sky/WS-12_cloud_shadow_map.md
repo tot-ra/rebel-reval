@@ -122,9 +122,14 @@ GPU items 2-4 are owned by **R-1033**.
 
 1. Headless: `--filter=test_cloud_shadow_pass,test_sky_weather_3d` 38/38 (R-897 plus the
    R-1033 capture-tool contract).
-2. Sky include peel is already on `main` (`752e7c5b`). Current-sky sheet:
-   `docs/reports/images/ws12_metal_clear_sky_e20.png` (sun toward / away). A live
-   before/after of the include wrappers still needs `752e7c5b^`.
+2. Sky include peel is already on `main` (`752e7c5b`). **R-1097:** the sky
+   camera origin now multiplies `_open_water_cell` by `cell_size`. Capture log:
+   `WS12_SKY_FOCUS map=reval_harbor_north cell=4.5,4.5 world=4.500,4.500`
+   (in-sea near-corner; do not retune the finder). Sheets:
+   `docs/reports/images/ws12_metal_clear_sky_e20.png` and
+   `docs/reports/images/ws12_opengl3_clear_sky_e20.png` (sun toward / away).
+   A live before/after of the include wrappers still needs `752e7c5b^`.
+   Harbour pass-on plates were not recaptured.
 3. Harbour, gameplay camera, `reval_harbor_north`:
    - Clear noon without the pass: `ws12_metal_partly_harbour_nopass.png` (real sea).
    - Overcast / night on Metal and Compatibility: `ws12_{metal,opengl3}_{overcast,night}_harbour.png`.

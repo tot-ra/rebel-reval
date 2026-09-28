@@ -214,8 +214,15 @@ func _run_sky(view: MapView3D, viewport: Viewport, grid: MapTerrainGrid) -> void
 	camera.projection = Camera3D.PROJECTION_PERSPECTIVE
 	camera.fov = SKY_FOV
 	camera.far = 4000.0
+	# world_position takes logic pixels, not cells. Passing a cell lands the
+	# camera at cell/cell_size, near the origin, instead of open water (R-1097).
+	var water_cell := Vector2(_open_water_cell(grid)) + Vector2(0.5, 0.5)
 	var origin := view.world_position(
-		Vector2(_open_water_cell(grid)) + Vector2(0.5, 0.5), SKY_HEIGHT
+		water_cell * float(view.definition.cell_size), SKY_HEIGHT
+	)
+	print(
+		"WS12_SKY_FOCUS map=%s cell=%.1f,%.1f world=%.3f,%.3f"
+		% [view.definition.map_id, water_cell.x, water_cell.y, origin.x, origin.z]
 	)
 	var halves: Array[Image] = []
 	for toward_sun in [true, false]:

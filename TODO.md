@@ -371,6 +371,15 @@ GL pass-on luma 55.5 vs `--no-pass` 108.3 (ratio 0.51; Metal 59.6/96.4
 Overcast and night keep `sun_share=0`. Handoff: QA visual review
 (**R-1052**).
 
+- [ ] R-1097 | deps: R-1091 | deliverable: scale capture_ws12 sky origin by cell_size and recapture sky-identity plates | allowed files: `tools/capture_ws12_cloud_shadows.gd`, matching UID, `docs/reports/images/ws12_*.png`, `docs/tasks/water_sky/WS-12_cloud_shadow_map.md`, `TODO.md` | verify: capture log prints WS12_SKY_FOCUS at the water cell centre; `--filter=test_cloud_shadow_pass,test_sky_weather_3d`; sky identity plates match the include-parity sheet; harbour pass-on plates unchanged
+
+R-1097 implementation landed. Sky origin multiplies `_open_water_cell` by
+`definition.cell_size`. Log: `WS12_SKY_FOCUS map=reval_harbor_north
+cell=4.5,4.5 world=4.500,4.500` (in-sea, not the quay).
+`--filter=test_cloud_shadow_pass,test_sky_weather_3d` 40/40. Recaptured
+`ws12_metal_clear_sky_e20.png` and `ws12_opengl3_clear_sky_e20.png`.
+Harbour gameplay plates were not recaptured.
+
 - [ ] R-941 | deps: WS-11 | deliverable: sky_weather_3d.gdshader calls shared atmosphere_sky_view_uv and ATMO_SKY_VIEW_HEIGHT_KM; private sky_view_uv / SKY_VIEW_HEIGHT_KM deleted | allowed files: `scripts/map/view3d/sky_weather_3d.gdshader`, `tests/godot/test_sky_weather_3d.gd`, `TODO.md` | verify: `--filter=test_sky_weather_3d,test_sky_atmosphere_lut`; Compatibility `tools/capture_ws10_sky_elevations.gd -- --elevation=5` plate within 1 LSB of the pre-change plate; no `vec2 sky_view_uv(` left
 
 R-941 implementation landed. The dome samples the sky-view LUT through
