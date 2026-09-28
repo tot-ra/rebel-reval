@@ -329,8 +329,18 @@ yet**. The remaining causes:
   (`map_view_material_patterns.gd` `_pattern_image_at_size`) while mounts were
   staged. **R-1070** serializes compute workers (pattern / mesh bakes) against
   scene-kind workers (prepare Door instantiate, package inspect) and stops
-  roof-tile paints writing the shared pattern `_cache` from a worker. Keep the
-  streaming flag off until the 30-run trace verify (**R-1076**) lands.
+  roof-tile paints writing the shared pattern `_cache` from a worker.
+  **R-1076** (2026-09-28): 30 consecutive headless two-seam traces at
+  `--px-per-frame=2 --stability` on `78205b94` (R-1070) in an isolated
+  worktree. 30/30 exit 0. `signal 11` / `SIGSEGV` grep empty across every log.
+  Every walk visited Lower Town -> market -> south with no scene swap. Over-budget
+  ticks stayed 160-194 (median 169) and `tick_ms_max` 101-110 ms; those remain
+  R-1006 / R-1069 / R-1071. Default `world_host/async_location_assembly_enabled`
+  stays false. The default trace still exits 1 on the 4 ms gate; `--stability`
+  is the crash-only leftover. After rebasing onto `9d1f7eb6` (R-1069), one
+  confirmation run crashed at startup in a worker `ground_color_tint` /
+  `propagate_notification` call; the next run on the same tip exited 0. That
+  leftover is **R-1079**, not a reopen of this 30-run verify.
 
 **R-1069 / WB-08e (2026-09-28, both flags on only).** Tree entry, tree exit
 and the early-mount walk are sliced:

@@ -11,9 +11,12 @@ extends Node
 ## hand-off, staged view units, package mounts) is timed every frame.
 ## `-- --px-per-frame=2` walks instead of running, so prefetch finishes before each
 ## seam and the trace also shows ordinary (not early) mounts.
+## `-- --stability` exits 0 when both crossings happen without a scene swap.
+## Budget overruns stay in the report; they belong to R-1006 / R-1069 / R-1071,
+## not the R-1076 SIGSEGV leftover.
 ## Writes build/world_two_seam_trace.json (or `--out=res://build/<name>.json`) and
 ## exits 0 only when every tick stays within the budget and both crossings
-## happened without a scene swap.
+## happened without a scene swap, unless `--stability` is set.
 
 const LOWER_TOWN_SCENE_PATH := "res://scenes/reval_east/reval_east.tscn"
 const REPORT_PATH := "res://build/world_two_seam_trace.json"
@@ -25,6 +28,7 @@ const MAX_FRAMES := 12000
 var _frames: Array[Dictionary] = []
 var _px_per_frame := RUN_PX_PER_FRAME
 var _report_path := REPORT_PATH
+var _stability := false
 
 
 func _ready() -> void:
@@ -37,6 +41,9 @@ func _run() -> void:
 			_px_per_frame = maxf(float(arg.get_slice("=", 1)), 0.5)
 		elif arg.begins_with("--out="):
 			_report_path = arg.get_slice("=", 1)
+		elif arg == "--stability":
+			# Crash-only leftover: completed walk, no scene swap, ignore 4 ms ticks.
+			_stability = true
 	ProjectSettings.set_setting(WorldHost.ADDITIVE_RESIDENCY_SETTING, true)
 	ProjectSettings.set_setting(WorldHostMountQueue.Assembly.ENABLED_SETTING, true)
 	DoorNavigator.clear_pending_spawn()
@@ -180,8 +187,10 @@ func _report(host: WorldHost, owners: Array[String], waiting_frames: int) -> Dic
 		"slice_ms_max": float(host.mount_queue.max_slice_usec) / 1000.0,
 		"slice_max_label": host.mount_queue.max_slice_label,
 		"tick_slice_ms_max": _max_of("slice_ms"),
+		"stability": _stability,
 	}
-	summary["ok"] = visited_all and over.is_empty() and summary["scene_swaps"] == 0
+	var walk_ok: bool = visited_all and int(summary["scene_swaps"]) == 0
+	summary["ok"] = walk_ok if _stability else (walk_ok and over.is_empty())
 	return {"task": "R-1069", "summary": summary, "over_budget": over, "frames": _frames}
 
 
