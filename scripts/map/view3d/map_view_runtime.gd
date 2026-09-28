@@ -101,6 +101,8 @@ var _definition: MapDefinition
 var _owning_location_id: StringName = &""
 var _owning_grid: MapTerrainGrid
 var _minimap_logic_tracker: Node2D
+var _minimap_stream_started := false
+var _ambient_stream_started := false
 var _player: CharacterBody2D
 var _player_rig: SharedCharacterRig
 var _camera: Camera3D
@@ -172,18 +174,69 @@ func bind_owning_location(
 	_camera_controller.view = view
 	_actor_controller.rebind_view(definition, view)
 	_bind_minimap_label(definition)
+	_minimap_stream_started = false
+	_ambient_stream_started = false
 	if include_presentation:
 		bind_owning_location_presentation()
 	return true
 
 
-## Ambient birds/fauna/music and the minimap texture for the already-bound owner.
+## Ambient birds/fauna/music and the full minimap texture for the bound owner.
 func bind_owning_location_presentation() -> void:
+	bind_owning_location_ambient()
+	bind_owning_location_minimap()
+
+
+func bind_owning_location_ambient() -> void:
 	if _definition == null or view == null:
 		return
 	_ambient_controller.rebind_map(_definition, view)
-	if _owning_grid != null:
-		_bind_minimap(_definition, _owning_grid)
+
+
+## One ambient job (audio, one urban actor, penned, or crowd). True when done.
+func bind_owning_location_ambient_step() -> bool:
+	if _definition == null or view == null:
+		return true
+	if not _ambient_stream_started:
+		_ambient_controller.begin_rebind(_definition, view)
+		_ambient_stream_started = true
+	var done: bool = _ambient_controller.step_rebind()
+	if done:
+		_ambient_stream_started = false
+	return done
+
+
+func bind_owning_location_minimap() -> void:
+	if _definition == null or _owning_grid == null:
+		return
+	_bind_minimap(_definition, _owning_grid)
+
+
+## One budgeted slice of the minimap texture. Returns true when the rebuild
+## finished (or there is no HUD). R-1078 splits this off ambient and phase.
+func bind_owning_location_minimap_step() -> bool:
+	if _definition == null or _owning_grid == null or world_host == null:
+		return true
+	var minimap: Node = world_host.get("minimap_hud") as Node
+	if minimap == null:
+		return true
+	if _minimap_logic_tracker == null:
+		_minimap_logic_tracker = Node2D.new()
+		_minimap_logic_tracker.name = "MinimapLogicTracker"
+		add_child(_minimap_logic_tracker)
+	_sync_minimap_tracker()
+	if not minimap.has_method("begin_streamed_configure"):
+		minimap.call("configure", _definition, _owning_grid, _minimap_logic_tracker)
+		return true
+	if not _minimap_stream_started:
+		minimap.call(
+			"begin_streamed_configure", _definition, _owning_grid, _minimap_logic_tracker
+		)
+		_minimap_stream_started = true
+	var done: Variant = minimap.call("step_streamed_configure")
+	if bool(done):
+		_minimap_stream_started = false
+	return bool(done)
 
 
 func _bind_minimap_label(definition: MapDefinition) -> void:

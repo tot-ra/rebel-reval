@@ -318,11 +318,13 @@ yet**. The remaining causes:
   gate arch, and some `buildings_props` houses. Splitting them is R-1006.
 - The owner-change rebind (R-1054 consumers) used to take 24-70 ms. **R-1071**
   keeps gameplay truth on the crossing frame (owner, session location, movement
-  terrain, camera view, minimap *label*) and defers ambient fauna/audio, the
-  minimap texture rebuild, and `MapPhaseBinder.setup()` to later ticks. The
-  label is enough for `verify_world_seam_walk`; full `MinimapHud.configure()`
-  was the 17 ms leftover. The two-seam trace reports `owner_rebind_ms` on
-  owner-change frames. Remaining over-budget ticks are still R-1006 / R-1069.
+  terrain, camera view, minimap *label*). **R-1078** drains the leftover on
+  later ticks, one job each: ambient fauna/audio, then a row-sliced
+  `MinimapHud` texture rebuild (full `configure()` was the 17 ms leftover),
+  then `MapPhaseBinder.setup()`. Harness Lower Town -> market: 14 drain
+  steps, max 2.63 ms. Walking two-seam (`--px-per-frame=2`): 39 drain
+  ticks, max 2.92 ms, zero over 4 ms. Owner-change rebind max 0.11 ms.
+  Remaining whole-tick overruns are still R-1006 / R-1069.
 - Tree entry of a finished view takes ~8 ms on market. Tree exit on eviction
   takes ~14 ms (**R-1069**).
 - An early mount must inspect the incomplete view on the main thread (~9 ms)

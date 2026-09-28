@@ -17,6 +17,9 @@ const DayNightCycleScript := preload("res://scripts/global/day_night_cycle.gd")
 const GameCalendarScript := preload("res://scripts/global/game_calendar.gd")
 const CELESTIAL_SIZE := Vector2(52.0, 52.0)
 const DATE_BADGE_HEIGHT := 26.0
+## R-1078: leave headroom so a drain tick that also starts blocked-cell work
+## stays inside the 4 ms streaming budget.
+const STREAM_BUDGET_USEC := 2500
 
 
 class MinimapCelestialIndicator:
@@ -140,6 +143,12 @@ var _map_host: Control
 var _texture_rect: TextureRect
 var _marker: ColorRect
 var _map_texture: ImageTexture
+## R-1078: row-sliced rebuild so a district texture stays inside the 4 ms drain.
+var _stream_image: Image
+var _stream_blocked: Dictionary = {}
+var _stream_blocked_ready := false
+var _stream_row := 0
+var _stream_active := false
 var _date_label: Label
 var _date_badge: PanelContainer
 var _calendar_date: Dictionary = GameCalendarScript.DEFAULT_DATE.duplicate()
@@ -147,6 +156,7 @@ var _celestial_indicator: MinimapCelestialIndicator
 
 
 func configure(definition: MapDefinition, grid: MapTerrainGrid, player: Node2D) -> void:
+	_cancel_streamed_configure()
 	_definition = definition
 	_grid = grid
 	_player = player
@@ -155,6 +165,66 @@ func configure(definition: MapDefinition, grid: MapTerrainGrid, player: Node2D) 
 	_ensure_ui()
 	_apply_location_label(definition)
 	_rebuild_map_texture()
+
+
+## Start a budgeted rebuild. The location label is applied immediately; pixels
+## arrive through `step_streamed_configure` so a seam crossing does not hitch.
+func begin_streamed_configure(
+	definition: MapDefinition, grid: MapTerrainGrid, player: Node2D
+) -> void:
+	_definition = definition
+	_grid = grid
+	_player = player
+	_ensure_ui()
+	_apply_location_label(definition)
+	if definition == null or grid == null:
+		_cancel_streamed_configure()
+		return
+	_stream_image = MinimapTextureBuilder.create_image(definition)
+	_stream_blocked = {}
+	_stream_blocked_ready = false
+	_stream_row = 0
+	_stream_active = true
+
+
+func step_streamed_configure(budget_usec: int = STREAM_BUDGET_USEC) -> bool:
+	if not _stream_active:
+		return true
+	if _stream_image == null or _definition == null or _grid == null:
+		_cancel_streamed_configure()
+		return true
+	var started := Time.get_ticks_usec()
+	if not _stream_blocked_ready:
+		_stream_blocked = MapVerification.blocked_cells(_definition)
+		_stream_blocked_ready = true
+		if Time.get_ticks_usec() - started >= budget_usec:
+			return false
+	var height := _definition.size_cells.y
+	while _stream_row < height and Time.get_ticks_usec() - started < budget_usec:
+		MinimapTextureBuilder.fill_rows(
+			_stream_image, _definition, _grid, _stream_blocked, _stream_row, _stream_row + 1
+		)
+		_stream_row += 1
+	if _stream_row < height:
+		return false
+	MinimapTextureBuilder.finish_image(_definition, _stream_image)
+	_map_texture = ImageTexture.create_from_image(_stream_image)
+	if _texture_rect != null:
+		_texture_rect.texture = _map_texture
+	_apply_follow_shader_statics()
+	_apply_map_layout()
+	_apply_location_label(_definition)
+	_update_marker()
+	_cancel_streamed_configure()
+	return true
+
+
+func _cancel_streamed_configure() -> void:
+	_stream_active = false
+	_stream_image = null
+	_stream_blocked = {}
+	_stream_blocked_ready = false
+	_stream_row = 0
 
 
 func get_location_label() -> Label:

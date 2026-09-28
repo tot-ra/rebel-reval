@@ -175,7 +175,7 @@ func test_owner_rebind_defers_ambient_and_phase_off_the_crossing_tick() -> void:
 	assert_true(crossed, "the walk reaches the market seam")
 	assert_true(
 		driver.has_pending_owner_rebinds(),
-		"ambient and phase presenter wait for a later tick"
+		"ambient, minimap texture, and phase wait for later ticks"
 	)
 	assert_true(
 		driver.last_owner_rebind_usec <= 4000,
@@ -201,8 +201,24 @@ func test_owner_rebind_defers_ambient_and_phase_off_the_crossing_tick() -> void:
 		0.0001,
 		"terrain speed switches on the crossing tick"
 	)
-	driver.flush_owner_rebinds()
+	var drain_steps := 0
+	var drain_max := 0
+	while driver.has_pending_owner_rebinds():
+		assert_true(driver.step_owner_rebind(), "a pending drain must run a step")
+		assert_true(
+			driver.last_presentation_drain_usec <= 4000,
+			"presentation-drain tick stayed under 4 ms (%d us, %s)"
+			% [driver.last_presentation_drain_usec, driver.last_presentation_drain_kind]
+		)
+		drain_max = maxi(drain_max, driver.last_presentation_drain_usec)
+		drain_steps += 1
+		assert_true(drain_steps <= 64, "minimap slices must finish")
+	assert_true(drain_steps >= 3, "ambient, minimap, and phase each drain")
 	assert_false(driver.has_pending_owner_rebinds())
+	print(
+		"R-1078 presentation drain: %d steps, max %d us"
+		% [drain_steps, drain_max]
+	)
 	_dispose(level, launched)
 
 

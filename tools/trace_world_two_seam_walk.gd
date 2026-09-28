@@ -89,6 +89,10 @@ func _run() -> void:
 			"owner": owner,
 			"owner_changed": owner_changed and owners.size() > 1,
 			"owner_rebind_ms": float(driver.last_owner_rebind_usec) / 1000.0,
+			"presentation_drain_ms": (
+				float(driver.last_tick_presentation_drain_usec) / 1000.0
+			),
+			"presentation_drain_kind": String(driver.last_tick_presentation_drain_kind),
 			"waiting": String(result.get("waiting", &"")),
 			"mounted": _strings(result.get("mounted", [])),
 			"evicted": _strings(result.get("evicted", [])),
@@ -151,8 +155,10 @@ static func _door_center(
 func _report(host: WorldHost, owners: Array[String], waiting_frames: int) -> Dictionary:
 	var ticks: Array[float] = []
 	var owner_ticks: Array[float] = []
+	var drain_ticks: Array[float] = []
 	var over: Array[Dictionary] = []
 	var owner_over: Array[Dictionary] = []
+	var drain_over: Array[Dictionary] = []
 	for index in _frames.size():
 		var tick_ms: float = _frames[index]["tick_ms"]
 		ticks.append(tick_ms)
@@ -163,6 +169,14 @@ func _report(host: WorldHost, owners: Array[String], waiting_frames: int) -> Dic
 				var owner_frame := _frames[index].duplicate()
 				owner_frame["frame"] = index
 				owner_over.append(owner_frame)
+		var drain_kind := String(_frames[index].get("presentation_drain_kind", ""))
+		if not drain_kind.is_empty():
+			var drain_ms: float = float(_frames[index].get("presentation_drain_ms", 0.0))
+			drain_ticks.append(drain_ms)
+			if drain_ms > BUDGET_MSEC:
+				var drain_frame := _frames[index].duplicate()
+				drain_frame["frame"] = index
+				drain_over.append(drain_frame)
 		if tick_ms > BUDGET_MSEC:
 			var frame := _frames[index].duplicate()
 			frame["frame"] = index
@@ -171,6 +185,8 @@ func _report(host: WorldHost, owners: Array[String], waiting_frames: int) -> Dic
 	sorted_ticks.sort()
 	var sorted_owner := owner_ticks.duplicate()
 	sorted_owner.sort()
+	var sorted_drain := drain_ticks.duplicate()
+	sorted_drain.sort()
 	var visited_all := owners == (ROUTE.map(func(id: StringName) -> String: return String(id)))
 	var summary := {
 		"frames": _frames.size(),
@@ -184,6 +200,11 @@ func _report(host: WorldHost, owners: Array[String], waiting_frames: int) -> Dic
 			sorted_owner[-1] if not sorted_owner.is_empty() else 0.0
 		),
 		"owner_change_ticks_over_budget": owner_over.size(),
+		"presentation_drain_ticks": drain_ticks.size(),
+		"presentation_drain_tick_ms_max": (
+			sorted_drain[-1] if not sorted_drain.is_empty() else 0.0
+		),
+		"presentation_drain_ticks_over_budget": drain_over.size(),
 		"budget_ms": BUDGET_MSEC,
 		"px_per_frame": _px_per_frame,
 		"waiting_frames": waiting_frames,
@@ -191,7 +212,13 @@ func _report(host: WorldHost, owners: Array[String], waiting_frames: int) -> Dic
 		"scene_swaps": 0 if DoorNavigator.pending_spawn_scene_id.is_empty() else 1,
 	}
 	summary["ok"] = visited_all and over.is_empty() and summary["scene_swaps"] == 0
-	return {"task": "R-1044", "summary": summary, "over_budget": over, "frames": _frames}
+	return {
+		"task": "R-1044",
+		"summary": summary,
+		"over_budget": over,
+		"presentation_drain_over_budget": drain_over,
+		"frames": _frames,
+	}
 
 
 static func _top_units(units: Array[Dictionary]) -> Array[Dictionary]:

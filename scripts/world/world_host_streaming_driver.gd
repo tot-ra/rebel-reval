@@ -30,15 +30,22 @@ var last_fallback: Dictionary = {}
 var tick_usec := PackedInt64Array()
 ## Microseconds of the last owning_location_changed handler (R-1071).
 var last_owner_rebind_usec := 0
+## Last deferred presentation step (ambient / minimap slice / phase). R-1078.
+var last_presentation_drain_usec := 0
+var last_presentation_drain_kind := &""
+## Incremented when a drain step ran inside the latest tick().
+var last_tick_presentation_drain_usec := 0
+var last_tick_presentation_drain_kind := &""
 
 var _host: WorldHost
 var _resume_checked := false
 ## The GameState this driver mirrored into. A save loaded mid-play replaces the
 ## session state before this scene is freed; only this one may be released.
 var _mirrored_state: GameState
-## R-1071: ambient + phase presenter queued after a crossing. Gameplay truth
-## (movement, owner, session, minimap) already switched on that frame.
-var _pending_owner_presentation: StringName = &""
+## R-1078: one job per later tick (ambient, then minimap slices, then phase).
+## Gameplay truth already switched on the crossing frame.
+var _pending_owner_ambient: StringName = &""
+var _pending_owner_minimap: StringName = &""
 var _pending_owner_phase: StringName = &""
 
 
@@ -96,7 +103,9 @@ func tick() -> Dictionary:
 	if player == null:
 		return {}
 	# Drain one leftover from the previous crossing before timing this tick so
-	# an owning_location_changed frame does not also pay ambient/phase cost.
+	# an owning_location_changed frame does not also pay presentation cost.
+	last_tick_presentation_drain_usec = 0
+	last_tick_presentation_drain_kind = &""
 	_step_deferred_owner_rebind()
 	var started := Time.get_ticks_usec()
 	var state := _session_game_state()
@@ -113,13 +122,25 @@ func tick() -> Dictionary:
 
 
 func has_pending_owner_rebinds() -> bool:
-	return not _pending_owner_presentation.is_empty() or not _pending_owner_phase.is_empty()
+	return (
+		not _pending_owner_ambient.is_empty()
+		or not _pending_owner_minimap.is_empty()
+		or not _pending_owner_phase.is_empty()
+	)
 
 
 ## Tests and tools that inspect ambient or phase state after a crossing.
 func flush_owner_rebinds() -> void:
 	while has_pending_owner_rebinds():
 		_step_deferred_owner_rebind()
+
+
+## One deferred presentation job. Tests assert each step stays <= 4 ms.
+func step_owner_rebind() -> bool:
+	last_tick_presentation_drain_usec = 0
+	last_tick_presentation_drain_kind = &""
+	_step_deferred_owner_rebind()
+	return last_tick_presentation_drain_usec > 0 or last_tick_presentation_drain_kind != &""
 
 
 func _exit_tree() -> void:
@@ -135,6 +156,9 @@ func _session_game_state() -> GameState:
 
 func _on_location_mounted(location_id: StringName) -> void:
 	_bind_location(location_id)
+	# R-1078: pay GLB cache on the mount tick (already R-1006) so later
+	# urban-fauna drain steps stay near 4 ms.
+	MapViewUrbanFauna.warm_models_for_map(location_id)
 
 
 ## Disable the scene swap on every streamed door of a freshly mounted location
@@ -233,30 +257,44 @@ func _rebind_owner_consumers(location_id: StringName) -> void:
 		# for later ticks (R-1071).
 		runtime.bind_owning_location(location_id, false)
 	_host.pinned_location_ids.clear()
-	_pending_owner_presentation = location_id
+	_pending_owner_ambient = location_id
+	_pending_owner_minimap = location_id
 	_pending_owner_phase = location_id
 
 
 func _step_deferred_owner_rebind() -> void:
-	if not _pending_owner_presentation.is_empty():
+	var started := Time.get_ticks_usec()
+	var kind := &""
+	if not _pending_owner_ambient.is_empty():
+		kind = &"ambient"
 		var runtime := _hosted_runtime()
-		if runtime != null:
-			runtime.bind_owning_location_presentation()
-		_pending_owner_presentation = &""
+		if runtime == null or runtime.bind_owning_location_ambient_step():
+			_pending_owner_ambient = &""
+	elif not _pending_owner_minimap.is_empty():
+		kind = &"minimap"
+		var runtime := _hosted_runtime()
+		if runtime == null or runtime.bind_owning_location_minimap_step():
+			_pending_owner_minimap = &""
+	elif not _pending_owner_phase.is_empty():
+		kind = &"phase"
+		var location_id := _pending_owner_phase
+		_pending_owner_phase = &""
+		var scene := _host.get_parent() if _host != null else null
+		if scene != null:
+			var binder = scene.get_node_or_null("MapPhaseBinder")
+			var bootstrap: Dictionary = _host.hosted_bootstrap(location_id)
+			var definition := bootstrap.get("definition") as MapDefinition
+			var runtime := _hosted_runtime()
+			if binder != null and definition != null and binder.has_method("setup"):
+				binder.call(
+					"setup", StringName("loc.%s" % String(location_id)), definition, runtime
+				)
+	if kind.is_empty():
 		return
-	if _pending_owner_phase.is_empty():
-		return
-	var location_id := _pending_owner_phase
-	_pending_owner_phase = &""
-	var scene := _host.get_parent() if _host != null else null
-	if scene == null:
-		return
-	var binder = scene.get_node_or_null("MapPhaseBinder")
-	var bootstrap: Dictionary = _host.hosted_bootstrap(location_id)
-	var definition := bootstrap.get("definition") as MapDefinition
-	var runtime := _hosted_runtime()
-	if binder != null and definition != null and binder.has_method("setup"):
-		binder.call("setup", StringName("loc.%s" % String(location_id)), definition, runtime)
+	last_presentation_drain_usec = Time.get_ticks_usec() - started
+	last_presentation_drain_kind = kind
+	last_tick_presentation_drain_usec = last_presentation_drain_usec
+	last_tick_presentation_drain_kind = kind
 
 
 func _hosted_runtime() -> MapViewRuntime:

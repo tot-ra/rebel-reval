@@ -34,6 +34,8 @@ var _insect_audio_enabled := true
 var _music_zone_binder
 var _crowd_renderer: MapViewCrowdRenderer
 var _crowd_enabled := true
+var _rebind_jobs: Array[StringName] = []
+var _urban_stream_started := false
 
 
 func configure(
@@ -77,6 +79,64 @@ func rebind_map(map_definition: MapDefinition, map_view: MapView3D) -> void:
 		_music_zone_binder.configure(_definition, _player)
 	if _crowd_renderer != null:
 		_crowd_renderer.configure(200, hash(_definition.map_id))
+
+
+## R-1078: queue cheap audio/crowd jobs and one urban-fauna actor per step.
+func begin_rebind(map_definition: MapDefinition, map_view: MapView3D) -> void:
+	var previous_id := _definition.map_id if _definition != null else &""
+	_definition = map_definition
+	_view = map_view
+	_rebind_jobs.clear()
+	_urban_stream_started = false
+	if _definition == null or previous_id == _definition.map_id:
+		return
+	_rebind_jobs = [&"birds", &"audio", &"urban", &"penned", &"crowd"]
+
+
+func step_rebind() -> bool:
+	if _rebind_jobs.is_empty() or _definition == null:
+		_rebind_jobs.clear()
+		return true
+	var job := _rebind_jobs[0]
+	var done := true
+	var bird_context := BirdContext.context_for_map(_definition.map_id)
+	var fauna_context := FaunaContext.context_for_map(_definition.map_id)
+	match job:
+		&"birds":
+			if _bird_flight != null:
+				_bird_flight.configure(_definition.map_id, bird_context, _definition.size_cells)
+		&"audio":
+			if _bird_audio != null:
+				_bird_audio.configure(_definition.map_id, bird_context)
+			if _insect_audio != null:
+				_insect_audio.configure(
+					_definition.map_id, InsectContext.context_for_map(_definition.map_id)
+				)
+			if _music_zone_binder != null:
+				_music_zone_binder.configure(_definition, _player)
+		&"urban":
+			if _urban_fauna != null:
+				if not _urban_stream_started:
+					_urban_fauna.begin_streamed_rebuild(
+						_definition.map_id, fauna_context, _definition.cell_size, _definition
+					)
+					_urban_stream_started = true
+					done = false
+				else:
+					done = _urban_fauna.step_streamed_rebuild()
+					if done:
+						_urban_stream_started = false
+		&"penned":
+			if _penned_fauna != null:
+				_penned_fauna.configure(
+					_definition.map_id, fauna_context, _definition.cell_size, _definition
+				)
+		&"crowd":
+			if _crowd_renderer != null:
+				_crowd_renderer.configure(200, hash(_definition.map_id))
+	if done:
+		_rebind_jobs.pop_front()
+	return _rebind_jobs.is_empty()
 
 
 func install() -> void:

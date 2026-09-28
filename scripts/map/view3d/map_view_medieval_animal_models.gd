@@ -113,6 +113,9 @@ const MODEL_YAW: Dictionary = {
 	&"goat": PI,
 }
 
+## Live GLB prototypes so owner-change `duplicate()` is cheap (R-1078).
+static var _prototypes: Dictionary = {}
+
 
 static func has_model(species: StringName) -> bool:
 	return MODEL_PATHS.has(species)
@@ -124,8 +127,30 @@ static func model_path(species: StringName, variant_seed: int = 0) -> String:
 	return String(MODEL_PATHS.get(species, ""))
 
 
-## `variant_seed` selects a coat for species with several models (cattle).
-static func add_model(parent: Node3D, species: StringName, variant_seed: int = 0) -> Node3D:
+static func warm_species(species: StringName) -> void:
+	if _prototypes.has(species):
+		return
+	var path := model_path(species, 0)
+	if path.is_empty():
+		return
+	var scene := load(path) as PackedScene
+	if scene == null:
+		return
+	var model := scene.instantiate() as Node3D
+	if model == null:
+		return
+	model.name = "Warm_%s" % String(species)
+	_prototypes[species] = model
+
+
+static func _model_from_cache_or_scene(
+	species: StringName, variant_seed: int
+) -> Node3D:
+	var proto: Variant = _prototypes.get(species, null)
+	if proto is Node3D:
+		var copy := (proto as Node3D).duplicate() as Node3D
+		if copy != null:
+			return copy
 	var path := model_path(species, variant_seed)
 	if path.is_empty():
 		return null
@@ -133,7 +158,18 @@ static func add_model(parent: Node3D, species: StringName, variant_seed: int = 0
 	if scene == null:
 		push_error("Animal model is not imported: %s" % path)
 		return null
-	var model := scene.instantiate() as Node3D
+	return scene.instantiate() as Node3D
+
+
+## `variant_seed` selects a coat for species with several models (cattle).
+static func add_model(parent: Node3D, species: StringName, variant_seed: int = 0) -> Node3D:
+	var path := model_path(species, variant_seed)
+	if path.is_empty():
+		return null
+	var model := _model_from_cache_or_scene(species, variant_seed)
+	if model == null:
+		push_error("Animal model is not imported: %s" % path)
+		return null
 	model.name = "Model"
 	model.set_meta(&"grounded_model", path.begins_with("res://assets/storybook/"))
 	model.rotation.y = float(MODEL_YAW.get(species, 0.0))

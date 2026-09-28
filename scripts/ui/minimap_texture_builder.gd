@@ -4,16 +4,38 @@ extends RefCounted
 ## Builds a one-pixel-per-cell minimap image from compiled map data.
 
 
-static func build_image(definition: MapDefinition, grid: MapTerrainGrid) -> Image:
-	var image := Image.create(
+static func create_image(definition: MapDefinition) -> Image:
+	return Image.create(
 		definition.size_cells.x, definition.size_cells.y, false, Image.FORMAT_RGBA8
 	)
-	var blocked := MapVerification.blocked_cells(definition)
-	for y in range(definition.size_cells.y):
-		for x in range(definition.size_cells.x):
+
+
+## R-1078: paint [y_start, y_end) so a 152x128 district can drain under 4 ms/tick.
+static func fill_rows(
+	image: Image,
+	definition: MapDefinition,
+	grid: MapTerrainGrid,
+	blocked: Dictionary,
+	y_start: int,
+	y_end: int
+) -> void:
+	var width := definition.size_cells.x
+	var last_row := mini(y_end, definition.size_cells.y)
+	for y in range(maxi(y_start, 0), last_row):
+		for x in range(width):
 			var cell := Vector2i(x, y)
 			image.set_pixel(x, y, MinimapPalette.color_for_cell(definition, grid, cell, blocked))
+
+
+static func finish_image(definition: MapDefinition, image: Image) -> void:
 	_paint_transitions(definition, image)
+
+
+static func build_image(definition: MapDefinition, grid: MapTerrainGrid) -> Image:
+	var image := create_image(definition)
+	var blocked := MapVerification.blocked_cells(definition)
+	fill_rows(image, definition, grid, blocked, 0, definition.size_cells.y)
+	finish_image(definition, image)
 	return image
 
 

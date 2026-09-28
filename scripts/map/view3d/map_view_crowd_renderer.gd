@@ -54,6 +54,11 @@ var _tint_mode := TINT_PALETTE
 ## budget stays predictable.
 func configure(max_instances: int = 200, seed_value: int = 0) -> void:
 	_seed = seed_value
+	# R-1078: the LOD meshes are shared humanoid assets. Rebuilding them on
+	# every owner change was a 6-39 ms presentation hitch. Keep the MultiMesh
+	# and only refresh the seed used by later actor tints.
+	if _lod0_instance != null:
+		return
 	var mesh := _load_crowd_mesh()
 	if mesh == null:
 		push_warning("MapViewCrowdRenderer: no crowd mesh available")

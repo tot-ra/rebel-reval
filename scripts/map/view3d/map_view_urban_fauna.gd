@@ -114,6 +114,9 @@ const MAP_PLACEMENTS: Dictionary = {
 const CAT_WANDER_SPEED := 0.48
 
 var _actors: Array[Node3D] = []
+var _stream_placements: Array = []
+var _stream_index := 0
+var _stream_active := false
 var _fauna_enabled := true
 var _map_id := &""
 var _context := &""
@@ -147,7 +150,53 @@ func configure(
 	_definition = map_definition
 	_cell_size = maxi(cell_size, 1)
 	_elapsed = 0.0
+	_cancel_streamed_rebuild()
 	_rebuild_actors()
+
+
+## R-1078: drop current actors immediately, then spawn one GLB per drain tick.
+func begin_streamed_rebuild(
+	map_id: StringName, context: StringName, cell_size: int, map_definition: MapDefinition = null
+) -> void:
+	_map_id = map_id
+	_context = context
+	_definition = map_definition
+	_cell_size = maxi(cell_size, 1)
+	_elapsed = 0.0
+	for actor in _actors:
+		actor.queue_free()
+	_actors.clear()
+	_stream_placements = MAP_PLACEMENTS.get(_map_id, [])
+	_stream_index = 0
+	_stream_active = true
+
+
+func step_streamed_rebuild() -> bool:
+	if not _stream_active:
+		return true
+	if not FaunaContext.supports_urban_fauna(_map_id):
+		_cancel_streamed_rebuild()
+		return true
+	var limit := mini(_stream_placements.size(), MAX_CONCURRENT_FAUNA)
+	if _stream_index < limit:
+		var placement: Dictionary = _stream_placements[_stream_index]
+		var actor := _make_actor(_stream_index, placement)
+		add_child(actor)
+		_actors.append(actor)
+		if _definition != null:
+			snap_actor_visual_to_ground(actor, _ground_height_at(actor.position))
+		_stream_index += 1
+		return false
+	for actor in _actors:
+		CompanionIntent.refresh_focus(actor, _map_id, _actors)
+	_cancel_streamed_rebuild()
+	return true
+
+
+func _cancel_streamed_rebuild() -> void:
+	_stream_active = false
+	_stream_placements = []
+	_stream_index = 0
 
 
 func sync(
@@ -180,6 +229,16 @@ static func distinct_species_for_map(map_id: StringName) -> Array[StringName]:
 
 static func placement_count_for_map(map_id: StringName) -> int:
 	return (MAP_PLACEMENTS.get(map_id, []) as Array).size()
+
+
+static func warm_models_for_map(map_id: StringName) -> void:
+	var seen: Dictionary = {}
+	for placement: Dictionary in MAP_PLACEMENTS.get(map_id, []):
+		var species: StringName = placement.get("species", &"")
+		if species.is_empty() or seen.has(species):
+			continue
+		seen[species] = true
+		MedievalAnimalModels.warm_species(species)
 
 
 static func hash_seed(seed_key: StringName, placement_index: int, salt: int = 0) -> int:
