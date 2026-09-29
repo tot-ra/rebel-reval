@@ -12,10 +12,6 @@ FORGE = ROOT / "assets/props/forge"
 MODELS = sorted(
     [
         "smithy_charcoal_storage",
-        "smithy_quench_bucket",
-        "smithy_furnace",
-        "smithy_bellows",
-        "smithy_anvil",
     ],
     key=len,
     reverse=True,

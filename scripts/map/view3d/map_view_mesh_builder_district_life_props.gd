@@ -50,7 +50,10 @@ static func add_to(root: Node3D, kind: StringName, prop: Dictionary = {}) -> voi
 		MapTypes.PROP_KIND_CHARCOAL_PILE:
 			_add_charcoal_storage(root, prop)
 		MapTypes.PROP_KIND_IRON_SCRAP_PILE:
-			_add_iron_scrap_pile(root)
+			if StringName(prop.get("id", &"")) == MapViewSmithyPropBuilder.SCRAP_HEAP_PROP_ID:
+				MapViewSmithyPropBuilder.add_smithy_scrap_heap(root)
+			else:
+				_add_iron_scrap_pile(root)
 		MapTypes.PROP_KIND_WEAPON_RACK:
 			_add_weapon_rack(root)
 		MapTypes.PROP_KIND_HERB_DRYING_RACK:

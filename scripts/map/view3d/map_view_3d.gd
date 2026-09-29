@@ -738,7 +738,6 @@ func _create_cloud_shadow_pass() -> void:
 	if not CloudShadowPassScript.should_create(indoor, enabled):
 		return
 	_cloud_shadow_pass = CloudShadowPassScript.new()
-		"terrain_id": terrain_id,
 	add_child(_cloud_shadow_pass)
 	_cloud_shadow_pass.configure(_camera, _sky_weather.cloud_shadow_ground_samples())
 
@@ -957,7 +956,10 @@ func _stage_terrain_mesh() -> Array[Dictionary]:
 
 func _stage_interior_shell() -> void:
 	_apply_building_map_seed()
-	add_child(MapViewMeshBuilder.build_interior_shell(definition))
+	var interior_shell := MapViewMeshBuilder.build_interior_shell(definition)
+	add_child(interior_shell)
+	if MapViewKalevSmithyInterior.applies_to(definition):
+		MapViewKalevSmithyInterior.install(self, interior_shell)
 
 
 ## Streamed-object parents are created here, before the decals, to keep the
@@ -1049,11 +1051,12 @@ func _stage_transition_visuals() -> void:
 					MapTypes.resolved_wall_height_px(attached_building)
 					* MapViewBridge.world_scale(definition.cell_size)
 				)
-			doors.add_child(
-				MapViewMeshBuilder.build_transition_door(
-					transition, definition.cell_size, wall_height, attached_building
-				)
+			var door := MapViewMeshBuilder.build_transition_door(
+				transition, definition.cell_size, wall_height, attached_building
 			)
+			if MapViewKalevSmithyInterior.applies_to(definition):
+				MapViewKalevSmithyInterior.adapt_door(door)
+			doors.add_child(door)
 
 
 func _stage_anchors() -> void:
@@ -1165,6 +1168,8 @@ func _build_streamed_object(record: Dictionary) -> Node:
 			building_node.position.y = MapViewMeshBuilder.ground_height(
 				definition, Vector2(building_node.position.x, building_node.position.z)
 			)
+			if MapViewKalevSmithyInterior.applies_to(definition):
+				MapViewKalevSmithyInterior.adapt_building(source, building_node)
 			return building_node
 		&"landmark":
 			# Interior windows size their opening infill from the wall height;
@@ -1180,9 +1185,13 @@ func _build_streamed_object(record: Dictionary) -> Node:
 			landmark_node.position.y = MapViewMeshBuilder.ground_height(
 				definition, Vector2(landmark_node.position.x, landmark_node.position.z)
 			)
+			if MapViewKalevSmithyInterior.applies_to(definition):
+				MapViewKalevSmithyInterior.adapt_landmark(self, source, landmark_node)
 			return landmark_node
 		&"prop":
 			var prop_node := MapViewMeshBuilder.build_prop(source, definition.cell_size, definition)
+			if MapViewKalevSmithyInterior.applies_to(definition):
+				MapViewKalevSmithyInterior.adapt_prop(source, prop_node)
 			# build_prop applies visual_offset_px in world space; keep that lift when
 			# snapping the prop root to sampled terrain height.
 			var visual_elevation := prop_node.position.y

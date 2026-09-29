@@ -25,6 +25,12 @@ const SUN_NIGHT_ENERGY := 0.72
 const AMBIENT_NIGHT_COLOR := Color8(58, 74, 112)
 const AMBIENT_NIGHT_ENERGY := 0.92
 const BACKGROUND_NIGHT_COLOR := Color8(14, 18, 28)
+## Under a roofed room shell the fill is daylight bounced off limewash, timber
+## and clay, not open sky: warm it instead of letting sky-blue fill tint every
+## plastered wall and iron tool indoors.
+const INTERIOR_DAY_BOUNCE_COLOR := Color8(190, 172, 150)
+const INTERIOR_NIGHT_BOUNCE_COLOR := Color8(84, 78, 76)
+const INTERIOR_BOUNCE_WEIGHT := 0.85
 
 ## Golden-hour and weather tints blended over the day/night baseline.
 const SUNSET_LIGHT_COLOR := Color8(255, 148, 64)
@@ -180,8 +186,19 @@ static func apply_cycle_progress(
 	)
 	var ambient := AMBIENT_NIGHT_COLOR.lerp(ambient_day_color(presentation), fill_blend)
 	ambient = ambient.lerp(OVERCAST_LIGHT_COLOR, presentation.overcast * 0.5)
+	if enclosed_interior:
+		ambient = ambient.lerp(
+			INTERIOR_NIGHT_BOUNCE_COLOR.lerp(INTERIOR_DAY_BOUNCE_COLOR, fill_blend),
+			INTERIOR_BOUNCE_WEIGHT
+		)
 	ambient = ambient.lerp(LIGHTNING_LIGHT_COLOR, presentation.lightning * 0.7)
 	environment.ambient_light_color = ambient
+	# Indoors there is no sky to mirror: sky reflections turned wrought iron and
+	# wet quench water sky-blue. Fire, candles and window spots still give highlights.
+	environment.reflected_light_source = (
+		Environment.REFLECTION_SOURCE_DISABLED if enclosed_interior
+		else Environment.REFLECTION_SOURCE_BG
+	)
 	environment.ambient_light_energy = (
 		lerpf(AMBIENT_NIGHT_ENERGY, AMBIENT_DAY_ENERGY, fill_blend)
 		* presentation.ambient_energy

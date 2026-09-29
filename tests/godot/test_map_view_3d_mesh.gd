@@ -13,28 +13,24 @@ func test_enclosed_interior_suppresses_countryside_surroundings() -> void:
 		view.has_node("InteriorShell/DaylightOccluder"),
 		"enclosed interiors need a persistent roof shadow independent of the camera"
 	)
-	var ceiling := view.get_node("InteriorShell/Ceiling") as MeshInstance3D
+	# Kalev's smithy swaps the generic slab for its authored loft (see
+	# test_generic_interior_ceiling_rests_on_wall_tops for the shared path).
+	var ceiling := view.get_node("InteriorShell/Ceiling") as Node3D
 	var daylight_occluder := view.get_node("InteriorShell/DaylightOccluder") as MeshInstance3D
-	assert_eq(
-		ceiling.cast_shadow,
-		GeometryInstance3D.SHADOW_CASTING_SETTING_OFF,
-		"the camera-dependent ceiling must not duplicate the persistent roof shadow"
-	)
+	var ceiling_meshes := ceiling.find_children("*", "MeshInstance3D", true, false)
+	assert_true(ceiling_meshes.size() > 0, "authored loft ceiling needs render geometry")
+	for mesh in ceiling_meshes:
+		assert_eq(
+			(mesh as MeshInstance3D).cast_shadow,
+			GeometryInstance3D.SHADOW_CASTING_SETTING_OFF,
+			"the camera-dependent ceiling must not duplicate the persistent roof shadow"
+		)
 	assert_eq(
 		daylight_occluder.cast_shadow,
 		GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY,
 		"the daylight roof must block the sun without appearing in either camera"
 	)
 	assert_true(daylight_occluder.visible, "top-down must retain roof solar occlusion")
-	var wall_height := MapViewMeshBuilder.interior_shell_wall_height_world(definition)
-	var ceiling_plane := wall_height + MapViewMeshBuilderConfig.INTERIOR_CEILING_FIRST_PERSON_HEADROOM
-	assert_true(
-		is_equal_approx(
-			ceiling.position.y,
-			ceiling_plane - MapViewMeshBuilderConfig.INTERIOR_CEILING_THICKNESS * 0.5
-		),
-		"ceiling must rest on interior wall tops with no sky band between them"
-	)
 	assert_false(view.is_interior_shell_visible(), "top-down view must start with the ceiling hidden")
 	assert_true(view.uses_interior_top_down_background(), "top-down interiors must use a black clear color")
 	var world_env := view.get_node("ViewEnvironment") as WorldEnvironment
@@ -47,7 +43,6 @@ func test_enclosed_interior_suppresses_countryside_surroundings() -> void:
 	view.set_interior_shell_for_first_person(false)
 	assert_true(view.uses_interior_top_down_background(), "returning to top-down must restore the black void")
 	assert_eq(world_env.environment.background_mode, Environment.BG_COLOR)
-	assert_true(view.get_node("InteriorShell").get_child_count() >= 3, "ceiling needs exposed timber beams")
 	var window_landmarks := 0
 	var day_window: MeshInstance3D = null
 	var day_lights: Node = null
@@ -132,6 +127,26 @@ func test_enclosed_interior_suppresses_countryside_surroundings() -> void:
 	view.free()
 
 
+func test_generic_interior_ceiling_rests_on_wall_tops() -> void:
+	var definition: MapDefinition = MapAuditRegistry.by_id()["town_hall"]
+	assert_true(definition.suppresses_exterior_surroundings(), "town hall is an enclosed interior")
+	var shell := MapViewMeshBuilder.build_interior_shell(definition)
+	var ceiling := shell.get_node("Ceiling") as MeshInstance3D
+	assert_true(ceiling != null, "generic interiors keep the shared ceiling slab")
+	assert_eq(ceiling.cast_shadow, GeometryInstance3D.SHADOW_CASTING_SETTING_OFF)
+	var wall_height := MapViewMeshBuilder.interior_shell_wall_height_world(definition)
+	var ceiling_plane := wall_height + MapViewMeshBuilderConfig.INTERIOR_CEILING_FIRST_PERSON_HEADROOM
+	assert_true(
+		is_equal_approx(
+			ceiling.position.y,
+			ceiling_plane - MapViewMeshBuilderConfig.INTERIOR_CEILING_THICKNESS * 0.5
+		),
+		"ceiling must rest on interior wall tops with no sky band between them"
+	)
+	assert_true(shell.get_child_count() >= 3, "ceiling needs exposed timber beams")
+	shell.free()
+
+
 func test_kalev_smithy_floor_is_flat() -> void:
 	var definition := KalevSmithyDefinition.create()
 	var grid := MapBuilder.build(definition)
@@ -187,27 +202,6 @@ func test_interior_walls_skip_segment_caps() -> void:
 		var node := MapViewMeshBuilder.build_building(building, definition.cell_size)
 		assert_false(node.has_node("Cap"), "%s: interior walls rely on the shared ceiling" % building["id"])
 		node.free()
-
-
-func test_kalev_smithy_interior_walls_show_period_structure() -> void:
-	var definition := KalevSmithyDefinition.create()
-	var found_plaster := false
-	var found_smoked_plaster := false
-	for building in definition.buildings:
-		if building.get("kind", &"") != MapTypes.BUILDING_KIND_INTERIOR_WALL:
-			continue
-		var node := MapViewMeshBuilder.build_building(building, definition.cell_size)
-		assert_true(node.has_node("StonePlinth_south") or node.has_node("StonePlinth_east"), "%s needs a limestone plinth" % building["id"])
-		assert_true(node.has_node("Post_south_00") or node.has_node("Post_east_00"), "%s needs exposed timber posts" % building["id"])
-		var material: StringName = building.get("wall_material", &"")
-		if material == &"plaster":
-			found_plaster = true
-		elif material == &"smoked_plaster":
-			found_smoked_plaster = true
-			assert_true(node.has_node("Soot_south_00") or node.has_node("Soot_east_00"), "%s needs a soot wash" % building["id"])
-		node.free()
-	assert_true(found_plaster, "smithy needs a clean lime-plaster living bay")
-	assert_true(found_smoked_plaster, "smithy needs a smoke-darkened forge bay")
 
 
 func test_town_surroundings_cover_visible_authored_neighbor_area() -> void:

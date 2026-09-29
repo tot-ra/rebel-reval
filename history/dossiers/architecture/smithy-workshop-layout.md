@@ -164,7 +164,7 @@ No **Reval 1343 Feuerordnung** survives in this pass. Hanseatic composite norms:
 
 ## Production hooks
 
-- **Art:** **`architecture.smithy-workshop-layout.01`** for bellows-hearth geometry; **`.03`** for enclosed masonry hearth; darken **east bay** plaster (`smoked_plaster`); living west bay **clean limewash**; limestone hearth base, **no brick chimney pot**; props: tongs, 2–3 hammers, poker, water bucket, charcoal sacks [`architecture.smithy-workshop-layout.02`].
+- **Art:** **`architecture.smithy-workshop-layout.01`** for bellows-hearth geometry; **`.03`** for enclosed masonry hearth; darken **east bay** plaster (`smoked_plaster`); living west bay **clean limewash**; limestone hearth base, **no brick chimney pot**; props: tongs, 2–3 hammers, poker, water bucket, charcoal sacks [`architecture.smithy-workshop-layout.02`]. Implemented for `kalev_smithy` by R-1100 ([`docs/reports/kalev_smithy_interior_redesign.md`](../../../docs/reports/kalev_smithy_interior_redesign.md)).
 - **Map:** Forge bay **55%** floor depth from partition; hearth in **north-east corner**; anvil **centre-east**; quench **west of anvil**; charcoal **south-east corner**; courtyard door **south centre**; plot stacks on Harju craft belt [9][10].
 - **Character:** Master at hearth; apprentice on bellows or quench; customer stops **inside forge bay** not bedroom; Mart (*Lehrling*) sleeps living bay [16].
 - **Quest / Narrative:** **Curfew forge test** — working past evening bell draws watch; **charcoal shortage** during siege; **partition fire** if defect quest damages hood; neighbour complaint if smoke vents wrong [7][8].

@@ -1,0 +1,135 @@
+{
+  "generator": "kalev_smithy_interior_v1",
+  "source": "tools/assets/generate_kalev_smithy_interior.py",
+  "dossier": "history/dossiers/architecture/smithy-workshop-layout.md",
+  "wall_height": 3.75,
+  "fire_pot_local": [
+    -0.2,
+    0.72,
+    -0.2
+  ],
+  "kits": {
+    "kalev_smithy_shell": {
+      "path": "res://assets/props/architecture/interiors/kalev_smithy_shell/kalev_smithy_shell.glb",
+      "triangles": 24988,
+      "materials": [
+        "ksi_ash",
+        "ksi_boards",
+        "ksi_clay",
+        "ksi_earth",
+        "ksi_iron",
+        "ksi_limestone",
+        "ksi_limewash",
+        "ksi_loft_shadow",
+        "ksi_oak",
+        "ksi_slab",
+        "ksi_straw",
+        "ksi_water"
+      ],
+      "markers": [
+        "WindowPane_window_north_living",
+        "WindowPane_window_north_forge",
+        "WindowPane_window_west",
+        "WindowPane_window_east"
+      ]
+    },
+    "kalev_smithy_ceiling": {
+      "path": "res://assets/props/architecture/interiors/kalev_smithy_ceiling/kalev_smithy_ceiling.glb",
+      "triangles": 2508,
+      "materials": [
+        "ksi_boards",
+        "ksi_limestone",
+        "ksi_loft_shadow",
+        "ksi_oak",
+        "ksi_straw"
+      ],
+      "markers": []
+    },
+    "kalev_smithy_hearth": {
+      "path": "res://assets/props/forge/kalev_smithy_hearth/kalev_smithy_hearth.glb",
+      "triangles": 2062,
+      "materials": [
+        "ksi_ash",
+        "ksi_charcoal",
+        "ksi_clay",
+        "ksi_iron",
+        "ksi_limestone",
+        "ksi_loft_shadow",
+        "ksi_oak",
+        "ksi_slab"
+      ],
+      "markers": []
+    },
+    "kalev_smithy_anvil": {
+      "path": "res://assets/props/forge/kalev_smithy_anvil/kalev_smithy_anvil.glb",
+      "triangles": 448,
+      "materials": [
+        "ksi_ash",
+        "ksi_iron",
+        "ksi_iron_bright",
+        "ksi_loft_shadow",
+        "ksi_oak"
+      ],
+      "markers": []
+    },
+    "kalev_smithy_bellows": {
+      "path": "res://assets/props/forge/kalev_smithy_bellows/kalev_smithy_bellows.glb",
+      "triangles": 2144,
+      "materials": [
+        "ksi_charcoal",
+        "ksi_iron",
+        "ksi_leather",
+        "ksi_limestone",
+        "ksi_oak",
+        "ksi_straw",
+        "ksi_water"
+      ],
+      "markers": []
+    },
+    "kalev_smithy_slack_tub": {
+      "path": "res://assets/props/forge/kalev_smithy_slack_tub/kalev_smithy_slack_tub.glb",
+      "triangles": 788,
+      "materials": [
+        "ksi_oak",
+        "ksi_straw",
+        "ksi_water"
+      ],
+      "markers": []
+    },
+    "kalev_smithy_stock_rack": {
+      "path": "res://assets/props/forge/kalev_smithy_stock_rack/kalev_smithy_stock_rack.glb",
+      "triangles": 1500,
+      "materials": [
+        "ksi_clay",
+        "ksi_iron",
+        "ksi_oak",
+        "ksi_slab",
+        "ksi_straw",
+        "ksi_water"
+      ],
+      "markers": []
+    },
+    "kalev_smithy_scrap_heap": {
+      "path": "res://assets/props/forge/kalev_smithy_scrap_heap/kalev_smithy_scrap_heap.glb",
+      "triangles": 684,
+      "materials": [
+        "ksi_iron",
+        "ksi_oak"
+      ],
+      "markers": []
+    },
+    "kalev_smithy_finishing_bench": {
+      "path": "res://assets/props/forge/kalev_smithy_finishing_bench/kalev_smithy_finishing_bench.glb",
+      "triangles": 1728,
+      "materials": [
+        "ksi_ash",
+        "ksi_iron",
+        "ksi_iron_bright",
+        "ksi_loft_shadow",
+        "ksi_oak",
+        "ksi_straw"
+      ],
+      "markers": []
+    }
+  }
+}

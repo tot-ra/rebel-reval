@@ -54,11 +54,17 @@ func test_kalev_smithy_ceiling_uses_textured_planks() -> void:
 	MapViewMaterials.reset()
 	var definition := KalevSmithyDefinition.create()
 	var view := MapView3D.create(definition, MapBuilder.build(definition))
-	var ceiling := view.get_node("InteriorShell/Ceiling") as MeshInstance3D
+	var ceiling := view.get_node_or_null("InteriorShell/Ceiling") as Node3D
 	assert_true(ceiling != null, "smithy needs a first-person ceiling shell")
-	var material := ceiling.material_override as StandardMaterial3D
-	assert_true(material != null, "ceiling needs a material override")
-	assert_true(material.albedo_texture != null, "ceiling planks must use procedural texture detail")
+	# The authored loft binds the photoreal floorboard plate to its boards.
+	var textured_boards := false
+	for child in ceiling.find_children("*", "MeshInstance3D", true, false):
+		var mesh_instance := child as MeshInstance3D
+		for surface in mesh_instance.mesh.get_surface_count():
+			var material := mesh_instance.get_surface_override_material(surface) as StandardMaterial3D
+			if material != null and material.resource_name == "ksi_boards":
+				textured_boards = material.albedo_texture != null
+	assert_true(textured_boards, "loft boards must use the textured plank plate")
 	view.free()
 
 

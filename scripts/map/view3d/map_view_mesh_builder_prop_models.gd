@@ -189,9 +189,15 @@ static func build_prop(
 		MapTypes.PROP_KIND_CHEST:
 			ChestModels.add_model(root, prop)
 		MapTypes.PROP_KIND_TABLE:
-			TableModels.add_model(root, prop)
+			if StringName(prop.get("id", &"")) == SmithyPropBuilder.FINISHING_BENCH_PROP_ID:
+				SmithyPropBuilder.add_smithy_finishing_bench(root)
+			else:
+				TableModels.add_model(root, prop)
 		MapTypes.PROP_KIND_SHELF:
-			StorageFurnitureModels.add_model(root, prop)
+			if StringName(prop.get("id", &"")) == SmithyPropBuilder.STOCK_RACK_PROP_ID:
+				SmithyPropBuilder.add_smithy_stock_rack(root)
+			else:
+				StorageFurnitureModels.add_model(root, prop)
 		MapTypes.PROP_KIND_QUENCH:
 			if prop.get("id", &"") == SmithyPropBuilder.QUENCH_PROP_ID:
 				SmithyPropBuilder.add_smithy_quench_bucket(root)

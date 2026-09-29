@@ -1,0 +1,23 @@
+{
+  "id": "material.kalev_smithy.beaten_earth.albedo",
+  "map_type": "albedo",
+  "kind": "leonardo_material_plate",
+  "target": "assets/props/architecture/interiors/kalev_smithy_shell/textures/beaten_earth_albedo.png",
+  "source": "generated/leonardo/smithy_beaten_earth_v1/candidate_2.jpg",
+  "candidates": [
+    "generated/leonardo/smithy_beaten_earth_v1/candidate_1.jpg",
+    "generated/leonardo/smithy_beaten_earth_v1/candidate_2.jpg"
+  ],
+  "prompt": "Seamless tileable PBR albedo of a dry beaten-earth floor inside a fourteenth-century blacksmith workshop in Reval, 1343. Hard-packed grey-brown clay and loam trodden smooth, fine black charcoal dust, scattered dark flakes of iron hammer scale, tiny cinders and grit, faint scuffs of leather turnshoes, a few pale dried clay patches, dusty umber #5E5148, charcoal #2B2724, dry clay #8C7B68. Orthographic top-down, perfectly tileable on all four edges, square material plate, even diffuse light, no cast shadows, photogrammetry scan of a real surface, sharp fine grain.",
+  "negative_prompt": "puddles, standing water, wet mud, deep ruts, hoof prints, cracks, hexagonal desiccation cracks, desert, concrete, asphalt, tiles, paving stones, flagstones, wooden floor, planks, grass, leaves, modern shoe prints, tyre tracks, perspective, horizon, shadows, text, watermark, border, frame, visible seam, blurry, 3D render, CGI, orange, red clay",
+  "model_name": "Leonardo configured realism model (integration default)",
+  "width": 1024,
+  "height": 1024,
+  "generation_id": "418f5e30-a615-4c3d-a322-c49ae94cd31a",
+  "selected_candidate": 2,
+  "processor": "tools/assets/derive_plate_normals.py (CO-01 quilted seamless helpers, no de-drift)",
+  "notes": "Candidate 1 rejected: clustered scale flakes repeat visibly on a tiled floor. Charcoal dust plume, anvil scale ring and trodden path are vertex colour in the Kalev smithy shell, not baked into the plate.",
+  "derived_maps": {
+    "normal": "assets/props/architecture/interiors/kalev_smithy_shell/textures/beaten_earth_normal.png"
+  }
+}

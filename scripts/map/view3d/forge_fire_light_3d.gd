@@ -8,7 +8,13 @@ extends Node
 
 const DayNightCycle := preload("res://scripts/global/day_night_cycle.gd")
 
-const FIRE_COLOR := Color8(255, 140, 52)
+## A charcoal fire under forced draught runs far hotter and whiter than an open
+## wood flame. The old (255, 140, 52) key was saturated enough that any dark
+## surface near the hearth lost its green and blue channels below one 8-bit step
+## and rendered as flat red: leather, oak and iron all collapsed to the same
+## blob. Widening the spectrum keeps those materials apart without cooling the
+## bay - the flame mesh and glow still carry the orange.
+const FIRE_COLOR := Color8(255, 170, 106)
 const DAY_ENERGY := 0.95
 const NIGHT_ENERGY := 2.8
 

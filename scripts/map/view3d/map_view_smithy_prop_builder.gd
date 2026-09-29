@@ -5,13 +5,18 @@ const AnvilMeshes := preload("res://scripts/map/view3d/map_view_anvil_meshes.gd"
 const Primitives := preload("res://scripts/map/view3d/map_view_mesh_builder_primitives.gd")
 
 # Runtime loading avoids a clean-clone bootstrap cycle where GDScript parses
-# before Godot has registered the first GLB import.
-const _ANVIL_SCENE_PATH := "res://assets/props/forge/smithy_anvil/smithy_anvil.glb"
+# before Godot has registered the first GLB import. The forge workstation GLBs
+# belong to the authored Kalev smithy interior kit (MapViewKalevSmithyInterior).
 const ANVIL_PROP_ID := &"forge_anvil"
-const _FURNACE_SCENE_PATH := "res://assets/props/forge/smithy_furnace/smithy_furnace.glb"
 const FURNACE_PROP_ID := &"forge_furnace"
-const _BELLOWS_SCENE_PATH := "res://assets/props/forge/smithy_bellows/smithy_bellows.glb"
 const BELLOWS_PROP_ID := &"forge_bellows"
+const STOCK_RACK_PROP_ID := &"tool_shelf"
+const SCRAP_HEAP_PROP_ID := &"iron_scrap_store"
+## Shares MapTypes.PROP_KIND_TABLE with household boards; only this id takes the
+## authored bench so every other table keeps the generic joinery model.
+const FINISHING_BENCH_PROP_ID := &"finishing_bench"
+## Fire centre of the procedural fallback furnace (open mouth at floor level).
+const _FALLBACK_FIRE := Vector3(0.0, 0.3, 0.6)
 const _CHAIR_SCENE_PATH := "res://assets/props/furniture/smithy_chair/smithy_chair.glb"
 const CHAIR_PROP_ID := &"work_chair"
 ## Seating in Kalev's dwelling shares the one authored chair GLB. Town Hall and
@@ -22,7 +27,6 @@ const CHAIR_PROP_IDS: Array[StringName] = [
 	&"table_stool_west",
 	&"table_stool_east",
 ]
-const _QUENCH_SCENE_PATH := "res://assets/props/forge/smithy_quench_bucket/smithy_quench_bucket.glb"
 const QUENCH_PROP_ID := &"quench"
 const _BED_SCENE_PATH := "res://assets/props/furniture/smithy_bed/smithy_bed.glb"
 const BED_PROP_ID := &"bed"
@@ -85,16 +89,14 @@ static func add_chair_fallback(root: Node3D) -> void:
 
 
 static func add_smithy_anvil(root: Node3D) -> void:
-	# WHY: forge_anvil is the close, gameplay-critical smithy workstation. Its
-	# authored GLB improves silhouette and materials while the immutable rrmap
-	# footprint remains the sole collision/navigation authority.
-	var anvil_scene := MapViewPackedScenes.load_scene(_ANVIL_SCENE_PATH)
-	assert(
-		anvil_scene != null, "Smithy anvil GLB must be imported before the map view is assembled"
+	# WHY: forge_anvil is the close, gameplay-critical smithy workstation. The
+	# 14th-century block anvil sits in an iron-hooped oak stump with a beak iron;
+	# the immutable rrmap footprint remains the sole collision/navigation authority.
+	root.add_child(
+		MapViewKalevSmithyInterior.instantiate_prop(
+			MapViewKalevSmithyInterior.ANVIL_PATH, &"SmithyAnvilModel"
+		)
 	)
-	var anvil := anvil_scene.instantiate() as Node3D
-	anvil.name = "SmithyAnvilModel"
-	root.add_child(anvil)
 
 
 static func add_anvil_fallback(root: Node3D) -> void:
@@ -117,24 +119,24 @@ static func add_anvil_fallback(root: Node3D) -> void:
 
 static func add_smithy_furnace(root: Node3D) -> void:
 	# WHY: forge_furnace is a close hero prop, but its rrmap footprint must remain
-	# the sole collision/navigation authority. The GLB replaces only the masonry;
-	# live embers, particles, and day/night fire lighting remain engine-driven.
-	var furnace_scene := MapViewPackedScenes.load_scene(_FURNACE_SCENE_PATH)
-	assert(
-		furnace_scene != null,
-		"Smithy furnace GLB must be imported before the map view is assembled"
+	# the sole collision/navigation authority. The GLB is a raised limestone
+	# hearth under a clay smoke hood; live embers, particles, and day/night fire
+	# lighting remain engine-driven and sit in its waist-high fire pot.
+	root.add_child(
+		MapViewKalevSmithyInterior.instantiate_prop(
+			MapViewKalevSmithyInterior.HEARTH_PATH, &"SmithyFurnaceModel"
+		)
 	)
-	var furnace := furnace_scene.instantiate() as Node3D
-	furnace.name = "SmithyFurnaceModel"
-	root.add_child(furnace)
-	_add_furnace_ember_bed(root)
-	_add_furnace_coal_bed(root)
-	var flames := _add_furnace_flames(root)
-	var particles := _add_furnace_fire_particles(root)
-	var smoke := _add_furnace_smoke_particles(root)
+	var fire: Vector3 = MapViewKalevSmithyInterior.FIRE_POT
+	_add_furnace_ember_bed(root, fire, 0.55)
+	_add_furnace_coal_bed(root, fire, 0.6)
+	var flames := _add_furnace_flames(root, fire)
+	var particles := _add_furnace_fire_particles(root, fire)
+	var smoke := _add_furnace_smoke_particles(root, fire)
 	var forge_light := OmniLight3D.new()
 	forge_light.name = "Omni"
-	forge_light.position = Vector3(0.0, 0.7, 0.85)
+	# Out in front of the hood lip so the glow reaches the anvil, not the flue.
+	forge_light.position = fire + Vector3(0.0, 0.45, 0.75)
 	root.add_child(forge_light)
 	var controller = MapViewMeshBuilderConfig.FORGE_FIRE_LIGHT_SCRIPT.new()
 	controller.configure(forge_light, flames, particles, smoke)
@@ -167,11 +169,11 @@ static func add_furnace_fallback(root: Node3D) -> void:
 		root, "Firebox", Vector3(1.35, 0.85, 0.14), Vector3(0.0, 0.72, 0.05), &"ink"
 	)
 	# Bright ember bed fills the hearth floor so the mouth always shows heat.
-	_add_furnace_ember_bed(root)
-	_add_furnace_coal_bed(root)
-	var flames := _add_furnace_flames(root)
-	var particles := _add_furnace_fire_particles(root)
-	var smoke := _add_furnace_smoke_particles(root)
+	_add_furnace_ember_bed(root, _FALLBACK_FIRE, 1.0)
+	_add_furnace_coal_bed(root, _FALLBACK_FIRE, 1.0)
+	var flames := _add_furnace_flames(root, _FALLBACK_FIRE)
+	var particles := _add_furnace_fire_particles(root, _FALLBACK_FIRE)
+	var smoke := _add_furnace_smoke_particles(root, _FALLBACK_FIRE)
 	# Tuyere stub on the left cheek - bellows nozzle aims here (axis along X).
 	_add_axis_cylinder(root, "Tuyere", 0.06, 0.42, Vector3(-1.15, 0.48, 0.55), &"metal")
 	# Flue seats into the breast and clears the interior ceiling plane.
@@ -189,16 +191,13 @@ static func add_furnace_fallback(root: Node3D) -> void:
 
 
 static func add_smithy_bellows(root: Node3D) -> void:
-	# The authored mechanism supplies readable leather folds, joinery, tacks, and
-	# a tapered nozzle without changing the declarative smithy prop footprint.
-	var bellows_scene := MapViewPackedScenes.load_scene(_BELLOWS_SCENE_PATH)
-	assert(
-		bellows_scene != null,
-		"Smithy bellows GLB must be imported before the map view is assembled"
+	# Great bellows on a trestle, worked from a rocker pole whose handle sits
+	# where routine ap.forge.bellows stands; the nozzle meets the hearth tuyere.
+	root.add_child(
+		MapViewKalevSmithyInterior.instantiate_prop(
+			MapViewKalevSmithyInterior.BELLOWS_PATH, &"SmithyBellowsModel"
+		)
 	)
-	var bellows := bellows_scene.instantiate() as Node3D
-	bellows.name = "SmithyBellowsModel"
-	root.add_child(bellows)
 
 
 static func add_bellows_fallback(root: Node3D) -> void:
@@ -251,17 +250,44 @@ static func add_quench_fallback(root: Node3D) -> void:
 
 
 static func add_smithy_quench_bucket(root: Node3D) -> void:
-	# WHY: the smithy's close workstation needs a visibly hollow, metal quench
-	# vessel, while generic map buckets retain the cheap procedural fallback.
-	# The rrmap footprint remains the sole collision/navigation authority.
-	var bucket_scene := MapViewPackedScenes.load_scene(_QUENCH_SCENE_PATH)
-	assert(
-		bucket_scene != null,
-		"Smithy quench bucket GLB must be imported before the map view is assembled"
+	# WHY: the dossier's quench is a wooden trough or large tub beside the anvil.
+	# A coopered oak slack tub replaces the generic bucket here only; the rrmap
+	# footprint remains the sole collision/navigation authority.
+	root.add_child(
+		MapViewKalevSmithyInterior.instantiate_prop(
+			MapViewKalevSmithyInterior.SLACK_TUB_PATH, &"SmithyQuenchBucketModel"
+		)
 	)
-	var bucket := bucket_scene.instantiate() as Node3D
-	bucket.name = "SmithyQuenchBucketModel"
-	root.add_child(bucket)
+
+
+static func add_smithy_scrap_heap(root: Node3D) -> void:
+	# Scrap and worn tools kept for rework sit in a low crate by the anvil.
+	root.add_child(
+		MapViewKalevSmithyInterior.instantiate_prop(
+			MapViewKalevSmithyInterior.SCRAP_HEAP_PATH, &"SmithyScrapHeapModel"
+		)
+	)
+
+
+static func add_smithy_stock_rack(root: Node3D) -> void:
+	# Iron stock racked away from the quench splash: bar iron, osmund keg, nail
+	# rod and welding sand (smithy dossier zone E).
+	root.add_child(
+		MapViewKalevSmithyInterior.instantiate_prop(
+			MapViewKalevSmithyInterior.STOCK_RACK_PATH, &"SmithyStockRackModel"
+		)
+	)
+
+
+static func add_smithy_finishing_bench(root: Node3D) -> void:
+	# The dossier puts a filing and riveting bench between the anvil and the
+	# door. It carries a stake iron and hardy instead of a screw vice, which
+	# would be an anachronism in 1343.
+	root.add_child(
+		MapViewKalevSmithyInterior.instantiate_prop(
+			MapViewKalevSmithyInterior.FINISHING_BENCH_PATH, &"SmithyFinishingBenchModel"
+		)
+	)
 
 
 static func _add_axis_cylinder(
@@ -286,13 +312,13 @@ static func _add_axis_cylinder(
 	root.add_child(instance)
 
 
-static func _add_furnace_ember_bed(root: Node3D) -> void:
+static func _add_furnace_ember_bed(root: Node3D, fire: Vector3, spread: float) -> void:
 	var bed := MeshInstance3D.new()
 	bed.name = "EmberBed"
 	var mesh := BoxMesh.new()
-	mesh.size = Vector3(1.05, 0.1, 0.7)
+	mesh.size = Vector3(1.05, 0.1, 0.7) * Vector3(spread, 1.0, spread)
 	bed.mesh = mesh
-	bed.position = Vector3(0.0, 0.3, 0.58)
+	bed.position = fire + Vector3(0.0, 0.0, -0.02)
 	var material := StandardMaterial3D.new()
 	material.albedo_color = Color8(180, 48, 18)
 	material.emission_enabled = true
@@ -304,7 +330,7 @@ static func _add_furnace_ember_bed(root: Node3D) -> void:
 	root.add_child(bed)
 
 
-static func _add_furnace_coal_bed(root: Node3D) -> void:
+static func _add_furnace_coal_bed(root: Node3D, fire: Vector3, spread: float) -> void:
 	var cold := MapViewMaterials.charcoal()
 	var hot := MapViewMaterials.hot_coal()
 	for spec in [
@@ -373,28 +399,30 @@ static func _add_furnace_coal_bed(root: Node3D) -> void:
 		mesh.radial_segments = 7
 		mesh.rings = 3
 		lump.mesh = mesh
-		lump.position = spec["pos"]
+		# Lump offsets are authored around the fallback fire centre.
+		var offset: Vector3 = spec["pos"] - _FALLBACK_FIRE
+		lump.position = fire + Vector3(offset.x * spread, offset.y, offset.z * spread)
 		lump.scale = spec["scale"]
 		lump.material_override = hot if spec["hot"] else cold
 		lump.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		root.add_child(lump)
 
 
-static func _add_furnace_flames(root: Node3D) -> Node3D:
+static func _add_furnace_flames(root: Node3D, fire: Vector3) -> Node3D:
 	# WHY: solid pulsing spheres read as plastic blobs, not fire. Overlapping
 	# billboard flame tongues (the CandleFlame3D vocabulary, hearth scale) give
 	# turbulent licks, a cooling color ramp, and additive glow instead.
 	var flames = MapViewMeshBuilderConfig.FORGE_FLAME_SCRIPT.new()
-	flames.position = Vector3(0.0, 0.36, 0.6)
+	flames.position = fire + Vector3(0.0, 0.06, 0.0)
 	flames.configure()
 	root.add_child(flames)
 	return flames
 
 
-static func _add_furnace_fire_particles(root: Node3D) -> GPUParticles3D:
+static func _add_furnace_fire_particles(root: Node3D, fire: Vector3) -> GPUParticles3D:
 	var particles := GPUParticles3D.new()
 	particles.name = "FireSparks"
-	particles.position = Vector3(0.0, 0.48, 0.62)
+	particles.position = fire + Vector3(0.0, 0.18, 0.02)
 	particles.amount = 28
 	particles.lifetime = 1.05
 	particles.preprocess = 0.55
@@ -451,12 +479,12 @@ static func _add_furnace_fire_particles(root: Node3D) -> GPUParticles3D:
 	return particles
 
 
-static func _add_furnace_smoke_particles(root: Node3D) -> GPUParticles3D:
+static func _add_furnace_smoke_particles(root: Node3D, fire: Vector3) -> GPUParticles3D:
 	# Thin soot stream above the mouth: without it the fire looks weightless.
 	# Soft radial puffs grow, gray out, and dissolve as they clear the lintel.
 	var particles := GPUParticles3D.new()
 	particles.name = "FireSmoke"
-	particles.position = Vector3(0.0, 0.95, 0.55)
+	particles.position = fire + Vector3(0.0, 0.65, -0.05)
 	particles.amount = 12
 	particles.lifetime = 2.4
 	particles.preprocess = 1.6
