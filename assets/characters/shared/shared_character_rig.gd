@@ -383,12 +383,17 @@ func set_locomotion_speed(world_speed: float) -> void:
 		_animation_player.speed_scale = 1.0
 		_planted_foot = &""
 		return
-	var reference: float = LOCOMOTION_REFERENCE_SPEED[canonical]
 	_animation_player.speed_scale = clampf(
-		world_speed / reference,
+		world_speed / locomotion_reference_speed(canonical),
 		LOCOMOTION_SPEED_SCALE_MIN,
 		LOCOMOTION_SPEED_SCALE_MAX
 	)
+
+
+## World speed at which a locomotion cycle's feet track the ground at 1x.
+## Bodies that author their own cycles override this with the clip's real value.
+func locomotion_reference_speed(canonical_name: StringName) -> float:
+	return LOCOMOTION_REFERENCE_SPEED[canonical_name]
 
 
 ## Returns the foot that has just become the lower, weight-bearing foot.

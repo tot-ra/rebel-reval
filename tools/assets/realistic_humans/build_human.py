@@ -13,7 +13,8 @@ Pipeline:
 3. The shared 41-bone motion rig (from the committed Kalev source blend, 76
    clips) has its joints moved onto the MPFB joints without changing any bone
    orientation, so every clip keeps its meaning. MPFB weights are renamed onto
-   the shared bones.
+   the shared bones. Running_B is re-authored for the fitted legs
+   (run_cycle.py); the inherited run waddles on realistic proportions.
 4. The body is split into the stable wardrobe regions, surfaced, and exported
    with all clips. Garments come from garments.py against the same rig.
 
@@ -41,6 +42,7 @@ import numpy as np  # noqa: E402
 import specs as spec_module  # noqa: E402
 import surfaces  # noqa: E402
 import garments  # noqa: E402
+import run_cycle  # noqa: E402
 LOCATION_DATA = None
 
 MOTION_BLEND = ROOT / "assets/characters/kalev_fresh/source/kalev_fresh.blend"
@@ -662,6 +664,7 @@ def build(name, only_body=False):
     targets = {k: v * scale for k, v in targets.items()}
     bpy.data.objects.remove(mpfb_rig, do_unlink=True)
     fit_motion_rig(motion, targets, targets["hips"].z / motion_rest["hips"][0].z)
+    log(f"run cycle: {run_cycle.author(motion):.2f} m/s stance ground speed")
 
     shared = rename_weights(body)
     for proxy in proxies:

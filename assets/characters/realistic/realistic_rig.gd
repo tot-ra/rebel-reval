@@ -2,6 +2,12 @@ extends SharedCharacterRig
 ## Realistic MPFB-based human (ADR 0022). Proportions, skin and grooming are
 ## baked into the imported body; clothes are CharacterWearable layers.
 
+## Mirrors tools/assets/realistic_humans/run_cycle.py: the stance ankle slides
+## (CONTACT_REACH + TOE_OFF_REACH) leg lengths while loaded for STANCE of a
+## FRAMES-long 24 fps cycle, which fixes the run's true ground speed per body.
+const RUN_STANCE_SWEEP_LEGS := 0.30 + 0.46
+const RUN_STANCE_SEC := 0.27 * 16.0 / 24.0
+
 ## Wearables equipped on spawn, before any variant wearables.
 @export var default_outfit: Array[CharacterWearable] = []
 
@@ -49,6 +55,19 @@ func _install_distance_lods() -> void:
 	pass
 
 
+## The authored run (run_cycle.py) is much faster than the inherited clip the
+## shared constant was tuned for, and scales with each body's leg length.
+func locomotion_reference_speed(canonical_name: StringName) -> float:
+	var skeleton := skeleton()
+	if canonical_name != &"run" or skeleton == null:
+		return super.locomotion_reference_speed(canonical_name)
+	var hip := skeleton.get_bone_global_rest(skeleton.find_bone("upperleg.r")).origin
+	var knee := skeleton.get_bone_global_rest(skeleton.find_bone("lowerleg.r")).origin
+	var ankle := skeleton.get_bone_global_rest(skeleton.find_bone("foot.r")).origin
+	var leg := (knee - hip).length() + (ankle - knee).length()
+	return RUN_STANCE_SWEEP_LEGS * leg * model_scale.x / RUN_STANCE_SEC
+
+
 func consume_foot_plant() -> StringName:
 	if not LOCOMOTION_REFERENCE_SPEED.has(current_canonical_animation()):
 		_planted_foot = &""
@@ -56,9 +75,10 @@ func consume_foot_plant() -> StringName:
 	var player := animation_player()
 	if player == null or player.current_animation_length <= 0.0:
 		return &""
-	# The shared authored walk/run cycles keep both foot bones at nearly the same
-	# height while the legs exchange load, so the half-cycle is the contact
-	# authority (same contract as the retired kalev_fresh body).
+	# The walk keeps both foot bones at nearly the same height while the legs
+	# exchange load, so the half-cycle is the contact authority (same contract
+	# as the retired kalev_fresh body); the authored run lands the right foot at
+	# phase 0 and the left at 0.5.
 	var phase := fposmod(player.current_animation_position / player.current_animation_length, 1.0)
 	var planted := RIGHT_FOOT_BONE if phase < 0.5 else LEFT_FOOT_BONE
 	if planted == _planted_foot:
