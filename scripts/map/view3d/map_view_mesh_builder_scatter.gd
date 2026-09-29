@@ -445,22 +445,18 @@ static func emit_layers(state: Dictionary) -> void:
 		root.add_child(puddle_instances)
 
 	if not stones.is_empty():
-		var stone_mesh := SphereMesh.new()
-		# Stones worked into a street bed sit low and broad; a tall sphere lifted
-		# clear of the ground read as a loose egg instead of a trodden-in cobble.
-		stone_mesh.radius = 0.10
-		stone_mesh.height = 0.085
-		stone_mesh.radial_segments = 7
-		stone_mesh.rings = 3
-		root.add_child(
-			MapViewMeshBuilderPrimitives.multi_mesh(
-				"Stones",
-				stone_mesh,
-				stones,
-				stone_colors,
-				MapViewMaterials.natural_rock(),
-				Vector3(0.0, -0.012, 0.0)
-			)
+		# Stones worked into a street bed sit low and broad; faceted geometry keeps
+		# them from reading as smooth eggs.
+		MapViewRockMesh.add_variant_layers(
+			root,
+			"Stones",
+			stones,
+			stone_colors,
+			MapViewMaterials.natural_rock(),
+			Vector3(0.0, -0.012, 0.0),
+			0.12,
+			0.09,
+			3
 		)
 
 

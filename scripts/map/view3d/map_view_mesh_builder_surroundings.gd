@@ -274,20 +274,17 @@ static func _publish_tree_band(job: RefCounted, root: Node3D) -> void:
 		_alias_tree_layer(root, "TreeTrunks", "Trunks")
 
 	if not boulders.is_empty():
-		var boulder_mesh := SphereMesh.new()
-		boulder_mesh.radius = 0.45
-		boulder_mesh.height = 0.6
-		boulder_mesh.radial_segments = 7
-		boulder_mesh.rings = 4
-		root.add_child(
-			MapViewMeshBuilderPrimitives.multi_mesh(
-				"Boulders",
-				boulder_mesh,
-				boulders,
-				boulder_colors,
-				MapViewMaterials.natural_rock(),
-				Vector3.ZERO
-			)
+		# Faceted rock variants, not spheres: silhouette is what reads as stone.
+		MapViewRockMesh.add_variant_layers(
+			root,
+			"Boulders",
+			boulders,
+			boulder_colors,
+			MapViewMaterials.natural_rock(),
+			Vector3.ZERO,
+			0.55,
+			0.95,
+			7
 		)
 
 
