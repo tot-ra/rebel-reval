@@ -1,6 +1,9 @@
 extends "res://tests/godot/map_view_3d_test_base.gd"
+# gdlint: disable=max-line-length
 
 ## P0-052: core bridge, rendering parity, terrain density, materials, and occlusion.
+
+const WaterBuilder := preload("res://scripts/map/view3d/map_view_mesh_builder_terrain_water.gd")
 
 
 func test_bridge_maps_logic_axes_to_world_axes() -> void:
@@ -364,15 +367,14 @@ func test_water_contour_cuts_square_corners_diagonally() -> void:
 	definition.zones = [{"rect": Rect2i(1, 1, 1, 1), "terrain": MapTypes.TERRAIN_WATER}]
 	var grid := MapBuilder.build(definition)
 	# Water contour helpers live on the terrain-water module after the mesh-builder split.
-	var water_builder := preload("res://scripts/map/view3d/map_view_mesh_builder_terrain_water.gd")
-	var field := {"water_contours": {MapTypes.TERRAIN_WATER: water_builder.bake_water_contour(grid, MapTypes.TERRAIN_WATER)}}
+	var field := {"water_contours": {MapTypes.TERRAIN_WATER: WaterBuilder.bake_water_contour(grid, MapTypes.TERRAIN_WATER)}}
 	assert_true(
-		water_builder.water_coverage_at(field, Vector2(1.5, 1.5), MapTypes.TERRAIN_WATER) > 0.0,
+		WaterBuilder.water_coverage_at(field, Vector2(1.5, 1.5), MapTypes.TERRAIN_WATER) > 0.0,
 		"water center must contribute to the broad visual contour"
 	)
 	assert_true(
-		water_builder.water_coverage_at(field, Vector2(1.0, 1.0), MapTypes.TERRAIN_WATER)
-		< water_builder.water_coverage_at(field, Vector2(1.5, 1.5), MapTypes.TERRAIN_WATER),
+		WaterBuilder.water_coverage_at(field, Vector2(1.0, 1.0), MapTypes.TERRAIN_WATER)
+		< WaterBuilder.water_coverage_at(field, Vector2(1.5, 1.5), MapTypes.TERRAIN_WATER),
 		"the visual water contour must round a square cell corner"
 	)
 	var terrain := MapViewMeshBuilder.build_terrain(definition, grid)
@@ -513,8 +515,7 @@ func _flat_terrain_definition(map_id: StringName, size_cells: Vector2i) -> MapDe
 func test_lower_town_water_contour_smooths_multiple_authored_cells() -> void:
 	var definition := LowerTownSlice.create()
 	var grid := MapBuilder.build(definition)
-	var water_builder := preload("res://scripts/map/view3d/map_view_mesh_builder_terrain_water.gd")
-	var contour := water_builder.bake_water_contour(grid, MapTypes.TERRAIN_WATER)
+	var contour := WaterBuilder.bake_water_contour(grid, MapTypes.TERRAIN_WATER)
 	assert_true(float(contour["max_coverage"]) >= MapViewMeshBuilderConfig.WATER_CONTOUR_THRESHOLD)
 	var field := {"water_contours": {MapTypes.TERRAIN_WATER: contour}}
 
@@ -522,7 +523,7 @@ func test_lower_town_water_contour_smooths_multiple_authored_cells() -> void:
 	for y in grid.size_cells.y:
 		for x in grid.size_cells.x:
 			var authored_water := grid.get_terrain(Vector2i(x, y)) == MapTypes.TERRAIN_WATER
-			var visible_water := water_builder.water_coverage_at(
+			var visible_water := WaterBuilder.water_coverage_at(
 				field, Vector2(x, y) + Vector2(0.5, 0.5), MapTypes.TERRAIN_WATER
 			) >= MapViewMeshBuilderConfig.WATER_CONTOUR_THRESHOLD
 			if authored_water != visible_water:
