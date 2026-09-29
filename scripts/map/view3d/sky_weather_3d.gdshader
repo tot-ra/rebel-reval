@@ -103,6 +103,10 @@ uniform float cloud_sun_scale : hint_range(0.0, 0.5) = 0.08;
 
 // Cloud base altitude used for the physical cloud sun colour (contract: R_ground + 1.5 km).
 const float CLOUD_HEIGHT_KM = 1.5;
+// Art-scaled angular radii (chord on the unit sphere). Real bodies are ~0.0047, which
+// reads as a pinprick at game FOV; the sun is ~2.5x and the moon ~1.7x that.
+const float SUN_DISK_R = 0.0125;
+const float MOON_DISK_R = 0.0080;
 
 #include "res://scripts/map/view3d/sky_clouds.gdshaderinc"
 
@@ -391,8 +395,8 @@ void sky() {
 	float sun_visibility = smoothstep(-0.05, 0.05, sun_direction.y);
 	vec3 sun_tint = mix(sun_color.rgb, sunset_color.rgb, sunset_factor * 0.55);
 	float sun_distance = length(dir - sun_direction);
-	float disk = 1.0 - smoothstep(0.0042, 0.0053, sun_distance);
-	float halo = pow(sun_amount, 350.0) * 0.18;
+	float disk = 1.0 - smoothstep(SUN_DISK_R - 0.0011, SUN_DISK_R, sun_distance);
+	float halo = pow(sun_amount, 120.0) * 0.18;
 	if (sky_lut_available) {
 		// Same disk and halo, coloured by the air mass: sun_illuminance * T(ground, mu_sun)
 		// turns the disk orange-red at the horizon without an art ramp. Divided by the old
@@ -400,7 +404,7 @@ void sky() {
 		sun_tint = sun_illuminance * sun_transmittance_at(ATMO_SKY_VIEW_HEIGHT_KM - ATMO_RG)
 			* sun_disk_scale / 2.4;
 		// Limb darkening 1 - 0.6 * (1 - sqrt(1 - (d/r)^2)).
-		float d_over_r = clamp(sun_distance / 0.0053, 0.0, 1.0);
+		float d_over_r = clamp(sun_distance / SUN_DISK_R, 0.0, 1.0);
 		disk *= 1.0 - 0.6 * (1.0 - sqrt(1.0 - d_over_r * d_over_r));
 	}
 	color += sun_tint * (disk * 2.4 + halo) * sun_visibility * (1.0 - clouds * 0.95);
@@ -410,7 +414,7 @@ void sky() {
 	// the disk and reads as a cyan moon. The lunar body is optically thick, so
 	// the surface must replace the background inside the disk mask.
 	float moon_dot = dot(dir, moon_direction);
-	float moon_radius = 0.00465;
+	float moon_radius = MOON_DISK_R;
 	float moon_edge = cos(moon_radius);
 	// Thin AA only. A wide outer skirt used to sample empty black albedo and
 	// read as a dark sticker outline against the night sky.

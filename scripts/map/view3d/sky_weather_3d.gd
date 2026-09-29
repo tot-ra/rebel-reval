@@ -314,6 +314,10 @@ class WeatherPresentation extends RefCounted:
 	var sun_visibility := 0.0
 	var lunar_light_strength := 0.0
 	var moon_visibility := 0.0
+	## Share of sunlight / moonlight that gets through the cloud sitting in front of
+	## each body right now (the same field the dome draws). Drives water glints.
+	var sun_cloud_clear := 1.0
+	var moon_cloud_clear := 1.0
 	var star_visibility := 0.0
 	var sunrise_hour := 6.0
 	var fog_potential := 0.0
@@ -819,6 +823,55 @@ func set_calendar_date(date: Dictionary) -> void:
 ## Pushes shared physical sun/moon directions and cycle tints into the sky
 ## shader. MapView3D uses the same vectors for directional lighting, keeping
 ## disks, moving shadows, and east-to-west travel in agreement.
+## Mirrors sky_clouds.gdshaderinc (uv mapping, bulk, erosion) on the CPU for one sky
+## direction, so a water reflection of the sun or moon dims when a cloud covers the
+## body, not with the dome-wide coverage. Returns `fallback` when the cloud textures
+## have no CPU image yet (headless or before first generation).
+func celestial_cloud_clear(dir: Vector3, fallback: float) -> float:
+	if dir.y < 0.02 or _cloud_noise_tex == null or _cloud_shape_tex == null:
+		return fallback
+	var noise := _cloud_noise_tex.get_image()
+	var shape := _cloud_shape_tex.get_image()
+	if noise == null or shape == null or noise.is_empty() or shape.is_empty():
+		return fallback
+	var d := dir.normalized()
+	var uv := Vector2(d.x, d.z) * (1.0 / sqrt(d.y * d.y + 0.012)) * 0.12 - _cloud_offset
+	var storm := storm_intensity()
+	var cell := 1.0 - _sample_repeat(shape, uv * 0.12 + Vector2(0.37, 0.71))
+	var storm_mask := lerpf(1.0, smoothstep(0.48, 0.8, cell), storm_locality())
+	var cover := clampf(cloud_coverage() + storm * storm_mask * 0.38, 0.0, 1.0)
+	var banks := 1.0 - _sample_repeat(shape, uv * 0.42 + Vector2(0.13, 0.61))
+	var heaps := 1.0 - _sample_repeat(shape, uv)
+	var base := heaps * lerpf(0.45, 1.0, smoothstep(0.30, 0.72, banks))
+	var floor_thr := lerpf(0.66, 0.04, cover)
+	var bulk := clampf((base - floor_thr) / 0.58, 0.0, 1.0)
+	var detail := (
+		_sample_repeat(noise, uv * 1.9 + _cloud_detail_offset) * 0.5
+		+ _sample_repeat(noise, uv * 4.6 - _cloud_detail_offset * 0.6) * 0.32
+		+ _sample_repeat(noise, uv * 9.4 + _cloud_detail_offset * 0.3) * 0.18
+	)
+	var lo := detail * lerpf(0.18, 0.42, cloud_chaos())
+	var opacity := clampf((bulk - lo) / maxf(1.0 - lo, 1e-4), 0.0, 1.0)
+	return 1.0 - smoothstep(0.05, 0.65, opacity)
+
+
+## Bilinear, wrapping red-channel lookup with shader uv semantics (uv 1.0 = one tile).
+static func _sample_repeat(image: Image, uv: Vector2) -> float:
+	var w := image.get_width()
+	var h := image.get_height()
+	var x := uv.x * w - 0.5
+	var y := uv.y * h - 0.5
+	var x0 := floori(x)
+	var y0 := floori(y)
+	var fx := x - x0
+	var fy := y - y0
+	var r00 := image.get_pixel(posmod(x0, w), posmod(y0, h)).r
+	var r10 := image.get_pixel(posmod(x0 + 1, w), posmod(y0, h)).r
+	var r01 := image.get_pixel(posmod(x0, w), posmod(y0 + 1, h)).r
+	var r11 := image.get_pixel(posmod(x0 + 1, w), posmod(y0 + 1, h)).r
+	return lerpf(lerpf(r00, r10, fx), lerpf(r01, r11, fx), fy)
+
+
 func apply_sky_state(progress: float, day_blend: float, sun_direction: Vector3) -> void:
 	_cycle_progress = wrapf(progress, 0.0, 1.0)
 	_sun_direction = sun_direction
@@ -868,6 +921,8 @@ func presentation_snapshot(progress: float, day_blend: float) -> WeatherPresenta
 	snapshot.fog_potential = morning_fog_potential(calendar_date)
 	var cloud_occlusion := 1.0 - snapshot.cloud_coverage
 	snapshot.moon_visibility = snapshot.lunar_light_strength * cloud_occlusion
+	snapshot.sun_cloud_clear = celestial_cloud_clear(snapshot.sun_direction, cloud_occlusion)
+	snapshot.moon_cloud_clear = celestial_cloud_clear(snapshot.moon_direction, cloud_occlusion)
 	snapshot.star_visibility = pow(1.0 - snapshot.day_blend, 3.0) * cloud_occlusion
 	snapshot.tide_level = tide_level(progress, calendar_date)
 	snapshot.sidereal_angle = sidereal_angle_for_progress(progress)
