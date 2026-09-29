@@ -119,6 +119,108 @@ def _weld_edges(image: Image.Image, *, phase_shift: bool) -> Image.Image:
     return image
 
 
+## Overlap-quilting for isotropic ground plates. A half-tile phase shift only moves
+## the wrap seam of a non-tileable plate into the middle of the tile, where it
+## repeats as a visible cross grid on large ground areas. Instead the tile is cut
+## from the top-left of the plate and the unused strip past its right and bottom
+## edge (a natural continuation of the last column/row) is stitched over the
+## tile's first columns/rows along a minimum-error path. Column 0 then continues
+## the last column, so the wrap is seamless and the stitch hides in the grain.
+SEAMLESS_OVERLAP_FRACTION = 1.0 / 6.0
+SEAMLESS_MARGIN = 12  # px kept out of the cut path so the wrap edge is pure overlap
+SEAMLESS_FEATHER = 1.5  # px Gaussian softening of the cut
+SEAMLESS_FAMILIES = {"sand", "coast_sand"}
+
+
+def _min_error_cut(cost: np.ndarray, margin: int, cyclic: bool) -> np.ndarray:
+    """Top-to-bottom path through cost (rows x cols) moving at most one column per row.
+
+    With cyclic=True the path must end in the column it started in, because the
+    rows themselves wrap (the second pass runs on an already tileable axis).
+    """
+    rows, cols = cost.shape
+    cost = cost.copy()
+    cost[:, :margin] = np.inf
+    cost[:, cols - margin :] = np.inf
+    starts = np.arange(margin, cols - margin, 2) if cyclic else np.array([-1])
+    count = len(starts)
+    acc = np.full((count, cols), np.inf)
+    if cyclic:
+        acc[np.arange(count), starts] = cost[0, starts]
+    else:
+        acc[0] = cost[0]
+    back = np.zeros((rows, count, cols), dtype=np.int8)
+    for row in range(1, rows):
+        left = np.concatenate([np.full((count, 1), np.inf), acc[:, :-1]], axis=1)
+        right = np.concatenate([acc[:, 1:], np.full((count, 1), np.inf)], axis=1)
+        stacked = np.stack([left, acc, right])
+        choice = np.argmin(stacked, axis=0)
+        acc = np.take_along_axis(stacked, choice[None], axis=0)[0] + cost[row]
+        back[row] = choice.astype(np.int8) - 1
+    if cyclic:
+        finals = acc[np.arange(count), starts]
+        best = int(np.argmin(finals))
+        column = int(starts[best])
+    else:
+        best = 0
+        column = int(np.argmin(acc[0]))
+    path = np.zeros(rows, dtype=np.int64)
+    for row in range(rows - 1, -1, -1):
+        path[row] = column
+        column += int(back[row, best, column])
+    return path
+
+
+def _stitch_columns(plate: np.ndarray, tile: int, overlap: int, cyclic: bool) -> np.ndarray:
+    """Make columns wrap: plate[:, tile:tile+overlap] replaces the tile's first columns."""
+    body = plate[:, :tile].copy()
+    head = body[:, :overlap]
+    tail = plate[:, tile : tile + overlap]
+    diff = ((head - tail) ** 2).sum(axis=-1)
+    # Light smoothing so the cut follows regions of similar structure, not single pixels.
+    diff = _wrap_blur(diff, 1.5)
+    path = _min_error_cut(diff, SEAMLESS_MARGIN, cyclic)
+    use_tail = (np.arange(overlap)[None, :] < path[:, None]).astype(np.float64)
+    # Feather only along the cut direction; rows are left untouched so the
+    # cyclic path stays tileable.
+    half = max(1, int(SEAMLESS_FEATHER * 3.0))
+    offsets = np.arange(-half, half + 1)
+    weights = np.exp(-(offsets.astype(np.float64) ** 2) / (2.0 * SEAMLESS_FEATHER**2))
+    weights /= weights.sum()
+    padded = np.pad(use_tail, ((0, 0), (half, half)), mode="edge")
+    mask = sum(padded[:, half + o : half + o + overlap] * w for o, w in zip(offsets, weights))
+    body[:, :overlap] = tail * mask[..., None] + head * (1.0 - mask[..., None])
+    return body
+
+
+def _make_seamless(image: Image.Image) -> Image.Image:
+    """Crop a tile from the plate and quilt its wrap edges from the leftover strips."""
+    plate = np.asarray(image, dtype=np.float64) / 255.0
+    size = min(plate.shape[0], plate.shape[1])
+    overlap = int(size * SEAMLESS_OVERLAP_FRACTION)
+    tile = size - overlap
+    plate = plate[:size, :size]
+    # Pass 1: horizontal wrap on the full height, so the bottom strip is also
+    # x-tileable for pass 2.
+    wide = _stitch_columns(plate, tile, overlap, cyclic=False)
+    # Pass 2: vertical wrap on the transposed plate. Rows (former columns) now
+    # wrap, so the cut must close on itself.
+    tall = _stitch_columns(wide.transpose(1, 0, 2), tile, overlap, cyclic=True)
+    return _to_image(tall.transpose(1, 0, 2), "RGB")
+
+
+def _resize_tileable(image: Image.Image, size: int) -> Image.Image:
+    """Lanczos resize that samples across the wrap instead of clamping the border."""
+    pad = max(8, image.width // 32)
+    padded = np.pad(np.asarray(image), ((pad, pad), (pad, pad), (0, 0)), mode="wrap")
+    scale = size / image.width
+    out_pad = int(round(pad * scale))
+    big = Image.fromarray(padded).resize(
+        (size + 2 * out_pad, size + 2 * out_pad), Image.Resampling.LANCZOS
+    )
+    return big.crop((out_pad, out_pad, out_pad + size, out_pad + size))
+
+
 def _wrap_blur(values: np.ndarray, radius: float) -> np.ndarray:
     """Separable Gaussian with wrap-around so derived maps stay tileable."""
     if radius <= 0.0:
@@ -213,12 +315,18 @@ def process_ground(family: str) -> bool:
         return False
     params = GROUND_DERIVATION[family]
     image = Image.open(source).convert("RGB")
-    image = image.resize((GROUND_TARGET_SIZE, GROUND_TARGET_SIZE), Image.Resampling.LANCZOS)
-    image = _weld_edges(image, phase_shift=True)
+    if family in SEAMLESS_FAMILIES:
+        image = _resize_tileable(_make_seamless(image), GROUND_TARGET_SIZE)
+    else:
+        image = image.resize((GROUND_TARGET_SIZE, GROUND_TARGET_SIZE), Image.Resampling.LANCZOS)
+        image = _weld_edges(image, phase_shift=True)
     if params.get("despecular"):
         cleaned = _remove_baked_glints(np.asarray(image, dtype=np.float64) / 255.0)
         image = _to_image(cleaned, "RGB")
-    derived_source = image.resize((GROUND_DERIVED_SIZE, GROUND_DERIVED_SIZE), Image.Resampling.LANCZOS)
+    if family in SEAMLESS_FAMILIES:
+        derived_source = _resize_tileable(image, GROUND_DERIVED_SIZE)
+    else:
+        derived_source = image.resize((GROUND_DERIVED_SIZE, GROUND_DERIVED_SIZE), Image.Resampling.LANCZOS)
     albedo = np.asarray(derived_source, dtype=np.float64) / 255.0
     height = _derive_height(albedo, float(params["blur"]))
     normal = _derive_normal(height, float(params["normal_strength"]))
