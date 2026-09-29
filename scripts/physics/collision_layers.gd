@@ -7,10 +7,13 @@ extends RefCounted
 const WORLD := 1
 const PLAYER := 2
 const NPC := 4
+## Traversable water (ADR 0021). The player does not mask it, so Kalev can wade and
+## swim; NPCs still treat it as a wall until they get their own water rules.
+const WATER := 8
 
 const MASK_WORLD := WORLD
 const MASK_PLAYER := WORLD | NPC
-const MASK_NPC := WORLD | PLAYER
+const MASK_NPC := WORLD | PLAYER | WATER
 ## Area2D sensors that should detect character logic bodies.
 const MASK_ACTORS := PLAYER | NPC
 

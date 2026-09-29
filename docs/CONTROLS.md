@@ -79,6 +79,7 @@ button charges instead of repeating the swing.
 | Attack | `Space`, left click (see above) | X |
 | Guard | `F`, right click | Left shoulder |
 | Dodge | `Q` | Right shoulder |
+| Dive (hold, while swimming in deep water) | `X`, `Ctrl` | B |
 | Inventory | `I` | Y |
 | Journal | `J` | Back |
 | Camera view | `C` | Right stick click |

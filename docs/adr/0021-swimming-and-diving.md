@@ -2,9 +2,43 @@
 
 ## Status
 
-**Proposed, 2026-09-25. Awaiting maintainer acceptance.** No implementation code may land until this
-line records the maintainer's acceptance and the chosen scope trade (Decision 1). Task: WS-14a
-(board R-899). Implementation: WS-14b, blocked on this ADR.
+**Accepted with amendments, 2026-09-29 (maintainer request in session: "the main character should be able to
+enter the water and either walk on shallow water or swim or even dive").** Original text kept below;
+what changed is listed under *Amendment 2026-09-29*. **The scope trade of Decision 1 is still not named:
+the maintainer accepted the mechanic but did not pick the removed item, so that row stays open and no
+candidate is deferred on their behalf.** Task: WS-14a (board R-899). Implementation: WS-14b, landed
+as the amendment describes.
+
+### Amendment 2026-09-29
+
+- **Where (Decision 2):** every map with water, not only the two harbours. The per-map
+  `swimming_allowed` flag is not built; `river_water` stays the only blocking water terrain
+  (`PlayerWaterTraversal.BLOCKING_TERRAINS`). Interiors have no water, so they are unaffected.
+- **Medium is depth driven (Decision 2/3):** depth is the rendered column, `WATER_SURFACE_LIFT` plus
+  the WS-13b basin (`MapViewMeshBuilderTerrain.basin_extra_depth`), so the feet meet the seabed the
+  camera draws. Below 0.12 units Kalev walks, to 1.25 he wades (slowed 0.8 to 0.4 of run speed), deeper he
+  swims, and with the dive input held in a column of at least 1.7 units he dives. On Kalamaja
+  `shallow_water` tops out at 1.0, so it is wading only and the open sea past the shelf is swimming.
+- **Traversal layer (Decision 3):** instead of `is_swimmable_cell`, water colliders moved to
+  `CollisionLayers.WATER`. The player does not mask it, NPCs do. Authored `exclude` rects that lay
+  over water no longer become physical player blocks (`MapSceneBootstrap._excluded_collision_rects`).
+  `is_walkable_cell`, navigation baking, `excluded_areas` and every map audit are unchanged.
+- **Gear rule (Decision 4) deferred:** the 12 kg / no body armour gate is not built. The hammer is
+  stowed (hidden) while swimming. Still open: the gate, its prompt, and ladder / stair climb-out.
+- **Breath (Decision 4) built as written:** 20 s, drains only with the head under, refills in 3 s at the
+  surface, forced to the surface at zero with a 30 stamina penalty and no drowning. Holding the dive
+  input does not re-dive after a forced surfacing; it must be released first.
+- **Combat:** attacks, guard and dodge are blocked while swimming or diving; wading may still fight.
+- **Save (Decision 7):** no fields are persisted. The medium is recomputed from the position and
+  loading always resumes at the surface with full breath, which is the ADR's own rule for a save taken
+  in `dive`. Older saves are unaffected and `CURRENT_SAVE_VERSION` does not change.
+- **Assets (Decision 6):** no swim clips exist, so `SwimStrokeModifier` solves a crawl stroke, flutter kick
+  and a treading pose procedurally on top of the shared rig. Splash VFX is the WS-15 ripple sim
+  (entry impulse plus wake). Stroke / splash SFX are still open.
+- **Compatibility underwater pass:** `underwater_pass.gdshader` never samples the screen or depth
+  samplers on Compatibility any more (they read back the FFT atlas in a running game, producing white
+  noise across the lens). It draws the medium as a translucent tint over the real scene. Metal keeps the
+  full composite. This supersedes the Compatibility part of R-1087 / R-1094 for the lens noise only.
 
 ## Context
 

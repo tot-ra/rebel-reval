@@ -4,6 +4,7 @@ extends CharacterBody2D
 signal melee_attack_resolved(targets: Array[Node2D], profile: AttackProfile)
 signal health_changed(current: float, maximum: float)
 signal died
+signal water_medium_changed(previous: PlayerSwimState.Medium, current: PlayerSwimState.Medium)
 
 const MeleeAttackResolverScript := preload("res://scripts/combat/melee_attack_resolver.gd")
 const AttackProfileScript := preload("res://scripts/combat/attack_profile.gd")
@@ -47,6 +48,8 @@ var _map_definition: MapDefinition
 var _map_grid: MapTerrainGrid
 var _map_origin := Vector2.ZERO
 var _mud_wetness_provider: Callable
+## ADR 0021: derived from the water column under the body every physics tick.
+var _swim := PlayerSwimState.new()
 
 @onready var animation_player: AnimatedSprite2D = get_node_or_null("AnimatedSprite2D")
 # Optional so headless unit tests can construct Player.new() without the full scene.
@@ -95,6 +98,42 @@ func set_mud_wetness_provider(provider: Callable) -> void:
 	_mud_wetness_provider = provider
 
 
+## Water medium under the body (ADR 0021): walk, wade, swim or dive.
+func water_medium() -> PlayerSwimState.Medium:
+	return _swim.medium
+
+
+func water_depth() -> float:
+	return _swim.depth
+
+
+## Depth of the body centre below the surface: 0 floating, positive while diving.
+func swim_submersion() -> float:
+	return _swim.submersion
+
+
+func breath_fraction() -> float:
+	return _swim.breath_fraction()
+
+
+func _update_water(delta: float) -> void:
+	var previous := _swim.medium
+	var depth := PlayerWaterTraversal.depth_at(
+		_map_definition, _map_grid, global_position - _map_origin
+	)
+	var dive_held := (
+		Input.is_action_pressed(&"player_dive")
+		and combat_input_enabled
+		and not _movement_blocked()
+	)
+	_swim.update(depth, dive_held, delta)
+	if _swim.out_of_breath_event:
+		stamina = maxf(0.0, stamina - PlayerSwimState.OUT_OF_BREATH_STAMINA_PENALTY)
+		_sync_resource_bars()
+	if _swim.medium != previous:
+		water_medium_changed.emit(previous, _swim.medium)
+
+
 func _physics_process(_delta):
 	# Capture the portion of this physics interval that still belongs to DODGE
 	# before tick() can transition into recovery. This keeps travel independent
@@ -111,6 +150,7 @@ func _physics_process(_delta):
 		)
 	action_state_machine.tick(_delta)
 	combat_vitals.tick(_delta)
+	_update_water(_delta)
 	_process_action_input(_delta)
 	if not was_dodging and action_state_machine.state == PlayerActionState.State.DODGE:
 		dodge_motion_sec = minf(_delta, action_state_machine.dodge_duration_sec)
@@ -146,7 +186,11 @@ func _physics_process(_delta):
 		var terrain_speed := _get_terrain_speed_multiplier()
 		var current_speed = run_speed * encumbrance * terrain_speed
 
-		if Input.is_action_pressed("ui_shift"):
+		if _swim.is_swimming():
+			# A swimmer cannot stroll or sprint: one stroke speed per medium.
+			new_animation = "run"
+			current_speed = run_speed * encumbrance * _swim.speed_multiplier()
+		elif Input.is_action_pressed("ui_shift"):
 			new_animation = "walk"
 			current_speed = walk_speed * encumbrance * terrain_speed
 		else:
@@ -232,6 +276,9 @@ func _current_dodge_facing() -> Vector2:
 
 
 func _can_start_action(kind: PlayerActionKind.Kind) -> bool:
+	# ADR 0021: no attacks, guard or dodge while swimming or diving.
+	if _swim.blocks_combat():
+		return false
 	return kind != PlayerActionKind.Kind.DODGE or stamina >= DODGE_STAMINA_COST
 
 
@@ -295,7 +342,7 @@ func _move_dodge(delta: float) -> void:
 ## first/third person). Mirrors the instant-attack path so mouse, keyboard, and
 ## gamepad attacks share the same state, stamina, and profile rules.
 func request_primary_attack() -> bool:
-	if not combat_input_enabled or _movement_blocked():
+	if not combat_input_enabled or _movement_blocked() or _swim.blocks_combat():
 		return false
 	var profile := _resolve_attack_profile(false)
 	if stamina < profile.stamina_cost:
@@ -340,7 +387,7 @@ func commit_attack_from_charge_hold(hold_sec: float) -> bool:
 
 
 func _commit_attack_from_charge_hold(hold_sec: float) -> bool:
-	if action_state_machine.state != PlayerActionState.State.MOVE:
+	if _swim.blocks_combat() or action_state_machine.state != PlayerActionState.State.MOVE:
 		_reset_attack_charge()
 		return false
 	var charged := hold_sec >= _charge_threshold_sec()
@@ -652,6 +699,12 @@ func _get_encumbrance_speed_multiplier() -> float:
 func _get_terrain_speed_multiplier() -> float:
 	if _map_definition == null or _map_grid == null:
 		return 1.0
+	# ADR 0021: wading drag replaces the dry-ground terrain factor; swimming speed is
+	# applied separately in _physics_process.
+	if _swim.medium == PlayerSwimState.Medium.WADE:
+		return _swim.speed_multiplier()
+	if _swim.is_swimming():
+		return _swim.speed_multiplier()
 	var mud_wetness := 0.0
 	if _mud_wetness_provider.is_valid():
 		mud_wetness = float(_mud_wetness_provider.call())

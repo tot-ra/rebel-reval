@@ -87,6 +87,15 @@ const float SHAFT_GAIN = 7.0;
 // meets the surface first (Snell's window). A level look at a landing crib
 // has a much larger surface_t, so the pre-transparent colour keeps the crib.
 const float COMPAT_EMPTY_DEPTH_HIT_SCALE = 1.5;
+// ADR 0021 (swim/dive): in a running Compatibility game the screen and depth samplers of
+// this overlay read back the FFT atlas instead of the opaque scene (white/yellow noise
+// over the whole lens, R-1087/R-1094), so Compatibility never samples them. It draws the
+// medium as a translucent tint over the real opaque scene and the water mesh's own
+// underside (map_view_water.gdshader seen_from_below), which keeps seabed, piles and hulls
+// visible at any depth. Metal keeps the full screen-space composite.
+const float COMPAT_TINT_ALPHA = 0.62;
+// Colour of a wet-lens drop on Compatibility, where the lens cannot refract the screen.
+const vec3 COMPAT_DROP_COLOR = vec3(0.78, 0.86, 0.92);
 
 void vertex() {
 	// Clip-space quad like map_fog_of_war: follows every camera with no transform.
@@ -205,7 +214,9 @@ void fragment() {
 	vec3 near_world = _world_from_view(near_view, INV_VIEW_MATRIX);
 	vec3 scene_world = _world_from_view(scene_view, INV_VIEW_MATRIX);
 	vec3 camera_world = INV_VIEW_MATRIX[3].xyz;
-	vec3 ray = normalize(near_world - camera_world);
+	// Direction in view space, then rotated to world: near_world - camera_world is only a
+	// few centimetres at world coordinates near 100 and quantises into streaks in float32.
+	vec3 ray = normalize((INV_VIEW_MATRIX * vec4(normalize(near_view), 0.0)).xyz);
 	if (dot(ray, ray) < 0.5) {
 		ray = normalize((INV_VIEW_MATRIX * vec4(0.0, 0.0, -1.0, 0.0)).xyz);
 	}
@@ -235,9 +246,16 @@ void fragment() {
 		meniscus = 1.0 - smoothstep(0.0, MENISCUS_LINE_PX, abs(line_px));
 	}
 	uv = clamp(uv, vec2(0.001), vec2(0.999));
+#if CURRENT_RENDERER == RENDERER_COMPATIBILITY
+	vec3 scene = COMPAT_DROP_COLOR;
+#else
 	vec3 scene = _compat_scene_rgb(textureLod(screen_texture, uv, 0.0).rgb);
+#endif
 
 	float alpha = max(lens_mask, meniscus);
+#if CURRENT_RENDERER == RENDERER_COMPATIBILITY
+	alpha = max(lens_mask * 0.16, meniscus);
+#endif
 	vec3 color = scene;
 	if (under) {
 		vec3 sigma_t = _uw_sigma_t(cloud_darken);
@@ -265,14 +283,31 @@ void fragment() {
 			scene_world = camera_world + ray * scene_d;
 		}
 #endif
+#if CURRENT_RENDERER == RENDERER_COMPATIBILITY
+		// The tint has no depth to stop at, so let the shaft march see the full range.
+		float compat_medium_d = SHAFT_RANGE_M / METERS_PER_WORLD_UNIT;
+#endif
 		float surface_t = 1e9;
 		if (ray.y > 1e-4) {
 			surface_t = max(water_plane_y - camera_world.y, 0.0) / ray.y;
 		}
 		bool hits_surface = surface_t < scene_d;
+#if CURRENT_RENDERER == RENDERER_COMPATIBILITY
+		float d_world = min(compat_medium_d, surface_t);
+#else
 		float d_world = min(scene_d, surface_t);
+#endif
 		float d_m = min(d_world * METERS_PER_WORLD_UNIT, MAX_MEDIUM_M);
 
+#if CURRENT_RENDERER == RENDERER_COMPATIBILITY
+		// Medium only: the tint below is blended over the opaque scene and the water underside.
+		vec3 transmittance = exp(-sigma_t * d_m);
+		// Floor the medium so downward rays over the bed stay a readable green-blue, not black.
+		color = max(
+			_uw_inscatter(ray, camera_depth_m, ambient, sun, sun_direction, sigma_t),
+			mix(deep_color, shallow_color, 0.5) * 0.9
+		);
+#else
 		if (hits_surface) {
 			vec3 hit = near_world + ray * surface_t;
 			float crest;
@@ -297,6 +332,8 @@ void fragment() {
 		vec3 transmittance = exp(-sigma_t * d_m);
 		vec3 inscatter = _uw_inscatter(ray, camera_depth_m, ambient, sun, sun_direction, sigma_t);
 		color = scene * transmittance + inscatter * (vec3(1.0) - transmittance);
+
+#endif
 
 		// Light shafts: march the eye ray, reading the beam mask where the light
 		// that reaches each sample entered the surface (see _shaft_beam()).
@@ -325,9 +362,17 @@ void fragment() {
 			// stops lighting the medium, so shafts fade out faster than `sun`
 			// (clear 1.0, cloudy ~0.75, storm ~0.1 on top of the dimmer sun).
 			float collimation = 1.0 - smoothstep(0.1, 1.0, cloud_darken);
+			#if CURRENT_RENDERER == RENDERER_COMPATIBILITY
+			// The tint overlay shows the beams only faintly; keep them a soft accent.
+			collimation *= 0.3;
+#endif
 			color += sun * (shaft * (span / float(steps))) * phase * collimation * shafts * SHAFT_GAIN;
 		}
+#if CURRENT_RENDERER == RENDERER_COMPATIBILITY
+		alpha = COMPAT_TINT_ALPHA;
+#else
 		alpha = 1.0;
+#endif
 	}
 	// Dark meniscus line where the lens cuts the surface.
 	color *= 1.0 - meniscus * 0.55;

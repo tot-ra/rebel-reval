@@ -25,6 +25,7 @@ var _equipment_state: GameState
 var _content_db: ContentDB
 var _request_screen_shake: Callable
 var _sample_owning_ground := false
+var _swimmer := MapViewSwimmerPresenter.new()
 
 
 func configure(
@@ -129,7 +130,6 @@ func sync_player(snap: bool, delta: float = 0.0) -> void:
 	_view.sync_actor(_player_rig, _player.global_position)
 	if _sample_owning_ground:
 		_apply_owning_ground_height(_player_rig)
-	_follow_player.call(snap, delta)
 	var speed := _player.velocity.length()
 	var moving := speed > WALK_ANIMATION_MIN_SPEED
 	if moving:
@@ -157,8 +157,14 @@ func sync_player(snap: bool, delta: float = 0.0) -> void:
 		wanted = _player.call("view_animation") as StringName
 	elif moving:
 		wanted = &"run" if speed > RUN_ANIMATION_MIN_SPEED else &"walk"
+	var in_water := _apply_swimmer(delta)
+	if in_water and _swimmer.is_stroking():
+		# The procedural stroke poses the limbs over a calm base clip.
+		wanted = &"idle"
 	if _player_rig.current_canonical_animation() != wanted:
 		_player_rig.play_animation(wanted)
+	# Camera follows the rig after the swimmer placed it, so a diver drags it down.
+	_follow_player.call(snap, delta)
 	if _player.has_method("view_animation_elapsed_sec"):
 		_player_rig.sync_action_presentation(
 			wanted, float(_player.call("view_animation_elapsed_sec"))
@@ -174,6 +180,18 @@ func sync_player(snap: bool, delta: float = 0.0) -> void:
 	else:
 		_player_rig.consume_foot_plant()
 	_sync_actor_health_ring(_player_rig, _player)
+
+
+func _apply_swimmer(delta: float) -> bool:
+	if _view == null or not _player.has_method("water_depth"):
+		return false
+	var parent_offset := Vector2.ZERO
+	var parent := _view.get_parent() as Node3D
+	if _sample_owning_ground and parent != null:
+		parent_offset = Vector2(parent.position.x, parent.position.z)
+	return _swimmer.apply(
+		_player_rig, _player, _view, parent_offset, _player.velocity.length(), delta
+	)
 
 
 func bind_player_health_ring() -> void:

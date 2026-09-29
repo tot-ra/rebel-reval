@@ -738,6 +738,7 @@ func _create_cloud_shadow_pass() -> void:
 	if not CloudShadowPassScript.should_create(indoor, enabled):
 		return
 	_cloud_shadow_pass = CloudShadowPassScript.new()
+		"terrain_id": terrain_id,
 	add_child(_cloud_shadow_pass)
 	_cloud_shadow_pass.configure(_camera, _sky_weather.cloud_shadow_ground_samples())
 
@@ -745,6 +746,25 @@ func _create_cloud_shadow_pass() -> void:
 ## Water under world XZ for the underwater pass: the rest surface height (recessed mesh
 ## plus the live tide on that material) and the material to mirror, or {} over dry land.
 ## Outside the map, a water surroundings side counts as open deep water.
+## Rendered water surface height at view-local world XZ (rest plane, tide and the
+## live FFT swell the boats ride), or NAN over dry land. The swimmer presenter
+## floats Kalev on this so he bobs with the same waves as the hulls.
+func water_surface_height_at(world_xz: Vector2) -> float:
+	var probe := _underwater_probe(world_xz)
+	if probe.is_empty():
+		return NAN
+	var height := float(probe["surface_y"])
+	if OceanFftSampler.ensure_loaded():
+		var terrain_id: StringName = probe["terrain_id"]
+		var raw := OceanFftSampler.height_at(
+			world_xz, OceanFftSampler.ocean_time(), OceanFftSampler.terrain_surface(terrain_id), 2
+		)
+		height += OceanFftSampler.trough_floor(
+			raw * OceanFftSampler.shore_scale_from_coverage(water_coverage_at(world_xz))
+		)
+	return height
+
+
 func _underwater_probe(world_xz: Vector2) -> Dictionary:
 	var terrain_id: StringName = &""
 	if grid != null and definition != null:

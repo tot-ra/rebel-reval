@@ -42,25 +42,39 @@ func follow_player(snap: bool, delta: float) -> void:
 	view.update_terrain_detail_focus(controller.player_rig.position)
 
 
+## ADR 0021: the swimmer presenter lowers the rig into the water, so the anchor that is
+## normally feet + eye height would put the lens at or under the surface. It publishes
+## the lift that keeps the camera above the swell while Kalev floats; the lift fades to
+## zero once his head goes under so a dive carries the camera below the surface too.
+## Components: third person, first person, top down.
+func _swim_lift() -> Vector3:
+	var rig := _controller.player_rig
+	if rig == null or not rig.has_meta(&"camera_lift"):
+		return Vector3.ZERO
+	return rig.get_meta(&"camera_lift") as Vector3
+
+
 func _follow_target() -> Vector3:
 	var controller := _controller
 	var camera := controller.camera
+	var lift := _swim_lift()
 	match controller.camera_mode:
 		MapViewRuntimeCamera.CameraMode.FIRST_PERSON:
 			return (
 				controller.player_rig.position
-				+ Vector3.UP * MapViewRuntimeCamera.FIRST_PERSON_EYE_HEIGHT
+				+ Vector3.UP * (MapViewRuntimeCamera.FIRST_PERSON_EYE_HEIGHT + lift.y)
 			)
 		MapViewRuntimeCamera.CameraMode.THIRD_PERSON:
 			return controller._target.resolve_third_person_target(
 				(
 					controller.player_rig.position
-					+ Vector3.UP * MapViewRuntimeCamera.THIRD_PERSON_TARGET_HEIGHT
+					+ Vector3.UP * (MapViewRuntimeCamera.THIRD_PERSON_TARGET_HEIGHT + lift.x)
 					+ camera.transform.basis.z * controller._zoom.third_person_distance()
 				)
 			)
 		_:
 			return (
 				controller.player_rig.position
+				+ Vector3.UP * lift.z
 				+ camera.transform.basis.z * MapView3D.CAMERA_DISTANCE
 			)

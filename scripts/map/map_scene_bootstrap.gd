@@ -42,7 +42,7 @@ static func assemble(
 	var world_bounds := _create_world_bounds(definition, host)
 	var water_blocks := _create_water_blocks(definition, grid, host)
 	var relief_blocks := _create_relief_blocks(definition, host)
-	var excluded_blocks := _create_excluded_area_blocks(definition, host)
+	var excluded_blocks := _create_excluded_area_blocks(definition, grid, host)
 
 	var gameplay := Node2D.new()
 	gameplay.name = "Gameplay"
@@ -88,7 +88,7 @@ static func assemble_location_package(
 	_split_seam_gates(definition, _create_world_bounds(definition, package))
 	_create_water_blocks(definition, built_grid, package)
 	_create_relief_blocks(definition, package)
-	_create_excluded_area_blocks(definition, package)
+	_create_excluded_area_blocks(definition, built_grid, package)
 
 	var gameplay := Node2D.new()
 	gameplay.name = "Gameplay"
@@ -210,17 +210,40 @@ static func _create_minimap_hud(
 ## directly. Thin static walls keep both input methods inside the authored map;
 ## transition triggers sit just inside these walls and fire before contact.
 ## Keyboard movement bypasses NavigationAgent2D, so water cells need the same
-## physical blocking as buildings until a traversal mechanic ships.
+## physical blocking as buildings. ADR 0021: the player may enter every water
+## terrain except rivers, so the full water body sits on CollisionLayers.WATER
+## (NPCs mask it, the player does not) and river cells get a second solid body on
+## the world layer that still stops the player.
 static func _create_water_blocks(
 	definition: MapDefinition, grid: MapTerrainGrid, parent: Node2D
 ) -> StaticBody2D:
-	var body := StaticBody2D.new()
-	body.name = "WaterBlocks"
-	body.add_to_group(&"map_water_collision")
-	var water_rects := GridRegionMergerScript.merge_matching_cells(
-		definition.size_cells,
+	var body := _water_body(
+		definition, "WaterBlocks", CollisionLayers.WATER,
 		func(cell: Vector2i) -> bool: return MapTypes.WATER_TERRAINS.has(grid.get_terrain(cell))
 	)
+	if body == null:
+		return null
+	parent.add_child(body)
+	var barrier := _water_body(
+		definition, "WaterBarrier", CollisionLayers.WORLD,
+		func(cell: Vector2i) -> bool:
+			return PlayerWaterTraversal.BLOCKING_TERRAINS.has(grid.get_terrain(cell))
+	)
+	if barrier != null:
+		parent.add_child(barrier)
+	return body
+
+
+static func _water_body(
+	definition: MapDefinition, body_name: String, layer: int, matches: Callable
+) -> StaticBody2D:
+	var water_rects := GridRegionMergerScript.merge_matching_cells(definition.size_cells, matches)
+	if water_rects.is_empty():
+		return null
+	var body := StaticBody2D.new()
+	body.name = body_name
+	body.collision_layer = layer
+	body.add_to_group(&"map_water_collision")
 	for index in water_rects.size():
 		var world_rect := definition.cell_rect_to_world_rect(water_rects[index])
 		var collision := CollisionShape2D.new()
@@ -230,10 +253,6 @@ static func _create_water_blocks(
 		collision.shape = shape
 		collision.position = world_rect.get_center()
 		body.add_child(collision)
-	if water_rects.is_empty():
-		body.free()
-		return null
-	parent.add_child(body)
 	return body
 
 
@@ -265,14 +284,17 @@ static func _create_relief_blocks(definition: MapDefinition, parent: Node2D) -> 
 ## Excluded areas already remove cells from navigation. Mirror them as physical
 ## world blocks so direct CharacterBody2D movement cannot walk through the same
 ## authored obstruction (for example, a bed footprint).
-static func _create_excluded_area_blocks(definition: MapDefinition, parent: Node2D) -> StaticBody2D:
+static func _create_excluded_area_blocks(
+	definition: MapDefinition, grid: MapTerrainGrid, parent: Node2D
+) -> StaticBody2D:
 	if definition.excluded_areas.is_empty():
 		return null
 	var body := StaticBody2D.new()
 	body.name = "ExcludedAreaBlocks"
 	body.add_to_group(&"map_excluded_collision")
-	for index in definition.excluded_areas.size():
-		var world_rect := definition.cell_rect_to_world_rect(definition.excluded_areas[index])
+	var rects := _excluded_collision_rects(definition, grid)
+	for index in rects.size():
+		var world_rect := definition.cell_rect_to_world_rect(rects[index])
 		var collision := CollisionShape2D.new()
 		collision.name = "Excluded%d" % index
 		var shape := RectangleShape2D.new()
@@ -282,6 +304,39 @@ static func _create_excluded_area_blocks(definition: MapDefinition, parent: Node
 		body.add_child(collision)
 	parent.add_child(body)
 	return body
+
+
+## ADR 0021: harbour maps author `exclude` rects over open water to keep the player on
+## the shore. Those cells must not wall off the swimmer, so traversable water is cut
+## out of the physical player blocks (WaterBlocks still stops NPCs there, and
+## navigation, walkability and every audit keep reading the untouched rects). Maps
+## whose exclusions do not overlap traversable water keep their rects unchanged.
+static func _excluded_collision_rects(
+	definition: MapDefinition, grid: MapTerrainGrid
+) -> Array[Rect2i]:
+	var overlaps_water := false
+	for rect in definition.excluded_areas:
+		for y in range(rect.position.y, rect.end.y):
+			for x in range(rect.position.x, rect.end.x):
+				if PlayerWaterTraversal.is_traversable_terrain(grid.get_terrain(Vector2i(x, y))):
+					overlaps_water = true
+					break
+			if overlaps_water:
+				break
+		if overlaps_water:
+			break
+	if not overlaps_water:
+		return definition.excluded_areas.duplicate()
+	var excluded := {}
+	for rect in definition.excluded_areas:
+		for y in range(rect.position.y, rect.end.y):
+			for x in range(rect.position.x, rect.end.x):
+				var cell := Vector2i(x, y)
+				if not PlayerWaterTraversal.is_traversable_terrain(grid.get_terrain(cell)):
+					excluded[cell] = true
+	return GridRegionMergerScript.merge_matching_cells(
+		definition.size_cells, func(cell: Vector2i) -> bool: return excluded.has(cell)
+	)
 
 
 static func _create_world_bounds(definition: MapDefinition, parent: Node2D) -> StaticBody2D:
