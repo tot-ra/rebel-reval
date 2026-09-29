@@ -6,6 +6,7 @@ extends CanvasLayer
 
 signal closed
 signal controls_requested
+signal secondary_action_requested(action: StringName)
 
 const AudioSettingsScript := preload("res://scripts/settings/audio_settings.gd")
 const DialogueSettingsScript := preload("res://scripts/settings/dialogue_settings.gd")
@@ -133,6 +134,19 @@ func _build_ui() -> void:
 	_close_button.pressed.connect(close)
 	header.add_child(_close_button)
 
+	# WHY: non-combat commands belong in Esc, not in the permanent playfield.
+	var commands := HBoxContainer.new()
+	commands.name = "SecondaryActions"
+	commands.add_theme_constant_override("separation", 10)
+	layout.add_child(commands)
+	for action: StringName in [&"save", &"camera", &"debug"]:
+		var button := Button.new()
+		button.name = "%sAction" % String(action).capitalize()
+		button.text = {&"save": "Save game", &"camera": "Change view", &"debug": "Debug"}[action]
+		button.focus_mode = Control.FOCUS_ALL
+		button.pressed.connect(_request_secondary_action.bind(action))
+		commands.add_child(button)
+
 	var intro := Label.new()
 	intro.text = "Adjust audio and accessibility. Changes save outside campaign slots."
 	intro.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -188,6 +202,11 @@ func _build_ui() -> void:
 	if _music_slider != null and _close_button != null:
 		_music_slider.focus_neighbor_top = _music_slider.get_path_to(_close_button)
 		_close_button.focus_neighbor_bottom = _close_button.get_path_to(_music_slider)
+
+
+func _request_secondary_action(action: StringName) -> void:
+	close()
+	secondary_action_requested.emit(action)
 
 
 func _add_section_heading(parent: VBoxContainer, text: String) -> void:

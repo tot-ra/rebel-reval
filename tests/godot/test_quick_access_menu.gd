@@ -54,7 +54,30 @@ func test_menu_exposes_named_player_actions() -> void:
 	assert_eq(help.text, QuickAccessMenu.HELP_TEXT)
 	assert_true(panel != null)
 	assert_eq(panel.anchor_top, 1.0, "unified quick access must stay at the bottom")
+	assert_true(panel.size.x <= 650.0, "compact HUD must leave the world visible")
+	assert_false(save.visible, "save belongs in the Esc menu")
+	assert_false(debug.visible, "debug belongs in the Esc menu")
+	assert_false(camera.visible, "camera switch belongs in the Esc menu")
+	assert_false(controls.visible, "controls belong in the Esc menu")
+	assert_true(inventory.visible and journal.visible and world_map.visible and magic.visible)
 	menu.queue_free()
+
+
+func test_secondary_save_reuses_existing_save_handler() -> void:
+	var menu := QuickAccessMenu.new()
+	menu.configure(null, null, Callable(self, "_fake_save"))
+	_tree().root.add_child(menu)
+	menu.trigger_secondary_action(&"save")
+	assert_eq(_save_calls, 1)
+	assert_eq(
+		(menu.find_child("StatusLabel", true, false) as Label).text,
+		QuickAccessMenu.STATUS_SAVED
+	)
+	menu.queue_free()
+
+
+func _tree() -> SceneTree:
+	return Engine.get_main_loop() as SceneTree
 
 
 func test_debug_button_toggles_sibling_overlay() -> void:

@@ -16,6 +16,7 @@ func _ready() -> void:
 	_overlay.configure(UserSettings if has_node("/root/UserSettings") else null)
 	_overlay.closed.connect(_on_overlay_closed)
 	_overlay.controls_requested.connect(_on_controls_requested)
+	_overlay.secondary_action_requested.connect(_on_secondary_action_requested)
 	add_child(_overlay)
 
 
@@ -121,3 +122,9 @@ func _on_controls_requested() -> void:
 	var quick_access := parent.get_node_or_null("QuickAccessMenu") as QuickAccessMenu
 	if quick_access != null:
 		quick_access.open_controls_overlay()
+
+
+func _on_secondary_action_requested(action: StringName) -> void:
+	var quick_access := get_parent().get_node_or_null("QuickAccessMenu") as QuickAccessMenu
+	if quick_access != null:
+		quick_access.trigger_secondary_action(action)

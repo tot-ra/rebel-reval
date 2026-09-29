@@ -66,6 +66,32 @@ func test_esc_does_not_open_while_inventory_is_open() -> void:
 	host.queue_free()
 
 
+func test_esc_save_action_closes_menu_and_uses_quick_access_save() -> void:
+	var host := Node.new()
+	var menu := QuickAccessMenu.new()
+	menu.name = "QuickAccessMenu"
+	host.add_child(menu)
+	var controller := ControllerScript.new()
+	controller.name = "GameSettingsController"
+	host.add_child(controller)
+	_tree().root.add_child(host)
+	menu.configure(null, null, Callable(self, "_save_from_esc"))
+	controller.open()
+	var save := controller.find_child("SaveAction", true, false) as Button
+	assert_true(save != null and save.visible)
+	save.pressed.emit()
+	assert_false(controller.is_open())
+	assert_eq(
+		(menu.find_child("StatusLabel", true, false) as Label).text,
+		QuickAccessMenu.STATUS_SAVED
+	)
+	host.queue_free()
+
+
+func _save_from_esc() -> bool:
+	return true
+
+
 func test_volume_slider_changes_persist_through_user_settings() -> void:
 	var overlay := OverlayScript.new()
 	overlay.configure(UserSettings)
