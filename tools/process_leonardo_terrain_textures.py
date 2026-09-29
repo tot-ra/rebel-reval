@@ -10,7 +10,8 @@ Two tiers:
 
 - Legacy families (timber, cobble, hay, ...) keep their 512 px albedo-only
   output. Runtime terrain resizes these to its 128 px texture-array tier.
-- CO-01 ground families (coast_sand, sand, shore_shingle, mud, grass) ship a
+- CO-01 ground families (coast_sand, sand, shore_shingle, mud, grass) are quilted
+  seamless (`SEAMLESS_FAMILIES`) instead of phase-shifted, then ship a
   2048 px albedo plus a normal and a roughness map derived from the same plate.
   Leonardo cannot bake matching normal/roughness plates, so both are computed
   from a wrap-aware height estimate of the selected albedo (see
@@ -129,7 +130,20 @@ def _weld_edges(image: Image.Image, *, phase_shift: bool) -> Image.Image:
 SEAMLESS_OVERLAP_FRACTION = 1.0 / 6.0
 SEAMLESS_MARGIN = 12  # px kept out of the cut path so the wrap edge is pure overlap
 SEAMLESS_FEATHER = 1.5  # px Gaussian softening of the cut
-SEAMLESS_FAMILIES = {"sand", "coast_sand"}
+# Every CO-01 ground family is isotropic natural ground with no authored course or
+# grain direction, so all of them quilt. Shingle and mud carried the worst phase
+# seam (mid-tile discontinuity 11x and 5x the local grain) because their plates
+# have the strongest large marks.
+SEAMLESS_FAMILIES = set(GROUND_OUTPUTS)
+
+## Leonardo lights every plate from one side, so each albedo carries a broad
+## bright-to-dark drift (38-53% of mean luminance on shingle, mud and grass).
+## A seamless tile still repeats that drift as a blotch grid once the ground
+## covers dozens of cells, which reads as the same "obvious cell" artefact as a
+## hard seam. The drift is shading, not material, so it is divided out in linear
+## light before quilting; a residual fraction is kept so the ground is not flat.
+DEDRIFT_STRENGTH = 0.8
+DEDRIFT_RADIUS_FRACTION = 1.0 / 8.0
 
 
 def _min_error_cut(cost: np.ndarray, margin: int, cyclic: bool) -> np.ndarray:
@@ -191,6 +205,38 @@ def _stitch_columns(plate: np.ndarray, tile: int, overlap: int, cyclic: bool) ->
     mask = sum(padded[:, half + o : half + o + overlap] * w for o, w in zip(offsets, weights))
     body[:, :overlap] = tail * mask[..., None] + head * (1.0 - mask[..., None])
     return body
+
+
+def _broad_luminance(luminance: np.ndarray, radius: float) -> np.ndarray:
+    """Very low-pass of the plate: box-downsample below the cutoff, bicubic back up.
+
+    A direct Gaussian at this radius (hundreds of pixels) is far slower and would
+    need wrap padding the plate does not have yet.
+    """
+    size = luminance.shape[0]
+    coarse = max(4, int(round(size / max(radius, 1.0))))
+    small = Image.fromarray(luminance.astype(np.float32)).resize((coarse, coarse), Image.Resampling.BOX)
+    return np.asarray(small.resize((size, size), Image.Resampling.BICUBIC), dtype=np.float64)
+
+
+def _srgb_to_linear(values: np.ndarray) -> np.ndarray:
+    return np.where(values <= 0.04045, values / 12.92, ((values + 0.055) / 1.055) ** 2.4)
+
+
+def _linear_to_srgb(values: np.ndarray) -> np.ndarray:
+    return np.where(values <= 0.0031308, values * 12.92, 1.055 * values ** (1.0 / 2.4) - 0.055)
+
+
+def _flatten_lighting(image: Image.Image) -> Image.Image:
+    """Divide out the generator's broad shading drift, keeping the fine grain."""
+    srgb = np.asarray(image, dtype=np.float64) / 255.0
+    linear = _srgb_to_linear(srgb)
+    luminance = linear @ np.array([0.2126, 0.7152, 0.0722])
+    broad = _broad_luminance(luminance, image.width * DEDRIFT_RADIUS_FRACTION)
+    # Clamped so a near-black hollow cannot be pushed to a bright smear.
+    gain = np.clip(float(luminance.mean()) / np.maximum(broad, 1e-4), 0.5, 2.0)
+    gain = 1.0 + (gain - 1.0) * DEDRIFT_STRENGTH
+    return _to_image(_linear_to_srgb(np.clip(linear * gain[..., None], 0.0, 1.0)), "RGB")
 
 
 def _make_seamless(image: Image.Image) -> Image.Image:
@@ -316,7 +362,7 @@ def process_ground(family: str) -> bool:
     params = GROUND_DERIVATION[family]
     image = Image.open(source).convert("RGB")
     if family in SEAMLESS_FAMILIES:
-        image = _resize_tileable(_make_seamless(image), GROUND_TARGET_SIZE)
+        image = _resize_tileable(_make_seamless(_flatten_lighting(image)), GROUND_TARGET_SIZE)
     else:
         image = image.resize((GROUND_TARGET_SIZE, GROUND_TARGET_SIZE), Image.Resampling.LANCZOS)
         image = _weld_edges(image, phase_shift=True)

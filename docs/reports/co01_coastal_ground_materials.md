@@ -152,3 +152,41 @@ building work.
   `review candidate`.
 - Dirt (12.4% of Kalamaja), farm soil, ash and plaster are still 128 px procedural layers
   resolved per corner. They need authored plates to benefit from the per-fragment path.
+
+## Seam follow-up (2026-09-29)
+
+The five plates shipped through `_weld_edges(phase_shift=True)`. A half-tile shift makes the two
+wrap edges match, but it does not make a non-tileable Leonardo plate tileable: it only moves the
+original discontinuity into the middle of the tile, where it repeats as a cross grid. On the
+Kalamaja gameplay camera the beach read as a patchwork of rectangular cells
+(`docs/reports/images/co01_gameplay_clear_compat_seamfix_before.png`).
+
+Two changes in `tools/process_leonardo_terrain_textures.py`, applied to every family in
+`GROUND_OUTPUTS` (`SEAMLESS_FAMILIES`):
+
+1. **Quilting.** A 1280 px tile is cut from the 1536 px plate and its wrap edges are stitched from
+   the leftover overlap strips along a minimum-error cut (the second pass is cyclic so the first
+   pass stays tileable). The albedo is then resized to 2048 with wrap padding.
+2. **De-drift.** Leonardo lights each plate from one side. That broad shading gradient survives
+   quilting and repeats as a blotch grid over large ground. It is divided out in linear light at
+   80% strength (`DEDRIFT_STRENGTH`), keeping the fine grain and a residual fraction of the
+   variation. Normal and roughness are rederived from the corrected albedo.
+
+Measured on the albedo, as a ratio of the mean absolute neighbour-pixel difference of the plate
+(1.0 = indistinguishable from the local grain):
+
+| family | wrap edge before | worst interior before | wrap edge after | worst interior after |
+|---|---|---|---|---|
+| sand | 1.0 | 1.1 | 1.0 | 1.5 |
+| coast_sand | 1.0 | 1.1 | 1.0 | 1.2 |
+| grass | 0.0 | 3.8 | 0.9 | 1.7 |
+| mud | 0.0 | 5.4 | 1.2 | 1.6 |
+| shore_shingle | 0.0 | 11.2 | 1.1 | 1.5 |
+
+A wrap value of 0.0 is the welded border of the old pipeline: the edge pixels were averaged, so the
+border matched exactly while the real seam sat inside the tile. `sand` and `coast_sand` were already
+quilted in the preceding change; only their de-drift is new here.
+
+Evidence: `docs/reports/images/co01_gameplay_clear_compat_seamfix_before.png` and
+`..._seamfix_after.png` (same pose, clear weather, Compatibility renderer). Asset sources, asset
+lint and storage hygiene pass; every output stays under the 10 MiB standard-Git limit.
