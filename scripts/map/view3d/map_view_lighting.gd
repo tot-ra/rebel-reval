@@ -8,9 +8,17 @@ extends RefCounted
 const DayNightCycle := preload("res://scripts/global/day_night_cycle.gd")
 
 const SUN_DAY_COLOR := Color8(255, 243, 222)
-const SUN_DAY_ENERGY := 1.2
+## Exposure pass (brightness tour): AgX compresses highlights hard, so 1.2 sun and
+## 0.85 fill left noon streets at ~50/255 mean luma with near-black shadow sides.
+## Daylight RPG references (KCD2, Witcher 3) sit near 100-130 with readable shade.
+const SUN_DAY_ENERGY := 2.2
 const AMBIENT_DAY_COLOR := Color8(168, 178, 189)
-const AMBIENT_DAY_ENERGY := 0.85
+const AMBIENT_DAY_ENERGY := 1.7
+## Outdoor shade is lit by the sky and by sunlit ground and walls. Pure sky hue
+## painted every shadowed facade blue; a warm limestone/earth bounce at similar
+## luminance keeps the shade neutral and the albedo readable.
+const AMBIENT_GROUND_BOUNCE_COLOR := Color8(190, 178, 156)
+const AMBIENT_GROUND_BOUNCE_WEIGHT := 0.4
 const BACKGROUND_DAY_COLOR := Color8(31, 30, 28)
 
 ## Top-down interior gameplay hides the ceiling; a flat black clear color keeps
@@ -22,8 +30,11 @@ const BACKGROUND_INTERIOR_TOP_DOWN_COLOR := Color.BLACK
 ## and local albedo survive outside fire/window pools instead of crushing to black.
 const SUN_NIGHT_COLOR := Color8(142, 162, 210)
 const SUN_NIGHT_ENERGY := 0.72
-const AMBIENT_NIGHT_COLOR := Color8(58, 74, 112)
-const AMBIENT_NIGHT_ENERGY := 0.92
+## Exposure pass: 58,74,112 at 0.92 put moonless streets at ~1/255 mean luma, so
+## only lantern-lit walls showed. Night stays blue and much darker than day, but
+## street shapes and ground must remain readable like a moonlit RPG night.
+const AMBIENT_NIGHT_COLOR := Color8(76, 94, 138)
+const AMBIENT_NIGHT_ENERGY := 1.5
 const BACKGROUND_NIGHT_COLOR := Color8(14, 18, 28)
 ## Under a roofed room shell the fill is daylight bounced off limewash, timber
 ## and clay, not open sky: warm it instead of letting sky-blue fill tint every
@@ -31,6 +42,10 @@ const BACKGROUND_NIGHT_COLOR := Color8(14, 18, 28)
 const INTERIOR_DAY_BOUNCE_COLOR := Color8(190, 172, 150)
 const INTERIOR_NIGHT_BOUNCE_COLOR := Color8(84, 78, 76)
 const INTERIOR_BOUNCE_WEIGHT := 0.85
+## The exposure pass doubled outdoor fill; rooms are lit through a door and
+## small windows, so keep roofed interiors near the earlier fill and let hearth
+## and candle light stay the accent.
+const INTERIOR_AMBIENT_ENERGY_SCALE := 0.6
 
 ## Golden-hour and weather tints blended over the day/night baseline.
 const SUNSET_LIGHT_COLOR := Color8(255, 148, 64)
@@ -86,14 +101,21 @@ const FOG_POTENTIAL_FULL := 0.95
 ## Visual calibration tuned day exposure/glow so windows keep texture through AgX
 ## and night fill/chroma so local color remains readable outside emissive pools.
 const TONEMAP_MODE := Environment.TONE_MAPPER_AGX
-const GRADE_DAY_EXPOSURE := 0.98
-const GRADE_DAY_SATURATION := 1.20
-const GRADE_DAY_CONTRAST := 1.12
-const GRADE_DAY_BRIGHTNESS := 1.03
-const GRADE_NIGHT_EXPOSURE := 0.90
-const GRADE_NIGHT_SATURATION := 1.14
-const GRADE_NIGHT_CONTRAST := 1.08
-const GRADE_NIGHT_BRIGHTNESS := 0.89
+## Exposure pass: 1.20 saturation and 1.12 contrast pushed shade toward black and
+## read as stylised; a natural daylight grade keeps colour through the midtones.
+const GRADE_DAY_EXPOSURE := 1.05
+const GRADE_DAY_SATURATION := 1.08
+const GRADE_DAY_CONTRAST := 1.04
+const GRADE_DAY_BRIGHTNESS := 1.04
+## Low-sun exposure lift (see low_sun_exposure_factor): none at 35 deg and above,
+## full between the horizon and 8 deg.
+const LOW_SUN_EXPOSURE_BOOST := 0.3
+const LOW_SUN_EXPOSURE_FULL_ELEVATION := 8.0
+const LOW_SUN_EXPOSURE_NONE_ELEVATION := 35.0
+const GRADE_NIGHT_EXPOSURE := 0.94
+const GRADE_NIGHT_SATURATION := 1.08
+const GRADE_NIGHT_CONTRAST := 1.02
+const GRADE_NIGHT_BRIGHTNESS := 0.92
 const GLOW_HDR_THRESHOLD := 1.05
 const GLOW_INTENSITY_DAY := 0.32
 const GLOW_INTENSITY_NIGHT := 0.48
@@ -184,7 +206,10 @@ static func apply_cycle_progress(
 	var fill_blend := twilight_fill_blend(
 		presentation.day_blend, presentation.sun_direction
 	)
-	var ambient := AMBIENT_NIGHT_COLOR.lerp(ambient_day_color(presentation), fill_blend)
+	var day_ambient := ambient_day_color(presentation).lerp(
+		AMBIENT_GROUND_BOUNCE_COLOR, AMBIENT_GROUND_BOUNCE_WEIGHT
+	)
+	var ambient := AMBIENT_NIGHT_COLOR.lerp(day_ambient, fill_blend)
 	ambient = ambient.lerp(OVERCAST_LIGHT_COLOR, presentation.overcast * 0.5)
 	if enclosed_interior:
 		ambient = ambient.lerp(
@@ -204,6 +229,8 @@ static func apply_cycle_progress(
 		* presentation.ambient_energy
 		+ presentation.lightning * LIGHTNING_AMBIENT_ENERGY
 	)
+	if enclosed_interior:
+		environment.ambient_light_energy *= INTERIOR_AMBIENT_ENERGY_SCALE
 	environment.background_color = BACKGROUND_NIGHT_COLOR.lerp(
 		BACKGROUND_DAY_COLOR, presentation.day_blend
 	)
@@ -329,9 +356,23 @@ static func apply_post_grade_snapshot(
 	apply_post_grade(
 		environment, twilight_fill_blend(presentation.day_blend, presentation.sun_direction)
 	)
+	environment.tonemap_exposure *= low_sun_exposure_factor(presentation.sun_direction)
 	# Wet air reduces distant contrast; retain local material color and exposure.
 	environment.adjustment_saturation -= presentation.overcast * 0.12
 	environment.adjustment_contrast -= presentation.overcast * 0.07
+
+
+## Stand-in for eye adaptation, which GL Compatibility lacks. A low sun throws
+## long shadows over most streets and the dimetric camera sees the shade sides,
+## so a fixed exposure turned late afternoon into night. The lift peaks near the
+## horizon and fades out below it, so twilight and night keep their grade.
+static func low_sun_exposure_factor(sun_direction: Vector3) -> float:
+	var elevation := sun_elevation_degrees(sun_direction)
+	var low_sun := 1.0 - smoothstep(
+		LOW_SUN_EXPOSURE_FULL_ELEVATION, LOW_SUN_EXPOSURE_NONE_ELEVATION, elevation
+	)
+	var above_horizon := smoothstep(-3.0, 3.0, elevation)
+	return 1.0 + LOW_SUN_EXPOSURE_BOOST * low_sun * above_horizon
 
 
 ## Enclosed top-down interiors use a black void below the hidden ceiling;

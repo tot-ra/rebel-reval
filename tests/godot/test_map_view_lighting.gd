@@ -41,6 +41,37 @@ func test_post_grade_night_stays_at_least_twenty_percent_darker_than_day() -> vo
 	)
 
 
+func test_low_sun_lifts_exposure_only_while_the_sun_is_up() -> void:
+	var high := Lighting.low_sun_exposure_factor(_sun_at(Lighting.LOW_SUN_EXPOSURE_NONE_ELEVATION))
+	var low := Lighting.low_sun_exposure_factor(_sun_at(Lighting.LOW_SUN_EXPOSURE_FULL_ELEVATION))
+	var night := Lighting.low_sun_exposure_factor(_sun_at(-10.0))
+	assert_almost_eq(high, 1.0, 0.001, "a high sun keeps the frozen day exposure")
+	assert_almost_eq(
+		low, 1.0 + Lighting.LOW_SUN_EXPOSURE_BOOST, 0.001, "late afternoon shade is lifted"
+	)
+	assert_almost_eq(night, 1.0, 0.001, "night keeps its darker grade")
+
+
+func test_interior_fill_stays_dimmer_than_open_street_fill() -> void:
+	var definition := SmithyCourtyard.create()
+	var view := MapView3D.create(definition, MapBuilder.build(definition), MapView3D.TIME_DAY)
+	var env := (view.get_node("ViewEnvironment") as WorldEnvironment).environment
+	var sky_weather: SkyWeather3D = view.sky_weather()
+	Lighting.apply_cycle_progress(0.5, view.sun_light(), env, sky_weather, false, false)
+	var outdoor := env.ambient_light_energy
+	Lighting.apply_cycle_progress(0.5, view.sun_light(), env, sky_weather, false, true)
+	assert_true(
+		env.ambient_light_energy < outdoor * 0.7,
+		"rooms keep hearth and candle light as the accent over the raised street fill"
+	)
+	view.free()
+
+
+static func _sun_at(elevation_degrees: float) -> Vector3:
+	var elevation := deg_to_rad(elevation_degrees)
+	return Vector3(cos(elevation), sin(elevation), 0.0)
+
+
 func test_post_grade_differs_from_ungraded_baseline() -> void:
 	var graded := Environment.new()
 	Lighting.configure_post_process(graded)
