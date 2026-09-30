@@ -102,14 +102,6 @@ static func build_building(
 			)
 			mesh_size = Vector3(sealed.size.x, height, sealed.size.y)
 			seal_shift = sealed.get_center() - footprint.get_center() * scale
-		# WHY: a primitive with an open ground-floor gallery cannot be a single
-		# solid box. The mass is pulled back from the facade and the strip it
-		# vacates is rebuilt as arcade wall, end walls, and vault by the
-		# primitive's own detail pass.
-		var gallery_inset := MapViewMeshBuilderBuildingHouses.town_hall_gallery_inset(
-			building, size
-		)
-		mesh_size.z -= gallery_inset
 		wall_mesh.size = mesh_size
 		walls.mesh = wall_mesh
 		if kind == MapTypes.BUILDING_KIND_HOUSE:
@@ -125,7 +117,7 @@ static func build_building(
 			)
 		else:
 			walls.material_override = MapViewMaterials.wall_for_size(wall_color, wall_mesh.size)
-		walls.position = Vector3(seal_shift.x, height * 0.5, gallery_inset * 0.5 + seal_shift.y)
+		walls.position = Vector3(seal_shift.x, height * 0.5, seal_shift.y)
 	root.add_child(walls)
 
 	if kind == MapTypes.BUILDING_KIND_HOUSE:
@@ -459,13 +451,12 @@ static func build_exceptional_building(
 	var center := footprint.get_center() * scale
 	root.position = Vector3(center.x, 0.0, center.y)
 	var wall_color := Color(building.get("wall_color", MapViewMeshBuilderConfig.DEFAULT_WALL_COLOR))
-	var gallery_inset := MapViewMeshBuilderBuildingHouses.town_hall_gallery_inset(building, size)
 	var wall_mesh := BoxMesh.new()
-	wall_mesh.size = Vector3(size.x, height, maxf(size.y - gallery_inset, 0.25))
+	wall_mesh.size = Vector3(size.x, height, size.y)
 	var walls := MeshInstance3D.new()
 	walls.name = "Walls"
 	walls.mesh = wall_mesh
-	walls.position = Vector3(0.0, height * 0.5, gallery_inset * 0.5)
+	walls.position = Vector3(0.0, height * 0.5, 0.0)
 	walls.material_override = MapViewMeshBuilderBuildingHouses.house_wall_material(
 		building, wall_color, wall_mesh.size
 	)

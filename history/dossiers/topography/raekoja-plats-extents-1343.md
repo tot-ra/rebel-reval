@@ -55,7 +55,7 @@ The market and Town Hall share a site from at least the 1322 consistorium record
 
 **Construction phasing (west → east):** Oldest fabric occupies the **western** part; first-quarter-14th-century cellar and diele–dornse expansion precede 1343; **1371–74** extension to the **east** brings the later full-length configuration [2][5]. Nottbeck's published market-facing north-front measurement is **30.78 m**, while Medieval Heritage gives **36.8 m** for the external full-building dimension; the sources do not establish that these figures measure the same edge or datum, so do not merge or normalize them [2][5]. Seven basement/ground-floor windows and three walls from the 1322 building survive in the eastern part of the present structure [1].
 
-**Deliberate game deviation:** Project audit P0-072 models a readable arcade at ground floor for player legibility — label that as **invented** if used; this dossier’s map polygon assumes **no arcade** unless canon overrides [14].
+**Game deviation retired (2026-09-30):** P0-072 once modelled a readable ground-floor arcade for legibility. The runtime hall now follows this dossier: no arcade, one storey, plain market wall with stone-framed windows [14].
 
 ### R-036 phase-plan audit (13 August 2026)
 

@@ -4,8 +4,8 @@ Board row: **R-968**. Priority: high. Depends on: AR-04.
 
 ## Player-facing goal
 
-The market and civic quarter reads as the commercial heart of a Hanse town: a town hall with a real
-arcade the player can walk under, the Holy Spirit chapel and its hospital range as an institution and not
+The market and civic quarter reads as the commercial heart of a Hanse town: a weathered 1343 town hall
+(one storey, no arcade - decision 2026-09-30), the Holy Spirit chapel and its hospital range as an institution and not
 a house, guild frontages that are wider and better dressed than their neighbours without being 15th-century
 palaces, and Pikk warehouses with gable doors, loading hoists and open cellar hatches where goods actually
 move.
@@ -15,8 +15,7 @@ move.
 `market_civic_quarter` places **52 house records** - the second-densest map in the project - and the civic
 landmarks it needs are all primitives: `town_hall_1343` (1 use), `holy_spirit_chapel_1343` (1 use),
 `guild_frontage`, `storehouse` (2 uses), `stepped_gable_merchant` (3 uses). The geometry comes from
-`map_view_mesh_builder_building_houses.gd`, whose town hall support is four constants -
-`TOWN_HALL_ARCADE_THICKNESS`, `TOWN_HALL_CORRIDOR_DEPTH`, `TOWN_HALL_DOOR_RECESS` - and no asset.
+`scripts/map/view3d/map_view_town_hall_model.gd` (procedural 1343 hall since 2026-09-30) and no asset.
 `map_view_mesh_builder_building_registry.gd` classifies `town_hall_mass`, `guild_frontage`,
 `holy_spirit_hospital` and `church_silhouette` as "exceptional" categories, but exceptional here only
 means a different primitive path.
@@ -30,10 +29,11 @@ guild equivalent at all.
 
 A set under `assets/buildings/civic/`, kit-bashed on AR-04, built to the AR-01 civic card:
 
-1. **Town hall, 1343** - `town_hall_1343_body`, `town_hall_arcade_bay` (repeatable, so the arcade is
-   built rather than stretched), `town_hall_gable`, `town_hall_stair`, `town_hall_pillory_ground`. The
-   arcade must be a walkable-looking depth consistent with the existing
-   `TOWN_HALL_ARCADE_THICKNESS` / `TOWN_HALL_CORRIDOR_DEPTH` gameplay values, which stay authoritative.
+1. **Town hall, 1343** - `town_hall_1343_body`, `town_hall_window_bay` (repeatable, so the market wall
+   is built rather than stretched), `town_hall_gable` (with loft door and hoist), `town_hall_portal`,
+   `town_hall_pillory_ground`. No arcade: it is the 1402-04 rebuild. The authored model must at least
+   match the wear, materials and banners of the procedural hall in
+   [`../../reports/town_hall_1343_remodel.md`](../../reports/town_hall_1343_remodel.md).
 2. **Holy Spirit** - `holy_spirit_chapel_1343`, `holy_spirit_hospital_range`, `holy_spirit_court_wall`,
    `holy_spirit_alms_porch`. An institution with a hall, a chapel and a court, not a taller house.
 3. **Guild and mercantile** - `guild_frontage_wide` (two variants), `guild_hall_body`,
@@ -66,7 +66,7 @@ A set under `assets/buildings/civic/`, kit-bashed on AR-04, built to the AR-01 c
   `tests/godot/test_service_building_models.gd` (if present)
 - `tools/capture_ar10_civic_quarter.gd` (+ `.uid`, new)
 - `docs/ASSET_INVENTORY.md`, `docs/ART_BIBLE.md`, `docs/CANON.md` (confidence labels only),
-  `docs/reports/ar10_civic_quarter.md`, `docs/reports/images/ar10_*.png`, `TODO.md`
+  `docs/reports/ar10_civic_quarter.md`, `docs/reports/images/ar10_*.png`, the project task board (`tasks` tool)
 
 ## Constraints and non-goals
 
@@ -77,10 +77,9 @@ A set under `assets/buildings/civic/`, kit-bashed on AR-04, built to the AR-01 c
   under **P4-023e**, both forbid them. St Olaf's craft-guild use is first recorded in 1363 and is
   therefore **U** for 1343, so `st_olafs_guild_hall` gets a generic wide merchant or craft frontage, not a
   guild monument. Add a named assertion.
-- The town hall's arcade geometry must match the existing gameplay constants; the mesh adapts to the
-  constants, not the reverse.
-- Collision and navigation unchanged; walkability bit-identical. The arcade must not become walkable if it
-  was not, and must not stop being walkable if it was.
+- The town hall has no arcade (1343 state, decision 2026-09-30). Its portal stays on the building axis,
+  where the `to_town_hall` door is snapped.
+- Collision and navigation unchanged; walkability bit-identical.
 - No interiors. `town_hall.rrmap`, `holy_spirit_church.rrmap` and `st_olafs_guild_hall.rrmap` are separate
   prototype maps; this task only changes how their exteriors and their masses look.
 - No market, trade, weighing or storage gameplay. These are buildings.
@@ -99,17 +98,17 @@ git diff --check
 ```
 
 - `test_civic_buildings.gd` asserts: every model loads; every civic and guild `primitive=` and style in the
-  four maps resolves to an authored model; the arcade is built from repeated bays and its depth matches
-  `TOWN_HALL_ARCADE_THICKNESS` and `TOWN_HALL_CORRIDOR_DEPTH` within tolerance; the warehouse gable doors
+  four maps resolves to an authored model; the town hall market wall is built from repeated window bays and has no
+  arcade; the warehouse gable doors
   and hoist beam sit at plausible storey levels from AR-01; a named assertion that no Great Guild Hall,
   Brotherhood or Blackheads frontage model exists and that `st_olafs_guild_hall` resolves to a generic
   wide frontage; the four existing service GLBs snap to the AR-04 module and use AR-03 surfaces; models
   within the ADR 0025 budget with LODs.
 - **Gameplay invariance**: walkable cells, largest walkable region and anchor accounting bit-identical per
-  map, including the arcade cells specifically; activation status unchanged.
+  map; activation status unchanged.
 - `git diff --stat content/maps/` is empty.
 - `tools/capture_ar10_civic_quarter.gd` through `tools/godot_render.sh`: matched before/after plates of the
-  town hall front and a shot from **under** the arcade, the Holy Spirit court, a guild frontage beside two
+  town hall front and its east gable hoist, the Holy Spirit court, a guild frontage beside two
   ordinary neighbours, a Pikk warehouse with its hoist, the weighhouse, and a market-square vista; clear
   noon, overcast and midnight; Compatibility and Metal; both quality tiers.
 - Performance: `market_civic_quarter` frame cost, draw calls, materials and triangles, inside budget.
@@ -120,10 +119,10 @@ git diff --check
 ## Doc updates
 
 `docs/ASSET_INVENTORY.md`, `docs/ART_BIBLE.md`, `docs/CANON.md`,
-`docs/reports/ar10_civic_quarter.md`, `TODO.md`.
+`docs/reports/ar10_civic_quarter.md`, the project task board (`tasks` tool).
 
-## TODO.md line
+## project task board line
 
 ```
-- [ ] R-968 | deps: R-962 | deliverable: assets/buildings/civic set covering the 1343 town hall with a repeatable arcade bay matching the existing TOWN_HALL_ARCADE_THICKNESS/CORRIDOR_DEPTH constants, gable, stair and pillory ground; Holy Spirit chapel, hospital range, court wall and alms porch; two wide guild frontages, guild hall body, authored crow-stepped stepped_gable_merchant, weighhouse and open market bay; gabled warehouse with two-level gable doors, hoist beam with pulley, cellar hatch and loading apron; and the four existing service GLBs folded onto the AR-04 module and AR-03 surfaces with two frontage variants each | allowed files: per docs/tasks/architecture/AR-10_civic_guild_set.md | verify: `--filter=test_civic_buildings,test_service_building_models,test_architecture_kit,test_town_hall`; full Godot suite; blueprint validate; asset sources/lint/storage; map audit, activation, composition; building variety; active docs; git diff --check; every civic and guild primitive/style across market_civic_quarter, town_hall, holy_spirit_church and st_olafs_guild_hall resolves with ids intact; arcade built from repeated bays at the authored depth; named assertion that no Great Guild Hall, Brotherhood or Blackheads frontage exists and st_olafs_guild_hall stays a generic wide frontage; existing service GLBs snapped and resurfaced; models within the ADR 0025 budget with LODs; bit-identical walkability including the arcade cells; empty `git diff --stat content/maps/`; matched before/after town hall front, under-arcade, Holy Spirit court, guild-beside-neighbours, warehouse hoist, weighhouse and market vista plates at noon/overcast/midnight on Compatibility and Metal at both tiers; frame/draw-call/material/triangle budget; named human review that the square reads as the civic centre and the guild frontage is distinguishable without becoming a 15th-century monument
+- [ ] R-968 | deps: R-962 | deliverable: assets/buildings/civic set covering the weathered 1343 town hall (no arcade) with a repeatable window bay, gable with loft hoist, portal and pillory ground; Holy Spirit chapel, hospital range, court wall and alms porch; two wide guild frontages, guild hall body, authored crow-stepped stepped_gable_merchant, weighhouse and open market bay; gabled warehouse with two-level gable doors, hoist beam with pulley, cellar hatch and loading apron; and the four existing service GLBs folded onto the AR-04 module and AR-03 surfaces with two frontage variants each | allowed files: per docs/tasks/architecture/AR-10_civic_guild_set.md | verify: `--filter=test_civic_buildings,test_service_building_models,test_architecture_kit,test_town_hall`; full Godot suite; blueprint validate; asset sources/lint/storage; map audit, activation, composition; building variety; active docs; git diff --check; every civic and guild primitive/style across market_civic_quarter, town_hall, holy_spirit_church and st_olafs_guild_hall resolves with ids intact; town hall built from repeated window bays with no arcade; named assertion that no Great Guild Hall, Brotherhood or Blackheads frontage exists and st_olafs_guild_hall stays a generic wide frontage; existing service GLBs snapped and resurfaced; models within the ADR 0025 budget with LODs; bit-identical walkability; empty `git diff --stat content/maps/`; matched before/after town hall front, east gable hoist, Holy Spirit court, guild-beside-neighbours, warehouse hoist, weighhouse and market vista plates at noon/overcast/midnight on Compatibility and Metal at both tiers; frame/draw-call/material/triangle budget; named human review that the square reads as the civic centre and the guild frontage is distinguishable without becoming a 15th-century monument
 ```

@@ -1,5 +1,7 @@
 # Town Hall arcade rework: structural gallery instead of decorative arches
 
+> **Superseded 2026-09-30** by [`town_hall_1343_remodel.md`](./town_hall_1343_remodel.md): the arcade postdates 1343 and was removed.
+
 Recorded: 2026-07-23  
 Map: `market_civic_quarter`  
 Building: `town_hall_mass` (primitive `town_hall_1343`)

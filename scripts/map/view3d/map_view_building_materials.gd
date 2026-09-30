@@ -472,6 +472,14 @@ static func _library_building_surface(
 	return material
 
 
+## Per-building library surface pinned to one stem, for landmarks whose fabric
+## is attested rather than rolled (the 1343 Town Hall's rubble and moss tile).
+static func library_surface_for_building(
+	prefix: String, surface_id: StringName, stem: String, color: Color
+) -> StandardMaterial3D:
+	return _library_building_surface(prefix, surface_id, stem, color)
+
+
 static func library_uv_offset(surface_id: StringName) -> Vector3:
 	var roll := absi(String(surface_id).hash())
 	return Vector3(float(roll % 997) / 997.0, float(int(roll / 997) % 991) / 991.0, 0.0)

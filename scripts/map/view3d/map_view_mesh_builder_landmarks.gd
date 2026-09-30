@@ -635,19 +635,10 @@ static func build_transition_door(
 		var side := MapBuildingEntrance.attachment_side(building, transition)
 		horizontal_wall = side in [&"north", &"south"]
 		root.set_meta("building_id", building.get("id", &""))
-		# Buildings whose entrance sits behind an open gallery (the Town Hall
-		# arcade) keep the door on the real inner wall, not on the arcade face.
-		var footprint: Rect2 = building.get("footprint", Rect2())
-		var inset := MapViewMeshBuilderBuildingHouses.town_hall_gallery_inset(
-			building, footprint.size * scale
-		)
-		if inset > 0.0:
-			center += (
-				_facade_inward(side)
-				* (inset - MapViewMeshBuilderBuildingHouses.TOWN_HALL_DOOR_RECESS)
-			)
-			# Snap onto the arcade axis: the portal bay is centred on the mass, so
-			# an off-centre approach trigger must not drag the door off it.
+		# Snap onto the portal axis: the Town Hall portal is centred on the mass,
+		# so an off-centre approach trigger must not drag the door off it.
+		if MapViewMeshBuilderBuildingHouses.centres_entrance(building):
+			var footprint: Rect2 = building.get("footprint", Rect2())
 			var footprint_center := footprint.get_center() * scale
 			if horizontal_wall:
 				center.x = footprint_center.x
@@ -703,19 +694,6 @@ static func build_transition_door(
 		&"stone"
 	)
 	return root
-
-
-## Unit step from a facade side into the building, in the XZ plane used by the
-## door transform (Vector2.y maps to world Z).
-static func _facade_inward(side: StringName) -> Vector2:
-	match side:
-		&"north":
-			return Vector2(0.0, 1.0)
-		&"south":
-			return Vector2(0.0, -1.0)
-		&"east":
-			return Vector2(-1.0, 0.0)
-	return Vector2(1.0, 0.0)
 
 
 ## Compiler wall openings leave a full-height void. Fill the leftover width and

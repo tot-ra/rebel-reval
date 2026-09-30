@@ -46,6 +46,7 @@ func _run() -> void:
 		"dimetric": [Vector3(30.0, 12.0, 58.0), Vector3(39.0, 2.0, 70.0)],
 		"rear": [Vector3(44.0, 4.0, 84.0), Vector3(39.0, 2.0, 76.0)],
 		"side": [Vector3(58.0, 4.0, 62.0), Vector3(50.0, 2.5, 72.0)],
+		"west_gable": [Vector3(27.0, 4.5, 64.0), Vector3(32.5, 6.5, 75.0)],
 	}
 	for shot_name in shots:
 		camera.position = shots[shot_name][0]
