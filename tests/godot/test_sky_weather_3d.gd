@@ -5,6 +5,7 @@ const SkyWeatherState := preload("res://scripts/map/view3d/sky_weather_state.gd"
 const AtmosphereLut := preload("res://scripts/map/view3d/sky_atmosphere_lut.gd")
 const Lighting := preload("res://scripts/map/view3d/map_view_lighting.gd")
 const WaterMaterials := preload("res://scripts/map/view3d/map_view_water_materials.gd")
+const AtmosphereCpu := preload("res://scripts/map/view3d/atmosphere_cpu.gd")
 
 # gdlint: disable=max-line-length
 
@@ -35,6 +36,30 @@ func test_weather_sequence_is_deterministic() -> void:
 	assert_array_contains(first_sequence, SkyWeather.WEATHER_RAIN, "rain must be reachable, and frequent enough to catch in a short run")
 	first.free()
 	second.free()
+
+
+func test_fallback_sun_reflection_is_normalized_at_noon_and_sunset() -> void:
+	# The physical atmosphere usually overwrites this colour, so force missing LUTs to
+	# exercise the gradient-water fallback that previously produced a white sheet.
+	assert_false(AtmosphereCpu.load_luts("res://missing/transmittance.exr", AtmosphereCpu.MULTISCATTER_PATH))
+	var sky := SkyWeather.new()
+	sky.auto_weather = false
+	for factor: float in [0.0, 0.5, 1.0]:
+		sky.sunset_factor = factor
+		var presentation := sky.presentation_snapshot(0.5, 1.0)
+		var color: Color = presentation.sun_reflection_color
+		var expected := Color8(255, 243, 222).lerp(Color8(255, 148, 64), presentation.sunset_tint)
+		assert_false(presentation.atmosphere_available, "missing LUTs must use fallback water colour")
+		assert_true(color.is_equal_approx(expected), "fallback water sun tint must use normalized RGB")
+		assert_true(
+			is_finite(color.r) and is_finite(color.g) and is_finite(color.b)
+			and color.r >= 0.0 and color.r <= 1.0
+			and color.g >= 0.0 and color.g <= 1.0
+			and color.b >= 0.0 and color.b <= 1.0,
+			"fallback sun reflection must stay within the shader's 0..1 range"
+		)
+	sky.free()
+	assert_true(AtmosphereCpu.load_luts(), "restore the real LUTs for subsequent tests")
 
 
 func test_snapshot_json_round_trip_preserves_full_state() -> void:
