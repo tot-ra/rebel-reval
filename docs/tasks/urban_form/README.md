@@ -166,7 +166,9 @@ should start first among the agent rows.
 
 Three rows are scope changes under `AGENTS.md` and ship an ADR before any code:
 
-- **UF-01** (R-1110) - a new authoring primitive. Reserves **ADR 0026**. Decision not yet taken.
+- **UF-01** (R-1110) - a new authoring primitive. [ADR 0026](../../adr/0026-streets-as-authored-network.md)
+  is **Proposed, 2026-09-30**. Named WB-09 owner agreement to retiring R-981's independent
+  free-form geometry and named maintainer approval/acceptance remain pending. UF-03 is blocked.
 - **UF-14** (R-1129) - a second streaming group past the town wall. Reserves **ADR 0027**. The
   maintainer **approved the scope on 2026-09-30**, including the equivalent-cost removal of WB-11
   deliverables 4 and 7 (interactive relief sculpting, docked live 3D preview). Writing the ADR with

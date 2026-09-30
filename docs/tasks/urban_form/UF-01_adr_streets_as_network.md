@@ -82,3 +82,32 @@ ADR 0026, the urban-form README and UF-03 contract, WB-09 contract and world REA
 ```text
 - [ ] R-1110 | deps: none | deliverable: ADR 0026 for authored StreetNetwork and frontage authority, replacing WB-09/R-981 independent plot geometry with UF-03 consumption and recording owner agreement | verify: five-section ADR and named maintainer ISO-dated decision; WB-09 seam review; MAP_AUTHORING link; python3 tools/generate_active_docs_report.py --check; git diff --check
 ```
+
+
+## Implementation record (2026-09-30)
+
+Published [ADR 0026](../../adr/0026-streets-as-authored-network.md) as **Proposed**.
+The UF-03 contract, urban/world pack summaries, WB-09 contract and MAP_AUTHORING
+now state one proposed geometry authority and an explicit WB-09 scope exchange.
+No runtime, parser, compiler, test, map or asset implementation is included.
+No named owner agreement or human acceptance has been supplied; UF-03 remains
+blocked. Task-board entries, not this document's legacy TODO example, own status.
+
+### Independent review and verification
+
+Code Reviewer (`dev-code-reviewer`), 2026-09-30: **technical PASS**, final review
+session `e7b63fcb-6f14-4f98-8093-a82502bfe4ac`. The earlier endpoint/orphan
+conflation and UF-03 severity shorthand were corrected. WB-09 seam review is a
+technical PASS, not named human owner agreement. Human decision follow-up:
+**R-1152 (P0)**; R-1110 remains in review and UF-03 remains blocked.
+
+Host checks: active-docs analysis found zero issues; an alternate report under
+`build/r1110/` passes `--check`; active-docs unit tests pass 5/5. The default
+`docs/reports/active_markdown_report.md` was already stale before this task and
+is not refreshed from the shared dirty worktree. Blueprint validation reports
+29 maps, zero errors and 638 warnings (no warning suppression); world layout,
+map audit, activation and conversion-plan Python gates pass. The complete Godot
+suite was invoked (409 files) but reports failures in unrelated runtime tests and
+exceeded a 600-second watchdog (exit 124); its gate is not claimed green. Default
+report refresh is tracked as R-1153 (P2). No runtime or map file was changed by
+this proposal.

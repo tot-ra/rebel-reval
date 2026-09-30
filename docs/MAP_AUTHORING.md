@@ -2,6 +2,15 @@
 
 This document defines the production authoring contract for programmatic maps. It is normative for new map work and should be read with [ADR 0009](adr/0009-map-blueprint-authoring-architecture.md) and [ADR 0010](adr/0010-large-map-runtime-chunking.md). The parser, typed blueprint model, compiler, registry audit, representative parity migration, editor preview, and chunk-safe persistence boundary are implemented. Unmigrated maps may continue to construct `MapDefinition` directly until they are migrated one at a time under the gates below.
 
+## Proposed street-network extension (UF-01 / R-1110)
+
+[ADR 0026](adr/0026-streets-as-authored-network.md) is **Proposed, 2026-09-30**,
+not an implemented authoring API. It specifies one edge-aligned StreetNetwork geometry
+authority for UF-03 and UF-04, consumed by WB-09 plots. Named WB-09 owner agreement
+and named maintainer scope approval/acceptance remain outstanding; publishing this
+proposal does not release UF-03. Do not author `street` statements yet. Existing
+`stroke`, `terrain_rects`, stable IDs, fingerprints and walkability remain unchanged.
+
 ## Goals
 
 - Give humans and AI agents a compact, typed vocabulary that expresses intent instead of runtime dictionaries.

@@ -3,6 +3,22 @@
 Board row: **R-981**. Priority: high. Depends on: **R-982**, **R-974**.
 Scope change: requires **ADR 0024** before implementation.
 
+### Proposed geometry ownership exchange (UF-01 / R-1110)
+
+[ADR 0026](../../adr/0026-streets-as-authored-network.md) is **Proposed, 2026-09-30**.
+Named WB-09 owner agreement and named maintainer scope approval are **pending**.
+The proposed equivalent-cost removal is R-981's independent free-form plot/street
+geometry layer: separate trace, width, edge-offset and frontage geometry parsing,
+serialization, validation, lowering and geometry tests. UF-03 / R-1112 owns the
+StreetNetwork; UF-04 / R-1113 owns frontage seating. WB-09 retains plot depth, wealth,
+age, upkeep, descriptions, style presets, summaries, deterministic prefab lowering
+and stable IDs. Its geometry-consuming implementation must wait for accepted ADR
+0026 and completed R-1112/R-1113, in addition to R-982/R-974 and ADR 0024; drafting
+ADR 0024 can proceed independently. No second geometry language may ship.
+
+Owner agreement: **pending named review**. Maintainer approval: **pending named,
+ISO-dated decision**. This amendment proposes the handoff; it does not claim approval.
+
 ## Player-facing goal
 
 None directly. This row is what lets a human and an agent both author a dense, historically
@@ -37,8 +53,9 @@ nothing to reason over.
 1. **ADR 0024** deciding to add a semantic authoring layer, naming the equivalent-cost scope
    removed, and fixing the rule that v2 statements **lower deterministically** into the existing
    primitives so there is exactly one compiled representation and one fingerprint.
-2. **A `plot` statement** as the district authoring unit, carrying frontage, depth, street, wealth
-   tier, age tier and upkeep, and expanding through a reviewed prefab into a front house, an
+2. **A `plot` statement** as the district authoring unit, consuming UF-03 street IDs and
+   UF-04 frontage semantics instead of an independent free-form geometry vocabulary, carrying
+   plot depth, wealth tier, age tier and upkeep, and expanding through a reviewed prefab into a front house, an
    optional rear service range, a yard, a plot wall and a gate. Prefab-local IDs are stable and
    derived from the plot ID, so the census does not churn.
 3. **Named style presets** replacing generated variant rows: a small reviewed palette keyed by

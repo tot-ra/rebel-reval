@@ -120,7 +120,16 @@ and must not be merged, but the boundary has to stay sharp because both touch th
 | **Dressing and ground** density: props, decals, vegetation, ground cover, footprint repetition | **WB-10** |
 | **Terrain** relief and what stands on it | **WB-01**..**WB-04** |
 | **Streaming** and loading screens | **WB-05**..**WB-08** |
+| **Street geometry / frontage seating** (proposed ADR 0026) | **UF-03 / R-1112**, **UF-04 / R-1113**; WB-09 consumes their output |
 | **Authoring surface**: `.rrmap` v2 and the editor | **WB-09**, **WB-11** |
+
+Proposed UF-01 / R-1110 scope exchange: [ADR 0026](../../adr/0026-streets-as-authored-network.md)
+removes WB-09 / R-981's independent free-form trace, width, edge-offset and frontage
+geometry language, compiler and duplicate geometry tests. Style presets, descriptions,
+summaries, plot semantics and stable prefab lowering remain in WB-09. Geometry-consuming
+work gains R-1112/R-1113 completion gates, without blocking ADR 0024 drafting. **Named
+WB-09 owner agreement and named maintainer scope approval are pending**; no implementation
+is released by this proposed handoff.
 
 Three specific interlocks:
 

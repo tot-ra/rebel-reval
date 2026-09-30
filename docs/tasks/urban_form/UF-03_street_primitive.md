@@ -1,6 +1,18 @@
 # UF-03: Street primitive, compiled StreetNetwork and street diagnostics
 Board row: **R-1112**. Priority: high. Depends on: **R-1110 (ADR 0026 accepted)**.
 
+## ADR gate and geometry authority
+
+[ADR 0026](../../adr/0026-streets-as-authored-network.md) is **Proposed, 2026-09-30**.
+UF-03 remains blocked until named WB-09 owner agreement and named maintainer
+scope approval/acceptance are recorded; merging the proposal is not acceptance.
+Implement its edge-aligned trace, 1..16-cell width bounds, 1-cell-per-4-cell width
+change limit, connection/overlap rules and per-class dead-end diagnostics as one
+geometry authority. `extramural_road` uses the same primitive as the urban classes.
+Frontage seating belongs to UF-04 / R-1113; WB-09 / R-981 consumes that output.
+The no-street fingerprint payload must omit an empty network and preserve the
+legacy version-salt path. Do not regenerate parity fixtures to satisfy that rule.
+
 ## Player-facing goal
 
 An authored street has a durable identity, trace, width, surface and continuity; it is not inferred from terrain left between buildings.
@@ -11,7 +23,7 @@ The parser dispatcher in `scripts/map/rrmap/map_rrmap_parser_statements.gd` and 
 
 ## Deliverable
 
-Add the `street` statement and round-trip serialization; a typed `MapBlueprint` primitive; deterministic compilation to ordered `MapDefinition.street_network`, canonical fingerprint inclusion and emission of ground surface from each street's own surface. Add stable diagnostic codes `MAP_STREET_ORPHAN` (touches no gate, square, transition or other street), `MAP_STREET_WIDTH_JUMP` (width changes faster than ADR band's limit), `MAP_STREET_DEAD_END` (error only for classes forbidding dead ends), and `MAP_STREET_OVERLAP`. Polyline traces must be strictly orthogonal; stepped segments represent angled ways. Thickness grows from the authored start edge in +x/+y, not centered, matching `stroke`.
+Add the `street` statement and round-trip serialization; a typed `MapBlueprint` primitive; deterministic compilation to ordered `MapDefinition.street_network`, canonical fingerprint inclusion and emission of ground surface from each street's own surface. Add stable diagnostic codes `MAP_STREET_ORPHAN` (touches no gate, square, transition or other street), `MAP_STREET_WIDTH_JUMP` (width changes faster than ADR band's limit), `MAP_STREET_DEAD_END` (ADR 0026 per-class endpoint rules: one unconnected alley endpoint warns, two error; all other classes forbid an unconnected endpoint), and `MAP_STREET_OVERLAP`. Polyline traces must be strictly orthogonal; stepped segments represent angled ways. Thickness grows from the authored start edge in +x/+y, not centered, matching `stroke`.
 
 ## Allowed files
 
