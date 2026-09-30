@@ -14,11 +14,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `169`
-- Markdown files excluded as archive/reference/out of active scope: `725`
-- Local/external links inspected: `835`
-- Links to active Markdown docs: `448`
-- Links to existing archive/reference/non-active local docs: `170`
+- Active Markdown files scanned: `187`
+- Markdown files excluded as archive/reference/out of active scope: `727`
+- Local/external links inspected: `864`
+- Links to active Markdown docs: `470`
+- Links to existing archive/reference/non-active local docs: `177`
 - External links skipped for reachability: `46`
 - Issues found: `0`
 
@@ -166,6 +166,24 @@ No active Markdown documentation issues found.
 - `docs/tasks/coast/CO-09_saaremaa_traversability.md`
 - `docs/tasks/coast/CO-10_swim_dive_drown.md`
 - `docs/tasks/coast/README.md`
+- `docs/tasks/urban_form/README.md`
+- `docs/tasks/urban_form/UF-00_reconcile_adr_0023_acceptance.md`
+- `docs/tasks/urban_form/UF-01_adr_streets_as_network.md`
+- `docs/tasks/urban_form/UF-02_street_register.md`
+- `docs/tasks/urban_form/UF-03_street_primitive.md`
+- `docs/tasks/urban_form/UF-04_frontage_and_anti_grid.md`
+- `docs/tasks/urban_form/UF-05_lower_town_and_civic_streets.md`
+- `docs/tasks/urban_form/UF-06_quarter_streets.md`
+- `docs/tasks/urban_form/UF-07_toompea_ramps_on_relief.md`
+- `docs/tasks/urban_form/UF-08_seam_form_continuity.md`
+- `docs/tasks/urban_form/UF-09_landmark_register.md`
+- `docs/tasks/urban_form/UF-10_niguliste_exterior.md`
+- `docs/tasks/urban_form/UF-11_civic_and_parish_exteriors.md`
+- `docs/tasks/urban_form/UF-12_toompea_castle_and_cathedral.md`
+- `docs/tasks/urban_form/UF-13_convent_precincts.md`
+- `docs/tasks/urban_form/UF-14_adr_hinterland_group.md`
+- `docs/tasks/urban_form/UF-15_hinterland_maps.md`
+- `docs/tasks/urban_form/UF-16_master_plans_and_visual_gate.md`
 - `docs/tasks/water_sky/README.md`
 - `docs/tasks/water_sky/WS-01_refracted_water_column.md`
 - `docs/tasks/water_sky/WS-02_ggx_sun_glint.md`
