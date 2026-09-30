@@ -2,9 +2,12 @@
 
 ## Status
 
-**Proposed, 2026-09-26. Awaiting maintainer acceptance.** Task: WB-01 (board R-973). Gates WB-02
-(R-974), WB-03 (R-975) and WB-04 (R-976). No relief code may land until this line records the
-maintainer's acceptance with an ISO date.
+**Accepted, Artjom Kurapov, 2026-09-30.** Proposed 2026-09-26. Task: WB-01 (board R-973). Gates
+WB-02 (R-974), WB-03 (R-975) and WB-04 (R-976). The original sequencing rule was: no relief code may
+land until this line records the maintainer's acceptance with an ISO date. That rule stands for
+future ADR-gated packs and **was breached here** - relief code landed before this line was updated.
+The breach is recorded in Consequences, "Acceptance record (UF-00, R-1109)"; it is not retroactively
+excused, and acceptance does not approve any pending implementation or QA evidence.
 
 ## Context
 
@@ -87,3 +90,32 @@ collision, camera and position semantics, which is a scope change under `AGENTS.
 - References, not amendments: [ADR 0009](0009-map-blueprint-authoring-architecture.md) (blueprint
   authoring) and [ADR 0010](0010-large-map-runtime-chunking.md) (chunking) remain in force. Chunks
   consume the same compiled field and never persist it.
+
+### Acceptance record (UF-00, R-1109)
+
+Decision: **Accepted by Artjom Kurapov on 2026-09-30**, on the evidence gathered for
+[UF-00](../tasks/urban_form/UF-00_reconcile_adr_0023_acceptance.md).
+
+Evidence at the time of the decision: relief rows **R-974** (compiler) and **R-975** (traversal) were
+already in review, and four relief-dependent water rows - **R-1003**, **R-1022**, **R-1023**,
+**R-1024** - had landed. The repository independently showed relief commands in the `.rrmap` parser
+and compiled relief storage in `scripts/map/map_definition.gd`. So code existed before this Status
+line carried a decision, which the Status line itself forbade.
+
+What acceptance does and does not do:
+
+- **Ratified as written:** the -8.0 .. +32.0 world-unit total height range, 1/64-unit quantisation,
+  the 35-degree walkable slope limit, the 2D-navigation authority split, derived-never-persisted
+  height, and the zero-contribution migration of `elevation=`, `grade`, `elevation_area`,
+  `elevation_ramp` and every `r454.*` ID.
+- **Ratified as written:** Decision 7. Tower-capture, naval and castle-building mini-games are
+  permanently out of scope for Acts 1-3 and are no longer eligible for a future ADR. This supersedes
+  the "need an ADR first" wording in `AGENTS.md` for those three.
+- **Released from this ADR gate:** R-973 closes its decision gate; R-974 and R-975 continue to their
+  own independent acceptance; R-976 proceeds after R-975 is accepted; UF-07 (R-1116) proceeds after
+  R-1113 and R-976. Transitively, the inherited ADR blocker clears on R-981, R-983, R-985, R-986,
+  R-1122 and R-1133 - their other dependencies are untouched.
+- **Not released:** no implementation, Canon or QA evidence is waived, and no in-review row becomes
+  approved because this ADR is now accepted. The landed code must still pass its own review.
+- **Prevention:** the lesson is recorded in [`agents/playbook.md`](../../agents/playbook.md) - check
+  the named ADR's Status line before claiming a gated row; merged files are not human approval.

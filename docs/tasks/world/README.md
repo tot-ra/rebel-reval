@@ -54,7 +54,9 @@ it - the player and navigation do not. Toompea, a limestone hill standing roughl
 Lower Town, is authored as `elevation=2.8` world units, about **2.4 m**.
 
 **4. Seamless traversal is designed but inert, and there is almost nothing to be seamless between.**
-ADR 0019 is `Proposed`; `MapWorldLayout` and `MapAlignmentMath` are implemented; `WorldHost` exists
+ADR 0019 was `Proposed` when this pack was written and is now `Accepted` (2026-09-27, Artjom
+Kurapov) with its flags still off; `MapWorldLayout` and `MapAlignmentMath` are implemented;
+`WorldHost` exists
 as a "Phase 2 additive-residency prototype" that "deliberately does not create players/cameras or
 perform scene swaps" and is off behind `world_host/additive_residency_enabled`. `DoorNavigator`
 still swaps scenes, `MapView3D._assemble()` still builds a whole location synchronously, and
@@ -72,7 +74,7 @@ available - nothing drives it.
 
 | Row | Local id | Deps | Theme | Summary |
 |---|---|---|---|---|
-| R-973 | WB-01 | none | Relief | [ADR 0023](../../adr/0023-terrain-relief-as-gameplay.md): terrain relief becomes gameplay, with the removed scope named |
+| R-973 | WB-01 | none | Relief | [ADR 0023](../../adr/0023-terrain-relief-as-gameplay.md): terrain relief becomes gameplay, with the removed scope named. **Accepted 2026-09-30** (see the decision note below) |
 | R-974 | WB-02 | R-973 | Relief | Signed relief primitives and a compiled gameplay heightfield in `.rrmap` |
 | R-975 | WB-03 | R-974 | Relief | Relief drives player/NPC height, slope limits, navigation and camera |
 | R-976 | WB-04 | R-975 | Relief | Re-author Toompea, Lower Town and the Viru foreland with real relief |
@@ -89,6 +91,19 @@ available - nothing drives it.
 
 Ordering note: R-977, R-982 and R-984 have no dependencies and can start immediately. R-973 also has
 none but is an ADR, so it gates the whole relief chain and should be first in that chain.
+
+### ADR 0023 decision, 2026-09-30
+
+**Accepted by Artjom Kurapov**, recorded under
+[UF-00 / R-1109](../urban_form/UF-00_reconcile_adr_0023_acceptance.md) and in the ADR's "Acceptance
+record" section. This is the `Accept` row of that task's outcome matrix:
+
+| Released from the ADR gate | Not released |
+|---|---|
+| R-973 closes its decision gate. R-974 and R-975 continue to their own independent acceptance. R-976 proceeds once R-975 is accepted. UF-07 / R-1116 proceeds after R-1113 and R-976. The inherited ADR blocker also clears on R-981, R-983, R-985, R-986, R-1122 and R-1133 | No implementation, Canon or QA evidence is waived. Every other dependency stands. Code that landed before the Status line was updated is still in review, and the breach of "no relief code before acceptance" is recorded in the ADR, not excused |
+
+Also ratified as written: ADR 0023 Decision 7, which makes tower-capture, naval and castle-building
+mini-games **permanently** out of scope for Acts 1-3 rather than "deferred until an ADR".
 
 ## Relationship to the architecture pack (AR-01..AR-13)
 

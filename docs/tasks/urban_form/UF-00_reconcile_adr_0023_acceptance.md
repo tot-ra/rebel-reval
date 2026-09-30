@@ -2,6 +2,11 @@
 
 Board row: **R-1109**. Priority: high. Depends on: none.
 
+**Closed 2026-09-30: ADR 0023 was ACCEPTED by Artjom Kurapov.** The decision, the sequencing-breach
+record and the released rows are in [ADR 0023](../../adr/0023-terrain-relief-as-gameplay.md),
+"Acceptance record (UF-00, R-1109)". The `Accept` row of the outcome matrix below is the one in
+force. The rest of this document is the contract as written, kept for review.
+
 ## Player-facing goal
 
 Give the climb from the Lower Town to Toompea an explicit, approved gameplay-height contract before more streets or buildings depend on it. This is a **maintainer decision, not agent implementation work**. Producer records the decision and its dependency consequences; an agent cannot supply the human acceptance.

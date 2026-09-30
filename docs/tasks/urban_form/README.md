@@ -118,22 +118,27 @@ past the wall is a scope change, not a bug.
 
 **UF-14** decides it; **UF-15** builds it.
 
-### 6. The relief chain is standing on an unaccepted ADR
+### 6. The relief chain was standing on an unaccepted ADR - resolved 2026-09-30
 
-`docs/adr/0023-terrain-relief-as-gameplay.md` Status still reads **"Proposed, 2026-09-26. Awaiting
-maintainer acceptance"**, and its own text says "No relief code may land until this line records the
+`docs/adr/0023-terrain-relief-as-gameplay.md` Status read **"Proposed, 2026-09-26. Awaiting
+maintainer acceptance"**, and its own text said "No relief code may land until this line records the
 maintainer's acceptance with an ISO date." Meanwhile R-974 (relief compiler) and R-975 (relief
-gameplay) are in review and R-1003 / R-1022 / R-1023 / R-1024 landed relief-dependent water changes.
-Toompea is still authored at `elevation=2.8` (about 2.4 m) for a hill that stands 20-30 m over the
-Lower Town.
+gameplay) were in review and R-1003 / R-1022 / R-1023 / R-1024 had landed relief-dependent water
+changes. Toompea is still authored at `elevation=2.8` (about 2.4 m) for a hill that stands 20-30 m
+over the Lower Town.
 
-**UF-00** is a maintainer decision, not agent work. It gates **UF-07**.
+**Decision: ADR 0023 is `Accepted, Artjom Kurapov, 2026-09-30`** (UF-00 / R-1109, closed). The
+`Accept` row of the UF-00 outcome matrix is in force: R-973 closes its decision gate, R-974 and R-975
+continue to their own acceptance, R-976 follows R-975, and **UF-07 / R-1116** is released from this
+gate once R-1113 and R-976 are done. The inherited ADR blocker also clears on R-981, R-983, R-985,
+R-986, R-1122 and R-1133. No implementation, Canon or QA evidence is waived, and the sequencing
+breach is recorded in the ADR rather than excused.
 
 ## Rows
 
 | Row | Board | Deps | Theme | Summary |
 |---|---|---|---|---|
-| UF-00 | **R-1109** | none | Governance | Reconcile ADR 0023 acceptance with the relief code already in review |
+| ~~UF-00~~ | **R-1109** | none | Governance | **Done 2026-09-30** - ADR 0023 accepted by Artjom Kurapov; breach recorded, UF-07 released from the ADR gate |
 | UF-01 | **R-1110** | none | Streets | ADR 0026: streets are an authored network, not the gap between buildings |
 | UF-02 | **R-1111** | none | History | 1343 Reval street, lane and open-space register with attestation |
 | UF-03 | **R-1112** | R-1110 | Streets | `street` primitive, compiled `StreetNetwork`, street diagnostics |
@@ -147,23 +152,30 @@ Lower Town.
 | UF-11 | **R-1120** | R-1118, R-1115, R-1123 | Landmarks | St Olaf's and the Great Guild 1343 exteriors. Town Hall and Holy Spirit moved to LM |
 | UF-12 | **R-1122** | R-1116, R-1118, R-1123, R-1128 | Landmarks | The Dome Church, plus relief bedding for the whole Toompea compound. Castle moved to LM-04 |
 | ~~UF-13~~ | ~~**R-1125**~~ | - | Landmarks | **Cancelled** - St Catherine's is LM-02 and St Michael's is LM-05 |
-| UF-14 | **R-1129** | R-980 | Seamless | ADR 0027: a second streaming group for the Reval hinterland |
+| UF-14 | **R-1129** | R-980 | Seamless | ADR 0027: a second streaming group for the Reval hinterland. **Scope approved 2026-09-30**; the ADR still has to be written |
 | UF-15 | **R-1133** | R-1129, R-980, R-1117, R-976 | Seamless | Hinterland connective maps and the second world layout |
 | UF-16 | **R-1136** | R-1114, R-1115 | Quality | District master plans and a street-legibility visual gate |
 
-Ordering note: **UF-00**, **UF-01**, **UF-02** and **UF-14** have no dependencies inside this pack
-and can start immediately. UF-00 and UF-14 need the maintainer, not an agent. UF-02 is pure research
-and unblocks the whole map chain, so it should start first among the agent rows.
+Ordering note: **UF-01**, **UF-02** and **UF-14** have no dependencies inside this pack and can start
+immediately. UF-00 is closed. UF-14 no longer waits on the maintainer for the *decision* - the scope
+was approved on 2026-09-30 - but it still has to author the ADR, the census amendment and the budget
+tables, and it still depends on R-980. UF-02 is pure research and unblocks the whole map chain, so it
+should start first among the agent rows.
 
 ## Scope discipline
 
 Three rows are scope changes under `AGENTS.md` and ship an ADR before any code:
 
-- **UF-01** (R-1110) - a new authoring primitive. Reserves **ADR 0026**.
-- **UF-14** (R-1129) - a second streaming group past the town wall. Reserves **ADR 0027**.
-- **UF-00** (R-1109) - not a new scope change, but it unblocks one that already shipped code.
+- **UF-01** (R-1110) - a new authoring primitive. Reserves **ADR 0026**. Decision not yet taken.
+- **UF-14** (R-1129) - a second streaming group past the town wall. Reserves **ADR 0027**. The
+  maintainer **approved the scope on 2026-09-30**, including the equivalent-cost removal of WB-11
+  deliverables 4 and 7 (interactive relief sculpting, docked live 3D preview). Writing the ADR with
+  `Accepted, Artjom Kurapov, 2026-09-30` is now documentation of a decision already taken; it is not
+  permission to widen the membership beyond the recommendation.
+- **UF-00** (R-1109) - not a new scope change, but it unblocked one that already shipped code.
+  Closed: ADR 0023 accepted 2026-09-30.
 
-ADR numbers as of 2026-09-30: 0023 is merged but unaccepted, **0024 is reserved by WB-09**
+ADR numbers as of 2026-09-30: **0023 is merged and accepted**, **0024 is reserved by WB-09**
 (R-981, `.rrmap` v2 semantic layer), 0025 is merged (AR-02, architectural asset pipeline). A number
 reserved in prose is not a lock: before writing a reserved ADR, run `ls docs/adr/` and
 `grep -rn "ADR 00NN" docs/tasks project task board`, take the next free number, and sweep every contract and
