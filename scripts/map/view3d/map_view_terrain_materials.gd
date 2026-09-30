@@ -461,6 +461,7 @@ static func blended_ground(noise_seed: int) -> ShaderMaterial:
 		"timber_floor_layer", terrain_blend_index(MapTypes.TERRAIN_TIMBER_FLOOR)
 	)
 	material.set_shader_parameter("mud_layer", terrain_blend_index(MapTypes.TERRAIN_MUD))
+	material.set_shader_parameter("dirt_layer", terrain_blend_index(MapTypes.TERRAIN_DIRT))
 	# Trodden-ground relief band is derived from the stable blend order rather than
 	# hard-coded in the shader, so reordering layers cannot silently unflatten grass
 	# or flatten the street again.

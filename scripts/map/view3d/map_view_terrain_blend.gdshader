@@ -45,6 +45,9 @@ uniform int cobblestone_layer = 12;
 uniform int castle_paving_layer = 13;
 uniform int timber_floor_layer = 15;
 uniform int mud_layer = 8;
+// Roads and yards (farm soil, dirt) reuse the authored mud plate: the 128 px
+// procedural earth read as a blurry blue-grey wave with plastic gloss.
+uniform int dirt_layer = 7;
 uniform int hay_layer = 4;
 uniform int straw_layer = 5;
 // Inclusive layer band covering trodden ground (farm soil through ash). These
@@ -299,7 +302,7 @@ vec3 compute_cobble_albedo(vec2 uv, vec2 world_xz) {
 void accumulate_layer(int layer, float weight, vec2 uv, vec3 tint, inout vec4 ground, inout vec4 family, inout vec3 remainder) {
 	if (layer >= 0 && layer <= 3) {
 		ground.x += weight;
-	} else if (layer == mud_layer && use_authored_mud > 0.5) {
+	} else if ((layer == mud_layer || layer == dirt_layer || layer == earth_layer_min) && use_authored_mud > 0.5) {
 		ground.y += weight;
 	} else if (layer == sand_layer && use_authored_sand > 0.5) {
 		ground.z += weight;
@@ -368,7 +371,9 @@ void fragment() {
 	}
 	if (ground_weights.y > 0.001) {
 		vec4 mud = sample_ground_family(1, UV, family_normal);
-		albedo += mud.rgb * realistic_tint * ground_weights.y;
+		// Desaturate toward a dusty grey-brown: the raw plate is too orange next to grass.
+		vec3 mud_rgb = mix(vec3(dot(mud.rgb, vec3(0.299, 0.587, 0.114))) * vec3(1.0, 0.93, 0.85), mud.rgb, 0.55) * 0.88;
+		albedo += mud_rgb * realistic_tint * ground_weights.y;
 		plate_normal += family_normal * ground_weights.y;
 		plate_rough += mud.a * ground_weights.y;
 		plate_weight += ground_weights.y;
@@ -403,7 +408,7 @@ void fragment() {
 	ALBEDO = mix(ALBEDO, ALBEDO * vec3(0.48, 0.43, 0.36), mud_film_weight * 0.64);
 
 	float earth_h = earth_height(terrain_world_xz);
-	ALBEDO *= 1.0 + (earth_h - 0.5) * 0.34 * earth_weight;
+	ALBEDO *= 1.0 + (earth_h - 0.5) * 0.22 * earth_weight;
 	vec2 normal_xy = surface.rg * 2.0 - 1.0;
 	float eps = 0.10;
 	vec2 earth_slope = vec2(
@@ -413,7 +418,7 @@ void fragment() {
 	vec3 earth_normal = normalize(vec3(-earth_slope.x, 1.0, -earth_slope.y)).xzy;
 	// Tangent-space xy offsets add up: broad earth lumps, cobble joints and the
 	// authored plate grain. z is rebuilt so the result stays unit length.
-	vec2 combined_xy = earth_normal.xy * 0.85 * earth_weight
+	vec2 combined_xy = earth_normal.xy * 0.30 * earth_weight
 		+ normal_xy * 0.55 * cobble_weight
 		+ plate_normal;
 	combined_xy = clamp(combined_xy, vec2(-0.95), vec2(0.95));
