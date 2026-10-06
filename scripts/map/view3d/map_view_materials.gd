@@ -257,6 +257,12 @@ static func apply_shore_field(texture: Texture2D, origin: Vector2, size: Vector2
 	SHORE_MATERIALS.apply_shore_field(texture, origin, size)
 
 
+## R-1160: binds one map's river channel centreline, so the current follows the
+## meander and slows at the banks. An empty path restores the single heading.
+static func apply_river_flow(path: PackedVector3Array) -> void:
+	WATER_MATERIALS.apply_river_flow(path)
+
+
 ## Minimum tier drops the sheet mesh but keeps the bore foam and wet sand. Like the
 ## FFT cascades, the tier applies to map views built afterwards.
 static func set_shore_swash_quality_tier(requested: Variant) -> void:

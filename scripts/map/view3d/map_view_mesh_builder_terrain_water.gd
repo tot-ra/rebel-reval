@@ -3,6 +3,8 @@ extends RefCounted
 
 ## Smoothed water contours and recessed water-surface mesh generation.
 
+const RIVER_FLOW := preload("res://scripts/map/view3d/map_view_river_flow.gd")
+
 const SHORE_FIELD_TEXELS_PER_CELL := 4
 ## Signed distance clamp in world units (+ = water, - = land).
 const SHORE_FIELD_MAX_DISTANCE := 8.0
@@ -687,6 +689,20 @@ static func _add_sheet_triangle(
 		for vertex_index in 3:
 			vertices.append((sub[vertex_index] as Vector3) + lift)
 			vertex_normals.append(sub[vertex_index + 3] as Vector3)
+
+
+## R-1160: the river channel centreline of this map, as a pure function of the
+## grid, so it can be baked on a worker beside the shore field.
+static func compute_river_flow(grid: MapTerrainGrid) -> PackedVector3Array:
+	return RIVER_FLOW.channel_centreline(grid, MapViewMaterials.WATER_MATERIALS.RIVER_FLOW_DIRECTION)
+
+
+## Main-thread half of compute_river_flow(). Rebinding on every tree entry
+## follows the shore field: the water materials are shared by all map views, and
+## a cached map scene re-enters the tree without being rebuilt.
+static func attach_river_flow(root: Node3D, path: PackedVector3Array) -> void:
+	MapViewMaterials.apply_river_flow(path)
+	root.tree_entered.connect(func() -> void: MapViewMaterials.apply_river_flow(path))
 
 
 ## Binds the shore field to the shared terrain/water materials and adds the swash

@@ -100,6 +100,25 @@ static func _start(
 		units.append(
 			_Assembly.unit(TERRAIN_STAGE, label, _publish_water.bind(water, terrain_id, root))
 		)
+	# R-1160: only a river map pays for the channel scan, but every map rebinds
+	# the result, so a previous river's centreline cannot leak onto the next map.
+	var river: RefCounted = (
+		_Job.run(
+			func() -> PackedVector3Array:
+				return MapViewMeshBuilderTerrainWater.compute_river_flow(grid),
+			"terrain river flow"
+		)
+		if water_ids.has(MapTypes.TERRAIN_RIVER_WATER)
+		else _Job.done(PackedVector3Array())
+	)
+	units.append(_Assembly.await_job(TERRAIN_STAGE, "river_flow", river))
+	units.append(
+		_Assembly.unit(
+			TERRAIN_STAGE,
+			"river_flow",
+			func() -> void: MapViewMeshBuilderTerrainWater.attach_river_flow(root, river.value())
+		)
+	)
 	var shore := _start_shore(field, grid)
 	var apron: RefCounted = _Job.run(
 		func() -> Array: return MapViewMeshBuilderTerrain.seabed_apron_arrays(field),

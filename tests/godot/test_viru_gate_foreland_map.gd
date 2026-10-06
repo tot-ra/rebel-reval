@@ -1,7 +1,9 @@
 extends "res://tests/godot/test_case.gd"
 
 const RRMAP_PATH := "res://content/maps/viru_gate_foreland.rrmap"
-const ForelandDefinition := preload("res://scripts/map/definitions/outdoor/viru_gate_foreland_definition.gd")
+const ForelandDefinition := preload(
+	"res://scripts/map/definitions/outdoor/viru_gate_foreland_definition.gd"
+)
 
 
 func test_pirita_parses_at_one_and_a_half_size_and_stays_inactive() -> void:
@@ -9,7 +11,11 @@ func test_pirita_parses_at_one_and_a_half_size_and_stays_inactive() -> void:
 	assert_true(parsed.is_ok(), str(parsed.formatted_diagnostics()))
 	if not parsed.is_ok():
 		return
-	assert_eq(parsed.blueprint.map_id, &"viru_gate_foreland", "stable transition/save ID must not change")
+	assert_eq(
+		parsed.blueprint.map_id,
+		&"viru_gate_foreland",
+		"stable transition/save ID must not change",
+	)
 	assert_eq(parsed.definition.location, &"loc.reval.pirita")
 	assert_eq(parsed.definition.size_cells, Vector2i(168, 120))
 	assert_eq(parsed.definition.scope, &"prototype")
@@ -40,8 +46,14 @@ func test_pirita_river_meanders_south_to_north_with_one_dry_bridge_crossing() ->
 		channel_centers[center] = true
 		westmost_center = mini(westmost_center, center)
 		eastmost_center = maxi(eastmost_center, center)
-	assert_true(channel_centers.size() >= 6, "Pirita needs several bends instead of one straight channel")
-	assert_true(eastmost_center - westmost_center >= 9, "Pirita meanders must read across the wide landscape")
+	assert_true(
+		channel_centers.size() >= 6,
+		"Pirita needs several bends instead of one straight channel",
+	)
+	assert_true(
+		eastmost_center - westmost_center >= 9,
+		"Pirita meanders must read across the wide landscape",
+	)
 	assert_eq(grid.get_terrain(Vector2i(75, 63)), MapTypes.TERRAIN_TIMBER_FLOOR)
 	assert_eq(grid.get_terrain(Vector2i(85, 63)), MapTypes.TERRAIN_TIMBER_FLOOR)
 	assert_eq(grid.get_terrain(Vector2i(96, 63)), MapTypes.TERRAIN_TIMBER_FLOOR)
@@ -56,7 +68,10 @@ func test_pirita_current_is_clear_and_plant_free() -> void:
 			if not MapTypes.WATER_TERRAINS.has(grid.get_terrain(cell)):
 				continue
 			assert_eq(grid.get_terrain(cell), MapTypes.TERRAIN_RIVER_WATER)
-			assert_true(grid.get_style_variant(cell).is_empty(), "flowing water must clear inherited meadow plants")
+			assert_true(
+				grid.get_style_variant(cell).is_empty(),
+				"flowing water must clear inherited meadow plants",
+			)
 	var river := MapViewMaterials.water_surface(MapTypes.TERRAIN_RIVER_WATER)
 	var pond := MapViewMaterials.water_surface(MapTypes.TERRAIN_WATER)
 	var river_base := OutdoorTerrainPalette.color(MapTypes.TERRAIN_RIVER_WATER)
@@ -70,13 +85,26 @@ func test_pirita_current_is_clear_and_plant_free() -> void:
 		river_base.g / maxf(river_base.b, 0.001) < 0.82,
 		"clear Pirita current must stay cooler than a cyan-green algae cast"
 	)
+	# R-1160 replaced the pale beach sand with a darker wet gravel: under the
+	# Pirita's low absorption a bright bed lit the whole channel and flattened the
+	# current. Pin the intent - a neutral, wet-gravel bed instead of coastal algae
+	# sand - rather than one triple a later grade pass would have to edit here.
 	var river_sand: Color = river.get_shader_parameter("sand_bed_color")
 	assert_true(
-		river_sand.is_equal_approx(Color(0.58, 0.50, 0.38)),
-		"fast river bed should use pale sand/gravel instead of coastal algae sand"
+		river_sand.v < 0.52,
+		"fast river bed should read as wet gravel, not a sunlit beach"
+	)
+	assert_true(
+		river_sand.g < river_sand.r and river_sand.b < river_sand.g,
+		"fast river bed should stay a neutral brown-grey without an algae green cast"
 	)
 	for target in MapVisualStyle.ALL_TARGETS:
-		assert_ne(MapVisualStyle.terrain_color(MapTypes.TERRAIN_RIVER_WATER, target, MapVisualStyle.TIME_DAY), Color.MAGENTA)
+		assert_ne(
+			MapVisualStyle.terrain_color(
+				MapTypes.TERRAIN_RIVER_WATER, target, MapVisualStyle.TIME_DAY
+			),
+			Color.MAGENTA,
+		)
 
 
 func test_pirita_roads_are_narrow_cart_ruts_with_a_grassy_crown() -> void:
@@ -118,11 +146,20 @@ func test_pirita_farmsteads_store_authored_field_tools() -> void:
 	var present: Dictionary = {}
 	for prop in definition.props:
 		present[prop.get("kind", &"")] = true
-	assert_true(present.has(MapTypes.PROP_KIND_PITCHFORK), "western croft needs a pitchfork for hay and bedding")
-	assert_true(present.has(MapTypes.PROP_KIND_SCYTHE), "eastern farm needs a scythe for hay and grain work")
+	assert_true(
+		present.has(MapTypes.PROP_KIND_PITCHFORK),
+		"western croft needs a pitchfork for hay and bedding",
+	)
+	assert_true(
+		present.has(MapTypes.PROP_KIND_SCYTHE),
+		"eastern farm needs a scythe for hay and grain work",
+	)
 	assert_true(present.has(MapTypes.PROP_KIND_SICKLE), "western croft needs a short reaping sickle")
 	assert_true(present.has(MapTypes.PROP_KIND_RAKE), "western shed needs a wooden hay rake")
-	assert_true(present.has(MapTypes.PROP_KIND_WOODEN_SHOVEL), "eastern barn needs a wooden grain or stable shovel")
+	assert_true(
+		present.has(MapTypes.PROP_KIND_WOODEN_SHOVEL),
+		"eastern barn needs a wooden grain or stable shovel",
+	)
 
 
 func test_pirita_reciprocates_workers_district_with_stable_ids() -> void:
@@ -152,7 +189,7 @@ func test_pirita_travel_apron_carries_roadside_inn_clutter() -> void:
 	var definition: MapDefinition = ForelandDefinition.create()
 	var prop_ids: Dictionary = {}
 	var prop_kinds: Dictionary = {}
-	const forbidden_harbour_kinds := [
+	const FORBIDDEN_HARBOUR_KINDS := [
 		MapTypes.PROP_KIND_FISHING_NETS,
 		MapTypes.PROP_KIND_FISH_DRYING_RACK,
 		MapTypes.PROP_KIND_SMOKE_RACK,
@@ -175,7 +212,7 @@ func test_pirita_travel_apron_carries_roadside_inn_clutter() -> void:
 		var kind: StringName = prop.get("kind", &"")
 		prop_ids[prop_id] = true
 		prop_kinds[kind] = true
-		assert_false(kind in forbidden_harbour_kinds, "foreland must not reuse harbour prop %s" % kind)
+		assert_false(kind in FORBIDDEN_HARBOUR_KINDS, "foreland must not reuse harbour prop %s" % kind)
 	assert_true(has_road_inn, "Pirita foreland needs a roadside inn read beside the Viru road")
 	for required_id in [
 		&"road.inn_barrels",
@@ -187,8 +224,14 @@ func test_pirita_travel_apron_carries_roadside_inn_clutter() -> void:
 	]:
 		assert_true(prop_ids.has(required_id), "travel apron must author %s" % required_id)
 	assert_true(prop_kinds.has(MapTypes.PROP_KIND_BARRELS), "travel apron must carry traveler barrels")
-	assert_true(prop_kinds.has(MapTypes.PROP_KIND_HAY_STACK), "travel apron must carry hay beside the road")
-	assert_true(prop_kinds.has(MapTypes.PROP_KIND_BUSH), "travel apron needs scrub margins beside the road")
+	assert_true(
+		prop_kinds.has(MapTypes.PROP_KIND_HAY_STACK),
+		"travel apron must carry hay beside the road",
+	)
+	assert_true(
+		prop_kinds.has(MapTypes.PROP_KIND_BUSH),
+		"travel apron needs scrub margins beside the road",
+	)
 
 
 func test_pirita_foreland_uses_named_bush_styles_not_generic_scrub() -> void:
@@ -198,10 +241,16 @@ func test_pirita_foreland_uses_named_bush_styles_not_generic_scrub() -> void:
 		if prop.get("kind") != MapTypes.PROP_KIND_BUSH:
 			continue
 		var style: String = String(prop.get("style_variant", ""))
-		assert_false(style.ends_with(".scrub") or style.ends_with(".dense"), "Foreland bush props must use named P0-115 species styles, not %s" % style)
+		assert_false(
+			style.ends_with(".scrub") or style.ends_with(".dense"),
+			"Foreland bush props must use named P0-115 species styles, not %s" % style,
+		)
 		if style.begins_with("bush."):
 			named_bush_styles[style] = true
-	assert_true(named_bush_styles.size() >= 3, "Foreland should author multiple named bush species along road and river margins")
+	assert_true(
+		named_bush_styles.size() >= 3,
+		"Foreland should author multiple named bush species along road and river margins",
+	)
 
 
 func test_pirita_foreland_authors_field_and_meadow_terrain_bands() -> void:
@@ -228,7 +277,10 @@ func test_pirita_foreland_authors_field_and_meadow_terrain_bands() -> void:
 				)
 	assert_true(farm_soil >= 300, "Foreland field strips must read as worked agricultural soil")
 	assert_true(hay >= 400, "Foreland hay meadow must cover a visible east-bank band")
-	assert_true(open_ground >= 6000, "Open meadow and pasture must dominate the Pirita crossing landscape")
+	assert_true(
+		open_ground >= 6000,
+		"Open meadow and pasture must dominate the Pirita crossing landscape",
+	)
 
 
 func test_pirita_foreland_carries_rural_life_dressing() -> void:

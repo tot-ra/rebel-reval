@@ -58,11 +58,24 @@ uniform float detail_normal_scale = 1.0;
 // downstream and spawns drifting foam ribbons so a river reads as moving water.
 uniform vec2 flow_direction = vec2(0.0, 0.0);
 uniform float flow_strength = 0.0;
+// Channel centreline of the current map's river, downstream-ordered, from
+// MapViewRiverFlow: xy = world XZ, z = half width there, w unused. With fewer
+// than two points the river falls back to the single flow_direction heading.
+const int RIVER_PATH_MAX = 24;
+uniform vec4 river_path[RIVER_PATH_MAX];
+uniform int river_path_count = 0;
 // World units per second per unit of flow_strength: mesh advection of the wave field,
 // and the slide speed of the river's surface ripples. ~1 m/s at the Pirita's 0.6.
 const float RIVER_ADVECT_SPEED = 1.4;
 const float RIVER_SURFACE_SPEED = 1.8;
 const float RIVER_DISPLACEMENT_SCALE = 0.0;
+// Open-channel velocity profile: the bank drags the water, the fastest thread
+// runs mid-channel. Share of mid-channel speed left at the bank.
+const float RIVER_BANK_DRAG = 0.35;
+// World units the ripple pattern travels per flow-map cycle. Because the speed
+// varies across the channel, a single sliding offset would shear the pattern
+// without bound; two half-cycle phases crossfade instead, so the stretch resets.
+const float RIVER_FLOW_CYCLE = 6.0;
 // Matches sky sun-disk fade / MapView3D day_blend. Defaults keep daytime look
 // until apply_water_lighting() pushes the live cycle values.
 uniform float sun_visibility = 1.0;
@@ -289,13 +302,53 @@ void _accumulate_wave(
 	normal_terms.z += heading.y * slope;
 }
 
-vec2 _wave_heading(vec2 base_direction) {
+// Local current of a meandering channel: xy = unit downstream heading of the
+// nearest reach, z = share of mid-channel speed at this distance from the
+// centreline. Without an authored centreline (sea, ponds, a river whose channel
+// could not be reduced to a reach) it returns the single authored heading at
+// full speed, which is the pre-R-1160-follow-up behaviour.
+vec3 _river_current(vec2 world_xz) {
+	vec2 base = normalize(flow_direction + vec2(0.0001, 0.0));
+	if (river_path_count < 2) {
+		return vec3(base, 1.0);
+	}
+	float best = 1.0e9;
+	vec2 heading = base;
+	float lateral = 0.0;
+	float half_width = 1.0;
+	for (int index = 0; index + 1 < RIVER_PATH_MAX; index++) {
+		if (index + 1 >= river_path_count) {
+			break;
+		}
+		vec2 a = river_path[index].xy;
+		vec2 b = river_path[index + 1].xy;
+		vec2 reach = b - a;
+		float length_squared = dot(reach, reach);
+		// A zero-length reach has no heading, so it must never win the search:
+		// it would stall the ripples wherever it happened to be nearest.
+		if (length_squared < 0.000001) {
+			continue;
+		}
+		float t = clamp(dot(world_xz - a, reach) / length_squared, 0.0, 1.0);
+		vec2 offset = world_xz - (a + reach * t);
+		float distance_squared = dot(offset, offset);
+		if (distance_squared < best) {
+			best = distance_squared;
+			heading = reach * inversesqrt(length_squared);
+			lateral = sqrt(distance_squared);
+			half_width = max(mix(river_path[index].z, river_path[index + 1].z, t), 0.5);
+		}
+	}
+	float across = clamp(lateral / half_width, 0.0, 1.0);
+	return vec3(heading, mix(1.0, RIVER_BANK_DRAG, across * across));
+}
+
+vec2 _wave_heading(vec2 base_direction, vec2 current) {
 	vec2 ref = normalize(vec2(1.0, 0.28));
 	// River: wave trains travel downstream. The sea headings only set a small
 	// spread around the current (a quarter of their angle from the reference), so
 	// crests stay crossing the channel instead of sliding sideways like open sea.
 	if (flow_strength > 0.001) {
-		vec2 current = normalize(flow_direction + vec2(0.0001, 0.0));
 		float spread = (atan(base_direction.y, base_direction.x) - atan(ref.y, ref.x)) * 0.25;
 		float cs = cos(spread);
 		float sn = sin(spread);
@@ -329,12 +382,14 @@ void _water_field(vec2 position, float time, out vec3 displacement, out vec3 nor
 	float amplitude_variation = mix(0.72, 1.22, amplitude_noise);
 	displacement = vec3(0.0);
 	normal_terms = vec3(0.0);
+	// One centreline lookup per sample; the wave trains all share this reach.
+	vec2 current = _river_current(position).xy;
 	// Swell: ~9 m and ~6 m, the scale a harbor camera can actually read.
-	_accumulate_wave(position, _wave_heading(vec2(1.0, 0.28)), 0.62, 0.48, 0.62, time, warp, 0.3, displacement, normal_terms);
-	_accumulate_wave(position, _wave_heading(vec2(0.82, 0.55)), 0.91, 0.61, 0.28, time, warp * 0.8, 1.7, displacement, normal_terms);
+	_accumulate_wave(position, _wave_heading(vec2(1.0, 0.28), current), 0.62, 0.48, 0.62, time, warp, 0.3, displacement, normal_terms);
+	_accumulate_wave(position, _wave_heading(vec2(0.82, 0.55), current), 0.91, 0.61, 0.28, time, warp * 0.8, 1.7, displacement, normal_terms);
 	// Wind waves: a few meters, still sampled by the subdivided water grid.
-	_accumulate_wave(position, _wave_heading(vec2(0.36, 1.0)), 1.85, 1.05, 0.16, time, warp * 0.72, 2.1, displacement, normal_terms);
-	_accumulate_wave(position, _wave_heading(vec2(-0.55, 0.84)), 2.70, 1.40, 0.08, time, fine_warp * wave_chaos, 4.2, displacement, normal_terms);
+	_accumulate_wave(position, _wave_heading(vec2(0.36, 1.0), current), 1.85, 1.05, 0.16, time, warp * 0.72, 2.1, displacement, normal_terms);
+	_accumulate_wave(position, _wave_heading(vec2(-0.55, 0.84), current), 2.70, 1.40, 0.08, time, fine_warp * wave_chaos, 4.2, displacement, normal_terms);
 	displacement *= amplitude_variation;
 	normal_terms *= amplitude_variation;
 }
@@ -394,10 +449,13 @@ float _water_jacobian(vec2 position, float time) {
 	float amplitude_noise = _noise(position * 0.16 + drift * 1.7 + vec2(5.3, 41.2));
 	float amplitude_variation = mix(0.72, 1.22, amplitude_noise);
 	vec4 jacobian_terms = vec4(0.0);
-	_accumulate_wave_jacobian(position, _wave_heading(vec2(1.0, 0.28)), 0.62, 0.48, 0.62, time, warp, 0.3, jacobian_terms);
-	_accumulate_wave_jacobian(position, _wave_heading(vec2(0.82, 0.55)), 0.91, 0.61, 0.28, time, warp * 0.8, 1.7, jacobian_terms);
-	_accumulate_wave_jacobian(position, _wave_heading(vec2(0.36, 1.0)), 1.85, 1.05, 0.16, time, warp * 0.72, 2.1, jacobian_terms);
-	_accumulate_wave_jacobian(position, _wave_heading(vec2(-0.55, 0.84)), 2.70, 1.40, 0.08, time, fine_warp * wave_chaos, 4.2, jacobian_terms);
+	// Crest whitecaps are a still-water path (the caller gates on flow_strength),
+	// so the headings never take the river branch and need no centreline lookup.
+	vec2 current = normalize(flow_direction + vec2(0.0001, 0.0));
+	_accumulate_wave_jacobian(position, _wave_heading(vec2(1.0, 0.28), current), 0.62, 0.48, 0.62, time, warp, 0.3, jacobian_terms);
+	_accumulate_wave_jacobian(position, _wave_heading(vec2(0.82, 0.55), current), 0.91, 0.61, 0.28, time, warp * 0.8, 1.7, jacobian_terms);
+	_accumulate_wave_jacobian(position, _wave_heading(vec2(0.36, 1.0), current), 1.85, 1.05, 0.16, time, warp * 0.72, 2.1, jacobian_terms);
+	_accumulate_wave_jacobian(position, _wave_heading(vec2(-0.55, 0.84), current), 2.70, 1.40, 0.08, time, fine_warp * wave_chaos, 4.2, jacobian_terms);
 	jacobian_terms *= amplitude_variation;
 	return (1.0 + jacobian_terms.x) * (1.0 + jacobian_terms.w)
 		- jacobian_terms.y * jacobian_terms.z;
@@ -418,27 +476,55 @@ vec2 _detail_gradient(vec2 position) {
 // and scroll vector, while river current advects both layers downstream. This
 // affects shading only; the physical displacement remains _water_shape() so
 // boats and visuals continue to share the existing wave field.
+// One phase of the river ripple pattern: a coarse and a fine layer sampled in the
+// (across, along) frame of the local current and rotated back to world XZ, so
+// ripples stay stretched along the channel wherever it bends. `seed` separates
+// the two crossfaded phases, so the fade reads as changing water, not a dissolve.
+// Surface threads of a river: foam ribbons and sky sheen. One warped _noise call
+// shows its own axis-aligned lattice as rectangular patches, because a river has
+// no wave displacement to break the lattice up the way the sea does. A second
+// octave on a lattice rotated 37 degrees and scaled by an irrational-ish factor
+// only realigns every few channel widths, so no grid survives.
+float _river_threads(vec2 uv, vec2 seed) {
+	float coarse = _noise(uv + _noise(uv * 0.6 + seed) * 1.4);
+	vec2 rotated = mat2(vec2(0.80, 0.60), vec2(-0.60, 0.80)) * uv * 2.17;
+	float fine = _noise(rotated + _noise(rotated * 0.7 + seed.yx) * 1.1);
+	return coarse * 0.62 + fine * 0.38;
+}
+
+vec2 _river_detail_slope(vec2 p, vec2 across_axis, vec2 along_axis, float scale, float seed) {
+	vec2 uv_a = vec2(dot(p, across_axis) * 1.9, dot(p, along_axis) * 0.62) * scale
+		+ vec2(12.4 + seed * 37.1, -4.7 - seed * 18.3);
+	vec2 uv_b = vec2(dot(p, across_axis) * 4.3, dot(p, along_axis) * 1.35) * scale
+		+ vec2(-21.8 - seed * 11.9, 16.1 + seed * 25.4);
+	vec2 grad_a = _detail_gradient(uv_a);
+	vec2 grad_b = _detail_gradient(uv_b);
+	vec2 slope_a = across_axis * grad_a.x * 1.9 + along_axis * grad_a.y * 0.62;
+	vec2 slope_b = across_axis * grad_b.x * 4.3 + along_axis * grad_b.y * 1.35;
+	return (slope_a * 0.55 + slope_b * 0.45) * scale;
+}
+
 vec3 _water_detail_normal(vec2 position, float time) {
 	float scale = max(detail_normal_scale, 0.1);
 	vec2 current_offset = flow_direction * (flow_strength * time * 0.42);
 	if (flow_strength > 0.001) {
-		// River: ripples are stretched along the current and slide downstream at a
-		// speed the eye can follow; the sea's fixed wind drift is dropped so nothing
-		// scrolls against the flow. Two layers move at different speeds, so the
-		// pattern shears like real surface water instead of translating rigidly.
-		vec2 current = normalize(flow_direction + vec2(0.0001, 0.0));
-		vec2 cross_axis = vec2(-current.y, current.x);
-		vec2 travel = current * (flow_strength * time * RIVER_SURFACE_SPEED);
-		vec2 pa = position - travel;
-		vec2 pb = position - travel * 1.45;
-		vec2 uv_a = vec2(dot(pa, cross_axis) * 1.9, dot(pa, current) * 0.62) * scale + vec2(12.4, -4.7);
-		vec2 uv_b = vec2(dot(pb, cross_axis) * 4.3, dot(pb, current) * 1.35) * scale + vec2(-21.8, 16.1);
-		vec2 grad_a = _detail_gradient(uv_a);
-		vec2 grad_b = _detail_gradient(uv_b);
-		// Gradients live in the (across, along) frame; rotate the slope back to world XZ.
-		vec2 slope_a = cross_axis * grad_a.x * 1.9 + current * grad_a.y * 0.62;
-		vec2 slope_b = cross_axis * grad_b.x * 4.3 + current * grad_b.y * 1.35;
-		vec2 river_slope = (slope_a * 0.55 + slope_b * 0.45) * scale;
+		// River: ripples slide downstream at a speed the eye can follow, along the
+		// local reach rather than one global heading, and slower where the bank
+		// drags them. The sea's fixed wind drift is dropped so nothing scrolls
+		// against the flow. Two half-cycle phases crossfade (see RIVER_FLOW_CYCLE).
+		vec3 current = _river_current(position);
+		vec2 across_axis = vec2(-current.y, current.x);
+		float travelled = flow_strength * current.z * RIVER_SURFACE_SPEED * time;
+		float phase = fract(travelled / RIVER_FLOW_CYCLE);
+		vec2 slope_now = _river_detail_slope(
+			position - current.xy * (phase * RIVER_FLOW_CYCLE), across_axis, current.xy, scale, 0.0
+		);
+		vec2 slope_next = _river_detail_slope(
+			position - current.xy * (fract(phase + 0.5) * RIVER_FLOW_CYCLE),
+			across_axis, current.xy, scale, 1.0
+		);
+		// Each phase weighs most at its own mid-cycle, where it is least stretched.
+		vec2 river_slope = mix(slope_now, slope_next, abs(1.0 - 2.0 * phase));
 		return normalize(vec3(-river_slope.x * 0.16, 1.0, -river_slope.y * 0.16));
 	}
 	vec2 layer_a = position * scale * 1.7 - current_offset;
@@ -1176,22 +1262,27 @@ void fragment() {
 	// cross-current axis stays tight so the foam elongates into streaks rather
 	// than round blobs. flow_strength == 0 leaves still water untouched.
 	if (flow_strength > 0.0) {
-		vec2 flow_dir = normalize(flow_direction + vec2(0.0001, 0.0));
+		vec3 current = _river_current(water_world_position.xz);
+		vec2 flow_dir = current.xy;
 		vec2 flow_cross = vec2(-flow_dir.y, flow_dir.x);
+		// The time rate stays uniform across the channel: a position-dependent
+		// scroll speed would shear these patterns without bound. The bank drag
+		// shows in the ripple travel (detail normal) and in the sheen strength.
 		float along = dot(water_world_position.xz, flow_dir) - TIME * wave_speed * flow_strength * 1.6;
 		float across = dot(water_world_position.xz, flow_cross);
 		vec2 streak_uv = vec2(across * 2.1, along * 0.55);
-		float streak = _noise(streak_uv + _noise(streak_uv * 0.6 + vec2(9.1, 2.3)) * 1.4);
-		float current_foam = smoothstep(0.54, 0.84, streak) * flow_strength;
+		float streak = _river_threads(streak_uv, vec2(9.1, 2.3));
+		float current_foam = smoothstep(0.48, 0.74, streak) * flow_strength;
 		current_foam *= smoothstep(0.012, 0.08, water_column);
-		foam += current_foam * 0.75;
+		foam += current_foam * 0.55;
 		// Long bright filaments of sky sheen sliding downstream at a different speed
 		// from the foam, so a still frame already shows which way the water runs and
-		// the two layers shear against each other in motion.
+		// the two layers shear against each other in motion. Slack water by the bank
+		// is glassier, so the filaments fade out as the current drops.
 		float along_sheen = dot(water_world_position.xz, flow_dir) - TIME * wave_speed * flow_strength * RIVER_SURFACE_SPEED;
 		vec2 sheen_uv = vec2(across * 1.35, along_sheen * 0.22);
-		float sheen = smoothstep(0.52, 0.80, _noise(sheen_uv + _noise(sheen_uv * 0.5 + vec2(3.7, 8.2)) * 1.1));
-		water_color = mix(water_color, highlight_color, sheen * 0.30);
+		float sheen = smoothstep(0.46, 0.72, _river_threads(sheen_uv, vec2(3.7, 8.2)));
+		water_color = mix(water_color, highlight_color, sheen * 0.30 * current.z);
 		// Banks drag the current: foam threads gather along the shore.
 		foam += shore * current_foam * 0.6;
 	}

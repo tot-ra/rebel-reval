@@ -205,6 +205,11 @@ func test_river_water_advects_detail_normals_without_changing_tide_logic() -> vo
 		"current must drive both detail layers",
 	)
 	assert_eq(
+		river.get_shader_parameter("flow_direction"),
+		MapViewMaterials.WATER_MATERIALS.RIVER_FLOW_DIRECTION,
+		"the authored heading must stay the centreline's downstream reference",
+	)
+	assert_eq(
 		float(river.get_shader_parameter("tide_height")),
 		0.0,
 		"river must remain outside coastal tide logic",
@@ -219,13 +224,42 @@ func test_river_current_is_flat_downstream_and_visible_in_still_frames() -> void
 		"river surface must not heave through its shallow bed",
 	)
 	assert_true(
-		"flow_strength > 0.001) {\n\t\tvec2 current = normalize(flow_direction" in source,
+		"vec2 _wave_heading(vec2 base_direction, vec2 current)" in source,
 		"river wave trains must head downstream, not sideways like sea swell",
 	)
 	assert_true("along_sheen" in source, "river needs downstream sheen filaments")
 	assert_true(
 		"RIVER_SURFACE_SPEED" in source and "RIVER_ADVECT_SPEED" in source,
 		"river current speeds must be named shader constants",
+	)
+
+
+## R-1160 follow-up: one global heading ran the ripples across a meander's banks,
+## and a river with no bank drag reads as a conveyor belt.
+func test_river_current_follows_the_channel_and_slows_at_the_banks() -> void:
+	var source := MapViewMaterialShaders.WATER_SHADER.code
+	assert_true(
+		"uniform vec4 river_path[RIVER_PATH_MAX]" in source
+			and "uniform int river_path_count" in source,
+		"the river needs its channel centreline, not one map-wide heading",
+	)
+	assert_true(
+		"vec3 _river_current(vec2 world_xz)" in source,
+		"direction and speed must be resolved per fragment from the centreline",
+	)
+	assert_true(
+		"const float RIVER_BANK_DRAG" in source,
+		"the bank must drag the current into a named across-channel profile",
+	)
+	# A per-position speed with a single sliding offset shears the ripple pattern
+	# without bound; the two-phase cycle is what keeps the stretch finite.
+	assert_true(
+		"const float RIVER_FLOW_CYCLE" in source and "_river_detail_slope" in source,
+		"varying river speed needs the two-phase flow-map cycle",
+	)
+	assert_true(
+		"if (river_path_count < 2)" in source,
+		"maps without a reducible channel must fall back to the authored heading",
 	)
 
 

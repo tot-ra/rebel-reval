@@ -9,6 +9,14 @@ extends RefCounted
 ## MapViewMaterials facade so rollout inventory tests keep one public entry point.
 const WATER_TERRAINS: Array[StringName] = MapTypes.WATER_TERRAINS
 
+## Authored downstream heading of the Pirita (south to north) and its current
+## strength. The heading only orients the channel centreline extracted from the
+## authored cells; MapViewRiverFlow then gives each reach its own direction.
+const RIVER_FLOW_DIRECTION := Vector2(0.0, -1.0)
+const RIVER_FLOW_STRENGTH := 0.6
+## Centreline capacity of the water shader's river_path uniform.
+const RIVER_PATH_MAX := 24
+
 const OPTICAL_DEPTH_BY_TERRAIN := {
 	MapTypes.TERRAIN_SHALLOW_WATER: 0.075,
 	MapTypes.TERRAIN_RIVER_WATER: 0.14,
@@ -560,8 +568,8 @@ static func water_surface(terrain_id: StringName, wave_profiles: Dictionary) -> 
 		# The Pirita flows from south (+Z) to north (-Z). A non-zero flow advects
 		# the wave field and drives downstream foam ribbons so the surface reads as
 		# a moving current; still water (sea/pond) keeps the default zero flow.
-		material.set_shader_parameter("flow_direction", Vector2(0.0, -1.0))
-		material.set_shader_parameter("flow_strength", 0.6)
+		material.set_shader_parameter("flow_direction", RIVER_FLOW_DIRECTION)
+		material.set_shader_parameter("flow_strength", RIVER_FLOW_STRENGTH)
 		material.set_shader_parameter("detail_normal_strength", 0.36)
 		material.set_shader_parameter("detail_normal_scale", 1.28)
 	material.set_shader_parameter("use_fft", false)
@@ -783,6 +791,28 @@ static func apply_water_ripples(
 		material.set_shader_parameter("ripple_state", state)
 		material.set_shader_parameter("ripple_window", bound_window)
 		material.set_shader_parameter("ripple_texel_count", maxf(texel_count, 1.0))
+
+
+## Binds one map's river centreline (MapViewRiverFlow.channel_centreline) to the
+## river water material, so a meandering channel bends its ripples, sheen and
+## foam with the water instead of running them across the banks, and so the banks
+## drag the current. An empty path falls back to the single authored heading,
+## which is what every map without a reducible channel gets.
+##
+## Like the WS-08 shore field, this is per-map state on a process-wide material:
+## the last map built wins while two river maps are live at once.
+static func apply_river_flow(path: PackedVector3Array) -> void:
+	var material := water_surface(MapTypes.TERRAIN_RIVER_WATER, WATER_WAVE_BASE)
+	var points := PackedVector4Array()
+	for index in mini(path.size(), RIVER_PATH_MAX):
+		var point := path[index]
+		points.append(Vector4(point.x, point.y, point.z, 0.0))
+	# A one-point path cannot give a heading; the shader needs at least a segment.
+	if points.size() < 2:
+		material.set_shader_parameter("river_path_count", 0)
+		return
+	material.set_shader_parameter("river_path", points)
+	material.set_shader_parameter("river_path_count", points.size())
 
 
 ## Applies a shared astronomical tide to coastal water families. The generic
