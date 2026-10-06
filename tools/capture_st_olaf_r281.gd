@@ -61,7 +61,7 @@ func _run() -> void:
 			"yaw_degrees": MapView3D.CAMERA_YAW_DEGREES,
 		},
 		"camera_intent": "gameplay-scale St Olaf landmark approach",
-		"historical_phase": "compact_1343_mass",
+		"historical_phase": "vaulted_hall_unfinished_tower_1343",
 		"plates": [],
 	}
 	var frontage_logic := _anchor_position(definition, StringName(FRONTAGE_ID))

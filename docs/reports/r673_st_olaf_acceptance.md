@@ -6,6 +6,8 @@
 **Stable IDs:** `st_olaf_silhouette`, `st_olaf_frontage`
 **Status:** **BLOCKED - evidence packet complete; named human historical/art review is still required**
 
+> **Superseded model (2026-10-07):** R-1120 replaced the compact R-281 mass with the vaulted hall and unfinished tower in [`st_olaf_1343_remodel.md`](st_olaf_1343_remodel.md) (`historical_phase=vaulted_hall_unfinished_tower_1343`). The rows below describe the R-281 packet.
+
 ## Decision
 
 The current R-281 implementation passes its structural boundary and now has a reproducible matched day/night gameplay-scale packet. The packet is sufficient for a named human canon and art reviewer to inspect the St Olaf silhouette. This report does not invent a human signature: the final acceptance remains blocked until the named reviewers record their observations below.

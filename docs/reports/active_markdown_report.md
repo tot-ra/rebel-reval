@@ -14,11 +14,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `193`
-- Markdown files excluded as archive/reference/out of active scope: `733`
-- Local/external links inspected: `921`
-- Links to active Markdown docs: `515`
-- Links to existing archive/reference/non-active local docs: `188`
+- Active Markdown files scanned: `194`
+- Markdown files excluded as archive/reference/out of active scope: `734`
+- Local/external links inspected: `933`
+- Links to active Markdown docs: `516`
+- Links to existing archive/reference/non-active local docs: `190`
 - External links skipped for reachability: `46`
 - Issues found: `0`
 
@@ -143,6 +143,7 @@ No active Markdown documentation issues found.
 - `docs/SYSTEMS/COMBAT_NIGHT.md`
 - `docs/SYSTEMS/FLAG_CLOTH.md`
 - `docs/SYSTEMS/LIVING_CITY.md`
+- `docs/SYSTEMS/LIVING_VEGETATION.md`
 - `docs/SYSTEMS/MAGIC.md`
 - `docs/SYSTEMS/NATURAL.md`
 - `docs/SYSTEMS/PSYCHE.md`
