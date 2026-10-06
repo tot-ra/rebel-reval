@@ -191,9 +191,6 @@ static func build_st_catherines_church(building: Dictionary, cell_size: int) -> 
 	_add_buttresses(root, size, height)
 	_add_west_bell_tower(root, size, height)
 	_add_east_gable_cross(root, size, height)
-	var lights: BuildingWindowLights3D = MapViewMeshBuilderConfig.WINDOW_LIGHTS_SCRIPT.new()
-	root.add_child(lights)
-	lights.configure(ST_CATHERINES_ID)
 	return root
 
 

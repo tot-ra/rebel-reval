@@ -180,6 +180,8 @@ func test_houses_get_evening_window_lights_with_per_building_variation() -> void
 	for building in definition.buildings:
 		if building["kind"] != MapTypes.BUILDING_KIND_HOUSE:
 			continue
+		if MapViewMeshBuilderBuildingRegistry.is_exceptional(building):
+			continue
 		var node := MapViewMeshBuilder.build_building(building, definition.cell_size)
 		assert_true(
 			node.has_node("WindowLights"),
