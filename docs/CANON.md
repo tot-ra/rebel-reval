@@ -191,6 +191,10 @@ Decisions over `story/STORY.md`. Every promoted beat carries a confidence label.
   * *Pronunciation:* EL-len LOO-ik
   * *Notes:* Baptized midwife and keeper of old songs, bridging Christian practice and older traditions. See [Ellen Character Brief](./CHARACTERS/ellen.md).
 
+* **Anisia of Novgorod** (Ivan's daughter) - **`invented`**
+  * *Pronunciation:* ah-NEE-see-ah
+  * *Notes:* Anachronistic legend cameo; a young Novgorod girl in Reval who hints at a future son "Andrei" (cf. Andrei Rublev, born c. 1360-1370, parents unknown). No surname: peasants and townsfolk used patronymics. See [Anisia Character Brief](./CHARACTERS/anisia_of_novgorod.md).
+
 ### Historical Figures (Mentioned/Background)
 
 * **[Valdemar IV Atterdag](../wiki/people/valdemar_iv_atterdag.md)** - **`attested`**
