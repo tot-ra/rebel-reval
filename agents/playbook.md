@@ -9,6 +9,7 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 
 ### Instruction conflicts
 - When instruction blocks conflict (delegate to sub-agents vs do not call them; `suggest_git_commit` vs commit-and-push), follow the more specific project or session constraint and state the conflict once.
+- When the session allows a single sub-agent call and that reviewer returns an empty or failed response, do not retry past the budget. Do the mechanical schema and coordinate checks yourself, keep the task `in_review`, and name the human or role sign-off that is still open.
 - Cursor Agent CLI does not expose the A2gent `tasks` board tool. Claim from `TODO.md` using a ready row with allowed files and `verify`, and do not block waiting for `tasks.next`.
 
 ### Edits

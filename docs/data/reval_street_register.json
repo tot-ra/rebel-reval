@@ -1,0 +1,1970 @@
+{
+  "schema_version": 1,
+  "as_of": "spring-1343",
+  "ways": [
+    {
+      "id": "street.apteegi",
+      "name_1343": "lane toward the friars' service ground",
+      "modern_name": "Apteegi",
+      "name_attestation": {
+        "status": "post_1343",
+        "first_mention_year": 1363,
+        "recorded_form": "velud itur ad monachos",
+        "source_ids": [
+          "SRC-SGABRIEL",
+          "DOS-BACKLANES"
+        ]
+      },
+      "route_1343": "plausible composite",
+      "owning_map_id": "market_civic_quarter",
+      "planned_map_id": null,
+      "class": "lane",
+      "trace": {
+        "from": "forum north-east corner",
+        "via": [],
+        "to": "Dominican service approach toward the Vene seam"
+      },
+      "width_m": {
+        "min": 3,
+        "max": 4,
+        "basis": "B: yard-access lane band from the back-lanes dossier; no site measurement",
+        "source_ids": [
+          "DOS-BACKLANES"
+        ]
+      },
+      "surface": {
+        "material": "rammed earth",
+        "basis": "B: rear lanes carry earth, pebble and mud, less stone than primary spines (P0-072 shared constraint 6)",
+        "source_ids": [
+          "DOS-BACKLANES",
+          "SRC-H04"
+        ]
+      },
+      "drainage": {
+        "runoff": "falls east toward the Vene/Viru lowland; open side channel",
+        "centre_gutter": "unknown",
+        "basis": "U: no lane-specific drainage evidence"
+      },
+      "frontage": "strip-plot rear yards and side walls of forum-edge houses; Dominican service range beyond (B)",
+      "map_state": "partial",
+      "map_conflicts": [],
+      "confidence": "plausible composite",
+      "evidence_class": "B",
+      "source_ids": [
+        "DOS-BACKLANES",
+        "SRC-SGABRIEL"
+      ]
+    },
+    {
+      "id": "street.coastal_gate_descent",
+      "name_1343": "road down from the sea gate to the landing",
+      "modern_name": "Pikk (outer end) / Suur Rannavärav approach",
+      "name_attestation": {
+        "status": "post_1343",
+        "first_mention_year": 1359,
+        "recorded_form": "Strantporte",
+        "source_ids": [
+          "SRC-AVE2019-COASTAL",
+          "DOS-WALLS"
+        ]
+      },
+      "route_1343": "plausible composite",
+      "owning_map_id": "reval_harbor_north",
+      "planned_map_id": null,
+      "class": "ramp",
+      "trace": {
+        "from": "Coastal Gate (low gate and probable 1311-1340 tower) at the north_quarter seam",
+        "via": [
+          "sandstone cliff descent 5-8 m"
+        ],
+        "to": "merchant landing shore track"
+      },
+      "width_m": {
+        "min": null,
+        "max": null,
+        "basis": "U: H11 records the gate and drainage, not a carriageway width",
+        "source_ids": [
+          "SRC-AVE2019-COASTAL"
+        ]
+      },
+      "surface": {
+        "material": "unknown",
+        "basis": "U: no reviewed surface for the outer descent; do not copy the 1430 barbican works",
+        "source_ids": [
+          "SRC-AVE2019-COASTAL"
+        ]
+      },
+      "drainage": {
+        "runoff": "slab-lined rainwater channel draining toward the sea at the gate",
+        "centre_gutter": "unknown",
+        "basis": "A at the gate (H11); position of the channel within the roadway not reviewed"
+      },
+      "frontage": "gate-road verge and harbour work ground; no Fat Margaret (1520s) and no barbican",
+      "map_state": "partial",
+      "map_conflicts": [],
+      "confidence": "plausible composite",
+      "evidence_class": "B",
+      "source_ids": [
+        "SRC-AVE2019-COASTAL",
+        "DOS-WALLS",
+        "DOS-HARBOUR"
+      ]
+    },
+    {
+      "id": "street.dunkri",
+      "name_1343": "market-to-hill-foot lane",
+      "modern_name": "Dunkri",
+      "name_attestation": {
+        "status": "unverified",
+        "first_mention_year": null,
+        "recorded_form": null,
+        "source_ids": []
+      },
+      "route_1343": "plausible composite",
+      "owning_map_id": "market_civic_quarter",
+      "planned_map_id": null,
+      "class": "lane",
+      "trace": {
+        "from": "forum west edge",
+        "via": [],
+        "to": "Toompea seam toward the Rataskaevu belt and the Lühike jalg foot"
+      },
+      "width_m": {
+        "min": null,
+        "max": null,
+        "basis": "U: no site measurement or dated plan",
+        "source_ids": [
+          "DOS-LTSP"
+        ]
+      },
+      "surface": {
+        "material": "rammed earth",
+        "basis": "B: secondary lane default; stone limited to primary spines",
+        "source_ids": [
+          "SRC-H04",
+          "DOS-LTSP"
+        ]
+      },
+      "drainage": {
+        "runoff": "falls east from the hill foot toward the forum",
+        "centre_gutter": "unknown",
+        "basis": "B: Lower Town ground rises west toward Toompea (P0-072 constraint 12)"
+      },
+      "frontage": "strip-plot gables to the lane, deep rear yards (B)",
+      "map_state": "partial",
+      "map_conflicts": [
+        "content/maps/south_quarter.rrmap stroke dunkri_lane runs north-south from the to_reval_center seam; the register places Dunkri west of the forum in market_civic_quarter (stroke street.dunkri_approach). Two maps own a Dunkri with incompatible directions."
+      ],
+      "confidence": "plausible composite",
+      "evidence_class": "B",
+      "source_ids": [
+        "DOS-LTSP",
+        "DOS-SQFC"
+      ]
+    },
+    {
+      "id": "street.forum_east_edge",
+      "name_1343": "east side of the forum",
+      "modern_name": "Raekoja plats (east side)",
+      "name_attestation": {
+        "status": "unverified",
+        "first_mention_year": null,
+        "recorded_form": null,
+        "source_ids": []
+      },
+      "route_1343": "plausible composite",
+      "owning_map_id": "market_civic_quarter",
+      "planned_map_id": null,
+      "class": "square edge",
+      "trace": {
+        "from": "forum north-east corner",
+        "via": [],
+        "to": "forum south-east corner at the Vanaturu kael throat"
+      },
+      "width_m": {
+        "min": null,
+        "max": null,
+        "basis": "U: an edge of open ground, not a street with a carriageway",
+        "source_ids": [
+          "DOS-RAEKODA"
+        ]
+      },
+      "surface": {
+        "material": "rammed earth",
+        "basis": "B: forum interior is packed earth with patch limestone, not a uniform stone plaza",
+        "source_ids": [
+          "DOS-VIRUPAVE",
+          "DOS-RAEKODA"
+        ]
+      },
+      "drainage": {
+        "runoff": "towards the east throat",
+        "centre_gutter": "not applicable",
+        "basis": "B: open ground sheds toward the lower east"
+      },
+      "frontage": "strip burgess plots, gables to the square (B)",
+      "map_state": "partial",
+      "map_conflicts": [],
+      "confidence": "plausible composite",
+      "evidence_class": "B",
+      "source_ids": [
+        "DOS-RAEKODA",
+        "SRC-POSTIMEES-MARKET"
+      ]
+    },
+    {
+      "id": "street.forum_north_edge",
+      "name_1343": "north side of the forum",
+      "modern_name": "Raekoja plats (north side)",
+      "name_attestation": {
+        "status": "unverified",
+        "first_mention_year": null,
+        "recorded_form": null,
+        "source_ids": []
+      },
+      "route_1343": "plausible composite",
+      "owning_map_id": "market_civic_quarter",
+      "planned_map_id": null,
+      "class": "square edge",
+      "trace": {
+        "from": "forum north-west corner",
+        "via": [
+          "mouth of the Pühavaimu route"
+        ],
+        "to": "forum north-east corner"
+      },
+      "width_m": {
+        "min": null,
+        "max": null,
+        "basis": "U: edge of open ground",
+        "source_ids": [
+          "DOS-RAEKODA"
+        ]
+      },
+      "surface": {
+        "material": "rammed earth",
+        "basis": "B: packed earth with patch limestone",
+        "source_ids": [
+          "DOS-VIRUPAVE"
+        ]
+      },
+      "drainage": {
+        "runoff": "south and east across the open ground",
+        "centre_gutter": "not applicable",
+        "basis": "B: open ground"
+      },
+      "frontage": "strip burgess plots and the modest Holy Spirit chapel-almshouse complex (attested by 1316, H07)",
+      "map_state": "partial",
+      "map_conflicts": [],
+      "confidence": "plausible composite",
+      "evidence_class": "B",
+      "source_ids": [
+        "DOS-RAEKODA",
+        "SRC-H07"
+      ]
+    },
+    {
+      "id": "street.forum_south_edge",
+      "name_1343": "Town Hall side of the forum",
+      "modern_name": "Raekoja plats (south side)",
+      "name_attestation": {
+        "status": "unverified",
+        "first_mention_year": null,
+        "recorded_form": null,
+        "source_ids": []
+      },
+      "route_1343": "attested",
+      "owning_map_id": "market_civic_quarter",
+      "planned_map_id": null,
+      "class": "square edge",
+      "trace": {
+        "from": "forum south-west corner",
+        "via": [
+          "Town Hall north facade (hall recorded 1322)"
+        ],
+        "to": "forum south-east corner"
+      },
+      "width_m": {
+        "min": null,
+        "max": null,
+        "basis": "U: edge of open ground; the 1343 hall length is a ~22-28 m plausible composite, not a street width",
+        "source_ids": [
+          "DOS-RAEKODA"
+        ]
+      },
+      "surface": {
+        "material": "rammed earth",
+        "basis": "B: packed earth with patch limestone",
+        "source_ids": [
+          "DOS-VIRUPAVE"
+        ]
+      },
+      "drainage": {
+        "runoff": "away from the hall wall into the open ground",
+        "centre_gutter": "not applicable",
+        "basis": "B"
+      },
+      "frontage": "one-storey limestone Town Hall without arcade or tower (H06); the rest strip plots",
+      "map_state": "partial",
+      "map_conflicts": [],
+      "confidence": "attested",
+      "evidence_class": "A",
+      "source_ids": [
+        "SRC-H06",
+        "SRC-TOWNHALL",
+        "DOS-RAEKODA"
+      ]
+    },
+    {
+      "id": "street.forum_west_edge",
+      "name_1343": "west side of the forum",
+      "modern_name": "Raekoja plats (west side)",
+      "name_attestation": {
+        "status": "unverified",
+        "first_mention_year": null,
+        "recorded_form": null,
+        "source_ids": []
+      },
+      "route_1343": "plausible composite",
+      "owning_map_id": "market_civic_quarter",
+      "planned_map_id": null,
+      "class": "square edge",
+      "trace": {
+        "from": "forum north-west corner",
+        "via": [
+          "mouth of Dunkri"
+        ],
+        "to": "forum south-west corner at the Kullassepa mouth"
+      },
+      "width_m": {
+        "min": null,
+        "max": null,
+        "basis": "U: edge of open ground",
+        "source_ids": [
+          "DOS-RAEKODA"
+        ]
+      },
+      "surface": {
+        "material": "rammed earth",
+        "basis": "B: packed earth with patch limestone",
+        "source_ids": [
+          "DOS-VIRUPAVE"
+        ]
+      },
+      "drainage": {
+        "runoff": "east, downhill from the Toompea side",
+        "centre_gutter": "not applicable",
+        "basis": "B"
+      },
+      "frontage": "strip burgess plots; possible weigh-house site is unresolved (old-market dossier open question)",
+      "map_state": "partial",
+      "map_conflicts": [],
+      "confidence": "plausible composite",
+      "evidence_class": "B",
+      "source_ids": [
+        "DOS-RAEKODA",
+        "DOS-OLDMARKET"
+      ]
+    },
+    {
+      "id": "street.harju",
+      "name_1343": "smiths' street toward the south gate",
+      "modern_name": "Harju",
+      "name_attestation": {
+        "status": "post_1343",
+        "first_mention_year": 1362,
+        "recorded_form": "smedestrate",
+        "source_ids": [
+          "SRC-PALL2009",
+          "SRC-SGABRIEL"
+        ]
+      },
+      "route_1343": "plausible composite",
+      "owning_map_id": "south_quarter",
+      "planned_map_id": null,
+      "class": "spine",
+      "trace": {
+        "from": "St Nicholas' churchyard edge",
+        "via": [],
+        "to": "Harju Gate (Smedeporte; gate mentioned 1361; 1343 superstructure under construction or uncertain)"
+      },
+      "width_m": {
+        "min": null,
+        "max": null,
+        "basis": "U: no site measurement",
+        "source_ids": [
+          "DOS-WALLS"
+        ]
+      },
+      "surface": {
+        "material": "unknown",
+        "basis": "U: no reviewed excavation on this way",
+        "source_ids": [
+          "DOS-WALLS"
+        ]
+      },
+      "drainage": {
+        "runoff": "south toward the 1340s moat and mill pond",
+        "centre_gutter": "unknown",
+        "basis": "B: moat and Ülemiste-fed mill ponds at Karja, Harju and Viru gates are in development mid-14th century"
+      },
+      "frontage": "smithing and craft plots with fire-separated hot yards (B); the AWB 497 platea fabrorum may be an earlier form but its identification is unreviewed",
+      "map_state": "not_authored",
+      "map_conflicts": [],
+      "confidence": "plausible composite",
+      "evidence_class": "B",
+      "source_ids": [
+        "SRC-PALL2009",
+        "DOS-WALLS",
+        "SRC-AWB497"
+      ]
+    },
+    {
+      "id": "street.harju_road_extramural",
+      "name_1343": "road south from the smiths' gate",
+      "modern_name": "Harju gate approach road",
+      "name_attestation": {
+        "status": "unverified",
+        "first_mention_year": null,
+        "recorded_form": null,
+        "source_ids": []
+      },
+      "route_1343": "plausible composite",
+      "owning_map_id": "south_quarter",
+      "planned_map_id": "harju_approach_road",
+      "class": "extramural road",
+      "trace": {
+        "from": "Harju Gate",
+        "via": [],
+        "to": "south_quarter south boundary (continuation beyond is not authored)"
+      },
+      "width_m": {
+        "min": null,
+        "max": null,
+        "basis": "U: no reviewed extramural road section",
+        "source_ids": [
+          "DOS-WALLS"
+        ]
+      },
+      "surface": {
+        "material": "rammed earth",
+        "basis": "B: exterior roads use packed earth (P0-072 constraint 6)",
+        "source_ids": [
+          "SRC-H04"
+        ]
+      },
+      "drainage": {
+        "runoff": "roadside ditches",
+        "centre_gutter": "not applicable",
+        "basis": "B"
+      },
+      "frontage": "gate-road verge, road-aligned suburb plots, pasture (B)",
+      "map_state": "not_authored",
+      "map_conflicts": [],
+      "confidence": "plausible composite",
+      "evidence_class": "B",
+      "source_ids": [
+        "DOS-WALLS",
+        "DOS-HARJU-HINTER"
+      ]
+    },
+    {
+      "id": "street.karja_lower_town_slice",
+      "name_1343": "cattle road branch in the eastern ward",
+      "modern_name": "Suur-Karja / Väike-Karja (compressed east branch)",
+      "name_attestation": {
+        "status": "post_1343",
+        "first_mention_year": 1365,
+        "recorded_form": "Kariestrate",
+        "source_ids": [
+          "SRC-PALL2009",
+          "SRC-SGABRIEL"
+        ]
+      },
+      "route_1343": "plausible composite",
+      "owning_map_id": "lower_town_slice",
+      "planned_map_id": null,
+      "class": "spine",
+      "trace": {
+        "from": "Viru road junction inside the slice",
+        "via": [],
+        "to": "south seam to south_quarter (to_reval_south)"
+      },
+      "width_m": {
+        "min": null,
+        "max": null,
+        "basis": "U: no site measurement for the inner street",
+        "source_ids": [
+          "SRC-AVE2010-KARJA"
+        ]
+      },
+      "surface": {
+        "material": "pebble/rubble",
+        "basis": "A at the gate (early rubble/pebble road, H10); carried inward as B",
+        "source_ids": [
+          "SRC-AVE2010-KARJA"
+        ]
+      },
+      "drainage": {
+        "runoff": "south-east toward the moat and wet ground",
+        "centre_gutter": "unknown",
+        "basis": "B: H08-H10 coastal lowland fall"
+      },
+      "frontage": "craft plots with rear work yards (B)",
+      "map_state": "contradicts",
+      "map_conflicts": [
+        "content/maps/lower_town_slice.rrmap stroke road.karja branches off road.viru about 64 cells east of the vana_turg_boundary seam; Viru and Karja diverge at the Vana turg / Kuninga junction east of the forum, not mid-way along Viru.",
+        "Across the to_reval_south seam the same route continues as content/maps/south_quarter.rrmap stroke viru_internal_lane, so one physical way carries two names."
+      ],
+      "confidence": "plausible composite",
+      "evidence_class": "B",
+      "source_ids": [
+        "SRC-AVE2010-KARJA",
+        "DOS-LTSP"
+      ]
+    },
+    {
+      "id": "street.karja_market",
+      "name_1343": "cattle road from the market",
+      "modern_name": "Suur-Karja (market end)",
+      "name_attestation": {
+        "status": "post_1343",
+        "first_mention_year": 1365,
+        "recorded_form": "Kariestrate",
+        "source_ids": [
+          "SRC-PALL2009",
+          "SRC-SGABRIEL"
+        ]
+      },
+      "route_1343": "plausible composite",
+      "owning_map_id": "market_civic_quarter",
+      "planned_map_id": null,
+      "class": "spine",
+      "trace": {
+        "from": "Town Hall rear lane / Kuninga junction",
+        "via": [],
+        "to": "south seam to south_quarter (to_reval_south)"
+      },
+      "width_m": {
+        "min": null,
+        "max": null,
+        "basis": "U: no site measurement",
+        "source_ids": [
+          "SRC-AVE2010-KARJA"
+        ]
+      },
+      "surface": {
+        "material": "pebble/rubble",
+        "basis": "B: primary route; stone fabric attested at the gate end (H10)",
+        "source_ids": [
+          "SRC-AVE2010-KARJA",
+          "SRC-H04"
+        ]
+      },
+      "drainage": {
+        "runoff": "south-east toward the Karja moat",
+        "centre_gutter": "unknown",
+        "basis": "B"
+      },
+      "frontage": "dense strip plots, gables to the street (B)",
+      "map_state": "contradicts",
+      "map_conflicts": [
+        "content/maps/market_civic_quarter.rrmap stroke street.karja_south crosses to_reval_south into content/maps/south_quarter.rrmap to_reval_center, where dunkri_lane and king_street begin; there is no Karja continuation on that side of the seam."
+      ],
+      "confidence": "plausible composite",
+      "evidence_class": "B",
+      "source_ids": [
+        "SRC-PALL2009",
+        "DOS-LTSP",
+        "DOS-SQFC"
+      ]
+    },
+    {
+      "id": "street.karja_south_quarter",
+      "name_1343": "cattle road to the cattle gate",
+      "modern_name": "Suur-Karja (gate end)",
+      "name_attestation": {
+        "status": "post_1343",
+        "first_mention_year": 1365,
+        "recorded_form": "Kariestrate",
+        "source_ids": [
+          "SRC-PALL2009",
+          "SRC-SGABRIEL"
+        ]
+      },
+      "route_1343": "attested",
+      "owning_map_id": "south_quarter",
+      "planned_map_id": null,
+      "class": "spine",
+      "trace": {
+        "from": "Kuninga / Karja junction",
+        "via": [],
+        "to": "Karja Gate (early-14th-century wall/gate reconstruction; leaf state unknown)"
+      },
+      "width_m": {
+        "min": null,
+        "max": null,
+        "basis": "U: H10 documents the road surface sequence, not a 1343 carriageway width",
+        "source_ids": [
+          "SRC-AVE2010-KARJA"
+        ]
+      },
+      "surface": {
+        "material": "pebble/rubble",
+        "basis": "A: early rubble/pebble road below later limestone slabs at the gate (H10); slabs are later",
+        "source_ids": [
+          "SRC-AVE2010-KARJA"
+        ]
+      },
+      "drainage": {
+        "runoff": "into the coastal lowland and moat",
+        "centre_gutter": "unknown",
+        "basis": "A/B: coastal-lowland relief at the gate (H10)"
+      },
+      "frontage": "dense frontage inside the gate; road-aligned suburb plots outside (H10)",
+      "map_state": "contradicts",
+      "map_conflicts": [
+        "content/maps/south_quarter.rrmap strokes karja_lane and karja_gate_road are fed from the east by viru_internal_lane (the lower_town_slice road.karja continuation) and not from the market seam where street.karja_south enters."
+      ],
+      "confidence": "attested",
+      "evidence_class": "A",
+      "source_ids": [
+        "SRC-AVE2010-KARJA",
+        "DOS-KARJAGATE",
+        "DOS-SQFC"
+      ]
+    },
+    {
+      "id": "street.katariina_kaik",
+      "name_1343": "passage by the friars' west range",
+      "modern_name": "Katariina käik",
+      "name_attestation": {
+        "status": "unverified",
+        "first_mention_year": null,
+        "recorded_form": null,
+        "source_ids": []
+      },
+      "route_1343": "plausible composite",
+      "owning_map_id": "lower_town_slice",
+      "planned_map_id": null,
+      "class": "alley",
+      "trace": {
+        "from": "Vene",
+        "via": [
+          "Dominican west range"
+        ],
+        "to": "Müürivahe"
+      },
+      "width_m": {
+        "min": 2,
+        "max": 3,
+        "basis": "B: single-file cart passage band from the back-lanes dossier",
+        "source_ids": [
+          "DOS-BACKLANES"
+        ]
+      },
+      "surface": {
+        "material": "rammed earth",
+        "basis": "B: earth with sporadic plank or cobble only at Dominican thresholds; no 19th-century tourist finish",
+        "source_ids": [
+          "DOS-BACKLANES"
+        ]
+      },
+      "drainage": {
+        "runoff": "east toward the wall lane",
+        "centre_gutter": "unknown",
+        "basis": "U"
+      },
+      "frontage": "Dominican precinct wall with controlled cloister portal on one side, craft plot backs on the other; no 15th-century overhead arches",
+      "map_state": "partial",
+      "map_conflicts": [],
+      "confidence": "plausible composite",
+      "evidence_class": "B",
+      "source_ids": [
+        "DOS-BACKLANES",
+        "SRC-H15"
+      ]
+    },
+    {
+      "id": "street.kullassepa",
+      "name_1343": "lane from the market toward St Nicholas'",
+      "modern_name": "Kullassepa",
+      "name_attestation": {
+        "status": "unverified",
+        "first_mention_year": null,
+        "recorded_form": null,
+        "source_ids": []
+      },
+      "route_1343": "plausible composite",
+      "owning_map_id": "market_civic_quarter",
+      "planned_map_id": null,
+      "class": "lane",
+      "trace": {
+        "from": "forum south-west corner",
+        "via": [],
+        "to": "St Nicholas' churchyard (south seam toward south_quarter)"
+      },
+      "width_m": {
+        "min": null,
+        "max": null,
+        "basis": "U",
+        "source_ids": [
+          "DOS-LTSP"
+        ]
+      },
+      "surface": {
+        "material": "rammed earth",
+        "basis": "B: secondary lane default",
+        "source_ids": [
+          "SRC-H04"
+        ]
+      },
+      "drainage": {
+        "runoff": "north-east toward the forum",
+        "centre_gutter": "unknown",
+        "basis": "U"
+      },
+      "frontage": "strip plots; goldsmith trade association is a modern name and not a 1343 zoning fact",
+      "map_state": "contradicts",
+      "map_conflicts": [
+        "content/maps/market_civic_quarter.rrmap stroke street.kullassepa_approach runs west and ends at the to_reval_toompea seam on the same cell as street.dunkri_approach; the way should lead south-west toward St Nicholas' (south_quarter).",
+        "content/maps/north_quarter.rrmap stroke goldsmith_lane uses the goldsmith name in the harbour ward."
+      ],
+      "confidence": "plausible composite",
+      "evidence_class": "C",
+      "source_ids": [
+        "DOS-LTSP",
+        "SRC-H31"
+      ]
+    },
+    {
+      "id": "street.kuninga_market",
+      "name_1343": "lane south from the market junction",
+      "modern_name": "Kuninga (market end)",
+      "name_attestation": {
+        "status": "post_1343",
+        "first_mention_year": 1374,
+        "recorded_form": "schostrate",
+        "source_ids": [
+          "SRC-PALL2009",
+          "SRC-SGABRIEL"
+        ]
+      },
+      "route_1343": "plausible composite",
+      "owning_map_id": "market_civic_quarter",
+      "planned_map_id": null,
+      "class": "lane",
+      "trace": {
+        "from": "Town Hall rear lane / Karja junction",
+        "via": [],
+        "to": "east toward the Viru / Vene junction"
+      },
+      "width_m": {
+        "min": null,
+        "max": null,
+        "basis": "U",
+        "source_ids": [
+          "DOS-VIRUPAVE"
+        ]
+      },
+      "surface": {
+        "material": "limestone slab",
+        "basis": "A partial: limestone slab hints 1-2 m below present grade at Kuninga 1/2-3 (H09); horizon date is not fixed to 1343, so mix with earth",
+        "source_ids": [
+          "SRC-AVE2016-VIRU",
+          "DOS-VIRUPAVE"
+        ]
+      },
+      "drainage": {
+        "runoff": "east toward the Viru lowland",
+        "centre_gutter": "unknown",
+        "basis": "U"
+      },
+      "frontage": "built strip frontage, not open market ground (later Vana turg strip)",
+      "map_state": "partial",
+      "map_conflicts": [],
+      "confidence": "plausible composite",
+      "evidence_class": "B",
+      "source_ids": [
+        "SRC-AVE2016-VIRU",
+        "DOS-OLDMARKET",
+        "SRC-PALL2009"
+      ]
+    },
+    {
+      "id": "street.kuninga_south_quarter",
+      "name_1343": "lane from the market junction toward St Nicholas'",
+      "modern_name": "Kuninga (Niguliste end)",
+      "name_attestation": {
+        "status": "post_1343",
+        "first_mention_year": 1374,
+        "recorded_form": "schostrate",
+        "source_ids": [
+          "SRC-PALL2009",
+          "SRC-SGABRIEL"
+        ]
+      },
+      "route_1343": "plausible composite",
+      "owning_map_id": "south_quarter",
+      "planned_map_id": null,
+      "class": "lane",
+      "trace": {
+        "from": "to_reval_center seam",
+        "via": [],
+        "to": "Karja / Harju belt near St Nicholas'"
+      },
+      "width_m": {
+        "min": null,
+        "max": null,
+        "basis": "U",
+        "source_ids": [
+          "DOS-SQFC"
+        ]
+      },
+      "surface": {
+        "material": "rammed earth",
+        "basis": "B: the south-quarter contract keeps stone on primary approaches only",
+        "source_ids": [
+          "DOS-SQFC"
+        ]
+      },
+      "drainage": {
+        "runoff": "south-east",
+        "centre_gutter": "unknown",
+        "basis": "U"
+      },
+      "frontage": "strip plots with rear yards (B)",
+      "map_state": "partial",
+      "map_conflicts": [],
+      "confidence": "plausible composite",
+      "evidence_class": "B",
+      "source_ids": [
+        "DOS-SQFC",
+        "SRC-PALL2009"
+      ]
+    },
+    {
+      "id": "street.lai_monastery",
+      "name_1343": "parallel merchant lane west of the long street",
+      "modern_name": "Lai (southern half)",
+      "name_attestation": {
+        "status": "post_1343",
+        "first_mention_year": 1547,
+        "recorded_form": null,
+        "source_ids": [
+          "SRC-PALL2009"
+        ]
+      },
+      "route_1343": "plausible composite",
+      "owning_map_id": "monastery_quarter",
+      "planned_map_id": null,
+      "class": "spine",
+      "trace": {
+        "from": "Toompea-foot belt near the Pikk jalg exit",
+        "via": [
+          "St Michael convent east frontage"
+        ],
+        "to": "north seam toward north_quarter"
+      },
+      "width_m": {
+        "min": null,
+        "max": null,
+        "basis": "U: the 'broad' name is 1547+ and cannot set a 1343 width",
+        "source_ids": [
+          "SRC-PALL2009"
+        ]
+      },
+      "surface": {
+        "material": "rammed earth",
+        "basis": "B: Lai mixes timber fronts and earth wear; stone limited to Pikk (P0-072 constraint 6)",
+        "source_ids": [
+          "DOS-PIKKLAI",
+          "SRC-H04"
+        ]
+      },
+      "drainage": {
+        "runoff": "north toward the harbour lowland",
+        "centre_gutter": "unknown",
+        "basis": "B"
+      },
+      "frontage": "70-85% timber merchant fronts in April 1343, round-log auxiliary buildings behind (H05, NUKU quarter)",
+      "map_state": "contradicts",
+      "map_conflicts": [
+        "content/maps/monastery_quarter.rrmap stroke lai_lane (x 135) lies east of pikk_spine (x 101). Lai runs west of Pikk, between Pikk and the western curtain where the map's own Nunnatorn and Kuldjala towers stand (x 6)."
+      ],
+      "confidence": "plausible composite",
+      "evidence_class": "B",
+      "source_ids": [
+        "DOS-LTSP",
+        "DOS-PIKKLAI",
+        "SRC-H05"
+      ]
+    },
+    {
+      "id": "street.lai_north",
+      "name_1343": "parallel merchant lane west of the long street",
+      "modern_name": "Lai (northern half)",
+      "name_attestation": {
+        "status": "post_1343",
+        "first_mention_year": 1547,
+        "recorded_form": null,
+        "source_ids": [
+          "SRC-PALL2009"
+        ]
+      },
+      "route_1343": "plausible composite",
+      "owning_map_id": "north_quarter",
+      "planned_map_id": null,
+      "class": "spine",
+      "trace": {
+        "from": "south seam from monastery_quarter",
+        "via": [
+          "St Olaf close"
+        ],
+        "to": "rejoins Pikk short of the Coastal Gate"
+      },
+      "width_m": {
+        "min": null,
+        "max": null,
+        "basis": "U",
+        "source_ids": [
+          "SRC-PALL2009"
+        ]
+      },
+      "surface": {
+        "material": "rammed earth",
+        "basis": "B",
+        "source_ids": [
+          "DOS-PIKKLAI"
+        ]
+      },
+      "drainage": {
+        "runoff": "north toward the harbour lowland",
+        "centre_gutter": "unknown",
+        "basis": "B"
+      },
+      "frontage": "50-65% mixed fronts at the St Olaf end; unified Gothic rows are 15th-century skin",
+      "map_state": "contradicts",
+      "map_conflicts": [
+        "content/maps/north_quarter.rrmap stroke lai_lane (x 138) lies east of pikk_spine (x 104); the register places Lai west of Pikk."
+      ],
+      "confidence": "plausible composite",
+      "evidence_class": "B",
+      "source_ids": [
+        "DOS-PIKKLAI",
+        "SRC-H14"
+      ]
+    },
+    {
+      "id": "street.lossi_plats",
+      "name_1343": "castle forecourt approach",
+      "modern_name": "Lossi plats",
+      "name_attestation": {
+        "status": "unverified",
+        "first_mention_year": null,
+        "recorded_form": null,
+        "source_ids": []
+      },
+      "route_1343": "plausible composite",
+      "owning_map_id": "toompea_quarter",
+      "planned_map_id": null,
+      "class": "square edge",
+      "trace": {
+        "from": "head of the Pikk jalg and Lühike jalg ascents",
+        "via": [],
+        "to": "castle gate (south-west of the plateau)"
+      },
+      "width_m": {
+        "min": null,
+        "max": null,
+        "basis": "U",
+        "source_ids": [
+          "DOS-TOOMPEA"
+        ]
+      },
+      "surface": {
+        "material": "unknown",
+        "basis": "U: no reviewed 1343 surface on the plateau",
+        "source_ids": [
+          "DOS-TOOMPEA"
+        ]
+      },
+      "drainage": {
+        "runoff": "off the limestone plateau edges",
+        "centre_gutter": "unknown",
+        "basis": "U"
+      },
+      "frontage": "castle outer ward and ecclesiastical/vassal plots; no 18th-century palace",
+      "map_state": "partial",
+      "map_conflicts": [],
+      "confidence": "plausible composite",
+      "evidence_class": "D",
+      "source_ids": [
+        "DOS-TOOMPEA"
+      ]
+    },
+    {
+      "id": "street.luhike_jalg",
+      "name_1343": "short hill way",
+      "modern_name": "Lühike jalg",
+      "name_attestation": {
+        "status": "post_1343",
+        "first_mention_year": 1371,
+        "recorded_form": "parvus mons",
+        "source_ids": [
+          "SRC-PALL2009",
+          "SRC-SGABRIEL"
+        ]
+      },
+      "route_1343": "plausible composite",
+      "owning_map_id": "toompea_quarter",
+      "planned_map_id": null,
+      "class": "ramp",
+      "trace": {
+        "from": "wooden Short Hill Gate at the top",
+        "via": [
+          "steep stair lane"
+        ],
+        "to": "Lower Town foot at the market_civic_quarter seam (Dunkri / Rataskaevu belt)"
+      },
+      "width_m": {
+        "min": null,
+        "max": null,
+        "basis": "U: stair-lane width not measured for 1343",
+        "source_ids": [
+          "DOS-TOOMPEA"
+        ]
+      },
+      "surface": {
+        "material": "unknown",
+        "basis": "U",
+        "source_ids": [
+          "DOS-TOOMPEA"
+        ]
+      },
+      "drainage": {
+        "runoff": "steep fall east to the Lower Town",
+        "centre_gutter": "unknown",
+        "basis": "U"
+      },
+      "frontage": "retaining walls and timber palisade; the 1454-1455 masonry hill wall is later",
+      "map_state": "partial",
+      "map_conflicts": [],
+      "confidence": "plausible composite",
+      "evidence_class": "B",
+      "source_ids": [
+        "DOS-TOOMPEA",
+        "DOS-WALLS"
+      ]
+    },
+    {
+      "id": "street.muurivahe",
+      "name_1343": "lane inside the wall",
+      "modern_name": "Müürivahe",
+      "name_attestation": {
+        "status": "unverified",
+        "first_mention_year": null,
+        "recorded_form": null,
+        "source_ids": []
+      },
+      "route_1343": "plausible composite",
+      "owning_map_id": "lower_town_slice",
+      "planned_map_id": null,
+      "class": "lane",
+      "trace": {
+        "from": "Viru Gate inner apron",
+        "via": [
+          "inner face of the eastern curtain"
+        ],
+        "to": "north toward the Dominican belt"
+      },
+      "width_m": {
+        "min": 4,
+        "max": 6,
+        "basis": "B: wall-base lane band from the back-lanes dossier",
+        "source_ids": [
+          "DOS-BACKLANES"
+        ]
+      },
+      "surface": {
+        "material": "rammed earth",
+        "basis": "B: earth and mud; watch patrol route",
+        "source_ids": [
+          "DOS-BACKLANES"
+        ]
+      },
+      "drainage": {
+        "runoff": "toward the curtain base and moat outlets",
+        "centre_gutter": "unknown",
+        "basis": "U"
+      },
+      "frontage": "curtain wall on one side, plot backs and booths on the other; may be intermittent where the 1340s wall was unfinished",
+      "map_state": "partial",
+      "map_conflicts": [],
+      "confidence": "plausible composite",
+      "evidence_class": "B",
+      "source_ids": [
+        "DOS-BACKLANES",
+        "DOS-WALLS"
+      ]
+    },
+    {
+      "id": "street.niguliste",
+      "name_1343": "way to St Nicholas'",
+      "modern_name": "Niguliste",
+      "name_attestation": {
+        "status": "unverified",
+        "first_mention_year": null,
+        "recorded_form": null,
+        "source_ids": []
+      },
+      "route_1343": "attested",
+      "owning_map_id": "south_quarter",
+      "planned_map_id": null,
+      "class": "lane",
+      "trace": {
+        "from": "Rataskaevu belt",
+        "via": [
+          "St Nicholas' churchyard north side"
+        ],
+        "to": "Harju / Kuninga junction"
+      },
+      "width_m": {
+        "min": null,
+        "max": null,
+        "basis": "U: AVE 2022 records the gravel layer and slope, not a width",
+        "source_ids": [
+          "SRC-AVE2022-NIGULISTE"
+        ]
+      },
+      "surface": {
+        "material": "gravel",
+        "basis": "A: 13th-century gravel street layer excavated on Niguliste",
+        "source_ids": [
+          "SRC-AVE2022-NIGULISTE"
+        ]
+      },
+      "drainage": {
+        "runoff": "follows the excavated slope",
+        "centre_gutter": "unknown",
+        "basis": "A slope, U gutter"
+      },
+      "frontage": "churchyard edge of the late-13th-century hall church with first-half-14th-century north porch (H31); strip plots opposite",
+      "map_state": "partial",
+      "map_conflicts": [],
+      "confidence": "attested",
+      "evidence_class": "A",
+      "source_ids": [
+        "SRC-AVE2022-NIGULISTE",
+        "SRC-H31",
+        "DOS-LTSP"
+      ]
+    },
+    {
+      "id": "street.nunne",
+      "name_1343": "nuns' street",
+      "modern_name": "Nunne",
+      "name_attestation": {
+        "status": "post_1343",
+        "first_mention_year": 1361,
+        "recorded_form": "susterstrate",
+        "source_ids": [
+          "SRC-PALL2009",
+          "SRC-SGABRIEL"
+        ]
+      },
+      "route_1343": "plausible composite",
+      "owning_map_id": "monastery_quarter",
+      "planned_map_id": null,
+      "class": "lane",
+      "trace": {
+        "from": "Pikk jalg foot",
+        "via": [
+          "St Michael convent wall"
+        ],
+        "to": "Nuns' Gate opening (formal name 1355)"
+      },
+      "width_m": {
+        "min": null,
+        "max": null,
+        "basis": "U",
+        "source_ids": [
+          "DOS-LTSP"
+        ]
+      },
+      "surface": {
+        "material": "rammed earth",
+        "basis": "B",
+        "source_ids": [
+          "SRC-H04"
+        ]
+      },
+      "drainage": {
+        "runoff": "north-west along the hill foot",
+        "centre_gutter": "unknown",
+        "basis": "U"
+      },
+      "frontage": "convent precinct wall on one side (H32), strip plots on the other",
+      "map_state": "not_authored",
+      "map_conflicts": [],
+      "confidence": "plausible composite",
+      "evidence_class": "B",
+      "source_ids": [
+        "SRC-PALL2009",
+        "SRC-H32",
+        "DOS-WALLS"
+      ]
+    },
+    {
+      "id": "street.olevimagi",
+      "name_1343": "sand hill by St Olaf's",
+      "modern_name": "Olevimägi",
+      "name_attestation": {
+        "status": "unverified",
+        "first_mention_year": 1337,
+        "recorded_form": "Zantberg",
+        "source_ids": [
+          "SRC-PALL2009",
+          "SRC-SGABRIEL"
+        ]
+      },
+      "route_1343": "plausible composite",
+      "owning_map_id": "monastery_quarter",
+      "planned_map_id": null,
+      "class": "lane",
+      "trace": {
+        "from": "Pikk at the St Olaf close",
+        "via": [],
+        "to": "Vene"
+      },
+      "width_m": {
+        "min": null,
+        "max": null,
+        "basis": "U",
+        "source_ids": [
+          "SRC-PALL2009"
+        ]
+      },
+      "surface": {
+        "material": "rammed earth",
+        "basis": "B: the recorded form names a sand hill; no paving evidence",
+        "source_ids": [
+          "SRC-SGABRIEL"
+        ]
+      },
+      "drainage": {
+        "runoff": "down the slope",
+        "centre_gutter": "unknown",
+        "basis": "U"
+      },
+      "frontage": "St Olaf churchyard and strip plots (H14)",
+      "map_state": "not_authored",
+      "map_conflicts": [],
+      "confidence": "plausible composite",
+      "evidence_class": "B",
+      "source_ids": [
+        "SRC-PALL2009",
+        "SRC-H14"
+      ]
+    },
+    {
+      "id": "street.pikk_jalg",
+      "name_1343": "long hill way",
+      "modern_name": "Pikk jalg",
+      "name_attestation": {
+        "status": "unverified",
+        "first_mention_year": null,
+        "recorded_form": null,
+        "source_ids": []
+      },
+      "route_1343": "plausible composite",
+      "owning_map_id": "toompea_quarter",
+      "planned_map_id": null,
+      "class": "ramp",
+      "trace": {
+        "from": "Lossi plats head",
+        "via": [
+          "gentle ramp along the retaining wall"
+        ],
+        "to": "wooden Long Hill Gate at the foot, opening onto the south end of Pikk by the Holy Spirit"
+      },
+      "width_m": {
+        "min": null,
+        "max": null,
+        "basis": "U",
+        "source_ids": [
+          "DOS-TOOMPEA"
+        ]
+      },
+      "surface": {
+        "material": "unknown",
+        "basis": "U: later cart-route paving is not 1343 evidence",
+        "source_ids": [
+          "DOS-TOOMPEA"
+        ]
+      },
+      "drainage": {
+        "runoff": "down the ramp toward the Lower Town",
+        "centre_gutter": "unknown",
+        "basis": "U"
+      },
+      "frontage": "retaining wall and timber palisade; no stone gate tower (later fabric)",
+      "map_state": "contradicts",
+      "map_conflicts": [
+        "content/maps/toompea_quarter.rrmap transition to_reval_north delivers the Pikk jalg foot to content/maps/monastery_quarter.rrmap at x 0 (convent_lane, St Michael side), far from pikk_spine (x 101); the gate should open onto the south end of Pikk near the Holy Spirit."
+      ],
+      "confidence": "plausible composite",
+      "evidence_class": "B",
+      "source_ids": [
+        "DOS-TOOMPEA",
+        "DOS-LTSP"
+      ]
+    },
+    {
+      "id": "street.pikk_market",
+      "name_1343": "long street (market end)",
+      "modern_name": "Pikk (south end)",
+      "name_attestation": {
+        "status": "unverified",
+        "first_mention_year": null,
+        "recorded_form": null,
+        "source_ids": []
+      },
+      "route_1343": "plausible composite",
+      "owning_map_id": "market_civic_quarter",
+      "planned_map_id": null,
+      "class": "spine",
+      "trace": {
+        "from": "Pühavaimu / Holy Spirit corner",
+        "via": [],
+        "to": "north seam to monastery_quarter (to_reval_north)"
+      },
+      "width_m": {
+        "min": 4,
+        "max": 6,
+        "basis": "B: Pikk cart width band from Block B of the street-plan dossier",
+        "source_ids": [
+          "DOS-LTSP"
+        ]
+      },
+      "surface": {
+        "material": "pebble/rubble",
+        "basis": "B: primary route paving (H04); not blanket cobble",
+        "source_ids": [
+          "SRC-H04",
+          "DOS-LTSP"
+        ]
+      },
+      "drainage": {
+        "runoff": "north toward the harbour lowland",
+        "centre_gutter": "unknown",
+        "basis": "B"
+      },
+      "frontage": "55-70% timber fronts, 25-40% mixed or stone on affluent plots near the hall and guild (Block A)",
+      "map_state": "partial",
+      "map_conflicts": [],
+      "confidence": "plausible composite",
+      "evidence_class": "B",
+      "source_ids": [
+        "DOS-LTSP",
+        "DOS-PIKKLAI"
+      ]
+    },
+    {
+      "id": "street.pikk_monastery",
+      "name_1343": "long street (middle reach)",
+      "modern_name": "Pikk (middle reach)",
+      "name_attestation": {
+        "status": "unverified",
+        "first_mention_year": null,
+        "recorded_form": null,
+        "source_ids": []
+      },
+      "route_1343": "plausible composite",
+      "owning_map_id": "monastery_quarter",
+      "planned_map_id": null,
+      "class": "spine",
+      "trace": {
+        "from": "south seam from market_civic_quarter",
+        "via": [
+          "guild quarter",
+          "St Olaf close"
+        ],
+        "to": "north seam to north_quarter"
+      },
+      "width_m": {
+        "min": 4,
+        "max": 6,
+        "basis": "B: Block B band",
+        "source_ids": [
+          "DOS-LTSP"
+        ]
+      },
+      "surface": {
+        "material": "pebble/rubble",
+        "basis": "B",
+        "source_ids": [
+          "SRC-H04"
+        ]
+      },
+      "drainage": {
+        "runoff": "north",
+        "centre_gutter": "unknown",
+        "basis": "B"
+      },
+      "frontage": "deep merchant strips 8-10 m x 60-90 m with rear stores (Block B)",
+      "map_state": "contradicts",
+      "map_conflicts": [
+        "content/maps/monastery_quarter.rrmap pikk_spine sits at x 101, but the market seam to_reval_center (x 34-44) lands on civic_lane, which jogs about 62 cells east before reaching Pikk; the spine is discontinuous across the market_civic_quarter / monastery_quarter seam."
+      ],
+      "confidence": "plausible composite",
+      "evidence_class": "B",
+      "source_ids": [
+        "DOS-LTSP",
+        "DOS-PIKKLAI"
+      ]
+    },
+    {
+      "id": "street.pikk_north",
+      "name_1343": "long street (harbour reach)",
+      "modern_name": "Pikk (north end)",
+      "name_attestation": {
+        "status": "unverified",
+        "first_mention_year": null,
+        "recorded_form": null,
+        "source_ids": []
+      },
+      "route_1343": "plausible composite",
+      "owning_map_id": "north_quarter",
+      "planned_map_id": null,
+      "class": "spine",
+      "trace": {
+        "from": "south seam from monastery_quarter",
+        "via": [],
+        "to": "Coastal Gate"
+      },
+      "width_m": {
+        "min": 4,
+        "max": 6,
+        "basis": "B: Block B band",
+        "source_ids": [
+          "DOS-LTSP"
+        ]
+      },
+      "surface": {
+        "material": "pebble/rubble",
+        "basis": "B: cobble reserved for Pikk and the Coastal Gate approach",
+        "source_ids": [
+          "SRC-H04"
+        ]
+      },
+      "drainage": {
+        "runoff": "north to the slab-lined gate channel (H11)",
+        "centre_gutter": "unknown",
+        "basis": "A at the gate, B elsewhere"
+      },
+      "frontage": "60-75% timber fronts with stone cellars and warehouses behind; 1-2 m grade fall toward the gate",
+      "map_state": "matches",
+      "map_conflicts": [],
+      "confidence": "plausible composite",
+      "evidence_class": "B",
+      "source_ids": [
+        "DOS-LTSP",
+        "DOS-PIKKLAI",
+        "SRC-AVE2019-COASTAL"
+      ]
+    },
+    {
+      "id": "street.puhavaimu",
+      "name_1343": "way past the Holy Spirit house",
+      "modern_name": "Pühavaimu",
+      "name_attestation": {
+        "status": "unverified",
+        "first_mention_year": null,
+        "recorded_form": null,
+        "source_ids": []
+      },
+      "route_1343": "plausible composite",
+      "owning_map_id": "market_civic_quarter",
+      "planned_map_id": null,
+      "class": "lane",
+      "trace": {
+        "from": "forum north edge",
+        "via": [
+          "Holy Spirit chapel-almshouse (by 1316)"
+        ],
+        "to": "south end of Pikk"
+      },
+      "width_m": {
+        "min": null,
+        "max": null,
+        "basis": "U",
+        "source_ids": [
+          "DOS-RAEKODA"
+        ]
+      },
+      "surface": {
+        "material": "rammed earth",
+        "basis": "B",
+        "source_ids": [
+          "SRC-H04"
+        ]
+      },
+      "drainage": {
+        "runoff": "south to the forum",
+        "centre_gutter": "unknown",
+        "basis": "U"
+      },
+      "frontage": "Holy Spirit complex and strip plots (H07); no 15th-century tower mass",
+      "map_state": "partial",
+      "map_conflicts": [],
+      "confidence": "plausible composite",
+      "evidence_class": "B",
+      "source_ids": [
+        "SRC-H07",
+        "DOS-RAEKODA"
+      ]
+    },
+    {
+      "id": "street.rataskaevu",
+      "name_1343": "street under the hill",
+      "modern_name": "Rataskaevu",
+      "name_attestation": {
+        "status": "unverified",
+        "first_mention_year": 1325,
+        "recorded_form": "rader strate",
+        "source_ids": [
+          "SRC-KUUSKEMAA2024"
+        ]
+      },
+      "route_1343": "plausible composite",
+      "owning_map_id": "south_quarter",
+      "planned_map_id": null,
+      "class": "lane",
+      "trace": {
+        "from": "Dunkri at the hill foot",
+        "via": [
+          "uncertain water source (not the 1375 Cat's Well)"
+        ],
+        "to": "Niguliste belt"
+      },
+      "width_m": {
+        "min": 3,
+        "max": 4,
+        "basis": "B: rear-lane band; the back-lanes dossier places it as market-adjacent rear access, which is disputed (see report)",
+        "source_ids": [
+          "DOS-BACKLANES"
+        ]
+      },
+      "surface": {
+        "material": "rammed earth",
+        "basis": "B",
+        "source_ids": [
+          "DOS-SQFC"
+        ]
+      },
+      "drainage": {
+        "runoff": "east off the Toompea foot",
+        "centre_gutter": "unknown",
+        "basis": "B"
+      },
+      "frontage": "strip plots on the sub monte belt; a reversible generic water-source placeholder labelled uncertain_1343_water_source",
+      "map_state": "partial",
+      "map_conflicts": [],
+      "confidence": "plausible composite",
+      "evidence_class": "C",
+      "source_ids": [
+        "SRC-KUUSKEMAA2024",
+        "DOS-SQFC",
+        "DOS-BATHS"
+      ]
+    },
+    {
+      "id": "street.toom_kooli",
+      "name_1343": "cathedral close lane",
+      "modern_name": "Toom-Kooli",
+      "name_attestation": {
+        "status": "unverified",
+        "first_mention_year": null,
+        "recorded_form": null,
+        "source_ids": []
+      },
+      "route_1343": "invented",
+      "owning_map_id": "toompea_quarter",
+      "planned_map_id": null,
+      "class": "lane",
+      "trace": {
+        "from": "Lossi plats",
+        "via": [
+          "cathedral close"
+        ],
+        "to": "archbishops_garden seam"
+      },
+      "width_m": {
+        "min": null,
+        "max": null,
+        "basis": "U",
+        "source_ids": [
+          "DOS-TOOMPEA"
+        ]
+      },
+      "surface": {
+        "material": "rammed earth",
+        "basis": "B: cathedral and orchard lanes remain packed earth",
+        "source_ids": [
+          "DOS-TOOMPEA"
+        ]
+      },
+      "drainage": {
+        "runoff": "off the plateau",
+        "centre_gutter": "unknown",
+        "basis": "U"
+      },
+      "frontage": "cathedral close and broad ecclesiastical plots (H13); designed game connection",
+      "map_state": "partial",
+      "map_conflicts": [],
+      "confidence": "invented",
+      "evidence_class": "D",
+      "source_ids": [
+        "DOS-TOOMPEA",
+        "SRC-H13"
+      ]
+    },
+    {
+      "id": "street.vanaturu_kael",
+      "name_1343": "market neck toward the clay-gate road",
+      "modern_name": "Vanaturu kael",
+      "name_attestation": {
+        "status": "unverified",
+        "first_mention_year": null,
+        "recorded_form": null,
+        "source_ids": []
+      },
+      "route_1343": "plausible composite",
+      "owning_map_id": "market_civic_quarter",
+      "planned_map_id": null,
+      "class": "lane",
+      "trace": {
+        "from": "forum south-east corner",
+        "via": [],
+        "to": "Viru / Vene / Kuninga junction"
+      },
+      "width_m": {
+        "min": 4,
+        "max": 6,
+        "basis": "B: 4-6 m paved throat, 45-55 m long, from the old-market dossier corridor",
+        "source_ids": [
+          "DOS-OLDMARKET",
+          "DOS-VIRUPAVE"
+        ]
+      },
+      "surface": {
+        "material": "pebble/rubble",
+        "basis": "B: mixed pebble and localized limestone slabs on sand occupation layers; no full slab carpet in the 2016 trenches",
+        "source_ids": [
+          "DOS-VIRUPAVE",
+          "SRC-AVE2016-VIRU"
+        ]
+      },
+      "drainage": {
+        "runoff": "slight grade fall east",
+        "centre_gutter": "unknown",
+        "basis": "B"
+      },
+      "frontage": "7-9 m burgess strips both sides; no Peppersack (1420-1460) and no stone staple warehouse",
+      "map_state": "matches",
+      "map_conflicts": [],
+      "confidence": "plausible composite",
+      "evidence_class": "B",
+      "source_ids": [
+        "DOS-OLDMARKET",
+        "SRC-POSTIMEES-MARKET",
+        "SRC-ETWIKI-VANATURUKAEL"
+      ]
+    },
+    {
+      "id": "street.vene_lower_town_slice",
+      "name_1343": "Russian merchants' way",
+      "modern_name": "Vene (south end)",
+      "name_attestation": {
+        "status": "post_1343",
+        "first_mention_year": 1732,
+        "recorded_form": null,
+        "source_ids": [
+          "SRC-PALL2009"
+        ]
+      },
+      "route_1343": "plausible composite",
+      "owning_map_id": "lower_town_slice",
+      "planned_map_id": null,
+      "class": "spine",
+      "trace": {
+        "from": "Viru / Vene junction",
+        "via": [
+          "Dominican precinct west side"
+        ],
+        "to": "north seam to monastery_quarter (vene_district_boundary)"
+      },
+      "width_m": {
+        "min": 5,
+        "max": 7,
+        "basis": "B: Vene as a through-route band from the back-lanes dossier",
+        "source_ids": [
+          "DOS-BACKLANES"
+        ]
+      },
+      "surface": {
+        "material": "rammed earth",
+        "basis": "B: Vene uses earth wear; cobble limited to Pikk",
+        "source_ids": [
+          "DOS-BACKLANES"
+        ]
+      },
+      "drainage": {
+        "runoff": "north-east toward the wet margin",
+        "centre_gutter": "unknown",
+        "basis": "B"
+      },
+      "frontage": "merchant and craft plots; St Catherine precinct wall on the east",
+      "map_state": "partial",
+      "map_conflicts": [],
+      "confidence": "plausible composite",
+      "evidence_class": "B",
+      "source_ids": [
+        "DOS-BACKLANES",
+        "DOS-LTSP",
+        "SRC-H15"
+      ]
+    },
+    {
+      "id": "street.vene_monastery",
+      "name_1343": "Russian merchants' way",
+      "modern_name": "Vene (north end)",
+      "name_attestation": {
+        "status": "post_1343",
+        "first_mention_year": 1732,
+        "recorded_form": null,
+        "source_ids": [
+          "SRC-PALL2009"
+        ]
+      },
+      "route_1343": "plausible composite",
+      "owning_map_id": "monastery_quarter",
+      "planned_map_id": null,
+      "class": "spine",
+      "trace": {
+        "from": "south seam from lower_town_slice",
+        "via": [],
+        "to": "Olevimägi / St Olaf belt"
+      },
+      "width_m": {
+        "min": 5,
+        "max": 7,
+        "basis": "B",
+        "source_ids": [
+          "DOS-BACKLANES"
+        ]
+      },
+      "surface": {
+        "material": "rammed earth",
+        "basis": "B",
+        "source_ids": [
+          "DOS-BACKLANES"
+        ]
+      },
+      "drainage": {
+        "runoff": "north",
+        "centre_gutter": "unknown",
+        "basis": "B"
+      },
+      "frontage": "craft booths and merchant plots east of Pikk",
+      "map_state": "contradicts",
+      "map_conflicts": [
+        "content/maps/monastery_quarter.rrmap stroke vene_lane is a three-cell mud U-loop that leaves and returns to the south seam; Vene is a 5-7 m through-route north toward Olevimägi and St Olaf's."
+      ],
+      "confidence": "plausible composite",
+      "evidence_class": "B",
+      "source_ids": [
+        "DOS-BACKLANES",
+        "SRC-PALL2009"
+      ]
+    },
+    {
+      "id": "street.viru",
+      "name_1343": "road to the clay gate",
+      "modern_name": "Viru",
+      "name_attestation": {
+        "status": "post_1343",
+        "first_mention_year": 1362,
+        "recorded_form": "leymstrate",
+        "source_ids": [
+          "SRC-PALL2009",
+          "SRC-SGABRIEL"
+        ]
+      },
+      "route_1343": "plausible composite",
+      "owning_map_id": "lower_town_slice",
+      "planned_map_id": null,
+      "class": "spine",
+      "trace": {
+        "from": "Viru / Vene junction (vana_turg_boundary seam)",
+        "via": [
+          "Müürivahe crossing"
+        ],
+        "to": "Viru Gate (present but possibly unfinished; moat in front; no 1370s foregate towers)"
+      },
+      "width_m": {
+        "min": 5,
+        "max": 7,
+        "basis": "B: Block C primary width band",
+        "source_ids": [
+          "DOS-LTSP"
+        ]
+      },
+      "surface": {
+        "material": "pebble/rubble",
+        "basis": "B: cobble/pebble band with mud margins; humus layers west of Müürivahe without a slab continuum (H09)",
+        "source_ids": [
+          "DOS-VIRUPAVE",
+          "SRC-AVE2016-VIRU"
+        ]
+      },
+      "drainage": {
+        "runoff": "east toward the moat; no timber water pipe in 1343",
+        "centre_gutter": "unknown",
+        "basis": "A/B: later timber pipes excluded (H09)"
+      },
+      "frontage": "mixed craft houses 7-11 m x 30-50 m; Dominican garden beyond the precinct wall",
+      "map_state": "partial",
+      "map_conflicts": [],
+      "confidence": "plausible composite",
+      "evidence_class": "B",
+      "source_ids": [
+        "SRC-AVE2016-VIRU",
+        "DOS-LTSP",
+        "DOS-WALLS"
+      ]
+    },
+    {
+      "id": "street.viru_road_extramural",
+      "name_1343": "eastern road beyond the clay gate",
+      "modern_name": "Viru gate - Iru - Pirita road",
+      "name_attestation": {
+        "status": "unverified",
+        "first_mention_year": null,
+        "recorded_form": null,
+        "source_ids": []
+      },
+      "route_1343": "plausible composite",
+      "owning_map_id": "viru_gate_foreland",
+      "planned_map_id": "viru_approach_road",
+      "class": "extramural road",
+      "trace": {
+        "from": "to_reval_east seam (Viru Gate outer apron)",
+        "via": [
+          "Pirita crossing (1343 bridge uncertain)"
+        ],
+        "to": "viru_gate_foreland east boundary"
+      },
+      "width_m": {
+        "min": null,
+        "max": null,
+        "basis": "U: worn cart track, no surveyed section",
+        "source_ids": [
+          "DOS-HARJU-HINTER"
+        ]
+      },
+      "surface": {
+        "material": "rammed earth",
+        "basis": "B: worn cart track, timber plank only on the moat fill at the gate (H09)",
+        "source_ids": [
+          "DOS-HARJU-HINTER",
+          "SRC-AVE2016-VIRU"
+        ]
+      },
+      "drainage": {
+        "runoff": "roadside ditches and the river valley",
+        "centre_gutter": "not applicable",
+        "basis": "B"
+      },
+      "frontage": "open meadow, crofts and the river bank; road-aligned suburb thin outside the gate",
+      "map_state": "partial",
+      "map_conflicts": [],
+      "confidence": "plausible composite",
+      "evidence_class": "B",
+      "source_ids": [
+        "DOS-HARJU-HINTER",
+        "SRC-AVE2016-VIRU"
+      ]
+    }
+  ],
+  "open_spaces": [
+    {
+      "id": "space.forum",
+      "modern_name": "Raekoja plats",
+      "name_1343": "forum",
+      "owning_map_id": "market_civic_quarter",
+      "bounds": "irregular open ground north of the Town Hall north facade (south edge); strip plots and the Holy Spirit complex close the north edge; Dunkri and Kullassepa mouths on the west; the Vanaturu kael throat at the south-east corner; smaller than the modern plaza",
+      "confidence": "attested",
+      "evidence_class": "A",
+      "source_ids": [
+        "SRC-POSTIMEES-MARKET",
+        "SRC-PALL2009",
+        "DOS-RAEKODA"
+      ]
+    },
+    {
+      "id": "space.viru_vene_junction",
+      "modern_name": "Viru / Vene / Vana turg crossing",
+      "name_1343": "road convergence east of the market neck",
+      "owning_map_id": "market_civic_quarter",
+      "bounds": "widening crossroads (10-14 m clear) at the east end of Vanaturu kael where Viru, Vene and the Kuninga lane meet; built strip frontage on every side; not a market reserve",
+      "confidence": "plausible composite",
+      "evidence_class": "B",
+      "source_ids": [
+        "DOS-OLDMARKET",
+        "SRC-ETWIKI-VANATURUKAEL"
+      ]
+    }
+  ],
+  "excluded": [
+    {
+      "name": "Kinga",
+      "reason": "No reviewed source dates the route or name; market_civic_quarter stroke street.kinga_passage is a game connection to review in UF-05, not a registered way",
+      "source_ids": [
+        "DOS-LTSP"
+      ]
+    },
+    {
+      "name": "Rüütli",
+      "reason": "No reviewed source for a 1343 route or name; the game's Knights District label is an invention and must not create a dated street",
+      "source_ids": [
+        "DOS-SQFC",
+        "DOS-LTSP"
+      ]
+    },
+    {
+      "name": "Uus (street)",
+      "reason": "Every Uus token in HISTORICAL_AUDIT.md refers to Uus and Uus, the log-building authors (H22); no street reference survives context-checking",
+      "source_ids": [
+        "SRC-H22"
+      ]
+    },
+    {
+      "name": "Vana turg (as a square or market)",
+      "reason": "The forum inferior is first recorded 1368 and dat olde market 1442; in 1343 only the route convergence exists, registered as space.viru_vene_junction and street.vanaturu_kael",
+      "source_ids": [
+        "SRC-POSTIMEES-MARKET",
+        "DOS-OLDMARKET"
+      ]
+    },
+    {
+      "name": "Väike-Karja",
+      "reason": "No reviewed source for a separate 1343 lane or name; the lower_town_slice comment pairs it with Karja but the geometry is registered as street.karja_lower_town_slice",
+      "source_ids": [
+        "DOS-LTSP",
+        "SRC-PALL2009"
+      ]
+    }
+  ]
+}
