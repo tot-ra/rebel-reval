@@ -24,7 +24,6 @@ var _pending_interactable: Interactable
 ## Charged techniques swing on release, so the primary button has to be tracked
 ## across press and release instead of firing once on press.
 var _attack_charge_active := false
-var _attack_charge_started_msec := 0
 
 
 func setup(player: Player, view_runtime: MapViewRuntime) -> void:
@@ -112,14 +111,20 @@ func _player_facing() -> Vector2:
 	return Vector2.ZERO
 
 
-## Charged techniques hold the swing until the button is released; everything
-## else swings immediately so the click stays responsive.
+## Every move set has a heavy strike, so the press only starts a charge: the
+## player commits the next light strike on release, or the heavy strike once
+## the hold passes the threshold (COMBAT_ANIMATION.md §2). Players without a
+## charge API swing immediately.
 func _begin_primary_attack() -> bool:
 	if _player == null:
 		return false
-	if _player.has_method("supports_charged_attack") and _player.supports_charged_attack():
+	if (
+		_player.has_method("begin_attack_charge")
+		and _player.has_method("supports_charged_attack")
+		and _player.supports_charged_attack()
+	):
+		_player.begin_attack_charge()
 		_attack_charge_active = true
-		_attack_charge_started_msec = Time.get_ticks_msec()
 		return true
 	return _player.request_primary_attack()
 
@@ -137,10 +142,10 @@ func try_handle_primary_release(event: InputEvent) -> bool:
 	):
 		return false
 	_attack_charge_active = false
-	var hold_sec := float(Time.get_ticks_msec() - _attack_charge_started_msec) / 1000.0
-	if _player == null or not _player.has_method("commit_attack_from_charge_hold"):
+	if _player == null or not _player.has_method("release_attack_charge"):
 		return false
-	return bool(_player.commit_attack_from_charge_hold(hold_sec))
+	# A hold that already fired its heavy strike has nothing left to commit.
+	return bool(_player.release_attack_charge())
 
 
 func _input(event: InputEvent) -> void:

@@ -3,6 +3,8 @@ extends RefCounted
 
 static var _guard_toggle_active := false
 static var _guard_was_pressed := false
+## Physics frame in which each action edge was last handed out (see _consume).
+static var _edge_frames: Dictionary = {}
 
 
 static func reset_guard_toggle() -> void:
@@ -10,30 +12,47 @@ static func reset_guard_toggle() -> void:
 	_guard_was_pressed = false
 
 
+## Dodge and roll presses. The attack press is read by the player's charge
+## clock (read_attack_just_pressed) because a tap and a hold are different verbs.
 static func read_pressed_actions() -> Array[PlayerActionKind.Kind]:
 	var pressed: Array[PlayerActionKind.Kind] = []
-	# Left click never attacks through the input map: MapClickInputController owns
-	# it and decides per camera mode whether it means attack, interact, or (top-down
-	# only) travel. Keyboard and gamepad bindings still trigger attacks directly.
-	if read_attack_just_pressed():
-		pressed.append(PlayerActionKind.Kind.ATTACK)
-	if Input.is_action_just_pressed(PlayerActionKind.ACTION_DODGE):
+	if _consume(PlayerActionKind.ACTION_DODGE, true):
 		pressed.append(PlayerActionKind.Kind.DODGE)
+	if (
+		InputMap.has_action(PlayerActionKind.ACTION_ROLL)
+		and _consume(PlayerActionKind.ACTION_ROLL, true)
+	):
+		pressed.append(PlayerActionKind.Kind.ROLL)
 	return pressed
 
 
+## Left click never attacks through the input map: MapClickInputController owns
+## it and decides per camera mode whether it means attack, interact, or (top-down
+## only) travel. Keyboard and gamepad bindings still trigger attacks directly.
 static func read_attack_just_pressed() -> bool:
-	return (
-		Input.is_action_just_pressed(PlayerActionKind.ACTION_ATTACK)
-		and not _is_left_mouse_pressed()
-	)
+	return not _is_left_mouse_pressed() and _consume(PlayerActionKind.ACTION_ATTACK, true)
 
 
 static func read_attack_just_released() -> bool:
-	return (
-		Input.is_action_just_released(PlayerActionKind.ACTION_ATTACK)
-		and not _is_left_mouse_pressed()
+	return not _is_left_mouse_pressed() and _consume(PlayerActionKind.ACTION_ATTACK, false)
+
+
+## WHY: Input.is_action_just_pressed/just_released stay true for every read in
+## the same physics frame, and a tap inside one frame reports both. Handing each
+## edge out once per frame stops repeated reads from replaying one press as
+## several attacks or dodges (phantom stamina spend).
+static func _consume(action: StringName, press: bool) -> bool:
+	var edge := (
+		Input.is_action_just_pressed(action) if press else Input.is_action_just_released(action)
 	)
+	if not edge:
+		return false
+	var key := "%s:%s" % [action, "press" if press else "release"]
+	var frame := Engine.get_physics_frames()
+	if int(_edge_frames.get(key, -1)) == frame:
+		return false
+	_edge_frames[key] = frame
+	return true
 
 
 static func read_attack_held() -> bool:

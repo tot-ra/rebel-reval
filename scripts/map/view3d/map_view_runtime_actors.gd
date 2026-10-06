@@ -166,8 +166,11 @@ func sync_player(snap: bool, delta: float = 0.0) -> void:
 	# Camera follows the rig after the swimmer placed it, so a diver drags it down.
 	_follow_player.call(snap, delta)
 	if _player.has_method("view_animation_elapsed_sec"):
+		var duration := 0.0
+		if _player.has_method("view_animation_duration_sec"):
+			duration = float(_player.call("view_animation_duration_sec"))
 		_player_rig.sync_action_presentation(
-			wanted, float(_player.call("view_animation_elapsed_sec"))
+			wanted, float(_player.call("view_animation_elapsed_sec")), duration
 		)
 	_player_rig.set_locomotion_speed(speed * MapViewBridge.world_scale(_definition.cell_size))
 	if moving:

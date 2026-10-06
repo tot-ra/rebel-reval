@@ -125,8 +125,33 @@ func _on_cast_requested(aim_direction := Vector2.ZERO) -> void:
 		direction = _caster.call("view_facing") as Vector2
 	if direction.is_zero_approx():
 		direction = Vector2.RIGHT
-	_model.cast(_caster, direction.normalized())
+	# Kalev cannot sign a spell mid-swing or mid-roll (COMBAT_ANIMATION.md §6);
+	# the armed spell stays armed so the next press after the action casts it.
+	if (
+		_caster != null
+		and _caster.has_method("can_begin_cast")
+		and not bool(_caster.call("can_begin_cast"))
+	):
+		_hud.refresh()
+		return
+	var result := _model.cast(_caster, direction.normalized())
+	if (
+		bool(result.get("ok", false))
+		and _caster != null
+		and _caster.has_method("begin_cast_gesture")
+	):
+		_caster.call("begin_cast_gesture", _delivery_kind(result))
 	_hud.refresh()
+
+
+static func _delivery_kind(cast_result: Dictionary) -> String:
+	var effect: Variant = cast_result.get("effect", {})
+	if not effect is Dictionary:
+		return ""
+	var delivery: Variant = (effect as Dictionary).get("delivery", {})
+	if not delivery is Dictionary:
+		return ""
+	return String((delivery as Dictionary).get("kind", ""))
 
 
 func _cast_learned_slot(index: int) -> void:

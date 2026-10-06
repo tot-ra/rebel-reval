@@ -26,6 +26,7 @@
       "slot": "right_hand",
       "scene": "res://assets/storybook/equipment/sword.tscn"
     },
+    "weapon_class": "sword",
     "attack_profile": {
       "animation": "sword_attack",
       "damage": 11.0,

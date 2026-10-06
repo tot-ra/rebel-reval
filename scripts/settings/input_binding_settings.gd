@@ -1,6 +1,9 @@
 class_name InputBindingSettings
 extends RefCounted
 
+## Bumped when a shipped default moves to another action (see from_dict).
+const BINDINGS_VERSION := 2
+
 ## Persistent, device-separated bindings for every player-facing vertical-slice action.
 ## InputMap remains the runtime authority; this model only serializes and applies it.
 
@@ -21,7 +24,8 @@ const ACTION_DEFINITIONS: Array[Dictionary] = [
 	{"id": &"ui_page_up", "label": "Dialogue backlog", "category": "Interaction"},
 	{"id": &"player_attack", "label": "Attack", "category": "Combat"},
 	{"id": &"player_guard", "label": "Guard", "category": "Combat"},
-	{"id": &"player_dodge", "label": "Dodge", "category": "Combat"},
+	{"id": &"player_dodge", "label": "Sidestep", "category": "Combat"},
+	{"id": &"player_roll", "label": "Roll", "category": "Combat"},
 	{"id": &"toggle_spellforge", "label": "Spell cookbook", "category": "Magic"},
 	{"id": &"spellforge_element_1", "label": "Cast learned spell 1", "category": "Magic"},
 	{"id": &"spellforge_element_2", "label": "Cast learned spell 2", "category": "Magic"},
@@ -89,9 +93,12 @@ static func default_settings() -> InputBindingSettings:
 			DEVICE_KEYBOARD_MOUSE: [_key(KEY_TAB), _key(KEY_PAGEUP)],
 			DEVICE_GAMEPAD: [_joy_button(JOY_BUTTON_DPAD_LEFT)],
 		},
+		# Left mouse is listed so the controls screen shows it, but the press is
+		# routed by MapClickInputController (attack vs interact vs travel) and
+		# PlayerActionInput ignores this action while LMB is down. Space is the roll.
 		"player_attack":
 		{
-			DEVICE_KEYBOARD_MOUSE: [_key(KEY_SPACE)],
+			DEVICE_KEYBOARD_MOUSE: [_mouse_button(MOUSE_BUTTON_LEFT)],
 			DEVICE_GAMEPAD: [_joy_button(JOY_BUTTON_X)],
 		},
 		"player_guard":
@@ -103,6 +110,11 @@ static func default_settings() -> InputBindingSettings:
 		{
 			DEVICE_KEYBOARD_MOUSE: [_key(KEY_Q)],
 			DEVICE_GAMEPAD: [_joy_button(JOY_BUTTON_RIGHT_SHOULDER)],
+		},
+		"player_roll":
+		{
+			DEVICE_KEYBOARD_MOUSE: [_key(KEY_SPACE)],
+			DEVICE_GAMEPAD: [_joy_motion(JOY_AXIS_TRIGGER_RIGHT, 1.0)],
 		},
 		"toggle_spellforge":
 		{
@@ -182,6 +194,7 @@ static func default_settings() -> InputBindingSettings:
 
 static func from_dict(data: Dictionary) -> InputBindingSettings:
 	var settings := default_settings()
+	var version := int(data.get("version", 1))
 	var actions_value: Variant = data.get("actions", {})
 	if typeof(actions_value) != TYPE_DICTIONARY:
 		return settings
@@ -203,9 +216,26 @@ static func from_dict(data: Dictionary) -> InputBindingSettings:
 				var event := _event_from_dict(entry as Dictionary)
 				if is_supported_event(event, device):
 					decoded.append(event)
+			if _is_retired_default(version, action, device, decoded):
+				continue
 			if not decoded.is_empty():
 				settings._bindings[action][device] = decoded
 	return settings
+
+
+## v1 files stored every default, including Space on attack. Space is the roll
+## since v2 (COMBAT_ANIMATION.md), so an untouched v1 default must not survive
+## the load and double-bind Space; a deliberate custom binding still does.
+static func _is_retired_default(
+	version: int, action: String, device: StringName, decoded: Array[InputEvent]
+) -> bool:
+	if version >= BINDINGS_VERSION or action != "player_attack" or device != DEVICE_KEYBOARD_MOUSE:
+		return false
+	return (
+		decoded.size() == 1
+		and decoded[0] is InputEventKey
+		and (decoded[0] as InputEventKey).physical_keycode == KEY_SPACE
+	)
 
 
 func duplicate_settings() -> InputBindingSettings:
@@ -225,7 +255,7 @@ func to_dict() -> Dictionary:
 					serialized_events.append(serialized)
 			serialized_devices[String(device)] = serialized_events
 		actions[action] = serialized_devices
-	return {"actions": actions}
+	return {"version": BINDINGS_VERSION, "actions": actions}
 
 
 func events_for(action: StringName, device: StringName) -> Array[InputEvent]:

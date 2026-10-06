@@ -66,7 +66,9 @@ func test_resolve_test_stick_profile_from_content() -> void:
 	var player := _create_player()
 	_equip_item(&"right_hand", ITEM_TEST_STICK)
 	var profile := AttackProfileResolver.resolve_for_state(SessionState.state, SessionState.content_db)
-	assert_eq(profile.animation, &"forge_strike")
+	# The stick swings with the sword move set; the item still owns the numbers.
+	assert_eq(profile.weapon_class, CombatMoveCatalog.CLASS_SWORD)
+	assert_eq(profile.animation, &"sword_attack")
 	assert_eq(profile.damage, 5.0)
 	assert_eq(profile.damage_type, &"slash")
 	player.free()
@@ -117,8 +119,8 @@ func test_equipped_hammer_uses_content_profile_and_drains_stamina() -> void:
 	player.stamina = 20.0
 	var profile := AttackProfileResolver.resolve_for_state(SessionState.state, SessionState.content_db)
 	player.prepare_attack_profile(profile)
+	# Starting the action spends the move's stamina (single owner, R-1161).
 	assert_true(player.action_state_machine.try_start_action(PlayerActionKind.Kind.ATTACK))
-	player.stamina = maxf(0.0, player.stamina - profile.stamina_cost)
 
 	assert_eq(player.action_state_machine.state, PlayerActionState.State.ATTACK)
 	assert_eq(player.stamina, 8.0, "Hammer attack should spend its authored stamina cost")
@@ -130,8 +132,12 @@ func test_resolve_hammer_charged_profile_from_content() -> void:
 	_ensure_content_loaded()
 	var player := _create_player()
 	_equip_item(&"right_hand", ITEM_HAMMER)
-	var light := AttackProfileResolver.resolve_for_state(SessionState.state, SessionState.content_db, false)
-	var charged := AttackProfileResolver.resolve_for_state(SessionState.state, SessionState.content_db, true)
+	var light := AttackProfileResolver.resolve_for_state(
+		SessionState.state, SessionState.content_db, false
+	)
+	var charged := AttackProfileResolver.resolve_for_state(
+		SessionState.state, SessionState.content_db, true
+	)
 	assert_eq(light.animation, &"hammer_attack")
 	assert_eq(charged.animation, &"hammer_charged_attack")
 	assert_eq(charged.damage, 24.0)

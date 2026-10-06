@@ -39,6 +39,7 @@ Roles `level`, `map`, and `event` have full conversion specifications later in t
 | `assets/characters/shared/hammer.tscn` | support | `retain` | Shared hammer equipment mesh | Equipment swap on shared rig; combat and forge feedback | not a map definition |
 | `assets/characters/shared/shared_character_rig.tscn` | actor | `convert` | Shared low-poly character rig base | Kalev and NPC variants after P0-037 and P0-040 | not a map definition; P0-037 actor conversion |
 | `assets/characters/shared/spear.tscn` | support | `retain` | Shared spear equipment mesh | Demo forge pickup visual; D-003 and future commissions | not a map definition |
+| `assets/characters/shared/spear_thrust_grip.tscn` | support | `retain` | Player spear thrust-grip equipment mesh | Spear move set on Kalev (R-1161, docs/SYSTEMS/COMBAT_ANIMATION.md) | not a map definition |
 | `assets/characters/showcase/character_rig_showcase.tscn` | test | `retain` | Character rig animation showcase | Developer-only P0-037 verification; never release-playable | not a map definition |
 | `assets/characters/variants/henning.tscn` | actor | `retain` | Henning NPC variant | Smithy ambient NPC; slice cast after P0-037 | not a map definition; P0-037 actor conversion |
 | `assets/characters/variants/innkeeper.tscn` | actor | `retain` | Innkeeper NPC variant | Future slice cast; texture and equipment swap only | not a map definition; P0-037 actor conversion |

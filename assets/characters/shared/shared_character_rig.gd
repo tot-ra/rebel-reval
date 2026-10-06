@@ -1,16 +1,34 @@
-extends Node3D
-
 class_name SharedCharacterRig
+extends Node3D
 
 const CANONICAL_ANIMATIONS: Dictionary = {
 	&"idle": &"Idle",
 	&"walk": &"Walking_A",
 	&"run": &"Running_B",
 	&"forge_strike": &"1H_Melee_Attack_Chop",
+	# Weapon move sets: docs/SYSTEMS/COMBAT_ANIMATION.md, CombatMoveCatalog.
 	&"hammer_attack": &"1H_Melee_Attack_Chop",
-	&"sword_attack": &"1H_Melee_Attack_Slice_Diagonal",
+	&"hammer_attack_2": &"1H_Melee_Attack_Slice_Horizontal",
+	&"hammer_attack_3": &"2H_Melee_Attack_Slice",
 	&"hammer_charged_attack": &"2H_Melee_Attack_Chop",
+	&"sword_attack": &"1H_Melee_Attack_Slice_Diagonal",
+	&"sword_attack_2": &"1H_Melee_Attack_Slice_Horizontal",
+	&"sword_attack_3": &"1H_Melee_Attack_Stab",
+	&"sword_heavy_attack": &"2H_Melee_Attack_Slice",
+	&"spear_attack": &"2H_Melee_Attack_Stab",
+	&"spear_attack_2": &"1H_Melee_Attack_Stab",
+	&"spear_attack_3": &"2H_Melee_Attack_Slice",
+	&"spear_heavy_attack": &"2H_Melee_Attack_Stab",
 	&"unarmed_attack": &"Unarmed_Melee_Attack_Punch_A",
+	&"unarmed_attack_2": &"Unarmed_Melee_Attack_Punch_B",
+	&"unarmed_attack_3": &"Unarmed_Melee_Attack_Kick",
+	&"unarmed_heavy_attack": &"Unarmed_Melee_Attack_Kick",
+	&"cast_projectile": &"Spellcast_Shoot",
+	&"cast_self": &"Spellcast_Raise",
+	&"cast_area": &"Spellcast_Long",
+	# Procedural, generated on first use by CombatRollClip (no source clip).
+	&"roll_forward": &"combat/Roll_Forward",
+	&"roll_backward": &"combat/Roll_Backward",
 	&"guard": &"Blocking",
 	&"dodge_left": &"Dodge_Left",
 	&"dodge_right": &"Dodge_Right",
@@ -46,22 +64,21 @@ const LEFT_FOOT_BONE := &"foot.l"
 const RIGHT_FOOT_BONE := &"foot.r"
 const TURN_SMOOTHING := 10.0
 const RIGHT_HAND_BONE := &"hand.r"
-## Hammer action clips are deliberately time-warped against the logic profile.
-## The wind-up gets screen time, the downswing accelerates into the authored
-## contact pose, and a short hold before follow-through gives the blow weight.
-const HAMMER_PRESENTATION: Dictionary = {
-	&"hammer_attack": {
-		"source_contact_sec": 0.68,
-		"impact_sec": 0.34,
-		"hit_stop_sec": 0.055,
-		"action_duration_sec": 0.76,
-	},
-	&"hammer_charged_attack": {
-		"source_contact_sec": 0.88,
-		"impact_sec": 0.50,
-		"hit_stop_sec": 0.10,
-		"action_duration_sec": 1.02,
-	},
+## Cross-fade seconds into each family of animation (COMBAT_ANIMATION.md §5).
+## Short into committed actions so input reads instantly, longer back out to
+## locomotion so a finished swing settles instead of popping to idle.
+const BLEND_DEFAULT_SEC := 0.12
+const BLEND_INTO_ATTACK_SEC := 0.08
+const BLEND_COMBO_SEC := 0.1
+const BLEND_INTO_EVADE_SEC := 0.05
+const BLEND_INTO_HIT_SEC := 0.04
+const BLEND_INTO_CAST_SEC := 0.08
+const BLEND_ACTION_TO_LOCOMOTION_SEC := 0.22
+const BLEND_LOCOMOTION_SEC := 0.18
+const LOCOMOTION_FAMILY: Array[StringName] = [&"idle", &"walk", &"run"]
+const PROCEDURAL_CLIPS: Dictionary = {
+	&"roll_forward": false,
+	&"roll_backward": true,
 }
 
 ## Named bone-attachment points for rigid equipment (weapons, tools, props).
@@ -98,22 +115,21 @@ const LOD2_VISIBILITY_BEGIN := 46.0
 const LOD_LEVELS: Array[int] = [1, 2]
 const CHARACTER_LOD_DIR := "res://assets/characters/shared/"
 
-## Per-scene override for non-hero bodies: a body scene generated from a
-## different spec sets this to 2.0 / its own BODY_STATURE.
-@export var model_scale: Vector3 = HEROIC_MODEL_SCALE
-const OCCLUDED_SILHOUETTE_SHADER := preload("res://assets/characters/shared/occluded_silhouette.gdshader")
+const OCCLUDED_SILHOUETTE_SHADER := preload(
+	"res://assets/characters/shared/occluded_silhouette.gdshader"
+)
 const SKIN_MATERIAL_SHADER := preload("res://scripts/characters/skin_material.gdshader")
 const EYE_MATERIAL_SHADER := preload("res://scripts/characters/eye_material.gdshader")
 const MAIL_MATERIAL_SHADER := preload("res://assets/characters/shared/mail_material.gdshader")
 const HAIR_MATERIAL_SHADER := preload("res://scripts/characters/hair_material.gdshader")
 const HEAD_SCALE_MODIFIER := preload("res://assets/characters/shared/head_scale_modifier.gd")
-const ANATOMICAL_MUSCLE_MODIFIER := preload("res://assets/characters/shared/anatomical_muscle_modifier.gd")
+const ANATOMICAL_MUSCLE_MODIFIER := preload(
+	"res://assets/characters/shared/anatomical_muscle_modifier.gd"
+)
 ## Head bone origin is mid-skull; this clears crown / helmet before the talk glyph.
 const HEAD_CROWN_OFFSET := 0.30
 ## Gap between crown and the bottom of the billboard talk glyph.
 const PROMPT_GLYPH_PADDING := 0.14
-
-static var _occluded_silhouette_material: ShaderMaterial
 
 const SKIN_MATERIAL_NAMES: Array[StringName] = [&"hero_skin", &"hero_skin.001"]
 const EYE_MATERIAL_NAMES: Array[StringName] = [
@@ -144,6 +160,11 @@ const CHARACTER_PBR_MATERIAL_PROFILES: Dictionary = {
 	&"hero_mail": {"family": "metal", "roughness": 0.72, "metallic": 0.55},
 }
 
+static var _occluded_silhouette_material: ShaderMaterial
+
+## Per-scene override for non-hero bodies: a body scene generated from a
+## different spec sets this to 2.0 / its own BODY_STATURE.
+@export var model_scale: Vector3 = HEROIC_MODEL_SCALE
 @export var variant: CharacterVariant
 ## All generated humanoids use the shared pose-driven muscle response.
 @export var use_anatomical_muscles: bool = true
@@ -282,80 +303,132 @@ func source_animation_name(canonical_name: StringName) -> StringName:
 func has_animation(canonical_name: StringName) -> bool:
 	if _animation_player == null:
 		return false
+	_ensure_procedural_clip(canonical_name)
 	var source_name := source_animation_name(canonical_name)
 	return not source_name.is_empty() and _animation_player.has_animation(source_name)
 
-func play_animation(canonical_name: StringName, blend_seconds: float = 0.12) -> bool:
+## blend_seconds < 0 picks the authored transition (transition_blend_sec).
+func play_animation(canonical_name: StringName, blend_seconds: float = -1.0) -> bool:
 	if not has_animation(canonical_name):
 		push_warning("Unknown character animation: %s" % canonical_name)
 		return false
+	if blend_seconds < 0.0:
+		blend_seconds = transition_blend_sec(_current_canonical_animation, canonical_name)
 	var source_name := source_animation_name(canonical_name)
 	var animation := _animation_player.get_animation(source_name)
 	if canonical_name in LOOPING_ANIMATIONS:
 		animation.loop_mode = Animation.LOOP_LINEAR
 	else:
 		animation.loop_mode = Animation.LOOP_NONE
+	# Locomotion may have scaled playback; every new clip starts at its
+	# authored rate until set_locomotion_speed or the action clock takes over.
+	_animation_player.speed_scale = 1.0
 	_animation_player.play(source_name, blend_seconds)
 	_current_canonical_animation = canonical_name
 	return true
 
 
-func sync_action_presentation(canonical_name: StringName, action_elapsed_sec: float) -> void:
-	if _animation_player == null or not HAMMER_PRESENTATION.has(canonical_name):
+static func transition_blend_sec(from_name: StringName, to_name: StringName) -> float:
+	if from_name.is_empty():
+		return 0.0
+	var to_text := String(to_name)
+	var from_is_action := from_name not in LOCOMOTION_FAMILY and from_name != &"guard"
+	if to_name in LOCOMOTION_FAMILY:
+		return BLEND_ACTION_TO_LOCOMOTION_SEC if from_is_action else BLEND_LOCOMOTION_SEC
+	if to_text.begins_with("roll_") or to_text.begins_with("dodge_"):
+		return BLEND_INTO_EVADE_SEC
+	if to_name == &"hit":
+		return BLEND_INTO_HIT_SEC
+	if to_text.begins_with("cast_"):
+		return BLEND_INTO_CAST_SEC
+	if to_text.ends_with("_attack") or to_text.contains("_attack_"):
+		var from_text := String(from_name)
+		var chained := from_text.ends_with("_attack") or from_text.contains("_attack_")
+		return BLEND_COMBO_SEC if chained else BLEND_INTO_ATTACK_SEC
+	return BLEND_DEFAULT_SEC
+
+
+## Drives a committed action's clip from the gameplay state clock.
+##
+## WHY seek + advance(0) on a playing player: on Godot 4.7 neither a paused
+## AnimationPlayer nor one at speed_scale 0 applies a seeked pose, which froze
+## every hammer swing at its blend-in pose (R-1161). The player keeps playing
+## at 1x so the cross-fade from the previous clip progresses; the re-seek every
+## frame keeps the clip on the gameplay clock (the mixer's own step after it
+## leads by at most one frame and never accumulates).
+func sync_action_presentation(
+	canonical_name: StringName, action_elapsed_sec: float, action_duration_sec: float = 0.0
+) -> void:
+	if _animation_player == null or current_canonical_animation() != canonical_name:
 		return
-	if current_canonical_animation() != canonical_name:
-		return
-	# WHY: Resolve through the canonical source name. AnimationPlayer.current_animation
-	# can be empty after a finished one-shot or before play() sticks, and reading
-	# .length on a null Animation hard-crashes the map view sync loop.
 	var source_name := source_animation_name(canonical_name)
 	if source_name.is_empty() or not _animation_player.has_animation(source_name):
 		return
 	var animation := _animation_player.get_animation(source_name)
 	if animation == null:
 		return
-	var source_time := hammer_source_time(canonical_name, action_elapsed_sec, animation.length)
-	# WHY: Presentation follows the state machine clock instead of accumulating
-	# AnimationPlayer delta, so low FPS cannot move the visible contact away from
-	# the single gameplay impact signal.
-	_animation_player.pause()
+	var source_time := action_source_time(
+		canonical_name, action_elapsed_sec, animation.length, action_duration_sec
+	)
+	if source_time < 0.0:
+		return
+	if _animation_player.assigned_animation != source_name or not _animation_player.is_playing():
+		_animation_player.play(source_name)
+	_animation_player.speed_scale = 1.0
 	_animation_player.seek(source_time, true)
+	_animation_player.advance(0.0)
 
 
+## Source clip time for an action, or -1 when the action is not clock-driven.
+static func action_source_time(
+	canonical_name: StringName,
+	action_elapsed_sec: float,
+	source_length_sec: float,
+	action_duration_sec: float = 0.0
+) -> float:
+	var move := CombatMoveCatalog.presentation_move(canonical_name)
+	if move != null:
+		return move.source_time(action_elapsed_sec, source_length_sec)
+	if canonical_name in CombatMoveCatalog.SCALED_ACTIONS and action_duration_sec > 0.0:
+		return source_length_sec * clampf(action_elapsed_sec / action_duration_sec, 0.0, 1.0)
+	return -1.0
+
+
+static func is_clock_driven(canonical_name: StringName) -> bool:
+	return (
+		CombatMoveCatalog.presentation_move(canonical_name) != null
+		or canonical_name in CombatMoveCatalog.SCALED_ACTIONS
+	)
+
+
+## Legacy hammer helpers kept for callers that predate the move catalog.
 static func hammer_source_time(
 	canonical_name: StringName,
 	action_elapsed_sec: float,
 	source_length_sec: float
 ) -> float:
-	if not HAMMER_PRESENTATION.has(canonical_name):
+	var move := CombatMoveCatalog.presentation_move(canonical_name)
+	if move == null:
 		return clampf(action_elapsed_sec, 0.0, source_length_sec)
-	var presentation: Dictionary = HAMMER_PRESENTATION[canonical_name]
-	var contact := float(presentation["source_contact_sec"])
-	var impact := float(presentation["impact_sec"])
-	var hit_stop := float(presentation["hit_stop_sec"])
-	var duration := float(presentation["action_duration_sec"])
-	var elapsed := clampf(action_elapsed_sec, 0.0, duration)
-	if elapsed <= impact:
-		# Slow anticipation uses most of the pre-impact clock; the easing then
-		# compresses the actual downswing into a visibly accelerating finish.
-		var ratio := elapsed / maxf(impact, 0.001)
-		return contact * ratio * ratio
-	if elapsed <= impact + hit_stop:
-		return contact
-	var follow_ratio := (elapsed - impact - hit_stop) / maxf(duration - impact - hit_stop, 0.001)
-	return lerpf(contact, source_length_sec, clampf(follow_ratio, 0.0, 1.0))
+	return move.source_time(action_elapsed_sec, source_length_sec)
 
 
 static func hammer_impact_sec(canonical_name: StringName) -> float:
-	if not HAMMER_PRESENTATION.has(canonical_name):
-		return 0.0
-	return float((HAMMER_PRESENTATION[canonical_name] as Dictionary)["impact_sec"])
+	var move := CombatMoveCatalog.presentation_move(canonical_name)
+	return move.impact_sec if move != null else 0.0
 
 
 static func hammer_action_duration_sec(canonical_name: StringName) -> float:
-	if not HAMMER_PRESENTATION.has(canonical_name):
-		return 0.0
-	return float((HAMMER_PRESENTATION[canonical_name] as Dictionary)["action_duration_sec"])
+	var move := CombatMoveCatalog.presentation_move(canonical_name)
+	return move.duration_sec if move != null else 0.0
+
+
+func _ensure_procedural_clip(canonical_name: StringName) -> void:
+	if not PROCEDURAL_CLIPS.has(canonical_name):
+		return
+	CombatRollClip.ensure_clip(
+		_animation_player, _skeleton, body_basename(), bool(PROCEDURAL_CLIPS[canonical_name])
+	)
 
 func set_facing(logic_direction: Vector2) -> void:
 	if logic_direction.is_zero_approx():
@@ -379,6 +452,11 @@ func set_locomotion_speed(world_speed: float) -> void:
 	if _animation_player == null:
 		return
 	var canonical := current_canonical_animation()
+	if is_clock_driven(canonical):
+		# sync_action_presentation owns the clock of committed actions.
+		_animation_player.speed_scale = 1.0
+		_planted_foot = &""
+		return
 	if not LOCOMOTION_REFERENCE_SPEED.has(canonical):
 		_animation_player.speed_scale = 1.0
 		_planted_foot = &""
@@ -757,7 +835,9 @@ static func _profile_normal_scale(profile: Dictionary, material: BaseMaterial3D)
 	return baseline
 
 
-func _shader_material_for(material_name: StringName, source_material: BaseMaterial3D) -> ShaderMaterial:
+func _shader_material_for(
+	material_name: StringName, source_material: BaseMaterial3D
+) -> ShaderMaterial:
 	var shader: Shader
 	if material_name == &"hero_mail":
 		shader = MAIL_MATERIAL_SHADER

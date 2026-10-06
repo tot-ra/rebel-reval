@@ -15,6 +15,19 @@ const STAMINA_DRAIN_RATE := 10.0  # per second
 const DODGE_STAMINA_COST := 18.0
 const DODGE_DISTANCE_PX := 80.0
 const DODGE_DEFAULT_SIDE := Vector2.RIGHT
+## Roll (COMBAT_ANIMATION.md §3): longer, i-framed only while tucked, and the
+## body turns into the roll unless the input points backward.
+const ROLL_STAMINA_COST := 22.0
+const ROLL_DISTANCE_PX := 112.0
+## Travel happens while tucked; the get-up after this is in place.
+const ROLL_TRAVEL_SEC := 0.5
+## Input pointing this far behind the facing rolls backward without turning.
+const ROLL_BACKWARD_DOT := -0.6
+## Soft target lock: an attack turns toward a hostile this far beyond reach.
+const SOFT_LOCK_REACH_MULT := 1.8
+const SOFT_LOCK_FACING_DOT := 0.0
+## The lunge never carries the body into the soft-locked target.
+const LUNGE_STOP_PX := 30.0
 
 # Logic px/s (32 px = 1 world unit): a readable walk and a believable sprint.
 # MapViewRuntime.RUN_ANIMATION_MIN_SPEED sits midway between these.
@@ -43,6 +56,16 @@ var _dodge_direction := Vector2.ZERO
 var _dodge_facing := Vector2.ZERO
 var _dodge_animation: StringName = &"dodge_right"
 var _dodge_distance_remaining := 0.0
+var _pending_roll_direction := Vector2.ZERO
+var _roll_direction := Vector2.ZERO
+var _roll_facing := Vector2.ZERO
+var _roll_animation: StringName = CombatMoveCatalog.ROLL_FORWARD
+var _cast_animation: StringName = CombatMoveCatalog.CAST_SELF
+## Validated before the attack starts so stamina and the started move agree.
+var _validated_attack_profile: AttackProfile
+var _soft_lock_target: Node2D
+## Scripted displacement (roll travel, attack lunge) measured along its axis.
+var _scripted_motion_traveled := 0.0
 var _death_transition_started := false
 var _map_definition: MapDefinition
 var _map_grid: MapTerrainGrid
@@ -169,8 +192,14 @@ func _physics_process(_delta):
 		return
 
 	if not action_state_machine.allows_movement():
-		velocity = Vector2.ZERO
-		move_and_slide()
+		match action_state_machine.state:
+			PlayerActionState.State.ROLL:
+				_move_roll()
+			PlayerActionState.State.ATTACK:
+				_move_attack_lunge()
+			_:
+				velocity = Vector2.ZERO
+				move_and_slide()
 		_sync_resource_bars()
 		update_animation(_combat_or_locomotion_animation(action_state_machine.get_animation_base()))
 		return
@@ -230,15 +259,16 @@ func _physics_process(_delta):
 func _process_action_input(_delta: float) -> void:
 	if not combat_input_enabled or _movement_blocked():
 		return
-	# Keyboard and gamepad attacks must commit on press. The mouse primary-action
-	# controller owns its separate hold-to-charge path, so Space never leaves the
-	# player walking while waiting for a release event.
-	_process_instant_attack_input()
+	# One attack button for every device: a tap commits the next light strike of
+	# the chain on release, holding past the threshold commits the heavy strike
+	# without waiting for release (COMBAT_ANIMATION.md §2).
+	_process_attack_charge_input(_delta)
 	for kind in PlayerActionInput.read_pressed_actions():
-		if kind == PlayerActionKind.Kind.ATTACK:
-			continue
 		if kind == PlayerActionKind.Kind.DODGE:
 			try_start_dodge()
+			continue
+		if kind == PlayerActionKind.Kind.ROLL:
+			try_start_roll()
 			continue
 		action_state_machine.try_start_action(kind)
 	action_state_machine.set_guard_held(PlayerActionInput.read_guard_held())
@@ -255,6 +285,37 @@ func try_start_dodge(direction: Vector2 = Vector2.ZERO) -> bool:
 		_pending_dodge_direction = Vector2.ZERO
 		_pending_dodge_facing = Vector2.ZERO
 	return started
+
+
+## Space roll. Forward, left and right turn the body into the roll (Witcher
+## style); backward or no input rolls back while still facing the threat.
+func try_start_roll(direction: Vector2 = Vector2.ZERO) -> bool:
+	var requested := (
+		direction.normalized()
+		if not direction.is_zero_approx()
+		else movement_direction_for_screen_input(ScreenDirectionInput.read_axis())
+	)
+	_pending_roll_direction = requested
+	var was_free_to_start := action_state_machine.state == PlayerActionState.State.MOVE
+	var started := action_state_machine.try_start_action(PlayerActionKind.Kind.ROLL)
+	if was_free_to_start and not started:
+		_pending_roll_direction = Vector2.ZERO
+	return started
+
+
+static func roll_plan(requested: Vector2, facing: Vector2) -> Dictionary:
+	var normalized_facing := facing.normalized() if not facing.is_zero_approx() else Vector2.DOWN
+	if (
+		requested.is_zero_approx()
+		or requested.normalized().dot(normalized_facing) <= ROLL_BACKWARD_DOT
+	):
+		return {
+			"direction": -normalized_facing,
+			"facing": normalized_facing,
+			"animation": CombatMoveCatalog.ROLL_BACKWARD,
+		}
+	var direction := requested.normalized()
+	return {"direction": direction, "facing": direction, "animation": CombatMoveCatalog.ROLL_FORWARD}
 
 
 func _requested_dodge_direction() -> Vector2:
@@ -279,12 +340,68 @@ func _can_start_action(kind: PlayerActionKind.Kind) -> bool:
 	# ADR 0021: no attacks, guard or dodge while swimming or diving.
 	if _swim.blocks_combat():
 		return false
-	return kind != PlayerActionKind.Kind.DODGE or stamina >= DODGE_STAMINA_COST
+	match kind:
+		PlayerActionKind.Kind.DODGE:
+			return stamina >= DODGE_STAMINA_COST
+		PlayerActionKind.Kind.ROLL:
+			return stamina >= ROLL_STAMINA_COST
+		PlayerActionKind.Kind.ATTACK:
+			action_state_machine.combo_length = CombatMoveCatalog.combo_length(
+				AttackProfileResolverScript.weapon_class_for_state(
+					SessionState.state, SessionState.content_db
+				)
+			)
+			var heavy := action_state_machine.next_attack_is_heavy()
+			var profile := _resolve_move_profile(heavy, action_state_machine.next_combo_step(heavy))
+			if stamina < profile.stamina_cost:
+				return false
+			_validated_attack_profile = profile
+			return true
+	return true
 
 
 func _on_action_started(kind: PlayerActionKind.Kind) -> void:
-	if kind != PlayerActionKind.Kind.DODGE:
-		return
+	match kind:
+		PlayerActionKind.Kind.ATTACK:
+			_start_attack()
+		PlayerActionKind.Kind.ROLL:
+			_start_roll()
+		PlayerActionKind.Kind.DODGE:
+			_start_dodge()
+
+
+func _start_attack() -> void:
+	var profile := _validated_attack_profile
+	_validated_attack_profile = null
+	if profile == null:
+		profile = _resolve_move_profile(
+			action_state_machine.attack_is_heavy, action_state_machine.combo_step
+		)
+	_prepare_attack_for_profile(profile)
+	stamina = maxf(0.0, stamina - profile.stamina_cost)
+	_scripted_motion_traveled = 0.0
+	_soft_lock_target = PlayerPrimaryAction.find_hostile_in_front(
+		self, _facing_direction, profile.reach_px * SOFT_LOCK_REACH_MULT, SOFT_LOCK_FACING_DOT
+	)
+	if _soft_lock_target != null:
+		_facing_direction = (_soft_lock_target.global_position - global_position).normalized()
+	_sync_resource_bars()
+
+
+func _start_roll() -> void:
+	var plan := roll_plan(_pending_roll_direction, _current_dodge_facing())
+	_pending_roll_direction = Vector2.ZERO
+	_roll_direction = plan["direction"]
+	_roll_facing = plan["facing"]
+	_roll_animation = plan["animation"]
+	# Kalev ends the roll facing where he rolled; a mounted camera re-aims him.
+	_facing_direction = _roll_facing
+	_scripted_motion_traveled = 0.0
+	stamina = maxf(0.0, stamina - ROLL_STAMINA_COST)
+	_sync_resource_bars()
+
+
+func _start_dodge() -> void:
 	_dodge_facing = (
 		_pending_dodge_facing.normalized()
 		if not _pending_dodge_facing.is_zero_approx()
@@ -327,58 +444,117 @@ func _move_dodge(delta: float) -> void:
 		velocity = Vector2.ZERO
 		move_and_slide()
 		return
-	# move_and_slide owns collision resolution and uses the engine physics step.
-	# Scale velocity so direct focused-test calls with an explicit delta cover the
-	# same bounded distance as real physics callbacks.
-	var physics_delta := maxf(get_physics_process_delta_time(), 0.0001)
-	velocity = _dodge_direction * intended_distance / physics_delta
-	var before := global_position
-	move_and_slide()
-	var traveled := (global_position - before).dot(_dodge_direction)
+	var traveled := _slide_exact(_dodge_direction * intended_distance).dot(_dodge_direction)
 	_dodge_distance_remaining = maxf(0.0, _dodge_distance_remaining - maxf(0.0, traveled))
+
+
+## Ease-out travel: the push-off is fast, the tuck decelerates, the get-up is
+## in place. Distance is a function of elapsed time, so frame rate cannot
+## change how far a roll goes.
+func _move_roll() -> void:
+	var ratio := clampf(action_state_machine.state_elapsed_sec / ROLL_TRAVEL_SEC, 0.0, 1.0)
+	var eased := 1.0 - (1.0 - ratio) * (1.0 - ratio)
+	_advance_scripted_motion(_roll_direction, ROLL_DISTANCE_PX * eased)
+
+
+## Weight: the body steps into the strike between wind-up and impact, and
+## stops short of a soft-locked target instead of shoving into it.
+func _move_attack_lunge() -> void:
+	var profile := _active_attack_profile
+	if profile == null or profile.lunge_px <= 0.0:
+		velocity = Vector2.ZERO
+		move_and_slide()
+		return
+	var target_distance := profile.lunge_px * smoothstep(
+		0.0, maxf(profile.impact_timing_sec, 0.001), action_state_machine.state_elapsed_sec
+	)
+	if is_instance_valid(_soft_lock_target):
+		var gap := global_position.distance_to(_soft_lock_target.global_position) - LUNGE_STOP_PX
+		target_distance = minf(target_distance, _scripted_motion_traveled + maxf(gap, 0.0))
+	_advance_scripted_motion(_facing_direction, target_distance)
+
+
+func _advance_scripted_motion(direction: Vector2, target_distance: float) -> void:
+	var step := target_distance - _scripted_motion_traveled
+	if step <= 0.0 or direction.is_zero_approx():
+		velocity = Vector2.ZERO
+		move_and_slide()
+		return
+	var axis := direction.normalized()
+	_scripted_motion_traveled += maxf(0.0, _slide_exact(axis * step).dot(axis))
+
+
+## WHY: move_and_slide multiplies velocity by the physics step inside a physics
+## callback but by the idle frame delta outside one (focused tests, scripted
+## calls), so dividing by the wrong step made dodges and rolls overshoot. Using
+## the step move_and_slide will actually apply keeps travel an exact function
+## of the action clock while collision still resolves like ordinary walking.
+func _slide_exact(motion: Vector2) -> Vector2:
+	var before := global_position
+	var step := (
+		get_physics_process_delta_time() if Engine.is_in_physics_frame() else get_process_delta_time()
+	)
+	velocity = motion / maxf(step, 0.0001)
+	move_and_slide()
+	velocity = Vector2.ZERO
+	return global_position - before
 
 
 ## Public entry for the context-sensitive primary click (left mouse button in
 ## first/third person). Mirrors the instant-attack path so mouse, keyboard, and
 ## gamepad attacks share the same state, stamina, and profile rules.
 func request_primary_attack() -> bool:
+	return _request_attack(false)
+
+
+## Heavy strike entry for tests and scripted callers.
+func request_heavy_attack() -> bool:
+	return _request_attack(true)
+
+
+## Starts the attack now, or buffers it as the next combo step while a swing,
+## roll or recovery is still running. Returns true only when it started now.
+func _request_attack(heavy: bool) -> bool:
 	if not combat_input_enabled or _movement_blocked() or _swim.blocks_combat():
 		return false
-	var profile := _resolve_attack_profile(false)
-	if stamina < profile.stamina_cost:
-		return false
-	_prepare_attack_for_profile(profile)
-	if not action_state_machine.try_start_action(PlayerActionKind.Kind.ATTACK):
-		return false
-	stamina = maxf(0.0, stamina - profile.stamina_cost)
-	_sync_resource_bars()
-	return true
+	return action_state_machine.try_start_attack(heavy)
 
 
 ## Exposed so the click router can hold the primary button to charge instead of
-## swinging on press when the equipped technique supports charging.
+## swinging on press. Every move set has a heavy strike.
 func supports_charged_attack() -> bool:
 	return _supports_charged_attack()
 
 
-func _process_instant_attack_input() -> void:
-	for kind in PlayerActionInput.read_pressed_actions():
-		if kind != PlayerActionKind.Kind.ATTACK:
-			continue
-		request_primary_attack()
-
-
-func _process_charged_attack_input(delta: float) -> void:
-	if action_state_machine.state != PlayerActionState.State.MOVE:
-		_reset_attack_charge()
+## Mouse press (MapClickInputController) and keyboard/gamepad press share this.
+func begin_attack_charge() -> void:
+	if not combat_input_enabled or _movement_blocked():
 		return
-	var attack_held := PlayerActionInput.read_attack_held()
-	if PlayerActionInput.read_attack_just_pressed() or (attack_held and not _attack_charge_active):
-		_attack_charge_active = true
-		_attack_charge_sec = 0.0
-	if _attack_charge_active and attack_held:
-		_attack_charge_sec += delta
-	if PlayerActionInput.read_attack_just_released() and _attack_charge_active:
+	_attack_charge_active = true
+	_attack_charge_sec = 0.0
+
+
+## Release before the threshold commits the next light strike.
+func release_attack_charge() -> bool:
+	if not _attack_charge_active:
+		return false
+	return _commit_attack_from_charge_hold(_attack_charge_sec)
+
+
+func is_attack_charging() -> bool:
+	return _attack_charge_active
+
+
+func _process_attack_charge_input(delta: float) -> void:
+	if PlayerActionInput.read_attack_just_pressed():
+		begin_attack_charge()
+	if not _attack_charge_active:
+		return
+	_attack_charge_sec += delta
+	if PlayerActionInput.read_attack_just_released():
+		release_attack_charge()
+	elif _attack_charge_sec >= _charge_threshold_sec():
+		# Holding is the heavy verb: it fires at the threshold, not on release.
 		_commit_attack_from_charge_hold(_attack_charge_sec)
 
 
@@ -387,20 +563,10 @@ func commit_attack_from_charge_hold(hold_sec: float) -> bool:
 
 
 func _commit_attack_from_charge_hold(hold_sec: float) -> bool:
-	if _swim.blocks_combat() or action_state_machine.state != PlayerActionState.State.MOVE:
-		_reset_attack_charge()
-		return false
-	var charged := hold_sec >= _charge_threshold_sec()
 	_reset_attack_charge()
-	var profile := _resolve_attack_profile(charged)
-	if stamina < profile.stamina_cost:
+	if _swim.blocks_combat():
 		return false
-	_prepare_attack_for_profile(profile)
-	if not action_state_machine.try_start_action(PlayerActionKind.Kind.ATTACK):
-		return false
-	stamina = maxf(0.0, stamina - profile.stamina_cost)
-	_sync_resource_bars()
-	return true
+	return _request_attack(_supports_charged_attack() and hold_sec >= _charge_threshold_sec())
 
 
 func _reset_attack_charge() -> void:
@@ -478,12 +644,38 @@ func is_combat_dead() -> bool:
 	return combat_vitals.is_dead()
 
 
+## Spell casts resolve instantly in MagicResolver; this only plays the matching
+## gesture and briefly roots Kalev. Casting is refused mid-swing or mid-roll so
+## the body never shows two verbs at once.
+func can_begin_cast() -> bool:
+	return action_state_machine.state in [
+		PlayerActionState.State.MOVE,
+		PlayerActionState.State.RECOVERY,
+		PlayerActionState.State.GUARD,
+	]
+
+
+func begin_cast_gesture(delivery_kind: String) -> bool:
+	var move := CombatMoveCatalog.action_move(CombatMoveCatalog.cast_move_for_delivery(delivery_kind))
+	if action_state_machine.state == PlayerActionState.State.GUARD:
+		action_state_machine.set_guard_held(false)
+	if not action_state_machine.try_start_cast(move.duration_sec):
+		return false
+	_cast_animation = move.id
+	return true
+
+
 func view_facing() -> Vector2:
 	if (
 		action_state_machine.state == PlayerActionState.State.DODGE
 		and not _dodge_facing.is_zero_approx()
 	):
 		return _dodge_facing
+	if (
+		action_state_machine.state == PlayerActionState.State.ROLL
+		and not _roll_facing.is_zero_approx()
+	):
+		return _roll_facing
 	return _facing_direction
 
 
@@ -502,15 +694,15 @@ func set_camera_facing(direction: Vector2) -> void:
 
 
 func view_animation() -> StringName:
-	# WHY: Charged attacks intentionally commit on release, but the player must
-	# still see the hammer wind-up while Space/gamepad X is held.
-	if _attack_charge_active:
-		return _resolve_attack_profile(true).animation
 	var animation_base := _combat_or_locomotion_animation(_current_locomotion_animation())
 	if animation_base == "attack":
 		return _active_attack_profile.animation
 	if animation_base == "dodge":
 		return _dodge_animation
+	if animation_base == "roll":
+		return _roll_animation
+	if animation_base == "cast":
+		return _cast_animation
 	if animation_base == "recovery":
 		# Recovery is a logic-only lock window; the shared humanoid has no
 		# dedicated recovery clip, so keep the map presentation at idle.
@@ -518,11 +710,35 @@ func view_animation() -> StringName:
 	return StringName(animation_base)
 
 
+## Action clock for the rig: every committed action is presented against the
+## state machine clock, so the visible contact frame and the logic impact agree
+## at any frame rate.
 func view_animation_elapsed_sec() -> float:
-	if _attack_charge_active:
-		return _attack_charge_sec
-	if action_state_machine.state == PlayerActionState.State.ATTACK:
+	if action_state_machine.state in [
+		PlayerActionState.State.ATTACK,
+		PlayerActionState.State.DODGE,
+		PlayerActionState.State.ROLL,
+		PlayerActionState.State.CAST,
+		PlayerActionState.State.HIT,
+	]:
 		return action_state_machine.state_elapsed_sec
+	return 0.0
+
+
+## Logic length of the running action, so clip-scaled actions (dodge, hit)
+## fill exactly the window the state machine gives them.
+func view_animation_duration_sec() -> float:
+	match action_state_machine.state:
+		PlayerActionState.State.ATTACK:
+			return action_state_machine.attack_duration_sec
+		PlayerActionState.State.DODGE:
+			return action_state_machine.dodge_duration_sec
+		PlayerActionState.State.ROLL:
+			return action_state_machine.roll_duration_sec
+		PlayerActionState.State.CAST:
+			return action_state_machine.cast_duration_sec
+		PlayerActionState.State.HIT:
+			return action_state_machine.hit_duration_sec
 	return 0.0
 
 
@@ -559,6 +775,12 @@ func _resolve_attack_profile(use_charged: bool = false) -> AttackProfile:
 	)
 
 
+func _resolve_move_profile(heavy: bool, combo_step: int) -> AttackProfile:
+	return AttackProfileResolverScript.resolve_move(
+		SessionState.state, SessionState.content_db, heavy, combo_step
+	)
+
+
 func prepare_attack_profile(profile: AttackProfile) -> void:
 	_prepare_attack_for_profile(profile)
 
@@ -567,6 +789,11 @@ func _prepare_attack_for_profile(profile: AttackProfile) -> void:
 	_active_attack_profile = profile
 	action_state_machine.attack_duration_sec = profile.attack_duration_sec
 	action_state_machine.attack_impact_sec = profile.impact_timing_sec
+	action_state_machine.attack_cancel_sec = profile.cancel_sec
+	# Evading out of a swing is allowed once the blow has landed.
+	action_state_machine.evade_cancel_sec = minf(
+		profile.cancel_sec, profile.impact_timing_sec + CombatMoveCatalog.EVADE_CANCEL_AFTER_IMPACT_SEC
+	)
 
 
 func is_combat_invulnerable() -> bool:

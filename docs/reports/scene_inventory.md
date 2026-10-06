@@ -7,20 +7,20 @@ Reconciled: 2026-09-10 (P0-206 grounded model and equipment integration)
 
 | Classification | Count | Role |
 |----------------|------:|------|
-| `working` | 49 | Active runtime scenes with verified or complete behavior |
+| `working` | 50 | Active runtime scenes with verified or complete behavior |
 | `partial` | 64 | Substantial content but incomplete integration or dev-only use |
 | `placeholder` | 3 | Reserved stubs or reference-only visuals, not playable |
 | `archive` | 20 | Out of vertical-slice scope; legacy open-world or event shells |
-| **Total** | **136** | Matches repository `.tscn` count |
+| **Total** | **137** | Matches repository `.tscn` count |
 
 Repository count command:
 
 ```bash
 find . -name '*.tscn' -not -path './.git/*' -not -path './.godot/*' -not -path './.a2gent-worktrees/*' | wc -l
-# Expected: 136
+# Expected: 137
 ```
 
-Inventory row count (data rows in the table below): **136**.
+Inventory row count (data rows in the table below): **137**.
 
 ## Classification criteria
 
@@ -49,6 +49,7 @@ Inventory row count (data rows in the table below): **136**.
 | 5 | `assets/characters/shared/hammer.tscn` | working | Shared hammer equipment mesh for rig attachment. |
 | 6 | `assets/characters/shared/shared_character_rig.tscn` | working | Shared low-poly rig base with animation library; P0-037 foundation. |
 | 7 | `assets/characters/shared/spear.tscn` | working | Shared spear equipment mesh; demo forge pickup visual. |
+| 137 | `assets/characters/shared/spear_thrust_grip.tscn` | working | Player spear equipment with the shaft along the forearm for thrust move sets (R-1161); NPC watchmen keep `spear.tscn`. |
 | 8 | `assets/characters/showcase/character_rig_showcase.tscn` | partial | Developer-only rig and animation verification scene. |
 | 9 | `assets/characters/variants/henning.tscn` | working | Henning NPC variant; texture and equipment swap on shared rig. |
 | 10 | `assets/characters/variants/innkeeper.tscn` | working | Innkeeper NPC variant; future slice cast. |
@@ -148,7 +149,7 @@ Inventory row count (data rows in the table below): **136**.
 | Folder | working | partial | placeholder | archive | Total |
 |--------|--------:|--------:|------------:|--------:|------:|
 | Repository root | 1 | 0 | 0 | 1 | 2 |
-| `assets/characters/` | 13 | 3 | 0 | 0 | 16 |
+| `assets/characters/` | 14 | 3 | 0 | 0 | 17 |
 | `generated/comfyui/` | 0 | 1 | 0 | 0 | 1 |
 | `scenes/comparison_room/` | 0 | 3 | 0 | 0 | 3 |
 | `scenes/elements/` | 7 | 2 | 0 | 0 | 9 |
@@ -172,7 +173,7 @@ Inventory row count (data rows in the table below): **136**.
 | `scenes/world_travel/` | 0 | 10 | 0 | 0 | 10 |
 | `tools/` | 0 | 3 | 0 | 0 | 3 |
 | `tools/benchmarks/` | 0 | 3 | 0 | 0 | 3 |
-| **All** | **32** | **48** | **3** | **20** | **103** |
+| **All** | **33** | **48** | **3** | **20** | **104** |
 
 ## Verification
 
@@ -184,7 +185,7 @@ find . -name '*.tscn' -not -path './.git/*' -not -path './.godot/*' -not -path '
 grep -E '^\| [0-9]+ \|' docs/reports/scene_inventory.md | wc -l
 ```
 
-Both commands should print `136` on a clean checkout at this revision.
+Both commands should print `137` on a clean checkout at this revision.
 
 ## Related tasks
 

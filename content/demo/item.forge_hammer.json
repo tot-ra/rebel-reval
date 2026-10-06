@@ -27,6 +27,7 @@
       "slot": "right_hand",
       "scene": "res://assets/storybook/equipment/hammer.tscn"
     },
+    "weapon_class": "hammer",
     "attack_profile": {
       "animation": "hammer_attack",
       "damage": 14.0,
@@ -54,7 +55,7 @@
       "confidence": "invented",
       "summary": "Pickup hammer placed at a Lower Town definition anchor for the MVP demo.",
       "citations": [
-        "TODO.md#demo---mvp-playable-demo-highest-priority"
+        "docs/ROADMAP.md"
       ]
     }
   ]

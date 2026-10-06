@@ -1,0 +1,51 @@
+{
+  "type": "item",
+  "id": "item.watch_spear",
+  "name": "Watch spear",
+  "category": "weapon",
+  "confidence": "plausible composite",
+  "canon_status": "draft",
+  "approval": {
+    "status": "review",
+    "notes": "Socketed smith-made spearhead on an ash shaft, the burgher watch alternative to the crossbow. Combat-room fixture for the spear move set (R-1161)."
+  },
+  "material_grade": "common",
+  "gameplay": {
+    "visible_in_pouch": true,
+    "stackable": false,
+    "uses": [
+      "Equip in the right hand for thrusting attacks with long reach.",
+      "Combat-room fixture for the spear move set and weapon hot-swap verification."
+    ],
+    "carry": {
+      "weight_g": 2200,
+      "grid_width": 1,
+      "grid_height": 5
+    },
+    "equip": {
+      "slot": "right_hand",
+      "scene": "res://assets/characters/shared/spear_thrust_grip.tscn"
+    },
+    "weapon_class": "spear",
+    "attack_profile": {
+      "animation": "spear_attack",
+      "damage": 10.0,
+      "reach_px": 84.0,
+      "facing_dot": 0.6,
+      "impact_timing_sec": 0.30,
+      "attack_duration_sec": 0.70,
+      "stamina_cost": 8.0,
+      "damage_type": "pierce"
+    }
+  },
+  "source_notes": [
+    {
+      "confidence": "plausible composite",
+      "summary": "Reval smiths forged socketed spearheads fitted to carpenter-made ash shafts; spear or glaive was the burgher watch minimum alongside the crossbow.",
+      "citations": [
+        "history/dossiers/military/arms-and-armour-livonia-1340s.md#item-ledger-materials-for-systems-and-art",
+        "history/dossiers/military/arms-and-armour-livonia-1340s.md#brief-for-dev--art--quest"
+      ]
+    }
+  ]
+}

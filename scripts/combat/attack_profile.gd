@@ -22,6 +22,14 @@ var damage_type: StringName = DEFAULT_DAMAGE_TYPE
 var technique: StringName = &""
 ## When true, a guarding foe outside the parry window takes an open hit.
 var pierces_guard: bool = false
+## Move-set presentation (docs/SYSTEMS/COMBAT_ANIMATION.md). Defaults describe a
+## plain unarmed jab so profiles built outside the move catalog stay valid.
+var weapon_class: StringName = &"unarmed"
+var combo_step: int = 0
+var is_heavy: bool = false
+## Elapsed seconds after which a buffered attack chains (INF = no early chain).
+var cancel_sec: float = INF
+var lunge_px: float = 0.0
 
 
 static func unarmed() -> AttackProfile:
@@ -40,6 +48,11 @@ func duplicate_profile() -> AttackProfile:
 	copy.damage_type = damage_type
 	copy.technique = technique
 	copy.pierces_guard = pierces_guard
+	copy.weapon_class = weapon_class
+	copy.combo_step = combo_step
+	copy.is_heavy = is_heavy
+	copy.cancel_sec = cancel_sec
+	copy.lunge_px = lunge_px
 	return copy
 
 

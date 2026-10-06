@@ -9,7 +9,9 @@ func test_attack_guard_dodge_and_hit_return_to_move() -> void:
 	var machine := _make_machine()
 	assert_eq(machine.state, PlayerActionState.State.MOVE, "Machine starts in MOVE")
 
-	assert_true(machine.try_start_action(PlayerActionKind.Kind.ATTACK), "Attack should start from MOVE")
+	assert_true(
+		machine.try_start_action(PlayerActionKind.Kind.ATTACK), "Attack should start from MOVE"
+	)
 	_advance(machine, machine.attack_duration_sec)
 	assert_eq(machine.state, PlayerActionState.State.RECOVERY, "Attack should enter recovery")
 	_advance(machine, machine.recovery_duration_sec)
@@ -35,9 +37,15 @@ func test_buffered_attack_chains_after_dodge_recovery() -> void:
 	assert_true(machine.try_start_action(PlayerActionKind.Kind.DODGE))
 	machine.try_start_action(PlayerActionKind.Kind.ATTACK)
 	_advance(machine, machine.dodge_duration_sec)
-	assert_eq(machine.state, PlayerActionState.State.RECOVERY, "Dodge should enter recovery with buffered attack")
+	assert_eq(
+		machine.state,
+		PlayerActionState.State.RECOVERY,
+		"Dodge should enter recovery with buffered attack"
+	)
 	_advance(machine, machine.recovery_duration_sec)
-	assert_eq(machine.state, PlayerActionState.State.ATTACK, "Buffered attack should chain after recovery")
+	assert_eq(
+		machine.state, PlayerActionState.State.ATTACK, "Buffered attack should chain after recovery"
+	)
 	_advance(machine, machine.attack_duration_sec + machine.recovery_duration_sec)
 	assert_eq(machine.state, PlayerActionState.State.MOVE, "Buffered chain should finish in MOVE")
 
@@ -144,7 +152,11 @@ func test_take_damage_clamps_health_and_enters_hit_state() -> void:
 	assert_eq(player.take_damage(8.0), 5.0, "Damage API should report applied damage")
 	assert_eq(player.health, 0.0, "Damage must clamp health at zero")
 	assert_eq(player.health_ring.get_health_ratio(), 0.0, "Health ring should update immediately")
-	assert_eq(player.action_state_machine.state, PlayerActionState.State.HIT, "Damage should trigger hit reaction")
+	assert_eq(
+		player.action_state_machine.state,
+		PlayerActionState.State.HIT,
+		"Damage should trigger hit reaction"
+	)
 	player.free()
 
 
@@ -191,7 +203,10 @@ func test_player_scene_respects_action_lock_and_recovers() -> void:
 	var machine := player.action_state_machine
 	_advance(machine, machine.attack_duration_sec + machine.recovery_duration_sec)
 	player._physics_process(TEST_DELTA)
-	assert_true(player.action_state_machine.allows_movement(), "Player should recover locomotion after attack")
+	assert_true(
+		player.action_state_machine.allows_movement(),
+		"Player should recover locomotion after attack"
+	)
 	assert_eq(player.velocity, Vector2.ZERO, "Locked player should not retain movement velocity")
 	player.free()
 
@@ -230,9 +245,18 @@ func test_dodge_locks_direction_travels_bounded_distance_and_recovers() -> void:
 	Input.action_press("ui_left")
 	_advance_player(player, player.action_state_machine.dodge_duration_sec)
 	Input.action_release("ui_left")
-	assert_true(player._dodge_direction.is_equal_approx(locked_direction), "Dodge direction must not follow later input")
-	assert_true(player._dodge_facing.is_equal_approx(Vector2.DOWN), "Dodge facing must stay fixed for visual/logical agreement")
-	assert_true(absf(player.global_position.x - Player.DODGE_DISTANCE_PX) < 1.0, "Open dodge must travel its authored distance")
+	assert_true(
+		player._dodge_direction.is_equal_approx(locked_direction),
+		"Dodge direction must not follow later input"
+	)
+	assert_true(
+		player._dodge_facing.is_equal_approx(Vector2.DOWN),
+		"Dodge facing must stay fixed for visual/logical agreement"
+	)
+	assert_true(
+		absf(player.global_position.x - Player.DODGE_DISTANCE_PX) < 1.0,
+		"Open dodge must travel its authored distance"
+	)
 	assert_true(absf(player.global_position.y) < 0.1)
 	_advance_player(player, player.action_state_machine.recovery_duration_sec)
 	assert_eq(player.action_state_machine.state, PlayerActionState.State.MOVE)
@@ -253,8 +277,13 @@ func test_dodge_move_and_slide_stops_at_world_collision() -> void:
 	tree.root.add_child(wall)
 	assert_true(player.try_start_dodge(Vector2.RIGHT))
 	_advance_player(player, player.action_state_machine.dodge_duration_sec)
-	assert_true(player.global_position.x < Player.DODGE_DISTANCE_PX - 20.0, "World collision must stop the roll short")
-	assert_true(player.global_position.x <= 24.1, "Player capsule must not cross the wall")
+	assert_true(
+		player.global_position.x < Player.DODGE_DISTANCE_PX - 20.0,
+		"World collision must stop the roll short"
+	)
+	# Wall face x=40 minus capsule radius 16 = contact at 24; sub-pixel contact
+	# depth depends on the step length, crossing would put the body past 40.
+	assert_true(player.global_position.x <= 25.0, "Player capsule must not cross the wall")
 	wall.free()
 	player.free()
 
@@ -269,7 +298,7 @@ func test_no_input_dodge_defaults_right_relative_to_camera_facing() -> void:
 
 
 func test_view_animation_reports_run_walk_and_attack() -> void:
-	var player := _create_player()
+	var player := _create_unarmed_player()
 	assert_eq(player.view_animation(), &"idle")
 
 	player.velocity = Vector2(player.run_speed, 0.0)
@@ -286,9 +315,8 @@ func test_view_animation_reports_run_walk_and_attack() -> void:
 	player.free()
 
 
-func test_space_starts_hammer_attack_and_hits_front_target() -> void:
+func test_primary_attack_starts_hammer_attack_and_hits_front_target() -> void:
 	# User preferences can replace the runtime InputMap before this harness starts.
-	# Restore shipped bindings so this exercises the physical Space mapping players use.
 	InputBindingSettings.default_settings().apply_to_input_map()
 	_ensure_content_loaded()
 	var player := _create_player()
@@ -297,14 +325,14 @@ func test_space_starts_hammer_attack_and_hits_front_target() -> void:
 	player.set_view_facing(Vector2.RIGHT)
 	player.stamina = 100.0
 	var front_target: Node2D = _create_dummy(Vector2(40.0, 0.0))
-	# Space and gamepad X both invoke request_primary_attack() through the input map;
-	# test_input_bindings separately verifies that physical Space maps to this action.
+	# Left mouse (MapClickInputController) and gamepad X commit the light strike
+	# through this entry; Space is the roll since R-1161.
 	assert_true(player.request_primary_attack())
 
 	assert_eq(
 		player.action_state_machine.state,
 		PlayerActionState.State.ATTACK,
-		"Pressing Space with a hammer must start the attack immediately"
+		"A primary attack with a hammer must start the swing immediately"
 	)
 	assert_eq(player.view_animation(), &"hammer_attack")
 	_advance_player(player, player.action_state_machine.attack_impact_sec)
@@ -315,27 +343,32 @@ func test_space_starts_hammer_attack_and_hits_front_target() -> void:
 	player.free()
 
 
-func test_charged_attack_preview_is_visible_before_release() -> void:
+func test_holding_attack_past_threshold_starts_heavy_without_release() -> void:
 	_ensure_content_loaded()
 	var player := _create_player()
 	_equip_item(&"right_hand", &"item.forge_hammer")
 	player.stamina = 100.0
 	# Input edges are owned by the engine and are covered by the combat-room helper;
-	# this test isolates the player-to-view presentation contract while the button
-	# is held, before release commits the attack state.
-	player._attack_charge_active = true
-	player._attack_charge_sec = TEST_DELTA
-
-	assert_eq(
-		player.view_animation(),
-		&"hammer_charged_attack",
-		"Holding a charged attack must show the hammer wind-up before release commits the swing"
+	# this test isolates the charge clock (COMBAT_ANIMATION.md: hold = heavy).
+	player.begin_attack_charge()
+	assert_true(player.is_attack_charging())
+	assert_eq(player.action_state_machine.state, PlayerActionState.State.MOVE)
+	var threshold := AttackProfileResolver.charge_threshold_sec_for_state(
+		SessionState.state, SessionState.content_db
 	)
-	assert_true(player.view_animation_elapsed_sec() > 0.0)
-
-	assert_true(player.commit_attack_from_charge_hold(0.05))
+	player._process_attack_charge_input(threshold + TEST_DELTA)
+	assert_false(
+		player.is_attack_charging(), "The heavy strike fires at the threshold, not on release"
+	)
 	assert_eq(player.action_state_machine.state, PlayerActionState.State.ATTACK)
-	assert_eq(player.view_animation(), &"hammer_attack", "A quick Space tap must start the light swing")
+	assert_true(player.action_state_machine.attack_is_heavy)
+	assert_eq(player.view_animation(), &"hammer_charged_attack")
+	assert_false(player.release_attack_charge(), "Releasing after the heavy fired commits nothing")
+
+	_advance_player(player, 3.0)
+	player.begin_attack_charge()
+	assert_true(player.release_attack_charge(), "A quick tap commits the light strike")
+	assert_eq(player.view_animation(), &"hammer_attack")
 	player.free()
 
 
@@ -369,7 +402,11 @@ func test_player_attack_during_ui_block_does_not_start() -> void:
 	Input.action_press(PlayerActionKind.ACTION_ATTACK)
 	player._physics_process(TEST_DELTA)
 	Input.action_release(PlayerActionKind.ACTION_ATTACK)
-	assert_eq(player.action_state_machine.state, PlayerActionState.State.MOVE, "UI block should prevent combat start")
+	assert_eq(
+		player.action_state_machine.state,
+		PlayerActionState.State.MOVE,
+		"UI block should prevent combat start"
+	)
 	inventory.toggle()
 	player.free()
 
@@ -382,7 +419,11 @@ func test_player_attack_during_map_mode_does_not_start() -> void:
 	Input.action_press(PlayerActionKind.ACTION_ATTACK)
 	player._physics_process(TEST_DELTA)
 	Input.action_release(PlayerActionKind.ACTION_ATTACK)
-	assert_eq(player.action_state_machine.state, PlayerActionState.State.MOVE, "Map mode should block movement and combat input")
+	assert_eq(
+		player.action_state_machine.state,
+		PlayerActionState.State.MOVE,
+		"Map mode should block movement and combat input"
+	)
 	assert_eq(player.velocity, Vector2.ZERO)
 	world_map.close()
 	player.free()

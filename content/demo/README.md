@@ -8,6 +8,8 @@ Authored JSON for the MVP demo interaction loop. These records are schema-valid,
 | `dialogue.demo.forge_henning` | `dialogue.demo.forge_henning.json` | Forge demo via `ForgeDialogueEncounter` |
 | `dialogue.demo.forge_cat` | `dialogue.demo.forge_cat.json` | Forge demo via `ForgeDialogueEncounter` |
 | `item.forge_hammer` | `item.forge_hammer.json` | D-003 forge-hammer pickup and bag overlay (`docs/INVENTORY_MECHANICS.md`) |
+| `item.plain_sword` | `item.plain_sword.json` | Combat-room sword move set fixture (`docs/SYSTEMS/COMBAT_ANIMATION.md`) |
+| `item.watch_spear` | `item.watch_spear.json` | Combat-room spear move set fixture (`docs/SYSTEMS/COMBAT_ANIMATION.md`) |
 
 Support character records live in `content/examples/support/` so the demo corpus and the validated example corpus share one canon source. Validate the demo slice together with that support pack:
 

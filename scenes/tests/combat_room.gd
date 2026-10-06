@@ -1,6 +1,5 @@
-extends Node2D
-
 class_name CombatRoom
+extends Node2D
 
 ## Playable combat integration room for P1-024 / P1-025a / P1-026 / P1-027.
 ## Hammers light/charged attacks, guard/parry, dodge, Iron, readable feedback,
@@ -13,6 +12,7 @@ const ENEMY_SCRIPT := preload("res://scripts/combat/combat_room_enemy.gd")
 const FEEDBACK_HUD_SCRIPT := preload("res://scripts/combat/combat_feedback_hud.gd")
 const ITEM_HAMMER := &"item.forge_hammer"
 const ITEM_SWORD := &"item.plain_sword"
+const ITEM_SPEAR := &"item.watch_spear"
 
 const PLAYER_SPAWN := Vector2(640.0, 400.0)
 const OPEN_DUMMY_POS := Vector2(780.0, 400.0)
@@ -34,6 +34,7 @@ var _reset_button: Button
 var _hammer_button: Button
 var _sword_button: Button
 var _unarmed_button: Button
+var _spear_button: Button
 var _retry_button: Button
 var _surrender_button: Button
 var _escape_button: Button
@@ -182,6 +183,10 @@ func get_sword_button() -> Button:
 
 func get_unarmed_button() -> Button:
 	return _unarmed_button
+
+
+func get_spear_button() -> Button:
+	return _spear_button
 
 
 func get_retry_button() -> Button:
@@ -403,11 +408,15 @@ func _build_hud() -> void:
 	_sword_button = _make_weapon_button(
 		"EquipSwordButton", "Sword", ITEM_SWORD, Vector2(820, 640)
 	)
+	_spear_button = _make_weapon_button(
+		"EquipSpearButton", "Spear", ITEM_SPEAR, Vector2(940, 640)
+	)
 	_unarmed_button = _make_weapon_button(
-		"EquipUnarmedButton", "Unarmed", &"", Vector2(940, 640)
+		"EquipUnarmedButton", "Unarmed", &"", Vector2(1060, 640)
 	)
 	actions.add_child(_hammer_button)
 	actions.add_child(_sword_button)
+	actions.add_child(_spear_button)
 	actions.add_child(_unarmed_button)
 
 	# Mouse-reachable failure retry (discoverability policy; no hotkey required).
@@ -546,7 +555,9 @@ func _on_player_melee_resolved(targets: Array[Node2D], profile: AttackProfile) -
 		elif target != null:
 			names.append(target.name)
 	var hit_text := "none" if names.is_empty() else ", ".join(names)
-	var tech := String(profile.technique) if profile != null and not profile.technique.is_empty() else "none"
+	var tech := "none"
+	if profile != null and not profile.technique.is_empty():
+		tech = String(profile.technique)
 	feedback.push_event(
 		"Strike %s dmg=%.0f sta=%.0f tech=%s -> %s"
 		% [String(profile.animation), profile.damage, profile.stamina_cost, tech, hit_text]
@@ -592,7 +603,10 @@ func _refresh_status(note: String) -> void:
 	)
 	feedback.set_status(
 		(
-			"%s | Player HP %.0f STA %.0f | state=%s | item=%s | Iron=%s | Open %.0f | Guard %.0f | Watch %s | Sarge %s"
+			(
+				"%s | Player HP %.0f STA %.0f | state=%s | item=%s | Iron=%s"
+				+ " | Open %.0f | Guard %.0f | Watch %s | Sarge %s"
+			)
 			% [
 				note,
 				player.health,

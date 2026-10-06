@@ -25,6 +25,7 @@
     "equip": {
       "slot": "right_hand"
     },
+    "weapon_class": "sword",
     "attack_profile": {
       "animation": "forge_strike",
       "damage": 5.0,
@@ -41,7 +42,7 @@
       "confidence": "invented",
       "summary": "Headless combat profile fixture; not used in player-facing content.",
       "citations": [
-        "TODO.md#p1---tested-runtime-and-content-foundation"
+        "docs/ROADMAP.md"
       ]
     }
   ]

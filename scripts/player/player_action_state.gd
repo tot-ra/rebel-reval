@@ -8,6 +8,8 @@ enum State {
 	DODGE,
 	HIT,
 	RECOVERY,
+	ROLL,
+	CAST,
 }
 
 
@@ -33,5 +35,9 @@ static func display_name(state: State) -> String:
 			return "hit"
 		State.RECOVERY:
 			return "recovery"
+		State.ROLL:
+			return "roll"
+		State.CAST:
+			return "cast"
 		_:
 			return "unknown"
