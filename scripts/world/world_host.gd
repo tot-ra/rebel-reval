@@ -80,7 +80,7 @@ var music_director: Node
 ## cell/sub-cell exactly as MapStableStateStore defines it; the host adds no field.
 var stable_state_store: MapStableStateStore
 ## Host-owned day/night clock (DayNightCycle fraction plus whole days crossed).
-var clock_progress: float = DayNightCycle.DEFAULT_PROGRESS
+var clock_progress: float = DayNightCycle.system_progress()
 var clock_completed_days := 0
 ## WB-08 streaming policy (project settings; tests may override per host).
 var prefetch_band_cells: float

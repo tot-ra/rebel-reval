@@ -61,7 +61,7 @@ var _zone_theme_override := &""
 var _active_theme := &""
 var _playing_night := false
 var _cycle_active := false
-var _cycle_progress := DayNightCycle.DEFAULT_PROGRESS
+var _cycle_progress := DayNightCycle.system_progress()
 var _cycle_elapsed_days := 0
 var _stream_cache: Dictionary = {}
 
@@ -223,7 +223,7 @@ func announce_calendar_date() -> void:
 
 func clear_cycle_progress() -> void:
 	_cycle_active = false
-	_cycle_progress = DayNightCycle.DEFAULT_PROGRESS
+	_cycle_progress = DayNightCycle.system_progress()
 	_cycle_elapsed_days = 0
 	_player.volume_db = DEFAULT_VOLUME_DB
 	_maybe_switch_night_tracks()

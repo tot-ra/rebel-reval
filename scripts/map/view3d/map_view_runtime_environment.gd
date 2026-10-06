@@ -18,7 +18,7 @@ const OCEAN_TIME_GLOBAL := &"ocean_time"
 static var _ocean_time := 0.0
 
 var cycle_enabled := true
-var cycle_progress := DayNightCycle.DEFAULT_PROGRESS
+var cycle_progress := DayNightCycle.system_progress()
 var cycle_elapsed_days := 0
 ## WB-06b: when set, this host owns the clock. The runtime mirrors it (and still
 ## writes MusicDirector so music and flag-off scenes keep the same day).

@@ -1,15 +1,23 @@
 class_name DayNightCycle
 extends RefCounted
 
-## Development pacing for the world clock. A full in-game day advances in
-## CYCLE_DURATION_SECONDS of real time so lighting and shadow motion are easy
-## to review while playtesting.
+## World clock pacing. The in-game day is synced to the player's system clock:
+## one game day lasts a real day, and new clocks start at the local time of day
+## (see system_progress). Time-flow controls can still scale it for dev review.
 
-const CYCLE_DURATION_SECONDS := 60.0
+const CYCLE_DURATION_SECONDS := 86400.0
 const HOURS_PER_REAL_SECOND := 24.0 / CYCLE_DURATION_SECONDS
 
-## Morning start so the first visible transition is toward noon, not midnight.
+## Fallback only (tests, pinned scenes). Live clocks seed from system_progress().
 const DEFAULT_PROGRESS := 0.25
+
+
+## Local system time of day as a 0..1 fraction (0.0 midnight, 0.5 noon), so the
+## game shows night when it is night on the player's machine.
+static func system_progress() -> float:
+	var t := Time.get_time_dict_from_system()
+	var seconds := float(int(t["hour"]) * 3600 + int(t["minute"]) * 60 + int(t["second"]))
+	return seconds / CYCLE_DURATION_SECONDS
 
 
 static func advance(progress: float, delta_seconds: float) -> float:

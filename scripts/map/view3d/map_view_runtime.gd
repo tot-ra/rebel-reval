@@ -78,7 +78,7 @@ var time_paused: bool:
 	set(value):
 		_time_flow.set_time_paused(value)
 
-## Dev pacing: one in-game day every DayNightCycle.CYCLE_DURATION_SECONDS.
+## The world clock follows the system clock; time-flow controls scale it for dev review.
 var cycle_enabled: bool:
 	get:
 		return _environment.cycle_enabled

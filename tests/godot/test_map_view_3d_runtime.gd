@@ -226,8 +226,8 @@ func test_runtime_restores_shared_cycle_from_music_director() -> void:
 	tree.root.add_child(idle)
 	idle._restore_cycle_from_music_director()
 	assert_true(
-		is_equal_approx(idle.cycle_progress, DayNightCycle.DEFAULT_PROGRESS),
-		"inactive MusicDirector must leave the runtime at its default morning"
+		absf(idle.cycle_progress - DayNightCycle.system_progress()) < 0.01,
+		"inactive MusicDirector must leave the runtime at the system time of day"
 	)
 	idle.free()
 
@@ -241,7 +241,7 @@ func test_runtime_midnight_advances_view_date_and_lunar_phase() -> void:
 	runtime.view.set_calendar_date(runtime._current_calendar_date())
 	var previous_phase := SkyWeather3D.lunar_phase(runtime.view.sky_weather().calendar_date)
 
-	runtime._process(2.0)
+	runtime._process(DayNightCycle.CYCLE_DURATION_SECONDS / 24.0)
 
 	assert_eq(runtime.cycle_elapsed_days, 1, "crossing midnight must count a completed solar day")
 	assert_eq(
@@ -255,7 +255,7 @@ func test_runtime_midnight_advances_view_date_and_lunar_phase() -> void:
 	)
 	assert_true(phase_step > 0.03 and phase_step < 0.04, "the visible moon phase must advance with the date")
 	assert_true(
-		is_equal_approx(runtime.cycle_progress, 0.3 / 24.0),
+		is_equal_approx(runtime.cycle_progress, 0.5 / 24.0),
 		"the sun clock must continue after midnight without losing elapsed time"
 	)
 	runtime.free()

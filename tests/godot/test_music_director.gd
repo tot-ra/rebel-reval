@@ -62,7 +62,7 @@ func test_volume_db_follows_cycle_progress() -> void:
 
 func test_cycle_progress_is_exposed_for_hud_animation() -> void:
 	MusicDirector.clear_cycle_progress()
-	assert_true(is_equal_approx(MusicDirector.get_cycle_progress(), DayNightCycle.DEFAULT_PROGRESS))
+	assert_true(absf(MusicDirector.get_cycle_progress() - DayNightCycle.system_progress()) < 0.01)
 
 
 func test_is_cycle_active_tracks_set_and_clear() -> void:
