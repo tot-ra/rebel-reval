@@ -52,6 +52,19 @@ the shader (`mud_wetness`, WS-08 swash), not the plate.
   trodden yard) every 1.25 units (`TERRAIN_MUD_UV_SCALE` 3.2 in
   `map_view_terrain_materials.gd`, pushed to the shader as `ground_uv_scale`).
   Evidence: `tools/capture_town_hall_square_ground.gd`.
+- Beach plates use the same rule (1 unit is about 0.9 m). Dry sand (~8 wind
+  ripples of ~10 cm) tiles every 1.33 units (`TERRAIN_SAND_UV_SCALE` 3.0),
+  foreshore `coast_sand` (~10 wave ripples, 1-3 cm shells) every 1.25 units
+  (`TERRAIN_COAST_SAND_UV_SCALE` 3.2), `shore_shingle` (~22 stones of 1-6 cm
+  across) every 1.1 units (`TERRAIN_SHINGLE_UV_SCALE` 3.6, pushed as
+  `shingle_uv_scale`). The standard sand materials share these repeats through
+  `TERRAIN_UV_SCALE`. Grass (2.0 units) was not changed. Evidence on
+  `reval_harbor_east`: `tools/capture_co01_ground_materials.gd`, plates
+  `docs/reports/images/harbor_east_beach_ground_{gameplay,close,shore_run}_{before,after}.jpg`.
+- When a new ground plate lands, estimate what it depicts from countable
+  features (ripples, stones, tufts) and set its repeat so the tile spans no
+  more than ~1.5 units; `test_map_view_material_resolution.gd` enforces this
+  for mud and the beach families.
 - `OutdoorTerrainPalette` stays the colour authority. Grass and mud keep the
   16% palette nudge; the sand families are renormalised to their palette tint
   (`sand_palette_authority`, `sand_palette_value`) so beaches keep their map hue.

@@ -19,11 +19,11 @@ uniform sampler2DArray ground_roughness : filter_linear_mipmap_anisotropic, repe
 // Components are families 0-3 (grass, mud, sand, coast_sand); shore_shingle has
 // its own scalar because uniform arrays cannot carry defaults in Godot shaders.
 // The grass entry multiplies natural_ground_uv_scale, the shared meadow repeat.
-uniform vec4 ground_uv_scale = vec4(1.0, 3.2, 1.5, 1.5);
+uniform vec4 ground_uv_scale = vec4(1.0, 3.2, 3.0, 3.2);
 // Stochastic tile offsets for the primary sample (0 = plain repeat). A dense
 // mud repeat otherwise shows a regular grid of tufts once the camera zooms out.
 uniform float ground_tile_break = 1.0;
-uniform float shingle_uv_scale = 2.5;
+uniform float shingle_uv_scale = 3.6;
 uniform vec4 ground_detail_strength = vec4(0.72, 0.6, 0.7, 0.7);
 uniform float shingle_detail_strength = 0.55;
 uniform vec4 ground_normal_strength = vec4(0.55, 0.75, 0.6, 0.65);

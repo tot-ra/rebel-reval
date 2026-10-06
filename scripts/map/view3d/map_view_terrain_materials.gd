@@ -58,9 +58,25 @@ const TERRAIN_GRASS_UV_SCALE := 2.0
 ## the denser repeat from showing a grid when the camera zooms out.
 const TERRAIN_MUD_UV_SCALE := 3.2
 
+## Beach plates measured the same way (1 unit ~ 0.9 m against the 2.0-unit actor).
+## The dry sand plate holds ~8 wind ripples (real wavelength ~10 cm), so it shows
+## about one metre; at the old 1.5 repeat ripples read ~30 cm and the lone pebble
+## ~14 cm. 3.0 puts one tile at ~1.33 units.
+const TERRAIN_SAND_UV_SCALE := 3.0
+## The foreshore plate holds ~10 wave ripples (~8-10 cm each) and 1-3 cm shell
+## fragments, also about one metre; 3.2 matches the mud tile (~1.25 units).
+const TERRAIN_COAST_SAND_UV_SCALE := 3.2
+## The shingle plate is ~22 pebbles across, authored as 1-6 cm stones. At 2.5 the
+## average stone read ~6.5 cm and the largest ~14 cm; 3.6 (~1.1 units per tile)
+## brings them to ~4.5 cm average and ~10 cm largest.
+const TERRAIN_SHINGLE_UV_SCALE := 3.6
+
 ## Per-family repeat for the CO-01 ground arrays (grass, mud, sand, coast_sand),
 ## pushed to the blend shader so the regular terrain material cannot drift.
-const GROUND_FAMILY_UV_SCALE := Vector4(1.0, TERRAIN_MUD_UV_SCALE, 1.5, 1.5)
+## shore_shingle goes separately as shingle_uv_scale.
+const GROUND_FAMILY_UV_SCALE := Vector4(
+	1.0, TERRAIN_MUD_UV_SCALE, TERRAIN_SAND_UV_SCALE, TERRAIN_COAST_SAND_UV_SCALE
+)
 
 ## The authored timber plate is broad enough to make boards read oversized at the
 ## gameplay camera when sampled at the shared 4.0-unit terrain repeat. Keep the
@@ -112,6 +128,10 @@ const TERRAIN_PATTERN := {
 
 ## Denser tiling for paving so individual stones stay readable at gameplay zoom.
 const TERRAIN_UV_SCALE := {
+	# Authored sand plates: backdrop and single-terrain meshes use the same
+	# repeat as the blend shader instead of the shared 4.0-unit default.
+	MapTypes.TERRAIN_SAND: TERRAIN_SAND_UV_SCALE,
+	MapTypes.TERRAIN_COAST_SAND: TERRAIN_COAST_SAND_UV_SCALE,
 	MapTypes.TERRAIN_COBBLESTONE: 2.0,
 	MapTypes.TERRAIN_CASTLE_PAVING: 2.0,
 	MapTypes.TERRAIN_TIMBER_FLOOR: 2.0,
@@ -492,6 +512,7 @@ static func blended_ground(noise_seed: int) -> ShaderMaterial:
 	material.set_shader_parameter("shore_field_valid", 0.0)
 	material.set_shader_parameter("natural_ground_uv_scale", TERRAIN_GRASS_UV_SCALE)
 	material.set_shader_parameter("ground_uv_scale", GROUND_FAMILY_UV_SCALE)
+	material.set_shader_parameter("shingle_uv_scale", TERRAIN_SHINGLE_UV_SCALE)
 	material.set_shader_parameter("natural_ground_variation", 0.72)
 	material.set_shader_parameter("timber_floor_uv_scale", TERRAIN_TIMBER_FLOOR_UV_SCALE)
 	# Sample authored plates at native resolution. The shared terrain array stays

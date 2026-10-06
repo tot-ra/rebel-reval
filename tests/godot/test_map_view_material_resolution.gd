@@ -69,6 +69,37 @@ func test_mud_repeat_stays_below_character_height() -> void:
 	)
 
 
+func test_beach_plate_repeats_stay_below_character_height() -> void:
+	# Sand, foreshore and shingle plates each depict about one metre of beach; at
+	# the old 1.5 / 2.5 repeats ripples, shells and pebbles read oversized.
+	for scale: float in [
+		MapViewMaterials.TERRAIN_SAND_UV_SCALE,
+		MapViewMaterials.TERRAIN_COAST_SAND_UV_SCALE,
+		MapViewMaterials.TERRAIN_SHINGLE_UV_SCALE,
+	]:
+		var tile_world := MapViewMaterials.TERRAIN_TEXTURE_WORLD_SIZE / scale
+		assert_true(tile_world < 1.5, "beach tile spans %.2f units, expected < 1.5" % tile_world)
+	var material := MapViewMaterials.blended_ground(731)
+	var family_scale: Vector4 = material.get_shader_parameter("ground_uv_scale")
+	assert_true(is_equal_approx(family_scale.z, MapViewMaterials.TERRAIN_SAND_UV_SCALE))
+	assert_true(is_equal_approx(family_scale.w, MapViewMaterials.TERRAIN_COAST_SAND_UV_SCALE))
+	assert_true(
+		is_equal_approx(
+			float(material.get_shader_parameter("shingle_uv_scale")),
+			MapViewMaterials.TERRAIN_SHINGLE_UV_SCALE
+		)
+	)
+	# Standard sand materials (backdrop, single-terrain meshes) share the repeat.
+	assert_eq(
+		float(MapViewMaterials.TERRAIN_UV_SCALE[MapTypes.TERRAIN_SAND]),
+		MapViewMaterials.TERRAIN_SAND_UV_SCALE
+	)
+	assert_eq(
+		float(MapViewMaterials.TERRAIN_UV_SCALE[MapTypes.TERRAIN_COAST_SAND]),
+		MapViewMaterials.TERRAIN_COAST_SAND_UV_SCALE
+	)
+
+
 func test_cobblestone_uses_a_dedicated_high_resolution_texture_array() -> void:
 	var terrain_patterns := MapViewMaterials.terrain_pattern_array(731)
 	var cobble_patterns := MapViewMaterials.cobble_pattern_array(731)
