@@ -371,12 +371,12 @@
       "name_1343": "smiths' street toward the south gate",
       "modern_name": "Harju",
       "name_attestation": {
-        "status": "post_1343",
-        "first_mention_year": 1362,
-        "recorded_form": "smedestrate",
+        "status": "unverified",
+        "first_mention_year": 1339,
+        "recorded_form": "platea fabrorum",
         "source_ids": [
-          "SRC-PALL2009",
-          "SRC-SGABRIEL"
+          "SRC-SGABRIEL",
+          "SRC-AWB497"
         ]
       },
       "route_1343": "plausible composite",
@@ -408,7 +408,7 @@
         "centre_gutter": "unknown",
         "basis": "B: moat and Ülemiste-fed mill ponds at Karja, Harju and Viru gates are in development mid-14th century"
       },
-      "frontage": "smithing and craft plots with fire-separated hot yards (B); the AWB 497 platea fabrorum may be an earlier form but its identification is unreviewed",
+      "frontage": "smithing and craft plots with fire-separated hot yards (B); Lucas 2020 identifies the 1339 platea fabrorum (AWB 497 / 521 formula) with Harju, but the entries are not re-read, so the earlier form stays unverified and smedestrate 1362 is the first reviewed MLG form",
       "map_state": "not_authored",
       "map_conflicts": [],
       "confidence": "plausible composite",
@@ -416,7 +416,8 @@
       "source_ids": [
         "SRC-PALL2009",
         "DOS-WALLS",
-        "SRC-AWB497"
+        "SRC-AWB497",
+        "SRC-SGABRIEL"
       ]
     },
     {
@@ -686,14 +687,71 @@
       ]
     },
     {
+      "id": "street.kinga",
+      "name_1343": "short lane from the market to Pikk",
+      "modern_name": "Kinga",
+      "name_attestation": {
+        "status": "post_1343",
+        "first_mention_year": 1357,
+        "recorded_form": "strata calcificum",
+        "source_ids": [
+          "SRC-SGABRIEL",
+          "SRC-PALL2009"
+        ]
+      },
+      "route_1343": "plausible composite",
+      "owning_map_id": "market_civic_quarter",
+      "planned_map_id": null,
+      "class": "alley",
+      "trace": {
+        "from": "forum north-west corner",
+        "via": [],
+        "to": "south end of Pikk"
+      },
+      "width_m": {
+        "min": null,
+        "max": null,
+        "basis": "U: no site measurement; the present alley width is later fabric",
+        "source_ids": [
+          "DOS-LTSP"
+        ]
+      },
+      "surface": {
+        "material": "rammed earth",
+        "basis": "B: secondary lane default",
+        "source_ids": [
+          "SRC-H04"
+        ]
+      },
+      "drainage": {
+        "runoff": "toward the forum",
+        "centre_gutter": "unknown",
+        "basis": "U"
+      },
+      "frontage": "strip plots; shoemakers on the forum's west side are a 1357-1374 name tradition, not a dated spring-1343 zoning (C)",
+      "map_state": "contradicts",
+      "map_conflicts": [
+        "content/maps/market_civic_quarter.rrmap stroke street.kinga_passage leaves the forum west edge at (24,34) and dead-ends at the guild forecourt (18,29); it never reaches street.pikk_harbour_spine (x 39-48), so the market-to-Pikk link is missing."
+      ],
+      "confidence": "plausible composite",
+      "evidence_class": "C",
+      "source_ids": [
+        "SRC-SGABRIEL",
+        "SRC-PALL2009",
+        "SRC-ETWIKI-STREETS"
+      ]
+    },
+    {
       "id": "street.kullassepa",
       "name_1343": "lane from the market toward St Nicholas'",
       "modern_name": "Kullassepa",
       "name_attestation": {
         "status": "unverified",
-        "first_mention_year": null,
-        "recorded_form": null,
-        "source_ids": []
+        "first_mention_year": 1327,
+        "recorded_form": "vicus institoris",
+        "source_ids": [
+          "SRC-SGABRIEL"
+        ]
       },
       "route_1343": "plausible composite",
       "owning_map_id": "market_civic_quarter",
@@ -724,7 +782,7 @@
         "centre_gutter": "unknown",
         "basis": "U"
       },
-      "frontage": "strip plots; goldsmith trade association is a modern name and not a 1343 zoning fact",
+      "frontage": "strip plots; the storekeepers' forms (1327 vicus institoris, 1345 platea institorum) suggest shop frontage (C); the goldsmith name is modern and not a 1343 zoning fact",
       "map_state": "contradicts",
       "map_conflicts": [
         "content/maps/market_civic_quarter.rrmap stroke street.kullassepa_approach runs west and ends at the to_reval_toompea seam on the same cell as street.dunkri_approach; the way should lead south-west toward St Nicholas' (south_quarter).",
@@ -734,7 +792,8 @@
       "evidence_class": "C",
       "source_ids": [
         "DOS-LTSP",
-        "SRC-H31"
+        "SRC-H31",
+        "SRC-SGABRIEL"
       ]
     },
     {
@@ -742,13 +801,10 @@
       "name_1343": "lane south from the market junction",
       "modern_name": "Kuninga (market end)",
       "name_attestation": {
-        "status": "post_1343",
-        "first_mention_year": 1374,
-        "recorded_form": "schostrate",
-        "source_ids": [
-          "SRC-PALL2009",
-          "SRC-SGABRIEL"
-        ]
+        "status": "unverified",
+        "first_mention_year": null,
+        "recorded_form": null,
+        "source_ids": []
       },
       "route_1343": "plausible composite",
       "owning_map_id": "market_civic_quarter",
@@ -788,7 +844,8 @@
       "source_ids": [
         "SRC-AVE2016-VIRU",
         "DOS-OLDMARKET",
-        "SRC-PALL2009"
+        "SRC-PALL2009",
+        "SRC-ETWIKI-STREETS"
       ]
     },
     {
@@ -796,13 +853,10 @@
       "name_1343": "lane from the market junction toward St Nicholas'",
       "modern_name": "Kuninga (Niguliste end)",
       "name_attestation": {
-        "status": "post_1343",
-        "first_mention_year": 1374,
-        "recorded_form": "schostrate",
-        "source_ids": [
-          "SRC-PALL2009",
-          "SRC-SGABRIEL"
-        ]
+        "status": "unverified",
+        "first_mention_year": null,
+        "recorded_form": null,
+        "source_ids": []
       },
       "route_1343": "plausible composite",
       "owning_map_id": "south_quarter",
@@ -840,7 +894,8 @@
       "evidence_class": "B",
       "source_ids": [
         "DOS-SQFC",
-        "SRC-PALL2009"
+        "SRC-PALL2009",
+        "SRC-ETWIKI-STREETS"
       ]
     },
     {
@@ -849,8 +904,8 @@
       "modern_name": "Lai (southern half)",
       "name_attestation": {
         "status": "post_1343",
-        "first_mention_year": 1547,
-        "recorded_form": null,
+        "first_mention_year": 1732,
+        "recorded_form": "Lai ulits",
         "source_ids": [
           "SRC-PALL2009"
         ]
@@ -906,8 +961,8 @@
       "modern_name": "Lai (northern half)",
       "name_attestation": {
         "status": "post_1343",
-        "first_mention_year": 1547,
-        "recorded_form": null,
+        "first_mention_year": 1732,
+        "recorded_form": "Lai ulits",
         "source_ids": [
           "SRC-PALL2009"
         ]
@@ -1009,10 +1064,9 @@
       "modern_name": "Lühike jalg",
       "name_attestation": {
         "status": "post_1343",
-        "first_mention_year": 1371,
-        "recorded_form": "parvus mons",
+        "first_mention_year": 1353,
+        "recorded_form": "brevis mons",
         "source_ids": [
-          "SRC-PALL2009",
           "SRC-SGABRIEL"
         ]
       },
@@ -1054,7 +1108,8 @@
       "evidence_class": "B",
       "source_ids": [
         "DOS-TOOMPEA",
-        "DOS-WALLS"
+        "DOS-WALLS",
+        "SRC-SGABRIEL"
       ]
     },
     {
@@ -1221,10 +1276,9 @@
       "modern_name": "Olevimägi",
       "name_attestation": {
         "status": "unverified",
-        "first_mention_year": 1337,
-        "recorded_form": "Zantberg",
+        "first_mention_year": 1312,
+        "recorded_form": "mons arenae",
         "source_ids": [
-          "SRC-PALL2009",
           "SRC-SGABRIEL"
         ]
       },
@@ -1264,7 +1318,8 @@
       "evidence_class": "B",
       "source_ids": [
         "SRC-PALL2009",
-        "SRC-H14"
+        "SRC-H14",
+        "SRC-SGABRIEL"
       ]
     },
     {
@@ -1273,9 +1328,12 @@
       "modern_name": "Pikk jalg",
       "name_attestation": {
         "status": "unverified",
-        "first_mention_year": null,
-        "recorded_form": null,
-        "source_ids": []
+        "first_mention_year": 1342,
+        "recorded_form": "longus mons",
+        "source_ids": [
+          "SRC-SGABRIEL",
+          "SRC-AWB553"
+        ]
       },
       "route_1343": "plausible composite",
       "owning_map_id": "toompea_quarter",
@@ -1286,7 +1344,7 @@
         "via": [
           "gentle ramp along the retaining wall"
         ],
-        "to": "wooden Long Hill Gate at the foot, opening onto the south end of Pikk by the Holy Spirit"
+        "to": "wooden Long Hill Gate at the foot, opening onto the south end of Pikk where Nunne and Rataskaevu meet"
       },
       "width_m": {
         "min": null,
@@ -1311,13 +1369,15 @@
       "frontage": "retaining wall and timber palisade; no stone gate tower (later fabric)",
       "map_state": "contradicts",
       "map_conflicts": [
-        "content/maps/toompea_quarter.rrmap transition to_reval_north delivers the Pikk jalg foot to content/maps/monastery_quarter.rrmap at x 0 (convent_lane, St Michael side), far from pikk_spine (x 101); the gate should open onto the south end of Pikk near the Holy Spirit."
+        "content/maps/toompea_quarter.rrmap transition to_reval_north delivers the Pikk jalg foot to content/maps/monastery_quarter.rrmap at x 0 (convent_lane, St Michael side), about 100 cells from pikk_spine (x 101); the foot should meet the south end of Pikk at the Pikk / Nunne / Rataskaevu junction."
       ],
       "confidence": "plausible composite",
       "evidence_class": "B",
       "source_ids": [
         "DOS-TOOMPEA",
-        "DOS-LTSP"
+        "DOS-LTSP",
+        "SRC-SGABRIEL",
+        "SRC-AWB553"
       ]
     },
     {
@@ -1325,10 +1385,12 @@
       "name_1343": "long street (market end)",
       "modern_name": "Pikk (south end)",
       "name_attestation": {
-        "status": "unverified",
-        "first_mention_year": null,
-        "recorded_form": null,
-        "source_ids": []
+        "status": "post_1343",
+        "first_mention_year": 1732,
+        "recorded_form": "pitk ulits",
+        "source_ids": [
+          "SRC-PALL2009"
+        ]
       },
       "route_1343": "plausible composite",
       "owning_map_id": "market_civic_quarter",
@@ -1367,7 +1429,8 @@
       "evidence_class": "B",
       "source_ids": [
         "DOS-LTSP",
-        "DOS-PIKKLAI"
+        "DOS-PIKKLAI",
+        "SRC-PALL2009"
       ]
     },
     {
@@ -1375,10 +1438,12 @@
       "name_1343": "long street (middle reach)",
       "modern_name": "Pikk (middle reach)",
       "name_attestation": {
-        "status": "unverified",
-        "first_mention_year": null,
-        "recorded_form": null,
-        "source_ids": []
+        "status": "post_1343",
+        "first_mention_year": 1732,
+        "recorded_form": "pitk ulits",
+        "source_ids": [
+          "SRC-PALL2009"
+        ]
       },
       "route_1343": "plausible composite",
       "owning_map_id": "monastery_quarter",
@@ -1421,7 +1486,8 @@
       "evidence_class": "B",
       "source_ids": [
         "DOS-LTSP",
-        "DOS-PIKKLAI"
+        "DOS-PIKKLAI",
+        "SRC-PALL2009"
       ]
     },
     {
@@ -1429,10 +1495,12 @@
       "name_1343": "long street (harbour reach)",
       "modern_name": "Pikk (north end)",
       "name_attestation": {
-        "status": "unverified",
-        "first_mention_year": null,
-        "recorded_form": null,
-        "source_ids": []
+        "status": "post_1343",
+        "first_mention_year": 1732,
+        "recorded_form": "pitk ulits",
+        "source_ids": [
+          "SRC-PALL2009"
+        ]
       },
       "route_1343": "plausible composite",
       "owning_map_id": "north_quarter",
@@ -1471,7 +1539,8 @@
       "source_ids": [
         "DOS-LTSP",
         "DOS-PIKKLAI",
-        "SRC-AVE2019-COASTAL"
+        "SRC-AVE2019-COASTAL",
+        "SRC-PALL2009"
       ]
     },
     {
@@ -1479,10 +1548,12 @@
       "name_1343": "way past the Holy Spirit house",
       "modern_name": "Pühavaimu",
       "name_attestation": {
-        "status": "unverified",
-        "first_mention_year": null,
-        "recorded_form": null,
-        "source_ids": []
+        "status": "post_1343",
+        "first_mention_year": 1364,
+        "recorded_form": "retro ecclesiam sancti Spiritus",
+        "source_ids": [
+          "SRC-SGABRIEL"
+        ]
       },
       "route_1343": "plausible composite",
       "owning_map_id": "market_civic_quarter",
@@ -1522,7 +1593,8 @@
       "evidence_class": "B",
       "source_ids": [
         "SRC-H07",
-        "DOS-RAEKODA"
+        "DOS-RAEKODA",
+        "SRC-SGABRIEL"
       ]
     },
     {
@@ -1542,16 +1614,16 @@
       "planned_map_id": null,
       "class": "lane",
       "trace": {
-        "from": "Dunkri at the hill foot",
+        "from": "Pikk jalg foot at the south end of Pikk",
         "via": [
-          "uncertain water source (not the 1375 Cat's Well)"
+          "Dunkri corner (1343 water source U; not the 1375 Cat's Well)"
         ],
-        "to": "Niguliste belt"
+        "to": "Niguliste / Luhike jalg foot"
       },
       "width_m": {
         "min": 3,
         "max": 4,
-        "basis": "B: rear-lane band; the back-lanes dossier places it as market-adjacent rear access, which is disputed (see report)",
+        "basis": "B: secondary-lane band transferred from the back-lanes dossier; not a site measurement, and that dossier's market-north placement is rejected (see report)",
         "source_ids": [
           "DOS-BACKLANES"
         ]
@@ -1576,7 +1648,10 @@
       "source_ids": [
         "SRC-KUUSKEMAA2024",
         "DOS-SQFC",
-        "DOS-BATHS"
+        "DOS-BATHS",
+        "SRC-AWB302",
+        "SRC-SGABRIEL",
+        "SRC-ETWIKI-STREETS"
       ]
     },
     {
@@ -1689,7 +1764,7 @@
       "name_attestation": {
         "status": "post_1343",
         "first_mention_year": 1732,
-        "recorded_form": null,
+        "recorded_form": "wenne ulits",
         "source_ids": [
           "SRC-PALL2009"
         ]
@@ -1743,7 +1818,7 @@
       "name_attestation": {
         "status": "post_1343",
         "first_mention_year": 1732,
-        "recorded_form": null,
+        "recorded_form": "wenne ulits",
         "source_ids": [
           "SRC-PALL2009"
         ]
@@ -1928,13 +2003,6 @@
     }
   ],
   "excluded": [
-    {
-      "name": "Kinga",
-      "reason": "No reviewed source dates the route or name; market_civic_quarter stroke street.kinga_passage is a game connection to review in UF-05, not a registered way",
-      "source_ids": [
-        "DOS-LTSP"
-      ]
-    },
     {
       "name": "Rüütli",
       "reason": "No reviewed source for a 1343 route or name; the game's Knights District label is an invention and must not create a dated street",

@@ -1,6 +1,6 @@
 # Reval street, lane and open-space register - spring 1343
 
-Status: **research delivered, pending Canon Keeper sign-off** (task **R-1111** / UF-02, contract [`docs/tasks/urban_form/UF-02_street_register.md`](../tasks/urban_form/UF-02_street_register.md)).
+Status: **signed by Canon Keeper (second reviewer), 2026-10-07** - Claude Opus 5.5 in the `rebel-canon-keeper` role; corrections and decisions in [Canon Keeper review](#canon-keeper-review-2026-10-07) (task **R-1111** / UF-02, contract [`docs/tasks/urban_form/UF-02_street_register.md`](../tasks/urban_form/UF-02_street_register.md)).
 Machine-readable contract: [`docs/data/reval_street_register.json`](../data/reval_street_register.json) (`schema_version` 1, `as_of` `spring-1343`).
 
 Scope: every way, square edge and bounded open space that map authors may draw in Reval (Lower Town, the Toompea ascents and the two gate approach roads), with a dated name verdict, a 1343 route verdict, an owning map and the conflicts in current `.rrmap` geometry.
@@ -8,13 +8,13 @@ Out of scope: street geometry (UF-03 primitive, UF-05..UF-07 authoring), frontag
 
 ## Decision brief
 
-1. **Names are almost all later than April 1343.** Only Olevimägi (*Zantberg* 1337) and Rataskaevu (*rader strate* 1325) carry a pre-1343 year, and both come from secondary syntheses without a reviewed folio, so both stay `unverified`. No row is `by_1343`. Dialogue and UI should use functional descriptions (`name_1343`) and keep modern names for authors only. This repeats the [street-plan dossier](../../history/dossiers/topography/lower-town-street-plan.md) and [`docs/CANON.md`](../CANON.md) practice.
+1. **Names are almost all later than April 1343.** Six ways carry a pre-1343 year: Olevimägi (*mons arenae* 1312, *Zantberg* 1337), Rataskaevu (*rader strate* 1325, *dummestrate* 1328), Kullassepa (*vicus institoris* 1327), Harju (*platea fabrorum* 1339) and Pikk jalg (*longus mons* 1342). Each rests on a secondary identification of an entry nobody on this project has re-read for that purpose, so all stay `unverified`. No row is `by_1343`. Dialogue and UI should use functional descriptions (`name_1343`) and keep modern names for authors only. This repeats the [street-plan dossier](../../history/dossiers/topography/lower-town-street-plan.md) and [`docs/CANON.md`](../CANON.md) practice.
 2. **Routes are older than their names.** The surviving 13th-14th-century street and plot skeleton (H01, H02) supports the direction and adjacency of every spine. Three routes reach `attested`, each from dated fabric:
    - the forum's Town Hall edge (hall recorded 1322, H06)
    - Niguliste (13th-century gravel street layer, AVE 2022)
    - the Karja gate end (early rubble/pebble road, H10)
 3. **The forum is an open space, not a street.** `space.forum` (attested 1313) has four walkable square edges. The Viru/Vene convergence is a bounded junction (`space.viru_vene_junction`), not the later *forum inferior* (1368).
-4. **Current maps contradict the register in nine places.** See [Present-map census](#present-map-census). The two most visible errors:
+4. **Current maps contradict the register in ten places.** See [Present-map census](#present-map-census). The two most visible errors:
    - Lai is drawn **east** of Pikk on both northern maps. It runs west of Pikk, toward the western curtain.
    - Pikk is discontinuous across the market / monastery seam.
 5. **Harju has no gate on any map.** The Harju street and its extramural road are registered as `not_authored` under `south_quarter`, which owns the south curtain.
@@ -25,10 +25,12 @@ IDs below are the only valid `source_ids` in the JSON. H-codes reuse the signed 
 
 | ID | Source | Used for | Limits |
 |---|---|---|---|
-| `SRC-PALL2009` | Päll, P., "Names in Multi-Lingual, -Cultural and -Ethnic Contact", Proc. 23rd ICOS, York University, 2009 | Dated first attestations: Harju *smedestrate* 1362, Viru *leymstrate* 1362, Karja *Kariestrate* 1365, Kuninga *schostrate* 1374, Lühike jalg *parvus mons* 1371, Nunne *susterstrate* 1361, Olevimägi *Zantberg* 1337, Lai 1547+, Vene 1732+ | Onomastic survey; folios not reviewed here, so pre-1343 years stay `unverified` |
-| `SRC-SGABRIEL` | Lucas, R., "Street names from Tallinn, Tartu and Pärnu", S-Gabriel, 2020, https://www.s-gabriel.org/names/ffride/eestreets.html | MLG/Latin forms, *dummestrate* 1328, *velud itur ad monachos* 1363 | Secondary compilation of Päll and archive forms |
-| `SRC-AWB302` | Alter Wirtbuch entry 302, *platea dicta dummestrate*, as cited in the [Pikk/Lai frontage dossier](../../history/dossiers/topography/pikk-lai-frontage-materials-1340s.md) | Pre-1343 existence of a *dummestrate* | Entry not re-read for this register; its identification with Rataskaevu is a secondary claim |
-| `SRC-AWB497` | Alter Wirtbuch entry 497, *platea fabrorum in opposito domini Hunoldi de Ostinchusen*, as cited in the same dossier | A pre-1343 "smiths' street" | Not identified with Harju by any reviewed source |
+| `SRC-PALL2009` | Päll, P., "Names in Multi-Lingual, -Cultural and -Ethnic Contact", Proc. 23rd ICOS, York University, 2009 | Dated forms (p. 1-2 of the PDF, reviewed 2026-10-07): *forum* 1313, Olevimägi *Zantberg* 1337, Nunne *susterstrate* 1361, Rataskaevu *sub monte* 1361, Harju *smedestrate* and Viru *leymstrate* 1362, Karja *Kariestrate* 1365, Lühike jalg *parvus mons* 1371, **Kinga** *schostrate* 1374, Kullassepa *kremerstrate* 1389; Estonian *Lai ulits*, *pitk ulits*, *wenne ulits* only from the 1732 list. Kuninga is a modern *Königsstraße* | Onomastic survey; folios not reviewed here, so pre-1343 years stay `unverified`. It has **no** Tallinn Lai form before 1732 |
+| `SRC-SGABRIEL` | Lucas, R., "Street names from Tallinn, Tartu and Pärnu", S-Gabriel, 2020, https://www.s-gabriel.org/names/ffride/eestreets.html | Earliest proposed forms: Olevimägi *mons arenae* 1312; Kullassepa *vicus institoris* 1327; Rataskaevu *dummestrate* 1328, *sub monte* 1348; Harju *platea fabrorum* 1339; Pikk jalg *longus mons* 1342; Lühike jalg *brevis mons* 1353; Kinga *strata calcificum* 1357; Suur-Karja *vee strate* 1362; Apteegi 1363; Pühavaimu *retro ecclesiam sancti Spiritus* 1364 | Secondary compilation of Päll, KNAB and Salminen 2016. Its *bredestrate* 1547 is **Tartu**'s Lai, not Tallinn's |
+| `SRC-AWB302` | Alter Wirtbuch entry 302, *platea dicta dummestrate*, as cited in the [Pikk/Lai frontage dossier](../../history/dossiers/topography/pikk-lai-frontage-materials-1340s.md) | Pre-1343 existence of a *dummestrate* | Entry not re-read for this register; its identification with Rataskaevu comes from Salminen 2016 via Lucas 2020 |
+| `SRC-AWB497` | Alter Wirtbuch entry 497, *platea fabrorum in opposito domini Hunoldi de Ostinchusen*, as cited in the same dossier | A pre-1343 "smiths' street" (the same formula recurs as AWB 521, 1341) | Lucas 2020 identifies a 1339 *platea fabrorum* with Harju; the AWB entries were not re-read for that identification |
+| `SRC-AWB553` | Alter Wirtbuch entry 553 (1342 register sequence, p. 83, MDZ canvas 99), *stupa sub longo monte*, as cited in the [Pikk/Lai frontage dossier](../../history/dossiers/topography/pikk-lai-frontage-materials-1340s.md) | Pre-1343 *longus mons* clause | Lucas 2020 reads *longus mons* as Pikk jalg; the dossier warns it is not Pikk street. Identification not re-read |
+| `SRC-ETWIKI-STREETS` | Estonian Wikipedia, "Kinga tänav", "Kuninga tänav", "Rataskaevu tänav" (revisions of 8 April 2026) | Modern courses: Kinga forum to Pikk; Kuninga Vana turg to the Harju / Niguliste corner; Rataskaevu from the Pikk jalg foot past Dunkri to the Lühike jalg foot. Kuninga name from an owner recorded 1436 | Tertiary; geography and name-history pointers only |
 | `SRC-KUUSKEMAA2024` | Kuuskemaa, J., "Rataskaevust Kassikaevuks", Postimees, 2024, https://arvamus.postimees.ee/7993047/ | Rataskaevu *rader strate* 1325, *sub monte* | Popular synthesis, no folio; **B/C** per the shared R-1009 label |
 | `SRC-AVE2010-KARJA` | Nurk et al., Karja Gate archaeology, AVE 2010 (H10) | Early rubble/pebble road below later slabs, coastal relief, road-aligned suburb | Karja name 1365; 1343 superstructure uncertain |
 | `SRC-AVE2016-VIRU` | Kraut and Nurk, Viru / Vana Turg / Kuninga archaeology, AVE 2016/17, `history/AVE2016_17_KRAUT-NURK_Tln-Viru-tn.pdf` (H09) | Mid-14th-century Viru gate and moat, plank on moat fill, Kuninga slab hints, humus layers on inner Viru | Gate possibly under construction in 1343; timber pipes and barbicans later |
@@ -74,29 +76,30 @@ One line per JSON row. Name = `name_attestation.status` and year; Route = `route
 | `street.forum_north_edge` | market_civic_quarter | unverified | composite | PC / B | partial | Holy Spirit complex by 1316 on this edge |
 | `street.forum_south_edge` | market_civic_quarter | unverified | **attested** | A | partial | Town Hall recorded 1322 closes the south edge |
 | `street.forum_west_edge` | market_civic_quarter | unverified | composite | PC / B | partial | Dunkri and Kullassepa mouths |
-| `street.harju` | south_quarter | post 1362 | composite | PC / B | not_authored | Smiths' street to the Harju Gate (mentioned 1361). AWB 497 *platea fabrorum* is a possible earlier form, identification unreviewed |
+| `street.harju` | south_quarter | unverified 1339 | composite | PC / B | not_authored | Smiths' street to the Harju Gate (mentioned 1361). *platea fabrorum* 1339 per Lucas, AWB not re-read; *smedestrate* 1362 is the first reviewed MLG form |
 | `street.harju_road_extramural` | south_quarter → planned `harju_approach_road` | unverified | composite | PC / B | not_authored | Ends at the south_quarter boundary. Its continuation belongs to UF-15 |
 | `street.karja_lower_town_slice` | lower_town_slice | post 1365 | composite | PC / B | **contradicts** | Branches mid-Viru instead of at the market junction. Renamed `viru_internal_lane` across the seam |
 | `street.karja_market` | market_civic_quarter | post 1365 | composite | PC / B | **contradicts** | Enters south_quarter where Dunkri/Kuninga start, so Karja does not continue |
 | `street.karja_south_quarter` | south_quarter | post 1365 | **attested** | A | **contradicts** | H10 road at the gate. Fed from the wrong seam |
 | `street.katariina_kaik` | lower_town_slice | unverified | composite | PC / B | partial | Passage on the Dominican west range, 2-3 m |
-| `street.kullassepa` | market_civic_quarter | unverified | composite | PC / C | **contradicts** | Drawn west to the Toompea seam. It should go south-west to St Nicholas'. The goldsmith name is reused on north_quarter |
-| `street.kuninga_market` | market_civic_quarter | post 1374 | composite | PC / B | partial | Built frontage, partial slab hints (H09) |
-| `street.kuninga_south_quarter` | south_quarter | post 1374 | composite | PC / B | partial | Continuation toward St Nicholas' |
-| `street.lai_monastery` | monastery_quarter | post 1547 | composite | PC / B | **contradicts** | Drawn east of Pikk |
-| `street.lai_north` | north_quarter | post 1547 | composite | PC / B | **contradicts** | Drawn east of Pikk |
+| `street.kinga` | market_civic_quarter | post 1357 | composite | PC / C | **contradicts** | Market-to-Pikk alley; *strata calcificum* 1357, *schostrate* 1374. Map stroke dead-ends at the guild forecourt |
+| `street.kullassepa` | market_civic_quarter | unverified 1327 | composite | PC / C | **contradicts** | *vicus institoris* 1327 per Lucas. Drawn west to the Toompea seam; it should go south to the St Nicholas' corner. The goldsmith name is reused on north_quarter |
+| `street.kuninga_market` | market_civic_quarter | unverified | composite | PC / B | partial | Built frontage, partial slab hints (H09). No dated medieval name |
+| `street.kuninga_south_quarter` | south_quarter | unverified | composite | PC / B | partial | Continuation toward St Nicholas' |
+| `street.lai_monastery` | monastery_quarter | post 1732 | composite | PC / B | **contradicts** | Drawn east of Pikk |
+| `street.lai_north` | north_quarter | post 1732 | composite | PC / B | **contradicts** | Drawn east of Pikk |
 | `street.lossi_plats` | toompea_quarter | unverified | composite | PC / D | partial | Castle forecourt approach. Modern name |
-| `street.luhike_jalg` | toompea_quarter | post 1371 | composite | PC / B | partial | Steep ascent with a wooden gate; foot at the Dunkri/Rataskaevu belt |
+| `street.luhike_jalg` | toompea_quarter | post 1353 | composite | PC / B | partial | Steep ascent with a wooden gate; foot at the Rataskaevu / Niguliste junction. *brevis mons* 1353 |
 | `street.muurivahe` | lower_town_slice | unverified | composite | PC / B | partial | Wall lane 4-6 m. Intermittent where the 1340s curtain is unfinished |
 | `street.niguliste` | south_quarter | unverified | **attested** | A | partial | 13th-century gravel layer. The map uses dirt, so its surface should become gravel |
 | `street.nunne` | monastery_quarter | post 1361 | composite | PC / B | not_authored | Convent-side lane to the Nuns' Gate opening |
-| `street.olevimagi` | monastery_quarter | unverified 1337 | composite | PC / B | not_authored | *Zantberg* via Päll, folio unreviewed |
-| `street.pikk_jalg` | toompea_quarter | unverified | composite | PC / B | **contradicts** | Foot delivered to the convent edge, not the south end of Pikk |
-| `street.pikk_market` | market_civic_quarter | unverified | composite | PC / B | partial | 4 cells (~3.5 m) against a 4-6 m band |
-| `street.pikk_monastery` | monastery_quarter | unverified | composite | PC / B | **contradicts** | Market seam lands on `civic_lane`, about 62 cells from `pikk_spine` |
-| `street.pikk_north` | north_quarter | unverified | composite | PC / B | matches | Continuous to the Coastal Gate at 5 cells (~4.4 m) |
-| `street.puhavaimu` | market_civic_quarter | unverified | composite | PC / B | partial | Forum to Pikk past the Holy Spirit house |
-| `street.rataskaevu` | south_quarter | unverified 1325 | composite | PC / C | partial | *rader strate* is B/C. The 1343 well anchor is U and the 1375 Cat's Well is excluded |
+| `street.olevimagi` | monastery_quarter | unverified 1312 | composite | PC / B | not_authored | *mons arenae* 1312, *Zantberg* 1337, folios unreviewed |
+| `street.pikk_jalg` | toompea_quarter | unverified 1342 | composite | PC / B | **contradicts** | *longus mons* 1342 (AWB 553 clause, identification secondary). Foot delivered to the convent edge, not the south end of Pikk |
+| `street.pikk_market` | market_civic_quarter | post 1732 | composite | PC / B | partial | 4 cells (~3.5 m) against a 4-6 m band |
+| `street.pikk_monastery` | monastery_quarter | post 1732 | composite | PC / B | **contradicts** | Market seam lands on `civic_lane`, about 62 cells from `pikk_spine` |
+| `street.pikk_north` | north_quarter | post 1732 | composite | PC / B | matches | Continuous to the Coastal Gate at 5 cells (~4.4 m) |
+| `street.puhavaimu` | market_civic_quarter | post 1364 | composite | PC / B | partial | Forum to Pikk past the Holy Spirit house |
+| `street.rataskaevu` | south_quarter | unverified 1325 | composite | PC / C | partial | *sub monte*: Pikk jalg foot, Dunkri corner, Lühike jalg foot. *rader strate* 1325 is B/C. The 1343 well anchor is U and the 1375 Cat's Well is excluded |
 | `street.toom_kooli` | toompea_quarter | unverified | **invented** | invented / D | partial | Designed connection across the cathedral close |
 | `street.vanaturu_kael` | market_civic_quarter | unverified | composite | PC / B | matches | 5-cell throat inside the 4-6 m band; no second square |
 | `street.vene_lower_town_slice` | lower_town_slice | post 1732 | composite | PC / B | partial | Only an anchor, no stroke |
@@ -110,35 +113,35 @@ Open spaces: `space.forum` (attested / A, 1313 *forum*; smaller than the modern 
 
 | Candidate | Verdict |
 |---|---|
-| Pikk | Registered in three segments; route composite, name unattested in the 14th century |
-| Lai | Registered in two segments; name 1547+. Current maps place it on the wrong side of Pikk |
+| Pikk | Registered in three segments; route composite. Reviewed sources date the name only from 1732 (*pitk ulits*); earlier German forms are likely but unreviewed |
+| Lai | Registered in two segments; name 1732+ (the 1547 form is Tartu's). Current maps place it on the wrong side of Pikk |
 | Vene | Registered in two segments; quarter identity composite, name 1732+ |
-| Olevimägi | Registered; *Zantberg* 1337 `unverified`; not authored |
-| Pühavaimu | Registered; name undated |
-| Rataskaevu | Registered; 1325 B/C, kept `unverified` per R-1009 |
+| Olevimägi | Registered; *mons arenae* 1312 / *Zantberg* 1337 `unverified`; not authored |
+| Pühavaimu | Registered; name 1364 |
+| Rataskaevu | Registered on the *sub monte* line; 1325 B/C, kept `unverified` per R-1009 |
 | Dunkri | Registered west of the forum; south_quarter duplicate is a conflict |
 | Niguliste | Registered; route attested by 13th-century gravel |
-| Kuninga | Registered in two segments; name 1374 |
+| Kuninga | Registered in two segments; no dated medieval name (*schostrate* 1374 is Kinga) |
 | Rüütli | **Excluded**: no reviewed source |
-| Harju | Registered; name 1362, not authored |
+| Harju | Registered; *platea fabrorum* 1339 `unverified`, *smedestrate* 1362; not authored |
 | Müürivahe | Registered; function composite |
 | Suur-Karja | Registered in three segments; name 1365, gate road attested |
 | Väike-Karja | **Excluded**: no reviewed source |
 | Viru | Registered; name 1362 |
 | Vanaturg / Raekoja plats | `space.forum` plus four edges; `street.vanaturu_kael`; Vana turg as a market **excluded** |
-| Pikk jalg | Registered; name undated, route composite |
-| Lühike jalg | Registered; name 1371 |
+| Pikk jalg | Registered; *longus mons* 1342 `unverified`, route composite |
+| Lühike jalg | Registered; name 1353 |
 | Harju approach road | Registered, `not_authored`, planned `harju_approach_road` |
 | Viru approach road | Registered on viru_gate_foreland, planned `viru_approach_road` |
 | Uus | **Excluded**: audit tokens are the H22 authors |
 | Kullassepa, Apteegi, Katariina käik, Nunne, Lossi plats, Toom-Kooli | Added because `.rrmap` comments or strokes use them |
-| Kinga | **Excluded**: `kinga_passage` stroke has no source |
+| Kinga | Registered (moved from the exclusions at review): *strata calcificum* 1357, *schostrate* 1374 |
 
 Generic stroke IDs (`guild_lane`, `convent_lane`, `harbor_lane`, `east_work_lane`, `rear_service_lane`, `pikk_lai_cross_lane`, `intramural_wall_lane`, the harbour and foreland tracks, Toompea cathedral lanes) are not street names. They are game service lanes (**D**) for UF-04 / UF-05 to keep, re-route or delete.
 
 ## Present-map census
 
-Inventory commands from the contract (`rg` over `content/maps/*.rrmap` and `docs/HISTORICAL_AUDIT.md`) were run on 2026-10-07. Contradictions, each recorded in the JSON `map_conflicts`:
+Inventory commands from the contract (`rg` over `content/maps/*.rrmap` and `docs/HISTORICAL_AUDIT.md`) were run on 2026-10-07. Contradictions, each recorded in the JSON `map_conflicts` (item 9 is `partial`, item 10 is a research dispute):
 
 1. **Lai east of Pikk** - `monastery_quarter` `lai_lane` x 135 vs `pikk_spine` x 101, `north_quarter` `lai_lane` x 138 vs `pikk_spine` x 104. Lai belongs between Pikk and the western curtain, where the same maps already place the Nunnatorn and Kuldjala towers.
 2. **Pikk broken at the market seam** - market `to_reval_north` (x 34-44) lands on monastery `civic_lane`, which turns ~62 cells east before it meets Pikk.
@@ -147,8 +150,9 @@ Inventory commands from the contract (`rg` over `content/maps/*.rrmap` and `docs
 5. **Karja split three ways** - market `street.karja_south` enters south_quarter at `dunkri_lane` / `king_street`, while the south_quarter Karja is fed by `viru_internal_lane` from lower_town_slice `road.karja`, which itself branches mid-Viru.
 6. **Two Dunkris** - market `street.dunkri_approach` (west, plausible) and south_quarter `dunkri_lane` (north-south).
 7. **Kullassepa to the wrong seam** - market `street.kullassepa_approach` ends on the same Toompea-seam cell as Dunkri. North_quarter `goldsmith_lane` reuses the name.
-8. **Niguliste surface** - `niguliste_lane` is dirt; the excavated 13th-century layer is gravel. This is recorded as partial, not as a contradiction.
-9. **Rataskaevu placement dispute** - the back-lanes dossier calls Rataskaevu rear access "north of the market for Pikk Block A". That conflicts with the *sub monte* (under the hill) form and with the south-quarter contract. The register follows *sub monte* and leaves this for Canon review.
+8. **Kinga dead-ends** - market `street.kinga_passage` leaves the forum west edge at (24,34) and stops at the guild forecourt (18,29); it never reaches `street.pikk_harbour_spine` (x 39-48).
+9. **Niguliste surface** - `niguliste_lane` is dirt; the excavated 13th-century layer is gravel. This is recorded as partial, not as a contradiction.
+10. **Rataskaevu placement dispute** - the back-lanes dossier calls Rataskaevu rear access "north of the market for Pikk Block A". Resolved at Canon review in favour of *sub monte*; see decision 2 below. No current stroke carries the name.
 
 Not authored anywhere: Harju street and Harju Gate, the Harju approach road, Olevimägi, Nunne. No map draws Müürivahe, Vene (slice) or Katariina käik as a stroke; they exist only as anchors and house IDs.
 
@@ -161,14 +165,38 @@ Several of these are seam problems already tracked by the UF-08 gate (R-1117, R-
 - Town Hall tower, arcade and full 1371-74 length; Holy Spirit's later church mass.
 - Viru round foregate towers (~1370), Karja/Harju barbicans (1448-1461), Coastal Gate barbican (1430), Fat Margaret (1520s), the 1454-1455 masonry hill wall and any stone hill-gate tower.
 - Blanket cobble, 19th-20th-century timber water pipes and vaulted collectors, the 2016 granite scheme.
-- Street names quoted as April 1343 speech: Karja (1365), Harju and Viru (1362), Kuninga (1374), Lühike jalg (1371), Nunne (1361), Apteegi (1363), Lai (1547), Vene (1732).
+- Street names quoted as April 1343 speech: Karja (1362 / 1365), Viru (1362), *smedestrate* (1362), Lühike jalg (1353), Kinga (1357), Nunne (1361), Apteegi (1363), Pühavaimu (1364), Lai, Pikk and Vene (1732), Kuninga (undated). The unverified pre-1343 forms (*mons arenae*, *Zantberg*, *rader strate*, *dummestrate*, *vicus institoris*, *platea fabrorum*, *longus mons*) also stay out of dialogue until decision 3 upgrades them.
 
 ## Open questions and hand-off
 
-- **Canon Keeper (sign-off required):** confirm the `unverified` status of *Zantberg* 1337 and *rader strate* 1325; settle the Rataskaevu placement dispute; decide whether AWB 302 / 497 should be re-read to test the *dummestrate* = Rataskaevu and *platea fabrorum* = Harju identifications.
+- **Canon Keeper:** signed 2026-10-07; see [Canon Keeper review](#canon-keeper-review-2026-10-07).
+- **Research (from decision 3):** re-read AWB 302, 497 / 521 and 553 and the *mons arenae* / *vicus institoris* entries in the Arbusow edition, and record entry number, date, page and canvas for each identification.
+- **Research dossier corrections (outside this row's allowed files):** `lower-town-street-plan.md` gives *schostrate* 1374 to Kuninga (it is Kinga) and Lai 1547 (Tartu); `back-lanes-east-of-pikk.md` places Rataskaevu north of the market.
 - **Research:** record the AVE 2022 Niguliste plate/page; look for any dated width at Viru × forum or Pikk × Coastal Gate.
 - **Map (UF-05 / UF-06 / UF-07):** fix contradictions 1-7 when the street primitive lands (UF-03, gated by ADR 0026 acceptance). Swap Lai to the west of Pikk without renaming stable IDs, and join Pikk across the market seam.
 - **UF-14 / UF-15:** the Harju gate road leaves the south curtain, while `world.harju` is reached today from `viru_gate_foreland`. The project's own dossier treats the Viru - Iru - Pirita line as the main approach to the Harju region, so this is not a contradiction. The ADR 0027 census should still say which gate owns the `harju_approach_road` endpoint.
+
+## Canon Keeper review 2026-10-07
+
+Reviewer: Claude Opus 5.5 in the `rebel-canon-keeper` role, second reviewer for R-1111.
+
+**Checked.** An independent script checked every row against the UF-02 field, type and enum rules: exact key sets, ID patterns, sorted unique IDs, `post_1343` years after 1343, width bounds, `contradicts` rows with conflicts, existing map IDs, and source resolution. Zero errors before or after the corrections. Every `map_conflicts` claim was re-measured in the `.rrmap` files and holds, for example `monastery_quarter` `lai_lane` x 135 against `pikk_spine` x 101, and `north_quarter` x 138 against x 104. Widths and surfaces agree with P0-072 H09-H11 and the street-plan, back-lanes and old-market bands. No signed band is amended.
+
+**Corrected** (the earlier pass did not read its own sources fully; Päll 2009 and Lucas 2020 were re-read on 2026-10-07):
+
+- *schostrate* 1374 is **Kinga** ("shoe street"), not Kuninga. Kuninga now has no dated form, and Kinga moves from `excluded` to `street.kinga`.
+- Lai 1547 is Tartu's *bredestrate*. Päll has Tallinn Lai, Pikk and Vene only in the 1732 Estonian list, so all three are `post_1343` 1732.
+- Earlier forms added from `SRC-SGABRIEL`: Harju 1339, Kullassepa 1327, Olevimägi 1312, Pikk jalg 1342, Lühike jalg 1353 (was 1371), Pühavaimu 1364. Pikk jalg and Kullassepa are no longer undated.
+- The Rataskaevu trace follows the modern course: Pikk jalg foot, then the Dunkri corner, then the Lühike jalg foot.
+- New sources `SRC-AWB553` and `SRC-ETWIKI-STREETS`. `SRC-AWB302` is now cited by `street.rataskaevu` (it was registered but unused).
+
+**Decision 1 - name status.** *Zantberg* 1337 (now recorded with the earlier *mons arenae* 1312) and *rader strate* 1325 **stay `unverified`**. Neither has been read in a dated primary record by this project. The 1325 year also conflicts with the 1328 *dummestrate* first mention in Lucas and Estonian Wikipedia, so it remains **B/C** per R-1009 and the South Quarter contract. The same rule covers the other pre-1343 proposals: a form becomes `by_1343` only when a reviewer reads the dated edition entry **and** a published identification ties it to the way.
+
+**Decision 2 - Rataskaevu placement.** The register's *sub monte* placement **stands**. Rataskaevu runs from the Pikk jalg foot at the south end of Pikk, past the Dunkri corner, to the Lühike jalg foot. That is west of the forum along the Toompea foot. Päll and Lucas give *sub monte* for 1348 and 1361. The back-lanes dossier's "north of the market for Pikk Block A" is rejected. Only the north end of Rataskaevu touches the westernmost Pikk plots, which probably explains that reading. The 3-4 m width is kept as a transferred lane band (**B**), not a site value. The dossier needs a correction row because it is outside R-1111's allowed files.
+
+**Decision 3 - AWB re-read.** **Yes**, re-read AWB 302 (*dummestrate*), 497 / 521 (*platea fabrorum*) and 553 (*sub longo monte*) in the Arbusow 1888 edition. The project's 2026-08-28 OCR pass located these clauses only as Pikk/Lai negatives. Lucas now proposes all three as pre-1343 forms of Rataskaevu, Harju and Pikk jalg, and those are the only routes for which a `by_1343` upgrade is realistic. Until the re-read lands, dialogue uses `name_1343` functional descriptions.
+
+**Sign-off.** The register's 1343 name and phase decisions are accepted with the corrections above. Map contradictions remain hand-offs for UF-05 to UF-07; this review changes no `.rrmap`.
 
 ## Cross-links
 
@@ -183,4 +211,4 @@ python3 tools/archive_speculative_docs.py --dry-run
 git diff --check
 ```
 
-The full field/type/enum review and `source_ids` resolution against the table above were run with a one-off checker during delivery (36 ways, 2 open spaces, 5 exclusions, zero errors). A permanent validator belongs to a later authorised row.
+The full field/type/enum review and `source_ids` resolution against the table above were run with a one-off checker during delivery (36 ways, 2 open spaces, 5 exclusions, zero errors). The Canon Keeper re-ran an independent checker after the review corrections: 37 ways, 2 open spaces, 4 exclusions, zero errors, every `source_ids` value resolves to the table above. A permanent validator belongs to a later authorised row.
