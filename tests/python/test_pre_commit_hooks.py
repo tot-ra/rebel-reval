@@ -103,6 +103,62 @@ class PreCommitHooksTest(unittest.TestCase):
             self.assertEqual(completed.returncode, 0, completed.stderr)
             self.assertIn("No staged files", completed.stdout)
 
+    def test_runner_fires_seam_continuity_gate_on_staged_map_change(self) -> None:
+        # R-1117: a staged seam-gate input must invoke the seam form-continuity tool.
+        # A fake GODOT_BIN records its arguments so no real engine is needed; the
+        # runner's exit code is irrelevant because sibling gates have no fixtures.
+        with tempfile.TemporaryDirectory() as temp_dir:
+            repo = Path(temp_dir)
+            for args in (
+                ["git", "init"],
+                ["git", "config", "user.email", "test@example.com"],
+                ["git", "config", "user.name", "Test"],
+            ):
+                subprocess.run(args, cwd=repo, check=True, capture_output=True)
+            tools_dir = repo / "tools"
+            tools_dir.mkdir()
+            runner_copy = tools_dir / "run_pre_commit_checks.sh"
+            runner_copy.write_text(RUNNER.read_text(encoding="utf-8"), encoding="utf-8")
+            runner_copy.chmod(0o755)
+            # The runner imports this helper before the map gates run.
+            helper_dir = repo / "tests" / "python"
+            helper_dir.mkdir(parents=True)
+            (helper_dir / "test_magic_budget.py").write_text(
+                (ROOT / "tests" / "python" / "test_magic_budget.py").read_text(encoding="utf-8"),
+                encoding="utf-8",
+            )
+            log = repo / "godot_calls.log"
+            fake = repo / "fake_godot.sh"
+            fake.write_text(f'#!/usr/bin/env bash\necho "$@" >> "{log}"\n', encoding="utf-8")
+            fake.chmod(0o755)
+            # Staging a map would also trigger sibling gates that need their own
+            # fixtures, so stage the budget (same trigger list) and assert the map
+            # triggers textually below.
+            budget = repo / "docs" / "data" / "seam_continuity_budget.json"
+            budget.parent.mkdir(parents=True)
+            budget.write_text("{}\n", encoding="utf-8")
+            subprocess.run(
+                ["git", "add", "docs/data/seam_continuity_budget.json"],
+                cwd=repo,
+                check=True,
+                capture_output=True,
+            )
+            env = _clean_git_env()
+            env["GODOT_BIN"] = str(fake)
+            completed = subprocess.run(
+                ["bash", str(runner_copy), "staged"],
+                cwd=repo,
+                env=env,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            calls = log.read_text(encoding="utf-8") if log.exists() else ""
+            self.assertIn("tools/verify_seam_continuity.gd", calls, completed.stdout + completed.stderr)
+            runner_text = RUNNER.read_text(encoding="utf-8")
+            block = runner_text[runner_text.index("R-1117 / UF-08") :]
+            self.assertIn('any_staged_path "content/maps"', block.split("then", 1)[0])
+
     def test_clean_git_env_strips_commit_only_index(self) -> None:
         previous = os.environ.get("GIT_INDEX_FILE")
         os.environ["GIT_INDEX_FILE"] = "/tmp/fake-commit-only-index"

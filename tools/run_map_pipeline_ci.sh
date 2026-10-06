@@ -41,6 +41,10 @@ case "$MODE" in
   routes)
     run_tests test_lower_town_slice_map
     ;;
+  seams)
+    run_godot seams "$GODOT_BIN" --headless --path "$ROOT" --script res://tools/verify_seam_continuity.gd
+    run_tests test_seam_continuity
+    ;;
   persistence)
     run_tests test_map_stable_state_store
     ;;
@@ -54,12 +58,13 @@ case "$MODE" in
     "$0" parser
     "$0" compiler
     "$0" audit
+    "$0" seams
     "$0" persistence
     "$0" parity
     "$0" benchmark-smoke
     ;;
   *)
-    echo "Usage: $0 {parser|compiler|audit|persistence|parity|routes|benchmark-smoke|all}" >&2
+    echo "Usage: $0 {parser|compiler|audit|seams|persistence|parity|routes|benchmark-smoke|all}" >&2
     exit 2
     ;;
 esac

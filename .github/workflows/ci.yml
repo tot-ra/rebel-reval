@@ -138,6 +138,12 @@ jobs:
           python3 tools/verify_world_layout.py
           python3 -m unittest tests.python.test_verify_world_layout -v
 
+      - name: Verify reval_outdoor seam form continuity
+        run: |
+          set -euo pipefail
+          godot --headless --path . --script tools/verify_seam_continuity.gd
+          godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_seam_continuity
+
       - name: Verify map composition audit
         run: |
           set -euo pipefail

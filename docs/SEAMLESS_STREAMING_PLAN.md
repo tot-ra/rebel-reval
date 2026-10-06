@@ -596,3 +596,16 @@ PY
 ```
 
 Accept. R-977 membership verify is closed. No interiors or travel rewrite.
+
+## Seam form continuity (UF-08 / R-1117)
+
+Two different questions are gated separately:
+
+| Gate | Question | Reads |
+|------|----------|-------|
+| `MapAlignmentMath` / `build_world_layout.gd` / `verify_world_layout.py` | Do the apertures have the same span and a consistent origin? (`MAP_WORLD_SEAM_SPAN_MISMATCH`, `MAP_WORLD_SEAM_ORIGIN_CONFLICT`) | Manifest and transitions |
+| `tools/verify_seam_continuity.gd` | Does what is authored on either side of the aperture match? | Compiled `MapDefinition` of every group member |
+
+The form gate compares, cell by cell along the shared edge: ground height (budget `height_delta`), road-surface runs (width, axis offset, surface, orphan ends), the nearest non-wall frontage face, and wall and ditch runs. It is a Godot tool rather than a Python verifier because heights and semantic records exist only in compiled `MapDefinition`; a Python reader would need a second export contract that could drift from the compiler. Until a compiled `StreetNetwork` exists (UF-03 / UF-05), a "street" is a run of cells whose terrain is listed in `street_terrains`.
+
+Thresholds and the measured baseline live in `docs/data/seam_continuity_budget.json`. Each baseline failure has a `grace` entry naming its remediation row (R-1166). The gate is fail-closed: an unexplained violation fails, and a grace entry that no longer fires fails too, so fixes must delete their entry. It runs from `tools/run_pre_commit_checks.sh` (staged maps, manifest, `scripts/map`), `tools/run_map_pipeline_ci.sh seams`, and CI. Tests: `--filter=test_seam_continuity`.

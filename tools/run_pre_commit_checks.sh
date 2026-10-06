@@ -366,6 +366,24 @@ if any_staged_path \
   queue_python_module "tests.python.test_verify_world_layout"
 fi
 
+# R-1117 / UF-08: compiled form must match across every reval_outdoor seam. This is
+# separate from the span/origin gate above: it compares heights, streets, frontage,
+# walls and ditches on both sides of the aperture.
+if any_staged_path "content/maps" \
+  "content/world/reval_outdoor_layout.json" \
+  "scripts/map" \
+  "docs/data/seam_continuity_budget.json" \
+  "tools/verify_seam_continuity.gd" \
+  "tests/godot/test_seam_continuity.gd"; then
+  if GODOT_BIN_RESOLVED="$(resolve_godot)"; then
+    run_step "reval_outdoor seam form continuity" \
+      "$GODOT_BIN_RESOLVED" --headless --path . --script tools/verify_seam_continuity.gd
+  else
+    echo "godot not on PATH and GODOT_BIN unset; skipping seam continuity gate." >&2
+    echo "Map changes still require tools/verify_seam_continuity.gd before push." >&2
+  fi
+fi
+
 if any_staged_path "scripts/map" "content/maps" \
   "tools/run_map_pipeline_ci.sh" \
   "tools/validate_map_blueprints.gd" \
