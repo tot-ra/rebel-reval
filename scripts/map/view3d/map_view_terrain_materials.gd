@@ -51,6 +51,17 @@ const TERRAIN_TEXTURE_WORLD_SIZE := 4.0
 ## character height, while paving and soil retain their existing world scale.
 const TERRAIN_GRASS_UV_SCALE := 2.0
 
+## The authored mud plate shows straw tufts, boot scuffs and cracks at roughly a
+## one-metre ground patch. At the old 1.35 repeat one tile spread over ~3 units,
+## so tufts read waist-high next to the 2.0-unit actor on the Town Hall square.
+## 3.2 puts one tile at ~1.25 units; the shader's stochastic tile offsets keep
+## the denser repeat from showing a grid when the camera zooms out.
+const TERRAIN_MUD_UV_SCALE := 3.2
+
+## Per-family repeat for the CO-01 ground arrays (grass, mud, sand, coast_sand),
+## pushed to the blend shader so the regular terrain material cannot drift.
+const GROUND_FAMILY_UV_SCALE := Vector4(1.0, TERRAIN_MUD_UV_SCALE, 1.5, 1.5)
+
 ## The authored timber plate is broad enough to make boards read oversized at the
 ## gameplay camera when sampled at the shared 4.0-unit terrain repeat. Keep the
 ## blended-ground path aligned with the regular terrain material's 2x repeat.
@@ -480,6 +491,7 @@ static func blended_ground(noise_seed: int) -> ShaderMaterial:
 	)
 	material.set_shader_parameter("shore_field_valid", 0.0)
 	material.set_shader_parameter("natural_ground_uv_scale", TERRAIN_GRASS_UV_SCALE)
+	material.set_shader_parameter("ground_uv_scale", GROUND_FAMILY_UV_SCALE)
 	material.set_shader_parameter("natural_ground_variation", 0.72)
 	material.set_shader_parameter("timber_floor_uv_scale", TERRAIN_TIMBER_FLOOR_UV_SCALE)
 	# Sample authored plates at native resolution. The shared terrain array stays

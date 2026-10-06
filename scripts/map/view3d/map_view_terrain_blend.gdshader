@@ -19,7 +19,10 @@ uniform sampler2DArray ground_roughness : filter_linear_mipmap_anisotropic, repe
 // Components are families 0-3 (grass, mud, sand, coast_sand); shore_shingle has
 // its own scalar because uniform arrays cannot carry defaults in Godot shaders.
 // The grass entry multiplies natural_ground_uv_scale, the shared meadow repeat.
-uniform vec4 ground_uv_scale = vec4(1.0, 1.35, 1.5, 1.5);
+uniform vec4 ground_uv_scale = vec4(1.0, 3.2, 1.5, 1.5);
+// Stochastic tile offsets for the primary sample (0 = plain repeat). A dense
+// mud repeat otherwise shows a regular grid of tufts once the camera zooms out.
+uniform float ground_tile_break = 1.0;
 uniform float shingle_uv_scale = 2.5;
 uniform vec4 ground_detail_strength = vec4(0.72, 0.6, 0.7, 0.7);
 uniform float shingle_detail_strength = 0.55;
@@ -140,26 +143,54 @@ float ground_patch_mask(vec2 base_uv, float layer) {
 // with the primary tile; a very low-frequency mask decides how much of it shows.
 // Plates stay tileable, and the continuous warp hides the primary 2048 px grid.
 // Returns albedo in rgb and roughness in a; normal xy goes to the out param.
-vec4 sample_ground_family(int family, vec2 base_uv, out vec2 normal_xy) {
+vec4 sample_ground_family(int family, vec2 base_uv, vec4 uv_grad, out vec2 normal_xy) {
 	float layer = float(family);
-	vec2 primary_uv = natural_warp(base_uv * ground_family_value(ground_uv_scale, shingle_uv_scale, family));
+	float family_scale = ground_family_value(ground_uv_scale, shingle_uv_scale, family);
+	vec2 primary_uv = natural_warp(base_uv * family_scale);
 	vec2 macro_uv = vec2(
 		dot(primary_uv, vec2(0.161, 0.050)),
 		dot(primary_uv, vec2(-0.045, 0.176))
 	) + vec2(0.23, 0.41);
 	float detail = clamp(ground_family_value(ground_detail_strength, shingle_detail_strength, family), 0.0, 1.0);
 	float macro_mix = (0.14 + ground_patch_mask(base_uv, layer) * 0.30) * detail;
+	// Stochastic tiling (after Quilez, "texture repetition"): a world-continuous
+	// noise picks one of many hashed whole-plate offsets, and neighbouring
+	// variants cross-fade, so identical tufts never line up on a grid. Offsets
+	// only translate the plate, so tangent-space normals stay valid. textureGrad
+	// with the unshifted derivatives avoids mip seams where the variant changes.
+	// uv_grad holds dFdx/dFdy(UV) taken in uniform control flow by fragment();
+	// derivatives inside the per-family branches would be undefined. The
+	// low-frequency warp is ignored here; it barely changes the mip choice.
+	vec2 duv_dx = uv_grad.xy * family_scale;
+	vec2 duv_dy = uv_grad.zw * family_scale;
+	float variant = natural_noise(primary_uv * 0.37 + vec2(layer * 5.3, 2.7)) * 8.0 * clamp(ground_tile_break, 0.0, 1.0);
+	float variant_a = floor(variant);
+	vec3 uv_a = vec3(primary_uv + sin(vec2(3.0, 7.0) * variant_a), layer);
+	vec3 uv_b = vec3(primary_uv + sin(vec2(3.0, 7.0) * (variant_a + 1.0)), layer);
+	vec3 albedo_a = textureGrad(ground_albedo, uv_a, duv_dx, duv_dy).rgb;
+	vec3 albedo_b = textureGrad(ground_albedo, uv_b, duv_dx, duv_dy).rgb;
+	// Bias the seam by the colour difference so it follows plate features
+	// instead of reading as a soft blurred band.
+	float variant_mix = smoothstep(0.2, 0.8, fract(variant) - 0.1 * dot(albedo_a - albedo_b, vec3(1.0)));
 	vec3 albedo = mix(
-		texture(ground_albedo, vec3(primary_uv, layer)).rgb,
+		mix(albedo_a, albedo_b, variant_mix),
 		texture(ground_albedo, vec3(macro_uv, layer)).rgb,
 		macro_mix
 	);
 	float fine = natural_noise(base_uv * 1.7 + vec2(31.4, 7.7));
 	albedo *= 1.0 + (fine - 0.5) * 0.20 * detail;
-	vec2 primary_n = texture(ground_normal, vec3(primary_uv, layer)).rg * 2.0 - 1.0;
+	vec2 primary_n = mix(
+		textureGrad(ground_normal, uv_a, duv_dx, duv_dy).rg,
+		textureGrad(ground_normal, uv_b, duv_dx, duv_dy).rg,
+		variant_mix
+	) * 2.0 - 1.0;
 	vec2 macro_n = texture(ground_normal, vec3(macro_uv, layer)).rg * 2.0 - 1.0;
 	normal_xy = mix(primary_n, macro_n, macro_mix) * ground_family_value(ground_normal_strength, shingle_normal_strength, family);
-	float rough = texture(ground_roughness, vec3(primary_uv, layer)).r;
+	float rough = mix(
+		textureGrad(ground_roughness, uv_a, duv_dx, duv_dy).r,
+		textureGrad(ground_roughness, uv_b, duv_dx, duv_dy).r,
+		variant_mix
+	);
 	return vec4(albedo, rough);
 }
 
@@ -171,23 +202,23 @@ vec3 ground_family_mean(int family) {
 
 // Grass family (grass, meadow, forest floor, bog) shares one plate; layers
 // 0-3 keep the natural_ground_uv_scale repeat that matches the 2.0-unit actor.
-vec4 sample_natural_ground(vec2 base_uv, out vec2 normal_xy) {
-	vec4 grass = sample_ground_family(0, base_uv * natural_ground_uv_scale, normal_xy);
+vec4 sample_natural_ground(vec2 base_uv, vec4 uv_grad, out vec2 normal_xy) {
+	vec4 grass = sample_ground_family(0, base_uv * natural_ground_uv_scale, uv_grad * natural_ground_uv_scale, normal_xy);
 	float variation = clamp(natural_ground_variation, 0.0, 1.0);
 	float patch = natural_noise(base_uv * 0.34 + vec2(4.8, 19.2));
 	grass.rgb *= 1.0 + (patch - 0.5) * 0.12 * variation;
 	return grass;
 }
 
-vec4 sample_sand_family(int family, vec2 base_uv, vec3 palette_tint, out vec2 normal_xy) {
-	vec4 sand = sample_ground_family(family, base_uv, normal_xy);
+vec4 sample_sand_family(int family, vec2 base_uv, vec4 uv_grad, vec3 palette_tint, out vec2 normal_xy) {
+	vec4 sand = sample_ground_family(family, base_uv, uv_grad, normal_xy);
 	vec3 gain = palette_tint * sand_palette_value / ground_family_mean(family);
 	sand.rgb *= mix(vec3(1.0), gain, clamp(sand_palette_authority, 0.0, 1.0));
 	return sand;
 }
 
-vec4 sample_coast_sand(vec2 base_uv, vec3 palette_tint, out vec2 normal_xy) {
-	vec4 sand = sample_sand_family(3, base_uv, palette_tint, normal_xy);
+vec4 sample_coast_sand(vec2 base_uv, vec4 uv_grad, vec3 palette_tint, out vec2 normal_xy) {
+	vec4 sand = sample_sand_family(3, base_uv, uv_grad, palette_tint, normal_xy);
 	if (use_authored_shingle < 0.5 || coast_shingle_amount <= 0.0) {
 		return sand;
 	}
@@ -198,7 +229,7 @@ vec4 sample_coast_sand(vec2 base_uv, vec3 palette_tint, out vec2 normal_xy) {
 		return sand;
 	}
 	vec2 shingle_n;
-	vec4 shingle = sample_sand_family(4, base_uv, palette_tint * 0.92, shingle_n);
+	vec4 shingle = sample_sand_family(4, base_uv, uv_grad, palette_tint * 0.92, shingle_n);
 	normal_xy = mix(normal_xy, shingle_n, shingle_w);
 	return mix(sand, shingle, shingle_w);
 }
@@ -362,15 +393,17 @@ void fragment() {
 	float plate_rough = 0.0;
 	float plate_weight = 0.0;
 	vec2 family_normal;
+	// Taken here, in uniform control flow, for the ground families' textureGrad.
+	vec4 uv_grad = vec4(dFdx(UV), dFdy(UV));
 	if (ground_weights.x > 0.001) {
-		vec4 grass = sample_natural_ground(UV, family_normal);
+		vec4 grass = sample_natural_ground(UV, uv_grad, family_normal);
 		albedo += grass.rgb * realistic_tint * ground_weights.x;
 		plate_normal += family_normal * ground_weights.x;
 		plate_rough += grass.a * ground_weights.x;
 		plate_weight += ground_weights.x;
 	}
 	if (ground_weights.y > 0.001) {
-		vec4 mud = sample_ground_family(1, UV, family_normal);
+		vec4 mud = sample_ground_family(1, UV, uv_grad, family_normal);
 		// Desaturate toward a dusty grey-brown: the raw plate is too orange next to grass.
 		vec3 mud_rgb = mix(vec3(dot(mud.rgb, vec3(0.299, 0.587, 0.114))) * vec3(1.0, 0.93, 0.85), mud.rgb, 0.55) * 0.88;
 		albedo += mud_rgb * realistic_tint * ground_weights.y;
@@ -379,14 +412,14 @@ void fragment() {
 		plate_weight += ground_weights.y;
 	}
 	if (ground_weights.z > 0.001) {
-		vec4 sand = sample_sand_family(2, UV, tint, family_normal);
+		vec4 sand = sample_sand_family(2, UV, uv_grad, tint, family_normal);
 		albedo += sand.rgb * ground_weights.z;
 		plate_normal += family_normal * ground_weights.z;
 		plate_rough += sand.a * ground_weights.z;
 		plate_weight += ground_weights.z;
 	}
 	if (ground_weights.w > 0.001) {
-		vec4 coast = sample_coast_sand(UV, tint, family_normal);
+		vec4 coast = sample_coast_sand(UV, uv_grad, tint, family_normal);
 		albedo += coast.rgb * ground_weights.w;
 		plate_normal += family_normal * ground_weights.w;
 		plate_rough += coast.a * ground_weights.w;

@@ -44,6 +44,14 @@ the shader (`mud_wetness`, WS-08 swash), not the plate.
 - Every family samples two coherent scales (1x and about 0.17x, rotated) under a
   low-frequency mask so no tile grid shows across a 144-cell band;
   `ground_detail_strength` is the art control.
+- The 1x sample also takes stochastic whole-plate offsets (hashed per
+  world-continuous noise band, cross-faded, `textureGrad` so mips stay
+  seamless). `ground_tile_break` is the art control; 0 restores the plain repeat.
+- Plate repeat follows what the plate depicts, measured against the 2.0-unit
+  actor: grass tiles every 2.0 units, the dirt/mud plate (about one metre of
+  trodden yard) every 1.25 units (`TERRAIN_MUD_UV_SCALE` 3.2 in
+  `map_view_terrain_materials.gd`, pushed to the shader as `ground_uv_scale`).
+  Evidence: `tools/capture_town_hall_square_ground.gd`.
 - `OutdoorTerrainPalette` stays the colour authority. Grass and mud keep the
   16% palette nudge; the sand families are renormalised to their palette tint
   (`sand_palette_authority`, `sand_palette_value`) so beaches keep their map hue.

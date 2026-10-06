@@ -43,6 +43,32 @@ func test_natural_ground_repeat_matches_character_scale() -> void:
 	)
 
 
+func test_mud_repeat_stays_below_character_height() -> void:
+	# The Town Hall square's dirt/mud plate shows ~1 m of trodden ground; a tile
+	# wider than the 2.0-unit actor made straw tufts read waist-high.
+	var tile_world := (
+		MapViewMaterials.TERRAIN_TEXTURE_WORLD_SIZE / MapViewMaterials.TERRAIN_MUD_UV_SCALE
+	)
+	assert_true(tile_world < 1.5, "mud tile spans %.2f units, expected < 1.5" % tile_world)
+	var material := MapViewMaterials.blended_ground(731)
+	var family_scale: Vector4 = material.get_shader_parameter("ground_uv_scale")
+	# Vector4 stores float32, so compare approximately.
+	assert_true(is_equal_approx(family_scale.y, MapViewMaterials.TERRAIN_MUD_UV_SCALE))
+	# Regular (neighbor-preview) materials that repeat the mud plate must match.
+	for terrain_id: StringName in [MapTypes.TERRAIN_DIRT, MapTypes.TERRAIN_MUD]:
+		if MapViewMaterials.TERRAIN_UV_SCALE.has(terrain_id):
+			assert_eq(
+				float(MapViewMaterials.TERRAIN_UV_SCALE[terrain_id]),
+				MapViewMaterials.TERRAIN_MUD_UV_SCALE,
+				"%s regular material matches the blend repeat" % terrain_id
+			)
+	var code := MapViewMaterialShaders.TERRAIN_BLEND_SHADER.code
+	assert_true(
+		code.contains("ground_tile_break") and code.contains("textureGrad(ground_albedo"),
+		"dense ground repeat must keep stochastic tile offsets against zoom-out grids"
+	)
+
+
 func test_cobblestone_uses_a_dedicated_high_resolution_texture_array() -> void:
 	var terrain_patterns := MapViewMaterials.terrain_pattern_array(731)
 	var cobble_patterns := MapViewMaterials.cobble_pattern_array(731)
