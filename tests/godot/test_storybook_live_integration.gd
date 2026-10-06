@@ -86,12 +86,16 @@ func test_bird_pool_switches_between_skeletal_flight_and_existing_species() -> v
 		assert_true(flight._install_species_rig(bird, species))
 		assert_eq(bird.get_child_count(), 1, "Reusing a pooled bird must remove the previous rig")
 		var player := bird.get_meta(&"flight_player") as AnimationPlayer
-		bird.set_meta(&"flap_pause", 0.0)
+		bird.set_meta(&"species", species)
+		bird.set_meta(&"flap_time", 0.0)
 		flight._advance_flap(bird, 0.01)
 		assert_eq(player.current_animation, &"Fly")
-		bird.set_meta(&"flap_pause", 0.5)
-		flight._advance_flap(bird, 0.01)
-		assert_eq(player.current_animation, &"Glide")
+		var profile := Flight.flap_profile(species)
+		if float(profile["pause"]) > 0.0:
+			# Just past the end of the first flapping bout the bird glides.
+			bird.set_meta(&"flap_time", float(profile["burst"]) / float(profile["hz"]))
+			flight._advance_flap(bird, 0.01)
+			assert_eq(player.current_animation, &"Glide")
 		var skeleton := bird.find_child("Skeleton3D", true, false) as Skeleton3D
 		assert_true(skeleton.find_bone("Wing.L") >= 0)
 		assert_true(flight._install_species_rig(bird, &"house_sparrow"))
@@ -110,7 +114,7 @@ func test_live_catalogue_flight_uses_the_revised_anatomy_and_plumage() -> void:
 	assert_false(bird.has_meta(&"flight_player"))
 	assert_true(bird.has_node("WingRootL/WingElbowL"))
 	var body := bird.get_node("Body") as MeshInstance3D
-	assert_eq(body.mesh.get_meta(&"bird_catalog_revision", 0), 213)
+	assert_eq(body.mesh.get_meta(&"bird_catalog_revision", 0), 214)
 	var material := body.mesh.surface_get_material(0) as ShaderMaterial
 	assert_true(material != null)
 	assert_eq(material.shader.resource_path, "res://assets/birds/catalog_plumage.gdshader")

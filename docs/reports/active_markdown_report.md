@@ -15,18 +15,18 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 ## Summary
 
 - Active Markdown files scanned: `194`
-- Markdown files excluded as archive/reference/out of active scope: `734`
-- Local/external links inspected: `933`
-- Links to active Markdown docs: `516`
-- Links to existing archive/reference/non-active local docs: `190`
+- Markdown files excluded as archive/reference/out of active scope: `735`
+- Local/external links inspected: `936`
+- Links to active Markdown docs: `517`
+- Links to existing archive/reference/non-active local docs: `191`
 - External links skipped for reachability: `46`
-- Issues found: `0`
+- Issues found: `1`
 
 ## Issue counts
 
 | Code | Count |
 | --- | ---: |
-| `BROKEN_LINK` | 0 |
+| `BROKEN_LINK` | 1 |
 | `BROKEN_ANCHOR` | 0 |
 | `DUPLICATE_CHARACTER_NAME` | 0 |
 | `CONTRADICTORY_DATE` | 0 |
@@ -34,7 +34,9 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Issues
 
-No active Markdown documentation issues found.
+| Code | Location | Detail |
+| --- | --- | --- |
+| `BROKEN_LINK` | `docs/SYSTEMS/PSYCHE.md:60` | Local Markdown link target does not exist: `./TIME_AND_PHASES.md` |
 
 ## Active files scanned
 

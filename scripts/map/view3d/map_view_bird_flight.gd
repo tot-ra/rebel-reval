@@ -23,15 +23,47 @@ const SWAY_AMPLITUDE_MAX := 0.55
 const SWAY_FREQUENCY_MIN := 0.8
 const SWAY_FREQUENCY_MAX := 1.45
 
-## Wing flap timing: seconds between keyframe advances. 0.12s gives roughly
-## 3-4 flaps/second which looks natural for most species at gameplay distance.
-const FLAP_INTERVAL_S := 0.12
-## Some species glide more than they flap; skip that many flaps between active
-## stroke bursts so swallows flap often while eagles mostly soar.
-const GLIDE_SKIP_DEFAULT := 3
-const WING_ROOT_ANGLES: Array[float] = [-0.34, -0.18, 0.0, 0.28, 0.48, 0.28, 0.0, -0.18]
-const WING_ELBOW_ANGLES: Array[float] = [-0.10, -0.05, 0.0, 0.12, 0.20, 0.12, 0.0, -0.05]
-const WING_SWEEP_ANGLES: Array[float] = [0.14, 0.08, -0.02, -0.10, -0.16, -0.08, 0.03, 0.10]
+## Wingbeat kinematics (R-1188). Real wingbeats are not a symmetric see-saw:
+## the power downstroke takes a little more than half the cycle with the wing
+## spread, and on the upstroke the hand folds back at the wrist so the wing
+## rises with less drag. Frequency and flight style come from `flap_profile`.
+const DOWNSTROKE_SHARE := 0.56
+## Body heave per wingbeat as a share of body length: the body rises on the
+## downstroke and sinks on the upstroke.
+const BODY_HEAVE := 0.05
+const STYLE_GLIDE := &"glide"
+const STYLE_BOUND := &"bound"
+## Per-family wingbeats. hz: wingbeats per second; burst: wingbeats per bout and
+## pause: seconds between bouts (pause 0 = continuous rowing flight, as geese
+## and ducks fly); style: glide keeps the wings spread between bouts, bound
+## folds them to the body (finches, tits, woodpeckers); up/down: stroke
+## amplitude in radians above and below the wing's rest line.
+const FLAP_PROFILES := {
+	&"gull": {"hz": 2.8, "burst": 5, "pause": 1.8, "style": STYLE_GLIDE, "up": 0.7, "down": 0.55},
+	&"tern": {"hz": 3.2, "burst": 8, "pause": 0.6, "style": STYLE_GLIDE, "up": 0.8, "down": 0.65},
+	&"waterfowl": {"hz": 4.6, "burst": 0, "pause": 0, "style": STYLE_GLIDE, "up": 0.85, "down": 0.75},
+	&"wader": {"hz": 3.6, "burst": 0, "pause": 0.0, "style": STYLE_GLIDE, "up": 0.8, "down": 0.7},
+	&"raptor": {"hz": 2.8, "burst": 4, "pause": 2.5, "style": STYLE_GLIDE, "up": 0.55, "down": 0.45},
+	&"owl": {"hz": 2.6, "burst": 5, "pause": 1.2, "style": STYLE_GLIDE, "up": 0.7, "down": 0.6},
+	&"corvid": {"hz": 3.8, "burst": 14, "pause": 0.9, "style": STYLE_GLIDE, "up": 0.75, "down": 0.65},
+	&"swallow": {"hz": 7.0, "burst": 5, "pause": 0.4, "style": STYLE_GLIDE, "up": 0.8, "down": 0.7},
+	&"songbird": {"hz": 9.0, "burst": 4, "pause": 0.3, "style": STYLE_BOUND, "up": 0.95, "down": 0.85},
+	# gdlint: ignore=max-line-length
+	&"woodpecker": {"hz": 7.5, "burst": 3, "pause": 0.45, "style": STYLE_BOUND, "up": 0.95, "down": 0.85},
+}
+## Species whose size or habits differ from their family default.
+const FLAP_OVERRIDES := {
+	&"mute_swan": {"hz": 2.6, "up": 0.70, "down": 0.60},
+	&"greylag_goose": {"hz": 3.4},
+	&"mallard": {"hz": 5.2},
+	&"grey_heron": {"hz": 2.2, "up": 0.60, "down": 0.55},
+	&"great_cormorant": {"hz": 3.8, "up": 0.75, "down": 0.65},
+	&"common_snipe": {"hz": 6.0},
+	&"white_tailed_eagle": {"hz": 2.0, "burst": 3, "pause": 3.5},
+	&"common_kestrel": {"hz": 4.2, "burst": 6, "pause": 1.0},
+	&"western_jackdaw": {"hz": 4.6},
+	&"eurasian_magpie": {"hz": 5.0, "burst": 6, "pause": 0.6},
+}
 
 ## Flock LOD (P0-159). Each spawned bird stays one fully rigged leader (the
 ## MAX_CONCURRENT_BIRDS cap and `bird_flight_peak` budget are unchanged);
@@ -55,7 +87,16 @@ const MAX_FLOCK_FOLLOWERS := 24
 const BIRD_DETAIL_RANGE := 110.0
 const FLOCK_VISIBILITY_RANGE := 110.0
 const FLOCK_SPACING := 1.15
-const FLOCK_BOB_AMPLITUDE := 0.16
+## Slow positional drift that keeps the formation loose; the wingbeat heave is
+## added separately so followers bob in time with their own wings.
+const FLOCK_DRIFT_AMPLITUDE := 0.06
+## Followers flap through a baked flipbook: this many poses per wingbeat plus
+## one rest pose (glide or folded) for the pauses between bouts. Each pose is
+## one MultiMesh draw per species, so followers stay instanced (P0-159).
+const FLOCK_FLAP_FRAMES := 8
+
+## Flipbook mesh parts shared by every map this session (see _pose_cache_key).
+static var _pose_cache: Dictionary = {}
 
 var _birds: Array[Node3D] = []
 var _rng := RandomNumberGenerator.new()
@@ -66,7 +107,13 @@ var _cycle_progress := 0.0
 var _world_max := Vector2.ZERO
 var _seconds_until_spawn := 0.0
 var _spawn_tick := 0
-var _flock_renderers: Dictionary = {}  # species -> MapViewCrowdRenderer
+## species -> Array[MapViewCrowdRenderer], one renderer per flipbook pose.
+var _flock_renderers: Dictionary = {}
+var _warm_queue: Array[StringName] = []
+## Skinned model being baked and its species; the bake owns it until done.
+var _warm_species := &""
+var _warm_model: Node3D
+var _warm_poses: Array = []
 
 
 func _ready() -> void:
@@ -97,9 +144,90 @@ func active_flock_follower_count() -> int:
 	return count
 
 
-## Instanced follower renderer for `species`, or null before its first flock.
-func flock_renderer_for(species: StringName) -> MapViewCrowdRenderer:
-	return _flock_renderers.get(species) as MapViewCrowdRenderer
+## Instanced follower renderers for `species`, one per flipbook pose
+## (FLOCK_FLAP_FRAMES wingbeat poses, then the rest pose). Empty before the
+## species' first flock.
+func flock_renderers_for(species: StringName) -> Array:
+	return _flock_renderers.get(species, [])
+
+
+## Tip-to-tip span in metres of the catalogue anatomy for `species`.
+static func wingspan_m(species: StringName) -> float:
+	var geometry := BirdSpecies.geometry_for(species)
+	var body: Vector3 = geometry["body"]
+	return float(geometry["wing_span"]) * BirdSpecies.scale_m(species) / maxf(body.x, 0.001)
+
+
+## Wingbeat profile for `species`: family defaults plus per-species overrides.
+static func flap_profile(species: StringName) -> Dictionary:
+	var profile: Dictionary = (
+		FLAP_PROFILES.get(BirdSpecies.group_for(species), FLAP_PROFILES[&"songbird"]) as Dictionary
+	).duplicate()
+	profile.merge(FLAP_OVERRIDES.get(species, {}), true)
+	return profile
+
+
+## Stroke phase in [0, 1) at `time` seconds into a flight (0 = top of the
+## upstroke), or -1.0 while the bird rests its wings between flapping bouts.
+static func flap_phase_at(time: float, profile: Dictionary) -> float:
+	var hz := float(profile["hz"])
+	var burst := int(profile["burst"])
+	var pause := float(profile["pause"])
+	if burst <= 0 or pause <= 0.0:
+		return fposmod(time * hz, 1.0)
+	var bout := float(burst) / hz
+	var local := fposmod(time, bout + pause)
+	if local >= bout:
+		return -1.0
+	return fposmod(local * hz, 1.0)
+
+
+## Joint angles for one stroke phase (see `flap_phase_at`). Positive `arm` and
+## `hand` raise the wing, positive sweeps move it forward; `heave` in -1..1 is
+## the body's vertical position within the wingbeat.
+static func wing_pose(phase: float, profile: Dictionary) -> Dictionary:
+	if phase < 0.0:
+		if profile["style"] == STYLE_BOUND:
+			# Bounding flight: wings snap shut against the body between bursts.
+			return {"arm": -0.12, "arm_sweep": -0.5, "hand": -0.1, "hand_sweep": -1.3, "heave": 0.0}
+		return {"arm": 0.06, "arm_sweep": 0.0, "hand": -0.04, "hand_sweep": 0.0, "heave": 0.0}
+	var theta := (
+		PI * phase / DOWNSTROKE_SHARE
+		if phase < DOWNSTROKE_SHARE
+		else PI + PI * (phase - DOWNSTROKE_SHARE) / (1.0 - DOWNSTROKE_SHARE)
+	)
+	var up := float(profile["up"])
+	var down := float(profile["down"])
+	var stroke := cos(theta)
+	var upstroke := maxf(0.0, -sin(theta))
+	return {
+		"arm": ((up - down) + (up + down) * stroke) * 0.5,
+		# The arm reaches forward on the downstroke and swings back on the way up.
+		"arm_sweep": 0.14 * sin(theta) - 0.18 * upstroke,
+		# Wrist flexes on the upstroke: the hand trails low and folds back, then
+		# flicks out straight for the next downstroke.
+		"hand": -0.55 * upstroke * (up + down) * 0.5 + 0.1 * sin(theta),
+		"hand_sweep": -0.85 * upstroke,
+		"heave": -stroke,
+	}
+
+
+static func apply_wing_pose(bird: Node3D, pose: Dictionary) -> void:
+	var root_l := bird.get_node_or_null("WingRootL") as Node3D
+	var elbow_l := bird.get_node_or_null("WingRootL/WingElbowL") as Node3D
+	var root_r := bird.get_node_or_null("WingRootR") as Node3D
+	var elbow_r := bird.get_node_or_null("WingRootR/WingElbowR") as Node3D
+	if root_l == null or elbow_l == null or root_r == null or elbow_r == null:
+		return
+	var arm := float(pose["arm"])
+	var arm_sweep := float(pose["arm_sweep"])
+	var hand := float(pose["hand"])
+	var hand_sweep := float(pose["hand_sweep"])
+	# Mirrored joints: the left wing lies along -X, so its signs flip.
+	root_l.rotation = Vector3(0.0, -arm_sweep, -arm)
+	elbow_l.rotation = Vector3(0.0, -hand_sweep, -hand)
+	root_r.rotation = Vector3(0.0, arm_sweep, arm)
+	elbow_r.rotation = Vector3(0.0, hand_sweep, hand)
 
 
 static func is_flocking_species(species: StringName) -> bool:
@@ -113,6 +241,7 @@ func configure(map_id: StringName, context: StringName, size_cells: Vector2i) ->
 	_seconds_until_spawn = 0.0
 	_world_max = Vector2(float(size_cells.x), float(size_cells.y))
 	_hide_all_birds()
+	_queue_flock_warmup()
 
 
 func sync(context: StringName, cycle_progress: float, delta: float, enabled: bool = true) -> void:
@@ -126,6 +255,8 @@ func sync(context: StringName, cycle_progress: float, delta: float, enabled: boo
 	_sync_flocks()
 	if delta <= 0.0:
 		return
+	if is_inside_tree():
+		_warm_flock_poses_step()
 	_seconds_until_spawn -= delta
 	if _seconds_until_spawn > 0.0:
 		return
@@ -224,14 +355,14 @@ func _advance_active_birds(delta: float) -> void:
 		var look_ahead := _flight_position(bird, minf(t + 0.02, 1.0))
 		bird.position = position
 		_orient_bird_if_distinct(bird, look_ahead)
+		_advance_flap(bird, delta)
+		bird.position += Vector3.UP * float(bird.get_meta(&"flap_heave", 0.0))
 		var sway_phase := float(bird.get_meta(&"sway_phase", 0.0))
 		var sway_amplitude := float(bird.get_meta(&"sway_amplitude", 0.3))
 		var sway_frequency := float(bird.get_meta(&"sway_frequency", 1.0))
 		var bank := sin(t * TAU * sway_frequency + sway_phase) * sway_amplitude * 0.65 * sin(t * PI)
 		bird.rotate_object_local(Vector3.FORWARD, bank)
 		bird.set_meta(&"traveled", traveled)
-		# Advance wing flap animation
-		_advance_flap(bird, delta)
 
 
 func _orient_bird_if_distinct(bird: Node3D, target: Vector3) -> void:
@@ -315,27 +446,10 @@ func _apply_authored_mesh_material(model: MeshInstance3D) -> void:
 		model.set_surface_override_material(surface_index, material)
 
 
+## Pose the modular rig at stroke `phase` (see `flap_phase_at`; negative is
+## the rest pose) with the bird's own wingbeat profile.
 func _apply_wing_pose(bird: Node3D, phase: float) -> void:
-	var root_l := bird.get_node_or_null("WingRootL") as Node3D
-	var elbow_l := bird.get_node_or_null("WingRootL/WingElbowL") as Node3D
-	var root_r := bird.get_node_or_null("WingRootR") as Node3D
-	var elbow_r := bird.get_node_or_null("WingRootR/WingElbowR") as Node3D
-	if root_l == null or elbow_l == null or root_r == null or elbow_r == null:
-		return
-	var root_angle := _sample_flap_angle(WING_ROOT_ANGLES, phase)
-	var elbow_angle := _sample_flap_angle(WING_ELBOW_ANGLES, phase)
-	var sweep_angle := _sample_flap_angle(WING_SWEEP_ANGLES, phase)
-	root_l.rotation = Vector3(0.0, -sweep_angle, -root_angle)
-	elbow_l.rotation = Vector3(0.0, sweep_angle * 0.65, -elbow_angle)
-	root_r.rotation = Vector3(0.0, sweep_angle, root_angle)
-	elbow_r.rotation = Vector3(0.0, -sweep_angle * 0.65, elbow_angle)
-
-
-func _sample_flap_angle(keyframes: Array[float], phase: float) -> float:
-	var wrapped := fposmod(phase, float(keyframes.size()))
-	var first := floori(wrapped)
-	var second := (first + 1) % keyframes.size()
-	return lerpf(keyframes[first], keyframes[second], wrapped - float(first))
+	apply_wing_pose(bird, wing_pose(phase, flap_profile(bird.get_meta(&"species", &""))))
 
 
 func _flight_position(bird: Node3D, t: float) -> Vector3:
@@ -392,16 +506,13 @@ func _spawn_bird() -> void:
 	bird.set_meta(&"sway_phase", path["sway_phase"])
 	bird.set_meta(&"sway_amplitude", path["sway_amplitude"])
 	bird.set_meta(&"sway_frequency", path["sway_frequency"])
-	# Flapping state is continuous; mesh frames are used for the neutral shape,
-	# while the modular pivots carry the smooth animation.
-	bird.set_meta(&"flap_index", 2)
-	bird.set_meta(&"flap_phase", 2.0)
-	bird.set_meta(&"flap_pause", 0.0)
-	bird.set_meta(&"glide_skip", _glide_skip_for_species(species))
+	# Deterministic start offset so concurrent birds do not beat in unison.
+	bird.set_meta(&"flap_time", float(path["flap_offset"]))
+	bird.set_meta(&"flap_heave", 0.0)
 	bird.set_meta(&"species", species)
-	_apply_wing_pose(bird, 2.0)
+	_advance_flap(bird, 0.0)
 	bird.remove_meta(&"flock_offsets")
-	if is_flocking_species(species) and _ensure_flock_renderer(species) != null:
+	if is_flocking_species(species) and not _ensure_flock_renderer(species).is_empty():
 		var offsets := flock_offsets(
 			_seed_key, _spawn_tick, MAX_FLOCK_FOLLOWERS - active_flock_follower_count()
 		)
@@ -425,7 +536,10 @@ func _install_species_rig(bird: Node3D, species: StringName) -> bool:
 		bird.set_meta(&"species", species)
 		return true
 	var frame := BirdMeshes.modular_rig_for(species)
-	return not frame.is_empty() and _install_modular_rig(bird, frame, false)
+	if frame.is_empty() or not _install_modular_rig(bird, frame, false):
+		return false
+	bird.set_meta(&"species", species)
+	return true
 
 
 func _random_path(seed_key: StringName, spawn_tick: int) -> Dictionary:
@@ -465,6 +579,7 @@ func _random_path(seed_key: StringName, spawn_tick: int) -> Dictionary:
 		"sway_phase": _rng.randf_range(0.0, TAU),
 		"sway_amplitude": _rng.randf_range(SWAY_AMPLITUDE_MIN, SWAY_AMPLITUDE_MAX),
 		"sway_frequency": _rng.randf_range(SWAY_FREQUENCY_MIN, SWAY_FREQUENCY_MAX),
+		"flap_offset": _rng.randf_range(0.0, 4.0),
 	}
 
 
@@ -480,44 +595,31 @@ func _first_idle_bird() -> Node3D:
 	return null
 
 
+## Advance the leader's wingbeat clock and pose its wings. Skinned storybook
+## birds switch between their Fly and Glide clips, with Fly retimed to the
+## species' wingbeat frequency; catalogue birds pose the modular rig.
 func _advance_flap(bird: Node3D, delta: float) -> void:
-	var pause := maxf(float(bird.get_meta(&"flap_pause", 0.0)) - delta, 0.0)
+	var time := float(bird.get_meta(&"flap_time", 0.0)) + delta
+	bird.set_meta(&"flap_time", time)
+	var species: StringName = bird.get_meta(&"species", &"")
+	var profile := flap_profile(species)
+	var phase := flap_phase_at(time, profile)
+	var pose := wing_pose(phase, profile)
 	if bird.has_meta(&"flight_player"):
 		var player := bird.get_meta(&"flight_player") as AnimationPlayer
-		var clip := &"Glide" if pause > 0.0 else &"Fly"
+		var clip := &"Glide" if phase < 0.0 else &"Fly"
 		if player.current_animation != clip:
 			player.play(clip, 0.15)
-	if pause > 0.0:
-		bird.set_meta(&"flap_pause", pause)
-		_apply_wing_pose(bird, 2.0)
-		return
-	var phase := float(bird.get_meta(&"flap_phase", 2.0)) + delta / FLAP_INTERVAL_S
-	if phase >= 10.0:
-		phase = 2.0
-		bird.set_meta(
-			&"flap_pause", float(bird.get_meta(&"glide_skip", GLIDE_SKIP_DEFAULT)) * FLAP_INTERVAL_S
-		)
-	bird.set_meta(&"flap_phase", phase)
-	_apply_wing_pose(bird, phase)
-
-
-## Larger soaring birds (raptors, gulls) hold the glide longer between flap
-## bursts; small songbirds and swallows flap nearly continuously.
-func _glide_skip_for_species(species: StringName) -> int:
-	var group := BirdSpecies.group_for(species)
-	match group:
-		BirdSpecies.GROUP_RAPTOR:
-			return 6
-		BirdSpecies.GROUP_GULL, BirdSpecies.GROUP_WATERFOWL:
-			return 4
-		BirdSpecies.GROUP_OWL:
-			return 5
-		BirdSpecies.GROUP_SWALLOW:
-			return 1
-		BirdSpecies.GROUP_TERN:
-			return 2
-		_:
-			return GLIDE_SKIP_DEFAULT
+		player.speed_scale = 1.0
+		if clip == &"Fly" and player.has_animation(clip):
+			player.speed_scale = clampf(
+				player.get_animation(clip).length * float(profile["hz"]), 0.5, 3.0
+			)
+	else:
+		apply_wing_pose(bird, pose)
+	bird.set_meta(
+		&"flap_heave", float(pose["heave"]) * BirdSpecies.scale_m(species) * BODY_HEAVE
+	)
 
 
 func _hide_all_birds() -> void:
@@ -550,13 +652,16 @@ static func flock_offsets(seed_key: StringName, spawn_tick: int, budget: int) ->
 	return offsets
 
 
-## Push every visible leader's followers to its species MultiMesh in one
-## upload per species. Species without an active flock get an empty set, which
-## leaves their renderer drawing nothing.
+## Push every visible leader's followers to the flipbook renderer of their
+## current wingbeat pose, one upload per pose renderer. Poses and species with
+## no follower this frame get an empty set, which draws nothing.
 func _sync_flocks() -> void:
-	var per_species: Dictionary = {}
+	var per_species: Dictionary = {}  # species -> Array of {actor_id: Transform3D}, one per pose
 	for species: StringName in _flock_renderers:
-		per_species[species] = {}
+		var frames: Array = []
+		for _frame in (_flock_renderers[species] as Array).size():
+			frames.append({})
+		per_species[species] = frames
 	for bird_index in _birds.size():
 		var bird := _birds[bird_index]
 		if not bird.visible or not bird.has_meta(&"flock_offsets"):
@@ -564,79 +669,183 @@ func _sync_flocks() -> void:
 		var species: StringName = bird.get_meta(&"species", &"")
 		if not per_species.has(species):
 			continue
-		var transforms: Dictionary = per_species[species]
+		var frames: Array = per_species[species]
+		var profile := flap_profile(species)
+		var heave_scale := BirdSpecies.scale_m(species) * BODY_HEAVE
+		# Open the formation for big birds so neighbouring wings never cross
+		# mid-stroke (lateral gap ~85% of the wingspan, capped so a swan skein
+		# stays a compact formation).
+		var spread := clampf(wingspan_m(species) * 0.85 / (FLOCK_SPACING * 0.8), 1.0, 1.6)
+		# The leader's node carries its own heave; strip it for the formation.
 		var leader := bird.transform.orthonormalized()
+		leader.origin -= Vector3.UP * float(bird.get_meta(&"flap_heave", 0.0))
 		var traveled := float(bird.get_meta(&"traveled", 0.0))
+		var leader_time := float(bird.get_meta(&"flap_time", 0.0))
 		var offsets: Array = bird.get_meta(&"flock_offsets")
 		for rank in offsets.size():
 			var offset: Vector3 = offsets[rank]
-			# Per-follower phase keeps the formation breathing instead of
-			# sliding as one rigid block.
-			var phase := traveled * 0.55 + float(rank) * 1.7
-			var bob := Vector3(0.0, sin(phase) * FLOCK_BOB_AMPLITUDE, 0.0)
-			var roll := Basis(Vector3.FORWARD, sin(phase * 0.8) * 0.12)
-			transforms[bird_index * 64 + rank] = Transform3D(
-				leader.basis * roll, leader * offset + bob
+			# Each follower beats on its own clock: a fixed lag plus a few
+			# percent of tempo drift, so the skein ripples instead of beating
+			# in lockstep, and flap-gliders do not all stop at once.
+			var tempo := 1.0 + float((rank * 7) % 11 - 5) * 0.012
+			var phase := flap_phase_at(leader_time * tempo + float(rank) * 0.37, profile)
+			var frame := FLOCK_FLAP_FRAMES
+			if phase >= 0.0:
+				frame = floori(phase * FLOCK_FLAP_FRAMES) % FLOCK_FLAP_FRAMES
+			var heave := float(wing_pose(phase, profile)["heave"]) * heave_scale
+			var drift_phase := traveled * 0.55 + float(rank) * 1.7
+			var drift := Vector3(0.0, sin(drift_phase) * FLOCK_DRIFT_AMPLITUDE + heave, 0.0)
+			var roll := Basis(Vector3.FORWARD, sin(drift_phase * 0.8) * 0.08)
+			(frames[frame] as Dictionary)[bird_index * 64 + rank] = Transform3D(
+				leader.basis * roll, leader * (offset * spread) + drift
 			)
 	for species: StringName in per_species:
-		(_flock_renderers[species] as MapViewCrowdRenderer).replace_actor_transforms(
-			per_species[species]
-		)
+		var renderers: Array = _flock_renderers[species]
+		var frames: Array = per_species[species]
+		for frame in renderers.size():
+			(renderers[frame] as MapViewCrowdRenderer).replace_actor_transforms(frames[frame])
 
 
-func _ensure_flock_renderer(species: StringName) -> MapViewCrowdRenderer:
+## Flipbook renderers for `species`, built on its first flock and kept for
+## the map: FLOCK_FLAP_FRAMES wingbeat poses then the rest pose. Empty while a
+## skinned species is still warming; its leader then flies without followers.
+func _ensure_flock_renderer(species: StringName) -> Array:
 	if _flock_renderers.has(species):
 		return _flock_renderers[species]
-	var parts := _flock_parts_for(species)
-	if parts.is_empty():
-		return null
-	var renderer := CrowdRenderer.new()
-	renderer.name = "Flock_%s" % species
-	renderer.configure_parts(parts, MAX_FLOCK_FOLLOWERS, 0.0, FLOCK_VISIBILITY_RANGE, false)
-	add_child(renderer)
-	_flock_renderers[species] = renderer
-	return renderer
-
-
-## Followers reuse the leader's own geometry: the skinned storybook model
-## frozen on its Glide clip (legs tucked) where one exists, otherwise the
-## catalogue glide mesh. The clip only evaluates inside the tree; outside it
-## the bind pose (wings spread, legs down) is used.
-func _flock_parts_for(species: StringName) -> Array:
-	if BirdAssets.has_animated_model(species):
-		var model := BirdAssets.create_animated_model(species)
-		if model == null:
+	var key := _pose_cache_key(species)
+	if not _pose_cache.has(key):
+		if BirdAssets.has_animated_model(species):
+			if not species in _warm_queue:
+				_warm_queue.append(species)
 			return []
-		var posed := false
-		if is_inside_tree():
-			add_child(model)
-			var player := model.get_meta(&"flight_player") as AnimationPlayer
-			if player != null and player.has_animation(&"Glide"):
-				player.play(&"Glide")
-				player.seek(0.0, true)
-				posed = true
-		var parts := CrowdRenderer.mesh_parts_from_scene(model, posed)
-		if model.get_parent() != null:
-			remove_child(model)
-		model.free()
-		return parts
-	var mesh := BirdMeshes.mesh_for(species, BirdSpecies.POSE_GLIDING)
-	if mesh == null:
+		var catalogue_poses := _catalogue_pose_parts(species)
+		if catalogue_poses.is_empty():
+			return []
+		_pose_cache[key] = catalogue_poses
+	var poses: Array = _pose_cache[key]
+	var renderers: Array = []
+	for frame in poses.size():
+		var renderer := CrowdRenderer.new()
+		renderer.name = "Flock_%s_%d" % [species, frame]
+		renderer.configure_parts(
+			poses[frame], MAX_FLOCK_FOLLOWERS, 0.0, FLOCK_VISIBILITY_RANGE, false
+		)
+		add_child(renderer)
+		renderers.append(renderer)
+	_flock_renderers[species] = renderers
+	return renderers
+
+
+## Skinned storybook flipbooks are keyed by model (both gulls share one GLB);
+## catalogue flipbooks by species, since the pose depends on its wingbeat.
+static func _pose_cache_key(species: StringName) -> String:
+	if BirdAssets.has_animated_model(species):
+		return BirdAssets.ANIMATED_MODELS[species]
+	return String(species)
+
+
+## Queue the map's gregarious skinned species for background baking.
+func _queue_flock_warmup() -> void:
+	if _warm_model != null:
+		remove_child(_warm_model)
+		_warm_model.free()
+		_warm_model = null
+	_warm_poses = []
+	_warm_species = &""
+	_warm_queue.clear()
+	for species in BirdSpecies.ALL_SPECIES:
+		if (
+			is_flocking_species(species)
+			and BirdAssets.has_animated_model(species)
+			and BirdSpecies.spawn_weight(species, _context) > 0.0
+			and not _pose_cache.has(_pose_cache_key(species))
+		):
+			_warm_queue.append(species)
+
+
+## Bake at most one skinned pose per frame. CPU skinning a storybook bird costs
+## ~15 ms per pose on an M5 Pro, so a whole flipbook in one frame would stall
+## the game for ~130 ms the first time a gull or duck flock appears.
+func _warm_flock_poses_step() -> void:
+	while _warm_model == null and not _warm_queue.is_empty():
+		var species: StringName = _warm_queue.pop_front()
+		if _pose_cache.has(_pose_cache_key(species)):
+			continue
+		_warm_model = BirdAssets.create_animated_model(species)
+		if _warm_model == null:
+			continue
+		_warm_species = species
+		_warm_model.visible = false
+		add_child(_warm_model)
+		_warm_poses = []
+	if _warm_model == null:
+		return
+	_warm_poses.append(_storybook_pose_parts(_warm_model, _warm_poses.size()))
+	if _warm_poses.size() > FLOCK_FLAP_FRAMES:
+		_pose_cache[_pose_cache_key(_warm_species)] = _warm_poses
+		remove_child(_warm_model)
+		_warm_model.free()
+		_warm_model = null
+		_warm_poses = []
+		_warm_species = &""
+
+
+## One skinned pose: frames sample the Fly clip, the last frame is Glide.
+static func _storybook_pose_parts(model: Node3D, frame: int) -> Array:
+	var player := model.get_meta(&"flight_player") as AnimationPlayer
+	var clip := &"Fly" if frame < FLOCK_FLAP_FRAMES else &"Glide"
+	var posed := player != null and player.has_animation(clip) and model.is_inside_tree()
+	if posed:
+		player.play(clip)
+		var at := 0.0
+		if frame < FLOCK_FLAP_FRAMES:
+			at = (float(frame) + 0.5) / FLOCK_FLAP_FRAMES * player.get_animation(clip).length
+		player.seek(at, true)
+	return CrowdRenderer.mesh_parts_from_scene(model, posed)
+
+
+## Catalogue flipbook: the leader's modular rig posed by `wing_pose`. Cheap
+## (~15 ms for all poses of a species, once per session), so it is built
+## synchronously on the first flock.
+func _catalogue_pose_parts(species: StringName) -> Array:
+	var rig_frame := BirdMeshes.modular_rig_for(species)
+	if rig_frame.is_empty():
 		return []
-	var holder := MeshInstance3D.new()
-	holder.mesh = mesh
-	if mesh.get_surface_count() > 0 and mesh.surface_get_material(0) != null:
-		_apply_authored_mesh_material(holder)
-	else:
-		_apply_mesh_material(holder)
-	var part := {
-		"mesh": CrowdRenderer.mesh_with_active_materials(holder),
-		"transform": Transform3D.IDENTITY,
-	}
-	if holder.material_override != null:
-		part["material"] = holder.material_override
-	holder.free()
-	return [part]
+	var poses: Array = []
+	var profile := flap_profile(species)
+	var rig := Node3D.new()
+	_install_modular_rig(rig, rig_frame, false)
+	for frame in FLOCK_FLAP_FRAMES + 1:
+		var phase := -1.0
+		if frame < FLOCK_FLAP_FRAMES:
+			phase = (float(frame) + 0.5) / FLOCK_FLAP_FRAMES
+		apply_wing_pose(rig, wing_pose(phase, profile))
+		poses.append([{"mesh": _merged_rig_mesh(rig), "transform": Transform3D.IDENTITY}])
+	rig.free()
+	return poses
+
+
+## Bake the posed modular rig into one mesh so each follower pose is a single
+## MultiMesh draw. Every catalogue part shares the plumage material.
+static func _merged_rig_mesh(rig: Node3D) -> ArrayMesh:
+	var surface := SurfaceTool.new()
+	var material: Material = null
+	for node: Node in rig.find_children("*", "MeshInstance3D", true, false):
+		var part := node as MeshInstance3D
+		if part.mesh == null or part.mesh.get_surface_count() == 0:
+			continue
+		var xform := part.transform
+		var parent := part.get_parent()
+		while parent != null and parent != rig:
+			xform = (parent as Node3D).transform * xform
+			parent = parent.get_parent()
+		surface.append_from(part.mesh, 0, xform)
+		if material == null:
+			material = part.mesh.surface_get_material(0)
+	var mesh := surface.commit()
+	if material != null and mesh.get_surface_count() > 0:
+		mesh.surface_set_material(0, material)
+	return mesh
 
 
 static func _apply_detail_range(geometry: GeometryInstance3D) -> void:
