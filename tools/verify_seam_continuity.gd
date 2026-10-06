@@ -146,7 +146,7 @@ static func evaluate_seam(
 			% [worst_frontage, frontage_at, frontage_tol]
 		))
 	violations.append_array(_compare_streets(seam_id, rows_a, rows_b, lo, hi, tolerances))
-	violations.append_array(_compare_runs(seam_id, "wall", CODE_WALL, rows_a, rows_b, lo, hi))
+	violations.append_array(_compare_walls(seam_id, rows_a, rows_b, lo, hi))
 	violations.append_array(_compare_runs(seam_id, "ditch", CODE_DITCH, rows_a, rows_b, lo, hi))
 	return violations
 
@@ -170,7 +170,8 @@ static func edge_samples(
 			"height": definition.height_at(cell),
 			"terrain": terrain,
 			"road": road_terrains.has(terrain),
-			"wall": _wall_touches(definition, cell),
+			"wall": _wall_touches(definition, cell, false),
+			"wall_end": _wall_touches(definition, cell, true, horizontal),
 			"ditch": _ditch_touches(definition, cell),
 			"frontage": _frontage_depth(definition, size, side, i, band),
 		}
@@ -189,13 +190,26 @@ static func _edge_cell(size: Vector2i, side: StringName, i: int) -> Vector2i:
 	return Vector2i(size.x - 1, i)
 
 
-static func _wall_touches(definition: MapDefinition, cell: Vector2i) -> bool:
+## `ends_only` keeps just walls that run INTO the edge (longer across the seam than along
+## it). A wall lying along its own map's boundary row (a garden wall, the city wall above a
+## harbour) is that map's border, not a wall that stops at the seam, so it must not be
+## reported as broken when the neighbour has no wall on the shared line.
+static func _wall_touches(
+	definition: MapDefinition, cell: Vector2i, ends_only: bool, horizontal_edge: bool = true
+) -> bool:
 	var pixel := float(definition.cell_size)
 	var rect := Rect2(Vector2(cell) * pixel, Vector2(pixel, pixel))
 	for building in definition.buildings:
 		if StringName(building.get("kind", &"")) != MapTypes.BUILDING_KIND_WALL:
 			continue
-		if rect.intersects(building["footprint"]):
+		var footprint: Rect2 = building["footprint"]
+		if not rect.intersects(footprint):
+			continue
+		if not ends_only:
+			return true
+		var along := footprint.size.x if horizontal_edge else footprint.size.y
+		var across := footprint.size.y if horizontal_edge else footprint.size.x
+		if across > along:
 			return true
 	return false
 
@@ -260,6 +274,17 @@ static func _runs(rows: Dictionary, key: String, lo: int, hi: int) -> Array[Dict
 	return runs
 
 
+## Road-surface runs narrow enough to be a street. A run wider than `max_width` is open
+## ground (the map's `dirt` base fill, a paved yard or a forecourt) that merely touches the
+## edge; treating it as a street produced 100-cell "streets" and false orphans/width jumps.
+static func _street_runs(rows: Dictionary, lo: int, hi: int, max_width: int) -> Array[Dictionary]:
+	var streets: Array[Dictionary] = []
+	for run in _runs(rows, "road", lo, hi):
+		if int(run["end"]) - int(run["start"]) + 1 <= max_width:
+			streets.append(run)
+	return streets
+
+
 static func _overlap(x: Dictionary, y: Dictionary) -> int:
 	return mini(int(x["end"]), int(y["end"])) - maxi(int(x["start"]), int(y["start"])) + 1
 
@@ -292,7 +317,10 @@ static func _compare_streets(
 	var width_tol := int(tolerances.get("street_width_delta_cells", 2))
 	var offset_tol := float(tolerances.get("street_offset_cells", 2.0))
 	var min_width := int(tolerances.get("street_min_width_cells", 2))
-	var matched := _match_runs(_runs(rows_a, "road", lo, hi), _runs(rows_b, "road", lo, hi))
+	var max_width := int(tolerances.get("street_max_width_cells", 16))
+	var matched := _match_runs(
+		_street_runs(rows_a, lo, hi, max_width), _street_runs(rows_b, lo, hi, max_width)
+	)
 	var violations: Array[Dictionary] = []
 	for orphan in matched["orphans"]:
 		var width := int(orphan["end"]) - int(orphan["start"]) + 1
@@ -322,8 +350,31 @@ static func _compare_streets(
 		if run_a["terrain"] != run_b["terrain"]:
 			violations.append(_violation(
 				seam_id, CODE_STREET_SURFACE,
-				"street surface %s vs %s at along-cell %d" % [run_a["terrain"], run_b["terrain"], run_a["start"]]
+				"street surface %s vs %s at along-cell %d"
+				% [run_a["terrain"], run_b["terrain"], run_a["start"]]
 			))
+	return violations
+
+
+## A wall that ends at the seam must meet a wall (end-on or along the neighbour's edge).
+static func _compare_walls(
+	seam_id: String, rows_a: Dictionary, rows_b: Dictionary, lo: int, hi: int
+) -> Array[Dictionary]:
+	var violations: Array[Dictionary] = []
+	for sides in [[rows_a, rows_b], [rows_b, rows_a]]:
+		var other_runs := _runs(sides[1], "wall", lo, hi)
+		for run in _runs(sides[0], "wall_end", lo, hi):
+			var met := false
+			for other in other_runs:
+				if _overlap(run, other) > 0:
+					met = true
+					break
+			if not met:
+				violations.append(_violation(
+					seam_id, CODE_WALL,
+					"wall run at along-cells %d..%d does not continue across the seam"
+					% [run["start"], run["end"]]
+				))
 	return violations
 
 

@@ -12,6 +12,7 @@ const BUDGET := {
 		"frontage_band_cells": 8,
 		"frontage_step_cells": 3.0,
 		"street_min_width_cells": 2,
+		"street_max_width_cells": 16,
 		"street_width_delta_cells": 2,
 		"street_offset_cells": 2.0,
 	},
@@ -52,11 +53,33 @@ func test_street_axis_offset_is_reported() -> void:
 
 func test_broken_wall_run_is_reported() -> void:
 	var walled := _map()
-	walled.buildings = [_wall(Rect2i(18, 2, 2, 4))]
+	# Runs into the east edge (4 cells across the seam, 2 along it).
+	walled.buildings = [_wall(Rect2i(16, 2, 4, 2))]
 	assert_array_contains(_codes(walled, _map()), Verifier.CODE_WALL)
 	var continued := _map()
-	continued.buildings = [_wall(Rect2i(0, 2, 2, 4))]
+	continued.buildings = [_wall(Rect2i(0, 2, 4, 2))]
 	assert_false(Verifier.CODE_WALL in _codes(walled, continued))
+	# A T-junction against a wall lying along the neighbour's edge also continues.
+	var along_edge := _map()
+	along_edge.buildings = [_wall(Rect2i(0, 0, 1, 20))]
+	assert_false(Verifier.CODE_WALL in _codes(walled, along_edge))
+
+
+func test_boundary_wall_along_own_edge_is_not_a_broken_seam() -> void:
+	var boundary := _map()
+	boundary.buildings = [_wall(Rect2i(19, 2, 1, 12))]
+	assert_false(Verifier.CODE_WALL in _codes(boundary, _map()))
+
+
+func test_wide_road_surface_is_open_ground_not_a_street() -> void:
+	# A 20-cell run of the road terrain is base fill / a yard: it is not a 20-wide street
+	# that orphans against bare ground or jumps in width against a normal street.
+	var yard := _map()
+	yard.zones = [_road(Rect2i(0, 0, 20, 20))]
+	var bare := _map()
+	bare.zones = []
+	assert_eq(_codes(yard, bare), [])
+	assert_false(Verifier.CODE_STREET_WIDTH in _codes(yard, _map()))
 
 
 func test_frontage_step_is_reported() -> void:
