@@ -127,5 +127,11 @@ recalibration is follow-up work outside this character change.
 
 ![Kalev: neutral, blink, talk, smile, frown](images/realistic_humans/kalev_expressions.png)
 
-Still open: finger bones (the shared rig has none, so hands stay a loose fist) and
-cloth simulation.
+- **Hands.** Realistic bodies add 30 finger bones (three per finger, MakeHuman's own
+  finger weights) to the shared rig; the 76 inherited clips never key them, so the rest
+  pose stays the weapon grip. Bones are rolled so local +X is the curl axis.
+  `realistic_rig.gd` opens the hand to a relaxed pose when nothing is held and blends
+  back to the grip when a prop is equipped (`test_fingers_relax_empty_handed_and_grip_a_weapon`).
+
+Still open: cloth simulation, and authored finger poses per action (pointing,
+counting) beyond relaxed/grip.

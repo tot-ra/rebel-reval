@@ -71,6 +71,9 @@ def dominant_bone(obj, vertex):
 BONE_NAMES = {"hips", "spine", "chest", "head"} | {
     f"{b}.{s}" for s in ("l", "r") for b in
     ("upperarm", "lowerarm", "wrist", "hand", "upperleg", "lowerleg", "foot", "toes")}
+# Finger weights fold into the hand for garments (no gloves are generated yet).
+FINGER_BONES = {f"{f}_0{i}.{s}" for s in ("l", "r") for f in ("thumb", "index", "middle", "ring", "pinky")
+                for i in (1, 2, 3)}
 
 
 NIPPLE_GROUPS = ("nipple", "nippleTip")

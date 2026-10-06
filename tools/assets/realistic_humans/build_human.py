@@ -51,6 +51,13 @@ OUT_ROOT = ROOT / "assets/characters/realistic"
 WORK = ROOT / "build/realistic_humans"
 MPFB = "bl_ext.user_default.mpfb"
 
+# Finger bones (added to the shared rig; the inherited clips never key them,
+# so they hold the rest grip unless the runtime poses them). Rest curl in
+# degrees per joint mirrors realistic_rig.gd FINGER_REST_CURL.
+FINGERS = ("thumb", "index", "middle", "ring", "pinky")
+FINGER_CURL = {"index": (48, 62, 38), "middle": (52, 66, 40), "ring": (56, 68, 42),
+               "pinky": (60, 70, 44), "thumb": (22, 28, 24)}
+
 # MPFB game_engine bone -> {shared bone: share}. Fingers fold into the hand:
 # the shared rig has no finger bones, so the hand is baked as a loose fist.
 WEIGHT_MAP = {
@@ -69,9 +76,9 @@ for _s in ("l", "r"):
         f"foot_{_s}": {f"foot.{_s}": 1.0},
         f"ball_{_s}": {f"toes.{_s}": 1.0},
     })
-    for _f in ("thumb", "index", "middle", "ring", "pinky"):
+    for _f in FINGERS:
         for _i in (1, 2, 3):
-            WEIGHT_MAP[f"{_f}_0{_i}_{_s}"] = {f"hand.{_s}": 1.0}
+            WEIGHT_MAP[f"{_f}_0{_i}_{_s}"] = {f"{_f}_0{_i}.{_s}": 1.0}
 
 # Mesh names are a stable API: CharacterWearable.covered_meshes hides them.
 REGIONS = ("Anatomy_Head", "Anatomy_Torso", "Anatomy_Arms", "Anatomy_Forearms", "Anatomy_Hands",
@@ -294,13 +301,12 @@ def pose_to_motion_rest(rig, motion_rest):
         hand = pbs[f"hand_{s}"].head
         # Loose fist around a front-to-back grip (the shared handslot barrel).
         curl_axis = Vector((0, 1, 0)) if s == "l" else Vector((0, -1, 0))
-        for finger, curls in (("index", (48, 62, 38)), ("middle", (52, 66, 40)),
-                              ("ring", (56, 68, 42)), ("pinky", (60, 70, 44))):
-            for i, degrees in enumerate(curls, start=1):
+        for finger in ("index", "middle", "ring", "pinky"):
+            for i, degrees in enumerate(FINGER_CURL[finger], start=1):
                 bone = f"{finger}_0{i}_{s}"
                 _rotate_pose_bone(rig, bone, pbs[bone].head.copy(),
                                   Matrix.Rotation(math.radians(degrees), 4, curl_axis))
-        for i, degrees in enumerate((22, 28, 24), start=1):
+        for i, degrees in enumerate(FINGER_CURL["thumb"], start=1):
             bone = f"thumb_0{i}_{s}"
             thumb_axis = _bone_dir(rig, f"hand_{s}")
             _rotate_pose_bone(rig, bone, pbs[bone].head.copy(),
@@ -365,6 +371,11 @@ def joint_targets(mpfb_rig):
         knuckle = p[f"middle_01_{s}"][0]
         # Grip barrel centre: under the palm, level with the curled middle finger.
         t[f"handslot.{s}"] = t[f"wrist.{s}"].lerp(knuckle, 0.78) + Vector((0, 0, -0.035))
+        for finger in FINGERS:
+            for i in (1, 2, 3):
+                head, tail = p[f"{finger}_0{i}_{s}"]
+                t[f"fh:{finger}_0{i}.{s}"] = head
+                t[f"ft:{finger}_0{i}.{s}"] = tail
         t[f"upperleg.{s}"] = p[f"thigh_{s}"][0]
         t[f"lowerleg.{s}"] = p[f"calf_{s}"][0]
         t[f"foot.{s}"] = p[f"foot_{s}"][0]
@@ -410,7 +421,38 @@ def fit_motion_rig(rig, targets, scale):
         bone.head = head
         bone.tail = head + direction * length
         bone.align_roll(roll_matrix.to_3x3() @ Vector((0, 0, 1)))
+    add_finger_bones(rig, targets)
     bpy.ops.object.mode_set(mode="OBJECT")
+
+
+def add_finger_bones(rig, targets):
+    """Fifteen bones per hand on the MPFB finger joints (edit mode).
+
+    Each bone is rolled so its local +X is the curl axis: rotating about local
+    X curls the finger toward the palm (positive) or opens it (negative)."""
+    bones = rig.data.edit_bones
+    for s in ("l", "r"):
+        hand_axis = (bones[f"hand.{s}"].tail - bones[f"hand.{s}"].head).normalized()
+        for finger in FINGERS:
+            parent = bones[f"hand.{s}"]
+            for i in (1, 2, 3):
+                name = f"{finger}_0{i}.{s}"
+                bone = bones.get(name) or bones.new(name)
+                bone.head = targets[f"fh:{name}"]
+                bone.tail = targets[f"ft:{name}"]
+                if (bone.tail - bone.head).length < 0.004:
+                    bone.tail = bone.head + hand_axis * 0.012
+                bone.parent = parent
+                bone.use_connect = False
+                bone.use_deform = True
+                direction = (bone.tail - bone.head).normalized()
+                if finger == "thumb":
+                    axis = hand_axis if s == "l" else -hand_axis
+                else:
+                    axis = Vector((0, 1, 0)) if s == "l" else Vector((0, -1, 0))
+                axis = (axis - direction * axis.dot(direction)).normalized()
+                bone.align_roll(axis.cross(direction))  # local Z = X x Y with X = curl axis
+                parent = bone
 
 
 def rename_weights(obj):
@@ -472,7 +514,7 @@ def dominant_region(weights, co, collar):
         return "Anatomy_Head"
     if bone in ("hips", "spine", "chest"):
         return "Anatomy_Torso"
-    if bone.startswith(("hand", "wrist")):
+    if bone.startswith(("hand", "wrist") + FINGERS):
         return "Anatomy_Hands"
     if bone.startswith("upperarm"):
         return "Anatomy_Arms"

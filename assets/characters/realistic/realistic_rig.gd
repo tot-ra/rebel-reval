@@ -12,6 +12,12 @@ const RUN_STANCE_SEC := 0.27 * 16.0 / 24.0
 const FACE_SHAPES: Array[StringName] = [
 	&"blink", &"jaw_open", &"smile", &"brow_up", &"frown", &"pucker"
 ]
+## Finger bones (tools/assets/realistic_humans build_human.add_finger_bones):
+## the rest pose is the weapon grip; local +X curls, -X opens.
+const FINGERS: Array[String] = ["thumb", "index", "middle", "ring", "pinky"]
+const FINGER_RELAXED_OPEN := deg_to_rad(-40.0)
+const THUMB_RELAXED_OPEN := deg_to_rad(-15.0)
+const FINGER_BLEND_PER_SECOND := 6.0
 const BLINK_SECONDS := 0.14
 const TALK_SECONDS_PER_CHAR := 0.055
 
@@ -25,6 +31,8 @@ var _blink_left := 0.0
 var _talk_left := 0.0
 var _talk_phase := 0.0
 var _rng := RandomNumberGenerator.new()
+var _finger_bones: Dictionary = {}  # side -> Array of [bone index, is_thumb, rest rotation]
+var _finger_open: Dictionary = {"l": 0.0, "r": 0.0}  # 0 = grip (rest), 1 = relaxed open
 
 
 func _ready() -> void:
@@ -35,10 +43,11 @@ func _ready() -> void:
 	# Default outfit can add skinned meshes after the shared _ready walk.
 	enable_authored_vertex_color_albedo($Model)
 	_collect_face_targets()
+	_collect_finger_bones()
 	add_to_group(&"dialogue_speakers")
 	_rng.seed = hash(String(name))
 	_blink_wait = _rng.randf_range(1.0, 4.0)
-	set_process(not _face_targets.is_empty())
+	set_process(not _face_targets.is_empty() or not _finger_bones.is_empty())
 
 
 ## Hold a facial expression (smile, frown, brow_up, pucker) at weight 0..1.
@@ -83,7 +92,49 @@ func _collect_face_targets() -> void:
 				_face_targets[shape].append([mesh_instance, index])
 
 
+## 0 = closed around a held prop (rest), 1 = relaxed open hand.
+func finger_openness(side: String) -> float:
+	return float(_finger_open.get(side, 0.0))
+
+
+func _collect_finger_bones() -> void:
+	_finger_bones.clear()
+	var skeleton_node := skeleton()
+	if skeleton_node == null:
+		return
+	for side: String in ["l", "r"]:
+		var bones: Array = []
+		for finger: String in FINGERS:
+			for joint: int in [1, 2, 3]:
+				var index := skeleton_node.find_bone("%s_0%d.%s" % [finger, joint, side])
+				if index >= 0:
+					var rest := skeleton_node.get_bone_rest(index).basis.get_rotation_quaternion()
+					bones.append([index, finger == "thumb", rest])
+		if not bones.is_empty():
+			_finger_bones[side] = bones
+		_finger_open[side] = 1.0 if equipped(_hand_slot(side)) == null else 0.0
+
+
+static func _hand_slot(side: String) -> StringName:
+	return &"left_hand" if side == "l" else &"right_hand"
+
+
+func _pose_fingers(delta: float) -> void:
+	var skeleton_node := skeleton()
+	for side: String in _finger_bones:
+		var target := 1.0 if equipped(_hand_slot(side)) == null else 0.0
+		_finger_open[side] = move_toward(_finger_open[side], target, delta * FINGER_BLEND_PER_SECOND)
+		for bone: Array in _finger_bones[side]:
+			var open := THUMB_RELAXED_OPEN if bone[1] else FINGER_RELAXED_OPEN
+			var curl := Quaternion(Vector3.RIGHT, open * float(_finger_open[side]))
+			skeleton_node.set_bone_pose_rotation(bone[0], (bone[2] as Quaternion) * curl)
+
+
 func _process(delta: float) -> void:
+	if not _finger_bones.is_empty():
+		_pose_fingers(delta)
+	if _face_targets.is_empty():
+		return
 	_blink_wait -= delta
 	if _blink_wait <= 0.0:
 		_blink_left = BLINK_SECONDS

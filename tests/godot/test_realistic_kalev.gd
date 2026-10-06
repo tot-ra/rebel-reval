@@ -48,7 +48,8 @@ func after_each() -> void:
 
 func test_body_keeps_shared_rig_and_every_clip() -> void:
 	assert_eq(rig.validation_errors(), [])
-	assert_eq(rig.skeleton().get_bone_count(), 41)
+	# 41 shared bones + 30 finger bones (ADR 0022 follow-up).
+	assert_eq(rig.skeleton().get_bone_count(), 71)
 	assert_true(rig.skeleton().find_bone("handslot.r") >= 0)
 	assert_eq(rig.animation_player().get_animation_list().size(), 76)
 	for motion: StringName in [&"idle", &"walk", &"run", &"hammer_attack", &"guard"]:
@@ -142,3 +143,29 @@ func test_face_blinks_and_talks_through_blend_shapes() -> void:
 	assert_true(opened, "the jaw moves while talking")
 	realistic.call("on_dialogue_speaker", &"char.mart", 40)
 	assert_false(bool(realistic.call("is_talking")), "another speaker's line silences Kalev")
+
+
+func test_fingers_relax_empty_handed_and_grip_a_weapon() -> void:
+	var skeleton := rig.skeleton()
+	var realistic := rig as Node
+	var index_tip := skeleton.find_bone("index_03.r")
+	var palm := skeleton.find_bone("hand.r")
+	assert_true(index_tip >= 0, "right index finger bone")
+	for _frame: int in 30:
+		realistic.call("_process", 1.0 / 30.0)
+	assert_almost_eq(float(realistic.call("finger_openness", "r")), 1.0, 0.01)
+	skeleton.force_update_all_bone_transforms()
+	var open_gap := skeleton.get_bone_global_pose(index_tip).origin.distance_to(
+		skeleton.get_bone_global_pose(palm).origin)
+	var hammer := load("res://assets/characters/kalev_fresh/hammer/hammer.glb") as PackedScene
+	rig.equip(&"right_hand", hammer)
+	for _frame: int in 30:
+		realistic.call("_process", 1.0 / 30.0)
+	assert_almost_eq(float(realistic.call("finger_openness", "r")), 0.0, 0.01)
+	skeleton.force_update_all_bone_transforms()
+	var grip_gap := skeleton.get_bone_global_pose(index_tip).origin.distance_to(
+		skeleton.get_bone_global_pose(palm).origin)
+	assert_true(
+		grip_gap < open_gap - 0.01,
+		"fingers close around a held weapon (%.3f vs %.3f)" % [grip_gap, open_gap]
+	)
