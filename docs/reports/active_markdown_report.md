@@ -14,11 +14,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `190`
-- Markdown files excluded as archive/reference/out of active scope: `732`
-- Local/external links inspected: `880`
-- Links to active Markdown docs: `482`
-- Links to existing archive/reference/non-active local docs: `181`
+- Active Markdown files scanned: `192`
+- Markdown files excluded as archive/reference/out of active scope: `733`
+- Local/external links inspected: `912`
+- Links to active Markdown docs: `508`
+- Links to existing archive/reference/non-active local docs: `187`
 - External links skipped for reachability: `46`
 - Issues found: `0`
 
@@ -64,6 +64,8 @@ No active Markdown documentation issues found.
 - `docs/adr/0023-terrain-relief-as-gameplay.md`
 - `docs/adr/0025-architectural-asset-pipeline.md`
 - `docs/adr/0026-streets-as-authored-network.md`
+- `docs/adr/0027-reval-hinterland-streaming-group.md`
+- `docs/adr/0028-seamless-building-interiors.md`
 - `docs/AGENT_LOOPS.md`
 - `docs/ARCHITECTURE.md`
 - `docs/ART_BIBLE.md`

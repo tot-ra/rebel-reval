@@ -152,7 +152,7 @@ breach is recorded in the ADR rather than excused.
 | UF-11 | **R-1120** | R-1118, R-1115, R-1123 | Landmarks | St Olaf's and the Great Guild 1343 exteriors. Town Hall and Holy Spirit moved to LM |
 | UF-12 | **R-1122** | R-1116, R-1118, R-1123, R-1128 | Landmarks | The Dome Church, plus relief bedding for the whole Toompea compound. Castle moved to LM-04 |
 | ~~UF-13~~ | ~~**R-1125**~~ | - | Landmarks | **Cancelled** - St Catherine's is LM-02 and St Michael's is LM-05 |
-| UF-14 | **R-1129** | R-980 | Seamless | ADR 0027: a second streaming group for the Reval hinterland. **Scope approved 2026-09-30**; the ADR still has to be written |
+| UF-14 | **R-1129** | R-980 | Seamless | ADR 0027: a second streaming group for the Reval hinterland. **Scope approved 2026-09-30**; [ADR 0027](../../adr/0027-reval-hinterland-streaming-group.md) written 2026-10-07. In-place building interiors are [ADR 0028](../../adr/0028-seamless-building-interiors.md) |
 | UF-15 | **R-1133** | R-1129, R-980, R-1117, R-976 | Seamless | Hinterland connective maps and the second world layout |
 | UF-16 | **R-1136** | R-1114, R-1115 | Quality | District master plans and a street-legibility visual gate |
 

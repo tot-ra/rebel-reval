@@ -2,6 +2,8 @@
 
 Board row: **R-1129**. Priority: high. Depends on: **R-980**.
 
+**ADR written 2026-10-07:** [`docs/adr/0027-reval-hinterland-streaming-group.md`](../../adr/0027-reval-hinterland-streaming-group.md), Accepted, Artjom Kurapov, 2026-09-30 (target restated by the maintainer on 2026-10-07). The census amendment is in the streaming plan. This row stays open until R-980 proves the first group, the Producer authorizes the WB-11 contract amendment, and the WB-11 owner is notified.
+
 ## Player-facing goal
 
 Decide whether a player can walk out of Reval through a gate and continue into the surrounding countryside without a location-loading wait. The recommendation is a second, bounded `reval_hinterland` group connected to `reval_outdoor` at explicit gate seams, not a seamless Estonia campaign world.

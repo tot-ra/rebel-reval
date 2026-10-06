@@ -15,8 +15,13 @@ explicit travel beat for interiors and for every `world.*` destination.
 
 ## Membership census
 
-Every file in `content/maps/` (29 maps) has exactly one kind. Count check: 10 streamed +
-9 interiors + 10 travel = 29.
+Every file in `content/maps/` (29 maps) has exactly one kind. Target census after
+[ADR 0027](adr/0027-reval-hinterland-streaming-group.md) and
+[ADR 0028](adr/0028-seamless-building-interiors.md): 10 `reval_outdoor` + 2 `reval_hinterland`
++ 9 interiors + 8 travel = 29. Five planned hinterland connectors bring the total to 34 once
+authored. Runtime membership (`REVAL_OUTDOOR_MEMBERS`, the checked-in layout manifest) still
+matches the ADR 0019 census until UF-15 (R-1133) authors the hinterland seams; all streaming
+flags stay off.
 
 ### Streamed: `world_group_id = reval_outdoor`
 
@@ -38,21 +43,44 @@ seams before they can stream.
 | `reval_harbor_north` | `reval_harbor_north.rrmap` | false | Coastal Gate landing |
 | `reval_harbor_east` | `reval_harbor_east.rrmap` | false | Kalamaja shore, adjacent landing |
 
-Pirita and other physically contiguous outskirts stay out of this first group, as
-ADR 0019 phase 7 already said.
+Pirita and other physically contiguous outskirts are not in this group. They form the
+second group below.
 
-### Interiors: explicit door transitions
+### Streamed: `world_group_id = reval_hinterland` (ADR 0027)
 
-ADR 0019 already kept interiors on explicit transitions. This plan keeps that rule
-even for the doors the player uses most often (the forge, town hall, churches, and
-tower interiors).
+Physically contiguous outskirts, joined to `reval_outdoor` only through allowlisted gate
+bridges. The two existing maps stay on their travel exits until UF-15 authors their physical
+seams; their map IDs do not change.
 
-Reason: an interior is not a contiguous outdoor cell. Crossing one changes camera
-mode, rain shelter, interior-shell lighting, and navigation volume. Putting those
-packages into `reval_outdoor` would force WorldHost to own enclosed scenes before
-any outdoor seam works. The frequent forge door stays a door.
+| Map id | Source | Catalog `active` | Why it streams |
+|---|---|---|---|
+| `world.harju` | `world_harju.rrmap` | false | Nearby Harju village, reached by the Harju gate approach road |
+| `world.sojamae` | `world_sojamae.rrmap` | false | Sõjamäe, reached from the Viru road junction |
 
-| Map id | Source | Why it stays explicit |
+Planned connectors (no source file yet, so they are outside the 29-map count):
+
+| Planned map | Joins |
+|---|---|
+| planned: `kalamaja_hinterland` | `reval_harbor_east` landward edge |
+| planned: `viru_approach_road` | `viru_gate_foreland` east edge to `pirita_road` and `sojamae_approach_road` |
+| planned: `pirita_road` | Pirita valley |
+| planned: `sojamae_approach_road` | Viru road junction to `world.sojamae` |
+| planned: `harju_approach_road` | a Harju Gate on `south_quarter` (not yet authored) to `world.harju` |
+
+### Interiors: in-place target (ADR 0028), door transition until migrated
+
+[ADR 0028](adr/0028-seamless-building-interiors.md) makes walking into buildings
+seamless: each interior becomes a building sub-package mounted inside its exterior
+footprint, owned by the outdoor location, not a group member and not a seam. Until a
+building passes its own migration (size reconciled, gates passed,
+`world_host/inplace_interiors_enabled` on), it keeps today's door scene swap. No
+interior code may merge before the maintainer names the ADR 0028 scope removal.
+
+Every interior is currently 2.8-5.3 times larger in area than its exterior building,
+so each migration starts by shrinking the interior or growing the exterior. Migration
+order: `kalev_smithy` first, then `town_hall`.
+
+| Map id | Source | Current behaviour and migration note |
 |---|---|---|
 | `kalev_smithy` | `kalev_smithy.rrmap` | Enclosed forge. Most-used door on the playable route |
 | `town_hall` | `town_hall.rrmap` | Civic interior |
@@ -66,8 +94,9 @@ any outdoor seam works. The frequent forge door stays a door.
 
 ### Travel: `alignment=travel`, never in the physical layout
 
-Every `world.*` map stays a travel destination. A validator in R-980 must reject a
-travel transition that is authored as a physical seam.
+Distant regions keep an explicit journey with a loading transition (maintainer,
+2026-10-07). Membership, not the `world.` prefix, decides eligibility. A validator in
+R-980 must reject a travel transition that is authored as a physical seam.
 
 | Map id | Source |
 |---|---|
@@ -77,8 +106,6 @@ travel transition that is authored as a physical seam.
 | `world.parnu` | `world_parnu.rrmap` |
 | `world.poide` | `world_poide.rrmap` |
 | `world.kanavere` | `world_kanavere.rrmap` |
-| `world.sojamae` | `world_sojamae.rrmap` |
-| `world.harju` | `world_harju.rrmap` |
 | `world.sacred_grove` | `world_sacred_grove.rrmap` |
 | `world.rebel_kings` | `world_rebel_kings.rrmap` |
 

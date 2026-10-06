@@ -9,6 +9,8 @@
 
 **Accepted** (2026-09-27, Artjom Kurapov). This ADR remains the target architecture for contiguous outdoor Reval locations. It still does not enable runtime behavior by itself. Implementation must stay behind disabled feature flags until the [R-980 release criteria](../SEAMLESS_STREAMING_PLAN.md#r-980-release-criteria) pass. Those criteria restate the [acceptance gates](#acceptance-gates) below. Interiors, long-distance travel locations, scripted battles, and teleports retain explicit transitions.
 
+**Amendments.** [ADR 0027](0027-reval-hinterland-streaming-group.md) (accepted 2026-09-30) adds a second group, `reval_hinterland`, and moves `world.harju` and `world.sojamae` out of travel once their physical seams exist. [ADR 0028](0028-seamless-building-interiors.md) (direction accepted 2026-10-07, scope removal pending) replaces the interior door rule below with in-place interiors, building by building, behind its own flag.
+
 Phase owners, the `reval_outdoor` membership list, and the travel boundary are recorded in [`docs/SEAMLESS_STREAMING_PLAN.md`](../SEAMLESS_STREAMING_PLAN.md) (WB-05 / R-977). The 2026-07-17 Lower Town startup figures in [Current state](#current-state) are superseded by [`docs/reports/seamless_startup_baseline_2026-09-26.md`](../reports/seamless_startup_baseline_2026-09-26.md).
 
 ## Question and answer
@@ -145,7 +147,7 @@ Audio, fauna, crowd, fog, minimap, and music systems currently configured from o
 
 The following remain explicit or masked transitions:
 
-- building interiors such as Kalev's smithy, unless a later interior-specific streaming decision replaces them;
+- building interiors such as Kalev's smithy, until each one migrates under [ADR 0028](0028-seamless-building-interiors.md);
 - distant campaign locations connected by travel time and authored travel events;
 - scripted battles or cutscenes that intentionally reset staging;
 - fast travel and teleport to a destination outside the resident/prefetch envelope.

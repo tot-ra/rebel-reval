@@ -110,6 +110,7 @@ The three-act campaign includes:
 - Kalev as fixed protagonist; the forge as hub; the commission → investigation → modification → consequence → reflection loop;
 - eight launch factions with ledger-based standing, Living City Hope/Fear pressure, and quest lines; seven slice-core characters plus an expanding cast promoted from the legacy roster;
 - Reval districts (Lower Town, market/civic, north quarter) and authored world locations activated from existing prototypes;
+- seamless movement through Reval, its nearby hinterland, and into buildings without loading screens ([ADR 0019](./docs/adr/0019-seamless-contiguous-location-streaming.md), [ADR 0027](./docs/adr/0027-reval-hinterland-streaming-group.md), [ADR 0028](./docs/adr/0028-seamless-building-interiors.md)); distant regions such as Saaremaa keep an explicit journey with loading;
 - night-mission templates (sabotage, theft, escort, defense) with combat and non-combat routes;
 - hammer combat, self-forged gear, forge techniques, and dual-school magic (pagan combinatorial elements and Christian divine rites) wired through NATURAL aspects and Hingepuu psyche play;
 - authored dialogue, explicit consequence state, folklore/magic with confidence labels, and act-spanning forged-object recall;
@@ -117,7 +118,7 @@ The three-act campaign includes:
 
 It does **not** include:
 
-- an open world, seamless Reval, or playable campaigns in Riga, Dorpat, or other cities;
+- a seamless Estonia-wide open world, or playable campaigns in Riga, Dorpat, or other cities;
 - runtime LLM dialogue, generated quests, or procedural runs;
 - party control, army or fleet battle simulation, or survival simulation;
 - a universal good/evil morality score detached from faction ledger and city-pressure systems;
