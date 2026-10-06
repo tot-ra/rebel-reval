@@ -11,11 +11,14 @@ signal cast_requested
 signal close_requested
 
 const PANEL_SIZE := Vector2(720.0, 620.0)
+## No authored maximum exists yet; the orb is full at the starting reserve.
+const ORB_BASELINE_MAX := 8
 
 var _model: SpellforgeModel
 var _collection_root: Control
 var _quick_spell_column: VBoxContainer
 var _quick_willpower_label: Label
+var _mana_orb: ManaOrb
 var _quick_sequence_label: Label
 var _quick_feedback_label: Label
 var _element_row: HBoxContainer
@@ -69,14 +72,17 @@ func refresh() -> void:
 	_sequence_label.text = "Forged sequence: %s" % SpellforgeModel.sequence_text(
 		_model.selected_sequence()
 	)
-	_quick_sequence_label.text = "Sequence: %s" % SpellforgeModel.sequence_text(
-		_model.selected_sequence()
-	)
+	var sequence := _model.selected_sequence()
+	_quick_sequence_label.text = SpellforgeModel.sequence_text(sequence)
+	_quick_sequence_label.visible = not sequence.is_empty()
 	_feedback_label.text = _model.feedback_text()
 	_quick_feedback_label.text = _model.feedback_text()
+	_quick_feedback_label.visible = not _quick_feedback_label.text.is_empty()
 	_resource_label.text = _resource_text()
 	if _quick_willpower_label != null:
-		_quick_willpower_label.text = _resource_text()
+		_quick_willpower_label.text = str(_model.willpower())
+	if _mana_orb != null:
+		_mana_orb.set_values(_model.willpower(), maxi(ORB_BASELINE_MAX, _model.willpower()))
 	_rebuild_elements()
 	_rebuild_quick_spells()
 	_rebuild_cookbook()
@@ -215,8 +221,8 @@ func _build_ui() -> void:
 
 
 func _build_quick_hud() -> void:
-	# WHY: Quick Access already owns the bottom-right band. A center strip
-	# composites on top of its help labels and looks like a broken font.
+	# WHY: immersion first - no panel, header, or key hints. A mana orb plus the
+	# learned spell slots is all the playfield shows; the cookbook lives in Esc.
 	var margin := MarginContainer.new()
 	margin.name = "QuickSpellHud"
 	margin.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
@@ -224,68 +230,61 @@ func _build_quick_hud() -> void:
 	margin.anchor_top = 1.0
 	margin.anchor_right = 0.0
 	margin.anchor_bottom = 1.0
-	margin.offset_left = 16.0
-	margin.offset_top = -236.0
-	margin.offset_right = 348.0
-	margin.offset_bottom = -16.0
+	margin.offset_left = 20.0
+	margin.offset_top = -200.0
+	margin.offset_right = 300.0
+	margin.offset_bottom = -20.0
+	margin.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(margin)
 
-	var panel := PanelContainer.new()
-	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	margin.add_child(panel)
-
-	var padding := MarginContainer.new()
-	for side in ["left", "right", "top", "bottom"]:
-		padding.add_theme_constant_override("margin_%s" % side, 10)
-	padding.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	panel.add_child(padding)
-
 	var layout := VBoxContainer.new()
-	layout.add_theme_constant_override("separation", 4)
+	layout.alignment = BoxContainer.ALIGNMENT_END
+	layout.add_theme_constant_override("separation", 6)
 	layout.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	padding.add_child(layout)
-
-	var header := HBoxContainer.new()
-	header.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	layout.add_child(header)
-
-	var title := Label.new()
-	title.text = "SPELLS"
-	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	title.add_theme_color_override("font_color", Color(0.96, 0.67, 0.3))
-	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	header.add_child(title)
-
-	_quick_willpower_label = Label.new()
-	_quick_willpower_label.name = "QuickWillpowerLabel"
-	_quick_willpower_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	header.add_child(_quick_willpower_label)
-
-	var hint := Label.new()
-	hint.text = "1-5 or click to cast  •  R cookbook"
-	hint.add_theme_font_size_override("font_size", 12)
-	hint.add_theme_color_override("font_color", Color(0.75, 0.79, 0.84))
-	hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	layout.add_child(hint)
-
-	_quick_spell_column = VBoxContainer.new()
-	_quick_spell_column.name = "QuickSpellSlots"
-	_quick_spell_column.add_theme_constant_override("separation", 4)
-	_quick_spell_column.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	layout.add_child(_quick_spell_column)
-
-	_quick_sequence_label = Label.new()
-	_quick_sequence_label.name = "QuickSequenceLabel"
-	_quick_sequence_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	layout.add_child(_quick_sequence_label)
+	margin.add_child(layout)
 
 	_quick_feedback_label = Label.new()
 	_quick_feedback_label.name = "QuickSpellFeedback"
 	_quick_feedback_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_quick_feedback_label.add_theme_color_override("font_color", Color(0.84, 0.9, 0.72))
+	_quick_feedback_label.add_theme_font_size_override("font_size", 12)
 	_quick_feedback_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	layout.add_child(_quick_feedback_label)
+
+	_quick_sequence_label = Label.new()
+	_quick_sequence_label.name = "QuickSequenceLabel"
+	_quick_sequence_label.add_theme_font_size_override("font_size", 12)
+	_quick_sequence_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layout.add_child(_quick_sequence_label)
+
+	_quick_spell_column = VBoxContainer.new()
+	_quick_spell_column.name = "QuickSpellSlots"
+	_quick_spell_column.add_theme_constant_override("separation", 3)
+	_quick_spell_column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layout.add_child(_quick_spell_column)
+
+	var orb_holder := Control.new()
+	orb_holder.custom_minimum_size = Vector2(76.0, 76.0)
+	orb_holder.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	orb_holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layout.add_child(orb_holder)
+
+	_mana_orb = ManaOrb.new()
+	_mana_orb.name = "ManaOrb"
+	_mana_orb.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	orb_holder.add_child(_mana_orb)
+
+	_quick_willpower_label = Label.new()
+	_quick_willpower_label.name = "QuickWillpowerLabel"
+	_quick_willpower_label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_quick_willpower_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_quick_willpower_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_quick_willpower_label.add_theme_font_size_override("font_size", 18)
+	_quick_willpower_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
+	_quick_willpower_label.add_theme_constant_override("outline_size", 4)
+	_quick_willpower_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	orb_holder.add_child(_quick_willpower_label)
 
 
 func _rebuild_quick_spells() -> void:
@@ -295,12 +294,6 @@ func _rebuild_quick_spells() -> void:
 		child.queue_free()
 	var spells := _model.learned_spells()
 	if spells.is_empty():
-		var empty := Label.new()
-		empty.name = "QuickEmptySpells"
-		empty.text = "No spells learned yet. Magic is optional."
-		empty.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		empty.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		_quick_spell_column.add_child(empty)
 		return
 	for index in spells.size():
 		var row: Dictionary = spells[index]

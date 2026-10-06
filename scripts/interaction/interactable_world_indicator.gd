@@ -6,7 +6,9 @@ extends Node3D
 
 const IDLE_GLYPH_COLOR := Color(0.95, 0.82, 0.35, 0.78)
 const FOCUSED_GLYPH_COLOR := Color(1.0, 0.93, 0.5, 1.0)
-const RING_COLOR := Color(0.396, 0.694, 0.769, 0.62)
+const RING_COLOR := Color(1.0, 0.85, 0.2, 0.8)
+const OUTLINE_COLOR := Color(1.0, 0.85, 0.15, 1.0)
+const OUTLINE_GROW := 0.025
 
 const GLYPH_BY_KIND: Dictionary = {
 	InteractionKinds.TALK: "?",
@@ -33,6 +35,8 @@ var _bob_phase := 0.0
 var _focused := false
 var _enabled := true
 var _view_runtime: Node
+var _outlined_meshes: Array[MeshInstance3D] = []
+var _outline_material: StandardMaterial3D
 
 
 func attach(interactable: Interactable, cell_size: int, view_runtime: Node = null) -> void:
@@ -86,6 +90,9 @@ func _build_nodes() -> void:
 	_glyph.outline_size = 8
 	_glyph.outline_modulate = Color(0.05, 0.06, 0.08, 0.85)
 	_glyph.modulate = IDLE_GLYPH_COLOR
+	# WHY: immersion - affordance is a yellow contour, not floating "?" text. The node
+	# stays so height hooks and tests keep one stable anchor.
+	_glyph.visible = false
 	add_child(_glyph)
 
 	_ring = MeshInstance3D.new()
@@ -156,10 +163,42 @@ func _apply_visual_state() -> void:
 	_glyph.modulate = FOCUSED_GLYPH_COLOR if _focused else IDLE_GLYPH_COLOR
 	_glyph.font_size = 64 if _focused else 56
 	_ring.visible = _focused and _enabled
+	_set_outline(_focused and _enabled)
+
+
+func _set_outline(active: bool) -> void:
+	# WHY: inverted-hull overlay draws a yellow contour on the focused actor's meshes
+	# without touching their authored materials.
+	for mesh in _outlined_meshes:
+		if is_instance_valid(mesh):
+			mesh.material_overlay = null
+	_outlined_meshes.clear()
+	if not active or _interactable == null or not is_instance_valid(_interactable):
+		return
+	var host := _interactable.get_parent()
+	var rig := _resolve_actor_rig(host)
+	if rig == null:
+		return
+	if _outline_material == null:
+		_outline_material = StandardMaterial3D.new()
+		_outline_material.albedo_color = OUTLINE_COLOR
+		_outline_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		_outline_material.cull_mode = BaseMaterial3D.CULL_FRONT
+		_outline_material.grow = true
+		_outline_material.grow_amount = OUTLINE_GROW
+	for node in rig.find_children("*", "MeshInstance3D", true, false):
+		var mesh := node as MeshInstance3D
+		if mesh.visible and mesh.mesh != null:
+			mesh.material_overlay = _outline_material
+			_outlined_meshes.append(mesh)
 
 
 func _on_focused() -> void:
 	set_focused(true)
+
+
+func _exit_tree() -> void:
+	_set_outline(false)
 
 
 func _on_unfocused() -> void:

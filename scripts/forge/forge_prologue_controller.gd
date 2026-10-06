@@ -430,9 +430,11 @@ func _set_interactable_enabled(interactable: Interactable, enabled: bool) -> voi
 
 
 func _set_hint(text: String) -> void:
+	# WHY: on-screen tutorial text breaks immersion; interactables are shown by the
+	# yellow world outline instead. HINTS stay as the stage table for tests/docs.
 	if _hint_label != null:
 		_hint_label.text = text
-		_hint_label.visible = not text.is_empty()
+		_hint_label.visible = false
 
 
 func _set_interaction_enabled(enabled: bool) -> void:

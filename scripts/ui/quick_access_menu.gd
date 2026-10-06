@@ -94,6 +94,10 @@ func _build_ui() -> void:
 	panel.offset_right = -PANEL_MARGIN
 	panel.offset_bottom = -PANEL_MARGIN
 	panel.add_theme_stylebox_override("panel", _panel_style())
+	# WHY: immersion - the bar and its key hints no longer sit on the playfield. Every
+	# command is reached from the Esc menu or its hotkey; the nodes stay as the single
+	# handler route shared with tests.
+	panel.visible = false
 	add_child(panel)
 
 	var margin := MarginContainer.new()
@@ -241,6 +245,18 @@ func trigger_secondary_action(action: StringName) -> void:
 	# WHY: Esc presents secondary commands while their original handlers remain
 	# the single route used by mouse, controller, and existing tests.
 	match action:
+		&"inventory":
+			_on_inventory_pressed()
+		&"journal":
+			_on_journal_pressed()
+		&"map":
+			_on_world_map_pressed()
+		&"magic":
+			_on_magic_pressed()
+		&"reflection":
+			_on_reflection_pressed()
+		&"iron":
+			_on_technique_pressed()
 		&"camera":
 			_on_camera_pressed()
 		&"controls":

@@ -135,14 +135,26 @@ func _build_ui() -> void:
 	header.add_child(_close_button)
 
 	# WHY: non-combat commands belong in Esc, not in the permanent playfield.
-	var commands := HBoxContainer.new()
+	var commands := HFlowContainer.new()
 	commands.name = "SecondaryActions"
-	commands.add_theme_constant_override("separation", 10)
+	commands.add_theme_constant_override("h_separation", 10)
+	commands.add_theme_constant_override("v_separation", 8)
 	layout.add_child(commands)
-	for action: StringName in [&"save", &"camera", &"debug"]:
+	var labels := {
+		&"inventory": "Inventory",
+		&"journal": "Journal",
+		&"map": "Map",
+		&"magic": "Spellforge",
+		&"reflection": "Reflect",
+		&"iron": "Iron technique",
+		&"save": "Save game",
+		&"camera": "Change view",
+		&"debug": "Debug",
+	}
+	for action: StringName in labels:
 		var button := Button.new()
 		button.name = "%sAction" % String(action).capitalize()
-		button.text = {&"save": "Save game", &"camera": "Change view", &"debug": "Debug"}[action]
+		button.text = labels[action]
 		button.focus_mode = Control.FOCUS_ALL
 		button.pressed.connect(_request_secondary_action.bind(action))
 		commands.add_child(button)
