@@ -198,7 +198,7 @@ Trade-specific dressing props replace generic `barrels` / `cargo_crates` stand-i
 | `market_goods_pallet` | `rect=2,1` | Stall back-of-house pallet stacks (**B**) |
 | `salt_pile` | 1 cell | Fisher smoke/salt sheds and harbour curing yards (**B**) |
 | `tanning_frame` | `rect=2,1` | Tanner lane A-frames (**B/U**) |
-| `wash_tub` | 1 cell | Well aprons, convent service plots, gate yards (**B**); `style_variant=wash.stand_basin` swaps the yard tub for an indoor hand-wash stand with basin, ewer, and towel rail |
+| `wash_tub` | 1 cell | Well aprons, convent service plots, gate yards (**B**). Default 3D model (`MapViewWashTubModels`, R-1190) is a coopered stave laundry tub with split-withy hoops, two ear staves pierced for a carrying pole, water below the rim, plank sleepers, and a washing bat; `style_variant=wash.stand_basin` swaps the yard tub for an indoor hand-wash stand with basin, ewer, and towel rail |
 
 Footprint rules:
 

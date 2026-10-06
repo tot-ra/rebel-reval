@@ -21,6 +21,7 @@ const _FirewoodStackModels := preload("res://scripts/map/view3d/map_view_firewoo
 const _SaltPileModels := preload("res://scripts/map/view3d/map_view_salt_pile_models.gd")
 const _TanningFrameModels := preload("res://scripts/map/view3d/map_view_tanning_frame_models.gd")
 const _TableModels := preload("res://scripts/map/view3d/map_view_table_models.gd")
+const _WashTubModels := preload("res://scripts/map/view3d/map_view_wash_tub_models.gd")
 
 
 static func add_to(root: Node3D, kind: StringName, prop: Dictionary = {}) -> void:
@@ -419,21 +420,9 @@ static func _add_tanning_frame(root: Node3D) -> void:
 
 
 static func _add_wash_tub(root: Node3D) -> void:
-	_Primitives.cylinder(root, "Tub", 0.42, 0.36, Vector3(0.0, 0.42, 0.0), &"wood")
-	_Primitives.cylinder(root, "Water", 0.34, 0.05, Vector3(0.0, 0.58, 0.0), &"water_highlight")
-	for leg_spec in [
-		["LegFL", -0.28, 0.22],
-		["LegFR", 0.28, 0.22],
-		["LegBL", -0.28, -0.22],
-		["LegBR", 0.28, -0.22]
-	]:
-		_Primitives.box(
-			root,
-			leg_spec[0],
-			Vector3(0.08, 0.42, 0.08),
-			Vector3(leg_spec[1], 0.21, leg_spec[2]),
-			&"timber"
-		)
+	# WHY: the legged cylinder with a rim-level water disc read as a bucket or a
+	# baptismal font on the forum; the authored coopered tub keeps the footprint.
+	_WashTubModels.add_model(root)
 
 
 ## Indoor hand-wash station: oak stand, sunk basin, ewer, and towel rail.
