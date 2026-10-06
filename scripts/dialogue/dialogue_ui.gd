@@ -294,12 +294,9 @@ func _reset_text_scroll() -> void:
 
 
 func _update_continue_hint() -> void:
-	if _backlog_open:
-		_continue_hint.text = "Esc - close backlog"
-	elif _choice_mode:
-		_continue_hint.text = "Arrows or gamepad - choose, Enter or A - confirm"
-	else:
-		_continue_hint.text = "Click, E, Enter, or A - continue | Tab - backlog | Esc - skip"
+	# Dialogue actions remain available through mouse buttons and configured input;
+	# keep the footer clear instead of showing keyboard/gamepad instructions.
+	_continue_hint.text = ""
 
 
 func _update_disabled_reason() -> void:

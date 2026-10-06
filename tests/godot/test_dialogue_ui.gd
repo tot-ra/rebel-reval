@@ -5,6 +5,7 @@ const SettingsScript := preload("res://scripts/settings/dialogue_settings.gd")
 const RunnerScript := preload("res://scripts/dialogue/dialogue_runner.gd")
 const UiPresenterScript := preload("res://scripts/dialogue/dialogue_ui_presenter.gd")
 const UiScript := preload("res://scripts/dialogue/dialogue_ui.gd")
+const PortraitResolverScript := preload("res://scripts/dialogue/dialogue_portrait_resolver.gd")
 const DIALOGUE_ID := &"dialogue.test_ui.branching"
 const FLAG_TRUSTED := &"flag.test_ui_trusted"
 
@@ -48,6 +49,27 @@ func test_disabled_choice_reason_is_visible_when_focused() -> void:
 	setup.ui.focus_choice_for_test(1)
 	assert_eq(setup.ui.get_disabled_reason(), "You do not have the ledger.")
 	_cleanup_setup(setup)
+
+
+func test_dialogue_displays_portraits_and_hides_input_hints() -> void:
+	var setup := _make_setup("normal")
+	setup.ui.present_line(&"char.mart", "Mart", "Hello.", "node_a")
+	assert_true(setup.ui._portrait_rect.texture != null)
+	assert_eq(setup.ui._continue_hint.text, "")
+
+	setup.ui.present_choices([
+		{"id": "choice", "text": "Continue", "enabled": true},
+	])
+	assert_eq(setup.ui._continue_hint.text, "")
+	_cleanup_setup(setup)
+
+
+func test_portrait_resolver_uses_existing_assets() -> void:
+	for speaker_id: StringName in [&"char.mart", &"char.kalev", &"char.henning", &"char.aita"]:
+		assert_true(
+			PortraitResolverScript.resolve_texture(speaker_id) != null,
+			"Portrait texture should resolve for %s" % speaker_id
+		)
 
 
 func test_backlog_records_presented_lines() -> void:

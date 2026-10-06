@@ -5,10 +5,10 @@ extends RefCounted
 ## land in P2-004; until then we reuse existing reference art where available.
 
 const KNOWN_PORTRAITS := {
-	&"char.mart": "res://characters/rebels/martin.png",
-	&"char.kalev": "res://character/image.png",
-	&"char.henning": "res://characters/workers_quarter/hendrik/hendrik.png",
-	&"char.aita": "res://characters/workers_quarter/elsa/elsa.png",
+	&"char.mart": "res://assets/characters/portraits/mart.png",
+	&"char.kalev": "res://assets/characters/portraits/kalev.png",
+	&"char.henning": "res://assets/characters/portraits/henning.png",
+	&"char.aita": "res://assets/characters/portraits/aita.png",
 }
 
 
