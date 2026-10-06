@@ -155,7 +155,7 @@
       "transition_id": "to_world_harju"
     }
   ],
-  "fingerprint": "8fb6a81c8a23dcd00533af1920fefc8b2f58bb37c6ac1814f0e495c02fc9bceb",
+  "fingerprint": "1f5c582f86cd45458f3d4296fd96bf6242092430aa45e4673028581d25920b8b",
   "locations": [
     {
       "cell_size": 32,
@@ -215,7 +215,7 @@
       ],
       "location_id": "market_civic_quarter",
       "location_kind": "outdoor_streamed",
-      "map_fingerprint": "d7df9fe955c3fff666915e9fee88cff74897d97071928f4c4ab5343e6879bb49",
+      "map_fingerprint": "f9792b1c9bbc7ec6e041633c512a9d51222ad59c89d8c058a9060159837a9379",
       "origin_cell": [
         -114,
         0
@@ -227,7 +227,7 @@
         114,
         128
       ],
-      "source_sha256": "3ca024120b9cac31a643f2eb533d8f7b65837852bf64456b8488433c5c1f8ef9"
+      "source_sha256": "43ad24a0ddb7de9df3d6f2e5fcb9ea616cb81b349b8b1c7b740e684ad564e099"
     },
     {
       "cell_size": 32,

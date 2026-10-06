@@ -52,13 +52,15 @@ style house.craft_boda.east door_side=east ridge_axis=x house_tier=craft_boda wa
 style house.craft_boda.west door_side=west ridge_axis=x house_tier=craft_boda wall_height=128 wall_color=62584aff wall_material=plank roof_color=3a322bff roof_material=shingle
 # The forum is a smaller irregular-feeling reserve, mostly trampled earth and
 # mud. Stone is localised to thresholds and primary cart routes, never blanket
-# tourist-square paving.
+# tourist-square paving. Outdoor stone is laid fieldstone cobble (as on Pikk and
+# the east throat), not the `stone` flagstone floor family: that layer is a
+# low-resolution interior plate and reads as a blurred smear next to the earth.
 terrain forum.ground dirt 24 31 44 35 order=1
 terrain forum.wear mud 28 35 36 24 order=2
-terrain town_hall.forecourt stone 30 64 30 5 order=3
+terrain town_hall.forecourt cobblestone 30 64 30 5 order=3
 terrain holy_spirit.close dirt 42 14 35 16 order=4
 terrain guild.forecourt dirt 14 27 12 8 order=5
-terrain east.road_junction stone 72 47 14 11 order=6
+terrain east.road_junction cobblestone 72 47 14 11 order=6
 terrain south.yards.west grass 4 105 53 6 order=2
 terrain south.yards.east grass 72 105 42 6 order=2
 stroke street.pikk_harbour_spine cobblestone 39,0|39,21|48,21|48,31 thickness=4 order=10
