@@ -363,12 +363,14 @@ static func sail_cloth() -> ShaderMaterial:
 	return WIND_MATERIALS.sail_cloth()
 
 
-static func flag_cloth() -> ShaderMaterial:
-	return WIND_MATERIALS.flag_cloth()
+static func flag_cloth(srgb_vertex_color: bool = false) -> ShaderMaterial:
+	return WIND_MATERIALS.flag_cloth(srgb_vertex_color)
 
 
-static func hanging_banner_cloth(albedo: Texture2D = null) -> ShaderMaterial:
-	return WIND_MATERIALS.hanging_banner_cloth(albedo)
+static func hanging_banner_cloth(
+	albedo: Texture2D = null, srgb_vertex_color: bool = false
+) -> ShaderMaterial:
+	return WIND_MATERIALS.hanging_banner_cloth(albedo, srgb_vertex_color)
 
 
 static func faction_banner_albedo(faction_id: StringName) -> Texture2D:

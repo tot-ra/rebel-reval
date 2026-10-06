@@ -48,8 +48,10 @@ static func wind_materials() -> Array[ShaderMaterial]:
 		canopy(&"orchard"),
 		sail_cloth(),
 		flag_cloth(),
+		flag_cloth(true),
 		hanging_banner_cloth(),
 		hanging_banner_cloth(BLACK_CLOAKS_BANNER_TEXTURE),
+		hanging_banner_cloth(null, true),
 		fishing_net_hemp(),
 		fishing_net_float(),
 		fishing_net_sinker(),
@@ -143,19 +145,23 @@ static func sail_cloth() -> ShaderMaterial:
 	return material
 
 
-## Tower pennants and other hoist-fixed cloth: free along UV.x toward the fly.
-## Vertex COLOR carries faction heraldry; base stays near-white so charges read.
-static func flag_cloth() -> ShaderMaterial:
-	var key := "flag_cloth"
+## Tower pennants, gable flags, and other hoist-fixed cloth. The flag shader
+## turns the cloth downwind about the staff, sags it in light air, and runs a
+## travelling wave toward the fly (mesh contract in map_view_flag_cloth.gdshader).
+## Vertex COLOR carries heraldry; base stays near-white so charges read.
+## `srgb_vertex_color` is for meshes whose colors are authored in sRGB.
+static func flag_cloth(srgb_vertex_color: bool = false) -> ShaderMaterial:
+	var key := "flag_cloth_srgb" if srgb_vertex_color else "flag_cloth"
 	if _cache.has(key):
 		return _cache[key]
 	var material := ShaderMaterial.new()
 	material.shader = MapViewMaterialShaders.shader_resource(
-		"cloth", MapViewMaterialShaders.CLOTH_SHADER
+		"flag_cloth", MapViewMaterialShaders.FLAG_CLOTH_SHADER
 	)
 	material.set_shader_parameter("base_color", Color8(248, 246, 240))
 	material.set_shader_parameter("sway_strength", 0.42)
 	material.set_shader_parameter("free_edge", Vector2(1.0, 0.0))
+	material.set_shader_parameter("vertex_color_srgb", 1.0 if srgb_vertex_color else 0.0)
 	_cache[key] = material
 	return material
 
@@ -163,8 +169,12 @@ static func flag_cloth() -> ShaderMaterial:
 ## Vertical wall banners: pinned at the top rod, soft hem sway only.
 ## Pass an embroidered albedo for factions that ship a heraldry plate; otherwise
 ## vertex COLOR from FactionHeraldry.banner_mesh remains the charge source.
-static func hanging_banner_cloth(albedo: Texture2D = null) -> ShaderMaterial:
+static func hanging_banner_cloth(
+	albedo: Texture2D = null, srgb_vertex_color: bool = false
+) -> ShaderMaterial:
 	var keyed := "hanging_banner_cloth_textured" if albedo != null else "hanging_banner_cloth"
+	if srgb_vertex_color:
+		keyed += "_srgb"
 	if _cache.has(keyed):
 		return _cache[keyed]
 	var material := ShaderMaterial.new()
@@ -175,6 +185,7 @@ static func hanging_banner_cloth(albedo: Texture2D = null) -> ShaderMaterial:
 	material.set_shader_parameter("sway_strength", 0.035)
 	material.set_shader_parameter("wind_strength", 0.08)
 	material.set_shader_parameter("free_edge", Vector2(0.0, 1.0))
+	material.set_shader_parameter("vertex_color_srgb", 1.0 if srgb_vertex_color else 0.0)
 	if albedo != null:
 		material.set_shader_parameter("albedo_texture", albedo)
 		material.set_shader_parameter("use_albedo_texture", 1.0)

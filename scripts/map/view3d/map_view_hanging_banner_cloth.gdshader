@@ -11,6 +11,8 @@ uniform float sway_strength = 0.04;
 uniform vec2 wind_direction = vec2(0.9285, 0.3714);
 uniform float wind_strength = 0.10;
 uniform vec2 free_edge = vec2(0.0, 1.0);
+// 1.0 when vertex colors are authored in sRGB (town hall cloth).
+uniform float vertex_color_srgb = 0.0;
 
 void vertex() {
 	vec3 world = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
@@ -34,7 +36,15 @@ void fragment() {
 	if (!FRONT_FACING) {
 		NORMAL = -NORMAL;
 	}
-	vec3 vertex_tint = base_color * COLOR.rgb;
+	vec3 tint = COLOR.rgb;
+	if (vertex_color_srgb > 0.5) {
+		tint = mix(
+			tint / 12.92,
+			pow((tint + vec3(0.055)) / 1.055, vec3(2.4)),
+			step(vec3(0.04045), tint)
+		);
+	}
+	vec3 vertex_tint = base_color * tint;
 	vec3 tex = texture(albedo_texture, UV).rgb;
 	ALBEDO = mix(vertex_tint, tex, clamp(use_albedo_texture, 0.0, 1.0));
 	ROUGHNESS = 0.94;

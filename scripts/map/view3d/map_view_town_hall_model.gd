@@ -564,7 +564,8 @@ static func _add_banners(root: Node3D, size: Vector2, height: float, facade_z: f
 		banner.mesh = _banner_mesh(banner_width, banner_height, false, int(side > 0.0))
 		# The mesh hangs down from its top edge and faces -Z (the market).
 		banner.position = Vector3(x - banner_width * 0.5, top_y - 0.03, facade_z - 0.34)
-		banner.material_override = _cloth_material()
+		# Pinned at the rod; the hem sways with the shared world wind.
+		banner.material_override = MapViewMaterials.hanging_banner_cloth(null, true)
 		banner.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
 		root.add_child(banner)
 
@@ -600,18 +601,19 @@ static func _add_banners(root: Node3D, size: Vector2, height: float, facade_z: f
 	var flag := MeshInstance3D.new()
 	flag.name = "TownHallGableFlag"
 	flag.mesh = _banner_mesh(1.5, 1.1, true, 2)
-	# Hoist on the staff, fly toward +X (away from the hall) so it reads from
-	# the market.
-	flag.position = Vector3(staff_x + 0.05, apex_y + 0.28 + staff_height - 0.1, 0.0)
-	flag.material_override = _cloth_material()
+	# The hoist sits on the staff axis: the flag shader turns the cloth about
+	# local Y to stream downwind, sags it in light air, and flutters the fly.
+	flag.position = Vector3(staff_x, apex_y + 0.28 + staff_height - 0.1, 0.0)
+	flag.material_override = MapViewMaterials.flag_cloth(true)
 	root.add_child(flag)
 
 
 ## Red cloth with a centred white cross. Built on a grid whose lines fall on
 ## the cross edges, so per-cell colour gives crisp arms without a texture.
-## `flying` bends the cloth along its fly as if in wind; otherwise it hangs in
-## soft vertical folds. Origin is the top-left (hoist) corner; the cloth runs
-## +X and hangs -Y, facing -Z.
+## `flying` leaves the cloth flat (the flag shader poses it in the live wind and
+## needs UV.x = x / width); otherwise it hangs in soft vertical folds. Origin is
+## the top-left (hoist) corner; the cloth runs +X and hangs -Y, facing -Z.
+## UV runs u along the width and v down from the top edge.
 static func _banner_mesh(
 	width: float, cloth_height: float, flying: bool, variant: int
 ) -> ArrayMesh:
@@ -632,11 +634,7 @@ static func _banner_mesh(
 			var u := float(col) / float(cols)
 			var v := float(row) / float(rows)
 			var p := Vector3(u * width, -v * cloth_height, 0.0)
-			if flying:
-				p.z = sin(u * TAU * 1.1 + v * 0.8 + phase) * 0.16 * u
-				p.y -= u * u * 0.22
-				p.x -= absf(p.z) * 0.3
-			else:
+			if not flying:
 				# Folds deepen toward the free hem; the top edge stays on the rod.
 				p.z = -sin(u * TAU * 2.0 + phase) * 0.045 * (0.3 + v)
 				p.y -= sin(u * PI) * v * 0.05
@@ -659,12 +657,15 @@ static func _banner_mesh(
 			var b: Vector3 = points[row][col + 1]
 			var c: Vector3 = points[row + 1][col + 1]
 			var d: Vector3 = points[row + 1][col]
-			surface.add_vertex(a)
-			surface.add_vertex(b)
-			surface.add_vertex(c)
-			surface.add_vertex(a)
-			surface.add_vertex(c)
-			surface.add_vertex(d)
+			var u0 := float(col) / float(cols)
+			var u1 := float(col + 1) / float(cols)
+			var v0 := float(row) / float(rows)
+			var v1 := float(row + 1) / float(rows)
+			for corner: Array in [
+				[a, u0, v0], [b, u1, v0], [c, u1, v1], [a, u0, v0], [c, u1, v1], [d, u0, v1]
+			]:
+				surface.set_uv(Vector2(corner[1], corner[2]))
+				surface.add_vertex(corner[0])
 	surface.generate_normals()
 	var mesh := surface.commit()
 	_cache[key] = mesh
@@ -857,19 +858,6 @@ static func _glass_material() -> StandardMaterial3D:
 	material.metallic_specular = 0.3
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	_cache["glass"] = material
-	return material
-
-
-static func _cloth_material() -> StandardMaterial3D:
-	if _cache.has("cloth"):
-		return _cache["cloth"]
-	var material := StandardMaterial3D.new()
-	material.vertex_color_use_as_albedo = true
-	material.vertex_color_is_srgb = true
-	material.roughness = 0.96
-	material.metallic_specular = 0.15
-	material.cull_mode = BaseMaterial3D.CULL_DISABLED
-	_cache["cloth"] = material
 	return material
 
 
