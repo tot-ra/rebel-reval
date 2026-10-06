@@ -224,7 +224,9 @@ static func material_for(key: String) -> Material:
 		"ksi_oak":
 			material = _grain(TIMBER_ALBEDO, TIMBER_NORMAL, TIMBER_ROUGHNESS, 1.4, 0.82)
 		"ksi_boards":
-			material = _grain(BOARDS_ALBEDO, BOARDS_NORMAL, "", 1.8, 0.78)
+			# The board-seamless plate spans 4 whole boards; 1.2 m keeps the
+			# ~0.3 m board width the old 6-board 1.8 m plate had.
+			material = _grain(BOARDS_ALBEDO, BOARDS_NORMAL, "", 1.2, 0.78)
 		"ksi_earth":
 			# Beaten clay and charcoal dust from a Leonardo plate made seamless
 			# offline; COLOR_0 adds the dust plume, scale ring and trodden path.

@@ -96,7 +96,7 @@ func test_timber_floor_blended_ground_repeat_is_doubled() -> void:
 		MapViewMaterials.TERRAIN_TIMBER_FLOOR_UV_SCALE,
 		"smithy timber floor must repeat at the smaller authored scale"
 	)
-	assert_eq(MapViewMaterials.TERRAIN_TIMBER_FLOOR_UV_SCALE, 2.0)
+	assert_eq(MapViewMaterials.TERRAIN_TIMBER_FLOOR_UV_SCALE, 3.0)
 
 
 func test_natural_rock_pattern_avoids_masonry_horizontal_banding() -> void:

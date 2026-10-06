@@ -340,12 +340,88 @@ def _to_image(values: np.ndarray, mode: str) -> Image.Image:
     return image if image.mode == mode else image.convert(mode)
 
 
+## Board plates cannot quilt across the boards: a min-error cut through a board
+## gap smears the gap. Instead the tile is cropped from one board gap to another,
+## so the horizontal wrap lands on a real gap, and only the along-grain (V) wrap
+## is quilted, where the cut hides in the grain. The crop spans a whole number of
+## boards, so the board pitch per tile changes; consumers rescale their UV
+## density by the shipped board count (see BOARD_FAMILIES comments).
+BOARD_GAP_MIN_DEPTH = 40.0  # column-mean darkness below local mean, 0..255
+BOARD_GAP_MIN_PITCH_FRACTION = 0.6  # gaps closer than this x median pitch are cracks
+## Family -> board count to keep. timber_floor_v2 candidate_1 has ~6 boards at
+## 1024 px; the left one carries the plate's darkest lighting falloff, so four
+## whole boards (gap 180 -> gap 849) ship.
+BOARD_FAMILIES = {"timber_floor": 4}
+
+
+def _board_gaps(plate: np.ndarray) -> list[int]:
+    """Columns of the vertical board gaps (dark column-mean minima)."""
+    luminance = plate @ np.array([0.2126, 0.7152, 0.0722])
+    profile = luminance.mean(axis=0) * 255.0
+    window = 41
+    local = np.convolve(np.pad(profile, window // 2, mode="edge"), np.ones(window) / window, "valid")
+    depth = profile - local
+    candidates = [
+        x
+        for x in range(3, len(depth) - 3)
+        if depth[x] == depth[x - 3 : x + 4].min() and depth[x] < -BOARD_GAP_MIN_DEPTH
+    ]
+    if len(candidates) < 2:
+        return candidates
+    pitch = float(np.median(np.diff(candidates)))
+    gaps = [candidates[0]]
+    for x in candidates[1:]:
+        if x - gaps[-1] >= pitch * BOARD_GAP_MIN_PITCH_FRACTION:
+            gaps.append(x)
+    return gaps
+
+
+def _make_board_seamless(image: Image.Image, boards: int) -> Image.Image:
+    """Crop whole boards gap-to-gap, then quilt only the along-grain wrap."""
+    plate = np.asarray(image, dtype=np.float64) / 255.0
+    gaps = _board_gaps(plate)
+    if len(gaps) <= boards:
+        raise ValueError(f"plate has {len(gaps)} board gaps, need {boards + 1}")
+    # Pick the run of whole boards with the most even pitch, so the shipped
+    # tile does not repeat one odd-width board.
+    spans = [gaps[i : i + boards + 1] for i in range(len(gaps) - boards)]
+    run = min(spans, key=lambda s: float(np.std(np.diff(s))))
+    left, right = run[0], run[-1]
+    tile = right - left
+    overlap = int(tile * SEAMLESS_OVERLAP_FRACTION)
+    if tile + overlap > plate.shape[0]:
+        raise ValueError("plate too short for a square board tile plus overlap")
+    # Column `left` is the centre of a gap and column `right` (excluded) is the
+    # next gap's centre, so x wrap continues a gap.
+    strip = plate[: tile + overlap, left:right]
+    # Along the grain a min-error cut still leaves a jagged tone step, because a
+    # board's colour drifts along its length. Head and tail share the same gap
+    # columns, so a smooth cross-fade over the whole overlap cannot ghost a gap
+    # and only blends grain lines that already run the same way.
+    body = strip[:tile].copy()
+    tail = strip[tile:]
+    ramp = (np.arange(overlap, dtype=np.float64) + 0.5) / overlap
+    weight = (1.0 - ramp * ramp * (3.0 - 2.0 * ramp))[:, None, None]  # tail -> head
+    body[:overlap] = tail * weight + body[:overlap] * (1.0 - weight)
+    return _to_image(body, "RGB")
+
+
 def process_legacy(family: str) -> bool:
     source, destination = OUTPUTS[family]
     if not source.is_file():
         print(f"skip {family}: missing {source.relative_to(ROOT)}")
         return False
     image = Image.open(source).convert("RGB")
+    if family in BOARD_FAMILIES:
+        # Same generator lighting drift as the ground plates (top-to-bottom
+        # 100 -> 70 mean luminance on timber_floor_v2), which repeats as
+        # light/dark bands across a large floor.
+        image = _make_board_seamless(_flatten_lighting(image), BOARD_FAMILIES[family])
+        image = _resize_tileable(image, TARGET_SIZE)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        image.save(destination, "PNG", optimize=True)
+        print(f"prepared {family}: {destination.relative_to(ROOT)} (board-seamless)")
+        return True
     image = image.resize((TARGET_SIZE, TARGET_SIZE), Image.Resampling.LANCZOS)
     image = _weld_edges(image, phase_shift=family not in KEEP_SOURCE_PHASE)
     destination.parent.mkdir(parents=True, exist_ok=True)

@@ -54,7 +54,10 @@ const TERRAIN_GRASS_UV_SCALE := 2.0
 ## The authored timber plate is broad enough to make boards read oversized at the
 ## gameplay camera when sampled at the shared 4.0-unit terrain repeat. Keep the
 ## blended-ground path aligned with the regular terrain material's 2x repeat.
-const TERRAIN_TIMBER_FLOOR_UV_SCALE := 2.0
+## The board-seamless plate holds 4 whole boards instead of ~6 (gap-to-gap crop
+## in tools/process_leonardo_terrain_textures.py), so the repeat rises 2.0 -> 3.0
+## to keep the same board width on the ground.
+const TERRAIN_TIMBER_FLOOR_UV_SCALE := 3.0
 
 ## Cobble is a seamless material family rather than authored map state: one
 ## high-resolution source seed serves every map, so transitions do not
