@@ -86,6 +86,21 @@ const GROUND_FAMILY_UV_SCALE := Vector4(
 ## to keep the same board width on the ground.
 const TERRAIN_TIMBER_FLOOR_UV_SCALE := 3.0
 
+## The hay plate shows loose rye straw: stalks 4-6 px wide on 768 px and the
+## longest about a third of the plate, so ~5 mm stalks and ~30 cm pieces put it
+## at ~0.9 m (the smithy interior straw uses the same 0.9 m). The old hard-coded
+## 1.6 spread one tile over 2.5 units, so stalks read finger-thick and ~70 cm
+## long beside the 2.0-unit actor. 3.6 puts one tile at ~1.1 units.
+const TERRAIN_HAY_UV_SCALE := 3.6
+
+## The limestone_rubble plate (the standard stone material's authored source)
+## holds ~7 courses; Reval's thin-bedded limestone courses run ~20 cm, so the
+## plate shows ~1.4 m, as the smithy interior walls assume. At the shared 4.0-unit
+## repeat courses read ~50 cm; 2.5 puts one tile at 1.6 units (~1.4 m).
+## The blended stone layer samples the smithy_floor flagstone plate instead,
+## which already measures right at the shared repeat (see ART_BIBLE ground note).
+const TERRAIN_STONE_UV_SCALE := 2.5
+
 ## Cobble is a seamless material family rather than authored map state: one
 ## high-resolution source seed serves every map, so transitions do not
 ## regenerate it per map seed.
@@ -135,6 +150,7 @@ const TERRAIN_UV_SCALE := {
 	MapTypes.TERRAIN_COBBLESTONE: 2.0,
 	MapTypes.TERRAIN_CASTLE_PAVING: 2.0,
 	MapTypes.TERRAIN_TIMBER_FLOOR: 2.0,
+	MapTypes.TERRAIN_STONE: TERRAIN_STONE_UV_SCALE,
 }
 
 ## Stable layer order for the blended-ground texture array. Indices must stay
@@ -533,6 +549,7 @@ static func blended_ground(noise_seed: int) -> ShaderMaterial:
 	if ResourceLoader.exists(HAY_ALBEDO_PATH):
 		material.set_shader_parameter("hay_albedo", load(HAY_ALBEDO_PATH))
 		material.set_shader_parameter("use_authored_hay", 1.0)
+		material.set_shader_parameter("hay_uv_scale", TERRAIN_HAY_UV_SCALE)
 		material.set_shader_parameter("hay_layer", terrain_blend_index(MapTypes.TERRAIN_HAY))
 		material.set_shader_parameter("straw_layer", terrain_blend_index(MapTypes.TERRAIN_STRAW))
 	else:

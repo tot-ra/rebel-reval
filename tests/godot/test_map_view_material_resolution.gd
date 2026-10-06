@@ -100,6 +100,48 @@ func test_beach_plate_repeats_stay_below_character_height() -> void:
 	)
 
 
+func test_hay_plate_repeat_matches_straw_scale() -> void:
+	# The hay plate depicts ~0.9 m of strewn straw; the old hard-coded 1.6 repeat
+	# spread it over 2.5 units, so stalks read finger-thick beside the actor.
+	var tile_world := (
+		MapViewMaterials.TERRAIN_TEXTURE_WORLD_SIZE / MapViewMaterials.TERRAIN_HAY_UV_SCALE
+	)
+	assert_true(tile_world < 1.5, "hay tile spans %.2f units, expected < 1.5" % tile_world)
+	var material := MapViewMaterials.blended_ground(731)
+	assert_true(
+		is_equal_approx(
+			float(material.get_shader_parameter("hay_uv_scale")),
+			MapViewMaterials.TERRAIN_HAY_UV_SCALE
+		)
+	)
+	var code := (material.shader as Shader).code
+	assert_true(
+		code.contains("base_uv * hay_uv_scale"), "hay sampling must use the hay_uv_scale uniform"
+	)
+
+
+func test_stone_repeats_follow_their_plates() -> void:
+	# Standard stone binds the limestone_rubble plate (~7 courses of ~20 cm,
+	# ~1.4 m); the shared 4.0-unit repeat made courses read ~50 cm.
+	var rubble_tile := (
+		MapViewMaterials.TERRAIN_TEXTURE_WORLD_SIZE / MapViewMaterials.TERRAIN_STONE_UV_SCALE
+	)
+	var rubble_metres := rubble_tile * MapViewMaterials.METERS_PER_WORLD_UNIT
+	assert_true(
+		rubble_metres > 1.2 and rubble_metres < 1.6,
+		"rubble tile spans %.2f m, expected ~1.4 m" % rubble_metres
+	)
+	assert_eq(
+		float(MapViewMaterials.TERRAIN_UV_SCALE[MapTypes.TERRAIN_STONE]),
+		MapViewMaterials.TERRAIN_STONE_UV_SCALE
+	)
+	# The blended stone layer samples the smithy_floor flagstone plate (~6.5
+	# flags of 25-70 cm across, ~3 m) at the shared 4.0-unit repeat (~3.5 m):
+	# measured and left unchanged, so the shader keeps scale 1.0 for it.
+	var code := (MapViewMaterials.blended_ground(731).shader as Shader).code
+	assert_false(code.contains("layer == stone_layer"), "stone layer keeps the shared repeat")
+
+
 func test_cobblestone_uses_a_dedicated_high_resolution_texture_array() -> void:
 	var terrain_patterns := MapViewMaterials.terrain_pattern_array(731)
 	var cobble_patterns := MapViewMaterials.cobble_pattern_array(731)

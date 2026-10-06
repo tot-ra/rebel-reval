@@ -61,7 +61,9 @@ uniform int earth_layer_max = 11;
 uniform float mud_wetness = 0.0;
 uniform float natural_ground_uv_scale = 2.0;
 uniform float natural_ground_variation = 0.72;
-uniform float timber_floor_uv_scale = 2.0;
+uniform float timber_floor_uv_scale = 3.0;
+// Authored hay/straw plate repeat (~0.9 m of strewn straw per tile).
+uniform float hay_uv_scale = 3.6;
 // WS-08 wet sand behind the swash. Only these two beach layers react.
 uniform int sand_layer = 9;
 uniform int coast_sand_layer = 10;
@@ -243,8 +245,10 @@ vec3 sample_authored_timber_floor(vec2 base_uv) {
 }
 
 vec3 sample_authored_hay(vec2 base_uv) {
-	vec2 hay_uv = natural_warp(base_uv * 1.6);
-	return texture(hay_albedo, fract(hay_uv)).rgb;
+	vec2 hay_uv = natural_warp(base_uv * hay_uv_scale);
+	// No fract(): the sampler repeats, and fract's jump at every tile edge broke
+	// the derivatives into a one-pixel low-mip seam, more visible at this repeat.
+	return texture(hay_albedo, hay_uv).rgb;
 }
 
 bool is_hay_field_layer(int layer) {

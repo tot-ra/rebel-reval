@@ -61,10 +61,27 @@ the shader (`mud_wetness`, WS-08 swash), not the plate.
   `TERRAIN_UV_SCALE`. Grass (2.0 units) was not changed. Evidence on
   `reval_harbor_east`: `tools/capture_co01_ground_materials.gd`, plates
   `docs/reports/images/harbor_east_beach_ground_{gameplay,close,shore_run}_{before,after}.jpg`.
+- Remaining families, measured the same way:
+  - `hay` (loose straw, ~5 mm stalks, ~30 cm pieces, ~0.9 m per plate) was
+    hard-coded at 1.6 (2.5 units, stalks finger-thick); now every 1.1 units
+    (`TERRAIN_HAY_UV_SCALE` 3.6, pushed as `hay_uv_scale`).
+  - `limestone_rubble` (~7 courses of ~20 cm, ~1.4 m), the authored source of
+    the standard `stone` material (neighbor previews), was at the shared 4.0
+    units (~50 cm courses); now 1.6 units (`TERRAIN_STONE_UV_SCALE` 2.5).
+  - Unchanged, measured right: the blended `stone` layer's `smithy_floor`
+    plate (~6.5 flags of 25-70 cm, ~3 m) at 4.0 units; `timber_floor` (4
+    boards) at 1.33 units, ~29 cm boards; castle paving's cobble lattice (20 x
+    28 stones per 4 units, ~17 x 12 cm) and the street fieldstone Voronoi
+    (`cobble_cell_size` 0.2, ~17 cm). The authored `pbr/cobble` plate is not
+    bound at runtime.
+  - Evidence on `smithy_courtyard` (hay yard and stone apron):
+    `tools/capture_smithy_courtyard_ground.gd`, plates
+    `docs/reports/images/smithy_courtyard_ground_{gameplay,near,close}_{before,after}.jpg`.
 - When a new ground plate lands, estimate what it depicts from countable
   features (ripples, stones, tufts) and set its repeat so the tile spans no
-  more than ~1.5 units; `test_map_view_material_resolution.gd` enforces this
-  for mud and the beach families.
+  more than ~1.5 units (large-feature plates such as flagstones and rubble
+  follow their measured span instead); `test_map_view_material_resolution.gd`
+  enforces this for mud, hay, stone and the beach families.
 - `OutdoorTerrainPalette` stays the colour authority. Grass and mud keep the
   16% palette nudge; the sand families are renormalised to their palette tint
   (`sand_palette_authority`, `sand_palette_value`) so beaches keep their map hue.
