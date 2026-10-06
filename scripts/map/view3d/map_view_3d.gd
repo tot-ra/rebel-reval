@@ -752,7 +752,15 @@ func _create_god_ray_pass() -> void:
 		return
 	_god_ray_pass = GodRayPassScript.new()
 	add_child(_god_ray_pass)
-	_god_ray_pass.configure(_camera)
+	# The pass rasterises the same building/landmark boxes the occlusion probes use,
+	# so shafts are cut by architecture; relief maps add the terrain under them.
+	var ground := Callable()
+	if not definition.relief_heights.is_empty():
+		ground = func(world_xz: Vector2) -> float:
+			return MapViewMeshBuilder.ground_height(definition, world_xz)
+	_god_ray_pass.configure(
+		_camera, Vector2(definition.size_cells), func() -> Array[AABB]: return _occluder_bounds, ground
+	)
 
 
 func _create_cloud_shadow_pass() -> void:
