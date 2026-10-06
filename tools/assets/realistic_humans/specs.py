@@ -193,7 +193,7 @@ SPECS = {
         age=30, sex="m", muscle=0.5, weight=0.5, height_m=1.74, skin="young_caucasian_male",
         eyes="brown", hair="short01", hair_color=(0.30, 0.23, 0.16), brows="eyebrow002",
         targets={"nose-point-width-incr": 0.3, "chin-width-incr": 0.2},
-        beard={"length": 0.007, "color": (0.30, 0.23, 0.16), "grey": 0.0, "coverage": 0.7, "shells": 6},
+        beard={"length": 0.007, "color": (0.30, 0.23, 0.16), "grey": 0.0, "coverage": 0.7, "shells": 5},
         complexion={"tan": 0.5, "flush": 0.4},
         garments=["short_tunic", "gambeson", "kettle_hat", "hose", "boots"],
         palette={"gambeson": (0.60, 0.54, 0.42), "short_tunic": UNDYED_GREY_BROWN},
@@ -303,7 +303,7 @@ def _crowd_spec(body):
                 "coverage": 0.75, "shells": 6} if features["beard_style"] not in ("none",) and male else None),
         stubble=({"color": hair_color, "amount": 0.3} if male and features["beard_style"] == "none" else None),
         garments=garments, palette=palette, outfits={"daily": garments},
-        extra={"apron_over": torso, "belted": True if male else "plain"})
+        extra={"apron_over": torso, "belted": True if male else "plain"}, tier=2)
     return spec
 
 

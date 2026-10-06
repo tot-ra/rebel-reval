@@ -24,7 +24,8 @@ HEALTH_RING = {"aita", "ellen", "jurgen", "kaja", "henning", "mart", "watchman"}
 def scene(name):
     spec = specs.SPECS[name]
     outfits = json.loads((ROOT / f"assets/characters/realistic/{name}/outfits.json").read_text())
-    outfit = next(iter(outfits.values()))
+    # Tier 2 crowd bodies have their outfit baked into the mesh.
+    outfit = [] if spec.get("tier") == 2 else next(iter(outfits.values()))
     res = f"res://assets/characters/realistic/{name}"
     lines = [f"[gd_scene load_steps={5 + len(outfit)} format=3]", "",
              '[ext_resource type="Script" path="res://assets/characters/realistic/realistic_rig.gd" id="1_rig"]',

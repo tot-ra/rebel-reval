@@ -131,10 +131,107 @@ def create_mpfb_body(spec):
         proxy.data.name = name
         proxies[name] = proxy
     TargetService.bake_targets(body)
+    capture_expressions(body, TargetService, targets_dir)
     rig = next(o for o in bpy.data.objects if o.type == "ARMATURE")
     rig.name = "MPFBRig"
     body.name = "MPFBBody"
     return body, rig, data, proxies
+
+
+# Facial blend shapes from MakeHuman's CC0 expression units. Godot drives
+# them at runtime (realistic_rig.gd: blinking, talking, expressions).
+EXPRESSIONS = {
+    "blink": ("eye-left-closure", "eye-right-closure"),
+    "jaw_open": ("mouth-open",),
+    "smile": ("mouth-corner-puller",),
+    "brow_up": ("eyebrows-left-up", "eyebrows-right-up"),
+    "frown": ("eyebrows-left-down", "eyebrows-right-down"),
+    "pucker": ("mouth-pursing",),
+}
+
+
+def capture_expressions(body, TargetService, targets_dir):
+    """Store each expression as a per-vertex delta attribute (`fx_<name>`).
+
+    Attributes ride through the T-pose and helper-mask modifiers, which shape
+    keys cannot; they become blend shapes after the regions are split."""
+    units = Path(targets_dir) / "expression" / "units" / "caucasian"
+    mesh = body.data
+    count = len(mesh.vertices)
+    basis = np.zeros(count * 3)
+    mesh.vertices.foreach_get("co", basis)
+    for name, unit_names in EXPRESSIONS.items():
+        delta = np.zeros(count * 3)
+        for unit in unit_names:
+            TargetService.load_target(body, str(units / f"{unit}.target.gz"), weight=1.0, name=unit)
+            key = mesh.shape_keys.key_blocks[unit]
+            co = np.zeros(count * 3)
+            key.data.foreach_get("co", co)
+            delta += co - basis
+        attribute = mesh.attributes.new(f"fx_{name}", "FLOAT_VECTOR", "POINT")
+        attribute.data.foreach_set("vector", delta)
+        body.shape_key_clear()
+
+
+def add_expression_keys(objects, scale):
+    """Blend shapes on the split head (and its fur shells) from fx_ attributes;
+    lashes, brows and teeth take the delta of the nearest face vertex."""
+    from mathutils.kdtree import KDTree
+    head = next(o for o in objects if o.name == "Anatomy_Head")
+    head_co = np.array([v.co[:] for v in head.data.vertices])
+    head_fx = {}
+    for name in EXPRESSIONS:
+        attr = head.data.attributes.get(f"fx_{name}")
+        data = np.zeros(len(head.data.vertices) * 3)
+        attr.data.foreach_get("vector", data)
+        head_fx[name] = data.reshape(-1, 3) * scale
+    tree = KDTree(len(head_co))
+    for i, c in enumerate(head_co):
+        tree.insert(c, i)
+    tree.balance()
+    for obj in objects:
+        mesh = obj.data
+        if mesh.attributes.get("fx_blink") is not None:
+            deltas = {}
+            for name in EXPRESSIONS:
+                data = np.zeros(len(mesh.vertices) * 3)
+                mesh.attributes[f"fx_{name}"].data.foreach_get("vector", data)
+                deltas[name] = data.reshape(-1, 3) * scale
+        elif obj.name.startswith("Anatomy_Head_Teeth"):
+            # Upper teeth are fixed to the skull; the lower row moves rigidly
+            # with the jaw (the mean jaw delta around the lower teeth).
+            co = np.array([v.co[:] for v in mesh.vertices])
+            mid_z = (co[:, 2].min() + co[:, 2].max()) / 2
+            lower = co[:, 2] < mid_z
+            centre = co[lower].mean(axis=0)
+            near = [i for _, i, _ in tree.find_range(centre, 0.03)]
+            jaw = head_fx["jaw_open"][near].mean(axis=0) if near else np.zeros(3)
+            deltas = {name: np.zeros((len(mesh.vertices), 3)) for name in EXPRESSIONS}
+            deltas["jaw_open"][lower] = jaw
+        elif obj.name.startswith(("Anatomy_Head_Lashes", "Anatomy_Head_Brows")):
+            deltas = {name: np.zeros((len(mesh.vertices), 3)) for name in EXPRESSIONS}
+            for v in mesh.vertices:
+                found = tree.find_n(v.co, 4)
+                weights = [(1.0 / max(d, 1e-4), i) for _, i, d in found if d < 0.02]
+                total = sum(w for w, _ in weights)
+                for name in EXPRESSIONS:
+                    if total:
+                        deltas[name][v.index] = sum(w * head_fx[name][i] for w, i in weights) / total
+        else:
+            continue
+        if not any(np.abs(d).max() > 1e-6 for d in deltas.values()):
+            continue
+        obj.shape_key_add(name="Basis")
+        base = np.array([v.co[:] for v in mesh.vertices])
+        for name, delta in deltas.items():
+            key = obj.shape_key_add(name=name)
+            key.data.foreach_set("co", (base + delta).ravel())
+            key.value = 0.0  # rest face; glTF exports this as the default weight
+    for obj in objects:
+        for name in EXPRESSIONS:
+            attr = obj.data.attributes.get(f"fx_{name}")
+            if attr is not None:
+                obj.data.attributes.remove(attr)
 
 
 # --------------------------------------------------------------------------
@@ -440,10 +537,18 @@ def surface_character(spec, body, proxies, shared, collar, targets, data, textur
         # scalp underneath matches the cards.
         card = next((Path(data) / "hair" / spec["hair"]).glob("*diffuse*.png"))
         spec.setdefault("hair_color", tuple(surfaces.opaque_median(card)))
-        hair_texture = surfaces.recolor_hair(card, spec["hair_color"], texture_dir / f"{spec['fit']}_hair.png")
+        hair_texture = surfaces.recolor_hair(card, spec["hair_color"], texture_dir / f"{spec['fit']}_hair.png",
+                                             size=min(1024, TIER_TEXTURE_PX[spec.get("tier", 1)]))
     skin_dir = Path(data) / "skins" / spec["skin"]
     albedo = next(skin_dir.glob("*diffuse*.png"))
-    size = 2048 if spec.get("tier", 1) == 0 else 1024
+    size = TIER_TEXTURE_PX[spec.get("tier", 1)]
+    portrait = OUT_ROOT / spec["fit"] / "reference" / "portrait.json"
+    if not spec.get("face_photo") and spec.get("tier", 1) < 2 and portrait.is_file():
+        # Generated portrait (generate_portraits.py + portrait_landmarks.py).
+        meta = json.loads(portrait.read_text())
+        if "landmarks" in meta:
+            spec["face_photo"] = {"path": str((portrait.parent / "portrait.png").relative_to(ROOT)),
+                                  "landmarks": meta["landmarks"]}
     maps = surfaces.bake_skin(body, spec, lm, regions_of_vertex, albedo, texture_dir, size=size)
     # Crowd skin-tone variation rides on the material factor, so one baked
     # albedo can serve lighter and darker seeded bodies.
@@ -451,19 +556,26 @@ def surface_character(spec, body, proxies, shared, collar, targets, data, textur
     skin = surfaces.pbr_material(f"{spec['fit']}_skin", maps["albedo"], maps["normal"], maps["roughness"],
                                  color=tint, specular=0.45)
     surfaces.assign(body, skin)
-    eye_png = Path(data) / "eyes" / "materials" / f"{spec['eyes']}_eye.png"
+    def sized(path):
+        # Crowd (Tier 2) maps stay within 512 px: per-character small copies.
+        if size >= 1024:
+            return path
+        target = texture_dir / f"{spec['fit']}_{Path(path).stem}.png"
+        copy_texture(Path(path), target, size)
+        return bpy.data.images.load(str(target), check_existing=True)
+    eye_png = sized(Path(data) / "eyes" / "materials" / f"{spec['eyes']}_eye.png")
     surfaces.assign(proxies["Anatomy_Head_Eyes"],
                     surfaces.pbr_material(f"{spec['fit']}_eyes_cutout", eye_png, color=(0.8, 0.77, 0.74),
                                           roughness=0.06, specular=0.6, alpha_clip=True))
-    brows = Path(data) / "eyebrows" / spec["eyebrows"] / f"{spec['eyebrows']}.png"
-    lashes = Path(data) / "eyelashes" / spec["eyelashes"] / f"{spec['eyelashes']}.png"
+    brows = sized(Path(data) / "eyebrows" / spec["eyebrows"] / f"{spec['eyebrows']}.png")
+    lashes = sized(Path(data) / "eyelashes" / spec["eyelashes"] / f"{spec['eyelashes']}.png")
     hair_tint = tuple(spec.get("brow_tint", (0.8, 0.8, 0.8)))
     surfaces.assign(proxies["Anatomy_Head_Brows"],
                     surfaces.pbr_material(f"{spec['fit']}_brows_cutout", brows, color=hair_tint,
                                           roughness=0.7, alpha_clip=True))
     surfaces.assign(proxies["Anatomy_Head_Lashes"],
                     surfaces.pbr_material(f"{spec['fit']}_lashes_cutout", lashes, roughness=0.7, alpha_clip=True))
-    teeth = Path(data) / "teeth" / "teeth_base" / "teeth.png"
+    teeth = sized(Path(data) / "teeth" / "teeth_base" / "teeth.png")
     surfaces.assign(proxies["Anatomy_Head_Teeth"],
                     surfaces.pbr_material(f"{spec['fit']}_teeth", teeth, color=(0.82, 0.78, 0.68), roughness=0.4))
     if "Hair_Scalp" in proxies:
@@ -483,8 +595,57 @@ def surface_character(spec, body, proxies, shared, collar, targets, data, textur
         grooming.append(fur)
     if spec.get("beard"):
         grooming.append(surfaces.beard_shells(body, lm, spec, texture_dir, size=size))
-    decimate(proxies["Anatomy_Head_Teeth"], 0.3)
+    # Teeth stay at full resolution: decimation turns them into fangs once the
+    # jaw_open blend shape shows them.
     return grooming, lm
+
+
+TIER_TEXTURE_PX = {0: 2048, 1: 1024, 2: 512}
+CROWD_TRIANGLES = 11500
+
+
+def bake_crowd_body(spec, meshes, wardrobe):
+    """Tier 2: the default outfit baked into one decimated skinned mesh.
+
+    Crowds cannot afford 15-25 mesh nodes and ~55k triangles each. Covered
+    skin regions and teeth are dropped, the outfit's garments are joined with
+    the body, and every part is decimated to a share of the ADR 0016 crowd
+    budget (the face keeps the largest share)."""
+    outfit = next(iter(spec["outfits"].values()))
+    covered = {c for g in outfit for c in garments.WARDROBE[g][1]}
+    keep = [o for o in meshes if not o.name.startswith("Anatomy_Head_Teeth")
+            and not any(o.name.startswith(c) for c in covered)]
+    for o in meshes:
+        if o not in keep:
+            bpy.data.objects.remove(o, do_unlink=True)
+    for garment, (_, _, objects) in wardrobe.items():
+        if garment in outfit:
+            keep += objects
+        else:
+            for o in objects:
+                bpy.data.objects.remove(o, do_unlink=True)
+    share = {"Anatomy_Head": 0.24, "Anatomy_Head_Eyes": 0.03, "Hair_Scalp": 0.1, "Anatomy_Hands": 0.05}
+    fixed = sum(share.get(o.name, 0) for o in keep)
+    loose = [o for o in keep if o.name not in share and len(o.data.polygons) > 64]
+    loose_tris = sum(len(o.data.polygons) * 2 for o in loose) or 1
+    for o in keep:
+        tris = sum(len(p.vertices) - 2 for p in o.data.polygons)
+        if o.name in share:
+            budget = CROWD_TRIANGLES * share[o.name]
+        elif o in loose:
+            budget = CROWD_TRIANGLES * (1 - fixed) * (len(o.data.polygons) * 2) / loose_tris
+        else:
+            continue
+        if tris > budget:
+            decimate(o, budget / tris)
+    bpy.ops.object.select_all(action="DESELECT")
+    for o in keep:
+        o.select_set(True)
+    body = next(o for o in keep if o.name == "Anatomy_Head")
+    bpy.context.view_layer.objects.active = body
+    bpy.ops.object.join()
+    body.name = body.data.name = "Anatomy_CrowdBody"
+    return [body]
 
 
 def decimate(obj, ratio):
@@ -644,6 +805,10 @@ def export_glb(path, objects, animations):
 
 def build(name, only_body=False):
     spec = spec_module.SPECS[name]
+    if spec.get("tier") == 2 and spec.get("beard"):
+        # Crowd budget: beards are painted into the skin, not built as shells.
+        beard = spec.pop("beard")
+        spec["stubble"] = {"color": beard["color"], "amount": 0.9}
     bpy.ops.wm.read_factory_settings(use_empty=True)
     bpy.context.preferences.filepaths.save_version = 0
     motion = load_motion_rig()
@@ -684,6 +849,15 @@ def build(name, only_body=False):
         log(f"garment {garment}: {sum(len(o.data.polygons) for o in wardrobe[garment][2])} faces")
     regions = split_regions(body, shared, collar)
     meshes = regions + [braies] + proxies + grooming
+    if spec.get("tier") == 2:
+        for obj in meshes:
+            for shape in EXPRESSIONS:
+                if obj.data.attributes.get(f"fx_{shape}") is not None:
+                    obj.data.attributes.remove(obj.data.attributes[f"fx_{shape}"])
+        meshes = bake_crowd_body(spec, meshes, wardrobe)
+        wardrobe = {}
+    else:
+        add_expression_keys(meshes, scale)
     for obj in meshes:
         bind(obj, motion)
     export_glb(out / f"{name}.glb", [motion] + meshes, animations=True)

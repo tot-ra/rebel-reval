@@ -96,3 +96,36 @@ recalibration is follow-up work outside this character change.
   human and procedural `shared/*.glb` bodies remain only for their preview scenes and
   tests until retired; crowd scale (many instances) will need LOD/impostor work.
 - The environment post-grade was tuned for ADR 0018 and still needs naturalistic recalibration.
+
+## Follow-up pass (2026-10-06)
+
+- **Every named face is photo-grade.** `generate_portraits.py` renders an original
+  frontal portrait per character on the local ComfyUI with FLUX.2 [klein] 4B
+  (Apache-2.0; the fp8 release is dequantised to bf16 locally because Apple MPS
+  cannot run fp8). Prompts come from the spec (age, build, hair, beard, eye colour
+  and the face-shape targets) with a distinct seed per character.
+  `portrait_landmarks.py` finds eyes (iris catchlights), nostrils and lip line, with
+  search windows set by facial proportions so beards cannot fool it; the build then
+  projects the portrait like Kalev's. Portraits live in `<name>/reference/` (not
+  imported). Bodies without a portrait still gain under-eye shadow, lip colour,
+  capillaries, sun spots and frown, crease and neck lines.
+- **Facial animation.** Six blend shapes from MakeHuman's CC0 expression units
+  (`blink`, `jaw_open`, `smile`, `brow_up`, `frown`, `pucker`) on the head, brows,
+  lashes, beard and lower teeth. `realistic_rig.gd` blinks every 2–6 s (sometimes
+  twice), talks with a syllable-rhythm jaw while its line is shown
+  (`DialogueRunner` notifies the `dialogue_speakers` group), and exposes
+  `set_expression()` / `talk_for()`.
+- **Cloth.** Sleeves are cut roomy at the upper arm and fitted at the forearm, so
+  arm muscles no longer print through.
+- **Crowd budget.** Tier 2 crowd bodies bake their outfit into one ~11.5k-triangle
+  skinned mesh with 512 px maps (painted beards, crowd textile copies), inside the
+  ADR 0016 crowd budget; named characters keep the modular wardrobe.
+- **Grade.** Day saturation 1.08 → 0.98, night 1.08 → 0.95, day glow 0.32 → 0.20;
+  colour now comes from albedo and light. ART_BIBLE table updated.
+
+![Cast faces](images/realistic_humans/cast_faces_photo.png)
+
+![Kalev: neutral, blink, talk, smile, frown](images/realistic_humans/kalev_expressions.png)
+
+Still open: finger bones (the shared rig has none, so hands stay a loose fist) and
+cloth simulation.

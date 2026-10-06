@@ -104,7 +104,8 @@ const TONEMAP_MODE := Environment.TONE_MAPPER_AGX
 ## Exposure pass: 1.20 saturation and 1.12 contrast pushed shade toward black and
 ## read as stylised; a natural daylight grade keeps colour through the midtones.
 const GRADE_DAY_EXPOSURE := 1.05
-const GRADE_DAY_SATURATION := 1.08
+## ADR 0022: naturalistic (KCD2-like) grade; colour comes from albedo and light, not a boost.
+const GRADE_DAY_SATURATION := 0.98
 const GRADE_DAY_CONTRAST := 1.04
 const GRADE_DAY_BRIGHTNESS := 1.04
 ## Low-sun exposure lift (see low_sun_exposure_factor): none at 35 deg and above,
@@ -113,11 +114,11 @@ const LOW_SUN_EXPOSURE_BOOST := 0.3
 const LOW_SUN_EXPOSURE_FULL_ELEVATION := 8.0
 const LOW_SUN_EXPOSURE_NONE_ELEVATION := 35.0
 const GRADE_NIGHT_EXPOSURE := 0.94
-const GRADE_NIGHT_SATURATION := 1.08
+const GRADE_NIGHT_SATURATION := 0.95
 const GRADE_NIGHT_CONTRAST := 1.02
 const GRADE_NIGHT_BRIGHTNESS := 0.92
 const GLOW_HDR_THRESHOLD := 1.05
-const GLOW_INTENSITY_DAY := 0.32
+const GLOW_INTENSITY_DAY := 0.2
 const GLOW_INTENSITY_NIGHT := 0.48
 const GLOW_BLOOM := 0.10
 const GLOW_STRENGTH := 1.0

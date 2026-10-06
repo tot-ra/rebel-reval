@@ -1,0 +1,30 @@
+{
+  "model": "flux-2-klein-4b-bf16-dequant.safetensors",
+  "text_encoder": "qwen_3_4b.safetensors",
+  "license": "Apache-2.0 (FLUX.2 klein 4B)",
+  "seed": 49069,
+  "steps": 4,
+  "size": [
+    1024,
+    1536
+  ],
+  "prompt": "Frontal passport photograph of a 16-year-old lean Northern European teenage boy with a youthful beardless face from fourteenth-century Estonia, head and upper shoulders, perfectly front-facing, eyes looking straight into the camera, neutral relaxed expression, mouth closed, ears visible, symmetrical framing, face centred, dark blond hair pulled back away from the forehead and ears, soft youthful features, pale blue eyes, clean-shaven with light stubble, weathered sun-tanned skin with visible pores, freckles and fine wrinkles, no make-up, bare neck, no hat, no jewellery, flat even soft studio lighting, plain neutral grey background, sharp focus, photorealistic.",
+  "landmarks": {
+    "eye_l": [
+      643,
+      506
+    ],
+    "eye_r": [
+      381,
+      507
+    ],
+    "nose_tip": [
+      512,
+      681
+    ],
+    "mouth": [
+      512,
+      814
+    ]
+  }
+}

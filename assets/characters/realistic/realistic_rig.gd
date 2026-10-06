@@ -8,8 +8,23 @@ extends SharedCharacterRig
 const RUN_STANCE_SWEEP_LEGS := 0.30 + 0.46
 const RUN_STANCE_SEC := 0.27 * 16.0 / 24.0
 
+## Facial blend shapes baked by tools/assets/realistic_humans (ADR 0022).
+const FACE_SHAPES: Array[StringName] = [
+	&"blink", &"jaw_open", &"smile", &"brow_up", &"frown", &"pucker"
+]
+const BLINK_SECONDS := 0.14
+const TALK_SECONDS_PER_CHAR := 0.055
+
 ## Wearables equipped on spawn, before any variant wearables.
 @export var default_outfit: Array[CharacterWearable] = []
+
+var _face_targets: Dictionary = {}  # shape -> Array of [MeshInstance3D, blend shape index]
+var _expression: Dictionary = {}
+var _blink_wait := 3.0
+var _blink_left := 0.0
+var _talk_left := 0.0
+var _talk_phase := 0.0
+var _rng := RandomNumberGenerator.new()
 
 
 func _ready() -> void:
@@ -19,6 +34,85 @@ func _ready() -> void:
 			push_error("%s could not equip default wearable %s" % [name, wearable.stable_id])
 	# Default outfit can add skinned meshes after the shared _ready walk.
 	enable_authored_vertex_color_albedo($Model)
+	_collect_face_targets()
+	add_to_group(&"dialogue_speakers")
+	_rng.seed = hash(String(name))
+	_blink_wait = _rng.randf_range(1.0, 4.0)
+	set_process(not _face_targets.is_empty())
+
+
+## Hold a facial expression (smile, frown, brow_up, pucker) at weight 0..1.
+func set_expression(shape: StringName, weight: float) -> void:
+	_expression[shape] = clampf(weight, 0.0, 1.0)
+
+
+## Animate the jaw for `seconds` of speech (0 stops).
+func talk_for(seconds: float) -> void:
+	_talk_left = maxf(seconds, 0.0)
+
+
+func is_talking() -> bool:
+	return _talk_left > 0.0
+
+
+## DialogueRunner group callback: talk while this character's line is read.
+func on_dialogue_speaker(speaker_id: StringName, text_length: int) -> void:
+	if speaker_id == variant_id():
+		talk_for(clampf(text_length * TALK_SECONDS_PER_CHAR, 0.8, 8.0))
+	else:
+		talk_for(0.0)
+
+
+func face_shape_value(shape: StringName) -> float:
+	for target: Array in _face_targets.get(shape, []):
+		return (target[0] as MeshInstance3D).get_blend_shape_value(target[1])
+	return 0.0
+
+
+func _collect_face_targets() -> void:
+	_face_targets.clear()
+	for found: Node in $Model.find_children("*", "MeshInstance3D", true, false):
+		var mesh_instance := found as MeshInstance3D
+		if mesh_instance.mesh == null:
+			continue
+		for shape: StringName in FACE_SHAPES:
+			var index := mesh_instance.find_blend_shape_by_name(shape)
+			if index >= 0:
+				if not _face_targets.has(shape):
+					_face_targets[shape] = []
+				_face_targets[shape].append([mesh_instance, index])
+
+
+func _process(delta: float) -> void:
+	_blink_wait -= delta
+	if _blink_wait <= 0.0:
+		_blink_left = BLINK_SECONDS
+		# Occasional double blink, otherwise every 2-6 s.
+		var double := _rng.randf() < 0.15
+		_blink_wait = _rng.randf_range(0.25, 0.4) if double else _rng.randf_range(2.0, 6.0)
+	var blink := 0.0
+	if _blink_left > 0.0:
+		_blink_left -= delta
+		blink = sin(clampf(1.0 - _blink_left / BLINK_SECONDS, 0.0, 1.0) * PI)
+	var jaw := 0.0
+	var pucker := float(_expression.get(&"pucker", 0.0))
+	if _talk_left > 0.0:
+		_talk_left -= delta
+		_talk_phase += delta
+		# Syllable rhythm: ~5 Hz open/close under an irregular envelope.
+		var syllable := absf(sin(_talk_phase * 15.0)) * (0.55 + 0.45 * sin(_talk_phase * 3.7))
+		jaw = 0.06 + 0.22 * syllable
+		pucker = maxf(pucker, 0.25 * maxf(sin(_talk_phase * 6.3), 0.0))
+	_set_shape(&"blink", blink)
+	_set_shape(&"jaw_open", jaw)
+	_set_shape(&"pucker", pucker)
+	for shape: StringName in [&"smile", &"brow_up", &"frown"]:
+		_set_shape(shape, float(_expression.get(shape, 0.0)))
+
+
+func _set_shape(shape: StringName, value: float) -> void:
+	for target: Array in _face_targets.get(shape, []):
+		(target[0] as MeshInstance3D).set_blend_shape_value(target[1], value)
 
 
 func equip_garment(garment_id: StringName, scene: PackedScene) -> bool:

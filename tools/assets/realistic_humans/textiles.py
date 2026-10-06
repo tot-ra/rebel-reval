@@ -211,8 +211,14 @@ def _png(path, rgb, srgb):
 FAMILIES = {"wool": wool, "linen": linen, "leather": leather, "mail": mail, "quilted": quilted, "iron": iron}
 
 
-def texture_paths(family):
-    return {kind: OUT / f"{family}_{kind}.png" for kind in ("albedo", "normal", "orm")}
+def texture_paths(family, size=SIZE):
+    """Maps for a family; `size` 512 selects the crowd (Tier 2) copies."""
+    suffix = "" if size >= SIZE else f"_{size}"
+    return {kind: OUT / f"{family}_{kind}{suffix}.png" for kind in ("albedo", "normal", "orm")}
+
+
+def _half(img):
+    return img.reshape(img.shape[0] // 2, 2, img.shape[1] // 2, 2, img.shape[2]).mean(axis=(1, 3))
 
 
 def write_all():
@@ -223,6 +229,12 @@ def write_all():
         _png(paths["albedo"], albedo, srgb=True)
         _png(paths["normal"], normal, srgb=False)
         _png(paths["orm"], orm_map, srgb=False)
+        small = texture_paths(family, SIZE // 2)
+        _png(small["albedo"], _half(albedo), srgb=True)
+        normal_small = _half(normal * 2 - 1)
+        normal_small /= np.linalg.norm(normal_small, axis=-1, keepdims=True)
+        _png(small["normal"], normal_small * 0.5 + 0.5, srgb=False)
+        _png(small["orm"], _half(orm_map), srgb=False)
         print("wrote", family)
 
 

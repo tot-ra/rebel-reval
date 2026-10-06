@@ -11,6 +11,9 @@ const PresenterScript := preload("res://scripts/dialogue/dialogue_presenter.gd")
 const EntryResolverScript := preload("res://scripts/dialogue/dialogue_entry_resolver.gd")
 const TextFormatterScript := preload("res://scripts/dialogue/dialogue_text_formatter.gd")
 const LocalizationScript := preload("res://scripts/dialogue/dialogue_localization.gd")
+## Characters in this group receive on_dialogue_speaker(speaker_id, text_length)
+## for every presented line (and an empty id on close) to animate talking.
+const SPEAKER_GROUP := &"dialogue_speakers"
 const CONTINUE_ACTIONS: Array[StringName] = [
 	&"interact",
 	&"ui_accept",
@@ -265,6 +268,7 @@ func _enter_node(node_id: String, depth: int = 0) -> bool:
 	var speaker_id := StringName(String(node.get("speaker_id", "")))
 	if not text.is_empty():
 		_presenter.present_line(speaker_id, _speaker_name(speaker_id), text, node_id)
+		_announce_speaker(speaker_id, text.length())
 		if not choices.is_empty():
 			_pending_choices = choices
 		return true
@@ -413,7 +417,13 @@ func _close() -> void:
 	set_process_unhandled_input(false)
 	if _presenter != null:
 		_presenter.close()
+	_announce_speaker(&"", 0)
 	finished.emit(finished_id)
+
+
+func _announce_speaker(speaker_id: StringName, text_length: int) -> void:
+	if is_inside_tree():
+		get_tree().call_group(SPEAKER_GROUP, &"on_dialogue_speaker", speaker_id, text_length)
 
 
 func _enable_advance() -> void:

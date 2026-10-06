@@ -535,7 +535,7 @@ def textile_material(ctx, family, color, key):
     name = f"{ctx.spec['fit']}_{key}"
     if name in ctx.materials:
         return ctx.materials[name]
-    paths = textiles.texture_paths(family)
+    paths = textiles.texture_paths(family, 512 if ctx.spec.get("tier") == 2 else textiles.SIZE)
     mat = surfaces.pbr_material(name, paths["albedo"], paths["normal"], paths["orm"], color=color,
                                 roughness=0.85)
     if family in ("mail", "iron"):
@@ -630,8 +630,14 @@ def tunic(ctx, key, sleeve="full", hem="knee", extra_ease=0.0, belted=True, colo
     sleeve_end = {"full": wrist, "rolled": elbow + 0.06, "none": t["upperarm.l"].x + 0.035}[sleeve]
     waist_z = t["spine"].z - 0.02
     hip_cut = t["hips"].z + 0.02
-    ease = lambda p: 0.018 + extra_ease + 0.012 * surfaces.smoothstep(t["chest"].z, waist_z, p.z) + \
-        (0.008 + extra_ease * 0.5 if abs(p.x) > t["upperarm.l"].x + 0.02 else 0.0)
+    shoulder, wrist_x = t["upperarm.l"].x + 0.02, t["wrist.l"].x
+
+    def ease(p):
+        if abs(p.x) > shoulder:
+            # Period sleeves: roomy at the upper arm, fitted at the forearm.
+            along = min(1.0, (abs(p.x) - shoulder) / max(wrist_x - shoulder, 0.1))
+            return 0.03 * (1 - along) + 0.01 * along + extra_ease * 0.5
+        return 0.018 + extra_ease + 0.012 * surfaces.smoothstep(t["chest"].z, waist_z, p.z)
     obj = bodice(ctx, f"Garment_{key}", ease, sleeve_end, hip_cut)
     loft_skirt(ctx, obj, hem_height(ctx, hem), flare=flare, fold_depth=0.018 * flare / 1.55,
                folds=folds, seed=3, rings=10 if hem in ("thigh", "knee") else 16)

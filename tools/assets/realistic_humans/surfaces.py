@@ -257,7 +257,7 @@ def _save(path, rgb, colorspace="sRGB"):
     return img
 
 
-def project_face_photo(photo, raster, lin, lm, size, beard):
+def project_face_photo(photo, raster, lin, lm, size, beard, has_beard_shells=True):
     """Front-project an original face portrait onto the face (hero polish).
 
     `photo` = {"path": repo-relative image, "landmarks": {"eye_l", "eye_r",
@@ -296,8 +296,20 @@ def project_face_photo(photo, raster, lin, lm, size, beard):
     weight = oval * front * smoothstep(0.45, 0.8, facing)
     for eye in (lm["eye_l"], lm["eye_r"]):
         weight *= smoothstep(0.009, 0.016, np.linalg.norm(p - eye, axis=-1))
-    # The fur shells own the beard; the photo's beard edges only smear there.
-    weight *= 1.0 - smoothstep(0.1, 0.5, beard)
+    # The fur shells own a full beard; the photo's beard edges only smear there.
+    # (Stubble faces keep the portrait's own stubble.)
+    if has_beard_shells:
+        weight *= 1.0 - smoothstep(0.02, 0.25, beard)
+    # The portrait's own beard reaches the cheeks: below the nose keep only
+    # the centre strip (lips, philtrum), where it lines up with ours.
+    if has_beard_shells:
+        below_nose = smoothstep(lm["nose_tip"][2] - 0.004, lm["nose_tip"][2] - 0.018, p[..., 2])
+        off_centre = smoothstep(0.016, 0.026, np.abs(p[..., 0] - eyes_mid[0]))
+        weight *= 1.0 - below_nose * off_centre
+        # Sideburns/cheeks: a portrait beard often grows higher than ours.
+        cheek = smoothstep(0.032, 0.048, np.abs(p[..., 0] - eyes_mid[0])) * \
+            smoothstep(eyes_mid[2] - 0.012, eyes_mid[2] - 0.03, p[..., 2])
+        weight *= 1.0 - cheek
     photo_lin = srgb_to_linear(sample.astype(np.float64)) if img.colorspace_settings.name != "Linear Rec.709" \
         else sample.astype(np.float64)
     # Colour-match on the blend band so photo and base skin meet without a seam.
@@ -340,6 +352,11 @@ def opaque_median(path):
     # Blender stores sRGB images linearised; convert back for a palette value.
     rgb = linear_to_srgb(px[px[:, 3] > 0.9, :3]) if img.colorspace_settings.name == "Linear Rec.709" else px[px[:, 3] > 0.9, :3]
     return [float(c) for c in np.median(rgb, axis=0)]
+
+
+def exposed_tan(tan):
+    """Sun exposure proxy (face, neck, hands) from the tan field, 0..1."""
+    return np.clip(tan / max(float(tan.max()), 1e-4), 0, 1)
 
 
 def srgb_to_linear(c):
@@ -387,9 +404,24 @@ def bake_skin(body, spec, lm, regions_of_vertex, base_albedo_path, out_dir, size
     lin = lin * (1 - cover[..., None]) + scalp_hair * streak[..., None] * cover[..., None]
     grime = smoothstep(0.35, 0.8, fbm(p, 28.0, 4, seed=7)) * soot
     lin = lin * (1 - 0.75 * grime[..., None]) + np.array([0.035, 0.03, 0.028]) * 0.75 * grime[..., None]
+    # Face life for bodies without a portrait: under-eye shadow, lip colour,
+    # nose/cheek capillaries and (with age) sun spots. Never on the photo face.
+    eye_shadow = np.zeros_like(tan)
+    for eye in (lm["eye_l"], lm["eye_r"]):
+        under = eye + np.array([0.0, -0.004, -0.014])
+        eye_shadow += np.exp(-np.sum(((p - under) * np.array([0.7, 1.0, 1.6])) ** 2, axis=-1) / (0.011 ** 2))
+    eye_shadow = np.clip(eye_shadow, 0, 1) * head * (0.25 + 0.35 * age_amount)
+    lin *= (1 - eye_shadow[..., None] * np.array([0.22, 0.30, 0.26]))
+    lip_tone = smoothstep(0.3, 0.8, lips)[..., None]
+    lin = lin * (1 - 0.35 * lip_tone) + lin * np.array([1.18, 0.78, 0.80]) * 0.35 * lip_tone
+    capillary = smoothstep(0.72, 0.9, value_noise(p, 700.0, seed=51)) * np.clip(flush * 1.6, 0, 1)
+    lin *= (1 - capillary[..., None] * np.array([0.0, 0.25, 0.22]))
+    spots = smoothstep(0.86, 0.95, value_noise(p, 160.0, seed=52)) * age_amount * exposed_tan(tan)
+    lin *= (1 - spots[..., None] * np.array([0.18, 0.25, 0.32]))
     photo_detail = np.zeros_like(tan)
     if spec.get("face_photo"):
-        lin, photo_detail = project_face_photo(spec["face_photo"], raster, lin, lm, size, beard)
+        lin, photo_detail = project_face_photo(spec["face_photo"], raster, lin, lm, size, beard,
+                                               has_beard_shells=bool(spec.get("beard")))
     albedo = linear_to_srgb(lin)
 
     # Height field in metres-equivalent units; converted to tangent normals.
@@ -408,6 +440,26 @@ def bake_skin(body, spec, lm, regions_of_vertex, base_albedo_path, out_dir, size
             ang = np.arctan2(p[..., 2] - corner[2], np.abs(p[..., 1] - corner[1]) + 1e-4)
             crow = smoothstep(0.03, 0.006, d) * smoothstep(0.0, 0.004, d)
             lines += -crow * smoothstep(0.5, 1.0, np.cos(ang * 9.0)) * 1.4 * age_amount
+        # Glabella frown lines, under-eye creases, mouth-corner and neck lines.
+        brow_mid = (lm["eye_l"] + lm["eye_r"]) / 2 + np.array([0.0, -0.006, 0.022])
+        for s in (1, -1):
+            top = brow_mid + np.array([s * 0.005, 0.0, 0.016])
+            d = segment_distance(p, brow_mid + np.array([s * 0.006, 0.0, -0.004]), top)
+            lines += -np.exp(-(d / 0.0011) ** 2) * head * 1.3 * age_amount
+        for eye in (lm["eye_l"], lm["eye_r"]):
+            side = np.sign(eye[0])
+            a = eye + np.array([-side * 0.012, -0.002, -0.012])
+            b = eye + np.array([side * 0.016, 0.004, -0.01])
+            d = segment_distance(p, a, b)
+            lines += -np.exp(-(d / 0.0014) ** 2) * head * 1.2 * age_amount
+        for s in (1, -1):
+            corner = lm["mouth"] + np.array([s * 0.024, 0.004, -0.003])
+            d = segment_distance(p, corner, corner + np.array([s * 0.004, 0.004, -0.014]))
+            lines += -np.exp(-(d / 0.0014) ** 2) * head * 1.1 * age_amount
+        neck = smoothstep(lm["chin"][2] - 0.02, lm["chin"][2] - 0.035, p[..., 2]) * \
+            smoothstep(lm["neck"][2] + 0.0, lm["neck"][2] + 0.03, p[..., 2]) * \
+            smoothstep(lm["eye_l"][1] + 0.08, lm["eye_l"][1] + 0.03, p[..., 1])
+        lines += -neck * smoothstep(0.7, 1.0, np.cos((p[..., 2] + wobble) * 2 * math.pi / 0.014)) * 0.9 * age_amount
         for s in (1, -1):
             wing = lm["nose_tip"] + np.array([s * 0.017, 0.012, 0.0])
             corner = lm["mouth"] + np.array([s * 0.026, 0.004, -0.004])
@@ -421,7 +473,7 @@ def bake_skin(body, spec, lm, regions_of_vertex, base_albedo_path, out_dir, size
     dpy = np.linalg.norm(np.gradient(p, axis=0), axis=-1)
     texel = np.clip((dpx + dpy) / 2, 1e-5, 0.01)
     gy, gx = np.gradient(height)
-    strength = 0.00022
+    strength = 0.00028
     nx = -gx * strength / texel
     ny = -gy * strength / texel
     nz = np.ones_like(nx)

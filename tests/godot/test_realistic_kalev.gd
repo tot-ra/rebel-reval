@@ -119,3 +119,26 @@ func _mesh(mesh_name: String) -> MeshInstance3D:
 		if String(found.name) == mesh_name:
 			return found as MeshInstance3D
 	return null
+
+
+func test_face_blinks_and_talks_through_blend_shapes() -> void:
+	for shape: StringName in [&"blink", &"jaw_open", &"smile", &"frown"]:
+		assert_true(_mesh("Anatomy_Head").find_blend_shape_by_name(shape) >= 0, "missing %s" % shape)
+	assert_true(_mesh("Anatomy_Head_Lashes").find_blend_shape_by_name(&"blink") >= 0,
+		"lashes must follow the eyelids")
+	var realistic := rig as Node
+	var blinked := false
+	for _frame: int in 400:
+		realistic.call("_process", 1.0 / 60.0)
+		blinked = blinked or float(realistic.call("face_shape_value", &"blink")) > 0.5
+	assert_true(blinked, "Kalev must blink within a few seconds")
+	assert_false(bool(realistic.call("is_talking")))
+	realistic.call("on_dialogue_speaker", &"char.kalev", 60)
+	assert_true(bool(realistic.call("is_talking")), "Kalev talks while his line is read")
+	var opened := false
+	for _frame: int in 60:
+		realistic.call("_process", 1.0 / 60.0)
+		opened = opened or float(realistic.call("face_shape_value", &"jaw_open")) > 0.15
+	assert_true(opened, "the jaw moves while talking")
+	realistic.call("on_dialogue_speaker", &"char.mart", 40)
+	assert_false(bool(realistic.call("is_talking")), "another speaker's line silences Kalev")

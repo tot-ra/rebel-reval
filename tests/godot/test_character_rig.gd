@@ -1069,20 +1069,42 @@ func _source_albedo(character: SharedCharacterRig, material_name: StringName) ->
 	return Color.BLACK
 
 
+const TORSO_MATERIAL_SUFFIXES: Array[String] = [
+	"_wool_tunic", "_short_tunic", "_long_tunic", "_gown", "_work_gown"
+]
+
+
+## Crowd bodies (Tier 2) bake their outfit into one mesh, so garments are
+## found by material name rather than by mounted wearable nodes.
 func _torso_garment_material(character: SharedCharacterRig) -> BaseMaterial3D:
-	for found: Node in character.find_children("Garment_wearable_torso_*", "MeshInstance3D", true, false):
-		var active := (found as MeshInstance3D).get_active_material(0)
-		if active is BaseMaterial3D:
-			return active as BaseMaterial3D
+	for found: Node in character.find_children("*", "MeshInstance3D", true, false):
+		var mesh_instance := found as MeshInstance3D
+		if mesh_instance.mesh == null:
+			continue
+		for surface: int in mesh_instance.mesh.get_surface_count():
+			var source := mesh_instance.mesh.surface_get_material(surface)
+			if source == null:
+				continue
+			for suffix: String in TORSO_MATERIAL_SUFFIXES:
+				if String(source.resource_name).ends_with(suffix):
+					var active := mesh_instance.get_active_material(surface)
+					if active is BaseMaterial3D:
+						return active as BaseMaterial3D
 	return null
 
 
 func _wearable_ids(character: SharedCharacterRig) -> Array[String]:
+	var prefix := String(character.variant_id()).trim_prefix("char.") + "_"
 	var ids: Array[String] = []
-	for slot: String in CharacterWardrobe.SLOTS:
-		var wearable := character.equipped_wearable(StringName(slot))
-		if wearable != null:
-			ids.append(String(wearable.stable_id).get_extension())
+	for found: Node in character.find_children("*", "MeshInstance3D", true, false):
+		var mesh_instance := found as MeshInstance3D
+		if mesh_instance.mesh == null:
+			continue
+		for surface: int in mesh_instance.mesh.get_surface_count():
+			var source := mesh_instance.mesh.surface_get_material(surface)
+			if source != null and not ids.has(String(source.resource_name).trim_prefix(prefix)):
+				ids.append(String(source.resource_name).trim_prefix(prefix))
+	ids.sort()
 	return ids
 
 

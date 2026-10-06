@@ -36,6 +36,15 @@ def row(path):
         return [asset_id, rel, "MakeHuman community (Data Collection AB, Joel Palmius, Jonas Hauquier)",
                 "makehuman_system_assets_cc0", f"{MH_PACK}; {digest}", "not applicable", "CC0 1.0",
                 "Copied unmodified from the CC0 system asset pack by build_human.py.", APPROVAL]
+    if len(parts) > 2 and parts[1] == "reference":
+        import json
+        meta = json.loads((path.parent / "portrait.json").read_text())
+        return [asset_id, rel, "project maintainer (local ComfyUI)",
+                f"FLUX.2 [klein] 4B ({meta['model']}), {meta['text_encoder']}",
+                f"generate_portraits.py prompt in portrait.json; {digest}", str(meta["seed"]),
+                "AGPL-3.0-or-later (project); FLUX.2 klein 4B weights Apache-2.0",
+                "Original generated frontal portrait; build-time face texture source, not shipped "
+                "(.gdignore).", APPROVAL]
     if len(parts) > 1 and parts[1] == "textures":
         return [asset_id, rel, "project maintainer; MakeHuman CC0 base texture",
                 "tools/assets/realistic_humans/surfaces.py (numpy) over MakeHuman CC0 skin/hair",
