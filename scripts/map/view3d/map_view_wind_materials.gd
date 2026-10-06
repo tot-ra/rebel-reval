@@ -18,10 +18,18 @@ const FISHING_NET_SINKER_TEXTURE := preload(
 const BLACK_CLOAKS_BANNER_TEXTURE := preload("res://assets/heraldry/black_cloaks_banner.png")
 
 static var _cache: Dictionary = {}
+## R-1187: last calendar date and wetness pushed into vegetation. Kept here so a
+## species canopy material created later (streamed chunk, reset cache) starts
+## in the current season instead of the summer defaults.
+static var _season_date: Dictionary = GameCalendar.DEFAULT_DATE.duplicate()
+static var _vegetation_wetness := 0.0
+static var _world_wind_direction := Vector2(0.9285, 0.3714)
+static var _world_wind_strength := 0.22
 
 
 static func reset() -> void:
 	_cache.clear()
+	_vegetation_wetness = 0.0
 
 
 ## Pushes the shared world wind field into grass, canopy, sail, and flag cloth.
@@ -33,12 +41,28 @@ static func apply_world_wind(direction: Vector2, strength: float) -> void:
 	else:
 		dir = dir.normalized()
 	var wind := clampf(strength, 0.0, 1.0)
+	_world_wind_direction = dir
+	_world_wind_strength = wind
 	for material in wind_materials():
 		material.set_shader_parameter("wind_direction", dir)
 		material.set_shader_parameter("wind_strength", wind)
 
 
+static func world_wind_direction() -> Vector2:
+	return _world_wind_direction
+
+
+static func world_wind_strength() -> float:
+	return _world_wind_strength
+
+
 static func wind_materials() -> Array[ShaderMaterial]:
+	var materials: Array[ShaderMaterial] = _species_canopies()
+	materials.append_array(_shared_wind_materials())
+	return materials
+
+
+static func _shared_wind_materials() -> Array[ShaderMaterial]:
 	return [
 		grass_blades(),
 		canopy(&"spruce"),
@@ -127,6 +151,70 @@ static func canopy(kind: StringName) -> ShaderMaterial:
 			material.set_shader_parameter("sway_strength", 0.06)
 	_cache[key] = material
 	return material
+
+
+## Per-species tree crown material (R-1187). Same shader and kind tuning as
+## canopy(kind), but one material per species so seasonal leaf density, size
+## and autumn palette can differ between early birches and late oaks. Trees are
+## already batched one MultiMesh per species, so this adds no draw calls.
+static func canopy_for_species(species: StringName) -> ShaderMaterial:
+	var key := "canopy_species:%s" % String(species)
+	if _cache.has(key):
+		return _cache[key]
+	var template := canopy(MapViewTreeSpecies.canopy_material_kind(species))
+	var material := template.duplicate() as ShaderMaterial
+	material.set_meta(&"tree_species", species)
+	var palette := VegetationPhenology.autumn_colors(species)
+	material.set_shader_parameter("autumn_color_a", palette[0])
+	material.set_shader_parameter("autumn_color_b", palette[1])
+	material.set_shader_parameter("wind_direction", _world_wind_direction)
+	material.set_shader_parameter("wind_strength", _world_wind_strength)
+	material.set_shader_parameter("wetness", _vegetation_wetness)
+	_apply_season_to(material, species, _season_date)
+	_cache[key] = material
+	return material
+
+
+## Pushes the campaign date into every tree crown. Cheap: one uniform set per
+## species material, no mesh rebuild, and streamed chunks inherit it.
+static func apply_vegetation_season(date: Dictionary) -> void:
+	_season_date = GameCalendar.normalize_date(date)
+	for material in _species_canopies():
+		_apply_season_to(material, material.get_meta(&"tree_species"), _season_date)
+
+
+static func vegetation_season_date() -> Dictionary:
+	return _season_date.duplicate()
+
+
+## Rain wetness for leaves (bark is handled by MapViewPropMaterials). Values are
+## quantised so the per-frame weather fan-out does not touch uniforms needlessly.
+static func apply_vegetation_wetness(wetness: float) -> void:
+	var value := snappedf(clampf(wetness, 0.0, 1.0), 0.02)
+	if is_equal_approx(value, _vegetation_wetness):
+		return
+	_vegetation_wetness = value
+	for material in _species_canopies():
+		material.set_shader_parameter("wetness", value)
+
+
+static func _apply_season_to(
+	material: ShaderMaterial, species: StringName, date: Dictionary
+) -> void:
+	var state := VegetationPhenology.state_for(species, date)
+	material.set_shader_parameter("leaf_density", float(state["leaf_density"]))
+	material.set_shader_parameter("leaf_scale", float(state["leaf_scale"]))
+	material.set_shader_parameter("freshness", float(state["freshness"]))
+	material.set_shader_parameter("autumn", float(state["autumn"]))
+	material.set_shader_parameter("winter_dull", float(state["winter_dull"]))
+
+
+static func _species_canopies() -> Array[ShaderMaterial]:
+	var materials: Array[ShaderMaterial] = []
+	for key: String in _cache.keys():
+		if key.begins_with("canopy_species:"):
+			materials.append(_cache[key])
+	return materials
 
 
 ## Merchant square sail: hangs free along UV.y from the yard, billows with wind.

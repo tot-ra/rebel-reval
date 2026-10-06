@@ -754,6 +754,12 @@ func _current_locomotion_animation() -> String:
 	return "idle"
 
 
+## World-facing direction on the logic plane; read by presentation (R-1187
+## tree strikes) so it never has to reach into private movement state.
+func facing_direction() -> Vector2:
+	return _facing_direction
+
+
 func _on_attack_impact() -> void:
 	var profile := _active_attack_profile
 	var targets: Array[Node2D] = MeleeAttackResolverScript.strike_with_profile(

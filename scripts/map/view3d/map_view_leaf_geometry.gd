@@ -3,6 +3,12 @@ extends RefCounted
 
 ## Small opaque folded leaves: no alpha cards, textures or per-leaf nodes.
 ## The existing tree skeleton still owns leaf positions and species identity.
+##
+## Seasonal contract (R-1187): when `leaf_seed` >= 0 every vertex carries
+## CUSTOM0 = (petiole xyz, leaf_seed). The canopy shader shrinks a leaf toward
+## its petiole for young spring leaves, collapses it to a point when the season
+## says it has fallen, and picks its autumn hue from the seed. The caller must
+## enable SurfaceTool custom channel 0 (CUSTOM_RGBA_FLOAT) before appending.
 static func append_leaf(
 	surface: SurfaceTool,
 	species: StringName,
@@ -10,7 +16,8 @@ static func append_leaf(
 	direction: Vector3,
 	length: float,
 	width: float,
-	color: Color
+	color: Color,
+	leaf_seed: float = -1.0
 ) -> void:
 	var axis := direction.normalized()
 	var side := axis.cross(Vector3.UP)
@@ -19,8 +26,11 @@ static func append_leaf(
 	side = side.normalized()
 	var normal := side.cross(axis).normalized()
 	var needle := species in [&"spruce", &"pine", &"juniper"]
+	var petiole := center + axis * (-0.48 * length)
+	var custom := Color(petiole.x, petiole.y, petiole.z, leaf_seed)
+	var use_custom := leaf_seed >= 0.0
 	if needle:
-		_append_needles(surface, center, axis, side, normal, length, color)
+		_append_needles(surface, center, axis, side, normal, length, color, custom, use_custom)
 		return
 	var lobed := species in [&"oak", &"maple", &"hawthorn"]
 	var steps := 5 if lobed else 3
@@ -44,6 +54,8 @@ static func append_leaf(
 			surface.set_color(color)
 			surface.set_uv(point[1])
 			surface.set_uv2(Vector2(1, 0))
+			if use_custom:
+				surface.set_custom(0, custom)
 			surface.add_vertex(point[0])
 
 
@@ -54,7 +66,9 @@ static func _append_needles(
 	side: Vector3,
 	normal: Vector3,
 	length: float,
-	color: Color
+	color: Color,
+	custom: Color,
+	use_custom: bool
 ) -> void:
 	# A terminal shoot carries paired needles instead of one oversized diamond.
 	# Fourteen opaque needles cost 28 triangles, shared by all tree instances.
@@ -78,6 +92,8 @@ static func _append_needles(
 					)
 				)
 				surface.set_uv2(Vector2(1, 0))
+				if use_custom:
+					surface.set_custom(0, custom)
 				surface.add_vertex(points[i])
 
 

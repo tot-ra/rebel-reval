@@ -326,6 +326,7 @@ func _on_player_health_changed(current: float, maximum: float) -> void:
 
 
 func _on_player_melee_attack_resolved(targets: Array[Node2D], profile: AttackProfile) -> void:
+	_strike_vegetation(profile)
 	if targets.is_empty() or profile == null or not _request_screen_shake.is_valid():
 		return
 	if profile.animation not in [&"hammer_attack", &"hammer_charged_attack"]:
@@ -334,6 +335,23 @@ func _on_player_melee_attack_resolved(targets: Array[Node2D], profile: AttackPro
 	if profile.animation == &"hammer_charged_attack":
 		amount = 0.28
 	_request_screen_shake.call(amount)
+
+
+## R-1187: every landed swing (hit or whiff) may shake a tree in reach and
+## knock leaves loose. Heavy blows shake harder and drop more.
+func _strike_vegetation(profile: AttackProfile) -> void:
+	if profile == null or _player == null or _view == null or not is_instance_valid(_view):
+		return
+	if not _player.has_method("facing_direction"):
+		return
+	var strength := 1.6 if profile.is_heavy else 1.0
+	_view.strike_vegetation(
+		_player.global_position,
+		_player.call("facing_direction"),
+		profile.reach_px,
+		profile.facing_dot,
+		strength
+	)
 
 
 static func _sync_actor_health_ring(rig: SharedCharacterRig, actor: Node) -> void:

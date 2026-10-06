@@ -222,6 +222,10 @@ static func apply_weather_presentation(
 	)
 	apply_mud_wetness(presentation.puddle_wetness)
 	apply_world_wind(presentation.wind_direction, presentation.wind_strength)
+	# Leaves and bark wet faster than ground pools: active rain counts directly.
+	var foliage_wetness := maxf(presentation.puddle_wetness, presentation.rain_intensity)
+	WIND_MATERIALS.apply_vegetation_wetness(foliage_wetness)
+	PROP_MATERIALS.apply_bark_wetness(foliage_wetness)
 
 
 ## Water material API remains here for existing map builders and tests. The
@@ -342,6 +346,20 @@ static func apply_water_sky_reflection(
 ## tests. Their independent cache lives in WIND_MATERIALS.
 static func apply_world_wind(direction: Vector2, strength: float) -> void:
 	WIND_MATERIALS.apply_world_wind(direction, strength)
+
+
+## R-1187 seasonal tree crowns; see VegetationPhenology.
+static func canopy_for_species(species: StringName) -> ShaderMaterial:
+	return WIND_MATERIALS.canopy_for_species(species)
+
+
+static func apply_vegetation_season(date: Dictionary) -> void:
+	WIND_MATERIALS.apply_vegetation_season(date)
+	PROP_MATERIALS.apply_fruit_season(date)
+
+
+static func tree_fruit_for_species(species: StringName) -> StandardMaterial3D:
+	return PROP_MATERIALS.tree_fruit_for_species(species)
 
 
 static func grass_blades() -> ShaderMaterial:

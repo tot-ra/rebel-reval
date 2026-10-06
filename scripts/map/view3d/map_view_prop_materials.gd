@@ -31,10 +31,15 @@ const SURROUNDINGS_GROUND_SEED := 8117
 const ROCK_NORMAL_STRENGTH := 1.8
 
 static var _cache: Dictionary = {}
+## R-1187 vegetation season/weather inputs (see apply_fruit_season, apply_bark_wetness).
+static var _fruit_season_date: Dictionary = GameCalendar.DEFAULT_DATE.duplicate()
+static var _bark_wetness := 0.0
 
 
 static func reset() -> void:
 	_cache.clear()
+	# Fresh bark materials start dry; force the next weather frame to re-apply.
+	_bark_wetness = -1.0
 
 
 ## Prop surface materials keyed by the shared visual-style roles so the
@@ -279,6 +284,59 @@ static func tree_fruit() -> StandardMaterial3D:
 	var material := _patterned("tree_fruit", Color.WHITE, PATTERN_SPECKLE)
 	material.roughness = 0.76
 	return material
+
+
+## Per-species fruit material (R-1187) so apples are not hanging in April.
+## Alpha scissor lets the season hide fruit with one uniform instead of walking
+## streamed chunks; fruit meshes are tiny, so the discard path is negligible.
+static func tree_fruit_for_species(species: StringName) -> StandardMaterial3D:
+	var key := "tree_fruit_species:%s" % String(species)
+	if _cache.has(key):
+		return _cache[key]
+	var material := tree_fruit().duplicate() as StandardMaterial3D
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
+	material.alpha_scissor_threshold = 0.5
+	material.set_meta(&"tree_species", species)
+	_set_fruit_visible(material, _fruit_visible(species, _fruit_season_date))
+	_cache[key] = material
+	return material
+
+
+static func apply_fruit_season(date: Dictionary) -> void:
+	_fruit_season_date = GameCalendar.normalize_date(date)
+	for key: String in _cache.keys():
+		if key.begins_with("tree_fruit_species:"):
+			var material := _cache[key] as StandardMaterial3D
+			_set_fruit_visible(
+				material, _fruit_visible(material.get_meta(&"tree_species"), _fruit_season_date)
+			)
+
+
+static func _fruit_visible(species: StringName, date: Dictionary) -> bool:
+	return bool(VegetationPhenology.state_for(species, date)["fruit_visible"])
+
+
+static func _set_fruit_visible(material: StandardMaterial3D, visible: bool) -> void:
+	var color := material.albedo_color
+	color.a = 1.0 if visible else 0.0
+	material.albedo_color = color
+
+
+## Wet bark darkens and turns glossy in rain. The dry colour and roughness are
+## remembered on the material so repeated weather frames never drift.
+static func apply_bark_wetness(wetness: float) -> void:
+	var value := snappedf(clampf(wetness, 0.0, 1.0), 0.02)
+	if is_equal_approx(value, _bark_wetness):
+		return
+	_bark_wetness = value
+	for kind: StringName in [&"bark", &"birch", &"cherry"]:
+		var material := bark(kind)
+		if not material.has_meta(&"dry_albedo"):
+			material.set_meta(&"dry_albedo", material.albedo_color)
+			material.set_meta(&"dry_roughness", material.roughness)
+		var dry: Color = material.get_meta(&"dry_albedo")
+		material.albedo_color = dry.darkened(0.42 * value)
+		material.roughness = lerpf(float(material.get_meta(&"dry_roughness")), 0.38, value)
 
 
 static func surroundings_ground() -> StandardMaterial3D:

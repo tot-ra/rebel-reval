@@ -91,11 +91,15 @@ static func _build_canopy_mesh(
 ) -> Dictionary:
 	var surface := SurfaceTool.new()
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	# CUSTOM0 carries petiole + per-leaf seed for seasonal leaf density, size and
+	# autumn hue (see MapViewLeafGeometry.append_leaf and map_view_canopy.gdshader).
+	surface.set_custom_format(0, SurfaceTool.CUSTOM_RGBA_FLOAT)
 	var candidates: Array = skeleton["leaf_candidates"]
 	var spray_count := mini(int(profile["leaf_sprays"]), candidates.size())
 	var leaves_per_spray := int(profile["leaves_per_spray"])
 	var leaf_count := 0
 	var used_anchors: Array[Dictionary] = []
+	var crown := _crown_bounds(candidates)
 	for spray_index in spray_count:
 		# Striding distributes foliage over the full recursion instead of filling
 		# the first generated side of the crown when a profile hits its budget.
@@ -128,6 +132,9 @@ static func _build_canopy_mesh(
 				width_ratio = 0.26
 			var light := lerpf(0.78, 1.12, _hash(leaf_index, seed, 431))
 			var color := _leaf_vertex_color(species, light)
+			# Alpha is crown self-occlusion: inner and underside leaves receive
+			# less sky light. Instance tints keep alpha 1, so the product survives.
+			color.a = _crown_occlusion(center, crown)
 			LeafGeometry.append_leaf(
 				surface,
 				species,
@@ -135,7 +142,8 @@ static func _build_canopy_mesh(
 				leaf_direction,
 				leaf_length,
 				leaf_length * width_ratio,
-				color
+				color,
+				_hash(leaf_index, seed, 467)
 			)
 			leaf_count += 1
 	var fruit_count := mini(int(profile["fruit_count"]), used_anchors.size())
@@ -146,6 +154,31 @@ static func _build_canopy_mesh(
 		"fruit_count": fruit_count,
 		"anchors": used_anchors,
 	}
+
+
+## Centre and half-extents of the leaf-bearing crown, used for occlusion.
+static func _crown_bounds(candidates: Array) -> AABB:
+	if candidates.is_empty():
+		return AABB(Vector3.ZERO, Vector3.ONE)
+	var bounds := AABB((candidates[0] as Dictionary)["position"], Vector3.ZERO)
+	for candidate: Dictionary in candidates:
+		bounds = bounds.expand(candidate["position"])
+	return bounds
+
+
+## Cheap ambient occlusion baked per leaf: 1 at the outer shell and top, down to
+## ~0.5 deep inside and under the crown. Real crowns are dark inside; without
+## this the procedural canopy reads as a uniformly lit green blob.
+static func _crown_occlusion(position: Vector3, crown: AABB) -> float:
+	var half := crown.size * 0.5
+	var centre := crown.get_center()
+	var offset := position - centre
+	var radial := Vector2(
+		offset.x / maxf(half.x, 0.05), offset.z / maxf(half.z, 0.05)
+	).length()
+	var height := clampf(offset.y / maxf(half.y, 0.05) * 0.5 + 0.5, 0.0, 1.0)
+	var shell := clampf(maxf(radial, height * 1.1), 0.0, 1.0)
+	return clampf(lerpf(0.48, 1.0, pow(shell, 0.75)), 0.0, 1.0)
 
 
 static func _build_fruit_mesh(

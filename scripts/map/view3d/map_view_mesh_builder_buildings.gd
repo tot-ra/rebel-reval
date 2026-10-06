@@ -522,9 +522,7 @@ static func _build_tree_line(building: Dictionary, cell_size: int) -> Node3D:
 	var bark := MapViewMaterials.bark(
 		MapViewTreeSpecies.bark_kind_for(MapViewTreeSpecies.SPECIES_OAK)
 	)
-	var canopy_mat := MapViewMaterials.canopy(
-		MapViewTreeSpecies.canopy_material_kind(MapViewTreeSpecies.SPECIES_OAK)
-	)
+	var canopy_mat := MapViewMaterials.canopy_for_species(MapViewTreeSpecies.SPECIES_OAK)
 	for index in count:
 		var t := float(index) / float(count - 1)
 		var along := lerpf(-length * 0.5, length * 0.5, t)

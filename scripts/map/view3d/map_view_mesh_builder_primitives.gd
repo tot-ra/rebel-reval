@@ -24,13 +24,16 @@ static func multi_mesh(
 	transforms: Array[Transform3D],
 	colors: Array[Color],
 	material: Material,
-	mesh_lift: Vector3
+	mesh_lift: Vector3,
+	use_custom_data: bool = false
 ) -> MultiMeshInstance3D:
 	var instance := MultiMeshInstance3D.new()
 	instance.name = name
 	var multi := MultiMesh.new()
 	multi.transform_format = MultiMesh.TRANSFORM_3D
 	multi.use_colors = true
+	# Must be set before instance_count; tree crowns use it for hit shake (R-1187).
+	multi.use_custom_data = use_custom_data
 	multi.mesh = mesh
 	multi.instance_count = transforms.size()
 	for index in transforms.size():

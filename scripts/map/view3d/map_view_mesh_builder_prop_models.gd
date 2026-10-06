@@ -481,9 +481,11 @@ static func _add_authored_tree(root: Node3D, prop: Dictionary) -> void:
 	canopy.name = "Canopy"
 	canopy.mesh = MapViewMeshBuilderPrimitives.tree_canopy_mesh(species)
 	canopy.scale = scale
-	canopy.material_override = MapViewMaterials.canopy(
-		MapViewTreeSpecies.canopy_material_kind(species)
-	)
+	canopy.material_override = MapViewMaterials.canopy_for_species(species)
+	# Authored single trees still drop leaves when struck (R-1187); they are
+	# plain MeshInstance3D nodes, so only the MultiMesh scatter trees shake.
+	canopy.set_meta(&"tree_species", species)
+	canopy.add_to_group(&"tree_canopy_mesh")
 	root.add_child(canopy)
 
 	var fruit_mesh := MapViewMeshBuilderPrimitives.tree_fruit_mesh(species)
@@ -492,7 +494,7 @@ static func _add_authored_tree(root: Node3D, prop: Dictionary) -> void:
 		fruit.name = "Fruit"
 		fruit.mesh = fruit_mesh
 		fruit.scale = scale
-		fruit.material_override = MapViewMaterials.tree_fruit()
+		fruit.material_override = MapViewMaterials.tree_fruit_for_species(species)
 		fruit.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		root.add_child(fruit)
 	root.set_meta(&"tree_species", species)

@@ -719,15 +719,20 @@ static func _emit_tree_batches(root: Node3D, batches: Dictionary) -> void:
 					layer_name = "TreeTrunks_%s" % String(species).capitalize()
 			&"fruit":
 				mesh = MapViewMeshBuilderPrimitives.tree_fruit_mesh(species)
-				material = MapViewMaterials.tree_fruit()
+				material = MapViewMaterials.tree_fruit_for_species(species)
 				layer_name = "TreeFruit_%s" % String(species).capitalize()
 			_:
 				mesh = MapViewMeshBuilderPrimitives.tree_canopy_mesh(species)
-				material = MapViewMaterials.canopy(MapViewTreeSpecies.canopy_material_kind(species))
+				material = MapViewMaterials.canopy_for_species(species)
 				layer_name = "Trees_%s" % String(species).capitalize()
+		var is_canopy := layer == &"canopy"
 		var instances := MapViewMeshBuilderPrimitives.multi_mesh(
-			layer_name, mesh, typed_transforms, typed_colors, material, Vector3.ZERO
+			layer_name, mesh, typed_transforms, typed_colors, material, Vector3.ZERO, is_canopy
 		)
+		if is_canopy:
+			# TreeLeafFall3D finds struck crowns by this tag, not by node name,
+			# because surroundings alias some layers (SpruceCanopies, LeafCanopies).
+			TreeLeafFall3D.tag_canopy(instances, species, typed_transforms)
 		if layer == &"fruit":
 			instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		root.add_child(instances)

@@ -126,6 +126,8 @@ var _first_person_terrain_detail := false
 var _terrain_detail_focus_cell := Vector2i(2147483647, 2147483647)
 var _decals_node: Node3D
 var _mud_footprints: MudFootprints3D
+## R-1187: struck-tree shake, leaf bursts and ambient leaf fall (presentation only).
+var _tree_leaf_fall: TreeLeafFall3D
 var _water_ripple_sim: WaterRippleSimScript
 var _underwater_pass: UnderwaterPassScript
 ## Lazily derived from the definition: gate passages that wall seals must not
@@ -340,9 +342,10 @@ func _process(delta: float) -> void:
 				SkyWeather3D.daylight_blend(cycle_progress, _sky_weather.calendar_date)
 			)
 		)
+	var player_rig := get_tree().get_first_node_in_group(&"player_view_rig") as Node3D
+	_sync_ambient_leaf_fall(delta, player_rig)
 	if _fog_of_war == null:
 		return
-	var player_rig := get_tree().get_first_node_in_group(&"player_view_rig") as Node3D
 	if player_rig == null:
 		return
 	var facing := Vector2(sin(player_rig.global_rotation.y), cos(player_rig.global_rotation.y))
@@ -418,7 +421,44 @@ func set_time_of_day(next_time: StringName) -> void:
 
 func set_calendar_date(date: Dictionary) -> void:
 	_sky_weather.set_calendar_date(date)
+	# Tree crowns, fruit and leaf fall follow the same campaign date as the sun.
+	MapViewMaterials.apply_vegetation_season(date)
 	apply_cycle_progress(cycle_progress)
+
+
+## R-1187: a melee swing at `logic_position` facing `logic_facing` that reaches a
+## tree shakes it and knocks leaves loose. Returns the TreeLeafFall3D hit info
+## ({} when no tree was in reach). Presentation only; never affects combat.
+func strike_vegetation(
+	logic_position: Vector2,
+	logic_facing: Vector2,
+	reach_px: float,
+	facing_dot: float,
+	strength: float
+) -> Dictionary:
+	if _tree_leaf_fall == null or definition == null:
+		return {}
+	var scale := MapViewBridge.world_scale(definition.cell_size)
+	return _tree_leaf_fall.strike(
+		world_position(logic_position),
+		logic_facing,
+		reach_px * scale,
+		facing_dot,
+		strength,
+		_sky_weather.calendar_date if _sky_weather != null else GameCalendar.DEFAULT_DATE
+	)
+
+
+func _sync_ambient_leaf_fall(delta: float, player_rig: Node3D) -> void:
+	if _tree_leaf_fall == null or _sky_weather == null or player_rig == null:
+		return
+	_tree_leaf_fall.update_ambient(
+		player_rig.global_position,
+		_sky_weather.calendar_date,
+		MapViewMaterials.WIND_MATERIALS.world_wind_direction(),
+		MapViewMaterials.WIND_MATERIALS.world_wind_strength(),
+		delta
+	)
 
 
 ## Scales (or, at 0, pauses) the sky's own time so clouds, weather, and lightning
@@ -1158,6 +1198,9 @@ func _create_mud_footprints() -> void:
 	_mud_footprints = MudFootprints3D.new()
 	_mud_footprints.name = "MudFootprints"
 	add_child(_mud_footprints)
+	_tree_leaf_fall = TreeLeafFall3D.new()
+	_tree_leaf_fall.name = "TreeLeafFall"
+	add_child(_tree_leaf_fall)
 	_sync_puddle_visibility(true)
 
 
