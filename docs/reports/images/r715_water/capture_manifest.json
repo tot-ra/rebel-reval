@@ -691,7 +691,7 @@
       },
       "output": "res://docs/reports/images/r715_water/lower_town_slice_clear_day.png",
       "status": "captured_pending_review",
-      "sha256": "e39d312c38f9e9756655d4757bbf641f6de7129173dd756b181531e5e8391147",
+      "sha256": "34e30f9127dc92bcba5409c513aa51cf298643d051ec4e028df681fb292cf5cd",
       "width": 1280,
       "height": 720,
       "visual_checks": {
@@ -1847,27 +1847,44 @@
       "time_of_day": "day",
       "quality": "recommended",
       "renderer_expected": "metal",
-      "renderer_observed": "not_run",
+      "renderer_observed": "macOS",
       "viewport": {
         "width": 1280,
         "height": 720
       },
       "output": "res://docs/reports/images/r715_water/reval_harbor_north_clear_day.png",
-      "status": "blocked",
-      "sha256": "",
+      "status": "captured_pending_review",
+      "sha256": "ce2e6524801b3f6135890cafa28d0e0f2c1919f99bddf9a9563dde1117597814",
       "visual_checks": {
-        "reflection_continuity": "blocked",
-        "wave_readability": "blocked",
-        "shoreline_grounding": "blocked",
-        "underwater_depth": "blocked",
-        "night_readability": "blocked",
-        "parity": "blocked"
+        "reflection_continuity": "not_reviewed",
+        "wave_readability": "not_reviewed",
+        "shoreline_grounding": "not_reviewed",
+        "underwater_depth": "not_reviewed",
+        "night_readability": "not_reviewed",
+        "parity": "not_reviewed"
       },
-      "annotation": "Not captured: requires a real renderer/Metal run and human visual review.",
+      "annotation": "Real-renderer PNG captured; human visual review is still required.",
       "blockers": [
-        "real renderer/Metal capture not run",
         "human visual review not performed"
-      ]
+      ],
+      "hardware_host": "macOS/arm64",
+      "width": 1280,
+      "height": 720,
+      "presentation": {
+        "moon_visibility": 0.137555067840739,
+        "puddle_wetness": 0.0,
+        "rain_intensity": 0.0,
+        "rain_suppressed": false,
+        "star_visibility": 0.0,
+        "sun_visibility": 1.0,
+        "tide_level": 0.666801425754984,
+        "weather": "clear",
+        "wind_direction": [
+          0.721743226051331,
+          0.692160904407501
+        ],
+        "wind_strength": 0.2
+      }
     },
     {
       "plate_id": "reval_harbor_north/clear/night",
