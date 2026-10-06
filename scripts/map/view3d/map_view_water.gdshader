@@ -58,6 +58,11 @@ uniform float detail_normal_scale = 1.0;
 // downstream and spawns drifting foam ribbons so a river reads as moving water.
 uniform vec2 flow_direction = vec2(0.0, 0.0);
 uniform float flow_strength = 0.0;
+// World units per second per unit of flow_strength: mesh advection of the wave field,
+// and the slide speed of the river's surface ripples. ~1 m/s at the Pirita's 0.6.
+const float RIVER_ADVECT_SPEED = 1.4;
+const float RIVER_SURFACE_SPEED = 1.8;
+const float RIVER_DISPLACEMENT_SCALE = 0.0;
 // Matches sky sun-disk fade / MapView3D day_blend. Defaults keep daytime look
 // until apply_water_lighting() pushes the live cycle values.
 uniform float sun_visibility = 1.0;
@@ -286,6 +291,16 @@ void _accumulate_wave(
 
 vec2 _wave_heading(vec2 base_direction) {
 	vec2 ref = normalize(vec2(1.0, 0.28));
+	// River: wave trains travel downstream. The sea headings only set a small
+	// spread around the current (a quarter of their angle from the reference), so
+	// crests stay crossing the channel instead of sliding sideways like open sea.
+	if (flow_strength > 0.001) {
+		vec2 current = normalize(flow_direction + vec2(0.0001, 0.0));
+		float spread = (atan(base_direction.y, base_direction.x) - atan(ref.y, ref.x)) * 0.25;
+		float cs = cos(spread);
+		float sn = sin(spread);
+		return vec2(current.x * cs - current.y * sn, current.x * sn + current.y * cs);
+	}
 	vec2 wind = wind_direction / max(length(wind_direction), 0.001);
 	float angle = atan(wind.y, wind.x) - atan(ref.y, ref.x);
 	float c = cos(angle);
@@ -406,6 +421,26 @@ vec2 _detail_gradient(vec2 position) {
 vec3 _water_detail_normal(vec2 position, float time) {
 	float scale = max(detail_normal_scale, 0.1);
 	vec2 current_offset = flow_direction * (flow_strength * time * 0.42);
+	if (flow_strength > 0.001) {
+		// River: ripples are stretched along the current and slide downstream at a
+		// speed the eye can follow; the sea's fixed wind drift is dropped so nothing
+		// scrolls against the flow. Two layers move at different speeds, so the
+		// pattern shears like real surface water instead of translating rigidly.
+		vec2 current = normalize(flow_direction + vec2(0.0001, 0.0));
+		vec2 cross_axis = vec2(-current.y, current.x);
+		vec2 travel = current * (flow_strength * time * RIVER_SURFACE_SPEED);
+		vec2 pa = position - travel;
+		vec2 pb = position - travel * 1.45;
+		vec2 uv_a = vec2(dot(pa, cross_axis) * 1.9, dot(pa, current) * 0.62) * scale + vec2(12.4, -4.7);
+		vec2 uv_b = vec2(dot(pb, cross_axis) * 4.3, dot(pb, current) * 1.35) * scale + vec2(-21.8, 16.1);
+		vec2 grad_a = _detail_gradient(uv_a);
+		vec2 grad_b = _detail_gradient(uv_b);
+		// Gradients live in the (across, along) frame; rotate the slope back to world XZ.
+		vec2 slope_a = cross_axis * grad_a.x * 1.9 + current * grad_a.y * 0.62;
+		vec2 slope_b = cross_axis * grad_b.x * 4.3 + current * grad_b.y * 1.35;
+		vec2 river_slope = (slope_a * 0.55 + slope_b * 0.45) * scale;
+		return normalize(vec3(-river_slope.x * 0.16, 1.0, -river_slope.y * 0.16));
+	}
 	vec2 layer_a = position * scale * 1.7 - current_offset;
 	layer_a += vec2(-time * 0.19, time * 0.13) + vec2(12.4, -4.7);
 	vec2 layer_b = position * scale * 3.9 - current_offset * 1.65;
@@ -644,7 +679,7 @@ void vertex() {
 	// Processor functions cannot return early; the sheet restores this at the end.
 	vec3 rest_vertex = VERTEX;
 	// Advect the wave field downstream so ripples travel along the current.
-	vec2 flow_advection = flow_direction * (flow_strength * TIME * wave_speed * 0.6);
+	vec2 flow_advection = flow_direction * (flow_strength * TIME * wave_speed * RIVER_ADVECT_SPEED);
 	vec3 displacement = vec3(0.0);
 	vec3 normal_terms = vec3(0.0);
 	if (use_fft) {
@@ -656,6 +691,12 @@ void vertex() {
 	} else {
 		_water_field(wave_sample_xz - flow_advection, TIME * wave_speed, displacement, normal_terms);
 		displacement *= wave_height;
+		// River bed sits only WATER_RECESS below the surface: full sea-style troughs
+		// would cut the water into bands and expose the bed. The ripple read comes
+		// from the shading normal, so the mesh itself only needs to ripple gently.
+		if (flow_strength > 0.001) {
+			displacement *= RIVER_DISPLACEMENT_SCALE;
+		}
 	}
 	// Low tide withdraws the clipped coastal edge instead of requiring a second
 	// authored shoreline mesh. High tide reaches the original maximum contour.
@@ -768,7 +809,7 @@ void fragment() {
 	}
 	// Sample the undisplaced XZ. Evaluating Gerstner at the chopped position
 	// feeds the displacement back into itself and swims the normal off the crest.
-	vec2 flow_advection = flow_direction * (flow_strength * TIME * wave_speed * 0.6);
+	vec2 flow_advection = flow_direction * (flow_strength * TIME * wave_speed * RIVER_ADVECT_SPEED);
 	vec3 displacement = vec3(0.0);
 	vec3 normal_terms = vec3(0.0);
 	vec3 world_normal = vec3(0.0, 1.0, 0.0);
@@ -1141,9 +1182,18 @@ void fragment() {
 		float across = dot(water_world_position.xz, flow_cross);
 		vec2 streak_uv = vec2(across * 2.1, along * 0.55);
 		float streak = _noise(streak_uv + _noise(streak_uv * 0.6 + vec2(9.1, 2.3)) * 1.4);
-		float current_foam = smoothstep(0.60, 0.92, streak) * flow_strength;
+		float current_foam = smoothstep(0.54, 0.84, streak) * flow_strength;
 		current_foam *= smoothstep(0.012, 0.08, water_column);
-		foam += current_foam * 0.30;
+		foam += current_foam * 0.75;
+		// Long bright filaments of sky sheen sliding downstream at a different speed
+		// from the foam, so a still frame already shows which way the water runs and
+		// the two layers shear against each other in motion.
+		float along_sheen = dot(water_world_position.xz, flow_dir) - TIME * wave_speed * flow_strength * RIVER_SURFACE_SPEED;
+		vec2 sheen_uv = vec2(across * 1.35, along_sheen * 0.22);
+		float sheen = smoothstep(0.52, 0.80, _noise(sheen_uv + _noise(sheen_uv * 0.5 + vec2(3.7, 8.2)) * 1.1));
+		water_color = mix(water_color, highlight_color, sheen * 0.30);
+		// Banks drag the current: foam threads gather along the shore.
+		foam += shore * current_foam * 0.6;
 	}
 	// WS-15 churned water behind hulls: broken into bubbly clumps rather than a flat sheet.
 	if (ripple_aeration > 0.001) {

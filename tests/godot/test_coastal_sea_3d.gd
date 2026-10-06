@@ -211,6 +211,24 @@ func test_river_water_advects_detail_normals_without_changing_tide_logic() -> vo
 	)
 
 
+func test_river_current_is_flat_downstream_and_visible_in_still_frames() -> void:
+	var source := MapViewMaterialShaders.WATER_SHADER.code
+	# Sea-style vertical swell would cut the nearly flush river bed into stripes.
+	assert_true(
+		"const float RIVER_DISPLACEMENT_SCALE = 0.0;" in source,
+		"river surface must not heave through its shallow bed",
+	)
+	assert_true(
+		"flow_strength > 0.001) {\n\t\tvec2 current = normalize(flow_direction" in source,
+		"river wave trains must head downstream, not sideways like sea swell",
+	)
+	assert_true("along_sheen" in source, "river needs downstream sheen filaments")
+	assert_true(
+		"RIVER_SURFACE_SPEED" in source and "RIVER_ADVECT_SPEED" in source,
+		"river current speeds must be named shader constants",
+	)
+
+
 func test_water_shader_layers_seabed_materials_by_depth() -> void:
 	var source := MapViewMaterialShaders.WATER_SHADER.code
 	for uniform_name in ["sand_bed_color", "stone_bed_color", "algae_bed_color", "deep_bed_color"]:
