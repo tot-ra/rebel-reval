@@ -4,9 +4,21 @@ func test_night_state_is_deterministic_and_darker() -> void:
 	var definition := SmithyCourtyard.create()
 	var first := MapView3D.create(definition, MapBuilder.build(definition), MapView3D.TIME_NIGHT)
 	var second := MapView3D.create(definition, MapBuilder.build(definition), MapView3D.TIME_NIGHT)
-	assert_eq(first.sun_light().light_energy, second.sun_light().light_energy, "night sun energy must be deterministic")
-	assert_eq(first.sun_light().light_color, second.sun_light().light_color, "night sun color must be deterministic")
-	assert_eq(first.sun_light().rotation_degrees, second.sun_light().rotation_degrees, "night sun angle must be deterministic")
+	assert_eq(
+		first.sun_light().light_energy,
+		second.sun_light().light_energy,
+		"night sun energy must be deterministic"
+	)
+	assert_eq(
+		first.sun_light().light_color,
+		second.sun_light().light_color,
+		"night sun color must be deterministic"
+	)
+	assert_eq(
+		first.sun_light().rotation_degrees,
+		second.sun_light().rotation_degrees,
+		"night sun angle must be deterministic"
+	)
 	assert_true(
 		MapView3D.SUN_NIGHT_ENERGY <= MapView3D.SUN_DAY_ENERGY * 0.8,
 		"night must be at least 20 percent darker than day"
@@ -41,9 +53,18 @@ func test_cycle_progress_interpolates_lighting_and_advances() -> void:
 	)
 	var progress := DayNightCycle.DEFAULT_PROGRESS
 	progress = DayNightCycle.advance(progress, DayNightCycle.CYCLE_DURATION_SECONDS)
-	assert_true(is_equal_approx(progress, DayNightCycle.DEFAULT_PROGRESS), "one full cycle must wrap to the start")
-	var midnight_crossing := DayNightCycle.advance_clock(23.5 / 24.0, DayNightCycle.CYCLE_DURATION_SECONDS / 24.0)
-	assert_eq(midnight_crossing["completed_days"], 1, "clock advance must report a crossed midnight")
+	assert_true(
+		is_equal_approx(progress, DayNightCycle.DEFAULT_PROGRESS),
+		"one full cycle must wrap to the start"
+	)
+	var midnight_crossing := DayNightCycle.advance_clock(
+		23.5 / 24.0, DayNightCycle.CYCLE_DURATION_SECONDS / 24.0
+	)
+	assert_eq(
+		midnight_crossing["completed_days"],
+		1,
+		"clock advance must report a crossed midnight"
+	)
 	assert_true(
 		is_equal_approx(float(midnight_crossing["progress"]), 0.5 / 24.0),
 		"clock must retain the local time after midnight"
@@ -56,9 +77,15 @@ func test_view_uses_calendar_sun_direction_and_seasonal_daylight() -> void:
 	var view := MapView3D.create(definition, MapBuilder.build(definition), MapView3D.TIME_DAY)
 	view.set_calendar_date({"day": 21, "month": 4, "year": 1343})
 	view.apply_cycle_progress(6.0 / 24.0)
-	assert_true(view.sun_light().basis.z.x > 0.0, "morning light must come from the eastern (+X) sky")
+	assert_true(
+		view.sun_light().basis.z.x > 0.0,
+		"morning light must come from the eastern (+X) sky"
+	)
 	view.apply_cycle_progress(18.0 / 24.0)
-	assert_true(view.sun_light().basis.z.x < 0.0, "evening light must come from the western (-X) sky")
+	assert_true(
+		view.sun_light().basis.z.x < 0.0,
+		"evening light must come from the western (-X) sky"
+	)
 
 	view.set_calendar_date({"day": 21, "month": 12, "year": 1343})
 	view.apply_cycle_progress(7.0 / 24.0)
@@ -98,7 +125,10 @@ func test_night_directional_light_follows_lunar_phase_and_horizon() -> void:
 	view.set_calendar_date({"day": 10, "month": 5, "year": 1343})
 	view.apply_cycle_progress(0.0)
 	var full_moon_energy := view.sun_light().light_energy
-	assert_true(full_moon_energy > new_moon_energy, "full moon must cast more directional light than new moon")
+	assert_true(
+		full_moon_energy > new_moon_energy,
+		"full moon must cast more directional light than new moon"
+	)
 	assert_true(
 		SkyWeather3D.moonlight_strength(0.0, {"day": 10, "month": 5, "year": 1343})
 			> SkyWeather3D.moonlight_strength(0.5, {"day": 10, "month": 5, "year": 1343}),
@@ -131,8 +161,14 @@ func test_evening_window_schedule_is_deterministic_and_bounded() -> void:
 	if bool(first.get("participates", false)):
 		var start_hour := float(first["start_hour"])
 		var end_hour := float(first["end_hour"])
-		assert_true(start_hour >= 18.0 and start_hour <= 20.5, "evening glow should start near dusk")
-		assert_true(end_hour >= 22.0 and end_hour <= 23.75, "evening glow should end before midnight")
+		assert_true(
+			start_hour >= 18.0 and start_hour <= 20.5,
+			"evening glow should start near dusk"
+		)
+		assert_true(
+			end_hour >= 22.0 and end_hour <= 23.75,
+			"evening glow should end before midnight"
+		)
 		assert_true(end_hour > start_hour + 1.0, "lit hours must span a meaningful evening")
 
 
@@ -145,9 +181,14 @@ func test_houses_get_evening_window_lights_with_per_building_variation() -> void
 		if building["kind"] != MapTypes.BUILDING_KIND_HOUSE:
 			continue
 		var node := MapViewMeshBuilder.build_building(building, definition.cell_size)
-		assert_true(node.has_node("WindowLights"), "%s: houses need evening window lights" % building["id"])
+		assert_true(
+			node.has_node("WindowLights"),
+			"%s: houses need evening window lights" % building["id"]
+		)
 		var lights := node.get_node("WindowLights") as BuildingWindowLights3D
-		var schedule: Dictionary = BuildingWindowLights3D.evening_schedule_for(String(building["id"]).hash())
+		var schedule: Dictionary = BuildingWindowLights3D.evening_schedule_for(
+			String(building["id"]).hash()
+		)
 		if bool(schedule.get("participates", false)):
 			participating += 1
 			start_hours[building["id"]] = schedule["start_hour"]
@@ -181,7 +222,10 @@ func test_houses_get_evening_window_lights_with_per_building_variation() -> void
 				if suffix.is_empty() or not suffix.is_valid_int():
 					continue
 				var glass_mat := mesh.material_override as StandardMaterial3D
-				if glass_mat != null and glass_mat.emission_enabled and glass_mat.emission_energy_multiplier > 0.0:
+				if (
+					glass_mat != null and glass_mat.emission_enabled
+					and glass_mat.emission_energy_multiplier > 0.0
+				):
 					found_evening_glow = true
 					break
 			assert_true(
@@ -222,7 +266,9 @@ func test_view_updates_window_lights_through_cycle_progress() -> void:
 	for building in definition.buildings:
 		if building["kind"] != MapTypes.BUILDING_KIND_HOUSE:
 			continue
-		var schedule: Dictionary = BuildingWindowLights3D.evening_schedule_for(String(building["id"]).hash())
+		var schedule: Dictionary = BuildingWindowLights3D.evening_schedule_for(
+			String(building["id"]).hash()
+		)
 		if not bool(schedule.get("participates", false)):
 			continue
 		var building_node := view.get_node("Buildings/Building_%s" % String(building["id"]))
@@ -364,20 +410,91 @@ func test_water_reflections_follow_sky_catalog_cycle_and_weather() -> void:
 	MapViewMaterials.reset()
 
 
+func test_glint_haze_transmittance_follows_mist_rain_and_elevation() -> void:
+	assert_eq(
+		MapViewLighting.glint_haze_transmittance(0.05, 0.0, 0.0),
+		1.0,
+		"clear air keeps the full glint"
+	)
+	var high := MapViewLighting.glint_haze_transmittance(0.9, 1.0, 0.0)
+	var low := MapViewLighting.glint_haze_transmittance(0.08, 1.0, 0.0)
+	assert_true(high < 1.0 and high > 0.6, "a high sun keeps most of its glint through thin mist")
+	assert_true(
+		low < high * 0.2,
+		"a low sun crosses the mist layer and loses most of its glitter path"
+	)
+	assert_true(
+		MapViewLighting.glint_haze_transmittance(-0.2, 1.0, 0.0) > 0.0,
+		"the horizon air mass is clamped so the gate stays finite"
+	)
+	assert_true(
+		MapViewLighting.glint_haze_transmittance(0.5, 0.0, 1.0)
+			< MapViewLighting.glint_haze_transmittance(0.5, 0.0, 0.0),
+		"rain haze must dim the glint as well"
+	)
+
+
+func test_morning_mist_dims_water_glints() -> void:
+	MapViewMaterials.reset()
+	# 18 Jan 1343 is a fog-prone morning (see the enclosed-interior mist test).
+	var fog_date := {"day": 18, "month": 1, "year": 1343}
+	var sunrise := float(SkyWeather3D.sunrise_sunset_hours(fog_date)["sunrise"])
+	var progress := (sunrise + 1.0) / 24.0
+	var definition := SmithyCourtyard.create()
+	var view := MapView3D.create(definition, MapBuilder.build(definition), MapView3D.TIME_DAY)
+	var sky := view.sky_weather()
+	sky.auto_weather = false
+	sky.set_weather(SkyWeather3D.WEATHER_CLEAR)
+	view.set_calendar_date(fog_date)
+	view.apply_cycle_progress(progress)
+	var water := MapViewMaterials.water_surface(MapTypes.TERRAIN_DEEP_WATER)
+	var presentation := sky.presentation_snapshot(
+		progress, SkyWeather3D.daylight_blend(progress, fog_date)
+	)
+	var mist := MapViewLighting.ground_mist_amount(presentation, false)
+	assert_true(mist > 0.2, "fixture hour must still carry visible morning mist")
+	var unhazed := presentation.sun_visibility * presentation.sun_cloud_clear
+	assert_true(unhazed > 0.05, "fixture sun must be above the horizon and visible")
+	var glint := float(water.get_shader_parameter("sun_reflection_visibility"))
+	assert_true(glint < unhazed * 0.9, "dawn mist must dim the sun glitter path on water")
+	assert_true(
+		absf(glint - unhazed * MapViewLighting.glint_haze_transmittance(
+			presentation.sun_direction.y, mist, 0.0
+		)) < 1e-4,
+		"the water glint must use the same mist amount as the Environment fog"
+	)
+	view.free()
+	MapViewMaterials.reset()
 
 
 func test_morning_mist_gathers_before_dawn_and_burns_off() -> void:
 	var sunrise := 5.0
 	# Deep night and full midday are clear; the pre-dawn and sunrise hours are misty.
-	assert_true(MapView3D._morning_mist_factor(1.0, sunrise) == 0.0, "the small hours before the mist window must be clear")
-	assert_true(MapView3D._morning_mist_factor(12.0, sunrise) == 0.0, "midday must be clear of morning mist")
-	assert_true(MapView3D._morning_mist_factor(sunrise, sunrise) > 0.9, "the mist must be thickest at first light")
-	var pre_dawn := MapView3D._morning_mist_factor(sunrise - 1.5, sunrise)
-	assert_true(pre_dawn > 0.0 and pre_dawn < 1.0, "the mist must build through the pre-dawn, not snap on")
-	var burning_off := MapView3D._morning_mist_factor(sunrise + 1.5, sunrise)
-	assert_true(burning_off > 0.0 and burning_off < 1.0, "the mist must burn off gradually after sunrise")
 	assert_true(
-		MapView3D._morning_mist_factor(sunrise + 1.0, sunrise) < MapView3D._morning_mist_factor(sunrise - 0.5, sunrise) + 1.0,
+		MapView3D._morning_mist_factor(1.0, sunrise) == 0.0,
+		"the small hours before the mist window must be clear"
+	)
+	assert_true(
+		MapView3D._morning_mist_factor(12.0, sunrise) == 0.0,
+		"midday must be clear of morning mist"
+	)
+	assert_true(
+		MapView3D._morning_mist_factor(sunrise, sunrise) > 0.9,
+		"the mist must be thickest at first light"
+	)
+	var pre_dawn := MapView3D._morning_mist_factor(sunrise - 1.5, sunrise)
+	assert_true(
+		pre_dawn > 0.0 and pre_dawn < 1.0,
+		"the mist must build through the pre-dawn, not snap on"
+	)
+	var burning_off := MapView3D._morning_mist_factor(sunrise + 1.5, sunrise)
+	assert_true(
+		burning_off > 0.0 and burning_off < 1.0,
+		"the mist must burn off gradually after sunrise"
+	)
+	assert_true(
+		MapView3D._morning_mist_factor(sunrise + 1.0, sunrise)
+			< MapView3D._morning_mist_factor(sunrise - 0.5, sunrise) + 1.0,
 		"the mist envelope must be continuous across sunrise"
 	)
 

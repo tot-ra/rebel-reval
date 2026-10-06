@@ -17,7 +17,9 @@ extends SceneTree
 ##   --strobe                 render 120 frames of the normal-speed day cycle (60 s per day)
 ##                            and print the mean frame-to-frame water luminance change
 ##   --no-mist                disable the pre-dawn ground mist so a moon path can be judged
-##                            (the plate name gets _nomist)
+##                            (the plate name gets _nomist). It hides only the Environment
+##                            fog: the glints keep MapViewLighting.glint_haze_transmittance,
+##                            so pick a low-fog date for an unveiled moon path
 ##   --set=name:value         water-material uniform override for tuning
 ## The FFT sea is forced on, as the WS-04 and WS-06 plates did.
 ## Writes docs/reports/images/ws02_<renderer>_<scenario>_<label>_<focus>.png

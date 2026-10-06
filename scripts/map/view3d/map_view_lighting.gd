@@ -95,6 +95,15 @@ const FOG_HOURS_AFTER_SUNRISE := 2.5
 ## five to one in five while preserving the strongest deterministic fog days.
 const FOG_POTENTIAL_MIN := 0.8
 const FOG_POTENTIAL_FULL := 0.95
+## Mist and rain haze also scatter the direct beam that paints the sun/moon glitter
+## path on water. Without this the glint stayed a full mirror through dawn mist.
+## Vertical optical depth at peak mist / full rain; the slant path multiplies it by
+## the air mass 1/sin(elevation), clamped so a horizon light keeps a finite path.
+const GLINT_MIST_OPTICAL_DEPTH := 0.30
+const GLINT_RAIN_OPTICAL_DEPTH := 0.50
+const GLINT_HAZE_MAX_AIR_MASS := 12.0
+## Stars reflect from the whole dome; their haze path uses this mean elevation.
+const GLINT_STAR_MEAN_ELEVATION_SIN := 0.5
 
 ## ADR 0018 saturated HDR-range post-grade. AgX compresses scene-referred values
 ## for the current SDR output; this does not claim HDR10 or wide-gamut delivery.
@@ -242,13 +251,20 @@ static func apply_cycle_progress(
 	# preventing a sun glint after the disk has set.
 	MapViewMaterials.apply_water_lighting(presentation.sun_visibility, presentation.day_blend)
 	MapViewMaterials.apply_coastal_tide(presentation.tide_level)
+	# Glints answer to clouds (cloud_clear) and to the same mist/rain haze that
+	# apply_ground_mist puts in the Environment, so dawn mist dims the glitter path.
+	var mist := ground_mist_amount(presentation, enclosed_interior)
+	var rain_haze := ground_rain_haze(presentation, enclosed_interior)
 	MapViewMaterials.apply_water_sky_reflection(
 		presentation.star_map,
 		presentation.sun_direction,
 		presentation.moon_direction,
-		presentation.sun_visibility * presentation.sun_cloud_clear,
-		presentation.lunar_light_strength * presentation.moon_cloud_clear,
-		presentation.star_visibility,
+		presentation.sun_visibility * presentation.sun_cloud_clear
+			* glint_haze_transmittance(presentation.sun_direction.y, mist, rain_haze),
+		presentation.lunar_light_strength * presentation.moon_cloud_clear
+			* glint_haze_transmittance(presentation.moon_direction.y, mist, rain_haze),
+		presentation.star_visibility
+			* glint_haze_transmittance(GLINT_STAR_MEAN_ELEVATION_SIN, mist, rain_haze),
 		deg_to_rad(SkyWeather3D.OBSERVER_LATITUDE_DEGREES),
 		presentation.sidereal_angle,
 		presentation.sun_reflection_color,
@@ -401,18 +417,8 @@ static func apply_ground_mist(
 	if enclosed_interior:
 		environment.fog_enabled = false
 		return
-	var hour := DayNightCycle.progress_to_hour(presentation.cycle_progress)
-	var mist := morning_mist_factor(hour, presentation.sunrise_hour)
-	mist *= smoothstep(
-		FOG_POTENTIAL_MIN,
-		FOG_POTENTIAL_FULL,
-		presentation.fog_potential
-	)
-	mist *= clampf(1.0 - presentation.wind_strength * 0.7, 0.0, 1.0)
-	mist *= clampf(presentation.fog_quality, 0.0, 1.0)
-	# Rain adds atmospheric extinction even at noon. Calm, dry days keep the
-	# existing fog-free path, while shelter still excludes outdoor atmosphere.
-	var rain_haze := presentation.rain_intensity * presentation.fog_quality
+	var mist := ground_mist_amount(presentation, false)
+	var rain_haze := ground_rain_haze(presentation, false)
 	if mist <= 0.001 and rain_haze <= 0.001:
 		environment.fog_enabled = false
 		return
@@ -438,6 +444,44 @@ static func apply_ground_mist(
 	environment.fog_density = FOG_MAX_DENSITY * mist + 0.0035 * rain_haze
 	environment.fog_height = FOG_HEIGHT
 	environment.fog_height_density = FOG_MAX_HEIGHT_DENSITY * mist * (1.0 - rain_haze)
+
+
+## 0..1 morning ground mist for this presentation: the dawn envelope scaled by the
+## date's fog potential, dispersed by wind and limited by the fog quality tier.
+static func ground_mist_amount(
+	presentation: SkyWeather3D.WeatherPresentation, enclosed_interior: bool
+) -> float:
+	if presentation == null or enclosed_interior:
+		return 0.0
+	var hour := DayNightCycle.progress_to_hour(presentation.cycle_progress)
+	var mist := morning_mist_factor(hour, presentation.sunrise_hour)
+	mist *= smoothstep(FOG_POTENTIAL_MIN, FOG_POTENTIAL_FULL, presentation.fog_potential)
+	mist *= clampf(1.0 - presentation.wind_strength * 0.7, 0.0, 1.0)
+	return mist * clampf(presentation.fog_quality, 0.0, 1.0)
+
+
+## Rain adds atmospheric extinction even at noon. Calm, dry days stay haze-free,
+## and shelter still excludes outdoor atmosphere.
+static func ground_rain_haze(
+	presentation: SkyWeather3D.WeatherPresentation, enclosed_interior: bool
+) -> float:
+	if presentation == null or enclosed_interior:
+		return 0.0
+	return presentation.rain_intensity * presentation.fog_quality
+
+
+## Beer-Lambert transmittance of the direct sun/moon beam through mist and rain
+## haze, used to gate water glints. `elevation_sin` is the light direction's y:
+## a low sun crosses far more of the ground-mist layer than a high one.
+static func glint_haze_transmittance(elevation_sin: float, mist: float, rain_haze: float) -> float:
+	var depth := (
+		GLINT_MIST_OPTICAL_DEPTH * clampf(mist, 0.0, 1.0)
+		+ GLINT_RAIN_OPTICAL_DEPTH * clampf(rain_haze, 0.0, 1.0)
+	)
+	if depth <= 0.0:
+		return 1.0
+	var air_mass := 1.0 / maxf(elevation_sin, 1.0 / GLINT_HAZE_MAX_AIR_MASS)
+	return exp(-depth * air_mass)
 
 
 ## Dry morning mist follows day_blend so night haze stays darker than night
