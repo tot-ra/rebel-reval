@@ -78,10 +78,30 @@ static func build_lunar_albedo_map(_seed: int) -> Texture2D:
 static func build_star_map(
 	stars: Array[Vector4], catalog_epoch: float, target_epoch: float, limiting_magnitude: float
 ) -> ImageTexture:
+	var image := new_star_image()
+	bake_stars(image, stars, 0, stars.size(), catalog_epoch, target_epoch, limiting_magnitude)
+	return ImageTexture.create_from_image(image)
+
+
+static func new_star_image() -> Image:
 	var image := Image.create(STAR_MAP_WIDTH, STAR_MAP_HEIGHT, false, Image.FORMAT_RGBAH)
 	image.fill(Color.TRANSPARENT)
-	for j2000_star in stars:
-		var star := precess_equatorial(j2000_star, catalog_epoch, target_epoch)
+	return image
+
+
+## R-1095: stars [from, to) of the catalog, so staged assembly can bake the map
+## in slices. Stars combine with max(), so slice order does not change the image.
+static func bake_stars(
+	image: Image,
+	stars: Array[Vector4],
+	from: int,
+	to: int,
+	catalog_epoch: float,
+	target_epoch: float,
+	limiting_magnitude: float
+) -> void:
+	for index in range(from, mini(to, stars.size())):
+		var star := precess_equatorial(stars[index], catalog_epoch, target_epoch)
 		var x := wrapi(roundi(star.x / 360.0 * float(STAR_MAP_WIDTH)), 0, STAR_MAP_WIDTH)
 		var y := clampi(
 			roundi((90.0 - star.y) / 180.0 * float(STAR_MAP_HEIGHT - 1)), 0, STAR_MAP_HEIGHT - 1
@@ -92,7 +112,6 @@ static func build_star_map(
 		if star.z <= 2.5:
 			for offset in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
 				_set_star_texel(image, x + offset.x, y + offset.y, color * 0.28)
-	return ImageTexture.create_from_image(image)
 
 
 static func _set_star_texel(image: Image, x: int, y: int, color: Color) -> void:

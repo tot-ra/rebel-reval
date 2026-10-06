@@ -159,3 +159,7 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 
 ### Long-running verification
 - Host verification can outlive the parallel wrapper's deadline. Write per-step logs and exit statuses under build/ and inspect the worker PID before retrying; a caller timeout is not a test result.
+
+### Shared worktree hygiene
+- Before committing, check `git diff HEAD --stat -- <file>` for every file you touched: another session can leave the index and working tree on an older base than HEAD, so a plain `git add` would revert recent commits. Port your change onto HEAD in a throwaway `git worktree` (`--import` once, then test there) and commit from it.
+- Never use an unquoted shell variable as a git pathspec list in zsh (it is not word-split) and never `git stash pop` after a `stash push` you have not confirmed succeeded: it pops an unrelated older stash.

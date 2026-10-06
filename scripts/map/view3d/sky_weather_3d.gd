@@ -17,6 +17,8 @@ const AtmosphereCpuScript := preload("res://scripts/map/view3d/atmosphere_cpu.gd
 const SKY_RESOURCES := preload("res://scripts/map/view3d/sky_weather_resources.gd")
 const SkyWeatherRoofAudioScript := preload("res://scripts/map/view3d/sky_weather_roof_audio.gd")
 const SkyWeatherStateScript := preload("res://scripts/map/view3d/sky_weather_state.gd")
+## Catalog stars baked per staged-assembly unit (about 1 ms each).
+const STAR_BAKE_SLICE := 1000
 const STAR_CATALOG := preload("res://scripts/map/view3d/estonia_star_catalog.gd")
 const GAME_CALENDAR := preload("res://scripts/global/game_calendar.gd")
 
@@ -452,14 +454,18 @@ func set_quality_tier(requested: Variant) -> void:
 	quality_tier = requested
 
 
-func _apply_quality_resources() -> void:
+func _apply_quality_resources(cloud_noise: Texture2D = null, cloud_shape: Texture2D = null) -> void:
 	var settings := _quality_settings()
-	var cloud_noise := SKY_RESOURCES.build_cloud_noise(
-		WEATHER_SEED, int(settings["cloud_noise_resolution"])
-	)
-	var cloud_shape := SKY_RESOURCES.build_cloud_shape(
-		WEATHER_SEED, int(settings["cloud_shape_resolution"])
-	)
+	# R-1095: staged configure() builds the two noise textures as their own units
+	# and passes them in; every other caller builds them here as before.
+	if cloud_noise == null:
+		cloud_noise = SKY_RESOURCES.build_cloud_noise(
+			WEATHER_SEED, int(settings["cloud_noise_resolution"])
+		)
+	if cloud_shape == null:
+		cloud_shape = SKY_RESOURCES.build_cloud_shape(
+			WEATHER_SEED, int(settings["cloud_shape_resolution"])
+		)
 	_cloud_resources_available = cloud_noise != null and cloud_shape != null
 	_cloud_noise_tex = cloud_noise
 	_cloud_shape_tex = cloud_shape
@@ -639,45 +645,85 @@ func _process(delta: float) -> void:
 	advance(delta * maxf(time_scale, 0.0))
 
 
-
-
 ## Replaces the environment's flat background with the sky dome and builds the
 ## rain emitter that shadows the gameplay camera.
 func configure(camera: Camera3D, environment: Environment) -> void:
-	_camera = camera
-	_material = ShaderMaterial.new()
-	_material.shader = SKY_SHADER
-	if _atmosphere_lut == null:
-		_atmosphere_lut = SkyAtmosphereLutScript.new()
-		_atmosphere_lut.name = "SkyAtmosphereLut"
-		add_child(_atmosphere_lut)
-	var lut_settings := _quality_settings()
-	_atmosphere_lut.configure(
-		lut_settings["sky_lut_size"] as Vector2i, int(lut_settings["sky_lut_every_n_frames"])
-	)
-	_apply_quality_resources()
-	_material.set_shader_parameter(
-		&"lunar_albedo_map", SKY_RESOURCES.build_lunar_albedo_map(WEATHER_SEED)
-	)
-	_star_map = SKY_RESOURCES.build_star_map(
-		STAR_CATALOG.STARS,
-		STAR_CATALOG.CATALOG_EPOCH,
-		SKY_EPOCH_YEAR,
-		STAR_CATALOG.LIMITING_MAGNITUDE
-	)
-	_material.set_shader_parameter(&"star_map", _star_map)
-	_material.set_shader_parameter(&"observer_latitude", deg_to_rad(OBSERVER_LATITUDE_DEGREES))
-	var sky := Sky.new()
-	sky.sky_material = _material
-	environment.sky = sky
-	environment.background_mode = Environment.BG_SKY
+	for step in configure_steps(camera, environment):
+		step.call()
 
-	_rain = SKY_RESOURCES.build_rain(int(_quality_settings()["rain_particles"]))
-	add_child(_rain)
-	_roof_audio = SkyWeatherRoofAudioScript.new()
-	_roof_audio.name = "RoofRainAudio"
-	add_child(_roof_audio)
-	_push_cloud_uniforms()
+
+## R-1095: configure() as ordered steps, so staged assembly can spend them over
+## several frames (the noise textures and star map each cost 2-4 ms). Running
+## every step in order is exactly configure().
+func configure_steps(camera: Camera3D, environment: Environment) -> Array[Callable]:
+	var textures: Array[Texture2D] = [null, null]
+	var setup := func() -> void:
+		# advance() reads the material; hold it back until the last step ran.
+		set_process(false)
+		_camera = camera
+		_material = ShaderMaterial.new()
+		_material.shader = SKY_SHADER
+		if _atmosphere_lut == null:
+			_atmosphere_lut = SkyAtmosphereLutScript.new()
+			_atmosphere_lut.name = "SkyAtmosphereLut"
+			add_child(_atmosphere_lut)
+		var lut_settings := _quality_settings()
+		_atmosphere_lut.configure(
+			lut_settings["sky_lut_size"] as Vector2i, int(lut_settings["sky_lut_every_n_frames"])
+		)
+	var noise := func() -> void:
+		textures[0] = SKY_RESOURCES.build_cloud_noise(
+			WEATHER_SEED, int(_quality_settings()["cloud_noise_resolution"])
+		)
+	var shape := func() -> void:
+		textures[1] = SKY_RESOURCES.build_cloud_shape(
+			WEATHER_SEED, int(_quality_settings()["cloud_shape_resolution"])
+		)
+	var resources := func() -> void:
+		_apply_quality_resources(textures[0], textures[1])
+	var moon := func() -> void:
+		_material.set_shader_parameter(
+			&"lunar_albedo_map", SKY_RESOURCES.build_lunar_albedo_map(WEATHER_SEED)
+		)
+	var star_image: Array[Image] = []
+	var star_slices: Array[Callable] = [
+		func() -> void: star_image.append(SKY_RESOURCES.new_star_image())
+	]
+	for first in range(0, STAR_CATALOG.STARS.size(), STAR_BAKE_SLICE):
+		star_slices.append(
+			func() -> void:
+				SKY_RESOURCES.bake_stars(
+					star_image[0],
+					STAR_CATALOG.STARS,
+					first,
+					first + STAR_BAKE_SLICE,
+					STAR_CATALOG.CATALOG_EPOCH,
+					SKY_EPOCH_YEAR,
+					STAR_CATALOG.LIMITING_MAGNITUDE
+				)
+		)
+	var stars := func() -> void:
+		_star_map = ImageTexture.create_from_image(star_image[0])
+		_material.set_shader_parameter(&"star_map", _star_map)
+		_material.set_shader_parameter(&"observer_latitude", deg_to_rad(OBSERVER_LATITUDE_DEGREES))
+	var sky := func() -> void:
+		var dome := Sky.new()
+		dome.sky_material = _material
+		environment.sky = dome
+		environment.background_mode = Environment.BG_SKY
+	var rain := func() -> void:
+		_rain = SKY_RESOURCES.build_rain(int(_quality_settings()["rain_particles"]))
+		add_child(_rain)
+	var attach := func() -> void:
+		_roof_audio = SkyWeatherRoofAudioScript.new()
+		_roof_audio.name = "RoofRainAudio"
+		add_child(_roof_audio)
+		_push_cloud_uniforms()
+		set_process(true)
+	var steps: Array[Callable] = [setup, noise, shape, resources, moon]
+	steps.append_array(star_slices)
+	steps.append_array([stars, sky, rain, attach])
+	return steps
 
 
 ## Public photometry and precession helpers remain on SkyWeather3D for callers

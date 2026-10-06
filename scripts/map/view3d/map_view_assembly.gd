@@ -17,6 +17,8 @@ const FRAME_BUDGET_SETTING := "world_host/location_assembly_frame_budget_ms"
 const DEFAULT_FRAME_BUDGET_MSEC := 4.0
 ## Rows per scatter band unit; see scatter_chunk_units().
 const SCATTER_BAND_ROWS := 4
+## Container children per occluder-bounds unit; see finalize_units().
+const FINALIZE_SLICE_CHILDREN := 24
 ## Stable stage names, in execution order. The performance report and the WB-07
 ## report key their per-stage rows on these strings.
 const STAGES: Array[StringName] = [
@@ -183,6 +185,43 @@ static func plan_for(view: Node3D, chunks: Array[Vector2i]) -> Array[Dictionary]
 		var remember := PackedScenes.remember_active.bind(scenes_key)
 		plan.append(unit(&"view_effects", "remember_scenes", remember))
 	return plan
+
+
+## R-1095: the tail of chunk_finalize as small units, in the original order
+## (terrain details, occluder bounds, chimney smoke, window lights). Runs after
+## every object chunk is resident, so child counts are final. Occluder bounds
+## and window lights are sliced by container children, never mid-building.
+static func finalize_units(view: Node3D) -> Array[Dictionary]:
+	var stage := &"chunk_finalize"
+	var units: Array[Dictionary] = [
+		unit(stage, "terrain_details", Callable(view, &"_rebuild_terrain_details")),
+		unit(stage, "occluder_reset", view.get("_occluder_bounds").clear),
+	]
+	for container in [&"Buildings", &"Landmarks"]:
+		var root := view.get_node_or_null(NodePath(container))
+		var count := root.get_child_count() if root != null else 0
+		for first in range(0, count, FINALIZE_SLICE_CHILDREN):
+			var slice := Callable(view, &"_append_occluder_slice").bind(
+				String(container), first, FINALIZE_SLICE_CHILDREN
+			)
+			units.append(unit(stage, "occluders_%s_%d" % [container, first], slice))
+	units.append(unit(stage, "chimney_smokes", Callable(view, &"_update_chimney_smokes")))
+	units.append(unit(stage, "window_lights", Callable(view, &"_update_window_lights")))
+	return units
+
+
+## R-1095: one unit per view effect, in the original creation order.
+static func view_effects_units(view: Node3D) -> Array[Dictionary]:
+	var units: Array[Dictionary] = []
+	for effect: StringName in [
+		&"_create_water_ripple_sim",
+		&"_create_underwater_pass",
+		&"_create_cloud_shadow_pass",
+		&"_create_mud_footprints",
+		&"_create_fog_of_war",
+	]:
+		units.append(unit(&"view_effects", String(effect), Callable(view, effect)))
+	return units
 
 
 ## WB-07c (R-1006): one scatter chunk as row-band units plus two emit units. Each

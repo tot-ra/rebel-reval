@@ -1015,13 +1015,11 @@ func _load_object_record(record: Dictionary) -> void:
 
 
 ## The tail of _update_active_chunks() once every initial chunk is resident.
-func _stage_chunk_finalize(chunks: Array[Vector2i]) -> void:
+## R-1095: the rest runs as follow-up units (see Assembly.finalize_units).
+func _stage_chunk_finalize(chunks: Array[Vector2i]) -> Array[Dictionary]:
 	_active_chunks = chunks.duplicate()
 	_sync_puddle_visibility(true)
-	_rebuild_terrain_details()
-	_rebuild_occluder_bounds()
-	_update_chimney_smokes()
-	_update_window_lights()
+	return Assembly.finalize_units(self)
 
 
 func _stage_transition_visuals() -> void:
@@ -1090,21 +1088,29 @@ func _stage_lighting() -> void:
 	add_child(_camera)
 
 
-func _stage_sky_weather() -> void:
+func _stage_sky_weather() -> Array[Dictionary]:
 	if is_hosted():
 		# The host configured its sky once against its own camera and environment.
 		# Per-location rain suppression under a shared sky is seam work (R-980).
 		_sky_weather = _host_globals.get("sky_weather") as SkyWeather3D
-		return
+		return []
 	# Sky dome + weather cycle; replaces the flat background color with a real
 	# sky the first-person camera can see, and feeds lighting modifiers above.
 	_sky_weather = SkyWeather3D.new()
 	_sky_weather.name = "SkyWeather"
 	add_child(_sky_weather)
-	_sky_weather.configure(_camera, _environment)
+	# R-1095: configure_steps() are units of their own (noise textures, star map).
+	var units: Array[Dictionary] = []
+	for step in _sky_weather.configure_steps(_camera, _environment):
+		units.append(Assembly.unit(&"sky_weather", "sky_weather_step", step))
 	# Enclosed room shells (roofed interiors like the Kalev smithy) must not rain
 	# indoors. The weather cycle keeps running for lighting and wind; only the
 	# visible rain particles are gated; roof-drum audio follows the same flag.
+	units.append(Assembly.unit(&"sky_weather", "sky_weather_rain_gate", _gate_rain))
+	return units
+
+
+func _gate_rain() -> void:
 	_sky_weather.rain_suppressed = (
 		definition != null and definition.suppresses_exterior_surroundings()
 	)
@@ -1112,15 +1118,18 @@ func _stage_sky_weather() -> void:
 	MapViewMaterials.set_building_quality_tier(_sky_weather.quality_tier)
 
 
-func _stage_view_effects() -> void:
-	_create_water_ripple_sim()
-	_create_underwater_pass()
-	_create_cloud_shadow_pass()
+func _stage_view_effects() -> Array[Dictionary]:
+	return Assembly.view_effects_units(self)
+
+
+func _create_mud_footprints() -> void:
 	_mud_footprints = MudFootprints3D.new()
 	_mud_footprints.name = "MudFootprints"
 	add_child(_mud_footprints)
 	_sync_puddle_visibility(true)
 
+
+func _create_fog_of_war() -> void:
 	# Headless uses the dummy renderer, which cannot provide the screen texture
 	# sampled by this post-process. Visibility logic remains directly testable.
 	if DisplayServer.get_name() != "headless":
@@ -1290,12 +1299,8 @@ func _rebuild_terrain_details() -> void:
 
 func _rebuild_occluder_bounds() -> void:
 	_occluder_bounds.clear()
-	var buildings := get_node_or_null("Buildings") as Node3D
-	var landmarks := get_node_or_null("Landmarks") as Node3D
-	if buildings != null:
-		_append_mesh_bounds(buildings, buildings.transform, _occluder_bounds)
-	if landmarks != null:
-		_append_mesh_bounds(landmarks, landmarks.transform, _occluder_bounds)
+	_append_occluder_slice("Buildings", 0, -1)
+	_append_occluder_slice("Landmarks", 0, -1)
 	# InteriorShell (ceiling, beams, daylight twin) is presentation/solar only.
 	# Its room-sized AABBs are not outdoor building masses and must not drive
 	# the occluded-actor silhouette.
@@ -1315,6 +1320,20 @@ static func _configure_sun_shadows(sun: DirectionalLight3D) -> void:
 	# Hard shadows: GLES Compatibility does not run PCSS, but zeroing angular size
 	# keeps the authored look crisp if the renderer is upgraded later.
 	sun.light_angular_distance = 0.0
+
+
+## Appends the bounds of `count` children of a container from index `first`
+## (-1 = all), the same boxes the whole-container walk produces, in order.
+func _append_occluder_slice(container: String, first: int, count: int) -> void:
+	var root := get_node_or_null(container) as Node3D
+	if root == null:
+		return
+	var children := root.get_children()
+	var last := children.size() if count < 0 else mini(first + count, children.size())
+	for index in range(first, last):
+		var child := children[index] as Node3D
+		if child != null:
+			_append_mesh_bounds(child, root.transform * child.transform, _occluder_bounds)
 
 
 static func _append_mesh_bounds(
