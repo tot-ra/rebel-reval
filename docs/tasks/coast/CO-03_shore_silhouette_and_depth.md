@@ -2,6 +2,8 @@
 
 Board row: **R-950**. Priority: high. Depends on: CO-04. **Carries a scope-change ADR.**
 
+**2026-10-07:** the maintainer approved footprint growth in [ADR 0029](../../adr/0029-natural-reval-maps-and-larger-coast.md) (direction accepted; scope removal pending in R-1183). The sizes below are step one; ADR 0029 sets the larger area totals through adjacent maps. Write no separate footprint ADR.
+
 ## Player-facing goal
 
 Standing on the Kalamaja shore, there is real sea in front of the player and real working ground

@@ -43,6 +43,11 @@ seams before they can stream.
 | `reval_harbor_north` | `reval_harbor_north.rrmap` | false | Coastal Gate landing |
 | `reval_harbor_east` | `reval_harbor_east.rrmap` | false | Kalamaja shore, adjacent landing |
 
+Planned addition ([ADR 0029](adr/0029-natural-reval-maps-and-larger-coast.md), no source file
+yet, outside the 29-map count): planned: `reval_harbor_sand_gate`, a shore map adjacent to
+`reval_harbor_north` toward the Sand Gate. ADR 0029 also grows `reval_harbor_east`,
+`reval_harbor_north` and `viru_gate_foreland` (no location above 32,768 cells).
+
 Pirita and other physically contiguous outskirts are not in this group. They form the
 second group below.
 
