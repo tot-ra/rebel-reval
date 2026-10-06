@@ -217,6 +217,7 @@ static func view_effects_units(view: Node3D) -> Array[Dictionary]:
 		&"_create_water_ripple_sim",
 		&"_create_underwater_pass",
 		&"_create_cloud_shadow_pass",
+		&"_create_god_ray_pass",
 		&"_create_mud_footprints",
 		&"_create_fog_of_war",
 	]:

@@ -26,6 +26,7 @@ const TIME_DAY := &"day"
 const TIME_NIGHT := &"night"
 const FOG_OF_WAR_SCRIPT := preload("res://scripts/map/view3d/map_fog_of_war.gd")
 const CloudShadowPassScript := preload("res://scripts/map/view3d/cloud_shadow_pass.gd")
+const GodRayPassScript := preload("res://scripts/map/view3d/god_ray_pass.gd")
 const StaticBatcher := preload("res://scripts/map/view3d/map_view_static_batcher.gd")
 ## Plume culling runs on a coarse timer: the camera pans slowly and the extra
 ## margin hides the seam, so per-frame checks would only add cost.
@@ -113,6 +114,7 @@ var _camera: Camera3D
 var _smoke_cull_timer := 0.0
 var _fog_of_war: Node3D
 var _cloud_shadow_pass: CloudShadowPassScript
+var _god_ray_pass: GodRayPassScript
 var _occluder_bounds: Array[AABB] = []
 var _object_index: MapChunkRuntimeIndex
 var _object_streamer: MapObjectChunkStreamer
@@ -329,6 +331,14 @@ func _process(delta: float) -> void:
 		)
 		_cloud_shadow_pass.update_share(
 			_sky_weather.presentation_snapshot(cycle_progress, day_blend)
+		)
+	if _god_ray_pass != null and _sky_weather != null:
+		_god_ray_pass.update(
+			delta,
+			_sky_weather.presentation_snapshot(
+				cycle_progress,
+				SkyWeather3D.daylight_blend(cycle_progress, _sky_weather.calendar_date)
+			)
 		)
 	if _fog_of_war == null:
 		return
@@ -732,6 +742,19 @@ func _create_underwater_pass() -> void:
 	_underwater_pass.configure(_camera, _underwater_probe, _sky_weather.quality_tier)
 
 
+func god_ray_pass() -> GodRayPassScript:
+	return _god_ray_pass
+
+
+func _create_god_ray_pass() -> void:
+	var indoor := definition != null and definition.suppresses_exterior_surroundings()
+	if _sky_weather == null or _camera == null or not GodRayPassScript.should_create(indoor):
+		return
+	_god_ray_pass = GodRayPassScript.new()
+	add_child(_god_ray_pass)
+	_god_ray_pass.configure(_camera)
+
+
 func _create_cloud_shadow_pass() -> void:
 	var indoor := definition != null and definition.suppresses_exterior_surroundings()
 	var enabled := _sky_weather != null and _sky_weather.cloud_shadow_enabled()
@@ -790,6 +813,7 @@ func _underwater_probe(world_xz: Vector2) -> Dictionary:
 		bed_y = MapViewMeshBuilderTerrain.water_gameplay_bed_y(field, world_xz)
 	return {
 		"surface_y": bed_y + MapViewMeshBuilderConfig.WATER_SURFACE_LIFT + tide,
+		"terrain_id": terrain_id,
 		# The FFT geometry is compressed onto this per-terrain Gerstner height budget.
 		"wave_margin": float(material.get_shader_parameter("wave_height")),
 		"material": material,
