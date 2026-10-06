@@ -57,6 +57,19 @@ Allowed entry verbs (content-gated):
 - sleep / bed rest when content sets `flag.hingepuu.offer_visit`;
 - authored meditation interactables (later acts).
 
+**Sleep entry rule (decision, 2026-10-07):** bed rest transports Kalev into the Hingepuu **only when something is pending**. Otherwise sleep advances the phase as today (`PhaseRestAnchor`, [`TIME_AND_PHASES.md`](./TIME_AND_PHASES.md)) with no inner-world scene. Repeating an empty visit every night would turn the rite into a chore.
+
+`flag.hingepuu.offer_visit` is derived on rest when at least one is true:
+
+| Pending reason | Source |
+|---|---|
+| Unspent aspect points (`natural.unspent_points > 0`) or `flag.natural.initial_allocation` not yet done | NATURAL.md §3 |
+| A psyche state applied since the last visit | §5 |
+| A reflection conviction is available | §2 |
+| An authored face beat is waiting (`face.*` dialogue unlocked) | §4 |
+
+The visit is offered, not forced: the player may sleep through and keep the pending items for a later night. Pending items never expire or escalate because a visit was skipped (§6). Sleeping never mints aspect points (NATURAL.md §3.3), so resting repeatedly cannot farm progression.
+
 ### 3.2 Spatial metaphor (logic graph, not open world)
 
 Hingepuu is a **small authored graph** of loci, not a seamless open map and not a second city.
@@ -72,6 +85,28 @@ Hingepuu is a **small authored graph** of loci, not a seamless open map and not 
 | `hingepuu.locus.affliction.<state>` | demon / state | Confront or study an active psyche state |
 
 Presentation may be tree-shaped UI, staged 3D diorama, or enhanced overlay. Art choice is deferred to art-bible tasks; design only requires stable locus IDs and keyboard/gamepad focus travel.
+
+### 3.3 Soul-spark traversal (decision, 2026-10-07)
+
+Kalev does **not** walk the tree on foot. Inside the Hingepuu the player steers a levitating **soul-spark** (a glowing leaf or ember of Kalev's soul) around a vertical tree diorama:
+
+| Height band | Loci |
+|---|---|
+| Roots | `hingepuu.locus.nature` |
+| Base of trunk | `hingepuu.locus.affection`, `hingepuu.locus.reflection` |
+| Trunk | `hingepuu.locus.tenacity` |
+| Branches | `hingepuu.locus.unity`, `hingepuu.locus.resonance` |
+| Crown | `hingepuu.locus.awareness` |
+| Sky above | `hingepuu.locus.light` (reachable only after `face.self` unlocks) |
+
+Rules:
+
+- The spark drifts freely in a bounded volume around the tree (move + rise/sink). It has no combat, no health, and no fall damage. Leaving the bounds softly pulls it back.
+- Approaching a locus snaps a focus prompt; interacting opens that locus (allocation, face dialogue, confrontation). The locus graph from §3.2 remains the logical model; the spark is only presentation.
+- Locked or not-yet-revealed loci are shown dim or hidden; upper bands open by authored unlocks, not by spark skill.
+- Pending loci (see the sleep entry rule above) glow so the player can find them without a list. A plain-text locus list with keyboard/gamepad focus travel must remain available as the accessible equivalent.
+- Spending an aspect point visibly grows the matching part of the tree (thicker trunk, new branch, brighter crown). Growth reads from stored ranks only, so it is deterministic and save-safe.
+- The diorama is one small authored scene, not a streamed district or open-world map (§11).
 
 ---
 
