@@ -22,7 +22,10 @@ func _run() -> void:
 		push_error("WELL_SMOKE: WellModel node missing")
 		quit(1)
 		return
-	var required := ["Shaft", "Curb", "Water", "PostLeft", "PostRight", "Windlass", "RopeWrap", "CrankArm", "CrankHandle", "Rope", "Bucket", "BucketHandle", "RidgeBeam", "Roof"]
+	var required := [
+		"Shaft", "Curb", "Water", "Frame", "Roof", "Windlass",
+		"Axle", "CrankHandle", "Rope", "Bucket", "BucketHandle",
+	]
 	for node_name in required:
 		if model.get_node_or_null(node_name) == null:
 			push_error("WELL_SMOKE: missing node %s" % node_name)

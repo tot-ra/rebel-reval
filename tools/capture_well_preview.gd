@@ -1,10 +1,16 @@
 extends SceneTree
 
-## Close-up capture of the 3D well prop (stone ring, windlass, bucket, gabled
+## Close-up capture of the 3D well prop (limestone shaft, windlass, tin bucket, board
 ## roof). Run without --headless so the GPU renderer is live:
 ##   tools/godot_render.sh --script tools/capture_well_preview.gd
 
-const OUTPUT := "res://build/previews/well_preview.png"
+## Extra shots: low front view for the windlass/rope, and a steep view close to
+## the gameplay camera that shows the depth of the shaft mouth.
+const SHOTS := {
+	"res://build/previews/well_preview.png": [Vector3(2.4, 2.2, 2.4), Vector3(0.0, 0.85, 0.0)],
+	"res://build/previews/well_preview_low.png": [Vector3(0.3, 1.0, 2.7), Vector3(0.0, 1.0, 0.0)],
+	"res://build/previews/well_preview_top.png": [Vector3(0.2, 2.5, 2.6), Vector3(0.0, 0.7, 0.0)],
+}
 const VIEW_SIZE := Vector2i(1024, 1024)
 
 
@@ -33,22 +39,39 @@ func _run() -> void:
 	var camera := Camera3D.new()
 	camera.projection = Camera3D.PROJECTION_PERSPECTIVE
 	camera.fov = 40.0
-	# Front three-quarter view from slightly above the curb, matching the angle
-	# the dimetric gameplay camera sees the well at.
-	camera.position = Vector3(2.4, 2.2, 2.4)
-	camera.look_at_from_position(camera.position, Vector3(0.0, 0.85, 0.0), Vector3.UP)
 	viewport.add_child(camera)
 	camera.make_current()
 
+	# The first shot is a front three-quarter view from slightly above the curb,
+	# matching the angle the dimetric gameplay camera sees the well at.
+	for output: String in SHOTS:
+		var shot: Array = SHOTS[output]
+		camera.look_at_from_position(shot[0], shot[1], Vector3.UP)
+		for _frame in 20:
+			await process_frame
+		var image := viewport.get_texture().get_image()
+		var error := image.save_png(ProjectSettings.globalize_path(output))
+		if error != OK:
+			push_error("Well preview failed: %s" % error_string(error))
+			quit(1)
+			return
+		print("WELL_PREVIEW=%s" % output)
+	# Orthographic shot: the gameplay map camera is orthographic, which takes a
+	# separate branch in map_view_well_shaft.gdshader.
+	camera.projection = Camera3D.PROJECTION_ORTHOGONAL
+	camera.size = 3.4
+	camera.look_at_from_position(Vector3(4.0, 4.4, 4.0), Vector3(0.0, 0.8, 0.0), Vector3.UP)
 	for _frame in 20:
 		await process_frame
-	var image := viewport.get_texture().get_image()
-	var error := image.save_png(ProjectSettings.globalize_path(OUTPUT))
-	if error != OK:
-		push_error("Well preview failed: %s" % error_string(error))
+	var ortho_output := "res://build/previews/well_preview_ortho.png"
+	var ortho_error := viewport.get_texture().get_image().save_png(
+		ProjectSettings.globalize_path(ortho_output)
+	)
+	if ortho_error != OK:
+		push_error("Well preview failed: %s" % error_string(ortho_error))
 		quit(1)
 		return
-	print("WELL_PREVIEW=%s" % OUTPUT)
+	print("WELL_PREVIEW=%s" % ortho_output)
 	quit(0)
 
 
