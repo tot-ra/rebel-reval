@@ -73,7 +73,7 @@ None: he is fourteen and his masters are Latin. He prays the Hours and counts hi
 ## Voice
 - **Registers:** Middle Low German; Latin in school.
 - **Delivery:** Low and unhurried.
-- **Sample lines:** "I would have to read it first." / "The rule says otherwise." / "Quod erat demonstrandum, I think."
+- **Sample lines:** "I would have to read it first." / "The rule says otherwise." / "Ita est, I think."
 - **Verbal tic:** "As the master says."
 
 ## Knowledge and rumours

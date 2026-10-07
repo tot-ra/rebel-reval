@@ -35,7 +35,7 @@
 - **Model notes:** MPFB macros: female, age_years 46, muscle 0.45, weight 0.7, proportions stocky, height_m 1.56; skin tone fair-flushed; eyes grey; brown hair with grey, coif; crowd tier 1.
 
 ## Biography
-Born 1297 in Wismar, a baker's daughter, brought to Reval as a bride of twenty in 1317 with a cart of linen and an uncle's blessing. Her husband's first brewing season ran her ragged; by 1320 she had taken over the tapping, and by 1325 she was ordering the ale. She bore seven children, buried none, and has three at home in the early school years.
+Born 1297 in Wismar, a baker's daughter, brought to Reval as a bride of twenty in 1317 with a cart of linen and an uncle's blessing. Her husband's first brewing season ran her ragged; by 1320 she had taken over the tapping, and by 1325 she was ordering the ale. She has borne five children and buried none, and counts it daily as a favour from St Gertrude.
 
 The sore point of her life is a seat: at the Shrovetide feast of 1334 the wives of the councillors sat by rank and she was placed below the hearth, beside a skipper's widow. She has not forgotten and is polite to every woman who was there.
 

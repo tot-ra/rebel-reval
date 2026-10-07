@@ -63,7 +63,7 @@ Her yarn brings a mark a month; the factor adds a few pfennigs a week. Henneke t
 ## Relationships
 - **Household:** [Henneke Overdyk](henneke_overdyk.md), husband; [Segebode Overdyk](segebode_overdyk.md), son; [Ermelin Overdyk](ermelin_overdyk.md), daughter.
 - **Network:** [Veronika Jaagu tütar](../../people/lower_town/veronika_jaagu_tutar.md), maid: they survived the same bad winter in the same lane; hardship is a quiet bond. [Veronika Kaspari tütar](../../people/lower_town/veronika_kaspari_tutar.md), maid: they met at the church door the week of Easter and fell into the habit of walking home together. [Ulrika Birgersdotter](../../people/lower_town/ulrika_birgersdotter.md), retired craftswoman: they know each other from the market; they greet by name and trade the day's prices. [Johan Kniphof](../../people/lower_town/johan_kniphof.md), apprentice: he suspects but cannot prove that Sibbe leans the same way; each watches the other for a sign. [Elisabet Lunge](../../people/toompea/elisabet_lunge.md), spinner: Elisabet is her superior in the circle, though neither would put it that way; they never speak in the same room as others.
-- **Others:** [Johannes van Luneborch](../../ledger/lower_town/lai.md#hh-lt-osm-w200452893), the great kinsman.
+- **Others:** [Johannes van Luneborch](../../ledger/lower_town/lai.md#hh-lt-osm-w200852893), the great kinsman.
 
 ## Faction and belief
 Her root grievance is the Danish tax on yarn; her reason to act is silver and a quiet pride. She would repeat a price, but would never put anyone in danger. She keeps a rowan charm for the children.

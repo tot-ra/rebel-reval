@@ -31,7 +31,7 @@
 - **Hair and facial hair:** Mostly grey over brown, thin on the crown, combed flat. A forked beard, grey, trimmed square at the two points.
 - **Skin and marks:** Sallow with winter pallor. A limp from a badly healed shin and a faint tremor in the left hand when cold.
 - **Hands:** Long and spotted, the knuckles swollen, a seal ring worn loose.
-- **Clothing and kit (April 1343):** Linen shirt, dark green wool houppelande-length robe with fur at the collar, grey hose, soft leather shoes. A hat of black felt. Belt with a purse, a signet and a small ledger book.
+- **Clothing and kit (April 1343):** Linen shirt, dark green wool ankle-length robe with fur at the collar, grey hose, soft leather shoes. A hat of black felt. Belt with a purse, a signet and a small ledger book.
 - **Portrait prompt:** A man of sixty-six in a dark green fourteenth-century wool robe with a worn fur collar, long bony face, high cheekbones, deep-set brown eyes, grey forked beard, thin grey-brown hair, sallow winter skin, heavy lids, tired closed mouth, neutral grey background, shoulders-up, soft natural light.
 - **Model notes:** MPFB male, age_years 66, muscle low, weight low, proportions long-limbed stooped, height_m 1.80; skin sallow; eyes brown; grey hair thin, forked beard; crowd tier 1.
 
