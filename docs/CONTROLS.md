@@ -93,7 +93,7 @@ button charges instead of repeating the swing.
 | Spell cookbook | `R` | D-pad right |
 | Cast forged cookbook spell | `Enter` (cookbook only) | A (cookbook only) |
 
-Left click never casts. It stays attack / interact / travel as described above. Number keys cast the learned recipes shown on the bottom-left spell bar (Fireball, Earth Tremor, Iron Skin in a new demo). Gamepad face buttons stay combat verbs; open the cookbook to pick a spell with the mouse or focus.
+Left click never casts. It stays attack / interact / travel as described above. Number keys cast the learned recipes shown on the bottom-left spell bar (Fireball, Earth Tremor, Iron Skin in a new demo) **only in the spirit world** (during a spirit duel, [ADR 0033](adr/0033-teen-protagonist-and-spirit-dialogue-combat.md)); in the physical world they report "Magic answers only in the spirit world." and cost nothing. Gamepad face buttons stay combat verbs; open the cookbook to pick a spell with the mouse or focus.
 
 Combat moves, combo timing, roll rules and cast gestures are specified in [`SYSTEMS/COMBAT_ANIMATION.md`](SYSTEMS/COMBAT_ANIMATION.md).
 
