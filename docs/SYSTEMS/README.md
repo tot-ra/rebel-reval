@@ -16,6 +16,7 @@ One page per implemented or planned feature. Each page opens with a `Status:` li
 | [Seamless Reval city (1343)](./SEAMLESS_CITY.md) | Playable preview (ADR 0031); no quests or saves yet |
 | [Landmark sites in the seamless city](./CITY_LANDMARK_SITES.md) | Implemented for Raekoja plats (ADR 0032); other sites planned |
 | [Living vegetation](./LIVING_VEGETATION.md) | Implemented (seasons, weather, leaf fall on hits) |
+| [Vegetation realism (grass, grain fields, trees)](./VEGETATION_REALISM.md) | Planned (research and technical plan; nothing implemented) |
 | [Hoist ropes](./HOIST_ROPE.md) | Implemented (wind-swung rope and hook on hoist beams) |
 | [Combat runtime](./COMBAT.md) | Foundation implemented; tower bosses unwired |
 | [Combat animation](./COMBAT_ANIMATION.md) | Implemented |

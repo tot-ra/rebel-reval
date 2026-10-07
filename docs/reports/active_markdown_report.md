@@ -14,12 +14,12 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1066`
+- Active Markdown files scanned: `1068`
 - Markdown files excluded as archive/reference/out of active scope: `743`
-- Local/external links inspected: `12662`
-- Links to active Markdown docs: `11843`
+- Local/external links inspected: `12688`
+- Links to active Markdown docs: `11861`
 - Links to existing archive/reference/non-active local docs: `428`
-- External links skipped for reachability: `46`
+- External links skipped for reachability: `52`
 - Issues found: `1`
 
 ## Issue counts
@@ -1010,6 +1010,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/SYSTEMS/LIVING_VEGETATION.md`
 - `docs/SYSTEMS/MAGIC.md`
 - `docs/SYSTEMS/NATURAL.md`
+- `docs/SYSTEMS/OBJECT_CATALOG.md`
 - `docs/SYSTEMS/PSYCHE.md`
 - `docs/SYSTEMS/QUESTS.md`
 - `docs/SYSTEMS/README.md`
@@ -1018,6 +1019,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/SYSTEMS/SPIRIT_DIALOGUE.md`
 - `docs/SYSTEMS/STATE_AND_SAVES.md`
 - `docs/SYSTEMS/TIME_AND_PHASES.md`
+- `docs/SYSTEMS/VEGETATION_REALISM.md`
 - `docs/SYSTEMS/WORLD_LIFE.md`
 - `docs/SYSTEMS/WORLD_PRESENTATION.md`
 - `docs/TASK_ARCHIVE.md`
