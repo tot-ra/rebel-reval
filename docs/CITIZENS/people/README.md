@@ -311,6 +311,7 @@ Cards come in whole households wherever possible, so family members, masters and
 - [Irina Ontsiforovna](lower_town/irina_ontsiforovna.md)
 - [Irina Yakovlevna](lower_town/irina_yakovlevna.md)
 - [Ivan Semyonovich](lower_town/ivan_semyonovich.md)
+- [Jaak](lower_town/jaak.md)
 - [Jaak Hindreku poeg](lower_town/jaak_hindreku_poeg.md)
 - [Jaak Lauri poeg](lower_town/jaak_lauri_poeg.md)
 - [Jaak Olevi poeg](lower_town/jaak_olevi_poeg.md)

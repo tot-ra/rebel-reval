@@ -35,7 +35,7 @@
 - **Model notes:** male, age_years 38, muscle 0.6, weight 0.6, proportions broad, height_m 1.69; pale skin; grey-blue eyes; light brown hair thinning, short beard; crowd tier 2.
 
 ## Biography
-Born in 1305 in a village near Jüri, Villem was sold by his father at nine to a Harju manor. He ran away at nineteen and came to town, where he was taken in by the carpenters' yard. The winter of 1341 was bad: the lane froze, the well stopped, and a neighbour's hearth went cold; he hauled firewood on his back through three weeks and lost two toes. Hinrick took him on as a servant that spring, and he has stayed. He sleeps in the loft above the workshop and says it is warm.
+Born in 1305 in a village near Jüri, Villem was bound by his father at nine to a Harju manor. He ran away at nineteen and came to town, where he was taken in by the carpenters' yard. The winter of 1341 was bad: the lane froze, the well stopped, and a neighbour's hearth went cold; he hauled firewood on his back through three weeks and lost two toes. Hinrick took him on as a servant that spring, and he has stayed. He sleeps in the loft above the workshop and says it is warm.
 
 ## Motivation
 - **Want:** To be paid by the year without being asked to leave.
@@ -63,7 +63,7 @@ He earns his keep and two marks a year. He saves two pfennigs a month in a boot.
 - **Household:** [Hinrick Kristjani poeg](../../people/lower_town/hinrick_kristjani_poeg.md), the master, who trusts him with the ladder; [Wendla Siimu tütar](../../people/lower_town/wendla_siimu_tutar.md), the mistress, who watches the soup; [Triin Hinricku tütar](../../people/lower_town/triin_hinricku_tutar.md), the loud daughter; [Simon Siimu poeg](../../people/lower_town/simon_siimu_poeg.md), the ostler, who shares his bench.
 - **Network:**
   - [Jaan Marteni poeg](../../people/lower_town/jaan_marteni_poeg.md), labourer next door: they survived the same bad winter in the same lane; hardship is a quiet bond, shown by a nod across the wall.
-  - [Magnus Gunnarsson](../../people/lower_town/magnus_gunnarsson.md), retired craftsman on Sauna: they survived the same bad winter in the same lane; hardship is a quiet bond, and the old man gives him bark tea for his toes.
+  - [Magnus Gunnarsson](../../people/lower_town/magnus_gunnarsson.md), retired craftsman on Sauna: they survived the same bad winter in the same lane; hardship is a quiet bond, and the old man brews him willow-bark for his toes.
 - **Others:** [Rein Kristjani poeg](../../ledger/lower_town/sauna.md#hh-lt-osm-w493140843), the cloth-weaver, who sells him cheap hose.
 
 ## Faction and belief
