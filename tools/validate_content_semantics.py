@@ -400,6 +400,52 @@ def walk_effects(
     walk_operation_lists(obj, pointer, EFFECT_LIST_KEYS, sink)
 
 
+def validate_dialogue_duel(
+    diagnostics: list[Diagnostic],
+    *,
+    path: Path,
+    record: dict[str, Any],
+    id_to_index: dict[str, int],
+    reachable: set[str],
+    root: Path,
+) -> None:
+    """ADR 0033 spirit duel markup: tagged moves need a declared duel with real stakes and a reachable resolution."""
+    duel = record.get("duel") if isinstance(record.get("duel"), dict) else None
+    tagged: list[tuple[str, dict[str, Any]]] = []
+    for node_index, node in enumerate(record.get("nodes") or []):
+        if not isinstance(node, dict):
+            continue
+        base = f"$.nodes[{node_index}]"
+        if isinstance(node.get("move"), dict):
+            tagged.append((f"{base}.move", node["move"]))
+        for choice_index, choice in enumerate(node.get("choices") or []):
+            if isinstance(choice, dict) and isinstance(choice.get("move"), dict):
+                tagged.append((f"{base}.choices[{choice_index}].move", choice["move"]))
+    if duel is None:
+        if tagged:
+            diagnostics.append(
+                diag("DUEL_MISSING", path, tagged[0][0], "move tags need a top-level duel declaration", root=root)
+            )
+        return
+    if not tagged:
+        diagnostics.append(diag("DUEL_UNTAGGED", path, "$.duel", "duel declared but no node or choice has a move", root=root))
+    declared = set(duel.get("stakes") or [])
+    for pointer, move in tagged:
+        for stake in move.get("stakes") or []:
+            if stake not in declared:
+                diagnostics.append(
+                    diag("DUEL_STAKE", path, f"{pointer}.stakes", f"stake {stake!r} is not declared in duel.stakes", root=root)
+                )
+    for index, node_id in enumerate(duel.get("resolution_node_ids") or []):
+        pointer = f"$.duel.resolution_node_ids[{index}]"
+        if node_id not in id_to_index:
+            diagnostics.append(diag("REFERENCE", path, pointer, f"unknown dialogue node id {node_id!r}", root=root))
+        elif node_id not in reachable:
+            diagnostics.append(
+                diag("REACHABILITY", path, pointer, f"duel resolution node {node_id!r} is unreachable", root=root)
+            )
+
+
 def validate_dialogue(
     diagnostics: list[Diagnostic],
     *,
@@ -516,3 +562,6 @@ def validate_dialogue(
                         root=root,
                     )
                 )
+        validate_dialogue_duel(
+            diagnostics, path=path, record=record, id_to_index=id_to_index, reachable=reachable, root=root
+        )

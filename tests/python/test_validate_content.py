@@ -376,6 +376,60 @@ class ValidateContentTests(unittest.TestCase):
             diagnostics = validate_corpus([content], project_root=root)
             self.assertIn("REACHABILITY", _codes(diagnostics))
 
+    def _duel_codes(self, **overrides) -> list[str]:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            content = root / "content"
+            _write(content / "char.json", _minimal_character())
+            _write(content / "dialogue.json", _minimal_dialogue(**overrides))
+            return _codes(validate_corpus([content], project_root=root))
+
+    @staticmethod
+    def _duel_nodes(move: dict) -> list[dict]:
+        return [
+            {"id": "start", "speaker_id": "char.test_a", "text": "Shame on you.", "move": move, "next_node_id": "end"},
+            {"id": "end", "speaker_id": "char.test_a", "text": "Enough."},
+        ]
+
+    def test_duel_valid_markup_passes(self) -> None:
+        move = {"kind": "attack", "element": "shame", "stakes": ["respect"], "spirit_image_id": "chain"}
+        codes = self._duel_codes(
+            nodes=self._duel_nodes(move), duel={"stakes": ["respect", "secret"], "resolution_node_ids": ["end"]}
+        )
+        self.assertEqual(codes, [])
+
+    def test_untagged_dialogue_stays_valid(self) -> None:
+        self.assertEqual(self._duel_codes(), [])
+
+    def test_duel_move_without_duel_declaration(self) -> None:
+        codes = self._duel_codes(nodes=self._duel_nodes({"kind": "attack", "element": "fear"}))
+        self.assertIn("DUEL_MISSING", codes)
+
+    def test_duel_undeclared_stake(self) -> None:
+        move = {"kind": "feint", "element": "coin", "stakes": ["secret"]}
+        codes = self._duel_codes(
+            nodes=self._duel_nodes(move), duel={"stakes": ["respect"], "resolution_node_ids": ["end"]}
+        )
+        self.assertIn("DUEL_STAKE", codes)
+
+    def test_duel_unreachable_resolution(self) -> None:
+        nodes = self._duel_nodes({"kind": "defense", "element": "duty"})
+        nodes[0].pop("next_node_id")
+        codes = self._duel_codes(nodes=nodes, duel={"stakes": ["balance"], "resolution_node_ids": ["end"]})
+        self.assertIn("REACHABILITY", codes)
+
+    def test_duel_unknown_resolution_and_untagged_duel(self) -> None:
+        codes = self._duel_codes(duel={"stakes": ["balance"], "resolution_node_ids": ["nowhere"]})
+        self.assertIn("REFERENCE", codes)
+        self.assertIn("DUEL_UNTAGGED", codes)
+
+    def test_duel_bad_move_enum_fails_schema(self) -> None:
+        codes = self._duel_codes(
+            nodes=self._duel_nodes({"kind": "stab", "element": "fear"}),
+            duel={"stakes": ["respect"], "resolution_node_ids": ["end"]},
+        )
+        self.assertTrue(codes)
+
     def test_dialogue_bad_edge_reference(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

@@ -161,9 +161,15 @@
                   "items": {
                     "$ref": "common.schema.json#/$defs/effect"
                   }
+                },
+                "move": {
+                  "$ref": "common.schema.json#/$defs/duel_move"
                 }
               }
             }
+          },
+          "move": {
+            "$ref": "common.schema.json#/$defs/duel_move"
           }
         }
       }
@@ -173,6 +179,32 @@
       "minItems": 1,
       "items": {
         "$ref": "common.schema.json#/$defs/source_note"
+      }
+    },
+    "duel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stakes",
+        "resolution_node_ids"
+      ],
+      "properties": {
+        "stakes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "common.schema.json#/$defs/duel_stake"
+          }
+        },
+        "resolution_node_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "common.schema.json#/$defs/local_id"
+          }
+        }
       }
     }
   }

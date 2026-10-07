@@ -26,6 +26,7 @@ var _presenter: RefCounted
 var _dialogue_id := &""
 var _nodes_by_id: Dictionary = {}
 var _current_node_id := ""
+var _duel: Dictionary = {}
 var _active := false
 var _waiting_for_choice := false
 var _pending_choices: Array = []
@@ -69,6 +70,16 @@ func get_current_node_id() -> String:
 	return _current_node_id
 
 
+## Spirit-duel markup of the running record (ADR 0033): {stakes, resolution_node_ids}, or {}.
+func get_duel() -> Dictionary:
+	return _duel.duplicate(true)
+
+
+## Move tag of the current node ({kind, element, stakes, spirit_image_id}), or {}.
+func get_current_move() -> Dictionary:
+	return _move_of(_nodes_by_id.get(_current_node_id, {}))
+
+
 func start(dialogue_id: StringName) -> bool:
 	if _content_db == null or _presenter == null:
 		return false
@@ -94,6 +105,8 @@ func start(dialogue_id: StringName) -> bool:
 		return false
 
 	_dialogue_id = dialogue_id
+	var duel: Variant = dialogue.get("duel", {})
+	_duel = duel as Dictionary if typeof(duel) == TYPE_DICTIONARY else {}
 	_active = true
 	_waiting_for_choice = false
 	_pending_choices.clear()
@@ -321,7 +334,13 @@ func _resolve_choice(choice: Dictionary) -> Dictionary:
 		"target_node_id": String(choice.get("target_node_id", "")),
 		"enabled": enabled,
 		"disabled_reason": String(choice.get("disabled_reason", "")),
+		"move": _move_of(choice),
 	}
+
+
+func _move_of(entry: Dictionary) -> Dictionary:
+	var move: Variant = entry.get("move", {})
+	return (move as Dictionary).duplicate(true) if typeof(move) == TYPE_DICTIONARY else {}
 
 
 func _apply_node_effects(node: Dictionary) -> void:
@@ -412,6 +431,7 @@ func _close() -> void:
 	_pending_choices.clear()
 	_input_enabled = false
 	_current_node_id = ""
+	_duel = {}
 	_dialogue_id = &""
 	_nodes_by_id.clear()
 	set_process_unhandled_input(false)

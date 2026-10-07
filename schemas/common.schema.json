@@ -325,6 +325,55 @@
         }
       },
       "description": "Maps one authored encounter close kind to a quest.local_id state write."
+    },
+    "duel_stake": {
+      "enum": [
+        "respect",
+        "secret",
+        "obligation",
+        "balance"
+      ]
+    },
+    "duel_move": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "element"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "attack",
+            "defense",
+            "feint",
+            "appeal",
+            "pressure",
+            "evade"
+          ]
+        },
+        "element": {
+          "enum": [
+            "fear",
+            "shame",
+            "duty",
+            "love",
+            "faith",
+            "coin"
+          ]
+        },
+        "stakes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "common.schema.json#/$defs/duel_stake"
+          }
+        },
+        "spirit_image_id": {
+          "$ref": "common.schema.json#/$defs/local_id"
+        }
+      }
     }
   }
 }

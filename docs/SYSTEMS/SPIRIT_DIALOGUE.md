@@ -19,13 +19,19 @@ Canon labels: spirit world, creatures, and guilt rites are `folklore` / `invente
 - **Oddness:** self-talk is an action with a buff. Witnesses react by faction rules.
 - **Traits:** hero traits are double-edged. NPC temperament tags decide which move kinds hit them.
 
-## Dialogue move tags (planned content shape)
+## Dialogue move tags (implemented, SD-02)
 
-Per node, in addition to the fields in [`DIALOGUE.md`](./DIALOGUE.md#content): `move_kind` (attack, defense, feint, appeal, pressure, evade), `element` (fear, shame, duty, love, faith, coin), `stakes[]` (respect, secret, obligation, balance), and `spirit_image_id`. The validator must reject a tagged duel with missing stakes or an unreachable resolution.
+A dialogue record may declare a top-level `duel` and tag nodes and choices with a `move` ([`schemas/dialogue.schema.json`](../../schemas/dialogue.schema.json), shared defs in `common.schema.json`):
+
+- `duel`: `stakes[]` (declared stakes) and `resolution_node_ids[]` (how the duel can end).
+- `move` (on a node or a choice): `kind` (`attack`, `defense`, `feint`, `appeal`, `pressure`, `evade`), `element` (`fear`, `shame`, `duty`, `love`, `faith`, `coin`), optional `stakes[]` (`respect`, `secret`, `obligation`, `balance`) and `spirit_image_id`.
+- Validator codes (`tools/validate_content_semantics.py`): `DUEL_MISSING` (a move without a `duel`), `DUEL_UNTAGGED` (a `duel` with no move), `DUEL_STAKE` (a stake not declared in `duel.stakes`), plus `REFERENCE` / `REACHABILITY` for an unknown or unreachable resolution node. Untagged dialogue stays valid.
+- Runtime: `DialogueRunner.get_duel()` and `get_current_move()` return copies of the markup; resolved choices carry `move`. The runner only exposes the tags; the arena that uses them is SD-04. Fixture: `content/examples/valid/dialogue.test_duel.json`.
+- Verify: `python3 -m unittest tests.python.test_validate_content -v`, `--filter=test_dialogue_move_tags`.
 
 ## Planned entry points
 
-None exist yet. First deliverable is a one-scene prototype (the almshouse quarrel) with schema fields, a validator check, and an arena host built on the existing combat feel. Tasks are to be created on the project board with allowed files and verification.
+The dialogue runner accessors above are the only entry points. First deliverable is a one-scene prototype (the almshouse quarrel) with schema fields, a validator check, and an arena host built on the existing combat feel. Tasks are to be created on the project board with allowed files and verification.
 
 ## Save state and IDs
 
