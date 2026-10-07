@@ -228,6 +228,7 @@ Cards come in whole households wherever possible, so family members, masters and
 - [Gerdt Pauli poeg](lower_town/gerdt_pauli_poeg.md)
 - [Gerhard van Bremen](lower_town/gerhard_van_bremen.md)
 - [Gerhard van Hamelen](lower_town/gerhard_van_hamelen.md)
+- [Gertrud](lower_town/gertrud.md)
 - [Gertrud Aino tütar](lower_town/gertrud_aino_tutar.md)
 - [Gertrud Joosepi tütar](lower_town/gertrud_joosepi_tutar.md)
 - [Gertrud Kaspari tütar](lower_town/gertrud_kaspari_tutar.md)
