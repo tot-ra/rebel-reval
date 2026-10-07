@@ -138,7 +138,10 @@ func answer(choice_id: String) -> bool:
 			break
 	if chosen.is_empty():
 		return false
-	var damage := reply_damage(chosen.get("move", {}), _incoming)
+	var reply_move: Dictionary = chosen.get("move", {})
+	var damage := reply_damage(reply_move, _incoming) * PhysicalBlowGuilt.reply_multiplier(
+		_state, StringName(String(reply_move.get("element", "")))
+	)
 	if damage > 0.0:
 		opponent.resolve_hit(damage)
 	hero.stamina = minf(hero.max_stamina, hero.stamina + RESOLVE_RECOVERY_PER_EXCHANGE)
@@ -239,7 +242,10 @@ func _land_incoming() -> void:
 	pose.is_action_invulnerable = _dodged
 	pose.is_guarding = _guard_elapsed >= 0.0
 	pose.guard_elapsed_sec = maxf(0.0, _guard_elapsed)
-	var amount: float = INCOMING_DAMAGE[StringName(String(_incoming.get("kind", "")))]
+	var amount: float = (
+		float(INCOMING_DAMAGE[StringName(String(_incoming.get("kind", "")))])
+		* PhysicalBlowGuilt.incoming_multiplier(_state)
+	)
 	_swing_id += 1
 	var result := hero.resolve_hit(amount, pose, _swing_id)
 	if result.outcome == CombatHitResult.OUTCOME_PARRIED:

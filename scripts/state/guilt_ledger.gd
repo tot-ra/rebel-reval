@@ -19,6 +19,15 @@ const CIRCUMSTANCE_WEIGHTS: Dictionary = {
 	&"act.unarmed_victim": {SCHOOL_CHURCH: 4, SCHOOL_FOLK: 3, SCHOOL_CIVIC: 3},
 }
 const LETHAL_WEIGHT: Dictionary = {SCHOOL_CHURCH: 3, SCHOOL_FOLK: 4, SCHOOL_CIVIC: 2}
+## Spirit duel element -> the school whose guilt weakens replies of that element.
+const ELEMENT_SCHOOL: Dictionary = {
+	&"faith": SCHOOL_CHURCH,
+	&"shame": SCHOOL_CHURCH,
+	&"love": SCHOOL_FOLK,
+	&"fear": SCHOOL_FOLK,
+	&"duty": SCHOOL_CIVIC,
+	&"coin": SCHOOL_CIVIC,
+}
 ## Spirit-layer debuff tier by level: 0 none, 1 minor (1-2), 2 heavy (3-5), 3 crushing (6+).
 const TIER_THRESHOLDS: Array[int] = [1, 3, 6]
 
@@ -86,6 +95,20 @@ func record_act(act_id: StringName, circumstance: StringName, lethal: bool = fal
 		_levels[school] = mini(MAX_LEVEL, level(school) + int(weights[school]))
 	_recorded_acts[act_id] = String(circumstance) + (":lethal" if lethal else "")
 	return weights
+
+
+## Add the lethal weight once for `act_id` (a death after a recorded blow). Returns the weights applied.
+func record_kill(act_id: StringName) -> Dictionary:
+	if act_id == &"" or _recorded_acts.has(act_id):
+		return {}
+	for school in SCHOOLS:
+		_levels[school] = mini(MAX_LEVEL, level(school) + int(LETHAL_WEIGHT[school]))
+	_recorded_acts[act_id] = "kill"
+	return LETHAL_WEIGHT.duplicate()
+
+
+func school_for_element(element: StringName) -> StringName:
+	return ELEMENT_SCHOOL.get(element, &"")
 
 
 ## Lower one school by `amount` through an authored rite (`rite_id` fires once). Returns the

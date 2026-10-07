@@ -43,6 +43,10 @@ Status: foundation implemented (tasks **P1-024..P1-027**, **P2-009**, **P5-008**
 | `scenes/reval_east/workers_district_bandit.gd` | Bandit fight in the Workers' District |
 | Bitter Brew night checkpoint | `BitterBrewNightConsequence`, `encounter.watch_checkpoint` ([`QUESTS.md`](./QUESTS.md)) |
 
+## Guilt for physical blows
+
+Player melee hits on actors with `guilt_context()` (all `CombatRoomEnemy`) record per-school guilt through `PhysicalBlowGuilt` (ADR 0033); see [`SPIRIT_DIALOGUE.md`](./SPIRIT_DIALOGUE.md#hybrid-combat-and-guilt-implemented-sd-07). Damage and encounter outcomes are unchanged.
+
 ## Content
 
 `type: encounter` ([`schemas/encounter.schema.json`](../../schemas/encounter.schema.json)) maps outcome kinds to quest states: `encounter.watch_checkpoint`, `encounter.nunnatorn_boss`, `encounter.kuldjala_boss`, `encounter.rentenitorn_boss`. Weapon numbers live on items (`gameplay.attack_profile`, `gameplay.weapon_class`, [`schemas/item.schema.json`](../../schemas/item.schema.json)).

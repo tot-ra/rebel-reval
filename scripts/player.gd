@@ -774,6 +774,8 @@ func _on_attack_impact() -> void:
 	var targets: Array[Node2D] = MeleeAttackResolverScript.strike_with_profile(
 		self, _facing_direction, profile
 	)
+	if has_node("/root/SessionState"):
+		PhysicalBlowGuilt.record_hits(SessionState.state, targets)
 	melee_attack_resolved.emit(targets, profile)
 
 

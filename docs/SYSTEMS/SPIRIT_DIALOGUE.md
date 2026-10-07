@@ -49,6 +49,15 @@ A dialogue record may declare a top-level `duel` and tag nodes and choices with 
 - **Verify:** `--filter=test_spirit_arena`; frames with `tools/godot_render.sh --resolution 1280x720 --script tools/capture_spirit_arena.gd`.
 - **Limits:** no scene mounts the host yet (SD-05 wires the prologue); no spells or hero moves beyond replies; no guilt hook (SD-07); NPC temperaments do not change damage yet (SD-15); the numbers are prototype values.
 
+## Hybrid combat and guilt (implemented, SD-07)
+
+- **Hook:** after every player melee pulse, `Player._on_attack_impact` calls `PhysicalBlowGuilt.record_hits(SessionState.state, targets)`. Only targets that implement `guilt_context()` carry guilt (training dummies do not). `CombatRoomEnemy` implements it: `guilt_actor_id` (default the lowercase node name), `guilt_armed` (false makes it an unarmed victim), `guilt_defending_other`.
+- **Circumstance** (`PhysicalBlowGuilt.classify`): animal -> none; an aggressor (it had already noticed the hero before the first blow: detect, chase, telegraph or attack) -> `act.self_defence`, or `act.defend_other` when the hero protects someone; unarmed and not an aggressor -> `act.unarmed_victim`; otherwise (a calm armed guard) -> `act.provoked`.
+- **Once per act:** a target records `act.<id>.blow` once however many swings land, plus `act.<id>.kill` (`GuiltLedger.record_kill`, the lethal weight only) once when it dies.
+- **Spirit debuffs:** a reply of an element is weakened by 15% per debuff tier of its school (floor 40%): faith and shame by church, love and fear by folk, duty and coin by civic. The opponent's blows are sharpened by 10% per tier summed over all schools (cap 1.6). Both apply inside `SpiritDuel`.
+- Verify: `--filter=test_hybrid_combat_guilt`.
+- **Limits:** no content gives a rite to lower guilt yet; dialogue-flag blows such as `flag.prologue.struck_porter` are not converted into guilt yet; enemies other than `CombatRoomEnemy` and any NPC without `guilt_context()` carry none.
+
 ## Observation mode (implemented prototype, SD-06)
 
 - `SpiritObservation` (`scripts/combat/spirit_observation.gd`) plays a tagged dialogue record with no input: `begin(runner, content_db, state, dialogue_id)`, `step()`, `play_all()`. It refuses a record without a `duel`. Choices in an observed record are taken in authored order (first enabled), so the outcome is deterministic.

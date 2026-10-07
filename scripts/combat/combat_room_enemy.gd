@@ -24,6 +24,14 @@ var max_stamina := DEFAULT_STAMINA
 var hit_count := 0
 var last_result: CombatHitResult
 var display_name := "Enemy"
+## Stable id for guilt records (ADR 0033); empty falls back to the node name.
+var guilt_actor_id: StringName = &""
+## False for a disarmed or unarmed actor; striking one carries the unarmed-victim weight.
+var guilt_armed := true
+## Set when this actor is attacking someone the hero protects.
+var guilt_defending_other := false
+var _first_blow_seen := false
+var _aggressor_at_first_blow := false
 
 var _body: ColorRect
 var _pauldron_left: ColorRect
@@ -65,6 +73,8 @@ func reset_actor() -> void:
 	stamina = DEFAULT_STAMINA
 	max_stamina = DEFAULT_STAMINA
 	hit_count = 0
+	_first_blow_seen = false
+	_aggressor_at_first_blow = false
 	last_result = null
 	defense_pose = CombatDefensePose.open()
 	combat_vitals.configure(health, max_health, stamina, max_stamina)
@@ -72,6 +82,26 @@ func reset_actor() -> void:
 	_knockback.clear()
 	_target = null
 	_refresh_label()
+
+
+## Describes this actor for PhysicalBlowGuilt. It is an aggressor when it had already
+## noticed the hero before the first blow landed (a patrolling guard struck unprovoked is not).
+func guilt_context() -> Dictionary:
+	return {
+		"id": String(guilt_actor_id) if guilt_actor_id != &"" else String(name).to_lower(),
+		"aggressor": _aggressor_at_first_blow if _first_blow_seen else _is_hostile_state(),
+		"armed": guilt_armed,
+		"defending_other": guilt_defending_other,
+	}
+
+
+func _is_hostile_state() -> bool:
+	return machine.state in [
+		EnemyCombatState.State.DETECT,
+		EnemyCombatState.State.CHASE,
+		EnemyCombatState.State.TELEGRAPH,
+		EnemyCombatState.State.ATTACK,
+	]
 
 
 func get_machine() -> EnemyCombatStateMachine:
@@ -194,6 +224,9 @@ func take_damage(
 ) -> float:
 	if machine.is_dead():
 		return 0.0
+	if not _first_blow_seen:
+		_first_blow_seen = true
+		_aggressor_at_first_blow = _is_hostile_state()
 	combat_vitals.health = health
 	combat_vitals.max_health = max_health
 	combat_vitals.stamina = stamina
