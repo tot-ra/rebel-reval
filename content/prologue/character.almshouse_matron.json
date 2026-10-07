@@ -1,0 +1,35 @@
+{
+  "type": "character",
+  "id": "char.almshouse_matron",
+  "name": "Matron Gertrud",
+  "role": "Matron of the almshouse",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft"
+  },
+  "pronunciation": "GAIR-trood",
+  "brief": {
+    "want": "Keep the children fed through a lean spring.",
+    "fear": "Being blamed when a child dies.",
+    "contradiction": "She is kind in private and harsh in front of the porter.",
+    "secret_or_withheld_fact": "She waters the gruel to stretch the grain."
+  },
+  "relationships": [],
+  "voice": {
+    "summary": "Tired, firm, quick to scold.",
+    "diction": "Household accounts, bread, penance."
+  },
+  "outcomes": [
+    {
+      "id": "end",
+      "summary": "Remains in charge of the house."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Prologue cast for ADR 0033 (SD-05); the almshouse house itself is a plausible composite."
+    }
+  ]
+}

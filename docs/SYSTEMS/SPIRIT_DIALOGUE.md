@@ -49,6 +49,12 @@ A dialogue record may declare a top-level `duel` and tag nodes and choices with 
 - **Verify:** `--filter=test_spirit_arena`; frames with `tools/godot_render.sh --resolution 1280x720 --script tools/capture_spirit_arena.gd`.
 - **Limits:** no scene mounts the host yet (SD-05 wires the prologue); no spells or hero moves beyond replies; no guilt hook (SD-07); NPC temperaments do not change damage yet (SD-15); the numbers are prototype values.
 
+## Prologue content (implemented prototype, SD-05)
+
+[`content/prologue/`](../../content/prologue/README.md) holds the almshouse opening: an observed matron-versus-porter quarrel (4 tagged nodes, hero not involved), the hero's first own duel against the porter (7 nodes, three resolutions: `resolved_spared`, `resolved_punished`, `resolved_struck`), Kalev taking the apprentice (`flag.prologue.apprenticed`), and three cast records. The `[Shove him away]` choice is the physical option: it ends the duel at once and sets `flag.prologue.struck_porter`, which the guilt hook (SD-07) will read. Verify: `--filter=test_spirit_prologue`, `python3 tools/validate_content.py content/prologue content/examples/support content/examples/valid`.
+
+**Authoring-cost note:** tagging a node costs one `move` line (kind, element, stakes); the real cost is designing each exchange so the counters and elements make sense (about the work of writing a normal branching scene twice over for the duel scenes). Both duel scenes plus the Kalev scene and three characters were written in one pass. Not yet wired to a location, observation mode (SD-06) or the hero spawn.
+
 ## Planned entry points
 
 The runner accessors and the spirit arena above are the entry points. First deliverable is a one-scene prototype (the almshouse quarrel) with schema fields, a validator check, and an arena host built on the existing combat feel. Tasks are to be created on the project board with allowed files and verification.

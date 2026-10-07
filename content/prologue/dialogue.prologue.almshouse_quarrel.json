@@ -1,0 +1,87 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.prologue.almshouse_quarrel",
+  "title": "Almshouse quarrel (observed)",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "notes": "SD-05 prologue prototype (ADR 0033)."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "participants": [
+    "char.almshouse_matron",
+    "char.almshouse_porter"
+  ],
+  "start_node_id": "matron_opens",
+  "duel": {
+    "stakes": [
+      "respect",
+      "secret"
+    ],
+    "resolution_node_ids": [
+      "porter_yields"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "matron_opens",
+      "speaker_id": "char.almshouse_matron",
+      "text": "Half the barley sack is gone, Han\u00df. The children ate gruel you could read through.",
+      "move": {
+        "kind": "attack",
+        "element": "duty",
+        "stakes": [
+          "respect"
+        ],
+        "spirit_image_id": "empty_ladle"
+      },
+      "next_node_id": "porter_deflects"
+    },
+    {
+      "id": "porter_deflects",
+      "speaker_id": "char.almshouse_porter",
+      "text": "Rats. Or one of your little thieves. Count your own mouths before you count my keys.",
+      "move": {
+        "kind": "feint",
+        "element": "shame",
+        "stakes": [
+          "secret"
+        ],
+        "spirit_image_id": "rusted_key"
+      },
+      "next_node_id": "matron_presses"
+    },
+    {
+      "id": "matron_presses",
+      "speaker_id": "char.almshouse_matron",
+      "text": "The reeve will ask at Michaelmas. Shall I tell him which rats carry keys?",
+      "move": {
+        "kind": "pressure",
+        "element": "fear",
+        "stakes": [
+          "secret",
+          "respect"
+        ],
+        "spirit_image_id": "scales"
+      },
+      "next_node_id": "porter_yields"
+    },
+    {
+      "id": "porter_yields",
+      "speaker_id": "char.almshouse_porter",
+      "text": "...There will be bread at vespers. Say nothing to the reeve."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "plausible composite",
+      "summary": "Almshouse life tied to the Holy Spirit parish; dialogue is invented for ADR 0033."
+    }
+  ]
+}

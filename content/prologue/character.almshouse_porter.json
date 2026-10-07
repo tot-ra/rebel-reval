@@ -1,0 +1,35 @@
+{
+  "type": "character",
+  "id": "char.almshouse_porter",
+  "name": "Porter Han\u00df",
+  "role": "Porter of the almshouse",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft"
+  },
+  "pronunciation": "HAHNSS",
+  "brief": {
+    "want": "Be obeyed; keep the stores locked.",
+    "fear": "Losing his small authority.",
+    "contradiction": "He guards the bread for the house and sells some to the market.",
+    "secret_or_withheld_fact": "He sells a share of the grain."
+  },
+  "relationships": [],
+  "voice": {
+    "summary": "Gruff and suspicious.",
+    "diction": "Keys, locks, counts, threats of the rod."
+  },
+  "outcomes": [
+    {
+      "id": "end",
+      "summary": "Keeps his post."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Prologue cast for ADR 0033 (SD-05); the almshouse house itself is a plausible composite."
+    }
+  ]
+}

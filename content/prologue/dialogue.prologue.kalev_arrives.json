@@ -1,0 +1,67 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.prologue.kalev_arrives",
+  "title": "Kalev takes the apprentice",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "notes": "SD-05 prologue prototype (ADR 0033)."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "participants": [
+    "char.kalev",
+    "char.apprentice",
+    "char.almshouse_matron"
+  ],
+  "start_node_id": "matron_introduces",
+  "nodes": [
+    {
+      "id": "matron_introduces",
+      "speaker_id": "char.almshouse_matron",
+      "text": "This is the boy. Quiet. Eats little. Stares, sometimes. The priest says he is harmless.",
+      "next_node_id": "kalev_looks"
+    },
+    {
+      "id": "kalev_looks",
+      "speaker_id": "char.kalev",
+      "text": "My apprentice has gone, and the forge will not stoke itself. Can you carry iron, boy?",
+      "next_node_id": "kalev_offer",
+      "choices": [
+        {
+          "id": "yes",
+          "text": "Yes.",
+          "target_node_id": "kalev_offer"
+        },
+        {
+          "id": "stare",
+          "text": "[Say nothing, and watch him]",
+          "target_node_id": "kalev_offer"
+        }
+      ]
+    },
+    {
+      "id": "kalev_offer",
+      "speaker_id": "char.kalev",
+      "text": "A bed by the hearth and bread twice a day. Work from before light. Come.",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.prologue.apprenticed",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "plausible composite",
+      "summary": "Almshouse life tied to the Holy Spirit parish; dialogue is invented for ADR 0033."
+    }
+  ]
+}

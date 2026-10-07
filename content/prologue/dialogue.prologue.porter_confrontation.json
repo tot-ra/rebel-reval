@@ -1,0 +1,167 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.prologue.porter_confrontation",
+  "title": "Porter confrontation",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "notes": "SD-05 prologue prototype (ADR 0033)."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "participants": [
+    "char.almshouse_porter",
+    "char.apprentice"
+  ],
+  "start_node_id": "accuse",
+  "duel": {
+    "stakes": [
+      "respect",
+      "obligation",
+      "secret"
+    ],
+    "resolution_node_ids": [
+      "resolved_spared",
+      "resolved_punished",
+      "resolved_struck"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "accuse",
+      "speaker_id": "char.almshouse_porter",
+      "text": "A loaf is missing from the cold store. You were seen near it, boy.",
+      "move": {
+        "kind": "attack",
+        "element": "shame",
+        "stakes": [
+          "respect"
+        ],
+        "spirit_image_id": "rusted_key"
+      },
+      "choices": [
+        {
+          "id": "deny",
+          "text": "I did not touch it.",
+          "target_node_id": "porter_presses",
+          "move": {
+            "kind": "defense",
+            "element": "fear",
+            "stakes": [
+              "respect"
+            ]
+          }
+        },
+        {
+          "id": "explain_child",
+          "text": "The little one was crying with hunger.",
+          "target_node_id": "porter_softens",
+          "move": {
+            "kind": "appeal",
+            "element": "love",
+            "stakes": [
+              "obligation"
+            ]
+          }
+        },
+        {
+          "id": "shove",
+          "text": "[Shove him away]",
+          "target_node_id": "resolved_struck",
+          "move": {
+            "kind": "attack",
+            "element": "fear",
+            "stakes": [
+              "respect"
+            ]
+          },
+          "effects": [
+            {
+              "op": "set_flag",
+              "key": "flag.prologue.struck_porter",
+              "value": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "porter_presses",
+      "speaker_id": "char.almshouse_porter",
+      "text": "Liars get the rod. Say it again, and look at me.",
+      "move": {
+        "kind": "pressure",
+        "element": "duty",
+        "stakes": [
+          "obligation"
+        ],
+        "spirit_image_id": "rod"
+      },
+      "choices": [
+        {
+          "id": "cite_duty",
+          "text": "Matron said no child goes to bed hungry.",
+          "target_node_id": "porter_softens",
+          "move": {
+            "kind": "appeal",
+            "element": "duty",
+            "stakes": [
+              "obligation"
+            ]
+          }
+        },
+        {
+          "id": "say_nothing",
+          "text": "[Say nothing]",
+          "target_node_id": "resolved_punished",
+          "move": {
+            "kind": "evade",
+            "element": "shame",
+            "stakes": [
+              "respect"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "porter_softens",
+      "speaker_id": "char.almshouse_porter",
+      "text": "Hm. Take the heel of it to the little one. And you did not hear this from me.",
+      "next_node_id": "resolved_spared"
+    },
+    {
+      "id": "resolved_spared",
+      "speaker_id": "char.almshouse_porter",
+      "text": "Go. Before the matron sees you."
+    },
+    {
+      "id": "resolved_punished",
+      "speaker_id": "char.almshouse_porter",
+      "text": "The rod, then. Hold out your hand.",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.prologue.punished_by_porter",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "resolved_struck",
+      "speaker_id": "char.almshouse_porter",
+      "text": "You little... Matron! MATRON!"
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "plausible composite",
+      "summary": "Almshouse life tied to the Holy Spirit parish; dialogue is invented for ADR 0033."
+    }
+  ]
+}

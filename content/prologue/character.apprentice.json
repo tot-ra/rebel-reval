@@ -1,0 +1,35 @@
+{
+  "type": "character",
+  "id": "char.apprentice",
+  "name": "The Apprentice",
+  "role": "15-year-old orphan and player character (working name)",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft"
+  },
+  "pronunciation": "uh-PREN-tis",
+  "brief": {
+    "want": "A place to belong.",
+    "fear": "That what he sees means something is wrong with him.",
+    "contradiction": "He reads people better than anyone yet cannot tell whom to trust.",
+    "secret_or_withheld_fact": "He knows what a person fears before they speak."
+  },
+  "relationships": [],
+  "voice": {
+    "summary": "Few words, literal, watchful.",
+    "diction": "Concrete and short; notices what is unsaid."
+  },
+  "outcomes": [
+    {
+      "id": "end",
+      "summary": "See docs/CHARACTERS/apprentice.md."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Prologue cast for ADR 0033 (SD-05); the almshouse house itself is a plausible composite."
+    }
+  ]
+}

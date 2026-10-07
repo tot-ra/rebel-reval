@@ -6,6 +6,7 @@ Validated JSON records loaded by `ContentDB`. Schemas: [`schemas/`](../schemas/R
 |---|---|
 | `examples/valid`, `examples/support` | The validated slice corpus (dialogue, quests, commissions, barks, items, phases, encounters, magic) ([README](./examples/README.md)) |
 | `demo/` | Demo items and dialogue ([README](./demo/README.md)) |
+| `prologue/` | Almshouse prologue duels and cast for the teen protagonist ([README](./prologue/README.md)) |
 | `packages/` | Quest packages with branch maps ([README](./packages/README.md)) |
 | `saves/` | Released and act save fixtures ([README](./saves/README.md)) |
 | `debug/` | Debug state presets |
