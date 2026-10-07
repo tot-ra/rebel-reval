@@ -65,7 +65,7 @@ The household income is her husband's; hers is her yarn, sold to Lai weavers for
 - **Network:**
   - [Katharina](./katharina.md), maid on Lai: she knows Katharina shares their sympathies; they meet briefly after mass and say nothing that could be repeated.
   - [Reynold van Wismar](./reynold_van_wismar.md), young merchant on Pikk: he knows her allegiance; they greet on the porch after mass and say nothing repeatable. She thinks him reckless for nineteen.
-  - [Metteke Sasse](./metteke_sasse.md), maid on Toom-Rüütli: Metteke suspects but cannot prove that Ermelin leans the same way; each watches the other for a sign. Ermelin would share a sign only if the girl proved discreet.
+  - [Metteke Sasse](../../people/toompea/metteke_sasse.md), maid on Toom-Rüütli: Metteke suspects but cannot prove that Ermelin leans the same way; each watches the other for a sign. Ermelin would share a sign only if the girl proved discreet.
 - **Others:** [Bartold Corte](../../ledger/lower_town/lai.md#hh-lt-osm-w200517008) up the lane sells her thread.
 
 ## Faction and belief

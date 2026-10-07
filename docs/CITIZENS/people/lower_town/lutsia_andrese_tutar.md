@@ -62,7 +62,7 @@ Now she runs the household's linen, minds the maids, and spins thread to sell on
 Her thread earns 6 to 8 schillings a week, which she keeps in a stocking separate from the household purse. Flax comes from a Harju road farmer; she sells to weavers and to Gyse Hardekop's neighbours on Nunne. She owes nothing in coin, but she feels indebted to Joosep, which is worse.
 
 ## Relationships
-- **Household:** [Jaak Lauri poeg](../../people/lower_town/jaak_lauri_poeg.md), husband, loud and generous, whom she loves and does not trust with secrets; [Lembit Jaagu poeg](../../ledger/lower_town/nunne.md#hh-lt-osm-w200852817), 15, her son; [Lars Bengtsson](../../people/lower_town/lars_bengtsson.md), journeyman; [Marten Kaspari poeg](../../people/lower_town/marten_kaspari_poeg.md) and [Lauri Lembitu poeg](../../people/lower_town/lauri_lembitu_poeg.md), clerks; the maids [Kadri](../../ledger/lower_town/nunne.md#hh-lt-osm-w200852817), [Ursula](../../ledger/lower_town/nunne.md#hh-lt-osm-w200852817) and [Susanna](../../ledger/lower_town/nunne.md#hh-lt-osm-w200852817); [Dorothea Lembitu tütar](../../ledger/lower_town/nunne.md#hh-lt-osm-w200852817), cook; [Mari Eerika tütar](../../people/lower_town/mari_eerika_tutar.md), servant.
+- **Household:** [Jaak Lauri poeg](../../people/lower_town/jaak_lauri_poeg.md), husband, loud and generous, whom she loves and does not trust with secrets; [Lembit Jaagu poeg](../../ledger/lower_town/nunne.md#hh-lt-osm-w200852817), 15, her son; [Lars Bengtsson](../../people/lower_town/lars_bengtsson.md), journeyman; clerks [Marten Kaspari poeg](../../people/lower_town/marten_kaspari_poeg.md) and [Lauri Lembitu poeg](../../people/lower_town/lauri_lembitu_poeg.md); [Mari Eerika tütar](../../people/lower_town/mari_eerika_tutar.md), servant; the maids and cook ([Kadri](../../ledger/lower_town/nunne.md#hh-lt-osm-w200852817), [Ursula](../../ledger/lower_town/nunne.md#hh-lt-osm-w200852817), [Susanna](../../ledger/lower_town/nunne.md#hh-lt-osm-w200852817), [Dorothea](../../ledger/lower_town/nunne.md#hh-lt-osm-w200852817)).
 - **Network:** [Joosep](../../people/harju_road/joosep.md), gate-farm cultivator on the Harju road: recruited her a year ago with firewood and curds; she resents being treated as a debtor and does his errands exactly.
 - [Ursula Mikku tütar](../../people/karja_road/ursula_mikku_tutar.md), spinner: they stood at the same funeral and heard the same whisper, and both know it; a cell of two, with a third unnamed.
 - [Gerdt Lembitu poeg](../../people/kalarand/gerdt_lembitu_poeg.md), ostler on the western coast road: neither knows the other's allegiance, but each has noticed the other's silence at the right moments.
@@ -70,7 +70,7 @@ Her thread earns 6 to 8 schillings a week, which she keeps in a stocking separat
 - [Ede Reinu tütar](../../people/lower_town/ede_reinu_tutar.md), maid on Lai: they meet briefly after mass and say nothing that could be repeated.
 - [Barbara Kristjani tütar](../../people/lower_town/barbara_kristjani_tutar.md), servant on Suur-Kloostri: a distant kinship by marriage neither can trace; they swap thread and gossip.
 - [Ell Jaagu tütar](../../people/lower_town/ell_jaagu_tutar.md), spinner on Kuninga: Lutsia recruited her a year ago with a small kindness; Ell resents being treated as a debtor, as Lutsia once did, and Lutsia knows it.
-- **Others:** [Tideman Schomaker](../../people/lower_town/tideman_schomaker.md), neighbour.
+- **Others:** [Arend Becker](../../ledger/lower_town/nunne.md#hh-lt-osm-w200921868), baker, where she buys her bread.
 
 ## Faction and belief
 A sympathiser, not a leader. Her grievance is the dues that took her father's strip; her reason to stay is pride at being useful. She would carry a message, hide a skein, or pass a name, but she would not carry a blade. She prays to the Virgin and leaves the first thread of the spring under the hearth stone.
@@ -78,7 +78,7 @@ A sympathiser, not a leader. Her grievance is the dues that took her father's st
 ## Voice
 - **Registers:** Estonian with family and cell; Low German with guests, plain and sparing.
 - **Delivery:** Low and unhurried; she lets silence work.
-- **Sample lines:** "Sit. Eat. Say it slowly." / "A thread breaks where it is thinnest." / "Ma ei tea, I do not know."
+- **Sample lines:** "Sit. Eat. Say it slowly." / "A thread breaks where it is thinnest." / "Ma ei oska öelda, I cannot say."
 - **Verbal tic:** Pauses to wet the thread between her lips before answering.
 
 ## Knowledge and rumours

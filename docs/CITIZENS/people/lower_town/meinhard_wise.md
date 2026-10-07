@@ -23,7 +23,7 @@
 - Small, gaunt, and always slightly peeling across the nose even in April; eyebrows form one black bar.
 - His voice carries across a quay without effort, which is why he rarely uses it in company.
 - Known for fair weights and a suspiciously low price on Russian wax.
-- Oddity: a man who sails little now, yet is brown-freckled from standing on cold wharves all spring.
+- Oddity: sails little now, yet is freckled from standing on cold wharves.
 
 ## Appearance
 - **Body:** 159 cm, gaunt, narrow-shouldered, walks fast with short steps and a forward tilt, hands clasped behind him.
@@ -36,7 +36,7 @@
 - **Model notes:** MPFB gender male, age_years 53, muscle low, weight low, proportions slim, height_m 1.59; fair freckled skin; blue eyes; short brown-grey hair, no beard; crowd tier 1.
 
 ## Biography
-Born in Reval in 1289 to a cloth-factor named Wise; his father's sister [Wendele](./wendele_wise.md) kept the candle workshop behind the house. He travelled to Novgorod as a boy under a Lübeck factor, learned wax grades by smell, and came back in 1316 after the wars with a small capital and a conviction that every sum should be checked twice. Through his Bremen-born wife [Ermelin van Bremen](./ermelin_van_bremen.md) he gained a Danish-leaning in-law circle he does not discuss. Today he buys wax, furs and Westphalian cloth, ships them through Lübeck, and keeps the house books himself at night.
+Born in Reval in 1289 to a cloth-factor named Wise; his father's sister [Wendele](./wendele_wise.md) kept the candle workshop behind the house. He travelled to Novgorod as a boy under a Lübeck factor, learned wax grades by smell, and came back in 1316 after the wars with a small capital and a conviction that every sum should be checked twice. Through his Bremen-born wife [Ermelin van Bremen](./ermelin_van_bremen.md) he gained a Danish-leaning in-law circle he does not discuss. Now he buys wax, furs and cloth, ships through Lübeck, and keeps the books himself.
 
 ## Motivation
 - **Want:** To see his son Eylard established as a respected Fernhändler and the Kindergilde stable.
@@ -70,10 +70,10 @@ Turnover is about 600 marks a year in good seasons, thinning to 400 in bad. He h
   - [Eler Lippe](./eler_lippe.md), Fernhändler on Pikk: they chase the same customers; each privately counts the other's apprentices and lamp-oil.
   - [Jaan Alberti poeg](./jaan_alberti_poeg.md), skipper on Olevimägi: they split a weekly cart-hire and day's labour at the harbour and quarrel about it every week.
   - [Margareta Eerika tütar](./margareta_eerika_tutar.md), maid on Pikk: neither knows the other's allegiance, but each has noticed the other's silence at the right moments.
-- **Others:** [Bartold Corte](../../ledger/lower_town/lai.md#hh-lt-osm-w200517008), Krämer fourteen metres up the street, buys his candle-ends.
+- **Others:** [Bartold Corte](../../ledger/lower_town/lai.md#hh-lt-osm-w200517008), Krämer up the street, buys his candle-ends.
 
 ## Faction and belief
-He is for order and open roads, which means for the council and the Hansa. He does it from prudence, not love. A small favour (a message) he does readily; a large one (hiding a man) he would weigh against his warehouse; informing on a neighbour he would refuse unless the harbour itself were threatened. He attends mass, lights a candle for his dead father, and refuses herb charms.
+He is for order and open roads, which means for the council and the Hansa. He does it from prudence, not love. A small favour (a message) he does readily; a large one (hiding a man) he would weigh against his warehouse; informing on a neighbour he would refuse unless the harbour itself were threatened. He lights a candle for his dead father and refuses herb charms.
 
 ## Voice
 - **Registers:** Low German for trade, Latin for letters and oaths in contracts.

@@ -21,7 +21,7 @@
 
 ## At a glance
 - A heavy-set man with a full ash-blond beard gone grey, calling orders across a yard in a voice that carries to the next lane.
-- Known for a spiced eel in jelly and for never having served a bad Lenten table to a paying guest.
+- Known for a spiced eel in jelly.
 - Oddity: a rich Estonian in a house of German neighbours, who keeps his accounts on hazel tally sticks because he cannot read letters.
 
 ## Appearance
@@ -37,12 +37,12 @@
 ## Biography
 Born about 1282 in a Harju village east of the town, Jaak walked in at twelve behind a salt cart and was taken on as a scullion at the Dominican friary of St Catherine. There he learned fish, pulses and fast-day cookery, and to feed fifty men from one cauldron. He left the friary in 1308, married Lutsia, and rented a lean-to cookshop on Nunne. The famine years after 1315 made him: when others sold their pots he bought them, and when the council wanted a funeral meal done properly he was the only one who still had a copper large enough.
 
-His son Lembit was born when Jaak was forty-six. Jaak bought the whole house on Nunne in 1330 and now keeps clerks, maids, a journeyman and a cook of his own. He still tastes everything himself.
+His son Lembit was born when Jaak was forty-six. Jaak bought the whole house on Nunne in 1330 and now keeps clerks, maids, a journeyman and a cook of his own. 
 
 ## Motivation
 - **Want:** To see Lembit sit at a German table as an equal, not carry the dishes to it.
 - **Fear:** A search of his cellar by the Vogt's men, and the gap between what his tally sticks say and what the customs scale would.
-- **Contradiction:** He lectures the maids on honest weight, and sells at a price no honest stock could meet.
+- **Contradiction:** He lectures the maids on honest weight and sells at a price no honest stock could meet.
 - **Secret or withheld fact:** He leaves by the back lane after curfew to meet men at the strand with sacks of salt and pepper that have not paid toll. His neighbour has seen him twice. He does not know that.
 
 ## Daily routine
@@ -55,14 +55,14 @@ His son Lembit was born when Jaak was forty-six. Jaak bought the whole house on 
 | Evening | Vespers | Dining room | Carves for the merchants' table, listens. |
 | Night | After curfew bell | Back lane to the strand | Unlisted business. |
 
-- **Sundays and feast days:** Mass at St Olaf, then a cold dinner; he refuses to cook on Sunday except for a funeral.
+- **Sundays and feast days:** Mass at St Olaf, then a cold dinner.
 - **Spring 1343 disruption:** Talk of a grain levy has pushed rye up two örtug a lispfund. Easter feasts are over; he sees the shortages coming and hoards peas.
 
 ## Work and money
-A good month brings 20 to 25 marks in feasts and standing contracts; rent is nothing, but wages for eight and the toll on every barrel eat most of it. Supplies come from Dietrich Zierenberg's warehouse on credit settled at quarter-days (Marten keeps the book), from the baker Arend Becker, and from the strand. Rein, a furrier on Hobusepea, advanced him 6 marks' worth of grain after the harvest on his outside holding failed; the interest is unspoken and heavy. He owes Berend van Wismar a 5 mark fine's worth of gratitude and has not repaid it. A bad month is a funeral dinner unpaid.
+A good month brings 20 to 25 marks in feasts and standing contracts; rent is nothing, but wages for eight and the toll on every barrel eat most of it. Supplies come from Dietrich Zierenberg's warehouse on credit settled at quarter-days (Marten keeps the book), from the baker Arend Becker, and from the strand. Rein, a furrier on Hobusepea, advanced him 6 marks' worth of grain after the harvest on his outside holding failed; the interest is unspoken and heavy. He owes Berend van Wismar a 5 mark fine's worth of gratitude and has not repaid it. 
 
 ## Relationships
-- **Household:** [Lutsia Andrese tütar](../../people/lower_town/lutsia_andrese_tutar.md), wife, who prays for a mother he never met; [Lembit Jaagu poeg](../../ledger/lower_town/nunne.md#hh-lt-osm-w200852817), 15, his son, taught to carve; [Lars Bengtsson](../../people/lower_town/lars_bengtsson.md), the Swedish journeyman he trusts with sauces; [Marten Kaspari poeg](../../people/lower_town/marten_kaspari_poeg.md) and [Lauri Lembitu poeg](../../people/lower_town/lauri_lembitu_poeg.md), his clerks; maids [Kadri Mihkli tütar](../../ledger/lower_town/nunne.md#hh-lt-osm-w200852817), [Ursula Lauri tütar](../../ledger/lower_town/nunne.md#hh-lt-osm-w200852817) and [Susanna Peetri tütar](../../ledger/lower_town/nunne.md#hh-lt-osm-w200852817); [Dorothea Lembitu tütar](../../ledger/lower_town/nunne.md#hh-lt-osm-w200852817), the cook; [Mari Eerika tütar](../../people/lower_town/mari_eerika_tutar.md), servant.
+- **Household:** [Lutsia Andrese tütar](../../people/lower_town/lutsia_andrese_tutar.md), wife, who prays for a mother he never met; [Lembit Jaagu poeg](../../ledger/lower_town/nunne.md#hh-lt-osm-w200852817), 15, his son; [Lars Bengtsson](../../people/lower_town/lars_bengtsson.md), journeyman; clerks [Marten Kaspari poeg](../../people/lower_town/marten_kaspari_poeg.md) and [Lauri Lembitu poeg](../../people/lower_town/lauri_lembitu_poeg.md); [Mari Eerika tütar](../../people/lower_town/mari_eerika_tutar.md), servant; the maids and cook ([Kadri](../../ledger/lower_town/nunne.md#hh-lt-osm-w200852817), [Ursula](../../ledger/lower_town/nunne.md#hh-lt-osm-w200852817), [Susanna](../../ledger/lower_town/nunne.md#hh-lt-osm-w200852817), [Dorothea](../../ledger/lower_town/nunne.md#hh-lt-osm-w200852817)), whom he feeds first.
 - **Network:** [Rein](../../people/lower_town/rein.md), furrier on Hobusepea: lent him 6 marks' worth of grain; Jaak pays in meat pies and silence and resents each loaf.
 - [Meinhard van Hervorde](../../people/lower_town/meinhard_van_hervorde.md), merchant on Lai: a neighbour who has twice seen Jaak leave by the back lane and told no one; Jaak only knows the man's shutter is always open.
 - [Berend van Wismar](../../people/lower_town/berend_van_wismar.md), gatekeeper on Pikk: stood surety for last year's 5 mark fine; Jaak has not repaid and avoids the Pikk gate.
@@ -70,7 +70,7 @@ A good month brings 20 to 25 marks in feasts and standing contracts; rent is not
 - [Meinhard Kleine](../../people/lower_town/meinhard_kleine.md), clerk on Lai: a distant kinship by marriage neither can trace; Jaak sends him leftovers.
 - [Dietrich Zierenberg](../../people/lower_town/dietrich_zierenberg.md), merchant on Lai: shares a party wall; his chimney smokes into Jaak's loft, a grievance of two winters that Jaak has not taken to the Vogt.
 - [Lutke van Rostok](../../people/lower_town/lutke_van_rostok.md), cook on Müürivahe: suspects Jaak of undercutting with stolen or smuggled stock; Jaak says nothing and prices higher out of spite.
-- **Others:** [Tideman Schomaker](../../people/lower_town/tideman_schomaker.md), shoemaker next door on Nunne; [Arend Becker](../../ledger/lower_town/nunne.md#hh-lt-osm-w200921868), baker.
+- **Others:** [Arend Becker](../../ledger/lower_town/nunne.md#hh-lt-osm-w200921868), baker.
 
 ## Faction and belief
 No faction. A smuggler cannot afford sides: the Vogt searches for either. He gives bread to anyone at the door, tithes in kind to St Olaf, and spits left over the threshold at midwinter because his grandmother did. A small favour he will do; a large one he prices; he would inform on no one, because informers get searched too.
