@@ -11,7 +11,7 @@
 | Household | [hh.lt.osm_w200675344](../../ledger/lower_town/puhavaimu.md#hh-lt-osm-w200675344) |
 | Home | Pühavaimu, plot `bldg.osm.w200675344` (238 m2) |
 | Age / sex | 58, female |
-| Ethnicity / segment | Estonian / estonian_townsman |
+| Ethnicity / segment | estonian / estonian_townsman |
 | Status | Free Estonian householder's wife, master spinner |
 | Trade | Spinner (Spinnerin) |
 | Languages | Estonian, Middle Low German |

@@ -11,7 +11,7 @@
 | Household | [hh.lt.osm_w200675344](../../ledger/lower_town/puhavaimu.md#hh-lt-osm-w200675344) |
 | Home | Pühavaimu, plot `bldg.osm.w200675344` (238 m2) |
 | Age / sex | 14, male |
-| Ethnicity / segment | Estonian / servant |
+| Ethnicity / segment | estonian / servant |
 | Status | Apprentice in his father's house |
 | Trade | Apprentice salt dealer (Lehrling) |
 | Languages | Estonian, Middle Low German |

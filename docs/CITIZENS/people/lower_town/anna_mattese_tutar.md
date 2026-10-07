@@ -11,7 +11,7 @@
 | Household | [hh.lt.osm_w200675344](../../ledger/lower_town/puhavaimu.md#hh-lt-osm-w200675344) |
 | Home | Pühavaimu, plot `bldg.osm.w200675344` (238 m2) |
 | Age / sex | 26, female |
-| Ethnicity / segment | Estonian / servant |
+| Ethnicity / segment | estonian / servant |
 | Status | Free servant, hired by the year |
 | Trade | Maid, fine spinner (Magd) |
 | Languages | Estonian, Middle Low German |
