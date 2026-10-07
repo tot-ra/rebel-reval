@@ -35,7 +35,7 @@
 - **Model notes:** MPFB gender female, age_years 10, muscle low, weight low, proportions wiry, height_m 1.24; sallow pale skin; brown eyes; dark blond braids; crowd tier 2.
 
 ## Biography
-Born in 1332, second of the line; she has been the nurse of every baby since Katrin. She learned to walk the lane with a child on her hip and has never, she says, had a full night's sleep.
+Born in 1332, second of the line; she has nursed every baby since Katrin and has never, she says, had a full night's sleep. The goose belongs to the brewer, [Hindrek Tõnu poeg](../../ledger/lower_town/voorimehe.md#hh-lt-osm-w26874428).
 
 ## Motivation
 - **Want:** One whole morning in bed.
@@ -53,7 +53,7 @@ Born in 1332, second of the line; she has been the nurse of every baby since Kat
 | Evening | After vespers | Hearth | Settles the babies |
 | Night | Curfew bell | Loft | Lies awake, listening |
 
-- **Sundays and feast days:** Mass at St Olaf's, carrying Liis; a game of knucklebones.
+- **Sundays and feast days:** Mass at St Olaf's, carrying Liis.
 - **Spring 1343 disruption:** She hears her parents whisper about rye and the brewer's six marks.
 
 ## Work and money
@@ -62,10 +62,9 @@ She earns nothing. She owns a peg doll named Mari and a dented tin cup.
 ## Relationships
 - **Household:** [Marten Kristjani poeg](../../people/lower_town/marten_kristjani_poeg.md), father; [Kadri Tanieli tütar](../../people/lower_town/kadri_tanieli_tutar.md), mother; [Priidik Marteni poeg](../../people/lower_town/priidik_marteni_poeg.md), brother; [Katrin](../../ledger/lower_town/voorimehe.md#hh-lt-osm-w28087755), [Hinrick](../../ledger/lower_town/voorimehe.md#hh-lt-osm-w28087755), [Alit](../../ledger/lower_town/voorimehe.md#hh-lt-osm-w28087755) and infant [Liis](../../ledger/lower_town/voorimehe.md#hh-lt-osm-w28087755), her charges.
 - **Network:** None planned.
-- **Others:** [Hindrek Tõnu poeg](../../ledger/lower_town/voorimehe.md#hh-lt-osm-w26874428), the brewer, owns the goose.
 
 ## Faction and belief
-No faction. She prays to Saint Margaret, her namesake, for sleep, and throws a pinch of salt at the goose.
+No faction. She prays to St Margaret, her namesake, for sleep.
 
 ## Voice
 - **Registers:** Estonian only, sometimes a murmured Low German prayer.
@@ -74,7 +73,7 @@ No faction. She prays to Saint Margaret, her namesake, for sleep, and throws a p
 - **Verbal tic:** Sighs before every sentence.
 
 ## Knowledge and rumours
-She knows who in the lane is up at night. She believes the goose is a witch's spirit.
+She believes the goose is a witch's spirit.
 
 ## Game hooks
 - **Ambient role:** Doorstep and lane, always with a child.

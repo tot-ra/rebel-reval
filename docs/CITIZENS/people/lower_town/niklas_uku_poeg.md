@@ -20,16 +20,16 @@
 | Office | none |
 
 ## At a glance
-- A small, neat man of 167 cm with a nasal voice, a moustache and chin beard, and a face that flushes at every insult.
+- A small, neat man, 167 cm, nasal-voiced, moustached and chin-bearded, quick to flush.
 - Writes and reckons with his left hand and pushes his counters from right to left, so every clerk he has hired has had to learn his board backwards.
 - Walks the long way round Voorimehe to avoid a nail-smith.
 
 ## Appearance
 - **Body:** 167 cm, average build, narrow-shouldered, upright to the point of stiffness. Short, tidy steps.
-- **Face:** Narrow face, long upper lip, a thin nose with a high bridge, eyes blue and set close. At rest the mouth is pursed as if tallying.
+- **Face:** Narrow face, long upper lip, a high-bridged nose, close-set blue eyes, a mouth pursed as if tallying.
 - **Hair and facial hair:** Ash blond streaked with grey, cut level at the ear. A moustache and chin beard, combed to a point every morning.
 - **Skin and marks:** Fair and quick to flush; the colour climbs from collar to brow when he is pressed. No scars. A dent on the left middle finger from the pen.
-- **Hands:** Small, clean, ink at the left cuticle, a silver signet with a boat and hook cut on its face.
+- **Hands:** Small, clean, ink at the left cuticle, a silver signet cut with a boat and hook.
 - **Clothing and kit (April 1343):** Linen hemd, hose of dark blue wool, a calf-length tunic of good brown cloth with a marten collar, a leather belt with a purse and a small wax-tablet case, pointed shoes.
 - **Portrait prompt:** Medieval Baltic merchant, fifty-six, small neat man, narrow face, high nose bridge, blue eyes, ash blond hair streaked grey, moustache and pointed chin beard, flushed fair skin, brown wool tunic with marten collar, neutral grey background, shoulders-up, soft natural light, realistic painted portrait.
 - **Model notes:** MPFB gender male, age_years 56, muscle low, weight medium, proportions narrow, height_m 1.67; fair flushed skin; blue eyes; ash-blond-grey hair, moustache and chin beard; crowd tier 1.
@@ -40,7 +40,7 @@ Born in 1287 on the Viru coast, son of a boat-owner called Uku. A priest taught 
 ## Motivation
 - **Want:** A burgher's daughter's hand for his son, so that the name passes upward.
 - **Fear:** A public reckoning in which the Rat's clerk reads his debts aloud.
-- **Contradiction:** Generous with gifts to St Olaf's, mean with fifteen marks owed to a man he sees weekly.
+- **Contradiction:** Generous to St Olaf's, slow with fifteen marks owed to a man he sees weekly.
 - **Secret or withheld fact:** His silver is in a Lübeck share and a cog two weeks overdue; he cannot pay until she docks.
 
 ## Daily routine
@@ -78,7 +78,7 @@ No faction. He believes in contracts, not causes; a rising would burn his cellar
 - **Verbal tic:** Touches the point of his beard before naming a price.
 
 ## Knowledge and rumours
-He knows which cogs are late and which councillors are in debt to Lübeck. He would trade it for a quiet settlement of the fifteen marks. He falsely believes the Rat will soon forgive fines for merchants who finance the wall.
+He knows which cogs are late and which councillors owe Lübeck. He would trade it for a quiet settlement of the fifteen marks. He falsely believes the Rat will soon forgive fines for merchants who finance the wall.
 
 ## Game hooks
 - **Ambient role:** Counting-room by morning, harbour by noon, avoids Voorimehe in the afternoon.

@@ -35,7 +35,7 @@
 - **Model notes:** MPFB gender male, age_years 13, muscle medium, weight medium, proportions sturdy, height_m 1.51; wind-reddened skin, wart; grey eyes; ash blond cropped hair; crowd tier 2.
 
 ## Biography
-Born in 1329 in the Voorimehe forge loft, eldest of six living. He was at the bellows by seven and heading nails by eleven. His voice dropped at twelve, to his father's pride and his own embarrassment. The tremor began after the hungry winter of 1342, when he worked long days on thin porridge.
+Born in 1329 in the forge loft, eldest of six living. He was at the bellows by seven and heading nails by eleven. His voice dropped at twelve. The tremor began after the hungry winter of 1342.
 
 ## Motivation
 - **Want:** To be a proper smith, not only a nail-maker.
@@ -53,19 +53,18 @@ Born in 1329 in the Voorimehe forge loft, eldest of six living. He was at the be
 | Evening | After vespers | Forge | Sweeps, sorts nails |
 | Night | Curfew bell | Loft | Sleeps beside Margareta |
 
-- **Sundays and feast days:** Mass at St Olaf's; a stolen hour watching the harbour carts.
+- **Sundays and feast days:** Mass at St Olaf's.
 - **Spring 1343 disruption:** More nails ordered, more night work.
 
 ## Work and money
-He earns no wage; the household feeds him. He once found a Swedish copper pfennig in the ash and hid it in a crack.
+He earns no wage; the household feeds him.
 
 ## Relationships
 - **Household:** [Marten Kristjani poeg](../../people/lower_town/marten_kristjani_poeg.md), father; [Kadri Tanieli tütar](../../people/lower_town/kadri_tanieli_tutar.md), mother; [Margareta Marteni tütar](../../people/lower_town/margareta_marteni_tutar.md), sister; [Katrin](../../ledger/lower_town/voorimehe.md#hh-lt-osm-w28087755), [Hinrick](../../ledger/lower_town/voorimehe.md#hh-lt-osm-w28087755), [Alit](../../ledger/lower_town/voorimehe.md#hh-lt-osm-w28087755) and infant [Liis](../../ledger/lower_town/voorimehe.md#hh-lt-osm-w28087755), his noisy tail.
 - **Network:** None planned.
-- **Others:** The shoemaker [Taniel Uku poeg](../../ledger/lower_town/voorimehe.md#hh-lt-osm-w28087754)'s boys race him down the lane.
 
 ## Faction and belief
-No faction. He wants only to hammer. A small favour is carrying a message; a large one is beyond him. He crosses himself at the church porch and keeps a nail in his pocket.
+No faction. He wants only to hammer. A small favour is carrying a message; a large one is beyond him. He keeps a nail in his pocket for luck.
 
 ## Voice
 - **Registers:** Estonian; short Low German phrases.
@@ -74,7 +73,7 @@ No faction. He wants only to hammer. A small favour is carrying a message; a lar
 - **Verbal tic:** Tucks his right hand into his apron.
 
 ## Knowledge and rumours
-He knows every nail-size. He believes a smith's tremor is a curse from a wronged customer.
+He knows every nail-size. He believes a tremor is a customer's curse.
 
 ## Game hooks
 - **Ambient role:** Forge at day, lane at dusk.
