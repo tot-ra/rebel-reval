@@ -155,7 +155,7 @@
       "transition_id": "to_world_harju"
     }
   ],
-  "fingerprint": "d6c6e6dd258763df89fb3aa5aefa804f67f77252a011518b52d05e7e9e81b3aa",
+  "fingerprint": "b2ee8c54e6c674c79b1f204c43a4e111192526dbd0f07eb57cedf5eaa88d993b",
   "locations": [
     {
       "cell_size": 32,
@@ -335,7 +335,7 @@
       ],
       "location_id": "south_quarter",
       "location_kind": "outdoor_streamed",
-      "map_fingerprint": "d9171febcf9bc07d3a73ba52feb5898e27529805c6efcd56e3e5dba23757f30f",
+      "map_fingerprint": "587418cd6753e5700d1a57b46c20f7443d6567e6fd3a6838ba53b7d34af1091e",
       "origin_cell": [
         -258,
         128
@@ -347,7 +347,7 @@
         336,
         96
       ],
-      "source_sha256": "e5344a22aa38b5386bfad75e238dd11884d12b65cfb553863720607c7ef37420"
+      "source_sha256": "67553ffacb16dbe90909ada1a9be2660240e79820ceca9fbe52c5f63ed1f2c12"
     },
     {
       "cell_size": 32,

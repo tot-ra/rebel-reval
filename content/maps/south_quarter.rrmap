@@ -43,6 +43,11 @@ terrain karja_glacis mud 219 84 48 12 order=5
 # bank (south_wall.outer_bank) gives the water a real shoreline instead of a
 # water body cut flat by the edge of the map. The dry overlay is a level causeway, not a new wall or
 # barbican, and keeps the existing southern transition corridor walkable.
+# Real cuts: the water sits in a sloped trench instead of flush with the ground.
+# Width 10 keeps the 4-cell bed flat and eases each bank over ~3 cells.
+relief_ditch south_wall.cut.west 156 92 228 92 10 1.2
+relief_ditch south_wall.cut.east 267 92 335 92 10 1.2
+relief_ditch east_wall.cut 332 9 332 66 10 1.2
 terrain south_wall.ditch.west water 156 90 72 4 order=15
 terrain south_wall.ditch.east water 267 90 69 4 order=15
 terrain east_wall.ditch water 331 9 3 57 order=15
@@ -58,7 +63,10 @@ terrain_rects south.service_plots mud 192,18,18,12|245,40,14,8|284,42,14,8|288,6
 # and selected property thresholds; they are not a district-wide limestone fill.
 terrain_rects south.stone_closes stone 158,9,31,19|161,37,31,19|188,0,20,16|226,0,48,16|282,0,22,16|188,37,25,15|225,37,25,15|264,16,32,18|294,16,24,18|225,56,36,17|286,56,34,17|304,12,27,28|304,56,27,24|226,16,31,20|188,16,25,20|188,50,25,20|225,64,36,16|264,64,40,16 order=7
 terrain_rects south.wall_margins mud 156,84,72,6|267,84,69,6|325,9,6,57 order=14
-terrain_rects south_wall.outer_bank mud 156,94,72,2|267,94,69,2|334,9,2,57 order=14
+terrain_rects south_wall.outer_bank mud 334,9,2,57 order=14
+# Grassy ditch banks: the sloped bank carries turf and tall grass right up to a
+# narrow wet-mud fringe, on both the wall side and the outer side.
+terrain_rects south_wall.bank_grass grass 156,86,72,4|267,86,69,4|327,9,4,57|156,94,72,2|267,94,69,2 order=14
 terrain old_hill_foot dirt 144 12 17 75 order=6
 terrain north_rataskaev_yard dirt 151 0 31 12 order=7
 terrain north_civic_threshold dirt 226 0 48 16 order=7
