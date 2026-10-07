@@ -1,0 +1,17 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://assets/characters/realistic/realistic_rig.gd" id="1_rig"]
+[ext_resource type="PackedScene" path="res://assets/characters/realistic/citizen_m_adult_heavy_b/citizen_m_adult_heavy_b.glb" id="2_model"]
+[ext_resource type="Resource" path="res://assets/characters/variants/citizen_m_adult_heavy_b_variant.tres" id="3_variant"]
+[ext_resource type="Script" path="res://scripts/ui/character_health_ring_3d.gd" id="4_health_ring"]
+
+[node name="CitizenMAdultHeavyB" type="Node3D"]
+script = ExtResource("1_rig")
+variant = ExtResource("3_variant")
+model_scale = Vector3(1.1111111, 1.1111111, 1.1111111)
+use_anatomical_muscles = false
+default_outfit = Array[Resource]([])
+
+[node name="Model" type="Node3D" parent="."]
+
+[node name="CitizenMAdultHeavyBBody" parent="Model" instance=ExtResource("2_model")]

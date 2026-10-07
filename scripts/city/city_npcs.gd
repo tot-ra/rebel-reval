@@ -1,31 +1,18 @@
 class_name CityNpcs
 extends Node2D
 
-## People of the seamless city (ADR 0031), placed the way the district maps
-## had them: watchmen at every town gate and Danish men-at-arms at the Toompea
-## gates, the town watch walking Pikk, Lai and Vene, market folk on the forum,
-## and townsfolk walking the streets around Kalev (a small pool re-seated on
-## nearby streets as he moves, so the town is never empty and never costs more
-## than POOL rigs). Bodies are logic actors; MapViewRuntime mirrors their rigs.
+## Posted and working people of the seamless city (ADR 0031): watchmen at every
+## town gate and Danish men-at-arms at the Toompea gates, the town watch walking
+## Pikk, Lai and Vene, and the people at work on landmark sites. The residents
+## themselves (townsfolk, market folk) are the census citizens of CityCitizens.
+## Bodies are logic actors; MapViewRuntime mirrors their rigs.
 
 const WATCHMAN := preload("res://assets/characters/variants/watchman.tscn")
 const MAN_AT_ARMS := preload("res://assets/characters/variants/danish_warrior.tscn")
 const SERGEANT := preload("res://assets/characters/variants/sergeant.tscn")
-const CROWD: Array[PackedScene] = [
-	preload("res://assets/characters/variants/crowd_townsman_01.tscn"),
-	preload("res://assets/characters/variants/crowd_townsman_02.tscn"),
-	preload("res://assets/characters/variants/crowd_townswoman_01.tscn"),
-	preload("res://assets/characters/variants/crowd_townswoman_02.tscn"),
-	preload("res://assets/characters/variants/townswoman.tscn"),
-]
 const CASTLE_GATES: Array[String] = ["gate.long_hill", "gate.short_hill"]
 const PATROL_STREETS: Array[String] = ["Pikk", "Lai", "Vene"]
-const MARKET_FOLK := 7
-const POOL := 14
-const POOL_NEAR := 45.0
-const POOL_FAR := 130.0
 const PATROL_SPEED := 1.3
-const WALK_SPEED := 1.15
 const SITE_PEOPLE_RANGE := 45.0
 
 
@@ -79,10 +66,8 @@ class Walker:
 
 var plan: CityPlan
 var player: Node2D
-var _streets: Array[PackedVector2Array] = []
-var _pool: Array[Walker] = []
-var _rng := RandomNumberGenerator.new()
 var _since := 0.0
+var citizens: CityCitizens
 ## Site id -> the CitySiteActors present while Kalev is near that site.
 var _site_people: Dictionary = {}
 
@@ -92,24 +77,16 @@ static func create(city_plan: CityPlan, kalev: Node2D) -> CityNpcs:
 	node.name = "CityNpcs"
 	node.plan = city_plan
 	node.player = kalev
-	node._rng.seed = 1343
 	return node
 
 
 func _ready() -> void:
-	for s: Dictionary in plan.data.get("streets", []):
-		var pts := CityPlan.points(s["points"])
-		if pts.size() >= 2:
-			_streets.append(pts)
 	_place_guards()
 	_place_patrols()
-	_place_market()
 	if player != null:
 		_stream_site_people(CityPlan.to_world_xz(player.global_position))
-	for i in POOL:
-		var w := _walker(CROWD[i % CROWD.size()], WALK_SPEED * _rng.randf_range(0.8, 1.15))
-		w.name = "Townsfolk_%d" % i
-		_reseat(w)
+	citizens = CityCitizens.create(plan, player)
+	add_child(citizens)
 
 
 func _process(delta: float) -> void:
@@ -117,11 +94,7 @@ func _process(delta: float) -> void:
 	if _since < 1.0 or player == null:
 		return
 	_since = 0.0
-	var me := CityPlan.to_world_xz(player.global_position)
-	_stream_site_people(me)
-	for w in _pool:
-		if w.at.distance_to(me) > POOL_FAR * 1.3:
-			_reseat(w)
+	_stream_site_people(CityPlan.to_world_xz(player.global_position))
 
 
 func _walker(rig: PackedScene, speed: float) -> Walker:
@@ -163,35 +136,6 @@ func _place_patrols() -> void:
 		var w := _walker(WATCHMAN, PATROL_SPEED)
 		w.name = "Watch_%s" % name.to_lower()
 		w.seat(best, 0, true)
-
-
-func _place_market() -> void:
-	var forum := plan.point_of_interest("poi.forum")
-	if forum.is_empty():
-		return
-	var c := Vector2(forum["at"][0], forum["at"][1])
-	for i in MARKET_FOLK:
-		var a := TAU * float(i) / MARKET_FOLK + _rng.randf_range(-0.3, 0.3)
-		var p := c + Vector2(cos(a), sin(a)) * _rng.randf_range(6.0, 16.0)
-		var npc := StaticNpcActor.new()
-		npc.rig_scene = CROWD[(i + 2) % CROWD.size()]
-		npc.name = "Market_%d" % i
-		add_child(npc)
-		npc.configure(player, CityPlan.to_logic(p), (c - p).normalized())
-
-
-## Seat a pooled walker on a street point POOL_NEAR..POOL_FAR from Kalev.
-func _reseat(w: Walker) -> void:
-	var me := CityPlan.to_world_xz(player.global_position) if player != null else Vector2.ZERO
-	for attempt in 40:
-		var pts: PackedVector2Array = _streets[_rng.randi() % _streets.size()]
-		var k := _rng.randi() % pts.size()
-		var d := pts[k].distance_to(me)
-		if d >= POOL_NEAR and d <= POOL_FAR or attempt == 39:
-			w.seat(pts, k, _rng.randf() < 0.5)
-			break
-	if not _pool.has(w):
-		_pool.append(w)
 
 
 ## People at work in landmark sites (ADR 0032) are only present while Kalev is

@@ -50,8 +50,31 @@ def scene(name):
     return "\n".join(lines) + "\n"
 
 
+VARIANT = """[gd_resource type="Resource" script_class="CharacterVariant" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://assets/characters/shared/character_variant.gd" id="1_variant"]
+
+[resource]
+script = ExtResource("1_variant")
+stable_id = &"char.%s"
+material_tint = Color(1, 1, 1, 1)
+animation_overrides = {
+&"walk": &"Walking_B"
+}
+"""
+
+
+def ensure_variant(name):
+    """Citizen bodies (citizen_bodies.py) are generated, so their identity resource is too."""
+    path = ROOT / f"assets/characters/variants/{name}_variant.tres"
+    if name.startswith("citizen_") and not path.exists():
+        path.write_text(VARIANT % name)
+        print("wrote", path.relative_to(ROOT))
+
+
 def main(names):
     for name in names or [n for n in specs.SPECS if n != "kalev"]:
+        ensure_variant(name)
         path = ROOT / f"assets/characters/variants/{name}.tscn"
         path.write_text(scene(name))
         print("wrote", path.relative_to(ROOT))

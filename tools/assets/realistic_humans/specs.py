@@ -338,3 +338,16 @@ for _name, _spec in _load_crowd().items():
     SPECS[_name] = _spec
     _spec.setdefault("fit", _name)
     _spec.setdefault("stable_id", f"char.{_name}")
+
+
+# --- Citizen bodies ------------------------------------------------------
+# Blank mannequin library for the census residents (citizen_bodies.py).
+import sys as _sys  # noqa: E402
+from pathlib import Path as _Path  # noqa: E402
+_sys.path.insert(0, str(_Path(__file__).resolve().parent))
+import citizen_bodies as _citizen_bodies  # noqa: E402
+
+for _name, _spec in _citizen_bodies.citizen_specs(_person).items():
+    SPECS[_name] = _spec
+    _spec.setdefault("fit", _name)
+    _spec.setdefault("stable_id", f"char.{_name}")
