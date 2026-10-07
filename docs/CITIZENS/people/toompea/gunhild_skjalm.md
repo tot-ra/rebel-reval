@@ -21,7 +21,7 @@
 
 ## At a glance
 - 150 cm, long-limbed, fair and freckled, brown hair, green eyes, a thin reedy voice.
-- Left-handed, so she spins with the spindle in the right and draws the thread with the left, which makes the neighbours stare.
+- Left-handed, so she spins with the spindle turning the wrong way about by the neighbours' reckoning, and they stare.
 - Takes thread to three castle households a week and brings back the news.
 - Odd: the circle's orders reach a clerk of forty-two through her, which both find faintly ridiculous.
 

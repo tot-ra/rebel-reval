@@ -71,7 +71,7 @@ None; his reason is survival. A small favour he does at once; a large one he wei
 ## Voice
 - **Registers:** Estonian only; he understands some Low German.
 - **Delivery:** Hoarse, slow, few words.
-- **Sample lines:** "Heavy, but not too heavy." / "Pay me when you can." / "Ma ei tea."
+- **Sample lines:** "Heavy, but not too heavy." / "Pay me when you can." / "Ei tunne."
 - **Verbal tic:** "Aye, aye."
 
 ## Knowledge and rumours

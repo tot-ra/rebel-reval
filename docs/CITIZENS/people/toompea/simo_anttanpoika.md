@@ -26,7 +26,7 @@
 
 ## Appearance
 - **Body:** 161 cm, stocky, thick wrists, a short quick step.
-- **Face:** Broad flushed face, blue eyes under straw brows, protruding ears, a short beard in full, thin lips. A portrait must get the ears and the flush.
+- **Face:** Broad flushed face, blue eyes under straw brows, protruding ears, a thick full beard, thin lips. A portrait must get the ears and the flush.
 - **Hair and facial hair:** Straw blond hair with grey at the temples, a full beard, both trimmed with shears.
 - **Skin and marks:** Fair and quick to flush; protruding ears; wool-lanolin shine on the palms.
 - **Hands:** Thick, supple, a spindle callus on both forefingers.

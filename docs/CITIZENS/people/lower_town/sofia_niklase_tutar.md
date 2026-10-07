@@ -31,7 +31,7 @@
 - **Hair and facial hair:** Straw blond, in a thick braid wound round the head under a scarf; no facial hair.
 - **Skin and marks:** Sun-browned, freckled on the arms; no scars. Faint knee callus from praying.
 - **Hands:** Broad, warm hands, short nails, cracked at the thumbs from lye.
-- **Clothing and kit (April 1343):** Linen shift, a long brown homespun gown, a clean apron, a scarf knotted behind, wooden shoes. Belt: a wooden rosary, a small flask of holy water.
+- **Clothing and kit (April 1343):** Linen shift, a long brown homespun gown, a clean apron, a scarf knotted behind, wooden shoes. Belt: a string of wooden paternoster beads, a small flask of holy water.
 - **Portrait prompt:** Woman of thirty-one, stocky build, round sun-browned face, snub nose, deep-set grey eyes, full lips, straw-blond braid wound round her head under a linen scarf, brown homespun collar, gentle hushed expression, neutral grey background, shoulders-up, soft natural light.
 - **Model notes:** MPFB female, age_years 31, muscle average, weight average-high, proportions stocky, height_m 1.64; skin sun-browned; eyes grey; straw blond hair under scarf; crowd tier 2.
 
