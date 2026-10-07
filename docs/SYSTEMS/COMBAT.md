@@ -5,6 +5,7 @@ Status: foundation implemented (tasks **P1-024..P1-027**, **P2-009**, **P5-008**
 - Design contract for hammer combat and night missions: [`COMBAT_NIGHT.md`](./COMBAT_NIGHT.md).
 - Kalev's move sets, chains, evasion, and animation timing: [`COMBAT_ANIMATION.md`](./COMBAT_ANIMATION.md).
 - Spells: [`MAGIC.md`](./MAGIC.md).
+- Spirit-world dialogue duels built on this vitals and defense model: [`SPIRIT_DIALOGUE.md`](./SPIRIT_DIALOGUE.md#spirit-arena-implemented-prototype-sd-04).
 
 ## Player-facing behavior
 
