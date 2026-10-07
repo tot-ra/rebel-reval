@@ -27,7 +27,7 @@ README and this file override conflicting legacy documents. `docs/WRITING_GUIDE.
 | `story/`, `history/` | Narrative and research, mixed canon status. Start at [`history/RESEARCH_INDEX.md`](history/RESEARCH_INDEX.md) |
 | `characters/`, `img/`, `music/`, `sounds/`, `bin/` | Reference art, marketing images, audio library, legacy build artifact |
 
-**Playable today:** main menu → Lower Town (`reval_east`) → forge, with Mart conversation and anvil spearhead pickup. Also implemented: movement, manifest transitions, interactables, session `GameState`, inventory/journal, quick menu, district map with click-to-travel, phase director hooks, save service, combat foundation (through P1-026b), packaged macOS export. Do not assume full combat, night consequence, or faction-ledger loops exist.
+**Playable today:** main menu → New Game opens in the almshouse prologue (title card, observed quarrel, first spirit duel, Kalev takes the apprentice; Esc on the title card skips) → Lower Town (`reval_east`) → forge, with Mart conversation and anvil spearhead pickup. Also implemented: movement, manifest transitions, interactables, session `GameState`, inventory/journal, quick menu, district map with click-to-travel, phase director hooks, save service, combat foundation (through P1-026b), packaged macOS export. Do not assume full combat, night consequence, or faction-ledger loops exist.
 
 ## Conventions
 

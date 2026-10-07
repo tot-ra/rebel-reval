@@ -1,5 +1,8 @@
 extends RichTextLabel
 
+## New game opens in the almshouse (ADR 0033); the opening then hands over to the forge.
+const OPENING_SCENE := "res://scenes/prologue/almshouse_opening.tscn"
+
 func _ready() -> void:
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	# Main menu labels should not show the default Godot focus border on load.
@@ -10,7 +13,7 @@ func _ready() -> void:
 
 func _on_gui_input(event: InputEvent) -> void:
 	if _is_activate_event(event):
-		DoorNavigator.go_to_scene(&"forge", &"smithy_start")
+		get_tree().change_scene_to_file(OPENING_SCENE)
 
 
 func _is_activate_event(event: InputEvent) -> bool:

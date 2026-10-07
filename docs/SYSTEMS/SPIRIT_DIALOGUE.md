@@ -113,6 +113,13 @@ A dialogue record may declare a top-level `duel` and tag nodes and choices with 
 - **Screen:** `SpiritArenaHost.observe(content_db, state, dialogue_id)` dims and freezes the world, shows each line with its move, auto-advances every 2.4 s (`interact` skips ahead), offers "Side with ..." buttons, and reports `moves_learned` when closed.
 - Verify: `--filter=test_spirit_observation`, frame `observation.png` from `tools/capture_spirit_arena.gd`.
 
+## New Game opening (implemented, wired)
+
+Main menu -> **Start** now loads `res://scenes/prologue/almshouse_opening.tscn` (`AlmshouseOpening`, `scripts/prologue/almshouse_opening.gd`) instead of going straight to the forge: a title card, then the observed quarrel (`SpiritArenaHost.observe`), the hero's first duel with retry on a loss, and Kalev's offer through the normal dialogue UI (which sets `flag.prologue.apprenticed`), then `DoorNavigator.go_to_scene(forge, smithy_start)`. `interact` or a click begins; **Esc on the title card skips** to the forge and still sets the apprenticed flag. `content/prologue/` is part of `SessionState.DEMO_CONTENT_DIRS`.
+
+- Verify: `--filter=test_almshouse_opening`; frames from `tools/capture_almshouse_opening.gd` (`title.png`, `quarrel.png`, `duel.png`).
+- Limits: the opening runs on a plain dark backdrop (there is no almshouse map or model yet); Load Game and the debug overlay still enter the forge directly; the physical `[Shove him away]` choice still only sets a flag.
+
 ## Prologue content (implemented prototype, SD-05)
 
 [`content/prologue/`](../../content/prologue/README.md) holds the almshouse opening: an observed matron-versus-porter quarrel (4 tagged nodes, hero not involved), the hero's first own duel against the porter (7 nodes, three resolutions: `resolved_spared`, `resolved_punished`, `resolved_struck`), Kalev taking the apprentice (`flag.prologue.apprenticed`), and three cast records. The `[Shove him away]` choice is the physical option: it ends the duel at once and sets `flag.prologue.struck_porter`, which the guilt hook (SD-07) will read. Verify: `--filter=test_spirit_prologue`, `python3 tools/validate_content.py content/prologue content/examples/support content/examples/valid`.
