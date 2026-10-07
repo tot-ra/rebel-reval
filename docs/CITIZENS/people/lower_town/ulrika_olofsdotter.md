@@ -35,7 +35,7 @@
 - **Model notes:** MPFB female, age_years 22, muscle 0.4, weight 0.55, proportions sturdy, height_m 1.55; skin pale even; eyes blue; light-brown hair, covered; crowd tier 2.
 
 ## Biography
-Born in 1321 on a Swedish farm near Hapsal, she came to Reval at fourteen. She has served Gunnar Knutsson for six years and knows every hide in the shop. The leather ends and offcuts the journeymen throw out she saves, with the master's leave, and sells. Two winters ago she survived a fever in the same lane as Elisabet Madise tütar, who brought her broth.
+Born in 1321 on a Swedish farm near Hapsal, she came to Reval at fourteen. She has served Gunnar Knutsson for six years and knows every hide in the shop. The leather ends and offcuts the journeymen throw out she saves, with the master's leave, and sells. Two winters ago she survived a fever in the same lane as Elisabet Madise tütar, who brought her broth and asked nothing; the two nod to each other still. She learned to sell from Fedor Gavrilovich, who taught her to ask for twice and settle for one and a half. She does not trust anyone who is friendly before a bargain.
 
 ## Motivation
 - **Want:** To buy her freedom from service with a small stall.

@@ -35,7 +35,7 @@
 - **Model notes:** MPFB female, age_years 63, muscle 0.2, weight 0.2, proportions narrow, height_m 1.43; skin fair freckled; eyes blue; grey hair, covered; crowd tier 2.
 
 ## Biography
-Born in 1280 in a Swedish farmstead near Kalmar, she came to Reval at nineteen and married Gunnar in 1301. She has buried two children and spun thread for every shoe of his shop. A wax ball, carved with her initial, is her working token. A year ago she lent a brewer, Bertold van Stade, a pair of boots through a hard winter; he has resented the kindness since.
+Born in 1280 in a Swedish farmstead near Kalmar, she came to Reval at nineteen and married Gunnar in 1301. She has buried two children and spun thread for every shoe of his shop. A wax ball, carved with her initial, is her working token. A year ago she lent a brewer, Bertold van Stade, a pair of boots through a hard winter; he has resented the kindness since, and she has let him. She keeps the household's sums by notches on the doorpost and pays the cook herself every Saturday. At church she sits at the end of the bench so that she can hear the door, and the talk after mass is her chief income of news.
 
 ## Motivation
 - **Want:** To see Gunnar's roof loan paid and her house held.

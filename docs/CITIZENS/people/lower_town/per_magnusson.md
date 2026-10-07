@@ -35,7 +35,7 @@
 - **Model notes:** MPFB male, age_years 20, muscle 0.5, weight 0.5, proportions broad, height_m 1.60; skin tanned; eyes blue; dark-blond tied hair, moustache and chin beard; crowd tier 2.
 
 ## Biography
-Born in 1323 in Visby, he worked a bench there and set out last autumn, on the cog's last crossing, to see Reval as a wandering journeyman. He is learning Low German by pointing. The first hard weeks he slept in a potter's kiln-shed on Katariina käik until Gunnar took him on. He sends his mother a few pfennigs a quarter.
+Born in 1323 in Visby, he worked a bench there and set out last autumn, on the cog's last crossing, to see Reval as a wandering journeyman. He is learning Low German by pointing. The first hard weeks he slept in a potter's kiln-shed on Katariina käik until Gunnar took him on. He sends his mother a few pfennigs a quarter by any Gotland skipper who will carry them, and has twice been cheated of the fee. He keeps a seaman's knife for cutting leather and a carved wooden shoe-horn that was his father's. Folke has begun to teach him Low German words for the trade, price first, which he repeats in his sleep.
 
 ## Motivation
 - **Want:** To save enough for a bench in Visby.

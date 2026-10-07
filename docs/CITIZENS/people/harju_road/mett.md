@@ -36,7 +36,7 @@
 - **Model notes:** MPFB macros: female, age_years 51, muscle 0.25, weight 0.3, proportions average, height_m 1.57; fair freckled skin; blue eyes; light brown grey-streaked hair; crowd tier 1.
 
 ## Biography
-Born 1292 in a coast hamlet, she came to Reval at twelve as a spinner's apprentice and married Taniel in 1322. Of four pregnancies one child lived. Sofia was born in 1331 after a hard winter.
+Born 1292 in a coast hamlet, she came to Reval at twelve as a spinner's apprentice and married Taniel in 1322. Of two pregnancies one child lived. Sofia was born in 1331 after a hard winter.
 
 At Lent she confessed to Father Wessel that she had taken a hair of Sofia's to the herb-wife for a charm instead of paying for a candle. He gave her a penance she has not finished.
 
@@ -56,7 +56,7 @@ At Lent she confessed to Father Wessel that she had taken a hair of Sofia's to t
 | Evening | Vespers | Home | Spins |
 | Night | Curfew bell | Home | Prays |
 
-- **Sundays and feast days:** Mass at St Olaf's, at the back so she need not meet Father Wessel's eye.
+- **Sundays and feast days:** Mass at St Olaf's; her confession was at St Nicholas, where Father Wessel serves, and she has put off the next one.
 - **Spring 1343 disruption:** The market is nervous; she keeps Sofia close.
 
 ## Work and money
@@ -65,7 +65,7 @@ Spins about eighteen pfennigs of thread a week, sold at market or to a Lower Tow
 ## Relationships
 - **Household:** [Taniel](../../people/harju_road/taniel.md), husband; [Sofia](../../people/harju_road/sofia_tanieli_tutar.md), 12, daughter.
 - **Network:** [Hele Andrese tütar](../../people/harju_road/hele_andrese_tutar.md), spinner: they know each other from the market; they greet by name and trade the day's prices. They are the lane's two steadiest spinners and rarely mention it.
-- [Wessel van Brunswik](../../people/lower_town/wessel_van_brunswik.md), priest at St Nicholas: he hears Mett's confession; she confessed something at Lent and has avoided his eye since. She stands where he cannot see her.
+- [Wessel van Brunswik](../../people/lower_town/wessel_van_brunswik.md), priest at St Nicholas: he hears Mett's confession; she confessed something at Lent and has avoided his eye since. She crosses the street when he walks the Harju road.
 - **Others:** Mari, [hh.ha.harju_18](../../ledger/harju_road/harju_road.md#hh-ha-harju-18), who carried Sofia that night.
 
 ## Faction and belief

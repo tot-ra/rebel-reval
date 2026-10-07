@@ -35,7 +35,7 @@
 - **Model notes:** MPFB male, age_years 23, muscle 0.3, weight 0.65, proportions pear, height_m 1.70; skin rosy; eyes grey; light-brown hair, moustache and chin beard; crowd tier 2.
 
 ## Biography
-Born in 1320 to a Swedish ship's cook, Erik was raised in the Harbour quarter. A guild-man's kindness at fifteen, a bed in winter, tied him to the Hanseatic cause as a personal loyalty. He entered Gunnar's service at eighteen and has been loyal to the guilds ever since. He walks the shoe-route on Pikk and passes words in doorways.
+Born in 1320 to a Swedish ship's cook, Erik was raised in the Harbour quarter. A guild-man's kindness at fifteen, a bed in winter, tied him to the Hanseatic cause as a personal loyalty. He entered Gunnar's service at eighteen and has been loyal to the guilds ever since. He walks the shoe-route on Pikk and passes words in doorways. His pay is poor and his pride is large: he polishes the buckle of his satchel every Saturday and has never once lost a pair of shoes. He sleeps in a bunk beside the cook's pantry and shares the cook's bread when his own runs out, which is why he owes her.
 
 ## Motivation
 - **Want:** A cellarman's post in a merchant house.

@@ -11,7 +11,7 @@
 | Household | [hh.ha.harju_10](../../ledger/harju_road/harju_road.md#hh-ha-harju-10) |
 | Home | Harju road, plot `bldg.harju.10` (56 m2) |
 | Age / sex | 25, female |
-| Ethnicity / segment | estonian / estonian_townsman |
+| Ethnicity / segment | estonian / servant |
 | Status | Servant, lives in her mistress's house for board and a yearly coat |
 | Trade | Household servant (Magd) |
 | Languages | Estonian |

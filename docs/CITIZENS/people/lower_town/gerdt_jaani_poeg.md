@@ -76,7 +76,7 @@ Hanseatic by trade, with no part in any plan. A small favour he does; a large on
 ## Voice
 - **Registers:** Estonian only; German through Gertrud.
 - **Delivery:** Hoarse, slow, drops the voice.
-- **Sample lines:** "Oak does not lie; people do." / "Three knocks, and it answers." / "Ma ei tea, I do not know."
+- **Sample lines:** "Oak does not lie; people do." / "Three knocks, and it answers." / "Ma ei mäleta, I do not remember."
 - **Verbal tic:** Three knocks on the nearest wood.
 
 ## Knowledge and rumours

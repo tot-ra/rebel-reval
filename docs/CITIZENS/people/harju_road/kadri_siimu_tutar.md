@@ -74,7 +74,7 @@ None. She is too young and too watchful to want sides. A small favour she will d
 ## Voice
 - **Registers:** Estonian only.
 - **Delivery:** Thin and reedy, higher when she is nervous.
-- **Sample lines:** "I'm only spinning." / "Mother's at the neighbour's." / "Ma ei tea." (I don't know.)
+- **Sample lines:** "I'm only spinning." / "Mother's at the neighbour's." / "Ei oska öelda." (I can't say.)
 - **Verbal tic:** Covers her cheek.
 
 ## Knowledge and rumours

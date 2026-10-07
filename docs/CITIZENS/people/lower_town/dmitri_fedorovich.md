@@ -36,7 +36,7 @@
 - **Model notes:** MPFB gender 1.0, age_years 53, muscle 0.6, weight 0.5, proportions broad, height_m 1.80; skin sallow; eyes brown; greying light brown hair, long beard; crowd tier 1.
 
 ## Biography
-Born 1290 in Pskov, a joiner's son, and came to Reval with a merchant's string of packhorses in 1315. He worked the cellars of the Lai, married Irina Yakovlevna in 1319, and rented the little house on Lai in 1324. They have had eight children; the eldest daughter was married in Pskov two years ago, and seven are at home, and to pay her dowry he borrowed forty-five marks from the merchant Mikk Simoni poeg. In 1340 he put fifteen marks into a share of a boat voyage to Narva that went badly, and Borchard van Hamelen, the merchant who held the venture, has been patient. His tavern is small; his debts are not.
+Born 1290 in Pskov, a joiner's son, and came to Reval with a merchant's string of packhorses in 1315. He worked the cellars of the Lai, married Irina Yakovlevna in 1319, and rented the little house on Lai in 1324. They have had eight children, seven still at home; the eldest daughter was married in Pskov two years ago, and to pay her dowry he borrowed forty-five marks from the merchant Mikk Simoni poeg. In 1340 he put fifteen marks into a share of a boat voyage to Narva that went badly, and Borchard van Hamelen, the merchant who held the venture, has been patient. His tavern is small; his debts are not.
 
 ## Motivation
 - **Want:** To clear the debts before the youngest can walk.

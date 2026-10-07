@@ -35,7 +35,7 @@
 - **Model notes:** MPFB female, age_years 46, muscle 0.3, weight 0.45, proportions average, height_m 1.53; skin fair freckled; eyes blue; light-brown grey hair, covered; crowd tier 2.
 
 ## Biography
-Born in 1297 in a Harju village, her brother was bound to the manor when she was ten; her family fled to Reval. She married Gerdt in 1328. A flogging of her cousin at a manor, and the levy that took her brother, made her listen to the whispers of the Black Cloaks. She joined a cell three winters ago. Her tool is the skein: knots in the thread carry messages. She keeps the family accounts and speaks German for her husband.
+Born in 1297 in a Harju village, her brother was bound to the manor when she was ten; her family fled to Reval. She married Gerdt in 1328. A flogging of her cousin at a manor, and the levy that took her brother, made her listen to the whispers of the Black Cloaks. She joined a cell three winters ago. Her tool is the skein: knots in the thread carry messages. She keeps the family accounts and speaks German for her husband, who understands more than he lets on. At the market she buys coloured thread in odd lots, and nobody wonders why an honest spinner wants blue and red knotted in with the grey. She carries her fear lightly, like a stone in a pocket.
 
 ## Motivation
 - **Want:** Her brother free and her sons safe.
