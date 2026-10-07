@@ -11,7 +11,7 @@
 | Household | [hh.inst_castle_toompea](../../ledger/toompea/lossi_plats.md#hh-inst-castle-toompea) |
 | Home | Lossi plats, Toompea castle scullery loft (institution, no plot) |
 | Age / sex | 53, female |
-| Ethnicity / segment | estonian / danish_crown_household |
+| Ethnicity / segment | estonian / servant |
 | Status | Free servant of the castle |
 | Trade | Castle servant (Magd, *teenija*), scullery |
 | Languages | Estonian, Middle Low German |

@@ -11,7 +11,7 @@
 | Household | [hh.tp.osm_w28264568](../../ledger/toompea/rahukohtu.md#hh-tp-osm-w28264568) |
 | Home | Rahukohtu, plot `bldg.osm.w28264568` (46 m2) |
 | Age / sex | 65, male |
-| Ethnicity / segment | german / danish_crown_household |
+| Ethnicity / segment | german / german_resident |
 | Status | German burgher's son, hired clerk of the Danish crown |
 | Trade | Crown clerk (Schreiber) |
 | Languages | Middle Low German, Estonian, Latin |
@@ -38,7 +38,7 @@
 ## Biography
 Born in 1278 in Lübeck, the son of a Minden cloth-seller, Ricbod was sent to a Lübeck notary at twelve and came to Reval in 1304 as a clerk. He took service with the Danish bailiff in 1312, kept it through the wars and has never left Rahukohtu.
 
-Two things made him. In 1319 his first wife Alheid died in childbirth, leaving a son, Arend, born late, whom he raised on his own. In 1331 he married Gyse van Lemego, a widow he met at St Nicholas, and made peace with a household of two tongues. The Hanseatic men approached him in the 1330s with a small kindness, a repaid debt, and he has since passed them the tolls.
+Two things made him. In 1323 his first wife Alheid died in childbirth, leaving a son, Arend, born late, whom he raised on his own. In 1331 he married Gyse van Lemego, a widow he met at St Nicholas, and made peace with a household of two tongues. The Hanseatic men approached him in the 1330s with a small kindness, a repaid debt, and he has since passed them the tolls.
 
 ## Motivation
 - **Want:** To retire to Lübeck with Arend married and the debt to the skipper cleared.

@@ -22,7 +22,6 @@
 ## At a glance
 - Small for her age and pale after the winter, with a monotone voice that makes jokes sound like warnings.
 - Counts barrels, geese, steps and bells under her breath.
-- Minds Judit and Ann all day and knows exactly how many pfennig she is worth to her mother.
 - Is at war with the geese of the gate-farm next door.
 
 ## Appearance
@@ -36,7 +35,7 @@
 - **Model notes:** female, age_years 10, muscle low, weight low, proportions child-slender, height_m 1.20; sallow skin; grey-blue eyes; light brown plaits; crowd tier 2.
 
 ## Biography
-Hele was born in the autumn of 1332 and nearly died of a winter fever at three, which her mother says is why she is small. She was left with her grandmother's old counting pebbles and the habit of tallying. She learned the tub-notches from her father; he does not know she can read his tally-stick. She minds the little ones because Gertrud is out and Eeva is selling. At the beginning of Lent a goose of the gate-farm bit her leg, and she has hated the whole flock since.
+Hele was born in the autumn of 1332 and nearly died of a winter fever at three, which her mother says is why she is small. She was left with her grandmother's old counting pebbles and the habit of tallying. She learned the tub-notches from her father; he does not know she can read his tally-stick. At the beginning of Lent a goose of the gate-farm bit her leg, and she has hated the whole flock since.
 
 ## Motivation
 - **Want:** To be allowed to carry the tally-stick for her father.
@@ -58,7 +57,7 @@ Hele was born in the autumn of 1332 and nearly died of a winter fever at three, 
 - **Spring 1343 disruption:** More carters and more shouting at the gate; she counts them and reports numbers to nobody.
 
 ## Work and money
-Hele earns nothing yet but saves the household a girl's hire. She owns seven pebbles and a worn thread bracelet. If the hoard fails the family would send her to the tanner's house next.
+Hele earns nothing yet but saves the household a girl's hire. She owns seven pebbles.
 
 ## Relationships
 - **Household:** [Mihkel Jüri poeg](../../people/viru_road/mihkel_juri_poeg.md), father; [Eeva Priidiku tütar](../../people/viru_road/eeva_priidiku_tutar.md), mother; [Gertrud](../../people/viru_road/gertrud_mihkli_tutar.md), her older sister and bedfellow; [Judit, 6](../../ledger/viru_road/viru_road.md#hh-vi-viru-14) and [Ann, 3](../../ledger/viru_road/viru_road.md#hh-vi-viru-14), her daily charges.
@@ -66,10 +65,9 @@ Hele earns nothing yet but saves the household a girl's hire. She owns seven peb
 - **Others:** [Folke Gunnarsson](../../ledger/viru_road/viru_road.md#hh-vi-viru-20), gate-farm cultivator, whose geese she fears.
 
 ## Faction and belief
-No faction; she is a child. She believes in the saints because her mother does and in the house-spirit because her grandmother did. She will do small errands for anyone who gives her bread.
+No faction; she is a child. She believes in the saints because her mother does and in the house-spirit because her grandmother did.
 
 ## Voice
-- **Registers:** Estonian only.
 - **Delivery:** Monotone and exact, with numbers in place of feelings.
 - **Sample lines:** "Seven carts. Two with barrels." / "The goose is looking at me. Again." / *Ema ütles, et sa ei tohi.* (Mother said you must not.)
 - **Verbal tic:** Starts answers with a number.

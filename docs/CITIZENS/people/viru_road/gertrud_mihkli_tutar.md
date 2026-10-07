@@ -23,7 +23,6 @@
 - Works days in the tanner's household two doors up and comes home smelling of lime and wet hide.
 - Speaks slowly, with long pauses, so adults often finish her sentences wrongly.
 - A nicked right ear and swollen knuckles from cold water.
-- The one daughter whose wages pay for the others' bread.
 
 ## Appearance
 - **Body:** 134 cm, stocky, strong in the forearm, a flat-footed walk like a duckling.
@@ -36,13 +35,13 @@
 - **Model notes:** female, age_years 13, muscle mid, weight mid-high, proportions child-stocky, height_m 1.34; ruddy skin; green-grey eyes; light brown plait, uncovered; crowd tier 2.
 
 ## Biography
-Gertrud is the eldest. At nine she was carrying water; at twelve she was hired to Pekka Lauranpoika's household as a day maid for her board at midday and two schilling a quarter. She learned to scrub hide-tubs, to feed the children and to say little. The ear came from a dog on the road when she was five; she says only "a dog." Last winter her knuckles split in the frost and have not healed. She is proud of the schilling in her mother's hand each quarter-day.
+Gertrud is the eldest. At nine she was carrying water; at twelve she was hired to Pekka Lauranpoika's household as a day maid for her board at midday and two schilling a quarter. She learned to scrub hide-tubs, to feed the children and to say little. The ear came from a dog on the road when she was five; she says only "a dog." Last winter her knuckles split in the frost and have not healed.
 
 ## Motivation
 - **Want:** To own a pair of leather shoes before winter.
 - **Fear:** Being sent to a farm as a field girl.
 - **Contradiction:** Wishes to be left alone, yet checks every night that the little ones are breathing.
-- **Secret or withheld fact:** She hides scraps of tallow and bread from the tanner's kitchen for Judit and Ann, and has not been caught.
+- **Secret or withheld fact:** She hides kitchen scraps for Judit and Ann.
 
 ## Daily routine
 | Phase | Time (late April) | Place | Activity |
@@ -54,11 +53,11 @@ Gertrud is the eldest. At nine she was carrying water; at twelve she was hired t
 | Evening | Vespers | Home | Brings the wages' worth of bread |
 | Night | Curfew bell | Loft | Sleeps with her sisters |
 
-- **Sundays and feast days:** Mass at St Olaf, then free time for the first game of knucklebones in the lane.
-- **Spring 1343 disruption:** The tanner's apprentices talk loudly of the watch, and she keeps her eyes down.
+- **Sundays and feast days:** Mass at St Olaf, then knucklebones in the lane.
+- **Spring 1343 disruption:** The tanner's apprentices talk of the watch; she keeps her eyes down.
 
 ## Work and money
-She earns about two schilling a quarter and food at midday. The wage goes to Eeva untouched. She owns a comb, a wool scarf and a pair of mended clogs. A bad month is a day lost to a fever and the loss of her midday meal.
+She earns about two schilling a quarter and food at midday. The wage goes to Eeva untouched. She owns a comb and a scarf.
 
 ## Relationships
 - **Household:** [Mihkel Jüri poeg](../../people/viru_road/mihkel_juri_poeg.md), her father; [Eeva Priidiku tütar](../../people/viru_road/eeva_priidiku_tutar.md), her mother; [Hele](../../people/viru_road/hele_mihkli_tutar.md), the sister she shares a bed with; [Judit, 6](../../ledger/viru_road/viru_road.md#hh-vi-viru-14) and [Ann, 3](../../ledger/viru_road/viru_road.md#hh-vi-viru-14), whom she feeds when she can.
@@ -69,17 +68,16 @@ She earns about two schilling a quarter and food at midday. The wage goes to Eev
 No faction. She is too small and too busy to think about it, and her wages depend on a German-trained tanner. A small favour she does without a word; a large one she cannot see. She believes in the saints for sickness and in the hearth-spirit for luck.
 
 ## Voice
-- **Registers:** Estonian only, with a few trade words from the tannery.
 - **Delivery:** Slow, with long pauses; people think she is simple, but she is thinking.
-- **Sample lines:** "I... will ask my mother." / "The lime burns... it burns hardest in the cold." / *Ma ei tea. Aga ma küsin.* (I do not know. But I will ask.)
+- **Sample lines:** "I... will ask my mother." / "The lime burns... it burns hardest in the cold." / *Ma küsin ema käest.* (I will ask my mother.)
 - **Verbal tic:** A long breath before every answer.
 
 ## Knowledge and rumours
-She sees the tanner's customers and hears the apprentices. She would trade it for a pair of shoes. She believes that the executioner's well-water makes children ill.
+She hears the apprentices talk. She would trade it for shoes. She believes the executioner's well-water makes children ill.
 
 ## Game hooks
 - **Ambient role:** Dawn and evening at home; daytime at the tanner's yard.
 - **Interaction:** She will answer Kalev slowly and look down; she brightens at a kind word.
 - **Barks:** Calm: "Water... coming." Tense: "Not my business." Curfew: "Home now."
-- **Quest touch:** She will take a message to the Lower Town if someone gives her a few pfennig.
+- **Quest touch:** She will carry a message for a few pfennig.
 - **St George's Night:** She hides with her sisters in the loft and holds Ann's hand.

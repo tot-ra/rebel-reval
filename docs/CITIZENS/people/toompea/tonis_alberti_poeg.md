@@ -11,7 +11,7 @@
 | Household | [hh.inst_castle_toompea](../../ledger/toompea/lossi_plats.md#hh-inst-castle-toompea) |
 | Home | Lossi plats, Toompea castle stable loft (institution, no plot) |
 | Age / sex | 43, male |
-| Ethnicity / segment | estonian / danish_crown_household |
+| Ethnicity / segment | estonian / servant |
 | Status | Free servant of the castle |
 | Trade | Stable hand and ostler (*tallipoiss*) |
 | Languages | Estonian, Middle Low German |

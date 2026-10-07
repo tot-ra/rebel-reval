@@ -11,7 +11,7 @@
 | Household | [hh.inst_castle_toompea](../../ledger/toompea/lossi_plats.md#hh-inst-castle-toompea) |
 | Home | Lossi plats, Toompea castle barracks (institution, no plot) |
 | Age / sex | 40, male |
-| Ethnicity / segment | german / danish_crown_household |
+| Ethnicity / segment | german / german_resident |
 | Status | Hired soldier in the Danish crown's garrison, German burgher's son |
 | Trade | Castle man-at-arms (Knecht) |
 | Languages | Middle Low German |

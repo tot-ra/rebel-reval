@@ -11,7 +11,7 @@
 | Household | [hh.tp.osm_w28264568](../../ledger/toompea/rahukohtu.md#hh-tp-osm-w28264568) |
 | Home | Rahukohtu, plot `bldg.osm.w28264568` (46 m2) |
 | Age / sex | 63, female |
-| Ethnicity / segment | german / danish_crown_household |
+| Ethnicity / segment | german / german_resident |
 | Status | Free commoner, widow remarried to a clerk |
 | Trade | Spinner (Spinnerin) |
 | Languages | Middle Low German |

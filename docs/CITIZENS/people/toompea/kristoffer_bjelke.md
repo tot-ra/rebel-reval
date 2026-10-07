@@ -11,7 +11,7 @@
 | Household | [hh.inst_castle_toompea](../../ledger/toompea/lossi_plats.md#hh-inst-castle-toompea) |
 | Home | Lossi plats, Toompea castle chamberlain's closet (institution, no plot) |
 | Age / sex | 31, male |
-| Ethnicity / segment | danish / danish_crown_household |
+| Ethnicity / segment | danish / servant |
 | Status | Household servant of the viceroy |
 | Trade | Chamberlain (Kämmerer, Danish *kammertjener*) |
 | Languages | Danish, Middle Low German |

@@ -11,7 +11,7 @@
 | Household | [hh.inst_castle_toompea](../../ledger/toompea/lossi_plats.md#hh-inst-castle-toompea) |
 | Home | Lossi plats, Toompea castle mews (institution, no plot) |
 | Age / sex | 51, male |
-| Ethnicity / segment | danish / danish_crown_household |
+| Ethnicity / segment | danish / servant |
 | Status | Servant of the viceroy's household |
 | Trade | Falconer (Falkner, Danish *falkoner*) |
 | Languages | Danish, Middle Low German |

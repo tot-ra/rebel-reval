@@ -11,7 +11,7 @@
 | Household | [hh.inst_castle_toompea](../../ledger/toompea/lossi_plats.md#hh-inst-castle-toompea) |
 | Home | Lossi plats, Toompea castle kitchen loft (institution, no plot) |
 | Age / sex | 36, male |
-| Ethnicity / segment | estonian / danish_crown_household |
+| Ethnicity / segment | estonian / servant |
 | Status | Free servant of the castle, a bought-out peasant's son |
 | Trade | Castle cook (köök) |
 | Languages | Estonian |
