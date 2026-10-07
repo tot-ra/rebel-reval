@@ -31,12 +31,12 @@
 - **Hair and facial hair:** Light brown hair with grey at the temples, braided and wound under a linen headcloth. No facial hair.
 - **Skin and marks:** Fair freckled skin; cleft chin; pink at the cheeks from the cellar heat.
 - **Hands:** Short, strong, left-handed, scalded at the knuckles by a mash pot.
-- **Clothing and kit (April 1343):** Linen shift, dark red wool sarafan-style gown, apron, headcloth knotted at the nape, leather shoes. A bunch of keys on a cord. The headcloth marks a married Russian woman.
+- **Clothing and kit (April 1343):** Linen shift, dark red wool long gown, apron, headcloth knotted at the nape, leather shoes. A bunch of keys on a cord. The headcloth marks a married Russian woman.
 - **Portrait prompt:** Shoulders-up portrait of a stocky forty-three-year-old medieval Russian woman, fair freckled skin, grey eyes, a cleft chin, light brown hair greying at the temples under a linen headcloth, stern calm mouth, dark red wool gown with linen collar, soft natural light, neutral grey background, realistic painterly style.
 - **Model notes:** MPFB gender 0.0, age_years 43, muscle 0.4, weight 0.65, proportions stocky, height_m 1.52; skin fair freckled; eyes grey; greying light brown hair under headcloth; crowd tier 1.
 
 ## Biography
-Born 1300 in Pskov, daughter of a Yakov who sold fish; she married Dmitri in 1319 and has borne nine children, burying none. She brews small ale in the cellar and sells it by the mug. Her ale is thin but cheap, and Dmitri's guests drink it.
+Born 1300 in Pskov, daughter of a Yakov who sold fish; she married Dmitri in 1319 and has borne eight children, burying none. She brews small ale in the cellar and sells it by the mug. Her ale is thin but cheap, and Dmitri's guests drink it.
 
 ## Motivation
 - **Want:** A cellar with a second room.

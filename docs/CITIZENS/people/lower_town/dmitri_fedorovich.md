@@ -31,12 +31,12 @@
 - **Hair and facial hair:** Light brown hair streaked with grey, worn to the collar; long moustache and beard, combed with a wooden comb.
 - **Skin and marks:** Sallow with winter pallor; the wiry strength of a tavern-keeper's forearms; old rope-burns.
 - **Hands:** Broad, left-handed, scarred with knife nicks, a cask-key callus in the left palm.
-- **Clothing and kit (April 1343):** Linen shirt, long dark blue wool kaftan-like tunic belted with a sash, hose, soft boots, a leather apron. A wooden tally spoon at the belt. The long tunic and sash mark a Russian householder.
+- **Clothing and kit (April 1343):** Linen shirt, long dark blue wool tunic belted with a sash, hose, soft boots, a leather apron. A wooden tally spoon at the belt. The long tunic and sash mark a Russian householder.
 - **Portrait prompt:** Shoulders-up portrait of a broad-shouldered fifty-three-year-old medieval Russian tavern keeper, sallow skin, brown eyes, light brown hair streaked with grey, long moustache and beard, weary patient expression, long dark blue wool tunic with sash and leather apron strap, soft natural light, neutral grey background, realistic painterly style.
 - **Model notes:** MPFB gender 1.0, age_years 53, muscle 0.6, weight 0.5, proportions broad, height_m 1.80; skin sallow; eyes brown; greying light brown hair, long beard; crowd tier 1.
 
 ## Biography
-Born 1290 in Pskov, a joiner's son, and came to Reval with a merchant's string of packhorses in 1315. He worked the cellars of the Lai, married Irina Yakovlevna in 1319, and rented the little house on Lai in 1324. They have nine children; the eldest daughter was married in Pskov two years ago, and to pay her dowry he borrowed forty-five marks from the merchant Mikk Simoni poeg. In 1340 he put fifteen marks into a share of a boat voyage to Narva that went badly, and Borchard van Hamelen, the merchant who held the venture, has been patient. His tavern is small; his debts are not.
+Born 1290 in Pskov, a joiner's son, and came to Reval with a merchant's string of packhorses in 1315. He worked the cellars of the Lai, married Irina Yakovlevna in 1319, and rented the little house on Lai in 1324. They have had eight children; the eldest daughter was married in Pskov two years ago, and seven are at home, and to pay her dowry he borrowed forty-five marks from the merchant Mikk Simoni poeg. In 1340 he put fifteen marks into a share of a boat voyage to Narva that went badly, and Borchard van Hamelen, the merchant who held the venture, has been patient. His tavern is small; his debts are not.
 
 ## Motivation
 - **Want:** To clear the debts before the youngest can walk.

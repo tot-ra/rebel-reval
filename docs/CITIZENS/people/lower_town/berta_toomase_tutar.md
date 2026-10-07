@@ -36,7 +36,7 @@
 - **Model notes:** MPFB: female, age_years 37, muscle 0.4, weight 0.5, proportions average, height_m 1.60; rosy fair skin; grey-blue eyes; ash blond hair covered by coif; crowd tier 1.
 
 ## Biography
-Born about 1306 on a Harju farm near the Pirita, the daughter of Toomas, a cowherd. Her family were free but poor; at twelve she was sent to town to a dairy-woman on Lai, learning to churn and salt in the cold cellar behind the Dominican friary. She lost her first back tooth to a rotten apple pie of 1329 and two more to a sour winter. She married Albert the piper in 1333, and since then her own trade has been the steady wage of the house. Her mother died in the hunger of 1339, and Berta has never since wasted a drop of milk. She sells now from three cows' worth of cream bought from Harju women.
+Born about 1306 on a Harju farm near the Pirita, the daughter of Toomas, a cowherd. Her family were free but poor; at twelve she was sent to town to a dairy-woman on Lai, learning to churn and salt in the cold cellar behind the Dominican friary. She lost her back teeth one by one, the first to a toothache in the sour spring of 1329, and the rest to the hunger years. She married Albert the piper in 1333, and since then her own trade has been the steady wage of the house. Her mother died in the hunger of 1339, and Berta has never since wasted a drop of milk. She sells now from three cows' worth of cream bought from Harju women.
 
 ## Motivation
 - **Want:** A firm stall of her own at the Lai market, and a good indenture for Kaur.
@@ -58,7 +58,7 @@ Born about 1306 on a Harju farm near the Pirita, the daughter of Toomas, a cowhe
 - **Spring 1343 disruption:** Farm women come in later and with less; carts are stopped at the gates; prices of cream rose a quarter since Easter.
 
 ## Work and money
-She clears about 1 mark a month in a good one, most of it in örtug and the rest in kind. She buys salt by the lispfund from the harbour, cream from Harju farm women, and sells to the kitchens of the Lai merchants on standing order. Debts: half a mark to a cooper for pails. A bad month is the siege of a late frost, when the cows dry.
+She clears about 1 mark a month in a good one, most of it in örtug and the rest in kind. She buys salt by the lispfund from the harbour, cream from Harju farm women, and sells to the kitchens of the Lai merchants on standing order. Debts: half a mark to a cooper for pails. A bad month is a late frost, when the cows dry and the Harju women bring no cream.
 
 ## Relationships
 - **Household:** [Albert Villemi poeg](../../people/lower_town/albert_villemi_poeg.md), husband; [Kaur Alberti poeg](../../people/lower_town/kaur_alberti_poeg.md); [Paul Alberti poeg](../../people/lower_town/paul_alberti_poeg.md); Kadri Alberti tütar ([ledger](../../ledger/lower_town/oleviste.md#hh-lt-osm-w200516986)); [Mikk Kristjani poeg](../../people/lower_town/mikk_kristjani_poeg.md); [Ursula Aino tütar](../../people/lower_town/ursula_aino_tutar.md).

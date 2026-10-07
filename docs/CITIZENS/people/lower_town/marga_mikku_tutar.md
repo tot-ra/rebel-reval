@@ -72,7 +72,7 @@ No faction. She prays to St Anne.
 ## Voice
 - **Registers:** Estonian with fellow servants; German with masters.
 - **Delivery:** Thin, reedy.
-- **Sample lines:** "Yes, mistress." "Mina ei tea." "Mari has needles."
+- **Sample lines:** "Yes, mistress." "Mina ei oska öelda." "Mari has needles."
 - **Verbal tic:** Touches her nicked ear.
 
 ## Knowledge and rumours

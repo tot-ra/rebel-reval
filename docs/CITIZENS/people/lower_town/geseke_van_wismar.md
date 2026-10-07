@@ -23,10 +23,10 @@
 - Left-handed; her mother keeps trying to correct it.
 - Sturdy, freckled, peeling in the sun.
 - High quick voice.
-- Mother of three dolls.
+- Keeper of three dolls.
 
 ## Appearance
-- **Body:** 121 cm, sturdy, sturdy legs, a running walk.
+- **Body:** 121 cm, sturdy, short strong legs, a running walk.
 - **Face:** Round, freckled, grey eyes, a snub nose, a wide grin.
 - **Hair and facial hair:** Brown, in two braids.
 - **Skin and marks:** Sun-freckled and peeling; no marks.

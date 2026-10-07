@@ -56,15 +56,24 @@ Born in the spring of 1337 in the room above the rope-walk, she was the first ch
 - **Sundays and feast days:** Mass in her best cap; ribbons if there is a feast.
 - **Spring 1343 disruption:** Her parents argue about money late; she hears it through the wall.
 
+## Work and money
+She earns nothing and is worth a great deal: a six-year-old who holds a cord straight saves a hired boy's penny. Her pay is the end of a honey cake at Easter and the right to keep the tar-stained spool her grandfather carves. In a bad month the porridge thins and she is told to eat slowly.
+
 ## Relationships
 - **Household:** [Peeter Tanieli poeg](../../people/lower_town/peeter_tanieli_poeg.md), father, whose rope she holds; [Eeva Marteni tütar](../../people/lower_town/eeva_marteni_tutar.md), mother; [Ain Peetri poeg](../../ledger/lower_town/olevimagi.md#hh-lt-osm-w200675324), brother; [Veronika Peetri tütar](../../ledger/lower_town/olevimagi.md#hh-lt-osm-w200675324), baby sister; [Taniel Eerika poeg](../../people/lower_town/taniel_eerika_poeg.md), grandfather; [Jüri Korneli poeg](../../people/lower_town/juri_korneli_poeg.md), apprentice who gives her scraps.
-- **Network:** None planned.
+- **Network:** None planned; her world is the yard and the lane. A neighbour's child, a goat and the baker's dog are all she meets outside the family.
+
+## Faction and belief
+She is a child of the house and of St Olaf: she says the Ave in a rush, kisses the wooden saint's foot when lifted, and believes every shadow in the shed has a name. She has no side in anything and would give away a secret for a sweet.
 
 ## Voice
 - **Registers:** Estonian at home; a few German words.
 - **Delivery:** Clear and carrying.
 - **Sample lines:** "I can do it!" / "The kettle said good night." / "Ema, Ema, look!"
 - **Verbal tic:** Shouts the last word.
+
+## Knowledge and rumours
+She knows where each cat sleeps, which board creaks, and that Papa counts coins at night. She would trade it for a ride on Taniel's shoulders. She believes the false rumour, from Ain, that the Vogt eats naughty children's shoes.
 
 ## Game hooks
 - **Ambient role:** The rope-walk, the yard, the lane.

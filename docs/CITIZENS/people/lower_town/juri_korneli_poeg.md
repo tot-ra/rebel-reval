@@ -56,15 +56,24 @@ Born in 1330 in a fisher village on the Viimsi shore. His father Kornel drowned 
 - **Sundays and feast days:** Mass at the back; the one afternoon free, he goes to the quay.
 - **Spring 1343 disruption:** More orders and sharper tempers.
 
+## Work and money
+He has no wage; his keep is his pay, with a shirt at Michaelmas and a pair of shoes at the end of his second year. He sleeps on a hemp sack in the shed and sells wisps of tow to a caulker for a pfennig now and then. A bad month is a missed Sunday afternoon.
+
 ## Relationships
 - **Household:** [Peeter Tanieli poeg](../../people/lower_town/peeter_tanieli_poeg.md), master; [Eeva Marteni tütar](../../people/lower_town/eeva_marteni_tutar.md), mistress; [Mari Peetri tütar](../../people/lower_town/mari_peetri_tutar.md), whose cord he holds; [Ain Peetri poeg](../../ledger/lower_town/olevimagi.md#hh-lt-osm-w200675324); [Veronika Peetri tütar](../../ledger/lower_town/olevimagi.md#hh-lt-osm-w200675324); [Taniel Eerika poeg](../../people/lower_town/taniel_eerika_poeg.md), who teaches him knots.
-- **Network:** None planned.
+- **Network:** None planned; he talks to the quay boys when he is let out and to nobody in the house but Taniel.
+
+## Faction and belief
+He is a boy with no side and a long list of fears. He prays on his knees in the shed with Taniel's help, though he cannot get past the third line, and wears a lead fish-charm his father gave him. A small favour he would do for a bun; a large one he would run from.
 
 ## Voice
 - **Registers:** Estonian; short German answers.
 - **Delivery:** High and quick.
 - **Sample lines:** "Yes, master!" / "I did not, I swear." / "Jah, jah!"
 - **Verbal tic:** Says "I swear".
+
+## Knowledge and rumours
+He knows the lanes from the quay to Olevimägi and which sailors are drunk by None. He would trade it for a place to sleep indoors. He believes the false rumour that a drowned man's ghost follows his son.
 
 ## Game hooks
 - **Ambient role:** The rope-walk and shed.
