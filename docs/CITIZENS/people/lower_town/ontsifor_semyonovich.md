@@ -11,7 +11,7 @@
 | Household | [hh.lt.osm_w200690725](../../ledger/lower_town/tolli.md#hh-lt-osm-w200690725) |
 | Home | Tolli, plot `bldg.osm.w200690725` (138 m2) |
 | Age / sex | 57, male |
-| Ethnicity / segment | russian / see household ledger (Russian resident of the Lower Town) |
+| Ethnicity / segment | russian / russian_guest |
 | Status | Master craftsman; Russian householder under Hanseatic practice |
 | Trade | Krämer (retail trader) |
 | Languages | Russian, Middle Low German |

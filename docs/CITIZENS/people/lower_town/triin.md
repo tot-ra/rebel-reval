@@ -1,6 +1,6 @@
 # Triin
 
-> The slow-speaking Estonian maid of the Rode kitchen who weighs every word like a pfennig, and trades the day's prices with a Russian baker's old mother at the market.
+> The slow-speaking Estonian maid of the Rode kitchen who weighs every word like a pfennig, and trades the day's prices with an old Russian baker at the market.
 
 | Field | Value |
 |---|---|
