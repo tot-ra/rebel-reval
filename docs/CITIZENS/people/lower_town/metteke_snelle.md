@@ -53,11 +53,11 @@ Born in 1298 into the Snelle family of Reval, cloth-sellers, Metteke learned the
 | Evening | Vespers | Parlour | Teaches Wendele accounts, hears the day's rumours |
 | Night | curfew bell | Chamber | Checks the keys, banks the fire |
 
-- **Sundays and feast days:** Mass at St Nicholas; afterwards she lingers briefly at the porch.
-- **Spring 1343 disruption:** The grain levy talk empties the market; she lays in extra rye and sends skeins out early so her spinners can buy bread before the price rises.
+- **Sundays and feast days:** Mass at St Nicholas; afterwards she lingers at the porch.
+- **Spring 1343 disruption:** Levy talk empties the market; she sends skeins out early so spinners can buy bread.
 
 ## Work and money
-She gives flax and wool to about thirty outworkers on credit and pays by the pfund of finished thread, collected weekly; a good week returns two marks to the house. She sells yarn to weavers such as her neighbour and to the cloth-sellers in the Snelle family. Her linen chests hold six sheets and a bolt she will not sell. A bad month is a short flax delivery and unpaid wages. Meinhard keeps the large sums; she keeps the keys and her own purse of ten schillings.
+She gives flax and wool to about thirty outworkers on credit and pays by the pfund of finished thread, collected weekly; a good week returns two marks to the house. She sells yarn to weavers such as her neighbour and to the cloth-sellers in the Snelle family. A bad month is a short flax delivery. Meinhard keeps the large sums; she keeps the keys and her own purse of ten schillings.
 
 ## Relationships
 - **Household:** [Meinhard van Campen](meinhard_van_campen.md), husband; [Wendele](wendele_van_campen.md), her eldest, a quick spinner; [Wibeke, Walburgis, Hartwig and Katharina](../../ledger/lower_town/sauna.md#hh-lt-osm-w200644968), the younger four; apprentice [Lambrecht van Goslar](lambrecht_van_goslar.md); servants [Margareta Olofsdotter](margareta_olofsdotter.md) and [Bengt Persson](bengt_persson.md); Siim the ostler, in the [ledger](../../ledger/lower_town/sauna.md#hh-lt-osm-w200644968).
@@ -69,7 +69,6 @@ She gives flax and wool to about thirty outworkers on credit and pays by the pfu
   - [Tõnis Siimu poeg](../../people/lower_town/tonis_siimu_poeg.md), gatekeeper: he knows she shares their sympathies; they meet briefly after mass and say nothing that could be repeated.
   - [Tideman van Soest](../../people/lower_town/tideman_van_soest.md), Fernhändler: she recruited him a year ago with a small kindness; he resents being treated as a debtor, and she knows it.
   - [Cecilia van Bremen](../../people/lower_town/cecilia_van_bremen.md), retired craftsman: they stood at the same funeral and heard the same whisper; a cell of two, with a third unnamed.
-- **Others:** Her neighbours on Müürivahe include [Hildebrand van Campen](../../people/lower_town/hildebrand_van_campen.md), the belt-maker whose hens trouble her yard.
 
 ## Faction and belief
 Her reason is the thread: if the council or the Order closes the roads, the outworkers starve first. A small favour she grants with a word; a large one with a debt in return; she would inform only to save her spinners. She holds to the Church, burns a candle for her mother, and still ties rowan to the stable door.

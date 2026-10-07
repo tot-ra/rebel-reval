@@ -22,7 +22,7 @@
 ## At a glance
 - Tall fingers first: they flick through a tally-book faster than his lips move.
 - Hoarse from forty springs of harbour wind; people lean in to hear him and he lets them.
-- Keeps a wax tablet of old slights beside the ledger of debts, and reads both on Sundays.
+- Keeps a wax tablet of old slights beside the ledger of debts.
 
 ## Appearance
 - **Body:** 173 cm, broad-shouldered, a little forward at the neck from years over account-books; walks deliberately, heels first.
@@ -35,13 +35,13 @@
 - **Model notes:** MPFB male, age_years 51, muscle average, weight average, proportions long-limbed hands, height_m 1.73; pale sallow skin; grey-green eyes; black-brown hair, forked beard; crowd tier 1.
 
 ## Biography
-Born in 1292 at Kampen on the Ijssel, the son of a shipwright, Meinhard was bound at twelve to a Lübeck-trained master in Reval who also taught Wolter van Hamelen years later. He learned the Baltic round: furs and wax from Novgorod, cloth from Flanders, salt from Lüneburg, herring from Scania. He married Metteke Snelle in 1325 to join her family's capital to his skill. Five children live: three daughters, then his son Hartwig, then Katharina, who is two. A cargo lost off Gotland in 1337 cost him a year's profit and made him exact. He now keeps a stable, a warehouse and a household of eleven on Sauna street.
+Born in 1292 at Kampen on the Ijssel, the son of a shipwright, Meinhard was bound at twelve to a Lübeck-trained master in Reval who also taught Wolter van Hamelen years later. He learned the Baltic round of furs, wax, cloth, salt and herring. He married Metteke Snelle in 1325 to join her family's capital to his skill. Five children live: three daughters, then his son Hartwig, then Katharina, who is two. A cargo lost off Gotland in 1337 cost him a year's profit and made him exact. He now keeps a stable, a warehouse and a household of eleven on Sauna street.
 
 ## Motivation
 - **Want:** To see Hartwig enter the Kindergilde as a free master, and to have the debts owing to him settled in coin, not courtesy.
 - **Fear:** A closed harbour, and a council that seizes goods for a levy and calls it duty.
 - **Contradiction:** He lends patiently to those he intends to remember against.
-- **Secret or withheld fact:** He keeps a second small account, in his own cipher, of what the other merchants pay for passage and protection.
+- **Secret or withheld fact:** He keeps a second account, in his own cipher, of what other merchants pay for protection.
 
 ## Daily routine
 | Phase | Time (late April) | Place | Activity |
@@ -53,11 +53,11 @@ Born in 1292 at Kampen on the Ijssel, the son of a shipwright, Meinhard was boun
 | Evening | Vespers | Home | Reads accounts, hears the children's lessons |
 | Night | curfew bell | Chamber | Locks the strongbox; sleeps lightly |
 
-- **Sundays and feast days:** Mass at St Nicholas, then a slow walk past the harbour to count the ships.
-- **Spring 1343 disruption:** Talk of a grain levy and closed gates makes him lay in salt and rye early and send a second wagon out of Karja gate before the roads tighten.
+- **Sundays and feast days:** Mass at St Nicholas, then a slow walk to count the ships.
+- **Spring 1343 disruption:** Levy talk makes him lay in salt and rye early.
 
 ## Work and money
-He ships furs, wax, flax and rye outward and cloth and salt inward, with shares in two cogs. His stock of one cask of herring is as carefully entered as a bale of Flemish cloth. He pays for his harbour labour by the day, splitting cart-hire with a clerk he does not like. Lembit supplies him in bulk and has twice held back stock to press an old point, which Meinhard has entered, in his head, in red. Twelve marks lie out to the stonemason Paul Antsu poeg for a share in a voyage that went badly. A bad month is a late cog and a council demand for a loan.
+He ships furs, wax, flax and rye outward and cloth and salt inward, with shares in two cogs.  Lembit supplies him in bulk and has twice held back stock to press an old point, which Meinhard has entered, in his head, in red. Twelve marks lie out to the stonemason Paul Antsu poeg for a share in a voyage that went badly. A bad month is a late cog and a council demand for a loan.
 
 ## Relationships
 - **Household:** [Metteke Snelle](metteke_snelle.md), his wife, the better judge of people; [Wendele](wendele_van_campen.md), 14, the eldest, quick with a spindle; [Wibeke, Walburgis, Hartwig and Katharina](../../ledger/lower_town/sauna.md#hh-lt-osm-w200644968), his younger children, the boy Hartwig his one heir; apprentice [Lambrecht van Goslar](lambrecht_van_goslar.md); servants [Margareta Olofsdotter](margareta_olofsdotter.md) and [Bengt Persson](bengt_persson.md); Siim the ostler, see the [household ledger](../../ledger/lower_town/sauna.md#hh-lt-osm-w200644968).
@@ -69,7 +69,6 @@ He ships furs, wax, flax and rye outward and cloth and salt inward, with shares 
   - [Helmich van Hildensem](../../people/lower_town/helmich_van_hildensem.md), merchant's clerk: neither knows the other's allegiance, but each has noticed the other's silence at the right moments.
   - [Hindrek Gerdti poeg](../../people/lower_town/hindrek_gerdti_poeg.md), merchant's clerk: they split cart-hire and a day's labour at the harbour each week and quarrel over the sum.
   - [Paul Antsu poeg](../../people/lower_town/paul_antsu_poeg.md), stonemason: owes 12 marks for a boat share; Meinhard has been patient so far.
-- **Others:** Neighbours include [Bengt Magnusson](bengt_magnusson.md), the weaver at the next well, and Halvard Andersson the boat-builder on [Müürivahe](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w200645036).
 
 ## Faction and belief
 He is a Hanseatic man because the Hansa is the roads and the credit he lives by, not out of loyalty to the council. A small favour he gives freely; a large one, such as hiding goods, he prices; he would inform on a thief before a neighbour, on a rebel without hesitation. His faith is exact: masses paid for his dead partners, a candle at St Nicholas on each voyage, no folk charms in his house, though Metteke ties a herb sprig to the stable door.
@@ -81,7 +80,7 @@ He is a Hanseatic man because the Hansa is the roads and the credit he lives by,
 - **Verbal tic:** "By the tally," before any figure.
 
 ## Knowledge and rumours
-He knows which cogs are late, who is short of silver, and what the harbour paid for the grain levy talk. He would trade this for a favour on the council roll. He believes, falsely, that the Danish viceroy intends to open Toompea's gates to the Order.
+He knows which cogs are late and who is short of silver, and would trade it for a favour on the council roll. He believes, falsely, that the Danish viceroy intends to open Toompea's gates to the Order.
 
 ## Game hooks
 - **Ambient role:** Yard at dawn; harbour by morning; counting room by afternoon; his door in the evening.

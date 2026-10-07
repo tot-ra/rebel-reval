@@ -72,7 +72,7 @@ She has no faction. For a small favour she gives a candle; for a large one she a
 ## Voice
 - **Registers:** Estonian only; she shouts to be understood by Germans.
 - **Delivery:** Booming, warm and brusque.
-- **Sample lines:** "Take it, take it, it is good!" "The child is sick, do not shout." "Ma ei tea, ma ei tea."
+- **Sample lines:** "Take it, take it, it is good!" "The child is sick, do not shout." "Mis seal ikka, mis seal."
 - **Verbal tic:** "There, now!"
 
 ## Knowledge and rumours

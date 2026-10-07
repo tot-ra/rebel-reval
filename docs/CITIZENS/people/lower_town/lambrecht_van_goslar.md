@@ -35,7 +35,7 @@
 - **Model notes:** MPFB male, age_years 13, muscle low, weight light, proportions long-limbed, height_m 1.42; ruddy skin; grey-green eyes; light brown hair; crowd tier 2.
 
 ## Biography
-Born in 1329 in Goslar to a mine-hauler who died of the fever in 1338, Lambrecht was sent north with a cousin of the family to a Lübeck merchant, who passed him to Reval for six years' indenture at the van Campen house. Beaten at first for his left hand, he learned to hide it by keeping it in his sleeve until needed. He has a long memory for numbers and none for letters. He sleeps in the apprentices' loft above the warehouse and runs between yard, harbour and counting room. His chief joy is a cat in the barn.
+Born in 1329 in Goslar to a mine-hauler who died of fever in 1338, Lambrecht was sent north to a Lübeck merchant, who passed him to Reval for six years' indenture at the van Campen house. Beaten at first for his left hand, he learned to hide it in his sleeve. He has a long memory for numbers and none for letters, and his chief joy is a cat in the barn.
 
 ## Motivation
 - **Want:** To outlast the six years and become a clerk who can read.
@@ -53,16 +53,15 @@ Born in 1329 in Goslar to a mine-hauler who died of the fever in 1338, Lambrecht
 | Evening | Vespers | Counting room | Fetches wax, lights candles |
 | Night | curfew bell | Loft | Sleeps |
 
-- **Sundays and feast days:** Mass at St Nicholas at the back, then an hour with the barn cat.
-- **Spring 1343 disruption:** More hauling, shorter tempers, and long hours guarding the yard gate.
+- **Sundays and feast days:** Mass at St Nicholas, then an hour with the cat.
+- **Spring 1343 disruption:** More hauling and shorter tempers.
 
 ## Work and money
-He has board, bed and a pair of shoes at Michaelmas; he owns a string, a knife and a crust. His indenture runs to 1348. A bad day is a dropped scale-weight and a clout.
+Board, bed and shoes at Michaelmas; indenture to 1348. A bad day is a dropped weight and a clout.
 
 ## Relationships
-- **Household:** [Meinhard van Campen](meinhard_van_campen.md), master, feared; [Metteke Snelle](metteke_snelle.md), mistress, more feared and kinder; [Wendele](wendele_van_campen.md), who bosses him; [Wibeke, Walburgis, Hartwig and Katharina](../../ledger/lower_town/sauna.md#hh-lt-osm-w200644968), the little ones; [Margareta Olofsdotter](margareta_olofsdotter.md), who slips him bread; [Bengt Persson](bengt_persson.md), who taught him to splice rope; Siim the ostler, in the [ledger](../../ledger/lower_town/sauna.md#hh-lt-osm-w200644968), who lets him sleep by the horses on cold nights.
+- **Household:** [Meinhard van Campen](meinhard_van_campen.md), master, feared; [Metteke Snelle](metteke_snelle.md), mistress, kinder; [Wendele](wendele_van_campen.md), who bosses him; [Wibeke, Walburgis, Hartwig and Katharina](../../ledger/lower_town/sauna.md#hh-lt-osm-w200644968), the little ones; [Margareta Olofsdotter](margareta_olofsdotter.md), who slips him bread; [Bengt Persson](bengt_persson.md), who taught him knots; Siim the ostler, in the [ledger](../../ledger/lower_town/sauna.md#hh-lt-osm-w200644968).
 - **Network:** None planned.
-- **Others:** The yard backs on the weaver [Bengt Magnusson](bengt_magnusson.md)'s house, whose loom he hears through the wall.
 
 ## Faction and belief
 He has no faction, only a master. He would carry a message if told; he would not inform, because he cannot read what he carries. He prays to St Nicholas, patron of boys, and puts a crumb out for the house-spirit that the Estonian servants speak of.
@@ -74,7 +73,7 @@ He has no faction, only a master. He would carry a message if told; he would not
 - **Verbal tic:** "By the string."
 
 ## Knowledge and rumours
-He knows every sum he has heard in the counting room and could recite it. He will trade it for a lesson in letters. He believes, falsely, that a ship from Goslar carrying his mother's ghost docks every Michaelmas.
+He could recite every sum he has heard in the counting room and would trade it for a lesson in letters. He believes, falsely, that a ghost ship from Goslar docks every Michaelmas.
 
 ## Game hooks
 - **Ambient role:** Yard at dawn, harbour in the afternoon, counting room by evening.
