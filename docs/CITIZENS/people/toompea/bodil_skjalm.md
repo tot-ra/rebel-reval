@@ -36,7 +36,7 @@
 - **Model notes:** MPFB macros: female, age_years 57, muscle 0.45, weight 0.6, proportions average, height_m 1.54; pale skin; green eyes; grey-blond hair under coif; crowd tier 2.
 
 ## Biography
-Born in 1286 in Roskilde, the daughter of a tanner, Bodil learned to wash at nine in the cathedral's laundry and came to Reval with her husband Niels in 1311. She was taken as a washer's apprentice by a Pikk jalg master, whose method she still uses.
+Born in 1286 in Roskilde, the daughter of a tanner, Bodil did rough laundry at the cathedral from nine and came to Reval with her husband Niels in 1311. She washed only for her own house until 1320, when she went to the Pikk jalg master, the same who had taught young Made of the Harju road, and learned boil, beat and rinse in running water; she still uses the method.
 
 Two things made her. In 1319 she buried a child, and found that work was the only grief that could be done in public. In 1338 she learned of her husband's debt and, saying nothing, took in the castle's linen as well; she now washes for four households. She is the Crown's active hand in the lane because her baskets pass every door.
 
