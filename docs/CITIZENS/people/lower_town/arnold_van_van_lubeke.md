@@ -30,7 +30,7 @@
 - **Hair and facial hair:** Dark blond hair streaked with grey, kept in a narrow ring around the tonsure and cut by a brother every month. Clean-shaven, with a dark blond stubble shadow by afternoon.
 - **Skin and marks:** Sun-browned from the garden and market stalls, with a paler band where the hood sits. No scars. A callus on the right forefinger from the beam of his scales.
 - **Hands:** Square, cracked at the knuckles, onion-stained at the nails; the left thumb is always on something he is counting.
-- **Clothing and kit (April 1343):** White wool tunic (patched at one elbow) with scapular, black cappa with hood over it, leather belt with a wooden rosary, plain shoes resoled twice. A leather purse, a hazel tally stick and a boxwood balance in a case hang from the belt.
+- **Clothing and kit (April 1343):** White wool tunic (patched at one elbow) with scapular, black hooded cappa, belt with a wooden rosary, shoes resoled twice. A purse, a hazel tally stick and a boxwood balance in a case hang from the belt.
 - **Portrait prompt:** Shoulders-up portrait of a stocky sixty-one-year-old medieval friar, square jaw, short broad nose, close-set grey-green eyes, sun-browned skin with a paler hood line, shaved tonsure ringed with dark blond hair streaked grey, pursed mouth, white wool habit with black hood, neutral grey background, soft natural light.
 - **Model notes:** MPFB macros: male, age_years 61, muscle 0.55, weight 0.6, proportions average, height_m 1.70; skin tone sun-browned; eyes grey-green; tonsure with grey-blond fringe, no beard; crowd tier 2.
 

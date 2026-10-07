@@ -30,17 +30,17 @@
 - **Hair and facial hair:** Mostly grey hair over dark blond, cut in a thin ring around the tonsure; clean-shaven, shaved every Saturday by the barber.
 - **Skin and marks:** Pale and sallow, with a slight yellow tinge in winter. Protruding ears are his one mark; the left lobe is split from a childhood earring his mother pulled.
 - **Hands:** Long-fingered and clean to the point of rawness from washing, with a stain of walnut-gall on the right forefinger.
-- **Clothing and kit (April 1343):** White wool habit worn thin at the cuffs, black cappa with a frayed hood, an extra knitted wool undertunic against the cold, leather belt with a bunch of keys and a horn spoon, felt-lined shoes. Linen cloths over one arm.
+- **Clothing and kit (April 1343):** White wool habit worn thin at the cuffs, black cappa with a frayed hood, an extra wool undertunic against the cold, belt with keys and a horn spoon, felt-lined shoes.
 - **Portrait prompt:** Shoulders-up portrait of a thin, stooped sixty-one-year-old medieval friar with sallow pale skin, long narrow face, deep-set grey eyes, prominent protruding ears, tonsure ringed with grey-over-dark-blond hair, clean-shaven, white wool habit with black hood, a faint tired smile, neutral grey background, soft natural light.
 - **Model notes:** MPFB macros: male, age_years 61, muscle 0.25, weight 0.3, proportions long limbs, height_m 1.71; skin tone pale-sallow; eyes grey; tonsure with grey ring, no beard; large ears; crowd tier 2.
 
 ## Biography
-Rotcher was born in Reval in 1282 to a Saxon skipper who was away eight months in the year. He was raised in the kitchen by an Estonian nurse named Mari, who sang him to sleep and taught him his first words; his father sent a priest to beat the vowels out of him at six, and the lilt stayed. At sixteen he entered the friary as a novice, was taught to read Latin by an English brother, and was trained in the infirmary by a Brunswick friar who died of the fever of 1316. He nursed the sick through the famine of 1316-17 and buried nine brothers himself. He has run the infirmary since 1325, a long low room with eight beds, half-empty in spring. This spring he has a small cough he tells nobody about.
+Rotcher was born in Reval in 1282 to a Saxon skipper who was away eight months in the year. An Estonian nurse named Mari raised him in the kitchen and taught him his first words; at six a priest tried to beat the vowels out of him, and the lilt stayed. At sixteen he entered the friary and was trained in the infirmary by a Brunswick friar who died of the fever of 1316. He nursed the sick through the famine of 1316-17 and buried nine brothers himself. He has run the infirmary since 1325, a long low room with eight beds, half-empty in spring. This spring he has a small cough he tells nobody about.
 
 ## Motivation
 - **Want:** To keep the infirmary supplied well enough that nobody dies on a bad shelf of linen.
 - **Fear:** The cough that does not clear, and being moved from the infirmary to the choir benches.
-- **Contradiction:** He heals by herb and bleeding from habit while privately distrusting both; he tends the sick with his hands more than his books.
+- **Contradiction:** He heals by herb and bleeding from habit while privately distrusting both.
 - **Secret or withheld fact:** He never learned to say the Estonian Our Father properly and has been quietly learning it from the sick, one phrase at a time, so he can pray at their bedsides.
 
 ## Daily routine

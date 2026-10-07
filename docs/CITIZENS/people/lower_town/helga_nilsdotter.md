@@ -21,17 +21,17 @@
 
 ## At a glance
 - A small woman with a voice like a cello, which surprises everyone who meets her at the stall.
-- Counts every coin twice and trusts neither the journeyman nor the husband with a full purse.
+- Counts every coin twice and trusts nobody with a full purse.
 - Her nose was broken once and set slightly right of true, and she tells the story differently each time.
 - Speaks Swedish in the kitchen and a careful, slow German at the market.
 
 ## Appearance
 - **Body:** 157 cm, average build, solid through the hips and short in the leg. Walks with a rolling gait, one shoulder dropped from carrying baskets on the left.
-- **Face:** Round face, broad cheekbones, grey-blue eyes set wide, strong brow. The nose, broken in youth, leans slightly right at the bridge; a small mole sits near the corner of the mouth. At rest the face is patient and watchful.
+- **Face:** Round face, broad cheekbones, wide-set grey-blue eyes, strong brow. The nose leans right at the bridge; a small mole sits near the corner of the mouth.
 - **Hair and facial hair:** Mostly grey over brown, thick, plaited and pinned under a white linen coif. No facial hair beyond a few pale chin hairs she plucks on Saturdays.
 - **Skin and marks:** Sun-freckled and peeling on nose and forearms in the first spring sun. The crooked nose and the mole are the marks.
 - **Hands:** Broad, red from brine, split at the thumb joints, with a gold-coloured ring worn thin on the left hand.
-- **Clothing and kit (April 1343):** Linen shirt, blue wool gown darned at the hem, long apron stiff with salt, white coif over a linen veil. Wooden pattens in the yard, leather shoes for mass. A belt with a knife, a purse and a ring of keys.
+- **Clothing and kit (April 1343):** Linen shirt, blue wool gown darned at the hem, salt-stiff apron, white coif over a linen veil, pattens in the yard. Belt with knife, purse and keys.
 - **Portrait prompt:** Woman of sixty, round freckled face peeling at the nose, grey-blue eyes, nose slightly crooked to the right, small mole by the mouth, mostly grey hair under a white linen coif, warm direct look, neutral grey background, shoulders-up, soft natural light.
 - **Model notes:** MPFB female, age_years 60, muscle average, weight medium, proportions short and solid, height_m 1.57; freckled pale skin; grey-blue eyes; grey-brown hair under coif; crowd tier 1.
 
@@ -58,7 +58,7 @@ Helga was born in 1283 in Nyköping, the daughter of a herring-salter, and cross
 - **Spring 1343 disruption:** Easter trade has been brisk but salt is dear, and the talk of a levy has her buying extra rye to store under the stairs.
 
 ## Work and money
-She cures, smokes and sells the lesser fish, perch, flounder and smoked herring, from a second board next to her husband's, and keeps the purse. Salt is her largest cost, about a mark in four of her takings. The household's silver is mostly hers to count; she has refused Nicolaus a second loan since the Berend van Wismar bond. A bad month is a late thaw that spoils the salt.
+She cures and sells perch, flounder and smoked herring from a second board beside her husband's, and keeps the purse. Salt is her largest cost. She has refused Nicolaus a second loan since the Berend van Wismar bond. A bad month is a late thaw that spoils the salt.
 
 ## Relationships
 - **Household:** Her husband [Nicolaus van Luneborch](../../people/lower_town/nicolaus_van_luneborch.md), who shouts and means no harm; the journeyman [Cord van Paderborne](../../people/lower_town/cord_van_paderborne.md), whom she feeds extra porridge; the maids Hebele ([ledger](../../ledger/lower_town/vana_turg.md#hh-lt-osm-w201040761)), [Helena Simoni tütar](../../people/lower_town/helena_simoni_tutar.md) and [Anna Niklase tütar](../../people/lower_town/anna_niklase_tutar.md); and the ostler [Toomas Eerika poeg](../../people/lower_town/toomas_eerika_poeg.md).
@@ -67,7 +67,7 @@ She cures, smokes and sells the lesser fish, perch, flounder and smoked herring,
 - **Others:** Next door is the household of [Wolter van Hamelen](../../people/lower_town/wolter_van_hamelen.md), who buys her smoked fish; on Raekoja is the baker [Marfa Yeremeyevna](../../people/lower_town/marfa_yeremeyevna.md), whose hens she tolerates.
 
 ## Faction and belief
-No faction. She is a Swede and a wife, and has seen two Danish levies and one Swedish one; she trusts none of them. For a small favour she gives fish; for a large one she gives her opinion and nothing else; to inform she would say she had not heard. She crosses herself at every church she passes and sets bread on the sill at Midwinter, as her mother did.
+No faction. She has seen two Danish levies and a Swedish one and trusts none. For a small favour she gives fish; for a large one, an opinion; to inform she would say she had not heard. She sets bread on the sill at Midwinter, as her mother did.
 
 ## Voice
 - **Registers:** Swedish at home; slow, careful Middle Low German at the stall.
@@ -76,7 +76,7 @@ No faction. She is a Swede and a wife, and has seen two Danish levies and one Sw
 - **Verbal tic:** "Ja, ja, so."
 
 ## Knowledge and rumours
-She knows the price of every fish on the board and every fisher's debts, and who has lately sold in the night. She would trade it for news of Visby ships. She believes, wrongly, that the Dominicans keep a secret cellar of salt.
+She knows the price of every fish and every fisher's debts, and who has lately sold in the night. She would trade it for news of Visby ships. She believes, wrongly, that the Dominicans keep a secret cellar of salt.
 
 ## Game hooks
 - **Ambient role:** Second board at Vana turg by day; kitchen and yard at evening.

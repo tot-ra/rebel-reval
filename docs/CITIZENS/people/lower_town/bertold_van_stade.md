@@ -26,11 +26,11 @@
 
 ## Appearance
 - **Body:** 175 cm, sturdy, broad in the back and thick at the waist, upright carriage with a slight roll when tired.
-- **Face:** Squarish, with a heavy jaw, wide-set blue eyes, a straight nose and thin lips that barely move when he speaks. Brows slightly uneven, the left higher. A portrait must show a face that gives nothing away.
+- **Face:** Squarish, with a heavy jaw, wide-set blue eyes, a straight nose and thin lips that barely move when he speaks. A portrait must show a face that gives nothing away.
 - **Hair and facial hair:** Brown hair streaked with grey, cut straight at the nape. Stubble through the week, shaved on Saturday morning.
 - **Skin and marks:** Pale and even, a little yellowed by the brewhouse steam. No scars.
 - **Hands:** Broad, clean, with square nails and a pale band on the right forefinger where he wears the signet.
-- **Clothing and kit (April 1343):** Linen shirt, braies, dark blue wool hose, a knee-length kirtle of good brown cloth with a modest fur edge, a belt of leather with a silver buckle, soft shoes. Councillor's cap. A purse, keys to the malt loft and a tally cord at the belt.
+- **Clothing and kit (April 1343):** Linen shirt, braies, dark blue wool hose, a knee-length kirtle of good brown cloth with a modest fur edge, silver-buckled belt, soft shoes, a cap. Keys to the malt loft and a tally cord at the belt.
 - **Portrait prompt:** Shoulders-up portrait of a sturdy forty-nine-year-old medieval German councillor with a square face, pale even skin, wide-set blue eyes, straight nose, thin lips, brown hair streaked with grey, a day's stubble on the jaw, brown wool kirtle with a narrow fur edge, flat cap, neutral grey background, natural light.
 - **Model notes:** MPFB macros: male, age_years 49, muscle 0.5, weight 0.6, proportions average, height_m 1.75; skin tone pale; eyes blue; short brown-grey hair, stubble; crowd tier 1.
 

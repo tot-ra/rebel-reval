@@ -21,22 +21,21 @@
 
 ## At a glance
 - A thin man with a bellow like a ship's master, so loud that customers lower their voices to bargain with him.
-- Owns a notched ear and a standing quarrel with the cost of cart-hire.
-- Lends silver to the gatekeeper Berend van Wismar and is quietly owed a favour in return.
+- Owns a notched ear and a standing quarrel over cart-hire.
 - Never sits down before noon.
 
 ## Appearance
 - **Body:** 171 cm, gaunt, long in the neck and thin in the thigh. Stoops from years at the stall board, walks in long unhurried strides with the arms hanging.
-- **Face:** Narrow face, deep hollows under high cheekbones, long straight nose, heavy lids over hazel eyes. At rest the jaw works as if chewing; a portrait must show the hollows.
+- **Face:** Narrow face, hollows under high cheekbones, long straight nose, heavy lids over hazel eyes. At rest the jaw works as if chewing.
 - **Hair and facial hair:** Mostly grey over blond, thin, cut straight at the nape with household shears. Stubble, shaved every Saturday before the weekly bath, so by Friday it is white.
 - **Skin and marks:** Sallow with winter pallor, the sun not yet back. The rim of one ear is nicked where a gutting knife slipped in his youth.
-- **Hands:** Long, knotted, cracked at the knuckles from brine, a split thumbnail on the right hand. Scales of fish are always embedded near the wrist.
-- **Clothing and kit (April 1343):** Linen shirt, grey wool tunic to the knee under a tarred leather apron, brown hose, stout shoes greased with fish oil. A belt with a gutting knife, a tally cord and a ring of keys.
+- **Hands:** Long, knotted, cracked at the knuckles from brine, a split right thumbnail.
+- **Clothing and kit (April 1343):** Linen shirt, grey wool tunic to the knee under a tarred leather apron, brown hose, stout greased shoes. Belt with gutting knife, tally cord and keys.
 - **Portrait prompt:** Gaunt man of sixty-one, narrow hollow-cheeked face, long nose, hazel eyes, thin grey-over-blond hair, white stubble, one ear nicked at the rim, sallow winter skin, grey wool collar, neutral grey background, shoulders-up, soft natural light.
 - **Model notes:** MPFB male, age_years 61, muscle low, weight low, proportions long and narrow, height_m 1.71; sallow skin; hazel eyes; grey-blond hair, stubble; crowd tier 1.
 
 ## Biography
-Nicolaus was born in 1282 in Lüneburg, where his father sold salt herring to the salt-works, and came to Reval at nineteen on a Lübeck cog as a hand for a harbour fishmonger. He married the Swedish fish-wife [Helga Nilsdotter](../../people/lower_town/helga_nilsdotter.md) in 1305 and took over the stall when the old master drowned off Naissaar in 1314. The notched ear is from that year. He bought burgher right in 1318, and the house on Vana turg in 1331 with a mortgage he finally cleared last winter. In the autumn of 1342 he lent Berend van Wismar 30 marks, the largest loan he has ever made, and has regretted the size of it since.
+Nicolaus was born in 1282 in Lüneburg, where his father sold salt herring, and came to Reval at nineteen on a Lübeck cog as a hand for a harbour fishmonger. He married the Swedish fish-wife [Helga Nilsdotter](../../people/lower_town/helga_nilsdotter.md) in 1305 and took over the stall when the old master drowned off Naissaar in 1314; the notched ear is from that year. He bought burgher right in 1318 and cleared the mortgage on the Vana turg house last winter. In autumn 1342 he lent Berend van Wismar 30 marks, his largest loan, and has regretted its size since.
 
 ## Motivation
 - **Want:** To hand a debt-free house and a trained journeyman to someone who will keep the stall.
@@ -58,7 +57,7 @@ Nicolaus was born in 1282 in Lüneburg, where his father sold salt herring to th
 - **Spring 1343 disruption:** Lent has just ended, so the stall has sold fish all spring and he is cash-rich and short of salt; grain-levy talk makes the fishers uneasy and shy of the night boats.
 
 ## Work and money
-He buys from fishers at the strand and the weigh-house, salts and smokes in the yard, and sells by the pfund to kitchens, taverns and the Dominicans. A good week clears about two marks. He sells winter cod to the Raekoja bakers and brewers on credit and takes ale from the Kleines on credit settled at quarter-days. The 30 marks to Berend van Wismar fall due at Michaelmas; about half is repaid. A bad month is a warm one: a cart of turned fish costs him three marks.
+He buys from fishers at the strand and weigh-house, salts and smokes in the yard, and sells by the pfund to kitchens, taverns and the Dominicans. A good week clears about two marks. He takes ale from the Kleines on credit settled at quarter-days. A bad month is a warm one: a cart of turned fish costs him three marks.
 
 ## Relationships
 - **Household:** His wife [Helga Nilsdotter](../../people/lower_town/helga_nilsdotter.md), who minds the money; the journeyman [Cord van Paderborne](../../people/lower_town/cord_van_paderborne.md), whom he feeds and shouts at; the maids Hebele ([ledger](../../ledger/lower_town/vana_turg.md#hh-lt-osm-w201040761)), [Helena Simoni tütar](../../people/lower_town/helena_simoni_tutar.md) and [Anna Niklase tütar](../../people/lower_town/anna_niklase_tutar.md); and the ostler [Toomas Eerika poeg](../../people/lower_town/toomas_eerika_poeg.md), who keeps the cart horse.
@@ -68,10 +67,10 @@ He buys from fishers at the strand and the weigh-house, salts and smokes in the 
 - [Ropert Kleine](../../people/lower_town/ropert_kleine.md), sixteen, tavern keeper on Dunkri: supplies ale on credit settled at quarter-days; the arrangement carries both households. Nicolaus treats the boy as an equal and pays on the day.
 - [Nicolaus van Wismar](../../people/lower_town/nicolaus_van_wismar.md), tavern keeper on Rataskaevu: supplies him, and twice held back stock to press an old point. Nicolaus has not forgotten and buys elsewhere when he can.
 - [Berend van Wismar](../../people/lower_town/berend_van_wismar.md), gatekeeper on Pikk: owes him 30 marks from autumn 1342 for a roof, due at Michaelmas, half paid. Nicolaus counts the gate-keeper's patience as part of the interest.
-- **Others:** Neighbours include [Egbert van Dulmen](../../ledger/lower_town/kuninga.md#hh-lt-osm-w28123583), the cooper who supplies his barrels, and [Ricbod van Stade](../../ledger/lower_town/raekoja.md#hh-lt-osm-w26886711), the merchant on Raekoja.
+- **Others:** The cooper [Egbert van Dulmen](../../ledger/lower_town/kuninga.md#hh-lt-osm-w28123583) supplies his barrels.
 
 ## Faction and belief
-No faction. A fishmonger who takes a side loses the other half of the street, and his only politics is the dues. If asked for a small favour he gives a barrel; for a large one he asks the price; to inform he would sooner not remember. He lights a candle at St Nicholas for the boy lost to fever in 1318 and hangs a dried fish skin over the stall for luck.
+No faction. A fishmonger who takes a side loses half the street, and his only politics is the dues. For a small favour he gives a barrel; for a large one he asks the price; to inform he would sooner not remember. He lights a candle at St Nicholas for a son lost to fever in 1318.
 
 ## Voice
 - **Registers:** Middle Low German always; Swedish phrases with Helga in the kitchen.
@@ -80,11 +79,11 @@ No faction. A fishmonger who takes a side loses the other half of the street, an
 - **Verbal tic:** "By the weight."
 
 ## Knowledge and rumours
-He knows which boats land late and which fishers are in debt, and when the herring shoals turn. He would trade this for time on the Berend bond. He believes, wrongly, that the new weigh-house master takes bribes from the Dominicans.
+He knows which boats land late and which fishers are in debt. He would trade it for time on a bond. He believes, wrongly, that the weigh-house master takes bribes from the Dominicans.
 
 ## Game hooks
 - **Ambient role:** Stall at Vana turg by day; the yard in the evening; the back lane after curfew on two nights.
 - **Interaction:** Booms his price at Kalev, asks about a hook or knife-grinding, and will pay in fish for iron.
 - **Barks:** "Fresh cod, fresh as a slap!" / "Close the board, the guard's walking." / "Quiet, the whole lane has ears."
-- **Quest touch:** He will pay for a heavy gutting knife made to replace the notch-rimmed one.
-- **St George's Night:** He bars the yard and sits on the salt barrels with a gutting knife, and would let a fleeing neighbour through the back lane for a price.
+- **Quest touch:** He will pay for a heavy gutting knife.
+- **St George's Night:** He bars the yard and sits on the salt barrels with a knife; he would let a fleeing neighbour through the back lane for a price.

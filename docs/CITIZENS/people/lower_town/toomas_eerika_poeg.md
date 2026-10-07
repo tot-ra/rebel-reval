@@ -23,14 +23,13 @@
 - A short, thick-set man with a thin early-receding hairline and a high, quick voice that goes up when a horse does.
 - Speaks only Estonian; gets by in German with grunts and the names of tools.
 - Knows every hoof in the lane by its print.
-- Never sleeps in the house if the mare is sick.
 
 ## Appearance
 - **Body:** 164 cm, sturdy, wide in the shoulder and short in the leg. Walks with a rolling, bow-legged gait and leans back when he leads a horse.
 - **Face:** Broad face, flat cheekbones, short nose, brown eyes under a low brow. The hairline has crept back from the temples since twenty, leaving a high forehead. At rest he looks faintly worried; a portrait must show the hairline.
 - **Hair and facial hair:** Ash blond, thin, cropped short with sheep-shears. Stubble kept down with the stable knife on Sundays.
 - **Skin and marks:** Wind-reddened across cheeks and nose, cracked at the lips. The thin, early-receding hairline is his mark.
-- **Hands:** Thick, hard, with blunt nails and a long scar across the left palm from a halter rope.
+- **Hands:** Thick, hard, a long halter-rope scar across the left palm.
 - **Clothing and kit (April 1343):** Coarse linen shirt, brown homespun tunic to the thigh with a rope belt, grey hose, bast-lined wooden shoes. A stable cap of felt. A hoof-pick and a coil of cord at the belt.
 - **Portrait prompt:** Stocky man of twenty-nine, broad wind-reddened face, brown eyes, thin ash-blond hair receding early from the temples, short stubble, worried brow, coarse brown homespun collar, felt cap held out of frame, neutral grey background, shoulders-up, soft natural light.
 - **Model notes:** MPFB male, age_years 29, muscle medium-high, weight medium, proportions short and broad, height_m 1.64; ruddy skin; brown eyes; ash-blond thinning hair, stubble; crowd tier 2.
@@ -58,7 +57,7 @@ Toomas was born in 1314 in a Harju village on the Tallinn road, the son of a man
 - **Spring 1343 disruption:** The roads are mud to the axle, hay is dear, and he hears from the carters that reeves are searching for runaways.
 
 ## Work and money
-He gets bed, board, a coat at Christmas and half a mark at Michaelmas. He buys oats and straw from the market women at the household's cost and takes a penny commission when he can bargain it down. Harbour carting for the house earns the master about a mark a week. He has no debts and a mark and a half in a sock behind a stable board. A bad month is a sick horse.
+He gets bed, board, a coat at Christmas and half a mark at Michaelmas. He buys oats and straw from the market women and keeps the penny when he bargains it down. He has no debts and a mark and a half in a sock behind a stable board. A bad month is a sick horse.
 
 ## Relationships
 - **Household:** The master [Nicolaus van Luneborch](../../people/lower_town/nicolaus_van_luneborch.md), who rides the cart without paying attention; the mistress [Helga Nilsdotter](../../people/lower_town/helga_nilsdotter.md); the journeyman [Cord van Paderborne](../../people/lower_town/cord_van_paderborne.md), who likes the horses; the maids Hebele ([ledger](../../ledger/lower_town/vana_turg.md#hh-lt-osm-w201040761)), [Helena Simoni tütar](../../people/lower_town/helena_simoni_tutar.md), who laughs at his jokes, and [Anna Niklase tütar](../../people/lower_town/anna_niklase_tutar.md).
