@@ -86,7 +86,9 @@ The full kit list (about 50 ids, many used by one page) is in each page's sectio
 
 Generation order that gives the most visual range per asset: (1) limestone castle + brick gothic church + timber harbour kits, (2) Estonian vernacular farmstead + island vernacular, (3) bog/flood traversal props, (4) regional wardrobe tokens and headgear (see [cultures](./CULTURES_AND_LANGUAGES.md)), (5) missing fauna/flora (fish, amphibians, goat, alvar and bog plants - see [biomes](./BIOMES_AND_WILDLIFE.md)). Process rules (provenance, asset freeze, character rig): [`../ASSET_STORAGE_POLICY.md`](../ASSET_STORAGE_POLICY.md), [`../CHARACTER_GENERATION.md`](../CHARACTER_GENERATION.md), [`../../assets/SOURCES.csv`](../../assets/SOURCES.csv).
 
-## Corrections these pages make to existing docs (not yet applied)
+## Corrections to existing docs
+
+Applied in the catalog generators (`tools/tourist_landmarks/`), `docs/TOURIST_LANDMARKS.md`, and the landmark narrative manifest: Rakvere, Narva, Toolse, Käsmu, Türi, Kuressaare (castle and harbour), Angla, Kõpu, Kärdla, Ivangorod, Kallaste, and the Störtebeker note. Landmark names are unchanged (they name modern places); only the 1343 status and lore text changed. The table below lists each problem; the first five rows (the anachronisms) are now fixed in those files, the remaining rows are still open.
 
 | Existing claim | Problem for 1343 | Page that handles it |
 |---|---|---|
