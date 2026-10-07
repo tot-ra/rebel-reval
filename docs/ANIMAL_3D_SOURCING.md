@@ -37,16 +37,67 @@ Primary sources for Rockstar and CD Projekt RED pipelines were blocked, so the f
 4. **Behaviour reuse for variety.** Flee, graze, flock and perch states with per-species parameters make a small clip set read as many animals.
 5. **Instancing for crowds.** Flocks of birds use a shared animated mesh with per-instance phase offset, or a vertex-animation texture, rather than one skeleton per bird.
 
+## Generating instead of downloading (deep dive, 2026-10-07)
+
+Everything below comes from search results, not from running the tools. Papers and vendor claims are unverified; benchmarks are the authors' own. Licenses must be read on the official repository or model card.
+
+### Three separate problems
+
+"Make an animated animal" is three problems with different maturity:
+
+| Problem | Maturity | Best current tools |
+|---|---|---|
+| 1. Mesh (shape and texture) | Good for prototypes, weak for species accuracy and anatomy; the repo's Hunyuan trials already showed this | Sketchfab CC0/CC BY remains safer; AI meshes need cleanup |
+| 2. Rig and skin weights | **Now largely automatic** | See below |
+| 3. Motion (clips) | Research-grade for animals; practical route is retargeting or procedural gaits | See below |
+
+### Auto-rigging of arbitrary meshes (problem 2)
+
+- [UniRig](https://github.com/VAST-AI-Research/UniRig) (SIGGRAPH 2025, VAST/Tripo): autoregressive skeleton prediction plus skinning-weight prediction for humans, animals and fictional creatures. Code and skeleton/skinning checkpoint are reported MIT; training data Articulation-XL2.0 is CC BY 4.0. Needs a GPU.
+- [MagicArticulate](https://github.com/Seed3D/MagicArticulate) (CVPR 2025) and [Puppeteer](https://arxiv.org/abs/2508.10898) (NeurIPS 2025, rigging plus animation): same family; Puppeteer's license is not confirmed (only a third-party mirror said Apache-2.0).
+- Commercial: [Tripo auto-rig](https://developers.tripo3d.ai/en/docs/animations-rig) lists biped, quadruped, hexapod, octopod, avian, serpentine and aquatic skeleton types with 90+ presets. [Meshy](https://www.meshy.ai/tutorials/character-auto-rigging-workflow) offers Humanoid, Quadruped Dog and Smart Rig (beta), with fewer quadruped animations. Mixamo is humanoid-only. These are vendor claims; no head-to-head animal test was found. Check the output license before committing anything (Meshy free plan is CC BY 4.0 per its own pages).
+
+Implication: the manual skinning step in the recommendation can be replaced by UniRig-class tools, then corrected in Blender. Output skeletons are model-specific, so a retarget or "snap to archetype" step is still required.
+
+### Motion from a skeleton alone (problem 3), the "generic system" you asked about
+
+Yes, such systems exist, in two families.
+
+**Learned, skeleton-conditioned (research):**
+- [AnyTop](https://arxiv.org/html/2502.17327v1) (SIGGRAPH 2025): a diffusion model that generates motion given only a skeleton's topology (plus joint text descriptions); trained on the Truebones Zoo, it reportedly generalises to unseen skeletons and works from as few as three examples per topology. Closest match to "from the skeleton, work out how this organism moves".
+- [OmniMotionGPT](https://arxiv.org/abs/2311.18303) (CVPR 2024): text to animal motion from limited data (AnimalML3D, 1,240 sequences, 36 animals). [X-MoGen](https://arxiv.org/pdf/2508.05162) and [Topology-Agnostic Animal Motion Generation](https://arxiv.org/pdf/2512.10352) extend this to many morphologies.
+- [AnimateAnyMesh](https://arxiv.org/abs/2506.09982) (ICCV 2025) and AnimateAnyMesh++: feed-forward text-driven animation of an arbitrary mesh in seconds; vertex-level, so it does not give you a clean skeleton clip. Quadrupeds were 10 of 50 test models in the successor paper.
+- [MoCapAnything](https://arxiv.org/abs/2512.10881) / [V2](https://www.alphaxiv.org/abs/2604.28130): from a monocular video plus any rigged asset it outputs BVH-style animation. This turns **nature footage of real animals into clips for our rigs**, and it supports quadrupeds and birds. Also introduces the Truebones Zoo clip set (1,038 clips).
+- Video to animal 3D: SMAL-based reconstruction ([Creatures Great and SMAL](https://arxiv.org/html/1811.05804v1), [Animal Avatars](https://arxiv.org/pdf/2403.17103), [4D-Animal](https://openaccess.thecvf.com/content/WACV2026/papers/Zhong_4D-Animal_Freely_Reconstructing_Animatable_3D_Animals_from_Videos_WACV_2026_paper.pdf)); SMAL covers quadrupeds from a small scan set, so use it for pose/gait capture rather than shapes.
+- Learned controllers: [Mode-Adaptive Neural Networks for Quadruped Motion Control](https://www.research.ed.ac.uk/en/publications/mode-adaptive-neural-networks-for-quadruped-motion-control/) (SIGGRAPH 2018) learns responsive dog locomotion from mocap. Heavy for a game with dozens of species.
+
+**Procedural, no data (shippable):**
+- Chris Hecker's Spore system ("[How To Animate a Character You've Never Seen Before](https://archive.org/details/GDC2007Hecker)", GDC 2007; SIGGRAPH 2008): IK-based animation defined relative to the body, working on creatures with any limb count. Primary source not read; summaries in [Game Anim](https://www.gameanim.com/2008/08/10/spore-animation-white-paper/).
+- [Procedural Locomotion of Multi-Legged Characters in Dynamic Environments](https://liris.cnrs.fr/Documents/Liris-5511.pdf): gait/tempo manager and footprint planner from a static skeleton with no mocap. This is the cleanest published recipe for "give a skeleton, get walk/trot/run".
+- Template mapping (a patent describes aligning torso and limbs to a template quadruped and scaling) and CPG gait oscillators from robotics for gait timing.
+
+**Datasets:** [Truebones Zoo](https://truebones.gumroad.com/p/free-truebones-zoo-over-75-animated-animals-with-textures-in-fbx-format) is a free 75+ animal FBX set with animations, the same data AnyTop trains on. **Its license was not found**; the vendor's terms must be read before any commercial or in-repo use.
+
+### Indie practice
+
+No single dev blog covers a multi-species pipeline. What the sources show: quadruped clips start from video reference or mocap and get reshaped by hand ([MoCap Online guide](https://mocaponline.com/blogs/mocap-news/creature-animation-games-guide)); [Blender Studio's Project DogWalk](https://studio.blender.org/blog/animations-for-dogwalk/) documents bone-scaling and glTF export problems with Godot; a Godot devlog ([Twocents](https://twocentstudios.com/2024/03/28/indie-game-devlog-03/)) shows AnimationTree/AnimationPlayer read-only quirks for Blender exports; procedural motion is the common indie shortcut ([Wayline](https://www.wayline.io/blog/procedural-animation-indie-dev-secret-weapon)); [MonRig](https://monrig.com/) is a commercial tool that places a starter skeleton by body role and bakes clips.
+
+### What I can and cannot do from this session
+
+- Can: write the procedural gait generator (Python or GDScript) that reads each archetype skeleton, detects legs and spine, and produces idle/walk/trot/run/attack/hit/death clips as glTF animations or runtime code; write Blender scripts for retarget and import; build the license manifest and validators.
+- Cannot here: run UniRig, AnyTop, MoCapAnything or any other model (no GPU; this session has no Blender or Godot, and Hugging Face and GitHub model hosts are blocked); judge animation quality by eye, since I cannot render clips. Visual acceptance needs a maintainer or a machine with Godot.
+
 ## Recommendation
 
-A hybrid, in this order:
+Revised after the deep dive: the main lever is **procedural and retargeted motion on a small set of archetype rigs**, not downloaded clips. A hybrid, in this order:
 
 1. **Define archetype rigs.** Decide five to seven archetypes covering the 30-mammal and 30-bird catalogs. Author or adopt one rig and one clip set each. Required clips: idle, walk, run, attack, hit, death, plus per-archetype extras (graze, sleep, fly flap, glide, land, perch).
 2. **Seed clips from CC0 donors.** Pull Quaternius (wolf, dog, cat, horse, cow, eagle) and Gobkit clips as animation donors. Retarget onto archetype rigs in Blender; export one GLB animation library per archetype. CC0 means no attribution burden on the clips.
 3. **Source realistic meshes from Sketchfab** with the P0-209b process: CC0 or CC BY only, pre-filter for animal-specific quality, record URL, creator, SHA-256 and edits in the manifest and `SOURCES.csv`, cap triangles and texture size, and commit only the self-contained runtime GLB.
-4. **Skin each mesh to its archetype rig** (weight transfer in Blender, or keep the creator's rig where it is good, as with the rat). Prefer this over AI-generated meshes. If AI meshes are used, do it as a mesh source with this same rigging step.
-5. **Birds**: keep the procedural fallback and the existing flap and glide system; replace species one family at a time (gull, corvid, raptor, waterfowl, wader) with Sketchfab meshes on two bird archetypes (small perched songbird; large flapping/gliding bird).
-6. **Species differentiation** comes from scale, texture and `catalog_plumage.gdshader`-style tinting, which already exists.
+4. **Skin each mesh to its archetype rig** (weight transfer in Blender, an auto-rigger such as UniRig followed by manual fixes, or keep the creator's rig where it is good, as with the rat). Prefer this over AI-generated meshes. If AI meshes are used, do it as a mesh source with this same rigging step.
+5. **Fill the remaining clips procedurally**: an archetype-driven gait generator (walk, trot, run, graze, hit, death) following the multi-legged locomotion and Spore approach, tuned per species by leg length, stride and tempo. Optionally use MoCapAnything on public-domain nature footage, or AnyTop-style generation, as an offline clip source; clips are baked into GLB, so no ML runs in the game.
+6. **Birds**: keep the procedural fallback and the existing flap and glide system; replace species one family at a time (gull, corvid, raptor, waterfowl, wader) with Sketchfab meshes on two bird archetypes (small perched songbird; large flapping/gliding bird).
+7. **Species differentiation** comes from scale, texture and `catalog_plumage.gdshader`-style tinting, which already exists.
 
 Suggested first batch to prove the pipeline: wolf, deer, horse (if the catalog needs it), one raptor, one waterfowl, with all seven clip types each.
 
