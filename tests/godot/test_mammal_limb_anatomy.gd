@@ -1,6 +1,6 @@
 extends "res://tests/godot/test_case.gd"
 
-const SPECIES: Array[String] = ["forge_cat", "sheep", "dog", "pig", "goat", "boar", "fox", "hare", "cow", "cow_holstein"]
+const SPECIES: Array[String] = ["forge_cat", "sheep", "dog", "pig", "goat", "boar", "fox", "hare", "cow", "cow_holstein", "horse"]
 const LIMBS: Array[String] = ["LF", "RF", "LB", "RB"]
 
 func test_imported_fore_and_hind_limb_landmarks() -> void:

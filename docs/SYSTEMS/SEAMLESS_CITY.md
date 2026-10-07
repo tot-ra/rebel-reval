@@ -118,6 +118,7 @@ Positions and roster from [`walls-gates-towers.md`](../../history/dossiers/topog
 | `scripts/city/city_chimney_smoke.gd` (`CityChimneySmoke`) | Streamed `ChimneySmoke3D` plumes over lit chimneys near Kalev |
 | `scripts/city/city_ships.gd` (`CityShips`) | Cogs at anchor, fishing boats, a cog under way (game boat builders, rescaled to metres) |
 | `scripts/city/city_npcs.gd` (`CityNpcs`) | Gate guards, watch patrols and site people (logic bodies; rigs via the runtime); owns `CityCitizens` (`scripts/city/city_citizens.gd`), the census residents |
+| `scripts/city/city_fauna.gd` (`CityFauna`) | Cats, dogs, horses, hens, geese, pigs, cattle, sheep, goats, hares and foxes placed from plan points of interest, gates and fields; at most 18 live near Kalev; visual only. See [animal placement plan](../reports/animal_placement_plan.md); tests `test_city_fauna` |
 | `scripts/city/city_travel.gd` (`CityTravel`) | Redirects old Reval district destinations into city spawns; spawn positions; pending-spawn hand-off |
 | `scripts/city/city_map_view.gd`, `city_map_definition.gd`, `city_runtime.gd` | The city on the shared `MapViewRuntime`: cameras, Kalev's rig, magic VFX, session clock and weather, swimming surface and depth, birds (`MapViewBirdFlight.path_origin` window, per-position habitat) |
 | `scripts/city/city_fortification_builder.gd` | Curtains by state, merlons on the field side, gate houses, timber gates, dated towers, Toompea wall, castle |

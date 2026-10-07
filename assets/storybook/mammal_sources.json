@@ -136,6 +136,18 @@
       "output": "assets/storybook/cow_holstein/cow_holstein.glb",
       "notes": "Sketchfab download realistic-holstein-cow-game-ready-asset.zip, source/scene 15.glb; pied coat variant used as generic village phenotype, not a historical breed attribution",
       "adaptations": "Scaled to 1.50 world units and oriented for runtime; UV and sculpted surfaces preserved; texture capped at 1024; unlit source material rebuilt as rough dielectric; measured limb rig and six clips."
+    },
+    "horse": {
+      "author": "project maintainer",
+      "url": "tools/assets/build_horse_source.py",
+      "license": "AGPL-3.0-or-later (project author)",
+      "generated": true,
+      "sha256": "",
+      "source_bytes": 0,
+      "staging_path": "build/animal_redo/sources/horse.glb",
+      "output": "assets/storybook/horse/horse.glb",
+      "notes": "project-authored anatomical bay cob; replaces the Hunyuan3D pack horse",
+      "adaptations": "Built by build_horse_source.py (lofted anatomy, voxel weld, vertex-colour coat, hair shells); rigged and animated by import_realistic_mammals.py with the shared measured limb chains and six clips."
     }
   }
 }

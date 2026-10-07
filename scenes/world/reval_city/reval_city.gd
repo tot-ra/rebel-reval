@@ -51,6 +51,7 @@ func _ready() -> void:
 	view = CityMapView.create_city(plan)
 	world = view.world
 	runtime = CityRuntime.install(self, view, player)
+	world.add_child(CityFauna.create(plan, player))
 	# ADR 0021 swimming: sea and moat depth come from the city's water, not a grid.
 	player.set_water_depth_provider(
 		func(logic: Vector2) -> float: return view.water_depth_at(CityPlan.to_world_xz(logic))

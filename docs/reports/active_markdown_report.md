@@ -14,19 +14,19 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1044`
+- Active Markdown files scanned: `1045`
 - Markdown files excluded as archive/reference/out of active scope: `743`
-- Local/external links inspected: `11896`
-- Links to active Markdown docs: `11285`
-- Links to existing archive/reference/non-active local docs: `247`
+- Local/external links inspected: `11904`
+- Links to active Markdown docs: `11289`
+- Links to existing archive/reference/non-active local docs: `248`
 - External links skipped for reachability: `46`
-- Issues found: `1`
+- Issues found: `3`
 
 ## Issue counts
 
 | Code | Count |
 | --- | ---: |
-| `BROKEN_LINK` | 1 |
+| `BROKEN_LINK` | 3 |
 | `BROKEN_ANCHOR` | 0 |
 | `DUPLICATE_CHARACTER_NAME` | 0 |
 | `CONTRADICTORY_DATE` | 0 |
@@ -37,6 +37,8 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 | Code | Location | Detail |
 | --- | --- | --- |
 | `BROKEN_LINK` | `docs/CITIZENS/WRITING_CARDS.md:49` | Local Markdown link target does not exist: `link` |
+| `BROKEN_LINK` | `docs/adr/0034-cutscene-mode-and-cinematic-prologue.md:123` | Local Markdown link target does not exist: `../SYSTEMS/CUTSCENES.md` |
+| `BROKEN_LINK` | `docs/adr/0034-cutscene-mode-and-cinematic-prologue.md:126` | Local Markdown link target does not exist: `../../cinematics/PROMPT_GRAMMAR.md` |
 
 ## Active files scanned
 
@@ -73,6 +75,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/adr/0031-continuous-reval-city-plan.md`
 - `docs/adr/0032-bespoke-landmark-sites-in-the-city.md`
 - `docs/adr/0033-teen-protagonist-and-spirit-dialogue-combat.md`
+- `docs/adr/0034-cutscene-mode-and-cinematic-prologue.md`
 - `docs/adr/README.md`
 - `docs/AGENT_LOOPS.md`
 - `docs/ARCHITECTURE.md`

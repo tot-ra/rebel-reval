@@ -163,7 +163,7 @@ func walk_height(world_xz: Vector2) -> float:
 	for site in sites:
 		var f := site.floor_at(world_xz)
 		if not f.is_empty():
-			return float(f["height"])
+			return site.floor_height_at(f, world_xz)
 	var index := building_at(world_xz)
 	if index >= 0:
 		return floor_height(index)

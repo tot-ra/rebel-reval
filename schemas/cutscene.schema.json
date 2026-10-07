@@ -1,0 +1,275 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "cutscene.schema.json",
+  "title": "Reval Rebel cutscene sequence (ADR 0034)",
+  "description": "An authored cinematic sequence: an ordered shot list with captions, dialogue, camera motion and a chain to the next sequence or scene. Each shot carries a still (shipped tier) and a reserved video path (later tier) plus the prompts that produce them, so a tier upgrade adds files without rewriting the script.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "type",
+    "id",
+    "title",
+    "chapter",
+    "grade",
+    "confidence",
+    "canon_status",
+    "approval",
+    "deterministic_offline",
+    "shots",
+    "source_notes"
+  ],
+  "properties": {
+    "type": {
+      "const": "cutscene"
+    },
+    "id": {
+      "$ref": "common.schema.json#/$defs/content_id"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "chapter": {
+      "description": "Player-facing chapter heading shown once at the start of the sequence.",
+      "type": "string",
+      "minLength": 1
+    },
+    "grade": {
+      "description": "Colour-grade family (ADR 0034 §3). Chapters are separated by grade, not by medium.",
+      "enum": [
+        "memory_cold",
+        "present_warm"
+      ]
+    },
+    "skippable": {
+      "description": "False only for a sequence whose facts cannot be recovered elsewhere. Default true.",
+      "type": "boolean"
+    },
+    "confidence": {
+      "$ref": "common.schema.json#/$defs/confidence_label"
+    },
+    "canon_status": {
+      "$ref": "common.schema.json#/$defs/canon_status"
+    },
+    "approval": {
+      "$ref": "common.schema.json#/$defs/review_record"
+    },
+    "deterministic_offline": {
+      "$ref": "common.schema.json#/$defs/deterministic_offline"
+    },
+    "next": {
+      "$ref": "cutscene.schema.json#/$defs/chain_target"
+    },
+    "shots": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "cutscene.schema.json#/$defs/shot"
+      }
+    },
+    "source_notes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "common.schema.json#/$defs/source_note"
+      }
+    }
+  },
+  "$defs": {
+    "chain_target": {
+      "description": "What runs when the sequence ends or is skipped.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "cutscene",
+            "door",
+            "scene_file",
+            "return"
+          ]
+        },
+        "cutscene_id": {
+          "$ref": "common.schema.json#/$defs/content_id"
+        },
+        "scene_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "spawn_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scene_path": {
+          "type": "string",
+          "pattern": "^res://.+\\.tscn$"
+        }
+      }
+    },
+    "motion": {
+      "description": "Slow camera move applied to the still, and the motion the video tier must reproduce.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "push_in",
+            "pull_out",
+            "pan_left",
+            "pan_right",
+            "tilt_up",
+            "tilt_down",
+            "hold"
+          ]
+        },
+        "zoom_from": {
+          "type": "number",
+          "minimum": 1.0,
+          "maximum": 1.6
+        },
+        "zoom_to": {
+          "type": "number",
+          "minimum": 1.0,
+          "maximum": 1.6
+        }
+      }
+    },
+    "line": {
+      "description": "One spoken or narrated line. `speaker` is the display name; `speaker_id` ties it to a character record for later voice casting.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "text"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "common.schema.json#/$defs/local_id"
+        },
+        "speaker": {
+          "type": "string"
+        },
+        "speaker_id": {
+          "$ref": "common.schema.json#/$defs/content_id"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "seconds": {
+          "description": "Auto-advance delay. Input advances earlier.",
+          "type": "number",
+          "minimum": 0.5,
+          "maximum": 20.0
+        },
+        "delivery": {
+          "description": "Voice direction for the video tier: tone, pace, accent, breath.",
+          "type": "string"
+        }
+      }
+    },
+    "sound": {
+      "description": "Reserved in this change; the prologue plays silent (ADR 0034 consequences).",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "music": {
+          "type": "string"
+        },
+        "ambience": {
+          "type": "string"
+        }
+      }
+    },
+    "authoring": {
+      "description": "Authoring-only block. The runtime ignores it; generation tools and the video tier read it. Keeping it in the record makes the prompt that produced a frame inseparable from the frame.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "direction",
+        "image_prompt",
+        "video_prompt"
+      ],
+      "properties": {
+        "direction": {
+          "description": "What the shot has to accomplish and how it is framed.",
+          "type": "string",
+          "minLength": 1
+        },
+        "image_prompt": {
+          "description": "Prompt used to generate the still. Grammar: cinematics/PROMPT_GRAMMAR.md.",
+          "type": "string",
+          "minLength": 1
+        },
+        "video_prompt": {
+          "description": "Prompt for the later video tier: subject motion, camera motion, duration, dialogue and lip-sync notes.",
+          "type": "string",
+          "minLength": 1
+        },
+        "negative_prompt": {
+          "type": "string"
+        }
+      }
+    },
+    "shot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "still",
+        "authoring"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "common.schema.json#/$defs/local_id"
+        },
+        "still": {
+          "type": "string",
+          "pattern": "^res://assets/cutscenes/.+\\.(png|jpg|webp)$"
+        },
+        "video": {
+          "description": "Reserved for the video tier. Empty means the still is used.",
+          "type": "string"
+        },
+        "transition_in": {
+          "enum": [
+            "cut",
+            "fade",
+            "dissolve"
+          ]
+        },
+        "motion": {
+          "$ref": "cutscene.schema.json#/$defs/motion"
+        },
+        "hold_seconds": {
+          "description": "Minimum time the shot stays on screen when it has no lines.",
+          "type": "number",
+          "minimum": 0.5,
+          "maximum": 30.0
+        },
+        "caption": {
+          "description": "Place-and-date card, shown top-left. Carries the facts a skipping player must still get.",
+          "type": "string"
+        },
+        "lines": {
+          "type": "array",
+          "items": {
+            "$ref": "cutscene.schema.json#/$defs/line"
+          }
+        },
+        "sound": {
+          "$ref": "cutscene.schema.json#/$defs/sound"
+        },
+        "authoring": {
+          "$ref": "cutscene.schema.json#/$defs/authoring"
+        }
+      }
+    }
+  }
+}

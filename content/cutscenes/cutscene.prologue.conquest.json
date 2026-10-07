@@ -1,0 +1,316 @@
+{
+  "type": "cutscene",
+  "id": "cutscene.prologue.conquest",
+  "title": "The Forging of Chains",
+  "chapter": "I. The Forging of Chains",
+  "grade": "memory_cold",
+  "skippable": true,
+  "confidence": "attested",
+  "canon_status": "active",
+  "approval": {
+    "status": "draft",
+    "notes": "R-1318 opening chapter (ADR 0034). Narration is invented; the events and dates are attested, the sky-borne banner is labelled folklore in the shot that uses it."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "next": {
+    "kind": "scene_file",
+    "scene_path": "res://scenes/prologue/almshouse_opening.tscn"
+  },
+  "shots": [
+    {
+      "id": "s01_fleet",
+      "still": "res://assets/cutscenes/prologue_conquest/s01_fleet.png",
+      "video": "",
+      "transition_in": "fade",
+      "motion": {
+        "kind": "push_in",
+        "zoom_from": 1.0,
+        "zoom_to": 1.12
+      },
+      "hold_seconds": 6.0,
+      "caption": "The coast of Rävala. June 1219.",
+      "lines": [
+        {
+          "id": "l1",
+          "text": "Every chain is forged twice. Once by the hand that makes it, and once by the years that keep it on.",
+          "seconds": 6.5,
+          "delivery": "Old woman, Estonian-accented, unhurried, close to the microphone. Not grand. The voice of someone who has told this before and expects no help from it."
+        },
+        {
+          "id": "l2",
+          "text": "Ours was begun on a morning in June, by a king who came by sea.",
+          "seconds": 5.5,
+          "delivery": "Flat, factual. Let the word 'king' carry no respect at all."
+        }
+      ],
+      "sound": {
+        "music": "",
+        "ambience": ""
+      },
+      "authoring": {
+        "direction": "Establish scale and inevitability. The fleet must look like weather, not like men: too many hulls to count, arriving on a sea that does not care. Keep the Estonian shore in the lower third, low and wooded and defenceless, so the frame reads as 'this is being done to us'.",
+        "image_prompt": "Cinematic film still, 35mm anamorphic wide shot, low angle from a wooded Baltic shoreline at dawn: a vast medieval Danish invasion fleet of single-masted clinker-built cogs and longships at anchor in a grey bay, square sails furled, red banners with a white cross barely legible in the haze, hulls receding into mist until they cannot be counted. Foreground lower third: dark pine and juniper scrub on a low limestone shore, wet black boulders, two small Estonian figures in rough undyed wool watching from behind the trees, backs to camera, tiny against the water. Flat overcast northern light, cold desaturated grade, steel-blue shadows, pale ochre highlights on the water, heavy 35mm film grain, slight halation, shallow haze depth. Historically accurate northern Europe 1219. No text, no modern objects, no visible gore.",
+        "video_prompt": "9 seconds. Camera: slow dolly push-in from behind the two watching figures toward the fleet, 20mm equivalent, almost imperceptible handheld drift. Subject motion: hulls rocking out of phase with each other; a single sail dropping somewhere in the middle distance; gulls crossing frame right to left; the nearer of the two Estonian figures slowly lowering himself to a crouch. Wind-driven mist moving right to left across the bay. Audio: low wind, rigging knock, no music for the first 3 seconds, then a single low bowed string. Voice-over only, no faces speaking, no lip-sync required. Narrator lines l1 and l2 over the full shot, l2 beginning as the push-in reaches the shoreline edge.",
+        "negative_prompt": "text, watermark, lettering, modern boats, motorboats, lighthouses, plate armour, 16th-century galleons, gunports, cannons, tropical light, saturated colours, lens flare streaks"
+      }
+    },
+    {
+      "id": "s02_banner",
+      "still": "res://assets/cutscenes/prologue_conquest/s02_banner.png",
+      "video": "",
+      "transition_in": "dissolve",
+      "motion": {
+        "kind": "tilt_down",
+        "zoom_from": 1.08,
+        "zoom_to": 1.0
+      },
+      "hold_seconds": 6.0,
+      "caption": "Lyndanisse. The fifteenth of June.",
+      "lines": [
+        {
+          "id": "l1",
+          "text": "Valdemar of Denmark brought a bishop to bless it and an army to do it.",
+          "seconds": 5.0,
+          "delivery": "Dry. The two halves of the line weigh the same."
+        },
+        {
+          "id": "l2",
+          "text": "Afterwards they said a banner fell out of the sky for them. A red cloth with a white cross, given by God.",
+          "seconds": 6.5,
+          "delivery": "Repeating someone else's story, with the faintest contempt in the word 'given'."
+        },
+        {
+          "id": "l3",
+          "text": "Perhaps. Nothing fell out of the sky for us.",
+          "seconds": 4.5,
+          "delivery": "Quiet, final. A small pause before the last sentence."
+        }
+      ],
+      "sound": {
+        "music": "",
+        "ambience": ""
+      },
+      "authoring": {
+        "direction": "The Danebrog legend, told as somebody else's propaganda. The banner is the subject; the fighting is aftermath and silhouette only, never graphic. Keep the cross high and lit, and the ground beneath it dark, muddy and anonymous, so the frame carries the gap between the story and the bill for it.",
+        "image_prompt": "Cinematic film still, 50mm, low angle looking up through drifting smoke at a tall red war banner bearing a white cross, held aloft on a trampled hilltop, cloth lit from behind by a break in the overcast so the red glows. Below and around it, dark silhouettes of 13th-century Danish knights in mail hauberks, kettle helms and surcoats, standing and regrouping amid broken spear shafts, a fallen wooden shield, churned mud and thin grass; a Cistercian-robed archbishop with a gilded crozier standing beneath the banner with a raised hand. Middle distance: a smoking timber-and-earth rampart. Weather: low cloud, smoke, light drizzle. Cold desaturated grade with one saturated accent on the banner red, steel-blue shadows, heavy film grain, volumetric god-ray through the cloud break. Historically accurate Baltic crusade 1219, aftermath not combat, no blood, no bodies in frame. No text.",
+        "video_prompt": "8 seconds. Camera: start tight on the banner cloth filling the upper frame, slow tilt down and slight pull back to reveal the archbishop and the regrouping knights beneath, 50mm, locked off on a tripod with a faint wind judder. Subject motion: banner cloth snapping and rolling in gusts; smoke crossing the lens; one knight in the mid-ground pulling his helm off and turning away from camera; the archbishop's raised hand lowering slowly as the tilt completes. Rain just visible against the dark rampart. Audio: wind, wet cloth, distant indistinct voices, a single struck bell note on 'given by God'. Voice-over only; the archbishop's lips must NOT move, he is being described, not quoted. Narrator lines l1-l3, l3 landing on the darkest part of the ground as the tilt stops.",
+        "negative_prompt": "text, watermark, blood, corpses, gore, plate armour, 15th-century armour, horned helmets, fantasy armour, clean costumes, saturated sky, modern flags, Danish national flag as a modern tricolour"
+      }
+    },
+    {
+      "id": "s03_hill",
+      "still": "res://assets/cutscenes/prologue_conquest/s03_hill.png",
+      "video": "",
+      "transition_in": "dissolve",
+      "motion": {
+        "kind": "pan_right",
+        "zoom_from": 1.1,
+        "zoom_to": 1.1
+      },
+      "hold_seconds": 6.0,
+      "caption": "Toompea. The years after.",
+      "lines": [
+        {
+          "id": "l1",
+          "text": "They burned the stronghold on the hill and built their own on the ash, in stone, with our backs.",
+          "seconds": 6.5,
+          "delivery": "The only line in the chapter with heat in it. Still controlled."
+        },
+        {
+          "id": "l2",
+          "text": "Then they gave the place a name. Taani linn. The Danish town.",
+          "seconds": 6.0,
+          "delivery": "Estonian pronunciation, exact and unhurried, then a beat before the translation."
+        },
+        {
+          "id": "l3",
+          "text": "We have lived in it for a hundred and twenty-four years.",
+          "seconds": 5.0,
+          "delivery": "No self-pity. A measurement."
+        }
+      ],
+      "sound": {
+        "music": "",
+        "ambience": ""
+      },
+      "authoring": {
+        "direction": "Occupation as construction work. Show who carries and who watches. The castle must be half-built so the audience sees it being imposed rather than simply existing, and the labourers must be the clearest-read faces in the frame.",
+        "image_prompt": "Cinematic film still, 40mm medium-wide, three-quarter view of a half-built medieval limestone castle on a flat-topped rock outcrop above a northern bay: raw unfinished curtain wall with timber scaffolding and a treadwheel crane, mortar buckets, a rubble ramp. Foreground: a line of Estonian labourers in rough undyed and madder-brown wool, hoods back, hauling a limestone block on wooden rollers up the ramp, faces strained and clearly lit, hands wrapped in rag. Mid-ground: two mailed Danish guards and a clerk with a wax tablet, standing, not working. Background: the charred timber stumps of a burnt Estonian hill fort palisade still standing at the rock's edge, and the grey bay beyond. Late afternoon overcast, cold desaturated grade, limestone reading blue-grey, one warm accent from a labourers' fire, heavy film grain, fine limestone dust in the air. Historically accurate Baltic 13th century. No text, no modern objects.",
+        "video_prompt": "9 seconds. Camera: slow lateral pan right at a fixed distance, 40mm, following the block up the ramp so the castle wall enters frame left to right. Subject motion: the block grinding forward in jerks as the labourers heave on a count; rope going taut and slack; limestone dust lifting; the treadwheel crane turning slowly in the background; the clerk looking up from his tablet directly into the lens for a half second as the pan passes him, then back down. Audio: rope creak, a work chant in Estonian under the voice-over, hammer on stone, no music until l3 where one low drone enters. Voice-over only, no lip-sync. Narrator lines l1-l3; l2 'Taani linn' timed to the moment the finished section of wall fills the frame.",
+        "negative_prompt": "text, watermark, finished pristine castle, 19th-century restoration, modern Tallinn skyline, tourists, saturated green grass, plate armour, horses in armour, snow"
+      }
+    },
+    {
+      "id": "s04_town",
+      "still": "res://assets/cutscenes/prologue_conquest/s04_town.png",
+      "video": "",
+      "transition_in": "dissolve",
+      "motion": {
+        "kind": "push_in",
+        "zoom_from": 1.0,
+        "zoom_to": 1.14
+      },
+      "hold_seconds": 6.0,
+      "caption": "Reval. A Hanseatic town under Lübeck law.",
+      "lines": [
+        {
+          "id": "l1",
+          "text": "The town grew rich. Salt and herring in, flax and wax and furs out, and a council of German merchants to count it.",
+          "seconds": 7.0,
+          "delivery": "Almost admiring, which makes the next line worse."
+        },
+        {
+          "id": "l2",
+          "text": "The law was written down. It was written in their language, for their houses, with their names on it.",
+          "seconds": 6.5,
+          "delivery": "Three beats, each slightly harder than the last."
+        },
+        {
+          "id": "l3",
+          "text": "We were the hands. Carters, maids, labourers, smiths. Useful, and outside.",
+          "seconds": 6.0,
+          "delivery": "'Useful, and outside' is the thesis of the chapter. Separate the two words."
+        }
+      ],
+      "sound": {
+        "music": "",
+        "ambience": ""
+      },
+      "authoring": {
+        "direction": "Wealth and exclusion in one frame, read entirely by wardrobe and eyeline. The German merchants occupy the centre and the stone; the Estonian workers occupy the mud and the edges. The pillory at the back is the punchline of 'the law was written down' and should be small, matter-of-fact street furniture, not a spectacle.",
+        "image_prompt": "Cinematic film still, 35mm, eye-level wide shot down a crowded medieval Hanseatic market square on a damp spring morning: tall narrow stepped-gable merchant houses in lime-washed plaster and red clay tile, a hoist beam and open loading shutter high on one gable with a bale swinging. Centre: three prosperous German merchants in fur-lined dark wool gowns, chaperon hats and leather purses, standing dry on stone paving, in conversation, ignoring everything around them. Around and below them: Estonian carters in coarse undyed wool and leg wraps manhandling barrels through churned mud, a woman with a yoke and two pails, a boy carrying charcoal, all in the lower and outer frame. Background, small and unremarked: a wooden pillory post beside the town-hall steps, empty. Overcast northern light, damp cobbles reflecting sky, cold desaturated grade with warm accents in the tile roofs and furs, heavy film grain. Historically accurate Reval 1340s. No text, no shop signage with legible letters.",
+        "video_prompt": "9 seconds. Camera: slow dolly push-in at chest height along the square's axis, 35mm, drifting slightly toward the merchants and then past them, so the audience is carried through the crowd rather than observing it. Subject motion: the hoist bale swinging and being guided in by a man leaning out of the loading shutter; a cart wheel lifting out of mud; the woman with the yoke stepping aside for the merchants without being looked at; one merchant laughing silently and turning his shoulder to the street. Steam from breath and from a food stall. Audio: layered market noise in Low German and Estonian, hooves, barrel rumble, a hand bell; music enters properly here, a single plucked string figure. Voice-over only, no lip-sync; crowd speech stays unintelligible background. Narrator lines l1-l3; l3 'Useful, and outside' as the push-in passes the merchants and leaves them behind frame left.",
+        "negative_prompt": "text, watermark, legible signage, modern tourists, cobbled streets too clean, Renaissance clothing, ruffs, wheel-lock firearms, bright saturated market awnings, pumpkins, potatoes, tomatoes"
+      }
+    },
+    {
+      "id": "s05_tax",
+      "still": "res://assets/cutscenes/prologue_conquest/s05_tax.png",
+      "video": "",
+      "transition_in": "dissolve",
+      "motion": {
+        "kind": "push_in",
+        "zoom_from": 1.02,
+        "zoom_to": 1.16
+      },
+      "hold_seconds": 6.0,
+      "caption": "The 1340s. King Valdemar the Fourth needs silver.",
+      "lines": [
+        {
+          "id": "l1",
+          "text": "A new Valdemar sat in Denmark. He had inherited a kingdom that was already pawned, and he meant to buy it back.",
+          "seconds": 7.0,
+          "delivery": "Explaining the machine, not the man."
+        },
+        {
+          "id": "l2",
+          "text": "So the tax came. On the vassals, on the merchants, on the church, on the farms. On everyone, which is a thing kings almost never risk.",
+          "seconds": 7.5,
+          "delivery": "Pick up pace through the list, then slow hard on the last clause."
+        },
+        {
+          "id": "l3",
+          "text": "A man will carry a hundred years of insult. He will not carry it twice in one spring.",
+          "seconds": 6.5,
+          "delivery": "The turn of the chapter. Low, almost gentle."
+        }
+      ],
+      "sound": {
+        "music": "",
+        "ambience": ""
+      },
+      "authoring": {
+        "direction": "Make the tax physical. Not a document read aloud but weight leaving a household: the scales, the stripped hook, the mother's hand. The bailiff should be bored rather than cruel, which is more frightening and historically truer.",
+        "image_prompt": "Cinematic film still, 50mm, tight interior medium shot in a dim Estonian smoke dwelling: a bailiff in a good dark wool cotehardie and a fur-trimmed hat sits at a plank table with a small set of brass balance scales and an open parchment roll, weighing a few silver coins, expression bored. Beside him a mailed serjeant stands holding a confiscated iron cauldron and a scythe blade. Opposite, in shadow: a farm family in patched undyed wool, a woman's hand flat on the table, a thin man standing behind her with his hat crushed in both fists, a small child half behind the woman's skirt. Background: a soot-blackened log wall, an empty cooking hook over a low hearth, the one warm light source. Cold desaturated grade, firelight amber confined to the hearth and the scales, deep steel-blue shadow on the family, heavy film grain, smoke haze in the air. Historically accurate rural Estonia 1340s. No text, no legible writing, no violence.",
+        "video_prompt": "8 seconds. Camera: slow push-in on the scales, 50mm, rack focus from the family's faces in shadow to the brass pans as the push completes. Subject motion: a coin added and the pan settling; the serjeant shifting the cauldron's weight to his other hip; the woman's flat hand slowly closing into a fist on the table; the child pulled further behind the skirt; smoke curling from the hearth across the frame. Audio: scale chain tick, coin on wood, the scratch of a quill, a child's single indrawn breath; music drops out entirely on l3. Voice-over only. The bailiff may move his lips indistinctly while reading the roll but says nothing audible and requires no lip-sync. Narrator lines l1-l3; l3 over a held frame of the closed fist.",
+        "negative_prompt": "text, watermark, legible parchment writing, torture, weapons raised at people, blood, Renaissance interiors, glass windows, brick fireplace, modern kitchenware, potatoes"
+      }
+    },
+    {
+      "id": "s06_spring",
+      "still": "res://assets/cutscenes/prologue_conquest/s06_spring.png",
+      "video": "",
+      "transition_in": "dissolve",
+      "motion": {
+        "kind": "pull_out",
+        "zoom_from": 1.18,
+        "zoom_to": 1.0
+      },
+      "hold_seconds": 7.0,
+      "caption": "Reval. Spring, 1343.",
+      "lines": [
+        {
+          "id": "l1",
+          "text": "This is the spring I am telling you about. The ice is off the bay, the ships are coming back, and the county is very quiet.",
+          "seconds": 7.0,
+          "delivery": "Shift in address: she is talking to the player now, not reciting."
+        },
+        {
+          "id": "l2",
+          "text": "In the almshouse by the Holy Spirit there is a boy who sees more than there is.",
+          "seconds": 6.0,
+          "delivery": "Warmer. This is the first thing in the chapter she cares about."
+        },
+        {
+          "id": "l3",
+          "text": "Nobody has told him yet what he is for.",
+          "seconds": 5.0,
+          "delivery": "Last line of the chapter. End on it cleanly, no trailing breath."
+        }
+      ],
+      "sound": {
+        "music": "",
+        "ambience": ""
+      },
+      "authoring": {
+        "direction": "Hand the story over. The city must look held-in rather than doomed: no fires, no uprising, nothing has happened yet. Pull out from a single lit window to the whole walled town so the audience understands the scale they are about to be dropped into, and where in it they are going.",
+        "image_prompt": "Cinematic film still, 28mm very wide high-angle establishing shot at cold blue dawn: a walled medieval Baltic town seen from a low rise outside it across thawed muddy fields and patchy old snow. Limestone curtain wall with round and square towers, a gate barbican with a cart queue forming, dense red-tile and shingle roofs packed inside, three church spires, a castle on a flat rock outcrop to one side, masts of cogs in the harbour beyond, and the grey bay and sea ice fragments at the horizon. Woodsmoke rising straight up from a hundred chimneys in still air. One small building low inside the wall near a church has a single lit window, warm amber, the only warm point in the frame. Pre-sunrise blue light, cold desaturated grade, heavy film grain, long atmospheric depth, mist pooled in the fields. Historically accurate Reval 1343. No text, no modern buildings, no fire or battle.",
+        "video_prompt": "10 seconds. Camera: start on the single lit window, slow continuous pull back and slight rise to the full wide establishing frame, 28mm, crane or drone move, perfectly smooth. Subject motion: woodsmoke rising; the cart queue at the gate inching forward; two figures walking a field path; a flock of jackdaws lifting off a tower roof mid-move; the sky brightening measurably from the first frame to the last. Audio: dawn wind, distant single church bell on l2, rooks, cart; music swells for the first time into a full low string bed and resolves as the move stops. Voice-over only, no lip-sync. Narrator lines l1-l3; hold two full seconds of picture and sound after l3 before the sequence ends.",
+        "negative_prompt": "text, watermark, modern Tallinn, modern buildings, cars, power lines, antennas, burning city, battle, armies, summer foliage, saturated sunrise orange"
+      }
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "attested",
+      "summary": "Valdemar II of Denmark landed at Lyndanisse in June 1219 with Archbishop Anders Sunesen; the Danes built a stone castle on Toompea over the Estonian stronghold, and the Estonian name Taani linn ('Danish town') yields Tallinn.",
+      "citations": [
+        "history/HISTORY.md",
+        "docs/CANON.md"
+      ]
+    },
+    {
+      "confidence": "folklore",
+      "summary": "The Dannebrog legend - a red banner with a white cross falling from the sky at Lyndanisse - is a later Danish tradition, not a 1219 record. Shot s02_banner presents it explicitly as a story the Danes told about themselves.",
+      "citations": [
+        "history/HISTORY.md"
+      ]
+    },
+    {
+      "confidence": "attested",
+      "summary": "Reval held Lübeck law and a German merchant council, and was integrated into Hanseatic trade; Estonians were present mainly as carters, servants, labourers and craft hands.",
+      "citations": [
+        "history/dossiers/people/estonian-and-german-populations.md",
+        "history/dossiers/power/jurisdictions-of-reval.md",
+        "history/dossiers/economy/hanseatic-trade-and-season.md"
+      ]
+    },
+    {
+      "confidence": "attested",
+      "summary": "Valdemar IV's effort to redeem the pawned Danish realm drove extraordinary taxes across Danish Estonia including the church, which recent research treats as a primary trigger of the 1343 uprising. The chapter stops in spring 1343, before St George's Night on 23 April.",
+      "citations": [
+        "docs/CANON.md",
+        "history/TIMELINE.md"
+      ]
+    },
+    {
+      "confidence": "invented",
+      "summary": "The narration voice, the framing of the chain forged twice, and the closing turn to the boy are authored for R-1318. No named historical person speaks in this chapter."
+    }
+  ]
+}

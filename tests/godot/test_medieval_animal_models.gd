@@ -15,7 +15,6 @@ func test_production_models_load_with_mesh_material_and_ground_contact() -> void
 		MammalSpecies.SPECIES_COW,
 		MammalSpecies.SPECIES_PIG,
 		MammalSpecies.SPECIES_SHEEP,
-		MammalSpecies.SPECIES_HORSE,
 	]:
 		var host := Node3D.new()
 		var model := Models.add_model(host, species)
@@ -170,23 +169,22 @@ func test_cattle_variants_are_sculpted_rigged_and_walk_nose_first() -> void:
 	assert_eq(seen_paths.size(), Models.COW_VARIANT_PATHS.size(), "Both cattle coats are reachable")
 
 
-func test_pack_horse_has_tall_rigged_body_tail_and_locomotion_clips() -> void:
+func test_horse_is_tall_rigged_with_a_tail_and_locomotion_clips() -> void:
 	var host := Node3D.new()
 	var model := Models.add_model(host, MammalSpecies.SPECIES_HORSE)
 	assert_true(model != null)
-	var mesh := model.find_child("AnimalMesh", true, false) as MeshInstance3D
-	assert_true(mesh != null)
-	var aabb := mesh.get_aabb()
-	assert_true(aabb.size.y >= 1.2, "Pack horse must keep a tall readable silhouette")
-	assert_true(
-		model.find_child("TailTuft", true, false) != null,
-		"Pack horse needs an articulated tail"
-	)
+	var body := model.find_child("horse_surface", true, false) as MeshInstance3D
+	assert_true(body != null, "horse body surface")
+	assert_true(body.get_aabb().size.y >= 1.5, "Horse must keep a tall readable silhouette")
+	var skeleton := model.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
+	assert_true(skeleton.find_bone("Tail") >= 0, "Horse needs an articulated tail")
+	for suffix in ["LF", "RF", "LB", "RB"]:
+		assert_true(skeleton.find_bone("Foot." + suffix) >= 0, "Horse has a hoof bone %s" % suffix)
 	var players := model.find_children("*", "AnimationPlayer", true, false)
-	assert_true(players.size() >= 1, "Pack horse needs imported skeletal animation")
+	assert_true(players.size() >= 1, "Horse needs imported skeletal animation")
 	var player := players[0] as AnimationPlayer
-	assert_true(player.has_animation(Models.IDLE_ANIMATION))
-	assert_true(player.has_animation(Models.WALK_ANIMATION))
+	for clip: StringName in [Models.IDLE_ANIMATION, Models.WALK_ANIMATION, &"Run", Models.GRAZE_ANIMATION]:
+		assert_true(player.has_animation(clip), "Horse clip %s" % clip)
 	assert_eq(player.current_animation, Models.IDLE_ANIMATION)
 	Models.sync_animation(host, host.position - Vector3(0.1, 0.0, 0.0), 0.1)
 	assert_eq(player.current_animation, Models.WALK_ANIMATION)
@@ -195,28 +193,13 @@ func test_pack_horse_has_tall_rigged_body_tail_and_locomotion_clips() -> void:
 	host.free()
 
 
-func test_pack_horse_walk_keeps_four_hooves_at_ground_contact() -> void:
+func test_horse_coat_is_vertex_coloured_and_lit() -> void:
 	var host := Node3D.new()
-	(Engine.get_main_loop() as SceneTree).root.add_child(host)
 	var model := Models.add_model(host, MammalSpecies.SPECIES_HORSE)
-	var player := model.find_children("*", "AnimationPlayer", true, false)[0] as AnimationPlayer
-	var skeleton := model.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
-	var walk := player.get_animation(Models.WALK_ANIMATION)
-	assert_true(walk != null, "Pack horse must expose the imported Walk clip")
-	assert_eq(Models.horse_hoof_contact_points(skeleton).size(), Models.HORSE_LEG_BONES.size())
-
-	# Sample start, both diagonal transitions, and the loop endpoint.
-	for phase in 5:
-		player.seek(walk.length * float(phase) / 4.0, true)
-		skeleton.force_update_all_bone_transforms()
-		var contacts := Models.horse_hoof_contact_points(skeleton)
-		for bone_name: StringName in Models.HORSE_LEG_BONES:
-			var contact := contacts[bone_name] as Vector3
-			assert_true(
-				contact.y >= Models.HORSE_GROUND_MIN_Y and contact.y <= Models.HORSE_GROUND_MAX_Y,
-				"%s hoof leaves the ground envelope at Walk phase %d: %s" % [bone_name, phase, contact]
-			)
-
+	var body := model.find_child("horse_surface", true, false) as MeshInstance3D
+	var material := body.mesh.surface_get_material(0) as StandardMaterial3D
+	assert_true(material != null and material.vertex_color_use_as_albedo, "coat is read from COLOR_0")
+	assert_ne(material.shading_mode, BaseMaterial3D.SHADING_MODE_UNSHADED, "coat reacts to light")
 	host.free()
 
 
@@ -225,7 +208,6 @@ func test_legacy_medieval_livestock_carry_normal_and_roughness_maps() -> void:
 		MammalSpecies.SPECIES_COW,
 		MammalSpecies.SPECIES_PIG,
 		MammalSpecies.SPECIES_SHEEP,
-		MammalSpecies.SPECIES_HORSE,
 	]:
 		var host := Node3D.new()
 		var model := _legacy_model(host, species)
@@ -292,7 +274,6 @@ func test_livestock_exposes_idle_walk_trot_and_graze_clips() -> void:
 		MammalSpecies.SPECIES_COW,
 		MammalSpecies.SPECIES_PIG,
 		MammalSpecies.SPECIES_SHEEP,
-		MammalSpecies.SPECIES_HORSE,
 	]:
 		var host := Node3D.new()
 		var model := Models.add_model(host, species)

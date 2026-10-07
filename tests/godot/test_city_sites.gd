@@ -66,15 +66,55 @@ func test_holy_spirit_rooms_choir_step_and_glass() -> void:
 	var site := _site(&"site.holy_spirit")
 	assert_true(site != null, "site.holy_spirit loads")
 	var nave := site.to_world(Vector2(18.0, -3.0))
-	var choir := site.to_world(Vector2(34.0, -3.5))
+	var choir := site.to_world(Vector2(43.0, -3.5))
 	assert_eq(plan.site_room_at(nave)["room"]["id"], &"room.nave")
 	assert_eq(plan.site_room_at(choir)["room"]["id"], &"room.choir")
 	assert_almost_eq(
-		plan.walk_height(choir) - plan.walk_height(nave), 0.25, 0.001, "choir one step up"
+		plan.walk_height(choir) - plan.walk_height(nave), 0.45, 0.001, "choir up three steps"
 	)
+	var mid_steps := site.to_world(Vector2(36.3, -3.0))
+	var h := plan.walk_height(mid_steps) - plan.walk_height(nave)
+	assert_true(h > 0.05 and h < 0.4, "the steps rise between nave and choir")
 	var glazed := 0
 	for w: Dictionary in site.data["fabric"]:
 		for op: Dictionary in w.get("openings", []):
 			glazed += 1 if bool(op.get("glass", false)) else 0
 	assert_true(glazed >= 10, "nave and choir lancets carry stained glass")
-	assert_eq(site.data["presentation"][0]["what"], "west tower (1360) with a shingled helm")
+	assert_true(site.data["presentation"].is_empty(), "strict 1343: no presentation exceptions")
+
+
+func test_st_olaf_hall_tower_and_period_rule() -> void:
+	var plan := _plan()
+	var site := _site(&"site.st_olaf")
+	assert_true(site != null, "site.st_olaf loads")
+	assert_eq(plan.site_room_at(site.to_world(Vector2(25.0, 0.0)))["room"]["id"], &"room.nave")
+	assert_eq(plan.site_room_at(site.to_world(Vector2(7.0, 0.0)))["room"]["id"], &"room.tower")
+	assert_eq(plan.site_room_at(site.to_world(Vector2(49.0, 0.0)))["room"]["id"], &"room.choir")
+	var tower_top := 0.0
+	for w: Dictionary in site.data["fabric"]:
+		if String(w["id"]).begins_with("tower."):
+			tower_top = maxf(tower_top, float(w["y1"]))
+			assert_almost_eq(float(w["thick"]), 3.2, 0.001, "tower walls ~3.2 m (dossier)")
+	assert_true(tower_top <= 31.0, "the tower stops at its lower stage (upper tower 1364+)")
+	assert_true(site.data["presentation"].is_empty(), "strict 1343: no presentation exceptions")
+
+
+func test_st_nicholas_rooms_chapel_and_period_rule() -> void:
+	var plan := _plan()
+	var site := _site(&"site.st_nicholas")
+	assert_true(site != null, "site.st_nicholas loads")
+	for probe: Array in [
+		[Vector2(-8.0, -8.0), &"room.nave"],
+		[Vector2(-29.0, -8.0), &"room.tower"],
+		[Vector2(16.0, -8.0), &"room.choir"],
+		[Vector2(14.5, -15.5), &"room.sacristy"],
+		[Vector2(-10.0, -22.0), &"room.porch"],
+		[Vector2(10.0, 13.0), &"room.barbara"],
+	]:
+		assert_eq(plan.site_room_at(site.to_world(probe[0]))["room"]["id"], probe[1])
+	var chapel := plan.walk_height(site.to_world(Vector2(10.0, 13.0)))
+	var yard := plan.ground_height(site.to_world(Vector2(0.0, 20.0)))
+	assert_true(
+		absf(chapel - 0.12 - yard) < 0.3, "the charnel chapel stands on the levelled churchyard"
+	)
+	assert_true(site.data["presentation"].is_empty(), "strict 1343: no presentation exceptions")

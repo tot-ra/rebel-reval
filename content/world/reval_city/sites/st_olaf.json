@@ -1,0 +1,2113 @@
+{
+  "id": "site.st_olaf",
+  "name": "St Olaf's church",
+  "name_1343": "St Olaf's (Olai kerke), parish church of the north quarter",
+  "confidence": "attested church, vaults c. 1330, tower upper stage 1364+; 1343 plan reconstructed inside the surviving footprint (plausible composite)",
+  "sources": [
+    "history/dossiers/religion/churches-and-religious-houses.md",
+    "docs/reports/st_olaf_1343_remodel.md"
+  ],
+  "period_notes": [
+    "Rule (maintainer 2026-10-07): features dated after 1343 are left out; where the 1343 state is unrecorded, a slightly simplified form of the later, documented church is used (plausible composite).",
+    "Excluded as dated later: the upper tower (1364+), the record spire (c. 1450), the basilica nave with its clerestory and star vaults and the long choir (after the 1433 fire), the Mary chapel (16th c.), the 19th-century altar, pulpit, pews and brass chandeliers.",
+    "Attested for 1343: a short church with a massive west tower (walls ~3.2 m), a vaulted hall nave (vaults completed c. 1330, dated boss), a small east chancel; the tower stands unfinished.",
+    "Unrecorded in 1343, simplified later form: grey limestone rubble exterior with dressed portals; a three-aisle hall of four bays on square piers with moulded imposts and pointed arches; quadripartite rib vaults with red-ochre brick ribs (the later vaults carry such ribs); lime-washed interior; two-light lancets with leaded stained glass; plank floor; oak benches; iron candle crowns; a timber pulpit; a winged retable on the high altar and side altars of the guilds at the aisle ends; the bells in a provisional timber belfry with a shingled cap on the unfinished tower, a putlog scaffold and a masons' yard."
+  ],
+  "presentation": [],
+  "replaces": [
+    "bldg.osm.w26889368"
+  ],
+  "anchor": {
+    "at": [
+      111.0,
+      -452.6
+    ],
+    "rotation_deg": 1.1
+  },
+  "terrace": {
+    "polygon": [
+      [
+        -1.0,
+        -13.0
+      ],
+      [
+        55.0,
+        -13.0
+      ],
+      [
+        55.0,
+        13.0
+      ],
+      [
+        -1.0,
+        13.0
+      ]
+    ],
+    "level": {
+      "door": "door.st_olaf.south",
+      "outside_m": 2.0
+    },
+    "blend_m": 6.0
+  },
+  "reserve": [
+    [
+      -6.0,
+      -18.0
+    ],
+    [
+      60.0,
+      -18.0
+    ],
+    [
+      60.0,
+      20.0
+    ],
+    [
+      -6.0,
+      20.0
+    ]
+  ],
+  "visual": {
+    "kind": "builder",
+    "script": "res://scripts/city/sites/st_olaf_builder.gd"
+  },
+  "buildings": [
+    {
+      "id": "site.st_olaf.church",
+      "name": "St Olaf's",
+      "footprint": [
+        [
+          0,
+          -7.0
+        ],
+        [
+          14.0,
+          -7.0
+        ],
+        [
+          14.0,
+          -12.0
+        ],
+        [
+          44.0,
+          -12.0
+        ],
+        [
+          44.0,
+          -5.0
+        ],
+        [
+          54.0,
+          -5.0
+        ],
+        [
+          54.0,
+          5.0
+        ],
+        [
+          44.0,
+          5.0
+        ],
+        [
+          44.0,
+          12.0
+        ],
+        [
+          14.0,
+          12.0
+        ],
+        [
+          14.0,
+          7.0
+        ],
+        [
+          0,
+          7.0
+        ]
+      ],
+      "wall_h": 13.0,
+      "roof": "tile",
+      "minimap_fill": "#7f4636"
+    }
+  ],
+  "fabric": [
+    {
+      "id": "tower.west",
+      "a": [
+        0,
+        -7.0
+      ],
+      "b": [
+        0,
+        7.0
+      ],
+      "inside": [
+        7,
+        0
+      ],
+      "thick": 3.2,
+      "y1": 30.0,
+      "openings": [
+        {
+          "kind": "door",
+          "s": 7.0,
+          "w": 2.2,
+          "sill": 0.12,
+          "spring": 3.2,
+          "apex": 4.6,
+          "reveal": "ashlar",
+          "note": "west portal in the tower"
+        },
+        {
+          "kind": "window",
+          "s": 7.0,
+          "w": 0.32,
+          "sill": 8.0,
+          "spring": 9.4,
+          "apex": 9.700000000000001,
+          "splay": 0.6
+        },
+        {
+          "kind": "window",
+          "s": 7.0,
+          "w": 0.32,
+          "sill": 13.5,
+          "spring": 14.9,
+          "apex": 15.200000000000001,
+          "splay": 0.6
+        },
+        {
+          "kind": "window",
+          "s": 4.5,
+          "w": 0.32,
+          "sill": 24.0,
+          "spring": 26.0,
+          "apex": 26.4,
+          "splay": 0.6
+        },
+        {
+          "kind": "window",
+          "s": 9.5,
+          "w": 0.32,
+          "sill": 24.0,
+          "spring": 26.0,
+          "apex": 26.4,
+          "splay": 0.6
+        }
+      ],
+      "floor": 0.12
+    },
+    {
+      "id": "tower.north",
+      "a": [
+        0,
+        -7.0
+      ],
+      "b": [
+        14.0,
+        -7.0
+      ],
+      "inside": [
+        7,
+        0
+      ],
+      "thick": 3.2,
+      "y1": 30.0,
+      "openings": [
+        {
+          "kind": "window",
+          "s": 7.0,
+          "w": 0.32,
+          "sill": 10.5,
+          "spring": 11.9,
+          "apex": 12.200000000000001,
+          "splay": 0.6
+        },
+        {
+          "kind": "window",
+          "s": 4.5,
+          "w": 0.32,
+          "sill": 24.0,
+          "spring": 26.0,
+          "apex": 26.4,
+          "splay": 0.6
+        },
+        {
+          "kind": "window",
+          "s": 9.5,
+          "w": 0.32,
+          "sill": 24.0,
+          "spring": 26.0,
+          "apex": 26.4,
+          "splay": 0.6
+        }
+      ],
+      "floor": 0.12
+    },
+    {
+      "id": "tower.south",
+      "a": [
+        14.0,
+        7.0
+      ],
+      "b": [
+        0,
+        7.0
+      ],
+      "inside": [
+        7,
+        0
+      ],
+      "thick": 3.2,
+      "y1": 30.0,
+      "openings": [
+        {
+          "kind": "window",
+          "s": 7.0,
+          "w": 0.32,
+          "sill": 10.5,
+          "spring": 11.9,
+          "apex": 12.200000000000001,
+          "splay": 0.6
+        },
+        {
+          "kind": "window",
+          "s": 4.5,
+          "w": 0.32,
+          "sill": 24.0,
+          "spring": 26.0,
+          "apex": 26.4,
+          "splay": 0.6
+        },
+        {
+          "kind": "window",
+          "s": 9.5,
+          "w": 0.32,
+          "sill": 24.0,
+          "spring": 26.0,
+          "apex": 26.4,
+          "splay": 0.6
+        }
+      ],
+      "floor": 0.12
+    },
+    {
+      "id": "tower.east",
+      "a": [
+        14.0,
+        7.0
+      ],
+      "b": [
+        14.0,
+        -7.0
+      ],
+      "inside": [
+        7,
+        0
+      ],
+      "thick": 3.2,
+      "y1": 30.0,
+      "outer": "limewash",
+      "openings": [
+        {
+          "kind": "arch",
+          "s": 7.0,
+          "w": 3.2,
+          "sill": 0.12,
+          "spring": 4.8,
+          "apex": 7.0,
+          "note": "tower arch into the nave"
+        }
+      ],
+      "floor": 0.12
+    },
+    {
+      "id": "nave.north",
+      "a": [
+        14.0,
+        -12.0
+      ],
+      "b": [
+        44.0,
+        -12.0
+      ],
+      "inside": [
+        29,
+        0
+      ],
+      "thick": 1.6,
+      "y1": 13.0,
+      "inner": "limewash",
+      "openings": [
+        {
+          "kind": "window",
+          "s": 3.75,
+          "w": 2.0,
+          "sill": 4.2,
+          "spring": 9.4,
+          "apex": 11.4,
+          "glass": true,
+          "seed": 1,
+          "lights": 2
+        },
+        {
+          "kind": "window",
+          "s": 11.25,
+          "w": 2.0,
+          "sill": 4.2,
+          "spring": 9.4,
+          "apex": 11.4,
+          "glass": true,
+          "seed": 2,
+          "lights": 2
+        },
+        {
+          "kind": "window",
+          "s": 18.75,
+          "w": 2.0,
+          "sill": 4.2,
+          "spring": 9.4,
+          "apex": 11.4,
+          "glass": true,
+          "seed": 3,
+          "lights": 2
+        },
+        {
+          "kind": "window",
+          "s": 26.25,
+          "w": 2.0,
+          "sill": 4.2,
+          "spring": 9.4,
+          "apex": 11.4,
+          "glass": true,
+          "seed": 4,
+          "lights": 2
+        }
+      ],
+      "floor": 0.12
+    },
+    {
+      "id": "nave.south",
+      "a": [
+        44.0,
+        12.0
+      ],
+      "b": [
+        14.0,
+        12.0
+      ],
+      "inside": [
+        29,
+        0
+      ],
+      "thick": 1.6,
+      "y1": 13.0,
+      "inner": "limewash",
+      "openings": [
+        {
+          "kind": "window",
+          "s": 26.25,
+          "w": 2.0,
+          "sill": 4.2,
+          "spring": 9.4,
+          "apex": 11.4,
+          "glass": true,
+          "seed": 5,
+          "lights": 2
+        },
+        {
+          "kind": "window",
+          "s": 11.25,
+          "w": 2.0,
+          "sill": 4.2,
+          "spring": 9.4,
+          "apex": 11.4,
+          "glass": true,
+          "seed": 7,
+          "lights": 2
+        },
+        {
+          "kind": "window",
+          "s": 3.75,
+          "w": 2.0,
+          "sill": 4.2,
+          "spring": 9.4,
+          "apex": 11.4,
+          "glass": true,
+          "seed": 8,
+          "lights": 2
+        },
+        {
+          "kind": "window",
+          "s": 18.75,
+          "w": 1.6,
+          "sill": 6.4,
+          "spring": 9.6,
+          "apex": 11.2,
+          "glass": true,
+          "seed": 6,
+          "lights": 2
+        },
+        {
+          "kind": "door",
+          "s": 18.75,
+          "w": 2.4,
+          "sill": 0.12,
+          "spring": 3.3,
+          "apex": 5.0,
+          "reveal": "ashlar",
+          "note": "south portal (main entrance from the street)"
+        }
+      ],
+      "floor": 0.12
+    },
+    {
+      "id": "nave.west.north",
+      "a": [
+        14.0,
+        -7.0
+      ],
+      "b": [
+        14.0,
+        -12.0
+      ],
+      "inside": [
+        29,
+        -9
+      ],
+      "thick": 1.6,
+      "y1": 13.0,
+      "inner": "limewash",
+      "inner_to": 0.0,
+      "openings": [
+        {
+          "kind": "window",
+          "s": 2.5,
+          "w": 1.4,
+          "sill": 4.8,
+          "spring": 9.0,
+          "apex": 10.4,
+          "glass": true,
+          "seed": 9,
+          "lights": 1
+        }
+      ],
+      "floor": 0.12
+    },
+    {
+      "id": "nave.west.south",
+      "a": [
+        14.0,
+        12.0
+      ],
+      "b": [
+        14.0,
+        7.0
+      ],
+      "inside": [
+        29,
+        9
+      ],
+      "thick": 1.6,
+      "y1": 13.0,
+      "inner": "limewash",
+      "inner_from": 0.0,
+      "openings": [
+        {
+          "kind": "window",
+          "s": 2.5,
+          "w": 1.4,
+          "sill": 4.8,
+          "spring": 9.0,
+          "apex": 10.4,
+          "glass": true,
+          "seed": 10,
+          "lights": 1
+        }
+      ],
+      "floor": 0.12
+    },
+    {
+      "id": "nave.east",
+      "a": [
+        44.0,
+        -12.0
+      ],
+      "b": [
+        44.0,
+        12.0
+      ],
+      "inside": [
+        29,
+        0
+      ],
+      "thick": 1.6,
+      "y1": 13.0,
+      "inner": "limewash",
+      "openings": [
+        {
+          "kind": "window",
+          "s": 3.6,
+          "w": 1.6,
+          "sill": 4.6,
+          "spring": 9.0,
+          "apex": 10.6,
+          "glass": true,
+          "seed": 11,
+          "lights": 1
+        },
+        {
+          "kind": "arch",
+          "s": 12.0,
+          "w": 7.4,
+          "sill": 0.12,
+          "spring": 7.2,
+          "apex": 10.6,
+          "note": "triumphal arch into the chancel"
+        },
+        {
+          "kind": "window",
+          "s": 20.4,
+          "w": 1.6,
+          "sill": 4.6,
+          "spring": 9.0,
+          "apex": 10.6,
+          "glass": true,
+          "seed": 12,
+          "lights": 1
+        }
+      ],
+      "floor": 0.12
+    },
+    {
+      "id": "choir.north",
+      "a": [
+        44.0,
+        -5.0
+      ],
+      "b": [
+        54.0,
+        -5.0
+      ],
+      "inside": [
+        49,
+        0
+      ],
+      "thick": 1.3,
+      "y1": 10.0,
+      "floor": 0.57,
+      "inner": "limewash",
+      "inner_from": 0.0,
+      "openings": [
+        {
+          "kind": "window",
+          "s": 5.0,
+          "w": 1.6,
+          "sill": 3.6,
+          "spring": 7.4,
+          "apex": 8.8,
+          "glass": true,
+          "seed": 13,
+          "lights": 1
+        }
+      ]
+    },
+    {
+      "id": "choir.east",
+      "a": [
+        54.0,
+        -5.0
+      ],
+      "b": [
+        54.0,
+        5.0
+      ],
+      "inside": [
+        49,
+        0
+      ],
+      "thick": 1.3,
+      "y1": 10.0,
+      "floor": 0.57,
+      "inner": "limewash",
+      "openings": [
+        {
+          "kind": "window",
+          "s": 2.6,
+          "w": 1.0,
+          "sill": 3.8,
+          "spring": 6.8,
+          "apex": 7.8,
+          "glass": true,
+          "seed": 14,
+          "lights": 1
+        },
+        {
+          "kind": "window",
+          "s": 5.0,
+          "w": 1.6,
+          "sill": 3.0,
+          "spring": 7.4,
+          "apex": 9.0,
+          "glass": true,
+          "seed": 15,
+          "lights": 2
+        },
+        {
+          "kind": "window",
+          "s": 7.4,
+          "w": 1.0,
+          "sill": 3.8,
+          "spring": 6.8,
+          "apex": 7.8,
+          "glass": true,
+          "seed": 16,
+          "lights": 1
+        }
+      ]
+    },
+    {
+      "id": "choir.south",
+      "a": [
+        54.0,
+        5.0
+      ],
+      "b": [
+        44.0,
+        5.0
+      ],
+      "inside": [
+        49,
+        0
+      ],
+      "thick": 1.3,
+      "y1": 10.0,
+      "floor": 0.57,
+      "inner": "limewash",
+      "inner_to": 0.0,
+      "openings": [
+        {
+          "kind": "window",
+          "s": 5.0,
+          "w": 1.6,
+          "sill": 3.6,
+          "spring": 7.4,
+          "apex": 8.8,
+          "glass": true,
+          "seed": 17,
+          "lights": 1
+        }
+      ]
+    }
+  ],
+  "benches": [
+    {
+      "at": [
+        17.0,
+        -1.9
+      ],
+      "len": 2.2
+    },
+    {
+      "at": [
+        17.0,
+        1.9
+      ],
+      "len": 2.2
+    },
+    {
+      "at": [
+        17.0,
+        -7.4
+      ],
+      "len": 4.4
+    },
+    {
+      "at": [
+        17.0,
+        7.4
+      ],
+      "len": 4.4
+    },
+    {
+      "at": [
+        18.9,
+        -1.9
+      ],
+      "len": 2.2
+    },
+    {
+      "at": [
+        18.9,
+        1.9
+      ],
+      "len": 2.2
+    },
+    {
+      "at": [
+        18.9,
+        -7.4
+      ],
+      "len": 4.4
+    },
+    {
+      "at": [
+        18.9,
+        7.4
+      ],
+      "len": 4.4
+    },
+    {
+      "at": [
+        20.8,
+        -1.9
+      ],
+      "len": 2.2
+    },
+    {
+      "at": [
+        20.8,
+        1.9
+      ],
+      "len": 2.2
+    },
+    {
+      "at": [
+        20.8,
+        -7.4
+      ],
+      "len": 4.4
+    },
+    {
+      "at": [
+        20.8,
+        7.4
+      ],
+      "len": 4.4
+    },
+    {
+      "at": [
+        22.7,
+        -1.9
+      ],
+      "len": 2.2
+    },
+    {
+      "at": [
+        22.7,
+        1.9
+      ],
+      "len": 2.2
+    },
+    {
+      "at": [
+        22.7,
+        -7.4
+      ],
+      "len": 4.4
+    },
+    {
+      "at": [
+        22.7,
+        7.4
+      ],
+      "len": 4.4
+    },
+    {
+      "at": [
+        24.6,
+        -1.9
+      ],
+      "len": 2.2
+    },
+    {
+      "at": [
+        24.6,
+        1.9
+      ],
+      "len": 2.2
+    },
+    {
+      "at": [
+        24.6,
+        -7.4
+      ],
+      "len": 4.4
+    },
+    {
+      "at": [
+        26.5,
+        -1.9
+      ],
+      "len": 2.2
+    },
+    {
+      "at": [
+        26.5,
+        1.9
+      ],
+      "len": 2.2
+    },
+    {
+      "at": [
+        26.5,
+        -7.4
+      ],
+      "len": 4.4
+    },
+    {
+      "at": [
+        28.4,
+        -1.9
+      ],
+      "len": 2.2
+    },
+    {
+      "at": [
+        28.4,
+        1.9
+      ],
+      "len": 2.2
+    },
+    {
+      "at": [
+        28.4,
+        7.4
+      ],
+      "len": 4.4
+    },
+    {
+      "at": [
+        30.299999999999997,
+        -1.9
+      ],
+      "len": 2.2
+    },
+    {
+      "at": [
+        30.299999999999997,
+        1.9
+      ],
+      "len": 2.2
+    },
+    {
+      "at": [
+        30.299999999999997,
+        7.4
+      ],
+      "len": 4.4
+    }
+  ],
+  "walk": {
+    "walls": [],
+    "solid": [
+      [
+        [
+          20.75,
+          -4.75
+        ],
+        [
+          22.25,
+          -4.75
+        ],
+        [
+          22.25,
+          -3.25
+        ],
+        [
+          20.75,
+          -3.25
+        ]
+      ],
+      [
+        [
+          20.75,
+          3.25
+        ],
+        [
+          22.25,
+          3.25
+        ],
+        [
+          22.25,
+          4.75
+        ],
+        [
+          20.75,
+          4.75
+        ]
+      ],
+      [
+        [
+          28.25,
+          -4.75
+        ],
+        [
+          29.75,
+          -4.75
+        ],
+        [
+          29.75,
+          -3.25
+        ],
+        [
+          28.25,
+          -3.25
+        ]
+      ],
+      [
+        [
+          28.25,
+          3.25
+        ],
+        [
+          29.75,
+          3.25
+        ],
+        [
+          29.75,
+          4.75
+        ],
+        [
+          28.25,
+          4.75
+        ]
+      ],
+      [
+        [
+          35.75,
+          -4.75
+        ],
+        [
+          37.25,
+          -4.75
+        ],
+        [
+          37.25,
+          -3.25
+        ],
+        [
+          35.75,
+          -3.25
+        ]
+      ],
+      [
+        [
+          35.75,
+          3.25
+        ],
+        [
+          37.25,
+          3.25
+        ],
+        [
+          37.25,
+          4.75
+        ],
+        [
+          35.75,
+          4.75
+        ]
+      ],
+      [
+        [
+          16.725,
+          -3.0
+        ],
+        [
+          17.475,
+          -3.0
+        ],
+        [
+          17.475,
+          -0.8
+        ],
+        [
+          16.725,
+          -0.8
+        ]
+      ],
+      [
+        [
+          16.725,
+          0.8
+        ],
+        [
+          17.475,
+          0.8
+        ],
+        [
+          17.475,
+          3.0
+        ],
+        [
+          16.725,
+          3.0
+        ]
+      ],
+      [
+        [
+          16.725,
+          -9.6
+        ],
+        [
+          17.475,
+          -9.6
+        ],
+        [
+          17.475,
+          -5.2
+        ],
+        [
+          16.725,
+          -5.2
+        ]
+      ],
+      [
+        [
+          16.725,
+          5.2
+        ],
+        [
+          17.475,
+          5.2
+        ],
+        [
+          17.475,
+          9.6
+        ],
+        [
+          16.725,
+          9.6
+        ]
+      ],
+      [
+        [
+          18.625,
+          -3.0
+        ],
+        [
+          19.375,
+          -3.0
+        ],
+        [
+          19.375,
+          -0.8
+        ],
+        [
+          18.625,
+          -0.8
+        ]
+      ],
+      [
+        [
+          18.625,
+          0.8
+        ],
+        [
+          19.375,
+          0.8
+        ],
+        [
+          19.375,
+          3.0
+        ],
+        [
+          18.625,
+          3.0
+        ]
+      ],
+      [
+        [
+          18.625,
+          -9.6
+        ],
+        [
+          19.375,
+          -9.6
+        ],
+        [
+          19.375,
+          -5.2
+        ],
+        [
+          18.625,
+          -5.2
+        ]
+      ],
+      [
+        [
+          18.625,
+          5.2
+        ],
+        [
+          19.375,
+          5.2
+        ],
+        [
+          19.375,
+          9.6
+        ],
+        [
+          18.625,
+          9.6
+        ]
+      ],
+      [
+        [
+          20.525,
+          -3.0
+        ],
+        [
+          21.275,
+          -3.0
+        ],
+        [
+          21.275,
+          -0.8
+        ],
+        [
+          20.525,
+          -0.8
+        ]
+      ],
+      [
+        [
+          20.525,
+          0.8
+        ],
+        [
+          21.275,
+          0.8
+        ],
+        [
+          21.275,
+          3.0
+        ],
+        [
+          20.525,
+          3.0
+        ]
+      ],
+      [
+        [
+          20.525,
+          -9.6
+        ],
+        [
+          21.275,
+          -9.6
+        ],
+        [
+          21.275,
+          -5.2
+        ],
+        [
+          20.525,
+          -5.2
+        ]
+      ],
+      [
+        [
+          20.525,
+          5.2
+        ],
+        [
+          21.275,
+          5.2
+        ],
+        [
+          21.275,
+          9.6
+        ],
+        [
+          20.525,
+          9.6
+        ]
+      ],
+      [
+        [
+          22.425,
+          -3.0
+        ],
+        [
+          23.175,
+          -3.0
+        ],
+        [
+          23.175,
+          -0.8
+        ],
+        [
+          22.425,
+          -0.8
+        ]
+      ],
+      [
+        [
+          22.425,
+          0.8
+        ],
+        [
+          23.175,
+          0.8
+        ],
+        [
+          23.175,
+          3.0
+        ],
+        [
+          22.425,
+          3.0
+        ]
+      ],
+      [
+        [
+          22.425,
+          -9.6
+        ],
+        [
+          23.175,
+          -9.6
+        ],
+        [
+          23.175,
+          -5.2
+        ],
+        [
+          22.425,
+          -5.2
+        ]
+      ],
+      [
+        [
+          22.425,
+          5.2
+        ],
+        [
+          23.175,
+          5.2
+        ],
+        [
+          23.175,
+          9.6
+        ],
+        [
+          22.425,
+          9.6
+        ]
+      ],
+      [
+        [
+          24.325,
+          -3.0
+        ],
+        [
+          25.075,
+          -3.0
+        ],
+        [
+          25.075,
+          -0.8
+        ],
+        [
+          24.325,
+          -0.8
+        ]
+      ],
+      [
+        [
+          24.325,
+          0.8
+        ],
+        [
+          25.075,
+          0.8
+        ],
+        [
+          25.075,
+          3.0
+        ],
+        [
+          24.325,
+          3.0
+        ]
+      ],
+      [
+        [
+          24.325,
+          -9.6
+        ],
+        [
+          25.075,
+          -9.6
+        ],
+        [
+          25.075,
+          -5.2
+        ],
+        [
+          24.325,
+          -5.2
+        ]
+      ],
+      [
+        [
+          26.225,
+          -3.0
+        ],
+        [
+          26.975,
+          -3.0
+        ],
+        [
+          26.975,
+          -0.8
+        ],
+        [
+          26.225,
+          -0.8
+        ]
+      ],
+      [
+        [
+          26.225,
+          0.8
+        ],
+        [
+          26.975,
+          0.8
+        ],
+        [
+          26.975,
+          3.0
+        ],
+        [
+          26.225,
+          3.0
+        ]
+      ],
+      [
+        [
+          26.225,
+          -9.6
+        ],
+        [
+          26.975,
+          -9.6
+        ],
+        [
+          26.975,
+          -5.2
+        ],
+        [
+          26.225,
+          -5.2
+        ]
+      ],
+      [
+        [
+          28.125,
+          -3.0
+        ],
+        [
+          28.875,
+          -3.0
+        ],
+        [
+          28.875,
+          -0.8
+        ],
+        [
+          28.125,
+          -0.8
+        ]
+      ],
+      [
+        [
+          28.125,
+          0.8
+        ],
+        [
+          28.875,
+          0.8
+        ],
+        [
+          28.875,
+          3.0
+        ],
+        [
+          28.125,
+          3.0
+        ]
+      ],
+      [
+        [
+          28.125,
+          5.2
+        ],
+        [
+          28.875,
+          5.2
+        ],
+        [
+          28.875,
+          9.6
+        ],
+        [
+          28.125,
+          9.6
+        ]
+      ],
+      [
+        [
+          30.025,
+          -3.0
+        ],
+        [
+          30.775,
+          -3.0
+        ],
+        [
+          30.775,
+          -0.8
+        ],
+        [
+          30.025,
+          -0.8
+        ]
+      ],
+      [
+        [
+          30.025,
+          0.8
+        ],
+        [
+          30.775,
+          0.8
+        ],
+        [
+          30.775,
+          3.0
+        ],
+        [
+          30.025,
+          3.0
+        ]
+      ],
+      [
+        [
+          30.025,
+          5.2
+        ],
+        [
+          30.775,
+          5.2
+        ],
+        [
+          30.775,
+          9.6
+        ],
+        [
+          30.025,
+          9.6
+        ]
+      ],
+      [
+        [
+          16.45,
+          -9.55
+        ],
+        [
+          17.55,
+          -9.55
+        ],
+        [
+          17.55,
+          -8.45
+        ],
+        [
+          16.45,
+          -8.45
+        ]
+      ],
+      [
+        [
+          51.85,
+          -1.2
+        ],
+        [
+          52.95,
+          -1.2
+        ],
+        [
+          52.95,
+          1.2
+        ],
+        [
+          51.85,
+          1.2
+        ]
+      ],
+      [
+        [
+          40.75,
+          -8.4
+        ],
+        [
+          41.85,
+          -8.4
+        ],
+        [
+          41.85,
+          -6.8
+        ],
+        [
+          40.75,
+          -6.8
+        ]
+      ],
+      [
+        [
+          40.75,
+          6.8
+        ],
+        [
+          41.85,
+          6.8
+        ],
+        [
+          41.85,
+          8.4
+        ],
+        [
+          40.75,
+          8.4
+        ]
+      ],
+      [
+        [
+          29.3,
+          -5.65
+        ],
+        [
+          31.5,
+          -5.65
+        ],
+        [
+          31.5,
+          -4.75
+        ],
+        [
+          29.3,
+          -4.75
+        ]
+      ]
+    ],
+    "ramps": [],
+    "floors": [
+      {
+        "id": "floor.choir_steps",
+        "polygon": [
+          [
+            41.4,
+            -3.4
+          ],
+          [
+            44.4,
+            -3.4
+          ],
+          [
+            44.4,
+            3.4
+          ],
+          [
+            41.4,
+            3.4
+          ]
+        ],
+        "height": 0.12,
+        "rise": [
+          41.4,
+          0.12,
+          44.4,
+          0.57
+        ]
+      },
+      {
+        "id": "floor.choir",
+        "polygon": [
+          [
+            44.4,
+            -3.7
+          ],
+          [
+            52.7,
+            -3.7
+          ],
+          [
+            52.7,
+            3.7
+          ],
+          [
+            44.4,
+            3.7
+          ]
+        ],
+        "height": 0.57
+      },
+      {
+        "id": "floor.tower",
+        "polygon": [
+          [
+            3.2,
+            -3.8
+          ],
+          [
+            10.8,
+            -3.8
+          ],
+          [
+            10.8,
+            3.8
+          ],
+          [
+            3.2,
+            3.8
+          ]
+        ],
+        "height": 0.12
+      },
+      {
+        "id": "floor.nave",
+        "polygon": [
+          [
+            15.6,
+            -10.4
+          ],
+          [
+            42.4,
+            -10.4
+          ],
+          [
+            42.4,
+            10.4
+          ],
+          [
+            15.6,
+            10.4
+          ]
+        ],
+        "height": 0.12
+      }
+    ]
+  },
+  "rooms": [
+    {
+      "id": "room.tower",
+      "name": "St Olaf's (tower hall)",
+      "polygon": [
+        [
+          3.2,
+          -3.8
+        ],
+        [
+          10.8,
+          -3.8
+        ],
+        [
+          10.8,
+          3.8
+        ],
+        [
+          3.2,
+          3.8
+        ]
+      ],
+      "floor": "floor.tower",
+      "hide": [
+        "Church/Upper",
+        "Church/Roof"
+      ]
+    },
+    {
+      "id": "room.nave",
+      "name": "St Olaf's (nave)",
+      "polygon": [
+        [
+          15.6,
+          -10.4
+        ],
+        [
+          42.4,
+          -10.4
+        ],
+        [
+          42.4,
+          10.4
+        ],
+        [
+          15.6,
+          10.4
+        ]
+      ],
+      "floor": "floor.nave",
+      "hide": [
+        "Church/Upper",
+        "Church/Roof"
+      ]
+    },
+    {
+      "id": "room.choir",
+      "name": "St Olaf's (chancel)",
+      "polygon": [
+        [
+          42.4,
+          -3.7
+        ],
+        [
+          52.7,
+          -3.7
+        ],
+        [
+          52.7,
+          3.7
+        ],
+        [
+          42.4,
+          3.7
+        ]
+      ],
+      "floor": "floor.choir",
+      "hide": [
+        "Church/Upper",
+        "Church/Roof"
+      ]
+    }
+  ],
+  "doors": [
+    {
+      "id": "door.st_olaf.west",
+      "a": [
+        3.08,
+        -1.1
+      ],
+      "b": [
+        3.08,
+        1.1
+      ],
+      "inward": [
+        1,
+        0
+      ],
+      "floor": "floor.tower",
+      "height": 3.0,
+      "style": "studded",
+      "paint": [
+        0.3,
+        0.22,
+        0.16
+      ]
+    },
+    {
+      "id": "door.st_olaf.south",
+      "a": [
+        26.45,
+        11.88
+      ],
+      "b": [
+        24.05,
+        11.88
+      ],
+      "inward": [
+        0,
+        -1
+      ],
+      "floor": "floor.nave",
+      "height": 3.1,
+      "style": "studded",
+      "paint": [
+        0.3,
+        0.22,
+        0.16
+      ]
+    }
+  ],
+  "dressing": [
+    {
+      "id": "masons.cart",
+      "kind": "cart",
+      "at": [
+        -3.5,
+        10.5
+      ],
+      "rotation_deg": 20.0,
+      "solid": [
+        3.2,
+        1.6
+      ]
+    },
+    {
+      "id": "masons.stones",
+      "kind": "stone_stack",
+      "at": [
+        -3.0,
+        -9.5
+      ],
+      "rotation_deg": 0.0,
+      "solid": [
+        2.4,
+        1.6
+      ]
+    },
+    {
+      "id": "masons.stones2",
+      "kind": "stone_stack",
+      "at": [
+        3.5,
+        -10.0
+      ],
+      "rotation_deg": 15.0,
+      "solid": [
+        2.4,
+        1.6
+      ]
+    }
+  ],
+  "people": [
+    {
+      "id": "priest",
+      "role": "parish priest at the high altar",
+      "rig": "crowd_townsman_02",
+      "at": [
+        51.6,
+        0.0
+      ],
+      "facing_deg": 0,
+      "pose": "talk"
+    },
+    {
+      "id": "acolyte",
+      "role": "acolyte",
+      "rig": "crowd_townsman_01",
+      "at": [
+        50.2,
+        1.8
+      ],
+      "facing_deg": 0,
+      "pose": "stand"
+    },
+    {
+      "id": "guild.1",
+      "role": "craftsman at the guild altar (St Olaf craft umbrella)",
+      "rig": "crowd_townsman_01",
+      "at": [
+        39.6,
+        -7.2
+      ],
+      "facing_deg": 0,
+      "pose": "stand"
+    },
+    {
+      "id": "guild.2",
+      "role": "craftsman's wife at the guild altar",
+      "rig": "crowd_townswoman_01",
+      "at": [
+        39.4,
+        -8.4
+      ],
+      "facing_deg": 0,
+      "pose": "stand"
+    },
+    {
+      "id": "seafarer",
+      "role": "seafarer praying to St Olaf",
+      "rig": "crowd_townsman_02",
+      "at": [
+        39.6,
+        7.4
+      ],
+      "facing_deg": 0,
+      "pose": "stand"
+    },
+    {
+      "id": "worshipper.1",
+      "role": "burgher on a bench",
+      "rig": "crowd_townsman_01",
+      "at": [
+        20.8,
+        -2.5
+      ],
+      "facing_deg": 0,
+      "pose": "sit",
+      "seat_h": 0.45
+    },
+    {
+      "id": "worshipper.2",
+      "role": "woman on a bench",
+      "rig": "townswoman",
+      "at": [
+        22.7,
+        2.3
+      ],
+      "facing_deg": 0,
+      "pose": "sit",
+      "seat_h": 0.45
+    },
+    {
+      "id": "mason",
+      "role": "mason at the tower works",
+      "rig": "crowd_townsman_02",
+      "at": [
+        -2.0,
+        -8.0
+      ],
+      "facing_deg": 0,
+      "pose": "talk"
+    },
+    {
+      "id": "labourer",
+      "role": "labourer at the stone stack",
+      "rig": "crowd_townsman_01",
+      "at": [
+        -4.5,
+        -7.6
+      ],
+      "facing_deg": -60,
+      "pose": "stand"
+    },
+    {
+      "id": "sexton",
+      "role": "sexton in the tower hall",
+      "rig": "crowd_townsman_02",
+      "at": [
+        7.0,
+        1.6
+      ],
+      "facing_deg": 180,
+      "pose": "stand"
+    }
+  ],
+  "anchors": [
+    {
+      "id": "anchor.st_olaf.high_altar",
+      "at": [
+        52.4,
+        0.0
+      ]
+    },
+    {
+      "id": "anchor.st_olaf.south_portal",
+      "at": [
+        25.25,
+        14.0
+      ]
+    },
+    {
+      "id": "anchor.st_olaf.tower_works",
+      "at": [
+        -3.0,
+        -8.0
+      ]
+    }
+  ],
+  "review_shots": [
+    {
+      "id": "photo_south",
+      "eye": [
+        30.0,
+        1.7,
+        32.0
+      ],
+      "look": [
+        22.0,
+        10.0,
+        0.0
+      ],
+      "fov": 65
+    },
+    {
+      "id": "photo_west",
+      "eye": [
+        -22.0,
+        1.7,
+        10.0
+      ],
+      "look": [
+        7.0,
+        13.0,
+        0.0
+      ],
+      "fov": 65
+    },
+    {
+      "id": "photo_nave",
+      "eye": [
+        17.0,
+        1.7,
+        0.3
+      ],
+      "look": [
+        54.0,
+        5.5,
+        0.0
+      ],
+      "fov": 72
+    },
+    {
+      "id": "photo_aisle",
+      "eye": [
+        17.0,
+        1.7,
+        -8.2
+      ],
+      "look": [
+        40.0,
+        6.0,
+        -2.0
+      ],
+      "fov": 72
+    },
+    {
+      "id": "photo_vaults",
+      "eye": [
+        22.0,
+        1.7,
+        0.0
+      ],
+      "look": [
+        30.0,
+        12.0,
+        0.0
+      ],
+      "fov": 75
+    }
+  ],
+  "review_views": [
+    {
+      "id": "nave",
+      "at": [
+        16.5,
+        0.0
+      ],
+      "facing_deg": 0
+    },
+    {
+      "id": "tower",
+      "at": [
+        5.0,
+        0.0
+      ],
+      "facing_deg": 0
+    }
+  ],
+  "program_1343": {
+    "summary": "Second parish of the Lower Town, the north/harbour quarter: Scandinavian-settler tradition, maritime families, the St Olaf craft umbrella; Cistercian (St Michael) patronage.",
+    "processes": [
+      "mass at the high altar",
+      "guild prayers at the side altars",
+      "seafarers' devotion to St Olaf",
+      "building work on the unfinished tower (scaffold, hoist, masons' yard)"
+    ]
+  }
+}

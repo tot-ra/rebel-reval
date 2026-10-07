@@ -1,0 +1,163 @@
+{
+  "type": "cutscene",
+  "id": "cutscene.prologue.taken_in",
+  "title": "Kalev takes the apprentice",
+  "chapter": "III. The forge",
+  "grade": "present_warm",
+  "skippable": true,
+  "confidence": "invented",
+  "canon_status": "active",
+  "approval": {
+    "status": "draft",
+    "notes": "R-1318. Plays after dialogue.prologue.kalev_arrives and hands the player to the forge at spawn smithy_start."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "next": {
+    "kind": "door",
+    "scene_id": "forge",
+    "spawn_id": "smithy_start"
+  },
+  "shots": [
+    {
+      "id": "s01_door",
+      "still": "res://assets/cutscenes/prologue_taken_in/s01_door.png",
+      "video": "",
+      "transition_in": "fade",
+      "motion": {
+        "kind": "pull_out",
+        "zoom_from": 1.16,
+        "zoom_to": 1.02
+      },
+      "hold_seconds": 6.0,
+      "caption": "The lane by the Holy Spirit. Morning.",
+      "lines": [
+        {
+          "id": "l1",
+          "text": "The matron signed the book and did not look up. That was the whole of it.",
+          "seconds": 6.0,
+          "delivery": "Deliberately anticlimactic. The transaction, not the rescue."
+        },
+        {
+          "id": "l2",
+          "text": "A bed by the hearth, bread twice a day, and work from before light.",
+          "seconds": 6.0,
+          "delivery": "Quoting the offer back, evenly. No irony."
+        }
+      ],
+      "sound": {
+        "music": "",
+        "ambience": ""
+      },
+      "authoring": {
+        "direction": "The hero leaves one institution for another, and the frame should not promise that this is better. Kalev leads and does not look back; the boy follows at a distance that is almost obedience. Door closing behind them is the beat.",
+        "image_prompt": "Cinematic film still, 35mm, low eye-level from inside a narrow medieval lane looking at the plank door of a limestone almshouse just closing, a woman's dark sleeve withdrawing inside. Walking away from the door toward camera but off-axis: a broad weathered master smith in his forties, soot-black hands and forearms, a scorched leather apron over a dark wool tunic, hair tied back, carrying a canvas roll of tools, face set, not looking back. Four paces behind him a thin fifteen-year-old boy in an undyed linen shirt and a too-large borrowed wool cloak, bare calves, carrying nothing, watching the smith's back. Wet packed-earth lane, limestone walls close on both sides, a timber overhang, a drain channel, the tiled flank of a church to one side. Cold spring morning, overcast with a low break in the cloud behind them, warm filmic grade with cool shadows, fine film grain, breath visible. Historically accurate Reval 1343. No text.",
+        "video_prompt": "9 seconds. Camera: slow pull back and slight lift as the pair walk toward and past camera, 35mm, steadicam at chest height. Subject motion: the almshouse door swinging shut and seating with a bounce in the first second; the smith's long unhurried stride; the boy half-running two steps to keep the gap, then settling; the cloak dragging; breath clouds; a dog crossing the lane behind them. Audio: door latch, boots in wet earth, a distant church bell, a single dry cough from inside the almshouse as the door shuts; music is one low plucked figure only. Voice-over only, no lip-sync. Narrator lines l1-l2; l2 ends as the smith passes the lens.",
+        "negative_prompt": "text, watermark, smiling faces, heroic posing, sunlight, cobblestone pavement, modern doors with hinges visible as steel, hero shot, backlit glory lighting"
+      }
+    },
+    {
+      "id": "s02_street",
+      "still": "res://assets/cutscenes/prologue_taken_in/s02_street.png",
+      "video": "",
+      "transition_in": "dissolve",
+      "motion": {
+        "kind": "pan_left",
+        "zoom_from": 1.1,
+        "zoom_to": 1.1
+      },
+      "hold_seconds": 6.0,
+      "caption": "Lower Town.",
+      "lines": [
+        {
+          "id": "l1",
+          "text": "He had never been let this far into the town. Carters, fish, a watchman's stare, a thousand people with somewhere to be.",
+          "seconds": 7.0,
+          "delivery": "Pick up pace with the list, as the boy's attention does."
+        },
+        {
+          "id": "l2",
+          "text": "And in a doorway, something leaning out to look at him. He kept walking. That is the first thing to learn.",
+          "seconds": 7.0,
+          "delivery": "Drop to almost nothing on the last sentence. It is advice."
+        }
+      ],
+      "sound": {
+        "music": "",
+        "ambience": ""
+      },
+      "authoring": {
+        "direction": "Establish the playable world and the hero's permanent condition in one frame: a dense real street plus one cold thing that only he registers. Keep the phantom tiny, deep in a doorway, easy to miss on a first viewing - it rewards a second look and teaches that the spirit layer is always on.",
+        "image_prompt": "Cinematic film still, 28mm wide, eye-level along a busy narrow medieval Hanseatic street in the morning: tall lime-washed and timber-framed houses with stepped gables and red tile, hoist beams overhead, a loaded ox cart squeezing past, a fishwife with a flat basket of Baltic herring, two carters arguing over right of way, a watchman in a kettle helm and padded jack standing at a corner with his eyes on the crowd, chickens, mud, a woman emptying a pail into the street channel. Mid-frame among it, small: a broad soot-stained master smith striding through the crowd with a thin fifteen-year-old boy trailing him, the boy's head turned toward a dark recessed doorway on the left. Deep in that doorway, barely visible and easy to miss: a thin translucent cold-cyan shape with too-long fingers leaning out at the boy's height, lit faintly from within, unnoticed by every other person in the frame. Overcast morning light, warm filmic grade in the street, one small cold cyan accent in the doorway, fine film grain, atmospheric depth. Historically accurate Reval 1343. No text, no legible signage.",
+        "video_prompt": "9 seconds. Camera: slow lateral pan left tracking the pair through the crowd, 28mm, slight handheld life, foreground figures crossing and briefly blocking the lens. Subject motion: full street business - cart wheel, haggling, the watchman's head turning to follow the smith, a shutter opening above; the boy's head turning to the doorway and holding; the cyan shape leaning a few centimetres further out and withdrawing as a passer-by crosses in front of it; the boy facing front again and quickening his step. Audio: dense street mix, cart, gulls, Low German and Estonian cross-talk, and a single thin high tone that fades in only while the doorway is in frame and cuts the instant the boy looks away. Voice-over only, no lip-sync. Narrator lines l1-l2; 'He kept walking' as the boy's head turns back to front.",
+        "negative_prompt": "text, watermark, legible signage, empty clean street, tourists, modern crowd, bright saturated colours, ghost in plain sight, glowing eyes, monster in the open"
+      }
+    },
+    {
+      "id": "s03_forge",
+      "still": "res://assets/cutscenes/prologue_taken_in/s03_forge.png",
+      "video": "",
+      "transition_in": "dissolve",
+      "motion": {
+        "kind": "push_in",
+        "zoom_from": 1.0,
+        "zoom_to": 1.2
+      },
+      "hold_seconds": 7.0,
+      "caption": "The forge of Kalev. Lower Town, spring 1343.",
+      "lines": [
+        {
+          "id": "l1",
+          "text": "The forge of Kalev, master of the smiths' craft. Iron in, iron out, and the town's whole weight passing through one man's hands.",
+          "seconds": 7.5,
+          "delivery": "Respect here, finally. She likes this place."
+        },
+        {
+          "id": "l2",
+          "text": "Everything that follows begins at that anvil. Every commission is somebody's intention, and you will be holding it.",
+          "seconds": 7.5,
+          "delivery": "The thesis of the game. Even, unhurried, slightly conspiratorial."
+        },
+        {
+          "id": "l3",
+          "text": "Go in, boy.",
+          "seconds": 4.0,
+          "delivery": "Two words and a release. Last line of the prologue."
+        }
+      ],
+      "sound": {
+        "music": "",
+        "ambience": ""
+      },
+      "authoring": {
+        "direction": "The hub reveal and the promise of the loop. Heat is the subject: after two cold chapters the audience should want to be inside. End on the boy stepping toward the light so the first frame of gameplay continues the motion.",
+        "image_prompt": "Cinematic film still, 35mm, exterior night-into-morning contrast shot of a medieval smithy on a Lower Town street: a low limestone and timber workshop with a wide open double door and an unshuttered work hatch, the interior blazing orange from a stone hearth and a glowing billet on the anvil, sparks and heat shimmer spilling into the grey morning air, smoke venting from a roof hole, horseshoes and barrel hoops hung on the outside wall, a water trough, a stacked charcoal basket, scrap iron. Silhouetted in the doorway against the forge light, back to camera: a broad master smith with one hand on the door jamb, pushing it wider. Two paces behind him in the cold grey street, lit on one side by the forge glow and on the other by flat dawn, a thin fifteen-year-old boy stopped mid-step, looking in. Strong two-source light design, forge amber against cold blue morning, warm filmic grade, fine film grain, airborne ash and dust catching the light. Historically accurate Reval 1343 smithy. No text, no fantasy magic effects.",
+        "video_prompt": "11 seconds. Camera: slow push-in from the street toward the open door, 35mm, drifting behind and past the boy so the forge interior grows until it fills the upper frame. Subject motion: the door swinging wider under the smith's hand and shuddering on its hinge; the billet on the anvil pulsing orange; a sparse spray of sparks; bellows breathing somewhere inside and the light brightening in time with it; smoke rolling out and up; the boy's shoulders dropping as the heat reaches him, then one step forward at the very end of the shot. Audio: bellows, a single hammer stroke on iron timed to the first word of l2, charcoal crackle, the street fading behind; music builds to the prologue's one full statement and holds on the last frame. Voice-over only, no lip-sync. Narrator lines l1-l3; l3 'Go in, boy' over the boy's forward step, then cut to gameplay on the same motion with no fade.",
+        "negative_prompt": "text, watermark, magical glowing runes, blue fire, sparks as fireworks, modern anvil, machine press, gas forge, clean workshop, Renaissance armour display"
+      }
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "attested",
+      "summary": "Smithing was an organised Lower Town craft with its own workshop layout, charcoal supply and imported steel sheet; the smithy interior and street furniture follow the craft dossiers.",
+      "citations": [
+        "history/dossiers/crafts/smithy-workshop-layout.md",
+        "history/dossiers/crafts/blacksmith-materials-and-techniques.md",
+        "history/dossiers/crafts/schmiede-amt-ordinances-pre-1363.md"
+      ]
+    },
+    {
+      "confidence": "invented",
+      "summary": "Kalev, the apprentice, the almshouse handover and all narration are authored. Kalev's canon role as master smith and mentor NPC is set by ADR 0033 and docs/CHARACTERS/kalev.md.",
+      "citations": [
+        "docs/adr/0033-teen-protagonist-and-spirit-dialogue-combat.md",
+        "docs/CHARACTERS/kalev.md"
+      ]
+    }
+  ]
+}

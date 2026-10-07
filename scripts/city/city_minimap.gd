@@ -8,6 +8,9 @@ extends CanvasLayer
 const SHADER := preload("res://scripts/city/city_minimap.gdshader")
 const MAP_PATH := "res://content/world/reval_city/minimap.png"
 const SIZE := 220.0
+## Shared slim bronze rim (see MinimapHud). Drawn so its inner edge sits on the map circle.
+const RIM_TEXTURE_PATH := "res://assets/UI/minimap/minimap_rim.png"
+const RIM_DISPLAY_SIZE := 303.0
 const MARGIN := 24.0
 ## World units across the circle.
 const VIEW_UNITS := 150.0
@@ -53,6 +56,15 @@ func _ready() -> void:
 	_arrow.color = Color(0.98, 0.86, 0.35)
 	_arrow.position = Vector2(SIZE, SIZE) * 0.5
 	root.add_child(_arrow)
+	var rim := TextureRect.new()
+	rim.name = "Rim"
+	rim.texture = load(RIM_TEXTURE_PATH) as Texture2D
+	rim.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	rim.stretch_mode = TextureRect.STRETCH_SCALE
+	rim.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	rim.size = Vector2(RIM_DISPLAY_SIZE, RIM_DISPLAY_SIZE)
+	rim.position = (Vector2(SIZE, SIZE) - rim.size) * 0.5
+	root.add_child(rim)
 	_north = _label(root, 16, Color(0.95, 0.9, 0.78))
 	_north.text = "N"
 	_district = _label(root, 17, Color(0.97, 0.92, 0.8))

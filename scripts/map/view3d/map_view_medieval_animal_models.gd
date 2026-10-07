@@ -40,18 +40,6 @@ const FOWL_WADDLE_ANGLE := deg_to_rad(4.5)
 const FOWL_BODY_BOB := 0.018
 const FOWL_BODY_PITCH := deg_to_rad(1.8)
 
-# The imported horse rig exposes the lower leg as a single bone. Its local +Y
-# endpoint is the hoof contact proxy after glTF axis conversion. Keep the
-# envelope deliberately small: the walk clip may lift the body by 2.5 cm, but
-# must not float above or sink below the authored ground plane.
-const HORSE_LEG_BONES: Array[StringName] = [
-	&"FrontLeftLeg", &"FrontRightLeg", &"BackLeftLeg", &"BackRightLeg"
-]
-const HORSE_LEG_BONE_LENGTH := 0.6595
-const HORSE_HOOF_EXTENSION := 0.1405
-const HORSE_GROUND_MIN_Y := -0.005
-const HORSE_GROUND_MAX_Y := 0.04
-
 # Runtime loading avoids a clean-clone parse cycle before Godot has imported the
 # new GLBs for the first time.
 const MODEL_PATHS: Dictionary = {
@@ -84,7 +72,7 @@ const COW_VARIANT_PATHS: Array[String] = [
 
 ## Yaw applied to a model so its nose points along -Z, which is the direction
 ## ambient actors are turned toward by `look_at` while walking. The cat rig is
-## and grounded replacement GLBs face +Z. The retained horse faces -X; each
+## and grounded replacement GLBs face +Z. Each
 ## entry corrects its own authored axis so they walk nose-first.
 # The relocated greylag gait GLB is about 1.05 m tall in mesh space. Domestic
 # yard geese must sit beside hens, not beside cattle, so they share the same
@@ -108,7 +96,7 @@ const MODEL_YAW: Dictionary = {
 	MammalSpecies.SPECIES_COW: PI,
 	MammalSpecies.SPECIES_PIG: PI,
 	MammalSpecies.SPECIES_SHEEP: PI,
-	MammalSpecies.SPECIES_HORSE: -PI * 0.5,
+	MammalSpecies.SPECIES_HORSE: PI,
 	MammalSpecies.SPECIES_DOG: PI,
 	&"goat": PI,
 }
@@ -140,8 +128,8 @@ static func add_model(parent: Node3D, species: StringName, variant_seed: int = 0
 	model.scale *= float(MODEL_SCALE.get(species, 1.0))
 	model.set_meta(&"production_animal_model", true)
 	model.set_meta(&"species", species)
-	# The horse coat is stored in COLOR_0. Godot leaves vertex_color_use_as_albedo
-	# off on glTF import, so its hooves, mane, and muzzle would not show.
+	# The horse coat, mane and hooves are stored in COLOR_0. Godot leaves
+	# vertex_color_use_as_albedo off on glTF import, so they would not show.
 	if species == MammalSpecies.SPECIES_HORSE:
 		_enable_vertex_coat(model)
 	# Animation selection runs on the visual actor rather than the imported model.
@@ -205,24 +193,20 @@ static func sync_animation(actor: Node3D, previous_position: Vector3, delta: flo
 static func _enable_vertex_coat(model: Node3D) -> void:
 	for node in model.find_children("*", "MeshInstance3D", true, false):
 		var mesh_instance := node as MeshInstance3D
-		if mesh_instance == null:
+		if mesh_instance == null or mesh_instance.mesh == null:
 			continue
-		if mesh_instance.name != "AnimalMesh":
-			continue
-		if mesh_instance.mesh == null or mesh_instance.mesh.get_surface_count() < 1:
-			continue
-		var format_flags: int = mesh_instance.mesh.surface_get_format(0)
-		if (format_flags & Mesh.ARRAY_FORMAT_COLOR) == 0:
-			continue
-		var source := mesh_instance.mesh.surface_get_material(0) as StandardMaterial3D
-		if source == null:
-			continue
-		# Keep the imported material. A surface override is reported as null by the
-		# headless dummy renderer and fails the livestock suite.
-		source.vertex_color_use_as_albedo = true
-		source.albedo_color = Color.WHITE
-		# The extracted atlas is a dot grid on small islands. Vertex color is the coat.
-		source.albedo_texture = null
+		for surface in mesh_instance.mesh.get_surface_count():
+			if (mesh_instance.mesh.surface_get_format(surface) & Mesh.ARRAY_FORMAT_COLOR) == 0:
+				continue
+			var source := mesh_instance.mesh.surface_get_material(surface) as StandardMaterial3D
+			if source == null:
+				continue
+			# Keep the imported material. A surface override is reported as null by the
+			# headless dummy renderer and fails the livestock suite.
+			source.vertex_color_use_as_albedo = true
+			source.vertex_color_is_srgb = true
+			source.albedo_color = Color.WHITE
+			source.albedo_texture = null
 
 
 static func _configure_animation(parent: Node3D, model: Node3D) -> void:
@@ -427,21 +411,3 @@ static func _clip_name(player: AnimationPlayer, canonical: StringName) -> String
 		if player.has_animation(candidate):
 			return candidate
 	return ""
-
-
-## Return the four hoof contact proxies in the skeleton's local space.
-##
-## WHY: MeshInstance3D.get_aabb() is the undeformed import bound in Godot, so
-## it cannot detect a skinned leg floating during an animation. The authored
-## quadruped rig has straight lower-leg bones; transforming their known local
-## endpoints plus the authored hoof extension gives a stable runtime regression
-## signal without adding collision.
-static func horse_hoof_contact_points(skeleton: Skeleton3D) -> Dictionary:
-	var contacts: Dictionary = {}
-	for bone_name: StringName in HORSE_LEG_BONES:
-		var index := skeleton.find_bone(bone_name)
-		if index < 0:
-			continue
-		var pose := skeleton.get_bone_global_pose(index)
-		contacts[bone_name] = pose * Vector3(0.0, HORSE_LEG_BONE_LENGTH + HORSE_HOOF_EXTENSION, 0.0)
-	return contacts

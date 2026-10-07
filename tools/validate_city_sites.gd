@@ -17,6 +17,8 @@ extends SceneTree
 const WALL_TOLERANCE := 0.25
 ## Door probe distance: past the thickest wall (church towers ~1.3 m).
 const PROBE := 1.6
+## Narrowest door or arch Kalev can pass reliably (capsule diameter 1.0 m).
+const MIN_PASSAGE := 1.4
 
 var _errors: Array[String] = []
 
@@ -79,9 +81,11 @@ func _check_site(site: CitySite, plan: CityPlan, ids: Dictionary) -> void:
 				_errors.append("%s: door %s is blocked outside" % [label, d["id"]])
 			if Geometry2D.is_point_in_polygon(inside, poly):
 				_errors.append("%s: door %s is blocked inside" % [label, d["id"]])
+		# Behind the door is a floor (its own, or a passage through a thick wall
+		# that touches it).
 		var on_floor := false
 		for f: Dictionary in site.floors:
-			if f["id"] == d["floor"] and Geometry2D.is_point_in_polygon(inside, f["polygon"]):
+			if Geometry2D.is_point_in_polygon(inside, f["polygon"]):
 				on_floor = true
 				reached[f["id"]] = true
 		if not on_floor:
@@ -95,7 +99,8 @@ func _check_site(site: CitySite, plan: CityPlan, ids: Dictionary) -> void:
 	# People stand on a floor; standing people must not be inside a solid.
 	for person: Dictionary in site.people:
 		var at: Vector2 = person["at"]
-		if site.floor_at(at).is_empty():
+		# Indoors people stand on a floor; outdoors (a yard) on open ground.
+		if site.floor_at(at).is_empty() and site.occupies(at):
 			_errors.append("%s: %s is not on a floor" % [label, person["id"]])
 		if person["pose"] != &"sit":
 			for poly in blockers:
@@ -105,9 +110,34 @@ func _check_site(site: CitySite, plan: CityPlan, ids: Dictionary) -> void:
 			_errors.append("%s: %s has no rig %s" % [label, person["id"], person["rig"]])
 	for r: Dictionary in site.data.get("walk", {}).get("ramps", []):
 		reached[StringName(r.get("to_floor", ""))] = true
+	# Floors that touch a reached floor (steps, a raised choir) are reachable.
+	var grew := true
+	while grew:
+		grew = false
+		for f: Dictionary in site.floors:
+			if reached.has(f["id"]):
+				continue
+			var grown := Geometry2D.offset_polygon(f["polygon"], 0.3)
+			for g: Dictionary in site.floors:
+				if not reached.has(g["id"]) or grown.is_empty():
+					continue
+				if not Geometry2D.intersect_polygons(grown[0], g["polygon"]).is_empty():
+					reached[f["id"]] = true
+					grew = true
+					break
 	for f: Dictionary in site.floors:
 		if not reached.has(f["id"]):
 			_errors.append("%s: floor %s is unreachable" % [label, f["id"]])
+	# Walk-through openings must fit Kalev's capsule with room to spare.
+	for w: Dictionary in site.data.get("fabric", []):
+		for op: Dictionary in w.get("openings", []):
+			if String(op.get("kind", "")) in ["door", "arch"] and float(op["w"]) < MIN_PASSAGE:
+				_errors.append(
+					(
+						"%s: %s opening at s=%.1f is %.2f m wide (< %.2f m)"
+						% [label, w["id"], float(op["s"]), float(op["w"]), MIN_PASSAGE]
+					)
+				)
 	_check_rooms(site, label)
 	_check_visual(site, plan, label)
 

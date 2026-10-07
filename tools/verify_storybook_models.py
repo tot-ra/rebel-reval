@@ -5,9 +5,9 @@ from pathlib import Path
 import struct
 
 ROOT = Path(__file__).resolve().parents[1]
-HUMANS = ('mart', 'aita', 'ellen', 'watchman', 'henning', 'jurgen', 'kaja')
+HUMANS = ()  # storybook humans were deleted; live humans are the MPFB bodies (ADR 0022)
 BIRDS = ('robin', 'hooded_crow', 'gull', 'hen', 'duck')
-MAMMALS = ('forge_cat', 'sheep', 'dog', 'pig', 'goat', 'boar', 'fox', 'hare', 'rat', 'cow', 'cow_holstein')
+MAMMALS = ('forge_cat', 'sheep', 'dog', 'pig', 'goat', 'boar', 'fox', 'hare', 'rat', 'cow', 'cow_holstein', 'horse')
 EXPECTED = {**dict.fromkeys(HUMANS, 76), **dict.fromkeys(MAMMALS, 6), **dict.fromkeys(BIRDS, 8)}
 EXPECTED["forge_cat"] = 9
 SIZES = {'SCALAR': 1, 'VEC2': 2, 'VEC3': 3, 'VEC4': 4, 'MAT4': 16}
@@ -107,7 +107,7 @@ def verify(mammals_only=False):
             if name != 'rat':
                 assert {'Shin.LF','Shin.RF','Shin.LB','Shin.RB','Foot.LF','Foot.RF','Foot.LB','Foot.RB','Ankle.LF','Ankle.RF','Ankle.LB','Ankle.RB'} <= names, f'{name}: anatomical leg articulation'
             manifest=json.loads((ROOT/'assets/storybook/mammal_sources.json').read_text())['models'][name]
-            assert manifest['license']=='CC-BY-4.0' and len(manifest['sha256'])==64
+            assert manifest.get('generated') or (manifest['license']=='CC-BY-4.0' and len(manifest['sha256'])==64)
             assert any('walk_reference_speed' in n.get('extras',{}) for n in doc['nodes']), f'{name}: measured gait metadata'
             textured=0
             for mesh in doc['meshes']:
@@ -121,7 +121,9 @@ def verify(mammals_only=False):
                         textured+=1
                         assert 'TEXCOORD_0' in primitive['attributes'], f'{name}: authored coat UVs'
                         assert len(set(accessor(doc,binary,primitive['attributes']['TEXCOORD_0'])))>100
-            assert textured>0, f'{name}: original coat texture required'
+            # The project-authored horse paints its coat in COLOR_0 instead of a texture.
+            vertex_coat=all('COLOR_0' in pr['attributes'] for mesh in doc['meshes'] for pr in mesh['primitives'])
+            assert textured>0 or (name=='horse' and vertex_coat), f'{name}: original coat texture required'
         elif name in BIRDS:
             assert {'Wing.L','Wing.R','WingTip.L','WingTip.R'} <= names
             for mesh in doc['meshes']:

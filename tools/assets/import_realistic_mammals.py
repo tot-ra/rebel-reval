@@ -44,10 +44,14 @@ CONFIG={
  'hare': dict(height=.46,front=(.45,.29,.09),back=(.53,.31,.09),fy=-.20,by=.19,head=(-.24,.54),tail=(.37,.40),body=.42),
  # Cattle heights are world units (1.1 per metre, like the retained horse), so
  # a small unimproved cow still reads beside the 1.65-unit horse in a pen.
+ # Project-authored (tools/assets/build_horse_source.py): wither 1.6 units (1.1 per
+ # metre), 2.2 with ears. Joints measured from that model: shoulder/elbow/carpus,
+ # hip/stifle/hock, foot contact fractions of the length incl. head and tail.
+ 'horse': dict(height=2.20,front=(.573,.433,.263),back=(.622,.497,.283),fy=-.131,by=.338,head=(-.330,.902),tail=(.4295,.707),body=.553,limb_mix=(.20,.50)),
  'cow': dict(height=1.50,front=(.55,.22,.07),back=(.64,.41,.26),fy=-.15,by=.36,head=(-.28,.70),tail=(.41,.86),body=.58),
  'cow_holstein': dict(height=1.50,front=(.59,.24,.08),back=(.65,.43,.27),fy=-.13,by=.39,head=(-.28,.76),tail=(.46,.86),body=.60,rotation=-math.pi/2),
 }
-HOOFED=('sheep','goat','pig','boar','cow','cow_holstein')
+HOOFED=('sheep','goat','pig','boar','cow','cow_holstein','horse')
 
 
 def ensure_lit_principled(material):
@@ -154,7 +158,8 @@ def load_surface(species):
   m.node_tree.links.new(target.outputs['Color'],normal.inputs['Color']);normal.uv_map=o.data.uv_layers[0].name
   normal.inputs['Strength'].default_value=1;baked.pack()
  for o in meshes:
-  o.name=f'{species}_surface'
+  # The horse ships separate hair, ear and eye shells beside its body.
+  o.name=f'{species}_surface' if species!='horse' or o.name.startswith('horse_body') else f"horse_{o.name.split('.')[0]}"
   if species=='forge_cat':
    for m in o.data.materials:m.name='forge_cat_coat'
  return meshes
@@ -193,7 +198,8 @@ def skin_fallback(obj,rig):
   rear=rig.data.bones['Leg.'+side+'B'].head_local
   df=abs(p.y-fore.y);db=abs(p.y-rear.y)
   family=side+('F' if df<db else 'B')
-  limb_mix=(1-smooth(.28*h,.70*h,p.z))*max(smooth(.035*h,.16*h,abs(p.x)),1-smooth(.12*h,.28*h,p.z))
+  lo_z,hi_z=CONFIG[rig['species']].get('limb_mix',(.28,.70))
+  limb_mix=(1-smooth(lo_z*h,hi_z*h,p.z))*max(smooth(.035*h,.16*h,abs(p.x)),1-smooth(.12*h,.28*h,p.z))
   # No competing front/rear palette across the flank: blend to the trunk in
   # the interval between limbs before switching the three-bone leg palette.
   limb_mix*=smooth(0,.55,abs(df-db)/max(df+db,.001))*smooth(0,.08*h,abs(p.x))
@@ -395,7 +401,8 @@ def animate(rig,limbs,species,bz):
 def build(species,out):
  manifest=json.loads((ROOT/'assets/storybook/mammal_sources.json').read_text())['models'][species]
  source=BUILD/'sources'/f'{species}.glb'
- if hashlib.sha256(source.read_bytes()).hexdigest()!=manifest['sha256']:raise ValueError(f'{species}: source checksum mismatch')
+ # Project-authored sources are rebuilt from script, not downloaded: no checksum pin.
+ if not manifest.get('generated') and hashlib.sha256(source.read_bytes()).hexdigest()!=manifest['sha256']:raise ValueError(f'{species}: source checksum mismatch')
  if species=='rat':
   clear();runpy.run_path(str(Path(__file__).with_name('import_authored_rat.py')),run_name='__main__')
   subprocess.run(['/usr/bin/python3',str(Path(__file__).with_name('pack_authored_rat.py'))],check=True)

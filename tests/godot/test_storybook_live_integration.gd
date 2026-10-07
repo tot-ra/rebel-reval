@@ -26,7 +26,7 @@ func test_live_cast_retains_identity_health_and_fitted_equipment() -> void:
 			assert_false(rig.equip_wearable(foreign), "%s must refuse Kalev's mail" % body)
 		assert_true(rig.play_animation(&"sword_attack", 0.0))
 		for slot: StringName in [&"right_hand", &"left_hand"]:
-			var prop := "sword" if slot == &"right_hand" else "shield"
+			var prop := "sword" if slot == &"right_hand" else "hammer"
 			assert_true(rig.equip(slot, load("res://assets/storybook/equipment/%s.tscn" % prop)) != null)
 			rig.unequip(slot)
 			assert_eq(rig.equipped(slot), null)

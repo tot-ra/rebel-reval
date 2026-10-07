@@ -16,6 +16,7 @@ render_mode blend_mix, depth_draw_opaque, cull_back, diffuse_burley, specular_sc
 
 uniform vec3 wash : source_color = vec3(0.74, 0.69, 0.6);
 uniform float indoor_ao = 0.62;
+uniform bool outdoor = false; // exterior whitewash: daylight, fog, rain streaks
 uniform float floor_y = 0.0; // world height of the floor the grime band sits on
 uniform float paint = 0.0;
 uniform float frieze_y0 = 1.95; // above the floor
@@ -79,16 +80,25 @@ void fragment() {
 		}
 	}
 	// Smoke from candles darkens the wash towards the ceiling.
-	col *= mix(1.0, 0.82, smoothstep(2.6, 4.8, h));
-	float grime = (1.0 - smoothstep(0.0, 0.55, h)) * (0.55 + wfbm(p * 2.4) * 0.45);
-	col = mix(col, vec3(0.42, 0.38, 0.32), grime * 0.45);
+	if (!outdoor) {
+		col *= mix(1.0, 0.82, smoothstep(2.6, 4.8, h));
+		float grime = (1.0 - smoothstep(0.0, 0.55, h)) * (0.55 + wfbm(p * 2.4) * 0.45);
+		col = mix(col, vec3(0.42, 0.38, 0.32), grime * 0.45);
+	}
 	// Indoors only the windows let the sky in: the GL Compatibility renderer has
 	// no ambient occlusion, so the wash is darkened and warmed directly.
-	ALBEDO = col * indoor_ao * vec3(1.06, 0.98, 0.86);
-	AO = indoor_ao;
-	AO_LIGHT_AFFECT = 0.0;
-	// No sky haze indoors: the distance fog is for streets and the skyline.
-	FOG = vec4(0.0);
+	if (outdoor) {
+		// Whitewash outside: rain streaks under the eaves, splash dirt at the foot.
+		float streak = smoothstep(0.55, 0.9, wnoise(vec2(s * 3.0, w_pos.y * 0.15)));
+		col = mix(col, col * vec3(0.8, 0.78, 0.72), streak * 0.35);
+		ALBEDO = col;
+	} else {
+		ALBEDO = col * indoor_ao * vec3(1.06, 0.98, 0.86);
+		AO = indoor_ao;
+		AO_LIGHT_AFFECT = 0.0;
+		// No sky haze indoors: the distance fog is for streets and the skyline.
+		FOG = vec4(0.0);
+	}
 	ROUGHNESS = 0.94;
 	SPECULAR = 0.2;
 	NORMAL_MAP = normalize(vec3(mottle * 0.3, brush * 0.2, 1.0)) * 0.5 + 0.5;

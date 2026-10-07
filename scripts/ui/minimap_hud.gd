@@ -5,9 +5,15 @@ const TOGGLE_ACTION := &"toggle_minimap"
 const MAX_DISPLAY_SIZE := 280.0
 const PANEL_MARGIN := 24.0
 const INNER_PADDING := 8.0
-const LOCATION_GAP := 8.0
+const LOCATION_GAP := 8.0 + RIM_OVERHANG
 const LOCATION_LABEL_HEIGHT := 32.0
-const ORNAMENT_INSET := 5.0
+## Rim art (AI-generated slim bronze ring, transparent centre). Its opening is
+## ~71% of the texture width, so it is drawn at RIM_DISPLAY_SIZE to land the inner
+## edge on the map circle. The cardinal studs reach slightly past the map block,
+## so the HUD reserves RIM_OVERHANG on the right and above the panel.
+const RIM_TEXTURE_PATH := "res://assets/UI/minimap/minimap_rim.png"
+const RIM_DISPLAY_SIZE := 387.0
+const RIM_OVERHANG := 28.0
 const MARKER_SIZE := Vector2(10.0, 10.0)
 ## Cells spanned by the circular diameter. Large districts pan under the player;
 ## maps smaller than this still follow, with empty fill outside authored bounds.
@@ -80,54 +86,6 @@ class MinimapCelestialIndicator:
 		var moon := Color(0.91, 0.92, 0.78, clampf(0.65 + strength * 0.35, 0.0, 1.0))
 		draw_circle(position, 6.0, moon)
 		draw_circle(position + Vector2(2.8, -1.4), 5.2, Color(0.07, 0.10, 0.17, moon.a))
-
-
-class MinimapOrnament:
-	extends Control
-
-	const OUTER_GOLD := Color(0.72, 0.58, 0.31, 1.0)
-	const INNER_GOLD := Color(0.93, 0.79, 0.48, 0.9)
-	const SHADOW_BRONZE := Color(0.23, 0.13, 0.07, 0.95)
-
-	func _draw() -> void:
-		var center := size * 0.5
-		var radius := minf(size.x, size.y) * 0.5 - ORNAMENT_INSET
-		draw_arc(center, radius + 2.0, 0.0, TAU, 96, SHADOW_BRONZE, 5.0, true)
-		draw_arc(center, radius, 0.0, TAU, 96, OUTER_GOLD, 3.0, true)
-		draw_arc(center, radius - 5.0, 0.0, TAU, 96, INNER_GOLD, 1.0, true)
-
-		# Cardinal fleur-like points and small ring studs make the frame read as
-		# crafted medieval metalwork without requiring resolution-specific art.
-		for index in 4:
-			var angle := float(index) * PI * 0.5
-			_draw_cardinal_flourish(center, radius, angle)
-		for index in 12:
-			var angle := float(index) * TAU / 12.0
-			var stud := center + Vector2.from_angle(angle) * (radius - 8.0)
-			draw_circle(stud, 1.5, INNER_GOLD)
-
-	func _draw_cardinal_flourish(center: Vector2, radius: float, angle: float) -> void:
-		var outward := Vector2.from_angle(angle)
-		var tangent := outward.orthogonal()
-		var tip := center + outward * (radius - 1.0)
-		var base := center + outward * (radius - 12.0)
-		var diamond := PackedVector2Array(
-			[
-				tip,
-				base + tangent * 5.0,
-				base - outward * 5.0,
-				base - tangent * 5.0,
-			]
-		)
-		draw_colored_polygon(diamond, SHADOW_BRONZE)
-		draw_polyline(
-			PackedVector2Array(
-				[tip, base + tangent * 5.0, base - outward * 5.0, base - tangent * 5.0, tip]
-			),
-			INNER_GOLD,
-			1.5,
-			true
-		)
 
 
 var _definition: MapDefinition
@@ -250,9 +208,9 @@ func _build_ui() -> void:
 	_root.name = "MinimapRoot"
 	_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_root.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
-	_root.offset_left = -MAX_DISPLAY_SIZE - (INNER_PADDING * 2.0) - PANEL_MARGIN
+	_root.offset_left = -MAX_DISPLAY_SIZE - (INNER_PADDING * 2.0) - PANEL_MARGIN - RIM_OVERHANG
 	_root.offset_top = PANEL_MARGIN
-	_root.offset_right = -PANEL_MARGIN
+	_root.offset_right = -PANEL_MARGIN - RIM_OVERHANG
 	_root.offset_bottom = total_hud_height()
 	add_child(_root)
 
@@ -317,7 +275,7 @@ func _build_ui() -> void:
 	_celestial_indicator.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_celestial_indicator.custom_minimum_size = CELESTIAL_SIZE
 	_celestial_indicator.size = CELESTIAL_SIZE
-	_celestial_indicator.position = Vector2(MAX_DISPLAY_SIZE - CELESTIAL_SIZE.x - 10.0, 10.0)
+	_celestial_indicator.position = Vector2(MAX_DISPLAY_SIZE - CELESTIAL_SIZE.x - 62.0, 36.0)
 	_map_host.add_child(_celestial_indicator)
 
 	_date_badge = PanelContainer.new()
@@ -327,7 +285,7 @@ func _build_ui() -> void:
 	_date_badge.custom_minimum_size = Vector2(148.0, DATE_BADGE_HEIGHT)
 	_date_badge.size = _date_badge.custom_minimum_size
 	_date_badge.position = Vector2(
-		(MAX_DISPLAY_SIZE - _date_badge.size.x) * 0.5, MAX_DISPLAY_SIZE - DATE_BADGE_HEIGHT - 14.0
+		(MAX_DISPLAY_SIZE - _date_badge.size.x) * 0.5, MAX_DISPLAY_SIZE - DATE_BADGE_HEIGHT - 49.0
 	)
 	_date_badge.add_theme_stylebox_override("panel", _date_badge_style())
 	_map_host.add_child(_date_badge)
@@ -344,12 +302,17 @@ func _build_ui() -> void:
 	_date_label.add_theme_font_size_override("font_size", 15)
 	_date_badge.add_child(_date_label)
 
-	var ornament := MinimapOrnament.new()
-	ornament.name = "MedievalOrnament"
-	ornament.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	ornament.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_map_host.add_child(ornament)
-	_map_host.move_child(ornament, 1)
+	var rim := TextureRect.new()
+	rim.name = "MedievalOrnament"
+	rim.texture = load(RIM_TEXTURE_PATH) as Texture2D
+	rim.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	rim.stretch_mode = TextureRect.STRETCH_SCALE
+	rim.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	rim.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	rim.size = Vector2(RIM_DISPLAY_SIZE, RIM_DISPLAY_SIZE)
+	rim.position = (Vector2(MAX_DISPLAY_SIZE, MAX_DISPLAY_SIZE) - rim.size) * 0.5
+	_map_host.add_child(rim)
+	_map_host.move_child(rim, 1)
 
 
 func _connect_time_sources() -> void:
@@ -469,11 +432,7 @@ func _apply_panel_style() -> void:
 	var radius := int(MAX_DISPLAY_SIZE * 0.5) + INNER_PADDING
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.055, 0.035, 0.025, 0.96)
-	style.border_color = Color(0.24, 0.13, 0.06, 1.0)
-	style.set_border_width_all(2)
 	style.set_corner_radius_all(radius)
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.55)
-	style.shadow_size = 8
 	_panel.add_theme_stylebox_override("panel", style)
 
 

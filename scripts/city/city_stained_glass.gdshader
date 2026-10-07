@@ -12,9 +12,7 @@ render_mode blend_mix, depth_draw_opaque, cull_disabled, unshaded;
 
 #include "res://scripts/city/city_weathering.gdshaderinc"
 
-uniform float width = 1.0;
 uniform float daylight = 1.0;
-uniform float seed = 0.0;
 
 vec3 pot_metal(float k) {
 	if (k < 0.3) return vec3(0.62, 0.04, 0.05); // ruby
@@ -25,8 +23,13 @@ vec3 pot_metal(float k) {
 }
 
 void fragment() {
-	vec2 uv = UV;
-	float border = 0.09;
+	// Vertex colour: r = window width / 4, g = seed, b = lights / 4. Each
+	// light of a multi-light window gets its own border and medallions.
+	float lights = max(1.0, floor(COLOR.b * 4.0 + 0.5));
+	float width = COLOR.r * 4.0 / lights;
+	float seed = COLOR.g * 10.0 + floor(UV.x / width);
+	vec2 uv = vec2(mod(UV.x, width), UV.y);
+	float border = 0.07;
 	vec3 col;
 	float lead = 0.0;
 	if (uv.x < border || uv.x > width - border) {

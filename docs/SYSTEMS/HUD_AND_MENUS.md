@@ -26,7 +26,7 @@ Esc opens Settings ([`SETTINGS_AND_ACCESSIBILITY.md`](./SETTINGS_AND_ACCESSIBILI
 
 | Element | File | Shows |
 |---|---|---|
-| Minimap | `scripts/ui/minimap_hud.gd` (+ `MinimapTextureBuilder`, `MinimapPalette`) | Circular map built from the compiled `MapDefinition` (one pixel per cell), player marker, location name (`LocationHud` naming table) |
+| Minimap | `scripts/ui/minimap_hud.gd` (+ `MinimapTextureBuilder`, `MinimapPalette`) | Circular map built from the compiled `MapDefinition` (one pixel per cell), player marker, bronze rim art (`assets/UI/minimap/minimap_rim.png`, AI-generated slim bronze ring, shared with the seamless-city `CityMinimap`), location name (`LocationHud` naming table) |
 | Quest pouch | `scripts/inventory/quest_pouch_hud.gd` | Up to three quest tools (`gameplay.visible_in_pouch`) beside the satchel |
 | Health bars | `character_health_ring.gd` (2D), `character_health_ring_3d.gd` (over rigs) | Combat vitals |
 | Mana orb | `scripts/ui/mana_orb.gd` | Magic resource ([`MAGIC.md`](./MAGIC.md)) |

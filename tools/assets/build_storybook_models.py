@@ -30,9 +30,10 @@ PARTS = []
 RIG = None
 from storybook_anatomy import HUMANS as LEGACY_HUMANS, BIRDS, MAMMALS, human_head, limb
 from realistic_mammals import mammal
-# Kalev's live body is maintained by kalev_fresh; do not regenerate the
-# retired storybook duplicate during a full batch rebuild.
-HUMANS = tuple(name for name in LEGACY_HUMANS if name != 'kalev')
+# Every live human uses the realistic MPFB bodies (ADR 0022). The storybook
+# humans and their fitted wearables were deleted as unused, so a batch rebuild
+# must not recreate them; only the rigid sword/hammer props remain.
+HUMANS = ()
 # Hen uses the existing licensed chicken sculpt, rigged by import_authored_birds.py.
 BIRDS = tuple(name for name in BIRDS if name != 'hen')
 MODELS = (*HUMANS, *MAMMALS, *BIRDS)

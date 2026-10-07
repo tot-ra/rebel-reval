@@ -492,7 +492,8 @@ static func build_building(
 	ring_in: PackedVector2Array,
 	floor_y: float,
 	enterable: bool,
-	ground_at: Callable = Callable()
+	ground_at: Callable = Callable(),
+	keep_out: Array[PackedVector2Array] = []
 ) -> Dictionary:
 	var ring := wall_ring(b, ring_in)
 	var shell := Shell.new()
@@ -543,7 +544,7 @@ static func build_building(
 	if door_edge >= 0 and ground_at.is_valid():
 		_door_steps(shell, ring, door_edge, door_t, floor_y, ground_at)
 	# Roof halves.
-	_roof(roof, roof_key, ring, frame, roof_tint, roof_family)
+	_roof(roof, roof_key, ring, frame, roof_tint, roof_family, keep_out)
 	# Most town houses have a stone flue by 1343 (thatched country cottages keep
 	# a smoke hole); it rides with the roof node when the roof lifts.
 	var chimney := Vector3.INF
@@ -917,12 +918,28 @@ static func _roof(
 	ring: PackedVector2Array,
 	frame: Dictionary,
 	tint: Color,
-	family: StringName = &"tile"
+	family: StringName = &"tile",
+	keep_out: Array[PackedVector2Array] = []
 ) -> void:
 	var grown := Geometry2D.offset_polygon(ring, OVERHANG, Geometry2D.JOIN_MITER)
 	if grown.is_empty():
 		return
 	var outline: PackedVector2Array = grown[0]
+	# Eaves stop at a neighbouring landmark's wall (party wall): no overhang
+	# into it. The largest remaining piece is the roof outline.
+	for poly in keep_out:
+		# The largest piece is the outer roof (a hole piece is always smaller).
+		var keep := PackedVector2Array()
+		var best := -1.0
+		for piece in Geometry2D.clip_polygons(outline, poly):
+			var area := absf(signed_area(piece))
+			if area > best:
+				best = area
+				keep = piece
+		if not keep.is_empty():
+			outline = keep
+	if outline.size() < 3:
+		return
 	var r: Vector2 = frame["r"]
 	var n: Vector2 = frame["n"]
 	var mid: float = frame["mid"]
@@ -980,6 +997,8 @@ static func _roof(
 		var j := (i + 1) % outline.size()
 		var p0 := outline[i]
 		var p1 := outline[j]
+		if _on_keep_out((p0 + p1) * 0.5, keep_out):
+			continue  # the roof stops flush against the landmark's wall
 		var h0 := roof_height(frame, p0)
 		var h1 := roof_height(frame, p1)
 		for k in steps:
@@ -1007,6 +1026,15 @@ static func _roof(
 	var rr := float(RIDGE_RADIUS.get(family, 0.12))
 	var along0 := float(frame["amin"]) - OVERHANG - cover * 0.5
 	var along1 := float(frame["amax"]) + OVERHANG + cover * 0.5
+	if not keep_out.is_empty():
+		# The cap ends where the (clipped) roof ends.
+		var lo := INF
+		var hi := -INF
+		for p in outline:
+			lo = minf(lo, p.dot(r))
+			hi = maxf(hi, p.dot(r))
+		along0 = maxf(along0, lo)
+		along1 = minf(along1, hi)
 	var ridge_y := float(frame["ridge"])
 	var base0 := r * along0 + n * mid
 	var base1 := r * along1 + n * mid
@@ -1072,6 +1100,18 @@ static func _quad_uv(
 ) -> void:
 	shell.tri_out(key, q[0], q[1], q[2], tint, out, uv[0], uv[1], uv[2])
 	shell.tri_out(key, q[0], q[2], q[3], tint, out, uv[0], uv[2], uv[3])
+
+
+## True when `p` lies on the boundary of one of the keep-out polygons.
+static func _on_keep_out(p: Vector2, keep_out: Array[PackedVector2Array]) -> bool:
+	for poly in keep_out:
+		for k in poly.size():
+			var q := Geometry2D.get_closest_point_to_segment(
+				p, poly[k], poly[(k + 1) % poly.size()]
+			)
+			if q.distance_to(p) < 0.05:
+				return true
+	return false
 
 
 ## Point on the eave roll: angle +90 deg is the top of the cover at the cut

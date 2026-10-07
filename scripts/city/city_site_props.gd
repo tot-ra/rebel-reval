@@ -8,7 +8,9 @@ extends RefCounted
 ## are mounted under a node scaled to metres.
 
 const LEGACY_UNIT_M := 0.87
-const KINDS: Array[StringName] = [&"market_stall", &"cart", &"trade_goods", &"pillory"]
+const KINDS: Array[StringName] = [
+	&"market_stall", &"cart", &"trade_goods", &"pillory", &"stone_stack"
+]
 
 
 ## Adds the model for one manifest dressing item under `parent` (site-local
@@ -33,6 +35,8 @@ static func add(parent: Node3D, item: Dictionary, ground_y: float) -> Node3D:
 			MapViewTradeGoodsModels.add_model(legacy, StringName(item.get("variant", item["id"])))
 		&"pillory":
 			_pillory(node)
+		&"stone_stack":
+			_stone_stack(node, String(item["id"]).hash())
 		_:
 			push_error("CitySiteProps: unknown dressing kind %s" % item["kind"])
 			node.free()
@@ -88,3 +92,30 @@ static func _box(
 		var cc: Vector3 = p[f[2]]
 		var d: Vector3 = p[f[3]]
 		shell.quad_out(key, a, b, cc, d, color, (a + b + cc + d) * 0.25 - c)
+
+
+## Dressed limestone blocks stacked on timber skids (a masons' yard).
+static func _stone_stack(node: Node3D, seed_value: int) -> void:
+	var shell := CityBuildingBuilder.Shell.new()
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed_value
+	for z: float in [-0.6, 0.6]:
+		_box(
+			shell,
+			"timber",
+			Vector3(-1.2, 0.0, z - 0.08),
+			Vector3(1.2, 0.12, z + 0.08),
+			Color(0.5, 0.42, 0.34)
+		)
+	for layer in 3:
+		var count := 3 - layer
+		for k in count:
+			var x := -0.8 + k * 0.8 + layer * 0.4 + rng.randf_range(-0.05, 0.05)
+			var y := 0.12 + layer * 0.42
+			var tone := Color(0.9, 0.88, 0.83) * rng.randf_range(0.85, 1.0)
+			tone.a = 1.0
+			_box(shell, "stone", Vector3(x - 0.38, y, -0.7), Vector3(x + 0.38, y + 0.4, 0.7), tone)
+	var mesh := MeshInstance3D.new()
+	mesh.name = "Stones"
+	mesh.mesh = shell.to_mesh(CityBuildingBuilder.material_for_key)
+	node.add_child(mesh)

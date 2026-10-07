@@ -21,6 +21,7 @@ RECORD_TYPE_BY_PREFIX = {
     "spell.": "spell",
     "rite.": "rite",
     "magic.": "magic_grant",
+    "cutscene.": "cutscene",
 }
 
 CONDITION_OPS = {

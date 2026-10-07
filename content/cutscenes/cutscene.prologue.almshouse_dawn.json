@@ -1,0 +1,163 @@
+{
+  "type": "cutscene",
+  "id": "cutscene.prologue.almshouse_dawn",
+  "title": "The almshouse of the Holy Spirit",
+  "chapter": "II. The almshouse of the Holy Spirit",
+  "grade": "present_warm",
+  "skippable": true,
+  "confidence": "plausible composite",
+  "canon_status": "active",
+  "approval": {
+    "status": "draft",
+    "notes": "R-1318. Replaces the text title card in scripts/prologue/almshouse_opening.gd. Hands over to the observed spirit duel dialogue.prologue.almshouse_quarrel."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "next": {
+    "kind": "return"
+  },
+  "shots": [
+    {
+      "id": "s01_hall",
+      "still": "res://assets/cutscenes/prologue_almshouse/s01_hall.png",
+      "video": "",
+      "transition_in": "fade",
+      "motion": {
+        "kind": "pan_right",
+        "zoom_from": 1.12,
+        "zoom_to": 1.12
+      },
+      "hold_seconds": 6.0,
+      "caption": "The almshouse of the Holy Spirit. Before first light.",
+      "lines": [
+        {
+          "id": "l1",
+          "text": "Fifteen winters old. No name worth writing in the parish book, no family to come for him.",
+          "seconds": 6.5,
+          "delivery": "Same narrator as chapter I, closer and softer now. She is in the room."
+        },
+        {
+          "id": "l2",
+          "text": "He wakes before the bell. He always wakes before the bell.",
+          "seconds": 5.5,
+          "delivery": "The repetition is the point. Second half quieter."
+        }
+      ],
+      "sound": {
+        "music": "",
+        "ambience": ""
+      },
+      "authoring": {
+        "direction": "Introduce the hero by what nobody notices about him: he is the only one awake. Keep him small in the frame and off-centre. The room has to feel like charity, not cruelty - the Holy Spirit almshouse is a kindness that is also a dead end.",
+        "image_prompt": "Cinematic film still, 40mm, low eye-level wide interior of a long medieval almshouse hall before dawn: two rows of straw pallets on a beaten earth and plank floor under a low timber ceiling, sleeping figures under coarse grey blankets, an old man's bare foot out from under one, a crutch leaning on a whitewashed limestone wall, a wooden bowl and a shuttered window seeping thin blue pre-dawn light. One low tallow candle and the red embers of a small hearth at the far end. Off-centre in the middle distance, a thin fifteen-year-old boy in a loose undyed linen shirt sits upright on his pallet, blanket across his lap, hands still, looking at nothing in the middle of the room; shoulder-length dark hair, Baltic features, calm unreadable face, clearly the only person awake. Warm filmic grade pulled cool, amber candle and ember accents against blue window light, fine film grain, dust in the air, damp plaster texture. Historically accurate Reval 1343 charitable hospital interior. No text, no religious iconography with legible writing.",
+        "video_prompt": "9 seconds. Camera: slow lateral pan right along the row of pallets at seated height, 40mm, ending with the boy entering frame right and settling slightly off-centre. Subject motion: sleepers breathing, one turning over; the candle flame leaning in a draught; embers pulsing; the boy completely still except for a single slow blink as the pan stops on him. No other movement. Audio: breathing, a chest cough from somewhere, wind in the shutter, no music until the pan reaches the boy, then one sustained high string. Voice-over only, no lip-sync. Narrator lines l1-l2; l2 landing exactly as the boy enters frame.",
+        "negative_prompt": "text, watermark, modern hospital beds, metal bedframes, glass windows, bright lighting, clean linens, Victorian orphanage, nuns in modern habits, children's toys"
+      }
+    },
+    {
+      "id": "s02_seen",
+      "still": "res://assets/cutscenes/prologue_almshouse/s02_seen.png",
+      "video": "",
+      "transition_in": "dissolve",
+      "motion": {
+        "kind": "push_in",
+        "zoom_from": 1.0,
+        "zoom_to": 1.18
+      },
+      "hold_seconds": 7.0,
+      "caption": "No one else wakes.",
+      "lines": [
+        {
+          "id": "l1",
+          "text": "This is what he sees. Not instead of the room. On top of it.",
+          "seconds": 6.0,
+          "delivery": "Careful and exact. This is the rule of the game being stated once."
+        },
+        {
+          "id": "l2",
+          "text": "Shapes leaning over the sleeping. What they are afraid of, standing up out of them and breathing.",
+          "seconds": 7.0,
+          "delivery": "Describing, not frightening. The horror is that it is ordinary to him."
+        },
+        {
+          "id": "l3",
+          "text": "He learned early not to say so.",
+          "seconds": 5.0,
+          "delivery": "Flat. The whole social cost of the gift in six words."
+        }
+      ],
+      "sound": {
+        "music": "",
+        "ambience": ""
+      },
+      "authoring": {
+        "direction": "The one supernatural frame in the prologue, and it must read as perception rather than as a monster scene. Same camera position as s01_hall so the audience understands it is the same room. Phantoms are cold cyan (ART_BIBLE moon cyan #58C7E8), translucent, bent over the sleepers with something like tenderness. Nothing attacks. The boy is looking straight at one.",
+        "image_prompt": "Cinematic film still, 40mm, the same low eye-level interior of a long medieval almshouse hall before dawn, identical staging to the previous frame: two rows of straw pallets, sleeping figures under coarse grey blankets, whitewashed limestone wall, embers at the far end. Overlaid on the real room, not replacing it: tall thin translucent cold-cyan apparitions, three of them, bowed over individual sleepers, long-limbed and faceless with suggestions of antlers and reaching fingers, edges luminous and smoke-like, casting no shadow and lighting the blankets beneath them with pale cyan rim light. Seated off-centre on his pallet, the thin fifteen-year-old boy in an undyed linen shirt looks directly and calmly at the nearest apparition, his face lit from one side by its cold glow and from the other by distant amber embers. Two-colour light design, cold cyan against warm amber, deep desaturated mid-tones, fine film grain, volumetric haze. Historically accurate 1343 interior with restrained folkloric apparitions. No text, no gore, no demonic faces, no horns on the boy.",
+        "video_prompt": "10 seconds. Camera: slow push-in from the same position as the previous shot toward the boy, 40mm, settling on a loose medium of his face and the nearest apparition sharing frame. Subject motion: the apparitions breathing and swaying out of phase with the sleepers, one slowly turning its head toward the boy as the push-in arrives; smoke-like edges drifting; cyan rim light on a blanket pulsing with a sleeper's breath; the boy's eyes tracking the turning head, no other reaction. Audio: the room sound drops away almost completely, replaced by a low sub-bass pulse and a thin high metallic ring; one sleeper's breathing stays audible and in sync with the nearest apparition. Voice-over only, no lip-sync. Narrator lines l1-l3; l3 over a two-second held frame where the apparition and the boy simply look at each other.",
+        "negative_prompt": "text, watermark, jump scare, screaming faces, blood, zombie, skull faces, Hollywood demon, saturated green or purple ghost light, lens flare, modern VFX glow"
+      }
+    },
+    {
+      "id": "s03_quarrel",
+      "still": "res://assets/cutscenes/prologue_almshouse/s03_quarrel.png",
+      "video": "",
+      "transition_in": "cut",
+      "motion": {
+        "kind": "push_in",
+        "zoom_from": 1.04,
+        "zoom_to": 1.14
+      },
+      "hold_seconds": 6.0,
+      "caption": "The matron and the porter, over bread.",
+      "lines": [
+        {
+          "id": "l1",
+          "text": "By the door the matron and the porter are arguing. It sounds like bread. It is not about bread.",
+          "seconds": 6.5,
+          "delivery": "A faint smile in the voice. This is the lesson."
+        },
+        {
+          "id": "l2",
+          "text": "Watch them, boy. Watch what they are really swinging at each other.",
+          "seconds": 6.0,
+          "delivery": "Direct address to the hero and to the player at the same time. This is the tutorial prompt."
+        }
+      ],
+      "sound": {
+        "music": "",
+        "ambience": ""
+      },
+      "authoring": {
+        "direction": "Hand off into the observed spirit duel. The quarrel must be physically mundane and emotionally violent: no blows, two adults in a doorway, hands and jaw doing the work. The boy is foreground, out of focus, in the audience's seat - the same seat the player is about to take.",
+        "image_prompt": "Cinematic film still, 85mm, shallow depth of field, shot over the shoulder of a thin fifteen-year-old boy sitting in the foreground of a medieval almshouse hall, his head and shoulder dark and out of focus in the lower left. Sharp in the middle distance, framed by a low timber doorway: a middle-aged almshouse matron in a dark wool kirtle, linen head wrap and a ring of keys at her belt, jaw set, one hand flat and cutting the air; facing her a heavy-shouldered porter in a patched russet tunic and leather apron, a wicker bread basket held low and slightly turned away from her, chin down, neck tight. Both caught mid-argument, close, not touching. Behind them a shuttered window edged with cold dawn light and the warm smear of a tallow lamp on the wall. Warm filmic grade, amber lamp key light on their faces, cold blue fill from the window, deep soft shadow, fine film grain. Historically accurate Reval 1343. No text, no violence, no raised weapons.",
+        "video_prompt": "8 seconds. Camera: slow push-in past the boy's shoulder toward the doorway, 85mm, the foreground head sliding out of frame left as the move completes so the audience is pulled from his seat into the argument. Subject motion: the matron's cutting hand repeating twice, faster the second time; the porter's basket turning further away from her; both talking over each other, lips moving, speech deliberately inaudible under the voice-over; the key ring swinging; one listener on a pallet behind them rolling over to face the wall. Audio: hissed overlapping Low German and Estonian kept just below intelligibility, the key ring, a wicker creak; the string note from the previous shot cuts off hard on the word 'bread'. LIP-SYNC REQUIRED LATER for the matron and porter when their duel lines are voiced; for the still and first video tier their speech stays unintelligible and no sync is needed. Narrator lines l1-l2; l2 is the last thing heard before the sequence ends and the spirit duel opens.",
+        "negative_prompt": "text, watermark, physical fight, slapping, weapons, blood, comic expressions, modern clothing, aprons with printed logos, clean white linen"
+      }
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "attested",
+      "summary": "A Holy Spirit priest is recorded in Reval in 1316; the Holy Spirit parish and its charitable hospital are the anchor for the prologue location.",
+      "citations": [
+        "docs/CANON.md",
+        "history/dossiers/religion/churches-and-religious-houses.md"
+      ]
+    },
+    {
+      "confidence": "plausible composite",
+      "summary": "A house for orphans and the destitute attached to the Holy Spirit parish is a composite of ordinary Hanseatic almshouse practice, not a specific 1343 attestation (ADR 0033 §7).",
+      "citations": [
+        "docs/adr/0033-teen-protagonist-and-spirit-dialogue-combat.md"
+      ]
+    },
+    {
+      "confidence": "invented",
+      "summary": "The protagonist, the matron, the porter, the apparitions over the sleepers and all narration are authored for ADR 0033 and R-1318. The spirit layer is presented as the hero's perception and is never confirmed as a diagnosis."
+    }
+  ]
+}

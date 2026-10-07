@@ -38,5 +38,6 @@ Numbered decisions (Status / Context / Decision / Alternatives / Consequences). 
 - [ADR 0031: Reval as one continuous, georeferenced city plan](0031-continuous-reval-city-plan.md)
 - [ADR 0032: Bespoke landmark sites in the seamless city](0032-bespoke-landmark-sites-in-the-city.md)
 - [ADR 0033: A teenage clairvoyant protagonist and spirit-world dialogue combat](0033-teen-protagonist-and-spirit-dialogue-combat.md)
+- [ADR 0034: Cutscene mode and the cinematic prologue](0034-cutscene-mode-and-cinematic-prologue.md)
 
 <!-- docs-index:end -->

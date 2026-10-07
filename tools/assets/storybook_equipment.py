@@ -135,7 +135,7 @@ use_anatomical_muscles = false
 
 
 def build_props(a):
-    for kind in ('sword','shield','hammer'):
+    for kind in ('sword','hammer'):
         a.reset();p=a.palette()
         if kind=='sword':
             a.segment('Leather grip',(0,0,-.09),(0,0,.07),.024,p['leather_dark'],{})

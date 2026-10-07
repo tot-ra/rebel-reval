@@ -89,6 +89,7 @@ def model_lines() -> list:
             m["url"],
         )
         for model_id, m in models.items()
+        if not m.get("generated")  # project-authored, nothing to credit
     ]
     entries += [(label, title, author, "CC BY 4.0", url) for label, title, author, url in LEGACY_MODEL_CREDITS]
     for label, title, author, lic, url in sorted(entries, key=lambda e: e[0].lower()):

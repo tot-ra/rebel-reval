@@ -36,6 +36,7 @@ SCHEMA_BY_TYPE = {
     "spell": "magic.schema.json",
     "rite": "magic.schema.json",
     "magic_grant": "magic.schema.json",
+    "cutscene": "cutscene.schema.json",
 }
 
 TYPE_MAP = {

@@ -281,8 +281,9 @@ func _local_logic(global_position: Vector2) -> Vector2:
 	var parent := _view.get_parent() as Node3D
 	if parent == null:
 		return global_position
-	return global_position - Vector2(parent.position.x, parent.position.z) * float(
-		_definition.cell_size
+	return (
+		global_position
+		- Vector2(parent.position.x, parent.position.z) * float(_definition.cell_size)
 	)
 
 

@@ -19,6 +19,10 @@ const ARCH_SEGMENTS := 8
 const LIMEWASH := preload("res://scripts/city/city_limewash.gdshader")
 const FLAGSTONE := preload("res://scripts/city/city_flagstone.gdshader")
 const GLASS := preload("res://scripts/city/city_stained_glass.gdshader")
+const STONE_ALBEDO := "res://assets/materials/pbr/stone/stone_albedo.png"
+const STONE_NORMAL := "res://assets/materials/pbr/stone/stone_normal.png"
+const TIMBER_ALBEDO := "res://assets/materials/pbr/timber/timber_albedo.png"
+const TIMBER_NORMAL := "res://assets/materials/pbr/timber/timber_normal.png"
 
 static var _materials: Dictionary = {}
 
@@ -56,30 +60,40 @@ static func wall(
 	var o3 := Vector3(out.x, 0, out.y)
 	var outer_key := String(w.get("outer", "wall:limestone"))
 	var inner_key := String(w.get("inner", "painted"))
-	var outs: Array = []
-	var ins: Array = []
-	for op: Dictionary in w.get("openings", []):
-		var o := _opening(op, false)
-		outs.append(o)
-		ins.append(_opening(op, true) if String(op.get("kind", "window")) != "niche" else {})
-	_face(shell, outer_key, outer, 0.0, length, y0, y1, outs, o3, STONE)
-	var inner_openings: Array = []
-	for o: Dictionary in ins:
-		if not o.is_empty():
-			inner_openings.append(o)
+	# Openings: windows, doors and arches go through; `niche` is a recess in
+	# the outer face, `recess` one in the inner face (both blind).
+	var opens: Array = w.get("openings", [])
+	var outer_holes: Array = []
+	var inner_holes: Array = []
+	for op: Dictionary in opens:
+		var kind := String(op.get("kind", "window"))
+		if kind != "recess":
+			outer_holes.append(_opening(op, false))
+		if kind == "recess":
+			inner_holes.append(_opening(op, false))
+		elif kind != "niche":
+			inner_holes.append(_opening(op, true))
+	_face(shell, outer_key, outer, 0.0, length, y0, y1, outer_holes, o3, STONE)
 	var s0 := float(w.get("inner_from", thick))
 	var s1 := length - float(w.get("inner_to", thick))
 	if bool(w.get("inner_face", true)):
-		_face(shell, inner_key, inner, s0, s1, floor_y, y1, inner_openings, -o3, Color.WHITE)
-	for k in outs.size():
-		var o: Dictionary = outs[k]
-		if String(o["kind"]) == "niche":
+		_face(shell, inner_key, inner, s0, s1, floor_y, y1, inner_holes, -o3, Color.WHITE)
+	for op: Dictionary in opens:
+		var kind := String(op.get("kind", "window"))
+		var o := _opening(op, false)
+		if kind == "niche":
 			_niche(shell, outer, o, out, 0.22, dir)
 			continue
-		_reveal(shell, outer, inner, o, ins[k], dir)
-		if bool(o.get("glass", false)):
-			_glass(glass, a, dir, out, thick * 0.3, o)
-		if String(o["kind"]) == "louvre":
+		if kind == "recess":
+			_niche(shell, inner, o, -out, float(op.get("depth", 0.35)), dir)
+			continue
+		_reveal(shell, outer, inner, o, _opening(op, true), dir)
+		var lights := int(op.get("lights", 1))
+		if bool(op.get("glass", false)):
+			_glass(glass, a, dir, out, thick * 0.3, o, lights)
+		if lights > 1:
+			_tracery(shell, a, dir, out, thick * 0.3, o, lights)
+		if kind == "louvre":
 			_louvres(shell, a, dir, out, thick * 0.5, o)
 	shell.quad_out(
 		String(w.get("top", outer_key)),
@@ -116,7 +130,8 @@ static func _opening(op: Dictionary, inner: bool) -> Dictionary:
 		"apex": apex,
 		"kind": kind,
 		"glass": bool(op.get("glass", false)),
-		"seed": float(op.get("seed", s))
+		"seed": float(op.get("seed", s)),
+		"reveal": String(op.get("reveal", "")),
 	}
 
 
@@ -218,7 +233,9 @@ static func _reveal(
 	# Resample the inner outline to the outer's vertex count (same topology).
 	if a.size() != b.size():
 		return
-	var key := "limewash" if String(o["kind"]) == "window" else "ashlar"
+	var key := String(o.get("reveal", ""))
+	if key.is_empty():
+		key = "ashlar" if String(o["kind"]) == "door" else "limewash"
 	var tone := Color.WHITE if key == "limewash" else ASHLAR
 	for k in a.size():
 		var p := a[k]
@@ -287,13 +304,15 @@ static func _glass(
 	dir: Vector2,
 	out: Vector2,
 	inset: float,
-	o: Dictionary
+	o: Dictionary,
+	lights := 1
 ) -> void:
 	var pts := outline(o)
 	var s0 := float(o["s"])
 	var sill := float(o["sill"])
 	var w := float(o["w"])
-	var c := Color(w / 4.0, fposmod(float(o["seed"]) * 0.37, 1.0), 1.0)
+	# COLOR: r = width / 4, g = pattern seed, b = number of lights / 4.
+	var c := Color(w / 4.0, fposmod(float(o["seed"]) * 0.37, 1.0), lights / 4.0)
 	var at := func(p: Vector2) -> Vector3:
 		var q := a + dir * p.x - out * inset
 		return Vector3(q.x, p.y, q.y)
@@ -313,6 +332,87 @@ static func _glass(
 			Vector2(p.x - s0, p.y - sill),
 			Vector2(q.x - s0, q.y - sill)
 		)
+
+
+## Stone tracery of a multi-light window: mullions from sill to springing,
+## the lights' pointed heads and a roundel (oculus) in the head above them.
+static func _tracery(
+	shell: CityBuildingBuilder.Shell,
+	a: Vector2,
+	dir: Vector2,
+	out: Vector2,
+	inset: float,
+	o: Dictionary,
+	lights: int
+) -> void:
+	var at := func(sv: float, y: float, off: float) -> Vector3:
+		var q := a + dir * sv - out * (inset + off)
+		return Vector3(q.x, y, q.y)
+	var s0 := float(o["s"])
+	var w := float(o["w"])
+	var sill := float(o["sill"])
+	var spring := float(o["spring"])
+	var lw := w / lights
+	var head := spring + lw * 0.85
+	for k in range(1, lights):
+		var sv := s0 + lw * k
+		_bar_box(shell, at, sv - 0.045, sv + 0.045, sill, head)
+	# Each light's pointed head as a thin stone band.
+	for k in lights:
+		var pts := arch(s0 + lw * k, lw, spring, head)
+		for j in range(pts.size() - 1):
+			var p := pts[j]
+			var q := pts[j + 1]
+			shell.quad_out(
+				"ashlar",
+				at.call(p.x, p.y, -0.07),
+				at.call(q.x, q.y, -0.07),
+				at.call(q.x, q.y, 0.07),
+				at.call(p.x, p.y, 0.07),
+				ASHLAR,
+				Vector3(0, -1, 0)
+			)
+	# Roundel in the head above the lights.
+	if float(o["apex"]) > head + 0.2:
+		var cy := (head + float(o["apex"])) * 0.5
+		var r := minf(w * 0.22, (float(o["apex"]) - head) * 0.42)
+		var cs := s0 + w * 0.5
+		for j in 12:
+			var a0 := TAU * j / 12.0
+			var a1 := TAU * (j + 1) / 12.0
+			var p := Vector2(cs + cos(a0) * r, cy + sin(a0) * r)
+			var q := Vector2(cs + cos(a1) * r, cy + sin(a1) * r)
+			shell.quad_out(
+				"ashlar",
+				at.call(p.x, p.y, -0.07),
+				at.call(q.x, q.y, -0.07),
+				at.call(q.x, q.y, 0.07),
+				at.call(p.x, p.y, 0.07),
+				ASHLAR,
+				Vector3(cos(a0), sin(a0), 0)
+			)
+
+
+static func _bar_box(
+	shell: CityBuildingBuilder.Shell, at: Callable, s0: float, s1: float, y0: float, y1: float
+) -> void:
+	var p := [
+		at.call(s0, y0, -0.07),
+		at.call(s1, y0, -0.07),
+		at.call(s1, y1, -0.07),
+		at.call(s0, y1, -0.07),
+		at.call(s0, y0, 0.07),
+		at.call(s1, y0, 0.07),
+		at.call(s1, y1, 0.07),
+		at.call(s0, y1, 0.07),
+	]
+	var c: Vector3 = (p[0] + p[6]) * 0.5
+	for f: Array in [[0, 1, 2, 3], [5, 4, 7, 6], [4, 0, 3, 7], [1, 5, 6, 2]]:
+		var q0: Vector3 = p[f[0]]
+		var q1: Vector3 = p[f[1]]
+		var q2: Vector3 = p[f[2]]
+		var q3: Vector3 = p[f[3]]
+		shell.quad_out("ashlar", q0, q1, q2, q3, ASHLAR, (q0 + q1 + q2 + q3) * 0.25 - c)
 
 
 ## Belfry louvres: slanted boards across the opening.
@@ -396,7 +496,8 @@ static func stepped_gable(
 	apex: float,
 	steps: int,
 	thick: float,
-	niches: int = 3
+	niches: int = 3,
+	key := "wall:limestone"
 ) -> void:
 	var half := (z1 - z0) * 0.5
 	var zc := (z0 + z1) * 0.5
@@ -420,7 +521,7 @@ static func stepped_gable(
 	for k in range(0, tris.size(), 3):
 		var p := [prof[tris[k]], prof[tris[k + 1]], prof[tris[k + 2]]]
 		shell.tri_out(
-			"wall:limestone",
+			key,
 			Vector3(x, p[0].y, p[0].x),
 			Vector3(x, p[1].y, p[1].x),
 			Vector3(x, p[2].y, p[2].x),
@@ -428,7 +529,7 @@ static func stepped_gable(
 			Vector3(side, 0, 0)
 		)
 		shell.tri_out(
-			"wall:limestone",
+			key,
 			Vector3(x_in, p[0].y, p[0].x),
 			Vector3(x_in, p[1].y, p[1].x),
 			Vector3(x_in, p[2].y, p[2].x),
@@ -442,7 +543,7 @@ static func stepped_gable(
 			continue
 		var n2 := Vector2(q.y - p.y, -(q.x - p.x)).normalized()
 		shell.quad_out(
-			"wall:limestone",
+			key,
 			Vector3(x, p.y, p.x),
 			Vector3(x, q.y, q.x),
 			Vector3(x_in, q.y, q.x),
@@ -764,27 +865,59 @@ static func material_for(key: String) -> Material:
 			var fs := ShaderMaterial.new()
 			fs.shader = FLAGSTONE
 			mat = fs
+		"render":
+			# White lime render (whitewash) outside.
+			var rm := ShaderMaterial.new()
+			rm.shader = LIMEWASH
+			rm.set_shader_parameter("outdoor", true)
+			rm.set_shader_parameter("wash", Color(0.93, 0.92, 0.88))
+			mat = rm
+		"planks":
+			var pl := StandardMaterial3D.new()
+			pl.albedo_texture = load(TIMBER_ALBEDO)
+			pl.normal_enabled = true
+			pl.normal_texture = load(TIMBER_NORMAL)
+			pl.uv1_triplanar = true
+			pl.uv1_world_triplanar = true
+			pl.uv1_scale = Vector3(0.32, 0.32, 0.32)
+			pl.albedo_color = Color(0.8, 0.74, 0.64)
+			pl.vertex_color_use_as_albedo = true
+			pl.roughness = 0.8
+			mat = pl
 		"glass":
 			var gs := ShaderMaterial.new()
 			gs.shader = GLASS
 			mat = gs
 		"ashlar":
 			var std := StandardMaterial3D.new()
-			std.albedo_texture = load("res://assets/materials/pbr/stone/stone_albedo.png")
+			std.albedo_texture = load(STONE_ALBEDO)
 			std.normal_enabled = true
-			std.normal_texture = load("res://assets/materials/pbr/stone/stone_normal.png")
+			std.normal_texture = load(STONE_NORMAL)
 			std.uv1_triplanar = true
 			std.uv1_world_triplanar = true
-			std.uv1_scale = Vector3(0.9, 0.9, 0.9)
+			std.uv1_scale = Vector3(0.5, 0.5, 0.5)
 			std.albedo_color = Color(0.8, 0.78, 0.72)
 			std.vertex_color_use_as_albedo = true
 			std.roughness = 0.88
 			mat = std
+		"greystone":
+			# Bare grey limestone (piers and arches left unplastered inside).
+			var gs2 := StandardMaterial3D.new()
+			gs2.albedo_texture = load(STONE_ALBEDO)
+			gs2.normal_enabled = true
+			gs2.normal_texture = load(STONE_NORMAL)
+			gs2.uv1_triplanar = true
+			gs2.uv1_world_triplanar = true
+			gs2.uv1_scale = Vector3(0.75, 0.75, 0.75)
+			gs2.albedo_color = Color(0.6, 0.6, 0.57)
+			gs2.vertex_color_use_as_albedo = true
+			gs2.roughness = 0.9
+			mat = gs2
 		"timber":
 			var std := StandardMaterial3D.new()
-			std.albedo_texture = load("res://assets/materials/pbr/timber/timber_albedo.png")
+			std.albedo_texture = load(TIMBER_ALBEDO)
 			std.normal_enabled = true
-			std.normal_texture = load("res://assets/materials/pbr/timber/timber_normal.png")
+			std.normal_texture = load(TIMBER_NORMAL)
 			std.uv1_triplanar = true
 			std.uv1_world_triplanar = true
 			std.uv1_scale = Vector3(1.4, 1.4, 1.4)
@@ -796,6 +929,28 @@ static func material_for(key: String) -> Material:
 			mat = CityBuildingBuilder.material_for_key(key)
 	_materials[key] = mat
 	return mat
+
+
+## Binds the shared wash materials of `nodes` to a site: each surface using
+## the kit's "limewash" or "painted" material gets a copy whose floor height
+## (grime band, smoke towards the vault) and frieze frame belong to the site.
+## `brightness` is the indoor level (high, tall windowed churches read white).
+static func bind_site_washes(
+	nodes: Array, site: CitySite, floor_y: float, rich_from := 1e9, brightness := 0.82
+) -> void:
+	var wash := (material_for("limewash") as ShaderMaterial).duplicate() as ShaderMaterial
+	wash.set_shader_parameter("floor_y", site.level + floor_y)
+	wash.set_shader_parameter("indoor_ao", brightness)
+	wash.set_shader_parameter("wash", Color(0.86, 0.84, 0.78))
+	var painted := painted_for(site, floor_y, rich_from)
+	painted.set_shader_parameter("indoor_ao", brightness)
+	for inst: MeshInstance3D in nodes:
+		for k in inst.mesh.get_surface_count():
+			var mat := inst.mesh.surface_get_material(k)
+			if mat == material_for("limewash"):
+				inst.set_surface_override_material(k, wash)
+			elif mat == material_for("painted"):
+				inst.set_surface_override_material(k, painted)
 
 
 ## A site's own copy of the painted wash, bound to its frame and floor (the
@@ -855,3 +1010,137 @@ static func walk_walls(fabric: Array) -> Array[Dictionary]:
 				}
 			)
 	return out
+
+
+## Quadripartite rib vault over one bay `r` (x, z, size): two pointed tunnels
+## crossing (the ceiling is the higher of the two, so the groins form the
+## diagonal arrises), springing at `spring`, crowning at `crown`. Diagonal
+## ribs follow the groins; the bay's edges carry thicker transverse and wall
+## arches; a boss sits at the crown. Webs are lime-washed, ribs in `rib_color`
+## (brick red-ochre as in Reval's churches).
+static func rib_vault(
+	shell: CityBuildingBuilder.Shell,
+	r: Rect2,
+	spring: float,
+	crown: float,
+	rib_color := Color(0.62, 0.36, 0.28),
+	n := 10
+) -> void:
+	var rise := crown - spring
+	var height := func(p: Vector2) -> float:
+		var ux := absf((p.x - r.position.x) / r.size.x * 2.0 - 1.0)
+		var uz := absf((p.y - r.position.y) / r.size.y * 2.0 - 1.0)
+		return spring + maxf(_pointed(uz), _pointed(ux)) * rise
+	for i in n:
+		for j in n:
+			var p00 := r.position + Vector2(r.size.x * i / n, r.size.y * j / n)
+			var p10 := r.position + Vector2(r.size.x * (i + 1) / n, r.size.y * j / n)
+			var p11 := r.position + Vector2(r.size.x * (i + 1) / n, r.size.y * (j + 1) / n)
+			var p01 := r.position + Vector2(r.size.x * i / n, r.size.y * (j + 1) / n)
+			var v := [p00, p10, p11, p01].map(
+				func(q: Vector2) -> Vector3: return Vector3(q.x, height.call(q), q.y)
+			)
+			# Split along the diagonal that follows the groins (keeps them crisp).
+			var flip := (i < n / 2) == (j < n / 2)
+			if flip:
+				shell.tri_out("limewash", v[0], v[1], v[2], Color.WHITE, Vector3.DOWN)
+				shell.tri_out("limewash", v[0], v[2], v[3], Color.WHITE, Vector3.DOWN)
+			else:
+				shell.tri_out("limewash", v[0], v[1], v[3], Color.WHITE, Vector3.DOWN)
+				shell.tri_out("limewash", v[1], v[2], v[3], Color.WHITE, Vector3.DOWN)
+	var segs := n * 2
+	var c := r.get_center()
+	# Diagonal ribs.
+	for corner: Vector2 in [
+		r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y)
+	]:
+		for k in segs / 2:
+			var a := corner.lerp(c, float(k) / (segs / 2))
+			var b := corner.lerp(c, float(k + 1) / (segs / 2))
+			bar(
+				shell,
+				"ashlar",
+				Vector3(a.x, height.call(a) - 0.1, a.y),
+				Vector3(b.x, height.call(b) - 0.1, b.y),
+				0.2,
+				rib_color
+			)
+	# Transverse (along z at x edges) and wall (along x at z edges) arches.
+	for x: float in [r.position.x, r.end.x]:
+		for k in segs:
+			var a := Vector2(x, r.position.y + r.size.y * k / segs)
+			var b := Vector2(x, r.position.y + r.size.y * (k + 1) / segs)
+			var ha := spring + _pointed(absf((a.y - r.position.y) / r.size.y * 2.0 - 1.0)) * rise
+			var hb := spring + _pointed(absf((b.y - r.position.y) / r.size.y * 2.0 - 1.0)) * rise
+			bar(
+				shell,
+				"ashlar",
+				Vector3(a.x, ha - 0.18, a.y),
+				Vector3(b.x, hb - 0.18, b.y),
+				0.36,
+				ASHLAR
+			)
+	for z: float in [r.position.y, r.end.y]:
+		for k in segs:
+			var a := Vector2(r.position.x + r.size.x * k / segs, z)
+			var b := Vector2(r.position.x + r.size.x * (k + 1) / segs, z)
+			var ha := spring + _pointed(absf((a.x - r.position.x) / r.size.x * 2.0 - 1.0)) * rise
+			var hb := spring + _pointed(absf((b.x - r.position.x) / r.size.x * 2.0 - 1.0)) * rise
+			bar(
+				shell,
+				"ashlar",
+				Vector3(a.x, ha - 0.15, a.y),
+				Vector3(b.x, hb - 0.15, b.y),
+				0.3,
+				ASHLAR
+			)
+	CitySiteProps._box(
+		shell,
+		"ashlar",
+		Vector3(c.x - 0.22, crown - 0.24, c.y - 0.22),
+		Vector3(c.x + 0.22, crown - 0.02, c.y + 0.22),
+		rib_color * 0.9
+	)
+
+
+## Pointed vault profile: 1 at the crown (u = 0), 0 at the springing (u = 1).
+static func _pointed(u: float) -> float:
+	return pow(maxf(1.0 - pow(u, 1.7), 0.0), 0.6)
+
+
+## Square pier with a chamfered base and a moulded impost (capital band).
+static func square_pier(
+	shell: CityBuildingBuilder.Shell,
+	at: Vector3,
+	half: float,
+	height: float,
+	shaft_key := "limewash"
+) -> void:
+	CitySiteProps._box(
+		shell,
+		"ashlar",
+		at + Vector3(-half - 0.12, 0.0, -half - 0.12),
+		at + Vector3(half + 0.12, 0.35, half + 0.12),
+		ASHLAR * 0.92
+	)
+	CitySiteProps._box(
+		shell,
+		shaft_key,
+		at + Vector3(-half, 0.35, -half),
+		at + Vector3(half, height - 0.45, half),
+		Color.WHITE if shaft_key == "limewash" else ASHLAR
+	)
+	CitySiteProps._box(
+		shell,
+		"ashlar",
+		at + Vector3(-half - 0.08, height - 0.45, -half - 0.08),
+		at + Vector3(half + 0.08, height - 0.3, half + 0.08),
+		ASHLAR
+	)
+	CitySiteProps._box(
+		shell,
+		"ashlar",
+		at + Vector3(-half - 0.16, height - 0.3, -half - 0.16),
+		at + Vector3(half + 0.16, height, half + 0.16),
+		ASHLAR
+	)

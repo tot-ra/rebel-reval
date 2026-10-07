@@ -124,6 +124,22 @@ func apply_time(progress: float) -> void:
 	smoke.set_time_of_day(MapView3D.TIME_DAY if day_blend > 0.35 else MapView3D.TIME_NIGHT)
 
 
+## Site building footprints (world XZ) near `ring`: generic roofs must not
+## overhang into a landmark (CityBuildingBuilder keep_out).
+func _site_keep_out(ring: PackedVector2Array) -> Array[PackedVector2Array]:
+	var out: Array[PackedVector2Array] = []
+	var box := Rect2(ring[0], Vector2.ZERO)
+	for p in ring:
+		box = box.expand(p)
+	box = box.grow(1.0)
+	for site in plan.sites:
+		if not site.bounds().intersects(box):
+			continue
+		for poly: Array in site.placed.get("footprints", []):
+			out.append(CityPlan.points(poly))
+	return out
+
+
 ## Landmark sites (ADR 0032): each manifest's visual at its anchor and level.
 func _build_sites() -> void:
 	for site in plan.sites:
@@ -184,7 +200,7 @@ func _build_buildings() -> void:
 		var enterable := bool(b.get("enterable", false))
 		var floor_y := plan.floor_height(i)
 		var built := CityBuildingBuilder.build_building(
-			b, ring, floor_y, enterable, plan.ground_height
+			b, ring, floor_y, enterable, plan.ground_height, _site_keep_out(ring)
 		)
 		var top: Vector3 = built["chimney"]
 		if top != Vector3.INF:

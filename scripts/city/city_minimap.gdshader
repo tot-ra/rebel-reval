@@ -18,7 +18,8 @@ void fragment() {
 	float s = sin(angle);
 	vec2 q = vec2(p.x * c - p.y * s, p.x * s + p.y * c);
 	vec4 map = texture(map_texture, center_uv + q * view_uv);
-	float rim = smoothstep(0.45, 0.47, r);
+	// The painted bronze rim texture is drawn over the circle edge by CityMinimap.
+	float rim = 0.0;
 	COLOR = mix(map, rim_color, rim);
 	COLOR.a = 1.0 - smoothstep(0.49, 0.5, r);
 }

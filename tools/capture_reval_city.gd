@@ -11,6 +11,8 @@ const VIEWPORT_SIZE := Vector2i(1600, 900)
 const DAY_PROGRESS := 0.42
 
 var _only := ""
+## World children to hide (debugging which layer draws something).
+var _hide: PackedStringArray = []
 var _wet := false
 
 
@@ -20,6 +22,8 @@ func _initialize() -> void:
 			_only = arg.substr(7)
 		if arg == "--wet":
 			_wet = true
+		if arg.begins_with("--hide="):
+			_hide = arg.substr(7).split(",")
 	call_deferred("_run")
 
 
@@ -256,6 +260,24 @@ func _shots(plan: CityPlan) -> Array[Dictionary]:
 				"fov": 70.0
 			}
 		)
+	# Per-site review views in the manifest (`review_shots`): eye and look in
+	# site-local metres (x, y above the level, z), to match reference photos.
+	for site in plan.sites:
+		for v: Dictionary in site.data.get("review_shots", []):
+			var e := site.to_world(Vector2(v["eye"][0], v["eye"][2]))
+			var l := site.to_world(Vector2(v["look"][0], v["look"][2]))
+			(
+				shots
+				. append(
+					{
+						"name": "%s_%s" % [String(site.id).trim_prefix("site."), v["id"]],
+						"eye": Vector3(e.x, site.level + float(v["eye"][1]), e.y),
+						"look": Vector3(l.x, site.level + float(v["look"][1]), l.y),
+						"fov": float(v.get("fov", 60.0)),
+						"cutaway": bool(v.get("cutaway", false)),
+					}
+				)
+			)
 	# Generic cutaway: Kalev's smithy with its roof and upper walls lifted.
 	for i in plan.buildings.size():
 		if String(plan.buildings[i].get("landmark_id", "")) == "landmark.kalev_smithy":
@@ -327,6 +349,10 @@ func _run() -> void:
 	viewport.add_child(camera)
 	camera.current = true
 	world.setup_lighting(camera)
+	for child in world.get_children():
+		if child.name in _hide and child is Node3D:
+			(child as Node3D).visible = false
+			print("hidden %s" % child.name)
 	world.apply_time(DAY_PROGRESS)
 	print("city build stats: %s (total %d ms)" % [world.build_stats, Time.get_ticks_msec() - t0])
 	for shot in _shots(plan):

@@ -1,6 +1,6 @@
 # Storybook model inventory
 
-The storybook catalogue now contains seven human models, nine mammals and five birds. Each runtime GLB lives in its own folder (`assets/storybook/<id>/<id>.glb`) with Godot sidecars colocated beside it. Shared rig scripts, the bird plumage shader, mammal source manifest, and fitted equipment stay at the catalogue root.
+The storybook catalogue holds mammals, birds and two rigid props (sword, hammer). The seven procedural storybook humans (Mart, Aita, Ellen, watchman, Henning, Jurgen, Kaja), their 21 fitted wearables, the shield and `storybook_character.gd` were deleted: nothing in the game loaded them, since every live human uses the realistic MPFB bodies (ADR 0022). Sections below that mention humans are historical. Each runtime GLB lives in its own folder (`assets/storybook/<id>/<id>.glb`) with Godot sidecars colocated beside it. Shared rig scripts, the bird plumage shader, mammal source manifest, and fitted equipment stay at the catalogue root.
 
 The hen is derived from the licensed authored `assets/animals/hendrik_reyneke/chicken/chicken.glb`, preserving its sculpt, UVs and PBR maps while adding a 16-bone articulated rig and eight named animations. Rebuild **only the hen** with:
 
@@ -10,7 +10,7 @@ blender -b --python-exit-code 1 --python tools/assets/import_authored_birds.py -
 python3 tools/verify_storybook_models.py
 ```
 
-The four other storybook birds and seven storybook humans still use the earlier procedural models. They have **not** been brought to high realism; the per-person storybook wearable bundles for those seven characters have **not** been consolidated. Do not use the legacy `build_storybook_models.py --birds-only` command to rebuild the hen: that generator deliberately excludes it. Review reference captures in `docs/reports/images/authored_birds/`.
+The four other storybook birds still use the earlier procedural models (the gull's bill and wing texture read poorly in close-ups; see docs/reports/animal_placement_plan.md). They have **not** been brought to high realism; the per-person storybook wearable bundles for those seven characters have **not** been consolidated. Do not use the legacy `build_storybook_models.py --birds-only` command to rebuild the hen: that generator deliberately excludes it. Review reference captures in `docs/reports/images/authored_birds/`.
 
 ## Legacy catalogue notes
 
@@ -29,60 +29,6 @@ Magicka and Hades guide strong silhouettes, distinct material regions and adult 
 The forge cat additionally carries Sleep, Groom and Stretch; its adapter maps the existing sleep/lick/stretch routine names onto these clips.
 
 Birds have separate shoulder and wing-tip joints. Wings fold at rest and extend during flight. TakeOff/Land are transitions; Fly/Glide loop. The endpoint poses match across the full flight sequence.
-
-## Kalev realism revision (P0-210)
-
-The maintainer’s 2026-09-12 direction moves Kalev toward naturalistic RPG fidelity. His live body now has a sculpted face with small inset eyes, a tapered neck, groomed scalp/stubble, separate textile/leather materials with portable albedo/normal/roughness maps, fitted collar and boots, and a tunic hem that follows the thighs. Mail, helmet and cape are rebuilt against the unchanged skeleton. The 76 clips and clothing/weapon APIs above remain compatible. This is a more detailed procedural model, still below The Witcher 3’s finished character fidelity; facial animation, independently rigged fingers and cloth simulation are not supplied by this pass.
-
-Historical P0-210 notes and captures are retained in [the Kalev report](../../docs/reports/kalev_realism_2026-09-12.md). That generator and its storybook output were superseded by `kalev_fresh`; do not run the former `--only kalev` rebuild command.
-
-## Live game
-
-Humans: run `godot --path .` and choose Start (agents never open a visible Godot window; see `agents/WORK_PROTOCOL.md`). Kalev and Mart in the forge, the forge cat, named cast scenes and Aita’s demo actor now use the new bodies. The hammer and sword inventory items mount the new grip-oriented props while retaining their stable IDs and combat profiles. Health rings, facing, interactions and routines use the existing runtime APIs.
-
-The shared animal loader supplies pig, sheep, goat, dog, cat, rat, fox, hare, boar, hen, duck, cow and horse to existing prop and ambient placements. Bird flight uses the new skinned robin, crow, gull and mallard with Fly/Glide transitions. Mallard ground/flight size is consistent. Greylag goose and unrepresented species/cast retain their authored models. No new maps or animal spawn locations are activated.
-
-## Try the models
-
-Interactive, for humans only:
-
-```sh
-godot --path . scenes/debug/storybook_showcase.tscn
-```
-
-Choose Everyone, People, Animals or Birds. Select a subject and clip; 1–4 switch group motions; Space pauses; drag rotates the camera and the wheel zooms. Focus frames the selected model. Selecting a subject hidden by the category reveals Everyone.
-
-The **Case** menu demonstrates civilian idle, forge work, travel, sword and shield, animal grazing, and animal alert. Cases replace equipment through the existing wardrobe API and restore covered clothing when removing armour.
-
-For people, try **Work clothes / Mail armour**, **Empty hand / Hammer / Sword**, **Helmet**, **Cape** and **Shield** while animations play. The flight button runs takeoff → flapping flight → glide → landing. Restarting or manually choosing another clip resets the birds' display positions.
-
-## Modding a human
-
-Every human exports separate `Clothing_Torso`, `Clothing_Sleeve`, `Clothing_Cuffs`, `Clothing_Outerwear`, `Clothing_Legs`, `Clothing_Feet`, `Hair_Scalp`, `Character_Head`, and `Anatomy_Hands` mesh sections. Bearded bodies also have `Hair_Beard`. Clothing is replaced through the project's existing `CharacterWearable` and `CharacterWardrobe`, and props use the existing `SharedCharacterRig` attachment API.
-
-```gdscript
-var person := preload("res://assets/storybook/mart/mart.tscn").instantiate() as SharedCharacterRig
-add_child(person)
-person.equip_wearable(preload("res://assets/storybook/equipment/mart_mail.tres"))
-person.equip_wearable(preload("res://assets/storybook/equipment/mart_helmet.tres"))
-person.equip_wearable(preload("res://assets/storybook/equipment/mart_cape.tres"))
-person.equip(&"right_hand", preload("res://assets/storybook/equipment/sword.tscn"))
-person.equip(&"left_hand", preload("res://assets/storybook/equipment/shield.tscn"))
-person.play_animation(&"sword_attack")
-# Restore work clothes; removal also restores covered meshes.
-person.unequip_wearable(&"torso")
-```
-
-To add your own clothing or armor:
-
-1. Rebuild, then open `build/storybook/<person>.blend`. Fit the new garment to that body's rest pose and retain its skeleton and inverse bind transforms.
-2. Export a skinned GLB with the same bone names and ordering, without its own animation library. The live body drives the garment.
-3. Copy that person's `equipment/<person>_mail.tres`. Give it a new stable ID, set the correct `fitted_body`, scene, slot and authored `covered_meshes` prefixes. Do not reuse Mart's fitted armor on a differently proportioned adult; mismatches are rejected without removing the current outfit.
-4. Verify idle, walk, run, attack and guard on the intended body. For cloth extending past joints, author suitable skin weights and clearance; rigid binding cannot substitute for cloth deformation.
-
-To add a weapon or shield, author its origin at the grip, then create a thin scene with its grip orientation. Copy `equipment/sword.tscn`, `hammer.tscn` or `shield.tscn` as the starting example. Mount using `right_hand` / `left_hand` (the `handslot.r` / `handslot.l` bones), or the existing `head` / `back` slots for rigid props. Model transforms are local to the grip. Check the held pose instead of guessing a universal world-axis orientation.
-
-There are 21 fitted storybook wearables: mail, kettle helmet and cape for each of the seven remaining storybook humans; plus three rigid props. Kalev uses his separate fresh-rig wardrobe. `storybook_character.gd` disables absent replacement LODs and prevents loading older production bodies with matching names. It also hides fully covered hose under Aita/Ellen/Kaja’s long kirtles and restores it under mail, respecting the existing wardrobe coverage union for custom leg layers. Attachment and wearable binding remain inherited. Future optimized LODs must be authored for this same set. The editable women’s Blender files open with the covered hose hidden; reveal that mesh when fitting trousers or armour.
 
 ## Rebuild and verify
 
@@ -135,6 +81,19 @@ python3 tools/verify_storybook_models.py --mammals-only
 `tools/assets/import_realistic_mammals.py` replaces the rejected primitive surface builder. Nine mammals and two cattle coats now retain licensed source meshes and UVs. [mammal_sources.json](mammal_sources.json) records every author, CC BY 4.0 link, source checksum and staging path. Download the matching source GLBs before rebuilding; the importer refuses missing or mismatched sources. Original source bulk stays outside Git; the runtime GLBs are self-contained.
 
 The dog uses 3Dima’s shaggy dog as a generic village animal, without claiming a historically attested breed. A Labrador candidate was discarded. The hare uses Dakota.Hinkle’s rabbit as a lagomorph proxy and still needs a species-exact hare sculpt. The cat source is Meshy-generated and fox source has Tripo identifiers; those origins are recorded rather than described as hand-sculpted work.
+
+## Horse
+
+The Hunyuan3D-derived pack horse (dog-shaped, flat legs) was deleted on 2026-10-08, along with its duplicate `assets/animals/medieval/medieval_horse.*`. The new horse is project-authored: `tools/assets/build_horse_source.py` lofts the anatomy (trunk, neck, head, limb segments, joints), welds it with a voxel remesh and writes a bay coat into `COLOR_0` (black points, a star, one white hind sock) plus separate mane, forelock, tail, ear and eye shells. `import_realistic_mammals.py --only horse --publish` then rigs it with the shared measured limb chains and the six mammal clips. The loader (`MapViewMedievalAnimalModels`) switches `vertex_color_use_as_albedo` and `vertex_color_is_srgb` on for it. Wither 1.6 units, 2.2 with ears.
+
+```sh
+blender -b --python-exit-code 1 --python tools/assets/build_horse_source.py -- [--preview DIR]
+blender -b --python-exit-code 1 --python tools/assets/import_realistic_mammals.py -- --only horse --publish
+/Applications/Godot.app/Contents/MacOS/Godot --headless --path . --editor --import
+python3 tools/verify_storybook_models.py
+```
+
+Known limits: a rigid cannon and pastern (the shared rig bends only the shoulder, elbow and carpus, and the stifle, hock), no hoof-feather or tack, one coat.
 
 ## Cattle
 

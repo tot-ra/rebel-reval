@@ -517,8 +517,18 @@ func _enter_sites(plan: CityPlan) -> void:
 					deg_to_rad(float(view["facing_deg"])) + site.rotation
 				)
 				runtime.set_camera_mode(MapViewRuntimeCamera.CameraMode.FIRST_PERSON)
-				for i in 30:
-					_steer(player, look)
+				for i in 10:
+					await get_tree().process_frame
+				# Turn the view until the camera faces `look` (camera -Z in XZ).
+				for step in 40:
+					var fwd := -runtime._camera.global_basis.z
+					var err := wrapf(Vector2(fwd.x, fwd.z).angle_to(look), -PI, PI)
+					if absf(err) < 0.02:
+						break
+					runtime._camera_binding.rotate_view_degrees(-rad_to_deg(err) * 0.8)
+					await get_tree().process_frame
+				runtime._camera_controller.look_pitch_degrees(-12.0)
+				for i in 10:
 					await get_tree().process_frame
 				await _shot(
 					"walk_site_%s_view_%s" % [String(site.id).trim_prefix("site."), view["id"]]
@@ -534,11 +544,22 @@ func _enter_sites(plan: CityPlan) -> void:
 				and not plan.site_room_at(CityPlan.to_world_xz(player.global_position)).is_empty()
 			):
 				await get_tree().physics_frame
-				_steer(player, -inward)
+				# Head for a point outside the door (straight -inward drifts into a jamb).
+				var here_out := CityPlan.to_world_xz(player.global_position)
+				_steer(player, (mid - inward * 2.5 - here_out).normalized())
 				t += get_physics_process_delta_time()
 			Input.action_release(&"ui_up")
 			if not plan.site_room_at(CityPlan.to_world_xz(player.global_position)).is_empty():
-				_failures.append("%s: could not walk out through %s" % [site.id, d["id"]])
+				_failures.append(
+					(
+						"%s: could not walk out through %s (stopped at local %s)"
+						% [
+							site.id,
+							d["id"],
+							site.to_local(CityPlan.to_world_xz(player.global_position))
+						]
+					)
+				)
 
 
 func _finish() -> void:

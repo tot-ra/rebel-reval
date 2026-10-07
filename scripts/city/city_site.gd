@@ -82,6 +82,16 @@ func floor_at(world_xz: Vector2) -> Dictionary:
 	return {}
 
 
+## Floor height at a point of floor `f` (steps rise along site-local x).
+func floor_height_at(f: Dictionary, world_xz: Vector2) -> float:
+	var rise: Array = f.get("rise", [])
+	if rise.size() < 4:
+		return float(f["height"])
+	var x := to_local(world_xz).x
+	var t := clampf((x - float(rise[0])) / maxf(float(rise[2]) - float(rise[0]), 0.01), 0.0, 1.0)
+	return level + lerpf(float(rise[1]), float(rise[3]), t)
+
+
 func room_at(world_xz: Vector2) -> Dictionary:
 	for r in rooms:
 		if Geometry2D.is_point_in_polygon(world_xz, r["polygon"]):
@@ -111,6 +121,8 @@ func _build_walk() -> void:
 					"id": StringName(f["id"]),
 					"polygon": world_polygon(f["polygon"]),
 					"height": level + float(f.get("height", 0.0)),
+					# Optional steps: [x0, h0, x1, h1], site-local x, heights above the level.
+					"rise": f.get("rise", []),
 				}
 			)
 		)
