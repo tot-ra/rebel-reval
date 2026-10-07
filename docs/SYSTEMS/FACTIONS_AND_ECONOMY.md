@@ -47,3 +47,7 @@ godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_fac
 godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_district_pressure
 godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_trade_price
 ```
+
+## Self-talk reactions
+
+Witnesses of the apprentice talking to himself change faction standing and city suspicion by a fixed table; see [`SPIRIT_DIALOGUE.md`](./SPIRIT_DIALOGUE.md#talking-to-yourself-implemented-sd-09).

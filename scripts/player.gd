@@ -2,6 +2,8 @@ class_name Player
 extends CharacterBody2D
 
 signal melee_attack_resolved(targets: Array[Node2D], profile: AttackProfile)
+## Emitted after the hero talks himself through it; carries SelfTalk.perform's result.
+signal self_talk_performed(result: Dictionary)
 signal health_changed(current: float, maximum: float)
 signal died
 signal water_medium_changed(previous: PlayerSwimState.Medium, current: PlayerSwimState.Medium)
@@ -41,6 +43,7 @@ var stamina: float = 100.0
 var max_stamina: float = 100.0
 var action_state_machine := PlayerActionStateMachine.new()
 var combat_vitals := CombatVitals.new()
+var self_talk := SelfTalk.new()
 
 var _screen_right_in_logic := Vector2.RIGHT
 var _screen_down_in_logic := Vector2.DOWN
@@ -272,6 +275,9 @@ func _process_action_input(_delta: float) -> void:
 	# the chain on release, holding past the threshold commits the heavy strike
 	# without waiting for release (COMBAT_ANIMATION.md §2).
 	_process_attack_charge_input(_delta)
+	self_talk.tick(_delta)
+	if InputMap.has_action(&"player_self_talk") and Input.is_action_just_pressed(&"player_self_talk"):
+		perform_self_talk()
 	for kind in PlayerActionInput.read_pressed_actions():
 		if kind == PlayerActionKind.Kind.DODGE:
 			try_start_dodge()
@@ -281,6 +287,15 @@ func _process_action_input(_delta: float) -> void:
 			continue
 		action_state_machine.try_start_action(kind)
 	action_state_machine.set_guard_held(PlayerActionInput.read_guard_held())
+
+
+## Talk himself through it (ADR 0033): a short damage-reduction buff, seen by nearby witnesses.
+func perform_self_talk() -> Dictionary:
+	var state: GameState = SessionState.state if has_node("/root/SessionState") else null
+	var witnesses := SelfTalk.witnesses_near(get_tree(), global_position)
+	var result := self_talk.perform(state, combat_vitals, witnesses)
+	self_talk_performed.emit(result)
+	return result
 
 
 func try_start_dodge(direction: Vector2 = Vector2.ZERO) -> bool:

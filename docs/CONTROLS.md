@@ -80,6 +80,7 @@ button charges instead of repeating the swing.
 | Guard | `F`, right click | Left shoulder |
 | Roll (toward the held direction; none = back roll) | `Space` | Right trigger |
 | Sidestep | `Q` | Right shoulder |
+| Talk to yourself (short guard buff; nearby witnesses react, ADR 0033) | `T` | Left trigger |
 | Dive (hold, while swimming in deep water) | `X`, `Ctrl` | B |
 | Inventory | `I` | Y |
 | Journal | `J` | Back |

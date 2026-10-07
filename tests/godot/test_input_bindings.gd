@@ -19,6 +19,7 @@ const EXPECTED_SLICE_ACTIONS: Array[StringName] = [
 	&"player_guard",
 	&"player_dodge",
 	&"player_roll",
+	&"player_self_talk",
 	&"toggle_spellforge",
 	&"spellforge_element_1",
 	&"spellforge_element_2",

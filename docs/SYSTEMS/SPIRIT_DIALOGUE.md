@@ -49,6 +49,15 @@ A dialogue record may declare a top-level `duel` and tag nodes and choices with 
 - **Verify:** `--filter=test_spirit_arena`; frames with `tools/godot_render.sh --resolution 1280x720 --script tools/capture_spirit_arena.gd`.
 - **Limits:** no scene mounts the host yet (SD-05 wires the prologue); no spells or hero moves beyond replies; no guilt hook (SD-07); NPC temperaments do not change damage yet (SD-15); the numbers are prototype values.
 
+## Talking to yourself (implemented, SD-09)
+
+- **Action:** `player_self_talk` (`T` on keyboard, left trigger on gamepad; rebindable under Combat). `Player.perform_self_talk()` runs `SelfTalk` (`scripts/player/self_talk.gd`): a 12 s, 20% incoming-damage reduction through `CombatTimedModifiers` (id `self_talk`), then a 20 s cooldown. `Player.self_talk_performed(result)` carries the result.
+- **Witnesses:** nodes in the `self_talk_witnesses` group within 420 px that implement `witness_info()` -> `{id, faction}`. `NPC` joins the group and exposes `witness_faction` (a `FactionLedger` id such as `livonian_order`); it is the only witness class so far.
+- **Reaction table** (fixed, no randomness): `livonian_order` suspicion (standing -1, city suspicion +1); `danish_crown`, `hanseatic` contempt (suspicion +1); `pskov_novgorod` unease (suspicion +1); `harju_kings`, `black_cloaks` awe (standing +1); `cult_metsik` recognition (standing +1); `vitalienbruder` amusement (nothing); unaffiliated townsfolk unease (suspicion +1, capped by `PRESSURE_MAX`).
+- **Once per witness per save:** the memory `memory.<witness>.saw_self_talk` marks a witness as having reacted; standing changes are faction events `faction.event.self_talk.<witness>`.
+- Verify: `--filter=test_self_talk` (also `test_input_bindings` for the new action).
+- **Limits:** the 3D city NPCs and map-view actors are not witnesses yet; there is no HUD cue for the buff or its cooldown; the buff does not touch the spirit arena.
+
 ## Language comprehension (implemented, SD-08)
 
 - **State:** `GameState` keeps comprehension 0..100 per language: `lang.estonian` (always 100), `lang.german`, `lang.latin`, `lang.russian`, `lang.danish`. The orphan starts with a little Latin (20) and street German and Russian (10 each). `train_language(id, amount)` raises it; `language_tier(id)` is 0 imagery (<20), 1 fragments (20-49), 2 gist (50-79), 3 fluent (80+). Saved under `language_comprehension` (optional in older saves).

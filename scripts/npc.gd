@@ -4,6 +4,8 @@ extends CharacterBody2D
 @export var walk_speed = 200
 @export var run_speed = 400
 @export var hostile := false
+## Faction this person answers to (FactionLedger id, e.g. `livonian_order`); empty for townsfolk.
+@export var witness_faction: StringName = &""
 
 var _push_recovery_sec := 0.0
 
@@ -13,6 +15,7 @@ var _push_recovery_sec := 0.0
 func _ready():
 	CollisionLayers.apply_npc(self)
 	add_to_group(NpcPush.PUSH_GROUP)
+	add_to_group(SelfTalk.WITNESS_GROUP)
 	if navigation_agent != null:
 		navigation_agent.velocity_computed.connect(Callable(self, "_on_velocity_computed"))
 
@@ -21,6 +24,11 @@ func _on_spawn(position: Vector2, direction: String):
 	global_position = position
 	animation_player.play("walk_" + direction)
 	animation_player.stop()
+
+
+## Read by SelfTalk (ADR 0033): who saw the hero talking to himself.
+func witness_info() -> Dictionary:
+	return {"id": String(name).to_lower(), "faction": String(witness_faction)}
 
 
 func is_pushable_by_player() -> bool:
