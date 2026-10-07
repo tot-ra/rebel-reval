@@ -70,7 +70,7 @@ None. He prays to St Christopher for carters.
 ## Voice
 - **Registers:** Estonian.
 - **Delivery:** Nasal, grinning.
-- **Sample lines:** "Walk on, old man." / "Father says it's a full sack." / "Mine hobune!" (My horse!)
+- **Sample lines:** "Walk on, old man." / "Father says it's a full sack." / "Mu hobune!" (My horse!)
 - **Verbal tic:** "Walk on."
 
 ## Knowledge and rumours

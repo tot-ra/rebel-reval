@@ -27,7 +27,7 @@
 
 ## Appearance
 - **Body:** 164 cm, sturdy, deep chest, thick neck, short strong legs. Walks with a measured, heavy tread and stands with feet wide.
-- **Face:** Broad face, strong jaw, hazel eyes with a steady look, a flat nose, a pale scar across the chin that splits the beard line he does not grow. At rest the mouth hangs a little slack and the brow tightens.
+- **Face:** Broad face, strong jaw, hazel eyes with a steady look, a flat nose, a pale scar across the chin, bare because he shaves daily. At rest the mouth hangs a little slack and the brow tightens.
 - **Hair and facial hair:** Blond streaked with grey, worn in a tarred pigtail tied with a rag. Clean-shaven.
 - **Skin and marks:** Weathered and lined. A pale scar across the chin, from a block that swung loose. Wind-chapped lips.
 - **Hands:** Thick and square, a flattened right thumb, scars across the backs of both hands, tar in the lines.

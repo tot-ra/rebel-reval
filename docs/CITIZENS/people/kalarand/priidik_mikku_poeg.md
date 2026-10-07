@@ -62,7 +62,7 @@ He earns four marks a year; the cart-hire with Lambrecht costs and the quarrel r
 ## Relationships
 - **Household:** [Gunnar Bengtsson](../../people/kalarand/gunnar_bengtsson.md), landlord; [Olev](../../people/kalarand/olev.md), lodger; [Ulrika Folkesdotter](../../people/kalarand/ulrika_folkesdotter.md), servant.
 - **Network:**
-  - [Priidik](../../people/kalarand/priidik.md), porter: that Priidik suspects him of undercutting the going price with stolen or smuggled stock; no proof. Priidik Mikku poeg finds it flattering.
+  - [Priidik](../../people/kalarand/priidik.md), porter: Priidik suspects him of undercutting the going price with stolen or smuggled stock; no proof. Priidik Mikku poeg finds it flattering.
   - [Lambrecht van Minden](../../people/lower_town/lambrecht_van_minden.md), Fernhändler on Lai: they split the cost of a cart-hire and a day's labour at the harbour each week, and quarrel about it every week.
   - [Bengt Magnusson](../../people/lower_town/bengt_magnusson.md), cloth-weaver on Sauna: they were at the same funeral and the same whisper, and know it; a cell of two, with a third unnamed.
   - [Jaan Alberti poeg](../../people/lower_town/jaan_alberti_poeg.md), skipper: Priidik recruited him a year ago with a small kindness; Jaan resents being treated as a debtor.

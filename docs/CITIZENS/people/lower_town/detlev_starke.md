@@ -66,7 +66,7 @@ He earns about 6 öre a month on voyage, plus a little silver from the circle th
 - [Tideman van Wismar](tideman_van_wismar.md), clerk on Nunne: Detlev recruited him a year ago with a small kindness; Tideman resents being treated as a debtor, and Detlev tries not to look like a creditor.
 - [Kristina Folkesdotter](kristina_folkesdotter.md), maid on Lai: the same funeral and whisper; a cell of two, with a third unnamed. He suspects the third is Ulrika, and has never asked.
 - [Kersten Wise](kersten_wise.md), clerk on Harju: Kersten is Detlev's superior in the circle, though neither would put it that way; they never speak in the same room as others, and Detlev finds it odd to take orders from a man of twenty-two.
-- [Lambert Sasse](../toompea/lambert_sasse.md), old vassal knight at Toompea: neither knows the other's allegiance, but each has noticed the other's silence at the right moments.
+- [Lambert Sasse](../../people/toompea/lambert_sasse.md), old vassal knight at Toompea: neither knows the other's allegiance, but each has noticed the other's silence at the right moments.
 - **Others:** No other berth-dweller knows what he is.
 
 ## Faction and belief
