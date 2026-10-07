@@ -7,7 +7,7 @@
 
 - Andrei Rublev was born around 1360-1370 and nothing is recorded about his parents or birthplace. The game does **not** claim Anisia is his mother. It lets the player suspect it.
 - Spring 1343 is about two decades before his birth. Anisia is a young girl here; the "son" is a wish, never a child on screen.
-- Peasants and townsfolk in 14th-century Novgorod had no surnames. She is named by patronymic: **Anisia, Ivan's daughter** (*Anisia Ivanova doch*). Do not give her the surname "Rublyova"; that family name belongs to a later period and is not attested for this era.
+- Peasants and townsfolk in 14th-century Novgorod had no surnames. She is named by patronymic: **Anisia, Ivan's daughter** (*Anisia Ivanova doch*). Her late father's byname was **Rubl** ("Рубль"): in Novgorod the word meant both the silver coin and a cut-off block of wood - a fitting nickname for a maker of painted boards. The family name "Rublyov" is never spoken in 1343; it exists only as the future, once the byname hardens into a surname. That is the whole wink: the player hears "Andrei, son of Rubl" and may recognise where the famous name comes from.
 - "Andrei" is probably the painter's monastic name, so the hint is made through the saint, not through a claim about his birth name (see Voice).
 - No named historical claim about Rublev is made in dialogue. Confidence entry lives in [`docs/CANON.md`](../CANON.md).
 
@@ -24,7 +24,7 @@
 - **Secret or withheld fact:** The pouch holds ground ochre from her late father's icon-workshop; it is all she kept from him.
 
 ## History (Biography)
-Ivan's daughter travelled to Reval with a Novgorod trade caravan along the Novgorod-Reval route. Her father, a modest craftsman who made painted wooden boards for churches, died; she accompanies a relative's wares and is stranded when the city tightens before St. George's Night.
+Ivan's daughter travelled to Reval with a Novgorod trade caravan along the Novgorod-Reval route. Her father, a modest craftsman who made painted wooden boards for churches, died; he was called **Rubl** by his neighbours - half a joke about the silver coin, half about the cut blocks of lime wood he prepared for painting. She accompanies a relative's wares and is stranded when the city tightens before St. George's Night.
 
 ## Ties & Relationships
 - **Allies:** Novgorod traders in Reval (see [`characters/novgorod/`](../../characters/novgorod/)).
@@ -38,7 +38,11 @@ Stays at the Novgorod merchants' lodging near the Lower Town market; watches the
 ## Voice
 Plain, short sentences, a little formal. Prayerful asides, a child's directness. Sample lines (draft, to be authored as a dialogue node set):
 
-- "Father said colour keeps a face alive after the person is gone."
+- "Father said colour keeps a face alive after the person is gone. His boards outlived him. That is all I kept of him - the ochre, and the boards."
+- "They call my father Rubl, the board-maker. Rubl the coin, Rubl the wood - in Novgorod we laugh at such names."
+- "If I ever have a son, I will name him Andrei. After the apostle who, they say, walked these northern lands. And he will be a painter, like his grandfather. I have decided it already."
+
+The last line is the legend wink: Andrei, son of Rubl - the future Andrei Rublev, whose parents and birthplace history does not record. The game never says so outright.
 - "When I have a son, I will give him a good name. Maybe Andrei, for the Apostle who walked to our river." (hint: the legend of the Apostle Andrew visiting the Novgorod land is a medieval chronicle tradition, cite with `folklore` label)
 - "He will paint things people can hold in their hearts. Silly, I know. I am only fourteen."
 

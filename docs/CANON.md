@@ -191,9 +191,12 @@ Decisions over `story/STORY.md`. Every promoted beat carries a confidence label.
   * *Pronunciation:* EL-len LOO-ik
   * *Notes:* Baptized midwife and keeper of old songs, bridging Christian practice and older traditions. See [Ellen Character Brief](./CHARACTERS/ellen.md).
 
-* **Anisia of Novgorod** (Ivan's daughter) - **`invented`**
+* **Anisia of Novgorod** (Ivan's daughter, "of Rubl") - **`invented`**
   * *Pronunciation:* ah-NEE-see-ah
-  * *Notes:* Anachronistic legend cameo; a young Novgorod girl in Reval who hints at a future son "Andrei" (cf. Andrei Rublev, born c. 1360-1370, parents unknown). No surname: peasants and townsfolk used patronymics. See [Anisia Character Brief](./CHARACTERS/anisia_of_novgorod.md).
+  * *Notes:* Anachronistic legend cameo; a young Novgorod girl in Reval who hints at a future son "Andrei, son of Rubl" (cf. Andrei Rublev, born c. 1360-1370, parents unknown; the family name "Rublyov" appears only in later sources). In 1343 she is named by patronymic only; her father's byname "Rubl" (a board-maker's nickname, cf. the silver coin and cut wood) is the unspoken origin of the famous name. See [Anisia Character Brief](./CHARACTERS/anisia_of_novgorod.md).
+* **[Andrei Rublev](../wiki/people/andrei_rublev.md)** (c. 1360-1370 - c. 1427/1430) - **`attested`** (as a later historical person; not present in 1343)
+  * *Pronunciation:* ahn-DRAY roo-BLYOV
+  * *Notes:* The famous Russian icon painter appears in the game only as a background rumour: a Novgorod rumour years later that a painter named Andrei, son of a board-maker, rose from these parts. The game never claims his parents, his birthplace, or that Anisia is his mother; it lets the player suspect it. His archive sheet: [`characters/famous/andrei_rublev.md`](../characters/famous/andrei_rublev.md).
 
 ### Historical Figures (Mentioned/Background)
 
