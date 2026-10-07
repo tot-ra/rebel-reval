@@ -69,6 +69,9 @@ def _normal(theta):
     return (math.sin(t), math.cos(t))
 
 def build_mjcf(c: Creature, timestep=0.002):
+    size = c.body.get("size", 1.0) if c.body else 1.0
+    damping = 1.5 * size ** 4.5      # joint damping in N*m*s/rad keeps dynamic similarity when the body is scaled
+    armature = 0.01 * size ** 5
     by = {b.name: b for b in c.bones}
     root = c.bones[0]
     children = {b.name: [] for b in c.bones}
@@ -95,7 +98,7 @@ def build_mjcf(c: Creature, timestep=0.002):
             x += f'{s}  <joint name="root_pitch" type="hinge" axis="0 1 0" damping="0"/>\n'
         else:
             lo, hi = b.jrange
-            x += f'{s}  <joint name="j_{b.name}" type="hinge" axis="0 1 0" range="{lo} {hi}" damping="1.5" armature="0.01" limited="true"/>\n'
+            x += f'{s}  <joint name="j_{b.name}" type="hinge" axis="0 1 0" range="{lo} {hi}" damping="{damping:.5f}" armature="{armature:.6f}" limited="true"/>\n'
         a = pt(b, 0, 0); e = pt(b, b.length, 0)
         em = sum(m[2] for m in b.extra_mass)
         x += f'{s}  <geom name="g_{b.name}" type="capsule" fromto="{a[0]:.5f} 0 {a[2]:.5f} {e[0]:.5f} 0 {e[2]:.5f}" size="{b.radius}" mass="{b.mass:.4f}"/>\n'
