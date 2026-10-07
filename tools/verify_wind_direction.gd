@@ -78,7 +78,8 @@ func _check(subject: Dictionary, wind: Vector2) -> void:
 	# Looking straight down, screen right = +X, screen down = +Z.
 	camera.look_at_from_position(Vector3(0, 20, 0), Vector3.ZERO, Vector3(0, 0, -1))
 	camera.current = true
-	for i in 8:
+	# Shader compilation can blank the first frames: wait well past it.
+	for i in 24:
 		await process_frame
 	var image := viewport.get_texture().get_image()
 	var sum := Vector2.ZERO

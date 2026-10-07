@@ -8,13 +8,14 @@ Review plates: [`docs/reports/reval_city_plan_2026-10-07.md`](../reports/reval_c
 
 - Main menu → **Reval (seamless)**. Kalev starts on the forum.
 - Walk anywhere in the plan without a loading screen: in through the Viru gate, along Pikk and Lai to the Coastal Gate and down to the shore, up Pikk jalg or the Lühike jalg steps onto Toompea, out of the Cattle or Smiths' gates to the fields.
-- Walk into any ordinary house through its street door. The roof lifts while Kalev is inside and returns when he leaves; the room is the house footprint minus its walls.
+- Walk into any ordinary house through its street door. The door swings inward as Kalev reaches it and shuts behind him once he moves on; the roof lifts while he is inside; the room is the house footprint minus its walls. Doors vary per house: strap-hinged plank, braced, studded oak, round-headed doors on stone houses, double leaves on halls; oiled, tarred, ochre-red, green or grey.
+- Minimap (top right): a circular painted map that turns with the camera, a north mark, Kalev's arrow, and below it the district (Lower Town, Toompea, a suburb, or outside the walls), the street (modern name and 1343 name, e.g. "Viru - road to the clay gate") and the building he is in.
 - Camera: hold right (or middle) mouse and drag, or use the gamepad right stick, to orbit; mouse wheel to zoom; `Q`/`E` to turn. Movement uses the usual move actions relative to the camera. The camera pulls in front of walls and houses.
 - Command line: `-- --city-spawn=<gate or point id>`, for example `gate.viru`, `gate.coastal`, `poi.forum`.
 
 ## How the plan is made
 
-`tools/city/build_reval_city_plan.py` compiles three committed inputs into `content/world/reval_city/`:
+`tools/city/build_reval_city_plan.py` compiles three committed inputs into `content/world/reval_city/` (plan, heightfield, surface splat, and the painted `minimap.png`):
 
 | Input | What it gives | Licence |
 |---|---|---|
@@ -26,20 +27,21 @@ Rebuild after editing the overlay: `python3 tools/city/build_reval_city_plan.py`
 
 Rules the compiler enforces:
 
-- Coordinates: local metres, origin at the forum (59.43725 N, 24.74535 E), x east, y south; output in world units of 0.87 m (x east, z south), logic pixels = world units × 32.
+- Coordinates: local metres, origin at the forum (59.43725 N, 24.74535 E), x east, y south; output in world units of 1 m (x east, z south), logic pixels = world units × 32. Kalev's rig is 1.83 units tall, so 1 m per unit keeps houses, walls and trees in proportion to him.
 - Gates snap onto their street; a gate faces along its street.
 - Streets inside the walls come from OSM, renamed from the 1343 street register where it has a record; excluded names (later streets, Rüütli, Uus, Väike-Karja, Patkuli stairs ...) are dropped; a street that crosses the curtain away from a gate is cut back to the inside (later wall breaches).
 - Buildings come from OSM plot footprints inside the circuit or on Toompea; post-1343 landmarks and towers are excluded; back plots are thinned for 1343 density; material and roof follow street rank (limestone and tile on the spines, timber and thatch in the lanes); the ridge follows the plot's own axis.
 - Terrain: EU-DEM trend, the walled town lowered by the surface-model rooftop bias, the Toompea table authored from the cliff edge, the hill ways carved as ramps, the beach and seabed from the 1343 shoreline, the Härjapea channel and the S/E ditch cut in.
 - Stable IDs: `street.osm.<way>`, `bldg.osm.w<way>` / `bldg.osm.r<relation>`, `bldg.lm.<landmark>`, `bldg.<suburb>.<n>`, `gate.*`, `tower.*`, `curtain.NN`, `toompea_wall.NN`, `poi.*`, `flow.*`, `field.*`. OSM ids keep a building's id across rebuilds.
 
-### 1343 fortifications
+### Fortifications
 
-From [`walls-gates-towers.md`](../../history/dossiers/topography/walls-gates-towers.md) and `RevalFortificationRegistry`:
+Positions and roster from [`walls-gates-towers.md`](../../history/dossiers/topography/walls-gates-towers.md) and `RevalFortificationRegistry`; finish by maintainer direction (2026-10-07):
 
-- Curtain: stone ~6.2 m on the west, north and east; unfinished courses with putlog scaffolding on the south and south-east (the 1340s extension); a timber palisade on the Toompea slope between the hill gates and on the south-west slope.
-- Towers built: Nunnatorn, Kuldjala, Rentenitorn, Stolting, the Coastal Gate tower; Hinke under construction. Later towers (Fat Margaret, Kiek in de Kök, Neitsitorn, Epping, Loewenschede, Pikk Hermann, ...) are absent; their positions only shape the wall line.
-- Gates: Coastal (low form), Sand, Nuns', Viru (unfinished, no foregate), Cattle and Smiths' (under construction), Long Hill and Short Hill (wooden).
+- Curtain: ~6.2 m limestone all round, crenellated on the field side, with a covered timber wall-walk (posts and a tiled lean-to roof) on the town side. Historically the south and south-east courses were still being built in 1343; showing them finished is a presentation choice recorded in the overlay (`presentation`).
+- Towers: Nunnatorn, Kuldjala, Rentenitorn, Stolting, Hinke and the Coastal Gate tower, round towers as drums with slit windows and steep conical tile roofs. Later towers (Fat Margaret, Kiek in de Kök, Neitsitorn, Epping, Loewenschede, Pikk Hermann, ...) are absent; their positions only shape the wall line.
+- Gates: stone gate houses with a round-arched passage, open timber leaves, a tiled roof and two hanging town banners on the field face; the Coastal Gate house stands taller. The Viru gate is flanked by two round towers, a presentation choice (`invented (presentation)`: the round Viru foregate towers date from the 1370s). Long Hill and Short Hill gates are wooden.
+- Moat: water fills the S/E ditch (presentation; the Ülemiste water rights date from 1345).
 - Toompea: a stone wall round the plateau with openings wherever a way crosses it; the castle on the south-west with four corner towers flying Danish crown pennants.
 
 ### City life layers (data, not yet simulated)
@@ -55,7 +57,11 @@ From [`walls-gates-towers.md`](../../history/dossiers/topography/walls-gates-tow
 | `scripts/city/city_terrain_builder.gd` + `city_ground.gdshader` | Heightfield chunks, a far mesh, a horizon skirt; splat-blended cobble, earth, sand, mud, grass and slope rock |
 | `scripts/city/city_building_builder.gd` | Footprint walls, gable roofs on the plan ridge, windows, lancets on churches, interiors with floor, inner walls, door reveal and ceiling |
 | `scripts/city/city_fortification_builder.gd` | Curtains by state, merlons on the field side, gate houses, timber gates, dated towers, Toompea wall, castle |
-| `scripts/city/city_vegetation_builder.gd` | Trees by species at real heights, chunked with visibility ranges |
+| `scripts/city/city_vegetation_builder.gd` | Trees and shrubs by species at typical heights (town oak ~12 m, orchards ~4 m, hazel/elder ~3 m), chunked with visibility ranges |
+| `scripts/city/city_grass.gd` (`CityGrass`) | Grass tufts streamed in 16-unit chunks around Kalev, thinned on trodden earth, absent on paving, floors, water and steep banks |
+| `scripts/city/city_doors.gd` (`CityDoors`) | Hinged door leaves in the door gaps, styles per house, open/close as Kalev comes and goes |
+| `scripts/city/city_minimap.gd` + `city_minimap.gdshader` (`CityMinimap`) | Circular camera-up minimap and the district/street/building labels (`CityPlan.location_at`) |
+| `scripts/map/view3d/fieldstone_paving.gdshaderinc` | Fieldstone street paving shared with the district terrain shader |
 | `scripts/city/city_dressing_builder.gd` | Hoist beams and wind-swung ropes on merchant gables, town banners, castle pennants |
 | `scripts/city/city_water.gdshader` | Sea, stream and moat pools; waves travel with the wind |
 | `scripts/city/city_collision_builder.gd` | Logic-plane collision: solid houses, wall quads with a door gap for enterable houses, curtains with gate gaps, towers, Toompea wall openings, cliffs over 38°, deep water |
@@ -71,11 +77,11 @@ Not wired. The preview keeps no state and writes nothing to saves.
 - `python3 tools/city/build_reval_city_plan.py --check`
 - `python3 -m unittest tests.python.test_build_reval_city_plan -v` (determinism, gates on the wall, no street breaches away from gates, no post-1343 towers, doors on footprints, Toompea relief)
 - `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_city_plan` (plan, relief, hill ways, gates, towers, floors, interior sizes, roof frame, collision door gap and cliff, Toompea openings, castle towers)
-- `tools/godot_render.sh --resolution 1600x900 res://tools/capture_reval_city_walk.tscn` walks Viru inward, Pikk jalg and Lühike jalg up to Toompea, Pikk to the shore, and into and out of the council hall; exits 1 on any block.
+- `tools/godot_render.sh --resolution 1600x900 res://tools/capture_reval_city_walk.tscn` walks Viru inward, Pikk jalg and Lühike jalg up to Toompea, Pikk to the shore, and into and out of the council hall (door opens, roof lifts, door shuts behind him); exits 1 on any failure.
 - `tools/godot_render.sh --script tools/capture_reval_city.gd` renders the review plates.
 - `tools/godot_render.sh --script tools/verify_wind_direction.gd` checks that flags fly downwind for four wind directions.
 
-Measured on the authoring machine (Apple GPU, 1600×900, minimized window): full scene ready in ~4 s, frame p50 7-13 ms walking the routes.
+Measured on the authoring machine (Apple GPU, 1600×900, minimized window): full scene ready in ~4 s, frame p50 ~14.5 ms, p95 ~18 ms walking the routes.
 
 ## Limits
 
@@ -84,4 +90,5 @@ Measured on the authoring machine (Apple GPU, 1600×900, minimized window): full
 - Plot footprints are modern survivals; individual houses are a plausible composite.
 - The camera cannot see under overhangs it is already inside (3D-only roofs); occlusion uses the logic-plane walls.
 - Life layers (wells, guards, flows, gutters) are data and review-map markers; no simulation reads them yet, and rain does not yet show water running in the gutters.
-- Distant buildings beyond 1600 units and trees beyond 260 units are culled; there is no impostor skyline yet.
+- Distant buildings beyond 1600 units, trees beyond 260 units, shrubs beyond 120 units and grass beyond ~50 units are culled; there is no impostor skyline yet.
+- Doors have no sound and no lock state; non-enterable houses keep theirs shut.

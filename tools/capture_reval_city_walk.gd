@@ -211,6 +211,10 @@ func _enter_house(plan: CityPlan) -> void:
 		deeper += get_process_delta_time()
 	Input.action_release(&"ui_up")
 	await _shot("walk_house_inside")
+	if not _city.world.doors.is_open(best):
+		_failures.append("house %s: door did not swing open" % b["id"])
+	else:
+		print("door of %s swung open" % b["id"])
 	var roof: MeshInstance3D = _city.world.roof_nodes.get(best)
 	if _city.inside_building != best:
 		_failures.append("house %s: could not walk in through the door" % b["id"])
@@ -231,6 +235,17 @@ func _enter_house(plan: CityPlan) -> void:
 		await get_tree().process_frame
 		t += get_process_delta_time()
 	Input.action_release(&"ui_up")
+	# Keep walking away; the door shuts behind Kalev.
+	var away := 0.0
+	Input.action_press(&"ui_up")
+	while away < 1.6:
+		await get_tree().process_frame
+		away += get_process_delta_time()
+	Input.action_release(&"ui_up")
+	if _city.world.doors.is_open(best):
+		_failures.append("house %s: door stayed open after Kalev left" % b["id"])
+	else:
+		print("door of %s shut behind Kalev" % b["id"])
 	if _city.inside_building == best:
 		_failures.append("house %s: could not walk out" % b["id"])
 	elif roof != null and not roof.visible:

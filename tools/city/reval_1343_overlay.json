@@ -6,7 +6,7 @@
     "lat": 59.43725,
     "lon": 24.74535
   },
-  "metres_per_world_unit": 0.87,
+  "metres_per_world_unit": 1.0,
   "bounds_m": {
     "x0": -820,
     "y0": -960,
@@ -380,75 +380,75 @@
       },
       {
         "ref": "gate.viru",
-        "state": "construction"
+        "state": "stone"
       },
       {
         "osm": "Hinke torn",
         "tower": "tower.hinke",
-        "state": "construction"
+        "state": "stone"
       },
       {
         "at": [
           150.0,
           205.0
         ],
-        "state": "construction"
+        "state": "stone"
       },
       {
         "ref": "gate.karja",
-        "state": "construction"
+        "state": "stone"
       },
       {
         "osm": "Assauwe torn",
-        "state": "construction"
+        "state": "stone"
       },
       {
         "ref": "gate.harju",
-        "state": "construction"
+        "state": "stone"
       },
       {
         "osm": "Kiek in de Kök",
-        "state": "palisade"
+        "state": "stone"
       },
       {
         "osm": "Neitsitorn",
-        "state": "palisade"
+        "state": "stone"
       },
       {
         "osm": "Tallitorn",
-        "state": "palisade"
+        "state": "stone"
       },
       {
         "at": [
           -236.0,
           160.0
         ],
-        "state": "palisade"
+        "state": "stone"
       },
       {
         "ref": "gate.short_hill",
-        "state": "palisade"
+        "state": "stone"
       },
       {
         "at": [
           -229.0,
           107.0
         ],
-        "state": "palisade"
+        "state": "stone"
       },
       {
         "at": [
           -202.0,
           48.0
         ],
-        "state": "palisade"
+        "state": "stone"
       },
       {
         "at": [
           -170.0,
           -8.0
         ],
-        "state": "palisade"
+        "state": "stone"
       },
       {
         "ref": "gate.long_hill",
@@ -563,9 +563,9 @@
       "form": "horseshoe",
       "w": 8.0,
       "d": 7.5,
-      "h": 6.0,
-      "state": "construction",
-      "confidence": "construction candidate (RevalFortificationRegistry)"
+      "h": 9.0,
+      "state": "completed",
+      "confidence": "construction candidate (RevalFortificationRegistry); shown completed (presentation)"
     },
     {
       "id": "gate.coastal.tower",
@@ -576,6 +576,26 @@
       "h": 11.0,
       "state": "completed",
       "confidence": "probable 1311-1340"
+    },
+    {
+      "id": "tower.viru_north",
+      "name": "Viru gate north flanking tower",
+      "form": "round",
+      "w": 7.5,
+      "d": 7.5,
+      "h": 10.5,
+      "state": "completed",
+      "confidence": "invented (presentation); the round Viru foregate towers date from the 1370s"
+    },
+    {
+      "id": "tower.viru_south",
+      "name": "Viru gate south flanking tower",
+      "form": "round",
+      "w": 7.5,
+      "d": 7.5,
+      "h": 10.5,
+      "state": "completed",
+      "confidence": "invented (presentation); the round Viru foregate towers date from the 1370s"
     }
   ],
   "toompea_wall": {
@@ -596,8 +616,8 @@
     "offset_m": 13.0,
     "width_m": 12.0,
     "depth_m": 2.8,
-    "wet_fraction": 0.35,
-    "confidence": "plausible composite"
+    "wet_fraction": 0.95,
+    "confidence": "plausible composite; filled with water as a presentation choice (Ulemiste water rights 1345)"
   },
   "landmarks": [
     {
@@ -1558,5 +1578,20 @@
     "dsm_bias_m": 5.0,
     "bias_taper_m": 70.0,
     "note": "EU-DEM is a surface model; in the dense Lower Town rooftops survive the ground filter, so the walled town is lowered by ~5 m (plausible composite). Calibrated so the Toompea table stands ~20-25 m above the forum (H01, H12)."
-  }
+  },
+  "metres_per_world_unit_note": "Kalev's rig is 1.83 units tall, so the city uses 1 m per world unit to keep buildings, trees and walls in proportion to him.",
+  "presentation": {
+    "note": "Maintainer direction 2026-10-07: show the curtain finished and dressed (covered timber wall-walk, tiled tower roofs, round flanking towers at the Viru gate, a wet moat). Historically the S/E works were unfinished, the Viru foregate towers are 1370s and the moat filled only after the 1345 water grant; these are presentation choices, labelled 'invented (presentation)'.",
+    "finished_curtain": true
+  },
+  "flanking_towers": [
+    {
+      "gate": "gate.viru",
+      "towers": [
+        "tower.viru_north",
+        "tower.viru_south"
+      ],
+      "offset_m": 6.2
+    }
+  ]
 }

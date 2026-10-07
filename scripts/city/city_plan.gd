@@ -14,6 +14,8 @@ const LOGIC_PX_PER_UNIT := 32.0
 const INDEX_CELL := 32.0
 ## Interior floors sit on a slab above the highest ground under the footprint.
 const FLOOR_LIFT := 0.12
+## Streets further than this (beyond their edge) are not named on the HUD.
+const STREET_LABEL_RADIUS := 6.0
 
 static var _cached: CityPlan
 
@@ -225,3 +227,47 @@ func point_of_interest(poi_id: String) -> Dictionary:
 		if p["id"] == poi_id:
 			return p
 	return {}
+
+
+## Names for the HUD: {district, street, building} at a world position.
+## `inside` is the building index Kalev stands in (or -1).
+func location_at(world_xz: Vector2, inside: int = -1) -> Dictionary:
+	var district := "Outside the walls"
+	for d: Dictionary in data.get("districts", []):
+		if Geometry2D.is_point_in_polygon(world_xz, CityPlan.points(d["polygon"])):
+			district = String(d["name"])
+			break
+	var street := ""
+	var best := STREET_LABEL_RADIUS
+	for s: Dictionary in streets:
+		var label := String(s.get("name", ""))
+		if label.is_empty():
+			label = String(s.get("name_1343", ""))
+		if label.is_empty():
+			continue
+		var pts := CityPlan.points(s["points"])
+		for i in pts.size() - 1:
+			var q := Geometry2D.get_closest_point_to_segment(world_xz, pts[i], pts[i + 1])
+			var d := q.distance_to(world_xz) - float(s.get("width", 0.0)) * 0.5
+			if d < best:
+				best = d
+				street = label
+				var old := String(s.get("name_1343", ""))
+				if not old.is_empty() and old != label:
+					street = "%s - %s" % [label, old]
+	var building := ""
+	if inside >= 0:
+		var b: Dictionary = buildings[inside]
+		var name := String(b.get("name_1343", ""))
+		building = "Inside: %s" % (name if not name.is_empty() else _house_label(b))
+	return {"district": district, "street": street, "building": building}
+
+
+static func _house_label(b: Dictionary) -> String:
+	match String(b.get("material", "")):
+		"limestone":
+			return "stone merchant house"
+		"plaster":
+			return "plastered house"
+		_:
+			return "timber house"

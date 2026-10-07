@@ -375,24 +375,6 @@ static func build_building(
 			_windows(shell, a, c, floor_y, eave, gap, rng, family)
 		else:
 			_lancets(shell, a, c, floor_y, eave)
-	if door_edge >= 0 and not enterable:
-		# A shut street door so the facade still reads as a house front.
-		var a := ring[door_edge]
-		var c := ring[(door_edge + 1) % ring.size()]
-		var mid := a.lerp(c, door_t)
-		var dir := (c - a).normalized()
-		var out := Vector2(-dir.y, dir.x) * 0.04
-		var hw := minf(DOOR_WIDTH * 0.5, a.distance_to(c) * 0.3)
-		var p0 := mid - dir * hw + out
-		var p1 := mid + dir * hw + out
-		shell.quad(
-			"timber",
-			Vector3(p0.x, floor_y, p0.y),
-			Vector3(p1.x, floor_y, p1.y),
-			Vector3(p1.x, floor_y + DOOR_HEIGHT, p1.y),
-			Vector3(p0.x, floor_y + DOOR_HEIGHT, p0.y),
-			Color(0.7, 0.6, 0.5)
-		)
 	# Roof halves.
 	_roof(roof, roof_key, ring, frame, roof_tint)
 	if enterable:

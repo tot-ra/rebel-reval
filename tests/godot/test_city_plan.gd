@@ -17,7 +17,7 @@ func test_plan_loads_with_heightfield_and_buildings() -> void:
 	assert_true(plan.streets.size() > 80)
 	var size := plan.height_grid_size()
 	assert_true(size.x > 500 and size.y > 500)
-	assert_almost_eq(plan.metres_per_unit, 0.87, 0.001)
+	assert_almost_eq(plan.metres_per_unit, 1.0, 0.001)
 
 
 func test_toompea_stands_above_the_forum_and_the_sea_is_below_the_coastal_gate() -> void:
@@ -198,3 +198,40 @@ func test_toompea_wall_opens_where_the_hill_ways_cross() -> void:
 func test_castle_has_corner_towers() -> void:
 	var points := Fort.castle_tower_points(_plan())
 	assert_eq(points.size(), 4)
+
+
+func test_every_enterable_house_has_a_hinged_door_in_its_gap() -> void:
+	var plan := _plan()
+	var doors := CityDoors.create(plan)
+	var enterable := 0
+	for i in plan.buildings.size():
+		if bool(plan.buildings[i]["enterable"]):
+			enterable += 1
+			assert_true(doors.doors.has(i), "door for %s" % plan.buildings[i]["id"])
+	assert_true(enterable > 400)
+	# Walking up to a door swings it inward; walking away shuts it.
+	var index := -1
+	for k: int in doors.doors:
+		if bool(plan.buildings[k]["enterable"]):
+			index = k
+			break
+	var center: Vector2 = doors.doors[index]["center"]
+	for i in 30:
+		doors.update_for(center, 0.05)
+	assert_true(doors.is_open(index))
+	for i in 30:
+		doors.update_for(center + Vector2(40, 40), 0.05)
+	assert_false(doors.is_open(index))
+	doors.free()
+
+
+func test_hud_names_district_street_and_building() -> void:
+	var plan := _plan()
+	var forum: Dictionary = plan.point_of_interest("poi.forum")
+	var where := plan.location_at(Vector2(forum["at"][0], forum["at"][1]))
+	assert_eq(where["district"], "Lower Town")
+	var gate: Dictionary = plan.gate("gate.viru")
+	var inside := Vector2(gate["at"][0], gate["at"][1]) - Vector2(25, 0)
+	assert_true(String(plan.location_at(inside)["street"]).begins_with("Viru"))
+	var lossi := plan.location_at(Vector2(-370, 175) / plan.metres_per_unit)
+	assert_eq(lossi["district"], "Toompea")

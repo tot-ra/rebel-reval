@@ -27,6 +27,7 @@ var world: CityWorld3D
 var camera: Camera3D
 var rig: SharedCharacterRig
 var view_root: Node3D
+var minimap: CityMinimap
 var yaw := deg_to_rad(-35.0)
 var pitch := deg_to_rad(-18.0)
 var distance := CAMERA_DISTANCE
@@ -63,6 +64,8 @@ func _ready() -> void:
 	rig = RIG_SCENE.instantiate() as SharedCharacterRig
 	rig.name = "KalevRig"
 	view_root.add_child(rig)
+	minimap = CityMinimap.create(plan)
+	add_child(minimap)
 	_place_player(_spawn_id())
 	_rig_height = plan.walk_height(CityPlan.to_world_xz(player.global_position))
 	_sync_rig(0.0, true)
@@ -137,6 +140,10 @@ func _process(delta: float) -> void:
 	_update_interior()
 	_sync_rig(delta, false)
 	_update_camera()
+	var xz := CityPlan.to_world_xz(player.global_position)
+	world.doors.update_for(xz, delta)
+	world.grass.update_for(xz)
+	minimap.update_view(xz, _last_facing, yaw, inside_building)
 	day_progress = wrapf(day_progress + delta / DAY_SECONDS, 0.0, 1.0)
 	_lighting_timer -= delta
 	if _lighting_timer <= 0.0:

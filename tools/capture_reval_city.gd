@@ -125,6 +125,52 @@ func _shots(plan: CityPlan) -> Array[Dictionary]:
 			"fov": 58.0
 		}
 	)
+	# Concept-style oblique views of the gates from above the town side.
+	var vh := plan.ground_height(va)
+	shots.append(
+		{
+			"name": "viru_gate_aerial",
+			"eye": Vector3(va.x - 48, vh + 34, va.y - 26),
+			"look": Vector3(va.x + 4, vh + 3, va.y + 2),
+			"fov": 50.0
+		}
+	)
+	shots.append(
+		{
+			"name": "coastal_gate_aerial",
+			"eye": Vector3(ca.x - 40, plan.ground_height(ca) + 36, ca.y + 40),
+			"look": Vector3(ca.x, plan.ground_height(ca) + 4, ca.y),
+			"fov": 50.0
+		}
+	)
+	# Street doors of a few houses near the forum (styles vary per house).
+	var picked := 0
+	for i in plan.buildings.size():
+		var b: Dictionary = plan.buildings[i]
+		if b.get("door") == null or picked >= 3:
+			continue
+		var door := Vector2(b["door"][0], b["door"][1])
+		if door.length() > 60.0 or i % 7 != 0:
+			continue
+		var out := Vector2(cos(float(b["door"][2])), sin(float(b["door"][2])))
+		var fh := plan.floor_height(i)
+		(
+			shots
+			. append(
+				{
+					"name": "door_%d" % picked,
+					"eye":
+					Vector3(
+						door.x + out.x * 4.5 + out.y * 1.2,
+						fh + 1.6,
+						door.y + out.y * 4.5 - out.x * 1.2
+					),
+					"look": Vector3(door.x, fh + 1.3, door.y),
+					"fov": 55.0,
+				}
+			)
+		)
+		picked += 1
 	var top := Vector2(-420, 20)
 	shots.append(
 		{

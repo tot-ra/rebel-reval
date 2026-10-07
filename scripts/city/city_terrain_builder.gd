@@ -15,8 +15,6 @@ const FAR_DROP := 0.06
 const TEXTURES := {
 	"grass_albedo": "res://assets/materials/pbr/grass/grass_albedo.png",
 	"grass_normal": "res://assets/materials/pbr/grass/grass_normal.png",
-	"cobble_albedo": "res://assets/materials/pbr/cobble/cobble_albedo.png",
-	"cobble_normal": "res://assets/materials/pbr/cobble/cobble_normal.png",
 	"earth_albedo": "res://assets/materials/pbr/mud/mud_albedo.png",
 	"earth_normal": "res://assets/materials/pbr/mud/mud_normal.png",
 	"sand_albedo": "res://assets/materials/pbr/coast_sand/coast_sand_albedo.png",

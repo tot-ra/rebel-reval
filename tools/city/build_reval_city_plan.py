@@ -626,7 +626,7 @@ def build(args) -> dict:
 
     # Moat (ditch) outside the S/E curtain.
     mo = overlay["moat"]
-    moat_line = offset_outward([a["p"] for a in anchors[mo["from_anchor"] : mo["to_anchor"] + 1]], circuit_poly, mo["offset_m"])
+    moat_line = offset_outward(resample([a["p"] for a in anchors[mo["from_anchor"] : mo["to_anchor"] + 1]], 6.0), circuit_poly, mo["offset_m"])
     moat_d = np.full(X.shape, 1e9)
     for i in range(len(moat_line) - 1):
         dd, _ = dist_point_seg(X, Y, moat_line[i][0], moat_line[i][1], moat_line[i + 1][0], moat_line[i + 1][1])
@@ -883,6 +883,7 @@ def build(args) -> dict:
             "w": round(spec["w"] / mpu, 3), "d": round(spec["d"] / mpu, 3), "h": round(spec["h"] / mpu, 3),
             "base_h": round(h_at_m(*a["p"]), 3),
         })
+    flank_specs = {f["gate"]: f for f in overlay.get("flanking_towers", [])}
     gates_out = []
     for g in overlay["gates"]:
         idx = next(i for i, a in enumerate(anchors) if a["ref"] == g["id"])
@@ -897,6 +898,18 @@ def build(args) -> dict:
             if math.cos(cand - along) < 0:
                 cand += math.pi
             along = cand
+        if g["id"] in flank_specs:
+            fs = flank_specs[g["id"]]
+            ax = (math.cos(along), math.sin(along))
+            for sign, tid in zip((-1, 1), fs["towers"]):
+                spec = tower_specs[tid]
+                p = (g["at"][0] + ax[0] * sign * fs["offset_m"], g["at"][1] + ax[1] * sign * fs["offset_m"])
+                towers.append({
+                    "id": spec["id"], "name": spec["name"], "form": spec["form"], "state": spec["state"],
+                    "confidence": spec["confidence"], "at": [round(p[0] / mpu, 3), round(p[1] / mpu, 3)],
+                    "angle": round(along, 4), "w": round(spec["w"] / mpu, 3), "d": round(spec["d"] / mpu, 3),
+                    "h": round(spec["h"] / mpu, 3), "base_h": round(h_at_m(*p), 3),
+                })
         gates_out.append({
             "id": g["id"], "name_1343": g["name_1343"], "state": g["state"], "confidence": g["confidence"],
             "at": [round(g["at"][0] / mpu, 3), round(g["at"][1] / mpu, 3)], "angle": round(along, 4),
@@ -964,6 +977,7 @@ def build(args) -> dict:
 
     # ---------------- vegetation and fields ----------------
     trees, fields = plant(overlay, buildings, streets, circuit_poly, toompea_edge, trace, h_at_m, mpu, x0, y0, x1, y1)
+    bushes = shrubs(buildings, streets, circuit_poly, toompea_edge, trace, anchors, h_at_m, mpu, x0, y0, x1, y1)
 
     for s in streets:
         s["points"] = wu(s.pop("points_m"))
@@ -995,6 +1009,14 @@ def build(args) -> dict:
         "buildings": buildings,
         "gutters": gutters,
         "trees": trees,
+        "bushes": bushes,
+        "districts": [
+            {"id": "district.toompea", "name": "Toompea", "name_1343": "Danish castle hill (castrum)", "polygon": wu(toompea_edge)},
+            {"id": "district.lower_town", "name": "Lower Town", "name_1343": "All-linn, the burghers' town", "polygon": wu(circuit_poly)},
+        ] + [
+            {"id": "district." + sub["id"].split(".")[1], "name": sub["name_1343"].split(" (")[0].capitalize(), "name_1343": sub["name_1343"], "polygon": wu([tuple(q) for q in sub["polygon_m"]])}
+            for sub in overlay["suburbs"]
+        ],
         "fields": fields,
         "points_of_interest": pois,
         "flows": overlay["flows"],
@@ -1009,7 +1031,27 @@ def build(args) -> dict:
         "data": base64.b64encode(q.tobytes()).decode("ascii"),
     }
     splat = render_splat(plan, mpu)
-    return {"plan": plan, "height": height_doc, "splat": splat, "height_wu": height_wu, "extent_m": (x0, y0, x1, y1), "mpu": mpu}
+    minimap = render_minimap(plan, height_wu)
+    return {"plan": plan, "height": height_doc, "splat": splat, "minimap": minimap, "height_wu": height_wu, "extent_m": (x0, y0, x1, y1), "mpu": mpu}
+
+
+def footprint_cells(ring, cell, margin):
+    """Grid cells covered by a footprint grown by `margin` metres."""
+    xs = [p[0] for p in ring]
+    ys = [p[1] for p in ring]
+    out = set()
+    gx = np.arange(math.floor((min(xs) - margin) / cell), math.floor((max(xs) + margin) / cell) + 1)
+    gy = np.arange(math.floor((min(ys) - margin) / cell), math.floor((max(ys) + margin) / cell) + 1)
+    X, Y = np.meshgrid((gx + 0.5) * cell, (gy + 0.5) * cell)
+    inside = point_in_poly(X, Y, ring)
+    near = np.zeros(X.shape, dtype=bool)
+    for i in range(len(ring)):
+        a, b = ring[i], ring[(i + 1) % len(ring)]
+        d, _ = dist_point_seg(X, Y, a[0], a[1], b[0], b[1])
+        near |= d < margin + cell * 0.71
+    for iy, ix in zip(*np.nonzero(inside | near)):
+        out.add((int(gx[ix]), int(gy[iy])))
+    return out
 
 
 def plant(overlay, buildings, streets, circuit_poly, toompea_edge, river, h_at_m, mpu, x0, y0, x1, y1):
@@ -1022,10 +1064,8 @@ def plant(overlay, buildings, streets, circuit_poly, toompea_edge, river, h_at_m
         return (int(p[0] // cell), int(p[1] // cell))
 
     for b in buildings:
-        for q in b["footprint"]:
-            occupied[key((q[0] * mpu, q[1] * mpu))] = True
-        c = poly_centroid([(q[0] * mpu, q[1] * mpu) for q in b["footprint"]])
-        occupied[key(c)] = True
+        for k in footprint_cells([(q[0] * mpu, q[1] * mpu) for q in b["footprint"]], cell, 1.5):
+            occupied[k] = True
     for s in streets:
         pts = s["points_m"] if "points_m" in s else [(q[0] * mpu, q[1] * mpu) for q in s["points"]]
         for p in resample([tuple(q) for q in pts], 3.0):
@@ -1168,6 +1208,63 @@ def seg_intersection(p1, p2, p3, p4):
     return None
 
 
+def shrubs(buildings, streets, circuit_poly, toompea_edge, river, anchors, h_at_m, mpu, x0, y0, x1, y1):
+    """Hedges, yard shrubs, wall-foot scrub, stream thickets and field edges."""
+    rng = random.Random(1344)
+    cell = 2.5
+    occupied = set()
+    for b in buildings:
+        occupied.update(footprint_cells([(q[0] * mpu, q[1] * mpu) for q in b["footprint"]], cell, 1.0))
+    for s in streets:
+        pts = s["points_m"] if "points_m" in s else [(q[0] * mpu, q[1] * mpu) for q in s["points"]]
+        half = int(math.ceil(s.get("width_m", 5.0) / 2 / cell)) + 1
+        for p in resample([tuple(q) for q in pts], 1.5):
+            k = (int(p[0] // cell), int(p[1] // cell))
+            for dx in range(-half, half + 1):
+                for dy in range(-half, half + 1):
+                    occupied.add((k[0] + dx, k[1] + dy))
+    out = []
+
+    def add(p, species, scale):
+        k = (int(p[0] // cell), int(p[1] // cell))
+        if k in occupied or h_at_m(*p) < 0.5:
+            return
+        occupied.add(k)
+        out.append([round(p[0] / mpu, 2), round(p[1] / mpu, 2), species, round(scale, 2)])
+
+    yard = ["elder", "raspberry", "hazel_shrub", "dog_rose", "guelder_rose"]
+    for _ in range(9000):
+        p = (rng.uniform(-260, 300), rng.uniform(-620, 320))
+        if pip(p, circuit_poly):
+            add(p, rng.choice(yard), rng.uniform(0.8, 1.3))
+    # Scrub along the wall foot and the ditch banks.
+    ring = [a["p"] for a in anchors]
+    for p in resample(ring + [ring[0]], 4.0):
+        for _ in range(2):
+            q = (p[0] + rng.uniform(-14, 14), p[1] + rng.uniform(-14, 14))
+            if not pip(q, circuit_poly):
+                add(q, rng.choice(["hawthorn", "blackthorn", "dog_rose", "elder"]), rng.uniform(0.9, 1.4))
+    for p in resample(river, 5.0):
+        for side in (-1, 1):
+            q = (p[0] + side * rng.uniform(7, 14), p[1] + rng.uniform(-3, 3))
+            add(q, rng.choice(["willow_shrub", "alder_shrub", "guelder_rose"]), rng.uniform(0.9, 1.4))
+    for _ in range(6000):
+        p = (rng.uniform(x0 + 10, x1 - 10), rng.uniform(y0 + 10, y1 - 10))
+        if pip(p, circuit_poly):
+            continue
+        h = h_at_m(*p)
+        if h < 3.0:
+            add(p, rng.choice(["juniper_shrub", "sea_buckthorn", "heather"]), rng.uniform(0.8, 1.2))
+        elif rng.random() < 0.6:
+            add(p, rng.choice(["hazel_shrub", "hawthorn", "juniper_shrub", "raspberry", "dog_rose", "spindle"]), rng.uniform(0.8, 1.3))
+    for p in toompea_edge:
+        for _ in range(6):
+            q = (p[0] + rng.uniform(-30, 30), p[1] + rng.uniform(-30, 30))
+            add(q, rng.choice(["hazel_shrub", "elder", "spindle", "hawthorn"]), rng.uniform(0.9, 1.4))
+    out.sort()
+    return out
+
+
 def chain_parts(parts):
     """Join street parts into one polyline (greedy end matching)."""
     parts = [list(map(tuple, p)) for p in parts]
@@ -1290,6 +1387,54 @@ def render_splat(plan, mpu):
     return Image.merge("RGBA", (blurred["paving"], blurred["earth"], blurred["sand"], blurred["mud"]))
 
 
+def render_minimap(plan, height_wu):
+    """Painted top-down map for the in-game minimap, 1 px per world unit."""
+    x0, y0, x1, y1 = plan["bounds"]
+    W, H = int(x1 - x0), int(y1 - y0)
+    hs = np.array(Image.fromarray(height_wu.astype(np.float32)).resize((W, H), Image.BILINEAR))
+    gy, gx = np.gradient(hs)
+    shade = np.clip(0.92 + (-gx - gy) * 0.35, 0.7, 1.12)
+    land = np.stack([np.full_like(hs, 0.62), np.full_like(hs, 0.64), np.full_like(hs, 0.46)], -1) * 255
+    rgb = land * shade[..., None]
+    sea = hs < 0.05
+    rgb[sea] = (np.array([0.36, 0.52, 0.58]) * 255) * (1.0 + np.clip(hs[sea], -6, 0)[:, None] * 0.04)
+    img = Image.fromarray(np.clip(rgb, 0, 255).astype(np.uint8))
+    dr = ImageDraw.Draw(img)
+
+    def T(p):
+        return (p[0] - x0, p[1] - y0)
+
+    for f in plan["fields"]:
+        dr.polygon([T(p) for p in f["polygon"]], fill=(150, 128, 92) if f["ploughed"] else (140, 150, 100))
+    dr.polygon([T(a["at"]) for a in plan["circuit"]], fill=(170, 160, 135))
+    dr.polygon([T(p) for p in plan["toompea_edge"]], fill=(175, 168, 140))
+    hj = plan["harjapea"]
+    dr.line([T(p) for p in hj["points"]], fill=(92, 132, 148), width=12, joint="curve")
+    dr.line([T(p) for p in plan["moat"]["points"]], fill=(92, 132, 148), width=int(plan["moat"]["width"] * 0.9), joint="curve")
+    for s in plan["streets"]:
+        col = (214, 200, 168) if s["class"] != "extramural_road" else (176, 150, 112)
+        dr.line([T(p) for p in s["points"]], fill=col, width=max(2, int(s["width"])), joint="curve")
+    forum = [T(p) for p in plan["forum"]["polygon"]]
+    dr.polygon(forum, fill=(214, 200, 168))
+    for t in plan["trees"]:
+        x, y = T((t[0], t[1]))
+        dr.ellipse([x - 2.5, y - 2.5, x + 2.5, y + 2.5], fill=(88, 112, 64))
+    roof = {"tile": (176, 84, 58), "shingle": (112, 92, 76), "thatch": (178, 150, 92)}
+    for b in plan["buildings"]:
+        dr.polygon([T(p) for p in b["footprint"]], fill=roof.get(b["roof"], (150, 120, 100)), outline=(70, 52, 40))
+    dr.polygon([T(p) for p in plan["castle"]["ring"]], outline=(80, 74, 66), width=3)
+    for c in plan["curtains"] + plan["toompea_walls"]:
+        dr.line([T(c["from"]), T(c["to"])], fill=(96, 90, 80), width=max(3, int(c["thickness"] * 1.6)))
+    for t in plan["towers"]:
+        x, y = T(t["at"])
+        r = t["w"] * 0.55
+        dr.ellipse([x - r, y - r, x + r, y + r], fill=(176, 84, 58), outline=(70, 60, 52), width=2)
+    for g in plan["gates"]:
+        x, y = T(g["at"])
+        dr.rectangle([x - 3, y - 3, x + 3, y + 3], fill=(70, 60, 52))
+    return img
+
+
 def render_review(result, out_png):
     plan = result["plan"]
     h = result["height_wu"]
@@ -1352,6 +1497,9 @@ def write_outputs(result, check=False):
     buf = io.BytesIO()
     result["splat"].save(buf, format="PNG", optimize=True)
     files[OUT_DIR / "splat.png"] = buf.getvalue()
+    buf = io.BytesIO()
+    result["minimap"].save(buf, format="PNG", optimize=True)
+    files[OUT_DIR / "minimap.png"] = buf.getvalue()
     stale = []
     for path, data in files.items():
         if not path.exists() or path.read_bytes() != data:

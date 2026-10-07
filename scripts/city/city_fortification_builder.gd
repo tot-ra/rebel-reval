@@ -5,7 +5,8 @@ extends RefCounted
 ## castle, from the city plan (ADR 0031; 1343 states per
 ## history/dossiers/topography/walls-gates-towers.md). Curtains follow the
 ## ground: the top runs parallel to the terrain between anchors. States:
-##   stone         ~6.2 m limestone curtain, merlons on a parapet
+##   stone         ~6.2 m limestone curtain, merlons on the field-side parapet
+##                 and a covered timber wall-walk under a tile lean-to roof
 ##   construction  lower unfinished course with putlog scaffolding, no merlons
 ##   palisade      timber stakes (the hill-side boundary and SW slope)
 
@@ -16,6 +17,7 @@ const GATE_DEPTH_FACTOR := 2.4
 const SAMPLE_STEP := 3.0
 
 static var _stone: Material
+static var _tile: Material
 
 
 static func build(plan: CityPlan, parent: Node3D) -> Node3D:
@@ -117,6 +119,7 @@ static func build(plan: CityPlan, parent: Node3D) -> Node3D:
 	inst.name = "Masonry"
 	inst.mesh = shell.to_mesh(_material_for)
 	root.add_child(inst)
+	add_gate_banners(plan, root)
 	return root
 
 
@@ -129,22 +132,35 @@ static func _material_for(key: String) -> Material:
 		"roof":
 			return CityBuildingBuilder.roof_material(&"shingle")
 		"tile":
-			return CityBuildingBuilder.roof_material(&"tile")
+			return _tile_material()
 		"dark":
 			return CityBuildingBuilder.opening_material()
+		"banner":
+			return MapViewMaterials.hanging_banner_cloth(null, true)
 	return _stone_material()
+
+
+## Red ceramic tile in world-unit UVs, shared by gallery roofs and tower cones.
+static func _tile_material() -> Material:
+	if _tile == null:
+		var mat := (
+			MapViewMaterials.roof_tile_world(Color(0.70, 0.33, 0.22)).duplicate()
+			as StandardMaterial3D
+		)
+		mat.vertex_color_use_as_albedo = true
+		mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+		_tile = mat
+	return _tile
 
 
 static func _stone_material() -> Material:
 	if _stone == null:
 		var mat := (
-			(
-				MapViewMaterials
-				. wall_surface_triplanar(&"limestone", Color(0.76, 0.74, 0.69))
-				. duplicate()
-			)
+			MapViewMaterials.fortification_masonry(Color(0.86, 0.83, 0.76)).duplicate()
 			as StandardMaterial3D
 		)
+		# Warm, sun-bleached Reval limestone rather than the cool grey plate.
+		mat.albedo_color = mat.albedo_color * Color(1.06, 0.98, 0.84)
 		mat.vertex_color_use_as_albedo = true
 		mat.cull_mode = BaseMaterial3D.CULL_BACK
 		_stone = mat
@@ -262,6 +278,8 @@ static func _curtain(
 				else -1.0
 			)
 		_merlons(shell, plan, p0, p1, height, thickness, field_sign)
+		if thickness >= 1.2:
+			_gallery(shell, plan, p0, p1, height, thickness, field_sign)
 	elif state == "construction":
 		_scaffold(shell, plan, p0, p1, height, thickness)
 
@@ -297,6 +315,84 @@ static func _merlons(
 			base + MERLON_H
 		)
 		t += MERLON_W + MERLON_GAP
+
+
+## Covered wall-walk: timber posts on the town edge of the wall top carry a
+## lean-to tile roof that rises to the parapet, the gallery Reval's curtain
+## carried by mid-century (arcaded wall-walk, wooden fighting platforms).
+static func _gallery(
+	shell: CityBuildingBuilder.Shell,
+	plan: CityPlan,
+	p0: Vector2,
+	p1: Vector2,
+	height: float,
+	thickness: float,
+	field_sign: float
+) -> void:
+	var length := p0.distance_to(p1)
+	if length < 3.0:
+		return
+	var dir := (p1 - p0) / length
+	var field := Vector2(-dir.y, dir.x) * field_sign
+	var outer_off := thickness * 0.5 - 0.15
+	var inner_off := -(thickness * 0.5 + 1.1)
+	var post_off := -(thickness * 0.5 - 0.15)
+	var steps := maxi(1, int(ceil(length / SAMPLE_STEP)))
+	var tint := Color(1, 1, 1)
+	for s in steps:
+		var u := p0.lerp(p1, float(s) / steps)
+		var v := p0.lerp(p1, float(s + 1) / steps)
+		var tu := plan.ground_height(u) + height
+		var tv := plan.ground_height(v) + height
+		var hi := MERLON_H + 2.0
+		var lo := 2.35
+		var a := Vector3(u.x + field.x * outer_off, tu + hi, u.y + field.y * outer_off)
+		var b := Vector3(v.x + field.x * outer_off, tv + hi, v.y + field.y * outer_off)
+		var c := Vector3(v.x + field.x * inner_off, tv + lo, v.y + field.y * inner_off)
+		var d := Vector3(u.x + field.x * inner_off, tu + lo, u.y + field.y * inner_off)
+		var along_u := float(s) / steps * length
+		var along_v := float(s + 1) / steps * length
+		var slant := Vector2(outer_off - inner_off, hi - lo).length()
+		shell.tri_out(
+			"tile",
+			a,
+			b,
+			c,
+			tint,
+			Vector3.UP,
+			Vector2(along_u, 0),
+			Vector2(along_v, 0),
+			Vector2(along_v, slant)
+		)
+		shell.tri_out(
+			"tile",
+			a,
+			c,
+			d,
+			tint,
+			Vector3.UP,
+			Vector2(along_u, 0),
+			Vector2(along_v, slant),
+			Vector2(along_u, slant)
+		)
+		# Eave board.
+		shell.quad_out(
+			"timber",
+			d - Vector3(0, 0.25, 0),
+			c - Vector3(0, 0.25, 0),
+			c,
+			d,
+			tint,
+			Vector3(-field.x, 0, -field.y)
+		)
+	var t := 1.2
+	while t < length - 0.6:
+		var p := p0 + dir * t + field * post_off
+		var top := plan.ground_height(p) + height
+		_box_between(shell, "timber", p - dir * 0.13, p + dir * 0.13, 0.26, top - 0.05, top + 2.45)
+		# Knee brace under the eave.
+		_box_between(shell, "timber", p - dir * 0.6, p + dir * 0.6, 0.16, top + 2.05, top + 2.25)
+		t += 2.6
 
 
 static func _scaffold(
@@ -553,48 +649,161 @@ static func _pyramid(
 	)
 
 
-## Gate house: two jambs and a vault over a passage across the curtain line.
+## Gate house: a stone block across the curtain with a round-arched passage,
+## open timber leaves inside the arch and a steep tiled roof. The Coastal Gate
+## house stands taller (its 1311-1340 tower).
 static func _gate(shell: CityBuildingBuilder.Shell, plan: CityPlan, g: Dictionary) -> void:
 	var at := Vector2(g["at"][0], g["at"][1])
 	var along := Vector2(cos(float(g["angle"])), sin(float(g["angle"])))
 	var opening := float(g["opening"])
 	var ground := plan.ground_height(at)
-	var state := String(g["state"])
-	if state == "wooden":
+	if String(g["state"]) == "wooden":
 		_timber_gate(shell, plan, at, along, opening, 1.6)
 		return
 	var depth := 1.72 * GATE_DEPTH_FACTOR
-	var jamb := 2.4
-	var height := 7.6 if state != "unfinished" else 5.0
-	if String(g["id"]) == "gate.coastal":
-		height = 12.5
-	if state == "present_construction":
-		height = 6.0
+	var half_w := opening * 0.5 + 2.4
+	var height := gate_height(g)
+	var spring := ground + 3.0
 	var across := Vector2(-along.y, along.x)
 	for s: float in [-1.0, 1.0]:
-		var c := at + along * s * (opening * 0.5 + jamb * 0.5)
-		_obox(shell, "stone", c, along, jamb * 0.5, depth * 0.5, ground - 1.6, ground + height)
-	# Vault / upper storey over the passage.
-	var top_y := ground + height
-	var lintel_y := ground + 4.1
-	_obox(shell, "stone", at, along, opening * 0.5 + 0.05, depth * 0.5, lintel_y, top_y)
-	# Passage ceiling darkness and a gate leaf hinged open against the jamb.
-	_obox(shell, "dark", at, along, opening * 0.5, depth * 0.48, lintel_y - 0.08, lintel_y)
-	var leaf_c := at + along * (opening * 0.5 - 0.1) + across * (depth * 0.25)
-	_obox(shell, "timber", leaf_c, across, opening * 0.25, 0.08, ground, ground + 3.6)
-	if state == "unfinished" or state == "present_construction":
-		_scaffold(
-			shell,
-			plan,
-			at - along * (opening * 0.5 + jamb),
-			at + along * (opening * 0.5 + jamb),
-			height,
-			depth
+		var face := at + across * s * depth * 0.5
+		_arch_face(shell, face, along, across * s, half_w, opening, ground, spring, ground + height)
+	_arch_passage(shell, at, along, across, depth, opening, ground, spring)
+	# Block ends where the curtain meets the gate house.
+	for s: float in [-1.0, 1.0]:
+		var e := at + along * s * half_w
+		var a := e - across * depth * 0.5
+		var b := e + across * depth * 0.5
+		shell.quad_out(
+			"stone",
+			Vector3(a.x, ground - 1.6, a.y),
+			Vector3(b.x, ground - 1.6, b.y),
+			Vector3(b.x, ground + height, b.y),
+			Vector3(a.x, ground + height, a.y),
+			Color(1, 1, 1),
+			Vector3(along.x * s, 0, along.y * s)
 		)
-	else:
-		_pyramid(
-			shell, "roof", at, along, opening * 0.5 + jamb + 0.3, depth * 0.5 + 0.3, top_y, 3.4
+	_pyramid(shell, "tile", at, along, half_w + 0.45, depth * 0.5 + 0.45, ground + height, 5.5)
+	# Leaves stand open against the passage walls.
+	for s: float in [-1.0, 1.0]:
+		var leaf := at + along * s * (opening * 0.5 - 0.1) + across * (opening * 0.25)
+		_obox(shell, "timber", leaf, across, opening * 0.25, 0.08, ground, spring + opening * 0.4)
+
+
+static func gate_height(g: Dictionary) -> float:
+	return 12.5 if String(g["id"]) == "gate.coastal" else 9.0
+
+
+## One face of the gate house: a rectangle with a round-headed opening.
+static func _arch_face(
+	shell: CityBuildingBuilder.Shell,
+	center: Vector2,
+	along: Vector2,
+	out: Vector2,
+	half_w: float,
+	opening: float,
+	ground: float,
+	spring: float,
+	top: float
+) -> void:
+	var r := opening * 0.5
+	var outline := PackedVector2Array([Vector2(-half_w, ground - 1.6), Vector2(-r, ground - 1.6)])
+	for k in range(0, 13):
+		var ang := PI - PI * float(k) / 12.0
+		outline.append(Vector2(cos(ang) * r, spring + sin(ang) * r))
+	outline.append_array(
+		PackedVector2Array(
+			[
+				Vector2(r, ground - 1.6),
+				Vector2(half_w, ground - 1.6),
+				Vector2(half_w, top),
+				Vector2(-half_w, top)
+			]
 		)
+	)
+	var tris := Geometry2D.triangulate_polygon(outline)
+	var normal := Vector3(out.x, 0, out.y)
+	for i in range(0, tris.size(), 3):
+		var pts: Array[Vector3] = []
+		for k in 3:
+			var q := outline[tris[i + k]]
+			var w := center + along * q.x
+			pts.append(Vector3(w.x, q.y, w.y))
+		shell.tri_out("stone", pts[0], pts[1], pts[2], Color(1, 1, 1), normal)
+
+
+## Passage walls and the barrel vault between the two faces.
+static func _arch_passage(
+	shell: CityBuildingBuilder.Shell,
+	at: Vector2,
+	along: Vector2,
+	across: Vector2,
+	depth: float,
+	opening: float,
+	ground: float,
+	spring: float
+) -> void:
+	var r := opening * 0.5
+	var f := across * depth * 0.5
+	for s: float in [-1.0, 1.0]:
+		var x := at + along * s * r
+		shell.quad_out(
+			"stone",
+			Vector3(x.x - f.x, ground - 0.2, x.y - f.y),
+			Vector3(x.x + f.x, ground - 0.2, x.y + f.y),
+			Vector3(x.x + f.x, spring, x.y + f.y),
+			Vector3(x.x - f.x, spring, x.y - f.y),
+			Color(0.8, 0.8, 0.8),
+			Vector3(-along.x * s, 0, -along.y * s)
+		)
+	for k in 12:
+		var a0 := PI - PI * float(k) / 12.0
+		var a1 := PI - PI * float(k + 1) / 12.0
+		var p0 := at + along * cos(a0) * r
+		var p1 := at + along * cos(a1) * r
+		var y0 := spring + sin(a0) * r
+		var y1 := spring + sin(a1) * r
+		var mid := Vector3((p0.x + p1.x) * 0.5, (y0 + y1) * 0.5, (p0.y + p1.y) * 0.5)
+		var inward := Vector3(at.x, spring, at.y) - mid
+		shell.quad_out(
+			"stone",
+			Vector3(p0.x - f.x, y0, p0.y - f.y),
+			Vector3(p1.x - f.x, y1, p1.y - f.y),
+			Vector3(p1.x + f.x, y1, p1.y + f.y),
+			Vector3(p0.x + f.x, y0, p0.y + f.y),
+			Color(0.7, 0.7, 0.7),
+			inward
+		)
+
+
+## Two hanging town banners on the field face of each stone gate house.
+static func add_gate_banners(plan: CityPlan, root: Node3D) -> void:
+	const TownHallModel := preload("res://scripts/map/view3d/map_view_town_hall_model.gd")
+	var mesh := TownHallModel._banner_mesh(1.1, 2.6, false, 1)
+	var material := MapViewMaterials.hanging_banner_cloth(null, true)
+	for g: Dictionary in plan.data["gates"]:
+		if String(g["state"]) == "wooden":
+			continue
+		var at := Vector2(g["at"][0], g["at"][1])
+		var along := Vector2(cos(float(g["angle"])), sin(float(g["angle"])))
+		var field := _toward_field(plan, at, along, 1.0) - at
+		var depth := 1.72 * GATE_DEPTH_FACTOR
+		var ground := plan.ground_height(at)
+		var opening := float(g["opening"])
+		for s: float in [-1.0, 1.0]:
+			var banner := MeshInstance3D.new()
+			banner.name = "GateBanner_%s_%d" % [String(g["id"]).replace(".", "_"), int(s)]
+			banner.mesh = mesh
+			banner.material_override = material
+			# Mesh hangs from its top-left corner along +X and faces -Z.
+			var x_axis := Vector3(along.x, 0, along.y)
+			var z_axis := Vector3(-field.x, 0, -field.y)
+			banner.basis = Basis(x_axis, Vector3.UP, z_axis)
+			var corner := (
+				at + field * (depth * 0.5 + 0.06) + along * (s * (opening * 0.5 + 1.2) - 0.55)
+			)
+			banner.position = Vector3(corner.x, ground + 6.2, corner.y)
+			root.add_child(banner)
 
 
 ## Wooden hill gate (1343): two posts, a high lintel and open leaves. No hood:
@@ -629,19 +838,35 @@ static func _tower(shell: CityBuildingBuilder.Shell, plan: CityPlan, t: Dictiona
 	var form := String(t["form"])
 	if form == "gate_rect":
 		return  # the gate house carries it
-	# Project outward (field side) by half the depth.
+	# Project outward (field side) by part of the depth.
 	var c := _toward_field(plan, at, along, d * 0.35)
-	var state := String(t["state"])
-	if form == "horseshoe":
-		_drum(shell, c, w * 0.5, ground - 1.6, ground + h, 14)
-		if state == "completed":
-			_cone(shell, "roof", c, w * 0.5 + 0.35, ground + h, 4.2, 14)
+	if form == "horseshoe" or form == "round":
+		var r := w * 0.5
+		# Battered foot, then the drum, slit windows and a steep tile cone.
+		_drum(shell, c, r + 0.35, ground - 1.6, ground + 1.2, 18)
+		_drum(shell, c, r, ground + 1.2, ground + h, 18)
+		for k in 4:
+			var ang := TAU * (float(k) + 0.5) / 4.0
+			var dir := Vector2(cos(ang), sin(ang))
+			var pos := c + dir * (r + 0.03)
+			var tang := Vector2(-dir.y, dir.x)
+			for level: float in [0.45, 0.75]:
+				var y := ground + h * level
+				var a := pos - tang * 0.14
+				var b := pos + tang * 0.14
+				shell.quad_out(
+					"dark",
+					Vector3(a.x, y, a.y),
+					Vector3(b.x, y, b.y),
+					Vector3(b.x, y + 1.0, b.y),
+					Vector3(a.x, y + 1.0, a.y),
+					Color(1, 1, 1),
+					Vector3(dir.x, 0, dir.y)
+				)
+		_cone(shell, "tile", c, r + 0.6, ground + h - 0.2, (r + 0.6) * 2.3, 18)
 	else:
 		_obox(shell, "stone", c, along, w * 0.5, d * 0.5, ground - 1.6, ground + h)
-		if state == "completed":
-			_pyramid(shell, "roof", c, along, w * 0.5 + 0.35, d * 0.5 + 0.35, ground + h, 3.6)
-	if state == "construction":
-		_scaffold(shell, plan, c - along * w * 0.5, c + along * w * 0.5, h, d)
+		_pyramid(shell, "tile", c, along, w * 0.5 + 0.5, d * 0.5 + 0.5, ground + h, w * 1.1)
 
 
 static func _toward_field(plan: CityPlan, at: Vector2, along: Vector2, offset: float) -> Vector2:
@@ -700,6 +925,9 @@ static func _cone(
 		var u := c + Vector2(cos(a0), sin(a0)) * r
 		var v := c + Vector2(cos(a1), sin(a1)) * r
 		var o := (u + v) * 0.5 - c
+		var slant := sqrt(r * r + rise * rise)
+		var arc0 := float(k) / segments * TAU * r
+		var arc1 := float(k + 1) / segments * TAU * r
 		shell.tri_out(
 			key,
 			Vector3(v.x, y0, v.y),
@@ -707,9 +935,9 @@ static func _cone(
 			Vector3(u.x, y0, u.y),
 			Color(1, 1, 1),
 			Vector3(o.x, rise * 0.5, o.y),
-			Vector2(0, 0),
-			Vector2(0.5, rise),
-			Vector2(1, 0)
+			Vector2(arc1, slant),
+			Vector2((arc0 + arc1) * 0.5, 0.0),
+			Vector2(arc0, slant)
 		)
 
 

@@ -21,6 +21,8 @@ var sky_weather: SkyWeather3D
 ## building index -> MeshInstance3D roof node (enterable houses only)
 var roof_nodes: Dictionary = {}
 var water_materials: Array[ShaderMaterial] = []
+var doors: CityDoors
+var grass: CityGrass
 var build_stats: Dictionary = {}
 
 
@@ -43,6 +45,10 @@ func _build() -> void:
 	_build_water()
 	CityVegetationBuilder.build(plan, self)
 	CityDressingBuilder.build(plan, self)
+	doors = CityDoors.create(plan)
+	add_child(doors)
+	grass = CityGrass.create(plan)
+	add_child(grass)
 	var t4 := Time.get_ticks_usec()
 	build_stats = {
 		"terrain_ms": (t1 - t0) / 1000.0,
@@ -60,7 +66,7 @@ func setup_lighting(camera: Camera3D) -> void:
 	sun = lighting["sun"]
 	environment = lighting["environment"]
 	world_environment = lighting["world_environment"]
-	sun.directional_shadow_max_distance = 220.0
+	sun.directional_shadow_max_distance = 170.0
 	add_child(sun)
 	add_child(world_environment)
 	sky_weather = SkyWeather3D.new()
@@ -190,7 +196,9 @@ func _build_water() -> void:
 	var plane := PlaneMesh.new()
 	plane.size = Vector2(9000, 9000)
 	outer.mesh = plane
-	outer.position = Vector3(plan.bounds.get_center().x, -0.05, plan.bounds.get_center().y)
+	# North of the plan only: the Gulf. Land to the east, south and west is the
+	# terrain's horizon skirt.
+	outer.position = Vector3(plan.bounds.get_center().x, -0.05, plan.bounds.position.y - 4480.0)
 	outer.material_override = _water_material(0.22, 0.0)
 	outer.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	root.add_child(outer)
@@ -315,25 +323,38 @@ func _ribbon(points: PackedVector2Array, widths: Array, y: float) -> ArrayMesh:
 	return st.commit()
 
 
+## Water along the ditch: one ribbon whose surface follows the ditch floor
+## (a sluiced moat steps down with the ground), mitred at each vertex so
+## neighbouring stretches share edges.
 func _moat_pools(
 	line: PackedVector2Array, width: float, lows: Array[float], cutoff: float
 ) -> ArrayMesh:
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var count := 0
+	var half := width * 0.46
+	var edges: Array[Vector2] = []
+	for i in line.size():
+		var prev := line[maxi(i - 1, 0)]
+		var next := line[mini(i + 1, line.size() - 1)]
+		var dir := (next - prev).normalized()
+		edges.append(Vector2(-dir.y, dir.x) * half)
 	for i in line.size() - 1:
 		if lows[i] > cutoff and lows[i + 1] > cutoff:
 			continue
+		var ya := lows[i] + 1.1
+		var yb := lows[i + 1] + 1.1
 		var a := line[i]
 		var b := line[i + 1]
-		var dir := (b - a).normalized()
-		var side := Vector2(-dir.y, dir.x) * width * 0.42
-		var y := minf(lows[i], lows[i + 1]) + 0.55
-		var quad := [a + side, b + side, b - side, a - side]
+		var quad := [
+			Vector3(a.x + edges[i].x, ya, a.y + edges[i].y),
+			Vector3(b.x + edges[i + 1].x, yb, b.y + edges[i + 1].y),
+			Vector3(b.x - edges[i + 1].x, yb, b.y - edges[i + 1].y),
+			Vector3(a.x - edges[i].x, ya, a.y - edges[i].y),
+		]
 		for idx: int in [0, 1, 2, 0, 2, 3]:
-			var q: Vector2 = quad[idx]
-			st.set_color(Color(0.15, 0, 0))
+			st.set_color(Color(0.3, 0, 0))
 			st.set_normal(Vector3.UP)
-			st.add_vertex(Vector3(q.x, y, q.y))
+			st.add_vertex(quad[idx])
 		count += 1
 	return st.commit() if count > 0 else null

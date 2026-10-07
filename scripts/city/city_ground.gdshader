@@ -10,8 +10,6 @@ uniform vec4 splat_rect = vec4(0.0, 0.0, 1.0, 1.0); // origin.xz, size.xz in wor
 
 uniform sampler2D grass_albedo : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D grass_normal : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
-uniform sampler2D cobble_albedo : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
-uniform sampler2D cobble_normal : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D earth_albedo : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D earth_normal : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D sand_albedo : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
@@ -19,15 +17,21 @@ uniform sampler2D sand_normal : hint_normal, filter_linear_mipmap_anisotropic, r
 uniform sampler2D rock_albedo : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D rock_normal : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
 
-uniform float grass_scale = 0.16;
-uniform float cobble_scale = 0.95;
-uniform float earth_scale = 0.2;
-uniform float sand_scale = 0.18;
-uniform float rock_scale = 0.12;
+// Texture repeats per world unit. The plates cover ~1 m of ground, so a blade
+// of grass or a pebble reads at its real size next to Kalev.
+uniform float grass_scale = 0.62;
+uniform float earth_scale = 0.55;
+uniform float sand_scale = 0.5;
+uniform float rock_scale = 0.3;
+// Fieldstone paving shared with the district maps (fieldstone_paving.gdshaderinc).
+uniform float cobble_cell_size = 0.2;
+uniform float cobble_relief = 0.05;
 uniform vec3 grass_tint : source_color = vec3(0.78, 0.86, 0.62);
 uniform vec3 earth_tint : source_color = vec3(0.60, 0.55, 0.47);
 uniform float wetness = 0.0;
 uniform float sea_level = 0.0;
+
+#include "res://scripts/map/view3d/fieldstone_paving.gdshaderinc"
 
 varying vec3 world_pos;
 varying vec3 world_normal;
@@ -51,10 +55,6 @@ vec3 detiled(sampler2D tex, vec2 uv) {
 	float n = value_noise(uv * 0.11);
 	vec2 uv2 = mat2(vec2(0.8, -0.6), vec2(0.6, 0.8)) * uv * 0.73 + vec2(0.37, 0.71);
 	return mix(texture(tex, uv).rgb, texture(tex, uv2).rgb, smoothstep(0.3, 0.7, n));
-}
-
-vec3 detiled_normal(sampler2D tex, vec2 uv) {
-	return texture(tex, uv).rgb;
 }
 
 void vertex() {
@@ -81,15 +81,19 @@ void fragment() {
 	vec2 wuv = world_pos.xz;
 	vec3 grass = detiled(grass_albedo, wuv * grass_scale) * grass_tint * mix(0.85, 1.08, macro);
 	vec3 col = grass;
-	vec3 nrm = detiled_normal(grass_normal, wuv * grass_scale);
+	vec2 nxy = texture(grass_normal, wuv * grass_scale).rg * 2.0 - 1.0;
 	col = mix(col, detiled(earth_albedo, wuv * earth_scale) * earth_tint, earth);
-	nrm = mix(nrm, detiled_normal(earth_normal, wuv * earth_scale), earth);
+	nxy = mix(nxy, texture(earth_normal, wuv * earth_scale).rg * 2.0 - 1.0, earth);
 	col = mix(col, detiled(earth_albedo, wuv * earth_scale) * vec3(0.62, 0.55, 0.46), mud);
-	nrm = mix(nrm, detiled_normal(earth_normal, wuv * earth_scale), mud);
+	nxy = mix(nxy, texture(earth_normal, wuv * earth_scale).rg * 2.0 - 1.0, mud);
 	col = mix(col, detiled(sand_albedo, wuv * sand_scale), sand);
-	nrm = mix(nrm, detiled_normal(sand_normal, wuv * sand_scale), sand);
-	col = mix(col, detiled(cobble_albedo, wuv * cobble_scale) * vec3(0.62, 0.58, 0.52), paving);
-	nrm = mix(nrm, detiled_normal(cobble_normal, wuv * cobble_scale), paving);
+	nxy = mix(nxy, texture(sand_normal, wuv * sand_scale).rg * 2.0 - 1.0, sand);
+	if (paving > 0.001) {
+		vec2 world_step = fwidth(wuv);
+		FieldStone field = compute_fieldstone(wuv, max(world_step.x, world_step.y) / cobble_cell_size);
+		col = mix(col, field.albedo, paving);
+		nxy = mix(nxy, field.normal_xy, paving);
+	}
 	// Exposed limestone on the klint faces and steep banks, triplanar so cliffs do not stretch.
 	vec3 an = abs(world_normal);
 	vec3 rx = texture(rock_albedo, world_pos.zy * rock_scale).rgb;
@@ -101,6 +105,6 @@ void fragment() {
 	float wet = clamp(wetness + mud * 0.35 + shore * 0.5, 0.0, 1.0);
 	ALBEDO = col * mix(1.0, 0.62, wet);
 	ROUGHNESS = mix(0.95, 0.35, wet * (1.0 - rock * 0.5));
-	NORMAL_MAP = nrm;
-	NORMAL_MAP_DEPTH = mix(1.0, 0.6, wet);
+	nxy = clamp(nxy * mix(1.0, 0.6, wet) * (1.0 - rock), vec2(-0.95), vec2(0.95));
+	NORMAL_MAP = vec3(nxy, sqrt(max(1.0 - dot(nxy, nxy), 0.0))) * 0.5 + 0.5;
 }
