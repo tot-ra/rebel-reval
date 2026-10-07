@@ -12,7 +12,7 @@ extends Node
 
 const SCENE := preload("res://scenes/world/reval_city/reval_city.tscn")
 const OUTPUT_DIR := "res://docs/reports/images/city"
-const STUCK_SEC := 2.5
+const STUCK_SEC := 1.5
 const REACH := 2.2
 const ROUTE_TIMEOUT := 120.0
 
@@ -104,16 +104,14 @@ func _run() -> void:
 	await _walk("luhike_jalg_up", luhike)
 	await _walk("pikk_to_harbour", pikk)
 	await _enter_house(plan)
+	await _enter_sites(plan)
+	await _features(plan)
 	_frame_ms.sort()
 	if not _frame_ms.is_empty():
 		print(
 			(
-				"frame ms p50=%.1f p95=%.1f max=%.1f"
-				% [
-					_frame_ms[_frame_ms.size() / 2],
-					_frame_ms[int(_frame_ms.size() * 0.95)],
-					_frame_ms[-1]
-				]
+				"route frame ms best=%.1f median=%.1f worst=%.1f"
+				% [_frame_ms[0], _frame_ms[_frame_ms.size() / 2], _frame_ms[-1]]
 			)
 		)
 	for f in _failures:
@@ -135,22 +133,22 @@ func _walk(label: String, route: PackedVector2Array) -> void:
 	var stuck := 0.0
 	var last_pos := player.global_position
 	var shot_taken := false
+	var frames0 := Engine.get_process_frames()
+	var wall0 := Time.get_ticks_usec()
 	Input.action_press(&"ui_up")
 	while index < route.size() and elapsed < ROUTE_TIMEOUT:
-		var t0 := Time.get_ticks_usec()
-		await get_tree().process_frame
-		var dt := (Time.get_ticks_usec() - t0) / 1000.0
-		_frame_ms.append(dt)
-		elapsed += get_process_delta_time() if get_process_delta_time() > 0.0 else 1.0 / 60.0
+		# Steer right before physics: the runtime re-applies the camera basis each frame.
+		await get_tree().physics_frame
+		elapsed += get_physics_process_delta_time()
 		var xz := CityPlan.to_world_xz(player.global_position)
 		var target := route[index]
 		if xz.distance_to(target) < REACH:
 			index += 1
 			continue
-		var d := target - xz
-		_city.yaw = atan2(-d.x, -d.y)
+		var d := (target - xz).normalized()
+		_steer(player, d)
 		if player.global_position.distance_to(last_pos) < 2.0:
-			stuck += get_process_delta_time()
+			stuck += get_physics_process_delta_time()
 		else:
 			stuck = 0.0
 		last_pos = player.global_position
@@ -164,6 +162,10 @@ func _walk(label: String, route: PackedVector2Array) -> void:
 			shot_taken = true
 			await _shot("walk_%s" % label)
 	Input.action_release(&"ui_up")
+	var frames := Engine.get_process_frames() - frames0
+	var frame_ms := (Time.get_ticks_usec() - wall0) / 1000.0 / maxf(frames, 1)
+	_frame_ms.append(frame_ms)
+	print("%s: %.1f ms per rendered frame" % [label, frame_ms])
 	var xz_end := CityPlan.to_world_xz(player.global_position)
 	var climbed := plan.walk_height(xz_end) - start_h
 	print(
@@ -198,19 +200,33 @@ func _enter_house(plan: CityPlan) -> void:
 	var start := door + outward * 3.0
 	player.global_position = CityPlan.to_logic(start)
 	await get_tree().physics_frame
-	_city.yaw = atan2(outward.x, outward.y)  # camera behind Kalev, facing the door
+	_steer(player, -outward)
 	Input.action_press(&"ui_up")
 	var t := 0.0
 	while t < 3.0 and _city.inside_building != best:
-		await get_tree().process_frame
-		t += get_process_delta_time()
+		await get_tree().physics_frame
+		_steer(player, -outward)
+		t += get_physics_process_delta_time()
 	# A few more steps into the room.
 	var deeper := 0.0
-	while deeper < 0.5:
-		await get_tree().process_frame
-		deeper += get_process_delta_time()
+	while deeper < 0.12:
+		await get_tree().physics_frame
+		_steer(player, -outward)
+		deeper += get_physics_process_delta_time()
 	Input.action_release(&"ui_up")
 	await _shot("walk_house_inside")
+	# All three cameras work indoors: the ceiling lifts with the roof.
+	var runtime: MapViewRuntime = _city.runtime
+	for mode: MapViewRuntimeCamera.CameraMode in [
+		MapViewRuntimeCamera.CameraMode.TOP_DOWN, MapViewRuntimeCamera.CameraMode.FIRST_PERSON
+	]:
+		runtime.set_camera_mode(mode)
+		for i in 20:
+			await get_tree().process_frame
+		await _shot(
+			"walk_house_inside_%s" % runtime.camera_mode_label().to_lower().replace(" ", "_")
+		)
+	runtime.set_camera_mode(MapViewRuntimeCamera.CameraMode.THIRD_PERSON)
 	if not _city.world.doors.is_open(best):
 		_failures.append("house %s: door did not swing open" % b["id"])
 	else:
@@ -228,19 +244,21 @@ func _enter_house(plan: CityPlan) -> void:
 			)
 		)
 	# And back out.
-	_city.yaw = atan2(-outward.x, -outward.y)
+	_steer(player, outward)
 	Input.action_press(&"ui_up")
 	t = 0.0
 	while t < 3.0 and _city.inside_building == best:
-		await get_tree().process_frame
-		t += get_process_delta_time()
+		await get_tree().physics_frame
+		_steer(player, outward)
+		t += get_physics_process_delta_time()
 	Input.action_release(&"ui_up")
 	# Keep walking away; the door shuts behind Kalev.
 	var away := 0.0
 	Input.action_press(&"ui_up")
-	while away < 1.6:
-		await get_tree().process_frame
-		away += get_process_delta_time()
+	while away < 0.5:
+		await get_tree().physics_frame
+		_steer(player, outward)
+		away += get_physics_process_delta_time()
 	Input.action_release(&"ui_up")
 	if _city.world.doors.is_open(best):
 		_failures.append("house %s: door stayed open after Kalev left" % b["id"])
@@ -254,8 +272,192 @@ func _enter_house(plan: CityPlan) -> void:
 		print("walked back out of %s" % b["id"])
 
 
+## Screen "up" points along `direction` (world XZ), whatever the camera does.
+func _steer(player: Player, direction: Vector2) -> void:
+	player.set_screen_movement_basis(Vector2(-direction.y, direction.x), -direction)
+
+
 func _shot(name: String) -> void:
 	for i in 3:
 		await get_tree().process_frame
 	var image := get_tree().root.get_viewport().get_texture().get_image()
 	image.save_png(ProjectSettings.globalize_path("%s/%s.png" % [OUTPUT_DIR, name]))
+
+
+## Round-3 features: people, chimney smoke, ships, swimming, fast travel and
+## the edge of the plan.
+func _features(plan: CityPlan) -> void:
+	var player: Player = _city.player
+	var npcs := _city.find_child("CityNpcs", true, false)
+	var people := npcs.get_child_count() if npcs != null else 0
+	print("npcs: %d bodies" % people)
+	if people < 20:
+		_failures.append("npcs: only %d people in the city" % people)
+	print("chimneys: %d stacks" % _city.world.chimneys.size())
+	if _city.world.chimneys.size() < 200:
+		_failures.append("chimneys: only %d" % _city.world.chimneys.size())
+	# Fast travel inside the city: a district destination moves Kalev in place.
+	DoorNavigator.go_to_scene(&"reval_north", &"anything")
+	await get_tree().physics_frame
+	var granary := plan.point_of_interest("poi.granary.pikk")
+	var at := CityPlan.to_world_xz(player.global_position)
+	if at.distance_to(Vector2(granary["at"][0], granary["at"][1])) > 3.0:
+		_failures.append("fast travel: Kalev at %s, not at the Pikk granary" % at)
+	else:
+		print("fast travel to reval_north arrived at the Pikk granary in place")
+	for i in 40:
+		await get_tree().process_frame
+	var plumes: int = _city.world.smoke.plume_count()
+	print("chimney smoke plumes near Kalev: %d" % plumes)
+	if plumes == 0:
+		_failures.append("chimney smoke: no plume near the granary")
+	await _shot("walk_chimneys_granary")
+	# Birds fly over the town around Kalev (the shared flight layer).
+	var birds := 0
+	for i in 600:
+		await get_tree().process_frame
+		birds = _city.runtime._ambient_controller.bird_flight_active_count()
+		if birds > 0:
+			break
+	print("birds in flight near Kalev: %d" % birds)
+	var me := CityPlan.to_world_xz(player.global_position)
+	var flight: Node = _city.runtime._ambient_controller.get("_bird_flight")
+	for bird: Node3D in flight.call("flight_birds"):
+		if bird.visible:
+			var p := bird.global_position
+			print(
+				(
+					"  bird %.0f m from Kalev, %.1f m above his ground"
+					% [Vector2(p.x, p.z).distance_to(me), p.y - plan.ground_height(me)]
+				)
+			)
+	if birds == 0:
+		_failures.append("birds: none in flight after 600 frames")
+	# Swim: off the fish landing, in water deeper than Kalev is tall.
+	var landing := plan.point_of_interest("poi.fish_landing")
+	var sea := Vector2(landing["at"][0], landing["at"][1])
+	for k in 60:
+		if plan.ground_height(sea) < -2.5:
+			break
+		sea += Vector2(0, -4)
+	player.global_position = CityPlan.to_logic(sea)
+	for i in 30:
+		await get_tree().physics_frame
+	print("in the sea: depth %.2f medium %d" % [player.water_depth(), player.water_medium()])
+	if player.water_medium() != PlayerSwimState.Medium.SWIM:
+		_failures.append(
+			"swimming: medium %d at depth %.2f" % [player.water_medium(), player.water_depth()]
+		)
+	await _shot("walk_swim_harbour")
+	# Magic: a Fireball cast on the forum flies as an orb in the 3D view.
+	player.global_position = CityPlan.to_logic(CityTravel.spawn_position(plan, "poi.forum"))
+	await get_tree().physics_frame
+	var db := ContentDB.new()
+	db.load_from_directories(["res://content/examples/valid", "res://content/examples/support"])
+	var state := GameState.new()
+	state.set_magic_resource(GameState.MAGIC_RESOURCE_WILLPOWER, 2)
+	MagicResolver.apply_grant_operation(state, db, &"magic.grant.starter_fireball")
+	var cast := MagicResolver.cast(
+		state, db, &"", [&"element.fire", &"element.air"] as Array[StringName]
+	)
+	var orb_seen := false
+	if MagicCastExecutor2D.execute(cast, player, player.view_facing(), player.get_parent()) != null:
+		for i in 12:
+			await get_tree().process_frame
+			if _city.runtime.find_child("MagicProjectileOrb", true, false) != null:
+				orb_seen = true
+				break
+	if orb_seen:
+		print("fireball: orb in flight over the forum")
+		await _shot("walk_fireball_forum")
+	else:
+		_failures.append("fireball: no orb in the 3D view")
+	# The edge of the plan opens the travel map instead of an invisible wall.
+	var edge := plan.bounds.position + Vector2(10, plan.bounds.size.y * 0.5)
+	player.global_position = CityPlan.to_logic(edge)
+	for i in 4:
+		await get_tree().process_frame
+	var world_map := player.get_node_or_null("WorldMapController") as WorldMapController
+	if world_map == null or not world_map.is_open():
+		_failures.append("edge: travel map did not open")
+	else:
+		print("edge of the plan opened the travel map (%s)" % world_map.get_overlay().get_mode())
+		await _shot("walk_edge_travel_map")
+		world_map.close()
+
+
+## Landmark sites (ADR 0032): walk in through every site door, check the door
+## swings, the room's roof lifts and Kalev stands on the site floor, walk out.
+func _enter_sites(plan: CityPlan) -> void:
+	var player: Player = _city.player
+	for site in plan.sites:
+		for d: Dictionary in site.doors:
+			var mid: Vector2 = (d["a"] + d["b"]) * 0.5
+			var inward: Vector2 = d["inward"]
+			var key := "site:%s" % d["id"]
+			player.global_position = CityPlan.to_logic(mid - inward * 3.0)
+			await get_tree().physics_frame
+			Input.action_press(&"ui_up")
+			var t := 0.0
+			while t < 1.2:
+				await get_tree().physics_frame
+				_steer(player, inward)
+				t += get_physics_process_delta_time()
+				var room := plan.site_room_at(CityPlan.to_world_xz(player.global_position))
+				if (
+					not room.is_empty()
+					and CityPlan.to_world_xz(player.global_position).distance_to(mid) > 2.0
+				):
+					break
+			Input.action_release(&"ui_up")
+			for i in 10:
+				await get_tree().process_frame
+			var xz := CityPlan.to_world_xz(player.global_position)
+			var room := plan.site_room_at(xz)
+			if room.is_empty():
+				_failures.append(
+					"%s: could not walk in through %s (at %s)" % [site.id, d["id"], xz]
+				)
+				continue
+			var roof_paths: Array = room["room"]["hide"]
+			var site_node: Node3D = _city.world.site_nodes[site.id]
+			var hidden := true
+			for path: String in roof_paths:
+				hidden = hidden and not (site_node.get_node(path) as Node3D).visible
+			if not hidden:
+				_failures.append("%s: roof did not lift in %s" % [site.id, room["room"]["id"]])
+			if not _city.world.doors.is_open(key):
+				_failures.append("%s: door %s did not open" % [site.id, d["id"]])
+			print(
+				(
+					"site %s: walked in through %s; room %s; floor %.2f; roof lifted %s; door open %s"
+					% [
+						site.id,
+						d["id"],
+						room["room"]["id"],
+						plan.walk_height(xz),
+						hidden,
+						_city.world.doors.is_open(key)
+					]
+				)
+			)
+			await _shot("walk_site_%s_inside" % String(site.id).trim_prefix("site."))
+			var runtime: MapViewRuntime = _city.runtime
+			runtime.set_camera_mode(MapViewRuntimeCamera.CameraMode.TOP_DOWN)
+			for i in 20:
+				await get_tree().process_frame
+			await _shot("walk_site_%s_inside_top_down" % String(site.id).trim_prefix("site."))
+			runtime.set_camera_mode(MapViewRuntimeCamera.CameraMode.THIRD_PERSON)
+			# Back out.
+			Input.action_press(&"ui_up")
+			t = 0.0
+			while (
+				t < 2.0
+				and not plan.site_room_at(CityPlan.to_world_xz(player.global_position)).is_empty()
+			):
+				await get_tree().physics_frame
+				_steer(player, -inward)
+				t += get_physics_process_delta_time()
+			Input.action_release(&"ui_up")
+			if not plan.site_room_at(CityPlan.to_world_xz(player.global_position)).is_empty():
+				_failures.append("%s: could not walk out through %s" % [site.id, d["id"]])

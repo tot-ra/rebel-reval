@@ -17,6 +17,29 @@
       ]
     },
     {
+      "id": "reval_city",
+      "path": "res://scenes/world/reval_city/reval_city.tscn",
+      "active": true,
+      "release": true,
+      "spawns": [
+        { "id": "poi.forum" },
+        { "id": "kalev_smithy" },
+        { "id": "gate.viru" },
+        { "id": "gate.viru.outside" },
+        { "id": "gate.harju.outside" },
+        { "id": "gate.karja.outside" },
+        { "id": "gate.coastal" },
+        { "id": "poi.fish_landing" },
+        { "id": "poi.granary.pikk" },
+        { "id": "landmark.st_olaf" },
+        { "id": "landmark.st_nicholas" },
+        { "id": "road.toompea_west" },
+        { "id": "poi.barracks.castle" },
+        { "id": "poi.well.bishop_garden" },
+        { "id": "suburb.kalarand" }
+      ]
+    },
+    {
       "id": "reval_east",
       "path": "res://scenes/reval_east/reval_east.tscn",
       "active": true,

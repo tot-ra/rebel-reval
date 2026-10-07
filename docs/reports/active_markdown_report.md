@@ -14,11 +14,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `218`
-- Markdown files excluded as archive/reference/out of active scope: `748`
-- Local/external links inspected: `1377`
-- Links to active Markdown docs: `870`
-- Links to existing archive/reference/non-active local docs: `240`
+- Active Markdown files scanned: `220`
+- Markdown files excluded as archive/reference/out of active scope: `741`
+- Local/external links inspected: `1394`
+- Links to active Markdown docs: `884`
+- Links to existing archive/reference/non-active local docs: `243`
 - External links skipped for reachability: `46`
 - Issues found: `0`
 
@@ -69,6 +69,7 @@ No active Markdown documentation issues found.
 - `docs/adr/0029-natural-reval-maps-and-larger-coast.md`
 - `docs/adr/0030-retire-direction-sign-primitive.md`
 - `docs/adr/0031-continuous-reval-city-plan.md`
+- `docs/adr/0032-bespoke-landmark-sites-in-the-city.md`
 - `docs/adr/README.md`
 - `docs/AGENT_LOOPS.md`
 - `docs/ARCHITECTURE.md`
@@ -149,6 +150,7 @@ No active Markdown documentation issues found.
 - `docs/SKY_WEATHER_STATE_CONTRACT.md`
 - `docs/SOUND_EFFECTS_TOP_100.md`
 - `docs/STORAGE_SIZE_BACKLOG.md`
+- `docs/SYSTEMS/CITY_LANDMARK_SITES.md`
 - `docs/SYSTEMS/COMBAT.md`
 - `docs/SYSTEMS/COMBAT_ANIMATION.md`
 - `docs/SYSTEMS/COMBAT_NIGHT.md`

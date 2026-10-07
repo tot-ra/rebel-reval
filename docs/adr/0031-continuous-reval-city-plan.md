@@ -89,6 +89,11 @@ plan (a follow-up task per quest), so nothing playable is removed by this ADR.
 
 ## Consequences
 
+- 2026-10-07 (maintainer direction): the city became the game's Reval rather than a
+  preview. Start runs forge → city; every old Reval district destination (forge
+  door, interior exits, district fast travel, returns from distant regions) is
+  redirected to a city spawn by `CityTravel`, and the menu entry was removed. The
+  district scenes stay in the repository, unreachable, until their quests move.
 - OSM data is ODbL: the trimmed extract and the derived plan carry the attribution and stay
   available under ODbL (`docs/THIRD_PARTY_NOTICES.md`, `CREDITS.md`). EU-DEM needs attribution only.
 - Plot footprints are modern survivals of medieval plots; individual houses are a

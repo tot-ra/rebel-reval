@@ -12,12 +12,25 @@ extends RefCounted
 const SINK := 0.7
 const OVERHANG := 0.38
 const ROOF_THICKNESS := 0.16
+## Roof cover thickness by family: a thatch coat is ~0.35 m and ends in a
+## rounded roll at eaves and verges; tile and shingle are thin.
+const ROOF_COVER := {&"thatch": 0.36, &"shingle": 0.11, &"tile": 0.13}
+## Ridge capping radius: half-round ridge tiles, a ridge board roll, or the
+## bulky bound ridge of a thatch.
+const RIDGE_RADIUS := {&"thatch": 0.32, &"shingle": 0.1, &"tile": 0.13}
+## Wall corners are filleted, never knife-sharp: lime render rounds a corner,
+## timber corners are eased and worn, dressed limestone quoins only slightly.
+const CORNER_RADIUS := {&"limestone": 0.1, &"plaster": 0.22, &"log": 0.16, &"plank": 0.14}
+const CORNER_SEGMENTS := 3
 const DOOR_WIDTH := 1.5
 const DOOR_HEIGHT := 2.55
 const WINDOW_W := 0.72
 const WINDOW_H := 0.95
 const WINDOW_SPACING := 3.4
 const MAX_ROOF_RISE := 10.5
+## Share of town houses with a chimney stack, and its plan size in metres.
+const CHIMNEY_SHARE := 0.8
+const CHIMNEY_SIZE := 0.75
 const CHUNK := 64.0
 const STONE_WALL := 0.62
 const TIMBER_WALL := 0.32
@@ -34,36 +47,79 @@ const ROOF_COLORS := {
 	&"tile": Color(0.55, 0.27, 0.19),
 }
 
+const WALL_SHADER := preload("res://scripts/city/city_weathered_wall.gdshader")
+const ROOF_SHADER := preload("res://scripts/city/city_weathered_roof.gdshader")
+## The district material plates are sized for 0.87 m units; the city uses 1 m.
+const UV_RESCALE := 1.0 / 0.87
+
 static var _materials: Dictionary = {}
+static var _ground_texture: Texture2D
+static var _ground_rect := Vector4(0, 0, 1, 1)
+
+
+## Binds the city heightfield so weathering knows each wall's height above
+## the street. Call once before building (CityWorld3D does).
+static func bind_ground(plan: CityPlan) -> void:
+	_ground_texture = plan.height_texture()
+	_ground_rect = plan.height_texture_rect()
+	_materials.clear()
+
+
+## Weathered wall material from a library plate (texture, normal, density).
+static func weathered_wall(source: StandardMaterial3D, tint: Color, age := 1.0) -> ShaderMaterial:
+	var mat := ShaderMaterial.new()
+	mat.shader = WALL_SHADER
+	_copy_plate(mat, source, tint, age)
+	return mat
+
+
+static func weathered_roof(source: StandardMaterial3D, tint: Color, moss: float) -> ShaderMaterial:
+	var mat := ShaderMaterial.new()
+	mat.shader = ROOF_SHADER
+	_copy_plate(mat, source, tint, 1.0)
+	mat.set_shader_parameter("moss", moss)
+	return mat
+
+
+static func _copy_plate(
+	mat: ShaderMaterial, source: StandardMaterial3D, tint: Color, age: float
+) -> void:
+	mat.set_shader_parameter("albedo_tex", source.albedo_texture)
+	mat.set_shader_parameter("normal_tex", source.normal_texture)
+	mat.set_shader_parameter(
+		"base_tint",
+		(
+			Vector3(tint.r, tint.g, tint.b)
+			* Vector3(source.albedo_color.r, source.albedo_color.g, source.albedo_color.b)
+		)
+	)
+	mat.set_shader_parameter("uv_scale", source.uv1_scale * UV_RESCALE)
+	mat.set_shader_parameter("roughness_base", source.roughness)
+	mat.set_shader_parameter("ground_height", _ground_texture)
+	mat.set_shader_parameter("ground_rect", _ground_rect)
+	mat.set_shader_parameter("age", age)
+
+
+static func set_wetness(value: float) -> void:
+	for mat: Variant in _materials.values():
+		if mat is ShaderMaterial:
+			(mat as ShaderMaterial).set_shader_parameter("wetness", value)
 
 
 static func wall_material(family: StringName) -> Material:
 	var key := "wall:%s" % family
 	if not _materials.has(key):
-		var mat := (
-			(
-				MapViewMaterials
-				. wall_surface_triplanar(family, WALL_COLORS.get(family, Color.WHITE))
-				. duplicate()
-			)
-			as StandardMaterial3D
-		)
-		mat.vertex_color_use_as_albedo = true
-		mat.cull_mode = BaseMaterial3D.CULL_BACK
-		_materials[key] = mat
+		var plate := MapViewMaterials.wall_surface_triplanar(family, Color.WHITE)
+		_materials[key] = weathered_wall(plate, WALL_COLORS.get(family, Color.WHITE))
 	return _materials[key]
 
 
 static func roof_material(family: StringName) -> Material:
 	var key := "roof:%s" % family
 	if not _materials.has(key):
-		var mat := (
-			MapViewMaterials.roof_surface(family, ROOF_COLORS.get(family, Color.WHITE)).duplicate()
-			as StandardMaterial3D
-		)
-		mat.vertex_color_use_as_albedo = true
-		mat.cull_mode = BaseMaterial3D.CULL_DISABLED
-		_materials[key] = mat
+		var plate := MapViewMaterials.roof_surface(family, Color.WHITE)
+		var moss := {&"shingle": 0.5, &"tile": 0.3, &"thatch": 0.2}.get(family, 0.5) as float
+		_materials[key] = weathered_roof(plate, ROOF_COLORS.get(family, Color.WHITE), moss)
 	return _materials[key]
 
 
@@ -329,10 +385,53 @@ static func normalized_ring(ring: PackedVector2Array) -> PackedVector2Array:
 	return ring
 
 
-static func build_building(
-	b: Dictionary, ring_in: PackedVector2Array, floor_y: float, enterable: bool
-) -> Dictionary:
+## The wall outline actually built for a building: the normalized footprint
+## with filleted corners. Doors, collision and interiors use the same ring so
+## the door gap lines up everywhere.
+static func wall_ring(b: Dictionary, ring_in: PackedVector2Array) -> PackedVector2Array:
 	var ring := normalized_ring(ring_in)
+	return soften_ring(ring, float(CORNER_RADIUS.get(StringName(b.get("material", "")), 0.15)))
+
+
+## Replaces each corner with a short quadratic-Bezier fillet of `radius`
+## (clamped to 30 % of the adjoining edges); nearly straight vertices stay.
+static func soften_ring(ring: PackedVector2Array, radius: float) -> PackedVector2Array:
+	if ring.size() < 3 or radius <= 0.0:
+		return ring
+	var out := PackedVector2Array()
+	for i in ring.size():
+		var p := ring[i]
+		var a := ring[(i - 1 + ring.size()) % ring.size()]
+		var c := ring[(i + 1) % ring.size()]
+		var d1 := a - p
+		var d2 := c - p
+		var l1 := d1.length()
+		var l2 := d2.length()
+		if l1 < 0.01 or l2 < 0.01:
+			continue
+		d1 /= l1
+		d2 /= l2
+		# Nearly straight (> ~165 deg): keep the vertex as it is.
+		if d1.dot(d2) < -0.966:
+			out.append(p)
+			continue
+		var r := minf(radius, minf(l1, l2) * 0.3)
+		var t1 := p + d1 * r
+		var t2 := p + d2 * r
+		for k in CORNER_SEGMENTS + 1:
+			var s := float(k) / CORNER_SEGMENTS
+			out.append(t1.lerp(p, s).lerp(p.lerp(t2, s), s))
+	return out
+
+
+static func build_building(
+	b: Dictionary,
+	ring_in: PackedVector2Array,
+	floor_y: float,
+	enterable: bool,
+	ground_at: Callable = Callable()
+) -> Dictionary:
+	var ring := wall_ring(b, ring_in)
 	var shell := Shell.new()
 	var roof := Shell.new()
 	var family := StringName(b["material"])
@@ -371,19 +470,141 @@ static func build_building(
 			var half_gap := minf(DOOR_WIDTH * 0.5, length * 0.35) / maxf(length, 0.01)
 			gap = Vector2(door_t - half_gap, door_t + half_gap)
 		_wall_edge(shell, wall_key, a, c, bottom, frame, tint, gap, floor_y, enterable)
-		if String(b.get("landmark_id", "")) == "":
+		# Site models (ADR 0032) bring their own openings.
+		if not bool(b.get("openings", true)):
+			continue
+		if not String(b.get("kind", "house")) in ["church", "chapel", "hall"]:
 			_windows(shell, a, c, floor_y, eave, gap, rng, family)
 		else:
 			_lancets(shell, a, c, floor_y, eave)
+	if door_edge >= 0 and ground_at.is_valid():
+		_door_steps(shell, ring, door_edge, door_t, floor_y, ground_at)
 	# Roof halves.
-	_roof(roof, roof_key, ring, frame, roof_tint)
+	_roof(roof, roof_key, ring, frame, roof_tint, roof_family)
+	# Most town houses have a stone flue by 1343 (thatched country cottages keep
+	# a smoke hole); it rides with the roof node when the roof lifts.
+	var chimney := Vector3.INF
+	if String(b.get("kind", "house")) == "house" and roof_family != &"thatch":
+		if rng.randf() < CHIMNEY_SHARE:
+			chimney = _chimney(roof, ring, frame, rng)
 	if enterable:
-		_interior(shell, ring, thick, floor_y, eave, frame, door_edge, door_t)
+		# The ceiling belongs with the roof: both lift while Kalev is inside, so
+		# top-down and first-person views look into the room, not at boards.
+		_interior(shell, ring, thick, floor_y, eave, frame, door_edge, door_t, roof)
 	else:
 		# Flat cap under the roof so a raised camera never sees into a hollow house.
 		var inner := ring
 		_cap(shell, wall_key, inner, eave - 0.02, tint)
-	return {"shell": shell, "roof": roof, "frame": frame}
+	return {"shell": shell, "roof": roof, "frame": frame, "chimney": chimney}
+
+
+## Stone chimney stack through the roof slope near the ridge; returns its top.
+static func _chimney(
+	roof: Shell, ring: PackedVector2Array, frame: Dictionary, rng: RandomNumberGenerator
+) -> Vector3:
+	var r: Vector2 = frame["r"]
+	var n: Vector2 = frame["n"]
+	var along := lerpf(float(frame["amin"]), float(frame["amax"]), rng.randf_range(0.22, 0.78))
+	var across := float(frame["mid"]) + float(frame["half"]) * rng.randf_range(-0.35, 0.35)
+	var c := r * along + n * across
+	if not Geometry2D.is_point_in_polygon(c, ring):
+		return Vector3.INF
+	var half := CHIMNEY_SIZE * 0.5
+	var low := INF
+	for sx: float in [-1.0, 1.0]:
+		for sy: float in [-1.0, 1.0]:
+			low = minf(low, roof_height(frame, c + r * sx * half + n * sy * half))
+	var top := float(frame["ridge"]) + rng.randf_range(0.6, 1.1)
+	var tint := Color(1, 1, 1) * rng.randf_range(0.75, 0.95)
+	tint.a = 1.0
+	var corners: Array[Vector2] = [
+		c - r * half - n * half,
+		c + r * half - n * half,
+		c + r * half + n * half,
+		c - r * half + n * half
+	]
+	for i in 4:
+		var a := corners[i]
+		var b := corners[(i + 1) % 4]
+		var out := Vector3((a + b).x * 0.5 - c.x, 0.0, (a + b).y * 0.5 - c.y)
+		roof.quad_out(
+			"stone",
+			Vector3(a.x, low - 0.2, a.y),
+			Vector3(b.x, low - 0.2, b.y),
+			Vector3(b.x, top, b.y),
+			Vector3(a.x, top, a.y),
+			tint,
+			out
+		)
+	# Dark flue mouth.
+	var m := half * 0.7
+	roof.quad_out(
+		"dark",
+		Vector3(c.x - m, top - 0.02, c.y - m),
+		Vector3(c.x + m, top - 0.02, c.y - m),
+		Vector3(c.x + m, top - 0.02, c.y + m),
+		Vector3(c.x - m, top - 0.02, c.y + m),
+		Color(1, 1, 1),
+		Vector3.UP
+	)
+	return Vector3(c.x, top, c.y)
+
+
+## Limestone steps from the street up to a raised floor, so every door sits at
+## a walkable threshold rather than floating above the ground.
+static func _door_steps(
+	shell: Shell,
+	ring: PackedVector2Array,
+	edge: int,
+	door_t: float,
+	floor_y: float,
+	ground_at: Callable
+) -> void:
+	var a := ring[edge]
+	var c := ring[(edge + 1) % ring.size()]
+	var dir := (c - a).normalized()
+	var out := Vector2(-dir.y, dir.x)
+	var mid := a.lerp(c, door_t)
+	if Geometry2D.is_point_in_polygon(mid + out * 0.3, ring):
+		out = -out
+	var rise := floor_y - float(ground_at.call(mid + out * 1.0))
+	if rise < 0.12:
+		return
+	var steps := clampi(int(ceil(rise / 0.18)), 1, 8)
+	var tread := 0.32
+	var half_w := DOOR_WIDTH * 0.5 + 0.25
+	for k in steps:
+		var top := floor_y - rise * float(k) / steps
+		var depth := tread * float(k + 1)
+		var p0 := mid - dir * half_w
+		var p1 := mid + dir * half_w
+		var o := out * depth
+		var bottom := float(ground_at.call(mid + out * depth)) - 0.4
+		var corners: Array[Vector3] = [
+			Vector3(p0.x, bottom, p0.y),
+			Vector3(p1.x, bottom, p1.y),
+			Vector3(p1.x + o.x, bottom, p1.y + o.y),
+			Vector3(p0.x + o.x, bottom, p0.y + o.y),
+		]
+		var tops: Array[Vector3] = []
+		for v in corners:
+			tops.append(Vector3(v.x, top - 0.01, v.z))
+		var center := Vector3(mid.x + o.x * 0.5, top, mid.y + o.y * 0.5)
+		shell.quad_out(
+			"stone", tops[0], tops[1], tops[2], tops[3], Color(0.9, 0.88, 0.84), Vector3.UP
+		)
+		for i in 4:
+			var j := (i + 1) % 4
+			var face := (corners[i] + corners[j]) * 0.5 - center
+			shell.quad_out(
+				"stone",
+				corners[i],
+				corners[j],
+				tops[j],
+				tops[i],
+				Color(0.82, 0.8, 0.76),
+				Vector3(face.x, 0, face.z)
+			)
 
 
 static func _closest_edge(ring: PackedVector2Array, p: Vector2) -> int:
@@ -582,7 +803,12 @@ static func _lancets(shell: Shell, a: Vector2, c: Vector2, floor_y: float, eave:
 
 
 static func _roof(
-	roof: Shell, key: String, ring: PackedVector2Array, frame: Dictionary, tint: Color
+	roof: Shell,
+	key: String,
+	ring: PackedVector2Array,
+	frame: Dictionary,
+	tint: Color,
+	family: StringName = &"tile"
 ) -> void:
 	var grown := Geometry2D.offset_polygon(ring, OVERHANG, Geometry2D.JOIN_MITER)
 	if grown.is_empty():
@@ -624,20 +850,133 @@ static func _roof(
 					roof.tri(key, v[0], v[2], v[1], tint, uv[0], uv[2], uv[1])
 				else:
 					roof.tri(key, v[0], v[1], v[2], tint, uv[0], uv[1], uv[2])
-	# Barge boards: thin fascia under the roof edge so the cover has thickness.
+	# The cover's edge: a rounded roll at eaves and verges (quarter-round
+	# nose outward from the cut line, then back under), so the roof reads as a
+	# thick, soft coat instead of a paper-thin plane.
+	var cover := float(ROOF_COVER.get(family, ROOF_THICKNESS))
+	var outs: Array[Vector2] = []
 	for i in outline.size():
+		var prev := outline[(i - 1 + outline.size()) % outline.size()]
+		var p := outline[i]
+		var next := outline[(i + 1) % outline.size()]
+		var e1 := (p - prev).normalized()
+		var e2 := (next - p).normalized()
+		var bis := Vector2(e1.y, -e1.x) + Vector2(e2.y, -e2.x)
+		var centroid_dir := p - _ring_center(outline)
+		if bis.dot(centroid_dir) < 0.0:
+			bis = -bis
+		outs.append(bis.normalized() if bis.length() > 0.01 else centroid_dir.normalized())
+	var steps := 4
+	for i in outline.size():
+		var j := (i + 1) % outline.size()
 		var p0 := outline[i]
-		var p1 := outline[(i + 1) % outline.size()]
+		var p1 := outline[j]
 		var h0 := roof_height(frame, p0)
 		var h1 := roof_height(frame, p1)
-		roof.quad(
-			key,
-			Vector3(p0.x, h0 - ROOF_THICKNESS, p0.y),
-			Vector3(p1.x, h1 - ROOF_THICKNESS, p1.y),
-			Vector3(p1.x, h1, p1.y),
-			Vector3(p0.x, h0, p0.y),
-			tint
+		for k in steps:
+			var a0 := PI * 0.5 - PI * float(k) / steps
+			var a1 := PI * 0.5 - PI * float(k + 1) / steps
+			var rad := cover * 0.5
+			var q00 := _roll_point(p0, outs[i], h0, rad, a0)
+			var q10 := _roll_point(p1, outs[j], h1, rad, a0)
+			var q01 := _roll_point(p0, outs[i], h0, rad, a1)
+			var q11 := _roll_point(p1, outs[j], h1, rad, a1)
+			var mid_out := Vector3((outs[i] + outs[j]).x, 0.0, (outs[i] + outs[j]).y).normalized()
+			var face := mid_out * cos((a0 + a1) * 0.5) + Vector3.UP * sin((a0 + a1) * 0.5)
+			var len01 := p0.distance_to(p1)
+			var v0 := rad * PI * float(k) / steps
+			var v1 := rad * PI * float(k + 1) / steps
+			_quad_uv(
+				roof,
+				key,
+				[q00, q10, q11, q01],
+				[Vector2(0, v0), Vector2(len01, v0), Vector2(len01, v1), Vector2(0, v1)],
+				tint,
+				face
+			)
+	# Ridge capping along the ridge line, overhanging the verges like the cover.
+	var rr := float(RIDGE_RADIUS.get(family, 0.12))
+	var along0 := float(frame["amin"]) - OVERHANG - cover * 0.5
+	var along1 := float(frame["amax"]) + OVERHANG + cover * 0.5
+	var ridge_y := float(frame["ridge"])
+	var base0 := r * along0 + n * mid
+	var base1 := r * along1 + n * mid
+	var cap_tint := tint * 0.9
+	cap_tint.a = 1.0
+	var segs := 6
+	for k in segs:
+		var a0 := PI * float(k) / segs
+		var a1 := PI * float(k + 1) / segs
+		var o0 := n * cos(a0) * rr
+		var o1 := n * cos(a1) * rr
+		var y0 := ridge_y - rr * 0.35 + sin(a0) * rr
+		var y1 := ridge_y - rr * 0.35 + sin(a1) * rr
+		var face := Vector3(
+			n.x * cos((a0 + a1) * 0.5), sin((a0 + a1) * 0.5), n.y * cos((a0 + a1) * 0.5)
 		)
+		_quad_uv(
+			roof,
+			key,
+			[
+				Vector3(base0.x + o0.x, y0, base0.y + o0.y),
+				Vector3(base1.x + o0.x, y0, base1.y + o0.y),
+				Vector3(base1.x + o1.x, y1, base1.y + o1.y),
+				Vector3(base0.x + o1.x, y1, base0.y + o1.y),
+			],
+			[
+				Vector2(along0, a0 * rr),
+				Vector2(along1, a0 * rr),
+				Vector2(along1, a1 * rr),
+				Vector2(along0, a1 * rr),
+			],
+			cap_tint,
+			face
+		)
+	# Cap ends.
+	for end: Array in [[base0, -r], [base1, r]]:
+		var c: Vector2 = end[0]
+		var dir: Vector2 = end[1]
+		for k in segs:
+			var a0 := PI * float(k) / segs
+			var a1 := PI * float(k + 1) / segs
+			roof.tri_out(
+				key,
+				Vector3(c.x, ridge_y - rr * 0.35, c.y),
+				Vector3(
+					c.x + n.x * cos(a0) * rr,
+					ridge_y - rr * 0.35 + sin(a0) * rr,
+					c.y + n.y * cos(a0) * rr
+				),
+				Vector3(
+					c.x + n.x * cos(a1) * rr,
+					ridge_y - rr * 0.35 + sin(a1) * rr,
+					c.y + n.y * cos(a1) * rr
+				),
+				cap_tint,
+				Vector3(dir.x, 0.0, dir.y)
+			)
+
+
+## Textured quad (corners a-b-c-d with their UVs) facing `out`.
+static func _quad_uv(
+	shell: Shell, key: String, q: Array, uv: Array, tint: Color, out: Vector3
+) -> void:
+	shell.tri_out(key, q[0], q[1], q[2], tint, out, uv[0], uv[1], uv[2])
+	shell.tri_out(key, q[0], q[2], q[3], tint, out, uv[0], uv[2], uv[3])
+
+
+## Point on the eave roll: angle +90 deg is the top of the cover at the cut
+## line, 0 the outermost nose, -90 deg the underside.
+static func _roll_point(p: Vector2, out: Vector2, h: float, r: float, angle: float) -> Vector3:
+	var o := out * cos(angle) * r
+	return Vector3(p.x + o.x, h - r + sin(angle) * r, p.y + o.y)
+
+
+static func _ring_center(ring: PackedVector2Array) -> Vector2:
+	var c := Vector2.ZERO
+	for p in ring:
+		c += p
+	return c / maxf(ring.size(), 1)
 
 
 static func _cap(
@@ -682,7 +1021,8 @@ static func _interior(
 	eave: float,
 	_frame: Dictionary,
 	door_edge: int,
-	door_t: float
+	door_t: float,
+	ceiling_shell: Shell = null
 ) -> void:
 	var inset := Geometry2D.offset_polygon(ring, -thick, Geometry2D.JOIN_MITER)
 	if inset.is_empty():
@@ -793,7 +1133,8 @@ static func _interior(
 		var va := Vector3(a.x, ceiling, a.y)
 		var vb := Vector3(b.x, ceiling, b.y)
 		var vc := Vector3(c.x, ceiling, c.y)
+		var target := ceiling_shell if ceiling_shell != null else shell
 		if (vc - va).cross(vb - va).y < 0.0:
-			shell.tri("timber", va, vb, vc, Color(0.75, 0.65, 0.55))
+			target.tri("timber", va, vb, vc, Color(0.75, 0.65, 0.55))
 		else:
-			shell.tri("timber", va, vc, vb, Color(0.75, 0.65, 0.55))
+			target.tri("timber", va, vc, vb, Color(0.75, 0.65, 0.55))

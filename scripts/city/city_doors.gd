@@ -17,7 +17,8 @@ const CHECK_RADIUS := 12.0
 const TIMBER_ALBEDO := "res://assets/materials/pbr/timber/timber_albedo.png"
 const TIMBER_NORMAL := "res://assets/materials/pbr/timber/timber_normal.png"
 
-const STYLES: Array[StringName] = [&"plank", &"braced", &"studded", &"arched"]
+## Rectangular leaves only: the openings are rectangular.
+const STYLES: Array[StringName] = [&"plank", &"braced", &"studded", &"ledged"]
 const PAINTS: Array[Color] = [
 	Color(0.52, 0.38, 0.25),  # oiled oak
 	Color(0.24, 0.20, 0.17),  # tarred
@@ -30,7 +31,8 @@ static var _mesh_cache: Dictionary = {}
 static var _materials: Dictionary = {}
 
 var plan: CityPlan
-## building index -> {hinges, inward, open, target, enterable, center}
+## building index (int) or "site:<door id>" (String) ->
+## {hinges, inward, open, target, enterable, center[, site_floor]}
 var doors: Dictionary = {}
 
 
@@ -53,46 +55,91 @@ func _build() -> void:
 		var rng := RandomNumberGenerator.new()
 		rng.seed = hash(String(b["id"]) + ":door")
 		var style: StringName = STYLES[rng.randi() % STYLES.size()]
-		if String(b["material"]) != "limestone" and style == &"arched":
-			style = &"plank"
 		if String(b["material"]) == "limestone" and rng.randf() < 0.5:
-			style = &"arched"
+			style = &"studded"
 		var paint: Color = PAINTS[rng.randi() % PAINTS.size()]
 		var double := float(gap["width"]) > 2.2 or String(b.get("landmark_id", "")) != ""
-		var leaves := 2 if double else 1
-		var leaf_w := float(gap["width"]) / leaves
-		var hinge_nodes: Array[Node3D] = []
-		for k in leaves:
-			var hinge := Node3D.new()
-			hinge.name = "Door_%d_%d" % [i, k]
-			var from: Vector2 = gap["a"] if k == 0 else gap["b"]
-			var toward: Vector2 = (gap["b"] - gap["a"]).normalized() * (1.0 if k == 0 else -1.0)
-			hinge.position = Vector3(from.x, float(gap["floor"]), from.y)
-			hinge.basis = Basis(Vector3.UP, atan2(-toward.y, toward.x))
-			var leaf := MeshInstance3D.new()
-			leaf.mesh = _leaf_mesh(style, leaf_w, CityBuildingBuilder.DOOR_HEIGHT - 0.05)
-			leaf.material_override = _material(paint)
-			# Mesh spans +X from the hinge; mirror the second leaf so it opens the same way.
-			if k == 1:
-				leaf.scale = Vector3(1, 1, -1)
-			hinge.add_child(leaf)
-			add_child(hinge)
-			hinge_nodes.append(hinge)
-		doors[i] = {
-			"hinges": hinge_nodes,
-			"inward": gap["inward"],
-			"open": 0.0,
-			"target": 0.0,
-			"enterable": bool(b.get("enterable", false)),
-			"center": (gap["a"] + gap["b"]) * 0.5,
-		}
+		doors[i] = _hang(
+			"Door_%d" % i,
+			gap["a"],
+			gap["b"],
+			float(gap["floor"]),
+			gap["inward"],
+			style,
+			paint,
+			CityBuildingBuilder.DOOR_HEIGHT - 0.05,
+			double
+		)
+		doors[i]["enterable"] = bool(b.get("enterable", false))
+	# Landmark site doors (ADR 0032), keyed "site:<door id>".
+	for site in plan.sites:
+		for d: Dictionary in site.doors:
+			var width: float = (d["a"] as Vector2).distance_to(d["b"])
+			var floor_y := site.level
+			for f: Dictionary in site.floors:
+				if f["id"] == d["floor"]:
+					floor_y = float(f["height"])
+			var key := "site:%s" % d["id"]
+			doors[key] = _hang(
+				key.replace(".", "_").replace(":", "_"),
+				d["a"],
+				d["b"],
+				floor_y,
+				d["inward"],
+				d["style"],
+				d["paint"],
+				float(d["height"]) - 0.05,
+				width > 2.2
+			)
+			doors[key]["site_floor"] = d["floor"]
+
+
+## Hangs one or two leaves in the gap a-b on `floor_y`; returns the door record.
+func _hang(
+	label: String,
+	a: Vector2,
+	b: Vector2,
+	floor_y: float,
+	inward: Vector2,
+	style: StringName,
+	paint: Color,
+	height: float,
+	double: bool
+) -> Dictionary:
+	var leaves := 2 if double else 1
+	var leaf_w := a.distance_to(b) / leaves
+	var hinge_nodes: Array[Node3D] = []
+	for k in leaves:
+		var hinge := Node3D.new()
+		hinge.name = "%s_%d" % [label, k]
+		var from: Vector2 = a if k == 0 else b
+		var toward: Vector2 = (b - a).normalized() * (1.0 if k == 0 else -1.0)
+		hinge.position = Vector3(from.x, floor_y, from.y)
+		hinge.basis = Basis(Vector3.UP, atan2(-toward.y, toward.x))
+		var leaf := MeshInstance3D.new()
+		leaf.mesh = _leaf_mesh(style, leaf_w, height)
+		leaf.material_override = _material(paint)
+		# Mesh spans +X from the hinge; mirror the second leaf so it opens the same way.
+		if k == 1:
+			leaf.scale = Vector3(1, 1, -1)
+		hinge.add_child(leaf)
+		add_child(hinge)
+		hinge_nodes.append(hinge)
+	return {
+		"hinges": hinge_nodes,
+		"inward": inward,
+		"open": 0.0,
+		"target": 0.0,
+		"enterable": true,
+		"center": (a + b) * 0.5,
+	}
 
 
 ## Door gap of building `index` exactly as CityBuildingBuilder cuts it:
 ## {a, b (gap ends on the outer face), width, floor, inward (unit vector)}.
 static func door_gap(city_plan: CityPlan, index: int) -> Dictionary:
 	var b: Dictionary = city_plan.buildings[index]
-	var ring := CityBuildingBuilder.normalized_ring(city_plan.footprint(index))
+	var ring := CityBuildingBuilder.wall_ring(b, city_plan.footprint(index))
 	if ring.size() < 3:
 		return {}
 	var door := Vector2(b["door"][0], b["door"][1])
@@ -134,11 +181,23 @@ func update_for(world_xz: Vector2, delta: float) -> void:
 		seen[index] = true
 		var near := world_xz.distance_to(d["center"]) < OPEN_RADIUS
 		d["target"] = 1.0 if near or plan.building_at(world_xz) == index else 0.0
+	# Site doors: open near the door and while Kalev is in the room behind it.
+	var room := plan.site_room_at(world_xz)
+	var room_floor: StringName = room["room"]["floor"] if not room.is_empty() else &""
+	for key: Variant in doors:
+		if not key is String:
+			continue
+		var d: Dictionary = doors[key]
+		var near := world_xz.distance_to(d["center"]) < OPEN_RADIUS
+		if not near and room_floor != d["site_floor"]:
+			continue
+		seen[key] = true
+		d["target"] = 1.0
 	# Doors left behind (Kalev ran off or was moved) swing shut too.
-	for index: int in doors:
+	for index: Variant in doors:
 		if not seen.has(index) and float(doors[index]["target"]) > 0.0:
 			doors[index]["target"] = 0.0
-	for index: int in doors:
+	for index: Variant in doors:
 		var d: Dictionary = doors[index]
 		var open: float = d["open"]
 		var target: float = d["target"]
@@ -156,7 +215,8 @@ func update_for(world_xz: Vector2, delta: float) -> void:
 			leaf.rotation.y = sign * OPEN_ANGLE * eased
 
 
-func is_open(index: int) -> bool:
+## `index` is a building index, or "site:<door id>" for a landmark site door.
+func is_open(index: Variant) -> bool:
 	return doors.has(index) and float(doors[index]["open"]) > 0.5
 
 
@@ -195,10 +255,7 @@ static func _leaf_mesh(style: StringName, width: float, height: float) -> ArrayM
 	var iron := Color(0.16, 0.15, 0.14)
 	var t := LEAF_THICKNESS
 	var top := height
-	if style == &"arched":
-		_arched_slab(shell, width, height, t, wood)
-	else:
-		_box(shell, Vector3(0.0, 0.0, -t * 0.5), Vector3(width, top, t * 0.5), wood)
+	_box(shell, Vector3(0.0, 0.0, -t * 0.5), Vector3(width, top, t * 0.5), wood)
 	# Board joints.
 	var boards := maxi(3, int(width / 0.22))
 	for k in range(1, boards):
@@ -210,7 +267,7 @@ static func _leaf_mesh(style: StringName, width: float, height: float) -> ArrayM
 			Color(0.45, 0.45, 0.45)
 		)
 	match style:
-		&"plank", &"arched":
+		&"plank":
 			for y: float in [0.35, top - 0.45]:
 				_box(
 					shell,
@@ -290,43 +347,3 @@ static func _brace(
 		color,
 		Vector3.BACK
 	)
-
-
-## Round-headed leaf: a slab whose top follows a half circle.
-static func _arched_slab(
-	shell: CityBuildingBuilder.Shell, width: float, height: float, t: float, color: Color
-) -> void:
-	var r := width * 0.5
-	var spring := height - r
-	var outline := PackedVector2Array([Vector2(0, 0), Vector2(width, 0), Vector2(width, spring)])
-	for k in range(1, 12):
-		var ang := PI * float(k) / 12.0
-		outline.append(Vector2(r + cos(ang) * r, spring + sin(ang) * r))
-	outline.append(Vector2(0, spring))
-	var tris := Geometry2D.triangulate_polygon(outline)
-	for z: float in [-t * 0.5, t * 0.5]:
-		for i in range(0, tris.size(), 3):
-			var p0 := outline[tris[i]]
-			var p1 := outline[tris[i + 1]]
-			var p2 := outline[tris[i + 2]]
-			shell.tri_out(
-				"leaf",
-				Vector3(p0.x, p0.y, z),
-				Vector3(p1.x, p1.y, z),
-				Vector3(p2.x, p2.y, z),
-				color,
-				Vector3(0, 0, signf(z))
-			)
-	for i in outline.size():
-		var p := outline[i]
-		var q := outline[(i + 1) % outline.size()]
-		var mid := (p + q) * 0.5 - Vector2(r, spring * 0.5)
-		shell.quad_out(
-			"leaf",
-			Vector3(p.x, p.y, -t * 0.5),
-			Vector3(q.x, q.y, -t * 0.5),
-			Vector3(q.x, q.y, t * 0.5),
-			Vector3(p.x, p.y, t * 0.5),
-			color,
-			Vector3(mid.x, mid.y, 0)
-		)

@@ -135,6 +135,10 @@ func get_spawn_node(level: Node, scene_id, spawn_id) -> Door:
 func go_to_scene(scene_id, spawn_id) -> void:
 	var scene_key := StringName(String(scene_id))
 	var spawn_key := StringName(String(spawn_id))
+	# ADR 0031: old Reval district destinations now arrive in the seamless city.
+	var routed: Array = CityTravel.redirect(scene_key, spawn_key)
+	scene_key = routed[0]
+	spawn_key = routed[1]
 	if not has_active_scene(scene_key):
 		push_warning("Transition scene is not active or registered: " + String(scene_key))
 		return
@@ -142,6 +146,11 @@ func go_to_scene(scene_id, spawn_id) -> void:
 		push_warning(
 			"Transition spawn is not registered: %s/%s" % [String(scene_key), String(spawn_key)]
 		)
+		return
+	# Fast travel inside the seamless city moves Kalev without reloading it.
+	var city := get_tree().get_first_node_in_group(&"seamless_city")
+	if city != null and city.scene_file_path == get_scene_path(scene_key):
+		city.call(&"arrive_at", String(spawn_key))
 		return
 
 	pending_spawn_scene_id = scene_key

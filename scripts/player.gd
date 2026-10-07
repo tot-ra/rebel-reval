@@ -70,6 +70,7 @@ var _death_transition_started := false
 var _map_definition: MapDefinition
 var _map_grid: MapTerrainGrid
 var _map_origin := Vector2.ZERO
+var _water_depth_provider := Callable()
 var _mud_wetness_provider: Callable
 ## ADR 0021: derived from the water column under the body every physics tick.
 var _swim := PlayerSwimState.new()
@@ -139,10 +140,18 @@ func breath_fraction() -> float:
 	return _swim.breath_fraction()
 
 
+## Locations without a terrain grid (the seamless city) report the water column
+## under a logic position themselves.
+func set_water_depth_provider(provider: Callable) -> void:
+	_water_depth_provider = provider
+
+
 func _update_water(delta: float) -> void:
 	var previous := _swim.medium
-	var depth := PlayerWaterTraversal.depth_at(
-		_map_definition, _map_grid, global_position - _map_origin
+	var depth := (
+		float(_water_depth_provider.call(global_position))
+		if _water_depth_provider.is_valid()
+		else PlayerWaterTraversal.depth_at(_map_definition, _map_grid, global_position - _map_origin)
 	)
 	var dive_held := (
 		Input.is_action_pressed(&"player_dive")

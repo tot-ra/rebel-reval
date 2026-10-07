@@ -155,16 +155,16 @@ static func _tile_material() -> Material:
 
 static func _stone_material() -> Material:
 	if _stone == null:
-		var mat := (
-			MapViewMaterials.fortification_masonry(Color(0.86, 0.83, 0.76)).duplicate()
-			as StandardMaterial3D
-		)
-		# Warm, sun-bleached Reval limestone rather than the cool grey plate.
-		mat.albedo_color = mat.albedo_color * Color(1.06, 0.98, 0.84)
-		mat.vertex_color_use_as_albedo = true
-		mat.cull_mode = BaseMaterial3D.CULL_BACK
-		_stone = mat
+		# Warm, sun-bleached Reval limestone with rising damp at the wall foot.
+		var plate := MapViewMaterials.fortification_masonry(Color(0.86, 0.83, 0.76))
+		_stone = CityBuildingBuilder.weathered_wall(plate, Color(1.06, 0.98, 0.84))
 	return _stone
+
+
+## Drops cached materials so the next build binds the current city heightfield.
+static func bind_ground() -> void:
+	_stone = null
+	_tile = null
 
 
 static func _centroid_of(points: Array) -> Vector2:

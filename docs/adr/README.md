@@ -36,5 +36,6 @@ Numbered decisions (Status / Context / Decision / Alternatives / Consequences). 
 - [ADR 0029: Natural Reval maps, and a coast three times larger](0029-natural-reval-maps-and-larger-coast.md)
 - [ADR 0030: Retire the directionsign map primitive](0030-retire-direction-sign-primitive.md)
 - [ADR 0031: Reval as one continuous, georeferenced city plan](0031-continuous-reval-city-plan.md)
+- [ADR 0032: Bespoke landmark sites in the seamless city](0032-bespoke-landmark-sites-in-the-city.md)
 
 <!-- docs-index:end -->

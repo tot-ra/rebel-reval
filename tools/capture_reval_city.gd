@@ -2,7 +2,7 @@ extends SceneTree
 
 ## ADR 0031 review captures of the continuous Reval city. Renders an aerial
 ## overview and street-level shots along named streets. Needs a renderer:
-##   tools/godot_render.sh --script tools/capture_reval_city.gd [-- --only=<shot>]
+##   tools/godot_render.sh --script tools/capture_reval_city.gd [-- --only=<shot>[,<shot>...]]
 ## Output: docs/reports/images/city/<shot>.png
 
 const OUTPUT_DIR := "res://docs/reports/images/city"
@@ -11,12 +11,15 @@ const VIEWPORT_SIZE := Vector2i(1600, 900)
 const DAY_PROGRESS := 0.42
 
 var _only := ""
+var _wet := false
 
 
 func _initialize() -> void:
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--only="):
 			_only = arg.substr(7)
+		if arg == "--wet":
+			_wet = true
 	call_deferred("_run")
 
 
@@ -152,30 +155,95 @@ func _shots(plan: CityPlan) -> Array[Dictionary]:
 		var door := Vector2(b["door"][0], b["door"][1])
 		if door.length() > 60.0 or i % 7 != 0:
 			continue
-		var out := Vector2(cos(float(b["door"][2])), sin(float(b["door"][2])))
+		# Frame from the street side of the door gap actually built.
+		var gap := CityDoors.door_gap(plan, i)
+		if gap.is_empty():
+			continue
+		var out: Vector2 = -gap["inward"]
+		door = (gap["a"] + gap["b"]) * 0.5
 		var fh := plan.floor_height(i)
+		# Stand in the street: the nearest distance that is not inside a house.
+		var eye := Vector2.INF
+		for dist: float in [4.5, 3.6, 2.8]:
+			var cand := door + out * dist + Vector2(out.y, -out.x) * dist * 0.27
+			if plan.building_at(cand) < 0:
+				eye = cand
+				break
+		if eye == Vector2.INF:
+			continue  # door opens onto a neighbour's wall: no street view
 		(
 			shots
 			. append(
 				{
 					"name": "door_%d" % picked,
-					"eye":
-					Vector3(
-						door.x + out.x * 4.5 + out.y * 1.2,
-						fh + 1.6,
-						door.y + out.y * 4.5 - out.x * 1.2
-					),
+					"eye": Vector3(eye.x, maxf(fh, plan.ground_height(eye)) + 1.6, eye.y),
 					"look": Vector3(door.x, fh + 1.3, door.y),
 					"fov": 55.0,
 				}
 			)
 		)
 		picked += 1
+	# Landmark sites (ADR 0032): concept-style aerial, straight down, street level.
+	for site in plan.sites:
+		var sname := String(site.id).trim_prefix("site.")
+		var sc := site.to_world(Vector2(0.0, -14.0))
+		var front := site.to_world(Vector2(6.0, -40.0))
+		var sy := site.level
+		shots.append(
+			{
+				"name": "%s_aerial" % sname,
+				"eye": Vector3(front.x + 14.0, sy + 34.0, front.y - 6.0),
+				"look": Vector3(sc.x, sy + 2.0, sc.y),
+				"fov": 50.0
+			}
+		)
+		shots.append(
+			{
+				"name": "%s_topdown" % sname,
+				"eye": Vector3(sc.x, sy + 70.0, sc.y + 0.5),
+				"look": Vector3(sc.x, sy, sc.y),
+				"fov": 50.0
+			}
+		)
+		var st := site.to_world(Vector2(-6.0, -26.0))
+		var hl := site.to_world(Vector2(0.0, -7.0))
+		shots.append(
+			{
+				"name": "%s_street" % sname,
+				"eye": Vector3(st.x, plan.ground_height(st) + 1.7, st.y),
+				"look": Vector3(hl.x, sy + 3.5, hl.y),
+				"fov": 60.0
+			}
+		)
+	# Toompea Kiriku plats: St Mary's west door from the square, and from above.
+	for i in plan.buildings.size():
+		var b: Dictionary = plan.buildings[i]
+		if String(b.get("landmark_id", "")) != "landmark.st_mary":
+			continue
+		var door := Vector2(b["door"][0], b["door"][1])
+		var out := Vector2(cos(float(b["door"][2])), sin(float(b["door"][2])))
+		var gy := plan.ground_height(door + out * 20.0)
+		shots.append(
+			{
+				"name": "kiriku_plats_st_mary",
+				"eye": Vector3(door.x + out.x * 24.0, gy + 1.7, door.y + out.y * 24.0 + 6.0),
+				"look": Vector3(door.x, plan.floor_height(i) + 6.0, door.y),
+				"fov": 60.0
+			}
+		)
+		shots.append(
+			{
+				"name": "kiriku_plats_aerial",
+				"eye": Vector3(door.x + out.x * 45.0 - 30.0, gy + 45.0, door.y + 45.0),
+				"look": Vector3(door.x - out.x * 15.0, plan.floor_height(i), door.y),
+				"fov": 55.0
+			}
+		)
 	var top := Vector2(-420, 20)
 	shots.append(
 		{
 			"name": "from_toompea_over_roofs",
-			"eye": Vector3(-262, plan.ground_height(Vector2(-262, 60)) + 3.0, 60),
+			"eye": Vector3(-262, plan.ground_height(Vector2(-262, 60)) + 16.0, 60),
 			"look": Vector3(60, 18, -140),
 			"fov": 60.0
 		}
@@ -207,15 +275,19 @@ func _run() -> void:
 	world.apply_time(DAY_PROGRESS)
 	print("city build stats: %s (total %d ms)" % [world.build_stats, Time.get_ticks_msec() - t0])
 	for shot in _shots(plan):
-		if not _only.is_empty() and shot["name"] != _only:
+		if not _only.is_empty() and not shot["name"] in _only.split(","):
 			continue
 		camera.fov = shot["fov"]
 		camera.look_at_from_position(shot["eye"], shot["look"], Vector3.UP)
 		world.apply_time(DAY_PROGRESS)
+		if _wet:
+			CityTerrainBuilder.shared_material().set_shader_parameter("puddles", 1.0)
+			CityTerrainBuilder.shared_material().set_shader_parameter("wetness", 0.6)
+			CityBuildingBuilder.set_wetness(0.7)
 		for i in 6:
 			await process_frame
 		var image := viewport.get_texture().get_image()
-		var path := "%s/%s.png" % [OUTPUT_DIR, shot["name"]]
+		var path := "%s/%s%s.png" % [OUTPUT_DIR, shot["name"], "_wet" if _wet else ""]
 		image.save_png(ProjectSettings.globalize_path(path))
 		print("captured %s" % path)
 	quit(0)

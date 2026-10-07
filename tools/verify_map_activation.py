@@ -3,7 +3,9 @@ import re
 import sys
 from pathlib import Path
 
-RELEASE_SCENE_IDS = frozenset({"forge", "reval_east"})
+# ADR 0031: the seamless city is the release outdoor destination; reval_east
+# stays registered so old saves and spawns redirect into the city.
+RELEASE_SCENE_IDS = frozenset({"forge", "reval_east", "reval_city"})
 RETIRED_SCENE_IDS = frozenset({"harbor_warehouse"})
 ARCHIVE_GDIGNORE_PATHS = (
     "scenes/map/.gdignore",
@@ -87,7 +89,7 @@ def verify_release_scope(destinations_path, root):
 
     if release_scene_ids != RELEASE_SCENE_IDS:
         errors.append(
-            "Release destinations must be exactly forge and reval_east; found: "
+            "Release destinations must be exactly forge, reval_east and reval_city; found: "
             + ", ".join(sorted(release_scene_ids))
         )
 

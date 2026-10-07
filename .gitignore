@@ -33,3 +33,4 @@ tools/character_build/
 # Ignore Godot .import sidecars in generated folder (auto-generated metadata, not source assets)
 generated/**/*.import
 generated/leonardo/*
+docs/reports/*

@@ -250,7 +250,7 @@ func _sync_bird_audio(delta: float, cycle_progress: float) -> void:
 	if _definition.suppresses_exterior_surroundings():
 		_bird_audio.sync(&"", cycle_progress, Vector3.ZERO, delta, false)
 		return
-	var context := BirdContext.context_for_map(_definition.map_id)
+	var context := _bird_context()
 	var listener := _camera.global_position if _camera != null else Vector3.ZERO
 	_bird_audio.sync(context, cycle_progress, listener, delta, _bird_audio_enabled)
 
@@ -261,8 +261,16 @@ func _sync_bird_flight(delta: float, cycle_progress: float) -> void:
 	if _definition.suppresses_exterior_surroundings():
 		_bird_flight.sync(&"", cycle_progress, delta, false)
 		return
-	var context := BirdContext.context_for_map(_definition.map_id)
+	var context := _bird_context()
 	_bird_flight.sync(context, cycle_progress, delta, _bird_flight_enabled)
+
+
+## Bird habitat at the player: maps that span several habitats (the seamless
+## city) answer per position; district maps have one context per map.
+func _bird_context() -> StringName:
+	if _definition.has_method(&"bird_context_at") and _player != null:
+		return StringName(_definition.call(&"bird_context_at", _player.global_position))
+	return BirdContext.context_for_map(_definition.map_id)
 
 
 func _sync_urban_fauna(delta: float) -> void:

@@ -10,6 +10,10 @@
 
 Even after the removal is named, runtime stays behind `world_host/inplace_interiors_enabled` (default `false`) until the gates below pass. The door scene-swap path stays as the fallback for at least one save-version cycle.
 
+**Amended by [ADR 0032](0032-bespoke-landmark-sites-in-the-city.md), 2026-10-07:** in-place
+interiors for the **district maps** are removed from scope (they stay on the door scene-swap path).
+Interiors in the seamless city are in place by construction (ADR 0031, ADR 0032 sites).
+
 ## Context
 
 ADR 0019 kept every interior on an explicit door transition. Today `DoorNavigator` swaps the whole scene: the player leaves the street, the interior `.rrmap` loads as a new current scene, and the street is destroyed. The census in the streaming plan lists nine door interiors.

@@ -7,12 +7,12 @@ extends RefCounted
 ##   inside is walkable and matches the visible interior;
 ## - other buildings: a solid footprint polygon;
 ## - curtains, gate jambs, towers, the Toompea wall and the castle ring;
-## - the klint and other slopes steeper than MAX_WALK_SLOPE, and deep water.
+## - the klint and other slopes steeper than MAX_WALK_SLOPE (sea and moat stay open:
+##   Kalev swims, ADR 0021).
 
 const Fort := preload("res://scripts/city/city_fortification_builder.gd")
 const PX := CityPlan.LOGIC_PX_PER_UNIT
 const MAX_WALK_SLOPE_DEG := 38.0
-const DEEP_WATER := -0.9
 const BODY_CHUNK := 128.0
 
 
@@ -43,6 +43,7 @@ static func build(plan: CityPlan, parent: Node) -> Node2D:
 		shape.polygon = scaled
 		(bodies[key] as StaticBody2D).add_child(shape)
 	_buildings(plan, add_poly)
+	_sites(plan, add_poly)
 	_fortifications(plan, add_poly)
 	_terrain_blocks(plan, add_poly)
 	_bounds(plan, add_poly)
@@ -59,6 +60,8 @@ static func _buildings(plan: CityPlan, add_poly: Callable) -> void:
 			# Concave footprints are fine for CollisionPolygon2D (decomposed).
 			add_poly.call(ring)
 			continue
+		# Same filleted outline the walls and door leaves are built on.
+		ring = CityBuildingBuilder.wall_ring(b, plan.footprint(i))
 		var thick := (
 			CityBuildingBuilder.STONE_WALL
 			if String(b["material"]) == "limestone"
@@ -86,6 +89,35 @@ static func _buildings(plan: CityPlan, add_poly: Callable) -> void:
 
 ## Quad along the edge a-c extending `thick` into the footprint (plus a little
 ## overlap outward and along so corners seal).
+## Landmark sites (ADR 0032): authored wall segments (outer face line, the
+## thickness going into the building), solids, and dressing with a footprint.
+## Door gaps are simply where no wall segment is authored.
+static func _sites(plan: CityPlan, add_poly: Callable) -> void:
+	for site in plan.sites:
+		var inner: Array[PackedVector2Array] = []
+		for f: Dictionary in site.floors:
+			inner.append(f["polygon"])
+		for w: Dictionary in site.walls:
+			var a: Vector2 = w["a"]
+			var b: Vector2 = w["b"]
+			var t := float(w["thickness"])
+			var dir := (b - a).normalized()
+			var n := Vector2(-dir.y, dir.x)
+			var probe := (a + b) * 0.5 + n * (t + 0.3)
+			var inward := false
+			for poly in inner:
+				inward = inward or Geometry2D.is_point_in_polygon(probe, poly)
+			if not inward:
+				n = -n
+			var a2 := a - dir * 0.05
+			var b2 := b + dir * 0.05
+			add_poly.call(
+				PackedVector2Array([a2 - n * 0.06, b2 - n * 0.06, b2 + n * t, a2 + n * t])
+			)
+		for poly in site.solids:
+			add_poly.call(poly)
+
+
 static func _wall_quad(
 	ring: PackedVector2Array, a: Vector2, c: Vector2, thick: float
 ) -> PackedVector2Array:
@@ -230,8 +262,6 @@ static func _blocked(plan: CityPlan, x: int, y: int, max_rise: float) -> bool:
 	var h10 := plan.grid_height(x + 1, y)
 	var h01 := plan.grid_height(x, y + 1)
 	var h11 := plan.grid_height(x + 1, y + 1)
-	if minf(minf(h00, h10), minf(h01, h11)) < DEEP_WATER:
-		return true
 	return (
 		absf(h10 - h00) > max_rise
 		or absf(h01 - h00) > max_rise

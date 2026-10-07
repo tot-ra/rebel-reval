@@ -634,7 +634,20 @@ def build(args) -> dict:
     half = mo["width_m"] * 0.5
     cut = np.clip(1.0 - (moat_d - half * 0.55) / (half * 0.9), 0.0, 1.0)
     cut = cut * cut * (3 - 2 * cut)
-    asl = asl - cut * mo["depth_m"]
+    # Earthen causeways carry every road over the ditch: no cut near a road.
+    causeways = []
+    for r in overlay["streets"]["extramural_roads"]:
+        pts = [tuple(q) for q in r["points_m"]]
+        for k in range(len(pts) - 1):
+            for i in range(len(moat_line) - 1):
+                q = seg_intersection(pts[k], pts[k + 1], moat_line[i], moat_line[i + 1])
+                if q is not None:
+                    causeways.append((q, math.atan2(pts[k + 1][1] - pts[k][1], pts[k + 1][0] - pts[k][0]), r["width_m"]))
+    keep = np.zeros(X.shape)
+    for q, _, w_ in causeways:
+        dq = np.hypot(X - q[0], Y - q[1])
+        keep = np.maximum(keep, np.clip(1.0 - (dq - (w_ * 0.5 + 2.0)) / 4.0, 0.0, 1.0))
+    asl = asl - cut * mo["depth_m"] * (1.0 - keep)
 
     # Final light smoothing outside the cliff band keeps the ground from stair-stepping.
     cliff_band = (sd > -np.maximum(sw, 1) - 2) & (sd < 3)
@@ -777,7 +790,8 @@ def build(args) -> dict:
             "material": material,
             "street_id": street["id"],
             "door": [round(door[0] / mpu, 3), round(door[1] / mpu, 3), round(door[2], 4)] if door else None,
-            "enterable": bool(door) and not lm and 22 <= area <= 520,
+            # Churches and chapels are walked into like houses (one open nave).
+            "enterable": bool(door) and (bool(lm) or 22 <= area <= 520),
             "tower_h": round(lm.get("tower_h_m", 0) / mpu, 3) if lm else 0.0,
         }
         buildings.append(bld)
@@ -849,6 +863,27 @@ def build(args) -> dict:
             })
 
     buildings.sort(key=lambda b_: b_["id"])
+    # ADR 0032 landmark sites: drop the generic buildings they replace, level
+    # their terraces, then the generic landmark terraces.
+    sites = load_sites()
+    replaced = {rid for site in sites for rid in site["replaces"]}
+    missing = replaced - {b_["id"] for b_ in buildings}
+    if missing:
+        raise SystemExit(f"site replaces unknown building ids: {sorted(missing)}")
+    buildings = [b_ for b_ in buildings if b_["id"] not in replaced]
+    site_out = [terrace_site(site, height_wu, h_at_m, x0, y0, mpu) for site in sites]
+    fix_blocked_doors(buildings, [poly for so in site_out for poly in so["footprints"]])
+    terrace_landmarks(buildings, height_wu, h_at_m, x0, y0, mpu)
+    # Kalev's smithy: the enterable house nearest the authored spot.
+    ks = overlay.get("kalev_smithy")
+    if ks:
+        target = (ks["near_m"][0] / mpu, ks["near_m"][1] / mpu)
+        cands = [b_ for b_ in buildings if b_["enterable"] and not b_["landmark_id"] and b_["door"]]
+        smithy = min(cands, key=lambda b_: math.dist(target, poly_centroid([tuple(q) for q in b_["footprint"]])))
+        smithy["landmark_id"] = "landmark.kalev_smithy"
+        smithy["name_1343"] = ks["name_1343"]
+        smithy["material"] = "log"
+        smithy["roof"] = "shingle"
 
     # ---------------- fortifications ----------------
     tower_specs = {t["id"]: t for t in overlay["towers_1343"]}
@@ -976,8 +1011,10 @@ def build(args) -> dict:
         return [[round(p[0] / mpu, 3), round(p[1] / mpu, 3)] for p in points]
 
     # ---------------- vegetation and fields ----------------
-    trees, fields = plant(overlay, buildings, streets, circuit_poly, toompea_edge, trace, h_at_m, mpu, x0, y0, x1, y1)
-    bushes = shrubs(buildings, streets, circuit_poly, toompea_edge, trace, anchors, h_at_m, mpu, x0, y0, x1, y1)
+    # Site buildings and their open reserves keep trees and shrubs off.
+    occupied_by = buildings + [{"footprint": poly} for so in site_out for poly in so["footprints"] + [so["reserve"]] if poly]
+    trees, fields = plant(overlay, occupied_by, streets, circuit_poly, toompea_edge, trace, h_at_m, mpu, x0, y0, x1, y1)
+    bushes = shrubs(overlay, occupied_by, streets, circuit_poly, toompea_edge, trace, anchors, h_at_m, mpu, x0, y0, x1, y1)
 
     for s in streets:
         s["points"] = wu(s.pop("points_m"))
@@ -995,7 +1032,8 @@ def build(args) -> dict:
         "splat": {"file": "splat.png", "px_per_unit": SPLAT_PX_PER_WU, "channels": ["paving", "packed_earth", "sand", "mud"]},
         "shoreline": wu(shore),
         "harjapea": {"points": wu(trace), "widths": [round(w_ / mpu, 3) for w_ in hj["width_m"]], "surface": round((river_surface - sea_asl) / mpu, 3), "confidence": hj["confidence"]},
-        "moat": {"points": wu(moat_line), "width": round(mo["width_m"] / mpu, 3), "wet_fraction": mo["wet_fraction"], "confidence": mo["confidence"]},
+        "moat": {"points": wu(moat_line), "width": round(mo["width_m"] / mpu, 3), "wet_fraction": mo["wet_fraction"], "confidence": mo["confidence"],
+                 "causeways": [{"at": [round(q[0] / mpu, 3), round(q[1] / mpu, 3)], "angle": round(a_, 4), "width": round((w_ + 1.5) / mpu, 3)} for q, a_, w_ in causeways]},
         "toompea_edge": wu(toompea_edge),
         "forum": {"id": overlay["forum"]["id"], "name_1343": overlay["forum"]["name_1343"], "polygon": wu(overlay["forum"]["polygon_m"]), "confidence": overlay["forum"]["confidence"]},
         "circuit": [{"at": [round(a["p"][0] / mpu, 3), round(a["p"][1] / mpu, 3)], "state": a["state"], "ref": a["ref"], "tower": a["tower"], "osm": a["osm"]} for a in anchors],
@@ -1007,6 +1045,7 @@ def build(args) -> dict:
         "castle": castle,
         "streets": streets,
         "buildings": buildings,
+        "sites": site_out,
         "gutters": gutters,
         "trees": trees,
         "bushes": bushes,
@@ -1033,6 +1072,101 @@ def build(args) -> dict:
     splat = render_splat(plan, mpu)
     minimap = render_minimap(plan, height_wu)
     return {"plan": plan, "height": height_doc, "splat": splat, "minimap": minimap, "height_wu": height_wu, "extent_m": (x0, y0, x1, y1), "mpu": mpu}
+
+
+SITES_DIR = ROOT / "content/world/reval_city/sites"
+
+
+def load_sites():
+    """ADR 0032 site manifests, in registry order (never a directory walk)."""
+    registry = json.loads((SITES_DIR / "registry.json").read_text())
+    return [json.loads((SITES_DIR / f"{name}.json").read_text()) for name in registry["sites"]]
+
+
+def site_to_world(site, p):
+    """Site-local metres (x along the anchor rotation, z to its right) to plan metres."""
+    ax, ay = site["anchor"]["at"]
+    r = math.radians(site["anchor"]["rotation_deg"])
+    c, s_ = math.cos(r), math.sin(r)
+    return (ax + p[0] * c - p[1] * s_, ay + p[0] * s_ + p[1] * c)
+
+
+def flatten_ground(height_wu, ring, level, blend, x0, y0, mpu):
+    """Cut or fill the heightfield inside `ring` (metres) to `level` (wu), blended
+    back into the natural ground over `blend` metres with a smoothstep."""
+    cell = HEIGHT_CELL_WU * mpu
+    ny, nx = height_wu.shape
+    xs = [p[0] for p in ring]
+    ys = [p[1] for p in ring]
+    m = max(blend, 1.01)
+    j0 = max(0, int((min(xs) - m - x0) / cell))
+    j1 = min(nx - 1, int((max(xs) + m - x0) / cell) + 1)
+    i0 = max(0, int((min(ys) - m - y0) / cell))
+    i1 = min(ny - 1, int((max(ys) + m - y0) / cell) + 1)
+    X, Y = np.meshgrid(x0 + np.arange(j0, j1 + 1) * cell, y0 + np.arange(i0, i1 + 1) * cell)
+    inside = point_in_poly(X, Y, ring)
+    d = np.full(X.shape, np.inf)
+    for k in range(len(ring)):
+        a, c = ring[k], ring[(k + 1) % len(ring)]
+        dk, _ = dist_point_seg(X, Y, a[0], a[1], c[0], c[1])
+        d = np.minimum(d, dk)
+    # 1 m apron at full level, then a smoothstep back to the natural slope.
+    t = np.clip((d - 1.0) / (m - 1.0), 0.0, 1.0)
+    w = np.where(inside, 1.0, 1.0 - t * t * (3.0 - 2.0 * t))
+    block = height_wu[i0:i1 + 1, j0:j1 + 1]
+    height_wu[i0:i1 + 1, j0:j1 + 1] = block * (1.0 - w) + level * w
+
+
+def terrace_site(site, height_wu, h_at_m, x0, y0, mpu):
+    """Level a site's terrace to the ground outside its named door and return the
+    runtime record: anchor, level and world footprints (world units)."""
+    ter = site["terrace"]
+    door = next(d for d in site["doors"] if d["id"] == ter["level"]["door"])
+    mid = ((door["a"][0] + door["b"][0]) * 0.5, (door["a"][1] + door["b"][1]) * 0.5)
+    out = ter["level"].get("outside_m", 2.0)
+    outside = (mid[0] - door["inward"][0] * out, mid[1] - door["inward"][1] * out)
+    level = h_at_m(*site_to_world(site, outside))
+    ring = [site_to_world(site, p) for p in ter["polygon"]]
+    flatten_ground(height_wu, ring, level, ter.get("blend_m", 6.0), x0, y0, mpu)
+
+    def wu(points):
+        return [[round(q[0] / mpu, 3), round(q[1] / mpu, 3)] for q in points]
+
+    return {
+        "id": site["id"],
+        "at": [round(site["anchor"]["at"][0] / mpu, 3), round(site["anchor"]["at"][1] / mpu, 3)],
+        "rotation_deg": site["anchor"]["rotation_deg"],
+        "level": round(level, 3),
+        "footprints": [wu([site_to_world(site, p) for p in b["footprint"]]) for b in site.get("buildings", [])],
+        "minimap_fill": [b.get("minimap_fill", "#8a4a36") for b in site.get("buildings", [])],
+        "reserve": wu([site_to_world(site, p) for p in site.get("reserve", [])]),
+    }
+
+
+# Churches, chapels and the council hall stand on levelled terraces, as large
+# buildings on a slope were built: the ground under the footprint is cut or
+# filled to the level of the street at the door and blended back into the
+# slope over TERRACE_BLEND_M. Without it the floor sits at the highest ground
+# under a 60 m footprint and the door hangs metres above the square.
+TERRACE_KINDS = ("church", "chapel", "hall")
+TERRACE_MIN_SPAN_WU = 0.8
+TERRACE_BLEND_M = 8.0
+
+
+def terrace_landmarks(buildings, height_wu, h_at_m, x0, y0, mpu):
+    for b in buildings:
+        if b["kind"] not in TERRACE_KINDS or not b["door"] or b["base_span"] < TERRACE_MIN_SPAN_WU:
+            continue
+        ring = [(q[0] * mpu, q[1] * mpu) for q in b["footprint"]]
+        dx, dy, ang = b["door"][0] * mpu, b["door"][1] * mpu, b["door"][2]
+        level = h_at_m(dx + math.cos(ang) * 2.0, dy + math.sin(ang) * 2.0)
+        flatten_ground(height_wu, ring, level, TERRACE_BLEND_M, x0, y0, mpu)
+    # Bases of every building near a terrace changed: recompute them all.
+    for b in buildings:
+        ring = [(q[0] * mpu, q[1] * mpu) for q in b["footprint"]]
+        hs = [h_at_m(p[0], p[1]) for p in ring]
+        b["base_h"] = round(min(hs), 3)
+        b["base_span"] = round(max(hs) - min(hs), 3)
 
 
 def footprint_cells(ring, cell, margin):
@@ -1070,6 +1204,10 @@ def plant(overlay, buildings, streets, circuit_poly, toompea_edge, river, h_at_m
         pts = s["points_m"] if "points_m" in s else [(q[0] * mpu, q[1] * mpu) for q in s["points"]]
         for p in resample([tuple(q) for q in pts], 3.0):
             occupied[key(p)] = True
+    # The forum is a market reserve kept clear for stalls and carts (R-1207).
+    forum = [tuple(q) for q in overlay["forum"]["polygon_m"]]
+    for k in footprint_cells(forum, cell, 6.0):
+        occupied[k] = True
 
     def free(p, gap=0):
         k = key(p)
@@ -1086,9 +1224,9 @@ def plant(overlay, buildings, streets, circuit_poly, toompea_edge, river, h_at_m
         occupied[key(p)] = True
 
     # Yard orchards behind the street front inside the walls.
-    for _ in range(2600):
+    for _ in range(1600):
         p = (rng.uniform(-260, 300), rng.uniform(-620, 320))
-        if not pip(p, circuit_poly) or not free(p, 1):
+        if not pip(p, circuit_poly) or not free(p, 2):
             continue
         add(p, rng.choice(["apple", "apple", "cherry", "plum", "pear", "rowan"]), rng.uniform(0.75, 1.05))
     # Toompea slopes and the cathedral close: lindens, ashes, elms.
@@ -1208,7 +1346,7 @@ def seg_intersection(p1, p2, p3, p4):
     return None
 
 
-def shrubs(buildings, streets, circuit_poly, toompea_edge, river, anchors, h_at_m, mpu, x0, y0, x1, y1):
+def shrubs(overlay, buildings, streets, circuit_poly, toompea_edge, river, anchors, h_at_m, mpu, x0, y0, x1, y1):
     """Hedges, yard shrubs, wall-foot scrub, stream thickets and field edges."""
     rng = random.Random(1344)
     cell = 2.5
@@ -1217,7 +1355,8 @@ def shrubs(buildings, streets, circuit_poly, toompea_edge, river, anchors, h_at_
         occupied.update(footprint_cells([(q[0] * mpu, q[1] * mpu) for q in b["footprint"]], cell, 1.0))
     for s in streets:
         pts = s["points_m"] if "points_m" in s else [(q[0] * mpu, q[1] * mpu) for q in s["points"]]
-        half = int(math.ceil(s.get("width_m", 5.0) / 2 / cell)) + 1
+        # Busy streets keep their verges trodden bare: shrubs only in back yards.
+        half = int(math.ceil(s.get("width_m", 5.0) / 2 / cell)) + 3
         for p in resample([tuple(q) for q in pts], 1.5):
             k = (int(p[0] // cell), int(p[1] // cell))
             for dx in range(-half, half + 1):
@@ -1233,7 +1372,9 @@ def shrubs(buildings, streets, circuit_poly, toompea_edge, river, anchors, h_at_
         out.append([round(p[0] / mpu, 2), round(p[1] / mpu, 2), species, round(scale, 2)])
 
     yard = ["elder", "raspberry", "hazel_shrub", "dog_rose", "guelder_rose"]
-    for _ in range(9000):
+    forum = [tuple(q) for q in overlay["forum"]["polygon_m"]]
+    occupied.update(footprint_cells(forum, cell, 8.0))
+    for _ in range(3000):
         p = (rng.uniform(-260, 300), rng.uniform(-620, 320))
         if pip(p, circuit_poly):
             add(p, rng.choice(yard), rng.uniform(0.8, 1.3))
@@ -1315,6 +1456,76 @@ def inset_ring(ring, dist):
     return out
 
 
+DOOR_CLEAR_PROBES = (1.2, 2.5)
+
+
+def fix_blocked_doors(buildings, extra_blockers):
+    """Plot footprints are modern survivals, so the street-facing edge can open
+    straight into a neighbour. Move such a door to the clear edge nearest the
+    original street side; with no clear edge the house gets no door and is not
+    enterable. Footprints and doors are in world units."""
+    polys = [[tuple(q) for q in b_["footprint"]] for b_ in buildings] + [[tuple(q) for q in p_] for p_ in extra_blockers]
+    boxes = [(min(q[0] for q in pl), min(q[1] for q in pl), max(q[0] for q in pl), max(q[1] for q in pl)) for pl in polys]
+
+    def blocked(pt, own):
+        for k, (pl, bx) in enumerate(zip(polys, boxes)):
+            if k == own or not (bx[0] <= pt[0] <= bx[2] and bx[1] <= pt[1] <= bx[3]):
+                continue
+            if point_in_ring(pt, pl):
+                return True
+        return False
+
+    def clear(door, own):
+        o = (math.cos(door[2]), math.sin(door[2]))
+        return not any(blocked((door[0] + o[0] * k, door[1] + o[1] * k), own) for k in DOOR_CLEAR_PROBES)
+
+    for i, b in enumerate(buildings):
+        if not b["door"] or clear(b["door"], i):
+            continue
+        d = b["door"]
+        street = (d[0] + math.cos(d[2]) * 6.0, d[1] + math.sin(d[2]) * 6.0)
+        best = None
+        for cand in door_candidates(polys[i], street):
+            if clear(cand, i):
+                best = cand
+                break
+        if best is None:
+            b["door"] = None
+            b["enterable"] = False
+        else:
+            b["door"] = [round(best[0], 3), round(best[1], 3), round(best[2], 4)]
+
+
+def point_in_ring(pt, ring):
+    inside = False
+    n = len(ring)
+    for k in range(n):
+        x1_, y1_ = ring[k]
+        x2_, y2_ = ring[(k + 1) % n]
+        if (y1_ > pt[1]) != (y2_ > pt[1]) and pt[0] < (x2_ - x1_) * (pt[1] - y1_) / (y2_ - y1_ + 1e-12) + x1_:
+            inside = not inside
+    return inside
+
+
+def door_candidates(ring, street_point):
+    """Door positions (x, y, outward_angle) at the middle of every edge of 1.6 m
+    or more, nearest the street point first."""
+    out = []
+    c = poly_centroid(ring)
+    for i in range(len(ring)):
+        a, b = ring[i], ring[(i + 1) % len(ring)]
+        L = math.dist(a, b)
+        if L < 1.6:
+            continue
+        m = ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2)
+        nx_, ny_ = (b[1] - a[1]) / L, -(b[0] - a[0]) / L
+        if (m[0] + nx_ - c[0]) ** 2 + (m[1] + ny_ - c[1]) ** 2 < (m[0] - c[0]) ** 2 + (m[1] - c[1]) ** 2:
+            nx_, ny_ = -nx_, -ny_
+        out.append((math.dist(m, street_point), (m[0], m[1], math.atan2(ny_, nx_))))
+    out.sort(key=lambda e: e[0])
+    return [e[1] for e in out]
+
+
 def door_on_edge(ring, street_point):
     """Door at the middle of the footprint edge facing the street: (x, y, outward_angle)."""
     best = None
@@ -1357,10 +1568,11 @@ def render_splat(plan, mpu):
         r = w / 2
         for p in pts:
             draws[layer].ellipse([p[0] - r, p[1] - r, p[0] + r, p[1] + r], fill=255)
-    # Market forum: packed earth with paving patches.
+    # Market forum: packed earth with patches of paving (1343: "unpaved /
+    # partially paved", raekoja-plats-extents-1343.md).
     forum = plan["forum"]["polygon"]
     draws["earth"].polygon([T(p) for p in forum], fill=235)
-    draws["paving"].polygon([T(p) for p in forum], fill=110)
+    draws["paving"].polygon([T(p) for p in forum], fill=150)
     # Beach sand along the shore band and wet mud in the delta.
     shore = plan["shoreline"]
     sand_w = int(28 / mpu * SPLAT_PX_PER_WU)
@@ -1376,6 +1588,18 @@ def render_splat(plan, mpu):
         ring = [T(p) for p in b["footprint"]]
         if len(ring) >= 3:
             draws["earth"].line(ring + [ring[0]], fill=210, width=int(5 / mpu), joint="curve")
+            # Drip line and rising damp: a narrow muddy seam at the wall foot.
+            draws["mud"].line(ring + [ring[0]], fill=150, width=max(1, int(1.4 / mpu * SPLAT_PX_PER_WU)), joint="curve")
+    for so in plan.get("sites", []):
+        # 1343 forum ground: packed earth with patches of paving (dossier "unpaved /
+        # partially paved"); site buildings get the trampled band and drip line.
+        if so["reserve"]:
+            draws["earth"].polygon([T(p) for p in so["reserve"]], fill=235)
+            draws["paving"].polygon([T(p) for p in so["reserve"]], fill=150)
+        for poly in so["footprints"]:
+            ring = [T(p) for p in poly]
+            draws["earth"].line(ring + [ring[0]], fill=210, width=int(5 / mpu), joint="curve")
+            draws["mud"].line(ring + [ring[0]], fill=150, width=max(1, int(1.4 / mpu * SPLAT_PX_PER_WU)), joint="curve")
     for f in plan["fields"]:
         ring = [T(p) for p in f["polygon"]]
         draws["earth"].polygon(ring, fill=235 if f["ploughed"] else 120)
@@ -1422,6 +1646,10 @@ def render_minimap(plan, height_wu):
     roof = {"tile": (176, 84, 58), "shingle": (112, 92, 76), "thatch": (178, 150, 92)}
     for b in plan["buildings"]:
         dr.polygon([T(p) for p in b["footprint"]], fill=roof.get(b["roof"], (150, 120, 100)), outline=(70, 52, 40))
+    for so in plan.get("sites", []):
+        for poly, fill in zip(so["footprints"], so["minimap_fill"]):
+            rgb = tuple(int(fill[k:k + 2], 16) for k in (1, 3, 5))
+            dr.polygon([T(p) for p in poly], fill=rgb, outline=(60, 40, 32))
     dr.polygon([T(p) for p in plan["castle"]["ring"]], outline=(80, 74, 66), width=3)
     for c in plan["curtains"] + plan["toompea_walls"]:
         dr.line([T(c["from"]), T(c["to"])], fill=(96, 90, 80), width=max(3, int(c["thickness"] * 1.6)))

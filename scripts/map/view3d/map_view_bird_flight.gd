@@ -98,6 +98,10 @@ const FLOCK_FLAP_FRAMES := 8
 ## Flipbook mesh parts shared by every map this session (see _pose_cache_key).
 static var _pose_cache: Dictionary = {}
 
+## Optional: returns the corner (x, ground y, z) of the flight window for the
+## next bird. Large continuous maps (the seamless city) pass a window around
+## the player here; district maps leave it unset and fly over the whole map.
+var path_origin := Callable()
 var _birds: Array[Node3D] = []
 var _rng := RandomNumberGenerator.new()
 var _flight_enabled := true
@@ -495,6 +499,10 @@ func _spawn_bird() -> void:
 		return
 	var start: Vector3 = path["start"]
 	var end: Vector3 = path["end"]
+	if path_origin.is_valid():
+		var origin: Vector3 = path_origin.call()
+		start += origin
+		end += origin
 	bird.position = start
 	_orient_bird_if_distinct(bird, start + (end - start).normalized())
 	bird.visible = true

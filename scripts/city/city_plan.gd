@@ -24,6 +24,8 @@ var bounds := Rect2()
 var metres_per_unit := 0.87
 var buildings: Array = []
 var streets: Array = []
+## Landmark sites (ADR 0032) with their compiled placement.
+var sites: Array[CitySite] = []
 var _heights := PackedFloat32Array()
 var _nx := 0
 var _ny := 0
@@ -32,6 +34,7 @@ var _origin := Vector2.ZERO
 ## Building footprints by INDEX_CELL bucket, for point queries.
 var _building_index: Dictionary = {}
 var _footprints: Array[PackedVector2Array] = []
+var _height_texture: ImageTexture
 
 
 static func load_default() -> CityPlan:
@@ -41,6 +44,23 @@ static func load_default() -> CityPlan:
 		if error != OK:
 			push_error("CityPlan: cannot load %s (%s)" % [PLAN_PATH, error_string(error)])
 	return _cached
+
+
+## Ground heights as a float texture for shaders (rising damp, puddles), with
+## the world rectangle it covers: Vector4(origin.x, origin.z, size.x, size.z).
+func height_texture() -> ImageTexture:
+	if _height_texture == null:
+		var image := Image.create_from_data(
+			_nx, _ny, false, Image.FORMAT_RF, _heights.to_byte_array()
+		)
+		_height_texture = ImageTexture.create_from_image(image)
+	return _height_texture
+
+
+func height_texture_rect() -> Vector4:
+	return Vector4(
+		_origin.x - _cell * 0.5, _origin.y - _cell * 0.5, _cell * float(_nx), _cell * float(_ny)
+	)
 
 
 static func clear_cache() -> void:
@@ -62,6 +82,7 @@ func load_files(plan_path: String, height_path: String) -> Error:
 	metres_per_unit = float(data.get("metres_per_world_unit", 0.87))
 	buildings = data.get("buildings", [])
 	streets = data.get("streets", [])
+	sites = CitySiteRegistry.load_for(data)
 	var error := _load_heights(height_path)
 	if error != OK:
 		return error
@@ -138,6 +159,10 @@ func slope_at(world_xz: Vector2) -> float:
 
 ## Height an actor stands at: building floors win over the ground inside a shell.
 func walk_height(world_xz: Vector2) -> float:
+	for site in sites:
+		var f := site.floor_at(world_xz)
+		if not f.is_empty():
+			return float(f["height"])
 	var index := building_at(world_xz)
 	if index >= 0:
 		return floor_height(index)
@@ -229,6 +254,23 @@ func point_of_interest(poi_id: String) -> Dictionary:
 	return {}
 
 
+## The site whose building footprint contains the point, or null.
+func site_at(world_xz: Vector2) -> CitySite:
+	for site in sites:
+		if site.occupies(world_xz):
+			return site
+	return null
+
+
+## The site room containing a world position: {site: CitySite, room}, or {}.
+func site_room_at(world_xz: Vector2) -> Dictionary:
+	for site in sites:
+		var room := site.room_at(world_xz)
+		if not room.is_empty():
+			return {"site": site, "room": room}
+	return {}
+
+
 ## Names for the HUD: {district, street, building} at a world position.
 ## `inside` is the building index Kalev stands in (or -1).
 func location_at(world_xz: Vector2, inside: int = -1) -> Dictionary:
@@ -256,7 +298,10 @@ func location_at(world_xz: Vector2, inside: int = -1) -> Dictionary:
 				if not old.is_empty() and old != label:
 					street = "%s - %s" % [label, old]
 	var building := ""
-	if inside >= 0:
+	var room := site_room_at(world_xz)
+	if not room.is_empty():
+		building = "Inside: %s" % String(room["room"]["name"])
+	elif inside >= 0:
 		var b: Dictionary = buildings[inside]
 		var name := String(b.get("name_1343", ""))
 		building = "Inside: %s" % (name if not name.is_empty() else _house_label(b))

@@ -1,0 +1,81 @@
+{
+  "id": "site.raekoja_plats",
+  "name": "Forum and council hall",
+  "name_1343": "forum; consistorium (council hall, by 1322)",
+  "confidence": "attested site and hall; dimensions plausible composite (dossier ranges)",
+  "sources": [
+    "history/dossiers/topography/raekoja-plats-extents-1343.md",
+    "history/dossiers/topography/forum-pillory-placement-1337.md"
+  ],
+  "period_notes": [
+    "Spring 1343: one-storey grey limestone hall with attic storeroom, clay-tile gable roof; no arcade (1402-04), no tower, no upper council storey.",
+    "Hall 26 x 14.8 m: inside the dossier's 22-28 m south-edge range and 14.5-15.2 m width.",
+    "No well on the forum (R-1207): market water is carried in from yard wells.",
+    "Kramerbuden (merchants' booths) beside the hall are recorded in 1339.",
+    "The pillory stands at the forum centroid as a plausible composite (forum-centre pillory from 1337)."
+  ],
+  "presentation": [],
+  "replaces": ["bldg.lm.town_hall", "bldg.osm.r4061219"],
+  "replaces_notes": {"bldg.osm.r4061219": "41 x 26 m block traced from the modern Town Hall complex; overlaps the 1343 hall and its rear lane."},
+  "anchor": {"at": [3.0, 18.0], "rotation_deg": -12.0},
+  "terrace": {
+    "polygon": [[-14.5, -8.9], [14.5, -8.9], [14.5, 8.9], [-14.5, 8.9]],
+    "level": {"door": "door.council_hall.north", "outside_m": 2.0},
+    "blend_m": 6.0
+  },
+  "reserve": [[-20.0, -7.4], [20.0, -7.4], [24.0, -41.4], [-18.0, -43.4]],
+  "visual": {"kind": "builder", "script": "res://scripts/city/sites/raekoja_plats_builder.gd"},
+  "buildings": [
+    {
+      "id": "site.raekoja_plats.council_hall",
+      "name": "Council hall",
+      "footprint": [[-13.0, -7.4], [13.0, -7.4], [13.0, 7.4], [-13.0, 7.4]],
+      "wall_h": 4.9,
+      "roof": "tile",
+      "minimap_fill": "#8a4a36"
+    }
+  ],
+  "walk": {
+    "walls": [
+      {"from": [-13.0, -7.4], "to": [-0.65, -7.4], "thickness": 0.7},
+      {"from": [0.65, -7.4], "to": [13.0, -7.4], "thickness": 0.7},
+      {"from": [13.0, -7.4], "to": [13.0, 7.4], "thickness": 0.7},
+      {"from": [13.0, 7.4], "to": [-13.0, 7.4], "thickness": 0.7},
+      {"from": [-13.0, 7.4], "to": [-13.0, -7.4], "thickness": 0.7}
+    ],
+    "floors": [
+      {"id": "floor.council_hall", "polygon": [[-12.3, -6.7], [12.3, -6.7], [12.3, 6.7], [-12.3, 6.7]], "height": 0.12}
+    ],
+    "ramps": [],
+    "solid": []
+  },
+  "rooms": [
+    {"id": "room.council_hall", "name": "Council hall", "polygon": [[-12.3, -6.7], [12.3, -6.7], [12.3, 6.7], [-12.3, 6.7]], "floor": "floor.council_hall", "hide": ["CouncilHall/Roof"]}
+  ],
+  "doors": [
+    {"id": "door.council_hall.north", "a": [-0.65, -7.28], "b": [0.65, -7.28], "inward": [0.0, 1.0], "floor": "floor.council_hall", "height": 2.2, "style": "studded", "paint": [0.24, 0.2, 0.17]}
+  ],
+  "dressing": [
+    {"id": "kramerbude.1", "kind": "market_stall", "goods": "cloth", "at": [5.0, -9.8], "rotation_deg": 180.0, "solid": [2.4, 1.3]},
+    {"id": "kramerbude.2", "kind": "market_stall", "goods": "pottery", "at": [8.4, -9.8], "rotation_deg": 180.0, "solid": [2.4, 1.3]},
+    {"id": "kramerbude.3", "kind": "market_stall", "goods": "cloth+grain", "at": [11.8, -9.8], "rotation_deg": 180.0, "solid": [2.4, 1.3]},
+    {"id": "stall.cloth.west", "kind": "market_stall", "goods": "cloth", "at": [-12.0, -16.0], "rotation_deg": 150.0, "solid": [2.4, 1.3]},
+    {"id": "stall.fish.east", "kind": "market_stall", "goods": "fish", "at": [14.5, -20.0], "rotation_deg": -110.0, "solid": [2.4, 1.3]},
+    {"id": "stall.grain.centre", "kind": "market_stall", "goods": "grain", "at": [-6.0, -31.0], "rotation_deg": 10.0, "solid": [2.4, 1.3]},
+    {"id": "stall.pottery.north", "kind": "market_stall", "goods": "pottery", "at": [10.0, -34.0], "rotation_deg": -15.0, "solid": [2.4, 1.3]},
+    {"id": "stall.mixed.northwest", "kind": "market_stall", "goods": "cloth+grain", "at": [-14.0, -35.0], "rotation_deg": 35.0, "solid": [2.4, 1.3]},
+    {"id": "stall.fish.northeast", "kind": "market_stall", "goods": "fish", "at": [18.5, -31.0], "rotation_deg": -70.0, "solid": [2.4, 1.3]},
+    {"id": "cart.east", "kind": "cart", "at": [17.0, -12.5], "rotation_deg": 30.0, "solid": [3.2, 1.6]},
+    {"id": "cart.west", "kind": "cart", "at": [-16.5, -24.0], "rotation_deg": -60.0, "solid": [3.2, 1.6]},
+    {"id": "goods.grain_flax", "kind": "trade_goods", "variant": "livonian_grain_flax", "at": [13.0, -14.5], "rotation_deg": 20.0},
+    {"id": "goods.cloth_salt", "kind": "trade_goods", "variant": "western_cloth_salt", "at": [-9.0, -12.0], "rotation_deg": -10.0},
+    {"id": "goods.herring_metal", "kind": "trade_goods", "variant": "barrelled_herring_metal", "at": [20.0, -37.0], "rotation_deg": 75.0},
+    {"id": "goods.furs_wax", "kind": "trade_goods", "variant": "eastern_furs_wax", "at": [-4.0, -38.5], "rotation_deg": 40.0},
+    {"id": "pillory.1337", "kind": "pillory", "at": [1.3, -25.1], "rotation_deg": 0.0}
+  ],
+  "anchors": [
+    {"id": "anchor.forum_pillory_1337", "at": [1.3, -25.1], "confidence": "plausible composite"},
+    {"id": "anchor.council_hall.door", "at": [0.0, -9.0]},
+    {"id": "anchor.council_hall.bench", "at": [0.0, 4.5]}
+  ]
+}

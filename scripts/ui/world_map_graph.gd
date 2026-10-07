@@ -30,6 +30,7 @@ const LAYOUT_BY_SCENE: Dictionary = {
 	&"reval_east": Vector2(0.70, 0.50),
 	&"forge": Vector2(0.88, 0.58),
 	&"reval_south": Vector2(0.46, 0.78),
+	&"reval_city": Vector2(0.62, 0.30),
 }
 
 
@@ -106,6 +107,13 @@ static func resolve_travel_spawn(from_scene_id: StringName, to_scene_id: StringN
 	# District fast-travel never jumps onto the global placeholder layer.
 	if GlobalMapCatalog.is_distant_scene(to_scene_id):
 		return &""
+	# ADR 0031: from the seamless city every Reval district is a fast-travel
+	# point inside the same scene (DoorNavigator redirects it to a city spawn).
+	if from_scene_id == CityTravel.CITY_SCENE_ID:
+		var routed: Array = CityTravel.redirect(to_scene_id, &"")
+		if routed[0] == CityTravel.CITY_SCENE_ID:
+			var spawns := DoorNavigator.get_scene_spawn_ids(to_scene_id)
+			return spawns[0] if not spawns.is_empty() else &""
 	var definition := create_definition(from_scene_id)
 	if definition != null:
 		for transition in definition.transitions:

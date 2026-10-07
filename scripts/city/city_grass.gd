@@ -69,7 +69,12 @@ func _build_chunk(key: Vector2i) -> Node3D:
 		if rng.randf() < bare:
 			continue
 		var h := plan.ground_height(p)
-		if h < 0.4 or plan.slope_at(p) > 0.75 or plan.building_at(p) >= 0:
+		if (
+			h < 0.4
+			or plan.slope_at(p) > 0.75
+			or plan.building_at(p) >= 0
+			or plan.site_at(p) != null
+		):
 			continue
 		var scale := rng.randf_range(0.55, 1.15)
 		var basis := Basis(Vector3.UP, rng.randf() * TAU).scaled(

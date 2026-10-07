@@ -168,6 +168,9 @@ static func _bake_water_factors(water: Dictionary, size: Vector2i) -> PackedFloa
 
 
 static func ground_height(definition: MapDefinition, world_xz: Vector2) -> float:
+	# ADR 0031: the seamless city's definition carries its own heightfield.
+	if definition.has_method(&"ground_height_override"):
+		return float(definition.call(&"ground_height_override", world_xz))
 	var field_key := String(
 		_height_field_keys_by_definition.get(_definition_height_key(definition), "")
 	)

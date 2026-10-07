@@ -24,6 +24,14 @@ var water_materials: Array[ShaderMaterial] = []
 var doors: CityDoors
 var grass: CityGrass
 var build_stats: Dictionary = {}
+## Wet moat stretches as [a, b, surface_a, surface_b, half_width] (swimming).
+var moat_water: Array = []
+## Chimney tops as [Vector3 top, StringName building id] (CityChimneySmoke).
+var chimneys: Array = []
+var smoke: CityChimneySmoke
+## Landmark site models by site id (ADR 0032).
+var site_nodes: Dictionary = {}
+var ships: CityShips
 
 
 static func create(city_plan: CityPlan) -> CityWorld3D:
@@ -36,6 +44,8 @@ static func create(city_plan: CityPlan) -> CityWorld3D:
 
 func _build() -> void:
 	var t0 := Time.get_ticks_usec()
+	CityBuildingBuilder.bind_ground(plan)
+	Fort.bind_ground()
 	CityTerrainBuilder.build(plan, self)
 	var t1 := Time.get_ticks_usec()
 	_build_buildings()
@@ -45,10 +55,16 @@ func _build() -> void:
 	_build_water()
 	CityVegetationBuilder.build(plan, self)
 	CityDressingBuilder.build(plan, self)
+	CityWallFoot.build(plan, self)
+	_build_sites()
 	doors = CityDoors.create(plan)
 	add_child(doors)
 	grass = CityGrass.create(plan)
 	add_child(grass)
+	smoke = CityChimneySmoke.create(chimneys)
+	add_child(smoke)
+	ships = CityShips.create(plan)
+	add_child(ships)
 	var t4 := Time.get_ticks_usec()
 	build_stats = {
 		"terrain_ms": (t1 - t0) / 1000.0,
@@ -87,6 +103,59 @@ func apply_time(progress: float) -> void:
 	var presentation := sky_weather.presentation_snapshot(progress, day_blend)
 	MapViewMaterials.apply_world_wind(presentation.wind_direction, presentation.wind_strength)
 	set_wind(presentation.wind_direction)
+	var ground := CityTerrainBuilder.shared_material()
+	if ground != null:
+		ground.set_shader_parameter("puddles", presentation.puddle_wetness)
+		ground.set_shader_parameter(
+			"wetness",
+			clamp(presentation.rain_intensity * 0.6 + presentation.puddle_wetness * 0.4, 0.0, 1.0)
+		)
+	# Walls and roofs darken in the rain too.
+	CityBuildingBuilder.set_wetness(
+		clamp(presentation.rain_intensity * 0.8 + presentation.puddle_wetness * 0.3, 0.0, 1.0)
+	)
+	smoke.set_time_of_day(MapView3D.TIME_DAY if day_blend > 0.35 else MapView3D.TIME_NIGHT)
+
+
+## Landmark sites (ADR 0032): each manifest's visual at its anchor and level.
+func _build_sites() -> void:
+	for site in plan.sites:
+		var visual: Dictionary = site.data.get("visual", {})
+		var node: Node3D
+		match String(visual.get("kind", "")):
+			"builder":
+				var script: Script = load(String(visual["script"]))
+				node = script.call("build", site, plan)
+			"scene":
+				node = (load(String(visual["path"])) as PackedScene).instantiate()
+		if node == null:
+			push_error("City site %s has no visual" % site.id)
+			continue
+		node.transform = site.transform3d()
+		add_child(node)
+		site_nodes[site.id] = node
+
+
+## Hides (or shows) the nodes a site room lists in `hide` (roof, ceiling).
+func set_site_room_hidden(site: CitySite, room: Dictionary, hidden: bool) -> void:
+	var node: Node3D = site_nodes.get(site.id)
+	if node == null:
+		return
+	for path: String in room.get("hide", []):
+		var target := node.get_node_or_null(path) as Node3D
+		if target != null:
+			target.visible = not hidden
+
+
+## Occluder index of the site building at `world_xz` (see CityMapView), or -1.
+func site_occluder_index(world_xz: Vector2) -> int:
+	var index := plan.buildings.size()
+	for site in plan.sites:
+		var k := site.building_index_at(world_xz)
+		if k >= 0:
+			return index + k
+		index += (site.placed.get("footprints", []) as Array).size()
+	return -1
 
 
 func set_roof_hidden(index: int, hidden: bool) -> void:
@@ -107,7 +176,12 @@ func _build_buildings() -> void:
 			continue
 		var enterable := bool(b.get("enterable", false))
 		var floor_y := plan.floor_height(i)
-		var built := CityBuildingBuilder.build_building(b, ring, floor_y, enterable)
+		var built := CityBuildingBuilder.build_building(
+			b, ring, floor_y, enterable, plan.ground_height
+		)
+		var top: Vector3 = built["chimney"]
+		if top != Vector3.INF:
+			chimneys.append([top, StringName(b["id"])])
 		var center := Vector2.ZERO
 		for p in ring:
 			center += p
@@ -247,6 +321,8 @@ func _water_material(wave: float, flow: float) -> ShaderMaterial:
 func set_wind(direction: Vector2) -> void:
 	for mat in water_materials:
 		mat.set_shader_parameter("wind_dir", direction)
+	if ships != null:
+		ships.set_wind(direction)
 
 
 ## Grid at `y` over cells where depth_at(p) > 0 (any corner).
@@ -339,13 +415,22 @@ func _moat_pools(
 		var next := line[mini(i + 1, line.size() - 1)]
 		var dir := (next - prev).normalized()
 		edges.append(Vector2(-dir.y, dir.x) * half)
+	var causeways: Array = plan.data.get("moat", {}).get("causeways", [])
 	for i in line.size() - 1:
 		if lows[i] > cutoff and lows[i + 1] > cutoff:
+			continue
+		var on_causeway := false
+		for c: Dictionary in causeways:
+			var at := Vector2(c["at"][0], c["at"][1])
+			if (line[i] + line[i + 1]).distance_to(at * 2.0) * 0.5 < float(c["width"]) * 0.5 + 3.5:
+				on_causeway = true
+		if on_causeway:
 			continue
 		var ya := lows[i] + 1.1
 		var yb := lows[i + 1] + 1.1
 		var a := line[i]
 		var b := line[i + 1]
+		moat_water.append([a, b, ya, yb, half])
 		var quad := [
 			Vector3(a.x + edges[i].x, ya, a.y + edges[i].y),
 			Vector3(b.x + edges[i + 1].x, yb, b.y + edges[i + 1].y),
@@ -358,3 +443,18 @@ func _moat_pools(
 			st.add_vertex(quad[idx])
 		count += 1
 	return st.commit() if count > 0 else null
+
+
+## Water surface height at `world_xz` (sea at 0, moat pools at their level),
+## or -INF on dry ground.
+func water_surface_at(world_xz: Vector2) -> float:
+	if plan.ground_height(world_xz) < 0.0:
+		return 0.0
+	for m: Array in moat_water:
+		var a: Vector2 = m[0]
+		var b: Vector2 = m[1]
+		var ab := b - a
+		var t := clampf((world_xz - a).dot(ab) / maxf(ab.length_squared(), 0.001), 0.0, 1.0)
+		if world_xz.distance_to(a + ab * t) < float(m[4]):
+			return lerpf(float(m[2]), float(m[3]), t)
+	return -INF

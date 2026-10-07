@@ -12,6 +12,11 @@ on 2026-09-26, 0023 to terrain relief (WB-01) and 0024 is reserved for the `.rrm
 (WB-09). This record is therefore **0025**. Every AR contract that says "ADR 0022 budget" means this
 file.
 
+**Amended by [ADR 0032](0032-bespoke-landmark-sites-in-the-city.md), 2026-10-07:** tier B (bespoke
+landmarks) is accepted for the seamless city. The K-tier kit assembly of the retired district maps
+(AR-04..AR-06 as written) is removed from scope; any kit work must be re-scoped to city houses by a
+new task.
+
 ## Context
 
 The maintainer's 2026-09-26 review found the built fabric "too simplistic" and "too generic", with

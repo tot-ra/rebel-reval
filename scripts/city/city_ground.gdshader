@@ -29,6 +29,8 @@ uniform float cobble_relief = 0.05;
 uniform vec3 grass_tint : source_color = vec3(0.78, 0.86, 0.62);
 uniform vec3 earth_tint : source_color = vec3(0.60, 0.55, 0.47);
 uniform float wetness = 0.0;
+// Standing water after rain (SkyWeather3D.puddle_wetness()).
+uniform float puddles = 0.0;
 uniform float sea_level = 0.0;
 
 #include "res://scripts/map/view3d/fieldstone_paving.gdshaderinc"
@@ -48,6 +50,17 @@ float value_noise(vec2 p) {
 	vec2 u = f * f * (3.0 - 2.0 * f);
 	return mix(mix(hash12(i), hash12(i + vec2(1.0, 0.0)), u.x),
 		mix(hash12(i + vec2(0.0, 1.0)), hash12(i + vec2(1.0, 1.0)), u.x), u.y);
+}
+
+float mud_height(vec2 p) {
+	float lumps = value_noise(p * 0.9);
+	float ruts = value_noise(vec2(p.x * 0.35, p.y * 3.1)) * value_noise(vec2(p.x * 3.1, p.y * 0.35));
+	float pocks = value_noise(p * 4.7);
+	return lumps * 0.55 + ruts * 0.3 + pocks * 0.15;
+}
+
+float slope_len(vec3 n) {
+	return 1.0 - clamp(n.y, 0.0, 1.0);
 }
 
 // Two rotated samples break the visible repeat of every plate.
@@ -102,9 +115,23 @@ void fragment() {
 	vec3 rock_col = (rx * an.x + ry * an.y + rz * an.z) / (an.x + an.y + an.z) * vec3(0.95, 0.93, 0.86);
 	col = mix(col, rock_col, rock);
 
-	float wet = clamp(wetness + mud * 0.35 + shore * 0.5, 0.0, 1.0);
-	ALBEDO = col * mix(1.0, 0.62, wet);
-	ROUGHNESS = mix(0.95, 0.35, wet * (1.0 - rock * 0.5));
+	// Trodden earth and mud are lumpy, with ruts and hoof pocks: a procedural
+	// height field adds relief on top of the plate normals.
+	float soft = clamp(earth + mud, 0.0, 1.0) * (1.0 - paving);
+	vec2 e = vec2(0.06, 0.0);
+	float h0 = mud_height(wuv);
+	vec2 mslope = vec2(mud_height(wuv + e.xy) - h0, mud_height(wuv + e.yx) - h0) / e.x;
+	nxy += -mslope * 0.09 * soft;
+	col *= mix(1.0, 0.86 + h0 * 0.28, soft);
+	// Puddles gather in flat hollows of earth and mud after rain.
+	float hollow = 1.0 - smoothstep(0.32, 0.5, h0 + value_noise(wuv * 0.23) * 0.45);
+	float puddle = smoothstep(0.35, 0.6, hollow) * soft * puddles * (1.0 - smoothstep(0.04, 0.12, slope_len(world_normal)));
+	float wet = clamp(wetness + mud * 0.35 + shore * 0.5 + puddles * soft * 0.5, 0.0, 1.0);
+	col = mix(col * mix(1.0, 0.62, wet), vec3(0.08, 0.09, 0.09), puddle * 0.85);
+	nxy = mix(nxy, vec2(0.0), puddle);
+	ALBEDO = col;
+	ROUGHNESS = mix(mix(0.95, 0.6, wet * (1.0 - rock * 0.5)), 0.12, puddle);
+	SPECULAR = mix(0.3, 0.55, puddle);
 	nxy = clamp(nxy * mix(1.0, 0.6, wet) * (1.0 - rock), vec2(-0.95), vec2(0.95));
 	NORMAL_MAP = vec3(nxy, sqrt(max(1.0 - dot(nxy, nxy), 0.0))) * 0.5 + 0.5;
 }

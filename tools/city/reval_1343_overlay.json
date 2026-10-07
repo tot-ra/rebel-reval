@@ -1593,5 +1593,13 @@
       ],
       "offset_m": 6.2
     }
-  ]
+  ],
+  "kalev_smithy": {
+    "near_m": [
+      178.0,
+      112.0
+    ],
+    "name_1343": "Kalev's smithy",
+    "note": "Workers' quarter between Viru street and the Cattle Gate, where the district map placed the forge. Its door leads into the forge interior (scenes/reval_east/forge)."
+  }
 }

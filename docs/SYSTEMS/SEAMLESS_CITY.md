@@ -1,17 +1,23 @@
 # Seamless Reval city (1343)
 
-Status: implemented as a playable preview ([ADR 0031](../adr/0031-continuous-reval-city-plan.md), accepted 2026-10-07; board task to be filed, no board access in the authoring session). Attribution: `CREDITS.md` and `docs/THIRD_PARTY_NOTICES.md`. Scope: the whole walled Lower Town, Toompea, the shore to the 1343 waterline, the Härjapea and the near suburbs and fields as one continuous scene with real relief, the 1343 fortifications, enterable houses and one shared wind. Out of scope here: NPCs, quests, saves, swimming and night systems in this scene (they still run on the district maps; see [Limits](#limits)).
+Status: implemented as the game's Reval ([ADR 0031](../adr/0031-continuous-reval-city-plan.md), accepted 2026-10-07; board task to be filed, no board access in the authoring session). Attribution: `CREDITS.md` and `docs/THIRD_PARTY_NOTICES.md`. Scope: the whole walled Lower Town, Toompea, the shore to the 1343 waterline, the Härjapea and the near suburbs and fields as one continuous scene with real relief, the 1343 fortifications, enterable houses and churches, people, shipping, swimming, chimney smoke and one shared wind; every old Reval district destination now arrives here. Out of scope here: quests, dialogue and saves inside the city scene (the forge interior keeps them; see [Limits](#limits)).
 
 Review plates: [`docs/reports/reval_city_plan_2026-10-07.md`](../reports/reval_city_plan_2026-10-07.md).
 
 ## What the player can do
 
-- Main menu → **Reval (seamless)**. Kalev starts on the forum.
-- Walk anywhere in the plan without a loading screen: in through the Viru gate, along Pikk and Lai to the Coastal Gate and down to the shore, up Pikk jalg or the Lühike jalg steps onto Toompea, out of the Cattle or Smiths' gates to the fields.
-- Walk into any ordinary house through its street door. The door swings inward as Kalev reaches it and shuts behind him once he moves on; the roof lifts while he is inside; the room is the house footprint minus its walls. Doors vary per house: strap-hinged plank, braced, studded oak, round-headed doors on stone houses, double leaves on halls; oiled, tarred, ochre-red, green or grey.
-- Minimap (top right): a circular painted map that turns with the camera, a north mark, Kalev's arrow, and below it the district (Lower Town, Toompea, a suburb, or outside the walls), the street (modern name and 1343 name, e.g. "Viru - road to the clay gate") and the building he is in.
-- Camera: hold right (or middle) mouse and drag, or use the gamepad right stick, to orbit; mouse wheel to zoom; `Q`/`E` to turn. Movement uses the usual move actions relative to the camera. The camera pulls in front of walls and houses.
-- Command line: `-- --city-spawn=<gate or point id>`, for example `gate.viru`, `gate.coastal`, `poi.forum`.
+- Main menu → **Start**: Kalev wakes in his smithy (the `forge` scene, Mart, the anvil). Out through the courtyard door he steps into the city in front of his own house (`landmark.kalev_smithy`, a log house with a shingle roof off Viru street). Walking back in through that door returns to the forge interior. The old district maps are no longer reachable from the menu.
+- Walk anywhere in the plan without a loading screen: in through the Viru gate, along Pikk and Lai to the Coastal Gate and down to the shore, up Pikk jalg or the Lühike jalg steps onto Toompea, out of the Cattle or Smiths' gates to the fields. Movement is 5× the district-map speed (maintainer request, for crossing the city quickly).
+- Walk into any ordinary house, the council hall and the churches through their street door. The door swings inward as Kalev reaches it and shuts behind him once he moves on; roof and ceiling lift while he is inside, so the third-person, top-down and first-person cameras (`toggle_camera_view`) all see into the room.
+- Swim: the sea and the water-filled moat use the game's swimming (wade, swim, dive with `player_dive`, breath).
+- Magic: the Spellforge works as on the district maps; a Fireball flies as an ember orb and bursts on impact in the city view.
+- Travel map (`M`): the district tab fast-travels inside the city (Kalev is moved in place, no reload: centre → forum, north → Pikk granary, monastery → St Olaf, Toompea → castle, harbour → fish landing, ...); the global tab starts journeys to distant regions. Walking within 28 m of the plan's edge opens the global travel map and sets Kalev back inside, so leaving the city always means choosing a destination. Returning from Padise, Harju, the sacred grove and other regions lands at the matching gate or road.
+- People: watchmen in pairs at every town gate (a sergeant at Viru), Danish men-at-arms at the Toompea gates, the watch walking Pikk, Lai and Vene, market folk on the forum, and townsfolk walking the streets around Kalev.
+- Birds: the game's bird flight and birdsong layers fly over the city. Flights are spawned across a 160 m window around Kalev, lifted 8 m over the highest ground in it, and the species mix follows where he is (`CityMapDefinition.bird_context_at`): gulls and terns on the shore and fishing beach, castle birds on Toompea, market birds round the forum, town birds in the Lower Town, open-country birds outside the walls.
+- Ships: Hanseatic cogs ride at anchor in the roads north of the Coastal Gate, swinging bow-to-wind; fishing boats lie off the fish landing; one cog sails along the shore.
+- Minimap (top right): a circular painted map that turns with the camera, a north mark, Kalev's arrow, and below it the district, the street (modern and 1343 name) and the building he is in.
+- Camera: hold right (or middle) mouse and drag, or use the gamepad right stick, to orbit; mouse wheel to zoom; `Q`/`E` to turn. The camera pulls in front of walls and houses.
+- Command line: `-- --city-spawn=<spawn id>`, for example `gate.viru`, `gate.coastal.outside`, `poi.forum`, `kalev_smithy`.
 
 ## How the plan is made
 
@@ -34,6 +40,30 @@ Rules the compiler enforces:
 - Terrain: EU-DEM trend, the walled town lowered by the surface-model rooftop bias, the Toompea table authored from the cliff edge, the hill ways carved as ramps, the beach and seabed from the 1343 shoreline, the Härjapea channel and the S/E ditch cut in.
 - Stable IDs: `street.osm.<way>`, `bldg.osm.w<way>` / `bldg.osm.r<relation>`, `bldg.lm.<landmark>`, `bldg.<suburb>.<n>`, `gate.*`, `tower.*`, `curtain.NN`, `toompea_wall.NN`, `poi.*`, `flow.*`, `field.*`. OSM ids keep a building's id across rebuilds.
 
+### How buildings are built
+
+Every house, hall and church is generated at load from its plan record (`plan.json` → `buildings[]`) by `CityBuildingBuilder.build_building`; nothing is hand-modelled. The record carries the footprint, `base_h`/`base_span` (lowest ground under the footprint and the slope across it), `wall_h`, `material`, `roof`, `roof_pitch_deg`, `ridge_angle`, the street `door` (point and outward angle), `kind` (`house`, `church`, `chapel`, `hall`) and `enterable`.
+
+Chosen by the compiler (`tools/city/build_reval_city_plan.py`):
+
+- Material, roof and height follow the plot's street rank ("wealth"): spine streets (Pikk, Lai, Viru, Vene, the forum) get limestone with tile (7.5–10.5 m eaves); middle ranks limestone or lime-plastered with tile or shingle (5.5–8 m); lanes and suburbs log or plank with thatch or shingle (3.2–4.8 m). Landmarks take their authored roof and nave height.
+- The ridge follows one of the footprint's own axes (minimum-area rectangle). Near-square plots turn the gable to the street (Diele house); long plots roof along their length.
+- The door sits on the footprint edge nearest the street. Because plot footprints are modern survivals, that edge can face straight into a neighbour; `fix_blocked_doors` then moves the door to the nearest edge with clear ground 1.2 m and 2.5 m outside (69 of 639 doors moved on 2026-10-07), and a house with no clear edge gets no door and is not enterable. Ordinary houses of 22–520 m², the council hall and the churches and chapels are `enterable`.
+- Kalev's smithy is the enterable house nearest the overlay's `kalev_smithy.near_m` point.
+
+Built at runtime (`scripts/city/city_building_builder.gd`):
+
+1. **Wall ring.** `wall_ring(b, footprint)` orients the footprint consistently and fillets every corner with a short curve (`soften_ring`, `CORNER_SEGMENTS` = 3). Radius by material (`CORNER_RADIUS`): lime plaster 0.22 m, log 0.16 m, plank 0.14 m, dressed limestone 0.10 m, clamped to 30 % of the shorter adjoining edge. Walls, door leaves (`CityDoors.door_gap`), wall-foot weeds and the logic-plane collision of enterable houses all use this same ring, so the door gap lines up everywhere.
+2. **Floor.** `CityPlan.floor_height` = `base_h + base_span + 0.12`: the floor is level with the highest ground under the house. Where the street is lower in front of the door, limestone steps (`_door_steps`) climb to the threshold. Churches, chapels and the council hall stand on a **levelled terrace**: the compiler (`terrace_landmarks`) cuts or fills the ground under the footprint to the street level 2 m outside the door and blends it back into the slope over 8 m, so their doors open at street level (before this, St Mary's door stood 5.2 m above Kiriku plats).
+3. **Walls.** One strip per ring edge from 0.7 m below ground (`SINK`, hides slope gaps) to the eave, with gable infill up to the roof line where an edge crosses the ridge. The door edge leaves a 1.5 × 2.55 m gap centred on the door (clamped to 20–80 % of the edge). Houses get windows every ~3.4 m on edges of 2.6 m or more; churches, chapels and the hall get tall lancets instead.
+4. **Roof.** A gable split along the ridge (`roof_frame`): pitch 52° thatch, 48° shingle, 50° tile, rise capped at 10.5 m, 0.38 m overhang all round. The cover has a thickness (`ROOF_COVER`: thatch 0.36 m, tile 0.13 m, shingle 0.11 m) that ends in a rounded roll at eaves and verges, and a half-round ridge cap runs the length of the ridge (`RIDGE_RADIUS`: bulky bound ridge on thatch, ridge tiles on tile, a ridge roll on shingle). Roll and cap carry roof UVs so they take the roof texture.
+5. **Chimney.** 80 % of town houses that are not thatched get a stone stack through the roof near the ridge, rising 0.6–1.1 m above it (`CHIMNEY_SHARE`, `CHIMNEY_SIZE` 0.75 m). Thatched cottages keep a smoke hole. The stack top is recorded for smoke.
+6. **Inside or cap.** Enterable buildings get an interior: inner walls inset by the wall thickness (limestone 0.62 m, timber 0.32 m) with a door reveal, a plank floor and a ceiling at the eave. The ceiling belongs to the roof node, so both lift together while Kalev is inside. Other buildings get a flat cap under the roof.
+7. **Materials.** Walls and roofs use the weathered shaders (`city_weathered_wall.gdshader`, `city_weathered_roof.gdshader`, shared `city_weathering.gdshaderinc`): rising damp read from the ground heightfield, run-off streaks, lichen on walls, moss on roofs (shingle most, tile less, thatch least) and rain wetness from the weather.
+8. **Batching.** Walls and the roofs of non-enterable buildings are merged per 96 m chunk and per material; each enterable building's roof (with its ceiling and chimney) is its own node so it can be hidden.
+
+Around the buildings: `CityDoors` hangs the leaves (plank, braced, studded, ledged; five paints; latch and ring pull both sides); `CityWallFoot` scatters weed tufts along the wall foot (denser at corners, none in doorways) and hop/ivy climbers on about 9 % of houses; the splat paints trampled earth round each house and a muddy drip line at the wall foot; `CityChimneySmoke` streams smoke plumes (up to 28 within 180 m) over the lit stacks (about a third, with the shared day/night hearth schedule).
+
 ### Fortifications
 
 Positions and roster from [`walls-gates-towers.md`](../../history/dossiers/topography/walls-gates-towers.md) and `RevalFortificationRegistry`; finish by maintainer direction (2026-10-07):
@@ -55,7 +85,13 @@ Positions and roster from [`walls-gates-towers.md`](../../history/dossiers/topog
 | `scripts/city/city_plan.gd` (`CityPlan`) | Loads the plan and heightfield; `ground_height`, `walk_height` (floors inside houses), `building_at`, `floor_height`, `slope_at` |
 | `scripts/city/city_world_3d.gd` (`CityWorld3D`) | Builds the view, the sky, sun and fog (shared `SkyWeather3D` and `MapViewLighting`), pushes the world wind |
 | `scripts/city/city_terrain_builder.gd` + `city_ground.gdshader` | Heightfield chunks, a far mesh, a horizon skirt; splat-blended cobble, earth, sand, mud, grass and slope rock |
-| `scripts/city/city_building_builder.gd` | Footprint walls, gable roofs on the plan ridge, windows, lancets on churches, interiors with floor, inner walls, door reveal and ceiling |
+| `scripts/city/city_building_builder.gd` | Buildings as described in [How buildings are built](#how-buildings-are-built): filleted wall ring, walls, door gap and steps, windows and lancets, gable roof with rolled edges and ridge cap, chimneys, interiors |
+| `scripts/city/city_wall_foot.gd` (`CityWallFoot`) | Weeds at the wall foot and climbers on some walls (procedural leaf card, no texture asset) |
+| `scripts/city/city_chimney_smoke.gd` (`CityChimneySmoke`) | Streamed `ChimneySmoke3D` plumes over lit chimneys near Kalev |
+| `scripts/city/city_ships.gd` (`CityShips`) | Cogs at anchor, fishing boats, a cog under way (game boat builders, rescaled to metres) |
+| `scripts/city/city_npcs.gd` (`CityNpcs`) | Gate guards, watch patrols, market folk, pooled street walkers (logic bodies; rigs via the runtime) |
+| `scripts/city/city_travel.gd` (`CityTravel`) | Redirects old Reval district destinations into city spawns; spawn positions; pending-spawn hand-off |
+| `scripts/city/city_map_view.gd`, `city_map_definition.gd`, `city_runtime.gd` | The city on the shared `MapViewRuntime`: cameras, Kalev's rig, magic VFX, session clock and weather, swimming surface and depth, birds (`MapViewBirdFlight.path_origin` window, per-position habitat) |
 | `scripts/city/city_fortification_builder.gd` | Curtains by state, merlons on the field side, gate houses, timber gates, dated towers, Toompea wall, castle |
 | `scripts/city/city_vegetation_builder.gd` | Trees and shrubs by species at typical heights (town oak ~12 m, orchards ~4 m, hazel/elder ~3 m), chunked with visibility ranges |
 | `scripts/city/city_grass.gd` (`CityGrass`) | Grass tufts streamed in 16-unit chunks around Kalev, thinned on trodden earth, absent on paving, floors, water and steep banks |
@@ -64,31 +100,36 @@ Positions and roster from [`walls-gates-towers.md`](../../history/dossiers/topog
 | `scripts/map/view3d/fieldstone_paving.gdshaderinc` | Fieldstone street paving shared with the district terrain shader |
 | `scripts/city/city_dressing_builder.gd` | Hoist beams and wind-swung ropes on merchant gables, town banners, castle pennants |
 | `scripts/city/city_water.gdshader` | Sea, stream and moat pools; waves travel with the wind |
-| `scripts/city/city_collision_builder.gd` | Logic-plane collision: solid houses, wall quads with a door gap for enterable houses, curtains with gate gaps, towers, Toompea wall openings, cliffs over 38°, deep water |
-| `scenes/world/reval_city/reval_city.tscn` | The playable scene: player, Kalev rig, orbit camera, roof lifting, day clock |
-| `scenes/menu/seamless_city_label.gd` | Main-menu entry |
+| `scripts/city/city_collision_builder.gd` | Logic-plane collision: solid houses, wall quads with a door gap for enterable houses, curtains with gate gaps, towers, Toompea wall openings, cliffs over 38°; sea and moat stay open for swimming |
+| `scenes/world/reval_city/reval_city.tscn` | The playable scene: spawn hand-off, roof lifting, the smithy door into `forge`, the edge-of-plan travel map, in-place fast travel (`arrive_at`) |
+| `scripts/global/door_navigator.gd` | `go_to_scene` routes old district ids through `CityTravel.redirect` and moves Kalev in place when the target is the city already loaded |
 
 ## Save and load
 
-Not wired. The preview keeps no state and writes nothing to saves.
+Not wired inside the city: position, door states and people are not saved. Saving in the forge works as before; loading a save made in a district scene arrives through the redirect at the matching city spawn.
 
 ## Verification
 
 - `python3 tools/city/build_reval_city_plan.py --check`
 - `python3 -m unittest tests.python.test_build_reval_city_plan -v` (determinism, gates on the wall, no street breaches away from gates, no post-1343 towers, doors on footprints, Toompea relief)
 - `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_city_plan` (plan, relief, hill ways, gates, towers, floors, interior sizes, roof frame, collision door gap and cliff, Toompea openings, castle towers)
-- `tools/godot_render.sh --resolution 1600x900 res://tools/capture_reval_city_walk.tscn` walks Viru inward, Pikk jalg and Lühike jalg up to Toompea, Pikk to the shore, and into and out of the council hall (door opens, roof lifts, door shuts behind him); exits 1 on any failure.
-- `tools/godot_render.sh --script tools/capture_reval_city.gd` renders the review plates.
+- `tools/godot_render.sh --resolution 1600x900 res://tools/capture_reval_city_walk.tscn` walks Viru inward, Pikk jalg and Lühike jalg up to Toompea, Pikk to the shore, and into and out of the council hall (door opens, roof lifts, top-down and first-person shots inside, door shuts behind him), then checks people (≥ 20), chimneys (≥ 200), birds in flight (with distance and height from Kalev), in-place fast travel to the Pikk granary, smoke plumes there, swimming off the fish landing, a Fireball orb over the forum, and the travel map at the plan edge; exits 1 on any failure.
+- `tools/godot_render.sh --script tools/capture_reval_city.gd [-- --only=a,b]` renders the review plates (door plates are framed from the street side of the built door gap).
+- `tools/godot_render.sh --resolution 1600x900 res://tools/profile_reval_city.tscn [-- --quick]` measures frame time at three spots and with each layer removed.
 - `tools/godot_render.sh --script tools/verify_wind_direction.gd` checks that flags fly downwind for four wind directions.
 
-Measured on the authoring machine (Apple GPU, 1600×900, minimized window): full scene ready in ~4 s, frame p50 ~14.5 ms, p95 ~18 ms walking the routes.
+Measured on the authoring machine (Apple M5 Pro, 1600×900, minimized window): scene ready in ~5.3 s. Frame time is **not yet acceptable**: 50–135 ms per rendered frame on the walk routes with the full runtime. The profiling probe shows the city geometry layers cost little (removing buildings, trees, grass, smoke, ships or weeds saves under 5 ms); the cost sits in the `MapViewRuntime` subtree, most likely the ~40 NPC rigs plus the runtime's per-frame scan of all scene nodes for actors. The earlier figure (p50 ~14.5 ms) was measured per physics tick and understated it.
 
 ## Limits
 
-- No NPCs, quests, interaction anchors, saves, swimming or night systems in this scene. The playable slice (forge, Mart, Act 1 cycles) still runs on `lower_town_slice`; re-homing its anchors onto the plan is follow-up work.
-- Buildings are procedural shells from plot footprints: no kit GLB models, no upper floors, no furniture. Churches and the castle are massing models; St Mary's, St Olaf's, the Holy Spirit and the Dominican and Cistercian precincts need bespoke models.
+- Performance: see Verification; NPC rigs need distance culling or the crowd renderer, and the actor scan needs to stop walking the whole scene each frame.
+- No quests, dialogue, interaction anchors or saves in the city scene; the Act 1 cycles still run on `lower_town_slice` and the forge. City NPCs do not talk, react or fight.
+- The old district scenes and their `.rrmap` maps are still in the repository and the transition manifest (redirected, not deleted).
+- Buildings are procedural shells from plot footprints: no kit GLB models, no upper floors, no furniture. Church interiors are an empty nave; the castle is a massing model. Bespoke, navigable landmark sites replace the generic shells one site at a time ([Landmark sites](./CITY_LANDMARK_SITES.md), ADR 0032): Raekoja plats is done; Kiriku plats and St Mary's, the parish churches, the castle and the gates are planned.
+- Corners are filleted at plan level only: the eave line, gable verges and window reveals are still straight-edged, and walls stay perfectly plumb (no lean or bulge).
+- Some plan doors open almost straight onto a neighbour's wall (plots from modern footprints); the door plates skip them.
 - Plot footprints are modern survivals; individual houses are a plausible composite.
-- The camera cannot see under overhangs it is already inside (3D-only roofs); occlusion uses the logic-plane walls.
-- Life layers (wells, guards, flows, gutters) are data and review-map markers; no simulation reads them yet, and rain does not yet show water running in the gutters.
-- Distant buildings beyond 1600 units, trees beyond 260 units, shrubs beyond 120 units and grass beyond ~50 units are culled; there is no impostor skyline yet.
+- Life layers (wells, flows, gutters) are data and review-map markers; rain does not show water running in the gutters.
+- Distant buildings beyond 1600 units, trees beyond 260 units, shrubs beyond 120 units, weeds beyond 90 units and grass beyond ~50 units are culled; there is no impostor skyline.
+- Ships have no collision and cannot be boarded.
 - Doors have no sound and no lock state; non-enterable houses keep theirs shut.

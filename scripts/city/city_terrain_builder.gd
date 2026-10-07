@@ -24,8 +24,16 @@ const TEXTURES := {
 }
 
 
+static var _shared: ShaderMaterial
+
+
+static func shared_material() -> ShaderMaterial:
+	return _shared
+
+
 static func material(plan: CityPlan) -> ShaderMaterial:
 	var mat := ShaderMaterial.new()
+	_shared = mat
 	mat.shader = SHADER
 	for key: String in TEXTURES:
 		mat.set_shader_parameter(key, load(TEXTURES[key]))

@@ -126,12 +126,8 @@ func test_main_menu_has_assets_library_focus_ring() -> void:
 	assert_eq(library.focus_mode, Control.FOCUS_ALL)
 	assert_eq(credits.focus_neighbor_bottom, NodePath("../Assets library label"))
 	assert_eq(library.focus_neighbor_top, NodePath("../Credits label"))
-	# ADR 0031: the seamless Reval entry sits between the library and Exit.
-	var city := menu.get_node("Seamless city label") as Control
-	assert_eq(library.focus_neighbor_bottom, NodePath("../Seamless city label"))
-	assert_eq(city.focus_neighbor_top, NodePath("../Assets library label"))
-	assert_eq(city.focus_neighbor_bottom, NodePath("../Exit label"))
-	assert_eq(exit_label.focus_neighbor_top, NodePath("../Seamless city label"))
+	assert_eq(library.focus_neighbor_bottom, NodePath("../Exit label"))
+	assert_eq(exit_label.focus_neighbor_top, NodePath("../Assets library label"))
 	menu.free()
 
 
