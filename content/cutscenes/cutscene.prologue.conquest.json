@@ -24,7 +24,7 @@
   "shots": [
     {
       "id": "s01_fleet",
-      "still": "res://assets/cutscenes/prologue_conquest/s01_fleet.png",
+      "still": "res://assets/cutscenes/prologue_conquest/s01_fleet.jpg",
       "video": "",
       "transition_in": "fade",
       "motion": {
@@ -61,7 +61,7 @@
     },
     {
       "id": "s02_banner",
-      "still": "res://assets/cutscenes/prologue_conquest/s02_banner.png",
+      "still": "res://assets/cutscenes/prologue_conquest/s02_banner.jpg",
       "video": "",
       "transition_in": "dissolve",
       "motion": {
@@ -104,7 +104,7 @@
     },
     {
       "id": "s03_hill",
-      "still": "res://assets/cutscenes/prologue_conquest/s03_hill.png",
+      "still": "res://assets/cutscenes/prologue_conquest/s03_hill.jpg",
       "video": "",
       "transition_in": "dissolve",
       "motion": {
@@ -140,14 +140,14 @@
       },
       "authoring": {
         "direction": "Occupation as construction work. Show who carries and who watches. The castle must be half-built so the audience sees it being imposed rather than simply existing, and the labourers must be the clearest-read faces in the frame.",
-        "image_prompt": "Cinematic film still, 40mm medium-wide, three-quarter view of a half-built medieval limestone castle on a flat-topped rock outcrop above a northern bay: raw unfinished curtain wall with timber scaffolding and a treadwheel crane, mortar buckets, a rubble ramp. Foreground: a line of Estonian labourers in rough undyed and madder-brown wool, hoods back, hauling a limestone block on wooden rollers up the ramp, faces strained and clearly lit, hands wrapped in rag. Mid-ground: two mailed Danish guards and a clerk with a wax tablet, standing, not working. Background: the charred timber stumps of a burnt Estonian hill fort palisade still standing at the rock's edge, and the grey bay beyond. Late afternoon overcast, cold desaturated grade, limestone reading blue-grey, one warm accent from a labourers' fire, heavy film grain, fine limestone dust in the air. Historically accurate Baltic 13th century. No text, no modern objects.",
+        "image_prompt": "Cinematic film still, 40mm medium-wide, three-quarter view of a half-built medieval limestone castle on a flat-topped rock outcrop above a cold northern bay: raw unfinished curtain wall with timber scaffolding and a treadwheel crane, mortar buckets, a rubble ramp. Foreground: a line of Estonian labourers in rough undyed and madder-brown wool, hoods back, hauling a limestone block on wooden rollers up the ramp, faces strained, hands wrapped in rag. Mid-ground: two mailed Danish guards in plain red surcoats bearing a white cross, and a clerk in a dark gown with a wax tablet, standing, not working. Background: the charred timber stumps of a burnt Estonian hill-fort palisade still standing at the rock's edge, scrubby Baltic pine and juniper on the cliff, and the grey Baltic bay beyond. Late afternoon overcast, cold desaturated grade, limestone reading blue-grey, one warm accent from a labourers' fire, heavy film grain, fine limestone dust in the air. Historically accurate Baltic 13th century. No cypress trees, no Mediterranean vegetation, no black Teutonic crosses, no text, no modern objects.",
         "video_prompt": "9 seconds. Camera: slow lateral pan right at a fixed distance, 40mm, following the block up the ramp so the castle wall enters frame left to right. Subject motion: the block grinding forward in jerks as the labourers heave on a count; rope going taut and slack; limestone dust lifting; the treadwheel crane turning slowly in the background; the clerk looking up from his tablet directly into the lens for a half second as the pan passes him, then back down. Audio: rope creak, a work chant in Estonian under the voice-over, hammer on stone, no music until l3 where one low drone enters. Voice-over only, no lip-sync. Narrator lines l1-l3; l2 'Taani linn' timed to the moment the finished section of wall fills the frame.",
         "negative_prompt": "text, watermark, finished pristine castle, 19th-century restoration, modern Tallinn skyline, tourists, saturated green grass, plate armour, horses in armour, snow"
       }
     },
     {
       "id": "s04_town",
-      "still": "res://assets/cutscenes/prologue_conquest/s04_town.png",
+      "still": "res://assets/cutscenes/prologue_conquest/s04_town.jpg",
       "video": "",
       "transition_in": "dissolve",
       "motion": {
@@ -183,14 +183,14 @@
       },
       "authoring": {
         "direction": "Wealth and exclusion in one frame, read entirely by wardrobe and eyeline. The German merchants occupy the centre and the stone; the Estonian workers occupy the mud and the edges. The pillory at the back is the punchline of 'the law was written down' and should be small, matter-of-fact street furniture, not a spectacle.",
-        "image_prompt": "Cinematic film still, 35mm, eye-level wide shot down a crowded medieval Hanseatic market square on a damp spring morning: tall narrow stepped-gable merchant houses in lime-washed plaster and red clay tile, a hoist beam and open loading shutter high on one gable with a bale swinging. Centre: three prosperous German merchants in fur-lined dark wool gowns, chaperon hats and leather purses, standing dry on stone paving, in conversation, ignoring everything around them. Around and below them: Estonian carters in coarse undyed wool and leg wraps manhandling barrels through churned mud, a woman with a yoke and two pails, a boy carrying charcoal, all in the lower and outer frame. Background, small and unremarked: a wooden pillory post beside the town-hall steps, empty. Overcast northern light, damp cobbles reflecting sky, cold desaturated grade with warm accents in the tile roofs and furs, heavy film grain. Historically accurate Reval 1340s. No text, no shop signage with legible letters.",
+        "image_prompt": "Candid documentary-style cinematic film still, 35mm, eye-level wide shot down a crowded medieval Hanseatic market square on a damp spring morning. Nobody looks at the camera; every figure is caught mid-action in profile or three-quarter, this is a street caught unawares, not a posed group portrait. Tall narrow stepped-gable merchant houses in lime-washed plaster and red clay tile, mostly shuttered wooden windows, a hoist beam and open loading shutter high on one gable with a bale swinging. Centre: three prosperous German merchants in fur-lined dark wool gowns and chaperon hats, turned toward each other mid-conversation, one gesturing, all three facing away from the lens and plainly ignoring the street around them. Around and below them: Estonian carters in coarse undyed wool and leg wraps straining to manhandle a barrel through churned mud, a woman with a shoulder yoke and two pails stepping aside, a boy hurrying past with a basket of charcoal, all blurred with movement at the lower and outer frame. Background, small and unremarked: an empty wooden pillory post beside the town-hall steps. Overcast northern light, damp stone reflecting sky, cold desaturated grade with warm accents in the tile roofs and furs, heavy film grain, motion blur in the crowd. Historically accurate Reval 1340s. No text, no legible signage, no glass windows, no one facing camera.",
         "video_prompt": "9 seconds. Camera: slow dolly push-in at chest height along the square's axis, 35mm, drifting slightly toward the merchants and then past them, so the audience is carried through the crowd rather than observing it. Subject motion: the hoist bale swinging and being guided in by a man leaning out of the loading shutter; a cart wheel lifting out of mud; the woman with the yoke stepping aside for the merchants without being looked at; one merchant laughing silently and turning his shoulder to the street. Steam from breath and from a food stall. Audio: layered market noise in Low German and Estonian, hooves, barrel rumble, a hand bell; music enters properly here, a single plucked string figure. Voice-over only, no lip-sync; crowd speech stays unintelligible background. Narrator lines l1-l3; l3 'Useful, and outside' as the push-in passes the merchants and leaves them behind frame left.",
         "negative_prompt": "text, watermark, legible signage, modern tourists, cobbled streets too clean, Renaissance clothing, ruffs, wheel-lock firearms, bright saturated market awnings, pumpkins, potatoes, tomatoes"
       }
     },
     {
       "id": "s05_tax",
-      "still": "res://assets/cutscenes/prologue_conquest/s05_tax.png",
+      "still": "res://assets/cutscenes/prologue_conquest/s05_tax.jpg",
       "video": "",
       "transition_in": "dissolve",
       "motion": {
@@ -233,7 +233,7 @@
     },
     {
       "id": "s06_spring",
-      "still": "res://assets/cutscenes/prologue_conquest/s06_spring.png",
+      "still": "res://assets/cutscenes/prologue_conquest/s06_spring.jpg",
       "video": "",
       "transition_in": "dissolve",
       "motion": {

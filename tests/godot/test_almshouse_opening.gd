@@ -1,8 +1,11 @@
 extends "res://tests/godot/test_case.gd"
 
-## ADR 0033: New Game opens in the almshouse; the sequence reaches the forge.
+## ADR 0033 / ADR 0034: New Game opens on the historical prologue cutscene, which chains
+## into the almshouse; the sequence reaches the forge.
 
 const OPENING_SCENE := preload("res://scenes/prologue/almshouse_opening.tscn")
+const CUTSCENE_SCENE := "res://scenes/cutscene/prologue_opening.tscn"
+const ALMSHOUSE_SCENE := "res://scenes/prologue/almshouse_opening.tscn"
 
 
 func _opening() -> AlmshouseOpening:
@@ -13,10 +16,20 @@ func _opening() -> AlmshouseOpening:
 	return opening
 
 
-func test_start_label_routes_new_game_to_the_opening() -> void:
+func test_start_label_routes_new_game_to_the_opening_cutscene() -> void:
 	var script: GDScript = load("res://scenes/intro/start_label.gd")
-	assert_eq(script.get_script_constant_map()["OPENING_SCENE"], "res://scenes/prologue/almshouse_opening.tscn")
-	assert_true(ResourceLoader.exists("res://scenes/prologue/almshouse_opening.tscn"))
+	assert_eq(script.get_script_constant_map()["OPENING_SCENE"], CUTSCENE_SCENE)
+	assert_true(ResourceLoader.exists(CUTSCENE_SCENE))
+
+
+func test_the_opening_cutscene_chains_into_the_almshouse() -> void:
+	# The chain lives in the record, not in code, so assert the record points at the scene.
+	var record := SessionState.content_db.get_cutscene(&"cutscene.prologue.conquest")
+	assert_false(record.is_empty(), "conquest cutscene is loaded in the session")
+	var next_target: Dictionary = record.get("next", {})
+	assert_eq(String(next_target.get("kind", "")), "scene_file")
+	assert_eq(String(next_target.get("scene_path", "")), ALMSHOUSE_SCENE)
+	assert_true(ResourceLoader.exists(ALMSHOUSE_SCENE))
 
 
 func test_the_prologue_content_is_loaded_in_the_session() -> void:

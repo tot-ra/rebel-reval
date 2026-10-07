@@ -8,7 +8,7 @@ One page per feature, with status, behavior, code entry points, content, saved s
 
 | Area | Pages |
 |---|---|
-| Core loop | [Quests, commissions, investigations](./SYSTEMS/QUESTS.md) · [Dialogue and barks](./SYSTEMS/DIALOGUE.md) · [Game state, rules, saves](./SYSTEMS/STATE_AND_SAVES.md) · [Time and phases](./SYSTEMS/TIME_AND_PHASES.md) |
+| Core loop | [Quests, commissions, investigations](./SYSTEMS/QUESTS.md) · [Dialogue and barks](./SYSTEMS/DIALOGUE.md) · [Cutscenes](./SYSTEMS/CUTSCENES.md) · [Game state, rules, saves](./SYSTEMS/STATE_AND_SAVES.md) · [Time and phases](./SYSTEMS/TIME_AND_PHASES.md) |
 | Consequences | [Factions, relationships, pressure, prices](./SYSTEMS/FACTIONS_AND_ECONOMY.md) · [Living City Hope/Fear](./SYSTEMS/LIVING_CITY.md) · [World life](./SYSTEMS/WORLD_LIFE.md) |
 | Action | [Combat runtime](./SYSTEMS/COMBAT.md) · [Combat animation](./SYSTEMS/COMBAT_ANIMATION.md) · [Hammer combat and night missions](./SYSTEMS/COMBAT_NIGHT.md) · [Magic](./SYSTEMS/MAGIC.md) |
 | Kalev's inner world | [NATURAL aspects](./SYSTEMS/NATURAL.md) · [Hingepuu psyche](./SYSTEMS/PSYCHE.md) |

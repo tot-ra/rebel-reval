@@ -1,9 +1,10 @@
 class_name AlmshouseOpening
 extends Node
-## New-game opening (ADR 0033): the almshouse of the Holy Spirit. A title card, the
-## hero watches the matron and the porter quarrel as a spirit duel (observation), fights
-## his first own duel against the porter, and Kalev takes him in. Then the forge.
-## `ui_cancel` on the title card skips straight to the forge.
+## New-game opening (ADR 0033): the almshouse of the Holy Spirit. An opening cutscene
+## (ADR 0034), the hero watches the matron and the porter quarrel as a spirit duel
+## (observation), fights his first own duel against the porter, Kalev takes him in, and a
+## closing cutscene walks him to the forge. `ui_cancel` during the opening cutscene skips
+## straight to the forge.
 
 signal stage_changed(stage: StringName)
 signal finished
@@ -17,6 +18,8 @@ const STAGE_DONE := &"done"
 const QUARREL := &"dialogue.prologue.almshouse_quarrel"
 const CONFRONTATION := &"dialogue.prologue.porter_confrontation"
 const KALEV_ARRIVES := &"dialogue.prologue.kalev_arrives"
+const OPENING_CUTSCENE := &"cutscene.prologue.almshouse_dawn"
+const CLOSING_CUTSCENE := &"cutscene.prologue.taken_in"
 const NEXT_SCENE_ID := &"forge"
 const NEXT_SPAWN_ID := &"smithy_start"
 
@@ -30,17 +33,39 @@ var _host: SpiritArenaHost
 var _runner: Node
 var _dialogue_ui: Node
 var _title_layer: CanvasLayer
+var _cutscene: CutscenePlayer
 var _skipped := false
 
 
 func _ready() -> void:
 	_state = SessionState.state
 	_db = SessionState.content_db
+	# The cutscene is the title card. The text card below stays as the fallback for a
+	# missing or broken record, so the opening is never a black screen.
+	_cutscene = CutscenePlayer.new()
+	_cutscene.auto_continue = false
+	add_child(_cutscene)
+	if _cutscene.play_id(_db, OPENING_CUTSCENE):
+		_cutscene.finished.connect(_on_opening_cutscene_finished)
+		return
+	_cutscene.queue_free()
+	_cutscene = null
 	_build_title_card()
 
 
+## The opening cutscene ends either by playing out or by being skipped; a skip here is a
+## skip of the whole prologue, matching the old Esc-on-the-title-card behaviour.
+func _on_opening_cutscene_finished(_sequence_id: StringName, skipped: bool) -> void:
+	_cutscene.queue_free()
+	_cutscene = null
+	if skipped:
+		skip()
+		return
+	begin_quarrel()
+
+
 func _unhandled_input(event: InputEvent) -> void:
-	if stage != STAGE_TITLE:
+	if stage != STAGE_TITLE or _cutscene != null:
 		return
 	if event.is_action_pressed(&"ui_cancel"):
 		skip()
@@ -58,7 +83,13 @@ func _unhandled_input(event: InputEvent) -> void:
 func begin_quarrel() -> bool:
 	if stage != STAGE_TITLE:
 		return false
-	_title_layer.visible = false
+	# Callers may start the quarrel while the opening cutscene is still on screen
+	# (a direct call, or a failed hand-over); the duel must never share the screen with it.
+	if _cutscene != null:
+		_cutscene.queue_free()
+		_cutscene = null
+	if _title_layer != null:
+		_title_layer.visible = false
 	_set_stage(STAGE_QUARREL)
 	_host = SpiritArenaHost.new()
 	_host.freeze_world = false
@@ -74,7 +105,8 @@ func begin_quarrel() -> bool:
 ## Skip the whole opening (ui_cancel on the title card).
 func skip() -> void:
 	_skipped = true
-	_title_layer.visible = false
+	if _title_layer != null:
+		_title_layer.visible = false
 	_state.set_flag(&"flag.prologue.apprenticed", true)
 	_finish()
 
@@ -137,8 +169,17 @@ func _finish() -> void:
 		return
 	_set_stage(STAGE_DONE)
 	finished.emit()
-	if auto_continue:
-		DoorNavigator.go_to_scene(NEXT_SCENE_ID, NEXT_SPAWN_ID)
+	if not auto_continue:
+		return
+	# The closing cutscene walks the boy to the forge and owns the door transition through
+	# its own `next` block; a skip or a missing record falls straight through to the door.
+	if not _skipped:
+		var closing := CutscenePlayer.new()
+		add_child(closing)
+		if closing.play_id(_db, CLOSING_CUTSCENE):
+			return
+		closing.queue_free()
+	DoorNavigator.go_to_scene(NEXT_SCENE_ID, NEXT_SPAWN_ID)
 
 
 func _set_stage(next: StringName) -> void:

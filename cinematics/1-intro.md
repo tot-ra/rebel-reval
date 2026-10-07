@@ -1,5 +1,11 @@
 # Introduction Scene: The Forging of Chains
 
+> **Legacy status: `reference`.** Superseded by [ADR 0034](../docs/adr/0034-cutscene-mode-and-cinematic-prologue.md).
+> The shipped opening is [`PROLOGUE.md`](PROLOGUE.md) and `content/cutscenes/cutscene.prologue.conquest.json`.
+> This treatment makes Kalev the protagonist and builds the prologue on Lembitu and the grove
+> massacre, both of which [ADR 0033](../docs/adr/0033-teen-protagonist-and-spirit-dialogue-combat.md)
+> replaced. Do not implement from it.
+
 **Game Scene:** `intro.tscn`
 
 This scene serves as the game's introduction, setting the stage for the story and introducing the player to the world of 14th-century Reval. It is a cinematic prequel chapter where the player witnesses the forging of the chains that the main character, Kalev, will later try to break.

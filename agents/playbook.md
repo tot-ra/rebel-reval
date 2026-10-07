@@ -205,3 +205,7 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 
 - `tools/godot_render.sh --script` runs in a temp project copy: autoloads (e.g. `MusicDirector`) are not available and `res://` writes do not reach the repo. For a quick visual check of a texture overlay, composite with PIL instead.
 - Asset paths are case-sensitive in Godot checks: reuse the existing `assets/UI/` directory (not `assets/ui/`) on case-insensitive macOS.
+
+- The repo's mini JSON-schema validator (`tools/validate_content_examples.py`) resolves `$ref` by schema **file name** only. A bare same-file `"$ref": "#/$defs/x"` fails with `unknown schema reference`; write `"$ref": "my.schema.json#/$defs/x"` even inside `my.schema.json`. A new content type needs three registrations, not one: `SCHEMA_BY_TYPE` there, `RECORD_TYPE_BY_PREFIX` in `tools/validate_content_common.py`, and `_TYPE_BY_PREFIX` in `scripts/content/content_db.gd` - plus the directory in `SessionState.DEMO_CONTENT_DIRS` or nothing loads at runtime.
+
+- Creating a task pack from a doc delivery-plan table: afterwards re-list by tag and diff the rows one by one against the table (one row was silently skipped once), and confirm each line shows `(depends on ...)` - `tasks.create` can accept `depends_on` without recording it, so re-apply it with `tasks.update`. Write the created IDs back into the doc table so the plan and the board cannot drift.
