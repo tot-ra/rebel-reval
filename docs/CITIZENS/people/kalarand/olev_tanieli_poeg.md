@@ -35,7 +35,7 @@
 - **Model notes:** male, age_years 61, muscle 0.4, weight 0.3, proportions wiry, height_m 1.66; skin olive-fair; eyes grey-blue; hair ash blond/grey, short beard; crowd tier 2.
 
 ## Biography
-Born in 1282 in Kalarand, the son of a fisher drowned off Pirita when Olev was nine. At thirty-three he lived through the hunger of 1315, when his mother died and he ate boiled leather and bark. He married Liis Jaani tütar at twenty-seven; they have two living sons, Villem and Laurents. Five or six winters ago he and Andres Lauri poeg carried the younger boy, feverish, to the herb-wife behind the church. He has repaid it in small ways and never spoken of it. Now his back is failing; he works the quay on bad days and splits firewood on good ones.
+Born in 1282 in Kalarand, the son of a fisher drowned off Pirita when Olev was nine. At thirty-three he lived through the hunger of 1315, when his mother died and he ate boiled leather and bark. He married Liis Jaani tütar in 1314, at thirty-two; they have two living sons, Villem and Laurents. Eight winters ago he and Andres Lauri poeg carried the younger boy, feverish, to the herb-wife behind the church. He has repaid it in small ways and never spoken of it. Now his back is failing; he works the quay on bad days and splits firewood on good ones.
 
 ## Motivation
 - **Want:** To see Laurents learn a trade so the boy never has to carry stone.

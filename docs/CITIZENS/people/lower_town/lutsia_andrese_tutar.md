@@ -21,7 +21,7 @@
 
 ## At a glance
 - A small, wiry woman with ash-blond hair gone grey who spins while she listens, and flushes to the ears when she lies.
-- Known for the finest flax thread on Nunne and for never raising her voice.
+- Known for the finest flax thread on Nunne.
 - Oddity: the household's most trusted woman is quietly feeding the town's rebels.
 
 ## Appearance
@@ -35,9 +35,9 @@
 - **Model notes:** MPFB gender female, age_years 55, muscle low, weight low, proportions narrow, height_m 1.54; fair skin; blue eyes; hair covered; crowd tier 1.
 
 ## Biography
-Born about 1288 in a village near the Karja gate, the daughter of Andres, a flax-grower who lost his strip of land to a manor's dues after the war of 1313. She came into town at sixteen to spin for a German widow and met Jaak when he was cooking the widow's husband's funeral dinner. She has borne him one living child, Lembit, now fifteen; two others are buried at St Olaf. The burn scar is from the night her mother died, when the lye pot overturned and she did not let go of the cloth.
+Born about 1288 in a village near the Karja gate, the daughter of Andres, a flax-grower who lost his strip of land to a manor's dues after the war of 1313. She came into town at sixteen to spin for a German widow and met Jaak when he was cooking the widow's husband's funeral dinner. Of her children only Lembit lives; two lie at St Olaf.
 
-Now she runs the household's linen, minds the maids, and spins thread to sell on market days. Quietly, she is also the woman other Estonian women stop and speak to.
+Now she runs the household's linen, minds the maids, and spins thread to sell on market days.
 
 ## Motivation
 - **Want:** A town where her son is not called a field-boy to his face.
@@ -56,7 +56,7 @@ Now she runs the household's linen, minds the maids, and spins thread to sell on
 | Night | Curfew bell | Bed | Sleeps lightly, hears the back gate. |
 
 - **Sundays and feast days:** Mass; afterwards a short walk by the Müürivahe wall.
-- **Spring 1343 disruption:** Whispers of a rising raise the price of salt and make her glance at doors twice.
+- **Spring 1343 disruption:** Whispers of a rising make her glance at doors twice.
 
 ## Work and money
 Her thread earns 6 to 8 schillings a week, which she keeps in a stocking separate from the household purse. Flax comes from a Harju road farmer; she sells to weavers and to Gyse Hardekop's neighbours on Nunne. She owes nothing in coin, but she feels indebted to Joosep, which is worse.
@@ -73,7 +73,7 @@ Her thread earns 6 to 8 schillings a week, which she keeps in a stocking separat
 - **Others:** [Arend Becker](../../ledger/lower_town/nunne.md#hh-lt-osm-w200921868), baker, where she buys her bread.
 
 ## Faction and belief
-A sympathiser, not a leader. Her grievance is the dues that took her father's strip; her reason to stay is pride at being useful. She would carry a message, hide a skein, or pass a name, but she would not carry a blade. She prays to the Virgin and leaves the first thread of the spring under the hearth stone.
+A sympathiser, not a leader. Her grievance is the dues that took her father's strip; her reason to stay is pride at being useful. She would carry a message, hide a skein, or pass a name, but she would not carry a blade. She leaves the first thread of spring under the hearth stone.
 
 ## Voice
 - **Registers:** Estonian with family and cell; Low German with guests, plain and sparing.
@@ -82,7 +82,7 @@ A sympathiser, not a leader. Her grievance is the dues that took her father's st
 - **Verbal tic:** Pauses to wet the thread between her lips before answering.
 
 ## Knowledge and rumours
-She knows which women on Nunne are in trouble and which sons are missing, and who carries news to the Harju road. She would trade it for her son's safety. She believes the false rumour that the Vogt keeps a list of every Estonian who attended a certain funeral.
+She knows which sons are missing. She would trade it for her son's safety. She believes the false rumour that the Vogt keeps a list of every Estonian who attended a certain funeral.
 
 ## Game hooks
 - **Ambient role:** Hearth loft in the morning, market in the afternoon, St Olaf at evening.

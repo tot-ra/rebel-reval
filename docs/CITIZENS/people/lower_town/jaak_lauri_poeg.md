@@ -22,7 +22,7 @@
 ## At a glance
 - A heavy-set man with a full ash-blond beard gone grey, calling orders across a yard in a voice that carries to the next lane.
 - Known for a spiced eel in jelly.
-- Oddity: a rich Estonian in a house of German neighbours, who keeps his accounts on hazel tally sticks because he cannot read letters.
+- Oddity: a rich Estonian among German neighbours who keeps accounts on hazel tally sticks.
 
 ## Appearance
 - **Body:** 175 cm, heavy-set, deep through the belly and shoulders, a slow rolling walk from standing at the hearth since boyhood.
@@ -35,9 +35,9 @@
 - **Model notes:** MPFB gender male, age_years 61, muscle average, weight high, proportions broad torso, height_m 1.75; fair rosy skin; blue eyes; ash-grey full beard; crowd tier 1.
 
 ## Biography
-Born about 1282 in a Harju village east of the town, Jaak walked in at twelve behind a salt cart and was taken on as a scullion at the Dominican friary of St Catherine. There he learned fish, pulses and fast-day cookery, and to feed fifty men from one cauldron. He left the friary in 1308, married Lutsia, and rented a lean-to cookshop on Nunne. The famine years after 1315 made him: when others sold their pots he bought them, and when the council wanted a funeral meal done properly he was the only one who still had a copper large enough.
+Born about 1282 in a Harju village east of the town, Jaak walked in at twelve behind a salt cart and was taken on as a scullion at the Dominican friary of St Catherine. There he learned fish, pulses and fast-day cookery, and to feed fifty men from one cauldron. He left the friary in 1308, married Lutsia, and rented a lean-to cookshop on Nunne. The famine years after 1315 made him: when others sold their pots he bought them.
 
-His son Lembit was born when Jaak was forty-six. Jaak bought the whole house on Nunne in 1330 and now keeps clerks, maids, a journeyman and a cook of his own. 
+Jaak bought the whole house on Nunne in 1330 and keeps clerks, maids, a journeyman and a cook. 
 
 ## Motivation
 - **Want:** To see Lembit sit at a German table as an equal, not carry the dishes to it.
@@ -56,7 +56,7 @@ His son Lembit was born when Jaak was forty-six. Jaak bought the whole house on 
 | Night | After curfew bell | Back lane to the strand | Unlisted business. |
 
 - **Sundays and feast days:** Mass at St Olaf, then a cold dinner.
-- **Spring 1343 disruption:** Talk of a grain levy has pushed rye up two örtug a lispfund. Easter feasts are over; he sees the shortages coming and hoards peas.
+- **Spring 1343 disruption:** Talk of a grain levy has pushed rye up two örtug a lispfund. He hoards peas.
 
 ## Work and money
 A good month brings 20 to 25 marks in feasts and standing contracts; rent is nothing, but wages for eight and the toll on every barrel eat most of it. Supplies come from Dietrich Zierenberg's warehouse on credit settled at quarter-days (Marten keeps the book), from the baker Arend Becker, and from the strand. Rein, a furrier on Hobusepea, advanced him 6 marks' worth of grain after the harvest on his outside holding failed; the interest is unspoken and heavy. He owes Berend van Wismar a 5 mark fine's worth of gratitude and has not repaid it. 
@@ -73,7 +73,7 @@ A good month brings 20 to 25 marks in feasts and standing contracts; rent is not
 - **Others:** [Arend Becker](../../ledger/lower_town/nunne.md#hh-lt-osm-w200921868), baker.
 
 ## Faction and belief
-No faction. A smuggler cannot afford sides: the Vogt searches for either. He gives bread to anyone at the door, tithes in kind to St Olaf, and spits left over the threshold at midwinter because his grandmother did. A small favour he will do; a large one he prices; he would inform on no one, because informers get searched too.
+No faction. A smuggler cannot afford sides: the Vogt searches for either. He tithes in kind to St Olaf and spits over the threshold at midwinter, as his grandmother did. A small favour he will do; a large one he prices; he would inform on no one, because informers get searched too.
 
 ## Voice
 - **Registers:** Estonian at home and with the maids; Low German with guests, careful and loud.
@@ -82,11 +82,11 @@ No faction. A smuggler cannot afford sides: the Vogt searches for either. He giv
 - **Verbal tic:** Ends bargains with "and God keep the scale".
 
 ## Knowledge and rumours
-He knows who eats what, which merchants are quietly short of money, and which side of the town sends pepper by night. He would trade silence for the Vogt's men looking elsewhere. He believes the false rumour that the Order has already promised the council its aid.
+He knows which merchants are quietly short of money. He would trade silence for the Vogt's men looking elsewhere. He believes the false rumour that the Order has already promised the council its aid.
 
 ## Game hooks
 - **Ambient role:** Dawn in the yard, morning at the market, evening at the hearth; at night, absent.
-- **Interaction:** Friendly to a smith with coin, wary with questions about his stores; offers Kalev a meat pie on credit.
+- **Interaction:** Friendly to a smith with coin, wary of questions about his stores.
 - **Barks:** Calm: "Mind the fat, it spits!" Tense: "Who asks after my cellar?" Curfew: "Door's barred, come at first light."
 - **Quest touch:** Needs a hook for a copper pot lid that sticks.
 - **St George's Night:** He bars the doors, feeds anyone who sits quietly, and hides his sacks.

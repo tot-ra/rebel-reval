@@ -11,7 +11,7 @@
 | Household | [hh.lt.osm_w28132841](../../ledger/lower_town/kuninga.md#hh-lt-osm-w28132841) |
 | Home | Kuninga, plot `bldg.osm.w28132841` (415 m2) |
 | Age / sex | 43, male |
-| Ethnicity / segment | swedish / burgher_merchant |
+| Ethnicity / segment | swedish / swede_finn_resident |
 | Status | Craft master with a workshop and a yard, burgher by residence |
 | Trade | Wheelwright (Low German *Radmaker*) |
 | Languages | Swedish, Middle Low German |

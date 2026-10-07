@@ -35,7 +35,7 @@
 - **Model notes:** male, age_years 42, muscle 0.5, weight 0.5, proportions average, height_m 1.77; skin olive-fair; eyes blue; hair straw blond/grey, stubble; crowd tier 2.
 
 ## Biography
-Born in 1301 in a Kalarand hut to a net-mender and a woman who salted herring for the Dominican friars. At nine he was carrying water, at fourteen he joined the labour gangs that rebuilt the harbour mole. He married Anna Aino tütar at twenty-three, and they have buried a son who lived two days, between Elsa and Mari. The hard winter of 1341-42 took the roof off the lean-to; he mended it with a barrel stave and borrowed tar, and has not stopped thinking about the next winter since. In the night, five or six winters ago, he and Olev Tanieli poeg carried Olev's feverish small boy to the herb-wife behind the church. Nobody has spoken of it since.
+Born in 1301 in a Kalarand hut to a net-mender and a woman who salted herring for the Dominican friars. At nine he was carrying water, at fourteen he joined the labour gangs that rebuilt the harbour mole. He married Anna Aino tütar at twenty-three, and they have buried a son who lived two days, between Elsa and Mari. The hard winter of 1341-42 took the roof off the lean-to; he mended it with a barrel stave and borrowed tar, and has not stopped thinking about the next winter since. In the night, eight winters ago, he and Olev Tanieli poeg carried Olev's feverish small boy to the herb-wife behind the church. Nobody has spoken of it since.
 
 ## Motivation
 - **Want:** Enough dried fish and rye in the loft by Michaelmas that Anna does not have to ask a neighbour.

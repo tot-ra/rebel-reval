@@ -67,7 +67,7 @@ He ships cloth, wax and furs; about 400 marks pass through his hands each year. 
   - [Meinhard Wise](../../people/lower_town/meinhard_wise.md), merchant: they compete for the same customers; each privately counts the other's apprentices and lamp-oil.
   - [Marquard Grote](../../people/lower_town/marquard_grote.md), clerk: they were at the same funeral and the same whisper, and know it; a cell of two with a third unnamed.
   - [Beke van Lemego](../../people/lower_town/beke_van_lemego.md), Krämer: they sit near each other at church and trade gossip at the door; each is the other's early warning.
-  - [Segebode Snelle](../../people/lower_town/segebode_snelle.md), clerk: Segebode recommended him to a third party; Eler has heard no complaint and does not care to.
+  - [Segebode Snelle](../../people/lower_town/segebode_snelle.md), clerk: Segebode recommended him to a third party and has since heard complaints that rebound on his own name; Eler is the cause, shrugs, and sends the clerk a cask of beer.
   - [Reynold van Verden](../../people/lower_town/reynold_van_verden.md), scholar: the boy did him a small favour at the gate; Eler remembers a lantern, the boy remembers a coin.
   - [Anna Madise tütar](../../people/lower_town/anna_madise_tutar.md), retired craftsman: they survived the same bad winter in the same lane; he sends her a sack of rye each Christmas and says nothing.
 

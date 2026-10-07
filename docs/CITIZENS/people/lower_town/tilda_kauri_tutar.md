@@ -36,7 +36,7 @@
 - **Model notes:** Female, age_years 20, muscle medium, weight medium-heavy, proportions short and broad, height_m 1.53; olive-fair skin; blue eyes; ash-blond hair in bun, covered; crowd tier 2.
 
 ## Biography
-Born 1323 on a farm beside the Kopli road; her father Kauri died of the bloody flux in 1336 and the landlord took the best cow. At fourteen she came to town with a cousin and was taken by Elin as a maid for her board and 4 schillings a year. She learned Low German at the market and Swedish words from Elin. She sleeps on a bench by the kitchen hearth, and thinks of the family as hers more than the farm.
+Born 1323 on a farm beside the Kopli road; her father, a Kauri of another stock, died of the bloody flux in 1336 and the landlord took the best cow. At fourteen she came to town with a cousin and was taken by Elin as a maid for her board and 4 schillings a year. She learned Low German at the market and Swedish words from Elin. She sleeps on a bench by the kitchen hearth, and thinks of the family as hers more than the farm.
 
 ## Motivation
 - **Want:** A cow of her own and a husband who owns a plot, or at least a roof.

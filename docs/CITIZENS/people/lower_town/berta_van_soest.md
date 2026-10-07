@@ -36,7 +36,7 @@
 - **Model notes:** MPFB macros: female, age_years 37, muscle mid, weight stocky, proportions broad, height_m 1.49; sallow skin; brown eyes; blond veiled hair; crowd tier 2.
 
 ## Biography
-Born in Soest, Westphalia, to a salt merchant, she came to Reval at twenty to marry Eler Lippe. She learned the shop from his mother. At twenty-six she hid a stolen dowry chest and told the chaplain Ropert van Kolne in confession; he refused absolution until she returned it. She did, at a cost of six marks and a quarter's shame. She has respected and resented him ever since.
+Born in Soest, Westphalia, to a salt merchant, she came to Reval at nineteen to marry Eler Lippe. She learned the shop from his mother. At twenty-six she hid a stolen dowry chest and told the chaplain Ropert van Kolne in confession; he refused absolution until she returned it. She did, at a cost of six marks and a quarter's shame. She has respected and resented him ever since.
 
 ## Motivation
 - **Want:** Every child fed, schooled and married into a safe house.

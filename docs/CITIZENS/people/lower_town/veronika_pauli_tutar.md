@@ -35,7 +35,7 @@
 - **Model notes:** MPFB gender female, age_years 65, muscle 0.3, weight 0.3, proportions lean, height_m 1.59; sun-browned skin; grey eyes; grey braided hair; crowd tier 2.
 
 ## Biography
-Born 1278 by the kilns where her father Paul burned lime; named Pauli tütar for him, and her son Paul after him. She married Ants and carried lime beside him. In the war years of 1313 to 1325 she twisted rope for the ships at the harbour and heard the Danish fleet's talk. Ants died years ago; she kept the rope-walk until her hands closed. Now she minds the children and the fire.
+Born 1278 by the kilns where her father Paul burned lime; named Pauli tütar for him, and her son Paul after him. She married Ants and carried lime beside him. In the war years of 1313 to 1325 she twisted rope for the ships at the harbour and heard every rumour the ship crews carried. Ants is long gone from the story; she kept the rope-walk until her hands closed. Now she minds the children and the fire.
 
 ## Motivation
 - **Want:** To see Kaspar apprenticed and Paul out of debt.

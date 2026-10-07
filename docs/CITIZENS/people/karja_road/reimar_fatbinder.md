@@ -57,7 +57,7 @@ Born in 1290 at Lübeck, apprenticed at twelve to a cooper on the Trave, Reimar 
 - **Spring 1343 disruption:** More casks wanted, nervous merchants, a rumour of a salt shortage.
 
 ## Work and money
-A herring barrel earns about three pfennigs, a keg for a brewer five; a good week is two schillings. Oak comes from Vitae-quarry carts and the beach scrap-heap; hoops are birch and willow. He owes a smith eight örtug for a drawknife and is owed four öre by a quay dealer. A bad month is a wet season that warps staves.
+A herring barrel earns about three pfennigs, a keg for a brewer five; a good week is two schillings. Oak comes off the Harju timber carts and the beach scrap-heap; hoops are birch and willow. He owes a smith eight örtug for a drawknife and is owed four öre by a quay dealer. A bad month is a wet season that warps staves.
 
 ## Relationships
 - **Household:** [Telseke Blyde](../../people/karja_road/telseke_blyde.md), wife, 47, who keeps the books in her head; [Rembert Fatbinder](../../people/karja_road/rembert_fatbinder.md), son, 11, his apprentice; [Gerlach Fatbinder](../../people/karja_road/gerlach_fatbinder.md), son, 9, who sweeps shavings; Cord Fatbinder, son, 4, the [ledger entry](../../ledger/karja_road/karja_road.md#hh-ka-karja-10) he carries on his shoulders.
