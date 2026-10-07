@@ -42,6 +42,11 @@ const CANONICAL_ANIMATIONS: Dictionary = {
 	&"sit_idle": &"Sit_Chair_Idle",
 	&"sit_up": &"Sit_Chair_StandUp",
 }
+## The retargeted Death_A clip ends with the hips ~0.75 m up: the body is
+## horizontal but hovers over the ground. _process sinks $Model so the torso rests
+## on the floor (body half-thickness) once the fall completes.
+const FALL_LIE_HEIGHT := 0.14
+const FALL_CENTERLINE_BONES: Array[StringName] = [&"hips", &"spine", &"chest", &"head"]
 const LOOPING_ANIMATIONS: Array[StringName] = [
 	&"idle",
 	&"walk",
@@ -181,6 +186,8 @@ var _wardrobe := CharacterWardrobe.new()
 var _extra_visual_layers := 0
 var _occlusion_ghost := false
 var _distance_lods_installed := false
+var _fall_bone_indices: Array[int] = []
+var _fall_offset_applied := false
 
 func _ready() -> void:
 	# Apply the authored anisotropic normalization in code because inherited
@@ -252,6 +259,44 @@ static func enable_authored_vertex_color_albedo(root: Node) -> void:
 			material = material.duplicate() as BaseMaterial3D
 			material.vertex_color_use_as_albedo = true
 			mesh_instance.set_surface_override_material(surface, material)
+
+
+func _process(_delta: float) -> void:
+	_sync_fall_ground_offset()
+
+
+## Lowers the model by the gap between the centerline bones and the floor, scaled by
+## fall progress so the body settles with the animation instead of snapping.
+func _sync_fall_ground_offset() -> void:
+	var model := get_node_or_null("Model") as Node3D
+	if model == null:
+		return
+	if _current_canonical_animation != &"fall" or _skeleton == null:
+		# Only undo our own offset; the swimmer presenter also moves $Model.
+		if _fall_offset_applied:
+			model.position.y = 0.0
+			_fall_offset_applied = false
+		return
+	if _fall_bone_indices.is_empty():
+		for bone_name in FALL_CENTERLINE_BONES:
+			var index := _skeleton.find_bone(bone_name)
+			if index >= 0:
+				_fall_bone_indices.append(index)
+	var lowest := INF
+	var rig_from_world := global_transform.affine_inverse()
+	for index in _fall_bone_indices:
+		var bone_pose := _skeleton.get_bone_global_pose(index)
+		var pose_y := (rig_from_world * _skeleton.global_transform * bone_pose).origin.y
+		# Rig space also contains the offset applied last frame, so remove it.
+		lowest = minf(lowest, pose_y - model.position.y)
+	if lowest == INF:
+		return
+	var length := _animation_player.current_animation_length
+	var progress := 1.0
+	if length > 0.0:
+		progress = clampf(_animation_player.current_animation_position / length, 0.0, 1.0)
+	_fall_offset_applied = true
+	model.position.y = -maxf(lowest - FALL_LIE_HEIGHT, 0.0) * smoothstep(0.0, 1.0, progress)
 
 
 func _exit_tree() -> void:

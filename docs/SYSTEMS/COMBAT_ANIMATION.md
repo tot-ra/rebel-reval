@@ -151,3 +151,7 @@ godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_ham
 - No root motion: travel is scripted in logic space (lunge, roll), the clip plays in place.
 - The heavy strike has no separate charge-up pose while the button is held (0.35 s before it fires).
 - Directional attacks (stick direction picks a different swing) and enemy move sets are not implemented.
+
+## Fall pose grounding
+
+The retargeted `Death_A` clip (canonical `fall`) ends with the hips about 0.75 m above the floor. `SharedCharacterRig._sync_fall_ground_offset` lowers `$Model` while `fall` plays so the torso rests at `FALL_LIE_HEIGHT`, scaled by clip progress, and restores the offset when another clip starts. Covered by `tests/godot/test_shared_rig_fall_ground.gd`.
