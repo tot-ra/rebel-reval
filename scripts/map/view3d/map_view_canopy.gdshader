@@ -95,6 +95,12 @@ void fragment() {
 	// Sample outside any branch so mip selection keeps valid derivatives.
 	vec4 cluster = mix(vec4(0.5, 0.5, 0.5, 1.0), texture(leaf_atlas, card_uv), card);
 	cluster.rgb *= mix(1.0, card_gain, card);
+	// Cluster brightness doubles as self-shadow: needles and leaf gaps deepen so
+	// the card reads as clumped sprigs instead of a uniformly lit plate.
+	float clump = clamp(dot(cluster.rgb, vec3(0.333)) * 2.0, 0.0, 1.5);
+	cluster.rgb *= mix(1.0, mix(0.75, 1.45, smoothstep(0.2, 1.0, clump)), card);
+	// Base of a sprig sits deep in the foliage, the tip catches the light.
+	float tip_light = mix(1.0, mix(0.78, 1.18, smoothstep(0.0, 0.85, UV.y)), card);
 	// Folded leaves draw procedural midrib and veins; cards already carry them.
 	float folded = leaf_tag * (1.0 - card);
 	float shade = mix(mix(1.05, shade_bottom, clamp(UV.y, 0.0, 1.0)),
@@ -112,7 +118,7 @@ void fragment() {
 	// Winter conifers: duller, slightly bluer needles.
 	albedo = mix(albedo, albedo * vec3(0.78, 0.82, 0.86), winter_dull * 0.6);
 	float occlusion = mix(1.0, COLOR.a, leaf_tag);
-	albedo *= shade * occlusion * (1.0 + folded * (midrib * 0.14 + veins * 0.045));
+	albedo *= shade * tip_light * occlusion * (1.0 + folded * (midrib * 0.14 + veins * 0.045));
 	albedo *= mix(1.0, 0.70, wetness);
 	ALBEDO = albedo;
 	// Thin leaves transmit light; autumn leaves glow more strongly against the sun.
@@ -124,6 +130,12 @@ void fragment() {
 	// flip so both sides of a card light as the same leafy volume.
 	if (card > 0.5 && !FRONT_FACING) {
 		NORMAL = -NORMAL;
+	}
+	// Perturb the card normal from the cluster pattern so each needle clump
+	// catches light at its own angle, breaking up the flat-plate specular/diffuse.
+	if (card > 0.5) {
+		// NORMAL is in view space, so screen-space gradients map directly onto x/y.
+		NORMAL = normalize(NORMAL - vec3(dFdx(clump), dFdy(clump), 0.0) * 1.6);
 	}
 	// Alpha scissor keeps cards in the opaque pass: no sorting, and shadows and
 	// the depth-composited underwater pass still see the cut-out.

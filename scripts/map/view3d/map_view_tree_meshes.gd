@@ -32,6 +32,8 @@ const CONIFER_NORMAL_OUTWARD := 0.85
 ## Conifers keep only a couple of folded needle shoots per spray (28 triangles
 ## each) as close-up detail; dense whorl cards replace the rest.
 const CONIFER_FOLDED_SHOOTS := 2
+## Needle fans bow downward by this fraction of their length, like hanging spruce shoots.
+const CONIFER_CARD_DROOP := 0.22
 
 static var _geometry_cache: Dictionary = {}
 
@@ -312,7 +314,8 @@ static func _emit_card(
 		color,
 		_hash(index, seed, 521),
 		_hash(index, seed, 523) > 0.5,
-		CONIFER_NORMAL_OUTWARD if conifer else 0.55
+		CONIFER_NORMAL_OUTWARD if conifer else 0.55,
+		CONIFER_CARD_DROOP if conifer else 0.0
 	)
 
 

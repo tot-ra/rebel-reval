@@ -214,5 +214,6 @@ Code review of commit `3078c157`: no blocking issues found.
 ## Conifer volume and atlas fringe fix
 
 - Conifer cards are smaller (`CONIFER_CARD_SCALE` 2.0, trunk fans x0.62), three per tip, and branch whorls use three fans rolled around the branch axis so needles read as volume from every side.
+- Conifer realism pass: needle cards are 3-segment strips that bow downward (`CONIFER_CARD_DROOP` 0.22) with smooth, width-rounded vertex normals (`append_card` `droop`), and `map_view_canopy.gdshader` darkens gaps from the atlas (`clump`), shades sprig bases (`tip_light`) and perturbs card normals from the cluster pattern so needles stop lighting as flat plates. Conifer `card_gain` 0.84.
 - Conifer card normals follow the crown shell (`CONIFER_NORMAL_OUTWARD`, no upward bias) and use `card_gain` 0.66, which stops sun wash-out.
 - `tools/assets/defringe_atlas.py` removes pale outlines from `leaf_card_atlas.png` (4x2) and `grass_blades_atlas.png` (2x2): alpha eroded, edge colour repainted from solid leaf colour.

@@ -51,7 +51,8 @@ static func append_card(
 	color: Color,
 	card_seed: float,
 	mirrored: bool,
-	outward_weight: float = 0.55
+	outward_weight: float = 0.55,
+	droop: float = 0.0
 ) -> void:
 	axis = axis.normalized()
 	var side := facing.cross(axis)
@@ -62,39 +63,56 @@ static func append_card(
 	if plane.dot(facing) < 0.0:
 		plane = -plane
 	var fold := plane * (-size.x * 0.16)
-	var tip := axis * size.y
 	var custom := Color(base.x, base.y, base.z, card_seed)
+	var out_dir := outward.normalized() if outward.length_squared() > 0.0001 else plane
+	# Each half is a strip of segments along the card axis. A flat two-facet card
+	# lit as one plane reads as a plate; here the strip bows downward (droop, as
+	# spruce shoots hang) and every vertex carries a smoothly varying normal that
+	# is rounded across the width, so light rolls over the cluster like a volume.
+	var segments := 3 if droop > 0.0 else 1
 	for half: float in [-1.0, 1.0]:
-		var edge := side * (half * size.x * 0.5) + fold
-		var points: Array[Vector3] = [base, base + edge, base + edge + tip, base + tip]
 		var u_edge := 0.5 + half * 0.5
 		if mirrored:
 			u_edge = 1.0 - u_edge
-		var uvs: Array[Vector2] = [
-			Vector2(0.5, 0.0), Vector2(u_edge, 0.0), Vector2(u_edge, 1.0), Vector2(0.5, 1.0)
-		]
-		var facet := (edge.cross(tip) * half).normalized()
-		if facet.dot(plane) < 0.0:
-			facet = -facet
-		var normal := facet.lerp(outward.normalized(), outward_weight).normalized()
-		if normal.length_squared() < 0.5:
-			normal = facet
-		for triangle: Array in [[0, 1, 2], [0, 2, 3]]:
-			var a := points[triangle[0]]
-			var b := points[triangle[1]]
-			var c := points[triangle[2]]
-			var order: Array = triangle
-			# Godot fronts are clockwise: keep the winding consistent with the
-			# leaning normal so back-face lighting fix-ups stay predictable.
-			if (c - a).cross(b - a).dot(normal) < 0.0:
-				order = [triangle[0], triangle[2], triangle[1]]
-			for index: int in order:
-				surface.set_normal(normal)
-				surface.set_color(color)
-				surface.set_uv(uvs[index])
-				surface.set_uv2(Vector2(1, 1))
-				surface.set_custom(0, custom)
-				surface.add_vertex(points[index])
+		# Two columns (spine, edge) x (segments + 1) rows.
+		var positions: Array[Vector3] = []
+		var normals: Array[Vector3] = []
+		var uvs: Array[Vector2] = []
+		for row in segments + 1:
+			var t := float(row) / float(segments)
+			var sag := Vector3.DOWN * (droop * size.y * t * t)
+			var slope := axis * size.y + Vector3.DOWN * (2.0 * droop * size.y * t)
+			var local_plane := slope.cross(side).normalized()
+			if local_plane.dot(plane) < 0.0:
+				local_plane = -local_plane
+			var spine_n := local_plane.lerp(out_dir, outward_weight).normalized()
+			# Edge normal tilts away from the spine: a rounded cross-section.
+			var edge_n := (spine_n + side * half * 0.55).normalized()
+			var row_origin := base + axis * size.y * t + sag
+			positions.append(row_origin)
+			normals.append(spine_n)
+			uvs.append(Vector2(0.5, t))
+			positions.append(row_origin + side * (half * size.x * 0.5) + fold)
+			normals.append(edge_n)
+			uvs.append(Vector2(u_edge, t))
+		for row in segments:
+			var i0 := row * 2
+			var quad := [i0, i0 + 1, i0 + 3, i0 + 2]
+			for triangle: Array in [[0, 1, 2], [0, 2, 3]]:
+				var order: Array = [quad[triangle[0]], quad[triangle[1]], quad[triangle[2]]]
+				var a := positions[order[0]]
+				var b := positions[order[1]]
+				var c := positions[order[2]]
+				# Godot fronts are clockwise: wind against the spine normal.
+				if (c - a).cross(b - a).dot(normals[i0]) < 0.0:
+					order = [order[0], order[2], order[1]]
+				for index: int in order:
+					surface.set_normal(normals[index])
+					surface.set_color(color)
+					surface.set_uv(uvs[index])
+					surface.set_uv2(Vector2(1, 1))
+					surface.set_custom(0, custom)
+					surface.add_vertex(positions[index])
 
 
 ## Small opaque folded leaves: no textures or per-leaf nodes. Since R-1194 they
