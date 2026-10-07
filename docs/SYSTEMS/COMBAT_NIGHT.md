@@ -5,6 +5,8 @@
 **Inputs reconciled:** [`character/COMBAT.md`](../../character/COMBAT.md), [`docs/GAMEPLAY-NIGHT.md`](../GAMEPLAY-NIGHT.md), [`docs/SYSTEMS/MAGIC.md`](./MAGIC.md), [`docs/SYSTEMS/NATURAL.md`](./NATURAL.md), [`docs/SYSTEMS/PSYCHE.md`](./PSYCHE.md), and [`docs/reports/p5_001_act2_design.md`](../reports/p5_001_act2_design.md)
 **Runtime ownership:** combat remains act-gated after the slice foundations; night mission packages are owned by **P5-004** and the dependent Act 2 rows.
 
+> **Superseded in part by [ADR 0033](../adr/0033-teen-protagonist-and-spirit-dialogue-combat.md):** the standalone physical night-mission templates (sabotage, theft, escort, defense) and their P5-004 packages are retired; their roles move into spirit-world duels ([`SPIRIT_DIALOGUE.md`](./SPIRIT_DIALOGUE.md)). Night-consequence state used by the slice quests stays. Hammer combat remains as the hybrid physical option with guilt. The sections below are the legacy design record until a task rewrites them.
+
 This document is the reconciled design authority for the legacy combat and night-gameplay seeds. It keeps the useful player-facing verbs while rejecting the superseded tower-capture strategy loop, broad weapon-family progression, party control, and a universal balance meter.
 
 ---

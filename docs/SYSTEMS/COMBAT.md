@@ -48,6 +48,8 @@ Status: foundation implemented (tasks **P1-024..P1-027**, **P2-009**, **P5-008**
 
 ## Towers and bosses
 
+**Frozen by [ADR 0033](../adr/0033-teen-protagonist-and-spirit-dialogue-combat.md):** no new tower or boss work. The code below is kept because the three tower interior maps and their tests validate against `EnterableTowerContract`; whether to delete it is decided at the SD-16 review.
+
 `EnterableTowerContract` and `CompletedTowerPackages` (`scripts/tower/`) define the four completed 1343 tower packages ([`reval_fortifications_1343.md`](../reports/reval_fortifications_1343.md)). Each tower boss has an encounter adapter and a durable state model (door, outcome, rewards, retry markers survive re-entry and save/load):
 
 | Tower | Encounter | State model | Interior scene | Alternate (non-lethal) branch |

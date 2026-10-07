@@ -30,7 +30,7 @@ The maintainer proposes a unifying frame: the protagonist is a 15-year-old orpha
 **Removed or deferred as the offset:**
 
 - standalone physical **night-mission templates** (sabotage, theft, escort, defense) as a separate mode, including the unbuilt P5 night-mission packages; slice night-consequence state stays;
-- **tower capture and boss interiors** (`scripts/tower/`): unmounted code is to be deleted by a cleanup task;
+- **tower capture and new boss work**: frozen. The existing tower boss packages (`scripts/tower/`, three interior maps and their encounters) are kept because maps and tests depend on them; deletion is decided at the SD-16 review;
 - **magic in the physical world** (number-key casting outside the arena, `map_view_magic_vfx` world effects, "hammer as world conduit"); delivery nodes are reused in the spirit arena;
 - **broad physical enemy rosters** (`watchman`, `sergeant`, `knight_order`, `crossbowman`, `bandit`): cut to the few physical-only encounters;
 - **adult-smith combat animation** as the player move set ([`COMBAT_ANIMATION.md`](../SYSTEMS/COMBAT_ANIMATION.md)): replaced by teen moves; the shared 76-clip rig is kept.
