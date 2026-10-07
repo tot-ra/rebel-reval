@@ -40,13 +40,20 @@ uniform float use_authored_sand = 0.0;
 uniform float use_authored_coast_sand = 0.0;
 uniform float use_authored_shingle = 0.0;
 uniform sampler2D timber_floor_albedo : source_color, filter_linear_mipmap, repeat_enable;
+// Native 512 px flagstone plate for the stone layer: the shared 128 px array
+// copy rendered stone aprons as a dark blur (R-1202).
+uniform sampler2D stone_albedo : source_color, filter_linear_mipmap, repeat_enable;
 uniform sampler2D hay_albedo : source_color, filter_linear_mipmap, repeat_enable;
 uniform float use_authored_mud = 0.0;
 uniform float use_authored_hay = 0.0;
+uniform float use_authored_stone = 0.0;
 uniform float pattern_layers = 1.0;
 uniform int cobblestone_layer = 12;
 uniform int castle_paving_layer = 13;
 uniform int timber_floor_layer = 15;
+uniform int stone_layer = 14;
+// Measured repeat of the flagstone plate: one tile per shared 4.0-unit terrain repeat.
+uniform float stone_uv_scale = 1.0;
 uniform int mud_layer = 8;
 // Roads and yards (farm soil, dirt) reuse the authored mud plate: the 128 px
 // procedural earth read as a blurry blue-grey wave with plastic gloss.
@@ -92,6 +99,8 @@ varying vec3 vertex_albedo;
 varying vec4 ground_weights;
 // x hay/straw, y timber floor, z cobble/castle paving, w procedural remainder.
 varying vec4 family_weights;
+// Weight of the authored flagstone plate, sampled per fragment.
+varying float vertex_stone_weight;
 varying vec3 vertex_tint;
 varying float vertex_cobble_weight;
 varying float vertex_castle_weight;
@@ -251,6 +260,10 @@ vec3 sample_authored_timber_floor(vec2 base_uv) {
 	vec2 timber_uv = base_uv * timber_floor_uv_scale;
 	vec2 warped = natural_warp(timber_uv);
 	return texture(timber_floor_albedo, fract(mix(timber_uv, warped, 0.18))).rgb;
+}
+
+vec3 sample_authored_stone(vec2 base_uv) {
+	return texture(stone_albedo, base_uv * stone_uv_scale).rgb;
 }
 
 vec3 sample_authored_hay(vec2 base_uv) {
@@ -466,7 +479,7 @@ FieldStone compute_fieldstone(vec2 world_xz, float footprint) {
 
 // Adds one corner layer to the per-family weights. Procedural layers are
 // resolved here, weighted, into vertex_albedo.
-void accumulate_layer(int layer, float weight, vec2 uv, vec3 tint, inout vec4 ground, inout vec4 family, inout vec3 remainder) {
+void accumulate_layer(int layer, float weight, vec2 uv, vec3 tint, inout vec4 ground, inout vec4 family, inout float stone, inout vec3 remainder) {
 	if (layer >= 0 && layer <= 3) {
 		ground.x += weight;
 	} else if ((layer == mud_layer || layer == dirt_layer || layer == earth_layer_min) && use_authored_mud > 0.5) {
@@ -481,6 +494,8 @@ void accumulate_layer(int layer, float weight, vec2 uv, vec3 tint, inout vec4 gr
 		family.y += weight;
 	} else if (cobble_layer_weight(layer) > 0.5) {
 		family.z += weight;
+	} else if (layer == stone_layer && use_authored_stone > 0.5) {
+		stone += weight;
 	} else {
 		family.w += weight;
 		remainder += terrain_pattern_albedo(layer, uv, tint) * weight;
@@ -497,8 +512,10 @@ void vertex() {
 	vec4 ground = vec4(0.0);
 	vec4 family = vec4(0.0);
 	vec3 remainder = vec3(0.0);
-	accumulate_layer(layers.x, 1.0 - raw_blend, UV, tint, ground, family, remainder);
-	accumulate_layer(layers.y, raw_blend, UV, tint, ground, family, remainder);
+	float stone_w = 0.0;
+	accumulate_layer(layers.x, 1.0 - raw_blend, UV, tint, ground, family, stone_w, remainder);
+	accumulate_layer(layers.y, raw_blend, UV, tint, ground, family, stone_w, remainder);
+	vertex_stone_weight = stone_w;
 	ground_weights = ground;
 	family_weights = family;
 	vertex_albedo = remainder;
@@ -567,6 +584,11 @@ void fragment() {
 	}
 	if (family_weights.y > 0.001) {
 		albedo += sample_authored_timber_floor(UV) * realistic_tint * family_weights.y;
+	}
+	if (vertex_stone_weight > 0.001) {
+		// Tinted by the palette entry like the old array path: the raw interior
+		// flagstone plate is far brighter than the paving and earth it borders.
+		albedo += sample_authored_stone(UV) * tint * vertex_stone_weight;
 	}
 	// Street cobbles use the fieldstone Voronoi; castle paving keeps the lattice.
 	float castle_weight = min(vertex_castle_weight, family_weights.z);

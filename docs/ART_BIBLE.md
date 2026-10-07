@@ -69,7 +69,9 @@ the shader (`mud_wetness`, WS-08 swash), not the plate.
     the standard `stone` material (neighbor previews), was at the shared 4.0
     units (~50 cm courses); now 1.6 units (`TERRAIN_STONE_UV_SCALE` 2.5).
   - Unchanged, measured right: the blended `stone` layer's `smithy_floor`
-    plate (~6.5 flags of 25-70 cm, ~3 m) at 4.0 units; `timber_floor` (4
+    plate (~6.5 flags of 25-70 cm, ~3 m) at 4.0 units, now sampled per fragment
+    at native 512 px by the `stone_albedo` sampler (R-1202; the 128 px array copy
+    rendered aprons as a dark blur); `timber_floor` (4
     boards) at 1.33 units, ~29 cm boards; castle paving's cobble lattice (20 x
     28 stones per 4 units, ~17 x 12 cm) and the street fieldstone Voronoi
     (`cobble_cell_size` 0.2, ~17 cm). The authored `pbr/cobble` plate is not
