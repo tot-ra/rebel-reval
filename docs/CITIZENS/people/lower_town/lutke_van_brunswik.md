@@ -36,7 +36,7 @@
 - **Model notes:** MPFB male, age_years 40, muscle average-high, weight medium-high, proportions sturdy, height_m 1.72; freckled skin; brown eyes; dark brown hair, forked beard; crowd tier 1.
 
 ## Biography
-Lutke was born in 1303 in Brunswick, the son of a spice dealer who died in 1322 and left debts. He sailed as supercargo on Lübeck cogs, carried furs from Novgorod and settled in Reval in 1331. A bad cargo of wax in 1337 left him owing, and he moved to the narrow Saiakang house, where his aunt keeps the household. He still stands in the Kindergilde yard and talks of ships, but has not owned a share since 1337. He pays his pledges with Saturday labour at his creditor's warehouse.
+Lutke was born in 1303 in the narrow Saiakang house, the son of a Brunswick spice dealer who settled there, died in 1322 and left debts. Lutke sailed as supercargo on Lübeck cogs and carried furs from Novgorod, then came home in 1331 to the house and the yard his father had fenced. A bad cargo of wax in 1337 left him owing, and his aunt took over the keeping of the household. He still stands in the Kindergilde yard and talks of ships, but has not owned a share since 1337. He pays his pledges with Saturday labour at his creditor's warehouse.
 
 ## Motivation
 - **Want:** To regain his scales and a share in a cog before he is fifty.

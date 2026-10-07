@@ -6,7 +6,7 @@ Status: implemented as content (task **R-CITIZENS-001**). Confidence: `plausible
 
 The launch table gives the Cloaks one want: liberation from inside the walls, carried by smiths, artisans and the underclass. Their shadow is that terror is a tool that does not stay aimed. In street terms, the want is small and old. Nobody on Müürivahe talks of kings; they talk of the toll booth that broke a mother's leg, the pillory flogging over a disputed measure, the levy on a father's strips, the gate shut at the wrong hour. The Cloaks are the people who have decided that those things add up.
 
-What they cost is shown in the way they recruit. A loaf, a borrowed shawl, a half sack of peas, three marks of seed-silver: every favour is a hook, and the people hooked resent it. A faction that runs on small kindnesses becomes a ledger of debts, and a debt-ledger will one day ask for a large favour. For ordinary people the Cloaks are warmth and risk together. A neighbour who hides your son from the Vogt's men may also be the reason the watch searches your street. Kalev's customers on both sides know this, and it colours how they speak to him.
+What they cost shows in how they recruit. A loaf, a borrowed shawl, a half sack of peas, three marks of seed-silver: every favour is a hook, and the people hooked resent it. A faction that runs on small kindnesses becomes a ledger of debts that will one day ask for a large favour. For ordinary people the Cloaks are warmth and risk together: the neighbour who hides your son from the Vogt's men may be the reason the watch searches your street.
 
 ## Why people join
 
@@ -24,9 +24,9 @@ The shared root is humiliation by a rule nobody in the street wrote: a levy, a t
 - **Grievance without oath.** [Joosep Mihkli poeg](../people/lower_town/joosep_mihkli_poeg.md), 23, resents the bailiff and the closed gates; he does a small favour at once and thinks overnight about a large one.
 - **A beating.** [Lembit Siimu poeg](../people/karja_road/lembit_siimu_poeg.md), 37, was struck by the Danish guard for a short load and now says yes to nothing and no to nobody.
 - **The leg and the booth.** [Gertrud Joosepi tütar](../people/lower_town/gertrud_joosepi_tutar.md), 60, a washerwoman on Hobusepea, sympathises because of the same toll booth, and would warn rather than inform on anyone.
-- **Ambition and youth.** [Hindrek Gerdti poeg](../people/lower_town/hindrek_gerdti_poeg.md), 21, a merchant's clerk on Viru, is among the few "active" members: he reads the ledgers the rest cannot.
+- **Ambition and youth.** [Hindrek Gerdti poeg](../people/lower_town/hindrek_gerdti_poeg.md), 21, a merchant's clerk on Viru, is among the few "active" members.
 
-Almost no one joins for the cause as a slogan, and almost none would denounce a comrade. Across the sampled cards the red line is the same: a small favour yes, a large one if the children are safe, informing never.
+Across the sampled cards the red line is the same: a small favour yes, a large one if the children are safe, informing never.
 
 ## Who belongs
 
@@ -38,15 +38,15 @@ The census holds **131 residents, 3.1 percent of 4,247**. That is a thin layer f
 
 **Roles.** The 7 core and 8 active members are the whole spine: 15 people. Beneath them stand 19 secret cell members and 12 couriers, 59 sympathisers (45 of them secret), 19 informers, and 7 coerced or dependent people. "Informer" here means someone who feeds news to the Cloaks (carters' gossip, a master's guests), not someone who betrays them.
 
-**Trades.** Maid 23, spinner 16, household servant 14, cook 10, retired craftsman 7, ostler 6, merchant's clerk 6, sailor 5, apprentice 4, with a few day labourers, dock porters, brewers, shoemakers and gate-farmers. Smiths are thin in the census sample, yet the launch table names smiths; the forge work is concentrated in the promoted cast ([Martin of the Cloaks](../../CHARACTERS/martin_black_cloaks.md), [Old Toomas](../../CHARACTERS/old_toomas.md)) and in households not yet carded.
+**Trades.** Maid 23, spinner 16, household servant 14, cook 10, retired craftsman 7, ostler 6, clerk 6, sailor 5. Smiths are absent from the census sample though the launch table names them; the forge side lives in the promoted cast ([Martin of the Cloaks](../../CHARACTERS/martin_black_cloaks.md), [Old Toomas](../../CHARACTERS/old_toomas.md)).
 
-**Gameplay meaning.** A balanced mix means Kalev meets the Cloaks mostly as neighbours, not soldiers. About one resident in thirty-three leans their way, but only about one in three hundred is an organiser. A player who thinks "the rebels are the blacksmith's friends" will learn that the rebellion is also a spinner's lane and a maid's back stair. Reputation should therefore ripple through ordinary talk rather than gate a handful of quest-givers.
+**Gameplay meaning.** A balanced mix means Kalev meets the Cloaks mostly as neighbours, not soldiers. About one resident in thirty-three leans their way, but only about one in three hundred is an organiser. Reputation should therefore ripple through ordinary talk, not gate a handful of quest-givers: the rebellion is also a spinner's lane and a maid's back stair.
 
 ## Where they are
 
 Lower Town holds 114 of the 131; the rest sit outside it: Fishing beach (Kalarand) 5, Cattle-road farmsteads 5, Harju-road houses 4, the Viru road 2, and one on Toompea. The streets with most members are Müürivahe (10) and Katariina käik (10), then Sauna (8), Pühavaimu (7), Lai, Hobusepea, Pikk (5 each), the Western coast road (5), the Coastal Gate quay (5) and Harju road (4). See the ledger pages for [Müürivahe](../ledger/lower_town/muurivahe.md), [Katariina käik](../ledger/lower_town/katariina_kaik.md), [Sauna](../ledger/lower_town/sauna.md), [Lai](../ledger/lower_town/lai.md), [Hobusepea](../ledger/lower_town/hobusepea.md) and [the Coastal Gate quay](../ledger/lower_town/coastal_gate_quay.md).
 
-**Meeting places.** [Tõnis's cellar on Börsi käik](../ledger/lower_town/borsi_kaik.md) is the main room. The shed on Harju road (Joosep's, rented from a carter) is the rural end. St Olaf's porch after Mass is the quietest meeting place of all: brief words, nothing repeatable. The laundry and well lanes (Hobusepea, Rataskaevu) carry women's talk; the Coastal Gate quay and stables carry sailors' and ostlers' news.
+**Meeting places.** [Tõnis's cellar on Börsi käik](../ledger/lower_town/borsi_kaik.md) is the main room. The shed on Harju road (Joosep's, rented from a carter) is the rural end. St Olaf's porch after Mass is the quietest meeting place of all: brief words, nothing repeatable. Laundry lanes (Hobusepea) carry women's talk; the Coastal Gate quay and stables carry sailors' and ostlers' news.
 
 **Routes.** A message goes from the great houses of Lai and Pikk (maids) to the spinners' yards on Müürivahe, then to the Cattle-road and Harju road suburbs, and out through the Smiths' Gate carts. A second line runs along the Western coast road to the fishing beach.
 
@@ -56,7 +56,7 @@ The Cloaks are cells of two or three with a link person above, not a ranked orde
 
 **Signs.** Knotted cords or skeins carry messages (Ell, Gertrud Marteni, Wendla, Magdalena); a thread on a window latch means a safe night; a spindle whorl left on a wall means news waiting (Villem to Ursula). A Cloaks mark stamped inside a tool head is the smith's sign.
 
-**Because the couriers cannot read,** nothing is written. [Wendla](../people/lower_town/wendla_jakobi_tutar.md) carries knots she cannot decode; Joosep has told the circle he cannot read. That is the circle's best protection and its worst weakness: a message can be lost, mixed up or misread.
+**Because the couriers cannot read,** nothing is written. [Wendla](../people/lower_town/wendla_jakobi_tutar.md) carries knots she cannot decode; Joosep has told the circle he cannot read. That protects the circle but lets a message be lost or misread.
 
 **Money.** The cell's silver and tallies are kept in Tõnis's cellar. Small sums move as favours in kind (peas, bread, a lent spade); large sums are debts held against members.
 
@@ -64,9 +64,9 @@ The Cloaks are cells of two or three with a link person above, not a ranked orde
 
 ## Resources and economy
 
-The Cloaks are poor. They have no treasury, only many small hands: a corner in a cooper's shed, a shared iron-shod spade, a stable stall, a cookshop's spare loaf. Wages are low and weekly: a spinner earns perhaps two schillings, a maid a mark a year with board. Silver comes from the one or two solvent members. Tõnis is owed 45 marks by a merchant and is himself a lender, so he is the closest thing to a banker.
+The Cloaks are poor: no treasury, only many small hands (a corner in a cooper's shed, a shared iron-shod spade, a stable stall, a cookshop's spare loaf). A spinner earns perhaps two schillings a week, a maid a mark a year with board. Tõnis is owed 45 marks by a merchant and lends silver himself, so he is the nearest thing to a banker.
 
-**Arms.** Iron comes from rejected or surplus forging, files and nails from back forges, and knives from kitchens. Food moves through cookshops and household servants. Favours are the main currency: shelter for an escaped serf in a lane, a gate left unbarred, a carter who "forgets" to count a sack.
+**Arms.** Iron comes from rejected or surplus forging, files and nails from back forges, knives from kitchens. Food moves through cookshops and servants. Favours are the main currency: a bed for an escaped serf, a gate left unbarred, a carter who "forgets" to count a sack.
 
 **What they take from the city.** Information from German great houses, shelter in Estonian lanes, and silence from everyone. **What they need.** A winter without hunger. Spring scarcity after Lent is their best recruiter and their hardest month to hold people together.
 
@@ -75,10 +75,10 @@ The Cloaks are poor. They have no treasury, only many small hands: a corner in a
 - **Harju Kings:** the rural partner. Same grievances (levies, manors), different geography; the Cloaks carry word from the road gates to the cell and the cell back.
 - **Danish Crown:** the main enemy. Konrad Preen's levies, the watch under [Captain Henning](../../CHARACTERS/henning.md) and the Toompea tolls are the reasons to join.
 - **Hanseatic:** employers and creditors. Maids and clerks serve in their houses and some of the cell's best information comes from them; the council's militia is the Cloaks' likely armed opponent in the street.
-- **Livonian Order:** not yet in the city. Many Cloaks distrust a new master as much as the old one; some think the Order may be useful.
-- **Cult of Metsik:** tolerated. The old rites (milk on the threshold, a bread crust for the house-spirit) already live in Cloaks homes.
-- **Church:** divided. St Olaf's is a meeting ground; the Dominicans are suspect to some.
-- **Pskov-Novgorod, Vitalienbrüder, Blackheads:** distant. Merchants of Novgorod and harbour raiders may sell what the Cloaks cannot afford; the Blackheads' unmarried merchants are rivals for the same young men.
+- **Livonian Order:** not yet in the city; many Cloaks distrust a new master as much as the old.
+- **Cult of Metsik:** tolerated; milk on the threshold and a bread crust for the house-spirit already live in Cloaks homes.
+- **Church:** divided; St Olaf's is a meeting ground, the Dominicans are suspect to some.
+- **Pskov-Novgorod, Vitalienbrüder, Blackheads:** distant; Novgorod merchants or harbour raiders might sell arms, and the Blackheads compete for the same young men.
 
 ## Tensions inside
 
@@ -88,8 +88,8 @@ The Cloaks are poor. They have no treasury, only many small hands: a corner in a
 
 ## Spring 1343 timeline
 
-- **Before 23 April (after Easter, 13 April).** Meetings at the shed become more frequent and people hear "soon". More skeins to carry; Wendla hides the knotted ones in the flax. Stranger faces at Tõnis's bar ask for Joosep. Carters bring spears as well as grain along the Harju road.
-- **The night of St George, 23 April.** Couriers move the last words; ostlers open stable gates; cell members stay indoors or hold doors for people running. Few carry weapons. The Cloaks are mostly lookouts, guides and hiders.
+- **Before 23 April (after Easter, 13 April).** Meetings at the shed become more frequent and people hear "soon". More skeins to carry; Wendla hides the knotted ones in the flax. Strangers at Tõnis's bar ask for Joosep.
+- **The night of St George, 23 April.** Couriers move the last words; ostlers open stable gates; cell members stay indoors or hold doors for people running. Few carry weapons; most are lookouts, guides and hiders.
 - **The siege weeks.** Some men join the fighting; most women keep the lanes fed and hidden. Informers report which watchmen sleep and which carts get through. Retaliation falls first on those seen: the washerwoman with the limp, the tavern with the strangers.
 
 ## Outside the walls
@@ -105,8 +105,7 @@ These numbers are outside the census and are `plausible composite` estimates onl
 **Quest seeds.**
 - A spinner asks Kalev to mend a spindle whorl that has a notch he must not remove.
 - A gate-farmer returns a ditching spade six days late, with a message inside the handle.
-- A tavern keeper asks for a set of tap-keys to be made twice, one set for a cellar that does not exist.
-- A washerwoman asks Kalev to quietly pass word of a coming search.
+- A tavern keeper asks for tap-keys made twice, one set for a cellar that does not exist.
 - A maid delivers an order for nails that is far too large.
 
 **Reputation reactions.** Standing shifts how neighbours greet Kalev: low standing sends maids across the lane; high standing gets a loaf on the sill.

@@ -35,7 +35,7 @@
 - **Model notes:** MPFB macros: male, age_years 49, muscle 0.5, weight 0.6, proportions average, height_m 1.75; skin tone pale; eyes blue; short brown-grey hair, stubble; crowd tier 1.
 
 ## Biography
-Born 1294 in Reval, the second son of a Stade merchant who had brewed for the Hanseatic ships; his elder brother took the trade house and Bertold took the brewhouse. He learned Estonian in the malt loft from the maltsters, whom he still speaks to in their own tongue. He married Kunigunde van Wismar in 1317 and in 1329 entered the Rat after paying a heavy entrance gift, as most are expected to.
+Born 1294 in Reval, the second son of a Stade merchant; his elder brother took the trade house and Bertold the brewhouse. He learned Estonian in the malt loft from the maltsters. He married Kunigunde van Wismar in 1317 and entered the Rat in 1329.
 
 In winter 1341, during the grain shortage, the Rat voted to flog a boy from his own brewhouse caught carrying malt out of the gate at night. Bertold voted for it and stood in the market to watch. The boy, an Estonian called Tiit, has not returned to the house and Bertold has not asked after him. A year ago, Anna Persdotter brought a poultice for his sick youngest son and sat with the child for a night, and a week later asked him to a quiet meeting. He went.
 
@@ -59,18 +59,17 @@ In winter 1341, during the grain shortage, the Rat voted to flog a boy from his 
 - **Spring 1343 disruption:** The council talks of a grain levy and closing the gates; he is due to ride to the Harju manors for barley on the day after St George's and is already counting who will watch the house.
 
 ## Work and money
-The brewhouse makes small beer for the household and the lane and stronger ale for the harbour trade; income about 80 marks a year. Barley and malt come from Harju manors and by sea from Wismar; hops and casks arrive from the cooper. He is owed 6 marks by two harbour inns and owes the cooper 4. A bad month is a fire in the kiln or a night of frost that wrecks the mash.
+The brewhouse makes small beer for the lane and stronger ale for the harbour, about 80 marks a year. Barley and malt come from Harju manors and by sea from Wismar; casks from the cooper. Two harbour inns owe him 6 marks; he owes the cooper 4. A bad month is a kiln fire.
 
 ## Relationships
 - **Household:** [Kunigunde van Wismar](../../people/lower_town/kunigunde_van_wismar.md), wife and alewife, runs the tapping; [Brun van Stade](../../people/lower_town/brun_van_stade.md), eldest son and brewing apprentice; [Gyla van Stade](../../people/lower_town/gyla_van_stade.md), eleven; [Peter van Stade](../../people/lower_town/peter_van_stade.md), nine; Hille van Stade, five, and Lambert van Stade, three, in the [household ledger](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w28187544); and [Tõnu Mihkli poeg](../../people/lower_town/tonu_mihkli_poeg.md), the clerk, who keeps the malt accounts.
-- **Network:** [Arnold van van Lubeke](../../people/lower_town/arnold_van_van_lubeke.md), friar next door: the friar watches Bertold's house when he is away and is repaid in fish, bread or small repairs. Bertold thinks it more neighbourly than any kinsman has been.
+- **Network:** [Arnold van van Lubeke](../../people/lower_town/arnold_van_van_lubeke.md), friar next door: the friar watches Bertold's house when he is away and is repaid in fish, bread or small repairs.
 - [Kaur](../../people/lower_town/kaur.md), brewer on Vana-Posti: they share one rare tool, a brass-shod Lübeck gauging rod, lent back and forth; each keeps a mental ledger of how long the other has held it. It is with Kaur now, since Candlemas.
-- [Heyno van Bocholt](../../people/lower_town/heyno_van_bocholt.md), cooper on Nunne: Heyno recommended Bertold to a third party and has since heard complaints that rebound on his own name. Bertold knows he pays late and sends a barrel of ale as apology, which is not accepted as one.
+- [Heyno van Bocholt](../../people/lower_town/heyno_van_bocholt.md), cooper on Nunne: Heyno recommended Bertold to a third party and has since heard complaints that rebound on his own name.
 - [Lauri Villemi poeg](../../people/lower_town/lauri_villemi_poeg.md), carpenter on Pikk: he knows Lauri shares his sympathies; they meet briefly after mass and say nothing that could be repeated.
 - [Lambrecht Stenhus](../../people/lower_town/lambrecht_stenhus.md), merchant and councillor: their children play together in the lane despite the parents' coolness. Bertold lets it pass.
 - [Abele Fromme](../../people/lower_town/abele_fromme.md), spinner on Meistrite hoov: she knows he shares their sympathies; they meet briefly after mass and say nothing that could be repeated.
 - [Anna Persdotter](../../people/lower_town/anna_persdotter.md), spinner on Munga: she recruited him a year ago with a small kindness, and he resents being treated as a debtor.
-- **Others:** [Jüri Tanieli poeg](../../people/lower_town/juri_tanieli_poeg.md), the barber-surgeon three doors off, set Peter's broken wrist at no charge.
 
 ## Faction and belief
 He is a Hanseatic councillor in every public act, because the guilds fund his trade and the Rat is his table. Privately his sympathy is with the urban rebels, born of the flogging and not of any love for the cause. For a small favour he sends beer; for a large one he would hesitate, then do it in the dark; he would not inform. He hears mass at St Nicholas, and keeps a small iron nail in the kiln wall against fire.
