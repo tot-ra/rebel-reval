@@ -30,18 +30,18 @@
 - **Hair and facial hair:** Ash blond streaked with grey, cut level at the ear. A moustache and chin beard, combed to a point every morning.
 - **Skin and marks:** Fair and quick to flush; the colour climbs from collar to brow when he is pressed. No scars. A dent on the left middle finger from the pen.
 - **Hands:** Small, clean, ink at the left cuticle, a silver signet with a boat and hook cut on its face.
-- **Clothing and kit (April 1343):** Linen hemd, hose of dark blue wool, a calf-length tunic of good brown cloth with a marten collar, a leather belt with a purse and a small wax-tablet case, pointed shoes. Plain but costly.
+- **Clothing and kit (April 1343):** Linen hemd, hose of dark blue wool, a calf-length tunic of good brown cloth with a marten collar, a leather belt with a purse and a small wax-tablet case, pointed shoes.
 - **Portrait prompt:** Medieval Baltic merchant, fifty-six, small neat man, narrow face, high nose bridge, blue eyes, ash blond hair streaked grey, moustache and pointed chin beard, flushed fair skin, brown wool tunic with marten collar, neutral grey background, shoulders-up, soft natural light, realistic painted portrait.
 - **Model notes:** MPFB gender male, age_years 56, muscle low, weight medium, proportions narrow, height_m 1.67; fair flushed skin; blue eyes; ash-blond-grey hair, moustache and chin beard; crowd tier 1.
 
 ## Biography
-Born in 1287 in a fishing village on the Viru coast, son of a boat-owner called Uku. A priest taught him his letters; at twelve he was carting herring to Reval for a German factor. He learned the weights late, as pupil of the late Hildebrand Morkerke, the master who had earlier trained Wolter van Hamelen. By 1320 he held a share in a Lübeck partnership; by 1335 he had the Viru house and a name in the Kindergilde, but never a seat on the Rat, which is for Germans.
+Born in 1287 on the Viru coast, son of a boat-owner called Uku. A priest taught him his letters; at twelve he was carting herring to Reval for a German factor. He learned the weights late, as pupil of the late Hildebrand Morkerke, the master who had earlier trained Wolter van Hamelen. By 1320 he held a share in a Lübeck partnership; by 1335 he had the Viru house and a name in the Kindergilde, but never a seat on the Rat, which is for Germans.
 
 ## Motivation
 - **Want:** A burgher's daughter's hand for his son, so that the name passes upward.
 - **Fear:** A public reckoning in which the Rat's clerk reads his debts aloud.
 - **Contradiction:** Generous with gifts to St Olaf's, mean with fifteen marks owed to a man he sees weekly.
-- **Secret or withheld fact:** His silver is in a Lübeck partnership share and a cog two weeks overdue; he cannot pay anyone until she docks.
+- **Secret or withheld fact:** His silver is in a Lübeck share and a cog two weeks overdue; he cannot pay until she docks.
 
 ## Daily routine
 | Phase | Time (late April) | Place | Activity |
@@ -60,13 +60,13 @@ Born in 1287 in a fishing village on the Viru coast, son of a boat-owner called 
 He buys Rhenish and Flemish cloth, Swedish iron and salt, and sells inland to Harju manors and Tartu road carters. A good year nets thirty marks; this one his money lies in a late cog. The fifteen-mark fine was laid when a herring cargo was landed before the weigh-master had cast it; Marten Kristjani poeg stood surety.
 
 ## Relationships
-- **Household:** [Gesa Siimu tütar](../../people/lower_town/gesa_siimu_tutar.md), wife, who keeps the spindle and the keys; [Marga Niklase tütar](../../ledger/lower_town/viru.md#hh-lt-osm-w26885947), 21, spinner, daughter; [Rein Niklase poeg](../../ledger/lower_town/viru.md#hh-lt-osm-w26885947), 14, apprentice, son and heir; [Hindrek Gerdti poeg](../../people/lower_town/hindrek_gerdti_poeg.md), clerk; [Evert Eerika poeg](../../people/lower_town/evert_eerika_poeg.md), servant; [Kadri Peetri tütar](../../people/lower_town/kadri_peetri_tutar.md), maid; [Dorothea Jakobi tütar](../../people/lower_town/dorothea_jakobi_tutar.md), servant.
+- **Household:** [Gesa Siimu tütar](../../people/lower_town/gesa_siimu_tutar.md), wife, who keeps the keys; [Marga Niklase tütar](../../ledger/lower_town/viru.md#hh-lt-osm-w26885947), 21, daughter; [Rein Niklase poeg](../../ledger/lower_town/viru.md#hh-lt-osm-w26885947), 14, son and heir; [Hindrek Gerdti poeg](../../people/lower_town/hindrek_gerdti_poeg.md), clerk; [Evert Eerika poeg](../../people/lower_town/evert_eerika_poeg.md), [Kadri Peetri tütar](../../people/lower_town/kadri_peetri_tutar.md) and [Dorothea Jakobi tütar](../../people/lower_town/dorothea_jakobi_tutar.md), servants.
 - **Network:** [Taniel](../../people/harju_road/taniel.md), carter of Harju road: Niklas recommended him to a third party and has since heard complaints that rebound on his own name.
 - [Jaan Marteni poeg](../../people/lower_town/jaan_marteni_poeg.md), day labourer of Müürivahe: Niklas stood surety for his three-mark fine last year after a night-walking charge; Jaan has not repaid, and Niklas has started to notice who notices.
 - [Wolter van Hamelen](../../people/lower_town/wolter_van_hamelen.md), merchant of Vana turg: trained under the master who later trained Niklas. Early on Wolter moved up on the bench without a word to make room for a clumsy Estonian; Niklas has never thanked him, and repays by letting Wolter's casks sit in the Viru cellar without a fee.
 - [Ants Mihkli poeg](../../people/lower_town/ants_mihkli_poeg.md), tailor of Meistrite hoov: the lane's children, Rein among them, gather on Ants's doorstep despite coolness between the parents. Ants lets it pass; Niklas pretends not to see.
-- [Marten Kristjani poeg](../../people/lower_town/marten_kristjani_poeg.md), nail-smith of Voorimehe: stood surety for Niklas's fifteen-mark fine; Niklas has not repaid and now notices Marten noticing. He crosses the street rather than meet the man's eye.
-- [Wolter van Brunswik](../../people/lower_town/wolter_van_brunswik.md), merchant of Vene: Wolter is the better hand with goods and Niklas the better with ledgers; each thinks the other has the easier life. They meet at the Kindergilde and trade hard courtesy.
+- [Marten Kristjani poeg](../../people/lower_town/marten_kristjani_poeg.md), nail-smith of Voorimehe: stood surety for Niklas's fifteen-mark fine; Niklas has not repaid and now notices Marten noticing.
+- [Wolter van Brunswik](../../people/lower_town/wolter_van_brunswik.md), merchant of Vene: Wolter is the better hand with goods and Niklas the better with ledgers; each thinks the other has the easier life.
 
 ## Faction and belief
 No faction. He believes in contracts, not causes; a rising would burn his cellar. A small favour he gives; a large one he weighs; he would inform for the Rat's goodwill and a cancelled fine. He is devout at St Olaf's.
