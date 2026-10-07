@@ -74,7 +74,7 @@ None: he has nothing to gain from a side and much to lose. For a small favour he
 ## Voice
 - **Registers:** Estonian only; signs with Germans.
 - **Delivery:** Soft, almost whispering, with long gaps.
-- **Sample lines:** "I can lift it. Not today." / "It is only a sack." / "Ma ei tea."
+- **Sample lines:** "I can lift it. Not today." / "It is only a sack." / "Ma ei oska öelda."
 - **Verbal tic:** A slow nod before replying.
 
 ## Knowledge and rumours

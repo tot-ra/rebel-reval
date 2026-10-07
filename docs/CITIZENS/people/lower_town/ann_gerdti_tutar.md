@@ -1,6 +1,6 @@
 # Ann Gerdti tütar
 
-> Nineteen, the gatekeeper's eldest, with a baritone laugh that carries the length of Suur-Kloostri and a spinning wheel she would trade for a berth on any ship.
+> Nineteen, the gatekeeper's eldest, with a baritone laugh that carries the length of Suur-Kloostri and a spindle she would trade for a berth on any ship.
 
 | Field | Value |
 |---|---|

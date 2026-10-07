@@ -58,7 +58,7 @@ Born in 1286 in Cologne to a ring-maker, apprenticed at twelve, and came to Reva
 - **Spring 1343 disruption:** The castle orders more mail; the clerk asks more questions.
 
 ## Work and money
-He mends mail at three pfennigs a shirt and sells new rings by the thousand. His debt stands at fourteen marks. He pays the Crown's clerk each quarter-day with a shirt or a bag of rings, not silver. He buys iron wire from Antti Anttanpoika and sells him rings in return, or did.
+He mends mail at three pfennigs a shirt and sells new rings by the thousand. His debt stands at fourteen marks. He pays the Crown's clerk each quarter-day with a shirt or a bag of rings, not silver. Antti Anttanpoika of Viru road buys his rings and rods.
 
 ## Relationships
 - **Household:** [Werner van Stralesund](../../people/toompea_foot/werner_van_stralesund.md), servant, who sets rings and watches him; [Els Mikku tütar](../../people/toompea_foot/els_mikku_tutar.md), lodger and day labourer, who carries his charcoal; [Gyla Kniphof](../../people/toompea_foot/gyla_kniphof.md), servant, whose long fingers close his best rings.

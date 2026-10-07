@@ -62,13 +62,12 @@ He now stands the wall on the east face, reads no letters, and keeps one rule: s
 - **Spring 1343 disruption:** Doubled wall watches; carts of grain levy; the Harju road looks different at dusk. He has begun to count the men on it.
 
 ## Work and money
-About two marks a quarter plus rations; he keeps a mark in six and sends the rest. Shipping the silver costs him a few pfennigs and a cask of ale to the skipper. He owes nothing and is owed nothing. A bad month is a skipper who sails without calling.
+About two marks a quarter plus rations; he keeps a mark in six and sends the rest. Shipping the silver costs him a few pfennigs and a cask of ale to the skipper. He owes nothing and is owed nothing. 
 
 ## Relationships
 - **Household:** The castle garrison, [ledger](../../ledger/toompea/lossi_plats.md#hh-inst-castle-toompea); he drinks little with [Niels Bjelke](../../people/toompea/niels_bjelke.md), who teases his reedy voice, and shares a bunk row with Esger Skjalm and Kristoffer Skjalm ([ledger](../../ledger/toompea/lossi_plats.md#hh-inst-castle-toompea)), no kin he can prove.
 - **Network:** [Johannes van Hamelen](../../people/toompea/johannes_van_hamelen.md), vicar choral on Kiriku plats: a distant kinship through marriage that neither can trace exactly. Knud likes the sound of the claim and never presses it.
 - [Elisabet Lunge](../../people/toompea/elisabet_lunge.md), spinner on Rutu: they know each other from the market, greet by name and trade the day's prices. He buys thread from her for the mess; she bargains him down gently.
-- **Others:** Everhard Sadeler, saddler, [ledger](../../ledger/toompea/toom_kooli.md#hh-tp-osm-w209566184), who mends his belt.
 
 ## Faction and belief
 None, by choice and fear. Not a rebel, not a spy: he would stand a wall but not carry a note. For a small favour he would hold a door; for a large one he would say he saw nothing; to inform, he would walk away. He prays to St Olaf for his sister and leaves a coin for the Danish saint on the cathedral step.
@@ -80,7 +79,7 @@ None, by choice and fear. Not a rebel, not a spy: he would stand a wall but not 
 - **Verbal tic:** "As I heard it."
 
 ## Knowledge and rumours
-Knows the east wall's weak stones and the hour the Harju road empties. He would trade it for a safe berth for his nephew. He believes falsely that the viceroy will pay arrears at midsummer.
+Knows the east wall's weak stones and when the Harju road empties. He would trade it for a safe berth for his nephew. He falsely believes the viceroy will pay arrears at midsummer.
 
 ## Game hooks
 - **Ambient role:** East wall by day; market lane afternoons.

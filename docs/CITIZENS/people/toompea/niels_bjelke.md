@@ -23,7 +23,7 @@
 - Only 163 cm, sturdy and rosy, with a voice that carries across the whole ward without effort.
 - Keeps the gate roster in his head and the tally of who owes him a favour on notched sticks.
 - Walks home from church with a retired craftsman he barely knew a fortnight ago.
-- Odd: the man who recruits for the crown's quiet circle is the one soldier everyone thinks incapable of secrets, because he is so loud.
+- Odd: the soldier everyone thinks incapable of secrets, because he is so loud, quietly recruits for the Crown.
 
 ## Appearance
 - **Body:** 163 cm, sturdy, thick through the chest and thigh, a short man who stands very straight to gain height. Brisk, flat-footed march; stops dead rather than slowing.
@@ -38,7 +38,7 @@
 ## Biography
 Born in 1301 at a farm near Ringsted on Zealand, the fourth son, Niels was sent to the royal levy at fifteen to make one mouth fewer at home. He came to Reval in the garrison of 1318 and has never gone back; his mother's last message reached him in 1331 by way of a Lübeck skipper.
 
-Two things made him. The first was a night on the Toompea wall in 1322 when the watch failed to answer his challenge and he shouted until the whole bailey woke; the viceroy's marshal gave him the gate post for it. The second was a winter loan of grain to a neighbouring household that was never repaid in coin but returned tenfold in favours. He learned that a kindness given early is a hook set for later.
+Two things made him. The first was a night on the Toompea wall in 1322 when he shouted until the whole bailey woke; the marshal gave him the gate post for it. The second was a winter loan of grain to a neighbouring household that was never repaid in coin but returned tenfold in favours. He learned that a kindness given early is a hook set for later.
 
 He now holds the gate post at the castle's lower door, sleeps in the barracks, and has quietly become the one the Crown's circle uses when a new name must be brought in.
 
@@ -58,20 +58,19 @@ He now holds the gate post at the castle's lower door, sleeps in the barracks, a
 | Evening | Vespers | Church door, lane | Walks home with an old friend; gossip |
 | Night | Curfew bell | Lower door | Locks, calls the shut, sleeps |
 
-- **Sundays and feast days:** Mass at St Mary, then dice with the men, never for more than an örtug.
+- **Sundays and feast days:** Mass at St Mary, then dice with the men for an örtug.
 - **Spring 1343 disruption:** More carts of grain levy through his door; the viceroy's men tighten passes; after St George's Night he expects to hold the lower door alone.
 
 ## Work and money
-Paid in silver by weight, about two marks a quarter plus bread, ale and a share of fines taken at the gate. He lends in grain and in favours, rarely coin; the notched sticks in his pouch are worth perhaps four marks if called in. He buys boot-leather from the saddler on Toom-Kooli and gives his spare cap-liner to anyone with a cold. A bad month is a closed gate: no carters, no tips.
+Paid in silver by weight, about two marks a quarter plus bread, ale and a share of fines taken at the gate. He lends in grain and favours; his notched sticks are worth perhaps four marks. A bad month is a closed gate: no carters, no tips.
 
 ## Relationships
 - **Household:** The castle garrison and household, [ledger](../../ledger/toompea/lossi_plats.md#hh-inst-castle-toompea); closest are [Knud Skjalm](../../people/toompea/knud_skjalm.md), who laughs at his height and shares his dice, and [Tyge Lunge](../../people/toompea/tyge_lunge.md), the careful man on the next post.
 - **Network:** [Torben Rud](../../people/toompea/torben_rud.md), retired craftsman on Rutu: they met at the church door the week of Easter and now walk home together. Niels enjoys the company and also notes it down.
 - [Henrik Lunge](../../people/toompea/henrik_lunge.md), retired craftsman on Kiriku põik: Niels recruited him a year ago with a small kindness, and Henrik resents being treated as a debtor. Niels feels it and keeps the sticks out of sight when they meet.
-- **Others:** Arnold van Gripeswold, vassal knight on Toom-Kooli, [ledger](../../ledger/toompea/toom_kooli.md#hh-tp-osm-w28248523), whose cart passes his door.
 
 ## Faction and belief
-Loyal to the Crown because it pays and has never beaten him; no grand reason. For a small favour he will lose a pass; for a large one he will lie to the marshal; if asked to inform he already does, in the form of gate roll remarks. A churchgoer who touches the wall stone for luck before every night round.
+Loyal to the Crown because it pays and has never beaten him. For a small favour he will lose a pass; for a large one he will lie to the marshal; if asked to inform he already does, in the form of gate roll remarks. A churchgoer who touches the wall stone for luck before every night round.
 
 ## Voice
 - **Registers:** Danish in barracks, Middle Low German at the gate.

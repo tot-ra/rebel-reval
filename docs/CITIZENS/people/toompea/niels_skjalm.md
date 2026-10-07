@@ -23,7 +23,7 @@
 - 179 cm, round-bellied, mostly grey over brown, with a squint in the left eye and laugh lines around both.
 - Writes the castle's rent and toll copies in a clear hand and talks in a high, quick voice.
 - Owes 48 marks to two men and is owed a bushel of grain by a third.
-- Odd: a clerk who lent grain to a merchant and then borrowed silver to ship a herring cargo, losing both.
+- Odd: a lender who borrowed silver for a herring cargo and lost it.
 
 ## Appearance
 - **Body:** 179 cm, round-bellied, wide hips, thin legs, a tall man who stoops slightly through doorways he does not need to. Quick, short steps for his size.
@@ -56,16 +56,16 @@ Two things made him. In 1325 he lent six marks' worth of grain to a Dunkri merch
 | Evening | Vespers | Pikk jalg | Counts the instalments |
 | Night | Curfew bell | House | Prays; sleeps lightly |
 
-- **Sundays and feast days:** Mass at St Mary; a walk with Bodil to the market.
+- **Sundays and feast days:** Mass at St Mary; a walk with Bodil.
 - **Spring 1343 disruption:** More levy letters; the Lübeck merchants ask for payment; after St George's Night he expects the debts to be forgotten or doubled.
 
 ## Work and money
-He earns four marks a year plus fees, perhaps six marks in all; Bodil's washing brings in another few schillings. He owes Ludolf van Munster 18 marks and Magnus Birgersson 30 marks for the herring voyage and has paid back only three. He is owed grain by Borchard van Groninghe, at an unspoken heavy interest. A bad month is a visit from a creditor.
+He earns four marks a year plus fees, perhaps six marks in all; Bodil's washing brings in another few schillings. He owes Ludolf van Munster 18 marks and Magnus Birgersson 30 marks for the herring voyage and has paid back only three. He is owed grain by Borchard van Groninghe, at an unspoken heavy interest. 
 
 ## Relationships
 - **Household:** [Bodil Skjalm](../../people/toompea/bodil_skjalm.md), wife, whose washing keeps the larder; [Mogens Skjalm](../../people/toompea/mogens_skjalm.md), 16, his clerk-apprentice; [Gunhild Skjalm](../../people/toompea/gunhild_skjalm.md), 15, a spinner whose thread buys the oil.
 - **Network:** [Borchard van Groninghe](../../people/lower_town/borchard_van_groninghe.md), merchant on Dunkri: Niels advanced him 6 marks' worth of grain on credit after a failed harvest; interest is unspoken and heavy. He never asks; Borchard knows.
-- [Ludolf van Munster](../../people/lower_town/ludolf_van_munster.md), merchant on Rataskaevu: Niels owes him 18 marks for a share in a boat voyage that went badly; Ludolf has been patient so far. Niels brings him a copy of the day's tolls as a courtesy.
+- [Ludolf van Munster](../../people/lower_town/ludolf_van_munster.md), merchant on Rataskaevu: Niels owes him 18 marks for a share in a boat voyage that went badly; Ludolf has been patient so far. He brings Ludolf copies of the tolls.
 - [Magnus Birgersson](../../people/lower_town/magnus_birgersson.md), knife-smith on Pikk jalg: Niels owes him 30 marks for the same voyage; Magnus has been patient so far. The smith lives up the lane and Niels walks round him.
 - [Werner van Stralesund](../../people/toompea_foot/werner_van_stralesund.md), household servant on the Western castle road: Werner is his superior in the circle, though neither would put it that way; they never speak in the same room as others.
 - [Simo Anttanpoika](../../people/toompea/simo_anttanpoika.md), spinner on Kohtu: they were at the same funeral and the same whisper, and know it, a cell of two with a third unnamed.
@@ -73,7 +73,7 @@ He earns four marks a year plus fees, perhaps six marks in all; Bodil's washing 
 - [Marquard Rotermund](../../people/toompea/marquard_rotermund.md), vassal knight on Toom-Rüütli: Niels knows he shares their sympathies; they meet briefly after mass and say nothing that could be repeated.
 
 ## Faction and belief
-Crown loyalty born of habit and salary. For a small favour he would pass a note; for a large one, lose a roll; to inform, he does. He is a regular communicant and gives a penny to the Dominicans.
+Loyal from habit and salary. For a small favour he would pass a note; for a large one, lose a roll; to inform, he does. He gives a penny to the Dominicans.
 
 ## Voice
 - **Registers:** Danish at the castle; Low German in the lane; Latin on charters.
@@ -82,7 +82,7 @@ Crown loyalty born of habit and salary. For a small favour he would pass a note;
 - **Verbal tic:** "As the saying goes."
 
 ## Knowledge and rumours
-Knows the toll volumes and which merchants under-declare. He would trade it for a year's grace. He believes falsely that the Lübeck council will pay Danish debts out of Hanse funds.
+Knows which merchants under-declare tolls. He would trade it for a year's grace. He believes falsely that the Lübeck council will pay Danish debts.
 
 ## Game hooks
 - **Ambient role:** Chancery by day; Pikk jalg stair at evening.
