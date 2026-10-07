@@ -29,13 +29,23 @@ A dialogue record may declare a top-level `duel` and tag nodes and choices with 
 - Runtime: `DialogueRunner.get_duel()` and `get_current_move()` return copies of the markup; resolved choices carry `move`. The runner only exposes the tags; the arena that uses them is SD-04. Fixture: `content/examples/valid/dialogue.test_duel.json`.
 - Verify: `python3 -m unittest tests.python.test_validate_content -v`, `--filter=test_dialogue_move_tags`.
 
+## Guilt (implemented, SD-03)
+
+`GuiltLedger` (`scripts/state/guilt_ledger.gd`, `GameState.guilt`) keeps three independent levels, `guilt.church`, `guilt.folk` and `guilt.civic`, each 0..10. There is no combined score and it never touches the faction ledger.
+
+- `record_act(act_id, circumstance, lethal)` adds the circumstance weights once per `act_id`: `act.self_defence` (church 1), `act.defend_other` (church 1), `act.provoked` (2/1/1), `act.unarmed_victim` (4/3/3); a lethal blow adds church 3, folk 4, civic 2. Unknown circumstances and repeated acts return `{}`.
+- `debuff_tier(school)`: 0 for level 0, 1 for 1-2, 2 for 3-5, 3 for 6+. SD-07 applies the tier as the spirit-layer debuff.
+- `absolve(school, amount, rite_id)` lowers one school once per rite (confession, cleansing, apology); returns the amount removed.
+- Save: `guilt` section with levels, recorded act IDs and used rite IDs; saves without it load as zero guilt. Verify: `--filter=test_guilt_state`.
+- Not yet wired: nothing records guilt in play (SD-07) and no rite content exists.
+
 ## Planned entry points
 
 The dialogue runner accessors above are the only entry points. First deliverable is a one-scene prototype (the almshouse quarrel) with schema fields, a validator check, and an arena host built on the existing combat feel. Tasks are to be created on the project board with allowed files and verification.
 
 ## Save state and IDs
 
-Planned stable IDs: `guilt.church`, `guilt.folk`, `guilt.civic`; `trait.*`; `skill.language.*`; duel records `duel.*`. Guilt and comprehension must save and load through `GameState` ([`STATE_AND_SAVES.md`](./STATE_AND_SAVES.md)).
+Stable IDs in use: `guilt.church`, `guilt.folk`, `guilt.civic`, `act.*`, `rite.*`. Planned: `trait.*`; `skill.language.*`; duel records `duel.*`. Guilt and comprehension must save and load through `GameState` ([`STATE_AND_SAVES.md`](./STATE_AND_SAVES.md)).
 
 ## Verification
 

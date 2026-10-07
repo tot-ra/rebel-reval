@@ -100,6 +100,8 @@ var version: int = CURRENT_VERSION
 var phase: StringName = PHASE_PROLOGUE_DAY
 var player: PlayerState = PlayerState.new()
 var bag: InventoryBag = InventoryBag.new()
+## Per-school guilt (ADR 0033); persisted by GameStatePersistence.
+var guilt: GuiltLedger = GuiltLedger.new()
 var map_world_state: MapStableStateStore = MapStableStateStore.new()
 ## Optional scene-tree-free weather snapshot owned by the session/save boundary.
 var _environment_state: Dictionary = {}
