@@ -1,6 +1,6 @@
 # Frederik van Gripeswold
 
-> The left-handed scribe of the town hall who writes upside-down slants, owes a priest an old restitution, and lends a rare ruling-rule across the hill.
+> The left-handed scribe of the town hall who writes with a curled wrist, owes a priest an old restitution, and lends a rare ruling-rule across the hill.
 
 | Field | Value |
 |---|---|

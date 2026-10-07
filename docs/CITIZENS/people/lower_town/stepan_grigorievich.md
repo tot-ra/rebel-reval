@@ -36,7 +36,7 @@
 - **Model notes:** MPFB: male, age_years 42, muscle 0.6, weight 0.65, height_m 1.80; fair freckled skin; brown eyes; brown hair, full parted beard; crowd tier 1.
 
 ## Biography
-Born 1301 in Pskov, came to Reval at sixteen with a cart-train and stayed. The Rat took him for the Nunnery Gate in 1333 on a Hanseatic merchant's word. He married Domna Timofeyevna in 1331. In 1340 he borrowed 45 marks from Meinhard Wise to dower his sister Agafya, and the debt shapes every choice. In Lent this year the young priest Lambert van Dortmund, passing through the gate at night, blurted out a sin to him as one blurts to a stone; Stepan, an Orthodox layman, could say nothing, and Lambert has avoided his eye since.
+Born 1301 in Pskov, came to Reval at sixteen with a cart-train and stayed. The Rat took him for the Nunnery Gate in 1333 on a Hanseatic merchant's word. He married Domna Timofeyevna in 1331. In 1340 he borrowed 45 marks from Meinhard Wise to dower his sister, and the debt shapes every choice. In Lent this year the young priest Lambert van Dortmund, passing through the gate at night, blurted out a sin to him as one blurts to a stone; Stepan, an Orthodox layman, could say nothing, and Lambert has avoided his eye since.
 
 ## Motivation
 - **Want:** To pay off Meinhard Wise before Michaelmas.

@@ -42,7 +42,7 @@ Born 1333 on Vaimu. Her mother taught her to turn malt at six and to carry her s
 - **Want:** One morning with nothing to do.
 - **Fear:** Her father's gate-horn at night.
 - **Contradiction:** She dreams of leaving and would not leave Olena.
-- **Secret or withheld fact:** She hides a barley-sugar cake for Olena, bought with a found pfennig.
+- **Secret or withheld fact:** She hides a honey cake for Olena, bought with a found pfennig.
 
 ## Daily routine
 | Phase | Time (late April) | Place | Activity |

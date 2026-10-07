@@ -11,7 +11,7 @@
 | Household | [hh.lt.osm_w200645033](../../ledger/lower_town/vana_turg.md#hh-lt-osm-w200645033) |
 | Home | Vana turg, plot `bldg.osm.w200645033` (533 m2) |
 | Age / sex | 14, female |
-| Ethnicity / segment | german / german_burgher |
+| Ethnicity / segment | german / servant (counted so as a maid in training in her parents' house; patrician by birth) |
 | Status | Patrician daughter; helps in the household as a maid in training |
 | Trade | Maid (household help), in training for a great house |
 | Languages | Middle Low German |

@@ -11,7 +11,7 @@
 | Household | [hh.lt.osm_w200645033](../../ledger/lower_town/vana_turg.md#hh-lt-osm-w200645033) |
 | Home | Vana turg, plot `bldg.osm.w200645033` (533 m2) |
 | Age / sex | 16, male |
-| Ethnicity / segment | german / german_burgher |
+| Ethnicity / segment | german / servant (counted so as an apprentice in his father's house; patrician by birth) |
 | Status | Patrician heir; apprentice in his father's counting-house |
 | Trade | Apprentice merchant (Lehrling) |
 | Languages | Middle Low German |

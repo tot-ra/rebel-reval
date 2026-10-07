@@ -64,7 +64,7 @@ He earns three marks a year plus board and a pair of shoes; he sells horse-hair 
 
 ## Relationships
 - **Household:** The castle household, [ledger](../../ledger/toompea/lossi_plats.md#hh-inst-castle-toompea); he talks most to [Absalon Skjalm](../../people/toompea/absalon_skjalm.md), the squire who grooms with him at dawn, and nods at [Absalon Lunge](../../people/toompea/absalon_lunge.md), the falconer.
-- **Network:** [Thomas Overdyk](../../people/lower_town/thomas_overdyk.md), stable hand on Lühike jalg: Thomas trained under the master who later trained Tõnis, and Tõnis owes him an old, unspoken courtesy. Tõnis once mentioned Thomas's name to a farrier and has never been thanked, nor thanked.
+- **Network:** [Thomas Overdyk](../../people/lower_town/thomas_overdyk.md), stable hand on Lühike jalg: Thomas trained under the master who later trained Tõnis, and Tõnis owes him an old, unspoken courtesy. Tõnis has never found the moment to say so, and speaks of Thomas to the farrier instead.
 
 ## Faction and belief
 None: he is a horseman, and horses are not ruled by crowns. For a small favour he would lend a halter; for a large one, ride at night; to inform, he would say nothing. He leaves a handful of oats for the spirit of the stable at Michaelmas.

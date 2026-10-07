@@ -35,11 +35,11 @@
 - **Model notes:** male, age_years 39, muscle 0.5, weight 0.4, proportions long-legged, height_m 1.75; sun-browned skin; grey eyes; dark brown hair, clean-shaven; crowd tier 2.
 
 ## Biography
-Born in 1304 in a Westphalian town, son of a crossbowman who served the Danish crown in Reval and was crippled at the siege of 1314. His father still draws a small pension from the viceroy's steward. Peter came to the town hall in 1327, married and lost a wife in 1335. He carries what he is given.
+Born in 1304 in a Westphalian town, son of a crossbowman who served the Danish crown in Reval and was crippled in the wars of 1314. His father drew a small pension from the viceroy's steward until he died in 1340, and the steward paid for the burial. Peter came to the town hall in 1327, married and lost a wife in 1335. He has felt in the steward's debt ever since, and carries what he is given.
 
 ## Motivation
-- **Want:** To keep his father's pension coming and his own post.
-- **Fear:** The pension stopping if the council and the crown quarrel.
+- **Want:** To be remembered by the steward when a door-ward's post falls vacant at the castle.
+- **Fear:** The council finding out where his answers go.
 - **Contradiction:** Wears the council's livery and owes the crown his father's bread.
 - **Secret or withheld fact:** He tells the steward the council's mood each time he carries a letter up, and has never taken a penny for it.
 
@@ -53,16 +53,16 @@ Born in 1304 in a Westphalian town, son of a crossbowman who served the Danish c
 | Evening | Vespers | Town hall | Reports, stands at the door |
 | Night | Curfew bell | Chamber | Sleeps by the stair |
 
-- **Sundays and feast days:** Mass at St Nicholas, then he visits his father in the lower lane.
+- **Sundays and feast days:** Mass at St Nicholas, then a candle at his father's grave.
 - **Spring 1343 disruption:** More errands up the hill and more men on Pikk jalg.
 
 ## Work and money
-He earns eight marks a year and keep, plus a mark's livery. His father's pension is three marks a year. He owes two marks to a hosier. A bad month is one when the council argues and sends no messages.
+He earns eight marks a year and keep, plus a mark's livery. He owes two marks to a hosier and a Mass-fee to the priest for his father. A bad month is one when the council argues and sends no messages.
 
 ## Relationships
 - **Household:** the town hall household: [Gerhard van Bremen](../../people/lower_town/gerhard_van_bremen.md), the clerk; [Thomas van Wismar](../../ledger/lower_town/raekoja.md#hh-inst-town-hall) and [Frederik van Gripeswold](../../people/lower_town/frederik_van_gripeswold.md), scribes; [Dietrich van Hamelen](../../ledger/lower_town/raekoja.md#hh-inst-town-hall), [Ropert Vrie](../../people/lower_town/ropert_vrie.md) and [Eylard Hovesche](../../ledger/lower_town/raekoja.md#hh-inst-town-hall), fellow servants; [Ropert Corte](../../people/lower_town/ropert_corte.md), the weigher; [Jakob Witte](../../ledger/lower_town/raekoja.md#hh-inst-town-hall) and [Meinhard Snelle](../../people/lower_town/meinhard_snelle.md), watch sergeants; [Siim Aino poeg](../../ledger/lower_town/raekoja.md#hh-inst-town-hall), [Kaur Hindreku poeg](../../ledger/lower_town/raekoja.md#hh-inst-town-hall) and [Paul Jaani poeg](../../ledger/lower_town/raekoja.md#hh-inst-town-hall), household servants.
 - **Network:**
-  - [Tyge Lunge](../../people/toompea/tyge_lunge.md), man-at-arms at the castle: he knows Peter shares their sympathies; they meet briefly after Mass and say nothing that could be repeated; Peter sees an old comrade of his father's.
+  - [Tyge Lunge](../../people/toompea/tyge_lunge.md), man-at-arms at the castle: he knows Peter shares their sympathies; they meet briefly after Mass and say nothing that could be repeated; Peter sees in him an old comrade of his father's.
   - [Simon Priidiku poeg](../../people/toompea/simon_priidiku_poeg.md), keeper of the wash-yard on Kohtu: Peter is his superior in the circle, though neither would put it that way; they never speak in the same room as others.
   - [Mogens Skjalm](../../people/toompea/mogens_skjalm.md), crown clerk on Pikk jalg: Peter knows he shares their sympathies; they meet briefly after Mass, and Peter is wary of a boy of sixteen.
 - **Others:** [Berend Rode](../../people/lower_town/berend_rode.md), councillor, is the nearest neighbour.
@@ -71,13 +71,13 @@ He earns eight marks a year and keep, plus a mark's livery. His father's pension
 He is loyal to the crown out of gratitude, not creed. He would carry a word for a small favour and a purse for a large one, and has told only what he overheard. He keeps a candle for his father at St Nicholas.
 
 ## Voice
-- **Registers:** Middle Low German with an Westphalian drawl.
+- **Registers:** Middle Low German with a Westphalian drawl.
 - **Delivery:** Nasal and quick, whistling softly through the gap.
 - **Sample lines:** "I carry it, I do not read it." "The steward will see you." "Dat is nicht mine Sake."
 - **Verbal tic:** Whistles two notes before speaking.
 
 ## Knowledge and rumours
-He knows the council's every quarrel by mouth. He would trade it for a pension for his father. He believes the viceroy will march on the town at midsummer, which is false.
+He knows the council's every quarrel by mouth. He would trade it for a place at the castle gate. He believes the viceroy will march on the town at midsummer, which is false.
 
 ## Game hooks
 - **Ambient role:** Streets and Pikk jalg in the morning and afternoon.

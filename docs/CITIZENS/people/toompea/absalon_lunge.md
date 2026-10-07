@@ -41,7 +41,7 @@ Born in 1292 at a manor in Harju held by a Danish knight, the son of the knight'
 Two things made him. In 1315, in the Order's war, the manor burned and he carried the peregrine out under his coat. In 1330 the viceroy's falconer died and he was promoted, bringing his birds up the hill. He has served the Crown since out of loyalty to the one man who valued the peregrine more than the manor.
 
 ## Motivation
-- **Want:** To train a falcon fit for the king's own fist and to see his son apprenticed.
+- **Want:** To train a falcon fit for the king's own fist before his eyes fail.
 - **Fear:** Mews fever; a hawk lost on the wing.
 - **Contradiction:** Danish by blood and the Crown's man, but he would rather speak with a Harju beater than with a Danish knight.
 - **Secret or withheld fact:** He lets a hawk-trapper from the old Estonian village use the mews at night and says nothing.

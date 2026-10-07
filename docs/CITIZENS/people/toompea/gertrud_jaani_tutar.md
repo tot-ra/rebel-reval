@@ -32,7 +32,7 @@
 - **Skin and marks:** Wind-reddened across the cheeks and nose; chilblain-scarred knuckles, shiny and pink; a cracked heel.
 - **Hands:** Small, swollen at the knuckles, scarred pink, nails split by lye.
 - **Clothing and kit (April 1343):** Short gown of grey homespun, sleeves rolled, heavy linen apron, kerchief, a shawl on cold mornings, wooden shoes with straw, a small bag of soap-ash at the belt.
-- **Portrait prompt:** Shoulders-up portrait of a small 53-year-old Estonian scullery woman, 1340s, wind-reddened skin, pale blue eyes, dark blond hair streaked with grey under a linen kerchief, tilted head, scarred knuckles at the chin, grey homespun, neutral grey background, soft natural light, realistic medieval style.
+- **Portrait prompt:** Shoulders-up portrait of a small 53-year-old Estonian scullery woman, 1340s, wind-reddened skin, pale blue eyes, dark blond hair streaked with grey under a linen kerchief, tilted head, grey homespun, neutral grey background, soft natural light, realistic medieval style.
 - **Model notes:** MPFB macros: female, age_years 53, muscle 0.3, weight 0.45, proportions average, height_m 1.50; wind-reddened skin; blue eyes; grey-blond hair under kerchief; crowd tier 2.
 
 ## Biography

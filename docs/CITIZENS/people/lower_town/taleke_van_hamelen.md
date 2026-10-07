@@ -22,7 +22,6 @@
 ## At a glance
 - A sturdy girl with a voice like a gravel path that startles visitors expecting something sweeter.
 - At war with the household goose since Candlemas.
-- Hides apples in her sleeve for the carters' horses.
 - Counts everything: stairs, cats, enemies.
 
 ## Appearance
@@ -36,7 +35,7 @@
 - **Model notes:** MPFB female, age_years 13, muscle medium, weight medium, proportions short and broad, height_m 1.40; rosy skin; brown eyes; brown plaits; crowd tier 2.
 
 ## Biography
-Taleke was born in 1330 and is the one of the family who never cried as a baby, to the midwife's alarm. She is clever with numbers and with weapons made of sticks, and has a way of telling the truth at the wrong moment. [Wolter van Hamelen](../../people/lower_town/wolter_van_hamelen.md) calls her "my little steward". The goose came at Candlemas as a gift to her mother, and bit her on the first day.
+Taleke was born in 1330 and never cried as a baby, to the midwife's alarm. She is clever with numbers and with weapons made of sticks, and tells the truth at the wrong moment. [Wolter van Hamelen](../../people/lower_town/wolter_van_hamelen.md) calls her "my little steward". The goose came at Candlemas as a gift to her mother, and bit her on the first day.
 
 ## Motivation
 - **Want:** To be allowed to ride a horse and to see the goose on the table.
@@ -58,7 +57,7 @@ Taleke was born in 1330 and is the one of the family who never cried as a baby, 
 - **Spring 1343 disruption:** The household is tense; she hears her parents' whispers and counts them.
 
 ## Work and money
-She has no money but a penny at Easter and a small hoard of acorns and string. She is learning the household tally and keeps the poultry. A bad week is when the goose wins.
+She has a penny at Easter and a hoard of acorns and string. She keeps the poultry. A bad week is when the goose wins.
 
 ## Relationships
 - **Household:** Her father [Wolter van Hamelen](../../people/lower_town/wolter_van_hamelen.md); her mother [Gyse van Goslar](../../people/lower_town/gyse_van_goslar.md); her brother [Egbert van Hamelen](../../people/lower_town/egbert_van_hamelen.md); her sisters [Drude van Hamelen](../../people/lower_town/drude_van_hamelen.md) and [Yda van Hamelen](../../people/lower_town/yda_van_hamelen.md); her brothers Jakob, Bernd and Reimar ([ledger](../../ledger/lower_town/vana_turg.md#hh-lt-osm-w200645033)).

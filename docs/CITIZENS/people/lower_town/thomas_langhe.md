@@ -81,5 +81,5 @@ He knows who on the Rat is in debt to whom. He would trade it only for a seat or
 - **Ambient role:** At the slaughterhouse yard mornings; Rat chamber and tavern afternoons.
 - **Interaction:** Cool and curious with Kalev; offers a deal on charcoal for knives.
 - **Barks:** Calm: "By weight." Tense: "Not in front of the boy." Curfew: "Home."
-- **Quest touch:** Hires Kalev to sharpen cleavers before Easter week.
+- **Quest touch:** Hires Kalev to sharpen cleavers before the Whitsun fair.
 - **St George's Night:** Bars the yard gate, with a cleaver within reach.

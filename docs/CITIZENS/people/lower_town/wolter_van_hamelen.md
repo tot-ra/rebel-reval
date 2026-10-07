@@ -23,15 +23,15 @@
 - A broad, bearded man who speaks so softly that the council falls silent to hear him.
 - Left-handed and proud of it; his ledgers slope backwards.
 - Cannot sleep past the second bell and watches the lane from the upper window.
-- Wears a faint pitted forehead under a cap he rarely removes.
+- Keeps a cap on over a faintly pitted forehead.
 
 ## Appearance
 - **Body:** 171 cm, sturdy, thick through the chest and neck, a merchant's belly beginning. Walks deliberately, left shoulder a little forward, hands clasped behind.
-- **Face:** Broad, ruddy, full-cheeked, brown eyes under a heavy brow, a short thick nose. A faint pock-scarred forehead from a childhood fever. At rest he looks mild, like a man waiting for a price.
+- **Face:** Broad, ruddy, full-cheeked, brown eyes under a heavy brow, a short thick nose. A faint pock-scarred forehead from a childhood fever. At rest he looks mild.
 - **Hair and facial hair:** Dark blond with grey at the temples, cut at the collar and curled under the cap. A full beard, trimmed square, with a few white hairs at the chin.
 - **Skin and marks:** Rosy-cheeked, flushed after wine. The pitted scar high on the forehead is the only mark.
 - **Hands:** Broad, clean, ink on the left middle finger, a heavy seal ring on the right hand.
-- **Clothing and kit (April 1343):** Fine linen shirt, a long blue wool tunic trimmed with marten at the neck, a short cloak pinned with a silver brooch, red hose and pointed shoes. A belt with a purse, keys and a pen-case on the left hip.
+- **Clothing and kit (April 1343):** Fine linen shirt, long blue wool tunic with marten at the neck, a short cloak with a silver brooch, red hose, pointed shoes. Belt with purse, keys and pen-case on the left hip.
 - **Portrait prompt:** Sturdy man of forty-three, broad rosy face, brown eyes, faint pitted scars on the forehead, full square-trimmed dark-blond beard grey at the chin, grey at the temples, blue wool collar with marten trim, neutral grey background, shoulders-up, soft natural light.
 - **Model notes:** MPFB male, age_years 43, muscle medium, weight medium-high, proportions broad and thick, height_m 1.71; rosy skin; brown eyes; dark-blond hair, full beard; crowd tier 1.
 
@@ -58,7 +58,7 @@ Wolter was born in 1300 in Hameln on the Weser, the son of a cloth-trader who se
 - **Spring 1343 disruption:** The grain-levy talk fills the council and empties his sleep; he has begun to ask carters which gates are watched.
 
 ## Work and money
-He ships cloth and Novgorod wax and furs by cog and cart; the porters at the strand are his only labour of consequence. A good season clears fifty marks; this spring the wax is held at the weigh-house and carriers are scarce. He owes the council 18 marks, which [Ants Mihkli poeg](../../people/lower_town/ants_mihkli_poeg.md) stands for. A bad month is a late cog or a porter who will not carry.
+He ships cloth and Novgorod wax and furs by cog and cart. A good season clears fifty marks; this spring carriers are scarce. The 18-mark fine is guaranteed by [Ants Mihkli poeg](../../people/lower_town/ants_mihkli_poeg.md). A bad month is a late cog or a porter who will not carry.
 
 ## Relationships
 - **Household:** His wife [Gyse van Goslar](../../people/lower_town/gyse_van_goslar.md), who spins and counts; his son [Egbert van Hamelen](../../people/lower_town/egbert_van_hamelen.md), sixteen, in the counting-room; the daughters [Drude van Hamelen](../../people/lower_town/drude_van_hamelen.md), [Taleke van Hamelen](../../people/lower_town/taleke_van_hamelen.md) and [Yda van Hamelen](../../people/lower_town/yda_van_hamelen.md); the boys Jakob, Bernd and Reimar ([ledger](../../ledger/lower_town/vana_turg.md#hh-lt-osm-w200645033)).
@@ -72,7 +72,7 @@ He ships cloth and Novgorod wax and furs by cog and cart; the porters at the str
 - **Others:** Neighbours include the cap-maker [Ricbod Rotermund](../../ledger/lower_town/suur_karja.md#hh-lt-osm-w200645041), the dyer [Ludolf van Groninghe](../../ledger/lower_town/suur_karja.md#hh-lt-osm-w200644965), and the tavern keeper [Cord Rode](../../ledger/lower_town/vana_turg.md#hh-lt-osm-w200645011).
 
 ## Faction and belief
-Hanseatic core: his money and his seat depend on the Hansa's privileges. His own reason is the 18 marks and the fear of shame, not the privileges. For a small favour he would speak for a man at the council; for a large one he would hesitate until he saw who asked; to inform he would write nothing down. He lights a candle at St Nicholas for a brother who died at Novgorod and keeps a pinch of Weser earth in a box.
+Hanseatic core: his seat depends on the Hansa's privileges, but his own reason is shame over the 18 marks. For a small favour he would speak for a man in council; for a large one he would wait to see who asked; to inform he would write nothing down. He lights a candle at St Nicholas for a brother who died at Novgorod.
 
 ## Voice
 - **Registers:** Latin in the council and on letters; soft Low German at home and in the market.
@@ -81,7 +81,7 @@ Hanseatic core: his money and his seat depend on the Hansa's privileges. His own
 - **Verbal tic:** "As it were."
 
 ## Knowledge and rumours
-He knows the council's votes before they are announced, the tariff of every gate, and which neighbour walks at night. He would trade it for time on the 18 marks. He believes, wrongly, that Toompea will not interfere.
+He knows the council's votes before they are announced and which neighbour walks at night. He would trade it for time on the 18 marks. He believes, wrongly, that Toompea will not interfere.
 
 ## Game hooks
 - **Ambient role:** Upper window at dawn; town hall by day; counting-room at evening.
