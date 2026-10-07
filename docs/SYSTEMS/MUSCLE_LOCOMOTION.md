@@ -61,10 +61,23 @@ The prototype was visually checked only through stick-figure filmstrips. There i
 
 `python render.py results/quadruped.json 8` replays the stored controller and must print `alive 1.0`, `speed` about 0.77, `dist` about 6.16. There are no automated tests yet.
 
-## Next steps (each needs a task with allowed files; a major new system also needs an ADR and a named scope trade-off per AGENTS.md before runtime code)
+## Roadmap
 
-1. Biped: staged curriculum, torso-upright and symmetry terms, hip abductor model or 3D, longer runs. Done when it walks 20 s at 1.2 m/s with filmstrip review.
-2. Quadruped: add posture and effort realism terms, gait diversity (walk, trot, gallop at different targets); add `belly` and heavy-head variants and record how the gait shifts.
-3. Export: map a baked clip onto a shipped rig (for example the dog or horse in `tools/assets/medieval_animal_rigs.py`) and review in Godot.
-4. Bird and snake prototypes with their own objectives.
-5. Decide whether closed-loop policies (combat, sit/stand) are worth the runtime cost.
+Requested scope, ordered so each stage reuses the previous one. Every stage is a build-time experiment first; nothing reaches the game without its own task, an ADR and a named scope trade-off (AGENTS.md).
+
+**A. Gaits.** Biped walk (in progress, see Results), the same for the quadruped, then run (flight phase, 2.5 to 4 m/s). Gait is chosen by target speed, as in Geijtenbeek 2013.
+
+**B. Terrain and body variation.**
+- Terrain: slopes up and down (5 to 20 degrees), steps and stairs (the city has stairs; riser about 0.18 m), obstacles to step over, climb or jump, routes around obstacles (needs a heading input), and a low doorway or ceiling (the head must stay under a height limit, so the controller needs a stoop strategy: bend hips and knees, shorter stride; the limit is a collision plane at head height).
+- Posture and mass: heavy armour (mass on torso and thighs, stooped rest pose), belly (mass at an offset), dress (extra mass plus restricted hip range and a swing drag), obese, tall and lanky, dwarf (shorter bones, different torso to leg ratio). Each is a change of the creature description, not new code.
+- Key design decision: instead of evolving one controller per body, train **one controller over a distribution of bodies** with the body parameters (leg length, mass, centre of mass offset) as inputs. Then any citizen, including bodies never trained, gets a gait without a new evolution run. Interpolating between a grid of evolved bodies is the cheaper fallback.
+
+**C. Balance under push.** A shove to the chest (a kick, a shoulder, a crowd) is a push-recovery problem, and it is testable in the current planar prototype before arms exist: apply a random horizontal impulse to the trunk at random times during training and score survival. The body has three known recovery strategies: an ankle strategy (small push, shift pressure under the foot), a hip strategy (bend at the hips, move the trunk against the push) and a stepping strategy (take a fast step to put the foot under the falling centre of mass). Evolution finds them if the sensors let it see them (trunk pitch and rate, horizontal speed, foot contacts and joint angles, which the biped already has) and the training pushes are strong enough to force a step. Training on random pushes is also the standard fix for overfitting to one fixed trajectory.
+
+**D. Interaction.** Arms are not in the model yet, so these need new bones and muscles first.
+- Crowds: another agent walking toward you, avoid or push through; needs agent to agent contact forces and a steering input.
+- Combat: strike, wind-up, block with a shield, reacting to an incoming attack. This is the hard part: it needs a goal-conditioned, closed-loop policy trained with reinforcement learning (or evolution with a much richer controller), not a periodic cycle. Sit and stand, and climbing onto an obstacle, are the same kind of task.
+
+**E. Delivery to the game.** Godot has no muscle model, so the first realistic route is baked clips: a library of locomotion cycles per body type and speed, blended at runtime with foot IK and additive hit layers. Combat and crowd contact stay on authored or procedural layers until a learned policy proves itself offline. Running a policy in the engine would additionally need a physics-driven rig; treat it as a separate experiment.
+
+Open risks: evolved gaits can look unnatural without realism terms; policies overfit to the training horizon (the first biped result fell after 8.5 s when tested for 20 s and had to be retrained); 2D results do not guarantee 3D balance.
