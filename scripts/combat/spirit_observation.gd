@@ -47,7 +47,12 @@ func begin(runner: Node, content_db: ContentDB, state: GameState, dialogue_id: S
 		_finished = true
 		return false
 	_finished = false
-	return _runner.start(dialogue_id)
+	state.in_spirit_world = true
+	if not _runner.start(dialogue_id):
+		_finished = true
+		state.in_spirit_world = false
+		return false
+	return true
 
 
 func is_over() -> bool:
@@ -120,6 +125,8 @@ func consume_line_advance() -> bool:
 
 func _finish(node_id: StringName) -> void:
 	_finished = true
+	if _state != null:
+		_state.in_spirit_world = false
 	last_outcome = {
 		"dialogue_id": String(_dialogue_id),
 		"resolution_node_id": String(node_id),

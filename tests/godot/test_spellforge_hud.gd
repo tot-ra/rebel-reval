@@ -194,6 +194,7 @@ func test_number_keys_cast_the_first_learned_spell() -> void:
 	controller.set("_model", model)
 	controller.set("_hud", hud)
 	controller.set("_caster", caster)
+	state.in_spirit_world = true
 
 	controller.call("_cast_learned_slot", 0)
 

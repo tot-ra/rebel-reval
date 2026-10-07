@@ -120,6 +120,10 @@ func _on_remove_requested() -> void:
 
 
 func _on_cast_requested(aim_direction := Vector2.ZERO) -> void:
+	if not _model.is_spirit_world():
+		_model.notify_physical_world()
+		_hud.refresh()
+		return
 	var direction: Vector2 = aim_direction
 	if direction.is_zero_approx() and _caster != null and _caster.has_method("view_facing"):
 		direction = _caster.call("view_facing") as Vector2
@@ -155,6 +159,10 @@ static func _delivery_kind(cast_result: Dictionary) -> String:
 
 
 func _cast_learned_slot(index: int) -> void:
+	if not _model.is_spirit_world():
+		_model.notify_physical_world()
+		_hud.refresh()
+		return
 	var spells := _model.learned_spells()
 	if index < 0 or index >= spells.size():
 		_model.notify_empty_slot()

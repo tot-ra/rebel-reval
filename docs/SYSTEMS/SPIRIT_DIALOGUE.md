@@ -49,6 +49,15 @@ A dialogue record may declare a top-level `duel` and tag nodes and choices with 
 - **Verify:** `--filter=test_spirit_arena`; frames with `tools/godot_render.sh --resolution 1280x720 --script tools/capture_spirit_arena.gd`.
 - **Limits:** no scene mounts the host yet (SD-05 wires the prologue); no spells or hero moves beyond replies; no guilt hook (SD-07); NPC temperaments do not change damage yet (SD-15); the numbers are prototype values.
 
+## Magic in the spirit world (implemented, SD-14)
+
+- **World casts are refused:** `SpellforgeController` checks `SpellforgeModel.is_spirit_world()` before any cast (number keys, learned-spell clicks, the cookbook's cast). The feedback line is "Magic answers only in the spirit world." and no willpower is spent.
+- **Spirit world flag:** `GameState.in_spirit_world` is true from `SpiritDuel.begin` / `SpiritObservation.begin` until the duel or observation ends (win, loss, close). It is transient and never saved.
+- **Arena casts:** `SpiritDuel.cast_spell(id)` (phases telegraph and answer) calls the same `MagicResolver.cast`, so locks, willpower and piety, and conduit rules are unchanged. Effects by authored impact: `damage` -> pressure (amount x 1.5), `stagger` / `knockback` -> the next blow is halved, `heal_over_time` -> +12 composure, a self `modifier` -> the hero's timed buffs (damage reduction and damage bonus apply to blows taken and replies dealt), a summon has no arena effect.
+- **Screen:** `SpiritArenaHost` casts learned spells with `spellforge_element_1..5`, shows the spell hint, and counts as a modal overlay so the world controller stands down while it is open.
+- Verify: `--filter=test_spirit_magic`, `--filter=test_spellforge_hud`.
+- **Limits:** the 2D delivery nodes (projectiles, pulses) and the 3D `MapViewMagicVfx` are not drawn in the arena; the arena has no spell-specific art; the new-game starter grants (fireball, earth tremor, iron skin) are unchanged.
+
 ## Traits and temperaments (implemented, SD-15)
 
 - **Hero traits** (`SpiritTraits.TRAITS`, `GameState.grant_trait(id, origin)`): `trait.hears_fear`, `trait.watchful`, `trait.stubborn`. Each comes in two variants by how it was gained, `gift` or `scar`, and every variant has both a boon and a cost (checked by `SpiritTraits.is_double_edged`). Modifiers: reply damage by element, incoming blows by kind, dodge cost, parry window, composure. A trait is held once; saved under `traits` (optional in older saves).

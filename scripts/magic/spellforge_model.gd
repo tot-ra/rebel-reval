@@ -98,6 +98,15 @@ func arm_spell(spell_id: StringName) -> bool:
 	return false
 
 
+## Magic answers only in the spirit world (ADR 0033); world casts are refused.
+func is_spirit_world() -> bool:
+	return _state != null and _state.in_spirit_world
+
+
+func notify_physical_world() -> void:
+	_feedback = "Magic answers only in the spirit world."
+
+
 func notify_empty_slot() -> void:
 	_feedback = "No learned spell in that slot."
 

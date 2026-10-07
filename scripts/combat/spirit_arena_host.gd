@@ -12,6 +12,13 @@ signal closed(outcome: Dictionary)
 
 const BAR_SIZE := Vector2(260.0, 14.0)
 const OBSERVE_BEAT_SEC := 2.4
+const SPELL_ACTIONS: Array[StringName] = [
+	&"spellforge_element_1",
+	&"spellforge_element_2",
+	&"spellforge_element_3",
+	&"spellforge_element_4",
+	&"spellforge_element_5",
+]
 
 var duel := SpiritDuel.new()
 var observation := SpiritObservation.new()
@@ -22,6 +29,9 @@ var _was_paused := false
 var _open := false
 var _observing := false
 var _observe_wait := 0.0
+var _dim: ColorRect
+var _spell_model: SpellforgeModel
+var _spell_hint := ""
 var _line_label: Label
 var _move_label: Label
 var _hint_label: Label
@@ -58,6 +68,10 @@ func open(content_db: ContentDB, state: GameState, dialogue_id: StringName) -> b
 		return false
 	_open = true
 	visible = true
+	_enter_modal()
+	_spell_model = SpellforgeModel.new() as SpellforgeModel
+	_spell_model.configure(state, content_db)
+	_show_spell_hint()
 	if freeze_world and is_inside_tree():
 		_was_paused = get_tree().paused
 		get_tree().paused = true
@@ -83,6 +97,7 @@ func observe(content_db: ContentDB, state: GameState, dialogue_id: StringName) -
 	_observing = true
 	_observe_wait = OBSERVE_BEAT_SEC
 	visible = true
+	_enter_modal()
 	if freeze_world and is_inside_tree():
 		_was_paused = get_tree().paused
 		get_tree().paused = true
@@ -107,11 +122,18 @@ func observe(content_db: ContentDB, state: GameState, dialogue_id: StringName) -
 func close() -> void:
 	if not _open:
 		return
+	# Closing mid-duel abandons it and leaves the spirit world.
+	if _observing:
+		observation.close()
+	else:
+		duel.close()
 	var outcome := (observation.last_outcome if _observing else duel.last_outcome).duplicate()
 	_open = false
 	_observing = false
 	_telegraph_bar.visible = true
 	_composure_bar.visible = true
+	_leave_modal()
+	_spell_model = null
 	visible = false
 	if freeze_world and is_inside_tree():
 		get_tree().paused = _was_paused
@@ -133,6 +155,7 @@ func _process(delta: float) -> void:
 				observation.step()
 		return
 	duel.tick(delta)
+	_process_spell_keys()
 	if duel.phase == SpiritDuel.PHASE_TELEGRAPH:
 		duel.set_guard(Input.is_action_pressed(&"player_guard"))
 		if Input.is_action_just_pressed(&"player_dodge"):
@@ -140,6 +163,41 @@ func _process(delta: float) -> void:
 	elif Input.is_action_just_pressed(&"interact") and duel.acknowledge():
 		pass
 	_refresh_bars()
+
+
+## Number keys cast learned spells through the duel while the arena is open; the world
+## Spellforge controller stands down because the arena counts as a modal overlay.
+func _process_spell_keys() -> void:
+	if _spell_model == null:
+		return
+	for index in SPELL_ACTIONS.size():
+		if not InputMap.has_action(SPELL_ACTIONS[index]):
+			continue
+		if not Input.is_action_just_pressed(SPELL_ACTIONS[index]):
+			continue
+		var spells := _spell_model.learned_spells()
+		if index < spells.size():
+			var result := duel.cast_spell(StringName(String(spells[index]["id"])))
+			if bool(result.get("ok", false)):
+				_hint_label.text = "%s cast." % String(spells[index].get("name", ""))
+
+
+func _show_spell_hint() -> void:
+	var names: Array[String] = []
+	var spells := _spell_model.learned_spells()
+	for index in mini(spells.size(), SPELL_ACTIONS.size()):
+		names.append("%d %s" % [index + 1, String(spells[index].get("name", ""))])
+	_spell_hint = "Spells: " + ", ".join(names) if not names.is_empty() else ""
+
+
+func _enter_modal() -> void:
+	if not _dim.is_in_group(&"modal_input_overlay"):
+		_dim.add_to_group(&"modal_input_overlay")
+
+
+func _leave_modal() -> void:
+	if _dim.is_in_group(&"modal_input_overlay"):
+		_dim.remove_from_group(&"modal_input_overlay")
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -203,9 +261,11 @@ func _on_choice_pressed(choice_id: String) -> void:
 func _on_phase(phase: StringName) -> void:
 	match phase:
 		SpiritDuel.PHASE_TELEGRAPH:
-			_hint_label.text = "Hold guard (parry just before the blow) or press dodge"
+			_hint_label.text = (
+				"Hold guard (parry just before the blow) or press dodge. " + _spell_hint
+			)
 		SpiritDuel.PHASE_ANSWER:
-			_hint_label.text = "Choose a reply"
+			_hint_label.text = "Choose a reply. " + _spell_hint
 		SpiritDuel.PHASE_LINE:
 			_hint_label.text = "Continue"
 		SpiritDuel.PHASE_WON:
@@ -256,10 +316,10 @@ func _refresh_bars() -> void:
 
 
 func _build_ui() -> void:
-	var dim := ColorRect.new()
-	dim.color = Color(0.05, 0.04, 0.10, 0.82)
-	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
-	add_child(dim)
+	_dim = ColorRect.new()
+	_dim.color = Color(0.05, 0.04, 0.10, 0.82)
+	_dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	add_child(_dim)
 	var column := VBoxContainer.new()
 	column.set_anchors_preset(Control.PRESET_FULL_RECT)
 	column.offset_left = 80.0

@@ -138,6 +138,9 @@ var _act1_transition: Dictionary = {}
 var _magic_resources: Dictionary[StringName, int] = {}
 var _magic_grants: Dictionary[StringName, bool] = {}
 ## Spirit-duel moves the hero learned by watching (ADR 0033); ids are `move.<kind>.<element>`.
+## True only while a spirit duel or observation is running (ADR 0033); transient, never saved.
+## Spellforge casts are refused while it is false: magic answers only in the spirit world.
+var in_spirit_world := false
 var _learned_moves: Dictionary[StringName, bool] = {}
 ## Double-edged hero traits (ADR 0033): trait id -> origin (`gift` or `scar`).
 var _traits: Dictionary[StringName, StringName] = {}

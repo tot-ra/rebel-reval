@@ -38,6 +38,11 @@ const COUNTERS: Dictionary = {
 	&"appeal": &"pressure",
 	&"pressure": &"appeal",
 }
+## Spell pressure = authored impact damage x this; a staggering spell halves the next blow;
+## healing restores this much composure.
+const SPELL_DAMAGE_SCALE := 1.5
+const SPELL_STAGGER_BLOW_FACTOR := 0.5
+const SPELL_HEAL_COMPOSURE := 12.0
 const REPLY_NEUTRAL := 12.0
 const REPLY_COUNTER := 30.0
 const REPLY_COUNTERED := 4.0
@@ -64,6 +69,7 @@ var _dodged := false
 var _swing_id := 0
 var _finished := true
 var _trait_mods: Dictionary = {}
+var _next_blow_factor := 1.0
 var _temperament: Array = []
 
 
@@ -150,6 +156,7 @@ func answer(choice_id: String) -> bool:
 	damage *= SpiritTraits.temperament_multiplier(
 		_temperament, StringName(String(reply_move.get("kind", "")))
 	)
+	damage = hero.modifiers.scale_outgoing_damage(damage)
 	if damage > 0.0:
 		opponent.resolve_hit(damage)
 	hero.stamina = minf(hero.max_stamina, hero.stamina + RESOLVE_RECOVERY_PER_EXCHANGE)
@@ -182,6 +189,48 @@ static func reply_damage(reply_move: Dictionary, incoming: Dictionary) -> float:
 		if String(reply_move.get("element", "")) == String(incoming.get("element", "")):
 			damage += REPLY_RESONANCE
 	return damage
+
+
+## Cast a granted spell or rite in the arena through the same MagicResolver as the world
+## cookbook (cost, grant and conduit rules unchanged). Allowed while a blow is telegraphed or
+## a reply is being chosen. Effects: damage -> pressure, stagger/knockback -> the next blow
+## is halved, heal_over_time -> composure, a self modifier -> the hero's timed buffs.
+func cast_spell(target_id: StringName) -> Dictionary:
+	if phase != PHASE_TELEGRAPH and phase != PHASE_ANSWER:
+		return {"ok": false, "reason": &"magic.fail.not_now"}
+	var result := MagicResolver.cast(_state, _content_db, target_id)
+	if not bool(result.get("ok", false)):
+		return result
+	var effect: Dictionary = result.get("effect", {})
+	var impact: Dictionary = effect.get("impact", {})
+	var arena_effect := &"none"
+	match String(impact.get("kind", "")):
+		"damage":
+			opponent.resolve_hit(float(impact.get("amount", 0.0)) * SPELL_DAMAGE_SCALE)
+			arena_effect = &"pressure"
+		"stagger", "knockback":
+			_next_blow_factor = SPELL_STAGGER_BLOW_FACTOR
+			arena_effect = &"stagger"
+		"heal_over_time":
+			hero.heal(SPELL_HEAL_COMPOSURE)
+			arena_effect = &"heal"
+	var modifier: Dictionary = effect.get("modifier", {})
+	if not modifier.is_empty():
+		hero.modifiers.apply(
+			StringName(String(modifier.get("modifier_id", ""))),
+			StringName(String(modifier.get("kind", ""))),
+			float(modifier.get("amount", 0.0)),
+			float(modifier.get("duration_sec", 0.0)),
+			StringName(String(modifier.get("stacking", "replace"))),
+			int(modifier.get("max_stacks", 1)),
+			target_id
+		)
+		arena_effect = &"buff"
+	result["arena_effect"] = arena_effect
+	exchange_resolved.emit(
+		{"kind": "spell", "spell_id": String(target_id), "arena_effect": String(arena_effect), "pressure_left": opponent.health}
+	)
+	return result
 
 
 ## After a loss: restore the checkpoint and restart the duel with fresh vitals.
@@ -243,6 +292,7 @@ func _start_run() -> bool:
 	opponent.hit_invulnerability_sec = 0.0
 	_incoming = {}
 	_choices.clear()
+	_next_blow_factor = 1.0
 	last_outcome = {}
 	_finished = false
 	_runner.configure(_content_db, _state, self)
@@ -253,8 +303,10 @@ func _start_run() -> bool:
 		"temperament", []
 	)
 	checkpoint.arm(_state, _dialogue_id)
+	_state.in_spirit_world = true
 	if not _runner.start(_dialogue_id):
 		_finished = true
+		_state.in_spirit_world = false
 		return false
 	return true
 
@@ -270,7 +322,9 @@ func _land_incoming() -> void:
 		float(INCOMING_DAMAGE[incoming_kind])
 		* PhysicalBlowGuilt.incoming_multiplier(_state)
 		* SpiritTraits.incoming_multiplier(_trait_mods, incoming_kind)
+		* _next_blow_factor
 	)
+	_next_blow_factor = 1.0
 	_swing_id += 1
 	var result := hero.resolve_hit(amount, pose, _swing_id)
 	if result.outcome == CombatHitResult.OUTCOME_PARRIED:
@@ -294,6 +348,8 @@ func _land_incoming() -> void:
 
 func _finish(result_phase: StringName, node_id: StringName) -> void:
 	_finished = true
+	if _state != null:
+		_state.in_spirit_world = false
 	last_outcome = {
 		"result": String(result_phase),
 		"resolution_node_id": String(node_id),
