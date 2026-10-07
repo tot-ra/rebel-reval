@@ -1,7 +1,8 @@
 extends "res://tests/godot/test_case.gd"
 
-const DirectionSign3D := preload("res://scripts/map/view3d/direction_sign_3d.gd")
-const LowerTownSliceDefinition := preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd")
+const LowerTownSliceDefinition := preload(
+	"res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd"
+)
 
 
 func test_lower_town_has_wall_exit_signs_outside_the_moat() -> void:
@@ -38,51 +39,6 @@ func test_lower_town_has_wall_exit_signs_outside_the_moat() -> void:
 	assert_true(MapBuilder.validate(definition).is_empty())
 
 
-func test_direction_sign_builds_wooden_arrow_with_two_sided_text() -> void:
-	var definition: MapDefinition = LowerTownSliceDefinition.create()
-	var sign := _sign_by_text(definition, "viru gate and eastern road")
-	var node := DirectionSign3D.build(sign, definition.cell_size)
-	assert_true(node.has_node("Post"))
-	assert_true(node.has_node("ArrowBody"))
-	assert_true(node.has_node("ArrowBody/Plank0"))
-	assert_true(node.has_node("ArrowHead"))
-	assert_true(node.has_node("ArrowHead/HeadPlank0"))
-	assert_true(node.has_node("ArrowBody/NailBody0_0_0"))
-	assert_eq((node.get_node("TextFront") as Label3D).text, "viru gate and eastern road")
-	assert_eq((node.get_node("TextBack") as Label3D).text, "viru gate and eastern road")
-	assert_eq(node.get_meta("outside_direction"), Vector2.RIGHT)
-	assert_true(is_zero_approx(node.rotation.y), "right-pointing sign must face world +X")
-	node.free()
-
-
-func test_south_quarter_sign_points_toward_south_edge() -> void:
-	var definition: MapDefinition = LowerTownSliceDefinition.create()
-	var sign := _sign_by_text(definition, "to knights district")
-	var node := DirectionSign3D.build(sign, definition.cell_size)
-	assert_eq((node.get_node("TextFront") as Label3D).text, "to knights district")
-	var world_arrow_direction := (node.transform.basis * Vector3.RIGHT).normalized()
-	assert_true(
-		world_arrow_direction.is_equal_approx(Vector3.BACK),
-		"south-quarter sign must point toward the south edge"
-	)
-	node.free()
-
-
-func test_direction_sign_rotates_arrow_toward_outgoing_direction() -> void:
-	var down_sign := {
-		"text": "to the southern road",
-		"position": Vector2(32.0, 32.0),
-		"direction": Vector2.DOWN,
-	}
-	var node := DirectionSign3D.build(down_sign, MapTypes.DEFAULT_CELL_SIZE)
-	var world_arrow_direction := (node.transform.basis * Vector3.RIGHT).normalized()
-	assert_true(
-		world_arrow_direction.is_equal_approx(Vector3.BACK),
-		"down on the logic map must rotate the arrow toward world +Z"
-	)
-	node.free()
-
-
 func test_direction_sign_validation_rejects_missing_text_and_zero_direction() -> void:
 	var definition: MapDefinition = LowerTownSliceDefinition.create()
 	definition.direction_signs = [
@@ -97,19 +53,16 @@ func test_direction_sign_validation_rejects_missing_text_and_zero_direction() ->
 	assert_array_contains(errors, "direction_signs[0].direction must not be zero")
 
 
-func test_map_view_assembles_direction_signs_without_logic_geometry() -> void:
+func test_map_view_does_not_draw_direction_signs() -> void:
+	# Road signs are authored map data only; the 3D view must not draw them.
 	var definition: MapDefinition = LowerTownSliceDefinition.create()
 	var grid: MapTerrainGrid = MapBuilder.build(definition)
 	var view := MapView3D.create(definition, grid)
-	var signs := view.get_node("DirectionSigns") as Node3D
-	assert_eq(signs.get_child_count(), definition.direction_signs.size())
-	var texts: Array[String] = []
-	for child in signs.get_children():
-		texts.append(String(child.get_meta("direction_text")))
-	assert_array_contains(texts, "viru gate and eastern road")
-	assert_array_contains(texts, "to town centre")
-	assert_array_contains(texts, "to knights district")
-	assert_array_contains(texts, "karja gate")
+	assert_false(view.has_node("DirectionSigns"))
+	for sign in definition.direction_signs:
+		var sign_id := StringName(String(sign.get("id", "")))
+		if sign_id != &"":
+			assert_eq(view.get_node("ObjectStreamer").loaded_instance(sign_id), null)
 	view.free()
 
 

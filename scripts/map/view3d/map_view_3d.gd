@@ -6,7 +6,6 @@ extends Node3D
 signal assembly_completed
 signal assembly_cancelled
 
-const DirectionSignBuilder := preload("res://scripts/map/view3d/direction_sign_3d.gd")
 const DayNightCycle := preload("res://scripts/global/day_night_cycle.gd")
 const Lighting := preload("res://scripts/map/view3d/map_view_lighting.gd")
 const SkyWeather3D := preload("res://scripts/map/view3d/sky_weather_3d.gd")
@@ -1035,7 +1034,7 @@ func _stage_interior_shell() -> void:
 
 
 ## Streamed-object parents are created here, before the decals, to keep the
-## historical child order: Scatter, Buildings, Landmarks, Props, Decals, DirectionSigns.
+## historical child order: Scatter, Buildings, Landmarks, Props, Decals.
 func _stage_containers_and_decals() -> void:
 	_scatter_root = Node3D.new()
 	_scatter_root.name = "Scatter"
@@ -1047,9 +1046,6 @@ func _stage_containers_and_decals() -> void:
 	# P0-157: projected decals (soot, mud, blood) from map data.
 	_decals_node = MapViewDecals.build_decals(definition, definition.cell_size)
 	add_child(_decals_node)
-	var direction_signs := Node3D.new()
-	direction_signs.name = "DirectionSigns"
-	add_child(direction_signs)
 
 
 func _stage_object_index() -> void:
@@ -1066,7 +1062,6 @@ func _stage_object_index() -> void:
 				&"building": get_node("Buildings"),
 				&"landmark": get_node("Landmarks"),
 				&"prop": get_node("Props"),
-				&"direction_sign": get_node("DirectionSigns"),
 			}
 		)
 	)
@@ -1286,12 +1281,8 @@ func _build_streamed_object(record: Dictionary) -> Node:
 				+ visual_elevation
 			)
 			return prop_node
-		&"direction_sign":
-			var sign_node := DirectionSignBuilder.build(source, definition.cell_size)
-			sign_node.position.y = MapViewMeshBuilder.ground_height(
-				definition, Vector2(sign_node.position.x, sign_node.position.z)
-			)
-			return sign_node
+	# Authored direction_sign records stay indexed (stable IDs, parity) but are not
+	# drawn: painted wooden road signs read as game UI, not medieval Reval.
 	return null
 
 

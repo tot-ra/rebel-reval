@@ -133,7 +133,6 @@ func test_playable_lower_town_routes_keep_authored_art_resident() -> void:
 			"anchor_id": &"checkpoint_west",
 			"objects": [
 				{"id": &"market_stall_turg_north", "kind": &"prop"},
-				{"id": &"sign.town_centre", "kind": &"direction_sign"},
 			],
 		},
 		{
@@ -145,7 +144,6 @@ func test_playable_lower_town_routes_keep_authored_art_resident() -> void:
 				{"id": &"viru_foregate_arch", "kind": &"landmark"},
 				{"id": &"market_stall_gate", "kind": &"prop"},
 				{"id": &"gate_cart", "kind": &"prop"},
-				{"id": &"sign.viru_road", "kind": &"direction_sign"},
 			],
 		},
 		{
@@ -172,13 +170,6 @@ func test_playable_lower_town_routes_keep_authored_art_resident() -> void:
 				{"id": &"south_apron_cart", "kind": &"prop"},
 				{"id": &"south_apron_barrels", "kind": &"prop"},
 				{"id": &"south_apron_scrub_a", "kind": &"prop"},
-			],
-		},
-		{
-			"anchor_id": &"south_quarter_lane",
-			"objects": [
-				{"id": &"sign.south_quarter", "kind": &"direction_sign"},
-				{"id": &"sign.karja_gate", "kind": &"direction_sign"},
 			],
 		},
 	]

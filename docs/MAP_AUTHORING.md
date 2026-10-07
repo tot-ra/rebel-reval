@@ -165,7 +165,7 @@ The initial vocabulary must cover the existing runtime contract without exposing
 | `patrol_path` | Stable ID and ordered cell points | `patrols` |
 | `excluded_rect` | Cell rectangle blocked from traversal | `excluded_areas` |
 | `fade_rect` | Cell rectangle for roof or foreground fade; optional `music_theme` overrides the district playlist while the player stands inside | `fade_volumes` |
-| `direction_sign` | Stable association, text, placement, outgoing direction | `direction_signs` |
+| `direction_sign` | Stable association, text, placement, outgoing direction | `direction_signs` (data only, not rendered in the 3D view) |
 | `view_landmark` | Stable ID, supported view-only kind, placement and dimensions | `view_landmarks` |
 | `surroundings` | Explicit per-side view continuation (`town`, `water`, `woodland`) | `surroundings_sides` |
 | `camera_bounds` | Optional cell rectangle, otherwise full map bounds | `camera_bounds` |
