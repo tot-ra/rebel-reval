@@ -14,7 +14,7 @@
     "notes": "Three forge responses before the watch checkpoint night consequence."
   },
   "concrete_order": "Forge a response to the tainted water before the watch tightens the ward.",
-  "hidden_contradiction": "Every honest fix protects Aita while every hidden flaw trades her safety for leverage over Henning or Jürgen.",
+  "hidden_contradiction": "Every honest fix protects Aita while every hidden flaw trades her safety for leverage over Henning or J\u00fcrgen.",
   "investigation_clues": [
     {
       "id": "cistern",
@@ -78,7 +78,8 @@
           "amount": -1,
           "summary": "Forged a tampered inspection seal to misdirect the watch."
         }
-      ]
+      ],
+      "apprentice_method": "quiet_modification"
     },
     {
       "id": "secret_feature",
@@ -106,7 +107,8 @@
           "amount": 1,
           "summary": "Forged a detention-cart lock with a hidden release catch."
         }
-      ]
+      ],
+      "apprentice_method": "concealment"
     }
   ],
   "night_consequence": "The forged response changes watch checkpoint routes and brewery pressure during investigation night.",

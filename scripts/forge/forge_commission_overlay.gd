@@ -3,6 +3,8 @@ extends CanvasLayer
 
 signal closed
 signal option_selected(option_id: String)
+## The apprentice does an option quietly (ADR 0033); only offered for options with an `apprentice_method`.
+signal secret_option_selected(option_id: String)
 
 var _panel: PanelContainer
 var _title_label: Label
@@ -210,6 +212,18 @@ func _refresh() -> void:
 		button.pressed.connect(func() -> void: option_selected.emit(option_id))
 		_options_box.add_child(button)
 		_option_buttons.append(button)
+		var method := String(option.get("apprentice_method", ""))
+		if not method.is_empty() and bool(_snapshot.get("apprentice_secret_available", false)):
+			var secret_button := Button.new()
+			secret_button.text = "    ...and do it quietly (%s)" % method.replace("_", " ")
+			secret_button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+			secret_button.disabled = button.disabled
+			secret_button.tooltip_text = button.tooltip_text
+			secret_button.set_meta(&"option_id", option_id + ".secret")
+			secret_button.focus_mode = Control.FOCUS_ALL
+			secret_button.pressed.connect(func() -> void: secret_option_selected.emit(option_id))
+			_options_box.add_child(secret_button)
+			_option_buttons.append(secret_button)
 	_wire_option_focus_neighbors()
 	if visible and not already_resolved:
 		call_deferred("_seed_option_focus")

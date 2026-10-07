@@ -53,7 +53,8 @@
           "key": "flag.watch_buckle_weakened",
           "value": true
         }
-      ]
+      ],
+      "apprentice_method": "quiet_modification"
     },
     {
       "id": "secret_feature",
@@ -74,7 +75,8 @@
           "key": "flag.watch_buckle_hidden_release",
           "value": true
         }
-      ]
+      ],
+      "apprentice_method": "concealment"
     }
   ],
   "night_consequence": "The repaired buckle and ledger branch affect Henning's trust and later watch pressure.",

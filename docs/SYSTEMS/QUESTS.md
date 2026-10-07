@@ -70,3 +70,7 @@ Act gates: `tests/godot/test_act1_*.gd`, `docs/reports/p4_012_act1_gate.md`, `do
 - `PaideFinaleModel` (Act 2 finale) and `Act3EndingModel` (1346 sale of Estonia) are deterministic envelope models exercised only by tests; no scene drives them yet.
 - `Act1TraversalModel` is a gate matrix used by tests and report tools, not gameplay.
 - The commission UI is a list-and-confirm overlay; there is no forging minigame by design.
+
+## Apprentice secret methods
+
+Forging options may carry an `apprentice_method`; once the hero is apprenticed the commission screen offers to do them quietly. Same forged records and effects, plus a `flag.forge.secret.*` mark. See [`SPIRIT_DIALOGUE.md`](./SPIRIT_DIALOGUE.md#the-apprentice-at-the-anvil-implemented-sd-12).

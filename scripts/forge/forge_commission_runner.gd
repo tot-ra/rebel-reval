@@ -16,8 +16,10 @@ enum Result {
 	UNKNOWN_OPTION,
 	OPTION_LOCKED,
 	EFFECTS_REJECTED,
+	SECRET_NOT_POSSIBLE,
 }
 
+const APPRENTICED_FLAG := &"flag.prologue.apprenticed"
 const CommissionDeadlineModelScript := preload(
 	"res://scripts/commission/commission_deadline_model.gd"
 )
@@ -30,6 +32,7 @@ var _commission_id := &""
 var _snapshot: Dictionary = {}
 var _active := false
 var _pending_option_id := ""
+var _pending_secret_method := ""
 var _last_result := Result.OK
 var _last_error := ""
 
@@ -94,7 +97,9 @@ func is_forging() -> bool:
 	return not _pending_option_id.is_empty()
 
 
-func select_option(option_id: String) -> bool:
+## `secretly`: the apprentice does the option behind the master's back (ADR 0033). Only options
+## that author an `apprentice_method`, and only once Kalev has taken the apprentice in.
+func select_option(option_id: String, secretly: bool = false) -> bool:
 	_reset_result()
 	if not _active or option_id.is_empty():
 		return false
@@ -104,8 +109,16 @@ func select_option(option_id: String) -> bool:
 	var selected := _validate_option(option_id)
 	if selected.is_empty():
 		return false
+	var secret_method := String(selected.get("apprentice_method", "")) if secretly else ""
+	if secretly and (secret_method.is_empty() or not _state.get_flag(APPRENTICED_FLAG)):
+		_fail(
+			Result.SECRET_NOT_POSSIBLE,
+			"option %s cannot be done secretly for commission %s" % [option_id, _commission_id]
+		)
+		return false
 
 	_pending_option_id = option_id
+	_pending_secret_method = secret_method
 	forging_started.emit(_commission_id, option_id)
 	if _presenter != null:
 		_presenter.begin_forging(
@@ -121,8 +134,10 @@ func complete_pending_option() -> bool:
 	if not _active or _pending_option_id.is_empty():
 		return false
 	var option_id := _pending_option_id
+	var secret_method := _pending_secret_method
 	_pending_option_id = ""
-	return _commit_option(option_id)
+	_pending_secret_method = ""
+	return _commit_option(option_id, secret_method)
 
 
 func cancel() -> void:
@@ -161,7 +176,7 @@ func _validate_option(option_id: String) -> Dictionary:
 	return selected
 
 
-func _commit_option(option_id: String) -> bool:
+func _commit_option(option_id: String, secret_method: String = "") -> bool:
 	var commission := _content_db.get_commission(_commission_id)
 	var selected := _find_forging_option(commission, option_id)
 	if selected.is_empty():
@@ -189,6 +204,10 @@ func _commit_option(option_id: String) -> bool:
 		)
 
 	CommissionDeadlineModelScript.mark_commission_met(_state, _commission_id, _content_db)
+	if not secret_method.is_empty():
+		_state.set_flag(
+			ForgeCommissionModel.secret_flag_for(_commission_id, secret_method), true
+		)
 
 	option_selected.emit(_commission_id, option_id)
 	_close()

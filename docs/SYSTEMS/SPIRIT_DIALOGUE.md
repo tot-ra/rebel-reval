@@ -49,6 +49,15 @@ A dialogue record may declare a top-level `duel` and tag nodes and choices with 
 - **Verify:** `--filter=test_spirit_arena`; frames with `tools/godot_render.sh --resolution 1280x720 --script tools/capture_spirit_arena.gd`.
 - **Limits:** no scene mounts the host yet (SD-05 wires the prologue); no spells or hero moves beyond replies; no guilt hook (SD-07); NPC temperaments do not change damage yet (SD-15); the numbers are prototype values.
 
+## The apprentice at the anvil (implemented, SD-12)
+
+- **Secret methods:** a commission forging option may declare `apprentice_method` (`quiet_modification`, `substitution` or `concealment`, [`schemas/commission.schema.json`](../../schemas/commission.schema.json)). Once `flag.prologue.apprenticed` is set the commission snapshot reports `apprentice_secret_available`, and `ForgeCommissionRunner.select_option(option_id, true)` does that option behind the master's back. A secret attempt on an option without a method, or before the apprentice is taken in, fails with `Result.SECRET_NOT_POSSIBLE`.
+- **Same records:** a secret option writes exactly the `ForgedRecord` and effects of the master's version (`forged.<commission>.<option>`, the option's own flags), so every downstream consequence is unchanged; the only addition is the mark `flag.forge.secret.<commission>.<method>`. The forged-record schema is untouched.
+- **Authored today:** `commission.watch_buckle_repair` (`subtle_defect` quiet modification, `secret_feature` concealment), `commission.lantern_hook_rush` (`subtle_defect` substitution), `commission.bitter_brew` (`subtle_defect` quiet modification, `secret_feature` concealment).
+- **Screen:** `ForgeCommissionOverlay` adds a "...and do it quietly (method)" button under each such option when the secret path is available, and `ForgeCommissionUiPresenter` routes it to the runner.
+- Verify: `--filter=test_apprentice_commissions` and the existing commission tests.
+- **Limits:** nothing reads the secret marks yet (Kalev never discovers or reacts to them); Kalev is not mounted as a master-smith NPC in the smithy (the smithy routine system still drives him as before; see row SD-17 in `TODO.md`); the player has no way to be apprenticed in the running game until the prologue is wired.
+
 ## Magic in the spirit world (implemented, SD-14)
 
 - **World casts are refused:** `SpellforgeController` checks `SpellforgeModel.is_spirit_world()` before any cast (number keys, learned-spell clicks, the cookbook's cast). The feedback line is "Magic answers only in the spirit world." and no willpower is spent.

@@ -53,6 +53,7 @@ static func build_snapshot(
 		"material_cost_display": "%d pfennig material charge" % material_cost,
 		"discovered_leverage": _discovered_leverage(commission, state),
 		"forging_options": _resolve_forging_options(commission, state, rule_evaluator),
+		"apprentice_secret_available": state.get_flag(&"flag.prologue.apprenticed"),
 		"already_resolved": is_commission_resolved(state, commission_id),
 		"night_consequence": String(commission.get("night_consequence", "")),
 		"deadline": CommissionDeadlineModelScript.deadline_snapshot(commission, state, content_db),
@@ -66,6 +67,14 @@ static func is_commission_resolved(state: GameState, commission_id: StringName) 
 		if record.commission_id == commission_id:
 			return true
 	return false
+
+
+## Flag set when the apprentice did an option secretly: `flag.forge.secret.<commission>.<method>`.
+static func secret_flag_for(commission_id: StringName, method: String) -> StringName:
+	var suffix := String(commission_id)
+	if suffix.begins_with("commission."):
+		suffix = suffix.substr("commission.".length())
+	return StringName("flag.forge.secret.%s.%s" % [suffix, method])
 
 
 static func record_id_for(commission_id: StringName, option_id: String) -> StringName:
@@ -89,6 +98,7 @@ static func _empty_snapshot(commission_id: StringName) -> Dictionary:
 		"material_cost_display": "",
 		"discovered_leverage": [],
 		"forging_options": [],
+		"apprentice_secret_available": false,
 		"already_resolved": false,
 		"night_consequence": "",
 		"deadline": {},
@@ -181,6 +191,7 @@ static func _resolve_forging_options(
 					"label": String(option.get("label", option_id)),
 					"enabled": enabled,
 					"disabled_reason": disabled_reason,
+					"apprentice_method": String(option.get("apprentice_method", "")),
 				}
 			)
 		)

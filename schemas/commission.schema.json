@@ -126,6 +126,13 @@
           },
           "technique": {
             "$ref": "common.schema.json#/$defs/forge_technique"
+          },
+          "apprentice_method": {
+            "enum": [
+              "quiet_modification",
+              "substitution",
+              "concealment"
+            ]
           }
         }
       }

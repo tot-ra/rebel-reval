@@ -11,11 +11,14 @@ var _runner: Node
 func configure(overlay: Node, runner: Node, feedback_overlay: ForgeFeedbackOverlay = null) -> void:
 	if _overlay != null and _overlay.option_selected.is_connected(_on_option_selected):
 		_overlay.option_selected.disconnect(_on_option_selected)
+	if _overlay != null and _overlay.secret_option_selected.is_connected(_on_secret_option_selected):
+		_overlay.secret_option_selected.disconnect(_on_secret_option_selected)
 	_overlay = overlay
 	_runner = runner
 	_feedback_overlay = feedback_overlay
 	if _overlay != null:
 		_overlay.option_selected.connect(_on_option_selected)
+		_overlay.secret_option_selected.connect(_on_secret_option_selected)
 
 
 func present_commission(snapshot: Dictionary) -> void:
@@ -42,3 +45,8 @@ func close() -> void:
 func _on_option_selected(option_id: String) -> void:
 	if _runner != null:
 		_runner.select_option(option_id)
+
+
+func _on_secret_option_selected(option_id: String) -> void:
+	if _runner != null:
+		_runner.select_option(option_id, true)

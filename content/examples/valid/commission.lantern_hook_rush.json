@@ -49,7 +49,8 @@
           "key": "flag.lantern_hook_rushed_defect",
           "value": true
         }
-      ]
+      ],
+      "apprentice_method": "substitution"
     },
     {
       "id": "secret_feature",
