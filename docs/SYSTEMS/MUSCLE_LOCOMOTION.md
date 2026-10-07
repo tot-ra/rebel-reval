@@ -43,7 +43,7 @@ Design points that mattered:
 | Creature | Result | Evidence |
 |---|---|---|
 | Quadruped, 25 kg, 12 joints, 24 muscles | Walks 8 s without falling at 0.77 m/s (target 1.0), stride 0.51 m, period 0.64 s. Gait is crouched and shuffling, not natural | [`results/quadruped_strip.png`](../../tools/research/muscle_locomotion/results/quadruped_strip.png), `quadruped_clip.json` |
-| Biped, 75 kg, 6 joints, 12 muscles | **Does not walk yet.** Survives 8 s but moves by scooting in a split-leg stance at 3 Hz (the frequency limit), 0.62 m/s | [`results/biped_strip.png`](../../tools/research/muscle_locomotion/results/biped_strip.png) |
+| Biped, 75 kg, 6 joints, 12 muscles | **Walks.** No fall in 20 s and in 40 s tests, 0.99 m/s (target 1.0), stride 0.85 m, period 0.85 s, upright torso, legs swing past each other. First attempt scooted in a split-leg stance and, after retraining at 8 s, fell at 8.5 s on a 20 s test; the fix was proprioceptive sensors, height and tilt cost terms, a stricter fall rule and a final 20 s training run. Planar only, no pushes or terrain | [`results/biped_strip.png`](../../tools/research/muscle_locomotion/results/biped_strip.png), `biped_clip.json` |
 | Bird, snake, human sit/stand/fight | Not built | n/a |
 
 The prototype was visually checked only through stick-figure filmstrips. There is no Godot or Blender in the authoring session, so none of this has been seen on a mesh or in the engine.
@@ -51,7 +51,7 @@ The prototype was visually checked only through stick-figure filmstrips. There i
 ## What works against it (limits and risks)
 
 - Evolved gaits look odd without realism terms (posture, symmetry, energy per distance, joint-range comfort). Expect weeks of tuning per body plan, not a one-click result.
-- Bipeds need real balance feedback, a longer curriculum (standing, then stepping, then walking) and probably 3D; open-loop oscillators plus three sensors did not suffice here.
+- The planar biped walks, but 3D balance, pushes and terrain are untested; open-loop oscillators plus three sensors did not suffice, proprioception and a posture cost did.
 - Fluid, reactive motion (combat, sitting, standing up, hitting a moving opponent) needs a goal-conditioned closed-loop policy, usually trained with reinforcement learning rather than a periodic cycle. A small network is cheap to run, but the engine would then need a physics rig and a muscle model; Godot 4.7 has none, so the realistic first target is baked clips with procedural layers (foot IK, additive hits), and a PD-driven ragdoll for combat as a later experiment.
 - Birds: flight needs an aerodynamic model (MuJoCo has a fluid drag and lift model for ellipsoids) and different objectives (lift, hover, glide, landing, light bones); untested. Snakes need anisotropic ground friction or a fluid medium; untested.
 - The prototype is 2D and deterministic only per seed; results depend on the MuJoCo version (3.15 used).
@@ -59,13 +59,13 @@ The prototype was visually checked only through stick-figure filmstrips. There i
 
 ## Verification
 
-`python render.py results/quadruped.json 8` replays the stored controller and must print `alive 1.0`, `speed` about 0.77, `dist` about 6.16. There are no automated tests yet.
+`python render.py results/quadruped.json 8` replays the stored controller and must print `alive 1.0`, `speed` about 0.77, `dist` about 6.16. `python render.py results/biped.json 20` must print `alive 1.0`, `speed` about 0.986, `dist` about 19.71. There are no automated tests yet.
 
 ## Roadmap
 
 Requested scope, ordered so each stage reuses the previous one. Every stage is a build-time experiment first; nothing reaches the game without its own task, an ADR and a named scope trade-off (AGENTS.md).
 
-**A. Gaits.** Biped walk (in progress, see Results), the same for the quadruped, then run (flight phase, 2.5 to 4 m/s). Gait is chosen by target speed, as in Geijtenbeek 2013.
+**A. Gaits.** Biped walk (done in 2D, see Results), the same quality for the quadruped (re-run with the new sensors and cost), then run (flight phase, 2.5 to 4 m/s). Gait is chosen by target speed, as in Geijtenbeek 2013.
 
 **B. Terrain and body variation.**
 - Terrain: slopes up and down (5 to 20 degrees), steps and stairs (the city has stairs; riser about 0.18 m), obstacles to step over, climb or jump, routes around obstacles (needs a heading input), and a low doorway or ceiling (the head must stay under a height limit, so the controller needs a stoop strategy: bend hips and knees, shorter stride; the limit is a collision plane at head height).

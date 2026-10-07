@@ -37,7 +37,7 @@ Primary sources for Rockstar and CD Projekt RED pipelines were blocked, so the f
 4. **Behaviour reuse for variety.** Flee, graze, flock and perch states with per-species parameters make a small clip set read as many animals.
 5. **Instancing for crowds.** Flocks of birds use a shared animated mesh with per-instance phase offset, or a vertex-animation texture, rather than one skeleton per bird.
 
-A first build-time experiment with evolved muscle-driven gaits (planar MuJoCo, CMA-ES) is described in [Muscle-driven procedural locomotion](./SYSTEMS/MUSCLE_LOCOMOTION.md): a quadruped walks, a biped does not yet.
+A first build-time experiment with evolved muscle-driven gaits (planar MuJoCo, CMA-ES) is described in [Muscle-driven procedural locomotion](./SYSTEMS/MUSCLE_LOCOMOTION.md): planar quadruped and biped walk.
 
 ## What the repo already has (humans vs animals)
 
