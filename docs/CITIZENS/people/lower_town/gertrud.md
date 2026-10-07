@@ -35,7 +35,7 @@
 - **Model notes:** female, age_years 32, muscle 0.5, weight 0.6, proportions broad shoulders, height_m 1.65; pale sallow skin; blue eyes; dark blond hair under coif; crowd tier 2.
 
 ## Biography
-Born in 1311 on Müürivahe, daughter of Elisabet, a Harju-born woman who made kalach loaves for the Dominican guest-house. She learned dough at her mother's elbow and married Jaak in 1335. Three sons followed: Eerik, Jaak and, this February, Henn. In 1338 a bad winter killed her first daughter at two weeks; she speaks of it never. She now manages the till, the dough and the books, which are tally sticks. Her whisper is not shyness; it was learned in a house where walls are thin.
+Born in 1311 on Müürivahe, daughter of Elisabet, a Harju-born woman who baked braided fast-day loaves for the Dominican guest-house. She learned dough at her mother's elbow and married Jaak in 1335. Three sons followed: Eerik, Jaak and, this February, Henn. In 1338 a bad winter killed her first daughter at two weeks; she speaks of it never. She now manages the till, the dough and the books, which are tally sticks. Her whisper is not shyness; it was learned in a house where walls are thin.
 
 ## Motivation
 - **Want:** To bake enough to keep the shop open and the boys fed.
