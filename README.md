@@ -50,6 +50,10 @@ Every faction believes it is in the right, and none is a clean moral team. Roste
 | 🐻🐆 | **Pskov & Novgorod emissaries** (`pskov_novgorod`) | Opportunity in the chaos; a weakened Order | Any ally is sellable at the right price |
 | 🏴‍☠️ | **The Vitalienbrüder** (`vitalienbruder`) | Plunder; chaos is the business model | No flag, no loyalty, no restraint |
 
+Concept art for the eight launch factions (costume lineups, reference only): [`docs/concept/factions/`](./docs/concept/factions/README.md).
+
+![Faction concept art](./docs/concept/factions/contact_sheet.jpg)
+
 Remaining historical powers - the bishoprics, Lithuania, the Golden Horde, the Blackheads as a distinct body, and other legacy roster entries - start as background canon and are candidates for act-gated playable lines through [ADR 0017](./docs/adr/0017-legacy-design-reintroduction.md) / P7 cast-faction reconciliation.
 
 ## The campaign
