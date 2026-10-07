@@ -49,6 +49,14 @@ A dialogue record may declare a top-level `duel` and tag nodes and choices with 
 - **Verify:** `--filter=test_spirit_arena`; frames with `tools/godot_render.sh --resolution 1280x720 --script tools/capture_spirit_arena.gd`.
 - **Limits:** no scene mounts the host yet (SD-05 wires the prologue); no spells or hero moves beyond replies; no guilt hook (SD-07); NPC temperaments do not change damage yet (SD-15); the numbers are prototype values.
 
+## Observation mode (implemented prototype, SD-06)
+
+- `SpiritObservation` (`scripts/combat/spirit_observation.gd`) plays a tagged dialogue record with no input: `begin(runner, content_db, state, dialogue_id)`, `step()`, `play_all()`. It refuses a record without a `duel`. Choices in an observed record are taken in authored order (first enabled), so the outcome is deterministic.
+- **Learning:** every move the hero sees is learned once through `GameState.learn_move`, with the stable id `move.<kind>.<element>` (for example `move.attack.shame`); saved under `learned_moves` (optional in older saves). Watching again teaches nothing new. Nothing consumes learned moves yet (the arena does not gate replies on them).
+- **Intervention:** `intervene(speaker_id)` sides with a participant once before the conflict ends and sets `flag.duel.<dialogue_id>.sided_with.<speaker_id>`. No consequence reads the flag yet.
+- **Screen:** `SpiritArenaHost.observe(content_db, state, dialogue_id)` dims and freezes the world, shows each line with its move, auto-advances every 2.4 s (`interact` skips ahead), offers "Side with ..." buttons, and reports `moves_learned` when closed.
+- Verify: `--filter=test_spirit_observation`, frame `observation.png` from `tools/capture_spirit_arena.gd`.
+
 ## Prologue content (implemented prototype, SD-05)
 
 [`content/prologue/`](../../content/prologue/README.md) holds the almshouse opening: an observed matron-versus-porter quarrel (4 tagged nodes, hero not involved), the hero's first own duel against the porter (7 nodes, three resolutions: `resolved_spared`, `resolved_punished`, `resolved_struck`), Kalev taking the apprentice (`flag.prologue.apprenticed`), and three cast records. The `[Shove him away]` choice is the physical option: it ends the duel at once and sets `flag.prologue.struck_porter`, which the guilt hook (SD-07) will read. Verify: `--filter=test_spirit_prologue`, `python3 tools/validate_content.py content/prologue content/examples/support content/examples/valid`.
@@ -61,7 +69,7 @@ The runner accessors and the spirit arena above are the entry points. First deli
 
 ## Save state and IDs
 
-Stable IDs in use: `guilt.church`, `guilt.folk`, `guilt.civic`, `act.*`, `rite.*`. Planned: `trait.*`; `skill.language.*`; duel records `duel.*`. Guilt and comprehension must save and load through `GameState` ([`STATE_AND_SAVES.md`](./STATE_AND_SAVES.md)).
+Stable IDs in use: `guilt.church`, `guilt.folk`, `guilt.civic`, `act.*`, `rite.*`, `move.<kind>.<element>`. Planned: `trait.*`; `skill.language.*`; duel records `duel.*`. Guilt and comprehension must save and load through `GameState` ([`STATE_AND_SAVES.md`](./STATE_AND_SAVES.md)).
 
 ## Verification
 

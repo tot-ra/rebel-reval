@@ -130,6 +130,8 @@ var _act1_transition: Dictionary = {}
 ## Magic resources and authored grants are optional in legacy saves.
 var _magic_resources: Dictionary[StringName, int] = {}
 var _magic_grants: Dictionary[StringName, bool] = {}
+## Spirit-duel moves the hero learned by watching (ADR 0033); ids are `move.<kind>.<element>`.
+var _learned_moves: Dictionary[StringName, bool] = {}
 var _natural_aspects: Dictionary[StringName, int] = {}
 var _natural_unspent_points := 0
 var _psyche_states: Dictionary[StringName, Dictionary] = {}
@@ -188,6 +190,26 @@ func spend_natural_point(aspect_id: StringName) -> StringName:
 	_natural_aspects[aspect_id] = get_natural_aspect_rank(aspect_id) + 1
 	_natural_unspent_points -= 1
 	return &""
+
+
+func knows_move(move_id: StringName) -> bool:
+	return _learned_moves.get(move_id, false)
+
+
+## True when the move was new. Ids are `move.<kind>.<element>` (see SpiritObservation.move_id).
+func learn_move(move_id: StringName) -> bool:
+	if move_id == &"" or _learned_moves.has(move_id):
+		return false
+	_learned_moves[move_id] = true
+	return true
+
+
+func get_learned_moves() -> Array[StringName]:
+	var moves: Array[StringName] = []
+	for move_id in _learned_moves:
+		moves.append(move_id)
+	moves.sort()
+	return moves
 
 
 func get_psyche_states() -> Array[Dictionary]:

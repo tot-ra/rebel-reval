@@ -28,6 +28,19 @@ func _init() -> void:
 	host.duel.tick(SpiritDuel.TELEGRAPH_SEC)
 	await _frames(3)
 	await _save(out + "/answer.png")
+	host.close()
+	var watch_db := ContentDB.new()
+	watch_db.load_from_directories(
+		["res://content/prologue", "res://content/examples/valid", "res://content/examples/support"]
+	)
+	var watcher := SpiritArenaHost.new()
+	watcher.freeze_world = false
+	root.add_child(watcher)
+	watcher.observe(watch_db, GameState.new(), &"dialogue.prologue.almshouse_quarrel")
+	watcher.observation.step()
+	watcher.observation.step()
+	await _frames(3)
+	await _save(out + "/observation.png")
 	quit()
 
 

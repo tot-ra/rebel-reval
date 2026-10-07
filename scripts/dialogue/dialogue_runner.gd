@@ -27,6 +27,7 @@ var _dialogue_id := &""
 var _nodes_by_id: Dictionary = {}
 var _current_node_id := ""
 var _duel: Dictionary = {}
+var _participants: Array = []
 var _active := false
 var _waiting_for_choice := false
 var _pending_choices: Array = []
@@ -70,6 +71,11 @@ func get_current_node_id() -> String:
 	return _current_node_id
 
 
+## Participant character ids of the running record.
+func get_participants() -> Array:
+	return _participants.duplicate()
+
+
 ## Spirit-duel markup of the running record (ADR 0033): {stakes, resolution_node_ids}, or {}.
 func get_duel() -> Dictionary:
 	return _duel.duplicate(true)
@@ -107,6 +113,7 @@ func start(dialogue_id: StringName) -> bool:
 	_dialogue_id = dialogue_id
 	var duel: Variant = dialogue.get("duel", {})
 	_duel = duel as Dictionary if typeof(duel) == TYPE_DICTIONARY else {}
+	_participants = (dialogue.get("participants", []) as Array).duplicate()
 	_active = true
 	_waiting_for_choice = false
 	_pending_choices.clear()
@@ -432,6 +439,7 @@ func _close() -> void:
 	_input_enabled = false
 	_current_node_id = ""
 	_duel = {}
+	_participants = []
 	_dialogue_id = &""
 	_nodes_by_id.clear()
 	set_process_unhandled_input(false)

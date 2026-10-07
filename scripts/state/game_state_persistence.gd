@@ -90,6 +90,7 @@ static func save_payload(state: GameState) -> Dictionary:
 			"unspent_points": state._natural_unspent_points,
 		},
 		"guilt": state.guilt.to_dict(),
+		"learned_moves": _bool_dictionary(state._learned_moves),
 		"psyche": {
 			"version": GameState.PSYCHE_VERSION,
 			"states": state.get_psyche_states(),
@@ -187,6 +188,9 @@ static func load_payload(state: GameState, payload: Dictionary) -> Array[String]
 	_load_natural(state, candidate.get("natural", {}), errors)
 	_load_psyche(state, candidate.get("psyche", {}), errors)
 	errors.append_array(state.guilt.from_dict(candidate.get("guilt", {})))
+	state._learned_moves = _load_bool_dictionary(
+		candidate.get("learned_moves", {}), errors, "learned_moves"
+	)
 	state._forge_conduit_bound = bool(candidate.get("forge_conduit_bound", false))
 	state._relationships = _load_int_dictionary(
 		candidate.get("relationships", {}), errors, "relationships"

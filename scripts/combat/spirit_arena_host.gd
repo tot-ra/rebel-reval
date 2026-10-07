@@ -11,13 +11,17 @@ signal opened(dialogue_id: StringName)
 signal closed(outcome: Dictionary)
 
 const BAR_SIZE := Vector2(260.0, 14.0)
+const OBSERVE_BEAT_SEC := 2.4
 
 var duel := SpiritDuel.new()
+var observation := SpiritObservation.new()
 var freeze_world := true
 
 var _runner: Node
 var _was_paused := false
 var _open := false
+var _observing := false
+var _observe_wait := 0.0
 var _line_label: Label
 var _move_label: Label
 var _hint_label: Label
@@ -62,11 +66,52 @@ func open(content_db: ContentDB, state: GameState, dialogue_id: StringName) -> b
 	return true
 
 
+## Watch a conflict between other people as a spirit duel (no input needed; `interact`
+## skips ahead). The hero learns the moves he sees and may side with a speaker once.
+func observe(content_db: ContentDB, state: GameState, dialogue_id: StringName) -> bool:
+	if _open:
+		return false
+	_runner = DialogueRunner.new()
+	_runner.process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(_runner)
+	observation.line_seen.connect(_on_line)
+	observation.finished.connect(_on_observation_finished)
+	if not observation.begin(_runner, content_db, state, dialogue_id):
+		_teardown()
+		return false
+	_open = true
+	_observing = true
+	_observe_wait = OBSERVE_BEAT_SEC
+	visible = true
+	if freeze_world and is_inside_tree():
+		_was_paused = get_tree().paused
+		get_tree().paused = true
+	_hint_label.text = "You look closer... (interact to skip ahead)"
+	_telegraph_bar.visible = false
+	_composure_bar.visible = false
+	_clear_choices()
+	for speaker_id: Variant in _runner.get_participants():
+		var button := Button.new()
+		button.text = "Side with %s" % String(speaker_id)
+		button.pressed.connect(
+			func() -> void:
+				if observation.intervene(StringName(String(speaker_id))):
+					_hint_label.text = "You sided with %s" % String(speaker_id)
+		)
+		_choices_box.add_child(button)
+	_refresh_bars()
+	opened.emit(dialogue_id)
+	return true
+
+
 func close() -> void:
 	if not _open:
 		return
-	var outcome := duel.last_outcome.duplicate()
+	var outcome := (observation.last_outcome if _observing else duel.last_outcome).duplicate()
 	_open = false
+	_observing = false
+	_telegraph_bar.visible = true
+	_composure_bar.visible = true
 	visible = false
 	if freeze_world and is_inside_tree():
 		get_tree().paused = _was_paused
@@ -76,6 +121,16 @@ func close() -> void:
 
 func _process(delta: float) -> void:
 	if not _open:
+		return
+	if _observing:
+		_observe_wait -= delta
+		if Input.is_action_just_pressed(&"interact") or _observe_wait <= 0.0:
+			_observe_wait = OBSERVE_BEAT_SEC
+			if observation.is_over():
+				if Input.is_action_just_pressed(&"interact"):
+					close()
+			else:
+				observation.step()
 		return
 	duel.tick(delta)
 	if duel.phase == SpiritDuel.PHASE_TELEGRAPH:
@@ -95,6 +150,10 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _teardown() -> void:
+	if observation.line_seen.is_connected(_on_line):
+		observation.line_seen.disconnect(_on_line)
+	if observation.finished.is_connected(_on_observation_finished):
+		observation.finished.disconnect(_on_observation_finished)
 	for connection: Array in [
 		[duel.line_presented, _on_line],
 		[duel.choices_ready, _on_choices],
@@ -109,13 +168,14 @@ func _teardown() -> void:
 
 
 func _on_line(speaker_id: StringName, text: String, move: Dictionary) -> void:
-	_line_label.text = text
+	_line_label.text = ("%s: %s" % [String(speaker_id), text]) if _observing else text
 	_move_label.text = ""
 	if not move.is_empty():
 		_move_label.text = "%s of %s" % [String(move.get("kind", "")), String(move.get("element", ""))]
 	if speaker_id == duel.hero_id:
 		_move_label.text = "you: " + _move_label.text
-	_clear_choices()
+	if not _observing:
+		_clear_choices()
 
 
 func _on_choices(choices: Array) -> void:
@@ -153,6 +213,15 @@ func _on_phase(phase: StringName) -> void:
 		SpiritDuel.PHASE_LOST:
 			_hint_label.text = "Your composure broke. Retry"
 			_show_retry()
+
+
+func _on_observation_finished(outcome: Dictionary) -> void:
+	var learned: Array = outcome.get("moves_learned", [])
+	_hint_label.text = "You learned: %s. Press interact to leave." % (
+		", ".join(learned.map(func(id: Variant) -> String: return String(id))) if not learned.is_empty()
+		else "nothing new"
+	)
+	_clear_choices()
 
 
 func _on_finished(_outcome: Dictionary) -> void:
