@@ -11,6 +11,7 @@ const OUTLINE_COLOR := Color(1.0, 0.85, 0.15, 1.0)
 # WHY: thin hull so only the outer silhouette reads; thicker values leak through
 # neighbouring body parts (clothes, hair, limbs) and look like inner contours.
 const OUTLINE_GROW := 0.007
+const OUTLINE_SHADER := preload("res://scripts/interaction/actor_outline.gdshader")
 
 const GLYPH_BY_KIND: Dictionary = {
 	InteractionKinds.TALK: "?",
@@ -38,7 +39,7 @@ var _focused := false
 var _enabled := true
 var _view_runtime: Node
 var _outlined_meshes: Array[MeshInstance3D] = []
-var _outline_material: StandardMaterial3D
+var _outline_material: ShaderMaterial
 
 
 func attach(interactable: Interactable, cell_size: int, view_runtime: Node = null) -> void:
@@ -182,12 +183,10 @@ func _set_outline(active: bool) -> void:
 	if rig == null:
 		return
 	if _outline_material == null:
-		_outline_material = StandardMaterial3D.new()
-		_outline_material.albedo_color = OUTLINE_COLOR
-		_outline_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		_outline_material.cull_mode = BaseMaterial3D.CULL_FRONT
-		_outline_material.grow = true
-		_outline_material.grow_amount = OUTLINE_GROW
+		_outline_material = ShaderMaterial.new()
+		_outline_material.shader = OUTLINE_SHADER
+		_outline_material.set_shader_parameter("outline_color", OUTLINE_COLOR)
+		_outline_material.set_shader_parameter("grow_amount", OUTLINE_GROW)
 	for node in rig.find_children("*", "MeshInstance3D", true, false):
 		var mesh := node as MeshInstance3D
 		if mesh.visible and mesh.mesh != null:

@@ -20,8 +20,9 @@ const TREMOR_RADIUS_PX := 96.0
 const IN_MAP_FOCUS_ANCHOR := &"street_start"
 const IN_MAP_WARMUP_FRAMES := 16
 ## Kalev stands this far from street_start: at the anchor itself a south-side
-## chimney's night smoke column covers him on screen, and the smoke drifts east. Then the cast heading
-## (north, open cobbles toward the gabled houses) and distances in logic px.
+## chimney's night smoke column covers him on screen, and the smoke drifts
+## east. Then the cast heading (north, open cobbles toward the gabled houses)
+## and distances in logic px.
 const IN_MAP_CASTER_OFFSET := Vector2(144.0, -16.0)
 const IN_MAP_HEADING := Vector2.UP
 const IN_MAP_FIRE_START := 24.0
