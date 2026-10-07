@@ -28,6 +28,7 @@ var _reduced_motion_check: CheckButton
 var _subtitles_check: CheckButton
 var _bark_subtitles_check: CheckButton
 var _voice_check: CheckButton
+var _always_translate_check: CheckButton
 var _guard_mode_option: OptionButton
 var _screen_shake_check: CheckButton
 var _reduced_flashing_check: CheckButton
@@ -186,6 +187,8 @@ func _build_ui() -> void:
 	_bark_subtitles_check.toggled.connect(_on_bark_subtitles_toggled)
 	_voice_check = _add_toggle_row(layout, "Voice playback")
 	_voice_check.toggled.connect(_on_voice_toggled)
+	_always_translate_check = _add_toggle_row(layout, "Always translate foreign speech")
+	_always_translate_check.toggled.connect(_on_always_translate_toggled)
 	_reduced_motion_check = _add_toggle_row(layout, "Reduced motion")
 	_reduced_motion_check.toggled.connect(_on_reduced_motion_toggled)
 
@@ -308,6 +311,7 @@ func _sync_from_settings() -> void:
 	_subtitles_check.set_pressed_no_signal(dialogue_settings.subtitles_enabled)
 	_bark_subtitles_check.set_pressed_no_signal(dialogue_settings.bark_subtitles_enabled)
 	_voice_check.set_pressed_no_signal(dialogue_settings.voice_enabled)
+	_always_translate_check.set_pressed_no_signal(dialogue_settings.always_translate)
 
 	var gameplay_settings = _current_gameplay_settings()
 	_select_option_value(_guard_mode_option, gameplay_settings.guard_mode)
@@ -369,6 +373,12 @@ func _on_bark_subtitles_toggled(pressed: bool) -> void:
 func _on_voice_toggled(pressed: bool) -> void:
 	var dialogue = _current_dialogue_settings()
 	dialogue.voice_enabled = pressed
+	_apply_dialogue_settings(dialogue)
+
+
+func _on_always_translate_toggled(pressed: bool) -> void:
+	var dialogue = _current_dialogue_settings()
+	dialogue.always_translate = pressed
 	_apply_dialogue_settings(dialogue)
 
 

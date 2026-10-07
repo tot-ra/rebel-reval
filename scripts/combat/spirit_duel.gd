@@ -187,7 +187,8 @@ func present_line(
 	speaker_id: StringName, _speaker_name: String, text: String, node_id: String
 ) -> void:
 	var move: Dictionary = _runner.get_current_move()
-	line_presented.emit(speaker_id, text, move)
+	var shown := move if _runner.current_speech_readable() else kind_only(move)
+	line_presented.emit(speaker_id, text, shown)
 	if _resolution_ids().has(node_id):
 		_finish(PHASE_WON, node_id)
 		return
@@ -201,6 +202,11 @@ func present_line(
 	else:
 		_incoming = {}
 		_set_phase(PHASE_LINE)
+
+
+## What an unreadable (foreign, not understood) move reveals: the kind of blow, not its element or stakes.
+static func kind_only(move: Dictionary) -> Dictionary:
+	return {} if move.is_empty() else {"kind": move.get("kind", "")}
 
 
 func present_choices(choices: Array) -> void:

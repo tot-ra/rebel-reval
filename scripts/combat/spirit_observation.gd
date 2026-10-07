@@ -86,8 +86,10 @@ func present_line(
 	speaker_id: StringName, _speaker_name: String, text: String, node_id: String
 ) -> void:
 	var move: Dictionary = _runner.get_current_move()
-	line_seen.emit(speaker_id, text, move)
-	if not move.is_empty():
+	var readable: bool = _runner.current_speech_readable()
+	line_seen.emit(speaker_id, text, move if readable else SpiritDuel.kind_only(move))
+	# A conflict in a language the hero does not follow teaches him nothing: he cannot tell its element.
+	if not move.is_empty() and readable:
 		var id := move_id(move)
 		var is_new := _state.learn_move(id)
 		if not _seen.has(id):

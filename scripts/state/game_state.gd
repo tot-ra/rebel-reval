@@ -52,6 +52,13 @@ const MAGIC_RESOURCE_HEALTH := &"resource.health"
 const MAGIC_RESOURCE_DEFAULT := 0
 const ITEM_FORGE_HAMMER := &"item.forge_hammer"
 const NATURAL_VERSION := 1
+const LANGUAGE_NATIVE := &"lang.estonian"
+const LANGUAGE_IDS: Array[StringName] = [
+	&"lang.estonian", &"lang.german", &"lang.latin", &"lang.russian", &"lang.danish"
+]
+## Where the orphan starts: a little church Latin and street German and Russian.
+const LANGUAGE_START: Dictionary = {&"lang.german": 10, &"lang.latin": 20, &"lang.russian": 10}
+const LANGUAGE_TIER_THRESHOLDS: Array[int] = [20, 50, 80]
 const NATURAL_ASPECT_BASELINE := 5
 const NATURAL_ASPECT_CAP := 50
 const NATURAL_INITIAL_POINTS := 10
@@ -132,6 +139,8 @@ var _magic_resources: Dictionary[StringName, int] = {}
 var _magic_grants: Dictionary[StringName, bool] = {}
 ## Spirit-duel moves the hero learned by watching (ADR 0033); ids are `move.<kind>.<element>`.
 var _learned_moves: Dictionary[StringName, bool] = {}
+## Language comprehension 0..100 per language id (ADR 0033); Estonian is always 100.
+var _language_comprehension: Dictionary[StringName, int] = {}
 var _natural_aspects: Dictionary[StringName, int] = {}
 var _natural_unspent_points := 0
 var _psyche_states: Dictionary[StringName, Dictionary] = {}
@@ -190,6 +199,30 @@ func spend_natural_point(aspect_id: StringName) -> StringName:
 	_natural_aspects[aspect_id] = get_natural_aspect_rank(aspect_id) + 1
 	_natural_unspent_points -= 1
 	return &""
+
+
+func get_language_comprehension(language_id: StringName) -> int:
+	if language_id == LANGUAGE_NATIVE:
+		return 100
+	return int(_language_comprehension.get(language_id, LANGUAGE_START.get(language_id, 0)))
+
+
+## Raise comprehension by `amount` (capped at 100). Returns the new value, or -1 for an unknown language.
+func train_language(language_id: StringName, amount: int) -> int:
+	if not LANGUAGE_IDS.has(language_id) or language_id == LANGUAGE_NATIVE or amount < 1:
+		return -1
+	_language_comprehension[language_id] = mini(100, get_language_comprehension(language_id) + amount)
+	return get_language_comprehension(language_id)
+
+
+## 0 imagery only (<20), 1 fragments (20-49), 2 gist (50-79), 3 fluent (80+).
+func language_tier(language_id: StringName) -> int:
+	var value := get_language_comprehension(language_id)
+	var tier := 0
+	for threshold in LANGUAGE_TIER_THRESHOLDS:
+		if value >= threshold:
+			tier += 1
+	return tier
 
 
 func knows_move(move_id: StringName) -> bool:

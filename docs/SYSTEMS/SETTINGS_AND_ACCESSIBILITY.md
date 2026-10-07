@@ -6,7 +6,7 @@ Status: implemented (tasks **P1-013** dialogue settings, **P1-028** input bindin
 
 - **Esc** opens the Settings overlay during play when no other modal is open (`GameSettingsController` on the player scene). Sections:
   - **Audio**: music volume, sound effects volume.
-  - **Dialogue accessibility**: text size, text speed, high contrast, subtitle background, subtitles, bark subtitles, voice playback, reduced motion.
+  - **Dialogue accessibility**: text size, text speed, high contrast, subtitle background, subtitles, bark subtitles, voice playback, always translate foreign speech (shows lines in languages the hero does not yet understand in full), reduced motion.
   - **Gameplay accessibility**: guard input `hold` / `toggle`, screen shake, reduced flashing (scales lightning flashes to 25%), enhanced focus contrast (thicker UI focus borders).
 - **Quick menu → Controls** opens `ControlsOverlay`, which lists every action with its keyboard/mouse and gamepad binding and allows rebinding and restoring defaults.
 - Settings apply immediately and persist across sessions and save slots.

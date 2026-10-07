@@ -28,6 +28,7 @@ Barks are also played by `MapPatrolBarkPresenter`, `SocialReputationController`,
 ## Content
 
 - `type: dialogue` ([`schemas/dialogue.schema.json`](../../schemas/dialogue.schema.json)): `participants`, `start_node_id`, optional `entry_variants[]`, and `nodes[]` with `speaker_id`, `text` or `text_key`, `conditions`, `effects`, `once`, `next_node_id`, and `choices[]` (`target_node_id`, `conditions`, `effects`, `disabled_reason`). Conditions and effects: [`STATE_AND_SAVES.md`](./STATE_AND_SAVES.md#conditions-and-effects).
+- Optional foreign-language markup on nodes (`language`, `gist`, `imagery`) and choices (`comprehension`), ADR 0033: see [`SPIRIT_DIALOGUE.md`](./SPIRIT_DIALOGUE.md#language-comprehension-implemented-sd-08).
 - Optional spirit-duel markup (`duel`, per-node and per-choice `move`, ADR 0033): see [`SPIRIT_DIALOGUE.md`](./SPIRIT_DIALOGUE.md#dialogue-move-tags-implemented-sd-02).
 - `type: bark` ([`schemas/bark.schema.json`](../../schemas/bark.schema.json)): `selection: first_valid_in_order`, optional `phase_ids` / `location_ids` scope, and `entries[]` with `priority` and `conditions`. Selection is deterministic: highest priority first, first passing entry wins.
 - Records live in `content/examples/valid/`, `content/demo/`, and quest packages. Every record carries `deterministic_offline: true`.

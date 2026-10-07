@@ -49,6 +49,16 @@ A dialogue record may declare a top-level `duel` and tag nodes and choices with 
 - **Verify:** `--filter=test_spirit_arena`; frames with `tools/godot_render.sh --resolution 1280x720 --script tools/capture_spirit_arena.gd`.
 - **Limits:** no scene mounts the host yet (SD-05 wires the prologue); no spells or hero moves beyond replies; no guilt hook (SD-07); NPC temperaments do not change damage yet (SD-15); the numbers are prototype values.
 
+## Language comprehension (implemented, SD-08)
+
+- **State:** `GameState` keeps comprehension 0..100 per language: `lang.estonian` (always 100), `lang.german`, `lang.latin`, `lang.russian`, `lang.danish`. The orphan starts with a little Latin (20) and street German and Russian (10 each). `train_language(id, amount)` raises it; `language_tier(id)` is 0 imagery (<20), 1 fragments (20-49), 2 gist (50-79), 3 fluent (80+). Saved under `language_comprehension` (optional in older saves).
+- **Content:** a dialogue node may set `language`, `gist` (shown at tier 1) and `imagery` (shown at tier 0); a choice may set `comprehension: {language, min_tier}` to stay disabled, with a reason, until the hero understands enough. Fixture: `content/examples/valid/dialogue.test_language.json`.
+- **Rendering:** `DialogueLanguage.render` (used by `DialogueRunner`) shows imagery, then the gist, then the real line at tier 2 and above. Nodes without `language`, or in Estonian, are unchanged.
+- **Spirit layer:** while a line is not readable (tier below 2) the arena shows only the kind of blow, not its element or stakes (`SpiritDuel.kind_only`), and watching such a conflict teaches no move.
+- **Accessibility:** Settings -> Dialogue -> "Always translate foreign speech" (`DialogueSettings.always_translate`) shows every line in full; imagery is never the only channel.
+- Verify: `--filter=test_language_comprehension`.
+- **Limits:** nothing trains languages in play yet (no teacher, book or conversation content); only one fixture uses it; voice playback is not changed.
+
 ## Hybrid combat and guilt (implemented, SD-07)
 
 - **Hook:** after every player melee pulse, `Player._on_attack_impact` calls `PhysicalBlowGuilt.record_hits(SessionState.state, targets)`. Only targets that implement `guilt_context()` carry guilt (training dummies do not). `CombatRoomEnemy` implements it: `guilt_actor_id` (default the lowercase node name), `guilt_armed` (false makes it an unarmed victim), `guilt_defending_other`.
@@ -78,7 +88,7 @@ The runner accessors and the spirit arena above are the entry points. First deli
 
 ## Save state and IDs
 
-Stable IDs in use: `guilt.church`, `guilt.folk`, `guilt.civic`, `act.*`, `rite.*`, `move.<kind>.<element>`. Planned: `trait.*`; `skill.language.*`; duel records `duel.*`. Guilt and comprehension must save and load through `GameState` ([`STATE_AND_SAVES.md`](./STATE_AND_SAVES.md)).
+Stable IDs in use: `guilt.church`, `guilt.folk`, `guilt.civic`, `act.*`, `rite.*`, `move.<kind>.<element>`, `lang.*`. Planned: `trait.*`; `skill.language.*`; duel records `duel.*`. Guilt and comprehension must save and load through `GameState` ([`STATE_AND_SAVES.md`](./STATE_AND_SAVES.md)).
 
 ## Verification
 

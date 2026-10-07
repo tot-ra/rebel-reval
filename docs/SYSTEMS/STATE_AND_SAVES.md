@@ -22,6 +22,7 @@ Status: implemented (tasks **P1-007** session state, **P1-008** save envelope, *
 | NATURAL aspect ranks, psyche states | baseline 5, cap 50 | [`NATURAL.md`](./NATURAL.md), [`PSYCHE.md`](./PSYCHE.md) |
 | Guilt per school (`guilt.church`, `guilt.folk`, `guilt.civic`), recorded act IDs, used rite IDs | level 0..10 per school; saved under `guilt` (optional in older saves) | [`SPIRIT_DIALOGUE.md`](./SPIRIT_DIALOGUE.md#guilt-implemented-sd-03) |
 | Learned spirit-duel moves (`move.<kind>.<element>`) | set of ids; saved under `learned_moves` (optional in older saves) | [`SPIRIT_DIALOGUE.md`](./SPIRIT_DIALOGUE.md#observation-mode-implemented-prototype-sd-06) |
+| Language comprehension (`lang.*`) | 0..100 per language, Estonian fixed at 100; saved under `language_comprehension` (optional in older saves) | [`SPIRIT_DIALOGUE.md`](./SPIRIT_DIALOGUE.md#language-comprehension-implemented-sd-08) |
 | Weather snapshot | JSON-safe `SkyWeatherState` payload | [`SKY_WEATHER_STATE_CONTRACT.md`](../SKY_WEATHER_STATE_CONTRACT.md) |
 | World items, stable map objects | placed/taken items, `MapStableStateStore` | [`WORLD_LIFE.md`](./WORLD_LIFE.md) |
 

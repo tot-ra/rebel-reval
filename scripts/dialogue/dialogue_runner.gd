@@ -283,7 +283,9 @@ func _enter_node(node_id: String, depth: int = 0) -> bool:
 	_apply_node_effects(node)
 	_mark_node_seen(_dialogue_id, node)
 
-	var text := _format_text(_resolve_authored_text(node))
+	var text := _format_text(
+		DialogueLanguage.render(node, _resolve_authored_text(node), _state, _always_translate())
+	)
 	var choices := _resolve_choices(node)
 	var speaker_id := StringName(String(node.get("speaker_id", "")))
 	if not text.is_empty():
@@ -335,14 +337,39 @@ func _resolve_choice(choice: Dictionary) -> Dictionary:
 	var enabled := true
 	if not conditions.is_empty():
 		enabled = _evaluator.evaluate_conditions(_runtime_rules(conditions), _state)
+	var language_block := DialogueLanguage.choice_block_reason(choice, _state)
+	var disabled_reason := String(choice.get("disabled_reason", ""))
+	if not language_block.is_empty():
+		enabled = false
+		if disabled_reason.is_empty():
+			disabled_reason = language_block
 	return {
 		"id": String(choice.get("id", "")),
 		"text": _resolve_authored_text(choice),
 		"target_node_id": String(choice.get("target_node_id", "")),
 		"enabled": enabled,
-		"disabled_reason": String(choice.get("disabled_reason", "")),
+		"disabled_reason": disabled_reason,
 		"move": _move_of(choice),
 	}
+
+
+## False while the current line is in a language the hero does not follow well enough to read
+## its move's element and stakes (the kind of blow is still visible).
+func current_speech_readable() -> bool:
+	var node: Dictionary = _nodes_by_id.get(_current_node_id, {})
+	return DialogueLanguage.stakes_readable(node, _state, _always_translate())
+
+
+## Accessibility: show foreign-language lines in full (Settings -> Dialogue).
+func _always_translate() -> bool:
+	var tree := Engine.get_main_loop() as SceneTree
+	if tree == null:
+		return false
+	var settings: Node = tree.root.get_node_or_null("UserSettings")
+	if settings == null:
+		return false
+	var dialogue: Variant = settings.get("dialogue")
+	return dialogue != null and bool((dialogue as Object).get("always_translate"))
 
 
 func _move_of(entry: Dictionary) -> Dictionary:

@@ -91,6 +91,7 @@ static func save_payload(state: GameState) -> Dictionary:
 		},
 		"guilt": state.guilt.to_dict(),
 		"learned_moves": _bool_dictionary(state._learned_moves),
+		"language_comprehension": _int_dictionary(state._language_comprehension),
 		"psyche": {
 			"version": GameState.PSYCHE_VERSION,
 			"states": state.get_psyche_states(),
@@ -190,6 +191,9 @@ static func load_payload(state: GameState, payload: Dictionary) -> Array[String]
 	errors.append_array(state.guilt.from_dict(candidate.get("guilt", {})))
 	state._learned_moves = _load_bool_dictionary(
 		candidate.get("learned_moves", {}), errors, "learned_moves"
+	)
+	state._language_comprehension = _load_language_comprehension(
+		candidate.get("language_comprehension", {}), errors
 	)
 	state._forge_conduit_bound = bool(candidate.get("forge_conduit_bound", false))
 	state._relationships = _load_int_dictionary(
@@ -607,6 +611,22 @@ static func _load_int_dictionary(
 	for key in source as Dictionary:
 		out[StringName(String(key))] = int(source[key])
 	return out
+
+
+static func _load_language_comprehension(
+	source: Variant, errors: Array[String]
+) -> Dictionary[StringName, int]:
+	var result: Dictionary[StringName, int] = {}
+	if typeof(source) != TYPE_DICTIONARY:
+		errors.append("language_comprehension must be a dictionary")
+		return result
+	for key: Variant in (source as Dictionary):
+		var language_id := StringName(String(key))
+		if not GameState.LANGUAGE_IDS.has(language_id) or language_id == GameState.LANGUAGE_NATIVE:
+			errors.append("unknown language %s" % String(key))
+			continue
+		result[language_id] = clampi(int((source as Dictionary)[key]), 0, 100)
+	return result
 
 
 static func _load_natural(state: GameState, source: Variant, errors: Array[String]) -> void:

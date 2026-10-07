@@ -1,0 +1,52 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.test_language",
+  "title": "Foreign Speech Fixture",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "review",
+    "notes": "SD-08 language comprehension fixture only (ADR 0033)."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id",
+    "notes": "German speech the hero barely follows."
+  },
+  "participants": ["char.kalev", "char.mart"],
+  "start_node_id": "bark",
+  "duel": {"stakes": ["respect"], "resolution_node_ids": ["quiet", "answered"]},
+  "nodes": [
+    {
+      "id": "bark",
+      "speaker_id": "char.kalev",
+      "language": "lang.german",
+      "text": "Du bezahlst mir das Eisen, oder du gehst.",
+      "imagery": "[A heavy voice. Coins clink in his fist; a door stands open behind him.]",
+      "gist": "[You catch 'Eisen' and 'gehst'. Iron. Leave.]",
+      "move": {"kind": "pressure", "element": "coin", "stakes": ["respect"]},
+      "choices": [
+        {
+          "id": "answer_back",
+          "text": "I will pay by the month.",
+          "target_node_id": "answered",
+          "comprehension": {"language": "lang.german", "min_tier": 2},
+          "move": {"kind": "appeal", "element": "coin", "stakes": ["respect"]}
+        },
+        {
+          "id": "stay_silent",
+          "text": "[Say nothing]",
+          "target_node_id": "quiet",
+          "move": {"kind": "evade", "element": "fear"}
+        }
+      ]
+    },
+    {"id": "answered", "speaker_id": "char.kalev", "text": "Hm. By the month, then."},
+    {"id": "quiet", "speaker_id": "char.kalev", "text": "..."}
+  ],
+  "source_notes": [
+    {"confidence": "invented", "summary": "Fixture for language-gated dialogue."}
+  ]
+}

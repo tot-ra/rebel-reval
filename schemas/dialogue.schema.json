@@ -164,12 +164,53 @@
                 },
                 "move": {
                   "$ref": "common.schema.json#/$defs/duel_move"
+                },
+                "comprehension": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "language",
+                    "min_tier"
+                  ],
+                  "properties": {
+                    "language": {
+                      "enum": [
+                        "lang.estonian",
+                        "lang.german",
+                        "lang.latin",
+                        "lang.russian",
+                        "lang.danish"
+                      ]
+                    },
+                    "min_tier": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 3
+                    }
+                  }
                 }
               }
             }
           },
           "move": {
             "$ref": "common.schema.json#/$defs/duel_move"
+          },
+          "language": {
+            "enum": [
+              "lang.estonian",
+              "lang.german",
+              "lang.latin",
+              "lang.russian",
+              "lang.danish"
+            ]
+          },
+          "gist": {
+            "type": "string",
+            "minLength": 1
+          },
+          "imagery": {
+            "type": "string",
+            "minLength": 1
           }
         }
       }

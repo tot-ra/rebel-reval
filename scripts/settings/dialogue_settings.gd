@@ -25,6 +25,8 @@ var pseudo_localization: bool = false
 var subtitles_enabled: bool = true
 var bark_subtitles_enabled: bool = true
 var voice_enabled: bool = true
+## Show lines in languages the hero does not understand in full (accessibility, ADR 0033).
+var always_translate: bool = false
 
 
 static func default_settings():
@@ -43,6 +45,7 @@ func duplicate_settings():
 	copy.subtitles_enabled = subtitles_enabled
 	copy.bark_subtitles_enabled = bark_subtitles_enabled
 	copy.voice_enabled = voice_enabled
+	copy.always_translate = always_translate
 	return copy
 
 
@@ -81,6 +84,7 @@ func to_dict() -> Dictionary:
 		"subtitles_enabled": subtitles_enabled,
 		"bark_subtitles_enabled": bark_subtitles_enabled,
 		"voice_enabled": voice_enabled,
+		"always_translate": always_translate,
 	}
 
 
@@ -96,5 +100,6 @@ static func from_dict(data: Dictionary):
 	settings.subtitles_enabled = bool(data.get("subtitles_enabled", true))
 	settings.bark_subtitles_enabled = bool(data.get("bark_subtitles_enabled", true))
 	settings.voice_enabled = bool(data.get("voice_enabled", true))
+	settings.always_translate = bool(data.get("always_translate", false))
 	settings.normalize()
 	return settings
