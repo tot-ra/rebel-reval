@@ -39,11 +39,13 @@ terrain niguliste_close grass 161 37 31 19 order=3
 terrain dunkri_yard dirt 202 9 45 22 order=4
 terrain karja_glacis mud 219 84 48 12 order=5
 # R-454f: shallow wet wall-edge ditches stay inside the map edge and outside
-# the Karja gate throat. The dry overlay is a level causeway, not a new wall or
+# the Karja gate throat. The ditches stop short of the map edge: a muddy outer
+# bank (south_wall.outer_bank) gives the water a real shoreline instead of a
+# water body cut flat by the edge of the map. The dry overlay is a level causeway, not a new wall or
 # barbican, and keeps the existing southern transition corridor walkable.
-terrain south_wall.ditch.west water 156 90 72 6 order=15
-terrain south_wall.ditch.east water 267 90 69 6 order=15
-terrain east_wall.ditch water 331 9 5 57 order=15
+terrain south_wall.ditch.west water 156 90 72 4 order=15
+terrain south_wall.ditch.east water 267 90 69 4 order=15
+terrain east_wall.ditch water 331 9 3 57 order=15
 terrain karja.causeway dirt 240 84 14 12 order=16
 # R-676: named surface bands keep the compressed reconstruction legible in the
 # editor and audit without turning the western connector into a second frontage.
@@ -56,6 +58,7 @@ terrain_rects south.service_plots mud 192,18,18,12|245,40,14,8|284,42,14,8|288,6
 # and selected property thresholds; they are not a district-wide limestone fill.
 terrain_rects south.stone_closes stone 158,9,31,19|161,37,31,19|188,0,20,16|226,0,48,16|282,0,22,16|188,37,25,15|225,37,25,15|264,16,32,18|294,16,24,18|225,56,36,17|286,56,34,17|304,12,27,28|304,56,27,24|226,16,31,20|188,16,25,20|188,50,25,20|225,64,36,16|264,64,40,16 order=7
 terrain_rects south.wall_margins mud 156,84,72,6|267,84,69,6|325,9,6,57 order=14
+terrain_rects south_wall.outer_bank mud 156,94,72,2|267,94,69,2|334,9,2,57 order=14
 terrain old_hill_foot dirt 144 12 17 75 order=6
 terrain north_rataskaev_yard dirt 151 0 31 12 order=7
 terrain north_civic_threshold dirt 226 0 48 16 order=7

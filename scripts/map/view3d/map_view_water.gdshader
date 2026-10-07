@@ -119,6 +119,15 @@ uniform float tide_level = 0.0;
 uniform float tide_height = 0.0;
 uniform float tide_shore_retreat = 0.0;
 uniform float tide_optical_depth = 0.0;
+// Stagnant moat/pond look (TERRAIN_WATER only; 0 leaves sea and river untouched).
+// A town moat is a murky olive-brown ditch, not clear sea: the column darkens toward
+// the middle (reads as deep), a silty shelf rims the bank, and duckweed, algae mats
+// and leaf litter float on the surface. pond_murk scales the tint, pond_scum the cover.
+uniform float pond_murk = 0.0;
+uniform float pond_scum = 0.0;
+uniform vec3 pond_deep_color : source_color = vec3(0.035, 0.06, 0.04);
+uniform vec3 pond_shelf_color : source_color = vec3(0.17, 0.17, 0.09);
+uniform vec3 pond_duckweed_color : source_color = vec3(0.13, 0.20, 0.05);
 // Shared SkyWeather heading. Default matches the authored primary swell axis so
 // calm seas keep the pre-P0-226 look until apply_sea_weather() pushes live wind.
 uniform vec2 wind_direction = vec2(0.9578, 0.2873);
@@ -1327,6 +1336,47 @@ void fragment() {
 	// Fresh foam is rough and diffuse, so it does not mirror the sky. Old foam lies
 	// under the surface and keeps the reflection on top of it.
 	sky_reflection_weight *= 1.0 - whitecap_fresh;
+	// Stagnant water: darken and tint the column, then lay a floating film over it.
+	// shore_factor is 0 at the bank and grows toward open water, so it doubles as a
+	// depth cue: silty shelf at the edge, near-black olive in the middle.
+	float scum_cover = 0.0;
+	vec3 scum_color = pond_duckweed_color;
+	if (pond_murk > 0.001 && !swash_sheet) {
+		vec2 pp = water_world_position.xz;
+		float centre = smoothstep(0.10, 0.85, shore_factor);
+		float bank = 1.0 - smoothstep(0.0, 0.45, shore_factor);
+		vec3 murk = mix(pond_shelf_color, pond_deep_color, centre);
+		water_color = mix(water_color, murk, pond_murk * mix(0.80, 0.95, centre));
+		// Sky mirrored in a silty, algae-rich column is greenish and dull, not blue.
+		sky_reflection *= vec3(0.46, 0.62, 0.40);
+		// Wet mud shelf: a ragged, opaque-looking band along the waterline gives the
+		// edge a sloped bank instead of a ruler-straight cut into clear water.
+		float mud_edge = 0.50 + 0.20 * _noise(pp * 1.7 + vec2(4.2, -9.1))
+			+ 0.10 * _noise(pp * 6.3 + vec2(-2.7, 13.4));
+		float mud_band = 1.0 - smoothstep(0.04, mud_edge, shore_factor);
+		vec3 mud_color = mix(vec3(0.34, 0.26, 0.15), vec3(0.22, 0.22, 0.10),
+			_noise(pp * 3.1 + vec2(8.8, 1.4)));
+		water_color = mix(water_color, mud_color * mix(0.6, 1.0, day_blend), mud_band * mud_band * 0.95 * pond_murk);
+		// Shadowed, darker band right beyond the mud: reads as the bank dropping away.
+		water_color *= 1.0 - bank * bank * 0.45 * pond_murk;
+		// Floating film: slow drifting patches that gather at the banks, broken into
+		// lemna-sized speckles, plus occasional brown leaf litter and algae stains.
+		vec2 drift = vec2(TIME * 0.012, -TIME * 0.007);
+		float patches = _noise(pp * 0.33 + drift + vec2(7.1, 2.3)) * 0.6
+			+ _noise(pp * 0.9 - drift * 1.6 + vec2(-3.4, 11.8)) * 0.4;
+		float mat_mask = smoothstep(0.50 - bank * 0.18, 0.68 - bank * 0.12, patches);
+		float speckle = smoothstep(0.30, 0.62, _noise(pp * 7.5 + vec2(19.2, -5.6)) * 0.65
+			+ _noise(pp * 17.0 + vec2(-8.3, 3.9)) * 0.35);
+		// Thin lemna film everywhere (never fully clear), thickest in the bank band.
+		float film = smoothstep(0.50, 0.75, _noise(pp * 11.0 + vec2(2.3, 6.7))) * 0.35;
+		scum_cover = max(mat_mask * mix(0.55, 1.0, speckle), film + bank * 0.25) * pond_scum;
+		float stain = smoothstep(0.58, 0.8, _noise(pp * 0.21 + vec2(-14.7, 5.5)));
+		water_color = mix(water_color, pond_shelf_color * 1.15, stain * 0.35 * pond_murk);
+		float leaves = smoothstep(0.80, 0.92, _noise(pp * 5.2 + vec2(31.0, 9.7))) * (0.4 + bank);
+		scum_color = mix(pond_duckweed_color * mix(0.7, 1.25, speckle), vec3(0.20, 0.14, 0.07), clamp(leaves, 0.0, 1.0));
+		scum_cover = clamp(max(scum_cover, leaves * 0.55 * pond_scum), 0.0, 0.92);
+		sky_reflection_weight *= mix(1.0, 0.8, pond_murk) * (1.0 - scum_cover * 0.85);
+	}
 	// WS-06 art-direction lever, like ripple_sheen: seen from the steep gameplay camera
 	// a flatter or rougher normal barely changes a uniform sky, so a glassy slick also
 	// mirrors a little more of it and a catspaw a little less, then reads darker.
@@ -1334,6 +1384,8 @@ void fragment() {
 	sky_reflection_weight = clamp(sky_reflection_weight * (1.0 - gust_tone * 0.5), 0.0, 0.92);
 	water_color = mix(water_color, sky_reflection, sky_reflection_weight);
 	water_color *= 1.0 - max(gust_tone, 0.0) * 0.3;
+	// The film sits on top of the mirror, lit like a diffuse leaf surface.
+	water_color = mix(water_color, scum_color * mix(0.55, 1.0, day_blend), scum_cover);
 
 	// WHY: DayNightCycle packs a solar day into 60s. Reflecting the catalog and
 	// sun/moon through fully animated wave normals turns that race into frantic
@@ -1467,6 +1519,8 @@ void fragment() {
 	// WS-06: fresh foam is a rough diffuse scatterer. It takes its brightness from
 	// the lights through ALBEDO, so it dims with the night instead of glowing.
 	ROUGHNESS = mix(ROUGHNESS, 0.6, whitecap_fresh);
+	// Duckweed and leaf litter scatter light diffusely, unlike open water.
+	ROUGHNESS = mix(ROUGHNESS, 0.75, scum_cover);
 	SPECULAR = mix(SPECULAR, 0.1, whitecap_fresh);
 	glint_alpha = ROUGHNESS * ROUGHNESS;
 	// WHY full Lambert rather than the ~0.02 of physical water: ALBEDO here is the

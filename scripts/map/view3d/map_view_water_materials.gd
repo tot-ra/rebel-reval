@@ -20,7 +20,7 @@ const RIVER_PATH_MAX := 24
 const OPTICAL_DEPTH_BY_TERRAIN := {
 	MapTypes.TERRAIN_SHALLOW_WATER: 0.075,
 	MapTypes.TERRAIN_RIVER_WATER: 0.14,
-	MapTypes.TERRAIN_WATER: 0.24,
+	MapTypes.TERRAIN_WATER: 0.36,
 	MapTypes.TERRAIN_DEEP_WATER: 0.38,
 }
 
@@ -62,7 +62,7 @@ const WATER_WAVE_BASE := {
 		"standing": 0.42,
 		"foam": 0.18,
 		"breakers": 0.22,
-		"absorption": 7.0,
+		"absorption": 8.5,
 		"bed_vegetation": 1.0,
 		"tide_height": 0.0,
 		"tide_shore_retreat": 0.0,
@@ -585,6 +585,18 @@ static func water_surface(terrain_id: StringName, wave_profiles: Dictionary) -> 
 		material.set_shader_parameter("flow_strength", RIVER_FLOW_STRENGTH)
 		material.set_shader_parameter("detail_normal_strength", 0.36)
 		material.set_shader_parameter("detail_normal_scale", 1.28)
+	# WHY: TERRAIN_WATER is stagnant moat/pond water. The shared clear-sea look made
+	# town moats read as shallow turquoise puddles, so give them a silty bed, murky
+	# olive column and a floating duckweed film (see pond_* uniforms in the shader).
+	if terrain_id == MapTypes.TERRAIN_WATER:
+		material.set_shader_parameter("pond_murk", 1.0)
+		material.set_shader_parameter("pond_scum", 0.8)
+		material.set_shader_parameter("sand_bed_color", Color(0.20, 0.17, 0.10))
+		material.set_shader_parameter("stone_bed_color", Color(0.16, 0.17, 0.14))
+		material.set_shader_parameter("algae_bed_color", Color(0.08, 0.15, 0.07))
+		material.set_shader_parameter("deep_color", Color(0.035, 0.07, 0.05))
+		material.set_shader_parameter("shallow_color", Color(0.16, 0.20, 0.10))
+		material.set_shader_parameter("foam_color", Color(0.52, 0.56, 0.47))
 	material.set_shader_parameter("use_fft", false)
 	# WS-15: an unset sampler2D defaults to white (h = 1), so every water material starts
 	# on the flat 1x1 state with the window marked invalid until a WaterRippleSim binds.
