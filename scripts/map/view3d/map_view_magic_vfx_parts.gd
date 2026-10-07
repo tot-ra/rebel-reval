@@ -156,6 +156,22 @@ static func flame_ramp() -> GradientTexture1D:
 	)
 
 
+## Explosion body. Dozens of overlapping additive quads sum to flat white with
+## `flame_ramp`, so this one peaks lower and turns red sooner: only the dense
+## centre saturates and the billows keep orange-to-crimson shading.
+static func explosion_ramp() -> GradientTexture1D:
+	return ramp(
+		[0.0, 0.08, 0.3, 0.6, 1.0],
+		[
+			Color(1.0, 0.9, 0.6, 0.0),
+			Color(1.0, 0.66, 0.26, 0.3),
+			Color(0.92, 0.3, 0.05, 0.24),
+			Color(0.55, 0.08, 0.02, 0.1),
+			Color(0.2, 0.03, 0.0, 0.0),
+		]
+	)
+
+
 static func ember_ramp() -> GradientTexture1D:
 	return ramp(
 		[0.0, 0.5, 1.0],
@@ -323,6 +339,10 @@ static func _billboard_material() -> StandardMaterial3D:
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	material.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
 	material.billboard_keep_scale = true
+	# Soft-particle fade where a quad meets paving or a wall; without it big
+	# flame and dust quads cut hard horizontal edges into the ground.
+	material.proximity_fade_enabled = true
+	material.proximity_fade_distance = 0.45
 	return material
 
 

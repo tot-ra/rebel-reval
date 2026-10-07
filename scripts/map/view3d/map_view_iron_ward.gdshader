@@ -11,7 +11,7 @@ uniform float coverage : hint_range(0.0, 1.0) = 1.0;
 // Overall opacity; the VFX fades it and flickers it before expiry.
 uniform float strength : hint_range(0.0, 1.0) = 1.0;
 uniform float body_height = 2.0;
-uniform vec3 iron_color : source_color = vec3(0.23, 0.235, 0.25);
+uniform vec3 iron_color : source_color = vec3(0.46, 0.465, 0.48);
 
 varying float v_height;
 varying vec3 v_world;
@@ -51,11 +51,14 @@ void fragment() {
 	float grain = value_noise(v_world * 9.0);
 	float patches = value_noise(v_world * 3.1 + vec3(4.7));
 	// Ragged leading edge: noise pushes the front up and down a little.
-	float front = coverage * 1.12 - 0.06;
+	// WHY the overshoot: at coverage 1 the front must clear the crown, or the
+	// hot temper band parks on the head as a glowing cap.
+	float front = coverage * 1.45 - 0.08;
 	float edge_distance = front - v_height + (patches - 0.5) * 0.12;
 	float covered = smoothstep(0.0, 0.035, edge_distance);
 	// Temper band just behind the front: hot straw/orange, cooling to blue.
 	float band = 1.0 - smoothstep(0.0, 0.11, abs(edge_distance - 0.04));
+	band *= 1.0 - smoothstep(0.8, 1.0, coverage);
 	vec3 temper = mix(vec3(0.95, 0.42, 0.08), vec3(0.98, 0.78, 0.32), band);
 	vec3 blued = vec3(0.16, 0.2, 0.32);
 	float cooled = smoothstep(0.04, 0.3, edge_distance);
@@ -63,11 +66,17 @@ void fragment() {
 	// A faint blued cast survives on the cooled metal, like oil-quenched iron.
 	base = mix(base, blued, 0.18 * cooled * patches);
 	ALBEDO = mix(temper, base, cooled);
-	METALLIC = 0.92;
-	ROUGHNESS = mix(0.28, 0.55, grain);
-	// Rim sheen keeps the metal readable from the high orthographic camera.
+	// WHY not fully metallic: map scenes have no reflection probes, so a pure
+	// metal reflects nothing and renders as flat black cloth. Partial metal
+	// keeps a grey diffuse body and still throws a hard specular highlight.
+	METALLIC = 0.6;
+	ROUGHNESS = mix(0.24, 0.5, grain);
+	// Fake sky reflection: a cool fresnel sheen on edges plus a soft lift on
+	// up-facing planes (shoulders, forearms) so the metal reads as polished.
 	float rim = pow(1.0 - clamp(dot(NORMAL, VIEW), 0.0, 1.0), 2.5);
-	EMISSION = temper * band * covered * 2.2 + vec3(0.5, 0.55, 0.62) * rim * 0.22 * cooled;
+	float up = clamp((INV_VIEW_MATRIX * vec4(NORMAL, 0.0)).y, 0.0, 1.0);
+	vec3 sheen = vec3(0.55, 0.6, 0.68) * (rim * 0.35 + up * up * 0.12 * (1.0 - grain));
+	EMISSION = temper * band * covered * 1.8 + sheen * cooled;
 	float coverage_alpha = mix(0.55, 0.82, patches) * covered;
 	ALPHA = clamp(max(coverage_alpha, band * covered), 0.0, 1.0) * strength;
 }

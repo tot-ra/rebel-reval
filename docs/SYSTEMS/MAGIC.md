@@ -198,7 +198,19 @@ Stagger lands through the shared `CombatStaggerEffect.apply_to` contract (`apply
 
 `CombatRoomEnemy.apply_knockback` reuses the stagger interrupt for its hold (an unlanded telegraph or attack is cancelled) and slides the actor over `CombatKnockbackEffect.SLIDE_SEC` (0.2 s, ease-out) inside `tick_ai`. The slide is frame-rate independent. A new knockback replaces an unfinished slide instead of adding to it, so overlapping casts never exceed one authored distance. Dead actors do not slide. Hosts with walls override `_constrain_knockback_position`; `WorkersDistrictBandit` snaps the shove to its navmesh and fails open while the map has not synced. The validator rejects `knockback` on any delivery other than `area_pulse`.
 
-**3D presentation (R-913):** `MapViewMagicVfx` (`scripts/map/view3d/map_view_magic_vfx.gd`) is a view-only wind volume plus the shared chimney-smoke particle material. `MapViewRuntime` binds it so a knockback cone (`arc_deg < 360`) draws in the 3D map; full-circle stagger pulses stay undrawn. It never names a spell and does not change `CombatKnockbackEffect`. Evidence plates: `docs/reports/images/air_gust/`.
+**3D presentation (R-913):** `MapViewMagicVfx` (`scripts/map/view3d/map_view_magic_vfx.gd`) is a view-only wind volume plus the shared chimney-smoke particle material. `MapViewRuntime` binds it so a knockback cone (`arc_deg < 360`) draws in the 3D map; other area pulses draw the ground shock below. It never names a spell and does not change `CombatKnockbackEffect`. Evidence plates: `docs/reports/images/air_gust/`.
+
+**3D presentation of the starter spells (R-1198):** the same node gives Fireball, Earth Tremor and Iron Skin a physical look. Looks are keyed by delivery kind, `damage_type` and modifier stat, never by spell ID, and no texture assets are used (soft sprites and ground meshes are generated in `map_view_magic_vfx_parts.gd`, P0-040). Gameplay, balance and saves are unchanged.
+
+| Trigger | Look |
+|---------|------|
+| `projectile` with `impact.damage_type = "fire"` | White-hot core with a flickering light and a world-space flame tongue plus smoke trail; on impact a flash light, rolling fireball, soot, embers and a fading scorch mark (`play_fire_burst`). Out-of-range expiry gutters into a smoke puff. Other projectiles keep the plain orb |
+| `area_pulse` without `knockback` | Expanding shock ring, branching ground cracks that linger and fade, radial dust wave, rim dust and tumbling stone chips on terrain height (`play_area_pulse_ring`) |
+| any `damage_reduction` modifier on the bound actor | Lit forged-iron overlay (`scripts/map/view3d/map_view_iron_ward.gdshader`) sweeping up the rig from the feet with a temper-coloured leading edge, sparks, quench steam and a forge glow on cast or recast, and a flicker over the last 1.5 s. It chains to the rig's occlusion silhouette overlay and restores it on expiry |
+
+`map_view_runtime_bootstrap.gd` calls `bind_world(definition, player, player_rig)` so effects sit on map ground height and the ward reads the player's `CombatTimedModifiers`. Particle billboards use proximity fade so large quads do not cut hard edges into the paving.
+
+Verify: `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_map_view_magic_vfx`; plates via `tools/godot_render.sh --script tools/capture_magic_vfx.gd` into `docs/reports/images/magic_vfx/` (fireball flight / impact / aftermath, tremor shock / cracks, iron skin before / cast / held). Limits: plates are studio-lit; on maps without reflection probes the iron uses a faked sheen, and the ward only draws on the player rig.
 
 **Save boundary:** knockback is transient combat state; `reset_actor()`, death, and scene rebuilds clear it.
 

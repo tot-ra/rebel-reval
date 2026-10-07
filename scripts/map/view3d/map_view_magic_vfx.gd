@@ -152,12 +152,12 @@ func play_fire_burst(logic_origin: Vector2, radius_px: float, cell_size: int = 0
 	flash.light_color = Color(1.0, 0.62, 0.28)
 	flash.omni_range = radius * 2.4
 	flash.shadow_enabled = false
-	flash.set_meta(&"base_energy", 7.0)
+	flash.set_meta(&"base_energy", 4.5)
 	flash.set_meta(&"light_sec", 0.55)
-	flash.light_energy = 7.0
+	flash.light_energy = 4.5
 	burst.add_child(flash)
 	var fireball_process := Parts.burst_process(
-		Vector2(radius * 1.6, radius * 3.2), 1.2, Vector2(0.9, 1.6), Parts.flame_ramp()
+		Vector2(radius * 1.6, radius * 3.2), 1.2, Vector2(0.9, 1.6), Parts.explosion_ramp()
 	)
 	fireball_process.damping_min = radius * 5.0
 	fireball_process.damping_max = radius * 7.0
@@ -167,7 +167,8 @@ func play_fire_burst(logic_origin: Vector2, radius_px: float, cell_size: int = 0
 	var fireball := Parts.particles(
 		"Fireball", 30, 0.55, fireball_process, radius * 0.75, Parts.glow_material()
 	)
-	fireball.position.y = 0.45
+	# Centre the billow above the paving so its quads do not slice into it.
+	fireball.position.y = 0.3 + radius * 0.45
 	_one_shot(fireball, 0.0)
 	burst.add_child(fireball)
 	var soot_process := Parts.burst_process(
@@ -544,8 +545,12 @@ func _add_fire_trail(orb: Node3D) -> void:
 	flame_process.turbulence_noise_strength = 0.6
 	flame_process.turbulence_noise_scale = 2.0
 	var flames := Parts.particles(
-		"FlameTrail", 56, 0.32, flame_process, 0.42, Parts.glow_material(), true
+		# Dense enough that the stream reads as one tongue, not a bead chain.
+		"FlameTrail", 120, 0.34, flame_process, 0.36, Parts.glow_material(), true
 	)
+	# WHY: at the default fixed 30 fps a fast core drops flames in separate
+	# clumps along its path; emitting every rendered frame keeps one tongue.
+	flames.fixed_fps = 0
 	flames.emitting = true
 	orb.add_child(flames)
 	var smoke_process := Parts.burst_process(
