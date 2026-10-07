@@ -139,6 +139,8 @@ var _magic_resources: Dictionary[StringName, int] = {}
 var _magic_grants: Dictionary[StringName, bool] = {}
 ## Spirit-duel moves the hero learned by watching (ADR 0033); ids are `move.<kind>.<element>`.
 var _learned_moves: Dictionary[StringName, bool] = {}
+## Double-edged hero traits (ADR 0033): trait id -> origin (`gift` or `scar`).
+var _traits: Dictionary[StringName, StringName] = {}
 ## Language comprehension 0..100 per language id (ADR 0033); Estonian is always 100.
 var _language_comprehension: Dictionary[StringName, int] = {}
 var _natural_aspects: Dictionary[StringName, int] = {}
@@ -223,6 +225,28 @@ func language_tier(language_id: StringName) -> int:
 		if value >= threshold:
 			tier += 1
 	return tier
+
+
+## Grant a trait with the way it was gained. False for an unknown trait/origin or a trait already held.
+func grant_trait(trait_id: StringName, origin: StringName) -> bool:
+	if not SpiritTraits.is_trait(trait_id) or not SpiritTraits.is_origin(origin):
+		return false
+	if _traits.has(trait_id):
+		return false
+	_traits[trait_id] = origin
+	return true
+
+
+func get_trait_origin(trait_id: StringName) -> StringName:
+	return _traits.get(trait_id, &"")
+
+
+func get_traits() -> Array[StringName]:
+	var held: Array[StringName] = []
+	for trait_id in _traits:
+		held.append(trait_id)
+	held.sort()
+	return held
 
 
 func knows_move(move_id: StringName) -> bool:

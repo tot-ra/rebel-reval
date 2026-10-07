@@ -91,6 +91,7 @@ static func save_payload(state: GameState) -> Dictionary:
 		},
 		"guilt": state.guilt.to_dict(),
 		"learned_moves": _bool_dictionary(state._learned_moves),
+		"traits": _string_dictionary(state._traits),
 		"language_comprehension": _int_dictionary(state._language_comprehension),
 		"psyche": {
 			"version": GameState.PSYCHE_VERSION,
@@ -192,6 +193,7 @@ static func load_payload(state: GameState, payload: Dictionary) -> Array[String]
 	state._learned_moves = _load_bool_dictionary(
 		candidate.get("learned_moves", {}), errors, "learned_moves"
 	)
+	_load_traits(state, candidate.get("traits", {}), errors)
 	state._language_comprehension = _load_language_comprehension(
 		candidate.get("language_comprehension", {}), errors
 	)
@@ -611,6 +613,18 @@ static func _load_int_dictionary(
 	for key in source as Dictionary:
 		out[StringName(String(key))] = int(source[key])
 	return out
+
+
+static func _load_traits(state: GameState, source: Variant, errors: Array[String]) -> void:
+	state._traits.clear()
+	if typeof(source) != TYPE_DICTIONARY:
+		errors.append("traits must be a dictionary")
+		return
+	for key: Variant in (source as Dictionary):
+		if not state.grant_trait(
+			StringName(String(key)), StringName(String((source as Dictionary)[key]))
+		):
+			errors.append("invalid trait %s" % String(key))
 
 
 static func _load_language_comprehension(

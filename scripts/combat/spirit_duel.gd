@@ -63,6 +63,8 @@ var _guard_elapsed := -1.0
 var _dodged := false
 var _swing_id := 0
 var _finished := true
+var _trait_mods: Dictionary = {}
+var _temperament: Array = []
 
 
 ## Start `dialogue_id` (a record with a `duel`) on `runner`. False when it is not a duel.
@@ -111,9 +113,10 @@ func set_guard(raised: bool) -> void:
 
 ## Dodge the telegraphed blow once, at a resolve cost.
 func dodge() -> bool:
-	if phase != PHASE_TELEGRAPH or _dodged or hero.stamina < DODGE_RESOLVE_COST:
+	var cost := DODGE_RESOLVE_COST + float(_trait_mods.get("dodge_cost_delta", 0.0))
+	if phase != PHASE_TELEGRAPH or _dodged or hero.stamina < cost:
 		return false
-	hero.stamina -= DODGE_RESOLVE_COST
+	hero.stamina -= cost
 	hero.stamina_changed.emit(hero.stamina, hero.max_stamina)
 	_dodged = true
 	return true
@@ -139,8 +142,13 @@ func answer(choice_id: String) -> bool:
 	if chosen.is_empty():
 		return false
 	var reply_move: Dictionary = chosen.get("move", {})
+	var reply_element := StringName(String(reply_move.get("element", "")))
 	var damage := reply_damage(reply_move, _incoming) * PhysicalBlowGuilt.reply_multiplier(
-		_state, StringName(String(reply_move.get("element", "")))
+		_state, reply_element
+	)
+	damage *= SpiritTraits.reply_multiplier(_trait_mods, reply_element)
+	damage *= SpiritTraits.temperament_multiplier(
+		_temperament, StringName(String(reply_move.get("kind", "")))
 	)
 	if damage > 0.0:
 		opponent.resolve_hit(damage)
@@ -225,7 +233,12 @@ func consume_line_advance() -> bool:
 
 
 func _start_run() -> bool:
-	hero.configure(COMPOSURE_MAX, COMPOSURE_MAX, RESOLVE_MAX, RESOLVE_MAX)
+	_trait_mods = SpiritTraits.modifiers_for(_state)
+	var composure := COMPOSURE_MAX + float(_trait_mods.get("composure_delta", 0.0))
+	hero.configure(composure, composure, RESOLVE_MAX, RESOLVE_MAX)
+	hero.parry_window_sec = CombatVitals.DEFAULT_PARRY_WINDOW_SEC + float(
+		_trait_mods.get("parry_window_delta", 0.0)
+	)
 	opponent.configure(PRESSURE_MAX, PRESSURE_MAX, 0.0, 0.0)
 	opponent.hit_invulnerability_sec = 0.0
 	_incoming = {}
@@ -236,6 +249,9 @@ func _start_run() -> bool:
 	if _content_db == null or _content_db.get_dialogue(_dialogue_id).get("duel", {}).is_empty():
 		_finished = true
 		return false
+	_temperament = (_content_db.get_dialogue(_dialogue_id).get("duel", {}) as Dictionary).get(
+		"temperament", []
+	)
 	checkpoint.arm(_state, _dialogue_id)
 	if not _runner.start(_dialogue_id):
 		_finished = true
@@ -248,9 +264,12 @@ func _land_incoming() -> void:
 	pose.is_action_invulnerable = _dodged
 	pose.is_guarding = _guard_elapsed >= 0.0
 	pose.guard_elapsed_sec = maxf(0.0, _guard_elapsed)
+	pose.parry_window_sec = hero.parry_window_sec
+	var incoming_kind := StringName(String(_incoming.get("kind", "")))
 	var amount: float = (
-		float(INCOMING_DAMAGE[StringName(String(_incoming.get("kind", "")))])
+		float(INCOMING_DAMAGE[incoming_kind])
 		* PhysicalBlowGuilt.incoming_multiplier(_state)
+		* SpiritTraits.incoming_multiplier(_trait_mods, incoming_kind)
 	)
 	_swing_id += 1
 	var result := hero.resolve_hit(amount, pose, _swing_id)

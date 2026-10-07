@@ -49,6 +49,16 @@ A dialogue record may declare a top-level `duel` and tag nodes and choices with 
 - **Verify:** `--filter=test_spirit_arena`; frames with `tools/godot_render.sh --resolution 1280x720 --script tools/capture_spirit_arena.gd`.
 - **Limits:** no scene mounts the host yet (SD-05 wires the prologue); no spells or hero moves beyond replies; no guilt hook (SD-07); NPC temperaments do not change damage yet (SD-15); the numbers are prototype values.
 
+## Traits and temperaments (implemented, SD-15)
+
+- **Hero traits** (`SpiritTraits.TRAITS`, `GameState.grant_trait(id, origin)`): `trait.hears_fear`, `trait.watchful`, `trait.stubborn`. Each comes in two variants by how it was gained, `gift` or `scar`, and every variant has both a boon and a cost (checked by `SpiritTraits.is_double_edged`). Modifiers: reply damage by element, incoming blows by kind, dodge cost, parry window, composure. A trait is held once; saved under `traits` (optional in older saves).
+  - `hears_fear`: gift fear replies x1.25 but pressure blows x1.15; scar fear x1.1, pressure x1.3, composure -10.
+  - `watchful`: gift parry window +0.07 s, dodge cost +5; scar +0.04 s, dodge cost +10.
+  - `stubborn`: gift composure +15, shame replies x0.8; scar composure +5, love replies x0.75.
+- **Opponent temperament:** an optional `duel.temperament` list on the dialogue record (`impulsive`, `procrastinator`, `creative`, `proud`, `anxious`) scales the damage of the hero's reply kinds (for example impulsive: defense x1.3, evade x1.2, appeal x0.7; creative: feint x0.6, appeal x1.3). Tags multiply and the product is clamped to 0.5..2.0. Fixture: `content/examples/valid/dialogue.test_duel_temperament.json`.
+- Applied inside `SpiritDuel` together with guilt and counters. Verify: `--filter=test_spirit_traits`.
+- **Limits:** nothing grants a trait in play yet (no content or choice calls `grant_trait`), the three traits are examples, and no prologue duel declares a temperament.
+
 ## Talking to yourself (implemented, SD-09)
 
 - **Action:** `player_self_talk` (`T` on keyboard, left trigger on gamepad; rebindable under Combat). `Player.perform_self_talk()` runs `SelfTalk` (`scripts/player/self_talk.gd`): a 12 s, 20% incoming-damage reduction through `CombatTimedModifiers` (id `self_talk`), then a 20 s cooldown. `Player.self_talk_performed(result)` carries the result.
@@ -97,7 +107,7 @@ The runner accessors and the spirit arena above are the entry points. First deli
 
 ## Save state and IDs
 
-Stable IDs in use: `guilt.church`, `guilt.folk`, `guilt.civic`, `act.*`, `rite.*`, `move.<kind>.<element>`, `lang.*`. Planned: `trait.*`; `skill.language.*`; duel records `duel.*`. Guilt and comprehension must save and load through `GameState` ([`STATE_AND_SAVES.md`](./STATE_AND_SAVES.md)).
+Stable IDs in use: `guilt.church`, `guilt.folk`, `guilt.civic`, `act.*`, `rite.*`, `move.<kind>.<element>`, `lang.*`. Also in use: `trait.*`. Planned: `skill.language.*`; duel records `duel.*`. Guilt and comprehension must save and load through `GameState` ([`STATE_AND_SAVES.md`](./STATE_AND_SAVES.md)).
 
 ## Verification
 

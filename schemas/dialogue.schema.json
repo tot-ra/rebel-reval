@@ -245,6 +245,19 @@
           "items": {
             "$ref": "common.schema.json#/$defs/local_id"
           }
+        },
+        "temperament": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "impulsive",
+              "procrastinator",
+              "creative",
+              "proud",
+              "anxious"
+            ]
+          }
         }
       }
     }
