@@ -70,7 +70,7 @@ No faction. A maid with a net to buy has no time for sides. She would feed anyon
 ## Voice
 - **Registers:** Estonian with Henn and the fishwives; Low German with the household.
 - **Delivery:** Thin, reedy and quiet; speaks in short phrases.
-- **Sample lines:** "Sit, I'll bring it." "The fish are late." "Mine ei tea." (I do not know.)
+- **Sample lines:** "Sit, I'll bring it." "The fish are late." "Ei oska öelda." (I cannot say.)
 - **Verbal tic:** Hums a four-note tune between sentences.
 
 ## Knowledge and rumours

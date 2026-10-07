@@ -36,7 +36,7 @@
 - **Model notes:** MPFB female, age_years 36, muscle average, weight low, proportions slight, height_m 1.56; skin sallow freckled; eyes grey; copper red hair under coif; crowd tier 2.
 
 ## Biography
-Born in 1307 on a boat at anchor off Nuckö, to a Swedish fisherman, Lars, and his wife, Karin spent her first twelve years afloat before her father sold the boat and moved ashore at Reval. She worked as a fishwife on the Müürivahe lane, married a rope-maker who drowned in 1333, and went into service rather than remarry. She has been with the van Paderbornes since 1337. The bad winter just past saw her share one cask of peas and a patched blanket with a stable hand in her lane.
+Born in 1307 on a boat at anchor off Nuckö, to a Swedish fisherman, Lars, and his wife, Karin spent her first twelve years afloat before her father sold the boat and moved ashore at Reval. She worked as a fishwife on the Müürivahe lane, married a rope-maker who drowned in 1333, and went into service rather than remarry. She has been with the van Paderbornes since 1337. In the bad winter just past she traded a cask-end of peas for hay and warm gossip with a stable hand in her lane.
 
 ## Motivation
 - **Want:** To save enough to buy a small boat share and go back to the water.

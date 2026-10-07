@@ -71,7 +71,7 @@ No faction. She stays out of politics because an Estonian maid who speaks in a m
 ## Voice
 - **Registers:** Estonian in the loft and market; Low German with the household.
 - **Delivery:** Sing-song, soft, short sentences.
-- **Sample lines:** "The smoke knows its way." "I did not hear." "Mine ei tea." (I do not know.)
+- **Sample lines:** "The smoke knows its way." "I did not hear." "Ei oska öelda." (I cannot say.)
 - **Verbal tic:** Coughs before speaking.
 
 ## Knowledge and rumours

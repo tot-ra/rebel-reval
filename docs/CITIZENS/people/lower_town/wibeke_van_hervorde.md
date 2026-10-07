@@ -70,7 +70,7 @@ No faction. A tray-seller who takes a side loses half her buyers; she takes none
 ## Voice
 - **Registers:** Low German in the house; Estonian with the market women.
 - **Delivery:** Soft, almost whispering; she waits for the room to quiet.
-- **Sample lines:** "A pfennig, and it is yours." "Mind the needle." "Ma ei tea." (I do not know.)
+- **Sample lines:** "A pfennig, and it is yours." "Mind the needle." "Ei oska öelda." (I cannot say.)
 - **Verbal tic:** Says "if you please" after every price.
 
 ## Knowledge and rumours

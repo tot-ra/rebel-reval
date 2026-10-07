@@ -26,7 +26,7 @@
 - Leaves by the back lane after curfew, on some nights.
 
 ## Appearance
-- **Body:** 174 cm, stocky, thick through the shoulders, with a merchant's soft belly beginning. A steady, unhurried walk; stops to look at ledgers of doorframes.
+- **Body:** 174 cm, stocky, thick through the shoulders, with a merchant's soft belly beginning. A steady, unhurried walk; stops to look at a doorframe before entering.
 - **Face:** Broad, pale and even in colour, hazel eyes set slightly unevenly, a squint in the left eye that drifts inward when he is tired, a short straight nose, firm lips. A portrait must keep the squint without making it comic.
 - **Hair and facial hair:** Brown with grey at the temples, cut just above the collar and combed flat. Clean-shaven; his clerk shaves him on Saturdays.
 - **Skin and marks:** Pale and even, ink-smudged on the right thumb. A squint in the left eye.

@@ -31,7 +31,7 @@
 - **Hair and facial hair:** Black-brown with grey at the temples, braided and pinned under a plain kerchief.
 - **Skin and marks:** Sun-freckled and peeling; a cold-sore scar on the upper lip; chapped hands.
 - **Hands:** Broad, strong, left-dominant; a callus where the yoke bites the shoulder.
-- **Clothing and kit (April 1343):** Undyed linen shirt, russet wool sarafan-style gown, a linen apron, a plain kerchief, wooden shoes. A milk-yoke, a tin dipper and a small cloth purse.
+- **Clothing and kit (April 1343):** Undyed linen shirt, russet wool gown, a linen apron, a plain kerchief, wooden shoes. A milk-yoke, a tin dipper and a small cloth purse.
 - **Portrait prompt:** Woman of thirty-five, sturdy, broad sun-freckled face, grey eyes, small scar on the upper lip, black-brown hair greying at the temples under a kerchief, russet wool gown and apron, neutral grey background, shoulders-up, soft natural light.
 - **Model notes:** MPFB female, age_years 35, muscle average, weight medium-high, proportions sturdy, height_m 1.58; freckled skin; grey eyes; black-brown hair, covered; left-handed; crowd tier 2.
 

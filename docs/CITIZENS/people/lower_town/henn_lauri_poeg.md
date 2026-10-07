@@ -70,7 +70,7 @@ No faction. A free Estonian houseman with a bound brother in the country has mor
 ## Voice
 - **Registers:** Estonian with Agnes and the carters; slow Low German with the household.
 - **Delivery:** Slow, with long pauses; he finishes a word, then thinks.
-- **Sample lines:** "I carry. It is heavy. I carry." "The master knows." "Ma ei tea." (I do not know.)
+- **Sample lines:** "I carry. It is heavy. I carry." "The master knows." "Ei oska öelda." (I cannot say.)
 - **Verbal tic:** Says "yes... yes" before replying.
 
 ## Knowledge and rumours

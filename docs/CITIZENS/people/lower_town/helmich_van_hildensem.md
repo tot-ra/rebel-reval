@@ -36,13 +36,13 @@
 - **Model notes:** MPFB male, age_years 23, muscle low, weight average, proportions average, height_m 1.71; pale skin; blue eyes; dark brown hair, short beard; crowd tier 2.
 
 ## Biography
-Helmich was born in 1319 in Hildesheim, a notary's son. His father died in debt in 1335, and a Lübeck uncle placed him in a counting house. He reached Reval in 1339. He keeps van Munster's accounts, copies letters and hands the master's seal on cold mornings. A year ago a stranger paid for a doctor when he had a fever and could not pay; he has been paying that kindness back in small ways ever since, and likes it less each time.
+Helmich was born in 1319 in Hildesheim, a notary's son. His father died in debt in 1335, and a Lübeck uncle placed him in a counting house. He reached Reval in 1339. He keeps van Munster's accounts, copies letters and hands the master's seal on cold mornings. A year ago a spinner from Pikk paid a doctor when he had a fever and could not pay; he has been paying that kindness back in small ways ever since, and likes it less each time.
 
 ## Motivation
-- **Want:** To be released from the debt and from the note he signed to the stranger.
+- **Want:** To be released from the debt and from the note he signed to Sibbe.
 - **Fear:** Being asked to read something he should not.
 - **Contradiction:** A man of exact figures who cannot say what he owes.
-- **Secret or withheld fact:** He does not know whom the stranger works for, only whom he writes to.
+- **Secret or withheld fact:** He does not know whom Sibbe works for, only whom he writes to.
 
 ## Daily routine
 | Phase | Time (late April) | Place | Activity |
@@ -58,7 +58,7 @@ Helmich was born in 1319 in Hildesheim, a notary's son. His father died in debt 
 - **Spring 1343 disruption:** More letters, shorter ones; the master asks him to write nothing about them.
 
 ## Work and money
-He earns about 8 marks a year and keep, with an occasional bonus at Michaelmas. He buys ink-galls, pens and parchment from a Vana turg stationer. He has paid back 3 marks of the stranger's doctor, and has been told the rest does not matter. A bad month is a blot on a bill that costs the master a cargo.
+He earns about 8 marks a year and keep, with an occasional bonus at Michaelmas. He buys ink-galls, pens and parchment from a Vana turg stationer. He has paid back 3 marks of the doctor's fee, and has been told the rest does not matter. A bad month is a blot on a bill that costs the master a cargo.
 
 ## Relationships
 - **Household:** [Ludolf van Munster](../../people/lower_town/ludolf_van_munster.md), master; [Nicolaus van Dortmund](../../people/lower_town/nicolaus_van_dortmund.md), fellow clerk and rival at the desk; the maids [Katrin Mattese tütar](../../people/lower_town/katrin_mattese_tutar.md), [Wibeke van Hervorde](../../people/lower_town/wibeke_van_hervorde.md) and [Valpuri Pekkantytär](../../people/lower_town/valpuri_pekkantytar.md); and in the [household ledger](../../ledger/lower_town/rataskaevu.md#hh-lt-osm-w200944350) Beke van Verden, Kristiina Laurentsi tütar and the ostler Yrjö Mattanpoika.

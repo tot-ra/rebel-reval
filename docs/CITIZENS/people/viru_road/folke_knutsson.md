@@ -61,7 +61,7 @@ Born in 1320 at Hanko to a fisherman, Knut, he was sent at fourteen to Reval wit
 He charges two pfennig a night per horse and a pfennig for a feed. A good month clears eight schilling, of which Gunhild takes half. A lame horse is a bad month. He buys hay from gate-farms by the cartload.
 
 ## Relationships
-- **Household:** [Gunhild Jönsdotter](../../people/viru_road/gunhild_jonsdotter.md), his employer; [Erik Bengtsson](../../people/viru_road/erik_bengtsson.md), the old cooper he guides to mass; [Yakov Fedorovich](../../people/viru_road/yakov_fedorovich.md), lodger sailor who gives him tobacco-free pipe talk and sea stories; [Pärtel Jaagu poeg](../../people/viru_road/partel_jaagu_poeg.md), labourer who helps him lift sacks.
+- **Household:** [Gunhild Jönsdotter](../../people/viru_road/gunhild_jonsdotter.md), his employer; [Erik Bengtsson](../../people/viru_road/erik_bengtsson.md), the old cooper he guides to mass; [Yakov Fedorovich](../../people/viru_road/yakov_fedorovich.md), lodger sailor who gives him sea stories; [Pärtel Jaagu poeg](../../people/viru_road/partel_jaagu_poeg.md), labourer who helps him lift sacks.
 - **Network:**
   - [Simon Siimu poeg](../../people/lower_town/simon_siimu_poeg.md), ostler of Müürivahe: they compete for the same customers, and each privately counts the other's apprentices and lamp-oil. Folke has counted three apprentices and eight measures of oil at Simon's yard, and he is irritated.
   - [Katrin Priidiku tütar](../../people/viru_road/katrin_priidiku_tutar.md), spinner: he sells her horsehair and twine at a fair price, and she tells others to buy from him. He gives her extra measure out of respect.

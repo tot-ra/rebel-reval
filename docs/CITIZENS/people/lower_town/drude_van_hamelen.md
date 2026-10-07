@@ -62,7 +62,7 @@ She has no income but a penny at Easter and her keep. She helps with the thread-
 
 ## Relationships
 - **Household:** Her father [Wolter van Hamelen](../../people/lower_town/wolter_van_hamelen.md); her mother [Gyse van Goslar](../../people/lower_town/gyse_van_goslar.md); her brother [Egbert van Hamelen](../../people/lower_town/egbert_van_hamelen.md); her sisters [Taleke van Hamelen](../../people/lower_town/taleke_van_hamelen.md) and [Yda van Hamelen](../../people/lower_town/yda_van_hamelen.md); her brothers Jakob, Bernd and Reimar ([ledger](../../ledger/lower_town/vana_turg.md#hh-lt-osm-w200645033)).
-- **Network:** [Fevronia Fedorovna](../../people/lower_town/fevronia_fedorovna.md), retired craftsman: they share a distant kinship through marriage that neither can trace exactly. A Hamelen uncle once married a Pskov woman, and Fevronia is her cousin; Drude likes her stories of Novgorod.
+- **Network:** [Fevronia Fedorovna](../../people/lower_town/fevronia_fedorovna.md), retired craftsman: they share a distant kinship through marriage that neither can trace exactly. Somewhere a Hamelen uncle, a Pskov wife and Fevronia's late husband's people come into it, and nobody can say how. Drude likes her stories of Novgorod.
 - **Others:** The cap-maker [Ricbod Rotermund](../../ledger/lower_town/suur_karja.md#hh-lt-osm-w200645041) next door has a daughter her age.
 
 ## Faction and belief

@@ -38,7 +38,7 @@
 ## Biography
 Born 1304 in Lübeck, the daughter of a scribe. She learned letters at a convent school and Latin from her father, and came to Reval in 1325 as the wife of a crown clerk. He died of a winter fever in 1339; she kept his bench by petitioning the viceroy's chancery, which agreed on condition that she serve its purposes.
 
-She has four children living, born across two marriages and a wardship, and has buried at least two. Her byname is her first husband's; the boys carry the bynames of their fathers' or godfathers' towns, and the lane stopped counting.
+She has four children living, born across two marriages and a wardship, and has buried at least two. Hovesche is her own father's byname; Kersten carries that of his late father Hinrik van Goslar, the others the towns of their fathers' kin or godfathers, and the lane stopped counting.
 
 ## Motivation
 - **Want:** A school place for Kersten and a dowry for Sibbe.

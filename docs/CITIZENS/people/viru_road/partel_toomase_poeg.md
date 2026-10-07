@@ -31,7 +31,7 @@
 - **Hair and facial hair:** Dark blond streaked with grey, cut straight across at the ear. A full beard trimmed with shears and a pinch of beeswax at the chin.
 - **Skin and marks:** Rosy-cheeked, with sawdust in the creases. No scars worth naming; a few old splinter-scars on the left forearm.
 - **Hands:** Left-handed, the left thumb flattened and broad from the chisel, the right hand a little weaker and softer.
-- **Clothing and kit (April 1343):** Linen shirt, a short brown wool tunic with a leather apron, wool hose, wooden clogs. A leather belt with a folding rule, a small adze and a pencil-stub of lead. A felt cap against the sawdust.
+- **Clothing and kit (April 1343):** Linen shirt, a short brown wool tunic with a leather apron, wool hose, wooden clogs. A leather belt with a folding rule, a small adze and a lead scribe. A felt cap against the sawdust.
 - **Portrait prompt:** Man of sixty-four, broad rosy-cheeked face, short wide nose, blue eyes under heavy fair brows, full square dark blond beard streaked with grey, grey-streaked hair cut straight at the ear, brown wool tunic with leather apron strap, mild mouth and a bargainer's brow, soft overcast light, neutral grey background, shoulders-up, painterly historical realism.
 - **Model notes:** male, age_years 64, muscle mid, weight high, proportions short-limbed, height_m 1.63; rosy skin; blue eyes; dark blond grey beard, felt cap; crowd tier 2.
 
