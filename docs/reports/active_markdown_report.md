@@ -14,11 +14,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `216`
-- Markdown files excluded as archive/reference/out of active scope: `741`
-- Local/external links inspected: `1361`
-- Links to active Markdown docs: `856`
-- Links to existing archive/reference/non-active local docs: `238`
+- Active Markdown files scanned: `218`
+- Markdown files excluded as archive/reference/out of active scope: `742`
+- Local/external links inspected: `1377`
+- Links to active Markdown docs: `870`
+- Links to existing archive/reference/non-active local docs: `240`
 - External links skipped for reachability: `46`
 - Issues found: `0`
 
@@ -68,6 +68,7 @@ No active Markdown documentation issues found.
 - `docs/adr/0028-seamless-building-interiors.md`
 - `docs/adr/0029-natural-reval-maps-and-larger-coast.md`
 - `docs/adr/0030-retire-direction-sign-primitive.md`
+- `docs/adr/0031-continuous-reval-city-plan.md`
 - `docs/adr/README.md`
 - `docs/AGENT_LOOPS.md`
 - `docs/ARCHITECTURE.md`
@@ -163,6 +164,7 @@ No active Markdown documentation issues found.
 - `docs/SYSTEMS/PSYCHE.md`
 - `docs/SYSTEMS/QUESTS.md`
 - `docs/SYSTEMS/README.md`
+- `docs/SYSTEMS/SEAMLESS_CITY.md`
 - `docs/SYSTEMS/SETTINGS_AND_ACCESSIBILITY.md`
 - `docs/SYSTEMS/STATE_AND_SAVES.md`
 - `docs/SYSTEMS/TIME_AND_PHASES.md`

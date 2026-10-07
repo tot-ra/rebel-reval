@@ -2,6 +2,17 @@
 
 This document defines the production authoring contract for programmatic maps. It is normative for new map work and should be read with [ADR 0009](adr/0009-map-blueprint-authoring-architecture.md) and [ADR 0010](adr/0010-large-map-runtime-chunking.md). The parser, typed blueprint model, compiler, registry audit, representative parity migration, editor preview, and chunk-safe persistence boundary are implemented. Unmigrated maps may continue to construct `MapDefinition` directly until they are migrated one at a time under the gates below.
 
+## Reval as one city plan (ADR 0031)
+
+The seamless Reval preview is not authored in `.rrmap` grids. It is one metric, georeferenced
+plan compiled by `tools/city/build_reval_city_plan.py` from a trimmed OSM extract, EU-DEM
+samples and the 1343 overlay `tools/city/reval_1343_overlay.json`. Edit the overlay (wall
+anchors and states, towers, gates, Toompea edge, shoreline, excluded streets and buildings,
+extramural roads, suburbs, life layers), rebuild, and keep `--check`,
+`tests/python/test_build_reval_city_plan.py` and `tests/godot/test_city_plan.gd` green. The
+district maps below stay only for the playable slice and interiors; ADR 0031 (accepted
+2026-10-07) retires their Reval relief, street and seam re-authoring rows. Runtime and limits: [`SYSTEMS/SEAMLESS_CITY.md`](./SYSTEMS/SEAMLESS_CITY.md).
+
 ## Proposed street-network extension (UF-01 / R-1110)
 
 [ADR 0026](adr/0026-streets-as-authored-network.md) is **Proposed, 2026-09-30**,

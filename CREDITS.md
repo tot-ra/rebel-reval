@@ -95,11 +95,19 @@ CC0 field-recording one-shots for the underwater camera pass. Trimmed and loudno
 - Harbour emerge splash - recorded by morganveilleux. CC0 1.0 (Public Domain). Source: https://freesound.org/people/morganveilleux/sounds/389987/
 - Harbour submerge splash - recorded by blaukreuz. CC0 1.0 (Public Domain). Source: https://freesound.org/people/blaukreuz/sounds/195877/
 
+## Map and elevation data
+
+The seamless Reval city follows the surviving street plan, plot boundaries, towers and cliff lines of Tallinn Old Town, corrected to spring 1343 by the Reval Rebel authors.
+
+- Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL) 1.0. The extract and the city plan derived from it remain available under the ODbL. Source: https://www.openstreetmap.org/copyright
+- Elevation: produced using Copernicus data and information funded by the European Union - EU-DEM layers (EU-DEM v1.1), accessed through OpenTopoData. Source: https://land.copernicus.eu/
+
 ## Licenses
 
 - CC0 1.0: https://creativecommons.org/publicdomain/zero/1.0/
 - CC BY 4.0: https://creativecommons.org/licenses/by/4.0/
 - CC BY-SA 4.0: https://creativecommons.org/licenses/by-sa/4.0/
 - CC BY-SA 3.0: https://creativecommons.org/licenses/by-sa/3.0/
+- ODbL 1.0: https://opendatacommons.org/licenses/odbl/1-0/
 
 ShareAlike note: recordings under a CC BY-SA license that we edited remain available under the same CC BY-SA license; this does not affect the licensing of the rest of the game.

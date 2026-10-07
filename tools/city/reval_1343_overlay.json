@@ -1,0 +1,1562 @@
+{
+  "schema": "rr.city_overlay.v1",
+  "snapshot": "spring-1343",
+  "notes": "Hand-authored 1343 corrections layered over the OSM extract. Coordinates are local metres: x east, y south, origin Raekoja plats (59.43725 N, 24.74535 E). Confidence labels follow docs/CANON.md. Sources: history/dossiers/topography/walls-gates-towers.md, harjapea-mouth-shoreline-gis.md, docs/reports/reval_domestic_infrastructure_1343.md, docs/data/reval_street_register.json.",
+  "origin": {
+    "lat": 59.43725,
+    "lon": 24.74535
+  },
+  "metres_per_world_unit": 0.87,
+  "bounds_m": {
+    "x0": -820,
+    "y0": -960,
+    "x1": 760,
+    "y1": 620
+  },
+  "sea": {
+    "uplift_m_since_1343": 1.4,
+    "confidence": "plausible composite",
+    "shoreline_m": [
+      [
+        -820,
+        -905
+      ],
+      [
+        -600,
+        -900
+      ],
+      [
+        -450,
+        -880
+      ],
+      [
+        -330,
+        -830
+      ],
+      [
+        -220,
+        -770
+      ],
+      [
+        -110,
+        -735
+      ],
+      [
+        0,
+        -712
+      ],
+      [
+        110,
+        -690
+      ],
+      [
+        200,
+        -668
+      ],
+      [
+        290,
+        -650
+      ],
+      [
+        380,
+        -600
+      ],
+      [
+        450,
+        -520
+      ],
+      [
+        505,
+        -420
+      ],
+      [
+        540,
+        -300
+      ],
+      [
+        565,
+        -170
+      ],
+      [
+        585,
+        -40
+      ],
+      [
+        605,
+        70
+      ],
+      [
+        660,
+        95
+      ],
+      [
+        760,
+        85
+      ]
+    ],
+    "shoreline_note": "Mean wet margin. North of the Coastal Gate the 1343 beach toe lies ~80-100 m north of the gate (5-8 m cliff step, H11). East of the walls the Hareapea delta and shallows reach the Viru-hotel margin (Kunnapuu & Raukas, plausible composite). Post-1840 harbour fill is removed."
+  },
+  "harjapea": {
+    "confidence": "plausible composite",
+    "name_1343": "Hareapea stream (name first recorded 1363)",
+    "trace_m": [
+      [
+        700,
+        620
+      ],
+      [
+        665,
+        470
+      ],
+      [
+        630,
+        340
+      ],
+      [
+        600,
+        230
+      ],
+      [
+        585,
+        140
+      ],
+      [
+        600,
+        80
+      ]
+    ],
+    "width_m": [
+      9,
+      9,
+      10,
+      11,
+      13,
+      18
+    ]
+  },
+  "toompea": {
+    "plateau_edge_m": [
+      [
+        -268,
+        -150,
+        12
+      ],
+      [
+        -215,
+        -130,
+        14
+      ],
+      [
+        -205,
+        -95,
+        22
+      ],
+      [
+        -215,
+        -45,
+        26
+      ],
+      [
+        -228,
+        10,
+        28
+      ],
+      [
+        -240,
+        60,
+        28
+      ],
+      [
+        -250,
+        110,
+        24
+      ],
+      [
+        -268,
+        160,
+        30
+      ],
+      [
+        -285,
+        200,
+        40
+      ],
+      [
+        -315,
+        232,
+        45
+      ],
+      [
+        -360,
+        250,
+        50
+      ],
+      [
+        -410,
+        245,
+        40
+      ],
+      [
+        -470,
+        240,
+        25
+      ],
+      [
+        -508,
+        206,
+        14
+      ],
+      [
+        -510,
+        140,
+        12
+      ],
+      [
+        -494,
+        80,
+        12
+      ],
+      [
+        -465,
+        20,
+        12
+      ],
+      [
+        -445,
+        -30,
+        12
+      ],
+      [
+        -415,
+        -75,
+        12
+      ],
+      [
+        -370,
+        -110,
+        12
+      ],
+      [
+        -320,
+        -135,
+        12
+      ]
+    ],
+    "plateau_edge_note": "[x, y, slope_width_m]. Top edge of the limestone klint traced from OSM natural=cliff (north, west) and the Toompea wall line; east face is the steep slope carrying Pikk jalg and Luhike jalg; south slope is gentler.",
+    "plateau_min_asl_m": 41.0,
+    "plateau_max_asl_m": 47.5,
+    "dem_lift_m": 4.0,
+    "confidence": "plausible composite (EU-DEM 25 m trend, OSM cliff lines, Toompea limestone klint)"
+  },
+  "gates": [
+    {
+      "id": "gate.coastal",
+      "name_1343": "Strantporte (Coastal Gate)",
+      "street": "Pikk",
+      "at": [
+        222.5,
+        -584.0
+      ],
+      "state": "present_low_form",
+      "tower": "gate.coastal.tower",
+      "confidence": "plausible composite"
+    },
+    {
+      "id": "gate.sand",
+      "name_1343": "Sand Gate (small beach gate)",
+      "at": [
+        241.0,
+        -492.0
+      ],
+      "state": "present",
+      "confidence": "plausible composite"
+    },
+    {
+      "id": "gate.viru",
+      "name_1343": "Lehmporte (clay gate)",
+      "street": "Viru",
+      "at": [
+        268.0,
+        73.0
+      ],
+      "state": "unfinished",
+      "confidence": "plausible composite"
+    },
+    {
+      "id": "gate.karja",
+      "name_1343": "Cattle Gate",
+      "street": "Suur-Karja",
+      "at": [
+        69.0,
+        252.0
+      ],
+      "state": "present_construction",
+      "confidence": "plausible composite"
+    },
+    {
+      "id": "gate.harju",
+      "name_1343": "Smedeporte (smiths' gate)",
+      "street": "Harju",
+      "at": [
+        -99.0,
+        293.0
+      ],
+      "state": "present_construction",
+      "confidence": "plausible composite"
+    },
+    {
+      "id": "gate.nuns",
+      "name_1343": "Nuns' Gate",
+      "street": "Nunne",
+      "at": [
+        -166.0,
+        -172.0
+      ],
+      "state": "present",
+      "confidence": "plausible composite"
+    },
+    {
+      "id": "gate.long_hill",
+      "name_1343": "Long Hill gate (wooden)",
+      "street": "Pikk jalg",
+      "at": [
+        -150.0,
+        -47.0
+      ],
+      "state": "wooden",
+      "confidence": "attested (wooden until 1380)"
+    },
+    {
+      "id": "gate.short_hill",
+      "name_1343": "Short Hill gate (wooden)",
+      "street": "Lühike jalg",
+      "at": [
+        -232.0,
+        127.0
+      ],
+      "state": "wooden",
+      "confidence": "attested (wooden)"
+    }
+  ],
+  "lower_town_circuit": {
+    "comment": "Ordered clockwise from the Coastal Gate. Each anchor is a tower or gate position; 'osm' anchors take the OSM centroid. 'state' applies to the curtain from this anchor to the next.",
+    "anchors": [
+      {
+        "ref": "gate.coastal",
+        "state": "stone",
+        "tower": "gate.coastal.tower"
+      },
+      {
+        "osm": "Stoltingi torn",
+        "tower": "tower.stolting",
+        "state": "stone"
+      },
+      {
+        "ref": "gate.sand",
+        "state": "stone"
+      },
+      {
+        "osm": "Hattorpe-tagune torn",
+        "state": "stone"
+      },
+      {
+        "at": [
+          214.0,
+          -360.0
+        ],
+        "state": "stone"
+      },
+      {
+        "osm": "Bremeni torn",
+        "state": "stone"
+      },
+      {
+        "osm": "Munkadetagune torn",
+        "state": "stone"
+      },
+      {
+        "osm": "Hellemanni torn",
+        "state": "stone"
+      },
+      {
+        "ref": "gate.viru",
+        "state": "construction"
+      },
+      {
+        "osm": "Hinke torn",
+        "tower": "tower.hinke",
+        "state": "construction"
+      },
+      {
+        "at": [
+          150.0,
+          205.0
+        ],
+        "state": "construction"
+      },
+      {
+        "ref": "gate.karja",
+        "state": "construction"
+      },
+      {
+        "osm": "Assauwe torn",
+        "state": "construction"
+      },
+      {
+        "ref": "gate.harju",
+        "state": "construction"
+      },
+      {
+        "osm": "Kiek in de Kök",
+        "state": "palisade"
+      },
+      {
+        "osm": "Neitsitorn",
+        "state": "palisade"
+      },
+      {
+        "osm": "Tallitorn",
+        "state": "palisade"
+      },
+      {
+        "at": [
+          -236.0,
+          160.0
+        ],
+        "state": "palisade"
+      },
+      {
+        "ref": "gate.short_hill",
+        "state": "palisade"
+      },
+      {
+        "at": [
+          -229.0,
+          107.0
+        ],
+        "state": "palisade"
+      },
+      {
+        "at": [
+          -202.0,
+          48.0
+        ],
+        "state": "palisade"
+      },
+      {
+        "at": [
+          -170.0,
+          -8.0
+        ],
+        "state": "palisade"
+      },
+      {
+        "ref": "gate.long_hill",
+        "state": "stone"
+      },
+      {
+        "at": [
+          -157.0,
+          -110.0
+        ],
+        "state": "stone"
+      },
+      {
+        "ref": "gate.nuns",
+        "state": "stone"
+      },
+      {
+        "osm": "Nunnatorn",
+        "tower": "tower.nunnatorn",
+        "state": "stone"
+      },
+      {
+        "osm": "Saunatorn",
+        "state": "stone"
+      },
+      {
+        "osm": "Kuldjala torn",
+        "tower": "tower.kuldjala",
+        "state": "stone"
+      },
+      {
+        "osm": "Loewenschede torn",
+        "state": "stone"
+      },
+      {
+        "osm": "Köismäe torn",
+        "state": "stone"
+      },
+      {
+        "osm": "Plate torn",
+        "state": "stone"
+      },
+      {
+        "osm": "Eppingi torn",
+        "state": "stone"
+      },
+      {
+        "osm": "Grusbeke-tagune torn",
+        "state": "stone"
+      },
+      {
+        "at": [
+          111.0,
+          -555.0
+        ],
+        "state": "stone"
+      },
+      {
+        "at": [
+          150.0,
+          -566.0
+        ],
+        "tower": "tower.rentenitorn",
+        "state": "stone"
+      }
+    ]
+  },
+  "towers_1343": [
+    {
+      "id": "tower.nunnatorn",
+      "name": "Nunnatorn / Nuns' Tower",
+      "form": "rect",
+      "w": 7.0,
+      "d": 6.0,
+      "h": 8.4,
+      "state": "completed",
+      "confidence": "attested type, first half 14th c."
+    },
+    {
+      "id": "tower.kuldjala",
+      "name": "Kuldjala / Golden Leg",
+      "form": "horseshoe",
+      "w": 9.0,
+      "d": 8.0,
+      "h": 9.0,
+      "state": "completed",
+      "confidence": "attested c. 1310"
+    },
+    {
+      "id": "tower.rentenitorn",
+      "name": "Rentenitorn / Rent Tower",
+      "form": "rect",
+      "w": 7.5,
+      "d": 6.5,
+      "h": 9.0,
+      "state": "completed",
+      "confidence": "attested before mid-14th c.; position plausible composite"
+    },
+    {
+      "id": "tower.stolting",
+      "name": "Stolting Tower",
+      "form": "horseshoe",
+      "w": 8.0,
+      "d": 7.5,
+      "h": 9.5,
+      "state": "completed",
+      "confidence": "on mid-14th-c. plan"
+    },
+    {
+      "id": "tower.hinke",
+      "name": "Hinke Tower",
+      "form": "horseshoe",
+      "w": 8.0,
+      "d": 7.5,
+      "h": 6.0,
+      "state": "construction",
+      "confidence": "construction candidate (RevalFortificationRegistry)"
+    },
+    {
+      "id": "gate.coastal.tower",
+      "name": "Great Coastal Gate tower",
+      "form": "gate_rect",
+      "w": 10.0,
+      "d": 9.0,
+      "h": 11.0,
+      "state": "completed",
+      "confidence": "probable 1311-1340"
+    }
+  ],
+  "toompea_wall": {
+    "comment": "Castrum maius: stone wall along the plateau edge, castle (castrum minus) in the south-west corner. Plausible composite heights.",
+    "height_m": 5.0,
+    "thickness_m": 1.4,
+    "inset_m": 4.0,
+    "castle": {
+      "osm": "Toompea loss",
+      "wall_height_m": 9.0,
+      "tower_height_m": 13.0
+    }
+  },
+  "moat": {
+    "comment": "S/E irrigated ditch under construction in the 1340s; Ulemiste water rights only 1345, so most of it is dry or puddled.",
+    "from_anchor": 8,
+    "to_anchor": 14,
+    "offset_m": 13.0,
+    "width_m": 12.0,
+    "depth_m": 2.8,
+    "wet_fraction": 0.35,
+    "confidence": "plausible composite"
+  },
+  "landmarks": [
+    {
+      "id": "landmark.st_olaf",
+      "osm_building": "Oleviste kirik",
+      "kind": "church",
+      "name_1343": "St Olaf's (tower unfinished)",
+      "tower_h_m": 24,
+      "nave_h_m": 15,
+      "roof": "tile",
+      "confidence": "attested; tower upper stages 1364+"
+    },
+    {
+      "id": "landmark.st_nicholas",
+      "osm_building": "Niguliste kirik",
+      "kind": "church",
+      "name_1343": "St Nicholas'",
+      "tower_h_m": 26,
+      "nave_h_m": 14,
+      "roof": "tile",
+      "confidence": "attested"
+    },
+    {
+      "id": "landmark.holy_spirit",
+      "osm_building": "Pühavaimu kirik",
+      "kind": "church",
+      "name_1343": "Holy Spirit house",
+      "tower_h_m": 18,
+      "nave_h_m": 11,
+      "roof": "tile",
+      "confidence": "attested (priest 1316)"
+    },
+    {
+      "id": "landmark.st_catherine",
+      "osm_building": "Püha Katariina kirik",
+      "kind": "church",
+      "name_1343": "St Catherine's (Dominican friary)",
+      "tower_h_m": 0,
+      "nave_h_m": 13,
+      "roof": "tile",
+      "confidence": "attested"
+    },
+    {
+      "id": "landmark.st_michael",
+      "osm_building": "Issanda Muutmise peakirik",
+      "kind": "church",
+      "name_1343": "St Michael's (Cistercian nunnery)",
+      "tower_h_m": 0,
+      "nave_h_m": 12,
+      "roof": "tile",
+      "confidence": "attested institution"
+    },
+    {
+      "id": "landmark.st_nicholas_rus",
+      "osm_building": "Püha Nikolai Imetegija kirik",
+      "kind": "chapel",
+      "name_1343": "Novgorod merchants' church",
+      "tower_h_m": 0,
+      "nave_h_m": 8,
+      "roof": "shingle",
+      "confidence": "plausible composite"
+    },
+    {
+      "id": "landmark.st_mary",
+      "osm_building": "Toomkirik",
+      "kind": "church",
+      "name_1343": "St Mary's (cathedral, enlargement under way)",
+      "tower_h_m": 0,
+      "nave_h_m": 15,
+      "roof": "tile",
+      "confidence": "attested; no medieval west tower"
+    },
+    {
+      "id": "landmark.town_hall",
+      "near": [
+        3.0,
+        18.0
+      ],
+      "kind": "hall",
+      "name_1343": "Council hall (by 1322)",
+      "w_m": 30,
+      "d_m": 13,
+      "h_m": 7.5,
+      "angle_deg": -12,
+      "roof": "tile",
+      "confidence": "attested; later tower and arcade excluded"
+    }
+  ],
+  "excluded_osm_buildings": [
+    "Aleksander Nevski katedraal",
+    "Kaarli kirik",
+    "Peeter-Pauli katedraal",
+    "Tallinna Kolmekäelise Jumalaema kirik",
+    "Rohelise turu kabel",
+    "Jaani kirik",
+    "Tallinna adventkirik",
+    "Toompea nelipühi kirik",
+    "Tallinna Kalju baptistikoguduse kirik",
+    "Rootsi-Mihkli kirik",
+    "Paks Margareeta",
+    "Kiek in de Kök",
+    "Neitsitorn",
+    "Tallitorn",
+    "Eppingi torn",
+    "Plate torn",
+    "Grusbeke-tagune torn",
+    "Wulfardi-tagune torn",
+    "Hattorpe-tagune torn",
+    "Bremeni torn",
+    "Munkadetagune torn",
+    "Hellemanni torn",
+    "Assauwe torn",
+    "Saunatorn",
+    "Loewenschede torn",
+    "Köismäe torn",
+    "Pika jala torn",
+    "Lühikese jala värav",
+    "Suur Rannavärav",
+    "Stoltingi torn",
+    "Nunnatorn",
+    "Kuldjala torn",
+    "Hinke torn"
+  ],
+  "streets": {
+    "excluded_names": [
+      "Rüütli",
+      "Uus",
+      "Väike-Karja",
+      "Vabaduse väljak",
+      "Kaubamaja",
+      "Kaubamaja tunnel",
+      "Viru väljak",
+      "Teatri väljak",
+      "Hobujaama",
+      "Mere pst",
+      "Toompuiestee",
+      "Kaarli pst",
+      "Estonia pst",
+      "Rävala pst",
+      "Põhja pst",
+      "Sadama",
+      "Kai",
+      "Ahtri",
+      "Rotermanni",
+      "Inseneri",
+      "Komandandi tee",
+      "Bastioni käigud",
+      "Admiralisild",
+      "Balti jaam",
+      "Balti jaama tunnel",
+      "Raekoja plats",
+      "Patkuli trepp"
+    ],
+    "widths_m": {
+      "spine": 7.0,
+      "lane": 4.5,
+      "alley": 2.6,
+      "ramp": 4.5,
+      "steps": 2.8,
+      "square_edge": 6.0,
+      "extramural_road": 5.5
+    },
+    "class_by_name": {
+      "Pikk": "spine",
+      "Lai": "spine",
+      "Vene": "spine",
+      "Viru": "spine",
+      "Harju": "spine",
+      "Suur-Karja": "spine",
+      "Pikk jalg": "ramp",
+      "Lühike jalg": "steps",
+      "Lossi plats": "square_edge",
+      "Raekoja plats": "square_edge",
+      "Katariina käik": "alley",
+      "Saiakang": "alley",
+      "Börsi käik": "alley",
+      "Bremeni käik": "alley",
+      "Meistrite hoov": "alley",
+      "Stalkeri käik": "alley",
+      "Pilstickeri trepp": "steps",
+      "Patkuli trepp": "steps"
+    },
+    "extramural_roads": [
+      {
+        "id": "road.viru",
+        "name_1343": "eastern road beyond the clay gate",
+        "points_m": [
+          [
+            268,
+            73
+          ],
+          [
+            330,
+            68
+          ],
+          [
+            420,
+            58
+          ],
+          [
+            520,
+            30
+          ],
+          [
+            610,
+            14
+          ],
+          [
+            760,
+            6
+          ]
+        ],
+        "width_m": 6.0,
+        "confidence": "plausible composite (follows Narva mnt)"
+      },
+      {
+        "id": "road.karja",
+        "name_1343": "cattle road to the pastures",
+        "points_m": [
+          [
+            69,
+            252
+          ],
+          [
+            80,
+            300
+          ],
+          [
+            70,
+            380
+          ],
+          [
+            40,
+            460
+          ],
+          [
+            20,
+            540
+          ],
+          [
+            0,
+            620
+          ]
+        ],
+        "width_m": 5.0,
+        "confidence": "plausible composite (follows Parnu mnt)"
+      },
+      {
+        "id": "road.harju",
+        "name_1343": "road south from the smiths' gate",
+        "points_m": [
+          [
+            -99,
+            293
+          ],
+          [
+            -110,
+            360
+          ],
+          [
+            -150,
+            450
+          ],
+          [
+            -175,
+            540
+          ],
+          [
+            -190,
+            620
+          ]
+        ],
+        "width_m": 5.0,
+        "confidence": "plausible composite"
+      },
+      {
+        "id": "road.tartu",
+        "name_1343": "Tartu road",
+        "points_m": [
+          [
+            80,
+            300
+          ],
+          [
+            160,
+            300
+          ],
+          [
+            250,
+            320
+          ],
+          [
+            360,
+            360
+          ],
+          [
+            480,
+            410
+          ],
+          [
+            620,
+            450
+          ],
+          [
+            760,
+            480
+          ]
+        ],
+        "width_m": 5.0,
+        "confidence": "plausible composite (follows Tartu mnt)"
+      },
+      {
+        "id": "road.coast_west",
+        "name_1343": "shore road to the fishing beach",
+        "points_m": [
+          [
+            -166,
+            -172
+          ],
+          [
+            -230,
+            -260
+          ],
+          [
+            -300,
+            -350
+          ],
+          [
+            -380,
+            -440
+          ],
+          [
+            -480,
+            -560
+          ],
+          [
+            -560,
+            -680
+          ],
+          [
+            -640,
+            -800
+          ],
+          [
+            -700,
+            -870
+          ]
+        ],
+        "width_m": 4.5,
+        "confidence": "plausible composite (follows Rannamae tee / Kopli)"
+      },
+      {
+        "id": "road.harbour",
+        "name_1343": "road down from the sea gate to the landing",
+        "points_m": [
+          [
+            222.5,
+            -584
+          ],
+          [
+            226,
+            -620
+          ],
+          [
+            230,
+            -655
+          ]
+        ],
+        "width_m": 5.5,
+        "confidence": "plausible composite"
+      },
+      {
+        "id": "road.sand_beach",
+        "name_1343": "beach lane outside the Sand Gate",
+        "points_m": [
+          [
+            241,
+            -492
+          ],
+          [
+            300,
+            -500
+          ],
+          [
+            388,
+            -508
+          ],
+          [
+            440,
+            -500
+          ]
+        ],
+        "width_m": 4.0,
+        "confidence": "plausible composite"
+      },
+      {
+        "id": "road.toompea_west",
+        "name_1343": "road west from the castle hill",
+        "points_m": [
+          [
+            -430,
+            230
+          ],
+          [
+            -480,
+            250
+          ],
+          [
+            -560,
+            260
+          ],
+          [
+            -700,
+            262
+          ],
+          [
+            -820,
+            270
+          ]
+        ],
+        "width_m": 5.0,
+        "confidence": "plausible composite (follows Falgi tee / Paldiski mnt)"
+      },
+      {
+        "id": "road.toompea_south",
+        "name_1343": "castle road down the south slope",
+        "points_m": [
+          [
+            -362,
+            205
+          ],
+          [
+            -356,
+            270
+          ],
+          [
+            -330,
+            380
+          ],
+          [
+            -310,
+            520
+          ],
+          [
+            -300,
+            620
+          ]
+        ],
+        "width_m": 5.0,
+        "confidence": "plausible composite (follows Toompea / Parnu)"
+      }
+    ],
+    "always_include": [
+      "Pikk jalg",
+      "Lühike jalg"
+    ]
+  },
+  "suburbs": [
+    {
+      "id": "suburb.kalarand",
+      "name_1343": "fishing beach (Kalamaja later)",
+      "polygon_m": [
+        [
+          -700,
+          -860
+        ],
+        [
+          -420,
+          -830
+        ],
+        [
+          -300,
+          -760
+        ],
+        [
+          -380,
+          -640
+        ],
+        [
+          -560,
+          -700
+        ],
+        [
+          -720,
+          -760
+        ]
+      ],
+      "density": 0.35,
+      "kind": "fisher",
+      "confidence": "plausible composite"
+    },
+    {
+      "id": "suburb.viru",
+      "name_1343": "Viru road suburb",
+      "polygon_m": [
+        [
+          300,
+          40
+        ],
+        [
+          560,
+          0
+        ],
+        [
+          570,
+          60
+        ],
+        [
+          470,
+          110
+        ],
+        [
+          330,
+          120
+        ]
+      ],
+      "density": 0.25,
+      "kind": "craft",
+      "confidence": "plausible composite"
+    },
+    {
+      "id": "suburb.karja",
+      "name_1343": "cattle-road farmsteads",
+      "polygon_m": [
+        [
+          90,
+          310
+        ],
+        [
+          240,
+          290
+        ],
+        [
+          330,
+          380
+        ],
+        [
+          150,
+          470
+        ],
+        [
+          60,
+          430
+        ]
+      ],
+      "density": 0.12,
+      "kind": "farm",
+      "confidence": "plausible composite"
+    },
+    {
+      "id": "suburb.harju",
+      "name_1343": "Harju-road houses",
+      "polygon_m": [
+        [
+          -240,
+          330
+        ],
+        [
+          -110,
+          330
+        ],
+        [
+          -80,
+          480
+        ],
+        [
+          -200,
+          560
+        ],
+        [
+          -260,
+          450
+        ]
+      ],
+      "density": 0.15,
+      "kind": "farm",
+      "confidence": "plausible composite"
+    },
+    {
+      "id": "suburb.toompea_foot",
+      "name_1343": "vassal yards below the castle",
+      "polygon_m": [
+        [
+          -560,
+          160
+        ],
+        [
+          -460,
+          210
+        ],
+        [
+          -470,
+          330
+        ],
+        [
+          -620,
+          330
+        ]
+      ],
+      "density": 0.12,
+      "kind": "farm",
+      "confidence": "plausible composite"
+    }
+  ],
+  "points_of_interest": [
+    {
+      "id": "poi.forum",
+      "kind": "market",
+      "at": [
+        5,
+        -10
+      ],
+      "name_1343": "forum (market reserve, no well)",
+      "confidence": "attested"
+    },
+    {
+      "id": "poi.fish_landing",
+      "kind": "market",
+      "at": [
+        230,
+        -650
+      ],
+      "name_1343": "fish and cargo landing",
+      "confidence": "plausible composite"
+    },
+    {
+      "id": "poi.well.dominican",
+      "kind": "well",
+      "at": [
+        200,
+        -70
+      ],
+      "name_1343": "Dominican close well",
+      "confidence": "attested"
+    },
+    {
+      "id": "poi.well.bishop_garden",
+      "kind": "well",
+      "at": [
+        -330,
+        110
+      ],
+      "name_1343": "Bishop's garden well",
+      "confidence": "attested"
+    },
+    {
+      "id": "poi.well.yard.pikk_north",
+      "kind": "well",
+      "at": [
+        100,
+        -330
+      ],
+      "name_1343": "merchant yard well",
+      "confidence": "plausible composite"
+    },
+    {
+      "id": "poi.well.yard.lai",
+      "kind": "well",
+      "at": [
+        20,
+        -280
+      ],
+      "name_1343": "yard well",
+      "confidence": "plausible composite"
+    },
+    {
+      "id": "poi.well.yard.viru",
+      "kind": "well",
+      "at": [
+        150,
+        30
+      ],
+      "name_1343": "yard well",
+      "confidence": "plausible composite"
+    },
+    {
+      "id": "poi.well.yard.harju",
+      "kind": "well",
+      "at": [
+        -60,
+        210
+      ],
+      "name_1343": "yard well",
+      "confidence": "plausible composite"
+    },
+    {
+      "id": "poi.well.castle",
+      "kind": "well",
+      "at": [
+        -430,
+        150
+      ],
+      "name_1343": "castle well",
+      "confidence": "plausible composite"
+    },
+    {
+      "id": "poi.drain.coastal",
+      "kind": "covered_drain",
+      "at": [
+        222,
+        -575
+      ],
+      "name_1343": "slab-lined rainwater channel to the sea",
+      "confidence": "attested (H11)"
+    },
+    {
+      "id": "poi.guard.coastal",
+      "kind": "guard_post",
+      "at": [
+        222,
+        -570
+      ],
+      "name_1343": "Coastal Gate watch",
+      "confidence": "plausible composite"
+    },
+    {
+      "id": "poi.guard.viru",
+      "kind": "guard_post",
+      "at": [
+        255,
+        70
+      ],
+      "name_1343": "Viru gate watch",
+      "confidence": "plausible composite"
+    },
+    {
+      "id": "poi.guard.karja",
+      "kind": "guard_post",
+      "at": [
+        66,
+        240
+      ],
+      "name_1343": "Cattle Gate watch",
+      "confidence": "plausible composite"
+    },
+    {
+      "id": "poi.guard.harju",
+      "kind": "guard_post",
+      "at": [
+        -95,
+        280
+      ],
+      "name_1343": "Smiths' gate watch",
+      "confidence": "plausible composite"
+    },
+    {
+      "id": "poi.guard.long_hill",
+      "kind": "guard_post",
+      "at": [
+        -160,
+        -40
+      ],
+      "name_1343": "Long Hill gate (Danish/council watch)",
+      "confidence": "plausible composite"
+    },
+    {
+      "id": "poi.guard.short_hill",
+      "kind": "guard_post",
+      "at": [
+        -240,
+        125
+      ],
+      "name_1343": "Short Hill gate (Danish watch)",
+      "confidence": "plausible composite"
+    },
+    {
+      "id": "poi.barracks.castle",
+      "kind": "barracks",
+      "at": [
+        -440,
+        170
+      ],
+      "name_1343": "Danish garrison in the castle",
+      "confidence": "attested (Danish crown holds Toompea)"
+    },
+    {
+      "id": "poi.watch.town_hall",
+      "kind": "barracks",
+      "at": [
+        10,
+        25
+      ],
+      "name_1343": "council watch at the hall",
+      "confidence": "plausible composite"
+    },
+    {
+      "id": "poi.granary.pikk",
+      "kind": "granary",
+      "at": [
+        120,
+        -400
+      ],
+      "name_1343": "merchant lofts by the sea gate",
+      "confidence": "plausible composite"
+    },
+    {
+      "id": "poi.mill.karja",
+      "kind": "mill",
+      "at": [
+        95,
+        268
+      ],
+      "name_1343": "mill pond by the Cattle Gate (state uncertain)",
+      "confidence": "uncertain"
+    },
+    {
+      "id": "poi.bath.nunne",
+      "kind": "bath",
+      "at": [
+        -150,
+        -150
+      ],
+      "name_1343": "bath house by the Nuns' Gate",
+      "confidence": "plausible composite"
+    },
+    {
+      "id": "poi.bakery.lai",
+      "kind": "bakery",
+      "at": [
+        -20,
+        -200
+      ],
+      "name_1343": "bakers' ovens",
+      "confidence": "plausible composite"
+    },
+    {
+      "id": "poi.brewery.vene",
+      "kind": "brewery",
+      "at": [
+        170,
+        -180
+      ],
+      "name_1343": "malt house",
+      "confidence": "plausible composite"
+    },
+    {
+      "id": "poi.slaughter.karja",
+      "kind": "butcher",
+      "at": [
+        60,
+        200
+      ],
+      "name_1343": "meat benches toward the Cattle Gate",
+      "confidence": "plausible composite"
+    },
+    {
+      "id": "poi.smithy.harju",
+      "kind": "smithy",
+      "at": [
+        -75,
+        190
+      ],
+      "name_1343": "smiths' street forges",
+      "confidence": "attested street name platea fabrorum (1339)"
+    }
+  ],
+  "flows": [
+    {
+      "id": "flow.grain_harbour_market",
+      "kind": "supply",
+      "goods": "grain, salt, cloth",
+      "via": [
+        "poi.fish_landing",
+        "gate.coastal",
+        "poi.granary.pikk",
+        "poi.forum"
+      ]
+    },
+    {
+      "id": "flow.cattle_market",
+      "kind": "supply",
+      "goods": "cattle, hides",
+      "via": [
+        "gate.karja",
+        "poi.slaughter.karja",
+        "poi.forum"
+      ]
+    },
+    {
+      "id": "flow.rus_trade",
+      "kind": "supply",
+      "goods": "furs, wax",
+      "via": [
+        "gate.viru",
+        "poi.brewery.vene",
+        "poi.forum"
+      ]
+    },
+    {
+      "id": "flow.iron",
+      "kind": "supply",
+      "goods": "bog iron, charcoal",
+      "via": [
+        "gate.harju",
+        "poi.smithy.harju"
+      ]
+    },
+    {
+      "id": "flow.fish",
+      "kind": "supply",
+      "goods": "herring, cod",
+      "via": [
+        "poi.fish_landing",
+        "gate.coastal",
+        "poi.forum"
+      ]
+    },
+    {
+      "id": "flow.watch_round",
+      "kind": "patrol",
+      "goods": "",
+      "via": [
+        "poi.watch.town_hall",
+        "gate.viru",
+        "gate.karja",
+        "gate.harju",
+        "gate.long_hill",
+        "gate.nuns",
+        "gate.coastal",
+        "gate.sand",
+        "poi.watch.town_hall"
+      ]
+    }
+  ],
+  "forum": {
+    "id": "space.forum",
+    "name_1343": "forum",
+    "polygon_m": [
+      [
+        -50,
+        -12
+      ],
+      [
+        20,
+        -49
+      ],
+      [
+        40,
+        -50
+      ],
+      [
+        30,
+        18
+      ],
+      [
+        -25,
+        31
+      ],
+      [
+        -38,
+        21
+      ]
+    ],
+    "surface": "packed_earth_with_paving",
+    "confidence": "attested open market reserve (R-1207); extents plausible composite"
+  },
+  "terrain": {
+    "dsm_bias_m": 5.0,
+    "bias_taper_m": 70.0,
+    "note": "EU-DEM is a surface model; in the dense Lower Town rooftops survive the ground filter, so the walled town is lowered by ~5 m (plausible composite). Calibrated so the Toompea table stands ~20-25 m above the forum (H01, H12)."
+  }
+}

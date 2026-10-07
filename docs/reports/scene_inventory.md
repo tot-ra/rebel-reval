@@ -140,6 +140,8 @@ Inventory row count (data rows in the table below): **135**.
 | 71 | `tools/benchmarks/lower_town_scene_benchmark.tscn` | partial | CI Lower Town scene-load benchmark host; not player-facing. |
 | 94 | `tools/benchmarks/lower_town_render_probe.tscn` | partial | CI Lower Town 3D render benchmark host; not player-facing. |
 | 72 | `tools/capture_demo_walkthrough_host.tscn` | partial | D-004 packaged demo walkthrough capture host; not player-facing. |
+| 138 | `scenes/world/reval_city/reval_city.tscn` | working | ADR 0031 seamless Reval 1343 city preview (main menu "Reval (seamless)"). |
+| 139 | `tools/capture_reval_city_walk.tscn` | partial | ADR 0031 seamless-city walk acceptance host; not player-facing. |
 | 134 | `tools/verify_world_seam_walk.tscn` | partial | R-1043 WorldHost seam-walk verification host (keyboard, gamepad, mouse, fallback); not player-facing. |
 | 95 | `generated/comfyui/forge_cat_hunyuan3d_v1/production/godot_verify/verify.tscn` | partial | Forge cat GLB import verification host; ComfyUI pipeline only. |
 
@@ -169,10 +171,11 @@ Inventory row count (data rows in the table below): **135**.
 | `scenes/tests/` | 0 | 5 | 0 | 0 | 5 |
 | `scenes/ui/` | 4 | 0 | 0 | 0 | 4 |
 | `scenes/world/` | 0 | 0 | 0 | 10 | 10 |
+| `scenes/world/reval_city/` | 1 | 0 | 0 | 0 | 1 |
 | `scenes/world_travel/` | 0 | 10 | 0 | 0 | 10 |
-| `tools/` | 0 | 2 | 0 | 0 | 2 |
+| `tools/` | 0 | 3 | 0 | 0 | 3 |
 | `tools/benchmarks/` | 0 | 3 | 0 | 0 | 3 |
-| **All** | **33** | **47** | **3** | **20** | **103** |
+| **All** | **34** | **48** | **3** | **20** | **105** |
 
 ## Verification
 

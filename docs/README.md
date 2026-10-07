@@ -18,7 +18,7 @@ One page per feature, with status, behavior, code entry points, content, saved s
 
 | Topic | Pages |
 |---|---|
-| The 3D world (camera, sky, weather, water, vegetation, fauna, lighting) | [World presentation](./SYSTEMS/WORLD_PRESENTATION.md) · [Hoist ropes](./SYSTEMS/HOIST_ROPE.md) · [Sky/weather state contract](./SKY_WEATHER_STATE_CONTRACT.md) · [World-building visual gate](./WORLD_BUILDING_VISUAL_GATE.md) |
+| The 3D world (camera, sky, weather, water, vegetation, fauna, lighting) | [World presentation](./SYSTEMS/WORLD_PRESENTATION.md) · [Seamless Reval city](./SYSTEMS/SEAMLESS_CITY.md) · [Hoist ropes](./SYSTEMS/HOIST_ROPE.md) · [Sky/weather state contract](./SKY_WEATHER_STATE_CONTRACT.md) · [World-building visual gate](./WORLD_BUILDING_VISUAL_GATE.md) |
 | Map system | [Map authoring (blueprints, compiler, stable IDs)](./MAP_AUTHORING.md) · [Map conversion plan](./MAP_CONVERSION_PLAN.md) · [Map alignment editor](./MAP_ALIGNMENT_EDITOR.md) · [Large-map chunking](./LARGE_MAP_CHUNKING_PLAN.md) · [Seamless streaming](./SEAMLESS_STREAMING_PLAN.md) |
 | City and landmarks | [Landmark narrative integration](./LANDMARK_NARRATIVE_INTEGRATION.md) · [Tourist landmarks](./TOURIST_LANDMARKS.md) · [1343 fortifications](./reports/reval_fortifications_1343.md) · [Legacy location notes](../scenes/README.md) |
 | Nature | [Flora and fauna of 1343](./FLORA_FAUNA.md) |

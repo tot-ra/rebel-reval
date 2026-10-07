@@ -174,6 +174,27 @@ def main() -> None:
             lines.append(line)
         lines.append("")
 
+    # --- Map and elevation data (ADR 0031) -------------------------------
+    lines.append("## Map and elevation data")
+    lines.append("")
+    lines.append(
+        "The seamless Reval city follows the surviving street plan, plot "
+        "boundaries, towers and cliff lines of Tallinn Old Town, corrected to "
+        "spring 1343 by the Reval Rebel authors."
+    )
+    lines.append("")
+    lines.append(
+        "- Map data (c) OpenStreetMap contributors, available under the Open "
+        "Database License (ODbL) 1.0. The extract and the city plan derived from "
+        "it remain available under the ODbL. Source: https://www.openstreetmap.org/copyright"
+    )
+    lines.append(
+        "- Elevation: produced using Copernicus data and information funded by "
+        "the European Union - EU-DEM layers (EU-DEM v1.1), accessed through "
+        "OpenTopoData. Source: https://land.copernicus.eu/"
+    )
+    lines.append("")
+
     # --- License references ---------------------------------------------
     lines.append("## Licenses")
     lines.append("")
@@ -181,6 +202,7 @@ def main() -> None:
     lines.append("- CC BY 4.0: https://creativecommons.org/licenses/by/4.0/")
     lines.append("- CC BY-SA 4.0: https://creativecommons.org/licenses/by-sa/4.0/")
     lines.append("- CC BY-SA 3.0: https://creativecommons.org/licenses/by-sa/3.0/")
+    lines.append("- ODbL 1.0: https://opendatacommons.org/licenses/odbl/1-0/")
     lines.append("")
     lines.append(
         "ShareAlike note: recordings under a CC BY-SA license that we edited "

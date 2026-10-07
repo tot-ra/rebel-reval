@@ -11,6 +11,7 @@ One page per implemented or planned feature. Each page opens with a `Status:` li
 | [Factions, relationships, pressure, prices](./FACTIONS_AND_ECONOMY.md) | Implemented |
 | [World life](./WORLD_LIFE.md) | Implemented in Lower Town; Padise and public events unwired |
 | [World presentation (3D view)](./WORLD_PRESENTATION.md) | Implemented |
+| [Seamless Reval city (1343)](./SEAMLESS_CITY.md) | Playable preview (ADR 0031); no quests or saves yet |
 | [Living vegetation](./LIVING_VEGETATION.md) | Implemented (seasons, weather, leaf fall on hits) |
 | [Hoist ropes](./HOIST_ROPE.md) | Implemented (wind-swung rope and hook on hoist beams) |
 | [Combat runtime](./COMBAT.md) | Foundation implemented; tower bosses unwired |

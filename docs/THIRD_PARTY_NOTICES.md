@@ -114,3 +114,23 @@ notice.code.tidewater` comment.
 **Licenses:** CC BY-SA 4.0 as listed per species.
 
 **Sources:** eBiodiversity / elurikkus.ee (PlutoF), University of Tartu.
+
+## notice.data.openstreetmap_reval
+
+**Component:** Trimmed OpenStreetMap extract of Tallinn Old Town (`tools/city/data/osm_reval_extract.json`) and the city plan derived from it (`content/world/reval_city/plan.json`, `height.json`, `splat.png`)
+
+**Copyright:** © OpenStreetMap contributors
+
+**License:** Open Database License (ODbL) 1.0, https://opendatacommons.org/licenses/odbl/1-0/ . The extract and the derived plan are made available under the ODbL; see https://www.openstreetmap.org/copyright
+
+**Use:** Street lines, plot footprints, surviving tower positions, wall fragments and cliff lines for the seamless Reval city ([ADR 0031](adr/0031-continuous-reval-city-plan.md)); 1343 corrections are layered on top.
+
+## notice.data.eudem
+
+**Component:** EU-DEM v1.1 elevation samples (`tools/city/data/eudem25m_reval.json`), fetched through OpenTopoData
+
+**Copyright:** Produced using Copernicus data and information funded by the European Union - EU-DEM layers
+
+**License:** Free use with attribution (Copernicus data policy)
+
+**Use:** Terrain trend for the city heightfield; Toompea, the hill ways, the shore and the ditch are authored on top.

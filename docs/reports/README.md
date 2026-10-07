@@ -242,6 +242,7 @@ Start with:
 - [Rentenitorn Interior Historical and Art Review](rentenitorn_interior_review.md)
 - [Repository size audit (2026-08-11)](repository_size_audit_2026-08-11.md)
 - [Reval 1343 building typology dossier](reval_architecture_typology_1343.md)
+- [Reval city plan review (2026-10-07)](reval_city_plan_2026-10-07.md)
 - [P0-068 Reval district reshape](reval_district_reshape_p0_068.md)
 - [1343 Reval domestic infrastructure](reval_domestic_infrastructure_1343.md)
 - [Reval fortifications and tower interiors - 1343 baseline](reval_fortifications_1343.md)
