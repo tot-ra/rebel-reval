@@ -170,7 +170,9 @@ static func hit_leaf_count(species: StringName, date: Dictionary, strength: floa
 	var looseness := 0.35 + float(state["fall_rate"]) * 1.4 + float(state["autumn"]) * 0.4
 	if is_evergreen(species):
 		looseness = 0.18
-	var base := 26.0 * clampf(strength, 0.2, 2.0) * density * looseness
+	# Tuned on gameplay-scale captures: a summer hit drops ~12 leaves, so the
+	# burst still reads at the shipped camera crop; autumn stays the loosest.
+	var base := 34.0 * clampf(strength, 0.2, 2.0) * density * looseness
 	return clampi(int(round(base)), 1, 64)
 
 

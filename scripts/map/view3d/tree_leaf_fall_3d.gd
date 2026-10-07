@@ -360,13 +360,16 @@ func _emit_burst(hit: Dictionary, colors: Array[Color], amount: int) -> void:
 	_next_burst = (_next_burst + 1) % _bursts.size()
 	var radius := float(hit["crown_radius"])
 	var height := float(hit["crown_height"])
-	burst.global_position = hit["crown_center"]
+	# Emit from the lower crown shell, not its centre: under the gameplay camera
+	# leaves born inside the crown fall behind its own foliage and never read.
+	var crown_center: Vector3 = hit["crown_center"]
+	burst.global_position = crown_center - Vector3(0.0, minf(radius * 0.6, height * 0.5), 0.0)
 	burst.emission_shape = CPUParticles3D.EMISSION_SHAPE_SPHERE
-	burst.emission_sphere_radius = radius * 0.75
+	burst.emission_sphere_radius = radius
 	burst.amount = maxi(amount, 1)
 	# Net fall acceleration ~0.9 m/s^2 after damping: leaves need roughly
 	# sqrt(2h/a) seconds to reach the ground from the crown centre.
-	burst.lifetime = clampf(sqrt(2.0 * (height + radius * 0.3) / 0.9), 1.6, 5.5)
+	burst.lifetime = clampf(sqrt(2.0 * maxf(height - radius * 0.3, 0.5) / 0.9), 1.6, 5.5)
 	var wind := MapViewMaterials.WIND_MATERIALS.world_wind_direction()
 	var wind_strength := MapViewMaterials.WIND_MATERIALS.world_wind_strength()
 	burst.gravity = Vector3(wind.x * wind_strength * 1.4, -1.25, wind.y * wind_strength * 1.4)
@@ -409,7 +412,10 @@ func _make_emitter(emitter_name: String) -> CPUParticles3D:
 
 static func _make_leaf_mesh() -> QuadMesh:
 	var mesh := QuadMesh.new()
-	mesh.size = Vector2(0.075, 0.055)
+	# Larger than a real 7 cm leaf on purpose: the gameplay camera shows about
+	# 21 px per metre, so true-size leaves were ~1.5 px and the burst vanished
+	# in GPU captures. 14 cm reads as a tumbling leaf without looking like a card.
+	mesh.size = Vector2(0.14, 0.10)
 	var material := StandardMaterial3D.new()
 	material.vertex_color_use_as_albedo = true
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED

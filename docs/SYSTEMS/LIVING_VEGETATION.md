@@ -42,6 +42,59 @@ Reference bar: trees that feel alive in the way Witcher 3 and RDR2 trees do. The
 - [`test_vegetation_phenology.gd`](../../tests/godot/test_vegetation_phenology.gd) checks winter bareness, the 21 April bud-burst range, full summer crowns, October colouring and shedding, evergreen conifers, continuity and determinism, Julian leap years, and hit strength.
 - [`test_tree_leaf_fall.gd`](../../tests/godot/test_tree_leaf_fall.gd) checks the strike query (nearest tree in front, ignoring trees behind or out of reach), shake ring-down, bursts only from leafed trees, ambient rate against season, wind, and tree count, season delivery to materials and fruit, and the leaf `CUSTOM0` and occlusion contract.
 
+## Gameplay-scale GPU evidence and review (R-1187)
+
+Captured 2026-10-07 with a one-off script (not kept in `tools/`) through
+`tools/godot_render.sh`: `prototype.sacred_grove` built by `MapView3D.create`,
+shipped gameplay orthographic crop (`CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE`,
+about 21 px per metre at 720p), Godot 4.7.1 GL Compatibility, Apple M5 Pro.
+The struck tree is the most open in-map birch near the spawn. For 21.04, 15.07 and
+10.10.1343 the script calls `MapView3D.strike_vegetation` with Kalev 1.1 m from
+the trunk and saves frames at rest, 0.2 s and 1.0 s after the blow; then a
+15.07 rain frame and a 10.10 ambient frame around a `player_view_rig`.
+
+- [Full frames](../reports/images/vegetation/r1187_gameplay_frames.png): 0.2 s after
+  hits on 21.04, 15.07, 10.10, and October ambient fall.
+- [Zoomed crops](../reports/images/vegetation/r1187_gameplay_zoom_sheet.png): rows
+  21.04, 15.07, 10.10 (rest / 0.2 s / 1.0 s), then 15.07 rest / rain / 10.10 ambient.
+- Strike results: 21.04 birch 3 leaves, 15.07 12 leaves, 10.10 50 leaves; October
+  ambient emitter at 16 particles. All 11 raw frames have distinct md5 hashes (no
+  frozen frames).
+
+What the captures show: the seasonal crowns read clearly at gameplay scale (sparse
+fresh April green, full July crown, mixed gold and brown October). The crown shake
+is visible as a shift between rest and 0.2 s. The leaf burst and ambient leaves read
+only as a few bright specks. The rain frame is dominated by rain fog, so leaf and
+bark wetness cannot be judged from it. Kalev is not visible in the frames; the same
+runs log a GL Compatibility `Program linking failed ... uses 17 samplers` error
+right after the hero character assets load.
+
+Tuning applied after the captures:
+
+- Particle leaf quad 0.075 x 0.055 m to 0.14 x 0.10 m (`TreeLeafFall3D._make_leaf_mesh`):
+  true-size leaves were about 1.5 px at the gameplay crop.
+- `VegetationPhenology.hit_leaf_count` base 26 to 34 (summer hit about 12 leaves).
+- Bursts emit from the lower crown shell instead of the crown centre, so leaves leave
+  the foliage that hid them.
+- `SHAKE_AMPLITUDE` (0.16 m) and the autumn palette are unchanged. October crowns lean
+  brown because the canopy shader multiplies the autumn hue by the leaf luminance
+  times 0.82. That is a shader change, left for follow-up.
+
+Code review of commit `3078c157`: no blocking issues found.
+
+- The shader reads `INSTANCE_CUSTOM`, which is zero for plain `MeshInstance3D` crowns
+  and MultiMeshes without custom data. `MODEL_MATRIX` includes the instance transform,
+  so per-tree limb phase works.
+- `use_custom_data` is set before `instance_count`. Shakes write custom data only for
+  struck trees and zero it at the end.
+- Per-frame cost is small: one group lookup, one ambient update, and a date-string key
+  per frame. The tree walk runs every 1.5 s and on each strike.
+- Static season, wind and wetness state survives `reset()`, so streamed chunks and
+  rebuilt materials start in the current season. `_bark_wetness = -1` forces a re-push.
+- Minor, not fixed: the leaf branch repeats `inverse(mat3(MODEL_MATRIX))` per vertex,
+  and shared non-species canopy materials (bushes) never get wet.
+- The delegated second reviewer agent failed without returning findings.
+
 ## Limits
 
 - No GPU capture plates are attached yet. Visual tuning (autumn saturation, bud-burst look, burst size) needs a rendered review with `tools/godot_render.sh`.
