@@ -41,7 +41,9 @@ def fingerprint(manifest: dict) -> str:
 
 
 def plan_members(plan_text: str) -> list[str]:
-    match = re.search(r"### Streamed:.*?### Interiors:", plan_text, re.S)
+    # Only the reval_outdoor table: the reval_hinterland table (ADR 0027) is a
+    # separate world group, so stop at the next heading.
+    match = re.search(r"### Streamed: `world_group_id = reval_outdoor`.*?(?=^### )", plan_text, re.S | re.M)
     if not match:
         return []
     return re.findall(r"^\|\s*`([^`]+)`\s*\|", match.group(0), re.M)

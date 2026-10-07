@@ -155,7 +155,7 @@
       "transition_id": "to_world_harju"
     }
   ],
-  "fingerprint": "6d970f1ac50ae56213c0b89b6fd6afc611241fb0c4fc8ab7a4fb752f0051ea80",
+  "fingerprint": "03962e2900382e05b8662aff089e36966ed82c8380939ef15b0d13e0787659eb",
   "locations": [
     {
       "cell_size": 32,
@@ -215,7 +215,7 @@
       ],
       "location_id": "market_civic_quarter",
       "location_kind": "outdoor_streamed",
-      "map_fingerprint": "f9792b1c9bbc7ec6e041633c512a9d51222ad59c89d8c058a9060159837a9379",
+      "map_fingerprint": "75b53a6c95f8f2c12f7e727c8fa625e7e25cc3a0c034744288881da09153fe0b",
       "origin_cell": [
         -114,
         0
@@ -227,7 +227,7 @@
         114,
         128
       ],
-      "source_sha256": "43ad24a0ddb7de9df3d6f2e5fcb9ea616cb81b349b8b1c7b740e684ad564e099"
+      "source_sha256": "aef0edeef24a77652876a560a41ea9d1ed41a063978eac378bd6c4c0a73aa690"
     },
     {
       "cell_size": 32,
@@ -335,7 +335,7 @@
       ],
       "location_id": "south_quarter",
       "location_kind": "outdoor_streamed",
-      "map_fingerprint": "13fb83de3fed7af568030f3f24f9a49387f3e29878017f4e5e2d1b57407a9f46",
+      "map_fingerprint": "eaa82126bf3317c6be0e443c5bae8bbf369d5e9e14d39e6403a270f6dbe5c2b2",
       "origin_cell": [
         -258,
         128
@@ -347,7 +347,7 @@
         336,
         96
       ],
-      "source_sha256": "064822d79b2262addebec908eed8071060c4cf4e6b51a57150d7678ae45ad165"
+      "source_sha256": "82fc3e0c6010ecdc51c7dedb0e024697dd93447366df0b14c2f994e0d9a83980"
     },
     {
       "cell_size": 32,
