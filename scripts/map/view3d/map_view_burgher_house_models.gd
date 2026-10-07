@@ -92,6 +92,8 @@ static func add_variant_model(
 	root.add_child(model)
 	prune_placeholder_geometry(root, model)
 	_attach_smoke(root, model, variant)
+	# R-1200: kit hoists ship rope markers, not geometry; hang a live rope.
+	MapViewHoistRope.attach_at_markers(root, model)
 	return model
 
 

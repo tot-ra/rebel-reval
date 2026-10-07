@@ -79,6 +79,8 @@ static func _shared_wind_materials() -> Array[ShaderMaterial]:
 		fishing_net_hemp(),
 		fishing_net_float(),
 		fishing_net_sinker(),
+		hoist_rope_hemp(),
+		hoist_rope_iron(),
 	]
 
 
@@ -250,6 +252,37 @@ static func flag_cloth(srgb_vertex_color: bool = false) -> ShaderMaterial:
 	material.set_shader_parameter("sway_strength", 0.42)
 	material.set_shader_parameter("free_edge", Vector2(1.0, 0.0))
 	material.set_shader_parameter("vertex_color_srgb", 1.0 if srgb_vertex_color else 0.0)
+	_cache[key] = material
+	return material
+
+
+## Hoist rope and hook (R-1200): both surfaces of MapViewHoistRope share the
+## pendulum shader so the hook stays on the rope end; only the look differs.
+static func hoist_rope_hemp() -> ShaderMaterial:
+	return _hoist_rope_material("hoist_rope_hemp", Color8(136, 116, 84), 0.95, 0.0, 1.0)
+
+
+static func hoist_rope_iron() -> ShaderMaterial:
+	return _hoist_rope_material("hoist_rope_iron", Color8(52, 48, 45), 0.62, 0.55, 0.0)
+
+
+static func _hoist_rope_material(
+	key: String, color: Color, roughness: float, metallic: float, lay: float
+) -> ShaderMaterial:
+	if _cache.has(key):
+		return _cache[key]
+	var material := ShaderMaterial.new()
+	material.shader = MapViewMaterialShaders.shader_resource(
+		"hoist_rope", MapViewMaterialShaders.HOIST_ROPE_SHADER
+	)
+	material.set_shader_parameter("base_color", color)
+	material.set_shader_parameter("roughness_value", roughness)
+	material.set_shader_parameter("metallic_value", metallic)
+	material.set_shader_parameter("specular_value", 0.5 if metallic > 0.0 else 0.3)
+	material.set_shader_parameter("lay_pattern", lay)
+	# Ropes appear with streamed chunks; start them in the current wind.
+	material.set_shader_parameter("wind_direction", _world_wind_direction)
+	material.set_shader_parameter("wind_strength", _world_wind_strength)
 	_cache[key] = material
 	return material
 

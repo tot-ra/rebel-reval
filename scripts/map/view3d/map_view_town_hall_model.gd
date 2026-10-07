@@ -513,17 +513,12 @@ static func _add_attic_hoist(root: Node3D, size: Vector2, height: float) -> void
 	block.position = Vector3(gable_x + 1.1, beam_y - 0.2, 0.0)
 	block.material_override = MapViewMaterials.hewn_timber(true, 2)
 	root.add_child(block)
+	# R-1200: hemp rope and iron hook that swing in the world wind; the beam
+	# runs along +X, the axis the hook bill is built on.
 	var rope_length := beam_y - 0.2 - 1.3
-	var rope := MeshInstance3D.new()
+	var rope := MapViewHoistRope.create(rope_length)
 	rope.name = "TownHallHoistRope"
-	var rope_mesh := CylinderMesh.new()
-	rope_mesh.top_radius = 0.018
-	rope_mesh.bottom_radius = 0.018
-	rope_mesh.height = rope_length
-	rope_mesh.radial_segments = 5
-	rope.mesh = rope_mesh
-	rope.position = Vector3(gable_x + 1.2, beam_y - 0.2 - rope_length * 0.5, 0.0)
-	rope.material_override = MapViewMaterials.leather()
+	rope.position = Vector3(gable_x + 1.2, beam_y - 0.2, 0.0)
 	root.add_child(rope)
 
 

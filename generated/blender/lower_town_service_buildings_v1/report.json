@@ -133,10 +133,10 @@
       },
       "profile": "lower_town_service",
       "ridge_m": 14.5073,
-      "sha256": "fd848279c806cb164a250fcedc794aab412749550749a6f277258b6638d9e679",
+      "sha256": "884d9e9f03e746cc6c999166b7219b637802369f75422d5db4f3f43de5fee20a",
       "smoke_outlet_m": null,
-      "surfaces": 9,
-      "triangles": 11816,
+      "surfaces": 8,
+      "triangles": 11752,
       "variant": "stone_storehouse"
     }
   },

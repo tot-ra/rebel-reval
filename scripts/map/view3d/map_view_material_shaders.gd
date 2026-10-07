@@ -9,6 +9,7 @@ extends RefCounted
 const WEAR_DECAL_SHADER := preload("res://scripts/map/view3d/map_view_wear_decal.gdshader")
 const CLOTH_SHADER := preload("res://scripts/map/view3d/map_view_cloth.gdshader")
 const FLAG_CLOTH_SHADER := preload("res://scripts/map/view3d/map_view_flag_cloth.gdshader")
+const HOIST_ROPE_SHADER := preload("res://scripts/map/view3d/map_view_hoist_rope.gdshader")
 const PUDDLE_SHADER := preload("res://scripts/map/view3d/map_view_puddle.gdshader")
 const HANGING_BANNER_CLOTH_SHADER := preload(
 	"res://scripts/map/view3d/map_view_hanging_banner_cloth.gdshader"

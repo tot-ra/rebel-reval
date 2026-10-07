@@ -1,6 +1,6 @@
 # Flag cloth
 
-Status: implemented (task **R-1181**). Owner: dev. Scope: wind response of hoist-fixed flags (tower pennants, the town hall gable flag, merchant-cog masthead pennants) and the town hall wall banners. Sails, fishing nets and CPU cloth simulation are out of scope.
+Status: implemented (task **R-1181**). Owner: dev. Scope: wind response of hoist-fixed flags (tower pennants, the town hall gable flag, merchant-cog masthead pennants) and the town hall wall banners. Sails, fishing nets and CPU cloth simulation are out of scope. Hoist-beam ropes and hooks share the same wind: see [Hoist ropes](HOIST_ROPE.md).
 
 ## What the player sees
 

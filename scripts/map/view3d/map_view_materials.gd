@@ -391,6 +391,14 @@ static func flag_cloth(srgb_vertex_color: bool = false) -> ShaderMaterial:
 	return WIND_MATERIALS.flag_cloth(srgb_vertex_color)
 
 
+static func hoist_rope_hemp() -> ShaderMaterial:
+	return WIND_MATERIALS.hoist_rope_hemp()
+
+
+static func hoist_rope_iron() -> ShaderMaterial:
+	return WIND_MATERIALS.hoist_rope_iron()
+
+
 static func hanging_banner_cloth(
 	albedo: Texture2D = null, srgb_vertex_color: bool = false
 ) -> ShaderMaterial:

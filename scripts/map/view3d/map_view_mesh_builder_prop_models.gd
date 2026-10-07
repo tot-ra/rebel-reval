@@ -280,6 +280,9 @@ static func _add_plot_dressing_component(root: Node3D, kind: StringName) -> void
 		"Plot dressing component must duplicate as Node3D: %s" % String(component_name)
 	)
 	model.name = "%sModel" % String(component_name)
+	if kind == MapTypes.PROP_KIND_HOIST_BEAM:
+		# R-1200: the baked rope and hook stay rigid; swap in a live rope.
+		MapViewHoistRope.replace_baked(model)
 	root.add_child(model)
 	source.free()
 

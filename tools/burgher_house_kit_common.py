@@ -741,6 +741,9 @@ class House:
         self.back = depth * 0.5
         self.rng = random.Random(int(hashlib.sha256(name.encode("utf-8")).hexdigest()[:12], 16))
         self.objects: list[bpy.types.Object] = []
+        # Empties exported as-is (never joined): runtime attachment points such
+        # as the hoist rope sheave and hook eye.
+        self.markers: list[bpy.types.Object] = []
         self.eave = 0.0
         self.ridge = 0.0
         # (world point, radius, strength) - soot darkening above flues and vents.
@@ -1107,6 +1110,8 @@ class House:
             merged.parent = root
             joined.append(merged)
         self.objects = joined
+        for marker in self.markers:
+            marker.parent = root
         bpy.context.view_layer.update()
         return root
 
@@ -1586,9 +1591,18 @@ class House:
         )
         tip_y = face_y - protrude + 0.16
         self.cylinder("HoistSheave", 0.13, 0.08, at(x, tip_y, z - 0.24) @ rot_y(math.pi * 0.5), "oak", 10)
-        rope_len = max(0.4, z - 0.3 - hook_z)
-        self.cylinder("HoistRope", 0.018, rope_len, at(x + 0.1, tip_y, z - 0.3 - rope_len * 0.5), "rope", 6)
-        self.box("HoistHook", (0.07, 0.07, 0.2), at(x + 0.1, tip_y, hook_z - 0.1), "iron", 0.015)
+        # R-1200: the rope and hook are not baked. Godot hangs a hemp rope and a
+        # forged hook between these markers (MapViewHoistRope) and swings them in
+        # the world wind; a baked rope could only stand rigid like a stick.
+        self.marker("HoistRopeAnchor", Vector((x + 0.1, tip_y, z - 0.3)))
+        self.marker("HoistRopeEnd", Vector((x + 0.1, tip_y, hook_z)))
+
+    def marker(self, name: str, point: Vector) -> bpy.types.Object:
+        obj = bpy.data.objects.new(name, None)
+        bpy.context.collection.objects.link(obj)
+        obj.location = point
+        self.markers.append(obj)
+        return obj
 
     def chimney(self, x: float, y: float, base_z: float, top_z: float, key: str = "rubble") -> None:
         height = top_z - base_z
@@ -1832,7 +1846,7 @@ def mesh_metrics(house: House, asset_id: str) -> dict[str, object]:
 def export_glb(root: bpy.types.Object, house: House, output: Path, asset_id: str) -> dict[str, object]:
     bpy.ops.object.select_all(action="DESELECT")
     root.select_set(True)
-    for obj in house.objects:
+    for obj in house.objects + house.markers:
         obj.select_set(True)
     bpy.context.view_layer.objects.active = root
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -1944,7 +1958,7 @@ def render_plate(house: House, root: bpy.types.Object, output: Path, view: str) 
 
 
 def remove_house(root: bpy.types.Object, house: House) -> None:
-    for obj in house.objects:
+    for obj in house.objects + house.markers:
         bpy.data.objects.remove(obj)
     bpy.data.objects.remove(root)
     for mesh in list(bpy.data.meshes):

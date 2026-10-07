@@ -33,14 +33,14 @@
       "raised_cellar_neck": true,
       "ridge_m": 13.8467,
       "roof_default": "tile",
-      "sha256": "e0c961b2b11bb19ae6a896067d00b82ac9331f94bc24588be7410ec5d8ee7fb7",
+      "sha256": "38fd1f586a0801a2ef774be6a19f32dae53e3a39c156a9f95ac8e092755c629f",
       "smoke_outlet_m": [
         0.57,
         15.0967,
         -1.152
       ],
-      "surfaces": 9,
-      "triangles": 12532,
+      "surfaces": 8,
+      "triangles": 12468,
       "variant": "coursed_rubble"
     },
     "prop.architecture.house.merchant_stone.rendered": {
@@ -76,14 +76,14 @@
       "raised_cellar_neck": true,
       "ridge_m": 12.5073,
       "roof_default": "tile",
-      "sha256": "c9af54e3d4daf1e700192d3aaad673b1ec67ac9230e932d1323803ef284ae13c",
+      "sha256": "03973323df28de953a03d6c20429cb413fe18c2c779b4a335379ab76ced6eac0",
       "smoke_outlet_m": [
         0.57,
         13.7573,
         -1.152
       ],
-      "surfaces": 10,
-      "triangles": 12112,
+      "surfaces": 9,
+      "triangles": 12048,
       "variant": "lime_rendered_wide"
     }
   },
