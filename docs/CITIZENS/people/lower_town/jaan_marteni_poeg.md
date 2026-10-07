@@ -22,7 +22,7 @@
 ## At a glance
 - A sturdy, short man with a full beard gone grey at the temples, hauling lime, turf or barrels wherever the foremen are hiring at first light.
 - Two nights in seven he walks the lanes under the wall with a borrowed iron cap and a spear, and is known for greeting every shuttered window by name.
-- Odd for a poor man: he is owed more goodwill than he owes coin, yet he is in debt to a shoemaker and a merchant at once.
+- Odd: a poor man owed goodwill by everyone, yet in debt to a shoemaker and a merchant at once.
 
 ## Appearance
 - **Body:** 168 cm, sturdy, deep-chested, short in the leg; a rolling walk from years of carrying, shoulders a little forward.
@@ -30,12 +30,12 @@
 - **Hair and facial hair:** Ash blond hair with grey at the temples, cropped with a borrowed knife; a full beard, untrimmed, grey at the chin.
 - **Skin and marks:** Wind-reddened across cheeks and nose, cracked at the ears in winter. No scars.
 - **Hands:** Broad, split-nailed, rope-callused across the palms; the right thumb is thick from a lime burn that never healed smooth.
-- **Clothing and kit (April 1343):** Undyed linen shirt, short grey homespun kirtel, patched braies, hose tied up with cord, wooden shoes. A leather carrying pad on one shoulder, a cord belt with a knife and a tally-stick. On watch nights he adds a padded jack and iron cap from the Estonian squad's store.
+- **Clothing and kit (April 1343):** Undyed linen shirt, short grey homespun kirtel, patched braies, hose tied up with cord, wooden shoes. A leather carrying pad, a cord belt with a knife and tally-stick; on watch nights a padded jack and iron cap from the squad's store.
 - **Portrait prompt:** Sturdy Estonian labourer of forty-seven, wind-reddened face, brown eyes, broad nose, full beard and ash blond hair grey at the temples, undyed linen collar under a grey homespun tunic, polite half-open mouth, neutral grey background, natural light, shoulders-up.
 - **Model notes:** male, age_years 47, muscle 0.6, weight 0.6, proportions stocky, height_m 1.68; reddened skin; brown eyes; ash blond hair and full beard greying; crowd tier 2.
 
 ## Biography
-Born in 1296 to a Harju family that hired itself to the monastery granges, Jaan came to Reval at fifteen after a hunger year and carried stone for the wall repairs after the troubled years of 1313-1325, when his father was taken for a levy and did not come back. His mother Judit followed him in and has lived with him since. He married Jutte in 1334, a German spinner whom the street said had married down; she spoke only Low German and he learned to sing his Estonian more softly at home. Two sons live, Kornel and Laurents; two others died small. In autumn 1342 a gale took half the roof, and he borrowed 18 marks from the shoemaker Albert van Paderborne to mend it. He now lives in a house he does not own outright and walks a wall he did not build.
+Born in 1296 to a Harju family that hired itself to the monastery granges, Jaan came to Reval at fifteen after a hunger year and carried stone for the wall repairs after the troubled years of 1313-1325, when his father was taken for a levy and did not come back. His mother Judit followed him in and has lived with him since. He married Jutte in 1334, a German spinner whom the street said had married down; she spoke only Low German and he learned to sing his Estonian more softly at home. Two sons live, Kornel and Laurents. In autumn 1342 a gale took half the roof, and he borrowed 18 marks from the shoemaker Albert van Paderborne to mend it. He now lives in a house he does not own outright and walks a wall he did not build.
 
 ## Motivation
 - **Want:** To pay off the roof before Michaelmas and see Kornel apprenticed to something that does not need a back.
@@ -54,10 +54,10 @@ Born in 1296 to a Harju family that hired itself to the monastery granges, Jaan 
 | Night | Curfew bell, twice a week | The lanes under the wall | Estonian watch round with a lantern |
 
 - **Sundays and feast days:** Mass at St Olaf, then he walks the long way home to avoid the shoemaker's window.
-- **Spring 1343 disruption:** Foremen hire fewer hands as grain talk spreads; the watch sergeant doubles the rounds and gives him a longer stretch at the gate; he sleeps on a bench at dawn.
+- **Spring 1343 disruption:** Foremen hire fewer hands as grain talk spreads; the sergeant doubles the rounds.
 
 ## Work and money
-He earns three to four pfennigs a day when hired, perhaps two marks in a good month and nothing in a bad one. Jutte's spinning adds a mark a quarter and Judit's bands a few pfennigs. The shoemaker's bond of 18 marks falls due at Michaelmas and he has paid about nine; Niklas Uku poeg's 3 marks sit unspoken. The hens give eggs he sells at market for small coin. A bad month is one where the sums collide with the hens loose in the neighbour's yard again.
+He earns three to four pfennigs a day when hired, perhaps two marks in a good month and nothing in a bad one. Jutte's spinning adds a mark a quarter and Judit's bands a few pfennigs. The shoemaker's bond of 18 marks falls due at Michaelmas and he has paid about nine; Niklas Uku poeg's 3 marks sit unspoken. The hens' eggs sell for small coin. A bad month is one with no hiring and rain.
 
 ## Relationships
 - **Household:** [Jutte](../../people/lower_town/jutte.md), his wife, who counts everything; [Kornel Jaani poeg](../../people/lower_town/kornel_jaani_poeg.md), his six-year-old, who minds the hens; [Laurents Jaani poeg](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w200645008), the two-year-old; [Judit Madise tütar](../../people/lower_town/judit_madise_tutar.md), his mother, whom he humours.
@@ -71,7 +71,7 @@ He earns three to four pfennigs a day when hired, perhaps two marks in a good mo
 - **Others:** [Halvard Andersson](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w200645036), the boat-builder, hires him for planks; [Kaspar Alberti poeg](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w200645002), another labourer, competes for the same corner.
 
 ## Faction and belief
-No faction. He has sat in the Estonian watch house and heard every grievance, but he thinks rising is for men with food in the larder. Asked for a small favour he would carry a message; asked for a large one he would look at Kornel; asked to inform, he would lie. He crosses himself at St Olaf and leaves the first egg of spring on the sill.
+No faction. He thinks rising is for men with food in the larder. Asked for a small favour he would carry a message; asked for a large one he would look at Kornel; asked to inform, he would lie. He crosses himself at St Olaf and leaves the first egg of spring on the sill.
 
 ## Voice
 - **Registers:** Estonian at home, careful Low German with foremen and sergeants.

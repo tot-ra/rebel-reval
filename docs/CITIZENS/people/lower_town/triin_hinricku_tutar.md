@@ -35,7 +35,7 @@
 - **Model notes:** female, age_years 11, muscle 0.2, weight 0.3, proportions slim child, height_m 1.28; pale sallow skin; grey-blue eyes with left squint; light brown hair, braid; crowd tier 2.
 
 ## Biography
-Born in 1332 in the room above the workshop, Triin was handed a plane shaving at three and a broom at five. She has her father's eye and her mother's long limbs, and a voice from neither parent. The singing woman of the Sand Gate once told her it would carry across the sea. At nine she fell off a stack of planks and landed unhurt, to her own surprise. She learned to count on the beams in the yard and knows the length of every board. She is expected to marry well and be quiet.
+Born in 1332 in the room above the workshop, Triin was handed a plane shaving at three and a broom at five. She has her father's eye and her mother's long limbs, and a voice from neither parent. The singing woman of the Sand Gate once told her it would carry across the sea. At nine she fell off a stack of planks and landed unhurt, to her own surprise. She is expected to marry well and be quiet.
 
 ## Motivation
 - **Want:** To be allowed on a roof with her father.
@@ -53,7 +53,7 @@ Born in 1332 in the room above the workshop, Triin was handed a plane shaving at
 | Evening | Vespers | Yard | Plays counting games |
 | Night | Curfew bell | Loft bed | Sleeps near the stairs |
 
-- **Sundays and feast days:** Mass at St Olaf, standing beside her mother; the priest has glared at her singing twice.
+- **Sundays and feast days:** Mass at St Olaf; the priest has glared at her singing twice.
 - **Spring 1343 disruption:** Her father is away more; her mother tells her to whisper, and she tries.
 
 ## Work and money

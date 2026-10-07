@@ -22,11 +22,11 @@
 ## At a glance
 - A thin little boy with straw hair and a hen under one arm, often with a feather stuck in his collar.
 - Known to the street as "the one with the jug", since he carries the apology beer to the carpenter's gate.
-- Odd for his age: he speaks German to his mother and Estonian to his father without noticing the switch.
+- Odd: he speaks German to his mother and Estonian to his father without noticing.
 
 ## Appearance
 - **Body:** 108 cm, wiry, long arms for his size, scabbed knees; he runs on his toes and stops short.
-- **Face:** Narrow, with a pointed chin, wide-set grey-blue eyes, ears that stand out slightly, and a front tooth missing; the expression is intent, as if listening for a hen.
+- **Face:** Narrow, with a pointed chin, wide-set grey-blue eyes, ears that stand out slightly, and a front tooth missing; intent, as if listening for a hen.
 - **Hair and facial hair:** Straw blond, cut at home with the kitchen knife into a rough bowl; it sticks up at the crown.
 - **Skin and marks:** Pale and even, a faint freckle on the nose after the first spring sun; no marks.
 - **Hands:** Small, quick, grubby; nails black from the yard.
@@ -35,7 +35,7 @@
 - **Model notes:** male, age_years 6, muscle 0.2, weight 0.3, proportions slim child, height_m 1.08; pale skin; grey-blue eyes; straw blond hair; crowd tier 2.
 
 ## Biography
-Born in 1337 in the front room on Müürivahe, the older of two surviving boys, while his father was walking the wall. He talked late and then fast. He has been bitten once by a goose near the Sand Gate and keeps a respectful distance from all of its kin. Last autumn he was lifted onto the roof beam to see the new thatch go on and has been boasting about it since. He is told he will be a carrier like his father. He would rather be a bird.
+Born in 1337 in the front room on Müürivahe, the older of two surviving boys, while his father was walking the wall. He talked late and then fast. A goose near the Sand Gate bit him once, and he avoids all its kin. He is told he will be a carrier like his father. He would rather be a bird.
 
 ## Motivation
 - **Want:** To keep the speckled hen from the pot until she lays.
@@ -53,11 +53,11 @@ Born in 1337 in the front room on Müürivahe, the older of two surviving boys, 
 | Evening | Vespers | Hearth | Holds his small brother |
 | Night | Curfew bell | Straw bed | Sleeps by Judit |
 
-- **Sundays and feast days:** Mass at St Olaf, held by the hand; he stares at the painted saints.
+- **Sundays and feast days:** Mass at St Olaf, held by the hand.
 - **Spring 1343 disruption:** His father walks a longer watch and his mother is quieter; he hears the word "levy" and thinks it is a kind of goose.
 
 ## Work and money
-He earns nothing but is sent for water and to chase hens. A spare egg or a crust is his reward. His family's debts are a word he has heard and a cord his mother ties in knots. A bad month is when no eggs hatch.
+He earns nothing; an egg or a crust is his reward. The family's debts are a word he has heard and a cord his mother ties in knots.
 
 ## Relationships
 - **Household:** [Jaan Marteni poeg](../../people/lower_town/jaan_marteni_poeg.md), his father, who sings in the dark; [Jutte](../../people/lower_town/jutte.md), his mother, who counts; [Laurents Jaani poeg](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w200645008), his two-year-old brother, whom he guards; [Judit Madise tütar](../../people/lower_town/judit_madise_tutar.md), his grandmother, who tells him which hens are lucky.
@@ -74,7 +74,7 @@ No faction; he is six. He believes what Judit says: that hens see the dead and t
 - **Verbal tic:** Counts the hens aloud, always one wrong.
 
 ## Knowledge and rumours
-He knows where every hen lays and where the carpenter keeps the beer jug that is meant for the hens' crimes. He would trade it for a ride on a cart. He believes the night watch can see through walls.
+He knows where every hen lays. He would trade it for a ride on a cart. He believes the night watch can see through walls.
 
 ## Game hooks
 - **Ambient role:** Yard and lane in the morning; at the carpenter's gate at midday.

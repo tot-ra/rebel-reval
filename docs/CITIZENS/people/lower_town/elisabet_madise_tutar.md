@@ -35,13 +35,13 @@
 - **Model notes:** female, age_years 56, muscle 0.3, weight 0.7, proportions heavy-set, height_m 1.51; pale skin; blue eyes; ash blond hair, grey streaks, scarf; crowd tier 2.
 
 ## Biography
-Born in 1287 in a Harju village, she was walking to the manor with a bread-basket in 1316 when the gate was slammed on her nose by the steward's man during a bound-folk dispute. She came to town in 1318 and baked at the Dominican guest-house, raising Gertrud alone. She taught Gertrud dough and Jaak the cellar. Now she works the second oven only on feast eves and sits by the bakehouse door. Her teeth went in the lean years.
+Born in 1287 in a Harju village, she was walking to the manor with a bread-basket in 1316 when the gate was slammed on her nose by the steward's man during a bound-folk dispute. She came to town in 1318 and baked at the Dominican guest-house, raising Gertrud alone. She taught Gertrud dough, and later showed Jaak the way to the cellar. Now she works the second oven only on feast eves and sits by the bakehouse door. Her teeth went in the lean years.
 
 ## Motivation
 - **Want:** To keep the cellar quiet and Gertrud's boys out of the manor's reach.
 - **Fear:** The runaway being found.
 - **Contradiction:** A baker who gives bread to those she is told to refuse.
-- **Secret or withheld fact:** She asked Jaak to carry sacks to a runaway serf, hidden in the cellar of a neighbour.
+- **Secret or withheld fact:** She asked Jaak to carry sacks to a runaway serf, hidden in a neighbour's cellar.
 
 ## Daily routine
 | Phase | Time (late April) | Place | Activity |

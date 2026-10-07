@@ -35,7 +35,7 @@
 - **Model notes:** male, age_years 30, muscle 0.5, weight 0.6, proportions stocky, height_m 1.66; pale sallow skin; grey-blue eyes; light brown hair, full beard; crowd tier 2.
 
 ## Biography
-Born in 1313 in the baker's house on Müürivahe, to a father who baked for the Danes' garrison and moved a boundary stake in the yard in the lean year 1326. He died in 1339 and Jaak took the oven at twenty-six, married to Gertrud the year before. His voice went hoarse from calling loaves along the harbour wind. In 1341 a failed harvest ate his flour stock and he took grain on credit from the cap-maker Stepan Fedorovich at an unnamed rate. In 1342 a share in a boat voyage went badly and he lost 15 marks. Now he bakes, owes and listens at the oven door.
+Born in 1313 in the baker's house on Müürivahe, to a father who baked for the Danes' garrison and moved a boundary stake in the yard in the lean year 1326. He died in 1339 and Jaak took the oven at twenty-six, married to Gertrud since 1333. His voice went hoarse from calling loaves along the harbour wind. In 1341 a failed harvest ate his flour stock and he took grain on credit from the cap-maker Stepan Fedorovich at an unnamed rate. In 1342 a share in a boat voyage went badly and he lost 15 marks. Now he bakes, owes and listens at the oven door.
 
 ## Motivation
 - **Want:** To clear his debts and teach Eerik the oven.
