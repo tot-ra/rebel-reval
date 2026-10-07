@@ -26,7 +26,11 @@ const SCENE_THEME_ROUTES: Dictionary = {
 	"res://scenes/harbor/harbor_east.tscn": &"harbor",
 	"res://scenes/reval_toompea/reval_toompea.tscn": &"toompea",
 	"res://scenes/reval_south/reval_south.tscn": &"south",
+	# Seamless city: no scene theme. CityMusicZones picks one from Kalev's position.
+	"res://scenes/world/reval_city/reval_city.tscn": &"",
 }
+## Seconds the old theme takes to fade out while the new one fades in.
+const CROSSFADE_SECONDS := 3.0
 const MENU_TRACK := "res://music/menu/Menu.mp3"
 const FORGE_TRACKS: Array[String] = [
 	"res://music/forge/Fireside Tale.mp3",
@@ -55,6 +59,9 @@ const THEME_NIGHT_DIRS: Dictionary = {
 }
 
 var _player: AudioStreamPlayer
+var _outgoing_player: AudioStreamPlayer
+var _fade_in := 1.0
+var _fade_out := 0.0
 var _active_scene: Node
 var _scene_theme := &""
 var _zone_theme_override := &""
@@ -72,10 +79,15 @@ func _ready() -> void:
 	_player.volume_db = DEFAULT_VOLUME_DB
 	AudioBusService.assign_bus(_player, AudioBusService.BUS_MUSIC)
 	add_child(_player)
+	_outgoing_player = AudioStreamPlayer.new()
+	_outgoing_player.name = "OutgoingThemePlayer"
+	AudioBusService.assign_bus(_outgoing_player, AudioBusService.BUS_MUSIC)
+	add_child(_outgoing_player)
 	call_deferred("_sync_with_current_scene")
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	_step_crossfade(delta)
 	var current_scene := get_tree().current_scene
 	# SceneTree can briefly expose no current scene during a deferred transition.
 	# Keep the previous track alive so navigation does not create audible gaps.
@@ -225,7 +237,7 @@ func clear_cycle_progress() -> void:
 	_cycle_active = false
 	_cycle_progress = DayNightCycle.system_progress()
 	_cycle_elapsed_days = 0
-	_player.volume_db = DEFAULT_VOLUME_DB
+	_refresh_volume()
 	_maybe_switch_night_tracks()
 
 
@@ -255,12 +267,16 @@ func _apply_theme(theme_id: StringName) -> void:
 	_active_theme = theme_id
 	_playing_night = use_night
 	if theme_id.is_empty():
+		_begin_crossfade()
 		_player.stop()
 		_player.stream = null
+		_refresh_volume()
 		return
 
+	_begin_crossfade()
 	_player.stream = get_theme_stream(theme_id, use_night)
 	_player.play()
+	_refresh_volume()
 
 
 func _maybe_switch_night_tracks() -> void:
@@ -281,9 +297,45 @@ func _wants_night_tracks(theme_id: StringName) -> bool:
 
 
 func _update_volume_from_cycle() -> void:
-	if not _cycle_active:
+	_refresh_volume()
+
+
+func _base_volume_db() -> float:
+	if _cycle_active:
+		return volume_db_for_cycle_progress(_cycle_progress)
+	return DEFAULT_VOLUME_DB
+
+
+func _refresh_volume() -> void:
+	var base_db := _base_volume_db()
+	_player.volume_db = base_db + linear_to_db(maxf(_fade_in, 0.0001))
+	_outgoing_player.volume_db = base_db + linear_to_db(maxf(_fade_out, 0.0001))
+
+
+func _step_crossfade(delta: float) -> void:
+	if _fade_in >= 1.0 and _fade_out <= 0.0:
 		return
-	_player.volume_db = volume_db_for_cycle_progress(_cycle_progress)
+	var step := delta / CROSSFADE_SECONDS
+	_fade_in = minf(_fade_in + step, 1.0)
+	_fade_out = maxf(_fade_out - step, 0.0)
+	if _fade_out <= 0.0:
+		_outgoing_player.stop()
+		_outgoing_player.stream = null
+	_refresh_volume()
+
+
+## Hands the running track to the outgoing player so it keeps playing (no seek)
+## while it fades out under the incoming theme.
+func _begin_crossfade() -> void:
+	if not _player.playing:
+		_fade_in = 1.0
+		return
+	var finished := _outgoing_player
+	finished.stop()
+	_outgoing_player = _player
+	_player = finished
+	_fade_out = 1.0
+	_fade_in = 0.0
 
 
 func _build_theme_stream(theme_id: StringName, use_night: bool) -> AudioStream:
