@@ -131,7 +131,7 @@ ESTONIA_SOUTH_WEST: LandmarkCatalog = {
         (
             "Kuressaare Castle (Arensburg)",
             "Moated bishopric castle.",
-            "Seat of the Saaremaa bishop with thick walls.",
+            "No stone castle yet: the bishopric convent castle is a late 14th-century work. The bishop's island lands are held from elsewhere.",
             "Island politics stay cautious while mainland burns.",
         ),
         (
@@ -149,7 +149,7 @@ ESTONIA_SOUTH_WEST: LandmarkCatalog = {
         (
             "Angla windmill hill",
             "Restored windmills.",
-            "Windmill ridge for island grain.",
+            "Open ridge for island grain; the surviving mills are post-medieval.",
             "Grain prices affect ferry traffic to Reval.",
         ),
         (
@@ -167,8 +167,8 @@ ESTONIA_SOUTH_WEST: LandmarkCatalog = {
         (
             "Kuressaare town harbor",
             "Marina and ferries.",
-            "Island port trading with Reval and Pärnu.",
-            "Ferry captains spread exaggerated siege tales.",
+            "No town yet (first documented in the 1380s, unverified earlier); a landing used by boats trading with Reval and Pärnu.",
+            "Boatmen at the landing spread exaggerated siege tales.",
         ),
         (
             "Maasilinn castle site",
@@ -179,8 +179,8 @@ ESTONIA_SOUTH_WEST: LandmarkCatalog = {
         (
             "Kõpu lighthouse site",
             "One of the world's oldest lighthouse sites.",
-            "Early navigation fire on Hiiumaa's highest hill.",
-            "Guides coastal traffic around dangerous shoals.",
+            "No lighthouse (built 1500-1531). At most a beacon-fire site on the hill, unverified.",
+            "A hill beacon, if kept, guides coastal traffic around dangerous shoals.",
         ),
         (
             "Hiiumaa Käina church ruins",
@@ -191,7 +191,7 @@ ESTONIA_SOUTH_WEST: LandmarkCatalog = {
         (
             "Kärdla smith tradition",
             "Town smithies.",
-            "Island metalwork for ships and farms.",
+            "Kärdla is not founded until 1829; island smiths work at farm and harbour forges for ships and farms.",
             "Island smiths rival mainland prices in harbor markets.",
         ),
         (

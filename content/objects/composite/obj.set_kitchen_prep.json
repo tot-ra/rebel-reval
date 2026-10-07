@@ -1,0 +1,78 @@
+{
+  "type": "world_object",
+  "id": "obj.set_kitchen_prep",
+  "name": "Kitchen prep setting",
+  "description": "A ready-arranged prep grouping of kitchenware for dressing a table or shelf; individual pieces can be taken.",
+  "category": "composite",
+  "handling": "fixed",
+  "tags": [
+    "kitchen",
+    "dressing_set"
+  ],
+  "physical": {
+    "mass_kg": 3.0,
+    "size_m": [
+      0.54,
+      0.04,
+      0.29
+    ],
+    "materials": [
+      "clay_ceramic",
+      "wood"
+    ]
+  },
+  "actions": [
+    "inspect"
+  ],
+  "economy": {
+    "base_pfennigs": 0,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "surface",
+    "spaces": [
+      "home_poor",
+      "home_burgher",
+      "tavern"
+    ],
+    "grouping": "cluster"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/domestic/kitchenware/medieval_kitchenware_kit.glb",
+    "node": "KitchenwareGroupPrep",
+    "prop_kind": "kitchenware",
+    "variant": "kitchenware.group.prep",
+    "measured_size_m": [
+      0.54,
+      0.04,
+      0.29
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.set_kitchen_prep.png",
+    "icon": "res://assets/objects/icons/obj.set_kitchen_prep.png",
+    "icon_status": "missing",
+    "look": "Small arranged prep cluster of earthenware and wooden kitchen pieces on a bare surface.",
+    "image_prompt": "Kitchen prep setting: Small arranged prep cluster of earthenware and wooden kitchen pieces on a bare surface."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "composition": [
+    {
+      "id": "obj.prep_board",
+      "count": 1
+    },
+    {
+      "id": "obj.kitchen_knife",
+      "count": 1
+    },
+    {
+      "id": "obj.wooden_spoon",
+      "count": 1
+    }
+  ],
+  "notes": "Dressing preset: placing it spawns the listed objects; the GLB node is the pre-composed view."
+}

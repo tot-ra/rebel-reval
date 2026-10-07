@@ -1,0 +1,84 @@
+{
+  "type": "world_object",
+  "id": "obj.pitchfork",
+  "name": "Pitchfork",
+  "description": "A three-tine hay fork; also the weapon a farmer reaches for.",
+  "category": "tool",
+  "handling": "carry_one_hand",
+  "tags": [
+    "farm",
+    "tool",
+    "improvised_weapon"
+  ],
+  "physical": {
+    "mass_kg": 2.2,
+    "size_m": [
+      0.44,
+      2.02,
+      0.17
+    ],
+    "materials": [
+      "wood",
+      "iron"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "throw",
+    "equip"
+  ],
+  "economy": {
+    "base_pfennigs": 22,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "farm",
+      "street"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/tools/pitchfork/pitchfork.glb",
+    "prop_kind": "pitchfork",
+    "measured_size_m": [
+      0.44,
+      2.02,
+      0.17
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.pitchfork.png",
+    "icon": "res://assets/objects/icons/obj.pitchfork.png",
+    "icon_status": "missing",
+    "look": "Long ash shaft with a socketed three-tine iron head.",
+    "image_prompt": "Pitchfork: Long ash shaft with a socketed three-tine iron head."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "move hay"
+  ],
+  "carry": {
+    "grid_width": 1,
+    "grid_height": 4,
+    "stackable": false
+  },
+  "throw": {
+    "range_m": 5.0,
+    "damage": 5,
+    "breaks": false,
+    "noise": "normal"
+  },
+  "equip": {
+    "slot": "right_hand",
+    "damage_type": "pierce",
+    "protection": "none"
+  }
+}

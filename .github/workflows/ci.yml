@@ -164,6 +164,13 @@ jobs:
           python3 tools/verify_bird_audio_clips.py
           python3 tools/verify_weather_audio_clips.py
 
+      - name: Physical object catalog
+        run: |
+          set -euo pipefail
+          python3 tools/validate_object_catalog.py
+          python3 tools/object_catalog.py index --check
+          python3 -m unittest tests.python.test_object_catalog -v
+
       - name: Active Markdown links and validation
         run: python3 tools/generate_active_docs_report.py --check
 

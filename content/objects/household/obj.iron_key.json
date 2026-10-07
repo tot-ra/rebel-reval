@@ -1,0 +1,61 @@
+{
+  "type": "world_object",
+  "id": "obj.iron_key",
+  "name": "Iron key",
+  "description": "A forged key for a chest or door; the smith can copy it.",
+  "category": "household",
+  "handling": "pocketable",
+  "tags": [
+    "key",
+    "lock",
+    "access"
+  ],
+  "physical": {
+    "mass_kg": 0.1,
+    "size_m": [
+      0.12,
+      0.03,
+      0.01
+    ],
+    "materials": [
+      "iron"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop"
+  ],
+  "economy": {
+    "base_pfennigs": 10,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 2
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "forge",
+      "home_burgher",
+      "guard_post"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "missing"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.iron_key.png",
+    "icon": "res://assets/objects/icons/obj.iron_key.png",
+    "icon_status": "missing",
+    "look": "Hand-forged black iron key with a simple bit and ring bow.",
+    "image_prompt": "A hand-forged black iron key with a ring bow and simple bit"
+  },
+  "lifecycle": "planned",
+  "confidence": "plausible composite",
+  "carry": {
+    "grid_width": 1,
+    "grid_height": 1,
+    "stackable": false
+  }
+}

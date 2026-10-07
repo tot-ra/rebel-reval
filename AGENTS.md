@@ -50,6 +50,7 @@ Install Godot 4.7 per [`docs/SETUP.md`](./docs/SETUP.md). **Never open visible G
 | Content schema examples | `python3 tools/validate_content_examples.py` |
 | Active docs / links | `python3 tools/generate_active_docs_report.py --check` |
 | Docs reachable from README | `python3 tools/docs_index.py` (regenerate index blocks), `python3 tools/docs_index.py --check` |
+| Physical object catalog | `python3 tools/validate_object_catalog.py`, `python3 -m unittest tests.python.test_object_catalog -v`; browse and edit with `python3 tools/object_catalog.py` (see [`docs/SYSTEMS/OBJECT_CATALOG.md`](./docs/SYSTEMS/OBJECT_CATALOG.md)) |
 | Asset provenance / lint | `python3 tools/validate_asset_sources.py`, `python3 tools/verify_asset_lint.py` |
 | Storage hygiene | `python3 tools/verify_storage_hygiene.py` |
 | Map composition audit | `python3 tools/verify_map_composition.py` |

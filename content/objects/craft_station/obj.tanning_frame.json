@@ -1,0 +1,66 @@
+{
+  "type": "world_object",
+  "id": "obj.tanning_frame",
+  "name": "Tanning frame",
+  "description": "A lashed frame stretching a hide for scraping and curing.",
+  "category": "craft_station",
+  "handling": "fixed",
+  "tags": [
+    "tanning",
+    "craft",
+    "leather"
+  ],
+  "physical": {
+    "mass_kg": 40,
+    "size_m": [
+      1.24,
+      1.37,
+      0.65
+    ],
+    "materials": [
+      "wood",
+      "hemp_rope",
+      "leather"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect"
+  ],
+  "economy": {
+    "base_pfennigs": 0,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "street",
+      "farm"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/crafts/tanning_frame/tanning_frame.glb",
+    "prop_kind": "tanning_frame",
+    "measured_size_m": [
+      1.24,
+      1.37,
+      0.65
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.tanning_frame.png",
+    "icon": "res://assets/objects/icons/obj.tanning_frame.png",
+    "icon_status": "missing",
+    "look": "Oak frame with a cattle hide laced tight with hemp cord.",
+    "image_prompt": "Tanning frame: Oak frame with a cattle hide laced tight with hemp cord."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "cure hides"
+  ]
+}

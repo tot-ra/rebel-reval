@@ -14,5 +14,7 @@ static func label_for(result: InventoryBag.AddResult) -> String:
 			return "Too heavy to carry"
 		InventoryBag.AddResult.STACK_FULL:
 			return "Stack is full"
+		InventoryBag.AddResult.NOT_CARRIABLE:
+			return "Too bulky for the bag"
 		_:
 			return "Cannot pick up"

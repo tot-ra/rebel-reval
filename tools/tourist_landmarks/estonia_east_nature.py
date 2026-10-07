@@ -9,13 +9,13 @@ ESTONIA_EAST_NATURE: LandmarkCatalog = {
         (
             "Narva Hermann Castle",
             "Russian border fortress.",
-            "Teutonic castle guarding the Narva crossing.",
+            "Danish crown castle guarding the Narva crossing (Danish Estonia until 1346); the later stone Hermann tower is not assumed.",
             "Trade envy between Reval and Narva merchants.",
         ),
         (
             "Ivangorod opposite bank",
             "Russian fortress town.",
-            "Novgorod sphere settlement across the river.",
+            "Novgorod-sphere bank settlement; the Ivangorod fortress itself dates from 1492.",
             "Smugglers move goods when Livonia is at war.",
         ),
         (
@@ -27,7 +27,7 @@ ESTONIA_EAST_NATURE: LandmarkCatalog = {
         (
             "Kallaste Orthodox village",
             "Old Believer heritage town.",
-            "Eastern Christian fishing community.",
+            "Orthodox-leaning fishing shore; Old Believer settlement is a 17th-century arrival.",
             "Pilgrims bring icons that fascinate lower-town children.",
         ),
         (

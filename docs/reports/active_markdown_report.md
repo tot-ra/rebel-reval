@@ -14,11 +14,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1045`
+- Active Markdown files scanned: `1068`
 - Markdown files excluded as archive/reference/out of active scope: `743`
-- Local/external links inspected: `11911`
-- Links to active Markdown docs: `11294`
-- Links to existing archive/reference/non-active local docs: `247`
+- Local/external links inspected: `12688`
+- Links to active Markdown docs: `11861`
+- Links to existing archive/reference/non-active local docs: `428`
 - External links skipped for reachability: `52`
 - Issues found: `1`
 
@@ -935,6 +935,28 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/LANDMARK_NARRATIVE_INTEGRATION.md`
 - `docs/LARGE_MAP_CHUNKING_PLAN.md`
 - `docs/LEGACY_REINTRODUCTION.md`
+- `docs/LOCATIONS/ARCHITECTURE_TYPOLOGY.md`
+- `docs/LOCATIONS/baltic_klint_coast.md`
+- `docs/LOCATIONS/BIOMES_AND_WILDLIFE.md`
+- `docs/LOCATIONS/CULTURES_AND_LANGUAGES.md`
+- `docs/LOCATIONS/haapsalu_laanemaa.md`
+- `docs/LOCATIONS/harju_village.md`
+- `docs/LOCATIONS/kanavere_bog.md`
+- `docs/LOCATIONS/narva_peipus_east.md`
+- `docs/LOCATIONS/otepaa_vastseliina_frontier.md`
+- `docs/LOCATIONS/padise_monastery.md`
+- `docs/LOCATIONS/paide_castle.md`
+- `docs/LOCATIONS/parnu.md`
+- `docs/LOCATIONS/poide_castle.md`
+- `docs/LOCATIONS/rakvere_wesenberg.md`
+- `docs/LOCATIONS/README.md`
+- `docs/LOCATIONS/rebel_kings_camp.md`
+- `docs/LOCATIONS/saaremaa.md`
+- `docs/LOCATIONS/sacred_grove.md`
+- `docs/LOCATIONS/sojamae.md`
+- `docs/LOCATIONS/soomaa_flood_refuge.md`
+- `docs/LOCATIONS/tartu_dorpat.md`
+- `docs/LOCATIONS/viljandi_fellin.md`
 - `docs/lore/estonian_folklore.md`
 - `docs/lore/four_kings_act2_lore.md`
 - `docs/lore/README.md`
@@ -988,6 +1010,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/SYSTEMS/LIVING_VEGETATION.md`
 - `docs/SYSTEMS/MAGIC.md`
 - `docs/SYSTEMS/NATURAL.md`
+- `docs/SYSTEMS/OBJECT_CATALOG.md`
 - `docs/SYSTEMS/PSYCHE.md`
 - `docs/SYSTEMS/QUESTS.md`
 - `docs/SYSTEMS/README.md`

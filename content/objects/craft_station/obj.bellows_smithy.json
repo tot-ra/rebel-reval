@@ -1,0 +1,66 @@
+{
+  "type": "world_object",
+  "id": "obj.bellows_smithy",
+  "name": "Smithy bellows",
+  "description": "A leather-and-oak bellows that blows the forge up to working heat.",
+  "category": "craft_station",
+  "handling": "fixed",
+  "tags": [
+    "smithing",
+    "station",
+    "forge"
+  ],
+  "physical": {
+    "mass_kg": 35,
+    "size_m": [
+      2.89,
+      1.88,
+      1.93
+    ],
+    "materials": [
+      "wood",
+      "leather",
+      "iron"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "use"
+  ],
+  "economy": {
+    "base_pfennigs": 0,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "forge"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/forge/kalev_smithy_bellows/kalev_smithy_bellows.glb",
+    "prop_kind": "bellows",
+    "measured_size_m": [
+      2.89,
+      1.88,
+      1.93
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.bellows_smithy.png",
+    "icon": "res://assets/objects/icons/obj.bellows_smithy.png",
+    "icon_status": "missing",
+    "look": "Large pear-shaped bellows with an oak board, leather sides and an iron nozzle.",
+    "image_prompt": "Smithy bellows: Large pear-shaped bellows with an oak board, leather sides and an iron nozzle."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "raise the fire's heat"
+  ]
+}

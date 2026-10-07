@@ -12,7 +12,7 @@ One page per feature, with status, behavior, code entry points, content, saved s
 | Consequences | [Factions, relationships, pressure, prices](./SYSTEMS/FACTIONS_AND_ECONOMY.md) · [Living City Hope/Fear](./SYSTEMS/LIVING_CITY.md) · [World life](./SYSTEMS/WORLD_LIFE.md) |
 | Action | [Combat runtime](./SYSTEMS/COMBAT.md) · [Combat animation](./SYSTEMS/COMBAT_ANIMATION.md) · [Hammer combat and night missions](./SYSTEMS/COMBAT_NIGHT.md) · [Magic](./SYSTEMS/MAGIC.md) |
 | Kalev's inner world | [NATURAL aspects](./SYSTEMS/NATURAL.md) · [Hingepuu psyche](./SYSTEMS/PSYCHE.md) |
-| Player interface | [HUD, menus, journal, maps](./SYSTEMS/HUD_AND_MENUS.md) · [Inventory](./INVENTORY_MECHANICS.md) · [Controls](./CONTROLS.md) · [Settings and accessibility](./SYSTEMS/SETTINGS_AND_ACCESSIBILITY.md) |
+| Player interface | [HUD, menus, journal, maps](./SYSTEMS/HUD_AND_MENUS.md) · [Inventory](./INVENTORY_MECHANICS.md) · [Physical object catalog](./SYSTEMS/OBJECT_CATALOG.md) · [Controls](./CONTROLS.md) · [Settings and accessibility](./SYSTEMS/SETTINGS_AND_ACCESSIBILITY.md) |
 
 ## World building
 
@@ -20,6 +20,7 @@ One page per feature, with status, behavior, code entry points, content, saved s
 |---|---|
 | The 3D world (camera, sky, weather, water, vegetation, fauna, lighting) | [World presentation](./SYSTEMS/WORLD_PRESENTATION.md) · [Seamless Reval city](./SYSTEMS/SEAMLESS_CITY.md) · [Landmark sites](./SYSTEMS/CITY_LANDMARK_SITES.md) · [Vegetation realism plan](./SYSTEMS/VEGETATION_REALISM.md) · [Hoist ropes](./SYSTEMS/HOIST_ROPE.md) · [Sky/weather state contract](./SKY_WEATHER_STATE_CONTRACT.md) · [World-building visual gate](./WORLD_BUILDING_VISUAL_GATE.md) |
 | Map system | [Map authoring (blueprints, compiler, stable IDs)](./MAP_AUTHORING.md) · [Map conversion plan](./MAP_CONVERSION_PLAN.md) · [Map alignment editor](./MAP_ALIGNMENT_EDITOR.md) · [Large-map chunking](./LARGE_MAP_CHUNKING_PLAN.md) · [Seamless streaming](./SEAMLESS_STREAMING_PLAN.md) |
+| Locations beyond Reval (journey nodes, variety, resources to generate) | [Locations hub](./LOCATIONS/README.md) |
 | City and landmarks | [Landmark narrative integration](./LANDMARK_NARRATIVE_INTEGRATION.md) · [Tourist landmarks](./TOURIST_LANDMARKS.md) · [1343 fortifications](./reports/reval_fortifications_1343.md) · [Legacy location notes](../scenes/README.md) |
 | Nature | [Flora and fauna of 1343](./FLORA_FAUNA.md) |
 | Task specs by stream | [World tasks](./tasks/README.md) (architecture, coast, urban form, water/sky, world) |
@@ -77,5 +78,29 @@ One page per feature, with status, behavior, code entry points, content, saved s
 
 - [Core character concept art](concept/characters/README.md)
 - [Faction concept art](concept/factions/README.md)
+
+#### `LOCATIONS/`
+
+- [Architecture Typology across the journey nodes](LOCATIONS/ARCHITECTURE_TYPOLOGY.md)
+- [Biomes and Wildlife across the journey nodes](LOCATIONS/BIOMES_AND_WILDLIFE.md)
+- [Cultures and Languages across the journey nodes](LOCATIONS/CULTURES_AND_LANGUAGES.md)
+- [Baltic Klint Coast (Glint coast; Estonian Põhjaranniku klint, Low German de Strand, 1343 name unverified)](LOCATIONS/baltic_klint_coast.md)
+- [Haapsalu (Hapsal, Läänemaa, seat of Ösel-Wiek)](LOCATIONS/haapsalu_laanemaa.md)
+- [Harju Village and Countryside (Harria / Harrien, Rävala)](LOCATIONS/harju_village.md)
+- [Kanavere Bog (Kanavere raba, eastern Harria)](LOCATIONS/kanavere_bog.md)
+- [Narva and the Peipus shore (Narwa, Narova crossing)](LOCATIONS/narva_peipus_east.md)
+- [Otepää and Vastseliina Frontier (Odenpäh, Neuhausen, Ugandi borderland)](LOCATIONS/otepaa_vastseliina_frontier.md)
+- [Padise Monastery (Padis, Cistercian abbey on the Kloostri river)](LOCATIONS/padise_monastery.md)
+- [Paide Castle (Wittenstein / Weissenstein, Paide)](LOCATIONS/paide_castle.md)
+- [Pärnu (Pernau, New Pernau and Old Pernau)](LOCATIONS/parnu.md)
+- [Pöide Castle (Peude, Order convent castle with fortified church, Saaremaa)](LOCATIONS/poide_castle.md)
+- [Rakvere (Wesenberg, Tarvanpea)](LOCATIONS/rakvere_wesenberg.md)
+- [The Rebel Kings' Camp (Harju command camp, eastern Harria corridor)](LOCATIONS/rebel_kings_camp.md)
+- [Saaremaa (Ösel; north coast, alvar and the Kaali crater)](LOCATIONS/saaremaa.md)
+- [The Sacred Grove (Hiis, Metsik's oak)](LOCATIONS/sacred_grove.md)
+- [Sõjamäe and the Lake Ülemiste Shore (Sõjamäe, Ülemiste järv)](LOCATIONS/sojamae.md)
+- [Soomaa Flood Refuge (spring flood plains and raised bog of the Pärnu/Viljandi hinterland; 1343 name unverified)](LOCATIONS/soomaa_flood_refuge.md)
+- [Tartu (Dorpat, Terra Mariana / Bishopric of Dorpat)](LOCATIONS/tartu_dorpat.md)
+- [Viljandi (Fellin, Sakala county)](LOCATIONS/viljandi_fellin.md)
 
 <!-- docs-index:end -->

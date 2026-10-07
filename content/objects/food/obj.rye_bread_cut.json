@@ -1,0 +1,79 @@
+{
+  "type": "world_object",
+  "id": "obj.rye_bread_cut",
+  "name": "Cut rye bread",
+  "description": "A cut half of rye loaf, ready to eat.",
+  "category": "food",
+  "handling": "pocketable",
+  "tags": [
+    "bread",
+    "staple"
+  ],
+  "physical": {
+    "mass_kg": 0.35,
+    "size_m": [
+      0.3,
+      0.11,
+      0.14
+    ],
+    "materials": [
+      "food_organic",
+      "grain"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "consume",
+    "stack"
+  ],
+  "economy": {
+    "base_pfennigs": 2,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_poor",
+      "home_burgher",
+      "tavern",
+      "forge"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/domestic/household/smithy_household_clutter_kit.glb",
+    "node": "ProvisionRyeBreadCut",
+    "prop_kind": "household_clutter",
+    "variant": "provision.rye_bread_cut",
+    "measured_size_m": [
+      0.3,
+      0.11,
+      0.14
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.rye_bread_cut.png",
+    "icon": "res://assets/objects/icons/obj.rye_bread_cut.png",
+    "icon_status": "missing",
+    "look": "Half a dark rye loaf with the crumb exposed and a few crumbs around it.",
+    "image_prompt": "Cut rye bread: Half a dark rye loaf with the crumb exposed and a few crumbs around it."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "carry": {
+    "grid_width": 1,
+    "grid_height": 1,
+    "stackable": true,
+    "max_stack": 4
+  },
+  "edible": {
+    "kind": "food",
+    "nutrition": 22,
+    "spoils_after_days": 3
+  }
+}

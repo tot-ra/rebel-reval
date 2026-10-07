@@ -1,0 +1,77 @@
+{
+  "type": "world_object",
+  "id": "obj.trencher",
+  "name": "Wooden trencher",
+  "description": "A flat wooden plate on which meat and bread are served.",
+  "category": "household",
+  "handling": "pocketable",
+  "tags": [
+    "kitchen",
+    "tableware"
+  ],
+  "physical": {
+    "mass_kg": 0.3,
+    "size_m": [
+      0.24,
+      0.02,
+      0.24
+    ],
+    "materials": [
+      "wood"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "throw"
+  ],
+  "economy": {
+    "base_pfennigs": 2,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_poor",
+      "home_burgher",
+      "tavern"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/domestic/kitchenware/medieval_kitchenware_kit.glb",
+    "node": "KitchenwareTrencher",
+    "prop_kind": "kitchenware",
+    "variant": "kitchenware.trencher",
+    "measured_size_m": [
+      0.24,
+      0.02,
+      0.24
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.trencher.png",
+    "icon": "res://assets/objects/icons/obj.trencher.png",
+    "icon_status": "missing",
+    "look": "Round shallow trencher of pale beech, rim slightly raised.",
+    "image_prompt": "Wooden trencher: Round shallow trencher of pale beech, rim slightly raised."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "carry": {
+    "grid_width": 1,
+    "grid_height": 1,
+    "stackable": false
+  },
+  "throw": {
+    "range_m": 5.0,
+    "damage": 1,
+    "breaks": false,
+    "noise": "normal"
+  }
+}

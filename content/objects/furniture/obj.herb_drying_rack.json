@@ -1,0 +1,62 @@
+{
+  "type": "world_object",
+  "id": "obj.herb_drying_rack",
+  "name": "Herb drying rack",
+  "description": "A hanging rack where bundled herbs dry.",
+  "category": "furniture",
+  "handling": "fixed",
+  "tags": [
+    "herb",
+    "drying",
+    "kitchen_garden"
+  ],
+  "physical": {
+    "mass_kg": 8,
+    "size_m": [
+      1.2,
+      1.0,
+      0.3
+    ],
+    "materials": [
+      "wood",
+      "straw"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect"
+  ],
+  "economy": {
+    "base_pfennigs": 0,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "hanging",
+    "spaces": [
+      "home_poor",
+      "home_burgher",
+      "farm",
+      "market"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "procedural",
+    "prop_kind": "herb_drying_rack",
+    "builder": "res://scripts/map/view3d/map_view_mesh_builder_district_life_props.gd"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.herb_drying_rack.png",
+    "icon": "res://assets/objects/icons/obj.herb_drying_rack.png",
+    "icon_status": "missing",
+    "look": "Wooden bar hung with bundles of dried herbs.",
+    "image_prompt": "Herb drying rack: Wooden bar hung with bundles of dried herbs."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "gather herbs"
+  ]
+}

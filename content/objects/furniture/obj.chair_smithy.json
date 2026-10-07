@@ -1,0 +1,83 @@
+{
+  "type": "world_object",
+  "id": "obj.chair_smithy",
+  "name": "Wooden chair",
+  "description": "A sturdy joined chair; light enough to drag, wedge under a door handle or break over someone's back.",
+  "category": "furniture",
+  "handling": "carry_one_hand",
+  "tags": [
+    "seat",
+    "improvised_weapon"
+  ],
+  "physical": {
+    "mass_kg": 5,
+    "size_m": [
+      0.56,
+      1.05,
+      0.52
+    ],
+    "materials": [
+      "wood"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "sit",
+    "push",
+    "pull",
+    "throw"
+  ],
+  "economy": {
+    "base_pfennigs": 40,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_poor",
+      "home_burgher",
+      "tavern",
+      "forge"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/furniture/smithy_chair/smithy_chair.glb",
+    "prop_kind": "chair",
+    "measured_size_m": [
+      0.56,
+      1.05,
+      0.52
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.chair_smithy.png",
+    "icon": "res://assets/objects/icons/obj.chair_smithy.png",
+    "icon_status": "missing",
+    "look": "Plain oak chair with turned legs, a woven-rush seat and a high spindle back, worn smooth.",
+    "image_prompt": "Wooden chair: Plain oak chair with turned legs, a woven-rush seat and a high spindle back, worn smooth."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "sit",
+    "wedge a door"
+  ],
+  "carry": {
+    "grid_width": 2,
+    "grid_height": 2,
+    "stackable": false
+  },
+  "throw": {
+    "range_m": 3.0,
+    "damage": 4,
+    "breaks": true,
+    "noise": "loud"
+  }
+}

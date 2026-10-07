@@ -1,0 +1,72 @@
+{
+  "type": "world_object",
+  "id": "obj.stock_rack",
+  "name": "Iron stock rack",
+  "description": "A rack where bar iron, rods and spare tool stock are stored.",
+  "category": "furniture",
+  "handling": "fixed",
+  "tags": [
+    "storage",
+    "forge",
+    "iron"
+  ],
+  "physical": {
+    "mass_kg": 80,
+    "size_m": [
+      2.08,
+      1.75,
+      0.76
+    ],
+    "materials": [
+      "wood",
+      "iron"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "open"
+  ],
+  "economy": {
+    "base_pfennigs": 0,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "forge"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/forge/kalev_smithy_stock_rack/kalev_smithy_stock_rack.glb",
+    "measured_size_m": [
+      2.08,
+      1.75,
+      0.76
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.stock_rack.png",
+    "icon": "res://assets/objects/icons/obj.stock_rack.png",
+    "icon_status": "missing",
+    "look": "Wall rack of dark oak posts holding bars of iron and rods at several heights.",
+    "image_prompt": "Iron stock rack: Wall rack of dark oak posts holding bars of iron and rods at several heights."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "store bar iron and tools"
+  ],
+  "container": {
+    "capacity_l": 100,
+    "lockable": false,
+    "accepts_tags": [
+      "iron",
+      "tool"
+    ]
+  }
+}
