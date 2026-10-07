@@ -22,7 +22,6 @@
 ## At a glance
 - A small, neat man of 167 cm with a nasal voice, a moustache and chin beard, and a face that flushes at every insult.
 - Writes and reckons with his left hand and pushes his counters from right to left, so every clerk he has hired has had to learn his board backwards.
-- Wealthy on paper, short of silver this spring.
 - Walks the long way round Voorimehe to avoid a nail-smith.
 
 ## Appearance
@@ -36,7 +35,7 @@
 - **Model notes:** MPFB gender male, age_years 56, muscle low, weight medium, proportions narrow, height_m 1.67; fair flushed skin; blue eyes; ash-blond-grey hair, moustache and chin beard; crowd tier 1.
 
 ## Biography
-Born in 1287 in a fishing village on the Viru coast, son of a boat-owner called Uku. A priest taught him his letters; at twelve he was carting herring to Reval for a German factor. He learned the weights late, as the second pupil of the late Hildebrand Morkerke, the same master who had earlier trained Wolter van Hamelen. By 1320 he had a share in a Lübeck partnership. By 1335 he had the Viru house, a wife, and a name in the Kindergilde, but never a seat on the Rat; that bench is for Germans. He lives as the town's proof that an Estonian may grow rich and the town's warning that it does not matter.
+Born in 1287 in a fishing village on the Viru coast, son of a boat-owner called Uku. A priest taught him his letters; at twelve he was carting herring to Reval for a German factor. He learned the weights late, as pupil of the late Hildebrand Morkerke, the master who had earlier trained Wolter van Hamelen. By 1320 he held a share in a Lübeck partnership; by 1335 he had the Viru house and a name in the Kindergilde, but never a seat on the Rat, which is for Germans.
 
 ## Motivation
 - **Want:** A burgher's daughter's hand for his son, so that the name passes upward.
@@ -54,24 +53,23 @@ Born in 1287 in a fishing village on the Viru coast, son of a boat-owner called 
 | Evening | After vespers | Viru house | Sits with Gesa, reckons candle costs |
 | Night | Curfew bell | Bedchamber | Counts the keys before sleep |
 
-- **Sundays and feast days:** Mass at St Olaf's among Estonians, a pew-end he paid for; dinner with a cold roast.
-- **Spring 1343 disruption:** Grain-levy talk and shut gates delay carts; he doubles his cellar locks and hears every rumour about the Rat's next fine.
+- **Sundays and feast days:** Mass at St Olaf's, at a pew-end he paid for; a cold roast after.
+- **Spring 1343 disruption:** Grain-levy talk and shut gates delay carts; he doubles his cellar locks.
 
 ## Work and money
-He buys Rhenish and Flemish cloth, Swedish iron and salt, and sells them inland to Harju manors and to Tartu road carters. A good year nets thirty marks; this one his money lies in a late cog. The fifteen-mark fine was laid last year when a herring cargo was landed before the weigh-master had cast it. Marten Kristjani poeg stood surety. He stood surety himself for Jaan Marteni poeg's three. Every Michaelmas he reckons the house, the cellar and the debts, and the number worries him.
+He buys Rhenish and Flemish cloth, Swedish iron and salt, and sells inland to Harju manors and Tartu road carters. A good year nets thirty marks; this one his money lies in a late cog. The fifteen-mark fine was laid when a herring cargo was landed before the weigh-master had cast it; Marten Kristjani poeg stood surety.
 
 ## Relationships
 - **Household:** [Gesa Siimu tütar](../../people/lower_town/gesa_siimu_tutar.md), wife, who keeps the spindle and the keys; [Marga Niklase tütar](../../ledger/lower_town/viru.md#hh-lt-osm-w26885947), 21, spinner, daughter; [Rein Niklase poeg](../../ledger/lower_town/viru.md#hh-lt-osm-w26885947), 14, apprentice, son and heir; [Hindrek Gerdti poeg](../../people/lower_town/hindrek_gerdti_poeg.md), clerk; [Evert Eerika poeg](../../people/lower_town/evert_eerika_poeg.md), servant; [Kadri Peetri tütar](../../people/lower_town/kadri_peetri_tutar.md), maid; [Dorothea Jakobi tütar](../../people/lower_town/dorothea_jakobi_tutar.md), servant.
-- **Network:** [Taniel](../../people/harju_road/taniel.md), carter of Harju road: Niklas recommended him to a third party and has since heard complaints that rebound on his own name. He means to ask for the carter's rates in writing and has not.
+- **Network:** [Taniel](../../people/harju_road/taniel.md), carter of Harju road: Niklas recommended him to a third party and has since heard complaints that rebound on his own name.
 - [Jaan Marteni poeg](../../people/lower_town/jaan_marteni_poeg.md), day labourer of Müürivahe: Niklas stood surety for his three-mark fine last year after a night-walking charge; Jaan has not repaid, and Niklas has started to notice who notices.
 - [Wolter van Hamelen](../../people/lower_town/wolter_van_hamelen.md), merchant of Vana turg: trained under the master who later trained Niklas. Early on Wolter moved up on the bench without a word to make room for a clumsy Estonian; Niklas has never thanked him, and repays by letting Wolter's casks sit in the Viru cellar without a fee.
 - [Ants Mihkli poeg](../../people/lower_town/ants_mihkli_poeg.md), tailor of Meistrite hoov: the lane's children, Rein among them, gather on Ants's doorstep despite coolness between the parents. Ants lets it pass; Niklas pretends not to see.
 - [Marten Kristjani poeg](../../people/lower_town/marten_kristjani_poeg.md), nail-smith of Voorimehe: stood surety for Niklas's fifteen-mark fine; Niklas has not repaid and now notices Marten noticing. He crosses the street rather than meet the man's eye.
 - [Wolter van Brunswik](../../people/lower_town/wolter_van_brunswik.md), merchant of Vene: Wolter is the better hand with goods and Niklas the better with ledgers; each thinks the other has the easier life. They meet at the Kindergilde and trade hard courtesy.
-- **Others:** [Sivert van Verden](../../ledger/lower_town/viru.md#hh-lt-osm-w26902749), his Viru neighbour and rival merchant, watches his cellar door.
 
 ## Faction and belief
-No faction. He believes in contracts, not causes; a rising would burn his cellar and a Rat that loved Estonians would be a lie he could not afford. A small favour he gives; a large one he weighs; an informing he would do for the Rat's goodwill and a cancelled fine. He is devout at St Olaf's.
+No faction. He believes in contracts, not causes; a rising would burn his cellar. A small favour he gives; a large one he weighs; he would inform for the Rat's goodwill and a cancelled fine. He is devout at St Olaf's.
 
 ## Voice
 - **Registers:** Middle Low German with buyers and the Rat; Estonian at home and with Evert; Latin for charters.

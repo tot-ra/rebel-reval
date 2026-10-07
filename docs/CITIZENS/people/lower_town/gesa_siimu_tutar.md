@@ -36,7 +36,7 @@
 - **Model notes:** MPFB gender female, age_years 54, muscle low, weight medium-high, proportions pear, height_m 1.64; rosy skin, neck birthmark; grey eyes; ash blond-grey hair under coif; crowd tier 1.
 
 ## Biography
-Born in 1289 in a Harju village, one of six; her father Siim hired her out to a town household at twelve to ease the winter table. She was a flax-spinner in a rich German house when Niklas Uku poeg, then a factor, paid her master for her time; she married him in 1311. She bore six children and raised two, Marga and Rein. She learned German in the cellar and never lost the song of her own tongue. She runs the household, the keys and the maids, and has watched her husband's silver grow thin without being told.
+Born in 1289 in a Harju village, one of six; her father Siim hired her out to a town household at twelve to ease the winter table. She was a flax-spinner in a rich German house when Niklas Uku poeg, then a factor, paid her master for her time; she married him in 1311. She bore six children and raised two, Marga and Rein. She learned German in the cellar and never lost the song of her own tongue. She has watched her husband's silver grow thin without being told.
 
 ## Motivation
 - **Want:** To see Marga married to a kind man who lives within walking distance.
@@ -55,16 +55,15 @@ Born in 1289 in a Harju village, one of six; her father Siim hired her out to a 
 | Night | Curfew bell | Bedchamber | Locks the larder, prays |
 
 - **Sundays and feast days:** Mass at St Olaf's, a slow walk home, a roast shared with the servants at the lower table.
-- **Spring 1343 disruption:** Lent has ended but stores run low; she hoards flour and hears every wail about the grain levy.
+- **Spring 1343 disruption:** Stores run low; she hoards flour and hears every wail about the levy.
 
 ## Work and money
-She spins for the house: about three pfund of yarn a month. Her private thread sells for twelve pfennigs a skein. The house accounts are Niklas's; the larder and the maids' wages (a mark and a half a year for Dorothea, less for Kadri) are hers. She has noticed that the cloth in the cellar has not moved since Candlemas.
+She spins about three pfund of yarn a month for the house; her private thread sells for twelve pfennigs a skein. The accounts are Niklas's; the larder and the maids' wages are hers. She has noticed that the cloth in the cellar has not moved since Candlemas.
 
 ## Relationships
 - **Household:** [Niklas Uku poeg](../../people/lower_town/niklas_uku_poeg.md), husband, whom she managed gently for thirty years; [Marga Niklase tütar](../../ledger/lower_town/viru.md#hh-lt-osm-w26885947), 21, her spinning partner; [Rein Niklase poeg](../../ledger/lower_town/viru.md#hh-lt-osm-w26885947), 14, whom she spoils; [Hindrek Gerdti poeg](../../people/lower_town/hindrek_gerdti_poeg.md), clerk, whose silences she reads; [Evert Eerika poeg](../../people/lower_town/evert_eerika_poeg.md), servant; [Kadri Peetri tütar](../../people/lower_town/kadri_peetri_tutar.md), maid, whose back teeth she dosed with clove oil; [Dorothea Jakobi tütar](../../people/lower_town/dorothea_jakobi_tutar.md), servant, the steady one.
 - **Network:** [Jöns Gunnarsson](../../people/lower_town/jons_gunnarsson.md), knife-smith of Meistrite hoov: they met at the church door in Easter week and have fallen into walking home together. They talk about blunt kitchen blades and the price of iron; she goes home with her coif straight and a good edge on her knife.
 - [Sigrid Eriksdotter](../../people/lower_town/sigrid_eriksdotter.md), maid of Meistrite hoov: sells her small things (pins, ribbon, a bone needle) at a fair price; Gesa tells the market women to buy from Sigrid, and sends her own thread through her.
-- **Others:** [Ants Mihkli poeg](../../people/lower_town/ants_mihkli_poeg.md), the tailor next lane, whom Niklas will not greet, sends her a gift of his wife's herb salve each Easter.
 
 ## Faction and belief
 No faction. A rising would make a bonfire of her household, so she wishes the town quiet. A small favour she gives easily; a large one she weighs against Marga; she would inform only to protect a child. She keeps the old hearth rite of a bread crust left for the house-spirit at the threshold, and tells the priest nothing of it.

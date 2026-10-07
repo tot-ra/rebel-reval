@@ -77,7 +77,7 @@ Danish Crown, sympathiser. His root is a debt of boots; his branch is wanting to
 - **Verbal tic:** Bites his thumbnail before lying.
 
 ## Knowledge and rumours
-He knows when the postern is open and who passes. He would trade it for a journeyman's paper. He falsely believes the Black Cloaks hold a keg of gunpowder.
+He knows when the postern is open and who passes. He would trade it for a journeyman's paper. He falsely believes the Black Cloaks hold a cellar of spears under the Smiths Gate.
 
 ## Game hooks
 - **Ambient role:** Bench at morning, castle road at afternoon.

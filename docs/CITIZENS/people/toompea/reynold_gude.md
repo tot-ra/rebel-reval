@@ -23,11 +23,11 @@
 - A sturdy man with a red-chestnut beard going grey, a freckled peeling face and a voice that makes the lane's hens look up.
 - Keeps goshawks and a tiercel in a lean-to mews behind the house and burns lamp-oil at night to watch them.
 - Lent nine marks to a Lower Town merchant and has told nobody but his wife.
-- Gives orders to two young women in the crown's circle without ever sharing a room with either.
+- Gives orders to two young women of the crown's circle without sharing a room with either.
 
 ## Appearance
-- **Body:** 173 cm, sturdy, thick through the chest and forearms, a little round-shouldered from years of carrying a bird on the left fist. Short, planted steps; he stops mid-lane to look at the sky.
-- **Face:** Square jaw, broad nose with a flat bridge, eyes set wide, heavy brow. At rest he looks mildly aggrieved, like a man who has just been told the price of something.
+- **Body:** 173 cm, sturdy, thick through the chest and forearms, a little round-shouldered from years of carrying a bird on the left fist.
+- **Face:** Square jaw, flat-bridged broad nose, wide-set eyes, heavy brow; at rest he looks mildly aggrieved.
 - **Hair and facial hair:** Chestnut red with grey at the temples, cut straight at the nape with shears; a close-trimmed beard, redder than his hair.
 - **Skin and marks:** Sun-freckled and peeling across nose and ears from days on the Harju moors. A mole near the corner of the mouth that moves when he speaks.
 - **Hands:** Right-handed. Pale hooked scars across the left wrist and thumb from talons; grease-dark nails; leather-stained palms.
@@ -36,9 +36,9 @@
 - **Model notes:** MPFB macros: male, age_years 44, muscle 0.6, weight 0.6, proportions average, height_m 1.73; freckled fair skin; blue eyes; chestnut red hair and short beard; crowd tier 2.
 
 ## Biography
-Born 1299 on Toompea, son of a hawk-keeper to the viceroy's household. He learned Estonian from the Harju trappers who brought him eyasses and netted hawks in autumn, and he still pays them in salt. In 1322 he married Kunigunde van Goslar, a midwife's daughter. A daughter, Gertrud, died of fever in 1336; the household speaks of her seldom.
+Born 1299 on Toompea, son of a hawk-keeper to the viceroy's household. He learned Estonian from the Harju trappers who bring him hawks each autumn. In 1322 he married Kunigunde van Goslar, a midwife's daughter. A daughter, Gertrud, died of fever in 1336; the household speaks of her seldom.
 
-The mews had one good year, 1339, when a Lübeck envoy bought a gyrfalcon for a sum Reynold still counts in his sleep. Nine of those marks are out on loan. Since then he has lived by small hawks, hood-making, and the goodwill of whoever holds the hill.
+The mews had one good year, 1339, when a Lübeck envoy bought a gyrfalcon. Nine of those marks are out on loan; since then he has lived by small hawks and hood-making.
 
 ## Motivation
 - **Want:** A place for Helmich in the viceroy's mews, and enough lamp-oil to stop worrying about it.
@@ -57,25 +57,25 @@ The mews had one good year, 1339, when a Lübeck envoy bought a gyrfalcon for a 
 | Night | Curfew bell | Mews | Lamp lit; sits with the moulting bird |
 
 - **Sundays and feast days:** High mass at St Mary's; lingers at the door after, three minutes, never four.
-- **Spring 1343 disruption:** Hunting is cut back since the viceroy keeps men in the castle; the lamp burns later, and he hears rumours of Harju fires from the trappers.
+- **Spring 1343 disruption:** Hunting is cut back as the viceroy keeps men in the castle; the lamp burns later and the trappers bring rumours.
 
 ## Work and money
-He earns about 12 marks in a good year: the crown pays a few öre for a flown hawk, a Lübeck guest an occasional mark. The mews eats grain, pigeon, a sheep's offal a week, and lamp-oil. Kunigunde's midwifery brings roughly as much again, in coin and kind. The 9 marks owed by Hartwig van Minden is his only capital; a bad month is one without a sale, when a goshawk goes hungry and the family eats less.
+He earns about 12 marks in a good year: the crown pays a few öre for a flown hawk, a Lübeck guest an occasional mark. The mews eats pigeon, offal and lamp-oil; Kunigunde's midwifery brings as much again. The 9 marks owed by Hartwig van Minden is his only capital; a bad month is one without a sale, when a goshawk goes hungry and the family eats less.
 
 ## Relationships
 - **Household:** [Kunigunde van Goslar](../../people/toompea/kunigunde_van_goslar.md), wife and midwife, keeps the money and knows about the loan; [Helmich Gude](../../people/toompea/helmich_gude.md), the eldest son, his hand at the hawks; [Winand Gude](../../people/toompea/winand_gude.md), 13, apprentice; [Heilwig Gude](../../people/toompea/heilwig_gude.md), 10, who feeds the birds; [Jutte Gude](../../ledger/toompea/rahukohtu.md#hh-tp-osm-w200921864), 8; [Wolter Gude](../../ledger/toompea/rahukohtu.md#hh-tp-osm-w200921864), 4; [Conrad Gude](../../ledger/toompea/rahukohtu.md#hh-tp-osm-w200921864), 1, the infant.
 - **Network:**
-  - [Ilsabe van Gripeswold](../../people/lower_town/ilsabe_van_gripeswold.md), maid on Pikk: he is her superior in the circle, though neither would say so; they never speak in the same room as others. Messages pass by the feather, the market and her errands.
-  - [Hartwig van Minden](../../people/lower_town/hartwig_van_minden.md), long-distance merchant on Lai: borrowed 9 marks to pay a dowry; the marriage went ahead and the debt remains. Reynold does not dun him but notes each Martinmas.
-  - [Taniel Andrese poeg](../../people/toompea/taniel_andrese_poeg.md), castle cook: knows Reynold shares their sympathies; they meet briefly after mass and say nothing repeatable. Reynold is paid in scraps for the birds.
+  - [Ilsabe van Gripeswold](../../people/lower_town/ilsabe_van_gripeswold.md), maid on Pikk: he is her superior in the circle, though neither would say so; they never speak in the same room as others.
+  - [Hartwig van Minden](../../people/lower_town/hartwig_van_minden.md), long-distance merchant on Lai: borrowed 9 marks to pay a dowry; the marriage went ahead and the debt remains.
+  - [Taniel Andrese poeg](../../people/toompea/taniel_andrese_poeg.md), castle cook: knows Reynold shares their sympathies; they meet briefly after mass and say nothing repeatable.
   - [Absalon Lunge](../../people/toompea/absalon_lunge.md), falconer on Lossi plats: a rival for the same customers; each privately counts the other's apprentices and lamp-oil.
-  - [Mogens Skjalm](../../people/toompea/mogens_skjalm.md), 16, crown clerk: shares the same sympathies; they meet after mass and say nothing repeatable. Reynold finds it unnerving that the boy writes so well.
+  - [Mogens Skjalm](../../people/toompea/mogens_skjalm.md), 16, crown clerk: shares the same sympathies; they meet after mass and say nothing repeatable.
   - [Ricbod van Minden](../../people/toompea/ricbod_van_minden.md), crown clerk and neighbour: their children play together in the lane; Ricbod lets it pass, Reynold pretends not to see.
-  - [Metteke Sasse](../../people/toompea/metteke_sasse.md), 17, maid on Toom-Rüütli: he is her superior in the circle; they never speak together in company. He thinks her too bright to be safe.
-- **Others:** [Lambert Sasse](../../people/toompea/lambert_sasse.md), nearby; [Wilke Corte](../../ledger/toompea/rahukohtu.md#hh-tp-osm-w200921825), vassal knight; [Borchard Steenmetter](../../ledger/toompea/rahukohtu.md#hh-tp-osm-w28264567), stonemason.
+  - [Metteke Sasse](../../people/toompea/metteke_sasse.md), 17, maid on Toom-Rüütli: he is her superior in the circle; they never speak together in company.
+- **Others:** [Lambert Sasse](../../people/toompea/lambert_sasse.md), knight nearby; [Borchard Steenmetter](../../ledger/toompea/rahukohtu.md#hh-tp-osm-w28264567), stonemason.
 
 ## Faction and belief
-His sympathy for the Danish crown is bread, not oath: the viceroy's mews bought his father's birds and will buy his. He fears a town council that rules everything below the hill, and the Estonians' fires above Harju even more. A small favour he gives freely; a large one only if the hill pays; informing he does by a feather, never by speech. He keeps St Hubert's day with a candle and ties a red thread to the mews door for luck.
+His sympathy for the Danish crown is bread, not oath: the viceroy's mews bought his father's birds and will buy his. He fears the council below the hill, and Harju's fires more. A small favour he gives freely; a large one only if the hill pays; informing he does by a feather, never by speech. He keeps St Hubert's day with a candle and ties a red thread to the mews door for luck.
 
 ## Voice
 - **Registers:** Middle Low German with the stewards and at home; rough Estonian with trappers; silence at the cell's meeting.

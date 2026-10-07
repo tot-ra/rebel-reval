@@ -1,6 +1,6 @@
 # Anna Juhontytär
 
-> The stooped Finnish midwife of Viru road who delivers the poor for a loaf, keeps a ledger of days in her head against another midwife on the hill, and has never once been late with the eagle-stone she borrows.
+> The stooped Finnish midwife of Viru road who delivers the poor for a loaf, keeps a ledger of days in her head against another midwife on the hill, and insists she has never once been late with the eagle-stone she borrows.
 
 | Field | Value |
 |---|---|
@@ -38,12 +38,12 @@
 ## Biography
 Born 1299 near Turku, the daughter of a fisherman and a midwife, she learned the work from her mother. She came to Reval in 1325 with a kinswoman and married Tuomas Tuomasnpoika in 1328. She has delivered perhaps 250 children, from Viru road and from the harbour, and buried a son of her own at two.
 
-In 1334 a Lübeck merchant's wife gave her the eagle-stone as thanks for a safe birth. She lent it once to Kunigunde van Goslar in 1336, and the arrangement has continued, back and forth, since.
+In 1336, after a breech labour that frightened her, she borrowed the eagle-stone that Kunigunde van Goslar had from her own mother. The loan was never ended, and the stone has gone back and forth between Viru road and Rahukohtu ever since.
 
 ## Motivation
 - **Want:** A dry floor and a dowry for Elina.
 - **Fear:** A mother dying under her hands; a priest's accusation.
-- **Contradiction:** Rough-handed and tender; poor, yet owner of the rarest thing on the road.
+- **Contradiction:** Rough-handed and tender; poor, yet keeper for half of each month of the rarest thing on the road.
 - **Secret or withheld fact:** She knows which girls on the road have lost a child in secret, and never told.
 
 ## Daily routine

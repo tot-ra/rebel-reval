@@ -36,9 +36,9 @@
 - **Model notes:** MPFB macros: male, age_years 13, muscle 0.3, weight 0.4, proportions average, height_m 1.50; pale even skin; blue eyes; dark blond hair; crowd tier 2.
 
 ## Biography
-Born 1329 in the house on Rahukohtu, old enough in 1336 to remember his sister Gertrud's fever. He was set to the mews at nine, as a falconer's second son is: cleaning perches, carrying pigeons, watching the moult. He is Heilwig's rival at everything except the birds, which she loves more.
+Born 1329 in the house on Rahukohtu, old enough in 1336 to remember his sister Gertrud's fever. He was set to the mews at nine, as a falconer's second son is: cleaning perches, carrying pigeons, watching the moult. 
 
-Last summer he watched the masons raise a gable on Rahukohtu, and Borchard Steenmetter let him lay one stone. He still thinks of it.
+Last summer Borchard Steenmetter let him lay one stone in a gable on Rahukohtu.
 
 ## Motivation
 - **Want:** To lay another stone; to be allowed to fly the goshawk once on his own.
@@ -56,8 +56,8 @@ Last summer he watched the masons raise a gable on Rahukohtu, and Borchard Steen
 | Evening | Vespers | Home | Sweeps, checks the lamp |
 | Night | Curfew bell | Straw loft | Sleeps beside Helmich |
 
-- **Sundays and feast days:** Mass at St Mary's, then a game with the lane children.
-- **Spring 1343 disruption:** Fewer hunts; his father is short-tempered, and the grown-ups whisper.
+- **Sundays and feast days:** Mass at St Mary's, then lane games.
+- **Spring 1343 disruption:** Fewer hunts; his father is short-tempered.
 
 ## Work and money
 He is paid nothing but keep; his father calls it training. He earns a penny from a stonemason for carrying water. Bad months mean smaller porridge and his father's lamp-oil rationed.
