@@ -35,6 +35,9 @@ from pathlib import Path
 import numpy as np
 from PIL import Image, ImageDraw
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import terrain_relief  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "tools/city/data"
 OSM_PATH = DATA / "osm_reval_extract.json"
@@ -62,6 +65,11 @@ def dist_point_seg(px, py, ax, ay, bx, by):
         return np.hypot(px - ax, py - ay), np.zeros_like(px)
     t = np.clip(((px - ax) * dx + (py - ay) * dy) / ll, 0.0, 1.0)
     return np.hypot(px - (ax + t * dx), py - (ay + t * dy)), t
+
+
+def smoothstep01(x, a, b):
+    t = np.clip((x - a) / (b - a), 0.0, 1.0)
+    return t * t * (3.0 - 2.0 * t)
 
 
 def point_in_poly(px, py, poly):
@@ -654,6 +662,28 @@ def build(args) -> dict:
     sm = 0.2 * (asl + np.roll(asl, 1, 0) + np.roll(asl, -1, 0) + np.roll(asl, 1, 1) + np.roll(asl, -1, 1))
     asl = np.where(cliff_band, asl, sm)
 
+    # Open-country relief: the DEM trend is a smooth plate, real ground is not.
+    # Authored ground (town, Toompea, shore, river, suburbs) keeps its height.
+    wall_d = terrain_relief.poly_distance(X, Y, circuit_poly, dist_point_seg)
+    inside_walls = point_in_poly(X, Y, circuit_poly)
+    keepout = [
+        smoothstep01(terrain_relief.poly_distance(X, Y, toompea_edge, dist_point_seg), 10.0, 60.0)
+        * (~point_in_poly(X, Y, toompea_edge)),
+        smoothstep01(shore_d, 6.0, 40.0) * (~in_sea),
+        smoothstep01(river_d - river_w * 0.5, 4.0, 30.0),
+    ]
+    for sub in overlay["suburbs"]:
+        poly = [tuple(q) for q in sub["polygon_m"]]
+        keepout.append(
+            np.where(point_in_poly(X, Y, poly), 0.0, smoothstep01(terrain_relief.poly_distance(X, Y, poly, dist_point_seg), 4.0, 28.0))
+        )
+    relief_w = terrain_relief.relief_weight(X, Y, wall_d, inside_walls, keepout)
+    hollow_roads = [([tuple(q) for q in r["points_m"]], r["width_m"]) for r in overlay["streets"]["extramural_roads"]]
+    # Roads first so the small relief knows where to stay out of the way.
+    probe, road_w = terrain_relief.carve_hollow_ways(np.zeros(X.shape), X, Y, hollow_roads, wall_d, dist_point_seg)
+    asl = terrain_relief.add_open_country_relief(asl, X, Y, relief_w, shore_d, road_w)
+    asl = asl + probe * (~inside_walls) * (~in_sea)
+
     height_wu = (asl - sea_asl) / mpu  # world units above the 1343 sea
 
     def h_at_m(px, py):
@@ -1070,8 +1100,9 @@ def build(args) -> dict:
         "data": base64.b64encode(q.tobytes()).decode("ascii"),
     }
     splat = render_splat(plan, mpu)
+    roads = render_roads(plan, mpu)
     minimap = render_minimap(plan, height_wu)
-    return {"plan": plan, "height": height_doc, "splat": splat, "minimap": minimap, "height_wu": height_wu, "extent_m": (x0, y0, x1, y1), "mpu": mpu}
+    return {"plan": plan, "height": height_doc, "splat": splat, "roads": roads, "minimap": minimap, "height_wu": height_wu, "extent_m": (x0, y0, x1, y1), "mpu": mpu}
 
 
 SITES_DIR = ROOT / "content/world/reval_city/sites"
@@ -1563,7 +1594,7 @@ def render_splat(plan, mpu):
     for s in plan["streets"]:
         pts = [T(p) for p in s["points"]]
         w = max(1, int(round(s["width"] * SPLAT_PX_PER_WU)))
-        layer = "paving" if s["name"] in paved_names else ("mud" if s["class"] == "extramural_road" else "earth")
+        layer = "paving" if s["name"] in paved_names else "earth"
         draws[layer].line(pts, fill=255, width=w, joint="curve")
         r = w / 2
         for p in pts:
@@ -1609,6 +1640,20 @@ def render_splat(plan, mpu):
     for k, im in layers.items():
         blurred[k] = im.filter(ImageFilter.GaussianBlur(1.2 if k == "paving" else 2.5))
     return Image.merge("RGBA", (blurred["paving"], blurred["earth"], blurred["sand"], blurred["mud"]))
+
+
+def render_roads(plan, mpu):
+    """Cart-road raster for the ground shader (see terrain_relief.road_map)."""
+    x0, y0, x1, y1 = plan["bounds"]
+    W = int(math.ceil((x1 - x0) * SPLAT_PX_PER_WU))
+    H = int(math.ceil((y1 - y0) * SPLAT_PX_PER_WU))
+    roads = [
+        (s["id"], [tuple(p) for p in s["points"]], s["width"])
+        for s in plan["streets"]
+        if s["class"] == "extramural_road"
+    ]
+    arr = terrain_relief.road_map(W, H, (x0, y0), SPLAT_PX_PER_WU, roads, mpu)
+    return Image.fromarray(arr)
 
 
 def render_minimap(plan, height_wu):
@@ -1725,6 +1770,9 @@ def write_outputs(result, check=False):
     buf = io.BytesIO()
     result["splat"].save(buf, format="PNG", optimize=True)
     files[OUT_DIR / "splat.png"] = buf.getvalue()
+    buf = io.BytesIO()
+    result["roads"].save(buf, format="PNG", optimize=True)
+    files[OUT_DIR / "roads.png"] = buf.getvalue()
     buf = io.BytesIO()
     result["minimap"].save(buf, format="PNG", optimize=True)
     files[OUT_DIR / "minimap.png"] = buf.getvalue()

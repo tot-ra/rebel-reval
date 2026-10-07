@@ -23,6 +23,7 @@ var roof_nodes: Dictionary = {}
 var water_materials: Array[ShaderMaterial] = []
 var doors: CityDoors
 var grass: CityGrass
+var trail: CityGroundTrail
 var build_stats: Dictionary = {}
 ## Wet moat stretches as [a, b, surface_a, surface_b, half_width] (swimming).
 var moat_water: Array = []
@@ -61,6 +62,8 @@ func _build() -> void:
 	add_child(doors)
 	grass = CityGrass.create(plan)
 	add_child(grass)
+	trail = CityGroundTrail.create(plan, grass.surface_at)
+	add_child(trail)
 	smoke = CityChimneySmoke.create(chimneys)
 	add_child(smoke)
 	ships = CityShips.create(plan)
@@ -110,6 +113,10 @@ func apply_time(progress: float) -> void:
 			"wetness",
 			clamp(presentation.rain_intensity * 0.6 + presentation.puddle_wetness * 0.4, 0.0, 1.0)
 		)
+		if trail != null:
+			trail.wetness = clamp(
+				presentation.rain_intensity * 0.6 + presentation.puddle_wetness * 0.4, 0.0, 1.0
+			)
 	# Walls and roofs darken in the rain too.
 	CityBuildingBuilder.set_wetness(
 		clamp(presentation.rain_intensity * 0.8 + presentation.puddle_wetness * 0.3, 0.0, 1.0)

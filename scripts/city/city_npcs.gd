@@ -26,6 +26,7 @@ const POOL_NEAR := 45.0
 const POOL_FAR := 130.0
 const PATROL_SPEED := 1.3
 const WALK_SPEED := 1.15
+const SITE_PEOPLE_RANGE := 45.0
 
 
 ## A logic body walking a street centreline back and forth (metres, world xz).
@@ -82,6 +83,8 @@ var _streets: Array[PackedVector2Array] = []
 var _pool: Array[Walker] = []
 var _rng := RandomNumberGenerator.new()
 var _since := 0.0
+## Site id -> the CitySiteActors present while Kalev is near that site.
+var _site_people: Dictionary = {}
 
 
 static func create(city_plan: CityPlan, kalev: Node2D) -> CityNpcs:
@@ -101,6 +104,8 @@ func _ready() -> void:
 	_place_guards()
 	_place_patrols()
 	_place_market()
+	if player != null:
+		_stream_site_people(CityPlan.to_world_xz(player.global_position))
 	for i in POOL:
 		var w := _walker(CROWD[i % CROWD.size()], WALK_SPEED * _rng.randf_range(0.8, 1.15))
 		w.name = "Townsfolk_%d" % i
@@ -113,6 +118,7 @@ func _process(delta: float) -> void:
 		return
 	_since = 0.0
 	var me := CityPlan.to_world_xz(player.global_position)
+	_stream_site_people(me)
 	for w in _pool:
 		if w.at.distance_to(me) > POOL_FAR * 1.3:
 			_reseat(w)
@@ -186,3 +192,21 @@ func _reseat(w: Walker) -> void:
 			break
 	if not _pool.has(w):
 		_pool.append(w)
+
+
+## People at work in landmark sites (ADR 0032) are only present while Kalev is
+## within SITE_PEOPLE_RANGE of the site, so their rigs cost nothing elsewhere.
+func _stream_site_people(me: Vector2) -> void:
+	for site in plan.sites:
+		var near := site.bounds().grow(SITE_PEOPLE_RANGE).has_point(me)
+		if near and not _site_people.has(site.id):
+			var actors: Array[CitySiteActor] = []
+			for person: Dictionary in site.people:
+				var actor := CitySiteActor.create(person)
+				add_child(actor)
+				actors.append(actor)
+			_site_people[site.id] = actors
+		elif not near and _site_people.has(site.id):
+			for actor: CitySiteActor in _site_people[site.id]:
+				actor.queue_free()
+			_site_people.erase(site.id)

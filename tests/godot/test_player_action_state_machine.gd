@@ -473,6 +473,8 @@ func _create_player() -> Player:
 		SessionState.state = GameState.new()
 		SessionState.state.bag.set_content_db(SessionState.content_db)
 	var player := PLAYER_SCENE.instantiate() as Player
+	# These tests pin the adult baseline numbers; the teen build has its own test (SD-11).
+	player.combat_build = CombatMoveCatalog.BUILD_ADULT
 	var tree := Engine.get_main_loop() as SceneTree
 	tree.root.add_child(player)
 	return player

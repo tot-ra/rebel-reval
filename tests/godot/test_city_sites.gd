@@ -29,13 +29,27 @@ func test_replaced_generic_buildings_are_gone() -> void:
 func test_hall_floor_room_and_hud_name() -> void:
 	var plan := _plan()
 	var site := _site(&"site.raekoja_plats")
-	var inside := site.to_world(Vector2(0.0, 2.0))
-	assert_almost_eq(plan.walk_height(inside), site.level + 0.12, 0.001)
-	var room := plan.site_room_at(inside)
-	assert_eq(room["room"]["id"], &"room.council_hall")
-	assert_eq(plan.location_at(inside)["building"], "Inside: Council hall")
+	var diele := site.to_world(Vector2(0.0, 2.0))
+	assert_almost_eq(plan.walk_height(diele), site.level + 0.12, 0.001)
+	assert_eq(plan.site_room_at(diele)["room"]["id"], &"room.diele")
+	assert_eq(plan.location_at(diele)["building"], "Inside: Council hall (diele)")
+	var dornse := site.to_world(Vector2(8.0, 3.0))
+	assert_eq(plan.site_room_at(dornse)["room"]["id"], &"room.dornse")
+	var dais := site.to_world(Vector2(-11.0, 0.0))
+	assert_almost_eq(plan.walk_height(dais), site.level + 0.4, 0.001, "the court dais is raised")
 	var outside := site.to_world(Vector2(0.0, -20.0))
 	assert_true(plan.site_room_at(outside).is_empty(), "the forum is not inside the hall")
+
+
+func test_people_have_roles_poses_and_stand_on_floors() -> void:
+	var site := _site(&"site.raekoja_plats")
+	var roles := {}
+	for person: Dictionary in site.people:
+		roles[person["id"]] = person["pose"]
+		assert_false(site.floor_at(person["at"]).is_empty(), "%s is on a floor" % person["id"])
+	assert_eq(roles[&"vogt"], &"sit")
+	assert_eq(roles[&"burgomaster.1"], &"sit")
+	assert_true(roles.has(&"scribe") and roles.has(&"kammerer"), "scribe and Kämmerer at work")
 
 
 func test_door_gap_leads_from_the_forum_onto_the_floor() -> void:
@@ -45,3 +59,22 @@ func test_door_gap_leads_from_the_forum_onto_the_floor() -> void:
 	var inward: Vector2 = d["inward"]
 	assert_false(site.floor_at(mid + inward * 1.0).is_empty(), "inside the door is hall floor")
 	assert_true(site.floor_at(mid - inward * 1.0).is_empty(), "outside the door is the forum")
+
+
+func test_holy_spirit_rooms_choir_step_and_glass() -> void:
+	var plan := _plan()
+	var site := _site(&"site.holy_spirit")
+	assert_true(site != null, "site.holy_spirit loads")
+	var nave := site.to_world(Vector2(18.0, -3.0))
+	var choir := site.to_world(Vector2(34.0, -3.5))
+	assert_eq(plan.site_room_at(nave)["room"]["id"], &"room.nave")
+	assert_eq(plan.site_room_at(choir)["room"]["id"], &"room.choir")
+	assert_almost_eq(
+		plan.walk_height(choir) - plan.walk_height(nave), 0.25, 0.001, "choir one step up"
+	)
+	var glazed := 0
+	for w: Dictionary in site.data["fabric"]:
+		for op: Dictionary in w.get("openings", []):
+			glazed += 1 if bool(op.get("glass", false)) else 0
+	assert_true(glazed >= 10, "nave and choir lancets carry stained glass")
+	assert_eq(site.data["presentation"][0]["what"], "west tower (1360) with a shingled helm")

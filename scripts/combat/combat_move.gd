@@ -50,6 +50,25 @@ static func make(data: Dictionary) -> CombatMove:
 	return move
 
 
+## Copy with the logic clock scaled for a body build (hit stop and lunge scale with it). The source
+## clip contact second never changes, so the contact frame still lands on the (scaled) impact.
+func scaled_for_build(timing_mult: float, lunge_mult: float) -> CombatMove:
+	var copy := CombatMove.new()
+	copy.id = id
+	copy.impact_sec = impact_sec * timing_mult
+	copy.duration_sec = duration_sec * timing_mult
+	copy.cancel_sec = cancel_sec * timing_mult
+	copy.hit_stop_sec = hit_stop_sec * timing_mult
+	copy.source_contact_sec = source_contact_sec
+	copy.damage_mult = damage_mult
+	copy.reach_mult = reach_mult
+	copy.stamina_mult = stamina_mult
+	copy.facing_dot = facing_dot
+	copy.lunge_px = lunge_px * lunge_mult
+	copy.pierces_guard = pierces_guard
+	return copy
+
+
 ## Maps the logic action clock onto the source clip clock.
 ##
 ## Contact moves: a quadratic ease spends most of the anticipation on the

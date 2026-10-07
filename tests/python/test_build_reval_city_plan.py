@@ -79,5 +79,56 @@ class CityPlanBuilderTest(unittest.TestCase):
         self.assertLess(lift, 30.0)
 
 
+
+class TerrainReliefTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        import terrain_relief
+        cls.relief = terrain_relief
+
+    def test_lattice_noise_is_deterministic_and_bounded(self):
+        import numpy as np
+        x, y = np.meshgrid(np.linspace(-500, 500, 64), np.linspace(-500, 500, 64))
+        a = self.relief.lattice_noise(x, y, 110.0, 5)
+        b = self.relief.lattice_noise(x, y, 110.0, 5)
+        self.assertTrue((a == b).all())
+        self.assertGreaterEqual(a.min(), 0.0)
+        self.assertLessEqual(a.max(), 1.0)
+
+    def test_relief_leaves_masked_ground_untouched(self):
+        import numpy as np
+        x, y = np.meshgrid(np.linspace(0, 400, 80), np.linspace(0, 400, 80))
+        asl = np.full(x.shape, 10.0)
+        weight = np.zeros(x.shape)
+        weight[:, 40:] = 1.0
+        out = self.relief.add_open_country_relief(asl, x, y, weight, np.full(x.shape, 500.0), np.zeros(x.shape))
+        self.assertTrue((out[:, :40] == 10.0).all())
+        self.assertGreater(float(out[:, 40:].std()), 0.3)
+
+    def test_hollow_way_sinks_the_track_and_heaps_berms(self):
+        import numpy as np
+        import build_reval_city_plan as b
+        x, y = np.meshgrid(np.linspace(-20, 20, 81), np.linspace(-10, 10, 41))
+        road = [((-30.0, 0.0), (30.0, 0.0))]
+        out, road_w = self.relief.carve_hollow_ways(
+            np.zeros(x.shape), x, y, [([(-30.0, 0.0), (30.0, 0.0)], 5.0)], np.full(x.shape, 500.0), b.dist_point_seg
+        )
+        centre = out[20, 40]
+        self.assertAlmostEqual(centre, -self.relief.HOLLOW_DEPTH_M, delta=0.03)
+        self.assertGreater(float(out.max()), 0.05, "spoil berm beside the road")
+        self.assertGreater(road_w[20, 40], 0.9)
+
+    def test_road_map_encodes_lateral_offset(self):
+        import numpy as np
+        arr = self.relief.road_map(40, 40, (0.0, 0.0), 1.0, [("road.test", [(5.0, 20.0), (35.0, 20.0)], 6.0)], 1.0)
+        centre = arr[20, 20]
+        side = arr[24, 20]
+        other = arr[16, 20]
+        self.assertGreater(int(centre[0]), 200)
+        self.assertLess(abs(int(centre[1]) - 128), 20)
+        self.assertNotEqual(np.sign(int(side[1]) - 128), np.sign(int(other[1]) - 128))
+        self.assertEqual(int(arr[2, 2][0]), 0)
+
+
 if __name__ == "__main__":
     unittest.main()

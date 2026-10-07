@@ -99,6 +99,11 @@ func _run() -> void:
 		pikk.reverse()  # south to north, ending at the Coastal Gate
 	var coastal := plan.gate("gate.coastal")
 	pikk.append(Vector2(coastal["at"][0], coastal["at"][1]) + Vector2(4, -40) / 0.87)
+	if OS.get_cmdline_user_args().has("--only-sites"):
+		# Targeted run: walk into the landmark sites only.
+		await _enter_sites(plan)
+		_finish()
+		return
 	await _walk("viru_inward", viru)
 	await _walk("pikk_jalg_up", pikk_jalg)
 	await _walk("luhike_jalg_up", luhike)
@@ -106,18 +111,7 @@ func _run() -> void:
 	await _enter_house(plan)
 	await _enter_sites(plan)
 	await _features(plan)
-	_frame_ms.sort()
-	if not _frame_ms.is_empty():
-		print(
-			(
-				"route frame ms best=%.1f median=%.1f worst=%.1f"
-				% [_frame_ms[0], _frame_ms[_frame_ms.size() / 2], _frame_ms[-1]]
-			)
-		)
-	for f in _failures:
-		push_error(f)
-	print("WALK RESULT: %s" % ("PASS" if _failures.is_empty() else "FAIL (%d)" % _failures.size()))
-	get_tree().quit(0 if _failures.is_empty() else 1)
+	_finish()
 
 
 func _walk(label: String, route: PackedVector2Array) -> void:
@@ -392,6 +386,8 @@ func _enter_sites(plan: CityPlan) -> void:
 	var player: Player = _city.player
 	for site in plan.sites:
 		for d: Dictionary in site.doors:
+			if bool(d.get("inner", false)):
+				continue  # room to room: walked from inside below
 			var mid: Vector2 = (d["a"] + d["b"]) * 0.5
 			var inward: Vector2 = d["inward"]
 			var key := "site:%s" % d["id"]
@@ -401,7 +397,9 @@ func _enter_sites(plan: CityPlan) -> void:
 			var t := 0.0
 			while t < 1.2:
 				await get_tree().physics_frame
-				_steer(player, inward)
+				# Steer at a point beyond the door, so drift cannot pull into a jamb.
+				var here_in := CityPlan.to_world_xz(player.global_position)
+				_steer(player, (mid + inward * 2.5 - here_in).normalized())
 				t += get_physics_process_delta_time()
 				var room := plan.site_room_at(CityPlan.to_world_xz(player.global_position))
 				if (
@@ -442,12 +440,92 @@ func _enter_sites(plan: CityPlan) -> void:
 				)
 			)
 			await _shot("walk_site_%s_inside" % String(site.id).trim_prefix("site."))
+			# Every other door of the site must be reachable from inside: walk to
+			# it and through, then back (e.g. the hall into the council chamber).
+			for other: Dictionary in site.doors:
+				# Only inner doors (room to room in a straight line); the room
+				# graph of bigger buildings is checked by validate_city_sites.gd.
+				if other == d or not bool(other.get("inner", false)):
+					continue
+				var omid: Vector2 = (other["a"] + other["b"]) * 0.5
+				var oin: Vector2 = other["inward"]
+				var goal := omid + oin * 1.5
+				Input.action_press(&"ui_up")
+				var tt := 0.0
+				var approach := omid - oin * 1.2
+				var through := false
+				while (
+					tt < 4.0
+					and CityPlan.to_world_xz(player.global_position).distance_to(goal) > 0.6
+				):
+					await get_tree().physics_frame
+					var here := CityPlan.to_world_xz(player.global_position)
+					# Approach in front of the door first, then go straight through.
+					through = (
+						through or here.distance_to(approach) < 0.7 or (here - omid).dot(oin) > -0.3
+					)
+					_steer(player, ((goal if through else approach) - here).normalized())
+					tt += get_physics_process_delta_time()
+				Input.action_release(&"ui_up")
+				var reached := CityPlan.to_world_xz(player.global_position).distance_to(goal) <= 0.6
+				var oroom := plan.site_room_at(CityPlan.to_world_xz(player.global_position))
+				print(
+					(
+						"site %s: through %s into %s: %s"
+						% [
+							site.id,
+							other["id"],
+							oroom["room"]["id"] if not oroom.is_empty() else "-",
+							reached
+						]
+					)
+				)
+				if not reached:
+					_failures.append(
+						(
+							"%s: could not walk through %s (stopped at local %s)"
+							% [
+								site.id,
+								other["id"],
+								site.to_local(CityPlan.to_world_xz(player.global_position))
+							]
+						)
+					)
+				await _shot(
+					(
+						"walk_site_%s_%s"
+						% [
+							String(site.id).trim_prefix("site."),
+							String(other["id"]).get_slice(".", 2)
+						]
+					)
+				)
+				player.global_position = CityPlan.to_logic(mid + inward * 2.0)
+				await get_tree().physics_frame
 			var runtime: MapViewRuntime = _city.runtime
 			runtime.set_camera_mode(MapViewRuntimeCamera.CameraMode.TOP_DOWN)
 			for i in 20:
 				await get_tree().process_frame
 			await _shot("walk_site_%s_inside_top_down" % String(site.id).trim_prefix("site."))
 			runtime.set_camera_mode(MapViewRuntimeCamera.CameraMode.THIRD_PERSON)
+			# Review views (manifest `review_views`): first person from a spot
+			# inside, e.g. at the council table, to check people and furniture.
+			for view: Dictionary in site.data.get("review_views", []):
+				var spot := site.to_world(Vector2(view["at"][0], view["at"][1]))
+				player.global_position = CityPlan.to_logic(spot)
+				var look := Vector2.from_angle(
+					deg_to_rad(float(view["facing_deg"])) + site.rotation
+				)
+				runtime.set_camera_mode(MapViewRuntimeCamera.CameraMode.FIRST_PERSON)
+				for i in 30:
+					_steer(player, look)
+					await get_tree().process_frame
+				await _shot(
+					"walk_site_%s_view_%s" % [String(site.id).trim_prefix("site."), view["id"]]
+				)
+			runtime.set_camera_mode(MapViewRuntimeCamera.CameraMode.THIRD_PERSON)
+			player.global_position = CityPlan.to_logic(mid + inward * 2.0)
+			await get_tree().physics_frame
 			# Back out.
 			Input.action_press(&"ui_up")
 			t = 0.0
@@ -461,3 +539,18 @@ func _enter_sites(plan: CityPlan) -> void:
 			Input.action_release(&"ui_up")
 			if not plan.site_room_at(CityPlan.to_world_xz(player.global_position)).is_empty():
 				_failures.append("%s: could not walk out through %s" % [site.id, d["id"]])
+
+
+func _finish() -> void:
+	_frame_ms.sort()
+	if not _frame_ms.is_empty():
+		print(
+			(
+				"route frame ms best=%.1f median=%.1f worst=%.1f"
+				% [_frame_ms[0], _frame_ms[_frame_ms.size() / 2], _frame_ms[-1]]
+			)
+		)
+	for f in _failures:
+		push_error(f)
+	print("WALK RESULT: %s" % ("PASS" if _failures.is_empty() else "FAIL (%d)" % _failures.size()))
+	get_tree().quit(0 if _failures.is_empty() else 1)

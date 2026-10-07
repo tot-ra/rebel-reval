@@ -34,3 +34,6 @@ tools/character_build/
 generated/**/*.import
 generated/leonardo/*
 docs/reports/*
+
+# Raw OpenAI image plates (provenance: prompt.json + SHA-256 rows in assets/SOURCES.csv)
+generated/openai/**/*.png

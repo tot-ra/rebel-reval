@@ -23,6 +23,16 @@ const COMBO_GRACE_SEC := 0.3
 ## A dodge or roll may cut a swing's follow-through this long after impact.
 const EVADE_CANCEL_AFTER_IMPACT_SEC := 0.06
 
+## Body builds (ADR 0033, SD-11). The adult master smith is the baseline every move row was
+## measured for; the teen apprentice reuses the same clips, quicker, lighter and shorter.
+const BUILD_ADULT := &"adult"
+const BUILD_TEEN := &"teen"
+const BUILD_ADJUST: Dictionary = {
+	BUILD_ADULT: {"timing": 1.0, "lunge": 1.0, "damage": 1.0, "reach": 1.0, "stamina": 1.0},
+	BUILD_TEEN: {"timing": 0.92, "lunge": 0.85, "damage": 0.8, "reach": 0.93, "stamina": 1.15},
+}
+const TEEN_CHARACTER_IDS: Array[StringName] = [&"char.apprentice"]
+
 const ROLL_FORWARD := &"roll_forward"
 const ROLL_BACKWARD := &"roll_backward"
 const CAST_PROJECTILE := &"cast_projectile"
@@ -113,6 +123,15 @@ const SCALED_ACTIONS: Array[StringName] = [
 ]
 
 
+## Body build for a character id: the apprentice is a teen, everyone else adult.
+static func build_for_character(character_id: StringName) -> StringName:
+	return BUILD_TEEN if TEEN_CHARACTER_IDS.has(character_id) else BUILD_ADULT
+
+
+static func build_factor(build: StringName, key: String) -> float:
+	return float((BUILD_ADJUST.get(build, BUILD_ADJUST[BUILD_ADULT]) as Dictionary)[key])
+
+
 static func is_weapon_class(weapon_class: StringName) -> bool:
 	return weapon_class in WEAPON_CLASSES
 
@@ -122,13 +141,15 @@ static func combo_length(weapon_class: StringName) -> int:
 
 
 ## step is 0-based and wraps, so a fourth press restarts the chain.
-static func light_move(weapon_class: StringName, step: int) -> CombatMove:
+static func light_move(
+	weapon_class: StringName, step: int, build: StringName = BUILD_ADULT
+) -> CombatMove:
 	var light := _move_set(weapon_class)["light"] as Array
-	return CombatMove.make(light[posmod(step, light.size())] as Dictionary)
+	return _for_build(CombatMove.make(light[posmod(step, light.size())] as Dictionary), build)
 
 
-static func heavy_move(weapon_class: StringName) -> CombatMove:
-	return CombatMove.make(_move_set(weapon_class)["heavy"] as Dictionary)
+static func heavy_move(weapon_class: StringName, build: StringName = BUILD_ADULT) -> CombatMove:
+	return _for_build(CombatMove.make(_move_set(weapon_class)["heavy"] as Dictionary), build)
 
 
 static func action_move(id: StringName) -> CombatMove:
@@ -139,16 +160,16 @@ static func action_move(id: StringName) -> CombatMove:
 
 ## Every move whose clip time is warped against its logic clock, keyed by
 ## canonical animation id. The rig uses this for presentation.
-static func presentation_move(id: StringName) -> CombatMove:
+static func presentation_move(id: StringName, build: StringName = BUILD_ADULT) -> CombatMove:
 	if ACTION_MOVES.has(id):
 		return action_move(id)
 	for weapon_class: StringName in WEAPON_CLASSES:
 		var move_set := _move_set(weapon_class)
 		if StringName((move_set["heavy"] as Dictionary)["id"]) == id:
-			return CombatMove.make(move_set["heavy"] as Dictionary)
+			return _for_build(CombatMove.make(move_set["heavy"] as Dictionary), build)
 		for row: Dictionary in move_set["light"]:
 			if StringName(row["id"]) == id:
-				return CombatMove.make(row)
+				return _for_build(CombatMove.make(row), build)
 	return null
 
 
@@ -161,6 +182,12 @@ static func cast_move_for_delivery(delivery_kind: String) -> StringName:
 			return CAST_AREA
 		_:
 			return CAST_SELF
+
+
+static func _for_build(move: CombatMove, build: StringName) -> CombatMove:
+	if build == BUILD_ADULT or not BUILD_ADJUST.has(build):
+		return move
+	return move.scaled_for_build(build_factor(build, "timing"), build_factor(build, "lunge"))
 
 
 static func _move_set(weapon_class: StringName) -> Dictionary:

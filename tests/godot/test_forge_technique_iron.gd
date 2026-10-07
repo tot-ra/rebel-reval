@@ -182,6 +182,8 @@ func _advance(machine: PlayerActionStateMachine, duration_sec: float) -> void:
 func _create_player() -> Player:
 	_ensure_content_loaded()
 	var player := PLAYER_SCENE.instantiate() as Player
+	# Pins the adult baseline numbers; the teen build has its own test (SD-11).
+	player.combat_build = CombatMoveCatalog.BUILD_ADULT
 	var tree := Engine.get_main_loop() as SceneTree
 	tree.root.add_child(player)
 	return player

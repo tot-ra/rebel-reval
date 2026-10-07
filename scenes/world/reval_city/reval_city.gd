@@ -29,6 +29,7 @@ var _smithy := -1
 ## Site room Kalev stands in: {site, room} and its key, or empty.
 var _site_room: Dictionary = {}
 var _site_room_key := ""
+var _cut := true
 ## Armed once Kalev has been outside the smithy (no bounce on arrival).
 var _leaving := true
 
@@ -88,6 +89,7 @@ func _process(delta: float) -> void:
 	_check_city_edge(xz)
 	world.doors.update_for(xz, delta)
 	world.grass.update_for(xz)
+	world.trail.update_for(xz, delta)
 	world.smoke.update_for(xz, delta)
 	var camera := view.view_camera()
 	var forward := -camera.global_transform.basis.z
@@ -96,25 +98,29 @@ func _process(delta: float) -> void:
 
 
 func _update_interior(xz: Vector2) -> void:
+	# Cutaway (roof, ceiling and walls above head height lift away) for the
+	# top-down and third-person cameras; first person keeps the whole room.
+	var cut := runtime.camera_mode() != MapViewRuntimeCamera.CameraMode.FIRST_PERSON
 	var index := plan.building_at(xz)
 	if index >= 0 and not bool(plan.buildings[index].get("enterable", false)):
 		index = -1
-	if index != inside_building:
+	if index != inside_building or cut != _cut:
 		if inside_building >= 0:
 			world.set_roof_hidden(inside_building, false)
 		inside_building = index
 		if inside_building >= 0:
-			world.set_roof_hidden(inside_building, true)
-	# Landmark site rooms (ADR 0032) lift their own roof and ceiling nodes.
+			world.set_roof_hidden(inside_building, cut)
+	# Landmark site rooms (ADR 0032) lift their own roof and upper nodes.
 	var room := plan.site_room_at(xz)
 	var key := "" if room.is_empty() else "%s/%s" % [room["site"].id, room["room"]["id"]]
-	if key != _site_room_key:
+	if key != _site_room_key or cut != _cut:
 		if not _site_room.is_empty():
 			world.set_site_room_hidden(_site_room["site"], _site_room["room"], false)
 		_site_room = room
 		_site_room_key = key
 		if not room.is_empty():
-			world.set_site_room_hidden(room["site"], room["room"], true)
+			world.set_site_room_hidden(room["site"], room["room"], cut)
+	_cut = cut
 	view.inside_building = (
 		inside_building
 		if inside_building >= 0

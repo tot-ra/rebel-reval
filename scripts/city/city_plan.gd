@@ -9,6 +9,7 @@ extends RefCounted
 const PLAN_PATH := "res://content/world/reval_city/plan.json"
 const HEIGHT_PATH := "res://content/world/reval_city/height.json"
 const SPLAT_PATH := "res://content/world/reval_city/splat.png"
+const ROADS_PATH := "res://content/world/reval_city/roads.png"
 const SCHEMA := "rr.city_plan.v1"
 const LOGIC_PX_PER_UNIT := 32.0
 const INDEX_CELL := 32.0

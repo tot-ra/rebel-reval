@@ -38,6 +38,11 @@ static func material(plan: CityPlan) -> ShaderMaterial:
 	for key: String in TEXTURES:
 		mat.set_shader_parameter(key, load(TEXTURES[key]))
 	mat.set_shader_parameter("splat", load(CityPlan.SPLAT_PATH))
+	mat.set_shader_parameter("roads", load(CityPlan.ROADS_PATH))
+	mat.set_shader_parameter("ground_height", plan.height_texture())
+	mat.set_shader_parameter("ground_rect", plan.height_texture_rect())
+	mat.set_shader_parameter("trail", _neutral_trail())
+	mat.set_shader_parameter("trail_rect", Vector4(0.0, 0.0, 1.0, 1.0))
 	mat.set_shader_parameter(
 		"splat_rect",
 		Vector4(
@@ -45,6 +50,13 @@ static func material(plan: CityPlan) -> ShaderMaterial:
 		)
 	)
 	return mat
+
+
+## Untouched footprint relief (0.5) until CityGroundTrail installs its window.
+static func _neutral_trail() -> ImageTexture:
+	var image := Image.create_empty(2, 2, false, Image.FORMAT_R8)
+	image.fill(Color(0.5, 0.0, 0.0))
+	return ImageTexture.create_from_image(image)
 
 
 static func build(plan: CityPlan, parent: Node3D) -> Node3D:

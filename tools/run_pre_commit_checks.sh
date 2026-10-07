@@ -404,13 +404,17 @@ if any_staged_path "scripts/map" "content/maps" \
   "tools/verify_map_activation.py" \
   "tools/verify_map_conversion_plan.py" \
   "docs/MAP_AUTHORING.md"; then
-  GODOT_BIN_RESOLVED=""
-  if GODOT_BIN_RESOLVED="$(resolve_godot)"; then
-    run_step "map blueprint validation" \
-      "$GODOT_BIN_RESOLVED" --headless --path . --script tools/validate_map_blueprints.gd
+  # The headless blueprint compile takes ~2.5 minutes, so it is opt-in at commit
+  # time (PRE_COMMIT_FULL=1) and stays in the AGENTS.md map gate / CI.
+  if [[ "${PRE_COMMIT_FULL:-}" == "1" ]]; then
+    if GODOT_BIN_RESOLVED="$(resolve_godot)"; then
+      run_step "map blueprint validation" \
+        "$GODOT_BIN_RESOLVED" --headless --path . --script tools/validate_map_blueprints.gd
+    else
+      echo "godot not on PATH and GODOT_BIN unset; skipping map blueprint headless validation." >&2
+    fi
   else
-    echo "godot not on PATH and GODOT_BIN unset; skipping map blueprint headless validation." >&2
-    echo "Map changes still require the AGENTS.md pre-commit map gate before push." >&2
+    echo "Skipping map blueprint validation (slow); run with PRE_COMMIT_FULL=1 or the AGENTS.md map gate before push." >&2
   fi
   run_step "map audit" python3 tools/verify_map_audit.py
   run_step "map activation" python3 tools/verify_map_activation.py

@@ -1,4 +1,7 @@
 {
   "note": "ADR 0032: every landmark site of the seamless city, listed explicitly. The compiler (tools/city/build_reval_city_plan.py) and the runtime (CitySiteRegistry) read only these files.",
-  "sites": ["raekoja_plats"]
+  "sites": [
+    "raekoja_plats",
+    "holy_spirit"
+  ]
 }

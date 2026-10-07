@@ -15,21 +15,89 @@
     "The pillory stands at the forum centroid as a plausible composite (forum-centre pillory from 1337)."
   ],
   "presentation": [],
-  "replaces": ["bldg.lm.town_hall", "bldg.osm.r4061219"],
-  "replaces_notes": {"bldg.osm.r4061219": "41 x 26 m block traced from the modern Town Hall complex; overlaps the 1343 hall and its rear lane."},
-  "anchor": {"at": [3.0, 18.0], "rotation_deg": -12.0},
+  "replaces": [
+    "bldg.lm.town_hall",
+    "bldg.osm.r4061219"
+  ],
+  "replaces_notes": {
+    "bldg.osm.r4061219": "41 x 26 m block traced from the modern Town Hall complex; overlaps the 1343 hall and its rear lane."
+  },
+  "anchor": {
+    "at": [
+      3.0,
+      18.0
+    ],
+    "rotation_deg": -12.0
+  },
   "terrace": {
-    "polygon": [[-14.5, -8.9], [14.5, -8.9], [14.5, 8.9], [-14.5, 8.9]],
-    "level": {"door": "door.council_hall.north", "outside_m": 2.0},
+    "polygon": [
+      [
+        -14.5,
+        -8.9
+      ],
+      [
+        14.5,
+        -8.9
+      ],
+      [
+        14.5,
+        8.9
+      ],
+      [
+        -14.5,
+        8.9
+      ]
+    ],
+    "level": {
+      "door": "door.council_hall.north",
+      "outside_m": 2.0
+    },
     "blend_m": 6.0
   },
-  "reserve": [[-20.0, -7.4], [20.0, -7.4], [24.0, -41.4], [-18.0, -43.4]],
-  "visual": {"kind": "builder", "script": "res://scripts/city/sites/raekoja_plats_builder.gd"},
+  "reserve": [
+    [
+      -20.0,
+      -7.4
+    ],
+    [
+      20.0,
+      -7.4
+    ],
+    [
+      24.0,
+      -41.4
+    ],
+    [
+      -18.0,
+      -43.4
+    ]
+  ],
+  "visual": {
+    "kind": "builder",
+    "script": "res://scripts/city/sites/raekoja_plats_builder.gd"
+  },
   "buildings": [
     {
       "id": "site.raekoja_plats.council_hall",
       "name": "Council hall",
-      "footprint": [[-13.0, -7.4], [13.0, -7.4], [13.0, 7.4], [-13.0, 7.4]],
+      "footprint": [
+        [
+          -13.0,
+          -7.4
+        ],
+        [
+          13.0,
+          -7.4
+        ],
+        [
+          13.0,
+          7.4
+        ],
+        [
+          -13.0,
+          7.4
+        ]
+      ],
       "wall_h": 4.9,
       "roof": "tile",
       "minimap_fill": "#8a4a36"
@@ -37,45 +105,1016 @@
   ],
   "walk": {
     "walls": [
-      {"from": [-13.0, -7.4], "to": [-0.65, -7.4], "thickness": 0.7},
-      {"from": [0.65, -7.4], "to": [13.0, -7.4], "thickness": 0.7},
-      {"from": [13.0, -7.4], "to": [13.0, 7.4], "thickness": 0.7},
-      {"from": [13.0, 7.4], "to": [-13.0, 7.4], "thickness": 0.7},
-      {"from": [-13.0, 7.4], "to": [-13.0, -7.4], "thickness": 0.7}
+      {
+        "from": [
+          -13.0,
+          -7.4
+        ],
+        "to": [
+          -0.7,
+          -7.4
+        ],
+        "thickness": 0.95
+      },
+      {
+        "from": [
+          0.7,
+          -7.4
+        ],
+        "to": [
+          13.0,
+          -7.4
+        ],
+        "thickness": 0.95
+      },
+      {
+        "from": [
+          13.0,
+          -7.4
+        ],
+        "to": [
+          13.0,
+          7.4
+        ],
+        "thickness": 0.95
+      },
+      {
+        "from": [
+          13.0,
+          7.4
+        ],
+        "to": [
+          -13.0,
+          7.4
+        ],
+        "thickness": 0.95
+      },
+      {
+        "from": [
+          -13.0,
+          7.4
+        ],
+        "to": [
+          -13.0,
+          -7.4
+        ],
+        "thickness": 0.95
+      },
+      {
+        "from": [
+          4.7,
+          -6.45
+        ],
+        "to": [
+          4.7,
+          1.5
+        ],
+        "thickness": 0.6,
+        "note": "diele | dornse partition"
+      },
+      {
+        "from": [
+          4.7,
+          2.9
+        ],
+        "to": [
+          4.7,
+          6.45
+        ],
+        "thickness": 0.6
+      }
     ],
     "floors": [
-      {"id": "floor.council_hall", "polygon": [[-12.3, -6.7], [12.3, -6.7], [12.3, 6.7], [-12.3, 6.7]], "height": 0.12}
+      {
+        "id": "floor.court_dais",
+        "polygon": [
+          [
+            -12.05,
+            -3.2
+          ],
+          [
+            -9.7,
+            -3.2
+          ],
+          [
+            -9.7,
+            3.2
+          ],
+          [
+            -12.05,
+            3.2
+          ]
+        ],
+        "height": 0.4
+      },
+      {
+        "id": "floor.council_hall",
+        "polygon": [
+          [
+            -12.05,
+            -6.45
+          ],
+          [
+            12.05,
+            -6.45
+          ],
+          [
+            12.05,
+            6.45
+          ],
+          [
+            -12.05,
+            6.45
+          ]
+        ],
+        "height": 0.12
+      }
     ],
-    "ramps": [],
-    "solid": []
+    "ramps": [
+      {
+        "id": "steps.court_dais",
+        "from_floor": "floor.council_hall",
+        "to_floor": "floor.court_dais",
+        "polygon": [
+          [
+            -9.7,
+            -0.9
+          ],
+          [
+            -9.38,
+            -0.9
+          ],
+          [
+            -9.38,
+            0.9
+          ],
+          [
+            -9.7,
+            0.9
+          ]
+        ]
+      }
+    ],
+    "solid": [
+      [
+        [
+          -6.92,
+          -0.32
+        ],
+        [
+          -6.279999999999999,
+          -0.32
+        ],
+        [
+          -6.279999999999999,
+          0.32
+        ],
+        [
+          -6.92,
+          0.32
+        ]
+      ],
+      [
+        [
+          -1.9200000000000002,
+          -0.32
+        ],
+        [
+          -1.28,
+          -0.32
+        ],
+        [
+          -1.28,
+          0.32
+        ],
+        [
+          -1.9200000000000002,
+          0.32
+        ]
+      ],
+      [
+        [
+          -11.549999999999999,
+          -0.4
+        ],
+        [
+          -10.85,
+          -0.4
+        ],
+        [
+          -10.85,
+          0.4
+        ],
+        [
+          -11.549999999999999,
+          0.4
+        ]
+      ],
+      [
+        [
+          -10.625,
+          -1.1
+        ],
+        [
+          -9.875,
+          -1.1
+        ],
+        [
+          -9.875,
+          1.1
+        ],
+        [
+          -10.625,
+          1.1
+        ]
+      ],
+      [
+        [
+          -8.98,
+          -3.2
+        ],
+        [
+          -8.82,
+          -3.2
+        ],
+        [
+          -8.82,
+          -0.7
+        ],
+        [
+          -8.98,
+          -0.7
+        ]
+      ],
+      [
+        [
+          -8.98,
+          0.7
+        ],
+        [
+          -8.82,
+          0.7
+        ],
+        [
+          -8.82,
+          3.2
+        ],
+        [
+          -8.98,
+          3.2
+        ]
+      ],
+      [
+        [
+          -9.55,
+          -2.8
+        ],
+        [
+          -9.05,
+          -2.8
+        ],
+        [
+          -9.05,
+          -2.2
+        ],
+        [
+          -9.55,
+          -2.2
+        ]
+      ],
+      [
+        [
+          0.8,
+          4.1499999999999995
+        ],
+        [
+          2.8,
+          4.1499999999999995
+        ],
+        [
+          2.8,
+          5.05
+        ],
+        [
+          0.8,
+          5.05
+        ]
+      ],
+      [
+        [
+          2.98,
+          5.2299999999999995
+        ],
+        [
+          3.6199999999999997,
+          5.2299999999999995
+        ],
+        [
+          3.6199999999999997,
+          6.47
+        ],
+        [
+          2.98,
+          6.47
+        ]
+      ],
+      [
+        [
+          5.999999999999999,
+          -0.6
+        ],
+        [
+          10.399999999999999,
+          -0.6
+        ],
+        [
+          10.399999999999999,
+          0.6
+        ],
+        [
+          5.999999999999999,
+          0.6
+        ]
+      ],
+      [
+        [
+          11.250000000000002,
+          -1.15
+        ],
+        [
+          11.950000000000001,
+          -1.15
+        ],
+        [
+          11.950000000000001,
+          1.15
+        ],
+        [
+          11.250000000000002,
+          1.15
+        ]
+      ],
+      [
+        [
+          8.4,
+          5.7
+        ],
+        [
+          9.6,
+          5.7
+        ],
+        [
+          9.6,
+          6.3
+        ],
+        [
+          8.4,
+          6.3
+        ]
+      ],
+      [
+        [
+          4.75,
+          -5.15
+        ],
+        [
+          5.25,
+          -5.15
+        ],
+        [
+          5.25,
+          -3.6500000000000004
+        ],
+        [
+          4.75,
+          -3.6500000000000004
+        ]
+      ],
+      [
+        [
+          11.23,
+          -5.5200000000000005
+        ],
+        [
+          11.870000000000001,
+          -5.5200000000000005
+        ],
+        [
+          11.870000000000001,
+          -4.28
+        ],
+        [
+          11.23,
+          -4.28
+        ]
+      ]
+    ]
   },
   "rooms": [
-    {"id": "room.council_hall", "name": "Council hall", "polygon": [[-12.3, -6.7], [12.3, -6.7], [12.3, 6.7], [-12.3, 6.7]], "floor": "floor.council_hall", "hide": ["CouncilHall/Roof"]}
+    {
+      "id": "room.diele",
+      "name": "Council hall (diele)",
+      "polygon": [
+        [
+          -12.05,
+          -6.45
+        ],
+        [
+          4.1,
+          -6.45
+        ],
+        [
+          4.1,
+          6.45
+        ],
+        [
+          -12.05,
+          6.45
+        ]
+      ],
+      "floor": "floor.council_hall",
+      "hide": [
+        "CouncilHall/Upper",
+        "CouncilHall/Roof"
+      ]
+    },
+    {
+      "id": "room.dornse",
+      "name": "Council chamber (dornse)",
+      "polygon": [
+        [
+          4.7,
+          -6.45
+        ],
+        [
+          12.05,
+          -6.45
+        ],
+        [
+          12.05,
+          6.45
+        ],
+        [
+          4.7,
+          6.45
+        ]
+      ],
+      "floor": "floor.council_hall",
+      "hide": [
+        "CouncilHall/Upper",
+        "CouncilHall/Roof"
+      ]
+    }
   ],
   "doors": [
-    {"id": "door.council_hall.north", "a": [-0.65, -7.28], "b": [0.65, -7.28], "inward": [0.0, 1.0], "floor": "floor.council_hall", "height": 2.2, "style": "studded", "paint": [0.24, 0.2, 0.17]}
+    {
+      "id": "door.council_hall.north",
+      "a": [
+        -0.65,
+        -7.28
+      ],
+      "b": [
+        0.65,
+        -7.28
+      ],
+      "inward": [
+        0.0,
+        1.0
+      ],
+      "floor": "floor.council_hall",
+      "height": 2.2,
+      "style": "studded",
+      "paint": [
+        0.24,
+        0.2,
+        0.17
+      ]
+    },
+    {
+      "id": "door.council_hall.dornse",
+      "a": [
+        4.4,
+        1.55
+      ],
+      "b": [
+        4.4,
+        2.85
+      ],
+      "inward": [
+        1.0,
+        0.0
+      ],
+      "floor": "floor.council_hall",
+      "height": 2.3,
+      "style": "ledged",
+      "paint": [
+        0.44,
+        0.4,
+        0.34
+      ],
+      "inner": true
+    }
   ],
   "dressing": [
-    {"id": "kramerbude.1", "kind": "market_stall", "goods": "cloth", "at": [5.0, -9.8], "rotation_deg": 180.0, "solid": [2.4, 1.3]},
-    {"id": "kramerbude.2", "kind": "market_stall", "goods": "pottery", "at": [8.4, -9.8], "rotation_deg": 180.0, "solid": [2.4, 1.3]},
-    {"id": "kramerbude.3", "kind": "market_stall", "goods": "cloth+grain", "at": [11.8, -9.8], "rotation_deg": 180.0, "solid": [2.4, 1.3]},
-    {"id": "stall.cloth.west", "kind": "market_stall", "goods": "cloth", "at": [-12.0, -16.0], "rotation_deg": 150.0, "solid": [2.4, 1.3]},
-    {"id": "stall.fish.east", "kind": "market_stall", "goods": "fish", "at": [14.5, -20.0], "rotation_deg": -110.0, "solid": [2.4, 1.3]},
-    {"id": "stall.grain.centre", "kind": "market_stall", "goods": "grain", "at": [-6.0, -31.0], "rotation_deg": 10.0, "solid": [2.4, 1.3]},
-    {"id": "stall.pottery.north", "kind": "market_stall", "goods": "pottery", "at": [10.0, -34.0], "rotation_deg": -15.0, "solid": [2.4, 1.3]},
-    {"id": "stall.mixed.northwest", "kind": "market_stall", "goods": "cloth+grain", "at": [-14.0, -35.0], "rotation_deg": 35.0, "solid": [2.4, 1.3]},
-    {"id": "stall.fish.northeast", "kind": "market_stall", "goods": "fish", "at": [18.5, -31.0], "rotation_deg": -70.0, "solid": [2.4, 1.3]},
-    {"id": "cart.east", "kind": "cart", "at": [17.0, -12.5], "rotation_deg": 30.0, "solid": [3.2, 1.6]},
-    {"id": "cart.west", "kind": "cart", "at": [-16.5, -24.0], "rotation_deg": -60.0, "solid": [3.2, 1.6]},
-    {"id": "goods.grain_flax", "kind": "trade_goods", "variant": "livonian_grain_flax", "at": [13.0, -14.5], "rotation_deg": 20.0},
-    {"id": "goods.cloth_salt", "kind": "trade_goods", "variant": "western_cloth_salt", "at": [-9.0, -12.0], "rotation_deg": -10.0},
-    {"id": "goods.herring_metal", "kind": "trade_goods", "variant": "barrelled_herring_metal", "at": [20.0, -37.0], "rotation_deg": 75.0},
-    {"id": "goods.furs_wax", "kind": "trade_goods", "variant": "eastern_furs_wax", "at": [-4.0, -38.5], "rotation_deg": 40.0},
-    {"id": "pillory.1337", "kind": "pillory", "at": [1.3, -25.1], "rotation_deg": 0.0}
+    {
+      "id": "kramerbude.1",
+      "kind": "market_stall",
+      "goods": "cloth",
+      "at": [
+        5.0,
+        -9.8
+      ],
+      "rotation_deg": 180.0,
+      "solid": [
+        2.4,
+        1.3
+      ]
+    },
+    {
+      "id": "kramerbude.2",
+      "kind": "market_stall",
+      "goods": "pottery",
+      "at": [
+        8.4,
+        -9.8
+      ],
+      "rotation_deg": 180.0,
+      "solid": [
+        2.4,
+        1.3
+      ]
+    },
+    {
+      "id": "kramerbude.3",
+      "kind": "market_stall",
+      "goods": "cloth+grain",
+      "at": [
+        11.8,
+        -9.8
+      ],
+      "rotation_deg": 180.0,
+      "solid": [
+        2.4,
+        1.3
+      ]
+    },
+    {
+      "id": "stall.cloth.west",
+      "kind": "market_stall",
+      "goods": "cloth",
+      "at": [
+        -12.0,
+        -16.0
+      ],
+      "rotation_deg": 150.0,
+      "solid": [
+        2.4,
+        1.3
+      ]
+    },
+    {
+      "id": "stall.fish.east",
+      "kind": "market_stall",
+      "goods": "fish",
+      "at": [
+        14.5,
+        -20.0
+      ],
+      "rotation_deg": -110.0,
+      "solid": [
+        2.4,
+        1.3
+      ]
+    },
+    {
+      "id": "stall.grain.centre",
+      "kind": "market_stall",
+      "goods": "grain",
+      "at": [
+        -6.0,
+        -31.0
+      ],
+      "rotation_deg": 10.0,
+      "solid": [
+        2.4,
+        1.3
+      ]
+    },
+    {
+      "id": "stall.pottery.north",
+      "kind": "market_stall",
+      "goods": "pottery",
+      "at": [
+        10.0,
+        -34.0
+      ],
+      "rotation_deg": -15.0,
+      "solid": [
+        2.4,
+        1.3
+      ]
+    },
+    {
+      "id": "stall.mixed.northwest",
+      "kind": "market_stall",
+      "goods": "cloth+grain",
+      "at": [
+        -14.0,
+        -35.0
+      ],
+      "rotation_deg": 35.0,
+      "solid": [
+        2.4,
+        1.3
+      ]
+    },
+    {
+      "id": "stall.fish.northeast",
+      "kind": "market_stall",
+      "goods": "fish",
+      "at": [
+        18.5,
+        -31.0
+      ],
+      "rotation_deg": -70.0,
+      "solid": [
+        2.4,
+        1.3
+      ]
+    },
+    {
+      "id": "cart.east",
+      "kind": "cart",
+      "at": [
+        17.0,
+        -12.5
+      ],
+      "rotation_deg": 30.0,
+      "solid": [
+        3.2,
+        1.6
+      ]
+    },
+    {
+      "id": "cart.west",
+      "kind": "cart",
+      "at": [
+        -16.5,
+        -24.0
+      ],
+      "rotation_deg": -60.0,
+      "solid": [
+        3.2,
+        1.6
+      ]
+    },
+    {
+      "id": "goods.grain_flax",
+      "kind": "trade_goods",
+      "variant": "livonian_grain_flax",
+      "at": [
+        13.0,
+        -14.5
+      ],
+      "rotation_deg": 20.0
+    },
+    {
+      "id": "goods.cloth_salt",
+      "kind": "trade_goods",
+      "variant": "western_cloth_salt",
+      "at": [
+        -9.0,
+        -12.0
+      ],
+      "rotation_deg": -10.0
+    },
+    {
+      "id": "goods.herring_metal",
+      "kind": "trade_goods",
+      "variant": "barrelled_herring_metal",
+      "at": [
+        20.0,
+        -37.0
+      ],
+      "rotation_deg": 75.0
+    },
+    {
+      "id": "goods.furs_wax",
+      "kind": "trade_goods",
+      "variant": "eastern_furs_wax",
+      "at": [
+        -4.0,
+        -38.5
+      ],
+      "rotation_deg": 40.0
+    },
+    {
+      "id": "pillory.1337",
+      "kind": "pillory",
+      "at": [
+        1.3,
+        -25.1
+      ],
+      "rotation_deg": 0.0
+    },
+    {
+      "id": "shoemaker.1",
+      "kind": "market_stall",
+      "goods": "none",
+      "at": [
+        -7.6,
+        -9.8
+      ],
+      "rotation_deg": 180.0,
+      "solid": [
+        2.4,
+        1.3
+      ],
+      "note": "shoemakers' stall areas beside the consistorium (AWB 1341)"
+    },
+    {
+      "id": "shoemaker.2",
+      "kind": "market_stall",
+      "goods": "none",
+      "at": [
+        -11.0,
+        -9.8
+      ],
+      "rotation_deg": 180.0,
+      "solid": [
+        2.4,
+        1.3
+      ]
+    }
   ],
   "anchors": [
-    {"id": "anchor.forum_pillory_1337", "at": [1.3, -25.1], "confidence": "plausible composite"},
-    {"id": "anchor.council_hall.door", "at": [0.0, -9.0]},
-    {"id": "anchor.council_hall.bench", "at": [0.0, 4.5]}
+    {
+      "id": "anchor.forum_pillory_1337",
+      "at": [
+        1.3,
+        -25.1
+      ],
+      "confidence": "plausible composite"
+    },
+    {
+      "id": "anchor.council_hall.door",
+      "at": [
+        0.0,
+        -9.0
+      ]
+    },
+    {
+      "id": "anchor.council_hall.court",
+      "at": [
+        -7.8,
+        0.0
+      ],
+      "note": "before the Vogt's barrier"
+    },
+    {
+      "id": "anchor.council_hall.kammerer",
+      "at": [
+        1.8,
+        3.7
+      ]
+    },
+    {
+      "id": "anchor.council_hall.council_table",
+      "at": [
+        6.2,
+        0.0
+      ]
+    },
+    {
+      "id": "anchor.council_hall.cellar_hatch",
+      "at": [
+        -3.8,
+        4.6
+      ],
+      "note": "store below; not built"
+    }
+  ],
+  "people": [
+    {
+      "id": "burgomaster.1",
+      "role": "Bürgermeister (presiding)",
+      "rig": "crowd_townsman_01",
+      "at": [
+        11.55,
+        -0.45
+      ],
+      "facing_deg": 180,
+      "pose": "sit",
+      "seat_h": 0.48
+    },
+    {
+      "id": "burgomaster.2",
+      "role": "Bürgermeister",
+      "rig": "crowd_townsman_02",
+      "at": [
+        11.55,
+        0.45
+      ],
+      "facing_deg": 180,
+      "pose": "sit",
+      "seat_h": 0.48
+    },
+    {
+      "id": "councillor.1",
+      "role": "Ratsherr (sitting council)",
+      "rig": "crowd_townsman_02",
+      "at": [
+        7.2,
+        -1.05
+      ],
+      "facing_deg": 90,
+      "pose": "sit",
+      "seat_h": 0.48
+    },
+    {
+      "id": "councillor.2",
+      "role": "Ratsherr",
+      "rig": "crowd_townsman_01",
+      "at": [
+        9.2,
+        -1.05
+      ],
+      "facing_deg": 90,
+      "pose": "sit",
+      "seat_h": 0.48
+    },
+    {
+      "id": "councillor.3",
+      "role": "Ratsherr",
+      "rig": "crowd_townsman_01",
+      "at": [
+        7.2,
+        1.05
+      ],
+      "facing_deg": -90,
+      "pose": "sit",
+      "seat_h": 0.48
+    },
+    {
+      "id": "councillor.4",
+      "role": "Ratsherr",
+      "rig": "crowd_townsman_02",
+      "at": [
+        9.2,
+        1.05
+      ],
+      "facing_deg": -90,
+      "pose": "sit",
+      "seat_h": 0.48
+    },
+    {
+      "id": "scribe",
+      "role": "Stadtschreiber (town scribe)",
+      "rig": "crowd_townsman_02",
+      "at": [
+        9.0,
+        5.4
+      ],
+      "facing_deg": 90,
+      "pose": "sit",
+      "seat_h": 0.46
+    },
+    {
+      "id": "vogt",
+      "role": "Vogt (lower court)",
+      "rig": "crowd_townsman_01",
+      "at": [
+        -11.2,
+        0.0
+      ],
+      "facing_deg": 0,
+      "pose": "sit",
+      "seat_h": 0.52
+    },
+    {
+      "id": "assessor.1",
+      "role": "assessor",
+      "rig": "crowd_townsman_02",
+      "at": [
+        -11.2,
+        -1.9
+      ],
+      "facing_deg": 0,
+      "pose": "sit",
+      "seat_h": 0.48
+    },
+    {
+      "id": "assessor.2",
+      "role": "assessor",
+      "rig": "crowd_townsman_01",
+      "at": [
+        -11.2,
+        1.9
+      ],
+      "facing_deg": 0,
+      "pose": "sit",
+      "seat_h": 0.48
+    },
+    {
+      "id": "litigant",
+      "role": "litigant pleading",
+      "rig": "crowd_townsman_01",
+      "at": [
+        -8.0,
+        0.1
+      ],
+      "facing_deg": 180,
+      "pose": "talk"
+    },
+    {
+      "id": "oath_helper",
+      "role": "oath-helper / witness",
+      "rig": "crowd_townsman_02",
+      "at": [
+        -7.7,
+        -1.3
+      ],
+      "facing_deg": 180,
+      "pose": "stand"
+    },
+    {
+      "id": "petitioner",
+      "role": "petitioner waiting",
+      "rig": "crowd_townswoman_01",
+      "at": [
+        -4.0,
+        -6.15
+      ],
+      "facing_deg": 90,
+      "pose": "sit",
+      "seat_h": 0.48
+    },
+    {
+      "id": "kammerer",
+      "role": "Kämmerer taking a fine",
+      "rig": "crowd_townsman_02",
+      "at": [
+        1.8,
+        3.85
+      ],
+      "facing_deg": 90,
+      "pose": "talk"
+    },
+    {
+      "id": "payer",
+      "role": "burgher paying a fine",
+      "rig": "crowd_townsman_01",
+      "at": [
+        1.4,
+        5.6
+      ],
+      "facing_deg": -90,
+      "pose": "stand",
+      "note": "stands across the table"
+    },
+    {
+      "id": "hall_servant",
+      "role": "Ratsdiener (hall servant, door)",
+      "rig": "watchman",
+      "at": [
+        1.4,
+        -5.5
+      ],
+      "facing_deg": 90,
+      "pose": "stand"
+    }
+  ],
+  "program_1343": {
+    "summary": "Ground floor of the consistorium in the merchant-house pattern (diele, dornse, cellar; dossier: 'first-quarter-14th-century cellar and diele-dornse expansion precede 1343').",
+    "rooms": {
+      "diele": "great hall entered from the market portal: public business, the Vogt's lower court (first instance under Lübeck law) with assessors, litigants and oath-helpers before the barrier, oaths on the lectern, petitioners waiting, the Kämmerer receiving fines at the counting table; cellar hatch to the store below",
+      "dornse": "heated council chamber (hypocaust vents, attested type in Reval dornse): the sitting council with two burgomasters, the town seal and wax on the table, the scribe at the window desk, the town books in the cupboard, privileges and seal in the three-lock chest"
+    },
+    "walls": "lime wash with red-ochre false-ashlar joints, an earthy dado and a painted frieze (chevron in the diele, vine scroll in the dornse), woollen hanging behind the burgomasters, the town's lesser arms (white cross on red) over the Vogt and the burgomasters: plausible composite after 14th-century Hanseatic halls; no Reval hall painting of 1343 survives",
+    "sources": [
+      "history/dossiers/people/town-council-and-officers.md",
+      "history/dossiers/power/law-courts-and-punishment.md",
+      "history/dossiers/culture/writing-and-records-reval-1343.md",
+      "history/dossiers/architecture/burgher-house-plan.md",
+      "history/dossiers/people/reval-council-prosopography-1340-1345.md"
+    ]
+  },
+  "review_views": [
+    {
+      "id": "council",
+      "at": [
+        5.6,
+        -0.2
+      ],
+      "facing_deg": 0
+    },
+    {
+      "id": "court",
+      "at": [
+        -7.2,
+        0.9
+      ],
+      "facing_deg": 180
+    }
   ]
 }

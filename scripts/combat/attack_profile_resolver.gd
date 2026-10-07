@@ -15,9 +15,12 @@ const CLASS_BY_ANIMATION_PREFIX: Dictionary = {
 ## Light step 0 (or the heavy move) of the equipped weapon's move set.
 ## Equipped forge techniques layer onto the resolved profile (P1-024d).
 static func resolve_for_state(
-	state: GameState, content_db: ContentDB, use_charged: bool = false
+	state: GameState,
+	content_db: ContentDB,
+	use_charged: bool = false,
+	build: StringName = CombatMoveCatalog.BUILD_ADULT
 ) -> AttackProfile:
-	return resolve_move(state, content_db, use_charged, 0)
+	return resolve_move(state, content_db, use_charged, 0, build)
 
 
 ## The profile of one move in the equipped weapon's chain (COMBAT_ANIMATION.md):
@@ -25,14 +28,18 @@ static func resolve_for_state(
 ## per-step multipliers. A heavy move starts from the item's charged profile
 ## when it authors one.
 static func resolve_move(
-	state: GameState, content_db: ContentDB, heavy: bool, combo_step: int
+	state: GameState,
+	content_db: ContentDB,
+	heavy: bool,
+	combo_step: int,
+	build: StringName = CombatMoveCatalog.BUILD_ADULT
 ) -> AttackProfile:
 	var item_id := equipped_attack_item_id(state, content_db)
 	var weapon_class := weapon_class_for_item(item_id, content_db)
 	var move := (
-		CombatMoveCatalog.heavy_move(weapon_class)
+		CombatMoveCatalog.heavy_move(weapon_class, build)
 		if heavy
-		else CombatMoveCatalog.light_move(weapon_class, combo_step)
+		else CombatMoveCatalog.light_move(weapon_class, combo_step, build)
 	)
 	var base := _base_profile(item_id, content_db, heavy)
 	var authored_heavy := heavy and item_has_charged_attack_profile(item_id, content_db)
@@ -52,6 +59,10 @@ static func resolve_move(
 		profile.damage = base.damage * move.damage_mult
 		profile.reach_px = base.reach_px * move.reach_mult
 		profile.stamina_cost = base.stamina_cost * move.stamina_mult
+	# Body build scales the finished numbers, also an authored charged profile (SD-11).
+	profile.damage *= CombatMoveCatalog.build_factor(build, "damage")
+	profile.reach_px *= CombatMoveCatalog.build_factor(build, "reach")
+	profile.stamina_cost *= CombatMoveCatalog.build_factor(build, "stamina")
 	if not is_nan(move.facing_dot):
 		profile.facing_dot = move.facing_dot
 	profile.pierces_guard = profile.pierces_guard or move.pierces_guard

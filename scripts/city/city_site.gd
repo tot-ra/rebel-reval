@@ -21,6 +21,7 @@ var rooms: Array[Dictionary] = []  # {id, name, polygon, floor, hide}
 var walls: Array[Dictionary] = []  # {a, b, thickness}
 var solids: Array[PackedVector2Array] = []
 var doors: Array[Dictionary] = []  # {id, a, b, inward, floor, height, style, paint}
+var people: Array[Dictionary] = []  # {id, role, rig, at, facing, pose}
 
 
 static func from_manifest(manifest: Dictionary, plan_record: Dictionary) -> CitySite:
@@ -124,6 +125,19 @@ func _build_walk() -> void:
 				}
 			)
 		)
+	# Walls described as model fabric give their own walk walls (door and arch
+	# openings at floor level left open), so model and collision agree.
+	for w: Dictionary in CitySiteKit.walk_walls(data.get("fabric", [])):
+		(
+			walls
+			. append(
+				{
+					"a": to_world(w["a"]),
+					"b": to_world(w["b"]),
+					"thickness": float(w["thickness"]),
+				}
+			)
+		)
 	for poly: Array in walk.get("solid", []):
 		solids.append(world_polygon(poly))
 	for d: Dictionary in data.get("dressing", []):
@@ -139,6 +153,22 @@ func _build_walk() -> void:
 					"polygon": world_polygon(r["polygon"]),
 					"floor": StringName(r.get("floor", "")),
 					"hide": r.get("hide", []),
+				}
+			)
+		)
+	for person: Dictionary in data.get("people", []):
+		var facing := Vector2.from_angle(deg_to_rad(float(person.get("facing_deg", 0.0))))
+		(
+			people
+			. append(
+				{
+					"id": StringName(person["id"]),
+					"role": String(person.get("role", "")),
+					"rig": String(person.get("rig", "crowd_townsman_01")),
+					"at": to_world(Vector2(person["at"][0], person["at"][1])),
+					"facing": facing.rotated(rotation),
+					"pose": StringName(person.get("pose", "stand")),
+					"seat_h": float(person.get("seat_h", 0.48)),
 				}
 			)
 		)
@@ -161,6 +191,7 @@ func _build_walk() -> void:
 						if d.has("paint")
 						else Color(0.5, 0.38, 0.26)
 					),
+					"inner": bool(d.get("inner", false)),
 				}
 			)
 		)

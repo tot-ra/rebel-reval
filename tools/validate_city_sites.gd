@@ -15,7 +15,8 @@ extends SceneTree
 ##   WALL_TOLERANCE in plan extent (AABB comparison of the "Walls" mesh).
 
 const WALL_TOLERANCE := 0.25
-const PROBE := 1.0
+## Door probe distance: past the thickest wall (church towers ~1.3 m).
+const PROBE := 1.6
 
 var _errors: Array[String] = []
 
@@ -91,19 +92,78 @@ func _check_site(site: CitySite, plan: CityPlan, ids: Dictionary) -> void:
 			)
 			if hit != null:
 				_errors.append("%s: a wall crosses door %s" % [label, d["id"]])
+	# People stand on a floor; standing people must not be inside a solid.
+	for person: Dictionary in site.people:
+		var at: Vector2 = person["at"]
+		if site.floor_at(at).is_empty():
+			_errors.append("%s: %s is not on a floor" % [label, person["id"]])
+		if person["pose"] != &"sit":
+			for poly in blockers:
+				if Geometry2D.is_point_in_polygon(at, poly):
+					_errors.append("%s: %s stands inside a solid" % [label, person["id"]])
+		if not ResourceLoader.exists(CitySiteActor.VARIANTS_DIR % person["rig"]):
+			_errors.append("%s: %s has no rig %s" % [label, person["id"], person["rig"]])
 	for r: Dictionary in site.data.get("walk", {}).get("ramps", []):
 		reached[StringName(r.get("to_floor", ""))] = true
 	for f: Dictionary in site.floors:
 		if not reached.has(f["id"]):
 			_errors.append("%s: floor %s is unreachable" % [label, f["id"]])
+	_check_rooms(site, label)
 	_check_visual(site, plan, label)
+
+
+## Every room is reachable from the street: rooms are linked through doors
+## and through fabric openings at floor level (arches, inner doors).
+func _check_rooms(site: CitySite, label: String) -> void:
+	var links: Dictionary = {}  # room id -> {room id: true}
+	var room_at := func(p: Vector2) -> StringName:
+		var r := site.room_at(p)
+		return r["id"] if not r.is_empty() else &"outside"
+	var link := func(a: StringName, b: StringName) -> void:
+		if a == b:
+			return
+		if not links.has(a):
+			links[a] = {}
+		if not links.has(b):
+			links[b] = {}
+		links[a][b] = true
+		links[b][a] = true
+	for d: Dictionary in site.doors:
+		var mid: Vector2 = (d["a"] + d["b"]) * 0.5
+		link.call(room_at.call(mid - d["inward"] * PROBE), room_at.call(mid + d["inward"] * PROBE))
+	for w: Dictionary in site.data.get("fabric", []):
+		var a := site.to_world(CitySiteKit._v2(w["a"]))
+		var b := site.to_world(CitySiteKit._v2(w["b"]))
+		var dir := (b - a).normalized()
+		var n := Vector2(-dir.y, dir.x)
+		var reach := float(w["thick"]) + 0.8
+		for op: Dictionary in w.get("openings", []):
+			if not String(op.get("kind", "")) in ["arch", "door"]:
+				continue
+			var mid := a + dir * float(op["s"])
+			link.call(room_at.call(mid + n * reach), room_at.call(mid - n * reach))
+	var seen := {&"outside": true}
+	var queue: Array = [&"outside"]
+	while not queue.is_empty():
+		var at: StringName = queue.pop_back()
+		for nxt: StringName in links.get(at, {}):
+			if not seen.has(nxt):
+				seen[nxt] = true
+				queue.append(nxt)
+	for r: Dictionary in site.rooms:
+		if not seen.has(r["id"]):
+			_errors.append("%s: room %s cannot be reached from the street" % [label, r["id"]])
 
 
 func _check_visual(site: CitySite, plan: CityPlan, label: String) -> void:
 	var visual: Dictionary = site.data.get("visual", {})
 	var node: Node3D
 	if String(visual.get("kind", "")) == "builder":
-		node = (load(String(visual["script"])) as Script).call("build", site, plan)
+		var script := load(String(visual["script"])) as Script
+		if script == null or not script.can_instantiate():
+			_errors.append("%s: builder script does not compile" % label)
+			return
+		node = script.call("build", site, plan)
 	elif String(visual.get("kind", "")) == "scene":
 		node = (load(String(visual["path"])) as PackedScene).instantiate()
 	if node == null:

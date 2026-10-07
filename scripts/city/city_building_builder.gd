@@ -30,6 +30,10 @@ const WINDOW_SPACING := 3.4
 const MAX_ROOF_RISE := 10.5
 ## Share of town houses with a chimney stack, and its plan size in metres.
 const CHIMNEY_SHARE := 0.8
+## Interior cutaway: walls of an enterable building are cut this far above
+## the floor while Kalev is inside (about head height), so the top-down and
+## first-person cameras see the room instead of tall walls and gables.
+const CUT_HEIGHT := 2.2
 const CHIMNEY_SIZE := 0.75
 const CHUNK := 64.0
 const STONE_WALL := 0.62
@@ -49,6 +53,8 @@ const ROOF_COLORS := {
 
 const WALL_SHADER := preload("res://scripts/city/city_weathered_wall.gdshader")
 const ROOF_SHADER := preload("res://scripts/city/city_weathered_roof.gdshader")
+const TILE_ROOF_SHADER := preload("res://scripts/city/city_tile_roof.gdshader")
+const LIMEWASH_SHADER := preload("res://scripts/city/city_limewash.gdshader")
 ## The district material plates are sized for 0.87 m units; the city uses 1 m.
 const UV_RESCALE := 1.0 / 0.87
 
@@ -116,6 +122,14 @@ static func wall_material(family: StringName) -> Material:
 
 static func roof_material(family: StringName) -> Material:
 	var key := "roof:%s" % family
+	if family == &"tile" and not _materials.has(key):
+		# Procedural monk-and-nun tiles from the roof UVs (metres).
+		var tiles := ShaderMaterial.new()
+		tiles.shader = TILE_ROOF_SHADER
+		tiles.set_shader_parameter("ground_height", _ground_texture)
+		tiles.set_shader_parameter("ground_rect", _ground_rect)
+		tiles.set_shader_parameter("moss", 0.3)
+		_materials[key] = tiles
 	if not _materials.has(key):
 		var plate := MapViewMaterials.roof_surface(family, Color.WHITE)
 		var moss := {&"shingle": 0.5, &"tile": 0.3, &"thatch": 0.2}.get(family, 0.5) as float
@@ -125,12 +139,11 @@ static func roof_material(family: StringName) -> Material:
 
 static func interior_material() -> Material:
 	if not _materials.has("interior"):
-		var mat := (
-			MapViewMaterials.wall_surface_triplanar(&"plaster", Color(0.84, 0.80, 0.72)).duplicate()
-			as StandardMaterial3D
-		)
-		mat.vertex_color_use_as_albedo = true
-		mat.cull_mode = BaseMaterial3D.CULL_BACK
+		# Lime wash, darkened for indoors (see city_limewash.gdshader); the
+		# grime band is measured from each wall's own ground, so it is off here.
+		var mat := ShaderMaterial.new()
+		mat.shader = LIMEWASH_SHADER
+		mat.set_shader_parameter("floor_y", -1000.0)
 		_materials["interior"] = mat
 	return _materials["interior"]
 
@@ -145,10 +158,12 @@ static func floor_material() -> Material:
 			)
 			else null
 		)
-		mat.albedo_color = Color(0.78, 0.66, 0.52)
+		# Boards about 0.2 m wide; darker than outdoors (no ambient occlusion
+		# in the Compatibility renderer, so indoor surfaces are toned down).
+		mat.albedo_color = Color(0.56, 0.47, 0.37)
 		mat.uv1_triplanar = true
 		mat.uv1_world_triplanar = true
-		mat.uv1_scale = Vector3(0.35, 0.35, 0.35)
+		mat.uv1_scale = Vector3(0.95, 0.95, 0.95)
 		mat.roughness = 0.85
 		mat.vertex_color_use_as_albedo = true
 		_materials["floor"] = mat
@@ -272,6 +287,54 @@ class Shell:
 		# when a->b runs left-to-right as seen from outside.
 		tri(key, a, d, c, color)
 		tri(key, a, c, b, color)
+
+	## Splits the shell at height `y`: [below, above]. Triangles crossing the
+	## plane are clipped, so walls cut cleanly for the interior cutaway.
+	func split_at(y: float) -> Array[Shell]:
+		var below := Shell.new()
+		var above := Shell.new()
+		for key: String in surfaces:
+			var src: Surf = surfaces[key]
+			var lo := below.surface(key)
+			var hi := above.surface(key)
+			for t in range(0, src.verts.size(), 3):
+				var v := [src.verts[t], src.verts[t + 1], src.verts[t + 2]]
+				var uv := [src.uvs[t], src.uvs[t + 1], src.uvs[t + 2]]
+				var c: Color = src.colors[t]
+				var n: Vector3 = src.normals[t]
+				var count := 0
+				for k in 3:
+					if (v[k] as Vector3).y <= y:
+						count += 1
+				if count == 3:
+					lo.add(v[0], v[1], v[2], n, c, uv[0], uv[1], uv[2])
+				elif count == 0:
+					hi.add(v[0], v[1], v[2], n, c, uv[0], uv[1], uv[2])
+				else:
+					_clip_into(lo, v, uv, n, c, y, true)
+					_clip_into(hi, v, uv, n, c, y, false)
+		return [below, above]
+
+	## Keeps the part of triangle v on one side of the plane (fan-triangulated).
+	static func _clip_into(
+		out: Surf, v: Array, uv: Array, n: Vector3, c: Color, y: float, keep_below: bool
+	) -> void:
+		var poly: Array[Vector3] = []
+		var puv: Array[Vector2] = []
+		for k in 3:
+			var a: Vector3 = v[k]
+			var b: Vector3 = v[(k + 1) % 3]
+			var a_in := a.y <= y if keep_below else a.y > y
+			var b_in := b.y <= y if keep_below else b.y > y
+			if a_in:
+				poly.append(a)
+				puv.append(uv[k])
+			if a_in != b_in:
+				var t := (y - a.y) / (b.y - a.y)
+				poly.append(a.lerp(b, t))
+				puv.append((uv[k] as Vector2).lerp(uv[(k + 1) % 3], t))
+		for k in range(1, poly.size() - 1):
+			out.add(poly[0], poly[k], poly[k + 1], n, c, puv[0], puv[k], puv[k + 1])
 
 	func merge(other: Shell, offset := Vector3.ZERO) -> void:
 		for key: String in other.surfaces:
@@ -491,11 +554,57 @@ static func build_building(
 		# The ceiling belongs with the roof: both lift while Kalev is inside, so
 		# top-down and first-person views look into the room, not at boards.
 		_interior(shell, ring, thick, floor_y, eave, frame, door_edge, door_t, roof)
+		# Cutaway: everything above head height goes with the roof node, and
+		# the cut wall tops get a stone section cap, so the room reads from above.
+		var parts := shell.split_at(floor_y + CUT_HEIGHT)
+		shell = parts[0]
+		roof.merge(parts[1])
+		wall_top_cap(shell, ring, thick, floor_y + CUT_HEIGHT, door_edge, door_t)
 	else:
 		# Flat cap under the roof so a raised camera never sees into a hollow house.
 		var inner := ring
 		_cap(shell, wall_key, inner, eave - 0.02, tint)
 	return {"shell": shell, "roof": roof, "frame": frame, "chimney": chimney}
+
+
+## Section cap on walls cut at `y` for the interior cutaway: one quad per
+## ring edge from the outer face `thick` inward, leaving the door gap open.
+static func wall_top_cap(
+	shell: Shell, ring: PackedVector2Array, thick: float, y: float, door_edge: int, door_t: float
+) -> void:
+	var center := Vector2.ZERO
+	for p in ring:
+		center += p
+	center /= ring.size()
+	var section := Color(0.62, 0.58, 0.52)
+	for i in ring.size():
+		var a := ring[i]
+		var c := ring[(i + 1) % ring.size()]
+		var length := a.distance_to(c)
+		if length < 0.01:
+			continue
+		var dir := (c - a) / length
+		var n := Vector2(-dir.y, dir.x)
+		if n.dot(center - (a + c) * 0.5) < 0.0:
+			n = -n
+		var spans: Array[Vector2] = [Vector2(0.0, 1.0)]
+		if i == door_edge:
+			var half_gap := minf(DOOR_WIDTH * 0.5, length * 0.35) / maxf(length, 0.01)
+			spans = [Vector2(0.0, door_t - half_gap), Vector2(door_t + half_gap, 1.0)]
+		for sp in spans:
+			var p0 := a.lerp(c, sp.x)
+			var p1 := a.lerp(c, sp.y)
+			var q0 := p0 + n * thick
+			var q1 := p1 + n * thick
+			shell.quad_out(
+				"stone",
+				Vector3(p0.x, y, p0.y),
+				Vector3(p1.x, y, p1.y),
+				Vector3(q1.x, y, q1.y),
+				Vector3(q0.x, y, q0.y),
+				section,
+				Vector3.UP
+			)
 
 
 ## Stone chimney stack through the roof slope near the ridge; returns its top.

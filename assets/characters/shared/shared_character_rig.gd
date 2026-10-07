@@ -412,7 +412,7 @@ func sync_action_presentation(
 	if animation == null:
 		return
 	var source_time := action_source_time(
-		canonical_name, action_elapsed_sec, animation.length, action_duration_sec
+		canonical_name, action_elapsed_sec, animation.length, action_duration_sec, combat_build()
 	)
 	if source_time < 0.0:
 		return
@@ -428,9 +428,10 @@ static func action_source_time(
 	canonical_name: StringName,
 	action_elapsed_sec: float,
 	source_length_sec: float,
-	action_duration_sec: float = 0.0
+	action_duration_sec: float = 0.0,
+	build: StringName = CombatMoveCatalog.BUILD_ADULT
 ) -> float:
-	var move := CombatMoveCatalog.presentation_move(canonical_name)
+	var move := CombatMoveCatalog.presentation_move(canonical_name, build)
 	if move != null:
 		return move.source_time(action_elapsed_sec, source_length_sec)
 	if canonical_name in CombatMoveCatalog.SCALED_ACTIONS and action_duration_sec > 0.0:
@@ -615,6 +616,11 @@ static func _apply_overlay(root: Node, overlay: Material) -> void:
 		(root as MeshInstance3D).material_overlay = overlay
 	for child: Node in root.get_children():
 		_apply_overlay(child, overlay)
+
+## Body build of this character (ADR 0033): drives the move timing the clips are warped to.
+func combat_build() -> StringName:
+	return CombatMoveCatalog.build_for_character(variant_id())
+
 
 func variant_id() -> StringName:
 	if variant == null:

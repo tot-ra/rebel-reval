@@ -183,38 +183,93 @@ func _shots(plan: CityPlan) -> Array[Dictionary]:
 			)
 		)
 		picked += 1
-	# Landmark sites (ADR 0032): concept-style aerial, straight down, street level.
+	# Landmark sites (ADR 0032): concept-style aerial, straight down, cutaway,
+	# the main door from outside, and the biggest room looking along the axis.
 	for site in plan.sites:
 		var sname := String(site.id).trim_prefix("site.")
-		var sc := site.to_world(Vector2(0.0, -14.0))
-		var front := site.to_world(Vector2(6.0, -40.0))
+		var box := site.bounds()
+		var sc := box.get_center()
 		var sy := site.level
+		var span := maxf(box.size.x, box.size.y)
+		var axis := Vector2.from_angle(site.rotation)
+		var side := Vector2(-axis.y, axis.x)
+		var aerial := sc - axis * span * 0.35 + side * span * 0.55
 		shots.append(
 			{
 				"name": "%s_aerial" % sname,
-				"eye": Vector3(front.x + 14.0, sy + 34.0, front.y - 6.0),
-				"look": Vector3(sc.x, sy + 2.0, sc.y),
+				"eye": Vector3(aerial.x, sy + span * 0.9, aerial.y),
+				"look": Vector3(sc.x, sy + 4.0, sc.y),
 				"fov": 50.0
 			}
 		)
 		shots.append(
 			{
 				"name": "%s_topdown" % sname,
-				"eye": Vector3(sc.x, sy + 70.0, sc.y + 0.5),
+				"eye": Vector3(sc.x, sy + span * 1.6, sc.y + 0.5),
 				"look": Vector3(sc.x, sy, sc.y),
 				"fov": 50.0
 			}
 		)
-		var st := site.to_world(Vector2(-6.0, -26.0))
-		var hl := site.to_world(Vector2(0.0, -7.0))
+		shots.append(
+			{
+				"name": "%s_cutaway" % sname,
+				"eye": Vector3(aerial.x, sy + span * 0.75, aerial.y),
+				"look": Vector3(sc.x, sy + 0.5, sc.y),
+				"fov": 50.0,
+				"cutaway": true
+			}
+		)
+		var d: Dictionary = site.doors[0] if site.doors.size() < 2 else site.doors[1]
+		var door: Vector2 = (d["a"] + d["b"]) * 0.5
+		var outside: Vector2 = (
+			door
+			- (d["inward"] as Vector2) * 14.0
+			+ Vector2(-(d["inward"] as Vector2).y, (d["inward"] as Vector2).x) * 5.0
+		)
 		shots.append(
 			{
 				"name": "%s_street" % sname,
-				"eye": Vector3(st.x, plan.ground_height(st) + 1.7, st.y),
-				"look": Vector3(hl.x, sy + 3.5, hl.y),
-				"fov": 60.0
+				"eye": Vector3(outside.x, plan.ground_height(outside) + 1.7, outside.y),
+				"look": Vector3(door.x, sy + 5.0, door.y),
+				"fov": 62.0
 			}
 		)
+		var biggest: Dictionary = site.rooms[0]
+		for r: Dictionary in site.rooms:
+			var rr := Rect2(r["polygon"][0], Vector2.ZERO)
+			for q: Vector2 in r["polygon"]:
+				rr = rr.expand(q)
+			var br := Rect2(biggest["polygon"][0], Vector2.ZERO)
+			for q: Vector2 in biggest["polygon"]:
+				br = br.expand(q)
+			if rr.get_area() > br.get_area():
+				biggest = r
+		var lo := site.to_local((biggest["polygon"] as PackedVector2Array)[0])
+		var hi := site.to_local((biggest["polygon"] as PackedVector2Array)[2])
+		var inside := site.to_world(Vector2(lo.x + 1.2, (lo.y + hi.y) * 0.5 - 1.5))
+		var toward := site.to_world(Vector2(hi.x + 6.0, (lo.y + hi.y) * 0.5 - 0.5))
+		shots.append(
+			{
+				"name": "%s_interior" % sname,
+				"eye": Vector3(inside.x, sy + 1.75, inside.y),
+				"look": Vector3(toward.x, sy + 2.2, toward.y),
+				"fov": 70.0
+			}
+		)
+	# Generic cutaway: Kalev's smithy with its roof and upper walls lifted.
+	for i in plan.buildings.size():
+		if String(plan.buildings[i].get("landmark_id", "")) == "landmark.kalev_smithy":
+			var corner := CityPlan.points(plan.buildings[i]["footprint"])[0]
+			var fy := plan.floor_height(i)
+			shots.append(
+				{
+					"name": "smithy_cutaway",
+					"eye": Vector3(corner.x + 14.0, fy + 18.0, corner.y + 14.0),
+					"look": Vector3(corner.x - 6.0, fy, corner.y - 6.0),
+					"fov": 55.0,
+					"cutaway_building": i
+				}
+			)
 	# Toompea Kiriku plats: St Mary's west door from the square, and from above.
 	for i in plan.buildings.size():
 		var b: Dictionary = plan.buildings[i]
@@ -279,6 +334,12 @@ func _run() -> void:
 			continue
 		camera.fov = shot["fov"]
 		camera.look_at_from_position(shot["eye"], shot["look"], Vector3.UP)
+		# Cutaway shots lift a site's rooms (roof, upper walls) as if Kalev were inside.
+		for site in plan.sites:
+			for r: Dictionary in site.rooms:
+				world.set_site_room_hidden(site, r, bool(shot.get("cutaway", false)))
+		if shot.has("cutaway_building"):
+			world.set_roof_hidden(int(shot["cutaway_building"]), true)
 		world.apply_time(DAY_PROGRESS)
 		if _wet:
 			CityTerrainBuilder.shared_material().set_shader_parameter("puddles", 1.0)

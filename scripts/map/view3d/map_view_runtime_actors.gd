@@ -105,14 +105,17 @@ func sync_view_actors(delta: float) -> void:
 		return
 	if _host != null:
 		register_view_actors(_host.get_parent())
-	for actor: Node2D in _actor_rigs.keys():
-		if not is_instance_valid(actor):
-			var stale_rig: SharedCharacterRig = _actor_rigs[actor]
+	# Untyped key: a typed loop variable errors on actors freed since the last
+	# frame (e.g. people streamed out of a city site).
+	for key: Variant in _actor_rigs.keys():
+		if not is_instance_valid(key):
+			var stale_rig: Variant = _actor_rigs[key]
 			if is_instance_valid(stale_rig):
-				stale_rig.queue_free()
-			_actor_rigs.erase(actor)
-			_actors_without_rig.erase(actor)
+				(stale_rig as Node).queue_free()
+			_actor_rigs.erase(key)
+			_actors_without_rig.erase(key)
 			continue
+		var actor := key as Node2D
 		if _sample_owning_ground and not _actor_in_current_map(actor):
 			continue
 		_sync_view_actor(actor, _actor_rigs[actor] as SharedCharacterRig, false, delta)
@@ -238,6 +241,9 @@ func _sync_view_actor(actor: Node2D, rig: SharedCharacterRig, snap: bool, delta:
 	_view.sync_actor(rig, actor.global_position)
 	if _sample_owning_ground:
 		_apply_owning_ground_height(rig)
+	# Actors whose pose sits on furniture (CitySiteActor) lift or lower the rig.
+	if actor.has_method(&"view_height_offset"):
+		rig.position.y += float(actor.call(&"view_height_offset"))
 	_sync_actor_health_ring(rig, actor)
 	var facing := Vector2.DOWN
 	if actor.has_method("view_facing"):

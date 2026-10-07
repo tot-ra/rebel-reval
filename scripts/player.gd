@@ -43,6 +43,8 @@ var stamina: float = 100.0
 var max_stamina: float = 100.0
 var action_state_machine := PlayerActionStateMachine.new()
 var combat_vitals := CombatVitals.new()
+## Body build of the hero (ADR 0033): the apprentice is a teen; scales move timing, damage, reach and stamina.
+var combat_build: StringName = CombatMoveCatalog.BUILD_TEEN
 var self_talk := SelfTalk.new()
 
 var _screen_right_in_logic := Vector2.RIGHT
@@ -803,13 +805,13 @@ func _on_action_state_changed(
 
 func _resolve_attack_profile(use_charged: bool = false) -> AttackProfile:
 	return AttackProfileResolverScript.resolve_for_state(
-		SessionState.state, SessionState.content_db, use_charged
+		SessionState.state, SessionState.content_db, use_charged, combat_build
 	)
 
 
 func _resolve_move_profile(heavy: bool, combo_step: int) -> AttackProfile:
 	return AttackProfileResolverScript.resolve_move(
-		SessionState.state, SessionState.content_db, heavy, combo_step
+		SessionState.state, SessionState.content_db, heavy, combo_step, combat_build
 	)
 
 

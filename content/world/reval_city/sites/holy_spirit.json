@@ -1,0 +1,1449 @@
+{
+  "id": "site.holy_spirit",
+  "name": "Holy Spirit church and almshouse",
+  "name_1343": "Heiliggeist: parish church and almshouse (Pühavaimu)",
+  "confidence": "attested institution (priest 1316/1319, almshouse 1334); 1343 fabric after the dossier: two-aisle hall, timber ceiling, vaults 1360",
+  "sources": [
+    "history/dossiers/religion/churches-and-religious-houses.md",
+    "history/dossiers/topography/raekoja-plats-extents-1343.md"
+  ],
+  "period_notes": [
+    "Two-aisle hall church with a flat timber ceiling: the star vaults and the tower are 1360, the baroque spire and the outside clock 17th century.",
+    "Square choir on the north nave's axis; the almshouse (documented 1334) opens into the church so the sick follow the mass (layout plausible composite; bed count unknown).",
+    "Stained glass: no Reval glass of 1343 survives; leaded pot-metal medallions and grisaille after 13th-14th-century Gotland parish churches, the cited model for Reval churches (plausible composite).",
+    "Interior: lime wash with red-ochre false ashlar, frieze and consecration crosses; rood beam with crucifix; stone mensa high altar with a painted retable; font in the north nave; ledger slabs in the floor; congregation standing (no pews before the Reformation), wall benches for the weak."
+  ],
+  "presentation": [
+    {
+      "date": "2026-10-07",
+      "by": "maintainer",
+      "what": "west tower (1360) with a shingled helm",
+      "reason": "recognisable silhouette for the market-edge parish; the baroque spire and clock stay out"
+    }
+  ],
+  "replaces": [
+    "bldg.osm.w28131871",
+    "bldg.osm.w26875416"
+  ],
+  "anchor": {
+    "at": [
+      10.435,
+      -86.445
+    ],
+    "rotation_deg": -25.886
+  },
+  "terrace": {
+    "polygon": [
+      [
+        -0.6,
+        -8.6
+      ],
+      [
+        40.2,
+        -8.6
+      ],
+      [
+        40.2,
+        8.6
+      ],
+      [
+        -0.6,
+        8.6
+      ]
+    ],
+    "level": {
+      "door": "door.holy_spirit.south",
+      "outside_m": 2.0
+    },
+    "blend_m": 5.0
+  },
+  "reserve": [],
+  "visual": {
+    "kind": "builder",
+    "script": "res://scripts/city/sites/holy_spirit_builder.gd"
+  },
+  "buildings": [
+    {
+      "id": "site.holy_spirit.church",
+      "name": "Holy Spirit",
+      "footprint": [
+        [
+          0,
+          -8
+        ],
+        [
+          39.6,
+          -8
+        ],
+        [
+          39.6,
+          8
+        ],
+        [
+          0,
+          8
+        ]
+      ],
+      "wall_h": 9.5,
+      "roof": "tile",
+      "minimap_fill": "#8f4733"
+    },
+    {
+      "id": "site.holy_spirit.almshouse",
+      "name": "Holy Spirit almshouse",
+      "footprint": [
+        [
+          30.6,
+          1.0
+        ],
+        [
+          38.0,
+          1.0
+        ],
+        [
+          38.0,
+          8.0
+        ],
+        [
+          30.6,
+          8.0
+        ]
+      ],
+      "wall_h": 4.5,
+      "roof": "tile",
+      "minimap_fill": "#9a5a43"
+    }
+  ],
+  "fabric": [
+    {
+      "id": "tower.west",
+      "a": [
+        0,
+        -3.3
+      ],
+      "b": [
+        0,
+        3.3
+      ],
+      "inside": [
+        3.3,
+        0
+      ],
+      "thick": 1.3,
+      "y1": 21.0,
+      "openings": [
+        {
+          "kind": "door",
+          "s": 3.3,
+          "w": 1.6,
+          "sill": 0.12,
+          "spring": 2.7,
+          "apex": 3.7
+        },
+        {
+          "kind": "window",
+          "s": 3.3,
+          "w": 0.35,
+          "sill": 7.5,
+          "spring": 9.0,
+          "apex": 9.35,
+          "splay": 0.25
+        },
+        {
+          "kind": "window",
+          "s": 3.3,
+          "w": 0.35,
+          "sill": 12.0,
+          "spring": 13.5,
+          "apex": 13.85,
+          "splay": 0.25
+        },
+        {
+          "kind": "louvre",
+          "s": 2.3,
+          "w": 0.85,
+          "sill": 15.6,
+          "spring": 18.0,
+          "apex": 18.9
+        },
+        {
+          "kind": "louvre",
+          "s": 4.3,
+          "w": 0.85,
+          "sill": 15.6,
+          "spring": 18.0,
+          "apex": 18.9
+        }
+      ],
+      "floor": 0.12
+    },
+    {
+      "id": "tower.north",
+      "a": [
+        0,
+        -3.3
+      ],
+      "b": [
+        6.6,
+        -3.3
+      ],
+      "inside": [
+        3.3,
+        0
+      ],
+      "thick": 1.3,
+      "y1": 21.0,
+      "inner_to": 0.0,
+      "openings": [
+        {
+          "kind": "window",
+          "s": 3.3,
+          "w": 0.35,
+          "sill": 10.0,
+          "spring": 11.5,
+          "apex": 11.85,
+          "splay": 0.25
+        },
+        {
+          "kind": "louvre",
+          "s": 2.3,
+          "w": 0.85,
+          "sill": 15.6,
+          "spring": 18.0,
+          "apex": 18.9
+        },
+        {
+          "kind": "louvre",
+          "s": 4.3,
+          "w": 0.85,
+          "sill": 15.6,
+          "spring": 18.0,
+          "apex": 18.9
+        }
+      ],
+      "floor": 0.12
+    },
+    {
+      "id": "tower.south",
+      "a": [
+        6.6,
+        3.3
+      ],
+      "b": [
+        0,
+        3.3
+      ],
+      "inside": [
+        3.3,
+        0
+      ],
+      "thick": 1.3,
+      "y1": 21.0,
+      "inner_from": 0.0,
+      "openings": [
+        {
+          "kind": "window",
+          "s": 3.3,
+          "w": 0.35,
+          "sill": 10.0,
+          "spring": 11.5,
+          "apex": 11.85,
+          "splay": 0.25
+        },
+        {
+          "kind": "louvre",
+          "s": 2.3,
+          "w": 0.85,
+          "sill": 15.6,
+          "spring": 18.0,
+          "apex": 18.9
+        },
+        {
+          "kind": "louvre",
+          "s": 4.3,
+          "w": 0.85,
+          "sill": 15.6,
+          "spring": 18.0,
+          "apex": 18.9
+        }
+      ],
+      "floor": 0.12
+    },
+    {
+      "id": "tower.east_upper",
+      "a": [
+        6.6,
+        3.3
+      ],
+      "b": [
+        6.6,
+        -3.3
+      ],
+      "inside": [
+        3.3,
+        0
+      ],
+      "thick": 1.3,
+      "y0": 20.2,
+      "y1": 21.0,
+      "collide": false,
+      "openings": [],
+      "floor": 0.12
+    },
+    {
+      "id": "nave.north",
+      "a": [
+        6.6,
+        -8.0
+      ],
+      "b": [
+        30.6,
+        -8.0
+      ],
+      "inside": [
+        18,
+        0
+      ],
+      "thick": 1.2,
+      "y1": 9.5,
+      "openings": [
+        {
+          "kind": "window",
+          "s": 3.2,
+          "w": 1.4,
+          "sill": 3.6,
+          "spring": 7.4,
+          "apex": 8.6,
+          "glass": true,
+          "seed": 1
+        },
+        {
+          "kind": "window",
+          "s": 9.0,
+          "w": 1.4,
+          "sill": 3.6,
+          "spring": 7.4,
+          "apex": 8.6,
+          "glass": true,
+          "seed": 2
+        },
+        {
+          "kind": "window",
+          "s": 15.0,
+          "w": 1.4,
+          "sill": 3.6,
+          "spring": 7.4,
+          "apex": 8.6,
+          "glass": true,
+          "seed": 3
+        },
+        {
+          "kind": "window",
+          "s": 20.8,
+          "w": 1.4,
+          "sill": 3.6,
+          "spring": 7.4,
+          "apex": 8.6,
+          "glass": true,
+          "seed": 4
+        }
+      ],
+      "floor": 0.12
+    },
+    {
+      "id": "nave.south",
+      "a": [
+        30.6,
+        8.0
+      ],
+      "b": [
+        6.6,
+        8.0
+      ],
+      "inside": [
+        18,
+        0
+      ],
+      "thick": 1.2,
+      "y1": 9.5,
+      "openings": [
+        {
+          "kind": "window",
+          "s": 2.8,
+          "w": 1.4,
+          "sill": 3.6,
+          "spring": 7.4,
+          "apex": 8.6,
+          "glass": true,
+          "seed": 5
+        },
+        {
+          "kind": "window",
+          "s": 6.0,
+          "w": 1.4,
+          "sill": 3.6,
+          "spring": 7.4,
+          "apex": 8.6,
+          "glass": true,
+          "seed": 6
+        },
+        {
+          "kind": "window",
+          "s": 12.0,
+          "w": 1.4,
+          "sill": 3.6,
+          "spring": 7.4,
+          "apex": 8.6,
+          "glass": true,
+          "seed": 7
+        },
+        {
+          "kind": "door",
+          "s": 18.0,
+          "w": 1.6,
+          "sill": 0.12,
+          "spring": 2.7,
+          "apex": 3.6
+        },
+        {
+          "kind": "window",
+          "s": 21.2,
+          "w": 1.4,
+          "sill": 3.6,
+          "spring": 7.4,
+          "apex": 8.6,
+          "glass": true,
+          "seed": 8
+        }
+      ],
+      "floor": 0.12
+    },
+    {
+      "id": "nave.west",
+      "a": [
+        6.6,
+        8.0
+      ],
+      "b": [
+        6.6,
+        -8.0
+      ],
+      "inside": [
+        18,
+        0
+      ],
+      "thick": 1.2,
+      "y1": 9.5,
+      "openings": [
+        {
+          "kind": "arch",
+          "s": 8.0,
+          "w": 2.4,
+          "sill": 0.12,
+          "spring": 3.4,
+          "apex": 4.8
+        }
+      ],
+      "floor": 0.12
+    },
+    {
+      "id": "nave.east",
+      "a": [
+        30.6,
+        -8.0
+      ],
+      "b": [
+        30.6,
+        8.0
+      ],
+      "inside": [
+        18,
+        0
+      ],
+      "thick": 1.2,
+      "y1": 9.5,
+      "openings": [
+        {
+          "kind": "arch",
+          "s": 4.5,
+          "w": 4.6,
+          "sill": 0.12,
+          "spring": 5.0,
+          "apex": 7.6,
+          "note": "choir (triumphal) arch"
+        },
+        {
+          "kind": "arch",
+          "s": 12.6,
+          "w": 2.0,
+          "sill": 0.12,
+          "spring": 2.8,
+          "apex": 3.8,
+          "note": "almshouse arch: the sick follow the mass"
+        }
+      ],
+      "floor": 0.12
+    },
+    {
+      "id": "choir.north",
+      "a": [
+        30.6,
+        -8.0
+      ],
+      "b": [
+        39.6,
+        -8.0
+      ],
+      "inside": [
+        35,
+        -3.5
+      ],
+      "thick": 1.1,
+      "y1": 8.0,
+      "floor": 0.37,
+      "inner_from": 0.0,
+      "openings": [
+        {
+          "kind": "window",
+          "s": 2.8,
+          "w": 1.2,
+          "sill": 3.0,
+          "spring": 6.2,
+          "apex": 7.2,
+          "glass": true,
+          "seed": 11
+        },
+        {
+          "kind": "window",
+          "s": 6.4,
+          "w": 1.2,
+          "sill": 3.0,
+          "spring": 6.2,
+          "apex": 7.2,
+          "glass": true,
+          "seed": 12
+        }
+      ]
+    },
+    {
+      "id": "choir.east",
+      "a": [
+        39.6,
+        -8.0
+      ],
+      "b": [
+        39.6,
+        1.0
+      ],
+      "inside": [
+        35,
+        -3.5
+      ],
+      "thick": 1.1,
+      "y1": 8.0,
+      "floor": 0.37,
+      "openings": [
+        {
+          "kind": "window",
+          "s": 3.0,
+          "w": 0.8,
+          "sill": 3.0,
+          "spring": 5.4,
+          "apex": 6.2,
+          "glass": true,
+          "seed": 13
+        },
+        {
+          "kind": "window",
+          "s": 4.5,
+          "w": 1.2,
+          "sill": 2.4,
+          "spring": 6.0,
+          "apex": 7.1,
+          "glass": true,
+          "seed": 14
+        },
+        {
+          "kind": "window",
+          "s": 6.0,
+          "w": 0.8,
+          "sill": 3.0,
+          "spring": 5.4,
+          "apex": 6.2,
+          "glass": true,
+          "seed": 15
+        }
+      ]
+    },
+    {
+      "id": "choir.south",
+      "a": [
+        39.6,
+        1.0
+      ],
+      "b": [
+        30.6,
+        1.0
+      ],
+      "inside": [
+        35,
+        -3.5
+      ],
+      "thick": 1.1,
+      "y1": 8.0,
+      "floor": 0.37,
+      "outer": "limewash",
+      "inner_to": 0.0,
+      "openings": [
+        {
+          "kind": "window",
+          "s": 4.2,
+          "w": 0.9,
+          "sill": 1.3,
+          "spring": 2.1,
+          "apex": 2.6,
+          "splay": 0.0,
+          "note": "squint from the almshouse to the high altar"
+        }
+      ]
+    },
+    {
+      "id": "almshouse.east",
+      "a": [
+        38.0,
+        1.0
+      ],
+      "b": [
+        38.0,
+        8.0
+      ],
+      "inside": [
+        34,
+        4.5
+      ],
+      "thick": 0.8,
+      "y1": 4.5,
+      "inner": "limewash",
+      "inner_from": 0.0,
+      "openings": [
+        {
+          "kind": "door",
+          "s": 3.6,
+          "w": 1.5,
+          "sill": 0.12,
+          "spring": 2.4
+        }
+      ],
+      "floor": 0.12
+    },
+    {
+      "id": "almshouse.south",
+      "a": [
+        38.0,
+        8.0
+      ],
+      "b": [
+        30.6,
+        8.0
+      ],
+      "inside": [
+        34,
+        4.5
+      ],
+      "thick": 0.8,
+      "y1": 4.5,
+      "inner": "limewash",
+      "inner_to": 0.0,
+      "openings": [
+        {
+          "kind": "window",
+          "s": 2.2,
+          "w": 0.8,
+          "sill": 1.4,
+          "spring": 2.4,
+          "splay": 0.2
+        },
+        {
+          "kind": "window",
+          "s": 5.2,
+          "w": 0.8,
+          "sill": 1.4,
+          "spring": 2.4,
+          "splay": 0.2
+        }
+      ],
+      "floor": 0.12
+    }
+  ],
+  "walk": {
+    "walls": [],
+    "floors": [
+      {
+        "id": "floor.choir",
+        "polygon": [
+          [
+            30.6,
+            -6.9
+          ],
+          [
+            38.5,
+            -6.9
+          ],
+          [
+            38.5,
+            -0.1
+          ],
+          [
+            30.6,
+            -0.1
+          ]
+        ],
+        "height": 0.37
+      },
+      {
+        "id": "floor.tower",
+        "polygon": [
+          [
+            1.3,
+            -2.0
+          ],
+          [
+            6.6,
+            -2.0
+          ],
+          [
+            6.6,
+            2.0
+          ],
+          [
+            1.3,
+            2.0
+          ]
+        ],
+        "height": 0.12
+      },
+      {
+        "id": "floor.nave",
+        "polygon": [
+          [
+            7.8,
+            -6.8
+          ],
+          [
+            29.4,
+            -6.8
+          ],
+          [
+            29.4,
+            6.8
+          ],
+          [
+            7.8,
+            6.8
+          ]
+        ],
+        "height": 0.12
+      },
+      {
+        "id": "floor.almshouse",
+        "polygon": [
+          [
+            30.6,
+            1.0
+          ],
+          [
+            37.2,
+            1.0
+          ],
+          [
+            37.2,
+            7.2
+          ],
+          [
+            30.6,
+            7.2
+          ]
+        ],
+        "height": 0.12
+      }
+    ],
+    "ramps": [
+      {
+        "id": "steps.choir",
+        "from_floor": "floor.nave",
+        "to_floor": "floor.choir",
+        "polygon": [
+          [
+            29.4,
+            -5.8
+          ],
+          [
+            30.6,
+            -5.8
+          ],
+          [
+            30.6,
+            -1.2
+          ],
+          [
+            29.4,
+            -1.2
+          ]
+        ]
+      }
+    ],
+    "solid": [
+      [
+        [
+          12.1,
+          -0.5
+        ],
+        [
+          13.1,
+          -0.5
+        ],
+        [
+          13.1,
+          0.5
+        ],
+        [
+          12.1,
+          0.5
+        ]
+      ],
+      [
+        [
+          18.1,
+          -0.5
+        ],
+        [
+          19.1,
+          -0.5
+        ],
+        [
+          19.1,
+          0.5
+        ],
+        [
+          18.1,
+          0.5
+        ]
+      ],
+      [
+        [
+          24.1,
+          -0.5
+        ],
+        [
+          25.1,
+          -0.5
+        ],
+        [
+          25.1,
+          0.5
+        ],
+        [
+          24.1,
+          0.5
+        ]
+      ],
+      [
+        [
+          8.95,
+          -5.15
+        ],
+        [
+          10.05,
+          -5.15
+        ],
+        [
+          10.05,
+          -4.05
+        ],
+        [
+          8.95,
+          -4.05
+        ]
+      ],
+      [
+        [
+          37.5,
+          -4.5
+        ],
+        [
+          38.5,
+          -4.5
+        ],
+        [
+          38.5,
+          -2.5
+        ],
+        [
+          37.5,
+          -2.5
+        ]
+      ],
+      [
+        [
+          28.6,
+          0.9
+        ],
+        [
+          29.4,
+          0.9
+        ],
+        [
+          29.4,
+          2.3
+        ],
+        [
+          28.6,
+          2.3
+        ]
+      ],
+      [
+        [
+          28.05,
+          -1.5
+        ],
+        [
+          28.55,
+          -1.5
+        ],
+        [
+          28.55,
+          -0.9
+        ],
+        [
+          28.05,
+          -0.9
+        ]
+      ],
+      [
+        [
+          7.8,
+          -6.8
+        ],
+        [
+          29.4,
+          -6.8
+        ],
+        [
+          29.4,
+          -6.4
+        ],
+        [
+          7.8,
+          -6.4
+        ]
+      ],
+      [
+        [
+          7.8,
+          6.4
+        ],
+        [
+          11.8,
+          6.4
+        ],
+        [
+          11.8,
+          6.8
+        ],
+        [
+          7.8,
+          6.8
+        ]
+      ],
+      [
+        [
+          13.4,
+          6.4
+        ],
+        [
+          29.4,
+          6.4
+        ],
+        [
+          29.4,
+          6.8
+        ],
+        [
+          13.4,
+          6.8
+        ]
+      ],
+      [
+        [
+          30.65,
+          6.225
+        ],
+        [
+          32.65,
+          6.225
+        ],
+        [
+          32.65,
+          7.175
+        ],
+        [
+          30.65,
+          7.175
+        ]
+      ],
+      [
+        [
+          32.75,
+          6.225
+        ],
+        [
+          34.75,
+          6.225
+        ],
+        [
+          34.75,
+          7.175
+        ],
+        [
+          32.75,
+          7.175
+        ]
+      ],
+      [
+        [
+          34.85,
+          6.225
+        ],
+        [
+          36.85,
+          6.225
+        ],
+        [
+          36.85,
+          7.175
+        ],
+        [
+          34.85,
+          7.175
+        ]
+      ],
+      [
+        [
+          31.9,
+          1.025
+        ],
+        [
+          33.9,
+          1.025
+        ],
+        [
+          33.9,
+          1.975
+        ],
+        [
+          31.9,
+          1.975
+        ]
+      ],
+      [
+        [
+          34.1,
+          1.025
+        ],
+        [
+          36.1,
+          1.025
+        ],
+        [
+          36.1,
+          1.975
+        ],
+        [
+          34.1,
+          1.975
+        ]
+      ]
+    ]
+  },
+  "rooms": [
+    {
+      "id": "room.tower",
+      "name": "Holy Spirit (tower porch)",
+      "polygon": [
+        [
+          1.3,
+          -2.0
+        ],
+        [
+          6.6,
+          -2.0
+        ],
+        [
+          6.6,
+          2.0
+        ],
+        [
+          1.3,
+          2.0
+        ]
+      ],
+      "floor": "floor.tower",
+      "hide": [
+        "Church/Upper",
+        "Church/Roof"
+      ]
+    },
+    {
+      "id": "room.nave",
+      "name": "Holy Spirit (nave)",
+      "polygon": [
+        [
+          6.6,
+          -6.8
+        ],
+        [
+          30.6,
+          -6.8
+        ],
+        [
+          30.6,
+          6.8
+        ],
+        [
+          6.6,
+          6.8
+        ]
+      ],
+      "floor": "floor.nave",
+      "hide": [
+        "Church/Upper",
+        "Church/Roof"
+      ]
+    },
+    {
+      "id": "room.choir",
+      "name": "Holy Spirit (choir)",
+      "polygon": [
+        [
+          30.6,
+          -6.9
+        ],
+        [
+          38.5,
+          -6.9
+        ],
+        [
+          38.5,
+          -0.1
+        ],
+        [
+          30.6,
+          -0.1
+        ]
+      ],
+      "floor": "floor.choir",
+      "hide": [
+        "Church/Upper",
+        "Church/Roof"
+      ]
+    },
+    {
+      "id": "room.almshouse",
+      "name": "Holy Spirit almshouse",
+      "polygon": [
+        [
+          30.6,
+          1.0
+        ],
+        [
+          37.2,
+          1.0
+        ],
+        [
+          37.2,
+          7.2
+        ],
+        [
+          30.6,
+          7.2
+        ]
+      ],
+      "floor": "floor.almshouse",
+      "hide": [
+        "Church/Upper",
+        "Church/Roof"
+      ]
+    }
+  ],
+  "doors": [
+    {
+      "id": "door.holy_spirit.west",
+      "a": [
+        0.12,
+        -0.7
+      ],
+      "b": [
+        0.12,
+        0.7
+      ],
+      "inward": [
+        1,
+        0
+      ],
+      "floor": "floor.tower",
+      "height": 2.6,
+      "style": "studded",
+      "paint": [
+        0.3,
+        0.22,
+        0.16
+      ]
+    },
+    {
+      "id": "door.holy_spirit.south",
+      "a": [
+        11.9,
+        7.88
+      ],
+      "b": [
+        13.3,
+        7.88
+      ],
+      "inward": [
+        0,
+        -1
+      ],
+      "floor": "floor.nave",
+      "height": 2.6,
+      "style": "studded",
+      "paint": [
+        0.3,
+        0.22,
+        0.16
+      ]
+    },
+    {
+      "id": "door.holy_spirit.almshouse",
+      "a": [
+        37.88,
+        3.88
+      ],
+      "b": [
+        37.88,
+        5.32
+      ],
+      "inward": [
+        -1,
+        0
+      ],
+      "floor": "floor.almshouse",
+      "height": 2.25,
+      "style": "braced",
+      "paint": [
+        0.44,
+        0.4,
+        0.34
+      ]
+    }
+  ],
+  "dressing": [],
+  "people": [
+    {
+      "id": "priest",
+      "role": "parish priest at the high altar",
+      "rig": "crowd_townsman_02",
+      "at": [
+        37.0,
+        -3.5
+      ],
+      "facing_deg": 0,
+      "pose": "talk"
+    },
+    {
+      "id": "acolyte",
+      "role": "acolyte",
+      "rig": "crowd_townsman_01",
+      "at": [
+        36.2,
+        -1.6
+      ],
+      "facing_deg": 0,
+      "pose": "stand"
+    },
+    {
+      "id": "worshipper.1",
+      "role": "burgher at mass",
+      "rig": "crowd_townsman_01",
+      "at": [
+        21.0,
+        -4.0
+      ],
+      "facing_deg": 0,
+      "pose": "stand"
+    },
+    {
+      "id": "worshipper.2",
+      "role": "burgher's wife at mass",
+      "rig": "crowd_townswoman_01",
+      "at": [
+        22.0,
+        -2.6
+      ],
+      "facing_deg": 0,
+      "pose": "stand"
+    },
+    {
+      "id": "worshipper.3",
+      "role": "journeyman at mass",
+      "rig": "crowd_townsman_02",
+      "at": [
+        19.5,
+        -2.0
+      ],
+      "facing_deg": 0,
+      "pose": "stand"
+    },
+    {
+      "id": "worshipper.4",
+      "role": "servant woman at the side altar",
+      "rig": "crowd_townswoman_02",
+      "at": [
+        26.5,
+        2.2
+      ],
+      "facing_deg": 0,
+      "pose": "stand"
+    },
+    {
+      "id": "old_woman",
+      "role": "old woman on the wall bench",
+      "rig": "townswoman",
+      "at": [
+        15.0,
+        -6.6
+      ],
+      "facing_deg": 90,
+      "pose": "sit",
+      "seat_h": 0.45
+    },
+    {
+      "id": "inmate.1",
+      "role": "almshouse inmate",
+      "rig": "crowd_townsman_01",
+      "at": [
+        31.65,
+        6.45
+      ],
+      "facing_deg": -90,
+      "pose": "sit",
+      "seat_h": 0.58
+    },
+    {
+      "id": "inmate.2",
+      "role": "almshouse inmate",
+      "rig": "crowd_townswoman_02",
+      "at": [
+        33.75,
+        6.45
+      ],
+      "facing_deg": -90,
+      "pose": "sit",
+      "seat_h": 0.58
+    },
+    {
+      "id": "inmate.3",
+      "role": "almshouse inmate",
+      "rig": "crowd_townsman_02",
+      "at": [
+        32.9,
+        1.75
+      ],
+      "facing_deg": 90,
+      "pose": "sit",
+      "seat_h": 0.58
+    },
+    {
+      "id": "infirmarian",
+      "role": "almshouse infirmarian",
+      "rig": "crowd_townswoman_01",
+      "at": [
+        34.6,
+        4.0
+      ],
+      "facing_deg": 180,
+      "pose": "stand"
+    },
+    {
+      "id": "bell_ringer",
+      "role": "sexton in the tower porch",
+      "rig": "crowd_townsman_02",
+      "at": [
+        3.8,
+        1.2
+      ],
+      "facing_deg": 180,
+      "pose": "stand"
+    }
+  ],
+  "anchors": [
+    {
+      "id": "anchor.holy_spirit.high_altar",
+      "at": [
+        36.8,
+        -3.5
+      ]
+    },
+    {
+      "id": "anchor.holy_spirit.font",
+      "at": [
+        10.4,
+        -4.6
+      ]
+    },
+    {
+      "id": "anchor.holy_spirit.almshouse",
+      "at": [
+        33.6,
+        4.0
+      ]
+    },
+    {
+      "id": "anchor.holy_spirit.south_portal",
+      "at": [
+        12.6,
+        9.5
+      ]
+    }
+  ],
+  "program_1343": {
+    "summary": "Market-edge parish church with almshouse: priest and parish (1316/1319), almshouse (1334); council-facing worship plausible composite.",
+    "processes": [
+      "mass at the high altar (ad orientem, congregation standing)",
+      "prayers at the guild side altar",
+      "baptism at the font",
+      "care of the almshouse inmates, who follow the mass through the arch and the squint",
+      "bells rung from the tower porch for the hours and alarm"
+    ]
+  },
+  "replaces_notes": {
+    "bldg.osm.w26875416": "modern plot overlapping the church's north-west corner by ~9 m²"
+  },
+  "review_views": [
+    {
+      "id": "almshouse",
+      "at": [
+        36.4,
+        4.4
+      ],
+      "facing_deg": 180
+    },
+    {
+      "id": "nave",
+      "at": [
+        9.0,
+        2.0
+      ],
+      "facing_deg": 0
+    }
+  ]
+}

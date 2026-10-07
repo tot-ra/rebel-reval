@@ -21,7 +21,7 @@ Review plates: [`docs/reports/reval_city_plan_2026-10-07.md`](../reports/reval_c
 
 ## How the plan is made
 
-`tools/city/build_reval_city_plan.py` compiles three committed inputs into `content/world/reval_city/` (plan, heightfield, surface splat, and the painted `minimap.png`):
+`tools/city/build_reval_city_plan.py` compiles three committed inputs into `content/world/reval_city/` (plan, heightfield, surface splat, cart-road raster and the painted `minimap.png`):
 
 | Input | What it gives | Licence |
 |---|---|---|
@@ -37,8 +37,35 @@ Rules the compiler enforces:
 - Gates snap onto their street; a gate faces along its street.
 - Streets inside the walls come from OSM, renamed from the 1343 street register where it has a record; excluded names (later streets, Rüütli, Uus, Väike-Karja, Patkuli stairs ...) are dropped; a street that crosses the curtain away from a gate is cut back to the inside (later wall breaches).
 - Buildings come from OSM plot footprints inside the circuit or on Toompea; post-1343 landmarks and towers are excluded; back plots are thinned for 1343 density; material and roof follow street rank (limestone and tile on the spines, timber and thatch in the lanes); the ridge follows the plot's own axis.
-- Terrain: EU-DEM trend, the walled town lowered by the surface-model rooftop bias, the Toompea table authored from the cliff edge, the hill ways carved as ramps, the beach and seabed from the 1343 shoreline, the Härjapea channel and the S/E ditch cut in.
+- Terrain: EU-DEM trend plus open-country relief ([Ground relief, roads and prints](#ground-relief-roads-and-prints)), the walled town lowered by the surface-model rooftop bias, the Toompea table authored from the cliff edge, the hill ways carved as ramps, the beach and seabed from the 1343 shoreline, the Härjapea channel and the S/E ditch cut in.
 - Stable IDs: `street.osm.<way>`, `bldg.osm.w<way>` / `bldg.osm.r<relation>`, `bldg.lm.<landmark>`, `bldg.<suburb>.<n>`, `gate.*`, `tower.*`, `curtain.NN`, `toompea_wall.NN`, `poi.*`, `flow.*`, `field.*`. OSM ids keep a building's id across rebuilds.
+
+### Ground relief, roads and prints
+
+Status: implemented. Scope: the open country outside the walls, the cart roads, and footprints in soft ground. Out of scope: deformation of the walkable surface (prints are visual; they change neither the heightfield, collision nor walking speed), prints from NPCs and animals (the `stamp_*` API is there, nothing calls it for them yet), and vertex-level rut geometry (ruts are shader relief, see Limits).
+
+The EU-DEM trend is a smooth 25 m plate, so the compiler (`tools/city/terrain_relief.py`, called from `build_reval_city_plan.py` after the cut/fill passes) adds relief where nothing else authored the ground:
+
+- **Swells and hummocks:** domain-warped fractal value noise at 260, 110, 48, 21 and 11 m wavelengths (amplitudes 5.0, 3.2, 1.8, 0.6, 0.18 m).
+- **Gullies:** smooth ridged noise (95 m) cut up to 0.85 m, deeper where the broad swell is low.
+- **Sand ridges:** 34 m wavelength, up to 0.85 m, 20–340 m from the water.
+- **Hollow ways:** each `extramural_road` is sunk 0.24 m below its verge with a 0.13 m spoil berm either side, and the small relief is damped on the road so it stays travelable. Fades out within 40 m of the curtain, where the town plan owns the street.
+- **Kept untouched:** everything inside the walls (heights within 120 wu of the forum are byte-identical to before), Toompea and its slope, 40 m of shore and the sea, the Härjapea, and the suburbs. The relief fades in from 16 m to 130 m outside the wall.
+
+Everything is seeded lattice noise: the same inputs give the same `height.json`. Trees, grass and houses follow `ground_height`, so they sit on the new relief.
+
+`content/world/reval_city/roads.png` (same rectangle and resolution as `splat.png`; import with `fix_alpha_border=false` or the road centre is overwritten) holds, per pixel: R road body, G signed lateral offset from the centreline (128 = centre, ±5 m), B traffic wear per road (`terrain_relief.ROAD_TRAFFIC`: Viru and the harbour road heaviest, the beach track lightest), A verge band. The splat no longer paints roads as flat mud; roads are packed earth there and the ground shader does the rest.
+
+`city_ground.gdshader` reads that raster:
+
+- **Wheel ruts:** two ruts a cart gauge apart (0.82 wu each side), a berm outside each and a trodden strip between where weeds grow on lightly used roads. The ruts wander with noise, vary in depth along the road and deepen with traffic. Computed as a height profile and lit through finite-difference normals; faded out with distance (`fwidth`) so far ground does not shimmer.
+- **Dry:** pale dust, rough, ruts half-filled; footprints are soft with dusty rims.
+- **Wet:** dark clay that gives under the wheel, deeper ruts and prints, shiny slick walls; ruts and the deepest prints hold standing water first, and only where they are deepest. `wetness` and `puddles` come from `SkyWeather3D` as before.
+- **Crests and hollows:** the heightfield texture gives curvature; crests dry to straw, hollows stay lush; grassy banks too steep for turf show bare sand before turning to rock.
+
+`scripts/city/city_ground_trail.gd` (`CityGroundTrail`, built by `CityWorld3D`, fed by `reval_city.gd` each frame) keeps a 512 × 512 R8 relief image (0.1 wu cells, a 51 wu window that recentres on Kalev with its contents kept). Each 0.85 wu of walking presses an oval footprint, alternating left and right, and heaps a rim; prints bite where the splat says earth or mud (a faint print on grass, none on paving or in the sea). `stamp_foot`, `stamp_oval` and `stamp_track` are public so hooves and cart wheels can use them. The shader turns the image into relief, damp darkening and puddles. On dry soft ground a footfall also kicks up a puff of dust (`CPUParticles3D`, no texture asset); wet ground raises none. Prints are not saved: a teleport (> 10 wu in a frame) or leaving the window starts fresh ground.
+
+Review: `tools/godot_render.sh --script tools/capture_terrain_relief.gd` renders the open country, the roads, and walked and wheeled prints, each dry and wet, to `docs/reports/images/city/terrain_*.png`.
 
 ### How buildings are built
 
@@ -56,9 +83,9 @@ Built at runtime (`scripts/city/city_building_builder.gd`):
 1. **Wall ring.** `wall_ring(b, footprint)` orients the footprint consistently and fillets every corner with a short curve (`soften_ring`, `CORNER_SEGMENTS` = 3). Radius by material (`CORNER_RADIUS`): lime plaster 0.22 m, log 0.16 m, plank 0.14 m, dressed limestone 0.10 m, clamped to 30 % of the shorter adjoining edge. Walls, door leaves (`CityDoors.door_gap`), wall-foot weeds and the logic-plane collision of enterable houses all use this same ring, so the door gap lines up everywhere.
 2. **Floor.** `CityPlan.floor_height` = `base_h + base_span + 0.12`: the floor is level with the highest ground under the house. Where the street is lower in front of the door, limestone steps (`_door_steps`) climb to the threshold. Churches, chapels and the council hall stand on a **levelled terrace**: the compiler (`terrace_landmarks`) cuts or fills the ground under the footprint to the street level 2 m outside the door and blends it back into the slope over 8 m, so their doors open at street level (before this, St Mary's door stood 5.2 m above Kiriku plats).
 3. **Walls.** One strip per ring edge from 0.7 m below ground (`SINK`, hides slope gaps) to the eave, with gable infill up to the roof line where an edge crosses the ridge. The door edge leaves a 1.5 × 2.55 m gap centred on the door (clamped to 20–80 % of the edge). Houses get windows every ~3.4 m on edges of 2.6 m or more; churches, chapels and the hall get tall lancets instead.
-4. **Roof.** A gable split along the ridge (`roof_frame`): pitch 52° thatch, 48° shingle, 50° tile, rise capped at 10.5 m, 0.38 m overhang all round. The cover has a thickness (`ROOF_COVER`: thatch 0.36 m, tile 0.13 m, shingle 0.11 m) that ends in a rounded roll at eaves and verges, and a half-round ridge cap runs the length of the ridge (`RIDGE_RADIUS`: bulky bound ridge on thatch, ridge tiles on tile, a ridge roll on shingle). Roll and cap carry roof UVs so they take the roof texture.
+4. **Roof.** Tile roofs use the procedural monk-and-nun tile shader (`city_tile_roof.gdshader`); shingle and thatch keep their texture plates. A gable split along the ridge (`roof_frame`): pitch 52° thatch, 48° shingle, 50° tile, rise capped at 10.5 m, 0.38 m overhang all round. The cover has a thickness (`ROOF_COVER`: thatch 0.36 m, tile 0.13 m, shingle 0.11 m) that ends in a rounded roll at eaves and verges, and a half-round ridge cap runs the length of the ridge (`RIDGE_RADIUS`: bulky bound ridge on thatch, ridge tiles on tile, a ridge roll on shingle). Roll and cap carry roof UVs so they take the roof texture.
 5. **Chimney.** 80 % of town houses that are not thatched get a stone stack through the roof near the ridge, rising 0.6–1.1 m above it (`CHIMNEY_SHARE`, `CHIMNEY_SIZE` 0.75 m). Thatched cottages keep a smoke hole. The stack top is recorded for smoke.
-6. **Inside or cap.** Enterable buildings get an interior: inner walls inset by the wall thickness (limestone 0.62 m, timber 0.32 m) with a door reveal, a plank floor and a ceiling at the eave. The ceiling belongs to the roof node, so both lift together while Kalev is inside. Other buildings get a flat cap under the roof.
+6. **Inside or cap.** Enterable buildings get an interior: inner walls inset by the wall thickness (limestone 0.62 m, timber 0.32 m) with a door reveal, a plank floor (boards about 0.2 m wide) and a ceiling at the eave. Inner walls are lime-washed (`city_limewash.gdshader`, darkened for indoors). **Cutaway:** the whole shell is split at `CUT_HEIGHT` (2.2 m above the floor) with `Shell.split_at`, which clips triangles at the plane. Everything above the cut (upper walls, gables, windows above head height) joins the roof node with the ceiling, and the wall stubs get a stone section cap (`wall_top_cap`, open at the door). While Kalev is inside, the roof node hides, so every camera sees a room cut at head height instead of tall walls and gables. Other buildings get a flat cap under the roof.
 7. **Materials.** Walls and roofs use the weathered shaders (`city_weathered_wall.gdshader`, `city_weathered_roof.gdshader`, shared `city_weathering.gdshaderinc`): rising damp read from the ground heightfield, run-off streaks, lichen on walls, moss on roofs (shingle most, tile less, thatch least) and rain wetness from the weather.
 8. **Batching.** Walls and the roofs of non-enterable buildings are merged per 96 m chunk and per material; each enterable building's roof (with its ceiling and chimney) is its own node so it can be hidden.
 
@@ -84,7 +111,8 @@ Positions and roster from [`walls-gates-towers.md`](../../history/dossiers/topog
 |---|---|
 | `scripts/city/city_plan.gd` (`CityPlan`) | Loads the plan and heightfield; `ground_height`, `walk_height` (floors inside houses), `building_at`, `floor_height`, `slope_at` |
 | `scripts/city/city_world_3d.gd` (`CityWorld3D`) | Builds the view, the sky, sun and fog (shared `SkyWeather3D` and `MapViewLighting`), pushes the world wind |
-| `scripts/city/city_terrain_builder.gd` + `city_ground.gdshader` | Heightfield chunks, a far mesh, a horizon skirt; splat-blended cobble, earth, sand, mud, grass and slope rock |
+| `scripts/city/city_terrain_builder.gd` + `city_ground.gdshader` | Heightfield chunks, a far mesh, a horizon skirt; splat-blended cobble, earth, sand, mud, grass and slope rock; cart-road ruts, dust and wet clay, crest/hollow tint |
+| `scripts/city/city_ground_trail.gd` (`CityGroundTrail`) | Footprint and wheel-track relief window around Kalev, dust puffs |
 | `scripts/city/city_building_builder.gd` | Buildings as described in [How buildings are built](#how-buildings-are-built): filleted wall ring, walls, door gap and steps, windows and lancets, gable roof with rolled edges and ridge cap, chimneys, interiors |
 | `scripts/city/city_wall_foot.gd` (`CityWallFoot`) | Weeds at the wall foot and climbers on some walls (procedural leaf card, no texture asset) |
 | `scripts/city/city_chimney_smoke.gd` (`CityChimneySmoke`) | Streamed `ChimneySmoke3D` plumes over lit chimneys near Kalev |
@@ -112,6 +140,7 @@ Not wired inside the city: position, door states and people are not saved. Savin
 
 - `python3 tools/city/build_reval_city_plan.py --check`
 - `python3 -m unittest tests.python.test_build_reval_city_plan -v` (determinism, gates on the wall, no street breaches away from gates, no post-1343 towers, doors on footprints, Toompea relief)
+- `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_city_ground_trail` (neutral ground, foot press and rim, alternating prints, recentre keeps prints, paving takes none, road raster, open-country relief)
 - `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_city_plan` (plan, relief, hill ways, gates, towers, floors, interior sizes, roof frame, collision door gap and cliff, Toompea openings, castle towers)
 - `tools/godot_render.sh --resolution 1600x900 res://tools/capture_reval_city_walk.tscn` walks Viru inward, Pikk jalg and Lühike jalg up to Toompea, Pikk to the shore, and into and out of the council hall (door opens, roof lifts, top-down and first-person shots inside, door shuts behind him), then checks people (≥ 20), chimneys (≥ 200), birds in flight (with distance and height from Kalev), in-place fast travel to the Pikk granary, smoke plumes there, swimming off the fish landing, a Fireball orb over the forum, and the travel map at the plan edge; exits 1 on any failure.
 - `tools/godot_render.sh --script tools/capture_reval_city.gd [-- --only=a,b]` renders the review plates (door plates are framed from the street side of the built door gap).
@@ -129,6 +158,7 @@ Measured on the authoring machine (Apple M5 Pro, 1600×900, minimized window): s
 - Corners are filleted at plan level only: the eave line, gable verges and window reveals are still straight-edged, and walls stay perfectly plumb (no lean or bulge).
 - Some plan doors open almost straight onto a neighbour's wall (plots from modern footprints); the door plates skip them.
 - Plot footprints are modern survivals; individual houses are a plausible composite.
+- Ruts, prints and mud are shader relief on a 2 wu mesh: they shade and shine correctly but have no silhouette, and a low grazing camera sees them flat. Prints are lost beyond the 51 wu trail window and are not saved. The mud-slowing mechanic of the district maps is not wired to the city ground. NPC feet, hooves and carts do not leave tracks yet. Open-country relief is generic noise, not the real 1343 terrain: only the DEM trend is sourced.
 - Life layers (wells, flows, gutters) are data and review-map markers; rain does not show water running in the gutters.
 - Distant buildings beyond 1600 units, trees beyond 260 units, shrubs beyond 120 units, weeds beyond 90 units and grass beyond ~50 units are culled; there is no impostor skyline.
 - Ships have no collision and cannot be boarded.
