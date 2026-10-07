@@ -37,8 +37,10 @@ const WINDOW_WORLD_SIZE := 64.0
 const MAX_IMPULSES := 32
 ## Rain has its own uniform array so a storm never starves a boat wake of impulse slots.
 const RAIN_DROPS_AT_FULL_INTENSITY := 40
-const RAIN_RADIUS_TEXELS := Vector2(1.0, 2.0)
-const RAIN_STRENGTH := Vector2(0.02, 0.05)
+## Real rain rings span centimetres, a texel is ~22 cm, and rings spread like wakes:
+## stronger or wider drops read as metre-wide bubbles across a storm sea.
+const RAIN_RADIUS_TEXELS := Vector2(1.0, 1.2)
+const RAIN_STRENGTH := Vector2(0.004, 0.01)
 const RAIN_SEED := 0x5715A1
 const STEP_HZ := 60.0
 ## c^2 of the five-point scheme; 2D CFL stability needs <= 0.5.

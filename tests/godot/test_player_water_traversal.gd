@@ -73,6 +73,40 @@ func test_exclusions_over_water_no_longer_wall_off_the_swimmer_but_dry_cells_sta
 	assert_true(definition.excluded_areas.size() > 0)
 
 
+## A swimmer must be able to climb out onto any beach cell that touches the sea. Stale
+## shallow-band exclusions once covered sand spits and walled the shore off.
+func test_harbour_beach_cells_beside_water_are_not_physically_excluded() -> void:
+	for path: String in [
+		"res://scripts/map/definitions/outdoor/reval_harbor_east_definition.gd",
+		"res://scripts/map/definitions/outdoor/reval_harbor_north_definition.gd",
+	]:
+		var definition: MapDefinition = load(path).create()
+		var grid: MapTerrainGrid = MapBuilder.build(definition)
+		var blocked := {}
+		for rect in MapSceneBootstrap._excluded_collision_rects(definition, grid):
+			for y in range(rect.position.y, rect.end.y):
+				for x in range(rect.position.x, rect.end.x):
+					blocked[Vector2i(x, y)] = true
+		var shore_cells := 0
+		for y in definition.size_cells.y:
+			for x in definition.size_cells.x:
+				var cell := Vector2i(x, y)
+				if grid.get_terrain(cell) != MapTypes.TERRAIN_COAST_SAND:
+					continue
+				var beside_water := false
+				for offset: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
+					if PlayerWaterTraversal.is_traversable_terrain(grid.get_terrain(cell + offset)):
+						beside_water = true
+				if not beside_water:
+					continue
+				shore_cells += 1
+				assert_false(
+					blocked.has(cell),
+					"%s beach cell %s beside water is excluded" % [definition.map_id, cell]
+				)
+		assert_true(shore_cells > 100, "%s must have a long beach" % definition.map_id)
+
+
 func test_walkability_audits_still_treat_water_as_blocked() -> void:
 	var definition: MapDefinition = HarborEast.create()
 	var grid: MapTerrainGrid = MapBuilder.build(definition)

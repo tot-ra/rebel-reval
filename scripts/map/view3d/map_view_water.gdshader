@@ -1125,6 +1125,10 @@ void fragment() {
 		// downwind in the wind frame. The coarse C0 mask links them to whitecaps.
 		float streak_link = smoothstep(0.02, 0.3, fft_foam.z * storm_foam_coverage);
 		float open_water = smoothstep(0.14, 0.48, shore_factor) * smoothstep(0.03, 0.10, water_column);
+		// WHY: calm shallows stay clear, but a storm sea breaks hardest where it
+		// shoals, so the surf zone must foam instead of reading like a calm lagoon.
+		// storm_streaks is the same 0 (sea 0.5) .. 1 (storm) share the streaks use.
+		open_water = mix(open_water, smoothstep(0.03, 0.10, water_column), storm_streaks * 0.85);
 		// Streak foam floats on the surface, so it is laid on as white foam below
 		// instead of the sunk tint of old whitecap foam.
 		wind_streak = clamp(tile_a.b * streak_amount * storm_streaks * streak_link, 0.0, 1.0) * open_water;
@@ -1163,8 +1167,19 @@ void fragment() {
 	float facing = clamp(dot(view_normal, normalize(VIEW)), 0.0, 1.0);
 	float fresnel = 0.02 + 0.98 * pow(1.0 - facing, 5.0);
 	vec3 world_view = normalize((INV_VIEW_MATRIX * vec4(normalize(VIEW), 0.0)).xyz);
-	vec3 reflection_normal = normalize(mix(vec3(0.0, 1.0, 0.0), world_normal, 0.38));
+	// WHY: from the steep gameplay camera a uniform sky hides slopes, so the 0.38
+	// relief made a storm sea read as flat as a calm one. Rougher seas let more of
+	// the FFT slope into the reflected ray: crest trains and their wavelength show.
+	// ocean_amplitude runs 0.5 (calm) .. 1.6 (storm) on the FFT path only.
+	float sea_relief = use_fft ? smoothstep(0.5, 1.6, ocean_amplitude) : 0.0;
+	vec3 reflection_normal = normalize(mix(vec3(0.0, 1.0, 0.0), world_normal, mix(0.38, 0.62, sea_relief)));
 	vec3 reflected_sky_ray = normalize(reflect(-world_view, reflection_normal));
+	// A steep storm facet can tip the ray below the horizon, where the dome reads
+	// black and paints ink blots on the sea. The far face of the next crest is what
+	// it would see, which is close to the horizon colour, so hold the ray there.
+	if (sea_relief > 0.0) {
+		reflected_sky_ray = normalize(vec3(reflected_sky_ray.x, max(reflected_sky_ray.y, 0.07), reflected_sky_ray.z));
+	}
 	float reflected_above_horizon = smoothstep(-0.01, 0.06, reflected_sky_ray.y);
 	vec3 sky_reflection = _sky_dome_reflection(reflected_sky_ray) * reflected_above_horizon;
 	// Keep the reflection legible from the gameplay camera. Fresnel still makes

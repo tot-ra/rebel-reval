@@ -139,12 +139,10 @@ transition to_harbor_north 140 47 4 8 to=reval_harbor_north destination_spawn=fr
 sign sign.merchant_landing "merchant landing" 136 49 east
 sign sign.shore "kalamaja fishing shore" 70 49 north
 patrol harbor_east_watch 62,62|62,55|46,52|36,55|46,52|72,55|86,51|106,51|138,51|106,51
-# Carve pier columns out of the water exclusion so timber decks remain walkable.
+# Only open deep water stays excluded. Shallow-band rects were removed: sand spits
+# now reach into rows they covered, which walled swimmers off the beach. Water
+# terrain already blocks NPCs and navigation on its own (ADR 0021).
 exclude blocked.water.deep 0 0 144 24
-exclude blocked.water.shallow_a 0 24 26 10
-exclude blocked.water.shallow_b 28 24 36 10
-exclude blocked.water.shallow_c 66 24 45 10
-exclude blocked.water.shallow_d 113 24 31 10
 exclude blocked.wood_west 0 65 37 15
 exclude blocked.wood_mid_west 44 70 22 10
 exclude blocked.wood_mid_east 82 70 17 10

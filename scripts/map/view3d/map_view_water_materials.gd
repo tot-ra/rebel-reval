@@ -152,13 +152,15 @@ const BOAT_FLOAT_SCRIPT_PATH := "res://scripts/map/view3d/boat_float_3d.gd"
 ## compressed by fft_geometry_scale to fit the view's water column.
 ## WS-06: foam_coverage scales the baked whitecap mask (calm 0.2 .. storm 1.8) and
 ## streaks is the storm share that turns on wind-aligned foam streaks.
+## Wavelength follows wind: a calm sea is short ripples (C2) with almost no swell,
+## a storm is dominated by the long C0 swell, so the dominant wave visibly grows.
 ## The 0.35 row fills the clear-to-cloudy weight gap (force 3) without moving
 ## the settled weather knots at 0.20 / 0.50 / 0.85. Hs lives on BEAUFORT_LADDER
 ## so documented weather heights stay exact.
 const OCEAN_FFT_SEA_STATES: Array[Dictionary] = [
 	{
 		"sea_state": 0.20,
-		"weights": [0.15, 0.45, 0.8],
+		"weights": [0.02, 0.2, 0.9],
 		"choppiness": 0.6,
 		"amplitude": 0.5,
 		"foam_coverage": 0.2,
@@ -166,7 +168,7 @@ const OCEAN_FFT_SEA_STATES: Array[Dictionary] = [
 	},
 	{
 		"sea_state": 0.35,
-		"weights": [0.575, 0.725, 0.9],
+		"weights": [0.3, 0.65, 0.95],
 		"choppiness": 0.75,
 		"amplitude": 0.75,
 		"foam_coverage": 0.35,
@@ -182,10 +184,10 @@ const OCEAN_FFT_SEA_STATES: Array[Dictionary] = [
 	},
 	{
 		"sea_state": 0.85,
-		"weights": [1.8, 1.4, 1.2],
+		"weights": [2.6, 1.5, 1.2],
 		"choppiness": 1.15,
 		"amplitude": 1.6,
-		"foam_coverage": 1.8,
+		"foam_coverage": 2.4,
 		"streaks": 1.0,
 	},
 ]

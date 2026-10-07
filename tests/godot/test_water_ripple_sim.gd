@@ -63,8 +63,10 @@ func test_rain_rng_is_deterministic_and_scales_with_intensity() -> void:
 	assert_eq(WaterRippleSimScript.rain_drops_for_frame(17, 0.5, 256).size(), 20, "half rain emits 20")
 	assert_eq(WaterRippleSimScript.rain_drops_for_frame(17, 0.0, 256).size(), 0, "dry weather emits none")
 	for drop in first:
-		assert_true(drop.z >= 1.0 and drop.z <= 2.0, "droplet radius stays 1-2 texels")
-		assert_true(drop.w >= 0.02 and drop.w <= 0.05, "droplet strength stays 0.02-0.05")
+		var radius: Vector2 = WaterRippleSimScript.RAIN_RADIUS_TEXELS
+		var strength: Vector2 = WaterRippleSimScript.RAIN_STRENGTH
+		assert_true(drop.z >= radius.x and drop.z <= radius.y, "droplet radius stays in its texel band")
+		assert_true(drop.w >= strength.x and drop.w <= strength.y, "droplet strength stays in its band")
 		assert_true(drop.x >= 8.0 and drop.x <= 248.0 and drop.y >= 8.0 and drop.y <= 248.0, "droplets land inside the absorbing border")
 	# The sim draws its rain from the frame counter, so a replay matches.
 	var sim = WaterRippleSimScript.new()

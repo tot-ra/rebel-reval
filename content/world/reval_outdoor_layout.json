@@ -155,7 +155,7 @@
       "transition_id": "to_world_harju"
     }
   ],
-  "fingerprint": "1f5c582f86cd45458f3d4296fd96bf6242092430aa45e4673028581d25920b8b",
+  "fingerprint": "6d970f1ac50ae56213c0b89b6fd6afc611241fb0c4fc8ab7a4fb752f0051ea80",
   "locations": [
     {
       "cell_size": 32,
@@ -287,7 +287,7 @@
       ],
       "location_id": "reval_harbor_east",
       "location_kind": "outdoor_streamed",
-      "map_fingerprint": "665ab2726af876a1f573d87709e490defe86c2bd63002ca8f6384b640f3a4626",
+      "map_fingerprint": "3527491cef5733be33009acfaa3a2c7cba298d22fd24a2ca4c8f66f859b75d6f",
       "origin_cell": [
         -255,
         -340
@@ -299,7 +299,7 @@
         144,
         80
       ],
-      "source_sha256": "bd2a3b3947ce30d6ba961142bbbdad4f059e8ca59a75a56e9c92107a951272f0"
+      "source_sha256": "ea05dfd1560feeddca8a9905c9fd43e35096348bbc8461dbf55df47fb2a728e2"
     },
     {
       "cell_size": 32,
@@ -311,7 +311,7 @@
       ],
       "location_id": "reval_harbor_north",
       "location_kind": "outdoor_streamed",
-      "map_fingerprint": "ed883b00c8866596d9504722fcb3fd7b60793ab20961e39ad6825ae976533990",
+      "map_fingerprint": "3ca356ab8a6d9e43d461872c4a3bf5ac16cb7cf857113c120ec89230d2bbc4cb",
       "origin_cell": [
         -111,
         -360
@@ -323,7 +323,7 @@
         160,
         108
       ],
-      "source_sha256": "99c4863e0c66c18297422908470fe4bdcc5751d22c722bbf4362a221be0b9d52"
+      "source_sha256": "3625b7f2b1fc34b9a7ad89e77f09bb35eee1c9e2fbf5155327024a53cda239d0"
     },
     {
       "cell_size": 32,
