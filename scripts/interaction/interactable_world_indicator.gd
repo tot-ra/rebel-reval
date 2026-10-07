@@ -8,7 +8,9 @@ const IDLE_GLYPH_COLOR := Color(0.95, 0.82, 0.35, 0.78)
 const FOCUSED_GLYPH_COLOR := Color(1.0, 0.93, 0.5, 1.0)
 const RING_COLOR := Color(1.0, 0.85, 0.2, 0.8)
 const OUTLINE_COLOR := Color(1.0, 0.85, 0.15, 1.0)
-const OUTLINE_GROW := 0.025
+# WHY: thin hull so only the outer silhouette reads; thicker values leak through
+# neighbouring body parts (clothes, hair, limbs) and look like inner contours.
+const OUTLINE_GROW := 0.007
 
 const GLYPH_BY_KIND: Dictionary = {
 	InteractionKinds.TALK: "?",
