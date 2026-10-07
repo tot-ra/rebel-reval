@@ -42,11 +42,12 @@ const CANONICAL_ANIMATIONS: Dictionary = {
 	&"sit_idle": &"Sit_Chair_Idle",
 	&"sit_up": &"Sit_Chair_StandUp",
 }
-## The retargeted Death_A clip ends with the hips ~0.75 m up: the body is
-## horizontal but hovers over the ground. _process sinks $Model so the torso rests
-## on the floor (body half-thickness) once the fall completes.
-const FALL_LIE_HEIGHT := 0.14
-const FALL_CENTERLINE_BONES: Array[StringName] = [&"hips", &"spine", &"chest", &"head"]
+## Death_A (canonical `fall`) was retargeted with the hips key ending ~0.47 clip units
+## above the floor, while its IK hand/elbow/toe targets already lie on the ground, so
+## the body hovered. _ground_fall_clip lowers the hips track once per Animation resource.
+const FALL_SOURCE_CLIPS: Array[StringName] = [&"Death_A", &"Death_B"]
+const FALL_HIPS_LIE_Y := 0.2
+const FALL_GROUNDED_META := &"hips_grounded"
 const LOOPING_ANIMATIONS: Array[StringName] = [
 	&"idle",
 	&"walk",
@@ -186,8 +187,6 @@ var _wardrobe := CharacterWardrobe.new()
 var _extra_visual_layers := 0
 var _occlusion_ghost := false
 var _distance_lods_installed := false
-var _fall_bone_indices: Array[int] = []
-var _fall_offset_applied := false
 
 func _ready() -> void:
 	# Apply the authored anisotropic normalization in code because inherited
@@ -195,6 +194,8 @@ func _ready() -> void:
 	$Model.scale = model_scale
 	_animation_player = _find_animation_player($Model)
 	_skeleton = _find_skeleton($Model)
+	for clip_name in FALL_SOURCE_CLIPS:
+		_ground_fall_clip(clip_name)
 	_install_proportion_modifiers()
 	_configure_lod0_visibility()
 	if variant == null:
@@ -261,42 +262,40 @@ static func enable_authored_vertex_color_albedo(root: Node) -> void:
 			mesh_instance.set_surface_override_material(surface, material)
 
 
-func _process(_delta: float) -> void:
-	_sync_fall_ground_offset()
+## Lowers the hips position track of a death clip so its final key rests at
+## FALL_HIPS_LIE_Y. The drop ramps in with smoothstep over clip time, so the standing
+## start of the fall is unchanged and the body settles instead of snapping.
+func _ground_fall_clip(clip_name: StringName) -> void:
+	if not _animation_player.has_animation(clip_name):
+		return
+	var clip := _animation_player.get_animation(clip_name)
+	if clip.has_meta(FALL_GROUNDED_META) or clip.length <= 0.01:
+		return
+	var hips_path := NodePath("%s:hips" % _skeleton_track_prefix(clip))
+	var track := clip.find_track(hips_path, Animation.TYPE_POSITION_3D)
+	if track < 0 or clip.track_get_key_count(track) < 2:
+		return
+	var last := clip.track_get_key_count(track) - 1
+	var drop := (clip.track_get_key_value(track, last) as Vector3).y - FALL_HIPS_LIE_Y
+	if drop <= 0.0:
+		clip.set_meta(FALL_GROUNDED_META, true)
+		return
+	for key in clip.track_get_key_count(track):
+		var value := clip.track_get_key_value(track, key) as Vector3
+		var progress := clip.track_get_key_time(track, key) / clip.length
+		value.y -= drop * smoothstep(0.0, 1.0, progress)
+		clip.track_set_key_value(track, key, value)
+	clip.set_meta(FALL_GROUNDED_META, true)
 
 
-## Lowers the model by the gap between the centerline bones and the floor, scaled by
-## fall progress so the body settles with the animation instead of snapping.
-func _sync_fall_ground_offset() -> void:
-	var model := get_node_or_null("Model") as Node3D
-	if model == null:
-		return
-	if _current_canonical_animation != &"fall" or _skeleton == null:
-		# Only undo our own offset; the swimmer presenter also moves $Model.
-		if _fall_offset_applied:
-			model.position.y = 0.0
-			_fall_offset_applied = false
-		return
-	if _fall_bone_indices.is_empty():
-		for bone_name in FALL_CENTERLINE_BONES:
-			var index := _skeleton.find_bone(bone_name)
-			if index >= 0:
-				_fall_bone_indices.append(index)
-	var lowest := INF
-	var rig_from_world := global_transform.affine_inverse()
-	for index in _fall_bone_indices:
-		var bone_pose := _skeleton.get_bone_global_pose(index)
-		var pose_y := (rig_from_world * _skeleton.global_transform * bone_pose).origin.y
-		# Rig space also contains the offset applied last frame, so remove it.
-		lowest = minf(lowest, pose_y - model.position.y)
-	if lowest == INF:
-		return
-	var length := _animation_player.current_animation_length
-	var progress := 1.0
-	if length > 0.0:
-		progress = clampf(_animation_player.current_animation_position / length, 0.0, 1.0)
-	_fall_offset_applied = true
-	model.position.y = -maxf(lowest - FALL_LIE_HEIGHT, 0.0) * smoothstep(0.0, 1.0, progress)
+## Track paths are "<rig node>/Skeleton3D:<bone>"; recover the prefix from any bone track.
+func _skeleton_track_prefix(clip: Animation) -> String:
+	for index in clip.get_track_count():
+		var path := String(clip.track_get_path(index))
+		var colon := path.find(":")
+		if colon > 0:
+			return path.substr(0, colon)
+	return ""
 
 
 func _exit_tree() -> void:

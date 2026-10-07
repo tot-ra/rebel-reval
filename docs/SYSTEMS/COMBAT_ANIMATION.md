@@ -154,4 +154,4 @@ godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_ham
 
 ## Fall pose grounding
 
-The retargeted `Death_A` clip (canonical `fall`) ends with the hips about 0.75 m above the floor. `SharedCharacterRig._sync_fall_ground_offset` lowers `$Model` while `fall` plays so the torso rests at `FALL_LIE_HEIGHT`, scaled by clip progress, and restores the offset when another clip starts. Covered by `tests/godot/test_shared_rig_fall_ground.gd`.
+The retargeted `Death_A`/`Death_B` clips (canonical `fall` uses `Death_A`) ended with the hips key about 0.7 m above the floor, so the body hovered. `SharedCharacterRig._ground_fall_clip` rewrites the hips position track once per Animation resource (marked with meta `hips_grounded`): the final key rests at `FALL_HIPS_LIE_Y` and the drop ramps in with smoothstep over clip time. Limit: the leg FK pose still hangs below the knees, so feet sink slightly into the ground; a proper fix is re-authoring the legs in the source retarget. Covered by `tests/godot/test_shared_rig_fall_ground.gd`.
