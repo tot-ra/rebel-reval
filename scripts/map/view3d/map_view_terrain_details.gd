@@ -289,7 +289,7 @@ static func _add_foliage_layer(
 	if transforms.is_empty():
 		return
 	var layer := MapViewMeshBuilderPrimitives.multi_mesh(
-		name, mesh, transforms, colors, MapViewMaterials.grass_blades(), Vector3.UP * lift
+		name, mesh, transforms, colors, MapViewMaterials.grass_blades_near(), Vector3.UP * lift
 	)
 	layer.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	root.add_child(layer)

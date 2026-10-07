@@ -16,6 +16,11 @@ const FISHING_NET_SINKER_TEXTURE := preload(
 	"res://assets/props/crafts/fishing_nets/fishing_nets_PiercedStoneSinkers_albedo.png"
 )
 ## R-1103 blade-cluster atlas for the cross-card grass tuft (tools/build_grass_blade_atlas.py).
+# Fade ends sit inside the layers' range cull (45 m and 14 m, each with margin).
+const GRASS_FADE_START := 22.0
+const GRASS_FADE_END := 36.0
+const GRASS_NEAR_FADE_START := 7.0
+const GRASS_NEAR_FADE_END := 11.0
 const GRASS_BLADE_ATLAS := preload("res://assets/materials/pbr/grass_blades/grass_blades_atlas.png")
 const BLACK_CLOAKS_BANNER_TEXTURE := preload("res://assets/heraldry/black_cloaks_banner.png")
 ## R-1194 leaf-cluster card atlas (tools/assets/build_leaf_card_atlas.py).
@@ -70,6 +75,7 @@ static func wind_materials() -> Array[ShaderMaterial]:
 static func _shared_wind_materials() -> Array[ShaderMaterial]:
 	return [
 		grass_blades(),
+		grass_blades_near(),
 		canopy(&"spruce"),
 		canopy(&"pine"),
 		canopy(&"leaf"),
@@ -91,7 +97,15 @@ static func _shared_wind_materials() -> Array[ShaderMaterial]:
 
 ## Wind-swaying grass blade material; instance colors modulate the tint.
 static func grass_blades() -> ShaderMaterial:
-	var key := "grass_blades"
+	return _grass_material("grass_blades", GRASS_FADE_START, GRASS_FADE_END)
+
+
+## Eye-level ground cover (terrain details, 14 m cull): fades well inside it.
+static func grass_blades_near() -> ShaderMaterial:
+	return _grass_material("grass_blades_near", GRASS_NEAR_FADE_START, GRASS_NEAR_FADE_END)
+
+
+static func _grass_material(key: String, fade_start: float, fade_end: float) -> ShaderMaterial:
 	if _cache.has(key):
 		return _cache[key]
 	var material := ShaderMaterial.new()
@@ -105,6 +119,8 @@ static func grass_blades() -> ShaderMaterial:
 	material.set_shader_parameter("interact_radius", 0.65)
 	material.set_shader_parameter("interact_center", Vector2.ZERO)
 	material.set_shader_parameter("interact_push", Vector2.ZERO)
+	material.set_shader_parameter("fade_start", fade_start)
+	material.set_shader_parameter("fade_end", fade_end)
 	_cache[key] = material
 	return material
 
@@ -113,24 +129,24 @@ static func grass_blades() -> ShaderMaterial:
 ## center_xz / velocity_xz are world-space ground coordinates; tip displacement
 ## grows with speed so a walk opens a pocket and a run leaves a readable wake.
 static func apply_grass_interaction(center_xz: Vector2, velocity_xz: Vector2) -> void:
-	var material := grass_blades()
 	var speed := velocity_xz.length()
 	var push := Vector2.ZERO
 	if speed > 0.02:
 		push = velocity_xz / speed
 	# Standing still still parts blades around the feet; motion adds wake amplitude.
 	var tip_displace := clampf(0.10 + speed * 0.015, 0.10, 0.22)
-	material.set_shader_parameter("interact_center", center_xz)
-	material.set_shader_parameter("interact_push", push)
-	material.set_shader_parameter("interact_strength", tip_displace)
-	material.set_shader_parameter("interact_radius", 0.65)
+	for material in [grass_blades(), grass_blades_near()]:
+		material.set_shader_parameter("interact_center", center_xz)
+		material.set_shader_parameter("interact_push", push)
+		material.set_shader_parameter("interact_strength", tip_displace)
+		material.set_shader_parameter("interact_radius", 0.65)
 
 
 ## Clears character parting when no player rig is driving the view.
 static func clear_grass_interaction() -> void:
-	var material := grass_blades()
-	material.set_shader_parameter("interact_strength", 0.0)
-	material.set_shader_parameter("interact_push", Vector2.ZERO)
+	for material in [grass_blades(), grass_blades_near()]:
+		material.set_shader_parameter("interact_strength", 0.0)
+		material.set_shader_parameter("interact_push", Vector2.ZERO)
 
 
 static func canopy(kind: StringName) -> ShaderMaterial:

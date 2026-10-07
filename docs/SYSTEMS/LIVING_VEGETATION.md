@@ -185,6 +185,24 @@ Code review of commit `3078c157`: no blocking issues found.
   and shared non-species canopy materials (bushes) never get wet.
 - The delegated second reviewer agent failed without returning findings.
 
+## Scale, glare and ground-cover popping fixes (R-1194 follow-up)
+
+- Card size: `CARD_SCALE` 3.4 -> 2.3 and `CONIFER_CARD_SCALE` 3.8 -> 3.0 in
+  `map_view_tree_meshes.gd`, with 4 cards per deciduous tip (was 3), because single
+  leaves read head-sized next to the player.
+- Card lighting: in `map_view_canopy.gdshader` cards use matte roughness 0.95,
+  specular 0.06 and 45% backlight, so conifers no longer wash white when the sun
+  grazes them.
+- Grass popping: ground cover was culled per chunk by `visibility_range_end`, so a
+  whole chunk appeared or vanished with camera motion. `map_view_grass.gdshader`
+  now shrinks each tuft to zero between `fade_start` and `fade_end` (distance from
+  the camera, same metric as the range cull) before the cull fires. Scatter grass
+  (`grass_blades()`) fades 22-36 m inside its 45 m range; eye-level terrain details
+  (`grass_blades_near()`) fade 7-11 m inside their 14 m range.
+- Grass variety: per-tuft height, width and tint vary from the planted position.
+- Not yet verified visually: needle transparency on conifers and bush popping
+  (bushes have no range cull, so their cause is still open); see the follow-up tasks.
+
 ## Limits
 
 - GPU plates are attached above; visual tuning and independent sign-off remain pending. Distance LOD/impostors and alpha-coverage-preserving mips are not implemented; distant needle cards can thin out.

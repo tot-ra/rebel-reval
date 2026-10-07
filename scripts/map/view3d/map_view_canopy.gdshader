@@ -116,7 +116,10 @@ void fragment() {
 	albedo *= mix(1.0, 0.70, wetness);
 	ALBEDO = albedo;
 	// Thin leaves transmit light; autumn leaves glow more strongly against the sun.
-	BACKLIGHT = albedo * (0.42 + v_leaf_autumn * 0.22) * (1.0 - midrib * 0.4 * folded) * mix(0.6, 1.0, occlusion);
+	// Cards stack several translucent leaves, so full backlight washes conifers
+	// near white whenever the sun sits behind them; transmit less through cards.
+	BACKLIGHT = albedo * (0.42 + v_leaf_autumn * 0.22) * mix(1.0, 0.45, card)
+		* (1.0 - midrib * 0.4 * folded) * mix(0.6, 1.0, occlusion);
 	// Card normals lean away from the crown centre; undo the automatic back-face
 	// flip so both sides of a card light as the same leafy volume.
 	if (card > 0.5 && !FRONT_FACING) {
@@ -126,6 +129,8 @@ void fragment() {
 	// the depth-composited underwater pass still see the cut-out.
 	ALPHA = cluster.a;
 	ALPHA_SCISSOR_THRESHOLD = card_scissor;
-	ROUGHNESS = mix(0.76, 0.34, wetness);
-	SPECULAR = mix(0.28, 0.55, wetness);
+	// Card normals lean toward the sky; a glossy lobe there turns whole conifer
+	// crowns white at grazing sun angles, so cards stay matte.
+	ROUGHNESS = mix(mix(0.76, 0.95, card), 0.34, wetness);
+	SPECULAR = mix(mix(0.28, 0.06, card), 0.55, wetness);
 }

@@ -371,6 +371,10 @@ static func grass_blades() -> ShaderMaterial:
 	return WIND_MATERIALS.grass_blades()
 
 
+static func grass_blades_near() -> ShaderMaterial:
+	return WIND_MATERIALS.grass_blades_near()
+
+
 static func apply_grass_interaction(center_xz: Vector2, velocity_xz: Vector2) -> void:
 	WIND_MATERIALS.apply_grass_interaction(center_xz, velocity_xz)
 

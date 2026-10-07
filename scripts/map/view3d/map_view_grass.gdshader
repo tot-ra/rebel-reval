@@ -15,10 +15,17 @@ uniform sampler2D blade_atlas : source_color, filter_linear_mipmap, repeat_disab
 uniform vec3 root_tint : source_color = vec3(0.30, 0.33, 0.17);
 uniform vec3 straw_color : source_color = vec3(0.62, 0.54, 0.30);
 uniform float max_dryness = 0.42;
+// Distance fade: tufts shrink into the ground between fade_start and fade_end
+// (measured like visibility ranges, from the camera), so the per-layer range
+// cull happens after they are already invisible instead of popping a whole
+// chunk in and out as the camera moves. fade_end <= 0 disables it.
+uniform float fade_start = 0.0;
+uniform float fade_end = 0.0;
 
 varying flat float v_cell;
 varying flat float v_dry;
 varying float v_atlas;
+varying vec2 v_variety;
 
 void vertex() {
 	vec3 world = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
@@ -34,6 +41,17 @@ void vertex() {
 		: (h < 0.55 ? 1.0 : (h < 0.85 ? 0.0 : 3.0))));
 	v_dry = h2 * h2 * max_dryness;
 	v_atlas = UV2.y;
+	// Per-tuft size and tint variety from the planted position, so neighbours
+	// differ in height, width and hue instead of repeating one big stamp.
+	float h3 = fract(h * 3.17 + h2 * 5.91);
+	float size = mix(0.62, 1.22, h3);
+	VERTEX.xz *= size * mix(0.85, 1.2, h2);
+	VERTEX.y *= mix(0.55, 1.3, fract(h2 * 4.13 + h));
+	v_variety = vec2(mix(0.82, 1.12, h), h3);
+	if (fade_end > 0.0) {
+		float dist = distance(origin, CAMERA_POSITION_WORLD);
+		VERTEX *= 1.0 - smoothstep(fade_start, fade_end, dist);
+	}
 	vec2 wind = wind_direction / max(length(wind_direction), 0.001);
 	vec2 across = vec2(-wind.y, wind.x);
 	float strength = clamp(wind_strength, 0.0, 1.0);
@@ -71,7 +89,8 @@ void fragment() {
 		vec4 tex = texture(blade_atlas, origin + cell_uv * 0.5);
 		ALPHA = tex.a;
 		ALPHA_SCISSOR_THRESHOLD = 0.42;
-		vec3 albedo = tex.rgb * COLOR.rgb * 0.86;
+		vec3 albedo = tex.rgb * COLOR.rgb * 0.86 * v_variety.x;
+		albedo = mix(albedo, albedo * vec3(1.14, 1.04, 0.78), smoothstep(0.55, 1.0, v_variety.y) * 0.5);
 		// Sun-cured blades fade to straw; greener clusters stay fresher.
 		float greenness = clamp(tex.g - tex.r * 0.6, 0.0, 1.0);
 		albedo = mix(albedo, straw_color * (0.7 + 0.5 * tex.g), v_dry * greenness);

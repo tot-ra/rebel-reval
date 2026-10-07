@@ -18,9 +18,11 @@ const MAX_FRUIT_COUNT := 18
 const CONIFERS: Array[StringName] = [&"spruce", &"pine", &"juniper"]
 ## R-1194 cluster cards. Card edge length relative to the profile leaf length:
 ## one card holds a whole twig cluster of 7-12 leaves (or a needle fan).
-const CARD_SCALE := 3.4
-const CONIFER_CARD_SCALE := 3.8
-const CARDS_PER_TIP := 3
+# Cards were 3.4x / 3.8x the leaf length; against a human that read as head-sized
+# leaves. Smaller cards, one more per tip, keep crown mass with believable leaves.
+const CARD_SCALE := 2.3
+const CONIFER_CARD_SCALE := 3.0
+const CARDS_PER_TIP := 4
 const CONIFER_CARDS_PER_TIP := 2
 ## Conifers keep only a couple of folded needle shoots per spray (28 triangles
 ## each) as close-up detail; dense whorl cards replace the rest.
