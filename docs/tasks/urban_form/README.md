@@ -153,7 +153,11 @@ breach is recorded in the ADR rather than excused.
 | UF-12 | **R-1122** | R-1116, R-1118, R-1123, R-1128 | Landmarks | The Dome Church, plus relief bedding for the whole Toompea compound. Castle moved to LM-04 |
 | ~~UF-13~~ | ~~**R-1125**~~ | - | Landmarks | **Cancelled** - St Catherine's is LM-02 and St Michael's is LM-05 |
 | UF-14 | **R-1129** | R-980 | Seamless | ADR 0027: a second streaming group for the Reval hinterland. **Scope approved 2026-09-30**; [ADR 0027](../../adr/0027-reval-hinterland-streaming-group.md) written 2026-10-07. In-place building interiors are [ADR 0028](../../adr/0028-seamless-building-interiors.md) |
-| UF-15 | **R-1133** | R-1129, R-980, R-1117, R-976 | Seamless | Hinterland connective maps and the second world layout |
+| UF-15 | **R-1133** | R-1129, R-980, R-1213, R-1215, R-1216, R-1217 | Seamless | Hinterland connective maps and the second world layout. Not claimable until a Dev owner is named on R-1217 (ADR 0027 section 4) |
+| UF-15a | **R-1213** | R-1129, R-1166 | Maps | Harju Gate aperture on the `south_quarter` south curtain - no map has one today |
+| UF-15b | **R-1215** | R-1129, R-951 | Maps | Landward aperture on `reval_harbor_east`, which today has only `to_harbor_north` |
+| UF-15c | **R-1216** | R-1129 | Maps | Viru-road junction aperture on `world.sojamae` |
+| UF-15d | **R-1217** | R-1129 | Seamless | Multi-group world layout and allowlisted gate bridges in the layout tool (**Dev owner required**) |
 | UF-16 | **R-1136** | R-1114, R-1115 | Quality | District master plans and a street-legibility visual gate |
 
 Ordering note: **UF-01**, **UF-02** and **UF-14** have no dependencies inside this pack and can start
