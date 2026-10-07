@@ -71,7 +71,7 @@ He has no faction: a bath serves anyone with a pfennig, and a bathkeeper who tak
 ## Voice
 - **Registers:** Estonian at home and with guests; slow German with the Rat.
 - **Delivery:** Low and unhurried, never louder than the stove.
-- **Sample lines:** "The stones are hot; sit." "I hear nothing in the steam." "Löylyt on hyvät." (The steam is good.)
+- **Sample lines:** "The stones are hot; sit." "I hear nothing in the steam." "Leil on hea." (The steam is good.)
 - **Verbal tic:** "Easy now."
 
 ## Knowledge and rumours

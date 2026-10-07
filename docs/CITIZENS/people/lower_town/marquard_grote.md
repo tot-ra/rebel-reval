@@ -77,7 +77,7 @@ Core Hanseatic from gratitude and prudence: the guild made his father's name and
 ## Voice
 - **Registers:** Middle Low German; Latin with clerks.
 - **Delivery:** Clipped and precise.
-- **Sample lines:** "I have it written." / "The divider, please, by Sunday." / "Gode dag, mevrouw."
+- **Sample lines:** "I have it written." / "The divider, please, by Sunday." / "Gode dag, Frouwe."
 - **Verbal tic:** "As counted."
 
 ## Knowledge and rumours

@@ -36,7 +36,7 @@
 - **Model notes:** female, age 27, muscle low-medium, weight light, proportions long-limbed, height 1.55 m; fair skin; hazel eyes; light brown hair covered; crowd tier 2.
 
 ## Biography
-Born 1316 in a village on a Harju manor, where her father Villem was bound to the lord's fields. When the manor tightened the labour dues in 1331 she was sent to town to earn her own bread and his. She served two houses before this one in 1340. Her brother was flogged for leaving the manor, and the scar she never saw is the root of her grievance. She carries what is whispered to her on market days, and speaks little.
+Born 1316 in a village on a Harju manor, where her father Villem was bound to the lord's fields. When the manor tightened the labour dues in 1331 she was sent to town to earn her own bread and his. She served two houses before this one in 1340. Her brother was flogged at the manor for leaving without leave, and she heard of it from a carter; that is the root of her grievance. She carries what is whispered to her on market days, and speaks little.
 
 ## Motivation
 - **Want:** To see her father unbound and her brother home.

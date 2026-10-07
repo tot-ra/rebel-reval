@@ -11,7 +11,7 @@
 | Household | [hh.lt.osm_w200852812](../../ledger/lower_town/lai.md#hh-lt-osm-w200852812) |
 | Home | Lai, plot `bldg.osm.w200852812` (606 m2) |
 | Age / sex | 21, male |
-| Ethnicity / segment | german / german_resident |
+| Ethnicity / segment | german / german_burgher |
 | Status | Clerk, resident in a patrician household |
 | Trade | Merchant's clerk (Schreiber) |
 | Languages | Middle Low German, Latin |

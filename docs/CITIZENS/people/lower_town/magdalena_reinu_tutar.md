@@ -35,13 +35,13 @@
 - **Model notes:** MPFB gender female, age_years 16, muscle 0.3, weight 0.4, proportions average, height_m 1.49; tanned skin; eyes blue; dark blond hair; crowd tier 2.
 
 ## Biography
-Magdalena was born on Hobusepea in 1327, the youngest. She learned the wheel from her mother and the haggle from her father. She sells from the doorstep.
+Magdalena was born on Hobusepea in 1327, the youngest and, her father says, the best of his bargains. She learned the wheel from her mother at six and the haggle from her father at eight. By ten she was selling thread ends and tow wicks at the door; by fourteen she had a regular round of customers on Lai and Pikk. She learned to talk husky because a boy once told her she sounded like a wolf and she decided to be one. The elder sister Ell goes out to service; Magdalena stays to spin and sell, and watches the street from the step.
 
 ## Motivation
-- **Want:** A boat-owning husband.
-- **Fear:** Spinsterhood.
-- **Contradiction:** She charges fair and gives away.
-- **Secret or withheld fact:** She saves pfennigs in a boot.
+- **Want:** A husband with a boat, a roof of her own and a stall at the Sand Gate.
+- **Fear:** Staying a spinner at her father's door until her hands curl.
+- **Contradiction:** She charges the fair price to every customer and gives the end of every reel away to children.
+- **Secret or withheld fact:** She saves pfennigs in a boot and has told nobody the sum, which is nearly a mark.
 
 ## Daily routine
 | Phase | Time (late April) | Place | Activity |
@@ -57,7 +57,7 @@ Magdalena was born on Hobusepea in 1327, the youngest. She learned the wheel fro
 - **Spring 1343 disruption:** Fewer customers; she sells wicks.
 
 ## Work and money
-She earns two pfennigs a day.
+A pfund of wool spun brings eight pfennigs; she makes two or three pfennigs a day on thread and wicks combined. She buys fleece from the neighbour's wool-comber and tow from the ropewalk. Her share goes to the household purse, apart from the boot. A bad month is one in which fleece is dear and customers few; then she sells wicks to the baker and counts her fingers.
 
 ## Relationships
 - **Household:** [Rein](rein.md), father; [Gertrud Joosepi tütar](gertrud_joosepi_tutar.md), mother; [Ell Reinu tütar](ell_reinu_tutar.md), sister; [Veronika Jaagu tütar](veronika_jaagu_tutar.md) and [Veronika Kaspari tütar](veronika_kaspari_tutar.md), maids.
@@ -65,7 +65,7 @@ She earns two pfennigs a day.
 - **Others:** [Johan van Rostok](../../ledger/lower_town/hobusepea.md#hh-lt-osm-w200453905), baker.
 
 ## Faction and belief
-None; she wants a husband. She ties red thread round her wrist.
+None; she wants a husband, not a cause. A small favour she does for a price; a large one she weighs; informing she thinks unlucky. She ties red thread round her wrist at every full moon and goes to mass for the dancing after.
 
 ## Voice
 - **Registers:** Estonian; German for customers.
@@ -74,7 +74,7 @@ None; she wants a husband. She ties red thread round her wrist.
 - **Verbal tic:** "Fair."
 
 ## Knowledge and rumours
-She knows who needs wicks. She believes the baker's son is courting.
+She knows who needs wicks, who has a new sweetheart and which apprentice has spent his wages. She would trade the knowledge for a look at a boat. She believes the baker's son is courting her, which is true only on Sundays.
 
 ## Game hooks
 - **Ambient role:** Doorstep.

@@ -36,7 +36,7 @@
 - **Model notes:** MPFB male, age_years 51, muscle average, weight average, proportions standard stooped, height_m 1.73; skin pale; eyes blue; dark blond hair streaked grey, moustache and chin beard; crowd tier 1.
 
 ## Biography
-Born in 1292 in Visby on Gotland, the son of [Birger Magnusson](birger_magnusson.md), who left after the war between town and countryside. He apprenticed with a Visby cutler and came to Reval in 1318 with a chest of tools. He married [Ulrika Jönsdotter](ulrika_jonsdotter.md) in 1320. He set up the forge on Pikk jalg in 1322 and has taught his son Knut the trade. He has never learned Low German beyond the numbers. Now he lends more than he forges.
+Born in 1292 in Visby on Gotland, the son of [Birger Magnusson](birger_magnusson.md), who would follow him to Reval as a widower in 1325. He apprenticed with a Visby cutler and came to Reval in 1318 with a chest of tools. He married [Ulrika Jönsdotter](ulrika_jonsdotter.md) in 1320. He set up the forge on Pikk jalg in 1322 and has taught his son Knut the trade. He has never learned Low German beyond the numbers. Now he lends more than he forges.
 
 ## Motivation
 - **Want:** To see his son Knut a master and the house debt-free.

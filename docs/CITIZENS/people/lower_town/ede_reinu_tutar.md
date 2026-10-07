@@ -71,7 +71,7 @@ Black Cloaks by the favour of a friend. Her root grievance: Danish levies take h
 ## Voice
 - **Registers:** Estonian with friends; Low German in the house.
 - **Delivery:** Hoarse, low, almost a rasp.
-- **Sample lines:** "Water's hot." "I heard nothing, mistress." "Ma ei tea." (I don't know.)
+- **Sample lines:** "Water's hot." "I heard nothing, mistress." "Ma ei oska öelda." (I cannot say.)
 - **Verbal tic:** "Nu."
 
 ## Knowledge and rumours

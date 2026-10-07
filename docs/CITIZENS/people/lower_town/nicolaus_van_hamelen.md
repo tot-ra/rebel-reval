@@ -23,7 +23,6 @@
 - Slight, freckled man in a patched tunic who stands in the gate arch with a notched stick and a ring of keys.
 - Known for a flat, tired murmur that makes carters lean in, and for never raising his voice.
 - Owes the town twelve marks' worth of shame and Stepan Fedorovich twelve marks of silver.
-- Oddity: a clean-shaven master in a street of beards, because a beard hid nothing from his wife.
 
 ## Appearance
 - **Body:** 168 cm, lean and wiry, narrow through the hips, a quick shuffling walk from years of crossing the gate arch. Shoulders sit forward from leaning on the wicket.
@@ -58,15 +57,15 @@ Born on Lai in 1311, the only son of the carpenter Berend van Hamelen. He was me
 - **Spring 1343 disruption:** Harju carters arrive angry about the grain levy; he is told to open later and close earlier, in the Vogt's name and the Rat's, and gets blamed by both.
 
 ## Work and money
-The post pays a stipend of 20 marks a year plus a toll cut by custom; roughly 30 marks all told, with Katharina's spinning adding a little. The household of seven, two of them clerks paying board, eats on that. The fine of 12 marks hangs on the keys. A bad month is any in which a Harju cart is turned away and a merchant complains to the Rat.
+The post pays a stipend of 20 marks a year plus a toll cut by custom, about 30 in all, with Katharina's spinning adding a little. The household of seven, two of them clerks paying board, eats on that. A bad month is any in which a Harju cart is turned away and a merchant complains to the Rat.
 
 ## Relationships
 - **Household:** [Katharina van Hildensem](katharina_van_hildensem.md), his wife; [Hildebrand van Hamelen](hildebrand_van_hamelen.md), ten; [Godeke van Hamelen](../../ledger/lower_town/lai.md#hh-lt-osm-w200852827), three, uncarded; [Berend van Hamelen](berend_van_hamelen.md), his father; clerks [Wessel Rode](wessel_rode.md) and [Meinhard Kleine](meinhard_kleine.md), lodgers who pay board.
 - **Network:** [Gerdt Pauli poeg](../../people/lower_town/gerdt_pauli_poeg.md), gatekeeper: same Amt fraternity, they stand together at the feast masses and dislike each other's methods; Gerdt waves carts through for a wink, Nicolaus counts and fears. [Stepan Fedorovich](../../people/lower_town/stepan_fedorovich.md), cap-maker: stood surety for the 12-mark fine; Nicolaus crosses to the far side of Apteegi and knows Stepan has begun to notice who notices. [Dietrich Zierenberg](../../people/lower_town/dietrich_zierenberg.md), merchant: shares a back-yard well on an unwritten rota both resent and keep. [Rembert van Brunswik](../../people/lower_town/rembert_van_brunswik.md), clerk: same funeral, same whisper, a cell of two with a third unnamed; they nod, never speak.
-- **Others:** [Bengt Bengtsson](../../ledger/lower_town/lai.md#hh-lt-osm-w200852865), baker six metres off; [Johannes van Luneborch](../../ledger/lower_town/lai.md#hh-lt-osm-w200852893), merchant, whose bales come through his gate.
+- **Others:** [Johannes van Luneborch](../../ledger/lower_town/lai.md#hh-lt-osm-w200852893), merchant, whose bales come through his gate.
 
 ## Faction and belief
-Hanseatic only because the Rat pays him and the Rat is Hanseatic; he is a dependent. His small allegiance is to whoever will not call the surety. He would lend a small favour (keeping a wicket unbarred) readily, a large one only if his debts vanish, and would inform if asked by the Vogt. Devout in the plain way, he lights a candle to St Nicholas for the sailors.
+Hanseatic only because the Rat pays him and the Rat is Hanseatic; he is a dependent. His small allegiance is to whoever will not call the surety. He would lend a small favour (keeping a wicket unbarred) readily, a large one only if his debts vanish, and would inform if asked by the Vogt.
 
 ## Voice
 - **Registers:** Low German with carters and merchants; short pious Latin responses at mass.

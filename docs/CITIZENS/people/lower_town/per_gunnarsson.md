@@ -28,7 +28,7 @@
 ## Appearance
 - **Body:** 144 cm, average build for twelve, long legs, a quick bouncing walk.
 - **Face:** Narrow, pointed chin, big grey-blue eyes, ears that stick out. A cold-sore scar on the upper lip.
-- **Hair and facial hair:** Ash blond, cropped with shears, flour-whitened; no facial hair.
+- **Hair and facial hair:** Ash blond, cropped, flour-whitened.
 - **Skin and marks:** Pale and even, flushed at the cheeks near the oven. The cold-sore scar.
 - **Hands:** Small, quick, floury, with a burn blister on the left thumb.
 - **Clothing and kit (April 1343):** Linen shirt, short brown tunic, sacking apron, hose tied with a rope; barefoot or in wooden clogs. Belt: a rag and a wooden spoon.
@@ -48,11 +48,11 @@ Born 1330 on a Swedish fisher's boat family; his father Gunnar was lost in a sto
 | Phase | Time (late April) | Place | Activity |
 |---|---|---|---|
 | Dawn | Before matins | Bakehouse | Wood and fire. |
-| Morning | Prime to terce | Bakehouse | Kneads, shapes. |
+| Morning | Prime to terce | Bakehouse | Kneads. |
 | Midday | Noon | Kitchen | Eats. |
-| Afternoon | Nones | Yard | Sweeps, carries. |
+| Afternoon | Nones | Yard | Sweeps. |
 | Evening | Vespers | Bakehouse | Cleans. |
-| Night | After curfew | Loft | Sings, then sleeps. |
+| Night | After curfew | Loft | Sings, sleeps. |
 
 - **Sundays and feast days:** Mass at St Olaf, then a game of knucklebones in the lane.
 - **Spring 1343 disruption:** More loaves and shorter rest.

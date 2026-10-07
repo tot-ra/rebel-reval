@@ -35,13 +35,13 @@
 - **Model notes:** MPFB gender female, age_years 23, muscle 0.3, weight 0.3, proportions long limbs, height_m 1.48; fair freckled skin; eyes blue; ash blond hair; crowd tier 2.
 
 ## Biography
-Nika was born in a village on the Harju road, burned her hand on a pot at nine, and came to town at fourteen. She serves in Rein's house for her keep and four marks a year. She survived the bad winter of 1341 by sharing a pallet with Sibbe.
+Nika was born in a village on the Harju road, the sixth of nine, and burned her right hand on a pot of boiling pease at nine years old; the scar is shiny and tight and she cannot fully close the fist. She came to town at fourteen with an aunt and went into Rein's household in 1338. The winter of 1341 was bitter and the alley ran with ice; she and Sibbe, a spinner from Lai, shared a pallet in a lane cellar for three weeks while their households were short of fuel. She still saves her crusts for Sibbe. She is the loudest person in the house and says nothing that matters.
 
 ## Motivation
-- **Want:** A husband with a cow.
-- **Fear:** The pot.
-- **Contradiction:** She shouts but speaks no secrets.
-- **Secret or withheld fact:** She keeps a crust for Sibbe.
+- **Want:** A husband with a cow, and a bed that is hers.
+- **Fear:** The pot of boiling water, and a second winter in a cellar.
+- **Contradiction:** She booms across a yard and cannot say a hard word to a face.
+- **Secret or withheld fact:** She hides Sibbe's spare shawl in the loft in case Sibbe is turned out.
 
 ## Daily routine
 | Phase | Time (late April) | Place | Activity |
@@ -57,7 +57,7 @@ Nika was born in a village on the Harju road, burned her hand on a pot at nine, 
 - **Spring 1343 disruption:** Prices rise.
 
 ## Work and money
-Four marks a year.
+Four marks a year, board and a gown at Michaelmas. She fetches water, lights fires, scrubs pots and carries pelts to the dye-yard; the heavy work falls on her long arms. A month with no sales is a month on barley porridge. She gives a pfennig a week to Sibbe in the lean season and counts it as repaid by the shared bread.
 
 ## Relationships
 - **Household:** [Rein](rein.md), master; [Gertrud Joosepi tütar](gertrud_joosepi_tutar.md), mistress; [Ell Reinu tütar](ell_reinu_tutar.md) and [Magdalena Reinu tütar](magdalena_reinu_tutar.md), the daughters; [Veronika Kaspari tütar](veronika_kaspari_tutar.md), the other maid.
@@ -65,7 +65,7 @@ Four marks a year.
 - **Others:** [Johan van Rostok](../../ledger/lower_town/hobusepea.md#hh-lt-osm-w200453905), baker.
 
 ## Faction and belief
-None. She leaves a crust at the hearth.
+None. Talk of levies and tolls is for those with money. A small favour she gives gladly, a large one she calls out for help; informing she would shout about, so nobody would trust her with it. She leaves a crust at the hearth for the house spirit and crosses her thumbs when the pot boils.
 
 ## Voice
 - **Registers:** Estonian.
@@ -74,7 +74,7 @@ None. She leaves a crust at the hearth.
 - **Verbal tic:** "Hear me?"
 
 ## Knowledge and rumours
-She knows when the baker bakes. She believes the pot is cursed.
+She knows which neighbour's chimney smokes, because she shouts about it. She would trade that for a ribbon. She believes the pot she was burned by was cursed by a rival cook.
 
 ## Game hooks
 - **Ambient role:** Kitchen and yard.

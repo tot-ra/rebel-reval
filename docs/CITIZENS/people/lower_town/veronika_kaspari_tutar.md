@@ -35,13 +35,13 @@
 - **Model notes:** MPFB gender female, age_years 23, muscle 0.3, weight 0.4, proportions slightly asymmetric shoulders, height_m 1.54; fair flushing skin; eyes blue; ash blond hair; crowd tier 2.
 
 ## Biography
-Vere was born near the Karja gate, the daughter of a carter named Kaspar. She was put into service at twelve and has been with Rein's house since 1337. Her shoulders were set unevenly by years of carrying a yoke too early.
+Vere was born near the Karja gate, the daughter of a carter named Kaspar who drove for the Dominicans and was killed under his own wheel in 1334. She was put into service at twelve, first with a fishwife who beat her, then with Rein's household from Michaelmas 1337. Her shoulders were set unevenly by a yoke carried too young, and the left one rides high under her gown. She has learned to turn it to advantage: a basket of pelts rests neatly on the high side, and she can carry a full load across the market without a hand. In the house she is the quiet one, and Nika, the other Veronika, does the shouting for both. She has a bed in the loft beside the stove-pipe and a tin comb from her mother.
 
 ## Motivation
-- **Want:** A day off with Sibbe.
-- **Fear:** Being sent away.
-- **Contradiction:** Shy, yet she bargains fiercely.
-- **Secret or withheld fact:** She saves a pfennig a week.
+- **Want:** A free half-day each week, and someone to walk home with.
+- **Fear:** Being dismissed in a lean winter, as the fishwife dismissed her sister.
+- **Contradiction:** Shy in the kitchen and merciless at a stall; she makes grown fishmongers lower the price.
+- **Secret or withheld fact:** She saves one pfennig a week in a hollow of the loft rafter and has told only Sibbe.
 
 ## Daily routine
 | Phase | Time (late April) | Place | Activity |
@@ -57,7 +57,7 @@ Vere was born near the Karja gate, the daughter of a carter named Kaspar. She wa
 - **Spring 1343 disruption:** Prices rise.
 
 ## Work and money
-Four marks a year.
+Four marks a year, board, a gown and two shifts at Michaelmas. The household buys rye from the baker next door at about a pfennig the loaf and greens from the stalls, and Vere does all the buying, so the mistress trusts her with the purse. A small saving on every purchase is her only perquisite, and she is careful not to take too much. A bad month is one when the pelts do not sell and the household eats less; she eats last.
 
 ## Relationships
 - **Household:** [Rein](rein.md), master; [Gertrud Joosepi tütar](gertrud_joosepi_tutar.md), mistress; [Ell Reinu tütar](ell_reinu_tutar.md) and [Magdalena Reinu tütar](magdalena_reinu_tutar.md), the daughters; [Veronika Jaagu tütar](veronika_jaagu_tutar.md), the other maid.
@@ -65,7 +65,7 @@ Four marks a year.
 - **Others:** [Johan van Rostok](../../ledger/lower_town/hobusepea.md#hh-lt-osm-w200453905), baker.
 
 ## Faction and belief
-None. She prays quickly.
+None. She cannot afford a faction, and the talk in the kitchen of tolls and levies passes over her like weather. A small favour she does at once; a large one she asks the mistress about; informing is beyond her, because she would blush. She lights a stub for St Olaf each Sunday and says her father's name in the prayer.
 
 ## Voice
 - **Registers:** Estonian.
@@ -74,7 +74,7 @@ None. She prays quickly.
 - **Verbal tic:** "Too dear."
 
 ## Knowledge and rumours
-She knows every price. She believes the baker waters the dough.
+She knows the price of every loaf and egg in Hobusepea and which stall-holder adds sand to the salt. She would trade the information for a quieter evening. She believes the baker waters his dough, which is false; he only wets the oven floor.
 
 ## Game hooks
 - **Ambient role:** Market mornings.

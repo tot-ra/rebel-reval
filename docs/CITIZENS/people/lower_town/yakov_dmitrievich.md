@@ -11,7 +11,7 @@
 | Household | [hh.lt.osm_w200453911](../../ledger/lower_town/lai.md#hh-lt-osm-w200453911) |
 | Home | Lai, plot `bldg.osm.w200453911` (56 m2) |
 | Age / sex | 14, male |
-| Ethnicity / segment | russian / russian_guest |
+| Ethnicity / segment | russian / servant |
 | Status | Apprentice in his father's cellar |
 | Trade | Apprentice (tavern and cellar) |
 | Languages | Russian, Middle Low German |

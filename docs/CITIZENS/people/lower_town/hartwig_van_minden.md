@@ -23,7 +23,6 @@
 - Tall, lean man whose bellow carries across Lai, lifting heads in the neighbouring yards.
 - Known as the councillor with the large house, the large voice and the larger household of eleven.
 - Owes nine marks to a Danish falconer on the hill and has not said so on the council bench.
-- Oddity: a man famous for loud speech who keeps his one real conviction in whispers.
 
 ## Appearance
 - **Body:** 176 cm, lean and wiry, long-limbed, a little round-shouldered; walks with long measured strides and swings his arms when he talks.
@@ -63,10 +62,10 @@ He trades broadcloth from Ypres and wax from the east. His turnover runs to seve
 ## Relationships
 - **Household:** [Nicolaus van Zwolle](nicolaus_van_zwolle.md), apprentice; [Yrjö Ollanpoika](yrjo_ollanpoika.md), servant; [Ede Reinu tütar](ede_reinu_tutar.md), maid; [Elsa Gerdti tütar](elsa_gerdti_tutar.md), servant; [Gerhard van Hamelen](gerhard_van_hamelen.md), clerk; and without cards [Gertrud Tõlli tütar](../../ledger/lower_town/lai.md#hh-lt-osm-w200852812), [Bela van Luneborch](../../ledger/lower_town/lai.md#hh-lt-osm-w200852812), [Elsa Mihkli tütar](../../ledger/lower_town/lai.md#hh-lt-osm-w200852812), [Katarina Andrese tütar](../../ledger/lower_town/lai.md#hh-lt-osm-w200852812) and [Sofia Lauri tütar](../../ledger/lower_town/lai.md#hh-lt-osm-w200852812).
 - **Network:** [Reimar Fatbinder](../../people/karja_road/reimar_fatbinder.md), cooper: Reimar is his superior in the circle, though neither would put it that way; they never speak in the same room as others. [Berta Toomase tütar](../../people/lower_town/berta_toomase_tutar.md), dairy-woman: she suspects but cannot prove he leans the same way; each watches the other for a sign. [Metteke Snelle](../../people/lower_town/metteke_snelle.md), spinner: the same suspicion, the same wary watching. [Gerdt Pauli poeg](../../people/lower_town/gerdt_pauli_poeg.md), gatekeeper: his hens keep getting into Hartwig's yard; it is always settled with a jug of beer, and always happens again. [Ain Aino poeg](../../people/lower_town/ain_aino_poeg.md), porter: recommended Hartwig to a third party and has since heard complaints that rebound on his own name; Hartwig knows and sends beer. [Erik Folkesson](../../people/lower_town/erik_folkesson.md), merchant: Hartwig suspects him of undercutting the going price with stolen or smuggled stock; no proof, so far. [Reynold Gude](../../people/toompea/reynold_gude.md), falconer: lent him 9 marks for a dowry; the marriage went ahead and the debt remains.
-- **Others:** [Johannes van Luneborch](../../ledger/lower_town/lai.md#hh-lt-osm-w200852893), merchant at 33 m; [Siim Villemi poeg](../../ledger/lower_town/suur_kloostri.md#hh-lt-osm-w200852818), neighbour merchant.
+- **Others:** [Siim Villemi poeg](../../ledger/lower_town/suur_kloostri.md#hh-lt-osm-w200852818), neighbour merchant.
 
 ## Faction and belief
-Officially Hanseatic core: his money is in the Hanse's cloth, and the council is his bench. His own reason for the circle is a creditor on the hill. He would sign a small favour, lend a cart, but not stand in a street; asked to inform, he would lie loudly. Devout; he gives wax to St Nicholas each year.
+Officially Hanseatic core: his money is in the Hanse's cloth, and the council is his bench. His own reason for the circle is a creditor on the hill. He would sign a small favour, lend a cart, but not stand in a street; asked to inform, he would lie loudly.
 
 ## Voice
 - **Registers:** Low German in council and trade; Latin at mass and in contracts; a murmur in the circle.

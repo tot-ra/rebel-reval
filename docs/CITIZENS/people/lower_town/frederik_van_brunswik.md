@@ -36,7 +36,7 @@
 - **Model notes:** male, age 60, muscle low, weight average, proportions average, height 1.69 m; sallow skin with freckles; brown eyes; grey-brown hair, clean-shaven; crowd tier 1.
 
 ## Biography
-Born 1283 in Reval, the third son of a merchant from Braunschweig. He survived the Harju rising of 1343 hardly in memory but the Danish wars of 1313 well, remembering the grain shortage of 1316-18 with horror. He joined the Kindergilde at twenty-five, took over the family trade at thirty, married Sophia in 1319 and was elected to the council in 1334. He is a careful man whose caution is partly fear: the family fortune was lost once and rebuilt. He sits on the council's grain committee and speaks little there.
+Born 1283 in Reval, the third son of a merchant from Braunschweig. He was a boy of thirty when the old wars ended, and remembers the grain shortage of 1316-18 with horror. He joined the Kindergilde at twenty-five, took over the family trade at thirty, married Sophia in 1319 and was elected to the council in 1334. He is a careful man whose caution is partly fear: the family fortune was lost once and rebuilt. He sits on the council's grain committee and speaks little there.
 
 ## Motivation
 - **Want:** To pass the house and the trade intact to Dietrich, and a council seat for the family.
