@@ -53,19 +53,18 @@ Rotcher was born in Reval in 1282 to a Saxon skipper who was away eight months i
 | Evening | After vespers | Cloister | Sits with the old; brews a drink of hyssop for his own chest |
 | Night | Curfew bell | Infirmary | Compline; sleeps with a hot brick |
 
-- **Sundays and feast days:** He sits at the back of choir near the door, to leave quietly for the sick.
-- **Spring 1343 disruption:** Hunger after Lent has filled two beds; the gate closings keep the herb-women out. He pays double for lint.
+- **Sundays and feast days:** He sits at the back of choir, near the door, to slip out for the sick.
+- **Spring 1343 disruption:** Hunger after Lent has filled two beds and the gate closings keep the herb-women out.
 
 ## Work and money
 The infirmary runs on bequests and the friary purse: perhaps four marks a year on lint, razors, honey, salves and linen by the ell. He buys small items from the Estonian barber-surgeon down the lane, whose razors hold an edge. A bad month is a fever in the Lower Town.
 
 ## Relationships
 - **Household:** The friars of St Catherine's: [Ghert Lutke, Arnold van Kolne, Bertold Kniphof, Borchard Grote, Conrad Blyde, Thomas van Stade, Sander Overdyk, Tilman van Brunswik, Heyno Corte, Gottschalk van Wismar, Claus Overdyk, Dietrich van Gripeswold, Borchard van van Lubeke, Ropert van Stralesund, Heine Langhe, Gerlach van Kolne, Hinrik van van Lubeke, Volmar Vrie, Lambrecht van Paderborne, Vicke van Goslar, Lambert Wise](../../ledger/lower_town/katariina_kaik.md#hh-inst-st-catherine-friary). [Arnold van van Lubeke](../../people/lower_town/arnold_van_van_lubeke.md) he teases over his scales; [Tilman van Munster](../../people/lower_town/tilman_van_munster.md) is his oldest friend in the house; [Eerik Aino poeg](../../people/lower_town/eerik_aino_poeg.md) brings him water and has caught him murmuring Estonian. The other lay brothers (Rein Everti poeg, Taniel Madise poeg, Hindrek Kauri poeg, Hinrick Madise poeg, Madis Villemi poeg, Tõll Aino poeg, Tõnu Korneli poeg), the servants (Jaak Reinu poeg, Ain Tõnu poeg, Eerik Antsu poeg, Pärtel Hindreku poeg, Jakob Hindreku poeg) and the cook Kristjan Henni poeg are in the [household ledger](../../ledger/lower_town/katariina_kaik.md#hh-inst-st-catherine-friary).
-- **Network:** [Ilsabe van Campen](../../people/lower_town/ilsabe_van_campen.md), servant on Vene: they know each other from the market; they greet by name and trade the day's prices. It began over linen and he now asks her opinion before buying any.
+- **Network:** [Ilsabe van Campen](../../people/lower_town/ilsabe_van_campen.md), servant on Vene: they know each other from the market; they greet by name and trade the day's prices. It began over linen.
 - [Jüri Tanieli poeg](../../people/lower_town/juri_tanieli_poeg.md), barber-surgeon next door: Jüri sells Rotcher small things (razors, lint, a salve for chilblains) at a fair price and Rotcher tells others to buy from him. Rotcher thinks him the only honest hand with a lancet on the lane.
 - [Brun van Stade](../../people/lower_town/brun_van_stade.md), the brewer's eldest son: they know each other from the market, greeting by name and trading prices; Rotcher once set the boy's nose, the reason it now sits crooked.
 - [Per Magnusson](../../people/lower_town/per_magnusson.md), young shoemaker on Munga: once did Rotcher a small favour at the gate. Rotcher remembers it as carrying a basket through a crush; Per's version differs, and Rotcher lets it stand.
-- **Others:** [Bertold van Stade's household](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w28187544) sends him pots of malt-water for the sick.
 
 ## Faction and belief
 He belongs to the Church by vocation and has no stake in politics; he would shelter the wounded from either side, since a sick man is not a faction. He would not inform. He keeps Mari's practice of leaving a spoon of milk on the sill on St John's Eve and tells himself it is for the cat.
@@ -77,7 +76,7 @@ He belongs to the Church by vocation and has no stake in politics; he would shel
 - **Verbal tic:** Ends advice with "so" on a rising note.
 
 ## Knowledge and rumours
-He knows who is coughing in which house and who has not paid the barber. He would trade it for a place on the infirmary's linen supply. He believes the false rumour that the fever of 1316 began in the Smiths' Gate quarter.
+He knows who is coughing in which house. He would trade it for linen for the infirmary. He believes the false rumour that the fever of 1316 began in the Smiths' Gate quarter.
 
 ## Game hooks
 - **Ambient role:** Dawn in the infirmary; mornings at the herb garden and gate; afternoons at market.

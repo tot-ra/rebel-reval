@@ -55,18 +55,18 @@ His quarrel is with the nuns of St Michael's, who sold the house a short honey m
 | Evening | After vespers | Katariina käik | Walks the lane and looks in on Bertold van Stade's house when it is empty |
 | Night | Curfew bell | Dormitory | Compline, then counting on his fingers before sleep |
 
-- **Sundays and feast days:** No selling; he sits in choir and then in the cloister, doing sums on his knees.
-- **Spring 1343 disruption:** Prices of rye are rising and the gates have been shut early twice. He buys ahead and says nothing; the cellar is fuller than the prior thinks.
+- **Sundays and feast days:** No selling; choir, then sums on his knees in the cloister.
+- **Spring 1343 disruption:** Rye is rising and the gates have shut early twice. He buys ahead; the cellar is fuller than the prior thinks.
 
 ## Work and money
 The friary lives on gifts, bequests, a garden and Lower Town alms. Arnold turns the spare into silver by weight: candle ends, garden onions, mended rope, a little cheese, at a margin of perhaps three örtug in the mark. He buys herring and peas for the brothers by the lispfund. A bad month is a short measure noticed only at the gate.
 
 ## Relationships
 - **Household:** The friars of St Catherine's: [Ghert Lutke, Arnold van Kolne, Bertold Kniphof, Borchard Grote, Conrad Blyde, Thomas van Stade, Sander Overdyk, Tilman van Brunswik, Heyno Corte, Gottschalk van Wismar, Claus Overdyk, Dietrich van Gripeswold, Borchard van van Lubeke, Ropert van Stralesund, Heine Langhe, Gerlach van Kolne, Hinrik van van Lubeke, Volmar Vrie, Lambrecht van Paderborne, Vicke van Goslar, Lambert Wise](../../ledger/lower_town/katariina_kaik.md#hh-inst-st-catherine-friary). Borchard and Hinrik, fellow Lübeckers, he treats as cousins. The senior brothers [Rotcher Sasse](../../people/lower_town/rotcher_sasse.md) and [Tilman van Munster](../../people/lower_town/tilman_van_munster.md) he respects and quietly argues with. The lay brothers (Rein Everti poeg, Taniel Madise poeg, Hindrek Kauri poeg, Hinrick Madise poeg, Madis Villemi poeg, Tõll Aino poeg, Tõnu Korneli poeg and [Eerik Aino poeg](../../people/lower_town/eerik_aino_poeg.md)), the household servants (Jaak Reinu poeg, Ain Tõnu poeg, Eerik Antsu poeg, Pärtel Hindreku poeg, Jakob Hindreku poeg) and the cook Kristjan Henni poeg are listed in the [household ledger](../../ledger/lower_town/katariina_kaik.md#hh-inst-st-catherine-friary).
-- **Network:** [Nicolaus Snelle](../../people/lower_town/nicolaus_snelle.md), merchant's clerk on Vene: they know each other from the market, greet by name and trade the day's prices. It began over a disputed pfund of wax; Arnold now uses the boy's figures as a check on his own.
-- [Mihkel Kristjani poeg](../../people/lower_town/mihkel_kristjani_poeg.md), servant at the Stenhus house: Arnold sells him small things at a fair price and Mihkel tells others to buy from the friar. Arnold is flattered and pretends not to be.
+- **Network:** [Nicolaus Snelle](../../people/lower_town/nicolaus_snelle.md), merchant's clerk on Vene: they know each other from the market, greet by name and trade the day's prices. It began over a disputed pfund of wax.
+- [Mihkel Kristjani poeg](../../people/lower_town/mihkel_kristjani_poeg.md), servant at the Stenhus house: Arnold sells him small things at a fair price and Mihkel tells others to buy from the friar.
 - [Bertold van Stade](../../people/lower_town/bertold_van_stade.md), brewer and councillor: Arnold watches the brewer's house when Bertold is away on business and is repaid in fish, bread or small repairs. He regards it as a fair exchange and keeps the account.
-- **Others:** [Jüri Tanieli poeg](../../people/lower_town/juri_tanieli_poeg.md) the barber-surgeon, a few doors off, gets a nod; Leho Kauri poeg's candle workshop ([ledger](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w28163736)) is his main rival for wax scraps.
+- **Others:** Leho Kauri poeg's candle workshop ([ledger](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w28163736)) is his rival for wax scraps.
 
 ## Faction and belief
 He belongs to the Church because he entered it as a boy; he has no politics beyond honest weight. A small favour he would do; a large one he would weigh first. He would not inform on a penitent. He never starts a count on a Friday, a Lübeck superstition.
@@ -78,7 +78,7 @@ He belongs to the Church because he entered it as a boy; he has no politics beyo
 - **Verbal tic:** Repeats the last figure aloud: "Two marks, two marks."
 
 ## Knowledge and rumours
-He knows who is buying grain ahead, who is selling short and which stalls have changed hands this year. He would trade this for a quiet word with the prior about the missing eight marks. He believes the false rumour that the nuns of St Michael's keep two sets of weights.
+He knows who is buying grain ahead and who sells short. He would trade it for a quiet word with the prior about the missing eight marks. He believes the false rumour that the nuns of St Michael's keep two sets of weights.
 
 ## Game hooks
 - **Ambient role:** Dawn in choir; mornings at market and at the Vene street stalls; afternoons at the friary gate selling small goods.

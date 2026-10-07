@@ -71,7 +71,7 @@ No faction. She is young, new to the town, and sees politics as men's weather. S
 ## Voice
 - **Registers:** Swedish with herself; careful Low German in the house.
 - **Delivery:** Thin and reedy, rising at the end of sentences.
-- **Sample lines:** "Yes, Frau, at once." "Do not tell the mistress, please." "Åh, herre Gud."
+- **Sample lines:** "Yes, Fru, at once." "Do not tell the mistress, please." "Åh, herre Gud."
 - **Verbal tic:** "If it please you."
 
 ## Knowledge and rumours

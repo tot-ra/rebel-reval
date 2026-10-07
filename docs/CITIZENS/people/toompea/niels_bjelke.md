@@ -58,7 +58,7 @@ He now holds the gate post at the castle's lower door, sleeps in the barracks, a
 | Evening | Vespers | Church door, lane | Walks home with an old friend; gossip |
 | Night | Curfew bell | Lower door | Locks, calls the shut, sleeps |
 
-- **Sundays and feast days:** Mass at St Mary, then dice with the men, never for more than a örtug.
+- **Sundays and feast days:** Mass at St Mary, then dice with the men, never for more than an örtug.
 - **Spring 1343 disruption:** More carts of grain levy through his door; the viceroy's men tighten passes; after St George's Night he expects to hold the lower door alone.
 
 ## Work and money

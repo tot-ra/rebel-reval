@@ -35,7 +35,7 @@
 - **Model notes:** MPFB macros: male, age_years 66, muscle 0.55, weight 0.6, proportions broad, height_m 1.74; skin tone olive-fair; eyes green; tonsure with white fringe, no beard; crowd tier 2.
 
 ## Biography
-Born 1277 in Münster to a cloth-fuller, Tilman took the habit at seventeen and was sent to Reval in 1300 with a letter from his provincial. He learned Estonian from the lay brothers and from the women at the herring tubs, and by 1310 he was preaching it from a cart in the market square. During the siege years of 1313-1325 he buried both soldiers and peasants, and refused to preach against either. He remembers the Danish bailiff flogging a man outside the friary gate in 1319 and has never preached on obedience since without thinking of it.
+Born 1277 in Münster to a cloth-fuller, Tilman took the habit at seventeen and was sent to Reval in 1300 with a letter from his provincial. He learned Estonian from the lay brothers and from the women at the herring tubs, and by 1310 he was preaching it from a cart in the market square. During the siege years of 1313-1325 he buried both soldiers and peasants, and refused to preach against either. He saw the Danish bailiff flog a man outside the friary gate in 1319 and thinks of it whenever he preaches obedience.
 
 His knee has failed since a fall on ice in 1338. He still preaches every second Sunday and hears confession on Saturdays; he lives in a cell with a view of the lane, where he watches for children.
 

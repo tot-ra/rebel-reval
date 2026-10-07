@@ -35,7 +35,7 @@
 - **Model notes:** MPFB macros: female, age_years 11, muscle 0.3, weight 0.55, proportions child sturdy, height_m 1.32; skin tone sallow-pale; eyes blue; sandy plaits; crowd tier 2.
 
 ## Biography
-Born 1332 in the great house, the third child. She learned numerals from the tap-room tally and Estonian from the maltsters, and she was set to wash cups at seven. At nine she caught a thief who was taking pewter spoons and reported him in the same flat voice she uses for everything, which frightened the thief more than a shout.
+Born 1332 in the great house, the third child. She learned numerals from the tap-room tally and Estonian from the maltsters, and washed cups from seven. At nine she caught a thief taking pewter spoons and reported him in her flat voice, which frightened him more than a shout.
 
 ## Motivation
 - **Want:** To be put in charge of the cups.
@@ -61,7 +61,7 @@ She has no wages. She is promised a silver ring at fourteen if the cups are all 
 
 ## Relationships
 - **Household:** [Bertold van Stade](../../people/lower_town/bertold_van_stade.md), father, who talks to her like a clerk; [Kunigunde van Wismar](../../people/lower_town/kunigunde_van_wismar.md), mother, who taught her to count; [Brun van Stade](../../people/lower_town/brun_van_stade.md), brother, who lets her stir the wort; [Peter van Stade](../../people/lower_town/peter_van_stade.md), brother, whom she bosses; Hille van Stade and Lambert van Stade, the little ones, in the [household ledger](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w28187544); and [Tõnu Mihkli poeg](../../people/lower_town/tonu_mihkli_poeg.md), who lets her use his spare ink.
-- **Others:** The Stenhus children next door ([ledger](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w26902721)) play hoops with her; she is wary of their grown cook.
+- **Others:** The Stenhus children next door ([ledger](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w26902721)) play hoops with her.
 
 ## Faction and belief
 She has no faction. She believes in St Nicholas, who watches the family pew, in the cat who guards the malt loft, and in counting. She would tell if asked, but only what she counted.

@@ -36,7 +36,7 @@
 - **Model notes:** MPFB macros: male, age_years 13, muscle 0.3, weight 0.4, proportions average, height_m 1.50; pale even skin; blue eyes; dark blond hair; crowd tier 2.
 
 ## Biography
-Born 1329 in the house on Rahukohtu, fifth to be named and the second to survive his sister Gertrud's fever in 1336. He was set to the mews at nine, as a falconer's second son is: cleaning perches, carrying pigeons, watching the moult. He is Heilwig's rival at everything except the birds, which she loves more.
+Born 1329 in the house on Rahukohtu, old enough in 1336 to remember his sister Gertrud's fever. He was set to the mews at nine, as a falconer's second son is: cleaning perches, carrying pigeons, watching the moult. He is Heilwig's rival at everything except the birds, which she loves more.
 
 Last summer he watched the masons raise a gable on Rahukohtu, and Borchard Steenmetter let him lay one stone. He still thinks of it.
 
