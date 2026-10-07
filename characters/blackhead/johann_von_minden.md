@@ -4,7 +4,7 @@
 
 # Johann von Minden
 
-![](./johann_von_minden.gif)
+![alt text](img/johann_von_minden.jpg)
 
 ### "Reval is not a castle of knights or a den of peasants. It is a city of coin, and coin has no king but its master."
 

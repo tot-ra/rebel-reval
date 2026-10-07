@@ -257,6 +257,15 @@ These factions are not directly involved in the conflict between the Rulers and 
 - [Traveling Peddler](streets/peddler/peddler.md)
 - [Runaway Serf](streets/runaway_serf/runaway_serf.md)
 
+#### `tavern/`
+
+- [Adelheid](tavern/adelheid/adelheid.md)
+- [Big Hilde](tavern/big_hilde/big_hilde.md)
+- [Isolde](tavern/isolde/isolde.md)
+- [Katharina](tavern/katharina/katharina.md)
+- [Rusalka 'Red Rosa'](tavern/red_rosa/red_rosa.md)
+- [Zaida](tavern/zaida/zaida.md)
+
 #### `workers_quarter/`
 
 - [Albrecht](workers_quarter/albrecht/albrecht.md)
