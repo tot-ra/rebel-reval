@@ -154,3 +154,72 @@ func test_grass_tufts_are_real_size() -> void:
 	var tuft := MapViewMeshBuilderPrimitives.grass_tuft_mesh().get_aabb().size
 	assert_true(tuft.y * CityGrass.TUFT_SCALE.y < 0.5, "tallest tuft under half a metre")
 	assert_true(maxf(tuft.x, tuft.z) * CityGrass.TUFT_SCALE.y < 0.65, "widest tuft under 0.65 m")
+
+
+## Longest leaf-cluster card in a mesh, times the instance scale, in metres.
+## Card length is measured along its spine (UV.x = 0.5, from UV.y = 0 to 1);
+## each card is 12 consecutive UV2 = (1, 1) vertices.
+func _max_card_metres(mesh: ArrayMesh, scale: float) -> float:
+	var arrays := mesh.surface_get_arrays(0)
+	var vertices: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+	var uv: PackedVector2Array = arrays[Mesh.ARRAY_TEX_UV]
+	var uv2: PackedVector2Array = arrays[Mesh.ARRAY_TEX_UV2]
+	var largest := 0.0
+	var index := 0
+	while index < vertices.size():
+		if uv2[index].y < 0.5:
+			index += 1
+			continue
+		var twig := Vector3.INF
+		var tip := Vector3.INF
+		for v in range(index, mini(index + 12, vertices.size())):
+			if absf(uv[v].x - 0.5) < 0.01:
+				if uv[v].y < 0.01:
+					twig = vertices[v]
+				elif uv[v].y > 0.99:
+					tip = vertices[v]
+		if twig != Vector3.INF and tip != Vector3.INF:
+			largest = maxf(largest, twig.distance_to(tip) * scale)
+		index += 12
+	return largest
+
+
+func test_city_bush_leaf_cards_are_real_size() -> void:
+	# The plan scales shrubs by up to ~1.35; leaves must stay hand-sized.
+	for species: StringName in [&"dog_rose", &"raspberry"]:
+		var mesh := CityVegetationBuilder.bush_mesh(species)
+		var scale := CityVegetationBuilder.bush_scale(species, 1.0, 1.0)
+		var card := _max_card_metres(mesh, scale * 1.35)
+		assert_true(card > 0.1 and card < 0.4, "%s leaf card %.2f m" % [species, card])
+		var size_m: Vector2 = CityVegetationBuilder.BUSH_SIZE_M[species]
+		var box := mesh.get_aabb()
+		assert_almost_eq(box.end.y * scale, size_m.x, size_m.x * 0.2, "%s height" % species)
+		assert_true(
+			maxf(box.size.x, box.size.z) * scale > size_m.y * 0.6, "%s keeps its spread" % species
+		)
+		# Mass from many small cards instead of a few blown-up blobs.
+		var cards := 0
+		var uv2: PackedVector2Array = mesh.surface_get_arrays(0)[Mesh.ARRAY_TEX_UV2]
+		for uv in uv2:
+			cards += 1 if uv.y > 0.5 else 0
+		assert_true(cards / 12 >= 150, "%s has %d cards" % [species, cards / 12])
+	# Shrubs drawn with the tree meshes (elder, guelder rose, willow/alder scrub...)
+	# swap to a near crown with hand-sized cards beside Kalev.
+	for species: StringName in MapViewTreeMeshes.CITY_SHRUBS:
+		var scale := CityVegetationBuilder.species_scale(species, 1.0)
+		var near := MapViewTreeMeshes.city_canopy_near_mesh(species, scale)
+		var card := _max_card_metres(near, scale * CityVegetationBuilder.size_factor(1.35))
+		assert_true(card < 0.4, "%s near card %.2f m" % [species, card])
+		var far := _max_card_metres(MapViewTreeMeshes.city_canopy_far_mesh(species), scale)
+		assert_true(card < far, "%s near cards smaller than far (%.2f m)" % [species, far])
+		var stats := MapViewTreeMeshes.city_canopy_near_stats(species, scale)
+		assert_true(float(stats["count_factor"]) > 1.1, "%s near crown keeps its mass" % species)
+		assert_true(int(stats["canopy_triangles"]) <= MapViewTreeMeshes.NEAR_TRIANGLE_CAP)
+
+
+func test_district_bush_meshes_unchanged() -> void:
+	# The city variants must not leak into the district maps' bush geometry.
+	for species: StringName in [&"dog_rose", &"raspberry"]:
+		var stats := MapViewBushMeshes.geometry_stats(species)
+		assert_eq(int(stats["triangles"]), 320, "%s district mesh" % species)
+		assert_true((stats["aabb"] as AABB).size.y < 1.2, "%s district mesh ~1 unit" % species)

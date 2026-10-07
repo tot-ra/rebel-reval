@@ -162,7 +162,7 @@ static func build(plan: CityPlan, parent: Node3D) -> Node3D:
 			MapViewMaterials.bark_plate(MapViewTreeSpecies.bark_plate_for(species)),
 			Vector3.ZERO
 		)
-		var shrub := species in [&"hazel", &"hawthorn", &"blackthorn"]
+		var shrub := species in MapViewTreeMeshes.CITY_SHRUBS
 		wood.visibility_range_end = BUSH_RANGE if shrub else WOOD_RANGE
 		if shrub:
 			wood.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
@@ -181,12 +181,29 @@ static func build(plan: CityPlan, parent: Node3D) -> Node3D:
 			crown.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		root.add_child(crown)
 		# This big-card crown is the far LOD; CityTreeLod swaps trees near the
-		# camera to the real-size near crown. Shrub-sized trees are already at
-		# real card size (their near mesh would be identical), so they stay put.
-		if not shrub:
-			lod.register(species, world_scale, crown.multimesh, transforms, colors, shrub)
+		# camera to the real-size near crown. Shrubs swap too: their near cards
+		# are NEAR_SHRUB_CARD_METRES (hand-sized leaves beside Kalev).
+		lod.register(species, world_scale, crown.multimesh, transforms, colors, shrub)
 	build_bushes(plan, root)
 	return root
+
+
+## City mesh for a build_bushes shrub: leafy shrubs with a city variant are
+## built in metres with real-size leaf cards; the rest reuse the shared mesh.
+static func bush_mesh(species: StringName) -> ArrayMesh:
+	if BushMeshes.has_city_variant(species):
+		return BushMeshes.city_mesh_for(species, BUSH_SIZE_M[species])
+	return BushMeshes.mesh_for(species)
+
+
+## Uniform instance scale (the cards only read as a shrub in their authored
+## proportions). City variants are already in metres: only the plan factor.
+static func bush_scale(species: StringName, plan_scale: float, metres_per_unit: float) -> float:
+	if BushMeshes.has_city_variant(species):
+		return plan_scale / metres_per_unit
+	var size_m: Vector2 = BUSH_SIZE_M.get(species, Vector2(2.0, 2.0))
+	var height := maxf(BushMeshes.mesh_for(species).get_aabb().size.y, 0.1)
+	return size_m.x / metres_per_unit / height * plan_scale
 
 
 ## Shrubs from the plan (yard elder and roses, wall-foot thorn scrub, stream
@@ -203,11 +220,7 @@ static func build_bushes(plan: CityPlan, root: Node3D) -> void:
 			buckets[key] = {"transforms": [] as Array[Transform3D], "colors": [] as Array[Color]}
 		var rng := RandomNumberGenerator.new()
 		rng.seed = hash(Vector2i(int(p.x * 10.0), int(p.y * 10.0)))
-		var scale := float(t[3])
-		var size_m: Vector2 = BUSH_SIZE_M.get(species, Vector2(2.0, 2.0))
-		var aabb := BushMeshes.mesh_for(species).get_aabb().size
-		var sy := size_m.x / plan.metres_per_unit / maxf(aabb.y, 0.1) * scale
-		# Uniform: the cards only read as a shrub in their authored proportions.
+		var sy := bush_scale(species, float(t[3]), plan.metres_per_unit)
 		var basis := Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * sy)
 		(buckets[key]["transforms"] as Array[Transform3D]).append(
 			Transform3D(basis, Vector3(p.x, plan.ground_height(p) - 0.05, p.y))
@@ -222,9 +235,11 @@ static func build_bushes(plan: CityPlan, root: Node3D) -> void:
 		var material: Material = (
 			MapViewMaterials.canopy(kind) if kind == &"leaf" else MapViewMaterials.foliage_tuft()
 		)
+		if BushMeshes.has_city_variant(species):
+			material = MapViewMaterials.canopy_for_species(BushMeshes.city_leaf_proxy(species))
 		var inst := MapViewMeshBuilderPrimitives.multi_mesh(
 			"Bush_%s" % species,
-			BushMeshes.mesh_for(species),
+			bush_mesh(species),
 			buckets[key]["transforms"],
 			buckets[key]["colors"],
 			material,

@@ -41,6 +41,12 @@ const CONIFER_CARD_DROOP := 0.22
 ## sizes cards to these real lengths and adds cards to keep the crown full.
 const NEAR_CARD_METRES := 0.62
 const NEAR_CONIFER_CARD_METRES := 0.58
+## Shrub-sized species (the city also draws elder, guelder rose, willow and
+## alder scrub and spindle with these meshes). At 0.36-0.54 m their far cards
+## already beat NEAR_CARD_METRES, but next to Kalev a 2-3 m shrub needs
+## hand-sized leaves (~8-12 cm in a 7-12 leaf cluster), so near cards are smaller.
+const CITY_SHRUBS: Array[StringName] = [&"hazel", &"hawthorn", &"blackthorn"]
+const NEAR_SHRUB_CARD_METRES := 0.28
 ## Card count multiplier is 1 / size_factor^2 (same leaf area), capped so a
 ## near crown stays inside NEAR_TRIANGLE_CAP.
 const NEAR_MAX_COUNT_FACTOR := 3.5
@@ -110,9 +116,10 @@ static func city_canopy_near_mesh(species: StringName, world_scale: float) -> Ar
 		var profile := city_profile(species)
 		var conifer := species in CONIFERS
 		var base := float(profile["leaf_length"]) * (CONIFER_CARD_SCALE if conifer else CARD_SCALE)
-		var target := (
-			(NEAR_CONIFER_CARD_METRES if conifer else NEAR_CARD_METRES) / maxf(world_scale, 0.01)
-		)
+		var metres := NEAR_CONIFER_CARD_METRES if conifer else NEAR_CARD_METRES
+		if species in CITY_SHRUBS:
+			metres = NEAR_SHRUB_CARD_METRES
+		var target := metres / maxf(world_scale, 0.01)
 		var size_factor := clampf(target / maxf(base, 0.001), 0.25, 1.0)
 		var count_factor := minf(1.0 / (size_factor * size_factor), NEAR_MAX_COUNT_FACTOR)
 		var data := _build_canopy_mesh(

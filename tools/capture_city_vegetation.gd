@@ -167,7 +167,51 @@ func _shots(plan: CityPlan) -> Array[Dictionary]:
 					"focus": meadow
 				}
 			)
+	# Shrub close-ups beside the reference figure: two drawn with the city bush
+	# variants (rose, raspberry) and elder, drawn with the shrub tree meshes.
+	for species: String in ["dog_rose", "raspberry", "elder"]:
+		var bush := _open_bush(plan, species)
+		if bush.is_empty():
+			continue
+		var b: Vector2 = bush["at"]
+		var bg := plan.ground_height(b)
+		var side := Vector2(1, 0.35).normalized()
+		# Elder is a 3 m tree-mesh shrub: stand back so the camera is outside it.
+		var back := 6.5 if species == "elder" else 3.6
+		var stand := b + side.orthogonal() * (2.6 if species == "elder" else 1.4)
+		shots.append(
+			{
+				"name": "%s_close" % species,
+				"figure": Vector3(stand.x, plan.ground_height(stand), stand.y),
+				"eye": Vector3(b.x + side.x * back, bg + 1.6, b.y + side.y * back),
+				"look": Vector3(b.x, bg + 0.9, b.y),
+				"fov": 55.0,
+				"focus": b
+			}
+		)
 	return shots
+
+
+## The plan shrub of a species farthest from other shrubs, trees and buildings.
+func _open_bush(plan: CityPlan, species: String) -> Dictionary:
+	var others: Array = plan.data.get("trees", []) + plan.data.get("bushes", [])
+	var best := {}
+	var best_gap := -1.0
+	for t: Array in plan.data.get("bushes", []):
+		if String(t[2]) != species:
+			continue
+		var p := Vector2(t[0], t[1])
+		var gap := 12.0
+		for o: Array in others:
+			if o != t:
+				gap = minf(gap, p.distance_to(Vector2(o[0], o[1])))
+		for probe in [Vector2(5, 0), Vector2(-5, 0), Vector2(0, 5), Vector2(0, -5)]:
+			if plan.building_at(p + probe) >= 0:
+				gap *= 0.5
+		if gap > best_gap:
+			best_gap = gap
+			best = {"at": p}
+	return best
 
 
 func _run() -> void:

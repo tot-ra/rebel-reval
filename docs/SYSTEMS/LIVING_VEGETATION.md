@@ -297,15 +297,62 @@ Cost: in the densest stand (18 trees within 35 m, 17 near crowns) a 1600x900 fra
 are 12-20k triangles for broadleaves, about 55k for spruce and 66k for pine
 (`NEAR_TRIANGLE_CAP` 56k; conifers carry cards along every segment and stay a little over).
 
-Limits of this pass: shrubs drawn with the bush meshes (elder, roses, willow and alder
-scrub) still have oversized leaves; Scots pine keeps a stylised clumped crown; the grass
-plates' plantain and dandelion rosettes can repeat in a regular rhythm inside one plate;
-the district maps keep their old bark and crown geometry.
+Limits of this pass: Scots pine keeps a stylised clumped crown; the grass plates'
+plantain and dandelion rosettes can repeat in a regular rhythm inside one plate; the
+district maps keep their old bark and crown geometry. Shrub leaves were fixed in R-1315
+(below).
+
+### City shrubs: real-size leaves (R-1315)
+
+Status: implemented (task **R-1315**). Scope: seamless-city shrubs from the plan's
+`bushes` list. Out of scope: district-map bushes (`MapViewBushMeshes.mesh_for` is
+unchanged) and the leafless scrub tufts (juniper, sea buckthorn, heather).
+
+City shrubs are drawn two ways, and both had the wrong leaf size beside Kalev:
+
+- **Tree-mesh shrubs.** Elder, hazel, guelder rose, willow and alder scrub, hawthorn,
+  spindle and blackthorn use the hazel, hawthorn or blackthorn tree meshes
+  (`CityVegetationBuilder.SHRUB_AS_TREE`). Their far cards are 0.36-0.54 m and they
+  never swapped to a near crown. They now join `CityTreeLod` like trees, and their near
+  crown uses `MapViewTreeMeshes.NEAR_SHRUB_CARD_METRES` (0.28 m cluster cards, about
+  8-12 cm leaves) with up to 3.5x more cards, so the shrub keeps its mass
+  (`MapViewTreeMeshes.CITY_SHRUBS`).
+- **Bush-mesh shrubs.** Dog rose and raspberry used the shared ~1 unit vertex-colour
+  blob meshes scaled 1.5-1.9x: sticks with smooth green balls and no leaf cards. The
+  city builds its own variant in metres (`MapViewBushMeshes.city_mesh_for`, chosen by
+  `CityVegetationBuilder.bush_mesh` / `bush_scale`): 14-15 arching canes (`CITY_CANES`;
+  rose arches out, raspberry stands upright) carrying alternate leaf-cluster cards of
+  `CITY_CARD_METRES` (0.24 m) from just above the ground to the tip. Cards use the canopy
+  card contract (UV2 = (1, 1), CUSTOM0 = twig base + seed) and the canopy material of a
+  proxy tree (`CITY_LEAF_PROXY`: rose -> rowan, raspberry -> hazel), so they sway, green
+  up, colour and drop with that species; canes stay bare in winter. The plan's size
+  factor is the only instance scale.
+
+Cost: a city rose is about 2.2k triangles and a raspberry 1.8k (the blobs were 320).
+Shrub near crowns are 11-19k triangles (far 8.5-11k) and only within 34 m. Nothing is
+saved; meshes are rebuilt deterministically from the plan.
+
+Verify: `test_city_bush_leaf_cards_are_real_size` measures every card along its spine
+(rose and raspberry under 0.4 m at the plan's largest size factor, at least 150 cards,
+height and spread kept; tree-mesh shrub near cards under 0.4 m and smaller than far
+cards) and `test_district_bush_meshes_unchanged` guards the district geometry. GPU
+plates: `tools/godot_render.sh --script tools/capture_city_vegetation.gd -- --only=dog_rose_close,raspberry_close,elder_close`
+(the most open shrub of each species next to the 1.83 m figure).
+
+Before / after:
+[dog rose](../reports/images/vegetation/veg_city_dog_rose_close.jpg),
+[raspberry](../reports/images/vegetation/veg_city_raspberry_close.jpg),
+[elder (hazel tree mesh)](../reports/images/vegetation/veg_city_elder_close.jpg).
+
+Limits: rose hips, raspberry fruit and flowers are not drawn on the city variants (the
+district blobs show berries all year); the lower canes read bare and dark from close up;
+a dense hedge of city roses costs about seven times the old blob triangles (the 120 m
+`BUSH_RANGE` is unchanged).
 
 ## Limits
 
 - GPU plates are attached above; visual tuning and independent sign-off remain pending. Distance LOD/impostors and alpha-coverage-preserving mips are not implemented; distant needle cards can thin out.
-- Fallen leaves vanish when they land. There is no persistent ground litter, and grass and bushes do not change with the season.
+- Fallen leaves vanish when they land. There is no persistent ground litter, and grass and bushes do not change with the season (except the seamless city's dog rose and raspberry leaf cards and tree-mesh shrubs, which follow their proxy species, R-1315).
 - Only the player's swings strike trees. NPC melee, magic blasts, and projectiles do not.
 - When two hosted views overlap at a seam, each runs its own ambient emitter, which can double the leaf fall right at the seam.
 - Late-April leaf density is a design choice for the slice's spring look. Real Tallinn birches usually break bud a week or two later.
