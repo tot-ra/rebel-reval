@@ -37,6 +37,12 @@ Primary sources for Rockstar and CD Projekt RED pipelines were blocked, so the f
 4. **Behaviour reuse for variety.** Flee, graze, flock and perch states with per-species parameters make a small clip set read as many animals.
 5. **Instancing for crowds.** Flocks of birds use a shared animated mesh with per-instance phase offset, or a vertex-animation texture, rather than one skeleton per bird.
 
+## What the repo already has (humans vs animals)
+
+- **Humans:** MPFB (MakeHuman plugin for Blender, v2.0.17, CC0 MakeHuman system assets) builds bodies headless in Blender: `tools/assets/realistic_humans/install_mpfb.sh`, `build_human.py`, `specs.py`. MPFB makes the base body and its weights; the bones are then moved onto a shared 41-bone motion rig with 76 CC0 KayKit clips, so every human shares one clip library (ADR 0022). Build-time only; the game never loads MPFB.
+- **Animals:** the same idea already exists by hand, without a parametric body generator: `tools/assets/medieval_animal_rigs.py` (shared low-cost quadruped rig plus per-species rigs for cattle, goat, sheep, horse, pig, dog, bear, elk and shared livestock clips), `mammal_limb_anatomy.py` and `import_realistic_mammals.py` (measured limb chains, foot-contact gait settings), `build_bird_gaits.py` (compact armature plus Idle/Walk for fowl), `build_horse_source.py` (procedural loft). Mammals therefore already share a rig and clip contract. The gaps are birds (fly, perch, land) and the missing species.
+- **No MPFB equivalent for animals** was found. MPFB/MB-Lab/CharMorph are human generators. [SMAL](https://awol.is.tue.mpg.de/license.html)-type parametric animal models exist in research but their license is non-commercial. Blender's built-in Rigify ships animal metarigs (cat, wolf, horse, shark, bird) as a skeleton and control-rig starting point.
+
 ## Generating instead of downloading (deep dive, 2026-10-07)
 
 Everything below comes from search results, not from running the tools. Papers and vendor claims are unverified; benchmarks are the authors' own. Licenses must be read on the official repository or model card.
