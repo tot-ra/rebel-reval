@@ -4,7 +4,7 @@
 
 # Liina
 
-![Liina](../../../assets/characters/liina.png)
+![Liina](img/liina.jpg)
 *Image missing*
 
 A weaver in the Weavers' Collective.

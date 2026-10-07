@@ -6,7 +6,7 @@
 
 A master sculptor, a man of intense passion and a fiery temper.
 
-![](img/nikolaus.png)
+![](img/nikolaus.jpg)
 
 ### Visual Description
 
