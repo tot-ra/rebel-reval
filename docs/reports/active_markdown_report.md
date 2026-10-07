@@ -14,10 +14,10 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `220`
+- Active Markdown files scanned: `222`
 - Markdown files excluded as archive/reference/out of active scope: `741`
-- Local/external links inspected: `1394`
-- Links to active Markdown docs: `884`
+- Local/external links inspected: `1417`
+- Links to active Markdown docs: `906`
 - Links to existing archive/reference/non-active local docs: `243`
 - External links skipped for reachability: `46`
 - Issues found: `0`
@@ -70,6 +70,7 @@ No active Markdown documentation issues found.
 - `docs/adr/0030-retire-direction-sign-primitive.md`
 - `docs/adr/0031-continuous-reval-city-plan.md`
 - `docs/adr/0032-bespoke-landmark-sites-in-the-city.md`
+- `docs/adr/0033-teen-protagonist-and-spirit-dialogue-combat.md`
 - `docs/adr/README.md`
 - `docs/AGENT_LOOPS.md`
 - `docs/ARCHITECTURE.md`
@@ -168,6 +169,7 @@ No active Markdown documentation issues found.
 - `docs/SYSTEMS/README.md`
 - `docs/SYSTEMS/SEAMLESS_CITY.md`
 - `docs/SYSTEMS/SETTINGS_AND_ACCESSIBILITY.md`
+- `docs/SYSTEMS/SPIRIT_DIALOGUE.md`
 - `docs/SYSTEMS/STATE_AND_SAVES.md`
 - `docs/SYSTEMS/TIME_AND_PHASES.md`
 - `docs/SYSTEMS/WORLD_LIFE.md`

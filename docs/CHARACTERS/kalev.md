@@ -1,7 +1,9 @@
 # Kalev (The Smith)
 
 **Confidence label:** `invented`
-**Role:** Protagonist
+**Role:** Protagonist (current prototype); master smith and mentor once [ADR 0033](../adr/0033-teen-protagonist-and-spirit-dialogue-combat.md) lands
+
+> **Planned change (ADR 0033):** the player character becomes a 15-year-old orphan taken in as the forge's new apprentice. Kalev stays the adult smith, with his model, portrait, forge, and ledger, but becomes a mentor NPC. The profile below describes him as the protagonist until the new hero is implemented. Until then, the playable prototype still controls Kalev.
 
 ## Motivations & Core
 - **Want:** Keep his forge, protect Mart, and remain useful enough that every side leaves him alone.

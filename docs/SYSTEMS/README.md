@@ -24,6 +24,7 @@ One page per implemented or planned feature. Each page opens with a `Status:` li
 | [Living City](./LIVING_CITY.md) | Design contract; state only |
 | [NATURAL aspects](./NATURAL.md) | Design contract; state and display only |
 | [Hingepuu psyche](./PSYCHE.md) | Design contract; state and display only |
+| [Spirit dialogue combat](./SPIRIT_DIALOGUE.md) | Planned (ADR 0033); nothing implemented |
 
 ## All files in this folder
 
