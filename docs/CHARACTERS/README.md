@@ -8,7 +8,8 @@ Promotion order, act gates, art tiers, and faction-candidate decisions live in [
 
 | Character | Campaign role | Confidence | Brief |
 |---|---|---|---|
-| Kalev | Protagonist; lower-town smith | `invented` | [Kalev](./kalev.md) |
+| The Apprentice | Protagonist per ADR 0033 (working name); 15-year-old clairvoyant orphan | `invented` | [The Apprentice](./apprentice.md) |
+| Kalev | Master smith and mentor (protagonist in the current prototype) | `invented` | [Kalev](./kalev.md) |
 | Mart | Apprentice; inciting incident and emotional stake | `invented` | [Mart](./mart.md) |
 | Aita | Alewife and healer; community perspective | `invented` | [Aita](./aita.md) |
 | Kaja | Bilingual courier; rebellion liaison | `invented` | [Kaja](./kaja.md) |

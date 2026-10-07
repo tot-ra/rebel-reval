@@ -168,12 +168,14 @@ Decisions over `story/STORY.md`. Every promoted beat carries a confidence label.
 
 ### Main Cast
 
+* **The Apprentice** (working name) - **`invented`**
+  * *Notes:* 15-year-old clairvoyant orphan, the player character per [ADR 0033](./adr/0033-teen-protagonist-and-spirit-dialogue-combat.md). See [The Apprentice brief](./CHARACTERS/apprentice.md).
 * **Kalev** (The Smith) - **`invented`**
   * *Pronunciation:* KAH-lev
-  * *Notes:* Lower-town smith, the player character. Kalev lives and works at his lower-town smithy; see [Kalev Family and Household Canon](./CHARACTERS/kalev-family.md) and [Kalev Character Brief](./CHARACTERS/kalev.md).
+  * *Notes:* Lower-town master smith and the apprentice's mentor (the player character in the current prototype, until ADR 0033 lands). Kalev lives and works at his lower-town smithy; see [Kalev Family and Household Canon](./CHARACTERS/kalev-family.md) and [Kalev Character Brief](./CHARACTERS/kalev.md).
 * **Mart** (The Apprentice) - **`invented`**
   * *Pronunciation:* MAHRT
-  * *Notes:* Kalev's 16-year-old apprentice, not his blood relative. See [Mart Character Brief](./CHARACTERS/mart.md).
+  * *Notes:* Kalev's 16-year-old apprentice, not his blood relative; missing at the start of the story, and the new apprentice fills his place. See [Mart Character Brief](./CHARACTERS/mart.md).
 * **Aita** (Alewife & Healer) - **`invented`**
   * *Pronunciation:* EYE-tah
   * *Notes:* Kalev's older sister and only named sibling in active canon. See [Aita Character Brief](./CHARACTERS/aita.md).
@@ -269,6 +271,18 @@ Per [ADR 0017](./adr/0017-legacy-design-reintroduction.md), the following return
 * **Living City Hope / Fear pressure** - **`invented`**
   * City-scale consequence layer reconciled with per-faction ledger standing; not a universal good/evil score.
   * Active contract: [`docs/SYSTEMS/LIVING_CITY.md`](./SYSTEMS/LIVING_CITY.md) (P7-004). Runtime remains **P7-012**.
+
+## Spirit world and the clairvoyant apprentice (ADR 0033)
+
+* **The spirit world (an extension of Hingepuu)** - **`folklore`** / **`invented`**
+  * Where spells and most combat happen. Reached by the apprentice's clairvoyance; the physical world stays realistic and has no magic. Never presented as attested 1343 practice.
+  * Contract: [`docs/SYSTEMS/SPIRIT_DIALOGUE.md`](./SYSTEMS/SPIRIT_DIALOGUE.md).
+* **Fear phantoms (Estonian folklore creatures: Kuri vaim, Näkk, Tont, Vanapagan, Kratt, Lendva)** - **`folklore`**
+  * Visible only to the apprentice, as manifestations of fear around dark places and threatening people. Creature names and traits follow folklore sources; their game roles are **`invented`**.
+* **Almshouse at the Holy Spirit parish** - parish and a priest in 1316 are **`attested`**; an orphan house there in 1343 is **`plausible composite`**.
+* **Guilt (süü) and rites** - **`invented`**
+  * Three separate schools: Christian sin and absolution, folk blood-debt and cleansing, civic standing. Not a single morality score. Confession and cleansing rites are **`plausible composite`** (confession is an attested Christian practice; the game rules are invented).
+* **Language comprehension** - **`invented`** as a game skill; the languages themselves (Middle Low German, Estonian, Russian) are **`attested`**.
 
 ## Superseded narrative (non-canon)
 

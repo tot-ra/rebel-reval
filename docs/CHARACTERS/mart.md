@@ -3,6 +3,8 @@
 **Confidence label:** `invented`
 **Role:** Inciting incident & Emotional stake
 
+> **Planned change (ADR 0033):** Mart is the missing older apprentice at the start of the story. The 15-year-old [Apprentice](./apprentice.md) is taken in to fill his place and searches for him. The profile below is unchanged; Mart simply is not on the player's side of the forge at the opening.
+
 ## Motivations & Core
 - **Want:** Prove he is not a child and turn the forge into a weapon for Estonian liberation.
 - **Fear:** That Kalev's caution is actually cowardice, and that waiting for the "right time" will outlive every chance for real change.

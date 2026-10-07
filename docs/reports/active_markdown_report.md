@@ -14,10 +14,10 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `222`
+- Active Markdown files scanned: `223`
 - Markdown files excluded as archive/reference/out of active scope: `741`
-- Local/external links inspected: `1422`
-- Links to active Markdown docs: `910`
+- Local/external links inspected: `1433`
+- Links to active Markdown docs: `921`
 - Links to existing archive/reference/non-active local docs: `243`
 - External links skipped for reachability: `46`
 - Issues found: `0`
@@ -84,6 +84,7 @@ No active Markdown documentation issues found.
 - `docs/CHARACTERS/_template.md`
 - `docs/CHARACTERS/aita.md`
 - `docs/CHARACTERS/anisia_of_novgorod.md`
+- `docs/CHARACTERS/apprentice.md`
 - `docs/CHARACTERS/brother_hermann.md`
 - `docs/CHARACTERS/ellen.md`
 - `docs/CHARACTERS/henning.md`
