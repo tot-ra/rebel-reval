@@ -131,20 +131,20 @@ No vegetation budget exists today, and the only baseline is one machine (M5 Pro,
 
 ## Delivery plan
 
-Each row is one task, written per the task contract in [`AGENTS.md`](../../AGENTS.md#task-contract). IDs are assigned when the tasks are created. Order is by risk and value.
+Each row is one task, written per the task contract in [`AGENTS.md`](../../AGENTS.md#task-contract). Order is by risk and value. Parent epic: **R-1319**; full specs live on the task board.
 
-| # | Task | Depends on | Allowed files (starting set) | Verify |
-|---|---|---|---|---|
-| V0 | Vegetation benchmark and budgets | none | `tools/run_performance_report.sh`, `docs/PERFORMANCE_REPORT.md`, new `tools/` script | Report prints per-layer counts; run recorded in docs |
-| V1 | Procedural leaf, needle, bark, and ear atlases with provenance; remove Leonardo atlas dependency | none | new `tools/assets/` script, `assets/` vegetation textures, `assets/SOURCES.csv`, canopy material loader | `validate_asset_sources.py`, `verify_asset_lint.py`, captures of every species |
-| V2 | Shared wind field via global shader parameters | V0 | `map_view_wind_materials.gd`, `map_view_grass.gdshader`, `map_view_canopy.gdshader`, flag and rope wind shaders | New `tests/godot/test_wind_field.gd` (determinism, weather mapping); captures of one gust crossing a meadow |
-| V3 | Ecology placement pass | V0 | `map_view_mesh_builder_scatter*.gd`, new ecology module, `tests/` | Tests: same seed gives same density; blueprint IDs unchanged; `validate_map_blueprints.gd`, `build_world_layout.gd --check` pass |
-| V4 | Near-tier blade grass, tiers and seasons | V2, V3 | `map_view_grass.gdshader`, `map_view_foliage_meshes.gd`, `map_view_plant_meshes.gd`, `vegetation_phenology.gd` | Captures in each month; benchmark within budget |
-| V5 | Grain fields (`field` primitive, geometry, growth, trampling) | V2, V4 | `MapBlueprint` primitives and compiler, `map_blueprint_registry.gd` for one pilot map only, new field mesh and shader | Blueprint diagnostics stable; pilot-map captures April to September; collision and navigation parity unchanged |
-| V6 | Tree skeleton generator and leaf clusters | V1 | `map_view_tree_meshes.gd`, `map_view_leaf_geometry.gd`, canopy shader | Mesh determinism test; side-by-side captures per species |
-| V7 | Tree LOD chain with alpha-coverage mips and billboard impostors | V0, V6 | `scripts/map/view3d/` tree LOD module, `scripts/city/city_tree_lod.gd` reuse, bake tool | No visible pop at transitions in a captured flythrough; benchmark within budget |
-| V8 | Leaf litter, snow ground cover, interaction ring buffer | V4 | grass and ground shaders, `tree_leaf_fall_3d.gd` | Season captures; tests on ring buffer |
-| V9 | Octahedral impostors (optional upgrade) | V7 | bake tool, impostor shader | Compare against cross-plane captures; keep only if clearly better |
+| # | Task | Task ID | Depends on | Allowed files (starting set) | Verify |
+|---|---|---|---|---|---|
+| V0 | Vegetation benchmark and budgets | **R-1320** | none | `tools/run_performance_report.sh`, `docs/PERFORMANCE_REPORT.md`, new `tools/` script | Report prints per-layer counts; run recorded in docs |
+| V1 | Procedural leaf, needle, bark, and ear atlases with provenance; remove Leonardo atlas dependency | **R-1329** | none | new `tools/assets/` script, `assets/` vegetation textures, `assets/SOURCES.csv`, canopy material loader | `validate_asset_sources.py`, `verify_asset_lint.py`, captures of every species |
+| V2 | Shared wind field via global shader parameters | **R-1321** | V0 (R-1320) | `map_view_wind_materials.gd`, `map_view_grass.gdshader`, `map_view_canopy.gdshader`, flag and rope wind shaders | New `tests/godot/test_wind_field.gd` (determinism, weather mapping); captures of one gust crossing a meadow |
+| V3 | Ecology placement pass | **R-1322** | V0 (R-1320) | `map_view_mesh_builder_scatter*.gd`, new ecology module, `tests/` | Tests: same seed gives same density; blueprint IDs unchanged; `validate_map_blueprints.gd`, `build_world_layout.gd --check` pass |
+| V4 | Near-tier blade grass, tiers and seasons | **R-1323** | V2, V3 (R-1321, R-1322) | `map_view_grass.gdshader`, `map_view_foliage_meshes.gd`, `map_view_plant_meshes.gd`, `vegetation_phenology.gd` | Captures in each month; benchmark within budget |
+| V5 | Grain fields (`field` primitive, geometry, growth, trampling) | **R-1325** | V2, V4 (R-1321, R-1323) | `MapBlueprint` primitives and compiler, `map_blueprint_registry.gd` for one pilot map only, new field mesh and shader | Blueprint diagnostics stable; pilot-map captures April to September; collision and navigation parity unchanged |
+| V6 | Tree skeleton generator and leaf clusters | **R-1324** | V1 (R-1329) | `map_view_tree_meshes.gd`, `map_view_leaf_geometry.gd`, canopy shader | Mesh determinism test; side-by-side captures per species |
+| V7 | Tree LOD chain with alpha-coverage mips and billboard impostors | **R-1326** | V0, V6 (R-1320, R-1324) | `scripts/map/view3d/` tree LOD module, `scripts/city/city_tree_lod.gd` reuse, bake tool | No visible pop at transitions in a captured flythrough; benchmark within budget |
+| V8 | Leaf litter, snow ground cover, interaction ring buffer | **R-1327** | V4 (R-1323) | grass and ground shaders, `tree_leaf_fall_3d.gd` | Season captures; tests on ring buffer |
+| V9 | Octahedral impostors (optional upgrade) | **R-1328** | V7 (R-1326) | bake tool, impostor shader | Compare against cross-plane captures; keep only if clearly better |
 
 Each task also updates this page and `LIVING_VEGETATION.md`, per the mandatory feature-documentation rule.
 
