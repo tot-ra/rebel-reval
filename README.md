@@ -175,6 +175,7 @@ tools/run_performance_report.sh build/benchmarks/performance-smoke.json --quick
 | [`AGENTS.md`](./AGENTS.md) | Repository map, commands, constraints, and task contract |
 | [`docs/CANON.md`](./docs/CANON.md) | Timeline, terminology, names, and historical confidence |
 | [`docs/CHARACTERS/`](./docs/CHARACTERS/README.md) | Active cast briefs and relationships |
+| [`docs/CITIZENS/`](./docs/CITIZENS/README.md) | Census of 1343 Reval's residents, ledger, citizen cards, faction rosters |
 | [`docs/ART_BIBLE.md`](./docs/ART_BIBLE.md) | Visual target, scale, palette, and readability rules |
 | [`docs/SETUP.md`](./docs/SETUP.md) | Editor installation, import, startup, tests, and export |
 | [`docs/CONTROLS.md`](./docs/CONTROLS.md) | Camera-aware control scheme, context-sensitive primary click, and default bindings |

@@ -20,6 +20,7 @@ Scope: every GDScript file under `scripts/` and `scenes/`, every scene, and ever
 | Act 2 finale, Act 3 ending | `scripts/quest/paide_finale_model.gd`, `act3_ending_model.gd` | Tests only | Expected until Act 2/3 scenes exist; keep, already documented in [`SYSTEMS/QUESTS.md`](../SYSTEMS/QUESTS.md#limits) |
 | Investigative quest tiers | `scripts/quest/investigative_quest_model.gd` | Used by tests and `quest.stolen_iron`; no scene consumes the tiers | Wire into an investigation or delete |
 | NATURAL points, psyche states, Living City events | `GameState` APIs (`spend_natural_point`, `apply_psyche_state`, Living City record) | No content op or scene writes them; reflection overlay only displays | P7-011 / P7-012. Status lines updated in [`NATURAL.md`](../SYSTEMS/NATURAL.md), [`PSYCHE.md`](../SYSTEMS/PSYCHE.md), [`LIVING_CITY.md`](../SYSTEMS/LIVING_CITY.md) |
+| Citizen census and ledger | `docs/data/city_census.json`, `tools/city/build_city_census.py` and siblings | Read by tools and tests only; no `scripts/world/` code consumes it, so the 4,247 residents never reach the 3D city | Task naming `UrbanPopulationProfile` files, or delete; see [`SYSTEMS/CITIZENS.md`](../SYSTEMS/CITIZENS.md#limits) |
 | Settings without controls | `DialogueSettings.locale`, `.pseudo_localization`, `AudioSettings.voice_volume` | Stored and applied, absent from `GameSettingsOverlay` | Add rows, or drop the fields |
 
 ## 2. Duplicate implementations

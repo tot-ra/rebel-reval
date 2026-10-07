@@ -10,6 +10,7 @@ One page per implemented or planned feature. Each page opens with a `Status:` li
 | [Time, phases, patrols](./TIME_AND_PHASES.md) | Implemented |
 | [Factions, relationships, pressure, prices](./FACTIONS_AND_ECONOMY.md) | Implemented |
 | [World life](./WORLD_LIFE.md) | Implemented in Lower Town; Padise and public events unwired |
+| [Citizens: census, ledger, deep cards](./CITIZENS.md) | Data and documentation; crowd runtime does not read it yet |
 | [World presentation (3D view)](./WORLD_PRESENTATION.md) | Implemented |
 | [Seamless Reval city (1343)](./SEAMLESS_CITY.md) | Playable preview (ADR 0031); no quests or saves yet |
 | [Landmark sites in the seamless city](./CITY_LANDMARK_SITES.md) | Implemented for Raekoja plats (ADR 0032); other sites planned |
