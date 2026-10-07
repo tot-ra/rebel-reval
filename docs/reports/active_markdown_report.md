@@ -14,19 +14,19 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1069`
+- Active Markdown files scanned: `1070`
 - Markdown files excluded as archive/reference/out of active scope: `743`
-- Local/external links inspected: `12696`
-- Links to active Markdown docs: `11865`
-- Links to existing archive/reference/non-active local docs: `429`
-- External links skipped for reachability: `52`
-- Issues found: `3`
+- Local/external links inspected: `12707`
+- Links to active Markdown docs: `11869`
+- Links to existing archive/reference/non-active local docs: `430`
+- External links skipped for reachability: `57`
+- Issues found: `4`
 
 ## Issue counts
 
 | Code | Count |
 | --- | ---: |
-| `BROKEN_LINK` | 3 |
+| `BROKEN_LINK` | 4 |
 | `BROKEN_ANCHOR` | 0 |
 | `DUPLICATE_CHARACTER_NAME` | 0 |
 | `CONTRADICTORY_DATE` | 0 |
@@ -37,6 +37,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 | Code | Location | Detail |
 | --- | --- | --- |
 | `BROKEN_LINK` | `docs/CITIZENS/WRITING_CARDS.md:49` | Local Markdown link target does not exist: `link` |
+| `BROKEN_LINK` | `docs/SYSTEMS/SEAMLESS_CITY.md:121` | Local Markdown link target does not exist: `../reports/animal_placement_plan.md` |
 | `BROKEN_LINK` | `docs/adr/0034-cutscene-mode-and-cinematic-prologue.md:123` | Local Markdown link target does not exist: `../SYSTEMS/CUTSCENES.md` |
 | `BROKEN_LINK` | `docs/adr/0034-cutscene-mode-and-cinematic-prologue.md:126` | Local Markdown link target does not exist: `../../cinematics/PROMPT_GRAMMAR.md` |
 
@@ -78,6 +79,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/adr/0034-cutscene-mode-and-cinematic-prologue.md`
 - `docs/adr/README.md`
 - `docs/AGENT_LOOPS.md`
+- `docs/ANIMAL_3D_SOURCING.md`
 - `docs/ARCHITECTURE.md`
 - `docs/ART_BIBLE.md`
 - `docs/ASSET_INVENTORY.md`

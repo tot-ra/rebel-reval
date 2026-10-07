@@ -22,7 +22,7 @@ One page per feature, with status, behavior, code entry points, content, saved s
 | Map system | [Map authoring (blueprints, compiler, stable IDs)](./MAP_AUTHORING.md) · [Map conversion plan](./MAP_CONVERSION_PLAN.md) · [Map alignment editor](./MAP_ALIGNMENT_EDITOR.md) · [Large-map chunking](./LARGE_MAP_CHUNKING_PLAN.md) · [Seamless streaming](./SEAMLESS_STREAMING_PLAN.md) |
 | Locations beyond Reval (journey nodes, variety, resources to generate) | [Locations hub](./LOCATIONS/README.md) |
 | City and landmarks | [Landmark narrative integration](./LANDMARK_NARRATIVE_INTEGRATION.md) · [Tourist landmarks](./TOURIST_LANDMARKS.md) · [1343 fortifications](./reports/reval_fortifications_1343.md) · [Legacy location notes](../scenes/README.md) |
-| Nature | [Flora and fauna of 1343](./FLORA_FAUNA.md) |
+| Nature | [Flora and fauna of 1343](./FLORA_FAUNA.md) · [Animal 3D sourcing and animation strategy](./ANIMAL_3D_SOURCING.md) |
 | Task specs by stream | [World tasks](./tasks/README.md) (architecture, coast, urban form, water/sky, world) |
 
 ## Characters
