@@ -23,7 +23,9 @@ esac
 
 STAGED_FILE="$(mktemp)"
 PYTHON_MODULES_FILE="$(mktemp)"
-trap 'rm -f "$STAGED_FILE" "$PYTHON_MODULES_FILE"' EXIT
+JOB_DIR="$(mktemp -d)"
+GODOT_LANE="$JOB_DIR/godot_lane.sh"
+trap 'rm -rf "$STAGED_FILE" "$PYTHON_MODULES_FILE" "$JOB_DIR"' EXIT
 
 if [[ "$MODE" == "staged" ]]; then
   git diff --cached --name-only --diff-filter=ACMR >"$STAGED_FILE"
@@ -54,6 +56,50 @@ run_step() {
   shift
   echo "==> $label"
   "$@"
+}
+
+# Slow independent gates run concurrently. bg_step output is buffered and
+# replayed in submission order by wait_jobs. Godot gates share one serial lane
+# (godot_step) because concurrent editors race on the .godot import cache; the
+# lane itself runs beside the Python gates.
+JOB_LABELS=()
+bg_step() {
+  local label="$1"
+  shift
+  local idx="${#JOB_LABELS[@]}"
+  JOB_LABELS+=("$label")
+  (
+    set +e
+    "$@" >"$JOB_DIR/$idx.out" 2>&1
+    echo "$?" >"$JOB_DIR/$idx.rc"
+  ) &
+}
+
+godot_step() {
+  local label="$1"
+  shift
+  {
+    printf 'echo "==> %s"\n' "$label"
+    printf '%q ' "$@"
+    printf '\n'
+  } >>"$GODOT_LANE"
+}
+
+wait_jobs() {
+  if [[ -s "$GODOT_LANE" ]]; then
+    bg_step "godot gates" bash -e "$GODOT_LANE"
+  fi
+  wait
+  local failed=0 idx=0 label
+  for label in ${JOB_LABELS[@]+"${JOB_LABELS[@]}"}; do
+    echo "==> $label"
+    cat "$JOB_DIR/$idx.out"
+    if [[ "$(cat "$JOB_DIR/$idx.rc")" != "0" ]]; then
+      failed=1
+    fi
+    idx=$((idx + 1))
+  done
+  return "$failed"
 }
 
 # Prefer GODOT_BIN, then PATH, then the standard macOS editor app. The map and
@@ -215,7 +261,7 @@ if any_staged_path "export_presets.cfg" \
   "tools/pck_inventory.py" \
   "tests/python/test_verify_shipped_resources.py"; then
   queue_python_module "tests.python.test_verify_shipped_resources"
-  run_step "shipped resource verifier" python3 tools/verify_shipped_resources.py --check
+  bg_step "shipped resource verifier" python3 tools/verify_shipped_resources.py --check
 fi
 
 if any_staged_path "tools/run_pre_commit_checks.sh" \
@@ -269,10 +315,10 @@ done <"$STAGED_FILE"
 if [[ ${#GD_FILES[@]} -gt 0 ]]; then
   # Prefer the module entrypoint so user PATH does not need ~/Library/Python/.../bin.
   if python3 -c 'import gdtoolkit.linter' >/dev/null 2>&1; then
-    run_step "gdlint staged GDScript (${#GD_FILES[@]} file(s))" \
+    bg_step "gdlint staged GDScript (${#GD_FILES[@]} file(s))" \
       python3 -m gdtoolkit.linter "${GD_FILES[@]}"
   elif command -v gdlint >/dev/null 2>&1; then
-    run_step "gdlint staged GDScript (${#GD_FILES[@]} file(s))" \
+    bg_step "gdlint staged GDScript (${#GD_FILES[@]} file(s))" \
       gdlint "${GD_FILES[@]}"
   else
     echo "gdlint is required for staged .gd changes." >&2
@@ -285,12 +331,12 @@ if any_staged_path "content" \
   "tools/validate_content.py" \
   "tools/validate_content_examples.py" \
   "tests/python/test_validate_content.py"; then
-  run_step "content schema examples" python3 tools/validate_content_examples.py
+  bg_step "content schema examples" python3 tools/validate_content_examples.py
   queue_python_module "tests.python.test_validate_content"
-  run_step "content example corpus" \
+  bg_step "content example corpus" \
     python3 tools/validate_content.py content/examples/valid content/examples/support
   if any_staged_path "content/demo"; then
-    run_step "demo content corpus" \
+    bg_step "demo content corpus" \
       python3 tools/validate_content.py content/demo content/examples/support content/examples/valid
   fi
 fi
@@ -304,10 +350,10 @@ if any_staged_path "assets/SOURCES.csv" \
   "tests/python/test_verify_texture_prompts.py" \
   "docs/storage_binary_exceptions.json" \
   "docs/lfs_assets.json"; then
-  run_step "asset provenance manifest" python3 tools/validate_asset_sources.py
-  run_step "storage hygiene" python3 tools/verify_storage_hygiene.py
-  run_step "asset lint" python3 tools/verify_asset_lint.py
-  run_step "texture prompt sidecars" python3 tools/verify_texture_prompts.py
+  bg_step "asset provenance manifest" python3 tools/validate_asset_sources.py
+  bg_step "storage hygiene" python3 tools/verify_storage_hygiene.py
+  bg_step "asset lint" python3 tools/verify_asset_lint.py
+  bg_step "texture prompt sidecars" python3 tools/verify_texture_prompts.py
 fi
 
 if any_staged_path "music" "sounds" \
@@ -315,7 +361,7 @@ if any_staged_path "music" "sounds" \
   "tools/verify_runtime_audio_budget.py" \
   "tools/optimize_runtime_audio.py" \
   "tests/python/test_verify_runtime_audio_budget.py"; then
-  run_step "runtime audio budget" python3 tools/verify_runtime_audio_budget.py
+  bg_step "runtime audio budget" python3 tools/verify_runtime_audio_budget.py
   queue_python_module "tests.python.test_verify_runtime_audio_budget"
 fi
 
@@ -324,7 +370,7 @@ if any_staged_path "assets" \
   "tools/verify_runtime_glb_budget.py" \
   "tools/optimize_runtime_glbs.py" \
   "tests/python/test_verify_runtime_glb_budget.py"; then
-  run_step "runtime GLB budget" python3 tools/verify_runtime_glb_budget.py
+  bg_step "runtime GLB budget" python3 tools/verify_runtime_glb_budget.py
   queue_python_module "tests.python.test_verify_runtime_glb_budget"
 fi
 
@@ -334,7 +380,7 @@ fi
 if any_staged_path "README.md" "AGENTS.md" "docs/CANON.md" \
   "docs/reports/active_markdown_report.md" \
   "tools/generate_active_docs_report.py"; then
-  run_step "active Markdown links and canon" \
+  bg_step "active Markdown links and canon" \
     python3 tools/generate_active_docs_report.py --check
 fi
 
@@ -348,7 +394,7 @@ for path in "${STAGED_PATHS[@]}"; do
   fi
 done
 if [[ "$STAGED_MARKDOWN" == "1" ]]; then
-  run_step "docs reachable from README (docs_index)" python3 tools/docs_index.py --check
+  bg_step "docs reachable from README (docs_index)" python3 tools/docs_index.py --check
 fi
 
 # R-1046: keep the checked-in reval_outdoor manifest in lockstep with group
@@ -369,13 +415,13 @@ if any_staged_path \
   "tools/build_world_layout.gd" \
   "tools/verify_world_layout.py"; then
   if GODOT_BIN_RESOLVED="$(resolve_godot)"; then
-    run_step "reval_outdoor world-layout --check" \
+    godot_step "reval_outdoor world-layout --check" \
       "$GODOT_BIN_RESOLVED" --headless --path . --script tools/build_world_layout.gd -- --check
   else
     echo "godot not on PATH and GODOT_BIN unset; skipping world-layout --check." >&2
     echo "Manifest changes still require tools/build_world_layout.gd -- --check before push." >&2
   fi
-  run_step "reval_outdoor world-layout verify" python3 tools/verify_world_layout.py
+  bg_step "reval_outdoor world-layout verify" python3 tools/verify_world_layout.py
   queue_python_module "tests.python.test_verify_world_layout"
 fi
 
@@ -389,7 +435,7 @@ if any_staged_path "content/maps" \
   "tools/verify_seam_continuity.gd" \
   "tests/godot/test_seam_continuity.gd"; then
   if GODOT_BIN_RESOLVED="$(resolve_godot)"; then
-    run_step "reval_outdoor seam form continuity" \
+    godot_step "reval_outdoor seam form continuity" \
       "$GODOT_BIN_RESOLVED" --headless --path . --script tools/verify_seam_continuity.gd
   else
     echo "godot not on PATH and GODOT_BIN unset; skipping seam continuity gate." >&2
@@ -408,7 +454,7 @@ if any_staged_path "scripts/map" "content/maps" \
   # time (PRE_COMMIT_FULL=1) and stays in the AGENTS.md map gate / CI.
   if [[ "${PRE_COMMIT_FULL:-}" == "1" ]]; then
     if GODOT_BIN_RESOLVED="$(resolve_godot)"; then
-      run_step "map blueprint validation" \
+      godot_step "map blueprint validation" \
         "$GODOT_BIN_RESOLVED" --headless --path . --script tools/validate_map_blueprints.gd
     else
       echo "godot not on PATH and GODOT_BIN unset; skipping map blueprint headless validation." >&2
@@ -416,9 +462,9 @@ if any_staged_path "scripts/map" "content/maps" \
   else
     echo "Skipping map blueprint validation (slow); run with PRE_COMMIT_FULL=1 or the AGENTS.md map gate before push." >&2
   fi
-  run_step "map audit" python3 tools/verify_map_audit.py
-  run_step "map activation" python3 tools/verify_map_activation.py
-  run_step "map conversion plan" python3 tools/verify_map_conversion_plan.py
+  bg_step "map audit" python3 tools/verify_map_audit.py
+  bg_step "map activation" python3 tools/verify_map_activation.py
+  bg_step "map conversion plan" python3 tools/verify_map_conversion_plan.py
 fi
 
 # Path-matched Python tests only in staged mode. Walking every tracked file in
@@ -437,7 +483,7 @@ if [[ -s "$PYTHON_MODULES_FILE" ]]; then
     PYTHON_MODULES+=("$module")
   done < <(sort -u "$PYTHON_MODULES_FILE")
   if [[ ${#PYTHON_MODULES[@]} -gt 0 ]]; then
-    run_step "path-aware Python unit tests (${#PYTHON_MODULES[@]} module(s))" \
+    bg_step "path-aware Python unit tests (${#PYTHON_MODULES[@]} module(s))" \
       python3 -m unittest "${PYTHON_MODULES[@]}" -v
   fi
 fi
@@ -460,7 +506,7 @@ if [[ ${#GD_FILES[@]} -gt 0 ]]; then
   if [[ "$ONLY_GODOT_TESTS" -eq 1 && ${#FOCUSED_STEMS[@]} -gt 0 ]]; then
     if GODOT_BIN_RESOLVED="$(resolve_godot)"; then
       FOCUSED_FILTER="$(IFS=','; echo "${FOCUSED_STEMS[*]}")"
-      run_step "focused Godot tests ($FOCUSED_FILTER)" \
+      godot_step "focused Godot tests ($FOCUSED_FILTER)" \
         tools/run_godot_checked.sh --require-test-summary pre-commit-focused \
         "$GODOT_BIN_RESOLVED" --headless --script tools/run_godot_tests.gd -- \
         "--filter=$FOCUSED_FILTER"
@@ -475,9 +521,10 @@ if [[ "${PRE_COMMIT_FULL:-}" == "1" ]]; then
     echo "PRE_COMMIT_FULL=1 requires godot on PATH, GODOT_BIN, or the macOS Godot.app." >&2
     exit 1
   fi
-  run_step "full Godot headless suite" \
+  godot_step "full Godot headless suite" \
     tools/run_godot_checked.sh --require-test-summary full-suite \
     "$GODOT_BIN_RESOLVED" --headless --script tools/run_godot_tests.gd
 fi
 
+wait_jobs
 echo "On-commit checks passed."

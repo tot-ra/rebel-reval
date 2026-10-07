@@ -131,6 +131,15 @@ Positions and roster from [`walls-gates-towers.md`](../../history/dossiers/topog
 | `scripts/city/city_collision_builder.gd` | Logic-plane collision: solid houses, wall quads with a door gap for enterable houses, curtains with gate gaps, towers, Toompea wall openings, cliffs over 38°; sea and moat stay open for swimming |
 | `scenes/world/reval_city/reval_city.tscn` | The playable scene: spawn hand-off, roof lifting, the smithy door into `forge`, the edge-of-plan travel map, in-place fast travel (`arrive_at`) |
 | `scripts/global/door_navigator.gd` | `go_to_scene` routes old district ids through `CityTravel.redirect` and moves Kalev in place when the target is the city already loaded |
+| `scripts/city/city_music_zones.gd` (`CityMusicZones`) | Picks the `MusicDirector` theme from Kalev's position: landmark zones with a radius, district fallback, hold radius against flapping |
+
+## Music
+
+Music follows where Kalev is, not a scene path (`reval_city.tscn` has an empty entry in `MusicDirector.SCENE_THEME_ROUTES`). Every 0.25 s the scene asks `CityMusicZones.update(xz, district_id)` and hands the result to `MusicDirector.set_zone_theme_override()` (or clears it). The most specific zone around Kalev wins (smallest radius): the council hall beats the forum, the forum beats the wider quarter. A theme already playing holds on for 1.25 x its radius. Where no zone reaches, the plan district decides (`CityPlan.district_id_at`); fields and far suburbs have no theme and the music fades out. Themes are the existing folders under `music/` (`center`, `raekoda`, `holy_spirit`, `north`, `oleviste`, `monastery`, `south`, `town`, `forge`, `garden`, `harbor`, `toompea`); each theme keeps its own playlist, so nothing is mixed into one random list.
+
+`MusicDirector` crossfades between themes (3 s, a second `OutgoingThemePlayer`), also on district scene changes. The scene's day clock is pushed to `MusicDirector.set_cycle_progress()` so night playlists and the night ducking apply.
+
+Add or move a zone by editing `CityMusicZones.ZONES` (centre in world units, radius, theme id). Tests: `--filter=test_city_music_zones`.
 
 ## Save and load
 
@@ -162,4 +171,5 @@ Measured on the authoring machine (Apple M5 Pro, 1600×900, minimized window): s
 - Life layers (wells, flows, gutters) are data and review-map markers; rain does not show water running in the gutters.
 - Distant buildings beyond 1600 units, trees beyond 260 units, shrubs beyond 120 units, weeds beyond 90 units and grass beyond ~50 units are culled; there is no impostor skyline.
 - Ships have no collision and cannot be boarded.
+- Music zones are hand-placed circles around plan landmarks, not authored per building; interiors other than the council hall share their quarter's theme. Every theme plays its whole folder shuffled; there are no battle or stinger cues in this scene.
 - Doors have no sound and no lock state; non-enterable houses keep theirs shut.

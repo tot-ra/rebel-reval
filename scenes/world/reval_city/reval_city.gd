@@ -24,6 +24,8 @@ var view: CityMapView
 var world: CityWorld3D
 var runtime: MapViewRuntime
 var minimap: CityMinimap
+var music_zones := CityMusicZones.new()
+var _music_timer := 0.0
 var inside_building := -1
 var _smithy := -1
 ## Site room Kalev stands in: {site, room} and its key, or empty.
@@ -56,6 +58,7 @@ func _ready() -> void:
 	minimap = CityMinimap.create(plan)
 	add_child(minimap)
 	_smithy = CityTravel.building_index(plan, "kalev_smithy")
+	_update_music(CityPlan.to_world_xz(player.global_position))
 
 
 ## Spawn requested by the command line, a pending travel arrival or the default.
@@ -95,6 +98,23 @@ func _process(delta: float) -> void:
 	var forward := -camera.global_transform.basis.z
 	var yaw := atan2(-forward.x, -forward.z)
 	minimap.update_view(xz, player.view_facing(), yaw, inside_building)
+	_music_timer -= delta
+	if _music_timer <= 0.0:
+		_music_timer = 0.25
+		_update_music(xz)
+
+
+## Music follows where Kalev is (CityMusicZones), not a scene route. The runtime
+## already pushes the shared clock to MusicDirector, so only the zone theme is set.
+func _update_music(xz: Vector2) -> void:
+	var director := get_node_or_null("/root/MusicDirector")
+	if director == null:
+		return
+	var theme := music_zones.update(xz, plan.district_id_at(xz))
+	if theme.is_empty():
+		director.clear_zone_theme_override()
+	else:
+		director.set_zone_theme_override(theme)
 
 
 func _update_interior(xz: Vector2) -> void:

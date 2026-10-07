@@ -145,6 +145,15 @@ godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_com
 godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_hammer_attack_presentation
 ```
 
+## 8a. Body builds: the teen hero (ADR 0033, SD-11)
+
+Every row above was measured for the adult master smith, who remains the baseline (`BUILD_ADULT`). The 15-year-old apprentice uses the same weapon-class rows and the same 76 clips (no new import) with a `BUILD_TEEN` adjustment in `CombatMoveCatalog.BUILD_ADJUST`: impact, duration, cancel and hit-stop x0.92 (quicker), lunge x0.85, damage x0.8, reach x0.93, stamina cost x1.15.
+
+- **Where it applies:** `CombatMoveCatalog.light_move / heavy_move / presentation_move(..., build)`, `AttackProfileResolver.resolve_move / resolve_for_state(..., build)` (damage, reach and stamina also scale an authored charged profile), `Player.combat_build` (default teen) and `SharedCharacterRig.combat_build()` (from the rig's variant id via `CombatMoveCatalog.build_for_character`; only `char.apprentice` is a teen).
+- **Clip sync:** the source contact second is never scaled, so every move's contact frame still lands on its scaled impact (asserted for all weapon classes). Rolls, dodges and casts are not scaled.
+- Tests that pin the adult numbers through a `Player` set `player.combat_build = CombatMoveCatalog.BUILD_ADULT`.
+- Verify: `--filter=test_teen_move_set` plus the existing combat tests. No capture sheet was produced; the sync is asserted numerically.
+
 ## 9. Known limits and follow-ups
 
 - Library clips are shared between classes (the sword horizontal slice also serves hammer step 2). Bespoke per-weapon clips are art work (P0-195 locomotion pass and a future combat clip pack).
