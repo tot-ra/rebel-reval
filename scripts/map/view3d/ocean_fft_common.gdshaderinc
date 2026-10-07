@@ -95,14 +95,15 @@ vec3 _fft_displacement_at(vec2 p, out vec3 foam) {
 	return d;
 }
 
-// World-unit displacement (before shore fade) plus the WS-06 foam terms of
-// _fft_displacement_at. The surface point is x' = x + lambda * D (WS-03
-// amendment 1: crests compress).
-vec3 _fft_displacement_foam(vec2 world_xz, out vec3 foam) {
+// Same displacement with explicit chop, standing ratio and geometry scale, so the sea
+// materials can blend them by depth and meet without a crack (map_view_water vertex()).
+vec3 _fft_displacement_foam_with(
+	vec2 world_xz, out vec3 foam, float chop_in, float standing_in, float geometry_scale
+) {
 	vec2 axis = _fft_wind_axis();
 	vec2 p = _fft_to_wind(world_xz, axis);
 	vec3 d = _fft_displacement_at(p, foam);
-	float standing = clamp(standing_wave_ratio, 0.0, 1.0);
+	float standing = clamp(standing_in, 0.0, 1.0);
 	// Two equal trains in opposite directions sum to a standing wave. The mirror
 	// train is F(-p) with horizontal displacement negated back; height and foam
 	// keep their sign. Branch on the uniform so open sea pays nothing.
@@ -113,11 +114,18 @@ vec3 _fft_displacement_foam(vec2 world_xz, out vec3 foam) {
 		d = mix(d, 0.5 * (d + o), standing);
 		foam = mix(foam, 0.5 * (foam + mirror_foam), standing);
 	}
-	float chop = max(choppiness, 0.0) * (1.0 - standing * 0.65);
+	float chop = max(chop_in, 0.0) * (1.0 - standing * 0.65);
 	vec3 world_d = vec3(0.0);
 	world_d.xz = _fft_from_wind(d.xz * chop * FFT_HORIZONTAL_GEOMETRY, axis);
 	world_d.y = d.y;
-	return world_d * (ocean_amplitude * fft_geometry_scale / FFT_METERS_PER_WORLD_UNIT);
+	return world_d * (ocean_amplitude * geometry_scale / FFT_METERS_PER_WORLD_UNIT);
+}
+
+// World-unit displacement (before shore fade) plus the WS-06 foam terms of
+// _fft_displacement_at. The surface point is x' = x + lambda * D (WS-03
+// amendment 1: crests compress).
+vec3 _fft_displacement_foam(vec2 world_xz, out vec3 foam) {
+	return _fft_displacement_foam_with(world_xz, foam, choppiness, standing_wave_ratio, fft_geometry_scale);
 }
 
 // WS-06b: GL Compatibility vertex fetches from CompressedTexture2DArray often

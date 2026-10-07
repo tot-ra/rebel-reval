@@ -25,7 +25,7 @@ seconds.
   `QUALITY_TIERS`)
 - `tests/godot/test_water_ripple_sim.gd` (new)
 - `docs/reports/images/ws15_*.png`
-- `TODO.md`
+- the project task board (`tasks` tool)
 
 ## Dependencies
 
@@ -66,7 +66,9 @@ seconds.
      `hollow` do.
    - `set_rain(intensity)`: each frame, a deterministic RNG seeded by the frame index emits
      `intensity · 40` droplet impulses (radius 1–2 texels, strength 0.02–0.05) inside the window.
-     `SkyWeather3D` calls it with `rain_intensity()`.
+     `SkyWeather3D` calls it with `rain_intensity()`. *Superseded 2026-10-07: rain left the sim
+     and is drawn as procedural rings in `map_view_water.gdshader`; see
+     [`ws15_ripple_sim.md`](../../reports/ws15_ripple_sim.md).*
 2. **Step shader** (`water_ripple_sim.gdshader`), the damped discrete wave equation:
    ```glsl
    float lap = h(x+1,y) + h(x-1,y) + h(x,y+1) + h(x,y-1) - 4.0*h(x,y);
@@ -110,7 +112,7 @@ seconds.
 ## Documentation updates
 
 - The script header documenting the float vs packed-16 decision.
-- `TODO.md` row:
+- the project task board (`tasks` tool) row:
   ```text
-  - [ ] WS-15 | deps: WS-04 | deliverable: camera-following 64x64-unit ping-pong SubViewport wave-equation ripple sim (float or packed-16) with impulse queue, deterministic rain droplets, moving-body bow/stern wake and aeration foam, sampled by the water shader for height/normal/foam | allowed files: `scripts/map/view3d/water_ripple_sim.gd`, `scripts/map/view3d/water_ripple_sim.gdshader`, `scripts/map/view3d/map_view_water.gdshader`, `scripts/map/view3d/map_view_water_materials.gd`, `scripts/map/view3d/map_view_3d.gd`, `scripts/map/view3d/sky_weather_3d.gd`, `tests/godot/test_water_ripple_sim.gd`, `docs/reports/images/ws15_*.png`, `TODO.md` | verify: sim logic tests; 600-frame max-rain stability; rain/storm/moving-body captures and clip without window seams; <= 0.4 ms
+  - [ ] WS-15 | deps: WS-04 | deliverable: camera-following 64x64-unit ping-pong SubViewport wave-equation ripple sim (float or packed-16) with impulse queue, deterministic rain droplets, moving-body bow/stern wake and aeration foam, sampled by the water shader for height/normal/foam | allowed files: `scripts/map/view3d/water_ripple_sim.gd`, `scripts/map/view3d/water_ripple_sim.gdshader`, `scripts/map/view3d/map_view_water.gdshader`, `scripts/map/view3d/map_view_water_materials.gd`, `scripts/map/view3d/map_view_3d.gd`, `scripts/map/view3d/sky_weather_3d.gd`, `tests/godot/test_water_ripple_sim.gd`, `docs/reports/images/ws15_*.png`, the project task board (`tasks` tool) | verify: sim logic tests; 600-frame max-rain stability; rain/storm/moving-body captures and clip without window seams; <= 0.4 ms
   ```

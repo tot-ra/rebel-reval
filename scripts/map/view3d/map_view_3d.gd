@@ -724,6 +724,7 @@ func water_ripple_sim() -> WaterRippleSimScript:
 ## The tier is read once at build time, like the FFT cascades: switching quality rebuilds the
 ## map view. Materials are cached across views, so a view without a sim resets them to flat.
 func _create_water_ripple_sim() -> void:
+	_bind_sea_depth_map()
 	var indoor := definition != null and definition.suppresses_exterior_surroundings()
 	var tier := _sky_weather.quality_tier
 	if not WaterRippleSimScript.should_create(tier, indoor, _has_water()):
@@ -735,7 +736,6 @@ func _create_water_ripple_sim() -> void:
 	_water_ripple_sim.configure(WaterRippleSimScript.sim_size_for_tier(tier))
 	_water_ripple_sim.focus_provider = _ripple_focus
 	_water_ripple_sim.bind_callback = _bind_water_ripples
-	_sky_weather.ripple_sim = _water_ripple_sim
 
 
 ## Combined water contour at world XZ (one cell = one world unit). Same field the
@@ -865,6 +865,39 @@ func _underwater_probe(world_xz: Vector2) -> Dictionary:
 		"wave_margin": float(material.get_shader_parameter("wave_height")),
 		"material": material,
 	}
+
+
+## Bakes this map's WS-13b sea basin depth, one texel per cell, so the sea materials blend
+## shallow and deep water by depth. Maps without a basin (no sea, indoors) turn it off.
+func _bind_sea_depth_map() -> void:
+	var image := sea_depth_image()
+	if image == null:
+		MapViewMaterials.WATER_MATERIALS.apply_sea_depth_map(null, Vector4.ZERO)
+		return
+	# The shader samples global world XZ; cells sit at view-local world units.
+	var origin := global_position if is_inside_tree() else position
+	MapViewMaterials.WATER_MATERIALS.apply_sea_depth_map(
+		ImageTexture.create_from_image(image),
+		Vector4(origin.x, origin.z, float(image.get_width()), float(image.get_height()))
+	)
+
+
+## Basin depth below the gameplay bed at each cell centre (FORMAT_RF), or null.
+func sea_depth_image() -> Image:
+	if definition == null or grid == null or definition.suppresses_exterior_surroundings():
+		return null
+	var field := MapViewMeshBuilder.ensure_height_field(definition, grid)
+	if not field.has("basin_targets"):
+		return null
+	var size: Vector2i = field["size"]
+	var image := Image.create_empty(size.x, size.y, false, Image.FORMAT_RF)
+	for y in size.y:
+		for x in size.x:
+			var depth := MapViewMeshBuilderTerrain.basin_extra_depth(
+				field, Vector2(float(x) + 0.5, float(y) + 0.5)
+			)
+			image.set_pixel(x, y, Color(depth, 0.0, 0.0))
+	return image
 
 
 func _bind_water_ripples(texture: Texture2D, window: Vector4, texel_count: float) -> void:

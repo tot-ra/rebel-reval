@@ -158,6 +158,38 @@ uniform float ripple_foam_strength = 0.85;
 // Art-direction lever: under flat overcast light a bent normal alone barely changes the
 // reflected sky, so ring flanks also catch a little highlight colour (rain reads on water).
 uniform float ripple_sheen = 2.0;
+// Rain rings: 0 dry .. 1 full rain (apply_sea_weather). Real rings span a few centimetres
+// and live well under a second, far below the 25 cm ripple-sim texel, so they are drawn
+// here procedurally on every water surface instead of being injected into the sim (which
+// grew them into metre-wide rings inside a 64-unit window and none outside it).
+uniform float rain_ring_intensity = 0.0;
+// Sea depth blend: shallow_water and deep_water are separate meshes and materials, so
+// their colour and absorption used to change along a hard cell line. Inside the active
+// map both sea materials instead blend one look by the rendered WS-13b basin depth
+// (R of sea_depth_map, world units, one texel per cell). sea_depth_rect is the map's
+// world-XZ origin and size; outside it (neighbour previews) each family keeps its own look.
+uniform sampler2D sea_depth_map : hint_default_black, filter_linear, repeat_disable;
+uniform vec4 sea_depth_rect = vec4(0.0, 0.0, 1.0, 1.0);
+uniform float sea_depth_blend = 0.0;
+// Basin depths where the look is fully shallow (x) and fully deep (y).
+uniform vec2 sea_depth_range = vec2(1.0, 3.6);
+// Per family: (choppiness, fft_geometry_scale, standing_wave_ratio, wave_height), kept in
+// step with the live uniforms by MapViewWaterMaterials. The two sea meshes share their
+// border vertices; displacing them with different parameters opened a crack along the
+// authored shallow/deep line and moved the two sheets at visibly different amplitudes.
+uniform vec4 sea_wave_shallow = vec4(0.85, 1.0, 0.18, 0.07);
+uniform vec4 sea_wave_deep = vec4(1.05, 1.0, 0.08, 0.12);
+// Per family: (optical_depth, depth_absorption, tide_optical_depth, unused).
+uniform vec4 sea_look_shallow = vec4(0.075, 5.0, 0.055, 0.0);
+uniform vec4 sea_look_deep = vec4(0.38, 9.0, 0.025, 0.0);
+uniform vec3 sea_shallow_color_shallow : source_color = vec3(0.45, 0.62, 0.75);
+uniform vec3 sea_shallow_color_deep : source_color = vec3(0.45, 0.62, 0.75);
+uniform vec3 sea_deep_color_shallow : source_color = vec3(0.16, 0.30, 0.44);
+uniform vec3 sea_deep_color_deep : source_color = vec3(0.16, 0.30, 0.44);
+uniform vec3 sea_highlight_color_shallow : source_color = vec3(0.396, 0.694, 0.769);
+uniform vec3 sea_highlight_color_deep : source_color = vec3(0.396, 0.694, 0.769);
+uniform vec3 sea_foam_color_shallow : source_color = vec3(0.72, 0.80, 0.78);
+uniform vec3 sea_foam_color_deep : source_color = vec3(0.72, 0.80, 0.78);
 // WS-06 whitecaps from the baked foam channel (FFT path only; the Gerstner fallback
 // keeps the P0-223 Jacobian foam). foam_tile is the seamless bubble/speckle/streak
 // detail from `bake_ocean_fft.py foam-tile`; unset it reads black, so no whitecaps.
@@ -214,8 +246,24 @@ const float FOAM_MASK_CAP = 1.0;
 const float RIPPLE_EDGE_FADE = 0.1;
 // Steepest ripple facet the shading normal may take (about 31 degrees).
 const float RIPPLE_MAX_SLOPE = 0.6;
+// Rain rings, world units (0.87 m): one candidate drop per 0.3-unit cell and layer, a ring
+// growing to ~7 cm in 0.6 s. Two offset layers break up the lattice.
+const float RAIN_RING_CELL = 0.3;
+const float RAIN_RING_MAX_RADIUS = 0.3;
+const float RAIN_RING_WIDTH = 0.06;
+const float RAIN_RING_PERIOD = 1.1;
+const float RAIN_RING_LIFE = 0.55;
+const float RAIN_RING_SLOPE = 0.45;
+// Cells narrower than this many pixels alias into moire; the rings fade out by then.
+const float RAIN_RING_MIN_CELL_PX = 6.0;
+const float RAIN_RING_FULL_CELL_PX = 14.0;
 
 varying vec3 water_world_position;
+// Shallow (0) .. deep (1) share of the sea look from sea_depth_map, or -1 for the per-family
+// look. Sampled per vertex on purpose: the fragment stage already uses all 16 sampler units
+// GL Compatibility allows (Godot adds shadow, radiance and light samplers), and the basin
+// depth is one texel per cell, so vertex interpolation loses nothing.
+varying float sea_depth_t;
 varying vec2 wave_sample_xz;
 varying float shore_factor;
 // WS-13b: 1 on in-map water whose rendered sea bed may lie below the flat gameplay
@@ -733,6 +781,40 @@ float _ripple_weight(vec2 uv) {
 	return ripple_window.w * smoothstep(0.0, RIPPLE_EDGE_FADE, min(edge.x, edge.y));
 }
 
+// Rain rings: surface slope (d height / dx, dz) of expanding, fading drop rings. Each cell of
+// each layer holds at most one drop per period, centred so its ring never leaves the cell;
+// rain_ring_intensity sets the share of cells that fire.
+vec2 _rain_ring_slope(vec2 world_xz, float time) {
+	vec2 slope = vec2(0.0);
+	for (int layer = 0; layer < 2; layer++) {
+		float layer_f = float(layer);
+		vec2 q = world_xz / RAIN_RING_CELL + vec2(0.5, 0.37) * layer_f;
+		vec2 cell = floor(q);
+		vec2 seed = cell + vec2(17.3, -41.9) * layer_f;
+		float cycle = time / RAIN_RING_PERIOD + _hash(seed + vec2(-3.7, 2.9));
+		// A fresh coin per cycle so a cell does not ring at the same spot every period.
+		float cycle_index = floor(cycle);
+		if (_hash(seed + vec2(cycle_index * 0.137, 8.1)) > rain_ring_intensity * 0.85) {
+			continue;
+		}
+		float age = fract(cycle) * RAIN_RING_PERIOD / RAIN_RING_LIFE;
+		if (age >= 1.0) {
+			continue;
+		}
+		vec2 center = cell + 0.3 + 0.4 * vec2(
+			_hash(seed + vec2(cycle_index, 1.3)), _hash(seed + vec2(5.3, cycle_index))
+		);
+		vec2 d = q - center;
+		float r = length(d);
+		float x = (r - age * RAIN_RING_MAX_RADIUS) / RAIN_RING_WIDTH;
+		float fade = (1.0 - age) * (1.0 - age);
+		// Derivative of a Gaussian ring profile along the radius.
+		float dh = -2.0 * x * exp(-x * x) * fade;
+		slope += dh * d / max(r, 0.0001);
+	}
+	return slope * RAIN_RING_SLOPE;
+}
+
 // WS-02 specular terms (Tidewater water material). a2 is GGX alpha squared.
 float _d_ggx(float n_dot_h, float a2) {
 	float d = n_dot_h * n_dot_h * (a2 - 1.0) + 1.0;
@@ -759,6 +841,19 @@ float _fresnel_dielectric(float cos_theta, float ior) {
 void vertex() {
 	vec3 undisplaced_world = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	wave_sample_xz = undisplaced_world.xz;
+	sea_depth_t = -1.0;
+	if (sea_depth_blend > 0.5) {
+		vec2 sea_uv = (undisplaced_world.xz - sea_depth_rect.xy) / max(sea_depth_rect.zw, vec2(0.001));
+		if (all(greaterThanEqual(sea_uv, vec2(0.0))) && all(lessThanEqual(sea_uv, vec2(1.0)))) {
+			float basin = textureLod(sea_depth_map, sea_uv, 0.0).r;
+			sea_depth_t = smoothstep(sea_depth_range.x, sea_depth_range.y, basin);
+		}
+	}
+	// Wave parameters: the depth blend inside the map, this family's own uniforms outside.
+	vec4 wave_params = vec4(choppiness, fft_geometry_scale, standing_wave_ratio, wave_height);
+	if (sea_depth_t >= 0.0) {
+		wave_params = mix(sea_wave_shallow, sea_wave_deep, sea_depth_t);
+	}
 	shore_factor = clamp(COLOR.r, 0.0, 1.0);
 	flat_bed_flag = step(0.5, UV2.x);
 	flat_bed_world_y = (MODEL_MATRIX * vec4(VERTEX.x, UV2.y, VERTEX.z, 1.0)).y;
@@ -771,12 +866,15 @@ void vertex() {
 	if (use_fft) {
 		// FFT replaces wave_height; wave_height stays the Gerstner amplitude only.
 		// Foam is resampled in fragment(): GL vertex atlas alpha is not trusted.
-		displacement = _fft_displacement(wave_sample_xz).xyz;
+		vec3 unused_foam;
+		displacement = _fft_displacement_foam_with(
+			wave_sample_xz, unused_foam, wave_params.x, wave_params.z, wave_params.y
+		);
 		// Lee of a quay or headland: reuse the WS-08 signed shore field as fetch.
 		displacement *= _fetch_shelter(wave_sample_xz);
 	} else {
 		_water_field(wave_sample_xz - flow_advection, TIME * wave_speed, displacement, normal_terms);
-		displacement *= wave_height;
+		displacement *= wave_params.w;
 		// River bed sits only WATER_RECESS below the surface: full sea-style troughs
 		// would cut the water into bands and expose the bed. The ripple read comes
 		// from the shading normal, so the mesh itself only needs to ripple gently.
@@ -829,6 +927,32 @@ void vertex() {
 }
 
 void fragment() {
+	// Sea depth blend (see sea_depth_map): shallow and deep sea share one look that follows
+	// the rendered basin depth, so the drop-off reads as a gradient, not a cell line.
+	float w_optical_depth = optical_depth;
+	float w_depth_absorption = depth_absorption;
+	float w_tide_optical_depth = tide_optical_depth;
+	vec3 w_shallow_color = shallow_color;
+	vec3 w_deep_color = deep_color;
+	vec3 w_highlight_color = highlight_color;
+	vec3 w_foam_color = foam_color;
+	// A vertex outside the map rect drags the interpolated value below zero near the edge;
+	// treat any negative as "off" so neighbour previews keep their per-family look.
+	if (sea_depth_t >= 0.0) {
+		{
+			float sea_t = clamp(sea_depth_t, 0.0, 1.0);
+			vec4 look = mix(sea_look_shallow, sea_look_deep, sea_t);
+			w_optical_depth = look.x;
+			w_depth_absorption = look.y;
+			w_tide_optical_depth = look.z;
+			w_shallow_color = mix(sea_shallow_color_shallow, sea_shallow_color_deep, sea_t);
+			w_deep_color = mix(sea_deep_color_shallow, sea_deep_color_deep, sea_t);
+			w_highlight_color = mix(sea_highlight_color_shallow, sea_highlight_color_deep, sea_t);
+			w_foam_color = mix(sea_foam_color_shallow, sea_foam_color_deep, sea_t);
+		}
+	}
+	// Screen size of one rain-ring cell; derivatives stay in uniform control flow here.
+	float rain_cell_px = RAIN_RING_CELL / max(length(fwidth(water_world_position.xz)), 0.00001);
 	// WS-06b: per-pixel baked foam. Do not read a vertex varying; GL Compatibility
 	// vertex fetches from the compressed disp arrays often drop the alpha.
 	vec3 fft_foam = vec3(0.0);
@@ -862,9 +986,9 @@ void fragment() {
 		vec3 film_sky = _sky_dome_reflection(film_sky_ray) * smoothstep(-0.01, 0.06, film_sky_ray.y);
 		// Spectral extinction over the sheet thickness (metres -> world units).
 		vec3 film_transmission = exp(
-			-(sheet.sheet_thickness / SHORE_METERS_PER_UNIT) * depth_absorption * vec3(1.28, 0.72, 0.40) * 6.0
+			-(sheet.sheet_thickness / SHORE_METERS_PER_UNIT) * w_depth_absorption * vec3(1.28, 0.72, 0.40) * 6.0
 		);
-		vec3 film_color = mix(shallow_color * 0.55, sand_bed_color * 0.7, film_transmission);
+		vec3 film_color = mix(w_shallow_color * 0.55, sand_bed_color * 0.7, film_transmission);
 		film_color = mix(film_color, film_sky, clamp(0.30 + film_fresnel * 0.9, 0.0, 0.9));
 		// WS-02: the film's sun glint comes from light() like the sea's.
 		// Meniscus: the last SHORE_MENISCUS units bend down to the sand, so the edge
@@ -875,7 +999,7 @@ void fragment() {
 		film_alpha *= meniscus;
 		float film_foam = clamp(sheet.front_foam * 1.2, 0.0, 1.0);
 		film_foam *= smoothstep(0.0, 0.03, sheet.front_distance);
-		sheet_albedo = mix(film_color, mix(foam_color, vec3(0.93, 0.95, 0.94), 0.6), film_foam);
+		sheet_albedo = mix(film_color, mix(w_foam_color, vec3(0.93, 0.95, 0.94), 0.6), film_foam);
 		sheet_alpha = max(film_alpha, film_foam * 0.92);
 		sheet_roughness = mix(0.22, 0.6, film_foam);
 		sheet_foam = film_foam;
@@ -947,6 +1071,16 @@ void fragment() {
 		ripple_slope_length = length(ripple_slope);
 		ripple_aeration = textureLod(ripple_state, ripple_uv, 0.0).b * ripple_weight;
 	}
+	// Rain rings fade out before their cells shrink to a few pixels (distance, top-down
+	// zoom), where the lattice would otherwise alias into a moire overlay.
+	float rain_ring_fade = rain_ring_intensity > 0.001
+		? smoothstep(RAIN_RING_MIN_CELL_PX, RAIN_RING_FULL_CELL_PX, rain_cell_px)
+		: 0.0;
+	if (rain_ring_fade > 0.001) {
+		vec2 rain_slope = _rain_ring_slope(water_world_position.xz, TIME) * rain_ring_fade;
+		world_normal = normalize(world_normal + vec3(-rain_slope.x, 0.0, -rain_slope.y));
+		ripple_slope_length = max(ripple_slope_length, length(rain_slope));
+	}
 	// Low-angle sunlight turns tiny animated normal changes into long, fast
 	// specular bands. Keep the physical wave displacement, but reduce only the
 	// shading normal relief near the horizon; the blend widens the sunrise and
@@ -985,10 +1119,10 @@ void fragment() {
 	// Authored water cells share a flat gameplay bed a few centimetres down, so the
 	// per-terrain absorption profile also selects a minimum optical path. This floor,
 	// not the thin real column, is what keeps shallow/river/deep water distinct.
-	float terrain_optical_depth = optical_depth + max(depth_absorption - 5.0, 0.0) * 0.055;
+	float terrain_optical_depth = w_optical_depth + max(w_depth_absorption - 5.0, 0.0) * 0.055;
 	// Rising coastal water hides more of the layered bed; ebbing water exposes it.
-	// Rivers use a zero tide_optical_depth profile and remain unchanged.
-	terrain_optical_depth = max(terrain_optical_depth + tide_level * tide_optical_depth, 0.018);
+	// Rivers use a zero w_tide_optical_depth profile and remain unchanged.
+	terrain_optical_depth = max(terrain_optical_depth + tide_level * w_tide_optical_depth, 0.018);
 
 	// Ported from Tidewater (MIT), see notice.code.tidewater: follow the Snell-refracted
 	// view ray to the bed instead of the straight screen ray, which overestimates the
@@ -1064,7 +1198,7 @@ void fragment() {
 	// Beer-Lambert along the refracted path. Wavelength-dependent extinction removes
 	// red first and blue last, so depth shifts hue instead of uniformly darkening RGB.
 	// sigma_t is art-scaled: the gameplay column is centimetres, not Baltic metres.
-	vec3 sigma_t = depth_absorption * vec3(1.28, 0.72, 0.40) / WATER_METERS_PER_UNIT;
+	vec3 sigma_t = w_depth_absorption * vec3(1.28, 0.72, 0.40) / WATER_METERS_PER_UNIT;
 
 	// WS-07: caustics are light on the bed, applied before extinction, so the view path
 	// dims them again on the way up. They fade with depth (light_down), at night and
@@ -1096,8 +1230,8 @@ void fragment() {
 	vec3 spectral_transmission = exp(-sigma_t * path_m);
 	float absorption = 1.0 - dot(spectral_transmission, vec3(0.333333));
 	vec3 transmitted = seabed * spectral_transmission;
-	vec3 water_color = transmitted + deep_color * (vec3(1.0) - spectral_transmission) * 0.82;
-	water_color = mix(water_color, shallow_color, (1.0 - absorption) * 0.12);
+	vec3 water_color = transmitted + w_deep_color * (vec3(1.0) - spectral_transmission) * 0.82;
+	water_color = mix(water_color, w_shallow_color, (1.0 - absorption) * 0.12);
 	if (shore_live) {
 		// Breaking waves stir sand into the surf zone.
 		water_color = mix(water_color, sand_bed_color * 0.9, SHORE_TURBIDITY * shore_now.surf_zone * shore_now.valid);
@@ -1143,9 +1277,9 @@ void fragment() {
 		// visible for the few seconds the bake still carries it.
 		float foam_trail = smoothstep(0.06, 0.3, foam_mask) * smoothstep(0.35, 0.75, foam_texture) * open_water;
 		float whitecap_old = max(whitecap - whitecap_fresh, foam_trail * 0.9);
-		water_color = mix(water_color, mix(shallow_color, foam_color, 0.4), whitecap_old * 0.6);
-		water_color = mix(water_color, mix(foam_color, vec3(0.93, 0.95, 0.94), 0.6), whitecap_fresh);
-		water_color = mix(water_color, foam_color, wind_streak);
+		water_color = mix(water_color, mix(w_shallow_color, w_foam_color, 0.4), whitecap_old * 0.6);
+		water_color = mix(water_color, mix(w_foam_color, vec3(0.93, 0.95, 0.94), 0.6), whitecap_fresh);
+		water_color = mix(water_color, w_foam_color, wind_streak);
 		whitecap_fresh = max(whitecap_fresh, wind_streak);
 	}
 
@@ -1156,7 +1290,7 @@ void fragment() {
 	// Fresh foam is opaque: no light comes through the crest under it.
 	crest_subsurface *= 1.0 - whitecap_fresh;
 	float crest_sss_visibility = twilight_water_light * day_blend;
-	vec3 crest_transmit_tint = mix(shallow_color, highlight_color, 0.58);
+	vec3 crest_transmit_tint = mix(w_shallow_color, w_highlight_color, 0.58);
 	water_color += crest_transmit_tint
 		* crest_subsurface
 		* crest_sss_visibility
@@ -1297,7 +1431,7 @@ void fragment() {
 		float along_sheen = dot(water_world_position.xz, flow_dir) - TIME * wave_speed * flow_strength * RIVER_SURFACE_SPEED;
 		vec2 sheen_uv = vec2(across * 1.35, along_sheen * 0.22);
 		float sheen = smoothstep(0.46, 0.72, _river_threads(sheen_uv, vec2(3.7, 8.2)));
-		water_color = mix(water_color, highlight_color, sheen * 0.30 * current.z);
+		water_color = mix(water_color, w_highlight_color, sheen * 0.30 * current.z);
 		// Banks drag the current: foam threads gather along the shore.
 		foam += shore * current_foam * 0.6;
 	}
@@ -1308,10 +1442,10 @@ void fragment() {
 		foam += ripple_aeration * ripple_foam_strength * bubbles
 			* smoothstep(0.012, 0.08, water_column);
 	}
-	water_color = mix(water_color, highlight_color, clamp(ripple_slope_length * ripple_sheen, 0.0, 0.25));
-	water_color = mix(water_color, foam_color, clamp(foam, 0.0, 0.72));
+	water_color = mix(water_color, w_highlight_color, clamp(ripple_slope_length * ripple_sheen, 0.0, 0.25));
+	water_color = mix(water_color, w_foam_color, clamp(foam, 0.0, 0.72));
 	// WS-08 surf bore on top of the tinted foam: brighter and whiter than edge foam.
-	water_color = mix(water_color, mix(foam_color, vec3(0.93, 0.95, 0.94), 0.6), swash_bore * 0.85);
+	water_color = mix(water_color, mix(w_foam_color, vec3(0.93, 0.95, 0.94), 0.6), swash_bore * 0.85);
 
 	ALBEDO = water_color;
 	// WS-02 roughness from wave slope variance (Toksvig-style). Calm water is a
@@ -1355,7 +1489,7 @@ void fragment() {
 		vec3 uw_ambient;
 		vec3 uw_sun;
 		_uw_lighting(
-			mix(shallow_color, deep_color, 0.35), sun_reflection_color, sun_direction,
+			mix(w_shallow_color, w_deep_color, 0.35), sun_reflection_color, sun_direction,
 			day_blend, cloud_darken, uw_ambient, uw_sun
 		);
 		NORMAL = -NORMAL;

@@ -35,13 +35,9 @@ const STEP_SHADER := preload("res://scripts/map/view3d/water_ripple_sim.gdshader
 const WINDOW_WORLD_SIZE := 64.0
 ## Gameplay impulses (wakes, swimmer, splashes) dispatched per step. Extra calls are dropped.
 const MAX_IMPULSES := 32
-## Rain has its own uniform array so a storm never starves a boat wake of impulse slots.
-const RAIN_DROPS_AT_FULL_INTENSITY := 40
-## Real rain rings span centimetres, a texel is ~22 cm, and rings spread like wakes:
-## stronger or wider drops read as metre-wide bubbles across a storm sea.
-const RAIN_RADIUS_TEXELS := Vector2(1.0, 1.2)
-const RAIN_STRENGTH := Vector2(0.004, 0.01)
-const RAIN_SEED := 0x5715A1
+## Rain is not simulated here: real rain rings span centimetres and live under a second,
+## below the 25 cm texel, so injected drops grew into metre-wide rings that stopped at the
+## window edge. map_view_water.gdshader draws them procedurally (rain_ring_intensity).
 const STEP_HZ := 60.0
 ## c^2 of the five-point scheme; 2D CFL stability needs <= 0.5.
 const WAVE_C2 := 0.02
@@ -73,14 +69,12 @@ var sim_size := 0
 var window_origin := Vector2.ZERO
 var window_size := WINDOW_WORLD_SIZE
 var frame_index := 0
-var rain_intensity := 0.0
 ## Returns the camera focus as world Vector3; set by MapView3D.
 var focus_provider: Callable
 ## Called after every step with (texture, window: Vector4, texel_count: float).
 var bind_callback: Callable
 ## Last dispatched step, in window texel coordinates, for tests and captures.
 var last_impulses := PackedVector4Array()
-var last_rain_drops := PackedVector4Array()
 var last_shift := Vector2i.ZERO
 
 var _queue := PackedVector4Array()
@@ -119,32 +113,6 @@ static func snap_origin_texel(focus_xz: Vector2, size_texels: int) -> Vector2i:
 ## covers the world spot the previous window stored at i + shift.
 static func window_shift(previous_origin: Vector2i, next_origin: Vector2i) -> Vector2i:
 	return next_origin - previous_origin
-
-
-## Deterministic droplets for one step: vec4(texel x, texel y, radius texels, strength).
-## The count scales with intensity (intensity * 40) and the RNG is seeded by the frame index.
-static func rain_drops_for_frame(
-	frame: int, intensity: float, size_texels: int
-) -> PackedVector4Array:
-	var drops := PackedVector4Array()
-	var count := roundi(clampf(intensity, 0.0, 1.0) * float(RAIN_DROPS_AT_FULL_INTENSITY))
-	if count <= 0 or size_texels <= 0:
-		return drops
-	var rng := RandomNumberGenerator.new()
-	rng.seed = hash(Vector2i(frame, RAIN_SEED))
-	# Keep drops out of the absorbing border so each ring starts on live water.
-	var lo := EDGE_ABSORB_TEXELS
-	var hi := maxf(float(size_texels) - EDGE_ABSORB_TEXELS, lo + 1.0)
-	for _index in count:
-		drops.append(
-			Vector4(
-				rng.randf_range(lo, hi),
-				rng.randf_range(lo, hi),
-				rng.randf_range(RAIN_RADIUS_TEXELS.x, RAIN_RADIUS_TEXELS.y),
-				rng.randf_range(RAIN_STRENGTH.x, RAIN_STRENGTH.y)
-			)
-		)
-	return drops
 
 
 ## World-space bow and stern impulses (x, z, radius world units, strength) for a hull.
@@ -247,11 +215,6 @@ func add_moving_body(
 		add_impulse(Vector2(impulse.x, impulse.y), impulse.z, impulse.w)
 
 
-## Called by SkyWeather3D with rain_intensity() (0 when rain is suppressed indoors).
-func set_rain(intensity: float) -> void:
-	rain_intensity = clampf(intensity, 0.0, 1.0)
-
-
 func _process(delta: float) -> void:
 	if not is_active():
 		return
@@ -263,7 +226,7 @@ func _process(delta: float) -> void:
 
 
 ## One simulation step centred on `focus_xz`: scrolls the window, dispatches the queued
-## impulses and this frame's rain, schedules the partner viewport and rebinds the water.
+## impulses, schedules the partner viewport and rebinds the water.
 ## Public so headless tests can drive it without a frame loop.
 func step(focus_xz: Vector2) -> void:
 	var texel := texel_world_size(sim_size)
@@ -284,7 +247,6 @@ func step(focus_xz: Vector2) -> void:
 			)
 		)
 	_queue.clear()
-	last_rain_drops = rain_drops_for_frame(frame_index, rain_intensity, sim_size)
 	frame_index += 1
 	if not is_active():
 		return
@@ -295,10 +257,6 @@ func step(focus_xz: Vector2) -> void:
 	material.set_shader_parameter(&"reset_state", _reset_steps_left > 0)
 	material.set_shader_parameter(&"impulse_count", last_impulses.size())
 	material.set_shader_parameter(&"impulses", _padded(last_impulses, MAX_IMPULSES))
-	material.set_shader_parameter(&"rain_count", last_rain_drops.size())
-	material.set_shader_parameter(
-		&"rain_drops", _padded(last_rain_drops, RAIN_DROPS_AT_FULL_INTENSITY)
-	)
 	_reset_steps_left = maxi(_reset_steps_left - 1, 0)
 	# UPDATE_ONCE renders on the next draw, before the main viewport, then drops back to
 	# UPDATE_DISABLED, so only the target kernel runs this frame.

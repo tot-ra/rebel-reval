@@ -155,15 +155,22 @@ func _drive_wake(sim: WaterRippleSimScript, target: Vector3, heading: Vector3, f
 
 
 func _run_stability(sim: WaterRippleSimScript) -> void:
-	# Maximum rain regardless of the weather profile; the sky would lower it otherwise.
-	var sky_hooked := sim.get_parent() as MapView3D
-	sky_hooked.sky_weather().ripple_sim = null
-	sim.set_rain(1.0)
+	# Rain no longer reaches the sim (the water shader draws it); stress it with a steady
+	# deterministic splash field instead, MAX_IMPULSES / 4 small drops per frame.
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 0x5715A1
 	var max_h := 0.0
 	var max_aer := 0.0
 	var samples: Array[String] = []
 	var start_frame := sim.frame_index
 	while sim.frame_index - start_frame < 600:
+		var corner := sim.window_origin
+		for _drop in WaterRippleSimScript.MAX_IMPULSES / 4:
+			sim.add_impulse(
+				corner + Vector2(rng.randf_range(4.0, 60.0), rng.randf_range(4.0, 60.0)),
+				0.3,
+				rng.randf_range(0.004, 0.01)
+			)
 		await process_frame
 		var steps := sim.frame_index - start_frame
 		if steps > 0 and steps % 60 == 0 and samples.size() < steps / 60:
@@ -252,7 +259,6 @@ func _detach(view: MapView3D, sim: WaterRippleSimScript) -> void:
 	sim.set_process(false)
 	for ripple_viewport in sim.viewports():
 		ripple_viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
-	view.sky_weather().ripple_sim = null
 	view._bind_water_ripples(null, Vector4(0.0, 0.0, WaterRippleSimScript.WINDOW_WORLD_SIZE, 0.0), 1.0)
 
 

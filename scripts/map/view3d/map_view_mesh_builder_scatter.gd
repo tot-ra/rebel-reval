@@ -43,7 +43,10 @@ static func begin_scatter(
 	state["next_row"] = bounds.end.y if state["interior"] else bounds.position.y
 	if state["interior"]:
 		return state
-	state["blocked"] = MapViewMeshBuilderPrimitives.building_cell_rects(definition)
+	var blocked := MapViewMeshBuilderPrimitives.building_cell_rects(definition)
+	# Tufts must not poke through wash tubs, wells, barrels or stalls.
+	blocked.append_array(MapViewMeshBuilderPrimitives.prop_cell_rects(definition))
+	state["blocked"] = blocked
 	state["field"] = MapViewMeshBuilderTerrain.ensure_height_field(definition, grid)
 	state["is_urban"] = _is_urban_map(definition)
 	state["small_grass"] = [] as Array[Transform3D]
@@ -138,6 +141,12 @@ static func collect_rows(state: Dictionary, until_row: int) -> bool:
 					cattail_colors.append(
 						Color(0.72, 0.83, 0.52).lerp(Color(0.49, 0.66, 0.36), cattail_tint)
 					)
+
+			# The style profile (grass, ferns, flowers, bushes, trees) belongs to dry ground.
+			# Water cells can inherit a land style variant, which floated grass tufts on the
+			# open sea; shore debris and cattails are placed by their own passes.
+			if MapTypes.WATER_TERRAINS.has(terrain):
+				continue
 
 			var puddle_chance := float(MapViewMeshBuilderConfig.PUDDLE_CHANCE.get(terrain, 0.0))
 			if puddle_chance > 0.0:

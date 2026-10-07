@@ -24,6 +24,10 @@ const SEA_BASIN_DEPTH := {
 	MapTypes.TERRAIN_SHALLOW_WATER: 1.0,
 	MapTypes.TERRAIN_DEEP_WATER: 3.6,
 }
+## Deep-water cells reach their full basin depth only this many cells past the nearest
+## shallow-water cell; closer in they shelve down from the shallow depth. Without the
+## ramp the bed stepped 1.0 -> 3.6 units across one cell and the sea read as two slabs.
+const SEA_BASIN_DEEP_RAMP_CELLS := 9.0
 ## Extra depth gained per cell away from the nearest dry cell. Natural banks shelve
 ## gently; hard edges (timber piers, stone landings, paving) drop like a crib face.
 const SEA_BASIN_NATURAL_SLOPE := 0.45
@@ -124,6 +128,25 @@ const WATER_FLATTEN_CELLS := 3
 const WATER_CONTOUR_SIGMA_CELLS := 1.6
 const WATER_CONTOUR_RADIUS_CELLS := 4
 const WATER_CONTOUR_THRESHOLD := 0.42
+## Sea shorelines (shallow/deep water) wobble by this much union coverage at the
+## waterline (up to ~0.7 cell at sigma 1.6) so rect-authored coves and spits stop
+## reading as straight cell runs. Scaled by 4v(1-v): open sea and dry land stay
+## exactly 0/1, so the noise can never open holes or strand puddles.
+const SEA_SHORE_NOISE := 0.13
+const SEA_SHORE_NOISE_PERIOD_CELLS := 6.5
+const SEA_SHORE_DETAIL_NOISE := 0.05
+const SEA_SHORE_DETAIL_PERIOD_CELLS := 3.1
+## Where two water families meet (shallow/deep drop-off) the owner is the family
+## with the higher coverage + this noise, so the border meanders instead of
+## following the authored rect edge.
+const WATER_FAMILY_BORDER_NOISE := 0.09
+const WATER_FAMILY_BORDER_PERIOD_CELLS := 4.5
+## Family-ownership margin over which waves fade to rest at a family border,
+## so the two surfaces (different wave heights) stay sealed.
+const WATER_FAMILY_JUNCTION_BAND := 0.3
+## Natural ground eases down to the still-water bed across this much union
+## coverage below the waterline (~0.5 cell), so it meets the water mesh edge.
+const SHORE_SINK_COVERAGE_BAND := 0.14
 
 ## View-only riparian bands sampled from the same smoothed contour as the water.
 ## Inland banks use a wide damp-dirt → muted-silt → wet-mud ramp so grass never

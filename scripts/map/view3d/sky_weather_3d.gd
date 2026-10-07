@@ -349,11 +349,6 @@ class WeatherPresentation extends RefCounted:
 	var sky_tint := Color.WHITE
 	## Sun compass azimuth in radians, measured from -Z (north) towards +X (east).
 	var sun_azimuth := 0.0
-## WS-15: optional WaterRippleSim that receives rain droplets. Duck-typed (set_rain) because
-## the sim preloads this script for its quality tiers.
-var ripple_sim: Node = null
-
-
 var weather: StringName = WEATHER_CLEAR
 ## When false the current state holds until set_weather() is called.
 var auto_weather := true
@@ -1334,9 +1329,6 @@ func set_roof_audio_enabled(enabled: bool) -> void:
 
 
 func _update_rain(delta: float = 0.0) -> void:
-	# WS-15 rain rings follow the same intensity as the particles, and stop under a roof.
-	if ripple_sim != null and is_instance_valid(ripple_sim):
-		ripple_sim.call(&"set_rain", 0.0 if rain_suppressed else rain_intensity())
 	# Headless tests drive advance() without configure(); no emitter exists then.
 	if _rain == null:
 		return

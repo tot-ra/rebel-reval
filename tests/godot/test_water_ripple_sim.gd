@@ -1,7 +1,7 @@
 extends "res://tests/godot/test_case.gd"
 
 ## WS-15: logic side of the interactive ripple sim (no rendering). The impulse queue caps and
-## clears, rain droplets are deterministic per frame and scale with intensity, the window
+## clears, rain stays out of the wave equation (the water shader draws it), the window
 ## scrolls in whole texels, hulls emit paired bow/stern impulses, and the sim only exists
 ## outdoors on maps with water at a tier that enables it.
 
@@ -53,31 +53,16 @@ func test_impulses_convert_to_window_texels() -> void:
 	sim.free()
 
 
-func test_rain_rng_is_deterministic_and_scales_with_intensity() -> void:
-	var first := WaterRippleSimScript.rain_drops_for_frame(17, 1.0, 256)
-	var again := WaterRippleSimScript.rain_drops_for_frame(17, 1.0, 256)
-	var other := WaterRippleSimScript.rain_drops_for_frame(18, 1.0, 256)
-	assert_eq(first, again, "the same frame index yields the same droplets")
-	assert_ne(first, other, "the next frame yields different droplets")
-	assert_eq(first.size(), 40, "full rain emits 40 droplets per step")
-	assert_eq(WaterRippleSimScript.rain_drops_for_frame(17, 0.5, 256).size(), 20, "half rain emits 20")
-	assert_eq(WaterRippleSimScript.rain_drops_for_frame(17, 0.0, 256).size(), 0, "dry weather emits none")
-	for drop in first:
-		var radius: Vector2 = WaterRippleSimScript.RAIN_RADIUS_TEXELS
-		var strength: Vector2 = WaterRippleSimScript.RAIN_STRENGTH
-		assert_true(drop.z >= radius.x and drop.z <= radius.y, "droplet radius stays in its texel band")
-		assert_true(drop.w >= strength.x and drop.w <= strength.y, "droplet strength stays in its band")
-		assert_true(drop.x >= 8.0 and drop.x <= 248.0 and drop.y >= 8.0 and drop.y <= 248.0, "droplets land inside the absorbing border")
-	# The sim draws its rain from the frame counter, so a replay matches.
+func test_rain_is_not_injected_into_the_wave_sim() -> void:
+	# Raindrops rang the 25 cm grid as metre-wide rings inside the 64-unit window only;
+	# the water shader now draws centimetre rings on every surface instead.
 	var sim = WaterRippleSimScript.new()
-	sim.configure(256)
-	sim.set_rain(1.0)
-	sim.step(Vector2.ZERO)
-	assert_eq(sim.last_rain_drops, WaterRippleSimScript.rain_drops_for_frame(0, 1.0, 256), "step 0 uses frame 0 droplets")
-	sim.set_rain(0.0)
-	sim.step(Vector2.ZERO)
-	assert_eq(sim.last_rain_drops.size(), 0, "stopping the rain stops the droplets")
+	assert_false(sim.has_method(&"set_rain"), "the sim takes no rain input")
+	var step_source := FileAccess.get_file_as_string(STEP_SHADER_PATH)
+	assert_false(step_source.contains("rain_drops"), "the step kernel has no rain droplet array")
 	sim.free()
+	var water_source := FileAccess.get_file_as_string(WATER_SHADER_PATH)
+	assert_true(water_source.contains("uniform float rain_ring_intensity"), "the water shader owns rain rings")
 
 
 func test_window_shift_is_integer_and_follows_all_four_directions() -> void:
@@ -153,12 +138,6 @@ func test_harbor_view_builds_sim_and_smithy_does_not() -> void:
 	for viewport: SubViewport in sim.viewports():
 		assert_true(viewport.use_hdr_2d, "ripple state needs a float target")
 		assert_eq(viewport.size, Vector2i(256, 256), "recommended state is 256^2")
-	assert_true(harbor_view.sky_weather().ripple_sim == sim, "the sky feeds its rain to the sim")
-	harbor_view.sky_weather().set_weather(SkyWeather.WEATHER_STORM)
-	harbor_view.sky_weather().advance(SkyWeather.TRANSITION_SECONDS)
-	var storm_rain: float = harbor_view.sky_weather().rain_intensity()
-	assert_true(storm_rain > 0.0, "a storm rains")
-	assert_almost_eq(sim.rain_intensity, storm_rain, 0.0001, "storm rain reaches the ripple sim")
 	root.remove_child(harbor_view)
 	harbor_view.free()
 	var smithy: MapDefinition = KalevSmithyDefinition.create()

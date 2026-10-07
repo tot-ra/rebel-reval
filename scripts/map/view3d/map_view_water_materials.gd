@@ -518,6 +518,20 @@ static func has_water_surface(terrain_id: StringName) -> bool:
 	return _cache.has("water_surface:%s" % String(terrain_id))
 
 
+## Palette-derived tint uniforms of one water family. Shared with apply_sea_depth_map(),
+## which hands both sea families' tints to each sea material for the depth blend.
+static func water_tints(terrain_id: StringName) -> Dictionary:
+	var base := OutdoorTerrainPalette.color(terrain_id)
+	return {
+		"shallow_color": base.lightened(0.18),
+		"deep_color": base.darkened(0.42),
+		# ART_BIBLE highlight #65B1C4 blended toward the terrain palette entry.
+		"highlight_color": base.lerp(Color8(101, 177, 196), 0.55),
+		# Keep foam close to the water tint so the shoreline does not flash white.
+		"foam_color": base.lerp(Color8(188, 208, 206), 0.48),
+	}
+
+
 static func water_surface(terrain_id: StringName, wave_profiles: Dictionary) -> ShaderMaterial:
 	var key := "water_surface:%s" % String(terrain_id)
 	if _cache.has(key):
@@ -527,12 +541,9 @@ static func water_surface(terrain_id: StringName, wave_profiles: Dictionary) -> 
 	material.shader = MapViewMaterialShaders.shader_resource(
 		"water", MapViewMaterialShaders.WATER_SHADER
 	)
-	material.set_shader_parameter("shallow_color", base.lightened(0.18))
-	material.set_shader_parameter("deep_color", base.darkened(0.42))
-	# ART_BIBLE highlight #65B1C4 blended toward the terrain palette entry.
-	material.set_shader_parameter("highlight_color", base.lerp(Color8(101, 177, 196), 0.55))
-	# Keep foam close to the water tint so the shoreline does not flash white.
-	material.set_shader_parameter("foam_color", base.lerp(Color8(188, 208, 206), 0.48))
+	var tints := water_tints(terrain_id)
+	for tint_name: String in tints.keys():
+		material.set_shader_parameter(tint_name, tints[tint_name])
 	var wave: Dictionary = (
 		wave_profiles.get(terrain_id, wave_profiles[MapTypes.TERRAIN_WATER]) as Dictionary
 	)
@@ -755,7 +766,9 @@ static func apply_sea_weather(
 		material.set_shader_parameter(
 			"foam_intensity", float(wave["foam"]) * lerpf(0.9, 1.35, rain_state)
 		)
+		material.set_shader_parameter("rain_ring_intensity", rain_state)
 		material.set_shader_parameter("wind_direction", heading)
+	_sync_sea_wave_blend(wave_profiles)
 
 
 ## Pushes sky sun-disk visibility and day/night blend into cached water
@@ -815,6 +828,75 @@ static func apply_river_flow(path: PackedVector3Array) -> void:
 		return
 	material.set_shader_parameter("river_path", points)
 	material.set_shader_parameter("river_path_count", points.size())
+
+
+## Binds one map's WS-13b basin depth (R = world units, one texel per cell) to the two
+## sea families so their colour and absorption blend by depth instead of switching at the
+## authored shallow/deep cell line. `rect` is the map's world (origin x, origin z, size x,
+## size z). A null texture turns the blend off and restores the per-family look.
+##
+## Like apply_river_flow(), this is per-map state on a process-wide material: the last map
+## built wins while two sea maps are live at once; the other keeps its per-family look.
+static func apply_sea_depth_map(
+	texture: Texture2D, rect: Vector4, wave_profiles: Dictionary = WATER_WAVE_BASE
+) -> void:
+	var shallow_id := MapTypes.TERRAIN_SHALLOW_WATER
+	var deep_id := MapTypes.TERRAIN_DEEP_WATER
+	var shallow_tints := water_tints(shallow_id)
+	var deep_tints := water_tints(deep_id)
+	var looks := {}
+	for terrain_id: StringName in [shallow_id, deep_id]:
+		var wave: Dictionary = wave_profiles.get(terrain_id, WATER_WAVE_BASE[terrain_id])
+		looks[terrain_id] = Vector4(
+			float(OPTICAL_DEPTH_BY_TERRAIN[terrain_id]),
+			float(wave["absorption"]),
+			float(wave["tide_optical_depth"]),
+			0.0
+		)
+	var depth_range := Vector2(
+		float(MapViewMeshBuilderConfig.SEA_BASIN_DEPTH[shallow_id]),
+		float(MapViewMeshBuilderConfig.SEA_BASIN_DEPTH[deep_id])
+	)
+	for terrain_id: StringName in [shallow_id, deep_id]:
+		var material := water_surface(terrain_id, wave_profiles)
+		material.set_shader_parameter("sea_depth_blend", 1.0 if texture != null else 0.0)
+		if texture == null:
+			continue
+		material.set_shader_parameter("sea_depth_map", texture)
+		material.set_shader_parameter("sea_depth_rect", rect)
+		material.set_shader_parameter("sea_depth_range", depth_range)
+		material.set_shader_parameter("sea_look_shallow", looks[shallow_id])
+		material.set_shader_parameter("sea_look_deep", looks[deep_id])
+		for tint_name: String in shallow_tints.keys():
+			material.set_shader_parameter("sea_%s_shallow" % tint_name, shallow_tints[tint_name])
+			material.set_shader_parameter("sea_%s_deep" % tint_name, deep_tints[tint_name])
+	_sync_sea_wave_blend(wave_profiles)
+
+
+## Copies each sea family's live displacement uniforms (choppiness, fft_geometry_scale,
+## standing_wave_ratio, wave_height) into sea_wave_shallow / sea_wave_deep of both sea
+## materials, so their shared border vertices displace identically under the depth blend.
+## Called after every write to those uniforms (build, sea weather).
+static func _sync_sea_wave_blend(wave_profiles: Dictionary = WATER_WAVE_BASE) -> void:
+	var shallow := water_surface(MapTypes.TERRAIN_SHALLOW_WATER, wave_profiles)
+	var deep := water_surface(MapTypes.TERRAIN_DEEP_WATER, wave_profiles)
+	var params := {}
+	for entry: Array in [[&"shallow", shallow], [&"deep", deep]]:
+		var material := entry[1] as ShaderMaterial
+		params[entry[0]] = Vector4(
+			_shader_float(material, "choppiness", 0.85),
+			_shader_float(material, "fft_geometry_scale", 1.0),
+			_shader_float(material, "standing_wave_ratio", 0.12),
+			_shader_float(material, "wave_height", 0.032)
+		)
+	for material: ShaderMaterial in [shallow, deep]:
+		material.set_shader_parameter("sea_wave_shallow", params[&"shallow"])
+		material.set_shader_parameter("sea_wave_deep", params[&"deep"])
+
+
+static func _shader_float(material: ShaderMaterial, uniform_name: String, fallback: float) -> float:
+	var value: Variant = material.get_shader_parameter(uniform_name)
+	return float(value) if value != null else fallback
 
 
 ## Applies a shared astronomical tide to coastal water families. The generic

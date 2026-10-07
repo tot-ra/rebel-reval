@@ -52,10 +52,28 @@ func camera_is_below_ground() -> bool:
 	var camera := _controller.camera
 	if view == null or view.definition == null:
 		return false
-	var terrain_y := MapViewMeshBuilder.ground_height(
-		view.definition, _view_local_xz(view, Vector2(camera.position.x, camera.position.z))
+	var terrain_y := rendered_floor_height(
+		view, _view_local_xz(view, Vector2(camera.position.x, camera.position.z))
 	)
 	return camera.position.y < terrain_y
+
+
+## Lowest point the lens may reach at view-local XZ: the gameplay ground, or over open sea
+## the WS-13b rendered basin bed metres below it. ADR 0021: the gameplay sea bed sits a
+## few centimetres under the surface, so clamping to it pinned a diving camera at the
+## waterline (lens cut by the surface, the diver out of sight below it).
+static func rendered_floor_height(view: MapView3D, view_xz: Vector2) -> float:
+	var ground := MapViewMeshBuilder.ground_height(view.definition, view_xz)
+	return ground - _basin_depth(view, view_xz)
+
+
+static func _basin_depth(view: MapView3D, view_xz: Vector2) -> float:
+	if view == null or view.definition == null or view.grid == null:
+		return 0.0
+	var field := MapViewMeshBuilder.ensure_height_field(view.definition, view.grid)
+	if not field.has("basin_targets"):
+		return 0.0
+	return MapViewMeshBuilderTerrain.basin_extra_depth(field, view_xz)
 
 
 func enforce_camera_safety(
@@ -104,7 +122,7 @@ func _clamp_above_ground(camera_was_below_ground: bool) -> void:
 	):
 		return
 	var world_xz := _view_local_xz(view, Vector2(camera.position.x, camera.position.z))
-	var terrain_y := MapViewMeshBuilder.ground_height(view.definition, world_xz)
+	var terrain_y := rendered_floor_height(view, world_xz)
 	var min_y := terrain_y + GROUND_CLEARANCE
 	if camera.position.y < min_y:
 		camera.position.y = min_y
@@ -200,7 +218,7 @@ func _line_of_sight_blocked(from: Vector3, player_pos: Vector3) -> bool:
 		return true
 	var chest := player_pos + Vector3.UP * TERRAIN_SIGHT_HEIGHT
 	return segment_under_ground(
-		view.definition, _in_view(view, from), _in_view(view, chest)
+		view.definition, _in_view(view, from), _in_view(view, chest), view
 	)
 
 
@@ -208,15 +226,21 @@ func _line_of_sight_blocked(from: Vector3, player_pos: Vector3) -> bool:
 ## its ends. Samples every TERRAIN_SIGHT_STEP world units, excluding both ends
 ## (the target sits above the player's feet, which legitimately touch the
 ## ground). Flat maps return false without sampling, so their camera behaviour is
-## unchanged.
-static func segment_under_ground(definition: MapDefinition, from: Vector3, to: Vector3) -> bool:
+## unchanged. With `view`, open sea counts down to its rendered basin bed, so a sight line
+## through water to a diver is not mistaken for one through the ground.
+static func segment_under_ground(
+	definition: MapDefinition, from: Vector3, to: Vector3, view: MapView3D = null
+) -> bool:
 	if definition == null or not MapTerrainMovement.has_relief(definition):
 		return false
 	var length := from.distance_to(to)
 	var steps := int(ceil(length / TERRAIN_SIGHT_STEP))
 	for step in range(1, steps):
 		var point := from.lerp(to, float(step) / float(steps))
-		var ground := MapViewMeshBuilder.ground_height(definition, Vector2(point.x, point.z))
+		var point_xz := Vector2(point.x, point.z)
+		var ground := MapViewMeshBuilder.ground_height(definition, point_xz)
+		if view != null:
+			ground -= _basin_depth(view, point_xz)
 		if point.y < ground + TERRAIN_SIGHT_CLEARANCE:
 			return true
 	return false

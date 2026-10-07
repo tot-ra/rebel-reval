@@ -114,3 +114,28 @@ per in-map water fragment.
   [WS-13d](WS-13d_pier_cribs.md) (timber decks now get their own steeper crib face).
 - Hairline seams between surroundings water planes now show the sand apron instead of the void
   (pre-existing crack, WS-04 note on horizontal chop).
+
+## Amendment 2026-10-07: gradual depth, depth-blended sea, camera under water
+
+- Deep-water basin targets shelve down from the shallow-water depth over
+  `SEA_BASIN_DEEP_RAMP_CELLS` (9) cells, measured from the nearest `shallow_water` cell with a smoothstep
+  (`_ramp_deep_basin_targets`). Before this, the bed stepped 1.0 → 3.6 units across one cell
+  along the authored line (Kalamaja row 24). Maps without shallow water keep their targets.
+- `MapView3D.sea_depth_image()` bakes the basin depth, one `FORMAT_RF` texel per cell, and
+  `MapViewWaterMaterials.apply_sea_depth_map()` binds it to the `shallow_water` and `deep_water`
+  materials. Inside the map rect both materials blend colour, absorption and their displacement
+  parameters (`sea_wave_shallow` / `sea_wave_deep`: choppiness, FFT geometry scale, standing
+  ratio, Gerstner height) by depth. The blended displacement closes the crack, where the bed
+  showed through, that opened between the two meshes when each displaced its shared border
+  vertices with its own amplitude. The texture is sampled in `vertex()`, because the fragment
+  stage is at the 16-sampler GL Compatibility limit. Outside the rect (neighbour previews) each
+  family keeps its own look. This is process-wide material state, so the last map built wins.
+- Camera safety clamps over open sea to this rendered basin bed
+  (`MapViewRuntimeCameraSafety.rendered_floor_height`), not to the flat gameplay bed, so the
+  third-person camera can follow a diver below the surface. The sight-line test samples the same
+  floor. While diving, `MapViewSwimmerPresenter` shortens the boom to `CAMERA_DIVE_BOOM_SCALE`
+  (0.5). Gameplay depth, swim state and collision are unchanged (ADR 0021).
+- View-only ground scatter (grass, plants, bushes) skips water cells. Some water cells inherited a
+  land style variant, and that floated grass tufts on the open sea.
+- Verify: `--filter=test_ws13b_sea_basin_depth`, then
+  `tools/godot_render.sh --script tools/capture_swim.gd -- --out=build/swim --weather=rain`.

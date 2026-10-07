@@ -85,6 +85,8 @@ static func compute_height_field(definition: MapDefinition, grid: MapTerrainGrid
 		# outdoor relief would lift props and actors off the floor in 3D view.
 		"flat_floor": definition.suppresses_exterior_surroundings(),
 	}
+	field["water_union"] = MapViewMeshBuilderTerrainWater.bake_water_union(field)
+	field["shore_sink_cells"] = _bake_shore_sink_cells(field, grid)
 	# WHY: water Y used to be the world-zero recess. A moat on a terrace or a
 	# quay above the sea would then ignore the compiled relief under it. Shore
 	# bases are baked first so bake_vertices and the basin share one level.
@@ -221,9 +223,53 @@ static func field_height(field: Dictionary, position: Vector2) -> float:
 			field.get("relief_heights", PackedFloat32Array()), size, position
 		)
 	)
-	return (
+	return _sink_under_visible_water(
+		field,
+		position,
+		cell,
 		base_elevation + relief * minf(pad_factor(field, position), water_factor(field, position))
 	)
+
+
+## WHY: the water mesh follows the smoothed union contour, which also covers dry
+## cells of thin sand spits and cove corners. Left at ground level those cells
+## poked through the sea as straight, cell-aligned sand bars. Natural banks now
+## ease down to the still-water bed over the last stretch before the waterline,
+## so bars submerge and beaches shelve along the same curve the water draws.
+## Hard edges (quays, paving, piers) keep their level.
+static func _sink_under_visible_water(
+	field: Dictionary, position: Vector2, cell: Vector2i, height: float
+) -> float:
+	var natural: PackedByteArray = field.get("shore_sink_cells", PackedByteArray())
+	var size: Vector2i = field["size"]
+	if natural.size() != size.x * size.y:
+		return height
+	var clamped := Vector2i(clampi(cell.x, 0, size.x - 1), clampi(cell.y, 0, size.y - 1))
+	if natural[clamped.y * size.x + clamped.x] == 0:
+		return height
+	var threshold := MapViewMeshBuilderConfig.WATER_CONTOUR_THRESHOLD
+	var coverage := MapViewMeshBuilderTerrainWater.combined_water_coverage_at(field, position)
+	var sink := smoothstep(
+		threshold - MapViewMeshBuilderConfig.SHORE_SINK_COVERAGE_BAND, threshold, coverage
+	)
+	if sink <= 0.0:
+		return height
+	return lerpf(height, minf(height, water_gameplay_bed_y(field, position)), sink)
+
+
+## Cells whose ground may sink under the visible waterline: natural shore terrain
+## within reach of water. Empty (no sinking) on maps without water.
+static func _bake_shore_sink_cells(field: Dictionary, grid: MapTerrainGrid) -> PackedByteArray:
+	var cells := PackedByteArray()
+	if (field["water"] as Dictionary).is_empty() or field.get("flat_floor", false):
+		return cells
+	cells.resize(grid.size_cells.x * grid.size_cells.y)
+	for y in grid.size_cells.y:
+		for x in grid.size_cells.x:
+			var terrain := grid.get_terrain(Vector2i(x, y))
+			if terrain in MapViewMeshBuilderConfig.NATURAL_SHORE_TERRAINS:
+				cells[y * grid.size_cells.x + x] = 1
+	return cells
 
 
 ## Elevated outdoor maps share a zero-height datum at their authored bounds so
@@ -507,6 +553,7 @@ static func _bake_basin_cells(field: Dictionary, grid: MapTerrainGrid) -> void:
 				hard[index] = 0.0
 	if not has_basin:
 		return
+	_ramp_deep_basin_targets(grid, targets, size, far)
 	_chamfer_distance(natural, size)
 	_chamfer_distance(hard, size)
 	field["basin_targets"] = targets
@@ -515,6 +562,35 @@ static func _bake_basin_cells(field: Dictionary, grid: MapTerrainGrid) -> void:
 	if has_pier:
 		_chamfer_distance(pier, size)
 		field["basin_pier"] = pier
+
+
+## Shelves deep-water targets down from the shallow-water depth over
+## SEA_BASIN_DEEP_RAMP_CELLS cells (smoothstep in the distance to the nearest shallow
+## cell), so the bed, the swim/dive depth and the depth-blended sea colour all deepen
+## gradually instead of in one cell. Maps without shallow water keep their targets.
+static func _ramp_deep_basin_targets(
+	grid: MapTerrainGrid, targets: PackedFloat32Array, size: Vector2i, far: float
+) -> void:
+	var shallow_depth := float(
+		MapViewMeshBuilderConfig.SEA_BASIN_DEPTH[MapTypes.TERRAIN_SHALLOW_WATER]
+	)
+	var to_shallow := PackedFloat32Array()
+	to_shallow.resize(targets.size())
+	var has_shallow := false
+	for y in size.y:
+		for x in size.x:
+			var shallow := grid.get_terrain(Vector2i(x, y)) == MapTypes.TERRAIN_SHALLOW_WATER
+			to_shallow[y * size.x + x] = 0.0 if shallow else far
+			has_shallow = has_shallow or shallow
+	if not has_shallow:
+		return
+	_chamfer_distance(to_shallow, size)
+	var ramp := MapViewMeshBuilderConfig.SEA_BASIN_DEEP_RAMP_CELLS
+	for index in targets.size():
+		if targets[index] <= shallow_depth:
+			continue
+		var t := smoothstep(0.0, ramp, to_shallow[index])
+		targets[index] = lerpf(shallow_depth, targets[index], t)
 
 
 ## Two-pass 3x3 chamfer transform (1 and sqrt 2): Euclidean enough for a bank

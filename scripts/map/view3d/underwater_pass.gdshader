@@ -172,9 +172,11 @@ vec3 _compat_scene_rgb(vec3 sampled) {
 
 // Procedural drops for the wet lens: one Voronoi seed per cell, sliding down
 // with a per-cell speed. Returns the refraction offset in pixels (xy) and the
-// drop coverage (z).
+// drop coverage (z). 16 rows of cells, only ~40% of them beaded, drops up to
+// ~2.5% of the screen height: the old 7 rows with a drop in every cell covered
+// the lens in coin-sized discs that read as a static moire layer over the sea.
 vec3 _lens_drops(vec2 pixel, vec2 viewport) {
-	float cell_px = viewport.y / 7.0;
+	float cell_px = viewport.y / 16.0;
 	vec3 best = vec3(0.0);
 	float best_d = 1e9;
 	for (int j = -1; j <= 1; j++) {
@@ -182,9 +184,13 @@ vec3 _lens_drops(vec2 pixel, vec2 viewport) {
 			vec2 cell = floor(pixel / cell_px) + vec2(float(i), float(j));
 			float r1 = fract(sin(dot(cell, vec2(127.1, 311.7))) * 43758.5453);
 			float r2 = fract(sin(dot(cell, vec2(269.5, 183.3))) * 43758.5453);
+			float r3 = fract(sin(dot(cell, vec2(419.2, 371.9))) * 43758.5453);
+			if (r3 > 0.4) {
+				continue;
+			}
 			float slide = r2 > 0.7 ? lens_age * lens_age * cell_px * 0.9 : 0.0;
 			vec2 center = (cell + vec2(r1, r2)) * cell_px + vec2(0.0, slide);
-			float radius = mix(0.12, 0.30, fract(r1 * 7.13 + r2)) * cell_px;
+			float radius = mix(0.10, 0.22, fract(r1 * 7.13 + r2)) * cell_px;
 			vec2 to_center = center - pixel;
 			float d = length(to_center) / radius;
 			if (d < 1.0 && d < best_d) {

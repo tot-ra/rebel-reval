@@ -38,6 +38,9 @@ const CAMERA_LIFT_FADE_DEPTH := 0.6
 ## camera this far (world units) so a diver is actually seen from under the surface.
 const CAMERA_DIVE_DROP_THIRD := 1.7
 const CAMERA_DIVE_FULL_DEPTH := 1.3
+## Underwater extinction greys a diver out within a few units, so the third-person boom
+## pulls in to this share of the player's zoom while the head is fully under.
+const CAMERA_DIVE_BOOM_SCALE := 0.5
 const WAKE_HALF_LENGTH := 0.7
 const WAKE_HALF_BEAM := 0.32
 const ENTRY_SPLASH_RADIUS := 0.7
@@ -54,6 +57,7 @@ var _previous_submersion := 0.0
 var _was_in_water := false
 var _previous_medium := 0
 var _camera_lift := Vector3.ZERO
+var _camera_boom_scale := 1.0
 
 
 ## Places and poses `rig` for the player's current water medium. Returns true while
@@ -138,8 +142,11 @@ func is_stroking() -> bool:
 func _release(rig: SharedCharacterRig) -> void:
 	_sync_stowed_tools(rig, false)
 	_camera_lift = Vector3.ZERO
+	_camera_boom_scale = 1.0
 	if rig != null and rig.has_meta(&"camera_lift"):
 		rig.remove_meta(&"camera_lift")
+	if rig != null and rig.has_meta(&"camera_boom_scale"):
+		rig.remove_meta(&"camera_boom_scale")
 	if _was_in_water and rig != null:
 		var model := rig.get_node_or_null("Model") as Node3D
 		if model != null:
@@ -181,8 +188,11 @@ func _sync_camera_lift(
 		1.0
 	)
 	target.x -= CAMERA_DIVE_DROP_THIRD * sunk
-	_camera_lift = _camera_lift.lerp(target, 1.0 - exp(-CAMERA_LIFT_RATE * delta))
+	var weight := 1.0 - exp(-CAMERA_LIFT_RATE * delta)
+	_camera_lift = _camera_lift.lerp(target, weight)
 	rig.set_meta(&"camera_lift", _camera_lift)
+	_camera_boom_scale = lerpf(_camera_boom_scale, lerpf(1.0, CAMERA_DIVE_BOOM_SCALE, sunk), weight)
+	rig.set_meta(&"camera_boom_scale", _camera_boom_scale)
 
 
 func _sync_ring(rig: SharedCharacterRig, pitch: float) -> void:

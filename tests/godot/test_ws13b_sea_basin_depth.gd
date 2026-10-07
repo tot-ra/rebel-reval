@@ -20,7 +20,8 @@ func test_open_sea_bed_drops_while_the_gameplay_bed_stays_flat() -> void:
 	var definition := _sea_definition()
 	var grid := MapBuilder.build(definition)
 	TerrainBuilder.build_terrain(definition, grid).free()
-	var deep_point := Vector2(4.5, 2.5)
+	# Row 0 sits beyond SEA_BASIN_DEEP_RAMP_CELLS from the shallow rows, so it is fully deep.
+	var deep_point := Vector2(4.5, 0.5)
 	assert_almost_eq(
 		TerrainBuilder.view_bed_height(definition, deep_point),
 		-MeshConfig.WATER_RECESS - float(MeshConfig.SEA_BASIN_DEPTH[MapTypes.TERRAIN_DEEP_WATER]),
@@ -57,8 +58,12 @@ func test_waterline_vertices_keep_their_flat_bed_position_and_normal() -> void:
 		if TerrainBuilder.subvertex_touches_dry(field, vx, vy):
 			if TerrainBuilder.subvertex_touches_water(field, vx, vy):
 				waterline += 1
-			assert_eq(bed[index], positions[index], "dry or waterline vertex %d must not move" % index)
-			assert_eq(bed_normals[index], normals[index], "waterline normal %d must not change" % index)
+			assert_eq(
+				bed[index], positions[index], "dry or waterline vertex %d must not move" % index
+			)
+			assert_eq(
+				bed_normals[index], normals[index], "waterline normal %d must not change" % index
+			)
 		elif bed[index].y < positions[index].y - 0.01:
 			deepened += 1
 	assert_true(waterline > 0, "the synthetic sea must have a waterline")
@@ -153,6 +158,65 @@ func test_in_map_water_marks_the_flat_bed_for_the_shader() -> void:
 	assert_true(
 		source.contains("_flat_bed_view_depth(") and source.contains("flat_bed_flag"),
 		"the water shader must measure its optical column to the flat bed",
+	)
+
+
+func test_deep_water_shelves_down_from_the_shallows_without_a_step() -> void:
+	var definition := _sea_definition()
+	var grid := MapBuilder.build(definition)
+	var field := TerrainBuilder.ensure_height_field(definition, grid)
+	var shallow_depth := float(MeshConfig.SEA_BASIN_DEPTH[MapTypes.TERRAIN_SHALLOW_WATER])
+	var deep_depth := float(MeshConfig.SEA_BASIN_DEPTH[MapTypes.TERRAIN_DEEP_WATER])
+	# Walk from the shallow rows (10-11) out to the deep row 0, away from the pier.
+	var previous := TerrainBuilder.basin_extra_depth(field, Vector2(4.5, 10.5))
+	for row in range(9, -1, -1):
+		var depth := TerrainBuilder.basin_extra_depth(field, Vector2(4.5, float(row) + 0.5))
+		assert_true(depth >= previous - 0.001, "the bed must deepen seaward (row %d)" % row)
+		assert_true(
+			depth - previous < (deep_depth - shallow_depth) * 0.4,
+			(
+				"the first deep row must not drop like a cliff (row %d: %s -> %s)"
+				% [row, previous, depth]
+			),
+		)
+		previous = depth
+	var first_deep := TerrainBuilder.basin_extra_depth(field, Vector2(4.5, 9.5))
+	assert_true(
+		first_deep < shallow_depth + 0.5,
+		"deep water next to the shallows must start near the shallow depth (got %s)" % first_deep,
+	)
+
+
+func test_rendered_floor_lets_the_camera_follow_a_diver_into_the_basin() -> void:
+	var definition := _sea_definition()
+	var view := MapView3D.new()
+	view.definition = definition
+	view.grid = MapBuilder.build(definition)
+	var deep_xz := Vector2(4.5, 0.5)
+	var floor_y := MapViewRuntimeCameraSafety.rendered_floor_height(view, deep_xz)
+	assert_true(
+		floor_y < TerrainBuilder.ground_height(definition, deep_xz) - 3.0,
+		"over open sea the camera floor must be the rendered basin, not the gameplay bed",
+	)
+	var on_grass := Vector2(4.5, 14.5)
+	assert_almost_eq(
+		MapViewRuntimeCameraSafety.rendered_floor_height(view, on_grass),
+		TerrainBuilder.ground_height(definition, on_grass),
+		0.0001,
+		"dry land keeps the gameplay ground as the camera floor",
+	)
+	var depth_image := view.sea_depth_image()
+	assert_true(depth_image != null, "a sea map bakes a depth map for the water shader")
+	if depth_image != null:
+		assert_eq(depth_image.get_size(), SEA_SIZE, "one depth texel per cell")
+		assert_true(
+			depth_image.get_pixel(4, 0).r > depth_image.get_pixel(4, 9).r, "the map deepens seaward"
+		)
+	view.free()
+	var source := FileAccess.get_file_as_string(WATER_SHADER_PATH)
+	assert_true(
+		source.contains("uniform sampler2D sea_depth_map") and source.contains("sea_depth_blend"),
+		"the sea materials blend shallow and deep looks by basin depth",
 	)
 
 

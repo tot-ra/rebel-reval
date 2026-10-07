@@ -25,8 +25,6 @@ uniform bool reset_state = false;
 // vec4(texel x, texel y, radius texels, strength) in this window's texel space.
 uniform int impulse_count = 0;
 uniform vec4 impulses[32];
-uniform int rain_count = 0;
-uniform vec4 rain_drops[40];
 
 // Safety bound only; a stable run stays far inside it (see docs/reports/ws15_ripple_sim.md).
 const float HEIGHT_LIMIT = 0.95;
@@ -79,14 +77,7 @@ void fragment() {
 		}
 		forced += drop(impulses[i], cell);
 	}
-	float rain = 0.0;
-	for (int i = 0; i < 40; i++) {
-		if (i >= rain_count) {
-			break;
-		}
-		rain += drop(rain_drops[i], cell);
-	}
-	h_next += forced + rain;
+	h_next += forced;
 
 	// Sponge border: damp both time levels together so the band absorbs outgoing rings
 	// instead of reflecting them back into the window (a hard zero edge would reflect).
@@ -95,8 +86,7 @@ void fragment() {
 	h_next = clamp(h_next * sponge, -HEIGHT_LIMIT, HEIGHT_LIMIT);
 	float h_keep = h * sponge;
 
-	// Churned white water comes from hull forcing only (bow and stern), not from rain, so
-	// a rain shower rings the surface without whitening it. It decays over a few seconds and
+	// Churned white water comes from hull forcing only (bow and stern). It decays over a few seconds and
 	// stays where the hull passed, which leaves a white trail behind the stern.
 	float aer = max(c.b * exp(-aer_decay * step_dt), min(abs(forced) * aer_gain, 1.0));
 	aer *= sponge;

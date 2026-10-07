@@ -54,6 +54,14 @@ func _swim_lift() -> Vector3:
 	return rig.get_meta(&"camera_lift") as Vector3
 
 
+## Share of the third-person boom kept while diving (MapViewSwimmerPresenter), 1 otherwise.
+func _swim_boom_scale() -> float:
+	var rig := _controller.player_rig
+	if rig == null or not rig.has_meta(&"camera_boom_scale"):
+		return 1.0
+	return float(rig.get_meta(&"camera_boom_scale"))
+
+
 func _follow_target() -> Vector3:
 	var controller := _controller
 	var camera := controller.camera
@@ -69,7 +77,8 @@ func _follow_target() -> Vector3:
 				(
 					controller.player_rig.position
 					+ Vector3.UP * (MapViewRuntimeCamera.THIRD_PERSON_TARGET_HEIGHT + lift.x)
-					+ camera.transform.basis.z * controller._zoom.third_person_distance()
+					+ camera.transform.basis.z
+					* (controller._zoom.third_person_distance() * _swim_boom_scale())
 				)
 			)
 		_:

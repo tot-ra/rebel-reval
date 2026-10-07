@@ -10,11 +10,12 @@ Godot 4.7.1, Apple M5 Pro. Capture tool: [`tools/capture_ws15_ripples.gd`](../..
   `prev_state` (R = h_t, G = h_{t-1}, B = aeration). The 64 x 64-unit window follows the camera
   focus in whole texels and passes the integer shift to the kernel. The impulse queue holds up to
   32 impulses per step, and `add_moving_body()` turns a hull into a bow ring and an opposite-phase
-  stern ring. `set_rain()` adds `intensity * 40` deterministic droplets per step, seeded by the
-  step index.
+  stern ring. Rain used to enter here too (`set_rain()`, `intensity * 40` droplets per step).
+  It was removed on 2026-10-07: 25 cm texels grew drops into metre-wide rings that stopped at
+  the window edge. `map_view_water.gdshader` now draws rain rings procedurally
+  (`rain_ring_intensity`).
 - `MapView3D` builds the sim for outdoor maps with water on tiers whose `ripple_sim_size` is above
-  0 (`recommended` 256, `minimum` 0 = off). `SkyWeather3D._update_rain()` feeds it
-  `rain_intensity()`, or 0 under a roof.
+  0 (`recommended` 256, `minimum` 0 = off). Rain no longer feeds the sim (see above).
 - `map_view_water.gdshader` samples the window. The vertex stage adds a crest-only lift. The
   fragment stage adds a slope from central differences to the FFT/detail normal (so rings bend
   reflections and glints), a small highlight on ring flanks (`ripple_sheen`), and bubbly aeration

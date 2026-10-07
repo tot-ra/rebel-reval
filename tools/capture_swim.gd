@@ -10,7 +10,7 @@ extends SceneTree
 ##     --script tools/capture_swim.gd -- --out=build/swim_metal --camera=top_down
 ##
 ## Options: --out=<dir under the project>  --camera=third_person|top_down
-##          --zoom=<view steps>  --x=<start cell x>
+##          --zoom=<view steps>  --x=<start cell x>  --weather=<clear|rain|storm...>
 ##
 ## Output: <out>/swim_<step>.png plus a printed line per step with medium, depth, submersion.
 
@@ -25,6 +25,7 @@ var _camera := "third_person"
 var _start_x := 100.5
 var _zoom := 0.0
 var _rotate := 0.0
+var _weather := ""
 var _north_key: StringName = &"ui_up"
 var _south_key: StringName = &"ui_down"
 var _scene: Node
@@ -43,6 +44,8 @@ func _initialize() -> void:
 			_rotate = float(argument.trim_prefix("--rotate="))
 		elif argument.begins_with("--zoom="):
 			_zoom = float(argument.trim_prefix("--zoom="))
+		elif argument.begins_with("--weather="):
+			_weather = argument.trim_prefix("--weather=")
 	call_deferred("_run")
 
 
@@ -62,6 +65,12 @@ func _run() -> void:
 		push_error("harbor scene did not expose player/runtime")
 		quit(1)
 		return
+	if not _weather.is_empty():
+		# Hold the requested weather for the whole run (rain rings, lens drops).
+		var sky: Object = runtime.get("view").call(&"sky_weather")
+		sky.set("auto_weather", false)
+		sky.call(&"set_weather", StringName(_weather))
+		sky.call(&"advance", SkyWeather3D.TRANSITION_SECONDS)
 	if _camera == "top_down":
 		runtime.call(&"set_camera_mode", 2) # CameraMode.TOP_DOWN
 	if _zoom != 0.0:
