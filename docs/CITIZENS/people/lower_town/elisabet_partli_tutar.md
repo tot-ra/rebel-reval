@@ -35,13 +35,13 @@
 - **Model notes:** MPFB gender female, age_years 40, muscle 0.3, weight 0.25, proportions slender, height_m 1.60; rosy freckled skin; eyes grey-blue; ash blond hair under coif; crowd tier 2.
 
 ## Biography
-Elisabet was born on the Harju road to a brewer who taught her the mash. She came to town at twenty, married Siim in 1327, and has brewed small beer in the front room since 1330. The family eats on what the ale earns. She is the one who counts, plans and schemes.
+Elisabet was born on the Harju road to a village brewer who taught her to mash malt at nine. She came to town at twenty with a kettle on her back and a promise to keep house for an aunt, married Siim in 1327, and has brewed small beer in the front room since 1330. The family eats what the ale earns. She is the one who counts, plans and schemes: she knows what every neighbouring alewife pays for malt and how many cups each sells. Three children lived, two are in the loft, and the infant Katrin sleeps in the brew room by the warmth.
 
 ## Motivation
-- **Want:** To buy a second kettle and double the output.
-- **Fear:** A bad barley year and a levy on brewing.
+- **Want:** A second kettle and a better barley supplier.
+- **Fear:** A bad barley year and a levy on brewing; and her husband's truss giving out.
 - **Contradiction:** She hates debt and owes for the malt.
-- **Secret or withheld fact:** She waters the beer by a third on market days.
+- **Secret or withheld fact:** She waters the beer by a third on market days and gives the saving to Judit.
 
 ## Daily routine
 | Phase | Time (late April) | Place | Activity |
@@ -57,7 +57,7 @@ Elisabet was born on the Harju road to a brewer who taught her the mash. She cam
 - **Spring 1343 disruption:** Malt is dearer; the beer is thinner.
 
 ## Work and money
-She buys malt at a schilling the measure and sells at a pfennig the cup. A good week clears a schilling; a poor one clears nothing.
+She buys malt at a schilling the measure and sells small beer at a pfennig the cup; a good week clears a schilling, a poor one clears nothing. Rent is half a mark a quarter. She borrows the brass hop-sieve from Ingeborg and pays back in cups. In a lean week the family eats barley porridge and she skips the evening meal.
 
 ## Relationships
 - **Household:** [Siim Tanieli poeg](siim_tanieli_poeg.md), husband; [Judit Siimu tütar](judit_siimu_tutar.md), daughter; [Siim Siimu poeg](siim_siimu_poeg.md), son; Katrin, infant, in [the ledger](../../ledger/lower_town/harju.md#hh-lt-osm-w28132816); [Taniel Kaspari poeg](taniel_kaspari_poeg.md), her father-in-law.
@@ -65,7 +65,7 @@ She buys malt at a schilling the measure and sells at a pfennig the cup. A good 
 - **Others:** [Tyde Langhe](../../ledger/lower_town/kuninga.md#hh-lt-osm-w201040624) sells her salt.
 
 ## Faction and belief
-None; she cannot afford it. A small favour she repays in beer; a large one she refuses; informing she thinks a sin. She pours the first cup on the floor.
+None; she cannot afford it. A small favour she repays in beer; a large one she refuses; informing she thinks a sin. She pours the first cup of every batch on the floor for the old spirit and the second for St Olaf.
 
 ## Voice
 - **Registers:** Estonian at home; German to customers.
@@ -74,7 +74,7 @@ None; she cannot afford it. A small favour she repays in beer; a large one she r
 - **Verbal tic:** "Mind the froth."
 
 ## Knowledge and rumours
-She knows who drinks too much and who owes. She believes the Vogt has a spy in every alehouse.
+She knows who drinks too much and who owes, and which carter sells short measure. She would trade it for a measure of better malt. She believes the Vogt has a spy in every alehouse, which is partly true and mostly flattering.
 
 ## Game hooks
 - **Ambient role:** Front room, midday to dusk.

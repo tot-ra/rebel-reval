@@ -72,7 +72,7 @@ He sympathises with the Blackheads because they seat the unmarried, and he is on
 ## Voice
 - **Registers:** Middle Low German with a sing-song Estonian cadence under it, Latin in the ledger.
 - **Delivery:** Sing-song, soft, with rising ends.
-- **Sample lines:** "I will copy it fair." "No, I did not say that." "Ma ei tea." (I do not know.)
+- **Sample lines:** "I will copy it fair." "No, I did not say that." "Ma ei oska öelda." (I cannot say.)
 - **Verbal tic:** "Fair copy."
 
 ## Knowledge and rumours

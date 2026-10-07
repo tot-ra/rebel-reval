@@ -35,13 +35,13 @@
 - **Model notes:** MPFB gender male, age_years 22, muscle 0.3, weight 0.4, proportions average, height_m 1.80; pale skin; eyes green; dark blond hair, stubble; crowd tier 1.
 
 ## Biography
-Rembert was born in Brunswick, apprenticed in Lübeck and sent to Reval at nineteen. His reading aloud of letters in a hall full of clerks earned him the voice and the chore. He takes the long way home from the harbour to hear the bells. He has been in debt since last spring to an old woman on Toompea.
+Rembert was born in Brunswick, the second son of a cloth-seller, apprenticed in Lübeck's counting-houses at fifteen and sent to Reval at nineteen with a letter to Segebode. His habit of reading letters aloud in a hall full of clerks earned him the voice and the chore of reading the incoming post. He takes the long way home from the harbour to hear the bells and shaves once a week on Saturday, a habit he calls thrift. Last spring an old woman on Toompea, Fenne Gude, paid his debt at the cook-shop and asked nothing; he has been wondering ever since what she will ask.
 
 ## Motivation
-- **Want:** A post in Lübeck with a name behind his hand.
-- **Fear:** Being named in a letter he read aloud.
+- **Want:** A post in Lübeck with a name behind his hand and a bed of his own.
+- **Fear:** Being named in a letter he read aloud, and the old woman's price.
 - **Contradiction:** He likes being heard and hates being noticed.
-- **Secret or withheld fact:** He has hidden a letter from Toompea in the lining of his hood.
+- **Secret or withheld fact:** He has hidden a letter from Toompea in the lining of his hood and has not decided whom to show it to.
 
 ## Daily routine
 | Phase | Time (late April) | Place | Activity |
@@ -57,7 +57,7 @@ Rembert was born in Brunswick, apprenticed in Lübeck and sent to Reval at ninet
 - **Spring 1343 disruption:** More letters from Toompea; he reads them softly.
 
 ## Work and money
-Four marks a year, board, a tunic. He saves a little and owes less than he thinks.
+Four marks a year, board and a tunic at Michaelmas. He copies and reads aloud letters from Lübeck and Visby at Segebode's counting table, and takes a pfennig for each private letter he writes for sailors. He owes the cook-shop eleven pfennigs, which the old woman paid. A bad month is one without ships, when the letters stop and he sits with a blank sheet.
 
 ## Relationships
 - **Household:** [Segebode Corte](segebode_corte.md), master; [Gyse van Hildensem](gyse_van_hildensem.md), mistress; [Kersten Wise](kersten_wise.md) and [Conrad van Stralesund](conrad_van_stralesund.md), fellow clerks; [Peter van Bremen](peter_van_bremen.md), apprentice; others in [the ledger](../../ledger/lower_town/harju.md#hh-lt-osm-w28132814).
@@ -65,7 +65,7 @@ Four marks a year, board, a tunic. He saves a little and owes less than he think
 - **Others:** [Nils Folkesson](nils_folkesson.md), the wheelwright, repairs the counting-house cart.
 
 ## Faction and belief
-He sympathises because he was helped once. A small favour he repays, a large one he avoids, and informing he refuses. He prays at the street shrine on the way home.
+He sympathises because someone was kind and for no better reason. A small favour he repays at once; a large one he avoids; informing he refuses, though he is afraid he might. He prays at the street shrine on the way home and drops a pfennig in the box.
 
 ## Voice
 - **Registers:** German in the hall; Latin in letters.
@@ -74,7 +74,7 @@ He sympathises because he was helped once. A small favour he repays, a large one
 - **Verbal tic:** "Hear it?"
 
 ## Knowledge and rumours
-He knows who writes to whom. He believes the Order will land at Easter.
+He knows who writes to whom in the house. He would trade it for a safe letter to Lübeck. He believes the Order will land at Easter, which is false: Easter is past and no Order ship has been seen.
 
 ## Game hooks
 - **Ambient role:** Counting room mornings; gates afternoons.

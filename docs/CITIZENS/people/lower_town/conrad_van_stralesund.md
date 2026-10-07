@@ -35,13 +35,13 @@
 - **Model notes:** MPFB gender male, age_years 21, muscle 0.4, weight 0.55, proportions average, height_m 1.74; pale sallow skin; eyes hazel; blond hair, forked beard; crowd tier 1.
 
 ## Biography
-Conrad was born in Stralsund, lost his mother young, and was sent to Reval at three to a household where an Estonian nurse raised him. He grew up speaking German and thinking in Estonian. At sixteen he went to Segebode's counting room, where his beard and his accent made him a curiosity. He sits among the salt sacks and sees which servants go out by the back lane.
+Conrad was born in Stralsund, lost his mother in the sweating sickness of his second year, and was shipped to Reval at three to a cousin's household where an Estonian nurse named Mall raised him. He grew up speaking German and thinking in Estonian, and his accent is a sing-song that no German on Harju can place. At sixteen he entered Segebode's counting room, where his forked beard and his accent made him a curiosity. He sits among the salt sacks and notes which servants go out by the back lane. He visits Mall's grave at the cemetery of St Olaf on Sundays.
 
 ## Motivation
-- **Want:** To be taken for a German by Germans.
-- **Fear:** The nurse's village being taxed to ruin.
+- **Want:** To be taken for a German by Germans, and to see the nurse's village safe.
+- **Fear:** The levy falling on her kin, and his own accent betraying him in the council chamber.
 - **Contradiction:** He leads from the margin and craves the centre.
-- **Secret or withheld fact:** He knows the name of the third in the cell and has told nobody.
+- **Secret or withheld fact:** He knows the third of the cell and has told nobody, not even the cooper.
 
 ## Daily routine
 | Phase | Time (late April) | Place | Activity |
@@ -57,7 +57,7 @@ Conrad was born in Stralsund, lost his mother young, and was sent to Reval at th
 - **Spring 1343 disruption:** More whispers; he counts exits.
 
 ## Work and money
-Four marks a year, board, a tunic. He sends one mark to the nurse's kin.
+Four marks a year, board and a tunic. He counts salt sacks, checks the warehouse tally and carries letters. He sends one mark a year to Mall's kin through a carter, which he enters in no ledger. A bad month is one with a salt shortage; then the clerks fight over the quay stock and Conrad sits quiet.
 
 ## Relationships
 - **Household:** [Segebode Corte](segebode_corte.md), master; [Gyse van Hildensem](gyse_van_hildensem.md), mistress; [Kersten Wise](kersten_wise.md) and [Rembert van Brunswik](rembert_van_brunswik.md), fellow clerks; [Peter van Bremen](peter_van_bremen.md), apprentice; others in [the ledger](../../ledger/lower_town/harju.md#hh-lt-osm-w28132814).
@@ -65,7 +65,7 @@ Four marks a year, board, a tunic. He sends one mark to the nurse's kin.
 - **Others:** [Siim Tanieli poeg](siim_tanieli_poeg.md), the labourer next door, carries his salt.
 
 ## Faction and belief
-He is core to the circle because his nurse's village is under the Danish levy. He gives small favours freely, large ones only by order, and informs on no one. He prays in German and sings in Estonian.
+He is core to the circle because his nurse's village lies under the Danish levy, and because he was asked at a funeral by the right person at the right time. A small favour he gives freely; a large one only by order; informing he would never do. He prays in German and sings in Estonian.
 
 ## Voice
 - **Registers:** German in the hall; Estonian with servants.
@@ -74,7 +74,7 @@ He is core to the circle because his nurse's village is under the Danish levy. H
 - **Verbal tic:** "Noh,"
 
 ## Knowledge and rumours
-He knows the cell's third. He believes the viceroy will close the Sand Gate.
+He knows the cell's third and the names of the carters who pass messages. He would trade it for nothing, which is why he is trusted. He believes the viceroy will close the Sand Gate, a rumour from the quay.
 
 ## Game hooks
 - **Ambient role:** Salt loft mornings; market afternoons.

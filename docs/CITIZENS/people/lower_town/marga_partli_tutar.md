@@ -40,7 +40,7 @@ Born in 1304 in a Maardu farmhouse, the daughter of Pärtel, a farmer who sent h
 She keeps the books in her head: the price of salt in each of the last ten Aprils, every credit, every quarter-day.
 
 ## Motivation
-- **Want:** A house in the Upper Town street, with a garden.
+- **Want:** A house with a garden plot, away from the tar.
 - **Fear:** A wreck and a widowhood.
 - **Contradiction:** She sings at the wheel and counts silently while she does.
 - **Secret or withheld fact:** She has hidden coin in a hollow loom-weight and keeps it from Jaan, because of what he does in the locker.

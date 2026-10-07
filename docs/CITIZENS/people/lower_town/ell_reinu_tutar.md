@@ -35,7 +35,7 @@
 - **Model notes:** MPFB gender female, age_years 19, muscle 0.4, weight 0.5, proportions average, height_m 1.59; freckled sun-peeled skin; eyes blue; reddish blond hair; crowd tier 2.
 
 ## Biography
-Ell was born on Hobusepea in 1324, her father's first child to live. She went into day service at fourteen with a baker's household. She joined the cell at eighteen when a woman at the baker's door gave her a loaf and a story about the toll booth that broke her mother's leg. She has not told her parents.
+Ell was born on Hobusepea in 1324, the first of her parents' children to live. She went into day service at fourteen with the baker next door. She learned early that doors have ears and that a squint makes people think she does not see. At eighteen she met a woman at the baker's door who gave her a loaf and a story about the toll booth that broke her mother's leg; Ell has been a Black Cloak since, though she has told neither parent. She carries messages in knotted cords in her sleeve, a trick her grandfather the carter taught her for counting loads.
 
 ## Motivation
 - **Want:** To make the toll booth fall.
@@ -57,7 +57,7 @@ Ell was born on Hobusepea in 1324, her father's first child to live. She went in
 - **Spring 1343 disruption:** She is told to go home early.
 
 ## Work and money
-Two marks a year from the baker, all to her father.
+Two marks a year from the baker, all to her father, plus a loaf a week. She kneads, carries and serves. The baker buys sacks from the miller by weight, and Ell notes who comes for flour at odd hours. A bad month is one when rye is dear and the baker lets a day-maid go; then she is careful to be early.
 
 ## Relationships
 - **Household:** [Rein](rein.md), father; [Gertrud Joosepi tütar](gertrud_joosepi_tutar.md), mother; [Magdalena Reinu tütar](magdalena_reinu_tutar.md), sister; [Veronika Jaagu tütar](veronika_jaagu_tutar.md) and [Veronika Kaspari tütar](veronika_kaspari_tutar.md), the maids.
@@ -65,7 +65,7 @@ Two marks a year from the baker, all to her father.
 - **Others:** [Johan van Rostok](../../ledger/lower_town/hobusepea.md#hh-lt-osm-w200453905), her baker.
 
 ## Faction and belief
-She is a Black Cloak out of anger. A small favour she asks; a large one she gives; she would not inform. She prays to St Olaf and ties a thread on the window latch.
+She is a Black Cloak out of anger, not hope: the booth, the watch, her mother's leg. A small favour she asks; a large one she gives; she would not inform on any of the cell. She prays to St Olaf and ties a thread on the window latch to mark a safe night.
 
 ## Voice
 - **Registers:** Estonian only.
@@ -74,7 +74,7 @@ She is a Black Cloak out of anger. A small favour she asks; a large one she give
 - **Verbal tic:** "Look away."
 
 ## Knowledge and rumours
-She knows the baker's deliveries and the cell's cords. She believes the Vogt buys the bakers.
+She knows the baker's deliveries, who buys bread at night and the cell's cords. She would trade it for her mother's safety. She believes the Vogt buys the bakers, which is half-true.
 
 ## Game hooks
 - **Ambient role:** Baker's mornings; market afternoons.

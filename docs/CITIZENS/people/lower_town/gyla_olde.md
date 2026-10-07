@@ -57,7 +57,7 @@ Born in Reval in 1289, the daughter of a candle-maker, Gyla married Heyno van Re
 - **Spring 1343 disruption:** Lent's lye supply runs short, rain delays the lines, and customers pay late.
 
 ## Work and money
-She charges 2 örtug a sheet and 3 for a gown; with a dozen customers she makes about 8 marks a year. Lye comes from a Dunkri soap-boiler; linen from the van Groninghe, Lubeker and van Luneborch houses. Heyno knows none of the figures. A bad month is a wet week.
+She charges 2 örtug a sheet and 3 for a gown; with a dozen customers she makes about 8 marks a year. Lye comes from a Dunkri soap-boiler; linen from the van Groninghe, van Lubeke and van Luneborch houses. Heyno knows none of the figures. A bad month is a wet week.
 
 ## Relationships
 - **Household:** [Heyno van Revele Westfal](../../people/lower_town/heyno_van_revele_westfal.md), husband; son [Sander van Revele Westfal](../../ledger/lower_town/dunkri.md#hh-lt-osm-w28087745); apprentices [Hermann van Hervorde](../../people/lower_town/hermann_van_hervorde.md), [Alke van Campen](../../people/lower_town/alke_van_campen.md) and [Hermann van Soest](../../people/lower_town/hermann_van_soest.md); clerk [Kersten Corte](../../people/lower_town/kersten_corte.md); servants [Wendla Lembitu tütar](../../ledger/lower_town/dunkri.md#hh-lt-osm-w28087745) and [Katri Eskilntytär](../../ledger/lower_town/dunkri.md#hh-lt-osm-w28087745).

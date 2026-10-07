@@ -35,13 +35,13 @@
 - **Model notes:** MPFB gender male, age_years 16, muscle 0.45, weight 0.5, proportions average, height_m 1.60; rosy skin; eyes grey; ash blond hair, short beard; crowd tier 2.
 
 ## Biography
-Peeter's father Kauri was a carter on the Viru road who paid the master six marks to take his son at twelve. Peeter learned to raise a cask in a season and now tests every barrel by sound. He misses the horses, and he sleeps in the cooperage loft beside Henn.
+Peeter's father Kauri was a carter on the Viru road who paid the master six marks to take his son at twelve, in the hungry spring of 1339. Peeter wept for the horses for a month, then found that wood answered back too: a stave rings or it does not. He learned to raise a cask in a season and now tests every barrel by sound, tapping once and tilting his head. He sleeps in the cooperage loft beside Henn, and his short beard, which came early and soft, is the household joke and his private vanity.
 
 ## Motivation
-- **Want:** To make his own barrel and sign it with his own mark.
-- **Fear:** Being sent back to the cart because the master takes a cheaper boy.
+- **Want:** To make a barrel of his own and brand it with his own mark.
+- **Fear:** Being sent back to the cart if the master takes a cheaper boy.
 - **Contradiction:** He is calm with wood and clumsy with people.
-- **Secret or withheld fact:** He once blamed Henn for a cracked stave that was his own.
+- **Secret or withheld fact:** He once blamed Henn for a cracked stave that was his own, and still brings the boy an apple to make up for it.
 
 ## Daily routine
 | Phase | Time (late April) | Place | Activity |
@@ -57,7 +57,7 @@ Peeter's father Kauri was a carter on the Viru road who paid the master six mark
 - **Spring 1343 disruption:** The master sleeps lighter, and Peeter sweeps the yard twice.
 
 ## Work and money
-No wage; board, a new tunic at Michaelmas and a tool of his own at the end of term.
+No wage; board, a new tunic at Michaelmas and a tool of his own at the end of term. Jüri bills the household's ale-barrels against his keep. A bad month is one when oak is dear and the master counts staves twice; then Peeter shaves his own kindling to save the iron hoops. His father sends a pfennig now and then, which Peeter spends on a whetstone.
 
 ## Relationships
 - **Household:** [Jüri Lauri poeg](juri_lauri_poeg.md), master; [Ell Mikku tütar](ell_mikku_tutar.md), mistress; [Henn Jüri poeg](henn_juri_poeg.md), his shadow; Albert and Eerik in [the ledger](../../ledger/lower_town/harju.md#hh-lt-osm-w201040631); [Jaak Tõnise poeg](jaak_tonise_poeg.md), clerk; [Mari Priidiku tütar](mari_priidiku_tutar.md), the maid who feeds him.
@@ -65,7 +65,7 @@ No wage; board, a new tunic at Michaelmas and a tool of his own at the end of te
 - **Others:** [Kaur](kaur.md)'s brewhouse across the way, where Jaan works.
 
 ## Faction and belief
-None; he trusts his hands. He crosses himself at the cresset and carries a hazel twig for luck.
+None. He trusts his hands and does not understand talk of gates and levies. A small favour he does at once; a large one he takes to the master; informing is out of his reach. He crosses himself at the cresset and carries a hazel twig in his apron for luck.
 
 ## Voice
 - **Registers:** Estonian; short German words for trade.
@@ -74,7 +74,7 @@ None; he trusts his hands. He crosses himself at the cresset and carries a hazel
 - **Verbal tic:** "Hear that?"
 
 ## Knowledge and rumours
-He knows every cask on the street by sound. He believes Jaan's master pays double.
+He knows every cask on the street by sound and which cooper cheats on the hoops. He would trade this for a better chisel. He believes Jaan's master pays his apprentice double, which is false but widely repeated at the harbour.
 
 ## Game hooks
 - **Ambient role:** Cooperage in the morning; harbour in the afternoon.

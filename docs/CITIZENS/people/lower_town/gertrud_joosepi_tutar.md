@@ -35,7 +35,7 @@
 - **Model notes:** MPFB gender female, age_years 60, muscle 0.3, weight 0.5, proportions average, height_m 1.54; pale skin; eyes grey; brown-grey hair under kerchief; crowd tier 2.
 
 ## Biography
-Gertrud was born in Reval, the daughter of a carter named Joosep, and began washing at nine. In 1331 the watch cleared the washing-place below the hill for a toll booth; she fell on the stones, broke her shin and was told to walk it off. The leg healed crooked. She married Rein in 1322 and bore Ell and Magdalena late.
+Gertrud was born in Reval, the daughter of a carter named Joosep, and began washing at nine for a Dominican guest-house. In 1331 the watch cleared the washing-place below the hill for a toll booth; she fell on the stones, broke her shin and was told to walk it off. The leg healed crooked and she has limped since. She married Rein in 1322 and had Ell and Magdalena late, when she had thought herself past it. She cannot read, but she can read a stain on a sheet as a clerk reads a page, and she knows which house lies about its washing.
 
 ## Motivation
 - **Want:** A clean sheet for every house she serves and a good match for her daughters.
@@ -57,7 +57,7 @@ Gertrud was born in Reval, the daughter of a carter named Joosep, and began wash
 - **Spring 1343 disruption:** The wash-place is watched.
 
 ## Work and money
-She washes for a dozen houses at a pfennig a sheet.
+She washes for about a dozen houses at a pfennig a sheet, and her lye and soap cost a quarter of her takings. Ash comes from the baker. A bad month is one with a rainy week and fewer sheets dried; then Rein's pelts carry the household. She is owed three pfennigs by a clerk's widow and has stopped asking.
 
 ## Relationships
 - **Household:** [Rein](rein.md), husband; [Ell Reinu tütar](ell_reinu_tutar.md) and [Magdalena Reinu tütar](magdalena_reinu_tutar.md), daughters; [Veronika Jaagu tütar](veronika_jaagu_tutar.md) and [Veronika Kaspari tütar](veronika_kaspari_tutar.md), maids.
@@ -65,7 +65,7 @@ She washes for a dozen houses at a pfennig a sheet.
 - **Others:** [Johan van Rostok](../../ledger/lower_town/hobusepea.md#hh-lt-osm-w200453905) buys her ash for lye.
 
 ## Faction and belief
-She sympathises because of her leg. A small favour she does; a large one she asks Rein; informing she would refuse. She lights tallow candles to St Olaf.
+She sympathises with the Black Cloaks because of her leg and the toll booth. A small favour she does; a large one she asks Rein; informing she would refuse, and warn the person instead. She lights tallow candles to St Olaf and leaves a pinch of ash on the doorstep on St George's eve.
 
 ## Voice
 - **Registers:** Estonian at home; German to customers.
@@ -74,7 +74,7 @@ She sympathises because of her leg. A small favour she does; a large one she ask
 - **Verbal tic:** "Mark you."
 
 ## Knowledge and rumours
-She knows whose linen is stained with what. She believes Mikko steals soap.
+She knows whose linen is stained with what: blood, wine, tallow, and worse. She would trade it for a place in a daughter's household. She believes Mikko steals soap from the Dominicans.
 
 ## Game hooks
 - **Ambient role:** Wash-place mornings.

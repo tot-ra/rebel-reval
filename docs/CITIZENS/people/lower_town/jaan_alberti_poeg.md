@@ -30,7 +30,7 @@
 - **Hair and facial hair:** Ash-blond hair streaked with grey, tied back with a cord; stubble.
 - **Skin and marks:** Wind-reddened; a faint pock-scarred forehead from a childhood fever.
 - **Hands:** Long, knuckled, tar-stained in the creases, a rope scar across the left palm.
-- **Clothing and kit (April 1343):** Linen shirt, short blue-grey wool tunic with tarred cuffs, hose, a sealskin cap, sea-boots; at the belt a knife, a boxwood compass-less sounding lead on a cord, and a seal.
+- **Clothing and kit (April 1343):** Linen shirt, short blue-grey wool tunic with tarred cuffs, hose, a sealskin cap, sea-boots; at the belt a knife, a lead sounding-line wound on a stick, and a seal.
 - **Portrait prompt:** Shoulders-up portrait of a long-limbed seaman of thirty-eight, wind-reddened skin, blue eyes, ash-blond hair streaked with grey tied back, light stubble, a faint pock-scarred forehead, a blue-grey wool tunic, a sealskin cap, a watchful look, neutral grey background, soft natural light, painterly medieval realism.
 - **Model notes:** MPFB gender male, age_years 38, muscle average, weight low, proportions long limbs, height_m 1.65; red wind-burned skin; blue eyes; ash-grey hair, stubble; crowd tier 1.
 
