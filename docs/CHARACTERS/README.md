@@ -35,6 +35,10 @@ Kalev, Mart, Aita, Kaja, Henning, and Jürgen appear in the vertical slice. Elle
 
 Remaining Wave B/C names are listed in the [promotion plan](../cast_faction_promotion.md) until their act design gates open. The five remaining Wave A briefs are now landed under **P7-013**.
 
+## Ambient residents
+
+The 4,000-plus ambient residents of the city plan are not cast briefs. They live in [`docs/CITIZENS/`](../CITIZENS/README.md) as census seeds (the ledger) and deep citizen cards, and are promoted into this folder only through the P7-009 plan.
+
 ## Canon rules
 
 - The seven characters in the MVP table are the vertical-slice core. Wider casts from [`characters/`](../../characters/) must be promoted here via **P7-009** before quest content treats them as active.
