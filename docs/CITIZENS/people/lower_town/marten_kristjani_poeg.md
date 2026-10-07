@@ -1,6 +1,6 @@
 # Marten Kristjani poeg
 
-> A booming, copper-haired Estonian nail-smith of Voorimehe with seven children, a rented shed and fifteen marks of another man's fine hanging on his name.
+> A booming, copper-haired Estonian nail-smith of Voorimehe with six children, a rented shed and fifteen marks of another man's fine hanging on his name.
 
 | Field | Value |
 |---|---|
@@ -23,7 +23,7 @@
 - 163 cm of copper-red hair and peeling freckles, with a booming voice that fills the lane before he turns the corner.
 - Hammers with the left hand, so his anvil stands at the wrong side of the forge and every visitor bumps it.
 - Keeps accounts on notched sticks and remembers every notch.
-- Seven children and a surety he never wanted.
+- Six children and a surety he never wanted.
 
 ## Appearance
 - **Body:** 163 cm, average build, thick forearms, narrow hips, a slight lean to the left from the hammer. A heavy, steady walk.
@@ -49,7 +49,7 @@ Born in 1305 in a Wiek (Läänemaa) shore village to a smith named Kristjan; app
 |---|---|---|---|
 | Dawn | Prime | Forge | Lights the fire, heats iron |
 | Morning | Terce | Forge | Forges nails with Priidik at the bellows |
-| Midday | Noon | Hearth | Porridge and herring for nine |
+| Midday | Noon | Hearth | Porridge and herring for eight |
 | Afternoon | Nones | Shed (Pikk) | Fetches charcoal; counts finished nails |
 | Evening | After vespers | Lane, market | Sells nails to carpenters, shipwrights |
 | Night | Curfew bell | Loft | Sleeps with the tally-stick under his pillow |
@@ -69,7 +69,7 @@ He forges nails: shipwright's spikes, roof-nails, horse-shoe nails. A thousand s
 - **Others:** The shoemaker [Taniel Uku poeg](../../ledger/lower_town/voorimehe.md#hh-lt-osm-w28087754), two doors off, pays for his boot-nails in small favours.
 
 ## Faction and belief
-No faction. A man with seven children cannot afford a rising, and forges for whoever pays. A small favour he does; a large one he does for family; he would not inform, but would be tempted if the surety were cancelled. He leaves a nail-head at the doorstep for luck and prays at St Olaf's.
+No faction. A man with six children cannot afford a rising, and forges for whoever pays. A small favour he does; a large one he does for family; he would not inform, but would be tempted if the surety were cancelled. He leaves a nail-head at the doorstep for luck and prays at St Olaf's.
 
 ## Voice
 - **Registers:** Estonian only; a few trade words in Low German picked up from buyers.

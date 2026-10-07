@@ -28,7 +28,7 @@
 ## Appearance
 - **Body:** 163 cm, gaunt, long-boned, a stoop at the shoulders; walks with a blackthorn stick and a straight head.
 - **Face:** Long, deep-lined, a ruddy flush on the cheekbones, a blade of a nose, blue eyes sharp under white brows.
-- **Hair and facial hair:** White, thin, coiled under a dark kerchief. A few white chin hairs she does not hide.
+- **Hair and facial hair:** White, thin, coiled under a dark kerchief.
 - **Skin and marks:** Ruddy; left-handed by nature (her mother trained her right-handed for the spindle, but the left does the delicate work and crosses herself); liver spots on the backs of the hands.
 - **Hands:** Bony, knotted at the knuckles, the left steady, the right trembling at dusk.
 - **Clothing and kit (April 1343):** Linen shirt, long dark wool gown, a wool shawl in faded red, felt boots; a string of wooden prayer beads at the belt.

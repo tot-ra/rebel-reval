@@ -55,7 +55,7 @@ Born in 1331, second child of Albert van Paderborne ([card](albert_van_paderborn
 | Night | After curfew bell | Loft | Sleeps with his brothers. |
 
 - **Sundays and feast days:** Mass at St Nicholas, then the quay.
-- **Spring 1343 disruption:** The harbour is busier before the sailing season; he hears the carpenters talk of the Order.
+- **Spring 1343 disruption:** The harbour is busier before the sailing season; he hears the carpenters talk of closed gates.
 
 ## Work and money
 No wage; board and a pair of shoes a year, and a pfennig at Easter. A bad month is one when the leather is wet.
