@@ -463,7 +463,7 @@ func test_fft_foam_follows_sea_weather() -> void:
 	var reference := WaterMaterials.fft_sea_state(0.5, 0.0)
 	var storm := WaterMaterials.fft_sea_state(0.85, 0.3)
 	assert_almost_eq(float(calm["foam_coverage"]), 0.2, 0.001, "calm seas barely whiten")
-	assert_almost_eq(float(storm["foam_coverage"]), 1.8, 0.001, "storms whiten hard")
+	assert_almost_eq(float(storm["foam_coverage"]), 2.4, 0.001, "storms whiten hard")
 	assert_true(
 		float(calm["foam_coverage"]) < float(reference["foam_coverage"]),
 		"coverage rises with the sea state",

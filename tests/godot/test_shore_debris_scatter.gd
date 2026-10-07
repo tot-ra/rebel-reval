@@ -12,9 +12,10 @@ const HarborNorthDefinition := preload(
 	"res://scripts/map/definitions/outdoor/reval_harbor_north_definition.gd"
 )
 
-## Largest walkable regions measured 2026-09-26 (CO-02 contract).
-const HARBOR_EAST_WALKABLE := 4326
-const HARBOR_NORTH_WALKABLE := 6333
+## Largest walkable regions, re-measured 2026-10-07 (was 4326 / 6333 at CO-02).
+## R-1206 removed stale blocked.water.shallow_* exclusions so swimmers can climb out.
+const HARBOR_EAST_WALKABLE := 4628
+const HARBOR_NORTH_WALKABLE := 6578
 ## ADR 0025-style per-part triangle ceiling for scatter props.
 const MAX_PART_TRIANGLES := 1500
 const PIER_RECT := Rect2i(30, 8, 3, 12)
