@@ -210,3 +210,9 @@ Code review of commit `3078c157`: no blocking issues found.
 - Only the player's swings strike trees. NPC melee, magic blasts, and projectiles do not.
 - When two hosted views overlap at a seam, each runs its own ambient emitter, which can double the leaf fall right at the seam.
 - Late-April leaf density is a design choice for the slice's spring look. Real Tallinn birches usually break bud a week or two later.
+
+## Conifer volume and atlas fringe fix
+
+- Conifer cards are smaller (`CONIFER_CARD_SCALE` 2.0, trunk fans x0.62), three per tip, and branch whorls use three fans rolled around the branch axis so needles read as volume from every side.
+- Conifer card normals follow the crown shell (`CONIFER_NORMAL_OUTWARD`, no upward bias) and use `card_gain` 0.66, which stops sun wash-out.
+- `tools/assets/defringe_atlas.py` removes pale outlines from `leaf_card_atlas.png` (4x2) and `grass_blades_atlas.png` (2x2): alpha eroded, edge colour repainted from solid leaf colour.

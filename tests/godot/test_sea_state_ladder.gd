@@ -41,6 +41,7 @@ func test_presenter_matches_static_heading_and_survives_restore() -> void:
 	sky.auto_weather = false
 	sky.set_weather(SkyWeather.WEATHER_STORM)
 	sky.advance(SkyWeather.TRANSITION_SECONDS)
+	sky.settle_wind()
 	var live := sky.presentation_snapshot(0.42, 0.7)
 	var expected := SkyWeather.wind_direction_at(SkyWeather.WEATHER_STORM, 0.42)
 	assert_true(live.wind_direction.is_equal_approx(expected), "snapshot uses the live heading")

@@ -54,6 +54,9 @@ var cycle_progress := DEFAULT_CYCLE_PROGRESS
 var elapsed_days := 0
 var cloud_offset := Vector2.ZERO
 var cloud_detail_offset := Vector2.ZERO
+var wind_smoothing_valid := false
+var wind_heading := 0.0
+var wind_drift_strength := 0.0
 var puddle_wetness := 0.0
 var seconds_since_rain := LAST_RAIN_NEVER
 var gust := 0.0
@@ -147,6 +150,9 @@ func to_dict() -> Dictionary:
 		"elapsed_days": elapsed_days,
 		"cloud_offset": _vector_to_array(cloud_offset),
 		"cloud_detail_offset": _vector_to_array(cloud_detail_offset),
+		"wind_smoothing_valid": wind_smoothing_valid,
+		"wind_heading": wind_heading,
+		"wind_drift_strength": wind_drift_strength,
 		"puddle_wetness": puddle_wetness,
 		"seconds_since_rain": seconds_since_rain,
 		"gust": gust,
@@ -186,6 +192,9 @@ static func from_dict(data: Dictionary) -> SkyWeatherState:
 	state.elapsed_days = int(data.get("elapsed_days", 0))
 	state.cloud_offset = _vector_from_value(data.get("cloud_offset", []), Vector2.ZERO)
 	state.cloud_detail_offset = _vector_from_value(data.get("cloud_detail_offset", []), Vector2.ZERO)
+	state.wind_smoothing_valid = bool(data.get("wind_smoothing_valid", false))
+	state.wind_heading = float(data.get("wind_heading", 0.0))
+	state.wind_drift_strength = float(data.get("wind_drift_strength", 0.0))
 	state.puddle_wetness = float(data.get("puddle_wetness", 0.0))
 	state.seconds_since_rain = float(data.get("seconds_since_rain", LAST_RAIN_NEVER))
 	state.gust = float(data.get("gust", 0.0))

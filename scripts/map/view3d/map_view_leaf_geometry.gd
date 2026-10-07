@@ -50,7 +50,8 @@ static func append_card(
 	size: Vector2,
 	color: Color,
 	card_seed: float,
-	mirrored: bool
+	mirrored: bool,
+	outward_weight: float = 0.55
 ) -> void:
 	axis = axis.normalized()
 	var side := facing.cross(axis)
@@ -75,7 +76,7 @@ static func append_card(
 		var facet := (edge.cross(tip) * half).normalized()
 		if facet.dot(plane) < 0.0:
 			facet = -facet
-		var normal := (facet * 0.45 + outward.normalized() * 0.55).normalized()
+		var normal := facet.lerp(outward.normalized(), outward_weight).normalized()
 		if normal.length_squared() < 0.5:
 			normal = facet
 		for triangle: Array in [[0, 1, 2], [0, 2, 3]]:

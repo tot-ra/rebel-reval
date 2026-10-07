@@ -378,6 +378,7 @@ func test_five_regime_transition_and_shelter_matrix() -> void:
 
 func _assert_settled_regime(sky: SkyWeather, regime: StringName) -> void:
 	var profile: Dictionary = SkyWeather.PROFILES[regime]
+	sky.settle_wind()
 	assert_eq(sky.weather, regime, "settled presenter must report %s" % regime)
 	assert_almost_eq(
 		sky.rain_intensity(), float(profile["rain"]), 0.001,
@@ -1051,3 +1052,18 @@ func _assert_quality_tier_budget_row(minimum: Dictionary, recommended: Dictionar
 	assert_eq(recommended["ripple_sim_size"], 256)
 	assert_true(bool(minimum["cloud_shadow_enabled"]))
 	assert_true(bool(recommended["cloud_shadow_enabled"]))
+
+
+func test_visual_wind_heading_is_rate_limited() -> void:
+	var sky := SkyWeather.new()
+	sky.auto_weather = false
+	sky.advance(1.0)
+	var start := sky.wind_direction_xz()
+	sky.set_weather(SkyWeather.WEATHER_STORM)
+	sky.advance(SkyWeather.TRANSITION_SECONDS)
+	var turned := absf(start.angle_to(sky.wind_direction_xz()))
+	assert_true(
+		turned <= SkyWeather.WIND_HEADING_MAX_RATE * (SkyWeather.TRANSITION_SECONDS + 1.0) + 0.001,
+		"heading must not swing faster than the slew rate during a transition"
+	)
+	sky.free()

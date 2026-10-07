@@ -21,9 +21,14 @@ const CONIFERS: Array[StringName] = [&"spruce", &"pine", &"juniper"]
 # Cards were 3.4x / 3.8x the leaf length; against a human that read as head-sized
 # leaves. Smaller cards, one more per tip, keep crown mass with believable leaves.
 const CARD_SCALE := 2.3
-const CONIFER_CARD_SCALE := 3.0
+const CONIFER_CARD_SCALE := 2.0
 const CARDS_PER_TIP := 4
-const CONIFER_CARDS_PER_TIP := 2
+const CONIFER_CARDS_PER_TIP := 3
+## Conifer needle fans: smaller than the old 3.0 scale (they read as flat plates)
+## and pointed in many roll angles, with normals pulled toward the crown shell so
+## light wraps around the tree instead of washing flat up-facing fans white.
+const CONIFER_TRUNK_FAN_SCALE := 0.62
+const CONIFER_NORMAL_OUTWARD := 0.85
 ## Conifers keep only a couple of folded needle shoots per spray (28 triangles
 ## each) as close-up detail; dense whorl cards replace the rest.
 const CONIFER_FOLDED_SHOOTS := 2
@@ -223,26 +228,23 @@ static func _append_cluster_cards(
 					surface, species, profile, station, crown, length, seed, step
 				)
 				continue
-			# Branch: one flat fan along the branch plus one tilted fan, so the
-			# whorl has thickness from the isometric camera.
+			# Branch: three fans rolled around the branch axis (about 120 degrees
+			# apart, random phase) so the whorl has volume from every side, not
+			# just a pair of up-facing plates.
 			var forward := run.normalized()
 			var side := TreeMeshSkeleton.perpendicular(forward)
+			var up_side := forward.cross(side).normalized()
 			var base := station - forward * length * 0.35
-			var tilt := 1.0 if (segment_index + step) % 2 == 0 else -1.0
-			var droop := (forward + Vector3.DOWN * 0.10).normalized()
-			_emit_card(surface, species, base, droop, Vector3.UP, length, crown, seed, 0)
-			_emit_card(
-				surface,
-				species,
-				base,
-				(droop + side * tilt * 0.35).normalized(),
-				(Vector3.UP * 0.55 + side * tilt * 0.8).normalized(),
-				length * 0.85,
-				crown,
-				seed,
-				1
-			)
-			cards += 2
+			var phase := _hash(step, seed, 541) * TAU
+			for roll_index in 3:
+				var roll := phase + float(roll_index) * TAU / 3.0
+				var spoke := side * cos(roll) + up_side * sin(roll)
+				var fan_axis := (forward + Vector3.DOWN * 0.10 + spoke * 0.55).normalized()
+				_emit_card(
+					surface, species, base, fan_axis, spoke, length * (1.0 - 0.1 * roll_index),
+					crown, seed, roll_index
+				)
+			cards += 3
 	return cards
 
 
@@ -268,7 +270,10 @@ static func _append_trunk_ring(
 	var fan := length
 	var ring := 3
 	if cone:
-		fan = maxf(length * 0.7, float(profile["primary_length"]) * lerpf(0.85, 0.18, height_t))
+		fan = maxf(
+			length * 0.7,
+			float(profile["primary_length"]) * lerpf(0.85, 0.18, height_t) * CONIFER_TRUNK_FAN_SCALE
+		)
 		ring = 4 if height_t < 0.75 else 3
 	for ring_index in ring:
 		var yaw := float(ring_index) * TAU / float(ring) + float(step) * 2.39996
@@ -290,8 +295,11 @@ static func _emit_card(
 	index: int
 ) -> void:
 	var middle := base + axis * size * 0.5
+	var conifer := species in CONIFERS
 	var outward := middle - crown.get_center()
-	outward.y = maxf(outward.y, 0.0) + crown.size.y * 0.15
+	# Conifers keep the shell normal nearly horizontal: an upward bias made every
+	# whorl face the sun and blow out white.
+	outward.y = (outward.y * 0.5) if conifer else (maxf(outward.y, 0.0) + crown.size.y * 0.15)
 	var color := _leaf_vertex_color(species, lerpf(0.82, 1.08, _hash(index, seed, 517)))
 	color.a = _crown_occlusion(middle, crown)
 	LeafGeometry.append_card(
@@ -303,7 +311,8 @@ static func _emit_card(
 		Vector2(size * 0.92, size),
 		color,
 		_hash(index, seed, 521),
-		_hash(index, seed, 523) > 0.5
+		_hash(index, seed, 523) > 0.5,
+		CONIFER_NORMAL_OUTWARD if conifer else 0.55
 	)
 
 

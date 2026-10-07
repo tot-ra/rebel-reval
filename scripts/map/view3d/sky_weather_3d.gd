@@ -288,6 +288,12 @@ const LAST_RAIN_NEVER := INF
 ## race while clear days barely stir. Base drift is the light fair-weather rate.
 const WIND_DRIFT_FLOOR := 0.5
 const WIND_DRIFT_GAIN := 1.6
+## Max visual heading change, radians per second (1.5 deg/s: a full 165 degree
+## weather swing takes ~110 s, slow enough that the wave field reads as drifting).
+const WIND_HEADING_MAX_RATE := 0.026
+## Time constant for the strength that scales cloud drift, so a gust or a
+## weather change eases the clouds instead of snapping their speed.
+const WIND_DRIFT_SMOOTH_SECONDS := 8.0
 ## Softer than Tidewater 0.85 so painted town materials stay readable.
 const CLOUD_SHADOW_STRENGTH := 0.55
 
@@ -381,6 +387,12 @@ var _state_duration := 60.0
 var _rng := RandomNumberGenerator.new()
 var _cloud_offset := Vector2.ZERO
 var _cloud_detail_offset := Vector2.ZERO
+## Slewed visual wind. The target heading swings up to ~165 degrees across a 12 s
+## weather transition and the sea rotates its whole wave field with it, so water
+## and cirrus visibly raced. These follow the target at a bounded rate instead.
+var _wind_heading_rad := 0.0
+var _wind_drift_strength := 0.0
+var _wind_smoothing_valid := false
 var _cloud_noise_tex: Texture2D
 var _cloud_shape_tex: Texture2D
 var _sun_direction := Vector3.UP
@@ -538,6 +550,9 @@ func snapshot_state(
 	state.elapsed_days = elapsed_days
 	state.cloud_offset = _cloud_offset
 	state.cloud_detail_offset = _cloud_detail_offset
+	state.wind_smoothing_valid = _wind_smoothing_valid
+	state.wind_heading = _wind_heading_rad
+	state.wind_drift_strength = _wind_drift_strength
 	state.puddle_wetness = _json_safe_float(_puddle_wetness)
 	state.seconds_since_rain = _seconds_since_rain
 	if not is_finite(_seconds_since_rain):
@@ -575,6 +590,9 @@ func apply_state(state: RefCounted) -> bool:
 	calendar_date = restored.calendar_date.duplicate(true)
 	_cloud_offset = restored.cloud_offset
 	_cloud_detail_offset = restored.cloud_detail_offset
+	_wind_smoothing_valid = restored.wind_smoothing_valid
+	_wind_heading_rad = restored.wind_heading
+	_wind_drift_strength = restored.wind_drift_strength
 	_puddle_wetness = restored.puddle_wetness
 	_seconds_since_rain = restored.seconds_since_rain
 	if restored.seconds_since_rain < 0.0:
@@ -742,8 +760,9 @@ func advance(delta: float) -> void:
 	_advance_lightning(delta)
 	# Wind carries the clouds: gusts race the sky, calm clear days barely stir.
 	# Bank and detail drift share the multiplier so detail keeps outpacing banks.
-	var wind_scale := WIND_DRIFT_FLOOR + wind_strength() * WIND_DRIFT_GAIN
-	var drift_turn := wind_direction_xz().angle() - CLOUD_DRIFT_PER_SECOND.angle()
+	_advance_wind_smoothing(delta)
+	var wind_scale := WIND_DRIFT_FLOOR + _wind_drift_strength * WIND_DRIFT_GAIN
+	var drift_turn := _wind_heading_rad - CLOUD_DRIFT_PER_SECOND.angle()
 	_cloud_offset += CLOUD_DRIFT_PER_SECOND.rotated(drift_turn) * wind_scale * delta
 	_cloud_detail_offset += CLOUD_DETAIL_DRIFT_PER_SECOND.rotated(drift_turn) * wind_scale * delta
 	if _blend < 1.0:
@@ -1142,8 +1161,36 @@ func _lightning_flash_scale() -> float:
 ## envelope so save/load and map handoff reconstruct the same heading. Consumers
 ## keep calling this accessor; they do not need the clock.
 func wind_direction_xz() -> Vector2:
+	if _wind_smoothing_valid:
+		return Vector2.from_angle(_wind_heading_rad)
+	return _target_wind_direction()
+
+
+func _target_wind_direction() -> Vector2:
 	return wind_direction_at(
 		weather, _cycle_progress, _gust, _transition_from_weather, _blend
+	)
+
+
+## Jumps the visual wind to its target. Tests that assert the settled heading use
+## it; restore_state() does the same implicitly.
+func settle_wind() -> void:
+	_wind_smoothing_valid = false
+
+
+func _advance_wind_smoothing(delta: float) -> void:
+	var target := _target_wind_direction().angle()
+	var target_strength := wind_strength()
+	if not _wind_smoothing_valid:
+		_wind_heading_rad = target
+		_wind_drift_strength = target_strength
+		_wind_smoothing_valid = true
+		return
+	var step := WIND_HEADING_MAX_RATE * delta
+	_wind_heading_rad += clampf(angle_difference(_wind_heading_rad, target), -step, step)
+	_wind_drift_strength = lerpf(
+		_wind_drift_strength, target_strength,
+		1.0 - exp(-delta / WIND_DRIFT_SMOOTH_SECONDS)
 	)
 
 

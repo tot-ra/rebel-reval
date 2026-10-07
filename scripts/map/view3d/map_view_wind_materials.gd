@@ -193,6 +193,10 @@ static func canopy_for_species(species: StringName) -> ShaderMaterial:
 	var material := template.duplicate() as ShaderMaterial
 	material.set_meta(&"tree_species", species)
 	material.set_shader_parameter("atlas_tile", LeafGeometry.card_tile(species))
+	# Dense needle cards stack more translucent layers than broadleaf cards and
+	# overexposed under the sun; a lower gain keeps conifers dark green.
+	if species in [&"spruce", &"pine", &"juniper"]:
+		material.set_shader_parameter("card_gain", 0.66)
 	var palette := VegetationPhenology.autumn_colors(species)
 	material.set_shader_parameter("autumn_color_a", palette[0])
 	material.set_shader_parameter("autumn_color_b", palette[1])
