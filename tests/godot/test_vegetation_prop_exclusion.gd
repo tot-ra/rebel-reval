@@ -79,6 +79,13 @@ func test_scatter_tufts_avoid_solid_prop_cells() -> void:
 
 
 ## Map-level guard on the authored forum: no scatter tuft inside a solid prop.
+##
+## Honest status: this is an invariant guard, not the red/green proof. Probed on
+## the current definition with the exclusion disabled, the forum scatters zero
+## tufts into its prop rects anyway, because R-1207 moved `civic_well_wash_tub`
+## onto the bare market floor. The guard earns its keep when a prop lands on a
+## planted cell again. The exclusion itself is proven red/green by the two
+## meadow tests above, where the same cells are planted without the props.
 func test_market_civic_quarter_scatter_avoids_solid_props() -> void:
 	var definition: MapDefinition = MapAuditRegistry.by_id()["market_civic_quarter"]
 	var rects := Primitives.prop_cell_rects(definition)
