@@ -35,7 +35,7 @@
 - **Model notes:** MPFB female, age_years 11, muscle 0.3, weight 0.55, proportions round-faced solid, height_m 1.28; skin freckled fair; eyes brown; brown plaits; crowd tier 2.
 
 ## Biography
-Born in 1332 in the Kiriku põik house, she was the first of the Lunge girls. At eight she was sent with a curd basket down the hill to the harbour women and learned the weights. Her voice is hoarse from calling prices into the wind on the shore. She minds the youngest, Cecilie, in the afternoons and has an old feud with a goose behind the chapter kitchen.
+Born in 1332 in Ribe and carried to Reval as a toddler, she was the first of the Lunge girls. At eight she was sent with a curd basket down the hill to the harbour women and learned the weights. Her voice is hoarse from calling prices into the wind on the shore. She minds the youngest, Cecilie, in the afternoons and has an old feud with a goose behind the chapter kitchen.
 
 ## Motivation
 - **Want:** To buy a ribbon at the harbour with her own pfennig.

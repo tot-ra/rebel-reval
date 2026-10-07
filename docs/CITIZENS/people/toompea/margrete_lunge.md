@@ -35,7 +35,7 @@
 - **Model notes:** MPFB female, age_years 10, muscle 0.2, weight 0.2, proportions thin long-limbed, height_m 1.23; skin fair flushed; eyes brown; chestnut red hair; crowd tier 2.
 
 ## Biography
-Born in 1333 in the Kiriku põik house, the second girl, named for her mother. She counts because her father taught her to count panes; she says the numbers aloud so no one cheats. She sorts glass offcuts by colour and sells beads to the neighbours' children. She is cross with her older sister for bossing and with her little sister for breaking things.
+Born in 1333 in Ribe and brought to Reval a baby, the second girl, named for her mother. She counts because her father taught her to count panes; she says the numbers aloud so no one cheats. She sorts glass offcuts by colour and sells beads to the neighbours' children. She is cross with her older sister for bossing and with her little sister for breaking things.
 
 ## Motivation
 - **Want:** To be the one who keeps the household's coin.

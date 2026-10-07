@@ -35,7 +35,7 @@
 - **Model notes:** MPFB male, age_years 31, muscle 0.4, weight 0.3, proportions lean uneven shoulders, height_m 1.78; skin ruddy; eyes brown; dark blond hair, clean-shaven; crowd tier 2.
 
 ## Biography
-Born in 1312 in Ribe, he was apprenticed to a church glazier and came to Reval in 1334 with a cathedral commission. He was raised partly by an Estonian nurse in the Ribe servants' hall, hence the cadence. He married Margrete Munk in 1331, and his father Henrik followed from Ribe after his own workshop failed. Three daughters live in a house of two rooms. He now repairs windows in the castle and chapter in return for crown wages, and tells a reeve who comes by what the street says.
+Born in 1312 in Ribe, he was apprenticed to a church glazier and came to Reval in 1334 with a cathedral commission. He was raised partly by an Estonian nurse in the Ribe servants' hall, hence the cadence. He married Margrete Munk in 1331, and his father Henrik followed in 1337 after his own workshop failed. Three daughters live in a house of two rooms. He now repairs windows in the castle and chapter in return for crown wages, and tells a reeve who comes by what the street says.
 
 ## Motivation
 - **Want:** A glass-room of his own with a furnace.
