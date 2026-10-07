@@ -23,7 +23,6 @@
 - A short, rosy man at a bench by the street window, stitching with a hog-bristle needle while customers talk at his back.
 - His voice never rises or falls, so nobody can tell when he is angry; his wife reads his ears instead.
 - Owes money in three directions and avoids the Cattle Gate at dawn, when the herd goes out.
-- Keeps a boxwood last, the first his father gave him, and will not cut leather on any other.
 
 ## Appearance
 - **Body:** 161 cm, average build, a little round in the shoulders from the bench. Walks with short, even steps and a slight forward lean, as if still bent over work.
@@ -63,7 +62,6 @@ He makes about a dozen pairs of shoes a month and mends twice that, earning roug
 ## Relationships
 - **Household:** [Margarete Lippe](margarete_lippe.md), wife, who keeps the real accounts; [Frederik van Deventer](../../ledger/lower_town/suur_karja.md#hh-lt-osm-w26885876), his eight-year-old son, learning to wax thread; [Hinrik van Deventer](hinrik_van_deventer.md), his father; maids [Ann Madise tütar](ann_madise_tutar.md), [Cecilia Larsdotter](cecilia_larsdotter.md) and [Sophia van Revele Westfal](sophia_van_revele_westfal.md), whose board he pays with shoes and promises.
 - **Network:** [Mikk Madise poeg](../karja_road/mikk_madise_poeg.md), city herdsman: stood surety for the three-mark fine last year and has not been repaid; Sander crosses the lane when he sees the herd, and Mikk has started to notice who notices. [Kaur](kaur.md), brewer: rents Sander a shed for tools and firewood at a rate neither thinks fair to himself; they bargain at each quarter day. [Albert van Paderborne](albert_van_paderborne.md), shoemaker: Sander is the better craftsman, Albert the better businessman, and each thinks the other has the easier life. [Evert Tõnu poeg](evert_tonu_poeg.md), gatekeeper: Sander owes him eighteen marks for a share in the lost voyage; Evert has been patient, which Sander finds worse than anger.
-- **Others:** Neighbours [Laurents Laurentsi poeg](../../ledger/lower_town/suur_karja.md#hh-lt-osm-w26899222), blacksmith, who sells him tacks, and the glover [Jaak Uku poeg](../../ledger/lower_town/suur_karja.md#hh-lt-osm-w26885886), whose offcuts he buys.
 
 ## Faction and belief
 No faction. He lacks the credit to gamble on any side, and a rising would call in his debts at once. He asks no questions of anyone who pays. Faith is plain: a candle at the shoemakers' altar in St Nicholas, and a sprig of rowan over the door. A small favour he will do; a large one he refuses; he would inform on nobody, because it would mean speaking to an official.
@@ -75,7 +73,7 @@ No faction. He lacks the credit to gamble on any side, and a rising would call i
 - **Verbal tic:** "So it is."
 
 ## Knowledge and rumours
-He knows who walks badly and who has money from the cut of their old shoes: a clerk's heel worn on the outside means a man carrying messages. He would trade the knowledge for a week's grace on any debt. He believes the false rumour that the Rat will forgive petty fines at midsummer.
+He reads trades from worn heels. He would trade the knowledge for a week's grace on any debt. He believes the false rumour that the Rat will forgive petty fines at midsummer.
 
 ## Game hooks
 - **Ambient role:** At the street window mornings; at Kaur's shed afternoons.

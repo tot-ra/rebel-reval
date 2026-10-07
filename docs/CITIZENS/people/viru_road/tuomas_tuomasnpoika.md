@@ -56,7 +56,7 @@ His house on Viru road is the smallest in the row, 47 square metres, and has the
 | Evening | Vespers | Viru road | Home, mends thatch |
 | Night | Curfew bell | Home | Sleeps |
 
-- **Sundays and feast days:** Mass at St Olaf's with the Finnish congregation; a long pipe-free rest.
+- **Sundays and feast days:** Mass at St Olaf's with the Finnish congregation, then a long rest.
 - **Spring 1343 disruption:** Spring is the roofing season; the work is plentiful, but the carters are nervous.
 
 ## Work and money

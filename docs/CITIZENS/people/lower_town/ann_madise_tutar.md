@@ -71,7 +71,7 @@ No faction. She has no spare day for politics and trusts no one who talks fast. 
 ## Voice
 - **Registers:** Estonian at home and market; slow careful Low German in the house.
 - **Delivery:** Slow, with long pauses, as though weighing each word.
-- **Sample lines:** "Herring is dear." "I will say it when I have thought." "Ma ei tea." (I do not know.)
+- **Sample lines:** "Herring is dear." "I will say it when I have thought." "Ma ei oska öelda." (I cannot say.)
 - **Verbal tic:** A long "Well..." before answering.
 
 ## Knowledge and rumours

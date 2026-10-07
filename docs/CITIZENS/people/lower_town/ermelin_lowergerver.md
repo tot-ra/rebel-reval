@@ -1,6 +1,6 @@
 # Ermelin Lowergerver
 
-> A red-haired fourteen-year-old spinner with a husky voice, learning her mother's long fingers and her father's Estonian, who has begun walking home from church with a widow twice her mother's age.
+> A red-haired fourteen-year-old spinner with a husky voice, learning her mother's long fingers and her father's Estonian, who has begun walking home from church with a Krämer of Pikk older than her mother.
 
 | Field | Value |
 |---|---|
