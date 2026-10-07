@@ -242,7 +242,7 @@ static func _sink_under_visible_water(
 ) -> float:
 	var natural: PackedByteArray = field.get("shore_sink_cells", PackedByteArray())
 	var size: Vector2i = field["size"]
-	if natural.size() != size.x * size.y:
+	if natural.is_empty() or natural.size() != size.x * size.y:
 		return height
 	var clamped := Vector2i(clampi(cell.x, 0, size.x - 1), clampi(cell.y, 0, size.y - 1))
 	if natural[clamped.y * size.x + clamped.x] == 0:
