@@ -1,8 +1,12 @@
 # Spirit dialogue combat
 
-Status: planned ([ADR 0033](../adr/0033-teen-protagonist-and-spirit-dialogue-combat.md)). Nothing on this page is implemented. Scope: a teenage clairvoyant protagonist, dialogue authored as combat, observation of other people's conflicts as spirit duels, hybrid physical combat with per-school guilt, and the language-comprehension skill. Out of scope: party control, a universal morality score, runtime LLM dialogue (ADR 0003), a new magic framework beyond [`MAGIC.md`](./MAGIC.md) and [`PSYCHE.md`](./PSYCHE.md).
+Status: planned; hero model implemented (SD-10) ([ADR 0033](../adr/0033-teen-protagonist-and-spirit-dialogue-combat.md)). Only the hero model (SD-10) is implemented; everything else is design. Scope: a teenage clairvoyant protagonist, dialogue authored as combat, observation of other people's conflicts as spirit duels, hybrid physical combat with per-school guilt, and the language-comprehension skill. Out of scope: party control, a universal morality score, runtime LLM dialogue (ADR 0003), a new magic framework beyond [`MAGIC.md`](./MAGIC.md) and [`PSYCHE.md`](./PSYCHE.md).
 
 Canon labels: spirit world, creatures, and guilt rites are `folklore` / `invented` per [`docs/CANON.md`](../CANON.md). The almshouse at the Holy Spirit parish is `plausible composite`. The hero's perception is never given a clinical diagnosis.
+
+## Runtime today
+
+- **Playable hero model (SD-10):** the player rig spawns the 15-year-old orphan apprentice (`char.apprentice`, `assets/characters/variants/apprentice.tscn`, body `assets/characters/realistic/apprentice/`). Built by `tools/assets/realistic_humans/rebuild.sh apprentice` from the `apprentice` spec (Tier 0, shared 71-bone rig, 1.60 m, modular wardrobe). Outfits in `outfits.json`: `work` (default), `almshouse` (unshod), `street`, `travel`. Both player spawn points (`MapViewRuntimeBootstrap.PLAYER_RIG_SCENE`, `WorldHost.PLAYER_RIG_SCENE_PATH`) use it. Kalev's own scene is unchanged and is still used for tests and the master-smith NPC. Verify: `--filter=test_apprentice_rig`. No portrait yet (portraits need the local ComfyUI flow), and the teen move set is SD-11.
 
 ## Player-facing design
 

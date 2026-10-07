@@ -47,7 +47,7 @@ const HUD_NAME := "HUD"
 ## WB-06b: node name a launch adapter gives the host under its scene root.
 const HOST_NODE_NAME := "WorldHost"
 const PLAYER_SCENE_PATH := "res://player.tscn"
-const PLAYER_RIG_SCENE_PATH := "res://assets/characters/kalev/kalev.tscn"
+const PLAYER_RIG_SCENE_PATH := "res://assets/characters/variants/apprentice.tscn"
 const MINIMAP_HUD_SCENE_PATH := "res://scenes/elements/minimap_hud.tscn"
 ## Stable diagnostic codes (tests and tooling match on them).
 const DIAG_PACKAGE_CREATES_GLOBAL := "WORLD_HOST_PACKAGE_CREATES_GLOBAL"

@@ -4,7 +4,7 @@ extends RefCounted
 ## One-shot MapViewRuntime wiring: hide 2D visuals, mount MapView3D, player rig,
 ## camera, session/environment bindings, and ambient installers.
 
-const PLAYER_RIG_SCENE := preload("res://assets/characters/kalev/kalev.tscn")
+const PLAYER_RIG_SCENE := preload("res://assets/characters/variants/apprentice.tscn")
 const PLAYER_LIGHT_LAYER := 20
 const PLAYER_FILL_LIGHT_COLOR := Color8(255, 226, 196)
 const PLAYER_FILL_LIGHT_ENERGY := 0.65

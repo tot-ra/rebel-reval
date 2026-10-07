@@ -18,7 +18,7 @@ sys.path.insert(0, str(HERE))
 import specs  # noqa: E402
 
 MODEL_SCALE = 2.0 / specs.SPECS["kalev"]["height_m"]
-HEALTH_RING = {"aita", "ellen", "jurgen", "kaja", "henning", "mart", "watchman"}
+HEALTH_RING = {"apprentice", "aita", "ellen", "jurgen", "kaja", "henning", "mart", "watchman"}
 
 
 def scene(name):

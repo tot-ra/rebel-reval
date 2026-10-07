@@ -1,0 +1,23 @@
+{
+  "work": [
+    "short_tunic",
+    "smith_apron",
+    "hose",
+    "boots"
+  ],
+  "almshouse": [
+    "short_tunic",
+    "hose"
+  ],
+  "street": [
+    "short_tunic",
+    "hose",
+    "boots"
+  ],
+  "travel": [
+    "short_tunic",
+    "hood",
+    "hose",
+    "boots"
+  ]
+}

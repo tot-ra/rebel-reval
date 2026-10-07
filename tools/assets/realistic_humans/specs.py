@@ -122,6 +122,24 @@ SPECS = {
         palette={"short_tunic": (0.52, 0.42, 0.30), "hose": (0.30, 0.27, 0.22)},
         extra={"tunic_ease": 0.022, "belted": False},
         outfits={"work": ["short_tunic", "hose", "boots"]}),
+    # The 15-year-old orphan apprentice, the playable hero (ADR 0033): thin from
+    # almshouse rations, smaller than Mart, hand-me-down tunic, pale grey
+    # watchful eyes. Tier 0 (modular wardrobe) like the master he is taken in by.
+    "apprentice": _person(
+        age=15, sex="m", muscle=0.4, weight=0.34, height_m=1.60, skin="young_caucasian_male",
+        eyes="grey", hair="short01", hair_color=(0.30, 0.24, 0.18), brows="eyebrow002",
+        targets={"head-age-decr": 0.7, "head-round": 0.2, "nose-scale-vert-decr": 0.3,
+                 "nose-scale-horiz-decr": 0.15, "chin-prominent-decr": 0.25, "cheek-volume-incr": 0.2,
+                 "neck-scale-horiz-decr": 0.3, "eyebrows-angle-up": 0.1},
+        complexion={"tan": 0.3, "flush": 0.25, "soot_forearms": 0.2},
+        garments=["short_tunic", "hose", "boots", "smith_apron", "hood"],
+        palette={"short_tunic": (0.44, 0.38, 0.30), "hose": (0.27, 0.24, 0.20),
+                 "hood": (0.30, 0.27, 0.24)},
+        extra={"tunic_ease": 0.03, "belted": False, "tier": 0},
+        outfits={"work": ["short_tunic", "smith_apron", "hose", "boots"],
+                 "almshouse": ["short_tunic", "hose"],
+                 "street": ["short_tunic", "hose", "boots"],
+                 "travel": ["short_tunic", "hood", "hose", "boots"]}),
     # Captain Henning of the Viru Watch (docs/CHARACTERS/henning.md): armed
     # authority; padded aketon, mail and iron hat over street dress.
     "henning": _person(
