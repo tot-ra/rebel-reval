@@ -152,11 +152,17 @@ TALLINN_UPPER_CIVIC: LandmarkCatalog = {
             "Stone cellars storing Hanseatic beer and salt fish.",
             "Aita's brewery competes with imported Lübeck barrels.",
         ),
+        # R-1207: no well is attested on the open forum in 1343, and the modern
+        # cover is not evidence. The landmark name is kept because it is the stable
+        # key for `beat.landmark.tallinn.civic_well_raekoja`; only the 1343 reading
+        # changes. Market water is carried in from yard wells and the Sternsod /
+        # Rataskaev well (first named 1375), so the water-errand beat survives.
         (
             "Civic well (Raekoja)",
             "Decorative well cover on the square edge.",
-            "Primary draw point for market-day water.",
-            "Children spread word of rural signal fires while fetching water.",
+            "No well on the open forum; water is carried in by bucket from yard "
+            "wells and the sub monte belt.",
+            "Children spread word of rural signal fires while hauling water to the stalls.",
         ),
         (
             "Vana Turg lane",

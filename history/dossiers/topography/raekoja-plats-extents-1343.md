@@ -7,7 +7,7 @@ related:
   - ./lower-town-street-plan.md
   - ../architecture/burgher-house-plan.md
   - ../architecture/toompea-castle-and-upper-town.md
-updated: 2026-08-13
+updated: 2026-10-07
 ---
 
 # Raekoja plats extents (Spring 1343)
@@ -22,8 +22,9 @@ You are blocking out the **open market reserve** (*forum*, modern Raekoja plats)
 2. **South edge = hall only.** One-storey grey-limestone hall, clay-tile gable roof, **no arcade**, **no tower**, **no upper council storey**. The north façade is a plain wall with simple stone-framed windows opening to the market [1][4][5].
 3. **North edge = built frontage, not void.** Strip burgess plots and the modest **Holy Spirit chapel–almshouse** complex sit north of the open ground; the square does **not** read as a formal rectangle walled on four sides [6][7][8].
 4. **Open ground is irregular.** Temporary stalls, carts, and foot traffic only — no permanent market halls, no Christmas-tree tradition (1441+), no pillory as a fixed prop unless flagged uncertain [9][10].
-5. **Vana Turg is separate.** The named *forum inferior* / “Old Market” (**1368+**) is **not** this square in 1343. Route convergence east of the civic square is valid; do not label it *Vana Turg* in UI [11][12].
-6. **Use the authoring polygon below** (local axes, metres). Treat vertices as **plausible composite** targets ±2 m; do not trace the modern paved outline.
+5. **No well on the open ground.** Do **not** author a draw-well on the *forum*; the nearest documented public well is the **Sternsod / Rataskaev** wheel-well, first named **30 April 1375** [19][20]. Market water is carried in from yard and precinct wells [21]. See [No well on the forum](#no-well-on-the-forum-r-1207) (R-1207).
+6. **Vana Turg is separate.** The named *forum inferior* / “Old Market” (**1368+**) is **not** this square in 1343. Route convergence east of the civic square is valid; do not label it *Vana Turg* in UI [11][12].
+7. **Use the authoring polygon below** (local axes, metres). Treat vertices as **plausible composite** targets ±2 m; do not trace the modern paved outline.
 
 ## Findings
 
@@ -64,6 +65,22 @@ The Heidelberg viewer pages were not usable in this pass because of the archive'
 The two fetched Public Domain leaves are usable as visual evidence, but they do **not** expose a separately dimensioned pre-1371 core. Page 187 carries Fig. 159, a later market-and-hall lithograph; page 188 carries Figs. 161–162, the published finished-hall upper-floor plan and cross-section. They are therefore later-state relationship/section plates, not a measured construction-phase drawing for the April 1343 footprint [5][18].
 
 The adjacent Neumann/Nottbeck text remains useful: it places the Rathaus on its present site by the first half of the fourteenth century from entries in the oldest mortgage book, records *Kramerbuden* near the Rathaus in 1339, and dates the architectural start of construction to the second quarter of the fourteenth century [5]. Its text gives **30.78 m** for the completed market-facing north front, while the modern Medieval Heritage summary gives **36.8 m** for the completed building's external dimension [2][5]. These later-state figures are not a phase-plan measurement and should not be treated as interchangeable. The fetched leaves do not supply a numeric pre-1371 length: keep **~22–28 m** as a **plausible composite reconstruction**, not an attested measurement [1][5].
+
+### No well on the forum (R-1207)
+
+The former open question — whether a well stood in the open ground in 1343 — is **resolved as a negative**: author no well on the *forum*. The evidence state is a **gap** (no source either way); the authoring decision is to treat that gap as absence, because a stone well head is permanent fabric and nothing places it there.
+
+| Claim | Evidence | Confidence |
+|---|---|---|
+| A public draw-well stood on the open market ground in 1343 | **No** documentary or excavation record in any reviewed source. Neumann/Nottbeck's market and hall pages record *Kramerbuden* beside the Rathaus (**1339**) and the hall fabric, but no market well [5]. The square's own histories describe market use, stalls, and later traditions without a well [9][13] | **gap** — authored as absent, do not place |
+| Modern decorative well cover on the square edge | Present-day street furniture; no published medieval predecessor | **not evidence** |
+| **Sternsod / Rataskaev** wheel-well, *sub monte* belt west of the square | First mentioned **30 April 1375** in the Tallinn *pärusraamat* (*Erbebuch*) as *Sternsodi kaev*; MLG *stern* = "hard", for the lime-rich water. The **Rataskaev** name follows the wheel lifting gear; *Kassikaev* ("Cat's Well") is a modern nickname after 19th-century disuse [19][20] | **attested** (1375 name) — **32 years after April 1343**, so the well head itself is **not** authored as 1343 fabric; only the street/lane name belt is [`public-bath-locations-1343.md`](./public-bath-locations-1343.md) |
+| Street name *rader strate* written **1325** | Kuuskemaa 2024, secondary synthesis; no TLA folio or AWB number reviewed | **plausible composite** (B/C) [20] |
+| Reval households draw from **courtyard and precinct** wells | Mid-14th-c. Lower Town archaeology records courtyard wells; the Dominican close and the Bishop's Garden each have a medieval well. The R-984 infrastructure budget allows **zero** public wells on the *forum* | **attested** (wells exist) / **plausible composite** (who shares them) [21] |
+
+**Why the negative is safe to ship.** The *forum* is a market **reserve** kept clear for stalls, carts, and foot traffic [9][13]. A stone well head is permanent fabric in the middle of that reserve, and no source puts one there. The documented water pattern is the opposite: water is **carried to** the market from yard wells and the *sub monte* belt, which keeps the water-fetching narrative beat intact without inventing civic fabric [21]. If a future excavation report or TLA folio names a forum well, this row is the place to reverse the decision.
+
+**Runtime effect.** `market_civic_quarter` authors no `well` prop. The retired apron's stable IDs stay: `civic_well_goods` is a goods pallet on the east cart throat and `civic_well_wash_tub` is a rinsing tub on the fish-stall line. `tests/godot/test_market_prototype_maps.gd::test_market_civic_quarter_authors_no_well_on_the_forum` keeps the well from returning. The attested well remains authored as `south_quarter::rataskaev_well`.
 
 ### Open market polygon (authoring coordinates)
 
@@ -151,7 +168,7 @@ No municipal survey gives a 1343 polygon; ranges synthesise hall phasing [1][2],
 
 - Measured **pre-1371** hall length from Neumann phase drawings remains unresolved: the Heidelberg plates publish the completed hall plan/section, but do not expose a separate dimension line for the earlier core. Nottbeck's text gives **30.78 m** for the completed market-facing north front, while Medieval Heritage reports **36.8 m** for the completed building's external dimension; neither is a measured 1343 phase length, and the two later-state figures should not be merged. Keep **~22–28 m** as a plausible composite reconstruction until a phase-specific measured drawing is found.
 - Archaeological paving limits of *forum* vs surrounding plots — no citywide 1343 survey published in reviewed sources.
-- Whether a **well** stood in the open ground in 1343 (modern decorative well is not evidence).
+- ~~Whether a **well** stood in the open ground in 1343 (modern decorative well is not evidence).~~ **Resolved (R-1207): no.** No reviewed documentary or archaeological source places a well on the open *forum*; the nearest documented public well is the Sternsod / Rataskaev wheel-well of **1375**, and market water is carried in from yard wells. See [No well on the forum](#no-well-on-the-forum-r-1207). Reopen only on an excavation report or TLA folio that names a forum well.
 - Exact 1343 boundary between *forum* and the road convergence later called Vana Turg — resolved in [`old-market-vanaturg.md`](./old-market-vanaturg.md) (R-031): neck is a lane, not *forum inferior*.
 
 ## Sources
@@ -174,3 +191,6 @@ No municipal survey gives a 1343 polygon; ranges synthesise hall phasing [1][2],
 16. Raeapteek history, https://raepret.ee/en/about/ — pharmacy from 1422 (English).
 17. Project internal: `history/HISTORY.md`, `history/TIMELINE.md` — 1343 power and siege (English).
 18. Heidelberg University Library, *Geschichte und Kunstdenkmäler der Stadt Reval* vol. 2, pp. 187–188, image leaves 0213–0214, Public Domain Mark: https://digi.ub.uni-heidelberg.de/diglit/nottbeck1904bd2/0213 and https://digi.ub.uni-heidelberg.de/diglit/nottbeck1904bd2/0214 — Fig. 159 market view/plan, Fig. 161 upper-floor plan, Fig. 162 cross-section; direct JPEGs are linked in the plate manifest.
+19. Vikipeedia, “Rataskaev,” https://et.wikipedia.org/wiki/Rataskaev and “Rataskaevu tänav,” https://et.wikipedia.org/wiki/Rataskaevu_t%C3%A4nav — draw-well between the south-east slope of Toompea and the town, **first mentioned 30 April 1375** in the Tallinn *pärusraamat* as *Sternsodi kaev*; MLG *stern* = "hard" for the lime-rich water; *Rataskaev* from the wheel lifting gear; abandoned mid-19th c. and nicknamed *Kassikaev* (Estonian).
+20. Kuuskemaa, J., “Rataskaevust kassikaevuks,” *Postimees*, https://arvamus.postimees.ee/7993047/juri-kuuskemaa-rataskaevust-kassikaevuks — secondary synthesis of the well's filling and re-excavation and the *rader strate* name; **1325** street-name date is secondary, with no TLA folio or AWB number reviewed (Estonian).
+21. Project internal: [`docs/reports/reval_domestic_infrastructure_1343.md`](../../../docs/reports/reval_domestic_infrastructure_1343.md) (R-984) — courtyard and precinct wells as the household water pattern; public/precinct well budget of **0** on the *forum*; Cat's Well is a drinking well and the 1375 rebuild is later fabric (English).

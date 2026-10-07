@@ -396,6 +396,26 @@ func test_town_hall_exterior_door_is_attached_to_the_portal() -> void:
 	door.free()
 
 
+## Grass tufts must not grow through solid props such as the civic wash tub.
+func test_market_civic_quarter_tufts_avoid_prop_footprints() -> void:
+	var definition: MapDefinition = MarketCivicQuarterDefinition.create()
+	var grid := MapBuilder.build(definition)
+	var state := MapViewMeshBuilderScatter.begin_scatter(definition, grid)
+	MapViewMeshBuilderScatter.collect_rows(state, grid.size_cells.y)
+	var rects := MapViewMeshBuilderPrimitives.prop_cell_rects(definition)
+	var tub := _prop_by_id(definition, &"civic_well_wash_tub")
+	assert_false(tub.is_empty(), "civic_well_wash_tub must exist")
+	assert_true(rects.size() > 0, "solid props must produce scatter exclusion rects")
+	var tufts := 0
+	for key in ["small_grass", "large_grass"]:
+		for xform: Transform3D in state[key]:
+			tufts += 1
+			var point := Vector2(xform.origin.x, xform.origin.z)
+			for rect in rects:
+				assert_false(rect.has_point(point), "%s tuft at %s is inside prop rect %s" % [key, point, rect])
+	assert_true(tufts > 0, "market_civic_quarter must still grow some tufts")
+
+
 func test_market_civic_quarter_stall_life_dressing() -> void:
 	var definition: MapDefinition = MarketCivicQuarterDefinition.create()
 	var stall_kinds := {
@@ -437,13 +457,15 @@ func test_market_civic_quarter_stall_life_dressing() -> void:
 		_prop_near_prop(definition, &"pottery_stall_crates", &"pottery_stall", 6),
 		"Pottery crates must sit beside pottery_stall"
 	)
+	# R-1207: the retired well apron keeps its stable IDs, but the tub is now stall
+	# equipment on the fish line and the pallet stages goods for the east throat.
 	assert_true(
-		_prop_near_prop(definition, &"civic_well_goods", &"civic_well", 8),
-		"Market goods pallet must sit beside civic_well"
+		_prop_near_prop(definition, &"civic_well_wash_tub", &"fish_stall_splitting", 4),
+		"Rinsing tub must sit beside the fish splitting table"
 	)
 	assert_true(
-		_prop_near_prop(definition, &"civic_well_wash_tub", &"civic_well", 6),
-		"Wash tub must sit beside civic_well"
+		_prop_near_prop(definition, &"civic_well_goods", &"market_cart", 14),
+		"Market goods pallet must stay on the forum's east apron"
 	)
 	assert_false(
 		_prop_by_id(definition, &"weigh_table_prop").is_empty(),
@@ -458,6 +480,24 @@ func test_market_civic_quarter_stall_life_dressing() -> void:
 			MapVerification.is_walkable_point(definition, grid, point),
 			"Patrol point %s must stay walkable after market dressing" % point
 		)
+
+
+## A draw-well on the open 1343 forum is unattested. The only documented Lower Town
+## public well is the Sternsod / Rataskaev wheel-well, first recorded 30 April 1375
+## and authored as `south_quarter::rataskaev_well`, so the market reserve carries
+## movable trade equipment only (R-1207).
+func test_market_civic_quarter_authors_no_well_on_the_forum() -> void:
+	var definition: MapDefinition = MarketCivicQuarterDefinition.create()
+	for prop in definition.props:
+		assert_ne(
+			prop.get("kind"),
+			MapTypes.PROP_KIND_WELL,
+			"%s must not author a well on the 1343 forum" % String(prop.get("id", ""))
+		)
+	assert_true(
+		_prop_by_id(definition, &"civic_well").is_empty(),
+		"The retired forum well must not come back"
+	)
 
 
 func test_market_civic_quarter_edges_are_reciprocal_with_adjacent_districts() -> void:

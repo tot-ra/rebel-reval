@@ -136,7 +136,11 @@ building south_rear_east_02 house 83 111 9 14 style=house.merchant_stone.south.t
 building south_rear_east_03 house 94 111 9 14 style=house.craft_boda.south
 building south_rear_east_04 house 105 111 9 14 style=house.merchant_timber.south
 # Temporary forum trade remains movable and does not count as permanent fabric.
-prop civic_well well 52 47 rect=2,2
+# R-1207: no well stands on the open forum. A 1343 draw-well on the market ground
+# is unattested - the only documented Lower Town public well is the Sternsod /
+# Rataskaev wheel-well, first recorded 30 April 1375 and already authored as
+# `south_quarter::rataskaev_well`. The modern decorative cover is not evidence.
+# See history/dossiers/topography/raekoja-plats-extents-1343.md.
 prop notice_cart cart 26 41 rect=2,2
 prop guild_stall stall 19 31 rect=3,2
 prop fish_stall stall 27 32 rect=3,2 display_goods=fish
@@ -153,8 +157,11 @@ prop pskov_trade_banner banner 55 30 rect=2,2 faction=pskov
 prop novgorod_trade_banner banner 24 30 rect=2,2 faction=novgorod
 prop weigh_table_prop table 31 44 rect=3,2
 prop market_cart cart 45 47 rect=2,2
+# Stable legacy IDs from the retired well apron (R-1207). Both are movable market
+# equipment the dossier does allow on the open ground: goods staged for the east
+# cart throat, and a rinsing tub that now belongs to the fish stall line.
 prop civic_well_goods market_goods_pallet 58 50 rect=2,1
-prop civic_well_wash_tub wash_tub 50 50
+prop civic_well_wash_tub wash_tub 30 37
 prop south_ward_cart cart 42 108 rect=2,2
 prop karja_south_barrels barrels 74 108 rect=2,2
 spawn spawn.inspection 46 53 rect=2,2
