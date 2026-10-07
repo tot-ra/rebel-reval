@@ -11,7 +11,7 @@
 | Household | [hh.lt.osm_w200516981](../../ledger/lower_town/aida.md#hh-lt-osm-w200516981) |
 | Home | Aida, plot `bldg.osm.w200516981` (57 m2) |
 | Age / sex | 33, male |
-| Ethnicity / segment | Finnish / swede_finn_resident |
+| Ethnicity / segment | finnish / swede_finn_resident |
 | Status | Labourer, lodger |
 | Trade | Washerman (Wäscher; the census calls it washerwoman) |
 | Languages | Finnish |

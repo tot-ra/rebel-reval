@@ -74,7 +74,7 @@ No faction. She would do a small favour for any who ask kindly, a large one for 
 ## Voice
 - **Registers:** Estonian among friends; slow careful German with the family.
 - **Delivery:** Nasal, quick, low volume.
-- **Sample lines:** "Seven buckets and no more." "Ma ei tea, I do not know." "The mistress sees everything but the floor."
+- **Sample lines:** "Seven buckets and no more." "Vaikselt now, quietly." "The mistress sees everything but the floor."
 - **Verbal tic:** Counts under her breath.
 
 ## Knowledge and rumours

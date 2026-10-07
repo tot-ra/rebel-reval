@@ -11,7 +11,7 @@
 | Household | [hh.lt.osm_w26887861](../../ledger/lower_town/pikk.md#hh-lt-osm-w26887861) |
 | Home | Pikk, plot `bldg.osm.w26887861` (423 m2) |
 | Age / sex | 29, female |
-| Ethnicity / segment | Estonian / servant |
+| Ethnicity / segment | estonian / servant |
 | Status | Hired servant, lodged in the house |
 | Trade | Maid |
 | Languages | Estonian, Middle Low German |
@@ -72,7 +72,7 @@ None; she has no time and no one who has asked. If asked for a small favour she 
 ## Voice
 - **Registers:** Estonian with the other servants; short, correct Middle Low German to masters.
 - **Delivery:** A flat, tired murmur; trails off at the end of sentences.
-- **Sample lines:** "Water's cold again, and the fire's out." / "Ask Magdalena, she's honest." / "Ma ei tea. I don't know."
+- **Sample lines:** "Water's cold again, and the fire's out." / "Ask Magdalena, she's honest." / "Ma ei oska öelda. I cannot say."
 - **Verbal tic:** "If there's time."
 
 ## Knowledge and rumours

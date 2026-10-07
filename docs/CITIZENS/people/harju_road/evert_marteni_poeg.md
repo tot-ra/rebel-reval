@@ -64,7 +64,7 @@ He earns nothing; Mari feeds him. He mends tool-handles for neighbours for a bow
 ## Relationships
 - **Household:** [Mari](../../people/harju_road/mari.md), daughter, 56, who feeds and washes him; [Triin Aino tütar](../../people/harju_road/triin_aino_tutar.md), great-granddaughter, 15, whom he suspects of errands; [Madis Andrese poeg](../../people/harju_road/madis_andrese_poeg.md), great-grandson, 13, his knot pupil.
 - **Network:** [Kaspar](../../people/kalarand/kaspar.md), harbour pilot: Kaspar suspects but cannot prove that Evert leans the same way; each watches the other for a sign, and they talk only of the tide. [Elisabet Madise tütar](../../people/lower_town/elisabet_madise_tutar.md), retired craftsman: she suspects but cannot prove it too; each waits for the other to speak first at the market. [Katrin Villemi tütar](../../people/lower_town/katrin_villemi_tutar.md), maid: she is his superior in the circle, though neither would put it that way; they never speak in the same room as others, and he knows her by a coloured thread at her cuff.
-- **Others:** [Joosep](../../people/harju_road/joosep.md) shares tobacco-free pipe talk over the fence; [Paul](../../ledger/harju_road/harju_road.md#hh-ha-harju-08)'s children ask for whistles.
+- **Others:** [Joosep](../../people/harju_road/joosep.md) swaps fence-talk about the gate-farms; [Paul](../../ledger/harju_road/harju_road.md#hh-ha-harju-08)'s children ask for whistles.
 
 ## Faction and belief
 A secret sympathiser of the Harju Kings because his own father was bound to a manor before he fled to town. A small favour, holding a bundle, he gives; a large one he leaves to the young; informing he will never do. He believes in St Nicholas of sailors and in the sea's patience.

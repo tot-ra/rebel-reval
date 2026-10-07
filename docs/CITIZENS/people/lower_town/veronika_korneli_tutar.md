@@ -11,7 +11,7 @@
 | Household | [hh.lt.osm_w26887861](../../ledger/lower_town/pikk.md#hh-lt-osm-w26887861) |
 | Home | Pikk, plot `bldg.osm.w26887861` (423 m2) |
 | Age / sex | 33, female |
-| Ethnicity / segment | Estonian / Estonian townsman |
+| Ethnicity / segment | estonian / estonian_townsman |
 | Status | Wife of a free townsman; mistress of a ten-person household |
 | Trade | Spinner (wool and flax for sale; house management) |
 | Languages | Estonian, Middle Low German |

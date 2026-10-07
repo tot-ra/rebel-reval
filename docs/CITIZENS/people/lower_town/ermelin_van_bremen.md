@@ -74,7 +74,7 @@ Her faith in the Danish crown is born of her father's trade and of a quiet fear 
 ## Voice
 - **Registers:** Low German in the hall, Estonian with the maids and her mother's kin.
 - **Delivery:** Soft, quick, with a singing rise at sentence-ends; slows when worried.
-- **Sample lines:** "Leave it, I will do it." "Heaven keep you, child, and keep your tongue." "Mu arm, mu arm" when her hand shakes.
+- **Sample lines:** "Leave it, I will do it." "Heaven keep you, child, and keep your tongue." "Issand, mu käsi" when her hand shakes.
 - **Verbal tic:** "There now."
 
 ## Knowledge and rumours

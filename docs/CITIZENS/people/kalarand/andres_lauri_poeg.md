@@ -54,10 +54,10 @@ Born in 1301 in a Kalarand hut to a net-mender and a woman who salted herring fo
 | Night | Curfew bell | Home | Counts the girls' breathing in the dark |
 
 - **Sundays and feast days:** Mass at St Olaf, a shave, a walk to the mole with the girls.
-- **Spring 1343 disruption:** Rumours of a grain levy and of gate closures make hiring uneven; he stays near the gate and keeps his head down.
+- **Spring 1343 disruption:** Grain-levy and gate-closing rumours make hiring uneven; he keeps near the gate, head down.
 
 ## Work and money
-He earns about an örtug on a good day and nothing on three bad ones; across a year perhaps four marks, against which stands the plot rent and the barrow, borrowed from a carter he repays in labour. Anna's stall adds a mark or two. In winter they eat what the herring barrel gives. Spring is the thin season: Lent is over but the sea is only half open. A bad month means selling the girls' second blanket.
+About an örtug on a good day and nothing on three bad ones: perhaps four marks a year, against plot rent and a barrow borrowed from a carter and repaid in labour. Anna's stall adds a mark or two. Spring is the thin season, Lent over but the sea half shut. A bad month means selling the girls' second blanket.
 
 ## Relationships
 - **Household:** [Anna Aino tütar](../../people/kalarand/anna_aino_tutar.md), wife and the steady one; [Elsa Andrese tütar](../../people/kalarand/elsa_andrese_tutar.md), 12, his eldest; [Mari Andrese tütar](../../people/kalarand/mari_andrese_tutar.md), 10, who watches everything; [Kristiina Andrese tütar](../../ledger/kalarand/western_coast_road.md#hh-kr-kalarand-02), 8, the baby he still carries on his shoulders.

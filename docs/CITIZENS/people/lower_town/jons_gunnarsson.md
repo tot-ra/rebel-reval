@@ -20,8 +20,8 @@
 | Office | None |
 
 ## At a glance
-- A compact grey-eyed man with a full beard, forge-smoke on his cuffs, who tests each knife on his own arm and then names it.
-- Known on the lane for the best butcher's and cook's knives between the harbour and the Viru gate.
+- A compact grey-eyed man who tests each knife on his own arm and then names it.
+- Known for the best butcher's and cook's knives between the harbour and the Viru gate.
 - Oddity: a Swede whose German rides on an Estonian sing-song, because he grew up among Estonian neighbours on Ormsö.
 
 ## Appearance
@@ -60,7 +60,7 @@ Born around 1288 on Ormsö, where Swedish fisher-farmers and Estonian neighbours
 He buys bar iron from a Reval merchant and steel from Lübeck stock, bone and ash for handles from carters, and pays about a mark a month in rent and tolls. A good butcher's knife fetches four schillings; a set of eight table knives, three marks. In a bad month he lives off the sharpening trade and Cecilia's yarn. He owes nobody and has eleven marks put by; he fears a Vogt's fine over the chimney more than a thief.
 
 ## Relationships
-- **Household:** [Cecilia Folkesdotter](../../people/lower_town/cecilia_folkesdotter.md), second wife, who runs his house and his temper. [Halvard Jönsson](../../people/lower_town/halvard_jonsson.md), his son, whose sums he envies. [Jaak Priidiku poeg](../../people/lower_town/jaak_priidiku_poeg.md), the loud apprentice. Maids [Karin Andersdotter](../../people/lower_town/karin_andersdotter.md), [Sigrid Eriksdotter](../../people/lower_town/sigrid_eriksdotter.md) and [Gunhild Halvardsdotter](../../ledger/lower_town/meistrite_hoov.md#hh-lt-osm-w26885930).
+- **Household:** [Cecilia Folkesdotter](../../people/lower_town/cecilia_folkesdotter.md), second wife, who runs his house. [Halvard Jönsson](../../people/lower_town/halvard_jonsson.md), his son. [Jaak Priidiku poeg](../../people/lower_town/jaak_priidiku_poeg.md). Maids [Karin Andersdotter](../../people/lower_town/karin_andersdotter.md), [Sigrid Eriksdotter](../../people/lower_town/sigrid_eriksdotter.md) and [Gunhild Halvardsdotter](../../ledger/lower_town/meistrite_hoov.md#hh-lt-osm-w26885930).
 - **Network:**
   - [Erik Andersson](../../people/lower_town/erik_andersson.md), knife-smith on Pikk jalg: Jöns is the better craftsman and Erik the better businessman, and each believes the other has the easier life.
   - [Ants Mihkli poeg](../../people/lower_town/ants_mihkli_poeg.md), tailor: once helped carry Jöns's sick child through the dark to the herb-wife. Neither mentions it; Jöns leaves a knife on his sill each New Year.
@@ -70,7 +70,7 @@ He buys bar iron from a Reval merchant and steel from Lübeck stock, bone and as
 - **Others:** [Marten Simoni poeg](../../ledger/lower_town/meistrite_hoov.md#hh-lt-osm-w26902797), the town piper, whose fiddle carries across the yard.
 
 ## Faction and belief
-He keeps out of faction by trade, because his knives go to Germans, Estonians and the watch alike, and a side would cost him half his customers. A small favour he does gladly; a large one he would weigh against Halvard; he would not inform. Pious in the plain way of coast Swedes; he nails a bent horseshoe over the forge door, and says it is for the iron.
+He stays out of faction because his knives go to Germans, Estonians and the watch alike, and a side would cost him half his trade. A small favour he does gladly; a large one he weighs against Halvard's safety; he would not inform. Plainly pious; a bent horseshoe over the forge door, he says, is for the iron.
 
 ## Voice
 - **Registers:** Swedish at home, Middle Low German with customers, Estonian with Gesa and at the well.
@@ -79,11 +79,11 @@ He keeps out of faction by trade, because his knives go to Germans, Estonians an
 - **Verbal tic:** Ends a price with "and no more."
 
 ## Knowledge and rumours
-He knows who is ordering long knives and in what numbers, and would trade that to the right neighbour only for peace over the chimney. He believes the false rumour that the Order has already sent two knights to Reval disguised as wool-buyers.
+He knows who is ordering long knives and in what numbers, and would trade that only for peace over the chimney. He believes, wrongly, that the Order already has two knights in Reval disguised as wool-buyers.
 
 ## Game hooks
 - **Ambient role:** Forge at dawn and morning; at the church door at vespers; at the well at midday.
-- **Interaction:** Courteous to Kalev as a fellow smith, curious about his bellows; will swap tips on tempering but not on pricing.
+- **Interaction:** Courteous to Kalev as a fellow smith; swaps tempering tips, never prices.
 - **Barks:** "Mind the hot bar." / "Another long-knife order, and no name given." / "Lights out, boys; the bell has gone."
 - **Quest touch:** Offers a fair price for a Gotland whetstone if Kalev can find one.
 - **St George's Night:** Shutters and bars the yard, hides the boys in the loft, and hands no blade across the wall to anyone.

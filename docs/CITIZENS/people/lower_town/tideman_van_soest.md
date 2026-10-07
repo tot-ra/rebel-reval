@@ -21,22 +21,22 @@
 
 ## At a glance
 - A thin, grey, left-handed man who writes with his hand curled round the line so as not to smear it.
-- Keeps hens in the yard of a great house, which is the joke of Lühike jalg and the only thing he will not be teased out of.
-- Sits on the council, votes with the merchants, and has a private reckoning with himself that he tells nobody.
-- His right hand shakes at the end of a long day; he signs nothing after vespers.
+- Keeps hens in the yard of a great house, the joke of Lühike jalg.
+- Votes with the merchants and keeps a private reckoning he tells nobody.
+- His right hand shakes at day's end; he signs nothing after vespers.
 
 ## Appearance
-- **Body:** 172 cm, lean and wiry, narrow through the chest, slightly forward-leaning from years over a counting-board. Walks quickly with short steps, left shoulder a little ahead.
-- **Face:** Long, narrow face, high bony cheeks, a thin straight nose with a pinched tip, grey eyes set close under flat brows. At rest the mouth is a level line with a tuck at each corner, as if checking a sum.
-- **Hair and facial hair:** Iron-grey hair, cut straight at the ear and combed forward over a receding temple. Clean-shaven; he shaves twice a week and the jaw shows a blue shadow by the fourth day.
-- **Skin and marks:** Pale and even, rarely sun-struck, with fine lines at the eyes. A tremor in the right hand when he is tired. Left-handed, with an ink callus on the outer edge of the left hand.
-- **Hands:** Long dry fingers, the left hand stained to the second knuckle with iron-gall ink, the right hand held in the belt when it trembles.
+- **Body:** 172 cm, lean and wiry, narrow through the chest, slightly forward-leaning from years over a counting-board.
+- **Face:** Long, narrow face, high bony cheeks, a thin straight nose with a pinched tip, grey eyes set close under flat brows. The mouth is a level line, as if checking a sum.
+- **Hair and facial hair:** Iron-grey hair, cut straight at the ear and combed forward over a receding temple. Clean-shaven.
+- **Skin and marks:** Pale and even, rarely sun-struck, with fine lines at the eyes. A tremor in the right hand when he is tired.
+- **Hands:** Long dry fingers, the left hand stained to the second knuckle with iron-gall ink.
 - **Clothing and kit (April 1343):** Linen hemd, dark blue-black wool kirtel to mid-calf with a narrow marten edge at the collar, woollen hose, soft leather shoes with a thin sole for the counting-room, a plain leather belt carrying a key ring, a pouch of silver, and a pewter inkhorn. A grey hood on the shoulder for the street.
 - **Portrait prompt:** Medieval merchant councillor, sixty-two, lean narrow face, iron-grey hair combed forward, clean-shaven, pale even skin, close-set grey eyes, level mouth, dark blue wool collar with a thin marten edge, grey hood on the shoulder, neutral grey background, shoulders-up, soft natural window light, realistic painted portrait.
 - **Model notes:** MPFB gender male, age_years 62, muscle low, weight low, proportions slim, height_m 1.72; pale skin; grey eyes; short iron-grey hair, no beard; crowd tier 1.
 
 ## Biography
-Born 1281 in Soest in Westphalia, a salt-town cooper's son who went to Lübeck at twelve as a clerk's boy and came to Reval at nineteen with a Novgorod factor's bales. He learned the trade of wax and furs by being cheated at it. He bought his burgher right in 1309, married Wobbeke Rotermund in 1311, lost two sons to fevers, and kept the daughter Jutte. He was chosen to the council in 1338 on the strength of a good ledger and no enemies; he has made enemies since.
+Born 1281 in Soest in Westphalia, a salt-town cooper's son who went to Lübeck at twelve as a clerk's boy and came to Reval at nineteen with a Novgorod factor's bales. He learned the trade of wax and furs by being cheated at it. He bought his burgher right in 1309, married Wobbeke Rotermund in 1311, lost two sons to fevers, and kept the daughter Jutte. The council took him in 1338 for a good ledger and no enemies; he has made some since.
 
 Now he lives in the big house on Lühike jalg, with a counting-room over the gate and a yard where the hens will not stay put.
 
@@ -56,11 +56,11 @@ Now he lives in the big house on Lühike jalg, with a counting-room over the gat
 | Evening | After vespers | Counting-room | Reads, does not sign; right hand shakes |
 | Night | Curfew bell | Bedchamber | Checks the bar on the street door himself |
 
-- **Sundays and feast days:** Mass at St Nicholas, a short word after with a few people on the porch; dinner of fowl if the larder allows.
+- **Sundays and feast days:** Mass at St Nicholas, a few words on the porch afterwards, fowl for dinner if the larder allows.
 - **Spring 1343 disruption:** The levy talk fills the council; he spends more hours in the yard than the yard needs, listening to the lane over the wall.
 
 ## Work and money
-He ships Novgorod wax and furs west and Flemish cloth and Lüneburg salt east, one part in six on credit. A good season clears about 400 marks; a lost cog costs him 150. He lends sparingly and never writes it down in the open ledger. He keeps three apprentices and two clerks and calls the hens "the household's only honest profit".
+He ships Novgorod wax and furs west and Flemish cloth and Lüneburg salt east, one part in six on credit. A good season clears about 400 marks; a lost cog costs him 150. He calls the hens "the household's only honest profit".
 
 ## Relationships
 - **Household:** [Wobbeke Rotermund](wobbeke_rotermund.md), his wife of thirty-two years, who rules the kitchen and tells him so; daughter [Jutte van Soest](../../ledger/lower_town/luhike_jalg.md#hh-lt-osm-w200944360), fourteen, who spins at the window; [Margareta Toomase tütar](margareta_toomase_tutar.md), [Helga Ragnvaldsdotter](helga_ragnvaldsdotter.md) and [Elsa Eerika tütar](elsa_eerika_tutar.md), the maids and servant; [Thomas Overdyk](thomas_overdyk.md), the ostler; the cooks [Wobbeke van Dulmen](../../ledger/lower_town/luhike_jalg.md#hh-lt-osm-w200944360) and [Katharina Fromme](../../ledger/lower_town/luhike_jalg.md#hh-lt-osm-w200944360).
@@ -71,7 +71,6 @@ He ships Novgorod wax and furs west and Flemish cloth and Lüneburg salt east, o
 - [Sven Svensson](../../people/lower_town/sven_svensson.md), candle-maker: Tideman's hens keep getting into Sven's yard; it is always settled with a jug of beer, and always happens again.
 - [Wolter van Brunswik](../../people/lower_town/wolter_van_brunswik.md), merchant of Vene: neither knows the other's allegiance, but each has noticed the other's silence at the right moments.
 - [Segebode Corte](../../people/lower_town/segebode_corte.md), merchant of Harju: they compete for the same customers; each privately counts the other's apprentices and lamp-oil.
-- **Others:** Neighbours on the lane include the blacksmith Tõnu Kristjani poeg ([ledger](../../ledger/lower_town/luhike_jalg.md#hh-lt-osm-w200944351)) and the carter Sven Torgilsson ([ledger](../../ledger/lower_town/luhike_jalg.md#hh-lt-osm-w200944377)).
 
 ## Faction and belief
 Core of the Hanseatic side by birth, trade and seat. He would grant a small favour to a lane neighbour without a thought, a large one only if it could be called prudence, and he would inform on no one in a name he had given. A steady churchgoer; he leaves a stub of wax before the Marian altar and does not ask what it buys.
@@ -83,7 +82,7 @@ Core of the Hanseatic side by birth, trade and seat. He would grant a small favo
 - **Verbal tic:** Taps the table twice before disagreeing.
 
 ## Knowledge and rumours
-He knows the real figure of Reval's stored rye and which merchants have been selling it on to the Order's agents. He would trade this only for a lower levy on the lanes. He believes, wrongly, that the Danish viceroy intends to hold the town's gates himself before Michaelmas.
+He knows the true figure of Reval's stored rye. He would trade it only for a lower levy on the lanes. He believes, wrongly, that the Danish viceroy intends to hold the town's gates himself before Michaelmas.
 
 ## Game hooks
 - **Ambient role:** Dawn in the yard; morning on the quay; late afternoon walking home from the town hall.

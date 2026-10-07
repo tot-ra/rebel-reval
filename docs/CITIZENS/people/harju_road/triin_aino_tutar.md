@@ -59,12 +59,12 @@ Now she carries lists. Nobody in the household knows, least of all her grandmoth
 - **Spring 1343 disruption:** More lists, shorter intervals. Kaspar has told her to be ready by the week of St George.
 
 ## Work and money
-She spins a hank of fine thread in two days and earns about two pfennigs for it; a good week is a schilling. Wool comes from the weavers on credit and is paid for by the hank. The rest of her coin comes from the errands, which she never mentions. A bad month is a damp fleece that will not take the spindle and a weaver who docks her wage.
+She spins a hank of fine thread in two days for about two pfennigs; a good week is a schilling. Fleece comes from the weavers on credit. The rest of her coin comes from the errands. A bad month is a damp fleece and a weaver who docks her wage.
 
 ## Relationships
 - **Household:** [Mari](../../people/harju_road/mari.md), grandmother, 56, who feeds her without questions; [Madis Andrese poeg](../../people/harju_road/madis_andrese_poeg.md), cousin, 13, who follows her about; [Evert Marteni poeg](../../people/harju_road/evert_marteni_poeg.md), great-grandfather, 79, whose songs she knows by heart.
 - **Network:** [Made](../../people/harju_road/made.md), washerwoman: they know each other from the market; they greet by name and trade the day's prices, and Made once gave her a pinch of salt for a sore finger. [Kaspar](../../people/kalarand/kaspar.md), harbour pilot: he is her superior in the circle, though neither would put it that way; they never speak in the same room as others, and she knows him only as the man on the boat.
-- **Others:** [Taniel](../../ledger/harju_road/harju_road.md#hh-ha-harju-03) the carter nods to her; [Joosep](../../people/harju_road/joosep.md), gate-farm cultivator, buys her yarn.
+- **Others:** [Joosep](../../people/harju_road/joosep.md), gate-farm cultivator, buys her yarn.
 
 ## Faction and belief
 Triin is active because the manor boys at the market told her what binding means: a lord's name on a boy's neck. A small favour is easy; a large one terrifies and excites her; informing she would never do. She holds to St Olaf's saints and the rowan over the door, nothing deeper.

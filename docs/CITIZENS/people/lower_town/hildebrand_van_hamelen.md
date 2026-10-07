@@ -71,7 +71,7 @@ None; he is ten. He believes the saints see everything and thinks St Nicholas li
 ## Voice
 - **Registers:** Low German only.
 - **Delivery:** Fast, gravelly; speaks with his mouth full.
-- **Sample lines:** "Father counts the carts, I count the sticks." "It looked at me, Oma, it did." "Kumm, Godeke!"
+- **Sample lines:** "Father counts the carts, I count the sticks." "It looked at me, Grandfather, it did." "Kumm, Godeke!"
 - **Verbal tic:** "Honest."
 
 ## Knowledge and rumours

@@ -11,7 +11,7 @@
 | Household | [hh.lt.osm_w26887861](../../ledger/lower_town/pikk.md#hh-lt-osm-w26887861) |
 | Home | Pikk, plot `bldg.osm.w26887861` (423 m2) |
 | Age / sex | 21, male |
-| Ethnicity / segment | German / German burgher |
+| Ethnicity / segment | german / german_burgher |
 | Status | Clerk lodging in a master's house; not yet a burgher in his own right |
 | Trade | Merchant's clerk |
 | Languages | Middle Low German, Latin |
@@ -75,7 +75,7 @@ His pay is board, a bed and 8 marks a year; he sends 2 home. He owns a psalter, 
 A core Hanseatic man out of gratitude and ambition: the guild fed him, taught him, and will make him. For a small favour he will copy a list; for a large one he will carry a sealed packet; informing he does already, in a clerk's tidy way. He is devout but practical, saying a paternoster before each ledger.
 
 ## Voice
-- **Registers:** Middle Low German with merchants; Latin for prayers and charters; none in Estonian, which he follows but will not speak.
+- **Registers:** Middle Low German with merchants; Latin for prayers and charters; no Estonian beyond a few market words.
 - **Delivery:** Hoarse, rapid, clipped, with a cough at the end of a sentence.
 - **Sample lines:** "The figures do not lie, only men do." / "Who has the dividers?" / "Per Deum, not before noon."
 - **Verbal tic:** "As written."
