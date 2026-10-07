@@ -528,6 +528,12 @@ static func blended_ground(noise_seed: int) -> ShaderMaterial:
 	material.set_shader_parameter(
 		"timber_floor_layer", terrain_blend_index(MapTypes.TERRAIN_TIMBER_FLOOR)
 	)
+	# R-1202: flagstones sample the native 512 px plate per fragment; the 128 px
+	# array copy rendered stone aprons as a dark blur.
+	material.set_shader_parameter("stone_layer", terrain_blend_index(MapTypes.TERRAIN_STONE))
+	material.set_shader_parameter("stone_uv_scale", 1.0)
+	material.set_shader_parameter("stone_albedo", SMITHY_FLOOR_ALBEDO_TEXTURE)
+	material.set_shader_parameter("use_authored_stone", 1.0)
 	material.set_shader_parameter("mud_layer", terrain_blend_index(MapTypes.TERRAIN_MUD))
 	material.set_shader_parameter("dirt_layer", terrain_blend_index(MapTypes.TERRAIN_DIRT))
 	# Trodden-ground relief band is derived from the stable blend order rather than

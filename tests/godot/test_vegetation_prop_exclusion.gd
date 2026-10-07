@@ -28,6 +28,28 @@ const TUB_CELLS: Array[Vector2i] = [
 	Vector2i(13, 8),
 	Vector2i(13, 13),
 ]
+## Solid kinds added after the forum fix (forge yards, harbour, farms). Each one
+## is run through the same meadow red/green as the wash tub.
+const ADDED_SOLID_KINDS: Array[StringName] = [
+	MapTypes.PROP_KIND_ANVIL,
+	MapTypes.PROP_KIND_CHARCOAL_PILE,
+	MapTypes.PROP_KIND_IRON_SCRAP_PILE,
+	MapTypes.PROP_KIND_SALT_PILE,
+	MapTypes.PROP_KIND_ROPE_COIL,
+	MapTypes.PROP_KIND_BOAT_TIMBER_STACK,
+	MapTypes.PROP_KIND_HAY_WAGON,
+	MapTypes.PROP_KIND_FARM_CART,
+	MapTypes.PROP_KIND_ROOT_CELLAR_MOUND,
+	MapTypes.PROP_KIND_PRIVY,
+	MapTypes.PROP_KIND_WELL_SWEEP,
+]
+## Open-legged frames: grass under them is correct, so they must stay soft.
+const OPEN_FRAME_KINDS: Array[StringName] = [
+	MapTypes.PROP_KIND_TANNING_FRAME,
+	MapTypes.PROP_KIND_FISH_DRYING_RACK,
+	MapTypes.PROP_KIND_SMOKE_RACK,
+	MapTypes.PROP_KIND_HERB_DRYING_RACK,
+]
 
 
 ## The exclusion contract both layers consume: a solid prop claims its cell, a
@@ -78,14 +100,60 @@ func test_scatter_tufts_avoid_solid_prop_cells() -> void:
 			assert_false(rect.has_point(point), "tuft at %s is inside prop rect %s" % [point, rect])
 
 
+## Every added solid kind clears the same meadow cells in both layers: ground
+## cover thins against the bare meadow and no scatter tuft lands in a prop rect.
+##
+## Honest status: probed red/green. With the forum-only kind list restored,
+## every kind here claims zero rects, ground cover stays at the bare count
+## (1369 = 1369) and two scatter tufts land inside the expected rects.
+func test_added_solid_kinds_clear_ground_cover_and_scatter() -> void:
+	var bare := _ground_cover_instances(_meadow_definition(&""))
+	assert_true(bare > 0, "the bare meadow must grow ground cover, otherwise this proves nothing")
+	# Expected rects come from the cells, not from `prop_cell_rects`, so the
+	# scatter assertion goes red (not vacuously green) when a kind is missing.
+	var rects := _tub_cell_rects()
+	var bare_points := _scatter_points(_meadow_definition(&""))
+	assert_true(
+		_points_in_rects(bare_points, rects) > 0,
+		"the bare meadow must scatter tufts where the props will stand"
+	)
+	for kind in ADDED_SOLID_KINDS:
+		var dressed_definition := _meadow_definition(kind)
+		assert_eq(
+			Primitives.prop_cell_rects(dressed_definition),
+			rects,
+			"every %s must claim exactly its own cell" % kind
+		)
+		var dressed := _ground_cover_instances(dressed_definition)
+		assert_true(
+			dressed < bare,
+			"%s must remove ground cover in its cells (bare=%d, dressed=%d)" % [kind, bare, dressed]
+		)
+		assert_eq(
+			_points_in_rects(_scatter_points(dressed_definition), rects),
+			0,
+			"no scatter tuft may stand inside a %s rect" % kind
+		)
+
+
+## Grass under an open drying or tanning frame is correct, so these kinds must
+## not claim cells. Guards against padding the solid list with every prop kind.
+func test_open_frame_kinds_stay_soft() -> void:
+	for kind in OPEN_FRAME_KINDS:
+		assert_true(
+			Primitives.prop_cell_rects(_meadow_definition(kind)).is_empty(),
+			"%s is an open frame and must not clear the ground under it" % kind
+		)
+
+
 ## Map-level guard on the authored forum: no scatter tuft inside a solid prop.
 ##
 ## Honest status: this is an invariant guard, not the red/green proof. Probed on
 ## the current definition with the exclusion disabled, the forum scatters zero
 ## tufts into its prop rects anyway, because R-1207 moved `civic_well_wash_tub`
 ## onto the bare market floor. The guard earns its keep when a prop lands on a
-## planted cell again. The exclusion itself is proven red/green by the two
-## meadow tests above, where the same cells are planted without the props.
+## planted cell again. The exclusion itself is proven red/green by the meadow
+## tests above, where the same cells are planted without the props.
 func test_market_civic_quarter_scatter_avoids_solid_props() -> void:
 	var definition: MapDefinition = MapAuditRegistry.by_id()["market_civic_quarter"]
 	var rects := Primitives.prop_cell_rects(definition)
@@ -97,6 +165,26 @@ func test_market_civic_quarter_scatter_avoids_solid_props() -> void:
 			assert_false(
 				rect.has_point(point), "tuft at %s is inside prop rect %s" % [point, rect]
 			)
+
+
+## One world unit is one cell, so a position-only prop claims exactly its cell.
+static func _tub_cell_rects() -> Array[Rect2]:
+	var rects: Array[Rect2] = []
+	for cell in TUB_CELLS:
+		rects.append(Rect2(Vector2(cell), Vector2.ONE))
+	return rects
+
+
+## Points that fall inside any rect. Scatter tufts carry jitter, so the bare
+## baseline uses the same strict test as the dressed assertion.
+static func _points_in_rects(points: Array[Vector2], rects: Array[Rect2]) -> int:
+	var hits := 0
+	for point in points:
+		for rect in rects:
+			if rect.has_point(point):
+				hits += 1
+				break
+	return hits
 
 
 func _ground_cover_instances(definition: MapDefinition) -> int:

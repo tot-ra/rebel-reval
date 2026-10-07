@@ -7,8 +7,12 @@ const FoliageMeshes := preload("res://scripts/map/view3d/map_view_foliage_meshes
 const TreeMeshes := preload("res://scripts/map/view3d/map_view_tree_meshes.gd")
 const MeshMath := preload("res://scripts/map/view3d/map_view_mesh_builder_math.gd")
 
-## Solid props that grass must not grow through. Flat or soft props (fences,
-## fields, plots, animals) are deliberately left out so verges stay planted.
+## Solid props that grass must not grow through: anything with a closed base or
+## a body that sits on the ground. Flat or soft props (fences, fields, plots,
+## animals) and open-legged frames (fish, smoke and herb drying racks, the
+## tanning frame) are deliberately left out so verges stay planted under them.
+## Interior-only kinds (bed, shelf, hearth, chest) need no entry: scatter and
+## ground cover are suppressed wholesale on enclosed interiors.
 const SCATTER_BLOCKING_PROP_KINDS: Array[StringName] = [
 	MapTypes.PROP_KIND_WASH_TUB,
 	MapTypes.PROP_KIND_WELL,
@@ -26,6 +30,21 @@ const SCATTER_BLOCKING_PROP_KINDS: Array[StringName] = [
 	MapTypes.PROP_KIND_FIREWOOD_STACK,
 	MapTypes.PROP_KIND_HAY_STACK,
 	MapTypes.PROP_KIND_TABLE,
+	# Forge yards: stump-mounted anvil and bulk heaps lying on the ground.
+	MapTypes.PROP_KIND_ANVIL,
+	MapTypes.PROP_KIND_CHARCOAL_PILE,
+	MapTypes.PROP_KIND_IRON_SCRAP_PILE,
+	# Harbour: heaps, coils and logs resting directly on the quay.
+	MapTypes.PROP_KIND_SALT_PILE,
+	MapTypes.PROP_KIND_ROPE_COIL,
+	MapTypes.PROP_KIND_BOAT_TIMBER_STACK,
+	# Farms and plots: carts share CartModels with PROP_KIND_CART; the cellar
+	# mound, privy hut and well-sweep drum are closed shells.
+	MapTypes.PROP_KIND_HAY_WAGON,
+	MapTypes.PROP_KIND_FARM_CART,
+	MapTypes.PROP_KIND_ROOT_CELLAR_MOUND,
+	MapTypes.PROP_KIND_PRIVY,
+	MapTypes.PROP_KIND_WELL_SWEEP,
 ]
 
 

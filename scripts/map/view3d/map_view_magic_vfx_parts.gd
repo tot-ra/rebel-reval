@@ -6,6 +6,9 @@ extends RefCounted
 ## vertex-alpha falloff, so P0-040 (no new element art) is untouched.
 
 const IRON_WARD_SHADER := preload("res://scripts/map/view3d/map_view_iron_ward.gdshader")
+const CRACK_COLOR := Color(0.06, 0.045, 0.035, 0.9)
+## Pale broken-stone dust either side of a crack, lit by the map.
+const CRACK_DUST_COLOR := Color(0.78, 0.72, 0.62, 0.6)
 
 static var _cache: Dictionary = {}
 
@@ -61,6 +64,15 @@ static func debris_material() -> StandardMaterial3D:
 
 ## Unshaded vertex-alpha ground mesh material. Each burst owns its copy so
 ## fades never touch another burst.
+## Lit variant for ground marks that must follow map light (crack dust rim):
+## unshaded pale dust would glow at night, unshaded dark cracks vanish there.
+static func lit_ground_material(color: Color) -> StandardMaterial3D:
+	var material := ground_material(color)
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL
+	material.roughness = 1.0
+	return material
+
+
 static func ground_material(color: Color) -> StandardMaterial3D:
 	var material := StandardMaterial3D.new()
 	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
@@ -260,7 +272,13 @@ static func soft_ring_mesh(radius: float, width: float, color: Color) -> ArrayMe
 
 ## Jagged branching cracks radiating from the centre. Deterministic per seed so
 ## two casts at one spot do not flicker between shapes.
-static func crack_mesh(radius: float, seed_value: int) -> ArrayMesh:
+## `width_scale` and `color` draw the same paths wider for the lit dust rim.
+static func crack_mesh(
+	radius: float,
+	seed_value: int,
+	width_scale: float = 1.0,
+	color: Color = CRACK_COLOR
+) -> ArrayMesh:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed_value
 	var verts := PackedVector3Array()
@@ -270,8 +288,19 @@ static func crack_mesh(radius: float, seed_value: int) -> ArrayMesh:
 	for branch: int in range(branch_count):
 		var angle := TAU * (float(branch) + rng.randf_range(-0.3, 0.3)) / float(branch_count)
 		var length := radius * rng.randf_range(0.6, 0.95)
-		_append_crack(verts, colors, indices, Vector3.ZERO, angle, length, 0.07, rng)
-	return _mesh(verts, colors, indices)
+		_append_crack(
+			verts, colors, indices, Vector3.ZERO, angle, length, 0.07 * width_scale, color, rng
+		)
+	var mesh := _mesh(verts, colors, indices)
+	# Flat on the paving; normals let the lit dust rim take map light.
+	var arrays := mesh.surface_get_arrays(0)
+	var normals := PackedVector3Array()
+	normals.resize(verts.size())
+	normals.fill(Vector3.UP)
+	arrays[Mesh.ARRAY_NORMAL] = normals
+	mesh.clear_surfaces()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	return mesh
 
 
 static func _append_crack(
@@ -282,12 +311,12 @@ static func _append_crack(
 	angle: float,
 	length: float,
 	width: float,
+	dark: Color,
 	rng: RandomNumberGenerator
 ) -> void:
 	var steps := 6
 	var point := start
 	var heading := angle
-	var dark := Color(0.06, 0.045, 0.035, 0.9)
 	for step: int in range(steps):
 		var t := float(step) / float(steps)
 		heading += rng.randf_range(-0.45, 0.45)

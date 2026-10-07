@@ -1,11 +1,13 @@
 extends SceneTree
 
-## Forum prop/vegetation evidence on market_civic_quarter.
+## Prop/vegetation evidence: the market_civic_quarter forum and the
+## world.padise forge yard.
 ##
 ## WHY: a grass tuft from the view-only vegetation scatter grew straight through
 ## the `civic_well_wash_tub` basin. Scatter now skips cells claimed by solid
 ## props (`MapViewMeshBuilderPrimitives.prop_cell_rects`), and these eye-level
-## plates show the forum's solid props standing on clear ground.
+## plates show solid props standing on clear ground. The forge-yard plates
+## cover the anvil and charcoal pile added to the blocking list after the forum.
 ##
 ## The camera targets are read from the map definition, so a prop that moves
 ## keeps its plate instead of silently framing empty dirt.
@@ -13,14 +15,13 @@ extends SceneTree
 ## Requires a rendering-capable run (never --headless):
 ##   tools/godot_render.sh --script tools/capture_forum_prop_vegetation.gd
 ##
-## Output: docs/reports/images/forum_prop_vegetation_<prop id>.png
+## Output: docs/reports/images/<plate>_prop_vegetation_<prop id>.png
 
 const MapAuditRegistry := preload("res://scripts/map/map_audit_registry.gd")
 const MapBuilder := preload("res://scripts/map/map_builder.gd")
 const MapView3D := preload("res://scripts/map/view3d/map_view_3d.gd")
 const SkyWeather3D := preload("res://scripts/map/view3d/sky_weather_3d.gd")
 
-const MAP_ID := "market_civic_quarter"
 const OUTPUT_DIR := "res://docs/reports/images"
 const VIEWPORT_SIZE := Vector2i(1280, 720)
 const WARMUP_FRAMES := 24
@@ -30,8 +31,36 @@ const WARMUP_FRAMES := 24
 const SHOTS: Array[Dictionary] = [
 	# The tub is authored without a rect (anchor cell 30,37); the well goods
 	# pallet carries one, so the two plates cover both exclusion branches.
-	{"prop": &"civic_well_wash_tub", "eye_offset": Vector2(-3.5, 3.5), "eye_height": 1.2},
-	{"prop": &"civic_well_goods", "eye_offset": Vector2(-4.5, 4.5), "eye_height": 1.6},
+	{
+		"map": "market_civic_quarter",
+		"plate": "forum",
+		"prop": &"civic_well_wash_tub",
+		"eye_offset": Vector2(-3.5, 3.5),
+		"eye_height": 1.2,
+	},
+	{
+		"map": "market_civic_quarter",
+		"plate": "forum",
+		"prop": &"civic_well_goods",
+		"eye_offset": Vector2(-4.5, 4.5),
+		"eye_height": 1.6,
+	},
+	# Padise smithy yard: anvil and charcoal pile are position-only props on
+	# planted ground, the case the forge-yard kinds were added for.
+	{
+		"map": "world.padise",
+		"plate": "yard",
+		"prop": &"smithy_anvil",
+		"eye_offset": Vector2(-3.0, 3.0),
+		"eye_height": 1.2,
+	},
+	{
+		"map": "world.padise",
+		"plate": "yard",
+		"prop": &"smithy_charcoal",
+		"eye_offset": Vector2(3.0, 3.0),
+		"eye_height": 1.2,
+	},
 ]
 
 
@@ -41,27 +70,42 @@ func _initialize() -> void:
 
 func _run() -> void:
 	if DisplayServer.get_name() == "headless":
-		push_error("Forum captures need a real renderer; run through tools/godot_render.sh")
+		push_error(
+			"Prop vegetation captures need a real renderer; run through tools/godot_render.sh"
+		)
 		quit(2)
 		return
 	var definitions: Dictionary = MapAuditRegistry.by_id()
-	if not definitions.has(MAP_ID):
-		push_error("Map missing from MapAuditRegistry: %s" % MAP_ID)
-		quit(1)
-		return
-	var definition: MapDefinition = definitions[MAP_ID]
 	for shot: Dictionary in SHOTS:
+		var map_id: String = shot["map"]
+		var definition: MapDefinition = definitions.get(map_id)
+		if definition == null:
+			definition = _compile_blueprint(map_id)
+		if definition == null:
+			push_error("Map missing from MapAuditRegistry and MapBlueprintRegistry: %s" % map_id)
+			quit(1)
+			return
 		var found: Variant = _prop_cell(definition, shot["prop"])
 		if found == null:
-			push_error("Prop missing from %s: %s" % [MAP_ID, shot["prop"]])
+			push_error("Prop missing from %s: %s" % [map_id, shot["prop"]])
 			quit(1)
 			return
 		var target: Vector2 = found
 		if await _capture(definition, shot, target) != OK:
 			quit(1)
 			return
-	print("FORUM_PROP_VEGETATION_CAPTURED")
+	print("PROP_VEGETATION_CAPTURED")
 	quit(0)
+
+
+## Travel maps such as world.padise sit outside MapAuditRegistry, so compile
+## them straight from their registered blueprint.
+static func _compile_blueprint(map_id: String) -> MapDefinition:
+	for entry: Dictionary in MapBlueprintRegistry.entries():
+		if String(entry.get("id", &"")) == map_id:
+			var blueprint := MapBlueprintRegistry.create_blueprint(entry)
+			return MapBlueprintCompiler.compile(blueprint) if blueprint != null else null
+	return null
 
 
 ## Cell-space centre of a prop. Prop footprints and positions are authored in
@@ -121,12 +165,12 @@ func _capture(definition: MapDefinition, shot: Dictionary, target: Vector2) -> E
 
 	for _frame in WARMUP_FRAMES:
 		await process_frame
-	var output := "%s/forum_prop_vegetation_%s.png" % [OUTPUT_DIR, shot["prop"]]
+	var output := "%s/%s_prop_vegetation_%s.png" % [OUTPUT_DIR, shot["plate"], shot["prop"]]
 	var error := viewport.get_texture().get_image().save_png(ProjectSettings.globalize_path(output))
 	if error != OK:
 		push_error("Could not save %s: %s" % [output, error_string(error)])
 	else:
-		print("Forum capture: %s (target cell %s)" % [output, target])
+		print("Prop vegetation capture: %s (target cell %s)" % [output, target])
 	viewport.queue_free()
 	await process_frame
 	return error

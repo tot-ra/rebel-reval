@@ -12,6 +12,8 @@ uniform float coverage : hint_range(0.0, 1.0) = 1.0;
 uniform float strength : hint_range(0.0, 1.0) = 1.0;
 uniform float body_height = 2.0;
 uniform vec3 iron_color : source_color = vec3(0.46, 0.465, 0.48);
+// Unlit minimum of the fake sky sheen so the iron survives night lighting.
+uniform float sheen_floor : hint_range(0.0, 0.3) = 0.14;
 
 varying float v_height;
 varying vec3 v_world;
@@ -75,7 +77,12 @@ void fragment() {
 	// up-facing planes (shoulders, forearms) so the metal reads as polished.
 	float rim = pow(1.0 - clamp(dot(NORMAL, VIEW), 0.0, 1.0), 2.5);
 	float up = clamp((INV_VIEW_MATRIX * vec4(NORMAL, 0.0)).y, 0.0, 1.0);
-	vec3 sheen = vec3(0.55, 0.6, 0.68) * (rim * 0.35 + up * up * 0.12 * (1.0 - grain));
+	// WHY the floor and stronger rim: on a night map (moon plus lamps, no probes)
+	// the lit iron went to a dark navy silhouette that read like no ward at all.
+	// A faint cool floor stays ~3% of the daylight colour but keeps the
+	// sheet and its fresnel edge visible after dark (R-1198 in-map plates).
+	vec3 sheen = vec3(0.55, 0.6, 0.68)
+		* (sheen_floor + rim * 0.5 + up * up * 0.12 * (1.0 - grain));
 	EMISSION = temper * band * covered * 1.8 + sheen * cooled;
 	float coverage_alpha = mix(0.55, 0.82, patches) * covered;
 	ALPHA = clamp(max(coverage_alpha, band * covered), 0.0, 1.0) * strength;

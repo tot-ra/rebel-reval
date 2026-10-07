@@ -118,6 +118,20 @@ func play_area_pulse_ring(logic_origin: Vector2, radius_px: float, cell_size: in
 	ring.set_meta(&"grow_from", 0.12)
 	ring.set_meta(&"grow_sec", 0.42)
 	var seed_value := int(logic_origin.x * 7.0) * 92821 + int(logic_origin.y * 7.0)
+	# WHY: unshaded dark cracks vanish on night cobbles (R-1198 in-map plates).
+	# A wider lit dust rim along the same paths gives them a pale edge that
+	# follows moon and lamp light, so the cracks still read after dark.
+	var crack_dust := _ground_mesh(
+		burst,
+		"CrackDust",
+		Parts.crack_mesh(radius * 0.85, seed_value, 2.4, Parts.CRACK_DUST_COLOR),
+		Color.WHITE,
+		true
+	)
+	crack_dust.position.y = 0.022
+	_animate(crack_dust, 1.0, 0.55, 1.0)
+	crack_dust.set_meta(&"grow_from", 0.25)
+	crack_dust.set_meta(&"grow_sec", 0.16)
 	var cracks := _ground_mesh(
 		burst, "GroundCracks", Parts.crack_mesh(radius * 0.85, seed_value), Color.WHITE
 	)
@@ -596,13 +610,15 @@ func _ground_y(world: Vector3) -> float:
 
 
 static func _ground_mesh(
-	burst: Node3D, mesh_name: String, mesh: Mesh, tint: Color = Color.WHITE
+	burst: Node3D, mesh_name: String, mesh: Mesh, tint: Color = Color.WHITE, lit: bool = false
 ) -> MeshInstance3D:
 	var mesh_instance := MeshInstance3D.new()
 	mesh_instance.name = mesh_name
 	mesh_instance.mesh = mesh
 	mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	mesh_instance.material_override = Parts.ground_material(tint)
+	mesh_instance.material_override = (
+		Parts.lit_ground_material(tint) if lit else Parts.ground_material(tint)
+	)
 	burst.add_child(mesh_instance)
 	return mesh_instance
 
