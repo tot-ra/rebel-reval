@@ -36,7 +36,7 @@
 - **Model notes:** MPFB: male, age_years 45, muscle 0.5, weight 0.7, height_m 1.67; fair freckled skin; blue eyes; dark-blond hair, clean-shaven; crowd tier 1.
 
 ## Biography
-Born 1298 in Revel to a tanner of the Lowergerver house; apprenticed to master Dethard in Laboratooriumi with Gunnar Larsson, who later trained under the same master after him. He married Gerburg van Soest in 1327 and took her father's yard on Vaimu. He has six living children and a seventh in the cradle. His best journeyman, an Estonian, will never be a master under the guild's rules; Tyde thinks this foolish and keeps it to himself.
+Born 1298 in Revel to a tanner of the Lowergerver house; apprenticed to master Dethard in Laboratooriumi with Gunnar Larsson, who later trained under the same master after him. He married Gerburg van Soest in 1327 and took her father's yard on Vaimu. He has six living children, the youngest still in the cradle. His best journeyman, an Estonian, will never be a master under the guild's rules; Tyde thinks this foolish and keeps it to himself.
 
 ## Motivation
 - **Want:** To see Ludolf apprenticed to a good master and Ermelin well married.

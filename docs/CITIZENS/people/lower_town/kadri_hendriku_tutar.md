@@ -1,6 +1,6 @@
 # Kadri Hendriku tütar
 
-> A gatekeeper's wife who bites her nails to the quick, spins at the door where she can watch the lane, and has buried none of seven.
+> A gatekeeper's wife who bites her nails to the quick, spins at the door where she can watch the lane, and has buried none of five.
 
 | Field | Value |
 |---|---|
@@ -22,7 +22,7 @@
 ## At a glance
 - A ruddy, middling woman with a thumb-callus the size of a bean and a crescent scar over her eyebrow.
 - Chews her nails while spinning and apologises for it.
-- Has raised six living children in a one-hearth house and calls it luck.
+- Has five living children in a one-hearth house and calls it luck.
 - Understands only Estonian, and trusts her daughters to deal with Germans.
 
 ## Appearance
@@ -36,7 +36,7 @@
 - **Model notes:** MPFB female, age_years 40, muscle average, weight average, proportions average, height_m 1.57; skin ruddy; eyes blue; dark blond hair grey temples under scarf; crowd tier 2.
 
 ## Biography
-Born in 1303 in a farm at Kose to a family bound to a manor, Kadri was freed by a priest's letter as a girl and taught to spin in Reval. She married Gerdt Pauli poeg ([card](gerdt_pauli_poeg.md)) in 1323. The scar came when a boy threw a stone at the Viru Gate when she was carrying Ann. She has spun for the Nunne weavers for twenty years and has seven children, of whom six live and the last, Hele, is at her breast.
+Born in 1303 in a farm at Kose to a family bound to a manor, Kadri was freed by a priest's letter as a girl and taught to spin in Reval. She married Gerdt Pauli poeg ([card](gerdt_pauli_poeg.md)) in 1323. The scar came when a boy threw a stone at the Viru Gate when she was carrying Ann. She has spun for the Nunne weavers for twenty years and has five children, all living; the last, Hele, is at her breast.
 
 ## Motivation
 - **Want:** To see Ann married and the cellar loan paid.
@@ -66,7 +66,7 @@ She earns about a mark a month from spinning, paid in pfennigs. Wool comes from 
 - **Others:** The armourer [Hendrik Peetri poeg](../../ledger/lower_town/suur_kloostri.md#hh-lt-osm-w26885986) next door lends the children hammers to play with.
 
 ## Faction and belief
-No faction. A mother of six has no time for it. She would do a small favour for a neighbour, refuse a large one and say nothing if asked to inform, for she speaks no German. She prays at St Olaf and leaves a spindle-whorl on the sill at Candlemas.
+No faction. A mother of five has no time for it. She would do a small favour for a neighbour, refuse a large one and say nothing if asked to inform, for she speaks no German. She prays at St Olaf and leaves a spindle-whorl on the sill at Candlemas.
 
 ## Voice
 - **Registers:** Estonian only; sings under her breath.

@@ -23,7 +23,7 @@
 - Unusually long, supple fingers; mercers pay extra for her thread.
 - Monotone voice, pitched below the wheel, so that she is never overheard.
 - Nose broken once, healed crooked to the right.
-- Has eight pregnancies behind her and the face of someone who has counted each.
+- Has seven pregnancies behind her and the face of someone who has counted each.
 
 ## Appearance
 - **Body:** 157 cm, pear-shaped, narrow shoulders and wide hips; a slight forward lean from the wheel.
@@ -36,7 +36,7 @@
 - **Model notes:** MPFB: female, age_years 43, muscle 0.25, weight 0.55, pear-shaped, height_m 1.57; pale sallow skin; green eyes; light-brown hair covered; crowd tier 1.
 
 ## Biography
-Born 1300, daughter of Hinrik van Soest, a Vaimu burgher who owned the yard and left it to her in 1334. She married Tyde Lowergerver in 1327; the dowry was a half-share of the yard. She bore eight children and buried one in 1336. In his last winter her father confessed that he had moved the boundary stake into the neighbour's yard; she has told no one.
+Born 1300, daughter of Hinrik van Soest, a Vaimu burgher who owned the yard and left it to her in 1334. She married Tyde Lowergerver in 1327; the dowry was a half-share of the yard. She bore seven children and buried one in 1336. In his last winter her father confessed that he had moved the boundary stake into the neighbour's yard; she has told no one.
 
 ## Motivation
 - **Want:** To keep the yard whole for Ludolf.

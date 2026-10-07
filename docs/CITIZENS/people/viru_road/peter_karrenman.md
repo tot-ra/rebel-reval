@@ -71,7 +71,7 @@ He gets a fee per sentence, a tariff for dead beasts, and rent. A mark for a han
 No faction. His office makes him a servant of whoever holds the Rat, and he wants no other loyalty. A small favour he does quietly; a large one he cannot, as he would be hanged; informing is not asked of him. He keeps a rosary he never uses in public.
 
 ## Voice
-- **Registers:** Middle Low German with a clear Estonian lilt, Estonian with his children.
+- **Registers:** Middle Low German with a clear Estonian lilt, the street Estonian he picked up from his nurse.
 - **Delivery:** Sing-song and gentle, never loud.
 - **Sample lines:** "I do as I am bid." / "The dogs are fed; the rest can wait." / *Jumal halasta.* (God have mercy.)
 - **Verbal tic:** Looks at the ground when someone meets his eye.

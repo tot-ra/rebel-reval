@@ -70,7 +70,7 @@ None. She says her prayers in Russian and a rhyme in Estonian for luck.
 ## Voice
 - **Registers:** Russian at home; a sing-song German at the stalls.
 - **Delivery:** A rising and falling Estonian cadence under the German.
-- **Sample lines:** "The hen is mine, I saw it." "Babushka, tell the song." "Ma ei tea."
+- **Sample lines:** "The hen is mine, I saw it." "Babushka, tell the song." "Ma ei oska öelda."
 - **Verbal tic:** Ends every sentence on a rising note.
 
 ## Knowledge and rumours

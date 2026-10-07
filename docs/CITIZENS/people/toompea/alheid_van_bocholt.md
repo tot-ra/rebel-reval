@@ -31,7 +31,7 @@
 - **Hair and facial hair:** Mostly grey over sandy, parted and bound under a plain linen veil; no facial hair.
 - **Skin and marks:** Sallow with winter pallor; the high narrow forehead is her signature feature; fine lines at the mouth.
 - **Hands:** Right-handed, thin, knuckles knobbed, a thread-cut across the left forefinger.
-- **Clothing and kit (April 1343):** Linen shift, an old brown gown with a patched elbow, apron, veil and grey shawl, felt shoes; a rosary of wooden beads on the belt.
+- **Clothing and kit (April 1343):** Linen shift, an old brown gown with a patched elbow, apron, veil and grey shawl, felt shoes; a string of wooden paternoster beads on the belt.
 - **Portrait prompt:** Shoulders-up portrait of a gaunt 60-year-old German woman, 1340s, sallow pale skin, blue eyes, high narrow forehead, mostly grey over sandy hair under a linen veil, patient tired expression, brown wool gown and grey shawl, neutral grey background, soft natural light, realistic medieval style.
 - **Model notes:** MPFB macros: female, age_years 60, muscle 0.2, weight 0.2, proportions slender elderly, height_m 1.51; sallow pale skin; blue eyes; grey sandy hair under veil; crowd tier 2.
 
@@ -70,7 +70,7 @@ She earns about 6 marks a year from thread; flax from a Harju woman. She owes th
 - **Others:** [Absalon Vendelbo](../../ledger/toompea/toom_ruutli.md#hh-tp-osm-w200921826), vassal knight; [Knud Krag](../../ledger/toompea/kohtu.md#hh-tp-osm-w200921865), saddler, to whom she owes.
 
 ## Faction and belief
-She has none; her husband's debts and her daughters' fates are politics enough. She says the Rosary and, quietly, a charm to keep the girls from fever.
+She has none; her husband's debts and her daughters' fates are politics enough. She says her paternosters and, quietly, a charm to keep the girls from fever.
 
 ## Voice
 - **Registers:** Low German only.
@@ -86,4 +86,4 @@ She knows how every household on the street is in debt. She would trade it for h
 - **Interaction:** Polite and tired with Kalev; asks for a mended needle-case.
 - **Barks:** Calm: "Fine thread." Tense: "Girls, indoors." Curfew: "Prayers."
 - **Quest touch:** Could ask Kalev to mend a spindle.
-- **St George's Night:** She gathers the girls and says the Rosary.
+- **St George's Night:** She gathers the girls and says her paternosters.
