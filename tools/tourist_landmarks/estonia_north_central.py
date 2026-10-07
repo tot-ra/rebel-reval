@@ -101,8 +101,8 @@ ESTONIA_NORTH_CENTRAL: LandmarkCatalog = {
         (
             "Rakvere Castle",
             "Large hilltop castle ruins and theme park.",
-            "Order-affiliated stronghold over Viru roads.",
-            "Garrison sorties threaten rebel flanks in Harju.",
+            "Danish crown castle (Wesenberg) over the Viru roads; the Order holds it only after the 1346 sale.",
+            "Danish garrison sorties threaten rebel flanks in Harju.",
         ),
         (
             "Kunda limestone cliffs",
@@ -113,13 +113,13 @@ ESTONIA_NORTH_CENTRAL: LandmarkCatalog = {
         (
             "Toolse castle ruins",
             "Coastal cliff fortress.",
-            "Teutonic coastal fort watching the Gulf.",
-            "Signals mirror those on Harju hills during alerts.",
+            "Not built: the stone castle dates to about 1471. At most a coastal landing and watch-fire site.",
+            "Coastal fires mirror those on Harju hills during alerts.",
         ),
         (
             "Narva River crossing",
             "Border city with Hermann Castle.",
-            "Strategic ford and castle on the eastern trade route.",
+            "Danish crown castle and ford on the eastern trade route; Danish Estonia until 1346.",
             "Distant but vital for Novgorod trade rumors in Reval.",
         ),
         (
@@ -155,7 +155,7 @@ ESTONIA_NORTH_CENTRAL: LandmarkCatalog = {
         (
             "Käsmu captain's village",
             "Maritime museum village.",
-            "Boatmen know Gulf currents and hidden coves.",
+            "Small fishing hamlet; the later captains' village is a 19th-century phenomenon. Boatmen still know Gulf currents and hidden coves.",
             "Fishermen bring mainland gossip to Reval harbor.",
         ),
         (
@@ -247,8 +247,8 @@ ESTONIA_NORTH_CENTRAL: LandmarkCatalog = {
         (
             "Türi windmill ridge",
             "Open farmland.",
-            "Windmills on a ridge visible for miles.",
-            "Used as rally points when signal fires are lit.",
+            "Open ridge visible for miles; the surviving windmills are post-medieval, none attested here in 1343.",
+            "The ridge serves as a rally point when signal fires are lit.",
         ),
         (
             "Järva county sacred grove",

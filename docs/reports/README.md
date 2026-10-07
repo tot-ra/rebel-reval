@@ -253,6 +253,7 @@ Start with:
 - [Seamless startup baseline (WB-05 / R-977)](seamless_startup_baseline_2026-09-26.md)
 - [Shipped resource manifest audit (P0-202)](shipped_resource_manifest_2026-09-09.md)
 - [R-675 / P4-024a South Quarter 1343 fabric contract](south_quarter_1343_fabric_contract.md)
+- [Spirit dialogue prototype review (SD-16)](spirit_dialogue_prototype_review.md)
 - [St Olaf's church (Oleviste) 1343 remodel](st_olaf_1343_remodel.md)
 - [Startup baseline (P0-017)](startup_baseline.md)
 - [Grounded character and fauna studies — 2026-09-10](storybook_models_2026-09-10.md)
