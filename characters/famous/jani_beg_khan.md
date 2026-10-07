@@ -4,7 +4,7 @@
 
 # Jani Beg (Future Khan)
 
-![alt text](../../character/skills/image.png)
+![alt text](img/jani_beg_khan.jpg)
 
 **Visual Description:**
 Disguised as a wealthy Tartar merchant, Jani Beg appears as a man in his late 30s. He has a strong, solid build, with the powerful shoulders of a warrior beneath his merchant's garb. His hair is black, long, and tied back neatly in a leather cord. He has a well-kept, thick black beard that frames a stern mouth. His skin is weathered from travel, and his dark, almond-shaped eyes are sharp and calculating, missing nothing. He wears a heavy kaftan of deep blue wool, its collar and cuffs lined with rich, dark marten fur. Beneath it, a tunic of fine, patterned red silk is visible at his neck. His trousers are of a simple dark wool, tucked into high boots of soft, dark brown leather.

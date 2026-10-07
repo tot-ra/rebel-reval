@@ -4,7 +4,7 @@
 
 # Ellen Luik
 
-![](./img/ellen_luik.png)
+![](img/ellen_luik.jpg)
 
 
 **Visual Description:**

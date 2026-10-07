@@ -36,4 +36,4 @@ By day, he is a simple fur trapper, checking his lines and trading his wares in 
 - **The Battle of Kanavere Bog:** The player is sent to act as a scout for the Pskovian army, gathering intelligence on the Livonian Order's movements. The player will witness the brutal aftermath of the Battle of Kanavere Bog and must report back to Pskov, influencing their decision on whether to intervene directly in the conflict.
 - **The Siege of Reval:** While the main rebel army is besieging Reval, Михаил wants to take advantage of the chaos. He sends the player into the besieged city to make contact with a network of sympathetic Estonian merchants and artisans, with the goal of establishing a pro-Pskov faction within the city walls.
 
-![](pskov/npc4.png)
+![](img/mihail_kolovrat.jpg)

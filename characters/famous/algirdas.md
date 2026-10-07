@@ -4,7 +4,7 @@
 
 # Algirdas
 
-![alt text](../../character/skills/image-3.png)
+![alt text](img/algirdas.jpg)
 
 **Visual Description:**
 Algirdas is a formidable figure in his late 40s, a hardened pagan warrior-king. He is tall and powerfully built, with long, dark hair and a thick beard, possibly braided in the Lithuanian fashion. His eyes are sharp and cunning, the eyes of a skilled hunter and a brilliant military strategist. He wears practical but high-quality armor, likely lamellar or chainmail, covered by a heavy cloak of wolf or bear fur. He carries an air of raw, untamed power, very different from the feudal lords of Christendom.

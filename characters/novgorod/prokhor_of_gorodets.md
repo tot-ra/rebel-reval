@@ -4,7 +4,7 @@
 
 # Prokhor of Gorodets
 
-![Prokhor of Gorodets concept art](img/prokhor.png)
+![Prokhor of Gorodets concept art](img/prokhor.jpg)
 
 **Visual Description:**
 Prokhor is a young master in his early 20s, carrying the quiet confidence of a prodigy. He has a focused gaze, a neatly trimmed beard, and the strong, steady hands of a painter. He is dressed in the practical, yet well-made, traveling clothes of a successful artisan from the Volga region, his garments showing subtle hints of Eastern ornamental style. He observes the foreign city of Reval with a keen, analytical eye, absorbing the unfamiliar architecture and art.

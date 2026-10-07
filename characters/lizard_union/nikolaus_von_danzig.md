@@ -3,7 +3,7 @@
 > **Current source of truth:** [`README.md`](../../README.md) - Main cast; approved character briefs in [`docs/CHARACTERS/`](../../docs/CHARACTERS/).
 
 # Nikolaus von Danzig
-![alt text](../../character/skills/image.png)
+![alt text](img/nikolaus_von_danzig.jpg)
 
 
 **Title:** Spymaster of the Lizard Union

@@ -4,7 +4,7 @@
 
 # Яна Подаяльная
 
-![Яна Подаяльная concept art](img/jana.png)
+![Яна Подаяльная concept art](img/jana.jpg)
 
 **Visual Description:**
 Яна is a woman in her early 40s, with a commanding presence that belies her graceful figure. She has long, fiery red hair, meticulously styled in an intricate braid, and piercing dark eyes that seem to assess everyone and everything with unnerving accuracy. Her complexion is pale and smooth, a testament to a life lived away from the sun and toil. She dresses in the finest Novgorodian fashion, favoring deep blues and rich reds, her clothes made of silk and velvet, adorned with silver embroidery and pearls.
