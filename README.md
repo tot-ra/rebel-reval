@@ -73,13 +73,11 @@ Target length is 15–20 hours across the three acts, with replay value in branc
 
 ## Characters
 
-<p align="center">
-  <img src="./character/inspiration/user__idle.gif" width="112" alt="Prototype pixel art of Kalev">
-  <img src="./characters/rebels/img/kaja_lahekivi.png" width="112" alt="Prototype pixel art of Kaja">
-  <img src="./characters/metsik_cult/img/ellen_luik.png" width="112" alt="Prototype pixel art of Ellen">
-</p>
+![Core character concept art: Kalev, Mart, Aita, Kaja, Henning, Jürgen, Ellen](./docs/concept/characters/contact_sheet.jpg)
 
-The vertical-slice MVP centers on seven core characters: [Kalev](./docs/CHARACTERS/kalev.md), [Mart](./docs/CHARACTERS/mart.md), [Aita](./docs/CHARACTERS/aita.md), [Kaja](./docs/CHARACTERS/kaja.md), [Captain Henning](./docs/CHARACTERS/henning.md), [Jürgen Witte](./docs/CHARACTERS/jurgen.md), and [Ellen Luik](./docs/CHARACTERS/ellen.md). The wider [legacy roster](./characters/README.md) returns to the production plan under [ADR 0017](./docs/adr/0017-legacy-design-reintroduction.md): named faction figures are promoted into [`docs/CHARACTERS/`](./docs/CHARACTERS/README.md) briefs and built as new shared-rig models. Prototype pixel art above is inspiration only.
+Concept art for the seven core characters (reference only): [`docs/concept/characters/`](./docs/concept/characters/README.md).
+
+The vertical-slice MVP centers on seven core characters: [Kalev](./docs/CHARACTERS/kalev.md), [Mart](./docs/CHARACTERS/mart.md), [Aita](./docs/CHARACTERS/aita.md), [Kaja](./docs/CHARACTERS/kaja.md), [Captain Henning](./docs/CHARACTERS/henning.md), [Jürgen Witte](./docs/CHARACTERS/jurgen.md), and [Ellen Luik](./docs/CHARACTERS/ellen.md). The wider [legacy roster](./characters/README.md) returns to the production plan under [ADR 0017](./docs/adr/0017-legacy-design-reintroduction.md): named faction figures are promoted into [`docs/CHARACTERS/`](./docs/CHARACTERS/README.md) briefs and built as new shared-rig models. Legacy prototype pixel art is inspiration only.
 
 Kalev is a fixed protagonist with no amnesia; NATURAL aspect allocation and psyche play deepen him without a separate custom hero. There is no party control - allies act in authored missions, not under player command.
 

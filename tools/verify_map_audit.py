@@ -34,7 +34,7 @@ SCENE_DEFINITION = re.compile(
 VALID_DISPOSITIONS = frozenset({"convert", "retain", "archive-prototype"})
 # tools/ is extra vs conversion-plan SKIP_TREE_PARTS: audit discovery must not
 # treat helper scenes under tools/ as declarative map inventory.
-SKIP_TREE_PARTS = frozenset({".git", ".godot", "tools", ".a2gent-worktrees", ".worktrees"})
+SKIP_TREE_PARTS = frozenset({".git", ".godot", "tools", "build", ".a2gent-worktrees", ".worktrees"})
 
 
 @dataclass(frozen=True)

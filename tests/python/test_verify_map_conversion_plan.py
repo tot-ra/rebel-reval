@@ -148,6 +148,16 @@ class VerifyMapConversionPlanTest(unittest.TestCase):
             mirrored.write_text("[gd_scene format=3]\n", encoding="utf-8")
             self.assertEqual(repository_scenes(primary), {"scenes/live.tscn"})
 
+    def test_build_scratch_scenes_are_skipped(self) -> None:
+        # WHY: build/ is gitignored scratch output, never scene inventory.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for rel in ("scenes/live.tscn", "build/r1194/baseline/game.tscn"):
+                scene = root / rel
+                scene.parent.mkdir(parents=True)
+                scene.write_text("[gd_scene format=3]\n", encoding="utf-8")
+            self.assertEqual(repository_scenes(root), {"scenes/live.tscn"})
+
     def test_duplicate_inventory_row_is_reported(self) -> None:
         original = SCENE_INVENTORY.read_text(encoding="utf-8")
         row = next(

@@ -74,6 +74,7 @@ One page per feature, with status, behavior, code entry points, content, saved s
 
 #### `concept/`
 
+- [Core character concept art](concept/characters/README.md)
 - [Faction concept art](concept/factions/README.md)
 
 <!-- docs-index:end -->

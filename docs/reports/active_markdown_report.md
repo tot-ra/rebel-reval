@@ -14,10 +14,10 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `215`
+- Active Markdown files scanned: `216`
 - Markdown files excluded as archive/reference/out of active scope: `741`
-- Local/external links inspected: `1349`
-- Links to active Markdown docs: `852`
+- Local/external links inspected: `1359`
+- Links to active Markdown docs: `856`
 - Links to existing archive/reference/non-active local docs: `238`
 - External links skipped for reachability: `46`
 - Issues found: `0`
@@ -98,6 +98,7 @@ No active Markdown documentation issues found.
 - `docs/CHARACTERS/old_toomas.md`
 - `docs/CHARACTERS/order_squire.md`
 - `docs/CHARACTERS/README.md`
+- `docs/concept/characters/README.md`
 - `docs/concept/factions/README.md`
 - `docs/CONTROLS.md`
 - `docs/FLORA_FAUNA.md`

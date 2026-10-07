@@ -92,6 +92,19 @@ class VerifyMapAuditTest(unittest.TestCase):
                 {"scenes/live.tscn": "scripts/map/definitions/live_definition.gd"},
             )
 
+    def test_build_scratch_scenes_are_skipped(self) -> None:
+        # WHY: build/ holds gitignored shadow project dirs from capture and
+        # benchmark workflows; their scenes are not map inventory.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._write_declarative_scene(
+                root,
+                scene_rel="build/r1194/baseline/game.tscn",
+                script_rel="build/r1194/baseline/game.gd",
+                definition_rel="scripts/map/definitions/scratch_definition.gd",
+            )
+            self.assertEqual(_declarative_scene_links(root), {})
+
     def test_multiline_definition_preload_is_counted(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

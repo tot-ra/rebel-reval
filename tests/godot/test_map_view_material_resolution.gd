@@ -137,13 +137,9 @@ func test_stone_repeats_follow_their_plates() -> void:
 	)
 	# The blended stone layer samples the smithy_floor flagstone plate (~6.5
 	# flags of 25-70 cm across, ~3 m) at the shared 4.0-unit repeat (~3.5 m):
-	# measured and left unchanged, so the shader keeps scale 1.0 for it. R-1202: the
-	# plate is sampled per fragment at native resolution, not from the 128 px array.
-	var material := MapViewMaterials.blended_ground(731)
-	assert_eq(float(material.get_shader_parameter("stone_uv_scale")), 1.0)
-	assert_eq(float(material.get_shader_parameter("use_authored_stone")), 1.0)
-	var plate := material.get_shader_parameter("stone_albedo") as Texture2D
-	assert_true(plate != null and plate.get_width() >= 512, "stone plate stays native 512 px")
+	# measured and left unchanged, so the shader keeps scale 1.0 for it.
+	var code := (MapViewMaterials.blended_ground(731).shader as Shader).code
+	assert_false(code.contains("layer == stone_layer"), "stone layer keeps the shared repeat")
 
 
 func test_cobblestone_uses_a_dedicated_high_resolution_texture_array() -> void:

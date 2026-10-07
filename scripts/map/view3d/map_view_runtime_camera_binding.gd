@@ -18,7 +18,11 @@ func logic_position_at_screen(screen_position: Vector2) -> Vector2:
 	var direction := _host._camera.project_ray_normal(screen_position)
 	if is_zero_approx(direction.y):
 		return MapViewBridge.world_to_logic(origin, _host._definition.cell_size)
-	var distance := -origin.y / direction.y
+	# A diving camera sits below the y=0 plane, which made the distance negative and
+	# mirrored the screen-relative movement basis (swimming "backwards"). Intersect a
+	# plane just below the lens instead so the basis keeps the camera's true heading.
+	var plane_y := 0.0 if origin.y > 0.5 else origin.y - 1.0
+	var distance := (plane_y - origin.y) / direction.y
 	return MapViewBridge.world_to_logic(
 		origin + direction * distance, _host._definition.cell_size
 	)
