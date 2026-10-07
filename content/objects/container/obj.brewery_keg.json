@@ -1,0 +1,72 @@
+{
+  "type": "world_object",
+  "id": "obj.brewery_keg",
+  "name": "Small keg",
+  "description": "A small ale keg a brewer's boy can shoulder; the unit of tavern deliveries.",
+  "category": "container",
+  "handling": "carry_two_hands",
+  "tags": [
+    "storage",
+    "ale",
+    "brewery"
+  ],
+  "physical": {
+    "mass_kg": 12,
+    "size_m": [
+      0.4,
+      0.5,
+      0.4
+    ],
+    "materials": [
+      "wood",
+      "iron"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "push",
+    "open"
+  ],
+  "economy": {
+    "base_pfennigs": 55,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "brewery",
+      "tavern",
+      "warehouse"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "procedural",
+    "prop_kind": "brewery_keg_stack",
+    "builder": "res://scripts/map/view3d/map_view_mesh_builder_district_life_props.gd"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.brewery_keg.png",
+    "icon": "res://assets/objects/icons/obj.brewery_keg.png",
+    "icon_status": "missing",
+    "look": "Squat oak keg with two iron hoops and a wooden spigot, pitch-sealed seams.",
+    "image_prompt": "Small keg: Squat oak keg with two iron hoops and a wooden spigot, pitch-sealed seams."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "carry ale to a tavern"
+  ],
+  "container": {
+    "capacity_l": 25,
+    "lockable": false,
+    "accepts_tags": [
+      "liquid"
+    ]
+  }
+}

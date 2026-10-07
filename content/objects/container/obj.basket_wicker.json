@@ -1,0 +1,74 @@
+{
+  "type": "world_object",
+  "id": "obj.basket_wicker",
+  "name": "Wicker basket",
+  "description": "A willow basket for bread, fish, eggs or laundry, carried on the arm to market.",
+  "category": "container",
+  "handling": "carry_one_hand",
+  "tags": [
+    "storage",
+    "market",
+    "carried"
+  ],
+  "physical": {
+    "mass_kg": 1.2,
+    "size_m": [
+      0.45,
+      0.3,
+      0.35
+    ],
+    "materials": [
+      "wood",
+      "straw"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "open"
+  ],
+  "economy": {
+    "base_pfennigs": 8,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "market",
+      "home_poor",
+      "home_burgher",
+      "street",
+      "farm"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "missing"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.basket_wicker.png",
+    "icon": "res://assets/objects/icons/obj.basket_wicker.png",
+    "icon_status": "missing",
+    "look": "Woven willow basket with a bent handle and slightly irregular weave, pale and dry.",
+    "image_prompt": "A woven willow basket with a single arched handle, pale straw colour, slightly irregular weave"
+  },
+  "lifecycle": "planned",
+  "confidence": "plausible composite",
+  "carry": {
+    "grid_width": 2,
+    "grid_height": 2,
+    "stackable": false
+  },
+  "container": {
+    "capacity_l": 25,
+    "lockable": false,
+    "accepts_tags": [
+      "food",
+      "linen"
+    ]
+  }
+}

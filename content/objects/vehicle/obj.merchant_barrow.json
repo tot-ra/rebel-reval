@@ -1,0 +1,67 @@
+{
+  "type": "world_object",
+  "id": "obj.merchant_barrow",
+  "name": "Merchant barrow",
+  "description": "A one-wheeled barrow with long handles, used on narrow market lanes.",
+  "category": "vehicle",
+  "handling": "heavy",
+  "tags": [
+    "vehicle",
+    "transport",
+    "market"
+  ],
+  "physical": {
+    "mass_kg": 30,
+    "size_m": [
+      0.82,
+      1.04,
+      2.7
+    ],
+    "materials": [
+      "wood",
+      "iron"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "push",
+    "pull",
+    "load_on_cart"
+  ],
+  "economy": {
+    "base_pfennigs": 60,
+    "ownership": "merchant",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "market",
+      "street",
+      "harbor"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/trade/merchant_barrow/merchant_barrow.glb",
+    "prop_kind": "cart",
+    "variant": "barrow",
+    "measured_size_m": [
+      0.82,
+      1.04,
+      2.7
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.merchant_barrow.png",
+    "icon": "res://assets/objects/icons/obj.merchant_barrow.png",
+    "icon_status": "missing",
+    "look": "Plank barrow with a single iron-shod wheel and two worn handles.",
+    "image_prompt": "Merchant barrow: Plank barrow with a single iron-shod wheel and two worn handles."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite"
+}

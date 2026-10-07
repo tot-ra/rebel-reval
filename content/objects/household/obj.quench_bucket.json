@@ -1,0 +1,73 @@
+{
+  "type": "world_object",
+  "id": "obj.quench_bucket",
+  "name": "Quench bucket",
+  "description": "A stout bucket of water kept by the anvil for quenching and sparks.",
+  "category": "household",
+  "handling": "carry_one_hand",
+  "tags": [
+    "water",
+    "smithing"
+  ],
+  "physical": {
+    "mass_kg": 3.0,
+    "size_m": [
+      0.35,
+      0.3,
+      0.35
+    ],
+    "materials": [
+      "wood",
+      "iron",
+      "water_liquid"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "open"
+  ],
+  "economy": {
+    "base_pfennigs": 10,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "forge"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "procedural",
+    "prop_kind": "quench_bucket",
+    "builder": "res://scripts/map/view3d/map_view_mesh_builder_prop_models.gd"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.quench_bucket.png",
+    "icon": "res://assets/objects/icons/obj.quench_bucket.png",
+    "icon_status": "missing",
+    "look": "Short oak bucket with an iron bail, a scum of scale on the water.",
+    "image_prompt": "Quench bucket: Short oak bucket with an iron bail, a scum of scale on the water."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "quench small work"
+  ],
+  "carry": {
+    "grid_width": 2,
+    "grid_height": 2,
+    "stackable": false
+  },
+  "container": {
+    "capacity_l": 12,
+    "lockable": false,
+    "accepts_tags": [
+      "liquid"
+    ]
+  }
+}

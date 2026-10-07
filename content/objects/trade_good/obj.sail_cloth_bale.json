@@ -1,0 +1,61 @@
+{
+  "type": "world_object",
+  "id": "obj.sail_cloth_bale",
+  "name": "Sail cloth bale",
+  "description": "A tied bale of sail canvas.",
+  "category": "trade_good",
+  "handling": "carry_two_hands",
+  "tags": [
+    "cloth",
+    "harbor",
+    "cargo"
+  ],
+  "physical": {
+    "mass_kg": 22,
+    "size_m": [
+      0.9,
+      0.5,
+      0.5
+    ],
+    "materials": [
+      "linen_cloth",
+      "hemp_rope"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "push",
+    "load_on_cart"
+  ],
+  "economy": {
+    "base_pfennigs": 190,
+    "ownership": "merchant",
+    "legality": "legal",
+    "theft_severity": 2
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "harbor",
+      "warehouse"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "procedural",
+    "prop_kind": "sail_cloth_bale",
+    "builder": "res://scripts/map/view3d/map_view_mesh_builder_district_life_props.gd"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.sail_cloth_bale.png",
+    "icon": "res://assets/objects/icons/obj.sail_cloth_bale.png",
+    "icon_status": "missing",
+    "look": "Rolled grey canvas bale bound with hemp rope and a stamped lead tag.",
+    "image_prompt": "Sail cloth bale: Rolled grey canvas bale bound with hemp rope and a stamped lead tag."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite"
+}

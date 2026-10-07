@@ -1,0 +1,67 @@
+{
+  "type": "world_object",
+  "id": "obj.cheese_wheel",
+  "name": "Cheese wheel",
+  "description": "A small hard cheese wheel from a farmstead.",
+  "category": "food",
+  "handling": "carry_one_hand",
+  "tags": [
+    "dairy",
+    "preserved"
+  ],
+  "physical": {
+    "mass_kg": 1.2,
+    "size_m": [
+      0.22,
+      0.09,
+      0.22
+    ],
+    "materials": [
+      "food_organic"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "consume"
+  ],
+  "economy": {
+    "base_pfennigs": 18,
+    "ownership": "merchant",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "market",
+      "home_burgher",
+      "farm",
+      "tavern"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "missing"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.cheese_wheel.png",
+    "icon": "res://assets/objects/icons/obj.cheese_wheel.png",
+    "icon_status": "missing",
+    "look": "Pale yellow wheel of hard cheese with a natural rind.",
+    "image_prompt": "A small round pale-yellow hard cheese with a natural rind"
+  },
+  "lifecycle": "planned",
+  "confidence": "plausible composite",
+  "carry": {
+    "grid_width": 1,
+    "grid_height": 2,
+    "stackable": false
+  },
+  "edible": {
+    "kind": "food",
+    "nutrition": 55,
+    "spoils_after_days": 40
+  }
+}

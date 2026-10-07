@@ -12,7 +12,7 @@ One page per feature, with status, behavior, code entry points, content, saved s
 | Consequences | [Factions, relationships, pressure, prices](./SYSTEMS/FACTIONS_AND_ECONOMY.md) · [Living City Hope/Fear](./SYSTEMS/LIVING_CITY.md) · [World life](./SYSTEMS/WORLD_LIFE.md) |
 | Action | [Combat runtime](./SYSTEMS/COMBAT.md) · [Combat animation](./SYSTEMS/COMBAT_ANIMATION.md) · [Hammer combat and night missions](./SYSTEMS/COMBAT_NIGHT.md) · [Magic](./SYSTEMS/MAGIC.md) |
 | Kalev's inner world | [NATURAL aspects](./SYSTEMS/NATURAL.md) · [Hingepuu psyche](./SYSTEMS/PSYCHE.md) |
-| Player interface | [HUD, menus, journal, maps](./SYSTEMS/HUD_AND_MENUS.md) · [Inventory](./INVENTORY_MECHANICS.md) · [Controls](./CONTROLS.md) · [Settings and accessibility](./SYSTEMS/SETTINGS_AND_ACCESSIBILITY.md) |
+| Player interface | [HUD, menus, journal, maps](./SYSTEMS/HUD_AND_MENUS.md) · [Inventory](./INVENTORY_MECHANICS.md) · [Physical object catalog](./SYSTEMS/OBJECT_CATALOG.md) · [Controls](./CONTROLS.md) · [Settings and accessibility](./SYSTEMS/SETTINGS_AND_ACCESSIBILITY.md) |
 
 ## World building
 

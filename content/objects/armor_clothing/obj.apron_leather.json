@@ -1,0 +1,76 @@
+{
+  "type": "world_object",
+  "id": "obj.apron_leather",
+  "name": "Leather apron",
+  "description": "A scorch-marked smith's apron that turns sparks and splashes.",
+  "category": "armor_clothing",
+  "handling": "pocketable",
+  "tags": [
+    "clothing",
+    "forge",
+    "work"
+  ],
+  "physical": {
+    "mass_kg": 0.9,
+    "size_m": [
+      0.28,
+      0.5,
+      0.02
+    ],
+    "materials": [
+      "leather",
+      "linen_cloth"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "equip"
+  ],
+  "economy": {
+    "base_pfennigs": 30,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "hanging",
+    "spaces": [
+      "forge",
+      "market"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/domestic/household/smithy_household_clutter_kit.glb",
+    "node": "HouseholdApron",
+    "prop_kind": "household_clutter",
+    "variant": "household.apron",
+    "measured_size_m": [
+      0.28,
+      0.5,
+      0.02
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.apron_leather.png",
+    "icon": "res://assets/objects/icons/obj.apron_leather.png",
+    "icon_status": "missing",
+    "look": "Heavy brown leather apron with linen neck and waist straps, burn spots near the hem.",
+    "image_prompt": "Leather apron: Heavy brown leather apron with linen neck and waist straps, burn spots near the hem."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "carry": {
+    "grid_width": 2,
+    "grid_height": 1,
+    "stackable": false
+  },
+  "equip": {
+    "slot": "body",
+    "protection": "light"
+  }
+}

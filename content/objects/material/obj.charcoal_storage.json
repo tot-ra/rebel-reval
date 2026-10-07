@@ -1,0 +1,66 @@
+{
+  "type": "world_object",
+  "id": "obj.charcoal_storage",
+  "name": "Charcoal store",
+  "description": "A dunnage-lined charcoal store with open sacks; forge fuel.",
+  "category": "material",
+  "handling": "fixed",
+  "tags": [
+    "fuel",
+    "forge",
+    "charcoal"
+  ],
+  "physical": {
+    "mass_kg": 120,
+    "size_m": [
+      1.08,
+      0.76,
+      0.78
+    ],
+    "materials": [
+      "charcoal_fuel",
+      "wood",
+      "linen_cloth"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect"
+  ],
+  "economy": {
+    "base_pfennigs": 0,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "forge",
+      "brewery"
+    ],
+    "grouping": "pile"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/forge/smithy_charcoal_storage/smithy_charcoal_storage.glb",
+    "prop_kind": "charcoal_pile",
+    "measured_size_m": [
+      1.08,
+      0.76,
+      0.78
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.charcoal_storage.png",
+    "icon": "res://assets/objects/icons/obj.charcoal_storage.png",
+    "icon_status": "missing",
+    "look": "Black charcoal pile on oak dunnage beside open linen sacks tied with hemp.",
+    "image_prompt": "Charcoal store: Black charcoal pile on oak dunnage beside open linen sacks tied with hemp."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "fuel the forge"
+  ]
+}

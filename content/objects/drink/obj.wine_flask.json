@@ -1,0 +1,71 @@
+{
+  "type": "world_object",
+  "id": "obj.wine_flask",
+  "name": "Leather wine flask",
+  "description": "A pitch-sealed leather flask of imported wine.",
+  "category": "drink",
+  "handling": "carry_one_hand",
+  "tags": [
+    "drink",
+    "wine",
+    "luxury"
+  ],
+  "physical": {
+    "mass_kg": 1.2,
+    "size_m": [
+      0.15,
+      0.25,
+      0.1
+    ],
+    "materials": [
+      "leather",
+      "water_liquid"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "consume"
+  ],
+  "economy": {
+    "base_pfennigs": 36,
+    "ownership": "merchant",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_burgher",
+      "home_noble",
+      "tavern",
+      "church"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "missing"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.wine_flask.png",
+    "icon": "res://assets/objects/icons/obj.wine_flask.png",
+    "icon_status": "missing",
+    "look": "Dark pitch-sealed leather flask with a wooden stopper and carrying cord.",
+    "image_prompt": "A dark pitch-sealed leather flask with a wooden stopper and carrying cord"
+  },
+  "lifecycle": "planned",
+  "confidence": "plausible composite",
+  "carry": {
+    "grid_width": 1,
+    "grid_height": 2,
+    "stackable": false
+  },
+  "edible": {
+    "kind": "drink",
+    "nutrition": 4,
+    "hydration": 18,
+    "intoxicating": true,
+    "spoils_after_days": 30
+  }
+}

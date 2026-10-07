@@ -1,0 +1,77 @@
+{
+  "type": "world_object",
+  "id": "obj.clay_pot",
+  "name": "Clay pot",
+  "description": "A plain unglazed clay storage pot.",
+  "category": "household",
+  "handling": "pocketable",
+  "tags": [
+    "pottery",
+    "storage"
+  ],
+  "physical": {
+    "mass_kg": 0.9,
+    "size_m": [
+      0.18,
+      0.2,
+      0.18
+    ],
+    "materials": [
+      "clay_ceramic"
+    ],
+    "fragile": true
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "throw",
+    "open"
+  ],
+  "economy": {
+    "base_pfennigs": 4,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_poor",
+      "home_burgher",
+      "market"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "missing"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.clay_pot.png",
+    "icon": "res://assets/objects/icons/obj.clay_pot.png",
+    "icon_status": "missing",
+    "look": "Rounded unglazed clay pot with a flared rim.",
+    "image_prompt": "A plain rounded unglazed clay pot with a flared rim"
+  },
+  "lifecycle": "planned",
+  "confidence": "plausible composite",
+  "carry": {
+    "grid_width": 1,
+    "grid_height": 2,
+    "stackable": false
+  },
+  "throw": {
+    "range_m": 3.0,
+    "damage": 2,
+    "breaks": true,
+    "noise": "loud"
+  },
+  "container": {
+    "capacity_l": 2,
+    "lockable": false,
+    "accepts_tags": [
+      "food",
+      "liquid"
+    ]
+  }
+}

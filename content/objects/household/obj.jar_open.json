@@ -1,0 +1,86 @@
+{
+  "type": "world_object",
+  "id": "obj.jar_open",
+  "name": "Open jar",
+  "description": "An unsealed storage jar whose contents are in use.",
+  "category": "household",
+  "handling": "pocketable",
+  "tags": [
+    "kitchen",
+    "storage"
+  ],
+  "physical": {
+    "mass_kg": 0.6,
+    "size_m": [
+      0.11,
+      0.18,
+      0.11
+    ],
+    "materials": [
+      "clay_ceramic"
+    ],
+    "fragile": true
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "throw",
+    "open"
+  ],
+  "economy": {
+    "base_pfennigs": 6,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_poor",
+      "home_burgher",
+      "forge"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/domestic/kitchenware/medieval_kitchenware_kit.glb",
+    "node": "KitchenwareJarOpen",
+    "prop_kind": "kitchenware",
+    "variant": "kitchenware.jar_open",
+    "measured_size_m": [
+      0.11,
+      0.18,
+      0.11
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.jar_open.png",
+    "icon": "res://assets/objects/icons/obj.jar_open.png",
+    "icon_status": "missing",
+    "look": "Squat glazed jar with its lid set aside, spoon resting at the rim.",
+    "image_prompt": "Open jar: Squat glazed jar with its lid set aside, spoon resting at the rim."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "carry": {
+    "grid_width": 1,
+    "grid_height": 2,
+    "stackable": false
+  },
+  "throw": {
+    "range_m": 3.0,
+    "damage": 2,
+    "breaks": true,
+    "noise": "loud"
+  },
+  "container": {
+    "capacity_l": 1.5,
+    "lockable": false,
+    "accepts_tags": [
+      "food",
+      "liquid"
+    ]
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "type": "world_object",
+  "id": "obj.ledger_book",
+  "name": "Account ledger",
+  "description": "A bound tally and account ledger; the paper trail of a commission.",
+  "category": "household",
+  "handling": "carry_one_hand",
+  "tags": [
+    "document",
+    "ledger",
+    "evidence"
+  ],
+  "physical": {
+    "mass_kg": 1.5,
+    "size_m": [
+      0.32,
+      0.08,
+      0.24
+    ],
+    "materials": [
+      "parchment",
+      "leather"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "use"
+  ],
+  "economy": {
+    "base_pfennigs": 80,
+    "ownership": "guild",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "forge",
+      "home_burgher",
+      "market",
+      "warehouse"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "procedural",
+    "prop_kind": "ledger",
+    "builder": "res://scripts/map/view3d/map_view_mesh_builder_prop_models.gd"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.ledger_book.png",
+    "icon": "res://assets/objects/icons/obj.ledger_book.png",
+    "icon_status": "missing",
+    "look": "Thick calf-bound book with iron corner studs and a clasp, pages edged with ink.",
+    "image_prompt": "Account ledger: Thick calf-bound book with iron corner studs and a clasp, pages edged with ink."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "read entries",
+    "forge an entry"
+  ],
+  "carry": {
+    "grid_width": 2,
+    "grid_height": 2,
+    "stackable": false
+  }
+}

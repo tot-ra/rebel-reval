@@ -1,0 +1,123 @@
+{
+  "type": "world_object",
+  "id": "obj.set_smithy_household_clutter",
+  "name": "Smithy household clutter",
+  "description": "The smithy's everyday household dressing in four states: cleared, closed, in use and depleted.",
+  "category": "composite",
+  "handling": "fixed",
+  "tags": [
+    "dressing_set",
+    "forge",
+    "household"
+  ],
+  "physical": {
+    "mass_kg": 12,
+    "size_m": [
+      0.49,
+      0.07,
+      0.27
+    ],
+    "materials": [
+      "wood",
+      "food_organic",
+      "clay_ceramic"
+    ]
+  },
+  "actions": [
+    "inspect"
+  ],
+  "economy": {
+    "base_pfennigs": 0,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "surface",
+    "spaces": [
+      "forge",
+      "home_poor"
+    ],
+    "grouping": "cluster"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/domestic/household/smithy_household_clutter_kit.glb",
+    "states": {
+      "cleared": "HouseholdGroupCleared",
+      "closed": "HouseholdGroupClosed",
+      "depleted": "HouseholdGroupDepleted",
+      "in_use": "HouseholdGroupInUse"
+    },
+    "prop_kind": "household_clutter",
+    "measured_size_m": [
+      0.49,
+      0.07,
+      0.27
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.set_smithy_household_clutter.png",
+    "icon": "res://assets/objects/icons/obj.set_smithy_household_clutter.png",
+    "icon_status": "missing",
+    "look": "Small arrangement of bread, jug, bucket, broom and kindling on a bench and floor, varying with the state.",
+    "image_prompt": "Smithy household clutter: Small arrangement of bread, jug, bucket, broom and kindling on a bench and floor, varying with the state."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "composition": [
+    {
+      "id": "obj.rye_bread_loaf",
+      "count": 1
+    },
+    {
+      "id": "obj.rye_bread_cut",
+      "count": 1
+    },
+    {
+      "id": "obj.beer_jug",
+      "count": 1
+    },
+    {
+      "id": "obj.water_bucket",
+      "count": 1
+    },
+    {
+      "id": "obj.broom",
+      "count": 1
+    },
+    {
+      "id": "obj.kindling_bundle",
+      "count": 1
+    },
+    {
+      "id": "obj.dried_peas_bin",
+      "count": 1
+    },
+    {
+      "id": "obj.onion_braid",
+      "count": 1
+    },
+    {
+      "id": "obj.herring_filleted",
+      "count": 1
+    },
+    {
+      "id": "obj.salt_crock",
+      "count": 1
+    },
+    {
+      "id": "obj.linen_folded",
+      "count": 1
+    },
+    {
+      "id": "obj.ash_scoop",
+      "count": 1
+    },
+    {
+      "id": "obj.apron_leather",
+      "count": 1
+    }
+  ],
+  "notes": "States express consumption: 'in_use' shows the full set; 'depleted' leaves crumbs and empty bins."
+}

@@ -16,6 +16,10 @@ var grid_width: int = 1
 var grid_height: int = 1
 var weight_kg: float = 0.5
 var stackable: bool = false
+var max_stack: int = MAX_STACK_SIZE
+## False for world objects that are handled but never bagged (fixed, heavy,
+## carry_two_hands in docs/SYSTEMS/OBJECT_CATALOG.md); item records are always bagable.
+var bag_allowed: bool = true
 
 
 static func from_content_record(record: Dictionary) -> ItemCarryProfile:
@@ -30,6 +34,22 @@ static func from_content_record(record: Dictionary) -> ItemCarryProfile:
 	var weight_g := int(carry.get("weight_g", defaults["weight_g"]))
 	profile.weight_kg = maxf(0.05, float(weight_g) / 1000.0)
 	profile.stackable = bool(gameplay.get("stackable", false))
+	return profile
+
+
+## Carry stats from a `world_object` catalog record: mass is `physical.mass_kg`,
+## the footprint comes from the optional `carry` block. No `carry` block means
+## the object is fixed, heavy or two-handed and must not enter the bag grid.
+static func from_world_object(record: Dictionary) -> ItemCarryProfile:
+	var profile := ItemCarryProfile.new()
+	var physical: Dictionary = record.get("physical", {})
+	var carry: Dictionary = record.get("carry", {})
+	profile.bag_allowed = not carry.is_empty()
+	profile.grid_width = maxi(1, int(carry.get("grid_width", 1)))
+	profile.grid_height = maxi(1, int(carry.get("grid_height", 1)))
+	profile.weight_kg = maxf(0.05, float(physical.get("mass_kg", 0.5)))
+	profile.stackable = bool(carry.get("stackable", false))
+	profile.max_stack = clampi(int(carry.get("max_stack", MAX_STACK_SIZE)), 2, MAX_STACK_SIZE)
 	return profile
 
 
