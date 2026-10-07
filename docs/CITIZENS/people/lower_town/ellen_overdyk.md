@@ -61,7 +61,9 @@ She manages a household of twelve on about four marks a month. Flax comes from a
 
 ## Relationships
 - **Household:** [Berend Rode](../../people/lower_town/berend_rode.md), her husband, whose silences she reads; [Ermelin Rode](../../ledger/lower_town/raekoja.md#hh-lt-osm-r4061219), fourteen, her apprentice at the wheel; [Wendele Rode](../../ledger/lower_town/raekoja.md#hh-lt-osm-r4061219), eleven; [Wibeke Rode](../../ledger/lower_town/raekoja.md#hh-lt-osm-r4061219), nine; [Heyno Rode](../../ledger/lower_town/raekoja.md#hh-lt-osm-r4061219), three, her last; [Evert Rode](../../people/lower_town/evert_rode.md), her husband's uncle; [Triin](../../people/lower_town/triin.md) and [Ermelin](../../people/lower_town/ermelin.md), maids; [Jakob Wulf](../../people/lower_town/jakob_wulf.md), the clerk; [Lauri Jakobi poeg](../../ledger/lower_town/raekoja.md#hh-lt-osm-r4061219), the ostler; [Wendla Niklase tütar](../../ledger/lower_town/raekoja.md#hh-lt-osm-r4061219), the youngest maid.
-- **Network:** No planned ties beyond the household; her life is the house and the market.
+- **Network:**
+  - [Ghert Kleine](ghert_kleine.md), neighbour: his hens keep getting into her yard. It is always settled with a jug of beer, and it always happens again; she counts the jugs and has started to think of them as rent.
+  - [Fenne Grote](fenne_grote.md), acquaintance: Fenne once did her a small favour at the gate. Ellen remembers it as a kindness repaid long ago; she suspects Fenne remembers it as a debt still open.
 - **Others:** [Trude Becker](../../ledger/lower_town/raekoja.md#hh-lt-osm-w201040764), baker, supplies the house's bread; [Ruthard van Brunswik](../../ledger/lower_town/raekoja.md#hh-lt-osm-w26885878), brewer, its small beer.
 
 ## Faction and belief

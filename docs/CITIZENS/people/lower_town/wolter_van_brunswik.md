@@ -36,7 +36,7 @@
 - **Model notes:** MPFB male, age_years 65, muscle low, weight low, proportions lean, height_m 1.62; sallow skin; hazel eyes; grey hair, short grey beard; crowd tier 1.
 
 ## Biography
-Wolter was born in 1278 in Reval, the son of a Brunswick merchant and his Estonian housekeeper whom he married late; the boy was nursed and raised in Estonian and learned German from his father's clerks. He went to Novgorod at sixteen and returned at thirty with a fortune in furs and a limp that has healed. He was elected councillor in 1322. His sons died in the fever of 1334, leaving only the clerks he has trained as his heirs. He is, by the lights of Vene, the most respected old man on the street, and the most careful.
+Wolter was born in 1278 in Reval, the son of a Brunswick merchant and his Estonian housekeeper whom he married late; the boy was nursed and raised in Estonian and learned German from his father's clerks. He went to Novgorod at sixteen and returned at thirty with a fortune in furs. He was elected councillor in 1322. His sons died in the fever of 1334, leaving only the clerks he has trained as his heirs. He is, by the lights of Vene, the most respected old man on the street, and the most careful.
 
 ## Motivation
 - **Want:** To keep the house's trade alive through whatever comes after the spring.

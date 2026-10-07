@@ -36,7 +36,7 @@
 - **Model notes:** MPFB male, age_years 21, muscle low, weight low, proportions long and slight, height_m 1.77; pale even skin; brown eyes; dark-brown hair, clean-shaven; crowd tier 2.
 
 ## Biography
-Dietrich was born in 1322, the son of a Zwolle skipper drowned off Naissaar in 1327 and an Estonian laundress who kept him in a loft off Vene. He picked up his mother's tongue first and the German of the lane after. A priest of the Holy Spirit taught him letters in exchange for carrying water, and in 1338 [Wolter van Brunswik](../../people/lower_town/wolter_van_brunswik.md) took him on as a pen-boy. In the winter of 1342 his mother died of cold in the loft; he buried her at the Holy Spirit's expense. He lives now in the clerks' loft and is the only one who writes with both hands clean on Sunday.
+Dietrich was born in 1322, the son of a Zwolle skipper drowned off Naissaar in 1327 and an Estonian laundress who kept him in a loft off Vene. He picked up his mother's tongue first and the German of the lane after. A priest of the Holy Spirit taught him letters in exchange for carrying water, and in 1338 [Wolter van Brunswik](../../people/lower_town/wolter_van_brunswik.md) took him on as a pen-boy. In the winter of 1342 his mother died of cold in the loft; he buried her at the Holy Spirit's expense. He lives now in the clerks' loft.
 
 ## Motivation
 - **Want:** A clerkship at the town hall, with a salary and a seal.
