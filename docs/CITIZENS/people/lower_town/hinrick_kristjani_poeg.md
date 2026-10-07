@@ -35,13 +35,13 @@
 - **Model notes:** male, age_years 39, muscle 0.7, weight 0.7, proportions stocky, height_m 1.76; olive-fair skin; blue eyes with left squint; brown hair, full beard; crowd tier 1.
 
 ## Biography
-Born in 1304 in Reval to a carter, Hinrick was bound at eleven to a carpenter on Müürivahe, the same master who later trained Gerdt Jaani poeg. He learned beams, scarf joints and the rafter-compass, and learned to do it all with the left hand while the master tried to beat it out of him. He became a master in 1335 and bought the plot on Müürivahe with his wife Wendla's brother's savings. In 1342 a Pikk maid named Elin Birgersdotter got him a hospital roof contract at a time when work was thin, and a month later asked a small favour in return. He has carried messages ever since.
+Born in 1304 in Reval to a carter, Hinrick was bound at eleven to a carpenter on Müürivahe, the same master who later trained Gerdt Jaani poeg. He learned beams, scarf joints and the rafter-compass, and learned to do it all with the left hand while the master tried to beat it out of him. He became a master in 1335 and took over the plot on Müürivahe when his master died childless. In 1342 a Pikk maid named Elin Birgersdotter got him a hospital roof contract at a time when work was thin, and a month later asked a small favour in return. He has carried messages ever since.
 
 ## Motivation
 - **Want:** A second apprentice, and a contract from the Rat's own wall repairs.
 - **Fear:** Falling from a roof with a message in his chest.
 - **Contradiction:** He resents being treated as a debtor and delivers anyway.
-- **Secret or withheld fact:** The hollow of his lead-pipe level carries messages, and Wendla has not asked what it contains.
+- **Secret or withheld fact:** The hollow oak case of his plumb-line carries messages, and Wendla has not asked what it contains.
 
 ## Daily routine
 | Phase | Time (late April) | Place | Activity |
