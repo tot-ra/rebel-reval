@@ -231,6 +231,14 @@ func point_of_interest(poi_id: String) -> Dictionary:
 
 ## Names for the HUD: {district, street, building} at a world position.
 ## `inside` is the building index Kalev stands in (or -1).
+## Id of the plan district containing `world_xz`, or "" outside every district.
+func district_id_at(world_xz: Vector2) -> String:
+	for d: Dictionary in data.get("districts", []):
+		if Geometry2D.is_point_in_polygon(world_xz, CityPlan.points(d["polygon"])):
+			return String(d["id"])
+	return ""
+
+
 func location_at(world_xz: Vector2, inside: int = -1) -> Dictionary:
 	var district := "Outside the walls"
 	for d: Dictionary in data.get("districts", []):

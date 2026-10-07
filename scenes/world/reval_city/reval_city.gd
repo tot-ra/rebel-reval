@@ -28,6 +28,7 @@ var camera: Camera3D
 var rig: SharedCharacterRig
 var view_root: Node3D
 var minimap: CityMinimap
+var music_zones := CityMusicZones.new()
 var yaw := deg_to_rad(-35.0)
 var pitch := deg_to_rad(-18.0)
 var distance := CAMERA_DISTANCE
@@ -70,6 +71,7 @@ func _ready() -> void:
 	_rig_height = plan.walk_height(CityPlan.to_world_xz(player.global_position))
 	_sync_rig(0.0, true)
 	_update_camera()
+	_update_music()
 
 
 func _spawn_id() -> String:
@@ -149,6 +151,22 @@ func _process(delta: float) -> void:
 	if _lighting_timer <= 0.0:
 		_lighting_timer = LIGHTING_INTERVAL
 		world.apply_time(day_progress)
+		_update_music()
+
+
+## Music follows where Kalev is (CityMusicZones), not a scene route. The shared
+## clock goes to MusicDirector so night tracks and the night ducking apply.
+func _update_music() -> void:
+	var director := get_node_or_null("/root/MusicDirector")
+	if director == null:
+		return
+	var xz := CityPlan.to_world_xz(player.global_position)
+	var theme := music_zones.update(xz, plan.district_id_at(xz))
+	director.set_cycle_progress(day_progress)
+	if theme.is_empty():
+		director.clear_zone_theme_override()
+	else:
+		director.set_zone_theme_override(theme)
 
 
 ## Screen axes in logic space: right follows the camera's right vector, down is
