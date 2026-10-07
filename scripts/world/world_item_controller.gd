@@ -396,6 +396,9 @@ func _item_record(item_id: StringName) -> Dictionary:
 		var record := _content_db.get_item(item_id)
 		if not record.is_empty():
 			return record
+		var world_object := _content_db.get_world_object(item_id)
+		if not world_object.is_empty():
+			return world_object
 	return {"name": String(item_id)}
 
 

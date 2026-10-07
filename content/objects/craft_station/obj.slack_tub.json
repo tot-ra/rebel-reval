@@ -1,0 +1,64 @@
+{
+  "type": "world_object",
+  "id": "obj.slack_tub",
+  "name": "Slack tub",
+  "description": "A water tub for quenching hot iron; the steam hisses when the metal goes in.",
+  "category": "craft_station",
+  "handling": "fixed",
+  "tags": [
+    "smithing",
+    "station",
+    "water",
+    "forge"
+  ],
+  "physical": {
+    "mass_kg": 70,
+    "size_m": [
+      0.94,
+      1.0,
+      1.45
+    ],
+    "materials": [
+      "wood",
+      "water_liquid",
+      "iron"
+    ]
+  },
+  "actions": [
+    "inspect"
+  ],
+  "economy": {
+    "base_pfennigs": 0,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "forge"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/forge/kalev_smithy_slack_tub/kalev_smithy_slack_tub.glb",
+    "measured_size_m": [
+      0.94,
+      1.0,
+      1.45
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.slack_tub.png",
+    "icon": "res://assets/objects/icons/obj.slack_tub.png",
+    "icon_status": "missing",
+    "look": "Oak stave tub ringed with iron hoops, dark water, scale floating on the surface.",
+    "image_prompt": "Slack tub: Oak stave tub ringed with iron hoops, dark water, scale floating on the surface."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "quench hot iron"
+  ]
+}

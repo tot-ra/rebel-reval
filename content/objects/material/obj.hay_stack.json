@@ -1,0 +1,62 @@
+{
+  "type": "world_object",
+  "id": "obj.hay_stack",
+  "name": "Hay stack",
+  "description": "A rounded stack of cured hay; climbable, flammable winter fodder.",
+  "category": "material",
+  "handling": "fixed",
+  "tags": [
+    "hay",
+    "fodder",
+    "pile"
+  ],
+  "physical": {
+    "mass_kg": 400,
+    "size_m": [
+      2.0,
+      2.4,
+      2.0
+    ],
+    "materials": [
+      "straw"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect"
+  ],
+  "economy": {
+    "base_pfennigs": 0,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "farm",
+      "street",
+      "forge"
+    ],
+    "grouping": "pile"
+  },
+  "model": {
+    "status": "procedural",
+    "prop_kind": "hay_stack",
+    "builder": "res://scripts/map/view3d/map_view_mesh_builder_prop_models.gd",
+    "variant": "hay_stack.medium"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.hay_stack.png",
+    "icon": "res://assets/objects/icons/obj.hay_stack.png",
+    "icon_status": "missing",
+    "look": "Tall rounded golden-brown haystack with a pole through the top.",
+    "image_prompt": "Hay stack: Tall rounded golden-brown haystack with a pole through the top."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "hide in",
+    "climb"
+  ]
+}

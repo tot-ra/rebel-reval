@@ -1,0 +1,80 @@
+{
+  "type": "world_object",
+  "id": "obj.candlestick_tallow_poor",
+  "name": "Poor tallow candle",
+  "description": "A stub of smoky tallow stuck in a crude wooden socket: the light of the poor.",
+  "category": "light_source",
+  "handling": "pocketable",
+  "tags": [
+    "light",
+    "candle",
+    "tallow",
+    "poor"
+  ],
+  "physical": {
+    "mass_kg": 0.4,
+    "size_m": [
+      0.29,
+      0.35,
+      0.29
+    ],
+    "materials": [
+      "wood",
+      "wax_tallow"
+    ],
+    "flammable": true,
+    "hot_when_lit": true
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "light"
+  ],
+  "economy": {
+    "base_pfennigs": 2,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_poor",
+      "street"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/lighting/medieval_lighting_kit.glb",
+    "node": "PoorTallow",
+    "prop_kind": "candle",
+    "variant": "poor_tallow",
+    "measured_size_m": [
+      0.29,
+      0.35,
+      0.29
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.candlestick_tallow_poor.png",
+    "icon": "res://assets/objects/icons/obj.candlestick_tallow_poor.png",
+    "icon_status": "missing",
+    "look": "Lumpy grey tallow candle in a crude carved wooden holder, wax runs down the side.",
+    "image_prompt": "Poor tallow candle: Lumpy grey tallow candle in a crude carved wooden holder, wax runs down the side."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "carry": {
+    "grid_width": 1,
+    "grid_height": 2,
+    "stackable": false
+  },
+  "light": {
+    "radius_m": 2.5,
+    "burn_hours": 4,
+    "fuel": "tallow",
+    "open_flame": true
+  }
+}

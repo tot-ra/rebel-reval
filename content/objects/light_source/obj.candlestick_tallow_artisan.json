@@ -1,0 +1,84 @@
+{
+  "type": "world_object",
+  "id": "obj.candlestick_tallow_artisan",
+  "name": "Artisan tallow candlestick",
+  "description": "A forged-iron candlestand with a tallow dip candle in a workshop or modest burgher home.",
+  "category": "light_source",
+  "handling": "carry_one_hand",
+  "tags": [
+    "light",
+    "candle",
+    "tallow"
+  ],
+  "physical": {
+    "mass_kg": 1.4,
+    "size_m": [
+      0.31,
+      0.6,
+      0.31
+    ],
+    "materials": [
+      "iron",
+      "wax_tallow"
+    ],
+    "flammable": true,
+    "hot_when_lit": true
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "light"
+  ],
+  "economy": {
+    "base_pfennigs": 18,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_poor",
+      "home_burgher",
+      "forge",
+      "tavern"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/lighting/medieval_lighting_kit.glb",
+    "node": "ArtisanTallow",
+    "prop_kind": "candle",
+    "variant": "artisan_tallow",
+    "measured_size_m": [
+      0.31,
+      0.6,
+      0.31
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.candlestick_tallow_artisan.png",
+    "icon": "res://assets/objects/icons/obj.candlestick_tallow_artisan.png",
+    "icon_status": "missing",
+    "look": "Tall black forged-iron stem on a tripod foot with a drip bobeche and a yellowish tallow candle.",
+    "image_prompt": "Artisan tallow candlestick: Tall black forged-iron stem on a tripod foot with a drip bobeche and a yellowish tallow candle."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "light a room"
+  ],
+  "carry": {
+    "grid_width": 1,
+    "grid_height": 2,
+    "stackable": false
+  },
+  "light": {
+    "radius_m": 4.0,
+    "burn_hours": 6,
+    "fuel": "tallow",
+    "open_flame": true
+  }
+}

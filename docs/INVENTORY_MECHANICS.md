@@ -17,6 +17,8 @@ Items occupy rectangular footprints on the grid (`grid_width` x `grid_height`). 
 
 Open the bag with **I**; close with **I**, **Esc**, or the overlay Close button. While open, movement is paused so the player can rearrange items. Move the grid selection with arrow keys or **WASD**; **Enter** or **Space** picks up or places the focused item (same as clicking a cell). The overlay shows exact burden (`kg`) and stowage (`cells`), short item labels on the grid, tooltips with full names, and a nine-socket worn-gear paper doll for head, back, body, arms, belt, legs, feet, and both hands. Visual styling follows the oak/brass/parchment HUD tokens in `InventoryUiTheme`; scalable chamfered brasswork and corner fittings give the satchel a richer late-medieval frame without resolution-specific texture assets.
 
+> Physical world objects (barrels, tools, food, furniture, lamps) are catalogued in [`SYSTEMS/OBJECT_CATALOG.md`](./SYSTEMS/OBJECT_CATALOG.md). Their `carry` block and `physical.mass_kg` feed this bag; objects without a `carry` block (fixed, heavy, two-handed) are refused with `NOT_CARRIABLE`.
+
 ## Relationship to other systems
 
 | System | Role |

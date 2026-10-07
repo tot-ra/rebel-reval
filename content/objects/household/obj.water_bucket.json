@@ -1,0 +1,86 @@
+{
+  "type": "world_object",
+  "id": "obj.water_bucket",
+  "name": "Water bucket",
+  "description": "A stave bucket with an iron bail; draws well water and douses sparks.",
+  "category": "household",
+  "handling": "carry_one_hand",
+  "tags": [
+    "water",
+    "container"
+  ],
+  "physical": {
+    "mass_kg": 2.5,
+    "size_m": [
+      0.26,
+      0.23,
+      0.22
+    ],
+    "materials": [
+      "wood",
+      "iron"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "use",
+    "open"
+  ],
+  "economy": {
+    "base_pfennigs": 9,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "forge",
+      "home_poor",
+      "home_burgher",
+      "street",
+      "farm"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/domestic/household/smithy_household_clutter_kit.glb",
+    "node": "HouseholdWaterBucket",
+    "prop_kind": "household_clutter",
+    "variant": "household.water_bucket",
+    "measured_size_m": [
+      0.26,
+      0.23,
+      0.22
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.water_bucket.png",
+    "icon": "res://assets/objects/icons/obj.water_bucket.png",
+    "icon_status": "missing",
+    "look": "Small oak-stave bucket with two iron hoops and a rope-wrapped bail.",
+    "image_prompt": "Water bucket: Small oak-stave bucket with two iron hoops and a rope-wrapped bail."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "carry water",
+    "douse a fire",
+    "quench hot iron"
+  ],
+  "carry": {
+    "grid_width": 2,
+    "grid_height": 2,
+    "stackable": false
+  },
+  "container": {
+    "capacity_l": 10,
+    "lockable": false,
+    "accepts_tags": [
+      "liquid"
+    ]
+  }
+}

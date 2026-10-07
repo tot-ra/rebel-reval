@@ -1,0 +1,70 @@
+{
+  "type": "world_object",
+  "id": "obj.cobblestone",
+  "name": "Cobblestone",
+  "description": "A loose street cobble; can be thrown to distract or break a lantern.",
+  "category": "material",
+  "handling": "carry_one_hand",
+  "tags": [
+    "throwable",
+    "street",
+    "distraction"
+  ],
+  "physical": {
+    "mass_kg": 2.2,
+    "size_m": [
+      0.2,
+      0.12,
+      0.15
+    ],
+    "materials": [
+      "stone"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "throw",
+    "stack"
+  ],
+  "economy": {
+    "base_pfennigs": 0,
+    "ownership": "public",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "street",
+      "harbor",
+      "market"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "missing"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.cobblestone.png",
+    "icon": "res://assets/objects/icons/obj.cobblestone.png",
+    "icon_status": "missing",
+    "look": "Grey rounded limestone cobble, worn and scuffed.",
+    "image_prompt": "A single rounded grey limestone cobblestone, worn and scuffed"
+  },
+  "lifecycle": "planned",
+  "confidence": "plausible composite",
+  "carry": {
+    "grid_width": 2,
+    "grid_height": 1,
+    "stackable": true,
+    "max_stack": 4
+  },
+  "throw": {
+    "range_m": 7.0,
+    "damage": 4,
+    "breaks": false,
+    "noise": "loud"
+  }
+}

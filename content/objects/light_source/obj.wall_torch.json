@@ -1,0 +1,81 @@
+{
+  "type": "world_object",
+  "id": "obj.wall_torch",
+  "name": "Wall torch",
+  "description": "A pitch-wrapped torch in an iron wall bracket; lights gate passages and guard posts; can be pulled out and carried.",
+  "category": "light_source",
+  "handling": "carry_one_hand",
+  "tags": [
+    "light",
+    "torch",
+    "guard"
+  ],
+  "physical": {
+    "mass_kg": 1.2,
+    "size_m": [
+      0.15,
+      0.7,
+      0.2
+    ],
+    "materials": [
+      "wood",
+      "iron",
+      "fur"
+    ],
+    "flammable": true,
+    "hot_when_lit": true
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "hang",
+    "throw",
+    "light"
+  ],
+  "economy": {
+    "base_pfennigs": 6,
+    "ownership": "garrison",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "wall",
+    "spaces": [
+      "guard_post",
+      "street",
+      "church",
+      "harbor"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "missing"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.wall_torch.png",
+    "icon": "res://assets/objects/icons/obj.wall_torch.png",
+    "icon_status": "missing",
+    "look": "Wooden shaft wrapped in pitch-soaked tow, set in a black iron wall bracket, sooty stone behind.",
+    "image_prompt": "A pitch-wrapped wooden torch burning in a black iron wall bracket, sooty stone behind"
+  },
+  "lifecycle": "planned",
+  "confidence": "plausible composite",
+  "carry": {
+    "grid_width": 1,
+    "grid_height": 3,
+    "stackable": false
+  },
+  "throw": {
+    "range_m": 5.0,
+    "damage": 2,
+    "breaks": false,
+    "noise": "quiet"
+  },
+  "light": {
+    "radius_m": 6.0,
+    "burn_hours": 1,
+    "fuel": "pine_resin",
+    "open_flame": true
+  }
+}

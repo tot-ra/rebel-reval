@@ -1,0 +1,66 @@
+{
+  "type": "world_object",
+  "id": "obj.sack_flour",
+  "name": "Flour sack",
+  "description": "A sack of rye flour for the baker.",
+  "category": "food",
+  "handling": "carry_two_hands",
+  "tags": [
+    "flour",
+    "baker",
+    "staple"
+  ],
+  "physical": {
+    "mass_kg": 20,
+    "size_m": [
+      0.4,
+      0.6,
+      0.25
+    ],
+    "materials": [
+      "grain",
+      "linen_cloth"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "push",
+    "consume"
+  ],
+  "economy": {
+    "base_pfennigs": 70,
+    "ownership": "merchant",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "market",
+      "warehouse",
+      "home_burgher"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "missing"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.sack_flour.png",
+    "icon": "res://assets/objects/icons/obj.sack_flour.png",
+    "icon_status": "missing",
+    "look": "Linen sack dusted white with flour, tied with hemp twine.",
+    "image_prompt": "A linen flour sack dusted white, tied at the neck with hemp twine"
+  },
+  "lifecycle": "planned",
+  "confidence": "plausible composite",
+  "edible": {
+    "kind": "ingredient",
+    "nutrition": 40,
+    "spoils_after_days": 90,
+    "raw_unsafe": true
+  }
+}

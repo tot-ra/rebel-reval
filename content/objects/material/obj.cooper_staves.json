@@ -1,0 +1,59 @@
+{
+  "type": "world_object",
+  "id": "obj.cooper_staves",
+  "name": "Bundle of staves",
+  "description": "Barrel staves bundled for the cooper.",
+  "category": "material",
+  "handling": "carry_two_hands",
+  "tags": [
+    "cooper",
+    "wood"
+  ],
+  "physical": {
+    "mass_kg": 20,
+    "size_m": [
+      0.4,
+      0.9,
+      0.4
+    ],
+    "materials": [
+      "wood"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "push"
+  ],
+  "economy": {
+    "base_pfennigs": 30,
+    "ownership": "guild",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "brewery",
+      "warehouse",
+      "harbor"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "procedural",
+    "prop_kind": "cooper_staves",
+    "builder": "res://scripts/map/view3d/map_view_mesh_builder_district_life_props.gd"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.cooper_staves.png",
+    "icon": "res://assets/objects/icons/obj.cooper_staves.png",
+    "icon_status": "missing",
+    "look": "Tied bundle of curved oak staves with an iron hoop.",
+    "image_prompt": "Bundle of staves: Tied bundle of curved oak staves with an iron hoop."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite"
+}

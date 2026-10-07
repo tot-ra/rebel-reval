@@ -1,0 +1,67 @@
+{
+  "type": "world_object",
+  "id": "obj.merchant_wagon",
+  "name": "Merchant wagon",
+  "description": "A four-wheeled wagon for long-distance trade, drawn by horses.",
+  "category": "vehicle",
+  "handling": "heavy",
+  "tags": [
+    "vehicle",
+    "transport",
+    "merchant"
+  ],
+  "physical": {
+    "mass_kg": 450,
+    "size_m": [
+      1.92,
+      1.19,
+      4.06
+    ],
+    "materials": [
+      "wood",
+      "iron"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "push",
+    "pull",
+    "load_on_cart"
+  ],
+  "economy": {
+    "base_pfennigs": 900,
+    "ownership": "merchant",
+    "legality": "legal",
+    "theft_severity": 3
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "street",
+      "harbor",
+      "warehouse"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/trade/merchant_wagon_4w/merchant_wagon_4w.glb",
+    "prop_kind": "cart",
+    "variant": "wagon_4w",
+    "measured_size_m": [
+      1.92,
+      1.19,
+      4.06
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.merchant_wagon.png",
+    "icon": "res://assets/objects/icons/obj.merchant_wagon.png",
+    "icon_status": "missing",
+    "look": "Broad oak wagon bed on four iron-tyred wheels with a driver's bench.",
+    "image_prompt": "Merchant wagon: Broad oak wagon bed on four iron-tyred wheels with a driver's bench."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite"
+}

@@ -1,0 +1,77 @@
+{
+  "type": "world_object",
+  "id": "obj.linen_folded",
+  "name": "Folded linen",
+  "description": "A folded length of plain linen cloth: bandage, towel, wrapping.",
+  "category": "household",
+  "handling": "pocketable",
+  "tags": [
+    "cloth",
+    "linen"
+  ],
+  "physical": {
+    "mass_kg": 0.4,
+    "size_m": [
+      0.18,
+      0.05,
+      0.14
+    ],
+    "materials": [
+      "linen_cloth"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "stack"
+  ],
+  "economy": {
+    "base_pfennigs": 10,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_poor",
+      "home_burgher",
+      "forge",
+      "market"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/domestic/household/smithy_household_clutter_kit.glb",
+    "node": "HouseholdLinenFolded",
+    "prop_kind": "household_clutter",
+    "variant": "household.linen_folded",
+    "measured_size_m": [
+      0.18,
+      0.05,
+      0.14
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.linen_folded.png",
+    "icon": "res://assets/objects/icons/obj.linen_folded.png",
+    "icon_status": "missing",
+    "look": "Neatly folded off-white linen with a patch stitched at one corner.",
+    "image_prompt": "Folded linen: Neatly folded off-white linen with a patch stitched at one corner."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "wrap goods",
+    "bandage"
+  ],
+  "carry": {
+    "grid_width": 1,
+    "grid_height": 1,
+    "stackable": true,
+    "max_stack": 5
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "type": "world_object",
+  "id": "obj.weapon_rack",
+  "name": "Weapon rack",
+  "description": "A guard-post rack of spears and swords.",
+  "category": "furniture",
+  "handling": "fixed",
+  "tags": [
+    "weapon",
+    "storage",
+    "military"
+  ],
+  "physical": {
+    "mass_kg": 60,
+    "size_m": [
+      1.4,
+      1.6,
+      0.4
+    ],
+    "materials": [
+      "wood",
+      "iron"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "open"
+  ],
+  "economy": {
+    "base_pfennigs": 0,
+    "ownership": "garrison",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "guard_post"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "procedural",
+    "prop_kind": "weapon_rack",
+    "builder": "res://scripts/map/view3d/map_view_mesh_builder_district_life_props.gd"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.weapon_rack.png",
+    "icon": "res://assets/objects/icons/obj.weapon_rack.png",
+    "icon_status": "missing",
+    "look": "Oak rack with iron pegs holding spears and a sword.",
+    "image_prompt": "Weapon rack: Oak rack with iron pegs holding spears and a sword."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "container": {
+    "capacity_l": 80,
+    "lockable": true,
+    "default_locked": false,
+    "accepts_tags": [
+      "weapon"
+    ]
+  }
+}

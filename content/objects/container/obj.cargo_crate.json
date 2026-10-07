@@ -1,0 +1,80 @@
+{
+  "type": "world_object",
+  "id": "obj.cargo_crate",
+  "name": "Cargo crate",
+  "description": "A nailed pine crate used on the quay and in warehouses for small-parts and bundled goods.",
+  "category": "container",
+  "handling": "carry_two_hands",
+  "tags": [
+    "storage",
+    "cargo",
+    "stackable_world"
+  ],
+  "physical": {
+    "mass_kg": 14,
+    "size_m": [
+      0.6,
+      0.5,
+      0.5
+    ],
+    "materials": [
+      "wood"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "push",
+    "open",
+    "throw"
+  ],
+  "economy": {
+    "base_pfennigs": 25,
+    "ownership": "merchant",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "harbor",
+      "warehouse",
+      "market"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "procedural",
+    "prop_kind": "cargo_crates",
+    "builder": "res://scripts/map/view3d/map_view_mesh_builder_prop_models.gd"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.cargo_crate.png",
+    "icon": "res://assets/objects/icons/obj.cargo_crate.png",
+    "icon_status": "missing",
+    "look": "Rough pine crate with rope handles, nailed slats and a chalk tally mark on one side.",
+    "image_prompt": "Cargo crate: Rough pine crate with rope handles, nailed slats and a chalk tally mark on one side."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "hide behind",
+    "climb onto"
+  ],
+  "throw": {
+    "range_m": 2.0,
+    "damage": 3,
+    "breaks": true,
+    "noise": "loud"
+  },
+  "container": {
+    "capacity_l": 60,
+    "lockable": false,
+    "accepts_tags": [
+      "trade_good",
+      "tool"
+    ]
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "type": "world_object",
+  "id": "obj.barrel_oak",
+  "name": "Oak barrel",
+  "description": "A hooped oak cask for ale, herring, tar or water. Rolled by hand, too heavy to lift when full.",
+  "category": "container",
+  "handling": "heavy",
+  "tags": [
+    "storage",
+    "cooper",
+    "liquid"
+  ],
+  "physical": {
+    "mass_kg": 38,
+    "size_m": [
+      0.62,
+      0.9,
+      0.62
+    ],
+    "materials": [
+      "wood",
+      "iron"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "push",
+    "pull",
+    "open",
+    "break"
+  ],
+  "economy": {
+    "base_pfennigs": 40,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "tavern",
+      "harbor",
+      "warehouse",
+      "brewery",
+      "street"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "procedural",
+    "prop_kind": "barrels",
+    "builder": "res://scripts/map/view3d/map_view_mesh_builder_prop_models.gd"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.barrel_oak.png",
+    "icon": "res://assets/objects/icons/obj.barrel_oak.png",
+    "icon_status": "missing",
+    "look": "Bulging oak barrel with three iron hoops, stained staves and a bung hole, damp at the base.",
+    "image_prompt": "Oak barrel: Bulging oak barrel with three iron hoops, stained staves and a bung hole, damp at the base."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "roll to move",
+    "store ale, herring, water or tar",
+    "climb onto for height"
+  ],
+  "container": {
+    "capacity_l": 150,
+    "lockable": false,
+    "accepts_tags": [
+      "liquid",
+      "fish",
+      "grain"
+    ]
+  }
+}
