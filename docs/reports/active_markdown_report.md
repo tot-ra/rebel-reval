@@ -14,10 +14,10 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `213`
+- Active Markdown files scanned: `214`
 - Markdown files excluded as archive/reference/out of active scope: `741`
-- Local/external links inspected: `1330`
-- Links to active Markdown docs: `845`
+- Local/external links inspected: `1334`
+- Links to active Markdown docs: `848`
 - Links to existing archive/reference/non-active local docs: `238`
 - External links skipped for reachability: `46`
 - Issues found: `0`
@@ -67,6 +67,7 @@ No active Markdown documentation issues found.
 - `docs/adr/0027-reval-hinterland-streaming-group.md`
 - `docs/adr/0028-seamless-building-interiors.md`
 - `docs/adr/0029-natural-reval-maps-and-larger-coast.md`
+- `docs/adr/0030-retire-direction-sign-primitive.md`
 - `docs/adr/README.md`
 - `docs/AGENT_LOOPS.md`
 - `docs/ARCHITECTURE.md`

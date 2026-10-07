@@ -261,7 +261,6 @@ func _stable_object_count(definition: MapDefinition) -> int:
 		+ definition.transitions.size()
 		+ definition.interaction_anchors.size()
 		+ definition.view_landmarks.size()
-		+ definition.direction_signs.size()
 	)
 
 

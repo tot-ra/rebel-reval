@@ -26,7 +26,6 @@ static func expand_primitives(
 		"exclusions": [],
 		"fades": [],
 		"decals": [],
-		"signs": [],
 		"landmarks": [],
 		"resolved_ids": {},
 	}
@@ -224,18 +223,6 @@ static func expand_primitives(
 				)
 			&"decal_rect":
 				_expand_decal(
-					primitive_id,
-					data,
-					style_values,
-					inline_overrides,
-					blueprint,
-					path,
-					expanded,
-					global_overrides,
-					errors
-				)
-			&"direction_sign":
-				_expand_sign(
 					primitive_id,
 					data,
 					style_values,
@@ -450,44 +437,6 @@ static func _expand_patrol(
 		return
 	values["id"] = object_id
 	expanded["patrols"].append(values)
-
-
-static func _expand_sign(
-	object_id: StringName,
-	data: Dictionary,
-	style: Dictionary,
-	inline: Dictionary,
-	blueprint: MapBlueprint,
-	path: String,
-	expanded: Dictionary,
-	global: Dictionary,
-	errors: Array[String]
-) -> void:
-	var values := resolved_values(
-		object_id, data, style, inline, global, MapBlueprintCompiler.SIGN_KEYS, path, errors
-	)
-	register_id(object_id, path, expanded, errors)
-	if not bool(values.get("enabled", true)):
-		return
-	if String(values.get("text", "")).strip_edges().is_empty():
-		errors.append("%s.text is required" % path)
-	var cell: Variant = values.get("cell")
-	var placement_rect: Variant = values.get("rect")
-	var direction: Variant = values.get("direction")
-	if placement_rect is Rect2i:
-		MapBlueprintCompiler._validate_rect(
-			placement_rect, "%s.rect" % path, blueprint.size_cells, errors
-		)
-	elif cell is Vector2i:
-		MapBlueprintCompiler._validate_cell(cell, "%s.cell" % path, blueprint.size_cells, errors)
-	else:
-		errors.append("%s requires cell or rect" % path)
-	if not direction is Vector2i or direction == Vector2i.ZERO:
-		errors.append("%s.direction must be a non-zero Vector2i" % path)
-	elif direction.x != 0 and direction.y != 0:
-		errors.append("%s.direction must be orthogonal" % path)
-	values["id"] = object_id
-	expanded["signs"].append(values)
 
 
 static func append_prop(

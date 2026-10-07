@@ -228,18 +228,6 @@ static func _print_primitive(primitive: Dictionary) -> String:
 					_option_suffix(_canonical_options(options))
 				]
 			)
-		&"direction_sign":
-			return (
-				"sign %s %s %d %d %s%s"
-				% [
-					id,
-					_quote(data["text"]),
-					data["cell"].x,
-					data["cell"].y,
-					_direction_text(data["direction"]),
-					_option_suffix(_canonical_options(options))
-				]
-			)
 		&"view_landmark":
 			return (
 				"landmark %s %s %s%s"

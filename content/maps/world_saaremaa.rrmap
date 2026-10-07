@@ -239,9 +239,6 @@ anchor landmark_kaali_lake 70 31 kind=spring
 anchor landmark_strait_landing 90 37 kind=ford
 spawn prototype_inspection 24 19
 patrol prototype_inspection_route 24,19|42,19|68,19|88,19|88,37|88,50|68,26|48,38|24,19
-sign sign.ferry "ferry to reval" 21 21 west
-sign sign.kaali "to the crater" 69 21 south
-sign sign.poide "road to poide" 87 45 east
 transition ferry_to_reval 8 24 4 2 to=reval_harbor_north destination_spawn=from_world_saaremaa spawn=from_reval_harbor spawn_offset_px=128,0 highlight_area=true transition_visual=ground alignment=travel
 transition ferry_to_parnu 99 36 4 2 to=world_parnu destination_spawn=from_world_saaremaa spawn=from_world_parnu spawn_offset_px=-128,0 highlight_area=true transition_visual=ground alignment=travel
 transition road_to_poide 87 56 4 4 to=world_poide destination_spawn=from_world_saaremaa spawn=from_world_poide spawn_offset_px=0,-128 highlight_area=true transition_visual=ground alignment=travel

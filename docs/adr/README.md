@@ -34,5 +34,6 @@ Numbered decisions (Status / Context / Decision / Alternatives / Consequences). 
 - [ADR 0027: A second streaming group for the Reval hinterland](0027-reval-hinterland-streaming-group.md)
 - [ADR 0028: Enter buildings without a loading transition (in-place interiors)](0028-seamless-building-interiors.md)
 - [ADR 0029: Natural Reval maps, and a coast three times larger](0029-natural-reval-maps-and-larger-coast.md)
+- [ADR 0030: Retire the directionsign map primitive](0030-retire-direction-sign-primitive.md)
 
 <!-- docs-index:end -->

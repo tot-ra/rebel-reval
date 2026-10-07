@@ -155,7 +155,7 @@
       "transition_id": "to_world_harju"
     }
   ],
-  "fingerprint": "03962e2900382e05b8662aff089e36966ed82c8380939ef15b0d13e0787659eb",
+  "fingerprint": "839ef77f883798e2a2f87af0820c625a6cc0e2fc844fc8d8d83a4ab80548f5cd",
   "locations": [
     {
       "cell_size": 32,
@@ -167,7 +167,7 @@
       ],
       "location_id": "archbishops_garden",
       "location_kind": "outdoor_streamed",
-      "map_fingerprint": "fe30f74fecfad7a608704c448fe544f4bc37c7ec58bb2860b3a6ffd7abc192f8",
+      "map_fingerprint": "b99357bf550487a004b62e4b8f2d2b11ea0a2afcafd9a6932d5680866c4c98a3",
       "origin_cell": [
         -258,
         80
@@ -179,7 +179,7 @@
         144,
         48
       ],
-      "source_sha256": "74bc631a716db4deff1bb8f9e8a803b39a846251121db564f00b465b627d579f"
+      "source_sha256": "eaad750c4db64b1ecb99ca5fa77aad2f5f589019459781f5c340cb0f5dc9eede"
     },
     {
       "cell_size": 32,
@@ -191,7 +191,7 @@
       ],
       "location_id": "lower_town_slice",
       "location_kind": "outdoor_streamed",
-      "map_fingerprint": "153d578401ab9e128d6e0992630518ffa54153c1c1296c948772033e6529959e",
+      "map_fingerprint": "a3be90364378d264e38d367cd4770ccbf3afada84407bd9a8dbb11a4a6198831",
       "origin_cell": [
         0,
         0
@@ -203,7 +203,7 @@
         152,
         128
       ],
-      "source_sha256": "0246a103bd93b12dcf4f2e2f15f5495e6e6beefdf95439fb495d337e6ae31a18"
+      "source_sha256": "ee3c178eb4db652ec26f27fe66e15f2a221af55963b611228826760a3c0238d4"
     },
     {
       "cell_size": 32,
@@ -215,7 +215,7 @@
       ],
       "location_id": "market_civic_quarter",
       "location_kind": "outdoor_streamed",
-      "map_fingerprint": "75b53a6c95f8f2c12f7e727c8fa625e7e25cc3a0c034744288881da09153fe0b",
+      "map_fingerprint": "323f8e1d74c171dbb08337aea892a7f9c7843560a92cc44154e47e4c8baa5170",
       "origin_cell": [
         -114,
         0
@@ -227,7 +227,7 @@
         114,
         128
       ],
-      "source_sha256": "aef0edeef24a77652876a560a41ea9d1ed41a063978eac378bd6c4c0a73aa690"
+      "source_sha256": "bf80e16244506f7555423bf574e2fad156cc5cfeecaa6ecd8d56a5797e26dfff"
     },
     {
       "cell_size": 32,
@@ -239,7 +239,7 @@
       ],
       "location_id": "monastery_quarter",
       "location_kind": "outdoor_streamed",
-      "map_fingerprint": "d1c6ce7b3cd2d91575b1c97c70a2e0c2e0bc7757212d377db1891b96916dbf82",
+      "map_fingerprint": "123a0631579be5ca903a8582bc39f09131d03c25af1251c02b415566e2959361",
       "origin_cell": [
         -114,
         -112
@@ -251,7 +251,7 @@
         260,
         112
       ],
-      "source_sha256": "0b5159a7957301aa4678bcee4ea1a87cc476c27b0d108d0d2193685cb92f699a"
+      "source_sha256": "a7cfa4eae857a8ce89dbd7860fbe02a08d1a10b35de8274871bf02bf9194ee11"
     },
     {
       "cell_size": 32,
@@ -263,7 +263,7 @@
       ],
       "location_id": "north_quarter",
       "location_kind": "outdoor_streamed",
-      "map_fingerprint": "99e627b08c8c39c32c68d53f9c72c4e67768d8ea457368bd6dced9f86056d855",
+      "map_fingerprint": "99b2089ef9b966476670658a1cd55f89f91eabc2781c2b58d1d8eb79784e1833",
       "origin_cell": [
         -114,
         -252
@@ -275,7 +275,7 @@
         260,
         140
       ],
-      "source_sha256": "ccb3efbbf1c1931ccea04605e9193c38182ad55c76ac5a54e867f2872d24baab"
+      "source_sha256": "04bb8dc8c8ed6b728b276201b0e03b935027a22185d526c83a775f3eb25453d1"
     },
     {
       "cell_size": 32,
@@ -287,7 +287,7 @@
       ],
       "location_id": "reval_harbor_east",
       "location_kind": "outdoor_streamed",
-      "map_fingerprint": "3527491cef5733be33009acfaa3a2c7cba298d22fd24a2ca4c8f66f859b75d6f",
+      "map_fingerprint": "0c71ff5528a7f5eca1b6ac8f733af5b07d4e69dad2440e0a6cffdffecc5879fa",
       "origin_cell": [
         -255,
         -340
@@ -299,7 +299,7 @@
         144,
         80
       ],
-      "source_sha256": "ea05dfd1560feeddca8a9905c9fd43e35096348bbc8461dbf55df47fb2a728e2"
+      "source_sha256": "4cab1bbbf4a1104b4b62f793ba51a9ff15b1a371b2b200d17991a1140c154e46"
     },
     {
       "cell_size": 32,
@@ -311,7 +311,7 @@
       ],
       "location_id": "reval_harbor_north",
       "location_kind": "outdoor_streamed",
-      "map_fingerprint": "3ca356ab8a6d9e43d461872c4a3bf5ac16cb7cf857113c120ec89230d2bbc4cb",
+      "map_fingerprint": "62f9d042be3501db0c05f8a93efcbe24f6740590ebebfe52333f5cbdf1f17491",
       "origin_cell": [
         -111,
         -360
@@ -323,7 +323,7 @@
         160,
         108
       ],
-      "source_sha256": "3625b7f2b1fc34b9a7ad89e77f09bb35eee1c9e2fbf5155327024a53cda239d0"
+      "source_sha256": "e4519414ecb8f91a8d6d2f0d0e8f8e5e375c8e7a255df068ab7db0f84577fedd"
     },
     {
       "cell_size": 32,
@@ -335,7 +335,7 @@
       ],
       "location_id": "south_quarter",
       "location_kind": "outdoor_streamed",
-      "map_fingerprint": "eaa82126bf3317c6be0e443c5bae8bbf369d5e9e14d39e6403a270f6dbe5c2b2",
+      "map_fingerprint": "6acf825842c77bbf916856ff9a925ca44689901797fefe946e9fb95a5213aca9",
       "origin_cell": [
         -258,
         128
@@ -347,7 +347,7 @@
         336,
         96
       ],
-      "source_sha256": "82fc3e0c6010ecdc51c7dedb0e024697dd93447366df0b14c2f994e0d9a83980"
+      "source_sha256": "8365ec4357aedcbc7da216ad798a1a8aad883a3c5f37d54f36d9d84a0e070676"
     },
     {
       "cell_size": 32,
@@ -359,7 +359,7 @@
       ],
       "location_id": "toompea_quarter",
       "location_kind": "outdoor_streamed",
-      "map_fingerprint": "a7300ede934efcf97389001b51a11588e272f4ef24fcb1ca6d118ecff4dfd3f7",
+      "map_fingerprint": "688885cd0037d54cb79cfa8ff4d9043db7e99e749db2918ffd1e85f103ad4cd9",
       "origin_cell": [
         -258,
         -112
@@ -371,7 +371,7 @@
         144,
         192
       ],
-      "source_sha256": "0364b018b184ff4c5b3ae7a2fc4738c0e91d2385e6d039f1aa9550b4b434df3e"
+      "source_sha256": "112a099e0787317ce43622aa100728d05b4ca74d53ba5a1d555ccfcc7c9f7144"
     },
     {
       "cell_size": 32,
@@ -383,7 +383,7 @@
       ],
       "location_id": "viru_gate_foreland",
       "location_kind": "outdoor_streamed",
-      "map_fingerprint": "6ca9a68a5217599e251432788c0ecf0e10f4e143a5f8c38493df15a18cfa371b",
+      "map_fingerprint": "f997101408345fc83357101d868a9cfc90facc5553a9df09cb6c7d713d063793",
       "origin_cell": [
         152,
         -11
@@ -395,7 +395,7 @@
         168,
         120
       ],
-      "source_sha256": "1a7681c5a7ba972c536d9c8c2a12c7d7e47fc7b40ac7c8297afff7bd22c4cfbe"
+      "source_sha256": "07d3684907d60268cee6017b2710f695b02b944c9a4e099ed767cb954804b70a"
     }
   ],
   "root_location_id": "lower_town_slice",

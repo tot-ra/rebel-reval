@@ -970,13 +970,6 @@ transition to_reval_center 34 108 10 4 to=reval_center destination_spawn=to_reva
 transition to_reval_east 138 108 3 4 to=reval_east destination_spawn=vene_district_boundary spawn=from_reval_east spawn_offset_px=0,-128 highlight_area=true transition_visual=ground
 transition to_reval_east_outer 228 43 8 4 to=reval_east destination_spawn=workers_outer_exit spawn=outer_workers_entry spawn_offset_px=160,0 highlight_area=true transition_visual=ground alignment=travel
 transition to_reval_toompea 0 28 3 12 to=reval_toompea destination_spawn=from_reval_north spawn=from_reval_toompea spawn_offset_px=96,0 highlight_area=true transition_visual=ground view_landmark_id=monastery_west_gate_arch
-sign sign.merchant "to merchant district" 106 6 north
-sign sign.outer_wall "outer wall road to harbour" 237 8 north
-sign sign.center "to town square" 36 103 south
-sign sign.vene "to workers' district" 136 103 south
-sign sign.toompea "pikk jalg to toompea" 8 32 west
-sign sign.convent "st michael's convent" 49 47 west
-sign sign.olaf "st olaf's" 99 80 north
 transition to_oleviste_church 93 72 4 2 to=oleviste_church destination_spawn=from_reval_monastery spawn=to_oleviste_church spawn_offset_px=0,96 building_id=st_olaf_silhouette transition_visual=door
 patrol monastery_watch 101,6|101,30|101,56|101,88|39,104|135,88|159,104|135,56|68,54|26,54|8,34
 fade fade.convent 10 10 55 58

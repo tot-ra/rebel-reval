@@ -241,24 +241,6 @@ static func create() -> MapDefinition:
 	# and south lie beyond the wall and moat, so open glacis begins there.
 	definition.surroundings_town_sides = [&"north", &"west"]
 
-	definition.direction_signs = [
-		{
-			"text": "to harbour",
-			"position": definition.cell_rect_center(Rect2i(78, 17, 1, 1)),
-			"direction": Vector2.RIGHT,
-		},
-		{
-			"text": "to town centre",
-			"position": definition.cell_rect_center(Rect2i(2, 18, 1, 1)),
-			"direction": Vector2.LEFT,
-		},
-		{
-			"text": "to south quarter",
-			"position": definition.cell_rect_center(Rect2i(41, 51, 1, 1)),
-			"direction": Vector2.DOWN,
-		},
-	]
-
 	definition.props = [
 		# Smithy work yard.
 		{"id": &"courtyard_firewood", "kind": MapTypes.PROP_KIND_FIREWOOD_STACK, "position": definition.cell_rect_center(Rect2i(56, 24, 2, 2))},

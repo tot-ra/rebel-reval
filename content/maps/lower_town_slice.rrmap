@@ -357,10 +357,6 @@ patrol viru_watch 110,53|80,53|65,53|65,75|65,88|65,116
 patrol iron_convoy 24,10|24,28|24,42|52,54|76,54
 fade fade.viru_street 17 46 76 22
 camera 0 0 152 128
-sign sign.viru_road "viru gate and eastern road" 135 46 east
-sign sign.town_centre "to town centre" 3 49 west
-sign sign.south_quarter "to knights district" 64 122 south
-sign sign.karja_gate "karja gate" 71 116 south
 # P4-036: consequence overlays toggled by EnvironmentalConsequenceController.
 prop consequence_rebel_graffiti banner 44 118 rect=2,2 faction=harju_kings
 prop consequence_order_notice banner 100 58 rect=2,2 faction=livonian_order

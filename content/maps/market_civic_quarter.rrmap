@@ -193,14 +193,6 @@ transition to_reval_south 58 126 12 2 to=reval_south destination_spawn=from_reva
 transition to_guild_hall 16 27 2 2 to=st_olafs_guild_hall destination_spawn=from_reval_center spawn=to_guild_hall spawn_offset_px=96,0 building_id=guild_frontage transition_visual=door
 # Diegetic signs use destination/function language where modern street names are
 # first attested after 1343.
-sign sign.viru "to the clay gate road" 104 50 east
-sign sign.karja "to the cattle road" 62 94 south
-sign sign.pikk "to st olaf and the harbour ward" 37 6 north
-sign sign.niguliste "to st nicholas" 6 48 west
-sign sign.toompea "to the castle hill" 4 52 west
-sign sign.south "to the southern ward" 62 122 south
-sign sign.town_hall "town hall" 40 65 south
-sign sign.holy_spirit "holy spirit chapel" 47 15 north
 patrol civic_watch 39,6|39,21|48,21|48,31|46,44|64,52|86,52|108,53|86,52|64,52|46,64|24,64|24,85|46,85|64,85|64,108|64,123|64,108|46,108|24,108|24,85|24,64|46,64
 fade fade.town_hall 22 63 38 22
 fade fade.holy_spirit 34 0 44 31

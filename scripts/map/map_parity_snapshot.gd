@@ -38,7 +38,6 @@ static func serialize(definition: MapDefinition, grid: MapTerrainGrid) -> String
 		"transitions": _sorted_id_records(definition.transitions),
 		"patrols": _sorted_records(_strip_optional_ids(definition.patrols)),
 		"landmarks": _sorted_id_records(definition.view_landmarks),
-		"signs": _sorted_records(_strip_optional_ids(definition.direction_signs)),
 		"exclusions": _sorted_records(definition.excluded_areas),
 		"fade_volumes": _sorted_records(_strip_optional_ids(definition.fade_volumes)),
 		"source_references": _sorted_strings(definition.source_references),

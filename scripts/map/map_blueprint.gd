@@ -527,50 +527,6 @@ func decal_rect(
 	return self
 
 
-func direction_sign(
-	sign_id: StringName,
-	text: String,
-	cell: Vector2i,
-	direction: Vector2i,
-	style_id: StringName = &"",
-	overrides: Dictionary = {}
-) -> MapBlueprint:
-	_append_primitive(
-		&"direction_sign",
-		sign_id,
-		{
-			"text": text,
-			"cell": cell,
-			"direction": direction,
-		},
-		style_id,
-		overrides
-	)
-	return self
-
-
-func direction_sign_rect(
-	sign_id: StringName,
-	text: String,
-	placement_rect: Rect2i,
-	direction: Vector2i,
-	style_id: StringName = &"",
-	overrides: Dictionary = {}
-) -> MapBlueprint:
-	_append_primitive(
-		&"direction_sign",
-		sign_id,
-		{
-			"text": text,
-			"rect": placement_rect,
-			"direction": direction,
-		},
-		style_id,
-		overrides
-	)
-	return self
-
-
 func view_landmark(
 	landmark_id: StringName,
 	kind: StringName,

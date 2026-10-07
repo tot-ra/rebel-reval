@@ -79,10 +79,6 @@ static func build_definition(blueprint: MapBlueprint, expanded: Dictionary) -> M
 				points.append(MapBlueprintCompiler._cell_center(cell, definition.cell_size))
 		definition.patrols.append({"id": values["id"], "points": points})
 
-	var signs: Array = expanded["signs"]
-	signs.sort_custom(MapBlueprintCompiler._compare_id_records)
-	for values in signs:
-		definition.direction_signs.append(_compile_sign(values, definition))
 	var landmarks: Array = expanded["landmarks"]
 	landmarks.sort_custom(MapBlueprintCompiler._compare_id_records)
 	for values in landmarks:
@@ -221,16 +217,6 @@ static func _compile_anchor(values: Dictionary, definition: MapDefinition) -> Di
 	return output
 
 
-static func _compile_sign(values: Dictionary, definition: MapDefinition) -> Dictionary:
-	var direction := Vector2(values["direction"]).normalized()
-	return {
-		"id": values["id"],
-		"text": values["text"],
-		"position": MapBlueprintCompiler._placement_position(values, definition.cell_size),
-		"direction": direction,
-	}
-
-
 static func _compile_landmark(values: Dictionary, definition: MapDefinition) -> Dictionary:
 	var output := {
 		"id": values["id"],
@@ -303,7 +289,6 @@ static func _fingerprint(definition: MapDefinition) -> String:
 		"player_spawn": definition.player_spawn,
 		"player_spawn_id": definition.get_meta("player_spawn_id", &""),
 		"transitions": definition.transitions,
-		"direction_signs": definition.direction_signs,
 		"excluded_areas": definition.excluded_areas,
 		"patrols": definition.patrols,
 		"interaction_anchors": definition.interaction_anchors,

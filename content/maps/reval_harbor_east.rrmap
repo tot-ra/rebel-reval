@@ -136,8 +136,6 @@ anchor from_harbor_north 138 51 rect=2,2
 anchor quay_plaza 68 53 rect=2,2
 anchor kalamaja_shore 55 54 rect=2,2
 transition to_harbor_north 140 47 4 8 to=reval_harbor_north destination_spawn=from_harbor_east spawn=from_harbor_north spawn_offset_px=-128,0 highlight_area=true transition_visual=ground
-sign sign.merchant_landing "merchant landing" 136 49 east
-sign sign.shore "kalamaja fishing shore" 70 49 north
 patrol harbor_east_watch 62,62|62,55|46,52|36,55|46,52|72,55|86,51|106,51|138,51|106,51
 # Only open deep water stays excluded. Shallow-band rects were removed: sand spits
 # now reach into rows they covered, which walled swimmers off the beach. Water

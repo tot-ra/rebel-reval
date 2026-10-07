@@ -3239,52 +3239,6 @@
       ]
     }
   ],
-  "signs": [
-    {
-      "direction": [
-        -1.000000000,
-        0.000000000
-      ],
-      "position": [
-        112.000000000,
-        1584.000000000
-      ],
-      "text": "to town centre"
-    },
-    {
-      "direction": [
-        0.000000000,
-        1.000000000
-      ],
-      "position": [
-        2064.000000000,
-        3920.000000000
-      ],
-      "text": "to knights district"
-    },
-    {
-      "direction": [
-        0.000000000,
-        1.000000000
-      ],
-      "position": [
-        2288.000000000,
-        3728.000000000
-      ],
-      "text": "karja gate"
-    },
-    {
-      "direction": [
-        1.000000000,
-        0.000000000
-      ],
-      "position": [
-        4336.000000000,
-        1488.000000000
-      ],
-      "text": "viru gate and eastern road"
-    }
-  ],
   "source_references": [
     "content/locations/loc.lower_town_slice.json",
     "docs/SCENES/a-bitter-brew.md",

@@ -1314,8 +1314,6 @@ func _build_streamed_object(record: Dictionary) -> Node:
 				+ visual_elevation
 			)
 			return prop_node
-	# Authored direction_sign records stay indexed (stable IDs, parity) but are not
-	# drawn: painted wooden road signs read as game UI, not medieval Reval.
 	return null
 
 

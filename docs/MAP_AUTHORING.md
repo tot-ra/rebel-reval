@@ -166,7 +166,6 @@ The initial vocabulary must cover the existing runtime contract without exposing
 | `patrol_path` | Stable ID and ordered cell points | `patrols` |
 | `excluded_rect` | Cell rectangle blocked from traversal | `excluded_areas` |
 | `fade_rect` | Cell rectangle for roof or foreground fade; optional `music_theme` overrides the district playlist while the player stands inside | `fade_volumes` |
-| `direction_sign` | Stable association, text, placement, outgoing direction | `direction_signs` (data only, not rendered in the 3D view) |
 | `view_landmark` | Stable ID, supported view-only kind, placement and dimensions | `view_landmarks` |
 | `surroundings` | Explicit per-side view continuation (`town`, `water`, `woodland`) | `surroundings_sides` |
 | `camera_bounds` | Optional cell rectangle, otherwise full map bounds | `camera_bounds` |
@@ -810,7 +809,7 @@ statement     = source | surroundings | camera | style
               | relief_cliff | relief_noise
               | building | wall | prop
               | spawn | transition | anchor | patrol | exclude | fade | decal
-              | sign | landmark | package | prefab | override ;
+              | landmark | package | prefab | override ;
 
 map           = "map", ID, ID, INT, INT, ID,
                 { map_option } ;
@@ -863,8 +862,6 @@ exclude       = "exclude", ID, RECT ;
 fade          = "fade", ID, RECT ;
 decal         = "decal", ID, DECAL_KIND, RECT,
                 [ "radius=", NUMBER ], [ "rotation=", NUMBER ], [ "tint=", COLOR ] ;
-sign          = "sign", ID, STRING, INT, INT, SIDE,
-                [ "style=", ID ], { typed_option } ;
 landmark      = "landmark", ID, ID, RECT,
                 [ "style=", ID ], { typed_option } ;
 package       = "package", "urban", "1" ;
@@ -995,7 +992,6 @@ participate in the canonical fingerprint. Toompea currently uses
 | `exclude` | `excluded_rect()` |
 | `fade` | `fade_rect()` |
 | `decal` | `decal_rect()` |
-| `sign` | `direction_sign()` |
 | `landmark` | `view_landmark()` |
 | `package urban 1` | `use_prefab_package(UrbanPrefabPackage.create())` |
 | `prefab` | `prefab_instance()` with `MapTransform` |
@@ -1050,7 +1046,6 @@ spawn spawn.main 3 7
 anchor anchor.house 6 6 kind=door
 patrol patrol.watch 3,7|10,7|16,7
 transition exit.south 10 13 2 1 to=prototype_hub destination_spawn=entry.north spawn=spawn.main
-sign sign.exit "to prototype hub" 9 12 south
 exclude blocked.storage 15 9 2 2
 fade fade.house 4 3 5 3
 landmark landmark.gate gate_arch 9 2 2 1 wall_color=8c8980ff top_px=128 passage_axis=z

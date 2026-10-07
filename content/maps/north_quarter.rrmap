@@ -240,12 +240,6 @@ transition to_reval_harbor 103 0 7 3 to=reval_harbor_north destination_spawn=fro
 transition to_harbor_outer 228 0 8 3 to=reval_harbor_north destination_spawn=from_reval_north_outer spawn=outer_harbor_exit spawn_offset_px=0,128 highlight_area=true transition_visual=ground alignment=travel
 transition to_monastery 98 136 12 4 to=reval_monastery destination_spawn=from_reval_north spawn=from_monastery spawn_offset_px=0,-128 highlight_area=true transition_visual=ground
 transition to_monastery_outer 228 136 8 4 to=reval_monastery destination_spawn=outer_monastery_exit spawn=from_monastery_outer spawn_offset_px=0,-128 highlight_area=true transition_visual=ground alignment=travel
-sign sign.harbour "to trade harbour" 107 31 north
-sign sign.outer_wall "outer wall road to harbour" 237 10 north
-sign sign.monastery "to monastery district" 102 131 south
-sign sign.pikk "pikk street" 107 54 north
-sign sign.lai "lai street" 141 75 east
-sign sign.goldsmiths "goldsmiths' row" 88 104 west
 patrol merchant_watch 104,133|104,109|104,78|104,47|104,23|138,47|138,78|138,109|104,133
 fade fade.merchant_court 71 104 67 26
 camera 0 0 208 140

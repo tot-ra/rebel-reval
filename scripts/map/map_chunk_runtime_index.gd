@@ -109,11 +109,6 @@ func _index_definition(definition: MapDefinition) -> void:
 		)
 	for landmark in definition.view_landmarks:
 		_add_area_record(&"landmark", landmark, landmark.get("rect", Rect2()))
-	for sign_index in definition.direction_signs.size():
-		var sign: Dictionary = definition.direction_signs[sign_index].duplicate(true)
-		if String(sign.get("id", "")).is_empty():
-			sign["id"] = StringName("visual.direction_sign.%d" % sign_index)
-		_add_point_record(&"direction_sign", sign, sign.get("position", Vector2.ZERO))
 
 
 func _add_point_record(

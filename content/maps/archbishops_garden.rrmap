@@ -211,10 +211,6 @@ anchor from_reval_south 29 42 rect=2,2
 transition to_reval_toompea 24 0 10 2 to=reval_toompea destination_spawn=from_archbishops_garden spawn=from_reval_toompea spawn_offset_px=0,96 highlight_area=true transition_visual=ground
 transition to_reval_center 142 5 2 8 to=reval_center destination_spawn=to_archbishops_garden spawn=from_reval_center spawn_offset_px=-96,0 highlight_area=true transition_visual=ground view_landmark_id=center_gate_arch
 transition to_reval_south 24 46 10 2 to=reval_south destination_spawn=from_archbishops_garden spawn=from_reval_south spawn_offset_px=0,-96 highlight_area=true transition_visual=ground view_landmark_id=garden_south_gate_arch
-sign sign.toompea "to toompea" 32 5 north
-sign sign.center "to town square" 136 11 east
-sign sign.south "to knights district" 32 42 south
-sign sign.garden "archbishop's garden" 48 16 west
 patrol garden_watch 29,5|29,18|54,18|84,12|118,12|136,9|104,29|70,29|29,29|29,42
 exclude blocked.west_woodland 0 0 9 48
 fade fade.canon_close 86 4 38 16

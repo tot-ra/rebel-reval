@@ -109,8 +109,6 @@ func parse_statement(tokens: Array[Dictionary], line: int) -> void:
 			_parse_simple_rect(tokens, line, &"fade")
 		"decal":
 			_parse_decal(tokens, line)
-		"sign":
-			_parse_sign(tokens, line)
 		"landmark":
 			_parse_landmark(tokens, line)
 		"package":
@@ -778,28 +776,6 @@ func _parse_decal(tokens: Array[Dictionary], line: int) -> void:
 			return
 		overrides["tint"] = parsed_tint
 	_parser._blueprint.decal_rect(StringName(tokens[1]["text"]), kind, rect, radius, overrides)
-
-
-func _parse_sign(tokens: Array[Dictionary], line: int) -> void:
-	if not _tokens.arity(
-		tokens,
-		line,
-		6,
-		"sign <id> <quoted_text> <x> <y> <north|east|south|west> [style=id] [typed overrides]"
-	):
-		return
-	var cell = _tokens.vector_from_tokens(tokens, line, 3)
-	var direction = _tokens.cardinal(tokens[5]["text"], line, tokens[5]["column"])
-	var split = _tokens.style_and_overrides(tokens, line, 6)
-	if cell != null and direction != null and split != null:
-		_parser._blueprint.direction_sign(
-			StringName(tokens[1]["text"]),
-			tokens[2]["text"],
-			cell,
-			direction,
-			split["style"],
-			split["overrides"]
-		)
 
 
 func _parse_landmark(tokens: Array[Dictionary], line: int) -> void:

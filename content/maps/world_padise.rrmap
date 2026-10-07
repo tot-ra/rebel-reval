@@ -199,7 +199,5 @@ spawn prototype_inspection 18 8
 patrol prototype_inspection_route 18,8|32,8|32,27|40,27|40,46|51,46|66,46|66,54|84,54|84,68|100,68|112,68|112,49|100,49|100,27|82,22
 transition road_to_reval 136 4 4 6 to=reval_toompea destination_spawn=from_world_padise spawn=from_reval_west spawn_offset_px=-128,0 highlight_area=true transition_visual=ground alignment=travel
 transition road_to_parnu 0 4 4 6 to=world_parnu destination_spawn=from_world_padise spawn=from_world_parnu spawn_offset_px=128,0 highlight_area=true transition_visual=ground alignment=travel
-sign sign_reval "Reval" 130 10 east
-sign sign_haapsalu "Haapsalu" 10 10 west
 camera 0 0 140 90
 surroundings north woodland east woodland south woodland west woodland

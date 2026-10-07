@@ -442,7 +442,7 @@ func _clip_to_bounds() -> void:
 			&"wall_run":
 				data["start"] = _clamp_cell(data.get("start", Vector2i.ZERO))
 				data["end"] = _clamp_cell(data.get("end", Vector2i.ZERO))
-			&"prop", &"player_spawn", &"direction_sign":
+			&"prop", &"player_spawn":
 				if data.has("cell"):
 					data["cell"] = _clamp_cell(data["cell"])
 				elif data.has("rect"):

@@ -98,7 +98,7 @@ map syntax_test loc.syntax_test 12 10 grass # map
 terrain mud mud 1 1 2 2 layer=3 order=4
 prop anvil.main anvil 4 5
 spawn spawn.main 2 2
-sign sign.south "quoted # text" 3 3 south
+source "quoted # text"
 """
 	var parsed := MapRrmapParser.parse(source, "res://syntax_test.rrmap")
 	assert_true(parsed.is_ok(), str(parsed.formatted_diagnostics()))
@@ -107,7 +107,7 @@ sign sign.south "quoted # text" 3 3 south
 	assert_eq(parsed.blueprint.primitives[0]["primitive"], &"terrain_rect")
 	assert_eq(parsed.blueprint.primitives[0]["data"]["layer"], 3)
 	assert_eq(parsed.blueprint.primitives[0]["data"]["order"], 4)
-	assert_eq(parsed.definition.direction_signs[0]["text"], "quoted # text")
+	assert_eq(parsed.definition.source_references[0], "quoted # text")
 
 
 func test_map_elevation_round_trips_into_compiled_metadata() -> void:
