@@ -12,6 +12,7 @@ from creature import Creature, build_mjcf
 
 CTRL_EVERY = 10          # physics steps per control step (50 Hz at dt=0.002)
 G = 9.81
+W_SPEED = 1.0            # weight of the speed-tracking term (set by the trainer)
 NCTX = 6                 # [froude, log size, log mass_mult, log strength, load, belly]
 
 class Sim:
@@ -154,7 +155,7 @@ class Sim:
         alive_frac = alive / n
         mean_verr = verr / max(vcount, 1) if vcount else 2.0
         na = max(alive, 1)
-        cost = (10.0 * (1 - alive_frac) + mean_verr + self.c.w_effort * effort / na
+        cost = (10.0 * (1 - alive_frac) + W_SPEED * mean_verr + self.c.w_effort * effort / na
                 + self.c.w_height * sag / na * 10 + self.c.w_pitch * tilt / na)
         return dict(cost=cost, alive=alive_frac, dist=float(d.qpos[0]), speed=float(d.qpos[0] / T), verr=mean_verr,
                     freq=f, v_target=v_target, traj=traj)

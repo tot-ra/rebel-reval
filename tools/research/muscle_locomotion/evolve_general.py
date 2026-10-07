@@ -57,8 +57,9 @@ if __name__ == "__main__":
     ap.add_argument("--gens", type=int, default=300); ap.add_argument("--pop", type=int, default=48)
     ap.add_argument("--T", type=float, default=10.0); ap.add_argument("--k", type=int, default=4)
     ap.add_argument("--seed", type=int, default=1); ap.add_argument("--sigma", type=float, default=0.6)
-    ap.add_argument("--init"); ap.add_argument("--out", required=True)
+    ap.add_argument("--init"); ap.add_argument("--out", required=True); ap.add_argument("--w-speed", type=float, default=1.0)
     a = ap.parse_args()
+    import sim as _sim_mod; _sim_mod.W_SPEED = a.w_speed
     rng = np.random.default_rng(a.seed)
     train = [make_body(rng, a.ranges) for _ in range(10)]
     test = [make_body(np.random.default_rng(1000 + i), a.ranges) for i in range(6)]
