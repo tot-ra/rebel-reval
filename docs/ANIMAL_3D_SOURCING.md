@@ -37,6 +37,8 @@ Primary sources for Rockstar and CD Projekt RED pipelines were blocked, so the f
 4. **Behaviour reuse for variety.** Flee, graze, flock and perch states with per-species parameters make a small clip set read as many animals.
 5. **Instancing for crowds.** Flocks of birds use a shared animated mesh with per-instance phase offset, or a vertex-animation texture, rather than one skeleton per bird.
 
+A first build-time experiment with evolved muscle-driven gaits (planar MuJoCo, CMA-ES) is described in [Muscle-driven procedural locomotion](./SYSTEMS/MUSCLE_LOCOMOTION.md): a quadruped walks, a biped does not yet.
+
 ## What the repo already has (humans vs animals)
 
 - **Humans:** MPFB (MakeHuman plugin for Blender, v2.0.17, CC0 MakeHuman system assets) builds bodies headless in Blender: `tools/assets/realistic_humans/install_mpfb.sh`, `build_human.py`, `specs.py`. MPFB makes the base body and its weights; the bones are then moved onto a shared 41-bone motion rig with 76 CC0 KayKit clips, so every human shares one clip library (ADR 0022). Build-time only; the game never loads MPFB.

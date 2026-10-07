@@ -14,12 +14,12 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1070`
+- Active Markdown files scanned: `1071`
 - Markdown files excluded as archive/reference/out of active scope: `743`
-- Local/external links inspected: `12733`
-- Links to active Markdown docs: `11869`
+- Local/external links inspected: `12748`
+- Links to active Markdown docs: `11876`
 - Links to existing archive/reference/non-active local docs: `430`
-- External links skipped for reachability: `83`
+- External links skipped for reachability: `88`
 - Issues found: `4`
 
 ## Issue counts
@@ -1014,6 +1014,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/SYSTEMS/LIVING_CITY.md`
 - `docs/SYSTEMS/LIVING_VEGETATION.md`
 - `docs/SYSTEMS/MAGIC.md`
+- `docs/SYSTEMS/MUSCLE_LOCOMOTION.md`
 - `docs/SYSTEMS/NATURAL.md`
 - `docs/SYSTEMS/OBJECT_CATALOG.md`
 - `docs/SYSTEMS/PSYCHE.md`
