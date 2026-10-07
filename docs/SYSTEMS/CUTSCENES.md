@@ -122,6 +122,6 @@ file that does not exist.
   `assets/SOURCES.csv`. They are visibly softer than the six `gpt-image-1` frames of chapter
   I and contain minor anachronisms (an overhead wire in `prologue_taken_in/s02_street.jpg`,
   modern-looking footwear in `s01_door.jpg`, window glazing bars in the almshouse frames).
-  Regeneration is tracked as a follow-up; the prompts to re-run are already in the records.
+  Regeneration is tracked as **R-1330**; the prompts to re-run are already in the records.
 - **No video tier.** `video` is parsed and preferred over `still` when set, but no shot sets
   it and no video decoding path has been exercised.
