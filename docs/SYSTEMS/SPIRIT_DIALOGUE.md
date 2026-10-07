@@ -119,6 +119,10 @@ A dialogue record may declare a top-level `duel` and tag nodes and choices with 
 
 **Authoring-cost note:** tagging a node costs one `move` line (kind, element, stakes); the real cost is designing each exchange so the counters and elements make sense (about the work of writing a normal branching scene twice over for the duel scenes). Both duel scenes plus the Kalev scene and three characters were written in one pass. Not yet wired to a location, observation mode (SD-06) or the hero spawn.
 
+## Review
+
+Prototype review with evidence and a go recommendation: [`spirit_dialogue_prototype_review.md`](../reports/spirit_dialogue_prototype_review.md).
+
 ## Planned entry points
 
 The runner accessors and the spirit arena above are the entry points. First deliverable is a one-scene prototype (the almshouse quarrel) with schema fields, a validator check, and an arena host built on the existing combat feel. Tasks are to be created on the project board with allowed files and verification.
