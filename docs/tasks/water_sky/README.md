@@ -1,7 +1,7 @@
 # Water and sky realism task pack (Tidewater port)
 
-Status: proposed task pack, 2026-09-25. None of these tasks are in [`TODO.md`](../../../TODO.md) yet.
-Each file contains a ready-to-paste `TODO.md` line; give it the next free `P0-` id when it is added
+Status: proposed task pack, 2026-09-25. None of these tasks are in the project task board (`tasks` tool) yet.
+Each file contains a ready-to-paste the project task board (`tasks` tool) line; give it the next free `P0-` id when it is added
 (the last used id on 2026-09-25 was **P0-229**). The `WS-NN` ids below are local names only.
 
 ## Reference

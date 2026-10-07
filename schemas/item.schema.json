@@ -167,6 +167,10 @@
         "charge_threshold_sec": {
           "type": "number",
           "exclusiveMinimum": 0
+        },
+        "weapon_class": {
+          "description": "Player move set (docs/SYSTEMS/COMBAT_ANIMATION.md). Presentation and per-step multipliers only; damage stays in attack_profile.",
+          "enum": ["unarmed", "hammer", "sword", "spear"]
         }
       }
     },

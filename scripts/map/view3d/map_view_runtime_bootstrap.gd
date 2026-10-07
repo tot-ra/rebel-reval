@@ -63,6 +63,8 @@ static func install(
 	magic_vfx.name = "MagicVfx"
 	runtime.add_child(magic_vfx)
 	magic_vfx.call("bind", runtime._definition.cell_size, scene_root)
+	# R-1198: ground height under effects and the iron-ward overlay on Kalev.
+	magic_vfx.call("bind_world", runtime._definition, runtime._player, runtime._player_rig)
 	# The rig's _ready() creates distance LOD meshes; assign the isolated light
 	# layer only after the runtime enters the tree so every generated visual gets it.
 	runtime._player_rig.add_visual_layer(PLAYER_LIGHT_LAYER)
@@ -148,6 +150,8 @@ static func install_hosted(
 	magic_vfx.name = "MagicVfx"
 	runtime.add_child(magic_vfx)
 	magic_vfx.call("bind", runtime._definition.cell_size, scene_root)
+	# R-1198: ground height under effects and the iron-ward overlay on Kalev.
+	magic_vfx.call("bind_world", runtime._definition, runtime._player, runtime._player_rig)
 	# The host rig outlives this runtime; add the light layer and fill only once.
 	if runtime._player_rig.get_node_or_null("ReadabilityFill") == null:
 		runtime._player_rig.add_visual_layer(PLAYER_LIGHT_LAYER)

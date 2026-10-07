@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ddvwtirkd0imj"
-path.s3tc="res://.godot/imported/hose_hose_normal.png-22fbcc226ee065b570b1e48d12843732.s3tc.ctex"
-path.etc2="res://.godot/imported/hose_hose_normal.png-22fbcc226ee065b570b1e48d12843732.etc2.ctex"
+path.s3tc="res://.godot/imported/hose_hose_normal.png-523dd135795093e01c179dbb16250d8d.s3tc.ctex"
+path.etc2="res://.godot/imported/hose_hose_normal.png-523dd135795093e01c179dbb16250d8d.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -16,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/characters/kalev_fresh/hose/hose_hose_normal.png"
-dest_files=["res://.godot/imported/hose_hose_normal.png-22fbcc226ee065b570b1e48d12843732.s3tc.ctex", "res://.godot/imported/hose_hose_normal.png-22fbcc226ee065b570b1e48d12843732.etc2.ctex"]
+dest_files=["res://.godot/imported/hose_hose_normal.png-523dd135795093e01c179dbb16250d8d.s3tc.ctex", "res://.godot/imported/hose_hose_normal.png-523dd135795093e01c179dbb16250d8d.etc2.ctex"]
 
 [params]
 

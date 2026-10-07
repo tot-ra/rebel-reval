@@ -70,7 +70,7 @@ A set under `assets/buildings/fortification/`, kit-bashed on AR-04, built to the
   `tests/godot/test_wall_walk_access.gd` (if present)
 - `tools/capture_ar11_fortifications.gd` (+ `.uid`, new), `tools/capture_fortification_realism.gd`
 - `docs/ASSET_INVENTORY.md`, `docs/ART_BIBLE.md`,
-  `docs/reports/ar11_fortifications.md`, `docs/reports/images/ar11_*.png`, `TODO.md`
+  `docs/reports/ar11_fortifications.md`, `docs/reports/images/ar11_*.png`, the project task board (`tasks` tool)
 
 ## Constraints and non-goals
 
@@ -127,9 +127,9 @@ git diff --check
 
 ## Doc updates
 
-`docs/ASSET_INVENTORY.md`, `docs/ART_BIBLE.md`, `docs/reports/ar11_fortifications.md`, `TODO.md`.
+`docs/ASSET_INVENTORY.md`, `docs/ART_BIBLE.md`, `docs/reports/ar11_fortifications.md`, the project task board (`tasks` tool).
 
-## TODO.md line
+## project task board line
 
 ```
 - [ ] R-969 | deps: R-962 | deliverable: assets/buildings/fortification set covering repeatable coursed/rubble/precinct/unfinished wall sections with real batter, putlog bands, repeated merlon parapet, corner returns and arrow slits; drum, square and horseshoe towers with conical tile roofs plus an unfinished tower=false variant and distinct Kuldjala, Nunnatorn and Rentenitorn silhouettes; Viru gate towers, passage vault, machicoulis and flanking walls with the existing gate GLBs folded onto the module; wall-walk deck, stair, ladder, hatch and hoarding matching the 19 authored wall_walk primitives; and rampart, ditch revetment, palisade and hill barrier/gate fabric, replacing the asset-free procedural fortification builder | allowed files: per docs/tasks/architecture/AR-11_fortification_set.md | verify: `--filter=test_fortification_buildings,test_wall_walk_access,test_architecture_kit`; full Godot suite; blueprint validate; verify_p4_027f_tower_portfolio; asset sources/lint/storage; map audit, activation, composition; active docs; git diff --check; all 182 wall records and 19 wall-walk primitives resolve; wall sections tile seamlessly and turn corners without interpenetration; merlons are repeated geometry; round_tower=true gives a drum with conical tile roof; named assertion that tower=false is geometrically distinguishable as unfinished with no ground door or arrow slits; three distinct named-tower silhouettes; wall-walk deck top matches the authored platform height exactly and all traversal tests pass unchanged; models within the ADR 0025 budget with LODs; bit-identical walkability with wall-walk cells reported separately; empty `git diff --stat content/maps/`; matched before/after long-wall, drum tower, unfinished-vs-finished, Viru gate complex, three-tower and from-the-wall-walk plates plus a raking-light coursing plate at noon/overcast/midnight on Compatibility and Metal at both tiers; frame/draw-call/material/triangle budget; named human review that the wall reads as hand-laid limestone and incomplete fabric is legible

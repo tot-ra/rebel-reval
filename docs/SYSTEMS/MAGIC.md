@@ -6,6 +6,8 @@
 **Legacy seeds (reference only):** [`character/MAGIC-ELEMENTS.md`](../../character/MAGIC-ELEMENTS.md), [`character/PAGAN-MAGIC.md`](../../character/PAGAN-MAGIC.md), [`character/CHRISTIAN-MAGIC.md`](../../character/CHRISTIAN-MAGIC.md)  
 **Runtime implementation:** **P7-010** foundation verified (R-332): `schemas/magic.schema.json`, `MagicResolver`, GameState willpower/piety/health, grants and conduit save fields, hammer-equip and smithy-anvil conduit hooks, and `tests/godot/test_magic_runtime.gd` covering grant/revoke and every `magic.fail.*` code. Section 8 remains the partial-ship bar.
 
+**Player surface:** quick menu **Magic [R]** opens the spell cookbook (`SpellforgeHud`, `SpellforgeModel`, `SpellforgeController` on `player.tscn`); number keys cast learned recipes 1–5; the mana orb shows the resource. Delivery nodes live in `scripts/magic/` (`MagicProjectile2D`, `MagicAreaPulse2D`, `MagicPersistentArea2D`, `MagicHealingOverTime`, `MagicIllusionaryDouble2D`, executed by `MagicCastExecutor2D`); 3D effects are in `scripts/map/view3d/map_view_magic_vfx.gd`. New games start with the fireball, earth tremor, and iron skin grants ([`STATE_AND_SAVES.md`](./STATE_AND_SAVES.md#sessionstate-and-replacement)).
+
 ---
 
 ## 1. Purpose

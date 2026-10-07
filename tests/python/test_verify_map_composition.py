@@ -121,8 +121,7 @@ class VerifyMapCompositionTest(unittest.TestCase):
         self.assertIn("R-986", grace["lower_town_slice"]["until"])
         # R-285 closed the Monastery ordinary-fabric gap; its card must pass unaided.
         self.assertNotIn("monastery_quarter", grace)
-        # R-1086 closed the South Quarter inside/outside-wall H-band gap.
-        self.assertNotIn("south_quarter", grace)
+        self.assertIn("R-282", grace["south_quarter"]["until"])
         for map_id in grace:
             self.assertTrue(self.thresholds["maps"][map_id]["enforce"])
 
@@ -134,10 +133,10 @@ class VerifyMapCompositionTest(unittest.TestCase):
 
     def test_historical_band_grace_keeps_the_card_enrolled(self) -> None:
         errors = self._with_band_grace(
-            lambda p: p["maps"]["lower_town_slice"].update(enforce=False)
+            lambda p: p["maps"]["south_quarter"].update(enforce=False)
         )
         self.assertTrue(
-            any("historical band grace for lower_town_slice requires enforce=true" in e for e in errors)
+            any("historical band grace for south_quarter requires enforce=true" in e for e in errors)
         )
 
     def _with_band_grace(self, mutate) -> list[str]:

@@ -144,49 +144,45 @@ static func canopy_mesh_for(silhouette: StringName) -> ArrayMesh:
 			return leaf_canopy_mesh()
 
 
+## Cross-card tuft textured from the R-1103 blade atlas. Four curved cards fan
+## out at golden-angle yaw so the clump reads from any camera angle. UV.y is the
+## planted-root-to-tip height (wind weight); UV2.x is the card's atlas cell and
+## UV2.y flags atlas sampling in map_view_grass.gdshader.
 static func grass_tuft_mesh() -> ArrayMesh:
-	const CACHE_KEY := &"grass_tuft"
+	const CACHE_KEY := &"grass_tuft_cards_v2"
 	if _mesh_cache.has(CACHE_KEY):
 		return _mesh_cache[CACHE_KEY]
 	var surface := SurfaceTool.new()
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
-	# Four curved segments keep the silhouette supple at eye level. Each blade
-	# is narrow, independently leaned and rooted inside a small basal rosette.
-	for blade in 14:
-		var yaw := float(blade) * 2.39996 + MeshMath.hash01(blade, 3, 17) * 0.7
+	const SEGMENTS := 4
+	for card in 4:
+		var yaw := float(card) * 0.7854 * 2.0 + MeshMath.hash01(card, 3, 17) * 0.5
 		var direction := Vector3(sin(yaw), 0, cos(yaw))
 		var side := Vector3(cos(yaw), 0, -sin(yaw))
-		var height := 0.22 + MeshMath.hash01(blade, 11, 41) * 0.31
-		var lean := 0.07 + MeshMath.hash01(blade, 7, 29) * 0.24
-		var half_width := 0.006 + MeshMath.hash01(blade, 13, 53) * 0.006
-		var root := direction * (0.015 + MeshMath.hash01(blade, 17, 61) * 0.075)
-		var tint := Color(0.88, 0.94, 0.73).lerp(
-			Color(1.08, 1.04, 0.91), MeshMath.hash01(blade, 19, 71)
+		var height := 0.42 + MeshMath.hash01(card, 11, 41) * 0.16
+		var half_width := 0.30 + MeshMath.hash01(card, 13, 53) * 0.10
+		var lean := 0.05 + MeshMath.hash01(card, 7, 29) * 0.10
+		var tint := Color(0.94, 0.97, 0.86).lerp(
+			Color(1.06, 1.03, 0.94), MeshMath.hash01(card, 19, 71)
 		)
-		for segment in 4:
+		for segment in SEGMENTS:
 			var points: Array[Vector3] = []
 			var normals: Array[Vector3] = []
 			var uvs: Array[Vector2] = []
 			for ring in 2:
-				var t := float(segment + ring) / 4.0
-				var center := (
-					root + direction * lean * t * t + Vector3.UP * height * (t - 0.16 * t * t)
-				)
-				var tangent := (
-					(direction * lean * 2.0 * t + Vector3.UP * height * (1.0 - 0.32 * t))
-					. normalized()
-				)
+				var t := float(segment + ring) / float(SEGMENTS)
+				var center := direction * lean * t * t + Vector3.UP * height * t
+				var tangent := (direction * lean * 2.0 * t + Vector3.UP * height).normalized()
 				var normal := tangent.cross(side).normalized()
-				var width := half_width * (1.0 - pow(t, 1.3))
 				for edge in 2:
-					points.append(center + side * width * (-1.0 if edge == 0 else 1.0))
+					points.append(center + side * half_width * (-1.0 if edge == 0 else 1.0))
 					normals.append(normal)
 					uvs.append(Vector2(float(edge), t))
-			var indices := [0, 1, 2] if segment == 3 else [0, 1, 3, 0, 3, 2]
-			for index: int in indices:
+			for index: int in [0, 1, 3, 0, 3, 2]:
 				surface.set_normal(normals[index])
 				surface.set_color(tint)
 				surface.set_uv(uvs[index])
+				surface.set_uv2(Vector2(float(card), 1.0))
 				surface.add_vertex(points[index])
 	var mesh := surface.commit()
 	_mesh_cache[CACHE_KEY] = mesh

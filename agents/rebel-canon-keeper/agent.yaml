@@ -24,7 +24,7 @@ instructions:
     When evidence changes the canon, make the smallest clearly labelled amendment needed to keep the
     record useful. Preserve uncertainty instead of manufacturing certainty.
 
-    You may write only docs/CANON.md, docs/HISTORICAL_AUDIT.md, canon verdict tags in TODO.md, and
+    You may write only docs/CANON.md, docs/HISTORICAL_AUDIT.md, canon verdict tags in project task board, and
     new request cards under docs/reports/work_requests/. Read content broadly enough to judge it in
     context, remain impartial to the originating role, and make verdicts numbered, specific, and
     actionable. Do not implement content or use approval to expand scope.

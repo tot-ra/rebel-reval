@@ -71,13 +71,13 @@ WS-14b ships the `PlayerSwimState` machine per the accepted ADR. This row adds o
 ## Allowed files
 
 **R-957:** `docs/adr/0021-swimming-and-diving.md`, `docs/CANON.md`,
-`docs/tasks/water_sky/WS-14_swim_dive_adr.md`, `docs/tasks/coast/README.md`, `TODO.md`.
+`docs/tasks/water_sky/WS-14_swim_dive_adr.md`, `docs/tasks/coast/README.md`, the project task board (`tasks` tool).
 
 **R-958:** per the accepted ADR, plus explicitly: the `PlayerSwimState` file created by WS-14b,
 `scripts/player/player_action_state_machine.gd`, the save service files WS-14b names, the breath UI
 file WS-14b names, `tests/godot/test_player_swim_state.gd`, `tests/godot/test_player_drowning.gd`
 (new), the save round-trip test WS-14b names, `tools/capture_co10_drowning.gd` (new),
-`docs/reports/co10_drowning.md`, `docs/reports/images/co10_*.png`, `TODO.md`.
+`docs/reports/co10_drowning.md`, `docs/reports/images/co10_*.png`, the project task board (`tasks` tool).
 
 ## Constraints and non-goals
 
@@ -129,11 +129,11 @@ python3 tools/generate_active_docs_report.py --check
 
 `docs/adr/0021-swimming-and-diving.md`, `docs/CANON.md`, `docs/CONTROLS.md` (swim/dive inputs),
 `docs/reports/co10_drowning.md`, `docs/tasks/water_sky/README.md` (WS-14 status),
-`docs/tasks/coast/README.md`, `TODO.md`.
+`docs/tasks/coast/README.md`, the project task board (`tasks` tool).
 
-## TODO.md lines
+## project task board lines
 
 ```
-- [ ] R-957 | deps: none | deliverable: ADR 0021 amended and accepted - maintainer acceptance and scope trade recorded in Status, item 4 rewritten from "no drowning death" to a struggling state with a documented grace window, named save-scum mitigations and a non-lethal fallback if no death path exists, item 2 listing every swimmable map explicitly including world.saaremaa, item 7 covering breath_s and the save version, plus the CANON canon note | allowed files: `docs/adr/0021-swimming-and-diving.md`, `docs/CANON.md`, `docs/tasks/water_sky/WS-14_swim_dive_adr.md`, `docs/tasks/coast/README.md`, `TODO.md` | verify: active docs check; Status carries acceptance, date and named trade; items 2/4/7 complete; CANON note carries confidence labels; maintainer sign-off recorded
+- [ ] R-957 | deps: none | deliverable: ADR 0021 amended and accepted - maintainer acceptance and scope trade recorded in Status, item 4 rewritten from "no drowning death" to a struggling state with a documented grace window, named save-scum mitigations and a non-lethal fallback if no death path exists, item 2 listing every swimmable map explicitly including world.saaremaa, item 7 covering breath_s and the save version, plus the CANON canon note | allowed files: `docs/adr/0021-swimming-and-diving.md`, `docs/CANON.md`, `docs/tasks/water_sky/WS-14_swim_dive_adr.md`, `docs/tasks/coast/README.md`, the project task board (`tasks` tool) | verify: active docs check; Status carries acceptance, date and named trade; items 2/4/7 complete; CANON note carries confidence labels; maintainer sign-off recorded
 - [ ] R-958 | deps: R-957, WS-14b | deliverable: drowning on top of PlayerSwimState - struggling state, breath drain while exhausted or overloaded in SWIM, death through the existing death path, safe-shore respawn cell, breath UI plus audio and underwater warning cues, and save/load that never restores into death | allowed files: per docs/tasks/coast/CO-10_swim_dive_drown.md | verify: `--filter=test_player_swim_state,test_player_drowning` plus the full suite; map audit and activation byte-identical walkable counts proving no is_walkable_cell leak; grace window sufficient from the deepest swimmable cell on both harbour maps; wading never drowns; struggling save loads at the surface; keyboard and gamepad clips for the survive case and the drown-and-respawn case
 ```

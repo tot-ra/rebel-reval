@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://c2lphngve8pyv"
-path="res://.godot/imported/salt_pile.glb-33b5fe95754521c9b1e59406e9ab0211.scn"
+path="res://.godot/imported/salt_pile.glb-2ed7387fc1582e16cffa79f698f98896.scn"
 
 [deps]
 
-source_file="res://assets/props/crafts/salt_pile.glb"
-dest_files=["res://.godot/imported/salt_pile.glb-33b5fe95754521c9b1e59406e9ab0211.scn"]
+source_file="res://assets/props/crafts/salt_pile/salt_pile.glb"
+dest_files=["res://.godot/imported/salt_pile.glb-2ed7387fc1582e16cffa79f698f98896.scn"]
 
 [params]
 

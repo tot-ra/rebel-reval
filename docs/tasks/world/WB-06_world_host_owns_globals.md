@@ -47,7 +47,7 @@ the seam.
 `scenes/` launch adapters named in the task claim, matching `.uid` sidecars, `project.godot`,
 `tests/godot/test_world_host_residency.gd` and its `.uid`,
 `docs/SEAMLESS_STREAMING_PLAN.md`, `docs/ARCHITECTURE.md`,
-`docs/tasks/world/WB-06_world_host_owns_globals.md`, `TODO.md`.
+`docs/tasks/world/WB-06_world_host_owns_globals.md`, the project task board (`tasks` tool).
 
 ## Constraints and non-goals
 

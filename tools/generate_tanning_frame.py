@@ -23,7 +23,7 @@ from mathutils import Matrix, Vector
 from mathutils.geometry import tessellate_polygon
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "assets" / "props" / "crafts" / "tanning_frame.glb"
+OUTPUT = ROOT / "assets" / "props" / "crafts" / "tanning_frame" / "tanning_frame.glb"
 EVIDENCE_DIR = ROOT / "generated" / "blender" / "tanning_frame_v1"
 DEFAULT_PREVIEW = EVIDENCE_DIR / "preview.png"
 BRIEF_PATH = EVIDENCE_DIR / "brief.json"
@@ -40,7 +40,7 @@ ROPE_SRGB = (0x9A / 255.0, 0x7B / 255.0, 0x49 / 255.0)
 BRIEF = {
     "id": ASSET_ID,
     "kind": "rigid_prop",
-    "target": "res://assets/props/crafts/tanning_frame.glb",
+    "target": "res://assets/props/crafts/tanning_frame/tanning_frame.glb",
     "scene": "res://content/maps/lower_town_slice.rrmap#saddler_frame",
     "dimensions_m": [1.24, 1.35, 0.58],
     "triangles": {"target": 600, "max": 1200},

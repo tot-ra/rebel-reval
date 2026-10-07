@@ -24,6 +24,10 @@ const RuntimeTimeFlow := preload("res://scripts/map/view3d/map_view_runtime_time
 const RuntimeEnvironment := preload("res://scripts/map/view3d/map_view_runtime_environment.gd")
 const RuntimeFlatMap := preload("res://scripts/map/view3d/map_view_runtime_flat_map.gd")
 const RuntimeSession := preload("res://scripts/map/view3d/map_view_runtime_session.gd")
+const RuntimeHosted := preload("res://scripts/map/view3d/map_view_runtime_hosted.gd")
+const RuntimeCameraBinding := preload(
+	"res://scripts/map/view3d/map_view_runtime_camera_binding.gd"
+)
 ## Compatibility aliases keep the runtime's public locomotion thresholds stable.
 const WALK_ANIMATION_MIN_SPEED := RuntimeActors.WALK_ANIMATION_MIN_SPEED
 const RUN_ANIMATION_MIN_SPEED := RuntimeActors.RUN_ANIMATION_MIN_SPEED
@@ -109,6 +113,8 @@ var _ambient_controller = RuntimeAmbient.new()
 var _time_flow = RuntimeTimeFlow.new()
 var _environment = RuntimeEnvironment.new()
 var _session = RuntimeSession.new()
+var _hosted = RuntimeHosted.new()
+var _camera_binding = RuntimeCameraBinding.new()
 var _input = RuntimeInput.new()
 ## Compatibility alias for integration tests that inspect the current binding.
 var _equipment_state: GameState:
@@ -121,6 +127,8 @@ func _init() -> void:
 	_time_flow.configure(self, Callable(self, "_emit_time_flow_changed"))
 	_environment.configure(self)
 	_session.configure(self, _actor_controller, _environment)
+	_hosted.configure(self)
+	_camera_binding.configure(self)
 
 
 static func install(
@@ -148,52 +156,7 @@ func owning_location_id() -> StringName:
 ## WB-08d: retarget terrain, view, ambient, camera and minimap to the location
 ## that now owns the player. The Player, camera and HUD instances stay put.
 func bind_owning_location(location_id: StringName) -> bool:
-	if world_host == null or location_id.is_empty():
-		return false
-	var bootstrap: Dictionary = world_host.call(&"hosted_bootstrap", location_id)
-	var hosted_view := world_host.call(&"hosted_view", location_id) as MapView3D
-	var definition := bootstrap.get("definition") as MapDefinition
-	var grid := bootstrap.get("grid") as MapTerrainGrid
-	if bootstrap.is_empty() or hosted_view == null or definition == null or grid == null:
-		return false
-	_owning_location_id = location_id
-	_definition = definition
-	view = hosted_view
-	var origin: Vector2 = world_host.call(&"location_origin_logic_position", location_id)
-	if _player != null and _player.has_method("configure_map_movement"):
-		_player.call("configure_map_movement", definition, grid, origin)
-	if _player != null and _player.has_method("set_mud_wetness_provider"):
-		_player.call("set_mud_wetness_provider", view.mud_wetness)
-	_camera_controller.view = view
-	_actor_controller.rebind_view(definition, view)
-	_ambient_controller.rebind_map(definition, view)
-	_bind_minimap(definition, grid)
-	return true
-
-
-func _bind_minimap(definition: MapDefinition, grid: MapTerrainGrid) -> void:
-	if world_host == null:
-		return
-	var minimap: Node = world_host.get("minimap_hud") as Node
-	if minimap == null or not minimap.has_method("configure"):
-		return
-	if _minimap_logic_tracker == null:
-		_minimap_logic_tracker = Node2D.new()
-		_minimap_logic_tracker.name = "MinimapLogicTracker"
-		add_child(_minimap_logic_tracker)
-	_sync_minimap_tracker()
-	minimap.call("configure", definition, grid, _minimap_logic_tracker)
-
-
-func _sync_minimap_tracker() -> void:
-	if _minimap_logic_tracker == null or world_host == null or _player == null:
-		return
-	if not is_instance_valid(_player):
-		return
-	var origin: Vector2 = world_host.call(
-		&"location_origin_logic_position", _owning_location_id
-	)
-	_minimap_logic_tracker.position = _player.global_position - origin
+	return _hosted.bind_owning_location(location_id)
 
 
 func configure_click_input(world_items: Node = null) -> void:
@@ -260,12 +223,7 @@ func crowd_active_count() -> int:
 ## Projects a screen point through the gameplay camera onto the logic plane,
 ## so click-to-move keeps working against what the player actually sees.
 func logic_position_at_screen(screen_position: Vector2) -> Vector2:
-	var origin := _camera.project_ray_origin(screen_position)
-	var direction := _camera.project_ray_normal(screen_position)
-	if is_zero_approx(direction.y):
-		return MapViewBridge.world_to_logic(origin, _definition.cell_size)
-	var distance := -origin.y / direction.y
-	return MapViewBridge.world_to_logic(origin + direction * distance, _definition.cell_size)
+	return _camera_binding.logic_position_at_screen(screen_position)
 
 
 func set_time_of_day(next_time: StringName) -> void:
@@ -348,11 +306,10 @@ func _process(delta: float) -> void:
 	if _player == null or not is_instance_valid(_player):
 		return
 	_ambient_controller.sync(delta, cycle_progress)
-	_apply_view_rotation(delta)
+	_camera_binding.apply_view_rotation(delta)
 	_sync_player(false, delta)
 	_actor_controller.sync_view_actors(delta)
-	if _minimap_logic_tracker != null:
-		_sync_minimap_tracker()
+	_hosted.sync_minimap_tracker()
 
 
 func get_actor_rig(actor: Node2D) -> SharedCharacterRig:
@@ -370,97 +327,67 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func toggle_camera_view() -> void:
-	_camera_controller.cycle_camera_mode()
-	_configure_screen_relative_movement()
-	_update_occlusion_ghost()
+	_camera_binding.toggle_camera_view()
 
 
 func set_camera_mode(next_mode: MapViewRuntimeCamera.CameraMode) -> void:
-	_camera_controller.set_camera_mode(next_mode)
-	_configure_screen_relative_movement()
-	_update_occlusion_ghost()
+	_camera_binding.set_camera_mode(next_mode)
 
 
 func camera_mode() -> MapViewRuntimeCamera.CameraMode:
-	return _camera_controller.camera_mode
+	return _camera_binding.camera_mode()
 
 
 func camera_mode_label() -> String:
-	return _camera_controller.mode_label()
+	return _camera_binding.camera_mode_label()
 
 
 func set_first_person(enabled: bool) -> void:
-	_camera_controller.set_first_person(enabled)
-	_configure_screen_relative_movement()
-	_update_occlusion_ghost()
+	_camera_binding.set_first_person(enabled)
 
 
 func is_first_person() -> bool:
-	return _camera_controller.first_person
+	return _camera_binding.is_first_person()
 
 
 func is_third_person() -> bool:
-	return _camera_controller.camera_mode == MapViewRuntimeCamera.CameraMode.THIRD_PERSON
+	return _camera_binding.is_third_person()
 
 
 func is_top_down() -> bool:
-	return _camera_controller.camera_mode == MapViewRuntimeCamera.CameraMode.TOP_DOWN
+	return _camera_binding.is_top_down()
 
 
 func zoom_view_steps(steps: float) -> void:
-	var mode_before: MapViewRuntimeCamera.CameraMode = _camera_controller.camera_mode
-	_camera_controller.zoom_view_steps(steps)
-	# Scroll can cross first-person <-> third-person <-> top-down; keep movement/ghost in sync.
-	if _camera_controller.camera_mode != mode_before:
-		_configure_screen_relative_movement()
-		_update_occlusion_ghost()
+	_camera_binding.zoom_view_steps(steps)
 
 
 func zoom_from_magnify_factor(factor: float) -> void:
-	var mode_before: MapViewRuntimeCamera.CameraMode = _camera_controller.camera_mode
-	_camera_controller.zoom_from_magnify_factor(factor)
-	if _camera_controller.camera_mode != mode_before:
-		_configure_screen_relative_movement()
-		_update_occlusion_ghost()
+	_camera_binding.zoom_from_magnify_factor(factor)
 
 
 func zoom_from_pan_delta(delta: Vector2) -> void:
-	var mode_before: MapViewRuntimeCamera.CameraMode = _camera_controller.camera_mode
-	_camera_controller.zoom_from_pan_delta(delta)
-	if _camera_controller.camera_mode != mode_before:
-		_configure_screen_relative_movement()
-		_update_occlusion_ghost()
+	_camera_binding.zoom_from_pan_delta(delta)
 
 
 func third_person_follow_distance() -> float:
-	return _camera_controller.third_person_follow_distance()
+	return _camera_binding.third_person_follow_distance()
 
 
 func _apply_view_rotation(delta: float) -> void:
-	var yaw_before := _camera.rotation_degrees.y
-	_camera_controller.apply_view_rotation(delta)
-	# Perspective modes keep movement and authored facing tied to camera yaw;
-	# top-down only re-projects screen-relative movement after an actual orbit.
-	if (
-		_camera_controller.character_follows_camera()
-		or not is_equal_approx(_camera.rotation_degrees.y, yaw_before)
-	):
-		_configure_screen_relative_movement()
+	_camera_binding.apply_view_rotation(delta)
 
 
 func _apply_mouse_rotation_from_position(mouse_position: Vector2, button_pressed: bool) -> void:
-	_camera_controller.apply_mouse_rotation_from_position(mouse_position, button_pressed)
-	if button_pressed:
-		_configure_screen_relative_movement()
+	_camera_binding.apply_mouse_rotation_from_position(mouse_position, button_pressed)
 
 
 func is_camera_drag_active() -> bool:
-	return _camera_controller.drag_rotating_view
+	return _camera_binding.is_camera_drag_active()
 
 
 func rotate_view_degrees(delta_degrees: float) -> void:
-	_camera_controller.rotate_view_degrees(delta_degrees)
-	_configure_screen_relative_movement()
+	_camera_binding.rotate_view_degrees(delta_degrees)
 
 
 func _restore_cycle_from_music_director() -> void:
@@ -473,7 +400,7 @@ func _sync_music_cycle() -> void:
 
 func _sync_player(snap: bool, delta: float = 0.0) -> void:
 	_actor_controller.sync_player(snap, delta)
-	_update_occlusion_ghost()
+	_camera_binding.update_occlusion_ghost()
 
 
 ## The session GameState owns what Kalev wears; the variant's authored
@@ -491,22 +418,11 @@ func _exit_tree() -> void:
 
 
 func _update_occlusion_ghost() -> void:
-	_camera_controller.update_occlusion_ghost()
+	_camera_binding.update_occlusion_ghost()
 
 
 func _configure_screen_relative_movement() -> void:
-	if not _player.has_method("set_screen_movement_basis"):
-		return
-	var viewport_size := _camera.get_viewport().get_visible_rect().size
-	var center := viewport_size * 0.5
-	var center_logic := logic_position_at_screen(center)
-	var logic_right := (
-		logic_position_at_screen(center + Vector2(INPUT_PROJECTION_SAMPLE_PX, 0.0)) - center_logic
-	)
-	var logic_down := (
-		logic_position_at_screen(center + Vector2(0.0, INPUT_PROJECTION_SAMPLE_PX)) - center_logic
-	)
-	_player.call("set_screen_movement_basis", logic_right, logic_down)
+	_camera_binding.configure_screen_relative_movement()
 
 
 ## Compatibility delegate for tests and callers that still target the old helper.

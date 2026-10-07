@@ -7,6 +7,8 @@
 **Shipped layers today:** `FactionLedger` / `record_faction_event` (P4-016), `DistrictPressureModel` (P4-017), slice `pressure.suspicion` / `pressure.solidarity` / `pressure.scarcity`  
 **Runtime implementation:** **P7-012** (Living City event ops, save fields, district bark/patrol/price hooks, tests). This file is not runtime truth until that row verifies.
 
+**Runtime today (2026-10-07):** `GameState` stores Hope/Fear (0..20, default 8) and emits `living_city_event_recorded`; `DistrictPressureModel` reads Hope/Fear ≥ 14 when resolving district tiers ([`FACTIONS_AND_ECONOMY.md`](./FACTIONS_AND_ECONOMY.md#district-pressure); `tests/godot/test_living_city.gd`). No content effect op records a Living City event yet, and there is no Hope/Fear HUD. See the [code-health audit](../reports/code_health_audit_2026-10-07.md).
+
 ---
 
 ## 1. Purpose

@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bmawf4qn1nrxe"
-path="res://.godot/imported/wool_normal.png-3e2ad5597074e881f2b48d03b2aff0ef.ctex"
+path="res://.godot/imported/wool_normal.png-d9102af70b77d7a3e59b86856e6463da.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/characters/kalev_fresh/materials/wool_normal.png"
-dest_files=["res://.godot/imported/wool_normal.png-3e2ad5597074e881f2b48d03b2aff0ef.ctex"]
+dest_files=["res://.godot/imported/wool_normal.png-d9102af70b77d7a3e59b86856e6463da.ctex"]
 
 [params]
 

@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://bn45anq0e818w"
-path="res://.godot/imported/chest_poor_household.glb-b3e5f21d104158e58783bbaf904d4798.scn"
+path="res://.godot/imported/chest_poor_household.glb-40a37ca6c1472399ec555859f765b26c.scn"
 
 [deps]
 
-source_file="res://assets/props/furniture/chest_poor_household.glb"
-dest_files=["res://.godot/imported/chest_poor_household.glb-b3e5f21d104158e58783bbaf904d4798.scn"]
+source_file="res://assets/props/furniture/chest_poor_household/chest_poor_household.glb"
+dest_files=["res://.godot/imported/chest_poor_household.glb-40a37ca6c1472399ec555859f765b26c.scn"]
 
 [params]
 

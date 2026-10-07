@@ -99,6 +99,9 @@ static func _build_detail_level(
 	):
 		return root
 	var blocked := MapViewMeshBuilderPrimitives.building_cell_rects(definition)
+	# This is the dense eye-level cover, so a tuft here is what grows through a
+	# wash tub or a stall counter. Solid props claim their cells like buildings.
+	blocked.append_array(MapViewMeshBuilderPrimitives.prop_cell_rects(definition))
 	var field := MapViewMeshBuilderTerrain.ensure_height_field(definition, grid)
 	var meadow_grass: Array[Transform3D] = []
 	var meadow_grass_colors: Array[Color] = []

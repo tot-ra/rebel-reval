@@ -29,7 +29,7 @@ task projects that same field onto the world.
 - `project.godot` (the `[shader_globals]` entries only)
 - `tests/godot/test_cloud_shadow_pass.gd` (new), `tests/godot/test_sky_weather_3d.gd`
 - `docs/reports/images/ws12_*.png`
-- `TODO.md`
+- the project task board (`tasks` tool)
 
 ## Dependencies
 
@@ -108,9 +108,9 @@ task projects that same field onto the world.
 ## Documentation updates
 
 - The comment at `cloud_layer_h` (the art knob rationale).
-- `TODO.md` row:
+- the project task board (`tasks` tool) row:
   ```text
-  - [ ] WS-12 | deps: none | deliverable: shared sky_clouds.gdshaderinc cloud field published via global uniforms and a screen-space cloud-shadow pass that projects it along the sun onto world depth, scaled by direct-sun share, outdoor only | allowed files: `scripts/map/view3d/sky_clouds.gdshaderinc`, `scripts/map/view3d/sky_weather_3d.gdshader`, `scripts/map/view3d/sky_weather_3d.gd`, `scripts/map/view3d/cloud_shadow_pass.gd`, `scripts/map/view3d/cloud_shadow_pass.gdshader`, `scripts/map/view3d/map_view_3d.gd`, `project.godot`, `tests/godot/test_cloud_shadow_pass.gd`, `tests/godot/test_sky_weather_3d.gd`, `docs/reports/images/ws12_*.png`, `TODO.md` | verify: pass lifecycle/sun-share tests; sky byte-identical after include move; partly-cloudy clip shows soft downwind patches that kill water glint, none when overcast or at night; pass <= 0.3 ms
+  - [ ] WS-12 | deps: none | deliverable: shared sky_clouds.gdshaderinc cloud field published via global uniforms and a screen-space cloud-shadow pass that projects it along the sun onto world depth, scaled by direct-sun share, outdoor only | allowed files: `scripts/map/view3d/sky_clouds.gdshaderinc`, `scripts/map/view3d/sky_weather_3d.gdshader`, `scripts/map/view3d/sky_weather_3d.gd`, `scripts/map/view3d/cloud_shadow_pass.gd`, `scripts/map/view3d/cloud_shadow_pass.gdshader`, `scripts/map/view3d/map_view_3d.gd`, `project.godot`, `tests/godot/test_cloud_shadow_pass.gd`, `tests/godot/test_sky_weather_3d.gd`, `docs/reports/images/ws12_*.png`, the project task board (`tasks` tool) | verify: pass lifecycle/sun-share tests; sky byte-identical after include move; partly-cloudy clip shows soft downwind patches that kill water glint, none when overcast or at night; pass <= 0.3 ms
   ```
 
 ## Status (R-897 + R-1033)

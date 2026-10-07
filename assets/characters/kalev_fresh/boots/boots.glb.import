@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://dr4koovd04cqj"
-path="res://.godot/imported/boots.glb-9cbde8d80f9f6cc78bbc5dc46ed27a55.scn"
+path="res://.godot/imported/boots.glb-3bc5e964f9e8c0cee7cd4adfb461bbbe.scn"
 
 [deps]
 
 source_file="res://assets/characters/kalev_fresh/boots/boots.glb"
-dest_files=["res://.godot/imported/boots.glb-9cbde8d80f9f6cc78bbc5dc46ed27a55.scn"]
+dest_files=["res://.godot/imported/boots.glb-3bc5e964f9e8c0cee7cd4adfb461bbbe.scn"]
 
 [params]
 

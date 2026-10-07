@@ -12,7 +12,7 @@ Superseded by [ADR 0015](0015-default-third-person-camera.md) (2026-07-23): pers
 
 ## Context
 
-ADR 0007 freezes the gameplay presentation on a fixed orthographic dimetric camera. The 3D view layer later added an optional first-person perspective toggle (`C`) so players can inspect interiors, ceilings, and sky detail at eye height. The toggle shipped without an ADR note or a mouse-accessible discoverability entry point, which blocked demo packaging (D-004) and conflicted with the repository discoverability policy in `TODO.md`.
+ADR 0007 freezes the gameplay presentation on a fixed orthographic dimetric camera. The 3D view layer later added an optional first-person perspective toggle (`C`) so players can inspect interiors, ceilings, and sky detail at eye height. The toggle shipped without an ADR note or a mouse-accessible discoverability entry point, which blocked demo packaging (D-004) and conflicted with the repository discoverability policy in the project task board (`tasks` tool).
 
 Maintainers confirmed on 2026-07-20 that first-person mode is a **release feature**, not a developer-only inspection tool.
 

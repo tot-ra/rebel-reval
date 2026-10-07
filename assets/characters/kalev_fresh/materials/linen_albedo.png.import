@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://jnaaoojeskw"
-path="res://.godot/imported/linen_albedo.png-b2238d6e4f1e3ce10afbb6e3a540889f.ctex"
+path="res://.godot/imported/linen_albedo.png-6163047f91bcaa16711e57f270edf358.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/characters/kalev_fresh/materials/linen_albedo.png"
-dest_files=["res://.godot/imported/linen_albedo.png-b2238d6e4f1e3ce10afbb6e3a540889f.ctex"]
+dest_files=["res://.godot/imported/linen_albedo.png-6163047f91bcaa16711e57f270edf358.ctex"]
 
 [params]
 

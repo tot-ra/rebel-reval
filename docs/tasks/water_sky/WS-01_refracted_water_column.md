@@ -27,7 +27,7 @@ column. At grazing angles it can be about 10×. To hide this, the shader clamps 
 - `tests/godot/test_r715_water_material_contract.gd`
 - `docs/THIRD_PARTY_NOTICES.md` (add `notice.code.tidewater`, full MIT text)
 - `docs/reports/images/ws01_*.png` (captures)
-- `TODO.md` (the task row)
+- the project task board (`tasks` tool) (the task row)
 
 ## Dependencies
 
@@ -114,7 +114,7 @@ the WS task pack"). Put a one-line comment above the ported block.
 ## Documentation updates
 
 - `docs/THIRD_PARTY_NOTICES.md` (new notice).
-- The `TODO.md` row, checked after review:
+- The the project task board (`tasks` tool) row, checked after review:
   ```text
-  - [ ] WS-01 | deps: none | deliverable: water extinction and bed sampling follow the Snell-refracted ray to the depth-buffer bed (vertical column / refracted cosine, one refinement), replacing view-ray geometric depth and the fixed screen-offset refraction | allowed files: `scripts/map/view3d/map_view_water.gdshader`, `scripts/map/view3d/map_view_water_materials.gd`, `tests/godot/test_r715_water_material_contract.gd`, `docs/THIRD_PARTY_NOTICES.md`, `docs/reports/images/ws01_*.png`, `TODO.md` | verify: contract test asserts refract/Beer-Lambert path; harbor clear-day before/after captures show a clear shallow bed with no orbit-dependent darkening and no bank halo
+  - [ ] WS-01 | deps: none | deliverable: water extinction and bed sampling follow the Snell-refracted ray to the depth-buffer bed (vertical column / refracted cosine, one refinement), replacing view-ray geometric depth and the fixed screen-offset refraction | allowed files: `scripts/map/view3d/map_view_water.gdshader`, `scripts/map/view3d/map_view_water_materials.gd`, `tests/godot/test_r715_water_material_contract.gd`, `docs/THIRD_PARTY_NOTICES.md`, `docs/reports/images/ws01_*.png`, the project task board (`tasks` tool) | verify: contract test asserts refract/Beer-Lambert path; harbor clear-day before/after captures show a clear shallow bed with no orbit-dependent darkening and no bank halo
   ```

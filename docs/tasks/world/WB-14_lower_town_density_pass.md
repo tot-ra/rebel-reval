@@ -59,7 +59,7 @@ colours and a wall height on the same box.
 `scripts/map/view3d/map_view_terrain_details.gd`, matching `.uid` sidecars,
 `tests/godot/test_lower_town_density.gd` and its `.uid`,
 `docs/reports/lower_town_density_2026-09-26.md`, `docs/reports/images/lower_town_density/`,
-`docs/HISTORICAL_AUDIT.md`, `docs/tasks/world/WB-14_lower_town_density_pass.md`, `TODO.md`.
+`docs/HISTORICAL_AUDIT.md`, `docs/tasks/world/WB-14_lower_town_density_pass.md`, the project task board (`tasks` tool).
 
 ## Boundary against AR-05 and AR-06 (architecture pack)
 

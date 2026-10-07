@@ -71,7 +71,7 @@ the release decision rather than a set of one-off reports.
 - `tools/capture_ar13_district_sheet.gd` (+ `.uid`, new)
 - `docs/WORLD_BUILDING_VISUAL_GATE.md`, `docs/ART_BIBLE.md`, `docs/ARCHITECTURE_KIT.md`,
   `docs/reports/ar13_architecture_pack_review.md`, `docs/reports/images/ar13_districts/`,
-  `AGENTS.md` (pre-commit gate row only), `TODO.md`
+  `AGENTS.md` (pre-commit gate row only), the project task board (`tasks` tool)
 
 ## Constraints and non-goals
 
@@ -119,9 +119,9 @@ git diff --check
 ## Doc updates
 
 `docs/WORLD_BUILDING_VISUAL_GATE.md`, `docs/ART_BIBLE.md`, `docs/ARCHITECTURE_KIT.md`,
-`docs/reports/ar13_architecture_pack_review.md`, `AGENTS.md`, `TODO.md`.
+`docs/reports/ar13_architecture_pack_review.md`, `AGENTS.md`, the project task board (`tasks` tool).
 
-## TODO.md line
+## project task board line
 
 ```
 - [ ] R-971 | deps: R-963,R-964,R-965,R-966,R-967,R-968,R-969,R-970 | deliverable: tools/verify_building_variety.py promoted to a fail-closed gate with committed per-map thresholds in docs/data/building_variety_budget.json for distinct configurations, identical-neighbour run length, minimum world distance between identical appearances, realised roof-cover and wall-material shares against the HISTORICAL_AUDIT bands, part-reuse histogram and silhouette-tuple diversity; a landmark uniqueness check; architecture rows wired into docs/data/world_building_visual_benchmark.json; a fixed-framing district contact sheet; pre-commit wiring for assets/buildings and the architecture scripts; and docs/reports/ar13_architecture_pack_review.md restating the pack baseline table with measured after values | allowed files: per docs/tasks/architecture/AR-13_repetition_audit_gate.md | verify: python verifier unittest with negative fixtures for a repeated-configuration map, an out-of-band roof share, a missing budget row and two landmarks sharing a silhouette signature; verify_building_variety zero on the real repo with a per-map headroom table; world-building visual gate run with every remaining blocker a named pending human review; pre-commit fixture proving the hook fires on a staged assets/buildings change and not on an unrelated one; full Godot suite; map audit and activation; active docs; git diff --check; thresholds set from the measured post-AR state with stated headroom and no currently-failing map; one contact-sheet plate per exterior map at fixed framing; named human review answering whether the districts read as different historically specific places and the generic complaint is resolved

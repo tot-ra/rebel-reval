@@ -86,7 +86,7 @@ entire game with AI agents.
 
 ## Consequences
 
-- README.md is rewritten as the widened product source of truth; TODO.md gains P4 (Act 1 +
+- README.md is rewritten as the widened product source of truth; project task board gains P4 (Act 1 +
   faction/pipeline systems), P5 (Act 2), and P6 (Act 3) tracks; AGENTS.md scope lists sync to this
   ADR.
 - Prototype activation tasks (market, north quarter, outdoor waves) cite this ADR as the required

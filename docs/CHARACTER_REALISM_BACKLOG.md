@@ -2,7 +2,7 @@
 
 Durable claimable contracts from the 2026-08-12 character model/animation review.
 Promote each open row to the project task board before claiming implementation.
-ID index also listed in [`TODO.md`](../TODO.md).
+ID index also listed in the project task board (`tasks` tool).
 Evidence report: [`docs/reports/character_visual_realism_review_2026-08-12.md`](reports/character_visual_realism_review_2026-08-12.md).
 
 Companion docs: [`docs/WITCHER3_REALISM_INSPIRATION.md`](WITCHER3_REALISM_INSPIRATION.md), [`docs/reports/face_realism_research.md`](reports/face_realism_research.md), [`docs/VISUAL_FIDELITY_PLAN.md`](VISUAL_FIDELITY_PLAN.md), [`docs/CHARACTER_GENERATION.md`](CHARACTER_GENERATION.md), ADR 0016.
@@ -11,7 +11,7 @@ Format: `ID | deps | deliverable | verify`.
 
 ## Closed in this review
 
-- [x] P0-188 | deps: none | deliverable: character visual realism review against Witcher 3 inspiration + face research, with claimable follow-ups P0-189..P0-198 and no runtime mesh change in-row | verify: `docs/reports/character_visual_realism_review_2026-08-12.md` and this backlog exist; `TODO.md` indexes the backlog; `python3 tools/generate_active_docs_report.py --check` passes after active-doc registration
+- [x] P0-188 | deps: none | deliverable: character visual realism review against Witcher 3 inspiration + face research, with claimable follow-ups P0-189..P0-198 and no runtime mesh change in-row | verify: `docs/reports/character_visual_realism_review_2026-08-12.md` and this backlog exist; the project task board (`tasks` tool) indexes the backlog; `python3 tools/generate_active_docs_report.py --check` passes after active-doc registration
 
 ## Open - materials and face credibility
 

@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b12u23kqwmmui"
-path.s3tc="res://.godot/imported/tanning_frame_WorkedCattleHide_albedo.png-e79365aa18f4b6122a5f9a0acc50d8cf.s3tc.ctex"
-path.etc2="res://.godot/imported/tanning_frame_WorkedCattleHide_albedo.png-e79365aa18f4b6122a5f9a0acc50d8cf.etc2.ctex"
+path.s3tc="res://.godot/imported/tanning_frame_WorkedCattleHide_albedo.png-95acad2ca05fee0dc3c53ca87b329687.s3tc.ctex"
+path.etc2="res://.godot/imported/tanning_frame_WorkedCattleHide_albedo.png-95acad2ca05fee0dc3c53ca87b329687.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -15,8 +15,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/crafts/tanning_frame_WorkedCattleHide_albedo.png"
-dest_files=["res://.godot/imported/tanning_frame_WorkedCattleHide_albedo.png-e79365aa18f4b6122a5f9a0acc50d8cf.s3tc.ctex", "res://.godot/imported/tanning_frame_WorkedCattleHide_albedo.png-e79365aa18f4b6122a5f9a0acc50d8cf.etc2.ctex"]
+source_file="res://assets/props/crafts/tanning_frame/tanning_frame_WorkedCattleHide_albedo.png"
+dest_files=["res://.godot/imported/tanning_frame_WorkedCattleHide_albedo.png-95acad2ca05fee0dc3c53ca87b329687.s3tc.ctex", "res://.godot/imported/tanning_frame_WorkedCattleHide_albedo.png-95acad2ca05fee0dc3c53ca87b329687.etc2.ctex"]
 
 [params]
 

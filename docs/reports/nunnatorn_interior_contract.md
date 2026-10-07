@@ -138,5 +138,5 @@ R-270 is complete.
 
 1. [`history/dossiers/topography/walls-gates-towers.md`](../../history/dossiers/topography/walls-gates-towers.md) - Nunnatorn presence, early rectangular/bartizan form, 1343 exclusions, wall-walk context, and source list.
 2. [`docs/reports/reval_fortifications_1343.md`](reval_fortifications_1343.md) - conservative 1343 tower baseline, stable exterior ID, inward-facing door, mini-dungeon acceptance boundary, and post-1343 exclusions.
-3. [`R-270`](../../TODO.md) - shared enterable-tower contract dependency. The board task is authoritative if the legacy TODO index differs.
-4. [`R-251`](../../TODO.md) - parent Nunnatorn package acceptance clauses. The board task is authoritative if the legacy TODO index differs.
+3. [`R-270`](../../project task board) - shared enterable-tower contract dependency. The board task is authoritative if the legacy TODO index differs.
+4. [`R-251`](../../project task board) - parent Nunnatorn package acceptance clauses. The board task is authoritative if the legacy TODO index differs.

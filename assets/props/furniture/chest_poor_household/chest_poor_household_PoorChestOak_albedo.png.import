@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c0cds6wcj4d6r"
-path.s3tc="res://.godot/imported/chest_poor_household_PoorChestOak_albedo.png-75e8df7111fe2c1ef650a98f765db3a8.s3tc.ctex"
-path.etc2="res://.godot/imported/chest_poor_household_PoorChestOak_albedo.png-75e8df7111fe2c1ef650a98f765db3a8.etc2.ctex"
+path.s3tc="res://.godot/imported/chest_poor_household_PoorChestOak_albedo.png-bec1d96f45f326b6ba5e944ad67a53ea.s3tc.ctex"
+path.etc2="res://.godot/imported/chest_poor_household_PoorChestOak_albedo.png-bec1d96f45f326b6ba5e944ad67a53ea.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -15,8 +15,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/furniture/chest_poor_household_PoorChestOak_albedo.png"
-dest_files=["res://.godot/imported/chest_poor_household_PoorChestOak_albedo.png-75e8df7111fe2c1ef650a98f765db3a8.s3tc.ctex", "res://.godot/imported/chest_poor_household_PoorChestOak_albedo.png-75e8df7111fe2c1ef650a98f765db3a8.etc2.ctex"]
+source_file="res://assets/props/furniture/chest_poor_household/chest_poor_household_PoorChestOak_albedo.png"
+dest_files=["res://.godot/imported/chest_poor_household_PoorChestOak_albedo.png-bec1d96f45f326b6ba5e944ad67a53ea.s3tc.ctex", "res://.godot/imported/chest_poor_household_PoorChestOak_albedo.png-bec1d96f45f326b6ba5e944ad67a53ea.etc2.ctex"]
 
 [params]
 

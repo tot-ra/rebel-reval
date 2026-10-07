@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://csffqiq7sghcu"
-path.s3tc="res://.godot/imported/malt_sack_pile_HempSeamsAndTies_albedo.png-ed77b6d44f741cc64ae7a055e06e2347.s3tc.ctex"
-path.etc2="res://.godot/imported/malt_sack_pile_HempSeamsAndTies_albedo.png-ed77b6d44f741cc64ae7a055e06e2347.etc2.ctex"
+path.s3tc="res://.godot/imported/malt_sack_pile_HempSeamsAndTies_albedo.png-3a712332c9c7371427e664e78678bc2f.s3tc.ctex"
+path.etc2="res://.godot/imported/malt_sack_pile_HempSeamsAndTies_albedo.png-3a712332c9c7371427e664e78678bc2f.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -15,8 +15,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/crafts/malt_sack_pile_HempSeamsAndTies_albedo.png"
-dest_files=["res://.godot/imported/malt_sack_pile_HempSeamsAndTies_albedo.png-ed77b6d44f741cc64ae7a055e06e2347.s3tc.ctex", "res://.godot/imported/malt_sack_pile_HempSeamsAndTies_albedo.png-ed77b6d44f741cc64ae7a055e06e2347.etc2.ctex"]
+source_file="res://assets/props/crafts/malt_sack_pile/malt_sack_pile_HempSeamsAndTies_albedo.png"
+dest_files=["res://.godot/imported/malt_sack_pile_HempSeamsAndTies_albedo.png-3a712332c9c7371427e664e78678bc2f.s3tc.ctex", "res://.godot/imported/malt_sack_pile_HempSeamsAndTies_albedo.png-3a712332c9c7371427e664e78678bc2f.etc2.ctex"]
 
 [params]
 

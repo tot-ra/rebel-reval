@@ -59,6 +59,14 @@ uniform int straw_layer = 5;
 uniform int earth_layer_min = 6;
 uniform int earth_layer_max = 11;
 uniform float mud_wetness = 0.0;
+// Street cobbles are rounded fieldstones laid in earth, not a dressed lattice:
+// a world-space Voronoi gives every stone its own outline, height, and granite
+// tint, with an analytic dome normal, so a street reads as relief without one
+// mesh per stone. Castle paving keeps the baked dressed-stone lattice.
+// cobble_cell_size is one stone's footprint in world units (~15 cm fieldstone).
+uniform float cobble_cell_size = 0.2;
+// Crown height in world units that the tangent-space normal is derived from.
+uniform float cobble_relief = 0.05;
 uniform float natural_ground_uv_scale = 2.0;
 uniform float natural_ground_variation = 0.72;
 uniform float timber_floor_uv_scale = 3.0;
@@ -86,6 +94,7 @@ varying vec4 ground_weights;
 varying vec4 family_weights;
 varying vec3 vertex_tint;
 varying float vertex_cobble_weight;
+varying float vertex_castle_weight;
 varying float vertex_earth_weight;
 varying float vertex_mud_weight;
 varying float vertex_sand_weight;
@@ -332,6 +341,129 @@ vec3 compute_cobble_albedo(vec2 uv, vec2 world_xz) {
 	return mix(earth, stone_color, stone * 0.82 + 0.06);
 }
 
+struct FieldStone {
+	vec3 albedo;
+	vec2 normal_xy;
+	float roughness;
+	float stone;
+};
+
+vec2 cobble_hash2(vec2 p) {
+	return fract(sin(vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)))) * 43758.5453123);
+}
+
+// Rounded fieldstone street. One 3x3 Voronoi pass keeps the two nearest stone
+// centres. A stone's inset distance is the smaller of half the gap to the
+// neighbour (F2 - F1) / 2 and its own radius minus F1, so polygon corners are cut
+// round. Both terms have exact gradients (unit vectors away from each centre), so
+// the dome normal is analytic: no extra Voronoi taps, no 2x2 derivative blocks.
+// `footprint` is the pixel size in stone cells: as stones approach one pixel,
+// joints, grain, and relief fade to the average so distant streets keep their
+// tone instead of shimmering or collapsing into a flat grey mip.
+FieldStone compute_fieldstone(vec2 world_xz, float footprint) {
+	vec2 p = world_xz / cobble_cell_size;
+	// Low-frequency warp bends stone rows into the loose courses of hand-laid paving.
+	p += (vec2(cobble_noise(p * 0.21 + vec2(3.7, 8.1)), cobble_noise(p * 0.21 + vec2(11.3, 1.9))) - 0.5) * 0.9;
+	vec2 cell = floor(p);
+	vec2 local = fract(p);
+	float d1 = 64.0;
+	float d2 = 64.0;
+	vec2 id = cell;
+	vec2 r1 = vec2(0.0);
+	vec2 r2 = vec2(0.0);
+	for (int j = -1; j <= 1; j++) {
+		for (int i = -1; i <= 1; i++) {
+			vec2 g = vec2(float(i), float(j));
+			vec2 r = g + 0.15 + cobble_hash2(cell + g) * 0.70 - local;
+			float d = dot(r, r);
+			if (d < d1) {
+				d2 = d1;
+				r2 = r1;
+				d1 = d;
+				r1 = r;
+				id = cell + g;
+			} else if (d < d2) {
+				d2 = d;
+				r2 = r;
+			}
+		}
+	}
+	float f1 = sqrt(d1);
+	float f2 = sqrt(d2);
+	// Gradients of F1 and F2 point away from their stone centres.
+	vec2 grad_f1 = -r1 / max(f1, 1e-4);
+	vec2 grad_f2 = -r2 / max(f2, 1e-4);
+	float h0 = cobble_hash(id + vec2(3.1, 7.7));
+	float h1 = cobble_hash(id + vec2(9.4, 1.3));
+	float h2 = cobble_hash(id + vec2(5.9, 12.6));
+	float detail = 1.0 - smoothstep(0.25, 0.85, footprint);
+
+	float gap_inset = (f2 - f1) * 0.5;
+	float radius = 0.62 + h1 * 0.14;
+	float round_inset = radius - f1;
+	// Polynomial smooth-min: a hard min() leaves a crease where the two terms swap.
+	float k = 0.10;
+	float blend = clamp(0.5 + 0.5 * (round_inset - gap_inset) / k, 0.0, 1.0);
+	float inset = mix(round_inset, gap_inset, blend) - k * blend * (1.0 - blend);
+	vec2 grad_inset = mix(-grad_f1, (grad_f2 - grad_f1) * 0.5, blend);
+
+	// Joint width varies per stone; the albedo edge softens with the pixel footprint.
+	float joint = 0.025 + h0 * 0.03;
+	float edge_soft = 0.03 + footprint * 0.5;
+	float stone = smoothstep(joint, joint + edge_soft, inset);
+	// Dome: the shoulder rises over `shoulder` cells, the crown stays broad.
+	float shoulder = 0.34;
+	float t = clamp((inset - joint) / shoulder, 0.0, 1.0);
+	float dome = t * t * (3.0 - 2.0 * t);
+	// Some stones have sunk under cart wheels; others stand proud.
+	float top = 0.55 + h2 * 0.45;
+	vec2 grad_h = grad_inset * top * 6.0 * t * (1.0 - t) / shoulder;
+	vec2 slope = grad_h * (cobble_relief / cobble_cell_size) * detail;
+	float slope_len = length(slope);
+	slope *= min(1.0, 0.75 / max(slope_len, 1e-4));
+
+	// Reval streets were laid from glacial fieldstones: grey and red granite,
+	// dark gneiss, and the odd buff limestone lump. Hues stay muted; the sky
+	// ambient already pushes grey stone toward blue.
+	vec3 stone_color = vec3(0.36, 0.34, 0.31);
+	if (h1 > 0.86) {
+		stone_color = vec3(0.40, 0.32, 0.28);
+	} else if (h1 > 0.70) {
+		stone_color = vec3(0.24, 0.23, 0.22);
+	} else if (h1 > 0.60) {
+		stone_color = vec3(0.42, 0.38, 0.31);
+	} else if (h1 > 0.32) {
+		stone_color = vec3(0.31, 0.30, 0.29);
+	}
+	stone_color *= 0.80 + h0 * 0.30;
+	// Granite grain and lichen-dark flecks, only while they resolve on screen.
+	float grain = cobble_noise(world_xz * 42.0 + id * 1.7);
+	float fleck = cobble_noise(world_xz * 11.0 - id * 2.3);
+	stone_color *= 1.0 + ((grain - 0.5) * 0.34 + (fleck - 0.5) * 0.22) * detail;
+	// Traffic polishes the crowns; dirt and shade collect on the shoulders.
+	stone_color *= mix(0.66, 1.03, dome);
+
+	float age = cobble_noise(world_xz * 0.17 + vec2(13.7, 4.3));
+	float mud_film = cobble_noise(world_xz * 0.29 - vec2(5.6, 1.8));
+	float grit = cobble_noise(world_xz * 6.0 + vec2(8.4, 19.2));
+	vec3 earth = mix(vec3(0.13, 0.11, 0.09), vec3(0.23, 0.19, 0.15), age);
+	earth *= 0.8 + grit * 0.4 * detail;
+	// Dried mud films over whole patches of street, strongest low on the stones.
+	float film = smoothstep(0.55, 0.85, mud_film) * (1.0 - dome * 0.6);
+	stone_color = mix(stone_color, earth * 1.35, film * 0.6);
+
+	// Distant stones fade to the mean street tone at ~75% stone cover.
+	vec3 mean_stone = vec3(0.30, 0.29, 0.27);
+	stone_color = mix(mean_stone, stone_color, detail * 0.8 + 0.2);
+	float cover = mix(0.75, stone, detail);
+	FieldStone result;
+	result.albedo = mix(earth, stone_color, cover);
+	result.normal_xy = -slope;
+	result.roughness = mix(0.97, mix(0.88, 0.66, dome * top), cover);
+	result.stone = cover;
+	return result;
+}
+
 // Adds one corner layer to the per-family weights. Procedural layers are
 // resolved here, weighted, into vertex_albedo.
 void accumulate_layer(int layer, float weight, vec2 uv, vec3 tint, inout vec4 ground, inout vec4 family, inout vec3 remainder) {
@@ -371,6 +503,7 @@ void vertex() {
 	family_weights = family;
 	vertex_albedo = remainder;
 	vertex_cobble_weight = family.z;
+	vertex_castle_weight = mix(float(layers.x == castle_paving_layer), float(layers.y == castle_paving_layer), raw_blend);
 	vertex_earth_weight = mix(earth_layer_weight(layers.x), earth_layer_weight(layers.y), raw_blend);
 	vertex_mud_weight = mix(float(layers.x == mud_layer), float(layers.y == mud_layer), raw_blend);
 	vertex_sand_weight = mix(
@@ -435,8 +568,22 @@ void fragment() {
 	if (family_weights.y > 0.001) {
 		albedo += sample_authored_timber_floor(UV) * realistic_tint * family_weights.y;
 	}
-	if (family_weights.z > 0.001) {
-		albedo += compute_cobble_albedo(UV, terrain_world_xz) * family_weights.z;
+	// Street cobbles use the fieldstone Voronoi; castle paving keeps the lattice.
+	float castle_weight = min(vertex_castle_weight, family_weights.z);
+	float fieldstone_weight = family_weights.z - castle_weight;
+	vec2 cobble_normal = (surface.rg * 2.0 - 1.0) * 0.55 * castle_weight;
+	float cobble_rough = mix(0.99, 0.93, stone) * castle_weight;
+	float cobble_stone = stone * castle_weight;
+	if (castle_weight > 0.001) {
+		albedo += compute_cobble_albedo(UV, terrain_world_xz) * castle_weight;
+	}
+	if (fieldstone_weight > 0.001) {
+		vec2 world_step = fwidth(terrain_world_xz);
+		FieldStone field = compute_fieldstone(terrain_world_xz, max(world_step.x, world_step.y) / cobble_cell_size);
+		albedo += field.albedo * fieldstone_weight;
+		cobble_normal += field.normal_xy * fieldstone_weight;
+		cobble_rough += field.roughness * fieldstone_weight;
+		cobble_stone += field.stone * fieldstone_weight;
 	}
 
 	ALBEDO = albedo * tone;
@@ -446,7 +593,6 @@ void fragment() {
 
 	float earth_h = earth_height(terrain_world_xz);
 	ALBEDO *= 1.0 + (earth_h - 0.5) * 0.22 * earth_weight;
-	vec2 normal_xy = surface.rg * 2.0 - 1.0;
 	float eps = 0.10;
 	vec2 earth_slope = vec2(
 		earth_height(terrain_world_xz + vec2(eps, 0.0)) - earth_height(terrain_world_xz - vec2(eps, 0.0)),
@@ -456,18 +602,19 @@ void fragment() {
 	// Tangent-space xy offsets add up: broad earth lumps, cobble joints and the
 	// authored plate grain. z is rebuilt so the result stays unit length.
 	vec2 combined_xy = earth_normal.xy * 0.30 * earth_weight
-		+ normal_xy * 0.55 * cobble_weight
+		+ cobble_normal
 		+ plate_normal;
 	combined_xy = clamp(combined_xy, vec2(-0.95), vec2(0.95));
 	vec3 combined = vec3(combined_xy, sqrt(max(1.0 - dot(combined_xy, combined_xy), 0.0)));
 	NORMAL_MAP = combined * 0.5 + 0.5;
 	NORMAL_MAP_DEPTH = 1.0;
-	ROUGHNESS = mix(0.96, mix(0.99, 0.93, stone), cobble_weight);
+	ROUGHNESS = 0.96 * (1.0 - cobble_weight) + cobble_rough;
 	if (plate_weight > 0.001) {
 		ROUGHNESS = mix(ROUGHNESS, plate_rough / plate_weight, clamp(plate_weight, 0.0, 1.0));
 	}
 	ROUGHNESS = mix(ROUGHNESS, mix(0.42, 0.20, mud_pool), mud_film_weight);
-	SPECULAR = mix(0.12, 0.30, mud_film_weight);
+	// Polished stone crowns catch a little more light than the earth joints.
+	SPECULAR = mix(0.12 + 0.14 * cobble_stone, 0.30, mud_film_weight);
 	// WS-08: the same analytic swash as the water decides when this sand was last
 	// covered; it darkens, turns glossy and dries over dryTime (28 s), and the
 	// highest reach of each wave leaves a thin foam residue for residueLife (5 s).

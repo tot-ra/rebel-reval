@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://d4guxi4d2ebs7"
-path.s3tc="res://.godot/imported/mail_shirt_mail_normal.png-ed46b9e8513f186ceeb753392aa26e6c.s3tc.ctex"
-path.etc2="res://.godot/imported/mail_shirt_mail_normal.png-ed46b9e8513f186ceeb753392aa26e6c.etc2.ctex"
+path.s3tc="res://.godot/imported/mail_shirt_mail_normal.png-0da530c8f9702d58d46d87e8dcd4ab0c.s3tc.ctex"
+path.etc2="res://.godot/imported/mail_shirt_mail_normal.png-0da530c8f9702d58d46d87e8dcd4ab0c.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -16,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/characters/kalev_fresh/mail_shirt/mail_shirt_mail_normal.png"
-dest_files=["res://.godot/imported/mail_shirt_mail_normal.png-ed46b9e8513f186ceeb753392aa26e6c.s3tc.ctex", "res://.godot/imported/mail_shirt_mail_normal.png-ed46b9e8513f186ceeb753392aa26e6c.etc2.ctex"]
+dest_files=["res://.godot/imported/mail_shirt_mail_normal.png-0da530c8f9702d58d46d87e8dcd4ab0c.s3tc.ctex", "res://.godot/imported/mail_shirt_mail_normal.png-0da530c8f9702d58d46d87e8dcd4ab0c.etc2.ctex"]
 
 [params]
 

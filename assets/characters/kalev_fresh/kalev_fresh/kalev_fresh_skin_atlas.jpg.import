@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://1cgs02wnrga5"
-path.s3tc="res://.godot/imported/kalev_fresh_skin_atlas.jpg-eda142e53fe83c221f4cfd68e288d350.s3tc.ctex"
-path.etc2="res://.godot/imported/kalev_fresh_skin_atlas.jpg-eda142e53fe83c221f4cfd68e288d350.etc2.ctex"
+path.s3tc="res://.godot/imported/kalev_fresh_skin_atlas.jpg-03ead3945837c1fb30f73bd5ef3873ae.s3tc.ctex"
+path.etc2="res://.godot/imported/kalev_fresh_skin_atlas.jpg-03ead3945837c1fb30f73bd5ef3873ae.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -16,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/characters/kalev_fresh/kalev_fresh/kalev_fresh_skin_atlas.jpg"
-dest_files=["res://.godot/imported/kalev_fresh_skin_atlas.jpg-eda142e53fe83c221f4cfd68e288d350.s3tc.ctex", "res://.godot/imported/kalev_fresh_skin_atlas.jpg-eda142e53fe83c221f4cfd68e288d350.etc2.ctex"]
+dest_files=["res://.godot/imported/kalev_fresh_skin_atlas.jpg-03ead3945837c1fb30f73bd5ef3873ae.s3tc.ctex", "res://.godot/imported/kalev_fresh_skin_atlas.jpg-03ead3945837c1fb30f73bd5ef3873ae.etc2.ctex"]
 
 [params]
 

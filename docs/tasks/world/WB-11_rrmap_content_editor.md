@@ -55,7 +55,7 @@ matching `.uid` sidecars, `scripts/map/map_blueprint_editor_preview.gd`,
 `scripts/map/map_blueprint_preview_overlay.gd`, `scripts/map/rrmap/map_rrmap_serializer.gd`,
 `tests/godot/test_rrmap_content_editor.gd` and its `.uid`,
 `docs/MAP_EDITOR.md`, `docs/MAP_ALIGNMENT_EDITOR.md`, `docs/MAP_AUTHORING.md`,
-`docs/reports/images/map_editor/`, `docs/tasks/world/WB-11_rrmap_content_editor.md`, `TODO.md`.
+`docs/reports/images/map_editor/`, `docs/tasks/world/WB-11_rrmap_content_editor.md`, the project task board (`tasks` tool).
 
 ## Constraints and non-goals
 

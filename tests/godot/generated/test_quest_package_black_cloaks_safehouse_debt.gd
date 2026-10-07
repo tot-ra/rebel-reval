@@ -11,6 +11,7 @@ const LANDMARK_BEATS: Array[StringName] = [
 const CONTENT_DIRS: Array[String] = [
 	"res://content/packages/black_cloaks_safehouse_debt/content",
 	"res://content/examples/support",
+	"res://content/examples/valid",
 ]
 const BRANCHES: Array[Dictionary] = [
 	{

@@ -60,7 +60,7 @@ use it.
 - `tests/godot/test_coastal_elevation_ladder.gd` (new),
   `tests/godot/test_reval_harbor_map.gd`, `tests/godot/test_ws13b_sea_basin_depth.gd`
 - `tools/capture_co04_coastal_levels.gd` (new)
-- `docs/reports/co04_coastal_levels.md`, `docs/reports/images/co04_*.png`, `TODO.md`
+- `docs/reports/co04_coastal_levels.md`, `docs/reports/images/co04_*.png`, the project task board (`tasks` tool)
 
 ## Constraints and non-goals
 
@@ -96,9 +96,9 @@ python3 tools/generate_active_docs_report.py --check
 ## Doc updates
 
 `docs/MAP_AUTHORING.md` coastal elevation ladder, `docs/data/map_composition_thresholds.json`,
-`docs/reports/co04_coastal_levels.md`, `TODO.md`.
+`docs/reports/co04_coastal_levels.md`, the project task board (`tasks` tool).
 
-## TODO.md line
+## project task board line
 
 ```
 - [ ] R-951 | deps: none | deliverable: documented coastal elevation ladder (foreshore/berm/dune/terrace) applied to reval_harbor_east (span 0.05 -> >= 1.2), reval_harbor_north and world.saaremaa (first profiles, crater rim), plus a monotonic seabed depth ramp and elevation_range_min thresholds | allowed files: per docs/tasks/coast/CO-04_coastal_elevation_levels.md | verify: blueprint validate; `--filter=test_coastal_elevation_ladder,test_reval_harbor_map,test_ws13b_sea_basin_depth`; map audit/activation/composition; active docs; walkable region and all transition/anchor cells unchanged vs the 2026-09-26 baseline; shore-parallel plates and a waterline-to-terrace walk clip per map

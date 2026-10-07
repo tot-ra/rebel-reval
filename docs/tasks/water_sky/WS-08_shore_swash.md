@@ -32,7 +32,7 @@ gets wet.
 - `tests/godot/test_shore_distance_field.gd` (new), `tests/godot/test_r715_water_material_contract.gd`,
   `tests/godot/test_r715_water_surface_geometry.gd`
 - `docs/reports/images/ws08_*.png`
-- `TODO.md`
+- the project task board (`tasks` tool)
 
 ## Dependencies
 
@@ -146,9 +146,9 @@ gets wet.
 - A short section in [`docs/MAP_AUTHORING.md`](../../MAP_AUTHORING.md) explaining that the swash
   sheet and shore field are generated view output (one paragraph). Add `docs/MAP_AUTHORING.md` to
   the allowed files when you do this.
-- `TODO.md` row:
+- the project task board (`tasks` tool) row:
   ```text
-  - [ ] WS-08 | deps: WS-04 | deliverable: runtime shore distance field + generated beach swash sheet with analytic wave sets, shoaling/breaking bore, run-up/backwash with bead/trail foam and meniscus fade, surf turbidity, wall slosh, and deterministic wet-sand drying with residue line | allowed files: `scripts/map/view3d/shore_swash.gdshaderinc`, `scripts/map/view3d/map_view_water.gdshader`, `scripts/map/view3d/map_view_terrain_blend.gdshader`, `scripts/map/view3d/map_view_mesh_builder_terrain_water.gd`, `scripts/map/view3d/map_view_water_materials.gd`, `scripts/map/view3d/map_view_materials.gd`, `tests/godot/test_shore_distance_field.gd`, `tests/godot/test_r715_water_material_contract.gd`, `tests/godot/test_r715_water_surface_geometry.gd`, `docs/MAP_AUTHORING.md`, `docs/reports/images/ws08_*.png`, `TODO.md` | verify: shore field tests; map validation/audit/activation; reval_harbor_east clear/storm/night captures and 20 s clip show breaking sets, run-up sheet with fading edge, drying wet sand, and wall slosh
+  - [ ] WS-08 | deps: WS-04 | deliverable: runtime shore distance field + generated beach swash sheet with analytic wave sets, shoaling/breaking bore, run-up/backwash with bead/trail foam and meniscus fade, surf turbidity, wall slosh, and deterministic wet-sand drying with residue line | allowed files: `scripts/map/view3d/shore_swash.gdshaderinc`, `scripts/map/view3d/map_view_water.gdshader`, `scripts/map/view3d/map_view_terrain_blend.gdshader`, `scripts/map/view3d/map_view_mesh_builder_terrain_water.gd`, `scripts/map/view3d/map_view_water_materials.gd`, `scripts/map/view3d/map_view_materials.gd`, `tests/godot/test_shore_distance_field.gd`, `tests/godot/test_r715_water_material_contract.gd`, `tests/godot/test_r715_water_surface_geometry.gd`, `docs/MAP_AUTHORING.md`, `docs/reports/images/ws08_*.png`, the project task board (`tasks` tool) | verify: shore field tests; map validation/audit/activation; reval_harbor_east clear/storm/night captures and 20 s clip show breaking sets, run-up sheet with fading edge, drying wet sand, and wall slosh
   ```
 
 ## Final parameters and decisions (2026-09-25, R-893)

@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://oh6174h3vpc1"
-path.s3tc="res://.godot/imported/chest_merchant_strongbox_RichChestTimber_albedo.png-99423333e05c9120184a48545882de27.s3tc.ctex"
-path.etc2="res://.godot/imported/chest_merchant_strongbox_RichChestTimber_albedo.png-99423333e05c9120184a48545882de27.etc2.ctex"
+path.s3tc="res://.godot/imported/chest_merchant_strongbox_RichChestTimber_albedo.png-ee79092ef76488deeb16f510649f0cf8.s3tc.ctex"
+path.etc2="res://.godot/imported/chest_merchant_strongbox_RichChestTimber_albedo.png-ee79092ef76488deeb16f510649f0cf8.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -15,8 +15,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/furniture/chest_merchant_strongbox_RichChestTimber_albedo.png"
-dest_files=["res://.godot/imported/chest_merchant_strongbox_RichChestTimber_albedo.png-99423333e05c9120184a48545882de27.s3tc.ctex", "res://.godot/imported/chest_merchant_strongbox_RichChestTimber_albedo.png-99423333e05c9120184a48545882de27.etc2.ctex"]
+source_file="res://assets/props/furniture/chest_merchant_strongbox/chest_merchant_strongbox_RichChestTimber_albedo.png"
+dest_files=["res://.godot/imported/chest_merchant_strongbox_RichChestTimber_albedo.png-ee79092ef76488deeb16f510649f0cf8.s3tc.ctex", "res://.godot/imported/chest_merchant_strongbox_RichChestTimber_albedo.png-ee79092ef76488deeb16f510649f0cf8.etc2.ctex"]
 
 [params]
 

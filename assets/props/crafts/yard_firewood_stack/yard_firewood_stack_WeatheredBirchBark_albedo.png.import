@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://qv8bk7gwij5j"
-path.s3tc="res://.godot/imported/yard_firewood_stack_WeatheredBirchBark_albedo.png-cb6d08783ca7505318b6df727f49f525.s3tc.ctex"
-path.etc2="res://.godot/imported/yard_firewood_stack_WeatheredBirchBark_albedo.png-cb6d08783ca7505318b6df727f49f525.etc2.ctex"
+path.s3tc="res://.godot/imported/yard_firewood_stack_WeatheredBirchBark_albedo.png-2d79c612c64f62484e56753320cb6dc8.s3tc.ctex"
+path.etc2="res://.godot/imported/yard_firewood_stack_WeatheredBirchBark_albedo.png-2d79c612c64f62484e56753320cb6dc8.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -15,8 +15,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/crafts/yard_firewood_stack_WeatheredBirchBark_albedo.png"
-dest_files=["res://.godot/imported/yard_firewood_stack_WeatheredBirchBark_albedo.png-cb6d08783ca7505318b6df727f49f525.s3tc.ctex", "res://.godot/imported/yard_firewood_stack_WeatheredBirchBark_albedo.png-cb6d08783ca7505318b6df727f49f525.etc2.ctex"]
+source_file="res://assets/props/crafts/yard_firewood_stack/yard_firewood_stack_WeatheredBirchBark_albedo.png"
+dest_files=["res://.godot/imported/yard_firewood_stack_WeatheredBirchBark_albedo.png-2d79c612c64f62484e56753320cb6dc8.s3tc.ctex", "res://.godot/imported/yard_firewood_stack_WeatheredBirchBark_albedo.png-2d79c612c64f62484e56753320cb6dc8.etc2.ctex"]
 
 [params]
 

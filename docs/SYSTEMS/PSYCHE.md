@@ -8,6 +8,8 @@
 **Shipped slice host today:** `ReflectionModel` / reflection overlay (Duty, Fury, Mercy) - retained and extended, not deleted  
 **Runtime implementation:** **P7-011** (inner-world or extended reflection host, psyche state apply/clear, save/load). This file is not runtime truth until that row verifies.
 
+**Runtime today (2026-10-07):** `GameState.apply_psyche_state` / `clear_psyche_state` / `get_psyche_face_integration` exist and save; the reflection overlay lists active states (`tests/godot/test_p7_011_natural_psyche.gd`). No content or scene applies a psyche state yet. See the [code-health audit](../reports/code_health_audit_2026-10-07.md).
+
 ---
 
 ## 1. Purpose

@@ -1,0 +1,20 @@
+{
+  "id": "foliage_card.maple",
+  "kind": "leonardo_leaf_cluster_plate",
+  "task": "R-1194",
+  "target": "assets/materials/pbr/foliage_cards/leaf_card_atlas.png",
+  "source": "generated/leonardo/leaf_cards_v1/maple/candidate_1.jpg",
+  "candidates": [
+    "generated/leonardo/leaf_cards_v1/maple/candidate_1.jpg",
+    "generated/leonardo/leaf_cards_v1/maple/candidate_2.jpg"
+  ],
+  "prompt": "Botanical flat-lay photograph seen from directly above: one short twig of Norway maple (Acer platanoides) carrying a cluster of 5 to 7 overlapping palmate five-lobed maple leaves of mixed sizes, fresh mid green, veins visible, the twig enters from the bottom centre of the frame, the whole cluster fits inside the frame with margin. Isolated on a pure flat white background, even soft overcast light, no cast shadow, sharp leaf edges, scan quality, square.",
+  "negative_prompt": "shadow, drop shadow, gradient background, vignette, coloured background, seeds, flowers, text, watermark, border, blur, depth of field, cropped leaves, single leaf, autumn colours, painting, illustration, 3d render, red leaves",
+  "model_name": "Leonardo configured default model (a2gent leonardo_generate_image)",
+  "width": 1024,
+  "height": 1024,
+  "generation_id": "5db04246-86e9-42e1-8732-29ffc28c063e",
+  "selected_candidate": 1,
+  "processor": "tools/assets/build_leaf_card_atlas.py",
+  "notes": "Candidate 1: broad palmate cluster. Rejected 2 (over-saturated, crumpled)."
+}

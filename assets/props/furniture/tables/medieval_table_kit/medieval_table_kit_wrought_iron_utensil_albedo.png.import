@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cb6mi7dprirhv"
-path.s3tc="res://.godot/imported/medieval_table_kit_wrought_iron_utensil_albedo.png-76cdbbc5e34de0e9d637d23f07bef674.s3tc.ctex"
-path.etc2="res://.godot/imported/medieval_table_kit_wrought_iron_utensil_albedo.png-76cdbbc5e34de0e9d637d23f07bef674.etc2.ctex"
+path.s3tc="res://.godot/imported/medieval_table_kit_wrought_iron_utensil_albedo.png-41156c4ef9f15925e63086e7dc08c728.s3tc.ctex"
+path.etc2="res://.godot/imported/medieval_table_kit_wrought_iron_utensil_albedo.png-41156c4ef9f15925e63086e7dc08c728.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -15,8 +15,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/furniture/tables/medieval_table_kit_wrought_iron_utensil_albedo.png"
-dest_files=["res://.godot/imported/medieval_table_kit_wrought_iron_utensil_albedo.png-76cdbbc5e34de0e9d637d23f07bef674.s3tc.ctex", "res://.godot/imported/medieval_table_kit_wrought_iron_utensil_albedo.png-76cdbbc5e34de0e9d637d23f07bef674.etc2.ctex"]
+source_file="res://assets/props/furniture/tables/medieval_table_kit/medieval_table_kit_wrought_iron_utensil_albedo.png"
+dest_files=["res://.godot/imported/medieval_table_kit_wrought_iron_utensil_albedo.png-41156c4ef9f15925e63086e7dc08c728.s3tc.ctex", "res://.godot/imported/medieval_table_kit_wrought_iron_utensil_albedo.png-41156c4ef9f15925e63086e7dc08c728.etc2.ctex"]
 
 [params]
 

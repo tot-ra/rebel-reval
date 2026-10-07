@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://cvpv766rm30tc"
-path="res://.godot/imported/rope_coil.glb-b2d8dbd743b36369c6b05361cce492bb.scn"
+path="res://.godot/imported/rope_coil.glb-e35528f653e43f9e13ba7d54ece76ac0.scn"
 
 [deps]
 
-source_file="res://assets/props/crafts/rope_coil.glb"
-dest_files=["res://.godot/imported/rope_coil.glb-b2d8dbd743b36369c6b05361cce492bb.scn"]
+source_file="res://assets/props/crafts/rope_coil/rope_coil.glb"
+dest_files=["res://.godot/imported/rope_coil.glb-e35528f653e43f9e13ba7d54ece76ac0.scn"]
 
 [params]
 

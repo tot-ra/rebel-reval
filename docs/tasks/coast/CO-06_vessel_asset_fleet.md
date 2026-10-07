@@ -53,7 +53,7 @@ boats" at Kalamaja plus four roadstead cogs - so one fishing design has to cover
 - `tests/godot/test_vessel_fleet.gd` (new), `tests/godot/test_boat_float_3d.gd`
 - `tools/capture_co06_vessel_fleet.gd` (new)
 - `docs/ASSET_INVENTORY.md`, `docs/ART_BIBLE.md`, `docs/reports/co06_vessel_fleet.md`,
-  `docs/reports/images/co06_*.png`, `TODO.md`
+  `docs/reports/images/co06_*.png`, the project task board (`tasks` tool)
 
 ## Constraints and non-goals
 
@@ -90,9 +90,9 @@ python3 tools/generate_active_docs_report.py --check
 
 ## Doc updates
 
-`docs/ASSET_INVENTORY.md`, `docs/ART_BIBLE.md`, `docs/reports/co06_vessel_fleet.md`, `TODO.md`.
+`docs/ASSET_INVENTORY.md`, `docs/ART_BIBLE.md`, `docs/reports/co06_vessel_fleet.md`, the project task board (`tasks` tool).
 
-## TODO.md line
+## project task board line
 
 ```
 - [ ] R-953 | deps: R-952 | deliverable: authored GLB vessel fleet (cog, two inshore fishing sizes, rowing boat, lodja lighter, Saaremaa strait craft) with wear/load variants, named rig sub-nodes, segmented sail meshes, deterministic per-prop variant selection, per-design BoatFloat3D hull extents and LODs, deleting both primitive boat builders | allowed files: per docs/tasks/coast/CO-06_vessel_asset_fleet.md | verify: `--filter=test_vessel_fleet,test_boat_float_3d`; blueprint validate; asset sources/lint/storage; map audit; active docs; >= 3 distinct appearances among the six Kalamaja boats; no reference to the deleted builders remains; fleet line-up, six-boat beach and roadstead plates clear/storm before/after on Compatibility and Metal

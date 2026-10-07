@@ -12,16 +12,39 @@ const TOWNSWOMAN_SCENE := preload("res://assets/characters/variants/townswoman.t
 const WATCHMAN_SCENE := preload("res://assets/characters/variants/watchman.tscn")
 const SERGEANT_SCENE := preload("res://assets/characters/variants/sergeant.tscn")
 const DANISH_WARRIOR_SCENE := preload("res://assets/characters/variants/danish_warrior.tscn")
+const SWORD_SCENE := preload("res://assets/characters/shared/sword.tscn")
+const SHARED_RIG_SCENE := preSHARED_RIG_SCENE
+const TORSO_MATERIAL_SUFFIXES: Array[String] = [
+	"_wool_tunic", "_short_tunic", "_long_tunic", "_gown", "_work_gown"
+]
 const CROWD_MANIFEST_PATH := "res://assets/characters/variants/crowd_variation_manifest.json"
 const REQUIRED_ANIMATIONS: Array[StringName] = [
 	&"idle",
 	&"walk",
 	&"run",
 	&"forge_strike",
+	# Weapon move sets, casts and rolls (docs/SYSTEMS/COMBAT_ANIMATION.md).
 	&"hammer_attack",
-	&"sword_attack",
+	&"hammer_attack_2",
+	&"hammer_attack_3",
 	&"hammer_charged_attack",
+	&"sword_attack",
+	&"sword_attack_2",
+	&"sword_attack_3",
+	&"sword_heavy_attack",
+	&"spear_attack",
+	&"spear_attack_2",
+	&"spear_attack_3",
+	&"spear_heavy_attack",
 	&"unarmed_attack",
+	&"unarmed_attack_2",
+	&"unarmed_attack_3",
+	&"unarmed_heavy_attack",
+	&"cast_projectile",
+	&"cast_self",
+	&"cast_area",
+	&"roll_forward",
+	&"roll_backward",
 	&"guard",
 	&"dodge_left",
 	&"dodge_right",
@@ -36,17 +59,23 @@ const REQUIRED_ANIMATIONS: Array[StringName] = [
 	&"sit_up",
 ]
 
+
 func test_kalev_rig_has_required_skeleton_animations_and_empty_hand_start() -> void:
 	var kalev := _instantiate(KALEV_SCENE)
 
 	assert_eq(kalev.validation_errors(), [], "Kalev rig contract must be complete")
 	assert_eq(kalev.variant_id(), &"char.kalev")
-	assert_false(kalev.has_equipment(), "Kalev starts empty-handed until inventory state equips a weapon")
+	assert_false(
+		kalev.has_equipment(), "Kalev starts empty-handed until inventory state equips a weapon"
+	)
 	for animation_name: StringName in REQUIRED_ANIMATIONS:
-		assert_true(kalev.has_animation(animation_name), "Missing canonical animation %s" % animation_name)
+		assert_true(
+			kalev.has_animation(animation_name), "Missing canonical animation %s" % animation_name
+		)
 		assert_true(kalev.play_animation(animation_name), "Animation %s must play" % animation_name)
 
 	kalev.queue_free()
+
 
 func test_directional_dodges_use_non_looping_shared_clips() -> void:
 	var kalev := _instantiate(KALEV_SCENE)
@@ -90,6 +119,7 @@ func test_unarmed_attack_uses_punch_clip() -> void:
 	)
 	kalev.queue_free()
 
+
 func test_pickup_uses_shared_retargeted_clip() -> void:
 	var kalev := _instantiate(KALEV_SCENE)
 	assert_true(kalev.play_animation(&"pickup"))
@@ -114,6 +144,7 @@ func test_facing_is_transform_driven_without_direction_assets() -> void:
 	assert_true(is_equal_approx(kalev.rotation.y, -PI / 2.0))
 	kalev.queue_free()
 
+
 func test_running_uses_contralateral_arm_swing() -> void:
 	var kalev := _instantiate(KALEV_SCENE)
 	assert_true(kalev.play_animation(&"run"))
@@ -135,12 +166,30 @@ func test_running_uses_contralateral_arm_swing() -> void:
 	var head := skeleton.find_bone("head")
 	var left_toes := skeleton.find_bone("toes.l")
 	assert_true(
-		left_hand >= 0 and right_hand >= 0 and left_foot >= 0 and right_foot >= 0
-		and left_knee >= 0 and right_knee >= 0
-		and hips >= 0 and head >= 0 and left_toes >= 0,
+		(
+			left_hand >= 0
+			and right_hand >= 0
+			and left_foot >= 0
+			and right_foot >= 0
+			and left_knee >= 0
+			and right_knee >= 0
+			and hips >= 0
+			and head >= 0
+			and left_toes >= 0
+		),
 		"run verification requires the authored hands, feet, hips, head and toes"
 	)
-	if left_hand >= 0 and right_hand >= 0 and left_foot >= 0 and right_foot >= 0 and left_knee >= 0 and right_knee >= 0 and hips >= 0 and head >= 0 and left_toes >= 0:
+	if (
+		left_hand >= 0
+		and right_hand >= 0
+		and left_foot >= 0
+		and right_foot >= 0
+		and left_knee >= 0
+		and right_knee >= 0
+		and hips >= 0
+		and head >= 0
+		and left_toes >= 0
+	):
 		var hips_rest := skeleton.get_bone_global_rest(hips).origin
 		var up := (skeleton.get_bone_global_rest(head).origin - hips_rest).normalized()
 		var forward := (
@@ -153,10 +202,18 @@ func test_running_uses_contralateral_arm_swing() -> void:
 		kalev.animation_player().advance(0.0)
 		skeleton.force_update_all_bone_transforms()
 		var hips_pose := skeleton.get_bone_global_pose(hips).origin
-		var start_left_hand_z := (skeleton.get_bone_global_pose(left_hand).origin - hips_pose).dot(forward)
-		var start_right_hand_z := (skeleton.get_bone_global_pose(right_hand).origin - hips_pose).dot(forward)
-		var start_left_knee_z := (skeleton.get_bone_global_pose(left_knee).origin - hips_pose).dot(forward)
-		var start_right_knee_z := (skeleton.get_bone_global_pose(right_knee).origin - hips_pose).dot(forward)
+		var start_left_hand_z := (skeleton.get_bone_global_pose(left_hand).origin - hips_pose).dot(
+			forward
+		)
+		var start_right_hand_z := (
+			(skeleton.get_bone_global_pose(right_hand).origin - hips_pose).dot(forward)
+		)
+		var start_left_knee_z := (skeleton.get_bone_global_pose(left_knee).origin - hips_pose).dot(
+			forward
+		)
+		var start_right_knee_z := (
+			(skeleton.get_bone_global_pose(right_knee).origin - hips_pose).dot(forward)
+		)
 		# Scale "visible" with the body's own reach: anatomical (ADR 0022) shoulders
 		# sit forward of the hip line, so a fixed 10 cm tuned on the old mesh
 		# under-reads the same clip's back swing.
@@ -165,13 +222,18 @@ func test_running_uses_contralateral_arm_swing() -> void:
 		var reach := (hand_rest - skeleton.get_bone_global_rest(shoulder).origin).length()
 		var visible_swing := 0.11 * reach
 		assert_true(
-			start_left_hand_z * start_right_hand_z < 0.0
-			and absf(start_left_hand_z) > visible_swing and absf(start_right_hand_z) > visible_swing,
+			(
+				start_left_hand_z * start_right_hand_z < 0.0
+				and absf(start_left_hand_z) > visible_swing
+				and absf(start_right_hand_z) > visible_swing
+			),
 			"hands must visibly swing to opposite sides of the torso"
 		)
 		assert_true(
-			start_left_hand_z * start_left_knee_z < 0.0
-			and start_right_hand_z * start_right_knee_z < 0.0,
+			(
+				start_left_hand_z * start_left_knee_z < 0.0
+				and start_right_hand_z * start_right_knee_z < 0.0
+			),
 			"each arm must counter-swing against the leg on the same side"
 		)
 
@@ -179,11 +241,17 @@ func test_running_uses_contralateral_arm_swing() -> void:
 		kalev.animation_player().advance(0.0)
 		skeleton.force_update_all_bone_transforms()
 		hips_pose = skeleton.get_bone_global_pose(hips).origin
-		var end_left_hand_z := (skeleton.get_bone_global_pose(left_hand).origin - hips_pose).dot(forward)
-		var end_right_hand_z := (skeleton.get_bone_global_pose(right_hand).origin - hips_pose).dot(forward)
+		var end_left_hand_z := (skeleton.get_bone_global_pose(left_hand).origin - hips_pose).dot(
+			forward
+		)
+		var end_right_hand_z := (skeleton.get_bone_global_pose(right_hand).origin - hips_pose).dot(
+			forward
+		)
 		assert_true(
-			end_left_hand_z * start_left_hand_z < 0.0
-			and end_right_hand_z * start_right_hand_z < 0.0,
+			(
+				end_left_hand_z * start_left_hand_z < 0.0
+				and end_right_hand_z * start_right_hand_z < 0.0
+			),
 			"arm swing must reverse during the second half of the stride"
 		)
 	kalev.queue_free()
@@ -207,15 +275,22 @@ func test_locomotion_speed_and_foot_plants_follow_the_authored_gait() -> void:
 		var contact := kalev.consume_foot_plant()
 		if not contact.is_empty():
 			contacts[contact] = true
-			assert_eq(kalev.consume_foot_plant(), &"", "one planted foot must emit only one contact")
-	assert_true(contacts.has(SharedCharacterRig.LEFT_FOOT_BONE), "walk cycle must plant the left foot")
-	assert_true(contacts.has(SharedCharacterRig.RIGHT_FOOT_BONE), "walk cycle must plant the right foot")
+			assert_eq(
+				kalev.consume_foot_plant(), &"", "one planted foot must emit only one contact"
+			)
+	assert_true(
+		contacts.has(SharedCharacterRig.LEFT_FOOT_BONE), "walk cycle must plant the left foot"
+	)
+	assert_true(
+		contacts.has(SharedCharacterRig.RIGHT_FOOT_BONE), "walk cycle must plant the right foot"
+	)
 	var right_foot := kalev.foot_world_position(SharedCharacterRig.RIGHT_FOOT_BONE)
 	assert_true(
 		right_foot.distance_to(kalev.global_position) > 0.1,
 		"foot contact position must come from the animated bone, not the actor pivot"
 	)
 	kalev.queue_free()
+
 
 func test_scale_contract_projects_to_sixty_four_pixels() -> void:
 	assert_true(is_equal_approx(CharacterScale.VISIBLE_HEIGHT_WORLD, 2.0))
@@ -269,16 +344,24 @@ func test_mart_has_a_named_body_on_the_shared_animation_contract() -> void:
 	assert_false(mart.has_equipment(), "Mart must not inherit Kalev's hammer")
 	assert_eq(mart.skeleton().get_bone_count(), kalev.skeleton().get_bone_count())
 	assert_eq(mart.canonical_animation_names(), kalev.canonical_animation_names())
-	assert_false(is_same(
-		mart.animation_player().get_animation_library(&""),
-		kalev.animation_player().get_animation_library(&""),
-	), "a named body carries clips retargeted to its own proportions")
-	var kalev_head := kalev.skeleton().get_bone_global_rest(kalev.skeleton().find_bone("head")).origin.y
-	var mart_head := mart.skeleton().get_bone_global_rest(mart.skeleton().find_bone("head")).origin.y
+	assert_false(
+		is_same(
+			mart.animation_player().get_animation_library(&""),
+			kalev.animation_player().get_animation_library(&""),
+		),
+		"a named body carries clips retargeted to its own proportions"
+	)
+	var kalev_head := (
+		kalev.skeleton().get_bone_global_rest(kalev.skeleton().find_bone("head")).origin.y
+	)
+	var mart_head := (
+		mart.skeleton().get_bone_global_rest(mart.skeleton().find_bone("head")).origin.y
+	)
 	assert_true(mart_head < kalev_head, "the 16-year-old apprentice must read shorter than Kalev")
 
 	kalev.queue_free()
 	mart.queue_free()
+
 
 func test_approved_hero_cast_uses_shared_animation_and_stays_visible_at_distance() -> void:
 	var reference := _instantiate(KALEV_SCENE)
@@ -292,17 +375,31 @@ func test_approved_hero_cast_uses_shared_animation_and_stays_visible_at_distance
 	]
 	for entry: Dictionary in cases:
 		var character := _instantiate(entry["scene"] as PackedScene)
-		assert_eq(character.validation_errors(), [], "%s must satisfy the shared rig contract" % character.name)
+		assert_eq(
+			character.validation_errors(),
+			[],
+			"%s must satisfy the shared rig contract" % character.name
+		)
 		assert_eq(character.variant_id(), entry["id"])
 		assert_eq(character.skeleton().get_bone_count(), reference.skeleton().get_bone_count())
 		assert_eq(character.canonical_animation_names(), REQUIRED_ANIMATIONS)
 		for animation_name: StringName in REQUIRED_ANIMATIONS:
-			assert_true(character.has_animation(animation_name), "%s needs %s" % [character.name, animation_name])
+			assert_true(
+				character.has_animation(animation_name),
+				"%s needs %s" % [character.name, animation_name]
+			)
 		assert_eq(character.lod_mesh_count(1), 0)
-		for mesh: MeshInstance3D in character.get_node("Model").find_children("*", "MeshInstance3D", true, false):
-			assert_eq(mesh.visibility_range_end, 0.0, "New body must remain visible without replacement LODs")
+		for mesh: MeshInstance3D in character.get_node("Model").find_children(
+			"*", "MeshInstance3D", true, false
+		):
+			assert_eq(
+				mesh.visibility_range_end,
+				0.0,
+				"New body must remain visible without replacement LODs"
+			)
 		character.queue_free()
 	reference.queue_free()
+
 
 func test_hero_cast_silhouettes_are_distinct_without_color_cues() -> void:
 	var scenes: Array[PackedScene] = [
@@ -318,25 +415,22 @@ func test_hero_cast_silhouettes_are_distinct_without_color_cues() -> void:
 		var character := _instantiate(scene)
 		var skeleton := character.skeleton()
 		var head_y := skeleton.get_bone_global_rest(skeleton.find_bone("head")).origin.y
-		var hand_x := absf(
-			skeleton.get_bone_global_rest(skeleton.find_bone("hand.l")).origin.x
-		)
-		var hip_x := absf(
-			skeleton.get_bone_global_rest(skeleton.find_bone("upperleg.l")).origin.x
-		)
+		var hand_x := absf(skeleton.get_bone_global_rest(skeleton.find_bone("hand.l")).origin.x)
+		var hip_x := absf(skeleton.get_bone_global_rest(skeleton.find_bone("upperleg.l")).origin.x)
 		# WHY: Bone-space stature, arm breadth, and hip breadth survive grayscale and
 		# material swaps, so this signature rejects color-only cast differentiation.
 		var signature := Vector3(
-			snappedf(head_y, 0.001),
-			snappedf(hand_x, 0.001),
-			snappedf(hip_x, 0.001)
+			snappedf(head_y, 0.001), snappedf(hand_x, 0.001), snappedf(hip_x, 0.001)
 		)
 		assert_false(
 			signatures.has(signature),
-			"%s duplicates %s's silhouette" % [
-				character.name,
-				signatures.get(signature, ""),
-			]
+			(
+				"%s duplicates %s's silhouette"
+				% [
+					character.name,
+					signatures.get(signature, ""),
+				]
+			)
 		)
 		signatures[signature] = character.name
 		character.queue_free()
@@ -363,13 +457,18 @@ func test_occlusion_ghost_overlays_every_mesh_and_clears() -> void:
 
 	kalev.set_occlusion_ghost(false)
 	for mesh_instance: MeshInstance3D in mesh_instances:
-		assert_eq(mesh_instance.material_overlay, null, "%s must drop the overlay when visible" % mesh_instance.name)
+		assert_eq(
+			mesh_instance.material_overlay,
+			null,
+			"%s must drop the overlay when visible" % mesh_instance.name
+		)
 
 	kalev.queue_free()
 
+
 func test_sword_scene_mounts_with_grip_origin_and_blade_away_from_hand() -> void:
 	var kalev := _instantiate(KALEV_SCENE)
-	var sword_scene := load("res://assets/characters/shared/sword.tscn") as PackedScene
+	var sword_scene := SWORD_SCENE
 	var sword := kalev.equip(&"right_hand", sword_scene)
 	assert_true(sword != null)
 	assert_eq(sword.name, "PlainCruciformSword")
@@ -378,7 +477,10 @@ func test_sword_scene_mounts_with_grip_origin_and_blade_away_from_hand() -> void
 	assert_true(sword.get_node_or_null("Blade") != null)
 	assert_true(sword.get_node_or_null("BladeTip") != null)
 	assert_true(
-		(sword.get_node("BladeTip") as Node3D).position.y > (sword.get_node("Crossguard") as Node3D).position.y,
+		(
+			(sword.get_node("BladeTip") as Node3D).position.y
+			> (sword.get_node("Crossguard") as Node3D).position.y
+		),
 		"Blade must extend away from the grip instead of into the wrist"
 	)
 	assert_true((sword.get_node("Blade") as MeshInstance3D).get_aabb().size.y > 0.65)
@@ -388,7 +490,7 @@ func test_sword_scene_mounts_with_grip_origin_and_blade_away_from_hand() -> void
 
 func test_sword_blade_points_away_from_torso_in_idle_and_attack() -> void:
 	var kalev := _instantiate(KALEV_SCENE)
-	var sword_scene := load("res://assets/characters/shared/sword.tscn") as PackedScene
+	var sword_scene := SWORD_SCENE
 	var sword := kalev.equip(&"right_hand", sword_scene)
 	var chest_index := kalev.skeleton().find_bone("chest")
 	assert_true(chest_index >= 0)
@@ -428,13 +530,22 @@ func test_map_view_runtime_hot_swaps_hammer_sword_and_empty_hand_visuals() -> vo
 
 	assert_eq(state.bag.try_add(&"item.forge_hammer"), InventoryBag.AddResult.OK)
 	assert_true(state.equip_from_bag(&"right_hand", &"item.forge_hammer"))
-	assert_eq(kalev.equipped(&"right_hand").scene_file_path, "res://assets/storybook/equipment/hammer.tscn")
-	assert_true(kalev.equipped(&"right_hand").find_children("*", "MeshInstance3D", true, false).size() > 0)
+	assert_eq(
+		kalev.equipped(&"right_hand").scene_file_path,
+		"res://assets/storybook/equipment/hammer.tscn"
+	)
+	assert_true(
+		kalev.equipped(&"right_hand").find_children("*", "MeshInstance3D", true, false).size() > 0
+	)
 
 	assert_eq(state.bag.try_add(&"item.plain_sword"), InventoryBag.AddResult.OK)
 	assert_true(state.equip_from_bag(&"right_hand", &"item.plain_sword"))
-	assert_eq(kalev.equipped(&"right_hand").scene_file_path, "res://assets/storybook/equipment/sword.tscn")
-	assert_true(kalev.equipped(&"right_hand").find_children("*", "MeshInstance3D", true, false).size() > 0)
+	assert_eq(
+		kalev.equipped(&"right_hand").scene_file_path, "res://assets/storybook/equipment/sword.tscn"
+	)
+	assert_true(
+		kalev.equipped(&"right_hand").find_children("*", "MeshInstance3D", true, false).size() > 0
+	)
 
 	assert_true(state.unequip_to_bag(&"right_hand"))
 	assert_eq(kalev.equipped(&"right_hand"), null)
@@ -454,12 +565,15 @@ func test_equipment_slots_mount_replace_and_clear_props() -> void:
 	assert_eq(kalev.equipped(&"left_hand"), left)
 
 	var replacement := kalev.equip(&"left_hand", hammer_scene)
-	assert_true(replacement != null and replacement != left, "equipping again must replace the prop")
+	assert_true(
+		replacement != null and replacement != left, "equipping again must replace the prop"
+	)
 
 	kalev.unequip(&"left_hand")
 	assert_eq(kalev.equipped(&"left_hand"), null, "unequip must clear the slot")
 	assert_eq(kalev.equip(&"nonsense", hammer_scene), null, "unknown slots must be rejected")
 	kalev.queue_free()
+
 
 func test_fresh_forge_outfit_deforms_with_the_shared_skeleton() -> void:
 	var kalev := _instantiate(KALEV_SCENE)
@@ -477,7 +591,9 @@ func test_fresh_forge_outfit_deforms_with_the_shared_skeleton() -> void:
 		for mesh: MeshInstance3D in garment_meshes:
 			assert_true(mesh.mesh.get_surface_count() > 0, "garment must carry visible surfaces")
 			assert_true(mesh.skin != null, "garment must stay skinned so it deforms with the body")
-	assert_false(mart.has_garment(&"hat"), "Mart keeps his generated adolescent silhouette unobstructed")
+	assert_false(
+		mart.has_garment(&"hat"), "Mart keeps his generated adolescent silhouette unobstructed"
+	)
 
 	kalev.unequip_wearable(&"outerwear")
 	assert_eq(kalev.equipped_wearable(&"outerwear"), null, "forge apron must be removable")
@@ -485,11 +601,14 @@ func test_fresh_forge_outfit_deforms_with_the_shared_skeleton() -> void:
 	kalev.queue_free()
 	mart.queue_free()
 
+
 func test_innkeeper_body_spec_fulfills_the_rig_contract() -> void:
 	var kalev := _instantiate(KALEV_SCENE)
 	var innkeeper := _instantiate(INNKEEPER_SCENE)
 
-	assert_eq(innkeeper.validation_errors(), [], "generated body specs must satisfy the rig contract")
+	assert_eq(
+		innkeeper.validation_errors(), [], "generated body specs must satisfy the rig contract"
+	)
 	assert_eq(innkeeper.variant_id(), &"char.innkeeper")
 	assert_eq(
 		innkeeper.skeleton().get_bone_count(),
@@ -497,10 +616,13 @@ func test_innkeeper_body_spec_fulfills_the_rig_contract() -> void:
 		"all generated bodies share the retargeted skeleton layout"
 	)
 	assert_eq(innkeeper.canonical_animation_names(), kalev.canonical_animation_names())
-	assert_false(is_same(
-		innkeeper.animation_player().get_animation_library(&""),
-		kalev.animation_player().get_animation_library(&""),
-	), "a body spec carries its own retargeted clips, proportioned to its skeleton")
+	assert_false(
+		is_same(
+			innkeeper.animation_player().get_animation_library(&""),
+			kalev.animation_player().get_animation_library(&""),
+		),
+		"a body spec carries its own retargeted clips, proportioned to its skeleton"
+	)
 
 	kalev.queue_free()
 	innkeeper.queue_free()
@@ -512,13 +634,18 @@ func test_henning_body_has_an_authoritative_silhouette_and_social_animations() -
 
 	assert_eq(henning.validation_errors(), [], "Henning must satisfy the shared rig contract")
 	assert_eq(henning.variant_id(), &"char.henning")
-	var kalev_head := kalev.skeleton().get_bone_global_rest(kalev.skeleton().find_bone("head")).origin.y
-	var henning_head := henning.skeleton().get_bone_global_rest(henning.skeleton().find_bone("head")).origin.y
-	assert_true(
-		henning_head > kalev_head,
-		"Henning's generated skeleton must read taller than Kalev"
+	var kalev_head := (
+		kalev.skeleton().get_bone_global_rest(kalev.skeleton().find_bone("head")).origin.y
 	)
-	for animation_name: StringName in [&"walk", &"idle", &"talk_gesture", &"sit_down", &"sit_idle", &"sit_up"]:
+	var henning_head := (
+		henning.skeleton().get_bone_global_rest(henning.skeleton().find_bone("head")).origin.y
+	)
+	assert_true(
+		henning_head > kalev_head, "Henning's generated skeleton must read taller than Kalev"
+	)
+	for animation_name: StringName in [
+		&"walk", &"idle", &"talk_gesture", &"sit_down", &"sit_idle", &"sit_up"
+	]:
 		assert_true(henning.has_animation(animation_name), "Henning needs %s" % animation_name)
 
 	kalev.queue_free()
@@ -531,16 +658,28 @@ func test_variants_walk_with_their_own_gait_overrides() -> void:
 	var innkeeper := _instantiate(INNKEEPER_SCENE)
 
 	assert_true(kalev.play_animation(&"walk"))
-	assert_eq(kalev.animation_player().current_animation, &"Walking_A",
-		"a variant without overrides keeps the shared default gait")
+	assert_eq(
+		kalev.animation_player().current_animation,
+		&"Walking_A",
+		"a variant without overrides keeps the shared default gait"
+	)
 	assert_true(henning.play_animation(&"walk"))
-	assert_eq(henning.animation_player().current_animation, &"Walking_B",
-		"Henning's override must select his disciplined march clip")
+	assert_eq(
+		henning.animation_player().current_animation,
+		&"Walking_B",
+		"Henning's override must select his disciplined march clip"
+	)
 	assert_true(innkeeper.play_animation(&"walk"))
-	assert_eq(innkeeper.animation_player().current_animation, &"Walking_C",
-		"the innkeeper's override must select his heavier walk clip")
-	assert_eq(innkeeper.current_canonical_animation(), &"walk",
-		"an overridden clip must still resolve to its canonical name")
+	assert_eq(
+		innkeeper.animation_player().current_animation,
+		&"Walking_C",
+		"the innkeeper's override must select his heavier walk clip"
+	)
+	assert_eq(
+		innkeeper.current_canonical_animation(),
+		&"walk",
+		"an overridden clip must still resolve to its canonical name"
+	)
 	assert_true(innkeeper.play_animation(&"run"))
 	assert_eq(innkeeper.animation_player().current_animation, &"Running_A")
 
@@ -573,15 +712,21 @@ func test_townswoman_body_spec_fulfills_the_rig_contract() -> void:
 	var kalev := _instantiate(KALEV_SCENE)
 	var townswoman := _instantiate(TOWNSWOMAN_SCENE)
 
-	assert_eq(townswoman.validation_errors(), [], "the townswoman must satisfy the shared rig contract")
+	assert_eq(
+		townswoman.validation_errors(), [], "the townswoman must satisfy the shared rig contract"
+	)
 	assert_eq(townswoman.variant_id(), &"char.townswoman")
 	assert_eq(
 		townswoman.skeleton().get_bone_count(),
 		kalev.skeleton().get_bone_count(),
 		"all generated bodies share the retargeted skeleton layout"
 	)
-	var kalev_head := kalev.skeleton().get_bone_global_rest(kalev.skeleton().find_bone("head")).origin.y
-	var townswoman_head := townswoman.skeleton().get_bone_global_rest(townswoman.skeleton().find_bone("head")).origin.y
+	var kalev_head := (
+		kalev.skeleton().get_bone_global_rest(kalev.skeleton().find_bone("head")).origin.y
+	)
+	var townswoman_head := (
+		townswoman.skeleton().get_bone_global_rest(townswoman.skeleton().find_bone("head")).origin.y
+	)
 	assert_true(
 		townswoman_head < kalev_head,
 		"the townswoman's generated skeleton must read shorter than Kalev"
@@ -612,15 +757,20 @@ func test_watchman_and_sergeant_are_distinguishable_without_color_cues() -> void
 	var sergeant_shoulders := _shoulder_span(sergeant)
 	assert_true(
 		sergeant_shoulders > watchman_shoulders,
-		"sergeant shoulders must read broader than the watchman at gameplay scale (%.3f vs %.3f)"
-		% [sergeant_shoulders, watchman_shoulders]
+		(
+			"sergeant shoulders must read broader than the watchman at gameplay scale (%.3f vs %.3f)"
+			% [sergeant_shoulders, watchman_shoulders]
+		)
 	)
 
-	var henning_head := henning.skeleton().get_bone_global_rest(henning.skeleton().find_bone("head")).origin.y
-	var sergeant_head := sergeant.skeleton().get_bone_global_rest(sergeant.skeleton().find_bone("head")).origin.y
+	var henning_head := (
+		henning.skeleton().get_bone_global_rest(henning.skeleton().find_bone("head")).origin.y
+	)
+	var sergeant_head := (
+		sergeant.skeleton().get_bone_global_rest(sergeant.skeleton().find_bone("head")).origin.y
+	)
 	assert_true(
-		sergeant_head < henning_head,
-		"sergeant must stay visually subordinate to Captain Henning"
+		sergeant_head < henning_head, "sergeant must stay visually subordinate to Captain Henning"
 	)
 
 	assert_true(watchman.play_animation(&"walk"))
@@ -652,14 +802,20 @@ func test_all_humanoids_use_anatomical_body_clothing_and_muscle_system() -> void
 	]
 	for scene: PackedScene in scenes:
 		var character := _instantiate(scene)
-		assert_eq(character.validation_errors(), [], "%s must preserve the shared rig contract" % character.name)
+		assert_eq(
+			character.validation_errors(),
+			[],
+			"%s must preserve the shared rig contract" % character.name
+		)
 		assert_true(
 			character.skeleton().has_node("AnatomicalMuscles") == character.use_anatomical_muscles,
 			"%s must honor its authored muscle modifier policy" % character.name
 		)
 		var has_anatomy := false
 		var has_clothing := false
-		for found: Node in character.get_node("Model").find_children("*", "MeshInstance3D", true, false):
+		for found: Node in character.get_node("Model").find_children(
+			"*", "MeshInstance3D", true, false
+		):
 			has_anatomy = has_anatomy or found.name.begins_with("Anatomy_")
 			has_clothing = has_clothing or found.name.begins_with("Clothing_")
 		assert_true(has_anatomy, "%s needs a bone-derived anatomical envelope" % character.name)
@@ -679,12 +835,17 @@ func test_danish_warrior_is_a_distinct_animated_spear_variant() -> void:
 
 func test_legacy_shared_rig_distance_lods_mount_with_visibility_ranges() -> void:
 	var kalev := _instantiate_legacy(KALEV_SCENE)
-	assert_true(kalev.lod_visibility_configured(), "Kalev must mount LOD1/LOD2 meshes with distance fades")
+	assert_true(
+		kalev.lod_visibility_configured(), "Kalev must mount LOD1/LOD2 meshes with distance fades"
+	)
 	assert_true(kalev.lod_mesh_count(1) > 0, "LOD1 meshes must exist on the live skeleton")
 	assert_true(kalev.lod_mesh_count(2) > 0, "LOD2 meshes must exist on the live skeleton")
 	for lod_level: int in [1, 2]:
-		for lod_mesh: MeshInstance3D in kalev.skeleton().get_children().filter(func(child: Node) -> bool:
-			return child is MeshInstance3D and String(child.name).begins_with("LOD%d_" % lod_level)
+		for lod_mesh: MeshInstance3D in kalev.skeleton().get_children().filter(
+			func(child: Node) -> bool:
+				return (
+					child is MeshInstance3D and String(child.name).begins_with("LOD%d_" % lod_level)
+				)
 		):
 			assert_false(
 				String(lod_mesh.name).contains("Icosphere"),
@@ -697,18 +858,34 @@ func test_legacy_shared_rig_distance_lods_mount_with_visibility_ranges() -> void
 			)
 			match lod_level:
 				1:
-					assert_eq(lod_mesh.visibility_range_begin, SharedCharacterRig.LOD1_VISIBILITY_BEGIN)
-					assert_eq(lod_mesh.visibility_range_begin_margin, SharedCharacterRig.LOD1_VISIBILITY_MARGIN)
+					assert_eq(
+						lod_mesh.visibility_range_begin, SharedCharacterRig.LOD1_VISIBILITY_BEGIN
+					)
+					assert_eq(
+						lod_mesh.visibility_range_begin_margin,
+						SharedCharacterRig.LOD1_VISIBILITY_MARGIN
+					)
 					assert_eq(lod_mesh.visibility_range_end, SharedCharacterRig.LOD1_VISIBILITY_END)
-					assert_eq(lod_mesh.visibility_range_end_margin, SharedCharacterRig.LOD1_VISIBILITY_MARGIN)
+					assert_eq(
+						lod_mesh.visibility_range_end_margin,
+						SharedCharacterRig.LOD1_VISIBILITY_MARGIN
+					)
 				2:
-					assert_eq(lod_mesh.visibility_range_begin, SharedCharacterRig.LOD2_VISIBILITY_BEGIN)
-					assert_eq(lod_mesh.visibility_range_begin_margin, SharedCharacterRig.LOD1_VISIBILITY_MARGIN)
+					assert_eq(
+						lod_mesh.visibility_range_begin, SharedCharacterRig.LOD2_VISIBILITY_BEGIN
+					)
+					assert_eq(
+						lod_mesh.visibility_range_begin_margin,
+						SharedCharacterRig.LOD1_VISIBILITY_MARGIN
+					)
 			for surface_index: int in lod_mesh.mesh.get_surface_count():
 				var surface_material := lod_mesh.mesh.surface_get_material(surface_index)
 				assert_true(
 					surface_material != null,
-					"LOD%d surfaces must retain their authored materials instead of defaulting white" % lod_level
+					(
+						"LOD%d surfaces must retain their authored materials instead of defaulting white"
+						% lod_level
+					)
 				)
 	var lod0_sample: MeshInstance3D = null
 	for found: Node in kalev.get_node("Model").find_children("*", "MeshInstance3D", true, false):
@@ -737,8 +914,7 @@ func test_legacy_shared_rig_distance_lods_mount_with_visibility_ranges() -> void
 		"LOD1/LOD2 ranges must abut so Compatibility hard-cuts do not double-draw"
 	)
 	var manifest := FileAccess.open(
-		"res://assets/characters/shared/character_lod_manifest.json",
-		FileAccess.READ
+		"res://assets/characters/shared/character_lod_manifest.json", FileAccess.READ
 	)
 	assert_true(manifest != null, "character LOD manifest must be present")
 	var parsed: Variant = JSON.parse_string(manifest.get_as_text())
@@ -761,8 +937,6 @@ func test_legacy_shared_rig_distance_lods_mount_with_visibility_ranges() -> void
 	kalev.queue_free()
 
 
-
-
 func test_legacy_hero_cast_carries_pbr_maps_at_the_tier_zero_contract() -> void:
 	var characters: Array[Node] = [
 		_instantiate_legacy(MART_SCENE),
@@ -775,12 +949,16 @@ func test_legacy_hero_cast_carries_pbr_maps_at_the_tier_zero_contract() -> void:
 	var all_families := {}
 	for character: Node in characters:
 		var character_families := {}
-		for found: Node in character.get_node("Model").find_children("*", "MeshInstance3D", true, false):
+		for found: Node in character.get_node("Model").find_children(
+			"*", "MeshInstance3D", true, false
+		):
 			var mesh_instance := found as MeshInstance3D
 			if mesh_instance == null or mesh_instance.mesh == null:
 				continue
 			for surface_index: int in mesh_instance.mesh.get_surface_count():
-				var material := mesh_instance.mesh.surface_get_material(surface_index) as StandardMaterial3D
+				var material := (
+					mesh_instance.mesh.surface_get_material(surface_index) as StandardMaterial3D
+				)
 				if material == null or material.albedo_texture == null:
 					continue
 				var albedo_path := material.albedo_texture.resource_path
@@ -885,16 +1063,20 @@ func test_legacy_shared_character_hair_and_beard_shader_follow_material_names_ac
 				"anisotropy_strength"
 			)
 			assert_true(
-				anisotropy_strength is float
-				and anisotropy_strength >= 0.25
-				and anisotropy_strength <= 0.50,
+				(
+					anisotropy_strength is float
+					and anisotropy_strength >= 0.25
+					and anisotropy_strength <= 0.50
+				),
 				"%s must use a restrained directional fibre response" % material_name
 			)
 			var normal_strength: Variant = shader_material.get_shader_parameter("normal_strength")
 			assert_true(
 				normal_strength is float and normal_strength <= 0.40,
-				"%s normal detail must break up clumps without " % material_name
-				+ "embossing plastic grooves"
+				(
+					"%s normal detail must break up clumps without " % material_name
+					+ "embossing plastic grooves"
+				)
 			)
 			var alpha_cutoff: Variant = shader_material.get_shader_parameter("alpha_cutoff")
 			assert_true(
@@ -926,7 +1108,10 @@ func test_legacy_shared_character_material_profiles_separate_cloth_leather_and_m
 					continue
 				var material_name := StringName(source_material.resource_name)
 				var active := mesh_instance.get_active_material(surface_index)
-				if not (active is BaseMaterial3D) or not SharedCharacterRig.CHARACTER_PBR_MATERIAL_PROFILES.has(material_name):
+				if (
+					not (active is BaseMaterial3D)
+					or not SharedCharacterRig.CHARACTER_PBR_MATERIAL_PROFILES.has(material_name)
+				):
 					continue
 				var material := active as BaseMaterial3D
 				assert_ne(
@@ -934,15 +1119,26 @@ func test_legacy_shared_character_material_profiles_separate_cloth_leather_and_m
 					BaseMaterial3D.SHADING_MODE_UNSHADED,
 					"%s must receive dynamic lighting" % material_name
 				)
-				var profile: Dictionary = SharedCharacterRig.CHARACTER_PBR_MATERIAL_PROFILES[material_name]
+				var profile: Dictionary = (
+					SharedCharacterRig.CHARACTER_PBR_MATERIAL_PROFILES[material_name]
+				)
 				var expected_roughness: float = profile["roughness"]
 				var expected_metallic: float = profile["metallic"]
 				assert_true(is_equal_approx(material.roughness, expected_roughness))
 				assert_true(is_equal_approx(material.metallic, expected_metallic))
 				profiles[profile["family"]] = material
-				assert_true(material.albedo_texture != null, "%s must preserve its albedo map" % material_name)
-				assert_true(material.normal_texture != null, "%s must preserve its normal map" % material_name)
-				assert_true(material.roughness_texture != null, "%s must preserve its roughness map" % material_name)
+				assert_true(
+					material.albedo_texture != null,
+					"%s must preserve its albedo map" % material_name
+				)
+				assert_true(
+					material.normal_texture != null,
+					"%s must preserve its normal map" % material_name
+				)
+				assert_true(
+					material.roughness_texture != null,
+					"%s must preserve its roughness map" % material_name
+				)
 	assert_true(profiles.has("cloth"), "cloth profile must be present")
 	assert_true(profiles.has("leather"), "leather profile must be present")
 	assert_true(profiles.has("metal"), "metal profile must be present")
@@ -1000,18 +1196,26 @@ func test_seeded_crowd_bodies_are_individuated_and_realise_their_seeds() -> void
 		# ADR 0022: the seeded roster is realised as realistic bodies dressed in
 		# fitted wearables; the torso garment carries the seeded dye.
 		var tunic := _torso_garment_material(character)
-		assert_true(tunic != null and tunic.albedo_texture != null, "%s must carry a textured tunic" % body_name)
+		assert_true(
+			tunic != null and tunic.albedo_texture != null,
+			"%s must carry a textured tunic" % body_name
+		)
 		var skeleton := character.skeleton()
-		records.append({
-			"name": body_name,
-			"template": String(body["template"]),
-			"stature": float(body["stature_factor"]),
-			"head": skeleton.get_bone_global_rest(skeleton.find_bone("head")).origin.y,
-			"shoulders": _shoulder_span(character),
-			"skin": _source_albedo(character, StringName(body_name + "_skin")),
-			"tunic": tunic.albedo_color,
-			"layout": ",".join(_wearable_ids(character)),
-		})
+		(
+			records
+			. append(
+				{
+					"name": body_name,
+					"template": String(body["template"]),
+					"stature": float(body["stature_factor"]),
+					"head": skeleton.get_bone_global_rest(skeleton.find_bone("head")).origin.y,
+					"shoulders": _shoulder_span(character),
+					"skin": _source_albedo(character, StringName(body_name + "_skin")),
+					"tunic": tunic.albedo_color,
+					"layout": ",".join(_wearable_ids(character)),
+				}
+			)
+		)
 		character.queue_free()
 	kalev.queue_free()
 
@@ -1025,10 +1229,15 @@ func test_seeded_crowd_bodies_are_individuated_and_realise_their_seeds() -> void
 				var head_delta: float = float(a["head"]) - float(b["head"])
 				assert_true(
 					signf(stature_delta) == signf(head_delta),
-					"%s/%s head heights must follow their seeded stature order" % [a["name"], b["name"]]
+					(
+						"%s/%s head heights must follow their seeded stature order"
+						% [a["name"], b["name"]]
+					)
 				)
 			var differences := 0
-			differences += 1 if absf(float(a["head"]) - float(b["head"])) > 0.015 * float(a["head"]) else 0
+			differences += (
+				1 if absf(float(a["head"]) - float(b["head"])) > 0.015 * float(a["head"]) else 0
+			)
 			var shoulder_delta := absf(float(a["shoulders"]) - float(b["shoulders"]))
 			differences += 1 if shoulder_delta > 0.02 * float(a["shoulders"]) else 0
 			differences += 1 if _color_distance(a["skin"], b["skin"]) > 0.02 else 0
@@ -1036,15 +1245,19 @@ func test_seeded_crowd_bodies_are_individuated_and_realise_their_seeds() -> void
 			differences += 1 if a["layout"] != b["layout"] else 0
 			assert_true(
 				differences >= 3,
-				"%s and %s must differ in at least three of height/build/skin/garment/surface (got %d)"
-				% [a["name"], b["name"], differences]
+				(
+					"%s and %s must differ in at least three of height/build/skin/garment/surface (got %d)"
+					% [a["name"], b["name"], differences]
+				)
 			)
 
 
 func _active_material_named(
 	character: SharedCharacterRig, material_name: StringName
 ) -> BaseMaterial3D:
-	for found: Node in character.get_node("Model").find_children("*", "MeshInstance3D", true, false):
+	for found: Node in character.get_node("Model").find_children(
+		"*", "MeshInstance3D", true, false
+	):
 		var mesh_instance := found as MeshInstance3D
 		if mesh_instance.mesh == null:
 			continue
@@ -1058,7 +1271,9 @@ func _active_material_named(
 
 
 func _source_albedo(character: SharedCharacterRig, material_name: StringName) -> Color:
-	for found: Node in character.get_node("Model").find_children("*", "MeshInstance3D", true, false):
+	for found: Node in character.get_node("Model").find_children(
+		"*", "MeshInstance3D", true, false
+	):
 		var mesh_instance := found as MeshInstance3D
 		if mesh_instance.mesh == null:
 			continue
@@ -1067,11 +1282,6 @@ func _source_albedo(character: SharedCharacterRig, material_name: StringName) ->
 			if source is BaseMaterial3D and StringName(source.resource_name) == material_name:
 				return (source as BaseMaterial3D).albedo_color
 	return Color.BLACK
-
-
-const TORSO_MATERIAL_SUFFIXES: Array[String] = [
-	"_wool_tunic", "_short_tunic", "_long_tunic", "_gown", "_work_gown"
-]
 
 
 ## Crowd bodies (Tier 2) bake their outfit into one mesh, so garments are
@@ -1115,7 +1325,7 @@ static func _color_distance(a: Color, b: Color) -> float:
 func test_anatomical_muscle_volume_responds_to_joint_bend() -> void:
 	# The procedural (PartBuilder) shared rig still carries pose-driven muscle
 	# volume; realistic MakeHuman bodies (ADR 0022) deform through authored weights.
-	var warrior := _instantiate(load("res://assets/characters/shared/shared_character_rig.tscn"))
+	var warrior := _instantiate(SHARED_RIG_SCENE)
 	var skeleton := warrior.skeleton()
 	var muscles := skeleton.get_node("AnatomicalMuscles")
 	var elbow := skeleton.find_bone("lowerarm.l")
@@ -1124,8 +1334,7 @@ func test_anatomical_muscle_volume_responds_to_joint_bend() -> void:
 	muscles.call("_process_modification")
 	var contracted := skeleton.get_bone_pose_scale(upper_arm)
 	assert_true(
-		contracted.x > 1.02 and contracted.z > 1.02,
-		"bent arm must gain transverse muscle volume"
+		contracted.x > 1.02 and contracted.z > 1.02, "bent arm must gain transverse muscle volume"
 	)
 	assert_true(contracted.y < 1.0, "bent arm muscle must shorten along the bone")
 	warrior.queue_free()
@@ -1145,7 +1354,9 @@ func _instantiate(scene: PackedScene) -> SharedCharacterRig:
 	# Instanced rig scenes can receive their CharacterVariant export after _ready;
 	# refresh materials once the export is present without remounting distance LODs.
 	if character.variant != null:
-		character._apply_material_stack(character.get_node("Model"), character.variant.material_tint)
+		character._apply_material_stack(
+			character.get_node("Model"), character.variant.material_tint
+		)
 	return character
 
 
@@ -1154,7 +1365,7 @@ func _instantiate_legacy(scene: PackedScene) -> SharedCharacterRig:
 	var source := scene.instantiate() as SharedCharacterRig
 	var spec := source.variant
 	source.free()
-	var rig := load("res://assets/characters/shared/shared_character_rig.tscn").instantiate() as SharedCharacterRig
+	var rig := SHARED_RIG_SCENE.instantiate() as SharedCharacterRig
 	var imported := rig.get_node("Model/ImportedHumanoid")
 	rig.get_node("Model").remove_child(imported)
 	imported.free()

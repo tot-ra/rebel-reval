@@ -62,7 +62,7 @@ A set under `assets/buildings/toompea/`, kit-bashed on AR-04, built to the AR-01
 - `tests/godot/test_toompea_buildings.gd` (+ `.uid`, new)
 - `tools/capture_ar09_toompea.gd` (+ `.uid`, new)
 - `docs/ASSET_INVENTORY.md`, `docs/ART_BIBLE.md`, `docs/CANON.md` (confidence labels only),
-  `docs/reports/ar09_toompea.md`, `docs/reports/images/ar09_*.png`, `TODO.md`
+  `docs/reports/ar09_toompea.md`, `docs/reports/images/ar09_*.png`, the project task board (`tasks` tool)
 
 ## Constraints and non-goals
 
@@ -115,9 +115,9 @@ git diff --check
 ## Doc updates
 
 `docs/ASSET_INVENTORY.md`, `docs/ART_BIBLE.md`, `docs/CANON.md`, `docs/reports/ar09_toompea.md`,
-`TODO.md`.
+the project task board (`tasks` tool).
 
-## TODO.md line
+## project task board line
 
 ```
 - [ ] R-967 | deps: R-962 | deliverable: assets/buildings/toompea set covering St Mary's 1343 construction phase as a group (nave, west front, unfinished bay, scaffold, lifting wheel, stone yard, precinct wall), the Small Castle as separate keep/hall/service ranges with curtain, gate and courtyard stair, elite domestic fabric (two canonical curia frontages, episcopal curia, chancery range, compound wall and gate) and the Long Leg / Short Leg gate works with retaining walls, wired through the AR-04 catalogue | allowed files: per docs/tasks/architecture/AR-09_toompea_set.md | verify: `--filter=test_toompea_buildings,test_architecture_kit,test_churches,test_fortification`; full Godot suite; blueprint validate; asset sources/lint/storage; map audit, activation, composition; building variety; active docs; git diff --check; all 23 house records across toompea_quarter, toompea_small_castle and archbishops_garden resolve with every id intact; cathedral has an unfinished bay, scaffold and lifting wheel and no completed east end; castle is a compound of separate ranges; named assertion that no bespoke knights-compound or western canonical hall model exists (HISTORICAL_AUDIT D); realised tile share on toompea_quarter inside 35-55%; models within the ADR 0025 budget with LODs; bit-identical walkability and anchor accounting with all three maps still inactive; empty `git diff --stat content/maps/`; matched before/after cathedral, castle, curia, Long Leg and plateau-vista plates plus a Toompea-curia-beside-Lower-Town-plank-house comparison at noon/overcast/midnight on Compatibility and Metal at both tiers; frame/draw-call/material/triangle budget; named human review that the plateau reads as a separate elite authority town and the cathedral as a building site; canon review that nothing disputed was reintroduced

@@ -77,7 +77,7 @@ and **not one family ships a roughness map**.
 - `tests/python/test_generate_building_surface_variants.py` (new)
 - `tools/capture_ar03_building_surfaces.gd` (+ `.uid`, new)
 - `docs/ART_BIBLE.md`, `docs/MATERIAL_STYLE_LOCK_KIT.md`,
-  `docs/reports/ar03_building_surface_pbr.md`, `docs/reports/images/ar03_*.png`, `TODO.md`
+  `docs/reports/ar03_building_surface_pbr.md`, `docs/reports/images/ar03_*.png`, the project task board (`tasks` tool)
 
 ## Constraints and non-goals
 
@@ -126,9 +126,9 @@ python3 tools/generate_active_docs_report.py --check
 ## Doc updates
 
 `docs/ART_BIBLE.md`, `docs/MATERIAL_STYLE_LOCK_KIT.md`, `docs/reports/ar03_building_surface_pbr.md`,
-`TODO.md`.
+the project task board (`tasks` tool).
 
-## TODO.md line
+## project task board line
 
 ```
 - [ ] R-961 | deps: none | deliverable: roughness (and AO where it reads) added to all seven existing building_variants families plus new ashlar, plank, daub, brick, straw, soot and gable_board families at three stems each, a toggleable anti-tiling detail-blend path, and the surface-variety library made reachable by map_view_building_materials.gd for all 362 building records keyed by (map_seed, building_id), retiring the hard-coded roughness=1.0 and flat vertex-colour albedo for every wall/roof material the authored maps actually use | allowed files: per docs/tasks/architecture/AR-03_building_surface_pbr.md | verify: `--filter=test_building_surface_pbr,test_building_materials,test_burgher_house_models`; full Godot suite; blueprint validate; python generator unittest; asset sources/lint/storage; map composition and audit; active docs; every authored wall_material and roof_material resolves to albedo+normal+roughness with no flat-colour fallback and no constant roughness; byte-identical map fingerprint proving zero geometry change; material line-up plus matched before/after lower_town_slice and north_quarter plates at noon/overcast/rain/midnight on Compatibility and Metal at both quality tiers; quick performance report with the anti-tiling cost recorded; named human review that stone, lime, tar, clay and reed are distinguishable without tint and no street repeats

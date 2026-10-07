@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://gvdfry3j1sel"
-path.s3tc="res://.godot/imported/wool_tunic_wool_albedo.png-6e751cd46e6118601fdc0f7dc4e8dd5e.s3tc.ctex"
-path.etc2="res://.godot/imported/wool_tunic_wool_albedo.png-6e751cd46e6118601fdc0f7dc4e8dd5e.etc2.ctex"
+path.s3tc="res://.godot/imported/wool_tunic_wool_albedo.png-7344b55d0333442363f989bb46256b15.s3tc.ctex"
+path.etc2="res://.godot/imported/wool_tunic_wool_albedo.png-7344b55d0333442363f989bb46256b15.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -16,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/characters/kalev_fresh/wool_tunic/wool_tunic_wool_albedo.png"
-dest_files=["res://.godot/imported/wool_tunic_wool_albedo.png-6e751cd46e6118601fdc0f7dc4e8dd5e.s3tc.ctex", "res://.godot/imported/wool_tunic_wool_albedo.png-6e751cd46e6118601fdc0f7dc4e8dd5e.etc2.ctex"]
+dest_files=["res://.godot/imported/wool_tunic_wool_albedo.png-7344b55d0333442363f989bb46256b15.s3tc.ctex", "res://.godot/imported/wool_tunic_wool_albedo.png-7344b55d0333442363f989bb46256b15.etc2.ctex"]
 
 [params]
 

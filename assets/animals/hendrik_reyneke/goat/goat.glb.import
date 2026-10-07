@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://ckfyuxswdd4sl"
-path="res://.godot/imported/goat.glb-4ed16ab2766e6cae84338a64305634ef.scn"
+path="res://.godot/imported/goat.glb-a69cf451313239aea22b74bf175c7215.scn"
 
 [deps]
 
 source_file="res://assets/animals/hendrik_reyneke/goat/goat.glb"
-dest_files=["res://.godot/imported/goat.glb-4ed16ab2766e6cae84338a64305634ef.scn"]
+dest_files=["res://.godot/imported/goat.glb-a69cf451313239aea22b74bf175c7215.scn"]
 
 [params]
 

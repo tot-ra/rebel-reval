@@ -8,7 +8,7 @@ It is spring 1343 in Reval — present-day Tallinn — days before the St. Georg
 
 The history cannot be prevented. Who survives it, what each side carries into it, and what Kalev becomes — that is the game.
 
-> Reval Rebel is in pre-production with an early playable Godot prototype. See [`TODO.md`](./TODO.md) for the executable roadmap, [`docs/SETUP.md`](./docs/SETUP.md) to run it, and [`docs/MAP_AUTHORING.md`](./docs/MAP_AUTHORING.md) for the production compact/chunked map workflow ([ADR 0009](./docs/adr/0009-map-blueprint-authoring-architecture.md), [ADR 0010](./docs/adr/0010-large-map-runtime-chunking.md)). The scope was widened to a three-act faction RPG by [ADR 0008](./docs/adr/0008-three-act-campaign-and-faction-scope.md) and legacy design systems (magic, NATURAL/psyche, Living City, expanded cast) were returned to the plan by [ADR 0017](./docs/adr/0017-legacy-design-reintroduction.md); the playable MVP still ships first.
+> Reval Rebel is in pre-production with an early playable Godot prototype. Use the project task board (`tasks` tool) for executable work, [`docs/SETUP.md`](./docs/SETUP.md) to run it, and [`docs/MAP_AUTHORING.md`](./docs/MAP_AUTHORING.md) for the production compact/chunked map workflow ([ADR 0009](./docs/adr/0009-map-blueprint-authoring-architecture.md), [ADR 0010](./docs/adr/0010-large-map-runtime-chunking.md)). The scope was widened to a three-act faction RPG by [ADR 0008](./docs/adr/0008-three-act-campaign-and-faction-scope.md) and legacy design systems (magic, NATURAL/psyche, Living City, expanded cast) were returned to the plan by [ADR 0017](./docs/adr/0017-legacy-design-reintroduction.md); the playable MVP still ships first.
 
 ## The heart of the game
 
@@ -99,7 +99,8 @@ This game is produced end to end by AI agents — code, content, art, music cura
 - **Quests are data.** Dialogue, quests, items, and characters are schema-validated JSON packages; the quest-content pipeline (P4) turns "add a quest" into an agent task with generated branch-traversal tests. Content volume in Acts 2–3 depends on this, not on hand-wiring scenes.
 - **Art is generated under contract.** Materials and textures come from the style-lock kit with provenance rows in [`assets/SOURCES.csv`](./assets/SOURCES.csv); characters are rig variants, not bespoke animation sets.
 - **Dialogue is authored offline.** Agents write and validate it at development time; there is no runtime LLM, generated quest, or free-text NPC chat in the shipped game ([ADR 0003](./docs/adr/0003-authored-offline-dialogue-and-prohibit-runtime-llm.md)).
-- **Every task is verifiable.** Work enters [`TODO.md`](./TODO.md) as `ID | deps | deliverable | verify` and closes only against its verification line, per the task contract in [`AGENTS.md`](./AGENTS.md).
+- **Every task is verifiable.** Work enters the project task board (`tasks` tool) as `ID | deps | deliverable | verify` and closes only against its verification line, per the task contract in [`AGENTS.md`](./AGENTS.md).
+- **Every feature is documented.** A task that implements or changes a feature updates its documentation in the same change: what it does, how to use it, where it lives, the IDs and saved state it touches, and how to verify it. A feature without docs is not done, and every page stays reachable from the [documentation hub](./docs/README.md) ([`AGENTS.md` → Feature documentation](./AGENTS.md#feature-documentation-mandatory)).
 
 The spring 1343 fortification snapshot uses a conservative four-position completed Lower Town tower registry rather than the later 1355/1373 or fifteenth-century circuit. Named placement, construction candidates, excluded later towers, and the future one-map-per-tower mini-dungeon plan are documented in [`docs/reports/reval_fortifications_1343.md`](./docs/reports/reval_fortifications_1343.md).
 
@@ -127,7 +128,7 @@ It does **not** include:
 
 Tower-capture strategy, naval/castle-building mini-games, and other fringe legacy loops stay out until a dedicated ADR accepts them. Sprawl crafting trees, randomized loot, and blacksmith rhythm minigames remain excluded unless P7 mini-game reconciliation explicitly reinstates a named variant.
 
-Campaign breadth is governed by [ADR 0008](./docs/adr/0008-three-act-campaign-and-faction-scope.md) as amended by [ADR 0017](./docs/adr/0017-legacy-design-reintroduction.md). The working inventory is [`docs/LEGACY_REINTRODUCTION.md`](./docs/LEGACY_REINTRODUCTION.md). A further major addition must replace comparable scope, be recorded in an ADR, and receive a verifiable `TODO.md` entry before implementation.
+Campaign breadth is governed by [ADR 0008](./docs/adr/0008-three-act-campaign-and-faction-scope.md) as amended by [ADR 0017](./docs/adr/0017-legacy-design-reintroduction.md). The working inventory is [`docs/LEGACY_REINTRODUCTION.md`](./docs/LEGACY_REINTRODUCTION.md). A further major addition must replace comparable scope, be recorded in an ADR, and receive a verifiable the project task board (`tasks` tool) entry before implementation.
 
 ## Development status
 
@@ -139,7 +140,7 @@ The repository currently has:
 - inactive contract-tested outdoor map prototypes (market/civic, north, south, Toompea, and others) awaiting act-gated activation;
 - documented headless import and playable-room smoke checks, a hardened Godot test harness, schemas and Python validation for authored content, map-pipeline gates, and CI for the engine pin, content, tests, imports, and export smoke.
 
-Vertical-slice systems beyond the demo loop (full combat room, enemies, night consequence, faction ledger) remain incomplete. Delivery order is strict: **playable demo → vertical-slice MVP → Act 1 → Act 2 → Act 3**, and the next work is deliberately ordered in [`TODO.md`](./TODO.md); legacy documents do not silently expand that scope.
+Vertical-slice systems beyond the demo loop (full combat room, enemies, night consequence, faction ledger) remain incomplete. Delivery order is strict: **playable demo → vertical-slice MVP → Act 1 → Act 2 → Act 3**, and the next work is deliberately ordered in the project task board (`tasks` tool); legacy documents do not silently expand that scope.
 
 ### Demo walkthrough (D-004)
 
@@ -163,9 +164,12 @@ tools/run_performance_report.sh build/benchmarks/performance-smoke.json --quick
 
 ## Project guide
 
+**[Documentation hub](./docs/README.md)**: every feature, world-building system, character, lore page, and report, reachable from one page. Each implemented feature has a page in [`docs/SYSTEMS/`](./docs/SYSTEMS/README.md).
+
 | Document | Purpose |
 |---|---|
-| [`TODO.md`](./TODO.md) | Ordered, executable work |
+| [`docs/README.md`](./docs/README.md) | Documentation hub: links to every document in the repository |
+| the project task board (`tasks` tool) | Ordered, executable work |
 | [`AGENTS.md`](./AGENTS.md) | Repository map, commands, constraints, and task contract |
 | [`docs/CANON.md`](./docs/CANON.md) | Timeline, terminology, names, and historical confidence |
 | [`docs/CHARACTERS/`](./docs/CHARACTERS/README.md) | Active cast briefs and relationships |
@@ -173,12 +177,13 @@ tools/run_performance_report.sh build/benchmarks/performance-smoke.json --quick
 | [`docs/SETUP.md`](./docs/SETUP.md) | Editor installation, import, startup, tests, and export |
 | [`docs/CONTROLS.md`](./docs/CONTROLS.md) | Camera-aware control scheme, context-sensitive primary click, and default bindings |
 | [`docs/MAP_AUTHORING.md`](./docs/MAP_AUTHORING.md) | Compact map-blueprint primitives, stable IDs, compiler architecture, validation, and migration policy |
+| [`docs/SYSTEMS/`](./docs/SYSTEMS/) | Per-feature documentation for gameplay systems, implemented and planned (status in each file header) |
 | [`docs/adr/`](./docs/adr/) | Product and technical decisions |
 | [`docs/LEGACY_REINTRODUCTION.md`](./docs/LEGACY_REINTRODUCTION.md) | Legacy design → P7 plan inventory (ADR 0017) |
 | [`assets/SOURCES.csv`](./assets/SOURCES.csv) | Asset provenance, rights, and approval metadata |
 | [`docs/FLORA_FAUNA.md`](./docs/FLORA_FAUNA.md) | Sourced 1343 native vegetation and animal species reference |
 
-Root design documents, much of `story/`, and the older faction and location indexes are the seed corpus for [ADR 0017](./docs/adr/0017-legacy-design-reintroduction.md). They are not runtime truth until reconciled through [`docs/LEGACY_REINTRODUCTION.md`](./docs/LEGACY_REINTRODUCTION.md) and strict `TODO.md` P7 / act rows. Legacy 2D art in those trees is inspiration only.
+Root design documents, much of `story/`, and the older faction and location indexes are the seed corpus for [ADR 0017](./docs/adr/0017-legacy-design-reintroduction.md). They are not runtime truth until reconciled through [`docs/LEGACY_REINTRODUCTION.md`](./docs/LEGACY_REINTRODUCTION.md) and strict the project task board (`tasks` tool) P7 / act rows. Legacy 2D art in those trees is inspiration only.
 
 ### Legacy Design & Research Material
 

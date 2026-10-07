@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://cun14l35ot0c4"
-path="res://.godot/imported/kalev_fresh.glb-d5c4134c40b0eec981e85f1ca9f312f3.scn"
+path="res://.godot/imported/kalev_fresh.glb-a55fa7ff41d8db390b12631941336b96.scn"
 
 [deps]
 
 source_file="res://assets/characters/kalev_fresh/kalev_fresh/kalev_fresh.glb"
-dest_files=["res://.godot/imported/kalev_fresh.glb-d5c4134c40b0eec981e85f1ca9f312f3.scn"]
+dest_files=["res://.godot/imported/kalev_fresh.glb-a55fa7ff41d8db390b12631941336b96.scn"]
 
 [params]
 

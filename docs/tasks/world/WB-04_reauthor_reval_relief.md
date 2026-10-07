@@ -57,7 +57,7 @@ south-eastern ground, moats and water management), H10 (Karja Gate coastal-lowla
 matching `.uid` sidecars, `docs/data/map_composition_thresholds.json`,
 `tests/godot/test_reval_relief_datum.gd` and its `.uid`, `docs/MAP_AUTHORING.md`,
 `docs/HISTORICAL_AUDIT.md`, `docs/reports/reval_relief_2026-09-26.md`,
-`docs/reports/images/reval_relief/`, `docs/tasks/world/WB-04_reauthor_reval_relief.md`, `TODO.md`.
+`docs/reports/images/reval_relief/`, `docs/tasks/world/WB-04_reauthor_reval_relief.md`, the project task board (`tasks` tool).
 
 ## Constraints and non-goals
 

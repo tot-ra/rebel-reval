@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b545dpwcjffgg"
-path="res://.godot/imported/hose_albedo.png-701a3573c298ad3956262111a8893033.ctex"
+path="res://.godot/imported/hose_albedo.png-4c391d9e254658747c085b01d38116bd.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/characters/kalev_fresh/materials/hose_albedo.png"
-dest_files=["res://.godot/imported/hose_albedo.png-701a3573c298ad3956262111a8893033.ctex"]
+dest_files=["res://.godot/imported/hose_albedo.png-4c391d9e254658747c085b01d38116bd.ctex"]
 
 [params]
 

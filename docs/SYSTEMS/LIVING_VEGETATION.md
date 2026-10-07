@@ -1,6 +1,6 @@
 # Living vegetation
 
-Status: implemented (task **R-1187**). Scope: tree crowns in the 3D view follow the campaign calendar, react to rain and wind, and respond to melee swings. Presentation only: nothing here changes combat, collision, navigation, or saved state. Out of scope: felling or damaging trees, persistent leaf litter on the ground, snow on branches, seasonal bushes, grass, and crops, and blossom.
+Status: implemented (tasks **R-1187**, **R-1194**; R-1194 visual/reviewer acceptance pending). Scope: tree crowns in the 3D view follow the campaign calendar, react to rain and wind, and respond to melee swings. Presentation only: nothing here changes combat, collision, navigation, or saved state. Out of scope: felling or damaging trees, persistent leaf litter on the ground, snow on branches, seasonal bushes, grass, and crops, and blossom.
 
 Reference bar: trees that feel alive in the way Witcher 3 and RDR2 trees do. The crown changes with the month, and a blow to the trunk knocks leaves loose.
 
@@ -41,6 +41,96 @@ Reference bar: trees that feel alive in the way Witcher 3 and RDR2 trees do. The
 
 - [`test_vegetation_phenology.gd`](../../tests/godot/test_vegetation_phenology.gd) checks winter bareness, the 21 April bud-burst range, full summer crowns, October colouring and shedding, evergreen conifers, continuity and determinism, Julian leap years, and hit strength.
 - [`test_tree_leaf_fall.gd`](../../tests/godot/test_tree_leaf_fall.gd) checks the strike query (nearest tree in front, ignoring trees behind or out of reach), shake ring-down, bursts only from leafed trees, ambient rate against season, wind, and tree count, season delivery to materials and fruit, and the leaf `CUSTOM0` and occlusion contract.
+
+## Dense cluster crowns (R-1194)
+
+Trees now combine the existing folded silhouette leaves with four-triangle folded
+cluster cards. Every skeleton tip gets three cards (two for conifers); spruce,
+pine and juniper also carry cards along branches and rings around the crown bole.
+Conifers retain two opaque needle shoots per spray. Geometry is cached once per
+species, with one canopy surface and the existing MultiMesh batching, no per-card
+nodes or new material surfaces. Stable species IDs and save data are unchanged.
+There are no new controls; the existing calendar, wind, rain and melee interactions
+apply to the cards too. No input or save-format changes are involved.
+
+- Cards tag `UV2 = (1, 1)`; folded leaves retain `(1, 0)`. All twelve card vertices
+  share `CUSTOM0 = (petiole xyz, seed)`, but separate cards have separate seeds.
+  `COLOR.a` remains crown AO. A whole cluster scales/collapses together, so spring
+  growth, autumn colour order and winter shedding remain coherent.
+- `leaf_atlas` is a 2048x1024 RGBA atlas: 4x2 tiles of 512 pixels. Row 0: birch,
+  oak, maple, linden. Row 1: apple, spruce, pine, unused. `atlas_tile` selects a
+  family via `map_view_leaf_geometry.gd::CARD_TILES`. Other species borrow the
+  closest available family, not a botanically exact plate (notably compound and
+  narrow-leaf species). Species tint still comes from the mesh/material.
+- Alpha scissor at 0.5 cuts leaf silhouettes without alpha-blend sorting. RGB is
+  approximately neutral relative brightness, not sRGB albedo; the shader samples
+  it as data and multiplies by two. `card_gain` tunes card brightness. UV inset
+  reduces tile-edge bleed, but does not guarantee isolation at coarse mip levels.
+- The seven Leonardo generation records, two candidates each, prompts and selected
+  filenames are under `generated/leonardo/leaf_cards_v1/<species>/prompt.json`.
+  Rebuild with `python3 tools/assets/build_leaf_card_atlas.py` (Pillow and NumPy).
+  Optional `--preview build/leaf_cards.png` writes a tinted inspection plate.
+  The processor keys white, trims bare twigs, resizes premultiplied scalar channels,
+  normalizes brightness and packs tiles. Empty foreground fails explicitly.
+  All raw plates and the atlas have provenance rows in `assets/SOURCES.csv`;
+  Leonardo account rights and final visual approval are not independently verified.
+
+### Verification and evidence
+
+Run the four-file test command above. `test_vegetation_realism.gd` additionally
+checks every species' single surface, triangle budget, card count, coherent
+petiole/seed per card, seed diversity, AO, atlas binding/dimensions/alpha, and
+non-sRGB sampling. Existing leaf-fall and phenology tests cover the unchanged
+calendar, rain and strike paths.
+
+Measured canopy geometry: 5,732-14,324 triangles per species (24,000 cap),
+170,188 total across the 20 cached species. Spruce has 911 cards / 7,676 triangles;
+pine has 878 cards / 7,320 triangles. Geometry counts do not measure alpha overdraw.
+
+Capture commands (minimized GPU renderer):
+
+```bash
+tools/godot_render.sh --script tools/capture_living_vegetation.gd
+tools/godot_render.sh --script tools/capture_tree_reference_sheet.gd
+GODOT_BIN=/Applications/Godot.app/Contents/MacOS/Godot BENCHMARK_HEADLESS=0 \
+  tools/run_performance_report.sh build/r1194/perf_after.json --quick
+```
+
+- Seasonal plates: [before](../reports/images/vegetation/r1194_before.png),
+  [after](../reports/images/vegetation/r1194_after.png). Rows: birch, oak, maple,
+  apple, spruce. Columns: 21 April, 20 May, 15 July, 5 October, 15 January.
+- Species plates: [before](../reports/images/vegetation/r1194_species_before.png),
+  [after](../reports/images/vegetation/r1194_species_after.png).
+- The baseline disables R-1194 geometry and shader additions while retaining the
+  same surrounding working-tree content. Runs are sequential to avoid GPU
+  contention. This is a local A/B comparison, not a clean-main benchmark.
+- Capture scripts completed, but an independent visual comparison is still
+  required; generated files alone do not establish Witcher 3 / RDR2 quality.
+  The configured review agent failed without returning findings.
+
+### Local quick GPU performance
+
+Godot 4.7.1, GL Compatibility, Apple M5 Pro, sequential minimized GPU runs:
+[raw before report](../reports/images/vegetation/r1194_perf_before.json),
+[raw after report](../reports/images/vegetation/r1194_perf_after.json).
+
+| Metric | Before | After |
+|---|---:|---:|
+| Lower Town scene median frame | 88.578 ms | 90.321 ms |
+| Reciprocal of median frame time (not average FPS) | 11.29 | 11.07 |
+| Lower Town scene p95 frame | 190.828 ms | 174.784 ms |
+| Lower Town pipeline p95 frame | 10.134 ms | 30.406 ms |
+| Scene static memory | 347,613,860 bytes | 347,704,386 bytes |
+
+These are one-run quick observations, not a no-regression claim. Both scene runs
+miss 60 FPS substantially; pipeline p95 worsened while scene p95 improved. Repeat
+warmed GPU measurements and profile alpha overdraw before performance acceptance.
+The logs also contain existing shared-tree character UID/no-rig warnings and
+shutdown resource leaks. The filtered suite passed 33 tests with zero failures
+and zero runtime errors; resource-leak messages still occur during shutdown.
+Full asset provenance validation is blocked by four missing merchant-stone rope
+textures and an unregistered grass atlas from other work; R-1194's 15 rows are
+present. Active-doc validation must be regenerated against the staged file set.
 
 ## Gameplay-scale GPU evidence and review (R-1187)
 
@@ -97,7 +187,7 @@ Code review of commit `3078c157`: no blocking issues found.
 
 ## Limits
 
-- No GPU capture plates are attached yet. Visual tuning (autumn saturation, bud-burst look, burst size) needs a rendered review with `tools/godot_render.sh`.
+- GPU plates are attached above; visual tuning and independent sign-off remain pending. Distance LOD/impostors and alpha-coverage-preserving mips are not implemented; distant needle cards can thin out.
 - Fallen leaves vanish when they land. There is no persistent ground litter, and grass and bushes do not change with the season.
 - Only the player's swings strike trees. NPC melee, magic blasts, and projectiles do not.
 - When two hosted views overlap at a seam, each runs its own ambient emitter, which can double the leaf fall right at the seam.

@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cca1kj3v30yvn"
-path.s3tc="res://.godot/imported/medieval_table_kit_pale_cutting_board_albedo.png-33cdde423a2ee50f4fa46b728f9c3c3d.s3tc.ctex"
-path.etc2="res://.godot/imported/medieval_table_kit_pale_cutting_board_albedo.png-33cdde423a2ee50f4fa46b728f9c3c3d.etc2.ctex"
+path.s3tc="res://.godot/imported/medieval_table_kit_pale_cutting_board_albedo.png-d0b0d7ace345f17298df7da1d9a0d608.s3tc.ctex"
+path.etc2="res://.godot/imported/medieval_table_kit_pale_cutting_board_albedo.png-d0b0d7ace345f17298df7da1d9a0d608.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -15,8 +15,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/furniture/tables/medieval_table_kit_pale_cutting_board_albedo.png"
-dest_files=["res://.godot/imported/medieval_table_kit_pale_cutting_board_albedo.png-33cdde423a2ee50f4fa46b728f9c3c3d.s3tc.ctex", "res://.godot/imported/medieval_table_kit_pale_cutting_board_albedo.png-33cdde423a2ee50f4fa46b728f9c3c3d.etc2.ctex"]
+source_file="res://assets/props/furniture/tables/medieval_table_kit/medieval_table_kit_pale_cutting_board_albedo.png"
+dest_files=["res://.godot/imported/medieval_table_kit_pale_cutting_board_albedo.png-d0b0d7ace345f17298df7da1d9a0d608.s3tc.ctex", "res://.godot/imported/medieval_table_kit_pale_cutting_board_albedo.png-d0b0d7ace345f17298df7da1d9a0d608.etc2.ctex"]
 
 [params]
 

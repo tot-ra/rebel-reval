@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://dq5ngn1c3aho6"
-path="res://.godot/imported/tanning_frame.glb-238ad87357e7793424bf04fd740dcdcc.scn"
+path="res://.godot/imported/tanning_frame.glb-f8a4b9428a9ffdbeb81c48607991c870.scn"
 
 [deps]
 
-source_file="res://assets/props/crafts/tanning_frame.glb"
-dest_files=["res://.godot/imported/tanning_frame.glb-238ad87357e7793424bf04fd740dcdcc.scn"]
+source_file="res://assets/props/crafts/tanning_frame/tanning_frame.glb"
+dest_files=["res://.godot/imported/tanning_frame.glb-f8a4b9428a9ffdbeb81c48607991c870.scn"]
 
 [params]
 

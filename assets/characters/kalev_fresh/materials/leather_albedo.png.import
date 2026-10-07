@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bkrwa072vbyo"
-path="res://.godot/imported/leather_albedo.png-81167c73b528e86dc8aa78a900479f23.ctex"
+path="res://.godot/imported/leather_albedo.png-03a3aff2896030cb5a99e876b5e4af55.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/characters/kalev_fresh/materials/leather_albedo.png"
-dest_files=["res://.godot/imported/leather_albedo.png-81167c73b528e86dc8aa78a900479f23.ctex"]
+dest_files=["res://.godot/imported/leather_albedo.png-03a3aff2896030cb5a99e876b5e4af55.ctex"]
 
 [params]
 

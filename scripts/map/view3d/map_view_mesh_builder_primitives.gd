@@ -7,6 +7,28 @@ const FoliageMeshes := preload("res://scripts/map/view3d/map_view_foliage_meshes
 const TreeMeshes := preload("res://scripts/map/view3d/map_view_tree_meshes.gd")
 const MeshMath := preload("res://scripts/map/view3d/map_view_mesh_builder_math.gd")
 
+## Solid props that grass must not grow through. Flat or soft props (fences,
+## fields, plots, animals) are deliberately left out so verges stay planted.
+const SCATTER_BLOCKING_PROP_KINDS: Array[StringName] = [
+	MapTypes.PROP_KIND_WASH_TUB,
+	MapTypes.PROP_KIND_WELL,
+	MapTypes.PROP_KIND_BARRELS,
+	MapTypes.PROP_KIND_STALL,
+	MapTypes.PROP_KIND_CART,
+	MapTypes.PROP_KIND_CARGO_CRATES,
+	MapTypes.PROP_KIND_TRADE_GOODS,
+	MapTypes.PROP_KIND_MARKET_GOODS_PALLET,
+	MapTypes.PROP_KIND_FISH_SPLITTING_TABLE,
+	MapTypes.PROP_KIND_SAIL_CLOTH_BALE,
+	MapTypes.PROP_KIND_MALT_SACK_PILE,
+	MapTypes.PROP_KIND_BREWERY_KEG_STACK,
+	MapTypes.PROP_KIND_COOPER_STAVES,
+	MapTypes.PROP_KIND_FIREWOOD_STACK,
+	MapTypes.PROP_KIND_HAY_STACK,
+	MapTypes.PROP_KIND_TABLE,
+]
+
+
 ## Procedural primitives are immutable after construction. Reusing their Mesh
 ## resources avoids rebuilding identical roofs and foliage for every streamed
 ## chunk and adjoining-district preview.
@@ -52,6 +74,23 @@ static func building_cell_rects(definition: MapDefinition) -> Array[Rect2]:
 	for building in definition.buildings:
 		var footprint: Rect2 = building["footprint"]
 		rects.append(Rect2(footprint.position * scale, footprint.size * scale))
+	return rects
+
+
+## Cell-space rects of solid props. Props authored without a rect (the wash tub)
+## have no footprint, so they claim one cell around their position.
+static func prop_cell_rects(definition: MapDefinition) -> Array[Rect2]:
+	var rects: Array[Rect2] = []
+	var scale := MapViewBridge.world_scale(definition.cell_size)
+	for prop in definition.props:
+		if not SCATTER_BLOCKING_PROP_KINDS.has(prop.get("kind", &"")):
+			continue
+		if prop.get("footprint") is Rect2:
+			var footprint: Rect2 = prop["footprint"]
+			rects.append(Rect2(footprint.position * scale, footprint.size * scale))
+		elif prop.get("position") is Vector2:
+			var center: Vector2 = prop["position"] * scale
+			rects.append(Rect2(center - Vector2(0.5, 0.5), Vector2.ONE))
 	return rects
 
 

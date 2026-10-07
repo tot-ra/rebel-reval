@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cgaj5afj1i0p0"
-path="res://.godot/imported/skin_atlas.jpg-0587b0871741344f189ff68b2e6076b4.ctex"
+path="res://.godot/imported/skin_atlas.jpg-329f2c64b94f3fcfb4bb422dc32b3aa2.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/characters/kalev_fresh/materials/skin_atlas.jpg"
-dest_files=["res://.godot/imported/skin_atlas.jpg-0587b0871741344f189ff68b2e6076b4.ctex"]
+dest_files=["res://.godot/imported/skin_atlas.jpg-329f2c64b94f3fcfb4bb422dc32b3aa2.ctex"]
 
 [params]
 

@@ -71,7 +71,7 @@ them**. They are dead assets. `tools/window_facade_mesh_builder.py` exists to ma
 - `tests/godot/test_burgher_house_models.gd`, `tests/godot/test_window_facades.gd` (+ `.uid`, new)
 - `tools/capture_ar06_burgher_street.gd` (+ `.uid`, new)
 - `docs/ASSET_INVENTORY.md`, `docs/ART_BIBLE.md`, `docs/ARCHITECTURE_KIT.md`,
-  `docs/reports/ar06_burgher_tiers.md`, `docs/reports/images/ar06_*.png`, `TODO.md`
+  `docs/reports/ar06_burgher_tiers.md`, `docs/reports/images/ar06_*.png`, the project task board (`tasks` tool)
 
 ## Constraints and non-goals
 
@@ -127,9 +127,9 @@ tools/run_pre_commit_checks.sh all
 ## Doc updates
 
 `docs/ASSET_INVENTORY.md`, `docs/ART_BIBLE.md`, `docs/ARCHITECTURE_KIT.md`,
-`docs/reports/ar06_burgher_tiers.md`, `TODO.md`.
+`docs/reports/ar06_burgher_tiers.md`, the project task board (`tasks` tool).
 
-## TODO.md line
+## project task board line
 
 ```
 - [ ] R-964 | deps: R-961,R-962 | deliverable: the three burgher tiers converted from six stretched monolithic GLBs to per-plot AR-04 kit assemblies with bay-count frontage fitting (retiring the non-uniform whole-model scale fit and its MIN/MAX_VERTICAL_SCALE band), enough authored variation that none of the 43 lower_town_slice plots repeat, the three orphaned assets/buildings/facades window GLBs wired live into the opening schedule with deterministic open/closed shutter mixing and extended per AR-01, preserved flue outlet contracts, and surface_variety reduced to a wear/stem selector | allowed files: per docs/tasks/architecture/AR-06_burgher_tier_expansion.md | verify: `--filter=test_burgher_house_models,test_window_facades,test_architecture_kit,test_save`; full Godot suite; blueprint validate; verify_building_variety reporting 43 distinct configurations and no identical adjacent pair; asset sources/lint/storage; map audit, activation, composition; active docs; pre-commit all; door and window head heights inside the AR-01 band on every plot with no whole-assembly non-uniform scale; roof pitch matching the assigned cover; every facade GLB referenced by the catalogue; bit-identical walkability; demo route menu->Lower Town->forge->Mart->anvil still completes and a pre-change save loads unchanged; empty `git diff --stat content/maps/`; matched before/after Pikk/Vene/Saiakang/market plates plus a contiguous-run variety plate and a shutter close-up at noon and midnight on Compatibility and Metal at both tiers; frame/draw-call/material/triangle budget; named human review that the shipped street reads as a Hanseatic Lower Town

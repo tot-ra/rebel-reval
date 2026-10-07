@@ -8,19 +8,19 @@ Reconciled: 2026-09-10 (P0-206 grounded model and equipment integration)
 | Classification | Count | Role |
 |----------------|------:|------|
 | `working` | 50 | Active runtime scenes with verified or complete behavior |
-| `partial` | 64 | Substantial content but incomplete integration or dev-only use |
+| `partial` | 63 | Substantial content but incomplete integration or dev-only use |
 | `placeholder` | 3 | Reserved stubs or reference-only visuals, not playable |
 | `archive` | 20 | Out of vertical-slice scope; legacy open-world or event shells |
-| **Total** | **137** | Matches repository `.tscn` count |
+| **Total** | **136** | Matches repository `.tscn` count |
 
 Repository count command:
 
 ```bash
 find . -name '*.tscn' -not -path './.git/*' -not -path './.godot/*' -not -path './.a2gent-worktrees/*' | wc -l
-# Expected: 137
+# Expected: 135
 ```
 
-Inventory row count (data rows in the table below): **137**.
+Inventory row count (data rows in the table below): **135**.
 
 ## Classification criteria
 
@@ -141,7 +141,6 @@ Inventory row count (data rows in the table below): **137**.
 | 94 | `tools/benchmarks/lower_town_render_probe.tscn` | partial | CI Lower Town 3D render benchmark host; not player-facing. |
 | 72 | `tools/capture_demo_walkthrough_host.tscn` | partial | D-004 packaged demo walkthrough capture host; not player-facing. |
 | 134 | `tools/verify_world_seam_walk.tscn` | partial | R-1043 WorldHost seam-walk verification host (keyboard, gamepad, mouse, fallback); not player-facing. |
-| 136 | `tools/trace_world_two_seam_walk.tscn` | partial | R-1044 staged seam-mount two-seam frame-time trace host; not player-facing. |
 | 95 | `generated/comfyui/forge_cat_hunyuan3d_v1/production/godot_verify/verify.tscn` | partial | Forge cat GLB import verification host; ComfyUI pipeline only. |
 
 ## Totals by folder
@@ -171,9 +170,9 @@ Inventory row count (data rows in the table below): **137**.
 | `scenes/ui/` | 4 | 0 | 0 | 0 | 4 |
 | `scenes/world/` | 0 | 0 | 0 | 10 | 10 |
 | `scenes/world_travel/` | 0 | 10 | 0 | 0 | 10 |
-| `tools/` | 0 | 3 | 0 | 0 | 3 |
+| `tools/` | 0 | 2 | 0 | 0 | 2 |
 | `tools/benchmarks/` | 0 | 3 | 0 | 0 | 3 |
-| **All** | **33** | **48** | **3** | **20** | **104** |
+| **All** | **33** | **47** | **3** | **20** | **103** |
 
 ## Verification
 
@@ -185,7 +184,7 @@ find . -name '*.tscn' -not -path './.git/*' -not -path './.godot/*' -not -path '
 grep -E '^\| [0-9]+ \|' docs/reports/scene_inventory.md | wc -l
 ```
 
-Both commands should print `137` on a clean checkout at this revision.
+Both commands should print `135` on a clean checkout at this revision.
 
 ## Related tasks
 

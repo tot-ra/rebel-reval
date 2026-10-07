@@ -79,7 +79,7 @@ nothing to reason over.
 `scripts/map/map_blueprint_semantic_validator.gd`, matching `.uid` sidecars,
 `tests/godot/test_rrmap_plot_authoring.gd` and its `.uid`,
 `tests/fixtures/maps/rrmap_plot_example.rrmap` and its `.uid`,
-`docs/MAP_AUTHORING.md`, `docs/tasks/world/WB-09_rrmap_v2_semantic_layer.md`, `TODO.md`.
+`docs/MAP_AUTHORING.md`, `docs/tasks/world/WB-09_rrmap_v2_semantic_layer.md`, the project task board (`tasks` tool).
 
 ## Constraints and non-goals
 

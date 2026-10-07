@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://d3jllnwxjf6lm"
-path.s3tc="res://.godot/imported/yard_firewood_stack_HempYardCord_albedo.png-6d28fcd43c3328bd04e9e44766cc582a.s3tc.ctex"
-path.etc2="res://.godot/imported/yard_firewood_stack_HempYardCord_albedo.png-6d28fcd43c3328bd04e9e44766cc582a.etc2.ctex"
+path.s3tc="res://.godot/imported/yard_firewood_stack_HempYardCord_albedo.png-91697b12d36b44314f8f669d79b3c885.s3tc.ctex"
+path.etc2="res://.godot/imported/yard_firewood_stack_HempYardCord_albedo.png-91697b12d36b44314f8f669d79b3c885.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -15,8 +15,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/crafts/yard_firewood_stack_HempYardCord_albedo.png"
-dest_files=["res://.godot/imported/yard_firewood_stack_HempYardCord_albedo.png-6d28fcd43c3328bd04e9e44766cc582a.s3tc.ctex", "res://.godot/imported/yard_firewood_stack_HempYardCord_albedo.png-6d28fcd43c3328bd04e9e44766cc582a.etc2.ctex"]
+source_file="res://assets/props/crafts/yard_firewood_stack/yard_firewood_stack_HempYardCord_albedo.png"
+dest_files=["res://.godot/imported/yard_firewood_stack_HempYardCord_albedo.png-91697b12d36b44314f8f669d79b3c885.s3tc.ctex", "res://.godot/imported/yard_firewood_stack_HempYardCord_albedo.png-91697b12d36b44314f8f669d79b3c885.etc2.ctex"]
 
 [params]
 

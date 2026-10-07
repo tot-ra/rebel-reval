@@ -72,7 +72,7 @@ Widening the bands inside 80 rows would have to come out of the village, so the 
 - `tests/godot/test_reval_harbor_map.gd`, `tests/godot/test_harbour_shoreline_acceptance.gd`,
   `tests/godot/test_ws13b_sea_basin_depth.gd`, `tests/godot/test_coastal_band_budget.gd` (new)
 - `tools/capture_co03_shoreline.gd` (new)
-- `docs/reports/co03_shore_silhouette.md`, `docs/reports/images/co03_*.png`, `TODO.md`
+- `docs/reports/co03_shore_silhouette.md`, `docs/reports/images/co03_*.png`, the project task board (`tasks` tool)
 
 ## Constraints and non-goals
 
@@ -114,9 +114,9 @@ git diff --check
 ## Doc updates
 
 New ADR, `docs/MAP_AUTHORING.md` coastal band section, `docs/MAP_CONVERSION_PLAN.md`,
-`content/map_audit_manifest.json`, `docs/reports/co03_shore_silhouette.md`, `TODO.md`.
+`content/map_audit_manifest.json`, `docs/reports/co03_shore_silhouette.md`, the project task board (`tasks` tool).
 
-## TODO.md line
+## project task board line
 
 ```
 - [ ] R-950 | deps: R-951 | deliverable: ADR-gated re-authoring of reval_harbor_east to 192x128 and reval_harbor_north to 208x144 with wider sea and shore bands, a constructively irregular waterline (>= 6 coves, >= 5 spits, +/- 5 row variation, no full-width sea-edge rect) and a monotonic seaward bed gradient | allowed files: per docs/tasks/coast/CO-03_shore_silhouette_and_depth.md | verify: blueprint validate, full Godot suite, map audit/activation/conversion/composition, active docs; test_coastal_band_budget band minima, cove/spit counts and 12 monotonic bed transects; full stable-ID census green; transitions and anchors still walkable; top-down and three gameplay plates clear/storm before/after on Compatibility and Metal

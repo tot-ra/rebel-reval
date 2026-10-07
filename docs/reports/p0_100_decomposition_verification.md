@@ -150,7 +150,7 @@ The stale `test_verify_r553_lower_town_closeout.py` seeded regression has no cle
 
 ## Sources
 
-- [`R-109 P0-100 task contract`](../../TODO.md)
+- [`R-109 P0-100 task contract`](../../project task board)
 - [`Lower Town RRMap`](../../content/maps/lower_town_slice.rrmap)
 - [`Lower Town authoring contract`](../data/lower_town_authoring_contract.json)
 - [`Composition thresholds`](../data/map_composition_thresholds.json)
@@ -159,11 +159,11 @@ The stale `test_verify_r553_lower_town_closeout.py` seeded regression has no cle
 - [`R-598 surface/elevation verification`](r598_lower_town_surface_elevation_verification.md)
 - [`R-602 matched capture evidence`](r602_lower_town_matched_capture_evidence.md)
 - [`R-607 surface reconciliation`](r607_lower_town_surface_reconciliation.md)
-- [`R-597 frontage and tier handoff`](../../TODO.md)
-- [`R-599 service-yard handoff`](../../TODO.md)
-- [`R-600 composition enforcement task evidence`](../../TODO.md)
-- [`R-601 route/runtime task contract`](../../TODO.md)
-- [`R-608 chunk-readiness task contract`](../../TODO.md)
+- [`R-597 frontage and tier handoff`](../../project task board)
+- [`R-599 service-yard handoff`](../../project task board)
+- [`R-600 composition enforcement task evidence`](../../project task board)
+- [`R-601 route/runtime task contract`](../../project task board)
+- [`R-608 chunk-readiness task contract`](../../project task board)
 - [`tools/verify_r553_lower_town_closeout.py`](../../tools/verify_r553_lower_town_closeout.py)
 - [`tools/verify_map_composition.py`](../../tools/verify_map_composition.py)
 - [`tools/verify_map_conversion_parity.py`](../../tools/verify_map_conversion_parity.py)

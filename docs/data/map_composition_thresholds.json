@@ -387,6 +387,10 @@
     "lower_town_slice": {
       "until": "R-986 (WB-14)",
       "reason": "Card stays enrolled (enforce=true, enforcement_state=enforced). Measured 2026-09-26: built_density_pct 20.9 vs 45-60, max_style_share_pct 39.6 vs 35, largest_empty_region_cells equals the 14977 walkable cells when the ownership contract is not loaded, and still exceeds 1200 after the named open-region exclusions. R-986 re-authors the playable slice. Signed H04-H05/H09-H10 bands are not lowered."
+    },
+    "south_quarter": {
+      "until": "R-282 (P4-024)",
+      "reason": "Card stays enrolled (enforcement_state=enforced, activation composition BLOCKED). R-1082 (2026-09-28) scopes built_density_pct to density zone inside_wall (35.6 vs 40-55) and adds outside_wall 8.1 vs 10-25. largest_empty_region_cells is now 15730 (under 20000) after the R-677 open reserves. Eastern ward 45.2 sits in the H-band; western connector 26.8 stays looser. Grace remains because intramural frontage is still short of the signed inside-wall band; do not lower H08-H10. R-282 / P4-024 owns the missing houses and sparse extramural barns."
     }
   }
 }

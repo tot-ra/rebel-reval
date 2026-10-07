@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://i1iorbd7i608"
-path="res://.godot/imported/smith_apron.glb-ce63ef36b970d6fb38c38d3e254530c0.scn"
+path="res://.godot/imported/smith_apron.glb-cb23e683558028b98eafd74f56bd4e94.scn"
 
 [deps]
 
 source_file="res://assets/characters/kalev_fresh/smith_apron/smith_apron.glb"
-dest_files=["res://.godot/imported/smith_apron.glb-ce63ef36b970d6fb38c38d3e254530c0.scn"]
+dest_files=["res://.godot/imported/smith_apron.glb-cb23e683558028b98eafd74f56bd4e94.scn"]
 
 [params]
 

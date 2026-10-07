@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://cv3urckqejmoh"
-path="res://.godot/imported/linen_shirt.glb-dbf70068419863b3901d4c92fdf22eb9.scn"
+path="res://.godot/imported/linen_shirt.glb-c9bd2fe8fe8473aa98fd75637500c17e.scn"
 
 [deps]
 
 source_file="res://assets/characters/kalev_fresh/linen_shirt/linen_shirt.glb"
-dest_files=["res://.godot/imported/linen_shirt.glb-dbf70068419863b3901d4c92fdf22eb9.scn"]
+dest_files=["res://.godot/imported/linen_shirt.glb-c9bd2fe8fe8473aa98fd75637500c17e.scn"]
 
 [params]
 

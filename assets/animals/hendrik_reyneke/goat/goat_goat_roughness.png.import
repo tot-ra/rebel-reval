@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://svj8d05rdyad"
-path="res://.godot/imported/goat_goat_roughness.png-b404c919e6fb80d588ae12169af5d724.ctex"
+path="res://.godot/imported/goat_goat_roughness.png-0efbdc833ca602dc1d2b69d131cc697a.ctex"
 metadata={
 "vram_texture": false
 }
@@ -14,7 +14,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/animals/hendrik_reyneke/goat/goat_goat_roughness.png"
-dest_files=["res://.godot/imported/goat_goat_roughness.png-b404c919e6fb80d588ae12169af5d724.ctex"]
+dest_files=["res://.godot/imported/goat_goat_roughness.png-0efbdc833ca602dc1d2b69d131cc697a.ctex"]
 
 [params]
 

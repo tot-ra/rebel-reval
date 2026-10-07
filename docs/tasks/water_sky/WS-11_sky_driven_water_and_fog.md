@@ -38,7 +38,7 @@ After WS-10, the sky dome is physical and these no longer match it.
 - `tests/godot/test_atmosphere_cpu.gd` (new), `tests/godot/test_r715_water_weather_sync.gd`,
   `tests/godot/test_weather_realism.gd`
 - `docs/reports/images/ws11_*.png`
-- `TODO.md`
+- the project task board (`tasks` tool)
 
 ## Dependencies
 
@@ -118,7 +118,7 @@ After WS-10, the sky dome is physical and these no longer match it.
 
 - Comments at the `*_ART_TINT` constants explaining that physics is the base and the tint is art
   direction.
-- `TODO.md` row:
+- the project task board (`tasks` tool) row:
   ```text
-  - [ ] WS-11 | deps: WS-10, WS-02 | deliverable: AtmosphereCpu (sun colour, sky irradiance, horizon colour from static LUT images, 4 Hz, smoothed) driving DirectionalLight colour/energy, ambient and fog, and water reflections sampling the shared sky-view LUT; old colour constants become art tints | allowed files: `scripts/map/view3d/atmosphere_cpu.gd`, `scripts/map/view3d/map_view_lighting.gd`, `scripts/map/view3d/map_view_water_materials.gd`, `scripts/map/view3d/map_view_materials.gd`, `scripts/map/view3d/map_view_water.gdshader`, `scripts/map/view3d/sky_weather_3d.gd`, `scripts/map/view3d/atmosphere_common.gdshaderinc`, `tests/godot/test_atmosphere_cpu.gd`, `tests/godot/test_r715_water_weather_sync.gd`, `tests/godot/test_weather_realism.gd`, `docs/reports/images/ws11_*.png`, `TODO.md` | verify: AtmosphereCpu oracle/perf tests; sunset captures show sun disk, lit walls and sea glitter in one hue and the Earth-shadow band reflected in the sea; 60 s day clip without colour stepping
+  - [ ] WS-11 | deps: WS-10, WS-02 | deliverable: AtmosphereCpu (sun colour, sky irradiance, horizon colour from static LUT images, 4 Hz, smoothed) driving DirectionalLight colour/energy, ambient and fog, and water reflections sampling the shared sky-view LUT; old colour constants become art tints | allowed files: `scripts/map/view3d/atmosphere_cpu.gd`, `scripts/map/view3d/map_view_lighting.gd`, `scripts/map/view3d/map_view_water_materials.gd`, `scripts/map/view3d/map_view_materials.gd`, `scripts/map/view3d/map_view_water.gdshader`, `scripts/map/view3d/sky_weather_3d.gd`, `scripts/map/view3d/atmosphere_common.gdshaderinc`, `tests/godot/test_atmosphere_cpu.gd`, `tests/godot/test_r715_water_weather_sync.gd`, `tests/godot/test_weather_realism.gd`, `docs/reports/images/ws11_*.png`, the project task board (`tasks` tool) | verify: AtmosphereCpu oracle/perf tests; sunset captures show sun disk, lit walls and sea glitter in one hue and the Earth-shadow band reflected in the sea; 60 s day clip without colour stepping
   ```

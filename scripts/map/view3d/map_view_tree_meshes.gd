@@ -15,6 +15,16 @@ const WOOD_RADIAL_SEGMENTS := 5
 const MAX_WOOD_SEGMENTS := TreeMeshSkeleton.MAX_WOOD_SEGMENTS
 const MAX_LEAF_SPRAYS := 110
 const MAX_FRUIT_COUNT := 18
+const CONIFERS: Array[StringName] = [&"spruce", &"pine", &"juniper"]
+## R-1194 cluster cards. Card edge length relative to the profile leaf length:
+## one card holds a whole twig cluster of 7-12 leaves (or a needle fan).
+const CARD_SCALE := 3.4
+const CONIFER_CARD_SCALE := 3.8
+const CARDS_PER_TIP := 3
+const CONIFER_CARDS_PER_TIP := 2
+## Conifers keep only a couple of folded needle shoots per spray (28 triangles
+## each) as close-up detail; dense whorl cards replace the rest.
+const CONIFER_FOLDED_SHOOTS := 2
 
 static var _geometry_cache: Dictionary = {}
 
@@ -51,6 +61,7 @@ static func _geometry_for(species: StringName) -> Dictionary:
 		"wood_segments": (skeleton["segments"] as Array).size(),
 		"leaf_sprays": int(canopy_data["sprays"]),
 		"leaf_count": int(canopy_data["leaf_count"]),
+		"card_count": int(canopy_data["card_count"]),
 		"fruit_count": int(canopy_data["fruit_count"]),
 		"wood_triangles": int(skeleton["segments"].size()) * WOOD_RADIAL_SEGMENTS * 2,
 		"canopy_triangles": (canopy_data["mesh"] as ArrayMesh).surface_get_array_len(0) / 3,
@@ -97,6 +108,8 @@ static func _build_canopy_mesh(
 	var candidates: Array = skeleton["leaf_candidates"]
 	var spray_count := mini(int(profile["leaf_sprays"]), candidates.size())
 	var leaves_per_spray := int(profile["leaves_per_spray"])
+	if species in CONIFERS:
+		leaves_per_spray = mini(leaves_per_spray, CONIFER_FOLDED_SHOOTS)
 	var leaf_count := 0
 	var used_anchors: Array[Dictionary] = []
 	var crown := _crown_bounds(candidates)
@@ -146,14 +159,150 @@ static func _build_canopy_mesh(
 				_hash(leaf_index, seed, 467)
 			)
 			leaf_count += 1
+	var card_count := _append_cluster_cards(surface, species, profile, skeleton, crown)
 	var fruit_count := mini(int(profile["fruit_count"]), used_anchors.size())
 	return {
 		"mesh": surface.commit(),
 		"sprays": spray_count,
 		"leaf_count": leaf_count,
+		"card_count": card_count,
 		"fruit_count": fruit_count,
 		"anchors": used_anchors,
 	}
+
+
+## R-1194: alpha-scissor leaf-cluster cards give the crown its mass. Every
+## branch tip (not only the strided folded-leaf sprays) gets a small fan of
+## cards; conifers also get flat needle fans along each branch and around the
+## upper trunk so whorls read full instead of skeletal. Each card keeps its own
+## seed, so seasonal density, autumn hue and fall order stay per cluster.
+static func _append_cluster_cards(
+	surface: SurfaceTool,
+	species: StringName,
+	profile: Dictionary,
+	skeleton: Dictionary,
+	crown: AABB
+) -> int:
+	var conifer := species in CONIFERS
+	var length := float(profile["leaf_length"]) * (CONIFER_CARD_SCALE if conifer else CARD_SCALE)
+	var per_tip := CONIFER_CARDS_PER_TIP if conifer else CARDS_PER_TIP
+	var spread := float(profile["leaf_spread"])
+	var cards := 0
+	for candidate: Dictionary in skeleton["leaf_candidates"]:
+		var anchor: Vector3 = candidate["position"]
+		var direction: Vector3 = candidate["direction"]
+		var seed := int(candidate["seed"])
+		for card_index in per_tip:
+			var yaw := TAU * (float(card_index) + _hash(card_index, seed, 503) * 0.6) / float(per_tip)
+			var radial := TreeMeshSkeleton.radial_around(direction, yaw)
+			var axis := (direction * 0.55 + radial * 0.75 + Vector3.UP * 0.15).normalized()
+			var size := length * lerpf(0.78, 1.15, _hash(card_index, seed, 509))
+			var base := anchor - axis * size * 0.18 + radial * spread * 0.25
+			var facing := (Vector3.UP * 0.7 + radial * 0.5).normalized()
+			_emit_card(surface, species, base, axis, facing, size, crown, seed, card_index)
+			cards += 1
+	if not conifer:
+		return cards
+	var segments: Array = skeleton["segments"]
+	for segment_index in segments.size():
+		var segment: Dictionary = segments[segment_index]
+		var start: Vector3 = segment["start"]
+		var end: Vector3 = segment["end"]
+		var run := end - start
+		if run.length() < 0.02:
+			continue
+		var steps := maxi(1, ceili(run.length() / (length * 0.42)))
+		for step in steps:
+			var t := (float(step) + 0.5) / float(steps)
+			var station := start.lerp(end, t)
+			var seed := segment_index * 131 + step * 7
+			if int(segment["depth"]) == 0:
+				cards += _append_trunk_ring(
+					surface, species, profile, station, crown, length, seed, step
+				)
+				continue
+			# Branch: one flat fan along the branch plus one tilted fan, so the
+			# whorl has thickness from the isometric camera.
+			var forward := run.normalized()
+			var side := TreeMeshSkeleton.perpendicular(forward)
+			var base := station - forward * length * 0.35
+			var tilt := 1.0 if (segment_index + step) % 2 == 0 else -1.0
+			var droop := (forward + Vector3.DOWN * 0.10).normalized()
+			_emit_card(surface, species, base, droop, Vector3.UP, length, crown, seed, 0)
+			_emit_card(
+				surface,
+				species,
+				base,
+				(droop + side * tilt * 0.35).normalized(),
+				(Vector3.UP * 0.55 + side * tilt * 0.8).normalized(),
+				length * 0.85,
+				crown,
+				seed,
+				1
+			)
+			cards += 2
+	return cards
+
+
+## A ring of drooping fans around the bole inside a conifer crown. Spruce and
+## juniper fans shrink with height so the needles close into a cone; pine keeps
+## short fans because its crown is a high, open umbrella.
+static func _append_trunk_ring(
+	surface: SurfaceTool,
+	species: StringName,
+	profile: Dictionary,
+	station: Vector3,
+	crown: AABB,
+	length: float,
+	seed: int,
+	step: int
+) -> int:
+	var crown_start := float(profile["crown_start"])
+	var crown_top := crown.end.y
+	if station.y < crown_start or crown_top <= crown_start:
+		return 0
+	var cone := species != &"pine"
+	var height_t := clampf((station.y - crown_start) / (crown_top - crown_start), 0.0, 1.0)
+	var fan := length
+	var ring := 3
+	if cone:
+		fan = maxf(length * 0.7, float(profile["primary_length"]) * lerpf(0.85, 0.18, height_t))
+		ring = 4 if height_t < 0.75 else 3
+	for ring_index in ring:
+		var yaw := float(ring_index) * TAU / float(ring) + float(step) * 2.39996
+		var out := Vector3(cos(yaw), 0.0, sin(yaw))
+		var ring_axis := (out + Vector3.DOWN * 0.28).normalized()
+		_emit_card(surface, species, station, ring_axis, Vector3.UP, fan, crown, seed, ring_index)
+	return ring
+
+
+static func _emit_card(
+	surface: SurfaceTool,
+	species: StringName,
+	base: Vector3,
+	axis: Vector3,
+	facing: Vector3,
+	size: float,
+	crown: AABB,
+	seed: int,
+	index: int
+) -> void:
+	var middle := base + axis * size * 0.5
+	var outward := middle - crown.get_center()
+	outward.y = maxf(outward.y, 0.0) + crown.size.y * 0.15
+	var color := _leaf_vertex_color(species, lerpf(0.82, 1.08, _hash(index, seed, 517)))
+	color.a = _crown_occlusion(middle, crown)
+	LeafGeometry.append_card(
+		surface,
+		base,
+		axis,
+		facing,
+		outward,
+		Vector2(size * 0.92, size),
+		color,
+		_hash(index, seed, 521),
+		_hash(index, seed, 523) > 0.5
+	)
 
 
 ## Centre and half-extents of the leaf-bearing crown, used for occlusion.

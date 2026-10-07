@@ -49,7 +49,7 @@ Alternatives / Consequences sections, deciding at minimum:
 ## Allowed files
 
 `docs/adr/0023-terrain-relief-as-gameplay.md`, `docs/tasks/world/WB-01_adr_relief_as_gameplay.md`,
-`TODO.md`.
+the project task board (`tasks` tool).
 
 ## Constraints and non-goals
 

@@ -30,7 +30,7 @@ shadow, the colour shift of the sun disk, or the right sky brightness distributi
 - `tests/godot/test_sky_atmosphere_lut.gd` (new), `tests/godot/test_sky_weather_3d.gd`
 - `docs/reports/images/ws10_*.png`, and the re-captured R-713 continuity images if the verifier
   requires them
-- `TODO.md`
+- the project task board (`tasks` tool)
 
 ## Dependencies
 
@@ -137,7 +137,7 @@ shadow, the colour shift of the sun disk, or the right sky brightness distributi
 - [`docs/SKY_WEATHER_STATE_CONTRACT.md`](../../SKY_WEATHER_STATE_CONTRACT.md): a short note that the
   sky radiance comes from the atmosphere LUT and that the state contract is unchanged. Add that file
   to the allowed files when you do this.
-- `TODO.md` row:
+- the project task board (`tasks` tool) row:
   ```text
-  - [ ] WS-10 | deps: WS-09 | deliverable: per-frame Hillaire sky-view LUT in a SubViewport (HDR or RGBM) driving the sky dome background, transmittance-coloured limb-darkened sun disk and physically lit clouds, with art-direction exposure/tint/sunset-boost and gradient fallback | allowed files: `scripts/map/view3d/sky_atmosphere_lut.gd`, `scripts/map/view3d/sky_view_lut.gdshader`, `scripts/map/view3d/sky_weather_3d.gdshader`, `scripts/map/view3d/sky_weather_3d.gd`, `scripts/map/view3d/atmosphere_common.gdshaderinc`, `tests/godot/test_sky_atmosphere_lut.gd`, `tests/godot/test_sky_weather_3d.gd`, `docs/SKY_WEATHER_STATE_CONTRACT.md`, `docs/reports/images/ws10_*.png`, `TODO.md` | verify: LUT node/throttle/fallback tests; six-elevation clear captures show blue zenith, red low sun, Earth-shadow band, twilight into stars; R-713 continuity verifiers pass; 60 s day clip without flicker or banding
+  - [ ] WS-10 | deps: WS-09 | deliverable: per-frame Hillaire sky-view LUT in a SubViewport (HDR or RGBM) driving the sky dome background, transmittance-coloured limb-darkened sun disk and physically lit clouds, with art-direction exposure/tint/sunset-boost and gradient fallback | allowed files: `scripts/map/view3d/sky_atmosphere_lut.gd`, `scripts/map/view3d/sky_view_lut.gdshader`, `scripts/map/view3d/sky_weather_3d.gdshader`, `scripts/map/view3d/sky_weather_3d.gd`, `scripts/map/view3d/atmosphere_common.gdshaderinc`, `tests/godot/test_sky_atmosphere_lut.gd`, `tests/godot/test_sky_weather_3d.gd`, `docs/SKY_WEATHER_STATE_CONTRACT.md`, `docs/reports/images/ws10_*.png`, the project task board (`tasks` tool) | verify: LUT node/throttle/fallback tests; six-elevation clear captures show blue zenith, red low sun, Earth-shadow band, twilight into stars; R-713 continuity verifiers pass; 60 s day clip without flicker or banding
   ```

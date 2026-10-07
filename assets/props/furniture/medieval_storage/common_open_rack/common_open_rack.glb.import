@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://jl1olxsmal7m"
-path="res://.godot/imported/common_open_rack.glb-60e74328c3ef2619bc9a9401ef67f253.scn"
+path="res://.godot/imported/common_open_rack.glb-51633fde821c7d25b366c5c527efc9a3.scn"
 
 [deps]
 
-source_file="res://assets/props/furniture/medieval_storage/common_open_rack.glb"
-dest_files=["res://.godot/imported/common_open_rack.glb-60e74328c3ef2619bc9a9401ef67f253.scn"]
+source_file="res://assets/props/furniture/medieval_storage/common_open_rack/common_open_rack.glb"
+dest_files=["res://.godot/imported/common_open_rack.glb-51633fde821c7d25b366c5c527efc9a3.scn"]
 
 [params]
 

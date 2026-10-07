@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://stvf16umr7ut"
-path.s3tc="res://.godot/imported/fishing_nets_BarkCorkFloats_albedo.png-85d4d50640e966058d46068ee1268b5b.s3tc.ctex"
-path.etc2="res://.godot/imported/fishing_nets_BarkCorkFloats_albedo.png-85d4d50640e966058d46068ee1268b5b.etc2.ctex"
+path.s3tc="res://.godot/imported/fishing_nets_BarkCorkFloats_albedo.png-6dc5577944c50df1857b75075e37d81b.s3tc.ctex"
+path.etc2="res://.godot/imported/fishing_nets_BarkCorkFloats_albedo.png-6dc5577944c50df1857b75075e37d81b.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -15,8 +15,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/crafts/fishing_nets_BarkCorkFloats_albedo.png"
-dest_files=["res://.godot/imported/fishing_nets_BarkCorkFloats_albedo.png-85d4d50640e966058d46068ee1268b5b.s3tc.ctex", "res://.godot/imported/fishing_nets_BarkCorkFloats_albedo.png-85d4d50640e966058d46068ee1268b5b.etc2.ctex"]
+source_file="res://assets/props/crafts/fishing_nets/fishing_nets_BarkCorkFloats_albedo.png"
+dest_files=["res://.godot/imported/fishing_nets_BarkCorkFloats_albedo.png-6dc5577944c50df1857b75075e37d81b.s3tc.ctex", "res://.godot/imported/fishing_nets_BarkCorkFloats_albedo.png-6dc5577944c50df1857b75075e37d81b.etc2.ctex"]
 
 [params]
 

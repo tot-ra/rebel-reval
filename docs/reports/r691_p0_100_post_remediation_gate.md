@@ -179,8 +179,8 @@ No follow-up task was created: all actionable blockers above already have regist
 
 ## Sources
 
-- [`R-109 parent task`](../../TODO.md)
-- [`R-691 task contract`](../../TODO.md)
+- [`R-109 parent task`](../../project task board)
+- [`R-691 task contract`](../../project task board)
 - [`Lower Town RRMap`](../../content/maps/lower_town_slice.rrmap)
 - [`Lower Town authoring contract`](../data/lower_town_authoring_contract.json)
 - [`Composition thresholds`](../data/map_composition_thresholds.json)
@@ -190,7 +190,7 @@ No follow-up task was created: all actionable blockers above already have regist
 - [`R-607 surface reconciliation`](r607_lower_town_surface_reconciliation.md)
 - [`R-598 surface/elevation verification`](r598_lower_town_surface_elevation_verification.md)
 - [`R-553 integration verification`](r553_lower_town_integration_verification.md)
-- [`R-596/R-597/R-599/R-600/R-601/R-608/R-609/R-690 board evidence`](../../TODO.md)
+- [`R-596/R-597/R-599/R-600/R-601/R-608/R-609/R-690 board evidence`](../../project task board)
 - [`Map composition verifier`](../../tools/verify_map_composition.py)
 - [`Map conversion parity verifier`](../../tools/verify_map_conversion_parity.py)
 - [`Map audit verifier`](../../tools/verify_map_audit.py)

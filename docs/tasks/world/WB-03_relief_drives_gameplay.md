@@ -46,7 +46,7 @@ After R-974 the height exists and is authoritative; this row consumes it.
 matching `.uid` sidecars, `tests/godot/test_relief_traversal.gd` and its `.uid`,
 `tests/godot/test_map_nav_builder.gd`, `docs/MAP_AUTHORING.md`,
 `docs/reports/relief_traversal_2026-09-26.md`, `docs/reports/images/relief/`,
-`docs/tasks/world/WB-03_relief_drives_gameplay.md`, `TODO.md`.
+`docs/tasks/world/WB-03_relief_drives_gameplay.md`, the project task board (`tasks` tool).
 
 ## Constraints and non-goals
 

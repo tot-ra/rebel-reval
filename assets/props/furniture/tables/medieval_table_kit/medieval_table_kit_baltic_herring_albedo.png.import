@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://d35tv6vs8ue7n"
-path.s3tc="res://.godot/imported/medieval_table_kit_baltic_herring_albedo.png-39746d605d2e676f9ad95dee8938a8df.s3tc.ctex"
-path.etc2="res://.godot/imported/medieval_table_kit_baltic_herring_albedo.png-39746d605d2e676f9ad95dee8938a8df.etc2.ctex"
+path.s3tc="res://.godot/imported/medieval_table_kit_baltic_herring_albedo.png-bac72972678e87b6024ae6a62d891c59.s3tc.ctex"
+path.etc2="res://.godot/imported/medieval_table_kit_baltic_herring_albedo.png-bac72972678e87b6024ae6a62d891c59.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -15,8 +15,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/furniture/tables/medieval_table_kit_baltic_herring_albedo.png"
-dest_files=["res://.godot/imported/medieval_table_kit_baltic_herring_albedo.png-39746d605d2e676f9ad95dee8938a8df.s3tc.ctex", "res://.godot/imported/medieval_table_kit_baltic_herring_albedo.png-39746d605d2e676f9ad95dee8938a8df.etc2.ctex"]
+source_file="res://assets/props/furniture/tables/medieval_table_kit/medieval_table_kit_baltic_herring_albedo.png"
+dest_files=["res://.godot/imported/medieval_table_kit_baltic_herring_albedo.png-bac72972678e87b6024ae6a62d891c59.s3tc.ctex", "res://.godot/imported/medieval_table_kit_baltic_herring_albedo.png-bac72972678e87b6024ae6a62d891c59.etc2.ctex"]
 
 [params]
 

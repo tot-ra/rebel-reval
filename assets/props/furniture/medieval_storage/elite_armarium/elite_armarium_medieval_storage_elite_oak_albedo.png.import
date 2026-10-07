@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cgyqwlt1d56tr"
-path="res://.godot/imported/elite_armarium_medieval_storage_elite_oak_albedo.png-c3b1c1c6369e2e08090691d8648a0cff.ctex"
+path="res://.godot/imported/elite_armarium_medieval_storage_elite_oak_albedo.png-4358993f807a3c03989f56dbbe9ee89b.ctex"
 metadata={
 "vram_texture": false
 }
@@ -13,8 +13,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/furniture/medieval_storage/elite_armarium_medieval_storage_elite_oak_albedo.png"
-dest_files=["res://.godot/imported/elite_armarium_medieval_storage_elite_oak_albedo.png-c3b1c1c6369e2e08090691d8648a0cff.ctex"]
+source_file="res://assets/props/furniture/medieval_storage/elite_armarium/elite_armarium_medieval_storage_elite_oak_albedo.png"
+dest_files=["res://.godot/imported/elite_armarium_medieval_storage_elite_oak_albedo.png-4358993f807a3c03989f56dbbe9ee89b.ctex"]
 
 [params]
 

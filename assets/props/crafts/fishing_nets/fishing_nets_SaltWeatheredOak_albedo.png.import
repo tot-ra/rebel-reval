@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://i4by7w2lfvsv"
-path.s3tc="res://.godot/imported/fishing_nets_SaltWeatheredOak_albedo.png-a9051e117b7db60b49b7a695d95441c2.s3tc.ctex"
-path.etc2="res://.godot/imported/fishing_nets_SaltWeatheredOak_albedo.png-a9051e117b7db60b49b7a695d95441c2.etc2.ctex"
+path.s3tc="res://.godot/imported/fishing_nets_SaltWeatheredOak_albedo.png-a53ead03975f53b299946111b30acc0d.s3tc.ctex"
+path.etc2="res://.godot/imported/fishing_nets_SaltWeatheredOak_albedo.png-a53ead03975f53b299946111b30acc0d.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -15,8 +15,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/crafts/fishing_nets_SaltWeatheredOak_albedo.png"
-dest_files=["res://.godot/imported/fishing_nets_SaltWeatheredOak_albedo.png-a9051e117b7db60b49b7a695d95441c2.s3tc.ctex", "res://.godot/imported/fishing_nets_SaltWeatheredOak_albedo.png-a9051e117b7db60b49b7a695d95441c2.etc2.ctex"]
+source_file="res://assets/props/crafts/fishing_nets/fishing_nets_SaltWeatheredOak_albedo.png"
+dest_files=["res://.godot/imported/fishing_nets_SaltWeatheredOak_albedo.png-a53ead03975f53b299946111b30acc0d.s3tc.ctex", "res://.godot/imported/fishing_nets_SaltWeatheredOak_albedo.png-a53ead03975f53b299946111b30acc0d.etc2.ctex"]
 
 [params]
 

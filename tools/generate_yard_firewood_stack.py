@@ -22,7 +22,7 @@ import bpy
 from mathutils import Matrix, Vector
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "assets" / "props" / "crafts" / "yard_firewood_stack.glb"
+OUTPUT = ROOT / "assets" / "props" / "crafts" / "yard_firewood_stack" / "yard_firewood_stack.glb"
 EVIDENCE_DIR = ROOT / "generated" / "blender" / "yard_firewood_stack_v1"
 DEFAULT_PREVIEW = EVIDENCE_DIR / "preview.png"
 BRIEF_PATH = EVIDENCE_DIR / "brief.json"
@@ -39,7 +39,7 @@ HEMP_SRGB = (0x6F / 255.0, 0x59 / 255.0, 0x38 / 255.0)
 BRIEF = {
     "id": ASSET_ID,
     "kind": "rigid_prop",
-    "target": "res://assets/props/crafts/yard_firewood_stack.glb",
+    "target": "res://assets/props/crafts/yard_firewood_stack/yard_firewood_stack.glb",
     "scene": "res://content/maps/lower_town_slice.rrmap#courtyard_firewood",
     "dimensions_m": [2.07, 0.55, 0.92],
     "triangles": {"target": 1264, "max": 2800},

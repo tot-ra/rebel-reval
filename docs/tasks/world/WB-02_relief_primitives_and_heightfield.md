@@ -53,7 +53,7 @@ way worn below grade, a quarry step, or a cliff.
 `scripts/map/map_definition.gd`, `scripts/map/view3d/map_view_mesh_builder_terrain.gd`,
 matching `.uid` sidecars, `tests/godot/test_map_relief_field.gd` and its `.uid`,
 `tests/fixtures/maps/rrmap_relief_example.rrmap` and its `.uid`, `docs/MAP_AUTHORING.md`,
-`docs/tasks/world/WB-02_relief_primitives_and_heightfield.md`, `TODO.md`.
+`docs/tasks/world/WB-02_relief_primitives_and_heightfield.md`, the project task board (`tasks` tool).
 
 ## Constraints and non-goals
 

@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c3hsm33g3yndu"
-path="res://.godot/imported/boot_leather_normal.png-3b6eb0b86a65e8493965b511c2e11caf.ctex"
+path="res://.godot/imported/boot_leather_normal.png-430a51d1e2c28a534914d080804a7d87.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/characters/kalev_fresh/materials/boot_leather_normal.png"
-dest_files=["res://.godot/imported/boot_leather_normal.png-3b6eb0b86a65e8493965b511c2e11caf.ctex"]
+dest_files=["res://.godot/imported/boot_leather_normal.png-430a51d1e2c28a534914d080804a7d87.ctex"]
 
 [params]
 

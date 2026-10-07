@@ -19,6 +19,17 @@ uniform vec3 autumn_color_a : source_color = vec3(0.94, 0.70, 0.18);
 uniform vec3 autumn_color_b : source_color = vec3(0.80, 0.44, 0.12);
 // Shared rain state: wet leaves darken and pick up a sheen.
 uniform float wetness : hint_range(0.0, 1.0) = 0.0;
+// R-1194 leaf-cluster cards (UV2 = (1, 1)): RGB is neutral-grey relative detail
+// (mean 0.5), so species tint, season and autumn hue still come from the
+// uniforms above. atlas_tile selects the species cluster (column, row).
+// Relative brightness data, not sRGB albedo: 0.5 must sample as 0.5.
+uniform sampler2D leaf_atlas : filter_linear_mipmap_anisotropic, repeat_disable;
+uniform vec2 atlas_tile = vec2(0.0);
+uniform vec2 atlas_grid = vec2(4.0, 2.0);
+uniform float card_scissor : hint_range(0.0, 1.0) = 0.5;
+// Cards face the sky more than folded leaves and stack several leaves of
+// translucency; without this gain dense crowns read neon yellow-green.
+uniform float card_gain : hint_range(0.0, 2.0) = 0.74;
 
 varying float v_leaf_autumn;
 varying float v_leaf_seed;
@@ -78,26 +89,43 @@ void fragment() {
 	float vein_phase = (UV.y - across * 0.65) * 9.0;
 	float veins = 1.0 - smoothstep(0.04, 0.04 + max(fwidth(vein_phase), 0.08), abs(fract(vein_phase) - 0.5));
 	float leaf_tag = step(0.5, UV2.x);
+	float card = leaf_tag * step(0.5, UV2.y);
+	// Inset reduces edge bleed at close range; coarse atlas mips can still mix tiles.
+	vec2 card_uv = (atlas_tile + clamp(vec2(UV.x, 1.0 - UV.y), 0.004, 0.996)) / atlas_grid;
+	// Sample outside any branch so mip selection keeps valid derivatives.
+	vec4 cluster = mix(vec4(0.5, 0.5, 0.5, 1.0), texture(leaf_atlas, card_uv), card);
+	cluster.rgb *= mix(1.0, card_gain, card);
+	// Folded leaves draw procedural midrib and veins; cards already carry them.
+	float folded = leaf_tag * (1.0 - card);
 	float shade = mix(mix(1.05, shade_bottom, clamp(UV.y, 0.0, 1.0)),
 		mix(shade_bottom, 1.03, smoothstep(0.0, 0.7, UV.y)), leaf_tag);
-	vec3 summer = base_color * COLOR.rgb;
+	vec3 summer = base_color * COLOR.rgb * cluster.rgb * 2.0;
 	// Young leaves are lighter and yellower; per-leaf seed keeps the crown mottled.
 	float fresh = freshness * leaf_tag * (0.75 + 0.25 * hash11(v_leaf_seed * 31.0));
 	summer = mix(summer, summer * vec3(1.32, 1.26, 0.70), fresh);
 	// Autumn: each leaf picks its own hue between the species palette entries and
 	// the most advanced leaves brown, like a real mixed-colour crown.
-	float luminance = dot(COLOR.rgb, vec3(0.3, 0.5, 0.2));
+	float luminance = dot(COLOR.rgb * cluster.rgb * 2.0, vec3(0.3, 0.5, 0.2));
 	vec3 autumn_hue = mix(autumn_color_a, autumn_color_b, hash11(v_leaf_seed * 17.0));
 	autumn_hue = mix(autumn_hue, vec3(0.42, 0.28, 0.12), smoothstep(0.8, 1.0, v_leaf_autumn) * 0.55);
 	vec3 albedo = mix(summer, autumn_hue * luminance * 0.82, v_leaf_autumn);
 	// Winter conifers: duller, slightly bluer needles.
 	albedo = mix(albedo, albedo * vec3(0.78, 0.82, 0.86), winter_dull * 0.6);
 	float occlusion = mix(1.0, COLOR.a, leaf_tag);
-	albedo *= shade * occlusion * (1.0 + leaf_tag * (midrib * 0.14 + veins * 0.045));
+	albedo *= shade * occlusion * (1.0 + folded * (midrib * 0.14 + veins * 0.045));
 	albedo *= mix(1.0, 0.70, wetness);
 	ALBEDO = albedo;
 	// Thin leaves transmit light; autumn leaves glow more strongly against the sun.
-	BACKLIGHT = albedo * (0.42 + v_leaf_autumn * 0.22) * (1.0 - midrib * 0.4) * mix(0.6, 1.0, occlusion);
+	BACKLIGHT = albedo * (0.42 + v_leaf_autumn * 0.22) * (1.0 - midrib * 0.4 * folded) * mix(0.6, 1.0, occlusion);
+	// Card normals lean away from the crown centre; undo the automatic back-face
+	// flip so both sides of a card light as the same leafy volume.
+	if (card > 0.5 && !FRONT_FACING) {
+		NORMAL = -NORMAL;
+	}
+	// Alpha scissor keeps cards in the opaque pass: no sorting, and shadows and
+	// the depth-composited underwater pass still see the cut-out.
+	ALPHA = cluster.a;
+	ALPHA_SCISSOR_THRESHOLD = card_scissor;
 	ROUGHNESS = mix(0.76, 0.34, wetness);
 	SPECULAR = mix(0.28, 0.55, wetness);
 }

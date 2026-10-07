@@ -26,8 +26,18 @@ const GROUND_MAP_TYPES: Array[StringName] = [&"albedo", &"normal", &"roughness"]
 const GROUND_ALBEDO_TEXTURE_SIZE := 2048
 const GROUND_SURFACE_TEXTURE_SIZE := 1024
 ## Terrains whose per-terrain StandardMaterial binds the authored PBR set instead
-## of a procedural pattern (the retired sand speckle).
+## of a procedural pattern (the retired sand speckle). Neighbor previews render
+## through these per-terrain materials, so grass and soil must use the same plates
+## as the blend shader: the 128 px patterns read as flat blurred colour fields
+## across every map seam.
 const AUTHORED_STANDARD_TERRAINS := {
+	MapTypes.TERRAIN_GRASS: &"grass",
+	MapTypes.TERRAIN_MEADOW: &"grass",
+	MapTypes.TERRAIN_FOREST_FLOOR: &"grass",
+	MapTypes.TERRAIN_BOG: &"grass",
+	MapTypes.TERRAIN_FARM_SOIL: &"mud",
+	MapTypes.TERRAIN_DIRT: &"mud",
+	MapTypes.TERRAIN_MUD: &"mud",
 	MapTypes.TERRAIN_SAND: &"sand",
 	MapTypes.TERRAIN_COAST_SAND: &"coast_sand",
 }
@@ -143,6 +153,14 @@ const TERRAIN_PATTERN := {
 
 ## Denser tiling for paving so individual stones stay readable at gameplay zoom.
 const TERRAIN_UV_SCALE := {
+	# Authored grass and mud plates at the blend shader's repeat.
+	MapTypes.TERRAIN_GRASS: TERRAIN_GRASS_UV_SCALE,
+	MapTypes.TERRAIN_MEADOW: TERRAIN_GRASS_UV_SCALE,
+	MapTypes.TERRAIN_FOREST_FLOOR: TERRAIN_GRASS_UV_SCALE,
+	MapTypes.TERRAIN_BOG: TERRAIN_GRASS_UV_SCALE,
+	MapTypes.TERRAIN_FARM_SOIL: TERRAIN_MUD_UV_SCALE,
+	MapTypes.TERRAIN_DIRT: TERRAIN_MUD_UV_SCALE,
+	MapTypes.TERRAIN_MUD: TERRAIN_MUD_UV_SCALE,
 	# Authored sand plates: backdrop and single-terrain meshes use the same
 	# repeat as the blend shader instead of the shared 4.0-unit default.
 	MapTypes.TERRAIN_SAND: TERRAIN_SAND_UV_SCALE,

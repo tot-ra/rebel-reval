@@ -11,6 +11,7 @@ const LANDMARK_BEATS: Array[StringName] = [
 const CONTENT_DIRS: Array[String] = [
 	"res://content/packages/livonian_order_grain_tally/content",
 	"res://content/examples/support",
+	"res://content/examples/valid",
 ]
 const BRANCHES: Array[Dictionary] = [
 	{

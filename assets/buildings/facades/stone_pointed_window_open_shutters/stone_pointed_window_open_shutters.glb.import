@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://dhw28cvvr1kwx"
-path="res://.godot/imported/stone_pointed_window_open_shutters.glb-2db350e154fff850d6e58c08af2394b6.scn"
+path="res://.godot/imported/stone_pointed_window_open_shutters.glb-a0097a46933d4d13d3c912fd2da928c4.scn"
 
 [deps]
 
 source_file="res://assets/buildings/facades/stone_pointed_window_open_shutters/stone_pointed_window_open_shutters.glb"
-dest_files=["res://.godot/imported/stone_pointed_window_open_shutters.glb-2db350e154fff850d6e58c08af2394b6.scn"]
+dest_files=["res://.godot/imported/stone_pointed_window_open_shutters.glb-a0097a46933d4d13d3c912fd2da928c4.scn"]
 
 [params]
 

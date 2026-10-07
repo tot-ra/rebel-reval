@@ -111,6 +111,17 @@ func remaining_sec(modifier_id: StringName) -> float:
 	return longest
 
 
+## Longest remaining stack across every modifier of one stat, 0 when none is
+## active. Lets presentation (the 3D ward overlay) follow a stat without
+## knowing which spell or item applied it.
+func remaining_sec_for_stat(stat: StringName) -> float:
+	var longest := 0.0
+	for modifier_id in _active:
+		if _active[modifier_id]["stat"] == stat:
+			longest = maxf(longest, remaining_sec(modifier_id))
+	return longest
+
+
 func active_ids() -> Array[StringName]:
 	var ids: Array[StringName] = []
 	for modifier_id in _active:

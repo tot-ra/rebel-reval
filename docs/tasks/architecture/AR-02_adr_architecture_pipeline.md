@@ -67,7 +67,7 @@ Decision / Alternatives / Consequences), deciding at minimum:
 - `docs/adr/0025-architectural-asset-pipeline.md` (new)
 - `docs/ART_BIBLE.md` (pointer to the ADR only)
 - `docs/ARCHITECTURE.md` (file-ownership rows for the new pipeline only)
-- `TODO.md`
+- the project task board (`tasks` tool)
 
 ## Constraints and non-goals
 
@@ -96,9 +96,9 @@ python3 tools/generate_active_docs_report.py --check
 
 ## Doc updates
 
-`docs/adr/0025-architectural-asset-pipeline.md`, `docs/ART_BIBLE.md`, `docs/ARCHITECTURE.md`, `TODO.md`.
+`docs/adr/0025-architectural-asset-pipeline.md`, `docs/ART_BIBLE.md`, `docs/ARCHITECTURE.md`, the project task board (`tasks` tool).
 
-## TODO.md line
+## project task board line
 
 ```
 - [ ] R-960 | deps: R-959 | deliverable: docs/adr/0025-architectural-asset-pipeline.md deciding the kit-vs-bespoke tier split per building family, the provenance rule for external meshes and textures, numeric triangle/texture/material/LOD-distance and on-disk budgets per tier, the instancing and chunk-streaming contract that keeps generated geometry disposable, the named visual acceptance protocol that green tests cannot substitute for (P0-209b precedent), the named equivalent-cost scope trade, and any ADR 0016/0018/0009 amendment notes | allowed files: per docs/tasks/architecture/AR-02_adr_architecture_pipeline.md | verify: active docs check; ADR numbered 0025 with Status/Context/Decision/Alternatives/Consequences; all seven decisions carry concrete values; scope trade names existing task ids; acceptance protocol reproducible without clarification; budgets consistent with PERFORMANCE_REPORT and ASSET_STORAGE_POLICY; Accepted with maintainer named, or Proposed with AR-04 explicitly blocked

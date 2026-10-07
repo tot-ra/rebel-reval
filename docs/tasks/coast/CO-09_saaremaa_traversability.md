@@ -61,7 +61,7 @@ Measured 2026-09-26 by compiling `world.saaremaa` and flood-filling `MapVerifica
   `docs/MAP_CONVERSION_PLAN.md`
 - `tests/godot/test_world_saaremaa_map.gd` (new), `tests/godot/test_transition_manifest.gd`
 - `tools/capture_co09_saaremaa.gd` (new)
-- `docs/reports/co09_saaremaa_traversability.md`, `docs/reports/images/co09_*.png`, `TODO.md`
+- `docs/reports/co09_saaremaa_traversability.md`, `docs/reports/images/co09_*.png`, the project task board (`tasks` tool)
 
 ## Constraints and non-goals
 
@@ -103,9 +103,9 @@ git diff --check
 ## Doc updates
 
 ADR, `docs/MAP_AUTHORING.md`, `docs/MAP_CONVERSION_PLAN.md`, `content/map_audit_manifest.json`,
-`docs/reports/co09_saaremaa_traversability.md`, `TODO.md`.
+`docs/reports/co09_saaremaa_traversability.md`, the project task board (`tasks` tool).
 
-## TODO.md line
+## project task board line
 
 ```
 - [ ] R-956 | deps: R-951 | deliverable: ADR-gated re-authoring of world.saaremaa to 160x104 raising walkable cells from 2610 (41.8%) to >= 6000 (>= 55%), opening the south/west/east woodland fences with >= 3 gaps each, a full-width coastal path, a circumnavigable Kaali rim with >= 2 descents and >= 2 distinct routes between the ferry landing, muster camp, crater and Poide road | allowed files: per docs/tasks/coast/CO-09_saaremaa_traversability.md | verify: blueprint validate, full Godot suite, map audit/activation/conversion/composition, active docs; test_world_saaremaa_map walkable, connectivity, stable-ID census, no full-width blocking band and route-redundancy assertions; arrival from reval_harbor_north reaches all three transitions; walkability overlay before/after plus ferry/alvar/rim/strait plates

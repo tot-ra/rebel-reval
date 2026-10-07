@@ -56,7 +56,7 @@ matching `.uid` sidecars, art files named in the task claim, `assets/SOURCES.csv
 `tests/godot/test_burgher_plot_prefab.gd` and its `.uid`,
 `tests/fixtures/maps/rrmap_burgher_plot_example.rrmap` and its `.uid`,
 `docs/MAP_AUTHORING.md`, `docs/ART_BIBLE.md`, `docs/reports/images/burgher_plot/`,
-`docs/tasks/world/WB-13_burgher_plot_prefab.md`, `TODO.md`.
+`docs/tasks/world/WB-13_burgher_plot_prefab.md`, the project task board (`tasks` tool).
 
 ## Boundary against AR-06 (architecture pack)
 

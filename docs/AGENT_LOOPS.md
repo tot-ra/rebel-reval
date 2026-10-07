@@ -2,7 +2,7 @@
 
 Reval Rebel uses an asynchronous pull system organized around playable vertical slices. The binding shared protocol is [`agents/WORK_PROTOCOL.md`](../agents/WORK_PROTOCOL.md); each agent's `skills/work-loop/SKILL.md` defines its role-specific delivery and proactive audit.
 
-> Scope: Godot 4.7 historical-fiction narrative action RPG set in Spring 1343 Reval. Product intent is in `README.md`, operational work is in the project task board, durable/legacy task IDs remain in `TODO.md`, milestone order is in `docs/ROADMAP.md`, canon in `docs/CANON.md`, and confidence labels are `attested` / `plausible composite` / `folklore` / `invented`.
+> Scope: Godot 4.7 historical-fiction narrative action RPG set in Spring 1343 Reval. Product intent is in `README.md`, operational work is in the project task board, durable/legacy task IDs remain in the project task board (`tasks` tool), milestone order is in `docs/ROADMAP.md`, canon in `docs/CANON.md`, and confidence labels are `attested` / `plausible composite` / `folklore` / `invented`.
 
 ## Operating model
 
@@ -89,7 +89,7 @@ These are gates, not a mandatory waterfall. Approved inputs should unlock parall
 
 | Loop | Accountable for | Own write surface | Scout when no task is ready |
 |---|---|---|---|
-| Producer | Current focus, task readiness, dependencies, WIP, request triage, recovery | `TODO.md`, `docs/ROADMAP.md`, Producer decisions in work requests | Queue health, missing roles, cycles, stale claims, untagged Current Focus rows, absent playable checkpoint |
+| Producer | Current focus, task readiness, dependencies, WIP, request triage, recovery | the project task board (`tasks` tool), `docs/ROADMAP.md`, Producer decisions in work requests | Queue health, missing roles, cycles, stale claims, untagged Current Focus rows, absent playable checkpoint |
 | Canon Keeper | Historical and narrative continuity verdicts | `docs/CANON.md`, `docs/HISTORICAL_AUDIT.md`, canon tags | Sample one recent/current-slice artifact for drift, unsupported certainty, or cross-artifact contradiction |
 | Research | Sourced evidence and production-ready dossiers | `history/`, `docs/lore/`, self-managed `R-###` rows | Current-slice evidence gaps, unresolved dossier questions, missing visual plates |
 | Narrative | Dramatic causality and campaign beats | `story/`, approved pillar decisions | Passive scenes, missing stakes/payoffs, consequence discontinuity, history treated as set dressing |

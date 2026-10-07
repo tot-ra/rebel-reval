@@ -64,7 +64,7 @@ class QuestPackageGeneratorTest(unittest.TestCase):
                     '"bindings": {"landmark_beats": ["beat.landmark.tallinn.missing_probe"], '
                     '"map_anchors": [{"map_id": "south_quarter", "anchor_id": "karja_approach"}]}, '
                     '"source_notes": [{"confidence": "invented", "summary": "test fixture", '
-                    '"citations": ["TODO.md"]}]}'
+                    '"citations": ["docs/ROADMAP.md"]}]}'
                 ),
                 encoding="utf-8",
             )

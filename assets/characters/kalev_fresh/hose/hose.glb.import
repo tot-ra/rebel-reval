@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://tbq6qvhwadj7"
-path="res://.godot/imported/hose.glb-5916e8bf79c551db69e5ff4a90f5deec.scn"
+path="res://.godot/imported/hose.glb-d41b2cbcb11269f28ef9a692c8b50c7f.scn"
 
 [deps]
 
 source_file="res://assets/characters/kalev_fresh/hose/hose.glb"
-dest_files=["res://.godot/imported/hose.glb-5916e8bf79c551db69e5ff4a90f5deec.scn"]
+dest_files=["res://.godot/imported/hose.glb-d41b2cbcb11269f28ef9a692c8b50c7f.scn"]
 
 [params]
 

@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://bot2onutaqp8o"
-path="res://.godot/imported/elite_armarium.glb-2c7de0494ad79818ecc4476ee7149d7a.scn"
+path="res://.godot/imported/elite_armarium.glb-d96e7b4dc0bcebc89012245829d9ec67.scn"
 
 [deps]
 
-source_file="res://assets/props/furniture/medieval_storage/elite_armarium.glb"
-dest_files=["res://.godot/imported/elite_armarium.glb-2c7de0494ad79818ecc4476ee7149d7a.scn"]
+source_file="res://assets/props/furniture/medieval_storage/elite_armarium/elite_armarium.glb"
+dest_files=["res://.godot/imported/elite_armarium.glb-d96e7b4dc0bcebc89012245829d9ec67.scn"]
 
 [params]
 

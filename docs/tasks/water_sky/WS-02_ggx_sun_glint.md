@@ -25,7 +25,7 @@ time.
 - `scripts/map/view3d/map_view_water_materials.gd` (only if a new uniform needs wiring)
 - `tests/godot/test_r715_water_material_contract.gd`
 - `docs/reports/images/ws02_*.png`
-- `TODO.md`
+- the project task board (`tasks` tool)
 
 ## Dependencies
 
@@ -109,7 +109,7 @@ time.
 
 ## Documentation updates
 
-- `TODO.md` row:
+- the project task board (`tasks` tool) row:
   ```text
-  - [ ] WS-02 | deps: none | deliverable: water light() with GGX + Smith visibility + exact dielectric Fresnel, shadow-attenuated, slope-variance roughness; hand-made pow() sun/moon glints removed | allowed files: `scripts/map/view3d/map_view_water.gdshader`, `scripts/map/view3d/map_view_water_materials.gd`, `tests/godot/test_r715_water_material_contract.gd`, `docs/reports/images/ws02_*.png`, `TODO.md` | verify: contract test; noon/sunset/storm/night harbor captures show sea-state-dependent glitter path, no glint in quay shadow, no strobing on the 60 s day cycle
+  - [ ] WS-02 | deps: none | deliverable: water light() with GGX + Smith visibility + exact dielectric Fresnel, shadow-attenuated, slope-variance roughness; hand-made pow() sun/moon glints removed | allowed files: `scripts/map/view3d/map_view_water.gdshader`, `scripts/map/view3d/map_view_water_materials.gd`, `tests/godot/test_r715_water_material_contract.gd`, `docs/reports/images/ws02_*.png`, the project task board (`tasks` tool) | verify: contract test; noon/sunset/storm/night harbor captures show sea-state-dependent glitter path, no glint in quay shadow, no strobing on the 60 s day cycle
   ```

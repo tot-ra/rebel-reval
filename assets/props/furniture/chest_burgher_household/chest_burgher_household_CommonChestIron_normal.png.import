@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dwq8x6kxp31tu"
-path="res://.godot/imported/chest_burgher_household_CommonChestIron_normal.png-9de4b05e7fb29d6c61b55e8049684859.ctex"
+path="res://.godot/imported/chest_burgher_household_CommonChestIron_normal.png-c3abab78010aef48fa5b92b1860c62c4.ctex"
 metadata={
 "vram_texture": false
 }
@@ -13,8 +13,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/furniture/chest_burgher_household_CommonChestIron_normal.png"
-dest_files=["res://.godot/imported/chest_burgher_household_CommonChestIron_normal.png-9de4b05e7fb29d6c61b55e8049684859.ctex"]
+source_file="res://assets/props/furniture/chest_burgher_household/chest_burgher_household_CommonChestIron_normal.png"
+dest_files=["res://.godot/imported/chest_burgher_household_CommonChestIron_normal.png-c3abab78010aef48fa5b92b1860c62c4.ctex"]
 
 [params]
 

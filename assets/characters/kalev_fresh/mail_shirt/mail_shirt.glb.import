@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://qnp5jcm0t5sh"
-path="res://.godot/imported/mail_shirt.glb-3c736184d58d4d69f9970208d731dc1f.scn"
+path="res://.godot/imported/mail_shirt.glb-569ff28ea0cbde3c1ef5d57cc2d9f34e.scn"
 
 [deps]
 
 source_file="res://assets/characters/kalev_fresh/mail_shirt/mail_shirt.glb"
-dest_files=["res://.godot/imported/mail_shirt.glb-3c736184d58d4d69f9970208d731dc1f.scn"]
+dest_files=["res://.godot/imported/mail_shirt.glb-569ff28ea0cbde3c1ef5d57cc2d9f34e.scn"]
 
 [params]
 

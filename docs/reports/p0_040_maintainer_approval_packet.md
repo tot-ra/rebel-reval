@@ -154,7 +154,7 @@ These limitations are blockers, not rejected design choices. The reconciled valu
 
 ### Required maintainer action
 
-A maintainer may replace `PENDING` with `ACCEPT` only after reviewing this complete value set and the linked matrices, confirming the required P0-038 minimum-hardware/GPU evidence, and recording the decision date and identity here. If the maintainer accepts, a separate scoped coordination change must update ART_BIBLE v2 and the P0-040 roadmap/task wording so they no longer describe the technical freeze as pending. If the maintainer rejects, preserve the blocker and record the replacement direction. Until then, this packet intentionally leaves `ART_BIBLE.md`, ADR 0013, `TODO.md`, and `docs/ROADMAP.md` unchanged.
+A maintainer may replace `PENDING` with `ACCEPT` only after reviewing this complete value set and the linked matrices, confirming the required P0-038 minimum-hardware/GPU evidence, and recording the decision date and identity here. If the maintainer accepts, a separate scoped coordination change must update ART_BIBLE v2 and the P0-040 roadmap/task wording so they no longer describe the technical freeze as pending. If the maintainer rejects, preserve the blocker and record the replacement direction. Until then, this packet intentionally leaves `ART_BIBLE.md`, ADR 0013, the project task board (`tasks` tool), and `docs/ROADMAP.md` unchanged.
 
 ## Verification record
 

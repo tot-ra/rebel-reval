@@ -22,7 +22,7 @@ import bpy
 from mathutils import Matrix, Vector
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "assets" / "props" / "crafts" / "malt_sack_pile.glb"
+OUTPUT = ROOT / "assets" / "props" / "crafts" / "malt_sack_pile" / "malt_sack_pile.glb"
 EVIDENCE_DIR = ROOT / "generated" / "blender" / "malt_sack_pile_v1"
 DEFAULT_PREVIEW = EVIDENCE_DIR / "preview.png"
 BRIEF_PATH = EVIDENCE_DIR / "brief.json"
@@ -40,7 +40,7 @@ WOOD_SRGB = (0x77 / 255.0, 0x4D / 255.0, 0x2D / 255.0)
 BRIEF = {
     "id": ASSET_ID,
     "kind": "rigid_prop",
-    "target": "res://assets/props/crafts/malt_sack_pile.glb",
+    "target": "res://assets/props/crafts/malt_sack_pile/malt_sack_pile.glb",
     "scene": "res://content/maps/lower_town_slice.rrmap#brewery_malt_sacks",
     "dimensions_m": [1.27, 0.68, 0.96],
     "triangles": {"target": 1600, "max": 3000},

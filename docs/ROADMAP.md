@@ -1,7 +1,7 @@
 # Production roadmap
 
-Coordination notes, delivery order, and planning context formerly embedded in `TODO.md`.
-Executable open work stays in [`TODO.md`](../TODO.md).
+Coordination notes, delivery order, and planning context formerly embedded in the project task board (`tasks` tool).
+Executable open work stays in the project task board (`tasks` tool).
 Aged coordination history lives in [`ROADMAP_COORDINATION_ARCHIVE_2026-08-13.md`](./ROADMAP_COORDINATION_ARCHIVE_2026-08-13.md).
 
 <!-- P0-185 shore-debris peel extracted in current session -->
@@ -16,8 +16,17 @@ Coordination note (2026-09-28 P0-185): `map_view_tree_mesh_skeleton.gd` now owns
 <!-- P0-183 runtime GLB budgets closed in current session -->
 Coordination note (2026-09-28 P0-183): runtime GLB byte and triangle caps landed in `docs/data/runtime_glb_budget.json`. Sacred Grove oak dropped 10045452 -> 7868736 bytes by URI-referencing sibling PBR maps (63891 triangles unchanged). Shared character LOD0/1/2 stay under 6 / 2 / 1 MiB with existing LOD siblings. Verified: `python3 tools/verify_runtime_glb_budget.py`, `python3 -m unittest tests.python.test_verify_runtime_glb_budget`, `python3 tools/verify_asset_lint.py`, focused oak/character Godot filters. Follow-up **P0-183b**: storybook mammal GLBs (rat ~9.9 MiB).
 
+<!-- P0-182 runtime audio budget closed in current session -->
+Coordination note (2026-09-28 P0-182): runtime encode/size caps landed in `docs/data/runtime_audio_budget.json` (`music/` 256 kbps / 12 MiB, lossy `sounds/` 192 kbps / 2 MiB, PCM sources 1536 kbps / 4 MiB). The named woodpecker take dropped 10503962 -> 584768 bytes; 22 over-budget MP3s were recompressed to 128 kbps CBR, including WAVE payloads stored with a `.mp3` suffix. Verified: `python3 tools/verify_runtime_audio_budget.py`, `python3 -m unittest tests.python.test_verify_runtime_audio_budget`, bird-clip and MusicDirector tests. Next size claim: **P0-183** oversized runtime GLBs.
+
+<!-- P0-185 camera-binding peel extracted in current session -->
+Coordination note (2026-09-28 P0-185): `map_view_runtime_camera_binding.gd` now owns screen-ray projection, mode/zoom/orbit movement-basis updates, and occlusion-ghost sync. `map_view_runtime.gd` keeps the public camera API as thin delegates (471 -> 430 lines). Verified: `--filter=test_map_view_3d_runtime,test_map_view_runtime_camera,test_map_camera_modes,test_map_click_input_controller` 4/4 files 41/41. Next P0-185 claim: keep `apply_weather_presentation` on the `map_view_materials.gd` facade until a second caller needs a weather-material adapter.
+
+<!-- P0-185 hosted-location rebinding peel extracted in current session -->
+Coordination note (2026-09-28 P0-185): `map_view_runtime_hosted.gd` now owns WB-08 `bind_owning_location` plus minimap tracker bind/sync. `map_view_runtime.gd` keeps the public hosted API as thin delegates (514 -> 471 lines). Verified: `--filter=test_world_host_streaming,test_world_host_launch,test_map_view_3d_runtime,test_debug_overlay,test_session_state_replacement,test_r715_water_map_handoff,test_map_click_input_controller,test_map_view_runtime_camera`. Next P0-185 claim: keep `apply_weather_presentation` on the `map_view_materials.gd` facade until a second caller needs a weather-material adapter.
+
 <!-- P0-185 shore-material peel extracted in current session -->
-Coordination note (2026-09-28 P0-185 / R-1080): `map_view_shore_materials.gd` now owns WS-08 shore-field binds, swash-sheet mirrors, sea-state/tide uniforms, and the minimum-tier sheet gate. `map_view_materials.gd` keeps `apply_weather_presentation` and public shore delegates (520 -> 452 lines). Verified: `--filter=test_shore_distance_field,test_r715_water_material_contract,test_r715_water_weather_sync,test_map_view_material_resolution` (40/40). Next P0-185 claim: keep `apply_weather_presentation` on the facade until a second caller needs a weather-material adapter; optional hosted-location rebinding is idea **R-1081**.
+Coordination note (2026-09-28 P0-185): `map_view_shore_materials.gd` now owns WS-08 shore-field binds, swash-sheet mirrors, sea-state/tide uniforms, and the minimum-tier sheet gate. `map_view_materials.gd` keeps `apply_weather_presentation` and public shore delegates (520 -> 452 lines). Verified: `--filter=test_shore_distance_field,test_r715_water_material_contract,test_r715_water_weather_sync,test_map_view_material_resolution`. Next P0-185 claim: keep `apply_weather_presentation` on the facade until a second caller needs a weather-material adapter; optional hosted-location rebinding peel from `map_view_runtime.gd`.
 
 <!-- P0-185 / R-923 camera-modes peel closeout -->
 Coordination note (2026-09-26 P0-185 / R-923): re-ran the named camera filters after the stale R-881 modes peel. `map_view_runtime_camera_modes.gd` still owns mode constants, cycling, and `apply_mode`; `map_view_runtime_camera.gd` remains a 211-line facade. Verified on Godot 4.7.1: `--filter=test_map_view_runtime_camera,test_map_camera_modes,test_map_view_3d_runtime` (3 files, 23/23). No camera code changed. R-881 moved to in_review. Next P0-185 claim: keep `apply_weather_presentation` on the `map_view_materials.gd` facade until a second caller needs a weather-material adapter.

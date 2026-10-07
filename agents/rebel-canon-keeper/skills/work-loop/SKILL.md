@@ -18,7 +18,7 @@ Use the `tasks` tool as the operational queue:
 
 ## Deliver mode - review pending content
 
-1. Scan `TODO.md` for `review: canon`, prioritizing rows that unblock the current `slice:`. A review row must not retain a worker `claim:`.
+1. Scan the project task board (`tasks` tool) for `review: canon`, prioritizing rows that unblock the current `slice:`. A review row must not retain a worker `claim:`.
 2. Open the exact deliverables, their cited dossiers and plates, neighboring canon, and the player-facing context needed to understand the assertion.
 3. Review separately:
    - evidence, dates, place, institutions, material culture, language, and exclusions;

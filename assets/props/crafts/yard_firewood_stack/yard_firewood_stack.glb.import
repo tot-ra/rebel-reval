@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://co2g7fd0x2swo"
-path="res://.godot/imported/yard_firewood_stack.glb-48c7c6414837e92326f055f846017e20.scn"
+path="res://.godot/imported/yard_firewood_stack.glb-e22347c21a5a99031f660d8f474e91c6.scn"
 
 [deps]
 
-source_file="res://assets/props/crafts/yard_firewood_stack.glb"
-dest_files=["res://.godot/imported/yard_firewood_stack.glb-48c7c6414837e92326f055f846017e20.scn"]
+source_file="res://assets/props/crafts/yard_firewood_stack/yard_firewood_stack.glb"
+dest_files=["res://.godot/imported/yard_firewood_stack.glb-e22347c21a5a99031f660d8f474e91c6.scn"]
 
 [params]
 

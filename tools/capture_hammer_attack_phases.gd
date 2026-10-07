@@ -63,7 +63,13 @@ func _capture(capture: Dictionary) -> void:
 		rig.position = screen_right * (-3.6 + float(index) * 2.4)
 		viewport.add_child(rig)
 		rig.play_animation(capture["animation"], 0.0)
-		rig.sync_action_presentation(capture["animation"], float(times[index]))
+		# The game re-syncs every frame; a still capture must stop the player's
+		# own clock or the render frames below would advance past the pose.
+		var rig_player := rig.animation_player()
+		rig_player.callback_mode_process = AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_MANUAL
+		rig.sync_action_presentation(
+			capture["animation"], float(times[index])
+		)
 	_add_labels(viewport, String(capture["title"]))
 
 	for _frame in 4:

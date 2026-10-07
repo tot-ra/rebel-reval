@@ -1,0 +1,20 @@
+{
+  "id": "foliage_card.oak",
+  "kind": "leonardo_leaf_cluster_plate",
+  "task": "R-1194",
+  "target": "assets/materials/pbr/foliage_cards/leaf_card_atlas.png",
+  "source": "generated/leonardo/leaf_cards_v1/oak/candidate_1.jpg",
+  "candidates": [
+    "generated/leonardo/leaf_cards_v1/oak/candidate_1.jpg",
+    "generated/leonardo/leaf_cards_v1/oak/candidate_2.jpg"
+  ],
+  "prompt": "Botanical flat-lay photograph seen from directly above: one short twig of pedunculate oak (Quercus robur) carrying a dense rosette cluster of 7 to 9 overlapping deeply lobed oak leaves, deep matte green, veins visible, the twig enters from the bottom centre of the frame, the whole cluster fits inside the frame with margin. Isolated on a pure flat white background, even soft overcast light, no cast shadow, sharp leaf edges, scan quality, square.",
+  "negative_prompt": "shadow, drop shadow, gradient background, vignette, coloured background, acorns, flowers, text, watermark, border, blur, depth of field, cropped leaves, single leaf, autumn colours, painting, illustration, 3d render",
+  "model_name": "Leonardo configured default model (a2gent leonardo_generate_image)",
+  "width": 1024,
+  "height": 1024,
+  "generation_id": "ce5e7216-51d5-436f-b46a-ad23510fad5f",
+  "selected_candidate": 1,
+  "processor": "tools/assets/build_leaf_card_atlas.py",
+  "notes": "Candidate 1: rounded oak lobes. Rejected 2 (pointed, maple-like lobes)."
+}

@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://334djwqacbne"
-path="res://.godot/imported/hammer.glb-a432bd581a1cc4d315df6d03c06c3d47.scn"
+path="res://.godot/imported/hammer.glb-9c7184cd33fd6b31db89682cfb0d7734.scn"
 
 [deps]
 
 source_file="res://assets/characters/kalev_fresh/hammer/hammer.glb"
-dest_files=["res://.godot/imported/hammer.glb-a432bd581a1cc4d315df6d03c06c3d47.scn"]
+dest_files=["res://.godot/imported/hammer.glb-9c7184cd33fd6b31db89682cfb0d7734.scn"]
 
 [params]
 

@@ -22,7 +22,7 @@ import bpy
 from mathutils import Matrix, Vector
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "assets" / "props" / "crafts" / "fishing_nets.glb"
+OUTPUT = ROOT / "assets" / "props" / "crafts" / "fishing_nets" / "fishing_nets.glb"
 EVIDENCE_DIR = ROOT / "generated" / "blender" / "fishing_nets_v1"
 DEFAULT_PREVIEW = EVIDENCE_DIR / "preview.png"
 BRIEF_PATH = EVIDENCE_DIR / "brief.json"
@@ -40,7 +40,7 @@ STONE_SRGB = (0x66 / 255.0, 0x63 / 255.0, 0x5C / 255.0)
 BRIEF = {
     "id": ASSET_ID,
     "kind": "rigid_prop",
-    "target": "res://assets/props/crafts/fishing_nets.glb",
+    "target": "res://assets/props/crafts/fishing_nets/fishing_nets.glb",
     "scene": "res://content/maps/reval_harbor_east.rrmap#drying_nets_west",
     "dimensions_m": [1.5, 1.48, 0.5],
     "triangles": {"target": 2600, "max": 4500},

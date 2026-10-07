@@ -27,7 +27,7 @@ periodic), and it loops in time because of the rounding.
   Godot `*.import` sidecars created by the editor import)
 - `assets/SOURCES.csv` (rows for every generated image)
 - `docs/tasks/water_sky/WS-03_fft_ocean_bake_tool.md` (only to record final chosen parameters)
-- `TODO.md`
+- the project task board (`tasks` tool)
 
 ## Dependencies
 
@@ -178,9 +178,9 @@ review. Keep it out of `assets/`.
 
 - `assets/SOURCES.csv` rows.
 - Record the final parameters in this file if they differ from the defaults above.
-- `TODO.md` row:
+- the project task board (`tasks` tool) row:
   ```text
-  - [ ] WS-03 | deps: none | deliverable: deterministic tools/bake_ocean_fft.py baking three band-split, time-looping JONSWAP/TMA FFT cascades (disp+foam, derivatives) into Texture2DArray PNG atlases with a profile manifest | allowed files: `tools/bake_ocean_fft.py`, `tests/python/test_bake_ocean_fft.py`, `assets/water/ocean_fft/baltic_reference/*`, `assets/SOURCES.csv`, `TODO.md` | verify: python unittest (periodicity, energy, determinism, foam loop); --check exits 0; storage/provenance/asset-lint validators pass; atlases import as 64-layer arrays
+  - [ ] WS-03 | deps: none | deliverable: deterministic tools/bake_ocean_fft.py baking three band-split, time-looping JONSWAP/TMA FFT cascades (disp+foam, derivatives) into Texture2DArray PNG atlases with a profile manifest | allowed files: `tools/bake_ocean_fft.py`, `tests/python/test_bake_ocean_fft.py`, `assets/water/ocean_fft/baltic_reference/*`, `assets/SOURCES.csv`, the project task board (`tasks` tool) | verify: python unittest (periodicity, energy, determinism, foam loop); --check exits 0; storage/provenance/asset-lint validators pass; atlases import as 64-layer arrays
   ```
 
 ## Final parameters and decisions (implemented 2026-09-25)

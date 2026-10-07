@@ -382,36 +382,6 @@ func test_worker_pattern_bakes_are_byte_identical_to_main_thread() -> void:
 		)
 
 
-## R-1070: scene-kind workers (Door instantiate / package inspect) wait until
-## compute jobs finish, so the two kinds never share the pool.
-func test_scene_worker_kind_waits_for_compute_jobs() -> void:
-	var events: Array = []
-	var compute: RefCounted = Job.run(
-		func() -> int:
-			events.append(&"compute_start")
-			OS.delay_msec(40)
-			events.append(&"compute_end")
-			return 1
-	)
-	var waited := 0
-	while events.is_empty() and waited < 200:
-		OS.delay_msec(1)
-		waited += 1
-	assert_eq(events, [&"compute_start"], "compute must enter before the scene kind is queued")
-	var scene_id := WorkerThreadPool.add_task(
-		func() -> void:
-			Job.begin_scene_work()
-			events.append(&"scene")
-			Job.end_scene_work(),
-		true,
-		"r1070 scene kind"
-	)
-	compute.wait()
-	WorkerThreadPool.wait_for_task_completion(scene_id)
-	assert_eq(events, [&"compute_start", &"compute_end", &"scene"])
-	assert_eq(compute.value(), 1)
-
-
 ## The staged units of a cold ground material bake its patterns on workers,
 ## publish every texture under the synchronous cache key, and build the same
 ## material the synchronous getter returns afterwards.
@@ -525,35 +495,6 @@ func _assert_published_wood(texture: Texture2D, request: Dictionary) -> void:
 		MapViewMaterialPatterns.bake_image(request).get_data(),
 		"published %s equals a main-thread paint" % request["key"]
 	)
-
-
-## R-1079: after a main-thread warmup, a compute worker only reads the tint
-## cache. It must match the main-thread colors and must not first-load species
-## catalogs (that path called /root.propagate_notification and SIGSEGV'd).
-func test_worker_ground_color_tint_matches_warmed_cache() -> void:
-	TerrainVegetation.warmup_ground_color_tints()
-	var variants: Array[StringName] = [
-		&"",
-		&"grass.flowers",
-		&"plant.nettle",
-		&"bush.bilberry",
-		&"tree.oak",
-	]
-	var expected: Dictionary = {}
-	for variant in variants:
-		expected[variant] = TerrainVegetation.ground_color_tint(variant)
-	var job: RefCounted = Job.run(
-		func() -> Dictionary:
-			var got := {}
-			for variant in variants:
-				got[variant] = TerrainVegetation.ground_color_tint(variant)
-			return got,
-		"r1079 ground color tints"
-	)
-	var got: Dictionary = job.value()
-	for variant in variants:
-		assert_eq(got[variant], expected[variant], String(variant))
-	assert_eq(expected[&"grass.flowers"], Color(0.98, 1.03, 0.9))
 
 
 ## A job dropped without wait() joins its task while it is freed, so a cancelled

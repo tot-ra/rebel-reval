@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://y43jdlgjy1i0"
-path="res://.godot/imported/burgher_cupboard.glb-10402e902b62081f4b09370f544933da.scn"
+path="res://.godot/imported/burgher_cupboard.glb-b97b31ae71490dd8f51175df41e81323.scn"
 
 [deps]
 
-source_file="res://assets/props/furniture/medieval_storage/burgher_cupboard.glb"
-dest_files=["res://.godot/imported/burgher_cupboard.glb-10402e902b62081f4b09370f544933da.scn"]
+source_file="res://assets/props/furniture/medieval_storage/burgher_cupboard/burgher_cupboard.glb"
+dest_files=["res://.godot/imported/burgher_cupboard.glb-b97b31ae71490dd8f51175df41e81323.scn"]
 
 [params]
 

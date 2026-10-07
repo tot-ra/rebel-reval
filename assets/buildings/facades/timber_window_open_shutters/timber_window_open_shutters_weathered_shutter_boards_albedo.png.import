@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://br2wts65et18w"
-path="res://.godot/imported/timber_window_open_shutters_weathered_shutter_boards_albedo.png-8cd95e0b11ddc1ea4cdc2de9565f19b9.ctex"
+path="res://.godot/imported/timber_window_open_shutters_weathered_shutter_boards_albedo.png-b365462d469686c076561844f385694f.ctex"
 metadata={
 "vram_texture": false
 }
@@ -14,7 +14,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/buildings/facades/timber_window_open_shutters/timber_window_open_shutters_weathered_shutter_boards_albedo.png"
-dest_files=["res://.godot/imported/timber_window_open_shutters_weathered_shutter_boards_albedo.png-8cd95e0b11ddc1ea4cdc2de9565f19b9.ctex"]
+dest_files=["res://.godot/imported/timber_window_open_shutters_weathered_shutter_boards_albedo.png-b365462d469686c076561844f385694f.ctex"]
 
 [params]
 

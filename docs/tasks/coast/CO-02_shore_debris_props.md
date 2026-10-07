@@ -48,7 +48,7 @@ reads as a smooth ramp into the sea.
 - `tests/godot/test_shore_debris_scatter.gd` (new), `tests/godot/test_shore_distance_field.gd`
 - `tools/build_shore_debris.py` (new Blender build script), `tools/capture_co02_shore_debris.gd` (new)
 - `docs/FLORA_FAUNA.md`, `docs/ART_BIBLE.md`, `docs/reports/co02_shore_debris.md`,
-  `docs/reports/images/co02_*.png`, `TODO.md`
+  `docs/reports/images/co02_*.png`, the project task board (`tasks` tool)
 
 ## Constraints and non-goals
 
@@ -83,9 +83,9 @@ python3 tools/generate_active_docs_report.py --check
 ## Doc updates
 
 `docs/FLORA_FAUNA.md` shore-debris section, `docs/ART_BIBLE.md`,
-`docs/reports/co02_shore_debris.md`, `TODO.md`.
+`docs/reports/co02_shore_debris.md`, the project task board (`tasks` tool).
 
-## TODO.md line
+## project task board line
 
 ```
 - [ ] R-949 | deps: R-948 | deliverable: shore boulder/stone-cluster/pebble-patch/wrack/algae GLB family with waterline-aware deterministic scatter and collision only above 1.0 m | allowed files: per docs/tasks/coast/CO-02_shore_debris_props.md | verify: `--filter=test_shore_debris_scatter,test_shore_distance_field`; blueprint validate, map audit and activation; asset sources/lint/storage; walkable region unchanged at 4326 (harbor east) and 6333 (harbor north); Kalamaja cove/spit/underwater plates before/after

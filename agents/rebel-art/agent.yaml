@@ -27,4 +27,5 @@ publish:
     category: engineering
     discoverable: false
 llm:
-  provider: fallback_chain:mid-tier
+  provider: anthropic
+  model: sonnet

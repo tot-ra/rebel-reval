@@ -1,7 +1,103 @@
 extends RefCounted
 
+## R-1194 leaf-cluster atlas tiles (column, row) in
+## assets/materials/pbr/foliage_cards/leaf_card_atlas.png. Order matches
+## tools/assets/build_leaf_card_atlas.py TILES. Species without their own plate
+## borrow the closest leaf shape.
+const CARD_ATLAS_GRID := Vector2(4, 2)
+const CARD_TILES := {
+	&"birch": Vector2(0, 0),
+	&"aspen": Vector2(0, 0),
+	&"willow": Vector2(0, 0),
+	&"ash": Vector2(0, 0),
+	&"rowan": Vector2(0, 0),
+	&"oak": Vector2(1, 0),
+	&"maple": Vector2(2, 0),
+	&"hawthorn": Vector2(2, 0),
+	&"linden": Vector2(3, 0),
+	&"alder": Vector2(3, 0),
+	&"hazel": Vector2(3, 0),
+	&"elm": Vector2(3, 0),
+	&"apple": Vector2(0, 1),
+	&"cherry": Vector2(0, 1),
+	&"plum": Vector2(0, 1),
+	&"pear": Vector2(0, 1),
+	&"blackthorn": Vector2(0, 1),
+	&"spruce": Vector2(1, 1),
+	&"juniper": Vector2(1, 1),
+	&"pine": Vector2(2, 1),
+}
 
-## Small opaque folded leaves: no alpha cards, textures or per-leaf nodes.
+
+static func card_tile(species: StringName) -> Vector2:
+	return CARD_TILES.get(species, Vector2(3, 0))
+
+
+## Alpha-scissor leaf-cluster card (R-1194): one atlas cluster of several leaves
+## on a quad folded along its midline, so it keeps some volume from the side.
+## Two halves, four triangles. UV is the card-local 0..1 square with UV.y = 0 at
+## the twig end, so the canopy shader's petiole wind weight (UV.y^2) and the
+## seasonal CUSTOM0 collapse work exactly as for folded leaves. UV2 = (1, 1)
+## tags a card; the species material picks the atlas tile.
+## Normals lean toward `outward` (away from the crown centre): a crown of flat
+## cards otherwise lights like scattered paper instead of one leafy volume.
+static func append_card(
+	surface: SurfaceTool,
+	base: Vector3,
+	axis: Vector3,
+	facing: Vector3,
+	outward: Vector3,
+	size: Vector2,
+	color: Color,
+	card_seed: float,
+	mirrored: bool
+) -> void:
+	axis = axis.normalized()
+	var side := facing.cross(axis)
+	if side.length_squared() < 0.0001:
+		side = axis.cross(Vector3.RIGHT if absf(axis.x) < 0.9 else Vector3.FORWARD)
+	side = side.normalized()
+	var plane := axis.cross(side).normalized()
+	if plane.dot(facing) < 0.0:
+		plane = -plane
+	var fold := plane * (-size.x * 0.16)
+	var tip := axis * size.y
+	var custom := Color(base.x, base.y, base.z, card_seed)
+	for half: float in [-1.0, 1.0]:
+		var edge := side * (half * size.x * 0.5) + fold
+		var points: Array[Vector3] = [base, base + edge, base + edge + tip, base + tip]
+		var u_edge := 0.5 + half * 0.5
+		if mirrored:
+			u_edge = 1.0 - u_edge
+		var uvs: Array[Vector2] = [
+			Vector2(0.5, 0.0), Vector2(u_edge, 0.0), Vector2(u_edge, 1.0), Vector2(0.5, 1.0)
+		]
+		var facet := (edge.cross(tip) * half).normalized()
+		if facet.dot(plane) < 0.0:
+			facet = -facet
+		var normal := (facet * 0.45 + outward.normalized() * 0.55).normalized()
+		if normal.length_squared() < 0.5:
+			normal = facet
+		for triangle: Array in [[0, 1, 2], [0, 2, 3]]:
+			var a := points[triangle[0]]
+			var b := points[triangle[1]]
+			var c := points[triangle[2]]
+			var order: Array = triangle
+			# Godot fronts are clockwise: keep the winding consistent with the
+			# leaning normal so back-face lighting fix-ups stay predictable.
+			if (c - a).cross(b - a).dot(normal) < 0.0:
+				order = [triangle[0], triangle[2], triangle[1]]
+			for index: int in order:
+				surface.set_normal(normal)
+				surface.set_color(color)
+				surface.set_uv(uvs[index])
+				surface.set_uv2(Vector2(1, 1))
+				surface.set_custom(0, custom)
+				surface.add_vertex(points[index])
+
+
+## Small opaque folded leaves: no textures or per-leaf nodes. Since R-1194 they
+## are the close-up silhouette detail; append_card cluster cards carry the mass.
 ## The existing tree skeleton still owns leaf positions and species identity.
 ##
 ## Seasonal contract (R-1187): when `leaf_seed` >= 0 every vertex carries

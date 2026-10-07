@@ -31,7 +31,7 @@
       "summary": "P6-003 content-only contract for Order coercion, inspection risk, and quiet sabotage; runtime Act 3 host remains downstream work.",
       "citations": [
         "docs/CANON.md",
-        "TODO.md#P6-003"
+        "docs/ROADMAP.md"
       ]
     }
   ]

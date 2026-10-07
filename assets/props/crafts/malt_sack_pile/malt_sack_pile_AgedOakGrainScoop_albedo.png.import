@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cphevl1c1ic2a"
-path.s3tc="res://.godot/imported/malt_sack_pile_AgedOakGrainScoop_albedo.png-0832d60e35e29a3f1994cf97d5aef2ad.s3tc.ctex"
-path.etc2="res://.godot/imported/malt_sack_pile_AgedOakGrainScoop_albedo.png-0832d60e35e29a3f1994cf97d5aef2ad.etc2.ctex"
+path.s3tc="res://.godot/imported/malt_sack_pile_AgedOakGrainScoop_albedo.png-226728073e7d89a26aeb2da7390af7f9.s3tc.ctex"
+path.etc2="res://.godot/imported/malt_sack_pile_AgedOakGrainScoop_albedo.png-226728073e7d89a26aeb2da7390af7f9.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -15,8 +15,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/crafts/malt_sack_pile_AgedOakGrainScoop_albedo.png"
-dest_files=["res://.godot/imported/malt_sack_pile_AgedOakGrainScoop_albedo.png-0832d60e35e29a3f1994cf97d5aef2ad.s3tc.ctex", "res://.godot/imported/malt_sack_pile_AgedOakGrainScoop_albedo.png-0832d60e35e29a3f1994cf97d5aef2ad.etc2.ctex"]
+source_file="res://assets/props/crafts/malt_sack_pile/malt_sack_pile_AgedOakGrainScoop_albedo.png"
+dest_files=["res://.godot/imported/malt_sack_pile_AgedOakGrainScoop_albedo.png-226728073e7d89a26aeb2da7390af7f9.s3tc.ctex", "res://.godot/imported/malt_sack_pile_AgedOakGrainScoop_albedo.png-226728073e7d89a26aeb2da7390af7f9.etc2.ctex"]
 
 [params]
 

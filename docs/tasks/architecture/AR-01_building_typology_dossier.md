@@ -62,7 +62,7 @@ the numbering, and a short **"what the current fabric gets wrong"** table mappin
 - `docs/reports/reval_architecture_typology_1343.md` (new)
 - `docs/HISTORICAL_AUDIT.md` (source register extension only)
 - `docs/CANON.md` (confidence labels for newly named historical claims only)
-- `TODO.md`
+- the project task board (`tasks` tool)
 
 ## Constraints and non-goals
 
@@ -98,9 +98,9 @@ python3 tools/archive_speculative_docs.py --dry-run
 ## Doc updates
 
 `docs/reports/reval_architecture_typology_1343.md`, `docs/HISTORICAL_AUDIT.md` source register,
-`docs/CANON.md`, `TODO.md`.
+`docs/CANON.md`, the project task board (`tasks` tool).
 
-## TODO.md line
+## project task board line
 
 ```
 - [ ] R-959 | deps: none | deliverable: docs/reports/reval_architecture_typology_1343.md with one sourced typology card per building family (stone Diele house, timber-frame house, log dwelling, craft boda, yard service fabric, parish church, Cistercian range, Toompea elite, civic, fortification, rural/coastal) giving frontage, storey and eave heights, bay module, gable form and pitch per roof cover, opening schedule, plinth/cellar/pentice practice, coursing and 1343 exclusions, each with a confidence label and a source row, plus an extended HISTORICAL_AUDIT source register and a table mapping the seven measured root causes to their card | allowed files: per docs/tasks/architecture/AR-01_building_typology_dossier.md | verify: active docs check; archive header check; all 11 families carded with labels and sources; five randomly sampled numbers traceable to source rows; exclusions consistent with HISTORICAL_AUDIT cross-map exclusions; named canon review that nothing new is labelled attested without a primary source

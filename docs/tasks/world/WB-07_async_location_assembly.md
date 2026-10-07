@@ -60,7 +60,7 @@ main thread. Until it is sliced, a seamless mount is a stall wearing a different
 `tools/run_performance_report.sh`, `docs/PERFORMANCE_REPORT.md`,
 `docs/SEAMLESS_STREAMING_PLAN.md`,
 `docs/reports/async_assembly_2026-09-26.md`,
-`docs/tasks/world/WB-07_async_location_assembly.md`, `TODO.md`.
+`docs/tasks/world/WB-07_async_location_assembly.md`, the project task board (`tasks` tool).
 
 ## Constraints and non-goals
 

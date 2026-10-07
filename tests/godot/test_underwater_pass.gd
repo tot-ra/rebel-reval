@@ -194,6 +194,7 @@ func test_pass_exists_outdoors_over_water_and_not_in_interiors() -> void:
 	assert_false(probe.is_empty(), "a water cell reports its surface")
 	var rest_y := -MeshConfig.WATER_RECESS + MeshConfig.WATER_SURFACE_LIFT
 	assert_almost_eq(float(probe["surface_y"]), rest_y, 0.01, "the surface is the recessed water plane plus tide")
+	assert_eq(probe["terrain_id"], grid.get_terrain(water_cell), "the probe exposes its water terrain to FFT sampling")
 	assert_true(probe["material"] is ShaderMaterial, "the probe hands over the water material to mirror")
 	assert_true(float(probe["wave_margin"]) > 0.0, "the probe reports the crest height budget")
 	assert_true(harbor_view._underwater_probe(Vector2(dry_cell) + Vector2(0.5, 0.5)).is_empty(), "dry land has no surface")

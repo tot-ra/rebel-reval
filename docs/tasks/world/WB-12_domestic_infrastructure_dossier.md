@@ -57,7 +57,7 @@ A new dossier section in `docs/HISTORICAL_AUDIT.md`, or a linked
 
 `docs/HISTORICAL_AUDIT.md`, `docs/reports/reval_domestic_infrastructure_1343.md`,
 `docs/CANON.md`, `history/RESEARCH_INDEX.md`,
-`docs/tasks/world/WB-12_domestic_infrastructure_dossier.md`, `TODO.md`.
+`docs/tasks/world/WB-12_domestic_infrastructure_dossier.md`, the project task board (`tasks` tool).
 
 ## Boundary against AR-01 (architecture pack)
 

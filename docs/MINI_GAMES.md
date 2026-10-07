@@ -1,7 +1,7 @@
 > **Legacy status:** `reconciled` (P7-007)  
 > **Reason:** Priority pass completed under [ADR 0017](./adr/0017-legacy-design-reintroduction.md). Naval and castle-building sims stay deferred without a new ADR.  
 > **Scope reconciliation:** [ADR 0017](./adr/0017-legacy-design-reintroduction.md), [`LEGACY_REINTRODUCTION.md`](./LEGACY_REINTRODUCTION.md)  
-> **Current source of truth:** This file for mini-game planning; implementation requires per-game `TODO.md` rows.
+> **Current source of truth:** This file for mini-game planning; implementation requires per-game the project task board (`tasks` tool) rows.
 
 # Mini-Game Priority Pass (P7-007)
 

@@ -29,7 +29,7 @@ that geometry.
 - `tests/godot/test_ws13b_sea_basin_depth.gd` (new)
 - `docs/tasks/water_sky/WS-13b_harbour_basin_depth.md`, `docs/tasks/water_sky/README.md`
 - `docs/reports/images/ws13b_*.png`
-- `agents/rebel-dev/playbook.md`, `TODO.md`
+- `agents/rebel-dev/playbook.md`, the project task board (`tasks` tool)
 
 Not touched: gameplay height (`ground_height`, collision, navigation, props), the water surface
 height, the FFT geometry budget (`fft_geometry_scale`, trough floor), WS-01 refraction, the

@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://crwwuhxtgoivm"
-path="res://.godot/imported/chest_merchant_strongbox_RichChestOak_normal.png-a6b60f94aecca11a562a357d4b3635c3.ctex"
+path="res://.godot/imported/chest_merchant_strongbox_RichChestOak_normal.png-39434eb3efaf8e38f277f3b1483776a7.ctex"
 metadata={
 "vram_texture": false
 }
@@ -13,8 +13,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/furniture/chest_merchant_strongbox_RichChestOak_normal.png"
-dest_files=["res://.godot/imported/chest_merchant_strongbox_RichChestOak_normal.png-a6b60f94aecca11a562a357d4b3635c3.ctex"]
+source_file="res://assets/props/furniture/chest_merchant_strongbox/chest_merchant_strongbox_RichChestOak_normal.png"
+dest_files=["res://.godot/imported/chest_merchant_strongbox_RichChestOak_normal.png-39434eb3efaf8e38f277f3b1483776a7.ctex"]
 
 [params]
 

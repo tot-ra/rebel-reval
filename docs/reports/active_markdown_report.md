@@ -14,19 +14,19 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `196`
-- Markdown files excluded as archive/reference/out of active scope: `738`
-- Local/external links inspected: `952`
-- Links to active Markdown docs: `523`
-- Links to existing archive/reference/non-active local docs: `197`
+- Active Markdown files scanned: `213`
+- Markdown files excluded as archive/reference/out of active scope: `741`
+- Local/external links inspected: `1330`
+- Links to active Markdown docs: `845`
+- Links to existing archive/reference/non-active local docs: `238`
 - External links skipped for reachability: `46`
-- Issues found: `1`
+- Issues found: `0`
 
 ## Issue counts
 
 | Code | Count |
 | --- | ---: |
-| `BROKEN_LINK` | 1 |
+| `BROKEN_LINK` | 0 |
 | `BROKEN_ANCHOR` | 0 |
 | `DUPLICATE_CHARACTER_NAME` | 0 |
 | `CONTRADICTORY_DATE` | 0 |
@@ -34,9 +34,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Issues
 
-| Code | Location | Detail |
-| --- | --- | --- |
-| `BROKEN_LINK` | `docs/SYSTEMS/PSYCHE.md:60` | Local Markdown link target does not exist: `./TIME_AND_PHASES.md` |
+No active Markdown documentation issues found.
 
 ## Active files scanned
 
@@ -69,6 +67,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/adr/0027-reval-hinterland-streaming-group.md`
 - `docs/adr/0028-seamless-building-interiors.md`
 - `docs/adr/0029-natural-reval-maps-and-larger-coast.md`
+- `docs/adr/README.md`
 - `docs/AGENT_LOOPS.md`
 - `docs/ARCHITECTURE.md`
 - `docs/ART_BIBLE.md`
@@ -109,6 +108,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/LEGACY_REINTRODUCTION.md`
 - `docs/lore/estonian_folklore.md`
 - `docs/lore/four_kings_act2_lore.md`
+- `docs/lore/README.md`
 - `docs/MAP_ALIGNMENT_EDITOR.md`
 - `docs/MAP_AUTHORING.md`
 - `docs/MAP_CONVERSION_PLAN.md`
@@ -122,11 +122,14 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/quests/livonian_order.md`
 - `docs/quests/miscellaneous.md`
 - `docs/quests/pskov_faction.md`
+- `docs/quests/README.md`
+- `docs/README.md`
 - `docs/ROADMAP.md`
 - `docs/ROADMAP_COORDINATION_ARCHIVE_2026-08-13.md`
 - `docs/SCENES/a-bitter-brew.md`
 - `docs/SCENES/bread-and-iron-branch-map.md`
 - `docs/SCENES/bread-and-iron.md`
+- `docs/SCENES/README.md`
 - `docs/SCENES/root-and-ember-branch-map.md`
 - `docs/SCENES/root-and-ember.md`
 - `docs/SCENES/st-georges-night-branch-map.md`
@@ -142,15 +145,26 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/SKY_WEATHER_STATE_CONTRACT.md`
 - `docs/SOUND_EFFECTS_TOP_100.md`
 - `docs/STORAGE_SIZE_BACKLOG.md`
+- `docs/SYSTEMS/COMBAT.md`
 - `docs/SYSTEMS/COMBAT_ANIMATION.md`
 - `docs/SYSTEMS/COMBAT_NIGHT.md`
+- `docs/SYSTEMS/DIALOGUE.md`
+- `docs/SYSTEMS/FACTIONS_AND_ECONOMY.md`
 - `docs/SYSTEMS/FLAG_CLOTH.md`
 - `docs/SYSTEMS/HOIST_ROPE.md`
+- `docs/SYSTEMS/HUD_AND_MENUS.md`
 - `docs/SYSTEMS/LIVING_CITY.md`
 - `docs/SYSTEMS/LIVING_VEGETATION.md`
 - `docs/SYSTEMS/MAGIC.md`
 - `docs/SYSTEMS/NATURAL.md`
 - `docs/SYSTEMS/PSYCHE.md`
+- `docs/SYSTEMS/QUESTS.md`
+- `docs/SYSTEMS/README.md`
+- `docs/SYSTEMS/SETTINGS_AND_ACCESSIBILITY.md`
+- `docs/SYSTEMS/STATE_AND_SAVES.md`
+- `docs/SYSTEMS/TIME_AND_PHASES.md`
+- `docs/SYSTEMS/WORLD_LIFE.md`
+- `docs/SYSTEMS/WORLD_PRESENTATION.md`
 - `docs/TASK_ARCHIVE.md`
 - `docs/tasks/architecture/AR-01_building_typology_dossier.md`
 - `docs/tasks/architecture/AR-02_adr_architecture_pipeline.md`
@@ -177,6 +191,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/tasks/coast/CO-09_saaremaa_traversability.md`
 - `docs/tasks/coast/CO-10_swim_dive_drown.md`
 - `docs/tasks/coast/README.md`
+- `docs/tasks/README.md`
 - `docs/tasks/urban_form/README.md`
 - `docs/tasks/urban_form/UF-00_reconcile_adr_0023_acceptance.md`
 - `docs/tasks/urban_form/UF-01_adr_streets_as_network.md`

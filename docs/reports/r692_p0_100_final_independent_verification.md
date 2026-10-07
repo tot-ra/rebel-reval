@@ -184,8 +184,8 @@ Keep R-692, R-691, R-553, and R-109 open for their existing owners. Do not state
 
 ## Sources
 
-- [`R-109 parent task`](../../TODO.md)
-- [`R-692 task contract`](../../TODO.md)
+- [`R-109 parent task`](../../project task board)
+- [`R-692 task contract`](../../project task board)
 - [`R-691 post-remediation gate`](r691_p0_100_post_remediation_gate.md)
 - [`R-690 current-source capture reconciliation`](r602_lower_town_matched_capture_evidence.md)
 - [`R-553 integration verification`](r553_lower_town_integration_verification.md)

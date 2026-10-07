@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b7d1bo660kml6"
-path.s3tc="res://.godot/imported/smithy_bed_smithy_bed_oak_albedo.png-90625628cf861430676460f23a2d059a.s3tc.ctex"
-path.etc2="res://.godot/imported/smithy_bed_smithy_bed_oak_albedo.png-90625628cf861430676460f23a2d059a.etc2.ctex"
+path.s3tc="res://.godot/imported/smithy_bed_smithy_bed_oak_albedo.png-58c797333cc007adb0283be0d9bdaa2e.s3tc.ctex"
+path.etc2="res://.godot/imported/smithy_bed_smithy_bed_oak_albedo.png-58c797333cc007adb0283be0d9bdaa2e.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -15,8 +15,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/furniture/smithy_bed_smithy_bed_oak_albedo.png"
-dest_files=["res://.godot/imported/smithy_bed_smithy_bed_oak_albedo.png-90625628cf861430676460f23a2d059a.s3tc.ctex", "res://.godot/imported/smithy_bed_smithy_bed_oak_albedo.png-90625628cf861430676460f23a2d059a.etc2.ctex"]
+source_file="res://assets/props/furniture/smithy_bed/smithy_bed_smithy_bed_oak_albedo.png"
+dest_files=["res://.godot/imported/smithy_bed_smithy_bed_oak_albedo.png-58c797333cc007adb0283be0d9bdaa2e.s3tc.ctex", "res://.godot/imported/smithy_bed_smithy_bed_oak_albedo.png-58c797333cc007adb0283be0d9bdaa2e.etc2.ctex"]
 
 [params]
 

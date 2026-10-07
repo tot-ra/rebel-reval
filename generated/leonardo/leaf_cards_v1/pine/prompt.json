@@ -1,0 +1,20 @@
+{
+  "id": "foliage_card.pine",
+  "kind": "leonardo_leaf_cluster_plate",
+  "task": "R-1194",
+  "target": "assets/materials/pbr/foliage_cards/leaf_card_atlas.png",
+  "source": "generated/leonardo/leaf_cards_v1/pine/candidate_1.jpg",
+  "candidates": [
+    "generated/leonardo/leaf_cards_v1/pine/candidate_1.jpg",
+    "generated/leonardo/leaf_cards_v1/pine/candidate_2.jpg"
+  ],
+  "prompt": "Botanical flat-lay photograph seen from directly above: one branch tip of Scots pine (Pinus sylvestris) with a central shoot and two or three side shoots, each a dense brush of long paired slightly twisted grey-green needles radiating around the shoot, the branch base enters from the bottom centre of the frame and the needles spread upward, filling most of the frame with margin. Isolated on a pure flat white background, even soft overcast light, no cast shadow, sharp needles, scan quality, square.",
+  "negative_prompt": "shadow, drop shadow, gradient background, vignette, coloured background, cones, snow, christmas decoration, text, watermark, border, blur, depth of field, cropped, painting, illustration, 3d render, brown dead needles",
+  "model_name": "Leonardo configured default model (a2gent leonardo_generate_image)",
+  "width": 1024,
+  "height": 1024,
+  "generation_id": "b97f2cb7-22bc-4828-86c9-789d2aea50de",
+  "selected_candidate": 1,
+  "processor": "tools/assets/build_leaf_card_atlas.py",
+  "notes": "Candidate 1: radiating long-needle brushes. Rejected 2 (reads as spruce)."
+}

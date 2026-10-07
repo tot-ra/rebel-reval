@@ -55,7 +55,7 @@ leaves their rigs frozen, which is the strongest "these are props, not boats" si
 - `tests/godot/test_vessel_rig_dynamics.gd` (new), `tests/godot/test_boat_float_3d.gd`,
   `tests/godot/test_water_ripple_sim.gd`
 - `tools/capture_co07_rig_dynamics.gd` (new)
-- `docs/reports/co07_rig_dynamics.md`, `docs/reports/images/co07_*.png`, `TODO.md`
+- `docs/reports/co07_rig_dynamics.md`, `docs/reports/images/co07_*.png`, the project task board (`tasks` tool)
 
 ## Constraints and non-goals
 
@@ -92,9 +92,9 @@ git diff --check
 
 ## Doc updates
 
-`docs/reports/co07_rig_dynamics.md`, `TODO.md`.
+`docs/reports/co07_rig_dynamics.md`, the project task board (`tasks` tool).
 
-## TODO.md line
+## project task board line
 
 ```
 - [ ] R-954 | deps: R-953, R-955 | deliverable: VesselRigDynamics driving sail furl/reef/set with hysteresis, leeward billow, luff flutter, yard brace, gust taut/slack, wave-driven oar-blade rocking that feeds the WS-15 ripple sim, and mooring-line sag clamping hull surge, all off the shared wind and ocean_time clock | allowed files: per docs/tasks/coast/CO-07_rig_and_oar_dynamics.md | verify: `--filter=test_vessel_rig_dynamics,test_boat_float_3d,test_water_ripple_sim` incl. 600-frame no-flicker, leeward monotonic billow, brace clamp, stowed-oar zero motion, surge clamp, determinism and < 0.3 ms budget; calm/breeze/gale/storm and wind-shift clips before/after on Compatibility and Metal; quick performance report inside budget

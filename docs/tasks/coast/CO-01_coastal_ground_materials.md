@@ -57,7 +57,7 @@ Measured on 2026-09-26:
 - `tests/godot/test_terrain_material_channels.gd` (new), `tests/godot/test_r715_water_material_contract.gd`
 - `tools/capture_co01_ground_materials.gd` (new)
 - `docs/ART_BIBLE.md`, `docs/reports/co01_coastal_ground_materials.md`,
-  `docs/reports/images/co01_*.png`, `TODO.md`
+  `docs/reports/images/co01_*.png`, the project task board (`tasks` tool)
 
 ## Constraints and non-goals
 
@@ -110,9 +110,9 @@ git diff --check
 ## Doc updates
 
 `docs/ART_BIBLE.md` ground-material section, new
-`docs/reports/co01_coastal_ground_materials.md` with the plates and the storage numbers, `TODO.md`.
+`docs/reports/co01_coastal_ground_materials.md` with the plates and the storage numbers, the project task board (`tasks` tool).
 
-## TODO.md line
+## project task board line
 
 ```
 - [ ] R-948 | deps: none | deliverable: 2048 three-map PBR sets for coast_sand, sand, shore_shingle, mud and grass plus a two-scale anti-tiling detail blend, replacing the procedural sand speckle | allowed files: per docs/tasks/coast/CO-01_coastal_ground_materials.md | verify: `--filter=test_terrain_material_channels,test_r715_water_material_contract`; asset sources/lint/storage validators; Kalamaja gameplay and close plates before/after on Compatibility and Metal show grain, relief and no tile grid; quick performance report inside budget

@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cl512wwv3xixh"
-path="res://.godot/imported/timber_window_closed_shutters_aged_structural_oak_albedo.png-efb74c2f9cd58b8cccc1cdd10522cb4c.ctex"
+path="res://.godot/imported/timber_window_closed_shutters_aged_structural_oak_albedo.png-aa1182b9f5d9d10f4e8e789851b0aff7.ctex"
 metadata={
 "vram_texture": false
 }
@@ -14,7 +14,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/buildings/facades/timber_window_closed_shutters/timber_window_closed_shutters_aged_structural_oak_albedo.png"
-dest_files=["res://.godot/imported/timber_window_closed_shutters_aged_structural_oak_albedo.png-efb74c2f9cd58b8cccc1cdd10522cb4c.ctex"]
+dest_files=["res://.godot/imported/timber_window_closed_shutters_aged_structural_oak_albedo.png-aa1182b9f5d9d10f4e8e789851b0aff7.ctex"]
 
 [params]
 

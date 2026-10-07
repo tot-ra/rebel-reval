@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://cly8yk3ikdwpm"
-path="res://.godot/imported/medieval_table_kit.glb-3b097abfc33c941083d076a7066ec0d4.scn"
+path="res://.godot/imported/medieval_table_kit.glb-3acc12d5f920a445d9b4cc3b61255ccf.scn"
 
 [deps]
 
-source_file="res://assets/props/furniture/tables/medieval_table_kit.glb"
-dest_files=["res://.godot/imported/medieval_table_kit.glb-3b097abfc33c941083d076a7066ec0d4.scn"]
+source_file="res://assets/props/furniture/tables/medieval_table_kit/medieval_table_kit.glb"
+dest_files=["res://.godot/imported/medieval_table_kit.glb-3acc12d5f920a445d9b4cc3b61255ccf.scn"]
 
 [params]
 

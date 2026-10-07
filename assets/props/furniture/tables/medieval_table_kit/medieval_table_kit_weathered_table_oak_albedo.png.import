@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://mlggsfm21oe"
-path.s3tc="res://.godot/imported/medieval_table_kit_weathered_table_oak_albedo.png-2e69aea9220023ed3c17609971a6bf5e.s3tc.ctex"
-path.etc2="res://.godot/imported/medieval_table_kit_weathered_table_oak_albedo.png-2e69aea9220023ed3c17609971a6bf5e.etc2.ctex"
+path.s3tc="res://.godot/imported/medieval_table_kit_weathered_table_oak_albedo.png-cb5a4f0908cb59febdb65d85fb6df255.s3tc.ctex"
+path.etc2="res://.godot/imported/medieval_table_kit_weathered_table_oak_albedo.png-cb5a4f0908cb59febdb65d85fb6df255.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -15,8 +15,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/furniture/tables/medieval_table_kit_weathered_table_oak_albedo.png"
-dest_files=["res://.godot/imported/medieval_table_kit_weathered_table_oak_albedo.png-2e69aea9220023ed3c17609971a6bf5e.s3tc.ctex", "res://.godot/imported/medieval_table_kit_weathered_table_oak_albedo.png-2e69aea9220023ed3c17609971a6bf5e.etc2.ctex"]
+source_file="res://assets/props/furniture/tables/medieval_table_kit/medieval_table_kit_weathered_table_oak_albedo.png"
+dest_files=["res://.godot/imported/medieval_table_kit_weathered_table_oak_albedo.png-cb5a4f0908cb59febdb65d85fb6df255.s3tc.ctex", "res://.godot/imported/medieval_table_kit_weathered_table_oak_albedo.png-cb5a4f0908cb59febdb65d85fb6df255.etc2.ctex"]
 
 [params]
 

@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c1eag7q2m4qce"
-path="res://.godot/imported/chicken_chicken_roughness.png-d60d4935b8af360d438eee085cd0057e.ctex"
+path="res://.godot/imported/chicken_chicken_roughness.png-f6d39e5b1aa55831c9e84e1ce693ed6b.ctex"
 metadata={
 "vram_texture": false
 }
@@ -14,7 +14,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/animals/hendrik_reyneke/chicken/chicken_chicken_roughness.png"
-dest_files=["res://.godot/imported/chicken_chicken_roughness.png-d60d4935b8af360d438eee085cd0057e.ctex"]
+dest_files=["res://.godot/imported/chicken_chicken_roughness.png-f6d39e5b1aa55831c9e84e1ce693ed6b.ctex"]
 
 [params]
 

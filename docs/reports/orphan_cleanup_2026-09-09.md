@@ -4,7 +4,7 @@ Evidence-based removal of unused menu stills, leftover Godot probes, and one orp
 
 ## Consumer checks
 
-Tracked-text search excluded `TODO.md` and `*.import` sidecars.
+Tracked-text search excluded the project task board (`tasks` tool) and `*.import` sidecars.
 
 | Path | Size | Consumers | Decision |
 |------|------|-----------|----------|

@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c14xofc2inj7b"
-path.s3tc="res://.godot/imported/salt_pile_CoarseSalt_albedo.png-1126b3ce1e1e09bbb5927ef44f3c5a88.s3tc.ctex"
-path.etc2="res://.godot/imported/salt_pile_CoarseSalt_albedo.png-1126b3ce1e1e09bbb5927ef44f3c5a88.etc2.ctex"
+path.s3tc="res://.godot/imported/salt_pile_CoarseSalt_albedo.png-50cccb3ba9df2e164fb0bbad4822507b.s3tc.ctex"
+path.etc2="res://.godot/imported/salt_pile_CoarseSalt_albedo.png-50cccb3ba9df2e164fb0bbad4822507b.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -15,8 +15,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/crafts/salt_pile_CoarseSalt_albedo.png"
-dest_files=["res://.godot/imported/salt_pile_CoarseSalt_albedo.png-1126b3ce1e1e09bbb5927ef44f3c5a88.s3tc.ctex", "res://.godot/imported/salt_pile_CoarseSalt_albedo.png-1126b3ce1e1e09bbb5927ef44f3c5a88.etc2.ctex"]
+source_file="res://assets/props/crafts/salt_pile/salt_pile_CoarseSalt_albedo.png"
+dest_files=["res://.godot/imported/salt_pile_CoarseSalt_albedo.png-50cccb3ba9df2e164fb0bbad4822507b.s3tc.ctex", "res://.godot/imported/salt_pile_CoarseSalt_albedo.png-50cccb3ba9df2e164fb0bbad4822507b.etc2.ctex"]
 
 [params]
 

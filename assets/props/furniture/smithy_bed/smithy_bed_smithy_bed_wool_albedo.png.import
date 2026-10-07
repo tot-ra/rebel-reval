@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dycc4u1xr3cnh"
-path.s3tc="res://.godot/imported/smithy_bed_smithy_bed_wool_albedo.png-b0fe478053bf9557869c00c570e4ac94.s3tc.ctex"
-path.etc2="res://.godot/imported/smithy_bed_smithy_bed_wool_albedo.png-b0fe478053bf9557869c00c570e4ac94.etc2.ctex"
+path.s3tc="res://.godot/imported/smithy_bed_smithy_bed_wool_albedo.png-8a61c369534a5b6326e53caf4bab0510.s3tc.ctex"
+path.etc2="res://.godot/imported/smithy_bed_smithy_bed_wool_albedo.png-8a61c369534a5b6326e53caf4bab0510.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -15,8 +15,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/furniture/smithy_bed_smithy_bed_wool_albedo.png"
-dest_files=["res://.godot/imported/smithy_bed_smithy_bed_wool_albedo.png-b0fe478053bf9557869c00c570e4ac94.s3tc.ctex", "res://.godot/imported/smithy_bed_smithy_bed_wool_albedo.png-b0fe478053bf9557869c00c570e4ac94.etc2.ctex"]
+source_file="res://assets/props/furniture/smithy_bed/smithy_bed_smithy_bed_wool_albedo.png"
+dest_files=["res://.godot/imported/smithy_bed_smithy_bed_wool_albedo.png-8a61c369534a5b6326e53caf4bab0510.s3tc.ctex", "res://.godot/imported/smithy_bed_smithy_bed_wool_albedo.png-8a61c369534a5b6326e53caf4bab0510.etc2.ctex"]
 
 [params]
 

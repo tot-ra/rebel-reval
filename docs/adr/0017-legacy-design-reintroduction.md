@@ -12,7 +12,7 @@ The maintainer has directed that this legacy material return to the **game plan*
 
 ## Decision
 
-1. **Legacy systems are in campaign scope again**, delivered through verifiable `TODO.md` track **P7** and act-gated implementation tasks. Individual seeds still require reconciliation into active docs (`docs/CANON.md`, `docs/CHARACTERS/`, system design docs) before code lands.
+1. **Legacy systems are in campaign scope again**, delivered through verifiable the project task board (`tasks` tool) track **P7** and act-gated implementation tasks. Individual seeds still require reconciliation into active docs (`docs/CANON.md`, `docs/CHARACTERS/`, system design docs) before code lands.
 
 2. **Reintroduced pillars** (sources listed in README Legacy Design & Research Material):
    - **Magic:** dual schools (pagan combinatorial elements and Christian divine rites) with the smith's hammer as conduit (`character/MAGIC-ELEMENTS.md`, `PAGAN-MAGIC.md`, `CHRISTIAN-MAGIC.md`).
@@ -51,7 +51,7 @@ The maintainer has directed that this legacy material return to the **game plan*
 
 ## Consequences
 
-- README.md, AGENTS.md, and `docs/ROADMAP.md` sync to this ADR; `TODO.md` gains a **P7** track.
+- README.md, AGENTS.md, and `docs/ROADMAP.md` sync to this ADR; the project task board (`tasks` tool) gains a **P7** track.
 - [`docs/LEGACY_REINTRODUCTION.md`](../LEGACY_REINTRODUCTION.md) is the working inventory of legacy sources → planned systems → TODO IDs.
 - Legacy markdown headers flip from permanent `superseded` exclusion to **reactivating via ADR 0017** while remaining non-runtime until reconciliation tasks close.
 - P4-007 Root and Ember (ambiguous folklore, no literal magic confirmation) stays shipped slice content; later magic tasks may extend belief branches without rewriting that quest's historical verify line.

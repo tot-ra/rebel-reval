@@ -8,6 +8,8 @@
 **Magic coupling:** [`docs/SYSTEMS/MAGIC.md`](./MAGIC.md) section 6  
 **Runtime implementation:** **P7-011** (GameState fields, spend/grant, save/load, minimal UI host). This file is not runtime truth until that row verifies.
 
+**Runtime today (2026-10-07):** `GameState` stores aspect ranks and unspent points (`get_natural_aspect_rank`, `grant_natural_points`, `spend_natural_point`) and saves them; magic scales by aspect (`tests/godot/test_magic_natural_scaling.gd`); the Hingepuu reflection overlay displays ranks. No gameplay path grants or spends points yet. See the [code-health audit](../reports/code_health_audit_2026-10-07.md).
+
 ---
 
 ## 1. Purpose

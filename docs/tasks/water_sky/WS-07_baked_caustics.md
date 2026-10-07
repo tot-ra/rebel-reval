@@ -28,7 +28,7 @@ depend on depth, sun angle or the waves. It reads as a pattern on the water, not
 - `scripts/map/view3d/map_view_water_materials.gd`
 - `tests/godot/test_r715_water_material_contract.gd`
 - `docs/reports/images/ws07_*.png`
-- `TODO.md`
+- the project task board (`tasks` tool)
 
 ## Dependencies
 
@@ -116,9 +116,9 @@ Compute a physically based caustic pattern from a height field with the photon a
 ## Documentation updates
 
 - `assets/SOURCES.csv` rows for both tiles.
-- `TODO.md` row:
+- the project task board (`tasks` tool) row:
   ```text
-  - [ ] WS-07 | deps: WS-01, WS-03 | deliverable: photon-splat caustic tiles (fine/broad) baked from the FFT spectrum and applied as bed light along the refracted sun ray with depth focus, anisotropic-safe gradients, dispersion and cloud/sun gating; sine-lattice caustics removed | allowed files: `tools/bake_ocean_fft.py`, `tests/python/test_bake_ocean_fft.py`, `assets/water/ocean_fft/caustics_fine.png`, `assets/water/ocean_fft/caustics_broad.png`, `assets/SOURCES.csv`, `scripts/map/view3d/map_view_water.gdshader`, `scripts/map/view3d/map_view_water_materials.gd`, `tests/godot/test_r715_water_material_contract.gd`, `docs/reports/images/ws07_*.png`, `TODO.md` | verify: tile seam/energy tests; contract test; noon/sunset/overcast/night captures and an orbit clip show a depth-focused, sun-leaning, shimmer-free caustic net on the bed
+  - [ ] WS-07 | deps: WS-01, WS-03 | deliverable: photon-splat caustic tiles (fine/broad) baked from the FFT spectrum and applied as bed light along the refracted sun ray with depth focus, anisotropic-safe gradients, dispersion and cloud/sun gating; sine-lattice caustics removed | allowed files: `tools/bake_ocean_fft.py`, `tests/python/test_bake_ocean_fft.py`, `assets/water/ocean_fft/caustics_fine.png`, `assets/water/ocean_fft/caustics_broad.png`, `assets/SOURCES.csv`, `scripts/map/view3d/map_view_water.gdshader`, `scripts/map/view3d/map_view_water_materials.gd`, `tests/godot/test_r715_water_material_contract.gd`, `docs/reports/images/ws07_*.png`, the project task board (`tasks` tool) | verify: tile seam/energy tests; contract test; noon/sunset/overcast/night captures and an orbit clip show a depth-focused, sun-leaning, shimmer-free caustic net on the bed
   ```
 
 ## Final parameters and decisions (2026-09-26)

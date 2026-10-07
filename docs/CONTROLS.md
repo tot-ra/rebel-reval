@@ -76,9 +76,10 @@ button charges instead of repeating the swing.
 | Move | `W` `A` `S` `D` / arrows | Left stick |
 | Walk (slow) | `Shift` | Left stick click |
 | Interact / continue | `E`, `Enter` | A |
-| Attack | `Space`, left click (see above) | X |
+| Attack (tap = next combo strike, hold = heavy) | left click (see above) | X |
 | Guard | `F`, right click | Left shoulder |
-| Dodge | `Q` | Right shoulder |
+| Roll (toward the held direction; none = back roll) | `Space` | Right trigger |
+| Sidestep | `Q` | Right shoulder |
 | Dive (hold, while swimming in deep water) | `X`, `Ctrl` | B |
 | Inventory | `I` | Y |
 | Journal | `J` | Back |
@@ -93,7 +94,9 @@ button charges instead of repeating the swing.
 
 Left click never casts. It stays attack / interact / travel as described above. Number keys cast the learned recipes shown on the bottom-left spell bar (Fireball, Earth Tremor, Iron Skin in a new demo). Gamepad face buttons stay combat verbs; open the cookbook to pick a spell with the mouse or focus.
 
-Bindings are stored per device and persist outside campaign save slots.
+Combat moves, combo timing, roll rules and cast gestures are specified in [`SYSTEMS/COMBAT_ANIMATION.md`](SYSTEMS/COMBAT_ANIMATION.md).
+
+Bindings are stored per device and persist outside campaign save slots. Saved v1 bindings that still map `Space` to attack drop that default on load, because `Space` is the roll since bindings v2.
 
 ## Camera
 

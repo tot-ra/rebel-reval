@@ -1,6 +1,6 @@
 # Reval Rebel Agent Work Protocol
 
-This protocol is binding for every agent under `agents/`. Role-specific work-loop skills add detail but must not weaken these rules. `README.md` owns product intent, the project task board is the preferred operational queue, `TODO.md` remains the durable/legacy task contract, `docs/ROADMAP.md` owns current milestone order, and `docs/CANON.md` owns approved historical-fiction truth.
+This protocol is binding for every agent under `agents/`. Role-specific work-loop skills add detail but must not weaken these rules. `README.md` owns product intent, the project task board is the preferred operational queue, the project task board (`tasks` tool) remains the durable/legacy task contract, `docs/ROADMAP.md` owns current milestone order, and `docs/CANON.md` owns approved historical-fiction truth.
 
 ## Mission
 
@@ -55,10 +55,10 @@ A cheap capability preflight also belongs to readiness. Confirm required binarie
 
 The project task board is the preferred operational queue. Use the `tasks` tool for executable work,
 claims, progress, completion, and bounded follow-up tasks; do not leave a concrete need only in prose,
-`TODO.md`, or a work-request card.
+the project task board (`tasks` tool), or a work-request card.
 
 - Orient with `tasks.stats`, `tasks.list`, and `tasks.get`. Use the board `ref` as the task identity and
-  cite the legacy `TODO.md` ID in the title or body when one exists; these identifiers may differ.
+  cite the legacy the project task board (`tasks` tool) ID in the title or body when one exists; these identifiers may differ.
 - Claim only the selected ready item with `tasks.next` (`claim: true`) or `tasks.update` to
   `in_progress`. Keep one active task per worker and never claim a task whose allowed paths overlap
   another active task.
@@ -83,7 +83,7 @@ A tick is one bounded 20-60 minute unit. Perform these steps in order.
 
 ### 1. Orient
 
-- Read `git status`, task-board state (`tasks.stats` plus scoped `tasks.list`/`tasks.get`), `TODO.md`, `docs/ROADMAP.md` Current Focus, this protocol, and the role work loop.
+- Read `git status`, task-board state (`tasks.stats` plus scoped `tasks.list`/`tasks.get`), the project task board (`tasks` tool), `docs/ROADMAP.md` Current Focus, this protocol, and the role work loop.
 - Read only the canon, evidence, schemas, and neighboring artifacts relevant to the top candidate.
 - Preserve unrelated or already modified files. Never stage, revert, or absorb another worker's changes.
 

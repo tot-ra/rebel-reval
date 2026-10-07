@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://oy83j2j5h76v"
-path.s3tc="res://.godot/imported/boots_boot_leather_albedo.png-821a17809deb6d4b879ee26fc2de06cd.s3tc.ctex"
-path.etc2="res://.godot/imported/boots_boot_leather_albedo.png-821a17809deb6d4b879ee26fc2de06cd.etc2.ctex"
+path.s3tc="res://.godot/imported/boots_boot_leather_albedo.png-981e9be58df3ba718c878e3d64ba15e0.s3tc.ctex"
+path.etc2="res://.godot/imported/boots_boot_leather_albedo.png-981e9be58df3ba718c878e3d64ba15e0.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -16,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/characters/kalev_fresh/boots/boots_boot_leather_albedo.png"
-dest_files=["res://.godot/imported/boots_boot_leather_albedo.png-821a17809deb6d4b879ee26fc2de06cd.s3tc.ctex", "res://.godot/imported/boots_boot_leather_albedo.png-821a17809deb6d4b879ee26fc2de06cd.etc2.ctex"]
+dest_files=["res://.godot/imported/boots_boot_leather_albedo.png-981e9be58df3ba718c878e3d64ba15e0.s3tc.ctex", "res://.godot/imported/boots_boot_leather_albedo.png-981e9be58df3ba718c878e3d64ba15e0.etc2.ctex"]
 
 [params]
 

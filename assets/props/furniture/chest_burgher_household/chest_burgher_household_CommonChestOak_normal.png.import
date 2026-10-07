@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://df04y2c0tqogb"
-path="res://.godot/imported/chest_burgher_household_CommonChestOak_normal.png-c2d0c7bb6754b341f1bd32d5b7eb944c.ctex"
+path="res://.godot/imported/chest_burgher_household_CommonChestOak_normal.png-feee18eb761b5ae39850d31d3ca8ccde.ctex"
 metadata={
 "vram_texture": false
 }
@@ -13,8 +13,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/furniture/chest_burgher_household_CommonChestOak_normal.png"
-dest_files=["res://.godot/imported/chest_burgher_household_CommonChestOak_normal.png-c2d0c7bb6754b341f1bd32d5b7eb944c.ctex"]
+source_file="res://assets/props/furniture/chest_burgher_household/chest_burgher_household_CommonChestOak_normal.png"
+dest_files=["res://.godot/imported/chest_burgher_household_CommonChestOak_normal.png-feee18eb761b5ae39850d31d3ca8ccde.ctex"]
 
 [params]
 

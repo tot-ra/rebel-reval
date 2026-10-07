@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bbat1nle6gjyo"
-path.s3tc="res://.godot/imported/tanning_frame_AgedOakTimber_albedo.png-6e2c6b2173ed853ae4604b41f2c88a2b.s3tc.ctex"
-path.etc2="res://.godot/imported/tanning_frame_AgedOakTimber_albedo.png-6e2c6b2173ed853ae4604b41f2c88a2b.etc2.ctex"
+path.s3tc="res://.godot/imported/tanning_frame_AgedOakTimber_albedo.png-a58dfcfd95bd35c2b7b26e7de103c5dd.s3tc.ctex"
+path.etc2="res://.godot/imported/tanning_frame_AgedOakTimber_albedo.png-a58dfcfd95bd35c2b7b26e7de103c5dd.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -15,8 +15,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/crafts/tanning_frame_AgedOakTimber_albedo.png"
-dest_files=["res://.godot/imported/tanning_frame_AgedOakTimber_albedo.png-6e2c6b2173ed853ae4604b41f2c88a2b.s3tc.ctex", "res://.godot/imported/tanning_frame_AgedOakTimber_albedo.png-6e2c6b2173ed853ae4604b41f2c88a2b.etc2.ctex"]
+source_file="res://assets/props/crafts/tanning_frame/tanning_frame_AgedOakTimber_albedo.png"
+dest_files=["res://.godot/imported/tanning_frame_AgedOakTimber_albedo.png-a58dfcfd95bd35c2b7b26e7de103c5dd.s3tc.ctex", "res://.godot/imported/tanning_frame_AgedOakTimber_albedo.png-a58dfcfd95bd35c2b7b26e7de103c5dd.etc2.ctex"]
 
 [params]
 

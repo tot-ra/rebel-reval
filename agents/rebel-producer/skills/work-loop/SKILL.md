@@ -18,14 +18,14 @@ The task board is the operational queue for this singleton role:
 
 ## 1. Orient and reconcile
 
-1. Read repository status, task-board state, `TODO.md`, `docs/ROADMAP.md` Current Focus, and every `status: open` card under `docs/reports/work_requests/`.
+1. Read repository status, task-board state, the project task board (`tasks` tool), `docs/ROADMAP.md` Current Focus, and every `status: open` card under `docs/reports/work_requests/`.
 2. Reconcile queue state before adding work:
    - remove `claim:` from rows already carrying `review: canon`;
    - release expired leases after checking target paths and useful partial work;
    - release any claim whose row is blocked or waiting externally;
    - route `canon: rejected(...)` and `qa: failed(...)` back to the owning role with the smallest actionable correction;
    - type every blocker and name its owner and clearing condition.
-3. Decide each open request atomically: change frontmatter to `status: accepted`, `status: rejected`, or `status: merged` and fill the matching `accepted: <TODO-ID>`, `rejected: <reason>`, or `merged-into: <ID>` decision. Search `TODO.md` and other cards for duplicate deliverables and path overlap first. A good discovery still loses to current-slice priority.
+3. Decide each open request atomically: change frontmatter to `status: accepted`, `status: rejected`, or `status: merged` and fill the matching `accepted: <TODO-ID>`, `rejected: <reason>`, or `merged-into: <ID>` decision. Search the project task board (`tasks` tool) and other cards for duplicate deliverables and path overlap first. A good discovery still loses to current-slice priority.
 
 ## 2. Validate queue integrity
 
@@ -58,7 +58,7 @@ Record queue health: current slice, next playable checkpoint, ready roles, block
 
 ## Hard rules
 
-- Write only `TODO.md`, `docs/ROADMAP.md`, and Producer decision fields in `docs/reports/work_requests/`.
+- Write only the project task board (`tasks` tool), `docs/ROADMAP.md`, and Producer decision fields in `docs/reports/work_requests/`.
 - Never implement content, code, maps, tests, scenes, or assets.
 - Never ask a worker to wait. Route a dependency, create independent fallback work, or release the worker.
 - Never bypass Canon for content or QA for player-facing runtime acceptance.

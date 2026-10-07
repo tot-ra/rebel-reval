@@ -64,7 +64,7 @@ A set under `assets/buildings/rural/`, kit-bashed on AR-04, built to the AR-01 r
 - `tests/godot/test_rural_buildings.gd` (+ `.uid`, new)
 - `tools/capture_ar12_rural_harbour.gd` (+ `.uid`, new)
 - `docs/ASSET_INVENTORY.md`, `docs/ART_BIBLE.md`, `docs/CANON.md` (confidence labels only),
-  `docs/reports/ar12_rural_harbour.md`, `docs/reports/images/ar12_*.png`, `TODO.md`
+  `docs/reports/ar12_rural_harbour.md`, `docs/reports/images/ar12_*.png`, the project task board (`tasks` tool)
 
 ## Constraints and non-goals
 
@@ -118,9 +118,9 @@ git diff --check
 ## Doc updates
 
 `docs/ASSET_INVENTORY.md`, `docs/ART_BIBLE.md`, `docs/CANON.md`,
-`docs/reports/ar12_rural_harbour.md`, `TODO.md`.
+`docs/reports/ar12_rural_harbour.md`, the project task board (`tasks` tool).
 
-## TODO.md line
+## project task board line
 
 ```
 - [ ] R-970 | deps: R-962 | deliverable: assets/buildings/rural set covering chimneyless smoke cottages in two sizes, the rehielamu barn dwelling, croft cottage, log hut and plank dwelling; threshing barn, hay barn, byre, granary on stones, drying kiln, root-cellar mound and yard fencing; open boat shed sized to a CO-05/CO-06 fishing hull, net store, fish-drying shed, smokehouse, salt store, timber harbour crane, quay warehouse and landing-stage hut; watermill with wheel, race and sluice and a post windmill with sails; camp shelters, work sheds and supply lean-tos matching the existing camp and work_shed primitives; plus distinct coastal and inland dwelling variants | allowed files: per docs/tasks/architecture/AR-12_rural_harbour_set.md | verify: `--filter=test_rural_buildings,test_architecture_kit,test_fishing_net`; full Godot suite; blueprint validate; asset sources/lint/storage; map audit, activation, composition; building variety; active docs; git diff --check; all ~65 rural/harbour/world house records and every primitive resolve one-for-one with ids intact; smoke cottage chimneyless with a smoke hood; barn dwelling has both threshing bay and living end; watermill has wheel/race/sluice and windmill has sails; boat shed opening fits the fishing-hull extents; named assertion that world_saaremaa resolves only to camp shelters and a supply shed; coastal and inland variants are distinct models; models within the ADR 0025 budget with LODs; bit-identical walkability across all twelve maps; empty `git diff --stat content/maps/` and no overlap with in-flight coast-pack files; matched before/after Kalamaja shore, boat shed with hull, drying yard, smoke cottage, barn dwelling, watermill, windmill, Saaremaa camp and coastal-vs-inland plates at noon/overcast/midnight on Compatibility and Metal at both tiers; frame/draw-call/material/triangle budget; named human review that Kalamaja reads as a fishing suburb and the smoke cottage as Estonian

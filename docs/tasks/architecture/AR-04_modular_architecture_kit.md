@@ -77,7 +77,7 @@ which is why 362 house records are served by 6 meshes plus a tint.
 - `tools/capture_ar04_architecture_kit.gd` (+ `.uid`, new)
 - `docs/ARCHITECTURE_KIT.md` (new), `docs/ARCHITECTURE.md`, `docs/ASSET_INVENTORY.md`,
   `docs/ART_BIBLE.md`, `docs/reports/ar04_architecture_kit.md`,
-  `docs/reports/images/ar04_*.png`, `TODO.md`
+  `docs/reports/images/ar04_*.png`, the project task board (`tasks` tool)
 
 ## Constraints and non-goals
 
@@ -128,9 +128,9 @@ python3 tools/generate_active_docs_report.py --check
 ## Doc updates
 
 `docs/ARCHITECTURE_KIT.md`, `docs/ARCHITECTURE.md`, `docs/ASSET_INVENTORY.md`, `docs/ART_BIBLE.md`,
-`docs/reports/ar04_architecture_kit.md`, `TODO.md`.
+`docs/reports/ar04_architecture_kit.md`, the project task board (`tasks` tool).
 
-## TODO.md line
+## project task board line
 
 ```
 - [ ] R-962 | deps: R-959,R-960 | deliverable: assets/buildings/kit part library built by tools/build_architecture_kit.py covering ground, wall-bay (eight material families), storey, gable, roof (four covers at AR-01 pitches), opening and attachment groups on a documented snap module, an explicit architecture_kit_catalogue.gd registry with sockets/bounds/surface family/LODs, an assembler, docs/ARCHITECTURE_KIT.md snap contract, and four reference assemblies (stone Diele, timber frame, log dwelling, craft boda) built from parts only | allowed files: per docs/tasks/architecture/AR-04_modular_architecture_kit.md | verify: python generator unittest; `--filter=test_architecture_kit`; full Godot suite; blueprint validate; asset sources/lint/storage; map audit and activation; active docs; snapped neighbours gapless and non-overlapping with correct winding; every part within the ADR 0025 triangle budget with its LOD set; deterministic assembly fingerprint; emitted part list matches the documented set exactly; unchanged MapDefinition fingerprint and map audit for all 29 maps proving zero runtime change; part contact sheet, four reference assemblies and side-by-side against the three monolithic house GLBs; draw-call/material/triangle comparison; named human review answering whether the kit can carry a district

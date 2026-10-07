@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://bij7rbccpn375"
-path="res://.godot/imported/timber_window_closed_shutters.glb-112320bcb918795b9b3e00562076d449.scn"
+path="res://.godot/imported/timber_window_closed_shutters.glb-6ee087af99eb92508efe7479716ad914.scn"
 
 [deps]
 
 source_file="res://assets/buildings/facades/timber_window_closed_shutters/timber_window_closed_shutters.glb"
-dest_files=["res://.godot/imported/timber_window_closed_shutters.glb-112320bcb918795b9b3e00562076d449.scn"]
+dest_files=["res://.godot/imported/timber_window_closed_shutters.glb-6ee087af99eb92508efe7479716ad914.scn"]
 
 [params]
 

@@ -230,7 +230,7 @@
         "content/packages/forced_forge/package.json",
         "content/packages/bell_and_chain/package.json",
         "content/maps/world_poide.rrmap",
-        "TODO.md"
+        "docs/ROADMAP.md"
       ]
     }
   ]

@@ -4,7 +4,7 @@
 **Approval:** [ADR 0017](./adr/0017-legacy-design-reintroduction.md)  
 **Maintainer decision (2026-07-29):** Reintroduce Legacy Design & Research Material into the game plan - characters, history, magic, and related systems. Legacy 2D/pixel sprites are inspiration only; production needs new models under the current art pipeline.
 
-This file maps archived or superseded design sources to planned reconciliation and implementation work. Nothing here is runtime truth until its `TODO.md` verify line passes and canon briefs exist.
+This file maps archived or superseded design sources to planned reconciliation and implementation work. Nothing here is runtime truth until its the project task board (`tasks` tool) verify line passes and canon briefs exist.
 
 ## Delivery constraint
 

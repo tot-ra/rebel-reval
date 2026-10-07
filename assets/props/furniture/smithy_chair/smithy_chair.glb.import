@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://b0dqqgvtuoa70"
-path="res://.godot/imported/smithy_chair.glb-a934d869ac52d72333779d968bcd9d77.scn"
+path="res://.godot/imported/smithy_chair.glb-efd0c169ad55a4acba97c9eb1e1ea8eb.scn"
 
 [deps]
 
-source_file="res://assets/props/furniture/smithy_chair.glb"
-dest_files=["res://.godot/imported/smithy_chair.glb-a934d869ac52d72333779d968bcd9d77.scn"]
+source_file="res://assets/props/furniture/smithy_chair/smithy_chair.glb"
+dest_files=["res://.godot/imported/smithy_chair.glb-efd0c169ad55a4acba97c9eb1e1ea8eb.scn"]
 
 [params]
 

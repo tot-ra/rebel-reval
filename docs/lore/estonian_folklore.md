@@ -2,7 +2,7 @@
 
 **Task:** Folklore research for quest content
 **Status:** Research draft for review
-**Scope:** A curated, sourced catalog of Estonian myths, legends and fairy tales, mapped to *Reval Rebel*'s existing cast, factions and locations, with quest seeds. Intended as a **`reference`** document, not active scope. Individual seeds reactivate only through README / `TODO.md` tasks, per [ADR 0008](../adr/0008-three-act-campaign-and-faction-scope.md).
+**Scope:** A curated, sourced catalog of Estonian myths, legends and fairy tales, mapped to *Reval Rebel*'s existing cast, factions and locations, with quest seeds. Intended as a **`reference`** document, not active scope. Individual seeds reactivate only through README / the project task board (`tasks` tool) tasks, per [ADR 0008](../adr/0008-three-act-campaign-and-faction-scope.md).
 
 Confidence labels follow [`docs/CANON.md`](../CANON.md#confidence-labels): `attested`, `plausible composite`, `folklore`, `invented`.
 
@@ -151,7 +151,7 @@ How each named character becomes a folklore delivery vehicle. Existing files lin
 
 ## 8. Quest seed table (folklore → location → character → hook)
 
-Seeds only; each needs a README/`TODO.md` task to activate ([ADR 0008](../adr/0008-three-act-campaign-and-faction-scope.md)).
+Seeds only; each needs a README/the project task board (`tasks` tool) task to activate ([ADR 0008](../adr/0008-three-act-campaign-and-faction-scope.md)).
 
 | # | Folklore basis | Location | Questgiver | One-line hook |
 |---|---|---|---|---|

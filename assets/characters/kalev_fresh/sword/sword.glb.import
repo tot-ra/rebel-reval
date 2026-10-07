@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://dys51ko61pdb7"
-path="res://.godot/imported/sword.glb-1c6e9e1d3ea4f6b2c60e653e7183323e.scn"
+path="res://.godot/imported/sword.glb-d990647fb7fc907c39e195424feca327.scn"
 
 [deps]
 
 source_file="res://assets/characters/kalev_fresh/sword/sword.glb"
-dest_files=["res://.godot/imported/sword.glb-1c6e9e1d3ea4f6b2c60e653e7183323e.scn"]
+dest_files=["res://.godot/imported/sword.glb-d990647fb7fc907c39e195424feca327.scn"]
 
 [params]
 

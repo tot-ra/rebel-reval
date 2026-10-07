@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://q6rg7bt2dku4"
-path.s3tc="res://.godot/imported/chest_burgher_household_CommonChestIron_albedo.png-25700874c33034ab4b0d8afd70e84eed.s3tc.ctex"
-path.etc2="res://.godot/imported/chest_burgher_household_CommonChestIron_albedo.png-25700874c33034ab4b0d8afd70e84eed.etc2.ctex"
+path.s3tc="res://.godot/imported/chest_burgher_household_CommonChestIron_albedo.png-5e52b2e820e9943eb16654cc2b6775a6.s3tc.ctex"
+path.etc2="res://.godot/imported/chest_burgher_household_CommonChestIron_albedo.png-5e52b2e820e9943eb16654cc2b6775a6.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -15,8 +15,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/furniture/chest_burgher_household_CommonChestIron_albedo.png"
-dest_files=["res://.godot/imported/chest_burgher_household_CommonChestIron_albedo.png-25700874c33034ab4b0d8afd70e84eed.s3tc.ctex", "res://.godot/imported/chest_burgher_household_CommonChestIron_albedo.png-25700874c33034ab4b0d8afd70e84eed.etc2.ctex"]
+source_file="res://assets/props/furniture/chest_burgher_household/chest_burgher_household_CommonChestIron_albedo.png"
+dest_files=["res://.godot/imported/chest_burgher_household_CommonChestIron_albedo.png-5e52b2e820e9943eb16654cc2b6775a6.s3tc.ctex", "res://.godot/imported/chest_burgher_household_CommonChestIron_albedo.png-5e52b2e820e9943eb16654cc2b6775a6.etc2.ctex"]
 
 [params]
 

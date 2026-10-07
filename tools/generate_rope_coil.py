@@ -22,7 +22,7 @@ import bpy
 from mathutils import Vector
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "assets" / "props" / "crafts" / "rope_coil.glb"
+OUTPUT = ROOT / "assets" / "props" / "crafts" / "rope_coil" / "rope_coil.glb"
 EVIDENCE_DIR = ROOT / "generated" / "blender" / "rope_coil_v1"
 DEFAULT_PREVIEW = EVIDENCE_DIR / "preview.png"
 BRIEF_PATH = EVIDENCE_DIR / "brief.json"
@@ -37,7 +37,7 @@ HEMP_SRGB = (0x9A / 255.0, 0x7B / 255.0, 0x49 / 255.0)
 BRIEF = {
     "id": ASSET_ID,
     "kind": "rigid_prop",
-    "target": "res://assets/props/crafts/rope_coil.glb",
+    "target": "res://assets/props/crafts/rope_coil/rope_coil.glb",
     "scene": "res://content/maps/north_quarter.rrmap#ropemakers_shed_coils",
     "dimensions_m": [1.22, 0.12, 0.86],
     "triangles": {"target": 6500, "max": 8000},

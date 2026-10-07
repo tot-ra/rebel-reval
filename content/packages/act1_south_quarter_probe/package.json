@@ -28,7 +28,7 @@
       "summary": "Representative P4-018 quest package exercising landmark beat bindings for generated traversal tests.",
       "citations": [
         "docs/data/landmark_integrations.json",
-        "TODO.md#P1-038"
+        "docs/ROADMAP.md"
       ]
     }
   ]

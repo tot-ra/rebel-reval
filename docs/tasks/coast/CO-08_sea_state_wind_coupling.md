@@ -70,7 +70,7 @@ open sea and the lee of a quay get the same sea state.
   `tests/godot/test_r715_water_weather_sync.gd`, `tests/godot/test_r713_sky_weather_continuity.gd`,
   `tests/godot/test_ocean_fft_sampler.gd`, `tests/godot/test_sea_state_ladder.gd` (new)
 - `tools/capture_co08_sea_states.gd` (new)
-- `docs/reports/co08_sea_state_ladder.md`, `docs/reports/images/co08_*.png`, `TODO.md`
+- `docs/reports/co08_sea_state_ladder.md`, `docs/reports/images/co08_*.png`, the project task board (`tasks` tool)
 
 ## Constraints and non-goals
 
@@ -109,9 +109,9 @@ python3 tools/verify_r715_water_performance.py
 ## Doc updates
 
 `docs/SKY_WEATHER_STATE_CONTRACT.md` Beaufort ladder, `docs/reports/co08_sea_state_ladder.md`,
-`TODO.md`.
+the project task board (`tasks` tool).
 
-## TODO.md line
+## project task board line
 
 ```
 - [ ] R-955 | deps: none | deliverable: real deterministic wind direction in SkyWeather3D replacing the constant CLOUD_DRIFT_PER_SECOND.normalized(), a documented Beaufort force / wind speed / Hs / sea_state ladder shared by water, sampler, boats and rigs, Beaufort-keyed whitecap onset, and a fetch/shelter term off the WS-08 shore field | allowed files: per docs/tasks/coast/CO-08_sea_state_wind_coupling.md | verify: `--filter=test_sea_state_ladder,test_sky_weather_3d,test_weather_realism,test_r715_water_weather_sync,test_r713_sky_weather_continuity,test_ocean_fft_sampler` incl. non-constant deterministic direction, all consumers agreeing, Hs monotonic in force, documented whitecap onset and sheltered lee < open water; save/load and transition continuity; water performance verifier; calm/breeze/gale/storm, opposite-quarter and sheltered-lee plates on Compatibility and Metal

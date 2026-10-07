@@ -3,7 +3,8 @@
 Operational guide for AI agents and contributors working on **Reval Rebel**.
 
 - Product vision, story, and scope: [`README.md`](./README.md) (source of truth)
-- Work queue: project task board (`tasks` tool) for claims and progress; [`TODO.md`](./TODO.md) is the durable ID index
+- Work queue: project task board (`tasks` tool) for claims and progress; the project task board (`tasks` tool) is the sole work queue
+- Documentation hub (every doc, one page per feature): [`docs/README.md`](./docs/README.md), features in [`docs/SYSTEMS/`](./docs/SYSTEMS/README.md)
 - Architecture and file ownership: [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md)
 - Canon and visual baseline: [`docs/CANON.md`](./docs/CANON.md), [`docs/ART_BIBLE.md`](./docs/ART_BIBLE.md)
 - Setup, headless commands, known issues: [`docs/SETUP.md`](./docs/SETUP.md), [`docs/reports/known_runtime_defects.md`](./docs/reports/known_runtime_defects.md)
@@ -48,6 +49,7 @@ Install Godot 4.7 per [`docs/SETUP.md`](./docs/SETUP.md). **Never open visible G
 | Content validator tests | `python3 -m unittest tests.python.test_validate_content -v` |
 | Content schema examples | `python3 tools/validate_content_examples.py` |
 | Active docs / links | `python3 tools/generate_active_docs_report.py --check` |
+| Docs reachable from README | `python3 tools/docs_index.py` (regenerate index blocks), `python3 tools/docs_index.py --check` |
 | Asset provenance / lint | `python3 tools/validate_asset_sources.py`, `python3 tools/verify_asset_lint.py` |
 | Storage hygiene | `python3 tools/verify_storage_hygiene.py` |
 | Map composition audit | `python3 tools/verify_map_composition.py` |
@@ -106,9 +108,20 @@ The game is a three-act faction RPG ([ADR 0008](./docs/adr/0008-three-act-campai
 
 ## Task contract
 
-Every delegated task must be independently verifiable ("improve combat" is invalid). Each task states: player-facing goal, allowed files, dependencies (task IDs and content IDs), constraints and non-goals, deliverable, exact verification (command, test, or screenshot), and doc updates.
+Every delegated task must be independently verifiable ("improve combat" is invalid). Each task states: player-facing goal, allowed files, dependencies (task IDs and content IDs), constraints and non-goals, deliverable, exact verification (command, test, or screenshot), and the doc file that will document the feature.
 
-`TODO.md` format: `- [ ] ID | deps: ID,ID or none | deliverable: ... | verify: ...`. Prefer tasks whose dependencies are done.
+Use `tasks.create` with dependencies, allowed files, deliverable, constraints, and verification; claim only ready work.
+
+## Feature documentation (mandatory)
+
+Every task that implements or changes a feature ships its documentation in the same change. A feature is any player-facing behavior, gameplay system, content pipeline, or tool other agents will run. Code, tests, and the task board are not documentation.
+
+- **Where:** extend the feature's owning page in [`docs/SYSTEMS/`](./docs/SYSTEMS/README.md) (or `docs/CONTROLS.md`, `docs/MAP_AUTHORING.md`). For a new area, create `docs/SYSTEMS/<FEATURE>.md` and add it to the `docs/SYSTEMS/README.md` status table and the [`docs/README.md`](./docs/README.md) hub.
+- **Header:** `Status: implemented (task **R-NNNN**)`, plus scope and what is out of scope. Use [`docs/SYSTEMS/QUESTS.md`](./docs/SYSTEMS/QUESTS.md) or [`COMBAT_ANIMATION.md`](./docs/SYSTEMS/COMBAT_ANIMATION.md) as the model.
+- **Body:** what the player or agent can do and how (inputs, commands), the runtime entry points (scripts, scenes, autoloads), the data and stable IDs it reads or writes, save/load behavior, how to verify it (test file or command), and known limits.
+- **Keep it true:** when a task changes or removes behavior, update or retire the matching section in the same change. A design doc for an unbuilt system says `Status: planned` until the code lands. Code that is built but not mounted in a scene goes under the page's **Limits** and in the latest code-health audit (`docs/reports/code_health_audit_*.md`), and gets a task to wire it or delete it.
+- **Linked:** every Markdown file, including characters, lore, history, and reports, must be reachable by links from the root `README.md`. Link new pages from their folder's index page, then run `python3 tools/docs_index.py`. `--check` fails on any orphan.
+- New or renamed docs under `docs/` also change the active-docs report: regenerate it with `python3 tools/generate_active_docs_report.py` and confirm `--check` passes.
 
 ## Definition of done
 
@@ -116,7 +129,7 @@ Every delegated task must be independently verifiable ("improve combat" is inval
 - Tests or validators cover state transitions and failure modes
 - Keyboard/mouse and gamepad paths are checked where input applies
 - Save/load is verified when persistent state is touched
-- Active docs and stable IDs are updated in the same change
+- Every implemented or changed feature is documented per **Feature documentation** above; active docs and stable IDs are updated in the same change
 - New assets have source, rights, and approval rows in `assets/SOURCES.csv`
 - Visual changes include screenshots or captured states
 - No unrelated systems or speculative abstractions were added

@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b3jkkkgtmvcmv"
-path.s3tc="res://.godot/imported/wool_tunic_wool_normal.png-ce128a98c2f5307f73fea58f9e5564e3.s3tc.ctex"
-path.etc2="res://.godot/imported/wool_tunic_wool_normal.png-ce128a98c2f5307f73fea58f9e5564e3.etc2.ctex"
+path.s3tc="res://.godot/imported/wool_tunic_wool_normal.png-21cf2cdece9a077a7a9369778072735d.s3tc.ctex"
+path.etc2="res://.godot/imported/wool_tunic_wool_normal.png-21cf2cdece9a077a7a9369778072735d.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -16,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/characters/kalev_fresh/wool_tunic/wool_tunic_wool_normal.png"
-dest_files=["res://.godot/imported/wool_tunic_wool_normal.png-ce128a98c2f5307f73fea58f9e5564e3.s3tc.ctex", "res://.godot/imported/wool_tunic_wool_normal.png-ce128a98c2f5307f73fea58f9e5564e3.etc2.ctex"]
+dest_files=["res://.godot/imported/wool_tunic_wool_normal.png-21cf2cdece9a077a7a9369778072735d.s3tc.ctex", "res://.godot/imported/wool_tunic_wool_normal.png-21cf2cdece9a077a7a9369778072735d.etc2.ctex"]
 
 [params]
 

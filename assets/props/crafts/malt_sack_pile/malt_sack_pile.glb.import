@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://dh5te0wpha6hf"
-path="res://.godot/imported/malt_sack_pile.glb-2f13df34362f6acb735b6f378565c3a8.scn"
+path="res://.godot/imported/malt_sack_pile.glb-27a844627245d1a3c244c78d0aa403fd.scn"
 
 [deps]
 
-source_file="res://assets/props/crafts/malt_sack_pile.glb"
-dest_files=["res://.godot/imported/malt_sack_pile.glb-2f13df34362f6acb735b6f378565c3a8.scn"]
+source_file="res://assets/props/crafts/malt_sack_pile/malt_sack_pile.glb"
+dest_files=["res://.godot/imported/malt_sack_pile.glb-27a844627245d1a3c244c78d0aa403fd.scn"]
 
 [params]
 

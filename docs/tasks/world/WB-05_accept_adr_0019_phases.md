@@ -48,7 +48,7 @@ status changes and the phases have owners and gates.
 
 `docs/adr/0019-seamless-contiguous-location-streaming.md`, `docs/SEAMLESS_STREAMING_PLAN.md`,
 `docs/reports/seamless_startup_baseline_2026-09-26.md`,
-`docs/tasks/world/WB-05_accept_adr_0019_phases.md`, `TODO.md`.
+`docs/tasks/world/WB-05_accept_adr_0019_phases.md`, the project task board (`tasks` tool).
 
 ## Constraints and non-goals
 

@@ -27,7 +27,7 @@ once offline and ship them as two small float textures.
 - `scripts/map/view3d/atmosphere_common.gdshaderinc` (new: the GLSL side of the same
   parameterisation, used by WS-10)
 - `tests/godot/test_atmosphere_luts.gd` (new)
-- `TODO.md`
+- the project task board (`tasks` tool)
 
 ## Dependencies
 
@@ -133,7 +133,7 @@ This file has no runtime user yet. WS-10 includes it.
 - `assets/SOURCES.csv` rows (tool, constants in `edits`, AGPL project author).
 - Cite the Hillaire paper (EGSR 2020) at the top of both `tools/bake_atmosphere_luts.py` and
   `atmosphere_common.gdshaderinc`, plus the Tidewater notice from WS-01.
-- `TODO.md` row:
+- the project task board (`tasks` tool) row:
   ```text
-  - [ ] WS-09 | deps: none | deliverable: deterministic offline Hillaire transmittance (256x64) and multi-scattering (32x32) LUTs as half-float EXR with profile manifest, plus atmosphere_common.gdshaderinc GLSL parameterisation | allowed files: `tools/bake_atmosphere_luts.py`, `tests/python/test_bake_atmosphere_luts.py`, `assets/sky/atmosphere/*`, `assets/SOURCES.csv`, `scripts/map/view3d/atmosphere_common.gdshaderinc`, `tests/godot/test_atmosphere_luts.gd`, `TODO.md` | verify: python oracle tests (zenith T = 0.940/0.868/0.762, monotonicity, round-trip, determinism, EXR parse); Godot loads EXRs and matches the oracle texel
+  - [ ] WS-09 | deps: none | deliverable: deterministic offline Hillaire transmittance (256x64) and multi-scattering (32x32) LUTs as half-float EXR with profile manifest, plus atmosphere_common.gdshaderinc GLSL parameterisation | allowed files: `tools/bake_atmosphere_luts.py`, `tests/python/test_bake_atmosphere_luts.py`, `assets/sky/atmosphere/*`, `assets/SOURCES.csv`, `scripts/map/view3d/atmosphere_common.gdshaderinc`, `tests/godot/test_atmosphere_luts.gd`, the project task board (`tasks` tool) | verify: python oracle tests (zenith T = 0.940/0.868/0.762, monotonicity, round-trip, determinism, EXR parse); Godot loads EXRs and matches the oracle texel
   ```

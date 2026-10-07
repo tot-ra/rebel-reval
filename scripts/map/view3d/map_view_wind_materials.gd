@@ -15,7 +15,12 @@ const FISHING_NET_FLOAT_TEXTURE := preload(
 const FISHING_NET_SINKER_TEXTURE := preload(
 	"res://assets/props/crafts/fishing_nets/fishing_nets_PiercedStoneSinkers_albedo.png"
 )
+## R-1103 blade-cluster atlas for the cross-card grass tuft (tools/build_grass_blade_atlas.py).
+const GRASS_BLADE_ATLAS := preload("res://assets/materials/pbr/grass_blades/grass_blades_atlas.png")
 const BLACK_CLOAKS_BANNER_TEXTURE := preload("res://assets/heraldry/black_cloaks_banner.png")
+## R-1194 leaf-cluster card atlas (tools/assets/build_leaf_card_atlas.py).
+const LEAF_CARD_ATLAS := preload("res://assets/materials/pbr/foliage_cards/leaf_card_atlas.png")
+const LeafGeometry := preload("res://scripts/map/view3d/map_view_leaf_geometry.gd")
 
 static var _cache: Dictionary = {}
 ## R-1187: last calendar date and wetness pushed into vegetation. Kept here so a
@@ -94,6 +99,7 @@ static func grass_blades() -> ShaderMaterial:
 		"grass_character", MapViewMaterialShaders.GRASS_SHADER
 	)
 	material.set_shader_parameter("base_color", Color8(104, 130, 62))
+	material.set_shader_parameter("blade_atlas", GRASS_BLADE_ATLAS)
 	# Interaction starts off so maps without a player keep pure wind sway.
 	material.set_shader_parameter("interact_strength", 0.0)
 	material.set_shader_parameter("interact_radius", 0.65)
@@ -151,6 +157,10 @@ static func canopy(kind: StringName) -> ShaderMaterial:
 		_:
 			material.set_shader_parameter("base_color", Color8(96, 118, 60))
 			material.set_shader_parameter("sway_strength", 0.06)
+	# Bound on the shared template so every species duplicate inherits it; bushes
+	# have no card-tagged vertices and ignore its sampled value.
+	material.set_shader_parameter("leaf_atlas", LEAF_CARD_ATLAS)
+	material.set_shader_parameter("atlas_grid", LeafGeometry.CARD_ATLAS_GRID)
 	_cache[key] = material
 	return material
 
@@ -166,6 +176,7 @@ static func canopy_for_species(species: StringName) -> ShaderMaterial:
 	var template := canopy(MapViewTreeSpecies.canopy_material_kind(species))
 	var material := template.duplicate() as ShaderMaterial
 	material.set_meta(&"tree_species", species)
+	material.set_shader_parameter("atlas_tile", LeafGeometry.card_tile(species))
 	var palette := VegetationPhenology.autumn_colors(species)
 	material.set_shader_parameter("autumn_color_a", palette[0])
 	material.set_shader_parameter("autumn_color_b", palette[1])

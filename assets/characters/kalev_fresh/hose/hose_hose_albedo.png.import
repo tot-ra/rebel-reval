@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dwxesgf7aplua"
-path.s3tc="res://.godot/imported/hose_hose_albedo.png-a6f9f71f5dd0ad137fd86f464b58d151.s3tc.ctex"
-path.etc2="res://.godot/imported/hose_hose_albedo.png-a6f9f71f5dd0ad137fd86f464b58d151.etc2.ctex"
+path.s3tc="res://.godot/imported/hose_hose_albedo.png-f8ed1466db748805d6d87a1eddfdc8de.s3tc.ctex"
+path.etc2="res://.godot/imported/hose_hose_albedo.png-f8ed1466db748805d6d87a1eddfdc8de.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -16,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/characters/kalev_fresh/hose/hose_hose_albedo.png"
-dest_files=["res://.godot/imported/hose_hose_albedo.png-a6f9f71f5dd0ad137fd86f464b58d151.s3tc.ctex", "res://.godot/imported/hose_hose_albedo.png-a6f9f71f5dd0ad137fd86f464b58d151.etc2.ctex"]
+dest_files=["res://.godot/imported/hose_hose_albedo.png-f8ed1466db748805d6d87a1eddfdc8de.s3tc.ctex", "res://.godot/imported/hose_hose_albedo.png-f8ed1466db748805d6d87a1eddfdc8de.etc2.ctex"]
 
 [params]
 

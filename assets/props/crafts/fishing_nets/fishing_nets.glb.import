@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://cacgaqlna05kg"
-path="res://.godot/imported/fishing_nets.glb-8398d19ce443484eff24e42532c4c33c.scn"
+path="res://.godot/imported/fishing_nets.glb-6fcffab85c1b9c97707ace342e0424de.scn"
 
 [deps]
 
-source_file="res://assets/props/crafts/fishing_nets.glb"
-dest_files=["res://.godot/imported/fishing_nets.glb-8398d19ce443484eff24e42532c4c33c.scn"]
+source_file="res://assets/props/crafts/fishing_nets/fishing_nets.glb"
+dest_files=["res://.godot/imported/fishing_nets.glb-6fcffab85c1b9c97707ace342e0424de.scn"]
 
 [params]
 

@@ -25,7 +25,7 @@ can't swim while carrying heavy gear, so there's a real choice before jumping in
 ### Allowed files
 
 - `docs/adr/0021-swimming-and-diving.md` (new; confirm that 0021 is still the next free number)
-- `TODO.md` (add WS-14a for the ADR and WS-14b for the implementation, with WS-14b blocked on the
+- the project task board (`tasks` tool) (add WS-14a for the ADR and WS-14b for the implementation, with WS-14b blocked on the
   ADR)
 
 ### The ADR must decide (Status / Context / Decision / Alternatives / Consequences, like ADR 0001)
@@ -75,7 +75,7 @@ can't swim while carrying heavy gear, so there's a real choice before jumping in
 - `docs/CONTROLS.md`, `docs/CANON.md`
 - `tests/godot/test_player_swim_state.gd` (new), `tests/godot/test_save_service.gd`
 - `docs/reports/images/ws14_*.png`
-- `TODO.md`
+- the project task board (`tasks` tool)
 
 ### Dependencies
 
@@ -130,6 +130,6 @@ can't swim while carrying heavy gear, so there's a real choice before jumping in
 ### TODO rows
 
 ```text
-- [ ] WS-14a | deps: WS-13 | deliverable: ADR 0021 swimming and diving naming the removed scope, allowed water/maps, player-only traversal layer, breath/gear/combat/consequence rules, canon note, asset follow-ups and save fields | allowed files: `docs/adr/0021-swimming-and-diving.md`, `TODO.md` | verify: active docs check; maintainer acceptance recorded in ADR status
+- [ ] WS-14a | deps: WS-13 | deliverable: ADR 0021 swimming and diving naming the removed scope, allowed water/maps, player-only traversal layer, breath/gear/combat/consequence rules, canon note, asset follow-ups and save fields | allowed files: `docs/adr/0021-swimming-and-diving.md`, the project task board (`tasks` tool) | verify: active docs check; maintainer acceptance recorded in ADR status
 - [ ] WS-14b | deps: WS-14a, WS-13, WS-05 | deliverable: PlayerSwimState (walk/wade/swim/dive/climb-out, FFT surface float, player-only swimmable traversal, ADR rules) with input, presentation hooks and save/load | allowed files: per accepted ADR 0021 | verify: swim state + save tests; map audits unchanged; keyboard/gamepad clip of wade/swim/dive/surface/climb-out
 ```

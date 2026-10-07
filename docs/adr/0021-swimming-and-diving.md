@@ -77,7 +77,7 @@ Candidates of comparable cost, none picked here:
 |---|---|---|---|
 | Smuggling Run mini-game (`minigame.smuggling_run`) | `docs/MINI_GAMES.md`, A1 | ~80-100 h | Swimming can *carry* part of its fantasy (water infiltration) through authored night routes |
 | Tavern Brawling mini-game (`minigame.tavern_brawl`) | `docs/MINI_GAMES.md`, slice/A1 | ~80 h | Removes a social-combat variant; hammer combat stays |
-| P2-037..P2-042 bird GLB re-render batches | `TODO.md` P2 | ~96 h | Procedural birds stay; only fidelity is lost |
+| P2-037..P2-042 bird GLB re-render batches | the project task board (`tasks` tool) P2 | ~96 h | Procedural birds stay; only fidelity is lost |
 | Air Gust + Earth Tremor spells (R-722, R-724) | `docs/SYSTEMS/MAGIC.md` | ~32 h together, would need a third item | Fewer pagan combinations in Act 1 |
 | WS-15 interactive ripples follow-ups beyond the landed version | water pack | ~30 h, would need a third item | Wakes stay at current fidelity |
 
@@ -173,5 +173,5 @@ To be added in WS-14b under *Daily Life & Social Relations*:
   Harbour maps need ladder and stair anchors. Every future map with water must decide the
   `swimming_allowed` flag.
 - Scope: the item chosen in Decision 1 is removed or deferred in the same change that accepts this
-  ADR (`docs/MINI_GAMES.md` or `TODO.md` updated accordingly).
+  ADR (`docs/MINI_GAMES.md` or the project task board (`tasks` tool) updated accordingly).
 - Follow-ups: WS-14b plus the four asset tasks in Decision 6, all blocked on acceptance.

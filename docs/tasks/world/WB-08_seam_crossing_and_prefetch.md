@@ -51,7 +51,7 @@ matching `.uid` sidecars, `project.godot`,
 `tests/python/test_verify_world_layout.py`,
 `docs/SEAMLESS_STREAMING_PLAN.md`, `docs/ARCHITECTURE.md`, `docs/MAP_AUTHORING.md`,
 `docs/reports/seam_crossing_2026-09-26.md`, `docs/reports/images/seam_crossing/`,
-`docs/tasks/world/WB-08_seam_crossing_and_prefetch.md`, `TODO.md`.
+`docs/tasks/world/WB-08_seam_crossing_and_prefetch.md`, the project task board (`tasks` tool).
 
 ## Constraints and non-goals
 

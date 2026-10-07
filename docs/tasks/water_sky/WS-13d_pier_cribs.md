@@ -16,7 +16,7 @@ bed, instead of a smooth earth mound. The top-down gameplay view does not change
 - `tests/godot/test_ws13d_pier_cribs.gd` (new)
 - `docs/reports/images/ws13d_*.png`, this file, `docs/tasks/water_sky/README.md`,
   `docs/tasks/water_sky/WS-13b_harbour_basin_depth.md`, `docs/reports/reval_harbour_1343_research.md`,
-  `TODO.md`
+  the project task board (`tasks` tool)
 
 ## Decisions
 

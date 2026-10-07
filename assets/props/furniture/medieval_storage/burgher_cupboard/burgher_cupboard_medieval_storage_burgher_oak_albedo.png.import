@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://sy65ie25phxd"
-path="res://.godot/imported/burgher_cupboard_medieval_storage_burgher_oak_albedo.png-f8076d83131d0a012124f3c5227d6ad1.ctex"
+path="res://.godot/imported/burgher_cupboard_medieval_storage_burgher_oak_albedo.png-650f52fbdfb60cb8d4eb6b9450f25b5a.ctex"
 metadata={
 "vram_texture": false
 }
@@ -13,8 +13,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/furniture/medieval_storage/burgher_cupboard_medieval_storage_burgher_oak_albedo.png"
-dest_files=["res://.godot/imported/burgher_cupboard_medieval_storage_burgher_oak_albedo.png-f8076d83131d0a012124f3c5227d6ad1.ctex"]
+source_file="res://assets/props/furniture/medieval_storage/burgher_cupboard/burgher_cupboard_medieval_storage_burgher_oak_albedo.png"
+dest_files=["res://.godot/imported/burgher_cupboard_medieval_storage_burgher_oak_albedo.png-650f52fbdfb60cb8d4eb6b9450f25b5a.ctex"]
 
 [params]
 

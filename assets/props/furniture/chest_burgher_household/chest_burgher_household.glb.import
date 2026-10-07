@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://bdkyaae7wrvdl"
-path="res://.godot/imported/chest_burgher_household.glb-a1db61eabb2279e3e0ee288851e0f0b3.scn"
+path="res://.godot/imported/chest_burgher_household.glb-f76463825d880826594420a9505fa9cb.scn"
 
 [deps]
 
-source_file="res://assets/props/furniture/chest_burgher_household.glb"
-dest_files=["res://.godot/imported/chest_burgher_household.glb-a1db61eabb2279e3e0ee288851e0f0b3.scn"]
+source_file="res://assets/props/furniture/chest_burgher_household/chest_burgher_household.glb"
+dest_files=["res://.godot/imported/chest_burgher_household.glb-f76463825d880826594420a9505fa9cb.scn"]
 
 [params]
 

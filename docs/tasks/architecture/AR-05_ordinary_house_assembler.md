@@ -69,7 +69,7 @@ The style vocabulary cannot help: in `lower_town_slice`, 49 house styles differ 
 - `tests/python/test_verify_building_variety.py` (new)
 - `tools/capture_ar05_ordinary_houses.gd` (+ `.uid`, new)
 - `docs/ARCHITECTURE_KIT.md`, `docs/ART_BIBLE.md`, `docs/MAP_AUTHORING.md` (assembler note only),
-  `docs/reports/ar05_ordinary_houses.md`, `docs/reports/images/ar05_*.png`, `TODO.md`
+  `docs/reports/ar05_ordinary_houses.md`, `docs/reports/images/ar05_*.png`, the project task board (`tasks` tool)
 
 ## Constraints and non-goals
 
@@ -125,9 +125,9 @@ git diff --check
 ## Doc updates
 
 `docs/ARCHITECTURE_KIT.md`, `docs/ART_BIBLE.md`, `docs/MAP_AUTHORING.md`,
-`docs/reports/ar05_ordinary_houses.md`, `TODO.md`.
+`docs/reports/ar05_ordinary_houses.md`, the project task board (`tasks` tool).
 
-## TODO.md line
+## project task board line
 
 ```
 - [ ] R-963 | deps: R-961,R-962 | deliverable: deterministic kit assembly replacing the box-plus-gable path for all 319 untiered house records, driven only by hash(map_seed, building_id) over bay count, storey count, gable form, share-aware roof cover, per-storey opening schedule, plinth/undercroft, attachments and AR-03 surface stems, with explicit per-district style sets matched to the HISTORICAL_AUDIT target cards, neighbour de-duplication, shared party walls, LOD/instancing per ADR 0025, and the old path retired one map per commit | allowed files: per docs/tasks/architecture/AR-05_ordinary_house_assembler.md | verify: `--filter=test_ordinary_house_assembly,test_architecture_kit,test_map_verification`; full Godot suite; blueprint validate; tools/verify_building_variety.py failing under 40 distinct configurations across north_quarter's 96 houses, outside any map's HISTORICAL_AUDIT roof-share band, or on three identical street-adjacent buildings; python verifier unittest; map audit, activation, conversion plan and composition; active docs; determinism across save/load; bit-identical per-map walkable-cell count and largest walkable region; empty `git diff --stat content/maps/`; matched before/after plus long-street vista plates per retired map at noon and midnight on Compatibility and Metal at both tiers; north_quarter frame/draw-call/material/triangle budget; named human review per map that the street reads as a town

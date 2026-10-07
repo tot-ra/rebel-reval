@@ -18,7 +18,7 @@ into a crest. Every boat reacts to the same sea, with no per-boat random phase.
   static helper shared with the sampler)
 - `tests/godot/test_ocean_fft_sampler.gd` (new), `tests/godot/test_boat_float_3d.gd`
 - `docs/reports/images/ws05_*.png` or a short clip description in the review
-- `TODO.md`
+- the project task board (`tasks` tool)
 
 ## Dependencies
 
@@ -57,7 +57,7 @@ alpha is foam, linear 0..1 - the sampler does not need it, so don't signed-decod
 WS-04 shipped in commit `531dfd9c`. The mesh the player sees is **not** the physical sea, so hulls
 must follow these shader rules or they will float visibly above the water. The source of truth is
 `_fft_displacement()` and `vertex()` in `scripts/map/view3d/map_view_water.gdshader` and the
-WS-04 decision list in `TODO.md`.
+WS-04 decision list in the project task board (`tasks` tool).
 
 1. **Geometry scale.** The final displacement is multiplied by
    `ocean_amplitude · fft_geometry_scale / 0.87`, where
@@ -172,7 +172,7 @@ WS-04 decision list in `TODO.md`.
 ## Documentation updates
 
 - The lockstep comments in both files.
-- `TODO.md` row:
+- the project task board (`tasks` tool) row:
   ```text
-  - [ ] WS-05 | deps: WS-04 | deliverable: OceanFftSampler (CPU decode of C0/C1 atlases, shared sea-state mapping, fixed-point height_at) and BoatFloat3D heave/pitch/roll/surge from five FFT hull samples with the shared ocean_time clock | allowed files: `scripts/map/view3d/ocean_fft_sampler.gd`, `scripts/map/view3d/boat_float_3d.gd`, `scripts/map/view3d/map_view_water_materials.gd`, `tests/godot/test_ocean_fft_sampler.gd`, `tests/godot/test_boat_float_3d.gd`, `docs/reports/images/ws05_*.png`, `TODO.md` | verify: sampler decode/periodicity/inversion/perf tests; boat FFT attitude tests; harbor clip shows hulls seated at the waterline in clear and storm
+  - [ ] WS-05 | deps: WS-04 | deliverable: OceanFftSampler (CPU decode of C0/C1 atlases, shared sea-state mapping, fixed-point height_at) and BoatFloat3D heave/pitch/roll/surge from five FFT hull samples with the shared ocean_time clock | allowed files: `scripts/map/view3d/ocean_fft_sampler.gd`, `scripts/map/view3d/boat_float_3d.gd`, `scripts/map/view3d/map_view_water_materials.gd`, `tests/godot/test_ocean_fft_sampler.gd`, `tests/godot/test_boat_float_3d.gd`, `docs/reports/images/ws05_*.png`, the project task board (`tasks` tool) | verify: sampler decode/periodicity/inversion/perf tests; boat FFT attitude tests; harbor clip shows hulls seated at the waterline in clear and storm
   ```

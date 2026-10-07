@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dmpjdacsd6x2s"
-path.s3tc="res://.godot/imported/linen_shirt_linen_normal.png-cb1c18783de7978e56a2a758a16f93fb.s3tc.ctex"
-path.etc2="res://.godot/imported/linen_shirt_linen_normal.png-cb1c18783de7978e56a2a758a16f93fb.etc2.ctex"
+path.s3tc="res://.godot/imported/linen_shirt_linen_normal.png-28b56d6b017744812b16811ad2a13e2c.s3tc.ctex"
+path.etc2="res://.godot/imported/linen_shirt_linen_normal.png-28b56d6b017744812b16811ad2a13e2c.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -16,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/characters/kalev_fresh/linen_shirt/linen_shirt_linen_normal.png"
-dest_files=["res://.godot/imported/linen_shirt_linen_normal.png-cb1c18783de7978e56a2a758a16f93fb.s3tc.ctex", "res://.godot/imported/linen_shirt_linen_normal.png-cb1c18783de7978e56a2a758a16f93fb.etc2.ctex"]
+dest_files=["res://.godot/imported/linen_shirt_linen_normal.png-28b56d6b017744812b16811ad2a13e2c.s3tc.ctex", "res://.godot/imported/linen_shirt_linen_normal.png-28b56d6b017744812b16811ad2a13e2c.etc2.ctex"]
 
 [params]
 

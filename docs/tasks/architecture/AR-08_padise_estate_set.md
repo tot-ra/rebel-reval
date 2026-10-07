@@ -72,7 +72,7 @@ Cistercian card and the Kadakas figures:
 - `tests/godot/test_padise_buildings.gd` (+ `.uid`, new)
 - `tools/capture_ar08_padise.gd` (+ `.uid`, new)
 - `docs/ASSET_INVENTORY.md`, `docs/ART_BIBLE.md`, `docs/CANON.md` (confidence labels only),
-  `docs/reports/ar08_padise_estate.md`, `docs/reports/images/ar08_*.png`, `TODO.md`
+  `docs/reports/ar08_padise_estate.md`, `docs/reports/images/ar08_*.png`, the project task board (`tasks` tool)
 
 ## Constraints and non-goals
 
@@ -131,9 +131,9 @@ git diff --check
 ## Doc updates
 
 `docs/ASSET_INVENTORY.md`, `docs/ART_BIBLE.md`, `docs/CANON.md`,
-`docs/reports/ar08_padise_estate.md`, `TODO.md`.
+`docs/reports/ar08_padise_estate.md`, the project task board (`tasks` tool).
 
-## TODO.md line
+## project task board line
 
 ```
 - [ ] R-966 | deps: R-962 | deliverable: assets/buildings/padise set for the attested 1343 pre-quadrangle phase per Kadakas AVE 2011 - stone hall with modelled undercroft and external stair, arched-niche building with its niches actually built, timber oratory, conventual range, lay range, service range, threshing barn, two cottage frontages, watermill with wheel and race, fieldstone boundary, timber gate, well, ford crossing and road apron - plus authored fire-damage variants so wall.burned and wall.smoked resolve to damage geometry rather than a dark tint, wired through the AR-04 catalogue | allowed files: per docs/tasks/architecture/AR-08_padise_estate_set.md | verify: `--filter=test_padise_buildings,test_monastic_buildings,test_architecture_kit`; full Godot suite; blueprint validate; asset sources/lint/storage; map audit, activation, composition; active docs; git diff --check; all 14 house records and every building/anchor/transition id in world_padise.rrmap resolve; stone hall numerically taller than every timber model; niche geometry present; damage assignment comes from map data not a runtime roll; an explicit exclusion assertion that no claustral quadrangle, abbey church, gate tower, gun tower or moat exists in the set; models within the ADR 0025 budget with LODs; bit-identical walkability and anchor accounting with the map still inactive; empty `git diff --stat content/maps/`; matched before/after road-approach, ford, stone hall, niche south face, timber range, mill and site-scatter vista plates plus a fire-damage plate at noon and midnight on Compatibility and Metal at both tiers; frame/draw-call/material/triangle budget; named human review that it reads as a 1343 working estate rather than the later fortified abbey and that the fire is legible; canon review of every per-model confidence label

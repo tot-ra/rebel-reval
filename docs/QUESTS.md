@@ -1,8 +1,8 @@
 > **Legacy status:** `reference`  
-> **Reason:** Useful quest seeds and faction hooks; individual quests reactivate only through reconciled README and `TODO.md` tasks per [ADR 0008](./docs/adr/0008-three-act-campaign-and-faction-scope.md).  
+> **Reason:** Useful quest seeds and faction hooks; individual quests reactivate only through reconciled README and the project task board (`tasks` tool) tasks per [ADR 0008](./docs/adr/0008-three-act-campaign-and-faction-scope.md).
 > **Scope reconciliation:** [ADR 0008](./docs/adr/0008-three-act-campaign-and-faction-scope.md)  
 > **Reactivated seeds:** faction quest lines; quest seeds for Acts 1-3; hooks for night missions and world locations when filed as content packages (P4-018).  
-> **Still superseded:** any quest not reconciled in README or an approved `TODO.md` task; procedural or runtime-generated quest ideas.  
+> **Still superseded:** any quest not reconciled in README or an approved the project task board (`tasks` tool) task; procedural or runtime-generated quest ideas.
 > **Current source of truth:** [`README.md`](./README.md) - Campaign outline, Quest design rules, and Vertical slice.
 
 # Quests

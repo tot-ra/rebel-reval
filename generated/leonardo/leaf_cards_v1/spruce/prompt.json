@@ -1,0 +1,20 @@
+{
+  "id": "foliage_card.spruce",
+  "kind": "leonardo_leaf_cluster_plate",
+  "task": "R-1194",
+  "target": "assets/materials/pbr/foliage_cards/leaf_card_atlas.png",
+  "source": "generated/leonardo/leaf_cards_v1/spruce/candidate_1.jpg",
+  "candidates": [
+    "generated/leonardo/leaf_cards_v1/spruce/candidate_1.jpg",
+    "generated/leonardo/leaf_cards_v1/spruce/candidate_2.jpg"
+  ],
+  "prompt": "Botanical flat-lay photograph seen from directly above: one flat fan-shaped branch tip of Norway spruce (Picea abies) with a central shoot and several side shoots, all densely covered in short stiff dark blue-green needles, the branch base enters from the bottom centre of the frame and the fan spreads upward, filling most of the frame with margin. Isolated on a pure flat white background, even soft overcast light, no cast shadow, sharp needles, scan quality, square.",
+  "negative_prompt": "shadow, drop shadow, gradient background, vignette, coloured background, cones, snow, christmas decoration, ornaments, text, watermark, border, blur, depth of field, cropped, painting, illustration, 3d render, brown dead needles",
+  "model_name": "Leonardo configured default model (a2gent leonardo_generate_image)",
+  "width": 1024,
+  "height": 1024,
+  "generation_id": "6388e04d-b405-4465-89fd-19199358a445",
+  "selected_candidate": 1,
+  "processor": "tools/assets/build_leaf_card_atlas.py",
+  "notes": "Candidate 1: wide dense fan. Rejected 2 (narrow, sparse side shoots)."
+}

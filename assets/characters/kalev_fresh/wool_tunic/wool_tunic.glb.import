@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://bpd6omn2nh0ni"
-path="res://.godot/imported/wool_tunic.glb-c15f17a2be42d2d0b2748c8281ab895f.scn"
+path="res://.godot/imported/wool_tunic.glb-1744a70d35deb54840a4af978613b368.scn"
 
 [deps]
 
 source_file="res://assets/characters/kalev_fresh/wool_tunic/wool_tunic.glb"
-dest_files=["res://.godot/imported/wool_tunic.glb-c15f17a2be42d2d0b2748c8281ab895f.scn"]
+dest_files=["res://.godot/imported/wool_tunic.glb-1744a70d35deb54840a4af978613b368.scn"]
 
 [params]
 

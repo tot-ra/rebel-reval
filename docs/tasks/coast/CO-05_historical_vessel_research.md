@@ -55,7 +55,7 @@ Also required:
 - `docs/CANON.md` (vessel claims and confidence labels)
 - `history/RESEARCH_INDEX.md` (index entry)
 - `docs/reports/reval_harbour_1343_research.md` (cross-reference only)
-- `TODO.md`
+- the project task board (`tasks` tool)
 
 ## Constraints and non-goals
 
@@ -80,9 +80,9 @@ python3 tools/archive_speculative_docs.py --dry-run
 
 ## Doc updates
 
-`docs/CANON.md`, `history/RESEARCH_INDEX.md`, `TODO.md`.
+`docs/CANON.md`, `history/RESEARCH_INDEX.md`, the project task board (`tasks` tool).
 
-## TODO.md line
+## project task board line
 
 ```
 - [ ] R-952 | deps: none | deliverable: docs/reports/baltic_vessels_1343.md covering cog, two inshore clinker fishing sizes, rowing/ferry boat, lodja-type lighter and a Saaremaa strait craft, each with sourced dimensions, construction, rig, oars, fittings, confidence labels, a 1343 rigging-behaviour section and a feature reject list | allowed files: per docs/tasks/coast/CO-05_historical_vessel_research.md | verify: active docs check and speculative-archive dry run clean; every numeric claim carries an inline citation and a CANON confidence label; second reviewer confirms no uncited dimension is stated as fact

@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://0450ge7rudau"
-path.s3tc="res://.godot/imported/smith_apron_leather_albedo.png-2a5eda59ca107cc9d2b88d6004ec3ca4.s3tc.ctex"
-path.etc2="res://.godot/imported/smith_apron_leather_albedo.png-2a5eda59ca107cc9d2b88d6004ec3ca4.etc2.ctex"
+path.s3tc="res://.godot/imported/smith_apron_leather_albedo.png-d9752261b07e8d8565f332fa20d26258.s3tc.ctex"
+path.etc2="res://.godot/imported/smith_apron_leather_albedo.png-d9752261b07e8d8565f332fa20d26258.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -16,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/characters/kalev_fresh/smith_apron/smith_apron_leather_albedo.png"
-dest_files=["res://.godot/imported/smith_apron_leather_albedo.png-2a5eda59ca107cc9d2b88d6004ec3ca4.s3tc.ctex", "res://.godot/imported/smith_apron_leather_albedo.png-2a5eda59ca107cc9d2b88d6004ec3ca4.etc2.ctex"]
+dest_files=["res://.godot/imported/smith_apron_leather_albedo.png-d9752261b07e8d8565f332fa20d26258.s3tc.ctex", "res://.godot/imported/smith_apron_leather_albedo.png-d9752261b07e8d8565f332fa20d26258.etc2.ctex"]
 
 [params]
 

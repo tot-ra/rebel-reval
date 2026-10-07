@@ -338,6 +338,19 @@ if any_staged_path "README.md" "AGENTS.md" "docs/CANON.md" \
     python3 tools/generate_active_docs_report.py --check
 fi
 
+# Every Markdown file must stay reachable from README.md through the docs hub
+# and the generated index blocks. Any staged .md can add or orphan a page.
+STAGED_MARKDOWN=0
+for path in "${STAGED_PATHS[@]}"; do
+  if [[ "$path" == *.md || "$path" == "tools/docs_index.py" ]]; then
+    STAGED_MARKDOWN=1
+    break
+  fi
+done
+if [[ "$STAGED_MARKDOWN" == "1" ]]; then
+  run_step "docs reachable from README (docs_index)" python3 tools/docs_index.py --check
+fi
+
 # R-1046: keep the checked-in reval_outdoor manifest in lockstep with group
 # member sources. Travel-only world.* maps are not members and do not trigger.
 if any_staged_path \

@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dbmwaj4yjjwj6"
-path="res://.godot/imported/chest_poor_household_PoorChestOak_normal.png-c2607cadb212d68846970b03088f1c08.ctex"
+path="res://.godot/imported/chest_poor_household_PoorChestOak_normal.png-6d84ee02edad56010bdc9d7003da8cba.ctex"
 metadata={
 "vram_texture": false
 }
@@ -13,8 +13,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/props/furniture/chest_poor_household_PoorChestOak_normal.png"
-dest_files=["res://.godot/imported/chest_poor_household_PoorChestOak_normal.png-c2607cadb212d68846970b03088f1c08.ctex"]
+source_file="res://assets/props/furniture/chest_poor_household/chest_poor_household_PoorChestOak_normal.png"
+dest_files=["res://.godot/imported/chest_poor_household_PoorChestOak_normal.png-6d84ee02edad56010bdc9d7003da8cba.ctex"]
 
 [params]
 

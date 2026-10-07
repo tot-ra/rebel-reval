@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://lpio6b423q86"
-path="res://.godot/imported/smithy_bed.glb-62e75169b5c7b6485f3bc1fcc7a847d3.scn"
+path="res://.godot/imported/smithy_bed.glb-427e84e6a732eb9ee31b714bdfee131f.scn"
 
 [deps]
 
-source_file="res://assets/props/furniture/smithy_bed.glb"
-dest_files=["res://.godot/imported/smithy_bed.glb-62e75169b5c7b6485f3bc1fcc7a847d3.scn"]
+source_file="res://assets/props/furniture/smithy_bed/smithy_bed.glb"
+dest_files=["res://.godot/imported/smithy_bed.glb-427e84e6a732eb9ee31b714bdfee131f.scn"]
 
 [params]
 

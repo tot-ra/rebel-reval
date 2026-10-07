@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=3 uid="uid://csmcstl1343scene"]
+[gd_scene format=3 uid="uid://c5bp77pvvkykk"]
 
 [ext_resource type="Script" uid="uid://csmcstl1343int01" path="res://scenes/reval_toompea/toompea_small_castle.gd" id="1_small_castle"]
 [ext_resource type="PackedScene" uid="uid://bs36kitagkmg5" path="res://player.tscn" id="2_player"]

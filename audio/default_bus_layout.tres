@@ -1,17 +1,10 @@
-[gd_resource type="AudioBusLayout" load_steps=2 format=3]
+[gd_resource type="AudioBusLayout" format=3 uid="uid://et8r0yixcpsp"]
 
 [sub_resource type="AudioEffectLowPassFilter" id="AudioEffectLowPassFilter_underwater"]
 resource_name = "UnderwaterLowPass"
 cutoff_hz = 700.0
-resonance = 0.5
 
 [resource]
-bus/0/name = &"Master"
-bus/0/solo = false
-bus/0/mute = false
-bus/0/bypass_fx = false
-bus/0/volume_db = 0.0
-bus/0/send = &"Master"
 bus/1/name = &"Music"
 bus/1/solo = false
 bus/1/mute = false
@@ -26,7 +19,6 @@ bus/2/volume_db = 0.0
 bus/2/send = &"Master"
 bus/2/effect/0/effect = SubResource("AudioEffectLowPassFilter_underwater")
 bus/2/effect/0/enabled = false
-
 bus/3/name = &"Voice"
 bus/3/solo = false
 bus/3/mute = false

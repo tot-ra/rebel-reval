@@ -60,7 +60,7 @@ not measure density, variety or landscape bedding at all. So nothing stops a map
 `tests/godot/test_map_composition_density.gd` and its `.uid`,
 `docs/WORLD_BUILDING_VISUAL_GATE.md`, `docs/MAP_AUTHORING.md`,
 `docs/reports/map_density_baseline_2026-09-26.md`,
-`docs/tasks/world/WB-10_authoring_density_contract.md`, `TODO.md`.
+`docs/tasks/world/WB-10_authoring_density_contract.md`, the project task board (`tasks` tool).
 
 ## Boundary against AR-13 (architecture pack)
 

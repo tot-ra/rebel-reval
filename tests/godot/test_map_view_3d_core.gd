@@ -539,8 +539,9 @@ func test_water_material_uses_depth_aware_optics() -> void:
 	assert_true("calm_normal" in source, "celestial water glints must use a calmer reflection normal")
 	assert_true("low_sun_glitter" in source, "dawn/dusk sun paths must soft-limit racing low-sun glitter")
 	assert_true("night_sparkle" in source, "star glitter must yield once the sun disk rises")
-	assert_true("sun_alignment" in source, "water must render an explicit reflected sun path")
-	assert_true("moon_alignment" in source, "water must render an explicit reflected moon path")
+	# WS-02: the sun and moon paths are lit GGX glints of the one DirectionalLight3D.
+	assert_true("void light()" in source, "water must render a lit reflected sun path")
+	assert_true("moon_glint_gate" in source, "water must gate the moon path")
 	assert_true("warp_position" in source, "water waves must warp their phase to avoid repeating bands")
 	assert_true("amplitude_variation" in source, "water needs spatially varied wave strength")
 	assert_true("TANGENT" not in source, "procedural water has no tangent basis to perturb safely")
