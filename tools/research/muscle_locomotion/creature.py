@@ -38,14 +38,22 @@ class Creature:
     name: str
     bones: list
     stand_height: float       # root origin height when standing (m)
-    fall_height: float        # root height below this = fallen
+    fall_frac: float          # root height below this fraction of the standing height = fallen
     root_pitch_ok: float = 55.0   # degrees of root tilt from rest allowed
     notes: str = ""
     proprio: bool = False         # extra sensors: forward speed, height error, all joint angles
     w_height: float = 0.0         # cost weight: pelvis sagging below 85% of standing height
     w_pitch: float = 0.0          # cost weight: trunk tilt (radians)
     w_effort: float = 0.5         # cost weight: mean squared muscle activation
+    body: dict = field(default_factory=dict)   # body parameters the creature was built from
     start_speed: float = 0.0      # initial forward speed as a fraction of the target speed
+
+    @property
+    def ctx(self):
+        b = self.body
+        import math
+        return [math.log(b.get("size", 1.0)), math.log(b.get("mass_mult", 1.0)), math.log(b.get("strength", 1.0)),
+                b.get("load", 0.0), b.get("belly", 0.0)]
 
     def to_json(self):
         return json.dumps(asdict(self), indent=1)

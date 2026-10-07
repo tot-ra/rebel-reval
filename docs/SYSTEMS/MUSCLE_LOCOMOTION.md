@@ -59,6 +59,8 @@ The prototype was visually checked only through stick-figure filmstrips. There i
 
 ## Verification
 
+**Work in progress:** the prototype was just reworked for parametric bodies and one generalist controller (`evolve_general.py`, body and speed as controller inputs). The stored `results/` and the replay commands below belong to the previous version (commit `c097f21`) and will be regenerated with the new code; `render.py` is not yet updated for the new parameter layout.
+
 `python render.py results/quadruped.json 8` replays the stored controller and must print `alive 1.0`, `speed` about 0.77, `dist` about 6.16. `python render.py results/biped.json 20` must print `alive 1.0`, `speed` about 0.986, `dist` about 19.71. There are no automated tests yet.
 
 ## Roadmap
