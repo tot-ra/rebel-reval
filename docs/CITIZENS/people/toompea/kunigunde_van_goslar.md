@@ -36,7 +36,7 @@
 - **Model notes:** MPFB macros: female, age_years 43, muscle 0.4, weight 0.5, proportions average, height_m 1.65; ruddy skin; brown eyes, slight left squint; brown grey hair under coif; crowd tier 2.
 
 ## Biography
-Born 1300 in Lower Town, to a midwife who took her along from the age of eleven. She learned the stool, the oil and the long wait. In 1322 she married Reynold Gude, the hawk-keeper's son, and moved up the hill; the Toompea families took her because the hill had few trained women. She has borne eight, buried one, and delivered some three hundred.
+Born 1300 in Lower Town, to a midwife who took her along from the age of eleven. She learned the stool, the oil and the long wait. In 1322 she married Reynold Gude, the hawk-keeper's son, and moved up the hill; the Toompea families took her because the hill had few trained women. She has borne seven, buried one, and delivered some three hundred.
 
 Since the eagle-stone came to her from her mother in 1334, she has lent it for hard labours, and it has been tied to a thigh on both sides of the town. She works by night, sleeps by day in snatches, and has learnt that the best midwife is the one who keeps quiet.
 

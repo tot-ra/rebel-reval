@@ -36,7 +36,7 @@
 - **Model notes:** MPFB: male, age_years 29, muscle 0.3, weight 0.4, height_m 1.66; pale even skin; hazel eyes; ash-blond hair and full beard; crowd tier 2.
 
 ## Biography
-Born 1314 in Stockholm, son of Ragnvald, a customs scribe. Learned letters from the Franciscans, Latin from a parish priest, and double-entry-style tallies from a Lübeck factor. Came to Reval in 1335 as clerk to Folke Eriksson and has kept Erik's books since 1338. His voice went on the quay: three winters of shouting weights over wind. His hope is his own small trade; his habit is private lots.
+Born 1314 in Stockholm, son of Ragnvald, a customs scribe. Learned letters from the Franciscans, Latin from a parish priest, and merchant tallies from a Lübeck factor. Came to Reval in 1335 as clerk to Folke Eriksson and has kept Erik's books since 1338. His voice went on the quay: three winters of shouting weights over wind. His hope is his own small trade; his habit is private lots.
 
 ## Motivation
 - **Want:** To buy a share in a ship and be called merchant.

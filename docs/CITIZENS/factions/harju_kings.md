@@ -6,7 +6,7 @@ Status: implemented as content (task **R-CITIZENS-001**). Confidence: `plausible
 
 The launch table gives the Harju Kings freedom as their want and a slide from liberation into indiscriminate slaughter as their shadow. In town those words turn into smaller things. The want is a mother brought off a manor for six marks the bailiff will not name, a nephew not bound, a reeve who stops asking for a drover's licence. The shadow is a rising that does not distinguish the manor bailiff from the cooper's family who happen to have a German name.
 
-To ordinary people the Kings are a rumour with a cost. To an Estonian maid they are the people who ask nothing for a year and then ask one thing. To a German householder they are the reason the Rat has doubled the gate watch and why the cook is watched at market. To a drover or a fisher they are the only authority that has not yet flogged them. Nobody in the lanes calls them a faction; they say "the Harju folk" and lower the voice. The Kings are not the Black Cloaks: those are urban smiths and artisans who want a different city, while the Kings want the land back and are using the city as a road.
+To ordinary people the Kings are a rumour with a cost. To an Estonian maid they are the people who ask nothing for a year and then ask one thing. To a German householder they are the reason the Rat has doubled the gate watch and why the cook is watched at market. Nobody in the lanes calls them a faction; they say "the Harju folk" and lower the voice. The Kings are not the Black Cloaks: those are urban smiths and artisans who want a different city, while the Kings want the land back and are using the city as a road.
 
 ## Why people join
 
@@ -29,7 +29,7 @@ The census holds 64 Harju King residents, 1.5% of 4,247. That is small, and it i
 
 By district, 44 live in Lower Town, 7 on the fishing beach, 6 on the Viru road, 5 on the Harju road, 1 on Toompea and 1 on the cattle-road farmsteads. By role, most are hidden: 18 secret sympathisers and 12 secret cell members, 8 informers and 7 couriers, only 4 core and 3 active. There are only 2 coerced or dependent. Ten are open sympathisers, which means they say what they think in a kitchen.
 
-The mix is striking. Women are 41 of 64, and the age curve is young (28 aged 15 to 29, only 7 over 60, 3 children). The trades explain it: 12 maids, 10 spinners, 9 household servants and 3 cooks. These are the people who walk the town with a basket, a skein or a jug and are not stopped. Estonians are 61 of 64, three are Finnish; there are no Germans, which is the faction's weakness and its safety, since no German household can be sure of its own maid. The men are fewer and older: retired craftsmen, a drover, a pilot, an ostler, a day labourer.
+The mix is striking. Women are 41 of 64, and the age curve is young (28 aged 15 to 29, only 7 over 60, 3 children). The trades explain it: 12 maids, 10 spinners, 9 household servants and 3 cooks. These are the people who walk the town with a basket, a skein or a jug and are not stopped. Estonians are 61 of 64, three are Finnish; there are no Germans, which is the faction's weakness and its safety, since no German household can be sure of its own maid.
 
 For gameplay the balance means the Kings are best met through errands and kitchens, not at a table. The player will find them among servants and carters, and a standing change reaches the lane faster than the guild hall.
 
@@ -51,7 +51,7 @@ A Kalev commission could reveal this in layers. Delivering a spearhead to a Pikk
 
 The Kings have almost no silver. A maid earns a pfennig a week and board. Their economy is favours, kin and information. From the city they take food in small amounts, a bed for a runaway, a ship's name, a gate-captain's habit and the time of the Danish guard-boat's watch. From the countryside they bring grain stored against the spring gap, scythes, spears and billhooks, and men who have never held a crossbow. They have no arms inside the walls; spearheads must come from forges, rejected or traded, and that is where Kalev's trade is dangerous.
 
-What they take costs households real things. A woodpile hides a runaway; a loft shelters a courier; a servant's absence from market costs a house a day. If the city is searched, the Kings lose almost nothing and the servants lose everything.
+If the city is searched, the Kings lose almost nothing and the servants lose everything.
 
 ## Relations with other factions
 
@@ -75,7 +75,7 @@ Three splits run through the page.
 
 ## Spring 1343 timeline
 
-**Before 23 April.** The week after Easter is the busiest of the year. Triin's lists lengthen, Helena's cords double, Ell's messages double, Kaspar watches the roads for a Danish boat, and Veronika walks the manors twice. Strangers appear at the Harju Gate. Cells hide runaways.
+**Before 23 April.** The week after Easter is the busiest of the year. Triin's lists lengthen, Helena's cords double, Ell's messages double, Kaspar watches the roads for a Danish boat, and Veronika walks the manors twice. Strangers appear at the Harju Gate.
 
 **The night.** The couriers become guides. Kaspar's one piece of knowledge matters, Katrin and Lauri carry the final word to merchants' kitchens, and the Harju road houses close their shutters.
 
@@ -89,7 +89,7 @@ Outside the census, plausible-composite estimates only. The Harju host is probab
 
 **Ledger events that raise standing:** carrying a message without reading it; refusing to name a runaway; paying a servant's debt; a rejected spearhead that reaches the right hands. **That lower it:** revealing a courier; reporting a woodpile; selling a muster list; an unwarranted killing during the rising (the shadow).
 
-**Barks.** "The herd knows the road." "Dunkri maid, is that your basket?" "No one tells the Harju road anything, and it hears everything."
+**Barks.** "The herd knows the road." "No one tells the Harju road anything, and it hears everything."
 
 **Quest seeds.**
 - A skein with a cord that should not be read.
