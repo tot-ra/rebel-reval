@@ -201,6 +201,24 @@ static func bark_kind_for(species: StringName) -> StringName:
 			return BARK_DEFAULT
 
 
+## Photographic bark plate for a species (MapViewMaterials.bark_plate); the
+## district maps keep the procedural bark_kind_for patterns.
+static func bark_plate_for(species: StringName) -> StringName:
+	match species:
+		&"birch", &"aspen":
+			return &"birch"
+		&"oak":
+			return &"oak"
+		&"pine":
+			return &"pine"
+		&"spruce", &"juniper":
+			return &"spruce"
+		&"cherry", &"plum", &"apple", &"pear":
+			return &"cherry"
+		_:
+			return &"grey"
+
+
 static func canopy_material_kind(species: StringName) -> StringName:
 	match silhouette_for(species):
 		SILHOUETTE_SPRUCE:

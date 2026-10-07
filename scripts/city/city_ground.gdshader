@@ -19,8 +19,6 @@ uniform float trail_depth = 0.09; // world units of relief at full press
 uniform sampler2D ground_height : filter_linear, repeat_disable;
 uniform vec4 ground_rect = vec4(0.0, 0.0, 1.0, 1.0); // origin.xz, size.xz in world units
 
-uniform sampler2D grass_albedo : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
-uniform sampler2D grass_normal : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D earth_albedo : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D earth_normal : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D sand_albedo : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
@@ -123,6 +121,8 @@ vec3 detiled(sampler2D tex, vec2 uv) {
 	return mix(texture(tex, uv).rgb, texture(tex, uv2).rgb, smoothstep(0.3, 0.7, n));
 }
 
+#include "res://scripts/city/city_grass_ground.gdshaderinc"
+
 void vertex() {
 	world_pos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	world_normal = normalize((MODEL_MATRIX * vec4(NORMAL, 0.0)).xyz);
@@ -147,7 +147,9 @@ void fragment() {
 	vec2 wuv = world_pos.xz;
 	vec4 rd = texture(roads, suv);
 	float wet_road = clamp(wetness + puddles * 0.5, 0.0, 1.0);
-	vec3 grass = detiled(grass_albedo, wuv * grass_scale) * grass_tint * mix(0.85, 1.08, macro);
+	// Twelve seamless meadow plates on a warped lattice (city_grass_ground.gdshaderinc).
+	GrassGround meadow = grass_ground(wuv, smoothstep(0.08, 0.45, s.g + s.a) * 0.75);
+	vec3 grass = meadow.albedo * grass_tint * mix(0.85, 1.08, macro);
 	// Crests dry to straw and thin out; hollows and swales stay lush and damp.
 	float curv = curvature(world_pos.xz);
 	float crest = smoothstep(0.1, 0.55, curv);
@@ -155,7 +157,7 @@ void fragment() {
 	grass = mix(grass, grass * vec3(1.32, 1.16, 0.78) + vec3(0.04, 0.03, 0.0), crest * 0.7);
 	grass = mix(grass, grass * vec3(0.72, 0.84, 0.66), hollow_damp * 0.8);
 	vec3 col = grass;
-	vec2 nxy = texture(grass_normal, wuv * grass_scale).rg * 2.0 - 1.0;
+	vec2 nxy = meadow.normal_xy;
 	col = mix(col, detiled(earth_albedo, wuv * earth_scale) * earth_tint, earth);
 	nxy = mix(nxy, texture(earth_normal, wuv * earth_scale).rg * 2.0 - 1.0, earth);
 	col = mix(col, detiled(earth_albedo, wuv * earth_scale) * vec3(0.62, 0.55, 0.46), mud);

@@ -1,0 +1,13 @@
+{
+  "tool": "a2gent openai_generate_image",
+  "model": "gpt-image-1",
+  "size": "1024x1024",
+  "quality": "high",
+  "generation_id": "384ee544-d21d-4084-98dc-7d75afa3ee0c",
+  "prompt": "Botanical flat-lay photograph seen from directly above: a Scots pine branch tip with several shoots, each shoot a dense brush of long paired grey-green needles radiating around it, overlapping tufts filling most of the square frame, isolated on a pure flat white background, even soft overcast light, no cast shadow, scan quality, no text.",
+  "file": "source.png",
+  "sha256": "4a662b80a363ba2dc284cffe45050ae2bbf082a79970cb24c607b2304493b497",
+  "task": "R-1103/R-1101/R-1102",
+  "selected": false,
+  "rejection": "sparser/stylised; the other candidate is denser"
+}

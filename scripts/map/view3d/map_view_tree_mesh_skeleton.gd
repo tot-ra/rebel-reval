@@ -12,6 +12,10 @@ const TRUNK_BASE_FLARE := 1.03
 # Upper leader shrinks hard so every species tapers continuously with height.
 const TRUNK_TIP_RATIO := 0.10
 const MIN_BRANCH_TIP_RADIUS := 0.0035
+## Segment cap of the build in progress. A profile may raise it with
+## "max_segments" (city spruce has twice the whorls, MapViewTreeMeshes
+## CITY_PROFILE_OVERRIDES); builds are synchronous, so a static is enough.
+static var _segment_cap := MAX_WOOD_SEGMENTS
 
 
 static func build(species: StringName, profile: Dictionary) -> Dictionary:
@@ -21,6 +25,7 @@ static func build(species: StringName, profile: Dictionary) -> Dictionary:
 		"curved_branch_paths": 0,
 		"interior_branch_junctions": 0,
 	}
+	_segment_cap = int(profile.get("max_segments", MAX_WOOD_SEGMENTS))
 	var trunk_height := float(profile["trunk_height"])
 	var trunk_radius := float(profile["trunk_radius"])
 	var species_seed := absi(String(species).hash()) + 1709
@@ -50,7 +55,7 @@ static func build(species: StringName, profile: Dictionary) -> Dictionary:
 	var crown_end := float(profile["crown_end"])
 	var primary_attachment_heights: Array[float] = []
 	for branch_index in primary_count:
-		if segments.size() >= MAX_WOOD_SEGMENTS:
+		if segments.size() >= _segment_cap:
 			break
 		# Seeded height jitter breaks the ladder-like rings while retaining each
 		# species' overall crown envelope.
@@ -138,7 +143,7 @@ static func _grow_branch(
 	seed: int,
 	branch_index: int
 ) -> void:
-	if segments.size() >= MAX_WOOD_SEGMENTS or length < 0.10:
+	if segments.size() >= _segment_cap or length < 0.10:
 		leaf_candidates.append({"position": start, "direction": direction, "seed": seed})
 		return
 
@@ -155,7 +160,7 @@ static func _grow_branch(
 	var droop := float(profile["droop"]) * lerpf(0.3, 1.0, 1.0 - float(depth) / 3.0)
 	var end_radius := maxf(radius * float(profile["radius_decay"]), MIN_BRANCH_TIP_RADIUS)
 	for piece_index in piece_count:
-		if segments.size() >= MAX_WOOD_SEGMENTS:
+		if segments.size() >= _segment_cap:
 			break
 		var piece_t := float(piece_index + 1) / float(piece_count)
 		var meander := radial_around(current_direction, TAU * _hash(piece_index, seed, 71))
@@ -227,7 +232,7 @@ static func _grow_branch(
 		return
 
 	for child_index in 2:
-		if segments.size() >= MAX_WOOD_SEGMENTS:
+		if segments.size() >= _segment_cap:
 			break
 		# One child softly continues the parent; the other emerges from a variable
 		# interior point. This avoids identical Y-forks attached only at branch tips.
@@ -306,7 +311,7 @@ static func _append_segment(
 	end_radius: float,
 	depth: int
 ) -> void:
-	if segments.size() >= MAX_WOOD_SEGMENTS:
+	if segments.size() >= _segment_cap:
 		return
 	(
 		segments

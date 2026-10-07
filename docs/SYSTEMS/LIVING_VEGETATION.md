@@ -1,6 +1,6 @@
 # Living vegetation
 
-Status: implemented (tasks **R-1187**, **R-1194**; R-1194 visual/reviewer acceptance pending). Scope: tree crowns in the 3D view follow the campaign calendar, react to rain and wind, and respond to melee swings. Presentation only: nothing here changes combat, collision, navigation, or saved state. Out of scope: felling or damaging trees, persistent leaf litter on the ground, snow on branches, seasonal bushes, grass, and crops, and blossom.
+Status: implemented (tasks **R-1187**, **R-1194**, seamless-city pass of **R-712** covering **R-1101**, **R-1102**, **R-1103**, **R-1105**; visual/reviewer acceptance pending). Scope: tree crowns in the 3D view follow the campaign calendar, react to rain and wind, and respond to melee swings. Presentation only: nothing here changes combat, collision, navigation, or saved state. Out of scope: felling or damaging trees, persistent leaf litter on the ground, snow on branches, seasonal bushes, grass, and crops, and blossom.
 
 Reference bar: trees that feel alive in the way Witcher 3 and RDR2 trees do. The crown changes with the month, and a blow to the trunk knocks leaves loose.
 
@@ -202,6 +202,105 @@ Code review of commit `3078c157`: no blocking issues found.
 - Grass variety: per-tuft height, width and tint vary from the planted position.
 - Not yet verified visually: needle transparency on conifers and bush popping
   (bushes have no range cull, so their cause is still open); see the follow-up tasks.
+
+## Seamless city: real scale, near/far crowns, bark and grass plates (R-712)
+
+The seamless city ([SEAMLESS_CITY.md](SEAMLESS_CITY.md), 1 world unit = 1 m) reuses the
+district tree meshes, which are about 2.5 units tall and get scaled 3-4.5x. Everything
+sized in mesh units grew with them: leaf-cluster cards were 1-1.9 m (head-sized leaves,
+spruce needles read as flat planks), a 13 m spruce had a 1.1 m trunk, and bark UVs ran
+0..1 per limb segment (a blurred brown smear). The city now builds its own variants;
+the district maps keep their geometry and procedural bark unchanged.
+
+What the player sees:
+
+- **Heights** follow young-to-middle-aged trees (`CityVegetationBuilder.HEIGHT_M`:
+  spruce 9.5 m, pine and oak 10 m, birch 9 m, linden/ash/elm 9.5 m), and the plan's
+  per-tree size factor is compressed toward 1 (`SIZE_VARIATION` 0.6), so the tallest
+  tree is under seven times Kalev's 1.83 m.
+- **Trunks** are thinned to real base diameters (`TRUNK_DIAMETER_M`, spruce 0.36 m, oak
+  0.7 m, birch 0.3 m; branches thin less so they never outgrow the bole) and carry
+  photographic **bark plates** (birch, oak, grey for ash/linden/elm/maple/alder/willow,
+  pine, spruce, cherry for orchard trees) with normal maps, tiled every 0.55 m up each
+  limb. Rain darkens them like the old bark.
+- **Near crowns** (trees within 34 m of the camera, released at 42 m) use real-size
+  cluster cards (0.62 m deciduous, 0.58 m conifer) with up to 3.5x more cards, and single
+  folded leaves at 0.4x, so leaves read at leaf size when Kalev stands under a tree.
+  **Far crowns** keep the cheap big-card geometry. The swap is per tree, not per 96 m
+  chunk, and both LODs share one skeleton, so the silhouette never changes.
+- **Spruce** grows 26 whorls (was 14) with the skirt down to 0.34 of the trunk, so it
+  reads as a dense cone instead of a few sparse tiers; pine has 16 primaries.
+- **Needles**: the atlas spruce and pine tiles were regenerated from denser needle
+  sprays and keyed hard enough that the soft shadows between needles are cut away
+  (they were kept as an opaque pale fill, which made each card a flat sheet).
+- **Grass ground**: twelve seamless meadow plates (rough pasture, hay meadow, clover,
+  spring grass, sedge, yarrow and weeds, wildflowers, plus rare dry, mossy and
+  leaf-strewn patches and a trodden plate round packed earth) replace the single 1.6 m
+  plate. Each plate covers about 1.3 m. A warped lattice of 4.5 m cells gives every
+  corner its own plate, rotation and offset and blends the four corners with
+  height-aware weights, so patches meet in ragged edges and nothing repeats.
+- **Grass tufts** are 0.2-0.45 m tall (`CityGrass.TUFT_SCALE` 0.36-0.78 of the shared
+  tuft, was 0.55-1.15) at 2.8 tufts per m^2.
+
+Runtime entry points:
+
+| Piece | File |
+|---|---|
+| City wood, near and far crowns, city skeleton overrides | [`map_view_tree_meshes.gd`](../../scripts/map/view3d/map_view_tree_meshes.gd) (`city_wood_mesh`, `city_canopy_near_mesh`, `city_canopy_far_mesh`, `CITY_PROFILE_OVERRIDES`) |
+| Profile-driven segment cap (`max_segments`) | [`map_view_tree_mesh_skeleton.gd`](../../scripts/map/view3d/map_view_tree_mesh_skeleton.gd) |
+| Per-tree near/far swap | [`city_tree_lod.gd`](../../scripts/city/city_tree_lod.gd) (`CityTreeLod`, child `Vegetation/TreeLod` of `CityWorld3D`; follows the active camera) |
+| Heights, trunk diameters, LOD registration | [`city_vegetation_builder.gd`](../../scripts/city/city_vegetation_builder.gd) |
+| Bark plate materials | [`map_view_prop_materials.gd`](../../scripts/map/view3d/map_view_prop_materials.gd) (`bark_plate`, `BARK_PLATES`), `MapViewTreeSpecies.bark_plate_for` |
+| Grass ground plates | [`city_grass_ground.gdshaderinc`](../../scripts/city/city_grass_ground.gdshaderinc), included by `city_ground.gdshader`; textures bound in `CityTerrainBuilder.TEXTURES` |
+| Tuft size | [`city_grass.gd`](../../scripts/city/city_grass.gd) (`TUFT_SCALE`) |
+
+Data and assets: `assets/materials/pbr/grass_ground/grass_ground_{albedo,normal}_array.jpg`
+(imported as 4x3 `Texture2DArray`s; slice order is the `GRASS` list in the processor and
+the comment in the include), `assets/materials/pbr/bark_<plate>/`, and the spruce and pine
+tiles of `foliage_cards/leaf_card_atlas.png`. Sources are OpenAI `gpt-image-1` plates under
+`generated/openai/vegetation_v1/<group>/<name>/prompt.json` (prompt, generation id, SHA-256;
+the raw PNGs are not committed). Rebuild with
+`python3 tools/assets/build_vegetation_plates.py [--only grass,bark,needles] [--preview build/vegetation_plates]`
+(the preview writes 2x2 tilings for a seam check). Do not run `defringe_atlas.py` on the
+whole atlas afterwards: it would erode the deciduous tiles a second time. Provenance rows
+are in `assets/SOURCES.csv` (visual and rights approval pending). Nothing is saved: the LOD
+and all geometry are rebuilt deterministically from the plan.
+
+Verify:
+
+```bash
+/Applications/Godot.app/Contents/MacOS/Godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_city_vegetation
+tools/godot_render.sh --script tools/capture_city_vegetation.gd -- --tag=after   # build/vegetation/*.png
+```
+
+[`test_city_vegetation.gd`](../../tests/godot/test_city_vegetation.gd) checks heights against
+Kalev, trunk diameters, bark-tile UVs and tangents, bark plates, near card size, density and
+triangle budget, the city spruce whorls, the unchanged district spruce, the LOD swap and its
+hysteresis, the grass-plate import contract and tuft size. The capture tool frames the most
+open spruce, pine, oak and birch next to a 1.83 m reference figure, plus needle, bark and
+grass close-ups and a far stand.
+
+Before / after (Godot 4.7.1 GL Compatibility, Apple M5 Pro, 15 July, late morning):
+[spruce](../reports/images/vegetation/veg_city_spruce_scale.jpg),
+[spruce, gameplay camera](../reports/images/vegetation/veg_city_spruce_gameplay.jpg),
+[spruce needles](../reports/images/vegetation/veg_city_spruce_needles_close.jpg),
+[pine](../reports/images/vegetation/veg_city_pine_scale.jpg),
+[oak, gameplay camera](../reports/images/vegetation/veg_city_oak_gameplay.jpg),
+[oak bark](../reports/images/vegetation/veg_city_oak_bark_close.jpg),
+[birch bark](../reports/images/vegetation/veg_city_birch_bark_close.jpg),
+[grass at eye level](../reports/images/vegetation/veg_city_grass_eye.jpg),
+[grass from above](../reports/images/vegetation/veg_city_grass_wide.jpg),
+[far stand](../reports/images/vegetation/veg_city_stand_far.jpg).
+
+Cost: in the densest stand (18 trees within 35 m, 17 near crowns) a 1600x900 frame took
+8.4 ms with near crowns off and 9.0-10.5 ms with them on (one local run). Near crowns
+are 12-20k triangles for broadleaves, about 55k for spruce and 66k for pine
+(`NEAR_TRIANGLE_CAP` 56k; conifers carry cards along every segment and stay a little over).
+
+Limits of this pass: shrubs drawn with the bush meshes (elder, roses, willow and alder
+scrub) still have oversized leaves; Scots pine keeps a stylised clumped crown; the grass
+plates' plantain and dandelion rosettes can repeat in a regular rhythm inside one plate;
+the district maps keep their old bark and crown geometry.
 
 ## Limits
 

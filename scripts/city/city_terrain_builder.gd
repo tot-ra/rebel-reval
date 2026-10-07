@@ -13,8 +13,9 @@ const FAR_STEP := 6
 const FAR_DROP := 0.06
 
 const TEXTURES := {
-	"grass_albedo": "res://assets/materials/pbr/grass/grass_albedo.png",
-	"grass_normal": "res://assets/materials/pbr/grass/grass_normal.png",
+	# Texture2DArray plates (4x3 slices) for city_grass_ground.gdshaderinc.
+	"grass_ground_albedo": "res://assets/materials/pbr/grass_ground/grass_ground_albedo_array.jpg",
+	"grass_ground_normal": "res://assets/materials/pbr/grass_ground/grass_ground_normal_array.jpg",
 	"earth_albedo": "res://assets/materials/pbr/mud/mud_albedo.png",
 	"earth_normal": "res://assets/materials/pbr/mud/mud_normal.png",
 	"sand_albedo": "res://assets/materials/pbr/coast_sand/coast_sand_albedo.png",

@@ -1,0 +1,12 @@
+{
+  "tool": "a2gent openai_generate_image",
+  "model": "gpt-image-1",
+  "size": "1024x1024",
+  "quality": "high",
+  "generation_id": "d39fd7a9-e986-4f02-8c27-30274767303e",
+  "prompt": "Botanical flat-lay photograph seen from directly above: one Norway spruce branch tip, a flat drooping spray with many dense short dark blue-green needles packed all around every twig, side shoots in a feather shape filling most of the frame, fully opaque dense needles with no gaps of see-through, isolated on a pure flat white background, even soft overcast light, no cast shadow, scan quality, square, no text.",
+  "file": "source.png",
+  "sha256": "7c5ad2a0e310cd6022c9aa280201e75567428ccdc2611852693864c345b5e658",
+  "task": "R-1103/R-1101/R-1102",
+  "selected": true
+}

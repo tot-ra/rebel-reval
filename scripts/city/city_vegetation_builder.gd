@@ -7,18 +7,20 @@ extends RefCounted
 
 ## Typical heights in metres for town and pasture trees (yard orchards are
 ## pruned low, open-grown oaks stay broad rather than tall); the shared tree
-## meshes are ~2.5 units tall, so they are scaled to these.
+## meshes are ~2.5 units tall, so they are scaled to these. VEG pass (R-712):
+## lowered to young-to-middle-aged trees, because full-grown 13-17 m spruces
+## dwarfed Kalev (1.83 m) and towered over the two-storey town.
 const HEIGHT_M := {
-	&"oak": 12.0,
-	&"linden": 11.0,
-	&"ash": 11.0,
-	&"elm": 11.0,
-	&"maple": 9.0,
-	&"birch": 10.0,
-	&"alder": 8.0,
-	&"willow": 7.0,
-	&"spruce": 13.0,
-	&"pine": 12.0,
+	&"oak": 10.0,
+	&"linden": 9.5,
+	&"ash": 9.5,
+	&"elm": 9.5,
+	&"maple": 8.0,
+	&"birch": 9.0,
+	&"alder": 7.0,
+	&"willow": 6.5,
+	&"spruce": 9.5,
+	&"pine": 10.0,
 	&"juniper": 2.5,
 	&"apple": 4.0,
 	&"cherry": 4.0,
@@ -29,6 +31,33 @@ const HEIGHT_M := {
 	&"hawthorn": 3.6,
 	&"blackthorn": 2.6,
 }
+## Trunk diameter at the base in metres for a tree of HEIGHT_M. The shared
+## skeletons have stylised fat boles (a 13 m spruce had a 1.1 m trunk); city
+## wood is thinned to these real proportions (MapViewTreeMeshes.city_wood_mesh).
+const TRUNK_DIAMETER_M := {
+	&"oak": 0.7,
+	&"linden": 0.55,
+	&"ash": 0.5,
+	&"elm": 0.55,
+	&"maple": 0.45,
+	&"birch": 0.3,
+	&"alder": 0.32,
+	&"willow": 0.5,
+	&"spruce": 0.36,
+	&"pine": 0.4,
+	&"juniper": 0.12,
+	&"apple": 0.28,
+	&"cherry": 0.22,
+	&"plum": 0.18,
+	&"pear": 0.3,
+	&"rowan": 0.2,
+	&"hazel": 0.08,
+	&"hawthorn": 0.14,
+	&"blackthorn": 0.08,
+}
+## The plan's per-tree size factor (0.85-1.35) is compressed toward 1 by this
+## much, so neighbours vary without the odd giant.
+const SIZE_VARIATION := 0.6
 ## Large shrubs read best as low multi-stem crowns: drawn with the tree meshes.
 const SHRUB_AS_TREE := {
 	&"elder": &"hazel",
@@ -68,15 +97,29 @@ const BushSpecies := preload("res://scripts/map/view3d/map_view_bush_species.gd"
 
 
 static func species_scale(species: StringName, metres_per_unit: float) -> float:
-	var crown := MapViewMeshBuilderPrimitives.tree_canopy_mesh(species).get_aabb()
+	var crown := MapViewTreeMeshes.city_canopy_far_mesh(species).get_aabb()
 	var height := maxf(crown.end.y, 0.5)
 	return float(HEIGHT_M.get(species, 8.0)) / metres_per_unit / height
+
+
+static func size_factor(plan_scale: float) -> float:
+	return lerpf(1.0, plan_scale, SIZE_VARIATION)
+
+
+## Trunk radius multiplier that gives the species its TRUNK_DIAMETER_M.
+static func trunk_factor(species: StringName, world_scale: float) -> float:
+	var radii: Array = MapViewMeshBuilderPrimitives.tree_geometry_stats(species)["trunk_radii"]
+	var base := float(radii[0]) * 2.0 * world_scale if not radii.is_empty() else 1.0
+	return clampf(float(TRUNK_DIAMETER_M.get(species, 0.4)) / maxf(base, 0.01), 0.2, 1.0)
 
 
 static func build(plan: CityPlan, parent: Node3D) -> Node3D:
 	var root := Node3D.new()
 	root.name = "Vegetation"
 	parent.add_child(root)
+	var lod := CityTreeLod.new()
+	lod.name = "TreeLod"
+	root.add_child(lod)
 	var by_species: Dictionary = {}
 	var species_scales: Dictionary = {}
 	var entries: Array = plan.data.get("trees", []).duplicate()
@@ -93,7 +136,7 @@ static func build(plan: CityPlan, parent: Node3D) -> Node3D:
 			by_species[bucket] = {
 				"transforms": [] as Array[Transform3D], "colors": [] as Array[Color]
 			}
-		var scale := float(t[3]) * float(species_scales[species])
+		var scale := size_factor(float(t[3])) * float(species_scales[species])
 		var rng := RandomNumberGenerator.new()
 		rng.seed = hash(Vector2i(int(p.x * 10.0), int(p.y * 10.0)))
 		var basis := Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * scale)
@@ -108,12 +151,15 @@ static func build(plan: CityPlan, parent: Node3D) -> Node3D:
 		var batch: Dictionary = by_species[bucket]
 		var transforms: Array[Transform3D] = batch["transforms"]
 		var colors: Array[Color] = batch["colors"]
+		var world_scale: float = species_scales[species]
 		var wood := MapViewMeshBuilderPrimitives.multi_mesh(
 			"Wood_%s" % species,
-			MapViewMeshBuilderPrimitives.tree_wood_mesh(species),
+			MapViewTreeMeshes.city_wood_mesh(
+				species, world_scale, trunk_factor(species, world_scale)
+			),
 			transforms,
 			colors,
-			MapViewMaterials.bark(MapViewTreeSpecies.bark_kind_for(species)),
+			MapViewMaterials.bark_plate(MapViewTreeSpecies.bark_plate_for(species)),
 			Vector3.ZERO
 		)
 		var shrub := species in [&"hazel", &"hawthorn", &"blackthorn"]
@@ -123,7 +169,7 @@ static func build(plan: CityPlan, parent: Node3D) -> Node3D:
 		root.add_child(wood)
 		var crown := MapViewMeshBuilderPrimitives.multi_mesh(
 			"Crown_%s" % species,
-			MapViewMeshBuilderPrimitives.tree_canopy_mesh(species),
+			MapViewTreeMeshes.city_canopy_far_mesh(species),
 			transforms,
 			colors,
 			MapViewMaterials.canopy_for_species(species),
@@ -134,6 +180,11 @@ static func build(plan: CityPlan, parent: Node3D) -> Node3D:
 		if shrub:
 			crown.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		root.add_child(crown)
+		# This big-card crown is the far LOD; CityTreeLod swaps trees near the
+		# camera to the real-size near crown. Shrub-sized trees are already at
+		# real card size (their near mesh would be identical), so they stay put.
+		if not shrub:
+			lod.register(species, world_scale, crown.multimesh, transforms, colors, shrub)
 	build_bushes(plan, root)
 	return root
 

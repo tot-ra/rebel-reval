@@ -54,9 +54,11 @@ GRASS = [
 ]
 # How far each plate's mean colour is pulled toward the shared meadow mean.
 # Character plates (dry, moss, leaves, trodden) keep more of their own colour.
-GRASS_PULL = {"g03_dry_summer": 0.3, "g04_moss_shade": 0.35, "g08_leaf_scatter": 0.3,
-              "g05_trodden": 0.2}
-GRASS_DEFAULT_PULL = 0.55
+# Strong pulls: at distance only mean colour is left, and plates that differ
+# in tone showed as blotches across every pasture.
+GRASS_PULL = {"g03_dry_summer": 0.6, "g04_moss_shade": 0.65, "g08_leaf_scatter": 0.55,
+              "g05_trodden": 0.3}
+GRASS_DEFAULT_PULL = 0.85
 # Bark kind -> (saturation multiplier, normal strength). Pine came out neon orange.
 BARK = {"birch": (0.9, 2.0), "oak": (0.95, 3.2), "grey": (0.9, 2.6),
         "pine": (0.62, 3.0), "spruce": (0.85, 2.6), "cherry": (0.9, 1.8)}

@@ -57,8 +57,8 @@ func _open_tree(plan: CityPlan, species: String) -> Dictionary:
 func _tree_height(plan: CityPlan, tree: Dictionary) -> float:
 	return (
 		CityVegetationBuilder.species_scale(tree["species"], plan.metres_per_unit)
-		* float(tree["scale"])
-		* MapViewMeshBuilderPrimitives.tree_canopy_mesh(tree["species"]).get_aabb().end.y
+		* CityVegetationBuilder.size_factor(float(tree["scale"]))
+		* MapViewTreeMeshes.city_canopy_far_mesh(tree["species"]).get_aabb().end.y
 	)
 
 
@@ -86,35 +86,87 @@ func _shots(plan: CityPlan) -> Array[Dictionary]:
 		var h := _tree_height(plan, tree)
 		var side := Vector2(1, 0.35).normalized()
 		var stand := p + side * 2.6
-		shots.append({"name": "%s_scale" % species, "figure": Vector3(stand.x, plan.ground_height(stand), stand.y),
-			"eye": Vector3(p.x + side.x * (h * 1.25 + 6.0), g + 1.7, p.y + side.y * (h * 1.25 + 6.0)),
-			"look": Vector3(p.x, g + h * 0.45, p.y), "fov": 55.0, "focus": p})
+		shots.append(
+			{
+				"name": "%s_scale" % species,
+				"figure": Vector3(stand.x, plan.ground_height(stand), stand.y),
+				"eye":
+				Vector3(p.x + side.x * (h * 1.25 + 6.0), g + 1.7, p.y + side.y * (h * 1.25 + 6.0)),
+				"look": Vector3(p.x, g + h * 0.45, p.y),
+				"fov": 55.0,
+				"focus": p
+			}
+		)
 		# Third-person gameplay distance: camera ~7 m behind and 3.5 m above Kalev.
 		var kalev := p + side * 5.0
-		shots.append({"name": "%s_gameplay" % species, "figure": Vector3(kalev.x, plan.ground_height(kalev), kalev.y),
-			"eye": Vector3(kalev.x + side.x * 7.0, plan.ground_height(kalev) + 3.6, kalev.y + side.y * 7.0),
-			"look": Vector3(p.x, g + 2.5, p.y), "fov": 60.0, "focus": p})
+		shots.append(
+			{
+				"name": "%s_gameplay" % species,
+				"figure": Vector3(kalev.x, plan.ground_height(kalev), kalev.y),
+				"eye":
+				Vector3(
+					kalev.x + side.x * 7.0, plan.ground_height(kalev) + 3.6, kalev.y + side.y * 7.0
+				),
+				"look": Vector3(p.x, g + 2.5, p.y),
+				"fov": 60.0,
+				"focus": p
+			}
+		)
 		if species in ["spruce", "pine"]:
 			# Close-up of the lower crown edge, where the user saw flat needle sheets.
-			shots.append({"name": "%s_needles_close" % species,
-				"eye": Vector3(p.x + side.x * 3.4, g + minf(h * 0.35, 4.0), p.y + side.y * 3.4),
-				"look": Vector3(p.x, g + minf(h * 0.4, 5.0), p.y), "fov": 60.0, "focus": p})
-		shots.append({"name": "%s_bark_close" % species,
-			"eye": Vector3(p.x + side.x * 1.4, g + 1.4, p.y + side.y * 1.4),
-			"look": Vector3(p.x, g + 1.1, p.y), "fov": 55.0, "focus": p})
+			shots.append(
+				{
+					"name": "%s_needles_close" % species,
+					"eye": Vector3(p.x + side.x * 3.4, g + minf(h * 0.35, 4.0), p.y + side.y * 3.4),
+					"look": Vector3(p.x, g + minf(h * 0.4, 5.0), p.y),
+					"fov": 60.0,
+					"focus": p
+				}
+			)
+		shots.append(
+			{
+				"name": "%s_bark_close" % species,
+				"eye": Vector3(p.x + side.x * 1.4, g + 1.4, p.y + side.y * 1.4),
+				"look": Vector3(p.x, g + 1.1, p.y),
+				"fov": 55.0,
+				"focus": p
+			}
+		)
 		if species == "oak":
 			# Far view of a whole stand: exercises the far crown LOD.
-			shots.append({"name": "stand_far", "eye": Vector3(p.x + side.x * 120.0, g + 25.0, p.y + side.y * 120.0),
-				"look": Vector3(p.x, g + 4.0, p.y), "fov": 50.0, "focus": p})
+			shots.append(
+				{
+					"name": "stand_far",
+					"eye": Vector3(p.x + side.x * 120.0, g + 25.0, p.y + side.y * 120.0),
+					"look": Vector3(p.x, g + 4.0, p.y),
+					"fov": 50.0,
+					"focus": p
+				}
+			)
 			# Ground: grass beside the oak at eye level and from the gameplay camera.
 			var meadow := p + side * 9.0
 			var mg := plan.ground_height(meadow)
-			shots.append({"name": "grass_eye", "figure": Vector3(meadow.x, mg, meadow.y),
-				"eye": Vector3(meadow.x + side.x * 4.0, mg + 1.7, meadow.y + side.y * 4.0 + 1.0),
-				"look": Vector3(meadow.x, mg + 0.6, meadow.y), "fov": 60.0, "focus": meadow})
-			shots.append({"name": "grass_wide", "figure": Vector3(meadow.x, mg, meadow.y),
-				"eye": Vector3(meadow.x + side.x * 14.0, mg + 8.0, meadow.y + side.y * 14.0),
-				"look": Vector3(meadow.x, mg, meadow.y), "fov": 60.0, "focus": meadow})
+			shots.append(
+				{
+					"name": "grass_eye",
+					"figure": Vector3(meadow.x, mg, meadow.y),
+					"eye":
+					Vector3(meadow.x + side.x * 4.0, mg + 1.7, meadow.y + side.y * 4.0 + 1.0),
+					"look": Vector3(meadow.x, mg + 0.6, meadow.y),
+					"fov": 60.0,
+					"focus": meadow
+				}
+			)
+			shots.append(
+				{
+					"name": "grass_wide",
+					"figure": Vector3(meadow.x, mg, meadow.y),
+					"eye": Vector3(meadow.x + side.x * 14.0, mg + 8.0, meadow.y + side.y * 14.0),
+					"look": Vector3(meadow.x, mg, meadow.y),
+					"fov": 60.0,
+					"focus": meadow
+				}
+			)
 	return shots
 
 
@@ -155,5 +207,6 @@ func _run() -> void:
 		var image := viewport.get_texture().get_image()
 		var path := "%s/%s_%s.png" % [OUTPUT_DIR, shot["name"], _tag]
 		image.save_png(ProjectSettings.globalize_path(path))
-		print("captured %s" % path)
+		var lod := world.get_node_or_null("Vegetation/TreeLod") as CityTreeLod
+		print("captured %s (near crowns: %d)" % [path, lod.near_count() if lod != null else -1])
 	quit(0)

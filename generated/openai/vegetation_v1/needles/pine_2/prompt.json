@@ -1,0 +1,12 @@
+{
+  "tool": "a2gent openai_generate_image",
+  "model": "gpt-image-1",
+  "size": "1024x1024",
+  "quality": "high",
+  "generation_id": "31b1600c-853d-4aba-82df-5004b1b8e91c",
+  "prompt": "Botanical flat-lay photograph seen from directly above: a fan of five Scots pine shoot tips, thick bottle-brush tufts of long grey-green needles, dense and fully opaque, filling most of the square frame, isolated on a pure flat white background, even soft overcast light, no cast shadow, scan quality, no text.",
+  "file": "source.png",
+  "sha256": "1df5483d1e5005e0f90bbe191547b3bd5681d17876f0c7d08ea44b9096736296",
+  "task": "R-1103/R-1101/R-1102",
+  "selected": true
+}

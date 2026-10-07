@@ -565,6 +565,10 @@ static func bark(kind: StringName = &"bark") -> StandardMaterial3D:
 	return PROP_MATERIALS.bark(kind)
 
 
+static func bark_plate(plate: StringName) -> StandardMaterial3D:
+	return PROP_MATERIALS.bark_plate(plate)
+
+
 static func tree_fruit() -> StandardMaterial3D:
 	return PROP_MATERIALS.tree_fruit()
 

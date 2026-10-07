@@ -1,0 +1,11 @@
+{
+  "tool": "a2gent openai_generate_image",
+  "model": "gpt-image-1",
+  "size": "1024x1024",
+  "quality": "high",
+  "generation_id": "e3e4a08a-c908-433c-a4a7-eae331dda8f6",
+  "prompt": "Seamless tileable ground texture, photographed straight down (orthographic top-down view) covering about one square metre: mixed hay-meadow grass with timothy and bent grass, medium green blades with a few dry yellow tips and thin seed stalks, natural irregular density. Even soft overcast daylight, no cast shadows, no perspective, no horizon, no central subject, uniform density over the whole frame, photorealistic scan quality, no text.",
+  "file": "source.png",
+  "sha256": "6a0c0e9e217ef8d8863e35143b5b4b2976f00da88884bda9be54acb9b5111e30",
+  "task": "R-1103"
+}

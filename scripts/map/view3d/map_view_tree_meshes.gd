@@ -35,7 +35,32 @@ const CONIFER_FOLDED_SHOOTS := 2
 ## Needle fans bow downward by this fraction of their length, like hanging spruce shoots.
 const CONIFER_CARD_DROOP := 0.22
 
+## Seamless city (ADR 0031, 1 wu = 1 m) near-crown detail. The shared meshes are
+## ~2.5 units tall and get scaled 3-4.5x in the city, which blew leaf-cluster
+## cards up to 1-1.9 m (head-sized leaves, needle "planks"). The near variant
+## sizes cards to these real lengths and adds cards to keep the crown full.
+const NEAR_CARD_METRES := 0.62
+const NEAR_CONIFER_CARD_METRES := 0.58
+## Card count multiplier is 1 / size_factor^2 (same leaf area), capped so a
+## near crown stays inside NEAR_TRIANGLE_CAP.
+const NEAR_MAX_COUNT_FACTOR := 3.5
+const NEAR_TRIANGLE_CAP := 56000
+## Bark plates (assets/materials/pbr/bark_*) cover about this much trunk.
+const BARK_TILE_METRES := 0.55
+## Near folded (single) leaves shrink further than cards: a card is a whole
+## twig cluster, a folded leaf is one leaf (birch ~5 cm, oak ~12 cm).
+const NEAR_FOLDED_LEAF_SHRINK := 0.4
+## City skeleton overrides. Spruce with 14 primaries read as a few sparse
+## tiers in a cross at real scale; a Norway spruce has a whorl every
+## 30-50 cm, branching down to the ground. The far crown uses the same
+## skeleton, so the LOD switch never changes the silhouette.
+const CITY_PROFILE_OVERRIDES := {
+	&"spruce": {"primary_count": 26, "crown_start": 0.34, "max_segments": 300},
+	&"pine": {"primary_count": 16, "max_segments": 220},
+}
+
 static var _geometry_cache: Dictionary = {}
+static var _city_cache: Dictionary = {}
 
 
 static func wood_mesh(species: StringName) -> ArrayMesh:
@@ -56,6 +81,87 @@ static func geometry_stats(species: StringName) -> Dictionary:
 
 static func reset_cache() -> void:
 	_geometry_cache.clear()
+	_city_cache.clear()
+
+
+## City trunk and branches: radii scaled by `radius_factor` (the shared trunks
+## are ~3x too thick once scaled to real tree heights), UVs in bark tiles of
+## BARK_TILE_METRES running up each limb, and tangents for the bark normal map.
+static func city_wood_mesh(
+	species: StringName, world_scale: float, radius_factor: float
+) -> ArrayMesh:
+	var key := "wood:%s:%.2f:%.2f" % [species, world_scale, radius_factor]
+	if not _city_cache.has(key):
+		_city_cache[key] = _build_wood_mesh(
+			species,
+			_skeleton_for(species),
+			radius_factor,
+			BARK_TILE_METRES / maxf(world_scale, 0.01)
+		)
+	return _city_cache[key]
+
+
+## City near crown: same skeleton, seasons and wind contract as canopy_mesh,
+## but cluster cards at real size (NEAR_*_CARD_METRES) and proportionally more
+## of them. Drawn only for trees close to the camera (CityTreeLod).
+static func city_canopy_near_mesh(species: StringName, world_scale: float) -> ArrayMesh:
+	var key := "near:%s:%.2f" % [species, world_scale]
+	if not _city_cache.has(key):
+		var profile := city_profile(species)
+		var conifer := species in CONIFERS
+		var base := float(profile["leaf_length"]) * (CONIFER_CARD_SCALE if conifer else CARD_SCALE)
+		var target := (
+			(NEAR_CONIFER_CARD_METRES if conifer else NEAR_CARD_METRES) / maxf(world_scale, 0.01)
+		)
+		var size_factor := clampf(target / maxf(base, 0.001), 0.25, 1.0)
+		var count_factor := minf(1.0 / (size_factor * size_factor), NEAR_MAX_COUNT_FACTOR)
+		var data := _build_canopy_mesh(
+			species, profile, _skeleton_for(species), size_factor, count_factor
+		)
+		var triangles := (data["mesh"] as ArrayMesh).surface_get_array_len(0) / 3
+		if triangles > NEAR_TRIANGLE_CAP:
+			# Conifers carry cards along every segment, so they overshoot the
+			# budget first; trade some density for the cap, keeping card size.
+			count_factor = maxf(1.0, count_factor * float(NEAR_TRIANGLE_CAP) / float(triangles))
+			data = _build_canopy_mesh(
+				species, profile, _skeleton_for(species), size_factor, count_factor
+			)
+		_city_cache[key] = data["mesh"]
+		_city_cache["stats:" + key] = {
+			"card_count": int(data["card_count"]),
+			"size_factor": size_factor,
+			"count_factor": count_factor,
+			"canopy_triangles": (data["mesh"] as ArrayMesh).surface_get_array_len(0) / 3,
+		}
+	return _city_cache[key]
+
+
+static func city_canopy_near_stats(species: StringName, world_scale: float) -> Dictionary:
+	city_canopy_near_mesh(species, world_scale)
+	return (_city_cache["stats:near:%s:%.2f" % [species, world_scale]] as Dictionary).duplicate()
+
+
+## City far crown: the shared big-card geometry on the city skeleton.
+static func city_canopy_far_mesh(species: StringName) -> ArrayMesh:
+	var key := "far:%s" % species
+	if not _city_cache.has(key):
+		_city_cache[key] = _build_canopy_mesh(
+			species, city_profile(species), _skeleton_for(species)
+		)["mesh"]
+	return _city_cache[key]
+
+
+static func city_profile(species: StringName) -> Dictionary:
+	var profile := TreeMeshProfiles.profile_for(species).duplicate()
+	profile.merge(CITY_PROFILE_OVERRIDES.get(species, {}), true)
+	return profile
+
+
+static func _skeleton_for(species: StringName) -> Dictionary:
+	var key := "skeleton:%s" % species
+	if not _city_cache.has(key):
+		_city_cache[key] = TreeMeshSkeleton.build(species, city_profile(species))
+	return _city_cache[key]
 
 
 static func _geometry_for(species: StringName) -> Dictionary:
@@ -86,28 +192,57 @@ static func _geometry_for(species: StringName) -> Dictionary:
 	return geometry
 
 
-static func _build_wood_mesh(_species: StringName, skeleton: Dictionary) -> ArrayMesh:
+## `bark_tile` > 0 switches to bark-plate UVs (u wraps a whole number of tiles
+## round the limb, v runs up the limb in tiles, continuing from the parent
+## segment) and adds tangents; 0 keeps the legacy per-segment 0..1 UVs.
+static func _build_wood_mesh(
+	_species: StringName, skeleton: Dictionary, radius_factor := 1.0, bark_tile := 0.0
+) -> ArrayMesh:
 	var surface := SurfaceTool.new()
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var segments: Array = skeleton["segments"]
+	var v_at_end: Dictionary = {}
 	for segment_index in segments.size():
 		var segment: Dictionary = segments[segment_index]
 		var depth := int(segment["depth"])
 		var shade := 1.0 if depth == 0 else lerpf(0.84, 1.08, _hash(segment_index, depth, 313))
 		var wood_color := Color(shade, shade * 0.98, shade * 0.94)
+		# Branches thin less than the trunk so they stay visible and never get
+		# thicker than the bole they grow from.
+		var factor := radius_factor if depth == 0 else pow(radius_factor, 0.6)
+		var start: Vector3 = segment["start"]
+		var end: Vector3 = segment["end"]
+		var uv_rect := Rect2()
+		if bark_tile > 0.0:
+			var v0: float = v_at_end.get(_point_key(start), _hash(segment_index, depth, 331) * 4.0)
+			var v1 := v0 + start.distance_to(end) / bark_tile
+			v_at_end[_point_key(end)] = v1
+			var around := TAU * float(segment["start_radius"]) * factor / bark_tile
+			uv_rect = Rect2(0.0, v0, maxf(1.0, roundf(around)), v1 - v0)
 		_append_tapered_tube(
 			surface,
-			segment["start"],
-			segment["end"],
-			float(segment["start_radius"]),
-			float(segment["end_radius"]),
-			wood_color
+			start,
+			end,
+			float(segment["start_radius"]) * factor,
+			float(segment["end_radius"]) * factor,
+			wood_color,
+			uv_rect
 		)
+	if bark_tile > 0.0:
+		surface.generate_tangents()
 	return surface.commit()
 
 
+static func _point_key(point: Vector3) -> Vector3i:
+	return Vector3i((point * 1000.0).round())
+
+
 static func _build_canopy_mesh(
-	species: StringName, profile: Dictionary, skeleton: Dictionary
+	species: StringName,
+	profile: Dictionary,
+	skeleton: Dictionary,
+	size_factor := 1.0,
+	count_factor := 1.0
 ) -> Dictionary:
 	var surface := SurfaceTool.new()
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
@@ -147,7 +282,10 @@ static func _build_canopy_mesh(
 				(radial * 0.72 + branch_direction * 0.42 + Vector3.UP * 0.20).normalized()
 			)
 			var leaf_length := (
-				float(profile["leaf_length"]) * lerpf(0.72, 1.16, _hash(leaf_index, seed, 419))
+				float(profile["leaf_length"])
+				* size_factor
+				* (NEAR_FOLDED_LEAF_SHRINK if size_factor < 1.0 else 1.0)
+				* lerpf(0.72, 1.16, _hash(leaf_index, seed, 419))
 			)
 			var width_ratio := 0.16 if species in [&"spruce", &"pine", &"juniper"] else 0.60
 			if species in [&"willow", &"ash", &"rowan"]:
@@ -168,7 +306,9 @@ static func _build_canopy_mesh(
 				_hash(leaf_index, seed, 467)
 			)
 			leaf_count += 1
-	var card_count := _append_cluster_cards(surface, species, profile, skeleton, crown)
+	var card_count := _append_cluster_cards(
+		surface, species, profile, skeleton, crown, size_factor, count_factor
+	)
 	var fruit_count := mini(int(profile["fruit_count"]), used_anchors.size())
 	return {
 		"mesh": surface.commit(),
@@ -190,23 +330,44 @@ static func _append_cluster_cards(
 	species: StringName,
 	profile: Dictionary,
 	skeleton: Dictionary,
-	crown: AABB
+	crown: AABB,
+	size_factor := 1.0,
+	count_factor := 1.0
 ) -> int:
 	var conifer := species in CONIFERS
-	var length := float(profile["leaf_length"]) * (CONIFER_CARD_SCALE if conifer else CARD_SCALE)
-	var per_tip := CONIFER_CARDS_PER_TIP if conifer else CARDS_PER_TIP
+	var length := (
+		float(profile["leaf_length"])
+		* (CONIFER_CARD_SCALE if conifer else CARD_SCALE)
+		* size_factor
+	)
+	var per_tip := roundi((CONIFER_CARDS_PER_TIP if conifer else CARDS_PER_TIP) * count_factor)
 	var spread := float(profile["leaf_spread"])
+	# With small near cards a whole tip cluster would shrink to a ball; spread
+	# the extra cards back along the twig and out round it instead.
+	var reach := spread * (0.25 + (1.0 - size_factor) * 0.9)
 	var cards := 0
 	for candidate: Dictionary in skeleton["leaf_candidates"]:
 		var anchor: Vector3 = candidate["position"]
 		var direction: Vector3 = candidate["direction"]
 		var seed := int(candidate["seed"])
 		for card_index in per_tip:
-			var yaw := TAU * (float(card_index) + _hash(card_index, seed, 503) * 0.6) / float(per_tip)
+			var yaw := (
+				TAU * (float(card_index) + _hash(card_index, seed, 503) * 0.6) / float(per_tip)
+			)
 			var radial := TreeMeshSkeleton.radial_around(direction, yaw)
 			var axis := (direction * 0.55 + radial * 0.75 + Vector3.UP * 0.15).normalized()
 			var size := length * lerpf(0.78, 1.15, _hash(card_index, seed, 509))
-			var base := anchor - axis * size * 0.18 + radial * spread * 0.25
+			var back := _hash(card_index, seed, 511) * (1.0 - size_factor) * spread * 1.2
+			var base := (
+				anchor
+				- axis * size * 0.18
+				+ (
+					radial
+					* reach
+					* (lerpf(0.6, 1.2, _hash(card_index, seed, 513)) if size_factor < 1.0 else 1.0)
+				)
+				- direction * back
+			)
 			var facing := (Vector3.UP * 0.7 + radial * 0.5).normalized()
 			_emit_card(surface, species, base, axis, facing, size, crown, seed, card_index)
 			cards += 1
@@ -238,15 +399,23 @@ static func _append_cluster_cards(
 			var up_side := forward.cross(side).normalized()
 			var base := station - forward * length * 0.35
 			var phase := _hash(step, seed, 541) * TAU
-			for roll_index in 3:
-				var roll := phase + float(roll_index) * TAU / 3.0
+			var rolls := roundi(3.0 * minf(count_factor, 2.0))
+			for roll_index in rolls:
+				var roll := phase + float(roll_index) * TAU / float(rolls)
 				var spoke := side * cos(roll) + up_side * sin(roll)
 				var fan_axis := (forward + Vector3.DOWN * 0.10 + spoke * 0.55).normalized()
 				_emit_card(
-					surface, species, base, fan_axis, spoke, length * (1.0 - 0.1 * roll_index),
-					crown, seed, roll_index
+					surface,
+					species,
+					base,
+					fan_axis,
+					spoke,
+					length * (1.0 - 0.1 * float(roll_index % 3)),
+					crown,
+					seed,
+					roll_index
 				)
-			cards += 3
+			cards += rolls
 	return cards
 
 
@@ -336,9 +505,7 @@ static func _crown_occlusion(position: Vector3, crown: AABB) -> float:
 	var half := crown.size * 0.5
 	var centre := crown.get_center()
 	var offset := position - centre
-	var radial := Vector2(
-		offset.x / maxf(half.x, 0.05), offset.z / maxf(half.z, 0.05)
-	).length()
+	var radial := Vector2(offset.x / maxf(half.x, 0.05), offset.z / maxf(half.z, 0.05)).length()
 	var height := clampf(offset.y / maxf(half.y, 0.05) * 0.5 + 0.5, 0.0, 1.0)
 	var shell := clampf(maxf(radial, height * 1.1), 0.0, 1.0)
 	return clampf(lerpf(0.48, 1.0, pow(shell, 0.75)), 0.0, 1.0)
@@ -391,7 +558,8 @@ static func _append_tapered_tube(
 	end: Vector3,
 	start_radius: float,
 	end_radius: float,
-	color: Color
+	color: Color,
+	uv_rect := Rect2()
 ) -> void:
 	var axis := end - start
 	if axis.length_squared() < 0.000001:
@@ -409,6 +577,17 @@ static func _append_tapered_tube(
 		var b0 := start + normal_b * start_radius
 		var a1 := end + normal_a * end_radius
 		var b1 := end + normal_b * end_radius
+		var ua := float(radial_index) / WOOD_RADIAL_SEGMENTS
+		var ub := float(next_index) / WOOD_RADIAL_SEGMENTS
+		var v0 := 0.0
+		var v1 := 1.0
+		if uv_rect.size.x > 0.0:
+			# Bark plates: the last face closes the ring at u = tiles, not back at 0.
+			ub = float(radial_index + 1) / WOOD_RADIAL_SEGMENTS
+			ua *= uv_rect.size.x
+			ub *= uv_rect.size.x
+			v0 = uv_rect.position.y
+			v1 = uv_rect.end.y
 		_append_colored_triangle(
 			surface,
 			a0,
@@ -418,9 +597,9 @@ static func _append_tapered_tube(
 			normal_a,
 			normal_b,
 			color,
-			Vector2(float(radial_index) / WOOD_RADIAL_SEGMENTS, 0.0),
-			Vector2(float(radial_index) / WOOD_RADIAL_SEGMENTS, 1.0),
-			Vector2(float(next_index) / WOOD_RADIAL_SEGMENTS, 1.0)
+			Vector2(ua, v0),
+			Vector2(ua, v1),
+			Vector2(ub, v1)
 		)
 		_append_colored_triangle(
 			surface,
@@ -431,9 +610,9 @@ static func _append_tapered_tube(
 			normal_b,
 			normal_b,
 			color,
-			Vector2(float(radial_index) / WOOD_RADIAL_SEGMENTS, 0.0),
-			Vector2(float(next_index) / WOOD_RADIAL_SEGMENTS, 1.0),
-			Vector2(float(next_index) / WOOD_RADIAL_SEGMENTS, 0.0)
+			Vector2(ua, v0),
+			Vector2(ub, v1),
+			Vector2(ub, v0)
 		)
 
 

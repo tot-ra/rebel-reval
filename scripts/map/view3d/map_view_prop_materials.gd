@@ -5,12 +5,8 @@ extends RefCounted
 ## MapViewMaterials exposes this module through its stable public API. This
 ## keeps prop visual treatment separate from terrain, water, and building rules.
 
-const BUILDING_MATERIALS := preload(
-	"res://scripts/map/view3d/map_view_building_materials.gd"
-)
-const PATTERN_FAMILIES := preload(
-	"res://scripts/map/view3d/map_view_material_pattern_families.gd"
-)
+const BUILDING_MATERIALS := preload("res://scripts/map/view3d/map_view_building_materials.gd")
+const PATTERN_FAMILIES := preload("res://scripts/map/view3d/map_view_material_pattern_families.gd")
 const PATTERN_GRASS := PATTERN_FAMILIES.PATTERN_GRASS
 const PATTERN_SPECKLE := PATTERN_FAMILIES.PATTERN_SPECKLE
 const PATTERN_COBBLE := PATTERN_FAMILIES.PATTERN_COBBLE
@@ -29,6 +25,8 @@ const EMBER_ENERGY := 1.6
 const NATURAL_ROCK_SEED := 9041
 const SURROUNDINGS_GROUND_SEED := 8117
 const ROCK_NORMAL_STRENGTH := 1.8
+## Photographic bark plates (assets/materials/pbr/bark_<plate>/), see bark_plate().
+const BARK_PLATES: Array[StringName] = [&"birch", &"oak", &"grey", &"pine", &"spruce", &"cherry"]
 
 static var _cache: Dictionary = {}
 ## R-1187 vegetation season/weather inputs (see apply_fruit_season, apply_bark_wetness).
@@ -169,7 +167,9 @@ static func hewn_timber_for_size(size: Vector3, noise_seed: int = 0) -> Standard
 	var thickness := size.y if grain_along_u else maxf(size.x, size.z)
 	var along := maxf(snappedf(3.0 * length / 2.0, 0.5), 0.5)
 	var across := maxf(snappedf(2.0 * thickness / 0.35, 0.25), 0.25)
-	var uv := Vector3(along, across, 1.0) if grain_along_u else Vector3(across * 1.5, along / 1.5, 1.0)
+	var uv := (
+		Vector3(along, across, 1.0) if grain_along_u else Vector3(across * 1.5, along / 1.5, 1.0)
+	)
 	var key := "hewn_timber_size:%s:%d:%s" % [grain_along_u, posmod(noise_seed, 3), uv]
 	if _cache.has(key):
 		return _cache[key]
@@ -278,6 +278,30 @@ static func bark(kind: StringName = &"bark") -> StandardMaterial3D:
 	return _patterned("bark", Color8(74, 56, 42), PATTERN_BARK)
 
 
+## Photographic bark plate (assets/materials/pbr/bark_<plate>/, VEG-1/VEG-2) for
+## meshes with bark-tile UVs and tangents (MapViewTreeMeshes.city_wood_mesh).
+## Plates: BARK_PLATES. The vertex colour keeps the per-limb shade variation;
+## the plate carries the real bark colour.
+static func bark_plate(plate: StringName) -> StandardMaterial3D:
+	var key := "bark_plate:%s" % String(plate)
+	if _cache.has(key):
+		return _cache[key]
+	var dir := "res://assets/materials/pbr/bark_%s/bark_%s" % [String(plate), String(plate)]
+	var material := StandardMaterial3D.new()
+	material.albedo_texture = load(dir + "_albedo.jpg")
+	material.vertex_color_use_as_albedo = true
+	material.normal_enabled = true
+	material.normal_texture = load(dir + "_normal.jpg")
+	material.normal_scale = 1.0
+	material.roughness = 0.92
+	material.metallic = 0.0
+	material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	_cache[key] = material
+	if _bark_wetness > 0.0:
+		_apply_wetness_to(material, _bark_wetness)
+	return material
+
+
 ## Fruit mesh carries apple/cherry color per vertex; this neutral material keeps
 ## both species in the same cheap material family and avoids tiny cast shadows.
 static func tree_fruit() -> StandardMaterial3D:
@@ -330,13 +354,22 @@ static func apply_bark_wetness(wetness: float) -> void:
 		return
 	_bark_wetness = value
 	for kind: StringName in [&"bark", &"birch", &"cherry"]:
-		var material := bark(kind)
-		if not material.has_meta(&"dry_albedo"):
-			material.set_meta(&"dry_albedo", material.albedo_color)
-			material.set_meta(&"dry_roughness", material.roughness)
-		var dry: Color = material.get_meta(&"dry_albedo")
-		material.albedo_color = dry.darkened(0.42 * value)
-		material.roughness = lerpf(float(material.get_meta(&"dry_roughness")), 0.38, value)
+		_apply_wetness_to(bark(kind), value)
+	# Only plates already in use: loading every plate here would pull bark
+	# textures into maps that never draw a city tree.
+	for plate: StringName in BARK_PLATES:
+		var key := "bark_plate:%s" % String(plate)
+		if _cache.has(key):
+			_apply_wetness_to(_cache[key], value)
+
+
+static func _apply_wetness_to(material: StandardMaterial3D, value: float) -> void:
+	if not material.has_meta(&"dry_albedo"):
+		material.set_meta(&"dry_albedo", material.albedo_color)
+		material.set_meta(&"dry_roughness", material.roughness)
+	var dry: Color = material.get_meta(&"dry_albedo")
+	material.albedo_color = dry.darkened(0.42 * value)
+	material.roughness = lerpf(float(material.get_meta(&"dry_roughness")), 0.38, value)
 
 
 static func surroundings_ground() -> StandardMaterial3D:

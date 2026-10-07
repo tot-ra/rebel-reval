@@ -8,7 +8,11 @@ extends Node3D
 
 const CHUNK := 16.0
 const RADIUS_CHUNKS := 3
-const DENSITY := 2.2  # tufts per square world unit on full grass
+const DENSITY := 2.8  # tufts per square world unit on full grass
+## Tuft scale range. The shared tuft is 0.57 m tall and 0.79 m wide; at the old
+## 0.55-1.15 it stood waist-wide next to Kalev. Real meadow tussocks are about
+## 0.2-0.45 m tall, so tufts are smaller and a little denser (VEG pass, R-1103).
+const TUFT_SCALE := Vector2(0.36, 0.78)
 
 var plan: CityPlan
 var _splat: Image
@@ -76,7 +80,7 @@ func _build_chunk(key: Vector2i) -> Node3D:
 			or plan.site_at(p) != null
 		):
 			continue
-		var scale := rng.randf_range(0.55, 1.15)
+		var scale := rng.randf_range(TUFT_SCALE.x, TUFT_SCALE.y)
 		var basis := Basis(Vector3.UP, rng.randf() * TAU).scaled(
 			Vector3(scale, scale * rng.randf_range(0.8, 1.3), scale)
 		)

@@ -1,0 +1,11 @@
+{
+  "tool": "a2gent openai_generate_image",
+  "model": "gpt-image-1",
+  "size": "1024x1024",
+  "quality": "high",
+  "generation_id": "08ef8ef7-7545-4e3d-92cb-a8e3c6692715",
+  "prompt": "Seamless tileable ground texture, photographed straight down (orthographic top-down view) covering about one square metre: short meadow grass with sparse tiny wildflowers, a few small yellow buttercups and white daisies scattered evenly. Even soft overcast daylight, no cast shadows, no perspective, no horizon, no central subject, uniform density over the whole frame, photorealistic scan quality, no text.",
+  "file": "source.png",
+  "sha256": "7a28413f5b2f273cf4c4acb379c2fba47629a6be9d271c594a4c03df253e5d46",
+  "task": "R-1103/R-1101/R-1102"
+}

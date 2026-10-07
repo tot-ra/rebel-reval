@@ -1,0 +1,11 @@
+{
+  "tool": "a2gent openai_generate_image",
+  "model": "gpt-image-1",
+  "size": "1024x1024",
+  "quality": "high",
+  "generation_id": "e1b7f2bd-3f9f-4120-9c82-12576ea3fa0e",
+  "prompt": "Seamless tileable ground texture, photographed straight down (orthographic top-down view) covering about one square metre: dense white clover and short grass mixed together, many small trefoil clover leaves among fine grass blades. Even soft overcast daylight, no cast shadows, no perspective, no horizon, no central subject, uniform density over the whole frame, photorealistic scan quality, no text.",
+  "file": "source.png",
+  "sha256": "3d19def2d023b4768e9a2647d2c768e30afb5484e82a884153f8cecf884600f9",
+  "task": "R-1103/R-1101/R-1102"
+}
