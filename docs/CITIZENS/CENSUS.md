@@ -16,12 +16,12 @@ Generated tables: [`census_tables.md`](./census_tables.md). Headline numbers:
 | Residents modelled | **4,247** (inside the walls, Toompea, and the six immediate suburbs/districts) | 3,000-4,500 for the whole urban complex in April 1343 (Johansen & von zur Mühlen, Naum, Salminen proxy). The model sits at the upper end because it includes transient sailors, a garrison, clergy and hospital inmates. |
 | Households | 607 populated of 643 | one per plot, plus 10 institutions |
 | Plot buildings | 633 houses; 5 churches, 1 chapel, 1 town hall are institutions | `content/world/reval_city/plan.json` |
-| Children under 15 | 33% | pre-modern towns 28-35% |
+| Children under 15 | 34% | pre-modern towns 28-35% |
 | Aged 60+ | 6.5% | towns 4-8% |
 | Estonian / German / Swedish and Finnish / Danish / Russian | 44% / 36% / 14% / 3% / 3% | Naum ~50% Estonian, 30-40% German; Johansen Germans under 50% |
 | Female share | 49% | seasonal sailors, garrison and friars pull it down |
-| With a faction affinity | 26% (74% have none) | most townspeople are not political |
-| Residents with a deep card | see [`census_tables.md`](./census_tables.md) | one card per resident is the long-term goal |
+| With a faction affinity | 27% (73% have none) | most townspeople are not political |
+| Residents with a deep card | **736** (17%), written in whole households | one card per resident is the long-term goal |
 
 What is *not* in the count: the Harju hinterland and its manors, the rebel levy, villages, the Order's later garrison, Novgorod caravans beyond the resident court, and the active cast under [`docs/CHARACTERS/`](../CHARACTERS/README.md) (Kalev's smithy household and the promoted faces live on the older `lower_town_slice` map until their anchors are re-homed onto the plan; add about 20 people when they are).
 
@@ -65,7 +65,7 @@ A coverage check against what 1343 Reval needed (counts of residents; households
 
 | Need | Who | Count |
 |---|---|---|
-| Walls and gates | militia (every adult German household master and journeyman, about 380), 8 gatekeepers, 8 Estonian watchmen, 2 watch sergeants at the hall, castle garrison 36 plus squires | ample for 8 gates and the wall-walk rota of 4-8 men per section |
+| Walls and gates | militia (every adult German household master, journeyman and clerk, about 280), 8 gatekeepers, 8 Estonian watchmen, 2 watch sergeants at the hall, castle garrison 36 plus squires | ample for 8 gates and the wall-walk rota of 4-8 men per section |
 | Bread and beer | 28 bakers, 39 brewers and 29 alewives, 26 tavern keepers, plus household brewing | about one baker per 150 people, one brewing house per 100 |
 | Meat, fish, dairy | 19 butchers, 21 fishmongers, 15 fishers and their families, 40 dairy-women, market gardeners | thin on fresh fish (the plan's fishing beach is small); herring and salt fish come by sea |
 | Building and metal | 29 carpenters, 28 masons, 28 smiths, 17 coopers, 15 knife-smiths, 10 armourers | enough for a town still raising its walls |
@@ -100,4 +100,5 @@ python3 -m unittest tests.python.test_citizen_census -v
 - The plan holds modern plot footprints trimmed to 1343, so plot counts and sizes are plausible, not measured. Small footprints (outbuildings) may hide cellar and yard dwellings the model does not count.
 - Hinterland and suburb populations beyond the six districts are not modelled.
 - Seasonal and siege effects (refugees at the gates, rebel levy, Order troops) are narrative overlays, not census rows.
-- Ethnic and faction proportions are plausible, not attested; the 74% unaffiliated majority is a deliberate choice.
+- Ethnic and faction proportions are plausible, not attested; the 73% unaffiliated majority is a deliberate choice.
+- **First card wave, known roughness** (found in review of the 736 cards): the voice seed "sing-song Estonian cadence" was drawn for non-Estonians too, so a dozen German and Swedish cards explain it with an Estonian nurse or mother; the "left-handed" mark and the `left_handed` flag disagree in a few dozen seeds (writers resolved it as "left-handed, trained right"); a few edge templates fit badly (a "baptised the child" edge between a clerk and a priest, "children play together" between childless households) and writers rephrased them; several cards, mostly children's, are thinner than the brief and some adults run over it. None breaks the validator; fix them by editing the card, and by correcting the generator only before the next census is frozen.

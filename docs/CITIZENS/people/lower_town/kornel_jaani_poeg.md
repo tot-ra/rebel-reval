@@ -30,12 +30,12 @@
 - **Hair and facial hair:** Straw blond, cut at home with the kitchen knife into a rough bowl; it sticks up at the crown.
 - **Skin and marks:** Pale and even, a faint freckle on the nose after the first spring sun; no marks.
 - **Hands:** Small, quick, grubby; nails black from the yard.
-- **Clothing and kit (April 1343):** A short linen shirt over bare legs, a hand-me-down grey wool tunic with rolled sleeves, a cord belt, bare feet in warm weather and wooden shoes when frost returns. A bird's feather in the belt.
+- **Clothing and kit (April 1343):** Short linen shirt, hand-me-down grey wool tunic with rolled sleeves, cord belt, bare feet, wooden shoes when frost returns.
 - **Portrait prompt:** Wiry six-year-old Estonian boy, straw blond hair cut in a rough bowl, grey-blue eyes, narrow intent face, missing front tooth, scabbed chin, pale even skin, grey wool tunic over linen shirt, neutral grey background, natural light, shoulders-up.
 - **Model notes:** male, age_years 6, muscle 0.2, weight 0.3, proportions slim child, height_m 1.08; pale skin; grey-blue eyes; straw blond hair; crowd tier 2.
 
 ## Biography
-Born in 1337 in the front room on Müürivahe, the older of two surviving boys, while his father was walking the wall. He talked late and then fast. A goose near the Sand Gate bit him once, and he avoids all its kin. He is told he will be a carrier like his father. He would rather be a bird.
+Born in 1337 on Müürivahe, the older of two surviving boys. He talked late and then fast. A goose near the Sand Gate bit him once, and he avoids all its kin. He is told he will be a carrier like his father. He would rather be a bird.
 
 ## Motivation
 - **Want:** To keep the speckled hen from the pot until she lays.
@@ -54,7 +54,7 @@ Born in 1337 in the front room on Müürivahe, the older of two surviving boys, 
 | Night | Curfew bell | Straw bed | Sleeps by Judit |
 
 - **Sundays and feast days:** Mass at St Olaf, held by the hand.
-- **Spring 1343 disruption:** His father walks a longer watch and his mother is quieter; he hears the word "levy" and thinks it is a kind of goose.
+- **Spring 1343 disruption:** His father walks longer watches; he hears "levy" and thinks it a kind of goose.
 
 ## Work and money
 He earns nothing; an egg or a crust is his reward. The family's debts are a word he has heard and a cord his mother ties in knots.

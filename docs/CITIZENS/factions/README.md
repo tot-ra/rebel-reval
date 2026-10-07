@@ -1,6 +1,6 @@
 # Factions among the citizens
 
-Ten affinities cover every resident of the census: the eight launch factions of [ADR 0008](../../adr/0008-three-act-campaign-and-faction-scope.md), the Brotherhood of Blackheads as an events-only candidate seat, and the Church. A resident with no affinity (74% of the census) is not in a faction; they still react to faction pressure through the [Living City](../../SYSTEMS/LIVING_CITY.md) and the [district pressure](../../SYSTEMS/FACTIONS_AND_ECONOMY.md#district-pressure) systems.
+Ten affinities cover every resident of the census: the eight launch factions of [ADR 0008](../../adr/0008-three-act-campaign-and-faction-scope.md), the Brotherhood of Blackheads as an events-only candidate seat, and the Church. A resident with no affinity (73% of the census) is not in a faction; they still react to faction pressure through the [Living City](../../SYSTEMS/LIVING_CITY.md) and the [district pressure](../../SYSTEMS/FACTIONS_AND_ECONOMY.md#district-pressure) systems.
 
 Each page opens with prose (what the faction wants, who joins and why, where it meets, how it is organised, what splits it), then a generated census roster block maintained by `tools/city/build_faction_rosters.py`.
 

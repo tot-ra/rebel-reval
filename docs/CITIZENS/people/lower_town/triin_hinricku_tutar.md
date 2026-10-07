@@ -30,12 +30,12 @@
 - **Hair and facial hair:** Light brown, in one thick braid down the back, coming loose by noon.
 - **Skin and marks:** Pale and sallow, a squint in the left eye; ink-black splinters under the nails from the shop.
 - **Hands:** Small, quick, smudged with pitch.
-- **Clothing and kit (April 1343):** Linen shirt, a short brown wool gown patched at the knee, a faded blue apron, a plain linen kerchief over the braid, wooden shoes. A small wooden spoon tucked at the belt.
+- **Clothing and kit (April 1343):** Linen shirt, a short brown wool gown patched at the knee, a faded blue apron, a plain linen kerchief over the braid, wooden shoes.
 - **Portrait prompt:** Slight Estonian girl of eleven, pale sallow skin, grey-blue eyes with a slight squint in the left, light brown braid, small heart-shaped face, wide mouth, brown wool gown with blue apron and linen kerchief, neutral grey background, natural light, shoulders-up.
 - **Model notes:** female, age_years 11, muscle 0.2, weight 0.3, proportions slim child, height_m 1.28; pale sallow skin; grey-blue eyes with left squint; light brown hair, braid; crowd tier 2.
 
 ## Biography
-Born in 1332 in the room above the workshop, Triin was handed a plane shaving at three and a broom at five. She has her father's eye and her mother's long limbs, and a voice from neither parent. The singing woman of the Sand Gate once told her it would carry across the sea. At nine she fell off a stack of planks and landed unhurt, to her own surprise. She is expected to marry well and be quiet.
+Born in 1332 in the room above the workshop, Triin was handed a plane shaving at three and a broom at five. She has her father's eye and her mother's long limbs, and a voice from neither parent. At nine she fell off a stack of planks and landed unhurt, to her own surprise. She is expected to marry well and be quiet.
 
 ## Motivation
 - **Want:** To be allowed on a roof with her father.

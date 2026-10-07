@@ -9,7 +9,7 @@ The living population of the seamless city: a census derived from the 641 buildi
 | Tier | What | Where | Count |
 |---|---|---|---|
 | Cast | Quest-bearing and faction-face characters, with arcs and outcomes | [`docs/CHARACTERS/`](../CHARACTERS/README.md) | 17 |
-| Citizen card | A deep, linked portrait of an ambient resident: face for modelling, routine, motive, network | [`people/`](./people/README.md) | see [`census_tables.md`](./census_tables.md) |
+| Citizen card | A deep, linked portrait of an ambient resident: face for modelling, routine, motive, network | [`people/`](./people/README.md) | 736 |
 | Census seed | One ledger row per resident: age, trade, household, faction, appearance numbers | [`ledger/`](./ledger/README.md), [`city_census.json`](../data/city_census.json) | 4,247 |
 | Crowd | Unnamed Tier 2 bodies generated at runtime from the ledger's distributions | `scripts/world/` (not wired) | variable |
 
