@@ -1,0 +1,60 @@
+{
+  "type": "world_object",
+  "id": "obj.hay_wagon",
+  "name": "Hay wagon",
+  "description": "A farm wagon piled with hay.",
+  "category": "vehicle",
+  "handling": "heavy",
+  "tags": [
+    "vehicle",
+    "farm",
+    "hay"
+  ],
+  "physical": {
+    "mass_kg": 300,
+    "size_m": [
+      3.0,
+      2.2,
+      1.6
+    ],
+    "materials": [
+      "wood",
+      "iron",
+      "straw"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "push",
+    "pull",
+    "load_on_cart"
+  ],
+  "economy": {
+    "base_pfennigs": 0,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "farm"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "procedural",
+    "prop_kind": "hay_wagon",
+    "builder": "res://scripts/map/view3d/map_view_mesh_builder_rural_life_props.gd"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.hay_wagon.png",
+    "icon": "res://assets/objects/icons/obj.hay_wagon.png",
+    "icon_status": "missing",
+    "look": "Wide plank wagon heaped with golden hay and tied with ropes.",
+    "image_prompt": "Hay wagon: Wide plank wagon heaped with golden hay and tied with ropes."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite"
+}

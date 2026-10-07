@@ -1,0 +1,72 @@
+{
+  "type": "world_object",
+  "id": "obj.firewood_log",
+  "name": "Firewood log",
+  "description": "A split birch or pine log for the hearth.",
+  "category": "material",
+  "handling": "carry_one_hand",
+  "tags": [
+    "fuel",
+    "wood"
+  ],
+  "physical": {
+    "mass_kg": 2.5,
+    "size_m": [
+      0.5,
+      0.15,
+      0.15
+    ],
+    "materials": [
+      "wood"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "throw",
+    "stack"
+  ],
+  "economy": {
+    "base_pfennigs": 1,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_poor",
+      "home_burgher",
+      "forge",
+      "farm",
+      "street"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "missing"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.firewood_log.png",
+    "icon": "res://assets/objects/icons/obj.firewood_log.png",
+    "icon_status": "missing",
+    "look": "Split birch log, pale on the cut face, bark intact on the round side.",
+    "image_prompt": "A split birch log, pale cut face and intact bark on the rounded side"
+  },
+  "lifecycle": "planned",
+  "confidence": "plausible composite",
+  "carry": {
+    "grid_width": 1,
+    "grid_height": 2,
+    "stackable": true,
+    "max_stack": 4
+  },
+  "throw": {
+    "range_m": 4.0,
+    "damage": 4,
+    "breaks": false,
+    "noise": "normal"
+  }
+}

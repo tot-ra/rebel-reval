@@ -1,0 +1,69 @@
+{
+  "type": "world_object",
+  "id": "obj.honey_pot",
+  "name": "Honey pot",
+  "description": "A sealed clay pot of honey: sweetener, medicine, and an expensive gift.",
+  "category": "food",
+  "handling": "pocketable",
+  "tags": [
+    "sweet",
+    "preserved",
+    "luxury"
+  ],
+  "physical": {
+    "mass_kg": 0.8,
+    "size_m": [
+      0.12,
+      0.13,
+      0.12
+    ],
+    "materials": [
+      "clay_ceramic",
+      "food_organic"
+    ],
+    "fragile": true
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "consume"
+  ],
+  "economy": {
+    "base_pfennigs": 48,
+    "ownership": "merchant",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "market",
+      "home_burgher",
+      "home_noble"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "missing"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.honey_pot.png",
+    "icon": "res://assets/objects/icons/obj.honey_pot.png",
+    "icon_status": "missing",
+    "look": "Small brown clay pot sealed with waxed cloth and twine.",
+    "image_prompt": "A small sealed brown clay honey pot tied with waxed cloth and twine"
+  },
+  "lifecycle": "planned",
+  "confidence": "plausible composite",
+  "carry": {
+    "grid_width": 1,
+    "grid_height": 1,
+    "stackable": false
+  },
+  "edible": {
+    "kind": "food",
+    "nutrition": 35,
+    "spoils_after_days": null
+  }
+}

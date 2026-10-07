@@ -1,0 +1,81 @@
+{
+  "type": "world_object",
+  "id": "obj.candlestick_beeswax_rich",
+  "name": "Beeswax candlestick",
+  "description": "A cast-brass stand with a clean beeswax candle; church and noble light, theft is serious.",
+  "category": "light_source",
+  "handling": "carry_one_hand",
+  "tags": [
+    "light",
+    "candle",
+    "beeswax",
+    "wealth"
+  ],
+  "physical": {
+    "mass_kg": 2.2,
+    "size_m": [
+      0.37,
+      0.75,
+      0.37
+    ],
+    "materials": [
+      "brass_bronze",
+      "wax_tallow"
+    ],
+    "flammable": true,
+    "hot_when_lit": true
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "light"
+  ],
+  "economy": {
+    "base_pfennigs": 160,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 2
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_noble",
+      "church",
+      "home_burgher"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/lighting/medieval_lighting_kit.glb",
+    "node": "RichBeeswax",
+    "prop_kind": "candle",
+    "variant": "rich_beeswax",
+    "measured_size_m": [
+      0.37,
+      0.75,
+      0.37
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.candlestick_beeswax_rich.png",
+    "icon": "res://assets/objects/icons/obj.candlestick_beeswax_rich.png",
+    "icon_status": "missing",
+    "look": "Turned cast-brass stem on a round foot with a golden beeswax candle and a polished drip pan.",
+    "image_prompt": "Beeswax candlestick: Turned cast-brass stem on a round foot with a golden beeswax candle and a polished drip pan."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "carry": {
+    "grid_width": 1,
+    "grid_height": 3,
+    "stackable": false
+  },
+  "light": {
+    "radius_m": 5.0,
+    "burn_hours": 10,
+    "fuel": "beeswax",
+    "open_flame": true
+  }
+}

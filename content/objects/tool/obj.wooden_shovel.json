@@ -1,0 +1,72 @@
+{
+  "type": "world_object",
+  "id": "obj.wooden_shovel",
+  "name": "Wooden shovel",
+  "description": "A wooden spade with an iron-shod edge.",
+  "category": "tool",
+  "handling": "carry_one_hand",
+  "tags": [
+    "farm",
+    "tool",
+    "digging"
+  ],
+  "physical": {
+    "mass_kg": 1.6,
+    "size_m": [
+      0.27,
+      1.45,
+      0.06
+    ],
+    "materials": [
+      "wood",
+      "iron"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop"
+  ],
+  "economy": {
+    "base_pfennigs": 12,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "farm",
+      "street"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/tools/wooden_shovel/wooden_shovel.glb",
+    "prop_kind": "wooden_shovel",
+    "measured_size_m": [
+      0.27,
+      1.45,
+      0.06
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.wooden_shovel.png",
+    "icon": "res://assets/objects/icons/obj.wooden_shovel.png",
+    "icon_status": "missing",
+    "look": "Ash shaft with a carved wooden blade capped by an iron edge.",
+    "image_prompt": "Wooden shovel: Ash shaft with a carved wooden blade capped by an iron edge."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "dig earth"
+  ],
+  "carry": {
+    "grid_width": 1,
+    "grid_height": 4,
+    "stackable": false
+  }
+}

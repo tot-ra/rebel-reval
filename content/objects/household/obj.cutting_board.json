@@ -1,0 +1,80 @@
+{
+  "type": "world_object",
+  "id": "obj.cutting_board",
+  "name": "Cutting board",
+  "description": "A thick oak board that carries fish or bread to the knife.",
+  "category": "household",
+  "handling": "carry_one_hand",
+  "tags": [
+    "kitchen",
+    "board"
+  ],
+  "physical": {
+    "mass_kg": 1.2,
+    "size_m": [
+      0.56,
+      0.05,
+      0.35
+    ],
+    "materials": [
+      "wood"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "throw"
+  ],
+  "economy": {
+    "base_pfennigs": 6,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_poor",
+      "home_burgher",
+      "market",
+      "harbor"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/furniture/tables/medieval_table_kit/medieval_table_kit.glb",
+    "node": "CuttingBoardModule",
+    "prop_kind": "cutting_board",
+    "measured_size_m": [
+      0.56,
+      0.05,
+      0.35
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.cutting_board.png",
+    "icon": "res://assets/objects/icons/obj.cutting_board.png",
+    "icon_status": "missing",
+    "look": "Pale oak chopping board with a leather hanging loop and dark knife-cut grooves.",
+    "image_prompt": "Cutting board: Pale oak chopping board with a leather hanging loop and dark knife-cut grooves."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "prepare food"
+  ],
+  "carry": {
+    "grid_width": 2,
+    "grid_height": 1,
+    "stackable": false
+  },
+  "throw": {
+    "range_m": 3.0,
+    "damage": 2,
+    "breaks": false,
+    "noise": "normal"
+  }
+}

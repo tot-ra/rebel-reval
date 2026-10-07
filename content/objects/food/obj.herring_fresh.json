@@ -1,0 +1,83 @@
+{
+  "type": "world_object",
+  "id": "obj.herring_fresh",
+  "name": "Fresh herring",
+  "description": "A Baltic herring, the cheapest fish in Reval; unsafe raw, good boiled or salted.",
+  "category": "food",
+  "handling": "pocketable",
+  "tags": [
+    "fish",
+    "baltic",
+    "perishable"
+  ],
+  "physical": {
+    "mass_kg": 0.3,
+    "size_m": [
+      0.53,
+      0.14,
+      0.13
+    ],
+    "materials": [
+      "food_organic"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "consume",
+    "stack"
+  ],
+  "economy": {
+    "base_pfennigs": 2,
+    "ownership": "merchant",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "harbor",
+      "market",
+      "home_poor"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/furniture/tables/medieval_table_kit/medieval_table_kit.glb",
+    "node": "FishModule",
+    "prop_kind": "fish",
+    "measured_size_m": [
+      0.53,
+      0.14,
+      0.13
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.herring_fresh.png",
+    "icon": "res://assets/objects/icons/obj.herring_fresh.png",
+    "icon_status": "missing",
+    "look": "Silvery herring with a dark blue back and a small black eye, wet sheen.",
+    "image_prompt": "Fresh herring: Silvery herring with a dark blue back and a small black eye, wet sheen."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "gut and cook",
+    "salt for storage"
+  ],
+  "carry": {
+    "grid_width": 1,
+    "grid_height": 1,
+    "stackable": true,
+    "max_stack": 6
+  },
+  "edible": {
+    "kind": "food",
+    "nutrition": 14,
+    "hydration": 0,
+    "spoils_after_days": 2,
+    "raw_unsafe": true
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "type": "world_object",
+  "id": "obj.shelf_common_open",
+  "name": "Open rack",
+  "description": "A plain softwood rack of open boards for jars, bowls and tools in a poor household or workshop.",
+  "category": "furniture",
+  "handling": "fixed",
+  "tags": [
+    "storage",
+    "shelf",
+    "poor"
+  ],
+  "physical": {
+    "mass_kg": 22,
+    "size_m": [
+      0.98,
+      1.4,
+      0.47
+    ],
+    "materials": [
+      "wood"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "open"
+  ],
+  "economy": {
+    "base_pfennigs": 0,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_poor",
+      "forge",
+      "tavern"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/furniture/medieval_storage/common_open_rack/common_open_rack.glb",
+    "prop_kind": "shelf",
+    "variant": "shelf.common_open",
+    "measured_size_m": [
+      0.98,
+      1.4,
+      0.47
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.shelf_common_open.png",
+    "icon": "res://assets/objects/icons/obj.shelf_common_open.png",
+    "icon_status": "missing",
+    "look": "Narrow softwood frame with four open shelves, grey with age, bowls and jars standing on it.",
+    "image_prompt": "Open rack: Narrow softwood frame with four open shelves, grey with age, bowls and jars standing on it."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "shelve household goods"
+  ],
+  "container": {
+    "capacity_l": 90,
+    "lockable": false
+  }
+}

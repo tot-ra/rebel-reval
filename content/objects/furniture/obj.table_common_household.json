@@ -1,0 +1,69 @@
+{
+  "type": "world_object",
+  "id": "obj.table_common_household",
+  "name": "Household table",
+  "description": "A plain board table for family meals and kitchen work; carries a few dishes.",
+  "category": "furniture",
+  "handling": "heavy",
+  "tags": [
+    "table",
+    "surface"
+  ],
+  "physical": {
+    "mass_kg": 28,
+    "size_m": [
+      1.5,
+      0.77,
+      0.78
+    ],
+    "materials": [
+      "wood"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "push",
+    "pull"
+  ],
+  "economy": {
+    "base_pfennigs": 90,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_poor",
+      "home_burgher"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/furniture/tables/medieval_table_kit/medieval_table_kit.glb",
+    "node": "CommonHouseholdTable",
+    "prop_kind": "table",
+    "variant": "table.common_household",
+    "measured_size_m": [
+      1.5,
+      0.77,
+      0.78
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.table_common_household.png",
+    "icon": "res://assets/objects/icons/obj.table_common_household.png",
+    "icon_status": "missing",
+    "look": "Scrubbed pale softwood table on four splayed legs, knife scars across the top.",
+    "image_prompt": "Household table: Scrubbed pale softwood table on four splayed legs, knife scars across the top."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "place objects on top",
+    "hide under",
+    "overturn as cover"
+  ]
+}

@@ -22,6 +22,7 @@ RECORD_TYPE_BY_PREFIX = {
     "rite.": "rite",
     "magic.": "magic_grant",
     "cutscene.": "cutscene",
+    "obj.": "world_object",
 }
 
 CONDITION_OPS = {

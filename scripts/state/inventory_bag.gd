@@ -7,6 +7,7 @@ enum AddResult {
 	NO_SPACE,
 	OVER_WEIGHT,
 	STACK_FULL,
+	NOT_CARRIABLE,
 }
 
 ## Kalev's worn travel bag: rectangular grid plus a separate weight budget.
@@ -101,6 +102,8 @@ func check_add(item_id: StringName, quantity: int = 1) -> AddResult:
 		return AddResult.UNKNOWN_ITEM
 
 	var profile := _profile_for(item_id)
+	if not profile.bag_allowed:
+		return AddResult.NOT_CARRIABLE
 	var add_count := maxi(1, quantity)
 
 	if profile.stackable:
@@ -108,7 +111,7 @@ func check_add(item_id: StringName, quantity: int = 1) -> AddResult:
 			if placement.item_id != item_id:
 				continue
 			var next_quantity := placement.quantity + add_count
-			if next_quantity > ItemCarryProfile.MAX_STACK_SIZE:
+			if next_quantity > profile.max_stack:
 				return AddResult.STACK_FULL
 			var stack_added_weight := profile.weight_kg * add_count
 			if get_total_weight() + reserved_weight_kg + stack_added_weight > MAX_WEIGHT_KG + 0.001:
@@ -128,6 +131,8 @@ func try_add(item_id: StringName, quantity: int = 1) -> AddResult:
 		return AddResult.UNKNOWN_ITEM
 
 	var profile := _profile_for(item_id)
+	if not profile.bag_allowed:
+		return AddResult.NOT_CARRIABLE
 	var add_count := maxi(1, quantity)
 
 	if profile.stackable:
@@ -135,7 +140,7 @@ func try_add(item_id: StringName, quantity: int = 1) -> AddResult:
 			if placement.item_id != item_id:
 				continue
 			var next_quantity := placement.quantity + add_count
-			if next_quantity > ItemCarryProfile.MAX_STACK_SIZE:
+			if next_quantity > profile.max_stack:
 				return AddResult.STACK_FULL
 			var stack_added_weight := profile.weight_kg * add_count
 			if get_total_weight() + reserved_weight_kg + stack_added_weight > MAX_WEIGHT_KG + 0.001:
@@ -197,6 +202,9 @@ func _profile_for(item_id: StringName) -> ItemCarryProfile:
 		var record: Dictionary = _content_db.get_item(item_id)
 		if not record.is_empty():
 			return ItemCarryProfile.from_content_record(record)
+		var world_object: Dictionary = _content_db.get_world_object(item_id)
+		if not world_object.is_empty():
+			return ItemCarryProfile.from_world_object(world_object)
 	return ItemCarryProfile.fallback(item_id)
 
 

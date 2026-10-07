@@ -1,0 +1,83 @@
+{
+  "type": "world_object",
+  "id": "obj.dried_peas_bin",
+  "name": "Bin of dried peas",
+  "description": "A small bin of dried peas; boiled into the poor man's pottage.",
+  "category": "food",
+  "handling": "carry_one_hand",
+  "tags": [
+    "staple",
+    "legume",
+    "pottage"
+  ],
+  "physical": {
+    "mass_kg": 4.0,
+    "size_m": [
+      0.22,
+      0.18,
+      0.22
+    ],
+    "materials": [
+      "wood",
+      "food_organic"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "consume"
+  ],
+  "economy": {
+    "base_pfennigs": 14,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_poor",
+      "home_burgher",
+      "forge",
+      "market"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/domestic/household/smithy_household_clutter_kit.glb",
+    "node": "ProvisionDriedPeasBin",
+    "prop_kind": "household_clutter",
+    "variant": "provision.dried_peas_bin",
+    "measured_size_m": [
+      0.22,
+      0.18,
+      0.22
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.dried_peas_bin.png",
+    "icon": "res://assets/objects/icons/obj.dried_peas_bin.png",
+    "icon_status": "missing",
+    "look": "Lidless oak bin heaped with pale-green split dried peas.",
+    "image_prompt": "Bin of dried peas: Lidless oak bin heaped with pale-green split dried peas."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "cook pottage"
+  ],
+  "carry": {
+    "grid_width": 2,
+    "grid_height": 2,
+    "stackable": false
+  },
+  "edible": {
+    "kind": "ingredient",
+    "nutrition": 55,
+    "spoils_after_days": null,
+    "raw_unsafe": true
+  }
+}

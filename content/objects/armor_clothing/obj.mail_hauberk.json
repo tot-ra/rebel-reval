@@ -1,0 +1,76 @@
+{
+  "type": "world_object",
+  "id": "obj.mail_hauberk",
+  "name": "Mail hauberk",
+  "description": "A riveted mail shirt, expensive and illegal for commoners to bear.",
+  "category": "armor_clothing",
+  "handling": "carry_two_hands",
+  "tags": [
+    "armor",
+    "mail",
+    "military"
+  ],
+  "physical": {
+    "mass_kg": 12,
+    "size_m": [
+      1.04,
+      0.95,
+      0.39
+    ],
+    "materials": [
+      "iron"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "push",
+    "equip"
+  ],
+  "economy": {
+    "base_pfennigs": 900,
+    "ownership": "garrison",
+    "legality": "restricted",
+    "theft_severity": 3
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "guard_post",
+      "forge"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/characters/shared/hero_mail.glb",
+    "fitted_variants": [
+      "res://assets/storybook/equipment/aita_mail.glb",
+      "res://assets/storybook/equipment/ellen_mail.glb",
+      "res://assets/storybook/equipment/henning_mail.glb",
+      "res://assets/storybook/equipment/jurgen_mail.glb",
+      "res://assets/storybook/equipment/kaja_mail.glb",
+      "res://assets/storybook/equipment/mart_mail.glb",
+      "res://assets/storybook/equipment/watchman_mail.glb"
+    ],
+    "measured_size_m": [
+      1.04,
+      0.95,
+      0.39
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.mail_hauberk.png",
+    "icon": "res://assets/objects/icons/obj.mail_hauberk.png",
+    "icon_status": "missing",
+    "look": "Short-sleeved mail shirt of riveted iron rings over a padded lining.",
+    "image_prompt": "Mail hauberk: Short-sleeved mail shirt of riveted iron rings over a padded lining."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "equip": {
+    "slot": "body",
+    "protection": "heavy"
+  }
+}

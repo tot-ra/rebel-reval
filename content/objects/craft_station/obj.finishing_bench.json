@@ -1,0 +1,63 @@
+{
+  "type": "world_object",
+  "id": "obj.finishing_bench",
+  "name": "Finishing bench",
+  "description": "A heavy workbench with a vise where hot work is filed, hardened and finished.",
+  "category": "craft_station",
+  "handling": "fixed",
+  "tags": [
+    "smithing",
+    "station",
+    "forge"
+  ],
+  "physical": {
+    "mass_kg": 90,
+    "size_m": [
+      2.5,
+      1.08,
+      2.58
+    ],
+    "materials": [
+      "wood",
+      "iron"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect"
+  ],
+  "economy": {
+    "base_pfennigs": 0,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "forge"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/forge/kalev_smithy_finishing_bench/kalev_smithy_finishing_bench.glb",
+    "measured_size_m": [
+      2.5,
+      1.08,
+      2.58
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.finishing_bench.png",
+    "icon": "res://assets/objects/icons/obj.finishing_bench.png",
+    "icon_status": "missing",
+    "look": "Thick oak bench with an iron vise at one end and files racked on the wall.",
+    "image_prompt": "Finishing bench: Thick oak bench with an iron vise at one end and files racked on the wall."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "finish and polish work"
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "type": "world_object",
+  "id": "obj.fish_knife",
+  "name": "Fish knife",
+  "description": "A narrow gutting knife with a worn horn-capped handle.",
+  "category": "tool",
+  "handling": "pocketable",
+  "tags": [
+    "blade",
+    "fishing",
+    "tool"
+  ],
+  "physical": {
+    "mass_kg": 0.2,
+    "size_m": [
+      0.46,
+      0.04,
+      0.08
+    ],
+    "materials": [
+      "steel",
+      "wood"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "throw"
+  ],
+  "economy": {
+    "base_pfennigs": 14,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "harbor",
+      "market",
+      "home_poor"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/furniture/tables/medieval_table_kit/medieval_table_kit.glb",
+    "node": "KnifeModule",
+    "prop_kind": "knife",
+    "measured_size_m": [
+      0.46,
+      0.04,
+      0.08
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.fish_knife.png",
+    "icon": "res://assets/objects/icons/obj.fish_knife.png",
+    "icon_status": "missing",
+    "look": "Thin steel blade with a slight belly, wooden handle blackened by fish oil.",
+    "image_prompt": "Fish knife: Thin steel blade with a slight belly, wooden handle blackened by fish oil."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "gut fish",
+    "cut cord"
+  ],
+  "carry": {
+    "grid_width": 2,
+    "grid_height": 1,
+    "stackable": false
+  },
+  "throw": {
+    "range_m": 5.0,
+    "damage": 3,
+    "breaks": false,
+    "noise": "quiet"
+  }
+}

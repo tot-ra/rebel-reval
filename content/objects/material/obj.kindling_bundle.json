@@ -1,0 +1,76 @@
+{
+  "type": "world_object",
+  "id": "obj.kindling_bundle",
+  "name": "Kindling bundle",
+  "description": "Split pine sticks tied for lighting fires.",
+  "category": "material",
+  "handling": "carry_one_hand",
+  "tags": [
+    "fuel",
+    "fire"
+  ],
+  "physical": {
+    "mass_kg": 1.5,
+    "size_m": [
+      0.39,
+      0.03,
+      0.03
+    ],
+    "materials": [
+      "wood"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "stack"
+  ],
+  "economy": {
+    "base_pfennigs": 2,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_poor",
+      "home_burgher",
+      "forge",
+      "tavern"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/domestic/household/smithy_household_clutter_kit.glb",
+    "node": "HouseholdKindlingBundle",
+    "prop_kind": "household_clutter",
+    "variant": "household.kindling_bundle",
+    "measured_size_m": [
+      0.39,
+      0.03,
+      0.03
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.kindling_bundle.png",
+    "icon": "res://assets/objects/icons/obj.kindling_bundle.png",
+    "icon_status": "missing",
+    "look": "Tied bundle of thin split pine sticks with a hemp cord.",
+    "image_prompt": "Kindling bundle: Tied bundle of thin split pine sticks with a hemp cord."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "start a fire"
+  ],
+  "carry": {
+    "grid_width": 2,
+    "grid_height": 1,
+    "stackable": true,
+    "max_stack": 4
+  }
+}

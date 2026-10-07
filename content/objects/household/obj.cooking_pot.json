@@ -1,0 +1,91 @@
+{
+  "type": "world_object",
+  "id": "obj.cooking_pot",
+  "name": "Lidded cooking pot",
+  "description": "A lidded iron pot with two lug handles that hangs on the hearth crane.",
+  "category": "household",
+  "handling": "carry_one_hand",
+  "tags": [
+    "kitchen",
+    "cookware",
+    "hearth"
+  ],
+  "physical": {
+    "mass_kg": 3.0,
+    "size_m": [
+      0.3,
+      0.18,
+      0.22
+    ],
+    "materials": [
+      "iron"
+    ],
+    "hot_when_lit": true
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "throw",
+    "open"
+  ],
+  "economy": {
+    "base_pfennigs": 48,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_poor",
+      "home_burgher",
+      "tavern",
+      "forge"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/domestic/kitchenware/medieval_kitchenware_kit.glb",
+    "node": "KitchenwareCookingPotLidded",
+    "prop_kind": "kitchenware",
+    "variant": "kitchenware.cooking_pot_lidded",
+    "measured_size_m": [
+      0.3,
+      0.18,
+      0.22
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.cooking_pot.png",
+    "icon": "res://assets/objects/icons/obj.cooking_pot.png",
+    "icon_status": "missing",
+    "look": "Black cast-iron pot with a round belly, two ear handles and a loose flat lid.",
+    "image_prompt": "Lidded cooking pot: Black cast-iron pot with a round belly, two ear handles and a loose flat lid."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "cook pottage on the hearth"
+  ],
+  "carry": {
+    "grid_width": 2,
+    "grid_height": 2,
+    "stackable": false
+  },
+  "throw": {
+    "range_m": 2.5,
+    "damage": 4,
+    "breaks": false,
+    "noise": "loud"
+  },
+  "container": {
+    "capacity_l": 4,
+    "lockable": false,
+    "accepts_tags": [
+      "food",
+      "liquid"
+    ]
+  }
+}

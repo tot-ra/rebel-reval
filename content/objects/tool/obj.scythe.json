@@ -1,0 +1,76 @@
+{
+  "type": "world_object",
+  "id": "obj.scythe",
+  "name": "Scythe",
+  "description": "A long-bladed grass and grain scythe; heavy and menacing.",
+  "category": "tool",
+  "handling": "carry_one_hand",
+  "tags": [
+    "farm",
+    "tool",
+    "improvised_weapon"
+  ],
+  "physical": {
+    "mass_kg": 2.4,
+    "size_m": [
+      1.03,
+      1.51,
+      0.39
+    ],
+    "materials": [
+      "wood",
+      "steel"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "equip"
+  ],
+  "economy": {
+    "base_pfennigs": 45,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "farm"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/tools/scythe/scythe.glb",
+    "prop_kind": "scythe",
+    "measured_size_m": [
+      1.03,
+      1.51,
+      0.39
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.scythe.png",
+    "icon": "res://assets/objects/icons/obj.scythe.png",
+    "icon_status": "missing",
+    "look": "Curved steel blade riveted to a long bent snath with two grip pegs.",
+    "image_prompt": "Scythe: Curved steel blade riveted to a long bent snath with two grip pegs."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "mow grass and grain"
+  ],
+  "carry": {
+    "grid_width": 2,
+    "grid_height": 3,
+    "stackable": false
+  },
+  "equip": {
+    "slot": "right_hand",
+    "damage_type": "slash",
+    "protection": "none"
+  }
+}

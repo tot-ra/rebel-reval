@@ -1,0 +1,82 @@
+{
+  "type": "world_object",
+  "id": "obj.sickle",
+  "name": "Sickle",
+  "description": "A small curved harvesting sickle.",
+  "category": "tool",
+  "handling": "pocketable",
+  "tags": [
+    "farm",
+    "tool"
+  ],
+  "physical": {
+    "mass_kg": 0.6,
+    "size_m": [
+      0.54,
+      0.46,
+      0.05
+    ],
+    "materials": [
+      "steel",
+      "wood"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "throw",
+    "equip"
+  ],
+  "economy": {
+    "base_pfennigs": 18,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "farm"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/tools/sickle/sickle.glb",
+    "prop_kind": "sickle",
+    "measured_size_m": [
+      0.54,
+      0.46,
+      0.05
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.sickle.png",
+    "icon": "res://assets/objects/icons/obj.sickle.png",
+    "icon_status": "missing",
+    "look": "Curved steel blade on a short wooden grip.",
+    "image_prompt": "Sickle: Curved steel blade on a short wooden grip."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "reap grain"
+  ],
+  "carry": {
+    "grid_width": 2,
+    "grid_height": 1,
+    "stackable": false
+  },
+  "throw": {
+    "range_m": 4.0,
+    "damage": 3,
+    "breaks": false,
+    "noise": "quiet"
+  },
+  "equip": {
+    "slot": "right_hand",
+    "damage_type": "slash",
+    "protection": "none"
+  }
+}

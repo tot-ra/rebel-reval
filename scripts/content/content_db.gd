@@ -23,6 +23,7 @@ const TYPE_SPELL := "spell"
 const TYPE_RITE := "rite"
 const TYPE_MAGIC_GRANT := "magic_grant"
 const TYPE_CUTSCENE := "cutscene"
+const TYPE_WORLD_OBJECT := "world_object"
 
 const CONTENT_ID_REGEX := "^[a-z][a-z0-9]*(\\.[a-z0-9_]+)+$"
 
@@ -42,6 +43,7 @@ const _TYPE_BY_PREFIX := {
 	"rite.": TYPE_RITE,
 	"magic.": TYPE_MAGIC_GRANT,
 	"cutscene.": TYPE_CUTSCENE,
+	"obj.": TYPE_WORLD_OBJECT,
 }
 
 static var _content_id_regex: RegEx
@@ -176,6 +178,11 @@ func get_quest(content_id: StringName) -> Dictionary:
 
 func get_item(content_id: StringName) -> Dictionary:
 	return _lookup_typed(content_id, TYPE_ITEM)
+
+
+## Physical-object catalog entry (content/objects, docs/SYSTEMS/OBJECT_CATALOG.md).
+func get_world_object(content_id: StringName) -> Dictionary:
+	return _lookup_typed(content_id, TYPE_WORLD_OBJECT)
 
 
 func get_commission(content_id: StringName) -> Dictionary:

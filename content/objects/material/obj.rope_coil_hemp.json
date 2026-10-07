@@ -1,0 +1,74 @@
+{
+  "type": "world_object",
+  "id": "obj.rope_coil_hemp",
+  "name": "Hemp rope coil",
+  "description": "A big coil of tarred hemp rope used for hoists, boats and cargo lashing.",
+  "category": "material",
+  "handling": "carry_one_hand",
+  "tags": [
+    "rope",
+    "harbor",
+    "tool"
+  ],
+  "physical": {
+    "mass_kg": 6.5,
+    "size_m": [
+      1.24,
+      0.12,
+      0.86
+    ],
+    "materials": [
+      "hemp_rope"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop"
+  ],
+  "economy": {
+    "base_pfennigs": 35,
+    "ownership": "merchant",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "harbor",
+      "warehouse",
+      "street"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/crafts/rope_coil/rope_coil.glb",
+    "prop_kind": "rope_coil",
+    "measured_size_m": [
+      1.24,
+      0.12,
+      0.86
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.rope_coil_hemp.png",
+    "icon": "res://assets/objects/icons/obj.rope_coil_hemp.png",
+    "icon_status": "missing",
+    "look": "Flat coiled tarred rope in neat concentric rings.",
+    "image_prompt": "Hemp rope coil: Flat coiled tarred rope in neat concentric rings."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "climb",
+    "tie",
+    "hoist"
+  ],
+  "carry": {
+    "grid_width": 2,
+    "grid_height": 2,
+    "stackable": false
+  }
+}

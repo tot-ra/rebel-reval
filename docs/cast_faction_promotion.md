@@ -93,7 +93,7 @@ Priority is production order inside each act wave. Content IDs are stubs for lat
 | 13 | Brother Goswin von Herike | `characters/order/brother_goswin_von_herike.md` | **promote-first** | A2 | 1 | Livonian Order | `char.goswin_herike` | Field commander under Burchard. |
 | 14 | Mikhail Kolovrat | `characters/pskov/mihail_kolovrat.md` | **promote-first** | A2 | 1 | Pskov/Novgorod | `char.mikhail_kolovrat` | Pskov scout/emissary; fits quest seeds 11–12. |
 | 15 | Jana Podajalnaja | `characters/novgorod/jana_podajalnaja.md` | **promote-first** | A2 | 1 | Pskov/Novgorod | `char.jana_podajalnaja` | Novgorod trade/intel voice inside combined seat. |
-| 16 | "Ironhand" Störtebeker | `characters/pirates/ironhand_stortebeker.md` | **adapt** | A2 | 1 | Vitalienbrüder | `char.ironhand` | Hireable harbour chaos; no naval battle sim. Legendary name stays `invented`/`plausible composite` unless research upgrades it. |
+| 16 | "Ironhand" Störtebeker | `characters/pirates/ironhand_stortebeker.md` | **adapt** | A2 | 1 | Vitalienbrüder | `char.ironhand` | Hireable harbour chaos; no naval battle sim. Legendary name stays `invented`/`plausible composite` unless research upgrades it. Anachronism: the historical Störtebeker lived c.1360-1401, so in 1343 play the character as an unnamed `invented` Vitalienbrüder captain (see [locations hub](./LOCATIONS/README.md)). |
 | 17 | Nikolaus von Danzig | `characters/lizard_union/nikolaus_von_danzig.md` | **promote-first** (cell only) | A2–A3 | 1 | Lizard intrigue cell | `char.nikolaus_danzig` | Not a ninth launch faction face until ADR. |
 
 ### Wave C - Act 3 island / occupation

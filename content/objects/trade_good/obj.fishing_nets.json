@@ -1,0 +1,70 @@
+{
+  "type": "world_object",
+  "id": "obj.fishing_nets",
+  "name": "Fishing nets",
+  "description": "Tarred hemp nets with cork floats and stone sinkers, hung to dry on the shore.",
+  "category": "trade_good",
+  "handling": "carry_two_hands",
+  "tags": [
+    "fishing",
+    "net",
+    "harbor"
+  ],
+  "physical": {
+    "mass_kg": 9,
+    "size_m": [
+      1.46,
+      1.48,
+      0.5
+    ],
+    "materials": [
+      "hemp_rope",
+      "wood",
+      "stone"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "push"
+  ],
+  "economy": {
+    "base_pfennigs": 70,
+    "ownership": "guild",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "hanging",
+    "spaces": [
+      "harbor",
+      "street"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/crafts/fishing_nets/fishing_nets.glb",
+    "prop_kind": "fishing_nets",
+    "measured_size_m": [
+      1.46,
+      1.48,
+      0.5
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.fishing_nets.png",
+    "icon": "res://assets/objects/icons/obj.fishing_nets.png",
+    "icon_status": "missing",
+    "look": "Dark tarred net hanging from an oak pole with bark floats and pierced-stone sinkers.",
+    "image_prompt": "Fishing nets: Dark tarred net hanging from an oak pole with bark floats and pierced-stone sinkers."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "fish",
+    "tangle pursuers"
+  ]
+}

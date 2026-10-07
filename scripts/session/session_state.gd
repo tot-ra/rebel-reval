@@ -17,6 +17,7 @@ const DEMO_CONTENT_DIRS: Array[String] = [
 	"res://content/prologue",
 	"res://content/examples/support",
 	"res://content/examples/valid",
+	"res://content/objects",
 	"res://content/packages/bell_and_chain/content",
 	"res://content/packages/act2_siege_investment_rebel/content",
 	"res://content/packages/act2_siege_investment_ruler/content",

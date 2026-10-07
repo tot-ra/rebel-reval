@@ -1,0 +1,72 @@
+{
+  "type": "world_object",
+  "id": "obj.table_trestle_work",
+  "name": "Trestle work table",
+  "description": "A heavy trestle bench on which fish are gutted or small work is laid out.",
+  "category": "craft_station",
+  "handling": "heavy",
+  "tags": [
+    "table",
+    "surface",
+    "workshop"
+  ],
+  "physical": {
+    "mass_kg": 30,
+    "size_m": [
+      1.58,
+      0.82,
+      0.76
+    ],
+    "materials": [
+      "wood",
+      "iron"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "push",
+    "pull"
+  ],
+  "economy": {
+    "base_pfennigs": 110,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "forge",
+      "harbor",
+      "market",
+      "home_poor"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/furniture/tables/medieval_table_kit/medieval_table_kit.glb",
+    "node": "TrestleWorkTable",
+    "prop_kind": "table",
+    "variant": "table.trestle_work",
+    "measured_size_m": [
+      1.58,
+      0.82,
+      0.76
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.table_trestle_work.png",
+    "icon": "res://assets/objects/icons/obj.table_trestle_work.png",
+    "icon_status": "missing",
+    "look": "Trestle table of thick planks, fish scales and knife nicks across the surface.",
+    "image_prompt": "Trestle work table: Trestle table of thick planks, fish scales and knife nicks across the surface."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "lay out work",
+    "gut fish"
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "type": "world_object",
+  "id": "obj.pine_splint_holder",
+  "name": "Pine splint holder",
+  "description": "An iron-jawed stand holding a resinous pine splint that burns bright, fast and sooty.",
+  "category": "light_source",
+  "handling": "carry_one_hand",
+  "tags": [
+    "light",
+    "splint",
+    "rural"
+  ],
+  "physical": {
+    "mass_kg": 1.5,
+    "size_m": [
+      0.55,
+      0.54,
+      0.22
+    ],
+    "materials": [
+      "iron",
+      "wood"
+    ],
+    "flammable": true,
+    "hot_when_lit": true
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "light"
+  ],
+  "economy": {
+    "base_pfennigs": 5,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_poor",
+      "farm",
+      "forge"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/lighting/medieval_lighting_kit.glb",
+    "node": "PineSplint",
+    "prop_kind": "candle",
+    "variant": "pine_splint",
+    "measured_size_m": [
+      0.55,
+      0.54,
+      0.22
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.pine_splint_holder.png",
+    "icon": "res://assets/objects/icons/obj.pine_splint_holder.png",
+    "icon_status": "missing",
+    "look": "Wooden base with an iron stem and a hinged clip holding a resin-dark pine splint.",
+    "image_prompt": "Pine splint holder: Wooden base with an iron stem and a hinged clip holding a resin-dark pine splint."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "carry": {
+    "grid_width": 2,
+    "grid_height": 2,
+    "stackable": false
+  },
+  "light": {
+    "radius_m": 3.5,
+    "burn_hours": 1,
+    "fuel": "pine_resin",
+    "open_flame": true
+  }
+}

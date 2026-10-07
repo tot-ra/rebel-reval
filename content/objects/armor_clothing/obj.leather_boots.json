@@ -1,0 +1,66 @@
+{
+  "type": "world_object",
+  "id": "obj.leather_boots",
+  "name": "Leather boots",
+  "description": "A pair of turnshoe boots.",
+  "category": "armor_clothing",
+  "handling": "carry_one_hand",
+  "tags": [
+    "clothing",
+    "footwear"
+  ],
+  "physical": {
+    "mass_kg": 1.2,
+    "size_m": [
+      0.3,
+      0.2,
+      0.15
+    ],
+    "materials": [
+      "leather"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "equip"
+  ],
+  "economy": {
+    "base_pfennigs": 28,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "street",
+      "home_poor",
+      "home_burgher",
+      "market"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "missing"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.leather_boots.png",
+    "icon": "res://assets/objects/icons/obj.leather_boots.png",
+    "icon_status": "missing",
+    "look": "Pair of worn brown leather ankle boots with laces.",
+    "image_prompt": "A pair of worn brown leather ankle boots with laces"
+  },
+  "lifecycle": "planned",
+  "confidence": "plausible composite",
+  "carry": {
+    "grid_width": 2,
+    "grid_height": 1,
+    "stackable": false
+  },
+  "equip": {
+    "slot": "feet",
+    "protection": "light"
+  }
+}

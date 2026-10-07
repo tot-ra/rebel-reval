@@ -1,0 +1,88 @@
+{
+  "type": "world_object",
+  "id": "obj.beer_jug",
+  "name": "Jug of small beer",
+  "description": "A jug of weak daily beer: Reval's safe drink and a workday ration.",
+  "category": "drink",
+  "handling": "pocketable",
+  "tags": [
+    "drink",
+    "beer",
+    "ration"
+  ],
+  "physical": {
+    "mass_kg": 0.95,
+    "size_m": [
+      0.13,
+      0.24,
+      0.11
+    ],
+    "materials": [
+      "clay_ceramic",
+      "water_liquid"
+    ],
+    "fragile": true
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "throw",
+    "consume"
+  ],
+  "economy": {
+    "base_pfennigs": 3,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_poor",
+      "home_burgher",
+      "tavern",
+      "forge"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/domestic/household/smithy_household_clutter_kit.glb",
+    "node": "ProvisionBeerJug",
+    "prop_kind": "household_clutter",
+    "variant": "provision.beer_jug",
+    "measured_size_m": [
+      0.13,
+      0.24,
+      0.11
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.beer_jug.png",
+    "icon": "res://assets/objects/icons/obj.beer_jug.png",
+    "icon_status": "missing",
+    "look": "Brown glazed jug with a narrow neck, foam on the lip.",
+    "image_prompt": "Jug of small beer: Brown glazed jug with a narrow neck, foam on the lip."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "carry": {
+    "grid_width": 1,
+    "grid_height": 2,
+    "stackable": false
+  },
+  "throw": {
+    "range_m": 3.5,
+    "damage": 2,
+    "breaks": true,
+    "noise": "loud"
+  },
+  "edible": {
+    "kind": "drink",
+    "nutrition": 6,
+    "hydration": 35,
+    "intoxicating": true,
+    "spoils_after_days": 5
+  }
+}
