@@ -43,6 +43,7 @@ static func assemble(
 	var water_blocks := _create_water_blocks(definition, grid, host)
 	var relief_blocks := _create_relief_blocks(definition, host)
 	var excluded_blocks := _create_excluded_area_blocks(definition, grid, host)
+	var boat_blocks := _create_boat_blocks(definition, host)
 
 	var gameplay := Node2D.new()
 	gameplay.name = "Gameplay"
@@ -61,6 +62,7 @@ static func assemble(
 		"water_blocks": water_blocks,
 		"relief_blocks": relief_blocks,
 		"excluded_blocks": excluded_blocks,
+		"boat_blocks": boat_blocks,
 		"doors": doors,
 		"anchors": anchors,
 		"fades": fades,
@@ -89,6 +91,7 @@ static func assemble_location_package(
 	_create_water_blocks(definition, built_grid, package)
 	_create_relief_blocks(definition, package)
 	_create_excluded_area_blocks(definition, built_grid, package)
+	_create_boat_blocks(definition, package)
 
 	var gameplay := Node2D.new()
 	gameplay.name = "Gameplay"
@@ -253,6 +256,53 @@ static func _water_body(
 		collision.shape = shape
 		collision.position = world_rect.get_center()
 		body.add_child(collision)
+	return body
+
+
+## ADR 0021 lets the player wade and swim, so a moored boat needs its own solid
+## body or Kalev walks straight through the hull. One capsule per boat prop
+## matches the 3D hull plan (same centre, visual offset and yaw as
+## MapViewMeshBuilderPropModels.build_prop) on the world layer, which both the
+## player and NPCs mask. Navigation is unchanged: boats sit on water cells that
+## click-to-move already routes around or onto as authored.
+static func _create_boat_blocks(definition: MapDefinition, parent: Node2D) -> StaticBody2D:
+	var body := StaticBody2D.new()
+	body.name = "BoatBlocks"
+	body.collision_layer = CollisionLayers.WORLD
+	body.add_to_group(&"map_boat_collision")
+	var cell := float(definition.cell_size)
+	for prop in definition.props:
+		var kind: StringName = prop.get("kind", &"")
+		if not kind in MapTypes.BOAT_PROP_KINDS:
+			continue
+		var half := (
+			Vector2(MapViewFishingBoatBuilder.HULL_HALF_LENGTH, MapViewFishingBoatBuilder.HULL_HALF_BEAM)
+			if kind == MapTypes.PROP_KIND_FISHING_BOAT
+			else Vector2(
+				MapViewMerchantBoatBuilder.HULL_HALF_LENGTH, MapViewMerchantBoatBuilder.HULL_HALF_BEAM
+			)
+		) * cell
+		var yaw := MapTypes.prop_facing_yaw(prop)
+		var footprint: Variant = prop.get("footprint")
+		if footprint is Rect2 and footprint.size.y > footprint.size.x:
+			yaw += PI * 0.5
+		var shape := CapsuleShape2D.new()
+		shape.radius = half.y
+		shape.height = half.x * 2.0
+		var collision := CollisionShape2D.new()
+		collision.name = "Boat_%s" % String(prop["id"])
+		collision.shape = shape
+		# build_prop applies visual_offset_px.y as height, so only x moves the hull.
+		var offset: Vector2 = prop.get("visual_offset_px", Vector2.ZERO)
+		collision.position = (prop["position"] as Vector2) + Vector2(offset.x, 0.0)
+		# 3D yaw turns hull +X toward (cos, -sin) on the logic plane; the capsule's
+		# long axis is its local +Y, hence the quarter-turn back.
+		collision.rotation = Vector2(cos(yaw), -sin(yaw)).angle() - PI * 0.5
+		body.add_child(collision)
+	if body.get_child_count() == 0:
+		body.free()
+		return null
+	parent.add_child(body)
 	return body
 
 

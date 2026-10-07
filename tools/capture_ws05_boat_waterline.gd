@@ -7,8 +7,10 @@ extends SceneTree
 ##
 ## Options:
 ##   --scenario=clear|storm   weather preset (day)
-##   --boat=cog|landing       merchant_cog_central (deep water) or landing_boat_west
-##                            (shallow berth) on reval_harbor_north
+##   --boat=cog|landing|kalamaja  merchant_cog_central (deep water) or
+##                            landing_boat_west (shallow berth) on reval_harbor_north,
+##                            or fishing_boat_mid_a on the Kalamaja shore
+##                            (reval_harbor_east)
 ## The sea clock advances by the real frame delta so BoatFloat3D's spring runs as in
 ## play. Writes one contact sheet of 12 moments, 0.5 s apart, after a 6 s settle:
 ##   docs/reports/images/ws05_<renderer>_<scenario>_<boat>_clip.png
@@ -28,6 +30,7 @@ const COLUMNS := 4
 const BOATS := {
 	&"cog": {"prop": &"merchant_cog_central", "ortho": 11.0},
 	&"landing": {"prop": &"landing_boat_west", "ortho": 6.0},
+	&"kalamaja": {"prop": &"fishing_boat_mid_a", "ortho": 6.0, "map": "reval_harbor_east"},
 }
 const WEATHER := {
 	&"clear": SkyWeather3D.WEATHER_CLEAR,
@@ -63,7 +66,8 @@ func _run() -> void:
 		push_error("WS-05 waterline capture needs a real renderer")
 		quit(2)
 		return
-	var definition: MapDefinition = MapAuditRegistry.by_id().get("reval_harbor_north")
+	var map_id: String = (BOATS[_boat] as Dictionary).get("map", "reval_harbor_north")
+	var definition: MapDefinition = MapAuditRegistry.by_id().get(map_id)
 	MapViewMaterials.reset()
 	var viewport := SubViewport.new()
 	viewport.size = PLATE_SIZE

@@ -9,7 +9,7 @@ func test_fishing_boat_has_shaped_open_hull_and_working_rig() -> void:
 	var hull := boat.get_node("Hull") as MeshInstance3D
 	assert_true(hull.mesh is ArrayMesh, "fishing hull must use shaped station-built geometry")
 	for path in [
-		"Interior",
+		"Floorboards",
 		"GunwalePort0",
 		"GunwaleStarboard0",
 		"StrakePort0",
@@ -38,10 +38,39 @@ func test_fishing_boat_has_shaped_open_hull_and_working_rig() -> void:
 		if absf(vertex.x) < 0.1:
 			middle_half_beam = maxf(middle_half_beam, absf(vertex.z))
 			middle_sheer = maxf(middle_sheer, vertex.y)
-		if absf(vertex.x) > 1.8:
+		if absf(vertex.x) > 2.6:
 			end_half_beam = maxf(end_half_beam, absf(vertex.z))
 			end_sheer = maxf(end_sheer, vertex.y)
-	assert_true(middle_half_beam > end_half_beam * 4.0, "hull must taper from its working middle into fine ends")
+	assert_true(
+		middle_half_beam > end_half_beam * 4.0,
+		"hull must taper from its working middle into fine ends"
+	)
 	assert_true(end_sheer > middle_sheer + 0.25, "bow and stern must rise above the amidships gunwale")
 	assert_true(keel_depth < -0.3, "hull needs a visible bilge and keel below the waterline")
+	boat.free()
+
+
+## Scale against the 2-unit (~1.75 m) actor: the hull must read as a four-oared
+## working boat, not a dinghy under an oversized mast.
+func test_fishing_boat_hull_is_scaled_against_its_rig_and_crew() -> void:
+	var boat := Node3D.new()
+	FishingBoatBuilder.add_to(boat)
+	var length := FishingBoatBuilder.HULL_HALF_LENGTH * 2.0
+	assert_true(length >= 5.5, "hull must be at least ~4.8 m long next to a 2-unit actor")
+	assert_true(
+		FishingBoatBuilder.MAST_TOP_Y < length * 0.7,
+		"mast must stay shorter than the hull is long"
+	)
+	assert_true(
+		FishingBoatBuilder.FLOOR_Y > 0.0, "bottom boards must sit above the still waterline"
+	)
+	# Stowed oars lie fore-and-aft inside the gunwales instead of jutting sideways.
+	for oar_name in ["OarPort", "OarStarboard"]:
+		for part in (boat.get_node(oar_name) as Node3D).get_children():
+			var position := (part as Node3D).position
+			var station := FishingBoatBuilder.station_at(position.x)
+			assert_true(
+				absf(position.z) < FishingBoatBuilder.half_width_at(station, position.y),
+				"%s/%s must lie inside the hull" % [oar_name, part.name]
+			)
 	boat.free()

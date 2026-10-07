@@ -74,7 +74,12 @@ var _fft_value := PackedFloat32Array([0.0, 0.0, 0.0, 0.0, 0.0])
 var _fft_velocity := PackedFloat32Array([0.0, 0.0, 0.0, 0.0, 0.0])
 
 
-func configure(host: Node3D, motion_scale: float, phase_seed: int) -> void:
+## `hull_half_extents` (half length, half beam) overrides the motion-scale
+## estimate when the builder knows its real hull, so wave sampling spans the
+## actual bow and stern instead of a hull half the size.
+func configure(
+	host: Node3D, motion_scale: float, phase_seed: int, hull_half_extents := Vector2.ZERO
+) -> void:
 	name = "BoatFloat"
 	_host = host
 	_motion_scale = motion_scale
@@ -85,6 +90,9 @@ func configure(host: Node3D, motion_scale: float, phase_seed: int) -> void:
 	var hull_scale := lerpf(1.0, 2.2, 1.0 - clampf(motion_scale, 0.0, 1.0))
 	_hull_half_length = DEFAULT_HULL_HALF_LENGTH * hull_scale
 	_hull_half_beam = DEFAULT_HULL_HALF_BEAM * lerpf(1.0, 1.35, 1.0 - clampf(motion_scale, 0.0, 1.0))
+	if hull_half_extents.x > 0.0 and hull_half_extents.y > 0.0:
+		_hull_half_length = hull_half_extents.x
+		_hull_half_beam = hull_half_extents.y
 	_sky = _find_sky_weather()
 	set_water_terrain(MapTypes.TERRAIN_WATER)
 

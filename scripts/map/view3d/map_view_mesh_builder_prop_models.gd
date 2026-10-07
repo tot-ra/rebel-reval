@@ -319,7 +319,12 @@ static func _boat_rest_field(definition: MapDefinition) -> Dictionary:
 static func _add_fishing_boat(root: Node3D, prop: Dictionary) -> void:
 	FishingBoatBuilder.add_to(root)
 	# Inshore boats are lively on chop; motion_scale 1 keeps them readable.
-	_attach_boat_float(root, prop, 1.0)
+	_attach_boat_float(
+		root,
+		prop,
+		1.0,
+		Vector2(FishingBoatBuilder.HULL_HALF_LENGTH, FishingBoatBuilder.HULL_HALF_BEAM)
+	)
 
 
 static func _add_merchant_boat(root: Node3D, prop: Dictionary) -> void:
@@ -371,9 +376,13 @@ static func _add_banner(root: Node3D, prop: Dictionary) -> void:
 	root.add_child(cloth)
 
 
-static func _attach_boat_float(root: Node3D, prop: Dictionary, motion_scale: float) -> void:
+static func _attach_boat_float(
+	root: Node3D, prop: Dictionary, motion_scale: float, hull_half_extents := Vector2.ZERO
+) -> void:
 	var floater = MapViewMeshBuilderConfig.BOAT_FLOAT_SCRIPT.new()
-	floater.configure(root, motion_scale, String(prop.get("id", root.name)).hash())
+	floater.configure(
+		root, motion_scale, String(prop.get("id", root.name)).hash(), hull_half_extents
+	)
 	root.add_child(floater)
 
 

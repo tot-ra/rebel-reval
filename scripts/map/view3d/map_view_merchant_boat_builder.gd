@@ -3,6 +3,11 @@ extends RefCounted
 
 ## Procedural fourteenth-century Baltic trading cog used by the 3D map view.
 
+## Hull extents in local space (+X bow, +Z starboard) from the _hull_mesh()
+## stations, shared with the 2D collision capsule in MapSceneBootstrap.
+const HULL_HALF_LENGTH := 3.45
+const HULL_HALF_BEAM := 1.55
+
 
 static func add_to(root: Node3D, faction_id: StringName = FactionHeraldry.HANSEATIC) -> void:
 	# A deep clinker-built hull and open timber castles preserve the period
