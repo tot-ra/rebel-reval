@@ -12,7 +12,7 @@ def biped(belly=0.0):
             Bone(f"shank{side}", f"thigh{side}", 0.43, 90, 3.6, radius=0.04, t=1.0, jrange=(0, 140), torque=180, arm=0.05),
             Bone(f"foot{side}", f"shank{side}", 0.22, 0, 1.2, radius=0.045, t=1.0, jrange=(-30, 45), torque=120, arm=0.05, foot=True),
         ]
-    return Creature("biped", B, stand_height=0.43 + 0.43 + 0.045, fall_height=0.55, root_pitch_ok=45)
+    return Creature("biped", B, stand_height=0.43 + 0.43 + 0.045, fall_height=0.68, root_pitch_ok=30, proprio=True, w_height=1.0, w_pitch=2.0, start_speed=0.6)
 
 def quadruped(belly=0.0):
     """Dog-ish, 25 kg. Root = pelvis; trunk runs forward to the shoulders."""

@@ -41,6 +41,11 @@ class Creature:
     fall_height: float        # root height below this = fallen
     root_pitch_ok: float = 55.0   # degrees of root tilt from rest allowed
     notes: str = ""
+    proprio: bool = False         # extra sensors: forward speed, height error, all joint angles
+    w_height: float = 0.0         # cost weight: pelvis sagging below 85% of standing height
+    w_pitch: float = 0.0          # cost weight: trunk tilt (radians)
+    w_effort: float = 0.5         # cost weight: mean squared muscle activation
+    start_speed: float = 0.0      # initial forward speed as a fraction of the target speed
 
     def to_json(self):
         return json.dumps(asdict(self), indent=1)

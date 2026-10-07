@@ -21,7 +21,7 @@ class Sim:
         self.joint_bones = [b for b in c.bones[1:]]
         self.jqpos = [m.joint("j_" + b.name).qposadr[0] for b in self.joint_bones]
         self._set_length_ranges()
-        self.ns = 2 + self.nfoot
+        self.ns = 2 + self.nfoot + (2 + len(self.joint_bones) if c.proprio else 0)
         self.nj = self.nm // 2
         self.nparams = self.nj * (4 + self.ns) + 1
 
@@ -67,7 +67,11 @@ class Sim:
             for a, b in ((c.geom1, c.geom2), (c.geom2, c.geom1)):
                 if a == self.floor and b in self.foot_geoms:
                     contacts[self.foot_geoms.index(b)] = 1.0
-        return np.concatenate([[pitch, 0.2 * rate], contacts])
+        base = [pitch, 0.2 * rate]
+        if self.c.proprio:
+            base += [0.5 * d.qvel[0], (d.qpos[1] + self.c.stand_height) / self.c.stand_height - 1.0]
+            base += [d.qpos[i] for i in self.jqpos]
+        return np.concatenate([base, contacts])
 
     def _geom_low(self, g):
         m, d = self.model, self.data
@@ -98,7 +102,8 @@ class Sim:
         mujoco.mj_forward(m, d)
         params = self.unpack(p); f = params[0]
         n = int(T / (CTRL_EVERY * m.opt.timestep))
-        effort = 0.0; alive = 0; x0 = None; traj = []; verr = 0.0; vcount = 0
+        effort = 0.0; sag = 0.0; tilt = 0.0; alive = 0; x0 = None; traj = []; verr = 0.0; vcount = 0
+        d.qvel[0] = self.c.start_speed * v_target
         x_prev = d.qpos[0]
         for k in range(n):
             t = k * CTRL_EVERY * m.opt.timestep
@@ -113,6 +118,8 @@ class Sim:
                 break
             alive += 1
             effort += float(np.mean(u * u))
+            zr = (d.qpos[1] + self.c.stand_height) / self.c.stand_height
+            sag += max(0.0, 0.85 - zr); tilt += abs(d.qpos[2])
             if t > 1.0:
                 vx = (d.qpos[0] - x_prev) / (CTRL_EVERY * m.opt.timestep)
                 verr += abs(vx - v_target); vcount += 1
@@ -120,10 +127,12 @@ class Sim:
             if record:
                 traj.append(dict(t=t, x=float(d.qpos[0]), z=float(d.qpos[1]), pitch=float(d.qpos[2]),
                                  q=[float(d.qpos[i]) for i in self.jqpos], u=[float(v) for v in u],
-                                 foot=[float(v) for v in s[2:]]))
+                                 foot=[float(v) for v in s[-self.nfoot:]]))
         alive_frac = alive / n
         mean_verr = verr / max(vcount, 1) if vcount else v_target + 1.0
         dist = d.qpos[0]
-        cost = 10.0 * (1 - alive_frac) + mean_verr + 0.05 * effort / max(alive, 1) * 10
+        na = max(alive, 1)
+        cost = (10.0 * (1 - alive_frac) + mean_verr + self.c.w_effort * effort / na
+                + self.c.w_height * sag / na * 10 + self.c.w_pitch * tilt / na)
         return dict(cost=cost, alive=alive_frac, dist=float(dist), speed=float(dist / T), verr=mean_verr,
                     freq=f, traj=traj)
