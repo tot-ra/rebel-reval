@@ -40,6 +40,8 @@ Cost follows player attention, not population.
 
 ### Verify the scale claim
 
+First evidence: [`reports/npc_mind_scale_spike_2026-10-08.md`](../reports/npc_mind_scale_spike_2026-10-08.md). The spike (`tools/benchmarks/npc_mind_scale_benchmark.gd`) puts the abstract tier at 0.002 ms mean per frame for 4,247 residents and under 1 ms worst case for 20,000, against 0.75 ms per frame for a naive object-per-resident update. Local-model latency is not measured yet (`tools/benchmarks/llm_npc_latency.py` is ready).
+
 A headless benchmark with synthetic populations (5,000 and 20,000 rows) must report per-frame cost of the manager, event throughput, promotion/demotion cost, and save size; it goes into `tools/run_performance_report.sh`. Phase 0 is not done until it exists. Local model latency, memory and install size are measured in the layer-2 spike, not assumed.
 
 ## Controls (planned)
