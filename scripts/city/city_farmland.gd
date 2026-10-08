@@ -20,8 +20,6 @@ const DRAW_RANGE := 150.0
 ## Plants stay off the headland: the cart track round the strip.
 const HEADLAND := 0.9
 const MIN_GROWTH := 0.08
-const FENCE_POST_STEP := 2.4
-const FENCE_HEIGHT := 1.05
 
 ## Plan crop id -> plant species, with (row gap, plant step, width factor) in
 ## metres. Cereals are tufts, so they are drawn wider than the mesh.
@@ -275,49 +273,9 @@ static func growth_scale(amount: float, rng: RandomNumberGenerator) -> Vector2:
 	return Vector2(lerpf(0.55, 1.0, amount) * variety, amount * variety)
 
 
+## Enclosure fence: wattle, pole or dry-stone by pastures' id (CityFences).
 func _fence(root: Node3D, feature: Dictionary) -> void:
-	var poly: PackedVector2Array = feature["polygon"]
-	var posts: Array[Transform3D] = []
-	var rails: Array[Transform3D] = []
-	var plain: Array[Color] = []
-	var rail_colors: Array[Color] = []
-	for i in poly.size():
-		var a := poly[i]
-		var b := poly[(i + 1) % poly.size()]
-		var span := a.distance_to(b)
-		var count := maxi(int(ceil(span / FENCE_POST_STEP)), 1)
-		var dir := (b - a) / maxf(span, 0.001)
-		for k in count:
-			var p := a + dir * (span * float(k) / count)
-			var q := a + dir * (span * float(k + 1) / count)
-			posts.append(_post(p))
-			plain.append(Color.WHITE)
-			var seg := p.distance_to(q)
-			for y: float in [0.35, 0.8]:
-				var mid := (p + q) * 0.5
-				var ground := plan.ground_height(mid)
-				var basis := Basis(Vector3.UP, atan2(-dir.y, dir.x)).scaled(Vector3(seg, 1.0, 1.0))
-				rails.append(Transform3D(basis, Vector3(mid.x, ground + y, mid.y)))
-				rail_colors.append(Color.WHITE)
-	var material := MapViewMaterials.role(&"wood").duplicate() as StandardMaterial3D
-	material.albedo_color = Color(0.5, 0.42, 0.34)
-	var post_mesh := BoxMesh.new()
-	post_mesh.size = Vector3(0.1, FENCE_HEIGHT, 0.1)
-	var rail_mesh := BoxMesh.new()
-	rail_mesh.size = Vector3(1.0, 0.07, 0.06)
-	var post_inst := MapViewMeshBuilderPrimitives.multi_mesh(
-		"Posts", post_mesh, posts, plain, material, Vector3.ZERO
-	)
-	var rail_inst := MapViewMeshBuilderPrimitives.multi_mesh(
-		"Rails", rail_mesh, rails, rail_colors, material, Vector3.ZERO
-	)
-	for inst: MultiMeshInstance3D in [post_inst, rail_inst]:
-		inst.visibility_range_end = DRAW_RANGE
-		root.add_child(inst)
-
-
-func _post(p: Vector2) -> Transform3D:
-	return Transform3D(Basis.IDENTITY, Vector3(p.x, plan.ground_height(p) + FENCE_HEIGHT * 0.5 - 0.05, p.y))  # gdlint: ignore=max-line-length
+	CityFences.build(root, String(feature["id"]), feature["polygon"], plan.ground_height, DRAW_RANGE)
 
 
 ## One hay rick just inside the feature edge.
