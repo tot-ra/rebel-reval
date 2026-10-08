@@ -3,15 +3,13 @@ extends Node3D
 
 ## Shipping off Reval (ADR 0031): Hanseatic cogs riding at anchor in the roads
 ## north of the Coastal Gate, fishing boats drawn up off the fish landing and
-## one cog under way along the shore. Hull models are the game's
-## MapViewMerchantBoatBuilder / MapViewFishingBoatBuilder, rescaled from their
-## 0.88 m units to the city's metres (a cog ~24 m, a fishing boat ~5 m).
+## one cog under way along the shore. Cogs are `CogModel` (true metres, ~21 m
+## long, sail furled at anchor and wind-filled under way); fishing boats are
+## MapViewFishingBoatBuilder rescaled from its 0.88 m units (~5 m).
 ## Anchored hulls weathervane bow-to-wind and bob on a cheap swell; they carry
 ## no collision (Kalev swims around and under nothing).
 
-const COG_SCALE := 3.4
 const BOAT_SCALE := 0.88
-const COG_DRAFT := 0.55
 const ANCHORAGE_COGS := 7
 const LANDING_BOATS := 5
 ## The cog under way: a slow loop along the shore (metres per second).
@@ -19,8 +17,8 @@ const SAIL_SPEED := 2.2
 const SAIL_RADIUS := Vector2(420.0, 90.0)
 ## Boardable decks (half length, half beam, deck height above the waterline, metres):
 ## the usable part of the hull, inside the gunwales. Kalev swims alongside and
-## climbs aboard by stepping over the hull footprint.
-const COG_DECK := Vector3(9.6, 3.9, 2.9)
+## climbs aboard by stepping over the hull footprint. Cogs answer through
+## CogModel.walk_height (deck, cabins and the hold well).
 const BOAT_DECK := Vector3(2.1, 0.62, 0.38)
 ## Per CityBoats kind: (half length, half beam, floor height) of the boardable floor.
 const BOAT_DECKS := {
@@ -36,6 +34,8 @@ var _sailing: Node3D
 var _sail_center := Vector2.ZERO
 var _time := 0.0
 var _wind := Vector2(1, 0)
+## Built once per state and duplicated per hull (meshes are shared resources).
+var _cog_anchored: Node3D
 
 
 static func create(city_plan: CityPlan) -> CityShips:
@@ -56,6 +56,7 @@ func _build() -> void:
 	)
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 1343
+	_cog_anchored = CogModel.build(FactionHeraldry.HANSEATIC, CogModel.SAIL_FURLED, true)
 	# Cogs in water deeper than their draft, a few hundred metres out.
 	var placed: Array[Vector2] = []
 	var tries := 0
@@ -77,16 +78,21 @@ func _build() -> void:
 		_add_hull(p, false, rng)
 	# Kalamaja: small clinker boats drawn up on the sand beside the beach decks.
 	for boat: Dictionary in plan.data.get("harbour", {}).get("boats", []):
-		_add_hull(Vector2(boat["at"][0], boat["at"][1]), false, rng, float(boat["lift"]), float(boat["angle"]), StringName(boat.get("type", "clinker")))
+		_add_hull(
+			Vector2(boat["at"][0], boat["at"][1]),
+			false,
+			rng,
+			float(boat["lift"]),
+			float(boat["angle"]),
+			StringName(boat.get("type", "clinker"))
+		)
 	_sail_center = shore + Vector2(-80, -520)
 	_sailing = Node3D.new()
 	_sailing.name = "CogUnderWay"
-	var hull := Node3D.new()
-	hull.scale = Vector3.ONE * COG_SCALE
-	hull.position.y = -COG_DRAFT
-	MapViewMerchantBoatBuilder.add_to(hull, FactionHeraldry.HANSEATIC)
-	_sailing.add_child(hull)
+	_sailing.add_child(CogModel.build(FactionHeraldry.HANSEATIC, CogModel.SAIL_SET, false))
 	add_child(_sailing)
+	_cog_anchored.free()
+	_cog_anchored = null
 
 
 func _clear(p: Vector2, deeper_than: float, placed: Array[Vector2], spacing: float) -> bool:
@@ -107,9 +113,7 @@ func _add_hull(
 	root.position = Vector3(p.x, 0.0, p.y)
 	var hull := Node3D.new()
 	if cog:
-		hull.scale = Vector3.ONE * COG_SCALE
-		hull.position.y = -COG_DRAFT
-		MapViewMerchantBoatBuilder.add_to(hull, FactionHeraldry.HANSEATIC)
+		hull.add_child(_cog_anchored.duplicate())
 	elif kind == &"fishing":
 		hull.scale = Vector3.ONE * BOAT_SCALE
 		MapViewFishingBoatBuilder.add_to(hull)
@@ -142,10 +146,18 @@ func deck_height_at(world_xz: Vector2) -> float:
 		var node: Node3D = h["node"]
 		if not node.is_inside_tree():
 			continue
-		var deck: Vector3 = COG_DECK if bool(h["cog"]) else BOAT_DECKS.get(h["kind"], BOAT_DECK)
+		var local := (
+			node.global_transform.affine_inverse()
+			* Vector3(world_xz.x, node.global_position.y, world_xz.y)
+		)
+		if bool(h["cog"]):
+			var height := CogModel.walk_height(local.x, local.z)
+			if not is_nan(height):
+				return node.global_position.y + height
+			continue
+		var deck: Vector3 = BOAT_DECKS.get(h["kind"], BOAT_DECK)
 		if deck.x <= 0.0:
 			continue
-		var local := node.global_transform.affine_inverse() * Vector3(world_xz.x, node.global_position.y, world_xz.y)
 		# The hull tapers to the stems: the usable beam closes over the last quarter.
 		var taper := clampf((deck.x - absf(local.x)) / (deck.x * 0.3), 0.0, 1.0)
 		if absf(local.x) <= deck.x and absf(local.z) <= deck.y * taper:
@@ -173,10 +185,19 @@ func _process(delta: float) -> void:
 			-yaw,
 			sin(_time * 0.7 + phase * 1.3) * 0.05 * big
 		)
+		if bool(h["cog"]):
+			# The helm lazily works the rudder against the swing at anchor.
+			var rudder := CogModel.rudder_of(node.get_child(0).get_child(0) as Node3D)
+			if rudder != null:
+				rudder.rotation.y = sin(_time * 0.31 + phase) * 0.07
 		var lift: float = h["lift"]
 		node.position.y = lift if lift > 0.0 else sin(_time * 1.1 + phase) * 0.12 * big
 		if lift > 0.0:
 			node.rotation = Vector3(0.0, -float(h["yaw"]), 0.0)
+	var under_way_rudder := CogModel.rudder_of(_sailing.get_child(0) as Node3D)
+	if under_way_rudder != null:
+		# Constant helm of the long turn along the loop.
+		under_way_rudder.rotation.y = -0.1
 	var t := _time * SAIL_SPEED / SAIL_RADIUS.x
 	var at := _sail_center + Vector2(cos(t) * SAIL_RADIUS.x, sin(t) * SAIL_RADIUS.y)
 	var ahead := Vector2(-sin(t) * SAIL_RADIUS.x, cos(t) * SAIL_RADIUS.y).normalized()

@@ -8,7 +8,7 @@ Status: implemented (country and harbour pass of the seamless city, ADR 0031; bo
 - **Seabed.** The generator (`build_reval_city_plan.py`) shapes the bed with shore-parallel sandbars and troughs, undulation and boulder fields, so depth varies instead of one tilted plane. Beaches get berms and runnels near the water and drift-sand hummocks.
 - **Ground shader** (`city_ground.gdshader`): two sands, a dark wet strand, shingle just above the swash, and below the waterline weed, bare stone and ripple-marked sand.
 - **Shore dressing** (`CityShore`): granite erratics clustered in the shallows (with weed skirts), stone clusters, shingle lenses and wrack lines, reusing the district maps' CO-02 meshes. Deterministic from the plan heightfield.
-- **Boats.** `CityBoats` builds lofted clinker hulls: fishing clinker boat, skiff, flat-bottomed cargo lighter and the boat turned over on trestles. Cogs stay `MapViewMerchantBoatBuilder`. **Cogs, boats and lighters at anchor or beached can be boarded**: Kalev swims alongside and steps onto the hull (`CityShips.deck_height_at`, hooked into `CityPlan.walk_height` through `dynamic_deck`). The sailing cog under way cannot be boarded.
+- **Boats.** `CityBoats` builds lofted clinker hulls: fishing clinker boat, skiff, flat-bottomed cargo lighter and the boat turned over on trestles. Cogs are `CogModel` ([`SHIPS.md`](./SHIPS.md)). **Cogs, boats and lighters at anchor or beached can be boarded**: Kalev swims alongside and steps onto the hull (`CityShips.deck_height_at`, hooked into `CityPlan.walk_height` through `dynamic_deck`). The sailing cog under way cannot be boarded.
 - **Crane and shore furniture** (`CityHarbour`): a Hanseatic treadwheel crane (timber tower, spoked tread drum, jib with rope and hook) at the merchant landing, cargo stacks, net yards with pole racks.
 - **Fish** (`CityFish`): shoals of herring and a few perch circle in the clear shallows near Kalev.
 
@@ -34,7 +34,7 @@ godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_cit
 
 - The sea shader hides anything below about a metre of water, so fish only show in the shallows and boulders and weed deeper down are felt as colour, not seen. Fish were not seen in a plate; treat them as unverified until someone looks.
 - Storm swell is 5 times the district value; boats were not re-tuned for it, so a gale may bury a small boat's gunwale.
-- Deck heights are approximate: boarding a cog drops Kalev about 3 m onto the deck with no climb animation.
+- Boarding a cog drops Kalev onto the deck (`CogModel.walk_height`) with no climb animation.
 - The ground shader's seabed layers are cheap noise, not authored plates.
 - The Hareapea has no deep pools: it is wade-only. Trees are filtered at build time, not in the plan generator, so `plan.json` still lists them.
 - The moat still takes its water column from the depth texture; check it in perspective plates for the same clear-water fault.

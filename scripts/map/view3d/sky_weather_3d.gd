@@ -1678,6 +1678,7 @@ func _push_cloud_uniforms() -> void:
 	_material.set_shader_parameter(&"wind_dir", wind_direction_xz())
 	_publish_cloud_shadow_globals()
 
+	_material.set_shader_parameter(&"cloud_gloom", smoothstep(0.55, 0.95, cloud_coverage()))
 
 func cloud_shadow_enabled() -> bool:
 	return bool(_quality_settings()["cloud_shadow_enabled"])

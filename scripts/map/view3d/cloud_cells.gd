@@ -36,13 +36,18 @@ const METRES_PER_UV := 5000.0
 const CUMULUS_BASE := Vector2(600.0, 850.0)
 const CUMULUS_RADIUS := Vector2(160.0, 380.0)
 const CUMULUS_HEIGHT_RATIO := Vector2(0.7, 1.2)
+## A thunderstorm is a wide, squat mass, wider than it is tall (a squall cluster
+## several kilometres across), not a pillar with a mushroom cap.
 const STORM_BASE := Vector2(420.0, 560.0)
-const STORM_RADIUS := Vector2(520.0, 760.0)
-const STORM_HEIGHT := Vector2(1700.0, 2300.0)
+const STORM_RADIUS := Vector2(1100.0, 1700.0)
+const STORM_HEIGHT := Vector2(1300.0, 1900.0)
 ## Seconds per life (grow, hold, dissipate) per slot. Sized against the 60 s game
 ## day so the sky visibly turns over within one day.
 const CUMULUS_PERIOD := Vector2(36.0, 62.0)
-const STORM_PERIOD := Vector2(80.0, 120.0)
+const STORM_PERIOD := Vector2(150.0, 220.0)
+## Storm slots after the first are dormant for the rest of their cycle, so
+## thunderheads are rare: each shows for this share of its period.
+const STORM_ACTIVE_SHARE := 0.5
 const GROW_END := 0.22
 const DECAY_START := 0.72
 ## Lightning only charges in a storm cell that is grown and not yet collapsing.
@@ -51,7 +56,7 @@ const STORM_MATURE_WEIGHT := 0.5
 ## Footprint radius (x R) the ground shadow uses: mid-height for cumulus, the anvil
 ## spread for cumulonimbus. Mirrors cells_ground_shadow() in the shader include.
 const CUMULUS_FOOTPRINT := 0.94
-const STORM_FOOTPRINT := 1.35
+const STORM_FOOTPRINT := 1.1
 const CUMULUS_OPACITY := 0.82
 const STORM_OPACITY := 0.97
 const SEED := 24217
@@ -82,13 +87,14 @@ static func kind_of(slot: int) -> int:
 
 ## How many cumulus and cumulonimbus cells a weather profile shows. Fractions fade
 ## the next slot in, so a weather transition grows or thins the field smoothly.
-## Cumulus follow cover but thin out once a stratiform deck closes (overcast/rain
-## bury them); cumulonimbus need real storm development.
+## Cumulus are a blue-sky cloud: they peak at moderate cover and, once a deck closes,
+## are gone (the sky shader darkens the remaining ones toward rain-bearing grey, see
+## cloud_gloom). Cumulonimbus need real storm development.
 static func counts_for(coverage: float, storm: float) -> Vector2:
-	var deck := smoothstep(0.85, 1.0, coverage)
-	var cumulus := float(CUMULUS_SLOTS) * clampf((coverage - 0.05) / 0.6, 0.0, 1.0)
-	cumulus *= 1.0 - 0.6 * deck
-	var storms := float(STORM_SLOTS) * storm * smoothstep(0.3, 0.8, storm)
+	var deck := smoothstep(0.6, 0.92, coverage)
+	var cumulus := float(CUMULUS_SLOTS) * clampf((coverage - 0.05) / 0.5, 0.0, 1.0)
+	cumulus *= 1.0 - deck
+	var storms := float(STORM_SLOTS) * smoothstep(0.3, 1.0, storm)
 	return Vector2(cumulus, storms)
 
 
@@ -106,6 +112,11 @@ func update(clock: float, drift: Vector2, counts: Vector2) -> void:
 		var cycle := clock / period + _hash01(slot, 0, 2)
 		var generation := floori(cycle)
 		var life := cycle - float(generation)
+		var dormant := false
+		if storm and rank > 0:
+			# Only the first part of the cycle is alive; stretch it back to 0..1.
+			dormant = life > STORM_ACTIVE_SHARE
+			life = minf(life / STORM_ACTIVE_SHARE, 1.0)
 		var grow := smoothstep(0.0, GROW_END, life)
 		var decay := 1.0 - smoothstep(DECAY_START, 1.0, life)
 		var rand := func(salt: int) -> float: return _hash01(slot, generation, salt)
@@ -125,7 +136,7 @@ func update(clock: float, drift: Vector2, counts: Vector2) -> void:
 		# Storm cells also tower up as they grow, so a thunderhead visibly builds.
 		radii[slot] = radius * lerpf(0.55, 1.0, grow) * lerpf(0.85, 1.0, decay)
 		heights[slot] = height * (lerpf(0.35, 1.0, grow) if storm else lerpf(0.6, 1.0, grow))
-		weights[slot] = active * grow * decay
+		weights[slot] = 0.0 if dormant else active * grow * decay
 		lives[slot] = life
 		seeds[slot] = rand.call(8)
 

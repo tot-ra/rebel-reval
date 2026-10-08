@@ -47,6 +47,12 @@ In `storm` weather the falling rain is local: the rain particles and the roof-ra
 
 ![The same view with the cell 3 km away: dry](../reports/images/weather/cells_storm_rain_away.png)
 
+## Cloud shape and weather (follow-up)
+
+- **Cumulus are irregular.** `cell_density()` stretches each cell along a seeded axis (aspect 0.6-1.7), domain-warps it with large noise so the outline breaks into lobes, leans the top downwind (`wind_dir`), and erodes a cell that is still forming or dissolving into ragged fragments.
+- **Cumulus are a blue-sky cloud.** `CloudCells.counts_for()` peaks them at moderate cover and removes them once a deck closes (coverage 0.6-0.92). The remaining ones darken toward rain grey through the sky shader uniform `cloud_gloom` (`smoothstep(0.55, 0.95, coverage)`).
+- **Cumulonimbus are wide and rare.** Radius 1100-1700 m, height 1300-1900 m (wider than tall), no narrow stem: the profile is a broad mass, and a seeded anvil share (0 to 0.42) makes some flat-topped and some ragged. Storm slots after the first are alive for `STORM_ACTIVE_SHARE` (half) of a 150-220 s cycle only. Some storm shafts get a whiter, greenish hail tint. Hail as a gameplay or ground effect is not implemented.
+
 ## Saved state
 
 `SkyWeatherState` gains four optional fields (older saves default them): `cloud_cell_clock` (rebuilds the whole cell field together with `cloud_offset` and the profile), `lightning_origin`, `lightning_ground`, `lightning_kind`. See [`SKY_WEATHER_STATE_CONTRACT.md`](../SKY_WEATHER_STATE_CONTRACT.md).

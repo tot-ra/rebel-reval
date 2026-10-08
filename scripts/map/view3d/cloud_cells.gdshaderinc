@@ -12,7 +12,7 @@ const int CELL_SLOTS = 16;
 const float CELL_DOMAIN = 3200.0;
 const float CELL_STORM_DOMAIN = 9600.0;
 const float CELL_CU_FOOTPRINT = 0.94;
-const float CELL_CB_FOOTPRINT = 1.35;
+const float CELL_CB_FOOTPRINT = 1.1;
 const float CELL_CU_OPACITY = 0.82;
 const float CELL_CB_OPACITY = 0.97;
 // World units per billow-noise tile: ~90 m lumps on a cumulus flank.
@@ -34,14 +34,14 @@ vec2 cell_wrap_delta(vec2 p, vec2 c, float kind) {
 
 
 // Horizontal radius (x R) at normalised height h (0 base .. 1 top). Cumulus: flat
-// base and a rounded cauliflower dome. Cumulonimbus: a narrower tower that spreads
-// into a flat anvil near the tropopause.
-float cell_profile(float h, float kind) {
+// base and a rounded cauliflower dome. Cumulonimbus: a broad squat mass that
+// narrows only slightly with height; `seed` (0..1) decides how much anvil spreads
+// from the crown, so some storms are flat-topped, some ragged with no anvil at all.
+float cell_profile(float h, float kind, float seed) {
 	float cu = sqrt(max(1.0 - h * h, 0.0)) * mix(0.82, 1.0, smoothstep(0.0, 0.12, h));
-	// Broad rain-cooled base, a narrower updraft column, then the anvil.
-	float tower = mix(0.9, 0.55, smoothstep(0.0, 0.45, h));
-	float anvil = smoothstep(0.72, 0.9, h) * 1.5 * (1.0 - smoothstep(0.96, 1.0, h));
-	float cb = max(tower * (1.0 - smoothstep(0.92, 1.0, h)), anvil);
+	float tower = mix(0.95, 0.72, smoothstep(0.0, 0.7, h));
+	float anvil = smoothstep(0.7, 0.88, h) * mix(0.0, 0.42, fract(seed * 7.7)) * (1.0 - smoothstep(0.95, 1.0, h));
+	float cb = (tower + anvil) * (1.0 - smoothstep(0.9, 1.0, h));
 	return mix(cu, cb, kind);
 }
 
@@ -54,20 +54,36 @@ float cell_noise3(vec3 p, float scale, float seed, sampler3D noise3) {
 
 
 // Density 0..1 at offset `local` from the cell centre column (y is world height).
-// Large puffs swell the profile into separate turrets and lift the crown in
-// places (cauliflower); small puffs boil the surface. Edges stay fairly crisp:
-// a cumulus is a hard-edged body, not a soft fog ball.
-float cell_density(vec3 local, float world_y, vec4 a, vec4 b, sampler3D noise3, vec3 world_p) {
+// Every cell is its own shape: the footprint is stretched along a seeded axis,
+// domain-warped by large noise so it breaks into lobes, and leans downwind with
+// height (shear). Large puffs swell the profile into turrets; small puffs boil the
+// surface. A cell that is still forming or dissolving (weight < 1) is eroded into
+// ragged fragments instead of just thinning, so clouds get torn apart by the wind.
+float cell_density(vec3 local, float world_y, vec4 a, vec4 b, sampler3D noise3, vec3 world_p, vec2 wind) {
 	float h = (world_y - a.y) / max(b.x, 1.0);
 	if (h < 0.0 || h > 1.0) {
 		return 0.0;
 	}
 	float lump = cell_noise3(world_p, a.w * 2.0, b.w, noise3);
 	float crown = clamp(h / mix(0.75, 1.15, lump), 0.0, 1.0);
-	float r = a.w * cell_profile(crown, b.z) * mix(0.8, 1.15, lump);
+	// Seeded stretch axis and aspect (squall-line storms stretch the most).
+	float ang = fract(b.w * 13.7) * 3.14159;
+	vec2 ax = vec2(cos(ang), sin(ang));
+	float aspect = mix(0.6, 1.7, fract(b.w * 5.3)) * mix(1.0, 1.2, b.z);
+	vec2 q = local.xz;
+	// Lean downwind with height; cumulus tops shear harder than a storm's body.
+	q -= wind * (h * a.w * mix(0.35, 0.2, b.z) * (fract(b.w * 3.1) + 0.3));
+	vec2 along = ax * dot(q, ax);
+	q = (q - along) + along / aspect;
+	// Low-frequency warp breaks the round outline into separate lobes.
+	float warp_a = cell_noise3(world_p, a.w * 1.3, b.w + 0.2, noise3);
+	float warp_b = cell_noise3(world_p, a.w * 1.3, b.w + 0.7, noise3);
+	q += (vec2(warp_a, warp_b) - 0.5) * a.w * 0.9;
+	float r = a.w * cell_profile(crown, b.z, b.w) * mix(0.75, 1.2, lump);
 	float boil = cell_noise3(world_p, max(a.w * 0.6, 120.0), b.w + 0.5, noise3);
-	float dist = length(local.xz) / max(r, 1.0) + (0.5 - boil) * 0.35;
-	return smoothstep(1.0, 0.86, dist) * smoothstep(0.0, 0.03, h) * b.y;
+	float erode = (1.0 - clamp(b.y, 0.0, 1.0)) * (1.0 - boil) * 0.3;
+	float dist = length(q) / max(r, 1.0) + (0.5 - boil) * 0.4 + erode;
+	return smoothstep(1.0, 0.86, dist) * smoothstep(0.0, 0.03, h) * mix(b.y, 1.0, 0.6);
 }
 
 

@@ -78,6 +78,9 @@ uniform int cell_ray_samples : hint_range(0, 10) = 8;
 // Prevailing wind on the ground plane, used to comb cirrus streaks and to lean
 // the storm wall into the upwind quarter so the front reads as approaching.
 uniform vec2 wind_dir = vec2(0.928, 0.371);
+// 0..1: how much of the sky is a closing deck. Cumulus that are still there then
+// darken toward rain-bearing grey instead of staying fair-weather white.
+uniform float cloud_gloom : hint_range(0.0, 1.0) = 0.0;
 
 // Hipparcos stars live in equatorial coordinates in this nearest-filtered map.
 // The observer transform below turns each sky ray into right ascension and
@@ -328,7 +331,7 @@ vec4 cells_volume(
 		if (fade <= 0.0) {
 			continue;
 		}
-		float reach = a.w * mix(1.05, 1.55, b.z);
+		float reach = a.w * mix(1.7, 1.9, b.z);
 		vec3 cell_acc = vec3(0.0);
 		float cell_trans = 1.0;
 		float hit_t = 1e9;
@@ -345,7 +348,7 @@ vec4 cells_volume(
 				}
 				float t = hit.x + (float(s) + jitter) * dt;
 				vec3 p = ro + rd * t;
-				if (cell_density(vec3(p.x - c.x, 0.0, p.z - c.y), p.y, a, b, cell_noise, p) > 0.02) {
+				if (cell_density(vec3(p.x - c.x, 0.0, p.z - c.y), p.y, a, b, cell_noise, p, wind_dir) > 0.02) {
 					t_enter = max(t - dt, hit.x);
 					break;
 				}
@@ -365,7 +368,7 @@ vec4 cells_volume(
 					}
 					vec3 p = ro + rd * t;
 					vec3 local = vec3(p.x - c.x, 0.0, p.z - c.y);
-					float dens = cell_density(local, p.y, a, b, cell_noise, p);
+					float dens = cell_density(local, p.y, a, b, cell_noise, p, wind_dir);
 					if (dens < 0.002) {
 						continue;
 					}
@@ -376,7 +379,7 @@ vec4 cells_volume(
 							break;
 						}
 						vec3 lp = p + sun_direction * (a.w * 0.22 * float(l * l));
-						tau += cell_density(vec3(lp.x - c.x, 0.0, lp.z - c.y), lp.y, a, b, cell_noise, lp);
+						tau += cell_density(vec3(lp.x - c.x, 0.0, lp.z - c.y), lp.y, a, b, cell_noise, lp, wind_dir);
 					}
 					float h = clamp((p.y - a.y) / max(b.x, 1.0), 0.0, 1.0);
 					// Beer-Lambert toward the sun plus a weaker, longer octave for the
@@ -388,8 +391,10 @@ vec4 cells_volume(
 					light *= mix(0.7, 1.0, 1.0 - exp(-dens * 3.0));
 					// A thunderhead's lower body sits in its own shade.
 					light *= mix(1.0, smoothstep(0.0, 0.45, h), b.z * 0.8);
+						light *= 1.0 - 0.55 * cloud_gloom * (1.0 - b.z);
 					// Grey flat bases lit by skylight; storm towers darken hard toward the base.
-					float ambient = mix(0.62, 1.0, h) * mix(1.0, 0.4, b.z * (1.0 - h));
+					float gloom = cloud_gloom * (1.0 - b.z);
+						float ambient = mix(0.62, 1.0, h) * mix(1.0, 0.4, b.z * (1.0 - h)) * mix(1.0, 0.62, gloom);
 					vec3 skylit = mix(shade_col, lit_col, 0.35) * ambient;
 					vec3 col = mix(skylit, lit_col, light);
 					// Silver lining where the thin edge sits in front of the sun.
@@ -413,7 +418,7 @@ vec4 cells_volume(
 		float rain_t = 1e9;
 		if (b.z > 0.5) {
 			vec2 o = ro.xz - c;
-			float r = a.w * 0.55;
+			float r = a.w * 0.4;
 			float qa = dot(rd.xz, rd.xz);
 			float qb = dot(o, rd.xz);
 			float qc = dot(o, o) - r * r;
@@ -446,7 +451,8 @@ vec4 cells_volume(
 		vec3 body_col = cell_trans < 1.0 ? cell_acc / max(1.0 - cell_trans, 1e-4) : vec3(0.0);
 		// Aerial perspective: a distant thunderhead still reads as a solid body.
 		body_col = mix(body_col, haze_col, (1.0 - exp(-min(hit_t, 2e4) / 16000.0)) * 0.6);
-		vec3 shaft_col = rain_col + vec3(0.9, 0.94, 1.1) * flash * 0.6;
+		// Some storms carry hail: a whiter, greenish-tinged core in the shaft.
+		vec3 shaft_col = mix(rain_col, vec3(0.78, 0.86, 0.82), step(0.55, fract(b.w * 9.1)) * 0.5) + vec3(0.9, 0.94, 1.1) * flash * 0.6;
 		shaft_col = mix(shaft_col, haze_col, (1.0 - exp(-min(rain_t, 2e4) / 9000.0)) * 0.6);
 		// Cloud body over its own rain, then this cell over what lies behind it.
 		vec3 cell_col = body_col * body + shaft_col * rain * (1.0 - body);

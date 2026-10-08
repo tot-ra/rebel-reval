@@ -63,9 +63,9 @@ func _run() -> void:
 		var cells = sky.cloud_cells()
 		var eye := Vector3(-60, 30, -200)
 		var center := _near_copy(cells.centers[slot], eye, CloudCellsScript.KIND_STORM)
-		# Stand ~2.4 km from the thunderhead so the whole tower and its rain fit.
+		# Stand ~6 km off: storm cells are kilometres wide.
 		var away := Vector3(eye.x - center.x, 0, eye.z - center.z).normalized()
-		eye = Vector3(center.x, 30, center.z) + away * 4200.0
+		eye = Vector3(center.x, 30, center.z) + away * 6500.0
 		var look := Vector3(center.x, 1000, center.z)
 		for kind in [SkyWeather3D.LIGHTNING_KIND_GROUND, SkyWeather3D.LIGHTNING_KIND_CLOUD]:
 			var ground_stroke: bool = kind == SkyWeather3D.LIGHTNING_KIND_GROUND
