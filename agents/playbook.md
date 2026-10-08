@@ -215,3 +215,5 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 - OpenRouter credits are finite and bulk TTS regeneration burns them (HTTP 402 `Insufficient credits`). Before a `--force` regeneration of all takes, check `GET /api/v1/credits` (total_credits vs total_usage), and regenerate only the changed lines (delete just those mp3s and run without `--force`).
 
 - Delegation: if the only configured agent fails a one-line health-check task (for example "Model returned an empty final response"), stop re-dispatching and do the work in the parent session, telling the user that the requested parallel agents did not run.
+
+- Bulk task-board edits: the `tasks` MCP tool only returns 100 rows and has no bulk update. Use the brute HTTP API (`GET/PATCH localhost:5445/projects/<id>/tasks[/<ref>]`, JSON body with `priority`/`status`/`body`) from a script with a dry-run first.
