@@ -52,7 +52,7 @@ static func build(site: CitySite, plan: CityPlan) -> Node3D:
 	var body := CityBuildingBuilder.Shell.new()
 	var glass := CityBuildingBuilder.Shell.new()
 	var roof := CityBuildingBuilder.Shell.new()
-	Kit.walls(body, glass, church_fabric)
+	Kit.walls(body, glass, church_fabric, Kit.GLAZING.get(site.id, 0))
 	_gables(body)
 	_buttresses(body)
 	_tower(body, roof)
@@ -85,7 +85,7 @@ static func build(site: CitySite, plan: CityPlan) -> Node3D:
 	var cbody := CityBuildingBuilder.Shell.new()
 	var cglass := CityBuildingBuilder.Shell.new()
 	var croof := CityBuildingBuilder.Shell.new()
-	Kit.walls(cbody, cglass, chapel_fabric)
+	Kit.walls(cbody, cglass, chapel_fabric, Kit.GLAZING.get(site.id, 0))
 	Kit.stepped_gable(
 		cbody, 6.0, -1.0, 10.0, 16.0, 5.5, 5.5 + 3.0 * tan(deg_to_rad(50.0)) + 0.4, 2, 0.8, 1
 	)

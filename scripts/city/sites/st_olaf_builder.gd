@@ -47,7 +47,7 @@ static func build(site: CitySite, _plan: CityPlan) -> Node3D:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(String(site.id))
 	var fabric: Array = site.data["fabric"]
-	Kit.walls(body, glass, fabric)
+	Kit.walls(body, glass, fabric, Kit.GLAZING.get(site.id, 0))
 	_gables(body)
 	_tower_top(body, roof, rng)
 	_roofs(roof)

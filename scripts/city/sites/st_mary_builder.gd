@@ -48,7 +48,7 @@ static func build(site: CitySite, plan: CityPlan) -> Node3D:
 	var body := CityBuildingBuilder.Shell.new()
 	var glass := CityBuildingBuilder.Shell.new()
 	var roof := CityBuildingBuilder.Shell.new()
-	Kit.walls(body, glass, fabric)
+	Kit.walls(body, glass, fabric, Kit.GLAZING.get(site.id, 0))
 	for w: Dictionary in fabric:
 		if bool(w.get("ragged", false)):
 			_ragged(body, w, rng)

@@ -21,6 +21,7 @@ One page per implemented or planned feature. Each page opens with a `Status:` li
 | [Cloud cells, cloud shadows, storm-cell lightning](./CLOUD_CELLS.md) | Implemented (R-1400): world-space cumulus and cumulonimbus, per-cloud ground shadows, lightning only from storm cells |
 | [Seamless Reval city (1343)](./SEAMLESS_CITY.md) | Playable preview (ADR 0031); no quests or saves yet |
 | [Landmark sites in the seamless city](./CITY_LANDMARK_SITES.md) | Implemented for Raekoja plats (ADR 0032); other sites planned |
+| [Church interiors](./CHURCH_INTERIORS.md) | In progress (R-1392): glazing implemented (R-1393, eight plates, per-church programmes); liturgical objects, seating, wall paintings planned |
 | [City sea, shore and harbour life](./CITY_SEA.md) | Implemented (FFT sea with storm swell, beach relief, shore stones, boardable boats, fish) |
 | [Village and house windows](./COTTAGE_WINDOWS.md) | Implemented (7 styles: platbands, shutters, slit, stone surround) |
 | [Farmland, pastures and woods](./FARMLAND.md) | Implemented (fields, crops by date, pastures, woods; no far-field LOD yet) |

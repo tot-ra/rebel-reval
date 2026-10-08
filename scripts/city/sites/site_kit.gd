@@ -24,20 +24,33 @@ const STONE_NORMAL := "res://assets/materials/pbr/stone/stone_normal.png"
 const TIMBER_ALBEDO := "res://assets/materials/pbr/timber/timber_albedo.png"
 const TIMBER_NORMAL := "res://assets/materials/pbr/timber/timber_normal.png"
 
+## Glazing programme per church site: the row of PROGRAMMES in
+## city_stained_glass.gdshader that picks its window plates.
+const GLAZING := {
+	&"site.holy_spirit": 0,
+	&"site.st_olaf": 1,
+	&"site.st_nicholas": 2,
+	&"site.st_mary": 3,
+}
+
 static var _materials: Dictionary = {}
 
 
 ## Builds every wall of a fabric list into `shell` (stained glass into
-## `glass`, a separate shell so it can use its own material).
+## `glass`, a separate shell so it can use its own material). `glazing` is
+## the church's programme from GLAZING (which plates its windows show).
 static func walls(
-	shell: CityBuildingBuilder.Shell, glass: CityBuildingBuilder.Shell, fabric: Array
+	shell: CityBuildingBuilder.Shell, glass: CityBuildingBuilder.Shell, fabric: Array, glazing := 0
 ) -> void:
 	for w: Dictionary in fabric:
-		wall(shell, glass, w)
+		wall(shell, glass, w, glazing)
 
 
 static func wall(
-	shell: CityBuildingBuilder.Shell, glass: CityBuildingBuilder.Shell, w: Dictionary
+	shell: CityBuildingBuilder.Shell,
+	glass: CityBuildingBuilder.Shell,
+	w: Dictionary,
+	glazing := 0
 ) -> void:
 	var a := _v2(w["a"])
 	var b := _v2(w["b"])
@@ -90,7 +103,7 @@ static func wall(
 		_reveal(shell, outer, inner, o, _opening(op, true), dir)
 		var lights := int(op.get("lights", 1))
 		if bool(op.get("glass", false)):
-			_glass(glass, a, dir, out, thick * 0.3, o, lights)
+			_glass(glass, a, dir, out, thick * 0.3, o, lights, glazing)
 		if lights > 1:
 			_tracery(shell, a, dir, out, thick * 0.3, o, lights)
 		if kind == "louvre":
@@ -305,14 +318,23 @@ static func _glass(
 	out: Vector2,
 	inset: float,
 	o: Dictionary,
-	lights := 1
+	lights := 1,
+	programme := 0
 ) -> void:
 	var pts := outline(o)
 	var s0 := float(o["s"])
 	var sill := float(o["sill"])
 	var w := float(o["w"])
-	# COLOR: r = width / 4, g = pattern seed, b = number of lights / 4.
-	var c := Color(w / 4.0, fposmod(float(o["seed"]) * 0.37, 1.0), lights / 4.0)
+	# COLOR: r = width / 4, b = number of lights / 4, a = height / 8 (the
+	# shader stacks plate panels over the light). g packs the church's glazing
+	# programme and a per-window seed into one exact 8-bit value.
+	var seed_k := posmod(int(roundf(float(o["seed"]) * 3.0)), 16)
+	var c := Color(
+		w / 4.0,
+		float(programme * 16 + seed_k) / 255.0,
+		lights / 4.0,
+		clampf((_top(o) - sill) / 8.0, 0.05, 1.0)
+	)
 	var at := func(p: Vector2) -> Vector3:
 		var q := a + dir * p.x - out * inset
 		return Vector3(q.x, p.y, q.y)
@@ -887,6 +909,7 @@ static func material_for(key: String) -> Material:
 		"glass":
 			var gs := ShaderMaterial.new()
 			gs.shader = GLASS
+			gs.set_shader_parameter("plates", load("res://assets/textures/churches/glass/glass_plates.png"))
 			mat = gs
 		"ashlar":
 			var std := StandardMaterial3D.new()

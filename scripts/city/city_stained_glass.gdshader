@@ -2,72 +2,65 @@ shader_type spatial;
 render_mode blend_mix, depth_draw_opaque, cull_disabled, unshaded;
 
 // Leaded stained glass for church lancets (plausible composite for Reval 1343
-// after 13th-14th-century Gotland parish glazing): a border of ruby and cobalt
-// pieces, a column of round medallions in saturated pot-metal colours, and
-// grisaille quarries between them, all held in dark lead cames. UV is metres
-// across the light (u from its left edge, v up from the sill), so every
-// window keeps the same piece size. Seen from inside (back face, the mesh
-// normal points outdoors) it glows with daylight; from outside it is dark
-// glass with a faint sky sheen.
+// after 13th-14th-century Gotland parish glazing). Each light shows a column
+// of painted panels from the plate array (flat Romanesque / early Gothic
+// figures and grisaille, generated), joined by dark saddle bars. UV is metres
+// across the light (u from its left edge, v up from the sill). Seen from
+// inside (back face, the mesh normal points outdoors) it glows with daylight;
+// from outside it is dark glass with a faint sky sheen.
 
 #include "res://scripts/city/city_weathering.gdshaderinc"
 
 uniform float daylight = 1.0;
+// assets/textures/churches/glass/glass_plates.png, one layer per plate in the
+// order of tools/build_church_glass_plates.py (0 Crucifixion, 1 Virgin and
+// Child, 2 Annunciation, 3 St Olaf, 4 St Nicholas, 5 St Mary, 6 St Catherine,
+// 7 grisaille foliage).
+uniform sampler2DArray plates : source_color, filter_linear_mipmap, repeat_disable;
 
-vec3 pot_metal(float k) {
-	if (k < 0.3) return vec3(0.62, 0.04, 0.05); // ruby
-	if (k < 0.55) return vec3(0.07, 0.16, 0.58); // cobalt
-	if (k < 0.72) return vec3(0.85, 0.62, 0.1); // silver-stain yellow
-	if (k < 0.86) return vec3(0.12, 0.42, 0.2); // green
-	return vec3(0.42, 0.13, 0.36); // murrey
-}
+// Plate width / height (512 x 768).
+const float PLATE_ASPECT = 0.6667;
+// Glazing programme per church, six panels each, cycled across the window
+// (index from SiteKit.GLAZING): the patron and Marian panels first, grisaille
+// between them as in parish glazing of the period.
+const int PROGRAMMES[24] = {
+	0, 2, 7, 1, 6, 7, // 0 Holy Spirit (hospital church: Passion and Marian cycle)
+	3, 1, 7, 0, 2, 7, // 1 St Olaf
+	4, 1, 7, 0, 6, 7, // 2 St Nicholas (and its St Barbara chapel)
+	5, 1, 7, 2, 0, 7 // 3 St Mary
+};
 
 void fragment() {
-	// Vertex colour: r = window width / 4, g = seed, b = lights / 4. Each
-	// light of a multi-light window gets its own border and medallions.
+	// Vertex colour: r = window width / 4, b = lights / 4, a = height / 8,
+	// g = (programme * 16 + seed) / 255 (exact in the 8-bit vertex colour).
 	float lights = max(1.0, floor(COLOR.b * 4.0 + 0.5));
 	float width = COLOR.r * 4.0 / lights;
-	float seed = COLOR.g * 10.0 + floor(UV.x / width);
+	float height = max(COLOR.a * 8.0, 0.5);
+	int code = int(COLOR.g * 255.0 + 0.5);
+	int programme = clamp(code / 16, 0, 3);
+	int seed = code % 16;
+	int light = int(floor(UV.x / width));
 	vec2 uv = vec2(mod(UV.x, width), UV.y);
-	float border = 0.07;
-	vec3 col;
-	float lead = 0.0;
-	if (uv.x < border || uv.x > width - border) {
-		// Border: alternating short pieces.
-		float k = floor(uv.y / 0.16);
-		col = mod(k, 2.0) < 1.0 ? vec3(0.62, 0.04, 0.05) : vec3(0.07, 0.16, 0.58);
-		lead = 1.0 - smoothstep(0.0, 0.012, min(fract(uv.y / 0.16), 1.0 - fract(uv.y / 0.16)) * 0.16);
-		lead = max(lead, 1.0 - smoothstep(0.0, 0.015, min(abs(uv.x - border), abs(uv.x - (width - border)))));
-	} else {
-		float cx = width * 0.5;
-		float cell = floor(uv.y / 0.95);
-		vec2 c = vec2(cx, cell * 0.95 + 0.5);
-		float r = length(uv - c);
-		float radius = (width - 2.0 * border) * 0.42;
-		if (r < radius) {
-			// Medallion: rings and quarters of colour around a figure ground.
-			float ang = atan(uv.y - c.y, uv.x - c.x);
-			float ring = step(radius * 0.82, r);
-			float sector = floor((ang + 3.1416) / 1.5708);
-			float k = wh(vec2(cell + seed * 7.0, sector + ring * 5.0));
-			col = ring > 0.5 ? vec3(0.62, 0.04, 0.05) : pot_metal(k);
-			lead = 1.0 - smoothstep(0.0, 0.02, abs(r - radius * 0.82));
-			// Lead between the quarters of the inner field.
-			float spoke = min(abs(uv.x - c.x), abs(uv.y - c.y));
-			lead = max(lead, (1.0 - ring) * (1.0 - smoothstep(0.0, 0.012, spoke)));
-			lead = max(lead, 1.0 - smoothstep(0.0, 0.02, abs(r - radius)));
-		} else {
-			// Grisaille quarries: diamond lattice of greenish white glass.
-			vec2 q = vec2((uv.x + uv.y) / 0.22, (uv.x - uv.y) / 0.22);
-			vec2 fq = abs(fract(q) - 0.5);
-			lead = 1.0 - smoothstep(0.0, 0.06, min(0.5 - fq.x, 0.5 - fq.y));
-			float k = wh(floor(q) + seed);
-			col = vec3(0.68, 0.72, 0.6) * (0.85 + k * 0.2);
-		}
+	// A tall narrow light gets a column of panels instead of one plate
+	// squeezed into a strip: each panel stays within ~1.3x of the plate's
+	// own proportions. The pointed head simply clips the top panel.
+	float panels = max(1.0, floor(height * PLATE_ASPECT / width / 1.3 + 0.5));
+	float panel_h = height / panels;
+	float row = min(floor(uv.y / panel_h), panels - 1.0);
+	float pv = uv.y - row * panel_h;
+	// Neighbouring lights and stacked panels walk the programme, so no two
+	// adjacent figure panels repeat.
+	int slot = (seed + light + int(row) * int(lights)) % 6;
+	float layer = float(PROGRAMMES[programme * 6 + slot]);
+	vec2 pu = vec2(clamp(uv.x / width, 0.0, 1.0), 1.0 - clamp(pv / panel_h, 0.0, 1.0));
+	vec3 col = texture(plates, vec3(pu, layer)).rgb;
+	// Iron saddle bar between stacked panels.
+	float joint = clamp(floor(uv.y / panel_h + 0.5), 1.0, max(panels - 1.0, 1.0));
+	if (panels > 1.0) {
+		col = mix(vec3(0.04), col, smoothstep(0.012, 0.025, abs(uv.y - joint * panel_h)));
 	}
-	// Each piece is a little uneven in thickness and colour.
-	col *= 0.85 + wnoise(uv * 23.0 + seed) * 0.3;
-	col = mix(col, vec3(0.05, 0.05, 0.05), clamp(lead, 0.0, 1.0));
+	// Pot-metal glass is a little uneven in thickness and colour.
+	col *= 0.9 + wnoise(uv * 23.0 + float(seed)) * 0.2;
 	if (FRONT_FACING) {
 		// Outside: dark glass with a cool sky sheen.
 		ALBEDO = col * 0.18 + vec3(0.05, 0.07, 0.09);
